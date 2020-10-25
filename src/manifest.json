@@ -1,13 +1,21 @@
 {
   "manifest_version": 2,
   "name": "__MSG_extName__",
-  "homepage_url": "http://localhost:8080/",
+  "homepage_url": "https://github.com/ronggang/PT-Plugin-Plus",
   "description": "A Vue Browser Extension",
   "default_locale": "en",
   "permissions": [
     "activeTab",
+    "clipboardRead",
+    "clipboardWrite",
+    "storage",
+    "contextMenus",
+    "notifications",
     "<all_urls>",
-    "*://*/*"
+    "*://*/*",
+    "unlimitedStorage",
+    "downloads",
+    "cookies"
   ],
   "icons": {
     "16": "icons/16.png",
@@ -17,11 +25,20 @@
   "background": {
     "scripts": [
       "js/background.js"
-    ],
-    "persistent": false
+    ]
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "js/content-script.js"
+      ]
+    }
+  ],
   "browser_action": {
-    "default_popup": "popup.html",
     "default_title": "__MSG_extName__",
     "default_icon": {
       "19": "icons/19.png",
@@ -30,6 +47,10 @@
   },
   "options_ui": {
     "page": "options.html",
-    "browser_style": true
+    "open_in_tab": true
+  },
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "omnibox": {
+    "keyword": "pt"
   }
 }
