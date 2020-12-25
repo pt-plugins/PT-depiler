@@ -1,8 +1,12 @@
+import axios from 'axios'
 import { browser } from 'webextension-polyfill-ts'
 
-browser.runtime.onMessage.addListener(async (msg, sender) => {
+browser.runtime.onMessage.addListener((msg, sender): Promise<any> => {
   console.log('BG page received message', msg, 'from', sender)
-  console.log('Stored data', await browser.storage.local.get())
+  if (msg.type === 'axiosMessagingAdapterRequest') {
+    return Promise.resolve(axios(msg.config))
+  }
+  return Promise.resolve()
 })
 
 browser.browserAction.onClicked.addListener(async () => {

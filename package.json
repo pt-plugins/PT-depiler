@@ -1,13 +1,22 @@
 {
-  "name": "ptpp-next",
-  "version": "0.1.0",
+  "name": "pt-plugin-plus",
+  "version": "1.5.0",
   "private": true,
+  "author": {
+    "name": "ronggang",
+    "url": "https://github.com/ronggang"
+  },
+  "archiverName": "PT-Plugin-Plus",
+  "displayName": "PT 助手 Plus",
+  "homepage": "https://github.com/ronggang/PT-Plugin-Plus",
   "scripts": {
     "serve": "vue-cli-service build --mode development --watch",
+    "devtools": "vue-devtools",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "ant-design-vue": "^1.6.5",
     "axios": "^0.20.0",
     "core-js": "^3.6.5",
     "vue": "^2.6.11",
