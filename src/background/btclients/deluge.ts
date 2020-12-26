@@ -21,8 +21,11 @@ export const defaultDelugeConfig: TorrentClientConfig = {
 
 // 定义Deluge的介绍文字
 export const DelugeMetaData: TorrentClientMetaData = {
-  description: '通过PyGTK建立图形界面的BitTorrent客户端',
-  warning: '注意：由于 Deluge 验证机制限制，第一次测试连接成功后，后续测试无论密码正确与否都会提示成功。',
+  description: 'Deluge 是一个通过PyGTK建立图形界面的BitTorrent客户端',
+  warning: [
+    '仅支持Deluge Web，非Deluge Daemon的直接支持，具体原因请见 issue #207',
+    '注意：由于 Deluge 验证机制限制，第一次测试连接成功后，后续测试无论密码正确与否都会提示成功。'
+  ],
   allowCustomPath: true,
   pathDescription: '当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/ 或 D:\\download\\music\\'
 }
@@ -30,7 +33,6 @@ export const DelugeMetaData: TorrentClientMetaData = {
 // 定义Deluge的实例
 export default class Deluge implements TorrentClient {
   readonly version = 'v0.1.0';
-
   readonly config: TorrentClientConfig;
 
   private readonly address: string;
@@ -190,7 +192,7 @@ export default class Deluge implements TorrentClient {
       const res = await this.request('auth.login', [this.config.password])
       const data: DelugeBooleanStatus = res.data
       this.isLogin = data.result
-      return data.result
+      return this.isLogin
     } catch (e) {
       return false
     }
