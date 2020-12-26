@@ -1,3 +1,6 @@
+/**
+ * @see https://deluge.readthedocs.io/en/develop/reference/index.html
+ */
 import {
   AddTorrentOptions,
   Torrent,
@@ -216,12 +219,12 @@ export default class Deluge implements TorrentClient {
   }
 }
 
-export type DelugeMethod =
+type DelugeMethod =
   'auth.login' | 'web.update_ui' | 'core.get_torrents_status' |
   'core.add_torrent_url' | 'core.add_torrent_file' |
   'core.remove_torrent' | 'core.pause_torrent' | 'core.resume_torrent'
 
-export interface DelugeDefaultResponse {
+interface DelugeDefaultResponse {
   /**
    * mostly usless id that increments with every request
    */
@@ -230,7 +233,7 @@ export interface DelugeDefaultResponse {
   result: any;
 }
 
-export type DelugeTorrentField =
+type DelugeTorrentField =
   'comment'
   | 'active_time'
   | 'is_seed'
@@ -292,7 +295,7 @@ export type DelugeTorrentField =
   | 'is_finished'
   | 'label' // if they don't have the label plugin it shouldn't fail
 
-export interface DelugeRawTorrent {
+interface DelugeRawTorrent {
   hash: string,
   name: string,
   progress: number,
@@ -306,11 +309,11 @@ export interface DelugeRawTorrent {
   'total_size': number
 }
 
-export interface DelugeTorrentFilterRules extends TorrentFilterRules {
+interface DelugeTorrentFilterRules extends TorrentFilterRules {
   hash?: string,
   state?: string
 }
 
-export interface DelugeBooleanStatus extends DelugeDefaultResponse {
+interface DelugeBooleanStatus extends DelugeDefaultResponse {
   result: boolean;
 }

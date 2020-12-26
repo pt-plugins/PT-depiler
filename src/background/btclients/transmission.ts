@@ -217,19 +217,19 @@ export default class Transmission implements TorrentClient {
   }
 }
 
-export interface TransmissionBaseResponse {
+interface TransmissionBaseResponse {
   arguments: any;
   result: 'success' | string;
   tag?: number
 }
 
-export interface TransmissionTorrentGetResponse extends TransmissionBaseResponse {
+interface TransmissionTorrentGetResponse extends TransmissionBaseResponse {
   arguments: {
     torrents: rawTorrent[]
   }
 }
 
-export interface AddTorrentResponse extends TransmissionBaseResponse {
+interface AddTorrentResponse extends TransmissionBaseResponse {
   arguments: {
     'torrent-added': {
       id: number;
@@ -239,13 +239,13 @@ export interface AddTorrentResponse extends TransmissionBaseResponse {
   };
 }
 
-export type TransmissionTorrentIds = number | Array<number | string> | 'recently-active'
+type TransmissionTorrentIds = number | Array<number | string> | 'recently-active'
 
-export type TransmissionRequestMethod =
+type TransmissionRequestMethod =
   'session-get' | 'session-stats' |
   'torrent-get' | 'torrent-add' | 'torrent-start' | 'torrent-stop' | 'torrent-remove'
 
-export interface TransmissionAddTorrentOptions extends AddTorrentOptions {
+interface TransmissionAddTorrentOptions extends AddTorrentOptions {
   'download-dir': string,
   filename: string,
   metainfo: string,
@@ -253,37 +253,37 @@ export interface TransmissionAddTorrentOptions extends AddTorrentOptions {
 
 }
 
-export interface TransmissionTorrent extends Torrent {
+interface TransmissionTorrent extends Torrent {
   id: number | string;
 }
 
-export interface TransmissionTorrentFilterRules extends TorrentFilterRules {
+interface TransmissionTorrentFilterRules extends TorrentFilterRules {
   ids?: TransmissionTorrentIds;
 }
 
-export interface TransmissionArguments {
+interface TransmissionArguments {
 
 }
 
-export interface TransmissionTorrentBaseArguments extends TransmissionArguments {
+interface TransmissionTorrentBaseArguments extends TransmissionArguments {
   ids?: TransmissionTorrentIds
 }
 
-export interface TransmissionTorrentGetArguments extends TransmissionTorrentBaseArguments {
+interface TransmissionTorrentGetArguments extends TransmissionTorrentBaseArguments {
   fields: TransmissionTorrentsField[]
 }
 
-export interface TransmissionTorrentRemoveArguments extends TransmissionTorrentBaseArguments {
+interface TransmissionTorrentRemoveArguments extends TransmissionTorrentBaseArguments {
   'delete-local-data'?: boolean
 }
 
-export interface TransmissionTorrentClientConfig extends TorrentClientConfig {
+interface TransmissionTorrentClientConfig extends TorrentClientConfig {
   username: string;
   password: string;
 }
 
 // 这里只写出了部分我们需要的
-export interface rawTorrent {
+interface rawTorrent {
   addedDate: number,
   id: number,
   hashString: string,
@@ -298,7 +298,7 @@ export interface rawTorrent {
   labels: string[]
 }
 
-export type TransmissionTorrentsField =
+type TransmissionTorrentsField =
   'activityDate'
   | 'addedDate'
   | 'bandwidthPriority'

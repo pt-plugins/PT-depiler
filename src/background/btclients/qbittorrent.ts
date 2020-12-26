@@ -1,4 +1,6 @@
 /**
+ * @see https://github.com/qbittorrent/qBittorrent/wiki/Web-API-Documentation
+ *
  * 注意，因为使用驼峰命名的形式，所以qBittorrent在各变量命名中均写成 Qbittorrent
  */
 import {
@@ -10,7 +12,7 @@ import {
 } from '@/interfaces/btclients'
 import axios, { AxiosResponse, Method } from 'axios'
 import urljoin from 'url-join'
-import { getRandomInt } from '@/utils/common'
+import { getRandomInt, normalizePieces } from '@/utils/common'
 
 export enum QbittorrentTorrentState {
   /**
@@ -115,13 +117,6 @@ export const QbittorrentMetaData: TorrentClientMetaData = {
   pathDescription: '当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/ 或 D:\\download\\music\\'
 }
 
-function normalizeQbittorrentHashes (hashs: string | string[]): string {
-  if (Array.isArray(hashs)) {
-    return hashs.join('|')
-  }
-  return hashs
-}
-
 export default class Qbittorrent implements TorrentClient {
   readonly version = 'v0.1.0';
   readonly config: QbittorrentTorrentClientConfig;
@@ -216,7 +211,7 @@ export default class Qbittorrent implements TorrentClient {
 
   async getTorrentsBy (filter: QbittorrentTorrentFilterRules): Promise<QbittorrentTorrent[]> {
     if (filter.hashes) {
-      filter.hashes = normalizeQbittorrentHashes(filter.hashes)
+      filter.hashes = normalizePieces(filter.hashes, '|')
     }
 
     // 将通用项处理成qbt对应的项目
@@ -299,7 +294,7 @@ export default class Qbittorrent implements TorrentClient {
 
   async pauseTorrent (hashes: string | string[] | 'all'): Promise<boolean> {
     const params = {
-      hashes: normalizeQbittorrentHashes(hashes)
+      hashes: normalizePieces(hashes, '|')
     }
 
     await this.request('GET', '/torrents/pause', params)
@@ -308,7 +303,7 @@ export default class Qbittorrent implements TorrentClient {
 
   async removeTorrent (hashes: any, removeData: boolean = false): Promise<boolean> {
     const params = {
-      hashes: normalizeQbittorrentHashes(hashes),
+      hashes: normalizePieces(hashes, '|'),
       removeData
     }
     await this.request('GET', '/torrents/delete', params)
@@ -317,7 +312,7 @@ export default class Qbittorrent implements TorrentClient {
 
   async resumeTorrent (hashes: string | string[] | 'all'): Promise<any> {
     const params = {
-      hashes: normalizeQbittorrentHashes(hashes)
+      hashes: normalizePieces(hashes, '|')
     }
     await this.request('GET', '/torrents/resume', params)
     return true
@@ -326,17 +321,17 @@ export default class Qbittorrent implements TorrentClient {
 
 type TrueFalseStr = 'true' | 'false';
 
-export interface QbittorrentTorrent extends Torrent {
+interface QbittorrentTorrent extends Torrent {
   id: string;
 }
 
 // 强制要求填写用户名和密码
-export interface QbittorrentTorrentClientConfig extends TorrentClientConfig {
+interface QbittorrentTorrentClientConfig extends TorrentClientConfig {
   username: string;
   password: string;
 }
 
-export interface QbittorrentTorrentFilterRules extends TorrentFilterRules {
+interface QbittorrentTorrentFilterRules extends TorrentFilterRules {
   hashes?: string|string[];
   filter?: QbittorrentTorrentFilters;
   category?: string;
@@ -345,7 +340,7 @@ export interface QbittorrentTorrentFilterRules extends TorrentFilterRules {
   reverse?: boolean|TrueFalseStr;
 }
 
-export interface QbittorrentAddTorrentOptions extends AddTorrentOptions {
+interface QbittorrentAddTorrentOptions extends AddTorrentOptions {
   /**
    * Download folder
    */
@@ -398,7 +393,7 @@ export interface QbittorrentAddTorrentOptions extends AddTorrentOptions {
   firstLastPiecePrio: TrueFalseStr;
 }
 
-export type QbittorrentTorrentFilters =
+type QbittorrentTorrentFilters =
   | 'all'
   | 'downloading'
   | 'completed'
@@ -410,7 +405,7 @@ export type QbittorrentTorrentFilters =
   | 'stalled_uploading'
   | 'stalled_downloading';
 
-export interface rawTorrent {
+interface rawTorrent {
   /**
    * Torrent name
    */
