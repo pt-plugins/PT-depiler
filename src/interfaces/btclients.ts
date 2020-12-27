@@ -4,12 +4,12 @@
  */
 export type clientType =
   'qbittorrent'
-  | 'utorrent'
   | 'deluge'
   | 'transmission'
-  | 'synologyDownloadStation'
-  | 'ruTorrent'
-  | 'flood'
+  // TODO | 'synologyDownloadStation'
+  // TODO | 'utorrent'
+  // TODO | 'ruTorrent'
+  // TODO | 'flood'
 
 /**
  * 客户端配置信息
@@ -119,6 +119,24 @@ export interface Torrent {
    * total size of the torrent, in bytes
    */
   totalSize: number;
+
+  /**
+   * bytes per second
+   */
+  uploadSpeed: number;
+  /**
+   * bytes per second
+   */
+  downloadSpeed: number;
+
+  /**
+   * total upload in bytes
+   */
+  totalUploaded: number;
+  /**
+   * total download in bytes
+   */
+  totalDownloaded: number;
 }
 
 export enum TorrentState {

@@ -1,7 +1,7 @@
 /**
  * @see https://github.com/qbittorrent/qBittorrent/wiki/Web-API-Documentation
  *
- * 注意，因为使用驼峰命名的形式，所以qBittorrent在各变量命名中均写成 Qbittorrent
+ * 注意，因为使用大驼峰命名的形式，所以qBittorrent在各变量命名中均写成 Qbittorrent
  */
 import {
   AddTorrentOptions,
@@ -275,7 +275,11 @@ export default class Qbittorrent implements TorrentClient {
         label: torrent.category,
         savePath: torrent.save_path,
         totalSize: torrent.total_size,
-        ratio: torrent.ratio
+        ratio: torrent.ratio,
+        uploadSpeed: torrent.upspeed,
+        downloadSpeed: torrent.dlspeed,
+        totalUploaded: torrent.uploaded,
+        totalDownloaded: torrent.downloaded
       } as Torrent
     })
   }
@@ -285,34 +289,33 @@ export default class Qbittorrent implements TorrentClient {
   }
 
   async getTorrent (id: any): Promise<QbittorrentTorrent> {
-    const resp = await this.getTorrentsBy({
-      hashes: id
-    })
-
-    return resp[0]
+    return (await this.getTorrentsBy({ hashes: id }))[0]
   }
 
+  // 注意方法虽然支持一次对多个种子进行操作，但仍建议每次均只操作一个种子
   async pauseTorrent (hashes: string | string[] | 'all'): Promise<boolean> {
     const params = {
-      hashes: normalizePieces(hashes, '|')
+      hashes: hashes === 'all' ? 'all' : normalizePieces(hashes, '|')
     }
 
     await this.request('GET', '/torrents/pause', params)
     return true
   }
 
-  async removeTorrent (hashes: any, removeData: boolean = false): Promise<boolean> {
+  // 注意方法虽然支持一次对多个种子进行操作，但仍建议每次均只操作一个种子
+  async removeTorrent (hashes: string | string[] | 'all', removeData: boolean = false): Promise<boolean> {
     const params = {
-      hashes: normalizePieces(hashes, '|'),
+      hashes: hashes === 'all' ? 'all' : normalizePieces(hashes, '|'),
       removeData
     }
     await this.request('GET', '/torrents/delete', params)
     return true
   }
 
+  // 注意方法虽然支持一次对多个种子进行操作，但仍建议每次均只操作一个种子
   async resumeTorrent (hashes: string | string[] | 'all'): Promise<any> {
     const params = {
-      hashes: normalizePieces(hashes, '|')
+      hashes: hashes === 'all' ? 'all' : normalizePieces(hashes, '|')
     }
     await this.request('GET', '/torrents/resume', params)
     return true
@@ -356,8 +359,7 @@ interface QbittorrentAddTorrentOptions extends AddTorrentOptions {
   /**
    * Skip hash checking. Possible values are true, false (default)
    */
-  // eslint-disable-next-line camelcase
-  skip_checking: TrueFalseStr;
+  'skip_checking': TrueFalseStr;
   /**
    * Add torrents in the paused state. Possible values are true, false (default)
    */
@@ -365,8 +367,7 @@ interface QbittorrentAddTorrentOptions extends AddTorrentOptions {
   /**
    * Create the root folder. Possible values are true, false, unset (default)
    */
-  // eslint-disable-next-line camelcase
-  root_folder: TrueFalseStr | null;
+  'root_folder': TrueFalseStr | null;
   /**
    * Rename torrent
    */
@@ -411,13 +412,11 @@ interface rawTorrent {
    */
   name: string;
   hash: string;
-  // eslint-disable-next-line camelcase
-  magnet_uri: string;
+  'magnet_uri': string;
   /**
    * datetime in seconds
    */
-  // eslint-disable-next-line camelcase
-  added_on: number;
+  'added_on': number;
   /**
    * Torrent size
    */
@@ -441,23 +440,19 @@ interface rawTorrent {
   /**
    * Torrent seeds connected to
    */
-  // eslint-disable-next-line camelcase
-  num_seeds: number;
+  'num_seeds': number;
   /**
    * Torrent seeds in the swarm
    */
-  // eslint-disable-next-line camelcase
-  num_complete: number;
+  'num_complete': number;
   /**
    * Torrent leechers connected to
    */
-  // eslint-disable-next-line camelcase
-  num_leechs: number;
+  'num_leechs': number;
   /**
    * Torrent leechers in the swarm
    */
-  // eslint-disable-next-line camelcase
-  num_incomplete: number;
+  'num_incomplete': number;
   /**
    * Torrent share ratio
    */
@@ -473,18 +468,15 @@ interface rawTorrent {
   /**
    * Torrent sequential download state
    */
-  // eslint-disable-next-line camelcase
-  seq_dl: boolean;
+  'seq_dl': boolean;
   /**
    * Torrent first last piece priority state
    */
-  // eslint-disable-next-line camelcase
-  f_l_piece_prio: boolean;
+  'f_l_piece_prio': boolean;
   /**
    * Torrent copletion datetime in seconds
    */
-  // eslint-disable-next-line camelcase
-  completion_on: number;
+  'completion_on': number;
   /**
    * Torrent tracker
    */
@@ -492,13 +484,11 @@ interface rawTorrent {
   /**
    * Torrent download limit
    */
-  // eslint-disable-next-line camelcase
-  dl_limit: number;
+  'dl_limit': number;
   /**
    * Torrent upload limit
    */
-  // eslint-disable-next-line camelcase
-  up_limit: number;
+  'up_limit': number;
   /**
    * Amount of data downloaded
    */
@@ -510,23 +500,19 @@ interface rawTorrent {
   /**
    * Amount of data downloaded since program open
    */
-  // eslint-disable-next-line camelcase
-  downloaded_session: number;
+  'downloaded_session': number;
   /**
    * Amount of data uploaded since program open
    */
-  // eslint-disable-next-line camelcase
-  uploaded_session: number;
+  'uploaded_session': number;
   /**
    * Amount of data left to download
    */
-  // eslint-disable-next-line camelcase
-  amount_left: number;
+  'amount_left': number;
   /**
    * Torrent save path
    */
-  // eslint-disable-next-line camelcase
-  save_path: string;
+  'save_path': string;
   /**
    * Amount of data completed
    */
@@ -534,41 +520,33 @@ interface rawTorrent {
   /**
    * Upload max share ratio
    */
-  // eslint-disable-next-line camelcase
-  max_ratio: number;
+  'max_ratio': number;
   /**
    * Upload max seeding time
    */
-  // eslint-disable-next-line camelcase
-  max_seeding_time: number;
+  'max_seeding_time': number;
   /**
    * Upload share ratio limit
    */
-  // eslint-disable-next-line camelcase
-  ratio_limit: number;
+  'ratio_limit': number;
   /**
    * Upload seeding time limit
    */
-  // eslint-disable-next-line camelcase
-  seeding_time_limit: number;
+  'seeding_time_limit': number;
   /**
    * Indicates the time when the torrent was last seen complete/whole
    */
-  // eslint-disable-next-line camelcase
-  seen_complete: number;
+  'seen_complete': number;
   /**
    * Last time when a chunk was downloaded/uploaded
    */
-  // eslint-disable-next-line camelcase
-  last_activity: number;
+  'last_activity': number;
   /**
    * Size including unwanted data
    */
-  // eslint-disable-next-line camelcase
-  total_size: number;
+  'total_size': number;
 
-  // eslint-disable-next-line camelcase
-  time_active: number;
+  'time_active': number;
   /**
    * Category name
    */

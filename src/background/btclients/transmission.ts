@@ -16,7 +16,7 @@ export const defaultTransmissionConfig: TransmissionTorrentClientConfig = {
   address: 'http://localhost:9091/',
   username: '',
   password: '',
-  timeout: 180 * 1e3
+  timeout: 60 * 1e3
 }
 
 export const TransmissionMetaData: TorrentClientMetaData = {
@@ -86,10 +86,7 @@ export default class Transmission implements TorrentClient {
   }
 
   async getTorrent (id: number | string): Promise<TransmissionTorrent> {
-    const torrents = await this.getTorrentsBy({
-      ids: [id]
-    })
-    return torrents[0]
+    return (await this.getTorrentsBy({ ids: [id] }))[0]
   }
 
   async getTorrentsBy (filter: TransmissionTorrentFilterRules): Promise<TransmissionTorrent[]> {
@@ -212,7 +209,11 @@ export default class Transmission implements TorrentClient {
       savePath: torrent.downloadDir,
       label: torrent.labels && torrent.labels.length ? torrent.labels[0] : undefined,
       state: state,
-      totalSize: torrent.totalSize
+      totalSize: torrent.totalSize,
+      uploadSpeed: torrent.rateUpload,
+      downloadSpeed: torrent.rateDownload,
+      totalUploaded: torrent.uploadedEver,
+      totalDownloaded: torrent.downloadedEver
     }
   }
 }
@@ -295,7 +296,17 @@ interface rawTorrent {
   status: number,
   totalSize: number,
   leftUntilDone: number,
-  labels: string[]
+  labels: string[],
+  rateDownload: number,
+  rateUpload: number,
+  /**
+   * Byte count of all data you've ever uploaded for this torrent.
+   */
+  uploadedEver: number,
+  /**
+   * Byte count of all the non-corrupt data you've ever downloaded for this torrent. If you deleted the files and downloaded a second time, this will be 2*totalSize.
+   */
+  downloadedEver: number,
 }
 
 type TransmissionTorrentsField =

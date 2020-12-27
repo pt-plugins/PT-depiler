@@ -114,8 +114,7 @@ export default class Deluge implements TorrentClient {
   }
 
   async getTorrent (id: string): Promise<Torrent> {
-    // @ts-ignore
-    return await this.getTorrentsBy({ ids: id })
+    return (await this.getTorrentsBy({ ids: id }))[0]
   }
 
   async getTorrentsBy (filter: DelugeTorrentFilterRules): Promise<Torrent[]> {
@@ -155,7 +154,11 @@ export default class Deluge implements TorrentClient {
         ratio: torrent.ratio,
         savePath: torrent.save_path,
         state: state,
-        totalSize: torrent.total_size
+        totalSize: torrent.total_size,
+        uploadSpeed: torrent.upload_payload_rate,
+        downloadSpeed: torrent.download_payload_rate,
+        totalUploaded: torrent.total_uploaded,
+        totalDownloaded: torrent.total_done
       } as Torrent
     })
   }
@@ -300,13 +303,15 @@ interface DelugeRawTorrent {
   name: string,
   progress: number,
   ratio: number,
-  // eslint-disable-next-line camelcase
-  time_added: number,
-  // eslint-disable-next-line camelcase
-  save_path: string,
-  'label'?: string,
+  'time_added': number,
+  'save_path': string,
+  label?: string,
   state: 'Downloading' | 'Seeding' | 'Active' | 'Paused' | 'Queued' | 'Checking' | 'Error',
-  'total_size': number
+  'total_size': number,
+  'upload_payload_rate': number,
+  'download_payload_rate': number,
+  'total_uploaded': number;
+  'total_done': number;
 }
 
 interface DelugeTorrentFilterRules extends TorrentFilterRules {

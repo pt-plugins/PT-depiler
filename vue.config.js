@@ -6,6 +6,14 @@ module.exports = {
       title: 'Options'
     }
   },
+
+  // https://cli.vuejs.org/config/#productionsourcemap
+  productionSourceMap: false,
+
+  // https://cli.vuejs.org/config/#lintonsave
+  lintOnSave: process.env.NODE_ENV !== 'production',
+
+  // https://cli.vuejs.org/config/#pluginoptions
   pluginOptions: {
     browserExtension: {
       componentOptions: {
