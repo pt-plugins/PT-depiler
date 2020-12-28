@@ -29,8 +29,12 @@ export const DelugeMetaData: TorrentClientMetaData = {
     '仅支持Deluge Web，非Deluge Daemon的直接支持，具体原因请见 issue #207',
     '注意：由于 Deluge 验证机制限制，第一次测试连接成功后，后续测试无论密码正确与否都会提示成功。'
   ],
-  allowCustomPath: true,
-  pathDescription: '当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/ 或 D:\\download\\music\\'
+  feature: {
+    CustomPath: {
+      allowed: true,
+      description: '当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/ 或 D:\\download\\music\\'
+    }
+  }
 }
 
 // 定义Deluge的实例

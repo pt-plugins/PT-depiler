@@ -6,7 +6,7 @@ export type clientType =
   'qbittorrent'
   | 'deluge'
   | 'transmission'
-  // TODO | 'synologyDownloadStation'
+  | 'synologyDownloadStation'
   // TODO | 'utorrent'
   // TODO | 'ruTorrent'
   // TODO | 'flood'
@@ -42,6 +42,17 @@ export interface TorrentClientConfig {
    * request timeout
    */
   timeout?: number;
+
+  feature?: {
+    [feature in TorrentClientFeature]?: boolean;
+  }
+}
+
+export type TorrentClientFeature = 'CustomPath'
+
+export interface TorrentClientFeatureMetaData {
+  allowed: boolean, // 该客户端是否允许该特征
+  description?: string, // 该特征的相关说明
 }
 
 /**
@@ -51,8 +62,9 @@ export interface TorrentClientMetaData {
   description?: string; // 客户端介绍
   warning?: string[]; // 用于配置时显示的警告信息，要用于一些特殊提示
 
-  allowCustomPath: boolean; // 是否允许自定义目录，默认为 false
-  pathDescription?: string; // 自定义目录说明
+  feature: {
+    [feature in TorrentClientFeature]: TorrentClientFeatureMetaData
+  }
 }
 
 export class NotSupportError extends Error {

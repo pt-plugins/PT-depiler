@@ -24,8 +24,12 @@ export const TransmissionMetaData: TorrentClientMetaData = {
   warning: [
     '默认情况下，系统会请求 http://ip:port/transmission/rpc 这个路径，如果无法连接，请确认 `settings.json` 文件的 `rpc-url` 值；详情可参考：https://github.com/ronggang/PT-Plugin-Plus/issues/32'
   ],
-  allowCustomPath: true,
-  pathDescription: '当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/'
+  feature: {
+    CustomPath: {
+      allowed: true,
+      description: '当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/'
+    }
+  }
 }
 
 // TODO 注意，获取可用空间 的功能尚未实现

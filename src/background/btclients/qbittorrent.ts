@@ -113,8 +113,12 @@ export const QbittorrentMetaData: TorrentClientMetaData = {
     '由于浏览器限制，需要禁用 qBittorrent 的『启用跨站请求伪造(CSRF)保护』功能才能正常使用',
     '注意：由于 qBittorrent 验证机制限制，第一次测试连接成功后，后续测试无论密码正确与否都会提示成功。'
   ],
-  allowCustomPath: true,
-  pathDescription: '当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/ 或 D:\\download\\music\\'
+  feature: {
+    CustomPath: {
+      allowed: true,
+      description: '当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/ 或 D:\\download\\music\\'
+    }
+  }
 }
 
 export default class Qbittorrent implements TorrentClient {
