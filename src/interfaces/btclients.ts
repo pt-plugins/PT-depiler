@@ -7,14 +7,16 @@ export type clientType =
   | 'deluge'
   | 'transmission'
   | 'synologyDownloadStation'
-  // TODO | 'utorrent'
+  | 'utorrent'
   // TODO | 'ruTorrent'
   // TODO | 'flood'
+
+export type TorrentClientFeature = 'CustomPath'
 
 /**
  * 客户端配置信息
  */
-export interface TorrentClientConfig {
+export interface TorrentClientBaseConfig {
   /**
    * UUIDv4，去掉短连接线剩下部分
    */
@@ -48,7 +50,11 @@ export interface TorrentClientConfig {
   }
 }
 
-export type TorrentClientFeature = 'CustomPath'
+// 强制要求填写用户名和密码
+export interface TorrentClientConfig extends TorrentClientBaseConfig {
+  username: string;
+  password: string;
+}
 
 export interface TorrentClientFeatureMetaData {
   allowed: boolean, // 该客户端是否允许该特征
@@ -70,34 +76,14 @@ export interface TorrentClientMetaData {
 export class NotSupportError extends Error {
 }
 
-/**
- * 客户端具体要实现的抽象方法
- */
-export interface TorrentClient {
-  // 实现的版本号 x.y.z 格式，目前暂无特别用处
-  version: string;
-
-  config: TorrentClientConfig;
-
-  // 检查客户端是否可以连接
-  ping: () => Promise<boolean>;
-
-  // 获取种子信息的方法
-  getAllTorrents: () => Promise<Torrent[]>
-  getTorrentsBy: (filter: TorrentFilterRules) => Promise<Torrent[]>
-  getTorrent: (id: any) => Promise<Torrent>;
-
-  // 添加种子
-  addTorrent: (url: string, options?: Partial<AddTorrentOptions>) => Promise<boolean>;
-
-  // 暂停种子
-  pauseTorrent: (id: any) => Promise<boolean>;
-
-  // 恢复种子
-  resumeTorrent: (id: any) => Promise<boolean>;
-
-  // 删除种子
-  removeTorrent: (id: any, removeData?: boolean) => Promise<boolean>;
+export enum TorrentState {
+  downloading = 'downloading',
+  seeding = 'seeding',
+  paused = 'paused',
+  queued = 'queued',
+  checking = 'checking',
+  error = 'error',
+  unknown = 'unknown',
 }
 
 // 获得到的种子实例
@@ -151,16 +137,6 @@ export interface Torrent {
   totalDownloaded: number;
 }
 
-export enum TorrentState {
-  downloading = 'downloading',
-  seeding = 'seeding',
-  paused = 'paused',
-  queued = 'queued',
-  checking = 'checking',
-  error = 'error',
-  unknown = 'unknown',
-}
-
 // 种子筛选方法
 export interface TorrentFilterRules {
   ids?: any;
@@ -189,4 +165,34 @@ export interface AddTorrentOptions {
    * Notice: Some clients didn't support it
    */
   label?: string;
+}
+
+/**
+ * 客户端具体要实现的抽象方法
+ */
+export interface TorrentClient {
+  // 实现的版本号 x.y.z 格式，目前暂无特别用处
+  version: string;
+
+  config: TorrentClientBaseConfig;
+
+  // 检查客户端是否可以连接
+  ping: () => Promise<boolean>;
+
+  // 获取种子信息的方法
+  getAllTorrents: () => Promise<Torrent[]>
+  getTorrentsBy: (filter: TorrentFilterRules) => Promise<Torrent[]>
+  getTorrent: (id: any) => Promise<Torrent>;
+
+  // 添加种子
+  addTorrent: (url: string, options?: Partial<AddTorrentOptions>) => Promise<boolean>;
+
+  // 暂停种子
+  pauseTorrent: (id: any) => Promise<boolean>;
+
+  // 恢复种子
+  resumeTorrent: (id: any) => Promise<boolean>;
+
+  // 删除种子
+  removeTorrent: (id: any, removeData?: boolean) => Promise<boolean>;
 }

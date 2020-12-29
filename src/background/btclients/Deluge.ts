@@ -5,15 +5,15 @@ import {
   AddTorrentOptions,
   Torrent,
   TorrentClient,
-  TorrentClientConfig, TorrentClientMetaData,
+  TorrentClientBaseConfig, TorrentClientMetaData,
   TorrentFilterRules, TorrentState
 } from '@/interfaces/btclients'
 import urljoin from 'url-join'
-import { Buffer } from 'buffer/'
+import { Buffer } from 'buffer'
 import axios, { AxiosResponse } from 'axios'
 
 // 定义最基础的配置信息
-export const defaultDelugeConfig: TorrentClientConfig = {
+export const defaultDelugeConfig: TorrentClientBaseConfig = {
   type: 'deluge',
   name: 'Deluge',
   uuid: '8951af53c6de49a2b2c43fb63809f453',
@@ -37,10 +37,111 @@ export const DelugeMetaData: TorrentClientMetaData = {
   }
 }
 
+type DelugeMethod =
+  'auth.login' | 'web.update_ui' | 'core.get_torrents_status' |
+  'core.add_torrent_url' | 'core.add_torrent_file' |
+  'core.remove_torrent' | 'core.pause_torrent' | 'core.resume_torrent'
+
+interface DelugeDefaultResponse {
+  /**
+   * mostly usless id that increments with every request
+   */
+  id: number;
+  error: null | string;
+  result: any;
+}
+
+type DelugeTorrentField =
+  'comment'
+  | 'active_time'
+  | 'is_seed'
+  | 'hash'
+  | 'upload_payload_rate'
+  | 'move_completed_path'
+  | 'private'
+  | 'total_payload_upload'
+  | 'paused'
+  | 'seed_rank'
+  | 'seeding_time'
+  | 'max_upload_slots'
+  | 'prioritize_first_last'
+  | 'distributed_copies'
+  | 'download_payload_rate'
+  | 'message'
+  | 'num_peers'
+  | 'max_download_speed'
+  | 'max_connections'
+  | 'compact'
+  | 'ratio'
+  | 'total_peers'
+  | 'total_size'
+  | 'total_wanted'
+  | 'state'
+  | 'file_priorities'
+  | 'max_upload_speed'
+  | 'remove_at_ratio'
+  | 'tracker'
+  | 'save_path'
+  | 'progress'
+  | 'time_added'
+  | 'tracker_host'
+  | 'total_uploaded'
+  | 'files'
+  | 'total_done'
+  | 'num_pieces'
+  | 'tracker_status'
+  | 'total_seeds'
+  | 'move_on_completed'
+  | 'next_announce'
+  | 'stop_at_ratio'
+  | 'file_progress'
+  | 'move_completed'
+  | 'piece_length'
+  | 'all_time_download'
+  | 'move_on_completed_path'
+  | 'num_seeds'
+  | 'peers'
+  | 'name'
+  | 'trackers'
+  | 'total_payload_download'
+  | 'is_auto_managed'
+  | 'seeds_peers_ratio'
+  | 'queue'
+  | 'num_files'
+  | 'eta'
+  | 'stop_ratio'
+  | 'is_finished'
+  | 'label' // if they don't have the label plugin it shouldn't fail
+
+interface DelugeRawTorrent {
+  hash: string,
+  name: string,
+  progress: number,
+  ratio: number,
+  'time_added': number,
+  'save_path': string,
+  label?: string,
+  state: 'Downloading' | 'Seeding' | 'Active' | 'Paused' | 'Queued' | 'Checking' | 'Error',
+  'total_size': number,
+  'upload_payload_rate': number,
+  'download_payload_rate': number,
+  'total_uploaded': number;
+  'total_done': number;
+}
+
+interface DelugeTorrentFilterRules extends TorrentFilterRules {
+  hash?: string,
+  state?: string
+}
+
+interface DelugeBooleanStatus extends DelugeDefaultResponse {
+  result: boolean;
+}
+
 // 定义Deluge的实例
 export default class Deluge implements TorrentClient {
   readonly version = 'v0.1.0';
-  readonly config: TorrentClientConfig;
+  readonly config: TorrentClientBaseConfig;
 
   private readonly address: string;
   private _msgId: number;
@@ -58,7 +159,7 @@ export default class Deluge implements TorrentClient {
     'total_size'
   ]
 
-  constructor (options: Partial<TorrentClientConfig>) {
+  constructor (options: Partial<TorrentClientBaseConfig>) {
     this.config = { ...defaultDelugeConfig, ...options }
     this._msgId = 0
 
@@ -224,105 +325,4 @@ export default class Deluge implements TorrentClient {
       }
     })
   }
-}
-
-type DelugeMethod =
-  'auth.login' | 'web.update_ui' | 'core.get_torrents_status' |
-  'core.add_torrent_url' | 'core.add_torrent_file' |
-  'core.remove_torrent' | 'core.pause_torrent' | 'core.resume_torrent'
-
-interface DelugeDefaultResponse {
-  /**
-   * mostly usless id that increments with every request
-   */
-  id: number;
-  error: null | string;
-  result: any;
-}
-
-type DelugeTorrentField =
-  'comment'
-  | 'active_time'
-  | 'is_seed'
-  | 'hash'
-  | 'upload_payload_rate'
-  | 'move_completed_path'
-  | 'private'
-  | 'total_payload_upload'
-  | 'paused'
-  | 'seed_rank'
-  | 'seeding_time'
-  | 'max_upload_slots'
-  | 'prioritize_first_last'
-  | 'distributed_copies'
-  | 'download_payload_rate'
-  | 'message'
-  | 'num_peers'
-  | 'max_download_speed'
-  | 'max_connections'
-  | 'compact'
-  | 'ratio'
-  | 'total_peers'
-  | 'total_size'
-  | 'total_wanted'
-  | 'state'
-  | 'file_priorities'
-  | 'max_upload_speed'
-  | 'remove_at_ratio'
-  | 'tracker'
-  | 'save_path'
-  | 'progress'
-  | 'time_added'
-  | 'tracker_host'
-  | 'total_uploaded'
-  | 'files'
-  | 'total_done'
-  | 'num_pieces'
-  | 'tracker_status'
-  | 'total_seeds'
-  | 'move_on_completed'
-  | 'next_announce'
-  | 'stop_at_ratio'
-  | 'file_progress'
-  | 'move_completed'
-  | 'piece_length'
-  | 'all_time_download'
-  | 'move_on_completed_path'
-  | 'num_seeds'
-  | 'peers'
-  | 'name'
-  | 'trackers'
-  | 'total_payload_download'
-  | 'is_auto_managed'
-  | 'seeds_peers_ratio'
-  | 'queue'
-  | 'num_files'
-  | 'eta'
-  | 'stop_ratio'
-  | 'is_finished'
-  | 'label' // if they don't have the label plugin it shouldn't fail
-
-interface DelugeRawTorrent {
-  hash: string,
-  name: string,
-  progress: number,
-  ratio: number,
-  'time_added': number,
-  'save_path': string,
-  label?: string,
-  state: 'Downloading' | 'Seeding' | 'Active' | 'Paused' | 'Queued' | 'Checking' | 'Error',
-  'total_size': number,
-  'upload_payload_rate': number,
-  'download_payload_rate': number,
-  'total_uploaded': number;
-  'total_done': number;
-}
-
-interface DelugeTorrentFilterRules extends TorrentFilterRules {
-  hash?: string,
-  state?: string
-}
-
-interface DelugeBooleanStatus extends DelugeDefaultResponse {
-  result: boolean;
 }

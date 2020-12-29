@@ -1,13 +1,12 @@
 /**
  * @see https://github.com/qbittorrent/qBittorrent/wiki/Web-API-Documentation
  *
- * 注意，因为使用大驼峰命名的形式，所以qBittorrent在各变量命名中均写成 Qbittorrent
+ * 注意，因为使用大驼峰命名的形式，所以qBittorrent在各变量命名中均写成 QBittorrent
  */
 import {
   AddTorrentOptions,
   Torrent, TorrentClient,
-  TorrentClientConfig,
-  TorrentClientMetaData,
+  TorrentClientConfig, TorrentClientMetaData,
   TorrentFilterRules, TorrentState
 } from '@/interfaces/btclients'
 import axios, { AxiosResponse, Method } from 'axios'
@@ -95,7 +94,7 @@ export enum QbittorrentTorrentState {
 }
 
 // 定义qBittorrent的基本配置
-export const defaultQbittorrentConfig: QbittorrentTorrentClientConfig = {
+export const defaultQbittorrentConfig: TorrentClientConfig = {
   type: 'qbittorrent',
   name: 'qBittorrent',
   uuid: '0da0e93a3f5f4bdd8f73aaa006d14771',
@@ -121,13 +120,238 @@ export const QbittorrentMetaData: TorrentClientMetaData = {
   }
 }
 
-export default class Qbittorrent implements TorrentClient {
+type TrueFalseStr = 'true' | 'false';
+
+interface QbittorrentTorrent extends Torrent {
+  id: string;
+}
+
+type QbittorrentTorrentFilters =
+  | 'all'
+  | 'downloading'
+  | 'completed'
+  | 'paused'
+  | 'active'
+  | 'inactive'
+  | 'resumed'
+  | 'stalled'
+  | 'stalled_uploading'
+  | 'stalled_downloading';
+
+interface QbittorrentTorrentFilterRules extends TorrentFilterRules {
+  hashes?: string|string[];
+  filter?: QbittorrentTorrentFilters;
+  category?: string;
+  sort?: string;
+  offset?: number;
+  reverse?: boolean|TrueFalseStr;
+}
+
+interface QbittorrentAddTorrentOptions extends AddTorrentOptions {
+  /**
+   * Download folder
+   */
+  savepath: string;
+  /**
+   * Cookie sent to download the .torrent file
+   */
+  cookie: string;
+  /**
+   * Category for the torrent
+   */
+  category: string;
+  /**
+   * Skip hash checking. Possible values are true, false (default)
+   */
+  'skip_checking': TrueFalseStr;
+  /**
+   * Add torrents in the paused state. Possible values are true, false (default)
+   */
+  paused: TrueFalseStr;
+  /**
+   * Create the root folder. Possible values are true, false, unset (default)
+   */
+  'root_folder': TrueFalseStr | null;
+  /**
+   * Rename torrent
+   */
+  rename: string;
+  /**
+   * Set torrent upload speed limit. Unit in bytes/second
+   */
+  upLimit: number;
+  /**
+   * Set torrent download speed limit. Unit in bytes/second
+   */
+  dlLimit: number;
+  /**
+   * Whether Automatic Torrent Management should be used, disables use of savepath
+   */
+  useAutoTMM: TrueFalseStr;
+  /**
+   * Enable sequential download. Possible values are true, false (default)
+   */
+  sequentialDownload: TrueFalseStr;
+  /**
+   * Prioritize download first last piece. Possible values are true, false (default)
+   */
+  firstLastPiecePrio: TrueFalseStr;
+}
+
+interface rawTorrent {
+  /**
+   * Torrent name
+   */
+  name: string;
+  hash: string;
+  'magnet_uri': string;
+  /**
+   * datetime in seconds
+   */
+  'added_on': number;
+  /**
+   * Torrent size
+   */
+  size: number;
+  /**
+   * Torrent progress
+   */
+  progress: number;
+  /**
+   * Torrent download speed (bytes/s)
+   */
+  dlspeed: number;
+  /**
+   * Torrent upload speed (bytes/s)
+   */
+  upspeed: number;
+  /**
+   * Torrent priority (-1 if queuing is disabled)
+   */
+  priority: number;
+  /**
+   * Torrent seeds connected to
+   */
+  'num_seeds': number;
+  /**
+   * Torrent seeds in the swarm
+   */
+  'num_complete': number;
+  /**
+   * Torrent leechers connected to
+   */
+  'num_leechs': number;
+  /**
+   * Torrent leechers in the swarm
+   */
+  'num_incomplete': number;
+  /**
+   * Torrent share ratio
+   */
+  ratio: number;
+  /**
+   * Torrent ETA
+   */
+  eta: number;
+  /**
+   * Torrent state
+   */
+  state: QbittorrentTorrentState;
+  /**
+   * Torrent sequential download state
+   */
+  'seq_dl': boolean;
+  /**
+   * Torrent first last piece priority state
+   */
+  'f_l_piece_prio': boolean;
+  /**
+   * Torrent copletion datetime in seconds
+   */
+  'completion_on': number;
+  /**
+   * Torrent tracker
+   */
+  tracker: string;
+  /**
+   * Torrent download limit
+   */
+  'dl_limit': number;
+  /**
+   * Torrent upload limit
+   */
+  'up_limit': number;
+  /**
+   * Amount of data downloaded
+   */
+  downloaded: number;
+  /**
+   * Amount of data uploaded
+   */
+  uploaded: number;
+  /**
+   * Amount of data downloaded since program open
+   */
+  'downloaded_session': number;
+  /**
+   * Amount of data uploaded since program open
+   */
+  'uploaded_session': number;
+  /**
+   * Amount of data left to download
+   */
+  'amount_left': number;
+  /**
+   * Torrent save path
+   */
+  'save_path': string;
+  /**
+   * Amount of data completed
+   */
+  completed: number;
+  /**
+   * Upload max share ratio
+   */
+  'max_ratio': number;
+  /**
+   * Upload max seeding time
+   */
+  'max_seeding_time': number;
+  /**
+   * Upload share ratio limit
+   */
+  'ratio_limit': number;
+  /**
+   * Upload seeding time limit
+   */
+  'seeding_time_limit': number;
+  /**
+   * Indicates the time when the torrent was last seen complete/whole
+   */
+  'seen_complete': number;
+  /**
+   * Last time when a chunk was downloaded/uploaded
+   */
+  'last_activity': number;
+  /**
+   * Size including unwanted data
+   */
+  'total_size': number;
+
+  'time_active': number;
+  /**
+   * Category name
+   */
+  category: string;
+}
+
+export default class QBittorrent implements TorrentClient {
   readonly version = 'v0.1.0';
-  readonly config: QbittorrentTorrentClientConfig;
+  readonly config: TorrentClientConfig;
 
   isLogin: boolean | null = null;
 
-  constructor (options: Partial<QbittorrentTorrentClientConfig> = {}) {
+  constructor (options: Partial<TorrentClientConfig> = {}) {
     this.config = { ...defaultQbittorrentConfig, ...options }
   }
 
@@ -324,235 +548,4 @@ export default class Qbittorrent implements TorrentClient {
     await this.request('GET', '/torrents/resume', params)
     return true
   }
-}
-
-type TrueFalseStr = 'true' | 'false';
-
-interface QbittorrentTorrent extends Torrent {
-  id: string;
-}
-
-// 强制要求填写用户名和密码
-interface QbittorrentTorrentClientConfig extends TorrentClientConfig {
-  username: string;
-  password: string;
-}
-
-interface QbittorrentTorrentFilterRules extends TorrentFilterRules {
-  hashes?: string|string[];
-  filter?: QbittorrentTorrentFilters;
-  category?: string;
-  sort?: string;
-  offset?: number;
-  reverse?: boolean|TrueFalseStr;
-}
-
-interface QbittorrentAddTorrentOptions extends AddTorrentOptions {
-  /**
-   * Download folder
-   */
-  savepath: string;
-  /**
-   * Cookie sent to download the .torrent file
-   */
-  cookie: string;
-  /**
-   * Category for the torrent
-   */
-  category: string;
-  /**
-   * Skip hash checking. Possible values are true, false (default)
-   */
-  'skip_checking': TrueFalseStr;
-  /**
-   * Add torrents in the paused state. Possible values are true, false (default)
-   */
-  paused: TrueFalseStr;
-  /**
-   * Create the root folder. Possible values are true, false, unset (default)
-   */
-  'root_folder': TrueFalseStr | null;
-  /**
-   * Rename torrent
-   */
-  rename: string;
-  /**
-   * Set torrent upload speed limit. Unit in bytes/second
-   */
-  upLimit: number;
-  /**
-   * Set torrent download speed limit. Unit in bytes/second
-   */
-  dlLimit: number;
-  /**
-   * Whether Automatic Torrent Management should be used, disables use of savepath
-   */
-  useAutoTMM: TrueFalseStr;
-  /**
-   * Enable sequential download. Possible values are true, false (default)
-   */
-  sequentialDownload: TrueFalseStr;
-  /**
-   * Prioritize download first last piece. Possible values are true, false (default)
-   */
-  firstLastPiecePrio: TrueFalseStr;
-}
-
-type QbittorrentTorrentFilters =
-  | 'all'
-  | 'downloading'
-  | 'completed'
-  | 'paused'
-  | 'active'
-  | 'inactive'
-  | 'resumed'
-  | 'stalled'
-  | 'stalled_uploading'
-  | 'stalled_downloading';
-
-interface rawTorrent {
-  /**
-   * Torrent name
-   */
-  name: string;
-  hash: string;
-  'magnet_uri': string;
-  /**
-   * datetime in seconds
-   */
-  'added_on': number;
-  /**
-   * Torrent size
-   */
-  size: number;
-  /**
-   * Torrent progress
-   */
-  progress: number;
-  /**
-   * Torrent download speed (bytes/s)
-   */
-  dlspeed: number;
-  /**
-   * Torrent upload speed (bytes/s)
-   */
-  upspeed: number;
-  /**
-   * Torrent priority (-1 if queuing is disabled)
-   */
-  priority: number;
-  /**
-   * Torrent seeds connected to
-   */
-  'num_seeds': number;
-  /**
-   * Torrent seeds in the swarm
-   */
-  'num_complete': number;
-  /**
-   * Torrent leechers connected to
-   */
-  'num_leechs': number;
-  /**
-   * Torrent leechers in the swarm
-   */
-  'num_incomplete': number;
-  /**
-   * Torrent share ratio
-   */
-  ratio: number;
-  /**
-   * Torrent ETA
-   */
-  eta: number;
-  /**
-   * Torrent state
-   */
-  state: QbittorrentTorrentState;
-  /**
-   * Torrent sequential download state
-   */
-  'seq_dl': boolean;
-  /**
-   * Torrent first last piece priority state
-   */
-  'f_l_piece_prio': boolean;
-  /**
-   * Torrent copletion datetime in seconds
-   */
-  'completion_on': number;
-  /**
-   * Torrent tracker
-   */
-  tracker: string;
-  /**
-   * Torrent download limit
-   */
-  'dl_limit': number;
-  /**
-   * Torrent upload limit
-   */
-  'up_limit': number;
-  /**
-   * Amount of data downloaded
-   */
-  downloaded: number;
-  /**
-   * Amount of data uploaded
-   */
-  uploaded: number;
-  /**
-   * Amount of data downloaded since program open
-   */
-  'downloaded_session': number;
-  /**
-   * Amount of data uploaded since program open
-   */
-  'uploaded_session': number;
-  /**
-   * Amount of data left to download
-   */
-  'amount_left': number;
-  /**
-   * Torrent save path
-   */
-  'save_path': string;
-  /**
-   * Amount of data completed
-   */
-  completed: number;
-  /**
-   * Upload max share ratio
-   */
-  'max_ratio': number;
-  /**
-   * Upload max seeding time
-   */
-  'max_seeding_time': number;
-  /**
-   * Upload share ratio limit
-   */
-  'ratio_limit': number;
-  /**
-   * Upload seeding time limit
-   */
-  'seeding_time_limit': number;
-  /**
-   * Indicates the time when the torrent was last seen complete/whole
-   */
-  'seen_complete': number;
-  /**
-   * Last time when a chunk was downloaded/uploaded
-   */
-  'last_activity': number;
-  /**
-   * Size including unwanted data
-   */
-  'total_size': number;
-
-  'time_active': number;
-  /**
-   * Category name
-   */
-  category: string;
 }

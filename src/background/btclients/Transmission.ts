@@ -6,10 +6,10 @@ import {
   TorrentFilterRules, TorrentState
 } from '@/interfaces/btclients'
 import urljoin from 'url-join'
-import { Buffer } from 'buffer/'
+import { Buffer } from 'buffer'
 import axios, { AxiosResponse } from 'axios'
 
-export const defaultTransmissionConfig: TransmissionTorrentClientConfig = {
+export const defaultTransmissionConfig: TorrentClientConfig = {
   type: 'transmission',
   name: 'Transmission',
   uuid: '69e8ecd29a96436cac6fc199c1abb846',
@@ -32,17 +32,175 @@ export const TransmissionMetaData: TorrentClientMetaData = {
   }
 }
 
+interface TransmissionBaseResponse {
+  arguments: any;
+  result: 'success' | string;
+  tag?: number
+}
+
+interface TransmissionTorrentGetResponse extends TransmissionBaseResponse {
+  arguments: {
+    torrents: rawTorrent[]
+  }
+}
+
+interface AddTorrentResponse extends TransmissionBaseResponse {
+  arguments: {
+    'torrent-added': {
+      id: number;
+      hashString: string;
+      name: string;
+    };
+  };
+}
+
+type TransmissionTorrentIds = number | Array<number | string> | 'recently-active'
+
+type TransmissionRequestMethod =
+  'session-get' | 'session-stats' |
+  'torrent-get' | 'torrent-add' | 'torrent-start' | 'torrent-stop' | 'torrent-remove'
+
+interface TransmissionAddTorrentOptions extends AddTorrentOptions {
+  'download-dir': string,
+  filename: string,
+  metainfo: string,
+  paused: boolean,
+
+}
+
+interface TransmissionTorrent extends Torrent {
+  id: number | string;
+}
+
+interface TransmissionTorrentFilterRules extends TorrentFilterRules {
+  ids?: TransmissionTorrentIds;
+}
+
+interface TransmissionArguments {
+
+}
+
+interface TransmissionTorrentBaseArguments extends TransmissionArguments {
+  ids?: TransmissionTorrentIds
+}
+
+interface TransmissionTorrentGetArguments extends TransmissionTorrentBaseArguments {
+  fields: TransmissionTorrentsField[]
+}
+
+interface TransmissionTorrentRemoveArguments extends TransmissionTorrentBaseArguments {
+  'delete-local-data'?: boolean
+}
+
+// 这里只写出了部分我们需要的
+interface rawTorrent {
+  addedDate: number,
+  id: number,
+  hashString: string,
+  isFinished: boolean,
+  name: string,
+  percentDone: number,
+  uploadRatio: number,
+  downloadDir: string,
+  status: number,
+  totalSize: number,
+  leftUntilDone: number,
+  labels: string[],
+  rateDownload: number,
+  rateUpload: number,
+  /**
+   * Byte count of all data you've ever uploaded for this torrent.
+   */
+  uploadedEver: number,
+  /**
+   * Byte count of all the non-corrupt data you've ever downloaded for this torrent. If you deleted the files and downloaded a second time, this will be 2*totalSize.
+   */
+  downloadedEver: number,
+}
+
+type TransmissionTorrentsField =
+  'activityDate'
+  | 'addedDate'
+  | 'bandwidthPriority'
+  | 'comment'
+  | 'corruptEver'
+  | 'creator'
+  | 'dateCreated'
+  | 'desiredAvailable'
+  | 'doneDate'
+  | 'downloadDir'
+  | 'downloadedEver'
+  | 'downloadLimit'
+  | 'downloadLimited'
+  | 'editDate'
+  | 'error'
+  | 'errorString'
+  | 'eta'
+  | 'etaIdle'
+  | 'files'
+  | 'fileStats'
+  | 'hashString'
+  | 'haveUnchecked'
+  | 'haveValid'
+  | 'honorsSessionLimits'
+  | 'id'
+  | 'isFinished'
+  | 'isPrivate'
+  | 'isStalled'
+  | 'labels'
+  | 'leftUntilDone'
+  | 'magnetLink'
+  | 'manualAnnounceTime'
+  | 'maxConnectedPeers'
+  | 'metadataPercentComplete'
+  | 'name'
+  | 'peer-limit'
+  | 'peers'
+  | 'peersConnected'
+  | 'peersFrom'
+  | 'peersGettingFromUs'
+  | 'peersSendingToUs'
+  | 'percentDone'
+  | 'pieces'
+  | 'pieceCount'
+  | 'pieceSize'
+  | 'priorities'
+  | 'queuePosition'
+  | 'rateDownload (B/s)'
+  | 'rateUpload (B/s)'
+  | 'recheckProgress'
+  | 'secondsDownloading'
+  | 'secondsSeeding'
+  | 'seedIdleLimit'
+  | 'seedIdleMode'
+  | 'seedRatioLimit'
+  | 'seedRatioMode'
+  | 'sizeWhenDone'
+  | 'startDate'
+  | 'status'
+  | 'trackers'
+  | 'trackerStats'
+  | 'totalSize'
+  | 'torrentFile'
+  | 'uploadedEver'
+  | 'uploadLimit'
+  | 'uploadLimited'
+  | 'uploadRatio'
+  | 'wanted'
+  | 'webseeds'
+  | 'webseedsSendingToUs'
+
 // TODO 注意，获取可用空间 的功能尚未实现
 export default class Transmission implements TorrentClient {
   readonly version = 'v0.1.0'
-  readonly config: TransmissionTorrentClientConfig;
+  readonly config: TorrentClientConfig;
 
   // 实例真实使用的rpc地址
   private readonly address: string;
 
   private sessionId : string = '';
 
-  constructor (options: Partial<TransmissionTorrentClientConfig> = {}) {
+  constructor (options: Partial<TorrentClientConfig> = {}) {
     this.config = { ...defaultTransmissionConfig, ...options }
 
     // 修正服务器地址
@@ -221,166 +379,3 @@ export default class Transmission implements TorrentClient {
     }
   }
 }
-
-interface TransmissionBaseResponse {
-  arguments: any;
-  result: 'success' | string;
-  tag?: number
-}
-
-interface TransmissionTorrentGetResponse extends TransmissionBaseResponse {
-  arguments: {
-    torrents: rawTorrent[]
-  }
-}
-
-interface AddTorrentResponse extends TransmissionBaseResponse {
-  arguments: {
-    'torrent-added': {
-      id: number;
-      hashString: string;
-      name: string;
-    };
-  };
-}
-
-type TransmissionTorrentIds = number | Array<number | string> | 'recently-active'
-
-type TransmissionRequestMethod =
-  'session-get' | 'session-stats' |
-  'torrent-get' | 'torrent-add' | 'torrent-start' | 'torrent-stop' | 'torrent-remove'
-
-interface TransmissionAddTorrentOptions extends AddTorrentOptions {
-  'download-dir': string,
-  filename: string,
-  metainfo: string,
-  paused: boolean,
-
-}
-
-interface TransmissionTorrent extends Torrent {
-  id: number | string;
-}
-
-interface TransmissionTorrentFilterRules extends TorrentFilterRules {
-  ids?: TransmissionTorrentIds;
-}
-
-interface TransmissionArguments {
-
-}
-
-interface TransmissionTorrentBaseArguments extends TransmissionArguments {
-  ids?: TransmissionTorrentIds
-}
-
-interface TransmissionTorrentGetArguments extends TransmissionTorrentBaseArguments {
-  fields: TransmissionTorrentsField[]
-}
-
-interface TransmissionTorrentRemoveArguments extends TransmissionTorrentBaseArguments {
-  'delete-local-data'?: boolean
-}
-
-interface TransmissionTorrentClientConfig extends TorrentClientConfig {
-  username: string;
-  password: string;
-}
-
-// 这里只写出了部分我们需要的
-interface rawTorrent {
-  addedDate: number,
-  id: number,
-  hashString: string,
-  isFinished: boolean,
-  name: string,
-  percentDone: number,
-  uploadRatio: number,
-  downloadDir: string,
-  status: number,
-  totalSize: number,
-  leftUntilDone: number,
-  labels: string[],
-  rateDownload: number,
-  rateUpload: number,
-  /**
-   * Byte count of all data you've ever uploaded for this torrent.
-   */
-  uploadedEver: number,
-  /**
-   * Byte count of all the non-corrupt data you've ever downloaded for this torrent. If you deleted the files and downloaded a second time, this will be 2*totalSize.
-   */
-  downloadedEver: number,
-}
-
-type TransmissionTorrentsField =
-  'activityDate'
-  | 'addedDate'
-  | 'bandwidthPriority'
-  | 'comment'
-  | 'corruptEver'
-  | 'creator'
-  | 'dateCreated'
-  | 'desiredAvailable'
-  | 'doneDate'
-  | 'downloadDir'
-  | 'downloadedEver'
-  | 'downloadLimit'
-  | 'downloadLimited'
-  | 'editDate'
-  | 'error'
-  | 'errorString'
-  | 'eta'
-  | 'etaIdle'
-  | 'files'
-  | 'fileStats'
-  | 'hashString'
-  | 'haveUnchecked'
-  | 'haveValid'
-  | 'honorsSessionLimits'
-  | 'id'
-  | 'isFinished'
-  | 'isPrivate'
-  | 'isStalled'
-  | 'labels'
-  | 'leftUntilDone'
-  | 'magnetLink'
-  | 'manualAnnounceTime'
-  | 'maxConnectedPeers'
-  | 'metadataPercentComplete'
-  | 'name'
-  | 'peer-limit'
-  | 'peers'
-  | 'peersConnected'
-  | 'peersFrom'
-  | 'peersGettingFromUs'
-  | 'peersSendingToUs'
-  | 'percentDone'
-  | 'pieces'
-  | 'pieceCount'
-  | 'pieceSize'
-  | 'priorities'
-  | 'queuePosition'
-  | 'rateDownload (B/s)'
-  | 'rateUpload (B/s)'
-  | 'recheckProgress'
-  | 'secondsDownloading'
-  | 'secondsSeeding'
-  | 'seedIdleLimit'
-  | 'seedIdleMode'
-  | 'seedRatioLimit'
-  | 'seedRatioMode'
-  | 'sizeWhenDone'
-  | 'startDate'
-  | 'status'
-  | 'trackers'
-  | 'trackerStats'
-  | 'totalSize'
-  | 'torrentFile'
-  | 'uploadedEver'
-  | 'uploadLimit'
-  | 'uploadLimited'
-  | 'uploadRatio'
-  | 'wanted'
-  | 'webseeds'
-  | 'webseedsSendingToUs'
