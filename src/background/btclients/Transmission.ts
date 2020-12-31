@@ -12,7 +12,7 @@ import axios, { AxiosResponse } from 'axios'
 export const defaultTransmissionConfig: TorrentClientConfig = {
   type: 'transmission',
   name: 'Transmission',
-  uuid: '69e8ecd29a96436cac6fc199c1abb846',
+  uuid: '1cc694ef-7f64-4882-b33a-b578a76fd35c',
   address: 'http://localhost:9091/',
   username: '',
   password: '',
@@ -30,6 +30,32 @@ export const TransmissionMetaData: TorrentClientMetaData = {
       description: '当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/'
     }
   }
+}
+
+// 这里只写出了部分我们需要的
+interface rawTorrent {
+  addedDate: number,
+  id: number,
+  hashString: string,
+  isFinished: boolean,
+  name: string,
+  percentDone: number,
+  uploadRatio: number,
+  downloadDir: string,
+  status: number,
+  totalSize: number,
+  leftUntilDone: number,
+  labels: string[],
+  rateDownload: number,
+  rateUpload: number,
+  /**
+   * Byte count of all data you've ever uploaded for this torrent.
+   */
+  uploadedEver: number,
+  /**
+   * Byte count of all the non-corrupt data you've ever downloaded for this torrent. If you deleted the files and downloaded a second time, this will be 2*totalSize.
+   */
+  downloadedEver: number,
 }
 
 interface TransmissionBaseResponse {
@@ -82,40 +108,6 @@ interface TransmissionArguments {
 
 interface TransmissionTorrentBaseArguments extends TransmissionArguments {
   ids?: TransmissionTorrentIds
-}
-
-interface TransmissionTorrentGetArguments extends TransmissionTorrentBaseArguments {
-  fields: TransmissionTorrentsField[]
-}
-
-interface TransmissionTorrentRemoveArguments extends TransmissionTorrentBaseArguments {
-  'delete-local-data'?: boolean
-}
-
-// 这里只写出了部分我们需要的
-interface rawTorrent {
-  addedDate: number,
-  id: number,
-  hashString: string,
-  isFinished: boolean,
-  name: string,
-  percentDone: number,
-  uploadRatio: number,
-  downloadDir: string,
-  status: number,
-  totalSize: number,
-  leftUntilDone: number,
-  labels: string[],
-  rateDownload: number,
-  rateUpload: number,
-  /**
-   * Byte count of all data you've ever uploaded for this torrent.
-   */
-  uploadedEver: number,
-  /**
-   * Byte count of all the non-corrupt data you've ever downloaded for this torrent. If you deleted the files and downloaded a second time, this will be 2*totalSize.
-   */
-  downloadedEver: number,
 }
 
 type TransmissionTorrentsField =
@@ -189,6 +181,14 @@ type TransmissionTorrentsField =
   | 'wanted'
   | 'webseeds'
   | 'webseedsSendingToUs'
+
+interface TransmissionTorrentGetArguments extends TransmissionTorrentBaseArguments {
+  fields: TransmissionTorrentsField[]
+}
+
+interface TransmissionTorrentRemoveArguments extends TransmissionTorrentBaseArguments {
+  'delete-local-data'?: boolean
+}
 
 // TODO 注意，获取可用空间 的功能尚未实现
 export default class Transmission implements TorrentClient {

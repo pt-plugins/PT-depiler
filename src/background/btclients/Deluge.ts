@@ -16,7 +16,7 @@ import axios, { AxiosResponse } from 'axios'
 export const defaultDelugeConfig: TorrentClientBaseConfig = {
   type: 'deluge',
   name: 'Deluge',
-  uuid: '8951af53c6de49a2b2c43fb63809f453',
+  uuid: '4e97f300-0a69-4c5b-ba8b-c0ac7031607e',
   address: 'http://localhost:8112/',
   password: '',
   timeout: 60 * 1e3

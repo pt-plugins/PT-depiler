@@ -8,7 +8,7 @@ export type clientType =
   | 'transmission'
   | 'synologyDownloadStation'
   | 'utorrent'
-  // TODO | 'ruTorrent'
+  | 'ruTorrent'
   // TODO | 'flood'
 
 export type TorrentClientFeature = 'CustomPath'

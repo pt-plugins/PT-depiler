@@ -97,7 +97,7 @@ export enum QbittorrentTorrentState {
 export const defaultQbittorrentConfig: TorrentClientConfig = {
   type: 'qbittorrent',
   name: 'qBittorrent',
-  uuid: '0da0e93a3f5f4bdd8f73aaa006d14771',
+  uuid: '4c0f3c06-0b41-4828-9770-e8ef56da6a5c',
   address: 'http://localhost:9091/',
   username: '',
   password: '',

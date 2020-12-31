@@ -19,7 +19,7 @@ export const defaultSynologyDownloadStationConfig: TorrentClientConfig = {
   type: 'synologyDownloadStation',
   name: 'Synology Download Station',
   address: 'http://mysd.com:5000/',
-  uuid: 'e61f2c7fc8c5499f93b762deee2aae91',
+  uuid: '37b3c655-fe0a-4078-b38b-d742f0c049bf',
   username: '',
   password: '',
   timeout: 60 * 1e3

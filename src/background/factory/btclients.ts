@@ -7,6 +7,7 @@ import SynologyDownloadStation, {
   synologyDownloadStationMetaData
 } from '@/background/btclients/synologyDownloadStation'
 import UTorrent, { defaultUTorrentConfig, UTorrentMetaData } from '@/background/btclients/uTorrent'
+import RuTorrent, { defaultRuTorrentClientConfig, RuTorrentMetaData } from '@/background/btclients/ruTorrent'
 
 export const supportClientType: {
   [client in clientType]: { config: TorrentClientBaseConfig; metadata: TorrentClientMetaData }
@@ -15,7 +16,8 @@ export const supportClientType: {
   qbittorrent: { config: defaultQbittorrentConfig, metadata: QbittorrentMetaData },
   transmission: { config: defaultTransmissionConfig, metadata: TransmissionMetaData },
   synologyDownloadStation: { config: defaultSynologyDownloadStationConfig, metadata: synologyDownloadStationMetaData },
-  utorrent: { config: defaultUTorrentConfig, metadata: UTorrentMetaData }
+  utorrent: { config: defaultUTorrentConfig, metadata: UTorrentMetaData },
+  ruTorrent: { config: defaultRuTorrentClientConfig, metadata: RuTorrentMetaData }
 }
 
 export default function (config: TorrentClientBaseConfig): TorrentClient {
@@ -30,6 +32,8 @@ export default function (config: TorrentClientBaseConfig): TorrentClient {
       return new SynologyDownloadStation(config)
     case 'utorrent':
       return new UTorrent(config)
+    case 'ruTorrent':
+      return new RuTorrent(config)
     default: // FIXME
       return new Deluge(config)
   }

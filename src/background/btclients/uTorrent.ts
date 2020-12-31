@@ -15,7 +15,7 @@ import axios from 'axios'
 export const defaultUTorrentConfig: TorrentClientConfig = {
   type: 'utorrent',
   name: 'µTorrent',
-  uuid: '0d86d407cda14efcbeebee3cf1cb729e',
+  uuid: '74bcc281-244f-4bf1-9013-eebb0a833d32',
   address: 'http://127.0.0.1:8080/gui/',
   username: 'admin',
   password: '',
