@@ -56,8 +56,8 @@ const FloodApiEndpointMap: {
     authenticate: '/api/auth/authenticate',
     'connection-test': '/api/client/connection-test',
     getTorrents: '/api/torrents',
-    addTorrentByUrl: '',
-    addTorrentByFile: '',
+    addTorrentByUrl: '/api/torrents/add-urls',
+    addTorrentByFile: '/api/torrents/add-files',
     startTorrent: '/api/torrents/start',
     stopTorrent: '/api/torrents/stop',
     deleteTorrent: '/api/torrents/delete'
@@ -67,8 +67,8 @@ const FloodApiEndpointMap: {
     authenticate: '/auth/authenticate',
     'connection-test': '/api/client/connection-test',
     getTorrents: '', // Legacy使用EventSource获取，故此处留空即可
-    addTorrentByUrl: '',
-    addTorrentByFile: '',
+    addTorrentByUrl: '/api/client/add',
+    addTorrentByFile: '/api/client/add-files',
     startTorrent: '/api/client/start',
     stopTorrent: '/api/client/stop',
     deleteTorrent: '/api/client/torrents/delete'
