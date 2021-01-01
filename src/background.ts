@@ -1,7 +1,7 @@
 import { browser } from 'webextension-polyfill-ts'
-import buildClient from '@/background/factory/btclients'
+import BtClientFactory from '@/background/factory/btclients'
 
-(window as any).f = buildClient
+(window as any).f = BtClientFactory
 
 browser.browserAction.onClicked.addListener(async () => {
   await browser.runtime.openOptionsPage()

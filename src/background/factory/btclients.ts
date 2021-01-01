@@ -10,7 +10,7 @@ import UTorrent, { defaultUTorrentConfig, UTorrentMetaData } from '@/background/
 import RuTorrent, { defaultRuTorrentClientConfig, RuTorrentMetaData } from '@/background/btclients/ruTorrent'
 import Flood, { defaultFloodConfig, FloodMetaData } from '@/background/btclients/Flood'
 
-export const supportClientType: {
+export const supportClient: {
   [client in clientType]: { config: TorrentClientBaseConfig; metadata: TorrentClientMetaData }
 } = {
   deluge: { config: defaultDelugeConfig, metadata: DelugeMetaData },
@@ -22,21 +22,44 @@ export const supportClientType: {
   flood: { config: defaultFloodConfig, metadata: FloodMetaData }
 }
 
-export default function (config: TorrentClientBaseConfig): TorrentClient {
-  switch (config.type) {
-    case 'deluge':
-      return new Deluge(config)
-    case 'qbittorrent':
-      return new QBittorrent(config)
-    case 'transmission':
-      return new Transmission(config)
-    case 'synologyDownloadStation':
-      return new SynologyDownloadStation(config)
-    case 'utorrent':
-      return new UTorrent(config)
-    case 'ruTorrent':
-      return new RuTorrent(config)
-    case 'flood':
-      return new Flood(config)
+// noinspection JSUnusedGlobalSymbols
+export const supportClientType = Object.keys(supportClient)
+
+export default class BtClientFactory {
+  private initializedClient: {
+    [uuid: string]: TorrentClient
+  } = {}
+
+  static create (config: TorrentClientBaseConfig): TorrentClient {
+    switch (config.type) {
+      case 'deluge':
+        return new Deluge(config)
+      case 'qbittorrent':
+        return new QBittorrent(config)
+      case 'transmission':
+        return new Transmission(config)
+      case 'synologyDownloadStation':
+        return new SynologyDownloadStation(config)
+      case 'utorrent':
+        return new UTorrent(config)
+      case 'ruTorrent':
+        return new RuTorrent(config)
+      case 'flood':
+        return new Flood(config)
+    }
+  }
+
+  // noinspection JSUnusedGlobalSymbols
+  static getClientDefaultConfig = (type : clientType): TorrentClientBaseConfig => supportClient[type].config;
+
+  // noinspection JSUnusedGlobalSymbols
+  static getClientMetaData = (type: clientType): TorrentClientMetaData => supportClient[type].metadata;
+
+  // noinspection JSUnusedGlobalSymbols
+  public getClient (config: TorrentClientBaseConfig): TorrentClient {
+    if (!(config.uuid in this.initializedClient)) {
+      this.initializedClient[config.uuid] = BtClientFactory.create(config)
+    }
+    return this.initializedClient[config.uuid]
   }
 }
