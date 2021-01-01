@@ -222,6 +222,7 @@ export default class UTorrent implements TorrentClient {
     })
 
     // TODO 增加 options.addAtPaused 支持
+    // TODO 增加label支持
 
     return true
   }

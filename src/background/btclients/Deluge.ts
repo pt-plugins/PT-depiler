@@ -41,6 +41,7 @@ type DelugeMethod =
   'auth.login' | 'web.update_ui' | 'core.get_torrents_status' |
   'core.add_torrent_url' | 'core.add_torrent_file' |
   'core.remove_torrent' | 'core.pause_torrent' | 'core.resume_torrent'
+| 'label.set_torrent'
 
 interface DelugeDefaultResponse {
   /**
@@ -208,6 +209,14 @@ export default class Deluge implements TorrentClient {
     try {
       const res = await this.request(method, params)
       const data: DelugeDefaultResponse = res.data
+
+      if (data.result !== null && options.label) {
+        try {
+          const torrentHash = data.result[0][1]
+          await this.request('label.set_torrent', [torrentHash, options.label])
+        } catch (e) {} // 即使失败了也没关系
+      }
+
       return data.result !== null
     } catch (e) {
       return false

@@ -84,7 +84,7 @@ type TransmissionTorrentIds = number | Array<number | string> | 'recently-active
 
 type TransmissionRequestMethod =
   'session-get' | 'session-stats' |
-  'torrent-get' | 'torrent-add' | 'torrent-start' | 'torrent-stop' | 'torrent-remove'
+  'torrent-get' | 'torrent-add' | 'torrent-start' | 'torrent-stop' | 'torrent-remove' | 'torrent-set'
 
 interface TransmissionAddTorrentOptions extends AddTorrentOptions {
   'download-dir': string,
@@ -227,16 +227,23 @@ export default class Transmission implements TorrentClient {
       delete options.savePath
     }
 
-    // Transmission 3.0 以上才支持label
-    if (options.label) {
-      delete options.label
-    }
+    const label = options.label
+    delete options.label
 
     options.paused = options.addAtPaused
     delete options.addAtPaused
     try {
       const resp = await this.request('torrent-add', options)
       const data: AddTorrentResponse = resp.data
+
+      // Transmission 3.0 以上才支持label
+      if (label) {
+        try {
+          const torrentId = data.arguments['torrent-added'].id
+          await this.request('torrent-set', { ids: torrentId, label: [label] })
+        } catch (e) {}
+      }
+
       return data.result === 'success'
     } catch (e) {
       return false
