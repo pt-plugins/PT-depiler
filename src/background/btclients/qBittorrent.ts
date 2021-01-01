@@ -2,9 +2,10 @@
  * @see https://github.com/qbittorrent/qBittorrent/wiki/Web-API-Documentation
  *
  * 注意，因为使用大驼峰命名的形式，所以qBittorrent在各变量命名中均写成 QBittorrent
+ * TODO: 增加qBittorrent 3.x 使用的API支持
  */
 import {
-  AddTorrentOptions,
+  AddTorrentOptions, CustomPathDescription,
   Torrent, TorrentClient,
   TorrentClientConfig, TorrentClientMetaData,
   TorrentFilterRules, TorrentState
@@ -115,7 +116,7 @@ export const QbittorrentMetaData: TorrentClientMetaData = {
   feature: {
     CustomPath: {
       allowed: true,
-      description: '当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/ 或 D:\\download\\music\\'
+      description: CustomPathDescription
     }
   }
 }

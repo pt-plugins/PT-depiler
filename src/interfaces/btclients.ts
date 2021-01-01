@@ -9,9 +9,11 @@ export type clientType =
   | 'synologyDownloadStation'
   | 'utorrent'
   | 'ruTorrent'
-  // TODO | 'flood'
+  | 'flood'
 
 export type TorrentClientFeature = 'CustomPath'
+
+export const CustomPathDescription = '当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/ 或 D:\\download\\music\\。请确保对应路径软件有写入权限。'
 
 /**
  * 客户端配置信息

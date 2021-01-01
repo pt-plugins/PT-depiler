@@ -3,7 +3,7 @@
  * @see https://github.com/Rhilip/PT-Plugin/blob/master/src/script/client.js#L477_L543
  */
 import {
-  AddTorrentOptions,
+  AddTorrentOptions, CustomPathDescription,
   Torrent,
   TorrentClient,
   TorrentClientConfig,
@@ -29,7 +29,7 @@ export const RuTorrentMetaData: TorrentClientMetaData = {
   feature: {
     CustomPath: {
       allowed: true,
-      description: '当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/ 或 D:\\download\\music\\'
+      description: CustomPathDescription
     }
   }
 }

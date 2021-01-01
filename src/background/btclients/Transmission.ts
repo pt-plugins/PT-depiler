@@ -1,5 +1,5 @@
 import {
-  AddTorrentOptions,
+  AddTorrentOptions, CustomPathDescription,
   Torrent, TorrentClient,
   TorrentClientConfig,
   TorrentClientMetaData,
@@ -27,7 +27,7 @@ export const TransmissionMetaData: TorrentClientMetaData = {
   feature: {
     CustomPath: {
       allowed: true,
-      description: '当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/'
+      description: CustomPathDescription
     }
   }
 }

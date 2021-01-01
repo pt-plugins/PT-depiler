@@ -2,7 +2,7 @@
  * @see https://deluge.readthedocs.io/en/develop/reference/index.html
  */
 import {
-  AddTorrentOptions,
+  AddTorrentOptions, CustomPathDescription,
   Torrent,
   TorrentClient,
   TorrentClientBaseConfig, TorrentClientMetaData,
@@ -32,7 +32,7 @@ export const DelugeMetaData: TorrentClientMetaData = {
   feature: {
     CustomPath: {
       allowed: true,
-      description: '当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/ 或 D:\\download\\music\\'
+      description: CustomPathDescription
     }
   }
 }
@@ -250,7 +250,7 @@ export default class Deluge implements TorrentClient {
       }
 
       return {
-        dateAdded: dateAdded,
+        dateAdded,
         id: torrent.hash,
         infoHash: torrent.hash,
         isCompleted: torrent.progress >= 100,
@@ -258,7 +258,7 @@ export default class Deluge implements TorrentClient {
         progress: torrent.progress,
         ratio: torrent.ratio,
         savePath: torrent.save_path,
-        state: state,
+        state,
         totalSize: torrent.total_size,
         uploadSpeed: torrent.upload_payload_rate,
         downloadSpeed: torrent.download_payload_rate,
