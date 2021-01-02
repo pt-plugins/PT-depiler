@@ -95,8 +95,8 @@ export enum QbittorrentTorrentState {
 }
 
 // 定义qBittorrent的基本配置
-export const defaultQbittorrentConfig: TorrentClientConfig = {
-  type: 'qbittorrent',
+export const clientConfig: TorrentClientConfig = {
+  type: 'qBittorrent',
   name: 'qBittorrent',
   uuid: '4c0f3c06-0b41-4828-9770-e8ef56da6a5c',
   address: 'http://localhost:9091/',
@@ -106,7 +106,7 @@ export const defaultQbittorrentConfig: TorrentClientConfig = {
 }
 
 // 定义qBittorrent的介绍文字
-export const QbittorrentMetaData: TorrentClientMetaData = {
+export const clientMetaData: TorrentClientMetaData = {
   description: 'qBittorrent是一个跨平台的自由BitTorrent客户端，其图形用户界面是由Qt所写成的。',
   warning: [
     '当前仅支持 qBittorrent v4.1+',
@@ -353,7 +353,7 @@ export default class QBittorrent implements TorrentClient {
   isLogin: boolean | null = null;
 
   constructor (options: Partial<TorrentClientConfig> = {}) {
-    this.config = { ...defaultQbittorrentConfig, ...options }
+    this.config = { ...clientConfig, ...options }
   }
 
   async ping (): Promise<boolean> {

@@ -13,8 +13,8 @@ import { Buffer } from 'buffer'
 import axios, { AxiosResponse } from 'axios'
 
 // 定义最基础的配置信息
-export const defaultDelugeConfig: TorrentClientBaseConfig = {
-  type: 'deluge',
+export const clientConfig: TorrentClientBaseConfig = {
+  type: 'Deluge',
   name: 'Deluge',
   uuid: '4e97f300-0a69-4c5b-ba8b-c0ac7031607e',
   address: 'http://localhost:8112/',
@@ -23,7 +23,7 @@ export const defaultDelugeConfig: TorrentClientBaseConfig = {
 }
 
 // 定义Deluge的介绍文字
-export const DelugeMetaData: TorrentClientMetaData = {
+export const clientMetaData: TorrentClientMetaData = {
   description: 'Deluge 是一个通过PyGTK建立图形界面的BitTorrent客户端',
   warning: [
     '仅支持Deluge Web，非Deluge Daemon的直接支持，具体原因请见 issue #207',
@@ -161,7 +161,7 @@ export default class Deluge implements TorrentClient {
   ]
 
   constructor (options: Partial<TorrentClientBaseConfig>) {
-    this.config = { ...defaultDelugeConfig, ...options }
+    this.config = { ...clientConfig, ...options }
     this._msgId = 0
 
     // 修正服务器地址

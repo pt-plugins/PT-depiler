@@ -9,8 +9,8 @@ import urljoin from 'url-join'
 import { Buffer } from 'buffer'
 import axios, { AxiosResponse } from 'axios'
 
-export const defaultTransmissionConfig: TorrentClientConfig = {
-  type: 'transmission',
+export const clientConfig: TorrentClientConfig = {
+  type: 'Transmission',
   name: 'Transmission',
   uuid: '1cc694ef-7f64-4882-b33a-b578a76fd35c',
   address: 'http://localhost:9091/',
@@ -19,7 +19,7 @@ export const defaultTransmissionConfig: TorrentClientConfig = {
   timeout: 60 * 1e3
 }
 
-export const TransmissionMetaData: TorrentClientMetaData = {
+export const clientMetaData: TorrentClientMetaData = {
   description: 'Transmission 是一个跨平台的BitTorrent客户端，特点是硬件资源消耗极少，界面极度精简',
   warning: [
     '默认情况下，系统会请求 http://ip:port/transmission/rpc 这个路径，如果无法连接，请确认 `settings.json` 文件的 `rpc-url` 值；详情可参考：https://github.com/ronggang/PT-Plugin-Plus/issues/32'
@@ -201,7 +201,7 @@ export default class Transmission implements TorrentClient {
   private sessionId : string = '';
 
   constructor (options: Partial<TorrentClientConfig> = {}) {
-    this.config = { ...defaultTransmissionConfig, ...options }
+    this.config = { ...clientConfig, ...options }
 
     // 修正服务器地址
     let address = this.config.address

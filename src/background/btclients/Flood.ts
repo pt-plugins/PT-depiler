@@ -6,8 +6,9 @@
  *
  * 实现时应尽可能同时匹配到两个
  */
+
 import {
-  AddTorrentOptions,
+  AddTorrentOptions, CustomPathDescription,
   Torrent,
   TorrentClient,
   TorrentClientConfig,
@@ -19,22 +20,27 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import urljoin from 'url-join'
 import { Buffer } from 'buffer'
 
-export const defaultFloodConfig: TorrentClientConfig = {
-  type: 'flood',
+export const clientConfig: TorrentClientConfig = {
+  type: 'Flood',
   name: 'Flood',
-  uuid: '',
-  address: '',
+  uuid: '9831970f-6c10-4b02-a3a0-eb07062e5e69',
+  address: 'http://172.0.0.1:3000',
   username: '',
   password: '',
   timeout: 60 * 1e3
 }
 
-export const FloodMetaData: TorrentClientMetaData = {
-  description: '',
-  warning: [],
+export const clientMetaData: TorrentClientMetaData = {
+  description: 'Flood 是 ruTorrent 的另一款基于Node的Web前端面板，界面美观，加载速度快',
+  warning: [
+    '同时兼容 Flood 原版以及 jesec修改版',
+    '如果当前已登录Flood面板，请退出登陆后再做连接性测试',
+    '目前无法准确获得Flood的种子操作（添加、启动、暂停、删除）是否成功。'
+  ],
   feature: {
     CustomPath: {
-      allowed: true
+      allowed: true,
+      description: CustomPathDescription
     }
   }
 }
@@ -147,7 +153,7 @@ export default class Flood implements TorrentClient {
   private apiType?: FloodApiType;
 
   constructor (options: Partial<TorrentClientConfig> = {}) {
-    this.config = { ...defaultFloodConfig, ...options }
+    this.config = { ...clientConfig, ...options }
   }
 
   private async getEndPointType (): Promise<FloodApiType> {

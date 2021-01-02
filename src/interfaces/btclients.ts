@@ -2,14 +2,17 @@
  * 所有支持的客户端种类（新增客户端请在此处注册）
  * 对应 v1.x 版本的 type 项
  */
-export type clientType =
-  'qbittorrent'
-  | 'deluge'
-  | 'transmission'
-  | 'synologyDownloadStation'
-  | 'utorrent'
-  | 'ruTorrent'
-  | 'flood'
+export const clientTypeList = [
+  'Deluge',
+  'qBittorrent',
+  'Transmission',
+  'synologyDownloadStation',
+  'uTorrent',
+  'ruTorrent',
+  'Flood'
+] as const
+
+export type clientType = typeof clientTypeList[number]
 
 export type TorrentClientFeature = 'CustomPath'
 

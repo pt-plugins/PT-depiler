@@ -12,8 +12,8 @@ import {
 import urljoin from 'url-join'
 import axios from 'axios'
 
-export const defaultUTorrentConfig: TorrentClientConfig = {
-  type: 'utorrent',
+export const clientConfig: TorrentClientConfig = {
+  type: 'uTorrent',
   name: 'µTorrent',
   uuid: '74bcc281-244f-4bf1-9013-eebb0a833d32',
   address: 'http://127.0.0.1:8080/gui/',
@@ -22,7 +22,7 @@ export const defaultUTorrentConfig: TorrentClientConfig = {
   timeout: 60 * 1e3
 }
 
-export const UTorrentMetaData: TorrentClientMetaData = {
+export const clientMetaData: TorrentClientMetaData = {
   description: 'μTorrent 是一个小巧强劲，全功能，用C++编写，支持Windows、Mac OS X和GNU/Linux平台的免费BitTorrent客户端。',
   warning: [
     '由于 µTorrent Web API 接口不统一，当前仅支持 µTorrent Windows 版本，Mac 版本测试不可用，其他系统未知。',
@@ -124,7 +124,7 @@ export default class UTorrent implements TorrentClient {
   private _sid: string | null = null;
 
   constructor (options: Partial<TorrentClientConfig>) {
-    this.config = { ...defaultUTorrentConfig, ...options }
+    this.config = { ...clientConfig, ...options }
 
     // 修正GUI地址
     this.address = this.config.address

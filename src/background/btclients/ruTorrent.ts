@@ -14,7 +14,7 @@ import {
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { getRandomInt } from '@/utils/common'
 
-export const defaultRuTorrentClientConfig: TorrentClientConfig = {
+export const clientConfig: TorrentClientConfig = {
   type: 'ruTorrent',
   name: 'ruTorrent',
   uuid: 'b2d09b95-20b4-4d79-8858-b5eb81f20ddf',
@@ -24,7 +24,7 @@ export const defaultRuTorrentClientConfig: TorrentClientConfig = {
   timeout: 60 * 1e3
 }
 
-export const RuTorrentMetaData: TorrentClientMetaData = {
+export const clientMetaData: TorrentClientMetaData = {
   description: 'rTorrent 的一款基于PHP的Web前端面板',
   feature: {
     CustomPath: {
@@ -88,7 +88,7 @@ export default class RuTorrent implements TorrentClient {
   readonly config: TorrentClientConfig;
 
   constructor (options: Partial<TorrentClientConfig> = {}) {
-    this.config = { ...defaultRuTorrentClientConfig, ...options }
+    this.config = { ...clientConfig, ...options }
   }
 
   async request (config: AxiosRequestConfig = {}): Promise<AxiosResponse> {

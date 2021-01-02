@@ -15,7 +15,7 @@ import {
 import urljoin from 'url-join'
 import axios, { AxiosRequestConfig } from 'axios'
 
-export const defaultSynologyDownloadStationConfig: TorrentClientConfig = {
+export const clientConfig: TorrentClientConfig = {
   type: 'synologyDownloadStation',
   name: 'Synology Download Station',
   address: 'http://mysd.com:5000/',
@@ -25,7 +25,7 @@ export const defaultSynologyDownloadStationConfig: TorrentClientConfig = {
   timeout: 60 * 1e3
 }
 
-export const synologyDownloadStationMetaData: TorrentClientMetaData = {
+export const clientMetaData: TorrentClientMetaData = {
   description: 'Download Station是由Synology NAS提供的一款网页式下载应用程序',
   warning: [
     'DSM 4.2以及之后版本请勿开启二步验证选项'
@@ -266,7 +266,7 @@ export default class SynologyDownloadStation implements TorrentClient {
   private _sessionId: string | null = null;
 
   constructor (options: Partial<TorrentClientConfig> = {}) {
-    this.config = { ...defaultSynologyDownloadStationConfig, ...options }
+    this.config = { ...clientConfig, ...options }
   }
 
   private async getSessionId (): Promise<string> {
