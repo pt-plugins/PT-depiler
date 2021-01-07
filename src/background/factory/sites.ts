@@ -1,29 +1,40 @@
 import { BittorrentSite, PrivateSite } from '@/background/sites/schema/base'
 import Container from '@/shared/class/container'
 
-function getModuleNameSpaceFromContextList (arr: string[]) {
-  return arr.map(key => {
-    return key.replace('.ts', '').replace('./', '')
-  })
-}
+type supportModuleType = 'schema' | 'public' | 'private'
 
 class Sites extends Container {
-  private readonly _supportSchema: string[];
-  private readonly _supportSites: string[];
+  private readonly _supportList: {
+    [key in supportModuleType | 'all']: string[]
+  } = { private: [], public: [], schema: [], all: [] };
 
   constructor () {
     super()
 
-    // 动态获得所有支持的站点和站点模板
-    const SchemaContext = require.context('@/background/sites/schema/', false, /\.ts$/, 'weak')
-    const SiteContext = require.context('@/background/sites/', false, /\.ts$/, 'weak')
+    /**
+     * 使用 require.context 动态获取所有private, public, schema 方法
+     * 注意，设置的mode是weak，意味着我们不能使用 context('moduleA') 的方法获取模块
+     * 但这样也方便我们后续使用 Dynamic import 的相关特性来构造 webpackChunkName
+     * @refs: https://github.com/webpack/webpack/issues/9184
+     *
+     */
+    const context = require.context('@/background/sites/', true, /\.ts$/, 'weak')
+    context.keys().forEach(value => {
+      const moduleName = value.replace(/^\.\//, '').replace(/\.ts$/, '')
 
-    this._supportSchema = getModuleNameSpaceFromContextList(SchemaContext.keys()).filter(t => t !== 'base')
-    this._supportSites = getModuleNameSpaceFromContextList(SiteContext.keys())
+      if (moduleName !== 'schema/base') { // 'schema/base' 不应该被任何形式的导入和引用，也不会被构造
+        const [_type, site] = moduleName.split('/')
+        this._supportList[_type as supportModuleType].push(site)
+        this._supportList.all.push(moduleName)
+      }
+    })
   }
 
+  // FIXME 对module进行限制
   async dynamicImport (siteName: string) {
     return await import(
+      /* webpackInclude: /\.ts/ */
+      /* webpackExclude: /schema.base/ */
       /* webpackChunkName: "lib/sites/[request]" */
       /* webpackMode: "lazy" */
       `@/background/sites/${siteName}`) as {
@@ -31,14 +42,12 @@ class Sites extends Container {
     }
   }
 
-  isValidSchemaName (schemaName: string): boolean {
-    return this._supportSchema.includes(schemaName)
+  // FIXME
+  isSupport (moduleType: supportModuleType, siteName: string) : boolean {
+    return this._supportList[moduleType].includes(siteName)
   }
 
-  isValidSiteName (siteName: string): boolean {
-    return this._supportSites.includes(siteName)
-  }
-
+  // FIXME
   async getSite (siteName: string): Promise<PrivateSite | BittorrentSite> {
     return await this.resolveObject<PrivateSite | BittorrentSite>(`site-${siteName}`, async () => {
       const module = await this.dynamicImport(siteName)
