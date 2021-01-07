@@ -4,14 +4,11 @@ import {
   TorrentClient,
   TorrentClientBaseConfig,
   TorrentClientMetaData
-} from '@/interfaces/btclients'
+} from '@/shared/interfaces/btclients'
+import Container from '@/shared/class/container'
 
 // noinspection JSUnusedGlobalSymbols
-export default class BtClientFactory {
-  private initializedClient: {
-    [uuid: string]: TorrentClient
-  } = {}
-
+class BtClientFactory extends Container {
   static isValidClient (type: clientType): boolean {
     return clientTypeList.includes(type)
   }
@@ -19,6 +16,7 @@ export default class BtClientFactory {
   private static async dynamicImport (type: clientType) {
     return await import(
       /* webpackChunkName: "lib/btclients/[request]" */
+      /* webpackMode: "lazy" */
       /* webpackExports: ["default", "clientConfig", "clientMetaData"] */
       `@/background/btclients/${type}`) as {
       default: TorrentClient,
@@ -37,18 +35,15 @@ export default class BtClientFactory {
     return module.clientMetaData
   }
 
-  public async create (config: TorrentClientBaseConfig): Promise<TorrentClient> {
-    const module = await BtClientFactory.dynamicImport(config.type)
-    const Client = module.default
-    // @ts-ignore
-    return new Client(config)
-  }
-
   // noinspection JSUnusedGlobalSymbols
   public async getClient (config: TorrentClientBaseConfig): Promise<TorrentClient> {
-    if (!(config.uuid in this.initializedClient)) {
-      this.initializedClient[config.uuid] = await this.create(config)
-    }
-    return this.initializedClient[config.uuid]
+    return await this.resolveObject<TorrentClient>(`client-${config.uuid}`, async () => {
+      const module = await BtClientFactory.dynamicImport(config.type)
+      const Client = module.default
+      // @ts-ignore
+      return new Client(config)
+    })
   }
 }
+
+export default new BtClientFactory()

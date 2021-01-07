@@ -10,9 +10,9 @@ import {
   TorrentClientMetaData,
   TorrentFilterRules,
   TorrentState
-} from '@/interfaces/btclients'
+} from '@/shared/interfaces/btclients'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
-import { getRandomInt } from '@/utils/common'
+import { getRandomInt } from '@/shared/utils/common'
 
 export const clientConfig: TorrentClientConfig = {
   type: 'ruTorrent',

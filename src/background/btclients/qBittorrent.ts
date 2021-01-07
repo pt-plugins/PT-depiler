@@ -9,10 +9,10 @@ import {
   Torrent, TorrentClient,
   TorrentClientConfig, TorrentClientMetaData,
   TorrentFilterRules, TorrentState
-} from '@/interfaces/btclients'
+} from '@/shared/interfaces/btclients'
 import axios, { AxiosResponse, Method } from 'axios'
 import urljoin from 'url-join'
-import { getRandomInt, normalizePieces } from '@/utils/common'
+import { getRandomInt, normalizePieces } from '@/shared/utils/common'
 
 export enum QbittorrentTorrentState {
   /**
