@@ -37,6 +37,7 @@ class Sites extends Container {
       /* webpackExclude: /schema.Abstract/ */
       /* webpackChunkName: "lib/sites/[request]" */
       /* webpackMode: "lazy" */
+      /* webpackExports: ["default","siteConfig"] */
       `@/background/sites/${siteName}`) as {
       default: PrivateSite | BittorrentSite,
     }

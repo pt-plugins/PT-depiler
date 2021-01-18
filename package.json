@@ -10,7 +10,6 @@
   "displayName": "PT 助手 Plus",
   "homepage": "https://github.com/ronggang/PT-Plugin-Plus",
   "scripts": {
-    "dev": "vue-cli-service build --mode development",
     "serve": "vue-cli-service build --mode development --watch",
     "devtools": "vue-devtools",
     "build": "vue-cli-service build",
@@ -23,6 +22,7 @@
     "dayjs": "^1.10.3",
     "lodash-es": "^4.17.20",
     "url-join": "^4.0.1",
+    "url-parse": "^1.4.7",
     "uuid": "^8.3.2",
     "vue": "^2.6.11",
     "vue-router": "^3.2.0",
@@ -31,6 +31,7 @@
   "devDependencies": {
     "@types/lodash-es": "^4.17.4",
     "@types/url-join": "^4.0.0",
+    "@types/url-parse": "^1.4.3",
     "@types/uuid": "^8.3.0",
     "@typescript-eslint/eslint-plugin": "^4.11.1",
     "@typescript-eslint/parser": "^4.11.1",

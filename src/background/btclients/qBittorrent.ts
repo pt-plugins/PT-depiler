@@ -345,7 +345,7 @@ interface rawTorrent {
   category: string;
 }
 
-function normalizePieces (pieces: string | string[], joinBy:string = ','): string {
+function normalizePieces (pieces: string | string[], joinBy:string = '|'): string {
   if (Array.isArray(pieces)) {
     return pieces.join(joinBy)
   }
@@ -447,7 +447,7 @@ export default class QBittorrent implements TorrentClient {
 
   async getTorrentsBy (filter: QbittorrentTorrentFilterRules): Promise<QbittorrentTorrent[]> {
     if (filter.hashes) {
-      filter.hashes = normalizePieces(filter.hashes, '|')
+      filter.hashes = normalizePieces(filter.hashes)
     }
 
     // 将通用项处理成qbt对应的项目
@@ -531,7 +531,7 @@ export default class QBittorrent implements TorrentClient {
   // 注意方法虽然支持一次对多个种子进行操作，但仍建议每次均只操作一个种子
   async pauseTorrent (hashes: string | string[] | 'all'): Promise<boolean> {
     const params = {
-      hashes: hashes === 'all' ? 'all' : normalizePieces(hashes, '|')
+      hashes: hashes === 'all' ? 'all' : normalizePieces(hashes)
     }
 
     await this.request('GET', '/torrents/pause', params)
@@ -541,7 +541,7 @@ export default class QBittorrent implements TorrentClient {
   // 注意方法虽然支持一次对多个种子进行操作，但仍建议每次均只操作一个种子
   async removeTorrent (hashes: string | string[] | 'all', removeData: boolean = false): Promise<boolean> {
     const params = {
-      hashes: hashes === 'all' ? 'all' : normalizePieces(hashes, '|'),
+      hashes: hashes === 'all' ? 'all' : normalizePieces(hashes),
       removeData
     }
     await this.request('GET', '/torrents/delete', params)
@@ -551,7 +551,7 @@ export default class QBittorrent implements TorrentClient {
   // 注意方法虽然支持一次对多个种子进行操作，但仍建议每次均只操作一个种子
   async resumeTorrent (hashes: string | string[] | 'all'): Promise<any> {
     const params = {
-      hashes: hashes === 'all' ? 'all' : normalizePieces(hashes, '|')
+      hashes: hashes === 'all' ? 'all' : normalizePieces(hashes)
     }
     await this.request('GET', '/torrents/resume', params)
     return true

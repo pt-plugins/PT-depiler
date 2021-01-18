@@ -1,6 +1,7 @@
 import { EConfigKey, EUserDataRange } from '@/shared/interfaces/enum'
 import browserBridge from '@/background/service/storage/browserBridge'
 import dayjs from 'dayjs'
+import { UserInfo } from '@/shared/interfaces/sites'
 
 type StoredUserDataPerSite = { // 站点HOST
   [date: string]: UserInfo // 日期 YYYY-MM-DD
@@ -64,6 +65,10 @@ class UserDataRecords extends browserBridge {
     await this.save()
   }
 
+  /**
+   * 根据站点的 formerHosts 信息更新过去存储的用户历史
+   * 注意，该方法仅允许在 browser.runtime.onInstalled 中触发
+   */
   public async upgradeUserData () {
     // TODO
   }

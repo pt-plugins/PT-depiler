@@ -1,7 +1,7 @@
 const DomParser = new DOMParser()
 
-export function generateDocumentFromString (text: string, type:DOMParserSupportedType = 'text/html'): Document {
-  return DomParser.parseFromString(text, 'text/html')
+export function generateDocumentFromString (text: string, type: DOMParserSupportedType = 'text/html'): Document {
+  return DomParser.parseFromString(text, type)
 }
 
 export function getFixedRatio (uploaded: number = 0, downloaded: number = 0): string | '∞' {
