@@ -24,6 +24,7 @@ export const clientConfig: TorrentClientConfig = {
   timeout: 60 * 1e3
 }
 
+// noinspection JSUnusedGlobalSymbols
 export const clientMetaData: TorrentClientMetaData = {
   description: 'rTorrent 的一款基于PHP的Web前端面板',
   feature: {
@@ -83,6 +84,7 @@ function iv (val: string | null) {
   return (isNaN(v) ? 0 : v)
 }
 
+// noinspection JSUnusedGlobalSymbols
 export default class RuTorrent implements TorrentClient {
   readonly version = 'v0.0.1';
   readonly config: TorrentClientConfig;

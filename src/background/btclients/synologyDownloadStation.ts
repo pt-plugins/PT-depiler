@@ -25,6 +25,7 @@ export const clientConfig: TorrentClientConfig = {
   timeout: 60 * 1e3
 }
 
+// noinspection JSUnusedGlobalSymbols
 export const clientMetaData: TorrentClientMetaData = {
   description: 'Download Station是由Synology NAS提供的一款网页式下载应用程序',
   warning: [
@@ -113,7 +114,7 @@ interface FormFile {
   filename: string;
 }
 
-export function isFormFile (f?: any): f is FormFile {
+function isFormFile (f?: any): f is FormFile {
   return f && (f as FormFile).content != null && (f as FormFile).filename != null
 }
 
@@ -259,6 +260,7 @@ interface rawTask {
   }
 }
 
+// noinspection JSUnusedGlobalSymbols
 export default class SynologyDownloadStation implements TorrentClient {
   readonly version = 'v0.2.1';
   readonly config: TorrentClientConfig;

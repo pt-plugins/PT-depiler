@@ -22,6 +22,7 @@ export const clientConfig: TorrentClientConfig = {
   timeout: 60 * 1e3
 }
 
+// noinspection JSUnusedGlobalSymbols
 export const clientMetaData: TorrentClientMetaData = {
   description: 'μTorrent 是一个小巧强劲，全功能，用C++编写，支持Windows、Mac OS X和GNU/Linux平台的免费BitTorrent客户端。',
   warning: [
@@ -115,6 +116,7 @@ interface TorrentListResponse extends BaseUtorrentResponse {
   rssfilters: any[];
 }
 
+// noinspection JSUnusedGlobalSymbols
 export default class UTorrent implements TorrentClient {
   readonly version = 'v0.0.1';
   readonly config: TorrentClientConfig;

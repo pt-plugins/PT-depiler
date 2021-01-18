@@ -12,9 +12,37 @@ import {
 } from '@/shared/interfaces/btclients'
 import axios, { AxiosResponse, Method } from 'axios'
 import urljoin from 'url-join'
-import { getRandomInt, normalizePieces } from '@/shared/utils/common'
+import { getRandomInt } from '@/shared/utils/common'
 
-export enum QbittorrentTorrentState {
+export const clientConfig: TorrentClientConfig = {
+  type: 'qBittorrent',
+  name: 'qBittorrent',
+  uuid: '4c0f3c06-0b41-4828-9770-e8ef56da6a5c',
+  address: 'http://localhost:9091/',
+  username: '',
+  password: '',
+  timeout: 60 * 1e3
+}
+
+// noinspection JSUnusedGlobalSymbols
+export const clientMetaData: TorrentClientMetaData = {
+  description: 'qBittorrent是一个跨平台的自由BitTorrent客户端，其图形用户界面是由Qt所写成的。',
+  warning: [
+    '当前仅支持 qBittorrent v4.1+',
+    '由于浏览器限制，需要禁用 qBittorrent 的『启用跨站请求伪造(CSRF)保护』功能才能正常使用',
+    '注意：由于 qBittorrent 验证机制限制，第一次测试连接成功后，后续测试无论密码正确与否都会提示成功。'
+  ],
+  feature: {
+    CustomPath: {
+      allowed: true,
+      description: CustomPathDescription
+    }
+  }
+}
+
+type TrueFalseStr = 'true' | 'false';
+
+enum QbittorrentTorrentState {
   /**
    * Some error occurred, applies to paused torrents
    */
@@ -93,35 +121,6 @@ export enum QbittorrentTorrentState {
    */
   MissingFiles = 'missingFiles',
 }
-
-// 定义qBittorrent的基本配置
-export const clientConfig: TorrentClientConfig = {
-  type: 'qBittorrent',
-  name: 'qBittorrent',
-  uuid: '4c0f3c06-0b41-4828-9770-e8ef56da6a5c',
-  address: 'http://localhost:9091/',
-  username: '',
-  password: '',
-  timeout: 60 * 1e3
-}
-
-// 定义qBittorrent的介绍文字
-export const clientMetaData: TorrentClientMetaData = {
-  description: 'qBittorrent是一个跨平台的自由BitTorrent客户端，其图形用户界面是由Qt所写成的。',
-  warning: [
-    '当前仅支持 qBittorrent v4.1+',
-    '由于浏览器限制，需要禁用 qBittorrent 的『启用跨站请求伪造(CSRF)保护』功能才能正常使用',
-    '注意：由于 qBittorrent 验证机制限制，第一次测试连接成功后，后续测试无论密码正确与否都会提示成功。'
-  ],
-  feature: {
-    CustomPath: {
-      allowed: true,
-      description: CustomPathDescription
-    }
-  }
-}
-
-type TrueFalseStr = 'true' | 'false';
 
 interface QbittorrentTorrent extends Torrent {
   id: string;
@@ -346,6 +345,14 @@ interface rawTorrent {
   category: string;
 }
 
+function normalizePieces (pieces: string | string[], joinBy:string = ','): string {
+  if (Array.isArray(pieces)) {
+    return pieces.join(joinBy)
+  }
+  return pieces
+}
+
+// noinspection JSUnusedGlobalSymbols
 export default class QBittorrent implements TorrentClient {
   readonly version = 'v0.1.0';
   readonly config: TorrentClientConfig;

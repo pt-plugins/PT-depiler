@@ -12,7 +12,6 @@ import urljoin from 'url-join'
 import { Buffer } from 'buffer'
 import axios, { AxiosResponse } from 'axios'
 
-// 定义最基础的配置信息
 export const clientConfig: TorrentClientBaseConfig = {
   type: 'Deluge',
   name: 'Deluge',
@@ -22,7 +21,7 @@ export const clientConfig: TorrentClientBaseConfig = {
   timeout: 60 * 1e3
 }
 
-// 定义Deluge的介绍文字
+// noinspection JSUnusedGlobalSymbols
 export const clientMetaData: TorrentClientMetaData = {
   description: 'Deluge 是一个通过PyGTK建立图形界面的BitTorrent客户端',
   warning: [
@@ -139,7 +138,7 @@ interface DelugeBooleanStatus extends DelugeDefaultResponse {
   result: boolean;
 }
 
-// 定义Deluge的实例
+// noinspection JSUnusedGlobalSymbols
 export default class Deluge implements TorrentClient {
   readonly version = 'v0.1.0';
   readonly config: TorrentClientBaseConfig;

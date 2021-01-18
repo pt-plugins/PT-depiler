@@ -1,3 +1,6 @@
+/**
+ * TODO 注意，获取可用空间 的功能尚未实现
+ */
 import {
   AddTorrentOptions, CustomPathDescription,
   Torrent, TorrentClient,
@@ -19,6 +22,7 @@ export const clientConfig: TorrentClientConfig = {
   timeout: 60 * 1e3
 }
 
+// noinspection JSUnusedGlobalSymbols
 export const clientMetaData: TorrentClientMetaData = {
   description: 'Transmission 是一个跨平台的BitTorrent客户端，特点是硬件资源消耗极少，界面极度精简',
   warning: [
@@ -190,7 +194,7 @@ interface TransmissionTorrentRemoveArguments extends TransmissionTorrentBaseArgu
   'delete-local-data'?: boolean
 }
 
-// TODO 注意，获取可用空间 的功能尚未实现
+// noinspection JSUnusedGlobalSymbols
 export default class Transmission implements TorrentClient {
   readonly version = 'v0.1.0'
   readonly config: TorrentClientConfig;

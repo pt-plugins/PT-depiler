@@ -1,7 +1,7 @@
 /**
  *
  * 注意：Flood目前有两个分支，且部分路由存在差异
- *  - https://github.com/Flood-UI/flood/tree/master/server/routes
+ *  - https://github.com/Flood-UI/flood/tree/master/server/routes  (legacy)
  *  - https://github.com/jesec/flood/tree/master/server/routes/api
  *
  * 实现时应尽可能同时匹配到两个
@@ -18,6 +18,7 @@ import {
 } from '@/shared/interfaces/btclients'
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import urljoin from 'url-join'
+import { intersection } from 'lodash-es'
 import { Buffer } from 'buffer'
 
 export const clientConfig: TorrentClientConfig = {
@@ -30,6 +31,7 @@ export const clientConfig: TorrentClientConfig = {
   timeout: 60 * 1e3
 }
 
+// noinspection JSUnusedGlobalSymbols
 export const clientMetaData: TorrentClientMetaData = {
   description: 'Flood 是 ruTorrent 的另一款基于Node的Web前端面板，界面美观，加载速度快',
   warning: [
@@ -81,6 +83,13 @@ const FloodApiEndpointMap: {
   }
 }
 
+/**
+ * 原版的种子情况需要使用 EventSource获取
+ * 通过获取
+ *
+ * @param path
+ * @param event
+ */
 function legacyActivityStreamWrapper (path: string, event: string): Promise<any> {
   return new Promise<any>((resolve) => {
     const sse = new EventSource(path)
@@ -146,6 +155,7 @@ interface TorrentListSummaryResponse {
   torrents: TorrentList;
 }
 
+// noinspection JSUnusedGlobalSymbols
 export default class Flood implements TorrentClient {
   readonly version = 'v0.0.1';
   readonly config: TorrentClientConfig;
@@ -304,15 +314,15 @@ export default class Flood implements TorrentClient {
 
       let state = TorrentState.unknown
 
-      if (rawTorrent.status.includes('downloading') || rawTorrent.status.includes('d') || rawTorrent.status.includes('ad')) {
+      if (intersection(rawTorrent.status, ['downloading', 'd', 'ad']).length > 0) {
         state = TorrentState.downloading
-      } else if (rawTorrent.status.includes('seeding') || rawTorrent.status.includes('sd') || rawTorrent.status.includes('au')) {
+      } else if (intersection(rawTorrent.status, ['seeding', 'sd', 'au']).length > 0) {
         state = TorrentState.seeding
-      } else if (rawTorrent.status.includes('stopped') || rawTorrent.status.includes('p') || rawTorrent.status.includes('s')) {
+      } else if (intersection(rawTorrent.status, ['stopped', 'p', 's']).length > 0) {
         state = TorrentState.paused
-      } else if (rawTorrent.status.includes('ch') || rawTorrent.status.includes('checking')) {
+      } else if (intersection(rawTorrent.status, ['ch', 'checking']).length > 0) {
         state = TorrentState.checking
-      } else if (rawTorrent.status.includes('error') || rawTorrent.status.includes('e')) {
+      } else if (intersection(rawTorrent.status, ['error', 'e']).length > 0) {
         state = TorrentState.error
       }
 
