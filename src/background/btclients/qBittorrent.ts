@@ -12,7 +12,7 @@ import {
 } from '@/shared/interfaces/btclients'
 import axios, { AxiosResponse, Method } from 'axios'
 import urljoin from 'url-join'
-import { getRandomInt } from '@/shared/utils/common'
+import { random } from 'lodash-es'
 
 export const clientConfig: TorrentClientConfig = {
   type: 'qBittorrent',
@@ -414,7 +414,7 @@ export default class QBittorrent implements TorrentClient {
         responseType: 'blob'
       })
       // FIXME 使用
-      formData.append('torrents', req.data, String(getRandomInt(0, 4096)) + '.torrent')
+      formData.append('torrents', req.data, String(random(0, 4096, true)) + '.torrent')
     }
     delete options.localDownload
 

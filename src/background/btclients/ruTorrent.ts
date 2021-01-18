@@ -12,7 +12,7 @@ import {
   TorrentState
 } from '@/shared/interfaces/btclients'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
-import { getRandomInt } from '@/shared/utils/common'
+import { random } from 'lodash-es'
 
 export const clientConfig: TorrentClientConfig = {
   type: 'ruTorrent',
@@ -135,7 +135,7 @@ export default class RuTorrent implements TorrentClient {
         responseType: 'blob'
       })
 
-      postData.append('torrent_file', req.data, String(getRandomInt(0, 4096)) + '.torrent')
+      postData.append('torrent_file', req.data, String(random(0, 4096, true)) + '.torrent')
     }
 
     postData.append('json', '1') // 让ruTorrent返回json
