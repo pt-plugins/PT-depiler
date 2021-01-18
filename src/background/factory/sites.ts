@@ -1,4 +1,4 @@
-import { BittorrentSite, PrivateSite } from '@/background/sites/schema/base'
+import { BittorrentSite, PrivateSite } from '@/background/sites/schema/Abstract'
 import Container from '@/shared/class/container'
 
 type supportModuleType = 'schema' | 'public' | 'private'
@@ -22,7 +22,7 @@ class Sites extends Container {
     context.keys().forEach(value => {
       const moduleName = value.replace(/^\.\//, '').replace(/\.ts$/, '')
 
-      if (moduleName !== 'schema/base') { // 'schema/base' 不应该被任何形式的导入和引用，也不会被构造
+      if (moduleName !== 'schema/Abstract') { // 'schema/Abstract' 不应该被任何形式的导入和引用，也不会被构造
         const [_type, site] = moduleName.split('/')
         this._supportList[_type as supportModuleType].push(site)
         this._supportList.all.push(moduleName)
@@ -34,7 +34,7 @@ class Sites extends Container {
   async dynamicImport (siteName: string) {
     return await import(
       /* webpackInclude: /\.ts/ */
-      /* webpackExclude: /schema.base/ */
+      /* webpackExclude: /schema.Abstract/ */
       /* webpackChunkName: "lib/sites/[request]" */
       /* webpackMode: "lazy" */
       `@/background/sites/${siteName}`) as {
