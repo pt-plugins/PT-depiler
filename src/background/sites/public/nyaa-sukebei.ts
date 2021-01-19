@@ -1,4 +1,4 @@
-import Nyaa, { siteConfig as NyaaSiteConfig } from './nyaa'
+import Nyaa, { nyaaCommonFilter, siteConfig as NyaaSiteConfig } from './nyaa'
 import { SiteConfig } from '@/shared/interfaces/sites'
 
 export const siteConfig: SiteConfig = {
@@ -6,16 +6,7 @@ export const siteConfig: SiteConfig = {
   name: 'Nyaa Sukebei',
   url: 'https://sukebei.nyaa.si/',
   categories: [
-    {
-      name: 'Filter',
-      key: 'f',
-      options: [
-        { name: 'No filter', value: '0' },
-        { name: 'No remakes', value: '1' },
-        { name: 'Trusted only', value: '2' }
-      ],
-      cross: false
-    },
+    ...nyaaCommonFilter,
     {
       name: 'Category',
       key: 'c',
@@ -33,10 +24,10 @@ export const siteConfig: SiteConfig = {
       ],
       cross: false
     }
-
   ]
 }
 
+// noinspection JSUnusedGlobalSymbols
 export default class NyaaSukebei extends Nyaa {
   protected readonly siteConfig = siteConfig;
 }

@@ -1,26 +1,48 @@
 import { BittorrentSite } from '@/background/sites/schema/Abstract'
-import axios from 'axios'
+import { AxiosRequestConfig } from 'axios'
 import urljoin from 'url-join'
-import { generateDocumentFromString } from '@/shared/utils/common'
-
-import { searchFilter, SearchResultItemCategory, SiteConfig, Torrent } from '@/shared/interfaces/sites'
 import { sizeToNumber } from '@/shared/utils/filter'
+import { searchCategories, searchFilter, SiteConfig, Torrent } from '@/shared/interfaces/sites'
+
+export const nyaaCommonFilter: searchCategories[] = [
+  {
+    name: 'Filter',
+    key: 'f',
+    options: [
+      { name: 'No filter', value: '0' },
+      { name: 'No remakes', value: '1' },
+      { name: 'Trusted only', value: '2' }
+    ],
+    cross: false
+  },
+  {
+    name: 'Sort',
+    key: 's',
+    options: [
+      { name: 'Created', value: 'id' },
+      { name: 'Size', value: 'size' },
+      { name: 'Seeders', value: 'seeders' },
+      { name: 'Leechers', value: 'leechers' },
+      { name: 'Downloaders', value: 'downloads' },
+      { name: 'Comments', value: 'comments' }
+    ]
+  },
+  {
+    name: 'Order',
+    key: 'o',
+    options: [
+      { name: 'Desc', value: 'desc' },
+      { name: 'Asc', value: 'asc' }
+    ]
+  }
+]
 
 export const siteConfig: SiteConfig = {
   name: 'Nyaa Torrents',
   description: '一个侧重于东亚（中国、日本及韩国）多媒体资源的BitTorrent站点，是世界上最大的动漫专用种子索引站。',
   url: 'https://nyaa.si/',
   categories: [
-    {
-      name: 'Filter',
-      key: 'f',
-      options: [
-        { name: 'No filter', value: '0' },
-        { name: 'No remakes', value: '1' },
-        { name: 'Trusted only', value: '2' }
-      ],
-      cross: false
-    },
+    ...nyaaCommonFilter,
     {
       name: 'Category',
       key: 'c',
@@ -52,7 +74,13 @@ export const siteConfig: SiteConfig = {
       ],
       cross: false
     }
-  ]
+  ],
+  search: {
+    type: 'document',
+    defaultParams: [
+      { key: 'c', value: '0_0' }
+    ]
+  }
 }
 
 // noinspection JSUnusedGlobalSymbols
@@ -63,67 +91,50 @@ export default class Nyaa extends BittorrentSite {
     return urljoin(this.config.url, `/view/${id}`)
   }
 
-  async searchTorrents (filter: searchFilter): Promise<Torrent[]> {
-    // 生成请求参数
-    const params: any = {}
+  transformSearchFilter (filter: searchFilter): AxiosRequestConfig {
+    const config: AxiosRequestConfig = {
+      baseURL: this.config.url,
+      url: '/',
+      params: {}
+    }
     if (filter.keywords) {
-      params.q = filter.keywords
+      config.params.q = filter.keywords
     }
 
-    filter.categories?.forEach(category => {
+    this.config.search.defaultParams.concat(filter.categories || []).forEach(category => {
       const { key, value } = category
-      params[key] = value
+      config.params[key] = value
     })
 
-    // 请求页面并转化为document
-    const req = await axios.get(this.config.url, {
-      params
-    })
-    const doc = generateDocumentFromString(req.data)
+    return config
+  }
 
+  transformSearchPage (doc: Document): Torrent[] {
     const torrents: Torrent[] = []
 
-    // 处理表行
     const trs = doc.querySelectorAll('table.torrent-list > tbody > tr')
     trs?.forEach(tr => {
-      const tds = tr.querySelectorAll('td')
-      const categoryAnother = tds[0].querySelector('a')
-      const nameAndCommentAnother = tds[1].querySelectorAll('a')
-      const nameAnother = nameAndCommentAnother[nameAndCommentAnother.length - 1]
-
-      const downloadLinkAnother = tds[2].querySelectorAll('a')
-
-      const category: SearchResultItemCategory = {
-        name: categoryAnother!.getAttribute('title') as string,
-        link: urljoin(this.config.url, categoryAnother!.getAttribute('href') as string)
-      }
-      const detailPageUri = nameAnother!.getAttribute('href') as string
-      const title = nameAnother!.getAttribute('title') as string
-      const downloadLinks = Array.from(downloadLinkAnother).map(t => {
-        let uri = t.getAttribute('href') as string
-        if (!uri.startsWith('magnet')) {
-          uri = urljoin(this.config.url, uri)
-        }
-        return uri
-      })
-
-      let comments = 0
-      if (nameAndCommentAnother.length > 1) {
-        comments = parseInt(nameAndCommentAnother[0].innerText)
-      }
-
       torrents.push({
-        id: parseInt(detailPageUri.match(/(\d+)/)![0]),
-        title,
-        url: urljoin(this.config.url, detailPageUri),
-        link: downloadLinks[0],
-        time: tds[4].dataset.timestamp,
-        size: sizeToNumber(tds[3].innerText),
-        seeders: parseInt(tds[5].innerText),
-        leechers: parseInt(tds[6].innerText),
-        completed: parseInt(tds[7].innerText),
-        comments,
-        category
+        id: this.getFieldData(tr, {
+          selector: 'td:nth-child(2) a:last-of-type',
+          attribute: 'href',
+          filters: [
+            (q: string) => parseInt(q.match(/(\d+)/)![0])
+          ]
+        }),
+        title: this.getFieldData(tr, { selector: 'td:nth-child(2) a:last-of-type', attribute: 'title' }),
+        url: this.fixLink(this.getFieldData(tr, { selector: 'td:nth-child(2) a:last-of-type', attribute: 'href' }) as string),
+        link: this.fixLink(this.getFieldData(tr, { selector: 'td:nth-child(4) a', attribute: 'href' }) as string),
+        time: this.getFieldData(tr, { selector: 'td:nth-child(5)', data: 'timestamp' }),
+        size: this.getFieldData(tr, { selector: 'td:nth-child(4)', filters: [sizeToNumber] }),
+        seeders: this.getFieldData(tr, { selector: 'td:nth-child(6)', filters: [parseInt] }),
+        leechers: this.getFieldData(tr, { selector: 'td:nth-child(7)', filters: [parseInt] }),
+        completed: this.getFieldData(tr, { selector: 'td:nth-child(8)', filters: [parseInt] }),
+        comments: this.getFieldData(tr, {
+          selector: 'td:nth-child(2) a.comments',
+          filters: [(q:string) => parseInt(q) || 0]
+        }),
+        category: this.getFieldData(tr, { selector: 'td:nth-child(1) a', attribute: 'title' })
       } as Torrent)
     })
 

@@ -1,13 +1,9 @@
 import { ETorrentStatus } from '@/shared/interfaces/enum'
+import { ResponseType } from 'axios'
 
 export interface SearchResultItemTag {
   color?: string;
   name?: string;
-}
-
-export interface SearchResultItemCategory {
-  name?: string;
-  link?: string;
 }
 
 export interface Torrent {
@@ -33,7 +29,7 @@ export interface Torrent {
   progress?: number;
   // 状态
   status?: ETorrentStatus;
-  category?: SearchResultItemCategory;
+  category?: string;
 }
 
 export interface searchCategories {
@@ -45,7 +41,7 @@ export interface searchCategories {
 
 export interface searchFilter {
   keywords: string,
-  categories?: {[key:string]: string}[]
+  categories?: {key: string, value: string}[],
 
   [key: string]: any // 其他信息
 }
@@ -96,6 +92,11 @@ export interface SiteConfig {
   formerHosts?: string[]; // 站点过去曾经使用过的域名
 
   categories?: searchCategories[] // 站点对应搜索入口的种子分类信息，数组
+
+  search: {
+    type: ResponseType,
+    defaultParams: {key: string, value: string}[],
+  }
 
   feature?: { // 站点支持方法
     [key in SiteFeature]: boolean
