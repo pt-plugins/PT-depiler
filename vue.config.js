@@ -37,7 +37,40 @@ module.exports = {
       }
     }
   },
-  chainWebpack: (config) => {
+
+  configureWebpack: {
+    optimization: {
+      // 将第三方库和主程序分离
+      // 参考配置：https://yi-jy.com/2018/06/09/webpack-split-chunks/
+      splitChunks: {
+        chunks: 'all',
+        minSize: 30000,
+        maxSize: 0,
+        minChunks: 1,
+        maxAsyncRequests: 5,
+        maxInitialRequests: 3,
+        name: true,
+        cacheGroups: {
+          // 第三方库
+          vendors: {
+            test: /[\\/]node_modules[\\/]/,
+            priority: -10,
+            name: 'vendors'
+          },
+          // 公用模块
+          default: {
+            minSize: 0,
+            minChunks: 2,
+            priority: -20,
+            reuseExistingChunk: true,
+            name: 'utils'
+          }
+        }
+      }
+    }
+  },
+
+  chainWebpack: config => {
     // adambullmer/vue-cli-plugin-browser-extension 的默认webextension-polyfill处理方法和
     // webextension-polyfill-ts 存在冲突，会导致browser对象失效（为空）
     // 为了提供ts支持，参照 https://github.com/adambullmer/vue-cli-plugin-browser-extension#browser-polyfills 移除内置支持方法

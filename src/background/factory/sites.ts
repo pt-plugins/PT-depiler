@@ -31,14 +31,13 @@ class Sites extends Container {
   }
 
   // FIXME 对module进行限制
-  async dynamicImport (siteName: string) {
+  async dynamicImport (module: string) {
     return await import(
       /* webpackInclude: /\.ts/ */
-      /* webpackExclude: /schema.Abstract/ */
       /* webpackChunkName: "lib/sites/[request]" */
       /* webpackMode: "lazy" */
-      /* webpackExports: ["default","siteConfig"] */
-      `@/background/sites/${siteName}`) as {
+      /* webpackExports: ["default","siteMetadata"] */
+      `@/background/sites/${module}`) as {
       default: PrivateSite | BittorrentSite,
     }
   }
