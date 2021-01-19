@@ -2,7 +2,7 @@ import { BittorrentSite } from '@/background/sites/schema/Abstract'
 import { AxiosRequestConfig } from 'axios'
 import urljoin from 'url-join'
 import { sizeToNumber } from '@/shared/utils/filter'
-import { searchCategories, searchFilter, SiteConfig, Torrent } from '@/shared/interfaces/sites'
+import { searchCategories, searchFilter, SiteConfig, SiteMetadata, Torrent } from '@/shared/interfaces/sites'
 
 export const nyaaCommonFilter: searchCategories[] = [
   {
@@ -37,7 +37,7 @@ export const nyaaCommonFilter: searchCategories[] = [
   }
 ]
 
-export const siteConfig: SiteConfig = {
+export const siteMetadata: SiteMetadata = {
   name: 'Nyaa Torrents',
   description: '一个侧重于东亚（中国、日本及韩国）多媒体资源的BitTorrent站点，是世界上最大的动漫专用种子索引站。',
   url: 'https://nyaa.si/',
@@ -80,12 +80,36 @@ export const siteConfig: SiteConfig = {
     defaultParams: [
       { key: 'c', value: '0_0' }
     ]
+  },
+  selector: {
+    search: {
+      id: {
+        selector: 'td:nth-child(2) a:last-of-type',
+        attribute: 'href',
+        filters: [
+          (q: string) => parseInt(q.match(/(\d+)/)![0])
+        ]
+      },
+      title: { selector: 'td:nth-child(2) a:last-of-type', attribute: 'title' },
+      url: { selector: 'td:nth-child(2) a:last-of-type', attribute: 'href' },
+      link: { selector: 'td:nth-child(4) a', attribute: 'href' },
+      time: { selector: 'td:nth-child(5)', data: 'timestamp' },
+      size: { selector: 'td:nth-child(4)', filters: [sizeToNumber] },
+      seeders: { selector: 'td:nth-child(6)', filters: [parseInt] },
+      leechers: { selector: 'td:nth-child(7)', filters: [parseInt] },
+      completed: { selector: 'td:nth-child(8)', filters: [parseInt] },
+      comments: {
+        selector: 'td:nth-child(2) a.comments',
+        filters: [(q:string) => parseInt(q) || 0]
+      },
+      category: { selector: 'td:nth-child(1) a', attribute: 'title' }
+    }
   }
 }
 
 // noinspection JSUnusedGlobalSymbols
 export default class Nyaa extends BittorrentSite {
-  protected readonly siteConfig = siteConfig;
+  protected readonly siteMetadata = siteMetadata;
 
   generateDetailPageLink (id: string): string {
     return urljoin(this.config.url, `/view/${id}`)
@@ -93,7 +117,6 @@ export default class Nyaa extends BittorrentSite {
 
   transformSearchFilter (filter: searchFilter): AxiosRequestConfig {
     const config: AxiosRequestConfig = {
-      baseURL: this.config.url,
       url: '/',
       params: {}
     }
@@ -101,7 +124,7 @@ export default class Nyaa extends BittorrentSite {
       config.params.q = filter.keywords
     }
 
-    this.config.search.defaultParams.concat(filter.categories || []).forEach(category => {
+    this.config.search.defaultParams!.concat(filter.extraParams || []).forEach(category => {
       const { key, value } = category
       config.params[key] = value
     })
@@ -114,28 +137,7 @@ export default class Nyaa extends BittorrentSite {
 
     const trs = doc.querySelectorAll('table.torrent-list > tbody > tr')
     trs?.forEach(tr => {
-      torrents.push({
-        id: this.getFieldData(tr, {
-          selector: 'td:nth-child(2) a:last-of-type',
-          attribute: 'href',
-          filters: [
-            (q: string) => parseInt(q.match(/(\d+)/)![0])
-          ]
-        }),
-        title: this.getFieldData(tr, { selector: 'td:nth-child(2) a:last-of-type', attribute: 'title' }),
-        url: this.fixLink(this.getFieldData(tr, { selector: 'td:nth-child(2) a:last-of-type', attribute: 'href' }) as string),
-        link: this.fixLink(this.getFieldData(tr, { selector: 'td:nth-child(4) a', attribute: 'href' }) as string),
-        time: this.getFieldData(tr, { selector: 'td:nth-child(5)', data: 'timestamp' }),
-        size: this.getFieldData(tr, { selector: 'td:nth-child(4)', filters: [sizeToNumber] }),
-        seeders: this.getFieldData(tr, { selector: 'td:nth-child(6)', filters: [parseInt] }),
-        leechers: this.getFieldData(tr, { selector: 'td:nth-child(7)', filters: [parseInt] }),
-        completed: this.getFieldData(tr, { selector: 'td:nth-child(8)', filters: [parseInt] }),
-        comments: this.getFieldData(tr, {
-          selector: 'td:nth-child(2) a.comments',
-          filters: [(q:string) => parseInt(q) || 0]
-        }),
-        category: this.getFieldData(tr, { selector: 'td:nth-child(1) a', attribute: 'title' })
-      } as Torrent)
+      torrents.push(this.transformRowsTorrent(tr) as Torrent)
     })
 
     return torrents

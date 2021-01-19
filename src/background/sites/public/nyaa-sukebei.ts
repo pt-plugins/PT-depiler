@@ -1,8 +1,8 @@
-import Nyaa, { nyaaCommonFilter, siteConfig as NyaaSiteConfig } from './nyaa'
-import { SiteConfig } from '@/shared/interfaces/sites'
+import Nyaa, { nyaaCommonFilter, siteMetadata as NyaaSiteMetaData } from './nyaa'
+import { SiteMetadata } from '@/shared/interfaces/sites'
 
-export const siteConfig: SiteConfig = {
-  ...NyaaSiteConfig,
+export const siteMetadata: SiteMetadata = {
+  ...NyaaSiteMetaData,
   name: 'Nyaa Sukebei',
   url: 'https://sukebei.nyaa.si/',
   categories: [
@@ -29,5 +29,5 @@ export const siteConfig: SiteConfig = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class NyaaSukebei extends Nyaa {
-  protected readonly siteConfig = siteConfig;
+  protected readonly siteMetadata = siteMetadata;
 }
