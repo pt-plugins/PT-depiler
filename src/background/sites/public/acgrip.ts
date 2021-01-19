@@ -9,8 +9,7 @@ export const siteConfig: SiteConfig = {
   description: '与动漫花园类似的日漫资源站点',
   url: 'https://acg.rip/',
   search: {
-    type: 'document',
-    defaultParams: []
+    type: 'document'
   }
 }
 

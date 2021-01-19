@@ -14,7 +14,7 @@ export interface Torrent {
   url: string; // detail 页面
   link: string; // 种子链接
 
-  time?: number; // 发布时间戳
+  time?: number; // 发布时间戳（秒级）
   size?: number; // 大小
   author?: number; // 发布人
 
@@ -95,7 +95,7 @@ export interface SiteConfig {
 
   search: {
     type: ResponseType,
-    defaultParams: {key: string, value: string}[],
+    defaultParams?: {key: string, value: string}[],
   }
 
   feature?: { // 站点支持方法
