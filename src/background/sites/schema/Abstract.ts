@@ -45,6 +45,10 @@ export abstract class BittorrentSite {
     return this.transformSearchPage(req.data)
   }
 
+  /**
+   * @warning 此方法不可以在 getFieldData 的 filters 中使用
+   * @param uri
+   */
   fixLink (uri: string): string {
     let url = uri
 
