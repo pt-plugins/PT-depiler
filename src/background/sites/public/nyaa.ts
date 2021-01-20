@@ -1,48 +1,50 @@
+import { searchFilter, searchParams, SiteMetadata } from '@/shared/interfaces/sites'
 import { BittorrentSite } from '@/background/sites/schema/Abstract'
 import { AxiosRequestConfig } from 'axios'
-import urljoin from 'url-join'
 import { sizeToNumber } from '@/shared/utils/filter'
-import { searchCategories, searchFilter, SiteConfig, SiteMetadata, Torrent } from '@/shared/interfaces/sites'
-
-export const nyaaCommonFilter: searchCategories[] = [
-  {
-    name: 'Filter',
-    key: 'f',
-    options: [
-      { name: 'No filter', value: '0' },
-      { name: 'No remakes', value: '1' },
-      { name: 'Trusted only', value: '2' }
-    ],
-    cross: false
-  },
-  {
-    name: 'Sort',
-    key: 's',
-    options: [
-      { name: 'Created', value: 'id' },
-      { name: 'Size', value: 'size' },
-      { name: 'Seeders', value: 'seeders' },
-      { name: 'Leechers', value: 'leechers' },
-      { name: 'Downloaders', value: 'downloads' },
-      { name: 'Comments', value: 'comments' }
-    ]
-  },
-  {
-    name: 'Order',
-    key: 'o',
-    options: [
-      { name: 'Desc', value: 'desc' },
-      { name: 'Asc', value: 'asc' }
-    ]
-  }
-]
 
 export const siteMetadata: SiteMetadata = {
   name: 'Nyaa Torrents',
   description: '一个侧重于东亚（中国、日本及韩国）多媒体资源的BitTorrent站点，是世界上最大的动漫专用种子索引站。',
   url: 'https://nyaa.si/',
   categories: [
-    ...nyaaCommonFilter,
+    {
+      name: 'Domain',
+      key: 'domain',
+      options: [
+        { name: 'Fun', value: 'https://nyaa.si/' },
+        { name: 'Fap', value: 'https://sukebei.nyaa.si/' }
+      ]
+    },
+    {
+      name: 'Filter',
+      key: 'f',
+      options: [
+        { name: 'No filter', value: 0 },
+        { name: 'No remakes', value: 1 },
+        { name: 'Trusted only', value: 2 }
+      ]
+    },
+    {
+      name: 'Sort',
+      key: 's',
+      options: [
+        { name: 'Created', value: 'id' },
+        { name: 'Size', value: 'size' },
+        { name: 'Seeders', value: 'seeders' },
+        { name: 'Leechers', value: 'leechers' },
+        { name: 'Downloaders', value: 'downloads' },
+        { name: 'Comments', value: 'comments' }
+      ]
+    },
+    {
+      name: 'Order',
+      key: 'o',
+      options: [
+        { name: 'Desc', value: 'desc' },
+        { name: 'Asc', value: 'asc' }
+      ]
+    },
     {
       name: 'Category',
       key: 'c',
@@ -71,18 +73,34 @@ export const siteMetadata: SiteMetadata = {
         { name: 'Software', value: '6_0' },
         { name: 'Software - Apps', value: '6_1' },
         { name: 'Software - Games', value: '6_2' }
-      ],
-      cross: false
+      ]
+    },
+    {
+      name: 'Category - Sukebei',
+      key: 'c',
+      options: [
+        { name: 'All categories', value: '0_0' },
+        { name: 'Art', value: '1_0' },
+        { name: 'Art - Anime', value: '1_1' },
+        { name: 'Art - Doujinshi', value: '1_2' },
+        { name: 'Art - Games', value: '1_3' },
+        { name: 'Art - Manga', value: '1_4' },
+        { name: 'Art - Pictures', value: '1_5' },
+        { name: 'Real Life', value: '2_0' },
+        { name: 'Real Life - Pictures', value: '2_1' },
+        { name: 'Real Life - Videos', value: '2_2' }
+      ]
     }
   ],
   search: {
-    type: 'document',
+    path: '/',
     defaultParams: [
       { key: 'c', value: '0_0' }
     ]
   },
   selector: {
     search: {
+      rows: { selector: 'table.torrent-list > tbody > tr' },
       id: {
         selector: 'td:nth-child(2) a:last-of-type',
         attribute: 'href',
@@ -111,35 +129,27 @@ export const siteMetadata: SiteMetadata = {
 export default class Nyaa extends BittorrentSite {
   protected readonly siteMetadata = siteMetadata;
 
-  generateDetailPageLink (id: string): string {
-    return urljoin(this.config.url, `/view/${id}`)
-  }
-
   transformSearchFilter (filter: searchFilter): AxiosRequestConfig {
     const config: AxiosRequestConfig = {
-      url: '/',
       params: {}
     }
     if (filter.keywords) {
       config.params.q = filter.keywords
     }
 
-    this.config.search.defaultParams!.concat(filter.extraParams || []).forEach(category => {
-      const { key, value } = category
-      config.params[key] = value
-    })
+    ([] as searchParams[])
+      .concat(
+        this.config.search?.defaultParams || [],
+        filter.extraParams || []
+      ).forEach(category => {
+        const { key, value } = category
+        if (key === 'domain') { // 更换 baseURL
+          config.baseURL = (value as string)
+        } else { //  其他参数视为params
+          config.params[key] = (value as string | number)
+        }
+      })
 
     return config
-  }
-
-  transformSearchPage (doc: Document): Torrent[] {
-    const torrents: Torrent[] = []
-
-    const trs = doc.querySelectorAll('table.torrent-list > tbody > tr')
-    trs?.forEach(tr => {
-      torrents.push(this.transformRowsTorrent(tr) as Torrent)
-    })
-
-    return torrents
   }
 }

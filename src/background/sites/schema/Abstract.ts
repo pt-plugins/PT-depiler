@@ -3,7 +3,6 @@ import urlparse from 'url-parse'
 import {
   ElementQuery,
   searchFilter,
-  SelectorCollection,
   SiteConfig,
   SiteMetadata,
   Torrent,
@@ -59,14 +58,13 @@ export abstract class BittorrentSite {
     axiosConfig.responseType = this.config.search?.type || 'document'
 
     const req = await this.request(axiosConfig)
-    return this.transformSearchPage(req.data)
+    return this.transformSearchPage(req.data, axiosConfig)
   }
 
   async request (axiosConfig: AxiosRequestConfig): Promise<AxiosResponse> {
-    // 统一设置一些 AxiosRequestConfig
-    if (!axiosConfig.baseURL) {
-      axiosConfig.baseURL = this.activateUrl
-    }
+    // 统一设置一些 AxiosRequestConfig， 当作默认值
+    axiosConfig.baseURL = axiosConfig.baseURL || this.activateUrl
+    axiosConfig.url = axiosConfig.url || this.config.search?.path || '/'
 
     let req: AxiosResponse
     try {
@@ -86,22 +84,28 @@ export abstract class BittorrentSite {
   }
 
   /**
-   * @warning 此方法不可以在 getFieldData 的 filters 中使用
+   * @warning 此方法不可以在 getFieldData 的 filters 中使用，
+   *          对于约定的 url, link 本方法会自动调用进行补全
    * @param uri
+   * @param requestConfig
    */
-  protected fixLink (uri: string): string {
+  protected fixLink (uri: string, requestConfig: AxiosRequestConfig): string {
     let url = uri
 
-    if (uri.startsWith('//')) {
-      const urlHelper = urlparse(this.activateUrl)
-      url = `${urlHelper.protocol}:${uri}`
-    } if (!uri.startsWith('magnet:') && uri.substr(0, 4) !== 'http') {
-      url = urljoin(this.activateUrl, uri)
+    if (!uri.startsWith('magnet:')) {
+      const baseUrl = requestConfig.baseURL || this.activateUrl
+      if (uri.startsWith('//')) {
+        const urlHelper = urlparse(baseUrl)
+        url = `${urlHelper.protocol}:${uri}`
+      } if (uri.substr(0, 4) !== 'http') {
+        url = urljoin(baseUrl, uri)
+      }
     }
+
     return url
   }
 
-  protected getFieldData (element: Element | Document | Object, elementQuery: ElementQuery): string | number {
+  protected getFieldData (element: Element | Object, elementQuery: ElementQuery): any {
     const { selector, attribute, data, filters } = elementQuery
 
     let selectors = selector
@@ -111,7 +115,7 @@ export abstract class BittorrentSite {
 
     let query: string = ''
     for (let i = 0; i < selectors.length; i++) {
-      if (element instanceof HTMLElement) {
+      if (element instanceof Element) {
         const another = element.querySelector(selectors[i]) as HTMLElement
         if (another) {
           if (data) {
@@ -142,15 +146,19 @@ export abstract class BittorrentSite {
     return query
   }
 
-  protected transformRowsTorrent (row: Element | Document | Object, selectorType: SelectorCollection = 'search'): Partial<Torrent> {
+  protected transformRowsTorrent (row: Element | Document | Object, requestConfig: AxiosRequestConfig): Partial<Torrent> {
     const torrent = {} as Partial<Torrent>
 
-    for (const key in this.config.selector[selectorType]) {
+    for (const key in this.config.selector.search) {
+      if (key === 'rows') {
+        continue // rows 不作为对应项
+      }
+
       // noinspection JSUnfilteredForInLoop
-      let value = this.getFieldData(row, this.config.selector[selectorType]![key])
+      let value = this.getFieldData(row, this.config.selector.search[key])
       // noinspection JSUnfilteredForInLoop
       if (['url', 'link'].includes(key)) {
-        value = this.fixLink(value as string)
+        value = this.fixLink(value as string, requestConfig)
       }
       // @ts-ignore
       // noinspection JSUnfilteredForInLoop
@@ -176,14 +184,26 @@ export abstract class BittorrentSite {
   /**
    * 如何解析 JSON 或者 Document，获得种子文件
    * @param doc
+   * @param requestConfig
    */
-  abstract transformSearchPage(doc: any): Torrent[];
+  transformSearchPage (doc: Document, requestConfig: AxiosRequestConfig): Torrent[] {
+    const torrents: Torrent[] = []
 
-  /**
-   * 根据种子id信息生成对应种子介绍页面
-   * @param id
-   */
-  abstract generateDetailPageLink(id: any): string;
+    let trs: any
+    if (doc instanceof Document) {
+      trs = doc.querySelectorAll(this.config.selector!.search!.rows!.selector as string)
+    } else {
+      trs = get(doc, this.config.selector!.search!.rows!.selector)
+    }
+    trs?.forEach((tr: any) => {
+      torrents.push({
+        comments: 0, // 默认不设置评论
+        ...this.transformRowsTorrent(tr, requestConfig)
+      } as Torrent)
+    })
+
+    return torrents
+  }
 }
 
 // 适用于PT站点

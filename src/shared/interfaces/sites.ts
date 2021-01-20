@@ -42,11 +42,14 @@ export interface Torrent {
 export interface searchCategories {
   name: string, // 搜索大类名称
   key: string, // 搜索大类
-  options: {name: string, value: string}[],
-  cross?: boolean // 该搜索大类是否允许内部交叉 （ 不声明，则默认不允许
+  options: { name: string, value: string | number }[],
+  cross?: boolean // 该搜索大类是否允许内部交叉 （ 不声明，则默认不允许（False） ）
 }
 
-export interface searchParams {key: string, value: string}
+export interface searchParams {
+  key: string,
+  value: string | number
+}
 
 export interface searchFilter {
   keywords: string,
@@ -80,7 +83,7 @@ export interface UserInfo {
 
 export type SiteSchema = 'NexusPHP' | 'Unit3D' | 'Gazelle' | 'GazelleJSONAPI' | 'AvistaZ' | 'meanTorrent'
 export type SiteFeature = 'queryUserInfo'
-export type SelectorCollection = 'search'
+export type SelectorCollection = 'search' | 'userInfo'
 
 /**
  * 站点配置，这部分配置由系统提供，并随着每次更新而更新，不受用户配置的任何影响
@@ -105,8 +108,9 @@ export interface SiteMetadata {
 
   categories?: searchCategories[] // 站点对应搜索入口的种子分类信息
 
-  search: {
-    type: ResponseType,
+  search?: {
+    type?: ResponseType, // 当不指定时，默认为 document
+    path?: string, // 当不指定时，默认为 '/'
     defaultParams?: searchParams[], // 无论如何都会传入的参数
   } // 站点搜索方法如何配置
 
