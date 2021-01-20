@@ -1,5 +1,5 @@
 import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
-import { BittorrentSite } from '@/background/sites/schema/Abstract'
+import { BittorrentSite } from '@/background/sites/schema/AbstractBittorrentSite'
 import { AxiosRequestConfig } from 'axios'
 import { sizeToNumber } from '@/shared/utils/filter'
 

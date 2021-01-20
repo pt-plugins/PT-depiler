@@ -1,4 +1,5 @@
-import { BittorrentSite, PrivateSite } from '@/background/sites/schema/Abstract'
+import { BittorrentSite } from '@/background/sites/schema/AbstractBittorrentSite'
+import { PrivateSite } from '@/background/sites/schema/AbstractPrivateSite'
 import Container from '@/shared/class/container'
 
 type supportModuleType = 'schema' | 'public' | 'private'
