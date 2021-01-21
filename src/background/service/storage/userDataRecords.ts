@@ -1,6 +1,6 @@
 import { EConfigKey, EUserDataRange } from '@/shared/interfaces/enum'
 import browserBridge from '@/background/service/storage/browserBridge'
-import dayjs from 'dayjs'
+import dayjs from '@/shared/utils/dayjs'
 import { UserInfo } from '@/shared/interfaces/sites'
 
 type StoredUserDataPerSite = { // 站点HOST

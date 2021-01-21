@@ -2,13 +2,19 @@ import { merge, get } from 'lodash-es'
 import urlparse from 'url-parse'
 import {
   ElementQuery,
-  searchFilter,
+  searchFilter, searchParams,
   SiteConfig,
   SiteMetadata,
   Torrent
 } from '@/shared/interfaces/sites'
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import urljoin from 'url-join'
+import { sizeToNumber } from '@/shared/utils/filter'
+
+export interface SearchRequestConfig {
+  filter: searchFilter,
+  axiosConfig: AxiosRequestConfig
+}
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export abstract class BittorrentSite {
@@ -19,6 +25,30 @@ export abstract class BittorrentSite {
 
   constructor (config: Partial<SiteConfig> = {}) {
     this.userConfig = config
+  }
+
+  /**
+   * 根据搜索筛选条件，生成 AxiosRequestConfig
+   * @param filter
+   */
+  protected transformSearchFilter (filter: searchFilter): AxiosRequestConfig {
+    const config: AxiosRequestConfig = {
+      params: {}
+    }
+    if (filter.keywords) {
+      config.params[this.config.search?.keywordsParams || 'keywords'] = filter.keywords
+    }
+
+    filter.extraParams?.forEach(category => {
+      const { key, value } = category
+      if (key === '#changeDomain') { // 更换 baseURL
+        config.baseURL = (value as string)
+      } else { //  其他参数视为params
+        config.params[key] = (value as string | number)
+      }
+    })
+
+    return config
   }
 
   /**
@@ -52,18 +82,29 @@ export abstract class BittorrentSite {
    * @param filter
    */
   async searchTorrents (filter: searchFilter) : Promise<Torrent[]> {
+    // 处理 filter，合并 defaultParams 到 extraParams 的最前面
+    if (this.config.search?.defaultParams) {
+      filter.extraParams = ([] as searchParams[])
+        .concat(
+          this.config.search.defaultParams || [],
+          filter.extraParams || []
+        )
+    }
+
     // 请求页面并转化为document
     const axiosConfig = this.transformSearchFilter(filter)
+    axiosConfig.url = axiosConfig.url || this.config.search?.path || '/'
     axiosConfig.responseType = this.config.search?.type || 'document'
 
     const req = await this.request(axiosConfig)
-    return this.transformSearchPage(req.data, axiosConfig)
+    return this.transformSearchPage(req.data, { filter, axiosConfig })
   }
 
   async request (axiosConfig: AxiosRequestConfig): Promise<AxiosResponse> {
     // 统一设置一些 AxiosRequestConfig， 当作默认值
     axiosConfig.baseURL = axiosConfig.baseURL || this.activateUrl
-    axiosConfig.url = axiosConfig.url || this.config.search?.path || '/'
+    axiosConfig.url = axiosConfig.url || '/'
+    console.log(axiosConfig)
 
     let req: AxiosResponse
     try {
@@ -88,11 +129,12 @@ export abstract class BittorrentSite {
    * @param uri
    * @param requestConfig
    */
-  protected fixLink (uri: string, requestConfig: AxiosRequestConfig): string {
+  protected fixLink (uri: string, requestConfig: SearchRequestConfig): string {
     let url = uri
 
     if (!uri.startsWith('magnet:')) {
-      const baseUrl = requestConfig.baseURL || this.activateUrl
+      const { axiosConfig } = requestConfig
+      const baseUrl = axiosConfig.baseURL || this.activateUrl
       if (uri.startsWith('//')) {
         const urlHelper = urlparse(baseUrl)
         url = `${urlHelper.protocol}:${uri}`
@@ -105,65 +147,45 @@ export abstract class BittorrentSite {
   }
 
   protected getFieldData (element: Element | Object, elementQuery: ElementQuery): any {
-    const { selector, attribute, data, filters } = elementQuery
+    const { text, selector, attr, data, filters } = elementQuery
+    let query: any = typeof text !== 'undefined' ? text : ''
 
-    let selectors = selector
-    if (typeof selector === 'string') {
-      selectors = [selector]
+    if (selector) {
+      const selectors = ([] as string[]).concat(selector)
+      for (let i = 0; i < selectors.length; i++) {
+        const selector = selectors[i]
+        if (element instanceof Element) {
+          // 这里我们预定义一个特殊的 Css Selector，即不进行子元素选择
+          const another = (selector === ':self' ? element : element.querySelector(selector)) as HTMLElement
+          if (another) {
+            if (data) {
+              query = another.dataset[data] || ''
+            } else if (attr) {
+              query = another.getAttribute(attr) || ''
+            } else {
+              query = another.innerText || ''
+            }
+          }
+        } else {
+          query = get(element, selector)
+        }
+
+        query = query.trim()
+
+        if (query !== '') {
+          break
+        }
+      }
     }
 
-    let query: string = ''
-    for (let i = 0; i < selectors.length; i++) {
-      if (element instanceof Element) {
-        const another = element.querySelector(selectors[i]) as HTMLElement
-        if (another) {
-          if (data) {
-            query = another.dataset[data] || ''
-          } else if (attribute) {
-            query = another.getAttribute(attribute) || ''
-          } else {
-            query = another.innerText || ''
-          }
-        }
-      } else {
-        query = get(element, selector)
-      }
-
-      query = query.trim()
-      if (filters) {
-        filters.forEach(fn => {
-          // eslint-disable-next-line no-new-func
-          query = typeof fn === 'string' ? Function(fn)() : fn(query)
-        })
-      }
-
-      if (query !== '') {
-        break
-      }
+    if (filters) {
+      filters.forEach(fn => {
+        // eslint-disable-next-line no-new-func
+        query = typeof fn === 'string' ? Function(fn)() : fn(query)
+      })
     }
 
     return query
-  }
-
-  protected transformRowsTorrent (row: Element | Document | Object, requestConfig: AxiosRequestConfig): Partial<Torrent> {
-    const torrent = {} as Partial<Torrent>
-
-    for (const key in this.config.selector.search) {
-      if (key === 'rows') {
-        continue // rows 不作为对应项
-      }
-
-      // noinspection JSUnfilteredForInLoop
-      let value = this.getFieldData(row, this.config.selector.search[key])
-      // noinspection JSUnfilteredForInLoop
-      if (['url', 'link'].includes(key)) {
-        value = this.fixLink(value as string, requestConfig)
-      }
-      // @ts-ignore
-      // noinspection JSUnfilteredForInLoop
-      torrent[key] = value
-    }
-    return torrent
   }
 
   /**
@@ -175,32 +197,62 @@ export abstract class BittorrentSite {
   }
 
   /**
-   * 根据搜索筛选条件，生成 AxiosRequestConfig
-   * @param filter
-   */
-  abstract transformSearchFilter(filter: searchFilter): AxiosRequestConfig;
-
-  /**
    * 如何解析 JSON 或者 Document，获得种子文件
    * @param doc
    * @param requestConfig
    */
-  transformSearchPage (doc: Document, requestConfig: AxiosRequestConfig): Torrent[] {
+  protected transformSearchPage (doc: Document, requestConfig: SearchRequestConfig): Torrent[] {
     const torrents: Torrent[] = []
 
     let trs: any
     if (doc instanceof Document) {
       trs = doc.querySelectorAll(this.config.selector!.search!.rows!.selector as string)
     } else {
-      trs = get(doc, this.config.selector!.search!.rows!.selector)
+      trs = get(doc, this.config.selector!.search!.rows!.selector as string)
     }
     trs?.forEach((tr: any) => {
-      torrents.push({
-        comments: 0, // 默认不设置评论
-        ...this.transformRowsTorrent(tr, requestConfig)
-      } as Torrent)
+      torrents.push(this.transformRowsTorrent(tr, requestConfig) as Torrent)
     })
 
     return torrents
+  }
+
+  protected transformRowsTorrent (row: Element | Document | Object, requestConfig: SearchRequestConfig): Partial<Torrent> {
+    const torrent = {} as Partial<Torrent>
+
+    for (const key in this.config.selector.search) {
+      if (key === 'rows') {
+        continue // rows 不作为对应项
+      }
+
+      // noinspection JSUnfilteredForInLoop
+      let value = this.getFieldData(row, this.config.selector.search[key])
+
+      // noinspection JSUnfilteredForInLoop
+      if (['url', 'link'].includes(key)) {
+        value = this.fixLink(value as string, requestConfig)
+      }
+
+      if (key === 'size') {
+        value = sizeToNumber(value)
+      }
+
+      // noinspection JSUnfilteredForInLoop
+      if (['size', 'seeders', 'leechers', 'completed', 'comment'].includes(key)) {
+        value = isNaN(parseInt(value)) ? 0 : parseInt(value)
+      }
+      // @ts-ignore
+      // noinspection JSUnfilteredForInLoop
+      torrent[key] = value
+    }
+    return torrent
+  }
+
+  async getTorrentPageLink (torrent: Torrent): Promise<string> {
+    return torrent.url
+  }
+
+  async getTorrentDownloadLink (torrent: Torrent):Promise<string> {
+    return torrent.link
   }
 }

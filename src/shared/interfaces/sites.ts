@@ -7,9 +7,13 @@ export interface SearchResultItemTag {
 }
 
 export interface ElementQuery {
-  selector: string | string[],
-  attribute?: string,
+  // selector或 text 一定要有一个
+  text?: string | number, // 当text输入时，会直接返回text，而不进行检查
+  selector?: string | string[],
+
+  attr?: string,
   data?: string,
+
   filters?: (Function | string)[]
 }
 
@@ -47,6 +51,10 @@ export interface searchCategories {
 }
 
 export interface searchParams {
+  /**
+   * 约定的特殊key （都以 # 开头）：
+   *   - #changeDomain   更换请求的 baseUrl 为 value 值
+   */
   key: string,
   value: string | number
 }
@@ -92,6 +100,7 @@ export type SelectorCollection = 'search' | 'userInfo'
 export interface SiteMetadata {
   name: string; // 站点名
   description: string; // 站点说明
+  tags?: string[];
 
   url: string; // 完整的网站地址，如果网站支持 `https` ，请优先考虑填写 `https` 的地址
 
@@ -106,11 +115,11 @@ export interface SiteMetadata {
   host?: string; // 站点域名，如果不存在，则从url中获取
   formerHosts?: string[]; // 站点过去曾经使用过的域名（现在已不再使用）
 
-  categories?: searchCategories[] // 站点对应搜索入口的种子分类信息
-
   search?: {
     type?: ResponseType, // 当不指定时，默认为 document
     path?: string, // 当不指定时，默认为 '/'
+    keywordsParams?: string, // 当不指定时，默认为 'keywords'
+    categories?: searchCategories[] // 站点对应搜索入口的种子分类信息
     defaultParams?: searchParams[], // 无论如何都会传入的参数
   } // 站点搜索方法如何配置
 

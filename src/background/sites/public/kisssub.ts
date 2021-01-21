@@ -1,27 +1,26 @@
-import { searchFilter, SiteMetadata, Torrent } from '@/shared/interfaces/sites'
-import { BittorrentSite } from '@/background/sites/schema/AbstractBittorrentSite'
-import { AxiosRequestConfig } from 'axios'
+import { SiteMetadata, Torrent } from '@/shared/interfaces/sites'
+import { BittorrentSite, SearchRequestConfig } from '@/background/sites/schema/AbstractBittorrentSite'
 import dayjs from '@/shared/utils/dayjs'
-import { sizeToNumber } from '@/shared/utils/filter'
 
 export const siteMetadata: SiteMetadata = {
   name: '爱恋动漫',
   description: '爱恋BT分享站，动画～漫画～游戏～动漫音乐～片源（RAW）～各类ACG资源聚集地～欢迎各大佬发布入住！',
   url: 'http://www.kisssub.org/',
   search: {
-    path: '/search.php'
+    path: '/search.php',
+    keywordsParams: 'keyword'
   },
   selector: {
     search: {
       rows: { selector: 'table#listTable > tbody > tr' },
       id: {
         selector: 'td:nth-child(3) a',
-        attribute: 'href',
+        attr: 'href',
         filters: [
           (q: string) => q.match(/show-(.+?)\.html/)![1]
         ]
       },
-      url: { selector: 'td:nth-child(3) a', attribute: 'href' },
+      url: { selector: 'td:nth-child(3) a', attr: 'href' },
       title: { selector: 'td:nth-child(3) a' },
       time: {
         selector: 'td:nth-child(1)',
@@ -50,10 +49,10 @@ export const siteMetadata: SiteMetadata = {
           }
         ]
       },
-      size: { selector: 'td:nth-child(4)', filters: [sizeToNumber] },
-      seeders: { selector: 'td:nth-child(5)', filters: [parseInt] },
-      leechers: { selector: 'td:nth-child(6)', filters: [parseInt] },
-      completed: { selector: 'td:nth-child(7)', filters: [parseInt] },
+      size: { selector: 'td:nth-child(4)' },
+      seeders: { selector: 'td:nth-child(5)' },
+      leechers: { selector: 'td:nth-child(6)' },
+      completed: { selector: 'td:nth-child(7)' },
       category: { selector: 'td:nth-child(2)' }
     }
   }
@@ -63,15 +62,7 @@ export const siteMetadata: SiteMetadata = {
 export default class Kisssub extends BittorrentSite {
   protected readonly siteMetadata = siteMetadata;
 
-  transformSearchFilter (filter: searchFilter): AxiosRequestConfig {
-    return {
-      params: {
-        keyword: filter.keywords
-      }
-    } as AxiosRequestConfig
-  }
-
-  protected transformRowsTorrent (row: Element, requestConfig: AxiosRequestConfig): Partial<Torrent> {
+  protected transformRowsTorrent (row: Element, requestConfig: SearchRequestConfig): Partial<Torrent> {
     const transformTorrent = super.transformRowsTorrent(row, requestConfig)
     // 我们只要知道hash就可以种子了，但是如果不传入name的话，种子命名是 `{hash}.torrent`
     transformTorrent.link = `http://v2.uploadbt.com/?r=down&hash=${transformTorrent.id}&name=${encodeURIComponent(transformTorrent.title as string)}`

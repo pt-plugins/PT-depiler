@@ -23,7 +23,7 @@ class Sites extends Container {
     context.keys().forEach(value => {
       const moduleName = value.replace(/^\.\//, '').replace(/\.ts$/, '')
 
-      if (moduleName !== 'schema/Abstract') { // 'schema/Abstract' 不应该被任何形式的导入和引用，也不会被构造
+      if (!moduleName.startsWith('schema/Abstract')) { // 'schema/Abstract' 不应该被任何形式的导入和引用，也不会被构造
         const [_type, site] = moduleName.split('/')
         this._supportList[_type as supportModuleType].push(site)
         this._supportList.all.push(moduleName)
