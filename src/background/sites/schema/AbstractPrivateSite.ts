@@ -1,16 +1,16 @@
 // 适用于PT站点
 import { UserInfo } from '@/shared/interfaces/sites'
 import { AxiosResponse } from 'axios'
-import { BittorrentSite } from '@/background/sites/schema/AbstractBittorrentSite'
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
 
-export abstract class PrivateSite extends BittorrentSite {
+export default class PrivateSite extends BittorrentSite {
   // noinspection JSUnusedGlobalSymbols
   /**
    * 获得当前站点最新的用户信息用于更新
    */
-  abstract getUserInfo(): Promise<UserInfo> ;
-
-  abstract ping (): Promise<boolean> ;
+  getUserInfo (): Promise<UserInfo> {
+    throw new Error('') // FIXME
+  }
 
   /**
    * 这是一个比较通用的检查是否登录方法，如果不行请考虑覆写扩展

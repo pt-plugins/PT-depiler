@@ -1,5 +1,4 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
-import { BittorrentSite } from '@/background/sites/schema/AbstractBittorrentSite'
 import dayjs from 'dayjs'
 
 export const siteMetadata: SiteMetadata = {
@@ -49,9 +48,4 @@ export const siteMetadata: SiteMetadata = {
       leechers: { text: 0, selector: 'span[title*="Leechers"]', attr: 'title', filters: [(q:string) => q.match(/Leechers: (\d+)/)![1]] }
     }
   }
-}
-
-// noinspection JSUnusedGlobalSymbols
-export default class AnimeTosho extends BittorrentSite {
-  protected readonly siteMetadata = siteMetadata;
 }

@@ -1,5 +1,4 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
-import { BittorrentSite } from '@/background/sites/schema/AbstractBittorrentSite'
 
 export const siteMetadata: SiteMetadata = {
   name: 'ACG.RIP',
@@ -26,9 +25,4 @@ export const siteMetadata: SiteMetadata = {
       completed: { selector: 'td:nth-child(5) div.done' }
     }
   }
-}
-
-// noinspection JSUnusedGlobalSymbols
-export default class AcgRip extends BittorrentSite {
-  protected readonly siteMetadata = siteMetadata;
 }

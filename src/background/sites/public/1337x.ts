@@ -1,5 +1,5 @@
-import { searchFilter, searchParams, SiteMetadata, Torrent } from '@/shared/interfaces/sites'
-import { BittorrentSite, SearchRequestConfig } from '@/background/sites/schema/AbstractBittorrentSite'
+import { searchFilter, searchParams, SearchRequestConfig, SiteMetadata, Torrent } from '@/shared/interfaces/sites'
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
 import { AxiosRequestConfig } from 'axios'
 import urljoin from 'url-join'
 import dayjs from '@/shared/utils/dayjs'
@@ -118,8 +118,6 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class x1337x extends BittorrentSite {
-  protected readonly siteMetadata = siteMetadata;
-
   protected transformSearchFilter (filter: searchFilter): AxiosRequestConfig {
     const { keywords, extraParams } = filter
     let searchPath = 'search'

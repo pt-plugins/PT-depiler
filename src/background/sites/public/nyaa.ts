@@ -1,9 +1,9 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
-import { BittorrentSite } from '@/background/sites/schema/AbstractBittorrentSite'
 
 export const siteMetadata: SiteMetadata = {
   name: 'Nyaa Torrents',
   description: '一个侧重于东亚（中国、日本及韩国）多媒体资源的BitTorrent站点，是世界上最大的动漫专用种子索引站。',
+  baseModule: 'schema/AbstractBittorrentSite',
   url: 'https://nyaa.si/',
   search: {
     keywordsParams: 'q',
@@ -112,9 +112,4 @@ export const siteMetadata: SiteMetadata = {
       category: { selector: 'td:nth-child(1) a', attr: 'title' }
     }
   }
-}
-
-// noinspection JSUnusedGlobalSymbols
-export default class Nyaa extends BittorrentSite {
-  protected readonly siteMetadata = siteMetadata;
 }

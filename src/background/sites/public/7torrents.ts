@@ -1,6 +1,5 @@
 import dayjs from '@/shared/utils/dayjs'
 import { SiteMetadata } from '@/shared/interfaces/sites'
-import { BittorrentSite } from '@/background/sites/schema/AbstractBittorrentSite'
 
 // FIXME Cloudflare DDoS Protect
 export const siteMetadata: SiteMetadata = {
@@ -60,9 +59,4 @@ export const siteMetadata: SiteMetadata = {
 
     }
   }
-}
-
-// noinspection JSUnusedGlobalSymbols
-export default class x7torrents extends BittorrentSite {
-  protected readonly siteMetadata = siteMetadata;
 }

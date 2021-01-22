@@ -1,5 +1,5 @@
 import { ETorrentStatus } from '@/shared/interfaces/enum'
-import { ResponseType } from 'axios'
+import { AxiosRequestConfig, ResponseType } from 'axios'
 
 export interface SearchResultItemTag {
   color?: string;
@@ -64,6 +64,11 @@ export interface searchFilter {
   extraParams?: searchParams[], // 其他请求参数信息
 }
 
+export interface SearchRequestConfig {
+  filter: searchFilter,
+  axiosConfig: AxiosRequestConfig
+}
+
 export interface UserInfo {
   id: number | string; // 用户ID
   name: string; // 用户名
@@ -89,7 +94,7 @@ export interface UserInfo {
   [key: string]: any; // 其他信息
 }
 
-export type SiteSchema = 'NexusPHP' | 'Unit3D' | 'Gazelle' | 'GazelleJSONAPI' | 'AvistaZ' | 'meanTorrent'
+export type SiteBaseModule = 'schema/AbstractBittorrentSite' | 'schema/AbstractPrivateSite' | 'schema/NexusPHP'
 export type SiteFeature = 'queryUserInfo'
 export type SelectorCollection = 'search' | 'userInfo'
 
@@ -99,6 +104,8 @@ export type SelectorCollection = 'search' | 'userInfo'
  */
 export interface SiteMetadata {
   name: string; // 站点名
+  baseModule?: SiteBaseModule;
+
   description: string; // 站点说明
   tags?: string[];
 
@@ -135,7 +142,7 @@ export interface SiteMetadata {
 }
 
 export interface SiteConfig extends SiteMetadata {
-  schema?: SiteSchema;
+  baseModule: SiteBaseModule;
 
   activateUrl?: string; // 用户在搜索时使用的地址
   entryPoint?: string; // 用户在options首页点击时，打开的站点地址

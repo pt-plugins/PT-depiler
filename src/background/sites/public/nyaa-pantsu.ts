@@ -1,5 +1,4 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
-import { BittorrentSite } from '@/background/sites/schema/AbstractBittorrentSite'
 import dayjs from '@/shared/utils/dayjs'
 
 export const siteMetadata: SiteMetadata = {
@@ -152,9 +151,4 @@ export const siteMetadata: SiteMetadata = {
       category: { selector: 'td:nth-child(1) > div > a', attr: 'title' }
     }
   }
-}
-
-// noinspection JSUnusedGlobalSymbols
-export default class NyaaPantsu extends BittorrentSite {
-  protected readonly siteMetadata = siteMetadata;
 }

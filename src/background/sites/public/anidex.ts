@@ -1,5 +1,4 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
-import { BittorrentSite } from '@/background/sites/schema/AbstractBittorrentSite'
 import dayjs from '@/shared/utils/dayjs'
 
 export const siteMetadata: SiteMetadata = {
@@ -51,7 +50,6 @@ export const siteMetadata: SiteMetadata = {
     defaultParams: [
       { key: 'page', value: 'search' }
     ]
-
   },
   selector: {
     search: {
@@ -69,9 +67,4 @@ export const siteMetadata: SiteMetadata = {
       category: { selector: 'td:nth-child(1) a' }
     }
   }
-}
-
-// noinspection JSUnusedGlobalSymbols
-export default class Anidex extends BittorrentSite {
-  protected readonly siteMetadata = siteMetadata;
 }

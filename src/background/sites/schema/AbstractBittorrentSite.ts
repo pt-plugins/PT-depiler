@@ -2,7 +2,7 @@ import { merge, get } from 'lodash-es'
 import urlparse from 'url-parse'
 import {
   ElementQuery,
-  searchFilter, searchParams,
+  searchFilter, searchParams, SearchRequestConfig,
   SiteConfig,
   SiteMetadata,
   Torrent
@@ -12,20 +12,22 @@ import urljoin from 'url-join'
 import { sizeToNumber } from '@/shared/utils/filter'
 import Sizzle from 'sizzle'
 
-export interface SearchRequestConfig {
-  filter: searchFilter,
-  axiosConfig: AxiosRequestConfig
-}
-
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
-export abstract class BittorrentSite {
-  protected abstract siteMetadata: SiteMetadata;
-  protected userConfig: Partial<SiteConfig>;
+export default class BittorrentSite {
+  protected readonly userConfig: Partial<SiteConfig>;
+  protected readonly config: SiteConfig;
 
-  private _config?: SiteConfig;
-
-  constructor (config: Partial<SiteConfig> = {}) {
+  constructor (config: Partial<SiteConfig> = {}, siteMetaData: SiteMetadata) {
     this.userConfig = config
+
+    // 使用 lodash 的 merge 来合并站点默认配置和用户配置
+    // 以免 { ...data } 解包形式覆盖深层配置
+    this.config = merge(siteMetaData, this.userConfig) as SiteConfig
+
+    // 防止host信息缺失
+    if (!this.config.host) {
+      this.config.host = urlparse(siteMetaData.url).host
+    }
   }
 
   /**
@@ -50,24 +52,6 @@ export abstract class BittorrentSite {
     })
 
     return config
-  }
-
-  /**
-   * 获得运行时配置
-   */
-  get config (): SiteConfig {
-    if (!this._config) {
-      // 使用 lodash 的 merge 来合并站点默认配置和用户配置
-      // 以免 { ...data } 解包形式覆盖深层配置
-      this._config = merge(this.siteMetadata, this.userConfig) as SiteConfig
-
-      // 防止host信息缺失
-      if (!this._config.host) {
-        this._config.host = urlparse(this.siteMetadata.url).host
-      }
-    }
-
-    return this._config
   }
 
   get activateUrl (): string {
@@ -149,7 +133,7 @@ export abstract class BittorrentSite {
 
   protected getFieldData (element: Element | Object, elementQuery: ElementQuery): any {
     const { text, selector, attr, data, filters } = elementQuery
-    let query: any = typeof text !== 'undefined' ? text : ''
+    let query: string = String(text || '')
 
     if (selector) {
       const selectors = ([] as string[]).concat(selector)
@@ -172,7 +156,6 @@ export abstract class BittorrentSite {
         }
 
         query = query.trim()
-
         if (query !== '') {
           break
         }
@@ -239,7 +222,7 @@ export abstract class BittorrentSite {
       }
 
       // noinspection JSUnfilteredForInLoop
-      if (['id', 'size', 'seeders', 'leechers', 'completed', 'comment'].includes(key)) {
+      if (['id', 'size', 'seeders', 'leechers', 'completed', 'comments'].includes(key)) {
         if (typeof value === 'string' && value.match(/^\d+$/)) {
           value = isNaN(parseInt(value)) ? 0 : parseInt(value)
         }

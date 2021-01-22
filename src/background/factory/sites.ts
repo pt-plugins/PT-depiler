@@ -1,6 +1,7 @@
-import { BittorrentSite } from '@/background/sites/schema/AbstractBittorrentSite'
-import { PrivateSite } from '@/background/sites/schema/AbstractPrivateSite'
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
+import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
 import Container from '@/shared/class/container'
+import { SiteMetadata } from '@/shared/interfaces/sites'
 
 type supportModuleType = 'schema' | 'public' | 'private'
 
@@ -39,7 +40,8 @@ class Sites extends Container {
       /* webpackMode: "lazy" */
       /* webpackExports: ["default","siteMetadata"] */
       `@/background/sites/${module}`) as {
-      default: PrivateSite | BittorrentSite,
+      default?: PrivateSite | BittorrentSite,
+      siteMetadata?: SiteMetadata
     }
   }
 
@@ -48,11 +50,25 @@ class Sites extends Container {
     return this._supportList[moduleType].includes(siteName)
   }
 
-  // FIXME
-  async getSite (siteName: string): Promise<PrivateSite | BittorrentSite> {
+  // FIXME userConfig should be typed
+  async getSite (siteName: string, userConfig: any = {}): Promise<PrivateSite | BittorrentSite> {
     return await this.resolveObject<PrivateSite | BittorrentSite>(`site-${siteName}`, async () => {
       const module = await this.dynamicImport(siteName)
-      return module.default
+      const siteMetaData = module.siteMetadata
+      let SiteClass = module.default
+
+      /**
+       * 如果该模块没有导出 default class，那么我们认为我们需要从基类继承
+       * 并覆写基类的的 siteMetaData 信息
+       */
+      if (!module.default) {
+        const baseModuleName = siteMetaData!.baseModule || 'schema/AbstractBittorrentSite'
+        const baseModule = await this.dynamicImport(baseModuleName)
+        SiteClass = baseModule.default
+      }
+
+      // @ts-ignore
+      return new SiteClass(userConfig, siteMetaData)
     })
   }
 }
