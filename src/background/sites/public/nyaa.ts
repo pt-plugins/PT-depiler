@@ -3,7 +3,6 @@ import { SiteMetadata } from '@/shared/interfaces/sites'
 export const siteMetadata: SiteMetadata = {
   name: 'Nyaa Torrents',
   description: '一个侧重于东亚（中国、日本及韩国）多媒体资源的BitTorrent站点，是世界上最大的动漫专用种子索引站。',
-  baseModule: 'schema/AbstractBittorrentSite',
   url: 'https://nyaa.si/',
   search: {
     keywordsParams: 'q',
