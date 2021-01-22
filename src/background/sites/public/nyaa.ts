@@ -99,13 +99,7 @@ export const siteMetadata: SiteMetadata = {
   selector: {
     search: {
       rows: { selector: 'table.torrent-list > tbody > tr' },
-      id: {
-        selector: 'td:nth-child(2) a:last-of-type',
-        attr: 'href',
-        filters: [
-          (q: string) => parseInt(q.match(/(\d+)/)![0])
-        ]
-      },
+      id: { selector: 'td:nth-child(2) a:last-of-type', attr: 'href', filters: [(q: string) => q.match(/(\d+)/)![0]] },
       title: { selector: 'td:nth-child(2) a:last-of-type', attr: 'title' },
       url: { selector: 'td:nth-child(2) a:last-of-type', attr: 'href' },
       link: { selector: 'td:nth-child(4) a', attr: 'href' },

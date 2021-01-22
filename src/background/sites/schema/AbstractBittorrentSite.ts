@@ -10,6 +10,7 @@ import {
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import urljoin from 'url-join'
 import { sizeToNumber } from '@/shared/utils/filter'
+import Sizzle from 'sizzle'
 
 export interface SearchRequestConfig {
   filter: searchFilter,
@@ -156,7 +157,7 @@ export abstract class BittorrentSite {
         const selector = selectors[i]
         if (element instanceof Element) {
           // 这里我们预定义一个特殊的 Css Selector，即不进行子元素选择
-          const another = (selector === ':self' ? element : element.querySelector(selector)) as HTMLElement
+          const another = (selector === ':self' ? element : Sizzle(selector, element)[0]) as HTMLElement
           if (another) {
             if (data) {
               query = another.dataset[data] || ''
@@ -206,7 +207,7 @@ export abstract class BittorrentSite {
 
     let trs: any
     if (doc instanceof Document) {
-      trs = doc.querySelectorAll(this.config.selector!.search!.rows!.selector as string)
+      trs = Sizzle(this.config.selector!.search!.rows!.selector as string, doc)
     } else {
       trs = get(doc, this.config.selector!.search!.rows!.selector as string)
     }
@@ -238,9 +239,12 @@ export abstract class BittorrentSite {
       }
 
       // noinspection JSUnfilteredForInLoop
-      if (['size', 'seeders', 'leechers', 'completed', 'comment'].includes(key)) {
-        value = isNaN(parseInt(value)) ? 0 : parseInt(value)
+      if (['id', 'size', 'seeders', 'leechers', 'completed', 'comment'].includes(key)) {
+        if (typeof value === 'string' && value.match(/^\d+$/)) {
+          value = isNaN(parseInt(value)) ? 0 : parseInt(value)
+        }
       }
+
       // @ts-ignore
       // noinspection JSUnfilteredForInLoop
       torrent[key] = value

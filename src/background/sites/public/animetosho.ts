@@ -25,7 +25,8 @@ export const siteMetadata: SiteMetadata = {
   selector: {
     search: {
       rows: { selector: 'div.home_list_entry' },
-      id: { selector: 'div.link a', attr: 'href', filters: [(q:string) => q.match(/n(\d+)$/)![1]] },
+      id: { selector: 'div.link a', attr: 'href', filters: [(q:string) => q.match(/\.([nd\d]+)$/)![1]] },
+      title: { selector: 'div.link a' },
       url: { selector: 'div.link a' },
       link: { selector: ['div.links > a[href$=".torrent"]', 'div.links > a[href^="magnet:?xt="]'], attr: 'href' },
       time: {

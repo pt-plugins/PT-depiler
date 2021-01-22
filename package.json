@@ -21,6 +21,7 @@
     "core-js": "^3.6.5",
     "dayjs": "^1.10.3",
     "lodash-es": "^4.17.20",
+    "sizzle": "^2.3.5",
     "url-join": "^4.0.1",
     "url-parse": "^1.4.7",
     "uuid": "^8.3.2",
@@ -30,6 +31,7 @@
   },
   "devDependencies": {
     "@types/lodash-es": "^4.17.4",
+    "@types/sizzle": "^2.3.2",
     "@types/url-join": "^4.0.0",
     "@types/url-parse": "^1.4.3",
     "@types/uuid": "^8.3.0",

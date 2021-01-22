@@ -56,7 +56,8 @@ export const siteMetadata: SiteMetadata = {
   selector: {
     search: {
       rows: { selector: 'div#content > div.table-responsive > table > tbody > tr' },
-      id: { selector: 'td:nth-child(3) a', attr: 'id', filters: [parseInt] },
+      id: { selector: 'td:nth-child(3) a', attr: 'id' },
+      title: { selector: 'td:nth-child(3) a span[title]', attr: 'title' },
       url: { selector: 'td:nth-child(3) a', attr: 'href' },
       link: { selector: ['td:nth-child(5) a', 'td:nth-child(6) a'], attr: 'href' },
       time: { selector: 'td:nth-child(8)', attr: 'title', filters: [(q:any) => dayjs(q).unix()] },

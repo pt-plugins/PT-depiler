@@ -94,7 +94,8 @@ export const siteMetadata: SiteMetadata = {
   selector: {
     search: {
       rows: { selector: 'tr.torrentRow' },
-      id: { selector: 'a[href*="/download/"][title]', attr: 'title' },
+      id: { selector: 'a[href*="/download/"][title]', attr: 'title', filters: [(q:string) => q.replace('Download:', '')] },
+      title: { selector: 'a[href*="/download/"][title]', attr: 'title', filters: [(q:string) => q.replace('Download:', '')] },
       url: { text: 'http://www.animeclipse.com/' },
       link: { selector: 'a[href*="/download/"]', attr: 'href' },
       time: {
