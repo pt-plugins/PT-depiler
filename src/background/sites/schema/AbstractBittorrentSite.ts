@@ -124,7 +124,7 @@ export default class BittorrentSite {
         const urlHelper = urlparse(baseUrl)
         url = `${urlHelper.protocol}:${uri}`
       } if (uri.substr(0, 4) !== 'http') {
-        url = urljoin(baseUrl, uri)
+        url = urljoin(baseUrl, uri.replace(/^\./, ''))
       }
     }
 

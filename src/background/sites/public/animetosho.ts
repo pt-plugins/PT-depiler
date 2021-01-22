@@ -1,5 +1,5 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
-import dayjs from 'dayjs'
+import dayjs from '@/shared/utils/dayjs'
 
 export const siteMetadata: SiteMetadata = {
   name: 'Anime Tosho',
