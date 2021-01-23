@@ -1,4 +1,8 @@
+import dayjs from '@/shared/utils/dayjs'
+import { OpUnitType } from 'dayjs'
+
 export const sizePattern = /^(\d*\.?\d+)(.*[^ZEPTGMK])?([ZEPTGMK](B|iB))$/i
+export const dateUnit = ['sec', 'second', 'min', 'minute', 'hour', 'day', 'week', 'month', 'quarter', 'year']
 
 export function sizeToNumber (size: string): number {
   const sizeRawMatch = size.match(sizePattern)
@@ -25,6 +29,18 @@ export function sizeToNumber (size: string): number {
     }
   }
   return 0
+}
+
+export function parseDateAgo (age: string): number {
+  let nowDayJs = dayjs()
+  dateUnit.forEach(v => {
+    const matched = age.match(new RegExp(`(\\d+) ?(${v}s?)`))
+    if (matched) {
+      nowDayJs = nowDayJs.add(-parseInt(matched![1]), matched![2] as OpUnitType)
+    }
+  })
+
+  return nowDayJs.unix()
 }
 
 /**

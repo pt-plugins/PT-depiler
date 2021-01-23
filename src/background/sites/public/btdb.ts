@@ -1,6 +1,7 @@
 import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
 import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
 import { AxiosRequestConfig } from 'axios'
+import { parseDateAgo } from '@/shared/utils/filter'
 
 // FIXME Cloudflare DDoS Protect
 export const siteMetadata: SiteMetadata = {
@@ -17,10 +18,10 @@ export const siteMetadata: SiteMetadata = {
       title: { selector: 'h2.item-title a', attr: 'title' },
       url: { selector: 'h2.item-title a', attr: 'href' },
       link: { selector: 'a[onclick*="magnet:?xt="]', attr: 'onclick', filters: [(q:string) => q.match(/'(magnet:\?xt=.+?)'/)![1]] },
-      // TODO time ago
+      date: { selector: 'small:nth-of-type(5) strong', filters: [parseDateAgo] },
       size: { selector: 'small:nth-of-type(1) strong' },
-      seeders: { selector: 'small:nth-of-type(3) strong', filters: [(q: string) => q.replace(/,/ig, '')] },
-      leechers: { selector: 'small:nth-of-type(4) strong', filters: [(q: string) => q.replace(/,/ig, '')] },
+      seeders: { selector: 'small:nth-of-type(3) strong' },
+      leechers: { selector: 'small:nth-of-type(4) strong' },
       category: { text: 'Other' }
     }
   }

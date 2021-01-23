@@ -223,8 +223,11 @@ export default class BittorrentSite {
 
       // noinspection JSUnfilteredForInLoop
       if (['id', 'size', 'seeders', 'leechers', 'completed', 'comments'].includes(key)) {
-        if (typeof value === 'string' && value.match(/^\d+$/)) {
-          value = isNaN(parseInt(value)) ? 0 : parseInt(value)
+        if (typeof value === 'string') {
+          value = value.replace(/,/ig, '')
+          if (value.match(/^\d+$/)) {
+            value = isNaN(parseInt(value)) ? 0 : parseInt(value)
+          }
         }
       }
 
