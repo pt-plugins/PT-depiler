@@ -56,7 +56,7 @@ export interface searchParams {
    *   - #changeDomain   更换请求的 baseUrl 为 value 值
    */
   key: string,
-  value: string | number
+  value: string | number | string[] | number[]
 }
 
 export interface searchFilter {

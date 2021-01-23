@@ -43,7 +43,6 @@ export const siteMetadata: SiteMetadata = {
       title: { selector: 'td.views-field-title a' },
       url: { selector: 'td.views-field-title a', attr: 'href' },
       link: { selector: ['td.views-field-field-torrent a', 'td.views-field-name a'], attr: 'href' },
-      // TODO TIME age
       date: { selector: 'td.views-field-created', filters: [parseDateAgo] },
       size: { selector: 'td.views-field-size' },
       seeders: { selector: 'td.views-field-seeds' },

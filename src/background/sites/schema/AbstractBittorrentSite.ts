@@ -165,7 +165,8 @@ export default class BittorrentSite {
     if (filters) {
       filters.forEach(fn => {
         // eslint-disable-next-line no-new-func
-        query = typeof fn === 'string' ? Function(fn)() : fn(query)
+        fn = typeof fn === 'string' ? (new Function('query', `return ${fn}`)) : fn
+        query = fn(query)
       })
     }
 
