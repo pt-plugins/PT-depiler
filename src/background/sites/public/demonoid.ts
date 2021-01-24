@@ -3,6 +3,7 @@ import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
 import Sizzle from 'sizzle'
 import { generateCategoryMap } from '@/shared/utils/common'
 import urlparse from 'url-parse'
+import { mergeWith } from 'lodash-es'
 
 const CategoryOptions = [
   { name: 'All', value: 0 },
@@ -69,7 +70,7 @@ export const siteMetadata: SiteMetadata = {
       id: { selector: 'a[href^="/files/details/"]', attr: 'href' },
       title: { selector: 'a[href^="/files/details/"]' },
       url: { selector: 'a[href^="/files/details/"]', attr: 'href' },
-      link: { selector: 'a[href^="/files/downloa,d"]', attr: 'href' },
+      link: { selector: 'a[href^="/files/download"]', attr: 'href' },
       size: { selector: 'td:nth-child(4)' },
       seeders: { selector: 'td:nth-child(7)' },
       leechers: { selector: 'td:nth-child(8)' },
@@ -95,10 +96,13 @@ export default class Demonoid extends BittorrentSite {
 
     const tr2s = Sizzle(rowsSelector.selector as string, doc)
     for (let i = 0; i < tr2s.length; i += 2) {
-      torrents.push({
-        ...this.transformRowsTorrent(tr2s[i], requestConfig),
-        ...this.transformRowsTorrent(tr2s[i + 1], requestConfig)
-      } as Torrent)
+      const torrent = mergeWith(
+        this.transformRowsTorrent(tr2s[i], requestConfig),
+        this.transformRowsTorrent(tr2s[i + 1], requestConfig),
+        (objValue, srcValue) => objValue || srcValue
+      ) as Torrent
+
+      torrents.push(torrent)
     }
 
     return torrents

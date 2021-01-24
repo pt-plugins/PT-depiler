@@ -9,7 +9,7 @@ import {
 } from '@/shared/interfaces/sites'
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import urljoin from 'url-join'
-import { parseSizeString } from '@/shared/utils/filter'
+import { cfDecodeEmail, parseSizeString } from '@/shared/utils/filter'
 import Sizzle from 'sizzle'
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
@@ -115,6 +115,18 @@ export default class BittorrentSite {
     let req: AxiosResponse
     try {
       req = await axios.request(axiosConfig)
+
+      // 全局性的替换 span.__cf_email__
+      if (axiosConfig.responseType === 'document') {
+        const doc: Document = req.data
+        const cfProtectSpan = Sizzle('span.__cf_email__', doc)
+
+        cfProtectSpan.forEach(element => {
+          element.replaceWith(cfDecodeEmail((element as HTMLElement).dataset.cfemail!))
+        })
+
+        req.data = doc
+      }
     } catch (e) {
       req = (e as AxiosError).response!
       if (req.status >= 400) {
@@ -209,7 +221,7 @@ export default class BittorrentSite {
    * @param doc
    * @param requestConfig
    */
-  protected transformSearchPage (doc: Document, requestConfig: SearchRequestConfig): Torrent[] {
+  protected transformSearchPage (doc: Document | object, requestConfig: SearchRequestConfig): Torrent[] {
     const rowsSelector = this.config.selector!.search!.rows!
     const torrents: Torrent[] = []
 

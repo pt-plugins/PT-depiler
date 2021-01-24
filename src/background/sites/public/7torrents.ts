@@ -1,5 +1,5 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
-import { parseDateAgo } from '@/shared/utils/filter'
+import { parseTimeToLive } from '@/shared/utils/filter'
 
 // FIXME Cloudflare DDoS Protect
 export const siteMetadata: SiteMetadata = {
@@ -41,7 +41,7 @@ export const siteMetadata: SiteMetadata = {
         ]
       },
       link: { selector: 'div.media-right > a', attr: 'href' },
-      time: { selector: ':self', data: 'added', filters: [parseDateAgo] },
+      time: { selector: ':self', data: 'added', filters: [parseTimeToLive] },
       size: { selector: ':self', data: 'size' },
       seeders: { selector: ':self', data: 'seeders' },
       leechers: { selector: ':self', data: 'leechers' },

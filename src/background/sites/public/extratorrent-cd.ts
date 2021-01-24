@@ -1,5 +1,5 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
-import { parseDateAgo } from '@/shared/utils/filter'
+import { parseTimeToLive } from '@/shared/utils/filter'
 import dayjs from '@/shared/utils/dayjs'
 
 export const siteMetadata: SiteMetadata = {
@@ -42,7 +42,7 @@ export const siteMetadata: SiteMetadata = {
         filters: [
           (q:string) => {
             if (/ago$/.test(q)) { // 4-mins-ago
-              return parseDateAgo(q.replace('-', ''))
+              return parseTimeToLive(q.replace('-', ''))
             } else if (/^Today-/.test(q)) { // Today-22:03
               return dayjs(q.replace('Today-', '')).unix()
             } else if (/Y-day-\d+/.test(q)) { // Y-day-2020

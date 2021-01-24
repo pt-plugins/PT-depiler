@@ -1,7 +1,7 @@
 import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
 import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
 import { AxiosRequestConfig } from 'axios'
-import { parseDateAgo } from '@/shared/utils/filter'
+import { parseTimeToLive } from '@/shared/utils/filter'
 import urlparse from 'url-parse'
 import { generateCategoryMap } from '@/shared/utils/common'
 
@@ -94,7 +94,7 @@ export const siteMetadata: SiteMetadata = {
       id: { selector: 'a[href^="/torrent/"]', attr: 'href', filters: [(q:string) => q.match(/\/torrent\/(\d+)/)![1]] },
       title: { selector: 'a[href^="/torrent/"][title]', attr: 'title', filters: [(q:string) => q.replace(/ torrent$/, '')] },
       url: { selector: 'a[href^="/torrent/"]', attr: 'href' },
-      time: { selector: 'td:nth-child(3)', filters: [parseDateAgo] },
+      time: { selector: 'td:nth-child(3)', filters: [parseTimeToLive] },
       size: { selector: 'td:nth-child(4)' }, // 当值为 N/A 时 sizeToNumber 直接返回0 ，不用额外处理
       seeders: { selector: 'td:nth-child(5)' },
       leechers: { selector: 'td:nth-child(6)' },

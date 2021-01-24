@@ -1,5 +1,5 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
-import { parseDateAgo } from '@/shared/utils/filter'
+import { parseTimeToLive } from '@/shared/utils/filter'
 
 export const siteMetadata: SiteMetadata = {
   name: 'EZTV',
@@ -22,7 +22,7 @@ export const siteMetadata: SiteMetadata = {
       },
       url: { selector: 'td:nth-child(2) a', attr: 'href' },
       link: { selector: 'td:nth-child(3) a.magnet, td:nth-child(3) a', attr: 'href' },
-      time: { selector: 'td:nth-child(5)', filters: [parseDateAgo] },
+      time: { selector: 'td:nth-child(5)', filters: [parseTimeToLive] },
       size: { selector: 'td:nth-child(4)' },
       seeders: { selector: 'td:nth-child(6)' }
     }

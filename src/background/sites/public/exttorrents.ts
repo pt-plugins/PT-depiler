@@ -1,5 +1,5 @@
 import { searchFilter, SiteMetadata, Torrent } from '@/shared/interfaces/sites'
-import { parseDateAgo } from '@/shared/utils/filter'
+import { parseTimeToLive } from '@/shared/utils/filter'
 import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
 import { AxiosRequestConfig } from 'axios'
 
@@ -89,7 +89,7 @@ export const siteMetadata: SiteMetadata = {
       url: { selector: 'td:nth-child(1) div.float-left a', attr: 'href' },
       // 当且仅有torrents时，列表页才有种子文件链接存在，不然我们走details页面获取magnet链接
       link: { selector: 'td:nth-child(1) div.float-right a.torrent-dwn', attr: 'href' },
-      time: { selector: 'td:nth-child(4)', filters: [parseDateAgo] },
+      time: { selector: 'td:nth-child(4)', filters: [parseTimeToLive] },
       size: { selector: 'td:nth-child(2)' },
       seeders: { selector: 'td:nth-child(5)' },
       leechers: { selector: 'td:nth-child(6)' },
