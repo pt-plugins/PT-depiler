@@ -111,6 +111,9 @@ export const siteMetadata: SiteMetadata = {
           (q: string) => categoryMap.get(parseInt(q.match(/\/sub\/(\d+)/)![1]))
         ]
       }
+    },
+    detail: {
+      link: { selector: 'ul[aria-labelledby="dropdownMenu1"] a', attr: 'href' }
     }
   }
 
@@ -158,12 +161,5 @@ export default class x1337x extends BittorrentSite {
     }
 
     return torrent
-  }
-
-  async getTorrentDownloadLink (torrent: Torrent): Promise<string> {
-    const { url } = torrent
-    const { data } = await this.request({ url, responseType: 'document' })
-
-    return this.getFieldData(data, { selector: 'ul[aria-labelledby="dropdownMenu1"] a', attr: 'href' })
   }
 }

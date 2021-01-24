@@ -9,7 +9,7 @@ import {
 } from '@/shared/interfaces/sites'
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import urljoin from 'url-join'
-import { sizeToNumber } from '@/shared/utils/filter'
+import { parseSizeString } from '@/shared/utils/filter'
 import Sizzle from 'sizzle'
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
@@ -42,14 +42,35 @@ export default class BittorrentSite {
       config.params[this.config.search?.keywordsParams || 'keywords'] = filter.keywords
     }
 
-    filter.extraParams?.forEach(category => {
-      const { key, value } = category
-      if (key === '#changeDomain') { // 更换 baseURL
-        config.baseURL = (value as string)
-      } else { //  其他参数视为params
-        config.params[key] = (value as string | number)
+    if (filter.extraParams) {
+      for (let i = 0; i < filter.extraParams?.length; i++) {
+        const { key, value } = filter.extraParams[i]
+
+        if (key === '#changeDomain') { // 更换 baseURL
+          config.baseURL = (value as string)
+        } else { //  其他参数视为params
+          /**
+           * 如果传入的 value 是 Array，我们认为这是 cross 模式，并作相应处理
+           * 但是如果此时未在对应 category 中做相应定义声明的话，将直接把对应信息交给 axios，而不做额外处理
+           */
+          if (Array.isArray(value)) {
+            // 检索 key 的定义情况
+            const definedCategoryForKey = this.config.search?.categories?.filter(x => x.key === key)[0]
+            if (definedCategoryForKey?.cross) {
+              const crossKey = definedCategoryForKey.cross.key || key
+              if (definedCategoryForKey?.cross.mode === 'append') {
+                value.forEach((v:string | number) => {
+                  config.params[`${crossKey}${v}`] = 1
+                })
+                continue // 跳过，不再将原始字段值插入params
+              }
+            }
+          }
+
+          config.params[key] = value
+        }
       }
-    })
+    }
 
     return config
   }
@@ -66,7 +87,7 @@ export default class BittorrentSite {
    * 种子搜索方法
    * @param filter
    */
-  async searchTorrents (filter: searchFilter) : Promise<Torrent[]> {
+  public async searchTorrents (filter: searchFilter) : Promise<Torrent[]> {
     // 处理 filter，合并 defaultParams 到 extraParams 的最前面
     if (this.config.search?.defaultParams) {
       filter.extraParams = ([] as searchParams[])
@@ -96,7 +117,7 @@ export default class BittorrentSite {
       req = await axios.request(axiosConfig)
     } catch (e) {
       req = (e as AxiosError).response!
-      if (req.status > 400) {
+      if (req.status >= 400) {
         throw Error('网络请求失败') // FIXME i18n
       }
     }
@@ -117,13 +138,15 @@ export default class BittorrentSite {
   protected fixLink (uri: string, requestConfig: SearchRequestConfig): string {
     let url = uri
 
-    if (!uri.startsWith('magnet:')) {
+    if (uri.length > 0 && !uri.startsWith('magnet:')) {
       const { axiosConfig } = requestConfig
       const baseUrl = axiosConfig.baseURL || this.activateUrl
       if (uri.startsWith('//')) {
+        // 当 传入的uri 以 /{2,} 开头时，被转换成类似 https?:///xxxx/xxxx 的形式，
+        // 虽不符合url规范，但是浏览器容错高，所以不用担心 2333
         const urlHelper = urlparse(baseUrl)
         url = `${urlHelper.protocol}:${uri}`
-      } if (uri.substr(0, 4) !== 'http') {
+      } else if (uri.substr(0, 4) !== 'http') {
         url = urljoin(baseUrl, uri.replace(/^\./, ''))
       }
     }
@@ -187,13 +210,14 @@ export default class BittorrentSite {
    * @param requestConfig
    */
   protected transformSearchPage (doc: Document, requestConfig: SearchRequestConfig): Torrent[] {
+    const rowsSelector = this.config.selector!.search!.rows!
     const torrents: Torrent[] = []
 
     let trs: any
     if (doc instanceof Document) {
-      trs = Sizzle(this.config.selector!.search!.rows!.selector as string, doc)
+      trs = Sizzle(rowsSelector.selector as string, doc)
     } else {
-      trs = get(doc, this.config.selector!.search!.rows!.selector as string)
+      trs = get(doc, rowsSelector.selector as string)
     }
     trs?.forEach((tr: any) => {
       torrents.push(this.transformRowsTorrent(tr, requestConfig) as Torrent)
@@ -219,7 +243,7 @@ export default class BittorrentSite {
       }
 
       if (key === 'size') {
-        value = sizeToNumber(value)
+        value = parseSizeString(value)
       }
 
       // noinspection JSUnfilteredForInLoop
@@ -244,6 +268,14 @@ export default class BittorrentSite {
   }
 
   async getTorrentDownloadLink (torrent: Torrent):Promise<string> {
+    if (!torrent.link && this.config.selector.detail?.link) {
+      const { data } = await this.request({
+        url: torrent.url,
+        responseType: this.config.detail?.type || 'document'
+      })
+      return this.getFieldData(data, this.config.selector.detail.link)
+    }
+
     return torrent.link
   }
 }

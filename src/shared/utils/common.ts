@@ -1,7 +1,10 @@
-const DomParser = new DOMParser()
-
-export function generateDocumentFromString (text: string, type: DOMParserSupportedType = 'text/html'): Document {
-  return DomParser.parseFromString(text, type)
+export function generateCategoryMap (categoryOptions: { name: string, value: string | number }[]): Map<string | number, string> {
+  const CategoryMap = new Map()
+  categoryOptions.forEach(v => {
+    const { value, name } = v
+    CategoryMap.set(value, name)
+  })
+  return CategoryMap
 }
 
 export function getFixedRatio (uploaded: number = 0, downloaded: number = 0): string | '∞' {

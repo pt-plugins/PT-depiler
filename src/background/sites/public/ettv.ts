@@ -1,8 +1,9 @@
-import { searchFilter, SiteMetadata, Torrent } from '@/shared/interfaces/sites'
+import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
 import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
 import { AxiosRequestConfig } from 'axios'
 import { parseDateAgo } from '@/shared/utils/filter'
 import urlparse from 'url-parse'
+import { generateCategoryMap } from '@/shared/utils/common'
 
 const CategoryOptions = [
   { value: 88, name: 'Adult - Books' },
@@ -60,11 +61,7 @@ const CategoryOptions = [
 ]
 
 // 建立一个Map来对应
-const CategoryMap = new Map()
-CategoryOptions.forEach(v => {
-  const { value, name } = v
-  CategoryMap.set(value, name)
-})
+const CategoryMap = generateCategoryMap(CategoryOptions)
 
 export const siteMetadata: SiteMetadata = {
   name: 'ETTV',
@@ -84,7 +81,7 @@ export const siteMetadata: SiteMetadata = {
         name: 'Category',
         key: 'cat',
         options: CategoryOptions,
-        cross: true
+        cross: { mode: 'append', key: 'c' }
       }
     ],
     defaultParams: [
@@ -113,6 +110,9 @@ export const siteMetadata: SiteMetadata = {
         ]
       },
       author: { selector: 'td:nth-child(8)' }
+    },
+    detail: {
+      link: { selector: 'a.download_link:last-of-type', attr: 'href' }
     }
   }
 }
@@ -120,27 +120,9 @@ export const siteMetadata: SiteMetadata = {
 // noinspection JSUnusedGlobalSymbols
 export default class Ettv extends BittorrentSite {
   protected transformSearchFilter (filter: searchFilter): AxiosRequestConfig {
-    const extraCategoryParamsIndex = filter.extraParams?.findIndex(v => v.key === 'cat')
-    if (extraCategoryParamsIndex) {
-      const CategoryParams = filter.extraParams![extraCategoryParamsIndex]
-
-      // 如果是cross模式，我们将其转成 &c{cid}=1 模式，不然直接用 cat={cid} 即可
-      if (Array.isArray(CategoryParams.value)) {
-        filter.extraParams?.splice(extraCategoryParamsIndex, 1) // 删除原有列
-        CategoryParams.value.forEach((v:string | number) => {
-          filter.extraParams?.push({ key: `c${v}`, value: 1 })
-        })
-      }
-    }
-
     const config = super.transformSearchFilter(filter)
-    config.baseURL = filter.keywords ? '/torrents-search.php' : '/torrents.php'
+    config.url = filter.keywords ? '/torrents-search.php' : '/torrents.php'
 
     return config
-  }
-
-  async getTorrentDownloadLink (torrent: Torrent): Promise<string> {
-    const DetailPageReq = await this.request({ url: torrent.url, responseType: 'document' })
-    return this.getFieldData(DetailPageReq.data as Document, { selector: 'a.download_link:last-of-type', attr: 'href' })
   }
 }

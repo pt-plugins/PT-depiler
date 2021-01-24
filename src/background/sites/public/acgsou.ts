@@ -72,9 +72,11 @@ export const siteMetadata: SiteMetadata = {
       leechers: { text: 1 },
 
       category: { selector: 'td:nth-child(2)' }
+    },
+    detail: {
+      link: { selector: 'div#torrent_files a', attr: 'href' }
     }
   }
-
 }
 
 // noinspection JSUnusedGlobalSymbols
@@ -88,12 +90,5 @@ export default class Acgsou extends BittorrentSite {
     }
 
     return config
-  }
-
-  async getTorrentDownloadLink (torrent: Torrent): Promise<string> {
-    const { url } = torrent
-    const { data } = await this.request({ url, responseType: 'document' })
-
-    return this.getFieldData(data, { selector: 'div#torrent_files a', attr: 'href' })
   }
 }

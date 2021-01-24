@@ -47,7 +47,16 @@ export interface searchCategories {
   name: string, // 搜索大类名称
   key: string, // 搜索大类
   options: { name: string, value: string | number }[],
-  cross?: boolean // 该搜索大类是否允许内部交叉 （ 不声明，则默认不允许（False） ）
+  // 该搜索大类是否允许内部交叉 （ 不声明，则默认不允许（False） ）
+  cross?: {
+    /**
+     * 当允许搜索类别内部交叉时，该搜索类别在请求时字段如何处理，如果是：
+     *  - 'raw': 由 axios 自动转化为 &{key}[]={xxx} 的形式 （默认）
+     *  - 'append': 转化为 &{key}{xxx}=1 的形式交给 axios 来请求，此时可以通过定义 key 来改写 key
+     */
+    mode?: 'raw' | 'append'
+    key?: string // 当内部交叉时，params与已定义的 key 不一致时使用
+  }
 }
 
 export interface searchParams {
@@ -96,7 +105,7 @@ export interface UserInfo {
 
 export type SiteBaseModule = 'schema/AbstractBittorrentSite' | 'schema/AbstractPrivateSite' | 'schema/NexusPHP'
 export type SiteFeature = 'queryUserInfo'
-export type SelectorCollection = 'search' | 'userInfo'
+export type SelectorCollection = 'search' | 'detail' | 'userInfo'
 
 /**
  * 站点配置，这部分配置由系统提供，并随着每次更新而更新，不受用户配置的任何影响
@@ -129,6 +138,10 @@ export interface SiteMetadata {
     categories?: searchCategories[] // 站点对应搜索入口的种子分类信息
     defaultParams?: searchParams[], // 无论如何都会传入的参数
   } // 站点搜索方法如何配置
+
+  detail?: {
+    type?: ResponseType, // 当不指定时，默认为 document
+  }
 
   selector: {
     [key in SelectorCollection]?: {

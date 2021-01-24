@@ -2,9 +2,9 @@ import dayjs from '@/shared/utils/dayjs'
 import { OpUnitType } from 'dayjs'
 
 export const sizePattern = /^(\d*\.?\d+)(.*[^ZEPTGMK])?([ZEPTGMK](B|iB))$/i
-export const dateUnit = ['sec', 'second', 'min', 'minute', 'hour', 'day', 'week', 'month', 'quarter', 'year']
+export const dateUnit = ['year', 'quarter', 'month', 'week', 'day', 'hour', 'minute', 'min', 'second', 'sec']
 
-export function sizeToNumber (size: string): number {
+export function parseSizeString (size: string): number {
   const sizeRawMatch = size.match(sizePattern)
   if (sizeRawMatch) {
     const sizeNumber = parseFloat(sizeRawMatch[1])
