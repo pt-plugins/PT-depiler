@@ -1,5 +1,3 @@
-import { merge, get } from 'lodash-es'
-import urlparse from 'url-parse'
 import {
   ElementQuery,
   searchFilter, searchParams, SearchRequestConfig,
@@ -8,9 +6,11 @@ import {
   Torrent
 } from '@/shared/interfaces/sites'
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
-import urljoin from 'url-join'
-import { cfDecodeEmail, parseSizeString } from '@/shared/utils/filter'
 import Sizzle from 'sizzle'
+import urljoin from 'url-join'
+import urlparse from 'url-parse'
+import { merge, get } from 'lodash-es'
+import { cfDecodeEmail, parseSizeString } from '@/shared/utils/filter'
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export default class BittorrentSite {
@@ -38,8 +38,9 @@ export default class BittorrentSite {
     const config: AxiosRequestConfig = {
       params: {}
     }
-    if (filter.keywords) {
-      config.params[this.config.search?.keywordsParams || 'keywords'] = filter.keywords
+
+    if (filter.keywords || this.config.search?.keywordsParams) {
+      config.params[this.config.search?.keywordsParams || 'keywords'] = filter.keywords || ''
     }
 
     if (filter.extraParams) {
@@ -106,7 +107,7 @@ export default class BittorrentSite {
     return this.transformSearchPage(req.data, { filter, axiosConfig })
   }
 
-  async request (axiosConfig: AxiosRequestConfig): Promise<AxiosResponse> {
+  async request<T> (axiosConfig: AxiosRequestConfig): Promise<AxiosResponse> {
     // 统一设置一些 AxiosRequestConfig， 当作默认值
     axiosConfig.baseURL = axiosConfig.baseURL || this.activateUrl
     axiosConfig.url = axiosConfig.url || '/'
@@ -114,7 +115,7 @@ export default class BittorrentSite {
 
     let req: AxiosResponse
     try {
-      req = await axios.request(axiosConfig)
+      req = await axios.request<T>(axiosConfig)
 
       // 全局性的替换 span.__cf_email__
       if (axiosConfig.responseType === 'document') {
@@ -167,8 +168,8 @@ export default class BittorrentSite {
   }
 
   protected getFieldData (element: Element | Object, elementQuery: ElementQuery): any {
-    const { text, selector, attr, data, filters } = elementQuery
-    let query: string = String(text || '')
+    const { selector, attr, data, filters } = elementQuery
+    let query: string = String(elementQuery.text || '')
 
     if (selector) {
       const selectors = ([] as string[]).concat(selector)
@@ -183,6 +184,16 @@ export default class BittorrentSite {
             } else if (attr) {
               query = another.getAttribute(attr) || ''
             } else {
+              // 如果定义了移除 remove ，则从该html元素中先移除子元素，后取值
+              if (elementQuery.remove) {
+                const anotherRemove = ([] as string[]).concat(elementQuery.remove)
+                anotherRemove.forEach(removeSelector => {
+                  Sizzle(removeSelector, another).forEach(removeNode => {
+                    another.removeChild(removeNode)
+                  })
+                })
+              }
+
               query = another.innerText || ''
             }
           }
@@ -190,7 +201,10 @@ export default class BittorrentSite {
           query = get(element, selector)
         }
 
-        query = query.trim()
+        // noinspection SuspiciousTypeOfGuard
+        if (typeof query === 'string') {
+          query = query.trim()
+        }
         if (query !== '') {
           break
         }
@@ -254,7 +268,7 @@ export default class BittorrentSite {
         value = this.fixLink(value as string, requestConfig)
       }
 
-      if (key === 'size') {
+      if (key === 'size' && typeof value === 'string') {
         value = parseSizeString(value)
       }
 

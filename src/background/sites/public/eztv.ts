@@ -1,5 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
 import { parseTimeToLive } from '@/shared/utils/filter'
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
+import { AxiosRequestConfig } from 'axios'
 
 export const siteMetadata: SiteMetadata = {
   name: 'EZTV',
@@ -10,6 +12,10 @@ export const siteMetadata: SiteMetadata = {
     'https://eztv.tf/',
     'https://eztv.yt/'
   ],
+  search: {
+    path: '/search/',
+    keywordsParams: 'keywords'
+  },
   selector: {
     search: {
       rows: { selector: 'table.forum_header_border tr[name="hover"].forum_header_border:has(a.magnet)' },
@@ -26,5 +32,14 @@ export const siteMetadata: SiteMetadata = {
       size: { selector: 'td:nth-child(4)' },
       seeders: { selector: 'td:nth-child(6)' }
     }
+  }
+}
+
+// noinspection JSUnusedGlobalSymbols
+export default class Eztv extends BittorrentSite {
+  protected transformSearchFilter (filter: searchFilter): AxiosRequestConfig {
+    const config = super.transformSearchFilter(filter)
+    config.url = filter.keywords ? `/search/${filter.keywords}` : '/'
+    return config
   }
 }

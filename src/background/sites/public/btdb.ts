@@ -31,9 +31,7 @@ export const siteMetadata: SiteMetadata = {
 export default class BtDB extends BittorrentSite {
   protected transformSearchFilter (filter: searchFilter): AxiosRequestConfig {
     const config = super.transformSearchFilter(filter)
-    if (filter.keywords) {
-      config.url = filter.keywords ? `/search/${filter.keywords}/` : '/recent'
-    }
+    config.url = filter.keywords ? `/search/${filter.keywords}/` : '/recent'
 
     return config
   }

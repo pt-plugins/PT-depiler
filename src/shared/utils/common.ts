@@ -15,3 +15,7 @@ export function getFixedRatio (uploaded: number = 0, downloaded: number = 0): st
     return ratio.toFixed(2)
   }
 }
+
+export function sleep (ms:number) {
+  return new Promise(resolve => setTimeout(resolve, ms))
+}

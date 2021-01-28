@@ -85,9 +85,7 @@ export default class Acgsou extends BittorrentSite {
 
   protected transformSearchFilter (filter: searchFilter): AxiosRequestConfig {
     const config = super.transformSearchFilter(filter)
-    if (filter.keywords) {
-      config.url = filter.keywords ? '/search.php' : '1.html'
-    }
+    config.url = filter.keywords ? '/search.php' : '1.html'
 
     return config
   }

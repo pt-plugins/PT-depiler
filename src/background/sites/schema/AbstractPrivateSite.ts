@@ -9,7 +9,7 @@ export default class PrivateSite extends BittorrentSite {
    * 获得当前站点最新的用户信息用于更新
    */
   getUserInfo (): Promise<UserInfo> {
-    throw new Error('') // FIXME
+    throw new Error('尚不支持') // FIXME
   }
 
   /**

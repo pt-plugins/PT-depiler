@@ -14,6 +14,9 @@ export interface ElementQuery {
   attr?: string,
   data?: string,
 
+  // 在获取html innerHtml 前移除内部不需要的元素， 在JSON， attr,data 模式下不适用
+  remove?: string | string[],
+
   filters?: (Function | string)[]
 }
 
@@ -134,7 +137,7 @@ export interface SiteMetadata {
   search?: {
     type?: ResponseType, // 当不指定时，默认为 document
     path?: string, // 当不指定时，默认为 '/'
-    keywordsParams?: string, // 当不指定时，默认为 'keywords'
+    keywordsParams?: string, // 当不指定且未改写时，会导致keyword未被搜索使用
     categories?: searchCategories[] // 站点对应搜索入口的种子分类信息
     defaultParams?: searchParams[], // 无论如何都会传入的参数
   } // 站点搜索方法如何配置
