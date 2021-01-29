@@ -63,7 +63,7 @@ export const siteMetadata: SiteMetadata = {
       seeders: { selector: 'td:nth-child(9)' },
       leechers: { selector: 'td:nth-child(10)' },
       completed: { selector: 'td:nth-child(11)' },
-      comment: { selector: 'td:nth-child(4) a[href$="#comments"]' },
+      comments: { selector: 'td:nth-child(4) a[href$="#comments"]' },
       category: { selector: 'td:nth-child(1) a' }
     }
   }

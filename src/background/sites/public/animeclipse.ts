@@ -114,8 +114,6 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Animeclipse extends BittorrentSite {
-  protected readonly siteMetadata = siteMetadata;
-
   protected transformSearchFilter (filter: searchFilter): AxiosRequestConfig {
     const extraSortParamsIndex = filter.extraParams
       ?.findIndex(v => v.key === 'order' && ['3', '4', '5'].includes(v.value as string))

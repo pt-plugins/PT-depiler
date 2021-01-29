@@ -60,8 +60,6 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Kisssub extends BittorrentSite {
-  protected readonly siteMetadata = siteMetadata;
-
   protected transformRowsTorrent (row: Element, requestConfig: SearchRequestConfig): Partial<Torrent> {
     const transformTorrent = super.transformRowsTorrent(row, requestConfig)
     // 我们只要知道hash就可以种子了，但是如果不传入name的话，种子命名是 `{hash}.torrent`

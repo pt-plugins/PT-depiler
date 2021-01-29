@@ -27,7 +27,7 @@ export const siteMetadata: SiteMetadata = {
     search: {
       rows: { selector: 'div.torrents > div[class^="item"]' },
       id: { selector: ':self', attr: 'id', filters: [(q:string) => q.replace('item_', '')] },
-      title: { selector: 'span.info > a', attr: 'title' },
+      title: { selector: 'span.info > a', attr: 'title', filters: [(q:string) => q.replace(/^Download /, '')] },
       url: { selector: 'span.info > a', attr: 'href' },
       link: { selector: 'span.category > a', attr: 'href' },
       time: {

@@ -101,7 +101,7 @@ export const siteMetadata: SiteMetadata = {
       id: { selector: 'td:nth-child(2) a:last-of-type', attr: 'href', filters: [(q: string) => q.match(/(\d+)/)![0]] },
       title: { selector: 'td:nth-child(2) a:last-of-type', attr: 'title' },
       url: { selector: 'td:nth-child(2) a:last-of-type', attr: 'href' },
-      link: { selector: 'td:nth-child(4) a', attr: 'href' },
+      link: { selector: 'td:nth-child(3) a', attr: 'href' },
       time: { selector: 'td:nth-child(5)', data: 'timestamp' },
       size: { selector: 'td:nth-child(4)' },
       seeders: { selector: 'td:nth-child(6)' },

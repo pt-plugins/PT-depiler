@@ -47,7 +47,6 @@ export const siteMetadata: SiteMetadata = {
       leechers: { selector: ':self', data: 'leechers' },
       comments: { text: 0 },
       category: { text: 'All' } // 该站点不支持 Category
-
     }
   }
 }

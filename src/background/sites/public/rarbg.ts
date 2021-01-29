@@ -80,7 +80,8 @@ export default class Rarbg extends BittorrentSite {
         resp = await this.request(axiosConfig)
         break
       case 20: // no results found
-        // the api returns "no results" in some valid queries. we do one retry on this case but we can't do more
+        // the api returns "no results" in some valid queries. (Mostly happened on same keywords re-search)
+        // we do one retry on this case but we can't do more
         // because we can't distinguish between search without results and api malfunction
         if (retry) {
           resp = await this.request(axiosConfig, false)

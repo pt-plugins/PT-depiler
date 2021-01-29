@@ -66,7 +66,8 @@ export const siteMetadata: SiteMetadata = {
   },
   selector: {
     search: {
-      rows: { selector: 'table.font_12px tr:not([align])' }, // 注意这里选出来2x 列，所以我们要重写 transformSearchPage 方法
+      // FIXME 以下部分未适配 merge 属性
+      rows: { selector: 'table.font_12px tr:not([align])', merge: 2 },
       id: { selector: 'a[href^="/files/details/"]', attr: 'href' },
       title: { selector: 'a[href^="/files/details/"]' },
       url: { selector: 'a[href^="/files/details/"]', attr: 'href' },
@@ -85,26 +86,5 @@ export const siteMetadata: SiteMetadata = {
       },
       author: { selector: 'a[href^="/users/"]' }
     }
-  }
-}
-
-// noinspection JSUnusedGlobalSymbols
-export default class Demonoid extends BittorrentSite {
-  protected transformSearchPage (doc: Document, requestConfig: SearchRequestConfig): Torrent[] {
-    const rowsSelector = this.config.selector!.search!.rows!
-    const torrents: Torrent[] = []
-
-    const tr2s = Sizzle(rowsSelector.selector as string, doc)
-    for (let i = 0; i < tr2s.length; i += 2) {
-      const torrent = mergeWith(
-        this.transformRowsTorrent(tr2s[i], requestConfig),
-        this.transformRowsTorrent(tr2s[i + 1], requestConfig),
-        (objValue, srcValue) => objValue || srcValue
-      ) as Torrent
-
-      torrents.push(torrent)
-    }
-
-    return torrents
   }
 }

@@ -9,7 +9,7 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import Sizzle from 'sizzle'
 import urljoin from 'url-join'
 import urlparse from 'url-parse'
-import { merge, get } from 'lodash-es'
+import { merge, get, chunk } from 'lodash-es'
 import { cfDecodeEmail, parseSizeString } from '@/shared/utils/filter'
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
@@ -231,20 +231,36 @@ export default class BittorrentSite {
   }
 
   /**
-   * 如何解析 JSON 或者 Document，获得种子文件
+   * 如何解析 JSON 或者 Document，获得种子详情列表
    * @param doc
    * @param requestConfig
    */
   protected transformSearchPage (doc: Document | object, requestConfig: SearchRequestConfig): Torrent[] {
-    const rowsSelector = this.config.selector!.search!.rows!
+    const rowsSelector = this.config.selector.search.rows
     const torrents: Torrent[] = []
 
     let trs: any
     if (doc instanceof Document) {
       trs = Sizzle(rowsSelector.selector as string, doc)
+
+      // 应对某些站点连用多个tr表示一个种子的情况，将多个tr使用 <div> 包裹成一个 Element
+      const rowMergeDeep:number = rowsSelector.merge || 1
+      if (rowMergeDeep > 1) {
+        const newTrs: Element[] = []
+
+        chunk(trs, rowMergeDeep).forEach(chunkTr => {
+          const wrapperDiv = doc.createElement('div')
+          chunkTr.forEach(tr => { wrapperDiv.appendChild(tr as Element) })
+          newTrs.push(wrapperDiv)
+        })
+
+        trs = newTrs
+      }
     } else {
-      trs = get(doc, rowsSelector.selector as string)
+      // 同样定义一个 :self 以防止对于JSON返回的情况下，所有items在顶层字典下
+      trs = rowsSelector.selector === ':self' ? doc : get(doc, rowsSelector.selector as string)
     }
+
     trs?.forEach((tr: any) => {
       torrents.push(this.transformRowsTorrent(tr, requestConfig) as Torrent)
     })
@@ -260,7 +276,7 @@ export default class BittorrentSite {
         continue // rows 不作为对应项
       }
 
-      // noinspection JSUnfilteredForInLoop
+      // @ts-ignore
       let value = this.getFieldData(row, this.config.selector.search[key])
 
       // noinspection JSUnfilteredForInLoop

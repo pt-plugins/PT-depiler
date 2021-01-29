@@ -9,7 +9,12 @@ export interface SearchResultItemTag {
 export interface ElementQuery {
   // selector或 text 一定要有一个
   text?: string | number, // 当text输入时，会直接返回text，而不进行检查
-  selector?: string | string[],
+
+  /**
+   * 此处约定了一些特殊的选择器
+   *  - :self  该元素自身，对于html文档，一般用于tr自身属性，对于json文档，一般指root顶层
+   */
+  selector?: string| ':self' | string[],
 
   attr?: string,
   data?: string,
@@ -31,6 +36,7 @@ export interface Torrent {
   time?: number; // 发布时间戳（秒级）
   size?: number; // 大小
   author?: number; // 发布人
+  category?: string;
 
   seeders?: number; // 上传数量
   leechers?: number; // 下载数量
@@ -39,11 +45,9 @@ export interface Torrent {
 
   tags?: SearchResultItemTag[];
 
-  // 进度（100表示完成）
-  progress?: number;
-  // 状态
-  status?: ETorrentStatus;
-  category?: string;
+  // 对于PT种子才 获取以下部分
+  progress?: number; // 进度（100表示完成）
+  status?: ETorrentStatus; // 状态
 }
 
 export interface searchCategories {
@@ -108,7 +112,6 @@ export interface UserInfo {
 
 export type SiteBaseModule = 'schema/AbstractBittorrentSite' | 'schema/AbstractPrivateSite' | 'schema/NexusPHP'
 export type SiteFeature = 'queryUserInfo'
-export type SelectorCollection = 'search' | 'detail' | 'userInfo'
 
 /**
  * 站点配置，这部分配置由系统提供，并随着每次更新而更新，不受用户配置的任何影响
@@ -147,7 +150,39 @@ export interface SiteMetadata {
   }
 
   selector: {
-    [key in SelectorCollection]?: {
+    search: {
+      rows: { selector: string | ':self', merge?: number }
+      id: ElementQuery
+      title: ElementQuery // 主标题
+      subTitle?: ElementQuery // 次标题
+
+      url?: ElementQuery // detail 页面
+      link?: ElementQuery // 种子链接
+
+      time?: ElementQuery // 发布时间戳（秒级）
+      size?: ElementQuery // 大小
+      author?: ElementQuery // 发布人
+      category?: ElementQuery
+
+      seeders?: ElementQuery // 上传数量
+      leechers?: ElementQuery // 下载数量
+      completed?: ElementQuery // 完成数量
+      comments?: ElementQuery // 评论数量
+
+      // FIXME tags?: SearchResultItemTag[];
+
+      // 进度（100表示完成）
+      // FIXME progress?: number;
+      // 状态
+      // FIXME status?: ETorrentStatus;
+    }
+
+    detail?: {
+      link?: ElementQuery // 用于获取下载链接不在搜索页，而在详情页
+      [key: string]: ElementQuery | undefined // FIXME
+    }
+
+    userInfo?: {
       [key: string]: ElementQuery
     }
   }

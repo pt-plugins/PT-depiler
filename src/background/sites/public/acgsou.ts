@@ -63,7 +63,7 @@ export const siteMetadata: SiteMetadata = {
             // 2016/07/10
             // 01/21 18:00
             const dayjsPattern = /:/.test(q) ? 'MM/DD HH:mm Z' : 'YYYY/MM/DD Z'
-            return dayjs(`${q}  +08:00`, dayjsPattern).unix()
+            return dayjs(`${q} +08:00`, dayjsPattern).unix()
           }
         ]
       },
@@ -81,8 +81,6 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Acgsou extends BittorrentSite {
-  protected readonly siteMetadata = siteMetadata;
-
   protected transformSearchFilter (filter: searchFilter): AxiosRequestConfig {
     const config = super.transformSearchFilter(filter)
     config.url = filter.keywords ? '/search.php' : '1.html'

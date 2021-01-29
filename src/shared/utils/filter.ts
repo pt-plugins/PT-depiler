@@ -1,7 +1,7 @@
 import dayjs from '@/shared/utils/dayjs'
 import { OpUnitType } from 'dayjs'
 
-export const sizePattern = /^(\d*\.?\d+)(.*[^ZEPTGMK])?([ZEPTGMK](B|iB))$/i
+export const sizePattern = /^(\d*\.?\d+)(.*[^ZEPTGMK])?([ZEPTGMK](B|iB))s?$/i
 export const dateUnit = ['year', 'quarter', 'month', 'week', 'day', 'hour', 'minute', 'min', 'second', 'sec']
 export const zhDateUnitMap = new Map<string, string>([
   ['分', 'minute'],

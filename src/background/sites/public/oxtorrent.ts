@@ -25,7 +25,13 @@ export const siteMetadata: SiteMetadata = {
   selector: {
     search: {
       rows: { selector: 'table.table-hover > tbody > tr:has(a[href*="torrent/"])' },
-      id: { selector: 'td:nth-child(1) a', attr: 'href' },
+      id: {
+        selector: 'td:nth-child(1) a',
+        attr: 'href',
+        filters: [
+          (q:string) => q.match(/torrent\/(\d+)/)![1]
+        ]
+      },
       title: { selector: 'td:nth-child(1) a' },
       url: { selector: 'td:nth-child(1) a', attr: 'href' },
       size: { selector: 'td:nth-child(2)' },
