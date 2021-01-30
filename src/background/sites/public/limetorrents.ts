@@ -1,4 +1,4 @@
-import { searchFilter, SiteMetadata, Torrent } from '@/shared/interfaces/sites'
+import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
 import { parseTimeToLive } from '@/shared/utils/filter'
 import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
 import { AxiosRequestConfig } from 'axios'

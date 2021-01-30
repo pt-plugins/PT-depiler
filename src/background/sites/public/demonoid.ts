@@ -45,8 +45,8 @@ export const siteMetadata: SiteMetadata = {
     'https://www.dnoid.pw/'
   ],
   search: {
-    path: '/files/',
-    keywordsParams: 'query',
+    requestConfig: { url: '/files/' },
+    keywordsParam: 'query',
     categories: [
       // 只做一级分类，不做二级分类
       {

@@ -28,8 +28,8 @@ export const siteMetadata: SiteMetadata = {
   description: 'A BitTorrent Library for Japanese Media',
   url: 'https://www.tokyotosho.info/',
   search: {
-    path: '/search.php',
-    keywordsParams: 'terms',
+    requestConfig: { url: '/search.php' },
+    keywordsParam: 'terms',
     categories: [
       { name: 'Category', key: 'type', options: CategoryOptions }
     ]

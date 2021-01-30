@@ -2,14 +2,6 @@ import dayjs from '@/shared/utils/dayjs'
 import { OpUnitType } from 'dayjs'
 
 export const sizePattern = /^(\d*\.?\d+)(.*[^ZEPTGMK])?([ZEPTGMK](B|iB))s?$/i
-export const dateUnit = ['year', 'quarter', 'month', 'week', 'day', 'hour', 'minute', 'min', 'second', 'sec']
-export const zhDateUnitMap = new Map<string, string>([
-  ['分', 'minute'],
-  ['时', 'hour'],
-  ['天', 'day'],
-  ['月', 'month'],
-  ['年', 'year']
-])
 
 export function parseSizeString (size: string): number {
   const sizeRawMatch = size.match(sizePattern)
@@ -38,14 +30,21 @@ export function parseSizeString (size: string): number {
   return 0
 }
 
-export function parseTimeToLive (ttl: string): number {
-  let nowDayJs = dayjs()
+export const dateUnit = ['year', 'quarter', 'month', 'week', 'day', 'hour', 'minute', 'second']
+export const nonStandDateUnitMap = new Map<string, typeof dateUnit[number]>([
+  // 中文
+  ['分', 'minute'], ['时', 'hour'], ['天', 'day'], ['月', 'month'], ['年', 'year'],
+  // 英文缩写
+  ['hr', 'hour'], ['min', 'minute'], ['sec', 'second']
+])
 
-  // 处理中文日期
-  zhDateUnitMap.forEach((v, k) => {
-    ttl = ttl.replace(k, ` ${v} `)
+export function parseTimeToLive (ttl: string): number {
+  // 处理原始字符串中的非标准Unit
+  nonStandDateUnitMap.forEach((v, k) => {
+    ttl = ttl.replace(k, v)
   })
 
+  let nowDayJs = dayjs()
   dateUnit.forEach(v => {
     const matched = ttl.match(new RegExp(`(\\d+) ?(${v}s?)`))
     if (matched) {

@@ -1,4 +1,4 @@
-import { searchFilter, searchParams, SearchRequestConfig, SiteMetadata, Torrent } from '@/shared/interfaces/sites'
+import { searchFilter, searchParams, SiteMetadata } from '@/shared/interfaces/sites'
 import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
 import { AxiosRequestConfig } from 'axios'
 import urljoin from 'url-join'
@@ -28,7 +28,7 @@ export const siteMetadata: SiteMetadata = {
     'https://x1337x.se/'
   ],
   search: {
-    path: '/search',
+    requestConfig: { url: '/search' },
     categories: [
       {
         name: 'Category',
@@ -89,14 +89,7 @@ export const siteMetadata: SiteMetadata = {
              * - (today) 12:25am
              */
             q = q.replace("'", '').replace('.', '')
-            let dayjsPattern = 'MMM Do YY'
-            if (/[ap]m$/.test(q)) {
-              dayjsPattern = 'HH:mma'
-            } else if (/(st|nd|rd|th)$/.test(q)) {
-              dayjsPattern = 'mma MMM Do'
-            }
-
-            return dayjs(q, dayjsPattern).unix()
+            return dayjs(q, ['MMM Do YY', 'HH:mma', 'mma MMM Do']).unix()
           }
         ]
       },
@@ -150,16 +143,5 @@ export default class x1337x extends BittorrentSite {
         String(sort ? (order?.value || 'desc') : ''), '1/'
       )
     }
-  }
-
-  protected transformRowsTorrent (row: Element, requestConfig: SearchRequestConfig): Partial<Torrent> {
-    const torrent = super.transformRowsTorrent(row, requestConfig)
-
-    const category = requestConfig.filter.extraParams?.filter((v: searchParams) => v.key === 'category')[0]
-    if (category) {
-      torrent.category = category.value as string
-    }
-
-    return torrent
   }
 }

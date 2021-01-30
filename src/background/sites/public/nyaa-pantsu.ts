@@ -6,7 +6,7 @@ export const siteMetadata: SiteMetadata = {
   description: '另一个 Nyaa 的继承者，侧重于东亚（中国、日本及韩国）多媒体资源的BitTorrent站点',
   url: 'https://nyaa.net/',
   search: {
-    path: '/search',
+    requestConfig: { url: '/search' },
     categories: [
       {
         name: 'Domain',

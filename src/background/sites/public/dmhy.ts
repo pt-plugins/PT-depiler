@@ -6,8 +6,8 @@ export const siteMetadata: SiteMetadata = {
   description: '動漫花園資訊網是一個動漫愛好者交流的平台,提供最及時,最全面的動畫,漫畫,動漫音樂,動漫下載,BT,ED,動漫遊戲,資訊,分享,交流,讨论.',
   url: 'https://share.dmhy.org/',
   search: {
-    path: '/topics/list',
-    keywordsParams: 'keyword',
+    requestConfig: { url: '/topics/list' },
+    keywordsParam: 'keyword',
     categories: [
       {
         name: '分類',

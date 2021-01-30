@@ -53,8 +53,8 @@ export const siteMetadata: SiteMetadata = {
     'https://torrentgalaxy.su/'
   ],
   search: {
-    path: '/torrents.php',
-    keywordsParams: 'search',
+    requestConfig: { url: '/torrents.php' },
+    keywordsParam: 'search',
     categories: [
       {
         name: 'Category',

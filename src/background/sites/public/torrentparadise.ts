@@ -12,8 +12,8 @@ export const siteMetadata: SiteMetadata = {
     'https://torrentparadise.la/'
   ],
   search: {
-    path: 'search.php',
-    keywordsParams: 'f'
+    requestConfig: { url: 'search.php' },
+    keywordsParam: 'f'
   },
   selector: {
     search: {

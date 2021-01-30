@@ -7,8 +7,8 @@ export const siteMetadata: SiteMetadata = {
   description: 'ExtraTorrent.cd is a Public tracker, a  popular alternative to the original ET site, providing Movie / TV / General magnets',
   url: 'https://extratorrent.si/',
   search: {
-    path: '/search/',
-    keywordsParams: 'search',
+    requestConfig: { url: '/search/' },
+    keywordsParam: 'search',
     categories: [
       {
         name: 'Category',

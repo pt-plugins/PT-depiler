@@ -5,7 +5,7 @@ export const siteMetadata: SiteMetadata = {
   description: 'AniRena is a Public torrent tracker for the latest anime and Japanese related torrents',
   url: 'https://www.anirena.com/',
   search: {
-    keywordsParams: 's'
+    keywordsParam: 's'
   },
   selector: {
     search: {

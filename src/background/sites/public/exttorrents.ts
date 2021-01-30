@@ -61,8 +61,8 @@ export const siteMetadata: SiteMetadata = {
     'https://ext.torrentbay.to/'
   ],
   search: {
-    path: '/search/',
-    keywordsParams: 'q',
+    requestConfig: { url: '/search/' },
+    keywordsParam: 'q',
     categories: [
       {
         name: 'Category',

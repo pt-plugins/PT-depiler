@@ -7,7 +7,7 @@ export const siteMetadata: SiteMetadata = {
   description: 'BT.etree is a Public Tracker dedicated to Bootleg FLAC MUSIC',
   url: 'https://bt.etree.org/',
   search: {
-    keywordsParams: 'searchzzzz',
+    keywordsParam: 'searchzzzz',
     defaultParams: [
       { key: 'cat', value: 0 }
     ]

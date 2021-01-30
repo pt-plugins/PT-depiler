@@ -5,7 +5,7 @@ export const siteMetadata: SiteMetadata = {
   description: '与动漫花园类似的日漫资源站点',
   url: 'https://acg.rip/',
   search: {
-    keywordsParams: 'term'
+    keywordsParam: 'term'
   },
   selector: {
     search: {

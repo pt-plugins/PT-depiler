@@ -7,8 +7,8 @@ export const siteMetadata: SiteMetadata = {
   description: '7torrents is a Public BitTorrent DHT search engine.',
   url: 'https://www.7torrents.cc/',
   search: {
-    path: '/search',
-    keywordsParams: 'query',
+    requestConfig: { url: '/search' },
+    keywordsParam: 'query',
     categories: [
       {
         name: 'Order By',

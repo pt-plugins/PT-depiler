@@ -13,8 +13,8 @@ export const siteMetadata: SiteMetadata = {
     'https://eztv.yt/'
   ],
   search: {
-    path: '/search/',
-    keywordsParams: 'keywords'
+    requestConfig: { url: '/search/' },
+    keywordsParam: 'keywords'
   },
   selector: {
     search: {

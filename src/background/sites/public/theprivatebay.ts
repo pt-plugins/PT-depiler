@@ -27,9 +27,8 @@ export const siteMetadata: SiteMetadata = {
   description: 'Pirate Bay (TPB) is the galaxy’s most resilient Public BitTorrent site',
   url: 'https://thepiratebay.org/',
   search: {
-    path: 'https://apibay.org/q.php',
-    type: 'json',
-    keywordsParams: 'q',
+    requestConfig: { url: 'https://apibay.org/q.php', responseType: 'json' },
+    keywordsParam: 'q',
     defaultParams: [
       { key: 'cat', value: '' }
     ]

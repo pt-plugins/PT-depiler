@@ -6,8 +6,8 @@ export const siteMetadata: SiteMetadata = {
   description: 'AnimeTosho (AT) is an automated service that provides torrent files, magnet links and DDL for all anime releases',
   url: 'https://animetosho.org/',
   search: {
-    path: '/search',
-    keywordsParams: 'q',
+    requestConfig: { url: '/search' },
+    keywordsParam: 'q',
     categories: [
       {
         name: 'Sort',

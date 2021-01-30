@@ -7,8 +7,8 @@ export const siteMetadata: SiteMetadata = {
   description: 'E-Hentai is a Public site for Hentai doujinshi, manga.',
   url: 'https://e-hentai.org/',
   search: {
-    path: '/torrents.php',
-    keywordsParams: 'search',
+    requestConfig: { url: '/torrents.php' },
+    keywordsParam: 'search',
     categories: [
       {
         name: 'Domain',

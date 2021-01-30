@@ -7,7 +7,7 @@ export const siteMetadata: SiteMetadata = {
   tags: ['anime', 'manga', 'jav', 'download', 'anidex', 'magnet'],
   url: 'https://anidex.info',
   search: {
-    keywordsParams: 'q',
+    keywordsParam: 'q',
     categories: [
       {
         name: 'Category',

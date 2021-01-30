@@ -6,8 +6,8 @@ export const siteMetadata: SiteMetadata = {
   description: 'Magnet4You is a Public magnet search engine',
   url: 'https://magnet4you.me/',
   search: {
-    path: '/search.php',
-    keywordsParams: 's'
+    requestConfig: { url: '/search.php' },
+    keywordsParam: 's'
   },
   selector: {
     search: {

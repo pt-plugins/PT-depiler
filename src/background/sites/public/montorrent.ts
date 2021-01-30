@@ -34,8 +34,8 @@ export const siteMetadata: SiteMetadata = {
   description: 'MonTorrent is a FRENCH Public Indexer',
   url: 'https://www.montorrent.com/',
   search: {
-    path: '/recherche/',
-    keywordsParams: 'query'
+    requestConfig: { url: '/recherche/' },
+    keywordsParam: 'query'
     // TODO categories: []
   },
   selector: {

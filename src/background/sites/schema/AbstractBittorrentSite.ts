@@ -35,12 +35,11 @@ export default class BittorrentSite {
    * @param filter
    */
   protected transformSearchFilter (filter: searchFilter): AxiosRequestConfig {
-    const config: AxiosRequestConfig = {
-      params: {}
-    }
+    const config: AxiosRequestConfig = {}
 
-    if (filter.keywords || this.config.search?.keywordsParams) {
-      config.params[this.config.search?.keywordsParams || 'keywords'] = filter.keywords || ''
+    const params: any = {}
+    if (filter.keywords || this.config.search?.keywordsParam) {
+      params[this.config.search?.keywordsParam || 'keywords'] = filter.keywords || ''
     }
 
     if (filter.extraParams) {
@@ -61,16 +60,38 @@ export default class BittorrentSite {
               const crossKey = definedCategoryForKey.cross.key || key
               if (definedCategoryForKey?.cross.mode === 'append') {
                 value.forEach((v:string | number) => {
-                  config.params[`${crossKey}${v}`] = 1
+                  params[`${crossKey}${v}`] = 1
                 })
                 continue // 跳过，不再将原始字段值插入params
               }
             }
           }
 
-          config.params[key] = value
+          params[key] = value
         }
       }
+    }
+
+    if (this.config.search?.requestConfig?.method?.toLowerCase() === 'post') { // POST
+      const transData = this.config.search?.requestConfig.transferPostData || 'raw'
+
+      let postData: FormData | URLSearchParams
+      if (transData !== 'raw') {
+        if (transData === 'form') {
+          postData = new FormData()
+        } else if (transData === 'params') {
+          postData = new URLSearchParams()
+        }
+
+        Object.keys(params).forEach(k => {
+          const v = params[k]
+          postData.append(k, v)
+        })
+      }
+
+      config.data = transData || params
+    } else { // GET
+      config.params = params
     }
 
     return config
@@ -98,11 +119,14 @@ export default class BittorrentSite {
         )
     }
 
-    // 请求页面并转化为document
-    const axiosConfig = this.transformSearchFilter(filter)
-    axiosConfig.url = axiosConfig.url || this.config.search?.path || '/'
-    axiosConfig.responseType = this.config.search?.type || 'document'
+    // 根据配置和搜索关键词生成 AxiosRequestConfig
+    const axiosConfig: AxiosRequestConfig = merge(
+      { url: '/', responseType: 'document' },
+      this.config.search?.requestConfig, // 使用默认配置覆盖垫片配置
+      this.transformSearchFilter(filter) // 根据搜索信息生成配置
+    )
 
+    // 请求页面并转化为document
     const req = await this.request(axiosConfig)
     return this.transformSearchPage(req.data, { filter, axiosConfig })
   }
@@ -243,7 +267,10 @@ export default class BittorrentSite {
     if (doc instanceof Document) {
       trs = Sizzle(rowsSelector.selector as string, doc)
 
-      // 应对某些站点连用多个tr表示一个种子的情况，将多个tr使用 <div> 包裹成一个 Element
+      /**
+       * 应对某些站点连用多个tr表示一个种子的情况，将多个tr使用 <div> 包裹成一个 Element，
+       * 这种情况下，子选择器就可以写成 `tr:nth-child(1) xxxx` 来精确
+       */
       const rowMergeDeep:number = rowsSelector.merge || 1
       if (rowMergeDeep > 1) {
         const newTrs: Element[] = []
@@ -257,7 +284,7 @@ export default class BittorrentSite {
         trs = newTrs
       }
     } else {
-      // 同样定义一个 :self 以防止对于JSON返回的情况下，所有items在顶层字典下
+      // 同样定义一个 :self 以防止对于JSON返回的情况下，所有items在顶层字典（实际是 Object[] ）下
       trs = rowsSelector.selector === ':self' ? doc : get(doc, rowsSelector.selector as string)
     }
 
@@ -279,8 +306,7 @@ export default class BittorrentSite {
       // @ts-ignore
       let value = this.getFieldData(row, this.config.selector.search[key])
 
-      // noinspection JSUnfilteredForInLoop
-      if (['url', 'link'].includes(key)) {
+      if (key === 'url' || key === 'link') {
         value = this.fixLink(value as string, requestConfig)
       }
 
@@ -291,8 +317,8 @@ export default class BittorrentSite {
       // noinspection JSUnfilteredForInLoop
       if (['id', 'size', 'seeders', 'leechers', 'completed', 'comments'].includes(key)) {
         if (typeof value === 'string') {
-          value = value.replace(/,/ig, '')
-          if (value.match(/^\d+$/)) {
+          value = value.replace(/[, ]/ig, '') // 统一处理 `1,024` `1 024` 之类的情况
+          if (value.match(/^\d+$/)) { // 尽可能的将返回值转成数字类型
             value = isNaN(parseInt(value)) ? 0 : parseInt(value)
           }
         }

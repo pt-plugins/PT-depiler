@@ -6,9 +6,8 @@ export const siteMetadata: SiteMetadata = {
   description: 'Solid Torrents is a Public torrent meta-search engine',
   url: 'https://solidtorrents.net/',
   search: {
-    path: '/api/v1/search',
-    type: 'json',
-    keywordsParams: 'q',
+    requestConfig: { url: '/api/v1/search', responseType: 'json' },
+    keywordsParam: 'q',
     defaultParams: [
       { key: 'category', value: 'all' },
       { key: 'sort', value: 'seeders' }

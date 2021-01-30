@@ -7,8 +7,8 @@ export const siteMetadata: SiteMetadata = {
   description: 'Legit Torrents is a Public site for free and legal torrents',
   url: 'http://www.legittorrents.info/',
   search: {
-    path: '/index.php',
-    keywordsParams: 'search',
+    requestConfig: { url: '/index.php' },
+    keywordsParam: 'search',
     defaultParams: [
       { key: 'page', value: 'torrents' },
       { key: 'active', value: 0 }, // 0 all 1 active 2 deadonly

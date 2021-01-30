@@ -6,7 +6,7 @@ export const siteMetadata: SiteMetadata = {
   description: 'ConCen (Conspiracy Central) is a Public conspiracy related torrent index',
   url: 'https://concen.org/',
   search: {
-    keywordsParams: 'title',
+    keywordsParam: 'title',
     categories: [
       {
         name: 'Order',

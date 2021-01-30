@@ -11,8 +11,8 @@ export const siteMetadata: SiteMetadata = {
   description: 'RARBG is a Public torrent site for MOVIES / TV / GENERAL',
   url: 'https://rarbg.to/',
   search: {
-    type: 'json',
-    keywordsParams: 'search_string',
+    requestConfig: { responseType: 'json' },
+    keywordsParam: 'search_string',
     defaultParams: [
       { key: 'mode', value: 'search' },
       { key: 'format', value: 'json_extended' }, // format json_extended returns a lot more info about the torrent.

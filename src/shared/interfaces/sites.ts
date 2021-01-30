@@ -138,9 +138,14 @@ export interface SiteMetadata {
   formerHosts?: string[]; // 站点过去曾经使用过的域名（现在已不再使用）
 
   search?: {
-    type?: ResponseType, // 当不指定时，默认为 document
-    path?: string, // 当不指定时，默认为 '/'
-    keywordsParams?: string, // 当不指定且未改写时，会导致keyword未被搜索使用
+    /**
+     * 搜索时进行请求，为了避免过于麻烦的配置项
+     * 设置了默认的 AxiosRequestConfig 为
+     * { responseType: 'document', url: '/' }
+     */
+    requestConfig?: AxiosRequestConfig & {transferPostData?: 'raw' | 'form' | 'params'},
+
+    keywordsParam?: string, // 当不指定且未改写时，会导致keyword未被搜索使用
     categories?: searchCategories[] // 站点对应搜索入口的种子分类信息
     defaultParams?: searchParams[], // 无论如何都会传入的参数
   } // 站点搜索方法如何配置
@@ -152,7 +157,11 @@ export interface SiteMetadata {
   selector: {
     search: {
       rows: { selector: string | ':self', merge?: number }
-      id: ElementQuery
+
+      /**
+       * 以下均为种子相关选择器
+       */
+      id?: ElementQuery // 单站点唯一编号，如果未传入，则单次搜索进行递增排序（！！不建议！！）
       title: ElementQuery // 主标题
       subTitle?: ElementQuery // 次标题
 

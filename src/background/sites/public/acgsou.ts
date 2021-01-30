@@ -12,8 +12,8 @@ export const siteMetadata: SiteMetadata = {
     'https://www.acgsou.com/'
   ],
   search: {
-    path: '/search.php',
-    keywordsParams: 'keyword',
+    requestConfig: { url: '/search.php' },
+    keywordsParam: 'keyword',
     categories: [
       {
         name: 'Category',
@@ -62,8 +62,7 @@ export const siteMetadata: SiteMetadata = {
           (q:string) => {
             // 2016/07/10
             // 01/21 18:00
-            const dayjsPattern = /:/.test(q) ? 'MM/DD HH:mm Z' : 'YYYY/MM/DD Z'
-            return dayjs(`${q} +08:00`, dayjsPattern).unix()
+            return dayjs(`${q} +08:00`, ['MM/DD HH:mm Z', 'YYYY/MM/DD Z']).unix()
           }
         ]
       },

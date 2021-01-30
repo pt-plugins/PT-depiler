@@ -6,7 +6,7 @@ export const siteMetadata: SiteMetadata = {
   description: 'AniSource is a Public site for HD Anime raws.',
   url: 'https://asnet.pw/',
   search: {
-    keywordsParams: 'search',
+    keywordsParam: 'search',
     categories: [
       {
         name: 'Category',

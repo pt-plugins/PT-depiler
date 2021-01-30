@@ -7,8 +7,8 @@ export const siteMetadata: SiteMetadata = {
   description: '爱恋BT分享站，动画～漫画～游戏～动漫音乐～片源（RAW）～各类ACG资源聚集地～欢迎各大佬发布入住！',
   url: 'http://www.kisssub.org/',
   search: {
-    path: '/search.php',
-    keywordsParams: 'keyword'
+    requestConfig: { url: '/search.php' },
+    keywordsParam: 'keyword'
   },
   selector: {
     search: {

@@ -74,8 +74,8 @@ export const siteMetadata: SiteMetadata = {
     'https://www.ettv.be/'
   ],
   search: {
-    path: '/torrents-search.php',
-    keywordsParams: 'search',
+    requestConfig: { url: '/torrents-search.php' },
+    keywordsParam: 'search',
     categories: [
       {
         name: 'Category',

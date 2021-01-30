@@ -8,8 +8,8 @@ export const siteMetadata: SiteMetadata = {
   description: 'AnimeClipse is a Public site for Hellenic Fansubs Anime.',
   url: 'http://www.animeclipse.com/',
   search: {
-    path: '/index.php',
-    keywordsParams: 'search',
+    requestConfig: { url: '/index.php' },
+    keywordsParam: 'search',
     categories: [
       {
         name: 'Category',

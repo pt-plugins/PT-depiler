@@ -36,8 +36,8 @@ export const siteMetadata: SiteMetadata = {
     'https://glodls.to/'
   ],
   search: {
-    path: '/search_results.php',
-    keywordsParams: 'search',
+    requestConfig: { url: '/search_results.php' },
+    keywordsParam: 'search',
     categories: [
       {
         name: 'Category',

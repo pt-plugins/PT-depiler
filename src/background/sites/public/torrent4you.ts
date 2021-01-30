@@ -6,8 +6,8 @@ export const siteMetadata: SiteMetadata = {
   description: 'Torrent4You is a Public torrent storage cache',
   url: 'https://torrent4you.me/',
   search: {
-    path: '/search.php',
-    keywordsParams: 's',
+    requestConfig: { url: '/search.php' },
+    keywordsParam: 's',
     categories: [
       {
         name: 'Category',

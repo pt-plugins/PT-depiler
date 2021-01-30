@@ -5,7 +5,7 @@ export const siteMetadata: SiteMetadata = {
   description: '一个侧重于东亚（中国、日本及韩国）多媒体资源的BitTorrent站点，是世界上最大的动漫专用种子索引站。',
   url: 'https://nyaa.si/',
   search: {
-    keywordsParams: 'q',
+    keywordsParam: 'q',
     categories: [
       {
         name: 'Domain',
