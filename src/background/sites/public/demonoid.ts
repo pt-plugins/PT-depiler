@@ -1,9 +1,6 @@
-import { SearchRequestConfig, SiteMetadata, Torrent } from '@/shared/interfaces/sites'
-import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
-import Sizzle from 'sizzle'
+import { SiteMetadata } from '@/shared/interfaces/sites'
 import { generateCategoryMap } from '@/shared/utils/common'
 import urlparse from 'url-parse'
-import { mergeWith } from 'lodash-es'
 
 const CategoryOptions = [
   { name: 'All', value: 0 },

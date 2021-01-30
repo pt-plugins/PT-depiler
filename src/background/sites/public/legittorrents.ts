@@ -28,7 +28,7 @@ export const siteMetadata: SiteMetadata = {
       title: { selector: 'a[title][href^="index.php?page=torrent-details&id="]' },
       url: { selector: 'a[title][href^="index.php?page=torrent-details&id="]', attr: 'href' },
       link: { selector: 'a[href^="download.php?id="]', attr: 'href' },
-      time: { selector: 'td time', filters: [(q:string) => dayjs(`${q} -07:00`).unix()] },
+      time: { selector: 'td time', filters: [(q:string) => dayjs(`${q} -07:00`, 'DD/MM/YYYY Z').unix()] },
       seeders: { selector: 'td:nth-child(5)' },
       leechers: { selector: 'td:nth-child(6)' },
       completed: { selector: 'td:nth-child(7)' }

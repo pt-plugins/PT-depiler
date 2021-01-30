@@ -314,11 +314,10 @@ export default class BittorrentSite {
         value = parseSizeString(value)
       }
 
-      // noinspection JSUnfilteredForInLoop
       if (['id', 'size', 'seeders', 'leechers', 'completed', 'comments'].includes(key)) {
         if (typeof value === 'string') {
           value = value.replace(/[, ]/ig, '') // 统一处理 `1,024` `1 024` 之类的情况
-          if (value.match(/^\d+$/)) { // 尽可能的将返回值转成数字类型
+          if (value.match(/^\d*$/)) { // 尽可能的将返回值转成数字类型
             value = isNaN(parseInt(value)) ? 0 : parseInt(value)
           }
         }

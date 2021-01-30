@@ -1,4 +1,4 @@
-import { searchFilter, SiteMetadata, Torrent } from '@/shared/interfaces/sites'
+import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
 import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
 import { AxiosRequestConfig } from 'axios'
 import dayjs from '@/shared/utils/dayjs'

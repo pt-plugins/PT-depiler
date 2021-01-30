@@ -14,7 +14,7 @@ export const siteMetadata: SiteMetadata = {
   selector: {
     search: {
       rows: { selector: 'table.striped > tbody > tr' },
-      id: { selector: 'a[href^="/torrent/"]', attr: 'href' },
+      id: { selector: 'a[href^="/torrent/"]', attr: 'href', filters: [(q:string) => q.match(/--([a-zA-Z0-9])\//)![1]] },
       title: { selector: 'a[href^="/torrent/"]' },
       url: { selector: 'a[href^="/torrent/"]', attr: 'href' },
       time: { selector: 'td:nth-child(4)', filters: [parseTimeToLive] },

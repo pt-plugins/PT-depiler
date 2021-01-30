@@ -101,7 +101,7 @@ export const siteMetadata: SiteMetadata = {
       time: {
         selector: 'td:nth-child(2) > table:nth-child(2) td:nth-child(2) span.torrentInfoData',
         filters: [
-          (q:string) => dayjs(`${q} +02:00`).unix()
+          (q:string) => dayjs(`${q} +02:00`, 'DD/MM/YYYY hh:mm:ss Z').unix()
         ]
       },
       size: { selector: 'td:nth-child(2) > table:nth-child(2) td:nth-child(1) span.torrentInfoData' },

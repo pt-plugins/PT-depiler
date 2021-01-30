@@ -11,12 +11,12 @@ export const siteMetadata: SiteMetadata = {
     search: {
       rows: { selector: 'table.post-index > tbody > tr' },
       id: {
-        selector: 'td:nth-child(2) a',
+        selector: 'td:nth-child(2) span.title a',
         attr: 'href',
         filters: [(q: string) => q.match(/(\d+)/)![0]]
       },
-      title: { selector: 'td:nth-child(2) a' },
-      url: { selector: 'td:nth-child(2) a', attr: 'href' },
+      title: { selector: 'td:nth-child(2) span.title a' },
+      url: { selector: 'td:nth-child(2) span.title a', attr: 'href' },
       link: { selector: 'td:nth-child(3) a', attr: 'href' },
       time: { selector: 'td:nth-child(1) time', attr: 'datetime' },
       size: { selector: 'td:nth-child(4)' },
