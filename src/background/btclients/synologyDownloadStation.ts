@@ -41,6 +41,8 @@ export const clientMetaData: TorrentClientMetaData = {
 
 // 定义API
 
+type SYNOVersion = 1 | 2 | 3 | 4 | 5 | 6 | 7
+
 type SYNOApiCGIPath =
   'query.cgi' // FOR API 'SYNO.API.Info'
   | 'auth.cgi' // FOR API 'SYNO.API.Auth'
@@ -121,7 +123,7 @@ function isFormFile (f?: any): f is FormFile {
 // 定义API请求参数
 interface DSRequestField {
   api: SynoApiEndPoint,
-  version: 1 | 2,
+  version: SYNOVersion,
   method: string,
   _sid?: string,
 
@@ -131,7 +133,7 @@ interface DSRequestField {
 
 interface DSRequestFieldForApiAuth extends DSRequestField {
   api: 'SYNO.API.Auth',
-  version: 2,
+  version: 2 | 3 | 6,
   method: 'login',
   account: string,
   passwd: string,
@@ -143,6 +145,18 @@ interface DSRequestFieldForApiAuth extends DSRequestField {
 interface SynologySuccessResponse<S> {
   success: true;
   data: S;
+}
+
+/**
+ * https://gist.github.com/Rhilip/fed6b4f69e3cc19b79c4ab17b9a17e93
+ */
+interface SynologyInfoApiResponseData {
+  [key: string]: {
+    maxVersion: SYNOVersion,
+    minVersion: 1 | 2, // 未看到有高于这两个的，所以在这直接限定
+    path: string,
+    requestFormat?: 'JSON'
+  }
 }
 
 enum SynologyErrorCode {
@@ -262,35 +276,52 @@ interface rawTask {
 
 // noinspection JSUnusedGlobalSymbols
 export default class SynologyDownloadStation implements TorrentClient {
-  readonly version = 'v0.2.1';
+  readonly version = 'v0.2.2';
   readonly config: TorrentClientConfig;
 
-  private _sessionId: string | null = null;
+  private _sessionId?: string;
+  private _apiInfo?: SynologyInfoApiResponseData;
 
   constructor (options: Partial<TorrentClientConfig> = {}) {
     this.config = { ...clientConfig, ...options }
   }
 
   private async getSessionId (): Promise<string> {
-    if (this._sessionId === null) {
+    if (!this._sessionId) {
       await this.login()
     }
     return this._sessionId as string
   }
 
+  private async getApiInfo (): Promise<SynologyInfoApiResponseData> {
+    if (!this._apiInfo) {
+      // 我们不捕捉此处的错误
+      const req = await this.request<SynologyInfoApiResponseData>('query.cgi', {
+        params: {
+          api: 'SYNO.API.Info',
+          method: 'query',
+          query: 'all',
+          version: 1
+        }
+      })
+      if (req.success) {
+        this._apiInfo = req.data
+      }
+    }
+    return this._apiInfo as SynologyInfoApiResponseData
+  }
+
   // 核心请求方法
-  private async request (
+  private async request <T> (
     cgi: SYNOApiCGIPath,
     config: AxiosRequestConfig
-  ): Promise<SynologyResponse<any>> {
+  ): Promise<SynologyResponse<T>> {
     return (await axios.request({
-      ...{
-        url: urljoin(this.config.address, 'webapi', cgi),
-        timeout: this.config.timeout,
-        withCredentials: false
-      },
+      url: urljoin(this.config.address, 'webapi', cgi),
+      timeout: this.config.timeout,
+      withCredentials: false,
       ...config
-    })).data
+    })).data as SynologyResponse<T>
   }
 
   // entry.cgi 请求方法
@@ -328,11 +359,20 @@ export default class SynologyDownloadStation implements TorrentClient {
 
   // 请求登录并获得sid信息
   private async login () : Promise<boolean> {
+    const apiInfo = await this.getApiInfo()
+
+    /**
+     * fix: https://github.com/ronggang/PT-Plugin-Plus/issues/687
+     * 由于 DSM 7 以上， SYNO.API.Auth 接口当 version 为 2 时，会直接报 103 错误
+     * 此时将 version 指到 3，可以正常获得 sid
+     */
+    const loginVersion = (apiInfo['SYNO.API.Auth']?.maxVersion || 6) >= 7 ? 3 : 2
+
     try {
       const req = await this.request('auth.cgi', {
         params: {
           api: 'SYNO.API.Auth',
-          version: 2,
+          version: loginVersion,
           method: 'login',
           account: this.config.username,
           passwd: this.config.password,
@@ -383,9 +423,9 @@ export default class SynologyDownloadStation implements TorrentClient {
       params.destination = options.savePath
     }
 
-    // 这个地方很奇怪，不这么写的话，会报 对应项 缺失。。。。。
-    params.type = '"' + params.type + '"'
-    params.destination = '"' + params.destination + '"'
+    // 这个地方很奇怪，不这么包一下的话，会报 对应项 缺失。。。。。
+    params.type = `"${params.type}"`
+    params.destination = `"${params.destination}"`
 
     const req = await this.requestEntryCGI(params) as SynologyResponse<{
       'list_id': any[], // 不知道具体返回情况
