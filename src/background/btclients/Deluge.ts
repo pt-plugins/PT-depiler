@@ -250,7 +250,6 @@ export default class Deluge implements TorrentClient {
 
     // @ts-ignore
     return Object.values(data.result).map((torrent: DelugeRawTorrent) => {
-      const dateAdded = new Date(torrent.time_added * 1000).toISOString()
       // normalize state to enum
       let state = TorrentState.unknown
       if (Object.keys(TorrentState).includes(torrent.state.toLowerCase())) {
@@ -258,10 +257,10 @@ export default class Deluge implements TorrentClient {
       }
 
       return {
-        dateAdded,
         id: torrent.hash,
         infoHash: torrent.hash,
         isCompleted: torrent.progress >= 100,
+        dateAdded: torrent.time_added,
         name: torrent.name,
         progress: torrent.progress,
         ratio: torrent.ratio,

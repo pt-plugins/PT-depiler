@@ -330,7 +330,7 @@ export default class Flood implements TorrentClient {
         id: infoHash.toLowerCase(),
         infoHash,
         name: rawTorrent.name,
-        dateAdded: new Date(rawTorrent.dateAdded * 1000).toISOString(),
+        dateAdded: rawTorrent.dateAdded,
         state,
         isCompleted: rawTorrent.isComplete,
         progress: rawTorrent.percentComplete,

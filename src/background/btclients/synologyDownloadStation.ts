@@ -516,7 +516,7 @@ export default class SynologyDownloadStation implements TorrentClient {
         infoHash: task.id, // 注意DS的返回信息中没有info_hash，故使用id替代
         name: task.title,
         state,
-        dateAdded: new Date(task.additional!.detail!.created_time * 1000).toISOString(),
+        dateAdded: task.additional!.detail!.created_time,
         isCompleted,
         progress: download / task.size,
         savePath: task.additional!.detail!.destination,

@@ -505,7 +505,7 @@ export default class QBittorrent implements TorrentClient {
         infoHash: torrent.hash,
         name: torrent.name,
         state,
-        dateAdded: new Date(torrent.added_on * 1000).toISOString(),
+        dateAdded: torrent.added_on,
         isCompleted,
         progress: torrent.progress,
         label: torrent.category,

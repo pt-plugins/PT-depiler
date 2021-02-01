@@ -266,7 +266,7 @@ export default class UTorrent implements TorrentClient {
         infoHash: torrent[0],
         name: torrent[2],
         state,
-        dateAdded: new Date(torrent[23] * 1e3).toISOString(),
+        dateAdded: torrent[23],
         isCompleted,
         progress,
         label: torrent[11],

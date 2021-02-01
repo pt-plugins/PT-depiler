@@ -213,7 +213,7 @@ export default class RuTorrent implements TorrentClient {
         infoHash: infoHash,
         name: rawTorrent[4],
         state,
-        dateAdded: new Date(parseInt(rawTorrent[21]) * 1000).toISOString(),
+        dateAdded: parseInt(rawTorrent[21]),
         isCompleted,
         progress: TorrentDone / 10,
         label: decodeURIComponent(rawTorrent[15]),

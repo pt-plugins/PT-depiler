@@ -286,7 +286,39 @@ export default class Transmission implements TorrentClient {
 
     const resp = await this.request('torrent-get', args)
     const data:TransmissionTorrentGetResponse = resp.data
-    let returnTorrents = data.arguments.torrents.map(s => this._normalizeTorrent(s))
+
+    let returnTorrents = data.arguments.torrents.map(torrent => {
+      let state = TorrentState.unknown
+      if (torrent.status === 6) {
+        state = TorrentState.seeding
+      } else if (torrent.status === 4) {
+        state = TorrentState.downloading
+      } else if (torrent.status === 0) {
+        state = TorrentState.paused
+      } else if (torrent.status === 2) {
+        state = TorrentState.checking
+      } else if (torrent.status === 3 || torrent.status === 5) {
+        state = TorrentState.queued
+      }
+
+      return {
+        id: torrent.id,
+        infoHash: torrent.hashString,
+        name: torrent.name,
+        progress: torrent.percentDone,
+        isCompleted: torrent.leftUntilDone < 1,
+        ratio: torrent.uploadRatio,
+        dateAdded: torrent.addedDate,
+        savePath: torrent.downloadDir,
+        label: torrent.labels && torrent.labels.length ? torrent.labels[0] : undefined,
+        state: state,
+        totalSize: torrent.totalSize,
+        uploadSpeed: torrent.rateUpload,
+        downloadSpeed: torrent.rateDownload,
+        totalUploaded: torrent.uploadedEver,
+        totalDownloaded: torrent.downloadedEver
+      } as Torrent
+    })
 
     if (filter.complete) {
       returnTorrents = returnTorrents.filter(s => s.isCompleted)
@@ -352,41 +384,6 @@ export default class Transmission implements TorrentClient {
       } else {
         throw error
       }
-    }
-  }
-
-  _normalizeTorrent (torrent: rawTorrent): TransmissionTorrent {
-    const dateAdded = new Date(torrent.addedDate * 1000).toISOString()
-
-    let state = TorrentState.unknown
-    if (torrent.status === 6) {
-      state = TorrentState.seeding
-    } else if (torrent.status === 4) {
-      state = TorrentState.downloading
-    } else if (torrent.status === 0) {
-      state = TorrentState.paused
-    } else if (torrent.status === 2) {
-      state = TorrentState.checking
-    } else if (torrent.status === 3 || torrent.status === 5) {
-      state = TorrentState.queued
-    }
-
-    return {
-      id: torrent.id,
-      infoHash: torrent.hashString,
-      name: torrent.name,
-      progress: torrent.percentDone,
-      isCompleted: torrent.leftUntilDone < 1,
-      ratio: torrent.uploadRatio,
-      dateAdded: dateAdded,
-      savePath: torrent.downloadDir,
-      label: torrent.labels && torrent.labels.length ? torrent.labels[0] : undefined,
-      state: state,
-      totalSize: torrent.totalSize,
-      uploadSpeed: torrent.rateUpload,
-      downloadSpeed: torrent.rateDownload,
-      totalUploaded: torrent.uploadedEver,
-      totalDownloaded: torrent.downloadedEver
     }
   }
 }

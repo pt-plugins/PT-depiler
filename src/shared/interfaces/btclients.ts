@@ -110,9 +110,9 @@ export interface Torrent {
   ratio: number;
 
   /**
-   * date as iso string
+   * date as timestamp (s)
    */
-  dateAdded: string;
+  dateAdded: number;
 
   savePath: string;
   label?: string;
