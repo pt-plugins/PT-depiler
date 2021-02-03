@@ -207,6 +207,59 @@ type SynologyResponse<S> = SynologySuccessResponse<S> | SynologyFailureResponse;
 
 type rawTaskStatus = 'downloading' | 'error' | 'extracting' | 'filehosting_waiting' | 'finished' | 'finishing' | 'hash_checking' | 'paused' | 'seeding' | 'waiting'
 
+// From SYNO.SDS.DownloadStation.Utils.TASK_STATUS_INT
+enum rawTaskStatusInt {
+  TASK_CAPTCHA_NEEDED = 15,
+  TASK_DOWNLOADED = 13,
+  TASK_DOWNLOADING = 2,
+  TASK_ERROR = 101,
+  TASK_ERROR_BROKEN_LINK = 102,
+  TASK_ERROR_DEST_DENY = 104,
+  TASK_ERROR_DEST_FILE_DUPLICATE = 132,
+  TASK_ERROR_DEST_NO_EXIST = 103,
+  TASK_ERROR_DISK_FULL = 105,
+  TASK_ERROR_ED2K_LINK_DUPLICATE = 131,
+  TASK_ERROR_ENCRYPTION = 126,
+  TASK_ERROR_EXCEED_MAX_DEST_FS_SIZE = 110,
+  TASK_ERROR_EXCEED_MAX_FS_SIZE = 108,
+  TASK_ERROR_EXCEED_MAX_TEMP_FS_SIZE = 109,
+  TASK_ERROR_EXTRACT_DISK_FULL = 122,
+  TASK_ERROR_EXTRACT_FAIL = 118,
+  TASK_ERROR_EXTRACT_FOLDER_NOT_EXIST = 129,
+  TASK_ERROR_EXTRACT_INVALID_ARCHIVE = 120,
+  TASK_ERROR_EXTRACT_QUOTA_REACHED = 121,
+  TASK_ERROR_EXTRACT_WRONG_PASSWORD = 119,
+  TASK_ERROR_FILE_NO_EXIST = 114,
+  TASK_ERROR_FTP_ENCRYPTION_NOT_SUPPORT_TYPE = 117,
+  TASK_ERROR_INVALID_ACCOUNT_PASSWORD = 134,
+  TASK_ERROR_MISSING_PYTHON = 127,
+  TASK_ERROR_NAME_TOO_LONG = 112,
+  TASK_ERROR_NAME_TOO_LONG_ENCRYPTION = 111,
+  TASK_ERROR_NOT_SUPPORT_TYPE = 116,
+  TASK_ERROR_NZB_MISSING_ARTICLE = 130,
+  TASK_ERROR_PARCHIVE_REPAIR_FAILED = 133,
+  TASK_ERROR_PRIVATE_VIDEO = 128,
+  TASK_ERROR_QUOTA_REACHED = 106,
+  TASK_ERROR_REQUIRED_ACCOUNT = 124,
+  TASK_ERROR_REQUIRED_PREMIUM = 115,
+  TASK_ERROR_TIMEOUT = 107,
+  TASK_ERROR_TORRENT_DUPLICATE = 113,
+  TASK_ERROR_TORRENT_INVALID = 123,
+  TASK_ERROR_TRY_IT_LATER = 125,
+  TASK_EXTRACTING = 10,
+  TASK_FILEHOSTING_WAITING = 9,
+  TASK_FINISHED = 5,
+  TASK_FINISHING = 4,
+  TASK_HASH_CHECKING = 6,
+  TASK_PAUSED = 3,
+  TASK_POSTPROCESSING = 14,
+  TASK_PREPROCESSING = 11,
+  TASK_PREPROCESSPASS = 12,
+  TASK_PRE_SEEDING = 7,
+  TASK_SEEDING = 8,
+  TASK_WAITING = 1
+}
+
 interface rawTask {
   id: string, // Task ID
   type: 'bt' | 'nzb' | 'http' | 'https' | 'ftp' | 'emule',
@@ -505,7 +558,47 @@ export default class SynologyDownloadStation implements TorrentClient {
             state = TorrentState.error
             break
         }
-      } // TODO else if (typeof task.status === 'number') {}
+      } else {
+        /**
+         * (typeof task.status === 'number')
+         * https://gist.github.com/Rhilip/e1b72f5d5974998077805e5c31f1d53d#file-download-js-L746-L748
+         */
+        if (task.status > rawTaskStatusInt.TASK_ERROR) {
+          state = TorrentState.error // 统一处理 state 大于 rawTaskStatusInt.TASK_ERROR 的情况
+        } else {
+          switch (task.status) {
+            case rawTaskStatusInt.TASK_WAITING:
+            case rawTaskStatusInt.TASK_PREPROCESSING:
+            case rawTaskStatusInt.TASK_PREPROCESSPASS:
+            case rawTaskStatusInt.TASK_CAPTCHA_NEEDED:
+              state = TorrentState.queued
+              break
+
+            case rawTaskStatusInt.TASK_DOWNLOADING:
+            case rawTaskStatusInt.TASK_EXTRACTING: // 认为解压过程也是属于 download 状态
+              state = TorrentState.downloading
+              break
+
+            // 我们认为一些 finishing 和 finished 也是属于 paused 状态
+            case rawTaskStatusInt.TASK_PAUSED:
+            case rawTaskStatusInt.TASK_FINISHING:
+            case rawTaskStatusInt.TASK_DOWNLOADED:
+            case rawTaskStatusInt.TASK_POSTPROCESSING:
+            case rawTaskStatusInt.TASK_FINISHED:
+              state = TorrentState.paused
+              break
+
+            case rawTaskStatusInt.TASK_HASH_CHECKING:
+              state = TorrentState.checking
+              break
+
+            case rawTaskStatusInt.TASK_PRE_SEEDING:
+            case rawTaskStatusInt.TASK_SEEDING:
+              state = TorrentState.seeding
+              break
+          }
+        }
+      }
 
       const isCompleted = task.additional!.detail!.completed_time > 0
       const upload = task.additional!.transfer!.size_uploaded
