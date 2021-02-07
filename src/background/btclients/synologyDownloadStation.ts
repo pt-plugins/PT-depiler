@@ -369,16 +369,16 @@ export default class SynologyDownloadStation implements TorrentClient {
     cgi: SYNOApiCGIPath,
     config: AxiosRequestConfig
   ): Promise<SynologyResponse<T>> {
-    return (await axios.request({
+    return (await axios.request<SynologyResponse<T>>({
       url: urljoin(this.config.address, 'webapi', cgi),
       timeout: this.config.timeout,
       withCredentials: false,
       ...config
-    })).data as SynologyResponse<T>
+    })).data
   }
 
   // entry.cgi 请求方法
-  private async requestEntryCGI (field: DSRequestField): Promise<SynologyResponse<any>> {
+  private async requestEntryCGI <T> (field: DSRequestField): Promise<SynologyResponse<any>> {
     // 覆写 _sid 参数
     field._sid = await this.getSessionId()
 
@@ -404,10 +404,10 @@ export default class SynologyDownloadStation implements TorrentClient {
       }
     })
 
-    return await this.request('entry.cgi', {
+    return await this.request<T>('entry.cgi', {
       method: 'post',
       data: postData
-    } as Partial<AxiosRequestConfig>)
+    })
   }
 
   // 请求登录并获得sid信息
@@ -422,7 +422,7 @@ export default class SynologyDownloadStation implements TorrentClient {
     const loginVersion = (apiInfo['SYNO.API.Auth']?.maxVersion || 6) >= 7 ? 3 : 2
 
     try {
-      const req = await this.request('auth.cgi', {
+      const req = await this.request<{ sid: string }>('auth.cgi', {
         params: {
           api: 'SYNO.API.Auth',
           version: loginVersion,
@@ -432,7 +432,7 @@ export default class SynologyDownloadStation implements TorrentClient {
           session: 'DownloadStation',
           format: 'sid'
         } as DSRequestFieldForApiAuth
-      }) as SynologyResponse<{ sid: string }>
+      })
       if (req.success) {
         this._sessionId = req.data.sid
       }
@@ -448,15 +448,16 @@ export default class SynologyDownloadStation implements TorrentClient {
   }
 
   async addTorrent (urls: string, options: Partial<AddTorrentOptions> = {}): Promise<boolean> {
-    const params = {
+    // 基本参数
+    const params: DSRequestField = {
       api: 'SYNO.DownloadStation2.Task',
       method: 'create',
       version: 2,
       create_list: false
-    } as DSRequestField
+    }
 
     if (urls.startsWith('magnet:') || !options.localDownload) {
-      params.type = 'file'
+      params.type = 'url'
       params.url = [urls]
     } else {
       params._useForm = true
@@ -472,18 +473,18 @@ export default class SynologyDownloadStation implements TorrentClient {
         filename: 'file.torrent' // FIXME 根据请求头确定种子名
       } as FormFile
     }
-    if (options.savePath) {
-      params.destination = options.savePath
-    }
 
-    // 这个地方很奇怪，不这么包一下的话，会报 对应项 缺失。。。。。
+    /**
+     * 这个地方很奇怪，不这么包一下的话，会报 对应项 缺失。。。。。
+     *
+     * - 对于 destination:
+     *    如果外部不传入 savePath ，我们须设置一个空值出来，否则 DSM 会报 error_code 120
+     *    此时 DSM 会将文件放置在 默认目的地文件夹
+     */
+    params.destination = `"${options.savePath || ''}"`
     params.type = `"${params.type}"`
-    params.destination = `"${params.destination}"`
 
-    const req = await this.requestEntryCGI(params) as SynologyResponse<{
-      'list_id': any[], // 不知道具体返回情况
-      'task_id': string[]
-    }>
+    const req = await this.requestEntryCGI<{ 'list_id': any[] /* 不知道具体返回情况 */, 'task_id': string[] }>(params)
 
     // DS不支持在添加的时候设置暂停状态，所以我们要在添加后暂停对应任务
     if (req.success) {

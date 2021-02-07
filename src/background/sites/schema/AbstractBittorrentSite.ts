@@ -14,19 +14,18 @@ import { cfDecodeEmail, parseSizeString } from '@/shared/utils/filter'
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export default class BittorrentSite {
-  protected readonly userConfig: Partial<SiteConfig>;
-  protected readonly config: SiteConfig;
+  protected config: SiteConfig;
 
   constructor (config: Partial<SiteConfig> = {}, siteMetaData: SiteMetadata) {
-    this.userConfig = config
-
-    // 使用 lodash 的 merge 来合并站点默认配置和用户配置
-    // 以免 { ...data } 解包形式覆盖深层配置
-    this.config = merge(siteMetaData, this.userConfig) as SiteConfig
+    /**
+     * 使用 lodash 的 merge 来合并站点默认配置和用户配置
+     * 以免 { ...data } 解包形式覆盖深层配置
+     */
+    this.config = merge(siteMetaData, config) as SiteConfig
 
     // 防止host信息缺失
     if (!this.config.host) {
-      this.config.host = urlparse(siteMetaData.url).host
+      this.config.host = urlparse(this.config.url).host
     }
   }
 
