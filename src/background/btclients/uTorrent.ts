@@ -145,9 +145,8 @@ export default class UTorrent implements TorrentClient {
   }
 
   private async login (): Promise<boolean> {
-    const loginUri = urljoin(this.address, '/token.html')
-
-    const req = await axios.get(loginUri, {
+    const req = await axios.get('/token.html', {
+      baseURL: this.address,
       params: {
         t: Date.now().toString()
       },
@@ -301,24 +300,18 @@ export default class UTorrent implements TorrentClient {
 
   // 注意：uTorrent的pause, resume, remove均直接返回true，因为接口没返回具体成功没成功
   async pauseTorrent (id: string): Promise<boolean> {
-    await this.request<BaseUtorrentResponse>('pause', {
-      hash: id
-    })
+    await this.request<BaseUtorrentResponse>('pause', { hash: id })
     return true
   }
 
   async resumeTorrent (id: string): Promise<boolean> {
-    await this.request<BaseUtorrentResponse>('start', {
-      hash: id
-    })
+    await this.request<BaseUtorrentResponse>('start', { hash: id })
     return true
   }
 
   async removeTorrent (id: string, removeData: boolean = true): Promise<boolean> {
     const action = removeData ? 'removedatatorrent' : 'removetorrent'
-    await this.request<BaseUtorrentResponse>(action, {
-      hash: id
-    })
+    await this.request<BaseUtorrentResponse>(action, { hash: id })
     return true
   }
 }

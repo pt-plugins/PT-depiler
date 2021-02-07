@@ -199,6 +199,21 @@ export default class Transmission implements TorrentClient {
   readonly version = 'v0.1.0'
   readonly config: TorrentClientConfig;
 
+  private readonly torrentRequestFields : TransmissionTorrentsField[] = [
+    'addedDate',
+    'id',
+    'hashString',
+    'isFinished',
+    'name',
+    'percentDone',
+    'uploadRatio',
+    'downloadDir',
+    'status',
+    'totalSize',
+    'leftUntilDone',
+    'labels'
+  ]
+
   // 实例真实使用的rpc地址
   private readonly address: string;
 
@@ -237,8 +252,7 @@ export default class Transmission implements TorrentClient {
     options.paused = options.addAtPaused
     delete options.addAtPaused
     try {
-      const resp = await this.request('torrent-add', options)
-      const data: AddTorrentResponse = resp.data
+      const { data } = await this.request<AddTorrentResponse>('torrent-add', options)
 
       // Transmission 3.0 以上才支持label
       if (label) {
@@ -264,30 +278,16 @@ export default class Transmission implements TorrentClient {
 
   async getTorrentsBy (filter: TransmissionTorrentFilterRules): Promise<TransmissionTorrent[]> {
     const args: TransmissionTorrentGetArguments = {
-      fields: [
-        'addedDate',
-        'id',
-        'hashString',
-        'isFinished',
-        'name',
-        'percentDone',
-        'uploadRatio',
-        'downloadDir',
-        'status',
-        'totalSize',
-        'leftUntilDone',
-        'labels'
-      ]
+      fields: this.torrentRequestFields
     }
 
     if (filter.ids) {
       args.ids = filter.ids
     }
 
-    const resp = await this.request('torrent-get', args)
-    const data:TransmissionTorrentGetResponse = resp.data
+    const { data } = await this.request<TransmissionTorrentGetResponse>('torrent-get', args)
 
-    let returnTorrents = data.arguments.torrents.map(torrent => {
+    let returnTorrents: Torrent[] = data.arguments.torrents.map(torrent => {
       let state = TorrentState.unknown
       if (torrent.status === 6) {
         state = TorrentState.seeding
@@ -321,7 +321,7 @@ export default class Transmission implements TorrentClient {
     })
 
     if (filter.complete) {
-      returnTorrents = returnTorrents.filter(s => s.isCompleted)
+      returnTorrents = returnTorrents.filter((t:Torrent) => t.isCompleted)
     }
 
     return returnTorrents
@@ -337,8 +337,7 @@ export default class Transmission implements TorrentClient {
 
   async ping (): Promise<boolean> {
     try {
-      const resp = await this.request('session-get')
-      const data: TransmissionBaseResponse = resp.data
+      const { data } = await this.request<TransmissionBaseResponse>('session-get')
       return data.result === 'success'
     } catch (e) {
       return false
@@ -362,9 +361,9 @@ export default class Transmission implements TorrentClient {
     return true
   }
 
-  async request (method:TransmissionRequestMethod, args: any = {}): Promise<AxiosResponse> {
+  async request <T> (method:TransmissionRequestMethod, args: any = {}): Promise<AxiosResponse<T>> {
     try {
-      return await axios.post(this.address, {
+      return await axios.post<T>(this.address, {
         method: method,
         arguments: args
       }, {
@@ -380,7 +379,7 @@ export default class Transmission implements TorrentClient {
     } catch (error) {
       if (error.response && error.response.status === 409) {
         this.sessionId = error.response.headers['x-transmission-session-id'] // lower cased header in axios
-        return await this.request(method, args)
+        return await this.request<T>(method, args)
       } else {
         throw error
       }

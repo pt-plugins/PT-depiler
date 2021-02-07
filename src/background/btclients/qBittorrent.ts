@@ -10,7 +10,7 @@ import {
   TorrentClientConfig, TorrentClientMetaData,
   TorrentFilterRules, TorrentState
 } from '@/shared/interfaces/btclients'
-import axios, { AxiosResponse, Method } from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios'
 import urljoin from 'url-join'
 import { random } from 'lodash-es'
 
@@ -385,21 +385,16 @@ export default class QBittorrent implements TorrentClient {
     })
   }
 
-  async request (method: Method, path: string,
-    params?: any, data?: any,
-    headers?: any): Promise<AxiosResponse> {
+  async request (path: string, config: AxiosRequestConfig = {}): Promise<AxiosResponse> {
     if (this.isLogin === null) {
       await this.ping()
     }
 
     return await axios.request({
-      method: method,
-      url: urljoin(this.config.address, '/api/v2', path),
-      params: params,
-      data: data,
-      headers: headers,
+      baseURL: this.config.address,
+      url: urljoin('/api/v2', path),
       timeout: this.config.timeout,
-      withCredentials: true
+      ...config
     })
   }
 
@@ -416,32 +411,23 @@ export default class QBittorrent implements TorrentClient {
       // FIXME 使用
       formData.append('torrents', req.data, String(random(0, 4096, true)) + '.torrent')
     }
-    delete options.localDownload
 
     // 将通用字段转成qbt字段
     if (options.savePath) {
-      options.savepath = options.savePath
-      delete options.savePath
+      formData.append('savepath', options.savePath)
     }
 
     if (options.label) {
-      options.category = options.label
-      delete options.label
+      formData.append('category', options.label)
     }
 
-    if ('addAtPaused' in options) {
-      options.paused = options.addAtPaused ? 'true' : 'false'
-      delete options.addAtPaused
+    if (options.addAtPaused) {
+      formData.append('paused', options.addAtPaused ? 'true' : 'false')
     }
 
-    options.useAutoTMM = 'false' // 关闭自动管理
+    formData.append('useAutoTMM', 'false') // 关闭自动管理
 
-    for (const [key, value] of Object.entries(options)) {
-      // @ts-ignore
-      formData.append(key, value)
-    }
-
-    const res = await this.request('POST', '/torrents/add', undefined, formData)
+    const res = await this.request('/torrents/add', { method: 'post', data: formData })
     return res.data === 'Ok.'
   }
 
@@ -456,7 +442,7 @@ export default class QBittorrent implements TorrentClient {
       delete filter.complete
     }
 
-    const res = await this.request('GET', '/torrents/info', filter)
+    const res = await this.request('/torrents/info', { params: filter })
     return res.data.map((torrent: rawTorrent) => {
       let state = TorrentState.unknown
 
@@ -533,8 +519,7 @@ export default class QBittorrent implements TorrentClient {
     const params = {
       hashes: hashes === 'all' ? 'all' : normalizePieces(hashes)
     }
-
-    await this.request('GET', '/torrents/pause', params)
+    await this.request('/torrents/pause', { params })
     return true
   }
 
@@ -544,7 +529,7 @@ export default class QBittorrent implements TorrentClient {
       hashes: hashes === 'all' ? 'all' : normalizePieces(hashes),
       removeData
     }
-    await this.request('GET', '/torrents/delete', params)
+    await this.request('/torrents/delete', { params })
     return true
   }
 
@@ -553,7 +538,7 @@ export default class QBittorrent implements TorrentClient {
     const params = {
       hashes: hashes === 'all' ? 'all' : normalizePieces(hashes)
     }
-    await this.request('GET', '/torrents/resume', params)
+    await this.request('/torrents/resume', { params })
     return true
   }
 }

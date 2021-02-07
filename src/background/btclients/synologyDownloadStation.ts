@@ -370,7 +370,8 @@ export default class SynologyDownloadStation implements TorrentClient {
     config: AxiosRequestConfig
   ): Promise<SynologyResponse<T>> {
     return (await axios.request<SynologyResponse<T>>({
-      url: urljoin(this.config.address, 'webapi', cgi),
+      baseURL: this.config.address,
+      url: urljoin('webapi', cgi),
       timeout: this.config.timeout,
       withCredentials: false,
       ...config
@@ -404,10 +405,7 @@ export default class SynologyDownloadStation implements TorrentClient {
       }
     })
 
-    return await this.request<T>('entry.cgi', {
-      method: 'post',
-      data: postData
-    })
+    return await this.request<T>('entry.cgi', { method: 'post', data: postData })
   }
 
   // 请求登录并获得sid信息

@@ -206,9 +206,7 @@ export default class Deluge implements TorrentClient {
     }
 
     try {
-      const res = await this.request(method, params)
-      const data: DelugeDefaultResponse = res.data
-
+      const { data } = await this.request<DelugeDefaultResponse>(method, params)
       if (data.result !== null && options.label) {
         try {
           const torrentHash = data.result[0][1]
@@ -241,12 +239,10 @@ export default class Deluge implements TorrentClient {
       delete filter.complete
     }
 
-    const req = await this.request('core.get_torrents_status', [
+    const { data } = await this.request<DelugeDefaultResponse>('core.get_torrents_status', [
       filter,
       this.torrentRequestField
     ])
-
-    const data: DelugeDefaultResponse = req.data
 
     // @ts-ignore
     return Object.values(data.result).map((torrent: DelugeRawTorrent) => {
@@ -277,8 +273,7 @@ export default class Deluge implements TorrentClient {
 
   async pauseTorrent (id: any): Promise<boolean> {
     try {
-      const req = await this.request('core.pause_torrent', [id])
-      const data: DelugeBooleanStatus = req.data
+      const { data } = await this.request<DelugeBooleanStatus>('core.pause_torrent', [id])
       return data.result
     } catch (e) {
       return false
@@ -287,8 +282,7 @@ export default class Deluge implements TorrentClient {
 
   async removeTorrent (id: string, removeData: boolean = false): Promise<boolean> {
     try {
-      const req = await this.request('core.remove_torrent', [id, removeData])
-      const data: DelugeBooleanStatus = req.data
+      const { data } = await this.request<DelugeBooleanStatus>('core.remove_torrent', [id, removeData])
       return data.result
     } catch (e) {
       return false
@@ -297,8 +291,7 @@ export default class Deluge implements TorrentClient {
 
   async resumeTorrent (id: any): Promise<boolean> {
     try {
-      const req = await this.request('core.resume_torrent', [id])
-      const data: DelugeBooleanStatus = req.data
+      const { data } = await this.request<DelugeBooleanStatus>('core.resume_torrent', [id])
       return data.result
     } catch (e) {
       return false
@@ -307,8 +300,7 @@ export default class Deluge implements TorrentClient {
 
   private async login (): Promise<boolean> {
     try {
-      const res = await this.request('auth.login', [this.config.password])
-      const data: DelugeBooleanStatus = res.data
+      const { data } = await this.request<DelugeBooleanStatus>('auth.login', [this.config.password])
       this.isLogin = data.result
       return this.isLogin
     } catch (e) {
@@ -316,13 +308,13 @@ export default class Deluge implements TorrentClient {
     }
   }
 
-  private async request (method: DelugeMethod, params: any[]): Promise<AxiosResponse> {
+  private async request <T> (method: DelugeMethod, params: any[]): Promise<AxiosResponse> {
     // 防止循环调用
     if (!this.isLogin && method !== 'auth.login') {
       await this.login()
     }
 
-    return await axios.post(this.address, {
+    return await axios.post<T>(this.address, {
       id: this._msgId++,
       method: method,
       params: params

@@ -93,7 +93,7 @@ export default class RuTorrent implements TorrentClient {
     this.config = { ...clientConfig, ...options }
   }
 
-  async request (config: AxiosRequestConfig = {}): Promise<AxiosResponse> {
+  async request <T> (config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> {
     return await axios.request({
       baseURL: this.config.address,
       auth: {
@@ -105,6 +105,10 @@ export default class RuTorrent implements TorrentClient {
     })
   }
 
+  async requestHttpRpc<T> (data: any = {}): Promise<AxiosResponse<T>> {
+    return this.request<T>({ method: 'post', url: '/plugins/httprpc/action.php', data })
+  }
+
   /**
    * 鉴于ruTorrent请求 `php/getplugins.php` 页面获取信息为js格式，不好处理，
    * 故考虑请求 `/php/getsettings.php` 页面，如果返回json格式的信息则说明可连接
@@ -112,7 +116,6 @@ export default class RuTorrent implements TorrentClient {
   async ping (): Promise<boolean> {
     try {
       await this.request({
-        method: 'get',
         url: '/php/getsettings.php',
         responseType: 'json'
       })
@@ -153,26 +156,18 @@ export default class RuTorrent implements TorrentClient {
       postData.append('label', options.label)
     }
 
-    const req = (await this.request({
+    const { data } = await this.request<{ result: 'Success' | 'Failed' | 'FailedFile' }>({
       method: 'post',
       url: '/php/addtorrent.php',
       data: postData
-    }))
+    })
 
-    return req.data.result === 'Success'
+    return data.result === 'Success'
   }
 
   async getAllTorrents (): Promise<Torrent[]> {
-    const postData = new URLSearchParams()
-    postData.append('mode', 'list')
-
-    const req = await this.request({
-      method: 'post',
-      url: '/plugins/httprpc/action.php',
-      data: postData
-    })
-
-    const data: ListResponse = req.data
+    const postData = new URLSearchParams({ model: 'list' })
+    const { data } = await this.requestHttpRpc<ListResponse>(postData)
 
     return Object.keys(data.t).map((infoHash:string) => {
       const rawTorrent = data.t[infoHash]
@@ -210,7 +205,7 @@ export default class RuTorrent implements TorrentClient {
 
       return {
         id: infoHash.toLowerCase(),
-        infoHash: infoHash,
+        infoHash,
         name: rawTorrent[4],
         state,
         dateAdded: parseInt(rawTorrent[21]),
@@ -249,51 +244,28 @@ export default class RuTorrent implements TorrentClient {
   }
 
   async pauseTorrent (id: any): Promise<boolean> {
-    const postData = new URLSearchParams()
-    postData.append('mode', 'pause')
-    postData.append('hash', id.toUpperCase())
-
-    await this.request({
-      method: 'post',
-      url: '/plugins/httprpc/action.php',
-      data: postData
-    })
+    const postData = new URLSearchParams({ mode: 'pause', hash: id.toUpperCase() })
+    await this.requestHttpRpc(postData)
     return true
   }
 
   async removeTorrent (id: any, removeData: boolean = false): Promise<boolean> {
     const upId = id.toUpperCase()
-    if (removeData) {
-      await this.request({
-        method: 'post',
-        url: '/plugins/httprpc/action.php',
-        data: `<?xml version="1.0" encoding="UTF-8"?><methodCall><methodName>system.multicall</methodName><params><param><value><array><data><value><struct><member><name>methodName</name><value><string>d.custom5.set</string></value></member><member><name>params</name><value><array><data><value><string>${upId}</string></value><value><string>1</string></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>d.delete_tied</string></value></member><member><name>params</name><value><array><data><value><string>${upId}</string></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>d.erase</string></value></member><member><name>params</name><value><array><data><value><string>${upId}</string></value></data></array></value></member></struct></value></data></array></value></param></params></methodCall>`
-      })
-    } else {
-      const postData = new URLSearchParams()
-      postData.append('mode', 'remove')
-      postData.append('hash', upId)
 
-      await this.request({
-        method: 'post',
-        url: '/plugins/httprpc/action.php',
-        data: postData
-      })
+    let postData: string | URLSearchParams
+    if (removeData) {
+      postData = `<?xml version="1.0" encoding="UTF-8"?><methodCall><methodName>system.multicall</methodName><params><param><value><array><data><value><struct><member><name>methodName</name><value><string>d.custom5.set</string></value></member><member><name>params</name><value><array><data><value><string>${upId}</string></value><value><string>1</string></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>d.delete_tied</string></value></member><member><name>params</name><value><array><data><value><string>${upId}</string></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>d.erase</string></value></member><member><name>params</name><value><array><data><value><string>${upId}</string></value></data></array></value></member></struct></value></data></array></value></param></params></methodCall>`
+    } else {
+      postData = new URLSearchParams({ mode: 'remove', hash: upId })
     }
 
+    await this.requestHttpRpc(postData)
     return true
   }
 
   async resumeTorrent (id: string): Promise<boolean> {
-    const postData = new URLSearchParams()
-    postData.append('mode', 'post')
-    postData.append('hash', id.toUpperCase())
-
-    await this.request({
-      method: 'post',
-      url: '/plugins/httprpc/action.php',
-      data: postData
-    })
+    const postData = new URLSearchParams({ mode: 'post', hash: id.toUpperCase() })
+    await this.requestHttpRpc(postData)
     return true
   }
 }
