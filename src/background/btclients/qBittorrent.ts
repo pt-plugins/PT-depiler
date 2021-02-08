@@ -2,7 +2,6 @@
  * @see https://github.com/qbittorrent/qBittorrent/wiki/Web-API-Documentation
  *
  * 注意，因为使用大驼峰命名的形式，所以qBittorrent在各变量命名中均写成 QBittorrent
- * TODO: 增加qBittorrent 3.x 使用的API支持
  */
 import {
   AddTorrentOptions, CustomPathDescription,
@@ -10,7 +9,7 @@ import {
   TorrentClientConfig, TorrentClientMetaData,
   TorrentFilterRules, TorrentState
 } from '@/shared/interfaces/btclients'
-import axios, { AxiosRequestConfig, AxiosResponse, Method } from 'axios'
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import urljoin from 'url-join'
 import { random } from 'lodash-es'
 
@@ -448,7 +447,9 @@ export default class QBittorrent implements TorrentClient {
 
       switch (torrent.state) {
         case QbittorrentTorrentState.ForcedDL:
+        case QbittorrentTorrentState.Downloading:
         case QbittorrentTorrentState.MetaDL:
+        case QbittorrentTorrentState.StalledDL:
           state = TorrentState.downloading
           break
         case QbittorrentTorrentState.Allocating:
@@ -456,6 +457,8 @@ export default class QBittorrent implements TorrentClient {
           state = TorrentState.queued
           break
         case QbittorrentTorrentState.ForcedUP:
+        case QbittorrentTorrentState.Uploading:
+        case QbittorrentTorrentState.StalledUP:
           state = TorrentState.seeding
           break
         case QbittorrentTorrentState.PausedDL:
@@ -476,6 +479,7 @@ export default class QBittorrent implements TorrentClient {
         case QbittorrentTorrentState.Moving:
           state = TorrentState.checking
           break
+        case QbittorrentTorrentState.Error:
         case QbittorrentTorrentState.Unknown:
         case QbittorrentTorrentState.MissingFiles:
           state = TorrentState.error
