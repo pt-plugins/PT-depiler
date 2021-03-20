@@ -1,5 +1,5 @@
 import {
-  ElementQuery,
+  ElementQuery, searchCategoryOptions,
   searchFilter, searchParams, SearchRequestConfig,
   SiteConfig,
   SiteMetadata,
@@ -16,6 +16,9 @@ import { cfDecodeEmail, parseSizeString } from '@/shared/utils/filter'
 export default class BittorrentSite {
   protected config: SiteConfig;
 
+  // 在 constructor 时生成的一些属性
+  protected categoryMap ?: searchCategoryOptions[];
+
   constructor (config: Partial<SiteConfig> = {}, siteMetaData: SiteMetadata) {
     /**
      * 使用 lodash 的 merge 来合并站点默认配置和用户配置
@@ -26,6 +29,10 @@ export default class BittorrentSite {
     // 防止host信息缺失
     if (!this.config.host) {
       this.config.host = urlparse(this.config.url).host
+    }
+
+    if (this.config.search?.categories?.find((d) => d.name === 'Category')) {
+      this.categoryMap = this.config.search?.categories?.find((d) => d.name === 'Category')!.options
     }
   }
 
@@ -143,11 +150,15 @@ export default class BittorrentSite {
       // 全局性的替换 span.__cf_email__
       if (axiosConfig.responseType === 'document') {
         const doc: Document = req.data
-        const cfProtectSpan = Sizzle('span.__cf_email__', doc)
 
-        cfProtectSpan.forEach(element => {
-          element.replaceWith(cfDecodeEmail((element as HTMLElement).dataset.cfemail!))
-        })
+        // 进行简单的检查
+        if (doc.documentElement.outerHTML.search('__cf_email__')) {
+          const cfProtectSpan = Sizzle('span.__cf_email__', doc)
+
+          cfProtectSpan.forEach(element => {
+            element.replaceWith(cfDecodeEmail((element as HTMLElement).dataset.cfemail!))
+          })
+        }
 
         req.data = doc
       }
@@ -305,20 +316,32 @@ export default class BittorrentSite {
       // @ts-ignore
       let value = this.getFieldData(row, this.config.selector.search[key])
 
+      // 将相对链接补齐至绝对链接地址
       if (key === 'url' || key === 'link') {
         value = this.fixLink(value as string, requestConfig)
       }
 
+      // 对获取到的size string转化为 bytes
       if (key === 'size' && typeof value === 'string') {
         value = parseSizeString(value)
       }
 
-      if (['id', 'size', 'seeders', 'leechers', 'completed', 'comments'].includes(key)) {
+      // 其他一些能够为数字的统一转化为数字
+      if (['id', 'size', 'seeders', 'leechers', 'completed', 'comments', 'category'].includes(key)) {
         if (typeof value === 'string') {
           value = value.replace(/[, ]/ig, '') // 统一处理 `1,024` `1 024` 之类的情况
           if (value.match(/^\d*$/)) { // 尽可能的将返回值转成数字类型
             value = isNaN(parseInt(value)) ? 0 : parseInt(value)
           }
+        }
+      }
+
+      // 对 Category 属性进行转化，则要求我们在 this.config.search.categories 中定义一个
+      // { name: 'Category', options: {value: string|number, name: string}[] }
+      if (key === 'category' && this.categoryMap) {
+        const CategoryData = this.categoryMap.find((d) => d.value === value)
+        if (CategoryData) {
+          value = CategoryData.name
         }
       }
 

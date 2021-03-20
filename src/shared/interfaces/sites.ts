@@ -50,10 +50,15 @@ export interface Torrent {
   status?: ETorrentStatus; // 状态
 }
 
+export interface searchCategoryOptions {
+  name: string,
+  value: string | number
+}
+
 export interface searchCategories {
   name: string, // 搜索大类名称
   key: string, // 搜索大类
-  options: { name: string, value: string | number }[],
+  options: searchCategoryOptions[],
   // 该搜索大类是否允许内部交叉 （ 不声明，则默认不允许（False） ）
   cross?: {
     /**

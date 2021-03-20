@@ -1,37 +1,5 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
-import { generateCategoryMap } from '@/shared/utils/common'
 import urlparse from 'url-parse'
-
-const CategoryOptions = [
-  { name: 'All', value: 0 },
-  { name: 'Applications', value: 1 },
-  { name: 'Audio Books', value: 2 },
-  { name: 'Books', value: 3 },
-  { name: 'Comics', value: 4 },
-  { name: 'Games', value: 5 },
-  { name: 'Japanese Anime', value: 6 },
-  { name: 'Miscellaneous', value: 7 },
-  { name: 'Movies', value: 8 },
-  { name: 'Music', value: 9 },
-  { name: 'Music Videos', value: 10 },
-  { name: 'Pictures', value: 11 },
-  { name: 'TV', value: 12 },
-  { name: 'All', value: 0 },
-  { name: 'Applications', value: 1 },
-  { name: 'Audio Books', value: 2 },
-  { name: 'Books', value: 3 },
-  { name: 'Comics', value: 4 },
-  { name: 'Games', value: 5 },
-  { name: 'Japanese Anime', value: 6 },
-  { name: 'Miscellaneous', value: 7 },
-  { name: 'Movies', value: 8 },
-  { name: 'Music', value: 9 },
-  { name: 'Music Videos', value: 10 },
-  { name: 'Pictures', value: 11 },
-  { name: 'TV', value: 12 }
-]
-
-const CategoryMap = generateCategoryMap(CategoryOptions)
 
 export const siteMetadata: SiteMetadata = {
   name: 'Demonoid',
@@ -49,7 +17,34 @@ export const siteMetadata: SiteMetadata = {
       {
         name: 'Category',
         key: 'category',
-        options: CategoryOptions
+        options: [
+          { name: 'All', value: 0 },
+          { name: 'Applications', value: 1 },
+          { name: 'Audio Books', value: 2 },
+          { name: 'Books', value: 3 },
+          { name: 'Comics', value: 4 },
+          { name: 'Games', value: 5 },
+          { name: 'Japanese Anime', value: 6 },
+          { name: 'Miscellaneous', value: 7 },
+          { name: 'Movies', value: 8 },
+          { name: 'Music', value: 9 },
+          { name: 'Music Videos', value: 10 },
+          { name: 'Pictures', value: 11 },
+          { name: 'TV', value: 12 },
+          { name: 'All', value: 0 },
+          { name: 'Applications', value: 1 },
+          { name: 'Audio Books', value: 2 },
+          { name: 'Books', value: 3 },
+          { name: 'Comics', value: 4 },
+          { name: 'Games', value: 5 },
+          { name: 'Japanese Anime', value: 6 },
+          { name: 'Miscellaneous', value: 7 },
+          { name: 'Movies', value: 8 },
+          { name: 'Music', value: 9 },
+          { name: 'Music Videos', value: 10 },
+          { name: 'Pictures', value: 11 },
+          { name: 'TV', value: 12 }
+        ]
       }
     ],
     defaultParams: [
@@ -78,7 +73,7 @@ export const siteMetadata: SiteMetadata = {
         selector: 'a[href*="category"]',
         attr: 'href',
         filters: [
-          (q:string) => CategoryMap.get(parseInt(urlparse(q, true).query.category as string))
+          (q:string) => urlparse(q, true).query.category
         ]
       },
       author: { selector: 'a[href^="/users/"]' }

@@ -3,65 +3,6 @@ import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
 import { AxiosRequestConfig } from 'axios'
 import { parseTimeToLive } from '@/shared/utils/filter'
 import urlparse from 'url-parse'
-import { generateCategoryMap } from '@/shared/utils/common'
-
-const CategoryOptions = [
-  { value: 88, name: 'Adult - Books' },
-  { value: 84, name: 'Adult - Games' },
-  { value: 82, name: 'Adult - HD-Movies' },
-  { value: 83, name: 'Adult - Hentai' },
-  { value: 86, name: 'Adult - Magazines' },
-  { value: 81, name: 'Adult - Movies' },
-  { value: 87, name: 'Adult - Other' },
-  { value: 85, name: 'Adult - Pictures' },
-  { value: 74, name: 'Anime - Dubbed/Subbed' },
-  { value: 73, name: 'Anime - Movies' },
-  { value: 75, name: 'Anime - Others' },
-  { value: 56, name: 'Books - Audio' },
-  { value: 55, name: 'Books - Comics' },
-  { value: 53, name: 'Books - Ebooks' },
-  { value: 54, name: 'Books - Magazines' },
-  { value: 68, name: 'Books - Others' },
-  { value: 90, name: 'Books - Others' },
-  { value: 58, name: 'Games - Android' },
-  { value: 71, name: 'Games - Others' },
-  { value: 57, name: 'Games - Windows' },
-  { value: 49, name: 'Movies - 3D' },
-  { value: 66, name: 'Movies - BluRay Disc/Remux' },
-  { value: 91, name: 'Movies - Bollywood' },
-  { value: 65, name: 'Movies - CAM/TS' },
-  { value: 80, name: 'Documentary' },
-  { value: 51, name: 'Movies - Dubs/Dual Audio' },
-  { value: 67, name: 'Movies - DVDR' },
-  { value: 1, name: 'Movies - HD 1080p' },
-  { value: 2, name: 'Movies - HD 720p' },
-  { value: 76, name: 'Movies - HEVC/x265' },
-  { value: 47, name: 'Movies - X264/H264' },
-  { value: 3, name: 'Movies - UltraHD/4K' },
-  { value: 42, name: 'Movies - XviD' },
-  { value: 60, name: 'Music - FLAC' },
-  { value: 59, name: 'Music - MP3' },
-  { value: 61, name: 'Music - Music Videos' },
-  { value: 69, name: 'Music - Others' },
-  { value: 95, name: 'Others - Misc' },
-  { value: 78, name: 'Others - Unsorted' },
-  { value: 63, name: 'Software - Android' },
-  { value: 64, name: 'Software - Mac' },
-  { value: 70, name: 'Software - Others' },
-  { value: 62, name: 'Software - Windows' },
-  { value: 94, name: 'Tutorials - Tutorials' },
-  { value: 79, name: 'Documentary' },
-  { value: 41, name: 'TV - HD/X264/H264' },
-  { value: 77, name: 'TV - HEVC/x265' },
-  { value: 5, name: 'TV - SD/X264/H264' },
-  { value: 50, name: 'TV - SD/XVID' },
-  { value: 72, name: 'TV - Sport' },
-  { value: 7, name: 'TV - TV Packs' },
-  { value: 89, name: 'TV - UltraHD/4K' }
-]
-
-// 建立一个Map来对应
-const CategoryMap = generateCategoryMap(CategoryOptions)
 
 export const siteMetadata: SiteMetadata = {
   name: 'ETTV',
@@ -80,7 +21,60 @@ export const siteMetadata: SiteMetadata = {
       {
         name: 'Category',
         key: 'cat',
-        options: CategoryOptions,
+        options: [
+          { value: 88, name: 'Adult - Books' },
+          { value: 84, name: 'Adult - Games' },
+          { value: 82, name: 'Adult - HD-Movies' },
+          { value: 83, name: 'Adult - Hentai' },
+          { value: 86, name: 'Adult - Magazines' },
+          { value: 81, name: 'Adult - Movies' },
+          { value: 87, name: 'Adult - Other' },
+          { value: 85, name: 'Adult - Pictures' },
+          { value: 74, name: 'Anime - Dubbed/Subbed' },
+          { value: 73, name: 'Anime - Movies' },
+          { value: 75, name: 'Anime - Others' },
+          { value: 56, name: 'Books - Audio' },
+          { value: 55, name: 'Books - Comics' },
+          { value: 53, name: 'Books - Ebooks' },
+          { value: 54, name: 'Books - Magazines' },
+          { value: 68, name: 'Books - Others' },
+          { value: 90, name: 'Books - Others' },
+          { value: 58, name: 'Games - Android' },
+          { value: 71, name: 'Games - Others' },
+          { value: 57, name: 'Games - Windows' },
+          { value: 49, name: 'Movies - 3D' },
+          { value: 66, name: 'Movies - BluRay Disc/Remux' },
+          { value: 91, name: 'Movies - Bollywood' },
+          { value: 65, name: 'Movies - CAM/TS' },
+          { value: 80, name: 'Documentary' },
+          { value: 51, name: 'Movies - Dubs/Dual Audio' },
+          { value: 67, name: 'Movies - DVDR' },
+          { value: 1, name: 'Movies - HD 1080p' },
+          { value: 2, name: 'Movies - HD 720p' },
+          { value: 76, name: 'Movies - HEVC/x265' },
+          { value: 47, name: 'Movies - X264/H264' },
+          { value: 3, name: 'Movies - UltraHD/4K' },
+          { value: 42, name: 'Movies - XviD' },
+          { value: 60, name: 'Music - FLAC' },
+          { value: 59, name: 'Music - MP3' },
+          { value: 61, name: 'Music - Music Videos' },
+          { value: 69, name: 'Music - Others' },
+          { value: 95, name: 'Others - Misc' },
+          { value: 78, name: 'Others - Unsorted' },
+          { value: 63, name: 'Software - Android' },
+          { value: 64, name: 'Software - Mac' },
+          { value: 70, name: 'Software - Others' },
+          { value: 62, name: 'Software - Windows' },
+          { value: 94, name: 'Tutorials - Tutorials' },
+          { value: 79, name: 'Documentary' },
+          { value: 41, name: 'TV - HD/X264/H264' },
+          { value: 77, name: 'TV - HEVC/x265' },
+          { value: 5, name: 'TV - SD/X264/H264' },
+          { value: 50, name: 'TV - SD/XVID' },
+          { value: 72, name: 'TV - Sport' },
+          { value: 7, name: 'TV - TV Packs' },
+          { value: 89, name: 'TV - UltraHD/4K' }
+        ],
         cross: { mode: 'append', key: 'c' }
       }
     ],
@@ -105,7 +99,7 @@ export const siteMetadata: SiteMetadata = {
         filters: [
           (q:string) => {
             const cat = urlparse(q, true).query.cat
-            return cat ? CategoryMap.get(parseInt(cat)) : 'Other'
+            return cat || 'Other'
           }
         ]
       },

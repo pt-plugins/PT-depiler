@@ -1,32 +1,5 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
 import urlparse from 'url-parse'
-import { generateCategoryMap } from '@/shared/utils/common'
-
-const CategoryOptions = [
-  { value: 50, name: 'XXX' },
-  { value: 5, name: 'Androvalue' },
-  { value: 28, name: 'Anime' },
-  { value: 18, name: 'Apps' },
-  { value: 51, name: 'Books' },
-  { value: 73, name: 'Desi Porn' },
-  { value: 75, name: 'FLAC' },
-  { value: 10, name: 'Games' },
-  { value: 55, name: 'Macintosh' },
-  { value: 52, name: 'Mobile' },
-  { value: 1, name: 'Movies' },
-  { value: 22, name: 'Music' },
-  { value: 33, name: 'Other' },
-  { value: 72, name: 'Packs' },
-  { value: 70, name: 'Pictures' },
-  { value: 76, name: 'Sports' },
-  { value: 74, name: 'Tutorials' },
-  { value: 41, name: 'TV' },
-  { value: 71, name: 'Vvalueeos' },
-  { value: 54, name: 'Windows' }
-]
-
-// 建立一个Map来对应
-const CategoryMap = generateCategoryMap(CategoryOptions)
 
 export const siteMetadata: SiteMetadata = {
   name: 'GloDLS',
@@ -42,7 +15,28 @@ export const siteMetadata: SiteMetadata = {
       {
         name: 'Category',
         key: 'cat',
-        options: CategoryOptions,
+        options: [
+          { value: 50, name: 'XXX' },
+          { value: 5, name: 'Androvalue' },
+          { value: 28, name: 'Anime' },
+          { value: 18, name: 'Apps' },
+          { value: 51, name: 'Books' },
+          { value: 73, name: 'Desi Porn' },
+          { value: 75, name: 'FLAC' },
+          { value: 10, name: 'Games' },
+          { value: 55, name: 'Macintosh' },
+          { value: 52, name: 'Mobile' },
+          { value: 1, name: 'Movies' },
+          { value: 22, name: 'Music' },
+          { value: 33, name: 'Other' },
+          { value: 72, name: 'Packs' },
+          { value: 70, name: 'Pictures' },
+          { value: 76, name: 'Sports' },
+          { value: 74, name: 'Tutorials' },
+          { value: 41, name: 'TV' },
+          { value: 71, name: 'Vvalueeos' },
+          { value: 54, name: 'Windows' }
+        ],
         cross: { mode: 'append', key: 'c' }
       }
     ],
@@ -65,10 +59,7 @@ export const siteMetadata: SiteMetadata = {
       category: {
         selector: 'td:nth-child(1) a',
         attr: 'href',
-        filters: [(q:string) => {
-          const cat = urlparse(q, true).query.cat
-          return CategoryMap.get(parseInt(cat as string))
-        }]
+        filters: [(q:string) => urlparse(q, true).query.cat]
       },
       author: { selector: 'td:nth-child(8)' }
     }
