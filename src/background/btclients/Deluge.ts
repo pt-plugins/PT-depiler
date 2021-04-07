@@ -319,9 +319,7 @@ export default class Deluge implements TorrentClient {
       method: method,
       params: params
     }, {
-      headers: {
-        'content-type': 'application/json'
-      }
+      responseType: 'json'
     })
   }
 }

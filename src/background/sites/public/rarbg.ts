@@ -54,7 +54,7 @@ export default class Rarbg extends BittorrentSite {
       !this._tokenExpired || // 未生成过 token
       this._tokenExpired <= Date.now() // Token Expired
     ) {
-      const { data } = await axios.get<{token: string}>(this.apiPoint, {
+      const { data } = await axios.get<{ token: string }>(this.apiPoint, {
         params: { get_token: 'get_token', app_id: appName }
       })
       this._token = data.token
@@ -77,14 +77,14 @@ export default class Rarbg extends BittorrentSite {
       case 2:
       case 4: // invalid token
         this._tokenExpired = Date.now()
-        resp = await this.request(axiosConfig)
+        resp = await this.request<T>(axiosConfig)
         break
       case 20: // no results found
         // the api returns "no results" in some valid queries. (Mostly happened on same keywords re-search)
         // we do one retry on this case but we can't do more
         // because we can't distinguish between search without results and api malfunction
         if (retry) {
-          resp = await this.request(axiosConfig, false)
+          resp = await this.request<T>(axiosConfig, false)
         }
     }
 

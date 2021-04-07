@@ -1,5 +1,5 @@
 import {
-  ElementQuery, searchCategoryOptions,
+  ElementQuery, searchCategories, searchCategoryOptions,
   searchFilter, searchParams, SearchRequestConfig,
   SiteConfig,
   SiteMetadata,
@@ -31,9 +31,13 @@ export default class BittorrentSite {
       this.config.host = urlparse(this.config.url).host
     }
 
-    if (this.config.search?.categories?.find((d) => d.name === 'Category')) {
-      this.categoryMap = this.config.search?.categories?.find((d) => d.name === 'Category')!.options
+    if (this.getCategory('Category')) {
+      this.categoryMap = this.getCategory('Category')!.options
     }
+  }
+
+  protected getCategory (catName: string): searchCategories | undefined {
+    return this.config.search?.categories?.find((d) => d.name === catName)
   }
 
   /**
@@ -61,11 +65,11 @@ export default class BittorrentSite {
            */
           if (Array.isArray(value)) {
             // 检索 key 的定义情况
-            const definedCategoryForKey = this.config.search?.categories?.filter(x => x.key === key)[0]
+            const definedCategoryForKey = this.getCategory(key)
             if (definedCategoryForKey?.cross) {
               const crossKey = definedCategoryForKey.cross.key || key
               if (definedCategoryForKey?.cross.mode === 'append') {
-                value.forEach((v:string | number) => {
+                value.forEach((v: string | number) => {
                   params[`${crossKey}${v}`] = 1
                 })
                 continue // 跳过，不再将原始字段值插入params
@@ -95,7 +99,8 @@ export default class BittorrentSite {
         })
       }
 
-      config.data = transData || params
+      // @ts-ignore
+      config.data = postData || params
     } else { // GET
       config.params = params
     }
@@ -151,9 +156,9 @@ export default class BittorrentSite {
       if (axiosConfig.responseType === 'document') {
         const doc: Document = req.data
 
-        // 进行简单的检查
+        // 进行简单的检查，防止无意义的替换
         if (doc.documentElement.outerHTML.search('__cf_email__')) {
-          const cfProtectSpan = Sizzle('span.__cf_email__', doc)
+          const cfProtectSpan = Sizzle('.__cf_email__', doc)
 
           cfProtectSpan.forEach(element => {
             element.replaceWith(cfDecodeEmail((element as HTMLElement).dataset.cfemail!))
@@ -281,8 +286,8 @@ export default class BittorrentSite {
        * 应对某些站点连用多个tr表示一个种子的情况，将多个tr使用 <div> 包裹成一个 Element，
        * 这种情况下，子选择器就可以写成 `tr:nth-child(1) xxxx` 来精确
        */
-      const rowMergeDeep:number = rowsSelector.merge || 1
-      if (rowMergeDeep > 1) {
+      const rowMergeDeep: number = rowsSelector.merge || 1
+      if (trs.length > 0 && rowMergeDeep > 1) {
         const newTrs: Element[] = []
 
         chunk(trs, rowMergeDeep).forEach(chunkTr => {
@@ -299,29 +304,27 @@ export default class BittorrentSite {
     }
 
     trs?.forEach((tr: any) => {
-      torrents.push(this.transformRowsTorrent(tr, requestConfig) as Torrent)
+      torrents.push(this.parseRowToTorrent(tr, requestConfig) as Torrent)
     })
 
     return torrents
   }
 
-  protected transformRowsTorrent (row: Element | Document | Object, requestConfig: SearchRequestConfig): Partial<Torrent> {
+  protected parseRowToTorrent (row: Element | Document | Object, requestConfig: SearchRequestConfig): Partial<Torrent> {
     const torrent = {} as Partial<Torrent>
-
-    for (const key in this.config.selector.search) {
+    for (const [key, selector] of Object.entries(this.config.selector.search)) {
       if (key === 'rows') {
         continue // rows 不作为对应项
       }
 
-      // @ts-ignore
-      let value = this.getFieldData(row, this.config.selector.search[key])
+      let value = this.getFieldData(row, selector!)
 
       // 将相对链接补齐至绝对链接地址
       if (key === 'url' || key === 'link') {
         value = this.fixLink(value as string, requestConfig)
       }
 
-      // 对获取到的size string转化为 bytes
+      // 将获取到的 size 从 string 转化为 bytes
       if (key === 'size' && typeof value === 'string') {
         value = parseSizeString(value)
       }
@@ -346,7 +349,6 @@ export default class BittorrentSite {
       }
 
       // @ts-ignore
-      // noinspection JSUnfilteredForInLoop
       torrent[key] = value
     }
     return torrent

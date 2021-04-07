@@ -69,7 +69,6 @@ export const siteMetadata: SiteMetadata = {
       size: { selector: 'td:nth-child(4)' },
       seeders: { text: 1 },
       leechers: { text: 1 },
-
       category: { selector: 'td:nth-child(2)' }
     },
     detail: {

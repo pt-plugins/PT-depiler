@@ -8,13 +8,15 @@ export interface SearchResultItemTag {
 
 export interface ElementQuery {
   // selector或 text 一定要有一个
+
   text?: string | number, // 当text输入时，会直接返回text，而不进行检查
 
   /**
-   * 此处约定了一些特殊的选择器
+   * 如果selector为 string[]， 则会依次尝试并找到第一个成功获取到有效信息的
+   * 此外，此处约定了一些特殊的选择器
    *  - :self  该元素自身，对于html文档，一般用于tr自身属性，对于json文档，一般指root顶层
    */
-  selector?: string| ':self' | string[],
+  selector?: string | ':self' | string[],
 
   attr?: string,
   data?: string,
@@ -25,6 +27,7 @@ export interface ElementQuery {
   filters?: (Function | string)[]
 }
 
+// 作为一个种子最基本应该有的属性
 export interface Torrent {
   id: number | string;
   title: string; // 主标题
@@ -115,7 +118,7 @@ export interface UserInfo {
   [key: string]: any; // 其他信息
 }
 
-export type SiteBaseModule = 'schema/AbstractBittorrentSite' | 'schema/AbstractPrivateSite' | 'schema/NexusPHP'
+export type SiteBaseModule = 'AbstractBittorrentSite' | 'AbstractPrivateSite' | 'NexusPHP'
 export type SiteFeature = 'queryUserInfo'
 
 /**
@@ -148,7 +151,7 @@ export interface SiteMetadata {
      * 设置了默认的 AxiosRequestConfig 为
      * { responseType: 'document', url: '/' }
      */
-    requestConfig?: AxiosRequestConfig & {transferPostData?: 'raw' | 'form' | 'params'},
+    requestConfig?: AxiosRequestConfig & { transferPostData?: 'raw' | 'form' | 'params' },
 
     keywordsParam?: string, // 当不指定且未改写时，会导致keyword未被搜索使用
     categories?: searchCategories[] // 站点对应搜索入口的种子分类信息
@@ -161,38 +164,15 @@ export interface SiteMetadata {
 
   selector: {
     search: {
-      rows: { selector: string | ':self', merge?: number }
-
       /**
-       * 以下均为种子相关选择器
+       * 种子列表定位。 部分选项作用：
+       *  - merge  用于合并部分使用多行表示一个种子的情况
        */
-      id?: ElementQuery // 单站点唯一编号，如果未传入，则单次搜索进行递增排序（！！不建议！！）
-      title: ElementQuery // 主标题
-      subTitle?: ElementQuery // 次标题
-
-      url?: ElementQuery // detail 页面
-      link?: ElementQuery // 种子链接
-
-      time?: ElementQuery // 发布时间戳（秒级）
-      size?: ElementQuery // 大小
-      author?: ElementQuery // 发布人
-      category?: ElementQuery
-
-      seeders?: ElementQuery // 上传数量
-      leechers?: ElementQuery // 下载数量
-      completed?: ElementQuery // 完成数量
-      comments?: ElementQuery // 评论数量
-
-      // FIXME tags?: SearchResultItemTag[];
-
-      // 进度（100表示完成）
-      // FIXME progress?: number;
-      // 状态
-      // FIXME status?: ETorrentStatus;
-    }
+      rows: { selector: string | ':self', merge?: number }
+    } & { [torrentKey in keyof Torrent]?: ElementQuery } // 种子相关选择器
 
     detail?: {
-      link?: ElementQuery // 用于获取下载链接不在搜索页，而在详情页
+      link?: ElementQuery // 用于获取下载链接不在搜索页，而在详情页的情况
       [key: string]: ElementQuery | undefined // FIXME
     }
 

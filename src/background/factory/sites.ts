@@ -41,7 +41,7 @@ class Sites extends Container {
       /* webpackExports: ["default","siteMetadata"] */
       `@/background/sites/${module}`) as {
       default?: PrivateSite | BittorrentSite,
-      siteMetadata?: SiteMetadata
+      siteMetadata: SiteMetadata
     }
   }
 
@@ -53,16 +53,17 @@ class Sites extends Container {
   // FIXME userConfig should be typed
   async getSite (siteName: string, userConfig: any = {}): Promise<PrivateSite | BittorrentSite> {
     return await this.resolveObject<PrivateSite | BittorrentSite>(`site-${siteName}`, async () => {
+      // FIXME 部分已定义的站点，不存在能成功 dynamicImport 的情况，对此应该直接从 baseModule中导入
+      console.log(siteName, siteName in this._supportList)
       const module = await this.dynamicImport(siteName)
-      const siteMetaData = module.siteMetadata
-      let SiteClass = module.default
+      let { siteMetadata: siteMetaData /* use as const */, default: SiteClass } = module
 
       /**
        * 如果该模块没有导出 default class，那么我们认为我们需要从基类继承
        * 并覆写基类的的 siteMetaData 信息
        */
-      if (!module.default) {
-        const baseModuleName = siteMetaData!.baseModule || 'schema/AbstractBittorrentSite'
+      if (!SiteClass) {
+        const baseModuleName = 'schema/' + (siteMetaData.baseModule || 'AbstractBittorrentSite')
         const baseModule = await this.dynamicImport(baseModuleName)
         SiteClass = baseModule.default
       }
@@ -73,4 +74,5 @@ class Sites extends Container {
   }
 }
 
+// 单例模式
 export default new Sites()

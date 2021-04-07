@@ -7,6 +7,6 @@ export default abstract class Container {
     if (!(id in this.initializedObject)) {
       this.initializedObject[id] = await fn()
     }
-    return this.initializedObject[id]
+    return this.initializedObject[id] as T
   }
 }

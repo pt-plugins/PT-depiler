@@ -45,46 +45,27 @@ const STATE_QUEUED = 64
 
 /**
  * torrent list, its a huge tuple
- * HASH (string)
- * STATUS* (integer)
- * NAME (string)
- * SIZE (integer in bytes)
- * PERCENT PROGRESS (integer in per mils)
- * DOWNLOADED (integer in bytes)
- * UPLOADED (integer in bytes)
- * RATIO (integer in per mils)
- * UPLOAD SPEED (integer in bytes per second)
- * DOWNLOAD SPEED (integer in bytes per second)
- * ETA (integer in seconds)
- * LABEL (string)
- * PEERS CONNECTED (integer)
- * PEERS IN SWARM (integer)
- * SEEDS CONNECTED (integer)
- * SEEDS IN SWARM (integer)
- * AVAILABILITY (integer in 1/65536ths)
- * TORRENT QUEUE ORDER (integer)
- * REMAINING (integer in bytes)
  */
 type TorrentData = [
-  string,
-  number,
-  string,
-  number,
-  number,
-  number,
-  number,
-  number,
-  number,
-  number,
-  number,
-  string,
-  number,
-  number,
-  number,
-  number,
-  number,
-  number,
-  number,
+  string, // HASH (string)
+  number, // STATUS* (integer)
+  string, // NAME (string)
+  number, // SIZE (integer in bytes)
+  number, // PERCENT PROGRESS (integer in per mils)
+  number, // DOWNLOADED (integer in bytes)
+  number, // UPLOADED (integer in bytes)
+  number, // RATIO (integer in per mils)
+  number, // UPLOAD SPEED (integer in bytes per second)
+  number, // DOWNLOAD SPEED (integer in bytes per second)
+  number, // ETA (integer in seconds)
+  string, // LABEL (string)
+  number, // PEERS CONNECTED (integer)
+  number, // PEERS IN SWARM (integer)
+  number, // SEEDS CONNECTED (integer)
+  number, // SEEDS IN SWARM (integer)
+  number, // AVAILABILITY (integer in 1/65536ths)
+  number, // TORRENT QUEUE ORDER (integer)
+  number, // REMAINING (integer in bytes)
   string,
   string,
   string,
@@ -137,7 +118,7 @@ export default class UTorrent implements TorrentClient {
     }
   }
 
-  private async getSessionId ():Promise<string> {
+  private async getSessionId (): Promise<string> {
     if (this._sid === null) {
       await this.login()
     }

@@ -1,7 +1,8 @@
 /**
- * 所有支持的客户端种类（新增客户端请在此处注册）
- * 对应 v1.x 版本的 type 项
+ * 对于 Bittorrent 软件的定义
  */
+
+// 所有支持的客户端种类（新增客户端请在此处注册）
 export const clientTypeList = [
   'Deluge',
   'qBittorrent',
@@ -16,6 +17,7 @@ export type clientType = typeof clientTypeList[number]
 
 export type TorrentClientFeature = 'CustomPath'
 
+// 最通用的自定义目录提示词
 export const CustomPathDescription = '当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/ 或 D:\\download\\music\\。请确保对应路径软件有写入权限。'
 
 /**
@@ -76,9 +78,6 @@ export interface TorrentClientMetaData {
   feature: {
     [feature in TorrentClientFeature]: TorrentClientFeatureMetaData
   }
-}
-
-export class NotSupportError extends Error {
 }
 
 export enum TorrentState {

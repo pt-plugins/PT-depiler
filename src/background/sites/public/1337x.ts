@@ -109,7 +109,6 @@ export const siteMetadata: SiteMetadata = {
       link: { selector: 'ul[aria-labelledby="dropdownMenu1"] a', attr: 'href' }
     }
   }
-
 }
 
 // noinspection JSUnusedGlobalSymbols
