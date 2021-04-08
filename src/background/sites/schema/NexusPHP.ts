@@ -6,42 +6,61 @@ import urlparse from 'url-parse'
 import dayjs from '@/shared/utils/dayjs'
 import { extractContent } from '@/shared/utils/common'
 import { parseTimeToLive } from '@/shared/utils/filter'
+import { merge } from 'lodash-es'
 
 export default class NexusPHP extends PrivateSite {
   constructor (config: Partial<SiteConfig> = {}, siteMetaData: SiteMetadata) {
     super(config, siteMetaData)
 
     // 补充定义 search 信息
-    if (!this.config.search) {
-      this.config.search = {
-        keywordsParam: 'search',
-        requestConfig: {
-          url: '/torrents.php'
-        },
-        defaultParams: [
-          { key: 'notnewword', value: 1 }
-        ]
-      }
+    this.config.search = merge({
+      keywordsParam: 'search',
+      requestConfig: {
+        url: '/torrents.php'
+      },
+      defaultParams: [
+        { key: 'notnewword', value: 1 }
+      ]
+    }, this.config.search || {})
+
+    // 补充定义一些比较常见的 selector
+    const baseLinkQuery = {
+      selector: 'a[href*="download.php?id="]:has(> img[alt="download"])',
+      attr: 'href'
     }
 
-    if (!this.config.selector) {
-      this.config.selector = {}
-    }
+    this.config.selector = merge({
+      search: {
+        // row 等信息由 transformSearchPage 根据搜索结果自动生成
+        link: baseLinkQuery, // 种子下载链接
+        url: {
+          ...baseLinkQuery,
+          filters: [
+            (query: string) => '/details.php?id=' + urlparse(query, true).query.id
+          ]
+        }, // 种子页面链接
+        id: {
+          ...baseLinkQuery,
+          filters: [
+            (query: string) => urlparse(query, true).query.id
+          ]
+        }
+      },
+      detail: {},
+      userInfo: {}
+    }, this.config.selector || {})
   }
 
   protected transformSearchPage (doc: Document, requestConfig: SearchRequestConfig): Torrent[] {
     // 如果配置文件没有传入 search 的选择器，则我们自己生成
-    if (!this.config.selector?.search) {
-      this.config.selector!.search = {}
-    }
 
     const legacyTableSelector = 'table.torrents:last'
 
     // 对于NPHP，一般来说，表的第一行应该是标题行，即 `> tbody > tr:nth-child(1)` ，但是也有部分站点为 `> thead > tr`
     const legacyTableHasThead = Sizzle(`${legacyTableSelector} > thead > tr`, doc).length > 0
 
-    if (!this.config.selector!.search.rows) {
-      this.config.selector!.search.rows = {
+    if (!this.config.selector!.search!.rows) {
+      this.config.selector!.search!.rows = {
         // 对于有thead的站点，认为 > tbody > tr 均为种子信息，而无 thead 的站点则为 > tbody > tr:gt(0)
         selector: `${legacyTableSelector} > tbody > tr` + (legacyTableHasThead ? '' : ':gt(0)')
       }
@@ -68,36 +87,7 @@ export default class NexusPHP extends PrivateSite {
       }
     })
 
-    // 补充一些比较常见的
-    const baseLinkQuery = {
-      selector: 'a[href*="download.php?id="]:has(> img[alt="download"])',
-      attr: 'href'
-    }
-
-    if (!this.config.selector!.search.link) { // 种子下载链接
-      this.config.selector!.search.link = baseLinkQuery
-    }
-
-    if (!this.config.selector!.search.url) { // 种子页面链接
-      this.config.selector!.search.url = {
-        ...baseLinkQuery,
-        filters: [
-          (query:string) => '/details.php?id=' + urlparse(query, true).query.id
-        ]
-      }
-    }
-
-    if (!this.config.selector!.search.id) { // 种子id
-      this.config.selector!.search.url = {
-        ...baseLinkQuery,
-        filters: [
-          (query:string) => urlparse(query, true).query.id
-        ]
-      }
-    }
-
     // !!! 其他一些比较难处理的，我们把他 hack 到 parseRowToTorrent 中 !!!
-
     return super.transformSearchPage(doc, requestConfig)
   }
 
@@ -110,9 +100,7 @@ export default class NexusPHP extends PrivateSite {
     }
 
     // 处理时间（使用默认selector）
-    if (!torrent.time) {
-      torrent.time = this.parseTorrentTimeFromRow(row)
-    }
+    torrent.time = this.parseTorrentTimeFromRow(row)
 
     // 处理分类
     if (!torrent.category) {

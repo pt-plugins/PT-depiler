@@ -31,13 +31,14 @@ export default class BittorrentSite {
       this.config.host = urlparse(this.config.url).host
     }
 
-    if (this.getCategory('Category')) {
-      this.categoryMap = this.getCategory('Category')!.options
+    if (this.getCategory(['Category', '类别'])) {
+      this.categoryMap = this.getCategory(['Category', '类别'])?.options
     }
   }
 
-  protected getCategory (catName: string): searchCategories | undefined {
-    return this.config.search?.categories?.find((d) => d.name === catName)
+  protected getCategory (catName: string | string[]): searchCategories | undefined {
+    const catNames = ([] as string[]).concat(catName)
+    return this.config.search?.categories?.find((d) => d.name in catNames)
   }
 
   /**
@@ -334,7 +335,7 @@ export default class BittorrentSite {
       }
 
       // 其他一些能够为数字的统一转化为数字
-      if (['id', 'size', 'seeders', 'leechers', 'completed', 'comments', 'category'].includes(key)) {
+      if (['id', 'size', 'seeders', 'leechers', 'completed', 'comments', 'category', 'status'].includes(key)) {
         if (typeof value === 'string') {
           value = value.replace(/[, ]/ig, '') // 统一处理 `1,024` `1 024` 之类的情况
           if (value.match(/^\d*$/)) { // 尽可能的将返回值转成数字类型

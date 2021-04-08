@@ -9,7 +9,7 @@ export interface SearchResultItemTag {
 export interface ElementQuery {
   // selector或 text 一定要有一个
 
-  text?: string | number, // 当text输入时，会直接返回text，而不进行检查
+  text?: string | number, // 当text输入时，text会作为默认值
 
   /**
    * 如果selector为 string[]， 则会依次尝试并找到第一个成功获取到有效信息的
@@ -59,7 +59,7 @@ export interface searchCategoryOptions {
 }
 
 export interface searchCategories {
-  name: string, // 搜索大类名称
+  name: string | 'Category' | '类别', // 搜索大类名称
   key: string, // 搜索大类
   options: searchCategoryOptions[],
   // 该搜索大类是否允许内部交叉 （ 不声明，则默认不允许（False） ）
@@ -127,12 +127,13 @@ export type SiteFeature = 'queryUserInfo'
  */
 export interface SiteMetadata {
   name: string; // 站点名
-  baseModule?: SiteBaseModule;
+  baseModule?: SiteBaseModule; // 指定继承模板类型
+  url: string; // 完整的网站地址，如果网站支持 `https` ，请优先考虑填写 `https` 的地址
 
   description: string; // 站点说明
+  collaborator?: string | string[]; // 协作者，建议使用 string[] 进行定义
   tags?: string[];
-
-  url: string; // 完整的网站地址，如果网站支持 `https` ，请优先考虑填写 `https` 的地址
+  favicon?: string; // 站点 favicon.ico 的url，例如 https://ourbits.club/favicon.ico
 
   /**
    * 和url相同作用和写法，唯一不同是将会覆写url的行为（因为url不允许用户编辑）
