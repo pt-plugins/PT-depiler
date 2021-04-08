@@ -2,14 +2,21 @@
 import { UserInfo } from '@/shared/interfaces/sites'
 import { AxiosResponse } from 'axios'
 import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
+import userDataRecords from '@/background/service/storage/userDataRecords'
 
 export default class PrivateSite extends BittorrentSite {
   // noinspection JSUnusedGlobalSymbols
+
+  public async getLastUserInfo (): Promise<UserInfo | null> {
+    return await userDataRecords.getUserData(this.config.host!) as UserInfo | null
+  }
+
   /**
    * 获得当前站点最新的用户信息用于更新
    * 因为此处仅抛出 Error，所以所有继承的子类应该完全覆写
+   * 这里不用考虑保存问题，保存/更新 UserInfo 由调用的上层完成
    */
-  getUserInfo (): Promise<UserInfo> {
+  public async flushUserInfo (): Promise<UserInfo> {
     throw new Error('尚不支持') // FIXME
   }
 

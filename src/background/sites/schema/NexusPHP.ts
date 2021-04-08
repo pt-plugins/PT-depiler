@@ -1,6 +1,5 @@
 import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
-import { SearchRequestConfig, SearchResultItemTag, SiteConfig, SiteMetadata, Torrent } from '@/shared/interfaces/sites'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
+import { SearchRequestConfig, SiteConfig, SiteMetadata, Torrent, UserInfo } from '@/shared/interfaces/sites'
 import Sizzle from 'sizzle'
 import urlparse from 'url-parse'
 import dayjs from '@/shared/utils/dayjs'
@@ -44,11 +43,23 @@ export default class NexusPHP extends PrivateSite {
           filters: [
             (query: string) => urlparse(query, true).query.id
           ]
-        }
+        },
+        tags: [] as { selector: string, name: string, color?: string }[]
       },
       detail: {},
       userInfo: {}
     }, this.config.selector || {})
+
+    // 传入NPHP默认的优惠类型Tags
+    this.config.selector!.search!.tags = [
+      { name: 'Free', selector: 'img.pro_free, .free_bg, font.free', color: 'blue' },
+      { name: '2xFree', selector: 'img.pro_free2up, .twoupfree_bg, font.twoupfree', color: 'green' },
+      { name: '2xUp', selector: 'img.pro_2up, .twoup_bg, font.twoup', color: 'lime' },
+      { name: '2x50%', selector: 'img.pro_50pctdown2up, .twouphalfdown_bg, font.twouphalfdown', color: 'light-green' },
+      { name: '30%', selector: 'img.pro_30pctdown, .thirtypercentdown_bg, font.thirtypercent', color: 'indigo' },
+      { name: '50%', selector: 'img.pro_50pctdown, .halfdown_bg, font.halfdown', color: 'orange' }
+    ]// @ts-ignore
+      .concat(this.config.selector!.search!.tags!)
   }
 
   protected transformSearchPage (doc: Document, requestConfig: SearchRequestConfig): Torrent[] {
@@ -105,14 +116,6 @@ export default class NexusPHP extends PrivateSite {
     // 处理分类
     if (!torrent.category) {
       torrent.category = this.parseCategoryFromRow(row)
-    }
-
-    // 处理Tags
-    torrent.tags = this.parseTagsFromRow(row)
-
-    // 处理下载进度
-    if (!torrent.progress || !torrent.status) {
-      torrent = Object.assign(torrent, this.parseDownloadProcessFromRow(row))
     }
 
     return torrent
@@ -196,13 +199,9 @@ export default class NexusPHP extends PrivateSite {
     return category.trim()
   }
 
-  protected parseTagsFromRow (row: Element): SearchResultItemTag[] {
-    return []
-  }
+  async flushUserInfo (): Promise<UserInfo> {
+    // TODO
 
-  protected parseDownloadProcessFromRow (row: Element): {
-    progress?: number; /* 进度（100表示完成） */ status?: ETorrentStatus; /* 状态 */
-  } {
-    return {}
+    return super.flushUserInfo()
   }
 }

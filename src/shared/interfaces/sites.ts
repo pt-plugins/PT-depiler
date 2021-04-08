@@ -171,6 +171,7 @@ export interface SiteMetadata {
        */
       rows?: { selector: string | ':self', merge?: number }
     } & { [torrentKey in keyof Torrent]?: ElementQuery } // 种子相关选择器
+      & { tags?: { selector: string, name: string, color?: string }[] } // Tags相关选择器
 
     detail?: {
       link?: ElementQuery // 用于获取下载链接不在搜索页，而在详情页的情况

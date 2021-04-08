@@ -1,6 +1,6 @@
 import {
   ElementQuery, searchCategories, searchCategoryOptions,
-  searchFilter, searchParams, SearchRequestConfig,
+  searchFilter, searchParams, SearchRequestConfig, SearchResultItemTag,
   SiteConfig,
   SiteMetadata,
   Torrent
@@ -11,6 +11,7 @@ import urljoin from 'url-join'
 import urlparse from 'url-parse'
 import { merge, get, chunk } from 'lodash-es'
 import { cfDecodeEmail, parseSizeString } from '@/shared/utils/filter'
+import { ETorrentStatus } from '@/shared/interfaces/enum'
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export default class BittorrentSite {
@@ -316,10 +317,14 @@ export default class BittorrentSite {
   }
 
   protected parseRowToTorrent (row: Element | Document | Object, requestConfig: SearchRequestConfig): Partial<Torrent> {
-    const torrent = {} as Partial<Torrent>
+    let torrent = {} as Partial<Torrent>
     for (const [key, selector] of Object.entries(this.config.selector!.search!)) {
-      if (key === 'rows') {
-        continue // rows 不作为对应项
+      // 应该跳过的部分
+      if (key in [
+        'rows', // rows 已经在前面被处理过了
+        'tags' // tags 转由 parseTagsFromRow 方法处理
+      ]) {
+        continue
       }
 
       let value = this.getFieldData(row, selector!)
@@ -356,7 +361,43 @@ export default class BittorrentSite {
       // @ts-ignore
       torrent[key] = value
     }
+
+    // 处理Tags
+    if (this.config.selector?.search?.tags) {
+      torrent.tags = this.parseTagsFromRow(row)
+    }
+
+    // 处理下载进度
+    if (!torrent.progress || !torrent.status) {
+      torrent = Object.assign(torrent, this.parseDownloadProcessFromRow(row))
+    }
+
     return torrent
+  }
+
+  protected parseTagsFromRow (row: Element | Document | Object): SearchResultItemTag[] {
+    const tags: SearchResultItemTag[] = []
+    const tagsQuery = this.config.selector!.search!.tags!
+    for (let i = 0; i < tagsQuery.length; i++) {
+      const { selector, name, color } = tagsQuery[i]
+      if (row instanceof Element) {
+        if (Sizzle(selector, row).length > 0) {
+          tags.push({ name, color })
+        }
+      } else {
+        if (get(row, selector)) {
+          tags.push({ name, color })
+        }
+      }
+    }
+
+    return tags
+  }
+
+  protected parseDownloadProcessFromRow (row: Element | Document | Object): {
+    progress?: number; /* 进度（100表示完成） */ status?: ETorrentStatus; /* 状态 */
+  } {
+    return {}
   }
 
   async getTorrentPageLink (torrent: Torrent): Promise<string> {
