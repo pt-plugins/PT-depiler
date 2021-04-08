@@ -7,6 +7,13 @@ export function getFixedRatio (uploaded: number = 0, downloaded: number = 0): st
   }
 }
 
+// From: https://stackoverflow.com/a/28899585/8824471
+export function extractContent (s:string): string {
+  const span = document.createElement('span')
+  span.innerHTML = s
+  return span.textContent || span.innerText
+}
+
 export function sleep (ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }

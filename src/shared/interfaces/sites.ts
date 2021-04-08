@@ -148,8 +148,8 @@ export interface SiteMetadata {
   search?: {
     /**
      * 搜索时进行请求，为了避免过于麻烦的配置项
-     * 设置了默认的 AxiosRequestConfig 为
-     * { responseType: 'document', url: '/' }
+     * 设置了默认的 AxiosRequestConfig 为 { responseType: 'document', url: '/' }
+     * 则意味则如果是 json 返回，应该自己覆写 responseType
      */
     requestConfig?: AxiosRequestConfig & { transferPostData?: 'raw' | 'form' | 'params' },
 
@@ -162,13 +162,13 @@ export interface SiteMetadata {
     type?: ResponseType, // 当不指定时，默认为 document
   }
 
-  selector: {
-    search: {
+  selector?: {
+    search?: {
       /**
        * 种子列表定位。 部分选项作用：
        *  - merge  用于合并部分使用多行表示一个种子的情况
        */
-      rows: { selector: string | ':self', merge?: number }
+      rows?: { selector: string | ':self', merge?: number }
     } & { [torrentKey in keyof Torrent]?: ElementQuery } // 种子相关选择器
 
     detail?: {

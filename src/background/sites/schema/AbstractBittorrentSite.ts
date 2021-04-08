@@ -233,7 +233,7 @@ export default class BittorrentSite {
                 })
               }
 
-              query = another.innerText || ''
+              query = another.innerText.replace(/\n/ig, ' ') || ''
             }
           }
         } else {
@@ -275,6 +275,10 @@ export default class BittorrentSite {
    * @param requestConfig
    */
   protected transformSearchPage (doc: Document | object, requestConfig: SearchRequestConfig): Torrent[] {
+    if (!this.config.selector?.search?.rows) {
+      throw Error('列表选择器未定义')
+    }
+
     const rowsSelector = this.config.selector.search.rows
     const torrents: Torrent[] = []
 
@@ -312,7 +316,7 @@ export default class BittorrentSite {
 
   protected parseRowToTorrent (row: Element | Document | Object, requestConfig: SearchRequestConfig): Partial<Torrent> {
     const torrent = {} as Partial<Torrent>
-    for (const [key, selector] of Object.entries(this.config.selector.search)) {
+    for (const [key, selector] of Object.entries(this.config.selector!.search!)) {
       if (key === 'rows') {
         continue // rows 不作为对应项
       }
@@ -359,7 +363,7 @@ export default class BittorrentSite {
   }
 
   async getTorrentDownloadLink (torrent: Torrent):Promise<string> {
-    if (!torrent.link && this.config.selector.detail?.link) {
+    if (!torrent.link && this.config.selector?.detail?.link) {
       const { data } = await this.request({
         url: torrent.url,
         responseType: this.config.detail?.type || 'document'
