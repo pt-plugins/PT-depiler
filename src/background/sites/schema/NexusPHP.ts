@@ -5,6 +5,7 @@ import urlparse from 'url-parse'
 import dayjs from '@/shared/utils/dayjs'
 import { extractContent } from '@/shared/utils/common'
 import { parseSizeString, parseTimeToLive } from '@/shared/utils/filter'
+import { ETorrentStatus } from '@/shared/interfaces/enum'
 
 const baseLinkQuery = {
   selector: 'a[href*="download.php?id="]:has(> img[alt="download"])',
@@ -12,6 +13,10 @@ const baseLinkQuery = {
 }
 
 export default class NexusPHP extends PrivateSite {
+  /**
+   * NexusPHP 模板默认配置，对于大多数NPHP站点都通用
+   * @protected
+   */
   protected readonly initConfig: Partial<SiteConfig> = {
     search: {
       keywordsParam: 'search',
@@ -37,6 +42,12 @@ export default class NexusPHP extends PrivateSite {
           filters: [
             (query: string) => urlparse(query, true).query.id
           ]
+        },
+        progress: {
+          text: 0
+        },
+        status: {
+          text: ETorrentStatus.unknown
         },
         tags: [
           { name: 'Free', selector: 'img.pro_free, .free_bg, font.free', color: 'blue' },

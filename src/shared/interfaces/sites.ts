@@ -60,7 +60,7 @@ export interface searchCategoryOptions {
 
 export interface searchCategories {
   name: string | 'Category' | '类别', // 搜索大类名称
-  key: string, // 搜索大类
+  key: string | '#changeDomain' | '#changePath', // 搜索大类
   options: searchCategoryOptions[],
   // 该搜索大类是否允许内部交叉 （ 不声明，则默认不允许（False） ）
   cross?: {

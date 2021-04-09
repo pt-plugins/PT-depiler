@@ -8,6 +8,9 @@ export const siteMetadata: SiteMetadata = {
   description: '综合性网站，有分享率要求',
   tags: ['影视', '动漫', '纪录片', '综艺'],
   collaborator: 'Rhilip',
+  legacyUrl: [
+    'https://www.ourbits.club/'
+  ],
   search: {
     categories: [
       {
@@ -123,18 +126,16 @@ export const siteMetadata: SiteMetadata = {
   selector: {
     search: {
       progress: {
-        text: 0,
         selector: 'div.progressBar > div',
         attr: 'style',
         filters: [
           (query: string) => {
             const progressMatch = query.match(/width:.?(\d.+)%/)
-            return progressMatch && progressMatch.length >= 2 ? parseFloat(progressMatch[1]) : null
+            return progressMatch && progressMatch.length >= 2 ? parseFloat(progressMatch[1]) : 0
           }
         ]
       },
       status: {
-        text: ETorrentStatus.unknown,
         selector: 'div.progressBar > div',
         attr: 'title',
         filters: [

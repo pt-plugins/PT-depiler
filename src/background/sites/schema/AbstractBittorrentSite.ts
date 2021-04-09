@@ -39,8 +39,10 @@ export default class BittorrentSite {
        */
       this._config = mergeWith(this.initConfig, this.siteMetaData, this.userConfig,
         // @ts-ignore
-        (objValue, srcValue) => {
-          if (Array.isArray(objValue)) {
+        (objValue, srcValue, key) => {
+          if (
+            !['filter'].includes(key) && // 不合并 filter
+            Array.isArray(objValue)) {
             return objValue.concat(srcValue)
           }
         }) as SiteConfig
@@ -84,7 +86,9 @@ export default class BittorrentSite {
         const { key, value } = filter.extraParams[i]
 
         if (key === '#changeDomain') { // 更换 baseURL
-          config.baseURL = (value as string)
+          config.baseURL = value as string
+        } else if (key === '#changePath') {
+          config.url = value as string
         } else { //  其他参数视为params
           /**
            * 如果传入的 value 是 Array，我们认为这是 cross 模式，并作相应处理
@@ -339,10 +343,10 @@ export default class BittorrentSite {
     let torrent = {} as Partial<Torrent>
     for (const [key, selector] of Object.entries(this.config.selector!.search!)) {
       // 应该跳过的部分
-      if (key in [
+      if ([
         'rows', // rows 已经在前面被处理过了
         'tags' // tags 转由 parseTagsFromRow 方法处理
-      ]) {
+      ].includes(key)) {
         continue
       }
 
