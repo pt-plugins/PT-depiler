@@ -6,3 +6,5 @@ export interface LogItem {
   msg?: string;
   data?: any;
 }
+
+export type timezoneOffset = `${'UTC' | ''}${'-' | '+'}${number}`

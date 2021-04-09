@@ -18,6 +18,7 @@ export default class NexusPHP extends PrivateSite {
    * @protected
    */
   protected readonly initConfig: Partial<SiteConfig> = {
+    timezoneOffset: '+0800',
     search: {
       keywordsParam: 'search',
       requestConfig: {
@@ -50,12 +51,14 @@ export default class NexusPHP extends PrivateSite {
           text: ETorrentStatus.unknown
         },
         tags: [
-          { name: 'Free', selector: 'img.pro_free, .free_bg, font.free', color: 'blue' },
-          { name: '2xFree', selector: 'img.pro_free2up, .twoupfree_bg, font.twoupfree', color: 'green' },
-          { name: '2xUp', selector: 'img.pro_2up, .twoup_bg, font.twoup', color: 'lime' },
-          { name: '2x50%', selector: 'img.pro_50pctdown2up, .twouphalfdown_bg, font.twouphalfdown', color: 'light-green' },
-          { name: '30%', selector: 'img.pro_30pctdown, .thirtypercentdown_bg, font.thirtypercent', color: 'indigo' },
-          { name: '50%', selector: 'img.pro_50pctdown, .halfdown_bg, font.halfdown', color: 'orange' }
+          // 这里的 selector仅放最基础的（NPHP默认），如果各站有更改请在对应站点修改，不要污染全局空间
+          // 因为 tags是会 concat 接起来的
+          { name: 'Free', selector: 'img.pro_free', color: 'blue' },
+          { name: '2xFree', selector: 'img.pro_free2up', color: 'green' },
+          { name: '2xUp', selector: 'img.pro_2up', color: 'lime' },
+          { name: '2x50%', selector: 'img.pro_50pctdown2up', color: 'light-green' },
+          { name: '30%', selector: 'img.pro_30pctdown', color: 'indigo' },
+          { name: '50%', selector: 'img.pro_50pctdown', color: 'orange' }
         ]
       },
       detail: {},
@@ -76,8 +79,6 @@ export default class NexusPHP extends PrivateSite {
           selector: "td[style*='background: red'] a[href*='messages.php']",
           filters: [
             (query: string) => {
-              // if (typeof query === 'undefined') {  }
-
               const queryMatch = query.match(/(\d+)/)
               return (queryMatch && queryMatch.length >= 2) ? parseInt(queryMatch[1]) : 0
             }
@@ -108,7 +109,7 @@ export default class NexusPHP extends PrivateSite {
           attr: 'title'
         },
         bonus: {
-          selector: ["td.rowhead:contains('魔力') + td", "td.rowhead:contains('Karma'):contains('Points') + td", "td.rowhead:contains('麦粒') + td", "td.rowfollow:contains('魔力值')"],
+          selector: ["td.rowhead:contains('魔力') + td", "td.rowhead:contains('Karma'):contains('Points') + td", "td.rowhead:contains('麦粒') + td", "td.rowfollow:contains('魔力值') + td"],
           filters: [
             (query: string) => {
               query = query.replace(/,/g, '')
@@ -219,8 +220,14 @@ export default class NexusPHP extends PrivateSite {
       return {}
     }
 
+    let title = (titleAnother.getAttribute('title') || titleAnother.textContent || '').trim()
+
+    if (this.config.selector?.search?.title?.filters) {
+      title = this.runQueryFilters(title, this.config.selector?.search?.title?.filters)
+    }
+
     return {
-      title: (titleAnother.getAttribute('title') || titleAnother.textContent || '').trim(),
+      title,
       subTitle: this.parseTorrentSubTitleFromTitleAnother(titleAnother, row)
     }
   }
@@ -231,6 +238,9 @@ export default class NexusPHP extends PrivateSite {
       const testSubTitle = titleAnother.parentElement!.innerHTML.split('<br>')
       if (testSubTitle && testSubTitle.length > 1) {
         subTitle = extractContent(testSubTitle[testSubTitle.length - 1]).trim()
+      }
+      if (this.config.selector?.search?.subTitle?.filters) {
+        subTitle = this.runQueryFilters(subTitle, this.config.selector?.search?.subTitle?.filters)
       }
     } catch (e) {}
     return subTitle
@@ -294,7 +304,9 @@ export default class NexusPHP extends PrivateSite {
     flushUserInfo = Object.assign(flushUserInfo, await this.getUserInfoFromDetailsPage(userId))
 
     // 导入用户做种信息
-    flushUserInfo = Object.assign(flushUserInfo, await this.getUserSeedingStatus(userId))
+    if (typeof flushUserInfo.seeding === 'undefined' || typeof flushUserInfo.seedingSize === 'undefined') {
+      flushUserInfo = Object.assign(flushUserInfo, await this.getUserSeedingStatus(userId))
+    }
 
     return flushUserInfo as UserInfo
   }
@@ -305,7 +317,10 @@ export default class NexusPHP extends PrivateSite {
     return parseInt(userId)
   }
 
-  protected async getUserInfoFromDetailsPage (userId: number): Promise<Partial<UserInfo>> {
+  protected async getUserInfoFromDetailsPage (
+    userId: number,
+    attrs: string[] = ['name', 'messageCount', 'uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime']
+  ): Promise<Partial<UserInfo>> {
     const { data: userDetailDocument } = await this.request({
       url: '/userdetails.php',
       params: { id: userId },
@@ -314,8 +329,7 @@ export default class NexusPHP extends PrivateSite {
     })
     const flushUserInfo: Partial<UserInfo> = {}
 
-    const userInfoAttr = ['name', 'messageCount', 'uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime']
-    for (const userInfoAttrValue of userInfoAttr) {
+    for (const userInfoAttrValue of attrs) {
       if (this.config.selector?.userInfo![userInfoAttrValue]) {
         flushUserInfo[userInfoAttrValue] = this.getFieldData(userDetailDocument, this.config.selector?.userInfo![userInfoAttrValue])
       }

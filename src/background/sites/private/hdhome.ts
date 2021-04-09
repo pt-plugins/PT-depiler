@@ -1,11 +1,41 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { ElementQuery, SiteMetadata } from '@/shared/interfaces/sites'
 import { ETorrentStatus } from '@/shared/interfaces/enum'
+
+// HDHOME 中的 selector.search.progress 以及 selector.search.status 被其他站公用
+export const selectorSearchProgress: ElementQuery = {
+  selector: ['> td:eq(8)'],
+  filters: [
+    (query: string) => query === '-' ? 0 : parseFloat(query)
+  ]
+}
+
+export const selectorSearchStatus: ElementQuery = {
+  selector: ['> td:eq(8)'],
+  filters: [
+    (query:string) => {
+      if (query === '-') {
+        return ETorrentStatus.unknown
+      } else {
+        const process = parseFloat(query)
+        switch (true) {
+          case /Noseed|未做种/.test(query):
+            return process >= 100 ? ETorrentStatus.completed : ETorrentStatus.inactive
+          case /Seeding|做种中/.test(query):
+            return ETorrentStatus.seeding
+          case /Leeching|下载中/.test(query):
+            return ETorrentStatus.downloading
+          default:
+            return ETorrentStatus.unknown
+        }
+      }
+    }
+  ]
+}
 
 export const siteMetadata: SiteMetadata = {
   name: 'HDHome',
-  baseModule: 'NexusPHP',
+  schema: 'NexusPHP',
   url: 'https://hdhome.org/',
-  description: '',
   tags: ['影视', '综合'],
   collaborator: 'tongyifan',
   search: {
@@ -15,7 +45,7 @@ export const siteMetadata: SiteMetadata = {
         key: '#changePath',
         options: [
           { name: '种子区', value: '/torrents.php' },
-          { name: 'LIVE区', value: 'live.php' }
+          { name: 'LIVE区', value: '/live.php' }
         ]
       },
       {
@@ -113,35 +143,10 @@ export const siteMetadata: SiteMetadata = {
   },
   selector: {
     search: {
-      progress: {
-        selector: ['> td:eq(8)'],
-        filters: [
-          (query: string) => query === '-' ? 0 : parseFloat(query)
-        ]
-      },
-      status: {
-        selector: ['> td:eq(8)'],
-        filters: [
-          (query:string) => {
-            if (query === '-') {
-              return ETorrentStatus.unknown
-            } else {
-              const process = parseFloat(query)
-              switch (true) {
-                case /Noseed/.test(query):
-                  return process >= 100 ? ETorrentStatus.completed : ETorrentStatus.inactive
-                case /Seeding/.test(query):
-                  return ETorrentStatus.sending
-                case /Leeching/.test(query):
-                  return ETorrentStatus.downloading
-                default:
-                  return ETorrentStatus.unknown
-              }
-            }
-          }
-        ]
-      },
+      progress: selectorSearchProgress,
+      status: selectorSearchStatus,
       tags: [
+        { selector: 'img.hitandrun', name: 'H&R', color: '#000' },
         { selector: 'span.tgf', name: '官方', color: '#06c' },
         { selector: 'span.tyc', name: '原创', color: '#085' },
         { selector: 'span.tgz', name: '官字', color: '#530' },

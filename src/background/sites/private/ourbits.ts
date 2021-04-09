@@ -3,7 +3,7 @@ import { ETorrentStatus } from '@/shared/interfaces/enum'
 
 export const siteMetadata: SiteMetadata = {
   name: 'OurBits',
-  baseModule: 'NexusPHP',
+  schema: 'NexusPHP',
   url: 'https://ourbits.club/',
   description: '综合性网站，有分享率要求',
   tags: ['影视', '动漫', '纪录片', '综艺'],
@@ -146,7 +146,7 @@ export const siteMetadata: SiteMetadata = {
               const status = progressStatusMatch[2]
 
               if (status === '进行中') {
-                return progress < 100 ? ETorrentStatus.downloading : ETorrentStatus.sending
+                return progress < 100 ? ETorrentStatus.downloading : ETorrentStatus.seeding
               } else { // if (status === '未开始')
                 return progress < 100 ? ETorrentStatus.inactive : ETorrentStatus.completed
               }

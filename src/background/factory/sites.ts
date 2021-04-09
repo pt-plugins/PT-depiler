@@ -53,8 +53,7 @@ class Sites extends Container {
   // FIXME userConfig should be typed
   async getSite (siteName: string, userConfig: any = {}): Promise<PrivateSite | BittorrentSite> {
     return await this.resolveObject<PrivateSite | BittorrentSite>(`site-${siteName}`, async () => {
-      // FIXME 部分已定义的站点，不存在能成功 dynamicImport 的情况，对此应该直接从 baseModule中导入
-      console.log(siteName, siteName in this._supportList)
+      // FIXME 部分已定义的站点，不存在能成功 dynamicImport 的情况，对此应该直接从 baseModule 中导入
       const module = await this.dynamicImport(siteName)
       let { siteMetadata: siteMetaData /* use as const */, default: SiteClass } = module
 
@@ -63,9 +62,9 @@ class Sites extends Container {
        * 并覆写基类的的 siteMetaData 信息
        */
       if (!SiteClass) {
-        const baseModuleName = 'schema/' + (siteMetaData.baseModule || 'AbstractBittorrentSite')
-        const baseModule = await this.dynamicImport(baseModuleName)
-        SiteClass = baseModule.default
+        const schemaModuleName = 'schema/' + (siteMetaData.schema || 'AbstractBittorrentSite')
+        const schemaModule = await this.dynamicImport(schemaModuleName)
+        SiteClass = schemaModule.default
       }
 
       // @ts-ignore

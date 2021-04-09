@@ -3,9 +3,8 @@ import { ETorrentStatus } from '@/shared/interfaces/enum'
 
 export const siteMetadata: SiteMetadata = {
   name: 'CHDBits',
-  baseModule: 'NexusPHP',
+  schema: 'NexusPHP',
   url: 'https://chdbits.co/',
-  description: '', // TODO 简介缺失待补
   tags: ['影视', '综合'],
   search: {
     categories: [

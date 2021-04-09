@@ -1,5 +1,6 @@
 import { ETorrentStatus } from '@/shared/interfaces/enum'
 import { AxiosRequestConfig, ResponseType } from 'axios'
+import { timezoneOffset } from '@/shared/interfaces/common'
 
 export interface SearchResultItemTag {
   color?: string;
@@ -24,6 +25,9 @@ export interface ElementQuery {
   // 在获取html innerHtml 前移除内部不需要的元素， 在JSON， attr,data 模式下不适用
   remove?: string | string[],
 
+  /**
+   * 注意， filters 不做合并！！！
+   */
   filters?: (Function | string)[]
 }
 
@@ -36,7 +40,7 @@ export interface Torrent {
   url: string; // detail 页面
   link: string; // 种子链接
 
-  time?: number; // 发布时间戳（秒级）
+  time?: number; // 发布时间戳（毫秒级）
   size?: number; // 大小
   author?: number; // 发布人
   category?: string;
@@ -118,7 +122,7 @@ export interface UserInfo {
   [key: string]: any; // 其他信息
 }
 
-export type SiteBaseModule = 'AbstractBittorrentSite' | 'AbstractPrivateSite' | 'NexusPHP'
+export type SiteSchema = 'AbstractBittorrentSite' | 'AbstractPrivateSite' | 'NexusPHP'
 export type SiteFeature = 'queryUserInfo'
 
 /**
@@ -127,13 +131,14 @@ export type SiteFeature = 'queryUserInfo'
  */
 export interface SiteMetadata {
   name: string; // 站点名
-  baseModule?: SiteBaseModule; // 指定继承模板类型
+  schema?: SiteSchema; // 指定继承模板类型
   url: string; // 完整的网站地址，如果网站支持 `https` ，请优先考虑填写 `https` 的地址
 
-  description: string; // 站点说明
+  description?: string; // 站点说明
   collaborator?: string | string[]; // 协作者，建议使用 string[] 进行定义
   tags?: string[];
   favicon?: string; // 站点 favicon.ico 的url，例如 https://ourbits.club/favicon.ico
+  timezoneOffset?: timezoneOffset;
 
   /**
    * 和url相同作用和写法，唯一不同是将会覆写url的行为（因为url不允许用户编辑）
@@ -189,7 +194,7 @@ export interface SiteMetadata {
 }
 
 export interface SiteConfig extends SiteMetadata {
-  baseModule: SiteBaseModule;
+  schema: SiteSchema;
 
   activateUrl?: string; // 用户在搜索时使用的地址
   entryPoint?: string; // 用户在options首页点击时，打开的站点地址

@@ -26,7 +26,7 @@ export enum EUserDataRange {
 export enum ETorrentStatus {
   unknown, // 状态不明
   downloading, // 正在下载
-  sending, // 正在做种
+  seeding, // 正在做种
   completed, // 已完成，未做种
   inactive // 未活动（曾经下载过，但未完成）
 }

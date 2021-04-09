@@ -9,8 +9,8 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import Sizzle from 'sizzle'
 import urljoin from 'url-join'
 import urlparse from 'url-parse'
-import { merge, get, chunk, mergeWith } from 'lodash-es'
-import { cfDecodeEmail, parseSizeString } from '@/shared/utils/filter'
+import { merge, get, chunk, mergeWith, filter } from 'lodash-es'
+import { cfDecodeEmail, parseSizeString, parseTimeWithZone } from '@/shared/utils/filter'
 import { ETorrentStatus } from '@/shared/interfaces/enum'
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
@@ -43,7 +43,8 @@ export default class BittorrentSite {
           if (
             !['filter'].includes(key) && // 不合并 filter
             Array.isArray(objValue)) {
-            return objValue.concat(srcValue)
+            // @ts-ignore
+            return [].concat(srcValue, objValue) // 保证后并入的配置优先
           }
         }) as SiteConfig
 
@@ -276,13 +277,19 @@ export default class BittorrentSite {
     }
 
     if (filters) {
-      filters.forEach(fn => {
-        // eslint-disable-next-line no-new-func
-        fn = typeof fn === 'string' ? (new Function('query', `return ${fn}`)) : fn
-        query = fn(query)
-      })
+      query = this.runQueryFilters(query, filters)
     }
 
+    return query
+  }
+
+  protected runQueryFilters <T> (query: T, filters: (Function | string)[]): T {
+    for (let i = 0; i < filters.length; i++) {
+      let fn = filters[i]
+      // eslint-disable-next-line no-new-func
+      fn = typeof fn === 'string' ? (new Function('query', `return ${fn}`)) : fn
+      query = fn(query)
+    }
     return query
   }
 
@@ -360,6 +367,11 @@ export default class BittorrentSite {
       // 将获取到的 size 从 string 转化为 bytes
       if (key === 'size' && typeof value === 'string') {
         value = parseSizeString(value)
+      }
+
+      if (key === 'time') {
+        // 不指定时区的话默认按0时区处理
+        value = parseTimeWithZone(value, this.config.timezoneOffset || '+0000')
       }
 
       // 其他一些能够为数字的统一转化为数字

@@ -1,5 +1,6 @@
 import dayjs from '@/shared/utils/dayjs'
 import { OpUnitType } from 'dayjs'
+import { timezoneOffset } from '@/shared/interfaces/common'
 
 export const sizePattern = /^(\d*\.?\d+)(.*[^ZEPTGMK])?([ZEPTGMK](B|iB))s?$/i
 
@@ -53,6 +54,20 @@ export function parseTimeToLive (ttl: string): number {
   })
 
   return nowDayJs.unix()
+}
+
+export function parseTimeWithZone (time: number, timezoneOffset: timezoneOffset) {
+  if (!timezoneOffset || !time) {
+    return time
+  }
+  let result = time
+  // 标准时间戳需要 * 1000
+  if (/^(\d){10}$/.test(result + '')) {
+    result = parseInt(result + '') * 1000
+  }
+  // 时间格式按 ISO 8601 标准设置，如：2020-01-01T00:00:01+0800
+  const datetime = dayjs(result).format('YYYY-MM-DDTHH:mm:ss')
+  return new Date(`${datetime}${timezoneOffset}`).getTime()
 }
 
 /**

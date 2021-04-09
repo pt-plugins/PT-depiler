@@ -3,7 +3,7 @@ import { ETorrentStatus } from '@/shared/interfaces/enum'
 
 export const siteMetadata: SiteMetadata = {
   name: '北洋园',
-  baseModule: 'NexusPHP',
+  schema: 'NexusPHP',
   url: 'https://tjupt.org/',
   description: '北洋园PT',
   tags: ['教育网', '影视', '综合'],
@@ -58,7 +58,7 @@ export const siteMetadata: SiteMetadata = {
                 case 1: // "正在下载，进度至"
                   return ETorrentStatus.downloading
                 case 2: // "已下载，正在做种";
-                  return ETorrentStatus.sending
+                  return ETorrentStatus.seeding
                 case 3: // "下载过，已完成" or "下载过，未完成，进度至"
                   return ETorrentStatus.inactive
               }

@@ -3,7 +3,7 @@ import { ETorrentStatus } from '@/shared/interfaces/enum'
 
 export const siteMetadata: SiteMetadata = {
   name: 'HDTime',
-  baseModule: 'NexusPHP',
+  schema: 'NexusPHP',
   url: 'https://hdtime.org/',
   description: 'HDTime, time to forever!',
   tags: ['影视', '综合'],

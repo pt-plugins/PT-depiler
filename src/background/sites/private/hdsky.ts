@@ -4,7 +4,7 @@ import { ETorrentStatus } from '@/shared/interfaces/enum'
 
 export const siteMetadata: SiteMetadata = {
   name: 'HDSky',
-  baseModule: 'NexusPHP',
+  schema: 'NexusPHP',
   url: 'https://hdsky.me/',
   description: '高清发烧友后花园PT',
   tags: ['影视', '纪录片', '综合'],
@@ -67,7 +67,7 @@ export const siteMetadata: SiteMetadata = {
           (query: string) => {
             switch (true) {
               case /progressseeding/.test(query):
-                return ETorrentStatus.sending
+                return ETorrentStatus.seeding
               case /progressdownloading/.test(query):
                 return ETorrentStatus.downloading
               case /progressfinished/.test(query):
