@@ -1,18 +1,19 @@
 import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
-import { SearchRequestConfig, SiteConfig, SiteMetadata, Torrent, UserInfo } from '@/shared/interfaces/sites'
+import { SearchRequestConfig, SiteConfig, Torrent, UserInfo } from '@/shared/interfaces/sites'
 import Sizzle from 'sizzle'
 import urlparse from 'url-parse'
 import dayjs from '@/shared/utils/dayjs'
 import { extractContent } from '@/shared/utils/common'
-import { parseTimeToLive } from '@/shared/utils/filter'
-import { merge } from 'lodash-es'
+import { parseSizeString, parseTimeToLive } from '@/shared/utils/filter'
+
+const baseLinkQuery = {
+  selector: 'a[href*="download.php?id="]:has(> img[alt="download"])',
+  attr: 'href'
+}
 
 export default class NexusPHP extends PrivateSite {
-  constructor (config: Partial<SiteConfig> = {}, siteMetaData: SiteMetadata) {
-    super(config, siteMetaData)
-
-    // 补充定义 search 信息
-    this.config.search = merge({
+  protected readonly initConfig: Partial<SiteConfig> = {
+    search: {
       keywordsParam: 'search',
       requestConfig: {
         url: '/torrents.php'
@@ -20,15 +21,8 @@ export default class NexusPHP extends PrivateSite {
       defaultParams: [
         { key: 'notnewword', value: 1 }
       ]
-    }, this.config.search || {})
-
-    // 补充定义一些比较常见的 selector
-    const baseLinkQuery = {
-      selector: 'a[href*="download.php?id="]:has(> img[alt="download"])',
-      attr: 'href'
-    }
-
-    this.config.selector = merge({
+    },
+    selector: {
       search: {
         // row 等信息由 transformSearchPage 根据搜索结果自动生成
         link: baseLinkQuery, // 种子下载链接
@@ -44,22 +38,93 @@ export default class NexusPHP extends PrivateSite {
             (query: string) => urlparse(query, true).query.id
           ]
         },
-        tags: [] as { selector: string, name: string, color?: string }[]
+        tags: [
+          { name: 'Free', selector: 'img.pro_free, .free_bg, font.free', color: 'blue' },
+          { name: '2xFree', selector: 'img.pro_free2up, .twoupfree_bg, font.twoupfree', color: 'green' },
+          { name: '2xUp', selector: 'img.pro_2up, .twoup_bg, font.twoup', color: 'lime' },
+          { name: '2x50%', selector: 'img.pro_50pctdown2up, .twouphalfdown_bg, font.twouphalfdown', color: 'light-green' },
+          { name: '30%', selector: 'img.pro_30pctdown, .thirtypercentdown_bg, font.thirtypercent', color: 'indigo' },
+          { name: '50%', selector: 'img.pro_50pctdown, .halfdown_bg, font.halfdown', color: 'orange' }
+        ]
       },
       detail: {},
-      userInfo: {}
-    }, this.config.selector || {})
+      userInfo: {
+        // "page": "/index.php",
+        id: {
+          selector: ["a[href*='userdetails.php'][class*='Name']:first", "a[href*='userdetails.php']:first"],
+          attr: 'href',
+          filters: [
+            (query:string) => { console.log(query); return urlparse(query, true).query.id }
+          ]
+        },
+        name: {
+          selector: ["a[href*='userdetails.php'][class*='Name']:first", "a[href*='userdetails.php']:first"]
+        },
+        messageCount: {
+          text: 0,
+          selector: "td[style*='background: red'] a[href*='messages.php']",
+          filters: [
+            (query: string) => {
+              // if (typeof query === 'undefined') {  }
 
-    // 传入NPHP默认的优惠类型Tags
-    this.config.selector!.search!.tags = [
-      { name: 'Free', selector: 'img.pro_free, .free_bg, font.free', color: 'blue' },
-      { name: '2xFree', selector: 'img.pro_free2up, .twoupfree_bg, font.twoupfree', color: 'green' },
-      { name: '2xUp', selector: 'img.pro_2up, .twoup_bg, font.twoup', color: 'lime' },
-      { name: '2x50%', selector: 'img.pro_50pctdown2up, .twouphalfdown_bg, font.twouphalfdown', color: 'light-green' },
-      { name: '30%', selector: 'img.pro_30pctdown, .thirtypercentdown_bg, font.thirtypercent', color: 'indigo' },
-      { name: '50%', selector: 'img.pro_50pctdown, .halfdown_bg, font.halfdown', color: 'orange' }
-    ]// @ts-ignore
-      .concat(this.config.selector!.search!.tags!)
+              const queryMatch = query.match(/(\d+)/)
+              return (queryMatch && queryMatch.length >= 2) ? parseInt(queryMatch[1]) : 0
+            }
+          ]
+        },
+
+        // "page": "/userdetails.php?id=$user.id$",
+        uploaded: {
+          selector: ["td.rowhead:contains('传输') + td", "td.rowhead:contains('傳送') + td", "td.rowhead:contains('Transfers') + td", "td.rowfollow:contains('分享率')"],
+          filters: [
+            (query: string) => {
+              const queryMatch = query.replace(/,/g, '').match(/(上[传傳]量|Uploaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/)
+              return (queryMatch && queryMatch.length === 3) ? parseSizeString(queryMatch[2]) : 0
+            }
+          ]
+        },
+        downloaded: {
+          selector: ["td.rowhead:contains('传输') + td", "td.rowhead:contains('傳送') + td", "td.rowhead:contains('Transfers') + td", "td.rowfollow:contains('分享率')"],
+          filters: [
+            (query: string) => {
+              const queryMatch = query.replace(/,/g, '').match(/(下[载載]量|Downloaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/)
+              return (queryMatch && queryMatch.length === 3) ? parseSizeString(queryMatch[2]) : 0
+            }
+          ]
+        },
+        levelName: {
+          selector: ["td.rowhead:contains('等级') + td > img", "td.rowhead:contains('等級')  + td > img", "td.rowhead:contains('Class')  + td > img"],
+          attr: 'title'
+        },
+        bonus: {
+          selector: ["td.rowhead:contains('魔力') + td", "td.rowhead:contains('Karma'):contains('Points') + td", "td.rowhead:contains('麦粒') + td", "td.rowfollow:contains('魔力值')"],
+          filters: [
+            (query: string) => {
+              query = query.replace(/,/g, '')
+              if (query.match(/魔力值:/)) {
+                query = query.match(/魔力值.+?([\d.]+)/)![1]
+              }
+              return parseFloat(query)
+            }
+          ]
+        },
+        joinTime: {
+          selector: ["td.rowhead:contains('加入日期') + td", "td.rowhead:contains('Join'):contains('date') + td"],
+          filters: [
+            (query: string) => {
+              query = query.split(' (')[0]
+              return dayjs(query).isValid() ? dayjs(query).unix() : query
+            }
+          ]
+        },
+
+        // /getusertorrentlistajax.php?userid=$user.id$&type=seeding
+        // 注意此处为NPHP站点默认方法，部分站点可能有改写处理，请覆写对应方法
+        seeding: {
+          selector: ['tr:not(:eq(0))']
+        }
+      }
+    }
   }
 
   protected transformSearchPage (doc: Document, requestConfig: SearchRequestConfig): Torrent[] {
@@ -200,8 +265,76 @@ export default class NexusPHP extends PrivateSite {
   }
 
   async flushUserInfo (): Promise<UserInfo> {
-    // TODO
+    const lastUserInfo = await this.getLastUserInfo()
+    let flushUserInfo: Partial<UserInfo> = {}
 
-    return super.flushUserInfo()
+    let userId: number
+    if (lastUserInfo !== null && lastUserInfo.id) {
+      // 我们认为NPHP站的 id 的情况永远不变（实质上对于所有站点都应该是这样的）
+      // ！！！ 部分 NPHP 站点允许修改 name，所以 name 不能视为不变 ！！！
+      userId = lastUserInfo.id as number
+    } else {
+      // 如果没有 id 信息，则访问一次 index.php
+      userId = await this.getUserIdFromIndexPage()
+    }
+    flushUserInfo.id = userId
+
+    // 导入基本 Details 页面获取到的用户信息
+    flushUserInfo = Object.assign(flushUserInfo, await this.getUserInfoFromDetailsPage(userId))
+
+    // 导入用户做种信息
+    flushUserInfo = Object.assign(flushUserInfo, await this.getUserSeedingStatus(userId))
+
+    return flushUserInfo as UserInfo
+  }
+
+  protected async getUserIdFromIndexPage (): Promise<number> {
+    const { data: indexDocument } = await this.request<Document>({ url: '/index.php', responseType: 'document' })
+    const userId = this.getFieldData(indexDocument, this.config.selector?.userInfo?.id!)
+    return parseInt(userId)
+  }
+
+  protected async getUserInfoFromDetailsPage (userId: number): Promise<Partial<UserInfo>> {
+    const { data: userDetailDocument } = await this.request({
+      url: '/userdetails.php',
+      params: { id: userId },
+      responseType: 'document',
+      checkLogin: true
+    })
+    const flushUserInfo: Partial<UserInfo> = {}
+
+    const userInfoAttr = ['name', 'messageCount', 'uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime']
+    for (const userInfoAttrValue of userInfoAttr) {
+      if (this.config.selector?.userInfo![userInfoAttrValue]) {
+        flushUserInfo[userInfoAttrValue] = this.getFieldData(userDetailDocument, this.config.selector?.userInfo![userInfoAttrValue])
+      }
+    }
+
+    return flushUserInfo
+  }
+
+  protected async getUserSeedingStatus (userId: number): Promise<{ seeding: number, seedingSize: number }> {
+    const seedStatus = {
+      seeding: 0,
+      seedingSize: 0
+    }
+
+    const { data: userSeedingDocument } = await this.request<Document | null>({
+      url: '/getusertorrentlistajax.php',
+      params: { userid: userId, type: 'seeding' },
+      responseType: 'document' // 如果没有种子的时候，设置 document 会导致axios返回的data中没有数据
+    })
+    if (userSeedingDocument) {
+      const trAnothers = Sizzle('tr:not(:eq(0))', userSeedingDocument) // FIXME selector
+      if (trAnothers.length > 0) {
+        seedStatus.seeding = trAnothers.length
+        trAnothers.forEach(trAnother => {
+          const sizeSelector = Sizzle('td.rowfollow:eq(2)', trAnother)[0] as HTMLElement // FIXME selector
+          seedStatus.seedingSize += parseSizeString(sizeSelector.innerText)
+        })
+      }
+    }
+
+    return seedStatus
   }
 }

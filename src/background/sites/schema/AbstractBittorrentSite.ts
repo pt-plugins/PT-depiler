@@ -9,32 +9,57 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import Sizzle from 'sizzle'
 import urljoin from 'url-join'
 import urlparse from 'url-parse'
-import { merge, get, chunk } from 'lodash-es'
+import { merge, get, chunk, mergeWith } from 'lodash-es'
 import { cfDecodeEmail, parseSizeString } from '@/shared/utils/filter'
 import { ETorrentStatus } from '@/shared/interfaces/enum'
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export default class BittorrentSite {
-  protected config: SiteConfig;
+  /**
+   * 作为这个class类的基本属性，一般用在模板定义中
+   * @protected
+   */
+  protected readonly initConfig: Partial<SiteConfig> = {};
 
   // 在 constructor 时生成的一些属性
-  protected categoryMap ?: searchCategoryOptions[];
+  private readonly userConfig: Partial<SiteConfig>;
+  private readonly siteMetaData: Partial<SiteConfig>;
+  private _config?: SiteConfig;
 
   constructor (config: Partial<SiteConfig> = {}, siteMetaData: SiteMetadata) {
-    /**
-     * 使用 lodash 的 merge 来合并站点默认配置和用户配置
-     * 以免 { ...data } 解包形式覆盖深层配置
-     */
-    this.config = merge(siteMetaData, config) as SiteConfig
+    this.userConfig = config
+    this.siteMetaData = siteMetaData
+  }
 
-    // 防止host信息缺失
-    if (!this.config.host) {
-      this.config.host = urlparse(this.config.url).host
+  get config (): SiteConfig {
+    if (!this._config) {
+      /**
+       * 使用 lodash 的 mergeWith 来合并站点默认配置和用户配置
+       * 以免 { ...data } 解包形式覆盖深层配置
+       */
+      this._config = mergeWith(this.initConfig, this.siteMetaData, this.userConfig,
+        // @ts-ignore
+        (objValue, srcValue) => {
+          if (Array.isArray(objValue)) {
+            return objValue.concat(srcValue)
+          }
+        }) as SiteConfig
+
+      // 防止host信息缺失
+      if (!this._config.host) {
+        this._config.host = urlparse(this._config.url).host
+      }
     }
 
-    if (this.getCategory(['Category', '类别'])) {
-      this.categoryMap = this.getCategory(['Category', '类别'])?.options
-    }
+    return this._config
+  }
+
+  get activateUrl (): string {
+    return this.config.activateUrl || this.config.url
+  }
+
+  get categoryMap (): searchCategoryOptions[] {
+    return this.getCategory(['Category', '类别'])?.options!
   }
 
   protected getCategory (catName: string | string[]): searchCategories | undefined {
@@ -110,13 +135,6 @@ export default class BittorrentSite {
     return config
   }
 
-  get activateUrl (): string {
-    if (this.config.activateUrl) {
-      return this.config.activateUrl
-    }
-    return this.config.url
-  }
-
   // noinspection JSUnusedGlobalSymbols
   /**
    * 种子搜索方法
@@ -140,11 +158,11 @@ export default class BittorrentSite {
     )
 
     // 请求页面并转化为document
-    const req = await this.request(axiosConfig)
+    const req = await this.request({ ...axiosConfig, checkLogin: true })
     return this.transformSearchPage(req.data, { filter, axiosConfig })
   }
 
-  async request<T> (axiosConfig: AxiosRequestConfig): Promise<AxiosResponse> {
+  async request<T> (axiosConfig: AxiosRequestConfig & { checkLogin?: boolean }): Promise<AxiosResponse> {
     // 统一设置一些 AxiosRequestConfig， 当作默认值
     axiosConfig.baseURL = axiosConfig.baseURL || this.activateUrl
     axiosConfig.url = axiosConfig.url || '/'
@@ -156,10 +174,11 @@ export default class BittorrentSite {
 
       // 全局性的替换 span.__cf_email__
       if (axiosConfig.responseType === 'document') {
-        const doc: Document = req.data
+        const doc = req.data
 
         // 进行简单的检查，防止无意义的替换
-        if (doc.documentElement.outerHTML.search('__cf_email__')) {
+        if (doc instanceof Document &&
+          doc.documentElement.outerHTML.search('__cf_email__')) {
           const cfProtectSpan = Sizzle('.__cf_email__', doc)
 
           cfProtectSpan.forEach(element => {
@@ -176,7 +195,7 @@ export default class BittorrentSite {
       }
     }
 
-    if (!this.loggedCheck(req)) {
+    if (axiosConfig.checkLogin && !this.loggedCheck(req)) {
       throw Error('未登录') // FIXME i18n
     }
 
@@ -216,7 +235,7 @@ export default class BittorrentSite {
       const selectors = ([] as string[]).concat(selector)
       for (let i = 0; i < selectors.length; i++) {
         const selector = selectors[i]
-        if (element instanceof Element) {
+        if (element instanceof Node) {
           // 这里我们预定义一个特殊的 Css Selector，即不进行子元素选择
           const another = (selector === ':self' ? element : Sizzle(selector, element)[0]) as HTMLElement
           if (another) {

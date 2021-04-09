@@ -180,7 +180,7 @@ export interface SiteMetadata {
 
     userInfo?: {
       [key: string]: ElementQuery
-    }
+    } & { [userinfoKey in keyof UserInfo]?: ElementQuery } // 种子相关选择器
   }
 
   feature?: { // 站点支持方法
