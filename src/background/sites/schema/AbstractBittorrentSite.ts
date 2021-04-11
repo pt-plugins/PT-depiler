@@ -9,7 +9,7 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import Sizzle from 'sizzle'
 import urljoin from 'url-join'
 import urlparse from 'url-parse'
-import { merge, get, chunk, mergeWith, filter } from 'lodash-es'
+import { merge, get, chunk, mergeWith } from 'lodash-es'
 import { cfDecodeEmail, parseSizeString, parseTimeWithZone } from '@/shared/utils/filter'
 import { ETorrentStatus } from '@/shared/interfaces/enum'
 
@@ -24,7 +24,11 @@ export default class BittorrentSite {
   // 在 constructor 时生成的一些属性
   private readonly userConfig: Partial<SiteConfig>;
   private readonly siteMetaData: Partial<SiteConfig>;
-  private _config?: SiteConfig;
+  private _config?: SiteConfig; // 实际过程中使用的配置文件
+
+  protected _runtime: any = {
+    cacheRequest: new Map()
+  };
 
   constructor (config: Partial<SiteConfig> = {}, siteMetaData: SiteMetadata) {
     this.userConfig = config
@@ -41,7 +45,7 @@ export default class BittorrentSite {
         // @ts-ignore
         (objValue, srcValue, key) => {
           if (
-            !['filter'].includes(key) && // 不合并 filter
+            !['filters', 'elementFilters'].includes(key) && // 不合并 filters
             Array.isArray(objValue)) {
             // @ts-ignore
             return [].concat(srcValue, objValue) // 保证后并入的配置优先
@@ -167,7 +171,7 @@ export default class BittorrentSite {
     return this.transformSearchPage(req.data, { filter, axiosConfig })
   }
 
-  async request<T> (axiosConfig: AxiosRequestConfig & { checkLogin?: boolean }): Promise<AxiosResponse> {
+  async request<T> (axiosConfig: AxiosRequestConfig & { requestName?: string, checkLogin?: boolean }): Promise<AxiosResponse> {
     // 统一设置一些 AxiosRequestConfig， 当作默认值
     axiosConfig.baseURL = axiosConfig.baseURL || this.activateUrl
     axiosConfig.url = axiosConfig.url || '/'
@@ -204,6 +208,9 @@ export default class BittorrentSite {
       throw Error('未登录') // FIXME i18n
     }
 
+    // 将结果缓存到 _runtime.cacheRequest 已实现跨方法调用
+    const requestCacheName = axiosConfig.requestName || axiosConfig.url
+    this._runtime.cacheRequest.set(requestCacheName, req)
     return req
   }
 
@@ -233,7 +240,7 @@ export default class BittorrentSite {
   }
 
   protected getFieldData (element: Element | Object, elementQuery: ElementQuery): any {
-    const { selector, attr, data, filters } = elementQuery
+    const { selector, attr, data, filters, elementFilters } = elementQuery
     let query: string = String(elementQuery.text || '')
 
     if (selector) {
@@ -244,13 +251,16 @@ export default class BittorrentSite {
           // 这里我们预定义一个特殊的 Css Selector，即不进行子元素选择
           const another = (selector === ':self' ? element : Sizzle(selector, element)[0]) as HTMLElement
           if (another) {
-            if (data) {
+            if (elementFilters) {
+              query = this.runQueryFilters<string>(another, elementFilters)
+            } else if (data) {
               query = another.dataset[data] || ''
             } else if (attr) {
               query = another.getAttribute(attr) || ''
             } else {
-              // 如果定义了移除 remove ，则从该html元素中先移除子元素，后取值
-              if (elementQuery.remove) {
+              /**
+               // 如果定义了移除 remove ，则从该html元素中先移除子元素，后取值
+               if (elementQuery.remove) {
                 const anotherRemove = ([] as string[]).concat(elementQuery.remove)
                 anotherRemove.forEach(removeSelector => {
                   Sizzle(removeSelector, another).forEach(removeNode => {
@@ -258,7 +268,7 @@ export default class BittorrentSite {
                   })
                 })
               }
-
+               */
               query = another.innerText.replace(/\n/ig, ' ') || ''
             }
           }
@@ -283,7 +293,7 @@ export default class BittorrentSite {
     return query
   }
 
-  protected runQueryFilters <T> (query: T, filters: (Function | string)[]): T {
+  protected runQueryFilters <T> (query: any, filters: (Function | string)[]): T {
     for (let i = 0; i < filters.length; i++) {
       let fn = filters[i]
       // eslint-disable-next-line no-new-func

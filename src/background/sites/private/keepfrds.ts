@@ -1,6 +1,6 @@
 import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites'
 import NexusPHP from '@/background/sites/schema/NexusPHP'
-import { parseSizeString } from '@/shared/utils/filter'
+import { parseSizeString, sizePattern } from '@/shared/utils/filter'
 
 export const siteMetadata: SiteMetadata = {
   name: 'PT@KEEPFRDS',
@@ -45,7 +45,7 @@ export const siteMetadata: SiteMetadata = {
       },
       tags: [
         // 禁转, 限时禁转
-        { selector: "td.embedded b > font.recommended:contains('禁转')", name: '禁转', color: '#820084' }
+        { selector: "td.embedded b > font.recommended:contains('禁转')", name: '⛔' }
       ]
     },
     userInfo: {
@@ -73,18 +73,11 @@ export const siteMetadata: SiteMetadata = {
         selector: ["td.rowhead:contains('当前做种') + td, td.rowhead:contains('Current Seeding') + td, td.rowhead:contains('目前做種') + td"],
         filters: [
           (query: string) => {
-            const queryMatch = query.trim().replace(/,/g, '').match(/([\\d.]+ ?[ZEPTGMK]?i?B)/)
+            const queryMatch = query.trim().replace(/,/g, '').match(sizePattern)
             return (queryMatch && queryMatch.length >= 2) ? parseSizeString(queryMatch[1]) : 0
           }
         ]
       }
     }
-  }
-}
-
-export default class keepfrds extends NexusPHP {
-  protected async getUserInfoFromDetailsPage (userId: number, attrs: string[] = ['name', 'messageCount', 'uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime']): Promise<Partial<UserInfo>> {
-    attrs = attrs.concat(['seeding', 'seedingSize']) // 阻止 getUserSeedingStatus 方法的进行
-    return super.getUserInfoFromDetailsPage(userId, attrs)
   }
 }

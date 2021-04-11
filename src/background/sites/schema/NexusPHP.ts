@@ -3,9 +3,10 @@ import { SearchRequestConfig, SiteConfig, Torrent, UserInfo } from '@/shared/int
 import Sizzle from 'sizzle'
 import urlparse from 'url-parse'
 import dayjs from '@/shared/utils/dayjs'
-import { extractContent } from '@/shared/utils/common'
-import { parseSizeString, parseTimeToLive } from '@/shared/utils/filter'
+import { createDocument, extractContent } from '@/shared/utils/common'
+import { parseSizeString, parseTimeToLive, sizePattern } from '@/shared/utils/filter'
 import { ETorrentStatus } from '@/shared/interfaces/enum'
+import { mergeWith } from 'lodash-es'
 
 const baseLinkQuery = {
   selector: 'a[href*="download.php?id="]:has(> img[alt="download"])',
@@ -78,8 +79,8 @@ export default class NexusPHP extends PrivateSite {
           text: 0,
           selector: "td[style*='background: red'] a[href*='messages.php']",
           filters: [
-            (query: string) => {
-              const queryMatch = query.match(/(\d+)/)
+            (query: string | number) => {
+              const queryMatch = String(query || '').match(/(\d+)/) // query 有时会直接传入 0
               return (queryMatch && queryMatch.length >= 2) ? parseInt(queryMatch[1]) : 0
             }
           ]
@@ -109,7 +110,7 @@ export default class NexusPHP extends PrivateSite {
           attr: 'title'
         },
         bonus: {
-          selector: ["td.rowhead:contains('魔力') + td", "td.rowhead:contains('Karma'):contains('Points') + td", "td.rowhead:contains('麦粒') + td", "td.rowfollow:contains('魔力值') + td"],
+          selector: ["td.rowhead:contains('魔力') + td", "td.rowhead:contains('Karma'):contains('Points') + td", "td.rowhead:contains('麦粒') + td", "td.rowfollow:contains('魔力值')"],
           filters: [
             (query: string) => {
               query = query.replace(/,/g, '')
@@ -128,13 +129,15 @@ export default class NexusPHP extends PrivateSite {
               return dayjs(query).isValid() ? dayjs(query).unix() : query
             }
           ]
-        },
-
-        // /getusertorrentlistajax.php?userid=$user.id$&type=seeding
-        // 注意此处为NPHP站点默认方法，部分站点可能有改写处理，请覆写对应方法
-        seeding: {
-          selector: ['tr:not(:eq(0))']
         }
+
+        /**
+         * 如果指定 seeding 和 seedingSize，则会尝试从 "/userdetails.php?id=$user.id$" 页面获取，
+         * 否则将使用方法 getUserSeedingStatus 进行获取
+         *
+         */
+        // seeding: { }
+        // seedingSize: { }
       }
     }
   }
@@ -305,7 +308,9 @@ export default class NexusPHP extends PrivateSite {
 
     // 导入用户做种信息
     if (typeof flushUserInfo.seeding === 'undefined' || typeof flushUserInfo.seedingSize === 'undefined') {
-      flushUserInfo = Object.assign(flushUserInfo, await this.getUserSeedingStatus(userId))
+      flushUserInfo = mergeWith(flushUserInfo, await this.getUserSeedingStatus(userId), (objValue, srcValue) => {
+        return objValue > 0 ? objValue : srcValue
+      })
     }
 
     return flushUserInfo as UserInfo
@@ -317,10 +322,7 @@ export default class NexusPHP extends PrivateSite {
     return parseInt(userId)
   }
 
-  protected async getUserInfoFromDetailsPage (
-    userId: number,
-    attrs: string[] = ['name', 'messageCount', 'uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime']
-  ): Promise<Partial<UserInfo>> {
+  protected async getUserInfoFromDetailsPage (userId: number): Promise<Partial<UserInfo>> {
     const { data: userDetailDocument } = await this.request({
       url: '/userdetails.php',
       params: { id: userId },
@@ -329,7 +331,8 @@ export default class NexusPHP extends PrivateSite {
     })
     const flushUserInfo: Partial<UserInfo> = {}
 
-    for (const userInfoAttrValue of attrs) {
+    const detailsPageAttrs = ['name', 'messageCount', 'uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime', 'seeding', 'seedingSize']
+    for (const userInfoAttrValue of detailsPageAttrs) {
       if (this.config.selector?.userInfo![userInfoAttrValue]) {
         flushUserInfo[userInfoAttrValue] = this.getFieldData(userDetailDocument, this.config.selector?.userInfo![userInfoAttrValue])
       }
@@ -338,23 +341,46 @@ export default class NexusPHP extends PrivateSite {
     return flushUserInfo
   }
 
-  protected async getUserSeedingStatus (userId: number): Promise<{ seeding: number, seedingSize: number }> {
-    const seedStatus = {
-      seeding: 0,
-      seedingSize: 0
-    }
-
-    const { data: userSeedingDocument } = await this.request<Document | null>({
+  /**
+   * 鉴于NexusPHP这里使用ajax交互，如果强行指定 responseType: 'document' ，
+   * 由于返回字段并不是 valid-html, 此时会解析失败（即 data = undefined ），
+   * 所以此处不指定 responseType，而是返回文本形式的 string，交由 getUserSeedingStatus
+   * 生成 Document
+   *
+   * @param userId
+   * @param type
+   * @protected
+   */
+  protected async requestUserSeedingPage (userId: number, type: string = 'seeding'): Promise<string | null> {
+    const { data } = await this.request({
       url: '/getusertorrentlistajax.php',
-      params: { userid: userId, type: 'seeding' },
-      responseType: 'document' // 如果没有种子的时候，设置 document 会导致axios返回的data中没有数据
+      params: { userid: userId, type }
     })
-    if (userSeedingDocument) {
+    return data || null
+  }
+
+  protected async getUserSeedingStatus (userId: number): Promise<{ seeding: number, seedingSize: number }> {
+    const seedStatus = { seeding: 0, seedingSize: 0 }
+
+    const userSeedingRequestString = await this.requestUserSeedingPage(userId)
+
+    if (userSeedingRequestString) {
+      const userSeedingDocument = createDocument(userSeedingRequestString)
+
       const trAnothers = Sizzle('tr:not(:eq(0))', userSeedingDocument) // FIXME selector
       if (trAnothers.length > 0) {
         seedStatus.seeding = trAnothers.length
+
+        // 根据自动判断应该用 td.rowfollow:eq(?)
+        let sizeIndex = 2
+        Sizzle('> td', trAnothers[0]).forEach((element, index) => {
+          if (sizePattern.test((element as HTMLElement).innerText)) {
+            sizeIndex = index
+          }
+        })
+
         trAnothers.forEach(trAnother => {
-          const sizeSelector = Sizzle('td.rowfollow:eq(2)', trAnother)[0] as HTMLElement // FIXME selector
+          const sizeSelector = Sizzle(`td.rowfollow:eq(${sizeIndex})`, trAnother)[0] as HTMLElement // FIXME selector
           seedStatus.seedingSize += parseSizeString(sizeSelector.innerText)
         })
       }

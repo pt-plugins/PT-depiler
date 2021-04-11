@@ -1,5 +1,39 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { ElementQuery, SiteMetadata } from '@/shared/interfaces/sites'
 import { ETorrentStatus } from '@/shared/interfaces/enum'
+
+// TJUPT 中的 selector.search.progress 以及 selector.search.status 被其他站公用
+export const selectorSearchProgress: ElementQuery = {
+  selector: ['div.probar_b1, div.probar_b2, div.probar_b3'],
+  attr: 'style',
+  filters: [
+    (query: string) => {
+      query = query || ''
+      const queryMatch = query.match(/width:([ \d.]+)%/)
+      return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : 0
+    }
+  ]
+}
+
+export const selectorSearchStatus: ElementQuery = {
+  selector: ['div[class*="probar_a"]'],
+  attr: 'class',
+  filters: [
+    (query: string) => {
+      const queryMatch = query.match(/probar_[ab]([123])/)
+      if (queryMatch && queryMatch.length >= 2) {
+        switch (parseInt(queryMatch[1])) {
+          case 1: // "正在下载，进度至"
+            return ETorrentStatus.downloading
+          case 2: // "已下载，正在做种";
+            return ETorrentStatus.seeding
+          case 3: // "下载过，已完成" or "下载过，未完成，进度至"
+            return ETorrentStatus.inactive
+        }
+      }
+      return ETorrentStatus.unknown
+    }
+  ]
+}
 
 export const siteMetadata: SiteMetadata = {
   name: '北洋园',
@@ -36,38 +70,8 @@ export const siteMetadata: SiteMetadata = {
   },
   selector: {
     search: {
-      progress: {
-        selector: ['div.probar_b1, div.probar_b2, div.probar_b3'],
-        attr: 'style',
-        filters: [
-          (query: string) => {
-            query = query || ''
-            const queryMatch = query.match(/width:([ \d.]+)%/)
-            return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : 0
-          }
-        ]
-      },
-      status: {
-        selector: ['div[class*="probar_a"]'],
-        attr: 'class',
-        filters: [
-          (query: string) => {
-            const queryMatch = query.match(/probar_[ab]([123])/)
-            if (queryMatch && queryMatch.length >= 2) {
-              switch (parseInt(queryMatch[1])) {
-                case 1: // "正在下载，进度至"
-                  return ETorrentStatus.downloading
-                case 2: // "已下载，正在做种";
-                  return ETorrentStatus.seeding
-                case 3: // "下载过，已完成" or "下载过，未完成，进度至"
-                  return ETorrentStatus.inactive
-              }
-            }
-            return ETorrentStatus.unknown
-          }
-        ]
-      }
+      progress: selectorSearchProgress,
+      status: selectorSearchStatus
     }
   }
-
 }

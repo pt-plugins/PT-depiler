@@ -19,15 +19,17 @@ export interface ElementQuery {
    */
   selector?: string | ':self' | string[],
 
-  attr?: string,
-  data?: string,
-
-  // 在获取html innerHtml 前移除内部不需要的元素， 在JSON， attr,data 模式下不适用
-  remove?: string | string[],
-
   /**
-   * 注意， filters 不做合并！！！
+   * 对取值进行处理
+   * 注意， filters， queryFilter 均不做合并！！！
+   * - queryFilter：对 selector 出来的 Element 进行处理，此时不建议再定义 filters 以免出错
+   * - filters： 对 选出来的 string 进行处理
    */
+  elementFilters?: (Function | string)[], // 自定义取值方法，此时 attr 以及 data 选项均不生效
+
+  attr?: string | null, // 使用 HTMLElement.getAttribute('') 进行取值，取不到值则置 ''
+  data?: string | null, // 使用 HTMLElement.dataset[''] 进行取值，取不到值则置 ''
+
   filters?: (Function | string)[]
 }
 

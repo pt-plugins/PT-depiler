@@ -14,6 +14,10 @@ export function extractContent (s:string): string {
   return span.textContent || span.innerText
 }
 
+export function createDocument (str: string, type: DOMParserSupportedType = 'text/html') : Document {
+  return (new DOMParser()).parseFromString(str, type)
+}
+
 export function sleep (ms: number) {
   return new Promise(resolve => setTimeout(resolve, ms))
 }

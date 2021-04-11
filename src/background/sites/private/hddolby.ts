@@ -48,7 +48,7 @@ export const siteMetadata: SiteMetadata = {
         { selector: 'span.tgy', name: '国配', color: '#f96' },
         { selector: 'span.tyy', name: '粤配', color: '#f66' },
         { selector: 'span.tzz', name: '中字', color: '#9c0' },
-        { selector: 'span.tjz', name: '禁转', color: '#903' },
+        { selector: 'span.tjz', name: '⛔' }, // 禁转
         { selector: 'span.txz', name: '限转', color: '#c03' },
         { selector: 'span.tdiy', name: 'DIY', color: '#993' },
         { selector: 'span.tsf', name: '首发', color: '#339' },

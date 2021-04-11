@@ -162,7 +162,7 @@ export const siteMetadata: SiteMetadata = {
         { selector: 'div.tag.tag-gy', name: '国语', color: '#3e93a0' },
         { selector: 'div.tag.tag-zz', name: '中字', color: '#426ab9' },
         { selector: 'div.tag.tag-yq', name: '应求', color: '#9932CC' },
-        { selector: 'div.tag.tag-jz', name: '禁转', color: '#C12E2A' },
+        { selector: 'div.tag.tag-jz', name: '⛔' }, // 禁转
         { selector: 'div.tag.tag-bd', name: '蓝光', color: '#000' }, // 不明，这个标签已经不做使用
         { selector: 'div.tag.tag-db', name: '杜比视界', color: '#000000' },
         { selector: 'div.tag.tag-hdr10', name: 'HDR10', color: '#38b03f' },
