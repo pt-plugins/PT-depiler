@@ -20,17 +20,22 @@ export interface ElementQuery {
   selector?: string | ':self' | string[],
 
   /**
-   * 对取值进行处理
-   * 注意， filters， queryFilter 均不做合并！！！
-   * - queryFilter：对 selector 出来的 Element 进行处理，此时不建议再定义 filters 以免出错
-   * - filters： 对 选出来的 string 进行处理
+   * 对 Element 进行处理
+   * 注意， elementProcess 不参与 mergeWith
+   * - elementProcess：对 selector 出来的 Element 进行处理，此时不建议再定义 filters 或 switchFilters 以免出错
    */
-  elementFilters?: (Function | string)[], // 自定义取值方法，此时 attr 以及 data 选项均不生效
-
+  elementProcess?: (Function | string)[], // 自定义对于Element的处理方法，此时 attr 以及 data 选项均不生效，但 filters 和 switchFilters 仍生效
   attr?: string | null, // 使用 HTMLElement.getAttribute('') 进行取值，取不到值则置 ''
   data?: string | null, // 使用 HTMLElement.dataset[''] 进行取值，取不到值则置 ''
 
-  filters?: (Function | string)[]
+  /**
+   * 对获取结果进行处理，处理结果将作为最终的值输出
+   * 注意： filters 和 switchFilters 不参与 mergeWith
+   *  - filters： 对 选出来的 string 进行处理
+   *  - switchFilters: 根据 最终使用的 selector Id 确定使用的filters，优先级更高
+   */
+  filters?: (Function | string)[],
+  switchFilters?: (Function | string)[], // 会根据selector的位置来使用对应的filter
 }
 
 // 作为一个种子最基本应该有的属性
@@ -67,6 +72,7 @@ export interface searchCategoryOptions {
 export interface searchCategories {
   name: string | 'Category' | '类别', // 搜索大类名称
   key: string | '#changeDomain' | '#changePath', // 搜索大类
+  notes?: string, // 分类说明
   options: searchCategoryOptions[],
   // 该搜索大类是否允许内部交叉 （ 不声明，则默认不允许（False） ）
   cross?: {

@@ -1,11 +1,11 @@
 import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
 import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
 import { AxiosRequestConfig } from 'axios'
-import dayjs from '@/shared/utils/dayjs'
 
 export const siteMetadata: SiteMetadata = {
   name: 'AnimeClipse',
   description: 'AnimeClipse is a Public site for Hellenic Fansubs Anime.',
+  timezoneOffset: '+0200',
   url: 'http://www.animeclipse.com/',
   search: {
     requestConfig: { url: '/index.php' },
@@ -98,12 +98,7 @@ export const siteMetadata: SiteMetadata = {
       title: { selector: 'a[href*="/download/"][title]', attr: 'title', filters: [(q:string) => q.replace('Download:', '')] },
       url: { text: 'http://www.animeclipse.com/' },
       link: { selector: 'a[href*="/download/"]', attr: 'href' },
-      time: {
-        selector: 'td:nth-child(2) > table:nth-child(2) td:nth-child(2) span.torrentInfoData',
-        filters: [
-          (q:string) => dayjs(`${q} +02:00`, 'DD/MM/YYYY hh:mm:ss Z').unix()
-        ]
-      },
+      time: { selector: 'td:nth-child(2) > table:nth-child(2) td:nth-child(2) span.torrentInfoData' },
       size: { selector: 'td:nth-child(2) > table:nth-child(2) td:nth-child(1) span.torrentInfoData' },
       seeders: { selector: 'td:nth-child(2) > table:nth-child(2) td:nth-child(5) span.torrentInfoData' },
       leechers: { selector: 'td:nth-child(2) > table:nth-child(2) td:nth-child(6) span.torrentInfoData' },

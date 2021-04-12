@@ -4,7 +4,7 @@ import Sizzle from 'sizzle'
 import urlparse from 'url-parse'
 import dayjs from '@/shared/utils/dayjs'
 import { createDocument, extractContent } from '@/shared/utils/common'
-import { parseSizeString, parseTimeToLive, sizePattern } from '@/shared/utils/filter'
+import { parseSizeString, parseTimeToLive, parseTimeWithZone, sizePattern } from '@/shared/utils/filter'
 import { ETorrentStatus } from '@/shared/interfaces/enum'
 import { mergeWith } from 'lodash-es'
 
@@ -114,10 +114,11 @@ export default class NexusPHP extends PrivateSite {
           filters: [
             (query: string) => {
               query = query.replace(/,/g, '')
-              if (query.match(/魔力值:/)) {
-                query = query.match(/魔力值.+?([\d.]+)/)![1]
+              if (/(魅力值|沙粒|魔力值):?/.test(query)) {
+                query = query.match(/(魅力值|沙粒|魔力值).+?([\d.]+)/)![2]
+                return parseFloat(query)
               }
-              return parseFloat(query)
+              return 0
             }
           ]
         },
@@ -171,7 +172,7 @@ export default class NexusPHP extends PrivateSite {
         'img.time': 'time', // 发布时间 （仅生成 selector， 后面会覆盖）
         'a[href*="sort=9"]': 'author' // 发布者
       })) {
-        if (Sizzle(dectSelector, element).length > 0 && !(dectField in this.config.selector!.search!)) {
+        if (!(dectField in this.config.selector!.search!) && Sizzle(dectSelector, element).length > 0) {
           // @ts-ignore
           this.config.selector.search[dectField] = { selector: `> td:eq(${elementIndex})` }
         }
@@ -191,7 +192,9 @@ export default class NexusPHP extends PrivateSite {
     }
 
     // 处理时间（使用默认selector）
-    torrent.time = this.parseTorrentTimeFromRow(row)
+    if (!torrent.time) {
+      torrent.time = parseTimeWithZone(this.parseTorrentTimeFromRow(row), this.config.timezoneOffset || '+0000')
+    }
 
     // 处理分类
     if (!torrent.category) {
@@ -249,7 +252,7 @@ export default class NexusPHP extends PrivateSite {
     return subTitle
   }
 
-  protected parseTorrentTimeFromRow (row: Element): number {
+  protected parseTorrentTimeFromRow (row: Element): number | string /* 应该是能直接被dayjs解析的字符串 */ {
     let time: number | string = 0
     const { selector: timeSelector } = this.config.selector!.search!.time!
     try {
@@ -299,7 +302,7 @@ export default class NexusPHP extends PrivateSite {
       userId = lastUserInfo.id as number
     } else {
       // 如果没有 id 信息，则访问一次 index.php
-      userId = await this.getUserIdFromIndexPage()
+      userId = await this.getUserIdFromSite()
     }
     flushUserInfo.id = userId
 
@@ -316,22 +319,30 @@ export default class NexusPHP extends PrivateSite {
     return flushUserInfo as UserInfo
   }
 
-  protected async getUserIdFromIndexPage (): Promise<number> {
+  protected async getUserIdFromSite (): Promise<number> {
     const { data: indexDocument } = await this.request<Document>({ url: '/index.php', responseType: 'document' })
     const userId = this.getFieldData(indexDocument, this.config.selector?.userInfo?.id!)
     return parseInt(userId)
   }
 
-  protected async getUserInfoFromDetailsPage (userId: number): Promise<Partial<UserInfo>> {
-    const { data: userDetailDocument } = await this.request({
+  protected async requestUserDetailsPage (userId: number): Promise<Document> {
+    const { data: userDetailDocument } = await this.request<Document>({
       url: '/userdetails.php',
       params: { id: userId },
       responseType: 'document',
       checkLogin: true
     })
-    const flushUserInfo: Partial<UserInfo> = {}
+    return userDetailDocument
+  }
 
-    const detailsPageAttrs = ['name', 'messageCount', 'uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime', 'seeding', 'seedingSize']
+  protected async getUserInfoFromDetailsPage (userId: number): Promise<Partial<UserInfo>> {
+    const userDetailDocument = await this.requestUserDetailsPage(userId)
+
+    const flushUserInfo: Partial<UserInfo> = {}
+    const detailsPageAttrs = [
+      'name', 'messageCount', 'uploaded', 'downloaded',
+      'levelName', 'bonus', 'joinTime', 'seeding', 'seedingSize'
+    ]
     for (const userInfoAttrValue of detailsPageAttrs) {
       if (this.config.selector?.userInfo![userInfoAttrValue]) {
         flushUserInfo[userInfoAttrValue] = this.getFieldData(userDetailDocument, this.config.selector?.userInfo![userInfoAttrValue])
@@ -373,11 +384,13 @@ export default class NexusPHP extends PrivateSite {
 
         // 根据自动判断应该用 td.rowfollow:eq(?)
         let sizeIndex = 2
-        Sizzle('> td', trAnothers[0]).forEach((element, index) => {
-          if (sizePattern.test((element as HTMLElement).innerText)) {
-            sizeIndex = index
+        const tdAnothers = Sizzle('> td', trAnothers[0])
+        for (let i = 0; i < tdAnothers.length; i++) {
+          if (sizePattern.test((tdAnothers[i] as HTMLElement).innerText)) {
+            sizeIndex = i
+            break
           }
-        })
+        }
 
         trAnothers.forEach(trAnother => {
           const sizeSelector = Sizzle(`td.rowfollow:eq(${sizeIndex})`, trAnother)[0] as HTMLElement // FIXME selector

@@ -39,7 +39,7 @@ export const siteMetadata: SiteMetadata = {
       // FIXME 我觉得旧版的 progress, status 获取方法实现并不好
       progress: {
         selector: ["a[id*='subscription'] > img"],
-        elementFilters: [
+        elementProcess: [
           (element: HTMLElement) => {
             if (element.classList.contains('uploading')) {
               return 100
@@ -55,7 +55,7 @@ export const siteMetadata: SiteMetadata = {
       },
       status: {
         selector: ["a[id*='subscription'] > img"],
-        elementFilters: [
+        elementProcess: [
           (element: HTMLElement) => {
             if (element.classList.contains('uploading')) {
               return ETorrentStatus.seeding

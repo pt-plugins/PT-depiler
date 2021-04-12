@@ -1,9 +1,9 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
-import dayjs from '@/shared/utils/dayjs'
 
 export const siteMetadata: SiteMetadata = {
   name: 'AniSource',
   description: 'AniSource is a Public site for HD Anime raws.',
+  timezoneOffset: '-0900',
   url: 'https://asnet.pw/',
   search: {
     keywordsParam: 'search',
@@ -36,7 +36,7 @@ export const siteMetadata: SiteMetadata = {
           (q:string) => {
             // 2010-06-07 at 13:29 Central US (UTC -9:00)
             const rawDate = q.split(' | ')[0].replace('Date: ', '').split(' ')
-            return dayjs(`${rawDate[0]} ${rawDate[2]} -9:00`).unix()
+            return `${rawDate[0]} ${rawDate[2]}`
           }
         ]
       },

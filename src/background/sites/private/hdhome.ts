@@ -108,6 +108,7 @@ export const siteMetadata: SiteMetadata = {
       {
         name: '类别（LIVE区）',
         key: 'cat',
+        notes: '请先在“分区”中选择LIVE区，才能正确使用该分类',
         options: [
           { value: 494, name: 'Movies Bluray' },
           { value: 495, name: 'Doc Bluray' },

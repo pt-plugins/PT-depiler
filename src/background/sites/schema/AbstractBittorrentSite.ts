@@ -45,7 +45,7 @@ export default class BittorrentSite {
         // @ts-ignore
         (objValue, srcValue, key) => {
           if (
-            !['filters', 'elementFilters'].includes(key) && // 不合并 filters
+            !['elementProcess', 'filters', 'switchFilters'].includes(key) && // 不合并 filters
             Array.isArray(objValue)) {
             // @ts-ignore
             return [].concat(srcValue, objValue) // 保证后并入的配置优先
@@ -240,35 +240,24 @@ export default class BittorrentSite {
   }
 
   protected getFieldData (element: Element | Object, elementQuery: ElementQuery): any {
-    const { selector, attr, data, filters, elementFilters } = elementQuery
+    const { selector } = elementQuery
     let query: string = String(elementQuery.text || '')
-
+    let selectorId = 0
     if (selector) {
       const selectors = ([] as string[]).concat(selector)
-      for (let i = 0; i < selectors.length; i++) {
-        const selector = selectors[i]
+      for (; selectorId < selectors.length; selectorId++) {
+        const selector = selectors[selectorId]
         if (element instanceof Node) {
           // 这里我们预定义一个特殊的 Css Selector，即不进行子元素选择
           const another = (selector === ':self' ? element : Sizzle(selector, element)[0]) as HTMLElement
           if (another) {
-            if (elementFilters) {
-              query = this.runQueryFilters<string>(another, elementFilters)
-            } else if (data) {
-              query = another.dataset[data] || ''
-            } else if (attr) {
-              query = another.getAttribute(attr) || ''
+            if (elementQuery.elementProcess) {
+              query = this.runQueryFilters<string>(another, elementQuery.elementProcess)
+            } else if (elementQuery.data) {
+              query = another.dataset[elementQuery.data] || ''
+            } else if (elementQuery.attr) {
+              query = another.getAttribute(elementQuery.attr) || ''
             } else {
-              /**
-               // 如果定义了移除 remove ，则从该html元素中先移除子元素，后取值
-               if (elementQuery.remove) {
-                const anotherRemove = ([] as string[]).concat(elementQuery.remove)
-                anotherRemove.forEach(removeSelector => {
-                  Sizzle(removeSelector, another).forEach(removeNode => {
-                    another.removeChild(removeNode)
-                  })
-                })
-              }
-               */
               query = another.innerText.replace(/\n/ig, ' ') || ''
             }
           }
@@ -286,16 +275,19 @@ export default class BittorrentSite {
       }
     }
 
-    if (filters) {
-      query = this.runQueryFilters(query, filters)
+    if (elementQuery.switchFilters) {
+      query = this.runQueryFilters(query, elementQuery.switchFilters[selectorId])
+    } else if (elementQuery.filters) {
+      query = this.runQueryFilters(query, elementQuery.filters)
     }
 
     return query
   }
 
-  protected runQueryFilters <T> (query: any, filters: (Function | string)[]): T {
-    for (let i = 0; i < filters.length; i++) {
-      let fn = filters[i]
+  protected runQueryFilters <T> (query: any, filters: (Function | string)[] | Function | string): T {
+    const realFilters = ([] as (Function | string)[]).concat(filters)
+    for (let i = 0; i < realFilters.length; i++) {
+      let fn = realFilters[i]
       // eslint-disable-next-line no-new-func
       fn = typeof fn === 'string' ? (new Function('query', `return ${fn}`)) : fn
       query = fn(query)
@@ -379,8 +371,7 @@ export default class BittorrentSite {
         value = parseSizeString(value)
       }
 
-      if (key === 'time') {
-        // 不指定时区的话默认按0时区处理
+      if (key === 'time') { // 不指定时区的话默认按0时区处理
         value = parseTimeWithZone(value, this.config.timezoneOffset || '+0000')
       }
 

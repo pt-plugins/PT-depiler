@@ -46,8 +46,8 @@ module.exports = {
         minSize: 30000,
         maxSize: 0,
         minChunks: 1,
-        maxAsyncRequests: 5,
-        maxInitialRequests: 3,
+        maxAsyncRequests: 10,
+        maxInitialRequests: 5,
         name: true,
         cacheGroups: {
           // 第三方库

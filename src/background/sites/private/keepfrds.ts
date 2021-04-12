@@ -1,6 +1,5 @@
-import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites'
-import NexusPHP from '@/background/sites/schema/NexusPHP'
-import { parseSizeString, sizePattern } from '@/shared/utils/filter'
+import { SiteMetadata } from '@/shared/interfaces/sites'
+import { parseSizeString } from '@/shared/utils/filter'
 
 export const siteMetadata: SiteMetadata = {
   name: 'PT@KEEPFRDS',
@@ -73,7 +72,7 @@ export const siteMetadata: SiteMetadata = {
         selector: ["td.rowhead:contains('当前做种') + td, td.rowhead:contains('Current Seeding') + td, td.rowhead:contains('目前做種') + td"],
         filters: [
           (query: string) => {
-            const queryMatch = query.trim().replace(/,/g, '').match(sizePattern)
+            const queryMatch = query.trim().replace(/,/g, '').match(/([\\d.]+ ?[ZEPTGMK]?i?B)/)
             return (queryMatch && queryMatch.length >= 2) ? parseSizeString(queryMatch[1]) : 0
           }
         ]

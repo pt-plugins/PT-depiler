@@ -5,8 +5,6 @@ import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
 import userDataRecords from '@/background/service/storage/userDataRecords'
 
 export default class PrivateSite extends BittorrentSite {
-  // noinspection JSUnusedGlobalSymbols
-
   public async getLastUserInfo (): Promise<UserInfo | null> {
     return await userDataRecords.getUserData(this.config.host!) as UserInfo | null
   }

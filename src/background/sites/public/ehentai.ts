@@ -1,10 +1,10 @@
 import { SiteMetadata, Torrent } from '@/shared/interfaces/sites'
 import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
-import dayjs from '@/shared/utils/dayjs'
 
 export const siteMetadata: SiteMetadata = {
   name: 'E-Hentai',
   description: 'E-Hentai is a Public site for Hentai doujinshi, manga.',
+  timezoneOffset: '+0000',
   url: 'https://e-hentai.org/',
   search: {
     requestConfig: { url: '/torrents.php' },
@@ -27,7 +27,7 @@ export const siteMetadata: SiteMetadata = {
       title: { selector: 'a[href*="/gallerytorrents.php?gid="]' },
       url: { selector: 'td:nth-child(3) a', attr: 'href' }, // 而详情页链接应该使用 Gallery 的
       link: { selector: 'a[href*="/gallerytorrents.php?gid="]', attr: 'href' },
-      time: { selector: 'td:first-child', filters: [(q:string) => dayjs(`${q} +00:00`).unix()] },
+      time: { selector: 'td:first-child' },
       size: { selector: 'td:nth-child(4)' },
       seeders: { selector: 'td:nth-child(5)' },
       leechers: { selector: 'td:nth-child(6)' },

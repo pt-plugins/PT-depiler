@@ -56,9 +56,9 @@ export function parseTimeToLive (ttl: string): number {
   return nowDayJs.unix()
 }
 
-export function parseTimeWithZone (time: number, timezoneOffset: timezoneOffset) {
+export function parseTimeWithZone (time: number | string, timezoneOffset: timezoneOffset): number {
   if (!timezoneOffset || !time) {
-    return time
+    return dayjs(time).unix()
   }
   let result = time
   // 标准时间戳需要 * 1000
