@@ -1,7 +1,7 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
 import urlparse from 'url-parse'
-import NexusPHP from '@/background/sites/schema/NexusPHP'
-import Sizzle from 'sizzle'
+
+const timeRegex = /\d{4}-\d{2}-\d{2}[^\d]+?\d{2}:\d{2}:\d{2}/
 
 export const siteMetadata: SiteMetadata = {
   name: 'NPUBits',
@@ -58,7 +58,21 @@ export const siteMetadata: SiteMetadata = {
       link: {
         selector: 'a[href^="details"]',
         filters: [
-          (query: string) => query.replace('details', 'download') + '&trackerssl=1' // 强制SSL
+          (query: string) => query
+            .replace('details', 'download')
+            .replace('&hit=1', '') +
+            '&trackerssl=1' // 强制SSL
+        ]
+      },
+      time: {
+        selector: 'div.small',
+        elementProcess: [
+          (element: HTMLElement) => {
+            if (timeRegex.test(element.innerHTML)) {
+              return ((element.innerHTML.match(timeRegex) || ['0000-00-00 00:00:00'])[0]).trim()
+            }
+            return 0
+          }
         ]
       },
       size: { selector: '.rowfollow.vcenter.nowrap > center' },
@@ -93,20 +107,5 @@ export const siteMetadata: SiteMetadata = {
       },
       bonus: { selector: ["td.rowhead:contains('沙粒') + td"] }
     }
-  }
-}
-
-const timeRegex = /(\d{4}-\d{2}-\d{2}[^\d]+?\d{2}:\d{2}:\d{2})/
-
-export default class npupt extends NexusPHP {
-  protected parseTorrentTimeFromRow (row: Element): number | string {
-    let time : number | string = 0
-    const timeAnother = Sizzle('div.small', row).filter(element => {
-      return timeRegex.test(element.innerHTML)
-    })[0]
-    if (timeAnother) {
-      time = ((timeAnother.innerHTML.match(timeRegex) || ['', '0000-00-00 00:00:00'])[1]).trim()
-    }
-    return time
   }
 }

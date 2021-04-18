@@ -2,7 +2,6 @@ import { SiteMetadata } from '@/shared/interfaces/sites'
 import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import { sleep } from '@/shared/utils/common'
-import dayjs from '@/shared/utils/dayjs'
 
 const appName = 'PTPP'
 
@@ -30,7 +29,7 @@ export const siteMetadata: SiteMetadata = {
       title: { selector: 'title' },
       url: { selector: 'info_page', filters: [(q:string) => `${q}&app_id=${appName}`] },
       link: { selector: 'download' },
-      time: { selector: 'pubdate', filters: [(q:string) => dayjs(q).unix()] },
+      time: { selector: 'pubdate' },
       size: { selector: 'size' },
       seeders: { selector: 'seeders' },
       leechers: { selector: 'leechers' },

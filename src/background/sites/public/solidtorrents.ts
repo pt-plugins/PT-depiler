@@ -1,5 +1,4 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
-import dayjs from '@/shared/utils/dayjs'
 
 export const siteMetadata: SiteMetadata = {
   name: 'Solid Torrents',
@@ -20,7 +19,7 @@ export const siteMetadata: SiteMetadata = {
       title: { selector: 'title' },
       url: { selector: '_id', filters: [(q:string) => `/view/${q}`] },
       link: { selector: 'magnet' },
-      time: { selector: 'imported', filters: [(q:string) => dayjs(q).unix()] },
+      time: { selector: 'imported' },
       size: { selector: 'size' },
       seeders: { selector: 'swarm.seeders' },
       leechers: { selector: 'swarm.leechers' },

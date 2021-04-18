@@ -31,5 +31,4 @@ export const siteMetadata: SiteMetadata = {
       }
     ]
   }
-
 }

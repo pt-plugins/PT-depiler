@@ -1,10 +1,10 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
-import dayjs from '@/shared/utils/dayjs'
 
 export const siteMetadata: SiteMetadata = {
   name: '動漫花園資源網',
   description: '動漫花園資訊網是一個動漫愛好者交流的平台,提供最及時,最全面的動畫,漫畫,動漫音樂,動漫下載,BT,ED,動漫遊戲,資訊,分享,交流,讨论.',
   url: 'https://share.dmhy.org/',
+  timezoneOffset: '+0800', // CST
   search: {
     requestConfig: { url: '/topics/list' },
     keywordsParam: 'keyword',
@@ -50,7 +50,7 @@ export const siteMetadata: SiteMetadata = {
       url: { selector: 'a[href^="/topics/view/"]', attr: 'href' },
       // 种子链接只有到页面中才能获取、虽然也可以通过发布时间+magnet链接中的hash构造，但似乎并没有太多必要
       link: { selector: 'a[href^="magnet:?"]', attr: 'href' },
-      time: { selector: 'td:nth-child(1) span', filters: [(q: string) => dayjs(`${q} +08:00` /* CST */).unix()] },
+      time: { selector: 'td:nth-child(1) span' },
       size: { selector: 'td:nth-child(5)' },
       // 从某个时间段开始，这三个 （種子，下載，完成） 就一直不显示
       seeders: { selector: 'td:nth-child(6)' },

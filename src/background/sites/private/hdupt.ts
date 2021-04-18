@@ -4,6 +4,9 @@ export const siteMetadata: SiteMetadata = {
   name: 'HDU',
   schema: 'NexusPHP',
   url: 'https://pt.hdupt.com/',
+  legacyUrl: [
+    'https://pt.upxin.net/'
+  ],
   tags: ['影视', '综合'],
   search: {
     categories: [
@@ -26,7 +29,6 @@ export const siteMetadata: SiteMetadata = {
       }
     ]
   },
-
   selector: {
     search: {
       progress: {
@@ -45,5 +47,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-
 }

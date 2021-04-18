@@ -1,5 +1,4 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
-import dayjs from '@/shared/utils/dayjs'
 
 export const siteMetadata: SiteMetadata = {
   name: 'AniDex',
@@ -58,7 +57,7 @@ export const siteMetadata: SiteMetadata = {
       title: { selector: 'td:nth-child(3) a span[title]', attr: 'title' },
       url: { selector: 'td:nth-child(3) a', attr: 'href' },
       link: { selector: ['td:nth-child(5) a', 'td:nth-child(6) a'], attr: 'href' },
-      time: { selector: 'td:nth-child(8)', attr: 'title', filters: [(q:any) => dayjs(q).unix()] },
+      time: { selector: 'td:nth-child(8)', attr: 'title' },
       size: { selector: 'td:nth-child(7)' },
       seeders: { selector: 'td:nth-child(9)' },
       leechers: { selector: 'td:nth-child(10)' },

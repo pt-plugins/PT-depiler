@@ -11,6 +11,7 @@ export const siteMetadata: SiteMetadata = {
     'https://www.36dm.club/',
     'https://www.acgsou.com/'
   ],
+  timezoneOffset: '+0800',
   search: {
     requestConfig: { url: '/search.php' },
     keywordsParam: 'keyword',
@@ -62,7 +63,7 @@ export const siteMetadata: SiteMetadata = {
           (q:string) => {
             // 2016/07/10
             // 01/21 18:00
-            return dayjs(`${q} +08:00`, ['MM/DD HH:mm Z', 'YYYY/MM/DD Z']).unix()
+            return dayjs(q, ['MM/DD HH:mm', 'YYYY/MM/DD']).unix()
           }
         ]
       },

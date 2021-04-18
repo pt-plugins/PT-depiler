@@ -1,6 +1,5 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
 import urlparse from 'url-parse'
-import dayjs from '@/shared/utils/dayjs'
 
 export const siteMetadata: SiteMetadata = {
   name: 'BT.etree',
@@ -19,7 +18,7 @@ export const siteMetadata: SiteMetadata = {
       title: { selector: 'td:nth-child(2) a.details_link b' },
       url: { selector: 'td:nth-child(2) a.details_link', attr: 'href' },
       link: { selector: 'td:nth-child(3) a', attr: 'href' },
-      time: { selector: 'td:nth-child(6)', filters: [(q:string) => dayjs(q).unix()] },
+      time: { selector: 'td:nth-child(6)' },
       size: { selector: 'td:nth-child(7)' },
       author: { selector: 'td:nth-child(11)' },
       seeders: { selector: 'td:nth-child(9)' },

@@ -44,11 +44,13 @@ export default class BittorrentSite {
       this._config = mergeWith(this.initConfig, this.siteMetaData, this.userConfig,
         // @ts-ignore
         (objValue, srcValue, key) => {
-          if (
-            !['elementProcess', 'filters', 'switchFilters'].includes(key) && // 不合并 filters
-            Array.isArray(objValue)) {
-            // @ts-ignore
-            return [].concat(srcValue, objValue) // 保证后并入的配置优先
+          if (Array.isArray(objValue)) {
+            if (['elementProcess', 'filters', 'switchFilters'].includes(key)) { // 不合并 filters，每次都用最后并入的
+              return srcValue
+            } else {
+              // @ts-ignore
+              return [].concat(srcValue, objValue) // 保证后并入的配置优先
+            }
           }
         }) as SiteConfig
 
@@ -82,7 +84,7 @@ export default class BittorrentSite {
     const config: AxiosRequestConfig = {}
 
     const params: any = {}
-    if (filter.keywords || this.config.search?.keywordsParam) {
+    if (filter.keywords) {
       params[this.config.search?.keywordsParam || 'keywords'] = filter.keywords || ''
     }
 
@@ -251,7 +253,7 @@ export default class BittorrentSite {
           // 这里我们预定义一个特殊的 Css Selector，即不进行子元素选择
           const another = (selector === ':self' ? element : Sizzle(selector, element)[0]) as HTMLElement
           if (another) {
-            if (elementQuery.elementProcess) {
+            if (elementQuery.elementProcess && elementQuery.elementProcess.length > 0) {
               query = this.runQueryFilters<string>(another, elementQuery.elementProcess)
             } else if (elementQuery.data) {
               query = another.dataset[elementQuery.data] || ''
@@ -275,9 +277,15 @@ export default class BittorrentSite {
       }
     }
 
-    if (elementQuery.switchFilters) {
-      query = this.runQueryFilters(query, elementQuery.switchFilters[selectorId])
-    } else if (elementQuery.filters) {
+    if (elementQuery.switchFilters && elementQuery.switchFilters.length > 0) {
+      /**
+       * 当所有selector都未匹配时 selectorId = selectors.length，此时可能
+       * 导致 switchFilters[selectorId] === undefined ，所以此时不应运行 switchFilters
+       */
+      if (selectorId < elementQuery.switchFilters.length) {
+        query = this.runQueryFilters(query, elementQuery.switchFilters[selectorId])
+      }
+    } else if (elementQuery.filters && elementQuery.filters.length > 0) {
       query = this.runQueryFilters(query, elementQuery.filters)
     }
 

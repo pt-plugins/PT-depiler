@@ -6,7 +6,7 @@ import dayjs from '@/shared/utils/dayjs'
 import { createDocument, extractContent } from '@/shared/utils/common'
 import { parseSizeString, parseTimeToLive, parseTimeWithZone, sizePattern } from '@/shared/utils/filter'
 import { ETorrentStatus } from '@/shared/interfaces/enum'
-import { mergeWith } from 'lodash-es'
+import { merge, mergeWith } from 'lodash-es'
 
 const baseLinkQuery = {
   selector: 'a[href*="download.php?id="]:has(> img[alt="download"])',
@@ -50,6 +50,48 @@ export default class NexusPHP extends PrivateSite {
         },
         status: {
           text: ETorrentStatus.unknown
+        },
+        category: {
+          text: 'Other',
+          selector: ['a:first'],
+          elementProcess: [
+            (element: HTMLElement) => {
+              let category = 'Other'
+              const categoryImgAnother = element.querySelector('img:nth-child(0)') // img:first
+              if (categoryImgAnother) {
+                category = categoryImgAnother.getAttribute('title') ||
+                  categoryImgAnother.getAttribute('alt') ||
+                  category
+              } else {
+                return element.textContent || category
+              }
+
+              return category.trim()
+            }
+          ]
+        },
+        time: {
+          text: 0,
+          elementProcess: [
+            (element: HTMLElement) => {
+              let time: number | string = 0
+              try {
+                const AccurateTimeAnother = element.querySelector('span[title], time[title]')
+                if (AccurateTimeAnother) {
+                  time = AccurateTimeAnother.getAttribute('title')!
+                } else {
+                  time = extractContent(element.innerHTML.replace('<br>', ' '))
+                }
+
+                if (time.match(/\d+[分时天月年]/g)) {
+                  time = parseTimeToLive(time)
+                } else {
+                  time = dayjs(time).unix()
+                }
+              } catch (e) {}
+              return time as number
+            }
+          ]
         },
         tags: [
           // 这里的 selector仅放最基础的（NPHP默认），如果各站有更改请在对应站点修改，不要污染全局空间
@@ -117,8 +159,10 @@ export default class NexusPHP extends PrivateSite {
               if (/(魅力值|沙粒|魔力值):?/.test(query)) {
                 query = query.match(/(魅力值|沙粒|魔力值).+?([\d.]+)/)![2]
                 return parseFloat(query)
+              } else if (/[\d.]+/.test(query)) {
+                return parseFloat(query.match(/[\d.]+/)![0])
               }
-              return 0
+              return query
             }
           ]
         },
@@ -143,41 +187,56 @@ export default class NexusPHP extends PrivateSite {
     }
   }
 
-  protected transformSearchPage (doc: Document, requestConfig: SearchRequestConfig): Torrent[] {
-    // 如果配置文件没有传入 search 的选择器，则我们自己生成
+  protected transformSearchPage (doc: Document | object, requestConfig: SearchRequestConfig): Torrent[] {
+    // 返回是 Document 的情况才自动生成
+    if (doc instanceof Document) {
+      // 如果配置文件没有传入 search 的选择器，则我们自己生成
+      const legacyTableSelector = 'table.torrents:last'
 
-    const legacyTableSelector = 'table.torrents:last'
+      // 对于NPHP，一般来说，表的第一行应该是标题行，即 `> tbody > tr:nth-child(1)` ，但是也有部分站点为 `> thead > tr`
+      const legacyTableHasThead = Sizzle(`${legacyTableSelector} > thead > tr`, doc).length > 0
 
-    // 对于NPHP，一般来说，表的第一行应该是标题行，即 `> tbody > tr:nth-child(1)` ，但是也有部分站点为 `> thead > tr`
-    const legacyTableHasThead = Sizzle(`${legacyTableSelector} > thead > tr`, doc).length > 0
-
-    if (!this.config.selector!.search!.rows) {
-      this.config.selector!.search!.rows = {
-        // 对于有thead的站点，认为 > tbody > tr 均为种子信息，而无 thead 的站点则为 > tbody > tr:gt(0)
-        selector: `${legacyTableSelector} > tbody > tr` + (legacyTableHasThead ? '' : ':gt(0)')
-      }
-    }
-
-    // 开始遍历我们的head行，并设置其他参数
-    const headSelector = legacyTableSelector + (legacyTableHasThead ? ' > thead > tr > th' : ' > tbody > tr:eq(0) > td')
-    const headAnother = Sizzle(headSelector, doc) as HTMLElement[]
-    headAnother.forEach((element, elementIndex) => {
-      // 比较好处理的一些元素，都是可以直接获取的
-      for (const [dectSelector, dectField] of Object.entries({
-        'img.comments': 'comments', // 评论数
-        'img.size': 'size', // 大小
-        'img.seeders': 'seeders', // 种子数
-        'img.leechers': 'leechers', // 下载数
-        'img.snatched': 'completed', // 完成数
-        'img.time': 'time', // 发布时间 （仅生成 selector， 后面会覆盖）
-        'a[href*="sort=9"]': 'author' // 发布者
-      })) {
-        if (!(dectField in this.config.selector!.search!) && Sizzle(dectSelector, element).length > 0) {
-          // @ts-ignore
-          this.config.selector.search[dectField] = { selector: `> td:eq(${elementIndex})` }
+      if (!this.config.selector!.search!.rows) {
+        this.config.selector!.search!.rows = {
+          // 对于有thead的站点，认为 > tbody > tr 均为种子信息，而无 thead 的站点则为 > tbody > tr:gt(0)
+          selector: `${legacyTableSelector} > tbody > tr` + (legacyTableHasThead ? '' : ':gt(0)')
         }
       }
-    })
+
+      // 开始遍历我们的head行，并设置其他参数
+      const headSelector = legacyTableSelector + (legacyTableHasThead ? ' > thead > tr > th' : ' > tbody > tr:eq(0) > td')
+      const headAnother = Sizzle(headSelector, doc) as HTMLElement[]
+      headAnother.forEach((element, elementIndex) => {
+        // 比较好处理的一些元素，都是可以直接获取的
+        let updateSelectorField
+        if (/(cat|类型|類型|分类|分類|Тип)/gi.test(element.innerText)) {
+          updateSelectorField = 'category'
+        } else {
+          for (const [dectSelector, dectField] of Object.entries({
+            'img.comments': 'comments', // 评论数
+            'img.size': 'size', // 大小
+            'img.seeders': 'seeders', // 种子数
+            'img.leechers': 'leechers', // 下载数
+            'img.snatched': 'completed', // 完成数
+            'img.time': 'time', // 发布时间 （仅生成 selector， 后面会覆盖）
+            'a[href*="sort=9"]': 'author' // 发布者
+          })) {
+            if (Sizzle(dectSelector, element).length > 0) {
+              updateSelectorField = dectField
+            }
+          }
+        }
+
+        if (updateSelectorField) {
+          // @ts-ignore
+          this.config.selector.search[updateSelectorField] = merge({
+            selector: [`> td:eq(${elementIndex})`]
+          },
+          // @ts-ignore
+          (this.config.selector.search[updateSelectorField] || {}))
+        }
+      })
+    }
 
     // !!! 其他一些比较难处理的，我们把他 hack 到 parseRowToTorrent 中 !!!
     return super.transformSearchPage(doc, requestConfig)
@@ -191,16 +250,6 @@ export default class NexusPHP extends PrivateSite {
       torrent = Object.assign(torrent, this.parseTorrentTitleFromRow(row))
     }
 
-    // 处理时间（使用默认selector）
-    if (!torrent.time) {
-      torrent.time = parseTimeWithZone(this.parseTorrentTimeFromRow(row), this.config.timezoneOffset || '+0000')
-    }
-
-    // 处理分类
-    if (!torrent.category) {
-      torrent.category = this.parseCategoryFromRow(row)
-    }
-
     return torrent
   }
 
@@ -208,8 +257,7 @@ export default class NexusPHP extends PrivateSite {
   protected parseTorrentTitleFromRow (row: Element): { title?: string, subTitle?: string } {
     const testSelectors = [
       "a[href*='hit'][title]",
-      "a[href*='hit']:has(b)",
-      "a.tooltip[href*='hit']" // FIXME u2.dmhy.org 移动到对应站点模块
+      "a[href*='hit']:has(b)"
     ]
 
     let titleAnother
@@ -250,45 +298,6 @@ export default class NexusPHP extends PrivateSite {
       }
     } catch (e) {}
     return subTitle
-  }
-
-  protected parseTorrentTimeFromRow (row: Element): number | string /* 应该是能直接被dayjs解析的字符串 */ {
-    let time: number | string = 0
-    const { selector: timeSelector } = this.config.selector!.search!.time!
-    try {
-      const timeAnother = Sizzle(timeSelector as string, row)[0]
-      const AccurateTimeAnother = Sizzle('span[title], time[title]', timeAnother)
-      if (AccurateTimeAnother.length > 0) {
-        time = AccurateTimeAnother[0].getAttribute('title')!
-      } else {
-        time = extractContent(timeAnother.innerHTML.replace('<br>', ' '))
-      }
-
-      if (time.match(/\d+[分时天月年]/g)) {
-        time = parseTimeToLive(time)
-      } else {
-        time = dayjs(time).unix()
-      }
-    } catch (e) {}
-    return time as number
-  }
-
-  protected parseCategoryFromRow (row: Element): string {
-    let category = 'Other'
-    const categoryLinkAnother = Sizzle('a:first', row)
-
-    if (categoryLinkAnother.length > 0) {
-      const categoryImgAnother = Sizzle('img:first', categoryLinkAnother[0])
-
-      if (categoryImgAnother.length > 0) {
-        category = categoryImgAnother[0].getAttribute('title') ||
-          categoryImgAnother[0].getAttribute('alt') ||
-          category
-      } else {
-        category = categoryLinkAnother[0].textContent || category
-      }
-    }
-    return category.trim()
   }
 
   async flushUserInfo (): Promise<UserInfo> {
@@ -370,33 +379,38 @@ export default class NexusPHP extends PrivateSite {
     return data || null
   }
 
-  protected async getUserSeedingStatus (userId: number): Promise<{ seeding: number, seedingSize: number }> {
+  protected countSeedingStatusFromDocument (userSeedingDocument: Document): { seeding: number, seedingSize: number } {
     const seedStatus = { seeding: 0, seedingSize: 0 }
+    const trAnothers = Sizzle('table:last tr:not(:eq(0))', userSeedingDocument)
+    if (trAnothers.length > 0) {
+      seedStatus.seeding = trAnothers.length
+
+      // 根据自动判断应该用 td.rowfollow:eq(?)
+      let sizeIndex = 2
+      const tdAnothers = Sizzle('> td', trAnothers[0])
+      for (let i = 0; i < tdAnothers.length; i++) {
+        if (sizePattern.test((tdAnothers[i] as HTMLElement).innerText)) {
+          sizeIndex = i
+          break
+        }
+      }
+
+      trAnothers.forEach(trAnother => {
+        const sizeSelector = Sizzle(`td.rowfollow:eq(${sizeIndex})`, trAnother)[0] as HTMLElement
+        seedStatus.seedingSize += parseSizeString(sizeSelector.innerText)
+      })
+    }
+    return seedStatus
+  }
+
+  protected async getUserSeedingStatus (userId: number): Promise<{ seeding: number, seedingSize: number }> {
+    let seedStatus = { seeding: 0, seedingSize: 0 }
 
     const userSeedingRequestString = await this.requestUserSeedingPage(userId)
 
     if (userSeedingRequestString) {
       const userSeedingDocument = createDocument(userSeedingRequestString)
-
-      const trAnothers = Sizzle('tr:not(:eq(0))', userSeedingDocument) // FIXME selector
-      if (trAnothers.length > 0) {
-        seedStatus.seeding = trAnothers.length
-
-        // 根据自动判断应该用 td.rowfollow:eq(?)
-        let sizeIndex = 2
-        const tdAnothers = Sizzle('> td', trAnothers[0])
-        for (let i = 0; i < tdAnothers.length; i++) {
-          if (sizePattern.test((tdAnothers[i] as HTMLElement).innerText)) {
-            sizeIndex = i
-            break
-          }
-        }
-
-        trAnothers.forEach(trAnother => {
-          const sizeSelector = Sizzle(`td.rowfollow:eq(${sizeIndex})`, trAnother)[0] as HTMLElement // FIXME selector
-          seedStatus.seedingSize += parseSizeString(sizeSelector.innerText)
-        })
-      }
+      seedStatus = this.countSeedingStatusFromDocument(userSeedingDocument)
     }
 
     return seedStatus
