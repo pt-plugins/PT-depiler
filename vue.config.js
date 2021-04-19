@@ -37,38 +37,6 @@ module.exports = {
     }
   },
 
-  configureWebpack: {
-    optimization: {
-      // 将第三方库和主程序分离
-      // 参考配置：https://yi-jy.com/2018/06/09/webpack-split-chunks/
-      splitChunks: {
-        chunks: 'all',
-        minSize: 30000,
-        maxSize: 0,
-        minChunks: 1,
-        maxAsyncRequests: 10,
-        maxInitialRequests: 5,
-        name: true,
-        cacheGroups: {
-          // 第三方库
-          vendors: {
-            test: /[\\/]node_modules[\\/]/,
-            priority: -10,
-            name: 'vendors'
-          },
-          // 公用模块
-          default: {
-            minSize: 0,
-            minChunks: 2,
-            priority: -20,
-            reuseExistingChunk: true,
-            name: 'utils'
-          }
-        }
-      }
-    }
-  },
-
   chainWebpack: config => {
     // @see https://github.com/adambullmer/vue-cli-plugin-browser-extension/issues/106
     config.plugins.delete('provide-webextension-polyfill')

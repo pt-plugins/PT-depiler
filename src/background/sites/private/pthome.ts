@@ -22,7 +22,7 @@ export const siteMetadata: SiteMetadata = {
         elementProcess: [
           (element:HTMLElement) => {
             if (element.classList.contains('torrents-progress')) {
-              return (element.getAttribute('style') || '').indexOf('100%') != -1 ? ETorrentStatus.seeding : ETorrentStatus.downloading
+              return (element.getAttribute('style') || '').indexOf('100%') !== -1 ? ETorrentStatus.seeding : ETorrentStatus.downloading
             } else if (element.classList.contains('torrents-progress2')) {
               return ETorrentStatus.completed
             } else {

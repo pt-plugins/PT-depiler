@@ -4,7 +4,7 @@ import Sizzle from 'sizzle'
 import urlparse from 'url-parse'
 import dayjs from '@/shared/utils/dayjs'
 import { createDocument, extractContent } from '@/shared/utils/common'
-import { parseSizeString, parseTimeToLive, parseTimeWithZone, sizePattern } from '@/shared/utils/filter'
+import { parseSizeString, parseTimeToLive, sizePattern } from '@/shared/utils/filter'
 import { ETorrentStatus } from '@/shared/interfaces/enum'
 import { merge, mergeWith } from 'lodash-es'
 
