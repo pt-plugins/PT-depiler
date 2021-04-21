@@ -1,19 +1,17 @@
 import { browser } from 'webextension-polyfill-ts'
 import BtClientFactory from '@/background/factory/btclients'
 import Site from '@/background/factory/sites'
+import dayjs from '@/shared/utils/dayjs'
 import Sizzle from 'sizzle'
 import axios from 'axios'
 
-class Background {
-  public f = BtClientFactory
-  public s = Site
-}
-
 Object.assign(window as any, {
-  b: new Background(),
+  btClient: BtClientFactory,
+  site: Site,
   axios,
   browser,
-  Sizzle
+  Sizzle,
+  dayjs
 })
 
 browser.browserAction.onClicked.addListener(async () => {

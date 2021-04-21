@@ -130,7 +130,7 @@ export interface UserInfo {
   [key: string]: any; // 其他信息
 }
 
-export type SiteSchema = 'AbstractBittorrentSite' | 'AbstractPrivateSite' | 'NexusPHP'
+export type SiteSchema = 'AbstractBittorrentSite' | 'AbstractPrivateSite' | 'NexusPHP' | 'Unit3D'
 export type SiteFeature = 'queryUserInfo'
 
 /**

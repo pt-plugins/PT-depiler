@@ -40,7 +40,6 @@ export const siteMetadata: SiteMetadata = {
     },
     keywordsParam: 'iwannaseethis',
     defaultParams: [
-      { key: 'notnewword', value: 1 },
       { key: 'v', value: 'legacyinv' } // 强行设置统一的返回界面样式，方便后面解析
     ],
     categories: [
