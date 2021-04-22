@@ -347,18 +347,12 @@ export default class NexusPHP extends PrivateSite {
   protected async getUserInfoFromDetailsPage (userId: number): Promise<Partial<UserInfo>> {
     const userDetailDocument = await this.requestUserDetailsPage(userId)
 
-    const flushUserInfo: Partial<UserInfo> = {}
     const detailsPageAttrs = [
       'name', 'messageCount', 'uploaded', 'downloaded',
       'levelName', 'bonus', 'joinTime', 'seeding', 'seedingSize'
     ]
-    for (const userInfoAttrValue of detailsPageAttrs) {
-      if (this.config.selector?.userInfo![userInfoAttrValue]) {
-        flushUserInfo[userInfoAttrValue] = this.getFieldData(userDetailDocument, this.config.selector?.userInfo![userInfoAttrValue])
-      }
-    }
 
-    return flushUserInfo
+    return this.getFieldsData(userDetailDocument, 'userInfo', detailsPageAttrs) as Partial<UserInfo>
   }
 
   /**

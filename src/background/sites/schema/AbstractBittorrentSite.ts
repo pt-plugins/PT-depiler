@@ -9,7 +9,7 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import Sizzle from 'sizzle'
 import urljoin from 'url-join'
 import urlparse from 'url-parse'
-import { merge, get, chunk, mergeWith } from 'lodash-es'
+import { merge, get, chunk, mergeWith, pick } from 'lodash-es'
 import { cfDecodeEmail, parseSizeString, parseTimeWithZone } from '@/shared/utils/filter'
 import { ETorrentStatus } from '@/shared/interfaces/enum'
 
@@ -44,7 +44,7 @@ export default class BittorrentSite {
       this._config = mergeWith(this.initConfig, this.siteMetaData, this.userConfig,
         // @ts-ignore
         (objValue, srcValue, key) => {
-          if (Array.isArray(objValue)) {
+          if (Array.isArray(objValue) || Array.isArray(srcValue)) {
             if (['elementProcess', 'filters', 'switchFilters'].includes(key)) { // 不合并 filters，每次都用最后并入的
               return srcValue
             } else {
@@ -73,7 +73,7 @@ export default class BittorrentSite {
 
   protected getCategory (catName: string | string[]): searchCategories | undefined {
     const catNames = ([] as string[]).concat(catName)
-    return this.config.search?.categories?.find((d) => d.name in catNames)
+    return this.config.search?.categories?.find((d) => catNames.includes(d.name))
   }
 
   /**
@@ -242,6 +242,23 @@ export default class BittorrentSite {
     return url
   }
 
+  /**
+   * getFieldData 的上层方法，目的是直接获取一批数据，并以字典形式返回
+   * @param element
+   * @param selectorGroup
+   * @param fields
+   * @protected
+   */
+  protected getFieldsData <F extends string[]> (element: Element | Object, selectorGroup: keyof Required<SiteConfig>['selector'], fields: F): {[key in F[number]]: any} {
+    const ret: any = {}
+
+    for (const [key, selector] of Object.entries(pick(this.config.selector![selectorGroup], fields))) {
+      ret[key] = this.getFieldData(element, selector!)
+    }
+
+    return ret as {[key in F[number]]: any}
+  }
+
   protected getFieldData (element: Element | Object, elementQuery: ElementQuery): any {
     const { selector } = elementQuery
     let query: string = String(elementQuery.text || '')
@@ -395,19 +412,17 @@ export default class BittorrentSite {
     return torrent
   }
 
-  protected parseRowToTorrent (row: Element | Document | Object): Partial<Torrent> {
-    let torrent = {} as Partial<Torrent>
-    for (const [key, selector] of Object.entries(this.config.selector!.search!)) {
-      // 应该跳过的部分
-      if ([
+  protected parseRowToTorrent (row: Element | Document | Object, torrent: Partial<Torrent> = {}): Partial<Torrent> {
+    const leftKeys = Object.keys(this.config.selector!.search!).filter(key => {
+      return ![
         'rows', // rows 已经在前面被处理过了
         'tags' // tags 转由 parseTagsFromRow 方法处理
-      ].includes(key)) {
-        continue
-      }
+      ].includes(key) && !(key in torrent)
+    })
 
-      // @ts-ignore
-      torrent[key] = this.getFieldData(row, selector!)
+    torrent = {
+      ...torrent,
+      ...this.getFieldsData(row, 'search', leftKeys)
     }
 
     // 处理Tags

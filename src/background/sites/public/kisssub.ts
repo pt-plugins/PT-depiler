@@ -1,4 +1,4 @@
-import { SearchRequestConfig, SiteMetadata, Torrent } from '@/shared/interfaces/sites'
+import { SiteMetadata, Torrent } from '@/shared/interfaces/sites'
 import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
 import dayjs from '@/shared/utils/dayjs'
 
