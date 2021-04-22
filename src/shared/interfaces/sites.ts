@@ -44,6 +44,9 @@ export interface Torrent {
   title: string; // 主标题
   subTitle?: string; // 次标题
 
+  /**
+   * 特别注意： link和url 两个的含义在旧版和目前版本中是完全相反的
+   */
   url: string; // detail 页面
   link: string; // 种子链接
 
@@ -130,7 +133,10 @@ export interface UserInfo {
   [key: string]: any; // 其他信息
 }
 
-export type SiteSchema = 'AbstractBittorrentSite' | 'AbstractPrivateSite' | 'NexusPHP' | 'Unit3D'
+export type SiteSchema = 'AbstractBittorrentSite' | 'AbstractPrivateSite' |
+  'NexusPHP' | 'Unit3D' |
+  'Gazelle' | 'GazelleJSONAPI'
+
 export type SiteFeature = 'queryUserInfo'
 
 /**

@@ -1,7 +1,7 @@
 import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
 import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
 import Container from '@/shared/class/container'
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteConfig, SiteMetadata } from '@/shared/interfaces/sites'
 
 type supportModuleType = 'schema' | 'public' | 'private'
 
@@ -51,19 +51,19 @@ class Sites extends Container {
   }
 
   // FIXME userConfig should be typed
-  async getSite (siteName: string, userConfig: any = {}): Promise<PrivateSite | BittorrentSite> {
+  async getSite (siteName: string, userConfig: Partial<SiteConfig> = {}): Promise<PrivateSite | BittorrentSite> {
     return await this.resolveObject<PrivateSite | BittorrentSite>(`site-${siteName}`, async () => {
-      // FIXME 部分已定义的站点，不存在能成功 dynamicImport 的情况，对此应该直接从 baseModule 中导入
+      // FIXME 部分用户自定义的站点（此时在 js/site 目录中不存在对应模块），不能进行 dynamicImport 的情况，对此应该直接从 schema 中导入
       const module = await this.dynamicImport(siteName)
       let { siteMetadata: siteMetaData /* use as const */, default: SiteClass } = module
+      siteMetaData.schema = siteMetaData.schema || 'AbstractBittorrentSite'
 
       /**
        * 如果该模块没有导出 default class，那么我们认为我们需要从基类继承
        * 并覆写基类的的 siteMetaData 信息
        */
       if (!SiteClass) {
-        const schemaModuleName = 'schema/' + (siteMetaData.schema || 'AbstractBittorrentSite')
-        const schemaModule = await this.dynamicImport(schemaModuleName)
+        const schemaModule = await this.dynamicImport(`schema/${siteMetaData.schema}`)
         SiteClass = schemaModule.default
       }
 

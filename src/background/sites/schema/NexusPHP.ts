@@ -19,7 +19,7 @@ export default class NexusPHP extends PrivateSite {
    * @protected
    */
   protected readonly initConfig: Partial<SiteConfig> = {
-    timezoneOffset: '+0800',
+    timezoneOffset: '+0800', // NPHP 一般都是国内用，时区多为 +0800
     search: {
       keywordsParam: 'search',
       requestConfig: {
@@ -57,7 +57,7 @@ export default class NexusPHP extends PrivateSite {
           elementProcess: [
             (element: HTMLElement) => {
               let category = 'Other'
-              const categoryImgAnother = element.querySelector('img:nth-child(0)') // img:first
+              const categoryImgAnother = element.querySelector('img:nth-child(1)') // img:first
               if (categoryImgAnother) {
                 category = categoryImgAnother.getAttribute('title') ||
                   categoryImgAnother.getAttribute('alt') ||
@@ -187,7 +187,7 @@ export default class NexusPHP extends PrivateSite {
     }
   }
 
-  protected transformSearchPage (doc: Document | object, requestConfig: SearchRequestConfig): Torrent[] {
+  protected transformSearchPage (doc: Document | object): Torrent[] {
     // 返回是 Document 的情况才自动生成
     if (doc instanceof Document) {
       // 如果配置文件没有传入 search 的选择器，则我们自己生成
@@ -212,15 +212,15 @@ export default class NexusPHP extends PrivateSite {
         if (/(cat|类型|類型|分类|分類|Тип)/gi.test(element.innerText)) {
           updateSelectorField = 'category'
         } else {
-          for (const [dectSelector, dectField] of Object.entries({
-            'img.comments': 'comments', // 评论数
-            'img.size': 'size', // 大小
-            'img.seeders': 'seeders', // 种子数
-            'img.leechers': 'leechers', // 下载数
-            'img.snatched': 'completed', // 完成数
-            'img.time': 'time', // 发布时间 （仅生成 selector， 后面会覆盖）
-            'a[href*="sort=9"]': 'author' // 发布者
-          })) {
+          for (const [dectField, dectSelector] of Object.entries({
+            author: 'a[href*="sort=9"]', // 发布者
+            comments: 'img.comments', // 评论数
+            completed: 'img.snatched', // 完成数
+            leechers: 'img.leechers', // 下载数
+            seeders: 'img.seeders', // 种子数
+            size: 'img.size', // 大小
+            time: 'img.time' // 发布时间 （仅生成 selector， 后面会覆盖）
+          } as Record<keyof Torrent, string>)) {
             if (Sizzle(dectSelector, element).length > 0) {
               updateSelectorField = dectField
             }
@@ -239,11 +239,11 @@ export default class NexusPHP extends PrivateSite {
     }
 
     // !!! 其他一些比较难处理的，我们把他 hack 到 parseRowToTorrent 中 !!!
-    return super.transformSearchPage(doc, requestConfig)
+    return super.transformSearchPage(doc)
   }
 
-  protected parseRowToTorrent (row: Element, requestConfig: SearchRequestConfig): Partial<Torrent> {
-    let torrent = super.parseRowToTorrent(row, requestConfig)
+  protected parseRowToTorrent (row: Element): Partial<Torrent> {
+    let torrent = super.parseRowToTorrent(row)
 
     // 处理标题、副标题
     if (!torrent.title || !torrent.subTitle) {

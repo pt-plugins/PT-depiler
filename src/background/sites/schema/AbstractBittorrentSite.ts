@@ -170,7 +170,8 @@ export default class BittorrentSite {
 
     // 请求页面并转化为document
     const req = await this.request({ ...axiosConfig, checkLogin: true })
-    return this.transformSearchPage(req.data, { filter, axiosConfig })
+    const rawTorrent = this.transformSearchPage(req.data)
+    return rawTorrent.map(t => this.fixParsedTorrent(t, { filter, axiosConfig }))
   }
 
   async request<T> (axiosConfig: AxiosRequestConfig & { requestName?: string, checkLogin?: boolean }): Promise<AxiosResponse> {
@@ -314,9 +315,8 @@ export default class BittorrentSite {
   /**
    * 如何解析 JSON 或者 Document，获得种子详情列表
    * @param doc
-   * @param requestConfig
    */
-  protected transformSearchPage (doc: Document | object, requestConfig: SearchRequestConfig): Torrent[] {
+  protected transformSearchPage (doc: Document | object): Torrent[] {
     if (!this.config.selector?.search?.rows) {
       throw Error('列表选择器未定义')
     }
@@ -350,13 +350,52 @@ export default class BittorrentSite {
     }
 
     trs?.forEach((tr: any) => {
-      torrents.push(this.parseRowToTorrent(tr, requestConfig) as Torrent)
+      torrents.push(this.parseRowToTorrent(tr) as Torrent)
     })
 
     return torrents
   }
 
-  protected parseRowToTorrent (row: Element | Document | Object, requestConfig: SearchRequestConfig): Partial<Torrent> {
+  protected fixParsedTorrent (torrent: Torrent, requestConfig: SearchRequestConfig): Torrent {
+    for (const [key, value] of Object.entries(torrent)) {
+      let updateValue = value
+      if (key === 'url' || key === 'link') {
+        // 将相对链接补齐至绝对链接地址
+        updateValue = this.fixLink(value as string, requestConfig)
+      } else if (key === 'size' && typeof value === 'string') {
+        // 将获取到的 size 从 string 转化为 bytes
+        updateValue = parseSizeString(value)
+      } else if (key === 'time') {
+        // 不指定时区的话默认按0时区处理
+        updateValue = parseTimeWithZone(value, this.config.timezoneOffset || '+0000')
+      } else if (['id', 'size', 'seeders', 'leechers', 'completed', 'comments', 'category', 'status'].includes(key)) {
+        // 其他一些能够为数字的统一转化为数字
+        if (typeof value === 'string') {
+          updateValue = updateValue.replace(/[, ]/ig, '') // 统一处理 `1,024` `1 024` 之类的情况
+          if (value.match(/^\d*$/)) { // 尽可能的将返回值转成数字类型
+            updateValue = isNaN(parseInt(updateValue)) ? 0 : parseInt(updateValue)
+          }
+        }
+      }
+
+      /**
+       * 对 Category 属性进行转化，则要求我们在 this.config.search.categories 中定义一个
+       * { name: 'Category', options: {value: string|number, name: string}[] }
+       */
+      if (key === 'category' && this.categoryMap) {
+        const CategoryData = this.categoryMap.find((d) => d.value === updateValue)
+        if (CategoryData) {
+          updateValue = CategoryData.name
+        }
+      }
+
+      // @ts-ignore
+      torrent[key] = updateValue
+    }
+    return torrent
+  }
+
+  protected parseRowToTorrent (row: Element | Document | Object): Partial<Torrent> {
     let torrent = {} as Partial<Torrent>
     for (const [key, selector] of Object.entries(this.config.selector!.search!)) {
       // 应该跳过的部分
@@ -367,43 +406,8 @@ export default class BittorrentSite {
         continue
       }
 
-      let value = this.getFieldData(row, selector!)
-
-      // 将相对链接补齐至绝对链接地址
-      if (key === 'url' || key === 'link') {
-        value = this.fixLink(value as string, requestConfig)
-      }
-
-      // 将获取到的 size 从 string 转化为 bytes
-      if (key === 'size' && typeof value === 'string') {
-        value = parseSizeString(value)
-      }
-
-      if (key === 'time') { // 不指定时区的话默认按0时区处理
-        value = parseTimeWithZone(value, this.config.timezoneOffset || '+0000')
-      }
-
-      // 其他一些能够为数字的统一转化为数字
-      if (['id', 'size', 'seeders', 'leechers', 'completed', 'comments', 'category', 'status'].includes(key)) {
-        if (typeof value === 'string') {
-          value = value.replace(/[, ]/ig, '') // 统一处理 `1,024` `1 024` 之类的情况
-          if (value.match(/^\d*$/)) { // 尽可能的将返回值转成数字类型
-            value = isNaN(parseInt(value)) ? 0 : parseInt(value)
-          }
-        }
-      }
-
-      // 对 Category 属性进行转化，则要求我们在 this.config.search.categories 中定义一个
-      // { name: 'Category', options: {value: string|number, name: string}[] }
-      if (key === 'category' && this.categoryMap) {
-        const CategoryData = this.categoryMap.find((d) => d.value === value)
-        if (CategoryData) {
-          value = CategoryData.name
-        }
-      }
-
       // @ts-ignore
-      torrent[key] = value
+      torrent[key] = this.getFieldData(row, selector!)
     }
 
     // 处理Tags

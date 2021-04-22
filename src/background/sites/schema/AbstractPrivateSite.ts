@@ -33,7 +33,7 @@ export default class PrivateSite extends BittorrentSite {
         const responseText = request.responseType === 'document' ? request.responseXML?.documentElement.outerHTML : request.responseText
         if (typeof responseText === 'undefined') {
           return false // 检查最终的Text，如果什么都没有也可能说明需要登陆
-        } else if (responseText.length < 800 && /login|not authorized/.test(responseText)) {
+        } else if (responseText.length < 800 && /login|auth_form|not authorized/.test(responseText)) {
           return false // 对Text进行检查，断言 “过短，且中间出现login等字段“ 说明可能需要登陆
         }
       }

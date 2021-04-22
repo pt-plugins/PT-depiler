@@ -60,8 +60,8 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Kisssub extends BittorrentSite {
-  protected parseRowToTorrent (row: Element, requestConfig: SearchRequestConfig): Partial<Torrent> {
-    const transformTorrent = super.parseRowToTorrent(row, requestConfig)
+  protected parseRowToTorrent (row: Element): Partial<Torrent> {
+    const transformTorrent = super.parseRowToTorrent(row)
     // 我们只要知道hash就可以种子了，但是如果不传入name的话，种子命名是 `{hash}.torrent`
     transformTorrent.link = `http://v2.uploadbt.com/?r=down&hash=${transformTorrent.id}&name=${encodeURIComponent(transformTorrent.title as string)}`
 
