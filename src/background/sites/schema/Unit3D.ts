@@ -226,11 +226,6 @@ export default class Unit3D extends PrivateSite {
     }
   }
 
-  async getUserNameFromSite (): Promise<string> {
-    const { data: indexDocument } = await this.request<Document>({ url: '/', responseType: 'document', checkLogin: true })
-    return this.getFieldData(indexDocument, this.config.selector?.userInfo?.name!)
-  }
-
   async flushUserInfo (): Promise<UserInfo> {
     const lastUserInfo = await this.getLastUserInfo()
     let flushUserInfo: Partial<UserInfo> = {}
@@ -250,9 +245,12 @@ export default class Unit3D extends PrivateSite {
     return flushUserInfo as UserInfo
   }
 
-  async getUserInfoFromDetailsPage (userName: string): Promise<Partial<UserInfo>> {
-    const flushUserInfo: Partial<UserInfo> = {}
+  protected async getUserNameFromSite (): Promise<string> {
+    const { data: indexDocument } = await this.request<Document>({ url: '/', responseType: 'document', checkLogin: true })
+    return this.getFieldData(indexDocument, this.config.selector?.userInfo?.name!)
+  }
 
+  protected async getUserInfoFromDetailsPage (userName: string): Promise<Partial<UserInfo>> {
     const { data: userDetailDocument } = await this.request<Document>({
       url: urljoin('/users', userName),
       responseType: 'document'
@@ -262,12 +260,7 @@ export default class Unit3D extends PrivateSite {
       'id', 'messageCount', 'uploaded', 'downloaded',
       'levelName', 'bonus', 'joinTime', 'seeding', 'seedingSize', 'leeching'
     ]
-    for (const userInfoAttrValue of detailsPageAttrs) {
-      if (this.config.selector?.userInfo![userInfoAttrValue]) {
-        flushUserInfo[userInfoAttrValue] = this.getFieldData(userDetailDocument, this.config.selector?.userInfo![userInfoAttrValue])
-      }
-    }
 
-    return flushUserInfo
+    return this.getFieldsData(userDetailDocument, 'userInfo', detailsPageAttrs) as Partial<UserInfo>
   }
 }

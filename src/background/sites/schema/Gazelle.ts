@@ -1,10 +1,10 @@
 import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
-import { SiteConfig, Torrent, UserInfo } from '@/shared/interfaces/sites'
+import { SiteConfig, Torrent } from '@/shared/interfaces/sites'
 import Sizzle from 'sizzle'
 import { merge } from 'lodash-es'
-import { ETorrentStatus } from '../../../shared/interfaces/enum'
+import { ETorrentStatus } from '@/shared/interfaces/enum'
 import urlparse from 'url-parse'
-import { parseSizeString } from '../../../shared/utils/filter'
+import { parseSizeString } from '@/shared/utils/filter'
 import dayjs from '@/shared/utils/dayjs'
 
 export default class Gazelle extends PrivateSite {
@@ -19,6 +19,21 @@ export default class Gazelle extends PrivateSite {
         { key: 'searchsubmit', value: 1 }
       ]
     },
+    userInfo: [
+      {
+        requestConfig: { url: '/index.php', responseType: 'document' },
+        fields: ['id', 'name', 'messageCount']
+      },
+      {
+        requestConfig: { url: '/user.php', params: { /* id: flushUserInfo.id */ }, responseType: 'document' },
+        assertion: { id: 'id' },
+        fields: [
+          'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', // Gazelle 基础项
+          'seeding', 'seedingSize'
+        ]
+      }
+    ],
+
     selector: {
       search: {
         rows: { selector: 'table.torrent_table:last > tbody > tr:gt(0)' },
@@ -42,6 +57,8 @@ export default class Gazelle extends PrivateSite {
               const AccurateTimeAnother = element.querySelector('span[title], time[title]')
               if (AccurateTimeAnother) {
                 return AccurateTimeAnother.getAttribute('title')! + ':00'
+              } else if (element.getAttribute('title')) {
+                return element.getAttribute('title')! + ':00'
               } else {
                 return element.innerText.trim() + ':00'
               }
@@ -182,28 +199,5 @@ export default class Gazelle extends PrivateSite {
     }
 
     return torrents
-  }
-
-  public async flushUserInfo (): Promise<UserInfo> {
-    let flushUserInfo: Partial<UserInfo> = {}
-
-    const { data: IndexDocument } = await this.request({ url: '/index.php', responseType: 'document', checkLogin: true })
-    flushUserInfo = {
-      ...flushUserInfo,
-      ...this.getFieldsData(IndexDocument, 'userInfo', ['id', 'name', 'messageCount'])
-    }
-
-    if (flushUserInfo.id) {
-      const { data: UserDocument } = await this.request({ url: '/user.php', params: { id: flushUserInfo.id }, responseType: 'document' })
-      flushUserInfo = {
-        ...flushUserInfo,
-        ...this.getFieldsData(UserDocument, 'userInfo', [
-          'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', // Gazelle 基础项
-          'seeding', 'seedingSize'
-        ])
-      }
-    }
-
-    return flushUserInfo as UserInfo
   }
 }

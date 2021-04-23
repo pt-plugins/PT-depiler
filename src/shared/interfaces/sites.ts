@@ -182,6 +182,15 @@ export interface SiteMetadata {
     type?: ResponseType, // 当不指定时，默认为 document
   }
 
+  // 该配置项仅对 基于 PrivateSite 模板，且未改写 flushUserInfo 的站点生效
+  userInfo?: {
+    requestConfig: AxiosRequestConfig,
+    assertion?: {
+      [key in keyof UserInfo]?: string
+    },
+    fields: (keyof UserInfo)[]
+  }[]
+
   selector?: {
     search?: {
       /**
@@ -197,9 +206,7 @@ export interface SiteMetadata {
       [key: string]: ElementQuery | undefined // FIXME
     }
 
-    userInfo?: {
-      [key: string]: ElementQuery
-    } & { [userinfoKey in keyof UserInfo]?: ElementQuery } // 种子相关选择器
+    userInfo?: { [userinfoKey in keyof UserInfo]?: ElementQuery } // 用户信息相关选择器
   }
 
   feature?: { // 站点支持方法

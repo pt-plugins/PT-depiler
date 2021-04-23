@@ -49,7 +49,7 @@ export default class BittorrentSite {
               return srcValue
             } else {
               // @ts-ignore
-              return [].concat(srcValue, objValue) // 保证后并入的配置优先
+              return [].concat(srcValue, objValue).filter(x => typeof x !== 'undefined') // 保证后并入的配置优先
             }
           }
         }) as SiteConfig
@@ -249,14 +249,15 @@ export default class BittorrentSite {
    * @param fields
    * @protected
    */
-  protected getFieldsData <F extends string[]> (element: Element | Object, selectorGroup: keyof Required<SiteConfig>['selector'], fields: F): {[key in F[number]]: any} {
+  protected getFieldsData<G extends keyof Required<SiteConfig>['selector'], F extends keyof Required<Required<SiteConfig>['selector']>[G]>
+  (element: Element | Object, selectorGroup: G, fields: F[]): { [key in F]?: any } {
     const ret: any = {}
 
     for (const [key, selector] of Object.entries(pick(this.config.selector![selectorGroup], fields))) {
-      ret[key] = this.getFieldData(element, selector!)
+      ret[key] = this.getFieldData(element, selector as ElementQuery)
     }
 
-    return ret as {[key in F[number]]: any}
+    return ret as { [key in F]?: any }
   }
 
   protected getFieldData (element: Element | Object, elementQuery: ElementQuery): any {
@@ -418,7 +419,7 @@ export default class BittorrentSite {
         'rows', // rows 已经在前面被处理过了
         'tags' // tags 转由 parseTagsFromRow 方法处理
       ].includes(key) && !(key in torrent)
-    })
+    }) as (keyof Required<SiteConfig>['selector']['search'])[]
 
     torrent = {
       ...torrent,

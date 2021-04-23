@@ -5,6 +5,7 @@ import { timezoneOffset } from '@/shared/interfaces/common'
 export const sizePattern = /^(\d*\.?\d+)(.*[^ZEPTGMK])?([ZEPTGMK](B|iB))s?$/i
 
 export function parseSizeString (size: string): number {
+  size = size.replace(/,/g, '') // 建议在传入前就替换掉，但是以防万一还是在这里再做一次替换
   const sizeRawMatch = size.match(sizePattern)
   if (sizeRawMatch) {
     const sizeNumber = parseFloat(sizeRawMatch[1])
