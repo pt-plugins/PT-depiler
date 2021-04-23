@@ -57,7 +57,7 @@ export function parseTimeToLive (ttl: string): number {
   return nowDayJs.unix()
 }
 
-export function parseTimeWithZone (time: number | string, timezoneOffset: timezoneOffset): number {
+export function parseTimeWithZone (time: number | string, timezoneOffset: timezoneOffset = '+0000'): number {
   if (!timezoneOffset || !time) {
     return dayjs(time).unix()
   }

@@ -43,7 +43,16 @@ export const siteMetadata: SiteMetadata = {
   ],
 
   selector: {
-    search: {},
+    search: {
+      rows: { selector: ".torrent_table > tbody > tr[class^='torrent row']" },
+      title: { selector: 'a[data-src]', data: 'src' },
+      link: { selector: "a[href*='torrents.php?action=download']:first", attr: 'href' },
+      time: { selector: '> td:nth-child(4)' },
+      size: { selector: '> td:nth-child(3) div' },
+      seeders: { selector: '> "td:nth-child(6)' },
+      leechers: { selector: '> td:nth-child(7)' },
+      completed: { selector: '> td:nth-child(5)' }
+    },
     userInfo: {
       // page: '/ajax.php?action=index'
       id: {

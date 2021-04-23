@@ -283,7 +283,7 @@ export default class BittorrentSite {
             }
           }
         } else {
-          query = get(element, selector)
+          query = selector === ':self' ? element : get(element, selector)
         }
 
         // noinspection SuspiciousTypeOfGuard
@@ -334,7 +334,7 @@ export default class BittorrentSite {
    * 如何解析 JSON 或者 Document，获得种子详情列表
    * @param doc
    */
-  protected transformSearchPage (doc: Document | object): Torrent[] {
+  protected transformSearchPage (doc: Document | object | any): Torrent[] {
     if (!this.config.selector?.search?.rows) {
       throw Error('列表选择器未定义')
     }

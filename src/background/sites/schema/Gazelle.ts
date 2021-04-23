@@ -96,7 +96,7 @@ export default class Gazelle extends PrivateSite {
           selector: "div:contains('Stats') + ul.stats > li:contains('Uploaded')",
           filters: [
             (query: string) => {
-              const queryMatch = query.replace(/,/g, '').match(/Uploaded.+?([\d.]+ ?[ZEPTGMK]?i?B)/)
+              const queryMatch = query.replace(/,/g, '').match(/Upload.+?([\d.]+ ?[ZEPTGMK]?i?B)/)
               return (queryMatch && queryMatch.length >= 2) ? parseSizeString(queryMatch[1]) : 0
             }
           ]
@@ -105,7 +105,7 @@ export default class Gazelle extends PrivateSite {
           selector: "div:contains('Stats') + ul.stats > li:contains('Downloaded')",
           filters: [
             (query: string) => {
-              const queryMatch = query.replace(/,/g, '').match(/Downloaded.+?([\d.]+ ?[ZEPTGMK]?i?B)/)
+              const queryMatch = query.replace(/,/g, '').match(/Download.+?([\d.]+ ?[ZEPTGMK]?i?B)/)
               return (queryMatch && queryMatch.length >= 2) ? parseSizeString(queryMatch[1]) : 0
             }
           ]
@@ -115,7 +115,7 @@ export default class Gazelle extends PrivateSite {
           filters: [
             (query: string) => {
               const queryMatch = query.replace(/,/g, '').match(/Ratio.+?([\d.]+)/)
-              return (queryMatch && queryMatch.length >= 2) ? queryMatch[1] : 0
+              return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : 0
             }
           ]
         },
@@ -152,7 +152,7 @@ export default class Gazelle extends PrivateSite {
     }
   }
 
-  protected transformSearchPage (doc: Document): Torrent[] {
+  protected transformSearchPage (doc: Document | any): Torrent[] {
     // 如果配置文件没有传入 search 的选择器，则我们自己生成
     const legacyTableSelector = 'table.torrent_table:last'
 

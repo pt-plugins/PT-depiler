@@ -17,7 +17,7 @@ export interface ElementQuery {
    * 此外，此处约定了一些特殊的选择器
    *  - :self  该元素自身，对于html文档，一般用于tr自身属性，对于json文档，一般指root顶层
    */
-  selector?: string | ':self' | string[],
+  selector?: string | ':self' | string[] | null,
 
   /**
    * 对 Element 进行处理
@@ -52,7 +52,7 @@ export interface Torrent {
 
   time?: number; // 发布时间戳（毫秒级）
   size?: number; // 大小
-  author?: number; // 发布人
+  author?: number | string; // 发布人
   category?: string;
 
   seeders?: number; // 上传数量
