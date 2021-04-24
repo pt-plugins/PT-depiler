@@ -14,6 +14,11 @@ export const siteMetadata: SiteMetadata = {
   ],
   collaborator: ['enigmaz', 'timyuan'],
   search: {
+    requestConfig: {
+      params: {
+        stype: 's' // 强行更改输出类型为 NexusPHP
+      }
+    },
     categories: [
       {
         name: '搜索入口',
@@ -29,10 +34,6 @@ export const siteMetadata: SiteMetadata = {
           { name: '其他', value: '/torrents_other.php' }
         ]
       }
-    ],
-
-    defaultParams: [
-      { key: 'stype', value: 's' } // 强行更改输出类型为 NexusPHP
     ]
   },
   selector: {

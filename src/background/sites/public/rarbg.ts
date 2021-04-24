@@ -10,17 +10,19 @@ export const siteMetadata: SiteMetadata = {
   description: 'RARBG is a Public torrent site for MOVIES / TV / GENERAL',
   url: 'https://rarbg.to/',
   search: {
-    requestConfig: { responseType: 'json' },
-    keywordsParam: 'search_string',
-    defaultParams: [
-      { key: 'mode', value: 'search' },
-      { key: 'format', value: 'json_extended' }, // format json_extended returns a lot more info about the torrent.
-      /**
-       * By default the api will return only ranked torrents ( internal ) , scene releases + -rarbg releases + -rartv releases.
-       * If you want other groups included in the results use the ranked parameter with a value of 0 to get them included.
-       */
-      { key: 'ranked', value: 0 }
-    ]
+    requestConfig: {
+      responseType: 'json',
+      params: {
+        mode: 'search',
+        format: 'json_extended', // format json_extended returns a lot more info about the torrent.
+        /**
+         * By default the api will return only ranked torrents ( internal ) , scene releases + -rarbg releases + -rartv releases.
+         * If you want other groups included in the results use the ranked parameter with a value of 0 to get them included.
+         */
+        ranked: 0
+      }
+    },
+    keywordsParam: 'search_string'
   },
   selector: {
     search: {

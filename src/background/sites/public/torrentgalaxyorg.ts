@@ -12,7 +12,10 @@ export const siteMetadata: SiteMetadata = {
     'https://torrentgalaxy.su/'
   ],
   search: {
-    requestConfig: { url: '/torrents.php' },
+    requestConfig: {
+      url: '/torrents.php',
+      params: { lang: 0 }
+    },
     keywordsParam: 'search',
     categories: [
       {
@@ -57,9 +60,6 @@ export const siteMetadata: SiteMetadata = {
         ],
         cross: { mode: 'append', key: 'c' }
       }
-    ],
-    defaultParams: [
-      { key: 'lang', value: 0 }
     ]
   },
   selector: {

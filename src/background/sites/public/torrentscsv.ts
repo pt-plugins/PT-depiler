@@ -5,12 +5,15 @@ export const siteMetadata: SiteMetadata = {
   description: 'Torrents.csv is a self-hostable, open source torrent search engine and database',
   url: 'https://torrents-csv.ml/',
   search: {
-    requestConfig: { url: '/service/search', responseType: 'json' },
-    keywordsParam: 'q',
-    defaultParams: [
-      { key: 'page', value: 1 },
-      { key: 'type_', value: 'torrent' }
-    ]
+    requestConfig: {
+      url: '/service/search',
+      responseType: 'json',
+      params: {
+        page: 1,
+        type_: 'torrent'
+      }
+    },
+    keywordsParam: 'q'
   },
   selector: {
     search: {

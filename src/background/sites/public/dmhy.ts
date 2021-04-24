@@ -6,7 +6,14 @@ export const siteMetadata: SiteMetadata = {
   url: 'https://share.dmhy.org/',
   timezoneOffset: '+0800', // CST
   search: {
-    requestConfig: { url: '/topics/list' },
+    requestConfig: {
+      url: '/topics/list',
+      params: {
+        sort_id: 0,
+        team_id: 0,
+        order: 'date-desc'
+      }
+    },
     keywordsParam: 'keyword',
     categories: [
       {
@@ -35,11 +42,6 @@ export const siteMetadata: SiteMetadata = {
           { name: '其他', value: '1' }
         ]
       }
-    ],
-    defaultParams: [
-      { key: 'sort_id', value: 0 },
-      { key: 'team_id', value: 0 },
-      { key: 'order', value: 'date-desc' }
     ]
   },
   selector: {

@@ -152,15 +152,6 @@ export default class BittorrentSite {
    * @param filter
    */
   public async searchTorrents (filter: searchFilter) : Promise<Torrent[]> {
-    // 处理 filter，合并 defaultParams 到 extraParams 的最前面
-    if (this.config.search?.defaultParams) {
-      filter.extraParams = ([] as searchParams[])
-        .concat(
-          this.config.search.defaultParams || [],
-          filter.extraParams || []
-        )
-    }
-
     // 根据配置和搜索关键词生成 AxiosRequestConfig
     const axiosConfig: AxiosRequestConfig = merge(
       { url: '/', responseType: 'document' },
@@ -170,7 +161,7 @@ export default class BittorrentSite {
 
     // 请求页面并转化为document
     const req = await this.request({ ...axiosConfig, checkLogin: true })
-    const rawTorrent = this.transformSearchPage(req.data)
+    const rawTorrent = await this.transformSearchPage(req.data)
     return rawTorrent.map(t => this.fixParsedTorrent(t, { filter, axiosConfig }))
   }
 
@@ -262,7 +253,7 @@ export default class BittorrentSite {
 
   protected getFieldData (element: Element | Object, elementQuery: ElementQuery): any {
     const { selector } = elementQuery
-    let query: string = String(elementQuery.text || '')
+    let query: string = String(elementQuery.text ?? '')
     let selectorId = 0
     if (selector) {
       const selectors = ([] as string[]).concat(selector)
@@ -275,9 +266,9 @@ export default class BittorrentSite {
             if (elementQuery.elementProcess && elementQuery.elementProcess.length > 0) {
               query = this.runQueryFilters<string>(another, elementQuery.elementProcess)
             } else if (elementQuery.data) {
-              query = another.dataset[elementQuery.data] || ''
+              query = another.dataset[elementQuery.data] ?? ''
             } else if (elementQuery.attr) {
-              query = another.getAttribute(elementQuery.attr) || ''
+              query = another.getAttribute(elementQuery.attr) ?? ''
             } else {
               query = another.innerText.replace(/\n/ig, ' ') || ''
             }
@@ -334,7 +325,7 @@ export default class BittorrentSite {
    * 如何解析 JSON 或者 Document，获得种子详情列表
    * @param doc
    */
-  protected transformSearchPage (doc: Document | object | any): Torrent[] {
+  protected async transformSearchPage (doc: Document | object | any): Promise<Torrent[]> {
     if (!this.config.selector?.search?.rows) {
       throw Error('列表选择器未定义')
     }
@@ -433,7 +424,7 @@ export default class BittorrentSite {
 
     // 处理下载进度
     if (!torrent.progress || !torrent.status) {
-      torrent = Object.assign(torrent, this.parseDownloadProcessFromRow(row))
+      torrent = { ...torrent, ...this.parseDownloadProcessFromRow(row) }
     }
 
     return torrent

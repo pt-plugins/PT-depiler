@@ -7,6 +7,14 @@ export const siteMetadata: SiteMetadata = {
   url: 'https://concen.org/',
   search: {
     keywordsParam: 'title',
+    requestConfig: {
+      params: {
+        title_op: 'allwords',
+        title_1_op: 'not',
+        title_1: '',
+        seeds: 1
+      }
+    },
     categories: [
       {
         name: 'Order',
@@ -28,12 +36,6 @@ export const siteMetadata: SiteMetadata = {
           { name: 'Ascending', value: 'asc' }
         ]
       }
-    ],
-    defaultParams: [
-      { key: 'title_op', value: 'allwords' },
-      { key: 'title_1_op', value: 'not' },
-      { key: 'title_1', value: '' },
-      { key: 'seeds', value: '1' }
     ]
   },
   selector: {

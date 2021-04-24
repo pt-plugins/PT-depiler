@@ -13,11 +13,9 @@ export default class Gazelle extends PrivateSite {
       keywordsParam: 'searchstr',
       requestConfig: {
         url: '/torrents.php',
-        responseType: 'document'
-      },
-      defaultParams: [
-        { key: 'searchsubmit', value: 1 }
-      ]
+        responseType: 'document',
+        params: { searchsubmit: 1 }
+      }
     },
     userInfo: [
       {
@@ -152,7 +150,7 @@ export default class Gazelle extends PrivateSite {
     }
   }
 
-  protected transformSearchPage (doc: Document | any): Torrent[] {
+  protected async transformSearchPage (doc: Document | any): Promise<Torrent[]> {
     // 如果配置文件没有传入 search 的选择器，则我们自己生成
     const legacyTableSelector = 'table.torrent_table:last'
 

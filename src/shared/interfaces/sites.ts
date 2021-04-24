@@ -175,7 +175,6 @@ export interface SiteMetadata {
 
     keywordsParam?: string, // 当不指定且未改写时，会导致keyword未被搜索使用
     categories?: searchCategories[] // 站点对应搜索入口的种子分类信息
-    defaultParams?: searchParams[], // 无论如何都会传入的参数
   } // 站点搜索方法如何配置
 
   detail?: {

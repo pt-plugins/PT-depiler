@@ -28,7 +28,12 @@ export const siteMetadata: SiteMetadata = {
     'https://x1337x.se/'
   ],
   search: {
-    requestConfig: { url: '/search' },
+    requestConfig: {
+      url: '/search',
+      params: {
+        order: 'desc'
+      }
+    },
     categories: [
       {
         name: 'Category',
@@ -61,9 +66,6 @@ export const siteMetadata: SiteMetadata = {
           { name: 'Descending', value: 'desc' }
         ]
       }
-    ],
-    defaultParams: [
-      { key: 'order', value: 'desc' }
     ]
   },
   selector: {

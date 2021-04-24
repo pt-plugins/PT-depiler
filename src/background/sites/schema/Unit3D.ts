@@ -20,11 +20,11 @@ export default class Unit3D extends PrivateSite {
       keywordsParam: 'search',
       requestConfig: {
         url: '/torrents/filter',
-        responseType: 'document'
-      },
-      defaultParams: [
-        { key: 'view', value: 'list' } // 强制使用 种子列表 的形式返回
-      ]
+        responseType: 'document',
+        params: {
+          view: 'list' // 强制使用 种子列表 的形式返回
+        }
+      }
     },
     selector: {
       search: {

@@ -8,7 +8,15 @@ export const siteMetadata: SiteMetadata = {
   timezoneOffset: '+0200',
   url: 'http://www.animeclipse.com/',
   search: {
-    requestConfig: { url: '/index.php' },
+    requestConfig: {
+      url: '/index.php',
+      params: {
+        ind: 'btitracker',
+        active: 0,
+        category: 0,
+        tor_page: 50
+      }
+    },
     keywordsParam: 'search',
     categories: [
       {
@@ -83,12 +91,6 @@ export const siteMetadata: SiteMetadata = {
           { name: 'Ascending', value: 'ASC' }
         ]
       }
-    ],
-    defaultParams: [
-      { key: 'ind', value: 'btitracker' },
-      { key: 'active', value: 0 },
-      { key: 'category', value: 0 },
-      { key: 'tor_page', value: 50 }
     ]
   },
   selector: {

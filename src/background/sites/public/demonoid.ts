@@ -10,7 +10,17 @@ export const siteMetadata: SiteMetadata = {
     'https://www.dnoid.pw/'
   ],
   search: {
-    requestConfig: { url: '/files/' },
+    requestConfig: {
+      url: '/files/',
+      params: {
+        category: 0,
+        subcategory: 0,
+        language: 0,
+        seeded: 2, // 0 seeded, 1 unseeded, 2 both
+        quality: 0, // 0 all
+        external: 2 // 0 Demonoid, 1 External, 2 Both
+      }
+    },
     keywordsParam: 'query',
     categories: [
       // 只做一级分类，不做二级分类
@@ -46,14 +56,6 @@ export const siteMetadata: SiteMetadata = {
           { name: 'TV', value: 12 }
         ]
       }
-    ],
-    defaultParams: [
-      { key: 'category', value: 0 },
-      { key: 'subcategory', value: 0 },
-      { key: 'language', value: 0 },
-      { key: 'seeded', value: 2 }, // 0 seeded, 1 unseeded, 2 both
-      { key: 'quality', value: 0 }, // 0 all
-      { key: 'external', value: 2 } // 0 Demonoid, 1 External, 2 Both
     ]
   },
   selector: {

@@ -18,12 +18,12 @@ export const siteMetadata: SiteMetadata = {
   collaborator: ['lengmianxia', 'birdplane'],
   search: {
     requestConfig: {
-      responseType: 'json'
-    },
-    defaultParams: [
-      { key: 'grouping', value: '0' },
-      { key: 'json', value: 'noredirect' }
-    ]
+      responseType: 'json',
+      params: {
+        groupint: 0,
+        json: 'noredirect'
+      }
+    }
   },
 
   selector: {
@@ -136,7 +136,7 @@ interface SearchResponse {
 }
 
 export default class passthepopcorn extends Gazelle {
-  protected transformSearchPage (doc: SearchResponse): Torrent[] {
+  protected async transformSearchPage (doc: SearchResponse): Promise<Torrent[]> {
     const authKey = doc.AuthKey
     const passKey = doc.PassKey
 

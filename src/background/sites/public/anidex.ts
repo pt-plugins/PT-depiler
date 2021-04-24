@@ -7,6 +7,9 @@ export const siteMetadata: SiteMetadata = {
   url: 'https://anidex.info',
   search: {
     keywordsParam: 'q',
+    requestConfig: {
+      params: { page: 'search' }
+    },
     categories: [
       {
         name: 'Category',
@@ -45,9 +48,6 @@ export const siteMetadata: SiteMetadata = {
           { name: 'Ascending', value: 'asc' }
         ]
       }
-    ],
-    defaultParams: [
-      { key: 'page', value: 'search' }
     ]
   },
   selector: {

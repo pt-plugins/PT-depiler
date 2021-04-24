@@ -6,6 +6,7 @@ export const siteMetadata: SiteMetadata = {
   url: 'https://nyaa.si/',
   search: {
     keywordsParam: 'q',
+    requestConfig: { params: { c: '0_0' } },
     categories: [
       {
         name: 'Domain',
@@ -90,9 +91,6 @@ export const siteMetadata: SiteMetadata = {
           { name: 'Real Life - Videos', value: '2_2' }
         ]
       }
-    ],
-    defaultParams: [
-      { key: 'c', value: '0_0' }
     ]
   },
   selector: {

@@ -16,10 +16,7 @@ export const siteMetadata: SiteMetadata = {
   ],
   search: {
     keywordsParam: 'q',
-    defaultParams: [
-      { key: 'v', value: '' },
-      { key: 'c', value: '' }
-    ]
+    requestConfig: { params: { v: '', c: '' } }
   },
   selector: {
     search: {

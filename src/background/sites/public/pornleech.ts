@@ -6,13 +6,15 @@ export const siteMetadata: SiteMetadata = {
   description: 'PornLeech is a Public Tracker for 3X',
   url: 'http://pornleech.io/',
   search: {
-    requestConfig: { url: '/index.php' },
-    keywordsParam: 'search',
-    defaultParams: [
-      { key: 'page', value: 'torrents' },
-      { key: 'options', value: 0 }, // Search in filename
-      { key: 'active', value: 0 } // 0 - All , 1 - Active only , 2 - Dead only
-    ]
+    requestConfig: {
+      url: '/index.php',
+      params: {
+        page: 'torrents',
+        options: 0, // Search in filename
+        active: 0 // 0 - All , 1 - Active only , 2 - Dead only
+      }
+    },
+    keywordsParam: 'search'
   },
   selector: {
     search: {

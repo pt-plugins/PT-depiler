@@ -36,12 +36,12 @@ export const siteMetadata: SiteMetadata = {
   collaborator: 'waldens',
   search: {
     requestConfig: {
-      url: '/pt'
+      url: '/pt',
+      params: {
+        v: 'legacyinv' // 强行设置统一的返回界面样式，方便后面解析
+      }
     },
     keywordsParam: 'iwannaseethis',
-    defaultParams: [
-      { key: 'v', value: 'legacyinv' } // 强行设置统一的返回界面样式，方便后面解析
-    ],
     categories: [
       {
         name: '分类',

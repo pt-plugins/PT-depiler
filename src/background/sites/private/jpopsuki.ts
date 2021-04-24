@@ -72,7 +72,7 @@ export const siteMetadata: SiteMetadata = {
 }
 
 export default class jpopsuki extends Gazelle {
-  protected transformSearchPage (doc: Document): Torrent[] {
+  protected async transformSearchPage (doc: Document): Promise<Torrent[]> {
     const torrents: Torrent[] = []
 
     const rows = Sizzle('table.torrent_table:last > tbody > tr:gt(0)', doc) as HTMLElement[]

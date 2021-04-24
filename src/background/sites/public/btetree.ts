@@ -7,9 +7,9 @@ export const siteMetadata: SiteMetadata = {
   url: 'https://bt.etree.org/',
   search: {
     keywordsParam: 'searchzzzz',
-    defaultParams: [
-      { key: 'cat', value: 0 }
-    ]
+    requestConfig: {
+      params: { cat: 0 }
+    }
   },
   selector: {
     search: {

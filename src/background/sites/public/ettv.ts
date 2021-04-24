@@ -15,7 +15,10 @@ export const siteMetadata: SiteMetadata = {
     'https://www.ettv.be/'
   ],
   search: {
-    requestConfig: { url: '/torrents-search.php' },
+    requestConfig: {
+      url: '/torrents-search.php',
+      params: { lang: 0 }
+    },
     keywordsParam: 'search',
     categories: [
       {
@@ -77,9 +80,6 @@ export const siteMetadata: SiteMetadata = {
         ],
         cross: { mode: 'append', key: 'c' }
       }
-    ],
-    defaultParams: [
-      { key: 'lang', value: 0 }
     ]
   },
   selector: {

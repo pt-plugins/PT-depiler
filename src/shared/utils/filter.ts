@@ -59,7 +59,7 @@ export function parseTimeToLive (ttl: string): number {
 
 export function parseTimeWithZone (time: number | string, timezoneOffset: timezoneOffset = '+0000'): number {
   if (!timezoneOffset || !time) {
-    return dayjs(time).unix()
+    return dayjs(time).valueOf()
   }
   let result = time
   // 标准时间戳需要 * 1000

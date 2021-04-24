@@ -9,7 +9,14 @@ export const siteMetadata: SiteMetadata = {
     'https://glodls.to/'
   ],
   search: {
-    requestConfig: { url: '/search_results.php' },
+    requestConfig: {
+      url: '/search_results.php',
+      params: {
+        incldead: 1, // 0 active 1 incldead 2 onlydead
+        inclexternal: 0, // 0 both 1 local 2 external
+        lang: 0 // 0 all 1 english etc
+      }
+    },
     keywordsParam: 'search',
     categories: [
       {
@@ -39,11 +46,6 @@ export const siteMetadata: SiteMetadata = {
         ],
         cross: { mode: 'append', key: 'c' }
       }
-    ],
-    defaultParams: [
-      { key: 'incldead', value: 1 }, // 0 active 1 incldead 2 onlydead
-      { key: 'inclexternal', value: 0 }, // 0 both 1 local 2 external
-      { key: 'lang', value: 0 } // 0 all 1 english etc
     ]
   },
   selector: {

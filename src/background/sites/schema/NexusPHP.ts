@@ -23,11 +23,9 @@ export default class NexusPHP extends PrivateSite {
     search: {
       keywordsParam: 'search',
       requestConfig: {
-        url: '/torrents.php'
-      },
-      defaultParams: [
-        { key: 'notnewword', value: 1 }
-      ]
+        url: '/torrents.php',
+        params: { notnewword: 1 }
+      }
     },
     selector: {
       search: {
@@ -187,7 +185,7 @@ export default class NexusPHP extends PrivateSite {
     }
   }
 
-  protected transformSearchPage (doc: Document | object): Torrent[] {
+  protected async transformSearchPage (doc: Document | object): Promise<Torrent[]> {
     // 返回是 Document 的情况才自动生成
     if (doc instanceof Document) {
       // 如果配置文件没有传入 search 的选择器，则我们自己生成
