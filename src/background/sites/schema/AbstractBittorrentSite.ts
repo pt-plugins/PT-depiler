@@ -1,6 +1,6 @@
 import {
   ElementQuery, searchCategories, searchCategoryOptions,
-  searchFilter, searchParams, SearchRequestConfig, SearchResultItemTag,
+  searchFilter, SearchRequestConfig, SearchResultItemTag,
   SiteConfig,
   SiteMetadata,
   Torrent

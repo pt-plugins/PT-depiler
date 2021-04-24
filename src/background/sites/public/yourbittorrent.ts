@@ -1,5 +1,5 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
-import dayjs from 'dayjs'
+import dayjs from '@/shared/utils/dayjs'
 
 const CategoryMap = new Map([
   ['c1', 'Movies'], ['c2', 'Music'], ['c3', 'Series'], ['c4', 'Games'], ['c5', 'Apps'],

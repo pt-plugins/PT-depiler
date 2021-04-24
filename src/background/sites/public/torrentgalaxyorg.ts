@@ -1,6 +1,6 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
 import { parseTimeToLive } from '@/shared/utils/filter'
-import dayjs from 'dayjs'
+import dayjs from '@/shared/utils/dayjs'
 import urlparse from 'url-parse'
 
 export const siteMetadata: SiteMetadata = {

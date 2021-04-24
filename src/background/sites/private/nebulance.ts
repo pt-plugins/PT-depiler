@@ -4,7 +4,7 @@
  */
 import { SiteMetadata } from '@/shared/interfaces/sites'
 import { parseSizeString } from '@/shared/utils/filter'
-import dayjs from 'dayjs'
+import dayjs from '@/shared/utils/dayjs'
 
 export const siteMetadata: SiteMetadata = {
   name: 'Nebulance',
@@ -116,7 +116,7 @@ export const siteMetadata: SiteMetadata = {
         elementProcess: [
           (element:HTMLElement) => {
             const timeText = (element.getAttribute('title') || element.innerText).trim()
-            return dayjs(timeText).isValid() ? dayjs(timeText).isValid() : timeText
+            return dayjs(timeText).isValid() ? dayjs(timeText).valueOf() : timeText
           }
         ]
       }
