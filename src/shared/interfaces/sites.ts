@@ -1,6 +1,6 @@
-import { ETorrentStatus } from '@/shared/interfaces/enum'
+import { ETorrentBaseTagColor, ETorrentStatus } from '@/shared/interfaces/enum'
 import { AxiosRequestConfig, ResponseType } from 'axios'
-import { timezoneOffset } from '@/shared/interfaces/common'
+import { fullUrl, timezoneOffset } from '@/shared/interfaces/common'
 
 export interface SearchResultItemTag {
   color?: string;
@@ -10,7 +10,12 @@ export interface SearchResultItemTag {
 export interface ElementQuery {
   // selector或 text 一定要有一个
 
-  text?: string | number, // 当text输入时，text会作为默认值
+  /**
+   * 当text输入时，text会作为默认值
+   * 特殊值：
+   * - N/A 表示源站并没有提供该信息
+   */
+  text?: string | number | 'N/A',
 
   /**
    * 如果selector为 string[]， 则会依次尝试并找到第一个成功获取到有效信息的
@@ -27,6 +32,7 @@ export interface ElementQuery {
   elementProcess?: (Function | string)[], // 自定义对于Element的处理方法，此时 attr 以及 data 选项均不生效，但 filters 和 switchFilters 仍生效
   attr?: string | null, // 使用 HTMLElement.getAttribute('') 进行取值，取不到值则置 ''
   data?: string | null, // 使用 HTMLElement.dataset[''] 进行取值，取不到值则置 ''
+  case?: { [selector: string]: string | null }
 
   /**
    * 对获取结果进行处理，处理结果将作为最终的值输出
@@ -160,7 +166,7 @@ export interface SiteMetadata {
    *  - 在搜索中，如果用户设置时未传入 activateUrl ，则使用 legacyUrl[0]
    *  - 在页面中， [url, ...legacyUrl] 效果相同
    */
-  legacyUrl?: string[];
+  legacyUrl?: fullUrl[];
 
   host?: string; // 站点域名，如果不存在，则从url中获取
   formerHosts?: string[]; // 站点过去曾经使用过的域名（现在已不再使用）
@@ -181,9 +187,18 @@ export interface SiteMetadata {
     type?: ResponseType, // 当不指定时，默认为 document
   }
 
-  // 该配置项仅对 基于 PrivateSite 模板，且未改写 flushUserInfo 的站点生效
+  /**
+   * 该配置项仅对 基于 PrivateSite 模板，且未改写 flushUserInfo 的站点生效
+   * 注意： 有执行顺序，从上到下依次执行，第一个不应该有断言 assertion，后续配置项可以有断言
+   */
   userInfo?: {
-    requestConfig: AxiosRequestConfig,
+    requestConfig: AxiosRequestConfig, // { params: {}, responseType: 'document' } 会作为基件
+    /**
+     * 请求参数替换断言
+     * key为之前步骤获取到的用户信息字典，value为需要替换的键值，如果：
+     *  requestConfig.url 中有类似 `$value$` 的字段，则替换 url
+     *  不然会生成 params: {value: key}
+     */
     assertion?: {
       [key in keyof UserInfo]?: string
     },
@@ -198,7 +213,7 @@ export interface SiteMetadata {
        */
       rows?: { selector: string | ':self', merge?: number }
     } & { [torrentKey in keyof Torrent]?: ElementQuery } // 种子相关选择器
-      & { tags?: { selector: string, name: string, color?: string }[] } // Tags相关选择器
+      & { tags?: { selector: string, name: (keyof typeof ETorrentBaseTagColor) | string, color?: string }[] } // Tags相关选择器
 
     detail?: {
       link?: ElementQuery // 用于获取下载链接不在搜索页，而在详情页的情况

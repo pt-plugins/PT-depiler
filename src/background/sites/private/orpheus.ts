@@ -1,6 +1,6 @@
 import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites'
-import GazelleJSONAPI, { userJsonResponse } from '@/background/sites/schema/GazelleJSONAPI'
-import { parseSizeString } from '@/shared/utils/filter'
+import GazelleJSONAPI from '@/background/sites/schema/GazelleJSONAPI'
+import { findThenParseSizeString } from '@/shared/utils/filter'
 
 export const siteMetadata: SiteMetadata = {
   name: 'OPS',
@@ -26,12 +26,7 @@ export const siteMetadata: SiteMetadata = {
       },
       seedingSize: {
         selector: ['div#content > table > tbody > tr > td:eq(1)'],
-        filters: [
-          (query: string) => {
-            const queryMatch = query.replace(/,/g, '').match(/([\d.]+ ?[ZEPTGMK]?i?B)/)
-            return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0
-          }
-        ]
+        filters: [findThenParseSizeString]
       },
       bonus: {
         selector: ['div#content > div.header > h3'],

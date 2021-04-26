@@ -8,3 +8,5 @@ export interface LogItem {
 }
 
 export type timezoneOffset = `${'UTC' | ''}${'-' | '+'}${number}`
+
+export type fullUrl = `${'http' | 'https'}://${string}/`

@@ -1,6 +1,7 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
 import { ETorrentStatus } from '@/shared/interfaces/enum'
 import NexusPHP from '@/background/sites/schema/NexusPHP'
+import { findThenParseSizeString } from '@/shared/utils/filter'
 
 const levelMap = {
   0: '堕落者(Peasant)',
@@ -74,9 +75,7 @@ export const siteMetadata: SiteMetadata = {
       time: { selector: ['td:nth-child(8)'] },
       size: {
         selector: ["nobr:contains('B')"],
-        filters: [
-          (query: string) => query.replace(/,/g, '').match(/([\d.]+ ?[ZEPTGMK]?i?B)/)![0]
-        ]
+        filters: [findThenParseSizeString]
       },
       seeders: { selector: ["a[href*='#seeders'] font"] },
       leechers: {

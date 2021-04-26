@@ -32,6 +32,11 @@ export function parseSizeString (size: string): number {
   return 0
 }
 
+export function findThenParseSizeString (query: string): number {
+  const queryMatch = query.replace(/,/g, '').match(/([\d.]+ ?[ZEPTGMK]?i?B)/)
+  return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0
+}
+
 export const dateUnit = ['year', 'quarter', 'month', 'week', 'day', 'hour', 'minute', 'second']
 export const nonStandDateUnitMap = new Map<string, typeof dateUnit[number]>([
   // 中文

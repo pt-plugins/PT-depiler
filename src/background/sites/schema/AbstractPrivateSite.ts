@@ -31,21 +31,25 @@ export default class PrivateSite extends BittorrentSite {
         }
 
         // 更新请求字段，如果字段缺失则跳出循环
-        let shouldBreak : boolean = false
-        const requestConfig : AxiosRequestConfig = { params: {} }
+        const requestConfig = merge<AxiosRequestConfig, AxiosRequestConfig>(
+          { params: {}, responseType: 'document' },
+          thisUserInfo.requestConfig
+        )
         if (thisUserInfo.assertion) {
           for (const [requiredField, paramsKey] of Object.entries(thisUserInfo.assertion)) {
             if (flushUserInfo[requiredField]) {
-              requestConfig.params[paramsKey!] = flushUserInfo[requiredField]
+              if (requestConfig.url?.includes(`$${paramsKey}$`)) {
+                requestConfig.url.replace(`$${paramsKey}$`, flushUserInfo[requiredField])
+              } else {
+                requestConfig.params[paramsKey!] = flushUserInfo[requiredField]
+              }
             } else {
-              shouldBreak = true
+              throw new Error(`断言字段 ${requiredField} 缺失`)
             }
           }
         }
 
-        if (shouldBreak) { break }
-
-        const { data: dataDocument } = await this.request(merge(thisUserInfo.requestConfig, requestConfig))
+        const { data: dataDocument } = await this.request(requestConfig)
         flushUserInfo = {
           ...flushUserInfo,
           ...this.getFieldsData(dataDocument, 'userInfo', xor(thisUserInfo.fields, Object.keys(flushUserInfo)))

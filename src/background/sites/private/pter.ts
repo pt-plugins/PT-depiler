@@ -73,7 +73,7 @@ export const siteMetadata: SiteMetadata = {
         ]
       },
       tags: [
-        { name: '⛔', selector: "a[href*='torrents.php?tag_exclusive=yes']" }
+        { name: 'Excl.', selector: "a[href*='torrents.php?tag_exclusive=yes']" }
       ]
     },
     userInfo: {

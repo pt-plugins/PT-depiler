@@ -1,6 +1,6 @@
 import { SiteMetadata, Torrent, UserInfo } from '@/shared/interfaces/sites'
 import GazelleJSONAPI, { groupBrowseResult, groupTorrent } from '@/background/sites/schema/GazelleJSONAPI'
-import { parseSizeString } from '@/shared/utils/filter'
+import { findThenParseSizeString } from '@/shared/utils/filter'
 
 export const siteMetadata: SiteMetadata = {
   name: 'HD-Forever',
@@ -14,12 +14,7 @@ export const siteMetadata: SiteMetadata = {
     userInfo: {
       seedingSize: {
         selector: ['table.torrent_table:first td.nobr'],
-        filters: [
-          (query: string) => {
-            const queryMatch = query.replace(/,/g, '').match(/([\d.]+ ?[ZEPTGMK]?i?B)/)
-            return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0
-          }
-        ]
+        filters: [findThenParseSizeString]
       },
       bonus: {
         selector: "li#BonusPoints a[href*='store.php']",

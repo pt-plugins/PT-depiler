@@ -94,12 +94,12 @@ export default class NexusPHP extends PrivateSite {
         tags: [
           // 这里的 selector仅放最基础的（NPHP默认），如果各站有更改请在对应站点修改，不要污染全局空间
           // 因为 tags是会 concat 接起来的
-          { name: 'Free', selector: 'img.pro_free', color: 'blue' },
-          { name: '2xFree', selector: 'img.pro_free2up', color: 'green' },
-          { name: '2xUp', selector: 'img.pro_2up', color: 'lime' },
-          { name: '2x50%', selector: 'img.pro_50pctdown2up', color: 'light-green' },
-          { name: '30%', selector: 'img.pro_30pctdown', color: 'indigo' },
-          { name: '50%', selector: 'img.pro_50pctdown', color: 'orange' }
+          { name: 'Free', selector: 'img.pro_free' },
+          { name: '2xFree', selector: 'img.pro_free2up' },
+          { name: '2xUp', selector: 'img.pro_2up' },
+          { name: '2x50%', selector: 'img.pro_50pctdown2up' },
+          { name: '30%', selector: 'img.pro_30pctdown' },
+          { name: '50%', selector: 'img.pro_50pctdown' }
         ]
       },
       detail: {},

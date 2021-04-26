@@ -44,7 +44,7 @@ export const siteMetadata: SiteMetadata = {
       },
       tags: [
         // 禁转, 限时禁转
-        { selector: "td.embedded b > font.recommended:contains('禁转')", name: '⛔' }
+        { selector: "td.embedded b > font.recommended:contains('禁转')", name: 'Excl.' }
       ]
     },
     userInfo: {

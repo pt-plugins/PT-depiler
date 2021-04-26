@@ -60,7 +60,7 @@ export const siteMetadata: SiteMetadata = {
         ]
       },
       tags: [
-        { name: '⛔', selector: "td.embedded > a[title] > b > font[color='red']" }
+        { name: 'Excl.', selector: "td.embedded > a[title] > b > font[color='red']" }
       ]
     }
   }

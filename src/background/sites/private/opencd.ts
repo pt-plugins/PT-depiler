@@ -49,7 +49,7 @@ export const siteMetadata: SiteMetadata = {
       progress: selectorSearchProgress,
       status: selectorSearchStatus,
       tags: [
-        { selector: "img[src*='pic/share_rule_1.gif']", name: '⛔' }// 禁转
+        { selector: "img[src*='pic/share_rule_1.gif']", name: 'Excl.' }// 禁转
       ]
     },
     userInfo: {

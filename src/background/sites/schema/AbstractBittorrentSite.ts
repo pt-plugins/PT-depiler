@@ -11,7 +11,7 @@ import urljoin from 'url-join'
 import urlparse from 'url-parse'
 import { merge, get, chunk, mergeWith, pick } from 'lodash-es'
 import { cfDecodeEmail, parseSizeString, parseTimeWithZone } from '@/shared/utils/filter'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
+import { ETorrentBaseTagColor, ETorrentStatus } from '@/shared/interfaces/enum'
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export default class BittorrentSite {
@@ -263,8 +263,15 @@ export default class BittorrentSite {
           // 这里我们预定义一个特殊的 Css Selector，即不进行子元素选择
           const another = (selector === ':self' ? element : Sizzle(selector, element)[0]) as HTMLElement
           if (another) {
-            if (elementQuery.elementProcess && elementQuery.elementProcess.length > 0) {
+            if (elementQuery.elementProcess) {
               query = this.runQueryFilters<string>(another, elementQuery.elementProcess)
+            } else if (elementQuery.case) {
+              for (const [match, value] of Object.entries(elementQuery.case)) {
+                if (Sizzle.matchSelector(another, match)) {
+                  query = value ?? ''
+                  break
+                }
+              }
             } else if (elementQuery.data) {
               query = another.dataset[elementQuery.data] ?? ''
             } else if (elementQuery.attr) {
@@ -432,9 +439,20 @@ export default class BittorrentSite {
 
   protected parseTagsFromRow (row: Element | Document | Object): SearchResultItemTag[] {
     const tags: SearchResultItemTag[] = []
-    const tagsQuery = this.config.selector!.search!.tags!
-    for (let i = 0; i < tagsQuery.length; i++) {
-      const { selector, name, color } = tagsQuery[i]
+    const tagsQuerys = this.config.selector!.search!.tags!
+    for (let i = 0; i < tagsQuerys.length; i++) {
+      const tagsQuery = tagsQuerys[i]
+
+      if (!tagsQuery.color) { // 补全 tags 的颜色信息
+        if (Object.keys(ETorrentBaseTagColor).includes(tagsQuery.name)) {
+          // @ts-ignore
+          tagsQuery.color = ETorrentBaseTagColor[tagsQuery.name]
+        } else {
+          tagsQuery.color = '#ffc107'
+        }
+      }
+
+      const { selector, name, color } = tagsQuerys[i]
       if (row instanceof Element) {
         if (Sizzle(selector, row).length > 0) {
           tags.push({ name, color })
