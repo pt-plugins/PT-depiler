@@ -1,7 +1,7 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
 import urlparse from 'url-parse'
 import { findThenParseSizeString, parseSizeString } from '@/shared/utils/filter'
-import dayjs from 'dayjs'
+import dayjs from '@/shared/utils/dayjs'
 import Sizzle from 'sizzle'
 
 export const siteMetadata: SiteMetadata = {
@@ -10,7 +10,6 @@ export const siteMetadata: SiteMetadata = {
   description: 'bwtorrents',
   url: 'https://bwtorrents.tv/',
   tags: ['综合', '印度'],
-  schema: 'AbstractPrivateSite',
   host: 'bwtorrents.tv',
   search: {
     keywordsParam: 'search',

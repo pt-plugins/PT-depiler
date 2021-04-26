@@ -151,7 +151,14 @@ export type SiteFeature = 'queryUserInfo'
  */
 export interface SiteMetadata {
   name: string; // 站点名
-  schema?: SiteSchema; // 指定继承模板类型
+
+  /**
+   * 指定继承模板类型，如果未填写的话，会根据其所在的目录进行自动更正为缺省值：
+   *  - public 目录下， schema 的缺省值为 AbstractBittorrentSite
+   *  - private 目录下， schema 的缺省值为 AbstractPrivateSite
+   *
+   */
+  schema?: SiteSchema;
   url: string; // 完整的网站地址，如果网站支持 `https` ，请优先考虑填写 `https` 的地址
 
   description?: string; // 站点说明

@@ -1,7 +1,7 @@
 import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites'
 import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
 import { findThenParseSizeString } from '@/shared/utils/filter'
-import dayjs from 'dayjs'
+import dayjs from '@/shared/utils/dayjs'
 import urlparse from 'url-parse'
 import Sizzle from 'sizzle'
 
@@ -11,7 +11,6 @@ export const siteMetadata: SiteMetadata = {
   description: 'Bibliotik',
   url: 'https://bibliotik.me/',
   tags: ['电子书'],
-  schema: 'AbstractPrivateSite',
   search: {
     keywordsParam: 'search',
     requestConfig: {

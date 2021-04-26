@@ -10,7 +10,6 @@ import urlparse from 'url-parse'
 import { ETorrentStatus } from '@/shared/interfaces/enum'
 
 export const siteMetadata: SiteMetadata = {
-  schema: 'AbstractPrivateSite',
   name: 'Aidoru!Online',
   timezoneOffset: '+0000',
   description: 'Aidoru!Online is a Private Torrent Tracker for Female Japanese Idol related files',

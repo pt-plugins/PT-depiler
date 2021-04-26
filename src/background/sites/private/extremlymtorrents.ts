@@ -1,7 +1,7 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
 import urlparse from 'url-parse'
 import { findThenParseSizeString } from '@/shared/utils/filter'
-import dayjs from 'dayjs'
+import dayjs from '@/shared/utils/dayjs'
 
 export const siteMetadata: SiteMetadata = {
   name: 'ExtremlymTorrents',
@@ -9,7 +9,6 @@ export const siteMetadata: SiteMetadata = {
   description: 'ExtremlymTorrents (XTR) is a Semi-Private tracker for MOVIES / TV / GENERAL',
   url: 'https://extremlymtorrents.ws/',
   tags: ['综合'],
-  schema: 'AbstractPrivateSite',
   search: {
     keywordsParam: 'search',
     requestConfig: {

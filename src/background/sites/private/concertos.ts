@@ -1,6 +1,6 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
 import { findThenParseSizeString } from '@/shared/utils/filter'
-import dayjs from 'dayjs'
+import dayjs from '@/shared/utils/dayjs'
 
 export const siteMetadata: SiteMetadata = {
   name: 'Concertos',
@@ -8,7 +8,6 @@ export const siteMetadata: SiteMetadata = {
   description: 'Concertos',
   url: 'https://concertos.live/',
   tags: ['MV'],
-  schema: 'AbstractPrivateSite',
   search: {
     keywordsParam: 'title',
     requestConfig: {

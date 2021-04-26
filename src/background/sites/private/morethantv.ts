@@ -1,7 +1,7 @@
 import { SiteMetadata, Torrent } from '@/shared/interfaces/sites'
 import urlparse from 'url-parse'
 import { findThenParseSizeString } from '@/shared/utils/filter'
-import dayjs from 'dayjs'
+import dayjs from '@/shared/utils/dayjs'
 import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
 import Sizzle from 'sizzle'
 
@@ -9,7 +9,7 @@ export const siteMetadata: SiteMetadata = {
   name: 'MoreThanTV',
   timezoneOffset: '+0000',
   description: 'MTV',
-  schema: 'AbstractPrivateSite', // Real: Luminance
+  // schema: 'Luminance',
   tags: ['电视剧', '剧集'],
   url: 'https://www.morethantv.me',
   collaborator: 'luckiestone',

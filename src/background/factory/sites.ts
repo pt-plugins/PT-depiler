@@ -56,7 +56,9 @@ class Sites extends Container {
       // FIXME 部分用户自定义的站点（此时在 js/site 目录中不存在对应模块），不能进行 dynamicImport 的情况，对此应该直接从 schema 中导入
       const module = await this.dynamicImport(siteName)
       let { siteMetadata: siteMetaData /* use as const */, default: SiteClass } = module
-      siteMetaData.schema = siteMetaData.schema || 'AbstractBittorrentSite'
+      if (!siteMetaData.schema) {
+        siteMetaData.schema = siteName.startsWith('private') ? 'AbstractPrivateSite' : 'AbstractBittorrentSite'
+      }
 
       /**
        * 如果该模块没有导出 default class，那么我们认为我们需要从基类继承
