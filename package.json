@@ -11,22 +11,25 @@
   "homepage": "https://github.com/ronggang/PT-Plugin-Plus",
   "scripts": {
     "serve": "vue-cli-service build --mode development --watch",
-    "devtools": "vue-devtools",
     "build": "vue-cli-service build",
-    "lint": "vue-cli-service lint"
+    "lint": "vue-cli-service lint",
+    "devtools": "vue-devtools"
   },
   "dependencies": {
+    "@mdi/font": "5.9.55",
     "axios": "^0.21.1",
     "buffer": "^6.0.3",
     "core-js": "^3.6.5",
     "dayjs": "^1.10.3",
     "lodash-es": "^4.17.20",
+    "roboto-fontface": "*",
     "sizzle": "^2.3.5",
     "url-join": "^4.0.1",
     "url-parse": "^1.4.7",
     "uuid": "^8.3.2",
     "vue": "^3.0.11",
     "vue-router": "^4.0.6",
+    "vuetify": "^3.0.0-alpha.0",
     "vuex": "^4.0.0"
   },
   "devDependencies": {
@@ -53,10 +56,11 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-vue": "^7.9.0",
-    "sass": "^1.26.5",
+    "sass": "^1.32.0",
     "sass-loader": "^10.1.0",
     "typescript": "~4.2.2",
     "vue-cli-plugin-browser-extension": "^0.25.1",
+    "vue-cli-plugin-vuetify": "~2.4.0",
     "vue-template-compiler": "^2.6.11",
     "webextension-polyfill-ts": "^0.25.0"
   }

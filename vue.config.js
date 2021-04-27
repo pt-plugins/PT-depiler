@@ -9,6 +9,10 @@ module.exports = {
     }
   },
 
+  transpileDependencies: [
+    'vuetify'
+  ],
+
   productionSourceMap: !IS_PROD, // https://cli.vuejs.org/config/#productionsourcemap
   lintOnSave: !IS_PROD, // https://cli.vuejs.org/config/#lintonsave
 
