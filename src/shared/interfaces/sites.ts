@@ -1,6 +1,6 @@
 import { ETorrentBaseTagColor, ETorrentStatus } from '@/shared/interfaces/enum'
 import { AxiosRequestConfig, ResponseType } from 'axios'
-import { fullUrl, timezoneOffset } from '@/shared/interfaces/common'
+import { transPostDataTo, fullUrl, timezoneOffset } from './types'
 
 export interface SearchResultItemTag {
   color?: string;
@@ -32,7 +32,7 @@ export interface ElementQuery {
   elementProcess?: (Function | string)[], // 自定义对于Element的处理方法，此时 attr 以及 data 选项均不生效，但 filters 和 switchFilters 仍生效
   attr?: string | null, // 使用 HTMLElement.getAttribute('') 进行取值，取不到值则置 ''
   data?: string | null, // 使用 HTMLElement.dataset[''] 进行取值，取不到值则置 ''
-  case?: { [selector: string]: string | null }
+  case?: { [selector: string]: any }
 
   /**
    * 对获取结果进行处理，处理结果将作为最终的值输出
@@ -153,13 +153,14 @@ export interface SiteMetadata {
   name: string; // 站点名
 
   /**
-   * 指定继承模板类型，如果未填写的话，会根据其所在的目录进行自动更正为缺省值：
+   * 指定继承模板类型，如果未填写的话，但文件抛出了 default class 的话，会忽略掉此处的参数
+   * 否则会根据其所在的目录进行自动更正为缺省值：
    *  - public 目录下， schema 的缺省值为 AbstractBittorrentSite
    *  - private 目录下， schema 的缺省值为 AbstractPrivateSite
    *
    */
   schema?: SiteSchema;
-  url: string; // 完整的网站地址，如果网站支持 `https` ，请优先考虑填写 `https` 的地址
+  url: fullUrl; // 完整的网站地址，如果网站支持 `https` ，请优先考虑填写 `https` 的地址
 
   description?: string; // 站点说明
   collaborator?: string | string[]; // 协作者，建议使用 string[] 进行定义
@@ -184,7 +185,7 @@ export interface SiteMetadata {
      * 设置了默认的 AxiosRequestConfig 为 { responseType: 'document', url: '/' }
      * 则意味则如果是 json 返回，应该自己覆写 responseType
      */
-    requestConfig?: AxiosRequestConfig & { transferPostData?: 'raw' | 'form' | 'params' },
+    requestConfig?: AxiosRequestConfig & { transferPostData?: transPostDataTo },
 
     keywordsParam?: string, // 当不指定且未改写时，会导致keyword未被搜索使用
     categories?: searchCategories[] // 站点对应搜索入口的种子分类信息
@@ -199,7 +200,7 @@ export interface SiteMetadata {
    * 注意： 有执行顺序，从上到下依次执行，第一个不应该有断言 assertion，后续配置项可以有断言
    */
   userInfo?: {
-    requestConfig: AxiosRequestConfig, // { params: {}, responseType: 'document' } 会作为基件
+    requestConfig: AxiosRequestConfig & { transferPostData?: transPostDataTo }, // { url: '/', params: {}, responseType: 'document' } 会作为基件
     /**
      * 请求参数替换断言
      * key为之前步骤获取到的用户信息字典，value为需要替换的键值，如果：
@@ -236,8 +237,6 @@ export interface SiteMetadata {
 }
 
 export interface SiteConfig extends SiteMetadata {
-  schema: SiteSchema;
-
   activateUrl?: string; // 用户在搜索时使用的地址
   entryPoint?: string; // 用户在options首页点击时，打开的站点地址
 }

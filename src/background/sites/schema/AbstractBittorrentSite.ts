@@ -12,6 +12,7 @@ import urlparse from 'url-parse'
 import { merge, get, chunk, mergeWith, pick } from 'lodash-es'
 import { cfDecodeEmail, parseSizeString, parseTimeWithZone } from '@/shared/utils/filter'
 import { ETorrentBaseTagColor, ETorrentStatus } from '@/shared/interfaces/enum'
+import { transPostDataTo } from '@/shared/interfaces/types'
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export default class BittorrentSite {
@@ -76,12 +77,30 @@ export default class BittorrentSite {
     return this.config.search?.categories?.find((d) => catNames.includes(d.name))
   }
 
+  protected transferPostData<T extends Record<string, any>> (params: T, transTo: transPostDataTo): T | FormData | URLSearchParams {
+    let postData: T | FormData | URLSearchParams = params
+
+    if (transTo !== 'raw') {
+      if (transTo === 'form') {
+        postData = new FormData()
+      } else if (transTo === 'params') {
+        postData = new URLSearchParams()
+      }
+
+      Object.keys(params).forEach(k => {
+        const v = params[k]
+        postData.append(k, v)
+      })
+    }
+    return postData
+  }
+
   /**
    * 根据搜索筛选条件，生成 AxiosRequestConfig
    * @param filter
    */
-  protected transformSearchFilter (filter: searchFilter): AxiosRequestConfig {
-    const config: AxiosRequestConfig = {}
+  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
+    const config: AxiosRequestConfig = { params: {}, data: {} }
 
     const params: any = {}
     if (filter.keywords) {
@@ -121,24 +140,7 @@ export default class BittorrentSite {
     }
 
     if (this.config.search?.requestConfig?.method?.toLowerCase() === 'post') { // POST
-      const transData = this.config.search?.requestConfig.transferPostData || 'raw'
-
-      let postData: FormData | URLSearchParams
-      if (transData !== 'raw') {
-        if (transData === 'form') {
-          postData = new FormData()
-        } else if (transData === 'params') {
-          postData = new URLSearchParams()
-        }
-
-        Object.keys(params).forEach(k => {
-          const v = params[k]
-          postData.append(k, v)
-        })
-      }
-
-      // @ts-ignore
-      config.data = postData || params
+      config.data = this.transferPostData(params, this.config.search?.requestConfig.transferPostData || 'raw')
     } else { // GET
       config.params = params
     }
@@ -156,7 +158,7 @@ export default class BittorrentSite {
     const axiosConfig: AxiosRequestConfig = merge(
       { url: '/', responseType: 'document' },
       this.config.search?.requestConfig, // 使用默认配置覆盖垫片配置
-      this.transformSearchFilter(filter) // 根据搜索信息生成配置
+      await this.transformSearchFilter(filter) // 根据搜索信息生成配置
     )
 
     // 请求页面并转化为document
@@ -267,7 +269,7 @@ export default class BittorrentSite {
               query = this.runQueryFilters<string>(another, elementQuery.elementProcess)
             } else if (elementQuery.case) {
               for (const [match, value] of Object.entries(elementQuery.case)) {
-                if (Sizzle.matchSelector(another, match)) {
+                if (Sizzle.matchesSelector(another, match)) {
                   query = value ?? ''
                   break
                 }

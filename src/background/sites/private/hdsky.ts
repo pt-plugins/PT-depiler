@@ -61,24 +61,14 @@ export const siteMetadata: SiteMetadata = {
         ]
       },
       status: {
+        text: ETorrentStatus.unknown,
         selector: ['div[class^="progress"]'],
-        attr: 'class',
-        filters: [
-          (query: string) => {
-            switch (true) {
-              case /progressseeding/.test(query):
-                return ETorrentStatus.seeding
-              case /progressdownloading/.test(query):
-                return ETorrentStatus.downloading
-              case /progressfinished/.test(query):
-                return ETorrentStatus.completed
-              case /progressdownloaded/.test(query):
-                return ETorrentStatus.inactive
-              default:
-                return ETorrentStatus.unknown
-            }
-          }
-        ]
+        case: {
+          '.progressseeding': ETorrentStatus.seeding,
+          '.progressdownloading': ETorrentStatus.downloading,
+          '.progressfinished': ETorrentStatus.completed,
+          '.progressdownloaded': ETorrentStatus.inactive
+        }
       }
     }
   }

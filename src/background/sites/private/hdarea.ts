@@ -55,31 +55,20 @@ export const siteMetadata: SiteMetadata = {
         ]
       },
       status: {
+        text: ETorrentStatus.unknown,
         selector: [
           "table[title='downloading']:has( > tbody > tr > td > div)",
           "table[title='seeding']:has( > tbody > tr > td > div)",
           "table[title='Stopped']:has( > tbody > tr > td > div)",
           "table[title='completed']:has( > tbody > tr > td > div)"
         ],
-        attr: 'title',
-        filters: [
-          (query: string) => {
-            switch (true) {
-              case /downloading/.test(query):
-                return ETorrentStatus.downloading
-              case /seeding/.test(query):
-                return ETorrentStatus.seeding
-              case /Stopped/.test(query):
-                return ETorrentStatus.inactive
-              case /completed/.test(query):
-                return ETorrentStatus.completed
-              default:
-                return ETorrentStatus.unknown
-            }
-          }
-        ]
+        case: {
+          "table[title='downloading']": ETorrentStatus.downloading,
+          "table[title='seeding']": ETorrentStatus.seeding,
+          "table[title='Stopped']": ETorrentStatus.inactive,
+          "table[title='completed']": ETorrentStatus.completed
+        }
       }
-
     }
   }
 

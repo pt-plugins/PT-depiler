@@ -40,24 +40,14 @@ export const siteMetadata: SiteMetadata = {
         ]
       },
       status: {
+        text: ETorrentStatus.unknown,
         selector: [".rowfollow[title='Downloading']", ".rowfollow[title='Seeding']", ".rowfollow[title='Stopped']", ".rowfollow[title='Completed']"],
-        attr: 'title',
-        filters: [
-          (query:string) => {
-            switch (query) {
-              case 'Downloading':
-                return ETorrentStatus.downloading
-              case 'Seeding':
-                return ETorrentStatus.seeding
-              case 'Stopped':
-                return ETorrentStatus.inactive
-              case 'Completed':
-                return ETorrentStatus.completed
-              default:
-                return ETorrentStatus.unknown
-            }
-          }
-        ]
+        case: {
+          ".rowfollow[title='Downloading']": ETorrentStatus.downloading,
+          ".rowfollow[title='Seeding']": ETorrentStatus.seeding,
+          ".rowfollow[title='Stopped']": ETorrentStatus.inactive,
+          ".rowfollow[title='Completed']": ETorrentStatus.completed
+        }
       },
       tags: [
         { name: 'Excl.', selector: "td.embedded > a[title] > b > font[color='red']" }

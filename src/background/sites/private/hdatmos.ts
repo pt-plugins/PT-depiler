@@ -8,6 +8,6 @@ export const siteMetadata: SiteMetadata = {
   name: 'HDATMOS',
   schema: 'NexusPHP',
   tags: ['影视', '综合'],
-  url: 'https://hdatmos.club',
+  url: 'https://hdatmos.club/',
   collaborator: 'luoyefe'
 }

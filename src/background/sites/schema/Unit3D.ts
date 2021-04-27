@@ -1,7 +1,12 @@
 import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
 import { SiteConfig, UserInfo } from '@/shared/interfaces/sites'
 import { ETorrentStatus } from '@/shared/interfaces/enum'
-import { parseSizeString, parseTimeToLive } from '@/shared/utils/filter'
+import {
+  findThenParseNumberString,
+  findThenParseSizeString,
+  parseSizeString,
+  parseTimeToLive
+} from '@/shared/utils/filter'
 import dayjs from '@/shared/utils/dayjs'
 import urljoin from 'url-join'
 
@@ -145,30 +150,15 @@ export default class Unit3D extends PrivateSite {
         },
         uploaded: {
           selector: ['div.ratio-bar span:has( > i.fa-arrow-up)'],
-          filters: [
-            (query: string) => {
-              const queryMatch = query.replace(/,/g, '').match(/:.+?([\d.]+ ?[ZEPTGMK]?i?B)/)
-              return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0
-            }
-          ]
+          filters: [findThenParseSizeString]
         },
         downloaded: {
           selector: ['div.ratio-bar span:has( > i.fa-arrow-down)'],
-          filters: [
-            (query: string) => {
-              const queryMatch = query.replace(/,/g, '').match(/:.+?([\d.]+ ?[ZEPTGMK]?i?B)/)
-              return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0
-            }
-          ]
+          filters: [findThenParseSizeString]
         },
         bonus: {
           selector: ['div.ratio-bar span:has( > i.fa-coins)'],
-          filters: [
-            (query: string) => {
-              const queryMatch = query.replace(/ /g, '').match(/([\d.]+)/)
-              return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0
-            }
-          ]
+          filters: [findThenParseNumberString]
         },
         seeding: {
           selector: ['div.ratio-bar span:has( > i.fa-upload)'],

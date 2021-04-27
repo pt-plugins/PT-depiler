@@ -1,5 +1,5 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
-import { parseSizeString } from '@/shared/utils/filter'
+import { findThenParseSizeString, parseSizeString } from '@/shared/utils/filter'
 
 export const siteMetadata: SiteMetadata = {
   name: 'PT@KEEPFRDS',
@@ -70,12 +70,7 @@ export const siteMetadata: SiteMetadata = {
       },
       seedingSize: {
         selector: ["td.rowhead:contains('当前做种') + td, td.rowhead:contains('Current Seeding') + td, td.rowhead:contains('目前做種') + td"],
-        filters: [
-          (query: string) => {
-            const queryMatch = query.trim().replace(/,/g, '').match(/([\\d.]+ ?[ZEPTGMK]?i?B)/)
-            return (queryMatch && queryMatch.length >= 2) ? parseSizeString(queryMatch[1]) : 0
-          }
-        ]
+        filters: [findThenParseSizeString]
       }
     }
   }

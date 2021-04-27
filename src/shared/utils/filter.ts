@@ -1,6 +1,6 @@
-import dayjs from '@/shared/utils/dayjs'
 import { OpUnitType } from 'dayjs'
-import { timezoneOffset } from '@/shared/interfaces/common'
+import dayjs from '@/shared/utils/dayjs'
+import { timezoneOffset } from '@/shared/interfaces/types'
 
 export const sizePattern = /^(\d*\.?\d+)(.*[^ZEPTGMK])?([ZEPTGMK](B|iB))s?$/i
 
@@ -33,8 +33,13 @@ export function parseSizeString (size: string): number {
 }
 
 export function findThenParseSizeString (query: string): number {
-  const queryMatch = query.replace(/,/g, '').match(/([\d.]+ ?[ZEPTGMK]?i?B)/)
+  const queryMatch = query.trim().replace(/[ ,\n]/g, '').match(/([\d.]+ ?[ZEPTGMK]?i?B)/)
   return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0
+}
+
+export function findThenParseNumberString (query: string) : number {
+  const queryMatch = query.trim().replace(/[ ,\n]/g, '').match(/([\d.]+)/)
+  return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0
 }
 
 export const dateUnit = ['year', 'quarter', 'month', 'week', 'day', 'hour', 'minute', 'second']

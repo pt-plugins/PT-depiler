@@ -4,7 +4,7 @@ import { selectorSearchProgress, selectorSearchStatus } from '@/background/sites
 export const siteMetadata: SiteMetadata = {
   name: '伊甸园',
   description: '这里是伊甸园 让我们赤裸坦诚相见',
-  url: 'https://pt.hdbd.us',
+  url: 'https://pt.hdbd.us/',
   tags: ['综合', 'XXX'],
   schema: 'NexusPHP',
   selector: {

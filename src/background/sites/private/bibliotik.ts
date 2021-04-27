@@ -126,7 +126,7 @@ export default class bibliotik extends PrivateSite {
           pageInfo.count = this.getFieldData(TListDocument, {
             selector: ".pagination a[href*='?page']:contains('Last >>'):first",
             attr: 'href',
-            filters: [(query: string) => parseInt(urlparse(query, true).query.page as string) || 1]
+            filters: [(query: string) => parseInt(urlparse(query, true).query.page as string) || -1]
           })
         }
 

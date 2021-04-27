@@ -1,6 +1,6 @@
 import { searchFilter, SiteMetadata, Torrent } from '@/shared/interfaces/sites'
 import urlparse from 'url-parse'
-import { parseSizeString } from '@/shared/utils/filter'
+import { findThenParseNumberString, parseSizeString } from '@/shared/utils/filter'
 import Gazelle from '@/background/sites/schema/Gazelle'
 
 export const siteMetadata: SiteMetadata = {
@@ -41,12 +41,7 @@ export const siteMetadata: SiteMetadata = {
       },
       seeding: {
         selector: ["dt:contains('Seeding:') + dd"],
-        filters: [
-          (query: string) => {
-            const queryMatch = query.replace(/[,\n]/g, '').match(/([\d.]+)/)
-            return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : 0
-          }
-        ]
+        filters: [findThenParseNumberString]
       },
       seedingSize: {
         selector: ["dt:contains('Total seed size:') + dd > span"],

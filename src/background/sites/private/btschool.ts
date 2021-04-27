@@ -3,7 +3,7 @@
  * Rhilip, 2021.04.09
  */
 import { SiteMetadata } from '@/shared/interfaces/sites'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
+import { selectorSearchStatus } from './hdchina'
 
 export const siteMetadata: SiteMetadata = {
   name: 'BTSCHOOL',
@@ -23,26 +23,7 @@ export const siteMetadata: SiteMetadata = {
           }
         ]
       },
-      status: {
-        selector: ['.progress:eq(0) > div'],
-        attr: 'class',
-        filters: [
-          (query: string) => {
-            switch (true) {
-              case /progress_seeding/.test(query):
-                return ETorrentStatus.seeding
-              case /progress_completed/.test(query):
-                return ETorrentStatus.completed
-              case /progress_no_downloading/.test(query):
-                return ETorrentStatus.inactive
-              case /progress_downloading/.test(query): // FIXME 待检查，旧版代码中没有
-                return ETorrentStatus.downloading
-              default:
-                return ETorrentStatus.unknown
-            }
-          }
-        ]
-      }
+      status: selectorSearchStatus
     }
   }
 }

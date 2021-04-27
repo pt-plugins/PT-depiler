@@ -100,8 +100,8 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Exttorrents extends BittorrentSite {
-  protected transformSearchFilter (filter: searchFilter): AxiosRequestConfig {
-    const config = super.transformSearchFilter(filter)
+  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
+    const config = await super.transformSearchFilter(filter)
     config.url = filter.keywords?.length > 0 ? '/search/' : '/latest/'
 
     return config

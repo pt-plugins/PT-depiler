@@ -72,7 +72,7 @@ export const siteMetadata: SiteMetadata = {
 
 export default class hdai extends NexusPHP {
   // FIXME 此处仅处理了 keywords，对于其他信息未作处理（因为未为该站添加 category 信息
-  protected transformSearchFilter (filter: searchFilter): AxiosRequestConfig {
+  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
     const config: AxiosRequestConfig = {}
 
     const searchParams: any = {}

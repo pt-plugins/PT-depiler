@@ -115,7 +115,7 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class x1337x extends BittorrentSite {
-  protected transformSearchFilter (filter: searchFilter): AxiosRequestConfig {
+  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
     const { keywords, extraParams } = filter
     let searchPath = 'search'
 

@@ -111,7 +111,7 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Animeclipse extends BittorrentSite {
-  protected transformSearchFilter (filter: searchFilter): AxiosRequestConfig {
+  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
     const extraSortParamsIndex = filter.extraParams
       ?.findIndex(v => v.key === 'order' && ['3', '4', '5'].includes(v.value as string))
 
@@ -122,6 +122,6 @@ export default class Animeclipse extends BittorrentSite {
       filter.extraParams?.push(extraSortParams)
     }
 
-    return super.transformSearchFilter(filter)
+    return await super.transformSearchFilter(filter)
   }
 }

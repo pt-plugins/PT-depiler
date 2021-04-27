@@ -4,7 +4,7 @@ export const siteMetadata: SiteMetadata = {
   name: 'AniDex',
   description: 'A torrent tracker specialising in content from East Asia, including anime, manga, music, adult videos and more.',
   tags: ['anime', 'manga', 'jav', 'download', 'anidex', 'magnet'],
-  url: 'https://anidex.info',
+  url: 'https://anidex.info/',
   search: {
     keywordsParam: 'q',
     requestConfig: {

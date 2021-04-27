@@ -6,7 +6,3 @@ export interface LogItem {
   msg?: string;
   data?: any;
 }
-
-export type timezoneOffset = `${'UTC' | ''}${'-' | '+'}${number}`
-
-export type fullUrl = `${'http' | 'https'}://${string}/`

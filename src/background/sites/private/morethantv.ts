@@ -11,7 +11,7 @@ export const siteMetadata: SiteMetadata = {
   description: 'MTV',
   // schema: 'Luminance',
   tags: ['电视剧', '剧集'],
-  url: 'https://www.morethantv.me',
+  url: 'https://www.morethantv.me/',
   collaborator: 'luckiestone',
   formerHosts: [
     'www.morethan.tv'

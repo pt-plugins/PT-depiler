@@ -80,8 +80,8 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Acgsou extends BittorrentSite {
-  protected transformSearchFilter (filter: searchFilter): AxiosRequestConfig {
-    const config = super.transformSearchFilter(filter)
+  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
+    const config = await super.transformSearchFilter(filter)
     config.url = filter.keywords ? '/search.php' : '1.html'
 
     return config

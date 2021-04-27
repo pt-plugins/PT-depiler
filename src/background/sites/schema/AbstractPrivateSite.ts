@@ -3,7 +3,8 @@ import { UserInfo } from '@/shared/interfaces/sites'
 import { AxiosRequestConfig, AxiosResponse } from 'axios'
 import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
 import userDataRecords from '@/background/service/storage/userDataRecords'
-import { intersection, merge, xor } from 'lodash-es'
+import { difference, intersection, merge } from 'lodash-es'
+import { transPostDataTo } from '@/shared/interfaces/types'
 
 export default class PrivateSite extends BittorrentSite {
   public async getLastUserInfo (): Promise<UserInfo | null> {
@@ -31,15 +32,15 @@ export default class PrivateSite extends BittorrentSite {
         }
 
         // 更新请求字段，如果字段缺失则跳出循环
-        const requestConfig = merge<AxiosRequestConfig, AxiosRequestConfig>(
-          { params: {}, responseType: 'document' },
+        const requestConfig = merge<AxiosRequestConfig, AxiosRequestConfig & { transferPostData?: transPostDataTo }>(
+          { url: '/', params: {}, responseType: 'document' },
           thisUserInfo.requestConfig
         )
         if (thisUserInfo.assertion) {
           for (const [requiredField, paramsKey] of Object.entries(thisUserInfo.assertion)) {
             if (flushUserInfo[requiredField]) {
               if (requestConfig.url?.includes(`$${paramsKey}$`)) {
-                requestConfig.url.replace(`$${paramsKey}$`, flushUserInfo[requiredField])
+                requestConfig.url = requestConfig.url.replace(`$${paramsKey}$`, flushUserInfo[requiredField])
               } else {
                 requestConfig.params[paramsKey!] = flushUserInfo[requiredField]
               }
@@ -49,10 +50,18 @@ export default class PrivateSite extends BittorrentSite {
           }
         }
 
+        if (requestConfig.method?.toLowerCase() === 'post') {
+          const transferPostData: transPostDataTo = requestConfig.transferPostData || 'raw'
+          requestConfig.data = this.transferPostData(requestConfig.params, transferPostData)
+          if (transferPostData !== 'raw') {
+            requestConfig.params = {} // 清空 params 参数
+          }
+        }
+
         const { data: dataDocument } = await this.request(requestConfig)
         flushUserInfo = {
           ...flushUserInfo,
-          ...this.getFieldsData(dataDocument, 'userInfo', xor(thisUserInfo.fields, Object.keys(flushUserInfo)))
+          ...this.getFieldsData(dataDocument, 'userInfo', difference(thisUserInfo.fields, Object.keys(flushUserInfo)))
         }
       }
 

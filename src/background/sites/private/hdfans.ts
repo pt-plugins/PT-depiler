@@ -9,7 +9,7 @@ export const siteMetadata: SiteMetadata = {
   name: 'HDFans',
   timezoneOffset: '+0800',
   description: '与志同道合之人前行 分享更多值得珍藏的资源',
-  url: 'https://hdfans.org',
+  url: 'https://hdfans.org/',
   tags: ['综合', '电影', '电视剧', '纪录片'],
   schema: 'NexusPHP',
   collaborator: 'csi0n',

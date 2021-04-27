@@ -18,24 +18,14 @@ export const selectorSearchProgress: ElementQuery = {
 }
 
 export const selectorSearchStatus: ElementQuery = {
+  text: ETorrentStatus.unknown,
   selector: ['.progress:eq(0) > div'],
-  attr: 'class',
-  filters: [
-    (query: string) => {
-      switch (true) {
-        case /progress_seeding/.test(query):
-          return ETorrentStatus.seeding
-        case /progress_completed/.test(query):
-          return ETorrentStatus.completed
-        case /progress_no_downloading/.test(query):
-          return ETorrentStatus.inactive
-        case /progress_downloading/.test(query): // 没测试过
-          return ETorrentStatus.downloading
-        default:
-          return ETorrentStatus.unknown
-      }
-    }
-  ]
+  case: {
+    '.progress_seeding': ETorrentStatus.seeding,
+    '.progress_completed': ETorrentStatus.completed,
+    '.progress_no_downloading': ETorrentStatus.inactive,
+    '.progress_downloading': ETorrentStatus.downloading
+  }
 }
 
 export const selectorUserInfoSeeding: ElementQuery = {

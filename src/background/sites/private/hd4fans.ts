@@ -7,7 +7,7 @@ import { SiteMetadata } from '@/shared/interfaces/sites'
 export const siteMetadata: SiteMetadata = {
   name: 'HD4FANS',
   schema: 'NexusPHP',
-  url: 'https://pt.hd4fans.org',
+  url: 'https://pt.hd4fans.org/',
   tags: ['影视', '兽组'],
   collaborator: ['lilungpo', 'tongyifan'],
   search: {
