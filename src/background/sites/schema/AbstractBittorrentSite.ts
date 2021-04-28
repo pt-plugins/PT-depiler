@@ -12,7 +12,7 @@ import urlparse from 'url-parse'
 import { merge, get, chunk, mergeWith, pick } from 'lodash-es'
 import { cfDecodeEmail, parseSizeString, parseTimeWithZone } from '@/shared/utils/filter'
 import { ETorrentBaseTagColor, ETorrentStatus } from '@/shared/interfaces/enum'
-import { transPostDataTo } from '@/shared/interfaces/types'
+import { fullUrl, transPostDataTo } from '@/shared/interfaces/types'
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export default class BittorrentSite {
@@ -54,6 +54,14 @@ export default class BittorrentSite {
             }
           }
         }) as SiteConfig
+
+      // 解密url加密过的站点
+      if (this._config.url.startsWith('aHR0c')) {
+        this._config.url = atob(this._config.url) as fullUrl
+      }
+      if (this._config.legacyUrl) {
+        this._config.legacyUrl = this._config.legacyUrl.map(url => url.startsWith('aHR0c') ? atob(url) as fullUrl : url)
+      }
 
       // 防止host信息缺失
       if (!this._config.host) {
@@ -128,6 +136,11 @@ export default class BittorrentSite {
               if (definedCategoryForKey?.cross.mode === 'append') {
                 value.forEach((v: string | number) => {
                   params[`${crossKey}${v}`] = 1
+                })
+                continue // 跳过，不再将原始字段值插入params
+              } else if (definedCategoryForKey?.cross.mode === 'appendQuote') {
+                value.forEach((v: string | number) => {
+                  params[`${crossKey}[${v}]`] = 1
                 })
                 continue // 跳过，不再将原始字段值插入params
               }

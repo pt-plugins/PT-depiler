@@ -1,8 +1,8 @@
 import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites'
 import urlparse from 'url-parse'
-import dayjs from 'dayjs'
+import dayjs from '@/shared/utils/dayjs'
 import { ETorrentStatus } from '@/shared/interfaces/enum'
-import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '../../../shared/utils/filter'
+import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '@/shared/utils/filter'
 import PrivateSite from '../schema/AbstractPrivateSite'
 import Sizzle from 'sizzle'
 

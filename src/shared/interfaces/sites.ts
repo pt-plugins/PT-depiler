@@ -1,6 +1,6 @@
 import { ETorrentBaseTagColor, ETorrentStatus } from '@/shared/interfaces/enum'
 import { AxiosRequestConfig, ResponseType } from 'axios'
-import { transPostDataTo, fullUrl, timezoneOffset } from './types'
+import { transPostDataTo, fullUrl, timezoneOffset, fullUrlProtect } from './types'
 
 export interface SearchResultItemTag {
   color?: string;
@@ -69,7 +69,7 @@ export interface Torrent {
   tags?: SearchResultItemTag[];
 
   // 对于PT种子才 获取以下部分
-  progress?: number; // 进度（100表示完成）
+  progress?: number | null; // 进度（100表示完成）
   status?: ETorrentStatus; // 状态
 }
 
@@ -89,8 +89,9 @@ export interface searchCategories {
      * 当允许搜索类别内部交叉时，该搜索类别在请求时字段如何处理，如果是：
      *  - 'raw': 由 axios 自动转化为 &{key}[]={xxx} 的形式 （默认）
      *  - 'append': 转化为 &{key}{xxx}=1 的形式交给 axios 来请求，此时可以通过定义 key 来改写 key
+     *  - 'appendQuote': 类同 'append'，只不过转成了 &{key}[{xxx}]=1
      */
-    mode?: 'raw' | 'append'
+    mode?: 'raw' | 'append' | 'appendQuote'
     key?: string // 当内部交叉时，params与已定义的 key 不一致时使用
   }
 }
@@ -160,7 +161,13 @@ export interface SiteMetadata {
    *
    */
   schema?: SiteSchema;
-  url: fullUrl; // 完整的网站地址，如果网站支持 `https` ，请优先考虑填写 `https` 的地址
+
+  /**
+   * 完整的网站地址，如果网站支持 `https` ，请优先考虑填写 `https` 的地址
+   * 部分站点可能对于站点链接存在更为隐秘的要求，则请对链接进行 btoa ，以防止在配置时泄露
+   * （但这并不能阻止用户通过插件的网络请求等其他途径知道对应网址
+   */
+  url: fullUrl | fullUrlProtect; // 完整的网站地址，如果网站支持 `https` ，请优先考虑填写 `https` 的地址
 
   description?: string; // 站点说明
   collaborator?: string | string[]; // 协作者，建议使用 string[] 进行定义
@@ -174,7 +181,7 @@ export interface SiteMetadata {
    *  - 在搜索中，如果用户设置时未传入 activateUrl ，则使用 legacyUrl[0]
    *  - 在页面中， [url, ...legacyUrl] 效果相同
    */
-  legacyUrl?: fullUrl[];
+  legacyUrl?: (fullUrl | fullUrlProtect)[];
 
   host?: string; // 站点域名，如果不存在，则从url中获取
   formerHosts?: string[]; // 站点过去曾经使用过的域名（现在已不再使用）

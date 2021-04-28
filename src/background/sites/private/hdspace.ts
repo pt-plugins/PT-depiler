@@ -1,6 +1,6 @@
 import { SiteMetadata } from '@/shared/interfaces/sites'
 import urlparse from 'url-parse'
-import dayjs from 'dayjs'
+import dayjs from '@/shared/utils/dayjs'
 import { findThenParseSizeString } from '@/shared/utils/filter'
 
 export const siteMetadata: SiteMetadata = {
