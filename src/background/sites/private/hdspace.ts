@@ -19,17 +19,20 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   },
-  userInfo: [
-    {
-      requestConfig: { url: '/index.php' },
-      fields: ['id', 'name', 'messageCount', 'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'seeding']
-    },
-    {
-      requestConfig: { url: '/index.php', params: { page: 'usercp' } },
-      assertion: { id: 'uid' },
-      fields: ['joinTime']
-    }
-  ],
+  userInfo: {
+    pickLast: ['id', 'name', 'joinTime'],
+    process: [
+      {
+        requestConfig: { url: '/index.php' },
+        fields: ['id', 'name', 'messageCount', 'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'seeding']
+      },
+      {
+        requestConfig: { url: '/index.php', params: { page: 'usercp' } },
+        assertion: { id: 'uid' },
+        fields: ['joinTime']
+      }
+    ]
+  },
 
   selector: {
     search: {

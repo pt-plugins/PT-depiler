@@ -53,20 +53,22 @@ export const siteMetadata: SiteMetadata = {
       }
     ]
   },
-  userInfo: [
-    {
-      requestConfig: {
-        url: '/index.php'
+  userInfo: {
+    process: [
+      {
+        requestConfig: {
+          url: '/index.php'
+        },
+        fields: ['name', 'messageCount', 'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus']
       },
-      fields: ['name', 'messageCount', 'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus']
-    },
-    {
-      requestConfig: {
-        url: '/account.php'
-      },
-      fields: ['joinTime', 'seeding', 'seedingSize']
-    }
-  ],
+      {
+        requestConfig: {
+          url: '/account.php'
+        },
+        fields: ['joinTime', 'seeding', 'seedingSize']
+      }
+    ]
+  },
   selector: {
     search: {
       rows: { selector: 'table.ttable_headinner tr.t-row:has(a[href^="download.php?id="])' },

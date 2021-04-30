@@ -204,21 +204,31 @@ export interface SiteMetadata {
 
   /**
    * 该配置项仅对 基于 PrivateSite 模板，且未改写 flushUserInfo 的站点生效
-   * 注意： 有执行顺序，从上到下依次执行，第一个不应该有断言 assertion，后续配置项可以有断言
    */
   userInfo?: {
-    requestConfig: AxiosRequestConfig & { transferPostData?: transPostDataTo }, // { url: '/', params: {}, responseType: 'document' } 会作为基件
     /**
-     * 请求参数替换断言
-     * key为之前步骤获取到的用户信息字典，value为需要替换的键值，如果：
-     *  requestConfig.url 中有类似 `$value$` 的字段，则替换 url
-     *  不然会生成 params: {value: key}
+     * 如果可以，则从插件历史缓存的数据中获取那些数据（一般是比较恒定的数据，如 id, name, joinTime ）
+     * 并可以帮助我们减少网络请求的字段
      */
-    assertion?: {
-      [key in keyof UserInfo]?: string
-    },
-    fields: (keyof UserInfo)[]
-  }[]
+    pickLast?: (keyof UserInfo)[],
+
+    /**
+     * 有执行顺序，从上到下依次执行，第一个不应该有断言 assertion，后续配置项可以有断言
+     */
+    process: {
+      requestConfig: AxiosRequestConfig & { transferPostData?: transPostDataTo }, // { url: '/', params: {}, responseType: 'document' } 会作为基件
+      /**
+       * 请求参数替换断言
+       * key为之前步骤获取到的用户信息字典，value为需要替换的键值，如果：
+       *  requestConfig.url 中有类似 `$value$` 的字段，则替换 url
+       *  不然会生成 params: {value: key}
+       */
+      assertion?: {
+        [key in keyof UserInfo]?: string
+      },
+      fields: (keyof UserInfo)[]
+    }[]
+  }
 
   selector?: {
     search?: {

@@ -134,17 +134,21 @@ export const siteMetadata: SiteMetadata = {
       }
     ]
   },
-  userInfo: [
-    {
-      requestConfig: { url: '/' },
-      fields: ['id', 'name']
-    },
-    {
-      requestConfig: { url: '/userdetailsmore.php' },
-      assertion: { id: 'id' },
-      fields: ['uploaded', 'downloaded', 'levelName', 'joinTime', 'seeding', 'seedingSize', 'bonus']
-    }
-  ],
+
+  userInfo: {
+    pickLast: ['id', 'name'],
+    process: [
+      {
+        requestConfig: { url: '/' },
+        fields: ['id', 'name']
+      },
+      {
+        requestConfig: { url: '/userdetailsmore.php' },
+        assertion: { id: 'id' },
+        fields: ['uploaded', 'downloaded', 'levelName', 'joinTime', 'seeding', 'seedingSize', 'bonus']
+      }
+    ]
+  },
 
   selector: {
     search: {

@@ -21,17 +21,20 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   },
-  userInfo: [
-    {
-      requestConfig: { url: '/' },
-      fields: ['id', 'name']
-    },
-    {
-      requestConfig: { url: '/users/$userId$' },
-      assertion: { id: 'userId' },
-      fields: ['uploaded', 'downloaded', 'levelName', 'joinTime', 'bonus']
-    }
-  ],
+  userInfo: {
+    pickLast: ['id', 'name'],
+    process: [
+      {
+        requestConfig: { url: '/' },
+        fields: ['id', 'name']
+      },
+      {
+        requestConfig: { url: '/users/$userId$' },
+        assertion: { id: 'userId' },
+        fields: ['uploaded', 'downloaded', 'levelName', 'joinTime', 'bonus']
+      }
+    ]
+  },
 
   selector: {
     search: {

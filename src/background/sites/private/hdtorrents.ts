@@ -26,17 +26,19 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   },
-  userInfo: [
-    {
-      requestConfig: { url: '/' },
-      fields: ['id', 'messageCount']
-    },
-    {
-      requestConfig: { url: '/usercp.php' },
-      assertion: { id: 'uid' },
-      fields: ['name', 'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', 'seeding']
-    }
-  ],
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/' },
+        fields: ['id', 'messageCount']
+      },
+      {
+        requestConfig: { url: '/usercp.php' },
+        assertion: { id: 'uid' },
+        fields: ['name', 'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', 'seeding']
+      }
+    ]
+  },
   selector: {
     search: {
       rows: { selector: 'table.mainblockcontenttt tr:has(td.mainblockcontent:has(a[href*="details.php"]))' },

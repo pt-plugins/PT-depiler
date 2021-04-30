@@ -28,17 +28,20 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   },
-  userInfo: [
-    {
-      requestConfig: { url: '/index.php' },
-      fields: ['id', 'name']
-    },
-    {
-      requestConfig: { url: '/user.php' },
-      assertion: { id: 'id' },
-      fields: ['uploaded', 'downloaded', 'ratio', 'seeding', 'levelName', 'bonus', 'joinTime']
-    }
-  ],
+  userInfo: {
+    pickLast: ['id', 'name'],
+    process: [
+      {
+        requestConfig: { url: '/index.php' },
+        fields: ['id', 'name']
+      },
+      {
+        requestConfig: { url: '/user.php' },
+        assertion: { id: 'id' },
+        fields: ['uploaded', 'downloaded', 'ratio', 'seeding', 'levelName', 'bonus', 'joinTime']
+      }
+    ]
+  },
   selector: {
     search: {
       rows: { selector: '#torrent_table > tbody > tr.torrent' },

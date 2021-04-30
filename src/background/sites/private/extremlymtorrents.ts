@@ -77,17 +77,20 @@ export const siteMetadata: SiteMetadata = {
     ]
   },
 
-  userInfo: [
-    {
-      requestConfig: { url: '/' },
-      fields: ['id', 'name']
-    },
-    {
-      requestConfig: { url: '/account-details.php' },
-      assertion: { id: 'id' },
-      fields: ['uploaded', 'downloaded', 'levelName', 'joinTime']
-    }
-  ],
+  userInfo: {
+    pickLast: ['id', 'name'],
+    process: [
+      {
+        requestConfig: { url: '/' },
+        fields: ['id', 'name']
+      },
+      {
+        requestConfig: { url: '/account-details.php' },
+        assertion: { id: 'id' },
+        fields: ['uploaded', 'downloaded', 'levelName', 'joinTime']
+      }
+    ]
+  },
 
   selector: {
     search: {

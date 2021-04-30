@@ -19,19 +19,21 @@ export const siteMetadata: SiteMetadata = {
       responseType: 'document'
     }
   },
-  userInfo: [
-    {
-      requestConfig: { url: '/' },
-      fields: ['name', 'id', 'messageCount', 'uploaded', 'downloaded', 'ratio', 'levelName']
-    },
-    {
-      requestConfig: { url: '/user/$userId$' },
-      assertion: {
-        id: 'userId'
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/' },
+        fields: ['name', 'id', 'messageCount', 'uploaded', 'downloaded', 'ratio', 'levelName']
       },
-      fields: ['joinTime', 'bonus', 'seeding', 'seedingSize']
-    }
-  ],
+      {
+        requestConfig: { url: '/user/$userId$' },
+        assertion: {
+          id: 'userId'
+        },
+        fields: ['joinTime', 'bonus', 'seeding', 'seedingSize']
+      }
+    ]
+  },
 
   selector: {
     search: {

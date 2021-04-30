@@ -81,17 +81,19 @@ export const siteMetadata: SiteMetadata = {
       }
     ]
   },
-  userInfo: [
-    {
-      requestConfig: { url: '/index.php' },
-      fields: ['id', 'name', 'messageCount', 'seeding', 'uploaded', 'downloaded', 'ratio', 'bonus']
-    },
-    {
-      requestConfig: { url: '/user.php' },
-      assertion: { id: 'id' },
-      fields: ['joinTime', 'levelName', 'seedingSize']
-    }
-  ],
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/index.php' },
+        fields: ['id', 'name', 'messageCount', 'seeding', 'uploaded', 'downloaded', 'ratio', 'bonus']
+      },
+      {
+        requestConfig: { url: '/user.php' },
+        assertion: { id: 'id' },
+        fields: ['joinTime', 'levelName', 'seedingSize']
+      }
+    ]
+  },
 
   selector: {
     search: {

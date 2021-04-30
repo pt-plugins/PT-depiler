@@ -26,17 +26,19 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   },
-  userInfo: [
-    {
-      requestConfig: { url: '/index.php' },
-      fields: ['id', 'name', 'messageCount']
-    },
-    {
-      requestConfig: { url: '/user.php' },
-      assertion: { id: 'id' },
-      fields: ['uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', 'bonus', 'seeding', 'seedingSize']
-    }
-  ],
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/index.php' },
+        fields: ['id', 'name', 'messageCount']
+      },
+      {
+        requestConfig: { url: '/user.php' },
+        assertion: { id: 'id' },
+        fields: ['uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', 'bonus', 'seeding', 'seedingSize']
+      }
+    ]
+  },
 
   selector: {
     search: {

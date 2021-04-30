@@ -52,27 +52,29 @@ export const siteMetadata: SiteMetadata = {
       }
     ]
   },
-  userInfo: [
-    {
-      requestConfig: { url: '/' },
-      fields: ['id', 'name', 'messageCount']
-    },
-    {
-      requestConfig: { url: '/user-profile.php' },
-      assertion: { id: 'uid' },
-      fields: ['uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime']
-    },
-    {
-      requestConfig: {
-        url: '/ajax/user-active-torrents.php',
-        headers: {
-          'x-requested-with': 'XMLHttpRequest'
-        }
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/' },
+        fields: ['id', 'name', 'messageCount']
       },
-      assertion: { id: 'uid' },
-      fields: ['seeding', 'seedingSize']
-    }
-  ],
+      {
+        requestConfig: { url: '/user-profile.php' },
+        assertion: { id: 'uid' },
+        fields: ['uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime']
+      },
+      {
+        requestConfig: {
+          url: '/ajax/user-active-torrents.php',
+          headers: {
+            'x-requested-with': 'XMLHttpRequest'
+          }
+        },
+        assertion: { id: 'uid' },
+        fields: ['seeding', 'seedingSize']
+      }
+    ]
+  },
   selector: {
     search: {
       rows: { selector: 'table.dataTable:last > tbody > tr:gt(0)' },

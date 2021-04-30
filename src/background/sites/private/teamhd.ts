@@ -33,17 +33,19 @@ export const siteMetadata: SiteMetadata = {
       url: '/browse'
     }
   },
-  userInfo: [
-    {
-      requestConfig: { url: '/index.php' },
-      fields: ['name', 'id', 'messageCount', 'uploaded', 'downloaded', 'ratio', 'bonus']
-    },
-    {
-      requestConfig: { url: '/user/$userId$' },
-      assertion: { id: 'userId' },
-      fields: ['joinTime', 'levelName', 'seeding', 'seedingSize']
-    }
-  ],
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/index.php' },
+        fields: ['name', 'id', 'messageCount', 'uploaded', 'downloaded', 'ratio', 'bonus']
+      },
+      {
+        requestConfig: { url: '/user/$userId$' },
+        assertion: { id: 'userId' },
+        fields: ['joinTime', 'levelName', 'seeding', 'seedingSize']
+      }
+    ]
+  },
   selector: {
     search: {
       rows: { selector: 'table.browse > tbody > tr' },

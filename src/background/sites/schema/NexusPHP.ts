@@ -1,5 +1,5 @@
 import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
-import { SearchRequestConfig, SiteConfig, Torrent, UserInfo } from '@/shared/interfaces/sites'
+import { SiteConfig, Torrent, UserInfo } from '@/shared/interfaces/sites'
 import Sizzle from 'sizzle'
 import urlparse from 'url-parse'
 import dayjs from '@/shared/utils/dayjs'
@@ -27,6 +27,16 @@ export default class NexusPHP extends PrivateSite {
         params: { notnewword: 1 }
       }
     },
+
+    userInfo: {
+      /**
+       * 我们认为NPHP站的 id 的情况永远不变（实质上对于所有站点都应该是这样的）
+       * 部分 NPHP 站点允许修改 name，所以 name 不能视为不变 ！！！
+       */
+      pickLast: ['id'],
+      process: []
+    },
+
     selector: {
       search: {
         // row 等信息由 transformSearchPage 根据搜索结果自动生成
@@ -109,7 +119,7 @@ export default class NexusPHP extends PrivateSite {
           selector: ["a[href*='userdetails.php'][class*='Name']:first", "a[href*='userdetails.php']:first"],
           attr: 'href',
           filters: [
-            (query:string) => { console.log(query); return urlparse(query, true).query.id }
+            (query:string) => urlparse(query, true).query.id
           ]
         },
         name: {
@@ -299,19 +309,16 @@ export default class NexusPHP extends PrivateSite {
   }
 
   async flushUserInfo (): Promise<UserInfo> {
-    const lastUserInfo = await this.getLastUserInfo()
-    let flushUserInfo: Partial<UserInfo> = {}
+    let flushUserInfo: Partial<UserInfo> = await super.flushUserInfo() || {}
 
     let userId: number
-    if (lastUserInfo !== null && lastUserInfo.id) {
-      // 我们认为NPHP站的 id 的情况永远不变（实质上对于所有站点都应该是这样的）
-      // ！！！ 部分 NPHP 站点允许修改 name，所以 name 不能视为不变 ！！！
-      userId = lastUserInfo.id as number
+    if (flushUserInfo && flushUserInfo.id) {
+      userId = flushUserInfo.id as number
     } else {
       // 如果没有 id 信息，则访问一次 index.php
       userId = await this.getUserIdFromSite()
     }
-    flushUserInfo.id = userId
+    flushUserInfo!.id = userId
 
     // 导入基本 Details 页面获取到的用户信息
     flushUserInfo = Object.assign(flushUserInfo, await this.getUserInfoFromDetailsPage(userId))

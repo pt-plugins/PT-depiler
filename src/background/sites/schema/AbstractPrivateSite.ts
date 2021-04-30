@@ -3,7 +3,7 @@ import { UserInfo } from '@/shared/interfaces/sites'
 import { AxiosRequestConfig, AxiosResponse } from 'axios'
 import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
 import userDataRecords from '@/background/service/storage/userDataRecords'
-import { difference, intersection, merge } from 'lodash-es'
+import { difference, intersection, merge, pick } from 'lodash-es'
 import { transPostDataTo } from '@/shared/interfaces/types'
 
 export default class PrivateSite extends BittorrentSite {
@@ -22,8 +22,13 @@ export default class PrivateSite extends BittorrentSite {
     } else {
       let flushUserInfo: Partial<UserInfo> = {}
 
-      for (let i = 0; i < this.config.userInfo.length; i++) {
-        const thisUserInfo = this.config.userInfo[i]
+      if (this.config.userInfo.pickLast) {
+        const lastUserInfo = await this.getLastUserInfo()
+        flushUserInfo = { ...flushUserInfo, ...pick(lastUserInfo, this.config.userInfo.pickLast) }
+      }
+
+      for (let i = 0; i < this.config.userInfo.process.length; i++) {
+        const thisUserInfo = this.config.userInfo.process[i]
 
         // 检查相关元素是否已有
         const existField = intersection(thisUserInfo.fields, Object.keys(flushUserInfo))

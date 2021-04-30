@@ -47,17 +47,20 @@ export const siteMetadata: SiteMetadata = {
       }
     ]
   },
-  userInfo: [
-    {
-      requestConfig: { url: '/' },
-      fields: ['id', 'name']
-    },
-    {
-      requestConfig: { url: '/userdetails.php' },
-      assertion: { id: 'id' },
-      fields: ['uploaded', 'downloaded', 'levelName', 'messageCount', 'bonus', 'joinTime', 'seeding', 'seedingSize']
-    }
-  ],
+  userInfo: {
+    pickLast: ['id', 'name'],
+    process: [
+      {
+        requestConfig: { url: '/' },
+        fields: ['id', 'name']
+      },
+      {
+        requestConfig: { url: '/userdetails.php' },
+        assertion: { id: 'id' },
+        fields: ['uploaded', 'downloaded', 'levelName', 'messageCount', 'bonus', 'joinTime', 'seeding', 'seedingSize']
+      }
+    ]
+  },
 
   selector: {
     search: {

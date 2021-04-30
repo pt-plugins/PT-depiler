@@ -17,20 +17,22 @@ export default class Gazelle extends PrivateSite {
         params: { searchsubmit: 1 }
       }
     },
-    userInfo: [
-      {
-        requestConfig: { url: '/index.php', responseType: 'document' },
-        fields: ['id', 'name', 'messageCount']
-      },
-      {
-        requestConfig: { url: '/user.php', params: { /* id: flushUserInfo.id */ }, responseType: 'document' },
-        assertion: { id: 'id' },
-        fields: [
-          'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', // Gazelle 基础项
-          'seeding', 'seedingSize'
-        ]
-      }
-    ],
+    userInfo: {
+      process: [
+        {
+          requestConfig: { url: '/index.php', responseType: 'document' },
+          fields: ['id', 'name', 'messageCount']
+        },
+        {
+          requestConfig: { url: '/user.php', params: { /* id: flushUserInfo.id */ }, responseType: 'document' },
+          assertion: { id: 'id' },
+          fields: [
+            'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', // Gazelle 基础项
+            'seeding', 'seedingSize'
+          ]
+        }
+      ]
+    },
 
     selector: {
       search: {

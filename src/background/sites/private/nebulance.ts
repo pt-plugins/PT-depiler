@@ -30,17 +30,19 @@ export const siteMetadata: SiteMetadata = {
     ]
   },
 
-  userInfo: [
-    {
-      requestConfig: { url: '/ajax.php?action=index', responseType: 'json' },
-      fields: ['id', 'name', 'uploaded', 'downloaded', 'ratio', 'levelName']
-    },
-    {
-      requestConfig: { url: '/user.php', params: { /* id: flushUserInfo.id */ }, responseType: 'document' },
-      assertion: { id: 'id' },
-      fields: ['messageCount', 'bonus', 'joinTime', 'seeding', 'seedingSize']
-    }
-  ],
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/ajax.php?action=index', responseType: 'json' },
+        fields: ['id', 'name', 'uploaded', 'downloaded', 'ratio', 'levelName']
+      },
+      {
+        requestConfig: { url: '/user.php', params: { /* id: flushUserInfo.id */ }, responseType: 'document' },
+        assertion: { id: 'id' },
+        fields: ['messageCount', 'bonus', 'joinTime', 'seeding', 'seedingSize']
+      }
+    ]
+  },
 
   selector: {
     search: {
