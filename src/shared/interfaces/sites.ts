@@ -142,7 +142,8 @@ export interface UserInfo {
 
 export type SiteSchema = 'AbstractBittorrentSite' | 'AbstractPrivateSite' |
   'NexusPHP' | 'Unit3D' |
-  'Gazelle' | 'GazelleJSONAPI'
+  'Gazelle' | 'GazelleJSONAPI' |
+  'AvistaZ'
 
 export type SiteFeature = 'queryUserInfo'
 
