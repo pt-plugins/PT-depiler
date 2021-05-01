@@ -229,12 +229,11 @@ export default class BittorrentSite {
    * @param uri
    * @param requestConfig
    */
-  protected fixLink (uri: string, requestConfig: SearchRequestConfig): string {
+  protected fixLink (uri: string, requestConfig: AxiosRequestConfig): string {
     let url = uri
 
     if (uri.length > 0 && !uri.startsWith('magnet:')) {
-      const { axiosConfig } = requestConfig
-      const baseUrl = axiosConfig.baseURL || this.activateUrl
+      const baseUrl = requestConfig.baseURL || this.activateUrl
       if (uri.startsWith('//')) {
         // 当 传入的uri 以 /{2,} 开头时，被转换成类似 https?:///xxxx/xxxx 的形式，
         // 虽不符合url规范，但是浏览器容错高，所以不用担心 2333
@@ -392,7 +391,7 @@ export default class BittorrentSite {
       let updateValue = value
       if (key === 'url' || key === 'link') {
         // 将相对链接补齐至绝对链接地址
-        updateValue = this.fixLink(value as string, requestConfig)
+        updateValue = this.fixLink(value as string, requestConfig.axiosConfig)
       } else if (key === 'size' && typeof value === 'string') {
         // 将获取到的 size 从 string 转化为 bytes
         updateValue = parseSizeString(value)

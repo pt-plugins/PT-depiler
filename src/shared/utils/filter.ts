@@ -42,6 +42,10 @@ export function findThenParseNumberString (query: string) : number {
   return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0
 }
 
+export function findThenParseValidTimeString (query: string): number | string {
+  return dayjs(query).isValid() ? dayjs(query).valueOf() : query
+}
+
 export const dateUnit = ['year', 'quarter', 'month', 'week', 'day', 'hour', 'minute', 'second']
 export const nonStandDateUnitMap = new Map<string, typeof dateUnit[number]>([
   // 中文
@@ -58,9 +62,9 @@ export function parseTimeToLive (ttl: string): number {
 
   let nowDayJs = dayjs()
   dateUnit.forEach(v => {
-    const matched = ttl.match(new RegExp(`(\\d+) ?(${v}s?)`))
+    const matched = ttl.match(new RegExp(`([.\\d]+) ?(${v}s?)`))
     if (matched) {
-      nowDayJs = nowDayJs.add(-parseInt(matched![1]), matched![2] as OpUnitType)
+      nowDayJs = nowDayJs.add(-parseFloat(matched![1]), matched![2] as OpUnitType)
     }
   })
 

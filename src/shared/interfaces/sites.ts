@@ -59,7 +59,7 @@ export interface Torrent {
   time?: number; // 发布时间戳（毫秒级）
   size?: number; // 大小
   author?: number | string; // 发布人
-  category?: string;
+  category?: string | number;
 
   seeders?: number; // 上传数量
   leechers?: number; // 下载数量
@@ -244,7 +244,7 @@ export interface SiteMetadata {
     detail?: {
       link?: ElementQuery // 用于获取下载链接不在搜索页，而在详情页的情况
       [key: string]: ElementQuery | undefined // FIXME
-    }
+    } & { [torrentKey in keyof Torrent]?: ElementQuery } // 种子相关选择器
 
     userInfo?: { [userinfoKey in keyof UserInfo]?: ElementQuery } // 用户信息相关选择器
   }
