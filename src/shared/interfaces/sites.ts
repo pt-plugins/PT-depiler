@@ -106,7 +106,7 @@ export interface searchParams {
 }
 
 export interface searchFilter {
-  keywords: string,
+  keywords?: string,
   extraParams?: searchParams[], // 其他请求参数信息
 }
 
@@ -153,6 +153,9 @@ export type SiteFeature = 'queryUserInfo'
  */
 export interface SiteMetadata {
   name: string; // 站点名
+  aka?: string | string[]; // 站点别名
+  description?: string; // 站点说明
+  tags?: string[]; // 站点标签
 
   /**
    * 指定继承模板类型，如果未填写的话，但文件抛出了 default class 的话，会忽略掉此处的参数
@@ -169,12 +172,7 @@ export interface SiteMetadata {
    * （但这并不能阻止用户通过插件的网络请求等其他途径知道对应网址
    */
   url: fullUrl | fullUrlProtect; // 完整的网站地址，如果网站支持 `https` ，请优先考虑填写 `https` 的地址
-
-  description?: string; // 站点说明
-  collaborator?: string | string[]; // 协作者，建议使用 string[] 进行定义
-  tags?: string[];
   favicon?: string; // 站点 favicon.ico 的url，例如 https://ourbits.club/favicon.ico
-  timezoneOffset?: timezoneOffset;
 
   /**
    * 和url相同作用和写法，唯一不同是将会覆写url的行为（因为url不允许用户编辑）
@@ -183,6 +181,9 @@ export interface SiteMetadata {
    *  - 在页面中， [url, ...legacyUrl] 效果相同
    */
   legacyUrl?: (fullUrl | fullUrlProtect)[];
+
+  collaborator?: string | string[]; // 协作者，建议使用 string[] 进行定义
+  timezoneOffset?: timezoneOffset;
 
   host?: string; // 站点域名，如果不存在，则从url中获取
   formerHosts?: string[]; // 站点过去曾经使用过的域名（现在已不再使用）
@@ -234,10 +235,16 @@ export interface SiteMetadata {
   selector?: {
     search?: {
       /**
-       * 种子列表定位。 部分选项作用：
-       *  - merge  用于合并部分使用多行表示一个种子的情况
+       * 种子列表定位。
+       * filter 配置项用于对 selector 获取到的rows进行处理，
+       * 如果filter不存在，则其他部分选项起作用：
+       *  - merge  用于合并部分使用多行表示一个种子的情况，仅在返回为 Document 时生效
        */
-      rows?: { selector: string | ':self', merge?: number }
+      rows?: {
+        selector: string | ':self',
+        filter?: <T>(rows: T) => T
+        merge?: number,
+      }
     } & { [torrentKey in keyof Torrent]?: ElementQuery } // 种子相关选择器
       & { tags?: { selector: string, name: (keyof typeof ETorrentBaseTagColor) | string, color?: string }[] } // Tags相关选择器
 

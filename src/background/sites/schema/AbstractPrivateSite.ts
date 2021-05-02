@@ -63,7 +63,7 @@ export default class PrivateSite extends BittorrentSite {
           }
         }
 
-        const { data: dataDocument } = await this.request(requestConfig)
+        const { data: dataDocument } = await this.request<any>(requestConfig)
         flushUserInfo = {
           ...flushUserInfo,
           ...this.getFieldsData(dataDocument, 'userInfo', difference(thisUserInfo.fields, Object.keys(flushUserInfo)))
@@ -81,7 +81,7 @@ export default class PrivateSite extends BittorrentSite {
   protected loggedCheck (res: AxiosResponse): boolean {
     const request = res.request as XMLHttpRequest
     try {
-      if (/login|verify|checkpoint|returnto/ig.test(request.responseURL)) {
+      if (/doLogin|login|verify|checkpoint|returnto/ig.test(request.responseURL)) {
         return false // 检查最终的URL看是不是需要登陆
       } else if (res.headers.refresh && /\d+; url=.+(login|verify|checkpoint|returnto).+/ig.test(res.headers.refresh)) {
         return false // 检查responseHeader有没有重定向

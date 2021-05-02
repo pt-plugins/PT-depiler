@@ -183,7 +183,7 @@ export default class neu6 extends PrivateSite {
     }
 
     // 请求并获取 formhash
-    const { data: formDocument } = await this.request(baseConfig)
+    const { data: formDocument } = await this.request<Document>(baseConfig)
     const formhash = this.getFieldData(formDocument, {
       selector: 'input[name="formhash"]',
       attr: 'value'
@@ -231,7 +231,7 @@ export default class neu6 extends PrivateSite {
    * @param torrent
    */
   async getTorrentDownloadLink (torrent: Torrent): Promise<string> {
-    const { data: DetailPage, config: RequestConfig } = await this.request({
+    const { data: DetailPage, config: RequestConfig } = await this.request<Document>({
       url: torrent.url,
       responseType: this.config.detail?.type || 'document'
     })
@@ -242,8 +242,8 @@ export default class neu6 extends PrivateSite {
     })
 
     // 检查是不是需要下载浮云
-    if (/下载积分.+?浮云/.test((DetailPage as Document).documentElement.outerHTML)) {
-      const { data: attachmentPage } = await this.request({
+    if (/下载积分.+?浮云/.test(DetailPage.documentElement.outerHTML)) {
+      const { data: attachmentPage } = await this.request<Document>({
         url: downloadLink,
         responseType: 'document'
       })

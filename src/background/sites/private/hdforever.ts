@@ -42,7 +42,7 @@ export default class hdforever extends GazelleJSONAPI {
   }
 
   protected async getUserSeedingTorrents (): Promise<Partial<UserInfo>> {
-    const { data: bonusPage } = await this.request({ url: '/store.php', params: { action: 'rate' }, responseType: 'document' })
+    const { data: bonusPage } = await this.request<Document>({ url: '/store.php', params: { action: 'rate' }, responseType: 'document' })
     return this.getFieldsData(bonusPage, 'userInfo', ['seedingSize', 'bonus'])
   }
 }

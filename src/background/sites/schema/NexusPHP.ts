@@ -371,7 +371,7 @@ export default class NexusPHP extends PrivateSite {
    * @protected
    */
   protected async requestUserSeedingPage (userId: number, type: string = 'seeding'): Promise<string | null> {
-    const { data } = await this.request({
+    const { data } = await this.request<string>({
       url: '/getusertorrentlistajax.php',
       params: { userid: userId, type }
     })

@@ -378,7 +378,7 @@ export default class GazelleJSONAPI extends PrivateSite {
   protected async getUserSeedingTorrents (userId?: number): Promise<Partial<UserInfo>> {
     const userSeedingTorrent: Partial<UserInfo> = { seedingSize: 0 }
 
-    const { data: seedPage } = await this.request({ url: '/torrents.php', params: { type: 'seeding', userid: userId }, responseType: 'document' })
+    const { data: seedPage } = await this.request<Document>({ url: '/torrents.php', params: { type: 'seeding', userid: userId }, responseType: 'document' })
     const rows = Sizzle('tr.torrent_row > td.nobr', seedPage)
     rows.forEach(element => {
       userSeedingTorrent.seedingSize! += parseSizeString((element as HTMLElement).innerText.trim())

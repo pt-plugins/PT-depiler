@@ -195,7 +195,7 @@ export default class hdcity extends NexusPHP {
   }
 
   protected async requestUserSeedingPage (userId: number, type: string = 'seeding'): Promise<string | null> {
-    const { data } = await this.request({
+    const { data } = await this.request<string>({
       url: '/getusertorrentlistajax',
       params: { userid: userId, type }
     })

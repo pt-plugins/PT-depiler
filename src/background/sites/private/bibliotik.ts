@@ -117,7 +117,7 @@ export default class bibliotik extends PrivateSite {
       userInfo = { seeding: 0, seedingSize: 0, ...userInfo }
       const pageInfo = { count: 0, current: 0 } // 生成页面信息
       for (;pageInfo.current <= pageInfo.count; pageInfo.current++) {
-        const { data: TListDocument } = await this.request({
+        const { data: TListDocument } = await this.request<Document>({
           url: `/users/${userInfo.id}/seeding`,
           params: {
             page: pageInfo.current > 0 ? pageInfo.current : undefined

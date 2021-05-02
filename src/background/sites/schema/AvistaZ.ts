@@ -135,7 +135,7 @@ export default class AvistaZ extends PrivateSite {
 
       // 生成页面信息
       for (const pageInfo = { count: 1, current: 1 }; pageInfo.current <= pageInfo.count; pageInfo.current++) {
-        const { data: TListDocument } = await this.request({
+        const { data: TListDocument } = await this.request<Document>({
           url: `/profile/${baseUserInfo.name}/active`,
           params: { order: 'progress', sort: 'desc', page: pageInfo.current },
           responseType: 'document'

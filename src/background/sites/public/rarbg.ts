@@ -41,6 +41,36 @@ export const siteMetadata: SiteMetadata = {
   }
 }
 
+interface errorResp {
+  error: string,
+  'error_code': number
+}
+
+interface rawTorrent {
+  filename:string,
+  category: string,
+  download: string
+}
+
+interface rawExtendTorrent extends rawTorrent {
+  seeders:number,
+  leechers:number,
+  size:number,
+  pubdate: string,
+  'episode_info': {
+    imdb: string | null,
+    tvrage: string | null,
+    tvdb: string | null,
+    themoviedb: string | null
+  },
+  ranked: 0 | 1,
+  'info_page': string
+}
+
+interface torrentResp <T extends rawTorrent> {
+  'torrent_results': T[]
+}
+
 // noinspection JSUnusedGlobalSymbols
 export default class Rarbg extends BittorrentSite {
   // docs: https://torrentapi.org/apidocs_v2.txt?app_id=PTPP
@@ -64,7 +94,7 @@ export default class Rarbg extends BittorrentSite {
     return this._token
   }
 
-  async request<T> (axiosConfig: AxiosRequestConfig, retry:Boolean = true): Promise<AxiosResponse> {
+  async request<T> (axiosConfig: AxiosRequestConfig = {}, retry:Boolean = true): Promise<AxiosResponse<T>> {
     axiosConfig.url = this.apiPoint
     axiosConfig.params.token = await this.getApiToken()
     axiosConfig.params.app_id = appName
@@ -73,7 +103,7 @@ export default class Rarbg extends BittorrentSite {
     await sleep(3e3) // The api has a 1req/2s limit, so we force sleep 3s before request
     let resp = await super.request<T>(axiosConfig)
 
-    const errorCode = parseInt(resp.data.error_code || '0')
+    const errorCode = (resp.data as unknown as errorResp).error_code || 0
     switch (errorCode) {
       case 2:
       case 4: // invalid token
@@ -89,6 +119,6 @@ export default class Rarbg extends BittorrentSite {
         }
     }
 
-    return resp
+    return resp as AxiosResponse<T>
   }
 }

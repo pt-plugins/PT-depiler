@@ -166,7 +166,7 @@ export default class BittorrentSite {
    * 种子搜索方法
    * @param filter
    */
-  public async searchTorrents (filter: searchFilter) : Promise<Torrent[]> {
+  public async searchTorrents (filter: searchFilter = {}) : Promise<Torrent[]> {
     // 根据配置和搜索关键词生成 AxiosRequestConfig
     const axiosConfig: AxiosRequestConfig = merge(
       { url: '/', responseType: 'document' },
@@ -180,7 +180,7 @@ export default class BittorrentSite {
     return rawTorrent.map(t => this.fixParsedTorrent(t, { filter, axiosConfig }))
   }
 
-  async request<T> (axiosConfig: AxiosRequestConfig & { requestName?: string, checkLogin?: boolean }): Promise<AxiosResponse> {
+  async request<T> (axiosConfig: AxiosRequestConfig & { requestName?: string, checkLogin?: boolean }): Promise<AxiosResponse<T>> {
     // 统一设置一些 AxiosRequestConfig， 当作默认值
     axiosConfig.baseURL = axiosConfig.baseURL || this.activateUrl
     axiosConfig.url = axiosConfig.url || '/'
@@ -267,7 +267,7 @@ export default class BittorrentSite {
 
   protected getFieldData (element: Element | Object, elementQuery: ElementQuery): any {
     const { selector } = elementQuery
-    let query: string = String(elementQuery.text ?? '')
+    let query: string | number = String(elementQuery.text ?? '')
     let selectorId = 0
     if (selector) {
       const selectors = ([] as string[]).concat(selector)
@@ -320,6 +320,14 @@ export default class BittorrentSite {
       query = this.runQueryFilters(query, elementQuery.filters)
     }
 
+    // noinspection SuspiciousTypeOfGuard
+    if (typeof query === 'string') {
+      query = query.trim() // 去除空格
+      if (/^-?\d+$/.test(query)) { // 尽可能的将返回值转成数字类型
+        query = isNaN(parseInt(query)) ? 0 : parseInt(query)
+      }
+    }
+
     return query
   }
 
@@ -327,6 +335,11 @@ export default class BittorrentSite {
     const realFilters = ([] as (Function | string)[]).concat(filters)
     for (let i = 0; i < realFilters.length; i++) {
       let fn = realFilters[i]
+      /**
+       * FIXME 不再允许通过 string 的方式定义函数，转变为 jackett 的 那种 {name, args}方式
+       * refs: https://github.com/Jackett/Jackett/blob/6a213c6eabd0264392c48564ff16a9035fd13ca4/src/Jackett.Common/Indexers/CardigannIndexer.cs#L973-L1116
+       */
+
       // eslint-disable-next-line no-new-func
       fn = typeof fn === 'string' ? (new Function('query', `return ${fn}`)) : fn
       query = fn(query)
@@ -355,28 +368,36 @@ export default class BittorrentSite {
     const torrents: Torrent[] = []
 
     let trs: any
+
     if (doc instanceof Document) {
       trs = Sizzle(rowsSelector.selector as string, doc)
+      if (rowsSelector.filter) {
+        trs = rowsSelector.filter(trs)
+      } else {
+        /**
+         * 应对某些站点连用多个tr表示一个种子的情况，将多个tr使用 <div> 包裹成一个 Element，
+         * 这种情况下，子选择器就可以写成 `tr:nth-child(1) xxxx` 来精确
+         */
+        const rowMergeDeep: number = rowsSelector.merge || 1
+        if (trs.length > 0 && rowMergeDeep > 1) {
+          const newTrs: Element[] = []
 
-      /**
-       * 应对某些站点连用多个tr表示一个种子的情况，将多个tr使用 <div> 包裹成一个 Element，
-       * 这种情况下，子选择器就可以写成 `tr:nth-child(1) xxxx` 来精确
-       */
-      const rowMergeDeep: number = rowsSelector.merge || 1
-      if (trs.length > 0 && rowMergeDeep > 1) {
-        const newTrs: Element[] = []
+          chunk(trs, rowMergeDeep).forEach(chunkTr => {
+            const wrapperDiv = doc.createElement('div')
+            chunkTr.forEach(tr => { wrapperDiv.appendChild(tr as Element) })
+            newTrs.push(wrapperDiv)
+          })
 
-        chunk(trs, rowMergeDeep).forEach(chunkTr => {
-          const wrapperDiv = doc.createElement('div')
-          chunkTr.forEach(tr => { wrapperDiv.appendChild(tr as Element) })
-          newTrs.push(wrapperDiv)
-        })
-
-        trs = newTrs
+          trs = newTrs
+        }
       }
     } else {
       // 同样定义一个 :self 以防止对于JSON返回的情况下，所有items在顶层字典（实际是 Object[] ）下
       trs = rowsSelector.selector === ':self' ? doc : get(doc, rowsSelector.selector as string)
+
+      if (rowsSelector.filter) {
+        trs = rowsSelector.filter(trs)
+      }
     }
 
     trs?.forEach((tr: any) => {
@@ -387,6 +408,15 @@ export default class BittorrentSite {
   }
 
   protected fixParsedTorrent (torrent: Torrent, requestConfig: SearchRequestConfig): Torrent {
+    // 检查种子的id属性是否存在，如果不存在，则由 url, link 属性替代
+    if (!torrent.id) {
+      if (torrent.url) {
+        torrent.id = torrent.url
+      } else if (torrent.link) {
+        torrent.id = torrent.link
+      }
+    }
+
     for (const [key, value] of Object.entries(torrent)) {
       let updateValue = value
       if (key === 'url' || key === 'link') {
@@ -400,9 +430,9 @@ export default class BittorrentSite {
         updateValue = parseTimeWithZone(value, this.config.timezoneOffset || '+0000')
       } else if (['id', 'size', 'seeders', 'leechers', 'completed', 'comments', 'category', 'status'].includes(key)) {
         // 其他一些能够为数字的统一转化为数字
-        if (typeof value === 'string') {
+        if (typeof updateValue === 'string') {
           updateValue = updateValue.replace(/[, ]/ig, '') // 统一处理 `1,024` `1 024` 之类的情况
-          if (value.match(/^\d*$/)) { // 尽可能的将返回值转成数字类型
+          if (/^-?\d+$/.test(updateValue)) { // 尽可能的将返回值转成数字类型
             updateValue = isNaN(parseInt(updateValue)) ? 0 : parseInt(updateValue)
           }
         }
@@ -422,6 +452,7 @@ export default class BittorrentSite {
       // @ts-ignore
       torrent[key] = updateValue
     }
+
     return torrent
   }
 
@@ -493,7 +524,7 @@ export default class BittorrentSite {
 
   async getTorrentDownloadLink (torrent: Torrent):Promise<string> {
     if (!torrent.link && this.config.selector?.detail?.link) {
-      const { data } = await this.request({
+      const { data } = await this.request<any>({
         url: torrent.url,
         responseType: this.config.detail?.type || 'document'
       })

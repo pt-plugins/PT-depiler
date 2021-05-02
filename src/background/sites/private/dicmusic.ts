@@ -32,7 +32,7 @@ export const siteMetadata: SiteMetadata = {
 
 export default class dicmusic extends GazelleJSONAPI {
   protected async getUserSeedingTorrents (): Promise<Partial<UserInfo>> {
-    const { data: bonusPage } = await this.request({ url: '/bonus.php', params: { action: 'bprates' }, responseType: 'document' })
+    const { data: bonusPage } = await this.request<Document>({ url: '/bonus.php', params: { action: 'bprates' }, responseType: 'document' })
     return this.getFieldsData(bonusPage, 'userInfo', ['seedingSize', 'bonus'])
   }
 }

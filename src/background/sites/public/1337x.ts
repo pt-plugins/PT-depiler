@@ -139,7 +139,7 @@ export default class x1337x extends BittorrentSite {
        *  - /sort-category-search/Ntb/Movies/time/desc/1/
        */
       url: urljoin(
-        searchPath, keywords,
+        searchPath, keywords || '',
         String(category?.value || ''), String(sort?.value || ''),
         String(sort ? (order?.value || 'desc') : ''), '1/'
       )

@@ -43,12 +43,12 @@ export const siteMetadata: SiteMetadata = {
 
 export default class orpheus extends GazelleJSONAPI {
   protected async getUserExtendInfo (userId: number): Promise<Partial<UserInfo>> {
-    const { data: userPage } = await this.request({ url: '/user.php', params: { id: userId } })
+    const { data: userPage } = await this.request<any>({ url: '/user.php', params: { id: userId } })
     return this.getFieldsData(userPage, 'userInfo', ['joinTime'])
   }
 
   protected async getUserSeedingTorrents (): Promise<Partial<UserInfo>> {
-    const { data: bonusPage } = await this.request({ url: '/bonus.php', params: { action: 'bprates' }, responseType: 'document' })
+    const { data: bonusPage } = await this.request<Document>({ url: '/bonus.php', params: { action: 'bprates' }, responseType: 'document' })
     return this.getFieldsData(bonusPage, 'userInfo', ['seeding', 'seedingSize', 'bonus'])
   }
 }
