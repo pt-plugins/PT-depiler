@@ -186,7 +186,7 @@ export interface SiteMetadata {
   timezoneOffset?: timezoneOffset;
 
   host?: string; // 站点域名，如果不存在，则从url中获取
-  formerHosts?: string[]; // 站点过去曾经使用过的域名（现在已不再使用）
+  formerHosts?: string[]; // 站点过去曾经使用过的，但现在已不再使用的域名
 
   search?: {
     /**
