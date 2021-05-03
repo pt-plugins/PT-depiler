@@ -1,11 +1,17 @@
 {
   "name": "pt-plugin-plus",
-  "version": "1.5.0",
+  "version": "2.0.0",
   "private": true,
   "author": {
     "name": "ronggang",
     "url": "https://github.com/ronggang"
   },
+  "contributors": [
+    {
+      "name": "Rhilip",
+      "url": "https://github.com/Rhilip"
+    }
+  ],
   "archiverName": "PT-Plugin-Plus",
   "displayName": "PT 助手 Plus",
   "homepage": "https://github.com/ronggang/PT-Plugin-Plus",

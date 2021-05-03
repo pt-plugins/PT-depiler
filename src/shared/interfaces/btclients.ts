@@ -10,7 +10,8 @@ export const clientTypeList = [
   'synologyDownloadStation',
   'uTorrent',
   'ruTorrent',
-  'Flood'
+  'Flood',
+  'Aria2'
 ] as const
 
 export type clientType = typeof clientTypeList[number]
@@ -189,7 +190,7 @@ export interface TorrentClient {
   getTorrent: (id: any) => Promise<Torrent>;
 
   // 添加种子
-  addTorrent: (url: string, options?: Partial<AddTorrentOptions>) => Promise<boolean>;
+  addTorrent: (url: string, options: Partial<AddTorrentOptions>) => Promise<boolean>;
 
   // 暂停种子
   pauseTorrent: (id: any) => Promise<boolean>;

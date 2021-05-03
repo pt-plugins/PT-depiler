@@ -95,7 +95,6 @@ interface TransmissionAddTorrentOptions extends AddTorrentOptions {
   filename: string,
   metainfo: string,
   paused: boolean,
-
 }
 
 interface TransmissionTorrent extends Torrent {

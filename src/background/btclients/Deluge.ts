@@ -176,22 +176,21 @@ export default class Deluge implements TorrentClient {
   }
 
   async addTorrent (url: string, options: Partial<AddTorrentOptions> = {}): Promise<boolean> {
-    const delugeOptions = {
-      add_paused: false
+    const delugeOptions: any = {
+      add_paused: options.addAtPaused ?? false
     }
 
-    if (options.addAtPaused) {
-      delugeOptions.add_paused = options.addAtPaused
-    }
     if (options.savePath) {
-      // @ts-ignore
       delugeOptions.download_location = options.savePath
     }
 
     // 由于Deluge添加链接和种子的方法名不一样，分开处理
     let method: 'core.add_torrent_file' | 'core.add_torrent_url'
     let params: any
-    if (options.localDownload) { // 文件 add_torrent_file
+    if (url.startsWith('magnet:') || !options.localDownload) { // 链接 add_torrent_url
+      method = 'core.add_torrent_url'
+      params = [url, delugeOptions]
+    } else { // 文件 add_torrent_file
       method = 'core.add_torrent_file'
 
       // FIXME 使用统一的种子文件获取方法获取
@@ -200,9 +199,6 @@ export default class Deluge implements TorrentClient {
       })
       const metainfo = Buffer.from(req.data, 'binary').toString('base64')
       params = ['', metainfo, delugeOptions]
-    } else { // 链接 add_torrent_url
-      method = 'core.add_torrent_url'
-      params = [url, delugeOptions]
     }
 
     try {
