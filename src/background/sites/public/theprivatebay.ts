@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 const CategoryMap = new Map([
   // Audio
@@ -20,7 +20,7 @@ const CategoryMap = new Map([
   // Other
   [600, 'Other'], [601, 'E-books'], [602, 'Comics'], [603, 'Pictures'], [604, 'Covers'],
   [605, 'Physibles'], [699, 'Other Other']
-])
+]);
 
 export const siteMetadata: SiteMetadata = {
   name: 'The Pirate Bay',
@@ -48,4 +48,4 @@ export const siteMetadata: SiteMetadata = {
       category: { selector: 'category', filters: [(q:string) => CategoryMap.get(parseInt(q))] }
     }
   }
-}
+};

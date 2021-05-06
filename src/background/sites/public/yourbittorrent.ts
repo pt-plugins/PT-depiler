@@ -1,10 +1,10 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import dayjs from '@/shared/utils/dayjs'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import dayjs from '@/shared/utils/dayjs';
 
 const CategoryMap = new Map([
   ['c1', 'Movies'], ['c2', 'Music'], ['c3', 'Series'], ['c4', 'Games'], ['c5', 'Apps'],
   ['c6', 'Anime'], ['c7', 'Adult'], ['c8', 'eBooks'], ['c9', 'Photos'], ['c10', 'Other']
-])
+]);
 
 export const siteMetadata: SiteMetadata = {
   name: 'YourBittorrent',
@@ -38,11 +38,11 @@ export const siteMetadata: SiteMetadata = {
         filters: [
           (q:string) => {
             if (q.includes('Today')) {
-              return dayjs().unix()
+              return dayjs().unix();
             } else if (q.includes('Yesterday')) {
-              return dayjs().add(-1, 'day').unix()
+              return dayjs().add(-1, 'day').unix();
             } else {
-              return dayjs(`${q} -07:00`, 'DD/MM/YY Z').unix() // 02/01/06 -07:00
+              return dayjs(`${q} -07:00`, 'DD/MM/YY Z').unix(); // 02/01/06 -07:00
             }
           }
         ]
@@ -52,4 +52,4 @@ export const siteMetadata: SiteMetadata = {
       category: { selector: 'td:nth-child(1)', attr: 'class', filters: [(q:string) => CategoryMap.get(q)] }
     }
   }
-}
+};

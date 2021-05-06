@@ -1,13 +1,13 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
-import dayjs from '@/shared/utils/dayjs'
-import { parseTimeToLive } from '@/shared/utils/filter'
-import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
-import { AxiosRequestConfig } from 'axios'
+import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import dayjs from '@/shared/utils/dayjs';
+import { parseTimeToLive } from '@/shared/utils/filter';
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite';
+import { AxiosRequestConfig } from 'axios';
 
 const CategoryMap = new Map([
   ['tv0', 'Other'], ['tv1', 'Movies'], ['tv2', 'Music'], ['tv3', 'TV Shows'], ['tv4', 'Games'], ['tv5', 'Software'],
   ['tv6', 'Anime'], ['tv7', 'Adult'], ['tv8', 'Books'], ['tv9', 'Images'], ['tv10', 'Books'], ['tv12', 'Audiobook']
-])
+]);
 
 export const siteMetadata: SiteMetadata = {
   name: 'Torlock',
@@ -40,9 +40,9 @@ export const siteMetadata: SiteMetadata = {
         filters: [
           (q:string) => {
             if (/\//.test(q)) { // 1/2/2006
-              return dayjs(`${q} -07:00`, 'MM/DD/YYYY Z').unix()
+              return dayjs(`${q} -07:00`, 'MM/DD/YYYY Z').unix();
             } else {
-              return parseTimeToLive(q)
+              return parseTimeToLive(q);
             }
           }
         ]
@@ -53,13 +53,13 @@ export const siteMetadata: SiteMetadata = {
       category: { selector: 'span[class^="tv"]', attr: 'class', filters: [(q:string) => CategoryMap.get(q) || 'Other'] }
     }
   }
-}
+};
 
 // noinspection JSUnusedGlobalSymbols
 export default class Torlock extends BittorrentSite {
   protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
-    const config = await super.transformSearchFilter(filter)
-    config.url = filter.keywords ? `/all/torrents/${filter.keywords}.html` : '/fresh.html'
-    return config
+    const config = await super.transformSearchFilter(filter);
+    config.url = filter.keywords ? `/all/torrents/${filter.keywords}.html` : '/fresh.html';
+    return config;
   }
 }

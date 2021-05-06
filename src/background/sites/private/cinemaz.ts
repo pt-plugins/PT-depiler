@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: 'CinemaZ',
@@ -8,4 +8,4 @@ export const siteMetadata: SiteMetadata = {
   tags: ['剧集'],
   url: 'https://cinemaz.to/',
   collaborator: 'tranhoangcore'
-}
+};

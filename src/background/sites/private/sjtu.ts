@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import NexusPHP from '@/background/sites/schema/NexusPHP'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import NexusPHP from '@/background/sites/schema/NexusPHP';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
 
 export const siteMetadata: SiteMetadata = {
   name: '葡萄',
@@ -56,10 +56,10 @@ export const siteMetadata: SiteMetadata = {
           (query: string) => {
             switch (true) {
               case /snatched_(no|yes)_yes/.test(query):
-                return 100
+                return 100;
               case /snatched_(no|yes)_no/.test(query):
               default:
-                return 0
+                return 0;
             }
           }
         ]
@@ -71,25 +71,25 @@ export const siteMetadata: SiteMetadata = {
           (query: string) => {
             switch (true) {
               case /snatched_(no|yes)_yes/.test(query):
-                return ETorrentStatus.seeding
+                return ETorrentStatus.seeding;
               case /snatched_(no|yes)_no/.test(query):
-                return ETorrentStatus.inactive
+                return ETorrentStatus.inactive;
               default:
-                return ETorrentStatus.unknown
+                return ETorrentStatus.unknown;
             }
           }
         ]
       }
     }
   }
-}
+};
 
 export default class sjtu extends NexusPHP {
   protected async requestUserSeedingPage (userId: number, type: string = 'seeding'): Promise<string | null> {
     const { data } = await this.request<string>({
       url: '/viewusertorrents.php',
       params: { id: userId, show: type }
-    })
-    return data || null
+    });
+    return data || null;
   }
 }

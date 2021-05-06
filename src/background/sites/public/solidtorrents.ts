@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Solid Torrents',
@@ -30,4 +30,4 @@ export const siteMetadata: SiteMetadata = {
       category: { selector: 'category' }
     }
   }
-}
+};

@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
-import dayjs from '@/shared/utils/dayjs'
-import { findThenParseSizeString } from '@/shared/utils/filter'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
+import dayjs from '@/shared/utils/dayjs';
+import { findThenParseSizeString } from '@/shared/utils/filter';
 
 export const siteMetadata: SiteMetadata = {
   name: 'HD-Space',
@@ -53,12 +53,12 @@ export const siteMetadata: SiteMetadata = {
           // "July 11, 2015, 13:34:09", "Today|Yesterday at 20:04:23"
           (query: string) => {
             if (query.includes('at')) {
-              query = query.replace('Today', dayjs().format('DD/MM/YYYY'))
-              query = query.replace('Yesterday', dayjs().add(-1, 'day').format('DD/MM/YYYY'))
-              query = query.replace(' at ', ' ')
-              return dayjs(query, 'DD/MM/YYYY HH:mm:ss').valueOf()
+              query = query.replace('Today', dayjs().format('DD/MM/YYYY'));
+              query = query.replace('Yesterday', dayjs().add(-1, 'day').format('DD/MM/YYYY'));
+              query = query.replace(' at ', ' ');
+              return dayjs(query, 'DD/MM/YYYY HH:mm:ss').valueOf();
             } else {
-              return dayjs(query).valueOf()
+              return dayjs(query).valueOf();
             }
           }
         ]
@@ -89,8 +89,8 @@ export const siteMetadata: SiteMetadata = {
         selector: ["a[href*='do=pm']"],
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/(\d+)/)
-            return (queryMatch && queryMatch.length >= 2) ? parseInt(queryMatch[1]) : 0
+            const queryMatch = query.match(/(\d+)/);
+            return (queryMatch && queryMatch.length >= 2) ? parseInt(queryMatch[1]) : 0;
           }
         ]
       },
@@ -129,4 +129,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};

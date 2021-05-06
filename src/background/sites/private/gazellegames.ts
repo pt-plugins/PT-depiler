@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
-import { parseSizeString } from '@/shared/utils/filter'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
+import { parseSizeString } from '@/shared/utils/filter';
 
 export const siteMetadata: SiteMetadata = {
   name: 'GGN',
@@ -25,18 +25,18 @@ export const siteMetadata: SiteMetadata = {
         selector: ':self',
         elementProcess: [
           (element: HTMLElement) => {
-            let groupElement = element
+            let groupElement = element;
             while (true) {
-              groupElement = groupElement.previousElementSibling as HTMLElement
+              groupElement = groupElement.previousElementSibling as HTMLElement;
               if (!groupElement || groupElement.classList.contains('group')) {
-                break
+                break;
               }
             }
 
             if (groupElement && groupElement.querySelector('td.cats_col > div[title]')) {
-              return groupElement.querySelector('td.cats_col > div[title]')!.getAttribute('title')!
+              return groupElement.querySelector('td.cats_col > div[title]')!.getAttribute('title')!;
             } else {
-              return 'Other'
+              return 'Other';
             }
           }
         ]
@@ -95,4 +95,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};

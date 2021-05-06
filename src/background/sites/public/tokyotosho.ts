@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
-import dayjs from '@/shared/utils/dayjs'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
+import dayjs from '@/shared/utils/dayjs';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Tokyo Toshokan',
@@ -56,4 +56,4 @@ export const siteMetadata: SiteMetadata = {
       author: { selector: 'tr:nth-child(2) td.desc-bot', filters: [(q:string) => q && q.match(/Submitter: (.+?) \|?/)![1]] }
     }
   }
-}
+};

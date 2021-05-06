@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
 
 export const siteMetadata: SiteMetadata = {
   name: 'HDArea',
@@ -49,8 +49,8 @@ export const siteMetadata: SiteMetadata = {
         attr: 'style',
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/width:.?(\d.+)%/)
-            return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : 0
+            const queryMatch = query.match(/width:.?(\d.+)%/);
+            return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : 0;
           }
         ]
       },
@@ -72,4 +72,4 @@ export const siteMetadata: SiteMetadata = {
     }
   }
 
-}
+};

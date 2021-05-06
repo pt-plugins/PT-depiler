@@ -1,8 +1,8 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
-import { findThenParseNumberString, findThenParseSizeString } from '@/shared/utils/filter'
-import dayjs from '@/shared/utils/dayjs'
-import Sizzle from 'sizzle'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
+import { findThenParseNumberString, findThenParseSizeString } from '@/shared/utils/filter';
+import dayjs from '@/shared/utils/dayjs';
+import Sizzle from 'sizzle';
 
 export const siteMetadata: SiteMetadata = {
   name: 'CinemaGeddon',
@@ -111,8 +111,8 @@ export const siteMetadata: SiteMetadata = {
         selector: "td.clx > .frames td.rowhead:contains('Join') + td:first",
         filters: [
           (query: string) => {
-            const timeString = query.split(' (')[0]
-            return dayjs(timeString).isValid() ? dayjs(timeString).valueOf() : timeString
+            const timeString = query.split(' (')[0];
+            return dayjs(timeString).isValid() ? dayjs(timeString).valueOf() : timeString;
           }
         ]
       },
@@ -121,8 +121,8 @@ export const siteMetadata: SiteMetadata = {
         selector: ['div#ka2 table:first'],
         elementProcess: [
           (table: HTMLTableElement) => {
-            const trAnothers = Sizzle('tr:gt(0)', table)
-            return trAnothers.length
+            const trAnothers = Sizzle('tr:gt(0)', table);
+            return trAnothers.length;
           }
         ]
       },
@@ -130,16 +130,16 @@ export const siteMetadata: SiteMetadata = {
         selector: ['div#ka2 table:first tr:not(:eq(0))'],
         elementProcess: [
           (table: HTMLTableElement) => {
-            let seedingSize = 0
-            const trAnothers = Sizzle('tr:gt(0)', table)
+            let seedingSize = 0;
+            const trAnothers = Sizzle('tr:gt(0)', table);
             trAnothers.forEach(trAnother => {
-              const sizeAnother = Sizzle('td:eq(2)', trAnother)
-              seedingSize += findThenParseSizeString((sizeAnother[0] as HTMLTableCellElement).innerText.trim())
-            })
-            return seedingSize
+              const sizeAnother = Sizzle('td:eq(2)', trAnother);
+              seedingSize += findThenParseSizeString((sizeAnother[0] as HTMLTableCellElement).innerText.trim());
+            });
+            return seedingSize;
           }
         ]
       }
     }
   }
-}
+};

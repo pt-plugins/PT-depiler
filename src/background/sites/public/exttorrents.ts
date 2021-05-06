@@ -1,7 +1,7 @@
-import { searchFilter, SiteMetadata, Torrent } from '@/shared/interfaces/sites'
-import { parseTimeToLive } from '@/shared/utils/filter'
-import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
-import { AxiosRequestConfig } from 'axios'
+import { searchFilter, SiteMetadata, Torrent } from '@/shared/interfaces/sites';
+import { parseTimeToLive } from '@/shared/utils/filter';
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite';
+import { AxiosRequestConfig } from 'axios';
 
 const CategoryMap = new Map([
   ['/anime/', 'Anime'],
@@ -50,7 +50,7 @@ const CategoryMap = new Map([
   ['/xxx/magazines/', 'XXX Magazines'],
   ['/xxx/pictures/', 'XXX Pictures'],
   ['/xxx/video/', 'XXX Video']
-])
+]);
 
 export const siteMetadata: SiteMetadata = {
   name: 'EXT Torrents',
@@ -96,24 +96,24 @@ export const siteMetadata: SiteMetadata = {
       category: { selector: 'td:nth-child(1) div.related-posted a:last-of-type', attr: 'href', filters: [(q:string) => CategoryMap.get(q)] }
     }
   }
-}
+};
 
 // noinspection JSUnusedGlobalSymbols
 export default class Exttorrents extends BittorrentSite {
   protected async transformSearchFilter (filter: searchFilter = {}): Promise<AxiosRequestConfig> {
-    const config = await super.transformSearchFilter(filter)
-    config.url = filter.keywords ? '/search/' : '/latest/'
+    const config = await super.transformSearchFilter(filter);
+    config.url = filter.keywords ? '/search/' : '/latest/';
 
-    return config
+    return config;
   }
 
   async getTorrentDownloadLink (torrent: Torrent): Promise<string> {
-    let link = torrent.link
+    let link = torrent.link;
     if (!link) {
-      const { data } = await this.request({ url: torrent.url, responseType: 'document' })
-      link = this.getFieldData(data as Document, { selector: 'a.download-btn:last-of-type', attr: 'href' })
+      const { data } = await this.request({ url: torrent.url, responseType: 'document' });
+      link = this.getFieldData(data as Document, { selector: 'a.download-btn:last-of-type', attr: 'href' });
     }
 
-    return link
+    return link;
   }
 }

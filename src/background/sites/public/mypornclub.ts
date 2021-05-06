@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { parseTimeToLive } from '@/shared/utils/filter'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { parseTimeToLive } from '@/shared/utils/filter';
 
 export const siteMetadata: SiteMetadata = {
   name: 'MyPornClub',
@@ -29,4 +29,4 @@ export const siteMetadata: SiteMetadata = {
       link: { selector: 'div.torrent_download_div > a', attr: 'href' }
     }
   }
-}
+};

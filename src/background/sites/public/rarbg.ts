@@ -1,9 +1,9 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
-import { sleep } from '@/shared/utils/common'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { sleep } from '@/shared/utils/common';
 
-const appName = 'PTPP'
+const appName = 'PTPP';
 
 export const siteMetadata: SiteMetadata = {
   name: 'RARBG',
@@ -39,7 +39,7 @@ export const siteMetadata: SiteMetadata = {
 
     }
   }
-}
+};
 
 interface errorResp {
   error: string,
@@ -87,38 +87,38 @@ export default class Rarbg extends BittorrentSite {
     ) {
       const { data } = await axios.get<{ token: string }>(this.apiPoint, {
         params: { get_token: 'get_token', app_id: appName }
-      })
-      this._token = data.token
-      this._tokenExpired = Date.now() + 10 * 60 * 1e3 // 10 minutes, though the real is `expire in 15 minutes`.
+      });
+      this._token = data.token;
+      this._tokenExpired = Date.now() + 10 * 60 * 1e3; // 10 minutes, though the real is `expire in 15 minutes`.
     }
-    return this._token
+    return this._token;
   }
 
   async request<T> (axiosConfig: AxiosRequestConfig = {}, retry:Boolean = true): Promise<AxiosResponse<T>> {
-    axiosConfig.url = this.apiPoint
-    axiosConfig.params.token = await this.getApiToken()
-    axiosConfig.params.app_id = appName
-    axiosConfig.responseType = 'json'
+    axiosConfig.url = this.apiPoint;
+    axiosConfig.params.token = await this.getApiToken();
+    axiosConfig.params.app_id = appName;
+    axiosConfig.responseType = 'json';
 
-    await sleep(3e3) // The api has a 1req/2s limit, so we force sleep 3s before request
-    let resp = await super.request<T>(axiosConfig)
+    await sleep(3e3); // The api has a 1req/2s limit, so we force sleep 3s before request
+    let resp = await super.request<T>(axiosConfig);
 
-    const errorCode = (resp.data as unknown as errorResp).error_code || 0
+    const errorCode = (resp.data as unknown as errorResp).error_code || 0;
     switch (errorCode) {
       case 2:
       case 4: // invalid token
-        this._tokenExpired = Date.now()
-        resp = await this.request<T>(axiosConfig)
-        break
+        this._tokenExpired = Date.now();
+        resp = await this.request<T>(axiosConfig);
+        break;
       case 20: // no results found
         // the api returns "no results" in some valid queries. (Mostly happened on same keywords re-search)
         // we do one retry on this case but we can't do more
         // because we can't distinguish between search without results and api malfunction
         if (retry) {
-          resp = await this.request<T>(axiosConfig, false)
+          resp = await this.request<T>(axiosConfig, false);
         }
     }
 
-    return resp as AxiosResponse<T>
+    return resp as AxiosResponse<T>;
   }
 }

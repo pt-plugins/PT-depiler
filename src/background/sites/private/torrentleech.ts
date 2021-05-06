@@ -1,10 +1,10 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
-import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
-import { AxiosRequestConfig } from 'axios'
-import urljoin from 'url-join'
-import { findThenParseSizeString, parseSizeString } from '@/shared/utils/filter'
-import dayjs from 'dayjs'
-import Sizzle from 'sizzle'
+import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import PrivateSite from '@/background/sites/schema/AbstractPrivateSite';
+import { AxiosRequestConfig } from 'axios';
+import urljoin from 'url-join';
+import { findThenParseSizeString, parseSizeString } from '@/shared/utils/filter';
+import dayjs from 'dayjs';
+import Sizzle from 'sizzle';
 
 interface rawTorrent {
   addedTimestamp: string
@@ -152,8 +152,8 @@ export const siteMetadata: SiteMetadata = {
         selector: ["table.profileViewTable td:contains('Register date') + td"],
         filters: [
           (query:string) => {
-            const date = query.split(' ').slice(1).join(' ')
-            return dayjs(date, 'Do MMMM YYYY').valueOf()
+            const date = query.split(' ').slice(1).join(' ');
+            return dayjs(date, 'Do MMMM YYYY').valueOf();
           }
         ]
       },
@@ -162,8 +162,8 @@ export const siteMetadata: SiteMetadata = {
         selector: 'table#profile-seedingTable > tbody',
         elementProcess: [
           (tbody: HTMLElement) => {
-            const trAnother = Sizzle('> tr', tbody)
-            return trAnother.length
+            const trAnother = Sizzle('> tr', tbody);
+            return trAnother.length;
           }
         ]
       },
@@ -171,38 +171,38 @@ export const siteMetadata: SiteMetadata = {
         selector: 'table#profile-seedingTable > tbody',
         elementProcess: [
           (tbody: HTMLElement) => {
-            let seedingSize = 0
-            const trAnothers = Sizzle('> tr', tbody)
+            let seedingSize = 0;
+            const trAnothers = Sizzle('> tr', tbody);
             trAnothers.forEach(tr => {
-              const sizeTd = Sizzle('> td:nth-child(2)', tr)
-              seedingSize += parseSizeString((sizeTd[0] as HTMLElement).innerText.trim())
-            })
-            return seedingSize
+              const sizeTd = Sizzle('> td:nth-child(2)', tr);
+              seedingSize += parseSizeString((sizeTd[0] as HTMLElement).innerText.trim());
+            });
+            return seedingSize;
           }
         ]
       }
     }
   }
-}
+};
 
 export default class torrentleech extends PrivateSite {
   protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
-    const urlSearch = ['/torrents/browse/list']
+    const urlSearch = ['/torrents/browse/list'];
 
     if (filter.extraParams?.find(param => param.key === 'category')) {
-      const categoryParams = filter.extraParams?.find(param => param.key === 'category')
+      const categoryParams = filter.extraParams?.find(param => param.key === 'category');
       // @ts-ignore
-      urlSearch.push(['categories', categoryParams.value])
+      urlSearch.push(['categories', categoryParams.value]);
     }
 
     if (filter.keywords) {
       // @ts-ignore
-      urlSearch.push(['query', filter.keywords])
+      urlSearch.push(['query', filter.keywords]);
     }
 
     return {
       url: urljoin(urlSearch),
       responseType: 'json'
-    }
+    };
   }
 }

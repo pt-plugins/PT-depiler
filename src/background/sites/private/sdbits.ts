@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
-import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '@/shared/utils/filter'
-import Sizzle from 'sizzle'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
+import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '@/shared/utils/filter';
+import Sizzle from 'sizzle';
 
 export const siteMetadata: SiteMetadata = {
   name: 'SDBits',
@@ -96,8 +96,8 @@ export const siteMetadata: SiteMetadata = {
         selector: "td.heading:contains('Currently'):contains('seeding') + td",
         elementProcess: [
           (element: HTMLElement) => {
-            const trAnothers = Sizzle('tr:not(:eq(0))', element)
-            return trAnothers.length
+            const trAnothers = Sizzle('tr:not(:eq(0))', element);
+            return trAnothers.length;
           }
         ]
       },
@@ -105,16 +105,16 @@ export const siteMetadata: SiteMetadata = {
         selector: "td.heading:contains('Currently'):contains('seeding') + td",
         elementProcess: [
           (element: HTMLElement) => {
-            let seedingSize = 0
-            const trAnothers = Sizzle('tr:not(:eq(0))', element)
+            let seedingSize = 0;
+            const trAnothers = Sizzle('tr:not(:eq(0))', element);
             trAnothers.forEach(trAnother => {
-              const sizeAnother = Sizzle('td:eq(3)', trAnother)[0]
-              seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim())
-            })
-            return seedingSize
+              const sizeAnother = Sizzle('td:eq(3)', trAnother)[0];
+              seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim());
+            });
+            return seedingSize;
           }
         ]
       }
     }
   }
-}
+};

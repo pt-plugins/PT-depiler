@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import dayjs from '@/shared/utils/dayjs'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import dayjs from '@/shared/utils/dayjs';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Anime Tosho',
@@ -36,10 +36,10 @@ export const siteMetadata: SiteMetadata = {
             // 03/06/2011 08:17
             // Today 01:59
             // Yesterday 23:39
-            q = q.replace('Date/time submitted: ', '')
-            q = q.replace('Today', dayjs().format('DD/MM/YYYY'))
-            q = q.replace('Yesterday', dayjs().add(-1, 'day').format('DD/MM/YYYY'))
-            return dayjs(q, 'DD/MM/YYYY HH:mm').unix()
+            q = q.replace('Date/time submitted: ', '');
+            q = q.replace('Today', dayjs().format('DD/MM/YYYY'));
+            q = q.replace('Yesterday', dayjs().add(-1, 'day').format('DD/MM/YYYY'));
+            return dayjs(q, 'DD/MM/YYYY HH:mm').unix();
           }
         ]
       },
@@ -48,4 +48,4 @@ export const siteMetadata: SiteMetadata = {
       leechers: { text: 0, selector: 'span[title*="Leechers"]', attr: 'title', filters: [(q:string) => q.match(/Leechers: (\d+)/)![1]] }
     }
   }
-}
+};

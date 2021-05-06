@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Blutopia',
@@ -7,4 +7,4 @@ export const siteMetadata: SiteMetadata = {
   url: 'https://blutopia.xyz/',
   tags: ['影视', '综合'],
   collaborator: ['bimzcy', 'lengmianxia']
-}
+};

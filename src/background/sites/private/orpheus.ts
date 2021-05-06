@@ -1,6 +1,6 @@
-import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites'
-import GazelleJSONAPI from '@/background/sites/schema/GazelleJSONAPI'
-import { findThenParseSizeString } from '@/shared/utils/filter'
+import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites';
+import GazelleJSONAPI from '@/background/sites/schema/GazelleJSONAPI';
+import { findThenParseSizeString } from '@/shared/utils/filter';
 
 export const siteMetadata: SiteMetadata = {
   name: 'OPS',
@@ -32,23 +32,23 @@ export const siteMetadata: SiteMetadata = {
         selector: ['div#content > div.header > h3'],
         filters: [
           (query: string) => {
-            const queryMatch = query.replace(/,/g, '').match(/.+?([\d.]+)/)
-            return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : 0
+            const queryMatch = query.replace(/,/g, '').match(/.+?([\d.]+)/);
+            return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : 0;
           }
         ]
       }
     }
   }
-}
+};
 
 export default class orpheus extends GazelleJSONAPI {
   protected async getUserExtendInfo (userId: number): Promise<Partial<UserInfo>> {
-    const { data: userPage } = await this.request<any>({ url: '/user.php', params: { id: userId } })
-    return this.getFieldsData(userPage, 'userInfo', ['joinTime'])
+    const { data: userPage } = await this.request<any>({ url: '/user.php', params: { id: userId } });
+    return this.getFieldsData(userPage, 'userInfo', ['joinTime']);
   }
 
   protected async getUserSeedingTorrents (): Promise<Partial<UserInfo>> {
-    const { data: bonusPage } = await this.request<Document>({ url: '/bonus.php', params: { action: 'bprates' }, responseType: 'document' })
-    return this.getFieldsData(bonusPage, 'userInfo', ['seeding', 'seedingSize', 'bonus'])
+    const { data: bonusPage } = await this.request<Document>({ url: '/bonus.php', params: { action: 'bprates' }, responseType: 'document' });
+    return this.getFieldsData(bonusPage, 'userInfo', ['seeding', 'seedingSize', 'bonus']);
   }
 }

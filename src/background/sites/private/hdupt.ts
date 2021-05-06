@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: 'HDU',
@@ -35,7 +35,7 @@ export const siteMetadata: SiteMetadata = {
         selector: ["td.embedded[style*='color: blue;font-weight: bold']"],
         filters: [
           (query: string) => {
-            return /\d+%/.test(query) ? parseFloat(query) : 0
+            return /\d+%/.test(query) ? parseFloat(query) : 0;
           }
         ]
       }
@@ -47,4 +47,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};

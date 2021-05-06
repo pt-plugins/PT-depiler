@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: 'AniRena',
@@ -22,4 +22,4 @@ export const siteMetadata: SiteMetadata = {
       category: { selector: 'td.torrents_small_type_data1 img', attr: 'title' }
     }
   }
-}
+};

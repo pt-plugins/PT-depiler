@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 const CategoryMap = new Map([
   ['vo', 'Films VO'],
@@ -27,7 +27,7 @@ const CategoryMap = new Map([
   ['jeux-console', 'Jeu vidéo Consoles'],
   ['logiciels', 'Application'],
   ['ebooks', 'eBook']
-])
+]);
 
 export const siteMetadata: SiteMetadata = {
   name: 'MonTorrent',
@@ -59,4 +59,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};

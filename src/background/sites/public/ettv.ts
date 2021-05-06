@@ -1,8 +1,8 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
-import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
-import { AxiosRequestConfig } from 'axios'
-import { parseTimeToLive } from '@/shared/utils/filter'
-import urlparse from 'url-parse'
+import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite';
+import { AxiosRequestConfig } from 'axios';
+import { parseTimeToLive } from '@/shared/utils/filter';
+import urlparse from 'url-parse';
 
 export const siteMetadata: SiteMetadata = {
   name: 'ETTV',
@@ -98,8 +98,8 @@ export const siteMetadata: SiteMetadata = {
         attr: 'href',
         filters: [
           (q:string) => {
-            const cat = urlparse(q, true).query.cat
-            return cat || 'Other'
+            const cat = urlparse(q, true).query.cat;
+            return cat || 'Other';
           }
         ]
       },
@@ -109,14 +109,14 @@ export const siteMetadata: SiteMetadata = {
       link: { selector: 'a.download_link:last-of-type', attr: 'href' }
     }
   }
-}
+};
 
 // noinspection JSUnusedGlobalSymbols
 export default class Ettv extends BittorrentSite {
   protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
-    const config = await super.transformSearchFilter(filter)
-    config.url = filter.keywords ? '/torrents-search.php' : '/torrents.php'
+    const config = await super.transformSearchFilter(filter);
+    config.url = filter.keywords ? '/torrents-search.php' : '/torrents.php';
 
-    return config
+    return config;
   }
 }

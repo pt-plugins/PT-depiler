@@ -1,10 +1,10 @@
-import { searchFilter, SiteMetadata, Torrent } from '@/shared/interfaces/sites'
-import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
-import { AxiosRequestConfig } from 'axios'
-import urlparse from 'url-parse'
-import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@/shared/utils/filter'
-import { parseInt } from 'lodash-es'
-import urlencode from 'urlencode'
+import { searchFilter, SiteMetadata, Torrent } from '@/shared/interfaces/sites';
+import PrivateSite from '@/background/sites/schema/AbstractPrivateSite';
+import { AxiosRequestConfig } from 'axios';
+import urlparse from 'url-parse';
+import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@/shared/utils/filter';
+import { parseInt } from 'lodash-es';
+import urlencode from 'urlencode';
 
 export const siteMetadata: SiteMetadata = {
   name: '六维空间',
@@ -41,8 +41,8 @@ export const siteMetadata: SiteMetadata = {
         attr: 'href',
         filters: [
           (query:string) => {
-            const queryMatch = query.match(/thread-(\d+)/)
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0
+            const queryMatch = query.match(/thread-(\d+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
           }
         ]
       },
@@ -57,8 +57,8 @@ export const siteMetadata: SiteMetadata = {
         attr: 'href',
         filters: [
           (query:string) => {
-            const queryMatch = query.match(/forum-(\d+)/)
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0
+            const queryMatch = query.match(/forum-(\d+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
           }
         ]
       },
@@ -113,14 +113,14 @@ export const siteMetadata: SiteMetadata = {
         selector: "li:contains('注册时间')",
         filters: [
           (query: string) => {
-            query = query.replace('注册时间', '')
-            return findThenParseValidTimeString(query)
+            query = query.replace('注册时间', '');
+            return findThenParseValidTimeString(query);
           }
         ]
       }
     }
   }
-}
+};
 
 const nonTorrentCategory = [
   129, // 互助教程
@@ -171,7 +171,7 @@ const nonTorrentCategory = [
   113, // 美工设计
   135, // 历史故事
   187 // 升级BUG汇报板块
-]
+];
 
 export default class neu6 extends PrivateSite {
   protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
@@ -180,21 +180,21 @@ export default class neu6 extends PrivateSite {
       responseType: 'document',
       params: {},
       headers: {}
-    }
+    };
 
     // 请求并获取 formhash
-    const { data: formDocument } = await this.request<Document>(baseConfig)
+    const { data: formDocument } = await this.request<Document>(baseConfig);
     const formhash = this.getFieldData(formDocument, {
       selector: 'input[name="formhash"]',
       attr: 'value'
-    })
+    });
 
     // 设置搜索参数
-    baseConfig.method = 'post'
-    baseConfig.params.mod = 'forum'
+    baseConfig.method = 'post';
+    baseConfig.params.mod = 'forum';
 
     // 因为此处使用 GBK 编码，所以我们不能使用 new URLSearchParams() 来让axios自动构造，所以只能 hack 相关信息
-    baseConfig.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+    baseConfig.headers['Content-Type'] = 'application/x-www-form-urlencoded';
     const postData: any = {
       formhash,
       srchuname: '',
@@ -205,22 +205,22 @@ export default class neu6 extends PrivateSite {
       ascdesc: 'desc',
       'srchfid[]': 'all', // 搜索全部板块，具体是不是种子，我们在后面种子构建中进一步筛选
       searchsubmit: 'yes'
-    }
+    };
 
     if (filter.keywords) {
-      postData.srchtxt = filter.keywords
+      postData.srchtxt = filter.keywords;
     }
 
     // 要将其转为gbk编码
-    baseConfig.data = urlencode.stringify(postData, { charset: 'gbk' })
+    baseConfig.data = urlencode.stringify(postData, { charset: 'gbk' });
 
-    return baseConfig
+    return baseConfig;
   }
 
   protected async transformSearchPage (doc: Document): Promise<Torrent[]> {
-    const torrents = await super.transformSearchPage(doc)
+    const torrents = await super.transformSearchPage(doc);
 
-    return torrents.filter(t => !nonTorrentCategory.includes(t.category! as number))
+    return torrents.filter(t => !nonTorrentCategory.includes(t.category! as number));
   }
 
   /**
@@ -234,25 +234,25 @@ export default class neu6 extends PrivateSite {
     const { data: DetailPage, config: RequestConfig } = await this.request<Document>({
       url: torrent.url,
       responseType: this.config.detail?.type || 'document'
-    })
+    });
 
     let downloadLink = this.getFieldData(DetailPage, {
       selector: 'p.attnm > a[href*="forum.php?mod=attachment"]:contains(".torrent")',
       attr: 'href'
-    })
+    });
 
     // 检查是不是需要下载浮云
     if (/下载积分.+?浮云/.test(DetailPage.documentElement.outerHTML)) {
       const { data: attachmentPage } = await this.request<Document>({
         url: downloadLink,
         responseType: 'document'
-      })
+      });
       downloadLink = this.getFieldData(attachmentPage, {
         selector: 'p.alert_btnleft > a[href*="forum.php?mod=attachment"]',
         attr: 'href'
-      })
+      });
     }
 
-    return this.fixLink(downloadLink, RequestConfig)
+    return this.fixLink(downloadLink, RequestConfig);
   }
 }

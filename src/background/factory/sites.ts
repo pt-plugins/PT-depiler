@@ -1,7 +1,8 @@
-import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
-import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
-import Container from '@/shared/class/container'
-import { SiteConfig, SiteMetadata } from '@/shared/interfaces/sites'
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite';
+import PrivateSite from '@/background/sites/schema/AbstractPrivateSite';
+import Container from '@/shared/class/container';
+import { SiteConfig, SiteMetadata } from '@/shared/interfaces/sites';
+import { siteName } from '@/shared/interfaces/types';
 
 type supportModuleType = 'schema' | 'public' | 'private'
 
@@ -11,7 +12,7 @@ class Sites extends Container {
   } = { private: [], public: [], schema: [], all: [] };
 
   constructor () {
-    super()
+    super();
 
     /**
      * 使用 require.context 动态获取所有private, public, schema 方法
@@ -20,16 +21,16 @@ class Sites extends Container {
      * @refs: https://github.com/webpack/webpack/issues/9184
      *
      */
-    const context = require.context('@/background/sites/', true, /\.ts$/, 'weak')
+    const context = require.context('@/background/sites/', true, /\.ts$/, 'weak');
     context.keys().forEach(value => {
-      const moduleName = value.replace(/^\.\//, '').replace(/\.ts$/, '')
+      const moduleName = value.replace(/^\.\//, '').replace(/\.ts$/, '');
 
       if (!moduleName.startsWith('schema/Abstract')) { // 'schema/Abstract' 不应该被任何形式的导入和引用，也不会被构造
-        const [_type, site] = moduleName.split('/')
-        this._supportList[_type as supportModuleType].push(site)
-        this._supportList.all.push(moduleName)
+        const [_type, site] = moduleName.split('/');
+        this._supportList[_type as supportModuleType].push(site);
+        this._supportList.all.push(moduleName);
       }
-    })
+    });
   }
 
   // FIXME 对module进行限制
@@ -42,22 +43,22 @@ class Sites extends Container {
       `@/background/sites/${module}`) as {
       default?: PrivateSite | BittorrentSite,
       siteMetadata: SiteMetadata
-    }
+    };
   }
 
   // FIXME
   isSupport (moduleType: supportModuleType, siteName: string) : boolean {
-    return this._supportList[moduleType].includes(siteName)
+    return this._supportList[moduleType].includes(siteName);
   }
 
   // FIXME userConfig should be typed
-  async getSite (siteName: string, userConfig: Partial<SiteConfig> = {}): Promise<PrivateSite | BittorrentSite> {
+  async getSite (siteName: siteName, userConfig: Partial<SiteConfig> = {}): Promise<PrivateSite | BittorrentSite> {
     return await this.resolveObject<PrivateSite | BittorrentSite>(`site-${siteName}`, async () => {
       // FIXME 部分用户自定义的站点（此时在 js/site 目录中不存在对应模块），不能进行 dynamicImport 的情况，对此应该直接从 schema 中导入
-      const module = await this.dynamicImport(siteName)
-      let { siteMetadata: siteMetaData /* use as const */, default: SiteClass } = module
+      const module = await this.dynamicImport(siteName);
+      let { siteMetadata: siteMetaData /* use as const */, default: SiteClass } = module;
       if (!siteMetaData.schema) {
-        siteMetaData.schema = siteName.startsWith('private') ? 'AbstractPrivateSite' : 'AbstractBittorrentSite'
+        siteMetaData.schema = siteName.startsWith('private') ? 'AbstractPrivateSite' : 'AbstractBittorrentSite';
       }
 
       /**
@@ -65,15 +66,15 @@ class Sites extends Container {
        * 并覆写基类的的 siteMetaData 信息
        */
       if (!SiteClass) {
-        const schemaModule = await this.dynamicImport(`schema/${siteMetaData.schema}`)
-        SiteClass = schemaModule.default
+        const schemaModule = await this.dynamicImport(`schema/${siteMetaData.schema}`);
+        SiteClass = schemaModule.default;
       }
 
       // @ts-ignore
-      return new SiteClass(userConfig, siteMetaData)
-    })
+      return new SiteClass(userConfig, siteMetaData);
+    });
   }
 }
 
 // 单例模式
-export default new Sites()
+export default new Sites();

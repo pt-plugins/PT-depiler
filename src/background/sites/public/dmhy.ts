@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: '動漫花園資源網',
@@ -62,4 +62,4 @@ export const siteMetadata: SiteMetadata = {
       author: { selector: 'td:nth-child(9) a' }
     }
   }
-}
+};

@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
-import dayjs from '@/shared/utils/dayjs'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
+import dayjs from '@/shared/utils/dayjs';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Legit Torrents',
@@ -36,4 +36,4 @@ export const siteMetadata: SiteMetadata = {
       completed: { selector: 'td:nth-child(7)' }
     }
   }
-}
+};

@@ -1,8 +1,8 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
-import dayjs from '@/shared/utils/dayjs'
-import { findThenParseNumberString, findThenParseSizeString } from '@/shared/utils/filter'
-import Sizzle from 'sizzle'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
+import dayjs from '@/shared/utils/dayjs';
+import { findThenParseNumberString, findThenParseSizeString } from '@/shared/utils/filter';
+import Sizzle from 'sizzle';
 
 export const siteMetadata: SiteMetadata = {
   name: 'AnimeTorrents',
@@ -106,8 +106,8 @@ export const siteMetadata: SiteMetadata = {
         selector: 'td:nth-of-type(8)',
         filters: [
           (query:string) => {
-            const connections = query.split('/')
-            return connections[0]
+            const connections = query.split('/');
+            return connections[0];
           }
         ]
       },
@@ -115,8 +115,8 @@ export const siteMetadata: SiteMetadata = {
         selector: 'td:nth-of-type(8)',
         filters: [
           (query:string) => {
-            const connections = query.split('/')
-            return connections[1]
+            const connections = query.split('/');
+            return connections[1];
           }
         ]
       },
@@ -124,8 +124,8 @@ export const siteMetadata: SiteMetadata = {
         selector: 'td:nth-of-type(8)',
         filters: [
           (query:string) => {
-            const connections = query.split('/')
-            return connections[2]
+            const connections = query.split('/');
+            return connections[2];
           }
         ]
       },
@@ -170,8 +170,8 @@ export const siteMetadata: SiteMetadata = {
         selector: "tr.dataOdd > td:contains('Join date') + td:first",
         filters: [
           (query:string) => {
-            const timeString = query.split(' [')[0]
-            return dayjs(timeString).isValid() ? dayjs(timeString).valueOf() : timeString
+            const timeString = query.split(' [')[0];
+            return dayjs(timeString).isValid() ? dayjs(timeString).valueOf() : timeString;
           }
         ]
       },
@@ -180,8 +180,8 @@ export const siteMetadata: SiteMetadata = {
         selector: ':self',
         elementProcess: [
           (doc: Document) => {
-            const trAnothers = Sizzle('tr:not(:eq(0))', doc)
-            return trAnothers.length
+            const trAnothers = Sizzle('tr:not(:eq(0))', doc);
+            return trAnothers.length;
           }
         ]
       },
@@ -189,16 +189,16 @@ export const siteMetadata: SiteMetadata = {
         selector: ':self',
         elementProcess: [
           (doc: Document) => {
-            let seedingSize = 0
-            const trAnothers = Sizzle('tr:not(:eq(0))', doc)
+            let seedingSize = 0;
+            const trAnothers = Sizzle('tr:not(:eq(0))', doc);
             trAnothers.forEach(trAnother => {
-              const sizeAnother = Sizzle('td:eq(2)', trAnother)
-              seedingSize += findThenParseSizeString((sizeAnother[0] as HTMLElement).innerText.trim())
-            })
-            return seedingSize
+              const sizeAnother = Sizzle('td:eq(2)', trAnother);
+              seedingSize += findThenParseSizeString((sizeAnother[0] as HTMLElement).innerText.trim());
+            });
+            return seedingSize;
           }
         ]
       }
     }
   }
-}
+};

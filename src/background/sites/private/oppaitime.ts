@@ -1,6 +1,6 @@
-import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites'
-import GazelleJSONAPI from '@/background/sites/schema/GazelleJSONAPI'
-import { parseSizeString } from '@/shared/utils/filter'
+import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites';
+import GazelleJSONAPI from '@/background/sites/schema/GazelleJSONAPI';
+import { parseSizeString } from '@/shared/utils/filter';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Oppaitime',
@@ -39,11 +39,11 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};
 
 export default class oppaitime extends GazelleJSONAPI {
   protected async getUserSeedingTorrents (userId:number): Promise<Partial<UserInfo>> {
-    const { data: bonusPage } = await this.request<Document>({ url: '/user.php', params: { id: userId }, responseType: 'document' })
-    return this.getFieldsData(bonusPage, 'userInfo', ['seedingSize', 'bonus'])
+    const { data: bonusPage } = await this.request<Document>({ url: '/user.php', params: { id: userId }, responseType: 'document' });
+    return this.getFieldsData(bonusPage, 'userInfo', ['seedingSize', 'bonus']);
   }
 }

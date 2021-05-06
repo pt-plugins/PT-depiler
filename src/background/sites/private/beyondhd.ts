@@ -3,11 +3,11 @@
  * 根据旧版配置文件和 Whalko 提供的 html文档修改，未经过测试
  * Rhilip, 2021.4.21
  */
-import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
-import { parseTimeToLive } from '@/shared/utils/filter'
-import Unit3D from '@/background/sites/schema/Unit3D'
-import dayjs from '@/shared/utils/dayjs'
+import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
+import { parseTimeToLive } from '@/shared/utils/filter';
+import Unit3D from '@/background/sites/schema/Unit3D';
+import dayjs from '@/shared/utils/dayjs';
 
 export const siteMetadata: SiteMetadata = {
   name: 'BeyondHD',
@@ -62,8 +62,8 @@ export const siteMetadata: SiteMetadata = {
         filters: [
           // https://beyond-hd.me/xxxxxx.ddddddd
           (query: string) => {
-            const queryMatch = query.match(/\.me\/(.+)\.(.+)\/?/)
-            return queryMatch && queryMatch.length >= 3 ? queryMatch[2] : ''
+            const queryMatch = query.match(/\.me\/(.+)\.(.+)\/?/);
+            return queryMatch && queryMatch.length >= 3 ? queryMatch[2] : '';
           }
         ]
       },
@@ -88,37 +88,37 @@ export const siteMetadata: SiteMetadata = {
         selector: "div.button-holder h5:contains('Since: ')",
         filters: [
           (query: string) => {
-            query = query.replace('Member Since: ', '')
-            return dayjs(query).isValid() ? dayjs(query).unix() : query
+            query = query.replace('Member Since: ', '');
+            return dayjs(query).isValid() ? dayjs(query).unix() : query;
           }
         ]
       }
     }
   }
-}
+};
 
 export default class beyondhd extends Unit3D {
   private async getUserInfoPathFromSite (): Promise<`${string}.${string}`> {
-    const { data: indexDocument } = await this.request<Document>({ url: '/', responseType: 'document', checkLogin: true })
+    const { data: indexDocument } = await this.request<Document>({ url: '/', responseType: 'document', checkLogin: true });
     return this.getFieldData(indexDocument, {
       selector: "a[href*='settings']:first",
       attr: 'href',
       filters: [
         (query: string) => query.replace(/\/settings.+$/, '')
       ]
-    }) as `${string}.${string}`
+    }) as `${string}.${string}`;
   }
 
   async flushUserInfo (): Promise<UserInfo> {
-    const flushUserInfo: Partial<UserInfo> = {}
+    const flushUserInfo: Partial<UserInfo> = {};
 
-    const userPath = await this.getUserInfoPathFromSite()
-    const { data: userDetailDocument } = await this.request<Document>({ url: userPath, responseType: 'document' })
+    const userPath = await this.getUserInfoPathFromSite();
+    const { data: userDetailDocument } = await this.request<Document>({ url: userPath, responseType: 'document' });
 
     for (const userInfoAttrValue of Object.keys(this.config.selector?.userInfo!)) {
-      flushUserInfo[userInfoAttrValue] = this.getFieldData(userDetailDocument, this.config.selector?.userInfo![userInfoAttrValue]!)
+      flushUserInfo[userInfoAttrValue] = this.getFieldData(userDetailDocument, this.config.selector?.userInfo![userInfoAttrValue]!);
     }
 
-    return flushUserInfo as UserInfo
+    return flushUserInfo as UserInfo;
   }
 }

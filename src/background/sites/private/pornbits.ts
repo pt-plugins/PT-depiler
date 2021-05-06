@@ -1,7 +1,7 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
-import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
-import { AxiosRequestConfig } from 'axios'
-import { findThenParseValidTimeString, parseSizeString } from '@/shared/utils/filter'
+import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import PrivateSite from '@/background/sites/schema/AbstractPrivateSite';
+import { AxiosRequestConfig } from 'axios';
+import { findThenParseValidTimeString, parseSizeString } from '@/shared/utils/filter';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Pornbits',
@@ -54,8 +54,8 @@ export const siteMetadata: SiteMetadata = {
         selector: '#header > div > div > div > span.navbar-text.stats.hidden-sm',
         filters: [
           (query: string) => {
-            query = query.split(':')[1].split('D')[0].trim()
-            return parseSizeString(query)
+            query = query.split(':')[1].split('D')[0].trim();
+            return parseSizeString(query);
           }
         ]
       },
@@ -63,8 +63,8 @@ export const siteMetadata: SiteMetadata = {
         selector: '#header > div > div > div > span.navbar-text.stats.hidden-sm',
         filters: [
           (query: string) => {
-            query = query.split(':')[2].split('R')[0].replace(/Bytes/g, '').trim()
-            return parseSizeString(query)
+            query = query.split(':')[2].split('R')[0].replace(/Bytes/g, '').trim();
+            return parseSizeString(query);
           }
         ]
       },
@@ -75,8 +75,8 @@ export const siteMetadata: SiteMetadata = {
         selector: '#content > div > div.col-md-3 > div:nth-child(5)',
         filters: [
           (query: string) => {
-            query = query.split(':')[1].trim()
-            return findThenParseValidTimeString(query)
+            query = query.split(':')[1].trim();
+            return findThenParseValidTimeString(query);
           }
         ]
       },
@@ -90,17 +90,17 @@ export const siteMetadata: SiteMetadata = {
     }
   }
 
-}
+};
 
 export default class pornbits extends PrivateSite {
   protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
-    const config : AxiosRequestConfig = {}
+    const config : AxiosRequestConfig = {};
     if (filter.keywords) {
-      config.url = `/browse/search/date/name_tags/${filter.keywords}`
+      config.url = `/browse/search/date/name_tags/${filter.keywords}`;
     } else {
-      config.url = '/browse/index/date/name'
+      config.url = '/browse/index/date/name';
     }
 
-    return config
+    return config;
   }
 }

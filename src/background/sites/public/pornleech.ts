@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import dayjs from '@/shared/utils/dayjs'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import dayjs from '@/shared/utils/dayjs';
 
 export const siteMetadata: SiteMetadata = {
   name: 'PornLeech',
@@ -27,8 +27,8 @@ export const siteMetadata: SiteMetadata = {
         selector: 'td[valign="middle"] > p:nth-child(4)',
         filters: [
           (q:string) => {
-            const dateRaw = q.match(/AddDate:\s*\u00a0\s*(.+?)$/)![1]
-            return dayjs(`${dateRaw} -07:00`, 'HH:mm:ss DD/MM/YYYY Z').unix()
+            const dateRaw = q.match(/AddDate:\s*\u00a0\s*(.+?)$/)![1];
+            return dayjs(`${dateRaw} -07:00`, 'HH:mm:ss DD/MM/YYYY Z').unix();
           }
         ]
       },
@@ -38,4 +38,4 @@ export const siteMetadata: SiteMetadata = {
       completed: { selector: 'td[valign="middle"] > p:nth-child(5)', filters: [(q:string) => q.match(/Complete:\s*\u00a0\s*(.+?)$/)![1].replace('---', '0')] }
     }
   }
-}
+};

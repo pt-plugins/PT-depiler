@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: '麦田PT',
@@ -31,4 +31,4 @@ export const siteMetadata: SiteMetadata = {
       }
     ]
   }
-}
+};

@@ -2,7 +2,7 @@
  * FIXME 这个站离线很久了，没法测试
  * Rhilip, 2021.04.11
  */
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: '溪涧草堂PT',
@@ -35,4 +35,4 @@ export const siteMetadata: SiteMetadata = {
       }
     ]
   }
-}
+};

@@ -1,9 +1,9 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 import {
   selectorSearchProgress, selectorSearchStatus,
   selectorUserInfoSeeding,
   selectorUserInfoSeedingSize
-} from '@/background/sites/private/hdchina'
+} from '@/background/sites/private/hdchina';
 
 export const siteMetadata: SiteMetadata = {
   name: 'OpenCD',
@@ -58,4 +58,4 @@ export const siteMetadata: SiteMetadata = {
       seedingSize: selectorUserInfoSeedingSize
     }
   }
-}
+};

@@ -1,14 +1,14 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
-import { parseTimeToLive } from '@/shared/utils/filter'
-import dayjs from '@/shared/utils/dayjs'
-import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
-import { AxiosRequestConfig } from 'axios'
+import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import { parseTimeToLive } from '@/shared/utils/filter';
+import dayjs from '@/shared/utils/dayjs';
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite';
+import { AxiosRequestConfig } from 'axios';
 
 const CategoryMap = new Map([
   [1, 'Movies'], [2, 'Music'], [3, 'Television'], [4, 'Games'], [5, 'Software'],
   [6, 'Anime'], [7, 'Adult'], [8, 'Ebooks'], [9, 'Animation'], [10, 'Other'],
   [0, 'TBC']
-])
+]);
 
 export const siteMetadata: SiteMetadata = {
   name: 'TOROS',
@@ -25,11 +25,11 @@ export const siteMetadata: SiteMetadata = {
         filters: [
           (q:string) => {
             if (/ago/.test(q)) {
-              return parseTimeToLive(q)
+              return parseTimeToLive(q);
             } else if (/Yesterday/.test(q)) {
-              return dayjs().add(-1, 'day').unix()
+              return dayjs().add(-1, 'day').unix();
             } else {
-              return dayjs(q, 'DD MMM').unix()
+              return dayjs(q, 'DD MMM').unix();
             }
           }
         ]
@@ -45,14 +45,14 @@ export const siteMetadata: SiteMetadata = {
     }
   }
 
-}
+};
 
 // noinspection JSUnusedGlobalSymbols
 export default class Toros extends BittorrentSite {
   protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
-    const config = await super.transformSearchFilter(filter)
-    config.url = filter.keywords ? `all/torrents/${filter.keywords}.html` : 'top100.html'
+    const config = await super.transformSearchFilter(filter);
+    config.url = filter.keywords ? `all/torrents/${filter.keywords}.html` : 'top100.html';
 
-    return config
+    return config;
   }
 }

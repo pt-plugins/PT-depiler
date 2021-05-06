@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { selectorSearchProgress, selectorSearchStatus } from '@/background/sites/private/hdhome'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { selectorSearchProgress, selectorSearchStatus } from '@/background/sites/private/hdhome';
 
 export const siteMetadata: SiteMetadata = {
   name: 'TorrentCCF',
@@ -46,4 +46,4 @@ export const siteMetadata: SiteMetadata = {
       status: selectorSearchStatus
     }
   }
-}
+};

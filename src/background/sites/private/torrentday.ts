@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
-import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@/shared/utils/filter'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
+import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@/shared/utils/filter';
 
 const categoryMap = {
   29: 'Anime',
@@ -50,7 +50,7 @@ const categoryMap = {
 
   6: 'XXX/Movies',
   15: 'XXX/Packs'
-}
+};
 
 export const siteMetadata: SiteMetadata = {
   name: 'TorrentsTD',
@@ -100,8 +100,8 @@ export const siteMetadata: SiteMetadata = {
         attr: 'href',
         switchFilters: [
           (query: string) => {
-            const queryMatch = query.match(/u\/(.+)/)
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : ''
+            const queryMatch = query.match(/u\/(.+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : '';
           },
           (query: string) => urlparse(query, true).query.id
         ]
@@ -142,4 +142,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};

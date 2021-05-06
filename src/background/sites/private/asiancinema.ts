@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: 'AsianCinema',
@@ -15,4 +15,4 @@ export const siteMetadata: SiteMetadata = {
       seeding: { selector: ["span[title='Seeding']", "span[title='做种']"] }
     }
   }
-}
+};

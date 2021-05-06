@@ -1,7 +1,7 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
-import { parseTimeToLive } from '@/shared/utils/filter'
-import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
-import { AxiosRequestConfig } from 'axios'
+import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import { parseTimeToLive } from '@/shared/utils/filter';
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite';
+import { AxiosRequestConfig } from 'axios';
 
 export const siteMetadata: SiteMetadata = {
   name: 'LimeTorrents',
@@ -65,13 +65,13 @@ export const siteMetadata: SiteMetadata = {
       link: { selector: ['a.csprite_dltorrent[href^="magnet:"]', 'a.csprite_dltorrent[href^="http://itorrents.org/"]'], attr: 'href' }
     }
   }
-}
+};
 
 // noinspection JSUnusedGlobalSymbols
 export default class Limetorrents extends BittorrentSite {
   protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
-    const config = await super.transformSearchFilter(filter)
-    config.url = filter.keywords ? `search/all/${filter.keywords}/` : '/latest100'
-    return config
+    const config = await super.transformSearchFilter(filter);
+    config.url = filter.keywords ? `search/all/${filter.keywords}/` : '/latest100';
+    return config;
   }
 }

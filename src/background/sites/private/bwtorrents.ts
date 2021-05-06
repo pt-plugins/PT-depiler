@@ -1,8 +1,8 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
-import { findThenParseSizeString, parseSizeString } from '@/shared/utils/filter'
-import dayjs from '@/shared/utils/dayjs'
-import Sizzle from 'sizzle'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
+import { findThenParseSizeString, parseSizeString } from '@/shared/utils/filter';
+import dayjs from '@/shared/utils/dayjs';
+import Sizzle from 'sizzle';
 
 export const siteMetadata: SiteMetadata = {
   name: 'BWTorrents',
@@ -200,8 +200,8 @@ export const siteMetadata: SiteMetadata = {
         selector: "td.rowhead:contains('Join') + td",
         filters: [
           (query: string) => {
-            query = query.split(' (')[0]
-            return dayjs(query).isValid() ? dayjs(query).valueOf() : query
+            query = query.split(' (')[0];
+            return dayjs(query).isValid() ? dayjs(query).valueOf() : query;
           }
         ]
       },
@@ -209,8 +209,8 @@ export const siteMetadata: SiteMetadata = {
         selector: '#ka1 table.main > tbody',
         elementProcess: [
           (element: HTMLElement) => {
-            const trAnother = Sizzle('> tr', element)
-            return trAnother.length - 1
+            const trAnother = Sizzle('> tr', element);
+            return trAnother.length - 1;
           }
         ]
       },
@@ -218,13 +218,13 @@ export const siteMetadata: SiteMetadata = {
         selector: '#ka1 table.main > tbody',
         elementProcess: [
           (element: HTMLElement) => {
-            let seedingSize = 0
-            const trAnother = Sizzle('> tr:not(:eq(0))', element)
+            let seedingSize = 0;
+            const trAnother = Sizzle('> tr:not(:eq(0))', element);
             trAnother.forEach(element => {
-              const sizeAnother = Sizzle('td:eq(6)', element)[0] as HTMLElement
-              seedingSize += parseSizeString(sizeAnother.innerText.trim())
-            })
-            return seedingSize
+              const sizeAnother = Sizzle('td:eq(6)', element)[0] as HTMLElement;
+              seedingSize += parseSizeString(sizeAnother.innerText.trim());
+            });
+            return seedingSize;
           }
         ]
       },
@@ -234,4 +234,4 @@ export const siteMetadata: SiteMetadata = {
     }
   }
 
-}
+};

@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import dayjs from '@/shared/utils/dayjs'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import dayjs from '@/shared/utils/dayjs';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Nyaa Pantsu',
@@ -136,11 +136,11 @@ export const siteMetadata: SiteMetadata = {
         attr: 'title',
         filters: [
           (q:string) => {
-            const normalTime = dayjs(q)
+            const normalTime = dayjs(q);
             if (/下午/.test(q)) {
-              normalTime.add(12, 'hours')
+              normalTime.add(12, 'hours');
             }
-            return normalTime.unix()
+            return normalTime.unix();
           }
         ]
       },
@@ -151,4 +151,4 @@ export const siteMetadata: SiteMetadata = {
       category: { selector: 'td:nth-child(1) > div > a', attr: 'title' }
     }
   }
-}
+};

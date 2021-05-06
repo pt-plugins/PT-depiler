@@ -1,6 +1,6 @@
-import { SiteMetadata, Torrent, UserInfo } from '@/shared/interfaces/sites'
-import GazelleJSONAPI, { groupBrowseResult, groupTorrent } from '@/background/sites/schema/GazelleJSONAPI'
-import { findThenParseSizeString } from '@/shared/utils/filter'
+import { SiteMetadata, Torrent, UserInfo } from '@/shared/interfaces/sites';
+import GazelleJSONAPI, { groupBrowseResult, groupTorrent } from '@/background/sites/schema/GazelleJSONAPI';
+import { findThenParseSizeString } from '@/shared/utils/filter';
 
 export const siteMetadata: SiteMetadata = {
   name: 'HD-Forever',
@@ -24,25 +24,25 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};
 
 export default class hdforever extends GazelleJSONAPI {
   protected async transformGroupTorrent (group: groupBrowseResult, torrent: groupTorrent): Promise<Torrent> {
-    const parsedTorrent = await super.transformGroupTorrent(group, torrent)
+    const parsedTorrent = await super.transformGroupTorrent(group, torrent);
 
     /**
      * 覆写 title 和 subTitle
      * @refs: https://www.diffchecker.com/jnRa1BMg
      */
     parsedTorrent.title = `${group.groupName} [${group.groupYear}] ${torrent.encoding} / ${torrent.format} / ${torrent.media}` +
-      (torrent.isFreeleech || torrent.isNeutralLeech || torrent.isPersonalFreeleech ? ' / Freeleech' : '')
-    parsedTorrent.subTitle = undefined
+      (torrent.isFreeleech || torrent.isNeutralLeech || torrent.isPersonalFreeleech ? ' / Freeleech' : '');
+    parsedTorrent.subTitle = undefined;
 
-    return parsedTorrent
+    return parsedTorrent;
   }
 
   protected async getUserSeedingTorrents (): Promise<Partial<UserInfo>> {
-    const { data: bonusPage } = await this.request<Document>({ url: '/store.php', params: { action: 'rate' }, responseType: 'document' })
-    return this.getFieldsData(bonusPage, 'userInfo', ['seedingSize', 'bonus'])
+    const { data: bonusPage } = await this.request<Document>({ url: '/store.php', params: { action: 'rate' }, responseType: 'document' });
+    return this.getFieldsData(bonusPage, 'userInfo', ['seedingSize', 'bonus']);
   }
 }

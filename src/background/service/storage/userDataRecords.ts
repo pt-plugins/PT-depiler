@@ -1,7 +1,7 @@
-import { EConfigKey, EUserDataRange } from '@/shared/interfaces/enum'
-import browserBridge from '@/background/service/storage/browserBridge'
-import dayjs from '@/shared/utils/dayjs'
-import { UserInfo } from '@/shared/interfaces/sites'
+import { EConfigKey, EUserDataRange } from '@/shared/interfaces/enum';
+import browserBridge from '@/background/service/storage/browserBridge';
+import dayjs from '@/shared/utils/dayjs';
+import { UserInfo } from '@/shared/interfaces/sites';
 
 type StoredUserDataPerSite = { // 站点HOST
   [date: string]: UserInfo // 日期 YYYY-MM-DD
@@ -23,15 +23,15 @@ class UserDataRecords extends browserBridge {
     host: string,
     date?: string
   }): Promise<void> {
-    const { host, date } = query
+    const { host, date } = query;
     if (host in this.data) {
       if (typeof date === 'string') {
-        delete this.data[host][date]
+        delete this.data[host][date];
       } else {
-        delete this.data[host]
+        delete this.data[host];
       }
 
-      await this.save()
+      await this.save();
     }
   }
 
@@ -43,26 +43,26 @@ class UserDataRecords extends browserBridge {
    */
   public async getUserData (host: string, range: EUserDataRange = EUserDataRange.latest): Promise<StoredUserDataPerSite | UserInfo | null> {
     if (!this.data || !this.data[host]) {
-      return null
+      return null;
     }
 
-    const datas: StoredUserDataPerSite = this.data[host]
+    const datas: StoredUserDataPerSite = this.data[host];
     switch (range) {
       case EUserDataRange.all:
-        return datas
+        return datas;
       case EUserDataRange.today:
-        return datas[dayjs().format('YYYY-MM-DD')]
+        return datas[dayjs().format('YYYY-MM-DD')];
       case EUserDataRange.latest:
-        return datas[EUserDataRange.latest]
+        return datas[EUserDataRange.latest];
     }
   }
 
   public async updateUserData (host:string, data: UserInfo): Promise<void> {
-    const siteRecord = this.data[host] || {}
+    const siteRecord = this.data[host] || {};
 
-    siteRecord[EUserDataRange.latest] = siteRecord[dayjs().format('YYYY-MM-DD')] = data
-    this.data[host] = siteRecord
-    await this.save()
+    siteRecord[EUserDataRange.latest] = siteRecord[dayjs().format('YYYY-MM-DD')] = data;
+    this.data[host] = siteRecord;
+    await this.save();
   }
 
   /**
@@ -74,4 +74,4 @@ class UserDataRecords extends browserBridge {
   }
 }
 
-export default new UserDataRecords()
+export default new UserDataRecords();

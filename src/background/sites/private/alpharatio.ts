@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: 'AlphaRatio',
@@ -49,4 +49,4 @@ export const siteMetadata: SiteMetadata = {
       }
     ]
   }
-}
+};

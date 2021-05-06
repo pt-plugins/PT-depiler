@@ -1,6 +1,6 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
-import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
-import { AxiosRequestConfig } from 'axios'
+import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite';
+import { AxiosRequestConfig } from 'axios';
 
 const CategoryMap = new Map([
   ['Films', 'Movies'],
@@ -11,7 +11,7 @@ const CategoryMap = new Map([
   ['Jeux-PC', 'PC Games'],
   ['Ebook', 'Books'],
   ['Porno', 'XXX']
-])
+]);
 
 export const siteMetadata: SiteMetadata = {
   name: 'OxTorrent',
@@ -50,13 +50,13 @@ export const siteMetadata: SiteMetadata = {
       link: { selector: 'a[href^="magnet:?"]', attr: 'href' }
     }
   }
-}
+};
 
 // noinspection JSUnusedGlobalSymbols
 export default class Oxtorrent extends BittorrentSite {
   protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
-    const config = await super.transformSearchFilter(filter)
-    config.url = filter.keywords ? `/recherche/${filter.keywords}` : '/'
-    return config
+    const config = await super.transformSearchFilter(filter);
+    config.url = filter.keywords ? `/recherche/${filter.keywords}` : '/';
+    return config;
   }
 }

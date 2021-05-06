@@ -1,12 +1,12 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
 import {
   findThenParseNumberString,
   findThenParseSizeString,
   findThenParseValidTimeString,
   parseSizeString
-} from '@/shared/utils/filter'
-import Sizzle from 'sizzle'
+} from '@/shared/utils/filter';
+import Sizzle from 'sizzle';
 
 export const siteMetadata: SiteMetadata = {
   name: 'KaraGarga',
@@ -104,8 +104,8 @@ export const siteMetadata: SiteMetadata = {
         selector: ["td.rowhead:contains('Join'):contains('date') + td"],
         filters: [
           (query:string) => {
-            query = query.split(' (')[0]
-            return findThenParseValidTimeString(query)
+            query = query.split(' (')[0];
+            return findThenParseValidTimeString(query);
           }
         ]
       },
@@ -113,8 +113,8 @@ export const siteMetadata: SiteMetadata = {
         selector: ["table[id='browse'] > tbody"],
         elementProcess: [
           (tbody: HTMLElement) => {
-            const trAnothers = Sizzle("> tr[style*='padding-top:0px']", tbody)
-            return trAnothers.length
+            const trAnothers = Sizzle("> tr[style*='padding-top:0px']", tbody);
+            return trAnothers.length;
           }
         ]
       },
@@ -122,16 +122,16 @@ export const siteMetadata: SiteMetadata = {
         selector: ["table[id='browse'] > tbody > tr[style*='padding-top:0px']"],
         elementProcess: [
           (tbody: HTMLElement) => {
-            let seedingSize = 0
-            const trAnothers = Sizzle("> tr[style*='padding-top:0px']", tbody)
+            let seedingSize = 0;
+            const trAnothers = Sizzle("> tr[style*='padding-top:0px']", tbody);
             trAnothers.forEach(trAnother => {
-              const sizeAnother = Sizzle('td:eq(9)', trAnother)[0]
-              seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim())
-            })
-            return seedingSize
+              const sizeAnother = Sizzle('td:eq(9)', trAnother)[0];
+              seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim());
+            });
+            return seedingSize;
           }
         ]
       }
     }
   }
-}
+};

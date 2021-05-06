@@ -1,11 +1,11 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { findThenParseNumberString, parseSizeString } from '@/shared/utils/filter'
-import dayjs from '@/shared/utils/dayjs'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { findThenParseNumberString, parseSizeString } from '@/shared/utils/filter';
+import dayjs from '@/shared/utils/dayjs';
 
 const parseUpDl = (element: HTMLElement) => {
-  const sizeString = element.nextSibling!.textContent!.trim()
-  return parseSizeString(sizeString)
-}
+  const sizeString = element.nextSibling!.textContent!.trim();
+  return parseSizeString(sizeString);
+};
 
 interface snatchListResponseData {
   aaData: [
@@ -169,8 +169,8 @@ export const siteMetadata: SiteMetadata = {
         selector: "#profileTable td:contains('Join Date') + td",
         filters: [
           (query: string) => {
-            console.log(query)
-            return dayjs(query.split(' ').slice(1).join(' '), 'Do MMMM YYYY').valueOf()
+            console.log(query);
+            return dayjs(query.split(' ').slice(1).join(' '), 'Do MMMM YYYY').valueOf();
           }
         ]
       },
@@ -180,15 +180,15 @@ export const siteMetadata: SiteMetadata = {
         selector: 'aaData',
         filters: [
           (aaData: snatchListResponseData['aaData']) => {
-            let seedingSize = 0
+            let seedingSize = 0;
             aaData.forEach(data => {
-              seedingSize += parseSizeString(data[1])
-            })
-            return seedingSize
+              seedingSize += parseSizeString(data[1]);
+            });
+            return seedingSize;
           }
         ]
 
       }
     }
   }
-}
+};

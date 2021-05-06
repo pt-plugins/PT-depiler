@@ -1,11 +1,11 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
 import {
   findThenParseNumberString,
   findThenParseSizeString,
   findThenParseValidTimeString,
   parseTimeToLive
-} from '@/shared/utils/filter'
+} from '@/shared/utils/filter';
 
 export const siteMetadata: SiteMetadata = {
   name: 'HDBits',
@@ -105,8 +105,8 @@ export const siteMetadata: SiteMetadata = {
         selector: "td.rowhead:contains('JOIN'):contains('date') + td",
         filters: [
           (query: string) => {
-            query = query.split(' (')[0]
-            return findThenParseValidTimeString(query)
+            query = query.split(' (')[0];
+            return findThenParseValidTimeString(query);
           }
         ]
       },
@@ -120,4 +120,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};

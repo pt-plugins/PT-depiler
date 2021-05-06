@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
 
 export const siteMetadata: SiteMetadata = {
   name: 'U2',
@@ -50,11 +50,11 @@ export const siteMetadata: SiteMetadata = {
           (element: HTMLElement) => {
             switch (true) {
               case /seedhlc_/.test(element.className):
-                return 100
+                return 100;
               case /leechhlc_/.test(element.className):
-                return parseFloat((element.innerText.match(/[\d.]+%/)! || [0])[0])
+                return parseFloat((element.innerText.match(/[\d.]+%/)! || [0])[0]);
               default:
-                return 0
+                return 0;
             }
           }
         ]
@@ -72,7 +72,7 @@ export const siteMetadata: SiteMetadata = {
       leechers: {
         elementProcess: [
           (element: HTMLElement) => {
-            return parseInt(element.firstChild!.textContent!)
+            return parseInt(element.firstChild!.textContent!);
           }
         ]
       }
@@ -88,4 +88,4 @@ export const siteMetadata: SiteMetadata = {
     }
 
   }
-}
+};

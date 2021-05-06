@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: 'BRKS',
@@ -8,4 +8,4 @@ export const siteMetadata: SiteMetadata = {
   tags: ['软件'],
   schema: 'GazelleJSONAPI',
   host: 'brokenstones.club'
-}
+};

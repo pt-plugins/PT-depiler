@@ -2,8 +2,8 @@
  * FIXME 无号，未进行测试
  * Rhilip, 2021.04.09
  */
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { selectorSearchStatus } from './hdchina'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { selectorSearchStatus } from './hdchina';
 
 export const siteMetadata: SiteMetadata = {
   name: 'BTSCHOOL',
@@ -18,12 +18,12 @@ export const siteMetadata: SiteMetadata = {
         attr: 'style',
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/width:([ \d.]+)%/)
-            return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : 0
+            const queryMatch = query.match(/width:([ \d.]+)%/);
+            return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : 0;
           }
         ]
       },
       status: selectorSearchStatus
     }
   }
-}
+};

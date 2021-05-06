@@ -2,8 +2,8 @@
  * FIXME 无号，未进行测试
  * Rhilip, 2021.04.09
  */
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
 
 export const siteMetadata: SiteMetadata = {
   name: '聆音Club',
@@ -28,4 +28,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};

@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
-import { findThenParseSizeString } from '@/shared/utils/filter'
-import dayjs from '@/shared/utils/dayjs'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
+import { findThenParseSizeString } from '@/shared/utils/filter';
+import dayjs from '@/shared/utils/dayjs';
 
 export const siteMetadata: SiteMetadata = {
   name: 'ExtremlymTorrents',
@@ -162,4 +162,4 @@ export const siteMetadata: SiteMetadata = {
       bonus: { text: 'N/A' }
     }
   }
-}
+};

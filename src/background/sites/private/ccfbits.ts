@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { findThenParseSizeString, findThenParseValidTimeString, parseSizeString } from '@/shared/utils/filter'
-import Sizzle from 'sizzle'
-import urlparse from 'url-parse'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { findThenParseSizeString, findThenParseValidTimeString, parseSizeString } from '@/shared/utils/filter';
+import Sizzle from 'sizzle';
+import urlparse from 'url-parse';
 
 export const siteMetadata: SiteMetadata = {
   name: 'CCFBits',
@@ -107,8 +107,8 @@ export const siteMetadata: SiteMetadata = {
         selector: 'div#ka1 table tbody',
         filters: [
           (tbody: HTMLElement) => {
-            const trAnothers = Sizzle('tr:gt(0)', tbody)
-            return trAnothers.length
+            const trAnothers = Sizzle('tr:gt(0)', tbody);
+            return trAnothers.length;
           }
         ]
       },
@@ -117,16 +117,16 @@ export const siteMetadata: SiteMetadata = {
         selector: 'div#ka1 table tbody',
         filters: [
           (tbody: HTMLElement) => {
-            let seedingSize = 0
-            const trAnothers = Sizzle('tr:gt(0)', tbody)
+            let seedingSize = 0;
+            const trAnothers = Sizzle('tr:gt(0)', tbody);
             trAnothers.forEach(trAnother => {
-              const sizeAnother = Sizzle('td:eq(3)', trAnother)[0]
-              seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim())
-            })
-            return seedingSize
+              const sizeAnother = Sizzle('td:eq(3)', trAnother)[0];
+              seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim());
+            });
+            return seedingSize;
           }
         ]
       }
     }
   }
-}
+};

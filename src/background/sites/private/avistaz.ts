@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: 'AvistaZ',
@@ -7,4 +7,4 @@ export const siteMetadata: SiteMetadata = {
   url: 'https://avistaz.to/',
   tags: ['综合'],
   schema: 'AvistaZ'
-}
+};

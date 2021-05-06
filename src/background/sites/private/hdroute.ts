@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
-import { parseInt } from 'lodash-es'
-import { findThenParseSizeString, findThenParseValidTimeString } from '@/shared/utils/filter'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
+import { parseInt } from 'lodash-es';
+import { findThenParseSizeString, findThenParseValidTimeString } from '@/shared/utils/filter';
 
 export const siteMetadata: SiteMetadata = {
   name: 'HDRoute',
@@ -110,4 +110,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};

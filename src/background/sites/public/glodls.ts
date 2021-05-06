@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
 
 export const siteMetadata: SiteMetadata = {
   name: 'GloDLS',
@@ -66,4 +66,4 @@ export const siteMetadata: SiteMetadata = {
       author: { selector: 'td:nth-child(8)' }
     }
   }
-}
+};

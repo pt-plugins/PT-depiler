@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { parseTimeToLive } from '@/shared/utils/filter'
-import dayjs from '@/shared/utils/dayjs'
-import urlparse from 'url-parse'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { parseTimeToLive } from '@/shared/utils/filter';
+import dayjs from '@/shared/utils/dayjs';
+import urlparse from 'url-parse';
 
 export const siteMetadata: SiteMetadata = {
   name: 'TorrentGalaxy.org',
@@ -73,9 +73,9 @@ export const siteMetadata: SiteMetadata = {
         selector: 'div td:last-of-type',
         filters: [(q:string) => {
           if (/ago/.test(q)) {
-            return parseTimeToLive(q)
+            return parseTimeToLive(q);
           } else {
-            return dayjs(q, 'DD/MM/YY Z').unix()
+            return dayjs(q, 'DD/MM/YY Z').unix();
           }
         }]
       },
@@ -93,4 +93,4 @@ export const siteMetadata: SiteMetadata = {
       author: { selector: 'span.username' }
     }
   }
-}
+};

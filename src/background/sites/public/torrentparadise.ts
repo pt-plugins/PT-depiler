@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { parseTimeToLive } from '@/shared/utils/filter'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { parseTimeToLive } from '@/shared/utils/filter';
 
 export const siteMetadata: SiteMetadata = {
   name: 'TorrentParadise',
@@ -31,4 +31,4 @@ export const siteMetadata: SiteMetadata = {
       link: { selector: 'a[href^="magnet:?xt="]', attr: 'href' }
     }
   }
-}
+};

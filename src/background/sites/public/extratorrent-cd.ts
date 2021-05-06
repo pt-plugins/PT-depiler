@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { parseTimeToLive } from '@/shared/utils/filter'
-import dayjs from '@/shared/utils/dayjs'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { parseTimeToLive } from '@/shared/utils/filter';
+import dayjs from '@/shared/utils/dayjs';
 
 export const siteMetadata: SiteMetadata = {
   name: 'ExtraTorrent.cd',
@@ -42,13 +42,13 @@ export const siteMetadata: SiteMetadata = {
         filters: [
           (q:string) => {
             if (/ago$/.test(q)) { // 4-mins-ago
-              return parseTimeToLive(q.replace('-', ''))
+              return parseTimeToLive(q.replace('-', ''));
             } else if (/^Today-/.test(q)) { // Today-22:03
-              return dayjs(q.replace('Today-', '')).unix()
+              return dayjs(q.replace('Today-', '')).unix();
             } else if (/Y-day-\d+/.test(q)) { // Y-day-2020
-              return dayjs().add(-1, 'day').unix()
+              return dayjs().add(-1, 'day').unix();
             } else { // 12-27-2019
-              return dayjs(q, 'MM-DD-YYYY').unix()
+              return dayjs(q, 'MM-DD-YYYY').unix();
             }
           }
         ]
@@ -60,4 +60,4 @@ export const siteMetadata: SiteMetadata = {
       author: { selector: 'td:nth-child(3) a[href^="/profile"]' }
     }
   }
-}
+};

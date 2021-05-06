@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: 'AniDex',
@@ -66,4 +66,4 @@ export const siteMetadata: SiteMetadata = {
       category: { selector: 'td:nth-child(1) a' }
     }
   }
-}
+};

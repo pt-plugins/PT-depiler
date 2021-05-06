@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { findThenParseSizeString } from '@/shared/utils/filter'
-import dayjs from '@/shared/utils/dayjs'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { findThenParseSizeString } from '@/shared/utils/filter';
+import dayjs from '@/shared/utils/dayjs';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Concertos',
@@ -73,8 +73,8 @@ export const siteMetadata: SiteMetadata = {
       messageCount: {
         selector: ['div.info-bar'],
         filters: [(query:string) => {
-          const queryMatch = query.match(/(\d+)/)
-          return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0
+          const queryMatch = query.match(/(\d+)/);
+          return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
         }]
       },
       uploaded: {
@@ -108,8 +108,8 @@ export const siteMetadata: SiteMetadata = {
         selector: ["td:contains('Total Seeding') + td"],
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/(\d+)/)
-            return (queryMatch && queryMatch.length >= 2) ? parseInt(queryMatch[1]) : 0
+            const queryMatch = query.match(/(\d+)/);
+            return (queryMatch && queryMatch.length >= 2) ? parseInt(queryMatch[1]) : 0;
           }
         ]
       },
@@ -118,4 +118,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};

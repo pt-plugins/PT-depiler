@@ -1,11 +1,11 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 import {
   findThenParseNumberString,
   findThenParseSizeString,
   findThenParseValidTimeString,
   parseTimeToLive
-} from '@/shared/utils/filter'
-import urlparse from 'url-parse'
+} from '@/shared/utils/filter';
+import urlparse from 'url-parse';
 
 export const siteMetadata: SiteMetadata = {
   name: 'IPTorrents',
@@ -41,8 +41,8 @@ export const siteMetadata: SiteMetadata = {
         attr: 'href',
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/\/t\/(\d+)/)
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : ''
+            const queryMatch = query.match(/\/t\/(\d+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : '';
           }
         ]
       },
@@ -52,9 +52,9 @@ export const siteMetadata: SiteMetadata = {
         filters: [
           (query: string) => {
             if (/ \| /.test(query)) {
-              return query.split(' | ')[0]
+              return query.split(' | ')[0];
             }
-            return ''
+            return '';
           }
         ]
       },
@@ -68,8 +68,8 @@ export const siteMetadata: SiteMetadata = {
            * @param query
            */
           (query: string) => {
-            const queryMatch = query.match(/(?:\| )?([\d.]+ .+? ago)/)
-            return queryMatch && queryMatch.length >= 2 ? parseTimeToLive(queryMatch[1]) : ''
+            const queryMatch = query.match(/(?:\| )?([\d.]+ .+? ago)/);
+            return queryMatch && queryMatch.length >= 2 ? parseTimeToLive(queryMatch[1]) : '';
           }
         ]
       },
@@ -79,10 +79,10 @@ export const siteMetadata: SiteMetadata = {
         filters: [
           (query: string) => {
             if (query.includes(' by ')) {
-              const queryMatch = query.match(/by (.+)$/)
-              return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : ''
+              const queryMatch = query.match(/by (.+)$/);
+              return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : '';
             }
-            return ''
+            return '';
           }
         ]
       },
@@ -107,8 +107,8 @@ export const siteMetadata: SiteMetadata = {
         attr: 'href',
         switchFilters: [
           (query: string) => {
-            const queryMatch = query.match(/u\/(.+)/)
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : ''
+            const queryMatch = query.match(/u\/(.+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : '';
           },
           (query: string) => urlparse(query, true).query.id
         ]
@@ -143,8 +143,8 @@ export const siteMetadata: SiteMetadata = {
         selector: "th:contains('Join date') + td",
         filters: [
           (query: string) => {
-            query = query.split(' (')[0]
-            return findThenParseValidTimeString(query)
+            query = query.split(' (')[0];
+            return findThenParseValidTimeString(query);
           }
         ]
       },
@@ -157,4 +157,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};

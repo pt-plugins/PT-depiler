@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { parseTimeToLive } from '@/shared/utils/filter'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { parseTimeToLive } from '@/shared/utils/filter';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Magnet4You',
@@ -23,4 +23,4 @@ export const siteMetadata: SiteMetadata = {
       completed: { selector: 'td:nth-child(7)', filters: [(q:string) => q.replace('K', '000')] }
     }
   }
-}
+};

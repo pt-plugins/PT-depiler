@@ -1,7 +1,7 @@
-import { searchFilter, SiteMetadata, Torrent } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
-import { findThenParseNumberString, parseSizeString } from '@/shared/utils/filter'
-import Gazelle from '@/background/sites/schema/Gazelle'
+import { searchFilter, SiteMetadata, Torrent } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
+import { findThenParseNumberString, parseSizeString } from '@/shared/utils/filter';
+import Gazelle from '@/background/sites/schema/Gazelle';
 
 export const siteMetadata: SiteMetadata = {
   name: 'AB',
@@ -59,11 +59,11 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};
 
 export default class animebytes extends Gazelle {
   // FIXME 暂时以一种强硬的方式表示不支持搜索
   public async searchTorrents (filter: searchFilter): Promise<Torrent[]> {
-    throw new Error('Not Support Now.')
+    throw new Error('Not Support Now.');
   }
 }

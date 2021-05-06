@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
 
 export const siteMetadata: SiteMetadata = {
   name: 'SSD',
@@ -42,13 +42,13 @@ export const siteMetadata: SiteMetadata = {
         elementProcess: [
           (element: HTMLElement) => {
             if (element.classList.contains('uploading')) {
-              return 100
+              return 100;
             } else if (element.classList.contains('downloading')) {
-              const title = element.getAttribute('title') || ''
-              const titleMatch = title.match(/(\d.+)%/)
-              return (titleMatch && titleMatch.length >= 2) ? parseFloat(titleMatch[1]) : 0
+              const title = element.getAttribute('title') || '';
+              const titleMatch = title.match(/(\d.+)%/);
+              return (titleMatch && titleMatch.length >= 2) ? parseFloat(titleMatch[1]) : 0;
             } else {
-              return 0
+              return 0;
             }
           }
         ]
@@ -58,11 +58,11 @@ export const siteMetadata: SiteMetadata = {
         elementProcess: [
           (element: HTMLElement) => {
             if (element.classList.contains('uploading')) {
-              return ETorrentStatus.seeding
+              return ETorrentStatus.seeding;
             } else if (element.classList.contains('downloading')) {
-              return ETorrentStatus.downloading
+              return ETorrentStatus.downloading;
             } else {
-              return ETorrentStatus.unknown
+              return ETorrentStatus.unknown;
             }
           }
         ]
@@ -74,4 +74,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};

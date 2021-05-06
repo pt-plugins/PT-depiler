@@ -1,10 +1,10 @@
-import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
-import dayjs from '@/shared/utils/dayjs'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
-import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '@/shared/utils/filter'
-import PrivateSite from '../schema/AbstractPrivateSite'
-import Sizzle from 'sizzle'
+import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
+import dayjs from '@/shared/utils/dayjs';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
+import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '@/shared/utils/filter';
+import PrivateSite from '../schema/AbstractPrivateSite';
+import Sizzle from 'sizzle';
 
 export const siteMetadata: SiteMetadata = {
   name: 'HD-Torrents',
@@ -134,7 +134,7 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};
 
 export default class hdtorrents extends PrivateSite {
   /**
@@ -157,13 +157,13 @@ export default class hdtorrents extends PrivateSite {
    */
 
   async flushUserInfo (): Promise<UserInfo> {
-    const baseUserInfo = await super.flushUserInfo()
+    const baseUserInfo = await super.flushUserInfo();
 
     if (baseUserInfo.id && !baseUserInfo.seedingSize) {
-      baseUserInfo.seedingSize = 0
+      baseUserInfo.seedingSize = 0;
 
       for (const pageInfo = { count: 0, current: 0 }; pageInfo.current <= pageInfo.count; pageInfo.current++) {
-        const TListDocument = await this.request({ url: '/usercp.php', params: { uid: baseUserInfo.id, activepage: pageInfo.current }, responseType: 'document' })
+        const TListDocument = await this.request({ url: '/usercp.php', params: { uid: baseUserInfo.id, activepage: pageInfo.current }, responseType: 'document' });
 
         // 更新最大页数
         if (pageInfo.count === 0) {
@@ -171,18 +171,18 @@ export default class hdtorrents extends PrivateSite {
             selector: ["a[href*='activepage']:contains('1'):last"],
             attr: 'href',
             filters: [(query: string) => parseInt(urlparse(query, true).query.activepage as string) || -1]
-          })
+          });
         }
 
         // 遍历并更新做种体积
-        const trAnothers = Sizzle('tr#SeedingtorrentsHideShowTR table > tbody > tr:gt(0)')
+        const trAnothers = Sizzle('tr#SeedingtorrentsHideShowTR table > tbody > tr:gt(0)');
         trAnothers.forEach(trAnother => {
-          const sizeAnother = Sizzle('td:eq(1)', trAnother)[0]
-          baseUserInfo.seedingSize! += parseSizeString((sizeAnother as HTMLElement).innerText.trim())
-        })
+          const sizeAnother = Sizzle('td:eq(1)', trAnother)[0];
+          baseUserInfo.seedingSize! += parseSizeString((sizeAnother as HTMLElement).innerText.trim());
+        });
       }
     }
 
-    return baseUserInfo
+    return baseUserInfo;
   }
 }

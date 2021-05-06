@@ -1,7 +1,7 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
-import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
-import { AxiosRequestConfig } from 'axios'
-import { parseTimeToLive } from '@/shared/utils/filter'
+import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite';
+import { AxiosRequestConfig } from 'axios';
+import { parseTimeToLive } from '@/shared/utils/filter';
 
 // FIXME Cloudflare DDoS Protect
 export const siteMetadata: SiteMetadata = {
@@ -25,14 +25,14 @@ export const siteMetadata: SiteMetadata = {
       category: { text: 'Other' }
     }
   }
-}
+};
 
 // noinspection JSUnusedGlobalSymbols
 export default class BtDB extends BittorrentSite {
   protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
-    const config = await super.transformSearchFilter(filter)
-    config.url = filter.keywords ? `/search/${filter.keywords}/` : '/recent'
+    const config = await super.transformSearchFilter(filter);
+    config.url = filter.keywords ? `/search/${filter.keywords}/` : '/recent';
 
-    return config
+    return config;
   }
 }

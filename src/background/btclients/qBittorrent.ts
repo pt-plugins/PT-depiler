@@ -8,10 +8,10 @@ import {
   Torrent, TorrentClient,
   TorrentClientConfig, TorrentClientMetaData,
   TorrentFilterRules, TorrentState
-} from '@/shared/interfaces/btclients'
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
-import urljoin from 'url-join'
-import { random } from 'lodash-es'
+} from '@/shared/interfaces/btclients';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import urljoin from 'url-join';
+import { random } from 'lodash-es';
 
 export const clientConfig: TorrentClientConfig = {
   type: 'qBittorrent',
@@ -21,7 +21,7 @@ export const clientConfig: TorrentClientConfig = {
   username: '',
   password: '',
   timeout: 60 * 1e3
-}
+};
 
 // noinspection JSUnusedGlobalSymbols
 export const clientMetaData: TorrentClientMetaData = {
@@ -37,7 +37,7 @@ export const clientMetaData: TorrentClientMetaData = {
       description: CustomPathDescription
     }
   }
-}
+};
 
 type TrueFalseStr = 'true' | 'false';
 
@@ -346,9 +346,9 @@ interface rawTorrent {
 
 function normalizePieces (pieces: string | string[], joinBy:string = '|'): string {
   if (Array.isArray(pieces)) {
-    return pieces.join(joinBy)
+    return pieces.join(joinBy);
   }
-  return pieces
+  return pieces;
 }
 
 // noinspection JSUnusedGlobalSymbols
@@ -359,34 +359,34 @@ export default class QBittorrent implements TorrentClient {
   isLogin: boolean | null = null;
 
   constructor (options: Partial<TorrentClientConfig> = {}) {
-    this.config = { ...clientConfig, ...options }
+    this.config = { ...clientConfig, ...options };
   }
 
   async ping (): Promise<boolean> {
     try {
-      const pong = await this.login()
-      this.isLogin = pong.data === 'Ok.'
-      return this.isLogin
+      const pong = await this.login();
+      this.isLogin = pong.data === 'Ok.';
+      return this.isLogin;
     } catch (e) {
-      return false
+      return false;
     }
   }
 
   // qbt 默认Session时长 3600s，一次登录应该足够进行所有操作
   async login (): Promise<AxiosResponse> {
-    const form = new FormData()
-    form.append('username', this.config.username)
-    form.append('password', this.config.password)
+    const form = new FormData();
+    form.append('username', this.config.username);
+    form.append('password', this.config.password);
 
     return await axios.post(urljoin(this.config.address, '/api/v2', '/auth/login'), form, {
       timeout: this.config.timeout,
       withCredentials: true
-    })
+    });
   }
 
   async request (path: string, config: AxiosRequestConfig = {}): Promise<AxiosResponse> {
     if (this.isLogin === null) {
-      await this.ping()
+      await this.ping();
     }
 
     return await axios.request({
@@ -394,101 +394,101 @@ export default class QBittorrent implements TorrentClient {
       url: urljoin('/api/v2', path),
       timeout: this.config.timeout,
       ...config
-    })
+    });
   }
 
   async addTorrent (urls: string, options: Partial<QbittorrentAddTorrentOptions> = {}): Promise<boolean> {
-    const formData = new FormData()
+    const formData = new FormData();
 
     // 处理链接
     if (urls.startsWith('magnet:') || !options.localDownload) {
-      formData.append('urls', urls)
+      formData.append('urls', urls);
     } else if (options.localDownload) {
       const req = await axios.get(urls, {
         responseType: 'blob'
-      })
+      });
       // FIXME 使用
-      formData.append('torrents', req.data, String(random(0, 4096, true)) + '.torrent')
+      formData.append('torrents', req.data, String(random(0, 4096, true)) + '.torrent');
     }
 
     // 将通用字段转成qbt字段
     if (options.savePath) {
-      formData.append('savepath', options.savePath)
+      formData.append('savepath', options.savePath);
     }
 
     if (options.label) {
-      formData.append('category', options.label)
+      formData.append('category', options.label);
     }
 
     if (options.addAtPaused) {
-      formData.append('paused', options.addAtPaused ? 'true' : 'false')
+      formData.append('paused', options.addAtPaused ? 'true' : 'false');
     }
 
-    formData.append('useAutoTMM', 'false') // 关闭自动管理
+    formData.append('useAutoTMM', 'false'); // 关闭自动管理
 
-    const res = await this.request('/torrents/add', { method: 'post', data: formData })
-    return res.data === 'Ok.'
+    const res = await this.request('/torrents/add', { method: 'post', data: formData });
+    return res.data === 'Ok.';
   }
 
   async getTorrentsBy (filter: QbittorrentTorrentFilterRules): Promise<QbittorrentTorrent[]> {
     if (filter.hashes) {
-      filter.hashes = normalizePieces(filter.hashes)
+      filter.hashes = normalizePieces(filter.hashes);
     }
 
     // 将通用项处理成qbt对应的项目
     if (filter.complete) {
-      filter.filter = 'completed'
-      delete filter.complete
+      filter.filter = 'completed';
+      delete filter.complete;
     }
 
-    const res = await this.request('/torrents/info', { params: filter })
+    const res = await this.request('/torrents/info', { params: filter });
     return res.data.map((torrent: rawTorrent) => {
-      let state = TorrentState.unknown
+      let state = TorrentState.unknown;
 
       switch (torrent.state) {
         case QbittorrentTorrentState.ForcedDL:
         case QbittorrentTorrentState.Downloading:
         case QbittorrentTorrentState.MetaDL:
         case QbittorrentTorrentState.StalledDL:
-          state = TorrentState.downloading
-          break
+          state = TorrentState.downloading;
+          break;
         case QbittorrentTorrentState.Allocating:
           // state = 'stalledDL';
-          state = TorrentState.queued
-          break
+          state = TorrentState.queued;
+          break;
         case QbittorrentTorrentState.ForcedUP:
         case QbittorrentTorrentState.Uploading:
         case QbittorrentTorrentState.StalledUP:
-          state = TorrentState.seeding
-          break
+          state = TorrentState.seeding;
+          break;
         case QbittorrentTorrentState.PausedDL:
-          state = TorrentState.paused
-          break
+          state = TorrentState.paused;
+          break;
         case QbittorrentTorrentState.PausedUP:
           // state = 'completed';
-          state = TorrentState.paused
-          break
+          state = TorrentState.paused;
+          break;
         case QbittorrentTorrentState.QueuedDL:
         case QbittorrentTorrentState.QueuedUP:
-          state = TorrentState.queued
-          break
+          state = TorrentState.queued;
+          break;
         case QbittorrentTorrentState.CheckingDL:
         case QbittorrentTorrentState.CheckingUP:
         case QbittorrentTorrentState.QueuedForChecking:
         case QbittorrentTorrentState.CheckingResumeData:
         case QbittorrentTorrentState.Moving:
-          state = TorrentState.checking
-          break
+          state = TorrentState.checking;
+          break;
         case QbittorrentTorrentState.Error:
         case QbittorrentTorrentState.Unknown:
         case QbittorrentTorrentState.MissingFiles:
-          state = TorrentState.error
-          break
+          state = TorrentState.error;
+          break;
         default:
-          break
+          break;
       }
 
-      const isCompleted = torrent.progress === 1
+      const isCompleted = torrent.progress === 1;
 
       return {
         id: torrent.hash,
@@ -506,25 +506,25 @@ export default class QBittorrent implements TorrentClient {
         downloadSpeed: torrent.dlspeed,
         totalUploaded: torrent.uploaded,
         totalDownloaded: torrent.downloaded
-      } as Torrent
-    })
+      } as Torrent;
+    });
   }
 
   async getAllTorrents (): Promise<QbittorrentTorrent[]> {
-    return await this.getTorrentsBy({})
+    return await this.getTorrentsBy({});
   }
 
   async getTorrent (id: any): Promise<QbittorrentTorrent> {
-    return (await this.getTorrentsBy({ hashes: id }))[0]
+    return (await this.getTorrentsBy({ hashes: id }))[0];
   }
 
   // 注意方法虽然支持一次对多个种子进行操作，但仍建议每次均只操作一个种子
   async pauseTorrent (hashes: string | string[] | 'all'): Promise<boolean> {
     const params = {
       hashes: hashes === 'all' ? 'all' : normalizePieces(hashes)
-    }
-    await this.request('/torrents/pause', { params })
-    return true
+    };
+    await this.request('/torrents/pause', { params });
+    return true;
   }
 
   // 注意方法虽然支持一次对多个种子进行操作，但仍建议每次均只操作一个种子
@@ -532,17 +532,17 @@ export default class QBittorrent implements TorrentClient {
     const params = {
       hashes: hashes === 'all' ? 'all' : normalizePieces(hashes),
       removeData
-    }
-    await this.request('/torrents/delete', { params })
-    return true
+    };
+    await this.request('/torrents/delete', { params });
+    return true;
   }
 
   // 注意方法虽然支持一次对多个种子进行操作，但仍建议每次均只操作一个种子
   async resumeTorrent (hashes: string | string[] | 'all'): Promise<any> {
     const params = {
       hashes: hashes === 'all' ? 'all' : normalizePieces(hashes)
-    }
-    await this.request('/torrents/resume', { params })
-    return true
+    };
+    await this.request('/torrents/resume', { params });
+    return true;
   }
 }

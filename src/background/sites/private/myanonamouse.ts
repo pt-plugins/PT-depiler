@@ -1,14 +1,14 @@
-import { SearchResultItemTag, SiteMetadata, UserInfo } from '@/shared/interfaces/sites'
-import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
-import { ETorrentBaseTagColor } from '@/shared/interfaces/enum'
-import Sizzle from 'sizzle'
+import { SearchResultItemTag, SiteMetadata, UserInfo } from '@/shared/interfaces/sites';
+import PrivateSite from '@/background/sites/schema/AbstractPrivateSite';
+import { ETorrentBaseTagColor } from '@/shared/interfaces/enum';
+import Sizzle from 'sizzle';
 import {
   findThenParseNumberString,
   findThenParseSizeString,
   findThenParseValidTimeString,
   parseSizeString
-} from '@/shared/utils/filter'
-import { browser } from 'webextension-polyfill-ts'
+} from '@/shared/utils/filter';
+import { browser } from 'webextension-polyfill-ts';
 
 interface rawTorrent {
   added: string, // the date and time (in utc) the item was uploaded to site
@@ -186,13 +186,13 @@ export const siteMetadata: SiteMetadata = {
         selector: 'div#sbNotifs',
         elementProcess: [
           (div:Document) => {
-            let msgCount = 0
-            const msgAnothers = Sizzle('a.tmnb, a.tmn, a.tmng', div)
+            let msgCount = 0;
+            const msgAnothers = Sizzle('a.tmnb, a.tmn, a.tmng', div);
             msgAnothers.forEach(msgAnother => {
-              const msgText = (msgAnother as HTMLElement).innerText.trim()
-              msgCount += findThenParseNumberString(msgText)
-            })
-            return msgCount
+              const msgText = (msgAnother as HTMLElement).innerText.trim();
+              msgCount += findThenParseNumberString(msgText);
+            });
+            return msgCount;
           }
         ]
       },
@@ -211,8 +211,8 @@ export const siteMetadata: SiteMetadata = {
         selector: 'a#tmBP',
         filters: [
           (query:string) => {
-            const queryMatch = query.replace(/,/g, '').match(/Bonus: ([\d.]+)/)
-            return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : 0
+            const queryMatch = query.replace(/,/g, '').match(/Bonus: ([\d.]+)/);
+            return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : 0;
           }
         ]
       },
@@ -225,27 +225,27 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};
 
 export default class myanonamouse extends PrivateSite {
   protected parseTagsFromRow (row: rawTorrent): SearchResultItemTag[] {
-    const tags: SearchResultItemTag[] = []
+    const tags: SearchResultItemTag[] = [];
     if (row.vip) {
-      tags.push({ name: 'VIP', color: ETorrentBaseTagColor.VIP })
+      tags.push({ name: 'VIP', color: ETorrentBaseTagColor.VIP });
     }
     if (row.free) {
-      tags.push({ name: 'Free', color: ETorrentBaseTagColor.Free })
+      tags.push({ name: 'Free', color: ETorrentBaseTagColor.Free });
     }
 
-    return tags
+    return tags;
   }
 
   private async getUserSeedingInfo (userid: number) : Promise<{ seeding?: number, seedingSize?: number }> {
-    const retInfo = { seeding: 0, seedingSize: 0 }
+    const retInfo = { seeding: 0, seedingSize: 0 };
 
-    let mamId
+    let mamId;
     try {
-      mamId = await browser.cookies.get({ url: this.config.url, name: 'mam_id' })
+      mamId = await browser.cookies.get({ url: this.config.url, name: 'mam_id' });
     } catch (e) { }
 
     if (mamId) {
@@ -260,12 +260,12 @@ export default class myanonamouse extends PrivateSite {
               cacheTime: Math.round(Date.now() / 1000),
               mam_id: decodeURIComponent(mamId.value)
             }
-          })
+          });
 
           seedJson.rows.forEach(item => {
-            retInfo.seeding += 1
-            retInfo.seedingSize += parseSizeString(item.size)
-          })
+            retInfo.seeding += 1;
+            retInfo.seedingSize += parseSizeString(item.size);
+          });
 
           /**
            * MAM 页面是使用left来判断是否加载下一页，但是我们这里无法获取到对应信息
@@ -273,25 +273,25 @@ export default class myanonamouse extends PrivateSite {
            * 可能还有下一页，进一步加载
            */
           if (seedJson.rows.length >= 250) {
-            pageInfo.count += 1
+            pageInfo.count += 1;
           }
         }
       }
     }
 
-    return retInfo
+    return retInfo;
   }
 
   async flushUserInfo (): Promise<UserInfo> {
-    let userInfo = await super.flushUserInfo()
+    let userInfo = await super.flushUserInfo();
 
     if (userInfo.id && (!userInfo.seeding || !userInfo.seedingSize)) {
       userInfo = {
         ...await this.getUserSeedingInfo(userInfo.id as number),
         ...userInfo
-      }
+      };
     }
 
-    return userInfo
+    return userInfo;
   }
 }

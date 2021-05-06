@@ -11,9 +11,9 @@ import {
   TorrentClientMetaData,
   TorrentFilterRules,
   TorrentState
-} from '@/shared/interfaces/btclients'
-import urljoin from 'url-join'
-import axios, { AxiosRequestConfig } from 'axios'
+} from '@/shared/interfaces/btclients';
+import urljoin from 'url-join';
+import axios, { AxiosRequestConfig } from 'axios';
 
 export const clientConfig: TorrentClientConfig = {
   type: 'synologyDownloadStation',
@@ -23,7 +23,7 @@ export const clientConfig: TorrentClientConfig = {
   username: '',
   password: '',
   timeout: 60 * 1e3
-}
+};
 
 // noinspection JSUnusedGlobalSymbols
 export const clientMetaData: TorrentClientMetaData = {
@@ -37,7 +37,7 @@ export const clientMetaData: TorrentClientMetaData = {
       description: "因 Synology Download Station API 接口限制，保存目录依赖于“暂存位置”，并且只允许使用相对路径；<br/>如暂存位置为 /volume1/，期望存储目的地位置为 /volume1/music/，那么请在“目录列表”中填写：<span style='color:red'>music</span>"
     }
   }
-}
+};
 
 // 定义API
 
@@ -117,7 +117,7 @@ interface FormFile {
 }
 
 function isFormFile (f?: any): f is FormFile {
-  return f && (f as FormFile).content != null && (f as FormFile).filename != null
+  return f && (f as FormFile).content != null && (f as FormFile).filename != null;
 }
 
 // 定义API请求参数
@@ -336,14 +336,14 @@ export default class SynologyDownloadStation implements TorrentClient {
   private _apiInfo?: SynologyInfoApiResponseData;
 
   constructor (options: Partial<TorrentClientConfig> = {}) {
-    this.config = { ...clientConfig, ...options }
+    this.config = { ...clientConfig, ...options };
   }
 
   private async getSessionId (): Promise<string> {
     if (!this._sessionId) {
-      await this.login()
+      await this.login();
     }
-    return this._sessionId as string
+    return this._sessionId as string;
   }
 
   private async getApiInfo (): Promise<SynologyInfoApiResponseData> {
@@ -356,12 +356,12 @@ export default class SynologyDownloadStation implements TorrentClient {
           query: 'all',
           version: 1
         }
-      })
+      });
       if (req.success) {
-        this._apiInfo = req.data
+        this._apiInfo = req.data;
       }
     }
-    return this._apiInfo as SynologyInfoApiResponseData
+    return this._apiInfo as SynologyInfoApiResponseData;
   }
 
   // 核心请求方法
@@ -375,49 +375,49 @@ export default class SynologyDownloadStation implements TorrentClient {
       timeout: this.config.timeout,
       withCredentials: false,
       ...config
-    })).data
+    })).data;
   }
 
   // entry.cgi 请求方法
   private async requestEntryCGI <T> (field: DSRequestField): Promise<SynologyResponse<any>> {
     // 覆写 _sid 参数
-    field._sid = await this.getSessionId()
+    field._sid = await this.getSessionId();
 
-    let postData: URLSearchParams | FormData
+    let postData: URLSearchParams | FormData;
     if (field._useForm) {
-      delete field._useForm
-      postData = new FormData()
+      delete field._useForm;
+      postData = new FormData();
     } else {
-      postData = new URLSearchParams()
+      postData = new URLSearchParams();
     }
 
     Object.keys(field).forEach((k) => {
-      let v = field[k]
+      let v = field[k];
       if (v !== undefined) {
         if (isFormFile(v)) {
-          (postData as FormData).append(k, v.content, v.filename)
+          (postData as FormData).append(k, v.content, v.filename);
         } else {
           if (Array.isArray(v)) {
-            v = JSON.stringify(v)
+            v = JSON.stringify(v);
           }
-          postData.append(k, v)
+          postData.append(k, v);
         }
       }
-    })
+    });
 
-    return await this.request<T>('entry.cgi', { method: 'post', data: postData })
+    return await this.request<T>('entry.cgi', { method: 'post', data: postData });
   }
 
   // 请求登录并获得sid信息
   private async login () : Promise<boolean> {
-    const apiInfo = await this.getApiInfo()
+    const apiInfo = await this.getApiInfo();
 
     /**
      * fix: https://github.com/ronggang/PT-Plugin-Plus/issues/687
      * 由于 DSM 7 以上， SYNO.API.Auth 接口当 version 为 2 时，会直接报 103 错误
      * 此时将 version 指到 3，可以正常获得 sid
      */
-    const loginVersion = (apiInfo['SYNO.API.Auth']?.maxVersion || 6) >= 7 ? 3 : 2
+    const loginVersion = (apiInfo['SYNO.API.Auth']?.maxVersion || 6) >= 7 ? 3 : 2;
 
     try {
       const req = await this.request<{ sid: string }>('auth.cgi', {
@@ -430,19 +430,19 @@ export default class SynologyDownloadStation implements TorrentClient {
           session: 'DownloadStation',
           format: 'sid'
         } as DSRequestFieldForApiAuth
-      })
+      });
       if (req.success) {
-        this._sessionId = req.data.sid
+        this._sessionId = req.data.sid;
       }
 
-      return req.success
+      return req.success;
     } catch (e) {
-      return false
+      return false;
     }
   }
 
   async ping (): Promise<boolean> {
-    return this.login()
+    return this.login();
   }
 
   async addTorrent (urls: string, options: Partial<AddTorrentOptions> = {}): Promise<boolean> {
@@ -452,24 +452,24 @@ export default class SynologyDownloadStation implements TorrentClient {
       method: 'create',
       version: 2,
       create_list: false
-    }
+    };
 
     if (urls.startsWith('magnet:') || !options.localDownload) {
-      params.type = 'url'
-      params.url = [urls]
+      params.type = 'url';
+      params.url = [urls];
     } else {
-      params._useForm = true
-      params.type = 'file'
-      params.file = ['torrent']
+      params._useForm = true;
+      params.type = 'file';
+      params.file = ['torrent'];
 
       // 获得本地请求的种子内容
       const torrentReq = await axios.get(urls, {
         responseType: 'blob'
-      })
+      });
       params.torrent = {
         content: torrentReq.data,
         filename: 'file.torrent' // FIXME 根据请求头确定种子名
-      } as FormFile
+      } as FormFile;
     }
 
     /**
@@ -479,29 +479,29 @@ export default class SynologyDownloadStation implements TorrentClient {
      *    如果外部不传入 savePath ，我们须设置一个空值出来，否则 DSM 会报 error_code 120
      *    此时 DSM 会将文件放置在 默认目的地文件夹
      */
-    params.destination = `"${options.savePath || ''}"`
-    params.type = `"${params.type}"`
+    params.destination = `"${options.savePath || ''}"`;
+    params.type = `"${params.type}"`;
 
-    const req = await this.requestEntryCGI<{ 'list_id': any[] /* 不知道具体返回情况 */, 'task_id': string[] }>(params)
+    const req = await this.requestEntryCGI<{ 'list_id': any[] /* 不知道具体返回情况 */, 'task_id': string[] }>(params);
 
     // DS不支持在添加的时候设置暂停状态，所以我们要在添加后暂停对应任务
     if (req.success) {
       if (options.addAtPaused && req.data.task_id.length > 0) {
-        await this.pauseTorrent(req.data.task_id[0])
+        await this.pauseTorrent(req.data.task_id[0]);
       }
     }
 
     // TODO 添加异常处理方法
 
-    return req.success
+    return req.success;
   }
 
   async getAllTorrents (): Promise<Torrent[]> {
-    return await this.getTorrentsBy({})
+    return await this.getTorrentsBy({});
   }
 
   async getTorrent (id: any): Promise<Torrent> {
-    return (await this.getTorrentsBy({ ids: id }))[0]
+    return (await this.getTorrentsBy({ ids: id }))[0];
   }
 
   async getTorrentsBy (filter: TorrentFilterRules): Promise<Torrent[]> {
@@ -512,50 +512,50 @@ export default class SynologyDownloadStation implements TorrentClient {
       // limit: -1,
       // offset: 0,
       additional: ['detail', 'transfer']
-    }
+    };
 
     if (filter.ids) {
-      params.method = 'get'
-      params.id = filter.ids
+      params.method = 'get';
+      params.id = filter.ids;
     }
 
     const req = await this.requestEntryCGI(params) as SynologySuccessResponse<{
       offset: number,
       task: rawTask[],
       total: number
-    }>
+    }>;
 
     return req.data.task.filter(s => s.type === 'bt' /** 只选择bt种子返回 */).map(task => {
-      let state = TorrentState.unknown
+      let state = TorrentState.unknown;
       if (typeof task.status === 'string') {
         switch (task.status) {
           case 'downloading':
           case 'extracting':
-            state = TorrentState.downloading
-            break
+            state = TorrentState.downloading;
+            break;
 
           case 'seeding':
           case 'finished':
           case 'finishing':
-            state = TorrentState.seeding
-            break
+            state = TorrentState.seeding;
+            break;
 
           case 'paused':
-            state = TorrentState.paused
-            break
+            state = TorrentState.paused;
+            break;
 
           case 'filehosting_waiting':
           case 'waiting':
-            state = TorrentState.queued
-            break
+            state = TorrentState.queued;
+            break;
 
           case 'hash_checking':
-            state = TorrentState.checking
-            break
+            state = TorrentState.checking;
+            break;
 
           case 'error':
-            state = TorrentState.error
-            break
+            state = TorrentState.error;
+            break;
         }
       } else {
         /**
@@ -563,20 +563,20 @@ export default class SynologyDownloadStation implements TorrentClient {
          * https://gist.github.com/Rhilip/e1b72f5d5974998077805e5c31f1d53d#file-download-js-L746-L748
          */
         if (task.status > rawTaskStatusInt.TASK_ERROR) {
-          state = TorrentState.error // 统一处理 state 大于 rawTaskStatusInt.TASK_ERROR 的情况
+          state = TorrentState.error; // 统一处理 state 大于 rawTaskStatusInt.TASK_ERROR 的情况
         } else {
           switch (task.status) {
             case rawTaskStatusInt.TASK_WAITING:
             case rawTaskStatusInt.TASK_PREPROCESSING:
             case rawTaskStatusInt.TASK_PREPROCESSPASS:
             case rawTaskStatusInt.TASK_CAPTCHA_NEEDED:
-              state = TorrentState.queued
-              break
+              state = TorrentState.queued;
+              break;
 
             case rawTaskStatusInt.TASK_DOWNLOADING:
             case rawTaskStatusInt.TASK_EXTRACTING: // 认为解压过程也是属于 download 状态
-              state = TorrentState.downloading
-              break
+              state = TorrentState.downloading;
+              break;
 
             // 我们认为一些 finishing 和 finished 也是属于 paused 状态
             case rawTaskStatusInt.TASK_PAUSED:
@@ -584,24 +584,24 @@ export default class SynologyDownloadStation implements TorrentClient {
             case rawTaskStatusInt.TASK_DOWNLOADED:
             case rawTaskStatusInt.TASK_POSTPROCESSING:
             case rawTaskStatusInt.TASK_FINISHED:
-              state = TorrentState.paused
-              break
+              state = TorrentState.paused;
+              break;
 
             case rawTaskStatusInt.TASK_HASH_CHECKING:
-              state = TorrentState.checking
-              break
+              state = TorrentState.checking;
+              break;
 
             case rawTaskStatusInt.TASK_PRE_SEEDING:
             case rawTaskStatusInt.TASK_SEEDING:
-              state = TorrentState.seeding
-              break
+              state = TorrentState.seeding;
+              break;
           }
         }
       }
 
-      const isCompleted = task.additional!.detail!.completed_time > 0
-      const upload = task.additional!.transfer!.size_uploaded
-      const download = task.additional!.transfer!.size_downloaded
+      const isCompleted = task.additional!.detail!.completed_time > 0;
+      const upload = task.additional!.transfer!.size_uploaded;
+      const download = task.additional!.transfer!.size_downloaded;
 
       return {
         id: task.id,
@@ -619,8 +619,8 @@ export default class SynologyDownloadStation implements TorrentClient {
         totalUploaded: upload,
         totalDownloaded: download
 
-      } as Torrent
-    })
+      } as Torrent;
+    });
   }
 
   async pauseTorrent (id: string): Promise<boolean> {
@@ -629,7 +629,7 @@ export default class SynologyDownloadStation implements TorrentClient {
       api: 'SYNO.DownloadStation2.Task',
       method: 'pause',
       version: 2
-    })).success
+    })).success;
   }
 
   async resumeTorrent (id: string): Promise<boolean> {
@@ -638,7 +638,7 @@ export default class SynologyDownloadStation implements TorrentClient {
       api: 'SYNO.DownloadStation2.Task',
       method: 'resume',
       version: 2
-    })).success
+    })).success;
   }
 
   /**
@@ -655,6 +655,6 @@ export default class SynologyDownloadStation implements TorrentClient {
       version: 2,
       // Delete tasks and force to move uncompleted download files to the destination.
       force_complete: false
-    })).success
+    })).success;
   }
 }

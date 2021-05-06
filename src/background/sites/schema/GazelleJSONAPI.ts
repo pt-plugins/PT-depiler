@@ -1,9 +1,9 @@
-import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
-import { SiteConfig, Torrent, UserInfo } from '@/shared/interfaces/sites'
-import { AxiosResponse } from 'axios'
-import { parseSizeString, parseTimeWithZone } from '@/shared/utils/filter'
-import dayjs from '@/shared/utils/dayjs'
-import Sizzle from 'sizzle'
+import PrivateSite from '@/background/sites/schema/AbstractPrivateSite';
+import { SiteConfig, Torrent, UserInfo } from '@/shared/interfaces/sites';
+import { AxiosResponse } from 'axios';
+import { parseSizeString, parseTimeWithZone } from '@/shared/utils/filter';
+import dayjs from '@/shared/utils/dayjs';
+import Sizzle from 'sizzle';
 
 /**
  * @refs: https://github.com/WhatCD/Gazelle/blob/63b337026d49b5cf63ce4be20fdabdc880112fa3/sections/ajax/index.php#L16
@@ -272,24 +272,24 @@ export default class GazelleJSONAPI extends PrivateSite {
   private _authKey?: {authkey: string, passkey: string }
 
   protected async requestApi <T extends jsonResponse> (action: apiType, params: {[key: string]: any}): Promise<AxiosResponse<T>> {
-    return await this.request<T>({ url: '/ajax.php', params: { action, ...params }, requestName: `/ajax.php?action=${action}` })
+    return await this.request<T>({ url: '/ajax.php', params: { action, ...params }, requestName: `/ajax.php?action=${action}` });
   }
 
   protected async requestApiInfo (): Promise<infoJsonResponse> {
-    const { data: apiInfo } = await this.requestApi<infoJsonResponse>('index', {})
-    return apiInfo
+    const { data: apiInfo } = await this.requestApi<infoJsonResponse>('index', {});
+    return apiInfo;
   }
 
   protected async getAuthKey (): Promise<{ authkey: string, passkey: string }> {
     if (!this._authKey) {
-      const apiInfo = await this.requestApiInfo()
-      this._authKey = { authkey: apiInfo.response.authkey, passkey: apiInfo.response.passkey }
+      const apiInfo = await this.requestApiInfo();
+      this._authKey = { authkey: apiInfo.response.authkey, passkey: apiInfo.response.passkey };
     }
-    return this._authKey
+    return this._authKey;
   }
 
   protected async transformUnGroupTorrent (group: torrentBrowseResult): Promise<Torrent> {
-    const { authkey, passkey } = await this.getAuthKey()
+    const { authkey, passkey } = await this.getAuthKey();
 
     return {
       id: group.torrentId,
@@ -303,13 +303,13 @@ export default class GazelleJSONAPI extends PrivateSite {
       leechers: group.leechers,
       completed: group.snatches,
       comments: 0,
-      tags: group.tags.map(tag => { return { name: tag } }),
+      tags: group.tags.map(tag => { return { name: tag }; }),
       category: group.category
-    } as Torrent
+    } as Torrent;
   }
 
   protected async transformGroupTorrent (group: groupBrowseResult, torrent:groupTorrent): Promise<Torrent> {
-    const { authkey, passkey } = await this.getAuthKey()
+    const { authkey, passkey } = await this.getAuthKey();
     return {
       id: torrent.torrentId,
       title: `${group.artist} - ${group.groupName} [${group.groupYear}] [${group.releaseType}]`,
@@ -328,66 +328,66 @@ export default class GazelleJSONAPI extends PrivateSite {
       leechers: torrent.leechers,
       completed: torrent.snatches,
       category: group.releaseType || ''
-    } as Torrent
+    } as Torrent;
   }
 
   protected async transformSearchPage (doc: browseJsonResponse | any): Promise<Torrent[]> {
-    const torrents : Torrent[] = []
+    const torrents : Torrent[] = [];
 
     if (doc.status === 'success') {
-      const rows = doc.response.results
+      const rows = doc.response.results;
       for (const group of rows) {
         if ('torrents' in group) { // is groupBrowseResult
           for (const rawTorrent of group.torrents) {
-            const torrent: Torrent = await this.transformGroupTorrent(group, rawTorrent)
-            torrents.push(torrent)
+            const torrent: Torrent = await this.transformGroupTorrent(group, rawTorrent);
+            torrents.push(torrent);
           }
         } else {
-          const torrent: Torrent = await this.transformUnGroupTorrent(group)
-          torrents.push(torrent)
+          const torrent: Torrent = await this.transformUnGroupTorrent(group);
+          torrents.push(torrent);
         }
       }
     }
 
-    return torrents
+    return torrents;
   }
 
   async flushUserInfo (): Promise<UserInfo> {
-    let userInfo: Partial<UserInfo> = {}
-    userInfo = { ...userInfo, ...await this.getUserBaseInfo() }
+    let userInfo: Partial<UserInfo> = {};
+    userInfo = { ...userInfo, ...await this.getUserBaseInfo() };
     if (userInfo.id) {
       userInfo = {
         ...userInfo,
         ...await this.getUserExtendInfo(userInfo.id as number),
         ...await this.getUserSeedingTorrents(userInfo.id as number)
-      }
+      };
     }
-    return userInfo as UserInfo
+    return userInfo as UserInfo;
   }
 
   protected async getUserBaseInfo () : Promise<Partial<UserInfo>> {
-    const apiInfo = await this.requestApiInfo()
-    return this.getFieldsData(apiInfo, 'userInfo', ['id', 'name', 'messageCount', 'uploaded', 'downloaded', 'ratio', 'levelName'])
+    const apiInfo = await this.requestApiInfo();
+    return this.getFieldsData(apiInfo, 'userInfo', ['id', 'name', 'messageCount', 'uploaded', 'downloaded', 'ratio', 'levelName']);
   }
 
   protected async getUserExtendInfo (userId: number): Promise<Partial<UserInfo>> {
-    const apiUser = await this.requestApi<userJsonResponse>('user', { id: userId })
-    return this.getFieldsData(apiUser, 'userInfo', ['joinTime', 'seeding'])
+    const apiUser = await this.requestApi<userJsonResponse>('user', { id: userId });
+    return this.getFieldsData(apiUser, 'userInfo', ['joinTime', 'seeding']);
   }
 
   protected async getUserSeedingTorrents (userId?: number): Promise<Partial<UserInfo>> {
-    const userSeedingTorrent: Partial<UserInfo> = { seedingSize: 0 }
+    const userSeedingTorrent: Partial<UserInfo> = { seedingSize: 0 };
 
-    const { data: seedPage } = await this.request<Document>({ url: '/torrents.php', params: { type: 'seeding', userid: userId }, responseType: 'document' })
-    const rows = Sizzle('tr.torrent_row > td.nobr', seedPage)
+    const { data: seedPage } = await this.request<Document>({ url: '/torrents.php', params: { type: 'seeding', userid: userId }, responseType: 'document' });
+    const rows = Sizzle('tr.torrent_row > td.nobr', seedPage);
     rows.forEach(element => {
-      userSeedingTorrent.seedingSize! += parseSizeString((element as HTMLElement).innerText.trim())
-    })
+      userSeedingTorrent.seedingSize! += parseSizeString((element as HTMLElement).innerText.trim());
+    });
 
     if (this.config.selector?.userInfo?.bonus) {
-      userSeedingTorrent.bonus = this.getFieldData(seedPage, this.config.selector.userInfo.bonus)
+      userSeedingTorrent.bonus = this.getFieldData(seedPage, this.config.selector.userInfo.bonus);
     }
 
-    return userSeedingTorrent
+    return userSeedingTorrent;
   }
 }

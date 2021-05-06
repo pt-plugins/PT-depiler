@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { selectorSearchProgress, selectorSearchStatus } from '@/background/sites/private/tjupt'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { selectorSearchProgress, selectorSearchStatus } from '@/background/sites/private/tjupt';
 
 export const siteMetadata: SiteMetadata = {
   name: '伊甸园',
@@ -14,4 +14,4 @@ export const siteMetadata: SiteMetadata = {
       status: selectorSearchStatus
     }
   }
-}
+};

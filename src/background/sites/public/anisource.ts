@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: 'AniSource',
@@ -35,8 +35,8 @@ export const siteMetadata: SiteMetadata = {
         filters: [
           (q:string) => {
             // 2010-06-07 at 13:29 Central US (UTC -9:00)
-            const rawDate = q.split(' | ')[0].replace('Date: ', '').split(' ')
-            return `${rawDate[0]} ${rawDate[2]}`
+            const rawDate = q.split(' | ')[0].replace('Date: ', '').split(' ');
+            return `${rawDate[0]} ${rawDate[2]}`;
           }
         ]
       },
@@ -50,4 +50,4 @@ export const siteMetadata: SiteMetadata = {
       category: { selector: 'span.category' }
     }
   }
-}
+};

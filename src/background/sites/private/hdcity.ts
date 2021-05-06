@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
-import NexusPHP from '@/background/sites/schema/NexusPHP'
-import { findThenParseSizeString } from '@/shared/utils/filter'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
+import NexusPHP from '@/background/sites/schema/NexusPHP';
+import { findThenParseSizeString } from '@/shared/utils/filter';
 
 const levelMap = {
   0: '堕落者(Peasant)',
@@ -22,7 +22,7 @@ const levelMap = {
   15: '管理员(Administrator)',
   16: '守护天使(Sysop)',
   17: '市长(Mayor)'
-}
+};
 
 export const siteMetadata: SiteMetadata = {
   name: 'HDCity',
@@ -95,12 +95,12 @@ export const siteMetadata: SiteMetadata = {
         elementProcess: [
           (element: HTMLElement) => {
             if (element.classList.contains('sd') || element.classList.contains('ns')) {
-              return 100
+              return 100;
             } else if (element.classList.contains('dl')) {
-              const queryMatch = (element.getAttribute('style') || '').match(/width:([ \d.]+)%/)
-              return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : 0
+              const queryMatch = (element.getAttribute('style') || '').match(/width:([ \d.]+)%/);
+              return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : 0;
             } else {
-              return 0
+              return 0;
             }
           }
         ]
@@ -110,13 +110,13 @@ export const siteMetadata: SiteMetadata = {
         elementProcess: [
           (element: HTMLElement) => {
             if (element.classList.contains('sd')) {
-              return ETorrentStatus.seeding
+              return ETorrentStatus.seeding;
             } else if (element.classList.contains('ns')) {
-              return ETorrentStatus.completed
+              return ETorrentStatus.completed;
             } else if (element.classList.contains('dl')) {
-              return ETorrentStatus.inactive
+              return ETorrentStatus.inactive;
             } else {
-              return ETorrentStatus.unknown
+              return ETorrentStatus.unknown;
             }
           }
         ]
@@ -128,8 +128,8 @@ export const siteMetadata: SiteMetadata = {
         attr: null, // 覆盖掉NPHP默认的属性，使得我们能获取文本
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/\d+/)
-            return (queryMatch && queryMatch.length >= 1) ? parseInt(queryMatch[0]) : 0
+            const queryMatch = query.match(/\d+/);
+            return (queryMatch && queryMatch.length >= 1) ? parseInt(queryMatch[0]) : 0;
           }
         ]
       },
@@ -147,13 +147,13 @@ export const siteMetadata: SiteMetadata = {
         attr: 'src',
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/\/pic\/class\/(\d+).gif/)!
+            const queryMatch = query.match(/\/pic\/class\/(\d+).gif/)!;
             /**
              * 注意虽然我们前面在定义 levelMap 使用 number 作为键值，但由于 JS 的特性，
              * 使用对应数值字面量，同样也能访问到我们需要的等级信息
              */
             // @ts-ignore
-            return levelMap[queryMatch[1]]
+            return levelMap[queryMatch[1]];
           }
         ]
       },
@@ -167,21 +167,21 @@ export const siteMetadata: SiteMetadata = {
         selector: ["div.text:contains('加入日期')", "div.text:contains('Join'):contains('date')"],
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/(?:加入日期|Join date)\s+(.*)\s\(/)
-            return (queryMatch && queryMatch.length >= 2) ? queryMatch[1] : 0
+            const queryMatch = query.match(/(?:加入日期|Join date)\s+(.*)\s\(/);
+            return (queryMatch && queryMatch.length >= 2) ? queryMatch[1] : 0;
           }
         ]
       }
     }
   }
-}
+};
 
 export default class hdcity extends NexusPHP {
   // FIXME 这会导致第一次请求时出现两次 /userdetails 页面请求，不过问题不大2333
   protected async getUserIdFromSite (): Promise<number> {
-    const userDetailDocument = await this.requestUserDetailsPage(null)
-    const userId = this.getFieldData(userDetailDocument, this.config.selector?.userInfo?.id!)
-    return parseInt(userId)
+    const userDetailDocument = await this.requestUserDetailsPage(null);
+    const userId = this.getFieldData(userDetailDocument, this.config.selector?.userInfo?.id!);
+    return parseInt(userId);
   }
 
   protected async requestUserDetailsPage (userId: number | null): Promise<Document> {
@@ -190,15 +190,15 @@ export default class hdcity extends NexusPHP {
       // params: { id: userId },  // 该站点请求自己信息时可以不带入用户id
       responseType: 'document',
       checkLogin: true
-    })
-    return userDetailDocument
+    });
+    return userDetailDocument;
   }
 
   protected async requestUserSeedingPage (userId: number, type: string = 'seeding'): Promise<string | null> {
     const { data } = await this.request<string>({
       url: '/getusertorrentlistajax',
       params: { userid: userId, type }
-    })
-    return data || null
+    });
+    return data || null;
   }
 }

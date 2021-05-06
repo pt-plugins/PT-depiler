@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
 
 export const siteMetadata: SiteMetadata = {
   name: 'OurBits',
@@ -130,8 +130,8 @@ export const siteMetadata: SiteMetadata = {
         attr: 'style',
         filters: [
           (query: string) => {
-            const progressMatch = query.match(/width:.?(\d.+)%/)
-            return progressMatch && progressMatch.length >= 2 ? parseFloat(progressMatch[1]) : 0
+            const progressMatch = query.match(/width:.?(\d.+)%/);
+            return progressMatch && progressMatch.length >= 2 ? parseFloat(progressMatch[1]) : 0;
           }
         ]
       },
@@ -140,18 +140,18 @@ export const siteMetadata: SiteMetadata = {
         attr: 'title',
         filters: [
           (query: string) => {
-            const progressStatusMatch = query.match(/(\d.+)% (进行中|未开始)/)
+            const progressStatusMatch = query.match(/(\d.+)% (进行中|未开始)/);
             if (progressStatusMatch && progressStatusMatch.length >= 3) {
-              const progress = parseFloat(progressStatusMatch[1])
-              const status = progressStatusMatch[2]
+              const progress = parseFloat(progressStatusMatch[1]);
+              const status = progressStatusMatch[2];
 
               if (status === '进行中') {
-                return progress < 100 ? ETorrentStatus.downloading : ETorrentStatus.seeding
+                return progress < 100 ? ETorrentStatus.downloading : ETorrentStatus.seeding;
               } else { // if (status === '未开始')
-                return progress < 100 ? ETorrentStatus.inactive : ETorrentStatus.completed
+                return progress < 100 ? ETorrentStatus.inactive : ETorrentStatus.completed;
               }
             }
-            return ETorrentStatus.unknown
+            return ETorrentStatus.unknown;
           }
         ]
       },
@@ -171,4 +171,4 @@ export const siteMetadata: SiteMetadata = {
       ]
     }
   }
-}
+};

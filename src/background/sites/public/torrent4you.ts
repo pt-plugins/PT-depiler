@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { parseTimeToLive } from '@/shared/utils/filter'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { parseTimeToLive } from '@/shared/utils/filter';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Torrent4You',
@@ -39,4 +39,4 @@ export const siteMetadata: SiteMetadata = {
       comments: { selector: 'td:nth-child(5)' }
     }
   }
-}
+};

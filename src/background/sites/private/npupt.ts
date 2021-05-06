@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
 
-const timeRegex = /\d{4}-\d{2}-\d{2}[^\d]+?\d{2}:\d{2}:\d{2}/
+const timeRegex = /\d{4}-\d{2}-\d{2}[^\d]+?\d{2}:\d{2}:\d{2}/;
 
 export const siteMetadata: SiteMetadata = {
   name: 'NPUBits',
@@ -41,7 +41,7 @@ export const siteMetadata: SiteMetadata = {
         selector: "a[href*='hit']:eq(0)",
         elementProcess: [
           (element: HTMLElement) => {
-            return element.getAttribute('title') || element.innerText
+            return element.getAttribute('title') || element.innerText;
           }
         ]
       },
@@ -49,7 +49,7 @@ export const siteMetadata: SiteMetadata = {
         selector: 'table.torrentname td.embedded > span:last()',
         elementProcess: [
           (element: HTMLElement) => {
-            return element.getAttribute('title') || element.innerText
+            return element.getAttribute('title') || element.innerText;
           }
         ]
       },
@@ -69,9 +69,9 @@ export const siteMetadata: SiteMetadata = {
         elementProcess: [
           (element: HTMLElement) => {
             if (timeRegex.test(element.innerHTML)) {
-              return ((element.innerHTML.match(timeRegex) || ['0000-00-00 00:00:00'])[0]).trim()
+              return ((element.innerHTML.match(timeRegex) || ['0000-00-00 00:00:00'])[0]).trim();
             }
-            return 0
+            return 0;
           }
         ]
       },
@@ -90,7 +90,7 @@ export const siteMetadata: SiteMetadata = {
         attr: 'href',
         filters: [
           (query: string) => {
-            return urlparse(query, true).query.id
+            return urlparse(query, true).query.id;
           }
         ]
       },
@@ -108,4 +108,4 @@ export const siteMetadata: SiteMetadata = {
       bonus: { selector: ["td.rowhead:contains('沙粒') + td"] }
     }
   }
-}
+};

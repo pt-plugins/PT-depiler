@@ -10,9 +10,9 @@ import {
   TorrentClientMetaData,
   TorrentFilterRules,
   TorrentState
-} from '@/shared/interfaces/btclients'
-import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
-import { random } from 'lodash-es'
+} from '@/shared/interfaces/btclients';
+import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
+import { random } from 'lodash-es';
 
 export const clientConfig: TorrentClientConfig = {
   type: 'ruTorrent',
@@ -22,7 +22,7 @@ export const clientConfig: TorrentClientConfig = {
   username: 'admin',
   password: '',
   timeout: 60 * 1e3
-}
+};
 
 // noinspection JSUnusedGlobalSymbols
 export const clientMetaData: TorrentClientMetaData = {
@@ -33,7 +33,7 @@ export const clientMetaData: TorrentClientMetaData = {
       description: CustomPathDescription
     }
   }
-}
+};
 
 type torrentData = [
   string, // is_open
@@ -80,8 +80,8 @@ interface ListResponse {
 }
 
 function iv (val: string | null) {
-  const v = (val == null) ? 0 : parseInt(val + '')
-  return (isNaN(v) ? 0 : v)
+  const v = (val == null) ? 0 : parseInt(val + '');
+  return (isNaN(v) ? 0 : v);
 }
 
 // noinspection JSUnusedGlobalSymbols
@@ -90,7 +90,7 @@ export default class RuTorrent implements TorrentClient {
   readonly config: TorrentClientConfig;
 
   constructor (options: Partial<TorrentClientConfig> = {}) {
-    this.config = { ...clientConfig, ...options }
+    this.config = { ...clientConfig, ...options };
   }
 
   async request <T> (config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> {
@@ -102,11 +102,11 @@ export default class RuTorrent implements TorrentClient {
       },
       timeout: this.config.timeout,
       ...config
-    })
+    });
   }
 
   async requestHttpRpc<T> (data: any = {}): Promise<AxiosResponse<T>> {
-    return this.request<T>({ method: 'post', url: '/plugins/httprpc/action.php', data })
+    return this.request<T>({ method: 'post', url: '/plugins/httprpc/action.php', data });
   }
 
   /**
@@ -118,89 +118,89 @@ export default class RuTorrent implements TorrentClient {
       await this.request({
         url: '/php/getsettings.php',
         responseType: 'json'
-      })
+      });
     } catch (e) {
-      return false
+      return false;
     }
-    return true
+    return true;
   }
 
   async addTorrent (url: string, options: Partial<AddTorrentOptions> = {}): Promise<boolean> {
-    let postData: URLSearchParams | FormData
+    let postData: URLSearchParams | FormData;
     if (url.startsWith('magnet:') || !options.localDownload) {
-      postData = new URLSearchParams()
-      postData.append('url', url)
+      postData = new URLSearchParams();
+      postData.append('url', url);
     } else {
-      postData = new FormData()
+      postData = new FormData();
 
       // FIXME 使用统一函数获取种子文件
       const req = await axios.get(url, {
         responseType: 'blob'
-      })
+      });
 
-      postData.append('torrent_file', req.data, String(random(0, 4096, true)) + '.torrent')
+      postData.append('torrent_file', req.data, String(random(0, 4096, true)) + '.torrent');
     }
 
-    postData.append('json', '1') // 让ruTorrent返回json
+    postData.append('json', '1'); // 让ruTorrent返回json
     // postData.append('fast_resume', '1') // 快速恢复，禁用
 
     if (options.savePath) {
-      postData.append('dir_edit', options.savePath)
+      postData.append('dir_edit', options.savePath);
     }
 
     if (options.addAtPaused) {
-      postData.append('torrents_start_stopped', '1')
+      postData.append('torrents_start_stopped', '1');
     }
 
     if (options.label) {
-      postData.append('label', options.label)
+      postData.append('label', options.label);
     }
 
     const { data } = await this.request<{ result: 'Success' | 'Failed' | 'FailedFile' }>({
       method: 'post',
       url: '/php/addtorrent.php',
       data: postData
-    })
+    });
 
-    return data.result === 'Success'
+    return data.result === 'Success';
   }
 
   async getAllTorrents (): Promise<Torrent[]> {
-    const postData = new URLSearchParams({ model: 'list' })
-    const { data } = await this.requestHttpRpc<ListResponse>(postData)
+    const postData = new URLSearchParams({ model: 'list' });
+    const { data } = await this.requestHttpRpc<ListResponse>(postData);
 
     return Object.keys(data.t).map((infoHash:string) => {
-      const rawTorrent = data.t[infoHash]
+      const rawTorrent = data.t[infoHash];
 
-      const isOpen = iv(rawTorrent[0])
-      const isHashChecking = iv(rawTorrent[1])
-      const getState = iv(rawTorrent[3])
-      const getHashing = iv(rawTorrent[23])
-      const isActive = iv(rawTorrent[28])
-      const torrentMsg = rawTorrent[30]
+      const isOpen = iv(rawTorrent[0]);
+      const isHashChecking = iv(rawTorrent[1]);
+      const getState = iv(rawTorrent[3]);
+      const getHashing = iv(rawTorrent[23]);
+      const isActive = iv(rawTorrent[28]);
+      const torrentMsg = rawTorrent[30];
 
-      const chunksProcessing = (isHashChecking === 0) ? iv(rawTorrent[6]) : iv(rawTorrent[24])
-      const TorrentDone = Math.floor(chunksProcessing / iv(rawTorrent[7]) * 1000)
-      const isCompleted = TorrentDone >= 1000
+      const chunksProcessing = (isHashChecking === 0) ? iv(rawTorrent[6]) : iv(rawTorrent[24]);
+      const TorrentDone = Math.floor(chunksProcessing / iv(rawTorrent[7]) * 1000);
+      const isCompleted = TorrentDone >= 1000;
 
-      const basePath = rawTorrent[25]
-      const basePathPos = basePath.lastIndexOf('/')
-      const savePath = (basePath.substring(basePathPos + 1) === rawTorrent[4]) ? basePath.substring(0, basePathPos) : basePath
+      const basePath = rawTorrent[25];
+      const basePathPos = basePath.lastIndexOf('/');
+      const savePath = (basePath.substring(basePathPos + 1) === rawTorrent[4]) ? basePath.substring(0, basePathPos) : basePath;
 
-      let state = TorrentState.unknown
+      let state = TorrentState.unknown;
       if (isOpen !== 0) {
         if ((getState === 0) || (isActive === 0)) {
-          state = TorrentState.paused
+          state = TorrentState.paused;
         } else {
           // eslint-disable-next-line eqeqeq
-          state = isCompleted ? TorrentState.seeding : TorrentState.downloading
+          state = isCompleted ? TorrentState.seeding : TorrentState.downloading;
         }
       } else if (getHashing !== 0) {
-        state = TorrentState.queued
+        state = TorrentState.queued;
       } else if (isHashChecking !== 0) {
-        state = TorrentState.checking
+        state = TorrentState.checking;
       } else if (torrentMsg.length && torrentMsg !== 'Tracker: [Tried all trackers.]') {
-        state = TorrentState.error
+        state = TorrentState.error;
       }
 
       return {
@@ -219,53 +219,53 @@ export default class RuTorrent implements TorrentClient {
         downloadSpeed: iv(rawTorrent[12]),
         totalUploaded: iv(rawTorrent[9]),
         totalDownloaded: iv(rawTorrent[8])
-      } as Torrent
-    })
+      } as Torrent;
+    });
   }
 
   async getTorrent (id: any): Promise<Torrent> {
-    return (await this.getTorrentsBy({ ids: id.toUpperCase() }))[0]
+    return (await this.getTorrentsBy({ ids: id.toUpperCase() }))[0];
   }
 
   async getTorrentsBy (filter: TorrentFilterRules): Promise<Torrent[]> {
-    let torrents = await this.getAllTorrents()
+    let torrents = await this.getAllTorrents();
     if (filter.ids) {
-      const filterIds = Array.isArray(filter.ids) ? filter.ids : [filter.ids]
+      const filterIds = Array.isArray(filter.ids) ? filter.ids : [filter.ids];
       torrents = torrents.filter(t => {
-        return filterIds.includes(t.infoHash)
-      })
+        return filterIds.includes(t.infoHash);
+      });
     }
 
     if (filter.complete) {
-      torrents = torrents.filter(t => t.isCompleted)
+      torrents = torrents.filter(t => t.isCompleted);
     }
 
-    return torrents
+    return torrents;
   }
 
   async pauseTorrent (id: any): Promise<boolean> {
-    const postData = new URLSearchParams({ mode: 'pause', hash: id.toUpperCase() })
-    await this.requestHttpRpc(postData)
-    return true
+    const postData = new URLSearchParams({ mode: 'pause', hash: id.toUpperCase() });
+    await this.requestHttpRpc(postData);
+    return true;
   }
 
   async removeTorrent (id: any, removeData: boolean = false): Promise<boolean> {
-    const upId = id.toUpperCase()
+    const upId = id.toUpperCase();
 
-    let postData: string | URLSearchParams
+    let postData: string | URLSearchParams;
     if (removeData) {
-      postData = `<?xml version="1.0" encoding="UTF-8"?><methodCall><methodName>system.multicall</methodName><params><param><value><array><data><value><struct><member><name>methodName</name><value><string>d.custom5.set</string></value></member><member><name>params</name><value><array><data><value><string>${upId}</string></value><value><string>1</string></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>d.delete_tied</string></value></member><member><name>params</name><value><array><data><value><string>${upId}</string></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>d.erase</string></value></member><member><name>params</name><value><array><data><value><string>${upId}</string></value></data></array></value></member></struct></value></data></array></value></param></params></methodCall>`
+      postData = `<?xml version="1.0" encoding="UTF-8"?><methodCall><methodName>system.multicall</methodName><params><param><value><array><data><value><struct><member><name>methodName</name><value><string>d.custom5.set</string></value></member><member><name>params</name><value><array><data><value><string>${upId}</string></value><value><string>1</string></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>d.delete_tied</string></value></member><member><name>params</name><value><array><data><value><string>${upId}</string></value></data></array></value></member></struct></value><value><struct><member><name>methodName</name><value><string>d.erase</string></value></member><member><name>params</name><value><array><data><value><string>${upId}</string></value></data></array></value></member></struct></value></data></array></value></param></params></methodCall>`;
     } else {
-      postData = new URLSearchParams({ mode: 'remove', hash: upId })
+      postData = new URLSearchParams({ mode: 'remove', hash: upId });
     }
 
-    await this.requestHttpRpc(postData)
-    return true
+    await this.requestHttpRpc(postData);
+    return true;
   }
 
   async resumeTorrent (id: string): Promise<boolean> {
-    const postData = new URLSearchParams({ mode: 'post', hash: id.toUpperCase() })
-    await this.requestHttpRpc(postData)
-    return true
+    const postData = new URLSearchParams({ mode: 'post', hash: id.toUpperCase() });
+    await this.requestHttpRpc(postData);
+    return true;
   }
 }

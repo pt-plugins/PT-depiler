@@ -7,10 +7,10 @@ import {
   TorrentClient,
   TorrentClientBaseConfig, TorrentClientMetaData,
   TorrentFilterRules, TorrentState
-} from '@/shared/interfaces/btclients'
-import urljoin from 'url-join'
-import { Buffer } from 'buffer'
-import axios, { AxiosResponse } from 'axios'
+} from '@/shared/interfaces/btclients';
+import urljoin from 'url-join';
+import { Buffer } from 'buffer';
+import axios, { AxiosResponse } from 'axios';
 
 export const clientConfig: TorrentClientBaseConfig = {
   type: 'Deluge',
@@ -19,7 +19,7 @@ export const clientConfig: TorrentClientBaseConfig = {
   address: 'http://localhost:8112/',
   password: '',
   timeout: 60 * 1e3
-}
+};
 
 // noinspection JSUnusedGlobalSymbols
 export const clientMetaData: TorrentClientMetaData = {
@@ -34,7 +34,7 @@ export const clientMetaData: TorrentClientMetaData = {
       description: CustomPathDescription
     }
   }
-}
+};
 
 type DelugeMethod =
   'auth.login' | 'web.update_ui' | 'core.get_torrents_status' |
@@ -160,92 +160,92 @@ export default class Deluge implements TorrentClient {
   ]
 
   constructor (options: Partial<TorrentClientBaseConfig>) {
-    this.config = { ...clientConfig, ...options }
-    this._msgId = 0
+    this.config = { ...clientConfig, ...options };
+    this._msgId = 0;
 
     // 修正服务器地址
-    let address = this.config.address
+    let address = this.config.address;
     if (address.indexOf('json') === -1) {
-      address = urljoin(address, '/json')
+      address = urljoin(address, '/json');
     }
-    this.address = address
+    this.address = address;
   }
 
   async ping (): Promise<boolean> {
-    return await this.login()
+    return await this.login();
   }
 
   async addTorrent (url: string, options: Partial<AddTorrentOptions> = {}): Promise<boolean> {
     const delugeOptions: any = {
       add_paused: options.addAtPaused ?? false
-    }
+    };
 
     if (options.savePath) {
-      delugeOptions.download_location = options.savePath
+      delugeOptions.download_location = options.savePath;
     }
 
     // 由于Deluge添加链接和种子的方法名不一样，分开处理
-    let method: 'core.add_torrent_file' | 'core.add_torrent_url'
-    let params: any
+    let method: 'core.add_torrent_file' | 'core.add_torrent_url';
+    let params: any;
     if (url.startsWith('magnet:') || !options.localDownload) { // 链接 add_torrent_url
-      method = 'core.add_torrent_url'
-      params = [url, delugeOptions]
+      method = 'core.add_torrent_url';
+      params = [url, delugeOptions];
     } else { // 文件 add_torrent_file
-      method = 'core.add_torrent_file'
+      method = 'core.add_torrent_file';
 
       // FIXME 使用统一的种子文件获取方法获取
       const req = await axios.get(url, {
         responseType: 'arraybuffer'
-      })
-      const metainfo = Buffer.from(req.data, 'binary').toString('base64')
-      params = ['', metainfo, delugeOptions]
+      });
+      const metainfo = Buffer.from(req.data, 'binary').toString('base64');
+      params = ['', metainfo, delugeOptions];
     }
 
     try {
-      const { data } = await this.request<DelugeDefaultResponse>(method, params)
+      const { data } = await this.request<DelugeDefaultResponse>(method, params);
       if (data.result !== null && options.label) {
         try {
-          const torrentHash = data.result[0][1]
-          await this.request('label.set_torrent', [torrentHash, options.label])
+          const torrentHash = data.result[0][1];
+          await this.request('label.set_torrent', [torrentHash, options.label]);
         } catch (e) {} // 即使失败了也没关系
       }
 
-      return data.result !== null
+      return data.result !== null;
     } catch (e) {
-      return false
+      return false;
     }
   }
 
   async getAllTorrents (): Promise<Torrent[]> {
-    return await this.getTorrentsBy({})
+    return await this.getTorrentsBy({});
   }
 
   async getTorrent (id: string): Promise<Torrent> {
-    return (await this.getTorrentsBy({ ids: id }))[0]
+    return (await this.getTorrentsBy({ ids: id }))[0];
   }
 
   async getTorrentsBy (filter: DelugeTorrentFilterRules): Promise<Torrent[]> {
     if (filter.ids) {
-      filter.hash = filter.ids
-      delete filter.ids
+      filter.hash = filter.ids;
+      delete filter.ids;
     }
 
     if (filter.complete) {
-      filter.state = 'Seeding'
-      delete filter.complete
+      filter.state = 'Seeding';
+      delete filter.complete;
     }
 
     const { data } = await this.request<DelugeDefaultResponse>('core.get_torrents_status', [
       filter,
       this.torrentRequestField
-    ])
+    ]);
 
     // @ts-ignore
     return Object.values(data.result).map((torrent: DelugeRawTorrent) => {
       // normalize state to enum
-      let state = TorrentState.unknown
+      let state = TorrentState.unknown;
       if (Object.keys(TorrentState).includes(torrent.state.toLowerCase())) {
-        state = TorrentState[torrent.state.toLowerCase() as keyof typeof TorrentState]
+        state = TorrentState[torrent.state.toLowerCase() as keyof typeof TorrentState];
       }
 
       return {
@@ -263,51 +263,51 @@ export default class Deluge implements TorrentClient {
         downloadSpeed: torrent.download_payload_rate,
         totalUploaded: torrent.total_uploaded,
         totalDownloaded: torrent.total_done
-      } as Torrent
-    })
+      } as Torrent;
+    });
   }
 
   async pauseTorrent (id: any): Promise<boolean> {
     try {
-      const { data } = await this.request<DelugeBooleanStatus>('core.pause_torrent', [id])
-      return data.result
+      const { data } = await this.request<DelugeBooleanStatus>('core.pause_torrent', [id]);
+      return data.result;
     } catch (e) {
-      return false
+      return false;
     }
   }
 
   async removeTorrent (id: string, removeData: boolean = false): Promise<boolean> {
     try {
-      const { data } = await this.request<DelugeBooleanStatus>('core.remove_torrent', [id, removeData])
-      return data.result
+      const { data } = await this.request<DelugeBooleanStatus>('core.remove_torrent', [id, removeData]);
+      return data.result;
     } catch (e) {
-      return false
+      return false;
     }
   }
 
   async resumeTorrent (id: any): Promise<boolean> {
     try {
-      const { data } = await this.request<DelugeBooleanStatus>('core.resume_torrent', [id])
-      return data.result
+      const { data } = await this.request<DelugeBooleanStatus>('core.resume_torrent', [id]);
+      return data.result;
     } catch (e) {
-      return false
+      return false;
     }
   }
 
   private async login (): Promise<boolean> {
     try {
-      const { data } = await this.request<DelugeBooleanStatus>('auth.login', [this.config.password])
-      this.isLogin = data.result
-      return this.isLogin
+      const { data } = await this.request<DelugeBooleanStatus>('auth.login', [this.config.password]);
+      this.isLogin = data.result;
+      return this.isLogin;
     } catch (e) {
-      return false
+      return false;
     }
   }
 
   private async request <T> (method: DelugeMethod, params: any[]): Promise<AxiosResponse> {
     // 防止循环调用
     if (!this.isLogin && method !== 'auth.login') {
-      await this.login()
+      await this.login();
     }
 
     return await axios.post<T>(this.address, {
@@ -316,6 +316,6 @@ export default class Deluge implements TorrentClient {
       params: params
     }, {
       responseType: 'json'
-    })
+    });
   }
 }

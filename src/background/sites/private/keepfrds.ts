@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { findThenParseSizeString, parseSizeString } from '@/shared/utils/filter'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { findThenParseSizeString, parseSizeString } from '@/shared/utils/filter';
 
 export const siteMetadata: SiteMetadata = {
   name: 'PT@KEEPFRDS',
@@ -36,9 +36,9 @@ export const siteMetadata: SiteMetadata = {
             // 处理类似以下 尾部中括号的情况
             // The Invisible Man 2020 Bluray 1080p x265 10bit 2Audios DDP 7.1 MNHD-FRDS[ ] [限时禁转]
             while (/\[.*?]$/.test(query)) {
-              query = query.replace(/\[.*?]$/, '').trim()
+              query = query.replace(/\[.*?]$/, '').trim();
             }
-            return query
+            return query;
           }
         ]
       },
@@ -63,8 +63,8 @@ export const siteMetadata: SiteMetadata = {
         selector: ["td:has(> img[alt='Torrents seeding'])"],
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/(Active Torrents:|当前活动：|當前活動：).*?(\d+)/)
-            return (queryMatch && queryMatch.length >= 3) ? parseInt(queryMatch[2]) : 0
+            const queryMatch = query.match(/(Active Torrents:|当前活动：|當前活動：).*?(\d+)/);
+            return (queryMatch && queryMatch.length >= 3) ? parseInt(queryMatch[2]) : 0;
           }
         ]
       },
@@ -74,4 +74,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};

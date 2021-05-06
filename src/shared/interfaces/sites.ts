@@ -1,6 +1,6 @@
-import { ETorrentBaseTagColor, ETorrentStatus } from '@/shared/interfaces/enum'
-import { AxiosRequestConfig, ResponseType } from 'axios'
-import { transPostDataTo, fullUrl, timezoneOffset, fullUrlProtect } from './types'
+import { ETorrentBaseTagColor, ETorrentStatus } from '@/shared/interfaces/enum';
+import { AxiosRequestConfig, ResponseType } from 'axios';
+import { transPostDataTo, fullUrl, timezoneOffset, fullUrlProtect } from './types';
 
 export interface SearchResultItemTag {
   color?: string;

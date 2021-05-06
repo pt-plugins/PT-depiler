@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
 
 export const siteMetadata: SiteMetadata = {
   name: 'BYRBT',
@@ -38,12 +38,12 @@ export const siteMetadata: SiteMetadata = {
         filters: [
           (query: string) => {
             if (query === 'pic/finished.png') {
-              return ETorrentStatus.completed
+              return ETorrentStatus.completed;
             }
-            return ETorrentStatus.unknown
+            return ETorrentStatus.unknown;
           }
         ]
       }
     }
   }
-}
+};

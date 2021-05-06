@@ -1,14 +1,14 @@
-import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
+import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
 import {
   findThenParseNumberString,
   findThenParseSizeString,
   findThenParseValidTimeString,
   parseSizeString
-} from '@/shared/utils/filter'
-import Sizzle from 'sizzle'
-import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
-import { parseInt } from 'lodash-es'
+} from '@/shared/utils/filter';
+import Sizzle from 'sizzle';
+import PrivateSite from '@/background/sites/schema/AbstractPrivateSite';
+import { parseInt } from 'lodash-es';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Cinematik',
@@ -111,8 +111,8 @@ export const siteMetadata: SiteMetadata = {
         selector: 'table:first',
         elementProcess: [
           (table: HTMLTableElement) => {
-            const trAnothers = Sizzle('tr:not(:eq(0))', table)
-            return trAnothers.length
+            const trAnothers = Sizzle('tr:not(:eq(0))', table);
+            return trAnothers.length;
           }
         ]
       },
@@ -120,44 +120,44 @@ export const siteMetadata: SiteMetadata = {
         selector: 'table:first',
         elementProcess: [
           (table: HTMLTableElement) => {
-            let seedingSize = 0
-            const trAnothers = Sizzle('tr:not(:eq(0))', table)
+            let seedingSize = 0;
+            const trAnothers = Sizzle('tr:not(:eq(0))', table);
             trAnothers.forEach(trAnother => {
-              const sizeAnother = Sizzle('td:eq(4)', trAnother)[0]
-              seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim())
-            })
+              const sizeAnother = Sizzle('td:eq(4)', trAnother)[0];
+              seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim());
+            });
           }
         ]
       }
     }
   }
-}
+};
 
 export default class cinematik extends PrivateSite {
   async flushUserInfo (): Promise<UserInfo> {
-    let userInfo = await super.flushUserInfo()
+    let userInfo = await super.flushUserInfo();
     if (userInfo.id && (!userInfo.seeding || !userInfo.seedingSize)) {
-      userInfo = { seeding: 0, seedingSize: 0, ...userInfo }
+      userInfo = { seeding: 0, seedingSize: 0, ...userInfo };
       for (const pageInfo = { current: 0, count: 0 }; pageInfo.current <= pageInfo.count; pageInfo.current++) {
         const { data: TLDocument } = await this.request<Document>({
           url: '/userdetails-tab.php',
           params: { SID: '', mode: 7, page: pageInfo.current },
           responseType: 'document'
-        })
+        });
 
         if (pageInfo.count === 0) {
           pageInfo.count = this.getFieldData(TLDocument, {
             selector: "a[href*='type=seeding']:contains('1'):last",
             attr: 'href',
             filters: [(q:string) => parseInt(urlparse(q, true).query.page!) || -1]
-          })
+          });
         }
 
-        const { seeding, seedingSize } = this.getFieldsData(TLDocument, 'userInfo', ['seeding', 'seedingSize'])
-        userInfo.seeding += seeding
-        userInfo.seedingSize += seedingSize
+        const { seeding, seedingSize } = this.getFieldsData(TLDocument, 'userInfo', ['seeding', 'seedingSize']);
+        userInfo.seeding += seeding;
+        userInfo.seedingSize += seedingSize;
       }
     }
-    return userInfo
+    return userInfo;
   }
 }

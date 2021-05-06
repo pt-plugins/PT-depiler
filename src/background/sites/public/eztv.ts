@@ -1,7 +1,7 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
-import { parseTimeToLive } from '@/shared/utils/filter'
-import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
-import { AxiosRequestConfig } from 'axios'
+import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import { parseTimeToLive } from '@/shared/utils/filter';
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite';
+import { AxiosRequestConfig } from 'axios';
 
 export const siteMetadata: SiteMetadata = {
   name: 'EZTV',
@@ -33,13 +33,13 @@ export const siteMetadata: SiteMetadata = {
       seeders: { selector: 'td:nth-child(6)' }
     }
   }
-}
+};
 
 // noinspection JSUnusedGlobalSymbols
 export default class Eztv extends BittorrentSite {
   protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
-    const config = await super.transformSearchFilter(filter)
-    config.url = filter.keywords ? `/search/${filter.keywords}` : '/'
-    return config
+    const config = await super.transformSearchFilter(filter);
+    config.url = filter.keywords ? `/search/${filter.keywords}` : '/';
+    return config;
   }
 }

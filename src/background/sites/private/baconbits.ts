@@ -2,11 +2,11 @@
  * 该站点搜索方法在旧版中并未涉及，目前搜索配置来自Jackett，未进行具体测试
  * Rhilip, 2021.04.28
  */
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import Sizzle from 'sizzle'
-import { findThenParseNumberString, findThenParseSizeString, parseTimeToLive } from '@/shared/utils/filter'
-import urlparse from 'url-parse'
-import dayjs from '@/shared/utils/dayjs'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import Sizzle from 'sizzle';
+import { findThenParseNumberString, findThenParseSizeString, parseTimeToLive } from '@/shared/utils/filter';
+import urlparse from 'url-parse';
+import dayjs from '@/shared/utils/dayjs';
 
 export const siteMetadata: SiteMetadata = {
   name: 'bB',
@@ -50,9 +50,9 @@ export const siteMetadata: SiteMetadata = {
         selector: 'td:nth-child(2)',
         elementProcess: [
           (element: HTMLElement) => {
-            const cloneElement = element.cloneNode(true) as HTMLElement
-            Sizzle('span, strong, div, br', cloneElement).forEach(e => e.remove())
-            return cloneElement.innerText.trim().replace(' - ]', ']')
+            const cloneElement = element.cloneNode(true) as HTMLElement;
+            Sizzle('span, strong, div, br', cloneElement).forEach(e => e.remove());
+            return cloneElement.innerText.trim().replace(' - ]', ']');
           }
         ]
       },
@@ -108,8 +108,8 @@ export const siteMetadata: SiteMetadata = {
         selector: ["li:contains('Class:')"],
         filters: [
           (query:string) => {
-            const queryMatch = query.match(/Class:(.+)/)
-            return (queryMatch && queryMatch.length >= 2) ? queryMatch[1] : ''
+            const queryMatch = query.match(/Class:(.+)/);
+            return (queryMatch && queryMatch.length >= 2) ? queryMatch[1] : '';
           }
         ]
       },
@@ -126,4 +126,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};

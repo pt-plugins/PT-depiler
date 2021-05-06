@@ -1,8 +1,8 @@
-import { searchFilter, searchParams, SiteMetadata } from '@/shared/interfaces/sites'
-import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
-import { AxiosRequestConfig } from 'axios'
-import urljoin from 'url-join'
-import dayjs from '@/shared/utils/dayjs'
+import { searchFilter, searchParams, SiteMetadata } from '@/shared/interfaces/sites';
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite';
+import { AxiosRequestConfig } from 'axios';
+import urljoin from 'url-join';
+import dayjs from '@/shared/utils/dayjs';
 
 const categoryMap = new Map([
   [28, 'Anime/Anime'], [78, 'Anime/Dual Audio'], [79, 'Anime/Dubbed'], [80, 'Anime/Subbed'], [81, 'Anime/Raw'],
@@ -13,7 +13,7 @@ const categoryMap = new Map([
   [10, 'Games/PC Game'], [11, 'Games/PS2'], [12, 'Games/PSP'], [13, 'Games/Xbox'], [14, 'Games/Xbox360'], [15, 'Games/PS1'], [16, 'Games/Dreamcast'], [17, 'Games/Other'], [43, 'Games/PS3'], [44, 'Games/Wii'], [45, 'Games/DS'], [46, 'Games/GameCube'], [72, 'Games/3DS'], [77, 'Games/PS4'], [82, 'Games/Switch'],
   [48, 'XXX/Video'], [49, 'XXX/Picture'], [50, 'XXX/Magazine'], [51, 'XXX/Hentai'], [67, 'XXX/Games'],
   [33, 'Other/Emulation'], [34, 'Other/Tutorial'], [35, 'Other/Sounds'], [36, 'Other/E-books'], [37, 'Other/Images'], [38, 'Other/Mobile Phone'], [39, 'Other/Comics'], [40, 'Other/Other'], [47, 'Other/Nulled Script'], [52, 'Other/Audiobook']
-])
+]);
 
 export const siteMetadata: SiteMetadata = {
   name: '1337x',
@@ -90,8 +90,8 @@ export const siteMetadata: SiteMetadata = {
              * - (more than a year ago) Apr. 18th '11
              * - (today) 12:25am
              */
-            q = q.replace("'", '').replace('.', '')
-            return dayjs(q, ['MMM Do YY', 'HH:mma', 'mma MMM Do']).unix()
+            q = q.replace("'", '').replace('.', '');
+            return dayjs(q, ['MMM Do YY', 'HH:mma', 'mma MMM Do']).unix();
           }
         ]
       },
@@ -111,25 +111,25 @@ export const siteMetadata: SiteMetadata = {
       link: { selector: 'ul[aria-labelledby="dropdownMenu1"] a', attr: 'href' }
     }
   }
-}
+};
 
 // noinspection JSUnusedGlobalSymbols
 export default class x1337x extends BittorrentSite {
   protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
-    const { keywords, extraParams } = filter
-    let searchPath = 'search'
+    const { keywords, extraParams } = filter;
+    let searchPath = 'search';
 
-    const category = extraParams?.filter((v: searchParams) => v.key === 'category')[0]
+    const category = extraParams?.filter((v: searchParams) => v.key === 'category')[0];
     if (category) {
-      searchPath = 'category-' + searchPath
+      searchPath = 'category-' + searchPath;
     }
 
-    const sort = extraParams?.filter((v: searchParams) => v.key === 'sort')[0]
+    const sort = extraParams?.filter((v: searchParams) => v.key === 'sort')[0];
     if (sort) {
-      searchPath = 'sort-' + searchPath
+      searchPath = 'sort-' + searchPath;
     }
 
-    const order = extraParams?.filter((v: searchParams) => v.key === 'order')[0]
+    const order = extraParams?.filter((v: searchParams) => v.key === 'order')[0];
 
     return {
       /**
@@ -143,6 +143,6 @@ export default class x1337x extends BittorrentSite {
         String(category?.value || ''), String(sort?.value || ''),
         String(sort ? (order?.value || 'desc') : ''), '1/'
       )
-    }
+    };
   }
 }

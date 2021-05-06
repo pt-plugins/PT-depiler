@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
 
 export const siteMetadata: SiteMetadata = {
   name: 'BT.etree',
@@ -28,4 +28,4 @@ export const siteMetadata: SiteMetadata = {
       category: { selector: 'td:nth-child(1) a' }
     }
   }
-}
+};

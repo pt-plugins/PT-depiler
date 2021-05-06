@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { parseTimeToLive } from '@/shared/utils/filter'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { parseTimeToLive } from '@/shared/utils/filter';
 
 export const siteMetadata: SiteMetadata = {
   name: 'ConCen',
@@ -52,4 +52,4 @@ export const siteMetadata: SiteMetadata = {
       completed: { selector: 'td.views-field-completed' }
     }
   }
-}
+};

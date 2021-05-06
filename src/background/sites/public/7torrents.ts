@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { parseTimeToLive } from '@/shared/utils/filter'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { parseTimeToLive } from '@/shared/utils/filter';
 
 // FIXME Cloudflare DDoS Protect
 export const siteMetadata: SiteMetadata = {
@@ -49,4 +49,4 @@ export const siteMetadata: SiteMetadata = {
       category: { text: 'All' } // 该站点不支持 Category
     }
   }
-}
+};

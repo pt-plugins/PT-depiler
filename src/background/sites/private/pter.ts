@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { parseSizeString } from '@/shared/utils/filter'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { parseSizeString } from '@/shared/utils/filter';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
 
 export const siteMetadata: SiteMetadata = {
   name: 'PTer',
@@ -21,12 +21,12 @@ export const siteMetadata: SiteMetadata = {
         selector: ["a[href*='details.php?id='][title]:first"],
         elementProcess: [
           (element: HTMLElement) => {
-            let subTitle = ''
-            const lastSibling = element.parentElement!.lastChild
+            let subTitle = '';
+            const lastSibling = element.parentElement!.lastChild;
             if (lastSibling?.nodeName === '#text') {
-              subTitle = lastSibling.textContent || subTitle
+              subTitle = lastSibling.textContent || subTitle;
             }
-            return subTitle.trim()
+            return subTitle.trim();
           }
         ]
       },
@@ -42,14 +42,14 @@ export const siteMetadata: SiteMetadata = {
         elementProcess: [
           (element : HTMLElement) => {
             if (element.classList.contains('progbargreen')) {
-              return 100
+              return 100;
             } else if (element.classList.contains('progbarred') || element.classList.contains('progbarred')) {
-              const elementStyle = element.getAttribute('style') || ''
-              const widthMatch = elementStyle.match(/width:([ \d.]+)%/)
-              const progress = widthMatch && widthMatch.length >= 2 ? parseFloat(widthMatch[1]) / 98 * 100 /* 修正下载进度 */ : 0
-              return element.classList.contains('progbarred') ? progress : 100 - progress // 如果是 .progbarred 则代表已完成进度，而 .progbarred 则为未完成进度，取反
+              const elementStyle = element.getAttribute('style') || '';
+              const widthMatch = elementStyle.match(/width:([ \d.]+)%/);
+              const progress = widthMatch && widthMatch.length >= 2 ? parseFloat(widthMatch[1]) / 98 * 100 /* 修正下载进度 */ : 0;
+              return element.classList.contains('progbarred') ? progress : 100 - progress; // 如果是 .progbarred 则代表已完成进度，而 .progbarred 则为未完成进度，取反
             } else {
-              return 0
+              return 0;
             }
           }
         ]
@@ -59,15 +59,15 @@ export const siteMetadata: SiteMetadata = {
         elementProcess: [
           (element : HTMLElement) => {
             if (element.classList.contains('progbargreen')) {
-              return ETorrentStatus.seeding
+              return ETorrentStatus.seeding;
             } else if (element.classList.contains('progbarred') || element.classList.contains('progbarred')) {
-              const widthMatch = (element.getAttribute('style') || '').match(/width:([ \d.]+)%/)
-              const progress = widthMatch && widthMatch.length >= 2 ? parseFloat(widthMatch[1]) / 98 * 100 : 0
-              const realProgress = element.classList.contains('progbarred') ? progress : 100 - progress
+              const widthMatch = (element.getAttribute('style') || '').match(/width:([ \d.]+)%/);
+              const progress = widthMatch && widthMatch.length >= 2 ? parseFloat(widthMatch[1]) / 98 * 100 : 0;
+              const realProgress = element.classList.contains('progbarred') ? progress : 100 - progress;
               // FIXME 不能判断是否在下载状态，所以直接设成 inactive
-              return realProgress >= 100 ? ETorrentStatus.completed : ETorrentStatus.inactive
+              return realProgress >= 100 ? ETorrentStatus.completed : ETorrentStatus.inactive;
             } else {
-              return ETorrentStatus.unknown
+              return ETorrentStatus.unknown;
             }
           }
         ]
@@ -95,4 +95,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};

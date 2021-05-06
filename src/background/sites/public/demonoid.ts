@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Demonoid',
@@ -81,4 +81,4 @@ export const siteMetadata: SiteMetadata = {
       author: { selector: 'a[href^="/users/"]' }
     }
   }
-}
+};

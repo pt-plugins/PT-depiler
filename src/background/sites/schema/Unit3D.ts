@@ -1,22 +1,22 @@
-import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
-import { SiteConfig, UserInfo } from '@/shared/interfaces/sites'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
+import PrivateSite from '@/background/sites/schema/AbstractPrivateSite';
+import { SiteConfig, UserInfo } from '@/shared/interfaces/sites';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
 import {
   findThenParseNumberString,
   findThenParseSizeString,
   parseSizeString,
   parseTimeToLive
-} from '@/shared/utils/filter'
-import dayjs from '@/shared/utils/dayjs'
-import urljoin from 'url-join'
+} from '@/shared/utils/filter';
+import dayjs from '@/shared/utils/dayjs';
+import urljoin from 'url-join';
 
 /**
  * Trans Array
  * Source: https://github.com/HDInnovations/UNIT3D-Community-Edition/commit/cb1efe0868caf771b9917c090a79b28b4e183b74
  */
-const idTrans :string[] = ['User ID', '用户ID', '用ID']
-const seedingSizeTrans: string[] = ['Seeding Size', '做种体积', '做種體積']
-const joinTimeTrans :string[] = ['Registration date', '注册日期', '註冊日期']
+const idTrans :string[] = ['User ID', '用户ID', '用ID'];
+const seedingSizeTrans: string[] = ['Seeding Size', '做种体积', '做種體積'];
+const joinTimeTrans :string[] = ['Registration date', '注册日期', '註冊日期'];
 
 export default class Unit3D extends PrivateSite {
   protected readonly initConfig: Partial<SiteConfig> = {
@@ -143,8 +143,8 @@ export default class Unit3D extends PrivateSite {
           attr: 'href',
           filters: [
             (query:string) => {
-              const queryMatch = query.match(/users\/(.+)\/settings/)
-              return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : ''
+              const queryMatch = query.match(/users\/(.+)\/settings/);
+              return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : '';
             }
           ]
         },
@@ -164,8 +164,8 @@ export default class Unit3D extends PrivateSite {
           selector: ['div.ratio-bar span:has( > i.fa-upload)'],
           filters: [
             (query: string) => {
-              const queryMatch = query.replace(/[,\n]/g, '').match(/:.+?([\d.]+)/)
-              return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0
+              const queryMatch = query.replace(/[,\n]/g, '').match(/:.+?([\d.]+)/);
+              return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
             }
           ]
         },
@@ -173,8 +173,8 @@ export default class Unit3D extends PrivateSite {
           selector: ['div.ratio-bar span:has( > i.fa-download)'],
           filters: [
             (query: string) => {
-              const queryMatch = query.replace(/[,\n]/g, '').match(/:.+?([\d.]+)/)
-              return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0
+              const queryMatch = query.replace(/[,\n]/g, '').match(/:.+?([\d.]+)/);
+              return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
             }
           ]
         },
@@ -207,8 +207,8 @@ export default class Unit3D extends PrivateSite {
           selector: joinTimeTrans.map(x => `div.content h4:contains('${x}')`),
           filters: [
             (query: string) => {
-              query = query.replace(RegExp(joinTimeTrans.join('|')), '').trim()
-              return dayjs(query).isValid() ? dayjs(query).unix() : query
+              query = query.replace(RegExp(joinTimeTrans.join('|')), '').trim();
+              return dayjs(query).isValid() ? dayjs(query).unix() : query;
             }
           ]
         }
@@ -217,40 +217,40 @@ export default class Unit3D extends PrivateSite {
   }
 
   async flushUserInfo (): Promise<UserInfo> {
-    const lastUserInfo = await this.getLastUserInfo()
-    let flushUserInfo: Partial<UserInfo> = {}
+    const lastUserInfo = await this.getLastUserInfo();
+    let flushUserInfo: Partial<UserInfo> = {};
 
-    let userName: string
+    let userName: string;
     if (lastUserInfo !== null && lastUserInfo.name) {
-      userName = lastUserInfo.name as string
+      userName = lastUserInfo.name as string;
     } else {
       // 如果没有 id 信息，则访问一次 index.php
-      userName = await this.getUserNameFromSite()
+      userName = await this.getUserNameFromSite();
     }
-    flushUserInfo.name = userName
+    flushUserInfo.name = userName;
 
     // 导入基本 Details 页面获取到的用户信息
-    flushUserInfo = Object.assign(flushUserInfo, await this.getUserInfoFromDetailsPage(userName))
+    flushUserInfo = Object.assign(flushUserInfo, await this.getUserInfoFromDetailsPage(userName));
 
-    return flushUserInfo as UserInfo
+    return flushUserInfo as UserInfo;
   }
 
   protected async getUserNameFromSite (): Promise<string> {
-    const { data: indexDocument } = await this.request<Document>({ url: '/', responseType: 'document', checkLogin: true })
-    return this.getFieldData(indexDocument, this.config.selector?.userInfo?.name!)
+    const { data: indexDocument } = await this.request<Document>({ url: '/', responseType: 'document', checkLogin: true });
+    return this.getFieldData(indexDocument, this.config.selector?.userInfo?.name!);
   }
 
   protected async getUserInfoFromDetailsPage (userName: string): Promise<Partial<UserInfo>> {
     const { data: userDetailDocument } = await this.request<Document>({
       url: urljoin('/users', userName),
       responseType: 'document'
-    })
+    });
 
     const detailsPageAttrs: (keyof UserInfo)[] = [
       'id', 'messageCount', 'uploaded', 'downloaded',
       'levelName', 'bonus', 'joinTime', 'seeding', 'seedingSize', 'leeching'
-    ]
+    ];
 
-    return this.getFieldsData(userDetailDocument, 'userInfo', detailsPageAttrs) as Partial<UserInfo>
+    return this.getFieldsData(userDetailDocument, 'userInfo', detailsPageAttrs) as Partial<UserInfo>;
   }
 }

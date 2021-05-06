@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Torrents.csv',
@@ -29,4 +29,4 @@ export const siteMetadata: SiteMetadata = {
       completed: { selector: 'completed' }
     }
   }
-}
+};

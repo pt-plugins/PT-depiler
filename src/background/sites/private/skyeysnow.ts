@@ -1,8 +1,8 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
-import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@/shared/utils/filter'
-import Sizzle from 'sizzle'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
+import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@/shared/utils/filter';
+import Sizzle from 'sizzle';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
 
 export const siteMetadata: SiteMetadata = {
   name: 'SkyeySnow',
@@ -68,8 +68,8 @@ export const siteMetadata: SiteMetadata = {
         attr: 'style',
         filters: [
           (query:string) => {
-            const queryMatch = query.match(/width:([ \d.]+)%/)
-            return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : null
+            const queryMatch = query.match(/width:([ \d.]+)%/);
+            return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : null;
           }
         ]
       },
@@ -77,16 +77,16 @@ export const siteMetadata: SiteMetadata = {
         selector: ':self',
         elementProcess: [
           (tr: HTMLElement) => {
-            const statusAnothers = Sizzle('> td:eq(4), > td:eq(5), > td:eq(6)', tr)
-            const statusStyle: (string | null)[] = statusAnothers.map(e => e.getAttribute('style'))
+            const statusAnothers = Sizzle('> td:eq(4), > td:eq(5), > td:eq(6)', tr);
+            const statusStyle: (string | null)[] = statusAnothers.map(e => e.getAttribute('style'));
             if (statusStyle[0]) {
-              return ETorrentStatus.seeding
+              return ETorrentStatus.seeding;
             } else if (statusStyle[2]) {
-              return ETorrentStatus.completed
+              return ETorrentStatus.completed;
             } else if (statusStyle[1]) {
-              return ETorrentStatus.downloading
+              return ETorrentStatus.downloading;
             } else {
-              return ETorrentStatus.unknown
+              return ETorrentStatus.unknown;
             }
           }
         ]
@@ -142,4 +142,4 @@ export const siteMetadata: SiteMetadata = {
       seedingSize: { text: 'N/A' }
     }
   }
-}
+};

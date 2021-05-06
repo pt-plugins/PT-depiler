@@ -1,6 +1,6 @@
-import { SiteMetadata, Torrent } from '@/shared/interfaces/sites'
-import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
-import urlparse from 'url-parse'
+import { SiteMetadata, Torrent } from '@/shared/interfaces/sites';
+import PrivateSite from '@/background/sites/schema/AbstractPrivateSite';
+import urlparse from 'url-parse';
 
 export const siteMetadata: SiteMetadata = {
   name: 'TorrentSeeds',
@@ -56,8 +56,8 @@ export const siteMetadata: SiteMetadata = {
         selector: "td.heading:contains('Peers') + td",
         filters: [
           (query: string) => {
-            const peerStatus = query.split(',')
-            return peerStatus[0].replace(' seeder(s)', '').trim()
+            const peerStatus = query.split(',');
+            return peerStatus[0].replace(' seeder(s)', '').trim();
           }
         ]
       },
@@ -65,8 +65,8 @@ export const siteMetadata: SiteMetadata = {
         selector: "td.heading:contains('Peers') + td",
         filters: [
           (query: string) => {
-            const peerStatus = query.split(',')
-            return peerStatus[1].split('=')[0].replace(' leecher(s) ', '').trim()
+            const peerStatus = query.split(',');
+            return peerStatus[1].split('=')[0].replace(' leecher(s) ', '').trim();
           }
         ]
       },
@@ -79,7 +79,7 @@ export const siteMetadata: SiteMetadata = {
       comments: { text: 0 }
     }
   }
-}
+};
 
 export default class torrentseeds extends PrivateSite {
   protected async transformSearchPage (doc: Document): Promise<Torrent[]> {
@@ -89,9 +89,9 @@ export default class torrentseeds extends PrivateSite {
         this.getFieldsData(doc, 'detail',
           ['id', 'title', 'subTitle', 'url', 'link', 'time', 'size', 'author', 'category', 'seeders', 'leechers', 'completed', 'comments']
         ) as Torrent
-      ]
+      ];
     }
 
-    return super.transformSearchPage(doc)
+    return super.transformSearchPage(doc);
   }
 }

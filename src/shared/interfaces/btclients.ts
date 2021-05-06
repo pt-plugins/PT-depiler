@@ -12,14 +12,14 @@ export const clientTypeList = [
   'ruTorrent',
   'Flood',
   'Aria2'
-] as const
+] as const;
 
 export type clientType = typeof clientTypeList[number]
 
 export type TorrentClientFeature = 'CustomPath'
 
 // 最通用的自定义目录提示词
-export const CustomPathDescription = '当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/ 或 D:\\download\\music\\。请确保对应路径软件有写入权限。'
+export const CustomPathDescription = '当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/ 或 D:\\download\\music\\。请确保对应路径软件有写入权限。';
 
 /**
  * 客户端配置信息

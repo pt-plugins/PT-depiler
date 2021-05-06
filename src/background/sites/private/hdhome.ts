@@ -1,5 +1,5 @@
-import { ElementQuery, SiteMetadata } from '@/shared/interfaces/sites'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
+import { ElementQuery, SiteMetadata } from '@/shared/interfaces/sites';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
 
 // HDHOME 中的 selector.search.progress 以及 selector.search.status 被其他站公用
 export const selectorSearchProgress: ElementQuery = {
@@ -7,30 +7,30 @@ export const selectorSearchProgress: ElementQuery = {
   filters: [
     (query: string) => query === '-' ? 0 : parseFloat(query)
   ]
-}
+};
 
 export const selectorSearchStatus: ElementQuery = {
   selector: ['> td:eq(8)'],
   filters: [
     (query:string) => {
       if (query === '-') {
-        return ETorrentStatus.unknown
+        return ETorrentStatus.unknown;
       } else {
-        const process = parseFloat(query)
+        const process = parseFloat(query);
         switch (true) {
           case /Noseed|未做种/.test(query):
-            return process >= 100 ? ETorrentStatus.completed : ETorrentStatus.inactive
+            return process >= 100 ? ETorrentStatus.completed : ETorrentStatus.inactive;
           case /Seeding|做种中/.test(query):
-            return ETorrentStatus.seeding
+            return ETorrentStatus.seeding;
           case /Leeching|下载中/.test(query):
-            return ETorrentStatus.downloading
+            return ETorrentStatus.downloading;
           default:
-            return ETorrentStatus.unknown
+            return ETorrentStatus.unknown;
         }
       }
     }
   ]
-}
+};
 
 export const siteMetadata: SiteMetadata = {
   name: 'HDHome',
@@ -166,4 +166,4 @@ export const siteMetadata: SiteMetadata = {
       ]
     }
   }
-}
+};

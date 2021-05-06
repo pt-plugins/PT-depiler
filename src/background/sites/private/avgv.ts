@@ -2,8 +2,8 @@
  * 使用TJUPT的 progress 和 status 解析，未作检查
  * Rhilip, 2021.4.12
  */
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { selectorSearchProgress, selectorSearchStatus } from '@/background/sites/private/tjupt'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { selectorSearchProgress, selectorSearchStatus } from '@/background/sites/private/tjupt';
 
 export const siteMetadata: SiteMetadata = {
   name: '爱薇网',
@@ -19,4 +19,4 @@ export const siteMetadata: SiteMetadata = {
       status: selectorSearchStatus
     }
   }
-}
+};

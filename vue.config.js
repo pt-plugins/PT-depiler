@@ -1,4 +1,4 @@
-const IS_PROD = ['production', 'prod'].includes(process.env.NODE_ENV)
+const IS_PROD = ['production', 'prod'].includes(process.env.NODE_ENV);
 
 module.exports = {
   pages: {
@@ -33,17 +33,17 @@ module.exports = {
       },
       manifestTransformer: (manifest) => {
         if (!IS_PROD) {
-          manifest.content_security_policy = "script-src 'self' 'unsafe-eval' http://localhost:8098; object-src 'self'"
+          manifest.content_security_policy = "script-src 'self' 'unsafe-eval' http://localhost:8098; object-src 'self'";
         }
 
-        return manifest
+        return manifest;
       }
     }
   },
 
   chainWebpack: config => {
     // @see https://github.com/adambullmer/vue-cli-plugin-browser-extension/issues/106
-    config.plugins.delete('provide-webextension-polyfill')
-    config.module.rules.delete('provide-webextension-polyfill')
+    config.plugins.delete('provide-webextension-polyfill');
+    config.module.rules.delete('provide-webextension-polyfill');
   }
-}
+};

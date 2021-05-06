@@ -1,7 +1,7 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
-import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
-import { AxiosRequestConfig } from 'axios'
-import dayjs from '@/shared/utils/dayjs'
+import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite';
+import { AxiosRequestConfig } from 'axios';
+import dayjs from '@/shared/utils/dayjs';
 
 export const siteMetadata: SiteMetadata = {
   name: 'ACGsou',
@@ -63,7 +63,7 @@ export const siteMetadata: SiteMetadata = {
           (q:string) => {
             // 2016/07/10
             // 01/21 18:00
-            return dayjs(q, ['MM/DD HH:mm', 'YYYY/MM/DD']).unix()
+            return dayjs(q, ['MM/DD HH:mm', 'YYYY/MM/DD']).unix();
           }
         ]
       },
@@ -76,14 +76,14 @@ export const siteMetadata: SiteMetadata = {
       link: { selector: 'div#torrent_files a', attr: 'href' }
     }
   }
-}
+};
 
 // noinspection JSUnusedGlobalSymbols
 export default class Acgsou extends BittorrentSite {
   protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
-    const config = await super.transformSearchFilter(filter)
-    config.url = filter.keywords ? '/search.php' : '1.html'
+    const config = await super.transformSearchFilter(filter);
+    config.url = filter.keywords ? '/search.php' : '1.html';
 
-    return config
+    return config;
   }
 }

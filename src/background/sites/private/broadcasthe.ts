@@ -2,8 +2,8 @@
  * 需要测试
  * Rhilip, 2021.04.23
  */
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { parseSizeString, parseTimeToLive } from '@/shared/utils/filter'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { parseSizeString, parseTimeToLive } from '@/shared/utils/filter';
 
 export const siteMetadata: SiteMetadata = {
   name: 'BTN',
@@ -50,8 +50,8 @@ export const siteMetadata: SiteMetadata = {
         selector: '#section2 > div > div.statistics > div:nth-child(3) > ul > li:nth-child(4)',
         filters: [
           (query: string) => {
-            const queryMatch = query.replace(/,/g, '').match(/Seeding:.+?(\d+).+?/)
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0
+            const queryMatch = query.replace(/,/g, '').match(/Seeding:.+?(\d+).+?/);
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
           }
         ]
       },
@@ -59,11 +59,11 @@ export const siteMetadata: SiteMetadata = {
         selector: '#section2 > div > div.statistics > div:nth-child(3) > ul > li:nth-child(5)',
         filters: [
           (query: string) => {
-            const queryMatch = query.replace(/,/g, '').match(/Seeding Size:.+?([\d.]+ ?[TGMK]?i?B)/)
-            return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0
+            const queryMatch = query.replace(/,/g, '').match(/Seeding Size:.+?([\d.]+ ?[TGMK]?i?B)/);
+            return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0;
           }
         ]
       }
     }
   }
-}
+};

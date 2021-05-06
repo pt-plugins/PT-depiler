@@ -1,4 +1,4 @@
-import { browser } from 'webextension-polyfill-ts'
+import { browser } from 'webextension-polyfill-ts';
 
 export default abstract class BrowserBridge {
   protected data: any
@@ -8,38 +8,38 @@ export default abstract class BrowserBridge {
 
   // noinspection TypeScriptAbstractClassConstructorCanBeMadeProtected
   constructor () {
-    this.emptyData = this.data
+    this.emptyData = this.data;
     this.load().then(r => {
-      console.log(`${this.constructor.name}.load`, this.data)
-    })
+      console.log(`${this.constructor.name}.load`, this.data);
+    });
   }
 
   private static async getBrowserData <T> (key: string): Promise<T | null> {
-    const result = await browser.storage.local.get(key)
+    const result = await browser.storage.local.get(key);
     if (result[key]) {
-      return result[key] as T
+      return result[key] as T;
     }
-    return null
+    return null;
   }
 
   private static async setBrowserData (key:string, value:any): Promise<void> {
-    const data: any = {}
-    data[key] = value
-    return await browser.storage.local.set(data)
+    const data: any = {};
+    data[key] = value;
+    return await browser.storage.local.set(data);
   }
 
   /**
    * 获取记录
    */
   protected async load ():Promise<void> {
-    this.data = (await BrowserBridge.getBrowserData(this.configKey)) || this.emptyData
+    this.data = (await BrowserBridge.getBrowserData(this.configKey)) || this.emptyData;
   }
 
   /**
    * 保存记录
    */
   protected async save (): Promise<void> {
-    await BrowserBridge.setBrowserData(this.configKey, this.data)
+    await BrowserBridge.setBrowserData(this.configKey, this.data);
   }
 
   /**
@@ -48,8 +48,8 @@ export default abstract class BrowserBridge {
    * @protected
    */
   async reset (data: any): Promise<void> {
-    this.data = data
-    await this.save()
+    this.data = data;
+    await this.save();
   }
 
   /**
@@ -62,6 +62,6 @@ export default abstract class BrowserBridge {
    * 清除全部记录
    */
   async clear (): Promise<void> {
-    await this.reset(this.emptyData)
+    await this.reset(this.emptyData);
   }
 }

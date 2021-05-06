@@ -1,8 +1,8 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
-import NexusPHP from '@/background/sites/schema/NexusPHP'
-import { createDocument } from '@/shared/utils/common'
-import urlparse from 'url-parse'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
+import NexusPHP from '@/background/sites/schema/NexusPHP';
+import { createDocument } from '@/shared/utils/common';
+import urlparse from 'url-parse';
 
 export const siteMetadata: SiteMetadata = {
   name: 'M-Team',
@@ -96,14 +96,14 @@ export const siteMetadata: SiteMetadata = {
         selector: ['> td:eq(8)'],
         elementProcess: [
           (element: HTMLElement) => {
-            const elementText = element.innerText.trim()
-            const floatElementText = parseFloat(elementText)
+            const elementText = element.innerText.trim();
+            const floatElementText = parseFloat(elementText);
             if (elementText === '--') {
-              return ETorrentStatus.unknown
+              return ETorrentStatus.unknown;
             } else if (element.classList.contains('peer-active')) {
-              return floatElementText >= 100 ? ETorrentStatus.seeding : ETorrentStatus.downloading
+              return floatElementText >= 100 ? ETorrentStatus.seeding : ETorrentStatus.downloading;
             } else {
-              return floatElementText >= 100 ? ETorrentStatus.completed : ETorrentStatus.inactive
+              return floatElementText >= 100 ? ETorrentStatus.completed : ETorrentStatus.inactive;
             }
           }
         ]
@@ -118,7 +118,7 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};
 
 export default class mteam extends NexusPHP {
   private async getUserTorrentList (userId: number, page: number = 0, type: string = 'seeding'): Promise<Document> {
@@ -128,41 +128,41 @@ export default class mteam extends NexusPHP {
         userid: userId, page, type
       },
       responseType: 'document'
-    })
-    return TListDocument
+    });
+    return TListDocument;
   }
 
   protected async getUserSeedingStatus (userId: number): Promise<{ seeding: number; seedingSize: number }> {
-    let seedStatus = { seeding: 0, seedingSize: 0 }
+    let seedStatus = { seeding: 0, seedingSize: 0 };
 
     /**
      * 首先尝试ajax接口，如果超出 100条，则 ajax 接口会返回 OVERLOADED，
      * 转而请求 /getusertorrentlist.php 页面
      */
-    const userSeedingRequestString = await this.requestUserSeedingPage(userId)
+    const userSeedingRequestString = await this.requestUserSeedingPage(userId);
     if (userSeedingRequestString && userSeedingRequestString.indexOf('OVERLOADED') === -1) {
-      const userSeedingDocument = createDocument(userSeedingRequestString)
-      seedStatus = this.countSeedingStatusFromDocument(userSeedingDocument)
+      const userSeedingDocument = createDocument(userSeedingRequestString);
+      seedStatus = this.countSeedingStatusFromDocument(userSeedingDocument);
     } else {
-      const pageInfo = { count: 0, current: 0 } // 生成页面信息
+      const pageInfo = { count: 0, current: 0 }; // 生成页面信息
       for (;pageInfo.current <= pageInfo.count; pageInfo.current++) {
-        const TListDocument = await this.getUserTorrentList(userId, pageInfo.current)
+        const TListDocument = await this.getUserTorrentList(userId, pageInfo.current);
         // 更新最大页数
         if (pageInfo.count === 0) {
           pageInfo.count = this.getFieldData(TListDocument, {
             selector: ["a[href*='page=']:contains('-'):last"],
             attr: 'href',
             filters: [(query: string) => parseInt(urlparse(query, true).query.page as string) || -1]
-          })
+          });
         }
 
         // 解析当前页信息， 并合并至顶层字典中
-        const pageSeedStatus = this.countSeedingStatusFromDocument(TListDocument)
-        seedStatus.seeding += pageSeedStatus.seeding
-        seedStatus.seedingSize += pageSeedStatus.seedingSize
+        const pageSeedStatus = this.countSeedingStatusFromDocument(TListDocument);
+        seedStatus.seeding += pageSeedStatus.seeding;
+        seedStatus.seedingSize += pageSeedStatus.seedingSize;
       }
     }
 
-    return seedStatus
+    return seedStatus;
   }
 }

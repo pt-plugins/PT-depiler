@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: 'PrivateHD',
@@ -9,4 +9,4 @@ export const siteMetadata: SiteMetadata = {
   url: 'https://privatehd.to/',
   host: 'privatehd.to',
   collaborator: 'bimzcy'
-}
+};

@@ -3,9 +3,9 @@
  * 但同样未经测试
  * Rhilip, 2021.04.23
  */
-import { SiteMetadata, Torrent } from '@/shared/interfaces/sites'
-import { parseSizeString, parseTimeWithZone } from '@/shared/utils/filter'
-import Gazelle from '@/background/sites/schema/Gazelle'
+import { SiteMetadata, Torrent } from '@/shared/interfaces/sites';
+import { parseSizeString, parseTimeWithZone } from '@/shared/utils/filter';
+import Gazelle from '@/background/sites/schema/Gazelle';
 
 export const siteMetadata: SiteMetadata = {
   name: 'PTP',
@@ -34,8 +34,8 @@ export const siteMetadata: SiteMetadata = {
         selector: ["div.alert-bar a[href*='inbox.php']"],
         filters: [
           (query: string) => {
-            const queryMatch = query.replace(/\s+/g, '').match(/(\d+)/)
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0
+            const queryMatch = query.replace(/\s+/g, '').match(/(\d+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
           }
         ]
       },
@@ -54,8 +54,8 @@ export const siteMetadata: SiteMetadata = {
         selector: "ul.list > li:contains('Ratio:')",
         filters: [
           (query: string) => {
-            const queryMatch = query.replace(/,|\n|\s+/g, '').match(/Ratio.+?([\d.]+)/)
-            return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : 0
+            const queryMatch = query.replace(/,|\n|\s+/g, '').match(/Ratio.+?([\d.]+)/);
+            return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : 0;
           }
         ]
       },
@@ -63,8 +63,8 @@ export const siteMetadata: SiteMetadata = {
         selector: "ul.list > li:contains('Seeding:')",
         filters: [
           (query: string) => {
-            const queryMatch = query.replace(/[,\n]/g, '').match(/:.+?([\d.]+)/)
-            return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0
+            const queryMatch = query.replace(/[,\n]/g, '').match(/:.+?([\d.]+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0;
           }
         ]
       },
@@ -72,8 +72,8 @@ export const siteMetadata: SiteMetadata = {
         selector: "ul.list > li:contains('Seeding size:')",
         filters: [
           (query: string) => {
-            const queryMatch = query.replace(/,/g, '').match(/:.+?([\d.]+ ?[ZEPTGMK]?i?B)/)
-            return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0
+            const queryMatch = query.replace(/,/g, '').match(/:.+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+            return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0;
           }
         ]
       },
@@ -82,9 +82,9 @@ export const siteMetadata: SiteMetadata = {
         selector: ["ul.list > li:contains('Points:')", "div:contains('Stats') + ul.stats > li:contains('SeedBonus:')"],
         filters: [
           (query: string) => {
-            query = query.replace(/,|\n|\s+/g, '')
-            const queryMatch = query.match(/Points.+?([\d.]+)/) || query.match(/SeedBonus.+?([\d.]+)/)
-            return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0
+            query = query.replace(/,|\n|\s+/g, '');
+            const queryMatch = query.match(/Points.+?([\d.]+)/) || query.match(/SeedBonus.+?([\d.]+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0;
           }
         ]
       },
@@ -94,7 +94,7 @@ export const siteMetadata: SiteMetadata = {
 
     }
   }
-}
+};
 
 // PTP 在调用json搜索接口时的返回结构
 interface SearchResponse {
@@ -137,13 +137,13 @@ interface SearchResponse {
 
 export default class passthepopcorn extends Gazelle {
   protected async transformSearchPage (doc: SearchResponse): Promise<Torrent[]> {
-    const authKey = doc.AuthKey
-    const passKey = doc.PassKey
+    const authKey = doc.AuthKey;
+    const passKey = doc.PassKey;
 
-    const torrents : Torrent[] = []
+    const torrents : Torrent[] = [];
     for (let i = 0; i < doc.Movies.length; i++) {
-      const row = doc.Movies[i]
-      const rawTorrent = row.Torrents[0]
+      const row = doc.Movies[i];
+      const rawTorrent = row.Torrents[0];
       torrents.push({
         id: rawTorrent.Id,
         title: `${row.Title}[${row.Year}]-${rawTorrent.Codec}/${rawTorrent.Container}/${rawTorrent.Source}/${rawTorrent.Resolution}`,
@@ -159,8 +159,8 @@ export default class passthepopcorn extends Gazelle {
         comments: 0,
         tags: [],
         category: 'Movie'
-      } as Torrent)
+      } as Torrent);
     }
-    return torrents
+    return torrents;
   }
 }

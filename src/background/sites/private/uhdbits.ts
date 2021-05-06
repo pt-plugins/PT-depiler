@@ -1,9 +1,9 @@
-import { SiteMetadata, Torrent, UserInfo } from '@/shared/interfaces/sites'
-import GazelleJSONAPI from '@/background/sites/schema/GazelleJSONAPI'
-import Sizzle from 'sizzle'
-import urlparse from 'url-parse'
-import userDataRecords from '@/background/service/storage/userDataRecords'
-import { parseSizeString } from '@/shared/utils/filter'
+import { SiteMetadata, Torrent, UserInfo } from '@/shared/interfaces/sites';
+import GazelleJSONAPI from '@/background/sites/schema/GazelleJSONAPI';
+import Sizzle from 'sizzle';
+import urlparse from 'url-parse';
+import userDataRecords from '@/background/service/storage/userDataRecords';
+import { parseSizeString } from '@/shared/utils/filter';
 
 export const siteMetadata: SiteMetadata = {
   name: 'UHDBits',
@@ -45,8 +45,8 @@ export const siteMetadata: SiteMetadata = {
         attr: 'href',
         filters: [
           (query: string) => {
-            const urlParse = urlparse(query, true).query
-            return urlParse.torrentid || urlParse.id
+            const urlParse = urlparse(query, true).query;
+            return urlParse.torrentid || urlParse.id;
           }
         ]
       },
@@ -54,9 +54,9 @@ export const siteMetadata: SiteMetadata = {
         selector: "div.group_info:has(> a[href*='torrents.php?id='])",
         elementProcess: [
           (element:HTMLElement) => {
-            const cloneElement = element.cloneNode(true) as HTMLElement
-            Sizzle('>span, div.torrent_info', cloneElement).forEach(e => e.remove())
-            return cloneElement.innerText.trim()
+            const cloneElement = element.cloneNode(true) as HTMLElement;
+            Sizzle('>span, div.torrent_info', cloneElement).forEach(e => e.remove());
+            return cloneElement.innerText.trim();
           }
         ]
       },
@@ -67,13 +67,13 @@ export const siteMetadata: SiteMetadata = {
         selector: '>td:eq(4)',
         elementProcess: [
           (element: HTMLElement) => {
-            const AccurateTimeAnother = element.querySelector('span[title], time[title]')
+            const AccurateTimeAnother = element.querySelector('span[title], time[title]');
             if (AccurateTimeAnother) {
-              return AccurateTimeAnother.getAttribute('title')! + ':00'
+              return AccurateTimeAnother.getAttribute('title')! + ':00';
             } else if (element.getAttribute('title')) {
-              return element.getAttribute('title')! + ':00'
+              return element.getAttribute('title')! + ':00';
             } else {
-              return element.innerText.trim() + ':00'
+              return element.innerText.trim() + ':00';
             }
           }
         ]
@@ -90,13 +90,13 @@ export const siteMetadata: SiteMetadata = {
         filters: [
           (query:string) => {
             if (query.includes('cats_movie')) {
-              return 'Movie'
+              return 'Movie';
             } else if (query.includes('cats_tv')) {
-              return 'TV'
+              return 'TV';
             } else if (query.includes('cats_music')) {
-              return 'Music'
+              return 'Music';
             } else {
-              return 'Other'
+              return 'Other';
             }
           }
         ]
@@ -108,7 +108,7 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};
 
 export default class uhdbits extends GazelleJSONAPI {
   /**
@@ -121,14 +121,14 @@ export default class uhdbits extends GazelleJSONAPI {
    * @protected
    */
   protected async transformSearchPage (doc: Document): Promise<Torrent[]> {
-    const torrents: Torrent[] = []
+    const torrents: Torrent[] = [];
 
-    const trs = Sizzle(this.config.selector!.search!.rows!.selector as string, doc)
+    const trs = Sizzle(this.config.selector!.search!.rows!.selector as string, doc);
     trs?.forEach((tr: any) => {
-      torrents.push(this.parseRowToTorrent(tr) as Torrent)
-    })
+      torrents.push(this.parseRowToTorrent(tr) as Torrent);
+    });
 
-    return torrents
+    return torrents;
   }
 
   private async getUserTorrentList (userId: number, page: number = 0, type: string = 'seeding'): Promise<Document> {
@@ -138,37 +138,37 @@ export default class uhdbits extends GazelleJSONAPI {
         userid: userId, page, type
       },
       responseType: 'document'
-    })
-    return TListDocument
+    });
+    return TListDocument;
   }
 
   protected async getUserSeedingTorrents (userId: number): Promise<Partial<UserInfo>> {
-    const userSeedingTorrent: Partial<UserInfo> = { seedingSize: 0 }
-    const pageInfo = { count: 0, current: 0 } // 生成页面信息
+    const userSeedingTorrent: Partial<UserInfo> = { seedingSize: 0 };
+    const pageInfo = { count: 0, current: 0 }; // 生成页面信息
 
     for (;pageInfo.current <= pageInfo.count; pageInfo.current++) {
-      const TListDocument = await this.getUserTorrentList(userId, pageInfo.current)
+      const TListDocument = await this.getUserTorrentList(userId, pageInfo.current);
       // 更新最大页数
       if (pageInfo.count === 0) {
         pageInfo.count = this.getFieldData(TListDocument, {
           selector: ["a[href*='torrents.php?page=']:contains('Last'):last"],
           attr: 'href',
           filters: [(query: string) => parseInt(urlparse(query, true).query.page as string) || -1]
-        })
+        });
       }
 
       // 更新做种情况
       if (!userSeedingTorrent.bonus && this.config.selector?.userInfo?.bonus) {
-        userSeedingTorrent.bonus = this.getFieldData(TListDocument, this.config.selector.userInfo.bonus)
+        userSeedingTorrent.bonus = this.getFieldData(TListDocument, this.config.selector.userInfo.bonus);
       }
 
       // 解析当前页信息， 并合并至顶层字典中
-      const sizeAnothers = Sizzle('td.number_column.nobr', TListDocument)
+      const sizeAnothers = Sizzle('td.number_column.nobr', TListDocument);
       sizeAnothers.forEach(element => {
-        userSeedingTorrent.seedingSize! += parseSizeString((element as HTMLElement).innerText.trim())
-      })
+        userSeedingTorrent.seedingSize! += parseSizeString((element as HTMLElement).innerText.trim());
+      });
     }
 
-    return userSeedingTorrent
+    return userSeedingTorrent;
   }
 }

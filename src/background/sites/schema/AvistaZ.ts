@@ -1,10 +1,10 @@
-import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
-import { SiteConfig, UserInfo } from '@/shared/interfaces/sites'
-import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '@/shared/utils/filter'
-import dayjs from 'dayjs'
-import urlparse from 'url-parse'
-import Sizzle from 'sizzle'
-import { parseInt } from 'lodash-es'
+import PrivateSite from '@/background/sites/schema/AbstractPrivateSite';
+import { SiteConfig, UserInfo } from '@/shared/interfaces/sites';
+import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '@/shared/utils/filter';
+import dayjs from 'dayjs';
+import urlparse from 'url-parse';
+import Sizzle from 'sizzle';
+import { parseInt } from 'lodash-es';
 
 export default class AvistaZ extends PrivateSite {
   protected readonly initConfig: Partial<SiteConfig> = {
@@ -38,8 +38,8 @@ export default class AvistaZ extends PrivateSite {
           selector: 'a.torrent-filename',
           attr: 'href',
           filters: [(query: string) => {
-            const queryMatch = query.match(/\/torrent\/(\d+)/)
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0
+            const queryMatch = query.match(/\/torrent\/(\d+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
           }]
         },
         title: {
@@ -77,8 +77,8 @@ export default class AvistaZ extends PrivateSite {
           attr: 'href',
           filters: [
             (query: string) => {
-              const queryMatch = query.match(/profile\/(.+)/)
-              return (queryMatch && queryMatch.length >= 2) ? queryMatch[1] : ''
+              const queryMatch = query.match(/profile\/(.+)/);
+              return (queryMatch && queryMatch.length >= 2) ? queryMatch[1] : '';
             }
           ]
         },
@@ -114,8 +114,8 @@ export default class AvistaZ extends PrivateSite {
           selector: "td:contains('Joined') + td",
           filters: [
             (query: string) => {
-              const timeString = query.split(' (')[0]
-              return dayjs(timeString).isValid() ? dayjs(timeString).valueOf() : timeString
+              const timeString = query.split(' (')[0];
+              return dayjs(timeString).isValid() ? dayjs(timeString).valueOf() : timeString;
             }
           ]
         },
@@ -128,10 +128,10 @@ export default class AvistaZ extends PrivateSite {
   }
 
   async flushUserInfo (): Promise<UserInfo> {
-    let baseUserInfo = await super.flushUserInfo()
+    let baseUserInfo = await super.flushUserInfo();
 
     if (baseUserInfo.name && !baseUserInfo.seedingSize) {
-      baseUserInfo = { seedingSize: 0, ...baseUserInfo } // 基底属性
+      baseUserInfo = { seedingSize: 0, ...baseUserInfo }; // 基底属性
 
       // 生成页面信息
       for (const pageInfo = { count: 1, current: 1 }; pageInfo.current <= pageInfo.count; pageInfo.current++) {
@@ -139,7 +139,7 @@ export default class AvistaZ extends PrivateSite {
           url: `/profile/${baseUserInfo.name}/active`,
           params: { order: 'progress', sort: 'desc', page: pageInfo.current },
           responseType: 'document'
-        })
+        });
 
         if (pageInfo.count === 1) {
           pageInfo.count = this.getFieldData(TListDocument, {
@@ -147,22 +147,22 @@ export default class AvistaZ extends PrivateSite {
             selector: 'ul.pagination:first > li:has(a[href*="/active?page="]):nth-last-child(2) > a',
             attr: 'href',
             filters: [(query: string) => parseInt(urlparse(query, true).query.page as string) || 1]
-          })
+          });
         }
 
-        const trAnothers = Sizzle('table.table.table-condensed > tbody > tr', TListDocument)
+        const trAnothers = Sizzle('table.table.table-condensed > tbody > tr', TListDocument);
         trAnothers.forEach(trAnother => {
-          const statusAnother = Sizzle('> td:eq(3)', trAnother)[0] as HTMLElement
+          const statusAnother = Sizzle('> td:eq(3)', trAnother)[0] as HTMLElement;
           if (statusAnother && statusAnother.innerText.includes('seed')) { // 只统计做种状态的
             baseUserInfo.seedingSize += this.getFieldData(trAnother, {
               selector: 'span[title="File Size"]',
               filters: [parseSizeString]
-            })
+            });
           }
-        })
+        });
       }
     }
 
-    return baseUserInfo
+    return baseUserInfo;
   }
 }

@@ -1,10 +1,10 @@
 /**
  * Edit From: https://github.com/IndeedSi/PT-Plugin-Plus/commit/2265c40783b1eb1f5bc28db478f4ba909a5e655f
  */
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
-import NexusPHP from '@/background/sites/schema/NexusPHP'
-import { AxiosRequestConfig } from 'axios'
-import { isEmpty } from 'lodash-es'
+import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import NexusPHP from '@/background/sites/schema/NexusPHP';
+import { AxiosRequestConfig } from 'axios';
+import { isEmpty } from 'lodash-es';
 
 const categoriesMap = {
   1: '电影Movies',
@@ -22,7 +22,7 @@ const categoriesMap = {
   13: '旅游Travel',
   14: '美食Food',
   15: '其他Misc'
-}
+};
 
 export const siteMetadata: SiteMetadata = {
   name: 'HDAI',
@@ -68,25 +68,25 @@ export const siteMetadata: SiteMetadata = {
       comments: { selector: 'comments' }
     }
   }
-}
+};
 
 export default class hdai extends NexusPHP {
   // FIXME 此处仅处理了 keywords，对于其他信息未作处理（因为未为该站添加 category 信息
   protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
-    const config: AxiosRequestConfig = {}
+    const config: AxiosRequestConfig = {};
 
-    const searchParams: any = {}
+    const searchParams: any = {};
     if (filter.keywords) {
-      searchParams.keyword = filter.keywords
+      searchParams.keyword = filter.keywords;
     }
 
     // 将其转到 config.params 中
-    const params = new URLSearchParams([['page', '1'], ['limit', '100']])
+    const params = new URLSearchParams([['page', '1'], ['limit', '100']]);
     if (!isEmpty(searchParams)) {
-      params.set('searchParams', JSON.stringify(searchParams))
+      params.set('searchParams', JSON.stringify(searchParams));
     }
-    config.data = params
+    config.data = params;
 
-    return config
+    return config;
   }
 }

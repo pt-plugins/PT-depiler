@@ -1,8 +1,8 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
-import { findThenParseNumberString, findThenParseSizeString } from '@/shared/utils/filter'
-import dayjs from '@/shared/utils/dayjs'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
+import { findThenParseNumberString, findThenParseSizeString } from '@/shared/utils/filter';
+import dayjs from '@/shared/utils/dayjs';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Empornium',
@@ -116,8 +116,8 @@ export const siteMetadata: SiteMetadata = {
         attr: 'href',
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/(\d+)]=1/)
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 'Other'
+            const queryMatch = query.match(/(\d+)]=1/);
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 'Other';
           }
         ]
       },
@@ -191,4 +191,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};

@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: 'CGPeers',
@@ -8,4 +8,4 @@ export const siteMetadata: SiteMetadata = {
   tags: ['设计', '素材'],
   host: 'www.cgpeers.com',
   collaborator: 'bimzcy'
-}
+};

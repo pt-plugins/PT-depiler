@@ -15,11 +15,11 @@ import {
   TorrentClientMetaData,
   TorrentFilterRules,
   TorrentState
-} from '@/shared/interfaces/btclients'
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
-import urljoin from 'url-join'
-import { intersection } from 'lodash-es'
-import { Buffer } from 'buffer'
+} from '@/shared/interfaces/btclients';
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
+import urljoin from 'url-join';
+import { intersection } from 'lodash-es';
+import { Buffer } from 'buffer';
 
 export const clientConfig: TorrentClientConfig = {
   type: 'Flood',
@@ -29,7 +29,7 @@ export const clientConfig: TorrentClientConfig = {
   username: '',
   password: '',
   timeout: 60 * 1e3
-}
+};
 
 // noinspection JSUnusedGlobalSymbols
 export const clientMetaData: TorrentClientMetaData = {
@@ -45,7 +45,7 @@ export const clientMetaData: TorrentClientMetaData = {
       description: CustomPathDescription
     }
   }
-}
+};
 
 type FloodApiType = 'legacy' | 'jesec'
 type FloodApiEndpoint = 'verify' | 'authenticate'
@@ -81,7 +81,7 @@ const FloodApiEndpointMap: {
     stopTorrent: '/api/client/stop',
     deleteTorrent: '/api/client/torrents/delete'
   }
-}
+};
 
 // From https://github.com/Flood-UI/flood/blob/master/client/src/javascript/constants/ActionTypes.js
 const legacyActivityEventType = [
@@ -179,7 +179,7 @@ const legacyActivityEventType = [
   'UI_SET_TORRENT_TRACKER_FILTER',
   'UI_SORT_PROPS_REQUEST_SUCCESS',
   'UI_SORT_PROPS_REQUEST_ERROR'
-] as const
+] as const;
 
 /**
  * 原版的种子情况需要使用 EventSource获取
@@ -190,12 +190,12 @@ const legacyActivityEventType = [
  */
 function legacyActivityStreamWrapper (path: string, event: typeof legacyActivityEventType[number]): Promise<any> {
   return new Promise<any>((resolve) => {
-    const sse = new EventSource(path)
+    const sse = new EventSource(path);
     sse.addEventListener(event, (evt: any) => {
-      resolve(evt.data)
-      sse.close()
-    })
-  })
+      resolve(evt.data);
+      sse.close();
+    });
+  });
 }
 
 type TorrentStatus = ''
@@ -261,7 +261,7 @@ export default class Flood implements TorrentClient {
   private apiType?: FloodApiType;
 
   constructor (options: Partial<TorrentClientConfig> = {}) {
-    this.config = { ...clientConfig, ...options }
+    this.config = { ...clientConfig, ...options };
   }
 
   private async getEndPointType (): Promise<FloodApiType> {
@@ -270,22 +270,22 @@ export default class Flood implements TorrentClient {
         await axios.get(FloodApiEndpointMap.legacy.verify, {
           baseURL: this.config.address,
           timeout: this.config.timeout
-        })
-        this.apiType = 'legacy'
+        });
+        this.apiType = 'legacy';
       } catch (error) {
-        this.apiType = 'jesec'
+        this.apiType = 'jesec';
       }
     }
-    return this.apiType as FloodApiType
+    return this.apiType as FloodApiType;
   }
 
   private async getEndPointUrl (endpoint: FloodApiEndpoint): Promise<string> {
-    const endPointType = await this.getEndPointType()
-    return FloodApiEndpointMap[endPointType][endpoint]
+    const endPointType = await this.getEndPointType();
+    return FloodApiEndpointMap[endPointType][endpoint];
   }
 
   async request (endpoint: FloodApiEndpoint, config: AxiosRequestConfig = {}): Promise<AxiosResponse> {
-    const endPointUrl = await this.getEndPointUrl(endpoint)
+    const endPointUrl = await this.getEndPointUrl(endpoint);
 
     try {
       return await axios.request({
@@ -293,16 +293,16 @@ export default class Flood implements TorrentClient {
         url: endPointUrl,
         timeout: this.config.timeout,
         ...config
-      })
+      });
     } catch (e) {
       // not authenticated or token expired
       if ((e as AxiosError).response?.status === 401 && endpoint !== 'authenticate') {
         if (await this.login()) {
-          return await this.request(endpoint, config)
+          return await this.request(endpoint, config);
         }
       }
 
-      throw e
+      throw e;
     }
   }
 
@@ -314,20 +314,20 @@ export default class Flood implements TorrentClient {
           username: this.config.username,
           password: this.config.password
         }
-      })
+      });
 
-      return req.data.success === true
+      return req.data.success === true;
     } catch (e) {
-      return false
+      return false;
     }
   }
 
   async ping (): Promise<boolean> {
     try {
-      const req = await this.request('connection-test')
-      return (req.data as { isConnect: boolean }).isConnect
+      const req = await this.request('connection-test');
+      return (req.data as { isConnect: boolean }).isConnect;
     } catch (e) {
-      return false
+      return false;
     }
   }
 
@@ -335,92 +335,92 @@ export default class Flood implements TorrentClient {
     let postData: any = {
       destination: '',
       tags: []
-    }
+    };
 
     if (options.savePath) {
-      postData.destination = options.savePath
+      postData.destination = options.savePath;
     }
 
     if (options.addAtPaused) {
-      postData.start = !options.addAtPaused
+      postData.start = !options.addAtPaused;
     }
 
     if (options.label) {
-      postData.tags = [options.label]
+      postData.tags = [options.label];
     }
 
     // 处理链接
     if (url.startsWith('magnet:') || !options.localDownload) {
-      postData.urls = [url]
+      postData.urls = [url];
 
       await this.request('addTorrentByUrl', {
         method: 'post',
         data: postData
-      })
+      });
     } else {
-      const endPointType = await this.getEndPointType()
+      const endPointType = await this.getEndPointType();
       if (endPointType === 'jesec') {
         const req = await axios.get(url, {
           responseType: 'arraybuffer'
-        })
-        postData.files = [Buffer.from(req.data, 'binary').toString('base64')]
+        });
+        postData.files = [Buffer.from(req.data, 'binary').toString('base64')];
       } else {
-        const formData = new FormData()
+        const formData = new FormData();
 
         Object.keys(postData).forEach(key => {
-          const value = postData[key]
-          formData.append(key, value)
-        })
+          const value = postData[key];
+          formData.append(key, value);
+        });
 
         const req = await axios.get(url, {
           responseType: 'blob'
-        })
-        formData.append('torrents', req.data, 'file.torrent')
-        postData = formData // 覆写postData
+        });
+        formData.append('torrents', req.data, 'file.torrent');
+        postData = formData; // 覆写postData
       }
 
       await this.request('addTorrentByFile', {
         method: 'post',
         data: postData
-      })
+      });
     }
 
-    return true
+    return true;
   }
 
   async getAllTorrents (): Promise<Torrent[]> {
-    const endPointType = await this.getEndPointType()
+    const endPointType = await this.getEndPointType();
 
-    let rawTorrents: TorrentList
+    let rawTorrents: TorrentList;
     if (endPointType === 'legacy') {
-      await this.ping()
+      await this.ping();
 
       const r = await legacyActivityStreamWrapper(
         urljoin(this.config.address, '/api/activity-stream'),
         'TORRENT_LIST_FULL_UPDATE'
-      )
+      );
 
-      rawTorrents = JSON.parse(r) as TorrentList // Example: https://pastebin.com/cCNsMRdx
+      rawTorrents = JSON.parse(r) as TorrentList; // Example: https://pastebin.com/cCNsMRdx
     } else {
-      const req = await this.request('getTorrents')
-      const reqData: TorrentListSummaryResponse = req.data
-      rawTorrents = reqData.torrents
+      const req = await this.request('getTorrents');
+      const reqData: TorrentListSummaryResponse = req.data;
+      rawTorrents = reqData.torrents;
     }
 
     return Object.keys(rawTorrents).map((infoHash:string) => {
-      const rawTorrent = rawTorrents[infoHash]
+      const rawTorrent = rawTorrents[infoHash];
 
-      let state = TorrentState.unknown
+      let state = TorrentState.unknown;
       if (intersection(rawTorrent.status, ['downloading', 'd', 'ad']).length > 0) {
-        state = TorrentState.downloading
+        state = TorrentState.downloading;
       } else if (intersection(rawTorrent.status, ['seeding', 'sd', 'au']).length > 0) {
-        state = TorrentState.seeding
+        state = TorrentState.seeding;
       } else if (intersection(rawTorrent.status, ['stopped', 'p', 's']).length > 0) {
-        state = TorrentState.paused
+        state = TorrentState.paused;
       } else if (intersection(rawTorrent.status, ['checking', 'ch']).length > 0) {
-        state = TorrentState.checking
+        state = TorrentState.checking;
       } else if (intersection(rawTorrent.status, ['error', 'e']).length > 0) {
-        state = TorrentState.error
+        state = TorrentState.error;
       }
 
       return {
@@ -439,28 +439,28 @@ export default class Flood implements TorrentClient {
         downloadSpeed: rawTorrent.downRate,
         totalUploaded: rawTorrent.upTotal,
         totalDownloaded: rawTorrent.downTotal
-      } as Torrent
-    }) as Torrent[]
+      } as Torrent;
+    }) as Torrent[];
   }
 
   async getTorrent (id: any): Promise<Torrent> {
-    return (await this.getTorrentsBy({ ids: id }))[0]
+    return (await this.getTorrentsBy({ ids: id }))[0];
   }
 
   async getTorrentsBy (filter: TorrentFilterRules): Promise<Torrent[]> {
-    let torrents = await this.getAllTorrents()
+    let torrents = await this.getAllTorrents();
     if (filter.ids) {
-      const filterIds = Array.isArray(filter.ids) ? filter.ids : [filter.ids]
+      const filterIds = Array.isArray(filter.ids) ? filter.ids : [filter.ids];
       torrents = torrents.filter(t => {
-        return filterIds.includes(t.infoHash)
-      })
+        return filterIds.includes(t.infoHash);
+      });
     }
 
     if (filter.complete) {
-      torrents = torrents.filter(t => t.isCompleted)
+      torrents = torrents.filter(t => t.isCompleted);
     }
 
-    return torrents
+    return torrents;
   }
 
   async pauseTorrent (id: any): Promise<boolean> {
@@ -469,8 +469,8 @@ export default class Flood implements TorrentClient {
       data: {
         hashes: [id]
       }
-    })
-    return true
+    });
+    return true;
   }
 
   async resumeTorrent (id: any): Promise<boolean> {
@@ -479,22 +479,22 @@ export default class Flood implements TorrentClient {
       data: {
         hashes: [id]
       }
-    })
-    return true
+    });
+    return true;
   }
 
   async removeTorrent (id: any, removeData: boolean = false): Promise<boolean> {
-    const endPointType = await this.getEndPointType()
-    const hashFieldKey = endPointType === 'jesec' ? 'hashes' : 'hash'
+    const endPointType = await this.getEndPointType();
+    const hashFieldKey = endPointType === 'jesec' ? 'hashes' : 'hash';
 
-    const postData: any = { deleteData: removeData }
-    postData[hashFieldKey] = [id]
+    const postData: any = { deleteData: removeData };
+    postData[hashFieldKey] = [id];
 
     await this.request('deleteTorrent', {
       method: 'post',
       data: postData
-    })
+    });
 
-    return true
+    return true;
   }
 }

@@ -1,5 +1,5 @@
-import { SiteMetadata, Torrent } from '@/shared/interfaces/sites'
-import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
+import { SiteMetadata, Torrent } from '@/shared/interfaces/sites';
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite';
 
 export const siteMetadata: SiteMetadata = {
   name: 'E-Hentai',
@@ -35,18 +35,18 @@ export const siteMetadata: SiteMetadata = {
       author: { selector: 'td:nth-child(8)' }
     }
   }
-}
+};
 
 // noinspection JSUnusedGlobalSymbols
 export default class EHentai extends BittorrentSite {
   async getTorrentDownloadLink (torrent: Torrent): Promise<string> {
-    const { link } = torrent
+    const { link } = torrent;
     if (/gallerytorrents.php/.test(link)) {
-      const gtPage = await this.request({ url: link, responseType: 'document' })
+      const gtPage = await this.request({ url: link, responseType: 'document' });
       // 优先考虑使用 私有种子，如果没有 再使用 可再分发种子
-      return this.getFieldData(gtPage.data as Document, { selector: 'a[href*=".torrent"]:first-of-type', attr: 'href' })
+      return this.getFieldData(gtPage.data as Document, { selector: 'a[href*=".torrent"]:first-of-type', attr: 'href' });
     }
 
-    return super.getTorrentDownloadLink(torrent)
+    return super.getTorrentDownloadLink(torrent);
   }
 }

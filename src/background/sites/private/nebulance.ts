@@ -2,9 +2,9 @@
  * 综合 Jackett 配置和旧版配置改写，未经测试
  * Rhilip, 2021.04.23
  */
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { parseSizeString } from '@/shared/utils/filter'
-import dayjs from '@/shared/utils/dayjs'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { parseSizeString } from '@/shared/utils/filter';
+import dayjs from '@/shared/utils/dayjs';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Nebulance',
@@ -81,8 +81,8 @@ export const siteMetadata: SiteMetadata = {
         selector: ["div.alertbar a[href*='inbox.php']"],
         filters: [
           (query: string) => {
-            const queryMatch = query.replace(/\s+/g, '').match(/(\d+)/)
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0
+            const queryMatch = query.replace(/\s+/g, '').match(/(\d+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
           }
         ]
       },
@@ -90,8 +90,8 @@ export const siteMetadata: SiteMetadata = {
         selector: "ul.stats.nobullet > li:contains('Seeding:')",
         filters: [
           (query: string) => {
-            const queryMatch = query.replace(/[,\n]/g, '').match(/:.+?([\d.]+)/)
-            return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0
+            const queryMatch = query.replace(/[,\n]/g, '').match(/:.+?([\d.]+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0;
           }
         ]
       },
@@ -99,8 +99,8 @@ export const siteMetadata: SiteMetadata = {
         selector: "ul.stats.nobullet > li:contains('Seeding Size:')",
         filters: [
           (query: string) => {
-            const queryMatch = query.replace(/,/g, '').match(/Seeding Size:.+?([\d.]+ ?[ZEPTGMK]?i?B)/)
-            return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0
+            const queryMatch = query.replace(/,/g, '').match(/Seeding Size:.+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+            return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0;
           }
         ]
       },
@@ -108,8 +108,8 @@ export const siteMetadata: SiteMetadata = {
         selector: "ul#userinfo_major > li > a:contains('Cubits:')",
         filters: [
           (query: string) => {
-            const queryMatch = query.replace(/,|\n|\s+/g, '').match(/Cubits:.+?([\d.]+)/)
-            return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : 0
+            const queryMatch = query.replace(/,|\n|\s+/g, '').match(/Cubits:.+?([\d.]+)/);
+            return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : 0;
           }
         ]
       },
@@ -117,11 +117,11 @@ export const siteMetadata: SiteMetadata = {
         selector: ["ul.stats.nobullet > li:contains('Joined:') > span"],
         elementProcess: [
           (element:HTMLElement) => {
-            const timeText = (element.getAttribute('title') || element.innerText).trim()
-            return dayjs(timeText).isValid() ? dayjs(timeText).valueOf() : timeText
+            const timeText = (element.getAttribute('title') || element.innerText).trim();
+            return dayjs(timeText).isValid() ? dayjs(timeText).valueOf() : timeText;
           }
         ]
       }
     }
   }
-}
+};

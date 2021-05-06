@@ -2,7 +2,7 @@
  * FIXME 未进行测试
  * Rhilip, 2021.04.11
  */
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: '蝴蝶-HUDBT',
@@ -71,4 +71,4 @@ export const siteMetadata: SiteMetadata = {
     ]
   }
 
-}
+};

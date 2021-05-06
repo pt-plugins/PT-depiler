@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
-import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@/shared/utils/filter'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
+import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@/shared/utils/filter';
 
 export const siteMetadata: SiteMetadata = {
   name: 'FileList',
@@ -50,10 +50,10 @@ export const siteMetadata: SiteMetadata = {
         selector: '> div:eq(5)',
         elementProcess: [
           (element: HTMLElement) => {
-            const elementMatch = element.innerHTML.replace('<br>', ' ').match(/(\d{2}:\d{2}:\d{2}[^\d]+?\d{2}\/\d{2}\/\d{4})/)![1]
+            const elementMatch = element.innerHTML.replace('<br>', ' ').match(/(\d{2}:\d{2}:\d{2}[^\d]+?\d{2}\/\d{2}\/\d{4})/)![1];
             return elementMatch
               .replace(/(\d{2}:\d{2}:\d{2})[^\d]+?(\d{2}\/\d{2}\/\d{4})/, '$2 $1')
-              .replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')
+              .replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1');
           }
         ]
       },
@@ -112,8 +112,8 @@ export const siteMetadata: SiteMetadata = {
         selector: "td.colhead:contains('Join'):contains('date') + td",
         filters: [
           (query: string) => {
-            query = query.split(' (')[0]
-            return findThenParseValidTimeString(query)
+            query = query.split(' (')[0];
+            return findThenParseValidTimeString(query);
           }
         ]
       },
@@ -127,4 +127,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};

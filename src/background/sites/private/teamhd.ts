@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
-import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '@/shared/utils/filter'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
+import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '@/shared/utils/filter';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
 
 const categoryMap = {
   29: 'Movies/HD', // Movies Фильмы
@@ -15,11 +15,11 @@ const categoryMap = {
   33: 'TV/HD', // Soaps Сериалы
   34: 'TV/HD', // Other
   35: 'Movies' // Content w/o subs Контент без перевода
-}
+};
 
 const nextTextSibling = (element: HTMLElement) => {
-  return (element.nextSibling as Text).textContent?.trim() || ''
-}
+  return (element.nextSibling as Text).textContent?.trim() || '';
+};
 
 export const siteMetadata: SiteMetadata = {
   name: 'TeamHD',
@@ -64,8 +64,8 @@ export const siteMetadata: SiteMetadata = {
         selector: 'td:nth-child(5)',
         elementProcess: [
           (element: HTMLElement) => {
-            element.querySelector('strong')?.remove()
-            return findThenParseSizeString(element.innerText.trim())
+            element.querySelector('strong')?.remove();
+            return findThenParseSizeString(element.innerText.trim());
           }
         ]
       },
@@ -165,4 +165,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};

@@ -2,12 +2,12 @@
  * 旧版迁移，未经测试
  * Rhilip, 2021.4.25
  */
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { findThenParseSizeString, parseSizeString } from '@/shared/utils/filter'
-import dayjs from '@/shared/utils/dayjs'
-import Sizzle from 'sizzle'
-import urlparse from 'url-parse'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { findThenParseSizeString, parseSizeString } from '@/shared/utils/filter';
+import dayjs from '@/shared/utils/dayjs';
+import Sizzle from 'sizzle';
+import urlparse from 'url-parse';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Aidoru!Online',
@@ -127,11 +127,11 @@ export const siteMetadata: SiteMetadata = {
         filters: [
           (query: string) => {
             if (query === 'green') {
-              return 100
+              return 100;
             } else if (query === 'black') {
-              return 0
+              return 0;
             } else {
-              return null
+              return null;
             }
           }
         ]
@@ -143,13 +143,13 @@ export const siteMetadata: SiteMetadata = {
         filters: [
           (query: string) => {
             if (query === 'green') {
-              return ETorrentStatus.seeding
+              return ETorrentStatus.seeding;
             } else if (query === 'black') {
-              return ETorrentStatus.completed
+              return ETorrentStatus.completed;
             } else if (query === '#ff0000') {
-              return ETorrentStatus.downloading
+              return ETorrentStatus.downloading;
             } else {
-              return ETorrentStatus.unknown
+              return ETorrentStatus.unknown;
             }
           }
         ]
@@ -170,8 +170,8 @@ export const siteMetadata: SiteMetadata = {
         selector: ["a[href*='/forum/private.php']"],
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/(\d+)/)
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0
+            const queryMatch = query.match(/(\d+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
           }
         ]
       },
@@ -202,8 +202,8 @@ export const siteMetadata: SiteMetadata = {
         selector: ["b:contains('Currently seeding')"],
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/(\d+)/)
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0
+            const queryMatch = query.match(/(\d+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
           }
         ]
       },
@@ -211,16 +211,16 @@ export const siteMetadata: SiteMetadata = {
         selector: ':self',
         elementProcess: [
           (element: HTMLElement) => {
-            let seedSize = 0
-            const sizeAnother = Sizzle("b:contains('Currently seeding') + br + table tr:not(:first-child) > td:nth-child(4)", element)
+            let seedSize = 0;
+            const sizeAnother = Sizzle("b:contains('Currently seeding') + br + table tr:not(:first-child) > td:nth-child(4)", element);
             sizeAnother.forEach(e => {
-              seedSize += parseSizeString((e as HTMLElement).innerText.trim())
-            })
-            return seedSize
+              seedSize += parseSizeString((e as HTMLElement).innerText.trim());
+            });
+            return seedSize;
           }
         ]
       }
     }
   }
 
-}
+};

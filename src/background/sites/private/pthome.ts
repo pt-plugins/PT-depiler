@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
 
 export const siteMetadata: SiteMetadata = {
   name: 'PTHome',
@@ -22,15 +22,15 @@ export const siteMetadata: SiteMetadata = {
         elementProcess: [
           (element:HTMLElement) => {
             if (element.classList.contains('torrents-progress')) {
-              return (element.getAttribute('style') || '').indexOf('100%') !== -1 ? ETorrentStatus.seeding : ETorrentStatus.downloading
+              return (element.getAttribute('style') || '').indexOf('100%') !== -1 ? ETorrentStatus.seeding : ETorrentStatus.downloading;
             } else if (element.classList.contains('torrents-progress2')) {
-              return ETorrentStatus.completed
+              return ETorrentStatus.completed;
             } else {
-              return ETorrentStatus.unknown
+              return ETorrentStatus.unknown;
             }
           }
         ]
       }
     }
   }
-}
+};

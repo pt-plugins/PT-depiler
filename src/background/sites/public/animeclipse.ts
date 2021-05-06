@@ -1,6 +1,6 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
-import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
-import { AxiosRequestConfig } from 'axios'
+import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite';
+import { AxiosRequestConfig } from 'axios';
 
 export const siteMetadata: SiteMetadata = {
   name: 'AnimeClipse',
@@ -107,21 +107,21 @@ export const siteMetadata: SiteMetadata = {
       completed: { selector: 'td:nth-child(2) > table:nth-child(2) td:nth-child(4) span.torrentInfoData' }
     }
   }
-}
+};
 
 // noinspection JSUnusedGlobalSymbols
 export default class Animeclipse extends BittorrentSite {
   protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
     const extraSortParamsIndex = filter.extraParams
-      ?.findIndex(v => v.key === 'order' && ['3', '4', '5'].includes(v.value as string))
+      ?.findIndex(v => v.key === 'order' && ['3', '4', '5'].includes(v.value as string));
 
     if (extraSortParamsIndex && extraSortParamsIndex > -1) {
-      const extraSortParams = filter.extraParams![extraSortParamsIndex]
-      extraSortParams.key = 'active'
-      filter.extraParams?.splice(extraSortParamsIndex, 1)
-      filter.extraParams?.push(extraSortParams)
+      const extraSortParams = filter.extraParams![extraSortParamsIndex];
+      extraSortParams.key = 'active';
+      filter.extraParams?.splice(extraSortParamsIndex, 1);
+      filter.extraParams?.push(extraSortParams);
     }
 
-    return await super.transformSearchFilter(filter)
+    return await super.transformSearchFilter(filter);
   }
 }

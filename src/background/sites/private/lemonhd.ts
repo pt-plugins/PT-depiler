@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
-import { parseSizeString } from '@/shared/utils/filter'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
+import { parseSizeString } from '@/shared/utils/filter';
 
 export const siteMetadata: SiteMetadata = {
   name: 'LemonHD',
@@ -66,13 +66,13 @@ export const siteMetadata: SiteMetadata = {
         selector: ['> td:eq(8)'],
         elementProcess: [
           (element: HTMLElement) => {
-            const query = element.innerText.trim() // 100% or --
+            const query = element.innerText.trim(); // 100% or --
             if (query === '--') {
-              return ETorrentStatus.unknown
+              return ETorrentStatus.unknown;
             } else if (element.classList.contains('peer-active')) {
-              return parseFloat(query) > 100 ? ETorrentStatus.seeding : ETorrentStatus.downloading
+              return parseFloat(query) > 100 ? ETorrentStatus.seeding : ETorrentStatus.downloading;
             } else {
-              return parseFloat(query) > 100 ? ETorrentStatus.completed : ETorrentStatus.inactive
+              return parseFloat(query) > 100 ? ETorrentStatus.completed : ETorrentStatus.inactive;
             }
           }
         ]
@@ -83,9 +83,9 @@ export const siteMetadata: SiteMetadata = {
         selector: ["td.rowfollow:contains('总做种数')"], // 这里站点并没有i18n，所以就先这样
         filters: [
           (query: string) => {
-            query = query.replace(/,/g, '')
-            const queryMatch = query.match(/(?:总做种数|seeding).+?([\d.]+)/)
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0
+            query = query.replace(/,/g, '');
+            const queryMatch = query.match(/(?:总做种数|seeding).+?([\d.]+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
           }
         ]
       },
@@ -93,12 +93,12 @@ export const siteMetadata: SiteMetadata = {
         selector: ["td.rowfollow:contains('总做种数')"],
         filters: [
           (query: string) => {
-            query = query.replace(/,/g, '')
-            const queryMatch = query.match(/(?:总做种体积|seedingSize).+?([\d.]+ ?[ZEPTGMK]?i?B)/)
-            return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0
+            query = query.replace(/,/g, '');
+            const queryMatch = query.match(/(?:总做种体积|seedingSize).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+            return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0;
           }
         ]
       }
     }
   }
-}
+};

@@ -1,9 +1,9 @@
-import { SiteMetadata, Torrent } from '@/shared/interfaces/sites'
-import urlparse from 'url-parse'
-import { findThenParseSizeString } from '@/shared/utils/filter'
-import dayjs from '@/shared/utils/dayjs'
-import PrivateSite from '@/background/sites/schema/AbstractPrivateSite'
-import Sizzle from 'sizzle'
+import { SiteMetadata, Torrent } from '@/shared/interfaces/sites';
+import urlparse from 'url-parse';
+import { findThenParseSizeString } from '@/shared/utils/filter';
+import dayjs from '@/shared/utils/dayjs';
+import PrivateSite from '@/background/sites/schema/AbstractPrivateSite';
+import Sizzle from 'sizzle';
 
 export const siteMetadata: SiteMetadata = {
   name: 'MoreThanTV',
@@ -86,8 +86,8 @@ export const siteMetadata: SiteMetadata = {
         selector: ["div.alert-bar > a[href*='inbox.php']", "div.alertbar > a[href*='inbox.php']"],
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/(\d+)/)
-            return (queryMatch && queryMatch.length >= 2) ? parseInt(queryMatch[1]) : 0
+            const queryMatch = query.match(/(\d+)/);
+            return (queryMatch && queryMatch.length >= 2) ? parseInt(queryMatch[1]) : 0;
           }
         ]
       },
@@ -104,8 +104,8 @@ export const siteMetadata: SiteMetadata = {
         selector: "ul.stats > li:contains('Ratio:')",
         filters: [
           (query: string) => {
-            const queryMatch = query.replace(/,/g, '').match(/Ratio.+?([\d.]+)/)
-            return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : 0
+            const queryMatch = query.replace(/,/g, '').match(/Ratio.+?([\d.]+)/);
+            return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : 0;
           }
         ]
       },
@@ -113,8 +113,8 @@ export const siteMetadata: SiteMetadata = {
         selector: "ul.stats > li:contains('Class:')",
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/Class:.+?(.+)/)
-            return (queryMatch && queryMatch.length >= 2) ? queryMatch[1] : 0
+            const queryMatch = query.match(/Class:.+?(.+)/);
+            return (queryMatch && queryMatch.length >= 2) ? queryMatch[1] : 0;
           }
         ]
       },
@@ -126,8 +126,8 @@ export const siteMetadata: SiteMetadata = {
         selector: ["ul.stats > li:contains('Joined:') > span"],
         elementProcess: [
           (element: HTMLElement) => {
-            const time = element.getAttribute('title') || element.innerText
-            return dayjs(time).isValid() ? dayjs(time).valueOf() : time
+            const time = element.getAttribute('title') || element.innerText;
+            return dayjs(time).isValid() ? dayjs(time).valueOf() : time;
           }
         ]
       },
@@ -135,8 +135,8 @@ export const siteMetadata: SiteMetadata = {
         selector: 'ul.stats > li:contains("Seeding:")',
         filters: [
           (query: string) => {
-            const queryMatch = query.replace(',', '').match(/Seeding:.+?(\d+)/)
-            return (queryMatch && queryMatch.length >= 2) ? parseInt(queryMatch[1]) : 0
+            const queryMatch = query.replace(',', '').match(/Seeding:.+?(\d+)/);
+            return (queryMatch && queryMatch.length >= 2) ? parseInt(queryMatch[1]) : 0;
           }
         ]
       },
@@ -146,26 +146,26 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};
 
 export default class morethantv extends PrivateSite {
   protected async transformSearchPage (doc: Document): Promise<Torrent[]> {
-    const torrents : Torrent[] = []
-    const trs = Sizzle('#torrent_table > tbody > tr.torrent', doc)
+    const torrents : Torrent[] = [];
+    const trs = Sizzle('#torrent_table > tbody > tr.torrent', doc);
     trs.forEach(tr => {
       // 建立group基本信息: category, title, url, time, size, author , seeders, leechers, completed, comments
       const groupInfo = this.getFieldsData(tr, 'search', [
         'category', 'title', 'url', 'time', 'size', 'author', 'seeders', 'leechers', 'completed', 'comments'
-      ])
+      ]);
 
       // 搜索种子信息 id, link, subTitle
-      const torrentAnother = Sizzle('td:has(> .torrent_icon_container:has(a[href^="/torrents.php?action=download"]))', tr)
+      const torrentAnother = Sizzle('td:has(> .torrent_icon_container:has(a[href^="/torrents.php?action=download"]))', tr);
       torrentAnother.forEach(t => {
-        const torrentInfo = this.getFieldsData(t, 'search', ['id', 'link', 'subTitle'])
-        torrents.push({ ...groupInfo, ...torrentInfo } as Torrent) // 将 groupInfo 和 torrentInfo 合并作为种子信息
-      })
-    })
+        const torrentInfo = this.getFieldsData(t, 'search', ['id', 'link', 'subTitle']);
+        torrents.push({ ...groupInfo, ...torrentInfo } as Torrent); // 将 groupInfo 和 torrentInfo 合并作为种子信息
+      });
+    });
 
-    return torrents
+    return torrents;
   }
 }

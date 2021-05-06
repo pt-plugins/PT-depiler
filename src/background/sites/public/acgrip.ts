@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: 'ACG.RIP',
@@ -25,4 +25,4 @@ export const siteMetadata: SiteMetadata = {
       completed: { selector: 'td:nth-child(5) div.done' }
     }
   }
-}
+};

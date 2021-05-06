@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
+import { SiteMetadata } from '@/shared/interfaces/sites';
 
 export const siteMetadata: SiteMetadata = {
   name: 'DXDHD',
@@ -28,4 +28,4 @@ export const siteMetadata: SiteMetadata = {
       }
     ]
   }
-}
+};

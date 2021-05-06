@@ -1,7 +1,7 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites'
-import { parseTimeToLive } from '@/shared/utils/filter'
-import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
-import { AxiosRequestConfig } from 'axios'
+import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import { parseTimeToLive } from '@/shared/utils/filter';
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite';
+import { AxiosRequestConfig } from 'axios';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Sexy-Pics',
@@ -20,13 +20,13 @@ export const siteMetadata: SiteMetadata = {
       leechers: { selector: 'td.l' }
     }
   }
-}
+};
 
 // noinspection JSUnusedGlobalSymbols
 export default class Sexypics extends BittorrentSite {
   protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
-    const config = await super.transformSearchFilter(filter)
-    config.url = filter.keywords ? `/${filter.keywords.charAt(0)}/${filter.keywords}` : '/browse/all/'
-    return config
+    const config = await super.transformSearchFilter(filter);
+    config.url = filter.keywords ? `/${filter.keywords.charAt(0)}/${filter.keywords}` : '/browse/all/';
+    return config;
   }
 }

@@ -1,6 +1,6 @@
-import urlparse from 'url-parse'
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { ETorrentStatus } from '@/shared/interfaces/enum'
+import urlparse from 'url-parse';
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ETorrentStatus } from '@/shared/interfaces/enum';
 
 export const siteMetadata: SiteMetadata = {
   name: 'HDSky',
@@ -54,9 +54,9 @@ export const siteMetadata: SiteMetadata = {
         attr: 'style',
         filters: [
           (query: string | undefined) => {
-            query = query || ''
-            const queryMatch = query.match(/width:([ \d.]+)%/)
-            return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : 0
+            query = query || '';
+            const queryMatch = query.match(/width:([ \d.]+)%/);
+            return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : 0;
           }
         ]
       },
@@ -72,4 +72,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};

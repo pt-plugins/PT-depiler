@@ -1,5 +1,5 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { parseTimeToLive } from '@/shared/utils/filter'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { parseTimeToLive } from '@/shared/utils/filter';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Zooqle',
@@ -20,8 +20,8 @@ export const siteMetadata: SiteMetadata = {
         selector: 'td:nth-child(5)',
         filters: [
           (q:string) => {
-            q = q.replace('long ago', '99 years').replace('yesterday', '1 day')
-            return parseTimeToLive(q)
+            q = q.replace('long ago', '99 years').replace('yesterday', '1 day');
+            return parseTimeToLive(q);
           }
         ]
       },
@@ -37,4 +37,4 @@ export const siteMetadata: SiteMetadata = {
       }
     }
   }
-}
+};

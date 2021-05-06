@@ -1,6 +1,6 @@
-import { SiteMetadata, Torrent } from '@/shared/interfaces/sites'
-import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite'
-import dayjs from '@/shared/utils/dayjs'
+import { SiteMetadata, Torrent } from '@/shared/interfaces/sites';
+import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite';
+import dayjs from '@/shared/utils/dayjs';
 
 export const siteMetadata: SiteMetadata = {
   name: '爱恋动漫',
@@ -33,18 +33,18 @@ export const siteMetadata: SiteMetadata = {
              *   - 前天 xx:xx
              *   - YYYY/MM/DD
              */
-            const timeRawPattern = q.match(/([今昨前])天 ([\d:]+)/)
+            const timeRawPattern = q.match(/([今昨前])天 ([\d:]+)/);
             if (timeRawPattern) {
-              const standard = dayjs()
+              const standard = dayjs();
               if (timeRawPattern[1] === '昨') {
-                standard.add(-1, 'days')
+                standard.add(-1, 'days');
               } else if (timeRawPattern[1] === '前') {
-                standard.add(-2, 'days')
+                standard.add(-2, 'days');
               }
 
-              return dayjs(`${standard.format('YYYY/MM/DD')} ${timeRawPattern[2]}`, 'YYYY/MM/DD HH:mm').unix()
+              return dayjs(`${standard.format('YYYY/MM/DD')} ${timeRawPattern[2]}`, 'YYYY/MM/DD HH:mm').unix();
             } else {
-              return dayjs(q, 'YYYY/MM/DD').unix()
+              return dayjs(q, 'YYYY/MM/DD').unix();
             }
           }
         ]
@@ -56,15 +56,15 @@ export const siteMetadata: SiteMetadata = {
       category: { selector: 'td:nth-child(2)' }
     }
   }
-}
+};
 
 // noinspection JSUnusedGlobalSymbols
 export default class Kisssub extends BittorrentSite {
   protected parseRowToTorrent (row: Element): Partial<Torrent> {
-    const transformTorrent = super.parseRowToTorrent(row)
+    const transformTorrent = super.parseRowToTorrent(row);
     // 我们只要知道hash就可以种子了，但是如果不传入name的话，种子命名是 `{hash}.torrent`
-    transformTorrent.link = `http://v2.uploadbt.com/?r=down&hash=${transformTorrent.id}&name=${encodeURIComponent(transformTorrent.title as string)}`
+    transformTorrent.link = `http://v2.uploadbt.com/?r=down&hash=${transformTorrent.id}&name=${encodeURIComponent(transformTorrent.title as string)}`;
 
-    return transformTorrent
+    return transformTorrent;
   }
 }

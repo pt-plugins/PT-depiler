@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites'
-import { parseTimeToLive } from '@/shared/utils/filter'
-import urlparse from 'url-parse'
+import { SiteMetadata } from '@/shared/interfaces/sites';
+import { parseTimeToLive } from '@/shared/utils/filter';
+import urlparse from 'url-parse';
 
 export const siteMetadata: SiteMetadata = {
   name: 'Isohunt2',
@@ -52,4 +52,4 @@ export const siteMetadata: SiteMetadata = {
       link: { selector: 'a.btn-magnet', attr: 'href', filters: [(q:string) => urlparse(q, true).query.url] }
     }
   }
-}
+};
