@@ -18,7 +18,6 @@ import {
 } from '@/shared/interfaces/btclients';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import urljoin from 'url-join';
-import { intersection } from 'lodash-es';
 import { Buffer } from 'buffer';
 
 export const clientConfig: TorrentClientConfig = {
@@ -411,15 +410,15 @@ export default class Flood implements TorrentClient {
       const rawTorrent = rawTorrents[infoHash];
 
       let state = TorrentState.unknown;
-      if (intersection(rawTorrent.status, ['downloading', 'd', 'ad']).length > 0) {
+      if (['downloading', 'd', 'ad'].some(s => rawTorrent.status.includes(s as TorrentStatus))) {
         state = TorrentState.downloading;
-      } else if (intersection(rawTorrent.status, ['seeding', 'sd', 'au']).length > 0) {
+      } else if (['seeding', 'sd', 'au'].some(s => rawTorrent.status.includes(s as TorrentStatus))) {
         state = TorrentState.seeding;
-      } else if (intersection(rawTorrent.status, ['stopped', 'p', 's']).length > 0) {
+      } else if (['stopped', 'p', 's'].some(s => rawTorrent.status.includes(s as TorrentStatus))) {
         state = TorrentState.paused;
-      } else if (intersection(rawTorrent.status, ['checking', 'ch']).length > 0) {
+      } else if (['checking', 'ch'].some(s => rawTorrent.status.includes(s as TorrentStatus))) {
         state = TorrentState.checking;
-      } else if (intersection(rawTorrent.status, ['error', 'e']).length > 0) {
+      } else if (['error', 'e'].some(s => rawTorrent.status.includes(s as TorrentStatus))) {
         state = TorrentState.error;
       }
 
