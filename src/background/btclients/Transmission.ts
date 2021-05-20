@@ -90,7 +90,7 @@ type TransmissionRequestMethod =
   'session-get' | 'session-stats' |
   'torrent-get' | 'torrent-add' | 'torrent-start' | 'torrent-stop' | 'torrent-remove' | 'torrent-set'
 
-interface TransmissionAddTorrentOptions extends AddTorrentOptions {
+interface TransmissionAddTorrentOptions {
   'download-dir': string,
   filename: string,
   metainfo: string,
@@ -229,35 +229,32 @@ export default class Transmission implements TorrentClient {
     this.address = address;
   }
 
-  async addTorrent (url: string, options: Partial<TransmissionAddTorrentOptions> = {}): Promise<boolean> {
+  async addTorrent (url: string, options: Partial<AddTorrentOptions> = {}): Promise<boolean> {
+    const addTorrentOptions : Partial<TransmissionAddTorrentOptions> = {
+      paused: options.addAtPaused ?? false
+    };
+
     if (options.localDownload) {
       const req = await axios.get(url, {
         responseType: 'arraybuffer'
       });
-      options.metainfo = Buffer.from(req.data, 'binary').toString('base64');
+      addTorrentOptions.metainfo = Buffer.from(req.data, 'binary').toString('base64');
     } else {
-      options.filename = url;
+      addTorrentOptions.filename = url;
     }
-    delete options.localDownload;
 
     if (options.savePath) {
-      options['download-dir'] = options.savePath;
-      delete options.savePath;
+      addTorrentOptions['download-dir'] = options.savePath;
     }
 
-    const label = options.label;
-    delete options.label;
-
-    options.paused = options.addAtPaused;
-    delete options.addAtPaused;
     try {
-      const { data } = await this.request<AddTorrentResponse>('torrent-add', options);
+      const { data } = await this.request<AddTorrentResponse>('torrent-add', addTorrentOptions);
 
       // Transmission 3.0 以上才支持label
-      if (label) {
+      if (options.label) {
         try {
           const torrentId = data.arguments['torrent-added'].id;
-          await this.request('torrent-set', { ids: torrentId, label: [label] });
+          await this.request('torrent-set', { ids: torrentId, label: [options.label] });
         } catch (e) {}
       }
 
