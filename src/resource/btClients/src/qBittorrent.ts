@@ -8,7 +8,7 @@ import {
   Torrent, TorrentClient,
   TorrentClientConfig, TorrentClientMetaData,
   TorrentFilterRules, TorrentState
-} from '@/shared/interfaces/btclients';
+} from '../types';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import urljoin from 'url-join';
 

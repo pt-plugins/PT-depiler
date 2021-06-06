@@ -15,7 +15,7 @@ import {
   TorrentClientMetaData,
   TorrentFilterRules,
   TorrentState
-} from '@/shared/interfaces/btclients';
+} from '../types';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import urljoin from 'url-join';
 import { Buffer } from 'buffer';

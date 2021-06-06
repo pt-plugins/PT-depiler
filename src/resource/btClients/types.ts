@@ -2,20 +2,6 @@
  * 对于 Bittorrent 软件的定义
  */
 
-// 所有支持的客户端种类（新增客户端请在此处注册）
-export const clientTypeList = [
-  'Deluge',
-  'qBittorrent',
-  'Transmission',
-  'synologyDownloadStation',
-  'uTorrent',
-  'ruTorrent',
-  'Flood',
-  'Aria2'
-] as const;
-
-export type clientType = typeof clientTypeList[number]
-
 export type TorrentClientFeature = 'CustomPath'
 
 // 最通用的自定义目录提示词
@@ -26,11 +12,15 @@ export const CustomPathDescription = '当前目录列表配置是指定硬盘上
  */
 export interface TorrentClientBaseConfig {
   /**
-   * UUIDv4，去掉短连接线剩下部分
+   * UUIDv4
+   * 系统使用这个信息判断并生成唯一的客户端
    */
   uuid: string;
 
-  type: clientType;
+  /**
+   * 客户端类型，与文件名相同
+   */
+  type: string;
 
   /**
    * 客户端名称

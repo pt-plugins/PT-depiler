@@ -10,7 +10,7 @@ import {
   TorrentClientMetaData,
   TorrentFilterRules,
   TorrentState
-} from '@/shared/interfaces/btclients';
+} from '../types';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { random } from 'lodash-es';
 
