@@ -4,8 +4,9 @@ import {
   CTorrent,
   CTorrentFilterRules
 } from './types';
-import axios, { AxiosRequestConfig } from 'axios';
+
 import { Buffer } from 'buffer';
+import axios, { AxiosRequestConfig } from 'axios';
 import contentDisposition from 'content-disposition';
 import parseTorrent, { Instance as TorrentInstance } from 'parse-torrent';
 
