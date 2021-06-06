@@ -278,7 +278,7 @@ export default class Aria2 implements TorrentClient {
     return true;
   }
 
-  async removeTorrent (id: string, removeData: boolean | undefined): Promise<boolean> {
+  async removeTorrent (id: string, removeData?: boolean): Promise<boolean> {
     await this.methodSend<string>('aria2.remove', [id]);
     await this.methodSend<'OK'>('aria2.removeDownloadResult', [id]);
     return true;

@@ -409,16 +409,20 @@ export default class Flood implements TorrentClient {
     return Object.keys(rawTorrents).map((infoHash:string) => {
       const rawTorrent = rawTorrents[infoHash];
 
+      const statusInclude = (judge: TorrentStatus[]): boolean => {
+        return judge.some(s => rawTorrent.status.includes(s));
+      };
+
       let state = TorrentState.unknown;
-      if (['downloading', 'd', 'ad'].some(s => rawTorrent.status.includes(s as TorrentStatus))) {
+      if (statusInclude(['downloading', 'd', 'ad'])) {
         state = TorrentState.downloading;
-      } else if (['seeding', 'sd', 'au'].some(s => rawTorrent.status.includes(s as TorrentStatus))) {
+      } else if (statusInclude(['seeding', 'sd', 'au'])) {
         state = TorrentState.seeding;
-      } else if (['stopped', 'p', 's'].some(s => rawTorrent.status.includes(s as TorrentStatus))) {
+      } else if (statusInclude(['stopped', 'p', 's'])) {
         state = TorrentState.paused;
-      } else if (['checking', 'ch'].some(s => rawTorrent.status.includes(s as TorrentStatus))) {
+      } else if (statusInclude(['checking', 'ch'])) {
         state = TorrentState.checking;
-      } else if (['error', 'e'].some(s => rawTorrent.status.includes(s as TorrentStatus))) {
+      } else if (statusInclude(['error', 'e'])) {
         state = TorrentState.error;
       }
 
