@@ -190,7 +190,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     // 处理链接
     if (url.startsWith('magnet:') || !options.localDownload) {
       formData.append('urls', url);
-    } else if (options.localDownload) {
+    } else {
       const torrent = await this.getRemoteTorrentFile({
         url,
         ...(options.localDownloadOption || {})

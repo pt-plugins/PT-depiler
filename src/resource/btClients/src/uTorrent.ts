@@ -11,6 +11,7 @@ import {
 import urljoin from 'url-join';
 import axios from 'axios';
 import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
+import parseTorrent, { Instance as TorrentInstance } from 'parse-torrent';
 
 export const clientConfig: TorrentClientConfig = {
   type: 'uTorrent',
@@ -181,16 +182,19 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
       path: options.savePath ? options.savePath : ''
     };
 
+    let torrentInfo: TorrentInstance;
     if (url.startsWith('magnet:') || !options.localDownload) {
       formData = null;
       params.action = 'add-url';
       params.s = url;
-    } else if (options.localDownload) {
+      torrentInfo = parseTorrent(url) as TorrentInstance; // Thought it's wrong !
+    } else {
       params.action = 'add-file';
       const torrent = await this.getRemoteTorrentFile({
         url,
         ...(options.localDownloadOption || {})
       });
+      torrentInfo = torrent.info;
 
       formData.append('torrent_file', torrent.metadata.blob, torrent.name);
     }
@@ -204,8 +208,19 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
       timeout: this.config.timeout
     });
 
-    // TODO 增加 options.addAtPaused 支持
-    // TODO 增加label支持
+    if (torrentInfo && torrentInfo.infoHash) {
+      // 添加种子后，根据本地获取的 infoHash 值设置对应属性
+      if (options.addAtPaused) {
+        await this.pauseTorrent(torrentInfo.infoHash);
+      }
+
+      if (options.label) {
+        await this.setTorrentProp(torrentInfo.infoHash, {
+          s: 'label',
+          v: options.label
+        });
+      }
+    }
 
     return true;
   }
@@ -260,6 +275,16 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
         totalDownloaded: torrent[5]
       } as CTorrent;
     }) as CTorrent[];
+  }
+
+  private async setTorrentProp (id:string, props: Record<string, string | number>): Promise<boolean> {
+    const params = new URLSearchParams();
+    for (const prop of Object.entries(props)) {
+      params.set(prop[0], prop[1].toString());
+    }
+    params.set('hash', id);
+    await this.request<BaseUtorrentResponse>('setprops', params);
+    return true;
   }
 
   // 注意：uTorrent的pause, resume, remove均直接返回true，因为接口没返回具体成功没成功

@@ -6,7 +6,7 @@ import Container from '@/shared/class/container';
 import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
 
 // 动态生成 btClient 列表
-export const clientTypeList =
+export const clientTypeFullList =
   require.context('@/resource/btClients/src/', true, /\.ts$/, 'weak')
     .keys()
     .filter(value => !/Abstract/.test(value))
@@ -16,10 +16,10 @@ export const clientTypeList =
 
 // noinspection JSUnusedGlobalSymbols
 class BtClientFactory extends Container {
-  public readonly clientTypeList = clientTypeList;
+  protected readonly clientTypeList = clientTypeFullList.filter(t => t !== 'Local');
 
   public isValidClient (type: string): boolean {
-    return clientTypeList.includes(type);
+    return clientTypeFullList.includes(type);
   }
 
   public async dynamicImport (type: string) {
