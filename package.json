@@ -21,6 +21,9 @@
     "lint": "vue-cli-service lint",
     "devtools": "vue-devtools"
   },
+  "workspaces": [
+    "src/resource/*"
+  ],
   "dependencies": {
     "@mdi/font": "5.9.55",
     "axios": "^0.21.1",
