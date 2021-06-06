@@ -65,7 +65,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-vue": "^7.9.0",
-    "sass": "^1.32.0",
+    "sass": "~1.32.0",
     "sass-loader": "^10.1.0",
     "typescript": "~4.3.2",
     "vue-cli-plugin-browser-extension": "^0.25.1",
