@@ -1,14 +1,16 @@
 import {
-  TorrentClient,
-  TorrentClientBaseConfig,
+  BittorrentClientBaseConfig,
   TorrentClientMetaData
 } from '@/resource/btClients/types';
 import Container from '@/shared/class/container';
+import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
 
 // 动态生成 btClient 列表
 export const clientTypeList =
   require.context('@/resource/btClients/src/', true, /\.ts$/, 'weak')
-    .keys().map(value => {
+    .keys()
+    .filter(value => !/Abstract/.test(value))
+    .map(value => {
       return value.replace(/^\.\//, '').replace(/\.ts$/, '');
     });
 
@@ -26,8 +28,8 @@ class BtClientFactory extends Container {
       /* webpackMode: "lazy" */
       /* webpackExports: ["default", "clientConfig", "clientMetaData"] */
       `@/resource/btClients/src/${type}`) as {
-      default: TorrentClient,
-      clientConfig: TorrentClientBaseConfig,
+      default: AbstractBittorrentClient,
+      clientConfig: BittorrentClientBaseConfig,
       clientMetaData: TorrentClientMetaData
     };
   }
@@ -43,8 +45,8 @@ class BtClientFactory extends Container {
   }
 
   // noinspection JSUnusedGlobalSymbols
-  public async getClient (config: TorrentClientBaseConfig): Promise<TorrentClient> {
-    return await this.resolveObject<TorrentClient>(`client-${config.uuid}`, async () => {
+  public async getClient (config: BittorrentClientBaseConfig): Promise<AbstractBittorrentClient> {
+    return await this.resolveObject<AbstractBittorrentClient>(`client-${config.uuid}`, async () => {
       const { default: Client } = await this.dynamicImport(config.type);
       // @ts-ignore
       return new Client(config);

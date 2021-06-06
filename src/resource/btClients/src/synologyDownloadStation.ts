@@ -4,16 +4,16 @@
  * @see https://github.com/seansfkelley/synology-typescript-api
  */
 import {
-  AddTorrentOptions,
-  Torrent,
-  TorrentClient,
+  CAddTorrentOptions,
+  CTorrent,
   TorrentClientConfig,
   TorrentClientMetaData,
-  TorrentFilterRules,
-  TorrentState
+  CTorrentFilterRules,
+  CTorrentState
 } from '../types';
 import urljoin from 'url-join';
 import axios, { AxiosRequestConfig } from 'axios';
+import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
 
 export const clientConfig: TorrentClientConfig = {
   type: 'synologyDownloadStation',
@@ -328,15 +328,14 @@ interface rawTask {
 }
 
 // noinspection JSUnusedGlobalSymbols
-export default class SynologyDownloadStation implements TorrentClient {
+export default class SynologyDownloadStation extends AbstractBittorrentClient<TorrentClientConfig> {
   readonly version = 'v0.2.2';
-  readonly config: TorrentClientConfig;
 
   private _sessionId?: string;
   private _apiInfo?: SynologyInfoApiResponseData;
 
   constructor (options: Partial<TorrentClientConfig> = {}) {
-    this.config = { ...clientConfig, ...options };
+    super({ ...clientConfig, ...options });
   }
 
   private async getSessionId (): Promise<string> {
@@ -445,7 +444,7 @@ export default class SynologyDownloadStation implements TorrentClient {
     return this.login();
   }
 
-  async addTorrent (urls: string, options: Partial<AddTorrentOptions> = {}): Promise<boolean> {
+  async addTorrent (url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
     // 基本参数
     const params: DSRequestField = {
       api: 'SYNO.DownloadStation2.Task',
@@ -454,21 +453,23 @@ export default class SynologyDownloadStation implements TorrentClient {
       create_list: false
     };
 
-    if (urls.startsWith('magnet:') || !options.localDownload) {
+    if (url.startsWith('magnet:') || !options.localDownload) {
       params.type = 'url';
-      params.url = [urls];
+      params.url = [url];
     } else {
       params._useForm = true;
       params.type = 'file';
       params.file = ['torrent'];
 
       // 获得本地请求的种子内容
-      const torrentReq = await axios.get(urls, {
-        responseType: 'blob'
+      const torrent = await this.getRemoteTorrentFile({
+        url,
+        ...(options.localDownloadOption || {})
       });
+
       params.torrent = {
-        content: torrentReq.data,
-        filename: 'file.torrent' // FIXME 根据请求头确定种子名
+        content: torrent.metadata.blob,
+        filename: torrent.name
       } as FormFile;
     }
 
@@ -496,15 +497,11 @@ export default class SynologyDownloadStation implements TorrentClient {
     return req.success;
   }
 
-  async getAllTorrents (): Promise<Torrent[]> {
+  async getAllTorrents (): Promise<CTorrent[]> {
     return await this.getTorrentsBy({});
   }
 
-  async getTorrent (id: any): Promise<Torrent> {
-    return (await this.getTorrentsBy({ ids: id }))[0];
-  }
-
-  async getTorrentsBy (filter: TorrentFilterRules): Promise<Torrent[]> {
+  override async getTorrentsBy (filter: CTorrentFilterRules): Promise<CTorrent[]> {
     const params: DSRequestField = {
       api: 'SYNO.DownloadStation2.Task',
       method: 'list',
@@ -526,35 +523,35 @@ export default class SynologyDownloadStation implements TorrentClient {
     }>;
 
     return req.data.task.filter(s => s.type === 'bt' /** 只选择bt种子返回 */).map(task => {
-      let state = TorrentState.unknown;
+      let state = CTorrentState.unknown;
       if (typeof task.status === 'string') {
         switch (task.status) {
           case 'downloading':
           case 'extracting':
-            state = TorrentState.downloading;
+            state = CTorrentState.downloading;
             break;
 
           case 'seeding':
           case 'finished':
           case 'finishing':
-            state = TorrentState.seeding;
+            state = CTorrentState.seeding;
             break;
 
           case 'paused':
-            state = TorrentState.paused;
+            state = CTorrentState.paused;
             break;
 
           case 'filehosting_waiting':
           case 'waiting':
-            state = TorrentState.queued;
+            state = CTorrentState.queued;
             break;
 
           case 'hash_checking':
-            state = TorrentState.checking;
+            state = CTorrentState.checking;
             break;
 
           case 'error':
-            state = TorrentState.error;
+            state = CTorrentState.error;
             break;
         }
       } else {
@@ -563,19 +560,19 @@ export default class SynologyDownloadStation implements TorrentClient {
          * https://gist.github.com/Rhilip/e1b72f5d5974998077805e5c31f1d53d#file-download-js-L746-L748
          */
         if (task.status > rawTaskStatusInt.TASK_ERROR) {
-          state = TorrentState.error; // 统一处理 state 大于 rawTaskStatusInt.TASK_ERROR 的情况
+          state = CTorrentState.error; // 统一处理 state 大于 rawTaskStatusInt.TASK_ERROR 的情况
         } else {
           switch (task.status) {
             case rawTaskStatusInt.TASK_WAITING:
             case rawTaskStatusInt.TASK_PREPROCESSING:
             case rawTaskStatusInt.TASK_PREPROCESSPASS:
             case rawTaskStatusInt.TASK_CAPTCHA_NEEDED:
-              state = TorrentState.queued;
+              state = CTorrentState.queued;
               break;
 
             case rawTaskStatusInt.TASK_DOWNLOADING:
             case rawTaskStatusInt.TASK_EXTRACTING: // 认为解压过程也是属于 download 状态
-              state = TorrentState.downloading;
+              state = CTorrentState.downloading;
               break;
 
             // 我们认为一些 finishing 和 finished 也是属于 paused 状态
@@ -584,16 +581,16 @@ export default class SynologyDownloadStation implements TorrentClient {
             case rawTaskStatusInt.TASK_DOWNLOADED:
             case rawTaskStatusInt.TASK_POSTPROCESSING:
             case rawTaskStatusInt.TASK_FINISHED:
-              state = TorrentState.paused;
+              state = CTorrentState.paused;
               break;
 
             case rawTaskStatusInt.TASK_HASH_CHECKING:
-              state = TorrentState.checking;
+              state = CTorrentState.checking;
               break;
 
             case rawTaskStatusInt.TASK_PRE_SEEDING:
             case rawTaskStatusInt.TASK_SEEDING:
-              state = TorrentState.seeding;
+              state = CTorrentState.seeding;
               break;
           }
         }
@@ -619,7 +616,7 @@ export default class SynologyDownloadStation implements TorrentClient {
         totalUploaded: upload,
         totalDownloaded: download
 
-      } as Torrent;
+      } as CTorrent;
     });
   }
 

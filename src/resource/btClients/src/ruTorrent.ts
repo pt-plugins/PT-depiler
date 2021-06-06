@@ -3,16 +3,14 @@
  * @see https://github.com/Rhilip/PT-Plugin/blob/master/src/script/client.js#L477_L543
  */
 import {
-  AddTorrentOptions, CustomPathDescription,
-  Torrent,
-  TorrentClient,
+  CAddTorrentOptions, CustomPathDescription,
+  CTorrent,
   TorrentClientConfig,
   TorrentClientMetaData,
-  TorrentFilterRules,
-  TorrentState
+  CTorrentState
 } from '../types';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { random } from 'lodash-es';
+import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
 
 export const clientConfig: TorrentClientConfig = {
   type: 'ruTorrent',
@@ -85,12 +83,11 @@ function iv (val: string | null) {
 }
 
 // noinspection JSUnusedGlobalSymbols
-export default class RuTorrent implements TorrentClient {
+export default class RuTorrent extends AbstractBittorrentClient<TorrentClientConfig> {
   readonly version = 'v0.0.1';
-  readonly config: TorrentClientConfig;
 
   constructor (options: Partial<TorrentClientConfig> = {}) {
-    this.config = { ...clientConfig, ...options };
+    super({ ...clientConfig, ...options });
   }
 
   async request <T> (config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> {
@@ -125,7 +122,7 @@ export default class RuTorrent implements TorrentClient {
     return true;
   }
 
-  async addTorrent (url: string, options: Partial<AddTorrentOptions> = {}): Promise<boolean> {
+  async addTorrent (url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
     let postData: URLSearchParams | FormData;
     if (url.startsWith('magnet:') || !options.localDownload) {
       postData = new URLSearchParams();
@@ -133,16 +130,16 @@ export default class RuTorrent implements TorrentClient {
     } else {
       postData = new FormData();
 
-      // FIXME 使用统一函数获取种子文件
-      const req = await axios.get(url, {
-        responseType: 'blob'
+      const torrent = await this.getRemoteTorrentFile({
+        url,
+        ...(options.localDownloadOption || {})
       });
 
-      postData.append('torrent_file', req.data, String(random(0, 4096, true)) + '.torrent');
+      postData.append('torrent_file', torrent.metadata.blob, torrent.name);
     }
 
     postData.append('json', '1'); // 让ruTorrent返回json
-    // postData.append('fast_resume', '1') // 快速恢复，禁用
+    // postData.append('fast_resume', '1') // 快速恢复，默认禁用
 
     if (options.savePath) {
       postData.append('dir_edit', options.savePath);
@@ -165,7 +162,7 @@ export default class RuTorrent implements TorrentClient {
     return data.result === 'Success';
   }
 
-  async getAllTorrents (): Promise<Torrent[]> {
+  async getAllTorrents (): Promise<CTorrent[]> {
     const postData = new URLSearchParams({ model: 'list' });
     const { data } = await this.requestHttpRpc<ListResponse>(postData);
 
@@ -187,20 +184,20 @@ export default class RuTorrent implements TorrentClient {
       const basePathPos = basePath.lastIndexOf('/');
       const savePath = (basePath.substring(basePathPos + 1) === rawTorrent[4]) ? basePath.substring(0, basePathPos) : basePath;
 
-      let state = TorrentState.unknown;
+      let state = CTorrentState.unknown;
       if (isOpen !== 0) {
         if ((getState === 0) || (isActive === 0)) {
-          state = TorrentState.paused;
+          state = CTorrentState.paused;
         } else {
           // eslint-disable-next-line eqeqeq
-          state = isCompleted ? TorrentState.seeding : TorrentState.downloading;
+          state = isCompleted ? CTorrentState.seeding : CTorrentState.downloading;
         }
       } else if (getHashing !== 0) {
-        state = TorrentState.queued;
+        state = CTorrentState.queued;
       } else if (isHashChecking !== 0) {
-        state = TorrentState.checking;
+        state = CTorrentState.checking;
       } else if (torrentMsg.length && torrentMsg !== 'Tracker: [Tried all trackers.]') {
-        state = TorrentState.error;
+        state = CTorrentState.error;
       }
 
       return {
@@ -219,28 +216,8 @@ export default class RuTorrent implements TorrentClient {
         downloadSpeed: iv(rawTorrent[12]),
         totalUploaded: iv(rawTorrent[9]),
         totalDownloaded: iv(rawTorrent[8])
-      } as Torrent;
+      } as CTorrent;
     });
-  }
-
-  async getTorrent (id: any): Promise<Torrent> {
-    return (await this.getTorrentsBy({ ids: id.toUpperCase() }))[0];
-  }
-
-  async getTorrentsBy (filter: TorrentFilterRules): Promise<Torrent[]> {
-    let torrents = await this.getAllTorrents();
-    if (filter.ids) {
-      const filterIds = Array.isArray(filter.ids) ? filter.ids : [filter.ids];
-      torrents = torrents.filter(t => {
-        return filterIds.includes(t.infoHash);
-      });
-    }
-
-    if (filter.complete) {
-      torrents = torrents.filter(t => t.isCompleted);
-    }
-
-    return torrents;
   }
 
   async pauseTorrent (id: any): Promise<boolean> {

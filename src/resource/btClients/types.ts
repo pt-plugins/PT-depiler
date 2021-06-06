@@ -1,6 +1,7 @@
 /**
  * 对于 Bittorrent 软件的定义
  */
+import { AxiosRequestConfig } from 'axios';
 
 export type TorrentClientFeature = 'CustomPath'
 
@@ -10,7 +11,7 @@ export const CustomPathDescription = '当前目录列表配置是指定硬盘上
 /**
  * 客户端配置信息
  */
-export interface TorrentClientBaseConfig {
+export interface BittorrentClientBaseConfig {
   /**
    * UUIDv4
    * 系统使用这个信息判断并生成唯一的客户端
@@ -49,7 +50,7 @@ export interface TorrentClientBaseConfig {
 }
 
 // 强制要求填写用户名和密码
-export interface TorrentClientConfig extends TorrentClientBaseConfig {
+export interface TorrentClientConfig extends BittorrentClientBaseConfig {
   username: string;
   password: string;
 }
@@ -71,7 +72,7 @@ export interface TorrentClientMetaData {
   }
 }
 
-export enum TorrentState {
+export enum CTorrentState {
   downloading = 'downloading',
   seeding = 'seeding',
   paused = 'paused',
@@ -82,7 +83,7 @@ export enum TorrentState {
 }
 
 // 获得到的种子实例
-export interface Torrent {
+export interface CTorrent {
   id: string | number;
   infoHash: string;
 
@@ -106,7 +107,7 @@ export interface Torrent {
 
   savePath: string;
   label?: string;
-  state: TorrentState;
+  state: CTorrentState;
 
   /**
    * total size of the torrent, in bytes
@@ -133,17 +134,18 @@ export interface Torrent {
 }
 
 // 种子筛选方法
-export interface TorrentFilterRules {
+export interface CTorrentFilterRules {
   ids?: any;
   complete?: boolean;
 }
 
 // 添加种子
-export interface AddTorrentOptions {
+export interface CAddTorrentOptions {
   /**
    * 是否本地下载
    */
   localDownload: boolean;
+  localDownloadOption?: AxiosRequestConfig;
 
   /**
    * 是否将种子置于暂停状态
@@ -160,34 +162,4 @@ export interface AddTorrentOptions {
    * Notice: Some clients didn't support it
    */
   label?: string;
-}
-
-/**
- * 客户端具体要实现的抽象方法
- */
-export interface TorrentClient {
-  // 实现的版本号 x.y.z 格式，目前暂无特别用处
-  version: string;
-
-  config: TorrentClientBaseConfig;
-
-  // 检查客户端是否可以连接
-  ping: () => Promise<boolean>;
-
-  // 获取种子信息的方法
-  getAllTorrents: () => Promise<Torrent[]>
-  getTorrentsBy: (filter: TorrentFilterRules) => Promise<Torrent[]>
-  getTorrent: (id: any) => Promise<Torrent>;
-
-  // 添加种子
-  addTorrent: (url: string, options: Partial<AddTorrentOptions>) => Promise<boolean>;
-
-  // 暂停种子
-  pauseTorrent: (id: any) => Promise<boolean>;
-
-  // 恢复种子
-  resumeTorrent: (id: any) => Promise<boolean>;
-
-  // 删除种子
-  removeTorrent: (id: any, removeData?: boolean) => Promise<boolean>;
 }

@@ -16,16 +16,28 @@
         
     }
     
-    export default class ${type} implements TorrentClient {
+    export default class ${type} extends AbstractBittorrentClient<T> {
         readonly version: string;  // 实现的版本号 x.y.z 格式，目前暂无特别用处
-        readonly config: TorrentClientBaseConfig;
-    
-        constructor (options: Partial<TorrentClientBaseConfig>) {}
-    
+
+        constructor (options: Partial<TorrentClientBaseConfig | TorrentClientConfig>) {
+            super({...clientConfig, ...options});
+        }
+
         // 检查客户端是否可以连接
         public async ping (): Promise<boolean> {}
     
-        // 获取种子信息的方法
+        /**
+         * 获取种子信息的方法
+         *
+         * 注意 abstract class 中内置了一种本地筛选种子的获取方法，
+         * 即从bt软件中获取所有种子，然后本地筛选，即 getAllTorrents -> getTorrentsBy -> getTorrent
+         * 此时只需要完成 getAllTorrents 方法的逻辑即可
+         *
+         * 如果该客户端支持在获取种子的时候进行筛选，
+         * 则建议将筛选给bt软件，即 getTorrentsBy -> getAllTorrents/getTorrent
+         * 此时，则同时需要完成 3个方法（部分情况下为其中1个或2个）的 override
+         *
+         */
         public async getAllTorrents (): Promise<Torrent[]> {}
         public async getTorrentsBy (filter: TorrentFilterRules): Promise<Torrent[]> {}
         public async getTorrent (id: any): Promise<Torrent> {}

@@ -2,15 +2,15 @@
  * TODO 注意，获取可用空间 的功能尚未实现
  */
 import {
-  AddTorrentOptions, CustomPathDescription,
-  Torrent, TorrentClient,
+  CAddTorrentOptions, CustomPathDescription,
+  CTorrent,
   TorrentClientConfig,
   TorrentClientMetaData,
-  TorrentFilterRules, TorrentState
+  CTorrentFilterRules, CTorrentState
 } from '../types';
 import urljoin from 'url-join';
-import { Buffer } from 'buffer';
 import axios, { AxiosResponse } from 'axios';
+import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
 
 export const clientConfig: TorrentClientConfig = {
   type: 'Transmission',
@@ -97,11 +97,7 @@ interface TransmissionAddTorrentOptions {
   paused: boolean,
 }
 
-interface TransmissionTorrent extends Torrent {
-  id: number | string;
-}
-
-interface TransmissionTorrentFilterRules extends TorrentFilterRules {
+interface TransmissionTorrentFilterRules extends CTorrentFilterRules {
   ids?: TransmissionTorrentIds;
 }
 
@@ -194,9 +190,8 @@ interface TransmissionTorrentRemoveArguments extends TransmissionTorrentBaseArgu
 }
 
 // noinspection JSUnusedGlobalSymbols
-export default class Transmission implements TorrentClient {
+export default class Transmission extends AbstractBittorrentClient<TorrentClientConfig> {
   readonly version = 'v0.1.0'
-  readonly config: TorrentClientConfig;
 
   private readonly torrentRequestFields : TransmissionTorrentsField[] = [
     'addedDate',
@@ -219,7 +214,7 @@ export default class Transmission implements TorrentClient {
   private sessionId : string = '';
 
   constructor (options: Partial<TorrentClientConfig> = {}) {
-    this.config = { ...clientConfig, ...options };
+    super({ ...clientConfig, ...options });
 
     // 修正服务器地址
     let address = this.config.address;
@@ -229,16 +224,18 @@ export default class Transmission implements TorrentClient {
     this.address = address;
   }
 
-  async addTorrent (url: string, options: Partial<AddTorrentOptions> = {}): Promise<boolean> {
+  async addTorrent (url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
     const addTorrentOptions : Partial<TransmissionAddTorrentOptions> = {
       paused: options.addAtPaused ?? false
     };
 
     if (options.localDownload) {
-      const req = await axios.get(url, {
-        responseType: 'arraybuffer'
+      const torrent = await this.getRemoteTorrentFile({
+        url,
+        ...(options.localDownloadOption || {})
       });
-      addTorrentOptions.metainfo = Buffer.from(req.data, 'binary').toString('base64');
+
+      addTorrentOptions.metainfo = torrent.metadata.base64;
     } else {
       addTorrentOptions.filename = url;
     }
@@ -264,15 +261,11 @@ export default class Transmission implements TorrentClient {
     }
   }
 
-  async getAllTorrents (): Promise<TransmissionTorrent[]> {
+  async getAllTorrents (): Promise<CTorrent[]> {
     return await this.getTorrentsBy({});
   }
 
-  async getTorrent (id: number | string): Promise<TransmissionTorrent> {
-    return (await this.getTorrentsBy({ ids: [id] }))[0];
-  }
-
-  async getTorrentsBy (filter: TransmissionTorrentFilterRules): Promise<TransmissionTorrent[]> {
+  override async getTorrentsBy (filter: TransmissionTorrentFilterRules): Promise<CTorrent[]> {
     const args: TransmissionTorrentGetArguments = {
       fields: this.torrentRequestFields
     };
@@ -283,18 +276,18 @@ export default class Transmission implements TorrentClient {
 
     const { data } = await this.request<TransmissionTorrentGetResponse>('torrent-get', args);
 
-    let returnTorrents: Torrent[] = data.arguments.torrents.map(torrent => {
-      let state = TorrentState.unknown;
+    let returnTorrents: CTorrent[] = data.arguments.torrents.map(torrent => {
+      let state = CTorrentState.unknown;
       if (torrent.status === 6) {
-        state = TorrentState.seeding;
+        state = CTorrentState.seeding;
       } else if (torrent.status === 4) {
-        state = TorrentState.downloading;
+        state = CTorrentState.downloading;
       } else if (torrent.status === 0) {
-        state = TorrentState.paused;
+        state = CTorrentState.paused;
       } else if (torrent.status === 2) {
-        state = TorrentState.checking;
+        state = CTorrentState.checking;
       } else if (torrent.status === 3 || torrent.status === 5) {
-        state = TorrentState.queued;
+        state = CTorrentState.queued;
       }
 
       return {
@@ -313,11 +306,11 @@ export default class Transmission implements TorrentClient {
         downloadSpeed: torrent.rateDownload,
         totalUploaded: torrent.uploadedEver,
         totalDownloaded: torrent.downloadedEver
-      } as Torrent;
+      } as CTorrent;
     });
 
     if (filter.complete) {
-      returnTorrents = returnTorrents.filter((t:Torrent) => t.isCompleted);
+      returnTorrents = returnTorrents.filter((t:CTorrent) => t.isCompleted);
     }
 
     return returnTorrents;

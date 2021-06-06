@@ -3,14 +3,14 @@
  * @see https://github.com/bittorrent/webui/wiki/Web-UI-API
  */
 import {
-  AddTorrentOptions,
-  Torrent,
-  TorrentClient,
+  CAddTorrentOptions,
+  CTorrent,
   TorrentClientConfig,
-  TorrentClientMetaData, TorrentFilterRules, TorrentState
+  TorrentClientMetaData, CTorrentState
 } from '../types';
 import urljoin from 'url-join';
 import axios from 'axios';
+import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
 
 export const clientConfig: TorrentClientConfig = {
   type: 'uTorrent',
@@ -98,16 +98,15 @@ interface TorrentListResponse extends BaseUtorrentResponse {
 }
 
 // noinspection JSUnusedGlobalSymbols
-export default class UTorrent implements TorrentClient {
+export default class UTorrent extends AbstractBittorrentClient<TorrentClientConfig> {
   readonly version = 'v0.0.1';
-  readonly config: TorrentClientConfig;
 
   readonly address: string;
 
   private _sid: string | null = null;
 
   constructor (options: Partial<TorrentClientConfig>) {
-    this.config = { ...clientConfig, ...options };
+    super({ ...clientConfig, ...options });
 
     // 修正GUI地址
     this.address = this.config.address;
@@ -172,7 +171,7 @@ export default class UTorrent implements TorrentClient {
     })).data;
   }
 
-  async addTorrent (url: string, options: Partial<AddTorrentOptions> = {}): Promise<boolean> {
+  async addTorrent (url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
     const _sid = await this.getSessionId();
 
     let formData: FormData | null = new FormData();
@@ -188,10 +187,12 @@ export default class UTorrent implements TorrentClient {
       params.s = url;
     } else if (options.localDownload) {
       params.action = 'add-file';
-      const req = await axios.get(url, {
-        responseType: 'blob'
+      const torrent = await this.getRemoteTorrentFile({
+        url,
+        ...(options.localDownloadOption || {})
       });
-      formData.append('torrent_file', req.data, 'file.torrent');
+
+      formData.append('torrent_file', torrent.metadata.blob, torrent.name);
     }
 
     await axios.post(this.address, formData, {
@@ -209,7 +210,7 @@ export default class UTorrent implements TorrentClient {
     return true;
   }
 
-  async getAllTorrents (): Promise<Torrent[]> {
+  async getAllTorrents (): Promise<CTorrent[]> {
     const req = await this.request<TorrentListResponse>('', {
       list: 1
     });
@@ -220,25 +221,25 @@ export default class UTorrent implements TorrentClient {
       const done = progress >= 100;
       const isCompleted = progress >= 100;
 
-      let state = TorrentState.unknown;
+      let state = CTorrentState.unknown;
       if (torrentState & STATE_PAUSED) {
-        state = TorrentState.paused;
+        state = CTorrentState.paused;
       } else if (torrentState & STATE_STARTED) {
         if (done) {
-          state = TorrentState.seeding;
+          state = CTorrentState.seeding;
         } else {
-          state = TorrentState.downloading;
+          state = CTorrentState.downloading;
         }
       } else if (torrentState & STATE_CHECKING) {
-        state = TorrentState.checking;
+        state = CTorrentState.checking;
       } else if (torrentState & STATE_ERROR) {
-        state = TorrentState.error;
+        state = CTorrentState.error;
       } else if (torrentState & STATE_QUEUED) {
-        state = TorrentState.queued;
+        state = CTorrentState.queued;
       } else if (done) {
-        state = TorrentState.paused;
+        state = CTorrentState.paused;
       } else {
-        state = TorrentState.paused;
+        state = CTorrentState.paused;
       }
 
       return {
@@ -257,26 +258,8 @@ export default class UTorrent implements TorrentClient {
         downloadSpeed: torrent[9],
         totalUploaded: torrent[6],
         totalDownloaded: torrent[5]
-      } as Torrent;
-    }) as Torrent[];
-  }
-
-  async getTorrent (id: any): Promise<Torrent> {
-    return (await this.getTorrentsBy({ ids: id }))[0];
-  }
-
-  async getTorrentsBy (filter: TorrentFilterRules): Promise<Torrent[]> {
-    let torrentList = await this.getAllTorrents();
-    if (filter.ids) {
-      const filterIds : string[] = typeof filter.ids === 'string' ? [filter.ids] : filter.ids;
-      torrentList = torrentList.filter(t => filterIds.includes(t.id as string));
-    }
-
-    if (filter.complete) {
-      torrentList = torrentList.filter(t => t.isCompleted);
-    }
-
-    return torrentList;
+      } as CTorrent;
+    }) as CTorrent[];
   }
 
   // 注意：uTorrent的pause, resume, remove均直接返回true，因为接口没返回具体成功没成功

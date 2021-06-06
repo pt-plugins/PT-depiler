@@ -1,0 +1,19 @@
+{
+  "name": "@ptpp/sites",
+  "version": "1.0.0",
+  "dependencies": {
+    "axios": "^0.21.1",
+    "sizzle": "^2.3.5",
+    "lodash-es": "^4.17.20",
+    "url-join": "^4.0.1",
+    "url-parse": "^1.4.7",
+    "urlencode": "^1.1.0"
+  },
+  "devDependencies": {
+    "@types/sizzle": "^2.3.3",
+    "@types/url-join": "^4.0.0",
+    "@types/url-parse": "^1.4.3",
+    "@types/urlencode": "^1.1.2",
+    "typescript": "~4.3.2"
+  }
+}

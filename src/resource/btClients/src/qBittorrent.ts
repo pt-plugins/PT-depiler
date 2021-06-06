@@ -4,13 +4,14 @@
  * 注意，因为使用大驼峰命名的形式，所以qBittorrent在各变量命名中均写成 QBittorrent
  */
 import {
-  AddTorrentOptions, CustomPathDescription,
-  Torrent, TorrentClient,
+  CAddTorrentOptions, CustomPathDescription,
+  CTorrent,
   TorrentClientConfig, TorrentClientMetaData,
-  TorrentFilterRules, TorrentState
+  CTorrentFilterRules, CTorrentState
 } from '../types';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import urljoin from 'url-join';
+import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
 
 export const clientConfig: TorrentClientConfig = {
   type: 'qBittorrent',
@@ -63,7 +64,7 @@ enum QbittorrentTorrentState {
   MissingFiles = 'missingFiles', // Torrent data files is missing
 }
 
-interface QbittorrentTorrent extends Torrent {
+interface QbittorrentTorrent extends CTorrent {
   id: string;
 }
 
@@ -79,7 +80,7 @@ type QbittorrentTorrentFilters =
   | 'stalled_uploading'
   | 'stalled_downloading';
 
-interface QbittorrentTorrentFilterRules extends TorrentFilterRules {
+interface QbittorrentTorrentFilterRules extends CTorrentFilterRules {
   hashes?: string | string[];
   filter?: QbittorrentTorrentFilters;
   category?: string;
@@ -139,14 +140,13 @@ function normalizePieces (pieces: string | string[], joinBy: string = '|'): stri
 }
 
 // noinspection JSUnusedGlobalSymbols
-export default class QBittorrent implements TorrentClient {
+export default class QBittorrent extends AbstractBittorrentClient<TorrentClientConfig> {
   readonly version = 'v0.1.0';
-  readonly config: TorrentClientConfig;
 
   isLogin: boolean | null = null;
 
   constructor (options: Partial<TorrentClientConfig> = {}) {
-    this.config = { ...clientConfig, ...options };
+    super({ ...clientConfig, ...options });
   }
 
   async ping (): Promise<boolean> {
@@ -184,18 +184,19 @@ export default class QBittorrent implements TorrentClient {
     });
   }
 
-  async addTorrent (urls: string, options: Partial<AddTorrentOptions> = {}): Promise<boolean> {
+  async addTorrent (url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
     const formData = new FormData();
 
     // 处理链接
-    if (urls.startsWith('magnet:') || !options.localDownload) {
-      formData.append('urls', urls);
+    if (url.startsWith('magnet:') || !options.localDownload) {
+      formData.append('urls', url);
     } else if (options.localDownload) {
-      const req = await axios.get(urls, {
-        responseType: 'blob'
+      const torrent = await this.getRemoteTorrentFile({
+        url,
+        ...(options.localDownloadOption || {})
       });
 
-      formData.append('torrents', req.data, '1.torrent'); // FIXME 使用
+      formData.append('torrents', torrent.metadata.blob, torrent.name);
     }
 
     // 将通用字段转成qbt字段
@@ -221,59 +222,60 @@ export default class QBittorrent implements TorrentClient {
     return res.data === 'Ok.';
   }
 
-  async getTorrentsBy (filter: QbittorrentTorrentFilterRules): Promise<QbittorrentTorrent[]> {
-    if (filter.hashes) {
-      filter.hashes = normalizePieces(filter.hashes);
-    }
+  override async getTorrentsBy (filter: CTorrentFilterRules): Promise<QbittorrentTorrent[]> {
+    const postFilter: QbittorrentTorrentFilterRules = {};
 
     // 将通用项处理成qbt对应的项目
+    if (filter.ids) {
+      postFilter.hashes = normalizePieces(filter.ids);
+    }
+
     if (filter.complete) {
-      filter.filter = 'completed';
-      delete filter.complete;
+      postFilter.filter = 'completed';
     }
 
     const res = await this.request('/torrents/info', { params: filter });
     return res.data.map((torrent: rawTorrent) => {
-      let state = TorrentState.unknown;
+      let state = CTorrentState.unknown;
 
       switch (torrent.state) {
         case QbittorrentTorrentState.ForcedDL:
         case QbittorrentTorrentState.Downloading:
         case QbittorrentTorrentState.MetaDL:
         case QbittorrentTorrentState.StalledDL:
-          state = TorrentState.downloading;
+          state = CTorrentState.downloading;
           break;
         case QbittorrentTorrentState.Allocating:
           // state = 'stalledDL';
-          state = TorrentState.queued;
+          state = CTorrentState.queued;
           break;
         case QbittorrentTorrentState.ForcedUP:
         case QbittorrentTorrentState.Uploading:
         case QbittorrentTorrentState.StalledUP:
-          state = TorrentState.seeding;
+          state = CTorrentState.seeding;
           break;
         case QbittorrentTorrentState.PausedDL:
-          state = TorrentState.paused;
+          state = CTorrentState.paused;
           break;
         case QbittorrentTorrentState.PausedUP:
           // state = 'completed';
-          state = TorrentState.paused;
+          state = CTorrentState.paused;
           break;
         case QbittorrentTorrentState.QueuedDL:
         case QbittorrentTorrentState.QueuedUP:
-          state = TorrentState.queued;
+          state = CTorrentState.queued;
           break;
         case QbittorrentTorrentState.CheckingDL:
         case QbittorrentTorrentState.CheckingUP:
         case QbittorrentTorrentState.QueuedForChecking:
         case QbittorrentTorrentState.CheckingResumeData:
         case QbittorrentTorrentState.Moving:
-          state = TorrentState.checking;
+          state = CTorrentState.checking;
           break;
         case QbittorrentTorrentState.Error:
         case QbittorrentTorrentState.Unknown:
         case QbittorrentTorrentState.MissingFiles:
-          state = TorrentState.error;
+          state = CTorrentState.error;
           break;
         default:
           break;
@@ -297,16 +299,12 @@ export default class QBittorrent implements TorrentClient {
         downloadSpeed: torrent.dlspeed,
         totalUploaded: torrent.uploaded,
         totalDownloaded: torrent.downloaded
-      } as Torrent;
+      } as CTorrent;
     });
   }
 
   async getAllTorrents (): Promise<QbittorrentTorrent[]> {
     return await this.getTorrentsBy({});
-  }
-
-  async getTorrent (id: any): Promise<QbittorrentTorrent> {
-    return (await this.getTorrentsBy({ hashes: id }))[0];
   }
 
   // 注意方法虽然支持一次对多个种子进行操作，但仍建议每次均只操作一个种子

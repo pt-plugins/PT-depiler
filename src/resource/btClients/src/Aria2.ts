@@ -4,21 +4,17 @@
  * 但是允许用户填入 http:// 开头的地址
  */
 import {
-  AddTorrentOptions,
+  CAddTorrentOptions,
   CustomPathDescription,
-  Torrent,
-  TorrentClient,
-  TorrentClientBaseConfig,
+  CTorrent,
+  BittorrentClientBaseConfig,
   TorrentClientMetaData,
-  TorrentFilterRules,
-  TorrentState
+  CTorrentState
 } from '../types';
 import urljoin from 'url-join';
-import axios from 'axios';
-import { Buffer } from 'buffer';
-import { v4 as uuidv4 } from 'uuid';
+import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
 
-export const clientConfig: TorrentClientBaseConfig = {
+export const clientConfig: BittorrentClientBaseConfig = {
   type: 'Aria2',
   name: 'Aria2',
   uuid: 'eea06ce1-3f86-4b9f-a411-f39d97ce8462',
@@ -100,26 +96,26 @@ interface rawTask {
   numSeeders?: number
 }
 
-function parseRawTorrent (rawTask: rawTask): Torrent {
+function parseRawTorrent (rawTask: rawTask): CTorrent {
   const progress = (rawTask.completedLength / rawTask.totalLength) || 0;
-  let state = TorrentState.unknown;
+  let state = CTorrentState.unknown;
   switch (rawTask.status) {
     case 'active':
-      state = progress >= 100 ? TorrentState.seeding : TorrentState.downloading;
+      state = progress >= 100 ? CTorrentState.seeding : CTorrentState.downloading;
       break;
 
     case 'error':
     case 'removed':
-      state = TorrentState.error;
+      state = CTorrentState.error;
       break;
 
     case 'complete':
     case 'paused':
-      state = TorrentState.paused;
+      state = CTorrentState.paused;
       break;
 
     case 'waiting':
-      state = TorrentState.queued;
+      state = CTorrentState.queued;
       break;
   }
 
@@ -138,17 +134,21 @@ function parseRawTorrent (rawTask: rawTask): Torrent {
     totalDownloaded: Number(rawTask.completedLength),
     uploadSpeed: Number(rawTask.uploadSpeed),
     downloadSpeed: Number(rawTask.downloadSpeed)
-  } as Torrent;
+  } as CTorrent;
 }
 
-export default class Aria2 implements TorrentClient {
+export default class Aria2 extends AbstractBittorrentClient {
   readonly version = 'v0.1.0';
-  readonly config: TorrentClientBaseConfig;
 
   private _wsClient: WebSocket;
+  private _msgId: number = 0;
 
-  constructor (options: Partial<TorrentClientBaseConfig>) {
-    this.config = { ...clientConfig, ...options };
+  get msgId () {
+    return this._msgId++;
+  }
+
+  constructor (options: Partial<BittorrentClientBaseConfig>) {
+    super({ ...clientConfig, ...options });
 
     // 修正服务器地址
     let address = this.config.address;
@@ -174,7 +174,7 @@ export default class Aria2 implements TorrentClient {
         postParams = [`token:${this.config.password}`, ...params];
       }
 
-      const msgId = uuidv4();
+      const msgId = String(this.msgId);
 
       this._wsClient.addEventListener('message', (event) => {
         const data: jsonRPCResponse<T> = JSON.parse(event.data);
@@ -198,7 +198,7 @@ export default class Aria2 implements TorrentClient {
     }
   }
 
-  async addTorrent (url: string, options: Partial<AddTorrentOptions> = {}): Promise<boolean> {
+  async addTorrent (url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
     const addOption: any = {
       pause: options.addAtPaused ?? false
     };
@@ -216,11 +216,12 @@ export default class Aria2 implements TorrentClient {
     } else { // 文件 add_torrent_file
       method = 'aria2.addTorrent';
 
-      const req = await axios.get(url, {
-        responseType: 'arraybuffer'
-      }); // FIXME 使用统一的种子文件获取方法获取
-      const metainfo = Buffer.from(req.data, 'binary').toString('base64');
-      params = [metainfo, [], addOption];
+      const torrent = await this.getRemoteTorrentFile({
+        url,
+        ...(options.localDownloadOption ?? {})
+      });
+
+      params = [torrent.metadata.base64, [], addOption];
     }
 
     try {
@@ -231,8 +232,8 @@ export default class Aria2 implements TorrentClient {
     }
   }
 
-  async getAllTorrents (): Promise<Torrent[]> {
-    const torrents: Torrent[] = [];
+  async getAllTorrents (): Promise<CTorrent[]> {
+    const torrents: CTorrent[] = [];
     const { result: tasks } = await this.methodSend<[[rawTask[]], [rawTask[]], [rawTask[]]]>(
       'system.multicall', [
         { methodName: 'aria2.tellActive', params: [] },
@@ -252,25 +253,9 @@ export default class Aria2 implements TorrentClient {
     return torrents;
   }
 
-  async getTorrent (id: string): Promise<Torrent> {
+  override async getTorrent (id: string): Promise<CTorrent> {
     const { result: task } = await this.methodSend<rawTask>('aria2.tellStatus', [id]);
     return parseRawTorrent(task);
-  }
-
-  async getTorrentsBy (filter: TorrentFilterRules): Promise<Torrent[]> {
-    let torrents = await this.getAllTorrents();
-    if (filter.ids) {
-      const filterIds = Array.isArray(filter.ids) ? filter.ids : [filter.ids];
-      torrents = torrents.filter(t => {
-        return filterIds.includes(t.infoHash);
-      });
-    }
-
-    if (filter.complete) {
-      torrents = torrents.filter(t => t.isCompleted);
-    }
-
-    return torrents;
   }
 
   async pauseTorrent (id: string): Promise<boolean> {

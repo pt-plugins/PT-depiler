@@ -2,17 +2,16 @@
  * @see https://deluge.readthedocs.io/en/develop/reference/index.html
  */
 import {
-  AddTorrentOptions, CustomPathDescription,
-  Torrent,
-  TorrentClient,
-  TorrentClientBaseConfig, TorrentClientMetaData,
-  TorrentFilterRules, TorrentState
+  CAddTorrentOptions, CustomPathDescription,
+  CTorrent,
+  BittorrentClientBaseConfig, TorrentClientMetaData,
+  CTorrentFilterRules, CTorrentState
 } from '../types';
 import urljoin from 'url-join';
-import { Buffer } from 'buffer';
 import axios, { AxiosResponse } from 'axios';
+import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
 
-export const clientConfig: TorrentClientBaseConfig = {
+export const clientConfig: BittorrentClientBaseConfig = {
   type: 'Deluge',
   name: 'Deluge',
   uuid: '4e97f300-0a69-4c5b-ba8b-c0ac7031607e',
@@ -129,7 +128,7 @@ interface DelugeRawTorrent {
   'total_done': number;
 }
 
-interface DelugeTorrentFilterRules extends TorrentFilterRules {
+interface DelugeTorrentFilterRules extends CTorrentFilterRules {
   hash?: string,
   state?: string
 }
@@ -139,9 +138,8 @@ interface DelugeBooleanStatus extends DelugeDefaultResponse {
 }
 
 // noinspection JSUnusedGlobalSymbols
-export default class Deluge implements TorrentClient {
+export default class Deluge extends AbstractBittorrentClient {
   readonly version = 'v0.1.0';
-  readonly config: TorrentClientBaseConfig;
 
   private readonly address: string;
   private _msgId: number;
@@ -159,8 +157,8 @@ export default class Deluge implements TorrentClient {
     'total_size'
   ]
 
-  constructor (options: Partial<TorrentClientBaseConfig>) {
-    this.config = { ...clientConfig, ...options };
+  constructor (options: Partial<BittorrentClientBaseConfig>) {
+    super({ ...clientConfig, ...options });
     this._msgId = 0;
 
     // 修正服务器地址
@@ -175,7 +173,7 @@ export default class Deluge implements TorrentClient {
     return await this.login();
   }
 
-  async addTorrent (url: string, options: Partial<AddTorrentOptions> = {}): Promise<boolean> {
+  async addTorrent (url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
     const delugeOptions: any = {
       add_paused: options.addAtPaused ?? false
     };
@@ -193,12 +191,12 @@ export default class Deluge implements TorrentClient {
     } else { // 文件 add_torrent_file
       method = 'core.add_torrent_file';
 
-      // FIXME 使用统一的种子文件获取方法获取
-      const req = await axios.get(url, {
-        responseType: 'arraybuffer'
+      const torrent = await this.getRemoteTorrentFile({
+        url,
+        ...(options.localDownloadOption || {})
       });
-      const metainfo = Buffer.from(req.data, 'binary').toString('base64');
-      params = ['', metainfo, delugeOptions];
+
+      params = ['', torrent.metadata.base64, delugeOptions];
     }
 
     try {
@@ -216,15 +214,11 @@ export default class Deluge implements TorrentClient {
     }
   }
 
-  async getAllTorrents (): Promise<Torrent[]> {
+  async getAllTorrents (): Promise<CTorrent[]> {
     return await this.getTorrentsBy({});
   }
 
-  async getTorrent (id: string): Promise<Torrent> {
-    return (await this.getTorrentsBy({ ids: id }))[0];
-  }
-
-  async getTorrentsBy (filter: DelugeTorrentFilterRules): Promise<Torrent[]> {
+  override async getTorrentsBy (filter: DelugeTorrentFilterRules): Promise<CTorrent[]> {
     if (filter.ids) {
       filter.hash = filter.ids;
       delete filter.ids;
@@ -243,9 +237,9 @@ export default class Deluge implements TorrentClient {
     // @ts-ignore
     return Object.values(data.result).map((torrent: DelugeRawTorrent) => {
       // normalize state to enum
-      let state = TorrentState.unknown;
-      if (Object.keys(TorrentState).includes(torrent.state.toLowerCase())) {
-        state = TorrentState[torrent.state.toLowerCase() as keyof typeof TorrentState];
+      let state = CTorrentState.unknown;
+      if (Object.keys(CTorrentState).includes(torrent.state.toLowerCase())) {
+        state = CTorrentState[torrent.state.toLowerCase() as keyof typeof CTorrentState];
       }
 
       return {
@@ -263,7 +257,7 @@ export default class Deluge implements TorrentClient {
         downloadSpeed: torrent.download_payload_rate,
         totalUploaded: torrent.total_uploaded,
         totalDownloaded: torrent.total_done
-      } as Torrent;
+      } as CTorrent;
     });
   }
 

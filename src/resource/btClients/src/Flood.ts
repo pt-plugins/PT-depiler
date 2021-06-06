@@ -8,17 +8,15 @@
  */
 
 import {
-  AddTorrentOptions, CustomPathDescription,
-  Torrent,
-  TorrentClient,
+  CAddTorrentOptions, CustomPathDescription,
+  CTorrent,
   TorrentClientConfig,
   TorrentClientMetaData,
-  TorrentFilterRules,
-  TorrentState
+  CTorrentState
 } from '../types';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import urljoin from 'url-join';
-import { Buffer } from 'buffer';
+import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
 
 export const clientConfig: TorrentClientConfig = {
   type: 'Flood',
@@ -253,14 +251,13 @@ interface TorrentListSummaryResponse {
 }
 
 // noinspection JSUnusedGlobalSymbols
-export default class Flood implements TorrentClient {
+export default class Flood extends AbstractBittorrentClient {
   readonly version = 'v0.0.1';
-  readonly config: TorrentClientConfig;
 
   private apiType?: FloodApiType;
 
   constructor (options: Partial<TorrentClientConfig> = {}) {
-    this.config = { ...clientConfig, ...options };
+    super({ ...clientConfig, ...options });
   }
 
   private async getEndPointType (): Promise<FloodApiType> {
@@ -330,7 +327,7 @@ export default class Flood implements TorrentClient {
     }
   }
 
-  async addTorrent (url: string, options: Partial<AddTorrentOptions> = {}): Promise<boolean> {
+  async addTorrent (url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
     let postData: any = {
       destination: '',
       tags: []
@@ -358,11 +355,13 @@ export default class Flood implements TorrentClient {
       });
     } else {
       const endPointType = await this.getEndPointType();
+      const torrent = await this.getRemoteTorrentFile({
+        url,
+        ...(options.localDownloadOption || {})
+      });
+
       if (endPointType === 'jesec') {
-        const req = await axios.get(url, {
-          responseType: 'arraybuffer'
-        });
-        postData.files = [Buffer.from(req.data, 'binary').toString('base64')];
+        postData.files = [torrent.metadata.base64];
       } else {
         const formData = new FormData();
 
@@ -371,10 +370,7 @@ export default class Flood implements TorrentClient {
           formData.append(key, value);
         });
 
-        const req = await axios.get(url, {
-          responseType: 'blob'
-        });
-        formData.append('torrents', req.data, 'file.torrent');
+        formData.append('torrents', torrent.metadata.blob, torrent.name);
         postData = formData; // 覆写postData
       }
 
@@ -387,7 +383,7 @@ export default class Flood implements TorrentClient {
     return true;
   }
 
-  async getAllTorrents (): Promise<Torrent[]> {
+  async getAllTorrents (): Promise<CTorrent[]> {
     const endPointType = await this.getEndPointType();
 
     let rawTorrents: TorrentList;
@@ -413,17 +409,17 @@ export default class Flood implements TorrentClient {
         return judge.some(s => rawTorrent.status.includes(s));
       };
 
-      let state = TorrentState.unknown;
+      let state = CTorrentState.unknown;
       if (statusInclude(['downloading', 'd', 'ad'])) {
-        state = TorrentState.downloading;
+        state = CTorrentState.downloading;
       } else if (statusInclude(['seeding', 'sd', 'au'])) {
-        state = TorrentState.seeding;
+        state = CTorrentState.seeding;
       } else if (statusInclude(['stopped', 'p', 's'])) {
-        state = TorrentState.paused;
+        state = CTorrentState.paused;
       } else if (statusInclude(['checking', 'ch'])) {
-        state = TorrentState.checking;
+        state = CTorrentState.checking;
       } else if (statusInclude(['error', 'e'])) {
-        state = TorrentState.error;
+        state = CTorrentState.error;
       }
 
       return {
@@ -442,28 +438,8 @@ export default class Flood implements TorrentClient {
         downloadSpeed: rawTorrent.downRate,
         totalUploaded: rawTorrent.upTotal,
         totalDownloaded: rawTorrent.downTotal
-      } as Torrent;
-    }) as Torrent[];
-  }
-
-  async getTorrent (id: any): Promise<Torrent> {
-    return (await this.getTorrentsBy({ ids: id }))[0];
-  }
-
-  async getTorrentsBy (filter: TorrentFilterRules): Promise<Torrent[]> {
-    let torrents = await this.getAllTorrents();
-    if (filter.ids) {
-      const filterIds = Array.isArray(filter.ids) ? filter.ids : [filter.ids];
-      torrents = torrents.filter(t => {
-        return filterIds.includes(t.infoHash);
-      });
-    }
-
-    if (filter.complete) {
-      torrents = torrents.filter(t => t.isCompleted);
-    }
-
-    return torrents;
+      } as CTorrent;
+    }) as CTorrent[];
   }
 
   async pauseTorrent (id: any): Promise<boolean> {
