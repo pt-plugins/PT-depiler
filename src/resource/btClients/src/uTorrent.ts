@@ -278,12 +278,7 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
   }
 
   private async setTorrentProp (id:string, props: Record<string, string | number>): Promise<boolean> {
-    const params = new URLSearchParams();
-    for (const prop of Object.entries(props)) {
-      params.set(prop[0], prop[1].toString());
-    }
-    params.set('hash', id);
-    await this.request<BaseUtorrentResponse>('setprops', params);
+    await this.request<BaseUtorrentResponse>('setprops', { hash: id, ...props });
     return true;
   }
 
