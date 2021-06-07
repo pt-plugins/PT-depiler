@@ -56,7 +56,11 @@ export default abstract class AbstractBittorrentClient<T extends BittorrentClien
     const metaDataBuffer = Buffer.from(req.data, 'binary');
     const parsedInfo = parseTorrent(metaDataBuffer) as TorrentInstance;
 
-    // 设置种子名字
+    /**
+     * 设置种子名字
+     * 如果服务器显式设置 content-disposition 头，则我们尊重服务器设置
+     * 不然，文件名会被设置为解析后的种子名
+     */
     let torrentName = parsedInfo.name || '1.torrent';
     if (req.headers['content-disposition']) {
       const parsedContentDisposition = contentDisposition.parse(req.headers['content-disposition']);

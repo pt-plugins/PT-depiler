@@ -1,5 +1,5 @@
-import BittorrentSite from '@/background/sites/schema/AbstractBittorrentSite';
-import PrivateSite from '@/background/sites/schema/AbstractPrivateSite';
+import BittorrentSite from '@/resource/sites/src/schema/AbstractBittorrentSite';
+import PrivateSite from '@/resource/sites/src/schema/AbstractPrivateSite';
 import Container from '@/shared/class/container';
 import { SiteConfig, SiteMetadata } from '@/shared/interfaces/sites';
 import { siteName } from '@/shared/interfaces/types';
@@ -21,7 +21,7 @@ class Sites extends Container {
      * @refs: https://github.com/webpack/webpack/issues/9184
      *
      */
-    const context = require.context('@/background/sites/', true, /\.ts$/, 'weak');
+    const context = require.context('@/resource/sites/src/', true, /\.ts$/, 'weak');
     context.keys().forEach(value => {
       const moduleName = value.replace(/^\.\//, '').replace(/\.ts$/, '');
 
@@ -40,7 +40,7 @@ class Sites extends Container {
       /* webpackChunkName: "lib/sites/[request]" */
       /* webpackMode: "lazy" */
       /* webpackExports: ["default","siteMetadata"] */
-      `@/background/sites/${module}`) as {
+      `@/resource/sites/src/${module}`) as {
       default?: PrivateSite | BittorrentSite,
       siteMetadata: SiteMetadata
     };
