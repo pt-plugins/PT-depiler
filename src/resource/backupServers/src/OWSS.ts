@@ -1,4 +1,10 @@
-import { IBackupConfig, IBackupFileInfo, IBackupMetadata, IBackupServer } from '@/resource/backupServers/type';
+import {
+  IBackupConfig,
+  IBackupFileInfo,
+  IBackupFileListOption,
+  IBackupMetadata,
+  IBackupServer
+} from '@/resource/backupServers/type';
 import urljoin from 'url-join';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 
@@ -85,9 +91,8 @@ export default class OWSS implements IBackupServer<OWSSConfig> {
     }
   }
 
-  // TODO 筛选设置
-  public async list (options: any = {}): Promise<IBackupFileInfo[]> {
-    const { data: listData } = await this.request<OWSSResponse<OWSSRawList[]>>({ url: '/list' });
+  public async list (options: IBackupFileListOption = {}): Promise<IBackupFileInfo[]> {
+    const { data: listData } = await this.request<OWSSResponse<OWSSRawList[]>>({ url: '/list', params: options });
 
     const backupFiles : IBackupFileInfo[] = [];
 

@@ -1,4 +1,12 @@
-import { IBackupConfig, IBackupFileInfo, IBackupMetadata, IBackupServer } from '../type';
+import {
+  EListOrderBy,
+  EListOrderMode,
+  IBackupConfig,
+  IBackupFileInfo,
+  IBackupFileListOption,
+  IBackupMetadata,
+  IBackupServer
+} from '../type';
 import { FileStat, WebDAVClient } from 'webdav/web/types';
 import { AuthType, createClient } from 'webdav/web';
 
@@ -51,7 +59,7 @@ export default class WebDAV implements IBackupServer<WebDAVConfig> {
     }
   }
 
-  async list (options: any = {}): Promise<IBackupFileInfo[]> {
+  async list (options: IBackupFileListOption = {}): Promise<IBackupFileInfo[]> {
     const retFileList: IBackupFileInfo[] = [];
 
     const fileList = await this.server.getDirectoryContents('/', { glob: '*.zip' }) as FileStat[];
@@ -62,6 +70,34 @@ export default class WebDAV implements IBackupServer<WebDAVConfig> {
         time: new Date(item.lastmod).getTime()
       } as IBackupFileInfo);
     });
+
+    if (retFileList.length > 0 && Object.keys(options).length > 0) {
+      const orderMode: EListOrderMode = options.orderMode ?? EListOrderMode.desc;
+      const orderBy: EListOrderBy = options.orderBy ?? EListOrderBy.time;
+
+      retFileList.sort((a, b) => {
+        let v1, v2;
+        switch (orderBy) {
+          case EListOrderBy.name:
+            v1 = a.filename;
+            v2 = b.filename;
+            break;
+          case EListOrderBy.size:
+            v1 = a.size;
+            v2 = b.size;
+            break;
+
+          case EListOrderBy.time:
+          default:
+            v1 = a.time;
+            v2 = b.time;
+            break;
+        }
+
+        const compareRep = v1.toString().localeCompare(v2.toString());
+        return orderMode === EListOrderMode.desc ? -compareRep : compareRep;
+      });
+    }
 
     return retFileList;
   }

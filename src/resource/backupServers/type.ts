@@ -24,6 +24,22 @@ export interface IBackupFileInfo {
   size: number
 }
 
+export enum EListOrderBy {
+  time = 'time',
+  name = 'name',
+  size = 'size'
+}
+
+export enum EListOrderMode {
+  desc = 'desc',
+  asc = 'asc'
+}
+
+export interface IBackupFileListOption {
+  orderBy?: EListOrderBy,
+  orderMode?: EListOrderMode
+}
+
 export interface IBackupServer<T extends IBackupConfig> {
   config: T;
 
@@ -36,7 +52,7 @@ export interface IBackupServer<T extends IBackupConfig> {
    * 获取资源列表
    * @param options
    */
-  list: (options: any) => Promise<IBackupFileInfo[]>;
+  list: (options: IBackupFileListOption) => Promise<IBackupFileInfo[]>;
 
   addFile: (fileName: string, file: Blob) => Promise<boolean>;
 
