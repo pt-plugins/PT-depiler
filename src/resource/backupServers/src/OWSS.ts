@@ -42,8 +42,10 @@ export const serverConfig: OWSSConfig = {
   config: { authCode: '' }
 };
 
-export const serverMetaData: IBackupMetadata = {
-
+export const serverMetaData: IBackupMetadata<OWSSConfig> = {
+  requiredField: [
+    { name: '授权码', key: 'authCode', type: 'string', description: 'OWSS首次部署时生成的授权码' }
+  ]
 };
 
 /**

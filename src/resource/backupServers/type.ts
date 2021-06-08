@@ -9,8 +9,13 @@ export interface IBackupConfig {
   config: Record<string, string | boolean | number>;
 }
 
-export interface IBackupMetadata {
-  // TODO
+export interface IBackupMetadata<T extends IBackupConfig> {
+  requiredField: {
+    name?: string, // 显示名称，可以是一个 vue-i18n 键值，如果缺失，则直接显示为 key 的值
+    key: keyof T['config'],
+    type: 'string' | 'boolean' | 'number',
+    description?: string
+  }[]
 }
 
 export interface IBackupFileInfo {

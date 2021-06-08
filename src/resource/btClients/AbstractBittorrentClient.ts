@@ -35,7 +35,7 @@ export default abstract class AbstractBittorrentClient<T extends BittorrentClien
   // 检查客户端是否可以连接
   public abstract ping (): Promise<boolean>;
 
-  async getRemoteTorrentFile (options: AxiosRequestConfig = {}): Promise<ParsedTorrent> {
+  public async getRemoteTorrentFile (options: AxiosRequestConfig = {}): Promise<ParsedTorrent> {
     const req = await axios.request({
       ...options,
       responseType: 'arraybuffer' // 统一以 ArrayBuffer 形式获取
@@ -90,7 +90,7 @@ export default abstract class AbstractBittorrentClient<T extends BittorrentClien
    * 此时只需要完成 getAllTorrents 方法的逻辑即可
    *
    * 如果该客户端支持在获取种子的时候进行筛选，
-   * 则建议将筛选给bt软件，即 getTorrentsBy -> getAllTorrents/getTorrent
+   * 则建议将筛选步骤推送给bt软件，即 getTorrentsBy -> getAllTorrents/getTorrent
    * 此时，则同时需要完成 3个方法（部分情况下为其中1个或2个）的 override
    *
    */
