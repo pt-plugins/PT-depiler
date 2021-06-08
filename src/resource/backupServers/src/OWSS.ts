@@ -86,7 +86,7 @@ export default class OWSS implements IBackupServer<OWSSConfig> {
   }
 
   // TODO 筛选设置
-  public async list (options: any): Promise<IBackupFileInfo[]> {
+  public async list (options: any = {}): Promise<IBackupFileInfo[]> {
     const { data: listData } = await this.request<OWSSResponse<OWSSRawList[]>>({ url: '/list' });
 
     const backupFiles : IBackupFileInfo[] = [];

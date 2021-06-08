@@ -51,7 +51,7 @@ export default class WebDAV implements IBackupServer<WebDAVConfig> {
     }
   }
 
-  async list (options: any): Promise<IBackupFileInfo[]> {
+  async list (options: any = {}): Promise<IBackupFileInfo[]> {
     const retFileList: IBackupFileInfo[] = [];
 
     const fileList = await this.server.getDirectoryContents('/', { glob: '*.zip' }) as FileStat[];
