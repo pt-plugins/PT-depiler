@@ -1,8 +1,6 @@
 
 export type transPostDataTo = 'raw' | 'form' | 'params'
 
-export type timezoneOffset = `${'UTC' | ''}${'-' | '+'}${number}`
-
 export type fullUrl = `${'http' | 'https'}://${string}/`
 
 // btoa('http') -> "aHR0cA=="
@@ -10,5 +8,3 @@ export type fullUrl = `${'http' | 'https'}://${string}/`
 // btoa('http://') -> "aHR0cDovLw=="
 // btoa('https://') -> "aHR0cHM6Ly8="
 export type fullUrlProtect = `aHR0c${string}`
-
-export type siteName = `${'private' | 'public'}/${string}`

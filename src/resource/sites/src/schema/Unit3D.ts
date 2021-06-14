@@ -1,13 +1,13 @@
 import PrivateSite from '../schema/AbstractPrivateSite';
-import { SiteConfig, UserInfo } from '@/shared/interfaces/sites';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
+import { SiteConfig, IUserInfo } from '../../types';
+import { ETorrentStatus } from '../../types/torrent';
 import {
   findThenParseNumberString,
   findThenParseSizeString,
   parseSizeString,
   parseTimeToLive
 } from '@/shared/utils/filter';
-import dayjs from '@/shared/utils/dayjs';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 import urljoin from 'url-join';
 
 /**
@@ -19,7 +19,7 @@ const seedingSizeTrans: string[] = ['Seeding Size', '做种体积', '做種體�
 const joinTimeTrans :string[] = ['Registration date', '注册日期', '註冊日期'];
 
 export default class Unit3D extends PrivateSite {
-  protected readonly initConfig: Partial<SiteConfig> = {
+  protected override readonly initConfig: Partial<SiteConfig> = {
     timezoneOffset: '+0000',
     search: {
       keywordsParam: 'search',
@@ -216,9 +216,9 @@ export default class Unit3D extends PrivateSite {
     }
   }
 
-  async flushUserInfo (): Promise<UserInfo> {
+  override async flushUserInfo (): Promise<IUserInfo> {
     const lastUserInfo = await this.getLastUserInfo();
-    let flushUserInfo: Partial<UserInfo> = {};
+    let flushUserInfo: Partial<IUserInfo> = {};
 
     let userName: string;
     if (lastUserInfo !== null && lastUserInfo.name) {
@@ -232,7 +232,7 @@ export default class Unit3D extends PrivateSite {
     // 导入基本 Details 页面获取到的用户信息
     flushUserInfo = Object.assign(flushUserInfo, await this.getUserInfoFromDetailsPage(userName));
 
-    return flushUserInfo as UserInfo;
+    return flushUserInfo as IUserInfo;
   }
 
   protected async getUserNameFromSite (): Promise<string> {
@@ -240,17 +240,17 @@ export default class Unit3D extends PrivateSite {
     return this.getFieldData(indexDocument, this.config.selector?.userInfo?.name!);
   }
 
-  protected async getUserInfoFromDetailsPage (userName: string): Promise<Partial<UserInfo>> {
+  protected async getUserInfoFromDetailsPage (userName: string): Promise<Partial<IUserInfo>> {
     const { data: userDetailDocument } = await this.request<Document>({
       url: urljoin('/users', userName),
       responseType: 'document'
     });
 
-    const detailsPageAttrs: (keyof UserInfo)[] = [
+    const detailsPageAttrs: (keyof IUserInfo)[] = [
       'id', 'messageCount', 'uploaded', 'downloaded',
       'levelName', 'bonus', 'joinTime', 'seeding', 'seedingSize', 'leeching'
     ];
 
-    return this.getFieldsData(userDetailDocument, 'userInfo', detailsPageAttrs) as Partial<UserInfo>;
+    return this.getFieldsData(userDetailDocument, 'userInfo', detailsPageAttrs) as Partial<IUserInfo>;
   }
 }

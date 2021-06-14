@@ -1,5 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
+import { ISiteMetadata, ETorrentStatus } from '../../types';
 import NexusPHP from '../schema/NexusPHP';
 import { findThenParseSizeString } from '@/shared/utils/filter';
 
@@ -24,7 +23,7 @@ const levelMap = {
   17: '市长(Mayor)'
 };
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'HDCity',
   schema: 'NexusPHP',
   url: 'https://hdcity.city/',
@@ -178,13 +177,13 @@ export const siteMetadata: SiteMetadata = {
 
 export default class hdcity extends NexusPHP {
   // FIXME 这会导致第一次请求时出现两次 /userdetails 页面请求，不过问题不大2333
-  protected async getUserIdFromSite (): Promise<number> {
+  protected override async getUserIdFromSite (): Promise<number> {
     const userDetailDocument = await this.requestUserDetailsPage(null);
     const userId = this.getFieldData(userDetailDocument, this.config.selector?.userInfo?.id!);
     return parseInt(userId);
   }
 
-  protected async requestUserDetailsPage (userId: number | null): Promise<Document> {
+  protected override async requestUserDetailsPage (userId: number | null): Promise<Document> {
     const { data: userDetailDocument } = await this.request<Document>({
       url: '/userdetails',
       // params: { id: userId },  // 该站点请求自己信息时可以不带入用户id
@@ -194,7 +193,7 @@ export default class hdcity extends NexusPHP {
     return userDetailDocument;
   }
 
-  protected async requestUserSeedingPage (userId: number, type: string = 'seeding'): Promise<string | null> {
+  protected override async requestUserSeedingPage (userId: number, type: string = 'seeding'): Promise<string | null> {
     const { data } = await this.request<string>({
       url: '/getusertorrentlistajax',
       params: { userid: userId, type }

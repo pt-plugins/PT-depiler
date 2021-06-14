@@ -1,8 +1,8 @@
-import { SiteMetadata, Torrent } from '@/shared/interfaces/sites';
+import { ISiteMetadata, ITorrent } from '../../types';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import urlparse from 'url-parse';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'TorrentSeeds',
   description: 'TorrentSeeds',
   url: 'https://www.torrentseeds.org/',
@@ -82,13 +82,13 @@ export const siteMetadata: SiteMetadata = {
 };
 
 export default class torrentseeds extends PrivateSite {
-  protected async transformSearchPage (doc: Document): Promise<Torrent[]> {
+  protected override async transformSearchPage (doc: Document): Promise<ITorrent[]> {
     // 当搜索结果只有1条时会自动重定向到种子详情页，这时直接解析页面
     if (/Info\shash/.test(doc.documentElement.outerHTML)) {
       return [
         this.getFieldsData(doc, 'detail',
           ['id', 'title', 'subTitle', 'url', 'link', 'time', 'size', 'author', 'category', 'seeders', 'leechers', 'completed', 'comments']
-        ) as Torrent
+        ) as ITorrent
       ];
     }
 

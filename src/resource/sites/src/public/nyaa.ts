@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'Nyaa Torrents',
   description: '一个侧重于东亚（中国、日本及韩国）多媒体资源的BitTorrent站点，是世界上最大的动漫专用种子索引站。',
   url: 'https://nyaa.si/',

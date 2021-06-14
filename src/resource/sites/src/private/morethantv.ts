@@ -1,11 +1,11 @@
-import { SiteMetadata, Torrent } from '@/shared/interfaces/sites';
+import { ISiteMetadata, ITorrent } from '../../types';
 import urlparse from 'url-parse';
 import { findThenParseSizeString } from '@/shared/utils/filter';
-import dayjs from '@/shared/utils/dayjs';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import Sizzle from 'sizzle';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'MoreThanTV',
   timezoneOffset: '+0000',
   description: 'MTV',
@@ -149,8 +149,8 @@ export const siteMetadata: SiteMetadata = {
 };
 
 export default class morethantv extends PrivateSite {
-  protected async transformSearchPage (doc: Document): Promise<Torrent[]> {
-    const torrents : Torrent[] = [];
+  protected override async transformSearchPage (doc: Document): Promise<ITorrent[]> {
+    const torrents : ITorrent[] = [];
     const trs = Sizzle('#torrent_table > tbody > tr.torrent', doc);
     trs.forEach(tr => {
       // 建立group基本信息: category, title, url, time, size, author , seeders, leechers, completed, comments
@@ -162,7 +162,7 @@ export default class morethantv extends PrivateSite {
       const torrentAnother = Sizzle('td:has(> .torrent_icon_container:has(a[href^="/torrents.php?action=download"]))', tr);
       torrentAnother.forEach(t => {
         const torrentInfo = this.getFieldsData(t, 'search', ['id', 'link', 'subTitle']);
-        torrents.push({ ...groupInfo, ...torrentInfo } as Torrent); // 将 groupInfo 和 torrentInfo 合并作为种子信息
+        torrents.push({ ...groupInfo, ...torrentInfo } as ITorrent); // 将 groupInfo 和 torrentInfo 合并作为种子信息
       });
     });
 

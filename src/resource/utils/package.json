@@ -1,0 +1,10 @@
+{
+  "name": "@ptpp/utils",
+  "version": "1.0.0",
+  "dependencies": {
+    "dayjs": "^1.10.3"
+  },
+  "devDependencies": {
+    "typescript": "~4.3.2"
+  }
+}

@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'Bemaniso',
   timezoneOffset: '+0000',
   description: 'Game,music',

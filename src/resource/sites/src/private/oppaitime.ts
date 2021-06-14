@@ -1,8 +1,8 @@
-import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites';
+import { ISiteMetadata, IUserInfo } from '../../types';
 import GazelleJSONAPI from '../schema/GazelleJSONAPI';
 import { parseSizeString } from '@/shared/utils/filter';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'Oppaitime',
   timezoneOffset: '+0000',
   description: '成人动漫站',
@@ -42,7 +42,7 @@ export const siteMetadata: SiteMetadata = {
 };
 
 export default class oppaitime extends GazelleJSONAPI {
-  protected async getUserSeedingTorrents (userId:number): Promise<Partial<UserInfo>> {
+  protected override async getUserSeedingTorrents (userId:number): Promise<Partial<IUserInfo>> {
     const { data: bonusPage } = await this.request<Document>({ url: '/user.php', params: { id: userId }, responseType: 'document' });
     return this.getFieldsData(bonusPage, 'userInfo', ['seedingSize', 'bonus']);
   }

@@ -1,8 +1,7 @@
 import urlparse from 'url-parse';
-import { SiteMetadata } from '@/shared/interfaces/sites';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
+import { ISiteMetadata, ETorrentStatus } from '../../types';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'HDSky',
   schema: 'NexusPHP',
   url: 'https://hdsky.me/',

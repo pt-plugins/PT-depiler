@@ -1,6 +1,5 @@
-import { SearchResultItemTag, SiteMetadata, UserInfo } from '@/shared/interfaces/sites';
+import { ISiteMetadata, IUserInfo, ETorrentBaseTagColor, ITorrentTag } from '../../types';
 import PrivateSite from '../schema/AbstractPrivateSite';
-import { ETorrentBaseTagColor } from '@/shared/interfaces/enum';
 import Sizzle from 'sizzle';
 import {
   findThenParseNumberString,
@@ -109,7 +108,7 @@ interface seedingResp {
   success: boolean;
 }
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'MyAnonaMouse',
   description: 'Friendliness, Warmth and Sharing',
   url: 'https://www.myanonamouse.net/',
@@ -228,8 +227,8 @@ export const siteMetadata: SiteMetadata = {
 };
 
 export default class myanonamouse extends PrivateSite {
-  protected parseTagsFromRow (row: rawTorrent): SearchResultItemTag[] {
-    const tags: SearchResultItemTag[] = [];
+  protected override parseTagsFromRow (row: rawTorrent): ITorrentTag[] {
+    const tags: ITorrentTag[] = [];
     if (row.vip) {
       tags.push({ name: 'VIP', color: ETorrentBaseTagColor.VIP });
     }
@@ -282,7 +281,7 @@ export default class myanonamouse extends PrivateSite {
     return retInfo;
   }
 
-  async flushUserInfo (): Promise<UserInfo> {
+  override async flushUserInfo (): Promise<IUserInfo> {
     let userInfo = await super.flushUserInfo();
 
     if (userInfo.id && (!userInfo.seeding || !userInfo.seedingSize)) {

@@ -1,8 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
+import { ISiteMetadata, ETorrentStatus } from '../../types';
 import { parseSizeString } from '@/shared/utils/filter';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'GGN',
   timezoneOffset: '+0000',
   description: 'Game',

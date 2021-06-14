@@ -1,8 +1,8 @@
-import { searchFilter, searchParams, SiteMetadata } from '@/shared/interfaces/sites';
+import { ISearchFilter, ISearchParams, ISiteMetadata } from '../../types';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import { AxiosRequestConfig } from 'axios';
 import urljoin from 'url-join';
-import dayjs from '@/shared/utils/dayjs';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 
 const categoryMap = new Map([
   [28, 'Anime/Anime'], [78, 'Anime/Dual Audio'], [79, 'Anime/Dubbed'], [80, 'Anime/Subbed'], [81, 'Anime/Raw'],
@@ -15,7 +15,7 @@ const categoryMap = new Map([
   [33, 'Other/Emulation'], [34, 'Other/Tutorial'], [35, 'Other/Sounds'], [36, 'Other/E-books'], [37, 'Other/Images'], [38, 'Other/Mobile Phone'], [39, 'Other/Comics'], [40, 'Other/Other'], [47, 'Other/Nulled Script'], [52, 'Other/Audiobook']
 ]);
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: '1337x',
   description: '1337X is a Public torrent site that offers verified torrent downloads',
   url: 'https://1337x.to/',
@@ -115,21 +115,21 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class x1337x extends BittorrentSite {
-  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter (filter: ISearchFilter): Promise<AxiosRequestConfig> {
     const { keywords, extraParams } = filter;
     let searchPath = 'search';
 
-    const category = extraParams?.filter((v: searchParams) => v.key === 'category')[0];
+    const category = extraParams?.filter((v: ISearchParams) => v.key === 'category')[0];
     if (category) {
       searchPath = 'category-' + searchPath;
     }
 
-    const sort = extraParams?.filter((v: searchParams) => v.key === 'sort')[0];
+    const sort = extraParams?.filter((v: ISearchParams) => v.key === 'sort')[0];
     if (sort) {
       searchPath = 'sort-' + searchPath;
     }
 
-    const order = extraParams?.filter((v: searchParams) => v.key === 'order')[0];
+    const order = extraParams?.filter((v: ISearchParams) => v.key === 'order')[0];
 
     return {
       /**

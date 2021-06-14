@@ -1,9 +1,9 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import { ISearchFilter, ISiteMetadata } from '../../types';
 import { parseTimeToLive } from '@/shared/utils/filter';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import { AxiosRequestConfig } from 'axios';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'EZTV',
   description: 'EZTV is a Public torrent site for TV shows',
   url: 'https://eztv.re/',
@@ -37,7 +37,7 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Eztv extends BittorrentSite {
-  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter (filter: ISearchFilter): Promise<AxiosRequestConfig> {
     const config = await super.transformSearchFilter(filter);
     config.url = filter.keywords ? `/search/${filter.keywords}` : '/';
     return config;

@@ -1,12 +1,11 @@
-import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites';
+import { ISiteMetadata, IUserInfo, ETorrentStatus } from '../../types';
 import urlparse from 'url-parse';
-import dayjs from '@/shared/utils/dayjs';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '@/shared/utils/filter';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import Sizzle from 'sizzle';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'HD-Torrents',
   timezoneOffset: '+0000',
   description: 'HD-Torrents.org',
@@ -142,7 +141,7 @@ export default class hdtorrents extends PrivateSite {
    * 根据 Jackett 的代码，似乎并不需要 csrfToken 就可以实现搜索，
    * 且根据搜索测试，确实可以不需要........
    *
-  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
     const config = await super.transformSearchFilter(filter)
 
     if (filter.keywords) { // 如果 keywords 存在，则需要获取 csrfToken
@@ -156,7 +155,7 @@ export default class hdtorrents extends PrivateSite {
   }
    */
 
-  async flushUserInfo (): Promise<UserInfo> {
+  override async flushUserInfo (): Promise<IUserInfo> {
     const baseUserInfo = await super.flushUserInfo();
 
     if (baseUserInfo.id && !baseUserInfo.seedingSize) {

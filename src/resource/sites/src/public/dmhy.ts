@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: '動漫花園資源網',
   description: '動漫花園資訊網是一個動漫愛好者交流的平台,提供最及時,最全面的動畫,漫畫,動漫音樂,動漫下載,BT,ED,動漫遊戲,資訊,分享,交流,讨论.',
   url: 'https://share.dmhy.org/',

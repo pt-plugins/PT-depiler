@@ -1,9 +1,9 @@
-import { searchFilter, SiteMetadata, Torrent } from '@/shared/interfaces/sites';
+import { ISearchFilter, ISiteMetadata, ITorrent } from '../../types';
 import urlparse from 'url-parse';
 import { findThenParseNumberString, parseSizeString } from '@/shared/utils/filter';
 import Gazelle from '../schema/Gazelle';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'AB',
   timezoneOffset: '+0000',
   description: '动漫',
@@ -63,7 +63,7 @@ export const siteMetadata: SiteMetadata = {
 
 export default class animebytes extends Gazelle {
   // FIXME 暂时以一种强硬的方式表示不支持搜索
-  public async searchTorrents (filter: searchFilter): Promise<Torrent[]> {
+  public override async searchTorrents (filter: ISearchFilter): Promise<ITorrent[]> {
     throw new Error('Not Support Now.');
   }
 }

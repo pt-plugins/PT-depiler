@@ -1,4 +1,4 @@
-import { searchFilter, SiteMetadata, Torrent } from '@/shared/interfaces/sites';
+import { ISearchFilter, ISiteMetadata, ITorrent } from '../../types';
 import { parseTimeToLive } from '@/shared/utils/filter';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import { AxiosRequestConfig } from 'axios';
@@ -52,7 +52,7 @@ const CategoryMap = new Map([
   ['/xxx/video/', 'XXX Video']
 ]);
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'EXT Torrents',
   description: 'EXT Torrents is a Public torrent site for MOVIES / TV / GENERAL',
   url: 'https://ext.to/',
@@ -100,14 +100,14 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Exttorrents extends BittorrentSite {
-  protected async transformSearchFilter (filter: searchFilter = {}): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter (filter: ISearchFilter = {}): Promise<AxiosRequestConfig> {
     const config = await super.transformSearchFilter(filter);
     config.url = filter.keywords ? '/search/' : '/latest/';
 
     return config;
   }
 
-  async getTorrentDownloadLink (torrent: Torrent): Promise<string> {
+  override async getTorrentDownloadLink (torrent: ITorrent): Promise<string> {
     let link = torrent.link;
     if (!link) {
       const { data } = await this.request({ url: torrent.url, responseType: 'document' });

@@ -1,9 +1,9 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import { parseTimeToLive } from '@/shared/utils/filter';
-import dayjs from '@/shared/utils/dayjs';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 import urlparse from 'url-parse';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'TorrentGalaxy.org',
   description: 'TorrentGalaxy.org (TGx) is a Public site for TV / MOVIES / GENERAL',
   url: 'https://torrentgalaxy.to/',

@@ -1,7 +1,7 @@
-import { SiteMetadata, Torrent } from '@/shared/interfaces/sites';
+import { ISiteMetadata, ITorrent } from '../../types';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'E-Hentai',
   description: 'E-Hentai is a Public site for Hentai doujinshi, manga.',
   timezoneOffset: '+0000',
@@ -39,9 +39,9 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class EHentai extends BittorrentSite {
-  async getTorrentDownloadLink (torrent: Torrent): Promise<string> {
+  override async getTorrentDownloadLink (torrent: ITorrent): Promise<string> {
     const { link } = torrent;
-    if (/gallerytorrents.php/.test(link)) {
+    if (/gallerytorrents\.php/.test(link)) {
       const gtPage = await this.request({ url: link, responseType: 'document' });
       // 优先考虑使用 私有种子，如果没有 再使用 可再分发种子
       return this.getFieldData(gtPage.data as Document, { selector: 'a[href*=".torrent"]:first-of-type', attr: 'href' });

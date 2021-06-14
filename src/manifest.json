@@ -14,7 +14,6 @@
     "<all_urls>",
     "*://*/*",
     "unlimitedStorage",
-    "downloads",
     "cookies"
   ],
   "icons": {

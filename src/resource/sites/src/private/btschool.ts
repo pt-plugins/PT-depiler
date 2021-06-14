@@ -2,10 +2,10 @@
  * FIXME 无号，未进行测试
  * Rhilip, 2021.04.09
  */
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import { selectorSearchStatus } from './hdchina';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'BTSCHOOL',
   schema: 'NexusPHP',
   description: '汇聚每一个人的影响力',

@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'BT.etree',
   description: 'BT.etree is a Public Tracker dedicated to Bootleg FLAC MUSIC',
   url: 'https://bt.etree.org/',

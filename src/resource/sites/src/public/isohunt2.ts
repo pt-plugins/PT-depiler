@@ -1,8 +1,8 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import { parseTimeToLive } from '@/shared/utils/filter';
 import urlparse from 'url-parse';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'Isohunt2',
   description: 'Isohunt2 is a Public torrent search engine for MOVIES / TV / GENERAL',
   url: 'https://isohunt.nz/',

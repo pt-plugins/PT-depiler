@@ -1,10 +1,10 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import { ISearchFilter, ISiteMetadata } from '../../types';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import { AxiosRequestConfig } from 'axios';
 import { parseTimeToLive } from '@/shared/utils/filter';
 
 // FIXME Cloudflare DDoS Protect
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'BTDB',
   description: 'BTDB is a Public BitTorrent DHT search engine.',
   url: 'https://btdb.eu/',
@@ -29,7 +29,7 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class BtDB extends BittorrentSite {
-  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter (filter: ISearchFilter): Promise<AxiosRequestConfig> {
     const config = await super.transformSearchFilter(filter);
     config.url = filter.keywords ? `/search/${filter.keywords}/` : '/recent';
 

@@ -1,10 +1,10 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import { ISearchFilter, ISiteMetadata } from '../../types';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import { AxiosRequestConfig } from 'axios';
 import { parseTimeToLive } from '@/shared/utils/filter';
 import urlparse from 'url-parse';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'ETTV',
   description: 'ETTV is a Public torrent site for TV / MOVIES, home of the  ETTV, ETHD and DTOne groups.',
   url: 'https://www.ettvcentral.com/',
@@ -113,7 +113,7 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Ettv extends BittorrentSite {
-  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter (filter: ISearchFilter): Promise<AxiosRequestConfig> {
     const config = await super.transformSearchFilter(filter);
     config.url = filter.keywords ? '/torrents-search.php' : '/torrents.php';
 

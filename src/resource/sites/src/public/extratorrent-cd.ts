@@ -1,8 +1,8 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import { parseTimeToLive } from '@/shared/utils/filter';
-import dayjs from '@/shared/utils/dayjs';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'ExtraTorrent.cd',
   description: 'ExtraTorrent.cd is a Public tracker, a  popular alternative to the original ET site, providing Movie / TV / General magnets',
   url: 'https://extratorrent.si/',

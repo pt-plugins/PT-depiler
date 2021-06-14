@@ -1,9 +1,9 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import { ISearchFilter, ISiteMetadata } from '../../types';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import { AxiosRequestConfig } from 'axios';
 import urljoin from 'url-join';
 import { findThenParseSizeString, parseSizeString } from '@/shared/utils/filter';
-import dayjs from 'dayjs';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 import Sizzle from 'sizzle';
 
 interface rawTorrent {
@@ -27,7 +27,7 @@ interface rawTorrent {
   tvmazeID: string
 }
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'TorrentLeech',
   timezoneOffset: '+0000',
   description: 'TorrentLeech',
@@ -186,7 +186,7 @@ export const siteMetadata: SiteMetadata = {
 };
 
 export default class torrentleech extends PrivateSite {
-  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter (filter: ISearchFilter): Promise<AxiosRequestConfig> {
     const urlSearch = ['/torrents/browse/list'];
 
     if (filter.extraParams?.find(param => param.key === 'category')) {

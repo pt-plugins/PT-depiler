@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
-import { findThenParseSizeString, parseSizeString } from '@/shared/utils/filter';
+import { ISiteMetadata } from '../../types';
+import { findThenParseSizeString } from '@/shared/utils/filter';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'PT@KEEPFRDS',
   schema: 'NexusPHP',
   timezoneOffset: '+0000',

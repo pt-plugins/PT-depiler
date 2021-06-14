@@ -1,9 +1,9 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import { ISearchFilter, ISiteMetadata } from '../../types';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import { AxiosRequestConfig } from 'axios';
 import { parseTimeToLive } from '@/shared/utils/filter';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'IBit',
   description: 'IBit is a Public Verified Torrent Search Engine',
   url: 'https://ibit.to/',
@@ -40,7 +40,7 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Ibit extends BittorrentSite {
-  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter (filter: ISearchFilter): Promise<AxiosRequestConfig> {
     const config = await super.transformSearchFilter(filter);
     config.url = filter.keywords ? `torrent-search/${filter.keywords}` : '/torrents/all';
     return config;

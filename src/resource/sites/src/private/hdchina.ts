@@ -1,12 +1,11 @@
-import { ElementQuery, SiteMetadata } from '@/shared/interfaces/sites';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
+import { IElementQuery, ISiteMetadata, ETorrentStatus } from '../../types';
 import { parseSizeString } from '@/shared/utils/filter';
 import NexusPHP from '../schema/NexusPHP';
 import { AxiosResponse } from 'axios';
 import Sizzle from 'sizzle';
 
 // HDChina 中的部分选择器和处理方法被其他站公用
-export const selectorSearchProgress: ElementQuery = {
+export const selectorSearchProgress: IElementQuery = {
   selector: ['.progress:eq(0) > div'],
   attr: 'style',
   filters: [
@@ -17,7 +16,7 @@ export const selectorSearchProgress: ElementQuery = {
   ]
 };
 
-export const selectorSearchStatus: ElementQuery = {
+export const selectorSearchStatus: IElementQuery = {
   text: ETorrentStatus.unknown,
   selector: ['.progress:eq(0) > div'],
   case: {
@@ -28,7 +27,7 @@ export const selectorSearchStatus: ElementQuery = {
   }
 };
 
-export const selectorUserInfoSeeding: ElementQuery = {
+export const selectorUserInfoSeeding: IElementQuery = {
   selector: ['td:has( > div#ka1)'],
   filters: [
     (query: string) => {
@@ -38,7 +37,7 @@ export const selectorUserInfoSeeding: ElementQuery = {
   ]
 };
 
-export const selectorUserInfoSeedingSize: ElementQuery = {
+export const selectorUserInfoSeedingSize: IElementQuery = {
   selector: ['td:has( > div#ka1)'],
   filters: [
     (query: string) => {
@@ -48,7 +47,7 @@ export const selectorUserInfoSeedingSize: ElementQuery = {
   ]
 };
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'HDChina',
   description: '高清影音人士分享乐园',
   url: 'https://hdchina.org/',
@@ -108,7 +107,7 @@ export const siteMetadata: SiteMetadata = {
 };
 
 export default class HDChina extends NexusPHP {
-  protected async requestUserSeedingPage (userId: number, type: string = 'seeding'): Promise<string | null> {
+  protected override async requestUserSeedingPage (userId: number, type: string = 'seeding'): Promise<string | null> {
     const userDetailsPage: AxiosResponse<Document> = this._runtime.cacheRequest.get('/userdetails.php');
     const csrfAnother = Sizzle("meta[name='x-csrf']", userDetailsPage.data);
     if (csrfAnother.length > 0) {

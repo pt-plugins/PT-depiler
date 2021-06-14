@@ -1,13 +1,10 @@
-import { ETorrentBaseTagColor, ETorrentStatus } from '@/shared/interfaces/enum';
+import { ETorrentBaseTagColor, ITorrent } from './torrent';
+import { IUserInfo } from './userinfo';
 import { AxiosRequestConfig, ResponseType } from 'axios';
-import { transPostDataTo, fullUrl, timezoneOffset, fullUrlProtect } from './types';
+import { transPostDataTo, fullUrl, fullUrlProtect } from '@/shared/interfaces/types'; // FIXME
+import { timezoneOffset } from '@ptpp/utils/types';
 
-export interface SearchResultItemTag {
-  color?: string;
-  name?: string;
-}
-
-export interface ElementQuery {
+export interface IElementQuery {
   // selector或 text 一定要有一个
 
   /**
@@ -44,45 +41,16 @@ export interface ElementQuery {
   switchFilters?: (Function | string)[], // 会根据selector的位置来使用对应的filter
 }
 
-// 作为一个种子最基本应该有的属性
-export interface Torrent {
-  id: number | string;
-  title: string; // 主标题
-  subTitle?: string; // 次标题
-
-  /**
-   * 特别注意： link和url 两个的含义在旧版和目前版本中是完全相反的
-   */
-  url: string; // detail 页面
-  link: string; // 种子链接
-
-  time?: number; // 发布时间戳（毫秒级）
-  size?: number; // 大小
-  author?: number | string; // 发布人
-  category?: string | number;
-
-  seeders?: number; // 上传数量
-  leechers?: number; // 下载数量
-  completed?: number; // 完成数量
-  comments?: number; // 评论数量
-
-  tags?: SearchResultItemTag[];
-
-  // 对于PT种子才 获取以下部分
-  progress?: number | null; // 进度（100表示完成）
-  status?: ETorrentStatus; // 状态
-}
-
-export interface searchCategoryOptions {
+export interface ISearchCategoryOptions {
   name: string,
   value: string | number
 }
 
-export interface searchCategories {
+export interface ISearchCategories {
   name: string | 'Category' | '类别', // 搜索大类名称
   key: string | '#changeDomain' | '#changePath', // 搜索大类
   notes?: string, // 分类说明
-  options: searchCategoryOptions[],
+  options: ISearchCategoryOptions[],
   // 该搜索大类是否允许内部交叉 （ 不声明，则默认不允许（False） ）
   cross?: {
     /**
@@ -96,7 +64,7 @@ export interface searchCategories {
   }
 }
 
-export interface searchParams {
+export interface ISearchParams {
   /**
    * 约定的特殊key （都以 # 开头）：
    *   - #changeDomain   更换请求的 baseUrl 为 value 值
@@ -105,39 +73,14 @@ export interface searchParams {
   value: string | number | string[] | number[]
 }
 
-export interface searchFilter {
+export interface ISearchFilter {
   keywords?: string,
-  extraParams?: searchParams[], // 其他请求参数信息
+  extraParams?: ISearchParams[], // 其他请求参数信息
 }
 
 export interface SearchRequestConfig {
-  filter: searchFilter,
+  filter: ISearchFilter,
   axiosConfig: AxiosRequestConfig
-}
-
-export interface UserInfo {
-  id: number | string; // 用户ID
-  name: string; // 用户名
-  levelName?: string; // 等级名称
-
-  uploaded: number; // 上传量
-  downloaded: number; // 下载量
-  ratio?: number; // 分享率，Ratio并不是必须获得的，如果站点未提供，助手会使用 uploaded/downloaded 自动计算
-
-  seeding?: number; // 当前做种数量
-  seedingSize?: number; // 做种体积
-  leeching?: number; // 当前下载数量
-
-  bonus?: number; // 魔力值/积分
-  messageCount?: number; // 消息数量
-  invites?: number; // 邀请数量
-
-  joinTime?: number; // 入站时间
-  avatar?: string; // 头像
-
-  updateAt: number; // 更新时间
-
-  [key: string]: any; // 其他信息
 }
 
 export type SiteSchema = 'AbstractBittorrentSite' | 'AbstractPrivateSite' |
@@ -151,7 +94,7 @@ export type SiteFeature = 'queryUserInfo'
  * 站点配置，这部分配置由系统提供，并随着每次更新而更新，不受用户配置的任何影响
  * 当且仅当 基于模板构建时，该部分配置可以由用户修改
  */
-export interface SiteMetadata {
+export interface ISiteMetadata {
   name: string; // 站点名
   aka?: string | string[]; // 站点别名
   description?: string; // 站点说明
@@ -197,7 +140,7 @@ export interface SiteMetadata {
     requestConfig?: AxiosRequestConfig & { transferPostData?: transPostDataTo },
 
     keywordsParam?: string, // 当不指定且未改写时，会导致keyword未被搜索使用
-    categories?: searchCategories[] // 站点对应搜索入口的种子分类信息
+    categories?: ISearchCategories[] // 站点对应搜索入口的种子分类信息
   } // 站点搜索方法如何配置
 
   detail?: {
@@ -212,7 +155,7 @@ export interface SiteMetadata {
      * 如果可以，则从插件历史缓存的数据中获取那些数据（一般是比较恒定的数据，如 id, name, joinTime ）
      * 并可以帮助我们减少网络请求的字段
      */
-    pickLast?: (keyof UserInfo)[],
+    pickLast?: (keyof IUserInfo)[],
 
     /**
      * 有执行顺序，从上到下依次执行，第一个不应该有断言 assertion，后续配置项可以有断言
@@ -226,9 +169,9 @@ export interface SiteMetadata {
        *  不然会生成 params: {value: key}
        */
       assertion?: {
-        [key in keyof UserInfo]?: string
+        [key in keyof IUserInfo]?: string
       },
-      fields: (keyof UserInfo)[]
+      fields: (keyof IUserInfo)[]
     }[]
   }
 
@@ -245,15 +188,15 @@ export interface SiteMetadata {
         filter?: <T>(rows: T) => T
         merge?: number,
       }
-    } & { [torrentKey in keyof Torrent]?: ElementQuery } // 种子相关选择器
+    } & { [torrentKey in keyof Omit<ITorrent, 'tags'>]?: IElementQuery } // 种子相关选择器
       & { tags?: { selector: string, name: (keyof typeof ETorrentBaseTagColor) | string, color?: string }[] } // Tags相关选择器
 
     detail?: {
-      link?: ElementQuery // 用于获取下载链接不在搜索页，而在详情页的情况
-      [key: string]: ElementQuery | undefined // FIXME
-    } & { [torrentKey in keyof Torrent]?: ElementQuery } // 种子相关选择器
+      link?: IElementQuery // 用于获取下载链接不在搜索页，而在详情页的情况
+      [key: string]: IElementQuery | undefined // FIXME
+    } & { [torrentKey in keyof ITorrent]?: IElementQuery } // 种子相关选择器
 
-    userInfo?: { [userinfoKey in keyof UserInfo]?: ElementQuery } // 用户信息相关选择器
+    userInfo?: { [userinfoKey in keyof IUserInfo]?: IElementQuery } // 用户信息相关选择器
   }
 
   feature?: { // 站点支持方法
@@ -261,7 +204,7 @@ export interface SiteMetadata {
   }
 }
 
-export interface SiteConfig extends SiteMetadata {
+export interface SiteConfig extends ISiteMetadata {
   activateUrl?: string; // 用户在搜索时使用的地址
   entryPoint?: string; // 用户在options首页点击时，打开的站点地址
 }

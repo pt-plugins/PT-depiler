@@ -1,11 +1,11 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import { sleep } from '@/shared/utils/common';
 
 const appName = 'PTPP';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'RARBG',
   description: 'RARBG is a Public torrent site for MOVIES / TV / GENERAL',
   url: 'https://rarbg.to/',
@@ -94,7 +94,7 @@ export default class Rarbg extends BittorrentSite {
     return this._token;
   }
 
-  async request<T> (axiosConfig: AxiosRequestConfig = {}, retry:Boolean = true): Promise<AxiosResponse<T>> {
+  override async request<T> (axiosConfig: AxiosRequestConfig = {}, retry:Boolean = true): Promise<AxiosResponse<T>> {
     axiosConfig.url = this.apiPoint;
     axiosConfig.params.token = await this.getApiToken();
     axiosConfig.params.app_id = appName;

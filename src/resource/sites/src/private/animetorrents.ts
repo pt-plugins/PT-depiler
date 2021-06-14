@@ -1,10 +1,10 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
-import dayjs from '@/shared/utils/dayjs';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 import { findThenParseNumberString, findThenParseSizeString } from '@/shared/utils/filter';
 import Sizzle from 'sizzle';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'AnimeTorrents',
   timezoneOffset: '+0000',
   description: 'Definitive Source For Anime And Manga',

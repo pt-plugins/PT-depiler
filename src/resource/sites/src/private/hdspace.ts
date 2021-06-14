@@ -1,9 +1,9 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
-import dayjs from '@/shared/utils/dayjs';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 import { findThenParseSizeString } from '@/shared/utils/filter';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'HD-Space',
   timezoneOffset: '+0000',
   description: 'Sharing The Universe',

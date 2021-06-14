@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import { findThenParseNumberString, parseSizeString } from '@/shared/utils/filter';
-import dayjs from '@/shared/utils/dayjs';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 
 const parseUpDl = (element: HTMLElement) => {
   const sizeString = element.nextSibling!.textContent!.trim();
@@ -24,7 +24,7 @@ interface snatchListResponseData {
   sEcho: number
 }
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'PussyTorrents',
   timezoneOffset: '+0000',
   description: 'PussyTorrents is a Semi-Private Torrent Tracker for 3X',

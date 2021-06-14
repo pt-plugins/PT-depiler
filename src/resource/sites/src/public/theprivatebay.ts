@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 
 const CategoryMap = new Map([
   // Audio
@@ -22,7 +22,7 @@ const CategoryMap = new Map([
   [605, 'Physibles'], [699, 'Other Other']
 ]);
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'The Pirate Bay',
   description: 'Pirate Bay (TPB) is the galaxy’s most resilient Public BitTorrent site',
   url: 'https://thepiratebay.org/',

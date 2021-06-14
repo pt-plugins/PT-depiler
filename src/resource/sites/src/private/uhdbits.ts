@@ -1,11 +1,10 @@
-import { SiteMetadata, Torrent, UserInfo } from '@/shared/interfaces/sites';
+import { ISiteMetadata, IUserInfo, ITorrent } from '../../types';
 import GazelleJSONAPI from '../schema/GazelleJSONAPI';
 import Sizzle from 'sizzle';
 import urlparse from 'url-parse';
-import userDataRecords from '@/background/service/storage/userDataRecords';
 import { parseSizeString } from '@/shared/utils/filter';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'UHDBits',
   timezoneOffset: '+0000',
   description: 'HD',
@@ -120,12 +119,12 @@ export default class uhdbits extends GazelleJSONAPI {
    * @param doc
    * @protected
    */
-  protected async transformSearchPage (doc: Document): Promise<Torrent[]> {
-    const torrents: Torrent[] = [];
+  protected override async transformSearchPage (doc: Document): Promise<ITorrent[]> {
+    const torrents: ITorrent[] = [];
 
     const trs = Sizzle(this.config.selector!.search!.rows!.selector as string, doc);
     trs?.forEach((tr: any) => {
-      torrents.push(this.parseRowToTorrent(tr) as Torrent);
+      torrents.push(this.parseRowToTorrent(tr) as ITorrent);
     });
 
     return torrents;
@@ -142,8 +141,8 @@ export default class uhdbits extends GazelleJSONAPI {
     return TListDocument;
   }
 
-  protected async getUserSeedingTorrents (userId: number): Promise<Partial<UserInfo>> {
-    const userSeedingTorrent: Partial<UserInfo> = { seedingSize: 0 };
+  protected override async getUserSeedingTorrents (userId: number): Promise<Partial<IUserInfo>> {
+    const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
     const pageInfo = { count: 0, current: 0 }; // 生成页面信息
 
     for (;pageInfo.current <= pageInfo.count; pageInfo.current++) {

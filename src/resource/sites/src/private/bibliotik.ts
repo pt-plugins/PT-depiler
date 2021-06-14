@@ -1,11 +1,11 @@
-import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites';
+import { ISiteMetadata, IUserInfo } from '../../types';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import { findThenParseSizeString } from '@/shared/utils/filter';
-import dayjs from '@/shared/utils/dayjs';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 import urlparse from 'url-parse';
 import Sizzle from 'sizzle';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'Bibliotik',
   timezoneOffset: '+0000',
   description: 'Bibliotik',
@@ -110,7 +110,7 @@ export const siteMetadata: SiteMetadata = {
 };
 
 export default class bibliotik extends PrivateSite {
-  async flushUserInfo (): Promise<UserInfo> {
+  override async flushUserInfo (): Promise<IUserInfo> {
     let userInfo = await super.flushUserInfo();
 
     if (userInfo.id) {

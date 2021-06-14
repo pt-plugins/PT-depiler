@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
 import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@/shared/utils/filter';
 
@@ -52,7 +52,7 @@ const categoryMap = {
   15: 'XXX/Packs'
 };
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'TorrentsTD',
   timezoneOffset: '+0000',
   description: 'Torrents - TD',

@@ -2,10 +2,9 @@
  * FIXME 无号，未进行测试
  * Rhilip, 2021.04.09
  */
-import { SiteMetadata } from '@/shared/interfaces/sites';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
+import { ISiteMetadata, ETorrentStatus } from '../../types';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: '聆音Club',
   schema: 'NexusPHP',
   url: 'https://pt.soulvoice.club/',

@@ -1,10 +1,10 @@
 import { EConfigKey, EUserDataRange } from '@/shared/interfaces/enum';
 import browserBridge from '@/background/service/storage/browserBridge';
-import dayjs from '@/shared/utils/dayjs';
-import { UserInfo } from '@/shared/interfaces/sites';
+import dayjs from '@ptpp/utils/plugins/dayjs';
+import { IUserInfo } from '@ptpp/sites/types';
 
 type StoredUserDataPerSite = { // 站点HOST
-  [date: string]: UserInfo // 日期 YYYY-MM-DD
+  [date: string]: IUserInfo // 日期 YYYY-MM-DD
 }
 
 type StoredUserData = {
@@ -12,7 +12,7 @@ type StoredUserData = {
 }
 
 class UserDataRecords extends browserBridge {
-  protected data: StoredUserData = {}
+  protected override data: StoredUserData = {}
   protected configKey: string = EConfigKey.userDatas
 
   /**
@@ -41,7 +41,7 @@ class UserDataRecords extends browserBridge {
    * @param host
    * @param range
    */
-  public async getUserData (host: string, range: EUserDataRange = EUserDataRange.latest): Promise<StoredUserDataPerSite | UserInfo | null> {
+  public async getUserData (host: string, range: EUserDataRange = EUserDataRange.latest): Promise<StoredUserDataPerSite | IUserInfo | null> {
     if (!this.data || !this.data[host]) {
       return null;
     }
@@ -57,7 +57,7 @@ class UserDataRecords extends browserBridge {
     }
   }
 
-  public async updateUserData (host:string, data: UserInfo): Promise<void> {
+  public async updateUserData (host:string, data: IUserInfo): Promise<void> {
     const siteRecord = this.data[host] || {};
 
     siteRecord[EUserDataRange.latest] = siteRecord[dayjs().format('YYYY-MM-DD')] = data;

@@ -1,5 +1,5 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
-import dayjs from '@/shared/utils/dayjs';
+import { ISearchFilter, ISiteMetadata } from '../../types';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 import { parseTimeToLive } from '@/shared/utils/filter';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import { AxiosRequestConfig } from 'axios';
@@ -9,7 +9,7 @@ const CategoryMap = new Map([
   ['tv6', 'Anime'], ['tv7', 'Adult'], ['tv8', 'Books'], ['tv9', 'Images'], ['tv10', 'Books'], ['tv12', 'Audiobook']
 ]);
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'Torlock',
   description: 'Torlock is a torrent search site that lists verified torrents only for TV series and movies',
   url: 'https://www.torlock.com/',
@@ -57,7 +57,7 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Torlock extends BittorrentSite {
-  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter (filter: ISearchFilter): Promise<AxiosRequestConfig> {
     const config = await super.transformSearchFilter(filter);
     config.url = filter.keywords ? `/all/torrents/${filter.keywords}.html` : '/fresh.html';
     return config;

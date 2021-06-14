@@ -1,11 +1,11 @@
 import PrivateSite from '../schema/AbstractPrivateSite';
-import { SiteConfig, Torrent, UserInfo } from '@/shared/interfaces/sites';
+import { SiteConfig, IUserInfo } from '../../types';
 import Sizzle from 'sizzle';
 import urlparse from 'url-parse';
-import dayjs from '@/shared/utils/dayjs';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 import { createDocument, extractContent } from '@/shared/utils/common';
 import { parseSizeString, parseTimeToLive, sizePattern } from '@/shared/utils/filter';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
+import { ETorrentStatus, ITorrent } from '../../types/torrent';
 import { merge, mergeWith } from 'lodash-es';
 
 const baseLinkQuery = {
@@ -18,7 +18,7 @@ export default class NexusPHP extends PrivateSite {
    * NexusPHP 模板默认配置，对于大多数NPHP站点都通用
    * @protected
    */
-  protected readonly initConfig: Partial<SiteConfig> = {
+  protected override readonly initConfig: Partial<SiteConfig> = {
     timezoneOffset: '+0800', // NPHP 一般都是国内用，时区多为 +0800
     search: {
       keywordsParam: 'search',
@@ -195,7 +195,7 @@ export default class NexusPHP extends PrivateSite {
     }
   }
 
-  protected async transformSearchPage (doc: Document | object): Promise<Torrent[]> {
+  protected override async transformSearchPage (doc: Document | object): Promise<ITorrent[]> {
     // 返回是 Document 的情况才自动生成
     if (doc instanceof Document) {
       // 如果配置文件没有传入 search 的选择器，则我们自己生成
@@ -228,7 +228,7 @@ export default class NexusPHP extends PrivateSite {
             seeders: 'img.seeders', // 种子数
             size: 'img.size', // 大小
             time: 'img.time' // 发布时间 （仅生成 selector， 后面会覆盖）
-          } as Record<keyof Torrent, string>)) {
+          } as Record<keyof ITorrent, string>)) {
             if (Sizzle(dectSelector, element).length > 0) {
               updateSelectorField = dectField;
             }
@@ -250,7 +250,7 @@ export default class NexusPHP extends PrivateSite {
     return super.transformSearchPage(doc);
   }
 
-  protected parseRowToTorrent (row: Element): Partial<Torrent> {
+  protected override parseRowToTorrent (row: Element): Partial<ITorrent> {
     let torrent = super.parseRowToTorrent(row);
 
     // 处理标题、副标题
@@ -308,8 +308,8 @@ export default class NexusPHP extends PrivateSite {
     return subTitle;
   }
 
-  async flushUserInfo (): Promise<UserInfo> {
-    let flushUserInfo: Partial<UserInfo> = await super.flushUserInfo() || {};
+  override async flushUserInfo (): Promise<IUserInfo> {
+    let flushUserInfo: Partial<IUserInfo> = await super.flushUserInfo() || {};
 
     let userId: number;
     if (flushUserInfo && flushUserInfo.id) {
@@ -330,7 +330,7 @@ export default class NexusPHP extends PrivateSite {
       });
     }
 
-    return flushUserInfo as UserInfo;
+    return flushUserInfo as IUserInfo;
   }
 
   protected async getUserIdFromSite (): Promise<number> {
@@ -349,7 +349,7 @@ export default class NexusPHP extends PrivateSite {
     return userDetailDocument;
   }
 
-  protected async getUserInfoFromDetailsPage (userId: number): Promise<Partial<UserInfo>> {
+  protected async getUserInfoFromDetailsPage (userId: number): Promise<Partial<IUserInfo>> {
     const userDetailDocument = await this.requestUserDetailsPage(userId);
 
     const detailsPageAttrs = [
@@ -357,7 +357,7 @@ export default class NexusPHP extends PrivateSite {
       'levelName', 'bonus', 'joinTime', 'seeding', 'seedingSize'
     ];
 
-    return this.getFieldsData(userDetailDocument, 'userInfo', detailsPageAttrs) as Partial<UserInfo>;
+    return this.getFieldsData(userDetailDocument, 'userInfo', detailsPageAttrs) as Partial<IUserInfo>;
   }
 
   /**

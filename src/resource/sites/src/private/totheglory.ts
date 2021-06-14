@@ -1,4 +1,4 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import { ISearchFilter, ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
 import { findThenParseNumberString, findThenParseValidTimeString, parseSizeString } from '@/shared/utils/filter';
 import Sizzle from 'sizzle';
@@ -8,7 +8,7 @@ import { extractContent } from '@/shared/utils/common';
 
 const categoryMap = ['电影DVDRip', '电影720p', '电影1080i/p', 'BluRay原盘', '影视2160p', 'UHD原盘', '纪录片720p', '纪录片1080i/p', '纪录片BluRay原盘', '欧美剧720p', '欧美剧1080i/p', '高清日剧', '大陆港台剧1080i/p', '大陆港台剧720p', '高清韩剧', '欧美剧包', '日剧包', '华语剧包', '韩剧包', '(电影原声&Game)OST', '无损音乐FLAC&APE', 'MV&演唱会', '高清体育节目', '高清动漫', '韩国综艺', '高清综艺', '日本综艺', 'MiniVideo', '补充音轨', 'iPhone/iPad视频'];
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'ToTheGlory',
   aka: ['TTG'],
   timezoneOffset: '+0800',
@@ -154,7 +154,7 @@ export const siteMetadata: SiteMetadata = {
 };
 
 export default class totheglory extends PrivateSite {
-  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter (filter: ISearchFilter): Promise<AxiosRequestConfig> {
     const category = filter.extraParams?.find(x => x.key === '分类');
     if (category) {
       const categoryValue : string[] = typeof category.value === 'string' ? [category.value] : category.value as string[];

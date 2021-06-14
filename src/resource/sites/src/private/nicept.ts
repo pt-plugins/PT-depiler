@@ -2,9 +2,9 @@
  * FIXME 无号，未进行测试
  * Rhilip, 2021.04.09
  */
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'NicePT',
   description: '老师站，又称小馒头',
   url: 'https://www.nicept.net/',

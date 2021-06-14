@@ -1,9 +1,9 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import { ISearchFilter, ISiteMetadata } from '../../types';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import { AxiosRequestConfig } from 'axios';
 import { findThenParseValidTimeString, parseSizeString } from '@/shared/utils/filter';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'Pornbits',
   description: 'Pornbits',
   url: 'https://pornbits.net/',
@@ -93,7 +93,7 @@ export const siteMetadata: SiteMetadata = {
 };
 
 export default class pornbits extends PrivateSite {
-  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter (filter: ISearchFilter): Promise<AxiosRequestConfig> {
     const config : AxiosRequestConfig = {};
     if (filter.keywords) {
       config.url = `/browse/search/date/name_tags/${filter.keywords}`;

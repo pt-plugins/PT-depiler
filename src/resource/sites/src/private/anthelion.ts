@@ -1,7 +1,7 @@
-import { SiteMetadata, Torrent } from '@/shared/interfaces/sites';
+import { ISiteMetadata, ITorrent } from '../../types';
 import GazelleJSONAPI, { groupBrowseResult, groupTorrent } from '../schema/GazelleJSONAPI';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'Anthelion',
   timezoneOffset: '+0000',
   description: 'Movies',
@@ -25,7 +25,7 @@ export const siteMetadata: SiteMetadata = {
 };
 
 export default class anthelion extends GazelleJSONAPI {
-  protected async transformGroupTorrent (group: groupBrowseResult, torrent: groupTorrent & { codec: string, container: string, resolution: string, audio: string }): Promise<Torrent> {
+  protected override async transformGroupTorrent (group: groupBrowseResult, torrent: groupTorrent & { codec: string, container: string, resolution: string, audio: string }): Promise<ITorrent> {
     const parsedTorrent = await super.transformGroupTorrent(group, torrent);
 
     /**

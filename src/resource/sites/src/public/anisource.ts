@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'AniSource',
   description: 'AniSource is a Public site for HD Anime raws.',
   timezoneOffset: '-0900',

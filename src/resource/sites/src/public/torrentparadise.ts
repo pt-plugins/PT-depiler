@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import { parseTimeToLive } from '@/shared/utils/filter';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'TorrentParadise',
   description: 'Torrent Paradise is a Public magnet indexer',
   url: 'https://torrentparadise.cl/',

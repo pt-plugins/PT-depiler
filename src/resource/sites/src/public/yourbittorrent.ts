@@ -1,12 +1,12 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
-import dayjs from '@/shared/utils/dayjs';
+import { ISiteMetadata } from '../../types';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 
 const CategoryMap = new Map([
   ['c1', 'Movies'], ['c2', 'Music'], ['c3', 'Series'], ['c4', 'Games'], ['c5', 'Apps'],
   ['c6', 'Anime'], ['c7', 'Adult'], ['c8', 'eBooks'], ['c9', 'Photos'], ['c10', 'Other']
 ]);
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'YourBittorrent',
   description: 'YourBittorrent is a Public torrent index',
   url: 'https://yourbittorrent.com/',

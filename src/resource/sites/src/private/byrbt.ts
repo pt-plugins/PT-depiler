@@ -1,7 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
+import { ISiteMetadata, ETorrentStatus } from '../../types';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'BYRBT',
   schema: 'NexusPHP',
   description: '著名教育网PT站点（仅支持ipv6访问与下载），有10大类资源，资源更新快，保种好。',

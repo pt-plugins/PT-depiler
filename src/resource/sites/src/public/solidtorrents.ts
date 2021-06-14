@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'Solid Torrents',
   description: 'Solid Torrents is a Public torrent meta-search engine',
   url: 'https://solidtorrents.net/',

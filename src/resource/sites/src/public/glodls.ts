@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'GloDLS',
   description: 'GloDLS is a Public Torrent Tracker for MOVIES / TV / GENERAL',
   url: 'https://www.gtdb.to/',

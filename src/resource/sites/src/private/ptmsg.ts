@@ -2,10 +2,9 @@
  * FIXME 无号，未进行测试，仅依赖老版本说明文件
  * Rhilip, 2021.04.09
  */
-import { SiteMetadata } from '@/shared/interfaces/sites';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
+import { ISiteMetadata, ETorrentStatus } from '../../types';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'PTMSG',
   schema: 'NexusPHP',
   url: 'https://pt.msg.vg/',

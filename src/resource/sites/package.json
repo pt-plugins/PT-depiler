@@ -2,9 +2,11 @@
   "name": "@ptpp/sites",
   "version": "1.0.0",
   "dependencies": {
+    "@ptpp/utils": "^1.0.0",
     "axios": "^0.21.1",
-    "sizzle": "^2.3.5",
+    "chrono-node": "^2.2.7",
     "lodash-es": "^4.17.20",
+    "sizzle": "^2.3.5",
     "url-join": "^4.0.1",
     "url-parse": "^1.4.7",
     "urlencode": "^1.1.0"

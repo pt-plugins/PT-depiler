@@ -1,10 +1,10 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
+import { ISiteMetadata } from '../../types';
+import { ETorrentStatus } from '../../types/torrent';
 import NexusPHP from '../schema/NexusPHP';
 import { createDocument } from '@/shared/utils/common';
 import urlparse from 'url-parse';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'M-Team',
   timezoneOffset: '+0800',
   description: 'M-Team',
@@ -132,7 +132,7 @@ export default class mteam extends NexusPHP {
     return TListDocument;
   }
 
-  protected async getUserSeedingStatus (userId: number): Promise<{ seeding: number; seedingSize: number }> {
+  protected override async getUserSeedingStatus (userId: number): Promise<{ seeding: number; seedingSize: number }> {
     let seedStatus = { seeding: 0, seedingSize: 0 };
 
     /**

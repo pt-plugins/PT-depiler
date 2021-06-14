@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import { selectorSearchProgress, selectorSearchStatus } from './hdhome';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'HD Dolby',
   schema: 'NexusPHP',
   url: 'https://www.hddolby.com/',

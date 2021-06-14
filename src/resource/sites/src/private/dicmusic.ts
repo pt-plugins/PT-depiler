@@ -1,8 +1,8 @@
-import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites';
+import { ISiteMetadata, IUserInfo } from '../../types';
 import GazelleJSONAPI from '../schema/GazelleJSONAPI';
 import { findThenParseSizeString } from '@/shared/utils/filter';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'DIC',
   timezoneOffset: '+0800',
   description: 'music',
@@ -31,7 +31,7 @@ export const siteMetadata: SiteMetadata = {
 };
 
 export default class dicmusic extends GazelleJSONAPI {
-  protected async getUserSeedingTorrents (): Promise<Partial<UserInfo>> {
+  protected override async getUserSeedingTorrents (): Promise<Partial<IUserInfo>> {
     const { data: bonusPage } = await this.request<Document>({ url: '/bonus.php', params: { action: 'bprates' }, responseType: 'document' });
     return this.getFieldsData(bonusPage, 'userInfo', ['seedingSize', 'bonus']);
   }

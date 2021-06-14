@@ -3,11 +3,11 @@
  * 但同样未经测试
  * Rhilip, 2021.04.23
  */
-import { SiteMetadata, Torrent } from '@/shared/interfaces/sites';
+import { ISiteMetadata, ITorrent } from '../../types';
 import { parseSizeString, parseTimeWithZone } from '@/shared/utils/filter';
 import Gazelle from '../schema/Gazelle';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'PTP',
   timezoneOffset: '+0000',
   description: '电影',
@@ -136,11 +136,11 @@ interface SearchResponse {
 }
 
 export default class passthepopcorn extends Gazelle {
-  protected async transformSearchPage (doc: SearchResponse): Promise<Torrent[]> {
+  protected override async transformSearchPage (doc: SearchResponse): Promise<ITorrent[]> {
     const authKey = doc.AuthKey;
     const passKey = doc.PassKey;
 
-    const torrents : Torrent[] = [];
+    const torrents : ITorrent[] = [];
     for (let i = 0; i < doc.Movies.length; i++) {
       const row = doc.Movies[i];
       const rawTorrent = row.Torrents[0];
@@ -159,7 +159,7 @@ export default class passthepopcorn extends Gazelle {
         comments: 0,
         tags: [],
         category: 'Movie'
-      } as Torrent);
+      } as ITorrent);
     }
     return torrents;
   }

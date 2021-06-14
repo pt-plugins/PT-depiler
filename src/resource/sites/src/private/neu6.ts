@@ -1,12 +1,11 @@
-import { searchFilter, SiteMetadata, Torrent } from '@/shared/interfaces/sites';
+import { ISearchFilter, ISiteMetadata, ITorrent } from '../../types';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import { AxiosRequestConfig } from 'axios';
 import urlparse from 'url-parse';
 import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@/shared/utils/filter';
-import { parseInt } from 'lodash-es';
 import urlencode from 'urlencode';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: '六维空间',
   description: '东北大学ipv6资源分享平台',
   timezoneOffset: '+0800',
@@ -174,7 +173,7 @@ const nonTorrentCategory = [
 ];
 
 export default class neu6 extends PrivateSite {
-  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter (filter: ISearchFilter): Promise<AxiosRequestConfig> {
     const baseConfig: AxiosRequestConfig = {
       url: '/search.php',
       responseType: 'document',
@@ -217,7 +216,7 @@ export default class neu6 extends PrivateSite {
     return baseConfig;
   }
 
-  protected async transformSearchPage (doc: Document): Promise<Torrent[]> {
+  protected override async transformSearchPage (doc: Document): Promise<ITorrent[]> {
     const torrents = await super.transformSearchPage(doc);
 
     return torrents.filter(t => !nonTorrentCategory.includes(t.category! as number));
@@ -226,11 +225,14 @@ export default class neu6 extends PrivateSite {
   /**
    * 6v这里有两种情况，如果用户等级为up以上，则直接返回种子信息，
    * 反之则会进入提示页面，需要在提示页面进一步获取种子链接
+   * 但是我们又不能在此处获取种子的metadata，所以只能根据页面是否存在 下载浮云 提示来判断具体情况
+   *
+   * (ps. 只有 发种员 以上用户组才能直接返回种子信息
    *
    * @ref: https://github.com/tongyifan/Reseed-backend/blob/db8b25fd336f820a7469d588a9bbd8185d7e17b9/scripts/6v.py#L46-L67
    * @param torrent
    */
-  async getTorrentDownloadLink (torrent: Torrent): Promise<string> {
+  override async getTorrentDownloadLink (torrent: ITorrent): Promise<string> {
     const { data: DetailPage, config: RequestConfig } = await this.request<Document>({
       url: torrent.url,
       responseType: this.config.detail?.type || 'document'

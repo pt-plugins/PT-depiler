@@ -1,8 +1,8 @@
-import { SiteMetadata, Torrent, UserInfo } from '@/shared/interfaces/sites';
+import { ISiteMetadata, IUserInfo, ITorrent } from '../../types';
 import GazelleJSONAPI, { groupBrowseResult, groupTorrent } from '../schema/GazelleJSONAPI';
 import { findThenParseSizeString } from '@/shared/utils/filter';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'HD-Forever',
   timezoneOffset: '+0100',
   description: 'HD-F',
@@ -27,7 +27,7 @@ export const siteMetadata: SiteMetadata = {
 };
 
 export default class hdforever extends GazelleJSONAPI {
-  protected async transformGroupTorrent (group: groupBrowseResult, torrent: groupTorrent): Promise<Torrent> {
+  protected override async transformGroupTorrent (group: groupBrowseResult, torrent: groupTorrent): Promise<ITorrent> {
     const parsedTorrent = await super.transformGroupTorrent(group, torrent);
 
     /**
@@ -41,7 +41,7 @@ export default class hdforever extends GazelleJSONAPI {
     return parsedTorrent;
   }
 
-  protected async getUserSeedingTorrents (): Promise<Partial<UserInfo>> {
+  protected override async getUserSeedingTorrents (): Promise<Partial<IUserInfo>> {
     const { data: bonusPage } = await this.request<Document>({ url: '/store.php', params: { action: 'rate' }, responseType: 'document' });
     return this.getFieldsData(bonusPage, 'userInfo', ['seedingSize', 'bonus']);
   }

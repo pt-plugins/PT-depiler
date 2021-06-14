@@ -1,10 +1,9 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata, ETorrentStatus } from '../../types';
 import urlparse from 'url-parse';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
 import { findThenParseNumberString, findThenParseSizeString } from '@/shared/utils/filter';
-import dayjs from '@/shared/utils/dayjs';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'Empornium',
   timezoneOffset: '+0000',
   description: 'Empornium (EMP) is a Private Torrent Tracker for XXX',

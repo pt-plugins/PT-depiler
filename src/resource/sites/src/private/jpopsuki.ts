@@ -1,10 +1,10 @@
-import { SiteMetadata, Torrent, UserInfo } from '@/shared/interfaces/sites';
+import { ISiteMetadata, IUserInfo, ITorrent } from '../../types';
 import Gazelle from '../schema/Gazelle';
 import Sizzle from 'sizzle';
 import { parseSizeString } from '@/shared/utils/filter';
 import urlparse from 'url-parse';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'JPopsuki',
   timezoneOffset: '+0000',
   description: '日韩音乐',
@@ -72,12 +72,12 @@ export const siteMetadata: SiteMetadata = {
 };
 
 export default class jpopsuki extends Gazelle {
-  protected async transformSearchPage (doc: Document): Promise<Torrent[]> {
-    const torrents: Torrent[] = [];
+  protected override async transformSearchPage (doc: Document): Promise<ITorrent[]> {
+    const torrents: ITorrent[] = [];
 
     const rows = Sizzle('table.torrent_table:last > tbody > tr:gt(0)', doc) as HTMLElement[];
 
-    let albumAttr: Partial<Torrent> = {};
+    let albumAttr: Partial<ITorrent> = {};
     for (let i = 0; i < rows.length; i++) {
       const tr = rows[i] as HTMLTableRowElement;
 
@@ -87,7 +87,7 @@ export default class jpopsuki extends Gazelle {
       }
 
       // 检查 tr 的类型
-      let torrent = {} as Torrent;
+      let torrent = {} as ITorrent;
       if (tr.classList.contains('group_redline')) { // 专辑行，获取title信息
         albumAttr = this.getFieldsData(tr, 'search', ['comments', 'category']);
 
@@ -116,7 +116,7 @@ export default class jpopsuki extends Gazelle {
         torrent.title = torrent.title.replace(/\t+/g, ' ').replace(/\(\d*\)$/, '').trim();
       }
 
-      torrent = this.parseRowToTorrent(tr, torrent) as Torrent;
+      torrent = this.parseRowToTorrent(tr, torrent) as ITorrent;
       torrents.push(torrent);
     }
     return torrents;
@@ -133,7 +133,7 @@ export default class jpopsuki extends Gazelle {
     return TListDocument;
   }
 
-  async flushUserInfo (): Promise<UserInfo> {
+  override async flushUserInfo (): Promise<IUserInfo> {
     const flushUserInfo = await super.flushUserInfo();
 
     if (flushUserInfo.id) {

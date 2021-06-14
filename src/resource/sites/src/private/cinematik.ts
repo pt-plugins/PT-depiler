@@ -1,4 +1,4 @@
-import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites';
+import { ISiteMetadata, IUserInfo } from '../../types';
 import urlparse from 'url-parse';
 import {
   findThenParseNumberString,
@@ -8,9 +8,8 @@ import {
 } from '@/shared/utils/filter';
 import Sizzle from 'sizzle';
 import PrivateSite from '../schema/AbstractPrivateSite';
-import { parseInt } from 'lodash-es';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'Cinematik',
   timezoneOffset: '+0000',
   url: 'https://www.cinematik.net/',
@@ -134,7 +133,7 @@ export const siteMetadata: SiteMetadata = {
 };
 
 export default class cinematik extends PrivateSite {
-  async flushUserInfo (): Promise<UserInfo> {
+  override async flushUserInfo (): Promise<IUserInfo> {
     let userInfo = await super.flushUserInfo();
     if (userInfo.id && (!userInfo.seeding || !userInfo.seedingSize)) {
       userInfo = { seeding: 0, seedingSize: 0, ...userInfo };

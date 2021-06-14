@@ -1,9 +1,9 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
 import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '@/shared/utils/filter';
 import Sizzle from 'sizzle';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'SDBits',
   aka: ['SDB'],
   timezoneOffset: '+0000',

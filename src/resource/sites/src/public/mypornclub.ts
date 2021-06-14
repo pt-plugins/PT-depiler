@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import { parseTimeToLive } from '@/shared/utils/filter';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'MyPornClub',
   description: 'MyPornClub is a Public Torrent Tracker for 3X',
   url: 'https://myporn.club/',

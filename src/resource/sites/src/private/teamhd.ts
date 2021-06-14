@@ -1,7 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata, ETorrentStatus } from '../../types';
 import urlparse from 'url-parse';
 import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '@/shared/utils/filter';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
 
 const categoryMap = {
   29: 'Movies/HD', // Movies Фильмы
@@ -21,7 +20,7 @@ const nextTextSibling = (element: HTMLElement) => {
   return (element.nextSibling as Text).textContent?.trim() || '';
 };
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'TeamHD',
   timezoneOffset: '+0000',
   description: '俄国站',

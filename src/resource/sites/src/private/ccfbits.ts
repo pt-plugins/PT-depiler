@@ -1,9 +1,9 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import { findThenParseSizeString, findThenParseValidTimeString, parseSizeString } from '@/shared/utils/filter';
 import Sizzle from 'sizzle';
 import urlparse from 'url-parse';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'CCFBits',
   timezoneOffset: '+0800',
   description: '',

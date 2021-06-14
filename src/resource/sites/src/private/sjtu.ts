@@ -1,8 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata, ETorrentStatus } from '../../types';
 import NexusPHP from '../schema/NexusPHP';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: '葡萄',
   description: 'Free Share, Join us',
   url: 'https://pt.sjtu.edu.cn/',
@@ -85,7 +84,7 @@ export const siteMetadata: SiteMetadata = {
 };
 
 export default class sjtu extends NexusPHP {
-  protected async requestUserSeedingPage (userId: number, type: string = 'seeding'): Promise<string | null> {
+  protected override async requestUserSeedingPage (userId: number, type: string = 'seeding'): Promise<string | null> {
     const { data } = await this.request<string>({
       url: '/viewusertorrents.php',
       params: { id: userId, show: type }

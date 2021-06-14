@@ -1,10 +1,10 @@
-import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites';
+import { ISiteMetadata, IUserInfo } from '../../types';
 import GazelleJSONAPI from '../schema/GazelleJSONAPI';
 import urlparse from 'url-parse';
 import Sizzle from 'sizzle';
 import { parseSizeString } from '@/shared/utils/filter';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'Snakepop',
   timezoneOffset: '+0800',
   description: 'music',
@@ -23,8 +23,8 @@ export const siteMetadata: SiteMetadata = {
 };
 
 export default class snakepop extends GazelleJSONAPI {
-  protected async getUserSeedingTorrents (userId?: number): Promise<Partial<UserInfo>> {
-    const userSeedingTorrent: Partial<UserInfo> = { seedingSize: 0, bonus: 0 };
+  protected override async getUserSeedingTorrents (userId?: number): Promise<Partial<IUserInfo>> {
+    const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0, bonus: 0 };
 
     for (const pageInfo = { count: 0, current: 1 }; pageInfo.current <= pageInfo.count; pageInfo.current++) {
       const { data: seedPage } = await this.request<Document>({

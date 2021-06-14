@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
 import {
   findThenParseNumberString,
@@ -8,7 +8,7 @@ import {
 } from '@/shared/utils/filter';
 import Sizzle from 'sizzle';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'KaraGarga',
   timezoneOffset: '+0000',
   aka: ['KG'],

@@ -2,14 +2,14 @@
  * 旧版迁移，未经测试
  * Rhilip, 2021.4.25
  */
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import { findThenParseSizeString, parseSizeString } from '@/shared/utils/filter';
-import dayjs from '@/shared/utils/dayjs';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 import Sizzle from 'sizzle';
 import urlparse from 'url-parse';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
+import { ETorrentStatus } from '../../types/torrent';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'Aidoru!Online',
   timezoneOffset: '+0000',
   description: 'Aidoru!Online is a Private Torrent Tracker for Female Japanese Idol related files',

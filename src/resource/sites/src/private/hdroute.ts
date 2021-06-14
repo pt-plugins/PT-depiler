@@ -1,9 +1,8 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
-import { parseInt } from 'lodash-es';
 import { findThenParseSizeString, findThenParseValidTimeString } from '@/shared/utils/filter';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'HDRoute',
   timezoneOffset: '+0800',
   description: 'HDRoute',

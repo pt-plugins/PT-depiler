@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: '麦田PT',
   description: '西北农林科技大学ipv6资源分享平台',
   url: 'https://pt.nwsuaf6.edu.cn/',

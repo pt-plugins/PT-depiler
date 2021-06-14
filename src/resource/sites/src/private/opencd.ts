@@ -1,11 +1,11 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import {
   selectorSearchProgress, selectorSearchStatus,
   selectorUserInfoSeeding,
   selectorUserInfoSeedingSize
 } from './hdchina';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'OpenCD',
   timezoneOffset: '+0800',
   description: '皇后，专一的音乐类PT站，是目前国内最大的无损音乐PT',

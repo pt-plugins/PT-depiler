@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
-import dayjs from '@/shared/utils/dayjs';
+import { ISiteMetadata } from '../../types';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'Anime Tosho',
   description: 'AnimeTosho (AT) is an automated service that provides torrent files, magnet links and DDL for all anime releases',
   url: 'https://animetosho.org/',

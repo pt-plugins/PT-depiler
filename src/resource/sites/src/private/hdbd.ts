@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import { selectorSearchProgress, selectorSearchStatus } from './tjupt';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: '伊甸园',
   description: '这里是伊甸园 让我们赤裸坦诚相见',
   url: 'https://pt.hdbd.us/',

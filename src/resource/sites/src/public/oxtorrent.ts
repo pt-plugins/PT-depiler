@@ -1,4 +1,4 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import { ISearchFilter, ISiteMetadata } from '../../types';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import { AxiosRequestConfig } from 'axios';
 
@@ -13,7 +13,7 @@ const CategoryMap = new Map([
   ['Porno', 'XXX']
 ]);
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'OxTorrent',
   description: 'OxTorrent is a French Public site for TV / MOVIES / GENERAL',
   url: 'https://www.oxtorrent.cc/',
@@ -54,7 +54,7 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Oxtorrent extends BittorrentSite {
-  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter (filter: ISearchFilter): Promise<AxiosRequestConfig> {
     const config = await super.transformSearchFilter(filter);
     config.url = filter.keywords ? `/recherche/${filter.keywords}` : '/';
     return config;

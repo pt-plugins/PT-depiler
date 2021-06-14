@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
 import {
   findThenParseNumberString,
@@ -7,7 +7,7 @@ import {
   parseTimeToLive
 } from '@/shared/utils/filter';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'HDBits',
   timezoneOffset: '+0000',
   description: 'HDB',

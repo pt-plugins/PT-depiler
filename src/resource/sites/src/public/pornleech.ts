@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
-import dayjs from '@/shared/utils/dayjs';
+import { ISiteMetadata } from '../../types';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'PornLeech',
   description: 'PornLeech is a Public Tracker for 3X',
   url: 'http://pornleech.io/',

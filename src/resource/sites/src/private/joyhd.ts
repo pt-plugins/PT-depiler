@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'JoyHD',
   schema: 'NexusPHP',
   description: 'JoyHD成立於2013年，發佈藍光原碟，藍光DIY和原抓音樂。',

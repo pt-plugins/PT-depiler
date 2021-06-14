@@ -1,8 +1,8 @@
-import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites';
+import { ISiteMetadata, IUserInfo } from '../../types';
 import GazelleJSONAPI from '../schema/GazelleJSONAPI';
 import { parseSizeString } from '@/shared/utils/filter';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'RED',
   timezoneOffset: '+0000',
   description: 'music',
@@ -39,7 +39,7 @@ export const siteMetadata: SiteMetadata = {
 };
 
 export default class redacted extends GazelleJSONAPI {
-  protected async getUserSeedingTorrents (userId?: number): Promise<Partial<UserInfo>> {
+  protected override async getUserSeedingTorrents (userId?: number): Promise<Partial<IUserInfo>> {
     const { data: apiStats } = await this.requestApi('community_stats', { userid: userId });
     return this.getFieldsData(apiStats, 'userInfo', ['seedingSize']);
   }

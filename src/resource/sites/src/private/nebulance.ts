@@ -2,11 +2,11 @@
  * 综合 Jackett 配置和旧版配置改写，未经测试
  * Rhilip, 2021.04.23
  */
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import { parseSizeString } from '@/shared/utils/filter';
-import dayjs from '@/shared/utils/dayjs';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'Nebulance',
   timezoneOffset: '+0000',
   description: 'NBL',

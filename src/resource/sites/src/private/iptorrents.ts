@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import {
   findThenParseNumberString,
   findThenParseSizeString,
@@ -7,7 +7,7 @@ import {
 } from '@/shared/utils/filter';
 import urlparse from 'url-parse';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'IPTorrents',
   timezoneOffset: '+0000',
   description: 'IPTorrents - #1 Private Tracker',

@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
-import dayjs from '@/shared/utils/dayjs';
+import { ISiteMetadata } from '../../types';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'Nyaa Pantsu',
   description: '另一个 Nyaa 的继承者，侧重于东亚（中国、日本及韩国）多媒体资源的BitTorrent站点',
   url: 'https://nyaa.net/',

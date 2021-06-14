@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: '百川PT',
   description: '校内10兆高速下载，优质高清资源共享！',
   url: 'https://www.hitpt.com/',

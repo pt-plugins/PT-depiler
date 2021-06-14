@@ -1,8 +1,8 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import { parseTimeToLive } from '@/shared/utils/filter';
 
 // FIXME Cloudflare DDoS Protect
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: '7torrents',
   description: '7torrents is a Public BitTorrent DHT search engine.',
   url: 'https://www.7torrents.cc/',

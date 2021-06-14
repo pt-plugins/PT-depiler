@@ -2,10 +2,10 @@
  * 使用TJUPT的 progress 和 status 解析，未作检查
  * Rhilip, 2021.4.12
  */
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import { selectorSearchProgress, selectorSearchStatus } from './tjupt';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: '爱薇网',
   timezoneOffset: '+0800',
   schema: 'NexusPHP',

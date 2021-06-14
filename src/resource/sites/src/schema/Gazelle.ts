@@ -1,14 +1,14 @@
+import { ETorrentStatus, ITorrent } from '../../types/torrent';
 import PrivateSite from '../schema/AbstractPrivateSite';
-import { SiteConfig, Torrent } from '@/shared/interfaces/sites';
+import { SiteConfig } from '../../types';
 import Sizzle from 'sizzle';
-import { merge } from 'lodash-es';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
 import urlparse from 'url-parse';
+import { merge } from 'lodash-es';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 import { parseSizeString } from '@/shared/utils/filter';
-import dayjs from '@/shared/utils/dayjs';
 
 export default class Gazelle extends PrivateSite {
-  protected readonly initConfig: Partial<SiteConfig> = {
+  protected override readonly initConfig: Partial<SiteConfig> = {
     search: {
       keywordsParam: 'searchstr',
       requestConfig: {
@@ -152,7 +152,7 @@ export default class Gazelle extends PrivateSite {
     }
   }
 
-  protected async transformSearchPage (doc: Document | any): Promise<Torrent[]> {
+  protected override async transformSearchPage (doc: Document | any): Promise<ITorrent[]> {
     // 如果配置文件没有传入 search 的选择器，则我们自己生成
     const legacyTableSelector = 'table.torrent_table:last';
 
@@ -170,7 +170,7 @@ export default class Gazelle extends PrivateSite {
         seeders: "a[href*='order_by=seeders']", // 种子数
         leechers: "a[href*='order_by=leechers']", // 下载数
         completed: "a[href*='order_by=snatched']" // 完成数
-      } as Record<keyof Torrent, string>)) {
+      } as Record<keyof ITorrent, string>)) {
         if (Sizzle(dectSelector, element).length > 0) {
           // @ts-ignore
           this.config.selector.search[dectField] = merge({
@@ -183,7 +183,7 @@ export default class Gazelle extends PrivateSite {
     });
 
     // 遍历数据行
-    const torrents: Torrent[] = [];
+    const torrents: ITorrent[] = [];
     const trs = Sizzle(this.config.selector!.search!.rows.selector as string, doc);
 
     for (let i = 0; i < trs.length; i++) {
@@ -193,7 +193,7 @@ export default class Gazelle extends PrivateSite {
       const url = this.getFieldData(tr, this.config.selector!.search!.url!);
       const link = this.getFieldData(tr, this.config.selector!.search!.link!);
       if (url && link) {
-        const torrent = this.parseRowToTorrent(tr, { url, link }) as Torrent;
+        const torrent = this.parseRowToTorrent(tr, { url, link }) as ITorrent;
         torrents.push(torrent);
       }
     }

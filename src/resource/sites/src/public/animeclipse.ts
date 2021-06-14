@@ -1,8 +1,8 @@
-import { searchFilter, SiteMetadata } from '@/shared/interfaces/sites';
+import { ISearchFilter, ISiteMetadata } from '../../types';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import { AxiosRequestConfig } from 'axios';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'AnimeClipse',
   description: 'AnimeClipse is a Public site for Hellenic Fansubs Anime.',
   timezoneOffset: '+0200',
@@ -111,7 +111,7 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Animeclipse extends BittorrentSite {
-  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter (filter: ISearchFilter): Promise<AxiosRequestConfig> {
     const extraSortParamsIndex = filter.extraParams
       ?.findIndex(v => v.key === 'order' && ['3', '4', '5'].includes(v.value as string));
 

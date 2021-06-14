@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import { selectorSearchProgress, selectorSearchStatus } from './hdhome';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'TorrentCCF',
   description: '兼有学习资源和软件资源的影视PT站点',
   url: 'https://et8.org/',

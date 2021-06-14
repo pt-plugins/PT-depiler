@@ -2,13 +2,13 @@
  * 该站点搜索方法在旧版中并未涉及，目前搜索配置来自Jackett，未进行具体测试
  * Rhilip, 2021.04.28
  */
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import Sizzle from 'sizzle';
 import { findThenParseNumberString, findThenParseSizeString, parseTimeToLive } from '@/shared/utils/filter';
 import urlparse from 'url-parse';
-import dayjs from '@/shared/utils/dayjs';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'bB',
   timezoneOffset: '+0000',
   description: 'bB is a Private Torrent Tracker for 0DAY / GENERAL',

@@ -1,10 +1,10 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
 import { findThenParseNumberString, findThenParseSizeString } from '@/shared/utils/filter';
-import dayjs from '@/shared/utils/dayjs';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 import Sizzle from 'sizzle';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'CinemaGeddon',
   timezoneOffset: '-0700', // FIXME 按照 Jackett 的情况修正
   url: 'https://cinemageddon.net/',

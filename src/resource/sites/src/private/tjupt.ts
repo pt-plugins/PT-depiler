@@ -1,8 +1,7 @@
-import { ElementQuery, SiteMetadata } from '@/shared/interfaces/sites';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
+import { IElementQuery, ISiteMetadata, ETorrentStatus } from '../../types';
 
 // TJUPT 中的 selector.search.progress 以及 selector.search.status 被其他站公用
-export const selectorSearchProgress: ElementQuery = {
+export const selectorSearchProgress: IElementQuery = {
   selector: ['div.probar_b1, div.probar_b2, div.probar_b3'],
   attr: 'style',
   filters: [
@@ -14,7 +13,7 @@ export const selectorSearchProgress: ElementQuery = {
   ]
 };
 
-export const selectorSearchStatus: ElementQuery = {
+export const selectorSearchStatus: IElementQuery = {
   selector: ['div[class*="probar_a"]'],
   attr: 'class',
   filters: [
@@ -35,7 +34,7 @@ export const selectorSearchStatus: ElementQuery = {
   ]
 };
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: '北洋园',
   schema: 'NexusPHP',
   url: 'https://tjupt.org/',

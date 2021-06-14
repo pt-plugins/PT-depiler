@@ -1,6 +1,6 @@
 import { OpUnitType } from 'dayjs';
-import dayjs from '@/shared/utils/dayjs';
-import { timezoneOffset } from '@/shared/interfaces/types';
+import dayjs from '@ptpp/utils/plugins/dayjs';
+import { timezoneOffset } from '@ptpp/utils/types';
 
 export const sizePattern = /^(\d*\.?\d+)(.*[^ZEPTGMK])?([ZEPTGMK](B|iB))s?$/i;
 

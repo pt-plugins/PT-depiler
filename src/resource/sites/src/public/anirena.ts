@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'AniRena',
   description: 'AniRena is a Public torrent tracker for the latest anime and Japanese related torrents',
   url: 'https://www.anirena.com/',

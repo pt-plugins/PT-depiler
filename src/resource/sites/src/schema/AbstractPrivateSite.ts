@@ -1,5 +1,5 @@
 // 适用于PT站点
-import { UserInfo } from '@/shared/interfaces/sites';
+import { IUserInfo } from '../../types';
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import userDataRecords from '@/background/service/storage/userDataRecords';
@@ -7,8 +7,8 @@ import { difference, intersection, merge, pick } from 'lodash-es';
 import { transPostDataTo } from '@/shared/interfaces/types';
 
 export default class PrivateSite extends BittorrentSite {
-  public async getLastUserInfo (): Promise<UserInfo | null> {
-    return await userDataRecords.getUserData(this.config.host!) as UserInfo | null;
+  public async getLastUserInfo (): Promise<IUserInfo | null> {
+    return await userDataRecords.getUserData(this.config.host!) as IUserInfo | null;
   }
 
   /**
@@ -16,11 +16,11 @@ export default class PrivateSite extends BittorrentSite {
    * 因为此处仅抛出 Error，所以所有继承的子类应该完全覆写
    * 这里不用考虑保存问题，保存/更新 UserInfo 由调用的上层完成
    */
-  public async flushUserInfo (): Promise<UserInfo> {
+  public async flushUserInfo (): Promise<IUserInfo> {
     if (!this.config.userInfo) {
       throw new Error('尚不支持'); // FIXME
     } else {
-      let flushUserInfo: Partial<UserInfo> = {};
+      let flushUserInfo: Partial<IUserInfo> = {};
 
       if (this.config.userInfo.pickLast) {
         const lastUserInfo = await this.getLastUserInfo();
@@ -70,7 +70,7 @@ export default class PrivateSite extends BittorrentSite {
         };
       }
 
-      return flushUserInfo as UserInfo;
+      return flushUserInfo as IUserInfo;
     }
   }
 
@@ -78,7 +78,7 @@ export default class PrivateSite extends BittorrentSite {
    * 这是一个比较通用的检查是否登录方法，如果不行请考虑覆写扩展
    * @param {AxiosResponse} res
    */
-  protected loggedCheck (res: AxiosResponse): boolean {
+  protected override loggedCheck (res: AxiosResponse): boolean {
     const request = res.request as XMLHttpRequest;
     try {
       if (/doLogin|login|verify|checkpoint|returnto/ig.test(request.responseURL)) {

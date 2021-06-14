@@ -2,7 +2,7 @@ import {
   BittorrentClientBaseConfig,
   TorrentClientMetaData
 } from '@/resource/btClients/types';
-import Container from '@/shared/class/container';
+import Container from '@ptpp/utils/class/container';
 import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
 
 // 动态生成 btClient 列表

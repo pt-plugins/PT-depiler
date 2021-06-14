@@ -1,17 +1,16 @@
 import {
-  ElementQuery, searchCategories, searchCategoryOptions,
-  searchFilter, SearchRequestConfig, SearchResultItemTag,
+  IElementQuery, ISearchCategories, ISearchCategoryOptions,
+  ISearchFilter, SearchRequestConfig,
   SiteConfig,
-  SiteMetadata,
-  Torrent
-} from '@/shared/interfaces/sites';
+  ISiteMetadata
+} from '../../types';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import Sizzle from 'sizzle';
 import urljoin from 'url-join';
 import urlparse from 'url-parse';
 import { merge, get, chunk, mergeWith, pick } from 'lodash-es';
 import { cfDecodeEmail, parseSizeString, parseTimeWithZone } from '@/shared/utils/filter';
-import { ETorrentBaseTagColor, ETorrentStatus } from '@/shared/interfaces/enum';
+import { ETorrentBaseTagColor, ITorrent, ITorrentTag } from '../../types/torrent';
 import { fullUrl, transPostDataTo } from '@/shared/interfaces/types';
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
@@ -31,7 +30,7 @@ export default class BittorrentSite {
     cacheRequest: new Map()
   };
 
-  constructor (config: Partial<SiteConfig> = {}, siteMetaData: SiteMetadata) {
+  constructor (config: Partial<SiteConfig> = {}, siteMetaData: ISiteMetadata) {
     this.userConfig = config;
     this.siteMetaData = siteMetaData;
   }
@@ -76,11 +75,11 @@ export default class BittorrentSite {
     return this.config.activateUrl || this.config.url;
   }
 
-  get categoryMap (): searchCategoryOptions[] {
+  get categoryMap (): ISearchCategoryOptions[] {
     return this.getCategory(['Category', '类别'])?.options!;
   }
 
-  protected getCategory (catName: string | string[]): searchCategories | undefined {
+  protected getCategory (catName: string | string[]): ISearchCategories | undefined {
     const catNames = ([] as string[]).concat(catName);
     return this.config.search?.categories?.find((d) => catNames.includes(d.name));
   }
@@ -107,7 +106,7 @@ export default class BittorrentSite {
    * 根据搜索筛选条件，生成 AxiosRequestConfig
    * @param filter
    */
-  protected async transformSearchFilter (filter: searchFilter): Promise<AxiosRequestConfig> {
+  protected async transformSearchFilter (filter: ISearchFilter): Promise<AxiosRequestConfig> {
     const config: AxiosRequestConfig = { params: {}, data: {} };
 
     const params: any = {};
@@ -166,7 +165,7 @@ export default class BittorrentSite {
    * 种子搜索方法
    * @param filter
    */
-  public async searchTorrents (filter: searchFilter = {}) : Promise<Torrent[]> {
+  public async searchTorrents (filter: ISearchFilter = {}) : Promise<ITorrent[]> {
     // 根据配置和搜索关键词生成 AxiosRequestConfig
     const axiosConfig: AxiosRequestConfig = merge(
       { url: '/', responseType: 'document' },
@@ -259,13 +258,13 @@ export default class BittorrentSite {
     const ret: any = {};
 
     for (const [key, selector] of Object.entries(pick(this.config.selector![selectorGroup], fields))) {
-      ret[key] = this.getFieldData(element, selector as ElementQuery);
+      ret[key] = this.getFieldData(element, selector as IElementQuery);
     }
 
     return ret as { [key in F]?: any };
   }
 
-  protected getFieldData (element: Element | Object, elementQuery: ElementQuery): any {
+  protected getFieldData (element: Element | Object, elementQuery: IElementQuery): any {
     const { selector } = elementQuery;
     let query: string | number = String(elementQuery.text ?? '');
     let selectorId = 0;
@@ -359,13 +358,13 @@ export default class BittorrentSite {
    * 如何解析 JSON 或者 Document，获得种子详情列表
    * @param doc
    */
-  protected async transformSearchPage (doc: Document | object | any): Promise<Torrent[]> {
+  protected async transformSearchPage (doc: Document | object | any): Promise<ITorrent[]> {
     if (!this.config.selector?.search?.rows) {
       throw Error('列表选择器未定义');
     }
 
     const rowsSelector = this.config.selector.search.rows;
-    const torrents: Torrent[] = [];
+    const torrents: ITorrent[] = [];
 
     let trs: any;
 
@@ -401,13 +400,13 @@ export default class BittorrentSite {
     }
 
     trs?.forEach((tr: any) => {
-      torrents.push(this.parseRowToTorrent(tr) as Torrent);
+      torrents.push(this.parseRowToTorrent(tr) as ITorrent);
     });
 
     return torrents;
   }
 
-  protected fixParsedTorrent (torrent: Torrent, requestConfig: SearchRequestConfig): Torrent {
+  protected fixParsedTorrent (torrent: ITorrent, requestConfig: SearchRequestConfig): ITorrent {
     // 检查种子的id属性是否存在，如果不存在，则由 url, link 属性替代
     if (!torrent.id) {
       if (torrent.url) {
@@ -456,7 +455,7 @@ export default class BittorrentSite {
     return torrent;
   }
 
-  protected parseRowToTorrent (row: Element | Document | Object, torrent: Partial<Torrent> = {}): Partial<Torrent> {
+  protected parseRowToTorrent (row: Element | Document | Object, torrent: Partial<ITorrent> = {}): Partial<ITorrent> {
     const leftKeys = Object.keys(this.config.selector!.search!).filter(key => {
       return ![
         'rows', // rows 已经在前面被处理过了
@@ -482,8 +481,8 @@ export default class BittorrentSite {
     return torrent;
   }
 
-  protected parseTagsFromRow (row: Element | Document | Object): SearchResultItemTag[] {
-    const tags: SearchResultItemTag[] = [];
+  protected parseTagsFromRow (row: Element | Document | Object): ITorrentTag[] {
+    const tags: ITorrentTag[] = [];
     const tagsQuerys = this.config.selector!.search!.tags!;
     for (let i = 0; i < tagsQuerys.length; i++) {
       const tagsQuery = tagsQuerys[i];
@@ -512,17 +511,15 @@ export default class BittorrentSite {
     return tags;
   }
 
-  protected parseDownloadProcessFromRow (row: Element | Document | Object): {
-    progress?: number; /* 进度（100表示完成） */ status?: ETorrentStatus; /* 状态 */
-  } {
+  protected parseDownloadProcessFromRow (row: Element | Document | Object): Pick<ITorrent, 'progress' | 'status'> {
     return {};
   }
 
-  async getTorrentPageLink (torrent: Torrent): Promise<string> {
+  async getTorrentPageLink (torrent: ITorrent): Promise<string> {
     return torrent.url;
   }
 
-  async getTorrentDownloadLink (torrent: Torrent):Promise<string> {
+  async getTorrentDownloadLink (torrent: ITorrent):Promise<string> {
     if (!torrent.link && this.config.selector?.detail?.link) {
       const { data } = await this.request<any>({
         url: torrent.url,

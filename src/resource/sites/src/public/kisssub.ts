@@ -1,8 +1,8 @@
-import { SiteMetadata, Torrent } from '@/shared/interfaces/sites';
+import { ISiteMetadata, ITorrent } from '../../types';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
-import dayjs from '@/shared/utils/dayjs';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: '爱恋动漫',
   description: '爱恋BT分享站，动画～漫画～游戏～动漫音乐～片源（RAW）～各类ACG资源聚集地～欢迎各大佬发布入住！',
   url: 'http://www.kisssub.org/',
@@ -60,7 +60,7 @@ export const siteMetadata: SiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Kisssub extends BittorrentSite {
-  protected parseRowToTorrent (row: Element): Partial<Torrent> {
+  protected override parseRowToTorrent (row: Element): Partial<ITorrent> {
     const transformTorrent = super.parseRowToTorrent(row);
     // 我们只要知道hash就可以种子了，但是如果不传入name的话，种子命名是 `{hash}.torrent`
     transformTorrent.link = `http://v2.uploadbt.com/?r=down&hash=${transformTorrent.id}&name=${encodeURIComponent(transformTorrent.title as string)}`;

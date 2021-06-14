@@ -1,10 +1,9 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata, ETorrentStatus } from '../../types';
 import urlparse from 'url-parse';
 import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@/shared/utils/filter';
 import Sizzle from 'sizzle';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'SkyeySnow',
   aka: ['天雪'],
   timezoneOffset: '+0800',

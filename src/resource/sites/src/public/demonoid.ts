@@ -1,7 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'Demonoid',
   description: 'Demonoid is a Public torrent site for MOVIES / TV / GENERAL',
   url: 'https://www.demonoid.is/',

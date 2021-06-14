@@ -2,10 +2,10 @@
  * 需要测试
  * Rhilip, 2021.04.23
  */
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 import { parseSizeString, parseTimeToLive } from '@/shared/utils/filter';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'BTN',
   timezoneOffset: '+0000',
   description: '著名剧集站点，又被戏称为鼻涕妞',

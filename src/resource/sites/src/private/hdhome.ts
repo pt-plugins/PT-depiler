@@ -1,15 +1,14 @@
-import { ElementQuery, SiteMetadata } from '@/shared/interfaces/sites';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
+import { IElementQuery, ISiteMetadata, ETorrentStatus } from '../../types';
 
 // HDHOME 中的 selector.search.progress 以及 selector.search.status 被其他站公用
-export const selectorSearchProgress: ElementQuery = {
+export const selectorSearchProgress: IElementQuery = {
   selector: ['> td:eq(8)'],
   filters: [
     (query: string) => query === '-' ? 0 : parseFloat(query)
   ]
 };
 
-export const selectorSearchStatus: ElementQuery = {
+export const selectorSearchStatus: IElementQuery = {
   selector: ['> td:eq(8)'],
   filters: [
     (query:string) => {
@@ -32,7 +31,7 @@ export const selectorSearchStatus: ElementQuery = {
   ]
 };
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'HDHome',
   schema: 'NexusPHP',
   url: 'https://hdhome.org/',

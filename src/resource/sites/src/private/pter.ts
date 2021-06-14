@@ -1,8 +1,7 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata, ETorrentStatus } from '../../types';
 import { parseSizeString } from '@/shared/utils/filter';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'PTer',
   timezoneOffset: '+0800',
   description: 'PT之友俱乐部',

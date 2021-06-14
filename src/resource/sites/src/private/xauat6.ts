@@ -2,9 +2,9 @@
  * FIXME 这个站离线很久了，没法测试
  * Rhilip, 2021.04.11
  */
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: '溪涧草堂PT',
   description: '以热播电影，热播剧集，热播综艺为主，纪录，动漫，GTV，资料等资源为辅，多方面地为用户提供丰富的资源下载',
   url: 'http://pt.xauat6.edu.cn/',

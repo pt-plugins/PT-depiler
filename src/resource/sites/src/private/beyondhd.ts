@@ -3,13 +3,12 @@
  * 根据旧版配置文件和 Whalko 提供的 html文档修改，未经过测试
  * Rhilip, 2021.4.21
  */
-import { SiteMetadata, UserInfo } from '@/shared/interfaces/sites';
-import { ETorrentStatus } from '@/shared/interfaces/enum';
+import { ISiteMetadata, ETorrentStatus, IUserInfo } from '../../types';
 import { parseTimeToLive } from '@/shared/utils/filter';
 import Unit3D from '../schema/Unit3D';
-import dayjs from '@/shared/utils/dayjs';
+import dayjs from '@ptpp/utils/plugins/dayjs';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'BeyondHD',
   timezoneOffset: '+0000',
   description: '综合',
@@ -109,8 +108,8 @@ export default class beyondhd extends Unit3D {
     }) as `${string}.${string}`;
   }
 
-  async flushUserInfo (): Promise<UserInfo> {
-    const flushUserInfo: Partial<UserInfo> = {};
+  override async flushUserInfo (): Promise<IUserInfo> {
+    const flushUserInfo: Partial<IUserInfo> = {};
 
     const userPath = await this.getUserInfoPathFromSite();
     const { data: userDetailDocument } = await this.request<Document>({ url: userPath, responseType: 'document' });
@@ -119,6 +118,6 @@ export default class beyondhd extends Unit3D {
       flushUserInfo[userInfoAttrValue] = this.getFieldData(userDetailDocument, this.config.selector?.userInfo![userInfoAttrValue]!);
     }
 
-    return flushUserInfo as UserInfo;
+    return flushUserInfo as IUserInfo;
   }
 }

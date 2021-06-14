@@ -1,6 +1,6 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'AniDex',
   description: 'A torrent tracker specialising in content from East Asia, including anime, manga, music, adult videos and more.',
   tags: ['anime', 'manga', 'jav', 'download', 'anidex', 'magnet'],

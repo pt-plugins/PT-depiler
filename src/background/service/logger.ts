@@ -6,7 +6,7 @@ import BrowserBridge from '@/background/service/storage/browserBridge';
 class Logger extends BrowserBridge {
   protected maxLength: number = 100;
   protected configKey = EConfigKey.systemLogs;
-  protected data: LogItem[] = [];
+  protected override data: LogItem[] = [];
 
   /**
    * 添加日志

@@ -1,4 +1,4 @@
-import { SiteMetadata } from '@/shared/interfaces/sites';
+import { ISiteMetadata } from '../../types';
 
 const CategoryMap = new Map([
   ['vo', 'Films VO'],
@@ -29,7 +29,7 @@ const CategoryMap = new Map([
   ['ebooks', 'eBook']
 ]);
 
-export const siteMetadata: SiteMetadata = {
+export const siteMetadata: ISiteMetadata = {
   name: 'MonTorrent',
   description: 'MonTorrent is a FRENCH Public Indexer',
   url: 'https://www.montorrent.com/',

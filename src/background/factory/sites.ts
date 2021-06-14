@@ -1,10 +1,10 @@
+import { SiteConfig, ISiteMetadata } from '@ptpp/sites/types';
 import BittorrentSite from '@/resource/sites/src/schema/AbstractBittorrentSite';
 import PrivateSite from '@/resource/sites/src/schema/AbstractPrivateSite';
-import Container from '@/shared/class/container';
-import { SiteConfig, SiteMetadata } from '@/shared/interfaces/sites';
-import { siteName } from '@/shared/interfaces/types';
+import Container from '@ptpp/utils/class/container';
 
 type supportModuleType = 'schema' | 'public' | 'private'
+type siteName = `${supportModuleType}/${string}`
 
 class Sites extends Container {
   private readonly _supportList: {
@@ -42,7 +42,7 @@ class Sites extends Container {
       /* webpackExports: ["default","siteMetadata"] */
       `@/resource/sites/src/${module}`) as {
       default?: PrivateSite | BittorrentSite,
-      siteMetadata: SiteMetadata
+      siteMetadata: ISiteMetadata
     };
   }
 
