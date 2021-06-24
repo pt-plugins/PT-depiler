@@ -1,7 +1,7 @@
 import { ISiteMetadata, IUserInfo, ITorrent } from '../../types';
 import Gazelle from '../schema/Gazelle';
 import Sizzle from 'sizzle';
-import { parseSizeString } from '@/shared/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 import urlparse from 'url-parse';
 
 export const siteMetadata: ISiteMetadata = {
@@ -133,7 +133,7 @@ export default class jpopsuki extends Gazelle {
     return TListDocument;
   }
 
-  override async flushUserInfo (): Promise<IUserInfo> {
+  public override async flushUserInfo (lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     const flushUserInfo = await super.flushUserInfo();
 
     if (flushUserInfo.id) {

@@ -3,7 +3,7 @@
  * Rhilip, 2021.04.23
  */
 import { ISiteMetadata } from '../../types';
-import { parseSizeString, parseTimeToLive } from '@/shared/utils/filter';
+import { parseSizeString, parseTimeToLive } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'BTN',

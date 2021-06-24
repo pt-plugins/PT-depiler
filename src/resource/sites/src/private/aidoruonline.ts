@@ -2,12 +2,11 @@
  * 旧版迁移，未经测试
  * Rhilip, 2021.4.25
  */
-import { ISiteMetadata } from '../../types';
-import { findThenParseSizeString, parseSizeString } from '@/shared/utils/filter';
+import { ISiteMetadata, ETorrentStatus } from '../../types';
+import { findThenParseSizeString, parseSizeString } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 import Sizzle from 'sizzle';
 import urlparse from 'url-parse';
-import { ETorrentStatus } from '../../types/torrent';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'Aidoru!Online',
@@ -209,16 +208,14 @@ export const siteMetadata: ISiteMetadata = {
       },
       seedingSize: {
         selector: ':self',
-        elementProcess: [
-          (element: HTMLElement) => {
-            let seedSize = 0;
-            const sizeAnother = Sizzle("b:contains('Currently seeding') + br + table tr:not(:first-child) > td:nth-child(4)", element);
-            sizeAnother.forEach(e => {
-              seedSize += parseSizeString((e as HTMLElement).innerText.trim());
-            });
-            return seedSize;
-          }
-        ]
+        elementProcess: (element: HTMLElement) => {
+          let seedSize = 0;
+          const sizeAnother = Sizzle("b:contains('Currently seeding') + br + table tr:not(:first-child) > td:nth-child(4)", element);
+          sizeAnother.forEach(e => {
+            seedSize += parseSizeString((e as HTMLElement).innerText.trim());
+          });
+          return seedSize;
+        }
       }
     }
   }

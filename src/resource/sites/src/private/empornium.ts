@@ -1,6 +1,6 @@
 import { ISiteMetadata, ETorrentStatus } from '../../types';
 import urlparse from 'url-parse';
-import { findThenParseNumberString, findThenParseSizeString } from '@/shared/utils/filter';
+import { findThenParseNumberString, findThenParseSizeString } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 
 export const siteMetadata: ISiteMetadata = {

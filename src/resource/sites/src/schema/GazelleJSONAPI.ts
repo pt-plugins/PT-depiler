@@ -1,7 +1,7 @@
-import { SiteConfig, IUserInfo, ITorrent } from '../../types';
+import { IUserInfo, ITorrent, ISiteMetadata } from '../../types';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import { AxiosResponse } from 'axios';
-import { parseSizeString, parseTimeWithZone } from '@/shared/utils/filter';
+import { parseSizeString, parseTimeWithZone } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 import Sizzle from 'sizzle';
 
@@ -214,7 +214,7 @@ export interface userJsonResponse extends jsonResponse {
 }
 
 export default class GazelleJSONAPI extends PrivateSite {
-  protected override readonly initConfig: Partial<SiteConfig> = {
+  protected override readonly initConfig: Partial<ISiteMetadata> = {
     search: {
       keywordsParam: 'searchstr',
       requestConfig: {
@@ -352,7 +352,7 @@ export default class GazelleJSONAPI extends PrivateSite {
     return torrents;
   }
 
-  override async flushUserInfo (): Promise<IUserInfo> {
+  public override async flushUserInfo (lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let userInfo: Partial<IUserInfo> = {};
     userInfo = { ...userInfo, ...await this.getUserBaseInfo() };
     if (userInfo.id) {

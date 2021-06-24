@@ -1,6 +1,6 @@
 import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
-import { findThenParseNumberString, findThenParseSizeString } from '@/shared/utils/filter';
+import { findThenParseNumberString, findThenParseSizeString } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 import Sizzle from 'sizzle';
 
@@ -119,26 +119,24 @@ export const siteMetadata: ISiteMetadata = {
       // FIXME 我对这两块情况暂时存疑，不过先抄过来吧
       seeding: {
         selector: ['div#ka2 table:first'],
-        elementProcess: [
-          (table: HTMLTableElement) => {
-            const trAnothers = Sizzle('tr:gt(0)', table);
-            return trAnothers.length;
-          }
-        ]
+        elementProcess: (table: HTMLTableElement) => {
+          const trAnothers = Sizzle('tr:gt(0)', table);
+          return trAnothers.length;
+        }
+
       },
       seedingSize: {
         selector: ['div#ka2 table:first tr:not(:eq(0))'],
-        elementProcess: [
-          (table: HTMLTableElement) => {
-            let seedingSize = 0;
-            const trAnothers = Sizzle('tr:gt(0)', table);
-            trAnothers.forEach(trAnother => {
-              const sizeAnother = Sizzle('td:eq(2)', trAnother);
-              seedingSize += findThenParseSizeString((sizeAnother[0] as HTMLTableCellElement).innerText.trim());
-            });
-            return seedingSize;
-          }
-        ]
+        elementProcess: (table: HTMLTableElement) => {
+          let seedingSize = 0;
+          const trAnothers = Sizzle('tr:gt(0)', table);
+          trAnothers.forEach(trAnother => {
+            const sizeAnother = Sizzle('td:eq(2)', trAnother);
+            seedingSize += findThenParseSizeString((sizeAnother[0] as HTMLTableCellElement).innerText.trim());
+          });
+          return seedingSize;
+        }
+
       }
     }
   }

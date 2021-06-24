@@ -3,7 +3,7 @@
  * Rhilip, 2021.04.23
  */
 import { ISiteMetadata } from '../../types';
-import { parseSizeString } from '@/shared/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 
 export const siteMetadata: ISiteMetadata = {
@@ -115,12 +115,10 @@ export const siteMetadata: ISiteMetadata = {
       },
       joinTime: {
         selector: ["ul.stats.nobullet > li:contains('Joined:') > span"],
-        elementProcess: [
-          (element:HTMLElement) => {
-            const timeText = (element.getAttribute('title') || element.innerText).trim();
-            return dayjs(timeText).isValid() ? dayjs(timeText).valueOf() : timeText;
-          }
-        ]
+        elementProcess: (element:HTMLElement) => {
+          const timeText = (element.getAttribute('title') || element.innerText).trim();
+          return dayjs(timeText).isValid() ? dayjs(timeText).valueOf() : timeText;
+        }
       }
     }
   }

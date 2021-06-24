@@ -1,7 +1,7 @@
 import { ISiteMetadata } from '../../types';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
-import { sleep } from '@/shared/utils/common';
+import { sleep } from '@ptpp/utils/filter';
 
 const appName = 'PTPP';
 

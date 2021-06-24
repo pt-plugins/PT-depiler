@@ -1,5 +1,5 @@
 import { ISiteMetadata } from '../../types';
-import { findThenParseSizeString } from '@/shared/utils/filter';
+import { findThenParseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'PT@KEEPFRDS',

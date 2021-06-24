@@ -1,6 +1,6 @@
 import { ISearchFilter, ISiteMetadata, ITorrent } from '../../types';
 import urlparse from 'url-parse';
-import { findThenParseNumberString, parseSizeString } from '@/shared/utils/filter';
+import { findThenParseNumberString, parseSizeString } from '@ptpp/utils/filter';
 import Gazelle from '../schema/Gazelle';
 
 export const siteMetadata: ISiteMetadata = {

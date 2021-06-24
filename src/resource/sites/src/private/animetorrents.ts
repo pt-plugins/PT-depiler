@@ -1,7 +1,7 @@
 import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
 import dayjs from '@ptpp/utils/plugins/dayjs';
-import { findThenParseNumberString, findThenParseSizeString } from '@/shared/utils/filter';
+import { findThenParseNumberString, findThenParseSizeString } from '@ptpp/utils/filter';
 import Sizzle from 'sizzle';
 
 export const siteMetadata: ISiteMetadata = {
@@ -178,26 +178,22 @@ export const siteMetadata: ISiteMetadata = {
       // page: '/ajax/user-active-torrents.php?uid=$user.id$'
       seeding: {
         selector: ':self',
-        elementProcess: [
-          (doc: Document) => {
-            const trAnothers = Sizzle('tr:not(:eq(0))', doc);
-            return trAnothers.length;
-          }
-        ]
+        elementProcess: (doc: Document) => {
+          const trAnothers = Sizzle('tr:not(:eq(0))', doc);
+          return trAnothers.length;
+        }
       },
       seedingSize: {
         selector: ':self',
-        elementProcess: [
-          (doc: Document) => {
-            let seedingSize = 0;
-            const trAnothers = Sizzle('tr:not(:eq(0))', doc);
-            trAnothers.forEach(trAnother => {
-              const sizeAnother = Sizzle('td:eq(2)', trAnother);
-              seedingSize += findThenParseSizeString((sizeAnother[0] as HTMLElement).innerText.trim());
-            });
-            return seedingSize;
-          }
-        ]
+        elementProcess: (doc: Document) => {
+          let seedingSize = 0;
+          const trAnothers = Sizzle('tr:not(:eq(0))', doc);
+          trAnothers.forEach(trAnother => {
+            const sizeAnother = Sizzle('td:eq(2)', trAnother);
+            seedingSize += findThenParseSizeString((sizeAnother[0] as HTMLElement).innerText.trim());
+          });
+          return seedingSize;
+        }
       }
     }
   }

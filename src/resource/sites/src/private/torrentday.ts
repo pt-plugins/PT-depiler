@@ -1,6 +1,6 @@
 import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
-import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@/shared/utils/filter';
+import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@ptpp/utils/filter';
 
 const categoryMap = {
   29: 'Anime',

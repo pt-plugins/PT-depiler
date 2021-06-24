@@ -2,28 +2,22 @@
 import { IUserInfo } from '../../types';
 import { AxiosRequestConfig, AxiosResponse } from 'axios';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
-import userDataRecords from '@/background/service/storage/userDataRecords';
 import { difference, intersection, merge, pick } from 'lodash-es';
-import { transPostDataTo } from '@/shared/interfaces/types';
+import { transPostDataTo } from '@ptpp/utils/types';
 
 export default class PrivateSite extends BittorrentSite {
-  public async getLastUserInfo (): Promise<IUserInfo | null> {
-    return await userDataRecords.getUserData(this.config.host!) as IUserInfo | null;
-  }
-
   /**
    * 获得当前站点最新的用户信息用于更新
    * 因为此处仅抛出 Error，所以所有继承的子类应该完全覆写
-   * 这里不用考虑保存问题，保存/更新 UserInfo 由调用的上层完成
+   * 这里获取 lastUserInfo 以及 保存/更新 UserInfo 均由调用的上层完成
    */
-  public async flushUserInfo (): Promise<IUserInfo> {
+  public async flushUserInfo (lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     if (!this.config.userInfo) {
       throw new Error('尚不支持'); // FIXME
     } else {
       let flushUserInfo: Partial<IUserInfo> = {};
 
       if (this.config.userInfo.pickLast) {
-        const lastUserInfo = await this.getLastUserInfo();
         flushUserInfo = { ...flushUserInfo, ...pick(lastUserInfo, this.config.userInfo.pickLast) };
       }
 

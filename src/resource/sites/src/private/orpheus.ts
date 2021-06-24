@@ -1,6 +1,6 @@
 import { ISiteMetadata, IUserInfo } from '../../types';
 import GazelleJSONAPI from '../schema/GazelleJSONAPI';
-import { findThenParseSizeString } from '@/shared/utils/filter';
+import { findThenParseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'OPS',
@@ -14,9 +14,7 @@ export const siteMetadata: ISiteMetadata = {
     userInfo: {
       joinTime: {
         selector: ["div:contains('Statistics') + ul.stats > li:contains('Joined:') > span"],
-        elementProcess: [
-          (element: HTMLElement) => (element.getAttribute('title') || element.innerText).trim()
-        ]
+        elementProcess: (element: HTMLElement) => (element.getAttribute('title') || element.innerText).trim()
         // filter: 会由 GazelleJSONAPI基类 的 filter 进行进一步处理
       },
 

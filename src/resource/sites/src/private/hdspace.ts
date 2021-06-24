@@ -1,7 +1,7 @@
 import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
 import dayjs from '@ptpp/utils/plugins/dayjs';
-import { findThenParseSizeString } from '@/shared/utils/filter';
+import { findThenParseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'HD-Space',

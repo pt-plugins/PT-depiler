@@ -1,5 +1,5 @@
 import { ISiteMetadata, ETorrentStatus } from '../../types';
-import { parseSizeString } from '@/shared/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'PTer',
@@ -18,16 +18,14 @@ export const siteMetadata: ISiteMetadata = {
       },
       subTitle: {
         selector: ["a[href*='details.php?id='][title]:first"],
-        elementProcess: [
-          (element: HTMLElement) => {
-            let subTitle = '';
-            const lastSibling = element.parentElement!.lastChild;
-            if (lastSibling?.nodeName === '#text') {
-              subTitle = lastSibling.textContent || subTitle;
-            }
-            return subTitle.trim();
+        elementProcess: (element: HTMLElement) => {
+          let subTitle = '';
+          const lastSibling = element.parentElement!.lastChild;
+          if (lastSibling?.nodeName === '#text') {
+            subTitle = lastSibling.textContent || subTitle;
           }
-        ]
+          return subTitle.trim();
+        }
       },
 
       /**
@@ -38,38 +36,34 @@ export const siteMetadata: ISiteMetadata = {
        */
       progress: {
         selector: ['img[class^="progbar"][style*="width"]:first'],
-        elementProcess: [
-          (element : HTMLElement) => {
-            if (element.classList.contains('progbargreen')) {
-              return 100;
-            } else if (element.classList.contains('progbarred') || element.classList.contains('progbarred')) {
-              const elementStyle = element.getAttribute('style') || '';
-              const widthMatch = elementStyle.match(/width:([ \d.]+)%/);
-              const progress = widthMatch && widthMatch.length >= 2 ? parseFloat(widthMatch[1]) / 98 * 100 /* 修正下载进度 */ : 0;
-              return element.classList.contains('progbarred') ? progress : 100 - progress; // 如果是 .progbarred 则代表已完成进度，而 .progbarred 则为未完成进度，取反
-            } else {
-              return 0;
-            }
+        elementProcess: (element : HTMLElement) => {
+          if (element.classList.contains('progbargreen')) {
+            return 100;
+          } else if (element.classList.contains('progbarred') || element.classList.contains('progbarred')) {
+            const elementStyle = element.getAttribute('style') || '';
+            const widthMatch = elementStyle.match(/width:([ \d.]+)%/);
+            const progress = widthMatch && widthMatch.length >= 2 ? parseFloat(widthMatch[1]) / 98 * 100 /* 修正下载进度 */ : 0;
+            return element.classList.contains('progbarred') ? progress : 100 - progress; // 如果是 .progbarred 则代表已完成进度，而 .progbarred 则为未完成进度，取反
+          } else {
+            return 0;
           }
-        ]
+        }
       },
       status: {
         selector: ['img[class^="progbar"][style*="width"]:first'],
-        elementProcess: [
-          (element : HTMLElement) => {
-            if (element.classList.contains('progbargreen')) {
-              return ETorrentStatus.seeding;
-            } else if (element.classList.contains('progbarred') || element.classList.contains('progbarred')) {
-              const widthMatch = (element.getAttribute('style') || '').match(/width:([ \d.]+)%/);
-              const progress = widthMatch && widthMatch.length >= 2 ? parseFloat(widthMatch[1]) / 98 * 100 : 0;
-              const realProgress = element.classList.contains('progbarred') ? progress : 100 - progress;
-              // FIXME 不能判断是否在下载状态，所以直接设成 inactive
-              return realProgress >= 100 ? ETorrentStatus.completed : ETorrentStatus.inactive;
-            } else {
-              return ETorrentStatus.unknown;
-            }
+        elementProcess: (element : HTMLElement) => {
+          if (element.classList.contains('progbargreen')) {
+            return ETorrentStatus.seeding;
+          } else if (element.classList.contains('progbarred') || element.classList.contains('progbarred')) {
+            const widthMatch = (element.getAttribute('style') || '').match(/width:([ \d.]+)%/);
+            const progress = widthMatch && widthMatch.length >= 2 ? parseFloat(widthMatch[1]) / 98 * 100 : 0;
+            const realProgress = element.classList.contains('progbarred') ? progress : 100 - progress;
+            // FIXME 不能判断是否在下载状态，所以直接设成 inactive
+            return realProgress >= 100 ? ETorrentStatus.completed : ETorrentStatus.inactive;
+          } else {
+            return ETorrentStatus.unknown;
           }
-        ]
+        }
       },
       tags: [
         { name: 'Excl.', selector: "a[href*='torrents.php?tag_exclusive=yes']" }

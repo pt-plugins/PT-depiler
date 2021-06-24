@@ -4,7 +4,7 @@
  * Rhilip, 2021.4.21
  */
 import { ISiteMetadata, ETorrentStatus, IUserInfo } from '../../types';
-import { parseTimeToLive } from '@/shared/utils/filter';
+import { parseTimeToLive } from '@ptpp/utils/filter';
 import Unit3D from '../schema/Unit3D';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 
@@ -36,9 +36,7 @@ export const siteMetadata: ISiteMetadata = {
       comments: { selector: 'span[id^="commenttorrentcount"]' },
       progress: {
         selector: ["i.fal.fa-seedling, i.fal.fa-check[title='Snatched']"],
-        elementProcess: [
-          (element: HTMLElement) => element.getAttribute('title') ? 100 : 0
-        ]
+        elementProcess: (element: HTMLElement) => element.getAttribute('title') ? 100 : 0
       },
       status: {
         selector: ['i.fal.fa-seedling', "i.fal.fa-check[title='Snatched']"],
@@ -108,7 +106,7 @@ export default class beyondhd extends Unit3D {
     }) as `${string}.${string}`;
   }
 
-  override async flushUserInfo (): Promise<IUserInfo> {
+  public override async flushUserInfo (lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     const flushUserInfo: Partial<IUserInfo> = {};
 
     const userPath = await this.getUserInfoPathFromSite();

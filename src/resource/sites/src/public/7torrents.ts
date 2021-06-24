@@ -1,5 +1,5 @@
 import { ISiteMetadata } from '../../types';
-import { parseTimeToLive } from '@/shared/utils/filter';
+import { parseTimeToLive } from '@ptpp/utils/filter';
 
 // FIXME Cloudflare DDoS Protect
 export const siteMetadata: ISiteMetadata = {

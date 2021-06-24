@@ -56,7 +56,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       category: {
         selector: 'category',
-        // elementProcess: [],  // 这里不需要，因为JSON返回不调用 elementProcess，直接进入 filters 处理
+        // elementProcess: () => {},  // 这里不需要，因为JSON返回不调用 elementProcess，直接进入 filters 处理
         filters: [
           // @ts-ignore
           (query: string) => categoriesMap[query]

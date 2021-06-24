@@ -1,7 +1,7 @@
 import { ISearchFilter, ISiteMetadata } from '../../types';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import { AxiosRequestConfig } from 'axios';
-import { parseTimeToLive } from '@/shared/utils/filter';
+import { parseTimeToLive } from '@ptpp/utils/filter';
 
 // FIXME Cloudflare DDoS Protect
 export const siteMetadata: ISiteMetadata = {

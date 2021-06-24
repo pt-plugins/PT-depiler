@@ -1,5 +1,5 @@
 import { ISiteMetadata, ETorrentStatus } from '../../types';
-import { parseSizeString } from '@/shared/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'LemonHD',
@@ -53,7 +53,7 @@ export const siteMetadata: ISiteMetadata = {
         filters: [
           (query: string) => query.replace('cat_', '')
         ],
-        elementProcess: [] // 覆盖掉NPHP默认的处理方式
+        elementProcess: null // 覆盖掉NPHP默认的处理方式
       },
       progress: {
         selector: ['> td:eq(8)'],
@@ -63,18 +63,16 @@ export const siteMetadata: ISiteMetadata = {
       },
       status: {
         selector: ['> td:eq(8)'],
-        elementProcess: [
-          (element: HTMLElement) => {
-            const query = element.innerText.trim(); // 100% or --
-            if (query === '--') {
-              return ETorrentStatus.unknown;
-            } else if (element.classList.contains('peer-active')) {
-              return parseFloat(query) > 100 ? ETorrentStatus.seeding : ETorrentStatus.downloading;
-            } else {
-              return parseFloat(query) > 100 ? ETorrentStatus.completed : ETorrentStatus.inactive;
-            }
+        elementProcess: (element: HTMLElement) => {
+          const query = element.innerText.trim(); // 100% or --
+          if (query === '--') {
+            return ETorrentStatus.unknown;
+          } else if (element.classList.contains('peer-active')) {
+            return parseFloat(query) > 100 ? ETorrentStatus.seeding : ETorrentStatus.downloading;
+          } else {
+            return parseFloat(query) > 100 ? ETorrentStatus.completed : ETorrentStatus.inactive;
           }
-        ]
+        }
       }
     },
     userInfo: {

@@ -1,5 +1,5 @@
 import { ISiteMetadata } from '../../types';
-import { findThenParseNumberString, parseSizeString } from '@/shared/utils/filter';
+import { findThenParseNumberString, parseSizeString } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 
 const parseUpDl = (element: HTMLElement) => {
@@ -146,16 +146,16 @@ export const siteMetadata: ISiteMetadata = {
       },
       uploaded: {
         selector: "#memberBar .span8 span[title='Uploaded']",
-        elementProcess: [parseUpDl]
+        elementProcess: parseUpDl
       },
       downloaded: {
         selector: "#memberBar .span8 span[title='Downloaded']",
-        elementProcess: [parseUpDl]
+        elementProcess: parseUpDl
       },
       messageCount: {
         text: 0,
         selector: "a[href='/users/messages'] i.news-notify",
-        elementProcess: [() => 255]
+        elementProcess: () => 255
       },
       // page: '/profile/$user.name$',
       id: {

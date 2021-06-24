@@ -1,11 +1,10 @@
 import PrivateSite from '../schema/AbstractPrivateSite';
-import { SiteConfig, IUserInfo } from '../../types';
+import { ISiteMetadata, IUserInfo, ETorrentStatus, ITorrent } from '../../types';
 import Sizzle from 'sizzle';
 import urlparse from 'url-parse';
 import dayjs from '@ptpp/utils/plugins/dayjs';
-import { createDocument, extractContent } from '@/shared/utils/common';
-import { parseSizeString, parseTimeToLive, sizePattern } from '@/shared/utils/filter';
-import { ETorrentStatus, ITorrent } from '../../types/torrent';
+import { createDocument, extractContent, parseSizeString, parseTimeToLive, sizePattern } from '@ptpp/utils/filter';
+
 import { merge, mergeWith } from 'lodash-es';
 
 const baseLinkQuery = {
@@ -18,7 +17,7 @@ export default class NexusPHP extends PrivateSite {
    * NexusPHP 模板默认配置，对于大多数NPHP站点都通用
    * @protected
    */
-  protected override readonly initConfig: Partial<SiteConfig> = {
+  protected override readonly initConfig: Partial<ISiteMetadata> = {
     timezoneOffset: '+0800', // NPHP 一般都是国内用，时区多为 +0800
     search: {
       keywordsParam: 'search',
@@ -62,44 +61,40 @@ export default class NexusPHP extends PrivateSite {
         category: {
           text: 'Other',
           selector: ['a:first'],
-          elementProcess: [
-            (element: HTMLElement) => {
-              let category = 'Other';
-              const categoryImgAnother = element.querySelector('img:nth-child(1)'); // img:first
-              if (categoryImgAnother) {
-                category = categoryImgAnother.getAttribute('title') ||
+          elementProcess: (element: HTMLElement) => {
+            let category = 'Other';
+            const categoryImgAnother = element.querySelector('img:nth-child(1)'); // img:first
+            if (categoryImgAnother) {
+              category = categoryImgAnother.getAttribute('title') ||
                   categoryImgAnother.getAttribute('alt') ||
                   category;
-              } else {
-                return element.textContent || category;
-              }
-
-              return category.trim();
+            } else {
+              return element.textContent || category;
             }
-          ]
+
+            return category.trim();
+          }
         },
         time: {
           text: 0,
-          elementProcess: [
-            (element: HTMLElement) => {
-              let time: number | string = 0;
-              try {
-                const AccurateTimeAnother = element.querySelector('span[title], time[title]');
-                if (AccurateTimeAnother) {
-                  time = AccurateTimeAnother.getAttribute('title')!;
-                } else {
-                  time = extractContent(element.innerHTML.replace('<br>', ' '));
-                }
+          elementProcess: (element: HTMLElement) => {
+            let time: number | string = 0;
+            try {
+              const AccurateTimeAnother = element.querySelector('span[title], time[title]');
+              if (AccurateTimeAnother) {
+                time = AccurateTimeAnother.getAttribute('title')!;
+              } else {
+                time = extractContent(element.innerHTML.replace('<br>', ' '));
+              }
 
-                if (time.match(/\d+[分时天月年]/g)) {
-                  time = parseTimeToLive(time);
-                } else {
-                  time = dayjs(time).unix();
-                }
-              } catch (e) {}
-              return time as number;
-            }
-          ]
+              if (time.match(/\d+[分时天月年]/g)) {
+                time = parseTimeToLive(time);
+              } else {
+                time = dayjs(time).unix();
+              }
+            } catch (e) {}
+            return time as number;
+          }
         },
         tags: [
           // 这里的 selector仅放最基础的（NPHP默认），如果各站有更改请在对应站点修改，不要污染全局空间
@@ -308,7 +303,7 @@ export default class NexusPHP extends PrivateSite {
     return subTitle;
   }
 
-  override async flushUserInfo (): Promise<IUserInfo> {
+  public override async flushUserInfo (lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let flushUserInfo: Partial<IUserInfo> = await super.flushUserInfo() || {};
 
     let userId: number;

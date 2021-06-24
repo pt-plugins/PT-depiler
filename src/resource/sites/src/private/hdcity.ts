@@ -1,6 +1,6 @@
 import { ISiteMetadata, ETorrentStatus } from '../../types';
 import NexusPHP from '../schema/NexusPHP';
-import { findThenParseSizeString } from '@/shared/utils/filter';
+import { findThenParseSizeString } from '@ptpp/utils/filter';
 
 const levelMap = {
   0: '堕落者(Peasant)',
@@ -79,46 +79,38 @@ export const siteMetadata: ISiteMetadata = {
       seeders: { selector: ["a[href*='#seeders'] font"] },
       leechers: {
         selector: ["a[href*='#leechers']"],
-        elementProcess: [
-          (element: HTMLElement) => element.childNodes[1].textContent || 0
-        ]
+        elementProcess: (element: HTMLElement) => element.childNodes[1].textContent || 0
       },
       completed: {
         selector: ["a[href^='viewsnatches']:first"],
-        elementProcess: [
-          (element: HTMLElement) => element.childNodes[1].textContent || 0
-        ]
+        elementProcess: (element: HTMLElement) => element.childNodes[1].textContent || 0
       },
       progress: {
         selector: ['div.pbo div.pbc.sd, div.pbo div.pbc.ns, .pbo div.pbc.dl'],
-        elementProcess: [
-          (element: HTMLElement) => {
-            if (element.classList.contains('sd') || element.classList.contains('ns')) {
-              return 100;
-            } else if (element.classList.contains('dl')) {
-              const queryMatch = (element.getAttribute('style') || '').match(/width:([ \d.]+)%/);
-              return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : 0;
-            } else {
-              return 0;
-            }
+        elementProcess: (element: HTMLElement) => {
+          if (element.classList.contains('sd') || element.classList.contains('ns')) {
+            return 100;
+          } else if (element.classList.contains('dl')) {
+            const queryMatch = (element.getAttribute('style') || '').match(/width:([ \d.]+)%/);
+            return (queryMatch && queryMatch.length >= 2) ? parseFloat(queryMatch[1]) : 0;
+          } else {
+            return 0;
           }
-        ]
+        }
       },
       status: {
         selector: ['div.pbo div.pbc.sd', 'div.pbo div.pbc.ns', '.pbo div.pbc.dl'],
-        elementProcess: [
-          (element: HTMLElement) => {
-            if (element.classList.contains('sd')) {
-              return ETorrentStatus.seeding;
-            } else if (element.classList.contains('ns')) {
-              return ETorrentStatus.completed;
-            } else if (element.classList.contains('dl')) {
-              return ETorrentStatus.inactive;
-            } else {
-              return ETorrentStatus.unknown;
-            }
+        elementProcess: (element: HTMLElement) => {
+          if (element.classList.contains('sd')) {
+            return ETorrentStatus.seeding;
+          } else if (element.classList.contains('ns')) {
+            return ETorrentStatus.completed;
+          } else if (element.classList.contains('dl')) {
+            return ETorrentStatus.inactive;
+          } else {
+            return ETorrentStatus.unknown;
           }
-        ]
+        }
       }
     },
     userInfo: {

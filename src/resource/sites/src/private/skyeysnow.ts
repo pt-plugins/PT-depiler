@@ -1,6 +1,6 @@
 import { ISiteMetadata, ETorrentStatus } from '../../types';
 import urlparse from 'url-parse';
-import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@/shared/utils/filter';
+import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@ptpp/utils/filter';
 import Sizzle from 'sizzle';
 
 export const siteMetadata: ISiteMetadata = {
@@ -74,21 +74,19 @@ export const siteMetadata: ISiteMetadata = {
       },
       status: {
         selector: ':self',
-        elementProcess: [
-          (tr: HTMLElement) => {
-            const statusAnothers = Sizzle('> td:eq(4), > td:eq(5), > td:eq(6)', tr);
-            const statusStyle: (string | null)[] = statusAnothers.map(e => e.getAttribute('style'));
-            if (statusStyle[0]) {
-              return ETorrentStatus.seeding;
-            } else if (statusStyle[2]) {
-              return ETorrentStatus.completed;
-            } else if (statusStyle[1]) {
-              return ETorrentStatus.downloading;
-            } else {
-              return ETorrentStatus.unknown;
-            }
+        elementProcess: (tr: HTMLElement) => {
+          const statusAnothers = Sizzle('> td:eq(4), > td:eq(5), > td:eq(6)', tr);
+          const statusStyle: (string | null)[] = statusAnothers.map(e => e.getAttribute('style'));
+          if (statusStyle[0]) {
+            return ETorrentStatus.seeding;
+          } else if (statusStyle[2]) {
+            return ETorrentStatus.completed;
+          } else if (statusStyle[1]) {
+            return ETorrentStatus.downloading;
+          } else {
+            return ETorrentStatus.unknown;
           }
-        ]
+        }
       }
 
     },

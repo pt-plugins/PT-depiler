@@ -1,5 +1,5 @@
 import { IElementQuery, ISiteMetadata, ETorrentStatus } from '../../types';
-import { parseSizeString } from '@/shared/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 import NexusPHP from '../schema/NexusPHP';
 import { AxiosResponse } from 'axios';
 import Sizzle from 'sizzle';

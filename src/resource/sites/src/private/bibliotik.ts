@@ -1,6 +1,6 @@
 import { ISiteMetadata, IUserInfo } from '../../types';
 import PrivateSite from '../schema/AbstractPrivateSite';
-import { findThenParseSizeString } from '@/shared/utils/filter';
+import { findThenParseSizeString } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 import urlparse from 'url-parse';
 import Sizzle from 'sizzle';
@@ -110,7 +110,7 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class bibliotik extends PrivateSite {
-  override async flushUserInfo (): Promise<IUserInfo> {
+  public override async flushUserInfo (lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let userInfo = await super.flushUserInfo();
 
     if (userInfo.id) {

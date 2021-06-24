@@ -45,18 +45,16 @@ export const siteMetadata: ISiteMetadata = {
       },
       progress: {
         selector: ["td[class*='seedhlc_'], td[class*='leechhlc_']"],
-        elementProcess: [
-          (element: HTMLElement) => {
-            switch (true) {
-              case /seedhlc_/.test(element.className):
-                return 100;
-              case /leechhlc_/.test(element.className):
-                return parseFloat((element.innerText.match(/[\d.]+%/)! || [0])[0]);
-              default:
-                return 0;
-            }
+        elementProcess: (element: HTMLElement) => {
+          switch (true) {
+            case /seedhlc_/.test(element.className):
+              return 100;
+            case /leechhlc_/.test(element.className):
+              return parseFloat((element.innerText.match(/[\d.]+%/)! || [0])[0]);
+            default:
+              return 0;
           }
-        ]
+        }
       },
       status: {
         selector: ["td[class*='seedhlc_ever']", '.seedhlc_current', '.leechhlc_inactive', '.leechhlc_current'],
@@ -69,11 +67,9 @@ export const siteMetadata: ISiteMetadata = {
         ]
       },
       leechers: {
-        elementProcess: [
-          (element: HTMLElement) => {
-            return parseInt(element.firstChild!.textContent!);
-          }
-        ]
+        elementProcess: (element: HTMLElement) => {
+          return parseInt(element.firstChild!.textContent!);
+        }
       }
     },
     userInfo: {

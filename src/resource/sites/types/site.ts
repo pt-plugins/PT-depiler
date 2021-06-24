@@ -1,7 +1,7 @@
 import { ETorrentBaseTagColor, ITorrent } from './torrent';
 import { IUserInfo } from './userinfo';
 import { AxiosRequestConfig, ResponseType } from 'axios';
-import { transPostDataTo, fullUrl, fullUrlProtect } from '@/shared/interfaces/types'; // FIXME
+import { transPostDataTo, fullUrl, fullUrlProtect } from '@ptpp/utils/types'; // FIXME
 import { timezoneOffset } from '@ptpp/utils/types';
 
 export interface IElementQuery {
@@ -26,10 +26,10 @@ export interface IElementQuery {
    * 注意， elementProcess 不参与 mergeWith
    * - elementProcess：对 selector 出来的 Element 进行处理，此时不建议再定义 filters 或 switchFilters 以免出错
    */
-  elementProcess?: (Function | string)[], // 自定义对于Element的处理方法，此时 attr 以及 data 选项均不生效，但 filters 和 switchFilters 仍生效
-  attr?: string | null, // 使用 HTMLElement.getAttribute('') 进行取值，取不到值则置 ''
+  elementProcess?: Function | null, // 自定义对于Element的处理方法，此时 attr 以及 data 选项均不生效，但 filters 和 switchFilters 仍生效
+  case?: { [selector: string]: any } // 使用 Sizzle.matchesSelector 进行匹配，并将结果设置为第一个匹配成功的键值
   data?: string | null, // 使用 HTMLElement.dataset[''] 进行取值，取不到值则置 ''
-  case?: { [selector: string]: any }
+  attr?: string | null, // 使用 HTMLElement.getAttribute('') 进行取值，取不到值则置 ''
 
   /**
    * 对获取结果进行处理，处理结果将作为最终的值输出
@@ -37,8 +37,8 @@ export interface IElementQuery {
    *  - filters： 对 选出来的 string 进行处理
    *  - switchFilters: 根据 最终使用的 selector Id 确定使用的filters，优先级更高
    */
-  filters?: (Function | string)[],
-  switchFilters?: (Function | string)[], // 会根据selector的位置来使用对应的filter
+  filters?: Function[],
+  switchFilters?: Function[], // 会根据selector的位置来使用对应的filter
 }
 
 export interface ISearchCategoryOptions {
@@ -202,9 +202,9 @@ export interface ISiteMetadata {
   feature?: { // 站点支持方法
     [key in SiteFeature]: boolean
   }
-}
 
-export interface SiteConfig extends ISiteMetadata {
-  activateUrl?: string; // 用户在搜索时使用的地址
-  entryPoint?: string; // 用户在options首页点击时，打开的站点地址
+  config?: {
+    activateUrl?: string; // 用户在搜索时使用的地址
+    entryPoint?: string; // 用户在options首页点击时，打开的站点地址
+  }
 }

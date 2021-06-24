@@ -39,19 +39,15 @@ export const siteMetadata: ISiteMetadata = {
       rows: { selector: '#torrents_table > tbody > tr:gt(0)' },
       title: {
         selector: "a[href*='hit']:eq(0)",
-        elementProcess: [
-          (element: HTMLElement) => {
-            return element.getAttribute('title') || element.innerText;
-          }
-        ]
+        elementProcess: (element: HTMLElement) => {
+          return element.getAttribute('title') || element.innerText;
+        }
       },
       subTitle: {
         selector: 'table.torrentname td.embedded > span:last()',
-        elementProcess: [
-          (element: HTMLElement) => {
-            return element.getAttribute('title') || element.innerText;
-          }
-        ]
+        elementProcess: (element: HTMLElement) => {
+          return element.getAttribute('title') || element.innerText;
+        }
       },
       id: { selector: 'a[href^="details"]' },
       url: { selector: 'a[href^="details"]' },
@@ -66,14 +62,12 @@ export const siteMetadata: ISiteMetadata = {
       },
       time: {
         selector: 'div.small',
-        elementProcess: [
-          (element: HTMLElement) => {
-            if (timeRegex.test(element.innerHTML)) {
-              return ((element.innerHTML.match(timeRegex) || ['0000-00-00 00:00:00'])[0]).trim();
-            }
-            return 0;
+        elementProcess: (element: HTMLElement) => {
+          if (timeRegex.test(element.innerHTML)) {
+            return ((element.innerHTML.match(timeRegex) || ['0000-00-00 00:00:00'])[0]).trim();
           }
-        ]
+          return 0;
+        }
       },
       size: { selector: '.rowfollow.vcenter.nowrap > center' },
       seeders: { selector: '.rowfollow.vcenter.nowrap span.badge:eq(0)' },

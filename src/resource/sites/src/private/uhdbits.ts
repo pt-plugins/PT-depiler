@@ -2,7 +2,7 @@ import { ISiteMetadata, IUserInfo, ITorrent } from '../../types';
 import GazelleJSONAPI from '../schema/GazelleJSONAPI';
 import Sizzle from 'sizzle';
 import urlparse from 'url-parse';
-import { parseSizeString } from '@/shared/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'UHDBits',
@@ -51,31 +51,27 @@ export const siteMetadata: ISiteMetadata = {
       },
       title: {
         selector: "div.group_info:has(> a[href*='torrents.php?id='])",
-        elementProcess: [
-          (element:HTMLElement) => {
-            const cloneElement = element.cloneNode(true) as HTMLElement;
-            Sizzle('>span, div.torrent_info', cloneElement).forEach(e => e.remove());
-            return cloneElement.innerText.trim();
-          }
-        ]
+        elementProcess: (element:HTMLElement) => {
+          const cloneElement = element.cloneNode(true) as HTMLElement;
+          Sizzle('>span, div.torrent_info', cloneElement).forEach(e => e.remove());
+          return cloneElement.innerText.trim();
+        }
       },
       subTitle: { selector: 'div.group_info > div.torrent_info:first' },
       url: { selector: "a[href*='torrents.php?id=']", attr: 'href' },
       link: { selector: "a[href*='torrents.php?action=download'][title='Download']:first", attr: 'href' },
       time: {
         selector: '>td:eq(4)',
-        elementProcess: [
-          (element: HTMLElement) => {
-            const AccurateTimeAnother = element.querySelector('span[title], time[title]');
-            if (AccurateTimeAnother) {
-              return AccurateTimeAnother.getAttribute('title')! + ':00';
-            } else if (element.getAttribute('title')) {
-              return element.getAttribute('title')! + ':00';
-            } else {
-              return element.innerText.trim() + ':00';
-            }
+        elementProcess: (element: HTMLElement) => {
+          const AccurateTimeAnother = element.querySelector('span[title], time[title]');
+          if (AccurateTimeAnother) {
+            return AccurateTimeAnother.getAttribute('title')! + ':00';
+          } else if (element.getAttribute('title')) {
+            return element.getAttribute('title')! + ':00';
+          } else {
+            return element.innerText.trim() + ':00';
           }
-        ]
+        }
       },
       size: { selector: '>td:eq(5)' },
       completed: { selector: '>td:eq(6)' },

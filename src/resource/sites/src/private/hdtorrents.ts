@@ -1,7 +1,7 @@
 import { ISiteMetadata, IUserInfo, ETorrentStatus } from '../../types';
 import urlparse from 'url-parse';
 import dayjs from '@ptpp/utils/plugins/dayjs';
-import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '@/shared/utils/filter';
+import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '@ptpp/utils/filter';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import Sizzle from 'sizzle';
 
@@ -155,7 +155,7 @@ export default class hdtorrents extends PrivateSite {
   }
    */
 
-  override async flushUserInfo (): Promise<IUserInfo> {
+  public override async flushUserInfo (lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     const baseUserInfo = await super.flushUserInfo();
 
     if (baseUserInfo.id && !baseUserInfo.seedingSize) {

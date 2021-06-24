@@ -1,5 +1,5 @@
 import { ISiteMetadata, ETorrentStatus } from '../../types';
-import { parseSizeString } from '@/shared/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'GGN',
@@ -22,23 +22,21 @@ export const siteMetadata: ISiteMetadata = {
 
       category: {
         selector: ':self',
-        elementProcess: [
-          (element: HTMLElement) => {
-            let groupElement = element;
-            while (true) {
-              groupElement = groupElement.previousElementSibling as HTMLElement;
-              if (!groupElement || groupElement.classList.contains('group')) {
-                break;
-              }
-            }
-
-            if (groupElement && groupElement.querySelector('td.cats_col > div[title]')) {
-              return groupElement.querySelector('td.cats_col > div[title]')!.getAttribute('title')!;
-            } else {
-              return 'Other';
+        elementProcess: (element: HTMLElement) => {
+          let groupElement = element;
+          while (true) {
+            groupElement = groupElement.previousElementSibling as HTMLElement;
+            if (!groupElement || groupElement.classList.contains('group')) {
+              break;
             }
           }
-        ]
+
+          if (groupElement && groupElement.querySelector('td.cats_col > div[title]')) {
+            return groupElement.querySelector('td.cats_col > div[title]')!.getAttribute('title')!;
+          } else {
+            return 'Other';
+          }
+        }
       },
 
       progress: {

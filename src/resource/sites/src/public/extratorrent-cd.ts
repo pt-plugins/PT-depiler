@@ -1,5 +1,5 @@
 import { ISiteMetadata } from '../../types';
-import { parseTimeToLive } from '@/shared/utils/filter';
+import { parseTimeToLive } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 
 export const siteMetadata: ISiteMetadata = {

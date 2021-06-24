@@ -1,6 +1,6 @@
 import { ISiteMetadata, IUserInfo, ITorrent } from '../../types';
 import GazelleJSONAPI, { groupBrowseResult, groupTorrent } from '../schema/GazelleJSONAPI';
-import { findThenParseSizeString } from '@/shared/utils/filter';
+import { findThenParseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'HD-Forever',

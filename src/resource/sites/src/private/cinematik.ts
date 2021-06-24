@@ -5,7 +5,7 @@ import {
   findThenParseSizeString,
   findThenParseValidTimeString,
   parseSizeString
-} from '@/shared/utils/filter';
+} from '@ptpp/utils/filter';
 import Sizzle from 'sizzle';
 import PrivateSite from '../schema/AbstractPrivateSite';
 
@@ -108,32 +108,28 @@ export const siteMetadata: ISiteMetadata = {
       },
       seeding: {
         selector: 'table:first',
-        elementProcess: [
-          (table: HTMLTableElement) => {
-            const trAnothers = Sizzle('tr:not(:eq(0))', table);
-            return trAnothers.length;
-          }
-        ]
+        elementProcess: (table: HTMLTableElement) => {
+          const trAnothers = Sizzle('tr:not(:eq(0))', table);
+          return trAnothers.length;
+        }
       },
       seedingSize: {
         selector: 'table:first',
-        elementProcess: [
-          (table: HTMLTableElement) => {
-            let seedingSize = 0;
-            const trAnothers = Sizzle('tr:not(:eq(0))', table);
-            trAnothers.forEach(trAnother => {
-              const sizeAnother = Sizzle('td:eq(4)', trAnother)[0];
-              seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim());
-            });
-          }
-        ]
+        elementProcess: (table: HTMLTableElement) => {
+          let seedingSize = 0;
+          const trAnothers = Sizzle('tr:not(:eq(0))', table);
+          trAnothers.forEach(trAnother => {
+            const sizeAnother = Sizzle('td:eq(4)', trAnother)[0];
+            seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim());
+          });
+        }
       }
     }
   }
 };
 
 export default class cinematik extends PrivateSite {
-  override async flushUserInfo (): Promise<IUserInfo> {
+  public override async flushUserInfo (lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let userInfo = await super.flushUserInfo();
     if (userInfo.id && (!userInfo.seeding || !userInfo.seedingSize)) {
       userInfo = { seeding: 0, seedingSize: 0, ...userInfo };

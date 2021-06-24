@@ -1,10 +1,9 @@
 import { ISearchFilter, ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
-import { findThenParseNumberString, findThenParseValidTimeString, parseSizeString } from '@/shared/utils/filter';
+import { findThenParseNumberString, findThenParseValidTimeString, parseSizeString, extractContent } from '@ptpp/utils/filter';
 import Sizzle from 'sizzle';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import { AxiosRequestConfig } from 'axios';
-import { extractContent } from '@/shared/utils/common';
 
 const categoryMap = ['电影DVDRip', '电影720p', '电影1080i/p', 'BluRay原盘', '影视2160p', 'UHD原盘', '纪录片720p', '纪录片1080i/p', '纪录片BluRay原盘', '欧美剧720p', '欧美剧1080i/p', '高清日剧', '大陆港台剧1080i/p', '大陆港台剧720p', '高清韩剧', '欧美剧包', '日剧包', '华语剧包', '韩剧包', '(电影原声&Game)OST', '无损音乐FLAC&APE', 'MV&演唱会', '高清体育节目', '高清动漫', '韩国综艺', '高清综艺', '日本综艺', 'MiniVideo', '补充音轨', 'iPhone/iPad视频'];
 
@@ -60,15 +59,11 @@ export const siteMetadata: ISiteMetadata = {
       id: { selector: ':self', attr: 'id' },
       title: {
         selector: 'div.name_left > a > b',
-        elementProcess: [
-          (e:HTMLElement) => e.innerHTML.split('<br>')[0]
-        ]
+        elementProcess: (e:HTMLElement) => e.innerHTML.split('<br>')[0]
       },
       subTitle: {
         selector: 'div.name_left > a > b',
-        elementProcess: [
-          (e:HTMLElement) => extractContent(e.innerHTML.split('<br>')[1] || '')
-        ]
+        elementProcess: (e:HTMLElement) => extractContent(e.innerHTML.split('<br>')[1] || '')
       },
       url: { selector: 'div.name_left > a', attr: 'href' },
       link: { selector: 'a.dl_a', attr: 'href' },
@@ -127,27 +122,23 @@ export const siteMetadata: ISiteMetadata = {
       seeding: {
         text: 0,
         selector: 'div#ka2',
-        elementProcess: [
-          (element: HTMLElement) => {
-            const trAnothers = Sizzle('tr:not(:eq(0))', element);
-            return trAnothers.length;
-          }
-        ]
+        elementProcess: (element: HTMLElement) => {
+          const trAnothers = Sizzle('tr:not(:eq(0))', element);
+          return trAnothers.length;
+        }
       },
       seedingSize: {
         text: 0,
         selector: 'div#ka2',
-        elementProcess: [
-          (element: HTMLElement) => {
-            let seedingSize = 0;
-            const trAnothers = Sizzle('tr:not(:eq(0))', element);
-            trAnothers.forEach(trAnother => {
-              const sizeAnother = Sizzle('td:eq(3)', trAnother)[0];
-              seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim());
-            });
-            return seedingSize;
-          }
-        ]
+        elementProcess: (element: HTMLElement) => {
+          let seedingSize = 0;
+          const trAnothers = Sizzle('tr:not(:eq(0))', element);
+          trAnothers.forEach(trAnother => {
+            const sizeAnother = Sizzle('td:eq(3)', trAnother)[0];
+            seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim());
+          });
+          return seedingSize;
+        }
       }
     }
   }
@@ -157,7 +148,7 @@ export default class totheglory extends PrivateSite {
   protected override async transformSearchFilter (filter: ISearchFilter): Promise<AxiosRequestConfig> {
     const category = filter.extraParams?.find(x => x.key === '分类');
     if (category) {
-      const categoryValue : string[] = typeof category.value === 'string' ? [category.value] : category.value as string[];
+      const categoryValue: string[] = typeof category.value === 'string' ? [category.value] : category.value as string[];
       filter.keywords += ' ' + categoryValue.map(v => `分类:\`${v}\``).join(' ');
       filter.extraParams?.splice(filter.extraParams?.findIndex(x => x.key === '分类'), 1);
     }

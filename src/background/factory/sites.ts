@@ -1,4 +1,4 @@
-import { SiteConfig, ISiteMetadata } from '@ptpp/sites/types';
+import { ISiteMetadata } from '@ptpp/sites/types';
 import BittorrentSite from '@/resource/sites/src/schema/AbstractBittorrentSite';
 import PrivateSite from '@/resource/sites/src/schema/AbstractPrivateSite';
 import Container from '@ptpp/utils/class/container';
@@ -52,7 +52,7 @@ class Sites extends Container {
   }
 
   // FIXME userConfig should be typed
-  async getSite (siteName: siteName, userConfig: Partial<SiteConfig> = {}): Promise<PrivateSite | BittorrentSite> {
+  async getSite (siteName: siteName, userConfig: Partial<ISiteMetadata> = {}): Promise<PrivateSite | BittorrentSite> {
     return await this.resolveObject<PrivateSite | BittorrentSite>(`site-${siteName}`, async () => {
       // FIXME 部分用户自定义的站点（此时在 js/site 目录中不存在对应模块），不能进行 dynamicImport 的情况，对此应该直接从 schema 中导入
       const module = await this.dynamicImport(siteName);

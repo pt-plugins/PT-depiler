@@ -1,14 +1,13 @@
-import { ETorrentStatus, ITorrent } from '../../types/torrent';
 import PrivateSite from '../schema/AbstractPrivateSite';
-import { SiteConfig } from '../../types';
+import { ISiteMetadata, ETorrentStatus, ITorrent } from '../../types';
 import Sizzle from 'sizzle';
 import urlparse from 'url-parse';
 import { merge } from 'lodash-es';
 import dayjs from '@ptpp/utils/plugins/dayjs';
-import { parseSizeString } from '@/shared/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 
 export default class Gazelle extends PrivateSite {
-  protected override readonly initConfig: Partial<SiteConfig> = {
+  protected override readonly initConfig: Partial<ISiteMetadata> = {
     search: {
       keywordsParam: 'searchstr',
       requestConfig: {
@@ -52,18 +51,16 @@ export default class Gazelle extends PrivateSite {
         link: { selector: "a[href*='torrents.php?action=download'][title='Download']:first", attr: 'href' },
         // TODO category: {}
         time: {
-          elementProcess: [
-            (element: HTMLElement) => {
-              const AccurateTimeAnother = element.querySelector('span[title], time[title]');
-              if (AccurateTimeAnother) {
-                return AccurateTimeAnother.getAttribute('title')! + ':00';
-              } else if (element.getAttribute('title')) {
-                return element.getAttribute('title')! + ':00';
-              } else {
-                return element.innerText.trim() + ':00';
-              }
+          elementProcess: (element: HTMLElement) => {
+            const AccurateTimeAnother = element.querySelector('span[title], time[title]');
+            if (AccurateTimeAnother) {
+              return AccurateTimeAnother.getAttribute('title')! + ':00';
+            } else if (element.getAttribute('title')) {
+              return element.getAttribute('title')! + ':00';
+            } else {
+              return element.innerText.trim() + ':00';
             }
-          ]
+          }
         },
 
         progress: { text: 0 },
@@ -140,12 +137,10 @@ export default class Gazelle extends PrivateSite {
         },
         joinTime: {
           selector: ["div:contains('Stats') + ul.stats > li:contains('Joined:') > span"],
-          elementProcess: [
-            (element: HTMLElement) => {
-              const query = (element.getAttribute('title') || element.innerText).trim();
-              return dayjs(query).isValid() ? dayjs(query).valueOf() : query;
-            }
-          ]
+          elementProcess: (element: HTMLElement) => {
+            const query = (element.getAttribute('title') || element.innerText).trim();
+            return dayjs(query).isValid() ? dayjs(query).valueOf() : query;
+          }
         }
       },
       detail: {}

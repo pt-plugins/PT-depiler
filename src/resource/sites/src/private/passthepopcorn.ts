@@ -4,7 +4,7 @@
  * Rhilip, 2021.04.23
  */
 import { ISiteMetadata, ITorrent } from '../../types';
-import { parseSizeString, parseTimeWithZone } from '@/shared/utils/filter';
+import { parseSizeString, parseTimeWithZone } from '@ptpp/utils/filter';
 import Gazelle from '../schema/Gazelle';
 
 export const siteMetadata: ISiteMetadata = {

@@ -1,6 +1,11 @@
 import { ISiteMetadata, ETorrentStatus } from '../../types';
 import urlparse from 'url-parse';
-import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '@/shared/utils/filter';
+import {
+  findThenParseNumberString,
+  findThenParseSizeString,
+  findThenParseValidTimeString,
+  parseSizeString
+} from '@ptpp/utils/filter';
 
 const categoryMap = {
   29: 'Movies/HD', // Movies Фильмы
@@ -61,12 +66,10 @@ export const siteMetadata: ISiteMetadata = {
       time: { selector: 'td > div > small' },
       size: {
         selector: 'td:nth-child(5)',
-        elementProcess: [
-          (element: HTMLElement) => {
-            element.querySelector('strong')?.remove();
-            return findThenParseSizeString(element.innerText.trim());
-          }
-        ]
+        elementProcess: (element: HTMLElement) => {
+          element.querySelector('strong')?.remove();
+          return findThenParseSizeString(element.innerText.trim());
+        }
       },
       author: { selector: '>td:eq(4)' },
       category: {
@@ -128,32 +131,33 @@ export const siteMetadata: ISiteMetadata = {
         filters: [(query:string) => query.split('/')[4]]
       },
       messageCount: {
-        selector: ['#message_box > a > font'],
+        selector: '#message_box > a > font',
         filters: [findThenParseNumberString]
       },
       uploaded: {
-        selector: ["div.col-8.mb-4 > font[color='green']"],
-        elementProcess: [nextTextSibling, parseSizeString]
+        selector: "div.col-8.mb-4 > font[color='green']",
+        elementProcess: nextTextSibling,
+        filters: [parseSizeString]
       },
       downloaded: {
-        selector: ["div.col-8.mb-4 > font[color='darkred']"],
-        elementProcess: [nextTextSibling, parseSizeString]
+        selector: "div.col-8.mb-4 > font[color='darkred']",
+        elementProcess: nextTextSibling,
+        filters: [parseSizeString]
       },
       ratio: {
-        selector: ["div.col-8.mb-4 > font[color='#1900D1']"],
-        elementProcess: [nextTextSibling]
+        selector: "div.col-8.mb-4 > font[color='#1900D1']",
+        elementProcess: nextTextSibling
       },
       bonus: {
-        selector: ["a.online[href='/mybonus.php']"]
+        selector: "a.online[href='/mybonus.php']"
       },
       // page: '/user/$user.id$',
       joinTime: {
-        selector: ['#profile_right > table.inlay > tbody > tr:nth-child(1) > td:nth-child(2)'],
-        filters: ["dateTime(query.text().split('(')[0]).valueOf()"]
+        selector: '#profile_right > table.inlay > tbody > tr:nth-child(1) > td:nth-child(2)',
+        filters: [findThenParseValidTimeString]
       },
       levelName: {
-        selector: ['#profile_left > table > tbody > tr > td:nth-child(2) > p:nth-child(1) > u > span'],
-        filters: ['query.text()']
+        selector: '#profile_left > table > tbody > tr > td:nth-child(2) > p:nth-child(1) > u > span'
       },
       seeding: {
         selector: ["img[title='Distributes'] + font > font"],

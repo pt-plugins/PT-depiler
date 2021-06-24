@@ -5,7 +5,7 @@ import {
   findThenParseSizeString,
   findThenParseValidTimeString,
   parseSizeString
-} from '@/shared/utils/filter';
+} from '@ptpp/utils/filter';
 import Sizzle from 'sizzle';
 
 export const siteMetadata: ISiteMetadata = {
@@ -111,26 +111,22 @@ export const siteMetadata: ISiteMetadata = {
       },
       seeding: {
         selector: ["table[id='browse'] > tbody"],
-        elementProcess: [
-          (tbody: HTMLElement) => {
-            const trAnothers = Sizzle("> tr[style*='padding-top:0px']", tbody);
-            return trAnothers.length;
-          }
-        ]
+        elementProcess: (tbody: HTMLElement) => {
+          const trAnothers = Sizzle("> tr[style*='padding-top:0px']", tbody);
+          return trAnothers.length;
+        }
       },
       seedingSize: {
         selector: ["table[id='browse'] > tbody > tr[style*='padding-top:0px']"],
-        elementProcess: [
-          (tbody: HTMLElement) => {
-            let seedingSize = 0;
-            const trAnothers = Sizzle("> tr[style*='padding-top:0px']", tbody);
-            trAnothers.forEach(trAnother => {
-              const sizeAnother = Sizzle('td:eq(9)', trAnother)[0];
-              seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim());
-            });
-            return seedingSize;
-          }
-        ]
+        elementProcess: (tbody: HTMLElement) => {
+          let seedingSize = 0;
+          const trAnothers = Sizzle("> tr[style*='padding-top:0px']", tbody);
+          trAnothers.forEach(trAnother => {
+            const sizeAnother = Sizzle('td:eq(9)', trAnother)[0];
+            seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim());
+          });
+          return seedingSize;
+        }
       }
     }
   }

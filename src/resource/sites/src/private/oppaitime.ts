@@ -1,6 +1,6 @@
 import { ISiteMetadata, IUserInfo } from '../../types';
 import GazelleJSONAPI from '../schema/GazelleJSONAPI';
-import { parseSizeString } from '@/shared/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'Oppaitime',

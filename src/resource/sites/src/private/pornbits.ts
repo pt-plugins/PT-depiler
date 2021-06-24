@@ -1,7 +1,7 @@
 import { ISearchFilter, ISiteMetadata } from '../../types';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import { AxiosRequestConfig } from 'axios';
-import { findThenParseValidTimeString, parseSizeString } from '@/shared/utils/filter';
+import { findThenParseValidTimeString, parseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'Pornbits',

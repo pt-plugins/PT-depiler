@@ -1,5 +1,5 @@
 import { ISiteMetadata } from '../../types';
-import { findThenParseSizeString } from '@/shared/utils/filter';
+import { findThenParseSizeString } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 
 export const siteMetadata: ISiteMetadata = {

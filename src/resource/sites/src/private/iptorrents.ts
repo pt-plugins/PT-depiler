@@ -4,7 +4,7 @@ import {
   findThenParseSizeString,
   findThenParseValidTimeString,
   parseTimeToLive
-} from '@/shared/utils/filter';
+} from '@ptpp/utils/filter';
 import urlparse from 'url-parse';
 
 export const siteMetadata: ISiteMetadata = {

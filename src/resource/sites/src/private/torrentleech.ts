@@ -2,7 +2,7 @@ import { ISearchFilter, ISiteMetadata } from '../../types';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import { AxiosRequestConfig } from 'axios';
 import urljoin from 'url-join';
-import { findThenParseSizeString, parseSizeString } from '@/shared/utils/filter';
+import { findThenParseSizeString, parseSizeString } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 import Sizzle from 'sizzle';
 
@@ -160,26 +160,22 @@ export const siteMetadata: ISiteMetadata = {
       // url: '/profile/$userName$/seeding',
       seeding: {
         selector: 'table#profile-seedingTable > tbody',
-        elementProcess: [
-          (tbody: HTMLElement) => {
-            const trAnother = Sizzle('> tr', tbody);
-            return trAnother.length;
-          }
-        ]
+        elementProcess: (tbody: HTMLElement) => {
+          const trAnother = Sizzle('> tr', tbody);
+          return trAnother.length;
+        }
       },
       seedingSize: {
         selector: 'table#profile-seedingTable > tbody',
-        elementProcess: [
-          (tbody: HTMLElement) => {
-            let seedingSize = 0;
-            const trAnothers = Sizzle('> tr', tbody);
-            trAnothers.forEach(tr => {
-              const sizeTd = Sizzle('> td:nth-child(2)', tr);
-              seedingSize += parseSizeString((sizeTd[0] as HTMLElement).innerText.trim());
-            });
-            return seedingSize;
-          }
-        ]
+        elementProcess: (tbody: HTMLElement) => {
+          let seedingSize = 0;
+          const trAnothers = Sizzle('> tr', tbody);
+          trAnothers.forEach(tr => {
+            const sizeTd = Sizzle('> td:nth-child(2)', tr);
+            seedingSize += parseSizeString((sizeTd[0] as HTMLElement).innerText.trim());
+          });
+          return seedingSize;
+        }
       }
     }
   }

@@ -18,17 +18,15 @@ export const siteMetadata: ISiteMetadata = {
       },
       status: {
         selector: ['.torrents-progress', '.torrents-progress2'],
-        elementProcess: [
-          (element:HTMLElement) => {
-            if (element.classList.contains('torrents-progress')) {
-              return (element.getAttribute('style') || '').indexOf('100%') !== -1 ? ETorrentStatus.seeding : ETorrentStatus.downloading;
-            } else if (element.classList.contains('torrents-progress2')) {
-              return ETorrentStatus.completed;
-            } else {
-              return ETorrentStatus.unknown;
-            }
+        elementProcess: (element:HTMLElement) => {
+          if (element.classList.contains('torrents-progress')) {
+            return (element.getAttribute('style') || '').indexOf('100%') !== -1 ? ETorrentStatus.seeding : ETorrentStatus.downloading;
+          } else if (element.classList.contains('torrents-progress2')) {
+            return ETorrentStatus.completed;
+          } else {
+            return ETorrentStatus.unknown;
           }
-        ]
+        }
       }
     }
   }

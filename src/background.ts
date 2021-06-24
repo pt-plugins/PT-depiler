@@ -2,7 +2,7 @@ import { browser } from 'webextension-polyfill-ts';
 import BtClientFactory from '@/background/factory/btclients';
 import SiteFactory from '@/background/factory/sites';
 import dayjs from '@ptpp/utils/plugins/dayjs';
-import * as filter from '@/shared/utils/filter';
+import * as filter from '@ptpp/utils/filter';
 import Sizzle from 'sizzle';
 import axios from 'axios';
 

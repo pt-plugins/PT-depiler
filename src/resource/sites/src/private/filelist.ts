@@ -1,6 +1,6 @@
 import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
-import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@/shared/utils/filter';
+import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'FileList',
@@ -48,14 +48,12 @@ export const siteMetadata: ISiteMetadata = {
       link: { selector: '> div:eq(3) a:first', attr: 'href' },
       time: {
         selector: '> div:eq(5)',
-        elementProcess: [
-          (element: HTMLElement) => {
-            const elementMatch = element.innerHTML.replace('<br>', ' ').match(/(\d{2}:\d{2}:\d{2}[^\d]+?\d{2}\/\d{2}\/\d{4})/)![1];
-            return elementMatch
-              .replace(/(\d{2}:\d{2}:\d{2})[^\d]+?(\d{2}\/\d{2}\/\d{4})/, '$2 $1')
-              .replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1');
-          }
-        ]
+        elementProcess: (element: HTMLElement) => {
+          const elementMatch = element.innerHTML.replace('<br>', ' ').match(/(\d{2}:\d{2}:\d{2}[^\d]+?\d{2}\/\d{2}\/\d{4})/)![1];
+          return elementMatch
+            .replace(/(\d{2}:\d{2}:\d{2})[^\d]+?(\d{2}\/\d{2}\/\d{4})/, '$2 $1')
+            .replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1');
+        }
       },
       size: { selector: '> div:eq(6)' },
       author: { selector: '> div:eq(10)' },

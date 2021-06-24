@@ -1,6 +1,6 @@
 import { ISearchFilter, ISiteMetadata } from '../../types';
 import dayjs from '@ptpp/utils/plugins/dayjs';
-import { parseTimeToLive } from '@/shared/utils/filter';
+import { parseTimeToLive } from '@ptpp/utils/filter';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import { AxiosRequestConfig } from 'axios';
 

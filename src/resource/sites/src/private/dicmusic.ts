@@ -1,6 +1,6 @@
 import { ISiteMetadata, IUserInfo } from '../../types';
 import GazelleJSONAPI from '../schema/GazelleJSONAPI';
-import { findThenParseSizeString } from '@/shared/utils/filter';
+import { findThenParseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'DIC',

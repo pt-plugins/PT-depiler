@@ -2,40 +2,7 @@ import { OpUnitType } from 'dayjs';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 import { timezoneOffset } from '@ptpp/utils/types';
 
-export const sizePattern = /^(\d*\.?\d+)(.*[^ZEPTGMK])?([ZEPTGMK](B|iB))s?$/i;
-
-export function parseSizeString (size: string): number {
-  size = size.replace(/,/g, ''); // 建议在传入前就替换掉，但是以防万一还是在这里再做一次替换
-  const sizeRawMatch = size.match(sizePattern);
-  if (sizeRawMatch) {
-    const sizeNumber = parseFloat(sizeRawMatch[1]);
-    const sizeType = sizeRawMatch[3];
-    switch (true) {
-      case /Zi?B/i.test(sizeType):
-        return sizeNumber * Math.pow(2, 70);
-      case /Ei?B/i.test(sizeType):
-        return sizeNumber * Math.pow(2, 60);
-      case /Pi?B/i.test(sizeType):
-        return sizeNumber * Math.pow(2, 50);
-      case /Ti?B/i.test(sizeType):
-        return sizeNumber * Math.pow(2, 40);
-      case /Gi?B/i.test(sizeType):
-        return sizeNumber * Math.pow(2, 30);
-      case /Mi?B/i.test(sizeType):
-        return sizeNumber * Math.pow(2, 20);
-      case /Ki?B/i.test(sizeType):
-        return sizeNumber * Math.pow(2, 10);
-      default:
-        return sizeNumber;
-    }
-  }
-  return 0;
-}
-
-export function findThenParseSizeString (query: string): number {
-  const queryMatch = query.trim().replace(/[ ,\n]/g, '').match(/([\d.]+ ?[ZEPTGMK]?i?B)/);
-  return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0;
-}
+export * from './filters/size';
 
 export function findThenParseNumberString (query: string) : number {
   const queryMatch = query.trim().replace(/[ ,\n]/g, '').match(/([\d.]+)/);
@@ -97,4 +64,46 @@ export function cfDecodeEmail (encodedString: string) {
     email += String.fromCharCode(i);
   }
   return email;
+}
+
+export function getFixedRatio (uploaded: number = 0, downloaded: number = 0): string | '∞' {
+  const ratio = uploaded / downloaded;
+  if (ratio === Infinity || ratio > 10000) {
+    return '∞'; // Ratio过大时，将分享率设置为无限
+  } else {
+    return ratio.toFixed(2);
+  }
+}
+
+// From: https://stackoverflow.com/a/28899585/8824471
+export function extractContent (s:string): string {
+  const span = document.createElement('span');
+  span.innerHTML = s;
+  return span.textContent || span.innerText;
+}
+
+export function createDocument (str: string, type: DOMParserSupportedType = 'text/html') : Document {
+  return (new DOMParser()).parseFromString(str, type);
+}
+
+export function sleep (ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+/**
+ * 生成随机字符串
+ * @param length
+ * @param noSimilar 是否包含容易混淆的字符[oO,Ll,9gq,Vv,Uu,I1]，默认为包含
+ */
+export function getRandomString (length: number = 32, noSimilar: boolean = false):string {
+  const chars = noSimilar
+    ? 'abcdefhijkmnprstwxyz2345678ABCDEFGHJKMNPQRSTWXYZ'
+    : 'abcdefghijkmnopqrstuvwxyz0123456789ABCDEFGHIJKMNOPQRSTUVWXYZ';
+  const maxLength = chars.length;
+  const result = [];
+  for (let i = 0; i < length; i++) {
+    result.push(chars.charAt(Math.floor(Math.random() * maxLength)));
+  }
+
+  return result.join('');
 }

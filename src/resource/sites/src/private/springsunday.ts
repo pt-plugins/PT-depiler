@@ -38,33 +38,29 @@ export const siteMetadata: ISiteMetadata = {
       // FIXME 我觉得旧版的 progress, status 获取方法实现并不好
       progress: {
         selector: ["a[id*='subscription'] > img"],
-        elementProcess: [
-          (element: HTMLElement) => {
-            if (element.classList.contains('uploading')) {
-              return 100;
-            } else if (element.classList.contains('downloading')) {
-              const title = element.getAttribute('title') || '';
-              const titleMatch = title.match(/(\d.+)%/);
-              return (titleMatch && titleMatch.length >= 2) ? parseFloat(titleMatch[1]) : 0;
-            } else {
-              return 0;
-            }
+        elementProcess: (element: HTMLElement) => {
+          if (element.classList.contains('uploading')) {
+            return 100;
+          } else if (element.classList.contains('downloading')) {
+            const title = element.getAttribute('title') || '';
+            const titleMatch = title.match(/(\d.+)%/);
+            return (titleMatch && titleMatch.length >= 2) ? parseFloat(titleMatch[1]) : 0;
+          } else {
+            return 0;
           }
-        ]
+        }
       },
       status: {
         selector: ["a[id*='subscription'] > img"],
-        elementProcess: [
-          (element: HTMLElement) => {
-            if (element.classList.contains('uploading')) {
-              return ETorrentStatus.seeding;
-            } else if (element.classList.contains('downloading')) {
-              return ETorrentStatus.downloading;
-            } else {
-              return ETorrentStatus.unknown;
-            }
+        elementProcess: (element: HTMLElement) => {
+          if (element.classList.contains('uploading')) {
+            return ETorrentStatus.seeding;
+          } else if (element.classList.contains('downloading')) {
+            return ETorrentStatus.downloading;
+          } else {
+            return ETorrentStatus.unknown;
           }
-        ]
+        }
       }
     },
     userInfo: {

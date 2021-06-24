@@ -1,12 +1,12 @@
-import { SiteConfig, IUserInfo } from '../../types';
+import { ISiteMetadata, IUserInfo } from '../../types';
 import PrivateSite from '../schema/AbstractPrivateSite';
-import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '@/shared/utils/filter';
+import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 import urlparse from 'url-parse';
 import Sizzle from 'sizzle';
 
 export default class AvistaZ extends PrivateSite {
-  protected override readonly initConfig: Partial<SiteConfig> = {
+  protected override readonly initConfig: Partial<ISiteMetadata> = {
     search: {
       keywordsParam: 'search',
       requestConfig: {
@@ -126,7 +126,7 @@ export default class AvistaZ extends PrivateSite {
     }
   }
 
-  override async flushUserInfo (): Promise<IUserInfo> {
+  public override async flushUserInfo (lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let baseUserInfo = await super.flushUserInfo();
 
     if (baseUserInfo.name && !baseUserInfo.seedingSize) {

@@ -1,7 +1,7 @@
 import { ISearchFilter, ISiteMetadata } from '../../types';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import { AxiosRequestConfig } from 'axios';
-import { parseTimeToLive } from '@/shared/utils/filter';
+import { parseTimeToLive } from '@ptpp/utils/filter';
 import urlparse from 'url-parse';
 
 export const siteMetadata: ISiteMetadata = {

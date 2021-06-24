@@ -1,5 +1,5 @@
 import { ISiteMetadata } from '../../types';
-import { findThenParseSizeString, findThenParseValidTimeString, parseSizeString } from '@/shared/utils/filter';
+import { findThenParseSizeString, findThenParseValidTimeString, parseSizeString } from '@ptpp/utils/filter';
 import Sizzle from 'sizzle';
 import urlparse from 'url-parse';
 

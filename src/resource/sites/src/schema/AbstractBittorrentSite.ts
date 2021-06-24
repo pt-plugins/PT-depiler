@@ -1,17 +1,16 @@
 import {
   IElementQuery, ISearchCategories, ISearchCategoryOptions,
   ISearchFilter, SearchRequestConfig,
-  SiteConfig,
-  ISiteMetadata
+  ISiteMetadata,
+  ETorrentBaseTagColor, ITorrent, ITorrentTag
 } from '../../types';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import Sizzle from 'sizzle';
 import urljoin from 'url-join';
 import urlparse from 'url-parse';
 import { merge, get, chunk, mergeWith, pick } from 'lodash-es';
-import { cfDecodeEmail, parseSizeString, parseTimeWithZone } from '@/shared/utils/filter';
-import { ETorrentBaseTagColor, ITorrent, ITorrentTag } from '../../types/torrent';
-import { fullUrl, transPostDataTo } from '@/shared/interfaces/types';
+import { cfDecodeEmail, parseSizeString, parseTimeWithZone } from '@ptpp/utils/filter';
+import { fullUrl, transPostDataTo } from '@ptpp/utils/types';
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export default class BittorrentSite {
@@ -19,23 +18,23 @@ export default class BittorrentSite {
    * 作为这个class类的基本属性，一般用在模板定义中
    * @protected
    */
-  protected readonly initConfig: Partial<SiteConfig> = {};
+  protected readonly initConfig: Partial<ISiteMetadata> = {};
 
   // 在 constructor 时生成的一些属性
-  private readonly userConfig: Partial<SiteConfig>;
-  private readonly siteMetaData: Partial<SiteConfig>;
-  private _config?: SiteConfig; // 实际过程中使用的配置文件
+  private readonly userConfig: Partial<ISiteMetadata>;
+  private readonly siteMetaData: Partial<ISiteMetadata>;
+  private _config?: ISiteMetadata; // 实际过程中使用的配置文件
 
   protected _runtime: any = {
     cacheRequest: new Map()
   };
 
-  constructor (config: Partial<SiteConfig> = {}, siteMetaData: ISiteMetadata) {
+  constructor (config: Partial<ISiteMetadata> = {}, siteMetaData: ISiteMetadata) {
     this.userConfig = config;
     this.siteMetaData = siteMetaData;
   }
 
-  get config (): SiteConfig {
+  get config (): ISiteMetadata {
     if (!this._config) {
       /**
        * 使用 lodash 的 mergeWith 来合并站点默认配置和用户配置
@@ -45,14 +44,14 @@ export default class BittorrentSite {
         // @ts-ignore
         (objValue, srcValue, key) => {
           if (Array.isArray(objValue) || Array.isArray(srcValue)) {
-            if (['elementProcess', 'filters', 'switchFilters'].includes(key)) { // 不合并 filters，每次都用最后并入的
+            if (['filters', 'switchFilters'].includes(key)) { // 不合并 filters，每次都用最后并入的
               return srcValue;
             } else {
               // @ts-ignore
               return [].concat(srcValue, objValue).filter(x => typeof x !== 'undefined'); // 保证后并入的配置优先
             }
           }
-        }) as SiteConfig;
+        }) as ISiteMetadata;
 
       // 解密url加密过的站点
       if (this._config.url.startsWith('aHR0c')) {
@@ -72,7 +71,7 @@ export default class BittorrentSite {
   }
 
   get activateUrl (): string {
-    return this.config.activateUrl || this.config.url;
+    return this.config.config?.activateUrl || this.config.url;
   }
 
   get categoryMap (): ISearchCategoryOptions[] {
@@ -95,8 +94,7 @@ export default class BittorrentSite {
       }
 
       Object.keys(params).forEach(k => {
-        const v = params[k];
-        postData.append(k, v);
+        postData.append(k, params[k]);
       });
     }
     return postData;
@@ -253,7 +251,7 @@ export default class BittorrentSite {
    * @param fields
    * @protected
    */
-  protected getFieldsData<G extends keyof Required<SiteConfig>['selector'], F extends keyof Required<Required<SiteConfig>['selector']>[G]>
+  protected getFieldsData<G extends keyof Required<ISiteMetadata>['selector'], F extends keyof Required<Required<ISiteMetadata>['selector']>[G]>
   (element: Element | Object, selectorGroup: G, fields: F[]): { [key in F]?: any } {
     const ret: any = {};
 
@@ -330,17 +328,14 @@ export default class BittorrentSite {
     return query;
   }
 
-  protected runQueryFilters <T> (query: any, filters: (Function | string)[] | Function | string): T {
-    const realFilters = ([] as (Function | string)[]).concat(filters);
+  protected runQueryFilters <T> (query: any, filters: Function[] | Function): T {
+    const realFilters = ([] as Function[]).concat(filters);
     for (let i = 0; i < realFilters.length; i++) {
-      let fn = realFilters[i];
+      const fn = realFilters[i];
       /**
        * FIXME 不再允许通过 string 的方式定义函数，转变为 jackett 的 那种 {name, args}方式
        * refs: https://github.com/Jackett/Jackett/blob/6a213c6eabd0264392c48564ff16a9035fd13ca4/src/Jackett.Common/Indexers/CardigannIndexer.cs#L973-L1116
        */
-
-      // eslint-disable-next-line no-new-func
-      fn = typeof fn === 'string' ? (new Function('query', `return ${fn}`)) : fn;
       query = fn(query);
     }
     return query;
@@ -461,7 +456,7 @@ export default class BittorrentSite {
         'rows', // rows 已经在前面被处理过了
         'tags' // tags 转由 parseTagsFromRow 方法处理
       ].includes(key) && !(key in torrent);
-    }) as (keyof Required<SiteConfig>['selector']['search'])[];
+    }) as (keyof Required<ISiteMetadata>['selector']['search'])[];
 
     torrent = {
       ...torrent,

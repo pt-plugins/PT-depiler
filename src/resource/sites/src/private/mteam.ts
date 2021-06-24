@@ -1,7 +1,6 @@
-import { ISiteMetadata } from '../../types';
-import { ETorrentStatus } from '../../types/torrent';
+import { ISiteMetadata, ETorrentStatus } from '../../types';
 import NexusPHP from '../schema/NexusPHP';
-import { createDocument } from '@/shared/utils/common';
+import { createDocument } from '@ptpp/utils/filter';
 import urlparse from 'url-parse';
 
 export const siteMetadata: ISiteMetadata = {
@@ -94,19 +93,17 @@ export const siteMetadata: ISiteMetadata = {
       },
       status: {
         selector: ['> td:eq(8)'],
-        elementProcess: [
-          (element: HTMLElement) => {
-            const elementText = element.innerText.trim();
-            const floatElementText = parseFloat(elementText);
-            if (elementText === '--') {
-              return ETorrentStatus.unknown;
-            } else if (element.classList.contains('peer-active')) {
-              return floatElementText >= 100 ? ETorrentStatus.seeding : ETorrentStatus.downloading;
-            } else {
-              return floatElementText >= 100 ? ETorrentStatus.completed : ETorrentStatus.inactive;
-            }
+        elementProcess: (element: HTMLElement) => {
+          const elementText = element.innerText.trim();
+          const floatElementText = parseFloat(elementText);
+          if (elementText === '--') {
+            return ETorrentStatus.unknown;
+          } else if (element.classList.contains('peer-active')) {
+            return floatElementText >= 100 ? ETorrentStatus.seeding : ETorrentStatus.downloading;
+          } else {
+            return floatElementText >= 100 ? ETorrentStatus.completed : ETorrentStatus.inactive;
           }
-        ]
+        }
       }
     },
     userInfo: {
@@ -144,8 +141,11 @@ export default class mteam extends NexusPHP {
       const userSeedingDocument = createDocument(userSeedingRequestString);
       seedStatus = this.countSeedingStatusFromDocument(userSeedingDocument);
     } else {
-      const pageInfo = { count: 0, current: 0 }; // 生成页面信息
-      for (;pageInfo.current <= pageInfo.count; pageInfo.current++) {
+      for (
+        const pageInfo = { count: 0, current: 0 }; // 生成页面信息
+        pageInfo.current <= pageInfo.count;
+        pageInfo.current++
+      ) {
         const TListDocument = await this.getUserTorrentList(userId, pageInfo.current);
         // 更新最大页数
         if (pageInfo.count === 0) {

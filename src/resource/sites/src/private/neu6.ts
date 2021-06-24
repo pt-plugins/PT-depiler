@@ -2,7 +2,7 @@ import { ISearchFilter, ISiteMetadata, ITorrent } from '../../types';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import { AxiosRequestConfig } from 'axios';
 import urlparse from 'url-parse';
-import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@/shared/utils/filter';
+import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@ptpp/utils/filter';
 import urlencode from 'urlencode';
 
 export const siteMetadata: ISiteMetadata = {

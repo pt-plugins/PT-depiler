@@ -6,7 +6,7 @@ import {
   findThenParseSizeString,
   findThenParseValidTimeString,
   parseSizeString
-} from '@/shared/utils/filter';
+} from '@ptpp/utils/filter';
 import { browser } from 'webextension-polyfill-ts';
 
 interface rawTorrent {
@@ -183,17 +183,15 @@ export const siteMetadata: ISiteMetadata = {
       },
       messageCount: {
         selector: 'div#sbNotifs',
-        elementProcess: [
-          (div:Document) => {
-            let msgCount = 0;
-            const msgAnothers = Sizzle('a.tmnb, a.tmn, a.tmng', div);
-            msgAnothers.forEach(msgAnother => {
-              const msgText = (msgAnother as HTMLElement).innerText.trim();
-              msgCount += findThenParseNumberString(msgText);
-            });
-            return msgCount;
-          }
-        ]
+        elementProcess: (div: Document) => {
+          let msgCount = 0;
+          const msgAnothers = Sizzle('a.tmnb, a.tmn, a.tmng', div);
+          msgAnothers.forEach(msgAnother => {
+            const msgText = (msgAnother as HTMLElement).innerText.trim();
+            msgCount += findThenParseNumberString(msgText);
+          });
+          return msgCount;
+        }
       },
       uploaded: {
         selector: "td.rowhead:contains('Uploaded'):eq(0) + td",
@@ -281,7 +279,7 @@ export default class myanonamouse extends PrivateSite {
     return retInfo;
   }
 
-  override async flushUserInfo (): Promise<IUserInfo> {
+  public override async flushUserInfo (lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let userInfo = await super.flushUserInfo();
 
     if (userInfo.id && (!userInfo.seeding || !userInfo.seedingSize)) {

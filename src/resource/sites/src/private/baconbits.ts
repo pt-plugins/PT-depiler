@@ -4,7 +4,7 @@
  */
 import { ISiteMetadata } from '../../types';
 import Sizzle from 'sizzle';
-import { findThenParseNumberString, findThenParseSizeString, parseTimeToLive } from '@/shared/utils/filter';
+import { findThenParseNumberString, findThenParseSizeString, parseTimeToLive } from '@ptpp/utils/filter';
 import urlparse from 'url-parse';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 
@@ -48,13 +48,11 @@ export const siteMetadata: ISiteMetadata = {
       id: { selector: 'td:eq(1) a[title="View Torrent"]', attr: 'href' }, // FIXME 因为不知道具体链接接口，所以直接把种子详情页链接作为id
       title: {
         selector: 'td:nth-child(2)',
-        elementProcess: [
-          (element: HTMLElement) => {
-            const cloneElement = element.cloneNode(true) as HTMLElement;
-            Sizzle('span, strong, div, br', cloneElement).forEach(e => e.remove());
-            return cloneElement.innerText.trim().replace(' - ]', ']');
-          }
-        ]
+        elementProcess: (element: HTMLElement) => {
+          const cloneElement = element.cloneNode(true) as HTMLElement;
+          Sizzle('span, strong, div, br', cloneElement).forEach(e => e.remove());
+          return cloneElement.innerText.trim().replace(' - ]', ']');
+        }
       },
       url: { selector: 'td:eq(1) a[title="View Torrent"]', attr: 'href' },
       link: { selector: 'td:eq(1) a[title="Download"]', attr: 'href' },

@@ -5,7 +5,7 @@ import {
   findThenParseSizeString,
   findThenParseValidTimeString,
   parseTimeToLive
-} from '@/shared/utils/filter';
+} from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'HDBits',

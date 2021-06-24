@@ -1,6 +1,6 @@
 import { ISiteMetadata, ITorrent } from '../../types';
 import urlparse from 'url-parse';
-import { findThenParseSizeString } from '@/shared/utils/filter';
+import { findThenParseSizeString } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import Sizzle from 'sizzle';
@@ -124,12 +124,11 @@ export const siteMetadata: ISiteMetadata = {
       },
       joinTime: {
         selector: ["ul.stats > li:contains('Joined:') > span"],
-        elementProcess: [
-          (element: HTMLElement) => {
-            const time = element.getAttribute('title') || element.innerText;
-            return dayjs(time).isValid() ? dayjs(time).valueOf() : time;
-          }
-        ]
+        elementProcess: (element: HTMLElement) => {
+          const time = element.getAttribute('title') || element.innerText;
+          return dayjs(time).isValid() ? dayjs(time).valueOf() : time;
+        }
+
       },
       seeding: {
         selector: 'ul.stats > li:contains("Seeding:")',

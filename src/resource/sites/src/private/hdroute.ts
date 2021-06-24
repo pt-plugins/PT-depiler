@@ -1,6 +1,6 @@
 import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
-import { findThenParseSizeString, findThenParseValidTimeString } from '@/shared/utils/filter';
+import { findThenParseSizeString, findThenParseValidTimeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'HDRoute',

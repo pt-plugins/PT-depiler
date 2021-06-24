@@ -1,12 +1,11 @@
 import PrivateSite from '../schema/AbstractPrivateSite';
-import { SiteConfig, IUserInfo } from '../../types';
-import { ETorrentStatus } from '../../types/torrent';
+import { ISiteMetadata, IUserInfo, ETorrentStatus } from '../../types';
 import {
   findThenParseNumberString,
   findThenParseSizeString,
   parseSizeString,
   parseTimeToLive
-} from '@/shared/utils/filter';
+} from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 import urljoin from 'url-join';
 
@@ -19,7 +18,7 @@ const seedingSizeTrans: string[] = ['Seeding Size', '做种体积', '做種體�
 const joinTimeTrans :string[] = ['Registration date', '注册日期', '註冊日期'];
 
 export default class Unit3D extends PrivateSite {
-  protected override readonly initConfig: Partial<SiteConfig> = {
+  protected override readonly initConfig: Partial<ISiteMetadata> = {
     timezoneOffset: '+0000',
     search: {
       keywordsParam: 'search',
@@ -199,9 +198,7 @@ export default class Unit3D extends PrivateSite {
         messageCount: {
           text: 0,
           selector: ['a[href*="/mail/inbox"] .point'],
-          elementProcess: [
-            () => 11 // 并不能直接知道还有多少个消息未读，所以置为11，会直接出线红点而不是具体数字
-          ]
+          elementProcess: () => 11 // 并不能直接知道还有多少个消息未读，所以置为11，会直接出线红点而不是具体数字
         },
         joinTime: {
           selector: joinTimeTrans.map(x => `div.content h4:contains('${x}')`),
@@ -216,8 +213,7 @@ export default class Unit3D extends PrivateSite {
     }
   }
 
-  override async flushUserInfo (): Promise<IUserInfo> {
-    const lastUserInfo = await this.getLastUserInfo();
+  public override async flushUserInfo (lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let flushUserInfo: Partial<IUserInfo> = {};
 
     let userName: string;

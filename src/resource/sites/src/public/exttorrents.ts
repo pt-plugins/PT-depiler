@@ -1,5 +1,5 @@
 import { ISearchFilter, ISiteMetadata, ITorrent } from '../../types';
-import { parseTimeToLive } from '@/shared/utils/filter';
+import { parseTimeToLive } from '@ptpp/utils/filter';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import { AxiosRequestConfig } from 'axios';
 
