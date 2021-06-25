@@ -86,9 +86,8 @@ export default class OWSS implements IBackupServer<OWSSConfig> {
     try {
       const { data } = await this.request<OWSSResponse<OWSSRawList[]>>({ url: '/list' });
       return Array.isArray(data.data);
-    } catch (e) {
-      return false;
-    }
+    } catch { }
+    return false;
   }
 
   public async list (options: IBackupFileListOption = {}): Promise<IBackupFileInfo[]> {
@@ -99,7 +98,7 @@ export default class OWSS implements IBackupServer<OWSSConfig> {
     if (listData.data) {
       listData.data.forEach(value => {
         const { name: filename, time, size } = value;
-        backupFiles.push({ filename, time, size } as IBackupFileInfo);
+        backupFiles.push({ filename, time, size, path: filename } as IBackupFileInfo);
       });
     }
 

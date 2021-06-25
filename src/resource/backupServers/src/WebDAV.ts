@@ -54,9 +54,8 @@ export default class WebDAV implements IBackupServer<WebDAVConfig> {
     try {
       await this.server.getDirectoryContents('/');
       return true;
-    } catch (e) {
-      return false;
-    }
+    } catch { }
+    return false;
   }
 
   async list (options: IBackupFileListOption = {}): Promise<IBackupFileInfo[]> {
@@ -66,8 +65,9 @@ export default class WebDAV implements IBackupServer<WebDAVConfig> {
     fileList.forEach(item => {
       retFileList.push({
         filename: item.basename,
+        path: item.filename,
         size: item.size,
-        time: new Date(item.lastmod).getTime()
+        time: +new Date(item.lastmod)
       } as IBackupFileInfo);
     });
 

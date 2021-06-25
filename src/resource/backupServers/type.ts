@@ -20,6 +20,7 @@ export interface IBackupMetadata<T extends IBackupConfig> {
 
 export interface IBackupFileInfo {
   filename: string,
+  path: string,
   time: number,
   size: number
 }

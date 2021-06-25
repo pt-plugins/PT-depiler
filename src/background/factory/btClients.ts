@@ -24,7 +24,7 @@ class BtClientFactory extends Container {
 
   public async dynamicImport (type: string) {
     return await import(
-      /* webpackChunkName: "lib/btclients/[request]" */
+      /* webpackChunkName: "lib/btClients/[request]" */
       /* webpackMode: "lazy" */
       /* webpackExports: ["default", "clientConfig", "clientMetaData"] */
       `@/resource/btClients/src/${type}`) as {
