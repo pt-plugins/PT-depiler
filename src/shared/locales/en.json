@@ -1,0 +1,12 @@
+{
+  "name": "English (Beta)",
+  "code": "en",
+  "authors": [
+    "ronggang", "ylxb2016", "xiongqiwei", "jackson008"
+  ],
+  "words": {
+    "app": {
+      "test": "test"
+    }
+  }
+}

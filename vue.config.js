@@ -34,11 +34,19 @@ module.exports = {
       },
       manifestTransformer: (manifest) => {
         if (!IS_PROD) {
+          manifest.description += ' (Development Mode)';
           manifest.content_security_policy = "script-src 'self' 'unsafe-eval' http://localhost:8098; object-src 'self'";
         }
 
         return manifest;
       }
+    },
+    i18n: {
+      localeDir: './shared/locales', // start from './src'
+      enableLegacy: false,
+      compositionOnly: true,
+      runtimeOnly: true,
+      fullInstall: true
     }
   },
 

@@ -1,5 +1,5 @@
 <template>
-  <v-app>
+  <v-app id="ptpp">
     <v-main>
       <HelloWorld/>
     </v-main>
@@ -8,8 +8,9 @@
 
 <script lang="ts">
 import HelloWorld from './components/HelloWorld.vue';
+import { defineComponent } from 'vue';
 
-export default {
+export default defineComponent({
   name: 'App',
 
   components: {
@@ -21,5 +22,6 @@ export default {
       //
     };
   }
-};
+
+});
 </script>

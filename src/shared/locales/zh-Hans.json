@@ -1,0 +1,12 @@
+{
+  "name": "简体中文 Chinese (Simplified)",
+  "code": "zh-Hans",
+  "authors": [
+    "栽培者"
+  ],
+  "words": {
+    "app": {
+      "test": "测试"
+    }
+  }
+}
