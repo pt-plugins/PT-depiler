@@ -33,9 +33,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: 'form[action*="download.php"]:first',
         attr: 'action',
-        filters: [
-          (query: string) => urlparse(query, true).query.id
-        ]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       url: {
         selector: 'form[action*="download.php"]:first',

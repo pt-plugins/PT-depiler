@@ -4,7 +4,6 @@
  * Rhilip, 2021.4.21
  */
 import { ISiteMetadata, ETorrentStatus, IUserInfo } from '../../types';
-import { parseTimeToLive } from '@ptpp/utils/filter';
 import Unit3D from '../schema/Unit3D';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 
@@ -28,7 +27,7 @@ export const siteMetadata: ISiteMetadata = {
       id: { selector: 'a.torrent-name', attr: 'torrent' },
       title: { selector: 'a.torrent-name' },
       url: { selector: 'a.torrent-name', attr: 'href' },
-      time: { selector: 'span.text-age', filters: [parseTimeToLive] },
+      time: { selector: 'span.text-age', filters: [{ name: 'parseTTL' }] },
       size: { selector: 'span.text-size' },
       author: { selector: 'span:has(> i.fa-user-shield)' },
       category: { selector: 'a[href*="/categories/"] > div > i[title]', attr: 'title' },
@@ -86,7 +85,7 @@ export const siteMetadata: ISiteMetadata = {
         filters: [
           (query: string) => {
             query = query.replace('Member Since: ', '');
-            return dayjs(query).isValid() ? dayjs(query).unix() : query;
+            return dayjs(query).isValid() ? dayjs(query).valueOf() : query;
           }
         ]
       }

@@ -1,6 +1,5 @@
 import { ISiteMetadata } from '../../types';
-import urlparse from 'url-parse';
-import { findThenParseNumberString, findThenParseSizeString } from '@ptpp/utils/filter';
+import { findThenParseSizeString } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 import Sizzle from 'sizzle';
 
@@ -65,14 +64,14 @@ export const siteMetadata: ISiteMetadata = {
   selector: {
     search: {
       rows: { selector: 'table.torrenttable > tbody > tr:has(a[href*="browse.php?cat="])' },
-      id: { selector: 'a[href*="details.php?id="]', attr: 'href', filters: [(q:string) => urlparse(q, true).query.id] },
+      id: { selector: 'a[href*="details.php?id="]', attr: 'href', filters: [{ name: 'querystring', args: ['id'] }] },
       title: { selector: 'a[href*="details.php?id="]' },
       url: { selector: 'a[href*="details.php?id="]', attr: 'href' },
       link: { selector: 'a[href*="download.php?id="]', attr: 'href' },
       time: { selector: 'td:nth-child(4)' },
-      size: { selector: 'td:nth-child(5)', filters: [findThenParseSizeString] },
+      size: { selector: 'td:nth-child(5)', filters: [{ name: 'parseSize' }] },
       author: { selector: 'td:eq(8)' },
-      category: { selector: 'a[href*="browse.php?cat="]', attr: 'href', filters: [(q:string) => urlparse(q, true).query.cat] },
+      category: { selector: 'a[href*="browse.php?cat="]', attr: 'href', filters: [{ name: 'querystring', args: ['cat'] }] },
       seeders: { selector: 'td:nth-child(7)' },
       leechers: { selector: 'td:nth-child(8)' },
       completed: { selector: 'td:nth-child(6)' }
@@ -82,7 +81,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: ".statusbar a[href*='/userdetails.php?id=']",
         attr: 'href',
-        filters: [(q:string) => urlparse(q, true).query.id]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       name: {
         selector: ".statusbar a[href*='/userdetails.php?id=']"
@@ -90,22 +89,22 @@ export const siteMetadata: ISiteMetadata = {
       // page: '/userdetails.php?id=$user.id$',
       uploaded: {
         selector: ["td.clx > .frames td.rowhead:contains('Uploaded') + td:first"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: ["td.clx > .frames td.rowhead:contains('Downloaded') + td:first"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       levelName: {
         selector: "td.clx > .frames td.rowhead:contains('Class') + td:first"
       },
       messageCount: {
         selector: ["div.alert a[href*='messages.php']"],
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       bonus: {
         selector: ["a[href='/credits.php']"],
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       joinTime: {
         selector: "td.clx > .frames td.rowhead:contains('Join') + td:first",

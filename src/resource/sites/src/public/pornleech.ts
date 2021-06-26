@@ -28,7 +28,7 @@ export const siteMetadata: ISiteMetadata = {
         filters: [
           (q:string) => {
             const dateRaw = q.match(/AddDate:\s*\u00a0\s*(.+?)$/)![1];
-            return dayjs(`${dateRaw} -07:00`, 'HH:mm:ss DD/MM/YYYY Z').unix();
+            return dayjs(`${dateRaw} -07:00`, 'HH:mm:ss DD/MM/YYYY Z').valueOf();
           }
         ]
       },

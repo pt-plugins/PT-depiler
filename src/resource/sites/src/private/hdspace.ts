@@ -1,7 +1,5 @@
 import { ISiteMetadata } from '../../types';
-import urlparse from 'url-parse';
 import dayjs from '@ptpp/utils/plugins/dayjs';
-import { findThenParseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'HD-Space',
@@ -40,9 +38,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: 'a[href*="index.php?page=torrent-details"]',
         attr: 'href',
-        filters: [
-          (query: string) => urlparse(query, true).query.id
-        ]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       title: { selector: 'a[href*="index.php?page=torrent-details"]' },
       url: { selector: 'a[href*="index.php?page=torrent-details"]', attr: 'href' },
@@ -80,7 +76,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: "a[href*='index.php?page=usercp']:first",
         attr: 'href',
-        filters: [(query:string) => urlparse(query, true).query.uid]
+        filters: [{ name: 'querystring', args: ['uid'] }]
       },
       name: {
         selector: "td[align='center'][style='text-align:center;']:contains('Welcome back')>span"
@@ -96,11 +92,11 @@ export const siteMetadata: ISiteMetadata = {
       },
       uploaded: {
         selector: ["td.green:contains('UP')"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: ["td.red:contains('DL')"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       ratio: {
         selector: "td.yellow:contains('Ratio')",
@@ -125,7 +121,7 @@ export const siteMetadata: ISiteMetadata = {
       // page: '/index.php?page=usercp&uid=$user.id$',
       joinTime: {
         selector: ["td.header:contains('Joined on') + td"],
-        filters: [(query: string) => dayjs(query).valueOf()]
+        filters: [{ name: 'parseTime' }]
       }
     }
   }

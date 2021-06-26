@@ -1,5 +1,4 @@
 import { ISearchFilter, ISiteMetadata, ITorrent } from '../../types';
-import { parseTimeToLive } from '@ptpp/utils/filter';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import { AxiosRequestConfig } from 'axios';
 
@@ -89,7 +88,7 @@ export const siteMetadata: ISiteMetadata = {
       url: { selector: 'td:nth-child(1) div.float-left a', attr: 'href' },
       // 当且仅有torrents时，列表页才有种子文件链接存在，不然我们走details页面获取magnet链接
       link: { selector: 'td:nth-child(1) div.float-right a.torrent-dwn', attr: 'href' },
-      time: { selector: 'td:nth-child(4)', filters: [parseTimeToLive] },
+      time: { selector: 'td:nth-child(4)', filters: [{ name: 'parseTTL' }] },
       size: { selector: 'td:nth-child(2)' },
       seeders: { selector: 'td:nth-child(5)' },
       leechers: { selector: 'td:nth-child(6)' },

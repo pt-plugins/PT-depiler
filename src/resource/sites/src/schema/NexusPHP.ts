@@ -90,7 +90,7 @@ export default class NexusPHP extends PrivateSite {
               if (time.match(/\d+[分时天月年]/g)) {
                 time = parseTimeToLive(time);
               } else {
-                time = dayjs(time).unix();
+                time = dayjs(time).valueOf();
               }
             } catch (e) {}
             return time as number;
@@ -113,9 +113,7 @@ export default class NexusPHP extends PrivateSite {
         id: {
           selector: ["a[href*='userdetails.php'][class*='Name']:first", "a[href*='userdetails.php']:first"],
           attr: 'href',
-          filters: [
-            (query:string) => urlparse(query, true).query.id
-          ]
+          filters: [{ name: 'querystring', args: ['id'] }]
         },
         name: {
           selector: ["a[href*='userdetails.php'][class*='Name']:first", "a[href*='userdetails.php']:first"]
@@ -174,7 +172,7 @@ export default class NexusPHP extends PrivateSite {
           filters: [
             (query: string) => {
               query = query.split(' (')[0];
-              return dayjs(query).isValid() ? dayjs(query).unix() : query;
+              return dayjs(query).isValid() ? dayjs(query).valueOf() : query;
             }
           ]
         }

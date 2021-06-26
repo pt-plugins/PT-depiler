@@ -1,5 +1,4 @@
 import { ISearchFilter, ISiteMetadata } from '../../types';
-import { parseTimeToLive } from '@ptpp/utils/filter';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import { AxiosRequestConfig } from 'axios';
 
@@ -53,7 +52,7 @@ export const siteMetadata: ISiteMetadata = {
         filters: [
           (q:string) => q.split('-')[0],
           (q:string) => q.replace('Last Month', '1 month ago').replace('+', 'ago'),
-          parseTimeToLive
+          { name: 'parseTTL' }
         ]
       },
       size: { selector: 'td:nth-child(3)' },

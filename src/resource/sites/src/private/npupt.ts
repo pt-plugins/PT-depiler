@@ -1,5 +1,4 @@
 import { ISiteMetadata } from '../../types';
-import urlparse from 'url-parse';
 
 const timeRegex = /\d{4}-\d{2}-\d{2}[^\d]+?\d{2}:\d{2}:\d{2}/;
 
@@ -82,11 +81,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: "span#curuser a[href*='userdetails.php'][class*='Name']:first",
         attr: 'href',
-        filters: [
-          (query: string) => {
-            return urlparse(query, true).query.id;
-          }
-        ]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       name: {
         selector: ["span#curuser a[href*='userdetails.php'][class*='Name']:first"]

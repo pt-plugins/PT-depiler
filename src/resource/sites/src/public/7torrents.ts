@@ -1,5 +1,4 @@
 import { ISiteMetadata } from '../../types';
-import { parseTimeToLive } from '@ptpp/utils/filter';
 
 // FIXME Cloudflare DDoS Protect
 export const siteMetadata: ISiteMetadata = {
@@ -41,7 +40,7 @@ export const siteMetadata: ISiteMetadata = {
         ]
       },
       link: { selector: 'div.media-right > a', attr: 'href' },
-      time: { selector: ':self', data: 'added', filters: [parseTimeToLive] },
+      time: { selector: ':self', data: 'added', filters: [{ name: 'parseTTL' }] },
       size: { selector: ':self', data: 'size' },
       seeders: { selector: ':self', data: 'seeders' },
       leechers: { selector: ':self', data: 'leechers' },

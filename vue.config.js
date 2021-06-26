@@ -1,11 +1,12 @@
 const IS_PROD = ['production', 'prod'].includes(process.env.NODE_ENV);
+const packageInfo = require('./package.json');
 
 module.exports = {
   pages: {
     options: {
       template: 'public/browser-extension.html',
       entry: './src/options/main.ts',
-      title: 'Options'
+      title: packageInfo.archiverName
     }
   },
 

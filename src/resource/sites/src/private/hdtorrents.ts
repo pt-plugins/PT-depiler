@@ -1,7 +1,7 @@
 import { ISiteMetadata, IUserInfo, ETorrentStatus } from '../../types';
 import urlparse from 'url-parse';
 import dayjs from '@ptpp/utils/plugins/dayjs';
-import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '@ptpp/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import Sizzle from 'sizzle';
 
@@ -44,9 +44,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: 'a[href^="details.php?id="]',
         attr: 'href',
-        filters: [
-          (query: string) => urlparse(query, true).query.id
-        ]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       title: { selector: 'a[href^="details.php?id="]' },
       url: { selector: 'a[href^="details.php?id="]', attr: 'href' },
@@ -94,11 +92,11 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: ["a[href*='usercp.php?uid=']:first"],
         attr: 'href',
-        filters: [(query: string) => urlparse(query, true).query.uid]
+        filters: [{ name: 'querystring', args: ['uid'] }]
       },
       messageCount: {
         selector: ['.new-pm.warning'],
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       // page: '/usercp.php?uid=$user.id$',
       name: {
@@ -106,15 +104,15 @@ export const siteMetadata: ISiteMetadata = {
       },
       uploaded: {
         selector: ["td.header:contains('Uploaded') + td"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: ["td.header:contains('Downloaded') + td"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       ratio: {
         selector: "td.header:contains('Ratio') + td",
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       levelName: {
         selector: "td.header:contains('Rank') + td"
@@ -125,7 +123,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       joinTime: {
         selector: "td.header:contains('Joined on') + td",
-        filters: [(query: string) => dayjs(query, 'DD/MM/YYYY HH:mm:ss').valueOf()]
+        filters: [{ name: 'parseTime', args: ['DD/MM/YYYY HH:mm:ss'] }]
       },
       seeding: {
         selector: ["td.nav[title='Active-Torrents'] > a[href*='#actives']"],

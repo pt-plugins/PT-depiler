@@ -1,7 +1,4 @@
 import { ISiteMetadata, ETorrentStatus } from '../../types';
-import urlparse from 'url-parse';
-import { findThenParseNumberString, findThenParseSizeString } from '@ptpp/utils/filter';
-import dayjs from '@ptpp/utils/plugins/dayjs';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'Empornium',
@@ -100,9 +97,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: 'a[href^="/torrents.php?action=download&id="]',
         attr: 'href',
-        filters: [
-          (query: string) => urlparse(query, true).query.id
-        ]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       title: { selector: 'a[href^="/torrents.php?id="]' },
       url: { selector: 'a[href^="/torrents.php?id="]', attr: 'href' },
@@ -151,7 +146,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: ["a.username[href*='user.php']:first"],
         attr: 'href',
-        filters: [(query: string) => urlparse(query, true).query.id || '']
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       name: {
         selector: 'a.username'
@@ -163,15 +158,15 @@ export const siteMetadata: ISiteMetadata = {
       },
       seeding: {
         selector: ['#nav_seeding_r'],
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       uploaded: {
         selector: ["td:contains('Up:') + td"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: ["td:contains('Down:') + td"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       ratio: { selector: ["td:contains('Ratio:') + td"] },
       bonus: { selector: ["td:contains('Credits:') + td"] },
@@ -179,14 +174,14 @@ export const siteMetadata: ISiteMetadata = {
       joinTime: {
         selector: ["li:contains('Joined:') > span.time"],
         attr: 'title',
-        filters: [(query: string) => dayjs(query).valueOf()]
+        filters: [{ name: 'parseTime' }]
       },
       levelName: {
         selector: ['span.rank']
       },
       seedingSize: {
         selector: ["ul.stats.nobullet > li:contains('Seeding Size:')"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       }
     }
   }

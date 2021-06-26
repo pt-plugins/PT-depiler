@@ -1,7 +1,6 @@
 import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
-import dayjs from '@ptpp/utils/plugins/dayjs';
-import { findThenParseNumberString, findThenParseSizeString } from '@ptpp/utils/filter';
+import { findThenParseSizeString } from '@ptpp/utils/filter';
 import Sizzle from 'sizzle';
 
 export const siteMetadata: ISiteMetadata = {
@@ -91,7 +90,7 @@ export const siteMetadata: ISiteMetadata = {
       link: { selector: "a[href*='/download.php?torid=']", attr: 'href' },
       time: {
         selector: 'td:nth-of-type(5)',
-        filters: [(query: string) => dayjs(query, 'dd MMM yy').valueOf()] // FIXME 需要检查
+        filters: [{ name: 'parseTime', args: ['dd MMM yy'] }] // FIXME 需要检查
       },
       size: { selector: 'td:nth-of-type(6)' },
       author: { selector: 'td:nth-last-child(1)' },
@@ -148,31 +147,29 @@ export const siteMetadata: ISiteMetadata = {
       },
       messageCount: {
         selector: ["a[href='user-messages.php']"],
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       // page: '/user-profile.php?uid=$user.id$'
       uploaded: {
         selector: ["tr.dataOdd > td:contains('Uploaded') + td:first"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: ["tr.dataOdd > td:contains('Downloaded') + td:first"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       levelName: {
         selector: ["tr.dataOdd > td:contains('Rank') + td:first"]
       },
       bonus: {
         selector: ["tr.dataOdd > td:contains('Bonus Points') + td:first"],
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       joinTime: {
         selector: "tr.dataOdd > td:contains('Join date') + td:first",
         filters: [
-          (query:string) => {
-            const timeString = query.split(' [')[0];
-            return dayjs(timeString).isValid() ? dayjs(timeString).valueOf() : timeString;
-          }
+          (query:string) => query.split(' [')[0],
+          { name: 'parseTime' }
         ]
       },
       // page: '/ajax/user-active-torrents.php?uid=$user.id$'

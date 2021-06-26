@@ -42,9 +42,9 @@ export const siteMetadata: ISiteMetadata = {
                 standard.add(-2, 'days');
               }
 
-              return dayjs(`${standard.format('YYYY/MM/DD')} ${timeRawPattern[2]}`, 'YYYY/MM/DD HH:mm').unix();
+              return dayjs(`${standard.format('YYYY/MM/DD')} ${timeRawPattern[2]}`, 'YYYY/MM/DD HH:mm').valueOf();
             } else {
-              return dayjs(q, 'YYYY/MM/DD').unix();
+              return dayjs(q, 'YYYY/MM/DD').valueOf();
             }
           }
         ]

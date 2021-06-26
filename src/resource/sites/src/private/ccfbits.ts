@@ -1,7 +1,6 @@
 import { ISiteMetadata } from '../../types';
-import { findThenParseSizeString, findThenParseValidTimeString, parseSizeString } from '@ptpp/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 import Sizzle from 'sizzle';
-import urlparse from 'url-parse';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'CCFBits',
@@ -36,9 +35,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: 'a[title][href^="details.php?id="]',
         attr: 'href',
-        filters: [
-          (query: string) => urlparse(query, true).query.id
-        ]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       title: {
         selector: 'a[title][href^="details.php?id="]',
@@ -75,9 +72,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: "a[href*='userdetails.php']:first",
         attr: 'href',
-        filters: [
-          (query: string) => urlparse(query, true).query.id
-        ]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       name: {
         selector: "a[href*='userdetails.php']:first"
@@ -85,11 +80,11 @@ export const siteMetadata: ISiteMetadata = {
       // url: '/userdetails.php'
       uploaded: {
         selector: ['上传量', '上傳量'].map(x => `td.rowhead:contains('${x}') + td`),
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: ['下载量', '下載量'].map(x => `td.rowhead:contains('${x}') + td`),
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       levelName: {
         selector: ['等级', '等級'].map(x => `td.rowhead:contains('${x}') + td`)
@@ -100,7 +95,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       joinTime: {
         selector: ['注册日期', '註冊日期'].map(x => `td.rowhead:contains('${x}') + td`),
-        filters: [findThenParseValidTimeString]
+        filters: [{ name: 'parseTime' }]
       },
       seeding: {
         text: 0,

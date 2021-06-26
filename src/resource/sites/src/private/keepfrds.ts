@@ -1,5 +1,4 @@
 import { ISiteMetadata } from '../../types';
-import { findThenParseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'PT@KEEPFRDS',
@@ -70,7 +69,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       seedingSize: {
         selector: ["td.rowhead:contains('当前做种') + td, td.rowhead:contains('Current Seeding') + td, td.rowhead:contains('目前做種') + td"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       }
     }
   }

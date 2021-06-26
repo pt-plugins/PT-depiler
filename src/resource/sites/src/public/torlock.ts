@@ -40,7 +40,7 @@ export const siteMetadata: ISiteMetadata = {
         filters: [
           (q:string) => {
             if (/\//.test(q)) { // 1/2/2006
-              return dayjs(`${q} -07:00`, 'MM/DD/YYYY Z').unix();
+              return dayjs(`${q} -07:00`, 'MM/DD/YYYY Z').valueOf();
             } else {
               return parseTimeToLive(q);
             }

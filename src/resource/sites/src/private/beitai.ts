@@ -38,5 +38,4 @@ export const siteMetadata: ISiteMetadata = {
       status: selectorSearchStatus
     }
   }
-
 };

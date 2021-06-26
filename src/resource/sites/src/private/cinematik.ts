@@ -1,11 +1,6 @@
 import { ISiteMetadata, IUserInfo } from '../../types';
 import urlparse from 'url-parse';
-import {
-  findThenParseNumberString,
-  findThenParseSizeString,
-  findThenParseValidTimeString,
-  parseSizeString
-} from '@ptpp/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 import Sizzle from 'sizzle';
 import PrivateSite from '../schema/AbstractPrivateSite';
 
@@ -53,8 +48,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: 'a[href^="details.php?id="]',
         attr: 'href',
-        filters: [
-          (q:string) => urlparse(q, true).query.id]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       title: { selector: 'td:nth-child(2) a' },
       url: { selector: 'a[href^="details.php?id="]', attr: 'href' },
@@ -69,7 +63,7 @@ export const siteMetadata: ISiteMetadata = {
       category: { text: 'ALL' },
       seeders: { selector: 'td:nth-child(9)' },
       leechers: { selector: 'td:nth-child(10)' },
-      completed: { selector: 'td:nth-child(8)', filters: [findThenParseNumberString] },
+      completed: { selector: 'td:nth-child(8)', filters: [{ name: 'parseNumber' }] },
       tags: [
         { name: 'Free', selector: "img[src*='freedownload.png']" },
         { name: '2xFree', selector: "img[src*='platinumdownload.png']" },
@@ -80,18 +74,18 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: "div#menu a[href*='userdetails.php']",
         attr: 'href',
-        filters: [(query: string) => urlparse(query, true).query.id]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       name: {
         selector: 'table.mainouter > tbody > tr > td > table.main h1'
       },
       uploaded: {
         selector: "#user-default td.rowhead:contains('Uploaded') + td",
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: "#user-default td.rowhead:contains('Downloaded') + td",
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       levelName: {
         selector: "#user-default td.rowhead:contains('Class') + td"
@@ -103,7 +97,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: "#user-default td.rowhead:contains('Join') + td",
         filters: [
           (query: string) => query.split(' (')[0],
-          findThenParseValidTimeString
+          { name: 'parseTime' }
         ]
       },
       seeding: {

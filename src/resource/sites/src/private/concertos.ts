@@ -1,5 +1,4 @@
 import { ISiteMetadata } from '../../types';
-import { findThenParseSizeString } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 
 export const siteMetadata: ISiteMetadata = {
@@ -79,11 +78,11 @@ export const siteMetadata: ISiteMetadata = {
       },
       uploaded: {
         selector: [':has(> .user-info__item > .fa-upload)'],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: [':has(> .user-info__item > .fa-download)'],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       ratio: {
         selector: [':has(.user-info__item > .fa-percent)'],

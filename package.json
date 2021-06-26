@@ -1,7 +1,10 @@
 {
-  "name": "pt-plugin-plus",
-  "version": "2.0.0",
   "private": true,
+  "name": "pt-plugin-plus",
+  "archiverName": "PT-Plugin-Plus",
+  "displayName": "PT 助手 Plus",
+  "version": "2.0.0",
+  "homepage": "https://github.com/ronggang/PT-Plugin-Plus",
   "author": {
     "name": "ronggang",
     "url": "https://github.com/ronggang"
@@ -10,11 +13,20 @@
     {
       "name": "Rhilip",
       "url": "https://github.com/Rhilip"
+    },
+    {
+      "name": "ted423",
+      "url": "https://github.com/ted423"
+    },
+    {
+      "name": "luckiestone",
+      "url": "https://github.com/luckiestone"
+    },
+    {
+      "name": "Yifan Tong",
+      "url": "https://github.com/tongyifan"
     }
   ],
-  "archiverName": "PT-Plugin-Plus",
-  "displayName": "PT 助手 Plus",
-  "homepage": "https://github.com/ronggang/PT-Plugin-Plus",
   "scripts": {
     "serve": "vue-cli-service build --mode development --watch",
     "build": "vue-cli-service build",

@@ -1,9 +1,8 @@
 import { ISiteMetadata } from '../../types';
-import urlparse from 'url-parse';
-import dayjs from '@ptpp/utils/plugins/dayjs';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'Legit Torrents',
+  timezoneOffset: '-0700',
   description: 'Legit Torrents is a Public site for free and legal torrents',
   url: 'http://www.legittorrents.info/',
   search: {
@@ -23,14 +22,12 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: 'a[title][href^="index.php?page=torrent-details&id="]',
         attr: 'href',
-        filters: [
-          (q:string) => urlparse(q, true).query.id
-        ]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       title: { selector: 'a[title][href^="index.php?page=torrent-details&id="]' },
       url: { selector: 'a[title][href^="index.php?page=torrent-details&id="]', attr: 'href' },
       link: { selector: 'a[href^="download.php?id="]', attr: 'href' },
-      time: { selector: 'td time', filters: [(q:string) => dayjs(`${q} -07:00`, 'DD/MM/YYYY Z').unix()] },
+      time: { selector: 'td time', filters: [{ name: 'parseTime', args: ['DD/MM/YYYY'] }] },
       seeders: { selector: 'td:nth-child(5)' },
       leechers: { selector: 'td:nth-child(6)' },
       completed: { selector: 'td:nth-child(7)' }

@@ -2,7 +2,7 @@ import { ISearchFilter, ISiteMetadata } from '../../types';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import { AxiosRequestConfig } from 'axios';
 import urljoin from 'url-join';
-import { findThenParseSizeString, parseSizeString } from '@ptpp/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 import Sizzle from 'sizzle';
 
@@ -126,11 +126,11 @@ export const siteMetadata: ISiteMetadata = {
       // page: '/profile/$user.name$',
       uploaded: {
         selector: ["span.centerTopBar div[title^='Uploaded'] span"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: ["span.centerTopBar div[title^='Downloaded'] span"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       bonus: {
         selector: ['span.centerTopBar span.total-TL-points'],

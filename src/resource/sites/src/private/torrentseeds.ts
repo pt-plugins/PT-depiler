@@ -1,6 +1,5 @@
 import { ISiteMetadata, ITorrent } from '../../types';
 import PrivateSite from '../schema/AbstractPrivateSite';
-import urlparse from 'url-parse';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'TorrentSeeds',
@@ -23,7 +22,7 @@ export const siteMetadata: ISiteMetadata = {
   selector: {
     search: {
       rows: { selector: 'table.table-bordered > tbody > tr[class*="torrent_row_"]' },
-      id: { selector: 'a[href^="/details.php?id="]', attr: 'href', filters: [(q: string) => urlparse(q, true).query.id] },
+      id: { selector: 'a[href^="/details.php?id="]', attr: 'href', filters: [{ name: 'querystring', args: ['id'] }] },
       title: { selector: 'td:has(a[href^="/details.php?id="]) b' },
       subTitle: { text: '' },
       url: { selector: 'a[href^="/details.php?id="]', attr: 'href' },

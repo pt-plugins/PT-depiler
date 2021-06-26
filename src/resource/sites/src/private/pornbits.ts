@@ -1,7 +1,7 @@
 import { ISearchFilter, ISiteMetadata } from '../../types';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import { AxiosRequestConfig } from 'axios';
-import { findThenParseValidTimeString, parseSizeString } from '@ptpp/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'Pornbits',
@@ -74,10 +74,8 @@ export const siteMetadata: ISiteMetadata = {
       joinTime: {
         selector: '#content > div > div.col-md-3 > div:nth-child(5)',
         filters: [
-          (query: string) => {
-            query = query.split(':')[1].trim();
-            return findThenParseValidTimeString(query);
-          }
+          (query: string) => query.split(':')[1].trim(),
+          { name: 'parseTime' }
         ]
       },
       seeding: {

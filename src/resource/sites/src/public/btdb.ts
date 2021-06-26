@@ -1,7 +1,6 @@
 import { ISearchFilter, ISiteMetadata } from '../../types';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import { AxiosRequestConfig } from 'axios';
-import { parseTimeToLive } from '@ptpp/utils/filter';
 
 // FIXME Cloudflare DDoS Protect
 export const siteMetadata: ISiteMetadata = {
@@ -18,7 +17,7 @@ export const siteMetadata: ISiteMetadata = {
       title: { selector: 'h2.item-title a', attr: 'title' },
       url: { selector: 'h2.item-title a', attr: 'href' },
       link: { selector: ['a[href^="magnet:?xt="]', 'a[href$=".torrent"]'], attr: 'href' },
-      time: { selector: 'small:nth-of-type(5) strong', filters: [parseTimeToLive] },
+      time: { selector: 'small:nth-of-type(5) strong', filters: [{ name: 'parseTTL' }] },
       size: { selector: 'small:nth-of-type(1) strong' },
       seeders: { selector: 'small:nth-of-type(3) strong' },
       leechers: { selector: 'small:nth-of-type(4) strong' },

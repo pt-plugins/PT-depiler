@@ -1,7 +1,6 @@
 import { ISearchFilter, ISiteMetadata } from '../../types';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import { AxiosRequestConfig } from 'axios';
-import { parseTimeToLive } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'IBit',
@@ -17,7 +16,7 @@ export const siteMetadata: ISiteMetadata = {
       id: { selector: 'a[href^="/torrent/"]', attr: 'href', filters: [(q:string) => q.match(/--([a-zA-Z0-9])\//)![1]] },
       title: { selector: 'a[href^="/torrent/"]' },
       url: { selector: 'a[href^="/torrent/"]', attr: 'href' },
-      time: { selector: 'td:nth-child(4)', filters: [parseTimeToLive] },
+      time: { selector: 'td:nth-child(4)', filters: [{ name: 'parseTTL' }] },
       size: { selector: 'td:nth-child(5)' },
       seeders: { selector: 'td:nth-child(6)' },
       leechers: { selector: 'td:nth-child(7)' },

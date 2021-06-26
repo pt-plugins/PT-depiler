@@ -1,5 +1,4 @@
 import { ISiteMetadata } from '../../types';
-import { parseTimeToLive } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'Magnet4You',
@@ -16,7 +15,7 @@ export const siteMetadata: ISiteMetadata = {
       title: { selector: 'a[href^="magnet/"]' },
       url: { selector: 'a[href^="magnet/"]', attr: 'href' },
       link: { selector: 'a[href^="magnet:?xt="]', attr: 'href' },
-      time: { selector: 'td:nth-child(2)', filters: [parseTimeToLive] },
+      time: { selector: 'td:nth-child(2)', filters: [{ name: 'parseTTL' }] },
       size: { selector: 'td:nth-child(3)' },
       seeders: { selector: 'td:nth-child(5)', filters: [(q:string) => q.replace('K', '000')] },
       leechers: { selector: 'td:nth-child(6)', filters: [(q:string) => q.replace('K', '000')] },

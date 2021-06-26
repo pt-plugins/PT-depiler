@@ -1,6 +1,4 @@
 import { ISiteMetadata } from '../../types';
-import urlparse from 'url-parse';
-import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'FileList',
@@ -42,7 +40,7 @@ export const siteMetadata: ISiteMetadata = {
   selector: {
     search: {
       rows: { selector: 'div.visitedlinks:last > div[class=torrentrow]' },
-      id: { selector: '> div:eq(1) a:first', attr: 'href', filters: [(q:string) => urlparse(q, true).query.id] },
+      id: { selector: '> div:eq(1) a:first', attr: 'href', filters: [{ name: 'querystring', args: ['id'] }] },
       title: { selector: '> div:eq(1) a:first' },
       url: { selector: '> div:eq(1) a:first', attr: 'href' },
       link: { selector: '> div:eq(3) a:first', attr: 'href' },
@@ -77,27 +75,27 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: "a[href*='userdetails.php']:last",
         attr: 'href',
-        filters: [(query: string) => urlparse(query, true).query.id]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       name: {
         selector: "a[href*='userdetails.php']:last"
       },
       messageCount: {
         selector: ".alert a[href*='messages.php']",
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       bonus: {
         selector: "a[href='/shop.php']",
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       // page: '/userdetails.php?id=$user.id$',
       uploaded: {
         selector: "td.colhead:contains('Uploaded') + td",
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: "td.colhead:contains('Downloaded') + td",
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       ratio: {
         selector: "td.colhead:contains('Share ratio') + td",
@@ -109,19 +107,17 @@ export const siteMetadata: ISiteMetadata = {
       joinTime: {
         selector: "td.colhead:contains('Join'):contains('date') + td",
         filters: [
-          (query: string) => {
-            query = query.split(' (')[0];
-            return findThenParseValidTimeString(query);
-          }
+          (query: string) => query.split(' (')[0],
+          { name: 'parseTime' }
         ]
       },
       seeding: {
         selector: "td.colhead:contains('Seed'):contains('bonus') + td > div > b:first",
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       seedingSize: {
         selector: "td.colhead:contains('Seed'):contains('bonus') + td > div > b:nth-child(2):last", // FIXME  这里同时用了 :nth-child(2):last 似乎有问题
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       }
     }
   }

@@ -1,6 +1,6 @@
 import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
-import { findThenParseSizeString, parseSizeString } from '@ptpp/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 import Sizzle from 'sizzle';
 
@@ -153,7 +153,7 @@ export const siteMetadata: ISiteMetadata = {
   selector: {
     search: {
       rows: { selector: 'table[width="1200"] > tbody > tr:has(a[href^="download.php/"])' },
-      id: { selector: 'a[href^="details.php?id="]', filters: [(query:string) => urlparse(query, true).query.id] },
+      id: { selector: 'a[href^="details.php?id="]', filters: [{ name: 'querystring', args: ['id'] }] },
       title: { selector: 'a[href^="details.php?id="] b' },
       url: { selector: 'a[href^="details.php?id="]', attr: 'href' },
       link: { selector: 'a[href^="download.php/"]', attr: 'href' },
@@ -187,11 +187,11 @@ export const siteMetadata: ISiteMetadata = {
       // page: '/userdetailsmore.php?id=$user.id$'
       uploaded: {
         selector: ["td.rowhead:contains('Uploaded') + td"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: ["td.rowhead:contains('Downloaded') + td"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       levelName: {
         selector: "td.rowhead:contains('Class') + td"

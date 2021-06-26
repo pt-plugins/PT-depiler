@@ -1,5 +1,4 @@
 import { ISiteMetadata } from '../../types';
-import urlparse from 'url-parse';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'BT.etree',
@@ -14,7 +13,7 @@ export const siteMetadata: ISiteMetadata = {
   selector: {
     search: {
       rows: { selector: 'table[bgcolor="#CCCCCC"] tbody tr:gt(1)' }, // 不要第一行
-      id: { selector: 'td:nth-child(2) a.details_link', attr: 'href', filters: [(q:string) => urlparse(q, true).query.torrentId] },
+      id: { selector: 'td:nth-child(2) a.details_link', attr: 'href', filters: [{ name: 'querystring', args: ['id'] }] },
       title: { selector: 'td:nth-child(2) a.details_link b' },
       url: { selector: 'td:nth-child(2) a.details_link', attr: 'href' },
       link: { selector: 'td:nth-child(3) a', attr: 'href' },

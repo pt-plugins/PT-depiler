@@ -43,12 +43,12 @@ export const siteMetadata: ISiteMetadata = {
       uploaded: {
         selector: ["a.user-info-bar__link[href*='type=seeding']:first"],
         attr: 'title',
-        filters: [parseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: ["a.user-info-bar__link[href*='type=leeching']:first"],
         attr: 'title',
-        filters: [parseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       ratio: {
         selector: "ul.list > li:contains('Ratio:')",

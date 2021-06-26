@@ -1,5 +1,5 @@
 import { ISiteMetadata } from '../../types';
-import { findThenParseNumberString, parseSizeString } from '@ptpp/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 
 const parseUpDl = (element: HTMLElement) => {
@@ -126,7 +126,7 @@ export const siteMetadata: ISiteMetadata = {
   selector: {
     search: {
       rows: { selector: 'table#torrenttable > tbody > tr:has(a[href^="/download/"])' },
-      id: { selector: 'a[href^="/torrent/"]', attr: 'href', filters: [findThenParseNumberString] },
+      id: { selector: 'a[href^="/torrent/"]', attr: 'href', filters: [{ name: 'parseNumber' }] },
       title: { selector: 'a[href^="/torrent/"]' },
       url: { selector: 'a[href^="/torrent/"]', attr: 'href' },
       link: { selector: 'a[href^="/download/"]', attr: 'href' },
@@ -136,7 +136,7 @@ export const siteMetadata: ISiteMetadata = {
       category: { text: 'ALL' },
       seeders: { selector: 'td:nth-last-child(3)' },
       leechers: { selector: 'td:nth-last-child(2)' },
-      completed: { selector: 'td:nth-last-child(4)', filters: [findThenParseNumberString] },
+      completed: { selector: 'td:nth-last-child(4)', filters: [{ name: 'parseNumber' }] },
       comments: { selector: 'a[href*="#comments"]' }
     },
     userInfo: {

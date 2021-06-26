@@ -3,7 +3,7 @@
  * Rhilip, 2021.04.23
  */
 import { ISiteMetadata } from '../../types';
-import { parseSizeString, parseTimeToLive } from '@ptpp/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'BTN',
@@ -31,7 +31,7 @@ export const siteMetadata: ISiteMetadata = {
       title: { selector: "[style='float:none;']:first", attr: 'title' },
       url: { selector: "[title='View Torrent']:first", attr: 'href' },
       link: { selector: "[title='Download']", attr: 'href' },
-      time: { selector: "div:contains('Added:')", filters: [parseTimeToLive] }
+      time: { selector: "div:contains('Added:')", filters: [{ name: 'parseTTL' }] }
     },
 
     userInfo: {

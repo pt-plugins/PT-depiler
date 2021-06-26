@@ -44,11 +44,11 @@ export const siteMetadata: ISiteMetadata = {
             if (/ago$/.test(q)) { // 4-mins-ago
               return parseTimeToLive(q.replace('-', ''));
             } else if (/^Today-/.test(q)) { // Today-22:03
-              return dayjs(q.replace('Today-', '')).unix();
+              return dayjs(q.replace('Today-', '')).valueOf();
             } else if (/Y-day-\d+/.test(q)) { // Y-day-2020
-              return dayjs().add(-1, 'day').unix();
+              return dayjs().add(-1, 'day').valueOf();
             } else { // 12-27-2019
-              return dayjs(q, 'MM-DD-YYYY').unix();
+              return dayjs(q, 'MM-DD-YYYY').valueOf();
             }
           }
         ]

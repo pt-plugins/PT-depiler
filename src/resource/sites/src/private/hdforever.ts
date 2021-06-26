@@ -1,6 +1,5 @@
 import { ISiteMetadata, IUserInfo, ITorrent } from '../../types';
 import GazelleJSONAPI, { groupBrowseResult, groupTorrent } from '../schema/GazelleJSONAPI';
-import { findThenParseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'HD-Forever',
@@ -14,7 +13,7 @@ export const siteMetadata: ISiteMetadata = {
     userInfo: {
       seedingSize: {
         selector: ['table.torrent_table:first td.nobr'],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       bonus: {
         selector: "li#BonusPoints a[href*='store.php']",

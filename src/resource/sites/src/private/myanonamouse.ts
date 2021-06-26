@@ -3,8 +3,6 @@ import PrivateSite from '../schema/AbstractPrivateSite';
 import Sizzle from 'sizzle';
 import {
   findThenParseNumberString,
-  findThenParseSizeString,
-  findThenParseValidTimeString,
   parseSizeString
 } from '@ptpp/utils/filter';
 import { browser } from 'webextension-polyfill-ts';
@@ -195,11 +193,11 @@ export const siteMetadata: ISiteMetadata = {
       },
       uploaded: {
         selector: "td.rowhead:contains('Uploaded'):eq(0) + td",
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: "td.rowhead:contains('Downloaded'):eq(0) + td",
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       levelName: {
         selector: "td.rowhead:contains('Class') + td"
@@ -217,7 +215,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: "td.rowhead:contains('Join'):contains('date') + td",
         filters: [
           (query:string) => query.split(' (')[0],
-          findThenParseValidTimeString
+          { name: 'parseTime' }
         ]
       }
     }

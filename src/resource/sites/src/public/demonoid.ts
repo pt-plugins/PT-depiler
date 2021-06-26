@@ -1,5 +1,4 @@
 import { ISiteMetadata } from '../../types';
-import urlparse from 'url-parse';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'Demonoid',
@@ -74,9 +73,7 @@ export const siteMetadata: ISiteMetadata = {
       category: {
         selector: 'a[href*="category"]',
         attr: 'href',
-        filters: [
-          (q:string) => urlparse(q, true).query.category
-        ]
+        filters: [{ name: 'querystring', args: ['category'] }]
       },
       author: { selector: 'a[href^="/users/"]' }
     }

@@ -38,11 +38,11 @@ export const siteMetadata: ISiteMetadata = {
         filters: [
           (q:string) => {
             if (q.includes('Today')) {
-              return dayjs().unix();
+              return dayjs().valueOf();
             } else if (q.includes('Yesterday')) {
-              return dayjs().add(-1, 'day').unix();
+              return dayjs().add(-1, 'day').valueOf();
             } else {
-              return dayjs(`${q} -07:00`, 'DD/MM/YY Z').unix(); // 02/01/06 -07:00
+              return dayjs(`${q} -07:00`, 'DD/MM/YY Z').valueOf(); // 02/01/06 -07:00
             }
           }
         ]

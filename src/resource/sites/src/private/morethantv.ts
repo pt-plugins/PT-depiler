@@ -1,6 +1,4 @@
 import { ISiteMetadata, ITorrent } from '../../types';
-import urlparse from 'url-parse';
-import { findThenParseSizeString } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import Sizzle from 'sizzle';
@@ -64,9 +62,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: 'a[href^="/torrents.php?action=download"]',
         attr: 'href',
-        filters: [
-          (query:string) => urlparse(query, true).query.id
-        ]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       link: { selector: 'a[href^="/torrents.php?action=download"]', attr: 'href' },
       subTitle: { selector: ':self' }
@@ -75,9 +71,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: ["a.username[href*='user.php']:first"],
         attr: 'href',
-        filters: [
-          (query: string) => parseInt(urlparse(query, true).query.id || '')
-        ]
+        filters: [{ name: 'querystring', args: ['id'] }, parseInt]
       },
       name: {
         selector: ["a.username[href*='user.php']:first"]
@@ -94,11 +88,11 @@ export const siteMetadata: ISiteMetadata = {
       // 'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', 'bonus', 'seeding', 'seedingSize'
       uploaded: {
         selector: "ul.stats > li:contains('Uploaded'):contains('B')",
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: "ul.stats > li:contains('Downloaded')",
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       ratio: {
         selector: "ul.stats > li:contains('Ratio:')",
@@ -141,7 +135,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       seedingSize: {
         selector: 'ul.stats > li:contains("Seeding Size:")',
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       }
     }
   }

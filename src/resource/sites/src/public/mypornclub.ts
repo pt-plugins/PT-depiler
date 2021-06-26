@@ -1,5 +1,4 @@
 import { ISiteMetadata } from '../../types';
-import { parseTimeToLive } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'MyPornClub',
@@ -15,7 +14,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: 'div.torrent_element_info span:nth-child(2)',
         filters: [
           (q:string) => q.replace('Last year', '1 year ago').replace('Last month', '1 month ago'),
-          parseTimeToLive
+          { name: 'parseTTL' }
         ]
       },
       size: { selector: 'div.torrent_element_info span:nth-child(4)' },

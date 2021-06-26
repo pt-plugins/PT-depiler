@@ -1,11 +1,5 @@
 import { ISiteMetadata, ETorrentStatus } from '../../types';
-import urlparse from 'url-parse';
-import {
-  findThenParseNumberString,
-  findThenParseSizeString,
-  findThenParseValidTimeString,
-  parseSizeString
-} from '@ptpp/utils/filter';
+import { findThenParseSizeString } from '@ptpp/utils/filter';
 
 const categoryMap = {
   29: 'Movies/HD', // Movies Фильмы
@@ -56,9 +50,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: 'a[href^="download.php?id="]',
         attr: 'href',
-        filters: [
-          (query: string) => urlparse(query, true).query.id
-        ]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       title: { selector: 'a[href^="/details/id"]' },
       url: { selector: 'a[href^="/details/id"]', attr: 'href' },
@@ -76,7 +68,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: ' a[href*="/browse/cat"]',
         attr: 'href',
         filters: [
-          findThenParseNumberString,
+          { name: 'parseNumber' },
           (catId: keyof typeof categoryMap) => categoryMap[catId] || 'Other'
         ]
       },
@@ -132,17 +124,17 @@ export const siteMetadata: ISiteMetadata = {
       },
       messageCount: {
         selector: '#message_box > a > font',
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       uploaded: {
         selector: "div.col-8.mb-4 > font[color='green']",
         elementProcess: nextTextSibling,
-        filters: [parseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: "div.col-8.mb-4 > font[color='darkred']",
         elementProcess: nextTextSibling,
-        filters: [parseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       ratio: {
         selector: "div.col-8.mb-4 > font[color='#1900D1']",
@@ -154,14 +146,14 @@ export const siteMetadata: ISiteMetadata = {
       // page: '/user/$user.id$',
       joinTime: {
         selector: '#profile_right > table.inlay > tbody > tr:nth-child(1) > td:nth-child(2)',
-        filters: [findThenParseValidTimeString]
+        filters: [{ name: 'parseTime' }]
       },
       levelName: {
         selector: '#profile_left > table > tbody > tr > td:nth-child(2) > p:nth-child(1) > u > span'
       },
       seeding: {
         selector: ["img[title='Distributes'] + font > font"],
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       seedingSize: {
         text: 'N/A'

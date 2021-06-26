@@ -1,3 +1,5 @@
+import fileSize from 'filesize';
+
 export const sizePattern = /^(\d*\.?\d+)(.*[^ZEPTGMK])?([ZEPTGMK](B|iB))s?$/i;
 
 export function parseSizeString (size: string): number {
@@ -31,4 +33,8 @@ export function parseSizeString (size: string): number {
 export function findThenParseSizeString (query: string): number {
   const queryMatch = query.trim().replace(/[ ,\n]/g, '').match(/([\d.]+ ?[ZEPTGMK]?i?B)/);
   return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0;
+}
+
+export function formatSizeString (size: number, options = {}): string {
+  return fileSize(size, { standard: 'iec', ...options });
 }

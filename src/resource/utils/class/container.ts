@@ -9,4 +9,8 @@ export default abstract class Container {
     }
     return this.initializedObject[id] as T;
   }
+
+  public cleanUpObject () {
+    this.initializedObject = {};
+  }
 }

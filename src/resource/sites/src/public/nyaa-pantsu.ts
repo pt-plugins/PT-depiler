@@ -140,7 +140,7 @@ export const siteMetadata: ISiteMetadata = {
             if (/下午/.test(q)) {
               normalTime.add(12, 'hours');
             }
-            return normalTime.unix();
+            return normalTime.valueOf();
           }
         ]
       },

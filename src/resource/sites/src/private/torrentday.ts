@@ -1,6 +1,5 @@
 import { ISiteMetadata } from '../../types';
 import urlparse from 'url-parse';
-import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@ptpp/utils/filter';
 
 const categoryMap = {
   29: 'Anime',
@@ -108,37 +107,37 @@ export const siteMetadata: ISiteMetadata = {
       },
       uploaded: {
         selector: ["span.detailsInfoSpan:contains('Up: ') > span"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: ["span.detailsInfoSpan:contains('Down: ') > span"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       ratio: {
         selector: "span.detailsInfoSpan:contains('Ratio: ') > span",
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       levelName: {
         selector: "span.detailsInfoSpan:contains('Class: ') > span"
       },
       bonus: {
         selector: ["a[href='/mybonus.php']"],
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       joinTime: {
         selector: "span.detailsInfoSpan:contains('Joined: ') > span",
-        filters: [findThenParseValidTimeString]
+        filters: [{ name: 'parseTime' }]
       },
       seeding: {
         selector: ["a[href*='/peers?u='] > img[alt='downloads'] + span"],
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       seedingSize: {
         text: 'N/A'
       },
       messageCount: {
         selector: ["a[href='/m']:contains('You have')"],
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       }
     }
   }

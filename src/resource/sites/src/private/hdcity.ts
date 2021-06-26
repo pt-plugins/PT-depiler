@@ -1,6 +1,5 @@
 import { ISiteMetadata, ETorrentStatus } from '../../types';
 import NexusPHP from '../schema/NexusPHP';
-import { findThenParseSizeString } from '@ptpp/utils/filter';
 
 const levelMap = {
   0: '堕落者(Peasant)',
@@ -74,7 +73,7 @@ export const siteMetadata: ISiteMetadata = {
       time: { selector: ['td:nth-child(8)'] },
       size: {
         selector: ["nobr:contains('B')"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       seeders: { selector: ["a[href*='#seeders'] font"] },
       leechers: {

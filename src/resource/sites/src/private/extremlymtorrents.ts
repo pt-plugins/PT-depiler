@@ -1,7 +1,4 @@
 import { ISiteMetadata } from '../../types';
-import urlparse from 'url-parse';
-import { findThenParseSizeString } from '@ptpp/utils/filter';
-import dayjs from '@ptpp/utils/plugins/dayjs';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'ExtremlymTorrents',
@@ -98,7 +95,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: 'a[href^="file.php?id="]',
         attr: 'href',
-        filters: [(query: string) => urlparse(query, true).query.id]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       title: {
         selector: 'a[href^="file.php?id="] b'
@@ -116,9 +113,7 @@ export const siteMetadata: ISiteMetadata = {
       category: {
         selector: 'a[href^="torrents.php?cat="]',
         attr: 'href',
-        filters: [
-          (query: string) => urlparse(query, true).query.cat
-        ]
+        filters: [{ name: 'querystring', args: ['cat'] }]
       },
       seeders: { selector: 'td:nth-last-child(3)' },
       leechers: { selector: 'td:nth-last-child(2)' },
@@ -134,7 +129,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: "a[href*='account-details.php']:first",
         attr: 'href',
-        filters: [(query: string) => urlparse(query, true).query.id || '']
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       name: {
         selector: "a[href*='account-details.php'][href*='id=']:first"
@@ -142,20 +137,18 @@ export const siteMetadata: ISiteMetadata = {
       // page: '/account-details.php?id=$user.id$'
       uploaded: {
         selector: ["td.ttable_col2:contains('Uploaded:') + td"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: ["td.ttable_col2:contains('Downloaded:') + td"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       levelName: {
         selector: "td.ttable_col2:contains('User Class:') + td"
       },
       joinTime: {
         selector: "td.ttable_col2:contains('Joined:') + td",
-        filters: [
-          (query: string) => dayjs(query).isValid() ? dayjs(query).valueOf() : query
-        ]
+        filters: [{ name: 'parseTime' }]
       },
       seeding: { text: 'N/A' },
       seedingSize: { text: 'N/A' },

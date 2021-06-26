@@ -1,7 +1,6 @@
 import { ISiteMetadata } from '../../types';
 import { parseTimeToLive } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
-import urlparse from 'url-parse';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'TorrentGalaxy.org',
@@ -75,7 +74,7 @@ export const siteMetadata: ISiteMetadata = {
           if (/ago/.test(q)) {
             return parseTimeToLive(q);
           } else {
-            return dayjs(q, 'DD/MM/YY Z').unix();
+            return dayjs(q, 'DD/MM/YY Z').valueOf();
           }
         }]
       },
@@ -85,9 +84,7 @@ export const siteMetadata: ISiteMetadata = {
       category: {
         selector: 'div a[href^="/torrents.php?cat="]',
         attr: 'href',
-        filters: [
-          (q:string) => urlparse(q, true).query.cat!
-        ]
+        filters: [{ name: 'querystring', args: ['cat'] }]
       },
       comments: { text: 0, selector: 'a[href^="/comments.php]' },
       author: { selector: 'span.username' }

@@ -4,9 +4,6 @@
  */
 import { ISiteMetadata } from '../../types';
 import Sizzle from 'sizzle';
-import { findThenParseNumberString, findThenParseSizeString, parseTimeToLive } from '@ptpp/utils/filter';
-import urlparse from 'url-parse';
-import dayjs from '@ptpp/utils/plugins/dayjs';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'bB',
@@ -60,7 +57,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: 'td:eq(3)',
         filters: [
           (query: string) => query.replace(' and', ''),
-          parseTimeToLive
+          { name: 'parseTTL' }
         ]
       },
       size: { selector: 'td:eq(4)' },
@@ -77,7 +74,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: ['.username'],
         attr: 'href',
-        filters: [(query:string) => urlparse(query, true).query.id]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       name: {
         selector: ['.username']
@@ -86,21 +83,21 @@ export const siteMetadata: ISiteMetadata = {
       uploaded: {
         selector: ["li:contains('Uploaded:') > span"],
         attr: 'title',
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: ["li:contains('Downloaded:') > span"],
         attr: 'title',
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       ratio: {
         selector: ["li:contains('Ratio:') > span"],
         attr: 'title',
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       seeding: {
         selector: ["li:contains('Seeding:')"],
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       levelName: {
         selector: ["li:contains('Class:')"],
@@ -113,14 +110,12 @@ export const siteMetadata: ISiteMetadata = {
       },
       bonus: {
         selector: ["li:contains('Bonus Points:') > a"],
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       joinTime: {
         selector: ["li:contains('Joined:') > span"],
         attr: 'title',
-        filters: [
-          (query: string) => dayjs(query).isValid() ? dayjs(query).valueOf() : query
-        ]
+        filters: [{ name: 'parseTime' }]
       }
     }
   }

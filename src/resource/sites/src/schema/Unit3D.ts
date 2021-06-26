@@ -1,11 +1,6 @@
 import PrivateSite from '../schema/AbstractPrivateSite';
 import { ISiteMetadata, IUserInfo, ETorrentStatus } from '../../types';
-import {
-  findThenParseNumberString,
-  findThenParseSizeString,
-  parseSizeString,
-  parseTimeToLive
-} from '@ptpp/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 import urljoin from 'url-join';
 
@@ -64,7 +59,7 @@ export default class Unit3D extends PrivateSite {
           ]
         },
         // /resources/views/torrent/results.blade.php#L399-L401
-        time: { selector: ['time'], filters: [parseTimeToLive] },
+        time: { selector: ['time'], filters: [{ name: 'parseTTL' }] },
         // /resources/views/torrent/results.blade.php#L402-L404
         size: {
           selector: ['td:eq(7):contains("B")']
@@ -149,15 +144,15 @@ export default class Unit3D extends PrivateSite {
         },
         uploaded: {
           selector: ['div.ratio-bar span:has( > i.fa-arrow-up)'],
-          filters: [findThenParseSizeString]
+          filters: [{ name: 'parseSize' }]
         },
         downloaded: {
           selector: ['div.ratio-bar span:has( > i.fa-arrow-down)'],
-          filters: [findThenParseSizeString]
+          filters: [{ name: 'parseSize' }]
         },
         bonus: {
           selector: ['div.ratio-bar span:has( > i.fa-coins)'],
-          filters: [findThenParseNumberString]
+          filters: [{ name: 'parseNumber' }]
         },
         seeding: {
           selector: ['div.ratio-bar span:has( > i.fa-upload)'],
@@ -205,7 +200,7 @@ export default class Unit3D extends PrivateSite {
           filters: [
             (query: string) => {
               query = query.replace(RegExp(joinTimeTrans.join('|')), '').trim();
-              return dayjs(query).isValid() ? dayjs(query).unix() : query;
+              return dayjs(query).isValid() ? dayjs(query).valueOf() : query;
             }
           ]
         }

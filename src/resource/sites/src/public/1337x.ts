@@ -91,7 +91,7 @@ export const siteMetadata: ISiteMetadata = {
              * - (today) 12:25am
              */
             q = q.replace("'", '').replace('.', '');
-            return dayjs(q, ['MMM Do YY', 'HH:mma', 'mma MMM Do']).unix();
+            return dayjs(q, ['MMM Do YY', 'HH:mma', 'mma MMM Do']).valueOf();
           }
         ]
       },

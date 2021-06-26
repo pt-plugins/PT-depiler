@@ -1,6 +1,5 @@
 import { ISearchFilter, ISiteMetadata } from '../../types';
-import urlparse from 'url-parse';
-import { findThenParseNumberString, findThenParseValidTimeString, parseSizeString, extractContent } from '@ptpp/utils/filter';
+import { parseSizeString, extractContent } from '@ptpp/utils/filter';
 import Sizzle from 'sizzle';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import { AxiosRequestConfig } from 'axios';
@@ -87,22 +86,22 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: "a[href*='userdetails.php']:first",
         attr: 'href',
-        filters: [(query: string) => urlparse(query, true).query.id]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       name: {
         selector: "a[href*='userdetails.php']:first"
       },
       messageCount: {
         selector: "td[style*='background'] > b > a[href*='messages.php'], a[href='#notice']",
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       uploaded: {
         selector: ["td.rowhead:contains('上传量') + td", "td.rowhead:contains('上傳量') + td"],
-        filters: [parseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: ["td.rowhead:contains('下载量') + td", "td.rowhead:contains('下載量') + td"],
-        filters: [parseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       ratio: {
         selector: "td.rowhead:contains('分享率') + td",
@@ -117,7 +116,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       joinTime: {
         selector: ["td.rowhead:contains('注册日期') + td", "td.rowhead:contains('註冊日期') + td"],
-        filters: [findThenParseValidTimeString]
+        filters: [{ name: 'parseTime' }]
       },
       seeding: {
         text: 0,

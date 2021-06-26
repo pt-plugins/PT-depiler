@@ -11,7 +11,7 @@ export const serverTypeFullList =
     });
 
 class BackupServerFactory extends Container {
-  protected readonly serverTypeFullList = serverTypeFullList;
+  protected readonly serverTypeList = serverTypeFullList;
 
   public async dynamicImport (type: string) {
     return await import(
@@ -26,7 +26,7 @@ class BackupServerFactory extends Container {
   }
 
   // noinspection JSUnusedGlobalSymbols
-  public async getClient (config: IBackupConfig): Promise<IBackupServer<IBackupConfig>> {
+  public async getBackupServer (config: IBackupConfig): Promise<IBackupServer<IBackupConfig>> {
     return await this.resolveObject<IBackupServer<IBackupConfig>>(`backupServer-${config.id}`, async () => {
       const { default: Server } = await this.dynamicImport(config.type);
       // @ts-ignore

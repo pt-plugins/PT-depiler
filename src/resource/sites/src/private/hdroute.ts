@@ -1,6 +1,4 @@
 import { ISiteMetadata } from '../../types';
-import urlparse from 'url-parse';
-import { findThenParseSizeString, findThenParseValidTimeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'HDRoute',
@@ -78,7 +76,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: [".headerRightInfo a[href*='userdetail.php']"],
         attr: 'href',
-        filters: [(query: string) => urlparse(query, true).query.id || '']
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       name: {
         selector: ".headerRightInfo a[href*='userdetail.php']"
@@ -86,11 +84,11 @@ export const siteMetadata: ISiteMetadata = {
       bonus: { text: 'N/A' },
       uploaded: {
         selector: ".headerRightInfo span:contains('上传量: ') > span",
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: ".headerRightInfo span:contains('下载量: ') > span",
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       levelName: {
         selector: ".userdetail-list-title:contains('用户等级') + div",
@@ -98,14 +96,14 @@ export const siteMetadata: ISiteMetadata = {
       },
       joinTime: {
         selector: ".userdetail-list-title:contains('注册日期') + div",
-        filters: [findThenParseValidTimeString]
+        filters: [{ name: 'parseTime' }]
       },
       seeding: {
         selector: ".header-user-data a[href*='list_seeding.php']"
       },
       seedingSize: {
         selector: ".header-user-data a[href*='list_seeding.php'] + span",
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       }
     }
   }

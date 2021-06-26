@@ -39,7 +39,7 @@ export const siteMetadata: ISiteMetadata = {
             q = q.replace('Date/time submitted: ', '');
             q = q.replace('Today', dayjs().format('DD/MM/YYYY'));
             q = q.replace('Yesterday', dayjs().add(-1, 'day').format('DD/MM/YYYY'));
-            return dayjs(q, 'DD/MM/YYYY HH:mm').unix();
+            return dayjs(q, 'DD/MM/YYYY HH:mm').valueOf();
           }
         ]
       },

@@ -1,6 +1,5 @@
 import { ISiteMetadata, IUserInfo } from '../../types';
 import GazelleJSONAPI from '../schema/GazelleJSONAPI';
-import { findThenParseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'DIC',
@@ -15,7 +14,7 @@ export const siteMetadata: ISiteMetadata = {
     userInfo: {
       seedingSize: {
         selector: ['table#bprates_overview > tbody > tr > td:eq(1)'],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       bonus: {
         selector: ['div#content > div.header > h3'],

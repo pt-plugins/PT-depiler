@@ -1,6 +1,5 @@
 import { ISiteMetadata, IUserInfo } from '../../types';
 import PrivateSite from '../schema/AbstractPrivateSite';
-import { findThenParseNumberString, findThenParseSizeString, parseSizeString } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 import urlparse from 'url-parse';
 import Sizzle from 'sizzle';
@@ -92,22 +91,22 @@ export default class AvistaZ extends PrivateSite {
         },
         uploaded: {
           selector: ["td:contains('Uploaded') + td"],
-          filters: [findThenParseSizeString]
+          filters: [{ name: 'parseSize' }]
         },
         downloaded: {
           selector: ["td:contains('Downloaded') + td"],
-          filters: [findThenParseSizeString]
+          filters: [{ name: 'parseSize' }]
         },
         ratio: {
           selector: "td:contains('Ratio') + td",
-          filters: [findThenParseNumberString]
+          filters: [{ name: 'parseNumber' }]
         },
         levelName: {
           selector: "td:contains('Rank') + td"
         },
         bonus: {
           selector: ["td:contains('Bonus Points') + td"],
-          filters: [findThenParseNumberString]
+          filters: [{ name: 'parseNumber' }]
         },
         joinTime: {
           selector: "td:contains('Joined') + td",
@@ -120,7 +119,7 @@ export default class AvistaZ extends PrivateSite {
         },
         seeding: {
           selector: ["li:contains('Seeding'):first", "li:contains('Seeds'):first"],
-          filters: [findThenParseNumberString]
+          filters: [{ name: 'parseNumber' }]
         }
       }
     }
@@ -155,7 +154,7 @@ export default class AvistaZ extends PrivateSite {
           if (statusAnother && statusAnother.innerText.includes('seed')) { // 只统计做种状态的
             baseUserInfo.seedingSize += this.getFieldData(trAnother, {
               selector: 'span[title="File Size"]',
-              filters: [parseSizeString]
+              filters: [{ name: 'parseSize' }]
             });
           }
         });

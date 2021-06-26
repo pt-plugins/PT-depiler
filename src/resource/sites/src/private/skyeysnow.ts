@@ -1,6 +1,4 @@
 import { ISiteMetadata, ETorrentStatus } from '../../types';
-import urlparse from 'url-parse';
-import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@ptpp/utils/filter';
 import Sizzle from 'sizzle';
 
 export const siteMetadata: ISiteMetadata = {
@@ -41,9 +39,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: 'a[href^="/forum.php?mod=viewthread"]',
         attr: 'href',
-        filters: [
-          (query: string) => urlparse(query, true).query.tid
-        ]
+        filters: [{ name: 'querystring', args: ['tid'] }]
       }, // 帖子id
       title: { selector: 'td.torrent_title > a[title]', attr: 'title' },
       url: { selector: 'a[href^="/forum.php?mod=viewthread"]', attr: 'href' },
@@ -94,21 +90,20 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: '.vwmy a',
         attr: 'href',
-        filters: [(query:string) => urlparse(query, true).query.uid
-        ]
+        filters: [{ name: 'querystring', args: ['uid'] }]
       },
       name: { selector: '.vwmy a' },
       messageCount: {
         selector: ['a.a.showmenu.new'],
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       uploaded: {
         selector: "#psts li:contains('上传量')",
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: "#psts li:contains('下载量')",
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       levelName: {
         selector: "a[href='home.php?mod=spacecp&ac=usergroup']",
@@ -125,7 +120,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: "#pbbs > li:contains('注册时间')",
         filters: [
           (query:string) => query.replace('注册时间', '').trim(),
-          findThenParseValidTimeString
+          { name: 'parseTime' }
         ]
       },
       seeding: { // FIXME 没看到有 “即时保种数” 这栏

@@ -1,11 +1,5 @@
 import { ISiteMetadata } from '../../types';
-import {
-  findThenParseNumberString,
-  findThenParseSizeString,
-  findThenParseValidTimeString,
-  parseTimeToLive
-} from '@ptpp/utils/filter';
-import urlparse from 'url-parse';
+import { parseTimeToLive } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'IPTorrents',
@@ -63,10 +57,6 @@ export const siteMetadata: ISiteMetadata = {
       time: {
         selector: 'div.sub',
         filters: [
-          /**
-           *
-           * @param query
-           */
           (query: string) => {
             const queryMatch = query.match(/(?:\| )?([\d.]+ .+? ago)/);
             return queryMatch && queryMatch.length >= 2 ? parseTimeToLive(queryMatch[1]) : '';
@@ -110,47 +100,45 @@ export const siteMetadata: ISiteMetadata = {
             const queryMatch = query.match(/u\/(.+)/);
             return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : '';
           },
-          (query: string) => urlparse(query, true).query.id
+          { name: 'querystring', args: ['id'] }
         ]
       },
       messageCount: {
         selector: ["td[style*='background: red'] a[href*='messages.php']"],
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       name: {
         selector: 'h1.c0'
       },
       uploaded: {
         selector: "th:contains('Uploaded') + td",
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: "th:contains('Downloaded') + td",
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       ratio: {
         selector: "th:contains('Share ratio') + td",
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       levelName: {
         selector: "th:contains('Class') + td"
       },
       bonus: {
         selector: "a[href='/mybonus.php']",
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       joinTime: {
         selector: "th:contains('Join date') + td",
         filters: [
-          (query: string) => {
-            query = query.split(' (')[0];
-            return findThenParseValidTimeString(query);
-          }
+          (query: string) => query.split(' (')[0],
+          { name: 'parseTime' }
         ]
       },
       seeding: {
         selector: "th:contains('Seeding') + td",
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       seedingSize: {
         text: 'N/A'

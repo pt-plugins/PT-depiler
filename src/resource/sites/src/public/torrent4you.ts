@@ -1,5 +1,4 @@
 import { ISiteMetadata } from '../../types';
-import { parseTimeToLive } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'Torrent4You',
@@ -31,7 +30,7 @@ export const siteMetadata: ISiteMetadata = {
       title: { selector: 'td:nth-child(1) a' },
       url: { selector: 'td:nth-child(1) a', attr: 'href' },
       link: { selector: 'td:nth-child(1) form', attr: 'action' },
-      time: { selector: 'td:nth-child(3)', filters: [parseTimeToLive] },
+      time: { selector: 'td:nth-child(3)', filters: [{ name: 'parseTTL' }] },
       size: { selector: 'td:nth-child(4)' },
       seeders: { selector: 'td:nth-child(6)', filters: [(q:string) => q.replace('K', '000')] },
       leechers: { selector: 'td:nth-child(7)', filters: [(q:string) => q.replace('K', '000')] },

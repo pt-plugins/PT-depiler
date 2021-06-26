@@ -1,11 +1,5 @@
 import { ISiteMetadata } from '../../types';
-import urlparse from 'url-parse';
-import {
-  findThenParseNumberString,
-  findThenParseSizeString,
-  findThenParseValidTimeString,
-  parseSizeString
-} from '@ptpp/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 import Sizzle from 'sizzle';
 
 export const siteMetadata: ISiteMetadata = {
@@ -46,7 +40,7 @@ export const siteMetadata: ISiteMetadata = {
   selector: {
     search: {
       rows: { selector: 'table#browse > tbody > tr:has(a[href^="browse.php?genre="])' },
-      id: { selector: 'a[href^="details.php?id="]', attr: 'href', filters: [(q:string) => urlparse(q, true).query.id] },
+      id: { selector: 'a[href^="details.php?id="]', attr: 'href', filters: [{ name: 'querystring', args: ['id'] }] },
       title: { selector: 'a[href^="details.php?id="]' },
       url: { selector: 'a[href^="details.php?id="]', attr: 'href' },
       link: { selector: 'a[href^="/down.php/"]', attr: 'href' },
@@ -68,30 +62,30 @@ export const siteMetadata: ISiteMetadata = {
       },
       seeders: { selector: 'td:nth-child(13)' },
       leechers: { selector: 'td:nth-child(14)' },
-      completed: { selector: 'td:nth-child(12)', filters: [findThenParseNumberString] },
+      completed: { selector: 'td:nth-child(12)', filters: [{ name: 'parseNumber' }] },
       comments: { selector: "a[href*='#startcomments']" }
     },
     userInfo: {
       id: {
         selector: "a[title='click to see your details page']:last",
         attr: 'href',
-        filters: [(query: string) => urlparse(query, true).query.id]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       name: {
         selector: "a[title='click to see your details page']:last"
       },
       messageCount: {
         selector: ["td[style*='background: #DF0101'] a[href*='messages.php']"],
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       bonus: { text: 'N/A' },
       uploaded: {
         selector: ["td.rowhead:contains('Uploaded') + td"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: ["td.rowhead:contains('Downloaded') + td"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       ratio: {
         selector: "td.rowhead:contains('Share ratio') + td > table > tbody > tr > td:nth-child(1) > font",
@@ -103,10 +97,8 @@ export const siteMetadata: ISiteMetadata = {
       joinTime: {
         selector: ["td.rowhead:contains('Join'):contains('date') + td"],
         filters: [
-          (query:string) => {
-            query = query.split(' (')[0];
-            return findThenParseValidTimeString(query);
-          }
+          (query:string) => query.split(' (')[0],
+          { name: 'parseTime' }
         ]
       },
       seeding: {

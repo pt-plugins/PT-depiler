@@ -2,14 +2,20 @@ import {
   IElementQuery, ISearchCategories, ISearchCategoryOptions,
   ISearchFilter, SearchRequestConfig,
   ISiteMetadata,
-  ETorrentBaseTagColor, ITorrent, ITorrentTag
+  ETorrentBaseTagColor, ITorrent, ITorrentTag, TQueryFilter, IDefinedQueryFilter
 } from '../../types';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import Sizzle from 'sizzle';
 import urljoin from 'url-join';
 import urlparse from 'url-parse';
 import { merge, get, chunk, mergeWith, pick } from 'lodash-es';
-import { cfDecodeEmail, parseSizeString, parseTimeWithZone } from '@ptpp/utils/filter';
+import {
+  cfDecodeEmail,
+  findThenParseNumberString,
+  findThenParseSizeString,
+  parseSizeString, parseTimeToLive,
+  parseTimeWithZone, parseValidTimeString
+} from '@ptpp/utils/filter';
 import { fullUrl, transPostDataTo } from '@ptpp/utils/types';
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
@@ -328,15 +334,40 @@ export default class BittorrentSite {
     return query;
   }
 
-  protected runQueryFilters <T> (query: any, filters: Function[] | Function): T {
-    const realFilters = ([] as Function[]).concat(filters);
+  // noinspection JSMethodCanBeStatic
+  private runDefinedFilter (query: any, filter: IDefinedQueryFilter): any {
+    switch (filter.name) {
+      case 'parseNumber': {
+        return findThenParseNumberString(query);
+      }
+      case 'parseSize': {
+        return findThenParseSizeString(query);
+      }
+      case 'parseTime': {
+        return parseValidTimeString(query, filter.args);
+      }
+      case 'parseTTL': {
+        return parseTimeToLive(query);
+      }
+      case 'querystring': {
+        const queryName = filter.args![0];
+        return urlparse(query, true).query[queryName] || '';
+      }
+      default:
+        return query;
+    }
+  }
+
+  protected runQueryFilters <T> (query: any, filters: TQueryFilter[] | TQueryFilter): T {
+    const realFilters = ([] as TQueryFilter[]).concat(filters);
     for (let i = 0; i < realFilters.length; i++) {
       const fn = realFilters[i];
-      /**
-       * FIXME 不再允许通过 string 的方式定义函数，转变为 jackett 的 那种 {name, args}方式
-       * refs: https://github.com/Jackett/Jackett/blob/6a213c6eabd0264392c48564ff16a9035fd13ca4/src/Jackett.Common/Indexers/CardigannIndexer.cs#L973-L1116
-       */
-      query = fn(query);
+
+      if (typeof fn === 'function') {
+        query = fn(query);
+      } else {
+        query = this.runDefinedFilter(query, fn);
+      }
     }
     return query;
   }

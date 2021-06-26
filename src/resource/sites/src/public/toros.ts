@@ -27,9 +27,9 @@ export const siteMetadata: ISiteMetadata = {
             if (/ago/.test(q)) {
               return parseTimeToLive(q);
             } else if (/Yesterday/.test(q)) {
-              return dayjs().add(-1, 'day').unix();
+              return dayjs().add(-1, 'day').valueOf();
             } else {
-              return dayjs(q, 'DD MMM').unix();
+              return dayjs(q, 'DD MMM').valueOf();
             }
           }
         ]

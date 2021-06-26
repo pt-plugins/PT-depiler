@@ -76,15 +76,11 @@ export const siteMetadata: ISiteMetadata = {
       // 从顶端用户栏获取做种数量，这样就可以避免对 /getusertorrentlist.php 页面的请求
       seeding: {
         selector: ["#info_block a[href*='getusertorrentlist.php'][href*='type=seeding']"],
-        filters: [
-          (query: string) => parseInt(query)
-        ]
+        filters: [parseInt]
       },
       seedingSize: {
         selector: ["td.rowhead:contains('做种大小') + td, td.rowhead:contains('Seeding Size') + td, td.rowhead:contains('做種大小') + td"],
-        filters: [
-          (query: string) => parseSizeString(query)
-        ]
+        filters: [parseSizeString]
       }
     }
   }

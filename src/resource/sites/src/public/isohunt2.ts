@@ -1,6 +1,4 @@
 import { ISiteMetadata } from '../../types';
-import { parseTimeToLive } from '@ptpp/utils/filter';
-import urlparse from 'url-parse';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'Isohunt2',
@@ -43,13 +41,13 @@ export const siteMetadata: ISiteMetadata = {
       },
       title: { selector: 'td.title-row > a[href^="/"] > span' },
       url: { selector: 'td.title-row > a[href^="/torrent_details"]', attr: 'href' },
-      time: { selector: 'td.date-row', filters: [parseTimeToLive] },
+      time: { selector: 'td.date-row', filters: [{ name: 'parseTTL' }] },
       size: { selector: 'td.size-row' },
       seeders: { selector: 'td.sn' },
       category: { selector: 'td.category-row > span', attr: 'title' }
     },
     detail: {
-      link: { selector: 'a.btn-magnet', attr: 'href', filters: [(q:string) => urlparse(q, true).query.url] }
+      link: { selector: 'a.btn-magnet', attr: 'href', filters: [{ name: 'querystring', args: ['url'] }] }
     }
   }
 };

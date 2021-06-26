@@ -34,9 +34,7 @@ export const siteMetadata: ISiteMetadata = {
     search: {
       progress: {
         selector: ['div.progressarea'],
-        filters: [
-          (query: string) => parseFloat(query)
-        ]
+        filters: [parseFloat]
       },
       status: {
         selector: ['div.progressarea'],

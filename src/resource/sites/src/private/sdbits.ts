@@ -1,11 +1,5 @@
 import { ISiteMetadata } from '../../types';
-import urlparse from 'url-parse';
-import {
-  findThenParseNumberString,
-  findThenParseSizeString,
-  findThenParseValidTimeString,
-  parseSizeString
-} from '@ptpp/utils/filter';
+import { parseSizeString } from '@ptpp/utils/filter';
 import Sizzle from 'sizzle';
 
 export const siteMetadata: ISiteMetadata = {
@@ -65,22 +59,22 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: "a[href*='userdetails.php']:first",
         attr: 'href',
-        filters: [(q:string) => urlparse(q, true).query.id]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       name: {
         selector: "a[href*='userdetails.php']:first"
       },
       messageCount: {
         selector: "table[bgcolor*='red'] a[href*='inbox.php']",
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       uploaded: {
         selector: "td.rowhead:contains('Uploaded') + td",
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: "td.rowhead:contains('Downloaded') + td",
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       ratio: {
         selector: "font:contains('Ratio') +",
@@ -91,13 +85,13 @@ export const siteMetadata: ISiteMetadata = {
       },
       bonus: {
         selector: ["td.heading:contains('Bonus') + td"],
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       joinTime: {
         selector: ["td.rowhead:contains('JOIN'):contains('date') + td"],
         filters: [
           (query: string) => query.split(' (')[0],
-          findThenParseValidTimeString
+          { name: 'parseTime' }
         ]
       },
       seeding: {

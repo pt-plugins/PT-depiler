@@ -63,7 +63,7 @@ export const siteMetadata: ISiteMetadata = {
           (q:string) => {
             // 2016/07/10
             // 01/21 18:00
-            return dayjs(q, ['MM/DD HH:mm', 'YYYY/MM/DD']).unix();
+            return dayjs(q, ['MM/DD HH:mm', 'YYYY/MM/DD']).valueOf();
           }
         ]
       },

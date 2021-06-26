@@ -1,6 +1,5 @@
 import { ISearchFilter, ISiteMetadata, ITorrent } from '../../types';
 import urlparse from 'url-parse';
-import { findThenParseNumberString, parseSizeString } from '@ptpp/utils/filter';
 import Gazelle from '../schema/Gazelle';
 
 export const siteMetadata: ISiteMetadata = {
@@ -41,11 +40,11 @@ export const siteMetadata: ISiteMetadata = {
       },
       seeding: {
         selector: ["dt:contains('Seeding:') + dd"],
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       seedingSize: {
         selector: ["dt:contains('Total seed size:') + dd > span"],
-        filters: [parseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       levelName: {
         selector: ["dt:contains('Class:') + dd"]

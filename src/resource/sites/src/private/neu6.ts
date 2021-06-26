@@ -1,8 +1,6 @@
 import { ISearchFilter, ISiteMetadata, ITorrent } from '../../types';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import { AxiosRequestConfig } from 'axios';
-import urlparse from 'url-parse';
-import { findThenParseNumberString, findThenParseSizeString, findThenParseValidTimeString } from '@ptpp/utils/filter';
 import urlencode from 'urlencode';
 
 export const siteMetadata: ISiteMetadata = {
@@ -84,9 +82,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: ".vwmy a[href*='home.php']:first",
         attr: 'href',
-        filters: [
-          (query: string) => parseInt(urlparse(query, true).query.uid!)
-        ]
+        filters: [{ name: 'querystring', args: ['uid'] }]
       },
       name: {
         selector: ".vwmy a[href*='home.php']:first"
@@ -94,11 +90,11 @@ export const siteMetadata: ISiteMetadata = {
       //  page: '/home.php?mod=space&uid=$user.id$&do=profile',
       uploaded: {
         selector: "li:contains('上传')",
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: "li:contains('下载')",
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       levelName: {
         selector: "li:contains('用户组')",
@@ -106,15 +102,13 @@ export const siteMetadata: ISiteMetadata = {
       },
       bonus: {
         selector: "li:contains('积分')",
-        filters: [findThenParseNumberString]
+        filters: [{ name: 'parseNumber' }]
       },
       joinTime: {
         selector: "li:contains('注册时间')",
         filters: [
-          (query: string) => {
-            query = query.replace('注册时间', '');
-            return findThenParseValidTimeString(query);
-          }
+          (query: string) => query.replace('注册时间', ''),
+          { name: 'parseTime' }
         ]
       }
     }

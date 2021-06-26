@@ -1,6 +1,5 @@
 import { ISiteMetadata, IUserInfo } from '../../types';
 import GazelleJSONAPI from '../schema/GazelleJSONAPI';
-import { parseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'RED',
@@ -32,7 +31,7 @@ export const siteMetadata: ISiteMetadata = {
     userInfo: {
       seedingSize: {
         selector: ['response.seedingsize'],
-        filters: [parseSizeString]
+        filters: [{ name: 'parseSize' }]
       }
     }
   }

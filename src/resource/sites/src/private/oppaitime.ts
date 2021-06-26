@@ -1,6 +1,5 @@
 import { ISiteMetadata, IUserInfo } from '../../types';
 import GazelleJSONAPI from '../schema/GazelleJSONAPI';
-import { parseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'Oppaitime',
@@ -31,7 +30,7 @@ export const siteMetadata: ISiteMetadata = {
     userInfo: {
       seedingSize: {
         selector: ["li:contains('Total Seeding: ') > span"],
-        filters: [parseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       bonus: {
         selector: ['span.stat > a[href]'],

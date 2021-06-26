@@ -1,5 +1,4 @@
 import { ISearchFilter, ISiteMetadata } from '../../types';
-import { parseTimeToLive } from '@ptpp/utils/filter';
 import BittorrentSite from '../schema/AbstractBittorrentSite';
 import { AxiosRequestConfig } from 'axios';
 
@@ -28,7 +27,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       url: { selector: 'td:nth-child(2) a', attr: 'href' },
       link: { selector: 'td:nth-child(3) a.magnet, td:nth-child(3) a', attr: 'href' },
-      time: { selector: 'td:nth-child(5)', filters: [parseTimeToLive] },
+      time: { selector: 'td:nth-child(5)', filters: [{ name: 'parseTTL' }] },
       size: { selector: 'td:nth-child(4)' },
       seeders: { selector: 'td:nth-child(6)' }
     }

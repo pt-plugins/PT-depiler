@@ -3,10 +3,8 @@
  * Rhilip, 2021.4.25
  */
 import { ISiteMetadata, ETorrentStatus } from '../../types';
-import { findThenParseSizeString, parseSizeString } from '@ptpp/utils/filter';
-import dayjs from '@ptpp/utils/plugins/dayjs';
+import { parseSizeString } from '@ptpp/utils/filter';
 import Sizzle from 'sizzle';
-import urlparse from 'url-parse';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'Aidoru!Online',
@@ -75,9 +73,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: 'a[href^="torrents-details.php?id="]',
         attr: 'href',
-        filters: [
-          (query: string) => urlparse(query, true).query.id
-        ]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       title: {
         selector: 'a[href^="torrents-details.php?id="]',
@@ -176,11 +172,11 @@ export const siteMetadata: ISiteMetadata = {
       },
       uploaded: {
         selector: [".myBlock-content td:contains('Uploaded:') + td"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: [".myBlock-content td:contains('Downloaded:') + td"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       ratio: {
         selector: [".myBlock-content td:contains('Ratio:') + td"]
@@ -195,7 +191,7 @@ export const siteMetadata: ISiteMetadata = {
       // page: '/account.php'
       joinTime: {
         selector: ["td.prof-lbl:contains('Joined:') + td"],
-        filters: [(query: string) => dayjs(query).valueOf()]
+        filters: [{ name: 'parseTime' }]
       },
       seeding: {
         selector: ["b:contains('Currently seeding')"],

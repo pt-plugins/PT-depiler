@@ -1,5 +1,4 @@
 import { ISiteMetadata } from '../../types';
-import { parseTimeToLive } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'ConCen',
@@ -45,7 +44,7 @@ export const siteMetadata: ISiteMetadata = {
       title: { selector: 'td.views-field-title a' },
       url: { selector: 'td.views-field-title a', attr: 'href' },
       link: { selector: ['td.views-field-field-torrent a', 'td.views-field-name a'], attr: 'href' },
-      time: { selector: 'td.views-field-created', filters: [parseTimeToLive] },
+      time: { selector: 'td.views-field-created', filters: [{ name: 'parseTTL' }] },
       size: { selector: 'td.views-field-size' },
       seeders: { selector: 'td.views-field-seeds' },
       leechers: { selector: 'td.views-field-peers' },

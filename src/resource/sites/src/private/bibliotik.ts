@@ -1,7 +1,6 @@
 import { ISiteMetadata, IUserInfo } from '../../types';
 import PrivateSite from '../schema/AbstractPrivateSite';
 import { findThenParseSizeString } from '@ptpp/utils/filter';
-import dayjs from '@ptpp/utils/plugins/dayjs';
 import urlparse from 'url-parse';
 import Sizzle from 'sizzle';
 
@@ -83,11 +82,11 @@ export const siteMetadata: ISiteMetadata = {
       // page: '/users/$user.id$'
       uploaded: {
         selector: ["#pre_header_status li:contains('Up: ')"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: ["#pre_header_status li:contains('Down: ')"],
-        filters: [findThenParseSizeString]
+        filters: [{ name: 'parseSize' }]
       },
       levelName: {
         selector: ["#detailsbox p:contains('Class: ')"],
@@ -98,9 +97,7 @@ export const siteMetadata: ISiteMetadata = {
       joinTime: {
         selector: "#detailsbox p:contains('Joined ') time",
         attr: 'datetime',
-        filters: [
-          (query: string) => dayjs(query).isValid() ? dayjs(query).valueOf() : query
-        ]
+        filters: [{ name: 'parseTime' }]
       },
       bonus: {
         text: 'N/A'

@@ -1,5 +1,4 @@
 import { ISiteMetadata } from '../../types';
-import urlparse from 'url-parse';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'GloDLS',
@@ -61,7 +60,7 @@ export const siteMetadata: ISiteMetadata = {
       category: {
         selector: 'td:nth-child(1) a',
         attr: 'href',
-        filters: [(q:string) => urlparse(q, true).query.cat]
+        filters: [{ name: 'querystring', args: ['cat'] }]
       },
       author: { selector: 'td:nth-child(8)' }
     }
