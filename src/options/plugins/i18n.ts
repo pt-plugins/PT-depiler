@@ -43,6 +43,4 @@ export function setI18nLanguage (locale: string) {
   document.querySelector('html')?.setAttribute('lang', locale);
 }
 
-console.log(i18n);
-
 export default i18n;

@@ -9,6 +9,13 @@
  *     - 这两个权限是互斥的
  *     - 如果给予 drive.appdata 权限，那么会备份到 Application Folder 的根目录下（因为这个目录用户读取不了）
  *       如果给予 drive 权限， 那么则会在 我的云端硬盘（My Drive）下新建一个 名为 `PTPP Backup` 的目录，并将文件备份到该目录中
+ *
+ * 使用方法：
+ * 1. 申请 client_id 和 client_secret， 方法见：https://rclone.org/drive/#making-your-own-client-id
+ * 2. 通过 Rclone 等途径获取 refresh_token ，记得在 Scope 时候选 "drive" 或 "drive.appfolder" （新用户建议）
+ * 3. 填入以上三个参数。
+ *
+ * 请注意，对于同一个账号使用同一个 client_id 和 client_secret ，其 Scope 是唯一的。
  */
 import {
   EListOrderBy,
@@ -117,7 +124,7 @@ export default class GoogleDrive implements IBackupServer<GoogleDriveConfig> {
       this.accessInformation = { ...data, expired_at: Date.now() + 3500 * 1e3 };
     }
 
-    return this.accessInformation;
+    return this.accessInformation!;
   }
 
   private async request <T extends ApiResponse> (config: AxiosRequestConfig = {}, retry: number = 3): Promise<AxiosResponse<T>> {

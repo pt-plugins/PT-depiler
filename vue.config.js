@@ -4,7 +4,7 @@ const packageInfo = require('./package.json');
 module.exports = {
   pages: {
     options: {
-      template: 'public/browser-extension.html',
+      template: 'public/options.html',
       entry: './src/options/main.ts',
       title: packageInfo.archiverName
     }

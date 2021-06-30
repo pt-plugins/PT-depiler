@@ -32,7 +32,7 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "devtools": "vue-devtools",
-    "i18n:report": "vue-cli-service i18n:report --src \"./src/**/*.?(js|vue)\" --locales \"./src/shared/locales/*.json\""
+    "i18n:report": "vue-cli-service i18n:report --src \"./src/**/*.?(ts|js|vue)\" --locales \"./src/shared/locales/*.json\""
   },
   "workspaces": [
     "src/resource/*"

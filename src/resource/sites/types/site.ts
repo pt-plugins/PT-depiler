@@ -36,7 +36,14 @@ export interface ISiteMetadata {
    * （但这并不能阻止用户通过插件的网络请求等其他途径知道对应网址
    */
   url: fullUrl | fullUrlProtect; // 完整的网站地址，如果网站支持 `https` ，请优先考虑填写 `https` 的地址
-  favicon?: string; // 站点 favicon.ico 的url，例如 https://ourbits.club/favicon.ico
+
+  /**
+   * 站点图标，具体处理过程见 `favicon.ts` 的说明
+   * 此处可以不填，也可以是：
+   *  - 站点 favicon.ico 的完整url，例如 https://xxxx.site/favicon.ico （从http开始写）
+   *  - `data:image/` 开头的Base64字符串 （不会有人这么做吧，一定过不了 Code Review 的）
+   */
+  favicon?: string | `data:image/${string}`;
 
   /**
    * 和url相同作用和写法，唯一不同是将会覆写url的行为（因为url不允许用户编辑）
