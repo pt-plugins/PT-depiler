@@ -25,10 +25,7 @@
         </p>
       </v-col>
 
-      <v-col
-        class="mb-5"
-        cols="12"
-      >
+      <v-col class="mb-5" cols="12">
         <h2 class="headline font-weight-bold mb-5">
           What's next?
         </h2>
