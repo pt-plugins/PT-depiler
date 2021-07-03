@@ -224,7 +224,7 @@ class Favicon {
               faviconUrl = `${baseUrl.origin}${faviconUrl}`;
             }
 
-            const { data } = await axios.get(usedFavicons.href, { responseType: 'blob' });
+            const { data } = await axios.get(faviconUrl, { responseType: 'blob' });
             return data;
           } catch {
           }
