@@ -1,7 +1,5 @@
 import { createI18n, LocaleMessages, VueMessageType } from 'vue-i18n';
 
-export const SUPPORT_LOCALES: string[] = [];
-
 /**
  * Load locale messages
  *
@@ -15,8 +13,7 @@ function loadLocaleMessages (): LocaleMessages<VueMessageType> {
     const matched = key.match(/([A-Za-z0-9-_]+)\./i);
     if (matched && matched.length > 1) {
       const locale = matched[1];
-      SUPPORT_LOCALES.push(locale);
-      messages[locale] = locales(key).default.words;
+      messages[locale] = locales(key).default;
     }
   });
   return messages;
