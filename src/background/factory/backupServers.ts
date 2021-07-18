@@ -1,5 +1,3 @@
-
-// 动态生成 btClient 列表
 import Container from '@/resource/utils/class/container';
 import { IBackupConfig, IBackupMetadata, IBackupServer } from '@/resource/backupServers/type';
 
