@@ -50,6 +50,12 @@ module.exports = {
     }
   },
 
+  configureWebpack: {
+    performance: {
+      hints: false
+    }
+  },
+
   chainWebpack: config => {
     // @see https://github.com/adambullmer/vue-cli-plugin-browser-extension/issues/106
     config.plugins.delete('provide-webextension-polyfill');

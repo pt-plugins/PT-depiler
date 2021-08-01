@@ -83,7 +83,7 @@ class Favicon {
 
     // 3. './public/assets/sites' 目录中是否存在对应 png 文件 （主要方便以解压缩形式安装的用户覆写）
     if (!faviconMeta) {
-      const assetLoc = await browser.runtime.getURL(`assets/sites/${siteHost}.png`);
+      const assetLoc = browser.runtime.getURL(`assets/sites/${siteHost}.png`);
       try {
         const configReq = await axios.get(assetLoc, { responseType: 'blob' });
         faviconMeta = configReq.data;

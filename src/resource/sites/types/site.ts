@@ -60,10 +60,18 @@ export interface ISiteMetadata {
   /**
    * 站点图标，具体处理过程见 `favicon.ts` 的说明
    * 此处可以不填，也可以是：
-   *  - 站点 favicon.ico 的完整url，例如 https://xxxx.site/favicon.ico （从http开始写）
+   *  - 站点 favicon.ico 的完整url，例如 https://xxxx.site/favicon.ico   （从http开始写）
+   *  - 本地 ./public/assets/sites 下的 {name}.png 文件   (写法 /assets/sites/{name}.png )
    *  - `data:image/` 开头的Base64字符串 （不会有人这么做吧，一定过不了 Code Review 的）
    */
-  favicon?: string | `data:image/${string}`;
+  favicon?: string | `data:image/${string}` | `/assets/sites/${string}.png`;
+
+  /**
+   * 站点是否已经死亡，死亡站点不再进行任何数据获取的交互。
+   * 对于已经死亡的站点，最好能存一下其 favicon
+   * TODO 仅用来保存用户的相关数据，且在展示时默认关闭输出。
+   */
+  isDead?: boolean,
 
   /**
    * 和url相同作用和写法，唯一不同是将会覆写url的行为（因为url不允许用户编辑）
