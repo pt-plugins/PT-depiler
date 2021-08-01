@@ -7,5 +7,8 @@ export const siteMetadata: ISiteMetadata = {
   url: 'https://bemaniso.ws/',
   tags: ['Game', 'Music', 'sims'],
   schema: 'GazelleJSONAPI',
-  collaborator: 'ted423'
+  collaborator: 'ted423',
+  feature: {
+    skipImdbSearch: true
+  }
 };

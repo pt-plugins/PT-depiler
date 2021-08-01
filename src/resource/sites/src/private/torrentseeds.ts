@@ -77,6 +77,9 @@ export const siteMetadata: ISiteMetadata = {
       },
       comments: { text: 0 }
     }
+  },
+  feature: {
+    skipImdbSearch: true
   }
 };
 

@@ -103,6 +103,9 @@ export const siteMetadata: ISiteMetadata = {
         text: 'N/A'
       }
     }
+  },
+  feature: {
+    skipImdbSearch: true
   }
 };
 

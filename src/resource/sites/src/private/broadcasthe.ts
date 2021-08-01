@@ -65,5 +65,8 @@ export const siteMetadata: ISiteMetadata = {
         ]
       }
     }
+  },
+  feature: {
+    skipImdbSearch: true
   }
 };

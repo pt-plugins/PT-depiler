@@ -133,5 +133,8 @@ export const siteMetadata: ISiteMetadata = {
       },
       seedingSize: { text: 'N/A' }
     }
+  },
+  feature: {
+    skipImdbSearch: true
   }
 };

@@ -57,5 +57,8 @@ export const siteMetadata: ISiteMetadata = {
       seeding: selectorUserInfoSeeding,
       seedingSize: selectorUserInfoSeedingSize
     }
+  },
+  feature: {
+    skipImdbSearch: true
   }
 };

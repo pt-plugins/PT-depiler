@@ -7,5 +7,8 @@ export const siteMetadata: ISiteMetadata = {
   url: 'https://www.cgpeers.com/',
   tags: ['设计', '素材'],
   host: 'www.cgpeers.com',
-  collaborator: 'bimzcy'
+  collaborator: 'bimzcy',
+  feature: {
+    skipImdbSearch: true
+  }
 };

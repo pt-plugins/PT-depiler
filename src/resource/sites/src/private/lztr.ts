@@ -11,5 +11,8 @@ export const siteMetadata: ISiteMetadata = {
   url: 'https://lztr.me/',
   tags: ['音乐'],
   schema: 'Gazelle',
-  collaborator: 'ylxb2016'
+  collaborator: 'ylxb2016',
+  feature: {
+    skipImdbSearch: true
+  }
 };

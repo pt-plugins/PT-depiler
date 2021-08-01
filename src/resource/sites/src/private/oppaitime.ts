@@ -37,6 +37,9 @@ export const siteMetadata: ISiteMetadata = {
         filters: [(query: string) => query.replace(',', '')]
       }
     }
+  },
+  feature: {
+    skipImdbSearch: true
   }
 };
 

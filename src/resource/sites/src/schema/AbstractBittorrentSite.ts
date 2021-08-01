@@ -18,6 +18,10 @@ import {
 } from '@ptpp/utils/filter';
 import { fullUrl, transPostDataTo } from '@ptpp/utils/types';
 
+export function restoreSecureLink (url: string): fullUrl {
+  return (url.startsWith('aHR0c') ? atob(url) : url) as fullUrl;
+}
+
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export default class BittorrentSite {
   /**
@@ -53,18 +57,15 @@ export default class BittorrentSite {
             if (['filters', 'switchFilters'].includes(key)) { // 不合并 filters，每次都用最后并入的
               return srcValue;
             } else {
-              // @ts-ignore
-              return [].concat(srcValue, objValue).filter(x => typeof x !== 'undefined'); // 保证后并入的配置优先
+              return ([] as any[]).concat(srcValue, objValue).filter(x => typeof x !== 'undefined'); // 保证后并入的配置优先
             }
           }
         }) as ISiteMetadata;
 
       // 解密url加密过的站点
-      if (this._config.url.startsWith('aHR0c')) {
-        this._config.url = atob(this._config.url) as fullUrl;
-      }
+      this._config.url = restoreSecureLink(this._config.url);
       if (this._config.legacyUrl) {
-        this._config.legacyUrl = this._config.legacyUrl.map(url => url.startsWith('aHR0c') ? atob(url) as fullUrl : url);
+        this._config.legacyUrl = this._config.legacyUrl.map(restoreSecureLink);
       }
 
       // 防止host信息缺失
@@ -170,12 +171,26 @@ export default class BittorrentSite {
    * @param filter
    */
   public async searchTorrents (filter: ISearchFilter = {}) : Promise<ITorrent[]> {
+    let isImdbSearch: boolean = false;
+
+    if (filter.keywords && /tt\d{7,8}/.test(filter.keywords)) { // 存在搜索关键词且为Imdb格式
+      isImdbSearch = true;
+      if (this.config.feature?.skipImdbSearch) { // 定义了 skipImdbSearch 属性且为真
+        return [];
+      }
+    }
+
     // 根据配置和搜索关键词生成 AxiosRequestConfig
-    const axiosConfig: AxiosRequestConfig = merge(
+    let axiosConfig: AxiosRequestConfig = merge(
       { url: '/', responseType: 'document' },
       this.config.search?.requestConfig, // 使用默认配置覆盖垫片配置
       await this.transformSearchFilter(filter) // 根据搜索信息生成配置
     );
+
+    // 如果是 Imdb 搜索，且定义了 imdbTransformer 方法，则改写 AxiosRequestConfig
+    if (isImdbSearch && this.config.search?.imdbTransformer) {
+      axiosConfig = this.config.search.imdbTransformer(axiosConfig);
+    }
 
     // 请求页面并转化为document
     const req = await this.request({ ...axiosConfig, checkLogin: true });

@@ -7,5 +7,8 @@ export const siteMetadata: ISiteMetadata = {
   url: 'https://exoticaz.to/',
   tags: ['Adult'],
   schema: 'AvistaZ',
-  host: 'exoticaz.to'
+  host: 'exoticaz.to',
+  feature: {
+    skipImdbSearch: true
+  }
 };

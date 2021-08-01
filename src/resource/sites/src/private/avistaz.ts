@@ -6,5 +6,8 @@ export const siteMetadata: ISiteMetadata = {
   description: '综合',
   url: 'https://avistaz.to/',
   tags: ['综合'],
-  schema: 'AvistaZ'
+  schema: 'AvistaZ',
+  feature: {
+    skipImdbSearch: true
+  }
 };

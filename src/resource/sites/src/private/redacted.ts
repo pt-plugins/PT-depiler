@@ -34,6 +34,9 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: 'parseSize' }]
       }
     }
+  },
+  feature: {
+    skipImdbSearch: true
   }
 };
 

@@ -124,5 +124,8 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: 'parseTime' }]
       }
     }
+  },
+  feature: {
+    skipImdbSearch: true
   }
 };

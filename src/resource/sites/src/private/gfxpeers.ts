@@ -10,5 +10,8 @@ export const siteMetadata: ISiteMetadata = {
   url: 'https://gfxpeers.net/',
   schema: 'Gazelle',
   tags: ['设计', '素材'],
-  collaborator: 'bimzcy'
+  collaborator: 'bimzcy',
+  feature: {
+    skipImdbSearch: true
+  }
 };

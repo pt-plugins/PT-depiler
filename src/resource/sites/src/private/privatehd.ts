@@ -8,5 +8,8 @@ export const siteMetadata: ISiteMetadata = {
   tags: ['剧集'],
   url: 'https://privatehd.to/',
   host: 'privatehd.to',
-  collaborator: 'bimzcy'
+  collaborator: 'bimzcy',
+  feature: {
+    skipImdbSearch: true
+  }
 };

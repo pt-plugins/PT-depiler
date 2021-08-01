@@ -86,8 +86,10 @@ export const siteMetadata: ISiteMetadata = {
       }
 
     }
+  },
+  feature: {
+    skipImdbSearch: true
   }
-
 };
 
 export default class pornbits extends PrivateSite {

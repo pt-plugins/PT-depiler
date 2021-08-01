@@ -10,6 +10,11 @@ export type SiteSchema = 'AbstractBittorrentSite' | 'AbstractPrivateSite' |
   'AvistaZ'
 
 export type SiteFeature = 'queryUserInfo'
+  /**
+   * 跳过 IMDb 搜索，即如果传入字符串满足 tt\d{7,8} 时，该站点返回 空Array，
+   * 等同于旧版的配置项 "imdbSearch": false 或 "skipIMDbId": true
+   */
+  | 'skipImdbSearch'
 
 /**
  * 站点配置，这部分配置由系统提供，并随着每次更新而更新，不受用户配置的任何影响
@@ -67,8 +72,15 @@ export interface ISiteMetadata {
      */
     requestConfig?: AxiosRequestConfig & { transferPostData?: transPostDataTo },
 
+    /**
+     * 额外处理 Imdb 相关信息， 注意此函数（如果定义的话）是在 searchTorrents 中进行，
+     * 即此时已根据 requestConfig 和传入的 filter 信息生成了普通搜索时的 Axios 配置，
+     * @param config
+     */
+    imdbTransformer?: (config: AxiosRequestConfig) => AxiosRequestConfig,
+
     keywordsParam?: string, // 当不指定且未改写时，会导致keyword未被搜索使用
-    categories?: ISearchCategories[] // 站点对应搜索入口的种子分类信息
+    categories?: ISearchCategories[], // 站点对应搜索入口的种子分类信息
   } // 站点搜索方法如何配置
 
   detail?: {
@@ -128,7 +140,7 @@ export interface ISiteMetadata {
   }
 
   feature?: { // 站点支持方法
-    [key in SiteFeature]: boolean
+    [key in SiteFeature]?: boolean
   }
 
   config?: {
