@@ -30,12 +30,11 @@ export const siteMetadata: ISiteMetadata = {
       }
     ]
   },
-  selector: {
-    userInfo: {
+  userInfo: {
+    selectors: {
       bonus: {
         selector: ["td.rowhead:contains('银元') + td"]
       }
     }
   }
-
 };

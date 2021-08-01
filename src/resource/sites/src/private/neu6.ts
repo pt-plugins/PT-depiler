@@ -10,28 +10,8 @@ export const siteMetadata: ISiteMetadata = {
   url: 'http://bt.neu6.edu.cn/',
   tags: ['教育网', '综合'],
   collaborator: ['xfl03', 'Rhilip'],
-  userInfo: {
-    process: [
-      {
-        requestConfig: { url: '/forum.php' },
-        fields: ['id', 'name']
-      },
-      {
-        requestConfig: {
-          url: '/home.php',
-          params: {
-            mod: 'space',
-            do: 'profile'
-          }
-        },
-        assertion: { id: 'uid' },
-        fields: ['uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime']
-      }
-    ]
-  },
-
-  selector: {
-    search: {
+  search: {
+    selectors: {
       rows: { selector: 'table.dt tr:gt(0):not(:has( > td:eq(1):contains("0 Bytes")))' }, // 先用一种较为简单的方法排除掉非种子文件
       id: {
         selector: 'td:eq(2) a[href*="thread-"]',
@@ -76,8 +56,27 @@ export const siteMetadata: ISiteMetadata = {
         { name: '50%', selector: 'img[src*="dl50.gif"]' },
         { name: 'Free', selector: 'img[src*="free.gif"]' }
       ]
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/forum.php' },
+        fields: ['id', 'name']
+      },
+      {
+        requestConfig: {
+          url: '/home.php',
+          params: {
+            mod: 'space',
+            do: 'profile'
+          }
+        },
+        assertion: { id: 'uid' },
+        fields: ['uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime']
+      }
+    ],
+    selectors: {
       // page: '/forum.php'
       id: {
         selector: ".vwmy a[href*='home.php']:first",
@@ -220,8 +219,6 @@ export default class neu6 extends PrivateSite {
    * 6v这里有两种情况，如果用户等级为up以上，则直接返回种子信息，
    * 反之则会进入提示页面，需要在提示页面进一步获取种子链接
    * 但是我们又不能在此处获取种子的metadata，所以只能根据页面是否存在 下载浮云 提示来判断具体情况
-   *
-   * (ps. 只有 发种员 以上用户组才能直接返回种子信息
    *
    * @ref: https://github.com/tongyifan/Reseed-backend/blob/db8b25fd336f820a7469d588a9bbd8185d7e17b9/scripts/6v.py#L46-L67
    * @param torrent

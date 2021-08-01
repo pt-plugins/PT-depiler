@@ -70,5 +70,4 @@ export const siteMetadata: ISiteMetadata = {
       }
     ]
   }
-
 };

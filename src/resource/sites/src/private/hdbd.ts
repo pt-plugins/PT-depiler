@@ -7,8 +7,8 @@ export const siteMetadata: ISiteMetadata = {
   url: 'https://pt.hdbd.us/',
   tags: ['综合', 'XXX'],
   schema: 'NexusPHP',
-  selector: {
-    search: {
+  search: {
+    selectors: {
       // FIXME 这个站基于TJUPT，所以 progress, status 两个选择器直接套用，但未测试过
       progress: selectorSearchProgress,
       status: selectorSearchStatus

@@ -55,10 +55,8 @@ export const siteMetadata: ISiteMetadata = {
           { name: 'TV', value: 12 }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       // FIXME 以下部分未适配 merge 属性
       rows: { selector: 'table.font_12px tr:not([align])', merge: 2 },
       id: { selector: 'a[href^="/files/details/"]', attr: 'href' },

@@ -21,10 +21,8 @@ export const siteMetadata: ISiteMetadata = {
           { name: 'XxX', value: 'xxx' }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'table.tb4 > tbody > tr:has(form)' },
       id: { selector: 'td:nth-child(1) a', attr: 'href', filters: [(q:string) => q.match(/torrent\/(\d+)/)![1]] },
       title: { selector: 'td:nth-child(1) a' },

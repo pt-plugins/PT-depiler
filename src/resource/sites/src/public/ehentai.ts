@@ -18,10 +18,8 @@ export const siteMetadata: ISiteMetadata = {
           { name: 'ExHentai', value: 'https://exhentai.org/' }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'table.itg > tbody > tr:has(td)' },
       id: { selector: 'td:nth-child(3)' }, // 我个人认为应该使用 Gallery Id作为 EH 的id
       title: { selector: 'a[href*="/gallerytorrents.php?gid="]' },

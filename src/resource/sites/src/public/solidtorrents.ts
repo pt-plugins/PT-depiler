@@ -13,10 +13,8 @@ export const siteMetadata: ISiteMetadata = {
         sort: 'seeders'
       }
     },
-    keywordsParam: 'q'
-  },
-  selector: {
-    search: {
+    keywordsParam: 'q',
+    selectors: {
       rows: { selector: 'results' },
       id: { selector: '_id' },
       title: { selector: 'title' },

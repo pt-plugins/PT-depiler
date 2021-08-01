@@ -19,10 +19,8 @@ export const siteMetadata: ISiteMetadata = {
           { name: 'Size', value: 'length' }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'div#results > div.media' },
       id: {
         selector: ':self',

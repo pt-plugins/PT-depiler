@@ -29,10 +29,8 @@ export const siteMetadata: ISiteMetadata = {
           { value: 9, name: 'Books' }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'table > tbody > tr[data-key="0"]' },
       id: {
         selector: 'td.title-row > a[href^="/torrent_details"]',
@@ -45,8 +43,10 @@ export const siteMetadata: ISiteMetadata = {
       size: { selector: 'td.size-row' },
       seeders: { selector: 'td.sn' },
       category: { selector: 'td.category-row > span', attr: 'title' }
-    },
-    detail: {
+    }
+  },
+  detail: {
+    selectors: {
       link: { selector: 'a.btn-magnet', attr: 'href', filters: [{ name: 'querystring', args: ['url'] }] }
     }
   }

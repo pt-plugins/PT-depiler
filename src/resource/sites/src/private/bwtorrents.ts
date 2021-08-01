@@ -1,5 +1,4 @@
 import { ISiteMetadata } from '../../types';
-import urlparse from 'url-parse';
 import { parseSizeString } from '@ptpp/utils/filter';
 import dayjs from '@ptpp/utils/plugins/dayjs';
 import Sizzle from 'sizzle';
@@ -132,26 +131,8 @@ export const siteMetadata: ISiteMetadata = {
           { value: 215, name: 'Tamil-Movies | Movie Packs' }
         ]
       }
-    ]
-  },
-
-  userInfo: {
-    pickLast: ['id', 'name'],
-    process: [
-      {
-        requestConfig: { url: '/' },
-        fields: ['id', 'name']
-      },
-      {
-        requestConfig: { url: '/userdetailsmore.php' },
-        assertion: { id: 'id' },
-        fields: ['uploaded', 'downloaded', 'levelName', 'joinTime', 'seeding', 'seedingSize', 'bonus']
-      }
-    ]
-  },
-
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'table[width="1200"] > tbody > tr:has(a[href^="download.php/"])' },
       id: { selector: 'a[href^="details.php?id="]', filters: [{ name: 'querystring', args: ['id'] }] },
       title: { selector: 'a[href^="details.php?id="] b' },
@@ -173,13 +154,28 @@ export const siteMetadata: ISiteMetadata = {
       tags: [
         { name: 'Free', selector: "font[color='red']:contains('[FreeLeech]')" }
       ]
-    },
-    userInfo: {
+    }
+  },
+
+  userInfo: {
+    pickLast: ['id', 'name'],
+    process: [
+      {
+        requestConfig: { url: '/' },
+        fields: ['id', 'name']
+      },
+      {
+        requestConfig: { url: '/userdetailsmore.php' },
+        assertion: { id: 'id' },
+        fields: ['uploaded', 'downloaded', 'levelName', 'joinTime', 'seeding', 'seedingSize', 'bonus']
+      }
+    ],
+    selectors: {
       // page: '/',
       id: {
         selector: ["a[href*='userdetails.php']:first"],
         attr: 'href',
-        filters: [(query: string) => urlparse(query, true).query.id]
+        filters: [{ name: 'querystring', args: ['id'] }]
       },
       name: {
         selector: ["a[href*='userdetails.php'][href*='id=']:first"]
@@ -229,5 +225,4 @@ export const siteMetadata: ISiteMetadata = {
       }
     }
   }
-
 };

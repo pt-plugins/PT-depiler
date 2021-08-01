@@ -7,8 +7,8 @@ export const siteMetadata: ISiteMetadata = {
   url: 'https://asiancinema.me/',
   tags: ['综合'],
   schema: 'Unit3D',
-  selector: {
-    userInfo: {
+  userInfo: {
+    selectors: {
       uploaded: { selector: ["span[title='Upload']", "span[title='上传']"] },
       downloaded: { selector: ["span[title='Download']", "span[title='下载']"] },
       bonus: { selector: ["a[title='My Bonus Points']", "a[title='我的魔力']"] },

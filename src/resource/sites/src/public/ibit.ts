@@ -10,10 +10,10 @@ export const siteMetadata: ISiteMetadata = {
     'https://ibit.uno/',
     'https://ibit.am/'
   ],
-  selector: {
-    search: {
+  search: {
+    selectors: {
       rows: { selector: 'table.striped > tbody > tr' },
-      id: { selector: 'a[href^="/torrent/"]', attr: 'href', filters: [(q:string) => q.match(/--([a-zA-Z0-9])\//)![1]] },
+      id: { selector: 'a[href^="/torrent/"]', attr: 'href', filters: [(q: string) => q.match(/--([a-zA-Z0-9])\//)![1]] },
       title: { selector: 'a[href^="/torrent/"]' },
       url: { selector: 'a[href^="/torrent/"]', attr: 'href' },
       time: { selector: 'td:nth-child(4)', filters: [{ name: 'parseTTL' }] },
@@ -22,8 +22,10 @@ export const siteMetadata: ISiteMetadata = {
       leechers: { selector: 'td:nth-child(7)' },
       comments: { text: 0, selector: 'small[title*="comments"]' },
       category: { selector: 'td:nth-child(3)' }
-    },
-    detail: {
+    }
+  },
+  detail: {
+    selectors: {
       link: {
         selector: 'script:contains("magnet:?xt=")',
         filters: [

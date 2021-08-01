@@ -11,24 +11,8 @@ export const siteMetadata: ISiteMetadata = {
     keywordsParam: 'q',
     requestConfig: {
       url: '/t'
-    }
-  },
-  userInfo: {
-    pickLast: ['id'],
-    process: [
-      {
-        requestConfig: { url: '/' },
-        fields: ['id']
-      },
-      {
-        requestConfig: { url: '/userdetails.php' },
-        assertion: { id: 'id' },
-        fields: ['messageCount', 'name', 'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', 'seeding', 'seedingSize']
-      }
-    ]
-  },
-  selector: {
-    search: {
+    },
+    selectors: {
       rows: { selector: 'table#torrents > tbody > tr' },
       id: {
         selector: ' > td.al > a',
@@ -90,8 +74,22 @@ export const siteMetadata: ISiteMetadata = {
         { name: 'Free', selector: 'span.free' },
         { name: 'Free', selector: 'span.t_tag_free_leech' }
       ]
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    pickLast: ['id'],
+    process: [
+      {
+        requestConfig: { url: '/' },
+        fields: ['id']
+      },
+      {
+        requestConfig: { url: '/userdetails.php' },
+        assertion: { id: 'id' },
+        fields: ['messageCount', 'name', 'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', 'seeding', 'seedingSize']
+      }
+    ],
+    selectors: {
       id: {
         selector: ["a[href*='/u/']:first", "a[href*='userdetails.php']:first"],
         attr: 'href',

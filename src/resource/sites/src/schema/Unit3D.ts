@@ -23,10 +23,8 @@ export default class Unit3D extends PrivateSite {
         params: {
           view: 'list' // 强制使用 种子列表 的形式返回
         }
-      }
-    },
-    selector: {
-      search: {
+      },
+      selectors: {
         rows: { selector: 'div.table-responsive > table:first > tbody > tr' },
 
         /**
@@ -129,8 +127,10 @@ export default class Unit3D extends PrivateSite {
           { name: 'Free', selector: 'i.fa-star.text-gold, i.fa-globe.text-blue' },
           { name: '2xUp', selector: 'i.fa-gem.text-green' }
         ]
-      },
-      userInfo: {
+      }
+    },
+    userInfo: {
+      selectors: {
         // '/'
         name: {
           selector: ["a[href*='settings']:first"],
@@ -228,7 +228,7 @@ export default class Unit3D extends PrivateSite {
 
   protected async getUserNameFromSite (): Promise<string> {
     const { data: indexDocument } = await this.request<Document>({ url: '/', responseType: 'document', checkLogin: true });
-    return this.getFieldData(indexDocument, this.config.selector?.userInfo?.name!);
+    return this.getFieldData(indexDocument, this.config.userInfo?.selectors?.name!);
   }
 
   protected async getUserInfoFromDetailsPage (userName: string): Promise<Partial<IUserInfo>> {

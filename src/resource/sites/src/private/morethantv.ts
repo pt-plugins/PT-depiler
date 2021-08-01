@@ -22,24 +22,8 @@ export const siteMetadata: ISiteMetadata = {
         order_by: 'time',
         order_way: 'desc'
       }
-    }
-  },
-  userInfo: {
-    process: [
-      {
-        requestConfig: { url: '/index.php' },
-        fields: ['id', 'name', 'messageCount']
-      },
-      {
-        requestConfig: { url: '/user.php' },
-        assertion: { id: 'id' },
-        fields: ['uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', 'bonus', 'seeding', 'seedingSize']
-      }
-    ]
-  },
-
-  selector: {
-    search: {
+    },
+    selectors: {
       // 建立group基本信息: category, title, url, time, size, author , seeders, leechers, completed, comments
       // rows: '#torrent_table > tbody > tr.torrent'
       category: { selector: '.cats_col div', attr: 'title' },
@@ -66,8 +50,21 @@ export const siteMetadata: ISiteMetadata = {
       },
       link: { selector: 'a[href^="/torrents.php?action=download"]', attr: 'href' },
       subTitle: { selector: ':self' }
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/index.php' },
+        fields: ['id', 'name', 'messageCount']
+      },
+      {
+        requestConfig: { url: '/user.php' },
+        assertion: { id: 'id' },
+        fields: ['uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', 'bonus', 'seeding', 'seedingSize']
+      }
+    ],
+    selectors: {
       id: {
         selector: ["a.username[href*='user.php']:first"],
         attr: 'href',

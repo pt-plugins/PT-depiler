@@ -48,10 +48,8 @@ export const siteMetadata: ISiteMetadata = {
           { name: 'Ascending', value: 'asc' }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'div#content > div.table-responsive > table > tbody > tr' },
       id: { selector: 'td:nth-child(3) a', attr: 'id' },
       title: { selector: 'td:nth-child(3) a span[title]', attr: 'title' },

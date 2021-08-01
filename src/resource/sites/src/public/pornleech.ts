@@ -14,10 +14,8 @@ export const siteMetadata: ISiteMetadata = {
         active: 0 // 0 - All , 1 - Active only , 2 - Dead only
       }
     },
-    keywordsParam: 'search'
-  },
-  selector: {
-    search: {
+    keywordsParam: 'search',
+    selectors: {
       rows: { selector: 'table.lista > tbody > tr:has(a[href^="download.php?id="])' },
       id: { selector: 'td[valign="middle"] a', attr: 'href', filters: [(q:string) => q.match(/(\d+)\.html/)![1]] },
       title: { selector: 'td[valign="middle"] a' },

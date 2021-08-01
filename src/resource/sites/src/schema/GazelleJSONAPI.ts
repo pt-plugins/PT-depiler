@@ -225,8 +225,8 @@ export default class GazelleJSONAPI extends PrivateSite {
         }
       }
     },
-    selector: {
-      userInfo: {
+    userInfo: {
+      selectors: {
         // "/ajax.php?action=index"
         id: {
           selector: ['response.id']
@@ -384,8 +384,8 @@ export default class GazelleJSONAPI extends PrivateSite {
       userSeedingTorrent.seedingSize! += parseSizeString((element as HTMLElement).innerText.trim());
     });
 
-    if (this.config.selector?.userInfo?.bonus) {
-      userSeedingTorrent.bonus = this.getFieldData(seedPage, this.config.selector.userInfo.bonus);
+    if (this.config.userInfo?.selectors?.bonus) {
+      userSeedingTorrent.bonus = this.getFieldData(seedPage, this.config.userInfo.selectors.bonus);
     }
 
     return userSeedingTorrent;

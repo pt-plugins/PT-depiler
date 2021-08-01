@@ -33,10 +33,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       title: {
         selector: ["a.tooltip[href*='hit']"]
       },
@@ -71,8 +69,10 @@ export const siteMetadata: ISiteMetadata = {
           return parseInt(element.firstChild!.textContent!);
         }
       }
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    selectors: {
       bonus: {
         selector: ["td.rowhead:contains('UCoin') + td > span"],
         attr: 'title',
@@ -81,6 +81,5 @@ export const siteMetadata: ISiteMetadata = {
         ]
       }
     }
-
   }
 };

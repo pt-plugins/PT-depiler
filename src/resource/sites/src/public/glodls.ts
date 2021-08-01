@@ -45,10 +45,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append', key: 'c' }
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'table.ttable_headinner tr.t-row:even' },
       id: { selector: 'td:nth-child(2) a[href*="klappe_torrent"]', attr: 'href', filters: [(q:string) => q && q.match(/klappe_torrent\('(.+)'\)/)![1]] },
       title: { selector: 'td:nth-child(2) a[title]', attr: 'title' },

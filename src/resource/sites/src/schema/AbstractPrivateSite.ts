@@ -12,8 +12,8 @@ export default class PrivateSite extends BittorrentSite {
    * 这里获取 lastUserInfo 以及 保存/更新 UserInfo 均由调用的上层完成
    */
   public async flushUserInfo (lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    if (!this.config.userInfo) {
-      throw new Error('尚不支持'); // FIXME
+    if (!this.config.userInfo || !this.config.userInfo.process) {
+      throw new Error('尚不支持，未定义 userInfo 属性或处理流程'); // FIXME
     } else {
       let flushUserInfo: Partial<IUserInfo> = {};
 

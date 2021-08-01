@@ -23,23 +23,8 @@ export const siteMetadata: ISiteMetadata = {
       params: {
         active: 0
       }
-    }
-  },
-  userInfo: {
-    process: [
-      {
-        requestConfig: { url: '/' },
-        fields: ['id', 'messageCount']
-      },
-      {
-        requestConfig: { url: '/usercp.php' },
-        assertion: { id: 'uid' },
-        fields: ['name', 'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', 'seeding']
-      }
-    ]
-  },
-  selector: {
-    search: {
+    },
+    selectors: {
       rows: { selector: 'table.mainblockcontenttt tr:has(td.mainblockcontent:has(a[href*="details.php"]))' },
       id: {
         selector: 'a[href^="details.php?id="]',
@@ -86,8 +71,21 @@ export const siteMetadata: ISiteMetadata = {
           '.mainblockcontentpeersleech': ETorrentStatus.downloading
         }
       }
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/' },
+        fields: ['id', 'messageCount']
+      },
+      {
+        requestConfig: { url: '/usercp.php' },
+        assertion: { id: 'uid' },
+        fields: ['name', 'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', 'seeding']
+      }
+    ],
+    selectors: {
       // page: '/',
       id: {
         selector: ["a[href*='usercp.php?uid=']:first"],

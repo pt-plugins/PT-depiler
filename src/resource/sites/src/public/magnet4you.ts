@@ -6,10 +6,8 @@ export const siteMetadata: ISiteMetadata = {
   url: 'https://magnet4you.me/',
   search: {
     requestConfig: { url: '/search.php' },
-    keywordsParam: 's'
-  },
-  selector: {
-    search: {
+    keywordsParam: 's',
+    selectors: {
       rows: { selector: 'table.tb4 > tbody > tr:has(a[href^="magnet:?xt="])' },
       id: { selector: 'a[href^="magnet/"]', attr: 'href', filters: [(q:string) => q.match(/\d+/)![0]] },
       title: { selector: 'a[href^="magnet/"]' },

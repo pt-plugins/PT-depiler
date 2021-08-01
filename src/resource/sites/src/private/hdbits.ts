@@ -26,23 +26,8 @@ export const siteMetadata: ISiteMetadata = {
           { value: 8, name: 'Misc/Demo' }
         ]
       }
-    ]
-  },
-  userInfo: {
-    process: [
-      {
-        requestConfig: { url: '/index.php' },
-        fields: ['id', 'name', 'messageCount']
-      },
-      {
-        requestConfig: { url: '/userdetails.php' },
-        assertion: { id: 'id' },
-        fields: ['uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', 'seeding', 'seedingSize']
-      }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'table#torrent-list > tbody > tr:has(a[href^="/details.php?id="])' },
       id: { selector: 'a[href^="/details.php?id="]', attr: 'href', filters: [{ name: 'querystring', args: ['id'] }] },
       title: { selector: 'td:nth-child(3) a' },
@@ -61,8 +46,21 @@ export const siteMetadata: ISiteMetadata = {
         { name: '50%', selector: "a[title^='50% Free Leech:']" },
         { name: '25%', selector: "a[title^='25% Free Leech:']" } // FIXME 这应该是 25% 还是 75% ？
       ]
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/index.php' },
+        fields: ['id', 'name', 'messageCount']
+      },
+      {
+        requestConfig: { url: '/userdetails.php' },
+        assertion: { id: 'id' },
+        fields: ['uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', 'seeding', 'seedingSize']
+      }
+    ],
+    selectors: {
       id: {
         selector: "a[href*='userdetails.php']:first",
         attr: 'href',

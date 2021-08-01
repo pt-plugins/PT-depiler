@@ -44,7 +44,21 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
+    ],
+    selectors: {
+      rows: { selector: 'table.torrenttable > tbody > tr:has(a[href*="browse.php?cat="])' },
+      id: { selector: 'a[href*="details.php?id="]', attr: 'href', filters: [{ name: 'querystring', args: ['id'] }] },
+      title: { selector: 'a[href*="details.php?id="]' },
+      url: { selector: 'a[href*="details.php?id="]', attr: 'href' },
+      link: { selector: 'a[href*="download.php?id="]', attr: 'href' },
+      time: { selector: 'td:nth-child(4)' },
+      size: { selector: 'td:nth-child(5)', filters: [{ name: 'parseSize' }] },
+      author: { selector: 'td:eq(8)' },
+      category: { selector: 'a[href*="browse.php?cat="]', attr: 'href', filters: [{ name: 'querystring', args: ['cat'] }] },
+      seeders: { selector: 'td:nth-child(7)' },
+      leechers: { selector: 'td:nth-child(8)' },
+      completed: { selector: 'td:nth-child(6)' }
+    }
   },
   userInfo: {
     pickLast: ['id', 'name'],
@@ -58,25 +72,8 @@ export const siteMetadata: ISiteMetadata = {
         assertion: { id: 'id' },
         fields: ['uploaded', 'downloaded', 'levelName', 'messageCount', 'bonus', 'joinTime', 'seeding', 'seedingSize']
       }
-    ]
-  },
-
-  selector: {
-    search: {
-      rows: { selector: 'table.torrenttable > tbody > tr:has(a[href*="browse.php?cat="])' },
-      id: { selector: 'a[href*="details.php?id="]', attr: 'href', filters: [{ name: 'querystring', args: ['id'] }] },
-      title: { selector: 'a[href*="details.php?id="]' },
-      url: { selector: 'a[href*="details.php?id="]', attr: 'href' },
-      link: { selector: 'a[href*="download.php?id="]', attr: 'href' },
-      time: { selector: 'td:nth-child(4)' },
-      size: { selector: 'td:nth-child(5)', filters: [{ name: 'parseSize' }] },
-      author: { selector: 'td:eq(8)' },
-      category: { selector: 'a[href*="browse.php?cat="]', attr: 'href', filters: [{ name: 'querystring', args: ['cat'] }] },
-      seeders: { selector: 'td:nth-child(7)' },
-      leechers: { selector: 'td:nth-child(8)' },
-      completed: { selector: 'td:nth-child(6)' }
-    },
-    userInfo: {
+    ],
+    selectors: {
       // page: '/'
       id: {
         selector: ".statusbar a[href*='/userdetails.php?id=']",

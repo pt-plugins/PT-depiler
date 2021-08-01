@@ -62,6 +62,20 @@ export const siteMetadata: ISiteMetadata = {
     requestConfig: {
       url: 't.json',
       responseType: 'json'
+    },
+    selectors: {
+      rows: { selector: ':self' },
+      id: { selector: 't' },
+      title: { selector: 'name' },
+      url: { selector: 't', filters: [(torrentId: number) => `/details.php?id=${torrentId}`] },
+      link: { selector: 't', filters: [(torrentId: number) => `/download.php/${torrentId}/${torrentId}.torrent`] },
+      time: { selector: 'ctime' },
+      size: { selector: 'size' },
+      // author: { selector: '' }  // FIXME
+      category: { selector: 'c', filters: [(q:keyof typeof categoryMap) => categoryMap[q] || 'Other'] },
+      seeders: { selector: 'seeders' },
+      leechers: { selector: 'leechers' },
+      completed: { selector: 'completed' }
     }
   },
   userInfo: {
@@ -76,24 +90,8 @@ export const siteMetadata: ISiteMetadata = {
         assertion: { id: 'id' },
         fields: ['uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', 'seeding', 'seedingSize', 'messageCount']
       }
-    ]
-  },
-  selector: {
-    search: {
-      rows: { selector: ':self' },
-      id: { selector: 't' },
-      title: { selector: 'name' },
-      url: { selector: 't', filters: [(torrentId: number) => `/details.php?id=${torrentId}`] },
-      link: { selector: 't', filters: [(torrentId: number) => `/download.php/${torrentId}/${torrentId}.torrent`] },
-      time: { selector: 'ctime' },
-      size: { selector: 'size' },
-      // author: { selector: '' }  // FIXME
-      category: { selector: 'c', filters: [(q:keyof typeof categoryMap) => categoryMap[q] || 'Other'] },
-      seeders: { selector: 'seeders' },
-      leechers: { selector: 'leechers' },
-      completed: { selector: 'completed' }
-    },
-    userInfo: {
+    ],
+    selectors: {
       id: {
         selector: ["a[href*='/u/']:first", "a[href*='userdetails.php']:first"],
         attr: 'href',

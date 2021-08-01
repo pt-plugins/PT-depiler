@@ -43,10 +43,8 @@ export const siteMetadata: ISiteMetadata = {
           { name: '其他资源 - 游戏', value: 18 }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'tbody#data_list > tr' },
       id: {
         selector: 'td:nth-child(3) a',
@@ -71,8 +69,10 @@ export const siteMetadata: ISiteMetadata = {
       seeders: { text: 1 },
       leechers: { text: 1 },
       category: { selector: 'td:nth-child(2)' }
-    },
-    detail: {
+    }
+  },
+  detail: {
+    selectors: {
       link: { selector: 'div#torrent_files a', attr: 'href' }
     }
   }

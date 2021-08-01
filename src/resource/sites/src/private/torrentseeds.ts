@@ -17,10 +17,8 @@ export const siteMetadata: ISiteMetadata = {
         order_by: 'added',
         order_way: 'desc'
       }
-    }
-  },
-  selector: {
-    search: {
+    },
+    selectors: {
       rows: { selector: 'table.table-bordered > tbody > tr[class*="torrent_row_"]' },
       id: { selector: 'a[href^="/details.php?id="]', attr: 'href', filters: [{ name: 'querystring', args: ['id'] }] },
       title: { selector: 'td:has(a[href^="/details.php?id="]) b' },
@@ -35,8 +33,10 @@ export const siteMetadata: ISiteMetadata = {
       leechers: { selector: '> td:eq(9)' },
       completed: { selector: '> td:eq(7)' },
       comments: { text: 0 }
-    },
-    detail: {
+    }
+  },
+  detail: {
+    selectors: {
       id: { selector: 'h2.text-center > a', attr: 'href' }, // FIXME
       title: { selector: 'div > div:nth-child(3) > div.pull-left > h1' },
       subTitle: { text: '' },
@@ -78,6 +78,7 @@ export const siteMetadata: ISiteMetadata = {
       comments: { text: 0 }
     }
   },
+
   feature: {
     skipImdbSearch: true
   }

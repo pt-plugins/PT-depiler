@@ -24,20 +24,8 @@ export default class NexusPHP extends PrivateSite {
       requestConfig: {
         url: '/torrents.php',
         params: { notnewword: 1 }
-      }
-    },
-
-    userInfo: {
-      /**
-       * 我们认为NPHP站的 id 的情况永远不变（实质上对于所有站点都应该是这样的）
-       * 部分 NPHP 站点允许修改 name，所以 name 不能视为不变 ！！！
-       */
-      pickLast: ['id'],
-      process: []
-    },
-
-    selector: {
-      search: {
+      },
+      selectors: {
         // row 等信息由 transformSearchPage 根据搜索结果自动生成
         link: baseLinkQuery, // 种子下载链接
         url: {
@@ -48,9 +36,7 @@ export default class NexusPHP extends PrivateSite {
         }, // 种子页面链接
         id: {
           ...baseLinkQuery,
-          filters: [
-            (query: string) => urlparse(query, true).query.id
-          ]
+          filters: [{ name: 'querystring', args: ['id'] }]
         },
         progress: {
           text: 0
@@ -66,8 +52,8 @@ export default class NexusPHP extends PrivateSite {
             const categoryImgAnother = element.querySelector('img:nth-child(1)'); // img:first
             if (categoryImgAnother) {
               category = categoryImgAnother.getAttribute('title') ||
-                  categoryImgAnother.getAttribute('alt') ||
-                  category;
+                categoryImgAnother.getAttribute('alt') ||
+                category;
             } else {
               return element.textContent || category;
             }
@@ -106,9 +92,16 @@ export default class NexusPHP extends PrivateSite {
           { name: '30%', selector: 'img.pro_30pctdown' },
           { name: '50%', selector: 'img.pro_50pctdown' }
         ]
-      },
-      detail: {},
-      userInfo: {
+      }
+    },
+
+    userInfo: {
+      /**
+       * 我们认为NPHP站的 id 的情况永远不变（实质上对于所有站点都应该是这样的）
+       * 部分 NPHP 站点允许修改 name，所以 name 不能视为不变 ！！！
+       */
+      pickLast: ['id'],
+      selectors: {
         // "page": "/index.php",
         id: {
           selector: ["a[href*='userdetails.php'][class*='Name']:first", "a[href*='userdetails.php']:first"],
@@ -197,8 +190,8 @@ export default class NexusPHP extends PrivateSite {
       // 对于NPHP，一般来说，表的第一行应该是标题行，即 `> tbody > tr:nth-child(1)` ，但是也有部分站点为 `> thead > tr`
       const legacyTableHasThead = Sizzle(`${legacyTableSelector} > thead > tr`, doc).length > 0;
 
-      if (!this.config.selector!.search!.rows) {
-        this.config.selector!.search!.rows = {
+      if (!this.config.search!.selectors!.rows) {
+        this.config.search!.selectors!.rows = {
           // 对于有thead的站点，认为 > tbody > tr 均为种子信息，而无 thead 的站点则为 > tbody > tr:gt(0)
           selector: `${legacyTableSelector} > tbody > tr` + (legacyTableHasThead ? '' : ':gt(0)')
         };
@@ -230,11 +223,11 @@ export default class NexusPHP extends PrivateSite {
 
         if (updateSelectorField) {
           // @ts-ignore
-          this.config.selector.search[updateSelectorField] = merge({
+          this.config.search.selectors[updateSelectorField] = merge({
             selector: [`> td:eq(${elementIndex})`]
           },
           // @ts-ignore
-          (this.config.selector.search[updateSelectorField] || {}));
+          (this.config.search.selectors[updateSelectorField] || {}));
         }
       });
     }
@@ -277,8 +270,8 @@ export default class NexusPHP extends PrivateSite {
 
     let title = (titleAnother.getAttribute('title') || titleAnother.textContent || '').trim();
 
-    if (this.config.selector?.search?.title?.filters) {
-      title = this.runQueryFilters(title, this.config.selector?.search?.title?.filters);
+    if (this.config.search?.selectors?.title?.filters) {
+      title = this.runQueryFilters(title, this.config.search?.selectors?.title?.filters);
     }
 
     return {
@@ -294,8 +287,8 @@ export default class NexusPHP extends PrivateSite {
       if (testSubTitle && testSubTitle.length > 1) {
         subTitle = extractContent(testSubTitle[testSubTitle.length - 1]).trim();
       }
-      if (this.config.selector?.search?.subTitle?.filters) {
-        subTitle = this.runQueryFilters(subTitle, this.config.selector?.search?.subTitle?.filters);
+      if (this.config.search?.selectors?.subTitle?.filters) {
+        subTitle = this.runQueryFilters(subTitle, this.config.search?.selectors?.subTitle?.filters);
       }
     } catch (e) {}
     return subTitle;
@@ -328,7 +321,7 @@ export default class NexusPHP extends PrivateSite {
 
   protected async getUserIdFromSite (): Promise<number> {
     const { data: indexDocument } = await this.request<Document>({ url: '/index.php', responseType: 'document' });
-    const userId = this.getFieldData(indexDocument, this.config.selector?.userInfo?.id!);
+    const userId = this.getFieldData(indexDocument, this.config.userInfo?.selectors?.id!);
     return parseInt(userId);
   }
 

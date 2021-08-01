@@ -4,8 +4,8 @@ export const siteMetadata: ISiteMetadata = {
   name: 'MyPornClub',
   description: 'MyPornClub is a Public Torrent Tracker for 3X',
   url: 'https://myporn.club/',
-  selector: {
-    search: {
+  search: {
+    selectors: {
       rows: { selector: 'div.torrents_list > div.torrent_element' },
       id: { selector: 'a[href^="/torrent/"]', attr: 'href', filters: [(q:string) => q.match(/\/torrent\/([a-zA-Z0-9]+)/)![1]] },
       title: { selector: 'a[href^="/torrent/"]' },
@@ -23,8 +23,10 @@ export const siteMetadata: ISiteMetadata = {
       completed: { selector: 'div.torrent_element_info span:nth-child(8)' },
       category: { text: 'XXX' },
       author: { selector: 'span.uploader_nick', filters: [(q:string) => q.replace(' >', '')] }
-    },
-    detail: {
+    }
+  },
+  detail: {
+    selectors: {
       link: { selector: 'div.torrent_download_div > a', attr: 'href' }
     }
   }

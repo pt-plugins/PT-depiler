@@ -91,10 +91,8 @@ export const siteMetadata: ISiteMetadata = {
           { name: 'Real Life - Videos', value: '2_2' }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'table.torrent-list > tbody > tr' },
       id: { selector: 'td:nth-child(2) a:last-of-type', attr: 'href', filters: [(q: string) => q.match(/(\d+)/)![0]] },
       title: { selector: 'td:nth-child(2) a:last-of-type', attr: 'title' },

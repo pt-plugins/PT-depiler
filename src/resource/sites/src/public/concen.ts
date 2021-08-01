@@ -35,10 +35,8 @@ export const siteMetadata: ISiteMetadata = {
           { name: 'Ascending', value: 'asc' }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'table  > tbody > tr:has(td.views-field-title)' },
       id: { selector: 'td.views-field-field-torrent a', attr: 'href', filters: [(q:string) => q.match(/(\d+)\.torrent$/)![1]] },
       title: { selector: 'td.views-field-title a' },

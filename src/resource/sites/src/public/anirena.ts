@@ -5,10 +5,8 @@ export const siteMetadata: ISiteMetadata = {
   description: 'AniRena is a Public torrent tracker for the latest anime and Japanese related torrents',
   url: 'https://www.anirena.com/',
   search: {
-    keywordsParam: 's'
-  },
-  selector: {
-    search: {
+    keywordsParam: 's',
+    selectors: {
       rows: { selector: 'div.full2:not([id]) table tr' },
       id: { selector: 'div.torrents_small_info_data1 a[nohref]', attr: 'onClick', filters: [(q:string) => q.match(/details(\d+)/)![1]] },
       title: { selector: 'div.torrents_small_info_data1 a[nohref]', attr: 'title' },

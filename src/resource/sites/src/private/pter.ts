@@ -11,8 +11,8 @@ export const siteMetadata: ISiteMetadata = {
   formerHosts: [
     'pter.club'
   ],
-  selector: {
-    search: {
+  search: {
+    selectors: {
       title: {
         selector: ["a[href*='details.php?id='][title]:first"]
       },
@@ -68,8 +68,10 @@ export const siteMetadata: ISiteMetadata = {
       tags: [
         { name: 'Excl.', selector: "a[href*='torrents.php?tag_exclusive=yes']" }
       ]
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    selectors: {
       bonus: {
         selector: ["td.rowhead:contains('猫粮') + td, td.rowhead:contains('Karma Points') + td, td.rowhead:contains('貓糧') + td"]
       },

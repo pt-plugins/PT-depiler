@@ -6,8 +6,8 @@ export const siteMetadata: ISiteMetadata = {
   name: 'Sexy-Pics',
   description: 'Sexy-Pics is a Public Magnet Links site for 3X MP4',
   url: 'https://www.sexy-pics.us/',
-  selector: {
-    search: {
+  search: {
+    selectors: {
       rows: { selector: 'tr:has(td.m)' },
       id: { selector: 'td.n a', attr: 'href', filters: [(q:string) => q.match(/\/file\/(\d+)/)![1]] },
       title: { selector: 'td.n a', attr: 'title' },

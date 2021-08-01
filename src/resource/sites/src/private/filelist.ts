@@ -22,23 +22,8 @@ export const siteMetadata: ISiteMetadata = {
         searchin: 1,
         sort: 2
       }
-    }
-  },
-  userInfo: {
-    process: [
-      {
-        requestConfig: { url: '/index.php' },
-        fields: ['id', 'name', 'messageCount', 'bonus']
-      },
-      {
-        requestConfig: { url: '/userdetails.php' },
-        assertion: { id: 'id' },
-        fields: ['uploaded', 'downloaded', 'ratio', 'levelName', 'joinTime', 'seeding', 'seedingSize']
-      }
-    ]
-  },
-  selector: {
-    search: {
+    },
+    selectors: {
       rows: { selector: 'div.visitedlinks:last > div[class=torrentrow]' },
       id: { selector: '> div:eq(1) a:first', attr: 'href', filters: [{ name: 'querystring', args: ['id'] }] },
       title: { selector: '> div:eq(1) a:first' },
@@ -69,8 +54,21 @@ export const siteMetadata: ISiteMetadata = {
       tags: [
         { name: 'Free', selector: "img[alt='FreeLeech']" }
       ]
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/index.php' },
+        fields: ['id', 'name', 'messageCount', 'bonus']
+      },
+      {
+        requestConfig: { url: '/userdetails.php' },
+        assertion: { id: 'id' },
+        fields: ['uploaded', 'downloaded', 'ratio', 'levelName', 'joinTime', 'seeding', 'seedingSize']
+      }
+    ],
+    selectors: {
       // page: '/index.php',
       id: {
         selector: "a[href*='userdetails.php']:last",

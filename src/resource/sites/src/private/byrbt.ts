@@ -26,10 +26,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       status: {
         // 似乎只有一个 已完成能够了解，下载进度等不能明确
         selector: ['img[src="pic/finished.png"]'],

@@ -8,10 +8,8 @@ export const siteMetadata: ISiteMetadata = {
   url: 'http://www.kisssub.org/',
   search: {
     requestConfig: { url: '/search.php' },
-    keywordsParam: 'keyword'
-  },
-  selector: {
-    search: {
+    keywordsParam: 'keyword',
+    selectors: {
       rows: { selector: 'table#listTable > tbody > tr' },
       id: {
         selector: 'td:nth-child(3) a',

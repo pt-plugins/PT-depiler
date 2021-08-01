@@ -28,10 +28,8 @@ export const siteMetadata: ISiteMetadata = {
           { name: 'Other', value: 9 }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'tr[class^="tl"]' },
       id: { selector: 'td:nth-child(3) a[href*="/torrent/"]', attr: 'href', filters: [(q:string) => q.match(/\/torrent\/(\d+)/)![1]] },
       title: { selector: 'td:nth-child(3) a[href*="/torrent/"][title^="view"]' },

@@ -8,10 +8,8 @@ export const siteMetadata: ISiteMetadata = {
     keywordsParam: 'searchzzzz',
     requestConfig: {
       params: { cat: 0 }
-    }
-  },
-  selector: {
-    search: {
+    },
+    selectors: {
       rows: { selector: 'table[bgcolor="#CCCCCC"] tbody tr:gt(1)' }, // 不要第一行
       id: { selector: 'td:nth-child(2) a.details_link', attr: 'href', filters: [{ name: 'querystring', args: ['id'] }] },
       title: { selector: 'td:nth-child(2) a.details_link b' },

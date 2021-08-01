@@ -10,8 +10,8 @@ export const siteMetadata: ISiteMetadata = {
   tags: ['电影'],
   schema: 'NexusPHP',
   collaborator: 'ian',
-  selector: {
-    search: {
+  search: {
+    selectors: {
       progress: {
         selector: ['> td:eq(8)'],
         filters: [

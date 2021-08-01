@@ -12,8 +12,8 @@ export const siteMetadata: ISiteMetadata = {
   description: '烧包 - 扬帆远航 风雨同路',
   tags: ['影视', '综合'],
   collaborator: ['laizony', 'ted423'],
-  selector: {
-    userInfo: {
+  userInfo: {
+    selectors: {
       messageCount: {
         selector: ["td[style*='background: indigo'] a[href*='messages.php']"]
       },

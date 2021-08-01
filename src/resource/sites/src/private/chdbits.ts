@@ -24,10 +24,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       progress: {
         selector: ['td.rowfollow:last-child'],
         filters: [

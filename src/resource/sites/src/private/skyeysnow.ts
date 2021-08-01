@@ -18,23 +18,8 @@ export const siteMetadata: ISiteMetadata = {
         mod: 'torrents',
         cat: 1
       }
-    }
-  },
-  userInfo: {
-    process: [
-      {
-        requestConfig: { url: '/' },
-        fields: ['id', 'name', 'messageCount']
-      },
-      {
-        requestConfig: { url: '/home.php', params: { mod: 'space' } },
-        assertion: { id: 'uid' },
-        fields: ['uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime', 'seeding', 'seedingSize']
-      }
-    ]
-  },
-  selector: {
-    search: {
+    },
+    selectors: {
       rows: { selector: 'table.torrents > tbody > tr:gt(0)' },
       id: {
         selector: 'a[href^="/forum.php?mod=viewthread"]',
@@ -85,8 +70,21 @@ export const siteMetadata: ISiteMetadata = {
         }
       }
 
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/' },
+        fields: ['id', 'name', 'messageCount']
+      },
+      {
+        requestConfig: { url: '/home.php', params: { mod: 'space' } },
+        assertion: { id: 'uid' },
+        fields: ['uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime', 'seeding', 'seedingSize']
+      }
+    ],
+    selectors: {
       id: {
         selector: '.vwmy a',
         attr: 'href',

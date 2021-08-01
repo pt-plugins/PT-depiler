@@ -35,11 +35,9 @@ export const siteMetadata: ISiteMetadata = {
   url: 'https://www.montorrent.com/',
   search: {
     requestConfig: { url: '/recherche/' },
-    keywordsParam: 'query'
+    keywordsParam: 'query',
     // TODO categories: []
-  },
-  selector: {
-    search: {
+    selectors: {
       rows: { selector: 'div.t-details' },
       id: { selector: ':self', attr: 'id' },
       title: { selector: 'a[href^="/torrent/"]' },

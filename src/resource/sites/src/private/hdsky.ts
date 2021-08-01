@@ -26,10 +26,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       id: {
         selector: 'form[action*="download.php"]:first',
         attr: 'action',

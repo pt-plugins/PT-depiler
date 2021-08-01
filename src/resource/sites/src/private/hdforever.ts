@@ -9,8 +9,8 @@ export const siteMetadata: ISiteMetadata = {
   tags: ['影视', '综合'],
   url: 'https://hdf.world/',
   collaborator: ['luckiestone'],
-  selector: {
-    userInfo: {
+  userInfo: {
+    selectors: {
       seedingSize: {
         selector: ['table.torrent_table:first td.nobr'],
         filters: [{ name: 'parseSize' }]
@@ -23,6 +23,7 @@ export const siteMetadata: ISiteMetadata = {
       }
     }
   }
+
 };
 
 export default class hdforever extends GazelleJSONAPI {

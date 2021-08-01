@@ -13,10 +13,8 @@ export const siteMetadata: ISiteMetadata = {
         type_: 'torrent'
       }
     },
-    keywordsParam: 'q'
-  },
-  selector: {
-    search: {
+    keywordsParam: 'q',
+    selectors: {
       rows: { selector: ':self' },
       id: { selector: 'infohash' },
       title: { selector: 'name' },

@@ -18,32 +18,8 @@ export const siteMetadata: ISiteMetadata = {
       params: {
         incldead: 1
       }
-    }
-  },
-  userInfo: {
-    pickLast: ['id'],
-    process: [
-      {
-        requestConfig: { url: '/index.php' },
-        fields: ['id']
-      },
-      {
-        requestConfig: { url: '/userdetails.php' },
-        assertion: { id: 'id' },
-        fields: ['name', 'uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime']
-      }
-      /**
-       * 需要翻页，不能这样处理
-      {
-        requestConfig: { url: '/userdetails-tab.php', params: { SID: '', mode: 7, page: 0 } },
-        assertion: { id: 'id' },
-        fields: ['seeding', 'seedingSize']
-      }
-       */
-    ]
-  },
-  selector: {
-    search: {
+    },
+    selectors: {
       rows: { selector: 'table[border="1"] tr:not(:first-child)' },
       id: {
         selector: 'a[href^="details.php?id="]',
@@ -69,8 +45,30 @@ export const siteMetadata: ISiteMetadata = {
         { name: '2xFree', selector: "img[src*='platinumdownload.png']" },
         { name: '25%', selector: "img[src*='silverdownload.png']" }
       ]
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    pickLast: ['id'],
+    process: [
+      {
+        requestConfig: { url: '/index.php' },
+        fields: ['id']
+      },
+      {
+        requestConfig: { url: '/userdetails.php' },
+        assertion: { id: 'id' },
+        fields: ['name', 'uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime']
+      }
+      /**
+       * 需要翻页，不能这样处理
+      {
+        requestConfig: { url: '/userdetails-tab.php', params: { SID: '', mode: 7, page: 0 } },
+        assertion: { id: 'id' },
+        fields: ['seeding', 'seedingSize']
+      }
+       */
+    ],
+    selectors: {
       id: {
         selector: "div#menu a[href*='userdetails.php']",
         attr: 'href',

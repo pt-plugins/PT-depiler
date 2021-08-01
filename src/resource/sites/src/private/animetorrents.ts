@@ -1,7 +1,6 @@
 import { ISiteMetadata } from '../../types';
-import urlparse from 'url-parse';
-import { findThenParseSizeString } from '@ptpp/utils/filter';
 import Sizzle from 'sizzle';
+import { findThenParseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'AnimeTorrents',
@@ -49,40 +48,13 @@ export const siteMetadata: ISiteMetadata = {
           { value: 19, name: 'OST' }
         ]
       }
-    ]
-  },
-  userInfo: {
-    process: [
-      {
-        requestConfig: { url: '/' },
-        fields: ['id', 'name', 'messageCount']
-      },
-      {
-        requestConfig: { url: '/user-profile.php' },
-        assertion: { id: 'uid' },
-        fields: ['uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime']
-      },
-      {
-        requestConfig: {
-          url: '/ajax/user-active-torrents.php',
-          headers: {
-            'x-requested-with': 'XMLHttpRequest'
-          }
-        },
-        assertion: { id: 'uid' },
-        fields: ['seeding', 'seedingSize']
-      }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'table.dataTable:last > tbody > tr:gt(0)' },
       id: {
         selector: "a[href*='torrent-details.php?torid=']",
         attr: 'href',
-        filters: [
-          (query: string) => urlparse(query, true).query.torid
-        ]
+        filters: [{ name: 'querystring', args: ['torid'] }]
       },
       title: { selector: "a[href*='torrent-details.php?torid=']" },
       subTitle: { text: '' },
@@ -97,9 +69,7 @@ export const siteMetadata: ISiteMetadata = {
       category: {
         selector: 'td:nth-of-type(1) a',
         attr: 'href',
-        filters: [
-          (query: string) => urlparse(query, true).query.cat
-        ]
+        filters: [{ name: 'querystring', args: ['cat'] }]
       },
       seeders: {
         selector: 'td:nth-of-type(8)',
@@ -134,13 +104,36 @@ export const siteMetadata: ISiteMetadata = {
         { name: '2xUp', selector: "img[alt='2x Multiplier Torrent']" },
         { name: '50%', selector: "img[alt='Silver Torrent']" }
       ]
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/' },
+        fields: ['id', 'name', 'messageCount']
+      },
+      {
+        requestConfig: { url: '/user-profile.php' },
+        assertion: { id: 'uid' },
+        fields: ['uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime']
+      },
+      {
+        requestConfig: {
+          url: '/ajax/user-active-torrents.php',
+          headers: {
+            'x-requested-with': 'XMLHttpRequest'
+          }
+        },
+        assertion: { id: 'uid' },
+        fields: ['seeding', 'seedingSize']
+      }
+    ],
+    selectors: {
       // page: '/'
       id: {
         selector: ["a[href*='/user-profile.php?uid=']:first"],
         attr: 'href',
-        filters: [(query: string) => urlparse(query, true).query.uid]
+        filters: [{ name: 'querystring', args: ['uid'] }]
       },
       name: {
         selector: ["a[href*='/user-profile.php?uid=']:first"]

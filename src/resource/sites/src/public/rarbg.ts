@@ -22,10 +22,8 @@ export const siteMetadata: ISiteMetadata = {
         ranked: 0
       }
     },
-    keywordsParam: 'search_string'
-  },
-  selector: {
-    search: {
+    keywordsParam: 'search_string',
+    selectors: {
       rows: { selector: 'torrent_results' },
       id: { selector: 'info_page', filters: [(q:string) => q.match(/_([a-zA-Z0-9]+)$/)![1]] },
       title: { selector: 'title' },

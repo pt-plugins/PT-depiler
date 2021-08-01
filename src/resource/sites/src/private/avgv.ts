@@ -13,8 +13,8 @@ export const siteMetadata: ISiteMetadata = {
   description: '新加坡华人PT站，很有特色。',
   tags: ['成人', 'AV', 'GAY', 'LES'],
   collaborator: ['xiazhou8', '匿名网友'],
-  selector: {
-    search: {
+  search: {
+    selectors: {
       progress: selectorSearchProgress,
       status: selectorSearchStatus
     }

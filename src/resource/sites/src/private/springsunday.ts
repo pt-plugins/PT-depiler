@@ -31,10 +31,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       // FIXME 我觉得旧版的 progress, status 获取方法实现并不好
       progress: {
         selector: ["a[id*='subscription'] > img"],
@@ -62,8 +60,10 @@ export const siteMetadata: ISiteMetadata = {
           }
         }
       }
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    selectors: {
       messageCount: {
         selector: ["a[href*='messages.php'][style*='background: red']"]
       }

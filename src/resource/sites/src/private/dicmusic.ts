@@ -10,8 +10,8 @@ export const siteMetadata: ISiteMetadata = {
   schema: 'GazelleJSONAPI',
   host: 'dicmusic.club',
   collaborator: ['ylxb2016', 'enigmaz'],
-  selector: {
-    userInfo: {
+  userInfo: {
+    selectors: {
       seedingSize: {
         selector: ['table#bprates_overview > tbody > tr > td:eq(1)'],
         filters: [{ name: 'parseSize' }]

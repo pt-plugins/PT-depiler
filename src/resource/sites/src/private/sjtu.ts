@@ -44,10 +44,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       progress: {
         selector: ['td.snatched_no_yes, td.snatched_yes_yes', 'td.snatched_no_no, td.snatched_yes_no'],
         attr: 'class',

@@ -1,5 +1,4 @@
 import { ISiteMetadata, ETorrentStatus } from '../../types';
-import { parseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'GGN',
@@ -9,8 +8,8 @@ export const siteMetadata: ISiteMetadata = {
   tags: ['Game'],
   schema: 'Gazelle',
   collaborator: 'ted423',
-  selector: {
-    search: {
+  search: {
+    selectors: {
       //
       time: { selector: '> td:eq(1)' },
       size: { selector: '> td:eq(3)' },
@@ -55,8 +54,10 @@ export const siteMetadata: ISiteMetadata = {
           () => ETorrentStatus.inactive
         ]
       }
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    selectors: {
       // "page": "/index.php",
       messageCount: {
         selector: ['.newnoti']
@@ -65,15 +66,11 @@ export const siteMetadata: ISiteMetadata = {
       // "page": "/user.php?id=$user.id$",
       uploaded: {
         selector: ['#upload .stat.tooltip'],
-        filters: [
-          (query: string) => parseSizeString(query.replace(/,/g, ''))
-        ]
+        filters: [{ name: 'parseSize' }]
       },
       downloaded: {
         selector: ['#download .stat.tooltip'],
-        filters: [
-          (query: string) => parseSizeString(query.replace(/,/g, ''))
-        ]
+        filters: [{ name: 'parseSize' }]
       },
       bonus: {
         selector: ['#gold .stat.tooltip']
@@ -86,9 +83,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       seedingSize: {
         selector: ['#seeding_size'],
-        filters: [
-          (query: string) => parseSizeString(query.replace(/,/g, ''))
-        ]
+        filters: [{ name: 'parseSize' }]
       }
     }
   },

@@ -16,10 +16,8 @@ export const siteMetadata: ISiteMetadata = {
   ],
   search: {
     keywordsParam: 'q',
-    requestConfig: { params: { v: '', c: '' } }
-  },
-  selector: {
-    search: {
+    requestConfig: { params: { v: '', c: '' } },
+    selectors: {
       rows: { selector: 'tr.table-default:has(a[href^="/torrent/"])' },
       id: { selector: 'td:nth-child(2) a', attr: 'href', filters: [(q:string) => q.match(/torrent\/(\d+)/)![1]] },
       title: { selector: 'td:nth-child(2) a' },

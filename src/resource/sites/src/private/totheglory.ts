@@ -36,24 +36,8 @@ export const siteMetadata: ISiteMetadata = {
         options: categoryMap.map(cat => { return { name: cat, value: cat }; }),
         cross: { mode: 'raw' } // 具体处理方式见下
       }
-    ]
-  },
-  userInfo: {
-    pickLast: ['id', 'name'],
-    process: [
-      {
-        requestConfig: { url: '/index.php' },
-        fields: ['id', 'name']
-      },
-      {
-        requestConfig: { url: '/userdetails.php' },
-        assertion: { id: 'id' },
-        fields: ['messageCount', 'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', 'seeding', 'seedingSize']
-      }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'table#torrent_table > tbody > tr[id]' },
       id: { selector: ':self', attr: 'id' },
       title: {
@@ -81,8 +65,22 @@ export const siteMetadata: ISiteMetadata = {
         { name: '50%', selector: "img[alt='50%']" },
         { name: 'Excl.', selector: 'span.browse.excl' }
       ]
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    pickLast: ['id', 'name'],
+    process: [
+      {
+        requestConfig: { url: '/index.php' },
+        fields: ['id', 'name']
+      },
+      {
+        requestConfig: { url: '/userdetails.php' },
+        assertion: { id: 'id' },
+        fields: ['messageCount', 'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', 'seeding', 'seedingSize']
+      }
+    ],
+    selectors: {
       id: {
         selector: "a[href*='userdetails.php']:first",
         attr: 'href',

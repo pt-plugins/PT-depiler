@@ -29,23 +29,8 @@ export const siteMetadata: ISiteMetadata = {
     keywordsParam: 'search',
     requestConfig: {
       url: '/browse'
-    }
-  },
-  userInfo: {
-    process: [
-      {
-        requestConfig: { url: '/index.php' },
-        fields: ['name', 'id', 'messageCount', 'uploaded', 'downloaded', 'ratio', 'bonus']
-      },
-      {
-        requestConfig: { url: '/user/$userId$' },
-        assertion: { id: 'userId' },
-        fields: ['joinTime', 'levelName', 'seeding', 'seedingSize']
-      }
-    ]
-  },
-  selector: {
-    search: {
+    },
+    selectors: {
       rows: { selector: 'table.browse > tbody > tr' },
       id: {
         selector: 'a[href^="download.php?id="]',
@@ -111,8 +96,21 @@ export const siteMetadata: ISiteMetadata = {
         { name: 'Free', selector: "a[href*='/details/id'][style='color:#f2b101']" },
         { name: '50%', selector: 'a[href^="/details/id"][style="color:#828b8b"]' }
       ]
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/index.php' },
+        fields: ['name', 'id', 'messageCount', 'uploaded', 'downloaded', 'ratio', 'bonus']
+      },
+      {
+        requestConfig: { url: '/user/$userId$' },
+        assertion: { id: 'userId' },
+        fields: ['joinTime', 'levelName', 'seeding', 'seedingSize']
+      }
+    ],
+    selectors: {
       // page: '/index.php'
       name: {
         selector: "a[href*='/user/']:first"

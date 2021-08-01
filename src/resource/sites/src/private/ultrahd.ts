@@ -21,11 +21,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
-  },
-
-  selector: {
-    search: {
+    ],
+    selectors: {
       progress: {
         selector: '.torrentname td:first-child > div[title]:last-child',
         attr: 'title',
@@ -46,5 +43,4 @@ export const siteMetadata: ISiteMetadata = {
       }
     }
   }
-
 };

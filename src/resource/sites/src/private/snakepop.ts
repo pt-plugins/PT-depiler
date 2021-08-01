@@ -13,8 +13,8 @@ export const siteMetadata: ISiteMetadata = {
   schema: 'GazelleJSONAPI',
   host: 'snakepop.art',
   collaborator: ['timyuan'],
-  selector: {
-    userInfo: {
+  userInfo: {
+    selectors: {
       levelName: {
         filters: [(query: string) => query.match(/(.+(?= [(]))/)![0]]
       }

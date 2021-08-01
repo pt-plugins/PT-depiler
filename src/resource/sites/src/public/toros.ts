@@ -14,8 +14,8 @@ export const siteMetadata: ISiteMetadata = {
   name: 'TOROS',
   description: 'TOROS is a Public torrent index',
   url: 'https://www.toros.co/',
-  selector: {
-    search: {
+  search: {
+    selectors: {
       rows: { selector: 'table.table-responsive tr:has(a[href^="/torrent/"])' },
       id: { selector: 'a[href^="/torrent/"]', attr: 'href', filters: [(q:string) => q.match(/torrent\/(\d+)/)![1]] },
       title: { selector: 'a[href^="/torrent/"]' },
@@ -39,12 +39,13 @@ export const siteMetadata: ISiteMetadata = {
       leechers: { selector: 'td:nth-child(5)' },
       category: { selector: 'td:nth-child(1)', attr: 'class', filters: [(q:string) => CategoryMap.get(parseInt(q.replace(/^tv/, '')))] },
       author: { selector: 'td:nth-child(6)' }
-    },
-    detail: {
+    }
+  },
+  detail: {
+    selectors: {
       link: { selector: 'a[href^="magnet:?xt="]', attr: 'href' }
     }
   }
-
 };
 
 // noinspection JSUnusedGlobalSymbols

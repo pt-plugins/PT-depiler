@@ -34,10 +34,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'table.torrent_table:last > tbody > tr.torrent' },
       id: {
         selector: "a[href*='torrents.php?id=']",
@@ -96,8 +94,10 @@ export const siteMetadata: ISiteMetadata = {
           }
         ]
       }
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    selectors: {
       bonus: {
         selector: ["[href='bonus.php'] + span"]
       }
@@ -118,7 +118,7 @@ export default class uhdbits extends GazelleJSONAPI {
   protected override async transformSearchPage (doc: Document): Promise<ITorrent[]> {
     const torrents: ITorrent[] = [];
 
-    const trs = Sizzle(this.config.selector!.search!.rows!.selector as string, doc);
+    const trs = Sizzle(this.config.search!.selectors!.rows!.selector as string, doc);
     trs?.forEach((tr: any) => {
       torrents.push(this.parseRowToTorrent(tr) as ITorrent);
     });
@@ -153,8 +153,8 @@ export default class uhdbits extends GazelleJSONAPI {
       }
 
       // 更新做种情况
-      if (!userSeedingTorrent.bonus && this.config.selector?.userInfo?.bonus) {
-        userSeedingTorrent.bonus = this.getFieldData(TListDocument, this.config.selector.userInfo.bonus);
+      if (!userSeedingTorrent.bonus && this.config.userInfo?.selectors?.bonus) {
+        userSeedingTorrent.bonus = this.getFieldData(TListDocument, this.config.userInfo.selectors.bonus);
       }
 
       // 解析当前页信息， 并合并至顶层字典中

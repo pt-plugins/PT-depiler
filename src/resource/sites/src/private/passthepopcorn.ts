@@ -26,8 +26,8 @@ export const siteMetadata: ISiteMetadata = {
     }
   },
 
-  selector: {
-    userInfo: {
+  userInfo: {
+    selectors: {
       id: { selector: ["a.user-info-bar__link[href*='user.php']:first"], attr: 'href' },
       name: { selector: ["a.user-info-bar__link[href*='user.php']:first"] },
       messageCount: {

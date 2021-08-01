@@ -34,9 +34,7 @@ export const siteMetadata: ISiteMetadata = {
       }
     ]
      */
-  },
-  selector: {
-    search: {
+    selectors: {
       rows: { selector: '.table2 > tbody > tr[bgcolor]' },
       id: { selector: 'div.tt-name > a[href^="/"]', attr: 'href', filters: [(q:string) => q.match(/(\d+)\.html/)![1]] },
       title: {
@@ -59,8 +57,10 @@ export const siteMetadata: ISiteMetadata = {
       seeders: { selector: '.tdseed' },
       leechers: { selector: '.tdleech' },
       category: { selector: 'td:nth-child(2)', filters: [(q:string) => q.split('-')[1].replace(' in ', '')] }
-    },
-    detail: {
+    }
+  },
+  detail: {
+    selectors: {
       link: { selector: ['a.csprite_dltorrent[href^="magnet:"]', 'a.csprite_dltorrent[href^="http://itorrents.org/"]'], attr: 'href' }
     }
   }

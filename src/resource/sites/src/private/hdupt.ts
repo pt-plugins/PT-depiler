@@ -27,10 +27,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       progress: {
         selector: ["td.embedded[style*='color: blue;font-weight: bold']"],
         filters: [
@@ -40,8 +38,10 @@ export const siteMetadata: ISiteMetadata = {
         ]
       }
       // TODO status
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    selectors: {
       bonus: {
         selector: ["td.rowhead:contains('魔力值') + td"]
       }

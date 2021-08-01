@@ -32,10 +32,8 @@ export const siteMetadata: ISiteMetadata = {
       responseType: 'json',
       params: { cat: '' }
     },
-    keywordsParam: 'q'
-  },
-  selector: {
-    search: {
+    keywordsParam: 'q',
+    selectors: {
       rows: { selector: ':self' },
       id: { selector: 'id' },
       title: { selector: 'name' },

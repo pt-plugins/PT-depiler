@@ -13,10 +13,8 @@ export const siteMetadata: ISiteMetadata = {
   ],
   search: {
     requestConfig: { url: '/search/' },
-    keywordsParam: 'keywords'
-  },
-  selector: {
-    search: {
+    keywordsParam: 'keywords',
+    selectors: {
       rows: { selector: 'table.forum_header_border tr[name="hover"].forum_header_border:has(a.magnet)' },
       id: { selector: 'td:nth-child(2) a', attr: 'href', filters: [(q:string) => q.match(/\/ep\/(\d+)/)![1]] },
       title: {

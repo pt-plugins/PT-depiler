@@ -78,10 +78,8 @@ export const siteMetadata: ISiteMetadata = {
           { name: 'OTHER', value: 'other' }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'table.table-striped > tbody > tr' },
       id: { selector: 'td:nth-child(1) div.float-left a', attr: 'href', filters: [(q:string) => q && q.match(/-(\d+)\/?$/)![1]] },
       title: { selector: 'td:nth-child(1) div.float-left a' },

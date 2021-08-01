@@ -133,23 +133,8 @@ export const siteMetadata: ISiteMetadata = {
         // dlLink: 1  // include the url to download the torrent
       },
       responseType: 'json'
-    }
-  },
-  userInfo: {
-    process: [
-      {
-        requestConfig: { url: '/index.php' },
-        fields: ['id', 'name', 'messageCount']
-      },
-      {
-        requestConfig: { url: '/u/$userId$' },
-        assertion: { id: 'userId' },
-        fields: ['uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime']
-      }
-    ]
-  },
-  selector: {
-    search: {
+    },
+    selectors: {
       rows: { selector: 'data' },
       id: { selector: 'id' },
       title: { selector: 'title' },
@@ -164,8 +149,21 @@ export const siteMetadata: ISiteMetadata = {
       leechers: { selector: 'leechers' },
       completed: { selector: 'times_completed' },
       comments: { selector: 'comments' }
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/index.php' },
+        fields: ['id', 'name', 'messageCount']
+      },
+      {
+        requestConfig: { url: '/u/$userId$' },
+        assertion: { id: 'userId' },
+        fields: ['uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime']
+      }
+    ],
+    selectors: {
       id: {
         selector: 'li.myInfo > a',
         attr: 'href',

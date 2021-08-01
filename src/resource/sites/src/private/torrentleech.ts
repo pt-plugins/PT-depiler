@@ -80,7 +80,22 @@ export const siteMetadata: ISiteMetadata = {
           { value: 44, name: 'TV Series' }
         ]
       }
-    ]
+    ],
+    selectors: {
+      rows: { selector: 'torrentList' },
+      id: { selector: 'fid' },
+      title: { selector: 'name' },
+      url: { selector: ':self', filters: [(torrent:rawTorrent) => `/torrent/${torrent.fid}`] },
+      link: { selector: ':self', filters: [(torrent:rawTorrent) => `/download/${torrent.fid}/${torrent.filename}`] },
+      time: { selector: 'addedTimestamp' },
+      size: { selector: 'size' },
+      author: { text: '' },
+      category: { selector: 'categoryID' },
+      seeders: { selector: 'seeders' },
+      leechers: { selector: 'leechers' },
+      completed: { selector: 'completed' },
+      comments: { selector: 'numComments' }
+    }
   },
   userInfo: {
     pickLast: ['name', 'id', 'joinTime'],
@@ -99,26 +114,8 @@ export const siteMetadata: ISiteMetadata = {
         assertion: { name: 'userName' },
         fields: ['seeding', 'seedingSize']
       }
-    ]
-  },
-
-  selector: {
-    search: {
-      rows: { selector: 'torrentList' },
-      id: { selector: 'fid' },
-      title: { selector: 'name' },
-      url: { selector: ':self', filters: [(torrent:rawTorrent) => `/torrent/${torrent.fid}`] },
-      link: { selector: ':self', filters: [(torrent:rawTorrent) => `/download/${torrent.fid}/${torrent.filename}`] },
-      time: { selector: 'addedTimestamp' },
-      size: { selector: 'size' },
-      author: { text: '' },
-      category: { selector: 'categoryID' },
-      seeders: { selector: 'seeders' },
-      leechers: { selector: 'leechers' },
-      completed: { selector: 'completed' },
-      comments: { selector: 'numComments' }
-    },
-    userInfo: {
+    ],
+    selectors: {
       // url: '/'
       name: {
         selector: ["span.centerTopBar span[onclick*='/profile/'][onclick*='view']"]

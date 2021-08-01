@@ -27,7 +27,17 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
+    ],
+    selectors: {
+      rows: { selector: ".torrent_table > tbody > tr[class^='torrent row']" },
+      title: { selector: 'a[data-src]', data: 'src' },
+      link: { selector: "a[href*='torrents.php?action=download']:first", attr: 'href' },
+      time: { selector: '> td:nth-child(4)' },
+      size: { selector: '> td:nth-child(3) div' },
+      seeders: { selector: '> "td:nth-child(6)' },
+      leechers: { selector: '> td:nth-child(7)' },
+      completed: { selector: '> td:nth-child(5)' }
+    }
   },
 
   userInfo: {
@@ -41,21 +51,8 @@ export const siteMetadata: ISiteMetadata = {
         assertion: { id: 'id' },
         fields: ['messageCount', 'bonus', 'joinTime', 'seeding', 'seedingSize']
       }
-    ]
-  },
-
-  selector: {
-    search: {
-      rows: { selector: ".torrent_table > tbody > tr[class^='torrent row']" },
-      title: { selector: 'a[data-src]', data: 'src' },
-      link: { selector: "a[href*='torrents.php?action=download']:first", attr: 'href' },
-      time: { selector: '> td:nth-child(4)' },
-      size: { selector: '> td:nth-child(3) div' },
-      seeders: { selector: '> "td:nth-child(6)' },
-      leechers: { selector: '> td:nth-child(7)' },
-      completed: { selector: '> td:nth-child(5)' }
-    },
-    userInfo: {
+    ],
+    selectors: {
       // page: '/ajax.php?action=index'
       id: {
         selector: ['response.id']
@@ -122,6 +119,7 @@ export const siteMetadata: ISiteMetadata = {
       }
     }
   },
+
   feature: {
     skipImdbSearch: true
   }

@@ -27,8 +27,8 @@ export const siteMetadata: ISiteMetadata = {
       }
     ]
   },
-  selector: {
-    userInfo: {
+  userInfo: {
+    selectors: {
       seedingSize: {
         selector: ['response.seedingsize'],
         filters: [{ name: 'parseSize' }]

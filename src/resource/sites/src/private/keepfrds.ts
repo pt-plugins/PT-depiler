@@ -25,10 +25,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       subTitle: {
         filters: [
           (query: string) => {
@@ -45,8 +43,10 @@ export const siteMetadata: ISiteMetadata = {
         // 禁转, 限时禁转
         { selector: "td.embedded b > font.recommended:contains('禁转')", name: 'Excl.' }
       ]
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    selectors: {
       messageCount: {
         selector: ["a[href*='messages.php'] b span[style*='color: red']"]
       },

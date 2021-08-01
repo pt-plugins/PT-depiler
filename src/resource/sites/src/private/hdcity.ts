@@ -60,10 +60,8 @@ export const siteMetadata: ISiteMetadata = {
           { value: 409, name: 'Other/其他' }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'div.text > table, div.text_alt > table, div.tr_review > table, div.tr_inpro > table' },
       title: { selector: "span[style='color:#777']" },
       subTitle: { selector: 'a.torname' },
@@ -111,8 +109,10 @@ export const siteMetadata: ISiteMetadata = {
           }
         }
       }
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    selectors: {
       id: {
         selector: ["div.text:contains('ID'):first"],
         attr: null, // 覆盖掉NPHP默认的属性，使得我们能获取文本
@@ -170,7 +170,7 @@ export default class hdcity extends NexusPHP {
   // FIXME 这会导致第一次请求时出现两次 /userdetails 页面请求，不过问题不大2333
   protected override async getUserIdFromSite (): Promise<number> {
     const userDetailDocument = await this.requestUserDetailsPage(null);
-    const userId = this.getFieldData(userDetailDocument, this.config.selector?.userInfo?.id!);
+    const userId = this.getFieldData(userDetailDocument, this.config.userInfo?.selectors?.id!);
     return parseInt(userId);
   }
 

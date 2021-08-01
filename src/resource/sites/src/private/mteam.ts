@@ -80,11 +80,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
-  },
-
-  selector: {
-    search: {
+    ],
+    selectors: {
       progress: {
         selector: ['> td:eq(8)'],
         filters: [
@@ -105,8 +102,11 @@ export const siteMetadata: ISiteMetadata = {
           }
         }
       }
-    },
-    userInfo: {
+    }
+  },
+
+  userInfo: {
+    selectors: {
       uploaded: {
         selector: ["td.rowfollow:contains('分享率')", "td.rowhead:contains('传输') + td", "td.rowhead:contains('傳送') + td", "td.rowhead:contains('Transfers') + td"]
       },

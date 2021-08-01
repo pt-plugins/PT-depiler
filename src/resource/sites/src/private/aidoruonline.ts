@@ -48,26 +48,8 @@ export const siteMetadata: ISiteMetadata = {
           { value: 11, name: 'Radio' }
         ]
       }
-    ]
-  },
-  userInfo: {
-    process: [
-      {
-        requestConfig: {
-          url: '/index.php'
-        },
-        fields: ['name', 'messageCount', 'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus']
-      },
-      {
-        requestConfig: {
-          url: '/account.php'
-        },
-        fields: ['joinTime', 'seeding', 'seedingSize']
-      }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'table.ttable_headinner tr.t-row:has(a[href^="download.php?id="])' },
 
       id: {
@@ -154,21 +136,31 @@ export const siteMetadata: ISiteMetadata = {
         { selector: 'img[src="images/freeleech.png"]', name: 'Free' },
         { selector: 'img[src="images/freeleech2.png"]', name: '2xFree' }
       ]
-    },
-
-    userInfo: {
+    }
+  },
+  userInfo: {
+    process: [
+      {
+        requestConfig: {
+          url: '/index.php'
+        },
+        fields: ['name', 'messageCount', 'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus']
+      },
+      {
+        requestConfig: {
+          url: '/account.php'
+        },
+        fields: ['joinTime', 'seeding', 'seedingSize']
+      }
+    ],
+    selectors: {
       // page: '/index.php',
       name: {
         selector: '#main > table .myBlock-caption:first'
       },
       messageCount: {
         selector: ["a[href*='/forum/private.php']"],
-        filters: [
-          (query: string) => {
-            const queryMatch = query.match(/(\d+)/);
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
-          }
-        ]
+        filters: [{ name: 'parseNumber' }]
       },
       uploaded: {
         selector: [".myBlock-content td:contains('Uploaded:') + td"],
@@ -195,12 +187,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       seeding: {
         selector: ["b:contains('Currently seeding')"],
-        filters: [
-          (query: string) => {
-            const queryMatch = query.match(/(\d+)/);
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
-          }
-        ]
+        filters: [{ name: 'parseNumber' }]
       },
       seedingSize: {
         selector: ':self',
@@ -215,5 +202,4 @@ export const siteMetadata: ISiteMetadata = {
       }
     }
   }
-
 };

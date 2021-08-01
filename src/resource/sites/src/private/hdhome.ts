@@ -139,10 +139,8 @@ export const siteMetadata: ISiteMetadata = {
           { value: 493, name: 'Anime 2160p' }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       progress: selectorSearchProgress,
       status: selectorSearchStatus,
       tags: [

@@ -24,17 +24,16 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       title: { selector: "[style='float:none;']:first", attr: 'title' },
       url: { selector: "[title='View Torrent']:first", attr: 'href' },
       link: { selector: "[title='Download']", attr: 'href' },
       time: { selector: "div:contains('Added:')", filters: [{ name: 'parseTTL' }] }
-    },
-
-    userInfo: {
+    }
+  },
+  userInfo: {
+    selectors: {
       uploaded: { selector: '#section2 > div > div.statistics > div:nth-child(3) > ul > li:nth-child(1)' },
       downloaded: { selector: '#section2 > div > div.statistics > div:nth-child(3) > ul > li:nth-child(7)' },
       ratio: { text: '---', selector: null, filters: [] },

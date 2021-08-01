@@ -91,10 +91,8 @@ export const siteMetadata: ISiteMetadata = {
           { name: 'Ascending', value: 'ASC' }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'tr.torrentRow' },
       id: { selector: 'a[href*="/download/"][title]', attr: 'title', filters: [(q:string) => q.replace('Download:', '')] },
       title: { selector: 'a[href*="/download/"][title]', attr: 'title', filters: [(q:string) => q.replace('Download:', '')] },

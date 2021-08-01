@@ -28,10 +28,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       progress: {
         selector: [".rowfollow[title='Downloading'], .rowfollow[title='Seeding'], .rowfollow[title='Stopped'], .rowfollow[title='Completed']"],
         filters: [

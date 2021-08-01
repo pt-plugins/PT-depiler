@@ -16,26 +16,8 @@ export const siteMetadata: ISiteMetadata = {
         direction: 'desc'
       },
       responseType: 'document'
-    }
-  },
-  userInfo: {
-    process: [
-      {
-        requestConfig: { url: '/' },
-        fields: ['name', 'id', 'messageCount', 'uploaded', 'downloaded', 'ratio', 'levelName']
-      },
-      {
-        requestConfig: { url: '/user/$userId$' },
-        assertion: {
-          id: 'userId'
-        },
-        fields: ['joinTime', 'bonus', 'seeding', 'seedingSize']
-      }
-    ]
-  },
-
-  selector: {
-    search: {
+    },
+    selectors: {
       rows: { selector: 'table.torrents > tbody > tr' },
       id: { selector: 'a[href*="/torrent/"]', filters: [(query:string) => query.match(/\/torrent\/(\d+)/)![1]] },
       title: { selector: 'a.torrents__title' },
@@ -58,8 +40,23 @@ export const siteMetadata: ISiteMetadata = {
       tags: [
         { name: 'Free', selector: "img[src='images/freeleech.png']" }
       ]
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/' },
+        fields: ['name', 'id', 'messageCount', 'uploaded', 'downloaded', 'ratio', 'levelName']
+      },
+      {
+        requestConfig: { url: '/user/$userId$' },
+        assertion: {
+          id: 'userId'
+        },
+        fields: ['joinTime', 'bonus', 'seeding', 'seedingSize']
+      }
+    ],
+    selectors: {
       // page: '/',
       name: {
         selector: 'div.user-info > :first'

@@ -21,10 +21,8 @@ export const siteMetadata: ISiteMetadata = {
           { name: 'Other', value: 6 }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'div.torrents > div[class^="item"]' },
       id: { selector: ':self', attr: 'id', filters: [(q:string) => q.replace('item_', '')] },
       title: { selector: 'span.info > a', attr: 'title', filters: [(q:string) => q.replace(/^Download /, '')] },

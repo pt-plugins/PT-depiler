@@ -12,8 +12,8 @@ export const siteMetadata: ISiteMetadata = {
   tags: ['综合', '电影', '电视剧', '纪录片'],
   schema: 'NexusPHP',
   collaborator: 'csi0n',
-  selector: {
-    search: {
+  search: {
+    selectors: {
       progress: {
         selector: ['> td:eq(9)'],
         filters: [

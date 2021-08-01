@@ -10,8 +10,8 @@ export const siteMetadata: ISiteMetadata = {
   url: 'https://pt.msg.vg/',
   description: 'The Ultimate File Sharing Experience',
   collaborator: 'bjgetite',
-  selector: {
-    search: {
+  search: {
+    selectors: {
       progress: {
         selector: ['div.progressarea'],
         attr: 'title',

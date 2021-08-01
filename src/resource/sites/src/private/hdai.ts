@@ -36,10 +36,8 @@ export const siteMetadata: ISiteMetadata = {
       method: 'POST',
       url: '/Torrents.tableList',
       responseType: 'json'
-    }
-  },
-  selector: {
-    search: {
+    },
+    selectors: {
       rows: { selector: 'data.items' },
       id: { selector: 'id', filters: [] }, // 同样需要覆盖掉NPHP默认的filters
       title: { selector: 'name' },

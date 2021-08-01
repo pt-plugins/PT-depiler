@@ -59,10 +59,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append', key: 'c' }
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'div.tgxtable > div:has(div[class="tgxtablecell shrink"])' },
       id: { selector: 'div a[href^="/torrent/"]', attr: 'href', filters: [(q:string) => q.match(/torrent\/(\d+)/)![1]] },
       title: { selector: 'div a[href^="/torrent/"]', attr: 'title' },

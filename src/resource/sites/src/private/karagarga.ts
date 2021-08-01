@@ -17,28 +17,8 @@ export const siteMetadata: ISiteMetadata = {
         search_type: 'torrent', // torrent, title, director, uploader, year, imdb
         cat: 0
       }
-    }
-  },
-  userInfo: {
-    process: [
-      {
-        requestConfig: { url: '/' },
-        fields: ['id', 'name', 'messageCount', 'bonus']
-      },
-      {
-        requestConfig: { url: '/userdetails.php' },
-        assertion: { id: 'id' },
-        fields: ['uploaded', 'downloaded', 'ratio', 'levelName', 'joinTime']
-      },
-      {
-        requestConfig: { url: '/current.php' },
-        assertion: { id: 'id' },
-        fields: ['seeding', 'seedingSize']
-      }
-    ]
-  },
-  selector: {
-    search: {
+    },
+    selectors: {
       rows: { selector: 'table#browse > tbody > tr:has(a[href^="browse.php?genre="])' },
       id: { selector: 'a[href^="details.php?id="]', attr: 'href', filters: [{ name: 'querystring', args: ['id'] }] },
       title: { selector: 'a[href^="details.php?id="]' },
@@ -64,8 +44,26 @@ export const siteMetadata: ISiteMetadata = {
       leechers: { selector: 'td:nth-child(14)' },
       completed: { selector: 'td:nth-child(12)', filters: [{ name: 'parseNumber' }] },
       comments: { selector: "a[href*='#startcomments']" }
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/' },
+        fields: ['id', 'name', 'messageCount', 'bonus']
+      },
+      {
+        requestConfig: { url: '/userdetails.php' },
+        assertion: { id: 'id' },
+        fields: ['uploaded', 'downloaded', 'ratio', 'levelName', 'joinTime']
+      },
+      {
+        requestConfig: { url: '/current.php' },
+        assertion: { id: 'id' },
+        fields: ['seeding', 'seedingSize']
+      }
+    ],
+    selectors: {
       id: {
         selector: "a[title='click to see your details page']:last",
         attr: 'href',

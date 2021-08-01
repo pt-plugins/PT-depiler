@@ -29,7 +29,12 @@ export const siteMetadata: ISiteMetadata = {
           { value: 7, name: 'Stand-up Comedy' }
         ]
       }
-    ]
+    ],
+    selectors: {
+      tags: [
+        { name: 'Free', selector: "a[style^='color:#000099']" }
+      ]
+    }
   },
   userInfo: {
     process: [
@@ -47,15 +52,8 @@ export const siteMetadata: ISiteMetadata = {
         assertion: { id: 'id' },
         fields: ['seeding', 'seedingSize']
       }
-    ]
-  },
-  selector: {
-    search: {
-      tags: [
-        { name: 'Free', selector: "a[style^='color:#000099']" }
-      ]
-    },
-    userInfo: {
+    ],
+    selectors: {
       id: {
         selector: "a[href*='userdetails.php']:first",
         attr: 'href',

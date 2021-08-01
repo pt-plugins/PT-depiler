@@ -7,10 +7,8 @@ export const siteMetadata: ISiteMetadata = {
   url: 'https://zooqle.com/',
   search: {
     requestConfig: { url: '/search' },
-    keywordsParam: 'q'
-  },
-  selector: {
-    search: {
+    keywordsParam: 'q',
+    selectors: {
       rows: { selector: 'tr:has(td[class^="text-muted3"])' },
       id: { selector: 'td:nth-child(1)' },
       title: { selector: 'td:nth-child(2) a' },

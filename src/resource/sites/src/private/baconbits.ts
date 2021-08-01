@@ -23,24 +23,8 @@ export const siteMetadata: ISiteMetadata = {
         order_way: 'desc',
         disablegrouping: 1
       }
-    }
-  },
-  userInfo: {
-    pickLast: ['id', 'name'],
-    process: [
-      {
-        requestConfig: { url: '/index.php' },
-        fields: ['id', 'name']
-      },
-      {
-        requestConfig: { url: '/user.php' },
-        assertion: { id: 'id' },
-        fields: ['uploaded', 'downloaded', 'ratio', 'seeding', 'levelName', 'bonus', 'joinTime']
-      }
-    ]
-  },
-  selector: {
-    search: {
+    },
+    selectors: {
       rows: { selector: '#torrent_table > tbody > tr.torrent' },
       id: { selector: 'td:eq(1) a[title="View Torrent"]', attr: 'href' }, // FIXME 因为不知道具体链接接口，所以直接把种子详情页链接作为id
       title: {
@@ -68,8 +52,22 @@ export const siteMetadata: ISiteMetadata = {
       tags: [
         { name: 'Free', selector: 'strong:contains("Freeleech!")' }
       ]
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    pickLast: ['id', 'name'],
+    process: [
+      {
+        requestConfig: { url: '/index.php' },
+        fields: ['id', 'name']
+      },
+      {
+        requestConfig: { url: '/user.php' },
+        assertion: { id: 'id' },
+        fields: ['uploaded', 'downloaded', 'ratio', 'seeding', 'levelName', 'bonus', 'joinTime']
+      }
+    ],
+    selectors: {
       // page: '/index.php',
       id: {
         selector: ['.username'],

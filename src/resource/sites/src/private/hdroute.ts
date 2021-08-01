@@ -16,23 +16,8 @@ export const siteMetadata: ISiteMetadata = {
         action: 's',
         or: 1
       }
-    }
-  },
-  userInfo: {
-    process: [
-      {
-        requestConfig: { url: '/' },
-        fields: ['id', 'name', 'bonus']
-      },
-      {
-        requestConfig: { url: '/userdetail.php' },
-        assertion: { id: 'id' },
-        fields: ['uploaded', 'downloaded', 'levelName', 'joinTime', 'seeding', 'seedingSize']
-      }
-    ]
-  },
-  selector: {
-    search: {
+    },
+    selectors: {
       rows: { selector: '#unsticky-torrent-table dl' },
       id: {
         selector: ':self',
@@ -71,8 +56,21 @@ export const siteMetadata: ISiteMetadata = {
         { name: '50%', selector: 'figure.sprite_dlp050' },
         { name: '70%', selector: 'figure.sprite_dlp070' }
       ]
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/' },
+        fields: ['id', 'name', 'bonus']
+      },
+      {
+        requestConfig: { url: '/userdetail.php' },
+        assertion: { id: 'id' },
+        fields: ['uploaded', 'downloaded', 'levelName', 'joinTime', 'seeding', 'seedingSize']
+      }
+    ],
+    selectors: {
       id: {
         selector: [".headerRightInfo a[href*='userdetail.php']"],
         attr: 'href',

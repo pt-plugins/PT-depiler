@@ -19,10 +19,8 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     requestConfig: {
       url: '/torrents'
-    }
-  },
-  selector: {
-    search: {
+    },
+    selectors: {
       rows: { selector: 'div.table-torrents > table:last > tbody > tr.librarytab' },
       id: { selector: 'a.torrent-name', attr: 'torrent' },
       title: { selector: 'a.torrent-name' },
@@ -50,8 +48,10 @@ export const siteMetadata: ISiteMetadata = {
         { name: '50%', selector: ".fas.fa-star[title*='50%']" },
         { name: '75%', selector: ".fas.fa-star[title*='75%']" }
       ]
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    selectors: {
       id: {
         selector: '#beta-stats li:first a',
         attr: 'href',
@@ -111,8 +111,8 @@ export default class beyondhd extends Unit3D {
     const userPath = await this.getUserInfoPathFromSite();
     const { data: userDetailDocument } = await this.request<Document>({ url: userPath, responseType: 'document' });
 
-    for (const userInfoAttrValue of Object.keys(this.config.selector?.userInfo!)) {
-      flushUserInfo[userInfoAttrValue] = this.getFieldData(userDetailDocument, this.config.selector?.userInfo![userInfoAttrValue]!);
+    for (const userInfoAttrValue of Object.keys(this.config.userInfo?.selectors!)) {
+      flushUserInfo[userInfoAttrValue] = this.getFieldData(userDetailDocument, this.config.userInfo?.selectors?.[userInfoAttrValue]!);
     }
 
     return flushUserInfo as IUserInfo;

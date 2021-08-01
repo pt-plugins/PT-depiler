@@ -272,11 +272,11 @@ export default class BittorrentSite {
    * @param fields
    * @protected
    */
-  protected getFieldsData<G extends keyof Required<ISiteMetadata>['selector'], F extends keyof Required<Required<ISiteMetadata>['selector']>[G]>
+  protected getFieldsData<G extends 'search' | 'detail' | 'userInfo', F extends keyof Required<Required<ISiteMetadata>[G]>['selectors']>
   (element: Element | Object, selectorGroup: G, fields: F[]): { [key in F]?: any } {
     const ret: any = {};
 
-    for (const [key, selector] of Object.entries(pick(this.config.selector![selectorGroup], fields))) {
+    for (const [key, selector] of Object.entries(pick(this.config[selectorGroup]!.selectors, fields))) {
       ret[key] = this.getFieldData(element, selector as IElementQuery);
     }
 
@@ -400,11 +400,11 @@ export default class BittorrentSite {
    * @param doc
    */
   protected async transformSearchPage (doc: Document | object | any): Promise<ITorrent[]> {
-    if (!this.config.selector?.search?.rows) {
+    if (!this.config.search?.selectors?.rows) {
       throw Error('列表选择器未定义');
     }
 
-    const rowsSelector = this.config.selector.search.rows;
+    const rowsSelector = this.config.search.selectors.rows;
     const torrents: ITorrent[] = [];
 
     let trs: any;
@@ -497,12 +497,12 @@ export default class BittorrentSite {
   }
 
   protected parseRowToTorrent (row: Element | Document | Object, torrent: Partial<ITorrent> = {}): Partial<ITorrent> {
-    const leftKeys = Object.keys(this.config.selector!.search!).filter(key => {
+    const leftKeys = Object.keys(this.config.search!.selectors!).filter(key => {
       return ![
         'rows', // rows 已经在前面被处理过了
         'tags' // tags 转由 parseTagsFromRow 方法处理
       ].includes(key) && !(key in torrent);
-    }) as (keyof Required<ISiteMetadata>['selector']['search'])[];
+    }) as (keyof Required<ISiteMetadata>['search']['selectors'])[];
 
     torrent = {
       ...torrent,
@@ -510,7 +510,7 @@ export default class BittorrentSite {
     };
 
     // 处理Tags
-    if (this.config.selector?.search?.tags) {
+    if (this.config.search?.selectors?.tags) {
       torrent.tags = this.parseTagsFromRow(row);
     }
 
@@ -524,7 +524,7 @@ export default class BittorrentSite {
 
   protected parseTagsFromRow (row: Element | Document | Object): ITorrentTag[] {
     const tags: ITorrentTag[] = [];
-    const tagsQuerys = this.config.selector!.search!.tags!;
+    const tagsQuerys = this.config.search!.selectors!.tags!;
     for (let i = 0; i < tagsQuerys.length; i++) {
       const tagsQuery = tagsQuerys[i];
 
@@ -561,12 +561,12 @@ export default class BittorrentSite {
   }
 
   async getTorrentDownloadLink (torrent: ITorrent):Promise<string> {
-    if (!torrent.link && this.config.selector?.detail?.link) {
+    if (!torrent.link && this.config?.detail?.selectors?.link) {
       const { data } = await this.request<any>({
         url: torrent.url,
         responseType: this.config.detail?.type || 'document'
       });
-      return this.getFieldData(data, this.config.selector.detail.link);
+      return this.getFieldData(data, this.config.detail.selectors.link);
     }
 
     return torrent.link;

@@ -9,8 +9,8 @@ export const siteMetadata: ISiteMetadata = {
   tags: ['音乐'],
   schema: 'GazelleJSONAPI',
   collaborator: ['ylxb2016', 'enigmaz'],
-  selector: {
-    userInfo: {
+  userInfo: {
+    selectors: {
       joinTime: {
         selector: ["div:contains('Statistics') + ul.stats > li:contains('Joined:') > span"],
         elementProcess: (element: HTMLElement) => (element.getAttribute('title') || element.innerText).trim()

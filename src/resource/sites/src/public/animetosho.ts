@@ -19,10 +19,8 @@ export const siteMetadata: ISiteMetadata = {
           { name: 'Sort: Largest first', value: 'size-d' }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'div.home_list_entry' },
       id: { selector: 'div.link a', attr: 'href', filters: [(q:string) => q.match(/\.([nd\d]+)$/)![1]] },
       title: { selector: 'div.link a' },

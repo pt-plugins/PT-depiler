@@ -10,8 +10,8 @@ export const siteMetadata: ISiteMetadata = {
   legacyUrl: [
     'https://btdb.to/'
   ],
-  selector: {
-    search: {
+  search: {
+    selectors: {
       rows: { selector: 'div.media' },
       id: { selector: 'h2.item-title a', attr: 'href', filters: [(q:string) => q.match(/([^/]+)$/)![1]] },
       title: { selector: 'h2.item-title a', attr: 'title' },

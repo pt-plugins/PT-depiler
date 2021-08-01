@@ -13,20 +13,8 @@ export const siteMetadata: ISiteMetadata = {
   tags: ['XXX'],
   host: 'pornbits.net',
   collaborator: 'ian',
-  userInfo: {
-    process: [
-      {
-        requestConfig: { url: '/' },
-        fields: ['name', 'uploaded', 'downloaded']
-      },
-      {
-        requestConfig: { url: '/user/details' },
-        fields: ['levelName', 'joinTime', 'seeding']
-      }
-    ]
-  },
-  selector: {
-    search: {
+  search: {
+    selectors: {
       rows: { selector: '#content > table > tbody > tr' },
       title: { selector: 'a[href*="/torrent/details/"]' },
       url: { selector: 'a[href*="/torrent/details/"]', attr: 'href' },
@@ -45,8 +33,20 @@ export const siteMetadata: ISiteMetadata = {
       tags: [
         { name: 'Free', selector: 'img[src="/images/glyphicons_069_gift.png"]' }
       ]
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/' },
+        fields: ['name', 'uploaded', 'downloaded']
+      },
+      {
+        requestConfig: { url: '/user/details' },
+        fields: ['levelName', 'joinTime', 'seeding']
+      }
+    ],
+    selectors: {
       name: {
         selector: '#subnav > div > div > ul > li.dropdown.pull-right > a > span.hidden-sm'
       },

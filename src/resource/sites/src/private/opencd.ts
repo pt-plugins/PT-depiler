@@ -42,17 +42,17 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       progress: selectorSearchProgress,
       status: selectorSearchStatus,
       tags: [
         { selector: "img[src*='pic/share_rule_1.gif']", name: 'Excl.' }// 禁转
       ]
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    selectors: {
       // 如果页面能直接获取到的话
       seeding: selectorUserInfoSeeding,
       seedingSize: selectorUserInfoSeedingSize

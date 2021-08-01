@@ -42,10 +42,8 @@ export const siteMetadata: ISiteMetadata = {
           { name: '其他', value: '1' }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'table tbody tr:has(a[href^="magnet:?"])' },
       id: { selector: 'a[href^="/topics/view/"]', attr: 'href', filters: [(q:string) => q.match(/\/view\/(\d+)/)![1]] },
       title: { selector: 'a[href^="/topics/view/"]' },

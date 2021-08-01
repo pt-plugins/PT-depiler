@@ -22,8 +22,8 @@ export const siteMetadata: ISiteMetadata = {
     'https://wwv.oxtorrent.com/',
     'https://www.smartorrent.tv/'
   ],
-  selector: {
-    search: {
+  search: {
+    selectors: {
       rows: { selector: 'table.table-hover > tbody > tr:has(a[href*="torrent/"])' },
       id: {
         selector: 'td:nth-child(1) a',
@@ -45,8 +45,10 @@ export const siteMetadata: ISiteMetadata = {
         ]
       }
 
-    },
-    detail: {
+    }
+  },
+  detail: {
+    selectors: {
       link: { selector: 'a[href^="magnet:?"]', attr: 'href' }
     }
   }

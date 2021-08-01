@@ -17,8 +17,8 @@ export const siteMetadata: ISiteMetadata = {
     'https://www.torlock2.com/',
     'https://www.torlock.icu/'
   ],
-  selector: {
-    search: {
+  search: {
+    selectors: {
       rows: { selector: 'table > tbody > tr:has(td:has(div:has(a[href^="/torrent/"])))' },
       id: {
         selector: 'td:nth-child(1) > div > a[href^="/torrent/"]',

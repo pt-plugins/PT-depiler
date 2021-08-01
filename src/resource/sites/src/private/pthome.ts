@@ -8,8 +8,8 @@ export const siteMetadata: ISiteMetadata = {
   description: '只为成为您的家，快乐下载，分享至美！',
   tags: ['综合', '影视', '游戏'],
   collaborator: 'waldens',
-  selector: {
-    search: {
+  search: {
+    selectors: {
       progress: {
         selector: ['td:not(.rowfollow):not(.colhead):not(.embedded)'],
         filters: [

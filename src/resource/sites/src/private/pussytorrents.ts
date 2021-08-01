@@ -34,9 +34,23 @@ export const siteMetadata: ISiteMetadata = {
     keywordsParam: 'query',
     requestConfig: {
       url: '/torrents/browse'
+    },
+    selectors: {
+      rows: { selector: 'table#torrenttable > tbody > tr:has(a[href^="/download/"])' },
+      id: { selector: 'a[href^="/torrent/"]', attr: 'href', filters: [{ name: 'parseNumber' }] },
+      title: { selector: 'a[href^="/torrent/"]' },
+      url: { selector: 'a[href^="/torrent/"]', attr: 'href' },
+      link: { selector: 'a[href^="/download/"]', attr: 'href' },
+      time: { selector: 'span.subnote', filters: [(query: string) => query.replace('Added on ', '')] },
+      size: { selector: 'td:nth-last-child(5)' },
+      author: { selector: 'td:nth-last-child(1)' },
+      category: { text: 'ALL' },
+      seeders: { selector: 'td:nth-last-child(3)' },
+      leechers: { selector: 'td:nth-last-child(2)' },
+      completed: { selector: 'td:nth-last-child(4)', filters: [{ name: 'parseNumber' }] },
+      comments: { selector: 'a[href*="#comments"]' }
     }
   },
-
   userInfo: {
     process: [
       {
@@ -120,26 +134,8 @@ export const siteMetadata: ISiteMetadata = {
         assertion: { id: 'userID' },
         fields: ['seeding', 'seedingSize']
       }
-    ]
-  },
-
-  selector: {
-    search: {
-      rows: { selector: 'table#torrenttable > tbody > tr:has(a[href^="/download/"])' },
-      id: { selector: 'a[href^="/torrent/"]', attr: 'href', filters: [{ name: 'parseNumber' }] },
-      title: { selector: 'a[href^="/torrent/"]' },
-      url: { selector: 'a[href^="/torrent/"]', attr: 'href' },
-      link: { selector: 'a[href^="/download/"]', attr: 'href' },
-      time: { selector: 'span.subnote', filters: [(query: string) => query.replace('Added on ', '')] },
-      size: { selector: 'td:nth-last-child(5)' },
-      author: { selector: 'td:nth-last-child(1)' },
-      category: { text: 'ALL' },
-      seeders: { selector: 'td:nth-last-child(3)' },
-      leechers: { selector: 'td:nth-last-child(2)' },
-      completed: { selector: 'td:nth-last-child(4)', filters: [{ name: 'parseNumber' }] },
-      comments: { selector: 'a[href*="#comments"]' }
-    },
-    userInfo: {
+    ],
+    selectors: {
       // page: '/',
       name: {
         selector: "#memberBar .span8 a[href*='/profile/']"
@@ -169,7 +165,6 @@ export const siteMetadata: ISiteMetadata = {
         selector: "#profileTable td:contains('Join Date') + td",
         filters: [
           (query: string) => {
-            console.log(query);
             return dayjs(query.split(' ').slice(1).join(' '), 'Do MMMM YYYY').valueOf();
           }
         ]

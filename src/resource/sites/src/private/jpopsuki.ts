@@ -29,10 +29,8 @@ export const siteMetadata: ISiteMetadata = {
           { value: 10, name: 'Misc' }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       // 对于特定站点，不使用自动生成列表，而是直接指定selector
       time: { selector: '> td:eq(5)' },
       size: { selector: '> td:eq(6)' },
@@ -47,8 +45,10 @@ export const siteMetadata: ISiteMetadata = {
       tags: [
         { selector: "strong:contains('Freeleech!')", name: 'Free' }
       ]
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    selectors: {
       seeding: {
         selector: "div:contains('Community') + ul.stats > li:contains('Seeding:')",
         filters: [

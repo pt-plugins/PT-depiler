@@ -28,10 +28,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       // FIXME 先从HDHOME中抄一下，没测试过
       // 但两个站的 sysop 基本是同一人，应该和我一样会偷懒的吧
       progress: selectorSearchProgress,

@@ -31,10 +31,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: '#torrents_table > tbody > tr:gt(0)' },
       title: {
         selector: "a[href*='hit']:eq(0)",
@@ -75,9 +73,10 @@ export const siteMetadata: ISiteMetadata = {
       comments: { selector: "a[href$='#startcomments']" },
       category: { selector: 'div.category_text' }
 
-    },
-
-    userInfo: {
+    }
+  },
+  userInfo: {
+    selectors: {
       id: {
         selector: "span#curuser a[href*='userdetails.php'][class*='Name']:first",
         attr: 'href',

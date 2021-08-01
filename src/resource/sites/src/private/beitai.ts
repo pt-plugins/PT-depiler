@@ -30,10 +30,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       progress: selectorSearchProgress,
       status: selectorSearchStatus
     }

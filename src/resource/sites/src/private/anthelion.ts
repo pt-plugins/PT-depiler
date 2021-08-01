@@ -1,5 +1,5 @@
 import { ISiteMetadata, ITorrent } from '../../types';
-import GazelleJSONAPI, { groupBrowseResult, groupTorrent } from '../schema/GazelleJSONAPI';
+import GazelleJSONAPI, { groupBrowseResult, groupTorrent as defaultGroupTorrent } from '../schema/GazelleJSONAPI';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'Anthelion',
@@ -9,8 +9,8 @@ export const siteMetadata: ISiteMetadata = {
   tags: ['电影'],
   schema: 'GazelleJSONAPI',
   collaborator: 'enigamz',
-  selector: {
-    userInfo: {
+  userInfo: {
+    selectors: {
       bonus: {
         selector: ["a[href*='store.php']"],
         filters: [
@@ -27,8 +27,15 @@ export const siteMetadata: ISiteMetadata = {
   }
 };
 
+interface groupTorrent extends defaultGroupTorrent {
+  codec: string,
+  container: string,
+  resolution: string,
+  audio: string
+}
+
 export default class anthelion extends GazelleJSONAPI {
-  protected override async transformGroupTorrent (group: groupBrowseResult, torrent: groupTorrent & { codec: string, container: string, resolution: string, audio: string }): Promise<ITorrent> {
+  protected override async transformGroupTorrent (group: groupBrowseResult, torrent: groupTorrent): Promise<ITorrent> {
     const parsedTorrent = await super.transformGroupTorrent(group, torrent);
 
     /**

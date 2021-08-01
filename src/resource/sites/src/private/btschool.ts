@@ -11,8 +11,8 @@ export const siteMetadata: ISiteMetadata = {
   description: '汇聚每一个人的影响力',
   url: 'https://pt.btschool.club/',
   tags: ['影视', '综合'],
-  selector: {
-    search: {
+  search: {
+    selectors: {
       progress: {
         selector: ['.progress:eq(0) > div'],
         attr: 'style',

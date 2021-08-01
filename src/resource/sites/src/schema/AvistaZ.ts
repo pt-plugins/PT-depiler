@@ -13,24 +13,8 @@ export default class AvistaZ extends PrivateSite {
         params: {
           in: 1
         }
-      }
-    },
-    userInfo: {
-      pickLast: ['id', 'name', 'joinTime'],
-      process: [
-        {
-          requestConfig: { url: '/' },
-          fields: ['name']
-        },
-        {
-          requestConfig: { url: '/profile/$userName$' },
-          assertion: { name: 'userName' },
-          fields: ['messageCount', 'id', 'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', 'seeding']
-        }
-      ]
-    },
-    selector: {
-      search: {
+      },
+      selectors: {
         rows: { selector: 'table.table:first > tbody > tr:has(a[href*="/torrent/"])' },
         id: {
           selector: 'a.torrent-filename',
@@ -67,8 +51,22 @@ export default class AvistaZ extends PrivateSite {
           { name: '2xUp', selector: 'i.fa-diamond' },
           { name: '50%', selector: 'i.fa-star-half-o' }
         ]
-      },
-      userInfo: {
+      }
+    },
+    userInfo: {
+      pickLast: ['id', 'name', 'joinTime'],
+      process: [
+        {
+          requestConfig: { url: '/' },
+          fields: ['name']
+        },
+        {
+          requestConfig: { url: '/profile/$userName$' },
+          assertion: { name: 'userName' },
+          fields: ['messageCount', 'id', 'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', 'seeding']
+        }
+      ],
+      selectors: {
         // url: '/',
         name: {
           selector: ["a[href*='/profile/']:first"],

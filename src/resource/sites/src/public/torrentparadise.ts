@@ -12,10 +12,8 @@ export const siteMetadata: ISiteMetadata = {
   ],
   search: {
     requestConfig: { url: 'search.php' },
-    keywordsParam: 'f'
-  },
-  selector: {
-    search: {
+    keywordsParam: 'f',
+    selectors: {
       rows: { selector: 'table.table-bordered > tbody > tr.table-default' },
       id: { selector: 'td:nth-child(2) a', attr: 'href', filters: [(q:string) => q.match(/torrent\/(\d+)/)![1]] },
       title: { selector: 'td:nth-child(2) a' },
@@ -25,8 +23,10 @@ export const siteMetadata: ISiteMetadata = {
       seeders: { selector: 'td:nth-child(5)' },
       leechers: { selector: 'td:nth-child(6)' },
       category: { selector: 'td:nth-child(1) a' }
-    },
-    detail: {
+    }
+  },
+  detail: {
+    selectors: {
       link: { selector: 'a[href^="magnet:?xt="]', attr: 'href' }
     }
   }

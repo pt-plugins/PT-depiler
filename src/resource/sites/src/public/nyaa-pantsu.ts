@@ -116,10 +116,8 @@ export const siteMetadata: ISiteMetadata = {
           { name: 'Real Life - Videos', value: '2_2' }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'tbody#torrentListResults > tr.torrent-info' },
       id: {
         selector: 'td:nth-child(2) > a',

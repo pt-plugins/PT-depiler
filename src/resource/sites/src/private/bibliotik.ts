@@ -18,25 +18,8 @@ export const siteMetadata: ISiteMetadata = {
         orderby: 'added',
         order: 'desc'
       }
-    }
-  },
-  userInfo: {
-    pickLast: ['id', 'name'],
-    process: [
-      {
-        requestConfig: { url: '/' },
-        fields: ['id', 'name']
-      },
-      {
-        requestConfig: { url: '/users/$userId$' },
-        assertion: { id: 'userId' },
-        fields: ['uploaded', 'downloaded', 'levelName', 'joinTime', 'bonus']
-      }
-    ]
-  },
-
-  selector: {
-    search: {
+    },
+    selectors: {
       rows: { selector: 'table#torrents_table > tbody > tr:has(.title)' },
       id: {
         selector: 'span.title a:first',
@@ -66,8 +49,22 @@ export const siteMetadata: ISiteMetadata = {
       completed: { selector: '.snatches', text: 0 },
       comments: { selector: 'td:eq(5)', text: 0 }
 
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    pickLast: ['id', 'name'],
+    process: [
+      {
+        requestConfig: { url: '/' },
+        fields: ['id', 'name']
+      },
+      {
+        requestConfig: { url: '/users/$userId$' },
+        assertion: { id: 'userId' },
+        fields: ['uploaded', 'downloaded', 'levelName', 'joinTime', 'bonus']
+      }
+    ],
+    selectors: {
       // page: '/' ，走默认解析方法
       id: {
         selector: ["#pre_header_status a[href*='/users/']"],

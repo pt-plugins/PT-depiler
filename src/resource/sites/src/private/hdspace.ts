@@ -15,25 +15,8 @@ export const siteMetadata: ISiteMetadata = {
         page: 'torrents',
         active: 0
       }
-    }
-  },
-  userInfo: {
-    pickLast: ['id', 'name', 'joinTime'],
-    process: [
-      {
-        requestConfig: { url: '/index.php' },
-        fields: ['id', 'name', 'messageCount', 'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'seeding']
-      },
-      {
-        requestConfig: { url: '/index.php', params: { page: 'usercp' } },
-        assertion: { id: 'uid' },
-        fields: ['joinTime']
-      }
-    ]
-  },
-
-  selector: {
-    search: {
+    },
+    selectors: {
       rows: { selector: 'table.lista > tbody > tr:has(a[href*="index.php?page=torrent-details"])' },
       id: {
         selector: 'a[href*="index.php?page=torrent-details"]',
@@ -70,8 +53,22 @@ export const siteMetadata: ISiteMetadata = {
         { name: 'Free', selector: "img[src='gold/gold.png'], img[src='images/sf.png']" },
         { name: '50%', selector: "img[src='gold/silver.png']" }
       ]
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    pickLast: ['id', 'name', 'joinTime'],
+    process: [
+      {
+        requestConfig: { url: '/index.php' },
+        fields: ['id', 'name', 'messageCount', 'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'seeding']
+      },
+      {
+        requestConfig: { url: '/index.php', params: { page: 'usercp' } },
+        assertion: { id: 'uid' },
+        fields: ['joinTime']
+      }
+    ],
+    selectors: {
       // page: '/index.php'
       id: {
         selector: "a[href*='index.php?page=usercp']:first",
@@ -125,6 +122,7 @@ export const siteMetadata: ISiteMetadata = {
       }
     }
   },
+
   feature: {
     skipImdbSearch: true
   }

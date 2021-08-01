@@ -66,10 +66,8 @@ export const siteMetadata: ISiteMetadata = {
           { name: 'Descending', value: 'desc' }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'table.table-list > tbody > tr' }, // 'tr:has(a[href^="/torrent/"])'
       id: {
         selector: 'td[class^="coll-1"] a[href^="/torrent/"]',
@@ -106,8 +104,11 @@ export const siteMetadata: ISiteMetadata = {
           (q: string) => categoryMap.get(parseInt(q.match(/\/sub\/(\d+)/)![1]))
         ]
       }
-    },
-    detail: {
+    }
+  },
+
+  detail: {
+    selectors: {
       link: { selector: 'ul[aria-labelledby="dropdownMenu1"] a', attr: 'href' }
     }
   }

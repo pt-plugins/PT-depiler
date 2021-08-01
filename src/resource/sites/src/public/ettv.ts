@@ -79,10 +79,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append', key: 'c' }
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'div.myFrame-content > div > table > tbody > tr[class]' },
       id: { selector: 'a[href^="/torrent/"]', attr: 'href', filters: [(q:string) => q.match(/\/torrent\/(\d+)/)![1]] },
       title: { selector: 'a[href^="/torrent/"][title]', attr: 'title', filters: [(q:string) => q.replace(/ torrent$/, '')] },
@@ -103,8 +101,10 @@ export const siteMetadata: ISiteMetadata = {
         ]
       },
       author: { selector: 'td:nth-child(8)' }
-    },
-    detail: {
+    }
+  },
+  detail: {
+    selectors: {
       link: { selector: 'a.download_link:last-of-type', attr: 'href' }
     }
   }

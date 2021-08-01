@@ -16,6 +16,21 @@ export type SiteFeature = 'queryUserInfo'
    */
   | 'skipImdbSearch'
 
+export type listSelectors = {
+  /**
+   * 种子列表定位。
+   * filter 配置项用于对 selector 获取到的rows进行处理，
+   * 如果filter不存在，则其他部分选项起作用：
+   *  - merge  用于合并部分使用多行表示一个种子的情况，仅在返回为 Document 时生效
+   */
+  rows?: {
+    selector: string | ':self',
+    filter?: <T>(rows: T) => T
+    merge?: number,
+  }
+} & { [torrentKey in keyof Omit<ITorrent, 'tags'>]?: IElementQuery } // 种子相关选择器
+  & { tags?: { selector: string, name: (keyof typeof ETorrentBaseTagColor) | string, color?: string }[] } // Tags相关选择器
+
 /**
  * 站点配置，这部分配置由系统提供，并随着每次更新而更新，不受用户配置的任何影响
  * 当且仅当 基于模板构建时，该部分配置可以由用户修改
@@ -81,10 +96,26 @@ export interface ISiteMetadata {
 
     keywordsParam?: string, // 当不指定且未改写时，会导致keyword未被搜索使用
     categories?: ISearchCategories[], // 站点对应搜索入口的种子分类信息
+
+    selectors?: listSelectors
   } // 站点搜索方法如何配置
+
+  /**
+   * 种子列表页配置
+   * 注：只有极其特殊的情况下才需要定义此处的 selectors ， 一般如下：
+   *  - 使用 AJAX 方法异步加载页面种子
+   */
+  list?: {
+    selectors?: listSelectors
+  },
 
   detail?: {
     type?: ResponseType, // 当不指定时，默认为 document
+
+    selectors?: {
+      link?: IElementQuery // 用于获取下载链接不在搜索页，而在详情页的情况
+      [key: string]: IElementQuery | undefined // FIXME
+    } & { [torrentKey in keyof ITorrent]?: IElementQuery } // 种子相关选择器
   }
 
   /**
@@ -100,7 +131,7 @@ export interface ISiteMetadata {
     /**
      * 有执行顺序，从上到下依次执行，第一个不应该有断言 assertion，后续配置项可以有断言
      */
-    process: {
+    process?: {
       requestConfig: AxiosRequestConfig & { transferPostData?: transPostDataTo }, // { url: '/', params: {}, responseType: 'document' } 会作为基件
       /**
        * 请求参数替换断言
@@ -112,31 +143,9 @@ export interface ISiteMetadata {
         [key in keyof IUserInfo]?: string
       },
       fields: (keyof IUserInfo)[]
-    }[]
-  }
+    }[],
 
-  selector?: {
-    search?: {
-      /**
-       * 种子列表定位。
-       * filter 配置项用于对 selector 获取到的rows进行处理，
-       * 如果filter不存在，则其他部分选项起作用：
-       *  - merge  用于合并部分使用多行表示一个种子的情况，仅在返回为 Document 时生效
-       */
-      rows?: {
-        selector: string | ':self',
-        filter?: <T>(rows: T) => T
-        merge?: number,
-      }
-    } & { [torrentKey in keyof Omit<ITorrent, 'tags'>]?: IElementQuery } // 种子相关选择器
-      & { tags?: { selector: string, name: (keyof typeof ETorrentBaseTagColor) | string, color?: string }[] } // Tags相关选择器
-
-    detail?: {
-      link?: IElementQuery // 用于获取下载链接不在搜索页，而在详情页的情况
-      [key: string]: IElementQuery | undefined // FIXME
-    } & { [torrentKey in keyof ITorrent]?: IElementQuery } // 种子相关选择器
-
-    userInfo?: { [userinfoKey in keyof IUserInfo]?: IElementQuery } // 用户信息相关选择器
+    selectors?: { [userinfoKey in keyof IUserInfo]?: IElementQuery } // 用户信息相关选择器
   }
 
   feature?: { // 站点支持方法

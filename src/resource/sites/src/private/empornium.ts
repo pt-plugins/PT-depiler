@@ -75,24 +75,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'appendQuote' }
       }
-    ]
-  },
-  userInfo: {
-    process: [
-      {
-        requestConfig: { url: '/index.php' },
-        fields: ['id', 'name', 'messageCount', 'seeding', 'uploaded', 'downloaded', 'ratio', 'bonus']
-      },
-      {
-        requestConfig: { url: '/user.php' },
-        assertion: { id: 'id' },
-        fields: ['joinTime', 'levelName', 'seedingSize']
-      }
-    ]
-  },
-
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'table.torrent_table.grouping > tbody > tr:gt(0)' },
       id: {
         selector: 'a[href^="/torrents.php?action=download&id="]',
@@ -140,8 +124,21 @@ export const siteMetadata: ISiteMetadata = {
         }
       }
 
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    process: [
+      {
+        requestConfig: { url: '/index.php' },
+        fields: ['id', 'name', 'messageCount', 'seeding', 'uploaded', 'downloaded', 'ratio', 'bonus']
+      },
+      {
+        requestConfig: { url: '/user.php' },
+        assertion: { id: 'id' },
+        fields: ['joinTime', 'levelName', 'seedingSize']
+      }
+    ],
+    selectors: {
       // page: '/index.php'
       id: {
         selector: ["a.username[href*='user.php']:first"],

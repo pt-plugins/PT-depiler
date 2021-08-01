@@ -33,10 +33,8 @@ export const siteMetadata: ISiteMetadata = {
           { name: '其他', value: '/torrents_other.php' }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       id: {
         selector: ['> td:eq(1) a[href*="id="]:first']
       },
@@ -74,8 +72,10 @@ export const siteMetadata: ISiteMetadata = {
           }
         }
       }
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    selectors: {
       seeding: {
         selector: ["td.rowfollow:contains('总做种数')"], // 这里站点并没有i18n，所以就先这样
         filters: [

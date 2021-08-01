@@ -13,24 +13,8 @@ export const siteMetadata: ISiteMetadata = {
     requestConfig: {
       url: '/browse.php',
       params: { notnewword: 1 }
-    }
-  },
-  userInfo: {
-    pickLast: ['id', 'name'],
-    process: [
-      {
-        requestConfig: { url: '/index.php' },
-        fields: ['id', 'name']
-      },
-      {
-        requestConfig: { url: '/userdetails.php' },
-        assertion: { id: 'id' },
-        fields: ['uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime', 'seeding', 'seedingSize']
-      }
-    ]
-  },
-  selector: {
-    search: {
+    },
+    selectors: {
       rows: { selector: 'table[border="1"][cellpadding="5"] > tbody > tr:has(a[href^="details.php?id="])' },
       id: {
         selector: 'a[title][href^="details.php?id="]',
@@ -66,8 +50,22 @@ export const siteMetadata: ISiteMetadata = {
         { name: '50%', selector: "font[color='#C20603']:has( > img[href*='arrowdown1.gif']):contains('0.5x')" },
         { name: '2xUp', selector: "font[color='#4A8D04']:has( > img[href*='arrowup1.gif']):contains('2x')" }
       ]
-    },
-    userInfo: {
+    }
+  },
+  userInfo: {
+    pickLast: ['id', 'name'],
+    process: [
+      {
+        requestConfig: { url: '/index.php' },
+        fields: ['id', 'name']
+      },
+      {
+        requestConfig: { url: '/userdetails.php' },
+        assertion: { id: 'id' },
+        fields: ['uploaded', 'downloaded', 'levelName', 'bonus', 'joinTime', 'seeding', 'seedingSize']
+      }
+    ],
+    selectors: {
       // url: '/index.php',
       id: {
         selector: "a[href*='userdetails.php']:first",

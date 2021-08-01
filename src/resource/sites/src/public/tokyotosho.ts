@@ -30,10 +30,8 @@ export const siteMetadata: ISiteMetadata = {
           { name: 'Other', value: 5 }
         ]
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       rows: { selector: 'table.listing tr.category_0', merge: 2 },
       id: { selector: 'tr:nth-child(1) a[href^="details.php?id="]', attr: 'href', filters: [{ name: 'querystring', args: ['id'] }] },
       title: { selector: 'tr:nth-child(1) td.desc-top a[type="application/x-bittorrent"]' },

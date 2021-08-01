@@ -26,8 +26,8 @@ export const siteMetadata: ISiteMetadata = {
       }
     ]
   },
-  selector: {
-    userInfo: {
+  userInfo: {
+    selectors: {
       seedingSize: {
         selector: ["li:contains('Total Seeding: ') > span"],
         filters: [{ name: 'parseSize' }]

@@ -10,8 +10,8 @@ export const siteMetadata: ISiteMetadata = {
   tags: ['动漫'],
   schema: 'Gazelle',
   host: 'animebytes.tv',
-  selector: {
-    userInfo: {
+  userInfo: {
+    selectors: {
       id: {
         selector: ['#stats_menu > a:first'],
         attr: 'href',

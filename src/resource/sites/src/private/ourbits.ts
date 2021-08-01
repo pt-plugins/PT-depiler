@@ -120,10 +120,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
         cross: { mode: 'append' }
       }
-    ]
-  },
-  selector: {
-    search: {
+    ],
+    selectors: {
       progress: {
         selector: 'div.progressBar > div',
         attr: 'style',

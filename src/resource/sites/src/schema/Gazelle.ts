@@ -1,5 +1,5 @@
 import PrivateSite from '../schema/AbstractPrivateSite';
-import { ISiteMetadata, ETorrentStatus, ITorrent } from '../../types';
+import { ISiteMetadata, ETorrentStatus, ITorrent, listSelectors } from '../../types';
 import Sizzle from 'sizzle';
 import urlparse from 'url-parse';
 import { merge } from 'lodash-es';
@@ -14,27 +14,8 @@ export default class Gazelle extends PrivateSite {
         url: '/torrents.php',
         responseType: 'document',
         params: { searchsubmit: 1 }
-      }
-    },
-    userInfo: {
-      process: [
-        {
-          requestConfig: { url: '/index.php', responseType: 'document' },
-          fields: ['id', 'name', 'messageCount']
-        },
-        {
-          requestConfig: { url: '/user.php', params: { /* id: flushUserInfo.id */ }, responseType: 'document' },
-          assertion: { id: 'id' },
-          fields: [
-            'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', // Gazelle 基础项
-            'seeding', 'seedingSize'
-          ]
-        }
-      ]
-    },
-
-    selector: {
-      search: {
+      },
+      selectors: {
         rows: { selector: 'table.torrent_table:last > tbody > tr:gt(0)' },
         id: {
           selector: "a[href*='torrents.php?id=']",
@@ -65,8 +46,24 @@ export default class Gazelle extends PrivateSite {
 
         progress: { text: 0 },
         status: { text: ETorrentStatus.unknown }
-      },
-      userInfo: {
+      }
+    },
+    userInfo: {
+      process: [
+        {
+          requestConfig: { url: '/index.php', responseType: 'document' },
+          fields: ['id', 'name', 'messageCount']
+        },
+        {
+          requestConfig: { url: '/user.php', params: { /* id: flushUserInfo.id */ }, responseType: 'document' },
+          assertion: { id: 'id' },
+          fields: [
+            'uploaded', 'downloaded', 'ratio', 'levelName', 'bonus', 'joinTime', // Gazelle 基础项
+            'seeding', 'seedingSize'
+          ]
+        }
+      ],
+      selectors: {
         // "page": "/index.php",
         id: {
           selector: ["a.username[href*='user.php']:first"],
@@ -142,8 +139,7 @@ export default class Gazelle extends PrivateSite {
             return dayjs(query).isValid() ? dayjs(query).valueOf() : query;
           }
         }
-      },
-      detail: {}
+      }
     }
   }
 
@@ -152,8 +148,8 @@ export default class Gazelle extends PrivateSite {
     const legacyTableSelector = 'table.torrent_table:last';
 
     // 生成 rows的
-    if (!this.config.selector?.search?.rows) {
-      this.config.selector!.search!.rows = { selector: `${legacyTableSelector} > tbody > tr:gt(0)` };
+    if (!this.config.search?.selectors?.rows) {
+      this.config.search!.selectors!.rows = { selector: `${legacyTableSelector} > tbody > tr:gt(0)` };
     }
     // 对于 Gazelle ，一般来说，表的第一行应该是标题行，即 `> tbody > tr:nth-child(1)`
     const tableHeadAnother = Sizzle(`${legacyTableSelector} > tbody > tr:first > td`, doc) as HTMLElement[];
@@ -168,25 +164,25 @@ export default class Gazelle extends PrivateSite {
       } as Record<keyof ITorrent, string>)) {
         if (Sizzle(dectSelector, element).length > 0) {
           // @ts-ignore
-          this.config.selector.search[dectField] = merge({
+          this.config.search.selectors[dectField as keyof listSelectors] = merge({
             selector: [`> td:eq(${elementIndex})`]
           },
           // @ts-ignore
-          (this.config.selector.search[dectField] || {}));
+          (this.config.search.selectors[dectField] || {}));
         }
       }
     });
 
     // 遍历数据行
     const torrents: ITorrent[] = [];
-    const trs = Sizzle(this.config.selector!.search!.rows.selector as string, doc);
+    const trs = Sizzle(this.config.search!.selectors!.rows.selector as string, doc);
 
     for (let i = 0; i < trs.length; i++) {
       const tr = trs[i];
 
       // 对 url 和 link 结果做个检查，检查通过的再进入 parseRowToTorrent
-      const url = this.getFieldData(tr, this.config.selector!.search!.url!);
-      const link = this.getFieldData(tr, this.config.selector!.search!.link!);
+      const url = this.getFieldData(tr, this.config.search!.selectors!.url!);
+      const link = this.getFieldData(tr, this.config.search!.selectors!.link!);
       if (url && link) {
         const torrent = this.parseRowToTorrent(tr, { url, link }) as ITorrent;
         torrents.push(torrent);
