@@ -1,4 +1,5 @@
 import { AxiosRequestConfig } from 'axios';
+import { ITorrent } from './torrent';
 
 export type TDefinedFilterName =
   'querystring'
@@ -13,6 +14,19 @@ export interface IDefinedQueryFilter {
 }
 
 export type TQueryFilter = IDefinedQueryFilter | Function
+
+export class NoTorrentsError extends Error {}
+
+/**
+ * 搜索结果解析状态
+ */
+export enum ESearchResultParseStatus {
+  success,
+  parseError,
+  passSearch,
+  needLogin,
+  noTorrents, // 等同于原先的 noTorrents 和 torrentTableIsEmpty ，这两个在结果上没有区别
+}
 
 export interface IElementQuery {
   // selector或 text 一定要有一个
@@ -88,7 +102,12 @@ export interface ISearchFilter {
   extraParams?: ISearchParams[], // 其他请求参数信息
 }
 
-export interface SearchRequestConfig {
+export interface ISearchRequestConfig {
   filter: ISearchFilter,
   axiosConfig: AxiosRequestConfig
+}
+
+export interface ISearchResult {
+  status: ESearchResultParseStatus,
+  data: ITorrent[]
 }

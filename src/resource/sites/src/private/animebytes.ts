@@ -1,4 +1,4 @@
-import { ISearchFilter, ISiteMetadata, ITorrent } from '../../types';
+import { ISearchFilter, ISearchResult, ISiteMetadata, ITorrent } from '../../types';
 import urlparse from 'url-parse';
 import Gazelle from '../schema/Gazelle';
 
@@ -62,7 +62,7 @@ export const siteMetadata: ISiteMetadata = {
 
 export default class animebytes extends Gazelle {
   // FIXME 暂时以一种强硬的方式表示不支持搜索
-  public override async searchTorrents (filter: ISearchFilter): Promise<ITorrent[]> {
+  public override async searchTorrents (filter: ISearchFilter = {}) : Promise<ISearchResult> {
     throw new Error('Not Support Now.');
   }
 }

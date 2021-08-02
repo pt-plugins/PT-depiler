@@ -1,26 +1,40 @@
 import {
-  IElementQuery, ISearchCategories, ISearchCategoryOptions,
-  ISearchFilter, SearchRequestConfig,
+  ESearchResultParseStatus,
+  ETorrentBaseTagColor,
+  IDefinedQueryFilter,
+  IElementQuery,
+  ISearchCategories,
+  ISearchCategoryOptions,
+  ISearchFilter,
+  ISearchRequestConfig,
+  ISearchResult,
   ISiteMetadata,
-  ETorrentBaseTagColor, ITorrent, ITorrentTag, TQueryFilter, IDefinedQueryFilter
+  ITorrent,
+  ITorrentTag,
+  NoTorrentsError,
+  TQueryFilter
 } from '../../types';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import Sizzle from 'sizzle';
 import urljoin from 'url-join';
 import urlparse from 'url-parse';
-import { merge, get, chunk, mergeWith, pick } from 'lodash-es';
+import { chunk, get, merge, mergeWith, pick } from 'lodash-es';
 import {
   cfDecodeEmail,
   findThenParseNumberString,
   findThenParseSizeString,
-  parseSizeString, parseTimeToLive,
-  parseTimeWithZone, parseValidTimeString
+  parseSizeString,
+  parseTimeToLive,
+  parseTimeWithZone,
+  parseValidTimeString
 } from '@ptpp/utils/filter';
 import { fullUrl, transPostDataTo } from '@ptpp/utils/types';
 
 export function restoreSecureLink (url: string): fullUrl {
   return (url.startsWith('aHR0c') ? atob(url) : url) as fullUrl;
 }
+
+export class NeedLoginError extends Error {}
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export default class BittorrentSite {
@@ -170,13 +184,15 @@ export default class BittorrentSite {
    * 种子搜索方法
    * @param filter
    */
-  public async searchTorrents (filter: ISearchFilter = {}) : Promise<ITorrent[]> {
+  public async searchTorrents (filter: ISearchFilter = {}) : Promise<ISearchResult> {
+    const result : ISearchResult = { data: [], status: ESearchResultParseStatus.success };
     let isImdbSearch: boolean = false;
 
     if (filter.keywords && /tt\d{7,8}/.test(filter.keywords)) { // 存在搜索关键词且为Imdb格式
       isImdbSearch = true;
       if (this.config.feature?.skipImdbSearch) { // 定义了 skipImdbSearch 属性且为真
-        return [];
+        result.status = ESearchResultParseStatus.passSearch;
+        return result;
       }
     }
 
@@ -193,9 +209,20 @@ export default class BittorrentSite {
     }
 
     // 请求页面并转化为document
-    const req = await this.request({ ...axiosConfig, checkLogin: true });
-    const rawTorrent = await this.transformSearchPage(req.data);
-    return rawTorrent.map(t => this.fixParsedTorrent(t, { filter, axiosConfig }));
+    try {
+      const req = await this.request({ ...axiosConfig, checkLogin: true });
+      const rawTorrent = await this.transformSearchPage(req.data);
+      result.data = rawTorrent.map(t => this.fixParsedTorrent(t, { filter, axiosConfig }));
+    } catch (e) {
+      if (e instanceof NeedLoginError) {
+        result.status = ESearchResultParseStatus.needLogin;
+      } else if (e instanceof NoTorrentsError) {
+        result.status = ESearchResultParseStatus.noTorrents;
+      } else {
+        result.status = ESearchResultParseStatus.parseError;
+      }
+    }
+    return result;
   }
 
   async request<T> (axiosConfig: AxiosRequestConfig & { requestName?: string, checkLogin?: boolean }): Promise<AxiosResponse<T>> {
@@ -232,7 +259,7 @@ export default class BittorrentSite {
     }
 
     if (axiosConfig.checkLogin && !this.loggedCheck(req)) {
-      throw Error('未登录'); // FIXME i18n
+      throw new NeedLoginError(); // FIXME i18n
     }
 
     // 将结果缓存到 _runtime.cacheRequest 以实现跨方法调用
@@ -440,6 +467,11 @@ export default class BittorrentSite {
       }
     }
 
+    // 如果没有搜索到种子，则抛出 NoTorrentsError
+    if (trs.length === 0) {
+      throw new NoTorrentsError();
+    }
+
     trs?.forEach((tr: any) => {
       torrents.push(this.parseRowToTorrent(tr) as ITorrent);
     });
@@ -447,7 +479,7 @@ export default class BittorrentSite {
     return torrents;
   }
 
-  protected fixParsedTorrent (torrent: ITorrent, requestConfig: SearchRequestConfig): ITorrent {
+  protected fixParsedTorrent (torrent: ITorrent, requestConfig: ISearchRequestConfig): ITorrent {
     // 检查种子的id属性是否存在，如果不存在，则由 url, link 属性替代
     if (!torrent.id) {
       if (torrent.url) {
