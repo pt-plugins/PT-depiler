@@ -25,6 +25,10 @@ export default class NexusPHP extends PrivateSite {
         url: '/torrents.php',
         params: { notnewword: 1 }
       },
+      imdbTransformer: (config) => {
+        config.params.search_area = 4; // params "&search_area=4"
+        return config;
+      },
       selectors: {
         // row 等信息由 transformSearchPage 根据搜索结果自动生成
         link: baseLinkQuery, // 种子下载链接

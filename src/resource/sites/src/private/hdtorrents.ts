@@ -24,6 +24,11 @@ export const siteMetadata: ISiteMetadata = {
         active: 0
       }
     },
+    imdbTransformer: config => {
+      config.params.options = 2; // "&options=2"
+      return config;
+    },
+
     selectors: {
       rows: { selector: 'table.mainblockcontenttt tr:has(td.mainblockcontent:has(a[href*="details.php"]))' },
       id: {

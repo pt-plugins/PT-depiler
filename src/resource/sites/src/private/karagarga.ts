@@ -18,6 +18,10 @@ export const siteMetadata: ISiteMetadata = {
         cat: 0
       }
     },
+    imdbTransformer: config => {
+      config.params.search_type = 'imdb';
+      return config;
+    },
     selectors: {
       rows: { selector: 'table#browse > tbody > tr:has(a[href^="browse.php?genre="])' },
       id: { selector: 'a[href^="details.php?id="]', attr: 'href', filters: [{ name: 'querystring', args: ['id'] }] },

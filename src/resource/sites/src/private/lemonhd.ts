@@ -34,6 +34,10 @@ export const siteMetadata: ISiteMetadata = {
         ]
       }
     ],
+    imdbTransformer: (config) => {
+      config.params.search_area = 'imdb'; // params "&search_area=imdb"
+      return config;
+    },
     selectors: {
       id: {
         selector: ['> td:eq(1) a[href*="id="]:first']

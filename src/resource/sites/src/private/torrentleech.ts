@@ -184,13 +184,15 @@ export default class torrentleech extends PrivateSite {
 
     if (filter.extraParams?.find(param => param.key === 'category')) {
       const categoryParams = filter.extraParams?.find(param => param.key === 'category');
-      // @ts-ignore
-      urlSearch.push(['categories', categoryParams.value]);
+      urlSearch.push(...['categories', categoryParams!.value as string]);
     }
 
     if (filter.keywords) {
-      // @ts-ignore
-      urlSearch.push(['query', filter.keywords]);
+      if (/tt\d{7,8}/.test(filter.keywords)) {
+        urlSearch.push(...['imdbID', filter.keywords]);
+      } else {
+        urlSearch.push(...['query', filter.keywords]);
+      }
     }
 
     return {

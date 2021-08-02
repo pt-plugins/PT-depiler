@@ -12,6 +12,10 @@ export const siteMetadata: ISiteMetadata = {
   url: 'https://pt.btschool.club/',
   tags: ['影视', '综合'],
   search: {
+    imdbTransformer: (config) => {
+      config.params.search_area = 1; // params "&search_area=1"
+      return config;
+    },
     selectors: {
       progress: {
         selector: ['.progress:eq(0) > div'],

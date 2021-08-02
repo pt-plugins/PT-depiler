@@ -27,6 +27,11 @@ export const siteMetadata: ISiteMetadata = {
         ]
       }
     ],
+    imdbTransformer: config => {
+      config.params.imdb = config.params.search;
+      delete config.params.search;
+      return config;
+    },
     selectors: {
       rows: { selector: 'table#torrent-list > tbody > tr:has(a[href^="/details.php?id="])' },
       id: { selector: 'a[href^="/details.php?id="]', attr: 'href', filters: [{ name: 'querystring', args: ['id'] }] },

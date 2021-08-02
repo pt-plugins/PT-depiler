@@ -35,6 +35,11 @@ export const siteMetadata: ISiteMetadata = {
         cross: { mode: 'append' }
       }
     ],
+    imdbTransformer: config => {
+      config.params.imdbid = config.params.searchstr.replace('tt', '');
+      delete config.params.searchstr;
+      return config;
+    },
     selectors: {
       rows: { selector: 'table.torrent_table:last > tbody > tr.torrent' },
       id: {

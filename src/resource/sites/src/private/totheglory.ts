@@ -20,6 +20,10 @@ export const siteMetadata: ISiteMetadata = {
         c: 'M' // 默认搜索 影视&音乐 板块，除非category覆写
       }
     },
+    imdbTransformer: config => {
+      config.params.search_field = config.params.search_field.replace('tt', 'IMDB');
+      return config;
+    },
     categories: [
       {
         name: 'Entry',

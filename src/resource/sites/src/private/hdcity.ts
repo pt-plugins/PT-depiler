@@ -61,6 +61,10 @@ export const siteMetadata: ISiteMetadata = {
         ]
       }
     ],
+    imdbTransformer: (config) => {
+      config.params.search_area = 1; // params "&search_area=1"
+      return config;
+    },
     selectors: {
       rows: { selector: 'div.text > table, div.text_alt > table, div.tr_review > table, div.tr_inpro > table' },
       title: { selector: "span[style='color:#777']" },

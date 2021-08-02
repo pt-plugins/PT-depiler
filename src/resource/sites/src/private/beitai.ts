@@ -31,6 +31,10 @@ export const siteMetadata: ISiteMetadata = {
         cross: { mode: 'append' }
       }
     ],
+    imdbTransformer: (config) => {
+      config.params.search_area = 1; // params "&search_area=1"
+      return config;
+    },
     selectors: {
       progress: selectorSearchProgress,
       status: selectorSearchStatus

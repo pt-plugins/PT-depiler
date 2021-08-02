@@ -20,6 +20,11 @@ export const siteMetadata: ISiteMetadata = {
     requestConfig: {
       url: '/torrents'
     },
+    imdbTransformer: config => {
+      config.params.imdb = config.params.search;
+      delete config.params.search;
+      return config;
+    },
     selectors: {
       rows: { selector: 'div.table-torrents > table:last > tbody > tr.librarytab' },
       id: { selector: 'a.torrent-name', attr: 'torrent' },

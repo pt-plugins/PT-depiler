@@ -16,6 +16,11 @@ export const siteMetadata: ISiteMetadata = {
         active: 0
       }
     },
+    imdbTransformer: config => {
+      config?.params?.search && (config.params.search = config.params.search.replace('tt', 'IMDB'));
+      return config;
+    },
+
     selectors: {
       rows: { selector: 'table.lista > tbody > tr:has(a[href*="index.php?page=torrent-details"])' },
       id: {
