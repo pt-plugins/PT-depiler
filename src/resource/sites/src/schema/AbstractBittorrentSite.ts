@@ -186,8 +186,15 @@ export default class BittorrentSite {
    */
   public async searchTorrents (filter: ISearchFilter = {}) : Promise<ISearchResult> {
     const result : ISearchResult = { data: [], status: ESearchResultParseStatus.success };
-    let isImdbSearch: boolean = false;
 
+    // 检查该站点是否支持搜索
+    if (this.config.feature && this.config.feature.searchTorrent === false) {
+      result.status = ESearchResultParseStatus.passSearch;
+      return result;
+    }
+
+    // 检查是否 Imdb 搜索
+    let isImdbSearch: boolean = false;
     if (filter.keywords && /tt\d{7,8}/.test(filter.keywords)) { // 存在搜索关键词且为Imdb格式
       isImdbSearch = true;
       if (this.config.feature?.skipImdbSearch) { // 定义了 skipImdbSearch 属性且为真

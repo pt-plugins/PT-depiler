@@ -57,12 +57,8 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["dt:contains('Joined:') + dd > span"]
       }
     }
+  },
+  feature: {
+    searchTorrent: false
   }
 };
-
-export default class animebytes extends Gazelle {
-  // FIXME 暂时以一种强硬的方式表示不支持搜索
-  public override async searchTorrents (filter: ISearchFilter = {}) : Promise<ISearchResult> {
-    throw new Error('Not Support Now.');
-  }
-}

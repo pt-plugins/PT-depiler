@@ -9,7 +9,15 @@ export type SiteSchema = 'AbstractBittorrentSite' | 'AbstractPrivateSite' |
   'Gazelle' | 'GazelleJSONAPI' |
   'AvistaZ'
 
-export type SiteFeature = 'queryUserInfo'
+export type SiteFeature = string
+  /**
+   * 搜索支持，默认都支持该方法，除非手动指定 false 此时调用 searchTorrent 会报错
+   */
+  | 'searchTorrent'
+  /**
+   * 个人信息获取，默认所有基于 PrivateSite 都支持该方法，除非手动指定 false
+   */
+  | 'queryUserInfo'
   /**
    * 跳过 IMDb 搜索，即如果传入字符串满足 tt\d{7,8} 时，该站点返回 空Array，
    * 等同于旧版的配置项 "imdbSearch": false 或 "skipIMDbId": true
