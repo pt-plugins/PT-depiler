@@ -1,5 +1,7 @@
-const IS_PROD = ['production', 'prod'].includes(process.env.NODE_ENV);
 const packageInfo = require('./package.json');
+const gitCommitId = require('git-commit-id');
+
+const IS_PROD = ['production', 'prod'].includes(process.env.NODE_ENV);
 
 module.exports = {
   pages: {
@@ -33,6 +35,7 @@ module.exports = {
         }
       },
       manifestTransformer: (manifest) => {
+        manifest.version_name = `${manifest.version}.${gitCommitId().slice(0, 7)}`;
         if (!IS_PROD) {
           manifest.description += ' (Development Mode)';
           manifest.content_security_policy = "script-src 'self' 'unsafe-eval' http://localhost:8098; object-src 'self'";
