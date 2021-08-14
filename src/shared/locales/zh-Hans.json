@@ -1,5 +1,16 @@
 {
   "app": {
     "test": "测试"
+  },
+  "changeLog": {
+    "changeLog": "更新日志",
+    "homepage": "项目主页",
+    "optionsPage": "打开助手",
+    "questions": "常见问题",
+    "report": "意见反馈",
+    "wiki": "使用说明"
+  },
+  "common": {
+    "version": "版本"
   }
 }

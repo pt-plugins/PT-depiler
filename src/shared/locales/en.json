@@ -1,5 +1,16 @@
 {
   "app": {
     "test": "Test"
+  },
+  "changeLog": {
+    "changeLog": "Change Log",
+    "homepage": "Home Page",
+    "optionsPage": "Options Page",
+    "questions": "Q&A",
+    "report": "Report",
+    "wiki": "Wiki"
+  },
+  "common": {
+    "version": "Version"
   }
 }
