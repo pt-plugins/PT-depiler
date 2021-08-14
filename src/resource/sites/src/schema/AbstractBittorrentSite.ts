@@ -361,7 +361,7 @@ export default class BittorrentSite {
     }
 
     if (elementQuery.switchFilters && elementQuery.switchFilters.length > 0) {
-      /**
+      /** FIXME
        * 当所有selector都未匹配时 selectorId = selectors.length，此时可能
        * 导致 switchFilters[selectorId] === undefined ，所以此时不应运行 switchFilters
        */

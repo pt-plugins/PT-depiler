@@ -53,7 +53,7 @@ export interface IElementQuery {
   elementProcess?: Function | null, // 自定义对于Element的处理方法，此时 attr 以及 data 选项均不生效，但 filters 和 switchFilters 仍生效
   case?: { [selector: string]: any } // 使用 Sizzle.matchesSelector 进行匹配，并将结果设置为第一个匹配成功的键值
   data?: string | null, // 使用 HTMLElement.dataset[''] 进行取值，取不到值则置 ''
-  attr?: string | null, // 使用 HTMLElement.getAttribute('') 进行取值，取不到值则置 ''
+  attr?: 'title' | 'href' | string | null, // 使用 HTMLElement.getAttribute('') 进行取值，取不到值则置 ''
 
   /**
    * 对获取结果进行处理，处理结果将作为最终的值输出

@@ -5,6 +5,7 @@ import Sizzle from 'sizzle';
 import { parseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
+  isDead: true,
   name: 'Snakepop',
   timezoneOffset: '+0800',
   description: 'music',

@@ -58,7 +58,7 @@
     "vuex": "^4.0.0"
   },
   "devDependencies": {
-    "@intlify/vue-i18n-loader": "^2.1.0",
+    "@intlify/vue-i18n-loader": "^3.0.0",
     "@types/lodash-es": "^4.17.4",
     "@types/marked": "^2.0.4",
     "@types/node": "^14.14.25",
