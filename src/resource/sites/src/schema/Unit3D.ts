@@ -105,29 +105,20 @@ export default class Unit3D extends PrivateSite {
 
         status: {
           text: ETorrentStatus.unknown,
-          selector: [
-            'button.btn.btn-success.btn-circle', // 做种!
-            'button.btn.btn-warning.btn-circle', // 吸血!
-            'button.btn.btn-info.btn-circle', // 未完成!
-            'button.btn.btn-danger.btn-circle' // 撤种!
-          ],
-          switchFilters: [
-            () => ETorrentStatus.seeding,
-            () => ETorrentStatus.downloading,
-            () => ETorrentStatus.inactive,
-            () => ETorrentStatus.completed
-          ]
+          case: {
+            'button.btn.btn-success.btn-circle': ETorrentStatus.seeding, // 做种!
+            'button.btn.btn-warning.btn-circle': ETorrentStatus.downloading, // 吸血!
+            'button.btn.btn-info.btn-circle': ETorrentStatus.inactive, // 未完成!
+            'button.btn.btn-danger.btn-circle': ETorrentStatus.completed // 撤种!
+          }
         },
         progress: {
           text: 0,
-          selector: [
-            'button.btn.btn-success.btn-circle',
-            'button.btn.btn-warning.btn-circle, button.btn.btn-info.btn-circle, button.btn.btn-danger.btn-circle'
-          ],
-          switchFilters: [
-            () => 100,
-            () => 0 // 不清楚非做种情况下的进度信息，统一置为0
-          ]
+          case: {
+            'button.btn.btn-success.btn-circle': 100,
+            // 不清楚非做种情况下的进度信息，统一置为0
+            'button.btn.btn-warning.btn-circle, button.btn.btn-info.btn-circle, button.btn.btn-danger.btn-circle': 0
+          }
         },
         tags: [
           { name: 'Free', selector: 'i.fa-star.text-gold, i.fa-globe.text-blue' },

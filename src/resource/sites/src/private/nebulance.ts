@@ -105,7 +105,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: "ul#userinfo_major > li > a:contains('Cubits:')",
         filters: [
           (query: string) => {
-            const queryMatch = query.replace(/,|\n|\s+/g, '').match(/Cubits:.+?([\d.]+)/);
+            const queryMatch = query.replace(/,/g, '').match(/Cubits:.+?([\d.]+)/);
             return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : 0;
           }
         ]

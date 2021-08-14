@@ -26,12 +26,12 @@ export const siteMetadata: ISiteMetadata = {
       uploaded: {
         selector: ["dt:contains('Uploaded:') + dd > span"],
         attr: 'title',
-        filters: [(query:string) => query.replace(/,/g, '')]
+        filters: [(query:string) => query.replace(/,/g, ''), parseFloat]
       },
       downloaded: {
         selector: ["dt:contains('Downloaded:') + dd > span"],
         attr: 'title',
-        filters: [(query:string) => query.replace(/,/g, '')]
+        filters: [(query:string) => query.replace(/,/g, ''), parseFloat]
       },
       ratio: {
         selector: ["dt:contains('Ratio:') + dd > span"],

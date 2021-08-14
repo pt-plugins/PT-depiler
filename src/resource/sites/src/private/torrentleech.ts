@@ -146,7 +146,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: ['div.profile-details div.label-user-class']
       },
       joinTime: {
-        selector: ["table.profileViewTable td:contains('Register date') + td"],
+        selector: ["table.profileViewTable td:contains('Registration date') + td"],
         filters: [
           (query:string) => {
             const date = query.split(' ').slice(1).join(' ');

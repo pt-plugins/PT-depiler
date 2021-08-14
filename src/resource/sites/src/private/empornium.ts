@@ -4,10 +4,9 @@ export const siteMetadata: ISiteMetadata = {
   name: 'Empornium',
   timezoneOffset: '+0000',
   description: 'Empornium (EMP) is a Private Torrent Tracker for XXX',
-  url: 'https://www.empornium.me/',
+  url: 'https://www.empornium.is/',
   tags: ['Adult'],
   legacyUrl: [
-    'https://www.empornium.is/',
     'https://empornium.sx/'
   ],
   search: {

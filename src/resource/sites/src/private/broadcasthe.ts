@@ -7,7 +7,7 @@ import { parseSizeString } from '@ptpp/utils/filter';
 
 export const siteMetadata: ISiteMetadata = {
   name: 'BTN',
-  timezoneOffset: '+0000',
+  timezoneOffset: '+0800',
   description: '著名剧集站点，又被戏称为鼻涕妞',
   url: 'https://broadcasthe.net/',
   tags: ['剧集'],

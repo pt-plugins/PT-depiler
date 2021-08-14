@@ -4,6 +4,37 @@ import Sizzle from 'sizzle';
 import { parseSizeString } from '@ptpp/utils/filter';
 import urlparse from 'url-parse';
 
+type boxName = 'stats' | 'community' | 'personal'
+
+const userInfoMap: Record<'en' | 'ja', Record<boxName | keyof IUserInfo, string>> = {
+  en: {
+    stats: 'Stats',
+    community: 'Community',
+    personal: 'Personal',
+    uploaded: 'Uploaded',
+    downloaded: 'Downloaded',
+    seeding: 'Seeding:',
+    bonus: 'Bonus Points:',
+    levelName: 'Class:',
+    joinTime: 'Joined:'
+  },
+  ja: {
+    stats: '統計情報',
+    community: 'コミュニティ',
+    personal: '個人情報',
+    uploaded: 'アップロード数',
+    seeding: 'シード中',
+    bonus: 'ボーナスポイント',
+    levelName: '階級:'
+  }
+};
+
+function genUserInfoSelector (boxName: boxName, field: keyof IUserInfo): string[] {
+  const failBack = userInfoMap.en[field]; // 默认使用英文，这样就可以减小重复字段了
+  return Object.values(userInfoMap)
+    .map(value => `div:contains('${value[boxName]}') + ul.stats > li:contains('${value[field] || failBack}')`);
+}
+
 export const siteMetadata: ISiteMetadata = {
   name: 'JPopsuki',
   timezoneOffset: '+0000',
@@ -49,14 +80,31 @@ export const siteMetadata: ISiteMetadata = {
   },
   userInfo: {
     selectors: {
+      uploaded: {
+        selector: genUserInfoSelector('stats', 'uploaded'),
+        filters: [{ name: 'parseSize' }]
+      },
+      downloaded: {
+        selector: genUserInfoSelector('stats', 'downloaded'),
+        filters: [{ name: 'parseSize' }]
+      },
       seeding: {
-        selector: "div:contains('Community') + ul.stats > li:contains('Seeding:')",
+        selector: genUserInfoSelector('community', 'seeding'),
+        filters: [{ name: 'parseNumber' }]
+      },
+      levelName: {
+        selector: genUserInfoSelector('personal', 'levelName'),
         filters: [
-          (query: string) => {
-            const queryMatch = query.match(/Seeding.+?([\d.]+)/);
-            return (queryMatch && queryMatch.length >= 2) ? parseInt(queryMatch[1]) : 0;
+          (query:string) => {
+            const queryMatch = query.match(/(Class:|階級:).+?(.+)/);
+            return (queryMatch && queryMatch.length >= 3) ? queryMatch[2] : '';
           }
         ]
+      },
+      joinTime: {
+        selector: genUserInfoSelector('stats', 'joinTime').map(x => `${x} > span`),
+        attr: 'title',
+        filters: [{ name: 'parseTime' }]
       },
       messageCount: {
         selector: ["#alerts > .alertbar > a[href='notice.php']", "div.alertbar > a[href*='inbox.php']"],

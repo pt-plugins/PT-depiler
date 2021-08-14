@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   legacyUrl: [
     'https://pornbits.org/'
   ],
-  tags: ['XXX'],
+  tags: ['Adult'],
   host: 'pornbits.net',
   collaborator: 'ian',
   search: {
@@ -72,18 +72,18 @@ export const siteMetadata: ISiteMetadata = {
         selector: '#content > div > div.col-md-3 > div:nth-child(3) > span'
       },
       joinTime: {
-        selector: '#content > div > div.col-md-3 > div:nth-child(5)',
-        filters: [
-          (query: string) => query.split(':')[1].trim(),
-          { name: 'parseTime' }
-        ]
+        selector: "#content div.col-md-3 strong:contains('Member Since:')",
+        elementProcess: (element: HTMLElement) => (element.nextSibling as Text).wholeText.replace(/\s/g, ''),
+        filters: [{ name: 'parseTime' }]
       },
       seeding: {
         selector: '#content > div > div.col-md-9 > div:nth-child(5) > div.panel-heading > h4',
         filters: [
           (query:string) => query.split(':')[1].split('L')[0].trim()
         ]
-      }
+      },
+      seedingSize: { text: -1 },
+      bonus: { text: 'N/A' }
 
     }
   },

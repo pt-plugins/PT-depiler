@@ -8,7 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   timezoneOffset: '+0800',
   description: 'M-Team',
   url: 'https://kp.m-team.cc/',
-  tags: ['影视', '综合'],
+  tags: ['影视', '综合', 'Adult'],
   schema: 'NexusPHP',
   host: 'kp.m-team.cc',
   formerHosts: [

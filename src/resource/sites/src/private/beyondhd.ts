@@ -82,7 +82,7 @@ export const siteMetadata: ISiteMetadata = {
         ]
       },
       seeding: { selector: '#beta-stats a:has(> i.fa-seedling)' },
-      messageCount: { selector: '.notify' },
+      messageCount: { selector: ".beta-alert[href$='/mail'] .notify" },
       seedingSize: { selector: ["td:contains('Active Seed Size') + td"] },
       levelName: { selector: 'div.button-holder span.badge-faded' },
       joinTime: {

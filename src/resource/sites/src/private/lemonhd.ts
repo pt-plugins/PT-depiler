@@ -1,3 +1,6 @@
+/**
+ * TODO： 限时免费标签 https://github.com/ronggang/PT-Plugin-Plus/commit/828bfa956538985726402ac774459506a2df0c2b#diff-ad10712862bc6ca7e4b5261f8b90f6de21e7444346d6f3fab311f44f2d2a1032R360-R374
+ */
 import { ISiteMetadata, ETorrentStatus } from '../../types';
 import { parseSizeString } from '@ptpp/utils/filter';
 
@@ -58,13 +61,13 @@ export const siteMetadata: ISiteMetadata = {
         elementProcess: null // 覆盖掉NPHP默认的处理方式
       },
       progress: {
-        selector: ['> td:eq(8)'],
+        selector: ['> td:eq(9)'],
         filters: [
           (query: string) => query === '--' ? 0 : parseFloat(query)
         ]
       },
       status: {
-        selector: ['> td:eq(8)'],
+        selector: ['> td:eq(9)'],
         elementProcess: (element: HTMLElement) => {
           const query = element.innerText.trim(); // 100% or --
           if (query === '--') {

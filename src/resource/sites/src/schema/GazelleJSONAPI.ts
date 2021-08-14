@@ -317,6 +317,7 @@ export default class GazelleJSONAPI extends PrivateSite {
         (torrent.hasLog ? ` / Log(${torrent.logScore})` : '') +
         (torrent.hasCue ? ' / Cue' : '') +
         (torrent.remastered ? ` / ${torrent.remasterYear}` : '') +
+        (torrent.remasterTitle ? ` / ${torrent.remasterTitle}` : '') +
         (torrent.scene ? ' / Scene' : '') +
         (torrent.isFreeleech || torrent.isNeutralLeech || torrent.isPersonalFreeleech ? ' / Freeleech' : ''),
       url: `/torrents.php?id=${group.groupId}&torrentid=${torrent.torrentId}`,
