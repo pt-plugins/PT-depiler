@@ -38,6 +38,7 @@
     "src/resource/*"
   ],
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.15.4",
     "@mdi/font": "5.9.55",
     "axios": "^0.21.1",
     "buffer": "^6.0.3",

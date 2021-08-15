@@ -15,6 +15,12 @@
       <span class="pl-2 grey--text text--darken-1">
         Footer
       </span>
+
+    <!-- FIXME right -->
+    <v-btn flat small>
+      <v-icon small icon='fas fa-language' />
+      <span class="ml-1"> Lang </span>
+    </v-btn>
   </v-footer>
 </template>
 
@@ -28,6 +34,7 @@ export default defineComponent({
 
 <style scoped>
 .v-footer {
+  background-color: #fafafa;
   z-index: 3;
 }
 </style>

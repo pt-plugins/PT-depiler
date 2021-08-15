@@ -17,7 +17,7 @@ class UserDataRecords extends browserBridge {
 
   /**
    * 根据站点host和日期信息删除历史数据记录
-   * @param query  如果date未传入，则删除该站点所有记录
+   * @param query 如果date未传入，则删除该站点所有记录
    */
   async remove (query: {
     host: string,

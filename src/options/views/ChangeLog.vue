@@ -1,14 +1,24 @@
 <template>
   <v-app-bar app class="changelog-header" color="amber">
-    {{ fullVersion }} {{ $t('changeLog.changeLog') }}
+    {{ version.full }} {{ $t('changeLog.changeLog') }}
   </v-app-bar>
 
   <v-main>
     <v-container fluid>
+      <!-- 主版本说明 -->
       <div class="markdown-body release-content" v-html="marked(releaseContent)"></div>
-      <template v-if="versionHash && commitDetail">
-        <v-divider inset style="margin-top: 20px;margin-bottom: 20px"></v-divider>
-        <div class="markdown-body commit-detail" v-html="marked(commitDetail)"></div>
+
+      <!-- 当前commit版本说明 -->
+      <template v-if="version.hash && commitData.html_url">
+        <v-divider inset style="margin-top: 20px; margin-bottom: 20px"></v-divider>
+        <div class="markdown-body commit-detail">
+          <p>
+            <strong>当前 Commit 号：<a :href="commitData.html_url">{{ version.hash }}</a></strong>
+            by <a :href="commitData.author.html_url">@{{ commitData.author.login }}</a>
+            ( 增: {{ commitData.stats.additions }} 删: {{ commitData.stats.deletions }} 共: {{ commitData.stats.total }} )
+          </p>
+          <pre>{{ commitData.commit.message }}</pre>
+        </div>
       </template>
     </v-container>
   </v-main>
@@ -26,7 +36,7 @@
           </div>
         </v-row>
         <v-row justify="center">
-          <div>&copy; 栽培者 {{ new Date().getFullYear() }}, {{ $t('common.version') }} {{ fullVersion }}</div>
+          <div>&copy; 栽培者 {{ year }}, {{ $t('common.version') }} {{ version.full }}</div>
         </v-row>
         <v-row justify="center">
           <img src="/assets/donate.png" alt="donate"/>
@@ -40,11 +50,14 @@
 import axios from 'axios';
 import marked from 'marked';
 import { defineComponent } from 'vue';
-import { browser } from 'webextension-polyfill-ts';
+import { REPO_URL, REPO_API, getFullVersion, VersionDetail } from '@/shared/constants';
 
-const REPO_NAME = 'ronggang/PT-Plugin-Plus';
-const REPO_URL = `https://github.com/${REPO_NAME}`;
-const REPO_API = `https://api.github.com/repos/${REPO_NAME}`;
+interface GHCommitData { // Partial
+  commit: { message: string },
+  author: { login: string, 'html_url': string }
+  'html_url': string,
+  stats: { total: number, additions: number, deletions: number }
+}
 
 export default defineComponent({
   name: 'ChangeLog',
@@ -52,53 +65,34 @@ export default defineComponent({
   data () {
     return {
       REPO_URL,
-      fullVersion: '', // v2.0.0.b3f0a76
-      version: '', // v2.0.0
-      versionHash: '', // b3f0a76
+      version: {} as VersionDetail,
       releaseContent: '', // 主版本发布说明
-      commitDetail: ''
+      commitData: {} as GHCommitData,
+      year: new Date().getFullYear()
     };
   },
 
   async created () {
-    const detail = await browser.management.getSelf();
-    const version = detail.versionName || detail.version;
-    this.fullVersion = `v${version}`;
-
-    const mainVersionMatch = this.fullVersion.match(/(v\d+\.\d+\.\d+)\.?(.*)/);
-    if (mainVersionMatch && mainVersionMatch[1]) {
-      this.version = mainVersionMatch[1];
-      this.versionHash = mainVersionMatch[2];
-    } else {
-      this.version = this.fullVersion;
-    }
+    this.version = await getFullVersion();
 
     // 加载主版本说明
-    this.releaseContent = `正在加载…… （如长时间未能加载成功，请前往 ${REPO_URL}/releases/tag/${this.version} 查看。）`;
-    try {
-      const { data: releaseData } = await axios.get<{ body: string }>(`${REPO_API}/releases/tags/${this.version}`);
-      this.releaseContent = releaseData.body
-        .replace(/(#)(\d+)/g, `[#$2](${REPO_URL}/issues/$2)`) // 生成 issue 的链接
-        .replace(/(@)([\S]+)/g, '[@$2](https://github.com/$2)'); // 生成 committer 的主页链接
-    } catch (e) {
-      this.releaseContent = `主版本发布说明加载失败，请前往 ${REPO_URL}/releases/tag/${this.version} 查看。`;
+    if (this.version.main) {
+      this.releaseContent = `正在加载…… （如长时间未能加载成功，请前往 ${REPO_URL}/releases/tag/${this.version.main} 查看。）`;
+      axios.get<{ body: string }>(`${REPO_API}/releases/tags/${this.version.main}`)
+        .then(({ data }) => {
+          this.releaseContent = data.body
+            .replace(/(#)(\d+)/g, `[#$2](${REPO_URL}/issues/$2)`) // 生成 issue 的链接
+            .replace(/(@)([\S]+)/g, '[@$2](https://github.com/$2)'); // 生成 committer 的主页链接
+        })
+        .catch(() => {
+          this.releaseContent = `主版本发布说明加载失败，请前往 ${REPO_URL}/releases/tag/${this.version.main} 查看。`;
+        });
     }
 
     // 加载对应 commit hash 的说明
-    if (this.versionHash) {
-      try {
-        const { data: commitData } = await axios.get<{
-          commit: { message: string },
-          author: { login: string, 'html_url': string }
-          'html_url': string,
-          stats: { total: number, additions: number, deletions: number }
-        }>(`${REPO_API}/commits/${this.versionHash}`);
-        this.commitDetail = `**当前 Commit 号：[${this.versionHash}](${commitData.html_url})** by [@${commitData.author.login}](${commitData.author.html_url})
-( 增: ${commitData.stats.additions} 删: ${commitData.stats.deletions} 共: ${commitData.stats.total} )
-
-#### ${commitData.commit.message}`;
-      } catch {
-      }
+    if (this.version.hash) {
+      axios.get<GHCommitData>(`${REPO_API}/commits/${this.version.hash}`)
+        .then(({ data }) => { this.commitData = data; });
     }
   },
   methods: {
