@@ -15,7 +15,7 @@
 
 import axios from 'axios';
 import * as localforage from 'localforage';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 import BittorrentSite from '@ptpp/sites/src/schema/AbstractBittorrentSite';
 import urlparse from 'url-parse';
 

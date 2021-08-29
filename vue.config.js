@@ -61,7 +61,7 @@ module.exports = {
 
   chainWebpack: config => {
     // @see https://github.com/adambullmer/vue-cli-plugin-browser-extension/issues/106
-    config.plugins.delete('provide-webextension-polyfill');
-    config.module.rules.delete('provide-webextension-polyfill');
+    // config.plugins.delete('provide-webextension-polyfill');
+    // config.module.rules.delete('provide-webextension-polyfill');
   }
 };

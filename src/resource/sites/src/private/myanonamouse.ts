@@ -5,7 +5,7 @@ import {
   findThenParseNumberString,
   parseSizeString
 } from '@ptpp/utils/filter';
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
 
 interface rawTorrent {
   added: string, // the date and time (in utc) the item was uploaded to site

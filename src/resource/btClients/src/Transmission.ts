@@ -11,6 +11,7 @@ import {
 import urljoin from 'url-join';
 import axios, { AxiosResponse } from 'axios';
 import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
+import { toLower } from 'lodash-es';
 
 export const clientConfig: TorrentClientConfig = {
   type: 'Transmission',
@@ -365,7 +366,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
         },
         timeout: this.config.timeout
       });
-    } catch (error) {
+    } catch (error: any) {
       if (error.response && error.response.status === 409) {
         this.sessionId = error.response.headers['x-transmission-session-id']; // lower cased header in axios
         return await this.request<T>(method, args);

@@ -1,15 +1,25 @@
-import { browser } from 'webextension-polyfill-ts';
+import browser from 'webextension-polyfill';
+import UAParser from 'ua-parser-js';
+import { EInstallType } from '@/shared/interfaces/enum';
 
+// 仓库相关
 export const REPO_NAME = 'ronggang/PT-Plugin-Plus';
 export const REPO_URL = `https://github.com/${REPO_NAME}`;
 export const REPO_API = `https://api.github.com/repos/${REPO_NAME}`;
 
+// 插件相关
+export const MANIFEST = browser.runtime.getManifest();
+
+// 浏览器相关
+export const UAPARSER = UAParser();
+
+// 版本相关
 type dotVersion = `v${number}.${number}.${number}`
 type dotHashVersion = `${dotVersion}.${string}`
 type TVersion = dotVersion | dotHashVersion
 
 export interface VersionDetail {
-  full:TVersion,
+  full: TVersion,
   main: dotVersion,
   hash: string
 }
@@ -33,4 +43,17 @@ export async function getFullVersion (): Promise<VersionDetail> {
   }
 
   return { full: fullVersion, main: version as dotVersion, hash: versionHash };
+}
+
+// 环境相关
+export const isProd = ['production', 'prod'].includes(process.env.NODE_ENV!);
+export const isDebug = !isProd;
+
+export async function getInstallType (): Promise<EInstallType> {
+  const detail = await browser.management.getSelf();
+  if (detail?.updateUrl?.includes(REPO_NAME)) {
+    return EInstallType.packed;
+  } else {
+    return detail.installType as EInstallType.normal | EInstallType.development;
+  }
 }
