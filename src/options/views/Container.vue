@@ -18,7 +18,7 @@
 
     <!-- FIXME right -->
     <v-btn flat small>
-      <v-icon small icon='fas fa-language' />
+      <v-icon small icon='mdi:mdi-translate' />
       <span class="ml-1"> Lang </span>
     </v-btn>
   </v-footer>

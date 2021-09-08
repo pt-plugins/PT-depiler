@@ -1,4 +1,6 @@
 import { createI18n, LocaleMessages, VueMessageType } from 'vue-i18n';
+import browser from 'webextension-polyfill';
+import type { App } from 'vue';
 
 /**
  * Load locale messages
@@ -19,7 +21,7 @@ function loadLocaleMessages (): LocaleMessages<VueMessageType> {
   return messages;
 }
 
-const i18n = createI18n({
+const vI18n = createI18n({
   legacy: false,
   locale: 'en',
   fallbackLocale: 'en',
@@ -28,7 +30,7 @@ const i18n = createI18n({
 });
 
 export function setI18nLanguage (locale: string) {
-  i18n.global.locale.value = locale;
+  vI18n.global.locale.value = locale;
 
   /**
    * NOTE:
@@ -40,4 +42,23 @@ export function setI18nLanguage (locale: string) {
   document.querySelector('html')?.setAttribute('lang', locale);
 }
 
-export default i18n;
+/**
+ * 使用 browser.i18n.getMessage 来获取 i18n 文本
+ */
+const bI18n = {
+  install: (app: App, options: Record<any, any>) => {
+    app.config.globalProperties.$translate = browser.i18n.getMessage;
+  }
+};
+
+/**
+ * 为直接在vue模板中使用 $translate 提供类型说明
+ * 注意，这个说明不能写在 .d.ts 中，否则会导致 import {} from 'vue' 出错
+ */
+declare module '@vue/runtime-core' {
+  export interface ComponentCustomProperties {
+    $translate(messageName: string, substitutions?: any): string
+  }
+}
+
+export { vI18n, bI18n };
