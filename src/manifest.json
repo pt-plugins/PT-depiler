@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "__MSG_extName__",
   "homepage_url": "https://github.com/ronggang/PT-Plugin-Plus",
-  "description": "A Vue Browser Extension",
+  "description": "__MSG_extDesc__",
   "default_locale": "en",
   "permissions": [
     "activeTab",

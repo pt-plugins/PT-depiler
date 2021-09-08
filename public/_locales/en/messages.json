@@ -1,6 +1,10 @@
 {
   "extName": {
     "message": "ptpp-next",
-    "description": ""
+    "description": "The title of the application, displayed in the web store."
+  },
+  "extDesc": {
+    "message": "Next PTPP",
+    "description":"The description of the application, displayed in the web store."
   }
 }

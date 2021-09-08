@@ -1,3 +1,5 @@
+import { ITorrent } from './torrent';
+
 export interface IUserInfo {
   id: number | string; // 用户ID
   name: string; // 用户名
@@ -21,4 +23,11 @@ export interface IUserInfo {
   updateAt: number; // 更新时间
 
   [key: string]: any; // 其他信息
+}
+
+export type IUserSeedingTorrent = Pick<ITorrent, 'id' | 'size' | 'progress' | 'status'>
+
+export interface IUserSeedingInfo {
+  torrents: IUserSeedingTorrent[]; // 只有 id 和 size 的种子信息
+  updateAt: number; // 更新时间
 }
