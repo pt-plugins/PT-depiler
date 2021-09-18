@@ -1,6 +1,6 @@
 {
   "name": "@ptpp/sites",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "dependencies": {
     "@ptpp/utils": "^1.0.0",
     "axios": "^0.21.1",
