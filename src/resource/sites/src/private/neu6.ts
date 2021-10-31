@@ -186,7 +186,7 @@ export default class neu6 extends PrivateSite {
     baseConfig.params.mod = 'forum';
 
     // 因为此处使用 GBK 编码，所以我们不能使用 new URLSearchParams() 来让axios自动构造，所以只能 hack 相关信息
-    baseConfig.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+    baseConfig.headers!['Content-Type'] = 'application/x-www-form-urlencoded';
     const postData: any = {
       formhash,
       srchuname: '',
