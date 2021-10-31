@@ -7,7 +7,7 @@ import {
   CAddTorrentOptions, CustomPathDescription,
   CTorrent,
   TorrentClientConfig, TorrentClientMetaData,
-  CTorrentFilterRules, CTorrentState
+  CTorrentFilterRules, CTorrentState, TorrentClientStatus
 } from '../types';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import urljoin from 'url-join';
@@ -132,6 +132,21 @@ interface rawTorrent {
   category: string; // Category name
 }
 
+interface rawSyncMaindata {
+  'full_update': boolean,
+  rid: number,
+  'server_state': Record<string, string | number | boolean>,
+  torrents: Record<string, rawTorrent>
+}
+
+const convertMaps : [string, keyof TorrentClientStatus][] = [
+  ['dl_info_data', 'dlData'],
+  ['dl_info_speed', 'dlSpeed'],
+  ['up_info_data', 'upData'],
+  ['up_info_speed', 'upSpeed'],
+  ['free_space_on_disk', 'freeSpace']
+];
+
 function normalizePieces (pieces: string | string[], joinBy: string = '|'): string {
   if (Array.isArray(pieces)) {
     return pieces.join(joinBy);
@@ -159,6 +174,20 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     }
   }
 
+  async getClientStatus (): Promise<TorrentClientStatus> {
+    const retStatus: TorrentClientStatus = { dlSpeed: 0, upSpeed: 0 };
+
+    const { data } = await this.request<rawSyncMaindata>('/sync/maindata', { params: { rid: 0 } });
+
+    for (const [key, convertKey] of convertMaps) {
+      if (data.server_state?.[key]) {
+        retStatus[convertKey] = Number(data.server_state[key]);
+      }
+    }
+
+    return retStatus;
+  }
+
   // qbt 默认Session时长 3600s，一次登录应该足够进行所有操作
   async login (): Promise<AxiosResponse> {
     const form = new FormData();
@@ -171,12 +200,12 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     });
   }
 
-  async request (path: string, config: AxiosRequestConfig = {}): Promise<AxiosResponse> {
+  async request <T> (path: string, config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> {
     if (this.isLogin === null) {
       await this.ping();
     }
 
-    return await axios.request({
+    return await axios.request<T>({
       baseURL: this.config.address,
       url: urljoin('/api/v2', path),
       timeout: this.config.timeout,
@@ -234,7 +263,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
       postFilter.filter = 'completed';
     }
 
-    const res = await this.request('/torrents/info', { params: filter });
+    const res = await this.request<rawTorrent[]>('/torrents/info', { params: filter });
     return res.data.map((torrent: rawTorrent) => {
       let state = CTorrentState.unknown;
 
@@ -299,7 +328,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
         downloadSpeed: torrent.dlspeed,
         totalUploaded: torrent.uploaded,
         totalDownloaded: torrent.downloaded
-      } as CTorrent;
+      } as QbittorrentTorrent;
     });
   }
 

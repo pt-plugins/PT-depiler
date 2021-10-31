@@ -7,7 +7,7 @@ import {
   CTorrent,
   TorrentClientConfig,
   TorrentClientMetaData,
-  CTorrentState
+  CTorrentState, TorrentClientStatus
 } from '../types';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
@@ -120,6 +120,10 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
       return false;
     }
     return true;
+  }
+
+  async getClientStatus (): Promise<TorrentClientStatus> {
+    return { dlSpeed: 0, upSpeed: 0 }; // TODO
   }
 
   async addTorrent (url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {

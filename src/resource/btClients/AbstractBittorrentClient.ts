@@ -2,7 +2,7 @@ import {
   BittorrentClientBaseConfig,
   CAddTorrentOptions,
   CTorrent,
-  CTorrentFilterRules
+  CTorrentFilterRules, TorrentClientStatus
 } from './types';
 
 import { Buffer } from 'buffer';
@@ -95,6 +95,11 @@ export default abstract class AbstractBittorrentClient<T extends BittorrentClien
    *
    */
   public abstract getAllTorrents(): Promise<CTorrent[]>
+
+  /**
+   * 获取客户端状态的方法
+   */
+  public abstract getClientStatus(): Promise<TorrentClientStatus>
 
   public async getTorrentsBy (filter: CTorrentFilterRules): Promise<CTorrent[]> {
     let torrents = await this.getAllTorrents();

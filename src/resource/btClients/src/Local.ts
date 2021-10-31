@@ -6,7 +6,7 @@
 import {
   CTorrent,
   BittorrentClientBaseConfig,
-  TorrentClientMetaData
+  TorrentClientMetaData, TorrentClientStatus
 } from '../types';
 import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
 
@@ -29,6 +29,10 @@ export default class Local extends AbstractBittorrentClient {
 
   async ping (): Promise<boolean> {
     return true;
+  }
+
+  async getClientStatus (): Promise<TorrentClientStatus> {
+    throw new Error('Not Support');
   }
 
   addTorrent (): Promise<boolean> {

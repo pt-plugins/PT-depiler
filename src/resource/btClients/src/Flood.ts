@@ -12,7 +12,7 @@ import {
   CTorrent,
   TorrentClientConfig,
   TorrentClientMetaData,
-  CTorrentState
+  CTorrentState, TorrentClientStatus
 } from '../types';
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import urljoin from 'url-join';
@@ -280,11 +280,11 @@ export default class Flood extends AbstractBittorrentClient {
     return FloodApiEndpointMap[endPointType][endpoint];
   }
 
-  async request (endpoint: FloodApiEndpoint, config: AxiosRequestConfig = {}): Promise<AxiosResponse> {
+  async request <T> (endpoint: FloodApiEndpoint, config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> {
     const endPointUrl = await this.getEndPointUrl(endpoint);
 
     try {
-      return await axios.request({
+      return await axios.request <T>({
         baseURL: this.config.address,
         url: endPointUrl,
         timeout: this.config.timeout,
@@ -304,7 +304,7 @@ export default class Flood extends AbstractBittorrentClient {
 
   private async login (): Promise<boolean> {
     try {
-      const req = await this.request('authenticate', {
+      const req = await this.request<{success: boolean}>('authenticate', {
         method: 'post',
         data: {
           username: this.config.username,
@@ -312,7 +312,7 @@ export default class Flood extends AbstractBittorrentClient {
         }
       });
 
-      return req.data.success === true;
+      return req.data.success;
     } catch (e) {
       return false;
     }
@@ -325,6 +325,10 @@ export default class Flood extends AbstractBittorrentClient {
     } catch (e) {
       return false;
     }
+  }
+
+  async getClientStatus (): Promise<TorrentClientStatus> {
+    return { dlSpeed: 0, upSpeed: 0 }; // TODO
   }
 
   async addTorrent (url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
@@ -397,9 +401,8 @@ export default class Flood extends AbstractBittorrentClient {
 
       rawTorrents = JSON.parse(r) as TorrentList; // Example: https://pastebin.com/cCNsMRdx
     } else {
-      const req = await this.request('getTorrents');
-      const reqData: TorrentListSummaryResponse = req.data;
-      rawTorrents = reqData.torrents;
+      const req = await this.request<TorrentListSummaryResponse>('getTorrents');
+      rawTorrents = req.data.torrents;
     }
 
     return Object.keys(rawTorrents).map((infoHash:string) => {

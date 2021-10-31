@@ -72,6 +72,14 @@ export interface TorrentClientMetaData {
   }
 }
 
+export interface TorrentClientStatus {
+  upSpeed: number, // 上传速度（瞬间）
+  upData?: number, // 上传总量（对于不同客户端可能是total或者session）
+  dlSpeed: number,
+  dlData?: number,
+  freeSpace?: number // 剩余磁盘空间
+}
+
 export enum CTorrentState {
   downloading = 'downloading',
   seeding = 'seeding',

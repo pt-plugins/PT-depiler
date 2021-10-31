@@ -5,7 +5,7 @@ import {
   CAddTorrentOptions, CustomPathDescription,
   CTorrent,
   BittorrentClientBaseConfig, TorrentClientMetaData,
-  CTorrentFilterRules, CTorrentState
+  CTorrentFilterRules, CTorrentState, TorrentClientStatus
 } from '../types';
 import urljoin from 'url-join';
 import axios, { AxiosResponse } from 'axios';
@@ -38,16 +38,17 @@ export const clientMetaData: TorrentClientMetaData = {
 type DelugeMethod =
   'auth.login' | 'web.update_ui' | 'core.get_torrents_status' |
   'core.add_torrent_url' | 'core.add_torrent_file' |
-  'core.remove_torrent' | 'core.pause_torrent' | 'core.resume_torrent'
-| 'label.set_torrent'
+  'core.get_free_space' | 'core.get_session_status' |
+  'core.remove_torrent' | 'core.pause_torrent' | 'core.resume_torrent' |
+  'label.set_torrent'
 
-interface DelugeDefaultResponse {
+interface DelugeDefaultResponse<T = any> {
   /**
    * mostly usless id that increments with every request
    */
   id: number;
   error: null | string;
-  result: any;
+  result: T;
 }
 
 type DelugeTorrentField =
@@ -171,6 +172,10 @@ export default class Deluge extends AbstractBittorrentClient {
 
   async ping (): Promise<boolean> {
     return await this.login();
+  }
+
+  async getClientStatus (): Promise<TorrentClientStatus> {
+    return { dlSpeed: 0, upSpeed: 0 }; // TODO
   }
 
   async addTorrent (url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
@@ -298,7 +303,7 @@ export default class Deluge extends AbstractBittorrentClient {
     }
   }
 
-  private async request <T> (method: DelugeMethod, params: any[]): Promise<AxiosResponse> {
+  private async request <T> (method: DelugeMethod, params: any[]): Promise<AxiosResponse<T>> {
     // 防止循环调用
     if (!this.isLogin && method !== 'auth.login') {
       await this.login();

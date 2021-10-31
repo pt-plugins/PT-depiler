@@ -2,7 +2,7 @@
   "name": "@ptpp/backupservers",
   "version": "1.0.0",
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.24.0",
     "url-join": "^4.0.1",
     "url-parse": "^1.4.7",
     "webdav": "^4.6.0"

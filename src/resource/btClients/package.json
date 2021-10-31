@@ -2,7 +2,7 @@
   "name": "@ptpp/btclients",
   "version": "1.0.0",
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.24.0",
     "buffer": "^6.0.3",
     "content-disposition": "^0.5.3",
     "core-js": "^3.6.5",

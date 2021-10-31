@@ -9,7 +9,7 @@ import {
   CTorrent,
   BittorrentClientBaseConfig,
   TorrentClientMetaData,
-  CTorrentState
+  CTorrentState, TorrentClientStatus
 } from '../types';
 import urljoin from 'url-join';
 import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
@@ -196,6 +196,12 @@ export default class Aria2 extends AbstractBittorrentClient {
     } catch (e) {
       return false;
     }
+  }
+
+  // Aria2 只能知道当前的传输速度，其他都不知道
+  async getClientStatus (): Promise<TorrentClientStatus> {
+    const { result: statusData } = await this.methodSend<{ downloadSpeed: string, uploadSpeed: string }>('aria2.getGlobalStat');
+    return { dlSpeed: Number(statusData.downloadSpeed), upSpeed: Number(statusData.uploadSpeed) };
   }
 
   async addTorrent (url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {

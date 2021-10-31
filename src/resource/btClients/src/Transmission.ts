@@ -6,7 +6,7 @@ import {
   CTorrent,
   TorrentClientConfig,
   TorrentClientMetaData,
-  CTorrentFilterRules, CTorrentState
+  CTorrentFilterRules, CTorrentState, TorrentClientStatus
 } from '../types';
 import urljoin from 'url-join';
 import axios, { AxiosResponse } from 'axios';
@@ -63,8 +63,8 @@ interface rawTorrent {
   downloadedEver: number,
 }
 
-interface TransmissionBaseResponse {
-  arguments: any;
+interface TransmissionBaseResponse<T = any> {
+  arguments: T;
   result: 'success' | string;
   tag?: number
 }
@@ -72,6 +72,26 @@ interface TransmissionBaseResponse {
 interface TransmissionTorrentGetResponse extends TransmissionBaseResponse {
   arguments: {
     torrents: rawTorrent[]
+  }
+}
+
+interface TransmissionRawStats {
+  downloadedBytes: number,
+  filesAdded: number,
+  secondsActive: number,
+  sessionCount: number,
+  uploadedBytes: number
+}
+
+interface TransmissionStatsResponse extends TransmissionBaseResponse {
+  arguments: {
+    activeTorrentCount: number,
+    'cumulative-stats': TransmissionRawStats,
+    'current-stats': TransmissionRawStats,
+    downloadSpeed: number,
+    pausedTorrentCount: number,
+    torrentCount: number,
+    uploadSpeed: number,
   }
 }
 
@@ -88,7 +108,7 @@ interface AddTorrentResponse extends TransmissionBaseResponse {
 type TransmissionTorrentIds = number | Array<number | string> | 'recently-active'
 
 type TransmissionRequestMethod =
-  'session-get' | 'session-stats' |
+  'session-get' | 'session-stats' | 'free-space' |
   'torrent-get' | 'torrent-add' | 'torrent-start' | 'torrent-stop' | 'torrent-remove' | 'torrent-set'
 
 interface TransmissionAddTorrentOptions {
@@ -225,6 +245,38 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     this.address = address;
   }
 
+  async ping (): Promise<boolean> {
+    try {
+      const { data } = await this.request<TransmissionBaseResponse>('session-get');
+      return data.result === 'success';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  async getClientStatus (): Promise<TorrentClientStatus> {
+    const retStatus: TorrentClientStatus = { dlSpeed: 0, upSpeed: 0 };
+
+    const statsReq = this.request<TransmissionStatsResponse>('session-stats');
+    const { data: sessionData } = await this.request<TransmissionBaseResponse<{'download-dir': string, 'download-dir-free-space'?: number}>>('session-get');
+
+    if (sessionData.arguments['download-dir-free-space']) {
+      retStatus.freeSpace = sessionData.arguments['download-dir-free-space'];
+    } else {
+      const { data: freeSpaceData } = await this.request<TransmissionBaseResponse<{path: string, 'size-bytes': number}>>('free-space', { path: sessionData.arguments['download-dir'] });
+      retStatus.freeSpace = freeSpaceData.arguments['size-bytes'];
+    }
+
+    const { data: { arguments: statsData } } = await statsReq;
+
+    retStatus.dlSpeed = statsData.downloadSpeed;
+    retStatus.upSpeed = statsData.uploadSpeed;
+    retStatus.dlData = statsData['current-stats'].downloadedBytes;
+    retStatus.upData = statsData['current-stats'].uploadedBytes;
+
+    return retStatus;
+  }
+
   async addTorrent (url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
     const addTorrentOptions : Partial<TransmissionAddTorrentOptions> = {
       paused: options.addAtPaused ?? false
@@ -323,15 +375,6 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     };
     await this.request('torrent-stop', args);
     return true;
-  }
-
-  async ping (): Promise<boolean> {
-    try {
-      const { data } = await this.request<TransmissionBaseResponse>('session-get');
-      return data.result === 'success';
-    } catch (e) {
-      return false;
-    }
   }
 
   async removeTorrent (id: number, removeData: boolean | undefined): Promise<boolean> {

@@ -9,7 +9,7 @@ import {
   TorrentClientConfig,
   TorrentClientMetaData,
   CTorrentFilterRules,
-  CTorrentState
+  CTorrentState, TorrentClientStatus
 } from '../types';
 import urljoin from 'url-join';
 import axios, { AxiosRequestConfig } from 'axios';
@@ -442,6 +442,10 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
 
   async ping (): Promise<boolean> {
     return this.login();
+  }
+
+  async getClientStatus (): Promise<TorrentClientStatus> {
+    return { dlSpeed: 0, upSpeed: 0 }; // TODO
   }
 
   async addTorrent (url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {

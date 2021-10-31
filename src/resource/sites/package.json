@@ -3,7 +3,7 @@
   "version": "1.0.2",
   "dependencies": {
     "@ptpp/utils": "^1.0.0",
-    "axios": "^0.21.1",
+    "axios": "^0.24.0",
     "chrono-node": "^2.2.7",
     "lodash-es": "^4.17.20",
     "sizzle": "^2.3.5",
