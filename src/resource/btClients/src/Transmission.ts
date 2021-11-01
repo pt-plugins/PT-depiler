@@ -255,20 +255,20 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
   }
 
   async getClientStatus (): Promise<TorrentClientStatus> {
-    const retStatus: TorrentClientStatus = { dlSpeed: 0, upSpeed: 0 };
+    const retStatus: TorrentClientStatus = { version: '', dlSpeed: 0, upSpeed: 0 };
 
     const statsReq = this.request<TransmissionStatsResponse>('session-stats');
-    const { data: sessionData } = await this.request<TransmissionBaseResponse<{'download-dir': string, 'download-dir-free-space'?: number}>>('session-get');
+    const { data: { arguments: sessionData } } = await this.request<TransmissionBaseResponse<{ 'download-dir': string, 'download-dir-free-space'?: number, version: string, 'rpc-version': number }>>('session-get');
 
-    if (sessionData.arguments['download-dir-free-space']) {
-      retStatus.freeSpace = sessionData.arguments['download-dir-free-space'];
+    if (sessionData['download-dir-free-space']) {
+      retStatus.freeSpace = sessionData['download-dir-free-space'];
     } else {
-      const { data: freeSpaceData } = await this.request<TransmissionBaseResponse<{path: string, 'size-bytes': number}>>('free-space', { path: sessionData.arguments['download-dir'] });
+      const { data: freeSpaceData } = await this.request<TransmissionBaseResponse<{path: string, 'size-bytes': number}>>('free-space', { path: sessionData['download-dir'] });
       retStatus.freeSpace = freeSpaceData.arguments['size-bytes'];
     }
+    retStatus.version = `${sessionData.version}, RPC ${sessionData['rpc-version']}`;
 
     const { data: { arguments: statsData } } = await statsReq;
-
     retStatus.dlSpeed = statsData.downloadSpeed;
     retStatus.upSpeed = statsData.uploadSpeed;
     retStatus.dlData = statsData['current-stats'].downloadedBytes;

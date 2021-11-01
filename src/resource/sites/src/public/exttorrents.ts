@@ -108,7 +108,7 @@ export default class Exttorrents extends BittorrentSite {
     let link = torrent.link;
     if (!link) {
       const { data } = await this.request({ url: torrent.url, responseType: 'document' });
-      link = this.getFieldData(data as Document, { selector: 'a.download-btn:last-of-type', attr: 'href' });
+      link = this.getFieldData(<Document>data, { selector: 'a.download-btn:last-of-type', attr: 'href' });
     }
 
     return link;

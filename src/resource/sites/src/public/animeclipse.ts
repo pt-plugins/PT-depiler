@@ -111,7 +111,7 @@ export const siteMetadata: ISiteMetadata = {
 export default class Animeclipse extends BittorrentSite {
   protected override async transformSearchFilter (filter: ISearchFilter): Promise<AxiosRequestConfig> {
     const extraSortParamsIndex = filter.extraParams
-      ?.findIndex(v => v.key === 'order' && ['3', '4', '5'].includes(v.value as string));
+      ?.findIndex(v => v.key === 'order' && ['3', '4', '5'].includes(<string>v.value));
 
     if (extraSortParamsIndex && extraSortParamsIndex > -1) {
       const extraSortParams = filter.extraParams![extraSortParamsIndex];

@@ -152,7 +152,7 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
   }
 
   async getClientStatus (): Promise<TorrentClientStatus> {
-    return { dlSpeed: 0, upSpeed: 0 }; // TODO
+    return { version: '', dlSpeed: 0, upSpeed: 0 }; // TODO
   }
 
   // 除"登录"和"添加种子"外的所有接口方法都走该方法

@@ -18,7 +18,7 @@ export const clientConfig: BittorrentClientBaseConfig = {
 };
 
 export const clientMetaData: TorrentClientMetaData = {
-  description: '这是一个由PTPP内部调用的Fake BtClient，目的是用作种子下载客户端',
+  description: '这是一个供PTPP内部调用的Fake BtClient，目的是用作种子下载客户端',
   feature: {
     CustomPath: { allowed: false }
   }

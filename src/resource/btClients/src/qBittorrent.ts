@@ -139,7 +139,7 @@ interface rawSyncMaindata {
   torrents: Record<string, rawTorrent>
 }
 
-const convertMaps : [string, keyof TorrentClientStatus][] = [
+const convertMaps : [string, keyof Omit<TorrentClientStatus, 'version'>][] = [
   ['dl_info_data', 'dlData'],
   ['dl_info_speed', 'dlSpeed'],
   ['up_info_data', 'upData'],
@@ -175,17 +175,21 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
   }
 
   async getClientStatus (): Promise<TorrentClientStatus> {
-    const retStatus: TorrentClientStatus = { dlSpeed: 0, upSpeed: 0 };
+    const retStatus: TorrentClientStatus = { version: '', dlSpeed: 0, upSpeed: 0 };
+
+    const { data: version } = await this.request<string>('/app/version');
+    const { data: webApiVersion } = await this.request('/app/webapiVersion');
+
+    retStatus.version = `${version} (${webApiVersion})`;
 
     const { data } = await this.request<rawSyncMaindata>('/sync/maindata', { params: { rid: 0 } });
-
     for (const [key, convertKey] of convertMaps) {
       if (data.server_state?.[key]) {
         retStatus[convertKey] = Number(data.server_state[key]);
       }
     }
 
-    return retStatus;
+    return retStatus as TorrentClientStatus;
   }
 
   // qbt 默认Session时长 3600s，一次登录应该足够进行所有操作

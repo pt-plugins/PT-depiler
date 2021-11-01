@@ -20,7 +20,7 @@ class Logger extends BrowserBridge {
 
     data.id = uuidv4(); // 不使用外部传入 ID 和时间戳
     data.time = new Date().getTime();
-    this.data.push(data as LogItem);
+    this.data.push(<LogItem>data);
     await this.save();
 
     return data.id; // 返回日志id
