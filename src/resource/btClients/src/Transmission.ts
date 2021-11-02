@@ -254,19 +254,30 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     }
   }
 
+  protected async getClientVersionFromRemote (): Promise<string> {
+    const { data: { arguments: sessionData } } = await this.request<TransmissionBaseResponse<{ version: string, 'rpc-version': number }>>('session-get');
+    return `${sessionData.version}, RPC ${sessionData['rpc-version']}`;
+  }
+
   async getClientStatus (): Promise<TorrentClientStatus> {
-    const retStatus: TorrentClientStatus = { version: '', dlSpeed: 0, upSpeed: 0 };
+    const retStatus: TorrentClientStatus = { dlSpeed: 0, upSpeed: 0 };
 
     const statsReq = this.request<TransmissionStatsResponse>('session-stats');
-    const { data: { arguments: sessionData } } = await this.request<TransmissionBaseResponse<{ 'download-dir': string, 'download-dir-free-space'?: number, version: string, 'rpc-version': number }>>('session-get');
+    const { data: { arguments: sessionData } } = await this.request<TransmissionBaseResponse<{ 'download-dir': string, 'download-dir-free-space'?: number }>>('session-get');
 
+    /**
+     * 由于 download-dir-free-space 在 rpc-spec 中属于过时的方法，
+     * 所以如果在 session-get 方法中，没有获取到该键值对，
+     * 则进一步调用 free-space 方法
+     *
+     * @refs https://github.com/transmission/transmission/blob/790b0bb2b5d195e4c5652716f9e5f5c6003193ee/extras/rpc-spec.txt#L865-L866
+     */
     if (sessionData['download-dir-free-space']) {
       retStatus.freeSpace = sessionData['download-dir-free-space'];
     } else {
       const { data: freeSpaceData } = await this.request<TransmissionBaseResponse<{path: string, 'size-bytes': number}>>('free-space', { path: sessionData['download-dir'] });
       retStatus.freeSpace = freeSpaceData.arguments['size-bytes'];
     }
-    retStatus.version = `${sessionData.version}, RPC ${sessionData['rpc-version']}`;
 
     const { data: { arguments: statsData } } = await statsReq;
     retStatus.dlSpeed = statsData.downloadSpeed;
@@ -347,7 +358,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
         id: torrent.id,
         infoHash: torrent.hashString,
         name: torrent.name,
-        progress: torrent.percentDone,
+        progress: torrent.percentDone * 100,
         isCompleted: torrent.leftUntilDone < 1,
         ratio: torrent.uploadRatio,
         dateAdded: torrent.addedDate,

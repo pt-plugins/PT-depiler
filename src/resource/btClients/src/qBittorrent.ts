@@ -174,13 +174,14 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     }
   }
 
-  async getClientStatus (): Promise<TorrentClientStatus> {
-    const retStatus: TorrentClientStatus = { version: '', dlSpeed: 0, upSpeed: 0 };
-
+  protected async getClientVersionFromRemote (): Promise<string> {
     const { data: version } = await this.request<string>('/app/version');
-    const { data: webApiVersion } = await this.request('/app/webapiVersion');
+    const { data: webApiVersion } = await this.request<string>('/app/webapiVersion');
+    return `${version} (${webApiVersion})`;
+  }
 
-    retStatus.version = `${version} (${webApiVersion})`;
+  async getClientStatus (): Promise<TorrentClientStatus> {
+    const retStatus: TorrentClientStatus = { dlSpeed: 0, upSpeed: 0 };
 
     const { data } = await this.request<rawSyncMaindata>('/sync/maindata', { params: { rid: 0 } });
     for (const [key, convertKey] of convertMaps) {
@@ -323,7 +324,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
         state,
         dateAdded: torrent.added_on,
         isCompleted,
-        progress: torrent.progress,
+        progress: torrent.progress * 100,
         label: torrent.category,
         savePath: torrent.save_path,
         totalSize: torrent.total_size,

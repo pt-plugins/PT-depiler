@@ -198,12 +198,15 @@ export default class Aria2 extends AbstractBittorrentClient {
     }
   }
 
+  protected async getClientVersionFromRemote (): Promise<string> {
+    const { result: versionData } = await this.methodSend<{version: string, enabledFeatures: string[]}>('aria2.getVersion');
+    return versionData.version;
+  }
+
   // Aria2 只能知道当前的传输速度，其他都不知道
   async getClientStatus (): Promise<TorrentClientStatus> {
-    const { result: versionData } = await this.methodSend<{version: string, enabledFeatures: string[]}>('aria2.getVersion');
     const { result: statusData } = await this.methodSend<{ downloadSpeed: string, uploadSpeed: string }>('aria2.getGlobalStat');
     return {
-      version: versionData.version,
       dlSpeed: Number(statusData.downloadSpeed),
       upSpeed: Number(statusData.uploadSpeed)
     };

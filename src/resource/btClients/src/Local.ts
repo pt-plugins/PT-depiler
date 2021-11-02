@@ -31,6 +31,10 @@ export default class Local extends AbstractBittorrentClient {
     return true;
   }
 
+  protected async getClientVersionFromRemote (): Promise<string> {
+    return this.version;
+  }
+
   async getClientStatus (): Promise<TorrentClientStatus> {
     throw new Error('Not Support');
   }

@@ -122,8 +122,12 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
     return true;
   }
 
+  protected async getClientVersionFromRemote (): Promise<string> {
+    return ''; // TODO
+  }
+
   async getClientStatus (): Promise<TorrentClientStatus> {
-    return { version: '', dlSpeed: 0, upSpeed: 0 }; // TODO
+    return { dlSpeed: 0, upSpeed: 0 }; // TODO
   }
 
   async addTorrent (url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {

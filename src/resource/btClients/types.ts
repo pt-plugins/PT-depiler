@@ -73,7 +73,6 @@ export interface TorrentClientMetaData {
 }
 
 export interface TorrentClientStatus {
-  version: string, // 版本号
   upSpeed: number, // 上传速度（瞬间）
   upData?: number, // 上传总量（对于不同客户端可能是total或者session）
   dlSpeed: number,

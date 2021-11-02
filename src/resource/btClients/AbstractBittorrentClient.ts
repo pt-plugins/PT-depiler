@@ -28,12 +28,74 @@ export default abstract class AbstractBittorrentClient<T extends BittorrentClien
   abstract version: `v${number}.${number}.${number}`;
   readonly config: T;
 
+  private clientVersion?: string;
+
   protected constructor (options: T) {
     this.config = options as T;
   }
 
   // 检查客户端是否可以连接
   public abstract ping (): Promise<boolean>;
+
+  // 获取客户端版本信息( wrapper with local cache )
+  public async getClientVersion (): Promise<string> {
+    if (!this.clientVersion) {
+      this.clientVersion = await this.getClientVersionFromRemote();
+    }
+    return this.clientVersion;
+  }
+
+  // 获取客户端版本信息( wrapper with local cache )
+  protected abstract getClientVersionFromRemote (): Promise<string>
+
+  // 获取客户端状态
+  public abstract getClientStatus(): Promise<TorrentClientStatus>
+
+  /**
+   * 获取种子信息的方法
+   *
+   * 注意 abstract class 中内置了一种本地筛选种子的获取方法，
+   * 即从bt软件中获取所有种子，然后本地筛选，即 getAllTorrents -> getTorrentsBy -> getTorrent
+   * 此时只需要完成 getAllTorrents 方法的逻辑即可
+   *
+   * 如果该客户端支持在获取种子的时候进行筛选，
+   * 则建议将筛选步骤推送给bt软件，即 getTorrentsBy -> getAllTorrents/getTorrent
+   * 此时，则同时需要完成 3个方法（部分情况下为其中1个或2个）的 override
+   *
+   */
+  public abstract getAllTorrents(): Promise<CTorrent[]>
+
+  public async getTorrentsBy (filter: CTorrentFilterRules): Promise<CTorrent[]> {
+    let torrents = await this.getAllTorrents();
+    if (filter.ids) {
+      const filterIds = Array.isArray(filter.ids) ? filter.ids : [filter.ids];
+      torrents = torrents.filter(t => {
+        return filterIds.includes(t.infoHash);
+      });
+    }
+
+    if (filter.complete) {
+      torrents = torrents.filter(t => t.isCompleted);
+    }
+
+    return torrents;
+  }
+
+  public async getTorrent (id: string): Promise<CTorrent> {
+    return (await this.getTorrentsBy({ ids: id }))[0];
+  }
+
+  // 添加种子
+  public abstract addTorrent (url: string, options: Partial<CAddTorrentOptions>) : Promise<boolean>;
+
+  // 暂停种子
+  public abstract pauseTorrent (id: any) : Promise<boolean>;
+
+  // 恢复种子
+  public abstract resumeTorrent (id: any) : Promise<boolean>;
+
+  // 删除种子
+  public abstract removeTorrent (id: any, removeData?: boolean) : Promise<boolean>;
 
   public async getRemoteTorrentFile (options: AxiosRequestConfig = {}): Promise<ParsedTorrent> {
     const req = await axios.request({
@@ -81,55 +143,4 @@ export default abstract class AbstractBittorrentClient<T extends BittorrentClien
       info: parsedInfo
     };
   }
-
-  /**
-   * 获取种子信息的方法
-   *
-   * 注意 abstract class 中内置了一种本地筛选种子的获取方法，
-   * 即从bt软件中获取所有种子，然后本地筛选，即 getAllTorrents -> getTorrentsBy -> getTorrent
-   * 此时只需要完成 getAllTorrents 方法的逻辑即可
-   *
-   * 如果该客户端支持在获取种子的时候进行筛选，
-   * 则建议将筛选步骤推送给bt软件，即 getTorrentsBy -> getAllTorrents/getTorrent
-   * 此时，则同时需要完成 3个方法（部分情况下为其中1个或2个）的 override
-   *
-   */
-  public abstract getAllTorrents(): Promise<CTorrent[]>
-
-  /**
-   * 获取客户端状态的方法
-   */
-  public abstract getClientStatus(): Promise<TorrentClientStatus>
-
-  public async getTorrentsBy (filter: CTorrentFilterRules): Promise<CTorrent[]> {
-    let torrents = await this.getAllTorrents();
-    if (filter.ids) {
-      const filterIds = Array.isArray(filter.ids) ? filter.ids : [filter.ids];
-      torrents = torrents.filter(t => {
-        return filterIds.includes(t.infoHash);
-      });
-    }
-
-    if (filter.complete) {
-      torrents = torrents.filter(t => t.isCompleted);
-    }
-
-    return torrents;
-  }
-
-  public async getTorrent (id: string): Promise<CTorrent> {
-    return (await this.getTorrentsBy({ ids: id }))[0];
-  }
-
-  // 添加种子
-  public abstract addTorrent (url: string, options: Partial<CAddTorrentOptions>) : Promise<boolean>;
-
-  // 暂停种子
-  public abstract pauseTorrent (id: any) : Promise<boolean>;
-
-  // 恢复种子
-  public abstract resumeTorrent (id: any) : Promise<boolean>;
-
-  // 删除种子
-  public abstract removeTorrent (id: any, removeData?: boolean) : Promise<boolean>;
 }

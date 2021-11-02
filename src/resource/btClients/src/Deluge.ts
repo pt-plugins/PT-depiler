@@ -40,7 +40,8 @@ type DelugeMethod =
   'core.add_torrent_url' | 'core.add_torrent_file' |
   'core.get_free_space' | 'core.get_session_status' |
   'core.remove_torrent' | 'core.pause_torrent' | 'core.resume_torrent' |
-  'label.set_torrent'
+  'daemon.info' | 'core.get_libtorrent_version' |
+  'label.set_torrent';
 
 interface DelugeDefaultResponse<T = any> {
   /**
@@ -134,10 +135,6 @@ interface DelugeTorrentFilterRules extends CTorrentFilterRules {
   state?: string
 }
 
-interface DelugeBooleanStatus extends DelugeDefaultResponse {
-  result: boolean;
-}
-
 // noinspection JSUnusedGlobalSymbols
 export default class Deluge extends AbstractBittorrentClient {
   readonly version = 'v0.1.0';
@@ -174,8 +171,24 @@ export default class Deluge extends AbstractBittorrentClient {
     return await this.login();
   }
 
+  protected async getClientVersionFromRemote (): Promise<string> {
+    const version = await this.request<string>('daemon.info');
+    const ltVersion = await this.request<string>('core.get_libtorrent_version');
+    return `${version} (lt ${ltVersion})`;
+  }
+
   async getClientStatus (): Promise<TorrentClientStatus> {
-    return { version: '', dlSpeed: 0, upSpeed: 0 }; // TODO
+    const statusKeys = ['download_rate', 'upload_rate', 'total_download', 'total_upload'] as const;
+    const statusData = await this.request<Record<typeof statusKeys[number], number>>('core.get_session_status', [statusKeys]);
+    const freeSpaceData = await this.request<number>('core.get_free_space');
+
+    return {
+      upSpeed: statusData.upload_rate,
+      dlSpeed: statusData.download_rate,
+      upData: statusData.total_upload,
+      dlData: statusData.total_download,
+      freeSpace: freeSpaceData
+    }; // TODO
   }
 
   async addTorrent (url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
@@ -205,15 +218,15 @@ export default class Deluge extends AbstractBittorrentClient {
     }
 
     try {
-      const { data } = await this.request<DelugeDefaultResponse>(method, params);
-      if (data.result !== null && options.label) {
+      const result = await this.request<any>(method, params);
+      if (result !== null && options.label) {
         try {
-          const torrentHash = data.result[0][1];
+          const torrentHash = result[0][1];
           await this.request('label.set_torrent', [torrentHash, options.label]);
         } catch (e) {} // 即使失败了也没关系
       }
 
-      return data.result !== null;
+      return result !== null;
     } catch (e) {
       return false;
     }
@@ -234,13 +247,12 @@ export default class Deluge extends AbstractBittorrentClient {
       delete filter.complete;
     }
 
-    const { data } = await this.request<DelugeDefaultResponse>('core.get_torrents_status', [
+    const torrents = await this.request<Record<string, DelugeRawTorrent>>('core.get_torrents_status', [
       filter,
       this.torrentRequestField
     ]);
 
-    // @ts-ignore
-    return Object.values(data.result).map((torrent: DelugeRawTorrent) => {
+    return Object.values(torrents).map(torrent => {
       // normalize state to enum
       let state = CTorrentState.unknown;
       if (Object.keys(CTorrentState).includes(torrent.state.toLowerCase())) {
@@ -268,8 +280,7 @@ export default class Deluge extends AbstractBittorrentClient {
 
   async pauseTorrent (id: any): Promise<boolean> {
     try {
-      const { data } = await this.request<DelugeBooleanStatus>('core.pause_torrent', [id]);
-      return data.result;
+      return await this.request<boolean>('core.pause_torrent', [id]);
     } catch (e) {
       return false;
     }
@@ -277,8 +288,7 @@ export default class Deluge extends AbstractBittorrentClient {
 
   async removeTorrent (id: string, removeData: boolean = false): Promise<boolean> {
     try {
-      const { data } = await this.request<DelugeBooleanStatus>('core.remove_torrent', [id, removeData]);
-      return data.result;
+      return await this.request<boolean>('core.remove_torrent', [id, removeData]);
     } catch (e) {
       return false;
     }
@@ -286,8 +296,7 @@ export default class Deluge extends AbstractBittorrentClient {
 
   async resumeTorrent (id: any): Promise<boolean> {
     try {
-      const { data } = await this.request<DelugeBooleanStatus>('core.resume_torrent', [id]);
-      return data.result;
+      return await this.request<boolean>('core.resume_torrent', [id]);
     } catch (e) {
       return false;
     }
@@ -295,26 +304,26 @@ export default class Deluge extends AbstractBittorrentClient {
 
   private async login (): Promise<boolean> {
     try {
-      const { data } = await this.request<DelugeBooleanStatus>('auth.login', [this.config.password]);
-      this.isLogin = data.result;
+      this.isLogin = await this.request<boolean>('auth.login', [this.config.password]);
       return this.isLogin;
     } catch (e) {
       return false;
     }
   }
 
-  private async request <T> (method: DelugeMethod, params: any[]): Promise<AxiosResponse<T>> {
+  private async request<T> (method: DelugeMethod, params: any[] = []): Promise<T> {
     // 防止循环调用
     if (!this.isLogin && method !== 'auth.login') {
       await this.login();
     }
 
-    return await axios.post<T>(this.address, {
+    const { data: { result } } = await axios.post<DelugeDefaultResponse<T>>(this.address, {
       id: this._msgId++,
       method: method,
       params: params
     }, {
       responseType: 'json'
     });
+    return result;
   }
 }
