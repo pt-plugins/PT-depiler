@@ -23,7 +23,7 @@ function loadLocaleMessages (): LocaleMessages<VueMessageType> {
 
 const vI18n = createI18n({
   legacy: false,
-  locale: 'en',
+  locale: navigator.language,
   fallbackLocale: 'en',
   messages: loadLocaleMessages(),
   globalInjection: true

@@ -4,7 +4,7 @@
  */
 import { ILangMetaData } from '@/shared/interfaces/common';
 
-export default [
+export default <ILangMetaData[]>[
   {
     name: 'English (Beta)',
     code: 'en',
@@ -14,9 +14,9 @@ export default [
   },
   {
     name: '简体中文 Chinese (Simplified)',
-    code: 'zh-Hans',
+    code: 'zh-CN',
     authors: [
       '栽培者'
     ]
   }
-] as ILangMetaData[];
+];

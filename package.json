@@ -38,8 +38,7 @@
     "src/resource/*"
   ],
   "dependencies": {
-    "@fortawesome/fontawesome-free": "^5.15.4",
-    "@mdi/font": "6.4.95",
+    "@vueuse/core": "^6.7.4",
     "axios": "^0.24.0",
     "buffer": "^6.0.3",
     "compare-versions": "^3.6.0",
@@ -48,7 +47,7 @@
     "localforage": "^1.9.0",
     "lodash-es": "^4.17.20",
     "marked": "^3.0.0",
-    "roboto-fontface": "*",
+    "naive-ui": "^2.20.1",
     "sizzle": "^2.3.5",
     "ua-parser-js": "^1.0.1",
     "url-join": "^4.0.1",
@@ -57,7 +56,6 @@
     "vue": "^3.0.11",
     "vue-i18n": "^9.1.6",
     "vue-router": "^4.0.6",
-    "vuetify": "3.0.0-alpha.10",
     "vuex": "^4.0.0",
     "webextension-polyfill": "^0.8.0"
   },
@@ -74,6 +72,8 @@
     "@types/webextension-polyfill": "^0.8.0",
     "@typescript-eslint/eslint-plugin": "^4.18.0",
     "@typescript-eslint/parser": "^4.18.0",
+    "@vicons/fa": "^0.11.0",
+    "@vicons/material": "^0.11.0",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-plugin-router": "~4.5.0",
@@ -95,7 +95,6 @@
     "typescript": "~4.4.2",
     "vue-cli-plugin-browser-extension": "^0.25.1",
     "vue-cli-plugin-i18n": "^2.3.1",
-    "vue-cli-plugin-vuetify": "~2.4.0",
     "vue-template-compiler": "^2.6.11"
   }
 }

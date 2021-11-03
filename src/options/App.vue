@@ -1,27 +1,19 @@
-<template>
-  <v-app id="ptpp">
-    <router-view></router-view>
-  </v-app>
-</template>
-
-<script lang="ts">
-import { defineComponent } from 'vue';
-
-export default defineComponent({
-  name: 'App',
-
-  components: {
-  },
-
-  data () {
-    return {
-      //
-    };
-  }
-
-});
+<script lang="ts" setup>
+import { isDark } from '@/options/utils';
+import { darkTheme } from 'naive-ui';
+import Layout from '@/options/views/Layout.vue';
 </script>
 
-<style>
-
-</style>
+<template>
+  <n-config-provider :theme="isDark ? darkTheme : null">
+    <n-loading-bar-provider>
+      <n-message-provider>
+        <n-notification-provider>
+          <n-dialog-provider>
+            <Layout/>
+          </n-dialog-provider>
+        </n-notification-provider>
+      </n-message-provider>
+    </n-loading-bar-provider>
+  </n-config-provider>
+</template>

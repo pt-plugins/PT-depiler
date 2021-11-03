@@ -1,3 +1,4 @@
+// 此处存放一些全局相关的信息
 import browser from 'webextension-polyfill';
 import UAParser from 'ua-parser-js';
 import { EInstallType } from '@/shared/interfaces/enum';
@@ -6,6 +7,9 @@ import { EInstallType } from '@/shared/interfaces/enum';
 export const REPO_NAME = 'ronggang/PT-Plugin-Plus';
 export const REPO_URL = `https://github.com/${REPO_NAME}`;
 export const REPO_API = `https://api.github.com/repos/${REPO_NAME}`;
+
+export const GROUP_TELEGRAM = 'https://t.me/joinchat/NZ9NCxPKXyby8f35rn_QTw';
+export const GROUP_QQ = 'https://jq.qq.com/?_wv=1027&k=7d6xEo0L';
 
 // 插件相关
 export const MANIFEST = browser.runtime.getManifest();
@@ -24,14 +28,14 @@ export interface VersionDetail {
   hash: string
 }
 
-export async function getFullVersion (): Promise<VersionDetail> {
+export function getFullVersion (): VersionDetail {
   /**
    * 由于 webextension-polyfill-ts 的问题，此处暂时不能使用
    * browser.runtime.getManifest() ，先用 browser.management.getSelf() 替代
    * refs: https://github.com/Lusito/webextension-polyfill-ts/issues/64
    */
-  const detail = await browser.management.getSelf();
-  const fullVersion = 'v' + (detail.versionName || detail.version) as TVersion; // v2.0.0.b3f0a76
+  // @ts-ignore
+  const fullVersion = 'v' + (MANIFEST.versionName || MANIFEST.version_name || MANIFEST.version) as TVersion; // v2.0.0.b3f0a76
 
   let version; let versionHash = '';
   const mainVersionMatch = fullVersion.match(/(v\d+\.\d+\.\d+)\.?(.*)/);

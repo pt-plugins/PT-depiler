@@ -1,5 +1,4 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from 'vue-router';
-import Container from './views/Container.vue';
 import Home from './views/Home.vue';
 
 function dynamicImportView (view: string) {
@@ -9,20 +8,13 @@ function dynamicImportView (view: string) {
 const routes :RouteRecordRaw[] = [
   {
     path: '/',
-    name: 'Container',
-    component: Container,
-    children: [
-      {
-        path: '',
-        name: 'Home',
-        component: Home
-      },
-      {
-        path: 'about',
-        name: 'About',
-        component: () => dynamicImportView('About')
-      }
-    ]
+    name: 'Home',
+    component: Home
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: () => dynamicImportView('About')
   },
   {
     path: '/changelog',

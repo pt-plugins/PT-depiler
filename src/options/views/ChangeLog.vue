@@ -1,49 +1,38 @@
 <template>
-  <v-app-bar app class="changelog-header" color="amber">
+  <n-layout-header bordered>
     {{ version.full }} {{ $t('changeLog.changeLog') }}
-  </v-app-bar>
+  </n-layout-header>
 
-  <v-main>
-    <v-container fluid>
-      <!-- 主版本说明 -->
-      <div class="markdown-body release-content" v-html="marked(releaseContent)"></div>
+  <n-layout-content :native-scrollbar="false" style="height: 600px">
+    <!-- 主版本说明 -->
+    <div class="markdown-body release-content" v-html="marked(releaseContent)"></div>
+    <!-- 当前commit版本说明 -->
+    adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>adsfasdfsa<br>
+    <template v-if="version.hash && commitData.html_url">
+      <div class="markdown-body commit-detail">
+        <p>
+          <strong>当前 Commit 号：<a :href="commitData.html_url">{{ version.hash }}</a></strong>
+          by <a :href="commitData.author.html_url">@{{ commitData.author.login }}</a>
+          ( 增: {{ commitData.stats.additions }} 删: {{ commitData.stats.deletions }} 共: {{ commitData.stats.total }} )
+        </p>
+        <pre>{{ commitData.commit.message }}</pre>
+      </div>
+    </template>
+  </n-layout-content>
 
-      <!-- 当前commit版本说明 -->
-      <template v-if="version.hash && commitData.html_url">
-        <v-divider inset style="margin-top: 20px; margin-bottom: 20px"></v-divider>
-        <div class="markdown-body commit-detail">
-          <p>
-            <strong>当前 Commit 号：<a :href="commitData.html_url">{{ version.hash }}</a></strong>
-            by <a :href="commitData.author.html_url">@{{ commitData.author.login }}</a>
-            ( 增: {{ commitData.stats.additions }} 删: {{ commitData.stats.deletions }} 共: {{ commitData.stats.total }} )
-          </p>
-          <pre>{{ commitData.commit.message }}</pre>
-        </div>
-      </template>
-    </v-container>
-  </v-main>
-
-  <v-footer app>
-    <v-container>
-      <v-col>
-        <v-row justify="center">
-          <div class="markdown-body">
-            <a :href="REPO_URL">{{ $t('changeLog.homepage') }}</a> -
-            <a :href="`${REPO_URL}/wiki`">{{ $t('changeLog.wiki') }}</a> -
-            <a :href="`${REPO_URL}/wiki/frequently-asked-questions`">{{ $t('changeLog.questions') }}</a> -
-            <a :href="`${REPO_URL}/issues`">{{ $t('changeLog.report') }}</a> -
-            <a href="/options.html">{{ $t('changeLog.optionsPage') }}</a>
-          </div>
-        </v-row>
-        <v-row justify="center">
-          <div>&copy; 栽培者 {{ year }}, {{ $t('common.version') }} {{ version.full }}</div>
-        </v-row>
-        <v-row justify="center">
-          <img src="/assets/donate.png" alt="donate"/>
-        </v-row>
-      </v-col>
-    </v-container>
-  </v-footer>
+  <n-layout-footer bordered>
+    <n-space align="center" vertical>
+      <div class="markdown-body">
+        <a :href="REPO_URL">{{ $t('changeLog.homepage') }}</a> -
+        <a :href="`${REPO_URL}/wiki`">{{ $t('changeLog.wiki') }}</a> -
+        <a :href="`${REPO_URL}/wiki/frequently-asked-questions`">{{ $t('changeLog.questions') }}</a> -
+        <a :href="`${REPO_URL}/issues`">{{ $t('changeLog.report') }}</a> -
+        <a href="/options.html">{{ $t('changeLog.optionsPage') }}</a>
+      </div>
+      <div>&copy; 栽培者 {{ year }}, {{ $t('common.version') }} {{ version.full }}</div>
+      <div><img src="/assets/donate.png" alt="donate"/></div>
+    </n-space>
+  </n-layout-footer>
 </template>
 
 <script lang="ts">
@@ -92,7 +81,9 @@ export default defineComponent({
     // 加载对应 commit hash 的说明
     if (this.version.hash) {
       axios.get<GHCommitData>(`${REPO_API}/commits/${this.version.hash}`)
-        .then(({ data }) => { this.commitData = data; });
+        .then(({ data }) => {
+          this.commitData = data;
+        });
     }
   },
   methods: {
@@ -107,10 +98,5 @@ export default defineComponent({
 .changelog-header {
   padding: 0 0 8px 30px;
   font-size: 25px;
-}
-
-.v-footer .v-row {
-  margin: 0;
-  line-height: 30px;
 }
 </style>

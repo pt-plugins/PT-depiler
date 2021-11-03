@@ -1,5 +1,6 @@
 {
   "app": {
+    "author": "ronggang",
     "test": "Test"
   },
   "changeLog": {
@@ -11,6 +12,22 @@
     "wiki": "Wiki"
   },
   "common": {
-    "version": "Version"
+    "version": "Version",
+    "header": {
+
+    },
+    "menu": {
+
+    },
+    "content": {
+
+    },
+    "footer": {
+      "changeLanguage": "Switch Language",
+      "displayMode": {
+        "light": "Light Mode",
+        "dark": "Dark Mode"
+      }
+    }
   }
 }
