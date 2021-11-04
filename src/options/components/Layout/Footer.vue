@@ -2,8 +2,7 @@
 import { TelegramPlane, Language, Adjust } from '@vicons/fa';
 import { isDark, openUrl, toggleDark, isMobile } from '../../utils';
 import { getFullVersion, GROUP_TELEGRAM } from '@/shared/constants';
-import { setI18nLanguage } from '@/shared/plugins/i18n';
-import LangOptions from '@/shared/locale';
+import { setI18nLanguage, localeDefine } from '@/shared/plugins/i18n';
 
 const FULL_VERSION = getFullVersion();
 const YEAR = new Date().getFullYear();
@@ -30,7 +29,7 @@ const YEAR = new Date().getFullYear();
 
       <n-dropdown
         placement="top-start"
-        :options="LangOptions"
+        :options="localeDefine"
         label-field="name" key-field="code"
         @select="(e) => setI18nLanguage(e)"
       >

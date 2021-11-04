@@ -1,6 +1,33 @@
 import { createI18n, LocaleMessages, VueMessageType } from 'vue-i18n';
-import browser from 'webextension-polyfill';
-import type { App } from 'vue';
+import { ILangMetaData } from '@/shared/interfaces/common';
+
+/**
+ * 由于 Vue-i18n v9 在 CSP 环境中无法进行编译操作，所以所有语言文件需要在此处预注册，
+ * 不然不会在插件页面显示，也不能实现像 v1.x 中的”临时添加新语言功能“
+ */
+export const localeDefine : ILangMetaData[] = [
+  {
+    name: 'English (Beta)',
+    code: 'en',
+    authors: [
+      'ronggang', 'ylxb2016', 'xiongqiwei', 'jackson008'
+    ]
+  },
+  {
+    name: '简体中文 Chinese (Simplified)',
+    code: 'zh-CN',
+    authors: [
+      '栽培者'
+    ]
+  }
+];
+
+/**
+ * 获取当前应该使用的语言
+ */
+function getDefaultLocale () {
+  return localStorage.getItem('locale') ?? navigator.language;
+}
 
 /**
  * Load locale messages
@@ -21,16 +48,16 @@ function loadLocaleMessages (): LocaleMessages<VueMessageType> {
   return messages;
 }
 
-const vI18n = createI18n({
+const i18n = createI18n({
   legacy: false,
-  locale: navigator.language,
+  locale: getDefaultLocale(),
   fallbackLocale: 'en',
   messages: loadLocaleMessages(),
   globalInjection: true
 });
 
 export function setI18nLanguage (locale: string) {
-  vI18n.global.locale.value = locale;
+  i18n.global.locale.value = locale;
 
   /**
    * NOTE:
@@ -40,25 +67,7 @@ export function setI18nLanguage (locale: string) {
    * axios.defaults.headers.common['Accept-Language'] = locale
    */
   document.querySelector('html')?.setAttribute('lang', locale);
+  localStorage.setItem('locale', locale);
 }
 
-/**
- * 使用 browser.i18n.getMessage 来获取 i18n 文本
- */
-const bI18n = {
-  install: (app: App, options: Record<any, any>) => {
-    app.config.globalProperties.$translate = browser.i18n.getMessage;
-  }
-};
-
-/**
- * 为直接在vue模板中使用 $translate 提供类型说明
- * 注意，这个说明不能写在 .d.ts 中，否则会导致 import {} from 'vue' 出错
- */
-declare module '@vue/runtime-core' {
-  export interface ComponentCustomProperties {
-    $translate(messageName: string, substitutions?: any): string
-  }
-}
-
-export { vI18n, bI18n };
+export default i18n;
