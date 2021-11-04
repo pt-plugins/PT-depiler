@@ -1,17 +1,12 @@
 <script lang="ts" setup>
 import { h, ref } from 'vue';
-import { NIcon } from 'naive-ui';
-import { RouteLocationRaw, RouterLink } from 'vue-router';
-import { TachometerAlt } from '@vicons/fa';
-import { breakpoints } from '@/options/utils';
-import { DashboardSharp, SearchSharp, CloudDownloadSharp } from '@vicons/material';
 import { Component } from '@vue/runtime-core';
+import { RouterLink } from 'vue-router';
+import { NIcon } from 'naive-ui';
+import { routes } from '../../router';
+import { breakpoints } from '../../utils';
 
-function renderRouterLabel (text: string, routerProps: RouteLocationRaw) {
-  return () => h(RouterLink, { to: routerProps }, { default: () => text });
-}
-
-function renderIcon (icon:Component) {
+function renderIcon (icon: Component) {
   return () => h(NIcon, null, { default: () => h(icon) });
 }
 
@@ -22,37 +17,30 @@ function renderIcon (icon:Component) {
  */
 const menuCollapsed = ref(breakpoints.smaller('s'));
 
-// 定义目录
-const menuOptions = [
-  {
-    label: '概览',
-    key: 'overview',
-    icon: renderIcon(TachometerAlt),
-    children: [
-      {
-        key: 'search-data',
-        label: renderRouterLabel('搜索结果', { name: 'Home' }),
-        icon: renderIcon(SearchSharp)
-      },
-      {
-        key: 'my-data',
-        label: renderRouterLabel('我的数据', { name: 'Home' }),
-        icon: renderIcon(DashboardSharp)
-      },
-      {
-        key: 'my-client',
-        label: renderRouterLabel('我的下载器', { name: 'Home' }),
-        icon: renderIcon(CloudDownloadSharp)
-      }
-    ]
-  }
-];
+// 自动从router.ts生成目录
+const menuOptions = routes
+  .filter(route => route.meta?.isMainMenu) // 根据 meta 的 isMainMenu 属性筛选出应该列在目录中的路径
+  .map(route => {
+    return {
+      label: route.meta!.label,
+      key: route.path.replace(/^\//, ''),
+      icon: renderIcon(route.meta!.icon as Component),
+      children: route.children!.map(childrenRoute => {
+        return {
+          key: childrenRoute.path.replace(/^\//, ''),
+          label: () => h(RouterLink, { to: { name: childrenRoute.name } }, { default: () => childrenRoute.meta!.label }),
+          icon: renderIcon(childrenRoute.meta!.icon as Component)
+        };
+      })
+    };
+  });
 </script>
 
 <template>
   <n-layout-sider bordered collapse-mode="width" show-trigger
                   :collapsed-width="64" :width="240"
                   :collapsed="menuCollapsed"
+                  :native-scrollbar="false"
                   @collapse="menuCollapsed = true"
                   @expand="menuCollapsed = false"
   >
@@ -60,10 +48,10 @@ const menuOptions = [
       :collapsed="menuCollapsed"
       :collapsed-width="64"
       :collapsed-icon-size="22"
-      :root-indent="16"
-      :indent="32"
+      :root-indent="12"
+      :indent="18"
       :options="menuOptions"
-      :default-expand-all="true"
+      :default-expanded-keys="['','settings','about']"
     />
   </n-layout-sider>
 </template>

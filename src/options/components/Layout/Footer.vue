@@ -57,10 +57,12 @@ const YEAR = new Date().getFullYear();
   </n-space>
 </template>
 
-<style lang="sass" scoped>
-#ptpp-copyright
+<style lang="scss" scoped>
+#ptpp-copyright {
   margin-top: 4px  // 与右侧的图标对齐
+}
 
-#ptpp-footer-sider .n-button
+#ptpp-footer-sider .n-button {
   padding: 0 10px
+}
 </style>

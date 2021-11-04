@@ -1,7 +1,6 @@
 <script lang="ts" setup>
 import { isDark } from '@/options/utils';
 import { darkTheme } from 'naive-ui';
-import Layout from '@/options/views/Layout.vue';
 </script>
 
 <template>
@@ -10,7 +9,7 @@ import Layout from '@/options/views/Layout.vue';
       <n-message-provider>
         <n-notification-provider>
           <n-dialog-provider>
-            <Layout/>
+            <router-view />
           </n-dialog-provider>
         </n-notification-provider>
       </n-message-provider>

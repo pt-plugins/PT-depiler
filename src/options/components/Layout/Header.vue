@@ -4,15 +4,12 @@
 
 <template>
   <n-space align="center">
-    <n-text>
-      <img src="/assets/icon-64.png" class="ptpp-icon"/>
-      PT 助手 Plus
-    </n-text>
-    <n-input-group>
-      <n-button type="primary">搜索</n-button>
-      <n-input :style="{ width: '50%' }" />
-      <n-button type="primary" ghost>搜索</n-button>
-    </n-input-group>
+    <div>
+      <n-button tag="img" src="/assets/icon-64.png" class="ptpp-icon" @click="$router.push('/')">
+      </n-button>
+    </div>
+    <n-h2><n-text>PT 助手 Plus</n-text></n-h2>
+
   </n-space>
 </template>
 
