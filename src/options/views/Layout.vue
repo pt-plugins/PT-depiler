@@ -13,7 +13,15 @@ import Footer from '../components/Layout/Footer.vue';
     <n-layout has-sider id="ptpp-main" position="absolute">
       <Menu/>
       <n-layout-content id="ptpp-content" content-style="padding: 16px;" :native-scrollbar="false">
-        <router-view></router-view>
+        <router-view v-slot="{Component, route}">
+          <transition>
+            <keep-alive v-if="route.meta.keepAlive">
+              <component :is="Component" />
+            </keep-alive>
+            <component v-else :is="Component" />
+          </transition>
+
+        </router-view>
       </n-layout-content>
     </n-layout>
 

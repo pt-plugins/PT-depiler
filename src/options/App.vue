@@ -9,10 +9,14 @@ import { darkTheme } from 'naive-ui';
       <n-message-provider>
         <n-notification-provider>
           <n-dialog-provider>
-            <router-view />
+            <router-view/>
           </n-dialog-provider>
         </n-notification-provider>
       </n-message-provider>
     </n-loading-bar-provider>
   </n-config-provider>
 </template>
+
+<style>
+@import "~github-markdown-css";
+</style>

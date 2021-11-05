@@ -16,10 +16,6 @@ function dynamicImportView (view: string) {
 
 export const routes: RouteRecordRaw[] = [
   {
-    path: '/test',
-    component: Layout
-  },
-  {
     path: '/',
     name: 'Overview',
     meta: { isMainMenu: true, label: '概览', icon: TachometerAlt },
@@ -117,7 +113,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: '/about',
     name: 'About',
-    meta: { isMainMenu: true, label: '插件相关', icon: TabOutlined },
+    meta: { isMainMenu: true, keepAlive: true, label: '插件相关', icon: TabOutlined },
     component: Layout,
     children: [
       {
@@ -165,7 +161,8 @@ export const routes: RouteRecordRaw[] = [
         component: () => dynamicImportView('Devtools/Debugger')
       }
     ]
-  }
+  },
+  { path: '/:pathMatch(.*)*', name: 'NotFound', redirect: '/' }
 ];
 
 const router = createRouter({

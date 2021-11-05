@@ -12,10 +12,10 @@ function renderIcon (icon: Component) {
 
 /**
  * 目录是否展开
- * 这里再使用 breakpoints.smaller('s') 做一次初始判断
- * 不使用已定义的 isMobile 是因为 ref(isMobile) 会导致 isMobile 值被更改
+ * 这里再使用 breakpoints.smaller('m') 做一次初始判断
+ * 不使用已定义的 isMobile 是因为 ref(isTablet) 会导致 isTablet 值被更改
  */
-const menuCollapsed = ref(breakpoints.smaller('s'));
+const menuCollapsed = ref(breakpoints.smaller('m'));
 
 // 自动从router.ts生成目录
 const menuOptions = routes
