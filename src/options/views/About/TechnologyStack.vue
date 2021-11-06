@@ -37,13 +37,15 @@ const ptppHistory = [
 
 const version = getFullVersion();
 
+interface ITData {
+  name: string,
+  ver: string,
+  url: string
+}
+
 interface ITechnologyData {
   version: VersionDetail,
-  technologyData: {
-    name: string,
-    ver: string,
-    url: string
-  }[],
+  technologyData: ITData[],
 }
 
 const technologyTableColumn = [
@@ -70,40 +72,39 @@ const technologyTableColumn = [
 const technologyData = useStorage<ITechnologyData>('technology-data', { version, technologyData: [] });
 if (technologyData.value.version.full !== version.full || technologyData.value.technologyData.length === 0) {
   // 主项目依赖
-  const projectDependencies = Object.entries(rawDependencies).map(value => {
-    const [name, version] = value;
-    return {
-      name: name,
-      ver: (version as string),
-      url: `https://www.npmjs.com/package/${name}`
-    };
+  function updateTechnologyData (name: string, version: string, url?: string) {
+    if (!name.startsWith('@ptpp')) {
+      const oldCache = technologyData.value.technologyData.find(x => x.name === name);
+      if (!oldCache || oldCache.ver !== version) {
+        technologyData.value.technologyData.push({
+          name: name,
+          ver: version,
+          url: oldCache?.url ?? `https://www.npmjs.com/package/${name}`
+        });
+      }
+    }
+  }
+
+  Object.entries(rawDependencies).forEach(([name, version]) => {
+    updateTechnologyData(name, version);
   });
 
   // monorepo的其他依赖
   const deepDependency = require.context('@/resource', true, /package\.json$/);
   deepDependency.keys().forEach(key => {
-    Object.entries(deepDependency(key).dependencies).forEach(value => {
-      const [name, version] = value;
-      if (!name.startsWith('@ptpp') && !projectDependencies.find(x => x.name === name)) {
-        projectDependencies.push({
-          name: name,
-          ver: (version as string),
-          url: `https://www.npmjs.com/package/${name}`
-        });
-      }
+    Object.entries(deepDependency(key).dependencies).forEach(([name, version]) => {
+      updateTechnologyData(name, version as string);
     });
   });
 
   // 其他特别依赖/参考项目
-  projectDependencies.push(...[
+  [
     {
       name: 'Jackett',
       ver: 'latest',
       url: 'https://github.com/Jackett/Jackett'
     }
-  ]);
-
-  technologyData.value.technologyData = projectDependencies;
+  ].forEach(({ name, ver, url }) => updateTechnologyData(name, ver, url));
 }
 
 // 从 npmjs.org 加载对应homepage信息
