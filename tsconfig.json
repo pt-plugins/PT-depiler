@@ -12,6 +12,7 @@
     "noImplicitReturns": true,
     "noImplicitOverride": true,
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "sourceMap": true,
     "baseUrl": ".",
     "types": [

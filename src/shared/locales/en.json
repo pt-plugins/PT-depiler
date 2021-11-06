@@ -10,6 +10,16 @@
     "noteCommit": "Changelog for this commit",
     "noteVersion": "Changelog of the main version"
   },
+  "TechnologyStack": {
+    "ptppHistory": "History of Project `PT Plugin Plus`",
+    "dependency": "Dependencies of this Project",
+    "thankNote": "The birth of 'PT Plugin Plus' is established on the base of these projects. Thanks all the participants of the project, thanks for your contribution!",
+    "stackTableColumn": {
+      "name": "Name",
+      "version": "Version",
+      "homepage": "Homepage"
+    }
+  },
   "common": {
     "version": "Version"
   },

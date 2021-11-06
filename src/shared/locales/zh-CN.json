@@ -10,6 +10,16 @@
     "noteCommit": "当前 Commit 说明",
     "noteVersion": "主版本说明"
   },
+  "TechnologyStack": {
+    "ptppHistory": "PT Plugin Plus 历史",
+    "dependency": "项目依赖",
+    "thankNote": "PT 助手的诞生是建立在这些项目基础之上，在此感谢所有项目的参与人员，感谢他们的付出！",
+    "stackTableColumn": {
+      "name": "名称",
+      "version": "版本",
+      "homepage": "项目主页"
+    }
+  },
   "common": {
     "version": "版本"
   },
