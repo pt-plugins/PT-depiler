@@ -3,12 +3,20 @@
     "author": "栽培者",
     "test": "测试"
   },
-  "changeLog": {
+  "ChangeLog": {
     "loading": "正在加载…… （ 如长时间未能加载成功，请查看@:changeLog.seeReleasePage ）",
     "loadFail": "主版本发布说明加载失败，@:changeLog.seeReleasePage",
     "seeReleasePage": "请前往 {releasePage} 查看。",
     "noteCommit": "当前 Commit 说明",
     "noteVersion": "主版本说明"
+  },
+  "DevTeam": {
+    "thank1": "在项目的开发和测试中，他们给予了很多帮助和支持（或开发，或测试，或发\uD83D\uDC8A，或建议，或鼓励，或鞭策），在此表示感谢。",
+    "thank2": "列表中未能一一列出所有给予帮助的同学，也对他们表示感谢，如有遗漏敬请谅解。",
+    "thank3": "同时一并感谢这些：",
+    "sortByName": "列表按字母排序",
+    "contributors": "协作者们",
+    "issues": "反馈者们"
   },
   "TechnologyStack": {
     "ptppHistory": "PT Plugin Plus 历史",

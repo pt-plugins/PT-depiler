@@ -53,7 +53,7 @@ const technologyTableColumn = [
     title: () => t('TechnologyStack.stackTableColumn.name'),
     key: 'name',
     sorter: 'default',
-    sortOrder: 'ascend'
+    defaultSortOrder: 'ascend'
   },
   {
     title: () => t('TechnologyStack.stackTableColumn.version'),

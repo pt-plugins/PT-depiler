@@ -64,7 +64,7 @@ if (updateVersion) {
     <n-grid-item>
       <n-card hoverable>
         <template #header>
-          <n-text type="success" strong>{{ $t('changeLog.noteVersion') }}</n-text>
+          <n-text type="success" strong>{{ $t('ChangeLog.noteVersion') }}</n-text>
         </template>
         <template #header-extra>
           <n-a :href="releasePage" target="_blank">{{ version.main }}</n-a>
@@ -76,7 +76,7 @@ if (updateVersion) {
 
       <n-card v-if="version.hash && versionData.commitData.stats" hoverable>
         <template #header>
-          <n-text type="success" strong>{{ $t('changeLog.noteCommit') }}</n-text>
+          <n-text type="success" strong>{{ $t('ChangeLog.noteCommit') }}</n-text>
         </template>
         <template #header-extra>
           Commit&nbsp;<n-a :href="versionData.commitData.html_url" target="_blank">{{ version.hash }}</n-a>&nbsp;
