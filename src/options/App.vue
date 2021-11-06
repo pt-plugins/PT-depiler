@@ -16,7 +16,3 @@ import { darkTheme } from 'naive-ui';
     </n-loading-bar-provider>
   </n-config-provider>
 </template>
-
-<style>
-@import "~github-markdown-css";
-</style>

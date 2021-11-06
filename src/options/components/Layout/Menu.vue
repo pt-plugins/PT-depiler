@@ -4,11 +4,14 @@ import { Component } from '@vue/runtime-core';
 import { RouterLink } from 'vue-router';
 import { NIcon } from 'naive-ui';
 import { routes } from '../../router';
+import { useI18n } from 'vue-i18n';
 import { breakpoints } from '../../utils';
 
 function renderIcon (icon: Component) {
   return () => h(NIcon, null, { default: () => h(icon) });
 }
+
+const { t } = useI18n();
 
 /**
  * 目录是否展开
@@ -22,13 +25,16 @@ const menuOptions = routes
   .filter(route => route.meta?.isMainMenu) // 根据 meta 的 isMainMenu 属性筛选出应该列在目录中的路径
   .map(route => {
     return {
-      label: route.meta!.label,
+      label: () => t(`layout.menu.${String(route.name)}.default`),
       key: route.path.replace(/^\//, ''),
       icon: renderIcon(route.meta!.icon as Component),
       children: route.children!.map(childrenRoute => {
         return {
           key: childrenRoute.path.replace(/^\//, ''),
-          label: () => h(RouterLink, { to: { name: childrenRoute.name } }, { default: () => childrenRoute.meta!.label }),
+          label: () => h(RouterLink,
+            { to: { name: childrenRoute.name } },
+            { default: () => t(`layout.menu.${String(route.name)}.${String(childrenRoute.name)}`) }
+          ),
           icon: renderIcon(childrenRoute.meta!.icon as Component)
         };
       })

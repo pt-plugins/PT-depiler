@@ -39,7 +39,7 @@ const YEAR = new Date().getFullYear();
               <language/>
             </n-icon>
           </template>
-          <span v-if="!isMobile">{{ $t('common.footer.changeLanguage') }}</span>
+          <span v-if="!isMobile">{{ $t('layout.footer.changeLanguage') }}</span>
         </n-button>
       </n-dropdown>
 
@@ -50,7 +50,7 @@ const YEAR = new Date().getFullYear();
             <adjust/>
           </n-icon>
         </template>
-        <span v-if="!isMobile">{{ $t(`common.footer.displayMode.${isDark ? 'light' : 'dark'}`) }}</span>
+        <span v-if="!isMobile">{{ $t(`layout.footer.displayMode.${isDark ? 'light' : 'dark'}`) }}</span>
       </n-button>
     </div>
   </n-space>

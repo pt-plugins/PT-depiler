@@ -12,12 +12,44 @@
     "wiki": "使用说明"
   },
   "common": {
-    "version": "版本",
+    "version": "版本"
+  },
+  "layout": {
     "header": {
 
     },
     "menu": {
-
+      "Overview": {
+        "default": "概览",
+        "SearchData": "搜索结果",
+        "MyData": "我的数据",
+        "MyClient": "我的下载器",
+        "MyCollection": "收藏列表",
+        "SearchResultSnapshot": "搜索结果快照",
+        "DownloadHistory": "下载历史",
+        "KeepUploadTask": "辅种任务"
+      },
+      "Settings": {
+        "default": "参数设置",
+        "setBase": "常规设置",
+        "setClient": "下载器设置",
+        "setSite": "站点设置",
+        "setDownloadPaths": "下载目录设置",
+        "setSearchSolution": "搜索方案定义",
+        "setBackup": "参数备份与恢复"
+      },
+      "About": {
+        "default": "插件相关",
+        "TechnologyStack": "项目参考与引用",
+        "ChangeLog": "更新日志",
+        "DevTeam": "特别感谢",
+        "Donate": "友情捐赠"
+      },
+      "Devtools": {
+        "default": "开发工具",
+        "SystemLog": "系统日志",
+        "Debugger": "调试信息"
+      }
     },
     "content": {
 

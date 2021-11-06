@@ -6,8 +6,8 @@ import { REPO_URL, REPO_API, getFullVersion, VersionDetail } from '@/shared/cons
 
 interface IVersionData {
   version: VersionDetail,
-  releaseContent?: string,
-  commitData?: { // Partial
+  releaseContent: string,
+  commitData: { // Partial
     commit: { message: string },
     author: { login: string, 'html_url': string }
     'html_url': string,
@@ -16,7 +16,7 @@ interface IVersionData {
 }
 
 const version = getFullVersion();
-const versionData = useStorage<IVersionData>('version-data', { version });
+const versionData = useStorage<IVersionData>('version-data', { version } as IVersionData);
 
 // 加载主版本说明
 let updateVersion = false;
@@ -69,11 +69,10 @@ if (updateVersion) {
           <n-text type="success" strong>当前 Commit 说明</n-text>
         </template>
         <template #header-extra>
-          <n-a :href="versionData.commitData.html_url">{{ version.hash }}</n-a>
+          <n-a :href="versionData.commitData.html_url" target="_blank">{{ version.hash }}</n-a>
           &nbsp;by&nbsp;
-          <n-a :href="versionData.commitData.author.html_url" target="_blank">@{{
-              versionData.commitData.author.login
-            }}
+          <n-a :href="versionData.commitData.author.html_url" target="_blank">
+            @{{ versionData.commitData.author.login }}
           </n-a>
         </template>
 

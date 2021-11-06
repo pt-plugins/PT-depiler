@@ -12,12 +12,44 @@
     "wiki": "Wiki"
   },
   "common": {
-    "version": "Version",
+    "version": "Version"
+  },
+  "layout": {
     "header": {
 
     },
     "menu": {
-
+      "Overview": {
+        "default": "Overview",
+        "SearchData": "Search Results",
+        "MyData": "My Data",
+        "MyClient": "My BtClient",
+        "MyCollection": "Collection",
+        "SearchResultSnapshot": "Search Snapshot",
+        "DownloadHistory": "Download History",
+        "KeepUploadTask": "Reseed Task"
+      },
+      "Settings": {
+        "default": "Settings",
+        "setBase": "General",
+        "setClient": "Download Server",
+        "setSite": "Sites",
+        "setDownloadPaths": "Download Paths",
+        "setSearchSolution": "Search Solution",
+        "setBackup": "Backup & Restore"
+      },
+      "About": {
+        "default": "About",
+        "TechnologyStack": "Project Reference",
+        "ChangeLog": "Change Log",
+        "DevTeam": "Special Thanks",
+        "Donate": "Donate"
+      },
+      "Devtools": {
+        "default": "Devtools",
+        "SystemLog": "System Log",
+        "Debugger": "Debugger"
+      }
     },
     "content": {
 
