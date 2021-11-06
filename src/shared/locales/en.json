@@ -4,62 +4,55 @@
     "test": "Test"
   },
   "changeLog": {
-    "changeLog": "Change Log",
-    "homepage": "Home Page",
-    "optionsPage": "Options Page",
-    "questions": "Q&A",
-    "report": "Report",
-    "wiki": "Wiki"
+    "loading": "Loading... (If it fails to load, @:changeLog.seeReleasePage )",
+    "loadFail": "Failed to load the release notes, @:changeLog.seeReleasePage",
+    "seeReleasePage": "Please go to {releasePage} to view.",
+    "noteCommit": "Changelog for this commit",
+    "noteVersion": "Changelog of the main version"
   },
   "common": {
     "version": "Version"
   },
   "layout": {
-    "header": {
-
-    },
-    "menu": {
-      "Overview": {
-        "default": "Overview",
-        "SearchData": "Search Results",
-        "MyData": "My Data",
-        "MyClient": "My BtClient",
-        "MyCollection": "Collection",
-        "SearchResultSnapshot": "Search Snapshot",
-        "DownloadHistory": "Download History",
-        "KeepUploadTask": "Reseed Task"
-      },
-      "Settings": {
-        "default": "Settings",
-        "setBase": "General",
-        "setClient": "Download Server",
-        "setSite": "Sites",
-        "setDownloadPaths": "Download Paths",
-        "setSearchSolution": "Search Solution",
-        "setBackup": "Backup & Restore"
-      },
-      "About": {
-        "default": "About",
-        "TechnologyStack": "Project Reference",
-        "ChangeLog": "Change Log",
-        "DevTeam": "Special Thanks",
-        "Donate": "Donate"
-      },
-      "Devtools": {
-        "default": "Devtools",
-        "SystemLog": "System Log",
-        "Debugger": "Debugger"
-      }
-    },
-    "content": {
-
-    },
     "footer": {
       "changeLanguage": "Switch Language",
       "displayMode": {
-        "light": "Light Mode",
-        "dark": "Dark Mode"
+        "dark": "Dark Mode",
+        "light": "Light Mode"
       }
+    }
+  },
+  "route": {
+    "About": {
+      "ChangeLog": "Change Log",
+      "DevTeam": "Special Thanks",
+      "Donate": "Donate",
+      "TechnologyStack": "Project Reference",
+      "default": "About"
+    },
+    "Devtools": {
+      "Debugger": "Debugger",
+      "SystemLog": "System Log",
+      "default": "Devtools"
+    },
+    "Overview": {
+      "DownloadHistory": "Download History",
+      "KeepUploadTask": "Reseed Task",
+      "MyClient": "My BtClient",
+      "MyCollection": "Collection",
+      "MyData": "My Data",
+      "SearchData": "Search Results",
+      "SearchResultSnapshot": "Search Snapshot",
+      "default": "Overview"
+    },
+    "Settings": {
+      "default": "Settings",
+      "setBackup": "Backup & Restore",
+      "setBase": "General",
+      "setClient": "Download Server",
+      "setDownloadPaths": "Download Paths",
+      "setSearchSolution": "Search Solution",
+      "setSite": "Sites"
     }
   }
 }

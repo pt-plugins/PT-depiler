@@ -16,3 +16,16 @@ import { darkTheme } from 'naive-ui';
     </n-loading-bar-provider>
   </n-config-provider>
 </template>
+
+<style lang="scss">
+@import "~github-markdown-css";
+
+.markdown-body { // 用一种比较hack的方法来实现markdown区域的暗黑模式
+  color: var(--text-color);
+  background-color: var(--color);
+
+  pre {
+    background-color: var(--color-neutral-muted);
+  }
+}
+</style>

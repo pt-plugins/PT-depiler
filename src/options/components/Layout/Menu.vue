@@ -25,7 +25,7 @@ const menuOptions = routes
   .filter(route => route.meta?.isMainMenu) // 根据 meta 的 isMainMenu 属性筛选出应该列在目录中的路径
   .map(route => {
     return {
-      label: () => t(`layout.menu.${String(route.name)}.default`),
+      label: () => t(`route.${String(route.name)}.default`),
       key: route.path.replace(/^\//, ''),
       icon: renderIcon(route.meta!.icon as Component),
       children: route.children!.map(childrenRoute => {
@@ -33,7 +33,7 @@ const menuOptions = routes
           key: childrenRoute.path.replace(/^\//, ''),
           label: () => h(RouterLink,
             { to: { name: childrenRoute.name } },
-            { default: () => t(`layout.menu.${String(route.name)}.${String(childrenRoute.name)}`) }
+            { default: () => t(`route.${String(route.name)}.${String(childrenRoute.name)}`) }
           ),
           icon: renderIcon(childrenRoute.meta!.icon as Component)
         };
