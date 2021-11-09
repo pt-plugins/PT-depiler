@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import axios from 'axios';
 import { h } from 'vue';
-import { NA, NEllipsis } from 'naive-ui';
+import { NA } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { useStorage } from '@vueuse/core';
 import { ExternalLinkAlt } from '@vicons/fa';
@@ -71,20 +71,23 @@ const technologyTableColumn = [
 
 const technologyData = useStorage<ITechnologyData>('technology-data', { version, technologyData: [] });
 if (technologyData.value.version.full !== version.full || technologyData.value.technologyData.length === 0) {
-  // 主项目依赖
+  // 清空原缓存的信息
+  technologyData.value.technologyData = [];
+
   function updateTechnologyData (name: string, version: string, url?: string) {
     if (!name.startsWith('@ptpp')) {
       const oldCache = technologyData.value.technologyData.find(x => x.name === name);
-      if (!oldCache || oldCache.ver !== version) {
+      if (!oldCache) {
         technologyData.value.technologyData.push({
           name: name,
           ver: version,
-          url: oldCache?.url ?? `https://www.npmjs.com/package/${name}`
+          url: url ?? `https://www.npmjs.com/package/${name}`
         });
       }
     }
   }
 
+  // 主项目依赖
   Object.entries(rawDependencies).forEach(([name, version]) => {
     updateTechnologyData(name, version);
   });
@@ -117,7 +120,6 @@ for (let i = 0; i < technologyData.value.technologyData.length; i++) {
       });
   }
 }
-
 </script>
 
 <template>
