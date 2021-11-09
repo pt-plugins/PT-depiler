@@ -25,13 +25,20 @@ const versionData = useStorage<IVersionData>('version-data', { version } as IVer
 // 加载主版本说明
 let updateVersion = false;
 const releasePage = `${REPO_URL}/releases/tag/${version.main}`;
-if (versionData.value.version.main !== version.main || !versionData.value.releaseContent) {
+const releaseLoading = t('ChangeLog.loading', { releasePage });
+const releaseLoadingFail = t('ChangeLog.loadFail', { releasePage });
+if (
+  versionData.value.version.main !== version.main ||
+  !versionData.value.releaseContent ||
+  versionData.value.releaseContent === releaseLoading ||
+  versionData.value.releaseContent === releaseLoadingFail
+) {
   /**
    * releaseContent在加载过程失去i18n特性，
    * 不过考虑到并不会经常遇到，而且我们大多数releaseLog都是中文而不是双语的
    * 所以不修复这个问题，也没有多少问题
    */
-  versionData.value.releaseContent = t('changeLog.loading', { releasePage });
+  versionData.value.releaseContent = releaseLoading;
   axios.get<{ body: string }>(`${REPO_API}/releases/tags/${version.main}`)
     .then(({ data }) => {
       versionData.value.releaseContent = data.body
@@ -39,7 +46,7 @@ if (versionData.value.version.main !== version.main || !versionData.value.releas
         .replace(/(@)([\S]+)/g, '[@$2](https://github.com/$2)'); // 生成 committer 的主页链接
     })
     .catch(() => {
-      versionData.value.releaseContent = t('changeLog.loadFail', { releasePage });
+      versionData.value.releaseContent = releaseLoadingFail;
     });
   updateVersion = true;
 }

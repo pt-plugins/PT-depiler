@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import axios from 'axios';
 import { h } from 'vue';
-import { NA } from 'naive-ui';
+import { NA, NEllipsis } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { useStorage } from '@vueuse/core';
 import { ExternalLinkAlt } from '@vicons/fa';

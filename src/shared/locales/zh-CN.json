@@ -1,32 +1,36 @@
 {
+  "ChangeLog": {
+    "loadFail": "主版本发布说明加载失败，@:ChangeLog.seeReleasePage",
+    "loading": "正在加载…… （ 如长时间未能加载成功，请查看@:ChangeLog.seeReleasePage ）",
+    "noteCommit": "当前 Commit 说明",
+    "noteVersion": "主版本说明",
+    "seeReleasePage": "请前往 {releasePage} 查看。"
+  },
+  "DevTeam": {
+    "contributors": "协作者们",
+    "issues": "反馈者们",
+    "sortByName": "列表按字母排序",
+    "thank1": "在项目的开发和测试中，他们给予了很多帮助和支持（或开发，或测试，或发💊，或建议，或鼓励，或鞭策），在此表示感谢。",
+    "thank2": "列表中未能一一列出所有给予帮助的同学，也对他们表示感谢，如有遗漏敬请谅解。",
+    "thank3": "同时一并感谢这些："
+  },
+  "Donate": {
+    "note": "本项目由作者在业余时间完成，如果您喜欢本项目，可以通过捐助来支持作者继续开发。",
+    "thanks": "感谢您的关注和支持"
+  },
+  "TechnologyStack": {
+    "dependency": "项目依赖",
+    "ptppHistory": "PT Plugin Plus 历史",
+    "stackTableColumn": {
+      "homepage": "项目主页",
+      "name": "名称",
+      "version": "版本"
+    },
+    "thankNote": "PT 助手的诞生是建立在这些项目基础之上，在此感谢所有项目的参与人员，感谢他们的付出！"
+  },
   "app": {
     "author": "栽培者",
     "test": "测试"
-  },
-  "ChangeLog": {
-    "loading": "正在加载…… （ 如长时间未能加载成功，请查看@:changeLog.seeReleasePage ）",
-    "loadFail": "主版本发布说明加载失败，@:changeLog.seeReleasePage",
-    "seeReleasePage": "请前往 {releasePage} 查看。",
-    "noteCommit": "当前 Commit 说明",
-    "noteVersion": "主版本说明"
-  },
-  "DevTeam": {
-    "thank1": "在项目的开发和测试中，他们给予了很多帮助和支持（或开发，或测试，或发\uD83D\uDC8A，或建议，或鼓励，或鞭策），在此表示感谢。",
-    "thank2": "列表中未能一一列出所有给予帮助的同学，也对他们表示感谢，如有遗漏敬请谅解。",
-    "thank3": "同时一并感谢这些：",
-    "sortByName": "列表按字母排序",
-    "contributors": "协作者们",
-    "issues": "反馈者们"
-  },
-  "TechnologyStack": {
-    "ptppHistory": "PT Plugin Plus 历史",
-    "dependency": "项目依赖",
-    "thankNote": "PT 助手的诞生是建立在这些项目基础之上，在此感谢所有项目的参与人员，感谢他们的付出！",
-    "stackTableColumn": {
-      "name": "名称",
-      "version": "版本",
-      "homepage": "项目主页"
-    }
   },
   "common": {
     "version": "版本"

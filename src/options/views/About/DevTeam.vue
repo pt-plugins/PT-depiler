@@ -41,11 +41,12 @@ const sortedPeople = [
     </n-grid-item>
     <n-grid-item>
       <n-list bordered>
-        <template #header>列表按字母排序</template>
+        <template #header>
+          {{ $t('DevTeam.sortByName') }}
+        </template>
         <n-list-item v-for="people in sortedPeople" :key="people">
           <n-text class="people">
-            <n-icon size="20"><account-circle-sharp/></n-icon>
-            &nbsp;&nbsp;
+            <n-icon size="20"><account-circle-sharp/></n-icon>&nbsp;&nbsp;
             <span><n-text strong>{{ people }}</n-text></span>
           </n-text>
           </n-list-item>
