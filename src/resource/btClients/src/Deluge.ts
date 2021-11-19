@@ -9,7 +9,7 @@ import {
 } from '../types';
 import urljoin from 'url-join';
 import axios, { AxiosResponse } from 'axios';
-import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
+import AbstractBittorrentClient from '../AbstractBittorrentClient';
 
 export const clientConfig: BittorrentClientBaseConfig = {
   type: 'Deluge',

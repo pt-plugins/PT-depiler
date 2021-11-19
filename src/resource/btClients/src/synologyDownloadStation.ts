@@ -13,7 +13,7 @@ import {
 } from '../types';
 import urljoin from 'url-join';
 import axios, { AxiosRequestConfig } from 'axios';
-import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
+import AbstractBittorrentClient from '../AbstractBittorrentClient';
 
 export const clientConfig: TorrentClientConfig = {
   type: 'synologyDownloadStation',

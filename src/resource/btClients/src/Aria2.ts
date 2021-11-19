@@ -12,7 +12,7 @@ import {
   CTorrentState, TorrentClientStatus
 } from '../types';
 import urljoin from 'url-join';
-import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
+import AbstractBittorrentClient from '../AbstractBittorrentClient';
 
 export const clientConfig: BittorrentClientBaseConfig = {
   type: 'Aria2',

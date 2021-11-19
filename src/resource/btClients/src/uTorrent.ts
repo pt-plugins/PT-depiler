@@ -10,7 +10,7 @@ import {
 } from '../types';
 import urljoin from 'url-join';
 import axios from 'axios';
-import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
+import AbstractBittorrentClient from '../AbstractBittorrentClient';
 import parseTorrent, { Instance as TorrentInstance } from 'parse-torrent';
 
 export const clientConfig: TorrentClientConfig = {

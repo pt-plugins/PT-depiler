@@ -11,7 +11,7 @@ import {
 } from '../types';
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios';
 import urljoin from 'url-join';
-import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
+import AbstractBittorrentClient from '../AbstractBittorrentClient';
 
 export const clientConfig: TorrentClientConfig = {
   type: 'qBittorrent',

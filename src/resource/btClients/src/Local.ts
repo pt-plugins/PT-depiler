@@ -8,7 +8,7 @@ import {
   BittorrentClientBaseConfig,
   TorrentClientMetaData, TorrentClientStatus
 } from '../types';
-import AbstractBittorrentClient from '@/resource/btClients/AbstractBittorrentClient';
+import AbstractBittorrentClient from '../AbstractBittorrentClient';
 
 export const clientConfig: BittorrentClientBaseConfig = {
   uuid: '4e77732b-b840-4bc4-9d60-f9c7ace65dda',
