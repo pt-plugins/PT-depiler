@@ -18,6 +18,9 @@
     "note": "This project is completed by the author in his spare time. You can support the author's continued development through donations.",
     "thanks": "Thank you for your attention and support"
   },
+  "MyClient": {
+    "title": "Download server configuration"
+  },
   "TechnologyStack": {
     "dependency": "Dependencies of this Project",
     "ptppHistory": "History of Project `PT Plugin Plus`",
@@ -33,6 +36,7 @@
     "test": "Test"
   },
   "common": {
+    "name": "PT Plugin Plus",
     "version": "Version"
   },
   "layout": {
@@ -42,6 +46,18 @@
         "dark": "Dark Mode",
         "light": "Light Mode"
       }
+    },
+    "header": {
+      "donate": "Donate",
+      "emptySearchNotice": "Get the first page of each tracker",
+      "home": "Home",
+      "search": "Search",
+      "searchPlan": {
+        "all": "<All Sites>",
+        "default": "<Default>"
+      },
+      "searchTip": "Input keyword, IMDb numbers to search",
+      "wiki": "Wiki"
     }
   },
   "route": {

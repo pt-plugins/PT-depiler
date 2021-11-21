@@ -18,6 +18,9 @@
     "note": "本项目由作者在业余时间完成，如果您喜欢本项目，可以通过捐助来支持作者继续开发。",
     "thanks": "感谢您的关注和支持"
   },
+  "MyClient": {
+    "title": "下载服务器配置"
+  },
   "TechnologyStack": {
     "dependency": "项目依赖",
     "ptppHistory": "PT Plugin Plus 历史",
@@ -33,6 +36,7 @@
     "test": "测试"
   },
   "common": {
+    "name": "PT 助手 Plus",
     "version": "版本"
   },
   "layout": {
@@ -42,6 +46,18 @@
         "dark": "暗黑模式",
         "light": "明亮模式"
       }
+    },
+    "header": {
+      "donate": "捐助",
+      "emptySearchNotice": "获取各站第一页种子",
+      "home": "主页",
+      "search": "搜索",
+      "searchPlan": {
+        "all": "<所有站点>",
+        "default": "<默　　认>"
+      },
+      "searchTip": "输入种子关键字、IMDb编号进行搜索",
+      "wiki": "帮助"
     }
   },
   "route": {

@@ -1,12 +1,9 @@
-<template>
-  SearchData
-</template>
-
-<script>
-export default {
-  name: 'SearchData'
-};
+<script lang="ts" setup>
 </script>
+
+<template>
+  {{ $route.query.searchKey }}
+</template>
 
 <style scoped>
 

@@ -38,7 +38,7 @@
     "src/resource/*"
   ],
   "dependencies": {
-    "@vueuse/core": "^6.7.4",
+    "@vueuse/core": "^7.0.0",
     "axios": "^0.24.0",
     "buffer": "^6.0.3",
     "compare-versions": "^4.0.1",
@@ -92,7 +92,7 @@
     "git-commit-id": "^2.0.1",
     "sass": "~1.32.0",
     "sass-loader": "^10.1.0",
-    "typescript": "~4.4.2",
+    "typescript": "~4.5.2",
     "vue-cli-plugin-browser-extension": "^0.25.1",
     "vue-cli-plugin-i18n": "^2.3.1",
     "vue-template-compiler": "^2.6.11"
