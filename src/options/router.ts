@@ -79,28 +79,28 @@ export const routes: RouteRecordRaw[] = [
         component: () => dynamicImportView('Settings/setBase')
       },
       {
-        path: '/set-client',
-        name: 'setClient',
-        meta: { icon: CloudDownloadSharp },
-        component: () => dynamicImportView('Settings/setClient')
-      },
-      {
         path: '/set-site',
         name: 'setSite',
         meta: { icon: PublicSharp },
         component: () => dynamicImportView('Settings/setSite')
       },
       {
-        path: '/set-download-paths',
-        name: 'setDownloadPaths',
-        meta: { icon: FolderOpenSharp },
-        component: () => dynamicImportView('Settings/setDownloadPaths')
-      },
-      {
         path: '/set-search-solution',
         name: 'setSearchSolution',
         meta: { icon: WidgetsSharp },
         component: () => dynamicImportView('Settings/setSearchSolution')
+      },
+      {
+        path: '/set-client',
+        name: 'setClient',
+        meta: { icon: CloudDownloadSharp },
+        component: () => dynamicImportView('Settings/setClient')
+      },
+      {
+        path: '/set-download-paths',
+        name: 'setDownloadPaths',
+        meta: { icon: FolderOpenSharp },
+        component: () => dynamicImportView('Settings/setDownloadPaths')
       },
       {
         path: '/set-backup',
