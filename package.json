@@ -48,6 +48,7 @@
     "lodash-es": "^4.17.20",
     "marked": "^3.0.0",
     "naive-ui": "^2.20.1",
+    "pinia": "^2.0.4",
     "sizzle": "^2.3.5",
     "ua-parser-js": "^1.0.1",
     "url-join": "^4.0.1",
@@ -56,7 +57,6 @@
     "vue": "^3.0.11",
     "vue-i18n": "^9.1.6",
     "vue-router": "^4.0.6",
-    "vuex": "^4.0.0",
     "webextension-polyfill": "^0.8.0"
   },
   "devDependencies": {

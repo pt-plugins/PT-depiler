@@ -12,10 +12,6 @@ module.exports = {
     }
   },
 
-  transpileDependencies: [
-    'vuetify'
-  ],
-
   productionSourceMap: !IS_PROD, // https://cli.vuejs.org/config/#productionsourcemap
   lintOnSave: !IS_PROD, // https://cli.vuejs.org/config/#lintonsave
 
@@ -33,6 +29,9 @@ module.exports = {
             ]
           }
         }
+      },
+      extensionReloaderOptions: {
+        reloadPage: true // Force the reload of the page also
       },
       manifestTransformer: (manifest) => {
         manifest.version_name = `${manifest.version}.${gitCommitId().slice(0, 7)}`;
