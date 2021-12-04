@@ -1,6 +1,6 @@
 import { useBreakpoints, useDark, useToggle } from '@vueuse/core';
 
-export function openUrl (url:string | URL, target?: string, features?: string) {
+export function openUrl (url:string | URL, target: string = '_blank', features?: string) {
   return window.open(url, target, features);
 }
 

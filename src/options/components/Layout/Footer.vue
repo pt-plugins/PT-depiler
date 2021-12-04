@@ -17,7 +17,7 @@ const YEAR = new Date().getFullYear();
         </n-text>
       </div>
       <div id="ptpp-footer-sider">
-        <n-button text @click="openUrl(GROUP_TELEGRAM,'_blank')">
+        <n-button text @click="openUrl(GROUP_TELEGRAM)">
           <template #icon>
             <n-icon>
               <telegram-plane/>

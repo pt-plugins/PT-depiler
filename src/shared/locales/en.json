@@ -18,9 +18,6 @@
     "note": "This project is completed by the author in his spare time. You can support the author's continued development through donations.",
     "thanks": "Thank you for your attention and support"
   },
-  "MyClient": {
-    "title": "Download server configuration"
-  },
   "TechnologyStack": {
     "dependency": "Dependencies of this Project",
     "ptppHistory": "History of Project `PT Plugin Plus`",
@@ -36,6 +33,15 @@
     "test": "Test"
   },
   "common": {
+    "dialog": {
+      "negative": "Cancel",
+      "next": "Next",
+      "positive": "Confirm",
+      "previous": "Previous",
+      "title": {
+        "warning": "warning"
+      }
+    },
     "name": "PT Plugin Plus",
     "version": "Version"
   },
@@ -91,6 +97,43 @@
       "setDownloadPaths": "Download Paths",
       "setSearchSolution": "Search Solution",
       "setSite": "Sites"
+    }
+  },
+  "setClient": {
+    "add": {
+      "NoneSelectNotice": "Please select a server type",
+      "newType": "Come here to add the server type you want",
+      "selectTypePlaceHolder": "Please select a server type",
+      "step": {
+        "selectType": "Select server type",
+        "setOptions": "Configuration"
+      },
+      "title": "Add Download Client"
+    },
+    "editor": {
+      "password": "Password",
+      "serverAddress": "Server Address",
+      "serverName": "Server Name",
+      "type": "Server Type",
+      "username": "Username"
+    },
+    "index": {
+      "btn": {
+        "add": "Add",
+        "remove": "Delete"
+      },
+      "emptyNotice": "Before using the download service, you need to add at least one download server.",
+      "remove": {
+        "multi": "Are you sure to delete these {count} download servers?",
+        "single": "Are you sure to delete this download server?"
+      },
+      "tableHeader": {
+        "action": "Action",
+        "address": "Server Address",
+        "name": "Name",
+        "type": "Type"
+      },
+      "title": "Download server configuration"
     }
   }
 }

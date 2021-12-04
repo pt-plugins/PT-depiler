@@ -6,6 +6,7 @@ import { EInstallType } from '@/shared/interfaces/enum';
 // 仓库相关
 export const REPO_NAME = 'ronggang/PT-Plugin-Plus';
 export const REPO_URL = `https://github.com/${REPO_NAME}`;
+export const REPO_DEV_BRANCH_URL = `${REPO_URL}/tree/next`;
 export const REPO_API = `https://api.github.com/repos/${REPO_NAME}`;
 
 export const GROUP_TELEGRAM = 'https://t.me/joinchat/NZ9NCxPKXyby8f35rn_QTw';
@@ -29,11 +30,6 @@ export interface VersionDetail {
 }
 
 export function getFullVersion (): VersionDetail {
-  /**
-   * 由于 webextension-polyfill-ts 的问题，此处暂时不能使用
-   * browser.runtime.getManifest() ，先用 browser.management.getSelf() 替代
-   * refs: https://github.com/Lusito/webextension-polyfill-ts/issues/64
-   */
   // @ts-ignore
   const fullVersion = 'v' + (MANIFEST.versionName || MANIFEST.version_name || MANIFEST.version) as TVersion; // v2.0.0.b3f0a76
 

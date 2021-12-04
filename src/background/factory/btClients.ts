@@ -16,7 +16,7 @@ export const clientTypeFullList =
 
 // noinspection JSUnusedGlobalSymbols
 class BtClientFactory extends Container {
-  protected readonly clientTypeList = clientTypeFullList.filter(t => t !== 'Local');
+  public readonly clientTypeList = clientTypeFullList.filter(t => t !== 'Local');
 
   public isValidClient (type: string): boolean {
     return clientTypeFullList.includes(type);

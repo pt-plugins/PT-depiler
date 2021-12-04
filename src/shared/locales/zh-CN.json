@@ -18,9 +18,6 @@
     "note": "本项目由作者在业余时间完成，如果您喜欢本项目，可以通过捐助来支持作者继续开发。",
     "thanks": "感谢您的关注和支持"
   },
-  "MyClient": {
-    "title": "下载服务器配置"
-  },
   "TechnologyStack": {
     "dependency": "项目依赖",
     "ptppHistory": "PT Plugin Plus 历史",
@@ -36,6 +33,15 @@
     "test": "测试"
   },
   "common": {
+    "dialog": {
+      "negative": "取消",
+      "next": "下一步",
+      "positive": "确定",
+      "previous": "上一步",
+      "title": {
+        "warning": "警告"
+      }
+    },
     "name": "PT 助手 Plus",
     "version": "版本"
   },
@@ -91,6 +97,43 @@
       "setDownloadPaths": "下载目录设置",
       "setSearchSolution": "搜索方案定义",
       "setSite": "站点设置"
+    }
+  },
+  "setClient": {
+    "add": {
+      "NoneSelectNotice": "请选择一个服务器类型",
+      "newType": "找不到想要的服务器类型？来这里添加吧！",
+      "selectTypePlaceHolder": "请选择一个服务器类型",
+      "step": {
+        "selectType": "选择服务器类型",
+        "setOptions": "详细配置"
+      },
+      "title": "新增下载服务器"
+    },
+    "editor": {
+      "password": "密码",
+      "serverAddress": "服务器地址",
+      "serverName": "服务器名称",
+      "type": "服务器类型",
+      "username": "用户名"
+    },
+    "index": {
+      "btn": {
+        "add": "增加",
+        "remove": "删除"
+      },
+      "emptyNotice": "在使用推送服务之前，您至少需要添加一个下载服务器。",
+      "remove": {
+        "multi": "你确定删除这{count}个下载服务器吗？",
+        "single": "确认要删除这个下载服务器吗？"
+      },
+      "tableHeader": {
+        "action": "操作",
+        "address": "服务器地址",
+        "name": "名称",
+        "type": "类型"
+      },
+      "title": "下载服务器配置"
     }
   }
 }
