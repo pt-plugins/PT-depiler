@@ -5,12 +5,20 @@ import { NA, NIcon, NImage, NText, useDialog, NButton, NPopconfirm } from 'naive
 import { AddSharp, MinusSharp, EditSharp, DeleteSharp } from '@vicons/material';
 import { useStore } from '@/options/store';
 import AddClient from '@/options/components/Settings/setClient/AddClient.vue';
+import EditClient from '@/options/components/Settings/setClient/EditClient.vue';
 
 const { t } = useI18n();
 const dialog = useDialog();
 const store = useStore();
 
-console.log(Array.from(store.options.clients));
+const clientConfig = ref<any>({});
+provide('clientConfig', clientConfig);
+
+const showAddModal = ref(false);
+provide('showAddModal', showAddModal);
+
+const showEditModal = ref(false);
+provide('showEditModal', showEditModal);
 
 const setClientColumn = [
   {
@@ -58,6 +66,7 @@ const setClientColumn = [
             text: true,
             type: 'primary',
             onClick: () => {
+              clientConfig.value = row;
               showEditModal.value = true;
             }
           },
@@ -107,15 +116,6 @@ function deleteMultiClientsDialog () {
     }
   });
 }
-
-const clientConfig = ref({});
-provide('clientConfig', clientConfig);
-
-const showAddModal = ref(false);
-provide('showAddModal', showAddModal);
-
-const showEditModal = ref(false);
-provide('showEditModal', showEditModal);
 </script>
 
 <template>
@@ -166,6 +166,7 @@ provide('showEditModal', showEditModal);
   </n-space>
 
   <AddClient />
+  <EditClient />
 </template>
 
 <style scoped></style>

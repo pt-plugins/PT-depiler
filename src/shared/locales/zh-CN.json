@@ -110,6 +110,9 @@
       },
       "title": "新增下载服务器"
     },
+    "edit": {
+      "title": "编辑下载服务器"
+    },
     "editor": {
       "checkConnect": "检查连接性",
       "connect": {

@@ -110,6 +110,9 @@
       },
       "title": "Add Download Client"
     },
+    "edit": {
+      "title": "Edit Download Server"
+    },
     "editor": {
       "checkConnect": "Check Connect",
       "connect": {

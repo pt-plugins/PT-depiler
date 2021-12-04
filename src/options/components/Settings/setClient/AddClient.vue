@@ -7,7 +7,7 @@ import {
   HelpSharp,
   NavigateBeforeSharp,
   NavigateNextSharp,
-  CheckSharp
+  CheckCircleOutlineSharp
 } from '@vicons/material';
 import { useMessage } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
@@ -156,11 +156,10 @@ provide('canSave', canSave);
               :disabled="!canSave"
               quaternary
               type="primary"
-              icon-placement="right"
             >
               <template #icon>
                 <n-icon>
-                  <check-sharp />
+                  <check-circle-outline-sharp />
                 </n-icon>
               </template>
               {{ $t("common.dialog.positive") }}

@@ -17,12 +17,25 @@ export const useStore = defineStore('main', {
   ),
 
   actions: {
-    async addClient (client: types.BittorrentClientBaseConfig) {
+    getClient (clientId: string) {
+      return this.options.clients.find(data => {
+        return data.id === clientId;
+      });
+    },
+
+    addClient (client: types.BittorrentClientBaseConfig) {
       !client.id && (client.id = UUIDv4());
       this.options.clients.push(client);
     },
 
-    async removeClient (clientId: string) {
+    patchClient (client: types.BittorrentClientBaseConfig) {
+      const clientIndex = this.options.clients.findIndex(data => {
+        return data.id === client.id;
+      });
+      this.options.clients[clientIndex] = client;
+    },
+
+    removeClient (clientId: string) {
       const clientIndex = this.options.clients.findIndex(data => {
         return data.id === clientId;
       });

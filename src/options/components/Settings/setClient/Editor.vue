@@ -6,7 +6,7 @@ import { useMessage } from 'naive-ui';
 
 const message = useMessage();
 const clientConfig = inject<Ref<btClientTypes.BittorrentClientBaseConfig>>('clientConfig')!;
-const canSave = inject<Ref<boolean>>('canSave')!;
+const canSave = inject<Ref<boolean>>('canSave');
 
 enum connectStatus {
   success, default, checking, failed
@@ -14,7 +14,7 @@ enum connectStatus {
 const connectStatusRef = ref<connectStatus>(connectStatus.default);
 
 async function checkConnect () {
-  canSave.value = true;
+  canSave && (canSave.value = true);
   connectStatusRef.value = connectStatus.checking;
   const client = getClient(clientConfig.value);
   try {
