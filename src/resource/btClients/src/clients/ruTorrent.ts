@@ -15,7 +15,6 @@ import AbstractBittorrentClient from '../AbstractBittorrentClient';
 export const clientConfig: TorrentClientConfig = {
   type: 'ruTorrent',
   name: 'ruTorrent',
-  uuid: 'b2d09b95-20b4-4d79-8858-b5eb81f20ddf',
   address: 'https://myrut.com/rutorrent',
   username: 'admin',
   password: '',

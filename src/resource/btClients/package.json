@@ -1,6 +1,7 @@
 {
   "name": "@ptpp/btclients",
   "version": "1.0.0",
+  "main": "src/index.ts",
   "dependencies": {
     "axios": "^0.24.0",
     "buffer": "^6.0.3",

@@ -100,7 +100,7 @@ export default abstract class AbstractBittorrentClient<T extends BittorrentClien
   public async getRemoteTorrentFile (options: AxiosRequestConfig = {}): Promise<ParsedTorrent> {
     const req = await axios.request({
       ...options,
-      responseType: 'arraybuffer' // 统一以 ArrayBuffer 形式获取
+      responseType: 'arraybuffer' // 统一以 ArrayBuffer 形式获取，方便后面转化
     });
 
     if (

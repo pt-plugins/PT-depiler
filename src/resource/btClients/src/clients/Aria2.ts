@@ -17,7 +17,6 @@ import AbstractBittorrentClient from '../AbstractBittorrentClient';
 export const clientConfig: BittorrentClientBaseConfig = {
   type: 'Aria2',
   name: 'Aria2',
-  uuid: 'eea06ce1-3f86-4b9f-a411-f39d97ce8462',
   address: 'http://localhost:6800/jsonrpc',
   password: '',
   timeout: 60 * 1e3

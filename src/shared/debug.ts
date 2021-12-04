@@ -5,7 +5,7 @@ import dayjs from '@ptpp/utils/plugins/dayjs';
 import * as filter from '@ptpp/utils/filter';
 import { isDebug } from '@/shared/constants';
 import backupServers from '@/background/factory/backupServers';
-import btClients from '@/background/factory/btClients';
+import * as btClients from '@ptpp/btclients';
 
 function initDebug () {
   Object.assign(window as any, {

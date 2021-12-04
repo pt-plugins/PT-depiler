@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { Ref } from '@vue/reactivity';
-import { ref, inject, watch, h } from 'vue';
+import { ref, inject, watch, h, provide } from 'vue';
 import { openUrl } from '@/options/utils';
 import { REPO_URL, REPO_DEV_BRANCH_URL } from '@/shared/constants';
 import {
@@ -9,12 +9,11 @@ import {
   NavigateNextSharp,
   CheckSharp
 } from '@vicons/material';
-import btClients from '@/background/factory/btClients';
 import { useMessage } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import Editor from './Editor.vue';
 import { useStore } from '@/options/store';
-import { BittorrentClientBaseConfig } from '@/resource/btClients/types';
+import { types as btClientTypes, clientTypeList, getClientMetaData, getClientDefaultConfig } from '@/resource/btClients';
 
 const message = useMessage();
 const { t } = useI18n();
@@ -23,7 +22,7 @@ const store = useStore();
 const showAddModal = inject<Ref<Boolean>>('showAddModal')!;
 const currentStep = ref(1);
 
-const clientTypeOptions = btClients.clientTypeList.map((x) => ({ label: x, value: x }));
+const clientTypeOptions = clientTypeList.filter(x => x !== 'Local').map((x) => ({ label: x, value: x }));
 
 function renderSelectLabel (option: { value: string }) {
   const returnNode = [];
@@ -48,9 +47,9 @@ const selectedClientConfig = inject<Ref>('clientConfig')!;
 
 watch(selectedClientType, async () => {
   if (selectedClientType.value) {
-    const metadata = await btClients.getClientMetaData(selectedClientType.value);
+    const metadata = getClientMetaData(selectedClientType.value);
     selectedClientNotice.value = metadata.description || '';
-    selectedClientConfig.value = await btClients.getClientDefaultConfig(selectedClientType.value);
+    selectedClientConfig.value = getClientDefaultConfig(selectedClientType.value);
   }
 });
 
@@ -69,12 +68,15 @@ watch(showAddModal, () => {
   selectedClientNotice.value = '';
 });
 
-const clientConfig = inject('clientConfig') as Ref<BittorrentClientBaseConfig>;
+const clientConfig = inject('clientConfig') as Ref<btClientTypes.BittorrentClientBaseConfig>;
 
 function saveClient () {
   store.addClient(clientConfig.value);
   showAddModal.value = false;
 }
+
+const canSave = ref(false);
+provide('canSave', canSave);
 
 </script>
 
@@ -151,6 +153,7 @@ function saveClient () {
             <n-button
               v-if="currentStep === 2"
               @click="saveClient"
+              :disabled="!canSave"
               quaternary
               type="primary"
               icon-placement="right"

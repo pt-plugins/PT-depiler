@@ -1,12 +1,10 @@
 import compareVersions from 'compare-versions';
 import { isDebug } from '@/shared/constants';
-import BtClientFactory from '@/background/factory/btClients';
 import SiteFactory from '@/background/factory/sites';
 import backupServerFactory from '@/background/factory/backupServers';
 import browser from 'webextension-polyfill';
 
 class PTPlugin {
-  public readonly btClientFactory = BtClientFactory;
   public readonly siteFactory = SiteFactory;
   public readonly backupServerFactory = backupServerFactory;
 

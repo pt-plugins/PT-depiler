@@ -21,7 +21,6 @@ import AbstractBittorrentClient from '../AbstractBittorrentClient';
 export const clientConfig: TorrentClientConfig = {
   type: 'Flood',
   name: 'Flood',
-  uuid: '9831970f-6c10-4b02-a3a0-eb07062e5e69',
   address: 'http://172.0.0.1:3000',
   username: '',
   password: '',

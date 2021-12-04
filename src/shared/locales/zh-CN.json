@@ -116,6 +116,7 @@
         "fail": "连接失败！请检查填写的信息或者你的下载服务器。",
         "success": "连接成功，你可以顺利进行下一步。"
       },
+      "idPlaceholder": "<添加后自动生成>",
       "password": "密码",
       "serverAddress": "服务器地址",
       "serverName": "服务器名称",

@@ -16,7 +16,6 @@ import AbstractBittorrentClient from '../AbstractBittorrentClient';
 export const clientConfig: TorrentClientConfig = {
   type: 'qBittorrent',
   name: 'qBittorrent',
-  uuid: '4c0f3c06-0b41-4828-9770-e8ef56da6a5c',
   address: 'http://localhost:9091/',
   username: '',
   password: '',

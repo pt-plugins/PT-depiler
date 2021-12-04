@@ -116,6 +116,7 @@
         "fail": "Connect Failed! Check Form or Download Server",
         "success": "Connect Successful! You can enter next step."
       },
+      "idPlaceholder": "The Client Id will generate automatically after adding",
       "password": "Password",
       "serverAddress": "Server Address",
       "serverName": "Server Name",

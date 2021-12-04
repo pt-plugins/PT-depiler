@@ -16,7 +16,6 @@ import parseTorrent, { Instance as TorrentInstance } from 'parse-torrent';
 export const clientConfig: TorrentClientConfig = {
   type: 'uTorrent',
   name: 'µTorrent',
-  uuid: '74bcc281-244f-4bf1-9013-eebb0a833d32',
   address: 'http://127.0.0.1:8080/gui/',
   username: 'admin',
   password: '',

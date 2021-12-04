@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { Ref } from '@vue/reactivity';
 import { inject, ref } from 'vue';
-import { BittorrentClientBaseConfig } from '@/resource/btClients/types';
-import btClients from '@/background/factory/btClients';
+import { types as btClientTypes, getClient } from '@/resource/btClients';
 import { useMessage } from 'naive-ui';
 
 const message = useMessage();
-const clientConfig = inject('clientConfig') as Ref<BittorrentClientBaseConfig>;
+const clientConfig = inject<Ref<btClientTypes.BittorrentClientBaseConfig>>('clientConfig')!;
+const canSave = inject<Ref<boolean>>('canSave')!;
 
 enum connectStatus {
   success, default, checking, failed
@@ -14,8 +14,9 @@ enum connectStatus {
 const connectStatusRef = ref<connectStatus>(connectStatus.default);
 
 async function checkConnect () {
+  canSave.value = true;
   connectStatusRef.value = connectStatus.checking;
-  const client = await btClients.getClient(clientConfig.value);
+  const client = getClient(clientConfig.value);
   try {
     connectStatusRef.value = await client.ping() ? connectStatus.success : connectStatus.failed;
   } catch (e) {
@@ -47,7 +48,7 @@ async function checkConnect () {
       <n-input v-model:value="clientConfig.type" disabled @keydown.enter.prevent />
     </n-form-item>
     <n-form-item path="uuid" label="ID">
-      <n-input v-model:value="clientConfig.uuid" disabled @keydown.enter.prevent />
+      <n-input v-model:value="clientConfig.id" disabled @keydown.enter.prevent :placeholder="$t('setClient.editor.idPlaceholder')" />
     </n-form-item>
     <n-form-item>
       <n-button secondary

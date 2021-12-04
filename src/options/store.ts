@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { v4 as UUIDv4 } from 'uuid';
-import browser from 'webextension-polyfill';
+import { types } from '@ptpp/btclients';
 
 // useStore could be anything like useUser, useCart
 // the first argument is a unique id of the store across your application
@@ -10,16 +10,15 @@ export const useStore = defineStore('main', {
       isReady: false,
       options: {
         sites: [],
-        clients: [] as any[]
+        clients: [] as types.BittorrentClientBaseConfig[]
       },
       uiOptions: {}
     }
   ),
 
   actions: {
-
-    async addClient (client: any) {
-      client.uuid = UUIDv4();
+    async addClient (client: types.BittorrentClientBaseConfig) {
+      !client.id && (client.id = UUIDv4());
       this.options.clients.push(client);
     },
 

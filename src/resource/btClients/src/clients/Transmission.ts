@@ -16,7 +16,6 @@ import { toLower } from 'lodash-es';
 export const clientConfig: TorrentClientConfig = {
   type: 'Transmission',
   name: 'Transmission',
-  uuid: '1cc694ef-7f64-4882-b33a-b578a76fd35c',
   address: 'http://localhost:9091/',
   username: '',
   password: '',

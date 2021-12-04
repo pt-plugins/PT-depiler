@@ -16,7 +16,7 @@ export interface BittorrentClientBaseConfig {
    * UUIDv4
    * 系统使用这个信息判断并生成唯一的客户端
    */
-  uuid: string;
+  id?: string;
 
   /**
    * 客户端类型，与文件名相同
