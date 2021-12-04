@@ -111,6 +111,11 @@
       "title": "Add Download Client"
     },
     "editor": {
+      "checkConnect": "Check Connect",
+      "connect": {
+        "fail": "Connect Failed! Check Form or Download Server",
+        "success": "Connect Successful! You can enter next step."
+      },
       "password": "Password",
       "serverAddress": "Server Address",
       "serverName": "Server Name",

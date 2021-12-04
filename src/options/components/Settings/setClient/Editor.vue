@@ -50,7 +50,15 @@ async function checkConnect () {
       <n-input v-model:value="clientConfig.uuid" disabled @keydown.enter.prevent />
     </n-form-item>
     <n-form-item>
-      <n-button secondary :type="connectStatusRef === -1 ? 'error' : 'info'" :loading="connectStatusRef === 0" style="width: 100%" @click="checkConnect">Info</n-button>
+      <n-button secondary
+                :type="connectStatusRef === connectStatus.success ? 'success' : connectStatusRef === connectStatus.failed ? 'error' : 'info'"
+                :loading="connectStatusRef === connectStatus.checking" style="width: 100%" @click="checkConnect">
+        {{
+          connectStatusRef === connectStatus.success ? $t('setClient.editor.connect.success') :
+            connectStatusRef === connectStatus.failed ? $t('setClient.editor.connect.fail') :
+              $t('setClient.editor.checkConnect')
+        }}
+      </n-button>
     </n-form-item>
   </n-form>
 </template>
