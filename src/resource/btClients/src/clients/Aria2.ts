@@ -95,47 +95,6 @@ interface rawTask {
   numSeeders?: number
 }
 
-function parseRawTorrent (rawTask: rawTask): CTorrent {
-  const progress = (rawTask.completedLength / rawTask.totalLength) || 0;
-  let state = CTorrentState.unknown;
-  switch (rawTask.status) {
-    case 'active':
-      state = progress >= 100 ? CTorrentState.seeding : CTorrentState.downloading;
-      break;
-
-    case 'error':
-    case 'removed':
-      state = CTorrentState.error;
-      break;
-
-    case 'complete':
-    case 'paused':
-      state = CTorrentState.paused;
-      break;
-
-    case 'waiting':
-      state = CTorrentState.queued;
-      break;
-  }
-
-  return {
-    id: rawTask.gid,
-    infoHash: rawTask.infoHash!,
-    name: rawTask.bittorrent!.info.name,
-    progress,
-    isCompleted: progress >= 100,
-    ratio: (rawTask.uploadLength / rawTask.totalLength) || 0,
-    dateAdded: 0, // Aria2 不返回添加时间
-    savePath: rawTask.dir,
-    state,
-    totalSize: Number(rawTask.totalLength),
-    totalUploaded: Number(rawTask.uploadLength),
-    totalDownloaded: Number(rawTask.completedLength),
-    uploadSpeed: Number(rawTask.uploadSpeed),
-    downloadSpeed: Number(rawTask.downloadSpeed)
-  } as CTorrent;
-}
-
 export default class Aria2 extends AbstractBittorrentClient {
   readonly version = 'v0.1.0';
 
@@ -245,7 +204,7 @@ export default class Aria2 extends AbstractBittorrentClient {
     }
   }
 
-  async getAllTorrents (): Promise<CTorrent[]> {
+  async getAllTorrents (): Promise<CTorrent<rawTask>[]> {
     const torrents: CTorrent[] = [];
     const { result: tasks } = await this.methodSend<[[rawTask[]], [rawTask[]], [rawTask[]]]>(
       'system.multicall', [
@@ -258,7 +217,7 @@ export default class Aria2 extends AbstractBittorrentClient {
       task[0].forEach(rawTask => {
         // 注意，我们只筛选bittorrent种子，对于其他类型的task，我们不做筛选
         if (rawTask.bittorrent) {
-          torrents.push(parseRawTorrent(rawTask));
+          torrents.push(this.parseRawTorrent(rawTask));
         }
       });
     });
@@ -266,9 +225,9 @@ export default class Aria2 extends AbstractBittorrentClient {
     return torrents;
   }
 
-  override async getTorrent (id: string): Promise<CTorrent> {
+  override async getTorrent (id: string): Promise<CTorrent<rawTask>> {
     const { result: task } = await this.methodSend<rawTask>('aria2.tellStatus', [id]);
-    return parseRawTorrent(task);
+    return this.parseRawTorrent(task);
   }
 
   async pauseTorrent (id: string): Promise<boolean> {
@@ -285,5 +244,48 @@ export default class Aria2 extends AbstractBittorrentClient {
   async resumeTorrent (id: any): Promise<boolean> {
     await this.methodSend<string>('aria2.unpause', [id]);
     return true;
+  }
+
+  private parseRawTorrent (rawTask: rawTask): CTorrent<rawTask> {
+    const progress = (rawTask.completedLength / rawTask.totalLength) || 0;
+    let state = CTorrentState.unknown;
+    switch (rawTask.status) {
+      case 'active':
+        state = progress >= 100 ? CTorrentState.seeding : CTorrentState.downloading;
+        break;
+
+      case 'error':
+      case 'removed':
+        state = CTorrentState.error;
+        break;
+
+      case 'complete':
+      case 'paused':
+        state = CTorrentState.paused;
+        break;
+
+      case 'waiting':
+        state = CTorrentState.queued;
+        break;
+    }
+
+    return {
+      id: rawTask.gid,
+      infoHash: rawTask.infoHash!,
+      name: rawTask.bittorrent!.info.name,
+      progress,
+      isCompleted: progress >= 100,
+      ratio: (rawTask.uploadLength / rawTask.totalLength) || 0,
+      dateAdded: 0, // Aria2 不返回添加时间
+      savePath: rawTask.dir,
+      state,
+      totalSize: Number(rawTask.totalLength),
+      totalUploaded: Number(rawTask.uploadLength),
+      totalDownloaded: Number(rawTask.completedLength),
+      uploadSpeed: Number(rawTask.uploadSpeed),
+      downloadSpeed: Number(rawTask.downloadSpeed),
+      raw: rawTask,
+      clientId: this.config.id
+    } as CTorrent<rawTask>;
   }
 }

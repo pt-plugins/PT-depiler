@@ -621,9 +621,10 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
         uploadSpeed: task.additional!.transfer!.speed_upload,
         downloadSpeed: task.additional!.transfer!.speed_download,
         totalUploaded: upload,
-        totalDownloaded: download
-
-      } as CTorrent;
+        totalDownloaded: download,
+        raw: task,
+        clientId: this.config.id
+      } as CTorrent<rawTask>;
     });
   }
 

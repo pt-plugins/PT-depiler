@@ -222,8 +222,10 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
         uploadSpeed: iv(rawTorrent[11]),
         downloadSpeed: iv(rawTorrent[12]),
         totalUploaded: iv(rawTorrent[9]),
-        totalDownloaded: iv(rawTorrent[8])
-      } as CTorrent;
+        totalDownloaded: iv(rawTorrent[8]),
+        raw: rawTorrent,
+        clientId: this.config.id
+      } as CTorrent<torrentData>;
     });
   }
 

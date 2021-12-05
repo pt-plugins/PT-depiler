@@ -368,8 +368,10 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
         uploadSpeed: torrent.rateUpload,
         downloadSpeed: torrent.rateDownload,
         totalUploaded: torrent.uploadedEver,
-        totalDownloaded: torrent.downloadedEver
-      } as CTorrent;
+        totalDownloaded: torrent.downloadedEver,
+        raw: torrent,
+        clientId: this.config.id
+      } as CTorrent<rawTorrent>;
     });
 
     if (filter.complete) {

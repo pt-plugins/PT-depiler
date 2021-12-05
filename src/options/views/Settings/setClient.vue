@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { h, ref, provide } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { NA, NIcon, NImage, NText, useDialog, NButton, NPopconfirm } from 'naive-ui';
+import { NA, NIcon, NText, useDialog, NButton, NPopconfirm } from 'naive-ui';
 import { AddSharp, MinusSharp, EditSharp, DeleteSharp } from '@vicons/material';
 import { useStore } from '@/options/store';
 import AddClient from '@/options/components/Settings/setClient/AddClient.vue';
@@ -33,7 +33,7 @@ const setClientColumn = [
       const renderRows = [];
       if (row.type !== 'Local') {
         renderRows.push(
-          h(NImage, { width: 16, src: `/assets/btclients/${row.type}.png` }),
+          h('img', { src: `/assets/btclients/${row.type}.png`, style: { width: '16px' }, title: `icon-${row.type}` }),
           ' '
         );
       }
@@ -111,7 +111,7 @@ function deleteMultiClientsDialog () {
     onPositiveClick: () => {
       while (checkedRowKeysRef.value.length > 0) {
         const i = checkedRowKeysRef.value.pop();
-        store.removeClient(i!);
+        i && store.removeClient(i);
       }
     }
   });
@@ -120,7 +120,7 @@ function deleteMultiClientsDialog () {
 
 <template>
   <n-space vertical>
-    <n-alert type="info" :title="$t('setClient.index.title')"></n-alert>
+    <n-alert type="info" :title="$t('route.Settings.setClient')"></n-alert>
     <n-card>
       <n-space vertical>
         <n-grid :cols="4" item-responsive responsive="screen">

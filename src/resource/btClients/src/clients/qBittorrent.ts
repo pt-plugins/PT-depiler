@@ -63,31 +63,6 @@ enum QbittorrentTorrentState {
   MissingFiles = 'missingFiles', // Torrent data files is missing
 }
 
-interface QbittorrentTorrent extends CTorrent {
-  id: string;
-}
-
-type QbittorrentTorrentFilters =
-  | 'all'
-  | 'downloading'
-  | 'completed'
-  | 'paused'
-  | 'active'
-  | 'inactive'
-  | 'resumed'
-  | 'stalled'
-  | 'stalled_uploading'
-  | 'stalled_downloading';
-
-interface QbittorrentTorrentFilterRules extends CTorrentFilterRules {
-  hashes?: string | string[];
-  filter?: QbittorrentTorrentFilters;
-  category?: string;
-  sort?: string;
-  offset?: number;
-  reverse?: boolean | TrueFalseStr;
-}
-
 interface rawTorrent {
   name: string; // Torrent name
   hash: string;
@@ -129,6 +104,31 @@ interface rawTorrent {
   'time_active': number;
 
   category: string; // Category name
+}
+
+interface QbittorrentTorrent extends CTorrent<rawTorrent> {
+  id: string;
+}
+
+type QbittorrentTorrentFilters =
+  | 'all'
+  | 'downloading'
+  | 'completed'
+  | 'paused'
+  | 'active'
+  | 'inactive'
+  | 'resumed'
+  | 'stalled'
+  | 'stalled_uploading'
+  | 'stalled_downloading';
+
+interface QbittorrentTorrentFilterRules extends CTorrentFilterRules {
+  hashes?: string | string[];
+  filter?: QbittorrentTorrentFilters;
+  category?: string;
+  sort?: string;
+  offset?: number;
+  reverse?: boolean | TrueFalseStr;
 }
 
 interface rawSyncMaindata {
@@ -331,7 +331,9 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
         uploadSpeed: torrent.upspeed,
         downloadSpeed: torrent.dlspeed,
         totalUploaded: torrent.uploaded,
-        totalDownloaded: torrent.downloaded
+        totalDownloaded: torrent.downloaded,
+        raw: torrent,
+        clientId: this.config.id
       } as QbittorrentTorrent;
     });
   }

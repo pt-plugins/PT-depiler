@@ -279,7 +279,9 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
         uploadSpeed: torrent[8],
         downloadSpeed: torrent[9],
         totalUploaded: torrent[6],
-        totalDownloaded: torrent[5]
+        totalDownloaded: torrent[5],
+        raw: torrent,
+        clientId: this.config.id
       } as CTorrent;
     }) as CTorrent[];
   }

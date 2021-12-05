@@ -1,5 +1,6 @@
-import AbstractBittorrentClient from './AbstractBittorrentClient';
 import * as types from './types';
+import AbstractBittorrentClient from './AbstractBittorrentClient';
+import Local from './clients/Local';
 export { AbstractBittorrentClient, types };
 
 // 动态生成 btClient 列表
@@ -32,19 +33,28 @@ export function getClientMetaData (type: string) {
 
 const clientInstanceCache: Record<string, AbstractBittorrentClient> = {};
 
-export function getClient (config: types.BittorrentClientBaseConfig & {uuid?: string}): AbstractBittorrentClient {
+export function getClient (config: types.BittorrentClientBaseConfig): AbstractBittorrentClient {
   let clientInstance;
-  if (config.uuid && clientInstanceCache[`client-${config.uuid}`]) {
-    clientInstance = clientInstanceCache[`client-${config.uuid}`];
+  if (config.id && clientInstanceCache[`client-${config.id}`]) {
+    clientInstance = clientInstanceCache[`client-${config.id}`];
   } else {
     const { default: Client } = getClientModule(config.type);
 
     // @ts-ignore
     clientInstance = new Client(config);
-    if (config.uuid) {
-      clientInstanceCache[`client-${config.uuid}`] = clientInstance;
+    if (config.id) {
+      clientInstanceCache[`client-${config.id}`] = clientInstance;
     }
   }
 
   return clientInstance;
+}
+
+let localInstance: Local;
+
+export function getLocalClient (): Local {
+  if (typeof localInstance === 'undefined') {
+    localInstance = getClient(getClientDefaultConfig('Local')) as Local;
+  }
+  return localInstance;
 }

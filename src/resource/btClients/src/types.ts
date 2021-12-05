@@ -91,7 +91,7 @@ export enum CTorrentState {
 }
 
 // 获得到的种子实例
-export interface CTorrent {
+export interface CTorrent<RAW = any> {
   id: string | number;
   infoHash: string;
 
@@ -139,6 +139,9 @@ export interface CTorrent {
    * total download in bytes
    */
   totalDownloaded: number;
+
+  raw: RAW;
+  clientId: string;
 }
 
 // 种子筛选方法

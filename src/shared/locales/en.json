@@ -141,8 +141,7 @@
         "address": "Server Address",
         "name": "Name",
         "type": "Type"
-      },
-      "title": "Download server configuration"
+      }
     }
   }
 }

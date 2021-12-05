@@ -390,7 +390,7 @@ export default class Flood extends AbstractBittorrentClient {
     return true;
   }
 
-  async getAllTorrents (): Promise<CTorrent[]> {
+  async getAllTorrents (): Promise<CTorrent<TorrentProperties>[]> {
     const endPointType = await this.getEndPointType();
 
     let rawTorrents: TorrentList;
@@ -443,9 +443,11 @@ export default class Flood extends AbstractBittorrentClient {
         uploadSpeed: rawTorrent.upRate,
         downloadSpeed: rawTorrent.downRate,
         totalUploaded: rawTorrent.upTotal,
-        totalDownloaded: rawTorrent.downTotal
-      } as CTorrent;
-    }) as CTorrent[];
+        totalDownloaded: rawTorrent.downTotal,
+        raw: rawTorrent,
+        clientId: this.config.id
+      } as CTorrent<TorrentProperties>;
+    }) as CTorrent<TorrentProperties>[];
   }
 
   async pauseTorrent (id: any): Promise<boolean> {

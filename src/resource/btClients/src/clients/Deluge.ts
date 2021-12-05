@@ -8,7 +8,7 @@ import {
   CTorrentFilterRules, CTorrentState, TorrentClientStatus
 } from '../types';
 import urljoin from 'url-join';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import AbstractBittorrentClient from '../AbstractBittorrentClient';
 
 export const clientConfig: BittorrentClientBaseConfig = {
@@ -231,11 +231,11 @@ export default class Deluge extends AbstractBittorrentClient {
     }
   }
 
-  async getAllTorrents (): Promise<CTorrent[]> {
+  async getAllTorrents (): Promise<CTorrent<DelugeRawTorrent>[]> {
     return await this.getTorrentsBy({});
   }
 
-  override async getTorrentsBy (filter: DelugeTorrentFilterRules): Promise<CTorrent[]> {
+  override async getTorrentsBy (filter: DelugeTorrentFilterRules): Promise<CTorrent<DelugeRawTorrent>[]> {
     if (filter.ids) {
       filter.hash = filter.ids;
       delete filter.ids;
@@ -272,8 +272,10 @@ export default class Deluge extends AbstractBittorrentClient {
         uploadSpeed: torrent.upload_payload_rate,
         downloadSpeed: torrent.download_payload_rate,
         totalUploaded: torrent.total_uploaded,
-        totalDownloaded: torrent.total_done
-      } as CTorrent;
+        totalDownloaded: torrent.total_done,
+        raw: torrent,
+        clientId: this.config.id
+      } as CTorrent<DelugeRawTorrent>;
     });
   }
 
