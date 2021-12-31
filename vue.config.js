@@ -1,5 +1,6 @@
 const packageInfo = require('./package.json');
 const gitCommitId = require('git-commit-id');
+const webpack = require('webpack');
 
 const IS_PROD = ['production', 'prod'].includes(process.env.NODE_ENV);
 
@@ -55,7 +56,22 @@ module.exports = {
   configureWebpack: {
     performance: {
       hints: false
-    }
+    },
+    resolve: {
+      fallback: {
+        buffer: require.resolve('buffer/'),
+        url: false,
+        path: false,
+        http: false,
+        https: false,
+        querystring: false
+      }
+    },
+    plugins: [
+      new webpack.ProvidePlugin({
+        Buffer: ['buffer', 'Buffer']
+      })
+    ]
   },
 
   chainWebpack: config => {

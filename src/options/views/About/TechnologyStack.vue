@@ -5,7 +5,7 @@ import { NA } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { useStorage } from '@vueuse/core';
 import { ExternalLinkAlt } from '@vicons/fa';
-import { dependencies as rawDependencies } from '@/../package.json';
+import packageJson from '@/../package.json';
 import { getFullVersion, VersionDetail } from '@/shared/constants';
 
 const { t } = useI18n();
@@ -88,7 +88,7 @@ if (technologyData.value.version.full !== version.full || technologyData.value.t
   }
 
   // 主项目依赖
-  Object.entries(rawDependencies).forEach(([name, version]) => {
+  Object.entries(packageJson.dependencies).forEach(([name, version]) => {
     updateTechnologyData(name, version);
   });
 
