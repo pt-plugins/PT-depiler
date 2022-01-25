@@ -110,13 +110,19 @@ type SynoApiEndPoint = SynoApiEndPointBase | SynoApiEndPointDownload | SynoApiEn
 
 type SynologySessionName = 'DownloadStation' | 'FileStation'
 
-interface FormFile {
-  content: Blob;
-  filename: string;
-}
-
-function isFormFile (f?: any): f is FormFile {
-  return f && (f as FormFile).content != null && (f as FormFile).filename != null;
+function transObjToData(field: Record<string, any>, toForm: true): FormData
+function transObjToData (field: Record<string, any>, toForm?: false): URLSearchParams
+function transObjToData (field: Record<string, any>, toForm: Boolean = false) {
+  const data = toForm ? new FormData() : new URLSearchParams();
+  Object.entries(field).forEach(([k, v]) => {
+    if (v !== undefined) {
+      if (Array.isArray(v)) {
+        v = JSON.stringify(v);
+      }
+      data.append(k, v);
+    }
+  });
+  return data;
 }
 
 // 定义API请求参数
@@ -127,6 +133,7 @@ interface DSRequestField {
   _sid?: string,
 
   _useForm?: boolean,
+
   [propName: string]: any
 }
 
@@ -363,7 +370,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
   }
 
   // 核心请求方法
-  private async request <T> (
+  private async request<T> (
     cgi: SYNOApiCGIPath,
     config: AxiosRequestConfig
   ): Promise<SynologyResponse<T>> {
@@ -377,37 +384,24 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
   }
 
   // entry.cgi 请求方法
-  private async requestEntryCGI <T> (field: DSRequestField): Promise<SynologyResponse<any>> {
+  private async requestEntryCGI<T> (field: DSRequestField | FormData): Promise<SynologyResponse<any>> {
     // 覆写 _sid 参数
-    field._sid = await this.getSessionId();
+    const sid = await this.getSessionId();
 
-    let postData: URLSearchParams | FormData;
-    if (field._useForm) {
-      delete field._useForm;
-      postData = new FormData();
+    let postData;
+    if (field instanceof FormData) {
+      postData = field;
+      postData.set('_sid', sid);
     } else {
-      postData = new URLSearchParams();
+      field._sid = sid;
+      postData = transObjToData(field);
     }
-
-    Object.keys(field).forEach((k) => {
-      let v = field[k];
-      if (v !== undefined) {
-        if (isFormFile(v)) {
-          (postData as FormData).append(k, v.content, v.filename);
-        } else {
-          if (Array.isArray(v)) {
-            v = JSON.stringify(v);
-          }
-          postData.append(k, v);
-        }
-      }
-    });
 
     return await this.request<T>('entry.cgi', { method: 'post', data: postData });
   }
 
   // 请求登录并获得sid信息
-  private async login () : Promise<boolean> {
+  private async login (): Promise<boolean> {
     const apiInfo = await this.getApiInfo();
 
     /**
@@ -460,13 +454,24 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
       create_list: false
     };
 
+    /**
+     * destination 和 type 很奇怪，不包一层的话，会报 对应项 缺失。。。。。
+     *
+     * - 对于 destination:
+     *    如果外部不传入 savePath ，我们须设置一个空值出来，否则 DSM 会报 error_code 120
+     *    此时 DSM 会将文件放置在 默认目的地文件夹
+     */
+    params.destination = `"${options.savePath || ''}"`;
+
+    let postData;
     if (url.startsWith('magnet:') || !options.localDownload) {
-      params.type = 'url';
+      params.type = '"url"';
       params.url = [url];
+      postData = params;
     } else {
-      params._useForm = true;
-      params.type = 'file';
+      params.type = '"file"';
       params.file = ['torrent'];
+      postData = transObjToData(params, true);
 
       // 获得本地请求的种子内容
       const torrent = await this.getRemoteTorrentFile({
@@ -474,23 +479,10 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
         ...(options.localDownloadOption || {})
       });
 
-      params.torrent = {
-        content: torrent.metadata.blob,
-        filename: torrent.name
-      } as FormFile;
+      postData.append('torrent', torrent.metadata.blob, torrent.name);
     }
 
-    /**
-     * 这个地方很奇怪，不这么包一下的话，会报 对应项 缺失。。。。。
-     *
-     * - 对于 destination:
-     *    如果外部不传入 savePath ，我们须设置一个空值出来，否则 DSM 会报 error_code 120
-     *    此时 DSM 会将文件放置在 默认目的地文件夹
-     */
-    params.destination = `"${options.savePath || ''}"`;
-    params.type = `"${params.type}"`;
-
-    const req = await this.requestEntryCGI<{ 'list_id': any[] /* 不知道具体返回情况 */, 'task_id': string[] }>(params);
+    const req = await this.requestEntryCGI<{ 'list_id': any[] /* 不知道具体返回情况 */, 'task_id': string[] }>(postData);
 
     // DS不支持在添加的时候设置暂停状态，所以我们要在添加后暂停对应任务
     if (req.success) {
