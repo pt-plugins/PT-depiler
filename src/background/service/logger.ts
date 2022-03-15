@@ -4,7 +4,7 @@ import { LogItem } from '@/shared/interfaces/common';
 import BrowserBridge from '@/background/service/storage/browserBridge';
 
 class Logger extends BrowserBridge {
-  protected maxLength: number = 100;
+  protected maxLength = 100;
   protected configKey = EConfigKey.systemLogs;
   protected override data: LogItem[] = [];
 

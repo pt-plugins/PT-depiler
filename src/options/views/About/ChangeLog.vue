@@ -52,7 +52,9 @@ if (
 }
 
 // 加载当前commit说明
-if (versionData.value.version.hash !== version.hash || !versionData.value.commitData || !versionData.value.commitData.stats) {
+if (versionData.value.version.hash !== version.hash || 
+!versionData.value.commitData ||
+ !versionData.value.commitData.stats) {
   versionData.value.commitData = {} as IVersionData['commitData'];
   axios.get<IVersionData['commitData']>(`${REPO_API}/commits/${version.hash}`)
     .then(({ data }) => {
@@ -67,30 +69,65 @@ if (updateVersion) {
 </script>
 
 <template>
-  <n-grid :y-gap="8" :cols="1">
+  <n-grid
+    :y-gap="8"
+    :cols="1"
+  >
     <n-grid-item>
       <n-card hoverable>
         <template #header>
-          <n-text type="success" strong>{{ $t('ChangeLog.noteVersion') }}</n-text>
+          <n-text
+            type="success"
+            strong
+          >
+            {{ $t('ChangeLog.noteVersion') }}
+          </n-text>
         </template>
         <template #header-extra>
-          <n-a :href="releasePage" target="_blank">{{ version.main }}</n-a>
+          <n-a
+            :href="releasePage"
+            target="_blank"
+          >
+            {{ version.main }}
+          </n-a>
         </template>
-        <div class="markdown-body release-content" v-html="marked(versionData.releaseContent)"></div>
+        <div
+          class="markdown-body release-content"
+          v-html="marked(versionData.releaseContent)"
+        />
       </n-card>
     </n-grid-item>
     <n-grid-item>
-
-      <n-card v-if="version.hash && versionData.commitData.stats" hoverable>
+      <n-card
+        v-if="version.hash && versionData.commitData.stats"
+        hoverable
+      >
         <template #header>
-          <n-text type="success" strong>{{ $t('ChangeLog.noteCommit') }}</n-text>
+          <n-text
+            type="success"
+            strong
+          >
+            {{ $t('ChangeLog.noteCommit') }}
+          </n-text>
         </template>
         <template #header-extra>
-          Commit&nbsp;<n-a :href="versionData.commitData.html_url" target="_blank">{{ version.hash }}</n-a>&nbsp;
-          ( <n-icon color="green"><plus-sharp /></n-icon>{{ versionData.commitData.stats.additions }}&nbsp;
-          <n-icon color="red"><minus-sharp /></n-icon>{{ versionData.commitData.stats.deletions }})
+          Commit&nbsp;<n-a
+            :href="versionData.commitData.html_url"
+            target="_blank"
+          >
+            {{ version.hash }}
+          </n-a>&nbsp;
+          ( <n-icon color="green">
+            <plus-sharp />
+          </n-icon>{{ versionData.commitData.stats.additions }}&nbsp;
+          <n-icon color="red">
+            <minus-sharp />
+          </n-icon>{{ versionData.commitData.stats.deletions }})
           &nbsp;by&nbsp;
-          <n-a :href="versionData.commitData.author.html_url" target="_blank">
+          <n-a
+            :href="versionData.commitData.author.html_url"
+            target="_blank"
+          >
             @{{ versionData.commitData.author.login }}
           </n-a>
         </template>

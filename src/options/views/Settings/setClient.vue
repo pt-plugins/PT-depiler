@@ -120,13 +120,23 @@ function deleteMultiClientsDialog () {
 
 <template>
   <n-space vertical>
-    <n-alert type="info" :title="$t('route.Settings.setClient')"></n-alert>
+    <n-alert
+      type="info"
+      :title="$t('route.Settings.setClient')"
+    />
     <n-card>
       <n-space vertical>
-        <n-grid :cols="4" item-responsive responsive="screen">
+        <n-grid
+          :cols="4"
+          item-responsive
+          responsive="screen"
+        >
           <n-grid-item span="4 m:3">
             <n-space>
-              <n-button type="primary" @click="showAddModal = true">
+              <n-button
+                type="primary"
+                @click="showAddModal = true"
+              >
                 <n-icon :size="24">
                   <add-sharp />
                 </n-icon>
@@ -151,16 +161,16 @@ function deleteMultiClientsDialog () {
 
         <n-data-table
           ref="clientTable"
+          v-model:checked-row-keys="checkedRowKeysRef"
           :row-key="(row) => row.id"
           :columns="setClientColumn"
           :data="store.options.clients"
-          v-model:checked-row-keys="checkedRowKeysRef"
           :pagination="{}"
-        ></n-data-table>
+        />
         <n-alert
           v-if="store.options.clients.length === 0"
           :title="$t('setClient.index.emptyNotice')"
-        ></n-alert>
+        />
       </n-space>
     </n-card>
   </n-space>

@@ -1,13 +1,9 @@
-<template>
-  setBackup
-</template>
+<template>setBackup</template>
 
 <script>
 export default {
-  name: 'setBackup'
+  name: "SetBackup",
 };
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -12,6 +12,7 @@
     "noImplicitReturns": true,
     "noImplicitOverride": true,
     "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "sourceMap": true,
     "baseUrl": ".",
@@ -25,10 +26,10 @@
       ]
     },
     "lib": [
-      "esnext",
-      "dom",
-      "dom.iterable",
-      "scripthost"
+      "ESNEXT",
+      "DOM",
+      "DOM.Iterable",
+      "ScriptHost"
     ]
   },
   "include": [

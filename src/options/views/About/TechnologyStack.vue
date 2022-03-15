@@ -73,7 +73,8 @@ const technologyData = useStorage<ITechnologyData>('technology-data', { version,
 if (technologyData.value.version.full !== version.full || technologyData.value.technologyData.length === 0) {
   // 清空原缓存的信息
   technologyData.value.technologyData = [];
-
+  
+  // eslint-disable-next-line no-inner-declarations
   function updateTechnologyData (name: string, version: string, url?: string) {
     if (!name.startsWith('@ptpp')) {
       const oldCache = technologyData.value.technologyData.find(x => x.name === name);
@@ -93,8 +94,8 @@ if (technologyData.value.version.full !== version.full || technologyData.value.t
   });
 
   // monorepo的其他依赖
-  const deepDependency = require.context('@/resource', true, /package\.json$/);
-  deepDependency.keys().forEach(key => {
+  const deepDependency = require.context('@/../packages/', true, /package\.json$/);
+  deepDependency.keys().filter(key => !/node_modules/.test(key)  ).forEach(key => {
     Object.entries(deepDependency(key).dependencies).forEach(([name, version]) => {
       updateTechnologyData(name, version as string);
     });
@@ -123,20 +124,34 @@ for (let i = 0; i < technologyData.value.technologyData.length; i++) {
 </script>
 
 <template>
-  <n-grid :y-gap="8" :cols="1">
+  <n-grid
+    :y-gap="8"
+    :cols="1"
+  >
     <n-grid-item>
       <n-card hoverable>
         <template #header>
-          <n-text type="success" strong>{{ $t('TechnologyStack.ptppHistory') }}</n-text>
+          <n-text
+            type="success"
+            strong
+          >
+            {{ $t('TechnologyStack.ptppHistory') }}
+          </n-text>
         </template>
         <n-timeline>
-          <n-timeline-item v-for="history in ptppHistory"
-                           :type="history.type || undefined"
-                           :time="history.time"
-                           :key="history"
+          <n-timeline-item
+            v-for="history in ptppHistory"
+            :key="history"
+            :type="history.type || undefined"
+            :time="history.time"
           >
             <template #header>
-              {{ history.name }}&nbsp;&nbsp;<n-a :href="history.link" target="_blank"><n-icon><ExternalLinkAlt/></n-icon></n-a>
+              {{ history.name }}&nbsp;&nbsp;<n-a
+                :href="history.link"
+                target="_blank"
+              >
+                <n-icon><ExternalLinkAlt /></n-icon>
+              </n-a>
             </template>
           </n-timeline-item>
         </n-timeline>
@@ -146,15 +161,28 @@ for (let i = 0; i < technologyData.value.technologyData.length; i++) {
     <n-grid-item>
       <n-card hoverable>
         <template #header>
-          <n-text type="success" strong>{{ $t('TechnologyStack.dependency') }}</n-text>
+          <n-text
+            type="success"
+            strong
+          >
+            {{ $t('TechnologyStack.dependency') }}
+          </n-text>
         </template>
-        <n-grid :y-gap="8" :cols="1">
+        <n-grid
+          :y-gap="8"
+          :cols="1"
+        >
           <n-grid-item>
-            <n-alert type="info" :title="$t('TechnologyStack.thankNote')">
-            </n-alert>
+            <n-alert
+              type="info"
+              :title="$t('TechnologyStack.thankNote')"
+            />
           </n-grid-item>
           <n-grid-item>
-            <n-data-table :columns="technologyTableColumn" :data="technologyData.technologyData" />
+            <n-data-table
+              :columns="technologyTableColumn"
+              :data="technologyData.technologyData"
+            />
           </n-grid-item>
         </n-grid>
       </n-card>

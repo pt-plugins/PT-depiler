@@ -1,63 +1,63 @@
 <script lang="ts" setup>
-import { Ref } from '@vue/reactivity';
-import { ref, inject, watch, h, provide } from 'vue';
-import { openUrl } from '@/options/utils';
-import { REPO_URL, REPO_DEV_BRANCH_URL } from '@/shared/constants';
+import { Ref } from "@vue/reactivity";
+import { ref, inject, watch, h, provide } from "vue";
+import { openUrl } from "@/options/utils";
+import { REPO_URL, REPO_DEV_BRANCH_URL } from "@/shared/constants";
+import { HelpSharp, NavigateBeforeSharp, NavigateNextSharp, CheckCircleOutlineSharp } from "@vicons/material";
+import { useMessage } from "naive-ui";
+import { useI18n } from "vue-i18n";
+import Editor from "./Editor.vue";
+import { useStore } from "@/options/store";
 import {
-  HelpSharp,
-  NavigateBeforeSharp,
-  NavigateNextSharp,
-  CheckCircleOutlineSharp
-} from '@vicons/material';
-import { useMessage } from 'naive-ui';
-import { useI18n } from 'vue-i18n';
-import Editor from './Editor.vue';
-import { useStore } from '@/options/store';
-import { types as btClientTypes, clientTypeList, getClientMetaData, getClientDefaultConfig } from '@/resource/btClients';
+  entityList,
+  getDownloaderMetaData,
+  getDownloaderDefaultConfig,
+  BittorrentClientBaseConfig,
+} from "@ptpp/downloader";
 
 const message = useMessage();
 const { t } = useI18n();
 const store = useStore();
 
-const showAddModal = inject<Ref<Boolean>>('showAddModal')!;
+const showAddModal = inject<Ref<boolean>>("showAddModal")!;
 const currentStep = ref(1);
 
-const clientTypeOptions = clientTypeList.filter(x => x !== 'Local').map((x) => ({ label: x, value: x }));
+const clientTypeOptions = entityList.map((x) => ({ label: x, value: x }));
 
-function renderSelectLabel (option: { value: string }) {
+function renderSelectLabel(option: { value: string }) {
   const returnNode = [];
   if (option.value.length > 0) {
     returnNode.push(
-      h('img', {
+      h("img", {
         alt: option.value,
         src: `/assets/btclients/${option.value}.png`,
-        style: 'width: 16px; height: 16px'
+        style: "width: 16px; height: 16px",
       })
     );
   }
 
-  returnNode.push(' ', option.value);
+  returnNode.push(" ", option.value);
   return returnNode;
 }
 
 const selectedClientType = ref<string | null>(null);
-const selectedClientNotice = ref('');
+const selectedClientNotice = ref("");
 
-const selectedClientConfig = inject<Ref>('clientConfig')!;
+const selectedClientConfig = inject<Ref>("clientConfig")!;
 
 watch(selectedClientType, async () => {
   if (selectedClientType.value) {
-    const metadata = getClientMetaData(selectedClientType.value);
-    selectedClientNotice.value = metadata.description || '';
-    selectedClientConfig.value = getClientDefaultConfig(selectedClientType.value);
+    const metadata = await getDownloaderMetaData(selectedClientType.value);
+    selectedClientNotice.value = metadata.description || "";
+    selectedClientConfig.value = getDownloaderDefaultConfig(selectedClientType.value);
   }
 });
 
-function handleMoveToStep2 () {
+function handleMoveToStep2() {
   if (selectedClientType.value) {
     currentStep.value++;
   } else {
-    message.error(t('setClient.add.NoneSelectNotice'));
+    message.error(t("setClient.add.NoneSelectNotice"));
   }
 }
 
@@ -65,19 +65,18 @@ function handleMoveToStep2 () {
 watch(showAddModal, () => {
   currentStep.value = 1;
   selectedClientType.value = null;
-  selectedClientNotice.value = '';
+  selectedClientNotice.value = "";
 });
 
-const clientConfig = inject('clientConfig') as Ref<btClientTypes.BittorrentClientBaseConfig>;
+const clientConfig = inject("clientConfig") as Ref<BittorrentClientBaseConfig>;
 
-function saveClient () {
+function saveClient() {
   store.addClient(clientConfig.value);
   showAddModal.value = false;
 }
 
 const canSave = ref(false);
-provide('canSave', canSave);
-
+provide("canSave", canSave);
 </script>
 
 <template>
@@ -115,7 +114,10 @@ provide('canSave', canSave);
             :placeholder="$t('setClient.add.selectTypePlaceHolder')"
             :render-label="renderSelectLabel"
           />
-          <n-text depth="3" v-if="selectedClientNotice.length > 0">
+          <n-text
+            v-if="selectedClientNotice.length > 0"
+            depth="3"
+          >
             {{ selectedClientNotice }}
           </n-text>
         </n-card>
@@ -140,8 +142,8 @@ provide('canSave', canSave);
             <n-button
               quaternary
               type="warning"
-              @click="currentStep--"
               :disabled="currentStep <= 1"
+              @click="currentStep--"
             >
               <template #icon>
                 <n-icon>
@@ -152,10 +154,10 @@ provide('canSave', canSave);
             </n-button>
             <n-button
               v-if="currentStep === 2"
-              @click="saveClient"
               :disabled="!canSave"
               quaternary
               type="primary"
+              @click="saveClient"
             >
               <template #icon>
                 <n-icon>

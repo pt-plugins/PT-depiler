@@ -65,18 +65,34 @@ const searchPlanOptions = reactive([
 </script>
 
 <template>
-  <n-layout-header id="ptpp-header" bordered class="nav" :style="mainStyle">
-    <n-text tag="div" class="ui-logo" :depth="1" @click="$router.push('/')">
-      <img src="/assets/icon-64.png" alt="ptpp-icon"/>
-      <span v-if="!isTablet" class="nav-title">{{ $t('common.name') }}</span>
+  <n-layout-header
+    id="ptpp-header"
+    bordered
+    class="nav"
+    :style="mainStyle"
+  >
+    <n-text
+      tag="div"
+      class="ui-logo"
+      :depth="1"
+      @click="$router.push('/')"
+    >
+      <img
+        src="/assets/icon-64.png"
+        alt="ptpp-icon"
+      >
+      <span
+        v-if="!isTablet"
+        class="nav-title"
+      >{{ $t('common.name') }}</span>
     </n-text>
     <div :style="!isMobile ? 'display: flex; align-items: center' : ''">
       <n-input-group
         :style="!isMobile ? 'max-width: 600px; margin-left: 24px' : undefined"
       >
         <n-auto-complete
-          :placeholder="$t('layout.header.searchTip')"
           v-model:value="searchKey"
+          :placeholder="$t('layout.header.searchTip')"
           :options="searchOptions"
           :loading="searchLoadingStatus"
           blur-after-select
@@ -88,8 +104,10 @@ const searchPlanOptions = reactive([
         />
         <n-popover trigger="hover">
           <template #trigger>
-            <n-button type="primary" ghost
-                      @click="() => {$router.push({name:'SearchData', query: {searchKey,searchPlan}})}"
+            <n-button
+              type="primary"
+              ghost
+              @click="() => {$router.push({name:'SearchData', query: {searchKey,searchPlan}})}"
             >
               {{ $t('layout.header.search') }}
             </n-button>
@@ -98,28 +116,46 @@ const searchPlanOptions = reactive([
         </n-popover>
       </n-input-group>
     </div>
-    <n-space align="center" class="nav-end" :size="20" v-if="!isMobile">
-      <n-button tag="a" :href="REPO_URL" target="_blank"
-                text size="large" class="nav-picker"
+    <n-space
+      v-if="!isMobile"
+      align="center"
+      class="nav-end"
+      :size="20"
+    >
+      <n-button
+        tag="a"
+        :href="REPO_URL"
+        target="_blank"
+        text
+        size="large"
+        class="nav-picker"
       >
         <n-icon>
-          <home-sharp/>
+          <home-sharp />
         </n-icon>
         <span v-if="!isTablet">{{ $t('layout.header.home') }}</span>
       </n-button>
-      <n-button tag="a" :href="`${REPO_URL}/wiki`" target="_blank"
-                text size="large" class="nav-picker"
+      <n-button
+        tag="a"
+        :href="`${REPO_URL}/wiki`"
+        target="_blank"
+        text
+        size="large"
+        class="nav-picker"
       >
         <n-icon>
-          <help-sharp/>
+          <help-sharp />
         </n-icon>
         <span v-if="!isTablet">{{ $t('layout.header.wiki') }}</span>
       </n-button>
-      <n-button text size="large" class="nav-picker"
-                @click="$router.push({name: 'Donate'})"
+      <n-button
+        text
+        size="large"
+        class="nav-picker"
+        @click="$router.push({name: 'Donate'})"
       >
         <n-icon>
-          <free-breakfast-sharp/>
+          <free-breakfast-sharp />
         </n-icon>
         <span v-if="!isTablet">{{ $t('layout.header.donate') }}</span>
       </n-button>

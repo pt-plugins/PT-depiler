@@ -1,13 +1,9 @@
-<template>
-  setSearchSolution
-</template>
+<template>setSearchSolution</template>
 
 <script>
 export default {
-  name: 'setSearchSolution'
+  name: "SetSearchSolution",
 };
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

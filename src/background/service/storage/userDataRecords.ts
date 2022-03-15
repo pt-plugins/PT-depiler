@@ -1,7 +1,7 @@
+import type { IUserInfo } from '@ptpp/site';
+import dayjs from 'dayjs';
 import { EConfigKey, EUserDataRange } from '@/shared/interfaces/enum';
 import browserBridge from '@/background/service/storage/browserBridge';
-import dayjs from '@ptpp/utils/plugins/dayjs';
-import { IUserInfo } from '@ptpp/sites/types';
 
 type StoredUserDataPerSite = { // 站点HOST
   [date: string]: IUserInfo // 日期 YYYY-MM-DD

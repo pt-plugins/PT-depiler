@@ -7,11 +7,11 @@ import {
   CheckCircleOutlineSharp
 } from '@vicons/material';
 import { useStore } from '@/options/store';
-import { types as btClientTypes } from '@/resource/btClients';
+import type { BittorrentClientBaseConfig } from '@ptpp/downloader';
 
 const store = useStore();
 const showEditModal = inject<Ref<boolean>>('showEditModal')!;
-const clientConfig = inject('clientConfig') as Ref<btClientTypes.BittorrentClientBaseConfig>;
+const clientConfig = inject('clientConfig') as Ref<BittorrentClientBaseConfig>;
 
 function patchClient () {
   store.patchClient(clientConfig.value);
@@ -21,7 +21,12 @@ function patchClient () {
 
 <template>
   <n-modal v-model:show="showEditModal">
-    <n-card style="max-width: 800px;" :title="$t('setClient.edit.title')" :bordered="false" size="huge">
+    <n-card
+      style="max-width: 800px;"
+      :title="$t('setClient.edit.title')"
+      :bordered="false"
+      size="huge"
+    >
       <n-card>
         <Editor />
       </n-card>
@@ -29,8 +34,8 @@ function patchClient () {
         <n-space justify="end">
           <n-button
             quaternary
-            @click="showEditModal = false"
             type="warning"
+            @click="showEditModal = false"
           >
             <template #icon>
               <n-icon>

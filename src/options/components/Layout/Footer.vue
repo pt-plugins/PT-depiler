@@ -1,26 +1,37 @@
 <script lang="ts" setup>
-import { TelegramPlane, Language, Adjust } from '@vicons/fa';
-import { isDark, openUrl, toggleDark, isMobile } from '../../utils';
-import { getFullVersion, GROUP_TELEGRAM } from '@/shared/constants';
-import { setI18nLanguage, localeDefine } from '@/shared/plugins/i18n';
+import { TelegramPlane, Language, Adjust } from "@vicons/fa";
+import { isDark, openUrl, toggleDark, isMobile } from "../../utils";
+import { getFullVersion, GROUP_TELEGRAM } from "@/shared/constants";
+import { setI18nLanguage, localeDefine } from "@/shared/plugins/i18n";
 
 const FULL_VERSION = getFullVersion();
 const YEAR = new Date().getFullYear();
 </script>
 
 <template>
-  <n-layout-footer id="ptpp-footer" bordered position="absolute">
-    <n-space justify="space-between" style="margin: 0">
+  <n-layout-footer
+    id="ptpp-footer"
+    bordered
+    position="absolute"
+  >
+    <n-space
+      justify="space-between"
+      style="margin: 0"
+    >
       <div id="ptpp-copyright">
-        <n-text depth="2">&copy; {{ $t('app.author') }} {{ YEAR }}, {{ $t('common.version') }}
-          {{ FULL_VERSION[isMobile ? 'main' : 'full'] }}
+        <n-text depth="2">
+          &copy; {{ $t("app.author") }} {{ YEAR }}, {{ $t("common.version") }}
+          {{ FULL_VERSION[isMobile ? "main" : "full"] }}
         </n-text>
       </div>
       <div id="ptpp-footer-sider">
-        <n-button text @click="openUrl(GROUP_TELEGRAM)">
+        <n-button
+          text
+          @click="openUrl(GROUP_TELEGRAM)"
+        >
           <template #icon>
             <n-icon>
-              <telegram-plane/>
+              <telegram-plane />
             </n-icon>
           </template>
           <span v-if="!isMobile">Telegram</span>
@@ -29,26 +40,30 @@ const YEAR = new Date().getFullYear();
         <n-dropdown
           placement="top-start"
           :options="localeDefine"
-          label-field="name" key-field="code"
+          label-field="name"
+          key-field="code"
           @select="(e) => setI18nLanguage(e)"
         >
           <n-button text>
             <template #icon>
               <n-icon>
-                <language/>
+                <language />
               </n-icon>
             </template>
-            <span v-if="!isMobile">{{ $t('layout.footer.changeLanguage') }}</span>
+            <span v-if="!isMobile">{{ $t("layout.footer.changeLanguage") }}</span>
           </n-button>
         </n-dropdown>
 
-        <n-button text @click="toggleDark()">
+        <n-button
+          text
+          @click="toggleDark()"
+        >
           <template #icon>
             <n-icon>
-              <adjust/>
+              <adjust />
             </n-icon>
           </template>
-          <span v-if="!isMobile">{{ $t(`layout.footer.displayMode.${isDark ? 'light' : 'dark'}`) }}</span>
+          <span v-if="!isMobile">{{ $t(`layout.footer.displayMode.${isDark ? "light" : "dark"}`) }}</span>
         </n-button>
       </div>
     </n-space>
@@ -63,10 +78,10 @@ const YEAR = new Date().getFullYear();
 }
 
 #ptpp-copyright {
-  margin-top: 4px // 与右侧的图标对齐
+  margin-top: 4px; // 与右侧的图标对齐
 }
 
 #ptpp-footer-sider .n-button {
-  padding: 0 10px
+  padding: 0 10px;
 }
 </style>

@@ -29,7 +29,7 @@ export interface VersionDetail {
   hash: string
 }
 
-export function getFullVersion (): VersionDetail {
+export function getFullVersion(): VersionDetail {
   // @ts-ignore
   const fullVersion = 'v' + (MANIFEST.versionName || MANIFEST.version_name || MANIFEST.version) as TVersion; // v2.0.0.b3f0a76
 
@@ -49,7 +49,7 @@ export function getFullVersion (): VersionDetail {
 export const isProd = ['production', 'prod'].includes(process.env.NODE_ENV!);
 export const isDebug = !isProd;
 
-export async function getInstallType (): Promise<EInstallType> {
+export async function getInstallType(): Promise<EInstallType> {
   const detail = await browser.management.getSelf();
   if (detail?.updateUrl?.includes(REPO_NAME)) {
     return EInstallType.packed;

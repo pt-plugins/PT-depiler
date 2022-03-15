@@ -1,13 +1,9 @@
-<template>
-  setSite
-</template>
+<template>setSite</template>
 
 <script>
 export default {
-  name: 'setSite'
+  name: "SetSite",
 };
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

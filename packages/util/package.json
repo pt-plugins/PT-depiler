@@ -1,0 +1,9 @@
+{
+  "name": "@ptpp/util",
+  "version": "1.0.0",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "typescript": "^4.6.2"
+  }
+}

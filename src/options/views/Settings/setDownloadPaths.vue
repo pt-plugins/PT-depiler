@@ -1,13 +1,9 @@
-<template>
-  setDownloadPaths
-</template>
+<template>setDownloadPaths</template>
 
 <script>
 export default {
-  name: 'setDownloadPaths'
+  name: "SetDownloadPaths",
 };
 </script>
 
-<style scoped>
-
-</style>
+<style scoped></style>

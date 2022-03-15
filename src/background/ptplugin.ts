@@ -1,14 +1,9 @@
 import compareVersions from 'compare-versions';
 import { isDebug } from '@/shared/constants';
-import SiteFactory from '@/background/factory/sites';
-import backupServerFactory from '@/background/factory/backupServers';
 import browser from 'webextension-polyfill';
 
 class PTPlugin {
-  public readonly siteFactory = SiteFactory;
-  public readonly backupServerFactory = backupServerFactory;
-
-  private optionsTabId: number = 0;
+  private optionsTabId = 0;
 
   public init () {
     isDebug && this.initDebug();
@@ -57,7 +52,7 @@ class PTPlugin {
     });
   }
 
-  public openOptionPage (path: string = '') {
+  public openOptionPage (path = '') {
     if (!path) { return; }
     let url = '/options.html';
     if (path.substr(0, 1) === '/') {
