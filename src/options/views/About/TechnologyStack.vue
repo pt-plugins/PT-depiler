@@ -1,10 +1,8 @@
 <script lang="ts" setup>
 import axios from 'axios';
 import { h } from 'vue';
-import { NA } from 'naive-ui';
 import { useI18n } from 'vue-i18n';
 import { useStorage } from '@vueuse/core';
-import { ExternalLinkAlt } from '@vicons/fa';
 import packageJson from '@/../package.json';
 import { getFullVersion, VersionDetail } from '@/shared/constants';
 
@@ -64,7 +62,7 @@ const technologyTableColumn = [
     title: () => t('TechnologyStack.stackTableColumn.homepage'),
     key: 'url',
     render (row: { url: any; }) {
-      return h(NA, { target: '_blank', href: row.url }, { default: () => row.url });
+      return h('a', { target: '_blank', href: row.url }, { default: () => row.url });
     }
   }
 ];
@@ -124,6 +122,24 @@ for (let i = 0; i < technologyData.value.technologyData.length; i++) {
 </script>
 
 <template>
+  <v-row>
+    <v-col>
+      <v-card>
+        <v-card-title> {{ $t('TechnologyStack.ptppHistory') }}</v-card-title>
+        <v-card-text>
+          <v-timeline side="before">
+            <v-timeline-item v-for="history in ptppHistory" :key="history.name">
+              {{ history.name }}
+            </v-timeline-item>
+          </v-timeline>
+        </v-card-text>
+      </v-card>
+    </v-col>
+  </v-row>
+  <v-row>
+    <v-col>2</v-col>
+  </v-row>
+<!--
   <n-grid
     :y-gap="8"
     :cols="1"
@@ -135,7 +151,7 @@ for (let i = 0; i < technologyData.value.technologyData.length; i++) {
             type="success"
             strong
           >
-            {{ $t('TechnologyStack.ptppHistory') }}
+           
           </n-text>
         </template>
         <n-timeline>
@@ -188,6 +204,7 @@ for (let i = 0; i < technologyData.value.technologyData.length; i++) {
       </n-card>
     </n-grid-item>
   </n-grid>
+  -->
 </template>
 
 <style scoped>

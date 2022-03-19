@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-import { Paypal } from "@vicons/fa";
 import { openUrl } from "@/options/utils";
 </script>
 

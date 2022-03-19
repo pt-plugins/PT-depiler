@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { v4 as UUIDv4 } from 'uuid';
+import { nanoid } from 'nanoid';
 import { BittorrentClientBaseConfig } from '@ptpp/downloader';
 
 // useStore could be anything like useUser, useCart
@@ -12,7 +12,9 @@ export const useStore = defineStore('main', {
         sites: [],
         clients: [] as BittorrentClientBaseConfig[]
       },
-      uiOptions: {}
+      uiOptions: {
+        navBarIsOpen: true,
+      }
     }
   ),
 
@@ -24,7 +26,7 @@ export const useStore = defineStore('main', {
     },
 
     addClient (client: BittorrentClientBaseConfig) {
-      !client.id && (client.id = UUIDv4());
+      !client.id && (client.id = nanoid());
       this.options.clients.push(client);
     },
 

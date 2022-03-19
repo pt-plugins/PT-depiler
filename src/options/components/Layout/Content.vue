@@ -1,23 +1,17 @@
 <script lang="ts" setup></script>
 
 <template>
-  <n-layout-content
-    id="ptpp-content"
-    content-style="padding: 16px;"
-    :native-scrollbar="false"
-  >
+  <v-container fluid>
     <router-view v-slot="{ Component, route }">
-      <transition :name="route.meta.transitionName || 'fade'">
-        <keep-alive v-if="route.meta.keepAlive">
-          <component :is="Component" />
-        </keep-alive>
-        <component
-          :is="Component"
-          v-else
-        />
-      </transition>
+      <keep-alive v-if="route.meta.keepAlive">
+        <component :is="Component" />
+      </keep-alive>
+      <component
+        :is="Component"
+        v-else 
+      />
     </router-view>
-  </n-layout-content>
+  </v-container>
 </template>
 
 <style scoped></style>

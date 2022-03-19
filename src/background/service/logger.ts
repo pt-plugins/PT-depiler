@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { nanoid } from 'nanoid'
 import { EConfigKey } from '@/shared/interfaces/enum';
 import { LogItem } from '@/shared/interfaces/common';
 import BrowserBridge from '@/background/service/storage/browserBridge';
@@ -18,7 +18,7 @@ class Logger extends BrowserBridge {
       this.data.splice(0, 1);
     }
 
-    data.id = uuidv4(); // 不使用外部传入 ID 和时间戳
+    data.id = nanoid(); // 不使用外部传入 ID 和时间戳
     data.time = new Date().getTime();
     this.data.push(<LogItem>data);
     await this.save();

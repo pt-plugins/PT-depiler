@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { AccountCircleSharp } from "@vicons/material";
-
 const sortedPeople = [
   "Rhilip (R酱)",
   "ted423",
@@ -19,10 +17,7 @@ const sortedPeople = [
 </script>
 
 <template>
-  <n-grid
-    :y-gap="8"
-    :cols="1"
-  >
+  <n-grid :y-gap="8" :cols="1">
     <n-grid-item>
       <n-alert type="info">
         {{ $t("DevTeam.thank1") }}<br>
@@ -52,10 +47,7 @@ const sortedPeople = [
         <template #header>
           {{ $t("DevTeam.sortByName") }}
         </template>
-        <n-list-item
-          v-for="people in sortedPeople"
-          :key="people"
-        >
+        <n-list-item v-for="people in sortedPeople" :key="people">
           <n-text class="people">
             <n-icon size="20">
               <account-circle-sharp />

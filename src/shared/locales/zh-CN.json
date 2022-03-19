@@ -20,7 +20,7 @@
   },
   "TechnologyStack": {
     "dependency": "项目依赖",
-    "ptppHistory": "PT Plugin Plus 历史",
+    "ptppHistory": "@:common.name 的历史",
     "stackTableColumn": {
       "homepage": "项目主页",
       "name": "名称",
@@ -143,5 +143,8 @@
         "type": "类型"
       }
     }
+  },
+  "topbar": {
+    "navBarTip": "点击显示/隐藏导航栏"
   }
 }

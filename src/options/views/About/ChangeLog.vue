@@ -3,7 +3,6 @@ import axios from 'axios';
 import marked from 'marked';
 import { useI18n } from 'vue-i18n';
 import { useStorage } from '@vueuse/core';
-import { PlusSharp, MinusSharp } from '@vicons/material';
 import { REPO_URL, REPO_API, getFullVersion, VersionDetail } from '@/shared/constants';
 
 const { t } = useI18n();

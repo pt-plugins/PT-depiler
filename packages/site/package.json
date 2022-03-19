@@ -6,7 +6,7 @@
     "@ptpp/util": "workspace:*",
     "axios": "^0.26.0",
     "chrono-node": "^2.2.7",
-    "dayjs": "^1.10.3",
+    "dayjs": "^1.11.0",
     "lodash-es": "^4.17.20",
     "sizzle": "^2.3.5",
     "url-join": "^4.0.1",

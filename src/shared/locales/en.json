@@ -20,7 +20,7 @@
   },
   "TechnologyStack": {
     "dependency": "Dependencies of this Project",
-    "ptppHistory": "History of Project `PT Plugin Plus`",
+    "ptppHistory": "History of Project ` @:common.name `",
     "stackTableColumn": {
       "homepage": "Homepage",
       "name": "Name",
@@ -31,6 +31,9 @@
   "app": {
     "author": "ronggang",
     "test": "Test"
+  },
+  "topbar": {
+    "navBarTip": "Click to show/hide the navigation bar"
   },
   "common": {
     "dialog": {
