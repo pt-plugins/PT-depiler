@@ -55,7 +55,7 @@ class PTPlugin {
   public openOptionPage (path = '') {
     if (!path) { return; }
     let url = '/options.html';
-    if (path.substr(0, 1) === '/') {
+    if (path.slice(0, 1) === '/') {
       url += '#' + path;
     }
     if (this.optionsTabId === 0) {

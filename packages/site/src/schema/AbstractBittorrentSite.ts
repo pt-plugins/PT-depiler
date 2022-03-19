@@ -335,7 +335,7 @@ export default class BittorrentSite {
         // 虽不符合url规范，但是浏览器容错高，所以不用担心 2333
         const urlHelper = urlparse(baseUrl);
         url = `${urlHelper.protocol}:${uri}`;
-      } else if (uri.substr(0, 4) !== "http") {
+      } else if (uri.slice(0, 4) !== "http") {
         url = urljoin(baseUrl, uri.replace(/^\./, ""));
       }
     }

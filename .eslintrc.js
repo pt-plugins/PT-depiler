@@ -43,10 +43,23 @@ module.exports = {
     "no-empty": ["error", { allowEmptyCatch: true }],
     "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",
     "no-debugger": process.env.NODE_ENV === "production" ? "warn" : "off",
+    "vue/max-attributes-per-line": [
+      "warn",
+      {
+        singleline: {
+          max: 3,
+        },
+        multiline: {
+          max: 2,
+        },
+      },
+    ],
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/ban-ts-comment": process.env.NODE_ENV === "production" ? "warn" : "off",
-    "@typescript-eslint/no-inferrable-types": process.env.NODE_ENV === "production" ? "warn" : "off",
+    "@typescript-eslint/ban-ts-comment":
+      process.env.NODE_ENV === "production" ? "warn" : "off",
+    "@typescript-eslint/no-inferrable-types":
+      process.env.NODE_ENV === "production" ? "warn" : "off",
   },
 };
