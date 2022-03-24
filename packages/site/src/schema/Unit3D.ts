@@ -2,7 +2,7 @@ import PrivateSite from "../schema/AbstractPrivateSite";
 import { ISiteMetadata, IUserInfo, ETorrentStatus } from "../types";
 import { parseSizeString } from "../utils";
 import dayjs from "../utils/datetime";
-import urljoin from "url-join";
+import urlJoin from "url-join";
 
 /**
  * Trans Array
@@ -251,7 +251,7 @@ export default class Unit3D extends PrivateSite {
     userName: string
   ): Promise<Partial<IUserInfo>> {
     const { data: userDetailDocument } = await this.request<Document>({
-      url: urljoin("/users", userName),
+      url: urlJoin("/users", userName),
       responseType: "document",
     });
 

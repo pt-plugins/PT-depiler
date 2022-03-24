@@ -3,7 +3,6 @@ import { useStore } from '@/options/store';
 import { reactive, watch, computed } from 'vue';
 import { useToggle } from '@vueuse/core';
 import filesize from 'filesize';
-import { KeyboardArrowUpSharp, KeyboardArrowDownSharp, CircleOutlined } from '@vicons/material';
 import { getDownloader, CTorrentState,CTorrent,TorrentClientStatus,BittorrentClientBaseConfig } from '@ptpp/downloader';
 import { flatten } from 'lodash-es';
 
@@ -63,6 +62,8 @@ watch(isLiveUpdate, (liveUpdateStatus) => {
 </script>
 
 <template>
+<div></div>
+<!--
   <n-space vertical>
     <n-alert
       type="info"
@@ -92,7 +93,7 @@ watch(isLiveUpdate, (liveUpdateStatus) => {
                   type="primary"
                 >
                   Set.
-                </n-button><!-- TODO -->
+                </n-button>
               </n-space>
             </n-statistic>
           </n-grid-item>
@@ -138,10 +139,11 @@ watch(isLiveUpdate, (liveUpdateStatus) => {
       </n-space>
     </n-card>
     <n-card>
-      <n-data-table /><!-- TODO -->
+      <n-data-table />
       <pre>{{ JSON.stringify(totalTorrent, null, 2) }}</pre>
     </n-card>
   </n-space>
+  TODO -->
 </template>
 
 <style scoped>

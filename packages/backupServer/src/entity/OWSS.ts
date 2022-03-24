@@ -5,7 +5,7 @@ import type {
   IBackupMetadata,
   IBackupServer,
 } from "../type";
-import urljoin from "url-join";
+import urlJoin from "url-join";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
 interface OWSSConfig extends IBackupConfig {
@@ -73,9 +73,9 @@ export default class OWSS implements IBackupServer<OWSSConfig> {
     // 生成实际使用的访问链接
     let { address } = this.config;
     if (address.indexOf("storage") === -1) {
-      address = urljoin(address, "storage");
+      address = urlJoin(address, "storage");
     }
-    address = urljoin(address, this.config.config.authCode);
+    address = urlJoin(address, this.config.config.authCode);
     this.address = address;
   }
 
@@ -140,14 +140,14 @@ export default class OWSS implements IBackupServer<OWSSConfig> {
   public async deleteFile(path: string): Promise<boolean> {
     const { data } = await this.request<OWSSResponse<boolean>>({
       method: "post",
-      url: urljoin("/delete", path),
+      url: urlJoin("/delete", path),
     });
     return !!data.data;
   }
 
   public async getFile(path: string): Promise<Blob> {
     const { data } = await this.request<Blob>({
-      url: urljoin("/get", path),
+      url: urlJoin("/get", path),
       responseType: "blob",
     });
     return data;

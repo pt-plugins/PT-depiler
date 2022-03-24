@@ -2,7 +2,7 @@ import type { AxiosRequestConfig } from "axios";
 import type { ISearchFilter, ISiteMetadata } from "../types";
 import PrivateSite from "../schema/AbstractPrivateSite";
 import Sizzle from "sizzle";
-import urljoin from "url-join";
+import urlJoin from "url-join";
 import dayjs from "../utils/datetime";
 import { parseSizeString } from "../utils";
 
@@ -224,7 +224,7 @@ export default class torrentleech extends PrivateSite {
     }
 
     return {
-      url: urljoin(urlSearch),
+      url: urlJoin(urlSearch),
       responseType: "json",
     };
   }

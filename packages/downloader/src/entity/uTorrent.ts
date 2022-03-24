@@ -11,7 +11,7 @@ import {
   CTorrentState,
   TorrentClientStatus,
 } from "../types";
-import urljoin from "url-join";
+import urlJoin from "url-join";
 import axios from "axios";
 import { getRemoteTorrentFile } from "../utils";
 import parseTorrent, { Instance as TorrentInstance } from "parse-torrent";
@@ -116,7 +116,7 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
     // 修正GUI地址
     this.address = this.config.address;
     if (this.address.indexOf("gui") === -1) {
-      this.address = urljoin(this.address, "/gui/"); // 注意，最后一个slashes一定要存在
+      this.address = urlJoin(this.address, "/gui/"); // 注意，最后一个slashes一定要存在
     } else if (!/\/gui\/$/.exec(this.address)) {
       this.address = this.address + "/";
     }

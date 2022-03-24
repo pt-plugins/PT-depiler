@@ -16,7 +16,7 @@ import {
 import type { TQueryFilter } from "../utils";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import Sizzle from "sizzle";
-import urljoin from "url-join";
+import urlJoin from "url-join";
 import urlparse from "url-parse";
 import { chunk, get, merge, mergeWith, pick } from "lodash-es";
 import {
@@ -336,7 +336,7 @@ export default class BittorrentSite {
         const urlHelper = urlparse(baseUrl);
         url = `${urlHelper.protocol}:${uri}`;
       } else if (uri.slice(0, 4) !== "http") {
-        url = urljoin(baseUrl, uri.replace(/^\./, ""));
+        url = urlJoin(baseUrl, uri.replace(/^\./, ""));
       }
     }
 

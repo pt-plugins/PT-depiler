@@ -14,7 +14,7 @@ import {
   AbstractBittorrentClient,
 } from "../types";
 import { getRemoteTorrentFile } from "../utils";
-import urljoin from "url-join";
+import urlJoin from "url-join";
 
 export const clientConfig: BittorrentClientBaseConfig = {
   type: "Aria2",
@@ -150,7 +150,7 @@ export default class Aria2 extends AbstractBittorrentClient {
     // 修正服务器地址
     let address = this.config.address;
     if (address.indexOf("jsonrpc") === -1) {
-      address = urljoin(address, "/jsonrpc");
+      address = urlJoin(address, "/jsonrpc");
     }
     this.config.address = address;
 

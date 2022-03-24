@@ -18,7 +18,7 @@ import {
   TorrentClientStatus,
 } from "../types";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import urljoin from "url-join";
+import urlJoin from "url-join";
 import { getRemoteTorrentFile } from "../utils";
 
 export const clientConfig: TorrentClientConfig = {
@@ -437,7 +437,7 @@ export default class Flood extends AbstractBittorrentClient {
       await this.ping();
 
       const r = await legacyActivityStreamWrapper(
-        urljoin(this.config.address, "/api/activity-stream"),
+        urlJoin(this.config.address, "/api/activity-stream"),
         "TORRENT_LIST_FULL_UPDATE"
       );
 

@@ -6,8 +6,12 @@ import {
 export * from "./types";
 export { getRemoteTorrentFile } from "./utils";
 
-// 动态生成支持列表
-const requireContext = require.context("./entity/", true, /\.ts$/);
+// @ts-ignore 动态生成支持列表
+const requireContext = import.meta.webpackContext('./entity/', {
+  regExp: /\.ts$/,
+  chunkName: "lib/downloader/[request]",
+  mode: 'lazy'
+});
 
 export const entityList = requireContext.keys().map((value) => {
   return value.replace(/^\.\//, "").replace(/\.ts$/, "");

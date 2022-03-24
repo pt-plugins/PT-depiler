@@ -12,7 +12,7 @@ import {
   CTorrentState,
   TorrentClientStatus,
 } from "../types";
-import urljoin from "url-join";
+import urlJoin from "url-join";
 import axios, { AxiosResponse } from "axios";
 import { getRemoteTorrentFile } from "../utils";
 
@@ -250,7 +250,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     // 修正服务器地址
     let address = this.config.address;
     if (address.indexOf("rpc") === -1) {
-      address = urljoin(address, "/transmission/rpc");
+      address = urlJoin(address, "/transmission/rpc");
     }
     this.address = address;
   }

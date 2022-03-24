@@ -1,6 +1,6 @@
 import type { ISearchFilter, ISearchParams, ISiteMetadata } from "../types";
 import type { AxiosRequestConfig } from "axios";
-import urljoin from "url-join";
+import urlJoin from "url-join";
 import dayjs from "../utils/datetime";
 import BittorrentSite from "../schema/AbstractBittorrentSite";
 
@@ -205,7 +205,7 @@ export default class x1337x extends BittorrentSite {
        *  - /category-search/Ntb/Movies/1/
        *  - /sort-category-search/Ntb/Movies/time/desc/1/
        */
-      url: urljoin(
+      url: urlJoin(
         searchPath,
         keywords || "",
         String(category?.value || ""),

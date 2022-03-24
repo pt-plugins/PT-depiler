@@ -13,7 +13,7 @@ import {
   CTorrentState,
   TorrentClientStatus,
 } from "../types";
-import urljoin from "url-join";
+import urlJoin from "url-join";
 import axios, { AxiosRequestConfig } from "axios";
 import { getRemoteTorrentFile } from "../utils";
 
@@ -394,7 +394,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
     return (
       await axios.request<SynologyResponse<T>>({
         baseURL: this.config.address,
-        url: urljoin("webapi", cgi),
+        url: urlJoin("webapi", cgi),
         timeout: this.config.timeout,
         withCredentials: false,
         ...config,

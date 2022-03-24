@@ -15,7 +15,7 @@ import {
   TorrentClientStatus,
 } from "../types";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import urljoin from "url-join";
+import urlJoin from "url-join";
 import { getRemoteTorrentFile } from "../utils";
 
 export const clientConfig: TorrentClientConfig = {
@@ -212,7 +212,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     form.append("password", this.config.password);
 
     return await axios.post(
-      urljoin(this.config.address, "/api/v2", "/auth/login"),
+      urlJoin(this.config.address, "/api/v2", "/auth/login"),
       form,
       {
         timeout: this.config.timeout,
@@ -231,7 +231,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
 
     return await axios.request<T>({
       baseURL: this.config.address,
-      url: urljoin("/api/v2", path),
+      url: urlJoin("/api/v2", path),
       timeout: this.config.timeout,
       ...config,
     });

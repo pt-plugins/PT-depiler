@@ -5,8 +5,19 @@ import BittorrentSite from "./schema/AbstractBittorrentSite";
 import PrivateSite from "./schema/AbstractPrivateSite";
 export { BittorrentSite, PrivateSite };
 
-const schemaContent = require.context("./schema/", false, /\.ts$/, "eager");
-const definitionContent = require.context("./definitions/", false, /\.ts$/);
+// @ts-ignore 
+const schemaContent = import.meta.webpackContext('./schema/', {
+  regExp: /\.ts$/,
+  chunkName: "lib/site/schema/[request]",
+  mode: 'lazy'
+});
+
+// @ts-ignore 
+const definitionContent = import.meta.webpackContext('./definitions/', {
+  regExp: /\.ts$/,
+  chunkName: "lib/site/definitions/[request]",
+  mode: 'lazy'
+});
 
 function transContent(value: string) {
   return value.replace(/^\.\//, "").replace(/\.ts$/, "");

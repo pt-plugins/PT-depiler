@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import axios from 'axios';
-import marked from 'marked';
+import { marked } from 'marked';
 import { useI18n } from 'vue-i18n';
 import { useStorage } from '@vueuse/core';
 import { REPO_URL, REPO_API, getFullVersion, VersionDetail } from '@/shared/constants';
@@ -92,7 +92,7 @@ if (updateVersion) {
         </template>
         <div
           class="markdown-body release-content"
-          v-html="marked(versionData.releaseContent)"
+          v-html="marked.parse(versionData.releaseContent)"
         />
       </n-card>
     </n-grid-item>

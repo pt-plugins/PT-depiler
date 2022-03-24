@@ -1,10 +1,14 @@
 import type { IBackupConfig, IBackupServer, IBackupMetadata } from "./type";
 export * from "./type";
 
-// 动态生成支持列表
-const requireContext = require.context("./entity/", false, /\.ts$/);
+// @ts-ignore 动态生成支持列表
+const requireContext = import.meta.webpackContext('./entity/', {
+  regExp: /\.ts$/,
+  chunkName: "lib/backupServer/[request]",
+  mode: 'lazy'
+});
 
-export const entityList = requireContext.keys().map((value) => {
+export const entityList = requireContext.keys().map((value: string) => {
   return value.replace(/^\.\//, "").replace(/\.ts$/, "");
 });
 

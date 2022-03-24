@@ -1,14 +1,9 @@
 <script lang="ts" setup>
 import { h, ref, provide } from 'vue';
 import { useI18n } from 'vue-i18n';
-import { NA, NIcon, NText, useDialog, NButton, NPopconfirm } from 'naive-ui';
-import { AddSharp, MinusSharp, EditSharp, DeleteSharp } from '@vicons/material';
 import { useStore } from '@/options/store';
-import AddClient from '@/options/components/Settings/setClient/AddClient.vue';
-import EditClient from '@/options/components/Settings/setClient/EditClient.vue';
 
 const { t } = useI18n();
-const dialog = useDialog();
 const store = useStore();
 
 const clientConfig = ref<any>({});
@@ -20,6 +15,7 @@ provide('showAddModal', showAddModal);
 const showEditModal = ref(false);
 provide('showEditModal', showEditModal);
 
+/*
 const setClientColumn = [
   {
     type: 'selection'
@@ -116,9 +112,12 @@ function deleteMultiClientsDialog () {
     }
   });
 }
+*/
 </script>
 
 <template>
+<div></div>
+<!--
   <n-space vertical>
     <n-alert
       type="info"
@@ -177,6 +176,7 @@ function deleteMultiClientsDialog () {
 
   <AddClient />
   <EditClient />
+  -->
 </template>
 
 <style scoped></style>

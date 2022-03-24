@@ -12,7 +12,7 @@ import {
   TorrentClientStatus,
   AbstractBittorrentClient,
 } from "../types";
-import urljoin from "url-join";
+import urlJoin from "url-join";
 import axios from "axios";
 import { getRemoteTorrentFile } from "../utils";
 
@@ -180,7 +180,7 @@ export default class Deluge extends AbstractBittorrentClient {
     // 修正服务器地址
     let address = this.config.address;
     if (address.indexOf("json") === -1) {
-      address = urljoin(address, "/json");
+      address = urlJoin(address, "/json");
     }
     this.address = address;
   }

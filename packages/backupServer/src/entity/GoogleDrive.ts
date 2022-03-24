@@ -27,7 +27,7 @@ import type {
 import { EListOrderBy, EListOrderMode } from "../type";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import { sleep } from "@ptpp/util/filter";
-import urljoin from "url-join";
+import urlJoin from "url-join";
 
 interface GoogleDriveConfig extends IBackupConfig {
   config: {
@@ -220,7 +220,7 @@ export default class GoogleDrive implements IBackupServer<GoogleDriveConfig> {
 
   async getFile(path: string): Promise<Blob> {
     const { data } = await this.request<Blob>({
-      url: urljoin(this.ApiEndpoint, path),
+      url: urlJoin(this.ApiEndpoint, path),
       // If you provide the URL parameter alt=media, then the response includes the file contents in the response body.
       params: { alt: "media" },
       responseType: "blob",
@@ -233,7 +233,7 @@ export default class GoogleDrive implements IBackupServer<GoogleDriveConfig> {
     try {
       await this.request({
         method: "delete",
-        url: urljoin(this.ApiEndpoint, path),
+        url: urlJoin(this.ApiEndpoint, path),
       });
       return true;
     } catch (e) {
