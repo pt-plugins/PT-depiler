@@ -5,7 +5,6 @@ importers:
   .:
     specifiers:
       '@babel/eslint-parser': ^7.17.0
-      '@fortawesome/fontawesome-free': ^5.15.4
       '@intlify/vue-i18n-loader': ^4.1.0
       '@mdi/font': 6.6.95
       '@ptpp/backupserver': workspace:*
@@ -66,7 +65,6 @@ importers:
       vuetify: 3.0.0-beta.0
       webextension-polyfill: ^0.8.0
     dependencies:
-      '@fortawesome/fontawesome-free': 5.15.4
       '@mdi/font': 6.6.95
       '@ptpp/backupserver': link:packages/backupServer
       '@ptpp/downloader': link:packages/downloader
@@ -1450,12 +1448,6 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: true
-
-  /@fortawesome/fontawesome-free/5.15.4:
-    resolution: {integrity: sha512-eYm8vijH/hpzr/6/1CJ/V/Eb1xQFW2nnUKArb3z+yUWv7HTwj6M7SP957oMjfZjAHU6qpoNc2wQvIxBLWYa/Jg==}
-    engines: {node: '>=6'}
-    requiresBuild: true
-    dev: false
 
   /@hapi/hoek/9.2.1:
     resolution: {integrity: sha512-gfta+H8aziZsm8pZa0vj04KO6biEiisppNgA1kbJvFrrWu9Vm7eaUEy76DIxsuTaWvti5fkJVhllWc6ZTE+Mdw==}
