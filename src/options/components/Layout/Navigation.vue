@@ -1,8 +1,16 @@
 <script lang="ts" setup>
 import { useStore } from "@/options/store";
+import { useDisplay } from "vuetify";
 import { routes } from "../../router";
+import { watch } from "vue";
 
 const store = useStore();
+
+// 当页面窗口大小发生变化时，调整 Navigation 的显示
+const display = useDisplay();
+watch(display.mdAndUp, () => {
+  store.uiOptions.navBarIsOpen = display.mdAndUp.value;
+});
 
 // 自动从router.ts生成目录
 const menuOptions = routes
@@ -32,8 +40,7 @@ const menuOptions = routes
     :width="220"
   >
     <v-list
-      v-for="(group, groupIndex) in menuOptions"
-      :key="groupIndex"
+      v-for="(group, groupIndex) in menuOptions" :key="groupIndex"
       nav
       density="compact"
     >
