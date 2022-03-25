@@ -1,6 +1,5 @@
 import type { ISiteMetadata, IUserInfo } from "../types";
 import GazelleJSONAPI from "../schema/GazelleJSONAPI";
-import urlparse from "url-parse";
 import Sizzle from "sizzle";
 import { parseSizeString } from "../utils";
 
@@ -47,7 +46,7 @@ export default class snakepop extends GazelleJSONAPI {
           attr: "href",
           filters: [
             (query: string) =>
-              parseInt(urlparse(query, true).query.page as string) || -1,
+              parseInt(new URL(query).searchParams.get('page') || '-1'),
           ],
         });
       }

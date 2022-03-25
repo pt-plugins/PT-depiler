@@ -10,13 +10,11 @@
     "lodash-es": "^4.17.20",
     "sizzle": "^2.3.5",
     "url-join": "^5.0.0",
-    "url-parse": "^1.4.7",
     "urlencode": "^1.1.0"
   },
   "devDependencies": {
     "@types/lodash-es": "^4.17.4",
     "@types/sizzle": "^2.3.3",
-    "@types/url-parse": "^1.4.3",
     "@types/urlencode": "^1.1.2",
     "typescript": "^4.6.2"
   },

@@ -1,6 +1,5 @@
 import type { AxiosRequestConfig } from "axios";
 import type { ISearchFilter, ISiteMetadata } from "../types";
-import urlparse from "url-parse";
 import BittorrentSite from "../schema/AbstractBittorrentSite";
 
 export const siteMetadata: ISiteMetadata = {
@@ -97,10 +96,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: "td:nth-child(1) a",
         attr: "href",
         filters: [
-          (q: string) => {
-            const cat = urlparse(q, true).query.cat;
-            return cat || "Other";
-          },
+          (q: string) => (new URL(q)).searchParams.get('cat') || "Other",
         ],
       },
       author: { selector: "td:nth-child(8)" },

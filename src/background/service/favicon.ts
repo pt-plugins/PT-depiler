@@ -16,7 +16,6 @@
 import axios from "axios";
 import * as localforage from "localforage";
 import browser from "webextension-polyfill";
-import urlparse from "url-parse";
 import { BittorrentSite } from "@ptpp/site";
 
 // from: https://stackoverflow.com/a/9967193/8824471
@@ -114,7 +113,7 @@ class Favicon {
   }
 
   public async getFaviconFromUrl(url: string): Promise<Blob> {
-    const baseUrl = urlparse(url);
+    const baseUrl = new URL(url);
 
     const { data: doc } = await axios.get<Document>(url, { responseType: "document" });
 

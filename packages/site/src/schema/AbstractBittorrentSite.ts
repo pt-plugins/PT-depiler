@@ -17,7 +17,6 @@ import type { TQueryFilter } from "../utils";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import Sizzle from "sizzle";
 import urlJoin from "url-join";
-import urlparse from "url-parse";
 import { chunk, get, merge, mergeWith, pick } from "lodash-es";
 import {
   runFilter,
@@ -91,7 +90,7 @@ export default class BittorrentSite {
 
       // 防止host信息缺失
       if (!this._config.host) {
-        this._config.host = urlparse(this._config.url).host;
+        this._config.host = new URL(this._config.url).host;
       }
 
       if (this._config.category && this._config.search) {
@@ -333,7 +332,7 @@ export default class BittorrentSite {
       if (uri.startsWith("//")) {
         // 当 传入的uri 以 /{2,} 开头时，被转换成类似 https?:///xxxx/xxxx 的形式，
         // 虽不符合url规范，但是浏览器容错高，所以不用担心 2333
-        const urlHelper = urlparse(baseUrl);
+        const urlHelper = new URL(baseUrl);
         url = `${urlHelper.protocol}:${uri}`;
       } else if (uri.slice(0, 4) !== "http") {
         url = urlJoin(baseUrl, uri.replace(/^\./, ""));

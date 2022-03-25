@@ -1,4 +1,3 @@
-import urlparse from "url-parse";
 import { parseSizeString } from "./filesize";
 import { parseValidTimeString, parseTimeToLive } from "./datetime";
 
@@ -60,7 +59,7 @@ export function runFilter(query: any, filter: IDefinedQueryFilter): any {
     }
     case "querystring": {
       const queryName = filter.args![0];
-      return urlparse(query, true).query[queryName] || "";
+      return (new URL(query)).searchParams.get(queryName) || "";
     }
     default:
       return query;

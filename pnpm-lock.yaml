@@ -15,7 +15,6 @@ importers:
       '@types/node': ^16.11.26
       '@types/sizzle': ^2.3.3
       '@types/ua-parser-js': ^0.7.36
-      '@types/url-parse': ^1.4.8
       '@types/webextension-polyfill': ^0.8.2
       '@typescript-eslint/eslint-plugin': ^5.16.0
       '@typescript-eslint/parser': ^5.16.0
@@ -53,7 +52,6 @@ importers:
       typescript: ^4.6.2
       ua-parser-js: ^1.0.2
       url-join: ^5.0.0
-      url-parse: ^1.5.10
       vue: ^3.2.31
       vue-cli-plugin-browser-extension: github:Rhilip/vue-cli-plugin-browser-extension
       vue-cli-plugin-i18n: ^2.3.1
@@ -86,7 +84,6 @@ importers:
       sizzle: 2.3.6
       ua-parser-js: 1.0.2
       url-join: 5.0.0
-      url-parse: 1.5.10
       vue: 3.2.31
       vue-i18n: 9.1.9_vue@3.2.31
       vue-router: 4.0.14_vue@3.2.31
@@ -100,7 +97,6 @@ importers:
       '@types/node': 16.11.26
       '@types/sizzle': 2.3.3
       '@types/ua-parser-js': 0.7.36
-      '@types/url-parse': 1.4.8
       '@types/webextension-polyfill': 0.8.2
       '@typescript-eslint/eslint-plugin': 5.16.0_3fed250b11519414a4c7d52468dd6bf5
       '@typescript-eslint/parser': 5.16.0_eslint@8.11.0+typescript@4.6.2
@@ -130,47 +126,39 @@ importers:
   packages/backupServer:
     specifiers:
       '@ptpp/util': workspace:*
-      '@types/url-parse': ^1.4.3
       axios: ^0.26.0
       lodash-es: ^4.17.21
       typescript: ^4.6.2
       url-join: ^5.0.0
-      url-parse: ^1.4.7
       webdav: ^4.8.0
     dependencies:
       '@ptpp/util': link:../util
       axios: 0.26.0
       lodash-es: 4.17.21
       url-join: 5.0.0
-      url-parse: 1.5.10
       webdav: 4.8.0
     devDependencies:
-      '@types/url-parse': 1.4.8
       typescript: 4.6.2
 
   packages/downloader:
     specifiers:
       '@types/content-disposition': ^0.5.3
       '@types/parse-torrent': ^5.8.3
-      '@types/url-parse': ^1.4.3
       axios: ^0.26.0
       buffer: ^6.0.3
       content-disposition: ^0.5.3
       parse-torrent: ^9.1.3
       typescript: ^4.6.2
       url-join: ^5.0.0
-      url-parse: ^1.4.7
     dependencies:
       axios: 0.26.0
       buffer: 6.0.3
       content-disposition: 0.5.4
       parse-torrent: 9.1.4
       url-join: 5.0.0
-      url-parse: 1.5.10
     devDependencies:
       '@types/content-disposition': 0.5.4
       '@types/parse-torrent': 5.8.4
-      '@types/url-parse': 1.4.8
       typescript: 4.6.2
 
   packages/site:
@@ -178,7 +166,6 @@ importers:
       '@ptpp/util': workspace:*
       '@types/lodash-es': ^4.17.4
       '@types/sizzle': ^2.3.3
-      '@types/url-parse': ^1.4.3
       '@types/urlencode': ^1.1.2
       axios: ^0.26.0
       chrono-node: ^2.2.7
@@ -187,7 +174,6 @@ importers:
       sizzle: ^2.3.5
       typescript: ^4.6.2
       url-join: ^5.0.0
-      url-parse: ^1.4.7
       urlencode: ^1.1.0
     dependencies:
       '@ptpp/util': link:../util
@@ -197,12 +183,10 @@ importers:
       lodash-es: 4.17.21
       sizzle: 2.3.6
       url-join: 5.0.0
-      url-parse: 1.5.10
       urlencode: 1.1.0
     devDependencies:
       '@types/lodash-es': 4.17.6
       '@types/sizzle': 2.3.3
-      '@types/url-parse': 1.4.8
       '@types/urlencode': 1.1.2
       typescript: 4.6.2
 
@@ -1869,10 +1853,6 @@ packages:
 
   /@types/ua-parser-js/0.7.36:
     resolution: {integrity: sha512-N1rW+njavs70y2cApeIw1vLMYXRwfBy+7trgavGuuTfOd7j1Yh7QTRc/yqsPl6ncokt72ZXuxEU0PiCp9bSwNQ==}
-    dev: true
-
-  /@types/url-parse/1.4.8:
-    resolution: {integrity: sha512-zqqcGKyNWgTLFBxmaexGUKQyWqeG7HjXj20EuQJSJWwXe54BjX0ihIo5cJB9yAQzH8dNugJ9GvkBYMjPXs/PJw==}
     dev: true
 
   /@types/urlencode/1.1.2:

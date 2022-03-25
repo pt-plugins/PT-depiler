@@ -5,7 +5,6 @@
 import { ISiteMetadata, IUserInfo } from "../types";
 import PrivateSite from "../schema/AbstractPrivateSite";
 import dayjs from "../utils/datetime";
-import urlparse from "url-parse";
 import Sizzle from "sizzle";
 
 export default class AvistaZ extends PrivateSite {
@@ -175,7 +174,7 @@ export default class AvistaZ extends PrivateSite {
             attr: "href",
             filters: [
               (query: string) =>
-                parseInt(urlparse(query, true).query.page as string) || 1,
+                parseInt(new URL(query).searchParams.get('page') || '1'),
             ],
           });
         }

@@ -1,7 +1,6 @@
 import PrivateSite from "../schema/AbstractPrivateSite";
 import { ISiteMetadata, IUserInfo, ETorrentStatus, ITorrent } from "../types";
 import Sizzle from "sizzle";
-import urlparse from "url-parse";
 import { merge, mergeWith } from "lodash-es";
 import dayjs from "../utils/datetime";
 import {
@@ -41,7 +40,7 @@ export default class NexusPHP extends PrivateSite {
           ...baseLinkQuery,
           filters: [
             (query: string) =>
-              "/details.php?id=" + urlparse(query, true).query.id,
+              "/details.php?id=" + new URL(query).searchParams.get('id'),
           ],
         }, // 种子页面链接
         id: {

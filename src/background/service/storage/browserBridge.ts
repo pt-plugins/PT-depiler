@@ -1,10 +1,10 @@
 import browser from 'webextension-polyfill';
 
 export default abstract class BrowserBridge {
-  protected data: any
+  protected data: any;
   protected abstract configKey: string
 
-  private readonly emptyData?: any
+  private readonly emptyData?: any;
 
   // noinspection TypeScriptAbstractClassConstructorCanBeMadeProtected
   constructor () {

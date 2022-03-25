@@ -1,5 +1,4 @@
 import { ISiteMetadata, IUserInfo, ETorrentStatus } from "../types";
-import urlparse from "url-parse";
 import dayjs from "../utils/datetime";
 import { parseSizeString } from "../utils";
 import PrivateSite from "../schema/AbstractPrivateSite";
@@ -176,7 +175,7 @@ export default class hdtorrents extends PrivateSite {
           pageInfo.count = this.getFieldData(TListDocument, {
             selector: ["a[href*='activepage']:contains('1'):last"],
             attr: "href",
-            filters: [(query: string) => parseInt(urlparse(query, true).query.activepage as string) || -1],
+            filters: [(query: string) => parseInt((new URL(query)).searchParams.get('activepage') as string) || -1],
           });
         }
 

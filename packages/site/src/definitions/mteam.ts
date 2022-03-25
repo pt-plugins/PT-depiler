@@ -1,7 +1,6 @@
 import { ISiteMetadata, ETorrentStatus } from "../types";
 import NexusPHP from "../schema/NexusPHP";
 import { createDocument } from "../utils";
-import urlparse from "url-parse";
 
 export const siteMetadata: ISiteMetadata = {
   name: "M-Team",
@@ -160,7 +159,7 @@ export default class mteam extends NexusPHP {
           pageInfo.count = this.getFieldData(TListDocument, {
             selector: ["a[href*='page=']:contains('-'):last"],
             attr: "href",
-            filters: [(query: string) => parseInt(urlparse(query, true).query.page as string) || -1],
+            filters: [(query: string) => parseInt(new URL(query).searchParams.get('page') || '-1')],
           });
         }
 

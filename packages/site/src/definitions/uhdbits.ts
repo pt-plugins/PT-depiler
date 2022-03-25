@@ -1,6 +1,5 @@
 import type { ISiteMetadata, IUserInfo, ITorrent } from "../types";
 import Sizzle from "sizzle";
-import urlparse from "url-parse";
 import { parseSizeString } from "../utils";
 import GazelleJSONAPI from "../schema/GazelleJSONAPI";
 
@@ -45,8 +44,10 @@ export const siteMetadata: ISiteMetadata = {
         attr: "href",
         filters: [
           (query: string) => {
-            const urlParse = urlparse(query, true).query;
-            return urlParse.torrentid || urlParse.id;
+            const urlSearchParams = new URL(query).searchParams;
+            return (
+              urlSearchParams.get("torrentid") || urlSearchParams.get("id")
+            );
           },
         ],
       },
@@ -177,7 +178,7 @@ export default class uhdbits extends GazelleJSONAPI {
           attr: "href",
           filters: [
             (query: string) =>
-              parseInt(urlparse(query, true).query.page as string) || -1,
+              parseInt(new URL(query).searchParams.get("page") || "-1"),
           ],
         });
       }

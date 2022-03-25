@@ -1,6 +1,5 @@
 import type { ISiteMetadata, IUserInfo, ITorrent } from "../types";
 import Sizzle from "sizzle";
-import urlparse from "url-parse";
 import Gazelle from "../schema/Gazelle";
 import { parseSizeString } from "../utils";
 
@@ -211,7 +210,7 @@ export default class jpopsuki extends Gazelle {
           pageInfo.count = this.getFieldData(TListDocument, {
             selector: ["a[href*='torrents.php?page=']:contains('Last'):last"],
             attr: "href",
-            filters: [(query: string) => parseInt(urlparse(query, true).query.page as string) || -1],
+            filters: [(query: string) => parseInt(new URL(query).searchParams.get('page') || '-1')],
           });
         }
 

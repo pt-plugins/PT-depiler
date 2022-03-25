@@ -1,7 +1,7 @@
-import { nanoid } from 'nanoid'
-import { EConfigKey } from '@/shared/interfaces/enum';
-import { LogItem } from '@/shared/interfaces/common';
-import BrowserBridge from '@/background/service/storage/browserBridge';
+import { nanoid } from "nanoid";
+import { EConfigKey } from "@/shared/interfaces/enum";
+import { LogItem } from "@/shared/interfaces/common";
+import BrowserBridge from "@/background/service/storage/browserBridge";
 
 class Logger extends BrowserBridge {
   protected maxLength = 100;
@@ -12,14 +12,16 @@ class Logger extends BrowserBridge {
    * 添加日志
    * @param data 日志信息
    */
-  public async add (data: Partial<LogItem>): Promise<string> {
+  public async add(data: Partial<LogItem>): Promise<string> {
     // 如果超出了最大值，则删除最早的记录
     if (this.data.length > this.maxLength) {
       this.data.splice(0, 1);
     }
 
-    data.id = nanoid(); // 不使用外部传入 ID 和时间戳
+    // 不使用外部传入 ID 和时间戳
+    data.id = nanoid();
     data.time = new Date().getTime();
+
     this.data.push(<LogItem>data);
     await this.save();
 
@@ -30,11 +32,11 @@ class Logger extends BrowserBridge {
    * 删除历史记录，返回总共删除的数量
    * @param logIds 需要删除的记录ids
    */
-  async remove (logIds: string[]):Promise<number> {
+  async remove(logIds: string[]): Promise<number> {
     let removeCount = 0;
 
-    logIds.forEach(logId => {
-      const findIndex = this.data.findIndex(rec => rec.id === logId);
+    logIds.forEach((logId) => {
+      const findIndex = this.data.findIndex((rec) => rec.id === logId);
       if (findIndex > 0) {
         this.data.splice(findIndex, 1);
         removeCount++;

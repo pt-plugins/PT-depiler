@@ -1,5 +1,4 @@
 import type { ISiteMetadata } from "../types";
-import urlparse from "url-parse";
 
 export const siteMetadata: ISiteMetadata = {
   name: "AB",
@@ -15,7 +14,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: ["#stats_menu > a:first"],
         attr: "href",
-        filters: [(query: string) => parseInt(urlparse(query, true).query.userid || "")],
+        filters: [{ name: "querystring", args: ["userid"] }, parseInt],
       },
       name: {
         selector: ["a.username:first"],
