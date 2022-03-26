@@ -27,7 +27,7 @@ const appendMenu : Array<{title: string, icon: string, [str: string]: any}> = [
 </script>
 
 <template>
-  <v-app-bar id="system-topbar" app color="amber">
+  <v-app-bar id="ptpp-topbar" app color="amber">
     <template #prepend>
       <v-app-bar-nav-icon
         :title="$t('topbar.navBarTip')"

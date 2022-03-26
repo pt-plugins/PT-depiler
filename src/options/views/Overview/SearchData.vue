@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  {{ $route.query.searchKey }}
+  SearchData
 </template>
 
 <style scoped>
