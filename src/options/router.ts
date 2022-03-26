@@ -117,15 +117,15 @@ export const routes: RouteRecordRaw[] = [
       {
         path: '/change-log',
         name: 'ChangeLog',
-        meta: { icon: 'TrackChangesSharp' },
+        meta: { icon: 'mdi-radar' },
         component: () => dynamicImportView('About/ChangeLog')
       },
-      /**{
+      {
         path: '/dev-team',
         name: 'DevTeam',
-        meta: { icon: 'PeopleSharp' },
+        meta: { icon: 'mdi-account-multiple' },
         component: () => dynamicImportView('About/DevTeam')
-      },*/
+      },
       /**{
         path: '/donate',
         name: 'Donate',

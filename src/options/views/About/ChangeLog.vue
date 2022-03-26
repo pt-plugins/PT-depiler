@@ -9,7 +9,7 @@ import {
   getFullVersion
 } from "@/shared/constants";
 
-const version = getFullVersion(); version.main = 'v1.5.2';
+const version = getFullVersion();
 const releasePage = `${REPO_URL}/releases/tag/${version.main}`;
 
 enum VersionLoadStatus { loading, fail }
@@ -60,12 +60,12 @@ if (typeof commitData.value.sha === 'undefined' || !commitData.value.sha.startsW
 
         <v-card-text>
           <div v-if="releaseData.body" v-html="marked.parse(releaseData.body)"></div>
-          <template
+          <div
             v-else-if="loadStatus === VersionLoadStatus.loading"
-          >{{ $t("ChangeLog.loading", { releasePage }) }}</template>
-          <template
+          >{{ $t("ChangeLog.loading", { releasePage }) }}</div>
+          <div
             v-else-if="loadStatus === VersionLoadStatus.fail"
-          >{{ $t("ChangeLog.loadFail", { releasePage }) }}</template>
+          >{{ $t("ChangeLog.loadFail", { releasePage }) }}</div>
         </v-card-text>
       </v-card>
     </v-col>
@@ -76,14 +76,12 @@ if (typeof commitData.value.sha === 'undefined' || !commitData.value.sha.startsW
         <v-card-header>
           <v-card-header-text>{{ $t("ChangeLog.noteCommit") }}</v-card-header-text>
         </v-card-header>
-
-        <v-card-text>
-          Commit&nbsp;
+        <v-card-subtitle>
           <a :href="commitData.html_url" target="_blank">{{ version.hash }}</a>&nbsp;
           (
-          <v-icon icon="mdi-plus"></v-icon>
+          <v-icon icon="mdi-plus" />
           {{ commitData.stats!.additions }}&nbsp;
-          <v-icon icon="mdi-minus"></v-icon>
+          <v-icon icon="mdi-minus" />
           {{ commitData.stats!.deletions }}) &nbsp;
           by&nbsp;
           <a
@@ -91,6 +89,9 @@ if (typeof commitData.value.sha === 'undefined' || !commitData.value.sha.startsW
             target="_blank"
           >@{{ commitData.author!.login }}</a>
           )
+        </v-card-subtitle>
+
+        <v-card-text>
           <div class="markdown-body commit-detail">
             <pre>{{ commitData.commit!.message }}</pre>
           </div>
