@@ -28,6 +28,7 @@ module.exports = {
 
   rules: {
     semi: ["error", "always"],
+    quotes: ["error", "double", { avoidEscape: true }],
     "max-len": [
       "warn",
       {

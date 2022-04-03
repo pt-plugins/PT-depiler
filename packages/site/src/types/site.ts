@@ -62,14 +62,12 @@ export type listSelectors = {
   }[];
 }; // Tags相关选择器
 
-export class AppendArray extends Array {}
-export class PrependArray extends Array {}
-
 /**
  * 站点配置，这部分配置由系统提供，并随着每次更新而更新，不受用户配置的任何影响
  * 当且仅当 基于模板构建时，该部分配置可以由用户修改
  */
 export interface ISiteMetadata {
+  id?: string;   // 如有，必须和站点文件名（无扩展）相同
   name: string; // 站点名
   aka?: string | string[]; // 站点别名
   description?: string; // 站点说明
@@ -105,13 +103,13 @@ export interface ISiteMetadata {
   legacyUrl?: SiteUrl[];
 
   /**
-   * 站点图标，具体处理过程见 `favicon.ts` 的说明
+   * 站点图标，具体处理过程见 `../utils/favicon.ts` 的说明
    * 此处可以不填，也可以是：
-   *  - 站点 favicon.ico 的完整url，例如 https://xxxx.site/favicon.ico   （从http开始写）
-   *  - 本地 ./public/assets/sites 下的 {name}.png 文件   (写法 /assets/sites/{name}.png )
+   *  - 站点 favicon.ico 的完整url，例如 https://xxxx.site/favicon.ico   （从 `http` 开始写）
+   *  - 本地 ../icons/ 目录下的文件，例如 ./{name}.png 或 ./{name}.ico     （从 `./` 开始写）
    *  - `data:image/` 开头的Base64字符串 （不会有人这么做吧，一定过不了 Code Review 的）
    */
-  favicon?: string | `data:image/${string}` | `/assets/sites/${string}.png`;
+  favicon?: `${fullUrl}${string}` | `data:image/${string}` | `./${string}.${"png" | "ico"}`;
 
   /**
    * 站点是否已经死亡，死亡站点不再进行任何数据获取的交互。

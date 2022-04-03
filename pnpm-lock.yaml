@@ -172,6 +172,7 @@ importers:
       axios: ^0.26.0
       chrono-node: ^2.2.7
       dayjs: ^1.11.0
+      localforage: ^1.10.0
       lodash-es: ^4.17.20
       sizzle: ^2.3.5
       typescript: ^4.6.2
@@ -182,6 +183,7 @@ importers:
       axios: 0.26.0
       chrono-node: 2.3.7
       dayjs: 1.11.0
+      localforage: 1.10.0
       lodash-es: 4.17.21
       sizzle: 2.3.6
       url-join: 5.0.0
@@ -1472,8 +1474,8 @@ packages:
       vue-i18n:
         optional: true
     dependencies:
-      '@intlify/message-compiler': 9.2.0-beta.33
-      '@intlify/shared': 9.2.0-beta.33
+      '@intlify/message-compiler': 9.2.0-beta.34
+      '@intlify/shared': 9.2.0-beta.34
       jsonc-eslint-parser: 1.4.1
       source-map: 0.6.1
       vue-i18n: 9.1.9_vue@3.2.31
@@ -1508,11 +1510,11 @@ packages:
       source-map: 0.6.1
     dev: false
 
-  /@intlify/message-compiler/9.2.0-beta.33:
-    resolution: {integrity: sha512-+SICjFlnHSbRLZT+sNdBvOAQfcNX+fESyMmgPxC8HHWu4GLN2CoVQS4ACXb3QBZDKLVJBFhFGMnl+UXyJrno6g==}
+  /@intlify/message-compiler/9.2.0-beta.34:
+    resolution: {integrity: sha512-l7JjkXJBW2l6cFZqPvI6oWU6QZn/i70agU6QB02W1O+6quFCFNpsiPswgYyQrmfHt4F4qYhLJUMZltIW/cqcbw==}
     engines: {node: '>= 12'}
     dependencies:
-      '@intlify/shared': 9.2.0-beta.33
+      '@intlify/shared': 9.2.0-beta.34
       source-map: 0.6.1
     dev: true
 
@@ -1535,8 +1537,8 @@ packages:
     engines: {node: '>= 10'}
     dev: false
 
-  /@intlify/shared/9.2.0-beta.33:
-    resolution: {integrity: sha512-HldlkV66vMt1vQsuUz4zjQ202C5KW6aHeIQhx7RxBO11i3E8V84dp5MG9epr9GZXVsrCAR56Ekj0HaTqksIRJA==}
+  /@intlify/shared/9.2.0-beta.34:
+    resolution: {integrity: sha512-hbUKcVbTOkLVpnlSeZE1OPgEI7FpvhuZF/gb84xECTjXEImIa3u0fIcJKUUffv3dlAx8fMOE5xKgDzngidm0tw==}
     engines: {node: '>= 12'}
     dev: true
 
@@ -1563,7 +1565,7 @@ packages:
         optional: true
     dependencies:
       '@intlify/bundle-utils': 2.2.1_vue-i18n@9.1.9
-      '@intlify/shared': 9.2.0-beta.33
+      '@intlify/shared': 9.2.0-beta.34
       js-yaml: 4.1.0
       json5: 2.2.1
       loader-utils: 2.0.2

@@ -25,7 +25,7 @@ import {
   parseTimeWithZone,
 } from "../utils";
 
-function restoreSecureLink(url: string): fullUrl {
+function restoreSecureLink (url: string): fullUrl {
   return (url.startsWith("aHR0c") ? atob(url) : url) as fullUrl;
 }
 
@@ -49,7 +49,7 @@ export default class BittorrentSite {
     cacheRequest: new Map(),
   };
 
-  constructor(
+  constructor (
     config: Partial<ISiteMetadata> = {},
     siteMetaData: ISiteMetadata
   ) {
@@ -57,7 +57,7 @@ export default class BittorrentSite {
     this.siteMetaData = siteMetaData;
   }
 
-  get config(): ISiteMetadata {
+  get config (): ISiteMetadata {
     if (!this._config) {
       /**
        * 使用 lodash 的 mergeWith 来合并站点默认配置和用户配置
@@ -89,9 +89,7 @@ export default class BittorrentSite {
       }
 
       // 防止host信息缺失
-      if (!this._config.host) {
-        this._config.host = new URL(this._config.url).host;
-      }
+      this._config.host ??= new URL(this._config.url).host;
 
       if (this._config.category && this._config.search) {
         this._config.search.categories = ([] as any[]).concat(
@@ -107,11 +105,11 @@ export default class BittorrentSite {
     return this._config;
   }
 
-  get activateUrl(): string {
+  get activateUrl (): string {
     return this.config.config?.activateUrl || this.config.url;
   }
 
-  protected transferPostData<T extends Record<string, any>>(
+  protected transferPostData<T extends Record<string, any>> (
     params: T,
     transTo: transPostDataTo
   ) {
@@ -135,10 +133,13 @@ export default class BittorrentSite {
    * 根据搜索筛选条件，生成 AxiosRequestConfig
    * @param filter
    */
-  protected async transformSearchFilter(
+  protected async transformSearchFilter (
     filter: ISearchFilter
   ): Promise<AxiosRequestConfig> {
-    const config: AxiosRequestConfig = { params: {}, data: {} };
+    const config: AxiosRequestConfig = {
+      params: {},
+      data: {}
+    };
 
     const params: any = {};
     if (filter.keywords) {
@@ -148,7 +149,10 @@ export default class BittorrentSite {
 
     if (filter.extraParams) {
       for (let i = 0; i < filter.extraParams?.length; i++) {
-        let { key, value } = filter.extraParams[i];
+        let {
+          key,
+          value
+        } = filter.extraParams[i];
 
         if (key === "#changeDomain") {
           // 更换 baseURL
@@ -207,7 +211,7 @@ export default class BittorrentSite {
    * 种子搜索方法
    * @param filter
    */
-  public async searchTorrents(
+  public async searchTorrents (
     filter: ISearchFilter = {}
   ): Promise<ISearchResult> {
     const result: ISearchResult = {
@@ -235,7 +239,10 @@ export default class BittorrentSite {
 
     // 根据配置和搜索关键词生成 AxiosRequestConfig
     let axiosConfig: AxiosRequestConfig = merge(
-      { url: "/", responseType: "document" },
+      {
+        url: "/",
+        responseType: "document"
+      },
       this.config.search?.requestConfig, // 使用默认配置覆盖垫片配置
       await this.transformSearchFilter(filter) // 根据搜索信息生成配置
     );
@@ -247,10 +254,16 @@ export default class BittorrentSite {
 
     // 请求页面并转化为document
     try {
-      const req = await this.request({ ...axiosConfig, checkLogin: true });
+      const req = await this.request({
+        ...axiosConfig,
+        checkLogin: true
+      });
       const rawTorrent = await this.transformSearchPage(req.data);
       result.data = rawTorrent.map((t) =>
-        this.fixParsedTorrent(t, { filter, axiosConfig })
+        this.fixParsedTorrent(t, {
+          filter,
+          axiosConfig
+        })
       );
     } catch (e) {
       if (e instanceof NeedLoginError) {
@@ -264,7 +277,7 @@ export default class BittorrentSite {
     return result;
   }
 
-  async request<T>(
+  async request<T> (
     axiosConfig: AxiosRequestConfig & {
       requestName?: string;
       checkLogin?: boolean;
@@ -324,7 +337,7 @@ export default class BittorrentSite {
    * @param uri
    * @param requestConfig
    */
-  protected fixLink(uri: string, requestConfig: AxiosRequestConfig): string {
+  protected fixLink (uri: string, requestConfig: AxiosRequestConfig): string {
     let url = uri;
 
     if (uri.length > 0 && !uri.startsWith("magnet:")) {
@@ -349,11 +362,9 @@ export default class BittorrentSite {
    * @param fields
    * @protected
    */
-  protected getFieldsData<
-    G extends "search" | "detail" | "userInfo",
+  protected getFieldsData<G extends "search" | "detail" | "userInfo",
     // @ts-ignore
-    F extends keyof Required<Required<ISiteMetadata>[G]>["selectors"]
-  >(
+    F extends keyof Required<Required<ISiteMetadata>[G]>["selectors"]> (
     element: Element | object,
     selectorGroup: G,
     fields: F[]
@@ -370,7 +381,7 @@ export default class BittorrentSite {
     return ret;
   }
 
-  protected getFieldData(
+  protected getFieldData (
     element: Element | object,
     elementQuery: IElementQuery
   ): any {
@@ -448,7 +459,7 @@ export default class BittorrentSite {
     return query;
   }
 
-  protected runQueryFilters<T>(
+  protected runQueryFilters<T> (
     query: any,
     filters: TQueryFilter[] | TQueryFilter
   ): T {
@@ -469,7 +480,7 @@ export default class BittorrentSite {
    * 登录检查方法，对于公开站点，该方法一定直接返回 True
    * @param raw
    */
-  protected loggedCheck(raw: AxiosResponse): boolean {
+  protected loggedCheck (raw: AxiosResponse): boolean {
     return true;
   }
 
@@ -477,7 +488,7 @@ export default class BittorrentSite {
    * 如何解析 JSON 或者 Document，获得种子详情列表
    * @param doc
    */
-  protected async transformSearchPage(
+  protected async transformSearchPage (
     doc: Document | object | any
   ): Promise<ITorrent[]> {
     if (!this.config.search?.selectors?.rows) {
@@ -537,7 +548,7 @@ export default class BittorrentSite {
     return torrents;
   }
 
-  protected fixParsedTorrent(
+  protected fixParsedTorrent (
     torrent: ITorrent,
     requestConfig: ISearchRequestConfig
   ): ITorrent {
@@ -605,7 +616,7 @@ export default class BittorrentSite {
     return torrent;
   }
 
-  protected parseRowToTorrent(
+  protected parseRowToTorrent (
     row: Element | Document | object,
     torrent: Partial<ITorrent> = {}
   ): Partial<ITorrent> {
@@ -638,7 +649,7 @@ export default class BittorrentSite {
     return torrent;
   }
 
-  protected parseTagsFromRow(row: Element | Document | object): ITorrentTag[] {
+  protected parseTagsFromRow (row: Element | Document | object): ITorrentTag[] {
     const tags: ITorrentTag[] = [];
     const tagsQuerys = this.config.search!.selectors!.tags!;
     for (let i = 0; i < tagsQuerys.length; i++) {
@@ -654,14 +665,24 @@ export default class BittorrentSite {
         }
       }
 
-      const { selector, name, color } = tagsQuerys[i];
+      const {
+        selector,
+        name,
+        color
+      } = tagsQuerys[i];
       if (row instanceof Element) {
         if (Sizzle(selector, row).length > 0) {
-          tags.push({ name, color });
+          tags.push({
+            name,
+            color
+          });
         }
       } else {
         if (get(row, selector)) {
-          tags.push({ name, color });
+          tags.push({
+            name,
+            color
+          });
         }
       }
     }
@@ -669,17 +690,17 @@ export default class BittorrentSite {
     return tags;
   }
 
-  protected parseDownloadProcessFromRow(
+  protected parseDownloadProcessFromRow (
     row: Element | Document | object
   ): Pick<ITorrent, "progress" | "status"> {
     return {};
   }
 
-  async getTorrentPageLink(torrent: ITorrent): Promise<string> {
+  async getTorrentPageLink (torrent: ITorrent): Promise<string> {
     return torrent.url;
   }
 
-  async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+  async getTorrentDownloadLink (torrent: ITorrent): Promise<string> {
     if (!torrent.link && this.config?.detail?.selectors?.link) {
       const { data } = await this.request<any>(
         merge(

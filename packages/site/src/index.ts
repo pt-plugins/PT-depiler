@@ -1,25 +1,28 @@
 export * from "./types";
 export * from "./utils";
-import { ISiteMetadata } from "./types";
+
+import type { ISiteMetadata } from "./types";
+import favicon from "./utils/favicon";
 import BittorrentSite from "./schema/AbstractBittorrentSite";
 import PrivateSite from "./schema/AbstractPrivateSite";
-export { BittorrentSite, PrivateSite };
 
-// @ts-ignore 
-const schemaContent = import.meta.webpackContext('./schema/', {
+export { BittorrentSite, PrivateSite, favicon };
+
+// @ts-ignore
+const schemaContent = import.meta.webpackContext("./schema/", {
   regExp: /\.ts$/,
   chunkName: "lib/site/schema/[request]",
-  mode: 'lazy'
+  mode: "lazy"
 });
 
-// @ts-ignore 
-const definitionContent = import.meta.webpackContext('./definitions/', {
+// @ts-ignore
+const definitionContent = import.meta.webpackContext("./definitions/", {
   regExp: /\.ts$/,
   chunkName: "lib/site/definitions/[request]",
-  mode: 'lazy'
+  mode: "lazy"
 });
 
-function transContent(value: string) {
+function transContent (value: string) {
   return value.replace(/^\.\//, "").replace(/\.ts$/, "");
 }
 
@@ -28,13 +31,13 @@ export const definitionList = definitionContent.keys().map(transContent);
 
 export type TSite = PrivateSite | BittorrentSite;
 
-export async function getSchemaModule(
+export async function getSchemaModule (
   schema: string
 ): Promise<{ default: TSite }> {
   return await schemaContent(`./${schema}.ts`);
 }
 
-export async function getDefinitionModule(definition: string): Promise<{
+export async function getDefinitionModule (definition: string): Promise<{
   default?: TSite;
   siteMetadata: ISiteMetadata;
 }> {
@@ -44,20 +47,20 @@ export async function getDefinitionModule(definition: string): Promise<{
 const siteInstanceCache: Record<string, TSite> = {};
 
 // FIXME 部分用户自定义的站点（此时在 js/site 目录中不存在对应模块），不能进行 dynamicImport 的情况，对此应该直接从 schema 中导入
-export async function getSite(
+export async function getSite (
   siteName: string,
   userConfig: Partial<ISiteMetadata> = {}
 ): Promise<TSite> {
   if (typeof siteInstanceCache[siteName] === "undefined") {
-    // eslint-disable-next-line prefer-const
-    let { siteMetadata: siteMetaData /* use as const */, default: SiteClass } =
-      await getDefinitionModule(siteName);
-    if (!siteMetaData.schema) {
-      siteMetaData.schema =
-        siteMetaData.type === "private"
-          ? "AbstractPrivateSite"
-          : "AbstractBittorrentSite";
-    }
+    let {
+      // eslint-disable-next-line prefer-const
+      siteMetadata: siteMetaData,
+      default: SiteClass
+    } = await getDefinitionModule(siteName);
+
+    // 补全缺失字段（此处补影响站点mete构造的内容，其余内容在 config 里面构造）
+    siteMetaData.id ??= siteName;
+    siteMetaData.schema ??= siteMetaData.type === "private" ? "AbstractPrivateSite" : "AbstractBittorrentSite";
 
     /**
      * 如果该模块没有导出 default class，那么我们认为我们需要从基类继承
