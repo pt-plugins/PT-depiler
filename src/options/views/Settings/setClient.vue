@@ -29,7 +29,7 @@ const setClientColumn = [
       const renderRows = [];
       if (row.type !== 'Local') {
         renderRows.push(
-          h('img', { src: `/assets/btclients/${row.type}.png`, style: { width: '16px' }, title: `icon-${row.type}` }),
+          h('img', { src: `/assets/icons/${row.type}.png`, style: { width: '16px' }, title: `icon-${row.type}` }),
           ' '
         );
       }

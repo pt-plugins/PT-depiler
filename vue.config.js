@@ -66,7 +66,7 @@ module.exports = {
       fallback: {
         buffer: require.resolve("buffer/"),
         url: false,
-        path: false,
+        path: require.resolve("path-browserify"),
         http: false,
         https: false,
         querystring: false,

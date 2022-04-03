@@ -44,6 +44,7 @@ importers:
       lodash-es: ^4.17.21
       marked: ^4.0.12
       nanoid: ^3.3.1
+      path-browserify: ^1.0.1
       pinia: ^2.0.12
       roboto-fontface: '*'
       sass: ^1.49.9
@@ -79,6 +80,7 @@ importers:
       lodash-es: 4.17.21
       marked: 4.0.12
       nanoid: 3.3.1
+      path-browserify: 1.0.1
       pinia: 2.0.12_typescript@4.6.2+vue@3.2.31
       roboto-fontface: 0.10.0
       sizzle: 2.3.6
@@ -6212,6 +6214,10 @@ packages:
       no-case: 3.0.4
       tslib: 2.3.1
     dev: true
+
+  /path-browserify/1.0.1:
+    resolution: {integrity: sha512-b7uo2UCUOYZcnF/3ID0lulOJi/bafxa1xPe7ZPsammBSpjSWQkjNxlt635YGS2MiR9GjvuXCtz2emr3jbsz98g==}
+    dev: false
 
   /path-exists/3.0.0:
     resolution: {integrity: sha1-zg6+ql94yxiSXqfYENe1mwEP1RU=}

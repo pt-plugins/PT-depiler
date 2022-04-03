@@ -13,7 +13,7 @@ const requireContext = import.meta.webpackContext('./entity/', {
   mode: 'lazy'
 });
 
-export const entityList = requireContext.keys().map((value) => {
+export const entityList = requireContext.keys().map((value: string) => {
   return value.replace(/^\.\//, "").replace(/\.ts$/, "");
 });
 
@@ -36,6 +36,13 @@ export async function getDownloaderMetaData(
   type: string
 ): Promise<TorrentClientMetaData> {
   return (await getDownloaderModule(type)).clientMetaData;
+}
+
+export async function getDownloaderIcon(configType: string):Promise<string> {
+  return (await import(
+    /* webpackChunkName: "downloader/[request]" */
+    /* webpackMode: "eager" */
+    `./icons/${configType}.png`)).default;
 }
 
 const clientInstanceCache: Record<string, AbstractBittorrentClient> = {};

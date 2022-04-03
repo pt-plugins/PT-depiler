@@ -1,7 +1,7 @@
 import PTPlugin from '@/background/ptplugin';
 import { getSite, getSchemaModule, getDefinitionModule } from "@ptpp/site";
 import { getBackupServer } from "@ptpp/backupserver";
-import { getDownloader } from "@ptpp/downloader";
+import { getDownloader,getDownloaderIcon } from "@ptpp/downloader";
 
 PTPlugin.init();
 
@@ -10,5 +10,6 @@ Object.assign(window, {
   getSchemaModule,
   getDefinitionModule,
   getBackupServer,
-  getDownloader
+  getDownloader,
+  getDownloaderIcon
 });
