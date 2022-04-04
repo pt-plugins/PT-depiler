@@ -1,10 +1,10 @@
-import { defineStore } from 'pinia';
-import { nanoid } from 'nanoid';
-import { BittorrentClientBaseConfig } from '@ptpp/downloader';
+import { defineStore } from "pinia";
+import { nanoid } from "nanoid";
+import { BittorrentClientBaseConfig } from "@ptpp/downloader";
 
 // useStore could be anything like useUser, useCart
 // the first argument is a unique id of the store across your application
-export const useStore = defineStore('main', {
+export const useStore = defineStore("main", {
   state: () => (
     {
       isReady: false,

@@ -96,7 +96,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: "td:nth-child(1) a",
         attr: "href",
         filters: [
-          (q: string) => (new URL(q)).searchParams.get('cat') || "Other",
+          (q: string) => (new URL(q)).searchParams.get("cat") || "Other",
         ],
       },
       author: { selector: "td:nth-child(8)" },

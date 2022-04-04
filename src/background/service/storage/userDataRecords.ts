@@ -1,7 +1,7 @@
-import type { IUserInfo } from '@ptpp/site';
-import dayjs from 'dayjs';
-import { EConfigKey, EUserDataRange } from '@/shared/interfaces/enum';
-import browserBridge from '@/background/service/storage/browserBridge';
+import type { IUserInfo } from "@ptpp/site";
+import dayjs from "dayjs";
+import { EConfigKey, EUserDataRange } from "@/shared/interfaces/enum";
+import browserBridge from "@/background/service/storage/browserBridge";
 
 type StoredUserDataPerSite = { // 站点HOST
   [date: string]: IUserInfo // 日期 YYYY-MM-DD
@@ -12,8 +12,8 @@ type StoredUserData = {
 }
 
 class UserDataRecords extends browserBridge {
-  protected override data: StoredUserData = {}
-  protected configKey: string = EConfigKey.userDatas
+  protected override data: StoredUserData = {};
+  protected configKey: string = EConfigKey.userDatas;
 
   /**
    * 根据站点host和日期信息删除历史数据记录
@@ -25,7 +25,7 @@ class UserDataRecords extends browserBridge {
   }): Promise<void> {
     const { host, date } = query;
     if (host in this.data) {
-      if (typeof date === 'string') {
+      if (typeof date === "string") {
         delete this.data[host][date];
       } else {
         delete this.data[host];
@@ -51,7 +51,7 @@ class UserDataRecords extends browserBridge {
       case EUserDataRange.all:
         return datas;
       case EUserDataRange.today:
-        return datas[dayjs().format('YYYY-MM-DD')];
+        return datas[dayjs().format("YYYY-MM-DD")];
       case EUserDataRange.latest:
         return datas[EUserDataRange.latest];
     }
@@ -60,7 +60,7 @@ class UserDataRecords extends browserBridge {
   public async updateUserData (host:string, data: IUserInfo): Promise<void> {
     const siteRecord = this.data[host] || {};
 
-    siteRecord[EUserDataRange.latest] = siteRecord[dayjs().format('YYYY-MM-DD')] = data;
+    siteRecord[EUserDataRange.latest] = siteRecord[dayjs().format("YYYY-MM-DD")] = data;
     this.data[host] = siteRecord;
     await this.save();
   }

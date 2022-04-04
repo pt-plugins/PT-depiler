@@ -135,7 +135,7 @@ export default class cinematik extends PrivateSite {
           pageInfo.count = this.getFieldData(TLDocument, {
             selector: "a[href*='type=seeding']:contains('1'):last",
             attr: "href",
-            filters: [(q: string) => parseInt((new URL(q)).searchParams.get('page') || '-1')],
+            filters: [(q: string) => parseInt((new URL(q)).searchParams.get("page") || "-1")],
           });
         }
 

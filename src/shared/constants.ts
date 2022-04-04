@@ -1,16 +1,16 @@
 // 此处存放一些全局相关的信息
-import browser from 'webextension-polyfill';
-import UAParser from 'ua-parser-js';
-import { EInstallType } from '@/shared/interfaces/enum';
+import browser from "webextension-polyfill";
+import UAParser from "ua-parser-js";
+import { EInstallType } from "@/shared/interfaces/enum";
 
 // 仓库相关
-export const REPO_NAME = 'ronggang/PT-Plugin-Plus';
+export const REPO_NAME = "ronggang/PT-Plugin-Plus";
 export const REPO_URL = `https://github.com/${REPO_NAME}`;
 export const REPO_DEV_BRANCH_URL = `${REPO_URL}/tree/next`;
 export const REPO_API = `https://api.github.com/repos/${REPO_NAME}`;
 
-export const GROUP_TELEGRAM = 'https://t.me/joinchat/NZ9NCxPKXyby8f35rn_QTw';
-export const GROUP_QQ = 'https://jq.qq.com/?_wv=1027&k=7d6xEo0L';
+export const GROUP_TELEGRAM = "https://t.me/joinchat/NZ9NCxPKXyby8f35rn_QTw";
+export const GROUP_QQ = "https://jq.qq.com/?_wv=1027&k=7d6xEo0L";
 
 // 插件相关
 export const MANIFEST = browser.runtime.getManifest();
@@ -31,9 +31,9 @@ export interface VersionDetail {
 
 export function getFullVersion(): VersionDetail {
   // @ts-ignore
-  const fullVersion = 'v' + (MANIFEST.versionName || MANIFEST.version_name || MANIFEST.version) as TVersion; // v2.0.0.b3f0a76
+  const fullVersion = "v" + (MANIFEST.versionName || MANIFEST.version_name || MANIFEST.version) as TVersion; // v2.0.0.b3f0a76
 
-  let version; let versionHash = '';
+  let version; let versionHash = "";
   const mainVersionMatch = fullVersion.match(/(v\d+\.\d+\.\d+)\.?(.*)/);
   if (mainVersionMatch && mainVersionMatch[1]) {
     version = mainVersionMatch[1]; // v2.0.0
@@ -46,7 +46,7 @@ export function getFullVersion(): VersionDetail {
 }
 
 // 环境相关
-export const isProd = ['production', 'prod'].includes(process.env.NODE_ENV!);
+export const isProd = ["production", "prod"].includes(process.env.NODE_ENV!);
 export const isDebug = !isProd;
 
 export async function getInstallType(): Promise<EInstallType> {

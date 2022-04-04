@@ -175,7 +175,7 @@ export default class hdtorrents extends PrivateSite {
           pageInfo.count = this.getFieldData(TListDocument, {
             selector: ["a[href*='activepage']:contains('1'):last"],
             attr: "href",
-            filters: [(query: string) => parseInt((new URL(query)).searchParams.get('activepage') as string) || -1],
+            filters: [(query: string) => parseInt((new URL(query)).searchParams.get("activepage") as string) || -1],
           });
         }
 

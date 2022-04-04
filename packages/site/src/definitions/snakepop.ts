@@ -46,7 +46,7 @@ export default class snakepop extends GazelleJSONAPI {
           attr: "href",
           filters: [
             (query: string) =>
-              parseInt(new URL(query).searchParams.get('page') || '-1'),
+              parseInt(new URL(query).searchParams.get("page") || "-1"),
           ],
         });
       }

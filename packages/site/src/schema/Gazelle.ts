@@ -27,7 +27,7 @@ export default class Gazelle extends PrivateSite {
           filters: [
             (query: string) => {
               const searchParams = new URL(query).searchParams;
-              return searchParams.get('torrentid') || searchParams.get('id');
+              return searchParams.get("torrentid") || searchParams.get("id");
             },
           ],
         },
@@ -91,7 +91,7 @@ export default class Gazelle extends PrivateSite {
           selector: ["a.username[href*='user.php']:first"],
           attr: "href",
           filters: [
-            (query: string) => parseInt(new URL(query).searchParams.get('id') || ""),
+            (query: string) => parseInt(new URL(query).searchParams.get("id") || ""),
           ],
         },
         name: {

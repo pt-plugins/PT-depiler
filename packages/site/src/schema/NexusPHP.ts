@@ -40,7 +40,7 @@ export default class NexusPHP extends PrivateSite {
           ...baseLinkQuery,
           filters: [
             (query: string) =>
-              "/details.php?id=" + new URL(query).searchParams.get('id'),
+              "/details.php?id=" + new URL(query).searchParams.get("id"),
           ],
         }, // 种子页面链接
         id: {

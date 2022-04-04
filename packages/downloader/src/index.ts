@@ -7,10 +7,10 @@ export * from "./types";
 export { getRemoteTorrentFile } from "./utils";
 
 // @ts-ignore 动态生成支持列表
-const requireContext = import.meta.webpackContext('./entity/', {
+const requireContext = import.meta.webpackContext("./entity/", {
   regExp: /\.ts$/,
   chunkName: "lib/downloader/[request]",
-  mode: 'lazy'
+  mode: "lazy"
 });
 
 export const entityList = requireContext.keys().map((value: string) => {

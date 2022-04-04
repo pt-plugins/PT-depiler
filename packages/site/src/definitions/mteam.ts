@@ -159,7 +159,7 @@ export default class mteam extends NexusPHP {
           pageInfo.count = this.getFieldData(TListDocument, {
             selector: ["a[href*='page=']:contains('-'):last"],
             attr: "href",
-            filters: [(query: string) => parseInt(new URL(query).searchParams.get('page') || '-1')],
+            filters: [(query: string) => parseInt(new URL(query).searchParams.get("page") || "-1")],
           });
         }
 
