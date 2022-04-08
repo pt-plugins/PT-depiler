@@ -14,9 +14,10 @@ enum connectStatus {
   checking,
   failed,
 }
+
 const connectStatusRef = ref<connectStatus>(connectStatus.default);
 
-async function checkConnect() {
+async function checkConnect () {
   canSave && (canSave.value = true);
   connectStatusRef.value = connectStatus.checking;
   const client = await getDownloader(clientConfig.value);
@@ -110,10 +111,10 @@ async function checkConnect() {
       >
         {{
           connectStatusRef === connectStatus.success
-            ? $t("setClient.editor.connect.success")
+            ? $t('setClient.editor.connect.success')
             : connectStatusRef === connectStatus.failed
-              ? $t("setClient.editor.connect.fail")
-              : $t("setClient.editor.checkConnect")
+              ? $t('setClient.editor.connect.fail')
+              : $t('setClient.editor.checkConnect')
         }}
       </n-button>
     </n-form-item>

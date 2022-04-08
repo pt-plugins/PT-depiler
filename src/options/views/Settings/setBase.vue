@@ -1,9 +1,7 @@
-<template>setBase</template>
+<script lang="ts" setup>
 
-<script>
-export default {
-  name: "SetBase",
-};
 </script>
+
+<template>setBase</template>
 
 <style scoped></style>

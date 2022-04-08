@@ -1,9 +1,9 @@
-<template>setSite</template>
+<script lang="ts" setup>
 
-<script>
-export default {
-  name: "SetSite",
-};
 </script>
+
+<template>
+  setSite
+</template>
 
 <style scoped></style>

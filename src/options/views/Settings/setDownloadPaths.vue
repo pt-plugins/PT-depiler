@@ -1,9 +1,7 @@
-<template>setDownloadPaths</template>
+<script lang="ts" setup>
 
-<script>
-export default {
-  name: "SetDownloadPaths",
-};
 </script>
+
+<template>setDownloadPaths</template>
 
 <style scoped></style>

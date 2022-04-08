@@ -1,9 +1,9 @@
-<template>setBackup</template>
+<script lang="ts" setup>
 
-<script>
-export default {
-  name: "SetBackup",
-};
 </script>
+
+<template>
+  setBackup
+</template>
 
 <style scoped></style>

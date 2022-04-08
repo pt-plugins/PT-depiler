@@ -1,9 +1,7 @@
-<template>setSearchSolution</template>
+<script lang="ts" setup>
 
-<script>
-export default {
-  name: "SetSearchSolution",
-};
 </script>
+
+<template>setSearchSolution</template>
 
 <style scoped></style>

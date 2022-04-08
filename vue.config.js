@@ -53,7 +53,7 @@ module.exports = {
       localeDir: './shared/locales', // start from './src'
       enableLegacy: false,
       compositionOnly: true,
-      runtimeOnly: true,
+      runtimeOnly: IS_PROD,
       fullInstall: true,
     },
   },

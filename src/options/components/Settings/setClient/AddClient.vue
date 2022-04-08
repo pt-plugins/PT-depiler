@@ -22,9 +22,12 @@ const store = useStore();
 const showAddModal = inject<Ref<boolean>>("showAddModal")!;
 const currentStep = ref(1);
 
-const clientTypeOptions = entityList.map((x) => ({ label: x, value: x }));
+const clientTypeOptions = entityList.map((x) => ({
+  label: x,
+  value: x
+}));
 
-function renderSelectLabel(option: { value: string }) {
+function renderSelectLabel (option: { value: string }) {
   const returnNode = [];
   if (option.value.length > 0) {
     returnNode.push(
@@ -53,7 +56,7 @@ watch(selectedClientType, async () => {
   }
 });
 
-function handleMoveToStep2() {
+function handleMoveToStep2 () {
   if (selectedClientType.value) {
     currentStep.value++;
   } else {
@@ -70,7 +73,7 @@ watch(showAddModal, () => {
 
 const clientConfig = inject("clientConfig") as Ref<BittorrentClientBaseConfig>;
 
-function saveClient() {
+function saveClient () {
   store.addClient(clientConfig.value);
   showAddModal.value = false;
 }
@@ -95,7 +98,9 @@ provide("canSave", canSave);
           @click="openUrl(`${REPO_URL}/wiki/config-download-client`)"
         >
           <template #icon>
-            <n-icon><help-sharp /></n-icon>
+            <n-icon>
+              <help-sharp />
+            </n-icon>
           </template>
         </n-button>
       </template>
@@ -134,9 +139,11 @@ provide("canSave", canSave);
             @click="openUrl(`${REPO_DEV_BRANCH_URL}`)"
           >
             <template #icon>
-              <n-icon><help-sharp /></n-icon>
+              <n-icon>
+                <help-sharp />
+              </n-icon>
             </template>
-            {{ $t("setClient.add.newType") }}
+            {{ $t('setClient.add.newType') }}
           </n-button>
           <n-space>
             <n-button
@@ -150,7 +157,7 @@ provide("canSave", canSave);
                   <navigate-before-sharp />
                 </n-icon>
               </template>
-              {{ $t("common.dialog.previous") }}
+              {{ $t('common.dialog.previous') }}
             </n-button>
             <n-button
               v-if="currentStep === 2"
@@ -164,7 +171,7 @@ provide("canSave", canSave);
                   <check-circle-outline-sharp />
                 </n-icon>
               </template>
-              {{ $t("common.dialog.positive") }}
+              {{ $t('common.dialog.positive') }}
             </n-button>
             <n-button
               v-else
@@ -178,7 +185,7 @@ provide("canSave", canSave);
                   <navigate-next-sharp />
                 </n-icon>
               </template>
-              {{ $t("common.dialog.next") }}
+              {{ $t('common.dialog.next') }}
             </n-button>
           </n-space>
         </n-space>

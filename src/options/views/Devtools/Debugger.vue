@@ -1,12 +1,11 @@
+<script lang="ts" setup>
+
+</script>
+
+
 <template>
   Debugger
 </template>
-
-<script>
-export default {
-  name: 'Debugger'
-};
-</script>
 
 <style scoped>
 

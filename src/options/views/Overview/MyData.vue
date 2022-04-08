@@ -1,12 +1,10 @@
+<script lang="ts" setup>
+
+</script>
+
 <template>
   MyData
 </template>
-
-<script>
-export default {
-  name: 'MyData'
-};
-</script>
 
 <style scoped>
 

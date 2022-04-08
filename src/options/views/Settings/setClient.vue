@@ -1,19 +1,19 @@
 <script lang="ts" setup>
-import { h, ref, provide } from 'vue';
-import { useI18n } from 'vue-i18n';
-import { useStore } from '@/options/store';
+import { h, ref, provide } from "vue";
+import { useI18n } from "vue-i18n";
+import { useStore } from "@/options/store";
 
 const { t } = useI18n();
 const store = useStore();
 
 const clientConfig = ref<any>({});
-provide('clientConfig', clientConfig);
+provide("clientConfig", clientConfig);
 
 const showAddModal = ref(false);
-provide('showAddModal', showAddModal);
+provide("showAddModal", showAddModal);
 
 const showEditModal = ref(false);
-provide('showEditModal', showEditModal);
+provide("showEditModal", showEditModal);
 
 /*
 const setClientColumn = [
@@ -116,67 +116,67 @@ function deleteMultiClientsDialog () {
 </script>
 
 <template>
-<div></div>
-<!--
-  <n-space vertical>
-    <n-alert
-      type="info"
-      :title="$t('route.Settings.setClient')"
-    />
-    <n-card>
-      <n-space vertical>
-        <n-grid
-          :cols="4"
-          item-responsive
-          responsive="screen"
-        >
-          <n-grid-item span="4 m:3">
-            <n-space>
-              <n-button
-                type="primary"
-                @click="showAddModal = true"
-              >
-                <n-icon :size="24">
-                  <add-sharp />
-                </n-icon>
-                {{ $t("setClient.index.btn.add") }}
-              </n-button>
-              <n-button
-                type="error"
-                :disabled="checkedRowKeysRef.length === 0"
-                @click="deleteMultiClientsDialog"
-              >
-                <n-icon :size="24">
-                  <minus-sharp />
-                </n-icon>
-                {{ $t("setClient.index.btn.remove") }}
-              </n-button>
-            </n-space>
-          </n-grid-item>
-          <n-grid-item span="0 m:1">
-            <n-auto-complete>Search</n-auto-complete>
-          </n-grid-item>
-        </n-grid>
+  <div />
+  <!--
+    <n-space vertical>
+      <n-alert
+        type="info"
+        :title="$t('route.Settings.setClient')"
+      />
+      <n-card>
+        <n-space vertical>
+          <n-grid
+            :cols="4"
+            item-responsive
+            responsive="screen"
+          >
+            <n-grid-item span="4 m:3">
+              <n-space>
+                <n-button
+                  type="primary"
+                  @click="showAddModal = true"
+                >
+                  <n-icon :size="24">
+                    <add-sharp />
+                  </n-icon>
+                  {{ $t("setClient.index.btn.add") }}
+                </n-button>
+                <n-button
+                  type="error"
+                  :disabled="checkedRowKeysRef.length === 0"
+                  @click="deleteMultiClientsDialog"
+                >
+                  <n-icon :size="24">
+                    <minus-sharp />
+                  </n-icon>
+                  {{ $t("setClient.index.btn.remove") }}
+                </n-button>
+              </n-space>
+            </n-grid-item>
+            <n-grid-item span="0 m:1">
+              <n-auto-complete>Search</n-auto-complete>
+            </n-grid-item>
+          </n-grid>
 
-        <n-data-table
-          ref="clientTable"
-          v-model:checked-row-keys="checkedRowKeysRef"
-          :row-key="(row) => row.id"
-          :columns="setClientColumn"
-          :data="store.options.clients"
-          :pagination="{}"
-        />
-        <n-alert
-          v-if="store.options.clients.length === 0"
-          :title="$t('setClient.index.emptyNotice')"
-        />
-      </n-space>
-    </n-card>
-  </n-space>
+          <n-data-table
+            ref="clientTable"
+            v-model:checked-row-keys="checkedRowKeysRef"
+            :row-key="(row) => row.id"
+            :columns="setClientColumn"
+            :data="store.options.clients"
+            :pagination="{}"
+          />
+          <n-alert
+            v-if="store.options.clients.length === 0"
+            :title="$t('setClient.index.emptyNotice')"
+          />
+        </n-space>
+      </n-card>
+    </n-space>
 
-  <AddClient />
-  <EditClient />
-  -->
+    <AddClient />
+    <EditClient />
+    -->
 </template>
 
 <style scoped></style>

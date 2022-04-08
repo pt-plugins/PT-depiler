@@ -22,7 +22,7 @@ interface IReleaseData {
 }
 
 const releaseData = useStorage<Partial<IReleaseData>>("version-release-data", {});
-if (typeof releaseData.value.tag_name === 'undefined' || releaseData.value.tag_name !== version.main) {
+if (typeof releaseData.value.tag_name === "undefined" || releaseData.value.tag_name !== version.main) {
   axios.get<IReleaseData>(`${REPO_API}/releases/tags/${version.main}`).then(({ data }) => {
     data.body = data.body.replace(/(#)(\d+)/g, `[#$2](${REPO_URL}/issues/$2)`) // 生成 issue 的链接
       .replace(/(@)([\S]+)/g, "[@$2](https://github.com/$2)"); // 生成 committer 的主页链接
@@ -42,8 +42,8 @@ interface ICommitData {
   stats: { total: number; additions: number; deletions: number };
 }
 
-const commitData = useStorage<Partial<ICommitData>>('version-commit-data', {});
-if (typeof commitData.value.sha === 'undefined' || !commitData.value.sha.startsWith(version.hash)) {
+const commitData = useStorage<Partial<ICommitData>>("version-commit-data", {});
+if (typeof commitData.value.sha === "undefined" || !commitData.value.sha.startsWith(version.hash)) {
   axios.get<ICommitData>(`${REPO_API}/commits/${version.hash}`).then(({ data }) => {
     commitData.value = data;
   });
@@ -59,13 +59,17 @@ if (typeof commitData.value.sha === 'undefined' || !commitData.value.sha.startsW
         </v-card-header>
 
         <v-card-text>
-          <div v-if="releaseData.body" v-html="marked.parse(releaseData.body)"></div>
+          <div v-if="releaseData.body" v-html="marked.parse(releaseData.body)" />
           <div
             v-else-if="loadStatus === VersionLoadStatus.loading"
-          >{{ $t("ChangeLog.loading", { releasePage }) }}</div>
+          >
+            {{ $t("ChangeLog.loading", { releasePage }) }}
+          </div>
           <div
             v-else-if="loadStatus === VersionLoadStatus.fail"
-          >{{ $t("ChangeLog.loadFail", { releasePage }) }}</div>
+          >
+            {{ $t("ChangeLog.loadFail", { releasePage }) }}
+          </div>
         </v-card-text>
       </v-card>
     </v-col>

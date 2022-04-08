@@ -1,12 +1,10 @@
+<script lang="ts" setup>
+
+</script>
+
 <template>
   MyCollection
 </template>
-
-<script>
-export default {
-  name: 'MyCollection'
-};
-</script>
 
 <style scoped>
 

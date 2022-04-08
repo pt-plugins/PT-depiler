@@ -1,17 +1,17 @@
 <script lang="ts" setup>
-import { inject } from 'vue';
-import { Ref } from '@vue/reactivity';
-import Editor from './Editor.vue';
+import { inject } from "vue";
+import { Ref } from "@vue/reactivity";
+import Editor from "./Editor.vue";
 import {
   CancelSharp,
   CheckCircleOutlineSharp
-} from '@vicons/material';
-import { useStore } from '@/options/store';
-import type { BittorrentClientBaseConfig } from '@ptpp/downloader';
+} from "@vicons/material";
+import { useStore } from "@/options/store";
+import type { BittorrentClientBaseConfig } from "@ptpp/downloader";
 
 const store = useStore();
-const showEditModal = inject<Ref<boolean>>('showEditModal')!;
-const clientConfig = inject('clientConfig') as Ref<BittorrentClientBaseConfig>;
+const showEditModal = inject<Ref<boolean>>("showEditModal")!;
+const clientConfig = inject("clientConfig") as Ref<BittorrentClientBaseConfig>;
 
 function patchClient () {
   store.patchClient(clientConfig.value);
@@ -42,7 +42,7 @@ function patchClient () {
                 <cancel-sharp />
               </n-icon>
             </template>
-            {{ $t("common.dialog.negative") }}
+            {{ $t('common.dialog.negative') }}
           </n-button>
           <n-button
             quaternary
@@ -54,7 +54,7 @@ function patchClient () {
                 <check-circle-outline-sharp />
               </n-icon>
             </template>
-            {{ $t("common.dialog.positive") }}
+            {{ $t('common.dialog.positive') }}
           </n-button>
         </n-space>
       </template>

@@ -1,24 +1,24 @@
 <script lang="ts" setup>
-import { useDisplay } from 'vuetify';
+import { useDisplay } from "vuetify";
 import { useStore } from "@/options/store";
 
 const store = useStore();
 const display = useDisplay();
 
-const appendMenu : Array<{title: string, icon: string, [str: string]: any}> = [
+const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
   {
-    title: 'layout.header.home',
-    icon: 'mdi-home',
-    href: 'https://github.com/ronggang/PT-Plugin-Plus'
+    title: "layout.header.home",
+    icon: "mdi-home",
+    href: "https://github.com/ronggang/PT-Plugin-Plus"
   },
   {
-    title: 'layout.header.wiki',
-    icon: 'mdi-help-circle',
-    href: 'https://github.com/ronggang/PT-Plugin-Plus/wiki'
+    title: "layout.header.wiki",
+    icon: "mdi-help-circle",
+    href: "https://github.com/ronggang/PT-Plugin-Plus/wiki"
   },
   {
-    title: 'layout.header.donate',
-    icon: 'mdi-coffee',
+    title: "layout.header.donate",
+    icon: "mdi-coffee",
     prop: {
       to: "/donate"
     }
@@ -68,7 +68,7 @@ const appendMenu : Array<{title: string, icon: string, [str: string]: any}> = [
         <v-btn icon="mdi-magnify" />
 
         <v-menu
-          v-if="display.mdAndDown.value" 
+          v-if="display.mdAndDown.value"
           offset-y
           bottom left
         >

@@ -1,12 +1,10 @@
+<script lang="ts" setup>
+
+</script>
+
 <template>
   SystemLog
 </template>
-
-<script>
-export default {
-  name: 'SystemLog'
-};
-</script>
 
 <style scoped>
 

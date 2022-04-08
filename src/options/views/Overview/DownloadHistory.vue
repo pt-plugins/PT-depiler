@@ -1,12 +1,10 @@
+<script lang="ts" setup>
+
+</script>
+
 <template>
   DownloadHistory
 </template>
-
-<script>
-export default {
-  name: 'DownloadHistory'
-};
-</script>
 
 <style scoped>
 
