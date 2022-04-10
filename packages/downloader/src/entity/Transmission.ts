@@ -244,7 +244,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
 
   private sessionId = "";
 
-  constructor(options: Partial<TorrentClientConfig> = {}) {
+  constructor (options: Partial<TorrentClientConfig> = {}) {
     super({ ...clientConfig, ...options });
 
     // 修正服务器地址
@@ -255,7 +255,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     this.address = address;
   }
 
-  async ping(): Promise<boolean> {
+  async ping (): Promise<boolean> {
     try {
       const { data } = await this.request<TransmissionBaseResponse>(
         "session-get"
@@ -266,27 +266,29 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     }
   }
 
-  protected async getClientVersionFromRemote(): Promise<string> {
+  protected async getClientVersionFromRemote (): Promise<string> {
     const {
       data: { arguments: sessionData },
-    } = await this.request<
-      TransmissionBaseResponse<{ version: string; "rpc-version": number }>
-    >("session-get");
+    } = await this.request<TransmissionBaseResponse<{ version: string; "rpc-version": number }>>("session-get");
     return `${sessionData.version}, RPC ${sessionData["rpc-version"]}`;
   }
 
-  async getClientStatus(): Promise<TorrentClientStatus> {
-    const retStatus: TorrentClientStatus = { dlSpeed: 0, upSpeed: 0 };
+  override async getClientStatus (): Promise<TorrentClientStatus> {
+    const retStatus: TorrentClientStatus = await super.getClientStatus();
 
     const statsReq = this.request<TransmissionStatsResponse>("session-stats");
-    const {
-      data: { arguments: sessionData },
-    } = await this.request<
-      TransmissionBaseResponse<{
-        "download-dir": string;
-        "download-dir-free-space"?: number;
-      }>
-    >("session-get");
+
+    const { data: { arguments: statsData } } = await statsReq;
+    retStatus.dlSpeed = statsData.downloadSpeed;
+    retStatus.upSpeed = statsData.uploadSpeed;
+    retStatus.dlData = statsData["current-stats"].downloadedBytes;
+    retStatus.upData = statsData["current-stats"].uploadedBytes;
+
+    return retStatus;
+  }
+
+  override async getClientFreeSpace (): Promise<number> {
+    const { data: { arguments: sessionData } } = await this.request<TransmissionBaseResponse<{ "download-dir": string; "download-dir-free-space"?: number; }>>("session-get");
 
     /**
      * 由于 download-dir-free-space 在 rpc-spec 中属于过时的方法，
@@ -296,26 +298,14 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
      * @refs https://github.com/transmission/transmission/blob/790b0bb2b5d195e4c5652716f9e5f5c6003193ee/extras/rpc-spec.txt#L865-L866
      */
     if (sessionData["download-dir-free-space"]) {
-      retStatus.freeSpace = sessionData["download-dir-free-space"];
+      return sessionData["download-dir-free-space"];
     } else {
-      const { data: freeSpaceData } = await this.request<
-        TransmissionBaseResponse<{ path: string; "size-bytes": number }>
-      >("free-space", { path: sessionData["download-dir"] });
-      retStatus.freeSpace = freeSpaceData.arguments["size-bytes"];
+      const { data } = await this.request<TransmissionBaseResponse<{ path: string; "size-bytes": number }>>("free-space", { path: sessionData["download-dir"] });
+      return data.arguments["size-bytes"];
     }
-
-    const {
-      data: { arguments: statsData },
-    } = await statsReq;
-    retStatus.dlSpeed = statsData.downloadSpeed;
-    retStatus.upSpeed = statsData.uploadSpeed;
-    retStatus.dlData = statsData["current-stats"].downloadedBytes;
-    retStatus.upData = statsData["current-stats"].uploadedBytes;
-
-    return retStatus;
   }
 
-  async addTorrent(
+  async addTorrent (
     url: string,
     options: Partial<CAddTorrentOptions> = {}
   ): Promise<boolean> {
@@ -352,7 +342,8 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
             ids: torrentId,
             label: [options.label],
           });
-        } catch (e) {}
+        } catch (e) {
+        }
       }
 
       return data.result === "success";
@@ -361,11 +352,11 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     }
   }
 
-  async getAllTorrents(): Promise<CTorrent[]> {
+  async getAllTorrents (): Promise<CTorrent[]> {
     return await this.getTorrentsBy({});
   }
 
-  override async getTorrentsBy(
+  override async getTorrentsBy (
     filter: TransmissionTorrentFilterRules
   ): Promise<CTorrent[]> {
     const args: TransmissionTorrentGetArguments = {
@@ -426,7 +417,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     return returnTorrents;
   }
 
-  async pauseTorrent(id: any): Promise<any> {
+  async pauseTorrent (id: any): Promise<any> {
     const args: TransmissionTorrentArguments = {
       ids: id,
     };
@@ -434,7 +425,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     return true;
   }
 
-  async removeTorrent(
+  async removeTorrent (
     id: number,
     removeData: boolean | undefined
   ): Promise<boolean> {
@@ -446,7 +437,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     return true;
   }
 
-  async resumeTorrent(id: any): Promise<boolean> {
+  async resumeTorrent (id: any): Promise<boolean> {
     const args: TransmissionTorrentArguments = {
       ids: id,
     };
@@ -454,7 +445,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     return true;
   }
 
-  async request<T>(
+  async request<T> (
     method: TransmissionRequestMethod,
     args: any = {}
   ): Promise<AxiosResponse<T>> {

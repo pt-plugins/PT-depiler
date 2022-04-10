@@ -49,7 +49,7 @@ const totalClientStatus = computed<TorrentClientStatus>(() =>
       upData: 0,
       dlSpeed: 0,
       dlData: 0,
-      freeSpace: 0
+      // freeSpace: 0
     })
 );
 

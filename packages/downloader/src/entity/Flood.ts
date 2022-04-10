@@ -193,7 +193,7 @@ const legacyActivityEventType = [
  * @param path
  * @param event
  */
-function legacyActivityStreamWrapper(
+function legacyActivityStreamWrapper (
   path: string,
   event: typeof legacyActivityEventType[number]
 ): Promise<any> {
@@ -285,11 +285,11 @@ export default class Flood extends AbstractBittorrentClient {
 
   private apiType?: FloodApiType;
 
-  constructor(options: Partial<TorrentClientConfig> = {}) {
+  constructor (options: Partial<TorrentClientConfig> = {}) {
     super({ ...clientConfig, ...options });
   }
 
-  private async getEndPointType(): Promise<FloodApiType> {
+  private async getEndPointType (): Promise<FloodApiType> {
     if (this.apiType == null) {
       try {
         await axios.get(FloodApiEndpointMap.legacy.verify, {
@@ -304,15 +304,12 @@ export default class Flood extends AbstractBittorrentClient {
     return this.apiType as FloodApiType;
   }
 
-  private async getEndPointUrl(endpoint: FloodApiEndpoint): Promise<string> {
+  private async getEndPointUrl (endpoint: FloodApiEndpoint): Promise<string> {
     const endPointType = await this.getEndPointType();
     return FloodApiEndpointMap[endPointType][endpoint];
   }
 
-  async request<T>(
-    endpoint: FloodApiEndpoint,
-    config: AxiosRequestConfig = {}
-  ): Promise<AxiosResponse<T>> {
+  private async request<T> (endpoint: FloodApiEndpoint, config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> {
     const endPointUrl = await this.getEndPointUrl(endpoint);
 
     try {
@@ -337,7 +334,7 @@ export default class Flood extends AbstractBittorrentClient {
     }
   }
 
-  private async login(): Promise<boolean> {
+  private async login (): Promise<boolean> {
     try {
       const req = await this.request<{ success: boolean }>("authenticate", {
         method: "post",
@@ -353,7 +350,7 @@ export default class Flood extends AbstractBittorrentClient {
     }
   }
 
-  async ping(): Promise<boolean> {
+  async ping (): Promise<boolean> {
     try {
       const req = await this.request("connection-test");
       return (req.data as { isConnect: boolean }).isConnect;
@@ -362,15 +359,11 @@ export default class Flood extends AbstractBittorrentClient {
     }
   }
 
-  protected async getClientVersionFromRemote(): Promise<string> {
+  protected async getClientVersionFromRemote (): Promise<string> {
     return ""; // TODO
   }
 
-  async getClientStatus(): Promise<TorrentClientStatus> {
-    return { dlSpeed: 0, upSpeed: 0 }; // TODO
-  }
-
-  async addTorrent(
+  async addTorrent (
     url: string,
     options: Partial<CAddTorrentOptions> = {}
   ): Promise<boolean> {
@@ -429,7 +422,7 @@ export default class Flood extends AbstractBittorrentClient {
     return true;
   }
 
-  async getAllTorrents(): Promise<CTorrent<TorrentProperties>[]> {
+  async getAllTorrents (): Promise<CTorrent<TorrentProperties>[]> {
     const endPointType = await this.getEndPointType();
 
     let rawTorrents: TorrentList;
@@ -492,7 +485,7 @@ export default class Flood extends AbstractBittorrentClient {
     }) as CTorrent<TorrentProperties>[];
   }
 
-  async pauseTorrent(id: any): Promise<boolean> {
+  async pauseTorrent (id: any): Promise<boolean> {
     await this.request("stopTorrent", {
       method: "post",
       data: {
@@ -502,7 +495,7 @@ export default class Flood extends AbstractBittorrentClient {
     return true;
   }
 
-  async resumeTorrent(id: any): Promise<boolean> {
+  async resumeTorrent (id: any): Promise<boolean> {
     await this.request("startTorrent", {
       method: "post",
       data: {
@@ -512,7 +505,7 @@ export default class Flood extends AbstractBittorrentClient {
     return true;
   }
 
-  async removeTorrent(id: any, removeData: boolean = false): Promise<boolean> {
+  async removeTorrent (id: any, removeData: boolean = false): Promise<boolean> {
     const endPointType = await this.getEndPointType();
     const hashFieldKey = endPointType === "jesec" ? "hashes" : "hash";
 

@@ -13,6 +13,7 @@
     "noImplicitOverride": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
     "resolveJsonModule": true,
     "sourceMap": true,
     "baseUrl": ".",

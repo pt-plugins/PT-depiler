@@ -17,6 +17,7 @@ import {
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import urlJoin from "url-join";
 import { getRemoteTorrentFile } from "../utils";
+import { merge } from "lodash-es";
 
 export const clientConfig: TorrentClientConfig = {
   type: "qBittorrent",
@@ -138,18 +139,22 @@ interface QbittorrentTorrentFilterRules extends CTorrentFilterRules {
 }
 
 interface rawSyncMaindata {
-  full_update: boolean;
   rid: number;
-  server_state: Record<string, string | number | boolean>;
-  torrents: Record<string, rawTorrent>;
+  full_update?: boolean;
+  torrents?: Record<string, rawTorrent>;
+  torrents_removed?: string[];
+  categories?: Record<string, { name: string, savePath: string }>;
+  categories_removed?: string[];
+  tags?: string[];
+  tags_removed?: string[];
+  server_state?: Record<string, string | number | boolean>;
 }
 
-const convertMaps: [string, keyof Omit<TorrentClientStatus, "version">][] = [
+const convertMaps: [string, keyof TorrentClientStatus][] = [
   ["dl_info_data", "dlData"],
   ["dl_info_speed", "dlSpeed"],
   ["up_info_data", "upData"],
   ["up_info_speed", "upSpeed"],
-  ["free_space_on_disk", "freeSpace"],
 ];
 
 function normalizePieces (
@@ -167,6 +172,8 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
   readonly version = "v0.1.0";
 
   isLogin: boolean | null = null;
+  private syncData: rawSyncMaindata = { rid: 0 };
+  private lastSyncTimestamp: number = 0;
 
   constructor (options: Partial<TorrentClientConfig> = {}) {
     super({ ...clientConfig, ...options });
@@ -190,22 +197,22 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     return `${version} (${webApiVersion})`;
   }
 
-  async getClientStatus (): Promise<TorrentClientStatus> {
-    const retStatus: TorrentClientStatus = {
-      dlSpeed: 0,
-      upSpeed: 0
-    };
+  override async getClientStatus (): Promise<TorrentClientStatus> {
+    const retStatus: TorrentClientStatus = await super.getClientStatus();
+    const { server_state } = await this.getSyncData();
 
-    const { data } = await this.request<rawSyncMaindata>("/sync/maindata", {
-      params: { rid: 0 },
-    });
     for (const [key, convertKey] of convertMaps) {
-      if (data.server_state?.[key]) {
-        retStatus[convertKey] = Number(data.server_state[key]);
+      if (server_state?.[key]) {
+        retStatus[convertKey] = Number(server_state[key]);
       }
     }
 
     return retStatus as TorrentClientStatus;
+  }
+
+  override async getClientFreeSpace (): Promise<number> {
+    const syncData = await this.getSyncData();
+    return syncData.server_state?.["free_space_on_disk"] as number;
   }
 
   // qbt 默认Session时长 3600s，一次登录应该足够进行所有操作
@@ -224,7 +231,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     );
   }
 
-  async request<T> (path: string, config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> {
+  private async request<T> (path: string, config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> {
     if (this.isLogin === null) {
       await this.ping();
     }
@@ -235,6 +242,41 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
       timeout: this.config.timeout,
       ...config,
     });
+  }
+
+  private async getSyncData () {
+    if (Date.now() > this.lastSyncTimestamp + 5e3) {
+      const { data } = await this.request<rawSyncMaindata>("/sync/maindata", {
+        params: { rid: this.syncData.rid },
+      });
+
+      this.lastSyncTimestamp = Date.now();
+      this.syncData = data.full_update ? data : merge(this.syncData, data);
+
+      if (this.syncData.torrents && this.syncData.torrents_removed) {
+        this.syncData.torrents_removed.forEach(hash => delete this.syncData.torrents![hash]);
+        delete this.syncData.torrents_removed;
+      }
+
+      if (this.syncData.categories && this.syncData.categories_removed) {
+        this.syncData.categories_removed.forEach(cat => delete this.syncData.categories![cat]);
+        delete this.syncData.categories_removed;
+      }
+
+      if (this.syncData.tags && this.syncData.tags_removed) {
+        this.syncData.tags_removed.forEach(removeTag => {
+          const tagIndex = this.syncData.tags!.findIndex(tag => {
+            return tag === removeTag;
+          });
+          if (tagIndex !== -1) {
+            this.syncData.tags!.splice(tagIndex, 1);
+          }
+        });
+        delete this.syncData.tags_removed;
+      }
+    }
+
+    return this.syncData;
   }
 
   async addTorrent (url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
@@ -278,22 +320,9 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     return res.data === "Ok.";
   }
 
-  override async getTorrentsBy (filter: CTorrentFilterRules): Promise<QbittorrentTorrent[]> {
-    const postFilter: QbittorrentTorrentFilterRules = {};
-
-    // 将通用项处理成qbt对应的项目
-    if (filter.ids) {
-      postFilter.hashes = normalizePieces(filter.ids);
-    }
-
-    if (filter.complete) {
-      postFilter.filter = "completed";
-    }
-
-    const res = await this.request<rawTorrent[]>("/torrents/info", {
-      params: filter,
-    });
-    return res.data.map((torrent: rawTorrent) => {
+  async getAllTorrents (): Promise<QbittorrentTorrent[]> {
+    const { torrents } = await this.getSyncData();
+    return Object.entries(torrents!).map(([hash, torrent]) => {
       let state = CTorrentState.unknown;
 
       switch (torrent.state) {
@@ -342,8 +371,8 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
       const isCompleted = torrent.progress === 1;
 
       return {
-        id: torrent.hash,
-        infoHash: torrent.hash,
+        id: hash,
+        infoHash: hash,
         name: torrent.name,
         state,
         dateAdded: torrent.added_on,
@@ -361,10 +390,6 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
         clientId: this.config.id,
       } as QbittorrentTorrent;
     });
-  }
-
-  async getAllTorrents (): Promise<QbittorrentTorrent[]> {
-    return await this.getTorrentsBy({});
   }
 
   // 注意方法虽然支持一次对多个种子进行操作，但仍建议每次均只操作一个种子

@@ -110,7 +110,7 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
 
   private _sid: string | null = null;
 
-  constructor(options: Partial<TorrentClientConfig>) {
+  constructor (options: Partial<TorrentClientConfig>) {
     super({ ...clientConfig, ...options });
 
     // 修正GUI地址
@@ -122,14 +122,14 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
     }
   }
 
-  private async getSessionId(): Promise<string> {
+  private async getSessionId (): Promise<string> {
     if (this._sid === null) {
       await this.login();
     }
     return this._sid as string;
   }
 
-  private async login(): Promise<boolean> {
+  private async login (): Promise<boolean> {
     const req = await axios.get<string>("/token.html", {
       baseURL: this.address,
       params: {
@@ -151,20 +151,16 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
     return false;
   }
 
-  async ping(): Promise<boolean> {
+  async ping (): Promise<boolean> {
     return await this.login();
   }
-
-  protected async getClientVersionFromRemote(): Promise<string> {
+  
+  protected async getClientVersionFromRemote (): Promise<string> {
     return ""; // TODO
   }
 
-  async getClientStatus(): Promise<TorrentClientStatus> {
-    return { dlSpeed: 0, upSpeed: 0 }; // TODO
-  }
-
   // 除"登录"和"添加种子"外的所有接口方法都走该方法
-  async request<T extends object>(
+  async request<T extends object> (
     action: string,
     params: {
       [key: string]: any;
@@ -189,7 +185,7 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
     ).data;
   }
 
-  async addTorrent(
+  async addTorrent (
     url: string,
     options: Partial<CAddTorrentOptions> = {}
   ): Promise<boolean> {
@@ -245,7 +241,7 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
     return true;
   }
 
-  async getAllTorrents(): Promise<CTorrent[]> {
+  async getAllTorrents (): Promise<CTorrent[]> {
     const req = await this.request<TorrentListResponse>("", {
       list: 1,
     });
@@ -299,7 +295,7 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
     }) as CTorrent[];
   }
 
-  private async setTorrentProp(
+  private async setTorrentProp (
     id: string,
     props: Record<string, string | number>
   ): Promise<boolean> {
@@ -311,17 +307,17 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
   }
 
   // 注意：uTorrent的pause, resume, remove均直接返回true，因为接口没返回具体成功没成功
-  async pauseTorrent(id: string): Promise<boolean> {
+  async pauseTorrent (id: string): Promise<boolean> {
     await this.request<BaseUtorrentResponse>("pause", { hash: id });
     return true;
   }
 
-  async resumeTorrent(id: string): Promise<boolean> {
+  async resumeTorrent (id: string): Promise<boolean> {
     await this.request<BaseUtorrentResponse>("start", { hash: id });
     return true;
   }
 
-  async removeTorrent(
+  async removeTorrent (
     id: string,
     removeData: boolean = true
   ): Promise<boolean> {

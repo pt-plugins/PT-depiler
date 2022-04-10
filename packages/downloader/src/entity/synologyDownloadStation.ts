@@ -114,12 +114,12 @@ type SynoApiEndPoint =
 
 type SynologySessionName = "DownloadStation" | "FileStation";
 
-function transObjToData(field: Record<string, any>, toForm: true): FormData;
-function transObjToData(
+function transObjToData (field: Record<string, any>, toForm: true): FormData;
+function transObjToData (
   field: Record<string, any>,
   toForm?: false
 ): URLSearchParams;
-function transObjToData(field: Record<string, any>, toForm = false) {
+function transObjToData (field: Record<string, any>, toForm = false) {
   const data = toForm ? new FormData() : new URLSearchParams();
   Object.entries(field).forEach(([k, v]) => {
     if (v !== undefined) {
@@ -357,18 +357,18 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
   private _sessionId?: string;
   private _apiInfo?: SynologyInfoApiResponseData;
 
-  constructor(options: Partial<TorrentClientConfig> = {}) {
+  constructor (options: Partial<TorrentClientConfig> = {}) {
     super({ ...clientConfig, ...options });
   }
 
-  private async getSessionId(): Promise<string> {
+  private async getSessionId (): Promise<string> {
     if (!this._sessionId) {
       await this.login();
     }
     return this._sessionId as string;
   }
 
-  private async getApiInfo(): Promise<SynologyInfoApiResponseData> {
+  private async getApiInfo (): Promise<SynologyInfoApiResponseData> {
     if (!this._apiInfo) {
       // 我们不捕捉此处的错误
       const req = await this.request<SynologyInfoApiResponseData>("query.cgi", {
@@ -387,7 +387,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
   }
 
   // 核心请求方法
-  private async request<T>(
+  private async request<T> (
     cgi: SYNOApiCGIPath,
     config: AxiosRequestConfig
   ): Promise<SynologyResponse<T>> {
@@ -403,7 +403,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
   }
 
   // entry.cgi 请求方法
-  private async requestEntryCGI<T>(
+  private async requestEntryCGI<T> (
     field: DSRequestField | FormData
   ): Promise<SynologyResponse<any>> {
     // 覆写 _sid 参数
@@ -425,7 +425,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
   }
 
   // 请求登录并获得sid信息
-  private async login(): Promise<boolean> {
+  private async login (): Promise<boolean> {
     const apiInfo = await this.getApiInfo();
 
     /**
@@ -458,19 +458,15 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
     }
   }
 
-  async ping(): Promise<boolean> {
+  async ping (): Promise<boolean> {
     return this.login();
   }
 
-  protected async getClientVersionFromRemote(): Promise<string> {
+  protected async getClientVersionFromRemote (): Promise<string> {
     return ""; // TODO
   }
 
-  async getClientStatus(): Promise<TorrentClientStatus> {
-    return { dlSpeed: 0, upSpeed: 0 }; // TODO
-  }
-
-  async addTorrent(
+  async addTorrent (
     url: string,
     options: Partial<CAddTorrentOptions> = {}
   ): Promise<boolean> {
@@ -527,11 +523,11 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
     return req.success;
   }
 
-  async getAllTorrents(): Promise<CTorrent[]> {
+  async getAllTorrents (): Promise<CTorrent[]> {
     return await this.getTorrentsBy({});
   }
 
-  override async getTorrentsBy(
+  override async getTorrentsBy (
     filter: CTorrentFilterRules
   ): Promise<CTorrent[]> {
     const params: DSRequestField = {
@@ -657,7 +653,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
       });
   }
 
-  async pauseTorrent(id: string): Promise<boolean> {
+  async pauseTorrent (id: string): Promise<boolean> {
     return (
       await this.requestEntryCGI({
         id: id,
@@ -668,7 +664,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
     ).success;
   }
 
-  async resumeTorrent(id: string): Promise<boolean> {
+  async resumeTorrent (id: string): Promise<boolean> {
     return (
       await this.requestEntryCGI({
         id: id,
@@ -685,7 +681,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
    * @param id
    * @param removeData
    */
-  async removeTorrent(
+  async removeTorrent (
     id: any,
     removeData: boolean | undefined
   ): Promise<boolean> {
