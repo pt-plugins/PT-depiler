@@ -1,6 +1,3 @@
-/**
- * TODO 注意，获取可用空间 的功能尚未实现
- */
 import {
   AbstractBittorrentClient,
   CAddTorrentOptions,
@@ -296,6 +293,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
      * 则进一步调用 free-space 方法
      *
      * @refs https://github.com/transmission/transmission/blob/790b0bb2b5d195e4c5652716f9e5f5c6003193ee/extras/rpc-spec.txt#L865-L866
+     * @refs https://github.com/ronggang/transmission-web-control/blob/4e0c781669af2f27d959dce80cb4956303375568/src/tr-web-control/script/system.mobile.js#L149-L157
      */
     if (sessionData["download-dir-free-space"]) {
       return sessionData["download-dir-free-space"];

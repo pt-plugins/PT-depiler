@@ -54,7 +54,8 @@ type SYNOApiCGIPath =
  */
 type SynoApiEndPointBase =
   | "SYNO.API.Info" // Provides available API info
-  | "SYNO.API.Auth"; // Performs session login and logout.
+  | "SYNO.API.Auth"  // Performs session login and logout.
+  | "SYNO.Core.Package";
 
 /**
  * Download Station API
@@ -172,10 +173,9 @@ interface SynologyInfoApiResponseData {
   };
 }
 
-enum SynologyErrorCode {
-  /**
-   * Common Error Code
-   */
+/**
+ enum SynologyErrorCode {
+  // Common Error Code
   UNKNOWN_ERROR = 100, // Unknown error
   INVALID_PARAMETER = 101, // Invalid parameter
   API_NOT_EXIST = 102, // The requested API does not exist
@@ -185,18 +185,14 @@ enum SynologyErrorCode {
   SESSION_TIMEOUT = 105, // Session timeout
   SESSION_INTERRUPTED = 106, // Session interrupted by duplicate login
 
-  /**
-   * Auth Error Code
-   */
+  // Auth Error Code
   AUTH_INCORRECT_AUTHENTICATION = 400, // No such account or incorrect password
   AUTH_ACCOUNT_DISABLED = 401, // Account disabled
   AUTH_PERMISSION_DENIED = 402, // Permission denied
   AUTH_VERIFICATION_CODE_REQUIRED = 403, // 2-step verification code required
   AUTH_VERIFICATION_CODE_FAILED = 404, //  Failed to authenticate 2-step verification code
 
-  /**
-   * Torrent Upload Error Code
-   */
+  // Torrent Upload Error Code
   TORRENT_UPLOAD_FAILED = 400, // File upload failed
   TORRENT_UPLOAD_MAX_TASKS_REACHED = 401, // Max number of tasks reached
   TORRENT_UPLOAD_DESTINATION_DENIED = 402, // Destination denied
@@ -207,6 +203,7 @@ enum SynologyErrorCode {
   TORRENT_UPLOAD_SET_DESTINATION_FAILED = 407, // Set destination failed
   TORRENT_UPLOAD_FILE_NOT_EXIST = 408, // File does not exist
 }
+ */
 
 interface SynologyFailureResponse {
   success: false;
@@ -232,55 +229,57 @@ type rawTaskStatus =
 
 // From SYNO.SDS.DownloadStation.Utils.TASK_STATUS_INT
 enum rawTaskStatusInt {
-  TASK_CAPTCHA_NEEDED = 15,
-  TASK_DOWNLOADED = 13,
+  TASK_WAITING = 1,
   TASK_DOWNLOADING = 2,
-  TASK_ERROR = 101,
-  TASK_ERROR_BROKEN_LINK = 102,
-  TASK_ERROR_DEST_DENY = 104,
-  TASK_ERROR_DEST_FILE_DUPLICATE = 132,
-  TASK_ERROR_DEST_NO_EXIST = 103,
-  TASK_ERROR_DISK_FULL = 105,
-  TASK_ERROR_ED2K_LINK_DUPLICATE = 131,
-  TASK_ERROR_ENCRYPTION = 126,
-  TASK_ERROR_EXCEED_MAX_DEST_FS_SIZE = 110,
-  TASK_ERROR_EXCEED_MAX_FS_SIZE = 108,
-  TASK_ERROR_EXCEED_MAX_TEMP_FS_SIZE = 109,
-  TASK_ERROR_EXTRACT_DISK_FULL = 122,
-  TASK_ERROR_EXTRACT_FAIL = 118,
-  TASK_ERROR_EXTRACT_FOLDER_NOT_EXIST = 129,
-  TASK_ERROR_EXTRACT_INVALID_ARCHIVE = 120,
-  TASK_ERROR_EXTRACT_QUOTA_REACHED = 121,
-  TASK_ERROR_EXTRACT_WRONG_PASSWORD = 119,
-  TASK_ERROR_FILE_NO_EXIST = 114,
-  TASK_ERROR_FTP_ENCRYPTION_NOT_SUPPORT_TYPE = 117,
-  TASK_ERROR_INVALID_ACCOUNT_PASSWORD = 134,
-  TASK_ERROR_MISSING_PYTHON = 127,
-  TASK_ERROR_NAME_TOO_LONG = 112,
-  TASK_ERROR_NAME_TOO_LONG_ENCRYPTION = 111,
-  TASK_ERROR_NOT_SUPPORT_TYPE = 116,
-  TASK_ERROR_NZB_MISSING_ARTICLE = 130,
-  TASK_ERROR_PARCHIVE_REPAIR_FAILED = 133,
-  TASK_ERROR_PRIVATE_VIDEO = 128,
-  TASK_ERROR_QUOTA_REACHED = 106,
-  TASK_ERROR_REQUIRED_ACCOUNT = 124,
-  TASK_ERROR_REQUIRED_PREMIUM = 115,
-  TASK_ERROR_TIMEOUT = 107,
-  TASK_ERROR_TORRENT_DUPLICATE = 113,
-  TASK_ERROR_TORRENT_INVALID = 123,
-  TASK_ERROR_TRY_IT_LATER = 125,
-  TASK_EXTRACTING = 10,
-  TASK_FILEHOSTING_WAITING = 9,
-  TASK_FINISHED = 5,
-  TASK_FINISHING = 4,
-  TASK_HASH_CHECKING = 6,
   TASK_PAUSED = 3,
-  TASK_POSTPROCESSING = 14,
-  TASK_PREPROCESSING = 11,
-  TASK_PREPROCESSPASS = 12,
+  TASK_FINISHING = 4,
+  TASK_FINISHED = 5,
+  TASK_HASH_CHECKING = 6,
   TASK_PRE_SEEDING = 7,
   TASK_SEEDING = 8,
-  TASK_WAITING = 1,
+  TASK_FILEHOSTING_WAITING = 9,
+  TASK_EXTRACTING = 10,
+  TASK_PREPROCESSING = 11,
+  TASK_PREPROCESSPASS = 12,
+  TASK_DOWNLOADED = 13,
+  TASK_POSTPROCESSING = 14,
+  TASK_CAPTCHA_NEEDED = 15,
+  TASK_ERROR = 101,
+  /**
+   TASK_ERROR_BROKEN_LINK = 102,
+   TASK_ERROR_DEST_DENY = 104,
+   TASK_ERROR_DEST_FILE_DUPLICATE = 132,
+   TASK_ERROR_DEST_NO_EXIST = 103,
+   TASK_ERROR_DISK_FULL = 105,
+   TASK_ERROR_ED2K_LINK_DUPLICATE = 131,
+   TASK_ERROR_ENCRYPTION = 126,
+   TASK_ERROR_EXCEED_MAX_DEST_FS_SIZE = 110,
+   TASK_ERROR_EXCEED_MAX_FS_SIZE = 108,
+   TASK_ERROR_EXCEED_MAX_TEMP_FS_SIZE = 109,
+   TASK_ERROR_EXTRACT_DISK_FULL = 122,
+   TASK_ERROR_EXTRACT_FAIL = 118,
+   TASK_ERROR_EXTRACT_FOLDER_NOT_EXIST = 129,
+   TASK_ERROR_EXTRACT_INVALID_ARCHIVE = 120,
+   TASK_ERROR_EXTRACT_QUOTA_REACHED = 121,
+   TASK_ERROR_EXTRACT_WRONG_PASSWORD = 119,
+   TASK_ERROR_FILE_NO_EXIST = 114,
+   TASK_ERROR_FTP_ENCRYPTION_NOT_SUPPORT_TYPE = 117,
+   TASK_ERROR_INVALID_ACCOUNT_PASSWORD = 134,
+   TASK_ERROR_MISSING_PYTHON = 127,
+   TASK_ERROR_NAME_TOO_LONG = 112,
+   TASK_ERROR_NAME_TOO_LONG_ENCRYPTION = 111,
+   TASK_ERROR_NOT_SUPPORT_TYPE = 116,
+   TASK_ERROR_NZB_MISSING_ARTICLE = 130,
+   TASK_ERROR_PARCHIVE_REPAIR_FAILED = 133,
+   TASK_ERROR_PRIVATE_VIDEO = 128,
+   TASK_ERROR_QUOTA_REACHED = 106,
+   TASK_ERROR_REQUIRED_ACCOUNT = 124,
+   TASK_ERROR_REQUIRED_PREMIUM = 115,
+   TASK_ERROR_TIMEOUT = 107,
+   TASK_ERROR_TORRENT_DUPLICATE = 113,
+   TASK_ERROR_TORRENT_INVALID = 123,
+   TASK_ERROR_TRY_IT_LATER = 125,
+   */
 }
 
 interface rawTask {
@@ -405,7 +404,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
   // entry.cgi 请求方法
   private async requestEntryCGI<T> (
     field: DSRequestField | FormData
-  ): Promise<SynologyResponse<any>> {
+  ): Promise<SynologyResponse<T>> {
     // 覆写 _sid 参数
     const sid = await this.getSessionId();
 
@@ -462,8 +461,42 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
     return this.login();
   }
 
+  override async getClientStatus (): Promise<TorrentClientStatus> {
+    const status = {
+      dlSpeed: 0,
+      upSpeed: 0
+    };
+
+    const data = await this.requestEntryCGI<{ download_rate: number, upload_rate: number }>({
+      api: "SYNO.DownloadStation2.Task.Statistic",
+      method: "get",
+      version: 1
+    });
+    if (data.success) {
+      status.upSpeed = data.data.upload_rate;
+      status.dlSpeed = data.data.download_rate;
+    }
+
+    return status;
+  }
+
   protected async getClientVersionFromRemote (): Promise<string> {
-    return ""; // TODO
+    const data = await this.requestEntryCGI<{
+      packages: Array<{ id: string, name: string, timestamp: number, version: string, additional?: any }>,
+      total: number
+    }>({
+      api: "SYNO.Core.Package",
+      method: "list",
+      version: 2,
+    });
+
+    let dsmVersion = "";
+    if (data.success) {
+      const dsmDetails = data.data.packages.find(pkg => pkg.id === "DownloadStation");
+      dsmVersion = dsmDetails?.version ?? "";
+    }
+
+    return dsmVersion;
   }
 
   async addTorrent (
@@ -591,7 +624,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
            * (typeof task.status === 'number')
            * https://gist.github.com/Rhilip/e1b72f5d5974998077805e5c31f1d53d#file-download-js-L746-L748
            */
-          if (task.status > rawTaskStatusInt.TASK_ERROR) {
+          if (task.status >= rawTaskStatusInt.TASK_ERROR) {
             state = CTorrentState.error; // 统一处理 state 大于 rawTaskStatusInt.TASK_ERROR 的情况
           } else {
             switch (task.status) {
@@ -599,6 +632,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
               case rawTaskStatusInt.TASK_PREPROCESSING:
               case rawTaskStatusInt.TASK_PREPROCESSPASS:
               case rawTaskStatusInt.TASK_CAPTCHA_NEEDED:
+              case rawTaskStatusInt.TASK_FILEHOSTING_WAITING:
                 state = CTorrentState.queued;
                 break;
 
