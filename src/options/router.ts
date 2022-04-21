@@ -101,7 +101,6 @@ export const routes: RouteRecordRaw[] = [
       }
     ]
   },
-
   {
     path: "/about",
     name: "About",
@@ -113,7 +112,7 @@ export const routes: RouteRecordRaw[] = [
         name: "TechnologyStack",
         meta: { icon: "mdi-developer-board" },
         component: () => dynamicImportView("About/TechnologyStack")
-      }, 
+      },
       {
         path: "/change-log",
         name: "ChangeLog",

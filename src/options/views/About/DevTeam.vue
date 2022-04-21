@@ -17,7 +17,26 @@ const sortedPeople = [
 </script>
 
 <template>
-  <v-alert type="info">
+  <v-alert class="mb-2" type="info">
+    {{ $t("DevTeam.sortByName") }}
+  </v-alert>
+  <v-card class="mb-2">
+    <v-table>
+      <tbody>
+        <tr v-for="(people, index) in sortedPeople" :key="index">
+          <td>
+            <v-avatar><v-icon icon="mdi-account-circle" /></v-avatar>
+            {{ people }}
+          </td>
+        </tr>
+      </tbody>
+    </v-table>
+  </v-card>
+  <v-alert
+    border="start" border-color="deep-purple accent-4"
+    class="mb-2"
+    elevation="2"
+  >
     {{ $t("DevTeam.thank1") }}
     <br>
     {{ $t("DevTeam.thank2") }}
@@ -26,29 +45,18 @@ const sortedPeople = [
     <br>
     {{ $t("DevTeam.contributors") }}:
     <a
-      target="_blank"
-      rel="noopener noreferrer nofollow"
       href="https://github.com/ronggang/PT-Plugin-Plus/graphs/contributors"
+      rel="noopener noreferrer nofollow"
+      target="_blank"
     >https://github.com/ronggang/PT-Plugin-Plus/graphs/contributors</a>
     <br>
     {{ $t("DevTeam.issues") }}:
     <a
-      target="_blank"
-      rel="noopener noreferrer nofollow"
       href="https://github.com/ronggang/PT-Plugin-Plus/issues"
+      rel="noopener noreferrer nofollow"
+      target="_blank"
     >https://github.com/ronggang/PT-Plugin-Plus/issues</a>
   </v-alert>
-  <v-card>
-    <v-card-title>{{ $t("DevTeam.sortByName") }}</v-card-title>
-    <v-list density="compact">
-      <v-list-item v-for="(item, index) in sortedPeople" :key="index">
-        <v-list-item-avatar start>
-          <v-icon icon="mdi-account-circle" />
-        </v-list-item-avatar>
-        &nbsp;{{ item }}
-      </v-list-item>
-    </v-list>
-  </v-card>
 </template>
 
 <style scoped>

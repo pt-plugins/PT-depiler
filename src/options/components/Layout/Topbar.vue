@@ -40,8 +40,6 @@ const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
     </v-app-bar-title>
 
     <!-- TODO Full searchbox -->
-    <template v-if="!display.mdAndDown.value" />
-
     <v-spacer />
 
     <template #append>
@@ -50,12 +48,12 @@ const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
         <v-btn
           v-for="(append, index) in appendMenu"
           :key="index"
-          :href="append.href"
-          target="_blank"
-          size="large"
-          rel="noopener noreferrer nofollow"
-          :title="$t(append.title)"
           v-bind.prop="append.prop"
+          :href="append.href"
+          :title="$t(append.title)"
+          rel="noopener noreferrer nofollow"
+          size="large"
+          target="_blank"
         >
           <v-icon :icon="append.icon" />
           <span class="ml-1">{{ $t(append.title) }}</span>
@@ -69,8 +67,8 @@ const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
 
         <v-menu
           v-if="display.mdAndDown.value"
-          offset-y
-          bottom left
+          bottom
+          left offset-y
         >
           <template #activator="{ props }">
             <v-btn icon="mdi-dots-vertical" v-bind="props" />
@@ -81,11 +79,11 @@ const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
               v-for="(item, index) in appendMenu"
               :key="index"
               :href="item.href"
-              target="_blank"
-              size="large"
-              rel="noopener noreferrer nofollow"
-              :title="$t(item.title)"
               :prepend-icon="item.icon"
+              :title="$t(item.title)"
+              rel="noopener noreferrer nofollow"
+              size="large"
+              target="_blank"
             >
               {{ $t(item.title) }}
             </v-list-item>

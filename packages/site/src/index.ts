@@ -8,15 +8,13 @@ import PrivateSite from "./schema/AbstractPrivateSite";
 
 export { BittorrentSite, PrivateSite, favicon };
 
-// @ts-ignore
-const schemaContent = import.meta.webpackContext("./schema/", {
+const schemaContent = import.meta.webpackContext!("./schema/", {
   regExp: /\.ts$/,
   chunkName: "lib/site/schema/[request]",
   mode: "lazy"
 });
 
-// @ts-ignore
-const definitionContent = import.meta.webpackContext("./definitions/", {
+const definitionContent = import.meta.webpackContext!("./definitions/", {
   regExp: /\.ts$/,
   chunkName: "lib/site/definitions/[request]",
   mode: "lazy"

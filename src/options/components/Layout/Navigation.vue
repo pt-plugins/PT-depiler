@@ -35,24 +35,24 @@ const menuOptions = routes
   <v-navigation-drawer
     id="ptpp-navigation"
     v-model="store.uiOptions.navBarIsOpen"
+    :width="220"
     expand-on-hover
     permanent
-    :width="220"
   >
     <v-list
       v-for="(group, groupIndex) in menuOptions" :key="groupIndex"
-      nav
       density="compact"
+      nav
     >
       <v-list-subheader class="grey--text text--darken-1">
         {{ $t(group.title) }}
       </v-list-subheader>
       <v-list-item
         v-for="(nav, navIndex) in group.children"
-        :key="navIndex"
-        :value="nav"
-        :to="{ name: nav.name }"
+        :key="`${groupIndex}-${navIndex}`"
         :prepend-icon="nav.icon"
+        :to="{ name: nav.name }"
+        :value="nav"
       >
         {{ $t(nav.title) }}
       </v-list-item>

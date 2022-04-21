@@ -21,12 +21,11 @@ import BittorrentSite from "../schema/AbstractBittorrentSite";
 // from: http://proger.i-forge.net/%D0%9A%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80/[20121112]%20The%20smallest%20transparent%20pixel.html
 const NO_IMAGE = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=";
 
-// @ts-ignore
-const packedIconContext = import.meta.webpackContext("../icons/", {
+const packedIconContext = import.meta.webpackContext!("../icons/", {
   regExp: /\.(ico|png)$/,
   mode: "eager"
 });
-const packedIconList: Array<`./${string}.${"png" | "ico"}`> = packedIconContext.keys();
+const packedIconList = packedIconContext.keys() as Array<`./${string}.${"png" | "ico"}`>;
 
 const FAVICON_FROM_LINK = [
   "link[rel='icon' i][href]",

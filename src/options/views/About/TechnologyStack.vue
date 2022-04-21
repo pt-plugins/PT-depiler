@@ -1,12 +1,7 @@
 <script lang="ts" setup>
 import axios from "axios";
-import { h } from "vue";
-import { useI18n } from "vue-i18n";
+import { reactive } from "vue";
 import { useStorage } from "@vueuse/core";
-import packageJson from "@/../package.json";
-import { getFullVersion, VersionDetail } from "@/shared/constants";
-
-const { t } = useI18n();
 
 const ptppHistory = [
   {
@@ -33,191 +28,118 @@ const ptppHistory = [
   }
 ];
 
-const version = getFullVersion();
-
 interface ITData {
   name: string,
-  ver: string,
+  version: string,
   url: string
 }
 
-interface ITechnologyData {
-  version: VersionDetail,
-  technologyData: ITData[],
-}
+const rawDependencies = reactive<Record<string, ITData>>({});
 
-const technologyTableColumn = [
-  {
-    title: () => t("TechnologyStack.stackTableColumn.name"),
-    key: "name",
-    sorter: "default",
-    defaultSortOrder: "ascend"
-  },
-  {
-    title: () => t("TechnologyStack.stackTableColumn.version"),
-    key: "ver",
-    align: "center"
-  },
-  {
-    title: () => t("TechnologyStack.stackTableColumn.homepage"),
-    key: "url",
-    render (row: { url: any; }) {
-      return h("a", {
-        target: "_blank",
-        href: row.url
-      }, { default: () => row.url });
-    }
-  }
-];
-
-const technologyData = useStorage<ITechnologyData>("technology-data", {
-  version,
-  technologyData: []
+// Load deps from package.json
+const rawDependencyContext = import.meta.webpackContext!("@/..", {
+  regExp: /package\.json$/,
+  exclude: /node_module/,
+  mode: "sync"
 });
-if (technologyData.value.version.full !== version.full || technologyData.value.technologyData.length === 0) {
-  // 清空原缓存的信息
-  technologyData.value.technologyData = [];
 
-  // eslint-disable-next-line no-inner-declarations
-  function updateTechnologyData (name: string, version: string, url?: string) {
+const npmjsPrefix = "https://www.npmjs.com/package/";
+for (const dependencyKey of rawDependencyContext.keys()) {
+  const {dependencies} = rawDependencyContext(dependencyKey);
+  Object.entries(dependencies).forEach(value => {
+    const [name,version] = value;
     if (!name.startsWith("@ptpp")) {
-      const oldCache = technologyData.value.technologyData.find(x => x.name === name);
-      if (!oldCache) {
-        technologyData.value.technologyData.push({
-          name: name,
-          ver: version,
-          url: url ?? `https://www.npmjs.com/package/${name}`
+      rawDependencies[name] = {
+        name,
+        version: (version as string),
+        url: `${npmjsPrefix}${name}`
+      };
+    }
+  });
+}
+
+// Other Deps
+[
+  {
+    name: "Jackett",
+    version: "latest",
+    url: "https://github.com/Jackett/Jackett"
+  }
+].forEach(value => {
+  rawDependencies[value.name] = value;
+});
+
+// Update deps homepage link
+const technologyData = useStorage<Record<string, string>>("technology-data", {});
+Object.values(rawDependencies).forEach(value => {
+  if (value.url.startsWith(npmjsPrefix)) {
+    if (typeof technologyData.value[value.name] === "undefined") {
+      axios.get(`https://registry.npmjs.org/${value.name}`)
+        .then(({ data }) => {
+          technologyData.value[value.name] = rawDependencies[value.name].url = data?.homepage;
         });
-      }
+    } else {
+      rawDependencies[value.name].url = technologyData.value[value.name];
     }
   }
-
-  // 主项目依赖
-  Object.entries(packageJson.dependencies).forEach(([name, version]) => {
-    updateTechnologyData(name, version);
-  });
-
-  // monorepo的其他依赖
-  const deepDependency = require.context("@/../packages/", true, /package\.json$/);
-  deepDependency.keys().filter(key => !/node_modules/.test(key)).forEach(key => {
-    Object.entries(deepDependency(key).dependencies).forEach(([name, version]) => {
-      updateTechnologyData(name, version as string);
-    });
-  });
-
-  // 其他特别依赖/参考项目
-  [
-    {
-      name: "Jackett",
-      ver: "latest",
-      url: "https://github.com/Jackett/Jackett"
-    }
-  ].forEach(({
-    name,
-    ver,
-    url
-  }) => updateTechnologyData(name, ver, url));
-}
-
-// 从 npmjs.org 加载对应homepage信息
-for (let i = 0; i < technologyData.value.technologyData.length; i++) {
-  const {
-    name,
-    url
-  } = technologyData.value.technologyData[i];
-  if (url.match(/npmjs/)) {
-    axios.get(`https://registry.npmjs.org/${name}`)
-      .then(({ data }) => {
-        technologyData.value.technologyData[i].url = data?.homepage;
-      });
-  }
-}
+});
 </script>
 
 <template>
-  <v-row>
-    <v-col>
-      <v-card>
-        <v-card-title> {{ $t('TechnologyStack.ptppHistory') }}</v-card-title>
-        <v-card-text>
-          <v-timeline side="before">
-            <v-timeline-item v-for="history in ptppHistory" :key="history.name">
-              {{ history.name }}
-            </v-timeline-item>
-          </v-timeline>
-        </v-card-text>
-      </v-card>
-    </v-col>
-  </v-row>
-  <v-row>
-    <v-col>2</v-col>
-  </v-row>
-  <!--
-    <n-grid
-      :y-gap="8"
-      :cols="1"
-    >
-      <n-grid-item>
-        <n-card hoverable>
-          <template #header>
-            <n-text
-              type="success"
-              strong
-            >
-
-            </n-text>
-          </template>
-          <n-timeline>
-            <n-timeline-item
-              v-for="history in ptppHistory"
-              :key="history"
-              :type="history.type || undefined"
-              :time="history.time"
-            >
-              <template #header>
-                {{ history.name }}&nbsp;&nbsp;<n-a
-                  :href="history.link"
-                  target="_blank"
-                >
-                  <n-icon><ExternalLinkAlt /></n-icon>
-                </n-a>
-              </template>
-            </n-timeline-item>
-          </n-timeline>
-        </n-card>
-      </n-grid-item>
-
-      <n-grid-item>
-        <n-card hoverable>
-          <template #header>
-            <n-text
-              type="success"
-              strong
-            >
-              {{ $t('TechnologyStack.dependency') }}
-            </n-text>
-          </template>
-          <n-grid
-            :y-gap="8"
-            :cols="1"
-          >
-            <n-grid-item>
-              <n-alert
-                type="info"
-                :title="$t('TechnologyStack.thankNote')"
-              />
-            </n-grid-item>
-            <n-grid-item>
-              <n-data-table
-                :columns="technologyTableColumn"
-                :data="technologyData.technologyData"
-              />
-            </n-grid-item>
-          </n-grid>
-        </n-card>
-      </n-grid-item>
-    </n-grid>
-    -->
+  <v-alert class="mb-2" type="info">
+    {{ $t('TechnologyStack.thankNote') }}
+  </v-alert>
+  <v-card class="mb-2">
+    <v-card-title>{{ $t('TechnologyStack.ptppHistory') }}</v-card-title>
+    <v-card-text>
+      <v-timeline :side="$vuetify.display.mdAndUp ? undefined : 'end'">
+        <v-timeline-item v-for="history in ptppHistory" :key="history.name" rounded>
+          <v-row class="pt-1">
+            <v-col cols="4">
+              {{ history.time }}
+            </v-col>
+            <v-col>
+              <strong>{{ history.name }}</strong><br>
+              <a :href="history.link" target="_blank">{{ history.link }}</a>
+            </v-col>
+          </v-row>
+        </v-timeline-item>
+      </v-timeline>
+    </v-card-text>
+  </v-card>
+  <v-card>
+    <v-card-title>{{ $t('TechnologyStack.dependency') }}</v-card-title>
+    <v-card-text>
+      <v-table>
+        <thead>
+          <tr>
+            <th class="text-center">
+              {{ $t("TechnologyStack.stackTableColumn.name") }}
+            </th>
+            <th class="text-center">
+              {{ $t("TechnologyStack.stackTableColumn.version") }}
+            </th>
+            <th class="text-left">
+              {{ $t("TechnologyStack.stackTableColumn.homepage") }}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="deps in rawDependencies" :key="deps.name">
+            <td class="text-center">
+              {{ deps.name }}
+            </td>
+            <td class="text-center">
+              {{ deps.version }}
+            </td>
+            <td class="text-left">
+              <a :href="deps.url" target="_blank">{{ deps.url }}</a>
+            </td>
+          </tr>
+        </tbody>
+      </v-table>
+    </v-card-text>
+  </v-card>
 </template>
 
 <style scoped>

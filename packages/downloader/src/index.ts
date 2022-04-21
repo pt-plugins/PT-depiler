@@ -6,8 +6,7 @@ import {
 export * from "./types";
 export { getRemoteTorrentFile } from "./utils";
 
-// @ts-ignore 动态生成支持列表
-const requireContext = import.meta.webpackContext("./entity/", {
+const requireContext = import.meta.webpackContext!("./entity/", {
   regExp: /\.ts$/,
   chunkName: "lib/downloader/[request]",
   mode: "lazy"
@@ -26,15 +25,11 @@ export async function getDownloaderModule(configType: string): Promise<{
   return await requireContext(`./${configType}.ts`);
 }
 
-export async function getDownloaderDefaultConfig(
-  type: string
-): Promise<BittorrentClientBaseConfig> {
+export async function getDownloaderDefaultConfig(type: string): Promise<BittorrentClientBaseConfig> {
   return (await getDownloaderModule(type)).clientConfig;
 }
 
-export async function getDownloaderMetaData(
-  type: string
-): Promise<TorrentClientMetaData> {
+export async function getDownloaderMetaData(type: string): Promise<TorrentClientMetaData> {
   return (await getDownloaderModule(type)).clientMetaData;
 }
 
@@ -47,9 +42,7 @@ export async function getDownloaderIcon(configType: string):Promise<string> {
 
 const clientInstanceCache: Record<string, AbstractBittorrentClient> = {};
 
-export async function getDownloader(
-  config: BittorrentClientBaseConfig
-): Promise<AbstractBittorrentClient> {
+export async function getDownloader(config: BittorrentClientBaseConfig): Promise<AbstractBittorrentClient> {
   if (typeof clientInstanceCache[config.id!] === "undefined") {
     const DownloaderClass = (await getDownloaderModule(config.type)).default;
 
