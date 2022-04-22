@@ -1,107 +1,52 @@
 <script lang="ts" setup>
-import { openUrl } from "@/options/utils";
 </script>
 
 <template>
-  <n-grid
-    :y-gap="8"
-    :cols="1"
-  >
-    <n-grid-item>
-      <n-alert
-        type="info"
-        :title="$t('Donate.thanks')"
-      >
-        {{ $t("Donate.note") }}
-      </n-alert>
-    </n-grid-item>
-    <n-grid-item>
-      <n-grid
-        :x-gap="8"
-        :y-gap="8"
-        :cols="3"
-        item-responsive
-        responsive="screen"
-      >
-        <n-grid-item span="3 s:1">
-          <n-card>
-            <template #header>
-              <n-a
-                href="https://github.com/ronggang"
-                target="_blank"
-              >
-                ronggang
-              </n-a>&nbsp;
-              <n-tag type="success">
-                Owner
-              </n-tag>
-            </template>
-            <n-space
-              vertical
-              align="center"
-            >
-              <img
-                src="/assets/donate/ronggang.png"
-                style="max-width: 100%"
-              >
-              <n-button
-                ghost
-                type="warning"
-                @click="openUrl('https://www.paypal.me/ronggang')"
-              >
-                <n-icon><Paypal /></n-icon>&nbsp;Paypal
-              </n-button>
-            </n-space>
-          </n-card>
-        </n-grid-item>
-        <n-grid-item span="3 s:1">
-          <n-card>
-            <template #header>
-              <n-a
-                href="https://github.com/Rhilip"
-                target="_blank"
-              >
-                Rhilip
-              </n-a>&nbsp;
-              <n-tag type="info">
-                Collaborator
-              </n-tag>
-            </template>
-            <n-space
-              align="center"
-              justify="center"
-            >
-              <img
-                src="/assets/donate/Rhilip.png"
-                style="max-width: 100%"
-              >
-            </n-space>
-          </n-card>
-        </n-grid-item>
-        <n-grid-item span="3 s:1">
-          <n-card>
-            <template #header>
-              <n-a
-                href="https://github.com/ted423"
-                target="_blank"
-              >
-                ted423
-              </n-a>&nbsp;
-              <n-tag type="info">
-                Collaborator
-              </n-tag>
-            </template>
-            <n-space
-              align="center"
-              justify="center"
-            >
-              <n-empty size="large" />
-            </n-space>
-          </n-card>
-        </n-grid-item>
-      </n-grid>
-    </n-grid-item>
-  </n-grid>
+  <v-alert type="info">
+    <v-alert-title>
+      {{ $t('Donate.thanks') }}
+    </v-alert-title>
+    {{ $t("Donate.note") }}
+  </v-alert>
+  <v-row no-gutters>
+    <v-col cols="12" sm="4">
+      <v-card>
+        <v-card-title>
+          <a href="https://github.com/ronggang" target="_blank">ronggang</a>
+          <v-spacer />
+          <v-chip label color="primary">
+            Owner
+          </v-chip>
+        </v-card-title>
+        <v-card-content>
+          <v-img src="/assets/donate/ronggang.png" />
+          <v-btn
+            variant="text"
+            color="warning" href="https://www.paypal.me/ronggang"
+            target="_blank"
+            prepend-icon="mdi-currency-usd"
+          >
+            PayPal
+          </v-btn>
+        </v-card-content>
+      </v-card>
+    </v-col>
+    <v-col cols="12" sm="4">
+      <v-card>
+        <v-card-title>
+          <a href="https://github.com/Rhilip" target="_blank">Rhilip</a>
+          <v-spacer />
+          <v-chip label color="green">
+            Collaborator
+          </v-chip>
+        </v-card-title>
+        <v-card-content>
+          <v-img src="/assets/donate/Rhilip.png" />
+        </v-card-content>
+      </v-card>
+    </v-col>
+  </v-row>
 </template>
 
-<style scoped></style>
+<style scoped>
+</style>

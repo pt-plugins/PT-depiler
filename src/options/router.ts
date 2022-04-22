@@ -125,12 +125,12 @@ export const routes: RouteRecordRaw[] = [
         meta: { icon: "mdi-account-multiple" },
         component: () => dynamicImportView("About/DevTeam")
       },
-      /**{
-        path: '/donate',
-        name: 'Donate',
-        meta: { icon: 'FreeBreakfastSharp' },
-        component: () => dynamicImportView('About/Donate')
-      }*/
+      {
+        path: "/donate",
+        name: "Donate",
+        meta: { icon: "mdi-coffee" },
+        component: () => dynamicImportView("About/Donate")
+      }
     ]
   },
   {

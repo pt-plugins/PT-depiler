@@ -42,8 +42,7 @@ module.exports = {
 
         if (!IS_PROD) {
           manifest.description += ' (Development Mode)';
-          manifest.content_security_policy =
-            'script-src \'self\' \'unsafe-eval\' http://localhost:8098; object-src \'self\'';
+          manifest.content_security_policy = "script-src 'self' 'unsafe-eval' http://localhost:8098; object-src 'self'";
         }
 
         return manifest;

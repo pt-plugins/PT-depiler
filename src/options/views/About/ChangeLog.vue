@@ -24,7 +24,8 @@ interface IReleaseData {
 const releaseData = useStorage<Partial<IReleaseData>>("version-release-data", {});
 if (typeof releaseData.value.tag_name === "undefined" || releaseData.value.tag_name !== version.main) {
   axios.get<IReleaseData>(`${REPO_API}/releases/tags/${version.main}`).then(({ data }) => {
-    data.body = data.body.replace(/(#)(\d+)/g, `[#$2](${REPO_URL}/issues/$2)`) // 生成 issue 的链接
+    data.body = data.body
+      .replace(/(#)(\d+)/g, `[#$2](${REPO_URL}/issues/$2)`) // 生成 issue 的链接
       .replace(/(@)([\S]+)/g, "[@$2](https://github.com/$2)"); // 生成 committer 的主页链接
 
     releaseData.value = data;
@@ -83,21 +84,21 @@ if (typeof commitData.value.sha === "undefined" || !commitData.value.sha.startsW
         <v-card-subtitle>
           <a :href="commitData.html_url" target="_blank">{{ version.hash }}</a>&nbsp;
           (
-          <v-icon icon="mdi-plus" />
-          {{ commitData.stats!.additions }}&nbsp;
-          <v-icon icon="mdi-minus" />
-          {{ commitData.stats!.deletions }}) &nbsp;
+          <v-icon icon="mdi-plus" color="green" />
+          {{ commitData.stats.additions }}&nbsp;
+          <v-icon icon="mdi-minus" color="red" />
+          {{ commitData.stats.deletions }}) &nbsp;
           by&nbsp;
           <a
-            :href="commitData.author!.html_url"
+            :href="commitData.author.html_url"
             target="_blank"
-          >@{{ commitData.author!.login }}</a>
+          >@{{ commitData.author.login }}</a>
           )
         </v-card-subtitle>
 
         <v-card-text>
           <div class="markdown-body commit-detail">
-            <pre>{{ commitData.commit!.message }}</pre>
+            <pre>{{ commitData.commit.message }}</pre>
           </div>
         </v-card-text>
       </v-card>

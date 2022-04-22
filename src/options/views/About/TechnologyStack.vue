@@ -1,18 +1,16 @@
 <script lang="ts" setup>
 import axios from "axios";
-import { reactive } from "vue";
+import { reactive, computed } from "vue";
 import { useStorage } from "@vueuse/core";
 
 const ptppHistory = [
   {
     name: "PTPP Next",
-    type: "success",
     time: "2020-10-25",
     link: "https://github.com/ronggang/PT-Plugin-Plus/tree/next"
   },
   {
     name: "PT Plugin Plus",
-    type: "info",
     time: "2018-12-16",
     link: "https://github.com/ronggang/PT-Plugin-Plus"
   },
@@ -35,6 +33,8 @@ interface ITData {
 }
 
 const rawDependencies = reactive<Record<string, ITData>>({});
+
+const tableDependencies = computed(() => Object.values(rawDependencies).sort((a,b) => a.name.localeCompare(b.name)));
 
 // Load deps from package.json
 const rawDependencyContext = import.meta.webpackContext!("@/..", {
@@ -125,7 +125,7 @@ Object.values(rawDependencies).forEach(value => {
           </tr>
         </thead>
         <tbody>
-          <tr v-for="deps in rawDependencies" :key="deps.name">
+          <tr v-for="deps in tableDependencies" :key="deps.name">
             <td class="text-center">
               {{ deps.name }}
             </td>
@@ -133,7 +133,7 @@ Object.values(rawDependencies).forEach(value => {
               {{ deps.version }}
             </td>
             <td class="text-left">
-              <a :href="deps.url" target="_blank">{{ deps.url }}</a>
+              <a :href="deps.url" target="_blank" rel="noopener noreferrer nofollow">{{ deps.url }}</a>
             </td>
           </tr>
         </tbody>

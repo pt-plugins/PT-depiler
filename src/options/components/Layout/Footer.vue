@@ -4,8 +4,9 @@ import { getFullVersion, GROUP_TELEGRAM } from "@/shared/constants";
 
 <template>
   <v-footer
-    id="ptpp-footer" 
+    id="ptpp-footer"
     app fixed
+    bottom
   >
     Footer
   </v-footer>
