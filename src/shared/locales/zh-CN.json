@@ -57,6 +57,12 @@
       },
       "searchTip": "输入种子关键字、IMDb编号进行搜索",
       "wiki": "帮助"
+    },
+    "dialog": {
+      "cancel": "取消",
+      "prev": "上一步",
+      "next": "下一步",
+      "complete": "完成"
     }
   },
   "route": {
@@ -86,7 +92,7 @@
       "default": "参数设置",
       "setBackup": "参数备份与恢复",
       "setBase": "常规设置",
-      "setClient": "下载器设置",
+      "setDownloader": "下载器设置",
       "setDownloadPaths": "下载目录设置",
       "setSearchSolution": "搜索方案定义",
       "setSite": "站点设置"
@@ -105,7 +111,7 @@
       }
     }
   },
-  "setClient": {
+  "setDownloader": {
     "add": {
       "NoneSelectNotice": "请选择一个服务器类型",
       "newType": "找不到想要的服务器类型？来这里添加吧！",
@@ -120,17 +126,20 @@
       "title": "编辑下载服务器"
     },
     "editor": {
-      "checkConnect": "检查连接性",
       "connect": {
-        "fail": "连接失败！请检查填写的信息或者你的下载服务器。",
+        "default": "检查连接性",
+        "error": "连接失败！请检查填写的信息或者你的下载服务器。",
         "success": "连接成功，你可以顺利进行下一步。"
       },
-      "idPlaceholder": "<添加后自动生成>",
+      "name": "服务器名称",
+      "nameTip": "取一个好听又好分辨的名称",
+      "address": "服务器地址",
+      "addressTip": "完整的服务器地址（含端口），如：http://192.168.1.1:5000/",
+      "username": "用户名",
       "password": "密码",
-      "serverAddress": "服务器地址",
-      "serverName": "服务器名称",
       "type": "服务器类型",
-      "username": "用户名"
+      "uid": "服务器ID",
+      "uidPlaceholder": "<添加后自动生成>"
     },
     "index": {
       "btn": {

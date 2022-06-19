@@ -58,7 +58,13 @@
       },
       "searchTip": "Input keyword, IMDb numbers to search",
       "wiki": "Wiki"
-    }
+    },
+      "dialog": {
+        "cancel": "Cancel",
+        "prev": "Prev",
+        "next": "Next",
+        "complete": "Complete"
+      }
   },
   "route": {
     "About": {
@@ -87,7 +93,7 @@
       "default": "Settings",
       "setBackup": "Backup & Restore",
       "setBase": "General",
-      "setClient": "Download Server",
+      "setDownloader": "Download Server",
       "setDownloadPaths": "Download Paths",
       "setSearchSolution": "Search Solution",
       "setSite": "Sites"
@@ -106,7 +112,7 @@
       }
     }
   },
-  "setClient": {
+  "setDownloader": {
     "add": {
       "NoneSelectNotice": "Please select a server type",
       "newType": "Come here to add the server type you want",
@@ -121,17 +127,20 @@
       "title": "Edit Download Server"
     },
     "editor": {
-      "checkConnect": "Check Connect",
       "connect": {
-        "fail": "Connect Failed! Check Form or Download Server",
+        "default": "Check Connect",
+        "error": "Connect Failed! Check Form Input or Download Server",
         "success": "Connect Successful! You can enter next step."
       },
-      "idPlaceholder": "The Client Id will generate automatically after adding",
+      "name": "Server Name",
+      "nameTip": "Pick a nice and recognizable name for this Download Server",
+      "address": "Server Address",
+      "addressTip": "Full Server Address (may include port or path), Like: http://192.168.1.1:5000/",
+      "username": "Username",
       "password": "Password",
-      "serverAddress": "Server Address",
-      "serverName": "Server Name",
       "type": "Server Type",
-      "username": "Username"
+      "uid": "Downloader Id",
+      "uidPlaceholder": "The Downloader Id will generate automatically after adding"
     },
     "index": {
       "btn": {

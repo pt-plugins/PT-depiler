@@ -33,11 +33,13 @@ export async function getDownloaderMetaData(type: string): Promise<TorrentClient
   return (await getDownloaderModule(type)).clientMetaData;
 }
 
-export async function getDownloaderIcon(configType: string):Promise<string> {
-  return (await import(
-    /* webpackChunkName: "downloader/[request]" */
-    /* webpackMode: "eager" */
-    `./icons/${configType}.png`)).default;
+const downloaderIconContext = import.meta.webpackContext!("./icons/", {
+  regExp: /\.png$/,
+  mode: "sync"
+});
+
+export  function getDownloaderIcon(configType: string):string {
+  return downloaderIconContext(`./${configType}.png`);
 }
 
 const clientInstanceCache: Record<string, AbstractBittorrentClient> = {};

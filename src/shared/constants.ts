@@ -6,7 +6,6 @@ import { EInstallType } from "@/shared/interfaces/enum";
 // 仓库相关
 export const REPO_NAME = "pt-plugins/ptpp-next";
 export const REPO_URL = `https://github.com/${REPO_NAME}`;
-export const REPO_DEV_BRANCH_URL = `${REPO_URL}/tree/next`;
 export const REPO_API = `https://api.github.com/repos/${REPO_NAME}`;
 
 export const GROUP_TELEGRAM = "https://t.me/joinchat/NZ9NCxPKXyby8f35rn_QTw";

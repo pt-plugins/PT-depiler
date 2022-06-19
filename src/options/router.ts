@@ -81,12 +81,12 @@ export const routes: RouteRecordRaw[] = [
         meta: { icon: "mdi-widgets" },
         component: () => dynamicImportView("Settings/setSearchSolution")
       },
-      /**{
-        path: '/set-client',
-        name: 'setClient',
-        meta: { icon: 'mdi-cloud-download' },
-        component: () => dynamicImportView('Settings/setClient')
-      },*/
+      {
+        path: "/set-downloader",
+        name: "setDownloader",
+        meta: { icon: "mdi-cloud-download" },
+        component: () => dynamicImportView("Settings/setDownloader")
+      },
       {
         path: "/set-download-paths",
         name: "setDownloadPaths",
