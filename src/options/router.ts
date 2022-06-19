@@ -120,10 +120,10 @@ export const routes: RouteRecordRaw[] = [
         component: () => dynamicImportView("About/ChangeLog")
       },
       {
-        path: "/dev-team",
-        name: "DevTeam",
+        path: "/special-thank",
+        name: "SpecialThank",
         meta: { icon: "mdi-account-multiple" },
-        component: () => dynamicImportView("About/DevTeam")
+        component: () => dynamicImportView("About/SpecialThank")
       },
       {
         path: "/donate",
@@ -156,9 +156,7 @@ export const routes: RouteRecordRaw[] = [
   { path: "/:pathMatch(.*)*", name: "NotFound", redirect: "/" }
 ];
 
-const router = createRouter({
+export const routerInstance = createRouter({
   history: createWebHashHistory(),
   routes
 });
-
-export default router;

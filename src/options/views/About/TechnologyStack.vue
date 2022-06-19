@@ -7,7 +7,7 @@ const ptppHistory = [
   {
     name: "PTPP Next",
     time: "2020-10-25",
-    link: "https://github.com/ronggang/PT-Plugin-Plus/tree/next"
+    link: "https://github.com/pt-plugins/ptpp-next"
   },
   {
     name: "PT Plugin Plus",

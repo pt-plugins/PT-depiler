@@ -1,3 +1,4 @@
+// FIXME
 import browser from "webextension-polyfill";
 
 export default abstract class BrowserBridge {

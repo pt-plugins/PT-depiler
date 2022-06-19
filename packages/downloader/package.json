@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "src/index.ts",
   "dependencies": {
-    "axios": "^0.26.1",
+    "axios": "^0.27.2",
     "buffer": "^6.0.3",
     "content-disposition": "^0.5.4",
     "lodash-es": "^4.17.21",

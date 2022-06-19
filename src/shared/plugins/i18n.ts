@@ -1,29 +1,8 @@
-import { createI18n, LocaleMessages, VueMessageType } from "vue-i18n";
-import { ILangMetaData } from "@/shared/interfaces/common";
+import {watch} from "vue";
+import {createI18n, LocaleMessages, VueMessageType} from "vue-i18n";
+import {lang} from "@/shared/store/ui";
 
-/**
- * 由于 Vue-i18n v9 在 CSP 环境中无法进行编译操作，所以所有语言文件需要在此处预注册，
- * 不然不会在插件页面显示，也不能实现像 v1.x 中的”临时添加新语言功能“
- */
-export const localeDefine: ILangMetaData[] = [
-  {
-    name: "English (Beta)",
-    code: "en",
-    authors: ["ronggang", "ylxb2016", "xiongqiwei", "jackson008"],
-  },
-  {
-    name: "简体中文 Chinese (Simplified)",
-    code: "zh-CN",
-    authors: ["栽培者"],
-  },
-];
 
-/**
- * 获取当前应该使用的语言
- */
-function getDefaultLocale() {
-  return localStorage.getItem("locale") ?? navigator.language;
-}
 
 /**
  * Load locale messages
@@ -48,17 +27,15 @@ function loadLocaleMessages(): LocaleMessages<VueMessageType> {
   return messages;
 }
 
-const i18n = createI18n({
+export const i18nInstance = createI18n({
   legacy: false,
-  locale: getDefaultLocale(),
+  locale: lang.value,
   fallbackLocale: "en",
   messages: loadLocaleMessages(),
   globalInjection: true,
 });
 
-export function setI18nLanguage(locale: string) {
-  i18n.global.locale.value = locale;
-
+watch(lang, (newLang) => {
   /**
    * NOTE:
    * If you need to specify the language setting for headers, such as the `fetch` API, set it here.
@@ -66,8 +43,7 @@ export function setI18nLanguage(locale: string) {
    *
    * axios.defaults.headers.common['Accept-Language'] = locale
    */
-  document.querySelector("html")?.setAttribute("lang", locale);
-  localStorage.setItem("locale", locale);
-}
+  document.querySelector("html")?.setAttribute("lang", newLang);
 
-export default i18n;
+  i18nInstance.global.locale.value = newLang;
+});

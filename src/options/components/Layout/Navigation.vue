@@ -1,15 +1,15 @@
 <script lang="ts" setup>
-import { useStore } from "@/options/store";
+import {useUIStore} from "@/shared/store/ui";
 import { useDisplay } from "vuetify";
 import { routes } from "../../router";
 import { watch } from "vue";
 
-const store = useStore();
+const uiStore = useUIStore();
 
 // 当页面窗口大小发生变化时，调整 Navigation 的显示
 const display = useDisplay();
 watch(display.mdAndUp, () => {
-  store.uiOptions.navBarIsOpen = display.mdAndUp.value;
+  uiStore.isNavBarOpen = display.mdAndUp.value;
 });
 
 // 自动从router.ts生成目录
@@ -34,7 +34,7 @@ const menuOptions = routes
 <template>
   <v-navigation-drawer
     id="ptpp-navigation"
-    v-model="store.uiOptions.navBarIsOpen"
+    v-model="uiStore.isNavBarOpen"
     :width="220"
     expand-on-hover
     permanent

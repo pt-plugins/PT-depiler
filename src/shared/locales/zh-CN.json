@@ -6,13 +6,20 @@
     "noteVersion": "主版本说明",
     "seeReleasePage": "请前往 {releasePage} 查看。"
   },
-  "DevTeam": {
-    "contributors": "协作者们",
-    "issues": "反馈者们",
-    "sortByName": "列表按字母排序",
-    "thank1": "在项目的开发和测试中，他们给予了很多帮助和支持（或开发，或测试，或发💊，或建议，或鼓励，或鞭策），在此表示感谢。",
-    "thank2": "列表中未能一一列出所有给予帮助的同学，也对他们表示感谢，如有遗漏敬请谅解。",
-    "thank3": "同时一并感谢这些："
+  "SpecialThank": {
+    "note": {
+      "thank1": "在项目的开发和测试中，他们给予了很多帮助和支持（或开发，或测试，或发💊，或建议，或鼓励，或鞭策），在此表示感谢。",
+      "thank2": "列表中未能一一列出所有给予帮助的同学，也对他们表示感谢，如有遗漏敬请谅解。",
+      "thank3": "同时一并感谢这些："
+    },
+    "contributor": "协作者",
+    "issue": "反馈",
+
+    "langContributor": "语言@:SpecialThank.contributor",
+    "preWorkContributor": "前期工作@:SpecialThank.contributor",
+
+    "sortByName": "列表按字母排序"
+
   },
   "Donate": {
     "note": "本项目由作者在业余时间完成，如果您喜欢本项目，可以通过捐助来支持作者继续开发。",
@@ -33,28 +40,14 @@
     "test": "测试"
   },
   "common": {
-    "dialog": {
-      "negative": "取消",
-      "next": "下一步",
-      "positive": "确定",
-      "previous": "上一步",
-      "title": {
-        "warning": "警告"
-      }
-    },
+    "language": "语言",
     "name": "PT 助手 Plus",
     "version": "版本"
   },
   "layout": {
     "footer": {
-      "changeLanguage": "切换语言",
-      "displayMode": {
-        "dark": "暗黑模式",
-        "light": "明亮模式"
-      }
     },
     "header": {
-      "donate": "捐助",
       "emptySearchNotice": "获取各站第一页种子",
       "home": "主页",
       "search": "搜索",
@@ -69,8 +62,8 @@
   "route": {
     "About": {
       "ChangeLog": "更新日志",
-      "DevTeam": "特别感谢",
-      "Donate": "友情捐赠",
+      "SpecialThank": "特别感谢",
+      "Donate": "友情捐助",
       "TechnologyStack": "项目参考与引用",
       "default": "插件相关"
     },
@@ -97,6 +90,19 @@
       "setDownloadPaths": "下载目录设置",
       "setSearchSolution": "搜索方案定义",
       "setSite": "站点设置"
+    }
+  },
+  "setBase": {
+    "tab": {
+      "ui": "界面UI"
+    },
+    "ui": {
+      "changeLanguage": "切换语言",
+      "displayMode": {
+        "index": "切换页面显示模式，当前为：",
+        "dark": "暗黑模式",
+        "light": "明亮模式"
+      }
     }
   },
   "setClient": {

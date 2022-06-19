@@ -1,10 +1,7 @@
 <script lang="ts" setup>
-import { h, ref, provide } from "vue";
+import { ref, provide } from "vue";
 import { useI18n } from "vue-i18n";
-import { useStore } from "@/options/store";
-
 const { t } = useI18n();
-const store = useStore();
 
 const clientConfig = ref<any>({});
 provide("clientConfig", clientConfig);

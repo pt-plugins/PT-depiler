@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { useStore } from "@/options/store";
+
 import { reactive, watch, computed } from "vue";
 import { useToggle } from "@vueuse/core";
 import filesize from "filesize";
@@ -12,7 +12,7 @@ import {
 } from "@ptpp/downloader";
 import { flatten } from "lodash-es";
 
-const store = useStore();
+
 
 const torrentStatus = reactive<Record<string, CTorrent[]>>({});
 const clientStatus = reactive<Record<string, TorrentClientStatus>>({});
@@ -70,13 +70,7 @@ async function liveUpdatePerClient (config: BittorrentClientBaseConfig) {
   liveUpdateTimeouts[config.id!] = setTimeout(() => liveUpdatePerClient(config), 5e3);
 }
 
-watch(isLiveUpdate, (liveUpdateStatus) => {
-  if (liveUpdateStatus) {
-    store.options.clients.map(config => liveUpdatePerClient(config));
-  } else {
-    Object.values(liveUpdateTimeouts).forEach(timeoutId => clearTimeout(timeoutId));
-  }
-});
+
 </script>
 
 <template>

@@ -1,27 +1,21 @@
 <script lang="ts" setup>
 import { useDisplay } from "vuetify";
-import { useStore } from "@/options/store";
+import {useUIStore} from "@/shared/store/ui";
+import {REPO_URL} from "@/shared/constants";
 
-const store = useStore();
+const uiStore = useUIStore();
 const display = useDisplay();
 
 const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
   {
     title: "layout.header.home",
     icon: "mdi-home",
-    href: "https://github.com/ronggang/PT-Plugin-Plus"
+    href: REPO_URL
   },
   {
     title: "layout.header.wiki",
     icon: "mdi-help-circle",
-    href: "https://github.com/ronggang/PT-Plugin-Plus/wiki"
-  },
-  {
-    title: "layout.header.donate",
-    icon: "mdi-coffee",
-    prop: {
-      to: "/donate"
-    }
+    href: `${REPO_URL}/wiki`
   }
 ];
 </script>
@@ -31,7 +25,10 @@ const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
     <template #prepend>
       <v-app-bar-nav-icon
         :title="$t('topbar.navBarTip')"
-        @click="store.uiOptions.navBarIsOpen = !store.uiOptions.navBarIsOpen"
+        :style="{
+          'margin-inline-start': !display.mdAndDown.value ? '0px' : null
+        }"
+        @click="uiStore.isNavBarOpen = !uiStore.isNavBarOpen"
       />
     </template>
 
@@ -94,4 +91,5 @@ const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
   </v-app-bar>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+</style>

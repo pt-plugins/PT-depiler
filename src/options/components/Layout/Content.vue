@@ -6,10 +6,7 @@
       <keep-alive v-if="route.meta.keepAlive">
         <component :is="Component" />
       </keep-alive>
-      <component
-        :is="Component"
-        v-else 
-      />
+      <component :is="Component" v-else />
     </router-view>
   </v-container>
 </template>

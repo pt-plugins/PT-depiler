@@ -4,7 +4,7 @@
   "main": "src/index.ts",
   "dependencies": {
     "@ptpp/util": "workspace:*",
-    "axios": "^0.26.1",
+    "axios": "^0.27.2",
     "chrono-node": "^2.3.8",
     "dayjs": "^1.11.0",
     "localforage": "^1.10.0",

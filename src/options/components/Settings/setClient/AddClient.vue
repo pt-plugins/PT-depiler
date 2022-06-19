@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { Ref } from "@vue/reactivity";
+import { Ref } from "vue";
 import { ref, inject, watch, h, provide } from "vue";
 import { openUrl } from "@/options/utils";
 import { REPO_URL, REPO_DEV_BRANCH_URL } from "@/shared/constants";
@@ -7,7 +7,7 @@ import { HelpSharp, NavigateBeforeSharp, NavigateNextSharp, CheckCircleOutlineSh
 import { useMessage } from "naive-ui";
 import { useI18n } from "vue-i18n";
 import Editor from "./Editor.vue";
-import { useStore } from "@/options/store";
+import { useStore } from "@/shared/plugins/store";
 import {
   entityList,
   getDownloaderMetaData,

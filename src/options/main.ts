@@ -1,16 +1,16 @@
 import { createApp } from "vue";
-import router from "./router";
-import { createPinia } from "pinia";
-import i18n from "@/shared/plugins/i18n";
-import vuetify from "@/shared/plugins/vuetify";
+import { routerInstance as router } from "./router";
+import { i18nInstance as i18n } from "@/shared/plugins/i18n";
+import {piniaInstance as pinia} from "@/shared/plugins/pinia";
+import { vuetifyInstance as vuetify } from "@/shared/plugins/vuetify";
 
 import App from "./App.vue";
 
 import "@/shared/debug";
 
 createApp(App)
+  .use(pinia)
   .use(i18n)
   .use(router)
   .use(vuetify)
-  .use(createPinia())
   .mount("#app");

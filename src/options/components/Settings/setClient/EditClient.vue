@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 import { inject } from "vue";
-import { Ref } from "@vue/reactivity";
+import { Ref } from "vue";
 import Editor from "./Editor.vue";
 import {
   CancelSharp,
   CheckCircleOutlineSharp
 } from "@vicons/material";
-import { useStore } from "@/options/store";
+import { useStore } from "@/shared/plugins/store";
 import type { BittorrentClientBaseConfig } from "@ptpp/downloader";
 
 const store = useStore();

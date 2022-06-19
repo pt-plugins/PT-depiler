@@ -4,7 +4,7 @@
   "main": "src/index.ts",
   "dependencies": {
     "@ptpp/util": "workspace:*",
-    "axios": "^0.26.1",
+    "axios": "^0.27.2",
     "lodash-es": "^4.17.21",
     "url-join": "^5.0.0",
     "webdav": "^4.8.0"

@@ -6,13 +6,18 @@
     "noteVersion": "Changelog of the main version",
     "seeReleasePage": "Please go to {releasePage} to view."
   },
-  "DevTeam": {
-    "contributors": "Contributors",
-    "issues": "Suggesters",
-    "sortByName": "The list is sorted by name",
-    "thank1": "During the development and testing of this project, they have given a lot of help and support (or development, or testing, or sending invite, or suggesting, or encouraging, or spurring), thank you.",
-    "thank2": "Since we can't list all the people who helped, Please understand if there are any omissions.",
-    "thank3": "Thanks for these at the same time:"
+  "SpecialThank": {
+    "note": {
+      "thank1": "During the development and testing of this project, they have given a lot of help and support (or development, or testing, or sending invite, or suggesting, or encouraging, or spurring), thank you.",
+      "thank2": "Since we can't list all the people who helped, Please understand if there are any omissions.",
+      "thank3": "Thanks for these at the same time:"
+    },
+    "contributor": "Contributors",
+    "issue": "Suggesters",
+
+    "langContributor": "@:SpecialThank.contributor For Language",
+    "preWorkContributor": "@:SpecialThank.contributor For preliminary work",
+    "sortByName": "The list is sorted by name"
   },
   "Donate": {
     "note": "This project is completed by the author in his spare time. You can support the author's continued development through donations.",
@@ -36,28 +41,14 @@
     "navBarTip": "Click to show/hide the navigation bar"
   },
   "common": {
-    "dialog": {
-      "negative": "Cancel",
-      "next": "Next",
-      "positive": "Confirm",
-      "previous": "Previous",
-      "title": {
-        "warning": "warning"
-      }
-    },
+    "language": "Language",
     "name": "PT Plugin Plus",
     "version": "Version"
   },
   "layout": {
     "footer": {
-      "changeLanguage": "Switch Language",
-      "displayMode": {
-        "dark": "Dark Mode",
-        "light": "Light Mode"
-      }
     },
     "header": {
-      "donate": "Donate",
       "emptySearchNotice": "Get the first page of each tracker",
       "home": "Home",
       "search": "Search",
@@ -72,7 +63,7 @@
   "route": {
     "About": {
       "ChangeLog": "Change Log",
-      "DevTeam": "Special Thanks",
+      "SpecialThank": "Special Thanks",
       "Donate": "Donate",
       "TechnologyStack": "Project Reference",
       "default": "About"
@@ -100,6 +91,19 @@
       "setDownloadPaths": "Download Paths",
       "setSearchSolution": "Search Solution",
       "setSite": "Sites"
+    }
+  },
+  "setBase": {
+    "tab": {
+      "ui": "Option UI"
+    },
+    "ui": {
+      "changeLanguage": "Switch Language",
+      "displayMode": {
+        "index": "Switch ui display mode, current:",
+        "dark": "Dark Mode",
+        "light": "Light Mode"
+      }
     }
   },
   "setClient": {

@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import type { OptionType, OpUnitType } from "dayjs";
+import type { OptionType, ManipulateType } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import advancedFormat from "dayjs/plugin/advancedFormat";
 
@@ -45,7 +45,7 @@ export function parseTimeToLive(ttl: string): number {
     if (matched) {
       nowDayJs = nowDayJs.add(
         -parseFloat(matched![1]),
-        matched![2] as OpUnitType
+        matched![2] as ManipulateType
       );
     }
   });

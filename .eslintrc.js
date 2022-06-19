@@ -2,17 +2,29 @@ module.exports = {
   root: true,
 
   env: {
-    es6: true,
+    es2022: true,
     node: true,
     browser: true,
+    commonjs: true,
+    "shared-node-browser": true,
     webextensions: true,
   },
 
   parser: "vue-eslint-parser",
-
   parserOptions: {
-    parser: "@typescript-eslint/parser",
-    ecmaVersion: 2019,
+    parser: {
+      // Script parser for `<script>`
+      "js": "espree",
+
+      // Script parser for `<script lang="ts">`
+      "ts": "@typescript-eslint/parser",
+
+      // Script parser for vue directives (e.g. `v-if=` or `:attribute=`)
+      // and vue interpolations (e.g. `{{variable}}`).
+      // If not specified, the parser determined by `<script lang ="...">` is used.
+      "<template>": "espree",
+    },
+    ecmaVersion: "latest",
     sourceType: "module",
     ecmaFeatures: {
       globalReturn: true,
@@ -59,9 +71,7 @@ module.exports = {
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/ban-ts-comment":
-      process.env.NODE_ENV === "production" ? "warn" : "off",
-    "@typescript-eslint/no-inferrable-types":
-      process.env.NODE_ENV === "production" ? "warn" : "off",
+    "@typescript-eslint/ban-ts-comment": process.env.NODE_ENV === "production" ? "warn" : "off",
+    "@typescript-eslint/no-inferrable-types": process.env.NODE_ENV === "production" ? "warn" : "off",
   },
 };

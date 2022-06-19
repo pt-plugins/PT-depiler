@@ -4,7 +4,7 @@ import UAParser from "ua-parser-js";
 import { EInstallType } from "@/shared/interfaces/enum";
 
 // 仓库相关
-export const REPO_NAME = "ronggang/PT-Plugin-Plus";
+export const REPO_NAME = "pt-plugins/ptpp-next";
 export const REPO_URL = `https://github.com/${REPO_NAME}`;
 export const REPO_DEV_BRANCH_URL = `${REPO_URL}/tree/next`;
 export const REPO_API = `https://api.github.com/repos/${REPO_NAME}`;
@@ -30,8 +30,7 @@ export interface VersionDetail {
 }
 
 export function getFullVersion(): VersionDetail {
-  // @ts-ignore
-  const fullVersion = "v" + (MANIFEST.versionName || MANIFEST.version_name || MANIFEST.version) as TVersion; // v2.0.0.b3f0a76
+  const fullVersion = "v" + (MANIFEST.version_name ?? MANIFEST.version) as TVersion; // v2.0.0.b3f0a76
 
   let version; let versionHash = "";
   const mainVersionMatch = fullVersion.match(/(v\d+\.\d+\.\d+)\.?(.*)/);
