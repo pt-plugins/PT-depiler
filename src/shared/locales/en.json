@@ -7,11 +7,11 @@
     "seeReleasePage": "Please go to {releasePage} to view."
   },
   "SpecialThank": {
-    "note": {
-      "thank1": "During the development and testing of this project, they have given a lot of help and support (or development, or testing, or sending invite, or suggesting, or encouraging, or spurring), thank you.",
-      "thank2": "Since we can't list all the people who helped, Please understand if there are any omissions.",
-      "thank3": "Thanks for these at the same time:"
-    },
+    "thankNote": [
+      "During the development and testing of this project, they have given a lot of help and support (or development, or testing, or sending invite, or suggesting, or encouraging, or spurring), thank you.",
+      "Since we can't list all the people who helped, Please understand if there are any omissions.",
+      "Thanks for these at the same time:"
+    ],
     "contributor": "Contributors",
     "issue": "Suggesters",
 

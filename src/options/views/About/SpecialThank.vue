@@ -25,12 +25,9 @@ const sortedPeople = [
     class="mb-2"
     elevation="2"
   >
-    {{ $t("SpecialThank.note.thank1") }}
-    <br>
-    {{ $t("SpecialThank.note.thank2") }}
-    <br>
-    {{ $t("SpecialThank.note.thank3") }}
-    <br>
+    <template v-for="i in $tm('SpecialThank.thankNote')" :key="i">
+      {{ $rt(i) }} <br>
+    </template>
     {{ $t("SpecialThank.contributor") }}:
     <a :href="`${REPO_URL}/graphs/contributors`" rel="noopener noreferrer nofollow" target="_blank">{{ REPO_URL }}/graphs/contributors</a>
     <br>
