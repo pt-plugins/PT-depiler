@@ -6,6 +6,7 @@
  */
 import {defineStore} from "pinia";
 import {useBrowserStore} from "@/shared/utils/browser";
+import {usePreferredDark} from "@vueuse/core";
 
 interface ILangMetaData {
   title: string,
@@ -35,16 +36,22 @@ export const lang = useBrowserStore<typeof definedLangMetaData[number]["value"]>
   definedLangMetaData.map(x => x.value).includes(navigator.language) ? navigator.language : "en"
 );
 
+export const supportTheme = ["auto", "light", "dark"] as const;
+const preferDark =  usePreferredDark();
+
 export const useUIStore = defineStore("ui", {
   state: () => (
     {
-      isLightTheme: true,
+      theme: "light" as typeof supportTheme[number],
       isNavBarOpen: true,
     }
   ),
   getters: {
-    uiTheme(): "light" | "dark" {
-      return this.isLightTheme ? "light" : "dark";
+    uiTheme(): Exclude<typeof supportTheme[number], "auto"> {
+      if (this.theme === "auto") {
+        return preferDark.value ? "dark" : "light";
+      }
+      return this.theme;
     }
   },
   actions: {}

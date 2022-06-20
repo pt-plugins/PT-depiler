@@ -106,7 +106,8 @@
     "ui": {
       "changeLanguage": "Switch Language",
       "displayMode": {
-        "index": "Switch ui display mode, current:",
+        "index": "UI display mode",
+        "auto": "Auto (Follow Browser or System)",
         "dark": "Dark Mode",
         "light": "Light Mode"
       }

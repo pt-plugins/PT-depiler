@@ -105,7 +105,8 @@
     "ui": {
       "changeLanguage": "切换语言",
       "displayMode": {
-        "index": "切换页面显示模式，当前为：",
+        "index": "页面显示模式",
+        "auto": "跟随系统",
         "dark": "暗黑模式",
         "light": "明亮模式"
       }

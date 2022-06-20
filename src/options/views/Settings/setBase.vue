@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import {ref} from "vue";
-import {lang, definedLangMetaData, useUIStore} from "@/shared/store/ui";
+import {lang, definedLangMetaData, supportTheme, useUIStore} from "@/shared/store/ui";
 
 const uiStore = useUIStore();
 const setTab = ref<string>("ui");
@@ -14,7 +14,7 @@ const setTab = ref<string>("ui");
     >
       <v-tab value="ui">
         <v-icon icon="mdi-cog" />
-        {{ $t('setBase.tab.ui') }}
+        {{ $t("setBase.tab.ui") }}
       </v-tab>
       <v-tab value="test">
         test
@@ -33,15 +33,21 @@ const setTab = ref<string>("ui");
               />
 
               <!-- 明亮模式设置 -->
-              <v-switch
-                v-model="uiStore.isLightTheme"
-                color="success"
-                hide-details
+              <v-select
+                v-model="uiStore.theme" :label="$t('setBase.ui.displayMode.index')"
+                :items="supportTheme"
               >
-                <template #label>
-                  {{ $t('setBase.ui.displayMode.index') }} {{ $t('setBase.ui.displayMode.' + uiStore.uiTheme) }}
+                <template #selection="{item}">
+                  {{ $t("setBase.ui.displayMode." + item.raw) }}
                 </template>
-              </v-switch>
+
+                <template #item="{ item, props }">
+                  <v-list-item
+                    v-bind="props"
+                    :title="$t('setBase.ui.displayMode.' + item.raw)"
+                  />
+                </template>
+              </v-select>
             </v-col>
           </v-row>
         </v-container>
