@@ -291,7 +291,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
         ...(options.localDownloadOption || {}),
       });
 
-      formData.append("torrents", torrent.metadata.blob, torrent.name);
+      formData.append("torrents", torrent.metadata.blob(), torrent.name);
     }
 
     // 将通用字段转成qbt字段

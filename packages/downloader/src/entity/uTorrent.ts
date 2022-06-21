@@ -154,7 +154,7 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
   async ping (): Promise<boolean> {
     return await this.login();
   }
-  
+
   protected async getClientVersionFromRemote (): Promise<string> {
     return ""; // TODO
   }
@@ -212,7 +212,7 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
       });
       torrentInfo = torrent.info;
 
-      formData.append("torrent_file", torrent.metadata.blob, torrent.name);
+      formData.append("torrent_file", torrent.metadata.blob(), torrent.name);
     }
 
     await axios.post(this.address, formData, {

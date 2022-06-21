@@ -198,7 +198,7 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
         ...(options.localDownloadOption || {}),
       });
 
-      postData.append("torrent_file", torrent.metadata.blob, torrent.name);
+      postData.append("torrent_file", torrent.metadata.blob(), torrent.name);
     }
 
     postData.append("json", "1"); // 让ruTorrent返回json

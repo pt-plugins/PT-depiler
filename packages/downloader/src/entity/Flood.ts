@@ -409,7 +409,7 @@ export default class Flood extends AbstractBittorrentClient {
           formData.append(key, value);
         });
 
-        formData.append("torrents", torrent.metadata.blob, torrent.name);
+        formData.append("torrents", torrent.metadata.blob(), torrent.name);
         postData = formData; // 覆写postData
       }
 

@@ -503,7 +503,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
         ...(options.localDownloadOption || {}),
       });
 
-      postData.append("torrent", torrent.metadata.blob, torrent.name);
+      postData.append("torrent", torrent.metadata.blob(), torrent.name);
     }
 
     const req = await this.requestEntryCGI<{

@@ -319,7 +319,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
         ...(options.localDownloadOption || {}),
       });
 
-      addTorrentOptions.metainfo = torrent.metadata.base64;
+      addTorrentOptions.metainfo = torrent.metadata.base64();
     } else {
       addTorrentOptions.filename = url;
     }

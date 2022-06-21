@@ -7,9 +7,9 @@ export interface ParsedTorrent {
   name: string;
   metadata: {
     arraybuffer: ArrayBuffer;
-    blob: Blob;
     buffer: Buffer;
-    base64: string;
+    blob(): Blob;
+    base64(): string;
   };
   info: TorrentInstance;
 }
@@ -59,8 +59,8 @@ export async function getRemoteTorrentFile(
     metadata: {
       arraybuffer: req.data,
       buffer: metaDataBuffer,
-      base64: metaDataBuffer.toString("base64"),
-      blob: new Blob([req.data], { type: "application/x-bittorrent" }),
+      base64: () => metaDataBuffer.toString("base64"),
+      blob: () => new Blob([req.data], { type: "application/x-bittorrent" }),
     },
     info: parsedInfo,
   };
