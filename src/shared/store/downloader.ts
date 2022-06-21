@@ -2,6 +2,7 @@ import {defineStore} from "pinia";
 import {BittorrentClientBaseConfig} from "@ptpp/downloader";
 
 export const useDownloaderStore = defineStore("downloader", {
+  persist: true,
   state: () => ({
     defaultDownloaderId: null,
     clients: [] as BittorrentClientBaseConfig[]

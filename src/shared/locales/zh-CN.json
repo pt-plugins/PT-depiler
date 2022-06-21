@@ -45,6 +45,7 @@
     "version": "版本"
   },
   "layout": {
+    "init": "请耐心等待页面加载.....",
     "footer": {
     },
     "header": {

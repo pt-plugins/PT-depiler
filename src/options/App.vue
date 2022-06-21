@@ -8,7 +8,11 @@ const uiStore = useUIStore();
 </script>
 
 <template>
-  <v-app id="ptpp-next" :theme="uiStore.uiTheme">
+  <template v-if="!uiStore.$ready">
+    {{ $t('layout.init') }}
+  </template>
+
+  <v-app v-else id="ptpp-next" :theme="uiStore.uiTheme">
     <!-- 顶部工具条 -->
     <Topbar />
 
@@ -26,5 +30,7 @@ const uiStore = useUIStore();
 </template>
 
 <style lang="scss">
-
+a{
+  text-decoration: none;
+}
 </style>

@@ -46,6 +46,7 @@
     "version": "Version"
   },
   "layout": {
+    "init": "Not Ready, please wait for UI init.",
     "footer": {
     },
     "header": {
