@@ -1,6 +1,10 @@
 <script lang="ts" setup>
 import {inject, ref, Ref} from "vue";
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
 import {BittorrentClientBaseConfig, getDownloader} from "@ptpp/downloader";
+
+dayjs.extend(duration);
 
 const clientConfig = inject<Ref<BittorrentClientBaseConfig>>("clientConfig")!;
 const showPassword = ref<boolean>(false);
@@ -64,6 +68,25 @@ async function checkConnect() {
         :placeholder="$t('setDownloader.editor.uidPlaceholder')"
         disabled
       />
+      <div class="text-caption v-label ml-4">
+        {{ $t('setDownloader.editor.timeout') }}
+      </div>
+      <v-slider
+        v-model="clientConfig.timeout"
+        :color="clientConfig.timeout > 5 * 60e3 ? 'red' :''"
+        :min="0" :max="10 * 60e3"
+        :step="1e3"
+      >
+        <template #append>
+          <v-btn
+            variant="flat"
+            @click="clientConfig.timeout = 60e3"
+          >
+            {{ dayjs.duration(clientConfig.timeout).format('mm:ss') }}
+          </v-btn>
+        </template>
+      </v-slider>
+
       <v-btn
         :loading="connectBtnLoading" :disabled="connectBtnLoading"
         :color="connectBtnMap[connectStatusRef]['color']"

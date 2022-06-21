@@ -1,12 +1,20 @@
 import {defineStore} from "pinia";
 import {BittorrentClientBaseConfig} from "@ptpp/downloader";
+import {nanoid} from "nanoid";
 
 export const useDownloaderStore = defineStore("downloader", {
   persist: true,
   state: () => ({
-    defaultDownloaderId: null,
+    defaultDownloaderId: null as unknown as string,
     clients: [] as BittorrentClientBaseConfig[]
   }),
+
+  getters: {
+    isDefaultDownloader(state) {
+      return (clientId: string) => state.defaultDownloaderId === clientId;
+    }
+  },
+
   actions: {
     getClient(clientId: string) {
       return this.clients.find(data => {
@@ -15,7 +23,17 @@ export const useDownloaderStore = defineStore("downloader", {
     },
 
     addClient(client: BittorrentClientBaseConfig) {
+      // 为这个client辅初始uid
+      if (typeof client.id === "undefined") {
+        client.id = nanoid();
+      }
+
       this.clients.push(client);
+
+      // 如果此时只有一个下载器，这将这个下载器设置为默认下载器
+      if (this.clients.length === 1) {
+        this.defaultDownloaderId = client.id!;
+      }
     },
 
     patchClient(client: BittorrentClientBaseConfig) {
@@ -32,6 +50,10 @@ export const useDownloaderStore = defineStore("downloader", {
 
       if (clientIndex !== -1) {
         this.clients.splice(clientIndex, 1);
+      }
+
+      if (clientId === this.defaultDownloaderId) {
+        this.defaultDownloaderId = null as unknown as string;
       }
     }
   }

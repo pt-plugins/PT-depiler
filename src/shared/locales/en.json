@@ -14,7 +14,6 @@
     ],
     "contributor": "Contributors",
     "issue": "Suggesters",
-
     "langContributor": "@:SpecialThank.contributor For Language",
     "preWorkContributor": "@:SpecialThank.contributor For preliminary work",
     "sortByName": "The list is sorted by name"
@@ -33,17 +32,26 @@
     },
     "thankNote": "The birth of 'PT Plugin Plus' is established on the base of these projects. Thanks all the participants of the project, thanks for your contribution!"
   },
-  "app": {
-    "author": "ronggang",
-    "test": "Test"
-  },
   "topbar": {
     "navBarTip": "Click to show/hide the navigation bar"
   },
   "common": {
     "language": "Language",
     "name": "PT Plugin Plus",
-    "version": "Version"
+    "version": "Version",
+    "btn": {
+      "add": "Add",
+      "remove": "Delete"
+    },
+    "dialog": {
+      "title": {
+        "confirmAction": "Confirm Action"
+      },
+      "cancel": "Cancel",
+      "prev": "Prev",
+      "next": "Next",
+      "complete": "Complete"
+    }
   },
   "layout": {
     "init": "Not Ready, please wait for UI init.",
@@ -59,13 +67,7 @@
       },
       "searchTip": "Input keyword, IMDb numbers to search",
       "wiki": "Wiki"
-    },
-      "dialog": {
-        "cancel": "Cancel",
-        "prev": "Prev",
-        "next": "Next",
-        "complete": "Complete"
-      }
+    }
   },
   "route": {
     "About": {
@@ -128,6 +130,9 @@
     "edit": {
       "title": "Edit Download Server"
     },
+    "delete": {
+      "text": "Are you sure you want to delete these {0} Download Server ?"
+    },
     "editor": {
       "connect": {
         "default": "Check Connect",
@@ -142,23 +147,27 @@
       "password": "Password",
       "type": "Server Type",
       "uid": "Downloader Id",
-      "uidPlaceholder": "The Downloader Id will generate automatically after adding"
+      "uidPlaceholder": "The Downloader Id will generate automatically after adding",
+      "timeout": "Timeout (seconds)"
     },
     "index": {
-      "btn": {
-        "add": "Add",
-        "remove": "Delete"
-      },
       "emptyNotice": "Before using the download service, you need to add at least one download server.",
+      "changeDefaultDownloader": "Change Default Downloader Successful!",
       "remove": {
         "multi": "Are you sure to delete these {count} download servers?",
         "single": "Are you sure to delete this download server?"
       },
-      "tableHeader": {
-        "action": "Action",
-        "address": "Server Address",
-        "name": "Name",
-        "type": "Type"
+      "table": {
+        "header": {
+          "action": "Action",
+          "address": "Server Address",
+          "name": "Name",
+          "type": "Type",
+          "id": "Id"
+        },
+        "action": {
+          "setDefault": "Set this downloader server as Default Downloader."
+        }
       }
     }
   }

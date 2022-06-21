@@ -2,8 +2,6 @@ import {watch} from "vue";
 import {createI18n, LocaleMessages, VueMessageType} from "vue-i18n";
 import {lang} from "@/shared/store/ui";
 
-
-
 /**
  * Load locale messages
  *

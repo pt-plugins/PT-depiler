@@ -29,7 +29,9 @@ const sortedPeople = [
       {{ $rt(i) }} <br>
     </template>
     {{ $t("SpecialThank.contributor") }}:
-    <a :href="`${REPO_URL}/graphs/contributors`" rel="noopener noreferrer nofollow" target="_blank">{{ REPO_URL }}/graphs/contributors</a>
+    <a :href="`${REPO_URL}/graphs/contributors`" rel="noopener noreferrer nofollow" target="_blank">
+      {{ REPO_URL }}/graphs/contributors
+    </a>
     <br>
     {{ $t("SpecialThank.issue") }}:
     <a :href="`${REPO_URL}/issues`" rel="noopener noreferrer nofollow" target="_blank">{{ REPO_URL }}/issues</a>
