@@ -170,5 +170,11 @@
         }
       }
     }
+  },
+  "setSite": {
+    "add": {
+      "title": "Add Site",
+      "selectSitePlaceholder": "Please Select a site to add (support search in url and site name)"
+    }
   }
 }

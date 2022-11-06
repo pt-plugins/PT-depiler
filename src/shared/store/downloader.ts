@@ -1,6 +1,6 @@
-import {defineStore} from "pinia";
-import {BittorrentClientBaseConfig} from "@ptpp/downloader";
-import {nanoid} from "nanoid";
+import { defineStore } from "pinia";
+import type { BittorrentClientBaseConfig } from "@ptpp/downloader";
+import { nanoid } from "nanoid";
 
 export const useDownloaderStore = defineStore("downloader", {
   persist: true,

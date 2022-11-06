@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import {reactive, ref, inject, watch, type Ref, unref} from "vue";
-import {REPO_URL} from "@/shared/constants";
+import { reactive, ref, inject, watch, type Ref, unref } from "vue";
+import { REPO_URL } from "@/shared/constants";
 import {
   entityList,
   getDownloaderMetaData,
@@ -8,7 +8,7 @@ import {
   getDownloaderDefaultConfig,
   BittorrentClientBaseConfig, TorrentClientMetaData,
 } from "@ptpp/downloader";
-import {useDownloaderStore} from "@/shared/store/downloader";
+import { useDownloaderStore } from "@/shared/store/downloader";
 import Editor from "./Editor.vue";
 
 const showDialog = inject<Ref<boolean>>("showAddDialog")!;
@@ -40,7 +40,7 @@ function saveClient() {
 
 <template>
   <v-dialog v-model="showDialog" max-width="800" scrollable>
-    <v-card class="justify-center">
+    <v-card>
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey darken-2">
           <v-toolbar-title>{{ $t("setDownloader.add.title") }}</v-toolbar-title>

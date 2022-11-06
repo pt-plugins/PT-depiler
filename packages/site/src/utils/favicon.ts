@@ -103,188 +103,172 @@ function transformBlob (blob: Blob): Promise<any> {
   });
 }
 
-class Favicon {
-  private cache;
+async function getFaviconFromUrl (url: string): Promise<Blob> {
+  const baseUrl = new URL(url);
 
-  constructor () {
-    this.cache = createLocalforageInstance({
-      name: "Favicon",
-    });
-  }
+  const { data: doc } = await axios.get<Document>(url, { responseType: "document" });
 
-  public async removeCachedItem (host: string) {
-    return await this.cache.removeItem(host);
-  }
+  const favicons: IParsedFavicon[] = [];
 
-  public async clearCache () {
-    return await this.cache.clear();
-  }
-
-  // FIXME
-  public async getFavicon (site: BittorrentSite): Promise<string> {
-    const siteId = site.config.id!;
-    const siteHost = site.config.host!;
-
-    let checkLocalIconPaths = [
-      `./${siteId}.png`, `./${siteId}.ico`,
-      `./${siteHost}.png`, `./${siteHost}.ico`
-    ];
-
-    // 1. 检查本地icons目录是否存在对应文件
-    if (site.config.favicon) {
-      if (site.config.favicon.startsWith("data:image/")) {
-        return site.config.favicon;  // base64直接返回就行了
-      } else if (site.config.favicon.startsWith("./")) {
-        checkLocalIconPaths = [site.config.favicon, ...checkLocalIconPaths];  // 优先使用 已定义的 favicon
-      }
+  // 1. Parse from head
+  FAVICON_FROM_LINK.forEach((selector) => {
+    const element = doc.querySelector(selector) as HTMLLinkElement;
+    if (element) {
+      favicons.push({
+        href: element.href,
+        sizes: element.sizes?.toString() || "",
+        source: "link",
+      });
     }
+  });
 
-    for (const checkLocalIconPath of checkLocalIconPaths) {
-      if ((packedIconList as string[]).includes(checkLocalIconPath)) {
-        return await packedIconContext(checkLocalIconPath);
-      }
-    }
+  // 2. Parse from manifest
+  const manifestElement = doc.querySelector('head link[rel="manifest" i]') as HTMLLinkElement;
+  if (manifestElement) {
+    const { data: manifest } = await axios.get<{
+      icons: Record<"sizes" | "src" | "type", string>[];
+    }>(manifestElement.href, { responseType: "json" });
 
-    // 2. 检查 localforage 是否已有 base64 缓存（根据站点的 host 值）
-    const lfCache = await this.cache.getItem<string>(siteHost);
-    if (lfCache) {
-      return lfCache;
-    }
-
-    // 3. 检查网站是否有对应icon
-    let faviconMeta;
-
-    // 3.1 ISiteMetadata 中定义的 favicon 字段为一个链接
-    if (site.config.favicon && site.config.favicon.startsWith("http")) {
-      try {
-        const configReq = await axios.get(site.config.favicon, { responseType: "blob" });
-        faviconMeta = configReq.data;
-      } catch {
-      }
-    }
-
-    // 3.2 请求网站首页，并从返回的html中解析所需要的 favicon 字段
-    if (!faviconMeta) {
-      try {
-        faviconMeta = await this.getFaviconFromUrl(site.activateUrl);
-      } catch {
-      }
-    }
-
-    // 将请求结果转为 base64
-    let faviconBase64;
-    if (typeof faviconMeta !== "undefined") {
-      faviconBase64 = await transformBlob(faviconMeta);      // 将 faviconMeta 转成 base64，并缓存
-    }
-
-    // 4. fallback 使用 NO_IMAGE 替代
-    faviconBase64 ??= NO_IMAGE;
-
-    // 缓存base64以便下次使用
-    await this.cache.setItem(siteHost, faviconBase64);
-    return faviconBase64;
-  }
-
-  public async getFaviconFromUrl (url: string): Promise<Blob> {
-    const baseUrl = new URL(url);
-
-    const { data: doc } = await axios.get<Document>(url, { responseType: "document" });
-
-    const favicons: IParsedFavicon[] = [];
-
-    // 1. Parse from head
-    FAVICON_FROM_LINK.forEach((selector) => {
-      const element = doc.querySelector(selector) as HTMLLinkElement;
-      if (element) {
-        favicons.push({
-          href: element.href,
-          sizes: element.sizes?.toString() || "",
-          source: "link",
-        });
-      }
-    });
-
-    // 2. Parse from manifest
-    const manifestElement = doc.querySelector('head link[rel="manifest" i]') as HTMLLinkElement;
-    if (manifestElement) {
-      const { data: manifest } = await axios.get<{
-        icons: Record<"sizes" | "src" | "type", string>[];
-      }>(manifestElement.href, { responseType: "json" });
-
-      manifest.icons.forEach(({
+    manifest.icons.forEach(({
+      sizes,
+      src
+    }) => {
+      favicons.push({
+        href: src,
         sizes,
-        src
-      }) => {
-        favicons.push({
-          href: src,
-          sizes,
-          source: "manifest",
-        });
+        source: "manifest",
       });
-    }
+    });
+  }
 
-    // 3. Default /favicon.ico
-    try {
-      const faviconIco = await axios.get<Blob>("/favicon.ico", {
-        baseURL: baseUrl.origin,
-        responseType: "blob",
-      });
-      if (faviconIco && faviconIco.data?.type === "image/x-icon") {
-        favicons.push({
-          href: "/favicon.ico",
-          sizes: "",
-          source: "favicon",
-          blob: faviconIco.data,
-        } as IParsedFavicon);
-      }
-    } catch (e) {
+  // 3. Default /favicon.ico
+  try {
+    const faviconIco = await axios.get<Blob>("/favicon.ico", {
+      baseURL: baseUrl.origin,
+      responseType: "blob",
+    });
+    if (faviconIco && faviconIco.data?.type === "image/x-icon") {
+      favicons.push({
+        href: "/favicon.ico",
+        sizes: "",
+        source: "favicon",
+        blob: faviconIco.data,
+      } as IParsedFavicon);
     }
+  } catch (e) {
+  }
 
-    // 如果前面获取到足够的 favicons，我们需要比较下哪个更合适，并排序
-    if (favicons.length > 0) {
-      const rankedFavicons: Array<IParsedFavicon & { rank: number }> = favicons
-        .map((icon) => {
-          // 计算每一个favicon的评分
-          let rank = 0;
-          for (const x in remoteBetterFaviconOrder) {
-            const order = remoteBetterFaviconOrder[x];
-            if (order.rank) {
-              rank += order.rank(icon) * Math.pow(10, parseInt(x));
-            }
+  // 如果前面获取到足够的 favicons，我们需要比较下哪个更合适，并排序
+  if (favicons.length > 0) {
+    const rankedFavicons: Array<IParsedFavicon & { rank: number }> = favicons
+      .map((icon) => {
+        // 计算每一个favicon的评分
+        let rank = 0;
+        for (const x in remoteBetterFaviconOrder) {
+          const order = remoteBetterFaviconOrder[x];
+          if (order.rank) {
+            rank += order.rank(icon) * Math.pow(10, parseInt(x));
+          }
+        }
+
+        return {
+          ...icon,
+          rank
+        };
+      })
+      .sort((a, b) => (a.rank < b.rank ? 1 : -1));
+
+    // 选择排序后第一个图标作为我们需要的图标
+    for (let i = 0; i < rankedFavicons.length; i++) {
+      const usedFavicons = rankedFavicons[i];
+      if (usedFavicons.blob) {
+        return usedFavicons.blob;
+      } else {
+        try {
+          let faviconUrl = usedFavicons.href;
+          if (faviconUrl.startsWith("//")) {
+            faviconUrl = `${baseUrl.protocol}${faviconUrl}`;
+          } else if (faviconUrl.startsWith("/")) {
+            faviconUrl = `${baseUrl.origin}${faviconUrl}`;
           }
 
-          return {
-            ...icon,
-            rank
-          };
-        })
-        .sort((a, b) => (a.rank < b.rank ? 1 : -1));
-
-      // 选择排序后第一个图标作为我们需要的图标
-      for (let i = 0; i < rankedFavicons.length; i++) {
-        const usedFavicons = rankedFavicons[i];
-        if (usedFavicons.blob) {
-          return usedFavicons.blob;
-        } else {
-          try {
-            let faviconUrl = usedFavicons.href;
-            if (faviconUrl.startsWith("//")) {
-              faviconUrl = `${baseUrl.protocol}${faviconUrl}`;
-            } else if (faviconUrl.startsWith("/")) {
-              faviconUrl = `${baseUrl.origin}${faviconUrl}`;
-            }
-
-            const { data } = await axios.get(faviconUrl, { responseType: "blob" });
-            return data;
-          } catch {
-          }
+          const { data } = await axios.get(faviconUrl, { responseType: "blob" });
+          return data;
+        } catch {
         }
       }
     }
-
-    throw new Error("Can't find any favicons from this site");
   }
 
+  throw new Error("Can't find any favicons from this site");
 }
 
-export default new Favicon();
+export const faviconCache = createLocalforageInstance({
+  name: "Favicon",
+});
+
+export async function getFavicon (site: BittorrentSite): Promise<string> {
+  const siteId = site.config.id!;
+  const siteHost = site.config.host!;
+
+  let checkLocalIconPaths = [
+    `./${siteId}.png`, `./${siteId}.ico`,
+    `./${siteHost}.png`, `./${siteHost}.ico`
+  ];
+
+  // 1. 检查本地icons目录是否存在对应文件
+  if (site.config.favicon) {
+    if (site.config.favicon.startsWith("data:image/")) {
+      return site.config.favicon;  // base64直接返回就行了
+    } else if (site.config.favicon.startsWith("./")) {
+      checkLocalIconPaths = [site.config.favicon, ...checkLocalIconPaths];  // 优先使用 已定义的 favicon
+    }
+  }
+
+  for (const checkLocalIconPath of checkLocalIconPaths) {
+    if ((packedIconList as string[]).includes(checkLocalIconPath)) {
+      return await packedIconContext(checkLocalIconPath);
+    }
+  }
+
+  // 2. 检查 localforage 是否已有 base64 缓存（根据站点的 host 值）
+  const lfCache = await faviconCache.getItem<string>(siteHost);
+  if (lfCache) {
+    return lfCache;
+  }
+
+  // 3. 检查网站是否有对应icon
+  let faviconMeta;
+
+  // 3.1 ISiteMetadata 中定义的 favicon 字段为一个链接
+  if (site.config.favicon && site.config.favicon.startsWith("http")) {
+    try {
+      const configReq = await axios.get(site.config.favicon, { responseType: "blob" });
+      faviconMeta = configReq.data;
+    } catch {
+    }
+  }
+
+  // 3.2 请求网站首页，并从返回的html中解析所需要的 favicon 字段
+  if (!faviconMeta) {
+    try {
+      faviconMeta = await getFaviconFromUrl(site.activateUrl);
+    } catch {
+    }
+  }
+
+  // 将请求结果转为 base64
+  let faviconBase64;
+  if (typeof faviconMeta !== "undefined") {
+    faviconBase64 = await transformBlob(faviconMeta);      // 将 faviconMeta 转成 base64，并缓存
+  }
+
+  // 4. fallback 使用 NO_IMAGE 替代
+  faviconBase64 ??= NO_IMAGE;
+
+  // noinspection ES6MissingAwait
+  faviconCache.setItem(siteHost, faviconBase64);    // 缓存base64以便下次使用
+
+  return faviconBase64;
+}
+

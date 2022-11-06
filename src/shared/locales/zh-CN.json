@@ -169,6 +169,12 @@
       }
     }
   },
+  "setSite": {
+    "add": {
+      "title": "添加站点",
+      "selectSitePlaceholder": "请选择一个站点（支持搜索）"
+    }
+  },
   "topbar": {
     "navBarTip": "点击显示/隐藏导航栏"
   }

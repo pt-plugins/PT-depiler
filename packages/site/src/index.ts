@@ -2,11 +2,10 @@ export * from "./types";
 export * from "./utils";
 
 import type { ISiteMetadata } from "./types";
-import favicon from "./utils/favicon";
 import BittorrentSite from "./schema/AbstractBittorrentSite";
 import PrivateSite from "./schema/AbstractPrivateSite";
 
-export { BittorrentSite, PrivateSite, favicon };
+export { BittorrentSite, PrivateSite };
 
 const schemaContent = import.meta.webpackContext!("./schema/", {
   regExp: /\.ts$/,
