@@ -1,8 +1,7 @@
 <script lang="ts" setup>
 
-import { reactive, watch, computed } from "vue";
+import { reactive, computed } from "vue";
 import { useToggle } from "@vueuse/core";
-import filesize from "filesize";
 import {
   getDownloader,
   CTorrentState,

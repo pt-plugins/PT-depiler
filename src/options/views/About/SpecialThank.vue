@@ -59,7 +59,7 @@ const sortedPeople = [
 
 
   <v-card class="mb-2">
-    <v-card-title>{{ $t("SpecialThank.preWorkContributor") }}</v-card-title>
+    <v-card-title>{{ $t("SpecialThank.preWorkContributor") }} ({{ $t("SpecialThank.sortByName") }})</v-card-title>
 
     <v-table>
       <tbody>
@@ -71,9 +71,6 @@ const sortedPeople = [
         </tr>
       </tbody>
     </v-table>
-    <v-alert type="info">
-      {{ $t("SpecialThank.sortByName") }}
-    </v-alert>
   </v-card>
 </template>
 

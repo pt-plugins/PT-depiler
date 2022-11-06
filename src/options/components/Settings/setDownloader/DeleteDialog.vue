@@ -11,8 +11,8 @@ function removeClients() {
   for (const toDeleteDownloaderId of toDeleteDownloaderIds.value) {
     downloaderStore.removeClient(toDeleteDownloaderId);
   }
-  toDeleteDownloaderIds.value = [];
   showDialog.value = false;
+  toDeleteDownloaderIds.value = [];
 }
 </script>
 

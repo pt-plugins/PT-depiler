@@ -7,7 +7,8 @@ const ptppHistory = [
   {
     name: "PTPP Next",
     time: "2020-10-25",
-    link: "https://github.com/pt-plugins/ptpp-next"
+    link: "https://github.com/pt-plugins/ptpp-next",
+    color: "info",
   },
   {
     name: "PT Plugin Plus",
@@ -21,7 +22,7 @@ const ptppHistory = [
   },
   {
     name: "PT Plugin",
-    time: "before 2014-10-10",
+    time: "2014-10-10",
     link: "https://github.com/ronggang/PT-Plugin"
   }
 ];
@@ -93,16 +94,22 @@ Object.values(rawDependencies).forEach(value => {
     <v-card-title>{{ $t('TechnologyStack.ptppHistory') }}</v-card-title>
     <v-card-text>
       <v-timeline :side="$vuetify.display.mdAndUp ? undefined : 'end'">
-        <v-timeline-item v-for="history in ptppHistory" :key="history.name" rounded>
-          <v-row class="pt-1">
-            <v-col cols="4">
-              {{ history.time }}
-            </v-col>
-            <v-col>
-              <strong>{{ history.name }}</strong><br>
-              <a :href="history.link" target="_blank">{{ history.link }}</a>
-            </v-col>
-          </v-row>
+        <v-timeline-item
+          v-for="history in ptppHistory" :key="history.name"
+          rounded
+          :size="history.color ? 'default' : 'x-small'"
+          :dot-color="history.color ?? ''"
+        >
+          <template #opposite>
+            {{ history.time }}
+          </template>
+          <template v-if="$vuetify.display.smAndUp">
+            <strong>{{ history.name }}</strong><br>
+            <a :href="history.link" target="_blank">{{ history.link }}</a>
+          </template>
+          <template v-else>
+            <a :href="history.link" target="_blank">{{ history.name }}</a>
+          </template>
         </v-timeline-item>
       </v-timeline>
     </v-card-text>

@@ -64,8 +64,8 @@ async function checkConnect() {
         @click:append="showPassword = !showPassword"
       />
       <v-text-field
-        v-model="clientConfig.id" :label="$t('setDownloader.editor.uid')"
-        :placeholder="$t('setDownloader.editor.uidPlaceholder')"
+        v-model="clientConfig.id"
+        :label="$t('setDownloader.editor.uid') + (clientConfig.id ? '' : $t('setDownloader.editor.uidPlaceholder'))"
         disabled
       />
       <div class="text-caption v-label ml-4">
@@ -73,7 +73,7 @@ async function checkConnect() {
       </div>
       <v-slider
         v-model="clientConfig.timeout"
-        :color="clientConfig.timeout > 5 * 60e3 ? 'red' :''"
+        :color="clientConfig.timeout > 8 * 60e3 ? 'red' : (clientConfig.timeout > 5 * 60e3 ? 'amber' : 'green')"
         :min="0" :max="10 * 60e3"
         :step="1e3"
       >

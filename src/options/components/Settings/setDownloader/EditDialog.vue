@@ -15,14 +15,18 @@ function patchClient() {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog">
-    <v-card width="800">
-      <v-toolbar color="blue-grey darken-2">
-        <v-toolbar-title>{{ $t("setDownloader.edit.title") }}</v-toolbar-title>
-      </v-toolbar>
-      <v-card-content>
+  <v-dialog v-model="showDialog" max-width="800" scrollable>
+    <v-card>
+      <v-card-title style="padding: 0">
+        <v-toolbar color="blue-grey darken-2">
+          <v-toolbar-title>{{ $t('setDownloader.edit.title') }}</v-toolbar-title>
+        </v-toolbar>
+      </v-card-title>
+      <v-divider />
+      <v-card-text>
         <Editor />
-      </v-card-content>
+      </v-card-text>
+      <v-divider />
       <v-card-actions>
         <v-spacer />
         <v-btn

@@ -386,7 +386,7 @@ export default class BittorrentSite {
     elementQuery: IElementQuery
   ): any {
     const { selector } = elementQuery;
-    let query: string | number = String(elementQuery.text ?? "");
+    let query: string | number | object = String(elementQuery.text ?? "");
     let selectorId = 0;
     if (elementQuery) {
       const selectors = ([] as string[]).concat(selector!);
@@ -419,7 +419,7 @@ export default class BittorrentSite {
             }
           }
         } else {
-          query = selector === ":self" ? element : get(element, selector);
+          query = selector === ":self" ? element : get(element, selector)!;
         }
 
         // noinspection SuspiciousTypeOfGuard

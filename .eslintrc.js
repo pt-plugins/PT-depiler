@@ -7,35 +7,35 @@ module.exports = {
     browser: true,
     commonjs: true,
     "shared-node-browser": true,
-    webextensions: true,
+    webextensions: true
   },
 
   parser: "vue-eslint-parser",
   parserOptions: {
     parser: {
       // Script parser for `<script>`
-      "js": "espree",
+      js: "espree",
 
       // Script parser for `<script lang="ts">`
-      "ts": "@typescript-eslint/parser",
+      ts: "@typescript-eslint/parser",
 
       // Script parser for vue directives (e.g. `v-if=` or `:attribute=`)
       // and vue interpolations (e.g. `{{variable}}`).
       // If not specified, the parser determined by `<script lang ="...">` is used.
-      "<template>": "espree",
+      "<template>": "espree"
     },
     ecmaVersion: "latest",
     sourceType: "module",
     ecmaFeatures: {
-      globalReturn: true,
-    },
+      globalReturn: true
+    }
   },
 
   plugins: ["@typescript-eslint"],
   extends: [
     "eslint:recommended",
     "plugin:vue/vue3-recommended",
-    "plugin:@typescript-eslint/recommended",
+    "plugin:@typescript-eslint/recommended"
   ],
 
   rules: {
@@ -50,8 +50,8 @@ module.exports = {
         ignoreStrings: true,
         ignoreUrls: true,
         ignoreTemplateLiterals: true,
-        ignoreRegExpLiterals: true,
-      },
+        ignoreRegExpLiterals: true
+      }
     ],
     "no-empty": ["error", { allowEmptyCatch: true }],
     "no-console": process.env.NODE_ENV === "production" ? "warn" : "off",
@@ -60,18 +60,18 @@ module.exports = {
       "warn",
       {
         singleline: {
-          max: 3,
+          max: 3
         },
         multiline: {
-          max: 2,
-        },
-      },
+          max: 2
+        }
+      }
     ],
     "vue/multi-word-component-names": "off",
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/ban-ts-comment": process.env.NODE_ENV === "production" ? "warn" : "off",
-    "@typescript-eslint/no-inferrable-types": process.env.NODE_ENV === "production" ? "warn" : "off",
-  },
+    "@typescript-eslint/no-inferrable-types": process.env.NODE_ENV === "production" ? "warn" : "off"
+  }
 };

@@ -11,6 +11,10 @@ export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
+export function copy<T = any>(obj: T): T {
+  return JSON.parse(JSON.stringify(obj));
+}
+
 /**
  * 生成随机字符串
  * @param length

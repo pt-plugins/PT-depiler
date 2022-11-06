@@ -12,7 +12,7 @@ import {
 const version = getFullVersion();
 const releasePage = `${REPO_URL}/releases/tag/${version.main}`;
 
-enum VersionLoadStatus { loading, fail }
+enum VersionLoadStatus { loading = "loading", fail = "loadFail" }
 const loadStatus = ref<VersionLoadStatus>(VersionLoadStatus.loading);
 
 // 更新主版本情况
@@ -55,21 +55,12 @@ if (typeof commitData.value.sha === "undefined" || !commitData.value.sha.startsW
   <v-row>
     <v-col>
       <v-card>
-        <v-card-header>
-          <v-card-header-text>{{ $t("ChangeLog.noteVersion") }}</v-card-header-text>
-        </v-card-header>
+        <v-card-title>{{ $t("ChangeLog.noteVersion") }}</v-card-title>
 
         <v-card-text>
           <div v-if="releaseData.body" v-html="marked.parse(releaseData.body)" />
-          <div
-            v-else-if="loadStatus === VersionLoadStatus.loading"
-          >
-            {{ $t("ChangeLog.loading", { releasePage }) }}
-          </div>
-          <div
-            v-else-if="loadStatus === VersionLoadStatus.fail"
-          >
-            {{ $t("ChangeLog.loadFail", { releasePage }) }}
+          <div v-else>
+            {{ $t(`ChangeLog.${loadStatus}`, { releasePage }) }}
           </div>
         </v-card-text>
       </v-card>
@@ -78,9 +69,7 @@ if (typeof commitData.value.sha === "undefined" || !commitData.value.sha.startsW
   <v-row v-if="commitData.sha">
     <v-col>
       <v-card>
-        <v-card-header>
-          <v-card-header-text>{{ $t("ChangeLog.noteCommit") }}</v-card-header-text>
-        </v-card-header>
+        <v-card-title>{{ $t("ChangeLog.noteCommit") }}</v-card-title>
         <v-card-subtitle>
           <a :href="commitData.html_url" target="_blank">{{ version.hash }}</a>&nbsp;
           (
@@ -89,10 +78,7 @@ if (typeof commitData.value.sha === "undefined" || !commitData.value.sha.startsW
           <v-icon icon="mdi-minus" color="red" />
           {{ commitData.stats.deletions }}) &nbsp;
           by&nbsp;
-          <a
-            :href="commitData.author.html_url"
-            target="_blank"
-          >@{{ commitData.author.login }}</a>
+          <a :href="commitData.author.html_url" target="_blank">@{{ commitData.author.login }}</a>
           )
         </v-card-subtitle>
 

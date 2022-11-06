@@ -12,13 +12,17 @@
     <v-col cols="12" sm="4">
       <v-card>
         <v-card-title>
-          <a href="https://github.com/ronggang" target="_blank">ronggang</a>
-          <v-spacer />
-          <v-chip label color="primary">
-            Creator
-          </v-chip>
+          <v-container>
+            <v-row>
+              <a href="https://github.com/ronggang" target="_blank">ronggang</a>
+              <v-spacer />
+              <v-chip label color="primary">
+                Creator
+              </v-chip>
+            </v-row>
+          </v-container>
         </v-card-title>
-        <v-card-content>
+        <v-card-text>
           <v-img src="/assets/donate/ronggang.png" />
           <v-btn
             variant="text"
@@ -28,21 +32,33 @@
           >
             PayPal
           </v-btn>
-        </v-card-content>
+        </v-card-text>
       </v-card>
     </v-col>
     <v-col cols="12" sm="4">
       <v-card>
         <v-card-title>
-          <a href="https://github.com/Rhilip" target="_blank">Rhilip</a>
-          <v-spacer />
-          <v-chip label color="green">
-            Maintainer
-          </v-chip>
+          <v-container>
+            <v-row>
+              <a href="https://github.com/Rhilip" target="_blank">Rhilip</a>
+              <v-spacer />
+              <v-chip label color="green">
+                Maintainer
+              </v-chip>
+            </v-row>
+          </v-container>
         </v-card-title>
-        <v-card-content>
+        <v-card-text>
           <v-img src="/assets/donate/Rhilip.png" />
-        </v-card-content>
+          <v-btn
+            variant="text"
+            color="warning" href="https://blog.rhilip.info"
+            target="_blank"
+            prepend-icon="mdi-post"
+          >
+            Blog
+          </v-btn>
+        </v-card-text>
       </v-card>
     </v-col>
   </v-row>

@@ -32,7 +32,7 @@ const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
       />
     </template>
 
-    <v-app-bar-title style="max-width: 220px">
+    <v-app-bar-title v-show="display.smAndUp.value" style="max-width: 220px">
       {{ $t("common.name") }}
     </v-app-bar-title>
 
@@ -80,10 +80,9 @@ const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
               :title="$t(item.title)"
               rel="noopener noreferrer nofollow"
               size="large"
+              class="menu-item"
               target="_blank"
-            >
-              {{ $t(item.title) }}
-            </v-list-item>
+            />
           </v-list>
         </v-menu>
       </template>
@@ -92,4 +91,7 @@ const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
 </template>
 
 <style lang="scss" scoped>
+.menu-item:deep(.v-list-item__prepend > .v-icon) {
+  margin-inline-end: 16px;
+}
 </style>

@@ -8,18 +8,18 @@ export interface ParsedTorrent {
   metadata: {
     arraybuffer: ArrayBuffer;
     buffer: Buffer;
-    blob(): Blob;
-    base64(): string;
+    blob: () => Blob;
+    base64: () => string;
   };
   info: TorrentInstance;
 }
 
-export async function getRemoteTorrentFile(
+export async function getRemoteTorrentFile (
   options: AxiosRequestConfig = {}
 ): Promise<ParsedTorrent> {
   const req = await axios.request({
     ...options,
-    responseType: "arraybuffer", // 统一以 ArrayBuffer 形式获取，方便后面转化
+    responseType: "arraybuffer" // 统一以 ArrayBuffer 形式获取，方便后面转化
   });
 
   if (
@@ -60,8 +60,8 @@ export async function getRemoteTorrentFile(
       arraybuffer: req.data,
       buffer: metaDataBuffer,
       base64: () => metaDataBuffer.toString("base64"),
-      blob: () => new Blob([req.data], { type: "application/x-bittorrent" }),
+      blob: () => new Blob([req.data], { type: "application/x-bittorrent" })
     },
-    info: parsedInfo,
-  };
+    info: parsedInfo
+  } as ParsedTorrent;
 }

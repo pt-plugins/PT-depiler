@@ -1,6 +1,6 @@
 import {Ref, shallowRef, ref, unref} from "vue";
 import browser, {Storage} from "webextension-polyfill";
-import {StorageOptions, watchWithFilter} from "@vueuse/core";
+import { UseStorageOptions, watchWithFilter } from "@vueuse/core";
 
 export type storageArea = Exclude<keyof Storage.Static, "onChanged">
 
@@ -45,7 +45,7 @@ export function useBrowserStore<T>(
   key: string,
   initialValue?: T | Ref<T>,
   storage: storageArea = "local",
-  options: Omit<StorageOptions<T>, "window" | "serializer"> = {}
+  options: Omit<UseStorageOptions<T>, "window" | "serializer"> = {}
 ): Ref<T> {
   const {
     flush = "pre",
@@ -54,7 +54,7 @@ export function useBrowserStore<T>(
     writeDefaults = true,
     shallow,
     eventFilter,
-    onError = (e) => {
+    onError = (e: any) => {
       console.error(e);
     },
   } = options;

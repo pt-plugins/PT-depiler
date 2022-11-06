@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "src/index.ts",
   "dependencies": {
+    "@ptpp/util": "workspace:^1.0.0",
     "axios": "^0.27.2",
     "buffer": "^6.0.3",
     "content-disposition": "^0.5.4",
@@ -14,7 +15,7 @@
     "@types/content-disposition": "^0.5.4",
     "@types/lodash-es": "^4.17.6",
     "@types/parse-torrent": "^5.8.4",
-    "typescript": "^4.6.3"
+    "typescript": "^4.8.4"
   },
   "peerDependencies": {
     "webpack": "^5.70.0"

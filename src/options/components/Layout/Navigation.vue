@@ -29,6 +29,13 @@ const menuOptions = routes
       }),
     };
   }); // 根据 meta 的 isMainMenu 属性筛选出应该列在目录中的路径
+
+function clickMenuItem () {
+  if (display.smAndDown.value && uiStore.isNavBarOpen) {
+    uiStore.isNavBarOpen = false;
+  }
+}
+
 </script>
 
 <template>
@@ -53,6 +60,7 @@ const menuOptions = routes
         :prepend-icon="nav.icon"
         :to="{ name: nav.name }"
         :value="nav"
+        @click="clickMenuItem"
       >
         {{ $t(nav.title) }}
       </v-list-item>

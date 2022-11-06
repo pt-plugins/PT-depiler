@@ -147,7 +147,7 @@
       "password": "Password",
       "type": "Server Type",
       "uid": "Downloader Id",
-      "uidPlaceholder": "The Downloader Id will generate automatically after adding",
+      "uidPlaceholder": "Generate automatically after adding",
       "timeout": "Timeout (seconds)"
     },
     "index": {

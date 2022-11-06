@@ -5,6 +5,7 @@ import {
 } from "./types";
 export * from "./types";
 export { getRemoteTorrentFile } from "./utils";
+import { copy } from "@ptpp/util/filter";
 
 const requireContext = import.meta.webpackContext!("./entity/", {
   regExp: /\.ts$/,
@@ -26,11 +27,11 @@ export async function getDownloaderModule(configType: string): Promise<{
 }
 
 export async function getDownloaderDefaultConfig(type: string): Promise<BittorrentClientBaseConfig> {
-  return (await getDownloaderModule(type)).clientConfig;
+  return copy((await getDownloaderModule(type)).clientConfig);
 }
 
 export async function getDownloaderMetaData(type: string): Promise<TorrentClientMetaData> {
-  return (await getDownloaderModule(type)).clientMetaData;
+  return copy((await getDownloaderModule(type)).clientMetaData);
 }
 
 const downloaderIconContext = import.meta.webpackContext!("./icons/", {

@@ -25,10 +25,10 @@ const clientConfig = inject<Ref<BittorrentClientBaseConfig>>("clientConfig")!;
 const clientMetaData = reactive<Record<string, TorrentClientMetaData>>({});
 
 async function updateSelectedClientType(selectClientType: string) {
-  clientConfig.value = await getDownloaderDefaultConfig(selectClientType);
   if (!clientMetaData[selectClientType]) {
     clientMetaData[selectClientType] = await getDownloaderMetaData(selectClientType);
   }
+  clientConfig.value = await getDownloaderDefaultConfig(selectClientType);
 }
 
 function saveClient() {
@@ -39,20 +39,23 @@ function saveClient() {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog">
-    <v-card width="800">
-      <v-toolbar color="blue-grey darken-2">
-        <v-toolbar-title>{{ $t("setDownloader.add.title") }}</v-toolbar-title>
-        <v-spacer />
-        <v-btn
-          icon="mdi-help-circle"
-          color="success"
-          :href="`${REPO_URL}/wiki/config-download-client`"
-          target="_blank"
-          rel="noopener noreferrer nofollow"
-        />
-      </v-toolbar>
-      <v-card-content>
+  <v-dialog v-model="showDialog" max-width="800" scrollable>
+    <v-card class="justify-center">
+      <v-card-title style="padding: 0">
+        <v-toolbar color="blue-grey darken-2">
+          <v-toolbar-title>{{ $t("setDownloader.add.title") }}</v-toolbar-title>
+          <v-spacer />
+          <v-btn
+            icon="mdi-help-circle"
+            color="success"
+            :href="`${REPO_URL}/wiki/config-download-client`"
+            target="_blank"
+            rel="noopener noreferrer nofollow"
+          />
+        </v-toolbar>
+      </v-card-title>
+      <v-divider />
+      <v-card-text>
         <!-- TODO want: v-stepper -->
         <v-window v-model="currentStep">
           <v-window-item :key="0">
@@ -76,7 +79,8 @@ function saveClient() {
             <Editor />
           </v-window-item>
         </v-window>
-      </v-card-content>
+      </v-card-text>
+      <v-divider />
       <v-card-actions>
         <v-spacer />
         <v-btn
