@@ -1,4 +1,4 @@
-import compareVersions from "compare-versions";
+import { compare } from "compare-versions";
 import { isDebug } from "@/shared/constants";
 import browser from "webextension-polyfill";
 
@@ -45,7 +45,7 @@ class PTPlugin {
 
         // TODO 执行脚本升级所需要触发的方法
         const currentVersion = browser.runtime.getManifest().version;
-        if (compareVersions.compare(currentVersion, details.previousVersion!, ">")) {
+        if (compare(currentVersion, details.previousVersion!, ">")) {
           console.log(`Extension upgrade from ${details.previousVersion} to ${currentVersion}`);
         }
       }

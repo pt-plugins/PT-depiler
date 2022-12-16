@@ -31,12 +31,14 @@ module.exports = {
         },
       },
       extensionReloaderOptions: {
-        reloadPage: true, // Force the reload of the page also
+        reloadPage: true, // Force to reload of the page
       },
       manifestTransformer: (manifest) => {
-        if (process.env.TARGET_BROWSER === 'firefox') {
-          manifest.version = `${manifest.version}.${git.count()}`;
-        } else {
+        // rewrite version to add Build number (simple from git count)
+        const build_number = git.count() % 65535;
+        manifest.version = `${manifest.version}.${build_number}`;
+
+        if (process.env.TARGET_BROWSER !== 'firefox') {
           manifest.version_name = `${manifest.version}.${git.short()}`;
         }
 

@@ -53,14 +53,16 @@ export type listSelectors = {
     filter?: <T>(rows: T) => T;
     merge?: number;
   };
-} & { [torrentKey in keyof Omit<ITorrent, "tags">]?: IElementQuery } & {
-  // 种子相关选择器
-  tags?: {
-    selector: string;
-    name: keyof typeof ETorrentBaseTagColor | string;
-    color?: string;
-  }[];
-}; // Tags相关选择器
+} &
+  { [torrentKey in keyof Omit<ITorrent, "tags">]?: IElementQuery } &
+  {
+    // 种子相关选择器
+    tags?: {
+      selector: string;
+      name: keyof typeof ETorrentBaseTagColor | string;
+      color?: string;
+    }[];
+  }; // Tags相关选择器
 
 /**
  * 站点配置，这部分配置由系统提供，并随着每次更新而更新，不受用户配置的任何影响
