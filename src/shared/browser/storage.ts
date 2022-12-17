@@ -27,13 +27,13 @@ export async function restore<T>(key: string, options: restoreOptions<T> = {}): 
 
   try {
     const {[key]: fromStorage} = await browser.storage[storage].get(key);
-    if (fromStorage === null) {
+    if (fromStorage) {
+      return fromStorage as T;
+    } else {
       if (writeDefaults && rawInit !== null) {
         await persistent(key, rawInit, storage);
       }
       return rawInit;
-    } else {
-      return fromStorage as T;
     }
   } catch (e) {
     onError?.(e);

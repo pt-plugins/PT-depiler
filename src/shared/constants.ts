@@ -4,7 +4,7 @@ import UAParser from "ua-parser-js";
 import { EInstallType } from "@/shared/interfaces/enum";
 
 // 仓库相关
-export const REPO_NAME = "pt-plugins/ptpp-next";
+export const REPO_NAME = "pt-plugins/PT-Defiler";
 export const REPO_URL = `https://github.com/${REPO_NAME}`;
 export const REPO_API = `https://api.github.com/repos/${REPO_NAME}`;
 

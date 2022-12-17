@@ -5,6 +5,7 @@ module.exports = {
     es2022: true,
     node: true,
     browser: true,
+    serviceworker: true,
     commonjs: true,
     "shared-node-browser": true,
     webextensions: true

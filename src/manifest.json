@@ -1,58 +1,57 @@
 {
-  "manifest_version": 2,
+  "manifest_version": 3,
   "name": "__MSG_extName__",
-  "homepage_url": "https://github.com/ronggang/PT-Plugin-Plus",
-  "description": "__MSG_extDesc__",
+  "version": "2.0.0",
+
+  "action": {
+    "default_icon": {
+      "16": "assets/icon-16.png",
+      "19": "assets/icon-19.png",
+      "64": "assets/icon-64.png",
+      "128": "assets/icon-128.png"
+    },
+    "default_title": "__MSG_extName__"
+  },
   "default_locale": "en",
-  "permissions": [
-    "activeTab",
-    "clipboardRead",
-    "clipboardWrite",
-    "storage",
-    "contextMenus",
-    "notifications",
-    "<all_urls>",
-    "*://*/*",
-    "unlimitedStorage",
-    "cookies"
-  ],
+  "description": "__MSG_extDesc__",
   "icons": {
     "16": "assets/icon-16.png",
     "19": "assets/icon-19.png",
     "64": "assets/icon-64.png",
     "128": "assets/icon-128.png"
   },
+
   "background": {
-    "scripts": [
-      "js/background.js"
-    ]
+    "service_worker": "background.js"
   },
-  "content_scripts": [
-    {
-      "matches": [
-        "http://*/*",
-        "https://*/*"
-      ],
-      "js": [
-        "js/content-script.js"
-      ]
-    }
+
+  "homepage_url": "https://github.com/ronggang/PT-Plugin-Plus",
+
+  "permissions": [
+    "activeTab",
+    "alarms",
+    "clipboardWrite",
+    "contextMenus",
+    "cookies",
+    "notifications",
+    "scripting",
+    "storage",
+    "unlimitedStorage"
   ],
-  "browser_action": {
-    "default_title": "__MSG_extName__",
-    "default_icon": {
-      "16": "assets/icon-16.png",
-      "19": "assets/icon-19.png",
-      "64": "assets/icon-64.png",
-      "128": "assets/icon-128.png"
-    }
-  },
+
+
+  "host_permissions": [
+    "*://*/*"
+  ],
+
   "options_ui": {
     "page": "options.html",
     "open_in_tab": true
   },
-  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'"
+  },
   "omnibox": {
-    "keyword": "pt"
+    "keyword": "ptpp"
   }
 }

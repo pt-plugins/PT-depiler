@@ -31,10 +31,7 @@ export const definedLangMetaData: readonly ILangMetaData[] = [
   },
 ] as const;
 
-export const lang = useBrowserStore<typeof definedLangMetaData[number]["value"]>(
-  "ui_language",
-  definedLangMetaData.map(x => x.value).includes(navigator.language) ? navigator.language : "en"
-);
+export const lang = useBrowserStore<typeof definedLangMetaData[number]["value"]>("ui_language", "en");
 
 export const supportTheme = ["auto", "light", "dark"] as const;
 type supportThemeType = typeof supportTheme[number];

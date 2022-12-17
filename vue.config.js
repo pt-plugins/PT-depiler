@@ -20,18 +20,16 @@ module.exports = {
   // https://cli.vuejs.org/config/#pluginoptions
   pluginOptions: {
     browserExtension: {
+      modesToZip: false,
       componentOptions: {
         background: {
-          entry: 'src/background.ts',
+          entry: 'src/background/background.ts',
         },
         contentScripts: {
           entries: {
             'content-script': ['src/content-scripts/content-script.ts'],
           },
         },
-      },
-      extensionReloaderOptions: {
-        reloadPage: true, // Force to reload of the page
       },
       manifestTransformer: (manifest) => {
         // rewrite version to add Build number (simple from git count)
@@ -44,7 +42,6 @@ module.exports = {
 
         if (!IS_PROD) {
           manifest.description += ' (Development Mode)';
-          manifest.content_security_policy = "script-src 'self' 'unsafe-eval' http://localhost:8098; object-src 'self'";
         }
 
         return manifest;
@@ -60,6 +57,7 @@ module.exports = {
   },
 
   configureWebpack: {
+    devtool: 'cheap-module-source-map',
     performance: {
       hints: false,
     },

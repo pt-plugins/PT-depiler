@@ -25,9 +25,7 @@ const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
     <template #prepend>
       <v-app-bar-nav-icon
         :title="$t('topbar.navBarTip')"
-        :style="{
-          'margin-inline-start': !display.mdAndDown.value ? '0px' : null
-        }"
+        variant="text"
         @click="uiStore.isNavBarOpen = !uiStore.isNavBarOpen"
       />
     </template>
@@ -48,6 +46,7 @@ const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
           v-bind.prop="append.prop"
           :href="append.href"
           :title="$t(append.title)"
+          variant="text"
           rel="noopener noreferrer nofollow"
           size="large"
           target="_blank"
@@ -60,7 +59,7 @@ const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
       <!-- 处于小屏幕，只显示点，btn以menu列表形式展示 -->
       <template v-else>
         <!-- TODO small searchbox -->
-        <v-btn icon="mdi-magnify" />
+        <v-btn icon="mdi-magnify" variant="text" />
 
         <v-menu
           v-if="display.mdAndDown.value"
@@ -68,7 +67,7 @@ const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
           left offset-y
         >
           <template #activator="{ props }">
-            <v-btn icon="mdi-dots-vertical" v-bind="props" />
+            <v-btn icon="mdi-dots-vertical" variant="text" v-bind="props" />
           </template>
 
           <v-list>
@@ -78,6 +77,7 @@ const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
               :href="item.href"
               :prepend-icon="item.icon"
               :title="$t(item.title)"
+              variant="text"
               rel="noopener noreferrer nofollow"
               size="large"
               class="menu-item"

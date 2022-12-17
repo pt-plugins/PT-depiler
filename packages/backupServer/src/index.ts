@@ -4,7 +4,7 @@ export * from "./type";
 const requireContext = import.meta.webpackContext!("./entity/", {
   regExp: /\.ts$/,
   chunkName: "lib/backupServer/[request]",
-  mode: "lazy"
+  mode: "eager"
 });
 
 export const entityList = requireContext.keys().map((value: string) => {

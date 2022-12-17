@@ -11,7 +11,7 @@ class PTPlugin {
   }
 
   private initDebug () {
-    Object.assign(window as any, {
+    Object.assign(globalThis, {
       PTPP: this
     });
   }
@@ -25,7 +25,7 @@ class PTPlugin {
     console.log("service.initBrowserEvent");
 
     // 监听 点击图标 事件
-    browser.browserAction?.onClicked.addListener(async () => {
+    browser.action.onClicked.addListener(async () => {
       await browser.runtime.openOptionsPage();
     });
 

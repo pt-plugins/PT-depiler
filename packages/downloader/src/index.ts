@@ -10,7 +10,7 @@ import { copy } from "@ptpp/util/filter";
 const requireContext = import.meta.webpackContext!("./entity/", {
   regExp: /\.ts$/,
   chunkName: "lib/downloader/[request]",
-  mode: "lazy"
+  mode: "eager"
 });
 
 export const entityList = requireContext.keys().map((value: string) => {

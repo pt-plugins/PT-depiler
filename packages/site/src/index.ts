@@ -10,13 +10,13 @@ export { BittorrentSite, PrivateSite };
 const schemaContent = import.meta.webpackContext!("./schema/", {
   regExp: /\.ts$/,
   chunkName: "lib/site/schema/[request]",
-  mode: "lazy"
+  mode: "eager"
 });
 
 const definitionContent = import.meta.webpackContext!("./definitions/", {
   regExp: /\.ts$/,
   chunkName: "lib/site/definitions/[request]",
-  mode: "lazy"
+  mode: "eager"
 });
 
 function transContent (value: string) {
