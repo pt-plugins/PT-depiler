@@ -5,20 +5,20 @@
 
   "action": {
     "default_icon": {
-      "16": "assets/icon-16.png",
-      "19": "assets/icon-19.png",
-      "64": "assets/icon-64.png",
-      "128": "assets/icon-128.png"
+      "16": "img/icons/16.png",
+      "19": "img/icons/19.png",
+      "64": "img/icons/64.png",
+      "128": "img/icons/128.png"
     },
     "default_title": "__MSG_extName__"
   },
   "default_locale": "en",
   "description": "__MSG_extDesc__",
   "icons": {
-    "16": "assets/icon-16.png",
-    "19": "assets/icon-19.png",
-    "64": "assets/icon-64.png",
-    "128": "assets/icon-128.png"
+    "16": "img/icons/16.png",
+    "19": "img/icons/19.png",
+    "64": "img/icons/64.png",
+    "128": "img/icons/128.png"
   },
 
   "background": {

@@ -23,7 +23,7 @@
           </v-container>
         </v-card-title>
         <v-card-text>
-          <v-img src="/assets/donate/ronggang.png" />
+          <v-img src="/img/donate/ronggang.png" />
           <v-btn
             variant="text"
             color="warning" href="https://www.paypal.me/ronggang"
@@ -49,7 +49,7 @@
           </v-container>
         </v-card-title>
         <v-card-text>
-          <v-img src="/assets/donate/Rhilip.png" />
+          <v-img src="/img/donate/Rhilip.png" />
           <v-btn
             variant="text"
             color="warning" href="https://blog.rhilip.info"

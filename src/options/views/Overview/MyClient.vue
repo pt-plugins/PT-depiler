@@ -116,15 +116,15 @@ async function liveUpdatePerClient (config: BittorrentClientBaseConfig) {
             <n-grid-item span="6 s:2">
               <n-statistic label="种子情况">
                 <template v-if="isLiveUpdate">
-                  <n-icon color="green">
+                  <n-icons color="green">
                     <keyboard-arrow-up-sharp />
-                  </n-icon>{{ totalTorrentStatus.seeding }} /
-                  <n-icon color="red">
+                  </n-icons>{{ totalTorrentStatus.seeding }} /
+                  <n-icons color="red">
                     <keyboard-arrow-down-sharp />
-                  </n-icon>{{ totalTorrentStatus.downloading }} /
-                  <n-icon color="#f0a020">
+                  </n-icons>{{ totalTorrentStatus.downloading }} /
+                  <n-icons color="#f0a020">
                     <circle-outlined />
-                  </n-icon>{{ totalTorrentStatus.other }}
+                  </n-icons>{{ totalTorrentStatus.other }}
                 </template>
                 <template v-else>
                   —
@@ -134,12 +134,12 @@ async function liveUpdatePerClient (config: BittorrentClientBaseConfig) {
             <n-grid-item span="6 s:2">
               <n-statistic label="下载器情况">
                 <template v-if="isLiveUpdate">
-                  <n-icon color="green">
+                  <n-icons color="green">
                     <keyboard-arrow-up-sharp />
-                  </n-icon>{{ filesize(totalClientStatus.upSpeed) }}/s
-                  <n-icon color="red">
+                  </n-icons>{{ filesize(totalClientStatus.upSpeed) }}/s
+                  <n-icons color="red">
                     <keyboard-arrow-down-sharp />
-                  </n-icon>{{ filesize(totalClientStatus.dlSpeed) }}/s
+                  </n-icons>{{ filesize(totalClientStatus.dlSpeed) }}/s
                 </template>
                 <template v-else>
                   —

@@ -90,10 +90,23 @@ module.exports = {
       .add(path.resolve(__dirname, './src/shared/locales'))
       .end();
 
-    // add support for .ico assert
+    // Change image build for vue-cli
+    // 1. add support for .ico assert
+    // 2. change site and downloader icons to sub-folder
     config.module
       .rule('images')
       .test(/\.(png|jpe?g|gif|webp|avif|ico)(\?.*)?$/)
-      .set('type', 'asset/resource');
+      .set('type', 'asset/resource')
+      .set('generator', {
+        filename: (pathData) => {
+          if (pathData.filename.includes('packages/site/src/icons')) {
+            return 'img/site/[name][ext]';
+          } else if (pathData.filename.includes('packages/downloader/src/icons')) {
+            return 'img/downloader/[name][ext]';
+          } else {
+            return 'img/[name][ext]';
+          }
+        },
+      })
   },
 };
