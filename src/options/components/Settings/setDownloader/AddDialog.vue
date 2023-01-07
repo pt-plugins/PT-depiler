@@ -64,7 +64,7 @@ function saveClient() {
               :items="entityList"
               :hint="clientMetaData[selectedClientType]?.description ?? ''"
               persistent-hint
-              @update:modelValue="updateSelectedClientType"
+              @update:model-value="updateSelectedClientType"
             >
               <template #item="{ props, item }">
                 <v-list-item

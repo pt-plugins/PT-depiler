@@ -40,6 +40,14 @@ module.exports = {
           manifest.description += ' (Development Mode)';
         }
 
+        // Add git detail in manifest when build
+        manifest.git = {
+          short: git.short(),
+          date: git.date(),
+          count: git.count(),
+          branch: git.branch()
+        }
+
         return manifest;
       },
     },

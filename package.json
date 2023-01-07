@@ -50,7 +50,7 @@
     "vue": "^3.2.45",
     "vue-i18n": "^9.2.2",
     "vue-router": "^4.1.6",
-    "vuetify": "^3.0.6",
+    "vuetify": "^3.1.0",
     "webextension-polyfill": "^0.10.0"
   },
   "devDependencies": {

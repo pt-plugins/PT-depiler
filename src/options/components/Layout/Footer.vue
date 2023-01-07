@@ -1,14 +1,14 @@
 <script lang="ts" setup>
-import { getFullVersion } from "@/shared/constants";
+import { EXT_VERSION, EXT_GIT } from "@/shared/constants";
 
-const version = getFullVersion();
 const year = new Date().getFullYear();
 </script>
 
 <template>
   <v-footer id="ptpp-footer" app fixed>
     <span class="pl-2 grey--text text--darken-1">
-      PTPP-next &copy; {{ year }}, {{ $t("common.version") }} {{ version.full }}
+      PTPP-next &copy; {{ year }},
+      {{ $t("common.version") }} <span>{{ EXT_VERSION }}{{ EXT_GIT?.short ? `+${EXT_GIT?.short}` : '' }}</span>
     </span>
     <v-spacer />
   </v-footer>
