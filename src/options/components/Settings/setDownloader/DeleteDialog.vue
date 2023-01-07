@@ -1,18 +1,25 @@
 <script setup lang="ts">
-import {inject, Ref} from "vue";
-import {useDownloaderStore} from "@/shared/store/downloader";
+import { useDownloaderStore } from "@/shared/store/downloader";
+import { useVModels } from "@vueuse/core";
 
-const showDialog = inject<Ref<boolean>>("showDeleteDialog")!;
-const toDeleteDownloaderIds = inject<Ref<string[]>>("toDeleteDownloaderIds")!;
+const componentProps = defineProps<{
+  modelValue: boolean,
+  toDeleteIds: string[]
+}>();
 
-function removeClients() {
+const {
+  modelValue: showDialog,
+  toDeleteIds
+} = useVModels(componentProps);
+
+function removeClients () {
   const downloaderStore = useDownloaderStore();
 
-  for (const toDeleteDownloaderId of toDeleteDownloaderIds.value) {
+  for (const toDeleteDownloaderId of toDeleteIds.value) {
     downloaderStore.removeClient(toDeleteDownloaderId);
   }
   showDialog.value = false;
-  toDeleteDownloaderIds.value = [];
+  toDeleteIds.value = [];
 }
 </script>
 
@@ -24,7 +31,7 @@ function removeClients() {
       </v-card-title>
 
       <v-card-text>
-        {{ $t('setDownloader.delete.text', [toDeleteDownloaderIds.length]) }}
+        {{ $t('setDownloader.delete.text', [toDeleteIds.length]) }}
       </v-card-text>
 
       <v-card-actions>

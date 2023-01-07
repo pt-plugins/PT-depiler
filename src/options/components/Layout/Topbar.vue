@@ -24,7 +24,7 @@ const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
   <v-app-bar id="ptpp-topbar" app color="amber">
     <template #prepend>
       <v-app-bar-nav-icon
-        :title="$t('topbar.navBarTip')"
+        :title="$t('layout.header.navBarTip')"
         variant="text"
         @click="uiStore.isNavBarOpen = !uiStore.isNavBarOpen"
       />

@@ -124,7 +124,7 @@ Object.values(rawDependencies).forEach(value => {
               {{ $t("TechnologyStack.stackTableColumn.name") }}
             </th>
             <th class="text-center">
-              {{ $t("TechnologyStack.stackTableColumn.version") }}
+              {{ $t("common.version") }}
             </th>
             <th class="text-left">
               {{ $t("TechnologyStack.stackTableColumn.homepage") }}

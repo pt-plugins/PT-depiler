@@ -1,15 +1,24 @@
 <script lang="ts" setup>
-import {inject, type Ref} from "vue";
-import {useDownloaderStore} from "@/shared/store/downloader";
-import type {BittorrentClientBaseConfig} from "@ptpp/downloader";
+import { ref } from "vue";
+import { useVModels } from "@vueuse/core";
+import { useDownloaderStore } from "@/shared/store/downloader";
+import type { BittorrentClientBaseConfig } from "@ptpp/downloader";
 import Editor from "./Editor.vue";
 
-const showDialog = inject<Ref<boolean>>("showEditDialog")!;
-const clientConfig = inject("clientConfig") as Ref<BittorrentClientBaseConfig>;
+const componentProps = defineProps<{
+  modelValue: boolean,
+  clientConfig: BittorrentClientBaseConfig
+}>();
 
-function patchClient() {
-  const store = useDownloaderStore();
-  store.patchClient(clientConfig.value);
+const {
+  modelValue: showDialog,
+  clientConfig
+} = useVModels(componentProps);
+const isClientConfigValid = ref<boolean>(true);  // // 修改时默认配置合法
+
+function patchClient () {
+  const downloaderStore = useDownloaderStore();
+  downloaderStore.patchClient(clientConfig.value!);
   showDialog.value = false;
 }
 </script>
@@ -24,7 +33,7 @@ function patchClient() {
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <Editor />
+        <Editor v-model="clientConfig" v-model:isConfigValid="isClientConfigValid" />
       </v-card-text>
       <v-divider />
       <v-card-actions>
@@ -41,6 +50,7 @@ function patchClient() {
         <v-btn
           variant="text"
           color="success"
+          :disabled="!isClientConfigValid"
           @click="patchClient"
         >
           <v-icon icon="mdi-check-circle-outline" />

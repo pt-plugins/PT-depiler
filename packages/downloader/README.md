@@ -34,7 +34,7 @@
          * 此时只需要完成 getAllTorrents 方法的逻辑即可
          *
          * 如果该客户端支持在获取种子的时候进行筛选，
-         * 则建议将筛选给bt软件，即 getTorrentsBy -> getAllTorrents/getTorrent
+         * 则建议将筛选给bt软件，来同时减少浏览器和下载服务器的负担，即 getTorrentsBy -> getAllTorrents/getTorrent
          * 此时，则同时需要完成 3个方法（部分情况下为其中1个或2个）的 override
          *
          */

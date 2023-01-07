@@ -36,6 +36,9 @@ export const clientMetaData: TorrentClientMetaData = {
       description:
         "因 Synology Download Station API 接口限制，保存目录依赖于“暂存位置”，并且只允许使用相对路径；<br/>如暂存位置为 /volume1/，期望存储目的地位置为 /volume1/music/，那么请在“目录列表”中填写：<span style='color:red'>music</span>",
     },
+    DefaultAutoStart: {
+      allowed: true
+    }
   },
 };
 

@@ -3,19 +3,18 @@
  */
 import { AxiosRequestConfig } from "axios";
 
-export type TorrentClientFeature = "CustomPath";
-
-// 最通用的自定义目录提示词
-export const CustomPathDescription =
-  "当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/ 或 D:\\download\\music\\。请确保对应路径软件有写入权限。";
+export type TorrentClientFeature =
+  | "CustomPath"  // 支持设置自定义目录作为下载目录
+  | "DefaultAutoStart" // 支持发送种子时自动开始
+  ;
 
 /**
  * 客户端配置信息
  */
 export interface BittorrentClientBaseConfig {
   /**
-   * UUIDv4
    * 系统使用这个信息判断并生成唯一的客户端
+   * 推荐使用 UUIDv4， 但在实现中使用了 nanoid
    */
   id?: string;
 
@@ -25,8 +24,7 @@ export interface BittorrentClientBaseConfig {
   type: string;
 
   /**
-   * 客户端名称
-   * The name of client which can help users recognise it quickly
+   * 客户端名称，用于用户辨识
    */
   name: string;
 
@@ -60,6 +58,9 @@ export interface TorrentClientFeatureMetaData {
   allowed: boolean; // 该客户端是否允许该特征
   description?: string; // 该特征的相关说明
 }
+
+// 最通用的自定义目录提示词
+export const CustomPathDescription = "当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/ 或 D:\\download\\music\\。请确保对应路径软件有写入权限。";
 
 /**
  * 客户端介绍信息
@@ -170,7 +171,7 @@ export interface CAddTorrentOptions {
 
   /**
    * called a label in some clients and a category in others
-   * Notice: Some clients didn't support it
+   * Notice: Some clients didn't support it and will ignore this option
    */
   label?: string;
 }

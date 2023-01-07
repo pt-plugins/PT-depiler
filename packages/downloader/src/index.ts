@@ -6,16 +6,17 @@ import {
 export * from "./types";
 export { getRemoteTorrentFile } from "./utils";
 import { copy } from "@ptpp/util/filter";
+import { nanoid } from "nanoid";
 
 const requireContext = import.meta.webpackContext!("./entity/", {
   regExp: /\.ts$/,
   chunkName: "lib/downloader/[request]",
-  mode: "eager"
+  mode: "lazy"
 });
 
 export const entityList = requireContext.keys().map((value: string) => {
   return value.replace(/^\.\//, "").replace(/\.ts$/, "");
-});
+}) as string[];
 
 // 从 requireContext 中获取对应模块
 export async function getDownloaderModule(configType: string): Promise<{
@@ -26,8 +27,12 @@ export async function getDownloaderModule(configType: string): Promise<{
   return await requireContext(`./${configType}.ts`);
 }
 
-export async function getDownloaderDefaultConfig(type: string): Promise<BittorrentClientBaseConfig> {
-  return copy((await getDownloaderModule(type)).clientConfig);
+export async function getDownloaderDefaultConfig (type: string): Promise<BittorrentClientBaseConfig> {
+  const config = copy((await getDownloaderModule(type)).clientConfig);
+  // 填入/覆盖 缺失项
+  config.id = nanoid();
+  config.feature = config.feature ?? { DefaultAutoStart: false };
+  return config;
 }
 
 export async function getDownloaderMetaData(type: string): Promise<TorrentClientMetaData> {
@@ -39,14 +44,14 @@ const downloaderIconContext = import.meta.webpackContext!("./icons/", {
   mode: "sync"
 });
 
-export  function getDownloaderIcon(configType: string):string {
+export function getDownloaderIcon (configType: string): string {
   return downloaderIconContext(`./${configType}.png`);
 }
 
 const clientInstanceCache: Record<string, AbstractBittorrentClient> = {};
 
-export async function getDownloader(config: BittorrentClientBaseConfig): Promise<AbstractBittorrentClient> {
-  if (typeof clientInstanceCache[config.id!] === "undefined") {
+export async function getDownloader (config: BittorrentClientBaseConfig, flush: boolean = false): Promise<AbstractBittorrentClient> {
+  if (flush || typeof clientInstanceCache[config.id!] === "undefined") {
     const DownloaderClass = (await getDownloaderModule(config.type)).default;
 
     // @ts-ignore

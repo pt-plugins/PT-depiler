@@ -69,6 +69,9 @@ module.exports = {
       }
     ],
     "vue/multi-word-component-names": "off",
+    "vue/valid-v-slot": ["error", {
+      allowModifiers: true,
+    }],
     "@typescript-eslint/no-unused-vars": "off",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-non-null-assertion": "off",

@@ -1,6 +1,5 @@
 import { defineStore } from "pinia";
 import type { BittorrentClientBaseConfig } from "@ptpp/downloader";
-import { nanoid } from "nanoid";
 
 export const useDownloaderStore = defineStore("downloader", {
   persist: true,
@@ -23,11 +22,6 @@ export const useDownloaderStore = defineStore("downloader", {
     },
 
     addClient(client: BittorrentClientBaseConfig) {
-      // 为这个client辅初始uid
-      if (typeof client.id === "undefined") {
-        client.id = nanoid();
-      }
-
       this.clients.push(client);
 
       // 如果此时只有一个下载器，这将这个下载器设置为默认下载器

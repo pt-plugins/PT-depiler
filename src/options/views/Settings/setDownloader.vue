@@ -1,22 +1,58 @@
 <script lang="ts" setup>
-import {ref, provide} from "vue";
-import {useDownloaderStore} from "@/shared/store/downloader";
-import {getDownloaderIcon} from "@ptpp/downloader";
+import { ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { useDownloaderStore } from "@/shared/store/downloader";
+import { type BittorrentClientBaseConfig, getDownloaderIcon } from "@ptpp/downloader";
 import AddDialog from "@/options/components/Settings/setDownloader/AddDialog.vue";
 import EditDialog from "@/options/components/Settings/setDownloader/EditDialog.vue";
 import DeleteDialog from "@/options/components/Settings/setDownloader/DeleteDialog.vue";
 
 const downloaderStore = useDownloaderStore();
-
-const clientConfig = ref<any>({});
-provide("clientConfig", clientConfig);
+const { t } = useI18n();
 
 const showAddDialog = ref<boolean>(false);
-provide("showAddDialog", showAddDialog);
-
 const showEditDialog = ref<boolean>(false);
-provide("showEditDialog", showEditDialog);
+const showDeleteDialog = ref<boolean>(false);
 
+const clientTableHeader = [
+  {
+    title: t("setDownloader.common.type"),
+    key: "type",
+    align: "center",
+    width: 80
+  },
+  {
+    title: t("setDownloader.common.name"),
+    key: "name",
+    align: "left",
+  },
+  {
+    title: t("setDownloader.common.uid"),
+    key: "id",
+    align: "left",
+    sortable: false
+  },
+  {
+    title: t("setDownloader.common.address"),
+    key: "address",
+    align: "left",
+  },
+  {
+    title: t("setDownloader.common.username"),
+    key: "username",
+    align: "left"
+  },
+  {
+    title: t("common.action"),
+    key: "action",
+    sortable: false
+  },
+];
+
+const clientTableSelected = ref<string[]>([]);
+const clientTableSearch = ref("");
+
+const clientConfig = ref<BittorrentClientBaseConfig>();
 function editDownloader(perEditClientConfig: any) {
   clientConfig.value = perEditClientConfig;
   showEditDialog.value = true;
@@ -28,100 +64,113 @@ function setDefaultDownloader(clientId:string) {
   showSetDefaultDownloaderSnackbar.value = true;
 }
 
-const showDeleteDialog = ref<boolean>(false);
-provide("showDeleteDialog", showDeleteDialog);
-
-const toDeleteDownloaderIds = ref<string[]>([]);
-provide("toDeleteDownloaderIds", toDeleteDownloaderIds);
-
-function deleteDownloader(clientId: string) {
-  toDeleteDownloaderIds.value.push(clientId);
+const toDeleteIds = ref<string[]>([]);
+function deleteDownloader (clientId: string | string[]) {
+  if (typeof clientId === "string") {
+    clientId = [clientId];
+  }
+  toDeleteIds.value = clientId;
   showDeleteDialog.value = true;
 }
-
 </script>
 
 <template>
   <v-alert type="info">
     {{ $t("route.Settings.setDownloader") }}
   </v-alert>
-  <v-card>
+  <v-card class="set-downloader">
     <v-card-title>
-      <v-btn
-        color="success" prepend-icon="mdi-plus"
-        class="mr-2"
-        @click="showAddDialog = true"
-      >
-        {{ $t("common.btn.add") }}
-      </v-btn>
-      <!-- TODO 批量禁用 after: v-data-table -->
-      <v-btn color="error" prepend-icon="mdi-minus" disabled>
-        {{ $t("common.btn.remove") }}
-      </v-btn>
-      <v-spacer />
-      <!-- TODO 搜索 after: v-data-table -->
+      <v-row class="ma-0">
+        <v-btn
+          color="success" prepend-icon="mdi-plus"
+          class="mr-2"
+          @click="showAddDialog = true"
+        >
+          {{ $t("common.btn.add") }}
+        </v-btn>
+        <v-btn
+          color="error" prepend-icon="mdi-minus"
+          :disabled="clientTableSelected.length === 0"
+          @click="deleteDownloader(clientTableSelected)"
+        >
+          {{ $t("common.btn.remove") }}
+        </v-btn>
+        <v-spacer />
+        <v-text-field
+          v-model="clientTableSearch"
+          append-icon="mdi-magnify"
+          label="Search"
+          single-line
+          hide-details
+        />
+      </v-row>
     </v-card-title>
 
-    <!-- FIXME 使用 v-data-table 替代 -->
-    <v-table>
-      <thead>
-        <tr>
-          <th>{{ $t("setDownloader.index.table.header.type") }}</th>
-          <th>{{ $t("setDownloader.index.table.header.name") }}</th>
-          <th>{{ $t("setDownloader.index.table.header.id") }}</th>
-          <th>{{ $t("setDownloader.index.table.header.address") }}</th>
-          <th>{{ $t("setDownloader.index.table.header.action") }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="client in downloaderStore.clients" :key="client.id"
-          :class="{ 'bg-lime': downloaderStore.isDefaultDownloader(client.id)} "
-        >
-          <td>
-            <v-avatar :image="getDownloaderIcon(client.type)" :alt="client.type" />
-          </td>
-          <td>{{ client.name }}</td>
-          <td><code>{{ client.id }}</code></td>
-          <td>
-            <a :href="client.address" target="_blank" rel="noopener noreferrer nofollow">
-              {{ client.address }}
-              <v-icon icon="mdi-page-next" size="small" />
-            </a>
-          </td>
-          <td>
-            <v-btn
-              size="small" icon="mdi-home"
-              variant="plain" class="mr-2"
-              :disabled="downloaderStore.isDefaultDownloader(client.id)"
-              :title="$t('setDownloader.index.table.action.setDefault')"
-              @click="setDefaultDownloader(client.id)"
-            />
-            <v-btn
-              size="small" icon="mdi-pencil"
-              variant="plain"
-              @click="editDownloader(client)"
-            />
-            <v-btn
-              size="small" icon="mdi-delete"
-              variant="plain" color="error"
-              @click="deleteDownloader(client.id)"
-            />
-          </td>
-        </tr>
-      </tbody>
-    </v-table>
+    <v-data-table
+      v-model="clientTableSelected"
+      :headers="clientTableHeader"
+      :items="downloaderStore.clients"
+      :sort-by="[{key:'type', order: 'asc'}]"
+      :search="clientTableSearch"
+      item-value="id"
+      show-select
+      must-sort
+    >
+      <template #item.type="{ item }">
+        <v-avatar :image="getDownloaderIcon(item.raw.type)" :alt="item.raw.type" />
+      </template>
+      <template #item.id="{ item }">
+        <v-row class="ma-0" align="center">
+          <code>{{ item.raw.id }}</code>
+          <template v-if="downloaderStore.isDefaultDownloader(item.raw.id)">
+            <v-spacer />
+            <v-chip label small color="blue">
+              {{ $t('setDownloader.index.table.default') }}
+            </v-chip>
+          </template>
+        </v-row>
+      </template>
+      <template #item.address="{ item }">
+        <a :href="item.raw.address" target="_blank" rel="noopener noreferrer nofollow">
+          {{ item.raw.address }}
+          <v-icon icon="mdi-page-next" size="small" />
+        </a>
+      </template>
+      <template #item.action="{ item }">
+        <v-btn
+          size="small" icon="mdi-home"
+          variant="plain" class="mr-2"
+          :disabled="downloaderStore.isDefaultDownloader(item.raw.id)"
+          :title="$t('setDownloader.index.table.action.setDefault')"
+          @click="setDefaultDownloader(item.raw.id)"
+        />
+        <v-btn
+          size="small" icon="mdi-pencil"
+          variant="plain"
+          :title="$t('setDownloader.index.table.action.editDownloader')"
+          @click="editDownloader(item.raw)"
+        />
+        <v-btn
+          size="small" icon="mdi-delete"
+          variant="plain" color="error"
+          :title="$t('setDownloader.index.table.action.deleteDownloader')"
+          @click="deleteDownloader(item.raw.id)"
+        />
+      </template>
+    </v-data-table>
+
+    <!-- 应该放入data-table的 no-data slot -->
     <v-alert v-if="downloaderStore.clients.length === 0">
       {{ $t('setDownloader.index.emptyNotice') }}
     </v-alert>
   </v-card>
 
   <!-- Components -->
-  <AddDialog />
-  <EditDialog />
-  <DeleteDialog />
+  <AddDialog v-model="showAddDialog" />
+  <EditDialog v-model="showEditDialog" v-model:client-config="clientConfig" />
+  <DeleteDialog v-model="showDeleteDialog" v-model:to-delete-ids="toDeleteIds" />
 
-  <!-- 设置默认下载器 -->
+  <!-- Snackbar - 设置默认下载器 -->
   <v-snackbar v-model="showSetDefaultDownloaderSnackbar">
     {{ $t('setDownloader.index.changeDefaultDownloader') }}
   </v-snackbar>

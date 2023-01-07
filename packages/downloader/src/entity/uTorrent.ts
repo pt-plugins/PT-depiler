@@ -39,6 +39,9 @@ export const clientMetaData: TorrentClientMetaData = {
       description:
         "仅支持 µTorrent 3.x.x 及以上版本；<br /><br />1. 在 µTorrent 的 设置 -> 高级 -> 网页界面 添加一个下载目录，如：D:\\download\\ <br />2. 在助手里添加目录列表（仅支持相对路径），如：music\\ <br />3. 最终数据的保存目录为：D:\\download\\music\\",
     },
+    DefaultAutoStart: {
+      allowed: true
+    }
   },
 };
 

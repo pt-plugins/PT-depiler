@@ -42,6 +42,9 @@ export const clientMetaData: TorrentClientMetaData = {
       allowed: true,
       description: CustomPathDescription,
     },
+    DefaultAutoStart: {
+      allowed: true
+    }
   },
 };
 
