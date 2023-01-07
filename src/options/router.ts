@@ -114,12 +114,6 @@ export const routes: RouteRecordRaw[] = [
         component: () => dynamicImportView("About/TechnologyStack")
       },
       {
-        path: "/change-log",
-        name: "ChangeLog",
-        meta: { icon: "mdi-radar" },
-        component: () => dynamicImportView("About/ChangeLog")
-      },
-      {
         path: "/special-thank",
         name: "SpecialThank",
         meta: { icon: "mdi-account-multiple" },

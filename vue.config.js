@@ -36,10 +36,6 @@ module.exports = {
         const build_number = git.count() % 65535;
         manifest.version = `${manifest.version}.${build_number}`;
 
-        if (process.env.TARGET_BROWSER !== 'firefox') {
-          manifest.version_name = `${manifest.version}.${git.short()}`;
-        }
-
         if (!IS_PROD) {
           manifest.description += ' (Development Mode)';
         }
