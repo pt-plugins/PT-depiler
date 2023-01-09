@@ -68,7 +68,7 @@ export type listSelectors = {
  * 站点配置，这部分配置由系统提供，并随着每次更新而更新，不受用户配置的任何影响
  * 当且仅当 基于模板构建时，该部分配置可以由用户修改
  */
-export interface ISiteMetadata {
+export interface ISiteBaseMetadata {
   id?: string;   // 如有，必须和站点文件名（无扩展）相同
   name: string; // 站点名
   aka?: string | string[]; // 站点别名
@@ -201,13 +201,46 @@ export interface ISiteMetadata {
     selectors?: { [userinfoKey in keyof IUserInfo]?: IElementQuery }; // 用户信息相关选择器
   };
 
+  // 站点支持方法
   feature?: {
-    // 站点支持方法
     [key in SiteFeature]?: boolean;
   };
+}
 
-  config?: {
-    activateUrl?: string; // 用户在搜索时使用的地址
-    entryPoint?: string; // 用户在options首页点击时，打开的站点地址
-  };
+export interface ISiteRuntimeMetadata {
+  /**
+   * 用户在搜索时使用的地址
+   */
+  activateUrl?: string;
+  /**
+   * 用户在options首页点击时，打开的站点地址
+   */
+  entryPoint?: string;
+
+  /**
+   * 排序号
+   */
+  sortIndex?: number;
+
+  /**
+   * 站点是否已经离线，对于已经离线的站点不再设置进行搜索、用户信息获取
+   * 比 ISiteBaseMetadata.isDead 优先级低
+   */
+  isOffline?: boolean;
+
+  /**
+   * 是否允许搜索该站点，未指定时默认为 true
+   * 比 ISiteBaseMetadata.feature.searchTorrent 优先级低
+   */
+  allowSearchTorrent?: boolean;
+
+  /**
+   * 是否允许查询该站点个人信息，未指定时默认为 true
+   * 比 ISiteBaseMetadata.feature.queryUserInfo 优先级低
+   */
+  allowQueryUserInfo?: boolean;
+}
+
+export interface ISiteMetadata extends ISiteBaseMetadata, ISiteRuntimeMetadata {
+
 }

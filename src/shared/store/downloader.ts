@@ -9,19 +9,17 @@ export const useDownloaderStore = defineStore("downloader", {
   }),
 
   getters: {
-    isDefaultDownloader(state) {
+    isDefaultDownloader (state) {
       return (clientId: string) => state.defaultDownloaderId === clientId;
+    },
+
+    getClient (state) {
+      return (clientId: string) => state.clients.find(client => client.id === clientId);
     }
   },
 
   actions: {
-    getClient(clientId: string) {
-      return this.clients.find(data => {
-        return data.id === clientId;
-      });
-    },
-
-    addClient(client: BittorrentClientBaseConfig) {
+    addClient (client: BittorrentClientBaseConfig) {
       this.clients.push(client);
 
       // 如果此时只有一个下载器，这将这个下载器设置为默认下载器
@@ -30,14 +28,14 @@ export const useDownloaderStore = defineStore("downloader", {
       }
     },
 
-    patchClient(client: BittorrentClientBaseConfig) {
+    patchClient (client: BittorrentClientBaseConfig) {
       const clientIndex = this.clients.findIndex(data => {
         return data.id === client.id;
       });
       this.clients[clientIndex] = client;
     },
 
-    removeClient(clientId: string) {
+    removeClient (clientId: string) {
       const clientIndex = this.clients.findIndex(data => {
         return data.id === clientId;
       });

@@ -3,8 +3,22 @@ import type { IUserInfo, transPostDataTo } from "../types";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import BittorrentSite from "../schema/AbstractBittorrentSite";
 import { difference, intersection, merge, pick } from "lodash-es";
+import { ISiteMetadata } from "../types";
 
 export default class PrivateSite extends BittorrentSite {
+  protected override readonly initConfig: Partial<ISiteMetadata> = {
+    search: {},
+    userInfo: {},
+    feature: {
+      queryUserInfo: true
+    }
+  };
+
+  get allowQueryUserInfo() : boolean {
+    return this.isOnline
+      && !((this.config.feature?.queryUserInfo ?? this.config.allowQueryUserInfo) === false);
+  }
+
   /**
    * 获得当前站点最新的用户信息用于更新
    * 这里获取 lastUserInfo 以及 保存/更新 UserInfo 均由调用的上层完成
@@ -12,10 +26,14 @@ export default class PrivateSite extends BittorrentSite {
   public async flushUserInfo(
     lastUserInfo: Partial<IUserInfo> = {}
   ): Promise<IUserInfo> {
-    if (!this.config.userInfo || !this.config.userInfo.process) {
+    if (!this.config.userInfo?.process) {
       throw new Error("尚不支持，未定义 userInfo 属性或处理流程");
     } else {
       let flushUserInfo: Partial<IUserInfo> = {};
+
+      if (!this.allowQueryUserInfo) {
+        return flushUserInfo as IUserInfo;
+      }
 
       if (this.config.userInfo.pickLast) {
         flushUserInfo = {
@@ -92,7 +110,6 @@ export default class PrivateSite extends BittorrentSite {
 
   /**
    * 这是一个比较通用的检查是否登录方法，如果不行请考虑覆写扩展
-   * @param {AxiosResponse} res
    */
   protected override loggedCheck(
     res: AxiosResponse,

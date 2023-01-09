@@ -38,6 +38,10 @@ export default class BittorrentSite {
   protected readonly initConfig: Partial<ISiteMetadata> = {
     search: {},
     userInfo: {},
+    feature: {
+      searchTorrent: true,
+      queryUserInfo: false
+    }
   };
 
   // 在 constructor 时生成的一些属性
@@ -106,7 +110,11 @@ export default class BittorrentSite {
   }
 
   get activateUrl (): string {
-    return this.config.config?.activateUrl || this.config.url;
+    return this.config.activateUrl || this.config.url;
+  }
+
+  get isOnline (): boolean {
+    return !(this.config.isDead ?? this.config.isOffline ?? false);
   }
 
   protected transferPostData<T extends Record<string, any>> (
@@ -206,6 +214,10 @@ export default class BittorrentSite {
     return config;
   }
 
+  get allowSearchTorrent(): boolean {
+    return this.isOnline && !((this.config.feature?.searchTorrent ?? this.config.allowSearchTorrent) === false);
+  }
+
   // noinspection JSUnusedGlobalSymbols
   /**
    * 种子搜索方法
@@ -220,7 +232,7 @@ export default class BittorrentSite {
     };
 
     // 检查该站点是否支持搜索
-    if (this.config.feature && this.config.feature.searchTorrent === false) {
+    if (!this.allowSearchTorrent) {
       result.status = ESearchResultParseStatus.passSearch;
       return result;
     }

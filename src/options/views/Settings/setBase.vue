@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-import {ref} from "vue";
-import {lang, definedLangMetaData, supportTheme, useUIStore} from "@/shared/store/ui";
+import { ref } from "vue";
+import { lang, definedLangMetaData, supportTheme, useUIStore } from "@/shared/store/ui";
 
 const uiStore = useUIStore();
 const setTab = ref<string>("ui");

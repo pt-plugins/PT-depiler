@@ -34,8 +34,7 @@
   "common": {
     "action": "Action",
     "btn": {
-      "add": "Add",
-      "remove": "Delete"
+      "add": "Add"
     },
     "dialog": {
       "cancel": "Cancel",
@@ -46,8 +45,10 @@
         "confirmAction": "Confirm Action"
       }
     },
+    "edit": "Edit",
     "language": "Language",
     "name": "PT Plugin Plus",
+    "remove": "Delete",
     "test": "Text",
     "version": "Version"
   },
@@ -159,7 +160,6 @@
       "table": {
         "action": {
           "deleteDownloader": "Delete this downloader server",
-          "editDownloader": "Edit this downloader server",
           "setDefault": "Set this downloader server as Default Downloader."
         },
         "default": "Default"
@@ -170,6 +170,18 @@
     "add": {
       "selectSitePlaceholder": "Please Select a site to add (support search in url and site name)",
       "title": "Add Site"
+    },
+    "common": {
+      "allowQueryUserInfo": "Allow access USP",
+      "allowSearch": "Allow Search",
+      "isOffline": "Offline",
+      "name": "Site Name",
+      "tags": "Tags",
+      "type": "Type",
+      "url": "URL"
+    },
+    "delete": {
+      "text": "Are you sure to delete these {0} Site?"
     }
   }
 }

@@ -10,7 +10,7 @@ module.exports = {
     options: {
       template: 'public/options.html',
       entry: './src/options/main.ts',
-      title: packageInfo.archiverName,
+      title: "PTPP Next",
     },
   },
 

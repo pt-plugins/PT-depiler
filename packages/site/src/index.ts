@@ -38,7 +38,13 @@ export async function getDefinitionModule (definition: string): Promise<{
   default?: TSite;
   siteMetadata: ISiteMetadata;
 }> {
-  return await definitionContent(`./${definition}.ts`);
+  const module = await definitionContent(`./${definition}.ts`);
+
+  // 补全缺失字段（此处补影响站点mete构造的内容，其余内容在 config 里面构造）
+  module.siteMetadata.id ??= definition;
+  module.siteMetadata.schema ??= module.siteMetadata.type === "private" ? "AbstractPrivateSite" : "AbstractBittorrentSite";
+
+  return module;
 }
 
 const siteInstanceCache: Record<string, TSite> = {};
@@ -55,16 +61,12 @@ export async function getSite (
       default: SiteClass
     } = await getDefinitionModule(siteName);
 
-    // 补全缺失字段（此处补影响站点mete构造的内容，其余内容在 config 里面构造）
-    siteMetaData.id ??= siteName;
-    siteMetaData.schema ??= siteMetaData.type === "private" ? "AbstractPrivateSite" : "AbstractBittorrentSite";
-
     /**
      * 如果该模块没有导出 default class，那么我们认为我们需要从基类继承
      * 并覆写基类的的 siteMetaData 信息
      */
     if (!SiteClass) {
-      const schemaModule = await getSchemaModule(siteMetaData.schema);
+      const schemaModule = await getSchemaModule(siteMetaData.schema!);
       SiteClass = schemaModule.default;
     }
 

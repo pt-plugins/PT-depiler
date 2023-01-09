@@ -1,8 +1,6 @@
 {
   "private": true,
-  "name": "pt-plugin-plus",
-  "archiverName": "PTPP-Next",
-  "displayName": "PT 助手 Plus",
+  "name": "ptpp-next",
   "version": "2.0.0",
   "homepage": "https://github.com/ronggang/PT-Plugin-Plus",
   "author": {

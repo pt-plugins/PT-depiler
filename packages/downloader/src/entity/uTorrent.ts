@@ -9,7 +9,6 @@ import {
   TorrentClientConfig,
   TorrentClientMetaData,
   CTorrentState,
-  TorrentClientStatus,
 } from "../types";
 import urlJoin from "url-join";
 import axios from "axios";

@@ -34,8 +34,7 @@
   "common": {
     "action": "操作",
     "btn": {
-      "add": "增加",
-      "remove": "删除"
+      "add": "增加"
     },
     "dialog": {
       "cancel": "取消",
@@ -46,8 +45,10 @@
         "confirmAction": "确认操作"
       }
     },
+    "edit": "编辑",
     "language": "语言",
     "name": "PT 助手 Plus",
+    "remove": "删除",
     "test": "测试",
     "version": "版本"
   },
@@ -159,7 +160,6 @@
       "table": {
         "action": {
           "deleteDownloader": "删除该下载服务器",
-          "editDownloader": "编辑该下载服务器",
           "setDefault": "设置为默认下载服务器"
         },
         "default": "默认"
@@ -170,6 +170,18 @@
     "add": {
       "selectSitePlaceholder": "请选择一个站点（支持搜索）",
       "title": "添加站点"
+    },
+    "common": {
+      "allowQueryUserInfo": "获取个人信息",
+      "allowSearch": "允许搜索",
+      "isOffline": "已离线",
+      "name": "站点名称",
+      "tags": "标签",
+      "type": "类型",
+      "url": "网站链接"
+    },
+    "delete": {
+      "text": "确认删除这 {0} 个站点吗？"
     }
   }
 }

@@ -4,9 +4,9 @@
  *       其余选项  由 pinia           管理，使用前因确保 app.use(pinia)
  *
  */
-import {defineStore} from "pinia";
-import {useBrowserStore} from "@/shared/browser/storage";
-import {usePreferredDark} from "@vueuse/core";
+import { defineStore } from "pinia";
+import { usePreferredDark } from "@vueuse/core";
+import { useBrowserStore } from "@/shared/browser/storage";
 
 interface ILangMetaData {
   title: string,

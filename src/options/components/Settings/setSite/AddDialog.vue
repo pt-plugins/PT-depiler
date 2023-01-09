@@ -1,13 +1,19 @@
 <script lang="ts" setup>
-import { inject, ref, Ref, computed, reactive, onMounted, watch } from "vue";
+import { ref, computed, reactive, onMounted, watch } from "vue";
 import { REPO_URL } from "@/shared/constants";
 import { definitionList, getSite, getFavicon, ISiteMetadata } from "@ptpp/site";
 import { useSiteStore } from "@/shared/store/site";
 import { difference } from "lodash-es";
+import { useVModel } from "@vueuse/core";
 
 const siteStore = useSiteStore();
 
-const showDialog = inject<Ref<boolean>>("showAddDialog")!;
+const componentProps = defineProps<{
+  modelValue: boolean
+}>();
+
+const showDialog = useVModel(componentProps);
+
 const currentStep = ref<0 | 1>(0);
 const selectedSiteName = ref<string | null>(null);
 
@@ -34,7 +40,6 @@ onMounted(() => {
       favicon
     };
   });
-  console.log(definitionListMeta);
 });
 </script>
 

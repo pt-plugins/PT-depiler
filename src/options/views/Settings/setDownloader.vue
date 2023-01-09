@@ -7,50 +7,52 @@ import AddDialog from "@/options/components/Settings/setDownloader/AddDialog.vue
 import EditDialog from "@/options/components/Settings/setDownloader/EditDialog.vue";
 import DeleteDialog from "@/options/components/Settings/setDownloader/DeleteDialog.vue";
 
-const downloaderStore = useDownloaderStore();
 const { t } = useI18n();
+const downloaderStore = useDownloaderStore();
 
 const showAddDialog = ref<boolean>(false);
 const showEditDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 
+const clientTableSearch = ref("");
+const clientTableSelected = ref<string[]>([]);
 const clientTableHeader = [
   {
     title: t("setDownloader.common.type"),
     key: "type",
     align: "center",
+    filterable: false,
     width: 80
   },
   {
     title: t("setDownloader.common.name"),
     key: "name",
-    align: "left",
+    align: "start",
   },
   {
     title: t("setDownloader.common.uid"),
     key: "id",
-    align: "left",
+    align: "start",
+    filterable: false,
     sortable: false
   },
   {
     title: t("setDownloader.common.address"),
     key: "address",
-    align: "left",
+    align: "start",
   },
   {
     title: t("setDownloader.common.username"),
     key: "username",
-    align: "left"
+    align: "start"
   },
   {
     title: t("common.action"),
     key: "action",
+    filterable: false,
     sortable: false
   },
 ];
-
-const clientTableSelected = ref<string[]>([]);
-const clientTableSearch = ref("");
 
 const clientConfig = ref<BittorrentClientBaseConfig>();
 function editDownloader(perEditClientConfig: any) {
@@ -93,7 +95,7 @@ function deleteDownloader (clientId: string | string[]) {
           :disabled="clientTableSelected.length === 0"
           @click="deleteDownloader(clientTableSelected)"
         >
-          {{ $t("common.btn.remove") }}
+          {{ $t("common.remove") }}
         </v-btn>
         <v-spacer />
         <v-text-field
@@ -102,6 +104,7 @@ function deleteDownloader (clientId: string | string[]) {
           label="Search"
           single-line
           hide-details
+          density="compact"
         />
       </v-row>
     </v-card-title>
@@ -110,7 +113,7 @@ function deleteDownloader (clientId: string | string[]) {
       v-model="clientTableSelected"
       :headers="clientTableHeader"
       :items="downloaderStore.clients"
-      :sort-by="[{key:'type', order: 'asc'}]"
+      :items-per-page="-1"
       :search="clientTableSearch"
       item-value="id"
       show-select
@@ -133,7 +136,6 @@ function deleteDownloader (clientId: string | string[]) {
       <template #item.address="{ item }">
         <a :href="item.raw.address" target="_blank" rel="noopener noreferrer nofollow">
           {{ item.raw.address }}
-          <v-icon icon="mdi-page-next" size="small" />
         </a>
       </template>
       <template #item.action="{ item }">
@@ -147,13 +149,13 @@ function deleteDownloader (clientId: string | string[]) {
         <v-btn
           size="small" icon="mdi-pencil"
           variant="plain"
-          :title="$t('setDownloader.index.table.action.editDownloader')"
+          :title="$t('common.edit')"
           @click="editDownloader(item.raw)"
         />
         <v-btn
           size="small" icon="mdi-delete"
           variant="plain" color="error"
-          :title="$t('setDownloader.index.table.action.deleteDownloader')"
+          :title="$t('common.remove')"
           @click="deleteDownloader(item.raw.id)"
         />
       </template>

@@ -15,11 +15,11 @@
 
 import axios from "axios";
 import { createInstance as createLocalforageInstance } from "localforage";
-import BittorrentSite from "../schema/AbstractBittorrentSite";
+import { TSite } from "../index";
 
 // from: https://stackoverflow.com/a/9967193/8824471
 // from: http://proger.i-forge.net/%D0%9A%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80/[20121112]%20The%20smallest%20transparent%20pixel.html
-const NO_IMAGE = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=";
+export const NO_IMAGE = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=";
 
 const packedIconContext = import.meta.webpackContext!("../icons/", {
   regExp: /\.(ico|png)$/,
@@ -207,7 +207,7 @@ export const faviconCache = createLocalforageInstance({
   name: "Favicon",
 });
 
-export async function getFavicon (site: BittorrentSite): Promise<string> {
+export async function getFavicon (site: TSite, flush: boolean = false): Promise<string> {
   const siteId = site.config.id!;
   const siteHost = site.config.host!;
 
@@ -233,7 +233,7 @@ export async function getFavicon (site: BittorrentSite): Promise<string> {
 
   // 2. 检查 localforage 是否已有 base64 缓存（根据站点的 host 值）
   const lfCache = await faviconCache.getItem<string>(siteHost);
-  if (lfCache) {
+  if (!flush && lfCache) {
     return lfCache;
   }
 

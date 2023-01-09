@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { useDownloaderStore } from "@/shared/store/downloader";
+
 import { useVModels } from "@vueuse/core";
+import { useSiteStore } from "@/shared/store/site";
 
 const componentProps = defineProps<{
   modelValue: boolean,
@@ -12,11 +13,11 @@ const {
   toDeleteIds
 } = useVModels(componentProps);
 
-function removeClients () {
-  const downloaderStore = useDownloaderStore();
+function removeSites () {
+  const siteStore = useSiteStore();
 
   for (const toDeleteId of toDeleteIds.value) {
-    downloaderStore.removeClient(toDeleteId);
+    siteStore.removeSite(toDeleteId);
   }
   showDialog.value = false;
   toDeleteIds.value = [];
@@ -31,7 +32,7 @@ function removeClients () {
       </v-card-title>
 
       <v-card-text>
-        {{ $t('setDownloader.delete.text', [toDeleteIds.length]) }}
+        {{ $t('setSite.delete.text', [toDeleteIds.length]) }}
       </v-card-text>
 
       <v-card-actions>
@@ -40,7 +41,7 @@ function removeClients () {
           <v-icon icon="mdi-close-circle" />
           <span class="ml-1">{{ $t('common.dialog.cancel') }}</span>
         </v-btn>
-        <v-btn variant="text" color="error" @click="removeClients">
+        <v-btn variant="text" color="error" @click="removeSites">
           <v-icon icon="mdi-check-circle-outline" />
           <span class="ml-1">{{ $t('common.dialog.ok') }}</span>
         </v-btn>
