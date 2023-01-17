@@ -1,7 +1,7 @@
 import type { ISiteMetadata } from "../types";
 
 export const siteMetadata: ISiteMetadata = {
-  isDead: true,
+  isOffline: true,
   name: "DXDHD",
   timezoneOffset: "+0000",
   description: "综合",

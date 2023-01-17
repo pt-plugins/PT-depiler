@@ -5,7 +5,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "public",
   description: "Demonoid is a Public torrent site for MOVIES / TV / GENERAL",
   url: "https://www.demonoid.is/",
-  legacyUrl: ["https://www.dnoid.to/", "https://www.dnoid.pw/"],
+  legacyUrls: ["https://www.dnoid.to/", "https://www.dnoid.pw/"],
   category: {
     key: "category",
     options: [

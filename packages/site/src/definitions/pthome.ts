@@ -8,7 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   url: "https://pthome.net/",
   description: "只为成为您的家，快乐下载，分享至美！",
   tags: ["综合", "影视", "游戏"],
-  collaborator: "waldens",
+  collaborator: ["waldens"],
   search: {
     selectors: {
       progress: {

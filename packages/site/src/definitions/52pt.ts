@@ -11,5 +11,5 @@ export const siteMetadata: ISiteMetadata = {
   url: "https://52pt.site/",
   description: "52PT - 我爱PT-低调地在这个PT校园快乐成长 快乐分享",
   tags: ["高清", "电影", "电视剧"],
-  collaborator: "StarGazerQQD",
+  collaborator: ["StarGazerQQD"],
 };

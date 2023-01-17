@@ -11,7 +11,7 @@ export const siteMetadata: ISiteMetadata = {
   // schema: 'Luminance',
   tags: ["电视剧", "剧集"],
   url: "https://www.morethantv.me/",
-  collaborator: "luckiestone",
+  collaborator: ["luckiestone"],
   formerHosts: ["www.morethan.tv"],
   search: {
     keywordsParam: "searchtext",
@@ -22,6 +22,7 @@ export const siteMetadata: ISiteMetadata = {
         order_way: "desc",
       },
     },
+    skipImdbSearch: true,
     selectors: {
       // 建立group基本信息: category, title, url, time, size, author , seeders, leechers, completed, comments
       // rows: '#torrent_table > tbody > tr.torrent'
@@ -146,9 +147,6 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseSize" }],
       },
     },
-  },
-  feature: {
-    skipImdbSearch: true,
   },
 };
 

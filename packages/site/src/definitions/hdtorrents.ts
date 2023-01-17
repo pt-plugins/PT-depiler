@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   timezoneOffset: "+0000",
   description: "HD-Torrents.org",
   url: "https://hd-torrents.org/",
-  legacyUrl: ["https://hdts.ru/", "https://hd-torrents.net/", "https://hd-torrents.me/"],
+  legacyUrls: ["https://hdts.ru/", "https://hd-torrents.net/", "https://hd-torrents.me/"],
   tags: ["综合"],
   search: {
     keywordsParam: "search",

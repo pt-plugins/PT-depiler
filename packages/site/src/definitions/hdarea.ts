@@ -8,7 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   url: "https://www.hdarea.co/",
   description: "高清世界",
   tags: ["影视", "综合"],
-  collaborator: "lzl20110",
+  collaborator: ["lzl20110"],
   category: {
     key: "cat",
         options: [

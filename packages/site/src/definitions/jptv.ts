@@ -8,5 +8,5 @@ export const siteMetadata: ISiteMetadata = {
   url: "https://jptv.club/",
   description: "JPTV",
   tags: ["影视", "剧集", "动漫"],
-  collaborator: "MewX",
+  collaborator: ["MewX"],
 };

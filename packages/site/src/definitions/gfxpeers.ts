@@ -11,8 +11,8 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Gazelle",
   tags: ["设计", "素材"],
-  collaborator: "bimzcy",
-  feature: {
+  collaborator: ["bimzcy"],
+  search: {
     skipImdbSearch: true,
   },
 };

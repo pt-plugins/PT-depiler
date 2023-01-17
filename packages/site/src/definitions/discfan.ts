@@ -29,7 +29,7 @@ export const siteMetadata: ISiteMetadata = {
     ],
     cross: { mode: "append" },
   },
-  feature: {
+  search: {
     skipImdbSearch: true,
   },
 };

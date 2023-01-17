@@ -7,7 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   description:
     "TorrentGalaxy.org (TGx) is a Public site for TV / MOVIES / GENERAL",
   url: "https://torrentgalaxy.to/",
-  legacyUrl: ["https://torrentgalaxy.mx/", "https://torrentgalaxy.su/"],
+  legacyUrls: ["https://torrentgalaxy.mx/", "https://torrentgalaxy.su/"],
   category: {
     key: "cat",
     options: [

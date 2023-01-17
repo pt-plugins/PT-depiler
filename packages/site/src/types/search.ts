@@ -10,7 +10,7 @@ export enum ESearchResultParseStatus {
   parseError,
   passSearch,
   needLogin,
-  noTorrents, // 等同于原先的 noTorrents 和 torrentTableIsEmpty ，这两个在结果上没有区别
+  noResults, // 等同于原先的 noTorrents 和 torrentTableIsEmpty ，这两个在结果上没有区别
 }
 
 export interface IElementQuery {
@@ -62,7 +62,7 @@ export interface ISearchCategoryOptions {
 
 export interface ISearchCategories {
   name: string | "Category" | "类别"; // 搜索大类名称
-  key: string | "#changeDomain" | "#changePath"; // 搜索大类
+  key: string | "#changePath"; // 搜索大类
   notes?: string; // 分类说明
   options: ISearchCategoryOptions[];
   // 该搜索大类是否允许内部交叉 （ 不声明，则默认不允许（False） ）
@@ -84,7 +84,7 @@ export interface ISearchCategories {
 export interface ISearchParams {
   /**
    * 约定的特殊key （都以 # 开头）：
-   *   - #changeDomain   更换请求的 baseUrl 为 value 值
+   *   - #changePath   更换请求的 path 为 value 值
    */
   key: string;
   value: string | number | string[] | number[];

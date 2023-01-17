@@ -6,7 +6,7 @@ export const siteMetadata: ISiteMetadata = {
   timezoneOffset: "+0000",
   description: "FileList",
   url: "https://filelist.io/",
-  legacyUrl: ["https://flro.org/"],
+  legacyUrls: ["https://flro.org/"],
   tags: ["影视", "综合"],
   /**
    * 虽然有api接口，但是则需要我们使用 Basic Auth 的形式进行认证（从 Jackett 和 Lidarr 的代码推断）

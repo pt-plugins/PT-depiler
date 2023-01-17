@@ -12,8 +12,8 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["音乐"],
   schema: "Gazelle",
   type: "private",
-  collaborator: "ylxb2016",
-  feature: {
+  collaborator: ["ylxb2016"],
+  search: {
     skipImdbSearch: true,
   },
 };

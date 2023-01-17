@@ -1,4 +1,4 @@
-import axios from "axios";
+import ky from "ky";
 import browser from "webextension-polyfill";
 import Sizzle from "sizzle";
 import { isDebug } from "@/shared/constants";
@@ -9,7 +9,7 @@ import { getDownloader, getDownloaderIcon } from "@ptpp/downloader";
 
 function initDebug() {
   Object.assign(globalThis, {
-    axios,
+    ky,
     browser,
     Sizzle,
     i18n,

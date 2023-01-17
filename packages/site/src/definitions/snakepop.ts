@@ -4,7 +4,7 @@ import Sizzle from "sizzle";
 import { parseSizeString } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
-  isDead: true,
+  isOffline: true,
   name: "Snakepop",
   timezoneOffset: "+0800",
   description: "music",

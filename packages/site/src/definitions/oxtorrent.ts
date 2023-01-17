@@ -18,7 +18,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "public",
   description: "OxTorrent is a French Public site for TV / MOVIES / GENERAL",
   url: "https://www.oxtorrent.cc/",
-  legacyUrl: [
+  legacyUrls: [
     "https://www.oxtorrent.co/",
     "https://wwv.oxtorrent.com/",
     "https://www.smartorrent.tv/",

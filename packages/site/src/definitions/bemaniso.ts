@@ -8,8 +8,8 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["Game", "Music", "sims"],
   type: "private",
   schema: "GazelleJSONAPI",
-  collaborator: "ted423",
-  feature: {
+  collaborator: ["ted423"],
+  search: {
     skipImdbSearch: true,
   },
 };

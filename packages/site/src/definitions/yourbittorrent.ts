@@ -19,7 +19,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "public",
   description: "YourBittorrent is a Public torrent index",
   url: "https://yourbittorrent.com/",
-  legacyUrl: ["https://yourbittorrent2.com/", "https://yourbittorrent.host/"],
+  legacyUrls: ["https://yourbittorrent2.com/", "https://yourbittorrent.host/"],
   search: {
     keywordsParam: "q",
     requestConfig: { params: { v: "", c: "" } },

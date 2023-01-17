@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   favicon: "https://www.htpt.cc/favicon.ico",
   tags: ["曲艺", "小品", "有声小说"],
   host: "htpt.cc",
-  feature: {
+  search: {
     skipImdbSearch: true,
   },
 };

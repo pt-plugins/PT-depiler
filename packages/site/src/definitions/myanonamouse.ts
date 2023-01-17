@@ -132,6 +132,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       responseType: "json",
     },
+    skipImdbSearch: true,
     selectors: {
       rows: { selector: "data" },
       id: { selector: "id" },
@@ -211,9 +212,6 @@ export const siteMetadata: ISiteMetadata = {
         filters: [(query: string) => query.split(" (")[0], { name: "parseTime" }],
       },
     },
-  },
-  feature: {
-    skipImdbSearch: true,
   },
 };
 

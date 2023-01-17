@@ -8,5 +8,5 @@ export const siteMetadata: ISiteMetadata = {
   schema: "AvistaZ",
   tags: ["剧集"],
   url: "https://cinemaz.to/",
-  collaborator: "tranhoangcore",
+  collaborator: ["tranhoangcore"],
 };

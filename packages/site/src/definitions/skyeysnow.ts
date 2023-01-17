@@ -7,7 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   aka: ["天雪"],
   timezoneOffset: "+0800",
   url: "https://www.skyey2.com/",
-  legacyUrl: ["https://skyeysnow.com/"],
+  legacyUrls: ["https://skyeysnow.com/"],
   tags: ["动漫"],
   search: {
     keywordsParam: "search",
@@ -18,6 +18,7 @@ export const siteMetadata: ISiteMetadata = {
         cat: 1,
       },
     },
+    skipImdbSearch: true,
     selectors: {
       rows: { selector: "table.torrents > tbody > tr:gt(0)" },
       id: {
@@ -147,8 +148,5 @@ export const siteMetadata: ISiteMetadata = {
       },
       seedingSize: { text: "N/A" },
     },
-  },
-  feature: {
-    skipImdbSearch: true,
   },
 };

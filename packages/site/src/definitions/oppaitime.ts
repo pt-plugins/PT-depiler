@@ -9,7 +9,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   tags: ["动画", "漫画", "游戏", "影视"],
   url: "https://oppaiti.me/",
-  collaborator: "bimzcy",
+  collaborator: ["bimzcy"],
   category: {
     key: "filter_cat",
     options: [
@@ -34,7 +34,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
-  feature: {
+  search: {
     skipImdbSearch: true,
   },
 };

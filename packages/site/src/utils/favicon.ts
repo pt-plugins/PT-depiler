@@ -3,9 +3,10 @@
  *
  * 我们不用很在意 Favicon 的本地缓存情况，因为这部分可以随时重新获取，所以直接用 localforage 就行了
  * 程序按照如下顺序获取Favicon：
- *   1. localforage 中已有的 base64 缓存（根据站点的 host 值）
- *   2. '../icons' 目录中是否存在对应 png 或 ico 文件 `${config.name | config.host}.${"png" | "ico"}`
- *       （主要方便 以解压缩形式安装的用户覆写 以及部分教育网站点可能需要特殊方法访问的情况 ）
+ *   1. '../icons' 目录中是否存在对应 png 或 ico 文件 `${config.name | config.host}.${"png" | "ico"}`
+       注意：1. 主要方便 以解压缩形式安装的用户覆写 以及部分教育网站点可能需要特殊方法访问的情况
+            2. 此时，ISiteMetadata 中定义的 favicon 字段配置项不起作用，强制刷新缓存不起作用（本地硬配置优先）
+ *   2. localforage 中已有的 base64 缓存（根据站点的 host 值）
  *   3. ISiteMetadata 中定义的 favicon 字段
  *   4. 请求网站首页，并从返回的html中解析所需要的 favicion 字段
  *   5. 使用 NO_IMAGE 替代
@@ -211,12 +212,12 @@ export async function getFavicon (site: TSite, flush: boolean = false): Promise<
   const siteId = site.config.id!;
   const siteHost = site.config.host!;
 
+  // 1. 检查本地icons目录是否存在对应文件
   let checkLocalIconPaths = [
     `./${siteId}.png`, `./${siteId}.ico`,
     `./${siteHost}.png`, `./${siteHost}.ico`
   ];
 
-  // 1. 检查本地icons目录是否存在对应文件
   if (site.config.favicon) {
     if (site.config.favicon.startsWith("data:image/")) {
       return site.config.favicon;  // base64直接返回就行了

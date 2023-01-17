@@ -43,8 +43,8 @@ export const siteMetadata: ISiteMetadata = {
   url: "https://tjupt.org/",
   description: "北洋园PT",
   tags: ["教育网", "影视", "综合"],
-  collaborator: "tongyifan",
-  legacyUrl: ["https://www.tjupt.org/"],
+  collaborator: ["tongyifan"],
+  legacyUrls: ["https://www.tjupt.org/"],
   category: {
     key: "cat",
     options: [

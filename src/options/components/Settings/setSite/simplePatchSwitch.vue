@@ -1,45 +1,32 @@
 <script setup lang="ts">
 import { get } from "lodash-es";
-import { expandStoreSiteConfig, useSiteStore } from "@/shared/store/site";
+import { useSiteStore } from "@/shared/store/site";
 import { computed } from "vue";
+import { type ISiteMetadata } from "@ptpp/site";
 
 const props = defineProps<{
-  config: expandStoreSiteConfig,
-  modelKey: keyof expandStoreSiteConfig["rewriteConfig"],
-  defaultModelValue?: boolean,
-  disableKey?: string,
-  disableWhen?: boolean
+  config: ISiteMetadata,
+  modelKey: keyof ISiteMetadata
 }>();
 
 
 const simplePatchSite = (new_value: any) => {
   const siteStore = useSiteStore();
-  const {
-    id,
-    rewriteConfig = {}
-  } = props.config;
-
-  rewriteConfig[props.modelKey] = new_value;
-
-  siteStore.patchSite({
-    id,
-    rewriteConfig
-  });
 };
 
-const value = get(props.config.rewriteConfig, props.modelKey, props.defaultModelValue) ?? false;
+const value = get(props.config, props.modelKey);
 
 const disable = computed(() =>
-  props.config.metadata.isDead === true  // 站点已经关闭
-  || (props.modelKey !== "isOffline" && props.config.rewriteConfig.isOffline === true)   // 站点已经离线
-  || (props.modelKey == "allowQueryUserInfo" && props.config.metadata.schema === "AbstractBittorrentSite")
+  props.config.isOffline === true &&
+  (props.modelKey !== "isOffline") // 站点已经关闭
+  || (props.modelKey == "allowSearch" && props.config.schema === "AbstractBittorrentSite")
 );
 </script>
 
 <template>
   <v-switch
     v-model="value"
-    :disabled="disable || get(config, props.disableKey) === (props.disableWhen ?? false)"
+    :disabled="disable"
     color="success"
     hide-details
     @update:model-value="simplePatchSite"

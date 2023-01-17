@@ -4,6 +4,8 @@ import type { IElementQuery, ISearchCategories } from "./search";
 import type { AxiosRequestConfig } from "axios";
 import type { timezoneOffset } from "../utils/datetime";
 
+export type SiteID = string;
+
 export type transPostDataTo = "raw" | "form" | "params";
 
 export type fullUrl = `${"http" | "https"}://${string}/`;
@@ -24,22 +26,6 @@ export type SiteSchema =
   | "Gazelle"
   | "GazelleJSONAPI"
   | "AvistaZ";
-
-export type SiteFeature =
-  | string
-  /**
-   * 搜索支持，默认都支持该方法，除非手动指定 false 此时调用 searchTorrent 会报错
-   */
-  | "searchTorrent"
-  /**
-   * 个人信息获取，默认所有基于 PrivateSite 都支持该方法，除非手动指定 false
-   */
-  | "queryUserInfo"
-  /**
-   * 跳过 IMDb 搜索，即如果传入字符串满足 tt\d{7,8} 时，该站点返回 空Array，
-   * 等同于旧版的配置项 "imdbSearch": false 或 "skipIMDbId": true
-   */
-  | "skipImdbSearch";
 
 export type listSelectors = {
   /**
@@ -65,15 +51,15 @@ export type listSelectors = {
   }; // Tags相关选择器
 
 /**
- * 站点配置，这部分配置由系统提供，并随着每次更新而更新，不受用户配置的任何影响
- * 当且仅当 基于模板构建时，该部分配置可以由用户修改
+ * 站点配置，这部分配置由系统提供，并随着每次更新而更新
  */
-export interface ISiteBaseMetadata {
-  id?: string;   // 如有，必须和站点文件名（无扩展）相同
+export interface ISiteMetadata {
+  id?: SiteID;   // 如有，必须和站点文件名（无扩展）相同
   name: string; // 站点名
   aka?: string | string[]; // 站点别名
   description?: string; // 站点说明
   tags?: string[]; // 站点标签
+  collaborator?: string[]; // 提供该站点解决方案的协作者
 
   /**
    * 站点类型
@@ -94,7 +80,7 @@ export interface ISiteBaseMetadata {
    * 部分站点可能对于站点链接存在更为隐秘的要求，则请对链接进行 btoa ，以防止在配置时泄露
    * （但这并不能阻止用户通过插件的网络请求等其他途径知道对应网址
    */
-  url: SiteUrl; // 完整的网站地址，如果网站支持 `https` ，请优先考虑填写 `https` 的地址
+  url: SiteUrl;
 
   /**
    * 和url相同作用和写法，唯一不同是将会覆写url的行为（因为url不允许用户编辑）
@@ -102,7 +88,13 @@ export interface ISiteBaseMetadata {
    *  - 在搜索中，如果用户设置时未传入 activateUrl ，则使用 legacyUrl[0]
    *  - 在页面中， [url, ...legacyUrl] 效果相同
    */
-  legacyUrl?: SiteUrl[];
+  legacyUrls?: SiteUrl[];
+
+  /**
+   * 用户在 search, queryUserInfo 时实际使用的 baseUrl
+   * 当此值不设置时，默认使用url值
+   */
+  activateUrl?: SiteUrl;
 
   /**
    * 站点图标，具体处理过程见 `../utils/favicon.ts` 的说明
@@ -114,15 +106,13 @@ export interface ISiteBaseMetadata {
   favicon?: `${fullUrl}${string}` | `data:image/${string}` | `./${string}.${"png" | "ico"}`;
 
   /**
-   * 站点是否已经死亡，死亡站点不再进行任何数据获取的交互。
+   * 站点是否已经离线，对于已经离线的站点不再设置进行搜索、用户信息获取
    * 对于已经死亡的站点，最好能存一下其 favicon
    * TODO 仅用来保存用户的相关数据，且在展示时默认关闭输出。
    */
-  isDead?: boolean;
+  isOffline?: boolean;
 
   timezoneOffset?: timezoneOffset;
-
-  collaborator?: string | string[]; // 协作者，建议使用 string[] 进行定义
 
   host?: string; // 站点域名，如果不存在，则从url中获取
   formerHosts?: string[]; // 站点过去曾经使用过的，但现在已不再使用的域名
@@ -138,6 +128,12 @@ export interface ISiteBaseMetadata {
     requestConfig?: AxiosRequestConfig & { transferPostData?: transPostDataTo };
 
     /**
+     * 跳过 IMDb 搜索，即如果传入字符串满足 tt\d{7,8} 时，该站点返回 空Array，
+     * 等同于旧版的配置项 "imdbSearch": false 或 "skipIMDbId": true
+     */
+    skipImdbSearch?: boolean;
+
+    /**
      * 额外处理 Imdb 相关信息， 注意此函数（如果定义的话）是在 searchTorrents 中进行，
      * 即此时已根据 requestConfig 和传入的 filter 信息生成了普通搜索时的 Axios 配置，
      * @param config
@@ -149,6 +145,11 @@ export interface ISiteBaseMetadata {
 
     selectors?: listSelectors;
   }; // 站点搜索方法如何配置
+
+  /**
+   * 是否允许搜索该站点，未指定时默认为 true
+   */
+  allowSearch?: boolean;
 
   /**
    * 种子列表页配置（用于展示插件）
@@ -201,46 +202,9 @@ export interface ISiteBaseMetadata {
     selectors?: { [userinfoKey in keyof IUserInfo]?: IElementQuery }; // 用户信息相关选择器
   };
 
-  // 站点支持方法
-  feature?: {
-    [key in SiteFeature]?: boolean;
-  };
-}
-
-export interface ISiteRuntimeMetadata {
-  /**
-   * 用户在搜索时使用的地址
-   */
-  activateUrl?: string;
-  /**
-   * 用户在options首页点击时，打开的站点地址
-   */
-  entryPoint?: string;
-
-  /**
-   * 排序号
-   */
-  sortIndex?: number;
-
-  /**
-   * 站点是否已经离线，对于已经离线的站点不再设置进行搜索、用户信息获取
-   * 比 ISiteBaseMetadata.isDead 优先级低
-   */
-  isOffline?: boolean;
-
-  /**
-   * 是否允许搜索该站点，未指定时默认为 true
-   * 比 ISiteBaseMetadata.feature.searchTorrent 优先级低
-   */
-  allowSearchTorrent?: boolean;
-
   /**
    * 是否允许查询该站点个人信息，未指定时默认为 true
    * 比 ISiteBaseMetadata.feature.queryUserInfo 优先级低
    */
   allowQueryUserInfo?: boolean;
-}
-
-export interface ISiteMetadata extends ISiteBaseMetadata, ISiteRuntimeMetadata {
-
 }

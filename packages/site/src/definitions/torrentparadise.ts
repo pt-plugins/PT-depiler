@@ -5,7 +5,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "public",
   description: "Torrent Paradise is a Public magnet indexer",
   url: "https://torrentparadise.cl/",
-  legacyUrl: [
+  legacyUrls: [
     "https://torrentparadise.org/",
     "https://torrentparadise.to/",
     "https://torrentparadise.cc/",

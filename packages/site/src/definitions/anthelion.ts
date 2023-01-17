@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["电影"],
   type: "private",
   schema: "GazelleJSONAPI",
-  collaborator: "enigamz",
+  collaborator: ["enigamz"],
   userInfo: {
     selectors: {
       bonus: {
@@ -24,7 +24,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
-  feature: {
+  search: {
     skipImdbSearch: true,
   },
 };

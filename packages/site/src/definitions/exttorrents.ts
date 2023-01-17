@@ -56,7 +56,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "public",
   description: "EXT Torrents is a Public torrent site for MOVIES / TV / GENERAL",
   url: "https://ext.to/",
-  legacyUrl: ["https://torrent.extto.com/", "https://ext.torrentbay.to/"],
+  legacyUrls: ["https://torrent.extto.com/", "https://ext.torrentbay.to/"],
   category: {
     key: "c",
     options: [

@@ -8,7 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["综合"],
   type: "private",
   schema: "AvistaZ",
-  feature: {
+  search: {
     skipImdbSearch: true,
   },
 };

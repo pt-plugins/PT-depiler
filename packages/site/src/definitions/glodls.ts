@@ -5,7 +5,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "public",
   description: "GloDLS is a Public Torrent Tracker for MOVIES / TV / GENERAL",
   url: "https://www.gtdb.to/",
-  legacyUrl: ["https://glodls.to/"],
+  legacyUrls: ["https://glodls.to/"],
   category: {
     key: "cat",
     options: [

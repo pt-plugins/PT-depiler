@@ -24,7 +24,7 @@ export const siteMetadata: ISiteMetadata = {
   description:
     "Torlock is a torrent search site that lists verified torrents only for TV series and movies",
   url: "https://www.torlock.com/",
-  legacyUrl: ["https://www.torlock2.com/", "https://www.torlock.icu/"],
+  legacyUrls: ["https://www.torlock2.com/", "https://www.torlock.icu/"],
   search: {
     selectors: {
       rows: {

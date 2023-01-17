@@ -9,7 +9,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   host: "www.hitpt.com",
   formerHosts: ["pt.ghtt.net"],
-  collaborator: "tongyifan",
+  collaborator: ["tongyifan"],
   category: {
     key: "cat",
     options: [

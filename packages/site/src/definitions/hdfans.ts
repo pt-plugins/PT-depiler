@@ -12,7 +12,7 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["综合", "电影", "电视剧", "纪录片"],
   schema: "NexusPHP",
   type: "private",
-  collaborator: "csi0n",
+  collaborator: ["csi0n"],
   search: {
     selectors: {
       progress: {

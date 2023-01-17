@@ -11,7 +11,7 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["教育网", "影视", "综合"],
   schema: "NexusPHP",
   type: "private",
-  collaborator: "Rhilip",
+  collaborator: ["Rhilip"],
   category: {
     key: "cat",
     // FIXME 由于目前配置问题，不能在配置文件中做到大分类，可能需要用户自定义

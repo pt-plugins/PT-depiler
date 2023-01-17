@@ -7,7 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "public",
   description: "LimeTorrents is a Public general torrent index with mostly verified torrents",
   url: "https://www.limetorrents.info/",
-  legacyUrl: [
+  legacyUrls: [
     "https://www.limetorrents.asia/",
     "https://www.limetorrents.co/",
     "https://limetor.com/",

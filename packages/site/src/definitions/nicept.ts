@@ -11,7 +11,7 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["Adult"],
   schema: "NexusPHP",
   type: "private",
-  collaborator: "DXV5",
+  collaborator: ["DXV5"],
   category: {
     key: "cat",
     options: [

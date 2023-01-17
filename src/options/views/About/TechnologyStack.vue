@@ -1,7 +1,10 @@
 <script lang="ts" setup>
-import axios from "axios";
-import { reactive, computed } from "vue";
+import ky from "ky";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { useStorage } from "@vueuse/core";
+
+const { t } = useI18n();
 
 const ptppHistory = [
   {
@@ -33,9 +36,13 @@ interface ITData {
   url: string
 }
 
-const rawDependencies = reactive<Record<string, ITData>>({});
-
-const tableDependencies = computed(() => Object.values(rawDependencies).sort((a,b) => a.name.localeCompare(b.name)));
+const technologyData = useStorage<Record<string, ITData>>("technology-data", {
+  "Jackett": {
+    name: "Jackett",
+    version: "latest",
+    url: "https://github.com/Jackett/Jackett"
+  }
+});
 
 // Load deps from package.json
 const rawDependencyContext = import.meta.webpackContext!("@/..", {
@@ -46,44 +53,55 @@ const rawDependencyContext = import.meta.webpackContext!("@/..", {
 
 const npmjsPrefix = "https://www.npmjs.com/package/";
 for (const dependencyKey of rawDependencyContext.keys()) {
-  const {dependencies} = rawDependencyContext(dependencyKey);
+  const { dependencies } = rawDependencyContext(dependencyKey);
+
   Object.entries(dependencies).forEach(value => {
-    const [name,version] = value;
-    if (!name.startsWith("@ptpp")) {
-      rawDependencies[name] = {
-        name,
-        version: (version as string),
-        url: `${npmjsPrefix}${name}`
-      };
+    const [name, version] = value;
+
+    if (name.startsWith("@ptpp")) {
+      return;
+    }
+
+    technologyData.value[name] ??= {
+      name,
+      version: (version as string),
+      url: `${npmjsPrefix}${name}`
+    };
+
+    if (technologyData.value[name].version !== version || technologyData.value[name].url.startsWith(npmjsPrefix)) {
+      ky.get(`https://registry.npmjs.org/${name}`)
+        .json<{ homepage: string }>()
+        .then(data => {
+          technologyData.value[name].url = data?.homepage;
+        });
     }
   });
 }
 
-// Other Deps
-[
+const TechnologyStackTableHeader = [
   {
-    name: "Jackett",
-    version: "latest",
-    url: "https://github.com/Jackett/Jackett"
-  }
-].forEach(value => {
-  rawDependencies[value.name] = value;
-});
+    title: t("TechnologyStack.stackTableColumn.name"),
+    key: "name",
+    align: "center",
+    filterable: false,
+  },
+  {
+    title: t("common.version"),
+    key: "version",
+    align: "center",
+    filterable: false,
+    sortable: false,
+  },
+  {
+    title: t("TechnologyStack.stackTableColumn.homepage"),
+    key: "url",
+    align: "left",
+    filterable: false,
+    sortable: false,
+  },
+];
 
-// Update deps homepage link
-const technologyData = useStorage<Record<string, string>>("technology-data", {});
-Object.values(rawDependencies).forEach(value => {
-  if (value.url.startsWith(npmjsPrefix)) {
-    if (typeof technologyData.value[value.name] === "undefined") {
-      axios.get(`https://registry.npmjs.org/${value.name}`)
-        .then(({ data }) => {
-          technologyData.value[value.name] = rawDependencies[value.name].url = data?.homepage;
-        });
-    } else {
-      rawDependencies[value.name].url = technologyData.value[value.name];
-    }
-  }
-});
+const tableDependencies = computed(() => Object.entries(technologyData.value));
 </script>
 
 <template>
@@ -117,38 +135,17 @@ Object.values(rawDependencies).forEach(value => {
   <v-card>
     <v-card-title>{{ $t('TechnologyStack.dependency') }}</v-card-title>
     <v-card-text>
-      <v-table>
-        <thead>
-          <tr>
-            <th class="text-center">
-              {{ $t("TechnologyStack.stackTableColumn.name") }}
-            </th>
-            <th class="text-center">
-              {{ $t("common.version") }}
-            </th>
-            <th class="text-left">
-              {{ $t("TechnologyStack.stackTableColumn.homepage") }}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="deps in tableDependencies" :key="deps.name">
-            <td class="text-center">
-              {{ deps.name }}
-            </td>
-            <td class="text-center">
-              {{ deps.version }}
-            </td>
-            <td class="text-left">
-              <a :href="deps.url" target="_blank" rel="noopener noreferrer nofollow">{{ deps.url }}</a>
-            </td>
-          </tr>
-        </tbody>
-      </v-table>
+      <v-data-table
+        :headers="TechnologyStackTableHeader" :items="tableDependencies"
+        item-value="id"
+        :items-per-page="-1"
+        must-sort
+        :sort-by="[{key: 'name', order: 'asc'}]"
+      >
+        <template #item.url="{ item }">
+          <a :href="item.raw.url" target="_blank" rel="noopener noreferrer nofollow">{{ item.raw.url }}</a>
+        </template>
+      </v-data-table>
     </v-card-text>
   </v-card>
 </template>
-
-<style scoped>
-
-</style>

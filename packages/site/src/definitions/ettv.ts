@@ -7,7 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "public",
   description: "ETTV is a Public torrent site for TV / MOVIES, home of the  ETTV, ETHD and DTOne groups.",
   url: "https://www.ettvcentral.com/",
-  legacyUrl: ["https://www.ettv.tv/", "https://www.ettv.to/", "https://www.ettvdl.com/", "https://www.ettv.be/"],
+  legacyUrls: ["https://www.ettv.tv/", "https://www.ettv.to/", "https://www.ettvdl.com/", "https://www.ettv.be/"],
   category: {
     key: "cat",
     options: [

@@ -59,6 +59,7 @@ export const siteMetadata: ISiteMetadata = {
     ],
   },
   search: {
+    skipImdbSearch: true,
     selectors: {
       // 对于特定站点，不使用自动生成列表，而是直接指定selector
       time: { selector: "> td:eq(5)" },
@@ -118,9 +119,6 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
     },
-  },
-  feature: {
-    skipImdbSearch: true,
   },
 };
 

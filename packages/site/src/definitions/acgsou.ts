@@ -8,7 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "public",
   description: "简单动漫BT下载站全面为网友提供日本动画，漫画，电子书，动漫音乐，动漫游戏等优质资源的BT下载服务。",
   url: "https://www.36dm.com/",
-  legacyUrl: ["https://www.36dm.club/", "https://www.acgsou.com/"],
+  legacyUrls: ["https://www.36dm.club/", "https://www.acgsou.com/"],
   timezoneOffset: "+0800",
   category: {
     key: "sort_id",

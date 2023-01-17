@@ -50,29 +50,29 @@ export async function getDefinitionModule (definition: string): Promise<{
 const siteInstanceCache: Record<string, TSite> = {};
 
 // FIXME 部分用户自定义的站点（此时在 js/site 目录中不存在对应模块），不能进行 dynamicImport 的情况，对此应该直接从 schema 中导入
-export async function getSite (
-  siteName: string,
-  userConfig: Partial<ISiteMetadata> = {}
-): Promise<TSite> {
-  if (typeof siteInstanceCache[siteName] === "undefined") {
-    let {
-      // eslint-disable-next-line prefer-const
-      siteMetadata: siteMetaData,
-      default: SiteClass
-    } = await getDefinitionModule(siteName);
+export async function getSite (siteMetadata: ISiteMetadata, flush:boolean = false): Promise<TSite> {
+  const {id: SiteId} = siteMetadata;
+  if (flush || typeof siteInstanceCache[SiteId!] === "undefined") {
+    let SiteClass;
+    if (definitionList.includes(SiteId!)) {
+      const DefinitionClass = (await getDefinitionModule(SiteId!)).default;
+      if (DefinitionClass) {
+        SiteClass = DefinitionClass;
+      }
+    }
 
     /**
      * 如果该模块没有导出 default class，那么我们认为我们需要从基类继承
      * 并覆写基类的的 siteMetaData 信息
      */
     if (!SiteClass) {
-      const schemaModule = await getSchemaModule(siteMetaData.schema!);
+      const schemaModule = await getSchemaModule(siteMetadata.schema!);
       SiteClass = schemaModule.default;
     }
 
     // @ts-ignore
-    siteInstanceCache[siteName] = new SiteClass(userConfig, siteMetaData);
+    siteInstanceCache[SiteId!] = new SiteClass(siteMetadata);
   }
 
-  return siteInstanceCache[siteName];
+  return siteInstanceCache[SiteId!];
 }

@@ -14,7 +14,7 @@ export const siteMetadata: ISiteMetadata = {
   description: "Aidoru!Online is a Private Torrent Tracker for Female Japanese Idol related files",
   favicon: "https://aidoru-online.me/themes/default/images/favicon.ico",
   url: "https://aidoru-online.me/",
-  legacyUrl: ["https://aidoru-online.org/"],
+  legacyUrls: ["https://aidoru-online.org/"],
   tags: ["偶像"],
   category: {
     key: "scat",

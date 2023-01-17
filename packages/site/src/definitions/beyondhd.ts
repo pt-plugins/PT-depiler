@@ -18,7 +18,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Unit3D",
   host: "beyond-hd.me",
-  collaborator: "lengmianxia",
+  collaborator: ["lengmianxia"],
   search: {
     requestConfig: {
       url: "/torrents",

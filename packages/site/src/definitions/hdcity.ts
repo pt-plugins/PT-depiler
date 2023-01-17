@@ -28,12 +28,12 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   url: "https://hdcity.city/",
   tags: ["综合", "影视"],
-  legacyUrl: [
+  legacyUrls: [
     "https://hdcity.leniter.org/",
     "https://hdcity.work/",
     "http://hdcity4.leniter.org/", // IPv4
   ],
-  collaborator: "waldens",
+  collaborator: ["waldens"],
   category: {
     key: "cat",
     options: [

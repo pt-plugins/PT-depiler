@@ -8,15 +8,11 @@ import { ISiteMetadata } from "../types";
 export default class PrivateSite extends BittorrentSite {
   protected override readonly initConfig: Partial<ISiteMetadata> = {
     search: {},
-    userInfo: {},
-    feature: {
-      queryUserInfo: true
-    }
+    userInfo: {}
   };
 
   get allowQueryUserInfo() : boolean {
-    return this.isOnline
-      && !((this.config.feature?.queryUserInfo ?? this.config.allowQueryUserInfo) === false);
+    return this.isOnline && !(this.config.allowQueryUserInfo === false);
   }
 
   /**

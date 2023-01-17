@@ -7,7 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "public",
   description: "EZTV is a Public torrent site for TV shows",
   url: "https://eztv.re/",
-  legacyUrl: ["https://eztv.wf/", "https://eztv.tf/", "https://eztv.yt/"],
+  legacyUrls: ["https://eztv.wf/", "https://eztv.tf/", "https://eztv.yt/"],
   search: {
     requestConfig: { url: "/search/" },
     keywordsParam: "keywords",

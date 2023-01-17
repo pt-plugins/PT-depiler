@@ -7,7 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   description: "TorrentSeeds",
   url: "https://www.torrentseeds.org/",
   tags: ["综合"],
-  collaborator: "ian",
+  collaborator: ["ian"],
   search: {
     keywordsParam: "query",
     requestConfig: {
@@ -19,6 +19,7 @@ export const siteMetadata: ISiteMetadata = {
         order_way: "desc",
       },
     },
+    skipImdbSearch: true,
     selectors: {
       rows: {
         selector: 'table.table-bordered > tbody > tr[class*="torrent_row_"]',
@@ -83,10 +84,6 @@ export const siteMetadata: ISiteMetadata = {
       },
       comments: { text: 0 },
     },
-  },
-
-  feature: {
-    skipImdbSearch: true,
   },
 };
 

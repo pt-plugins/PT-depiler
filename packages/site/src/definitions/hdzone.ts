@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   url: "https://hdzone.me/",
   tags: ["电影"],
   schema: "NexusPHP",
-  collaborator: "ian",
+  collaborator: ["ian"],
   search: {
     selectors: {
       progress: {

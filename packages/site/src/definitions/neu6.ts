@@ -227,7 +227,7 @@ export default class neu6 extends PrivateSite {
   override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
     const { data: DetailPage, config: RequestConfig } = await this.request<Document>({
       url: torrent.url,
-      responseType: this.config.detail?.type || "document",
+      responseType: this.config.detail?.requestConfig?.responseType || "document",
     });
 
     let downloadLink = this.getFieldData(DetailPage, {

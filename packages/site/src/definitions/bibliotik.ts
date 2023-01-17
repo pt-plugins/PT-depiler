@@ -19,6 +19,7 @@ export const siteMetadata: ISiteMetadata = {
         order: "desc",
       },
     },
+    skipImdbSearch: true,
     selectors: {
       rows: { selector: "table#torrents_table > tbody > tr:has(.title)" },
       id: {
@@ -96,9 +97,6 @@ export const siteMetadata: ISiteMetadata = {
         text: "N/A",
       },
     },
-  },
-  feature: {
-    skipImdbSearch: true,
   },
 };
 

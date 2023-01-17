@@ -47,6 +47,7 @@ export const siteMetadata: ISiteMetadata = {
         "x-requested-with": "XMLHttpRequest",
       },
     },
+    skipImdbSearch: true,
     selectors: {
       rows: { selector: "table.dataTable:last > tbody > tr:gt(0)" },
       id: {
@@ -181,8 +182,5 @@ export const siteMetadata: ISiteMetadata = {
         },
       },
     },
-  },
-  feature: {
-    skipImdbSearch: true,
-  },
+  }
 };

@@ -9,7 +9,7 @@ export const siteMetadata: ISiteMetadata = {
   aka: ["KG"],
   url: "https://karagarga.in/",
   tags: ["影视", "音乐", "文学"],
-  collaborator: "luckiestone",
+  collaborator: ["luckiestone"],
   search: {
     keywordsParam: "search",
     requestConfig: {

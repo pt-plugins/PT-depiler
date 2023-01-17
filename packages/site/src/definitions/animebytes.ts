@@ -9,6 +9,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Gazelle",
   host: "animebytes.tv",
+  allowSearch: false,
   userInfo: {
     selectors: {
       id: {
@@ -53,8 +54,5 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["dt:contains('Joined:') + dd > span"],
       },
     },
-  },
-  feature: {
-    searchTorrent: false,
   },
 };

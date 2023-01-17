@@ -84,7 +84,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "public",
   description: "1337X is a Public torrent site that offers verified torrent downloads",
   url: "https://1337x.to/",
-  legacyUrl: [
+  legacyUrls: [
     "https://1337x.gd/",
     "https://1337x.is/",
     "https://1337x.st/",

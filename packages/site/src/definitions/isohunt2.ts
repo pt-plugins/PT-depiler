@@ -5,7 +5,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "public",
   description: "Isohunt2 is a Public torrent search engine for MOVIES / TV / GENERAL",
   url: "https://isohunt.nz/",
-  legacyUrl: ["https://isohunt.fun/", "https://isohunt.tv/", "https://isohunt.ch/"],
+  legacyUrls: ["https://isohunt.fun/", "https://isohunt.tv/", "https://isohunt.ch/"],
   category: {
     key: "iht",
     options: [

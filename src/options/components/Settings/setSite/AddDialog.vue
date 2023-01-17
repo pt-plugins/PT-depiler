@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-import { ref, computed, reactive, onMounted, watch } from "vue";
+import { ref, watch } from "vue";
 import { REPO_URL } from "@/shared/constants";
-import { definitionList, getSite, getFavicon, ISiteMetadata } from "@ptpp/site";
-import { useSiteStore } from "@/shared/store/site";
-import { difference } from "lodash-es";
-import { useVModel } from "@vueuse/core";
+import { asyncComputed, useVModel } from "@vueuse/core";
+import { useSiteStore, siteFavicons } from "@/shared/store/site";
+import Editor from "./Editor.vue";
+import { type ISiteMetadata } from "@ptpp/site";
 
 const siteStore = useSiteStore();
 
@@ -15,32 +15,18 @@ const componentProps = defineProps<{
 const showDialog = useVModel(componentProps);
 
 const currentStep = ref<0 | 1>(0);
-const selectedSiteName = ref<string | null>(null);
+const selectedSite = ref<ISiteMetadata | null>(null);
 
-const canAddDefinitionList = computed(() => difference(definitionList, siteStore.addedSiteIds));
+watch(showDialog, () => {
+  currentStep.value = 0;
+  selectedSite.value = null;
+});
 
-const definitionListMeta = reactive<Record<string, {config: ISiteMetadata, favicon: string}>>({});
+const canAddSites = asyncComputed(async () => await siteStore.getSites(siteStore.canAddedSiteIds));
 
 function saveSite() {
   showDialog.value = false;
 }
-
-// 当model的可见性发生变化时，清空 step 以及 selectedClientType
-watch(showDialog, () => {
-  currentStep.value = 0;
-  selectedSiteName.value = null;
-});
-
-onMounted(() => {
-  canAddDefinitionList.value.forEach(async (def) => {
-    const siteInstance = await getSite(def);
-    const favicon = await getFavicon(siteInstance);
-    definitionListMeta[def] = {
-      config: siteInstance.config,
-      favicon
-    };
-  });
-});
 </script>
 
 <template>
@@ -65,45 +51,49 @@ onMounted(() => {
         <v-window v-model="currentStep">
           <v-window-item :key="0">
             <v-autocomplete
-              v-model="selectedSiteName"
-              :items="definitionList"
+              v-model="selectedSite"
+              :items="canAddSites"
               :multiple="false"
-              :placeholder="selectedSiteName ? '' : $t('setSite.add.selectSitePlaceholder')"
-              :hint="definitionListMeta[selectedSiteName]?.config ? (definitionListMeta[selectedSiteName]?.config?.url + ': ' + definitionListMeta[selectedSiteName]?.config?.description) : ''"
+              :placeholder="selectedSite ? '' : $t('setSite.add.selectSitePlaceholder')"
+              :hint="selectedSite ? (selectedSite?.url + ': ' + (selectedSite?.description ?? '')) : ''"
               persistent-hint
             >
               <template #selection="{props, item}">
                 <div class="v-list-item__prepend">
-                  <v-avatar v-bind="props" size="x-small" :image="definitionListMeta[item.raw]?.favicon" />
+                  <v-avatar v-bind="props" size="x-small" :image="siteFavicons[item.raw.id] || ''" />
                 </div>
                 <v-list-item-title v-bind="props">
-                  {{ definitionListMeta[item.raw]?.config.name ?? item.raw }}
+                  {{ item.raw.name ?? '' }}
                 </v-list-item-title>
               </template>
               <template #item="{ props, item }">
+                f
                 <v-list-item
                   v-bind="props"
-                  :prepend-avatar="definitionListMeta[item.raw]?.favicon"
-                  :subtitle="definitionListMeta[item.raw]?.config.url ?? ''"
+                  title=""
+                  :prepend-avatar="siteFavicons[item.raw.id] || ''"
+                  :subtitle="item.raw.url ?? ''"
                 >
                   <template #append>
                     <v-list-item-action>
-                      {{ definitionListMeta[item.raw]?.config.tags?.join(', ') ?? '' }}
+                      {{ item.raw.tags?.join(', ') ?? '' }}
                     </v-list-item-action>
                   </template>
                   <template #title>
                     <v-list-item-title>
-                      <v-chip label size="x-small" :color="definitionListMeta[item.raw]?.config.type === 'public' ? 'green': 'amber'">
-                        {{ definitionListMeta[item.raw]?.config.type.toUpperCase() }}
+                      <v-chip label size="x-small" :color="item.raw.type === 'public' ? 'green': 'amber'">
+                        {{ item.raw.type.toUpperCase() }}
                       </v-chip>
-                      {{ definitionListMeta[item.raw]?.config.name ?? item.raw }}
+                      {{ item.raw.name }}
                     </v-list-item-title>
                   </template>
                 </v-list-item>
               </template>
             </v-autocomplete>
           </v-window-item>
-          <v-window-item :key="1" />  <!-- TODO -->
+          <v-window-item :key="1">
+            <Editor v-model="selectedSite" />
+          </v-window-item>
         </v-window>
       </v-card-text>
       <v-divider />
@@ -128,7 +118,7 @@ onMounted(() => {
         </v-btn>
         <v-btn
           v-if="currentStep === 0"
-          :disabled="selectedSiteName == null"
+          :disabled="selectedSite == null"
           color="blue-darken-1"
           variant="text"
           @click="currentStep++"
@@ -149,8 +139,6 @@ onMounted(() => {
     </v-card>
   </v-dialog>
 </template>
-
-
 
 <style scoped>
 

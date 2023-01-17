@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   description: "SDB, HDB姊妹站",
   url: "https://sdbits.org/",
   tags: ["影视", "综合"],
-  collaborator: "luckiestone",
+  collaborator: ["luckiestone"],
   search: {
     keywordsParam: "search",
     requestConfig: {

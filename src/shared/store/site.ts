@@ -1,20 +1,36 @@
+import { reactive } from "vue";
 import { defineStore } from "pinia";
-import { getDefinitionModule, getFavicon, getSite as createSiteInstance, type ISiteMetadata } from "@ptpp/site";
+import {
+  definitionList,
+  getDefinitionModule,
+  getFavicon,
+  getSite as createSiteInstance,
+  type ISiteMetadata as ISiteDefinedMetadata,
+  type SiteID
+} from "@ptpp/site";
+import { merge } from "lodash-es";
 
-export interface storeSiteConfig {
-  id: string,
-  rewriteConfig: Partial<ISiteMetadata>
+export interface ISiteRuntimeConfig extends Partial<ISiteDefinedMetadata> {
+  id: SiteID;
+
+  /**
+   * 用户在options首页点击时，打开的站点地址
+   */
+  entryPoint?: string;
+
+  /**
+   * 排序号
+   */
+  sortIndex?: number;
 }
 
-export interface expandStoreSiteConfig extends Required<storeSiteConfig> {
-  metadata: ISiteMetadata,
-  favicon: string
-}
+// 在store中缓存favicon对象，以保持单一性
+export const siteFavicons = reactive<Record<string, string | false>>({});   // false means loading
 
 export const useSiteStore = defineStore("site", {
   persist: true,
   state: () => ({
-    sites: [] as storeSiteConfig[]
+    sites: [] as ISiteRuntimeConfig[]
   }),
 
   getters: {
@@ -22,66 +38,77 @@ export const useSiteStore = defineStore("site", {
       return state.sites.map(s => s.id);
     },
 
+    canAddedSiteIds (state) {
+      const addedSiteIds = state.sites.map(s => s.id);
+      return definitionList.filter(x => !addedSiteIds.includes(x));
+    },
+
     getSite (state) {
-      return (siteId: string) => state.sites.find(site => site.id === siteId);
+      return async (siteId: SiteID) => {
+        let siteMetaData = (await getDefinitionModule(siteId)).siteMetadata;
+
+        const storedSiteConfig = state.sites.find(site => site.id === siteId);
+        if (storedSiteConfig) {
+          storedSiteConfig.sortIndex ??= 100;
+          siteMetaData = merge(siteMetaData, storedSiteConfig);
+        }
+
+        this.getSiteFavicon(siteId);  // FIXME loop call?
+
+        return siteMetaData;
+      };
+    },
+
+    getSites () {
+      return async (siteIds?: SiteID[]) => {
+        siteIds ??= this.addedSiteIds;
+        const siteDefinitions = [];
+        for (const siteId of siteIds) {
+          siteDefinitions.push((await this.getSite(siteId)));
+        }
+
+        return siteDefinitions;
+      };
     },
 
     getSiteInstance () {
-      return async (siteId: string) => {
-        const siteConfig = this.getSite(siteId);
+      return async (siteId: SiteID) => {
+        const siteConfig = await this.getSite(siteId);
         if (siteConfig) {
-          return await createSiteInstance(siteConfig.id, siteConfig.rewriteConfig ?? {});
+          return await createSiteInstance(siteConfig);
         }
         throw new Error("Get site Instance Fail");
       };
     },
 
     getSiteFavicon () {
-      return async (siteId: string, flush: boolean = false) => {
-        const siteInstance = await this.getSiteInstance(siteId);
-        return await getFavicon(siteInstance, flush);
+      return (siteId: string, flush: boolean = false) => {
+        if (flush || siteFavicons[siteId] !== false) {
+          siteFavicons[siteId] = false;
+
+          this.getSiteInstance(siteId).then(siteInstance => {
+            getFavicon(siteInstance, flush).then(favicon => {
+              siteFavicons[siteId] = favicon;
+            });
+          });
+        }
+        return siteFavicons[siteId];
       };
     },
-
-    getExpandSite () {
-      return async (siteId: string) => {
-        const siteConfig = this.getSite(siteId);
-        if (siteConfig) {
-          const {
-            id,
-            rewriteConfig = {
-              sortIndex: 100,
-            }
-          } = siteConfig;
-
-          const siteMetaData = (await getDefinitionModule(siteId)).siteMetadata;
-          rewriteConfig.allowSearchTorrent ??= siteMetaData.feature?.searchTorrent !== false;
-          rewriteConfig.allowQueryUserInfo ??= siteMetaData.schema !== "AbstractBittorrentSite" && siteMetaData.feature?.queryUserInfo !== false;
-
-          return {
-            id, rewriteConfig,
-            metadata: siteMetaData,
-            favicon: await this.getSiteFavicon(siteId)
-          } as expandStoreSiteConfig;
-        }
-        throw new Error("Get expand site Fail");
-      };
-    }
   },
   actions: {
-    addSite (site: storeSiteConfig) {
+    addSite (site: ISiteRuntimeConfig) {
       this.sites.push(site);
     },
 
-    patchSite (site: storeSiteConfig) {
+    patchSite (site: ISiteRuntimeConfig) {
       const siteIndex = this.sites.findIndex(data => {
         return data.id === site.id;
       });
-      console.log(siteIndex);
       this.sites[siteIndex] = site;
     },
 
-    removeSite (siteId: string) {
+    removeSite (siteId: SiteID) {
       const siteIndex = this.sites.findIndex(data => {
         return data.id === siteId;
       });

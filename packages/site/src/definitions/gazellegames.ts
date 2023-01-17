@@ -8,8 +8,9 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["Game"],
   schema: "Gazelle",
   type: "private",
-  collaborator: "ted423",
+  collaborator: ["ted423"],
   search: {
+    skipImdbSearch: true,
     selectors: {
       time: { selector: "> td:eq(1)" },
       size: { selector: "> td:eq(3)" },
@@ -87,8 +88,5 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseSize" }],
       },
     },
-  },
-  feature: {
-    skipImdbSearch: true,
   },
 };

@@ -8,7 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["教育网", "影视", "综合"],
   schema: "NexusPHP",
   type: "private",
-  collaborator: "Rhilip",
+  collaborator: ["Rhilip"],
   category: {
     key: "cat",
     options: [

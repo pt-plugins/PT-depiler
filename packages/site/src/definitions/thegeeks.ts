@@ -13,6 +13,7 @@ export const siteMetadata: ISiteMetadata = {
   favicon: "https://thegeeks.click/favicon.ico",
   tags: ["学习"],
   host: "thegeeks.click",
+  allowSearch: false,
   userInfo: {
     process: [
       {
@@ -87,9 +88,5 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
     },
-  },
-  feature: {
-    searchTorrent: false,
-    skipImdbSearch: true,
-  },
+  }
 };

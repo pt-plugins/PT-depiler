@@ -7,7 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "public",
   description: "IBit is a Public Verified Torrent Search Engine",
   url: "https://ibit.to/",
-  legacyUrl: ["https://ibit.uno/", "https://ibit.am/"],
+  legacyUrls: ["https://ibit.uno/", "https://ibit.am/"],
   search: {
     selectors: {
       rows: { selector: "table.striped > tbody > tr" },

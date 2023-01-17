@@ -5,7 +5,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
   url: "https://pt.hdupt.com/",
-  legacyUrl: ["https://pt.upxin.net/"],
+  legacyUrls: ["https://pt.upxin.net/"],
   tags: ["影视", "综合"],
   category: {
     key: "cat",

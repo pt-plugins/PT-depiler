@@ -7,7 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   description: "JoyHD成立於2013年，發佈藍光原碟，藍光DIY和原抓音樂。",
   url: "https://www.joyhd.net/",
   tags: ["影视", "综合"],
-  collaborator: "ylxb2016",
+  collaborator: ["ylxb2016"],
   category: {
     key: "cat",
     options: [

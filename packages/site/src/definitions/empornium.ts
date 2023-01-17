@@ -7,7 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   description: "Empornium (EMP) is a Private Torrent Tracker for XXX",
   url: "https://www.empornium.is/",
   tags: ["Adult"],
-  legacyUrl: ["https://empornium.sx/"],
+  legacyUrls: ["https://empornium.sx/"],
   category: {
     key: "filter_cat",
     options: [

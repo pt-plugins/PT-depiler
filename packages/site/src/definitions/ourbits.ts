@@ -7,8 +7,8 @@ export const siteMetadata: ISiteMetadata = {
   url: "https://ourbits.club/",
   description: "综合性网站，有分享率要求",
   tags: ["影视", "动漫", "纪录片", "综艺"],
-  collaborator: "Rhilip",
-  legacyUrl: ["https://www.ourbits.club/"],
+  collaborator: ["Rhilip"],
+  legacyUrls: ["https://www.ourbits.club/"],
   category: {
     key: "cat",
     options: [

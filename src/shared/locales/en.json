@@ -182,6 +182,11 @@
     },
     "delete": {
       "text": "Are you sure to delete these {0} Site?"
+    },
+    "editor": {
+      "sortIndex": "Priority",
+      "sortIndexTip": "Can be used for search sorting",
+      "tagTip": "press Enter to add multiple. ( Only first 4 tags will show on lists )"
     }
   }
 }

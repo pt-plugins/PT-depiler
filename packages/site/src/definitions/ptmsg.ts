@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   url: "https://pt.msg.vg/",
   description: "The Ultimate File Sharing Experience",
-  collaborator: "bjgetite",
+  collaborator: ["bjgetite"],
   search: {
     selectors: {
       progress: {

@@ -8,7 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["综合", "0day"],
   type: "private",
   schema: "GazelleJSONAPI",
-  collaborator: "enigamz",
+  collaborator: ["enigamz"],
   category: {
     key: "filter_cat",
     options: [
@@ -45,7 +45,7 @@ export const siteMetadata: ISiteMetadata = {
     ],
     cross: { mode: "append" },
   },
-  feature: {
+  search: {
     skipImdbSearch: true,
   },
 };

@@ -15,6 +15,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
   type: "private",
   search: {
+    skipImdbSearch: true,
     categories: [
       {
         name: "来源",
@@ -59,8 +60,5 @@ export const siteMetadata: ISiteMetadata = {
       seeding: selectorUserInfoSeeding,
       seedingSize: selectorUserInfoSeedingSize,
     },
-  },
-  feature: {
-    skipImdbSearch: true,
   },
 };

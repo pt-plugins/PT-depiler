@@ -35,7 +35,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   url: "https://hdhome.org/",
   tags: ["影视", "综合"],
-  collaborator: "tongyifan",
+  collaborator: ["tongyifan"],
   category: {
     key: "cat",
     options: [
@@ -89,7 +89,7 @@ export const siteMetadata: ISiteMetadata = {
       { value: 409, name: "Misc" },
       { value: 449, name: "Anime 2160p" },
       { value: 501, name: "Anime UHD Blu-ray" },
-      
+
       // LIVE 区
       { value: 494, name: "LIVE/Movies Bluray" },
       { value: 495, name: "LIVE/Doc Bluray" },

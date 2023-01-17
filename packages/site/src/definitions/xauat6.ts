@@ -12,7 +12,7 @@ export const siteMetadata: ISiteMetadata = {
   url: "http://pt.xauat6.edu.cn/",
   tags: ["教育网", "影视", "综合"],
   schema: "NexusPHP",
-  collaborator: "Rhilip",
+  collaborator: ["Rhilip"],
   category: {
     key: "cat",
     options: [

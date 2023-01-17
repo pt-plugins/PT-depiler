@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   url: "https://www.cinematik.net/",
   tags: ["影视"],
   host: "www.cinematik.net",
-  collaborator: "DXV5",
+  collaborator: ["DXV5"],
   search: {
     keywordsParam: "search",
     requestConfig: {

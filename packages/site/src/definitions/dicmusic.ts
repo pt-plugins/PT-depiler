@@ -28,7 +28,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
-  feature: {
+  search: {
     skipImdbSearch: true,
   },
 };

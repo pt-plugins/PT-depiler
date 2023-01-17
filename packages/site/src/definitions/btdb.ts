@@ -8,7 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "public",
   description: "BTDB is a Public BitTorrent DHT search engine.",
   url: "https://btdb.eu/",
-  legacyUrl: ["https://btdb.to/"],
+  legacyUrls: ["https://btdb.to/"],
   search: {
     selectors: {
       rows: { selector: "div.media" },

@@ -15,7 +15,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Gazelle",
   type: "private",
   host: "nebulance.io",
-  collaborator: "luckiestone",
+  collaborator: ["luckiestone"],
   category: {
     key: "filter_cat",
     options: [
@@ -26,6 +26,7 @@ export const siteMetadata: ISiteMetadata = {
   },
   search: {
     keywordsParam: "searchtext",
+    skipImdbSearch: true,
     selectors: {
       rows: { selector: ".torrent_table > tbody > tr[class^='torrent row']" },
       title: { selector: "a[data-src]", data: "src" },
@@ -125,9 +126,5 @@ export const siteMetadata: ISiteMetadata = {
         },
       },
     },
-  },
-
-  feature: {
-    skipImdbSearch: true,
   },
 };

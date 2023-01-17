@@ -33,80 +33,62 @@ function restoreSecureLink (url: string): fullUrl {
 export default class BittorrentSite {
   /**
    * 作为这个class类的基本属性，一般用在模板定义中
-   * @protected
    */
   protected readonly initConfig: Partial<ISiteMetadata> = {
     search: {},
-    userInfo: {},
-    feature: {
-      searchTorrent: true,
-      queryUserInfo: false
-    }
   };
 
   // 在 constructor 时生成的一些属性
-  private readonly siteMetaData: Partial<ISiteMetadata>;
-  private readonly userConfig: Partial<ISiteMetadata>;
-  private _config?: ISiteMetadata; // 实际过程中使用的配置文件
+  private readonly siteMetaData: ISiteMetadata;
+  public readonly config: ISiteMetadata; // 实际过程中使用的配置文件
 
   protected _runtime: any = {
     cacheRequest: new Map(),
   };
 
-  constructor (
-    config: Partial<ISiteMetadata> = {},
-    siteMetaData: ISiteMetadata
-  ) {
-    this.userConfig = config;
-    this.siteMetaData = siteMetaData;
-  }
+  constructor (siteMetaData: ISiteMetadata) {
+    this.siteMetaData = siteMetaData;  // 缓存一下传入的配置
 
-  get config (): ISiteMetadata {
-    if (!this._config) {
-      /**
-       * 使用 lodash 的 mergeWith 来合并站点默认配置和用户配置
-       * 以免 { ...data } 解包形式覆盖深层配置
-       */
-      this._config = mergeWith(
-        this.initConfig,
-        this.siteMetaData,
-        this.userConfig,
-        // @ts-ignore
-        (objValue, srcValue, key) => {
-          if (Array.isArray(objValue) || Array.isArray(srcValue)) {
-            if (["filters", "switchFilters"].includes(key)) {
-              // 不合并 filters，每次都用最后并入的
-              return srcValue;
-            } else {
-              return ([] as any[])
-                .concat(srcValue, objValue)
-                .filter((x) => typeof x !== "undefined"); // 保证后并入的配置优先
-            }
+    /**
+     * 生成实际使用的配置
+     * 使用 lodash 的 mergeWith 来合并站点默认配置和传入的用户配置
+     */
+
+    this.config = mergeWith(
+      this.initConfig,
+      this.siteMetaData,
+      (objValue, srcValue, key) => {
+        if (Array.isArray(objValue) || Array.isArray(srcValue)) {
+          if (["filters", "switchFilters"].includes(key)) {
+            // 不合并 filters，每次都用最后并入的
+            return srcValue;
+          } else {
+            return ([] as any[])
+              .concat(srcValue, objValue)   // 保证后并入的配置优先
+              .filter((x) => typeof x !== "undefined");
           }
         }
-      ) as ISiteMetadata;
-
-      // 解密url加密过的站点
-      this._config.url = restoreSecureLink(this._config.url);
-      if (this._config.legacyUrl) {
-        this._config.legacyUrl = this._config.legacyUrl.map(restoreSecureLink);
       }
+    ) as ISiteMetadata;
 
-      // 防止host信息缺失
-      this._config.host ??= new URL(this._config.url).host;
-
-      if (this._config.category && this._config.search) {
-        this._config.search.categories = ([] as any[]).concat(
-          {
-            name: "Category",
-            ...this._config.category,
-          },
-          this._config.search.categories
-        );
-      }
+    // 解密url加密过的站点
+    this.config.url = restoreSecureLink(this.config.url);
+    if (this.config.legacyUrls) {
+      this.config.legacyUrls = this.config.legacyUrls.map(restoreSecureLink);
     }
 
-    return this._config;
+    // 防止host信息缺失
+    this.config.host ??= new URL(this.config.url).host;
+
+    if (this.config.category && this.config.search) {
+      this.config.search.categories = ([] as any[]).concat(
+        {
+          name: "Category",
+          ...this.config.category,
+        },
+        this.config.search.categories
+      );
+    }
   }
 
   get activateUrl (): string {
@@ -114,7 +96,7 @@ export default class BittorrentSite {
   }
 
   get isOnline (): boolean {
-    return !(this.config.isDead ?? this.config.isOffline ?? false);
+    return !(this.config.isOffline ?? false);
   }
 
   protected transferPostData<T extends Record<string, any>> (
@@ -162,10 +144,7 @@ export default class BittorrentSite {
           value
         } = filter.extraParams[i];
 
-        if (key === "#changeDomain") {
-          // 更换 baseURL
-          config.baseURL = value as string;
-        } else if (key === "#changePath") {
+        if (key === "#changePath") {
           config.url = value as string;
         } else {
           //  其他参数视为params
@@ -214,8 +193,8 @@ export default class BittorrentSite {
     return config;
   }
 
-  get allowSearchTorrent(): boolean {
-    return this.isOnline && !((this.config.feature?.searchTorrent ?? this.config.allowSearchTorrent) === false);
+  get allowSearch (): boolean {
+    return this.isOnline && !(this.config.allowSearch === false);
   }
 
   // noinspection JSUnusedGlobalSymbols
@@ -232,7 +211,7 @@ export default class BittorrentSite {
     };
 
     // 检查该站点是否支持搜索
-    if (!this.allowSearchTorrent) {
+    if (!this.allowSearch) {
       result.status = ESearchResultParseStatus.passSearch;
       return result;
     }
@@ -242,7 +221,7 @@ export default class BittorrentSite {
     if (filter.keywords && /tt\d{7,8}/.test(filter.keywords)) {
       // 存在搜索关键词且为Imdb格式
       isImdbSearch = true;
-      if (this.config.feature?.skipImdbSearch) {
+      if (this.config.search?.skipImdbSearch === true) {
         // 定义了 skipImdbSearch 属性且为真
         result.status = ESearchResultParseStatus.passSearch;
         return result;
@@ -281,7 +260,7 @@ export default class BittorrentSite {
       if (e instanceof NeedLoginError) {
         result.status = ESearchResultParseStatus.needLogin;
       } else if (e instanceof NoTorrentsError) {
-        result.status = ESearchResultParseStatus.noTorrents;
+        result.status = ESearchResultParseStatus.noResults;
       } else {
         result.status = ESearchResultParseStatus.parseError;
       }

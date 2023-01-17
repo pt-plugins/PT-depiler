@@ -9,7 +9,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "AvistaZ",
   host: "exoticaz.to",
-  feature: {
+  search: {
     skipImdbSearch: true,
   },
 };

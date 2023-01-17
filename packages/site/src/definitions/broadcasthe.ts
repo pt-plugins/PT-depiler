@@ -32,6 +32,7 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseTTL" }],
       },
     },
+    skipImdbSearch: true,
   },
   userInfo: {
     selectors: {
@@ -71,8 +72,5 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
     },
-  },
-  feature: {
-    skipImdbSearch: true,
   },
 };

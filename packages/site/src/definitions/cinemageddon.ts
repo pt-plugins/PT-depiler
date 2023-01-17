@@ -9,7 +9,7 @@ export const siteMetadata: ISiteMetadata = {
   timezoneOffset: "-0700", // FIXME 按照 Jackett 的情况修正
   url: "https://cinemageddon.net/",
   tags: ["影视"],
-  collaborator: "DXV5",
+  collaborator: ["DXV5"],
   category: {
     key: "c",
     options: [

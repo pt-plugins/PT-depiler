@@ -7,12 +7,13 @@ export const siteMetadata: ISiteMetadata = {
   name: "Pornbits",
   description: "Pornbits",
   url: "https://pornbits.net/",
-  legacyUrl: ["https://pornbits.org/"],
+  legacyUrls: ["https://pornbits.org/"],
   type: "private",
   tags: ["Adult"],
   host: "pornbits.net",
-  collaborator: "ian",
+  collaborator: ["ian"],
   search: {
+    skipImdbSearch: true,
     selectors: {
       rows: { selector: "#content > table > tbody > tr" },
       title: { selector: 'a[href*="/torrent/details/"]' },
@@ -92,9 +93,6 @@ export const siteMetadata: ISiteMetadata = {
       seedingSize: { text: -1 },
       bonus: { text: "N/A" },
     },
-  },
-  feature: {
-    skipImdbSearch: true,
   },
 };
 
