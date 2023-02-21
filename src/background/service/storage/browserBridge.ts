@@ -1,5 +1,4 @@
 // FIXME
-import browser from "webextension-polyfill";
 
 export default abstract class BrowserBridge {
   protected data: any;
@@ -16,7 +15,7 @@ export default abstract class BrowserBridge {
   }
 
   private static async getBrowserData <T> (key: string): Promise<T | null> {
-    const result = await browser.storage.local.get(key);
+    const result = await chrome.storage.local.get(key);
     if (result[key]) {
       return result[key] as T;
     }
@@ -26,7 +25,7 @@ export default abstract class BrowserBridge {
   private static async setBrowserData (key:string, value:any): Promise<void> {
     const data: any = {};
     data[key] = value;
-    return await browser.storage.local.set(data);
+    return await chrome.storage.local.set(data);
   }
 
   /**

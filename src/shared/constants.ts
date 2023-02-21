@@ -1,5 +1,4 @@
 // 此处存放一些全局相关的信息
-import browser from "webextension-polyfill";
 import { EInstallType } from "@/shared/interfaces/enum";
 
 // 仓库相关
@@ -15,18 +14,17 @@ export const isProd = ["production", "prod"].includes(process.env.NODE_ENV!);
 export const isDebug = !isProd;
 
 // 插件相关
-export const EXT_MANIFEST = browser.runtime.getManifest();
-export const EXT_BASEURL = browser.runtime.getURL("");
+export const EXT_MANIFEST = chrome.runtime.getManifest();
+export const EXT_BASEURL = chrome.runtime.getURL("");
 export const EXT_VERSION =  "v" + EXT_MANIFEST.version;  // v2.0.0.2022
 export const EXT_GIT = "git" in EXT_MANIFEST ? EXT_MANIFEST.git as { short: string, date: string, count: number, branch: string, message: string } : null;
 
 export async function getInstallType(): Promise<EInstallType> {
   if ("update_url" in EXT_MANIFEST || EXT_MANIFEST.browser_specific_settings?.gecko?.update_url) {
-    // @ts-ignore
     const update_url: string = EXT_MANIFEST.update_url ?? EXT_MANIFEST.browser_specific_settings?.gecko?.update_url ?? "";
     return update_url.includes("github") ? EInstallType.packed : EInstallType.normal;
   } else {
-    const detail = await browser.management.getSelf();
+    const detail = await chrome.management.getSelf();
     return detail.installType as EInstallType.normal | EInstallType.development;
   }
 }

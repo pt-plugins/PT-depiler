@@ -68,7 +68,7 @@ class UserDataRecords extends browserBridge {
 
   /**
    * 根据站点的 formerHosts 信息更新过去存储的用户历史
-   * 注意，该方法仅允许在 browser.runtime.onInstalled 中触发
+   * 注意，该方法仅允许在 chrome.runtime.onInstalled 中触发
    */
   public async upgradeUserData () {
     // TODO

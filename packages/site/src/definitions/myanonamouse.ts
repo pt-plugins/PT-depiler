@@ -1,8 +1,7 @@
 import { ISiteMetadata, IUserInfo, ETorrentBaseTagColor, ITorrentTag } from "../types";
-import PrivateSite from "../schema/AbstractPrivateSite";
 import Sizzle from "sizzle";
 import { parseNumber, parseSizeString } from "../utils";
-import browser from "webextension-polyfill";
+import PrivateSite from "../schema/AbstractPrivateSite";
 
 interface rawTorrent {
   added: string; // the date and time (in utc) the item was uploaded to site
@@ -233,7 +232,7 @@ export default class myanonamouse extends PrivateSite {
 
     let mamId;
     try {
-      mamId = await browser.cookies.get({
+      mamId = await chrome.cookies.get({
         url: this.config.url,
         name: "mam_id",
       });

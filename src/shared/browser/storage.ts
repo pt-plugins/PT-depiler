@@ -1,16 +1,13 @@
 import {Ref, shallowRef, ref, unref} from "vue";
-import browser, {Storage} from "webextension-polyfill";
 import { UseStorageOptions, watchWithFilter } from "@vueuse/core";
 
-export type storageArea = Exclude<keyof Storage.Static, "onChanged">
-
-export function persistent<T>(key: string,newValue: T, storage: storageArea = "local") {
-  browser.storage[storage].set({[key]: JSON.parse(JSON.stringify(newValue))});
+export function persistent<T>(key: string,newValue: T, storage: chrome.storage.AreaName = "local") {
+  chrome.storage[storage].set({[key]: JSON.parse(JSON.stringify(newValue))});
 }
 
 export interface restoreOptions<T = any> {
   initialValue?: T | Ref<T>,
-  storage?: storageArea,
+  storage?: chrome.storage.AreaName,
   writeDefaults?: boolean
   onError?: null | ((e: any) => void),
 }
@@ -26,7 +23,7 @@ export async function restore<T>(key: string, options: restoreOptions<T> = {}): 
   const rawInit: T = unref(initialValue)!;
 
   try {
-    const {[key]: fromStorage} = await browser.storage[storage].get(key);
+    const {[key]: fromStorage} = await chrome.storage[storage].get(key);
     if (fromStorage) {
       return fromStorage as T;
     } else {
@@ -44,7 +41,7 @@ export async function restore<T>(key: string, options: restoreOptions<T> = {}): 
 export function useBrowserStore<T>(
   key: string,
   initialValue?: T | Ref<T>,
-  storage: storageArea = "local",
+  storage: chrome.storage.AreaName = "local",
   options: Omit<UseStorageOptions<T>, "window" | "serializer"> = {}
 ): Ref<T> {
   const {
@@ -65,7 +62,7 @@ export function useBrowserStore<T>(
     .then((v) => data.value = v);
 
   if (listenToStorageChanges) {
-    browser.storage.onChanged.addListener((item, changeStorage) => {
+    chrome.storage.onChanged.addListener((item, changeStorage) => {
       if (changeStorage === storage && item?.[key]?.newValue) {
         data.value = item[key].newValue;
       }
@@ -77,7 +74,7 @@ export function useBrowserStore<T>(
     async () => {
       try {
         if (data.value === null) {
-          await browser.storage[storage].remove(key);
+          await chrome.storage[storage].remove(key);
         } else {
           await persistent(key, data.value, storage);
         }

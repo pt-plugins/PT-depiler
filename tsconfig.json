@@ -19,6 +19,7 @@
     "baseUrl": ".",
     "types": [
       "node",
+      "chrome",
       "webpack-env"
     ],
     "paths": {

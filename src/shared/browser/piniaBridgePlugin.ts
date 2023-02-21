@@ -1,10 +1,9 @@
 /**
  * this plugin is edit from ohmree/pinia-plugin-webext-storage
  */
-import {ref, type Ref} from "vue";
-import browser from "webextension-polyfill";
-import {PiniaPluginContext, MutationType} from "pinia";
-import {persistent, restore, storageArea} from "./storage";
+import { ref, type Ref } from "vue";
+import { PiniaPluginContext, MutationType } from "pinia";
+import { persistent, restore } from "./storage";
 
 export interface PersistedStateOptions {
   /**
@@ -17,7 +16,7 @@ export interface PersistedStateOptions {
    * Where to store persisted state.
    * @default 'local'
    */
-  storageArea?: storageArea;
+  storageArea?: chrome.storage.AreaName;
 
   writeDefaultState?: boolean;
   autoSaveType?: boolean | MutationType[];
@@ -85,20 +84,20 @@ export default function piniaBridgePlugin(context: PiniaPluginContext) {
       afterRestore?.(context);
     });
 
-  function onChanged(changes: Record<string, browser.Storage.StorageChange>, areaName: string) {
+  function onChanged(changes: Record<string, chrome.storage.StorageChange>, areaName: string) {
     if (areaName === storageArea && Object.hasOwn(changes, key)) {
       store.$patch(changes[key].newValue);
     }
   }
 
-  browser.storage.onChanged.addListener(onChanged);
+  chrome.storage.onChanged.addListener(onChanged);
 
   const $save = async (newState = store.$state) => {
     try {
-      browser.storage.onChanged.removeListener(onChanged);
+      chrome.storage.onChanged.removeListener(onChanged);
       // HACK: we might want to find a better way of deeply unwrapping a reactive object.
       await persistent(key, newState, storageArea);
-      browser.storage.onChanged.addListener(onChanged);
+      chrome.storage.onChanged.addListener(onChanged);
     } catch (_error) {
     }
   };
@@ -113,7 +112,7 @@ export default function piniaBridgePlugin(context: PiniaPluginContext) {
   }
 
   const $dispose = () => {
-    browser.storage.onChanged.removeListener(onChanged);
+    chrome.storage.onChanged.removeListener(onChanged);
     store.$dispose();
   };
 
