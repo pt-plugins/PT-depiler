@@ -36,9 +36,9 @@
     "notifications",
     "scripting",
     "storage",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    "offscreen"
   ],
-
 
   "host_permissions": [
     "*://*/*"

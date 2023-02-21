@@ -10,7 +10,7 @@ import {
   TorrentClientStatus,
 } from "../types";
 import urlJoin from "url-join";
-import axios, { AxiosResponse } from "axios";
+import axios, { type AxiosResponse, isAxiosError } from "axios";
 import { getRemoteTorrentFile } from "../utils";
 
 export const clientConfig: TorrentClientConfig = {
@@ -469,7 +469,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
         }
       );
     } catch (error: any) {
-      if (error.response && error.response.status === 409) {
+      if (isAxiosError(error) && error?.response?.status === 409) {
         this.sessionId = error.response.headers["x-transmission-session-id"]; // lower cased header in axios
         return await this.request<T>(method, args);
       } else {

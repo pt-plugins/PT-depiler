@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import ky from "ky";
+import axios from "axios";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useStorage } from "@vueuse/core";
@@ -69,9 +69,8 @@ for (const dependencyKey of rawDependencyContext.keys()) {
     };
 
     if (technologyData.value[name].version !== version || technologyData.value[name].url.startsWith(npmjsPrefix)) {
-      ky.get(`https://registry.npmjs.org/${name}`)
-        .json<{ homepage: string }>()
-        .then(data => {
+      axios.get(`https://registry.npmjs.org/${name}`)
+        .then(({ data }) => {
           technologyData.value[name].url = data?.homepage;
         });
     }

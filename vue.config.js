@@ -12,6 +12,10 @@ module.exports = {
       entry: './src/options/main.ts',
       title: "PTPP Next",
     },
+    offscreen: {
+      template: 'public/offscreen.html',
+      entry: './src/offscreen/main.ts',
+    }
   },
 
   productionSourceMap: !IS_PROD, // https://cli.vuejs.org/config/#productionsourcemap
@@ -34,7 +38,7 @@ module.exports = {
       manifestTransformer: (manifest) => {
         // rewrite version to add Build number (simple from git count)
         const build_number = git.count() % 65535;
-        manifest.version = `${manifest.version}.${build_number}`;
+        manifest.version = `${packageInfo.version}.${build_number}`;
 
         if (!IS_PROD) {
           manifest.description += ' (Development Mode)';
