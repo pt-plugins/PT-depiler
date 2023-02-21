@@ -36,6 +36,7 @@ importers:
       eslint-plugin-promise: ^6.1.1
       eslint-plugin-vue: ^9.9.0
       filesize: ^10.0.6
+      generate-json-webpack-plugin: ^2.0.0
       git-rev-sync: ^3.0.2
       localforage: ^1.10.0
       lodash-es: ^4.17.21
@@ -105,6 +106,7 @@ importers:
       eslint-plugin-node: 11.1.0_eslint@8.34.0
       eslint-plugin-promise: 6.1.1_eslint@8.34.0
       eslint-plugin-vue: 9.9.0_eslint@8.34.0
+      generate-json-webpack-plugin: 2.0.0
       git-rev-sync: 3.0.2
       sass: 1.58.3
       sass-loader: 13.2.0_sass@1.58.3
@@ -5192,6 +5194,10 @@ packages:
 
   /functions-have-names/1.2.3:
     resolution: {integrity: sha512-xckBUXyTIqT97tq2x2AMb+g163b5JFysYk0x4qxNFwbfQkmNZoiRHb6sPzI9/QV33WeuvVYBUIiD4NzNIyqaRQ==}
+    dev: true
+
+  /generate-json-webpack-plugin/2.0.0:
+    resolution: {integrity: sha512-WVEHXiES7YwjLAjWquC5+IspZM4Pwtx1yHlHTBXHkp38HVjnHJo29PxLniWPSyiB539iDgeAcMNUBStrixx3Jw==}
     dev: true
 
   /gensync/1.0.0-beta.2:

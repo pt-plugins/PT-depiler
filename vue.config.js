@@ -1,7 +1,9 @@
+const os = require('os');
 const path = require('path');
 const packageInfo = require('./package.json');
 const git = require('git-rev-sync');
 const webpack = require('webpack');
+const GenerateJsonPlugin = require('generate-json-webpack-plugin');
 
 const IS_PROD = ['production', 'prod'].includes(process.env.NODE_ENV);
 
@@ -44,14 +46,6 @@ module.exports = {
           manifest.description += ' (Development Mode)';
         }
 
-        // Add git detail in manifest when build
-        manifest.git = {
-          short: git.short(),
-          date: git.date(),
-          count: git.count(),
-          branch: git.branch()
-        }
-
         return manifest;
       },
     },
@@ -83,6 +77,22 @@ module.exports = {
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],
       }),
+      new GenerateJsonPlugin('build_info.json', {
+        buildAt: Date.now(),
+        gitVersion: {
+          short: git.short(),
+          long: git.long(),
+          date: git.date(),
+          count: git.count(),
+          branch: git.branch()
+        }, // Add git detail in manifest when build
+        buildOs: {
+          arch: os.arch(),
+          platform: os.platform(),
+          release: os.release(),
+          type: os.type(),
+        }
+      })
     ],
   },
 

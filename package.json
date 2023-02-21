@@ -71,6 +71,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.1.1",
     "eslint-plugin-vue": "^9.9.0",
+    "generate-json-webpack-plugin": "^2.0.0",
     "git-rev-sync": "^3.0.2",
     "sass": "^1.58.3",
     "sass-loader": "^13.2.0",

@@ -1,5 +1,6 @@
 // 此处存放一些全局相关的信息
 import { EInstallType } from "@/shared/interfaces/enum";
+import axios from "axios";
 
 // 仓库相关
 export const REPO_NAME = "pt-plugins/PT-depiler";
@@ -17,7 +18,34 @@ export const isDebug = !isProd;
 export const EXT_MANIFEST = chrome.runtime.getManifest();
 export const EXT_BASEURL = chrome.runtime.getURL("");
 export const EXT_VERSION =  "v" + EXT_MANIFEST.version;  // v2.0.0.2022
+
 export const EXT_GIT = "git" in EXT_MANIFEST ? EXT_MANIFEST.git as { short: string, date: string, count: number, branch: string, message: string } : null;
+
+interface IBuildInfo {
+  buildAt: number,
+  gitVersion: {
+    short: string,
+    long: string,
+    date: string,
+    count: number,
+    branch: string
+  },
+  buildOs: {
+    arch: string,
+    platform: string,
+    release: string,
+    type: string,
+  }
+}
+
+let buildInfo: IBuildInfo | null = null;
+export async function getBuildInfo(): Promise<IBuildInfo> {
+  if (buildInfo === null) {
+    const {data} = await axios.get("/build_info.json");
+    buildInfo = data;
+  }
+  return buildInfo as IBuildInfo;
+}
 
 export async function getInstallType(): Promise<EInstallType> {
   if ("update_url" in EXT_MANIFEST || EXT_MANIFEST.browser_specific_settings?.gecko?.update_url) {
