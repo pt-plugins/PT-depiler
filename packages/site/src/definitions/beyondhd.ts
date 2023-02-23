@@ -118,7 +118,7 @@ export default class beyondhd extends Unit3D {
     }) as `${string}.${string}`;
   }
 
-  public override async flushUserInfo(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+  public override async getUserInfo(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     const flushUserInfo: Partial<IUserInfo> = {};
 
     const userPath = await this.getUserInfoPathFromSite();

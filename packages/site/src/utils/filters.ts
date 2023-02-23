@@ -1,7 +1,7 @@
 import { parseSizeString } from "./filesize";
 import { parseValidTimeString, parseTimeToLive } from "./datetime";
 
-export type TDefinedFilterNameWithArgs = "querystring";
+export type TDefinedFilterNameWithArgs = "querystring" | "append" | "perpend" | "replace";
 export type TDefinedFilterName =
   | "parseNumber"
   | "parseSize"
@@ -44,7 +44,8 @@ export function findThenParseSizeString(query: string): number {
 }
 
 export function runFilter(query: any, filter: IDefinedQueryFilter): any {
-  switch (filter.name) {
+  const {name, args = []} = filter;
+  switch (name) {
     case "parseNumber": {
       return parseNumber(query);
     }
@@ -52,14 +53,30 @@ export function runFilter(query: any, filter: IDefinedQueryFilter): any {
       return findThenParseSizeString(query);
     }
     case "parseTime": {
-      return parseValidTimeString(query, filter.args);
+      return parseValidTimeString(query, args);
     }
     case "parseTTL": {
       return parseTimeToLive(query);
     }
     case "querystring": {
-      const queryName = filter.args![0];
-      return (new URL(query)).searchParams.get(queryName) || "";
+      const baseUrl = /^https?:/.test(query as string) ? "" : "http://localhost/";
+
+      const parsedQueryString = new URL(query, baseUrl).searchParams;
+      for (const arg of args) {
+        if (parsedQueryString.has(arg)) {
+          return parsedQueryString.get(arg);
+        }
+      }
+      return "";
+    }
+    case "append": {
+      return query + (args[0] || "");
+    }
+    case "perpend": {
+      return (args[0] || "") + query;
+    }
+    case "replace": {
+      return query.replace(args[0], args[1]);
     }
     default:
       return query;

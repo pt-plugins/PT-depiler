@@ -272,8 +272,8 @@ export default class myanonamouse extends PrivateSite {
     return retInfo;
   }
 
-  public override async flushUserInfo(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    let userInfo = await super.flushUserInfo();
+  public override async getUserInfo(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+    let userInfo = await super.getUserInfo();
 
     if (userInfo.id && (!userInfo.seeding || !userInfo.seedingSize)) {
       userInfo = {

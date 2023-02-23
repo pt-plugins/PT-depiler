@@ -15,8 +15,7 @@
  */
 
 import axios from "axios";
-import { createInstance as createLocalforageInstance } from "localforage";
-import { TSite } from "../index";
+import { ISiteMetadata } from "../index";
 
 // from: https://stackoverflow.com/a/9967193/8824471
 // from: http://proger.i-forge.net/%D0%9A%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80/[20121112]%20The%20smallest%20transparent%20pixel.html
@@ -204,13 +203,12 @@ async function getFaviconFromUrl (url: string): Promise<Blob> {
   throw new Error("Can't find any favicons from this site");
 }
 
-export const faviconCache = createLocalforageInstance({
-  name: "Favicon",
-});
-
-export async function getFavicon (site: TSite, flush: boolean = false): Promise<string> {
-  const siteId = site.config.id!;
-  const siteHost = site.config.host!;
+export async function getFavicon (site: ISiteMetadata): Promise<string> {
+  const {
+    id: siteId,
+    host: siteHost,
+    favicon: siteFavicon
+  } = site;
 
   // 1. 检查本地icons目录是否存在对应文件
   let checkLocalIconPaths = [
@@ -218,11 +216,11 @@ export async function getFavicon (site: TSite, flush: boolean = false): Promise<
     `./${siteHost}.png`, `./${siteHost}.ico`
   ];
 
-  if (site.config.favicon) {
-    if (site.config.favicon.startsWith("data:image/")) {
-      return site.config.favicon;  // base64直接返回就行了
-    } else if (site.config.favicon.startsWith("./")) {
-      checkLocalIconPaths = [site.config.favicon, ...checkLocalIconPaths];  // 优先使用 已定义的 favicon
+  if (siteFavicon) {
+    if (siteFavicon.startsWith("data:image/")) {
+      return siteFavicon;  // base64直接返回就行了
+    } else if (siteFavicon.startsWith("./")) {
+      checkLocalIconPaths = [siteFavicon, ...checkLocalIconPaths];  // 优先使用 已定义的 favicon
     }
   }
 
@@ -232,28 +230,22 @@ export async function getFavicon (site: TSite, flush: boolean = false): Promise<
     }
   }
 
-  // 2. 检查 localforage 是否已有 base64 缓存（根据站点的 host 值）
-  const lfCache = await faviconCache.getItem<string>(siteHost);
-  if (!flush && lfCache) {
-    return lfCache;
-  }
-
-  // 3. 检查网站是否有对应icon
+  // 2. 检查网站是否有对应icon
   let faviconMeta;
 
-  // 3.1 ISiteMetadata 中定义的 favicon 字段为一个链接
-  if (site.config.favicon && site.config.favicon.startsWith("http")) {
+  // 2.1 ISiteMetadata 中定义的 favicon 字段为一个链接
+  if (siteFavicon && siteFavicon.startsWith("http")) {
     try {
-      const configReq = await axios.get(site.config.favicon, { responseType: "blob" });
+      const configReq = await axios.get(siteFavicon, { responseType: "blob" });
       faviconMeta = configReq.data;
     } catch {
     }
   }
 
-  // 3.2 请求网站首页，并从返回的html中解析所需要的 favicon 字段
+  // 2.2 请求网站首页，并从返回的html中解析所需要的 favicon 字段
   if (!faviconMeta) {
     try {
-      faviconMeta = await getFaviconFromUrl(site.activateUrl);
+      faviconMeta = await getFaviconFromUrl(site.activateUrl ?? site.url);
     } catch {
     }
   }
@@ -264,11 +256,8 @@ export async function getFavicon (site: TSite, flush: boolean = false): Promise<
     faviconBase64 = await transformBlob(faviconMeta);      // 将 faviconMeta 转成 base64，并缓存
   }
 
-  // 4. fallback 使用 NO_IMAGE 替代
+  // 3. fallback 使用 NO_IMAGE 替代
   faviconBase64 ??= NO_IMAGE;
-
-  // noinspection ES6MissingAwait
-  faviconCache.setItem(siteHost, faviconBase64);    // 缓存base64以便下次使用
 
   return faviconBase64;
 }

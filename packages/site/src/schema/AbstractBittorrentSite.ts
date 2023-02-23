@@ -8,7 +8,6 @@ import {
   ISiteMetadata,
   ITorrent,
   ITorrentTag,
-  fullUrl,
   transPostDataTo,
   NeedLoginError,
   NoTorrentsError,
@@ -17,7 +16,7 @@ import type { TQueryFilter } from "../utils";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import Sizzle from "sizzle";
 import urlJoin from "url-join";
-import { chunk, get, merge, mergeWith, pick } from "lodash-es";
+import { chunk, get, merge, pick } from "lodash-es";
 import {
   runFilter,
   cfDecodeEmail,
@@ -25,70 +24,16 @@ import {
   parseTimeWithZone,
 } from "../utils";
 
-function restoreSecureLink (url: string): fullUrl {
-  return (url.startsWith("aHR0c") ? atob(url) : url) as fullUrl;
-}
+export const SchemaMetadata: Partial<ISiteMetadata> = {
+  search: {},
+};
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export default class BittorrentSite {
-  /**
-   * 作为这个class类的基本属性，一般用在模板定义中
-   */
-  protected readonly initConfig: Partial<ISiteMetadata> = {
-    search: {},
-  };
+  protected readonly config: ISiteMetadata; // 实际过程中使用的配置文件
 
-  // 在 constructor 时生成的一些属性
-  private readonly siteMetaData: ISiteMetadata;
-  public readonly config: ISiteMetadata; // 实际过程中使用的配置文件
-
-  protected _runtime: any = {
-    cacheRequest: new Map(),
-  };
-
-  constructor (siteMetaData: ISiteMetadata) {
-    this.siteMetaData = siteMetaData;  // 缓存一下传入的配置
-
-    /**
-     * 生成实际使用的配置
-     * 使用 lodash 的 mergeWith 来合并站点默认配置和传入的用户配置
-     */
-
-    this.config = mergeWith(
-      this.initConfig,
-      this.siteMetaData,
-      (objValue, srcValue, key) => {
-        if (Array.isArray(objValue) || Array.isArray(srcValue)) {
-          if (["filters", "switchFilters"].includes(key)) {
-            // 不合并 filters，每次都用最后并入的
-            return srcValue;
-          } else {
-            return ([] as any[])
-              .concat(srcValue, objValue)   // 保证后并入的配置优先
-              .filter((x) => typeof x !== "undefined");
-          }
-        }
-      }
-    ) as ISiteMetadata;
-
-    // 解密url加密过的站点
-    this.config.url = restoreSecureLink(this.config.url);
-    if (this.config.legacyUrls) {
-      this.config.legacyUrls = this.config.legacyUrls.map(restoreSecureLink);
-    }
-
-    // 防止host信息缺失
-    this.config.host ??= new URL(this.config.url).host;
-
-    if (this.config.category && this.config.search) {
-      this.config.search.categories = ([] as any[]).concat(
-        {
-          name: "Category",
-          ...this.config.category,
-        },
-        this.config.search.categories
-      );
-    }
+  constructor (config: ISiteMetadata) {
+    this.config = config;
   }
 
   get activateUrl (): string {
@@ -316,9 +261,6 @@ export default class BittorrentSite {
       throw new NeedLoginError(); // FIXME i18n
     }
 
-    // 将结果缓存到 _runtime.cacheRequest 以实现跨方法调用
-    const requestCacheName = axiosConfig.requestName || axiosConfig.url;
-    this._runtime.cacheRequest.set(requestCacheName, req);
     return req;
   }
 

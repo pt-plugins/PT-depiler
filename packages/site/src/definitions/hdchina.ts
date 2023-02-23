@@ -106,8 +106,8 @@ export const siteMetadata: ISiteMetadata = {
 
 export default class HDChina extends NexusPHP {
   protected override async requestUserSeedingPage(userId: number, type: string = "seeding"): Promise<string | null> {
-    const userDetailsPage: AxiosResponse<Document> = this._runtime.cacheRequest.get("/userdetails.php");  // FIXME
-    const csrfAnother = Sizzle("meta[name='x-csrf']", userDetailsPage.data);
+    const userDetailsPage: Document = await this.requestUserDetailsPage(userId);  // FIXME
+    const csrfAnother = Sizzle("meta[name='x-csrf']", userDetailsPage);
     if (csrfAnother.length > 0) {
       const csrf = csrfAnother[0].getAttribute("content") as string;
 

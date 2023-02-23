@@ -120,8 +120,8 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class cinematik extends PrivateSite {
-  public override async flushUserInfo(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    let userInfo = await super.flushUserInfo();
+  public override async getUserInfo(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+    let userInfo = await super.getUserInfo();
     if (userInfo.id && (!userInfo.seeding || !userInfo.seedingSize)) {
       userInfo = { seeding: 0, seedingSize: 0, ...userInfo };
       for (const pageInfo = { current: 0, count: 0 }; pageInfo.current <= pageInfo.count; pageInfo.current++) {

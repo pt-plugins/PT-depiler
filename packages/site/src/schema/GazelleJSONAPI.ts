@@ -213,63 +213,63 @@ export interface userJsonResponse extends jsonResponse {
   };
 }
 
+export const SchemaMetadata: Partial<ISiteMetadata> = {
+  search: {
+    keywordsParam: "searchstr",
+    requestConfig: {
+      url: "/ajax.php",
+      responseType: "json",
+      params: {
+        action: "browse",
+      },
+    },
+  },
+  userInfo: {
+    selectors: {
+      // "/ajax.php?action=index"
+      id: {
+        selector: ["response.id"],
+      },
+      name: {
+        selector: ["response.username"],
+      },
+      messageCount: {
+        selector: ["response.notifications.messages"],
+      },
+      uploaded: {
+        selector: ["response.userstats.uploaded"],
+      },
+      downloaded: {
+        selector: ["response.userstats.downloaded"],
+      },
+      ratio: {
+        selector: ["response.userstats.ratio"],
+      },
+      levelName: {
+        selector: ["response.userstats.class"],
+      },
+
+      // "/ajax.php?action=user&id=$user.id$"
+      joinTime: {
+        selector: ["response.stats.joinedDate"],
+        filters: [
+          (query: string) =>
+            dayjs(query).isValid() ? dayjs(query).valueOf() : query,
+        ],
+      },
+      seeding: {
+        selector: ["response.community.seeding"],
+      },
+
+      // "/torrents.php?type=seeding&userid=$user.id$"
+      bonus: {
+        text: "N/A",
+      },
+    },
+  },
+};
+
 export default class GazelleJSONAPI extends PrivateSite {
-  protected override readonly initConfig: Partial<ISiteMetadata> = {
-    search: {
-      keywordsParam: "searchstr",
-      requestConfig: {
-        url: "/ajax.php",
-        responseType: "json",
-        params: {
-          action: "browse",
-        },
-      },
-    },
-    userInfo: {
-      selectors: {
-        // "/ajax.php?action=index"
-        id: {
-          selector: ["response.id"],
-        },
-        name: {
-          selector: ["response.username"],
-        },
-        messageCount: {
-          selector: ["response.notifications.messages"],
-        },
-        uploaded: {
-          selector: ["response.userstats.uploaded"],
-        },
-        downloaded: {
-          selector: ["response.userstats.downloaded"],
-        },
-        ratio: {
-          selector: ["response.userstats.ratio"],
-        },
-        levelName: {
-          selector: ["response.userstats.class"],
-        },
-
-        // "/ajax.php?action=user&id=$user.id$"
-        joinTime: {
-          selector: ["response.stats.joinedDate"],
-          filters: [
-            (query: string) =>
-              dayjs(query).isValid() ? dayjs(query).valueOf() : query,
-          ],
-        },
-        seeding: {
-          selector: ["response.community.seeding"],
-        },
-
-        // "/torrents.php?type=seeding&userid=$user.id$"
-        bonus: {
-          text: "N/A",
-        },
-      },
-    },
-  };
-
   private _authKey?: { authkey: string; passkey: string };
 
   protected async requestApi<T extends jsonResponse>(
@@ -385,7 +385,7 @@ export default class GazelleJSONAPI extends PrivateSite {
     return torrents;
   }
 
-  public override async flushUserInfo(
+  public override async getUserInfo(
     lastUserInfo: Partial<IUserInfo> = {}
   ): Promise<IUserInfo> {
     let userInfo: Partial<IUserInfo> = {};

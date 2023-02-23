@@ -63,7 +63,7 @@ export default function piniaBridgePlugin(context: PiniaPluginContext) {
     key = store.$id,
     storageArea = "local",
     writeDefaultState = true,
-    autoSaveType = [MutationType.direct],
+    autoSaveType = false,
     beforeRestore = null,
     afterRestore = null,
     onRestoreError = null

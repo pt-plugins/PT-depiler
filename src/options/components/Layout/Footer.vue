@@ -1,9 +1,9 @@
 <script lang="ts" setup>
 import { EXT_VERSION, getBuildInfo, REPO_URL } from "@/shared/constants";
-import { asyncComputed } from "@vueuse/core";
+import { computedAsync } from "@vueuse/core";
 
 const year = new Date().getFullYear();
-const buildInfo = asyncComputed(getBuildInfo);
+const buildInfo = computedAsync(getBuildInfo);
 </script>
 
 <template>
@@ -12,8 +12,7 @@ const buildInfo = asyncComputed(getBuildInfo);
       PTPP-next &copy; {{ year }},
       {{ $t('common.version') }}
       <span>
-        {{ EXT_VERSION }}
-        <a
+        {{ EXT_VERSION }}<a
           v-if="buildInfo?.gitVersion"
           :href="`${REPO_URL}/commit/${buildInfo.gitVersion.long}`"
           target="_blank"

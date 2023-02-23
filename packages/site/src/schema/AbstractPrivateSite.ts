@@ -5,12 +5,12 @@ import BittorrentSite from "../schema/AbstractBittorrentSite";
 import { difference, intersection, merge, pick } from "lodash-es";
 import { ISiteMetadata } from "../types";
 
-export default class PrivateSite extends BittorrentSite {
-  protected override readonly initConfig: Partial<ISiteMetadata> = {
-    search: {},
-    userInfo: {}
-  };
+export const SchemaMetadata: Partial<ISiteMetadata> = {
+  search: {},
+  userInfo: {}
+};
 
+export default class PrivateSite extends BittorrentSite {
   get allowQueryUserInfo() : boolean {
     return this.isOnline && !(this.config.allowQueryUserInfo === false);
   }
@@ -19,7 +19,7 @@ export default class PrivateSite extends BittorrentSite {
    * 获得当前站点最新的用户信息用于更新
    * 这里获取 lastUserInfo 以及 保存/更新 UserInfo 均由调用的上层完成
    */
-  public async flushUserInfo(
+  public async getUserInfo(
     lastUserInfo: Partial<IUserInfo> = {}
   ): Promise<IUserInfo> {
     if (!this.config.userInfo?.process) {

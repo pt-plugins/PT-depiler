@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { ref, watch } from "vue";
 import { REPO_URL } from "@/shared/constants";
-import { asyncComputed, useVModel } from "@vueuse/core";
+import { computedAsync, useVModel } from "@vueuse/core";
 import { useSiteStore, siteFavicons } from "@/shared/store/site";
 import Editor from "./Editor.vue";
 import { type ISiteMetadata } from "@ptpp/site";
@@ -22,7 +22,7 @@ watch(showDialog, () => {
   selectedSite.value = null;
 });
 
-const canAddSites = asyncComputed(async () => await siteStore.getSites(siteStore.canAddedSiteIds));
+const canAddSites = computedAsync(async () => await siteStore.getSites(siteStore.canAddedSiteIds));
 
 function saveSite() {
   showDialog.value = false;

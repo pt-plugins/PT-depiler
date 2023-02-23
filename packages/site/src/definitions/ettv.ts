@@ -93,10 +93,11 @@ export const siteMetadata: ISiteMetadata = {
       leechers: { selector: "td:nth-child(6)" },
       completed: { selector: "td:nth-child(7)" },
       category: {
+        text: "Other",
         selector: "td:nth-child(1) a",
         attr: "href",
         filters: [
-          (q: string) => (new URL(q)).searchParams.get("cat") || "Other",
+          {name: "querystring", args:["cat"]},
         ],
       },
       author: { selector: "td:nth-child(8)" },

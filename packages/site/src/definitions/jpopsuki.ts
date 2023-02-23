@@ -194,8 +194,8 @@ export default class jpopsuki extends Gazelle {
     return TListDocument;
   }
 
-  public override async flushUserInfo(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    const flushUserInfo = await super.flushUserInfo();
+  public override async getUserInfo(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+    const flushUserInfo = await super.getUserInfo();
 
     if (flushUserInfo.id) {
       let seedingSize = 0;

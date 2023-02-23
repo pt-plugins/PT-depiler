@@ -101,8 +101,8 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class bibliotik extends PrivateSite {
-  public override async flushUserInfo(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    let userInfo = await super.flushUserInfo();
+  public override async getUserInfo(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+    let userInfo = await super.getUserInfo();
 
     if (userInfo.id) {
       userInfo = { seeding: 0, seedingSize: 0, ...userInfo };

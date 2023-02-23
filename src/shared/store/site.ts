@@ -1,31 +1,19 @@
-import { reactive } from "vue";
 import { defineStore } from "pinia";
 import {
   definitionList,
-  getDefinitionModule,
-  getFavicon,
-  getSite as createSiteInstance,
-  type ISiteMetadata as ISiteDefinedMetadata,
   type SiteID
 } from "@ptpp/site";
-import { merge } from "lodash-es";
-
-export interface ISiteRuntimeConfig extends Partial<ISiteDefinedMetadata> {
-  id: SiteID;
-
-  /**
-   * 用户在options首页点击时，打开的站点地址
-   */
-  entryPoint?: string;
-
-  /**
-   * 排序号
-   */
-  sortIndex?: number;
-}
+import { faviconCache, getSiteConfig, ISiteRuntimeConfig } from "@/shared/adapters/site";
+import { computedAsync } from "@vueuse/core";
 
 // 在store中缓存favicon对象，以保持单一性
-export const siteFavicons = reactive<Record<string, string | false>>({});   // false means loading
+export const siteFavicons = computedAsync(async () => {
+  const ret: Record<string, string | false> = {};
+  await faviconCache.iterate(function (value: string, key: string) {
+    ret[key] = value;
+  });
+  return ret;
+});
 
 export const useSiteStore = defineStore("site", {
   persist: true,
@@ -43,62 +31,22 @@ export const useSiteStore = defineStore("site", {
       return definitionList.filter(x => !addedSiteIds.includes(x));
     },
 
-    getSite (state) {
-      return async (siteId: SiteID) => {
-        let siteMetaData = (await getDefinitionModule(siteId)).siteMetadata;
-
-        const storedSiteConfig = state.sites.find(site => site.id === siteId);
-        if (storedSiteConfig) {
-          storedSiteConfig.sortIndex ??= 100;
-          siteMetaData = merge(siteMetaData, storedSiteConfig);
-        }
-
-        this.getSiteFavicon(siteId);  // FIXME loop call?
-
-        return siteMetaData;
-      };
-    },
-
     getSites () {
       return async (siteIds?: SiteID[]) => {
         siteIds ??= this.addedSiteIds;
         const siteDefinitions = [];
         for (const siteId of siteIds) {
-          siteDefinitions.push((await this.getSite(siteId)));
+          siteDefinitions.push((await getSiteConfig(siteId)));
         }
 
         return siteDefinitions;
-      };
-    },
-
-    getSiteInstance () {
-      return async (siteId: SiteID) => {
-        const siteConfig = await this.getSite(siteId);
-        if (siteConfig) {
-          return await createSiteInstance(siteConfig);
-        }
-        throw new Error("Get site Instance Fail");
-      };
-    },
-
-    getSiteFavicon () {
-      return (siteId: string, flush: boolean = false) => {
-        if (flush || siteFavicons[siteId] !== false) {
-          siteFavicons[siteId] = false;
-
-          this.getSiteInstance(siteId).then(siteInstance => {
-            getFavicon(siteInstance, flush).then(favicon => {
-              siteFavicons[siteId] = favicon;
-            });
-          });
-        }
-        return siteFavicons[siteId];
       };
     },
   },
   actions: {
     addSite (site: ISiteRuntimeConfig) {
       this.sites.push(site);
+      this.$save();
     },
 
     patchSite (site: ISiteRuntimeConfig) {
@@ -106,6 +54,7 @@ export const useSiteStore = defineStore("site", {
         return data.id === site.id;
       });
       this.sites[siteIndex] = site;
+      this.$save();
     },
 
     removeSite (siteId: SiteID) {
@@ -116,6 +65,7 @@ export const useSiteStore = defineStore("site", {
       if (siteIndex !== -1) {
         this.sites.splice(siteIndex, 1);
       }
+      this.$save();
     }
   },
 

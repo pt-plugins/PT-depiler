@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { asyncComputed } from "@vueuse/core";
+import { computedAsync } from "@vueuse/core";
 
 import { useSiteStore, siteFavicons } from "@/shared/store/site";
 import { type SiteID, type ISiteMetadata } from "@ptpp/site";
@@ -10,6 +10,7 @@ import { type SiteID, type ISiteMetadata } from "@ptpp/site";
 import DeleteDialog from "@/options/components/Settings/setSite/DeleteDialog.vue";
 import ExpandInfo from "@/options/components/Settings/setSite/ExpandInfo.vue";
 import SimplePatchSwitch from "@/options/components/Settings/setSite/simplePatchSwitch.vue";
+import { getSiteFavicon } from "@/shared/adapters/site";
 
 const { t } = useI18n();
 const siteStore = useSiteStore();
@@ -20,7 +21,7 @@ const showAddDialog = ref<boolean>(false);
 const showEditDialog = ref<boolean>(false);  // TODO
 const showDeleteDialog = ref<boolean>(false);
 
-const sites = asyncComputed(async () => await siteStore.getSites());
+const sites = computedAsync(async () => await siteStore.getSites());
 
 const siteTableSearch = ref("");
 const siteTableSelected = ref<string[]>([]);
@@ -158,7 +159,7 @@ const log = console.log;
         <v-btn
           icon flat
           :loading="siteFavicons[item.raw.id] === false"
-          @click="siteStore.getSiteFavicon(item.raw.id, true)"
+          @click="getSiteFavicon(item.raw.id, true)"
         >
           <v-avatar :image="siteFavicons[item.raw.id] || ''" />
         </v-btn>

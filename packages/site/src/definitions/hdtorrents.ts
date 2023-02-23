@@ -157,8 +157,8 @@ export default class hdtorrents extends PrivateSite {
   }
    */
 
-  public override async flushUserInfo(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    const baseUserInfo = await super.flushUserInfo();
+  public override async getUserInfo(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+    const baseUserInfo = await super.getUserInfo();
 
     if (baseUserInfo.id && !baseUserInfo.seedingSize) {
       baseUserInfo.seedingSize = 0;
@@ -172,11 +172,11 @@ export default class hdtorrents extends PrivateSite {
 
         // 更新最大页数
         if (pageInfo.count === 0) {
-          pageInfo.count = this.getFieldData(TListDocument, {
+          pageInfo.count = parseInt(this.getFieldData(TListDocument, {
             selector: ["a[href*='activepage']:contains('1'):last"],
             attr: "href",
-            filters: [(query: string) => parseInt((new URL(query)).searchParams.get("activepage") as string) || -1],
-          });
+            filters: [{ name: "querystring", args: ["activepage"] }],
+          })) || -1;
         }
 
         // 遍历并更新做种体积
