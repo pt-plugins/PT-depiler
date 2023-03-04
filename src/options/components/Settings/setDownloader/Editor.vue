@@ -58,7 +58,7 @@ async function checkConnect () {
 
 <template>
   <v-card class="mb-5">
-    <v-form ref="formRef">
+    <v-form ref="formRef" fast-fail>
       <v-text-field v-model="clientConfig.type" :label="$t('setDownloader.common.type')" disabled />
       <v-text-field
         v-model="clientConfig.name"

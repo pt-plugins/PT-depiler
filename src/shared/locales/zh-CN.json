@@ -176,6 +176,7 @@
       "allowSearch": "允许搜索",
       "isOffline": "已离线",
       "name": "站点名称",
+      "showMessageCount": "信息提醒",
       "tags": "标签",
       "type": "类型",
       "url": "网站链接"
@@ -184,9 +185,11 @@
       "text": "确认删除这 {0} 个站点吗？"
     },
     "editor": {
+      "addUrlTip": "增加一个你正在使用的站点域名，输入的应该以 https:// 或 http:// 开头，以 / 结尾，例如 https://example.com/",
       "sortIndex": "优先级",
       "sortIndexTip": "可用于搜索排序",
-      "tagTip": "标签输入完成后按回车添加。（只有前4个会在列表页显示）"
+      "tagTip": "标签输入完成后按回车添加。（只有前4个会在列表页显示）",
+      "timezone": "时区"
     }
   }
 }

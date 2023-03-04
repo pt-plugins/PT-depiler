@@ -30,6 +30,7 @@ importers:
       compare-versions: 6.0.0-rc.1
       core-js: ^3.28.0
       dayjs: ^1.11.7
+      deep-object-diff: ^1.1.9
       eslint: ^8.34.0
       eslint-plugin-import: ^2.27.5
       eslint-plugin-node: ^11.1.0
@@ -70,6 +71,7 @@ importers:
       compare-versions: 6.0.0-rc.1
       core-js: 3.28.0
       dayjs: 1.11.7
+      deep-object-diff: 1.1.9
       filesize: 10.0.6
       localforage: 1.10.0
       lodash-es: 4.17.21
@@ -1762,7 +1764,7 @@ packages:
     resolution: {integrity: sha512-9K4zoImiZc3HlIp6AVUDE4CWYx22a+lhSZMYNpbjW04+YF0KWj4pJXnEMjdnFTiQibFFmElcsasJXDbdI/EPhA==}
     dependencies:
       '@types/eslint': 8.21.1
-      '@types/estree': 0.0.51
+      '@types/estree': 1.0.0
     dev: true
 
   /@types/eslint/8.21.1:
@@ -4097,6 +4099,10 @@ packages:
   /deep-is/0.1.4:
     resolution: {integrity: sha512-oIPzksmTg4/MriiaYGO+okXDT7ztn/w3Eptv/+gSIdMdKsJo0u4CfYNFJPy+4SKMuCqGw2wxnA+URMg3t8a/bQ==}
     dev: true
+
+  /deep-object-diff/1.1.9:
+    resolution: {integrity: sha512-Rn+RuwkmkDwCi2/oXOFS9Gsr5lJZu/yTGpK7wAaAIE75CC+LCGEZHpY6VQJa/RoJcrmaA/docWJZvYohlNkWPA==}
+    dev: false
 
   /deepmerge/1.5.2:
     resolution: {integrity: sha512-95k0GDqvBjZavkuvzx/YqVLv/6YYa17fz6ILMSf7neqQITCPbnfEnQvEgMPNjH4kgobe7+WIL0yJEHku+H3qtQ==}

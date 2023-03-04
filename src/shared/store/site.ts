@@ -1,10 +1,8 @@
 import { defineStore } from "pinia";
-import {
-  definitionList,
-  type SiteID
-} from "@ptpp/site";
-import { faviconCache, getSiteConfig, ISiteRuntimeConfig } from "@/shared/adapters/site";
 import { computedAsync } from "@vueuse/core";
+import { updatedDiff } from "deep-object-diff";
+import { type SiteID } from "@ptpp/site";
+import { faviconCache, getSiteConfig, getSiteFavicon, ISiteRuntimeConfig } from "@/shared/adapters/site";
 
 // 在store中缓存favicon对象，以保持单一性
 export const siteFavicons = computedAsync(async () => {
@@ -13,22 +11,17 @@ export const siteFavicons = computedAsync(async () => {
     ret[key] = value;
   });
   return ret;
-});
+}, {});
 
 export const useSiteStore = defineStore("site", {
   persist: true,
   state: () => ({
-    sites: [] as ISiteRuntimeConfig[]
+    sites: {} as Record<SiteID, ISiteRuntimeConfig>
   }),
 
   getters: {
     addedSiteIds (state) {
-      return state.sites.map(s => s.id);
-    },
-
-    canAddedSiteIds (state) {
-      const addedSiteIds = state.sites.map(s => s.id);
-      return definitionList.filter(x => !addedSiteIds.includes(x));
+      return Object.keys(state.sites);
     },
 
     getSites () {
@@ -37,6 +30,9 @@ export const useSiteStore = defineStore("site", {
         const siteDefinitions = [];
         for (const siteId of siteIds) {
           siteDefinitions.push((await getSiteConfig(siteId)));
+
+          // noinspection ES6MissingAwait
+          getSiteFavicon(siteId);
         }
 
         return siteDefinitions;
@@ -44,27 +40,30 @@ export const useSiteStore = defineStore("site", {
     },
   },
   actions: {
-    addSite (site: ISiteRuntimeConfig) {
-      this.sites.push(site);
+    async addSite (site: ISiteRuntimeConfig) {
+      const definedSiteConfig = await getSiteConfig(site.id, false);
+      const updateSiteConfig = updatedDiff(definedSiteConfig, site);
+
+      this.sites[site.id] = {id: site.id, ...updateSiteConfig};
       this.$save();
     },
 
-    patchSite (site: ISiteRuntimeConfig) {
-      const siteIndex = this.sites.findIndex(data => {
-        return data.id === site.id;
-      });
-      this.sites[siteIndex] = site;
+    async patchSite (site: ISiteRuntimeConfig) {
+      const definedSiteConfig = await getSiteConfig(site.id);
+      const updateSiteConfig = updatedDiff(definedSiteConfig, site);
+
+      this.sites[site.id] = {id: site.id, ...updateSiteConfig};
+      this.$save();
+    },
+
+    simplePatchSite(siteId: SiteID, key: keyof ISiteRuntimeConfig, value: any) {
+      // @ts-ignore
+      this.sites[siteId][key] = value;
       this.$save();
     },
 
     removeSite (siteId: SiteID) {
-      const siteIndex = this.sites.findIndex(data => {
-        return data.id === siteId;
-      });
-
-      if (siteIndex !== -1) {
-        this.sites.splice(siteIndex, 1);
-      }
+      delete this.sites[siteId];
       this.$save();
     }
   },

@@ -1,10 +1,13 @@
 <script lang="ts" setup>
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { REPO_URL } from "@/shared/constants";
 import { computedAsync, useVModel } from "@vueuse/core";
 import { useSiteStore, siteFavicons } from "@/shared/store/site";
+import { definitionList } from "@ptpp/site";
+import { type ISiteRuntimeConfig } from "@/shared/adapters/site";
+
 import Editor from "./Editor.vue";
-import { type ISiteMetadata } from "@ptpp/site";
+import TypeAndSchemaChip from "./TypeAndSchemaChip.vue";
 
 const siteStore = useSiteStore();
 
@@ -15,16 +18,21 @@ const componentProps = defineProps<{
 const showDialog = useVModel(componentProps);
 
 const currentStep = ref<0 | 1>(0);
-const selectedSite = ref<ISiteMetadata | null>(null);
+const selectedSite = ref<ISiteRuntimeConfig | null>(null);
+const isSiteConfigValid = computed(() => typeof selectedSite.value?.id !== "undefined");   // 新增时默认配置合法
 
 watch(showDialog, () => {
   currentStep.value = 0;
   selectedSite.value = null;
 });
 
-const canAddSites = computedAsync(async () => await siteStore.getSites(siteStore.canAddedSiteIds));
+const canAddSites = computedAsync(async () => {
+  const canAddedSiteList = definitionList.filter(x => !siteStore.addedSiteIds.includes(x));
+  return await siteStore.getSites(canAddedSiteList);
+}, []);
 
-function saveSite() {
+async function saveSite() {
+  await siteStore.addSite(selectedSite.value!);
   showDialog.value = false;
 }
 </script>
@@ -56,6 +64,7 @@ function saveSite() {
               :multiple="false"
               :placeholder="selectedSite ? '' : $t('setSite.add.selectSitePlaceholder')"
               :hint="selectedSite ? (selectedSite?.url + ': ' + (selectedSite?.description ?? '')) : ''"
+              :filter-keys="['raw.name', 'raw.url']"
               persistent-hint
             >
               <template #selection="{props, item}">
@@ -67,7 +76,6 @@ function saveSite() {
                 </v-list-item-title>
               </template>
               <template #item="{ props, item }">
-                f
                 <v-list-item
                   v-bind="props"
                   title=""
@@ -76,14 +84,11 @@ function saveSite() {
                 >
                   <template #append>
                     <v-list-item-action>
-                      {{ item.raw.tags?.join(', ') ?? '' }}
+                      <TypeAndSchemaChip :site="item.raw" direction="row" />
                     </v-list-item-action>
                   </template>
                   <template #title>
                     <v-list-item-title>
-                      <v-chip label size="x-small" :color="item.raw.type === 'public' ? 'green': 'amber'">
-                        {{ item.raw.type.toUpperCase() }}
-                      </v-chip>
                       {{ item.raw.name }}
                     </v-list-item-title>
                   </template>
@@ -92,7 +97,7 @@ function saveSite() {
             </v-autocomplete>
           </v-window-item>
           <v-window-item :key="1">
-            <Editor v-model="selectedSite" />
+            <Editor v-if="selectedSite !== null" v-model="selectedSite" />
           </v-window-item>
         </v-window>
       </v-card-text>
@@ -130,6 +135,7 @@ function saveSite() {
           v-if="currentStep === 1"
           variant="text"
           color="success"
+          :disabled="!isSiteConfigValid"
           @click="saveSite"
         >
           <v-icon icon="mdi-check-circle-outline" />

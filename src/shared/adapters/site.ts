@@ -1,11 +1,8 @@
 import { createInstance as createLocalforageInstance } from "localforage";
 import {
   getSite as createSiteInstance,
-  getFavicon,
-  SiteID,
-  TSite,
-  ISiteMetadata as ISiteDefinedMetadata,
-  getDefinedSiteConfig,
+  getFavicon, getDefinedSiteConfig, getFaviconMetadata,
+  type SiteID, type TSite, type ISiteMetadata as ISiteDefinedMetadata,
 } from "@ptpp/site";
 import { merge } from "lodash-es";
 
@@ -21,25 +18,45 @@ export interface ISiteRuntimeConfig extends Partial<ISiteDefinedMetadata> {
    * 排序号
    */
   sortIndex?: number;
+
+  showMessageCount?: boolean;
 }
 
-export async function getSiteConfig (siteId: SiteID) {
-  let siteMetaData = await getDefinedSiteConfig(siteId);
+export async function getSiteConfig (siteId: SiteID, mergeUserConfig: boolean = true) {
+  // FIXME 此处的 as unknown as 使用了一种比较hack的方法来避免 ISiteRuntimeConfig 和 ISiteDefinedMetadata 不相同的情况
+  let siteMetaData = await getDefinedSiteConfig(siteId) as unknown as ISiteRuntimeConfig;
 
-  const { site = {} } = await chrome.storage.local.get("site");  // FIXME storage keys
-  const storedSiteConfig = site?.sites?.find((site: ISiteDefinedMetadata) => site.id === siteId);
-  if (storedSiteConfig) {
-    storedSiteConfig.sortIndex ??= 100;
-    siteMetaData = merge(siteMetaData, storedSiteConfig);
+  if (mergeUserConfig) {
+    const { site = {} } = await chrome.storage.local.get("site");  // FIXME storage keys
+    const storedSiteConfig = site?.sites?.[siteId];
+    if (storedSiteConfig) {
+      // 如果对用户配置中的部分顶级Array，直接删除设置以防止merge直接append
+      for (const field of ["tags", "legacyUrls"] as (keyof ISiteRuntimeConfig)[]) {
+        if (typeof storedSiteConfig[field] !== "undefined") {
+          delete siteMetaData[field];
+        }
+      }
+
+      siteMetaData = merge(siteMetaData, storedSiteConfig);
+    }
   }
-  return siteMetaData;
+
+  // 此处补全一些和 ISiteRuntimeConfig 有关的字段
+  siteMetaData.sortIndex ??= 100;
+  siteMetaData.showMessageCount ??= Object.hasOwn(siteMetaData,"userInfo") && siteMetaData.allowQueryUserInfo === true;
+
+  return siteMetaData as unknown as ISiteDefinedMetadata;
 }
 
 export const siteInstanceCache: Record<SiteID, TSite> = {};
 
-export async function getSiteInstance(siteId: SiteID, flush: boolean = false) {
+export async function getSiteInstance (siteId: SiteID, options: { flush?: boolean, mergeUserConfig?: boolean } = {}) {
+  const {
+    flush = false,
+    mergeUserConfig = true
+  } = options;
   if (flush || typeof siteInstanceCache[siteId] === "undefined") {
-    const siteConfig = await getSiteConfig(siteId);
+    const siteConfig = await getSiteConfig(siteId, mergeUserConfig);
     if (siteConfig) {
       siteInstanceCache[siteId] = await createSiteInstance(siteConfig);
     }
@@ -51,10 +68,12 @@ export const faviconCache = createLocalforageInstance({
   name: "Favicon",
 });
 
-export async function getSiteFavicon(siteId: SiteID, flush: boolean = false) {
-  let siteFavicon = await faviconCache.getItem<string>(siteId);
+export async function getSiteFavicon(site: SiteID | getFaviconMetadata, flush: boolean = false) {
+  const siteId = typeof site === "string" ? site : site.id;
+
+  let siteFavicon = await faviconCache.getItem<string>(siteId) ?? false;
   if (flush || !siteFavicon) {
-    const siteConfig = await getSiteConfig(siteId);
+    const siteConfig = typeof site === "string" ? await getSiteConfig(siteId) : site;
     if (siteConfig) {
       siteFavicon = await getFavicon(siteConfig);
 
@@ -64,3 +83,4 @@ export async function getSiteFavicon(siteId: SiteID, flush: boolean = false) {
   }
   return siteFavicon;
 }
+

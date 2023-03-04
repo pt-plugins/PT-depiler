@@ -1,8 +1,8 @@
 import {Ref, shallowRef, ref, unref} from "vue";
 import { UseStorageOptions, watchWithFilter } from "@vueuse/core";
 
-export function persistent<T>(key: string,newValue: T, storage: chrome.storage.AreaName = "local") {
-  chrome.storage[storage].set({[key]: JSON.parse(JSON.stringify(newValue))});
+export function persistent<T> (key: string, newValue: T, storage: chrome.storage.AreaName = "local") {
+  chrome.storage[storage].set({ [key]: JSON.parse(JSON.stringify(newValue)) });
 }
 
 export interface restoreOptions<T = any> {

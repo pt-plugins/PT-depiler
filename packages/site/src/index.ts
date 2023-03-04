@@ -30,8 +30,8 @@ function restoreSecureLink (url: string): fullUrl {
   return (url.startsWith("aHR0c") ? atob(url) : url) as fullUrl;
 }
 
-export const schemaList = schemaContent.keys().map(transContent);
-export const definitionList = definitionContent.keys().map(transContent);
+export const schemaList: string[] = schemaContent.keys().map(transContent);
+export const definitionList: string[] = definitionContent.keys().map(transContent);
 
 export type TSite = PrivateSite | BittorrentSite;
 
@@ -41,13 +41,13 @@ export async function getSchemaModule (
   return await schemaContent(`./${schema}.ts`);
 }
 
-export async function getDefinitionModule (definition: string): Promise<{
+async function getDefinitionModule (definition: string): Promise<{
   default?: TSite;
-  siteMetadata: ISiteMetadata;
+  siteMetadata: ISiteMetadata & Required<Pick<ISiteMetadata, "id" | "schema" | "isOffline">>;
 }> {
   const module = await definitionContent(`./${definition}.ts`);
 
-  // 补全缺失字段（此处补影响站点mete构造的内容，其余内容在 config 里面构造）
+  // 补全缺失字段（此处补影响站点mete构造的内容，其余内容在 getDefinedSiteConfig 里面构造）
   module.siteMetadata.id ??= definition;
   module.siteMetadata.schema ??= module.siteMetadata.type === "private" ? "AbstractPrivateSite" : "AbstractBittorrentSite";
 
@@ -63,6 +63,7 @@ export async function getDefinedSiteConfig (definition: string): Promise<ISiteMe
   const { SchemaMetadata: definedSchemaConfig } = await getSchemaModule(definedSiteConfig.schema!);
 
   const siteConfig = mergeWith(
+    {},  // use empty dict at first place since _.mergeWith will rewrite object
     definedSchemaConfig,
     definedSiteConfig,
     (objValue, srcValue, key) => {
@@ -84,8 +85,14 @@ export async function getDefinedSiteConfig (definition: string): Promise<ISiteMe
     siteConfig.legacyUrls = siteConfig.legacyUrls.map(restoreSecureLink);
   }
 
-  // 防止host信息缺失
+  // 补全一些可以缺失字段
+  siteConfig.isOffline ??= false;
+  siteConfig.tags ??= [];
+  siteConfig.activateUrl ??= siteConfig.url;
   siteConfig.host ??= new URL(siteConfig.url).host;
+  siteConfig.allowSearch ??= Object.hasOwn(siteConfig, "search");
+  siteConfig.allowQueryUserInfo ??= Object.hasOwn(siteConfig, "userInfo");
+  siteConfig.timezoneOffset ??= siteConfig.schema === "NexusPHP" ? "+0800" : "+0000";
 
   if (siteConfig.category && siteConfig.search) {
     siteConfig.search.categories = ([] as any[]).concat(

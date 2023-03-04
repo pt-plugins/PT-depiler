@@ -203,7 +203,9 @@ async function getFaviconFromUrl (url: string): Promise<Blob> {
   throw new Error("Can't find any favicons from this site");
 }
 
-export async function getFavicon (site: ISiteMetadata): Promise<string> {
+export type getFaviconMetadata = Required<Pick<ISiteMetadata, "id" | "host" | "url">> & Pick<ISiteMetadata, "favicon" | "activateUrl">
+
+export async function getFavicon (site: ISiteMetadata | getFaviconMetadata): Promise<string> {
   const {
     id: siteId,
     host: siteHost,

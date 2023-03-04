@@ -34,6 +34,7 @@
     "compare-versions": "6.0.0-rc.1",
     "core-js": "^3.28.0",
     "dayjs": "^1.11.7",
+    "deep-object-diff": "^1.1.9",
     "filesize": "^10.0.6",
     "localforage": "^1.10.0",
     "lodash-es": "^4.17.21",

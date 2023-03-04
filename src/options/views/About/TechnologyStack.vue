@@ -100,7 +100,7 @@ const TechnologyStackTableHeader = [
   },
 ];
 
-const tableDependencies = computed(() => Object.entries(technologyData.value));
+const tableDependencies = computed(() => Object.values(technologyData.value));
 </script>
 
 <template>

@@ -138,17 +138,21 @@ export const routes: RouteRecordRaw[] = [
         name: "SystemLog",
         meta: { icon: "mdi-clipboard-text" },
         component: () => dynamicImportView("Devtools/SystemLog")
-      },
-      {
-        path: "/debugger",
-        name: "Debugger",
-        meta: { icon: "mdi-bug" },
-        component: () => dynamicImportView("Devtools/Debugger")
       }
     ]
   },
   { path: "/:pathMatch(.*)*", name: "NotFound", redirect: "/" }
 ];
+
+if (localStorage.getItem("enable_debugger") !== null) {
+  const devRouteIndex = routes.findIndex(x => x.name=="Devtools");
+  routes[devRouteIndex].children?.push({
+    path: "/debugger",
+    name: "Debugger",
+    meta: { icon: "mdi-bug" },
+    component: () => dynamicImportView("Devtools/Debugger")
+  });
+}
 
 export const routerInstance = createRouter({
   history: createWebHashHistory(),

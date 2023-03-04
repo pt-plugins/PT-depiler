@@ -56,15 +56,15 @@ export type listSelectors = {
 export interface ISiteMetadata {
   id?: SiteID;   // 如有，必须和站点文件名（无扩展）相同
   name: string; // 站点名
-  aka?: string | string[]; // 站点别名
+  aka?: string[]; // 站点别名
   description?: string; // 站点说明
   tags?: string[]; // 站点标签
-  collaborator?: string[]; // 提供该站点解决方案的协作者
+  readonly collaborator?: string[]; // 提供该站点解决方案的协作者
 
   /**
    * 站点类型
    */
-  type: "private" | "public";
+  readonly type: "private" | "public";
 
   /**
    * 指定继承模板类型，如果未填写的话，但文件抛出了 default class 的话，会忽略掉此处的参数
@@ -115,7 +115,7 @@ export interface ISiteMetadata {
   timezoneOffset?: timezoneOffset;
 
   host?: string; // 站点域名，如果不存在，则从url中获取
-  formerHosts?: string[]; // 站点过去曾经使用过的，但现在已不再使用的域名
+  readonly formerHosts?: string[]; // 站点过去曾经使用过的，但现在已不再使用的域名
 
   category?: Omit<ISearchCategories, "name">;
 
