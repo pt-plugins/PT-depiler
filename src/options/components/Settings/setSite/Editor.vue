@@ -158,11 +158,7 @@ const timeZone: Array<{value: timezoneOffset, title: string}> = [
         </v-text-field>
       </v-radio-group>
 
-      <v-autocomplete
-        v-model="siteConfig.timezoneOffset"
-        :items="timeZone"
-        :label="$t('setSite.editor.timezone')"
-      />
+      <v-text-field v-model="siteConfig.description" :label="$t('setSite.editor.description')" />
 
       <v-combobox
         v-model="siteConfig.tags" chips
@@ -170,6 +166,12 @@ const timeZone: Array<{value: timezoneOffset, title: string}> = [
         :label="$t('setSite.common.tags')"
         :hint="$t('setSite.editor.tagTip')"
         persistent-hint
+      />
+
+      <v-autocomplete
+        v-model="siteConfig.timezoneOffset"
+        :items="timeZone"
+        :label="$t('setSite.editor.timezone')"
       />
     </v-form>
   </v-card>

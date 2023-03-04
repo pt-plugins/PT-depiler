@@ -186,10 +186,17 @@
     },
     "editor": {
       "addUrlTip": "增加一个你正在使用的站点域名，输入的应该以 https:// 或 http:// 开头，以 / 结尾，例如 https://example.com/",
+      "description": "网站描述",
       "sortIndex": "优先级",
       "sortIndexTip": "可用于搜索排序",
       "tagTip": "标签输入完成后按回车添加。（只有前4个会在列表页显示）",
       "timezone": "时区"
+    },
+    "index": {
+      "settingNote": [
+        "只有配置过的站点才会显示插件图标及相应的功能；",
+        "已离线的站点不再参与搜索和信息获取；"
+      ]
     }
   }
 }

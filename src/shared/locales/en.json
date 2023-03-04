@@ -186,10 +186,17 @@
     },
     "editor": {
       "addUrlTip": "Add a site url which you current used, for example: https://example.com/",
+      "description": "Site description",
       "sortIndex": "Priority",
       "sortIndexTip": "Can be used for search sorting",
       "tagTip": "press Enter to add multiple. ( Only first 4 tags will show on lists )",
       "timezone": "Timezone"
+    },
+    "index": {
+      "settingNote": [
+        "Only the configured site will display the plugin icon and the corresponding function;",
+        "the offline site will no longer participate in the search and information acquisition;"
+      ]
     }
   }
 }

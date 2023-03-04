@@ -1,8 +1,7 @@
 import { defineStore } from "pinia";
 import { computedAsync } from "@vueuse/core";
-import { updatedDiff } from "deep-object-diff";
 import { type SiteID } from "@ptpp/site";
-import { faviconCache, getSiteConfig, getSiteFavicon, ISiteRuntimeConfig } from "@/shared/adapters/site";
+import { faviconCache, getSiteConfig, getSiteFavicon, diffSiteConfig, ISiteRuntimeConfig } from "@/shared/adapters/site";
 
 // 在store中缓存favicon对象，以保持单一性
 export const siteFavicons = computedAsync(async () => {
@@ -41,18 +40,12 @@ export const useSiteStore = defineStore("site", {
   },
   actions: {
     async addSite (site: ISiteRuntimeConfig) {
-      const definedSiteConfig = await getSiteConfig(site.id, false);
-      const updateSiteConfig = updatedDiff(definedSiteConfig, site);
-
-      this.sites[site.id] = {id: site.id, ...updateSiteConfig};
+      this.sites[site.id] = await diffSiteConfig(site, false);
       this.$save();
     },
 
     async patchSite (site: ISiteRuntimeConfig) {
-      const definedSiteConfig = await getSiteConfig(site.id);
-      const updateSiteConfig = updatedDiff(definedSiteConfig, site);
-
-      this.sites[site.id] = {id: site.id, ...updateSiteConfig};
+      this.sites[site.id] = await diffSiteConfig(site);
       this.$save();
     },
 

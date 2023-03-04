@@ -16,8 +16,6 @@ import EditDialog from "@/options/components/Settings/setSite/EditDialog.vue";
 const { t } = useI18n();
 const siteStore = useSiteStore();
 
-console.log(siteStore);
-
 const showAddDialog = ref<boolean>(false);
 const showEditDialog = ref<boolean>(false);  // TODO
 const showDeleteDialog = ref<boolean>(false);
@@ -274,6 +272,12 @@ const log = console.log;
   <AddDialog v-model="showAddDialog" />
   <EditDialog v-model="showEditDialog" v-model:site-config="siteConfig" />
   <DeleteDialog v-model="showDeleteDialog" :to-delete-ids="toDeleteIds" />
+
+  <v-alert color="grey">
+    <template v-for="i in $tm('setSite.index.settingNote')" :key="i">
+      {{ $rt(i) }} <br>
+    </template>
+  </v-alert>
 </template>
 
 <style scoped></style>
