@@ -2,6 +2,7 @@ import { ISiteMetadata, ETorrentStatus } from "../types";
 
 export const siteMetadata: ISiteMetadata = {
   name: "SSD",
+  aka: ["CMCT"],
   type: "private",
   description: "Classic Movie Compression Team",
   url: "https://springsunday.net/",

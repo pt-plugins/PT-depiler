@@ -101,7 +101,7 @@ export async function getDefinedSiteConfig (definition: string): Promise<ISiteMe
         ...siteConfig.category,
       },
       siteConfig.search.categories
-    );
+    ).filter((x) => typeof x !== "undefined");
   }
 
   return siteConfig;

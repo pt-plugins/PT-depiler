@@ -3,7 +3,7 @@ import { createInstance as createLocalforageInstance } from "localforage";
 import {
   getSite as createSiteInstance,
   getFavicon, getDefinedSiteConfig, getFaviconMetadata,
-  type SiteID, type TSite, type ISiteMetadata as ISiteDefinedMetadata,
+  type SiteID, type TSite, type ISiteMetadata as ISiteDefinedMetadata, type ISearchParams,
 } from "@ptpp/site";
 
 export interface ISiteRuntimeConfig extends Partial<ISiteDefinedMetadata> {
@@ -12,15 +12,17 @@ export interface ISiteRuntimeConfig extends Partial<ISiteDefinedMetadata> {
   entryPoint?: string;  // 用户在options首页点击时，打开的站点地址
   sortIndex?: number;  // 排序号
   showMessageCount?: boolean;
+
+  defaultSearchParams?: ISearchParams[]; // 默认搜索模块（强烈不推荐使用！更建议在站点配置中配置或使用搜索方案！）
 }
 
 const pickList: Array<keyof ISiteRuntimeConfig> = [
   // ISiteDefinedMetadata中定义的可以由用户自定义的字段
-  "name", "url", "legacyUrls", "activateUrl", "timezoneOffset", "tags", "description", "host",
+  "name", "aka", "url", "legacyUrls", "activateUrl", "timezoneOffset", "tags", "description", "host",
   // ISiteDefinedMetadata 中定义的boolean类型字段
   "isOffline", "allowSearch", "allowQueryUserInfo",
   // ISiteRuntimeConfig 中额外定义的字段
-  "entryPoint", "sortIndex", "showMessageCount",
+  "entryPoint", "sortIndex", "showMessageCount", "defaultSearchParams"
 ];
 
 export async function diffSiteConfig (site: ISiteRuntimeConfig, mergeUserConfig: boolean = true) {
@@ -48,6 +50,7 @@ export async function getSiteConfig (siteId: SiteID, mergeUserConfig: boolean = 
   // 此处补全一些和 ISiteRuntimeConfig 有关的字段
   siteMetaData.sortIndex ??= 100;
   siteMetaData.showMessageCount ??= Object.hasOwn(siteMetaData,"userInfo") && siteMetaData.allowQueryUserInfo === true;
+  siteMetaData.defaultSearchParams ??= [];
 
   return siteMetaData as unknown as ISiteDefinedMetadata;
 }

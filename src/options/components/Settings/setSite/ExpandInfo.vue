@@ -15,13 +15,13 @@ const toggleExpand = useToggle(showExpand);
 <template>
   <div class="d-flex justify-space-between">
     <ul style="list-style-type: none">
-      <li>
+      <li class="text-left">
         <slot :data="props.main" :field="`main`">
           {{ props.main }}
         </slot>
       </li>
       <template v-if="showExpand">
-        <li v-for="(text, i) in expand" :key="i">
+        <li v-for="(text, i) in expand" :key="i" class="text-left">
           <slot :data="text" :field="`expand`">
             {{ text }}
           </slot>
@@ -30,12 +30,11 @@ const toggleExpand = useToggle(showExpand);
     </ul>
     <v-icon
       v-if="props.expand?.length > 0" style="max-width: 20px"
-      :icon="showExpand ? 'mdi-chevron-down' : 'mdi-chevron-up'"
+      :icon="showExpand ? 'mdi-chevron-up' : 'mdi-chevron-down'"
       @click="toggleExpand()"
     />
   </div>
 </template>
-
 
 <style scoped>
 

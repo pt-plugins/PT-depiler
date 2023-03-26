@@ -29,7 +29,7 @@ function patchSite () {
     <v-card>
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey darken-2">
-          <v-toolbar-title>{{ $t('setDownloader.edit.title') }}</v-toolbar-title>
+          <v-toolbar-title>{{ $t('setSite.edit.title') }}</v-toolbar-title>
         </v-toolbar>
       </v-card-title>
       <v-divider />

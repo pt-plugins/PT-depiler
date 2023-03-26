@@ -36,11 +36,15 @@
     "btn": {
       "add": "增加"
     },
+    "checkbox": {
+      "all": "全选"
+    },
     "dialog": {
       "cancel": "取消",
       "next": "下一步",
       "ok": "完成",
       "prev": "上一步",
+      "reset": "重置",
       "title": {
         "confirmAction": "确认操作"
       }
@@ -172,6 +176,7 @@
       "title": "添加站点"
     },
     "common": {
+      "aka": "站点别名",
       "allowQueryUserInfo": "获取个人信息",
       "allowSearch": "允许搜索",
       "isOffline": "已离线",
@@ -183,6 +188,9 @@
     },
     "delete": {
       "text": "确认删除这 {0} 个站点吗？"
+    },
+    "edit": {
+      "title": "编辑站点配置"
     },
     "editor": {
       "addUrlTip": "增加一个你正在使用的站点域名，输入的应该以 https:// 或 http:// 开头，以 / 结尾，例如 https://example.com/",
@@ -197,6 +205,12 @@
         "只有配置过的站点才会显示插件图标及相应的功能；",
         "已离线的站点不再参与搜索和信息获取；"
       ]
+    },
+    "spDialog": {
+      "noDefNotice": "该站点未定义搜索模块，请到项目仓库提供帮助！",
+      "notice": "不推荐在此处进行设置，更建议在对应站点的个人设置中配置或使用插件提供的搜索方案功能！",
+      "selectAllNotice": "（注意：在大多数情况下，你并不需要全选所有搜索项！）",
+      "title": "配置站点默认搜索模式 - {name}"
     }
   }
 }

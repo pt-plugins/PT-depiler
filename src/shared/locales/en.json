@@ -36,11 +36,15 @@
     "btn": {
       "add": "Add"
     },
+    "checkbox": {
+      "all": "ALL"
+    },
     "dialog": {
       "cancel": "Cancel",
       "next": "Next",
       "ok": "Complete",
       "prev": "Prev",
+      "reset": "Reset",
       "title": {
         "confirmAction": "Confirm Action"
       }
@@ -172,6 +176,7 @@
       "title": "Add Site"
     },
     "common": {
+      "aka": "AKA",
       "allowQueryUserInfo": "Allow access USP",
       "allowSearch": "Allow Search",
       "isOffline": "Offline",
@@ -183,6 +188,9 @@
     },
     "delete": {
       "text": "Are you sure to delete these {0} Site?"
+    },
+    "edit": {
+      "title": "Edit Site Config"
     },
     "editor": {
       "addUrlTip": "Add a site url which you current used, for example: https://example.com/",
@@ -197,6 +205,12 @@
         "Only the configured site will display the plugin icon and the corresponding function;",
         "the offline site will no longer participate in the search and information acquisition;"
       ]
+    },
+    "spDialog": {
+      "noDefNotice": "This site does not define any search categories, please go to help!",
+      "notice": "It is not recommended to set it here, and it is recommended to configure your user CP in site or use search solution",
+      "selectAllNotice": "(Notice: In most cases, you don't need to select all search terms! )",
+      "title": "Set default search params for Site {name}"
     }
   }
 }

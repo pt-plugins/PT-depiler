@@ -9,6 +9,7 @@ import { getSiteFavicon, ISiteRuntimeConfig } from "@/shared/adapters/site";
 
 import AddDialog from "@/options/components/Settings/setSite/AddDialog.vue";
 import DeleteDialog from "@/options/components/Settings/setSite/DeleteDialog.vue";
+import SearchParamsDialog from "@/options/components/Settings/setSite/SearchParamsDialog.vue";
 import ExpandInfo from "@/options/components/Settings/setSite/ExpandInfo.vue";
 import TypeAndSchemaChip from "@/options/components/Settings/setSite/TypeAndSchemaChip.vue";
 import EditDialog from "@/options/components/Settings/setSite/EditDialog.vue";
@@ -17,7 +18,8 @@ const { t } = useI18n();
 const siteStore = useSiteStore();
 
 const showAddDialog = ref<boolean>(false);
-const showEditDialog = ref<boolean>(false);  // TODO
+const showEditDialog = ref<boolean>(false);
+const showSearchParamsDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 
 const sites = computedAsync(async () => await siteStore.getSites(), []);
@@ -104,6 +106,12 @@ function editSite (site: ISiteRuntimeConfig) {
   siteConfig.value = site;
   showEditDialog.value = true;
 }
+
+function editSearchEntity (site: ISiteRuntimeConfig) {
+  siteConfig.value = site;
+  showSearchParamsDialog.value = true;
+}
+
 
 const toDeleteIds = ref<string[]>([]);
 function deleteSite (siteId: SiteID | SiteID[]) {
@@ -254,9 +262,15 @@ const log = console.log;
           <v-btn
             size="small" icon="mdi-pencil"
             :title="$t('common.edit')"
+            color="info"
             @click="editSite(item.raw)"
           />
-          <!-- search entry -->
+          <v-btn
+            size="small" icon="mdi-magnify"
+            title="search entity"
+            :color="(item.raw.defaultSearchParams?.length > 0) ? 'warning' : ''"
+            @click="editSearchEntity(item.raw)"
+          />
           <!-- userinfo -->
           <v-btn
             size="small" icon="mdi-delete"
@@ -271,6 +285,7 @@ const log = console.log;
 
   <AddDialog v-model="showAddDialog" />
   <EditDialog v-model="showEditDialog" v-model:site-config="siteConfig" />
+  <SearchParamsDialog v-model="showSearchParamsDialog" v-model:site-config="siteConfig" />
   <DeleteDialog v-model="showDeleteDialog" :to-delete-ids="toDeleteIds" />
 
   <v-alert color="grey">

@@ -145,7 +145,7 @@ export const routes: RouteRecordRaw[] = [
 ];
 
 if (localStorage.getItem("enable_debugger") !== null) {
-  const devRouteIndex = routes.findIndex(x => x.name=="Devtools");
+  const devRouteIndex = routes.findIndex(x => x.name == "Devtools");
   routes[devRouteIndex].children?.push({
     path: "/debugger",
     name: "Debugger",

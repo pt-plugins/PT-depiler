@@ -23,7 +23,8 @@ const siteUrls = computed({
       urls.push(...siteConfig.value.legacyUrls);
     }
 
-    return urls; },
+    return urls;
+  },
   set: (val) => {
     siteConfig.value.url = val[0] as fullUrl;
     if (val.length > 1) {
@@ -157,6 +158,12 @@ const timeZone: Array<{value: timezoneOffset, title: string}> = [
           </template>
         </v-text-field>
       </v-radio-group>
+
+      <v-combobox
+        v-model="siteConfig.aka" chips
+        multiple
+        :label="$t('setSite.common.aka')"
+      />
 
       <v-text-field v-model="siteConfig.description" :label="$t('setSite.editor.description')" />
 
