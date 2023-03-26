@@ -15,7 +15,11 @@ export const siteMetadata: ISiteMetadata = {
       url: "/browse.php",
       params: { notnewword: 1 },
     },
-    skipImdbSearch: true,
+    advanceKeyword: {
+      imdb: {
+        skip: true
+      }
+    },
     selectors: {
       rows: {
         selector: 'table[border="1"][cellpadding="5"] > tbody > tr:has(a[href^="details.php?id="])',

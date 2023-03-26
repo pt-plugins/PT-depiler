@@ -10,6 +10,10 @@ export const siteMetadata: ISiteMetadata = {
   schema: "GazelleJSONAPI",
   collaborator: ["ted423"],
   search: {
-    skipImdbSearch: true,
+    advanceKeyword: {
+      imdb: {
+        skip: true
+      }
+    },
   },
 };

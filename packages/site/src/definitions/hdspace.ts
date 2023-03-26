@@ -17,9 +17,13 @@ export const siteMetadata: ISiteMetadata = {
         active: 0,
       },
     },
-    imdbTransformer: (config) => {
-      config?.params?.search && (config.params.search = config.params.search.replace("tt", "IMDB"));
-      return config;
+    advanceKeyword: {
+      imdb: {
+        transformer: (config) => {
+          config?.params?.search && (config.params.search = config.params.search.replace("tt", "IMDB"));
+          return config;
+        },
+      }
     },
 
     selectors: {

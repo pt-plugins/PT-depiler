@@ -14,6 +14,10 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   collaborator: ["ylxb2016"],
   search: {
-    skipImdbSearch: true,
+    advanceKeyword: {
+      imdb: {
+        skip: true
+      }
+    },
   },
 };

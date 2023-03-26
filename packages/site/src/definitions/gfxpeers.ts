@@ -13,6 +13,10 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["设计", "素材"],
   collaborator: ["bimzcy"],
   search: {
-    skipImdbSearch: true,
+    advanceKeyword: {
+      imdb: {
+        skip: true
+      }
+    },
   },
 };

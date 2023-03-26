@@ -13,7 +13,11 @@ export const siteMetadata: ISiteMetadata = {
   host: "pornbits.net",
   collaborator: ["ian"],
   search: {
-    skipImdbSearch: true,
+    advanceKeyword: {
+      imdb: {
+        skip: true
+      }
+    },
     selectors: {
       rows: { selector: "#content > table > tbody > tr" },
       title: { selector: 'a[href*="/torrent/details/"]' },

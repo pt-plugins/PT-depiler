@@ -131,7 +131,11 @@ export const siteMetadata: ISiteMetadata = {
       },
       responseType: "json",
     },
-    skipImdbSearch: true,
+    advanceKeyword: {
+      imdb: {
+        skip: true
+      }
+    },
     selectors: {
       rows: { selector: "data" },
       id: { selector: "id" },

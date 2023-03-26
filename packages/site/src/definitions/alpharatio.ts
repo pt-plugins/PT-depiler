@@ -46,6 +46,10 @@ export const siteMetadata: ISiteMetadata = {
     cross: { mode: "append" },
   },
   search: {
-    skipImdbSearch: true,
+    advanceKeyword: {
+      imdb: {
+        skip: true
+      }
+    },
   },
 };

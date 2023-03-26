@@ -28,9 +28,13 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       url: "/torrents.php",
       params: { notnewword: 1 },
     },
-    imdbTransformer: (config) => {
-      config.params.search_area = 4; // params "&search_area=4"
-      return config;
+    advanceKeyword: {
+      imdb: {
+        transformer: (config) => {
+          config.params.search_area = 4; // params "&search_area=4"
+          return config;
+        },
+      }
     },
     selectors: {
       // row 等信息由 transformSearchPage 根据搜索结果自动生成

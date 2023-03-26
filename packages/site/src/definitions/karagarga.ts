@@ -19,9 +19,13 @@ export const siteMetadata: ISiteMetadata = {
         cat: 0,
       },
     },
-    imdbTransformer: (config) => {
-      config.params.search_type = "imdb";
-      return config;
+    advanceKeyword: {
+      imdb: {
+        transformer: (config) => {
+          config.params.search_type = "imdb";
+          return config;
+        },
+      }
     },
     selectors: {
       rows: {

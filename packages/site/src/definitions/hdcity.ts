@@ -59,9 +59,13 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     keywordsParam: "iwannaseethis",
-    imdbTransformer: (config) => {
-      config.params.search_area = 1; // params "&search_area=1"
-      return config;
+    advanceKeyword: {
+      imdb: {
+        transformer: (config) => {
+          config.params.search_area = 1; // params "&search_area=1"
+          return config;
+        },
+      }
     },
     selectors: {
       rows: {

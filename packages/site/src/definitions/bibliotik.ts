@@ -19,7 +19,11 @@ export const siteMetadata: ISiteMetadata = {
         order: "desc",
       },
     },
-    skipImdbSearch: true,
+    advanceKeyword: {
+      imdb: {
+        skip: true
+      }
+    },
     selectors: {
       rows: { selector: "table#torrents_table > tbody > tr:has(.title)" },
       id: {

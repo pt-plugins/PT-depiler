@@ -9,6 +9,10 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "AvistaZ",
   search: {
-    skipImdbSearch: true,
+    advanceKeyword: {
+      imdb: {
+        skip: true
+      }
+    },
   },
 };

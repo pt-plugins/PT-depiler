@@ -11,6 +11,10 @@ export const siteMetadata: ISiteMetadata = {
   host: "privatehd.to",
   collaborator: ["bimzcy"],
   search: {
-    skipImdbSearch: true,
+    advanceKeyword: {
+      imdb: {
+        skip: true
+      }
+    },
   },
 };

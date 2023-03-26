@@ -11,6 +11,10 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["曲艺", "小品", "有声小说"],
   host: "htpt.cc",
   search: {
-    skipImdbSearch: true,
+    advanceKeyword: {
+      imdb: {
+        skip: true
+      }
+    },
   },
 };

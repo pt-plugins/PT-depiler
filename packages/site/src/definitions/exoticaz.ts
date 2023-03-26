@@ -10,6 +10,10 @@ export const siteMetadata: ISiteMetadata = {
   schema: "AvistaZ",
   host: "exoticaz.to",
   search: {
-    skipImdbSearch: true,
+    advanceKeyword: {
+      imdb: {
+        skip: true
+      }
+    },
   },
 };

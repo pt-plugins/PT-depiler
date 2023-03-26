@@ -104,7 +104,7 @@ const tableDependencies = computed(() => Object.values(technologyData.value));
 </script>
 
 <template>
-  <v-alert class="mb-2" type="info">
+  <v-alert type="info" class="mb-2">
     {{ $t('TechnologyStack.thankNote') }}
   </v-alert>
   <v-card class="mb-2">

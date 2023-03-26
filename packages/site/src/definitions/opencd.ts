@@ -15,7 +15,11 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
   type: "private",
   search: {
-    skipImdbSearch: true,
+    advanceKeyword: {
+      imdb: {
+        skip: true
+      }
+    },
     categories: [
       {
         name: "来源",

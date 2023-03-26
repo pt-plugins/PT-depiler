@@ -22,7 +22,11 @@ export const siteMetadata: ISiteMetadata = {
         order_way: "desc",
       },
     },
-    skipImdbSearch: true,
+    advanceKeyword: {
+      imdb: {
+        skip: true
+      }
+    },
     selectors: {
       // 建立group基本信息: category, title, url, time, size, author , seeders, leechers, completed, comments
       // rows: '#torrent_table > tbody > tr.torrent'

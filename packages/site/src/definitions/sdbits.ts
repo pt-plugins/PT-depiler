@@ -31,10 +31,14 @@ export const siteMetadata: ISiteMetadata = {
         ]
       }
     ],
-    imdbTransformer: config => {
-      config.params.imdb = config.params.search;
-      delete config.params.search;
-      return config;
+    advanceKeyword: {
+      imdb: {
+        transformer: (config) => {
+          config.params.imdb = config.params.search;
+          delete config.params.search;
+          return config;
+        },
+      }
     },
     selectors: {
       tags: [

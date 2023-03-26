@@ -12,7 +12,6 @@ function setIgnoreWrongPixelRatio() {
   uiStore.ignoreWrongPixelRatio = true;
   uiStore.$save();
 }
-
 </script>
 
 <template>

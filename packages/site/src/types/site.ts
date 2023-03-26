@@ -3,6 +3,7 @@ import type { IUserInfo } from "./userinfo";
 import type { IElementQuery, ISearchCategories } from "./search";
 import type { AxiosRequestConfig } from "axios";
 import type { timezoneOffset } from "../utils/datetime";
+import { ISearchFilter } from "./search";
 
 export type SiteID = string;
 
@@ -26,6 +27,13 @@ export type SiteSchema =
   | "Gazelle"
   | "GazelleJSONAPI"
   | "AvistaZ";
+
+export type advanceKeywordType =
+  | "imdb"
+  | "douban"
+  | "bangumi"
+  | "anidb"
+  | string
 
 export type listSelectors = {
   /**
@@ -134,13 +142,36 @@ export interface ISiteMetadata {
     skipImdbSearch?: boolean;
 
     /**
-     * 额外处理 Imdb 相关信息， 注意此函数（如果定义的话）是在 searchTorrents 中进行，
-     * 即此时已根据 requestConfig 和传入的 filter 信息生成了普通搜索时的 Axios 配置，
+     *
+     *
      * @param config
      */
     imdbTransformer?: (config: AxiosRequestConfig) => AxiosRequestConfig;
 
     keywordsParam?: string; // 当不指定且未改写时，会导致keyword未被搜索使用
+
+    /**
+     * 高级搜索词，格式如下 ${advanceKeywordType}|${keyword}，例如：
+     *  - imdb|tt17097088
+     *  - douban|35131346
+     */
+    advanceKeyword?: Record<
+      advanceKeywordType,
+      {
+        /**
+         * 是否跳过该类别（一般情况下是该站点不支持此类搜索时才跳过）
+         */
+        skip?: boolean,
+        /**
+         * 定义如何处理该高级搜索词， 注意此函数（如果定义的话）是在 searchTorrents 中进行
+         *
+         * @param config 已根据 requestConfig 和传入的 filter 信息生成了普通搜索时的 Axios 配置
+         * @param filter 原始搜索条件，注意此处的 keywords 已经被去除了前缀 `${advanceKeywordType}|`
+         */
+        transformer?: (config: AxiosRequestConfig, filter: ISearchFilter) => AxiosRequestConfig
+      }
+    >
+
     categories?: ISearchCategories[]; // 站点对应搜索入口的种子分类信息
 
     selectors?: listSelectors;

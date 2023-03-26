@@ -23,12 +23,15 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         view: "list", // 强制使用 种子列表 的形式返回
       },
     },
-    imdbTransformer: (config) => {
-      config.params.imdb = config.params.search.replace("tt", "");
-      delete config.params.search;
-      return config;
+    advanceKeyword: {
+      imdb: {
+        transformer: (config) => {
+          config.params.imdb = config.params.search.replace("tt", "");
+          delete config.params.search;
+          return config;
+        },
+      }
     },
-
     selectors: {
       rows: { selector: "div.table-responsive > table:first > tbody > tr" },
 

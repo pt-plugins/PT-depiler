@@ -18,10 +18,14 @@ export const siteMetadata: ISiteMetadata = {
         or: 1,
       },
     },
-    imdbTransformer: (config) => {
-      config.params.imdb = config.params.s.replace("tt", "");
-      config.params.s = "";
-      return config;
+    advanceKeyword: {
+      imdb: {
+        transformer: (config) => {
+          config.params.imdb = config.params.s.replace("tt", "");
+          config.params.s = "";
+          return config;
+        },
+      }
     },
     selectors: {
       rows: { selector: "#unsticky-torrent-table dl" },

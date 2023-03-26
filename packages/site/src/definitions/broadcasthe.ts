@@ -32,7 +32,11 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseTTL" }],
       },
     },
-    skipImdbSearch: true,
+    advanceKeyword: {
+      imdb: {
+        skip: true
+      }
+    },
   },
   userInfo: {
     selectors: {

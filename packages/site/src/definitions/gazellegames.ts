@@ -10,7 +10,11 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   collaborator: ["ted423"],
   search: {
-    skipImdbSearch: true,
+    advanceKeyword: {
+      imdb: {
+        skip: true
+      }
+    },
     selectors: {
       time: { selector: "> td:eq(1)" },
       size: { selector: "> td:eq(3)" },

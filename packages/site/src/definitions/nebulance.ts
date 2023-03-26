@@ -26,7 +26,11 @@ export const siteMetadata: ISiteMetadata = {
   },
   search: {
     keywordsParam: "searchtext",
-    skipImdbSearch: true,
+    advanceKeyword: {
+      imdb: {
+        skip: true
+      }
+    },
     selectors: {
       rows: { selector: ".torrent_table > tbody > tr[class^='torrent row']" },
       title: { selector: "a[data-src]", data: "src" },

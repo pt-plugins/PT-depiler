@@ -18,7 +18,11 @@ export const siteMetadata: ISiteMetadata = {
         cat: 1,
       },
     },
-    skipImdbSearch: true,
+    advanceKeyword: {
+      imdb: {
+        skip: true
+      }
+    },
     selectors: {
       rows: { selector: "table.torrents > tbody > tr:gt(0)" },
       id: {

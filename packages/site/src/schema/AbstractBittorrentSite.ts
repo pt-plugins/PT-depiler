@@ -161,15 +161,21 @@ export default class BittorrentSite {
       return result;
     }
 
-    // 检查是否 Imdb 搜索
-    let isImdbSearch = false;
-    if (filter.keywords && /tt\d{7,8}/.test(filter.keywords)) {
-      // 存在搜索关键词且为Imdb格式
-      isImdbSearch = true;
-      if (this.config.search?.skipImdbSearch === true) {
-        // 定义了 skipImdbSearch 属性且为真
-        result.status = ESearchResultParseStatus.passSearch;
-        return result;
+    // 检查高级搜索词
+    let advanceKeywordTransformer: any = false;
+    if (filter.keywords && this.config.search?.advanceKeyword) {
+      for (const [advanceField, advanceConfig] of Object.entries(this.config.search.advanceKeyword)) {
+        if (filter.keywords.startsWith(`${advanceField}|`)) {
+          // 检查是否跳过
+          if (advanceConfig.skip === true) {
+            result.status = ESearchResultParseStatus.passSearch;
+            return result;
+          }
+
+          // 改写 filter.keywords 并缓存 transformer
+          filter.keywords = filter.keywords?.replace(`${advanceField}|`, "");
+          advanceKeywordTransformer = advanceConfig.transformer!;
+        }
       }
     }
 
@@ -184,8 +190,8 @@ export default class BittorrentSite {
     );
 
     // 如果是 Imdb 搜索，且定义了 imdbTransformer 方法，则改写 AxiosRequestConfig
-    if (isImdbSearch && this.config.search?.imdbTransformer) {
-      axiosConfig = this.config.search.imdbTransformer(axiosConfig);
+    if (advanceKeywordTransformer) {
+      axiosConfig = advanceKeywordTransformer(axiosConfig, filter);
     }
 
     // 请求页面并转化为document

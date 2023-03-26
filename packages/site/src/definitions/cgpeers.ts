@@ -10,6 +10,10 @@ export const siteMetadata: ISiteMetadata = {
   host: "www.cgpeers.com",
   collaborator: ["bimzcy"],
   search: {
-    skipImdbSearch: true,
+    advanceKeyword: {
+      imdb: {
+        skip: true
+      }
+    },
   },
 };
