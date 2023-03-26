@@ -44,6 +44,7 @@ export const useUIStore = defineStore("ui", {
     {
       theme: "light" as supportThemeType,
       isNavBarOpen: true,
+      ignoreWrongPixelRatio: false
     }
   ),
   getters: {

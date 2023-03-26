@@ -1,10 +1,18 @@
 <script lang="ts" setup>
-import {useUIStore} from "@/shared/store/ui";
+import { useDevicePixelRatio } from "@vueuse/core";
+import { useUIStore } from "@/shared/store/ui";
 import Navigation from "./components/Layout/Navigation.vue";
 import Topbar from "./components/Layout/Topbar.vue";
 import Footer from "./components/Layout/Footer.vue";
 
 const uiStore = useUIStore();
+const { pixelRatio } = useDevicePixelRatio();
+
+function setIgnoreWrongPixelRatio() {
+  uiStore.ignoreWrongPixelRatio = true;
+  uiStore.$save();
+}
+
 </script>
 
 <template>
@@ -14,6 +22,14 @@ const uiStore = useUIStore();
 
   <router-view v-else v-slot="{ Component, route }">
     <v-app id="ptpp-next" :theme="uiStore.uiTheme">
+      <v-system-bar
+        v-if="(pixelRatio > 1 || pixelRatio < 0.8) && !uiStore.ignoreWrongPixelRatio"
+        color="purple-darken-2" class="justify-center"
+      >
+        {{ $t('layout.header.wrongPixelRatioNotice') }}&nbsp;&nbsp;
+        <v-icon icon="mdi-close" class="ms-2" @click="setIgnoreWrongPixelRatio" />
+      </v-system-bar>
+
       <!-- 顶部工具条 -->
       <Topbar />
 

@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  SearchData
+  SearchEntity
 </template>
 
 <style scoped>

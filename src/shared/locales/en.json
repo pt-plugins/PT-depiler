@@ -67,7 +67,8 @@
         "default": "<Default>"
       },
       "searchTip": "Input keyword, IMDb numbers to search",
-      "wiki": "Wiki"
+      "wiki": "Wiki",
+      "wrongPixelRatioNotice": "Your page display may be affected by zooming. It is recommended to zoom at 100% to ensure your browsing experience~"
     },
     "init": "Not Ready, please wait for UI init."
   },

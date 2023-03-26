@@ -1,10 +1,13 @@
 <script lang="ts" setup>
+import { ref } from "vue";
 import { useDisplay } from "vuetify";
-import {useUIStore} from "@/shared/store/ui";
-import {REPO_URL} from "@/shared/constants";
+import { useRouter } from "vue-router";
+import { useUIStore } from "@/shared/store/ui";
+import { REPO_URL } from "@/shared/constants";
 
 const uiStore = useUIStore();
 const display = useDisplay();
+const router = useRouter();
 
 const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
   {
@@ -18,6 +21,17 @@ const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
     href: `${REPO_URL}/wiki`
   }
 ];
+
+const searchText = ref<string>("");
+function startSearchEntity() {
+  router.push({
+    name: "SearchEntity",
+    query: {
+      q: searchText.value
+    }
+  });
+}
+
 </script>
 
 <template>
@@ -26,16 +40,30 @@ const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
       <v-app-bar-nav-icon
         :title="$t('layout.header.navBarTip')"
         variant="text"
+        :style="[display.mdAndDown.value ? 'margin-right: 10px' : '']"
         @click="uiStore.isNavBarOpen = !uiStore.isNavBarOpen"
       />
     </template>
 
-    <v-app-bar-title v-show="display.smAndUp.value" style="max-width: 220px">
+    <v-app-bar-title v-show="display.smAndUp.value" style="max-width: 160px">
       {{ $t("common.name") }}
     </v-app-bar-title>
 
-    <!-- TODO Full searchbox -->
-    <v-spacer />
+    <v-text-field
+      v-model="searchText"
+      hide-details
+      class="ptpp-search-input"
+      @keydown.enter="startSearchEntity"
+    >
+      <template #append-inner>
+        <!-- TODO 搜索方案 -->
+      </template>
+      <template #append>
+        <v-btn icon="mdi-magnify" @click="startSearchEntity" />
+      </template>
+    </v-text-field>
+
+    <v-spacer v-if="!display.mdAndDown.value" />
 
     <template #append>
       <!-- 处于大屏幕，完整显示所有btn -->
@@ -58,9 +86,6 @@ const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
 
       <!-- 处于小屏幕，只显示点，btn以menu列表形式展示 -->
       <template v-else>
-        <!-- TODO small searchbox -->
-        <v-btn icon="mdi-magnify" variant="text" />
-
         <v-menu
           v-if="display.mdAndDown.value"
           bottom
@@ -93,5 +118,9 @@ const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
 <style lang="scss" scoped>
 .menu-item:deep(.v-list-item__prepend > .v-icon) {
   margin-inline-end: 16px;
+}
+
+.ptpp-search-input:deep(.v-input__append) {
+  padding-top: 4px;
 }
 </style>
