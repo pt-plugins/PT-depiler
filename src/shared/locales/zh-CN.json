@@ -90,7 +90,7 @@
       "MyClient": "我的下载器",
       "MyCollection": "收藏列表",
       "MyData": "我的数据",
-      "SearchData": "搜索结果",
+      "SearchEntity": "搜索结果",
       "SearchResultSnapshot": "搜索结果快照",
       "default": "概览"
     },

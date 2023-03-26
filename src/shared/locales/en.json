@@ -90,7 +90,7 @@
       "MyClient": "My BtClient",
       "MyCollection": "Collection",
       "MyData": "My Data",
-      "SearchData": "Search Results",
+      "SearchEntity": "Search Results",
       "SearchResultSnapshot": "Search Snapshot",
       "default": "Overview"
     },

@@ -12,21 +12,28 @@ const uiStore = useUIStore();
     {{ $t('layout.init') }}
   </template>
 
-  <v-app v-else id="ptpp-next" :theme="uiStore.uiTheme">
-    <!-- 顶部工具条 -->
-    <Topbar />
+  <router-view v-else v-slot="{ Component, route }">
+    <v-app id="ptpp-next" :theme="uiStore.uiTheme">
+      <!-- 顶部工具条 -->
+      <Topbar />
 
-    <!-- 导航栏 -->
-    <Navigation />
+      <!-- 导航栏 -->
+      <Navigation />
 
-    <!-- 内容显示区域 -->
-    <v-main id="ptpp-main">
-      <router-view />
-    </v-main>
+      <!-- 内容显示区域 -->
+      <v-main id="ptpp-main">
+        <v-container fluid>
+          <keep-alive v-if="route.meta.keepAlive">
+            <component :is="Component" />
+          </keep-alive>
+          <component :is="Component" v-else />
+        </v-container>
+      </v-main>
 
-    <!-- 页脚 -->
-    <Footer />
-  </v-app>
+      <!-- 页脚 -->
+      <Footer />
+    </v-app>
+  </router-view>
 </template>
 
 <style lang="scss">

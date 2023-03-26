@@ -1,5 +1,4 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
-import ContentVue from "./components/Layout/Content.vue";
 
 function dynamicImportView (view: string) {
   return import(/* webpackChunkName: "views/[request]" */ `./views/${view}.vue`);
@@ -10,7 +9,6 @@ export const routes: RouteRecordRaw[] = [
     path: "/",
     name: "Overview",
     meta: { isMainMenu: true },
-    component: ContentVue,
     children: [
       {
         path: "/my-data",
@@ -20,10 +18,10 @@ export const routes: RouteRecordRaw[] = [
         component: () => dynamicImportView("Overview/MyData")
       },
       {
-        path: "/search-data",
-        name: "SearchData",
+        path: "/search-entity",
+        name: "SearchEntity",
         meta: { icon: "mdi-magnify" },
-        component: () => dynamicImportView("Overview/SearchData")
+        component: () => dynamicImportView("Overview/SearchEntity")
       },
       /**{
         path: '/my-client',
@@ -61,7 +59,6 @@ export const routes: RouteRecordRaw[] = [
     path: "/settings",
     name: "Settings",
     meta: { isMainMenu: true },
-    component: ContentVue,
     children: [
       {
         path: "/set-base",
@@ -105,7 +102,6 @@ export const routes: RouteRecordRaw[] = [
     path: "/about",
     name: "About",
     meta: { isMainMenu: true, keepAlive: true },
-    component: ContentVue,
     children: [
       {
         path: "/technology-stack",
@@ -131,7 +127,6 @@ export const routes: RouteRecordRaw[] = [
     path: "/devtools",
     name: "Devtools",
     meta: { isMainMenu: true },
-    component: ContentVue,
     children: [
       {
         path: "/system-log",
