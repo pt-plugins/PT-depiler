@@ -15,7 +15,7 @@ const {
   siteConfig
 } = useVModels(componentProps);
 
-const siteSearchParams = ref<Record<ISearchCategories["name"], ISearchParams[]>>({});
+const siteSearchParams = ref<Record<ISearchCategories["name"], ISearchParams["value"]>>({});
 const showPanel = ref<number[]>([]);
 
 watch([showDialog, siteConfig], () => {
@@ -23,25 +23,28 @@ watch([showDialog, siteConfig], () => {
   showPanel.value = [];
 
   siteConfig.value.search?.categories?.forEach((category, index) => {
-    const sp = siteConfig.value.defaultSearchParams
-      ?.filter(searchParams => searchParams.key === category.key)
-      .map(searchParams => ({key: category.key, value: searchParams.value})) ?? [];
-    siteSearchParams.value[category.key] = sp;
-    if (sp.length > 0) showPanel.value.push(index);
-
+    const definedSp = siteConfig.value.defaultSearchParams?.find(sp => sp.key === category.key)?.value;
+    siteSearchParams.value[category.key] = definedSp || (category.cross ? [] : category.options[0].value);
+    if (Array.isArray(definedSp) && definedSp.length > 0) {
+      showPanel.value.push(index);
+    }
   });
 });
 
 function checkBtnIndeterminate (category: ISearchCategories): boolean {
-  return siteSearchParams.value[category.key].length !== category.options.length;
+  const field = siteSearchParams.value[category.key];
+  if (Array.isArray(field)) {
+    return field.length !== category.options.length;
+  }
+  return false;
 }
 
 function clickAllBtn (field: ISearchCategories["name"], toggle: boolean) {
-  let fieldSp: ISearchParams[] = [];
+  let fieldSp: any = [];
   if (toggle) {
     const cat = siteConfig.value.search?.categories?.find(cat => cat.key === field);
     if (cat) {
-      fieldSp = cat.options.map(sp => ({key: cat.key, value: sp.value}));
+      fieldSp = cat.options.map(sp => sp.value);
     }
   }
 
@@ -50,14 +53,9 @@ function clickAllBtn (field: ISearchCategories["name"], toggle: boolean) {
 
 function saveSiteSearchParams () {
   const siteStore = useSiteStore();
-  const defaultSearchParams: ISearchParams[] = [];
-  Object.values(siteSearchParams.value).forEach(params => {
-    if (params.length > 0) {
-      defaultSearchParams.push(...params);
-    }
-  });
 
-  siteConfig.value.defaultSearchParams = defaultSearchParams;
+  siteConfig.value.defaultSearchParams = Object.entries(siteSearchParams.value)
+    .map(([key, params]) => ({ key, value: params }));
   siteStore.patchSite(siteConfig.value);
 
   showDialog.value = false;
@@ -113,7 +111,7 @@ function saveSiteSearchParams () {
                     <component
                       :is="category.cross?.mode ? 'v-checkbox' : 'v-radio'"
                       v-model="siteSearchParams[category.key]"
-                      :value="{key: category.key, value: options.value}"
+                      :value="options.value"
                       :label="options.name"
                       hide-details
                     />
