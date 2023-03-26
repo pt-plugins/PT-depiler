@@ -1,11 +1,24 @@
 <script lang="ts" setup>
-
 import { definitionList } from "@ptpp/site";
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { getSiteConfig, getSiteFavicon, getSiteInstance } from "@/shared/adapters/site";
 
 const selectedSite = ref();
 const useCustomerConfig = ref(true);
+
+const piniaStore = import.meta.webpackContext!("@/shared/store", {
+  regExp: /\.ts$/i
+});
+const piniaStoreName = computed(() => piniaStore.keys().map(x => ({title: x.replace(/^\.\//, "").replace(/\.ts$/, ""), value: x})));
+const selectedPiniaStore = ref();
+
+function getPiniaStore(storeName: string) {
+  const storeModule = piniaStore(storeName);
+  const storeFunction = Object.keys(storeModule).filter(f => /use.+Store/.test(f));
+  if (storeFunction.length > 0) {
+    return storeModule[storeFunction[0]]();
+  }
+}
 
 const log = async (v: any) => {
   console.log(await v);
@@ -42,24 +55,52 @@ const log = async (v: any) => {
                 <v-col cols="2">
                   <v-checkbox v-model="useCustomerConfig" label="合并用户配置" hide-details />
                 </v-col>
-                <v-col class="d-flex justify-space-around align-center">
+                <v-col class="d-flex align-center">
                   <v-btn
-                    :disabled="!selectedSite"
+                    class="mr-2" :disabled="!selectedSite"
                     @click="() => log(getSiteConfig(selectedSite, useCustomerConfig))"
                   >
-                    生成配置信息
+                    输出配置信息
                   </v-btn>
                   <v-btn
-                    :disabled="!selectedSite"
+                    class="mr-2" :disabled="!selectedSite"
                     @click="() => log(getSiteInstance(selectedSite, {flush: true, mergeUserConfig: useCustomerConfig}))"
                   >
-                    生成站点实例
+                    输出站点实例
                   </v-btn>
                   <v-btn
-                    :disabled="!selectedSite"
+                    class="mr-2" :disabled="!selectedSite"
                     @click="() => log(getSiteFavicon(selectedSite, true))"
                   >
-                    获取Favicon
+                    输出Favicon
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-container>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div class="d-flex justify-center align-center text-body-2">
+              调试Pinia
+            </div>
+          </td>
+          <td>
+            <v-container>
+              <v-row dense>
+                <v-col cols="4">
+                  <v-autocomplete
+                    v-model="selectedPiniaStore" label="piniaStore"
+                    :items="piniaStoreName"
+                    hide-details
+                  />
+                </v-col>
+                <v-col class="d-flex align-center">
+                  <v-btn
+                    class="mr-2" :disabled="!selectedPiniaStore"
+                    @click="() => log(getPiniaStore(selectedPiniaStore))"
+                  >
+                    输出Pinia信息
                   </v-btn>
                 </v-col>
               </v-row>
