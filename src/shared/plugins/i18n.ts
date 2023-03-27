@@ -33,6 +33,8 @@ export const i18nInstance = createI18n({
   globalInjection: true,
 });
 
+export const i18n = i18nInstance.global;
+
 watch(lang, (newLang) => {
   /**
    * NOTE:
