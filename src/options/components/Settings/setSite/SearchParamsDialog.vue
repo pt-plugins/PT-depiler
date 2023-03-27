@@ -55,7 +55,8 @@ function saveSiteSearchParams () {
   const siteStore = useSiteStore();
 
   siteConfig.value.defaultSearchParams = Object.entries(siteSearchParams.value)
-    .map(([key, params]) => ({ key, value: params }));
+    .map(([key, params]) => ({ key, value: params }))
+    .filter(({value}) => !(Array.isArray(value) && value.length == 0));
   siteStore.patchSite(siteConfig.value);
 
   showDialog.value = false;
