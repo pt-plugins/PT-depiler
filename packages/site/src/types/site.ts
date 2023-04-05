@@ -135,19 +135,6 @@ export interface ISiteMetadata {
      */
     requestConfig?: AxiosRequestConfig & { transferPostData?: transPostDataTo };
 
-    /**
-     * 跳过 IMDb 搜索，即如果传入字符串满足 tt\d{7,8} 时，该站点返回 空Array，
-     * 等同于旧版的配置项 "imdbSearch": false 或 "skipIMDbId": true
-     */
-    skipImdbSearch?: boolean;
-
-    /**
-     *
-     *
-     * @param config
-     */
-    imdbTransformer?: (config: AxiosRequestConfig) => AxiosRequestConfig;
-
     keywordsParam?: string; // 当不指定且未改写时，会导致keyword未被搜索使用
 
     /**
@@ -169,7 +156,7 @@ export interface ISiteMetadata {
          * @param filter 原始搜索条件，注意此处的 keywords 已经被去除了前缀 `${advanceKeywordType}|`
          */
         transformer?: (config: AxiosRequestConfig, filter: ISearchFilter) => AxiosRequestConfig
-      }
+      } | false  // 等同于 { skip: false }
     >
 
     categories?: ISearchCategories[]; // 站点对应搜索入口的种子分类信息

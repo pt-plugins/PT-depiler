@@ -167,7 +167,7 @@ export default class BittorrentSite {
       for (const [advanceField, advanceConfig] of Object.entries(this.config.search.advanceKeyword)) {
         if (filter.keywords.startsWith(`${advanceField}|`)) {
           // 检查是否跳过
-          if (advanceConfig.skip === true) {
+          if (advanceConfig === false || advanceConfig.skip === true) {
             result.status = ESearchResultParseStatus.passSearch;
             return result;
           }
