@@ -1,0 +1,217 @@
+{
+  "ChangeLog": {
+    "loadFail": "Failed to load the release notes, @:ChangeLog.seeReleasePage",
+    "loading": "Loading... (If it fails to load, @:ChangeLog.seeReleasePage )",
+    "noteCommit": "Changelog for this commit",
+    "noteVersion": "Changelog of the main version",
+    "seeReleasePage": "Please go to {releasePage} to view."
+  },
+  "Donate": {
+    "note": "This project is completed by the author in his spare time. You can support the author's continued development through donations.",
+    "thanks": "Thank you for your attention and support"
+  },
+  "SpecialThank": {
+    "contributor": "Contributors",
+    "issue": "Suggesters",
+    "langContributor": "@:SpecialThank.contributor For Language",
+    "preWorkContributor": "@:SpecialThank.contributor For preliminary work",
+    "sortByName": "The list is sorted by name",
+    "thankNote": [
+      "During the development and testing of this project, they have given a lot of help and support (or development, or testing, or sending invite, or suggesting, or encouraging, or spurring), thank you.",
+      "Since we can't list all the people who helped, Please understand if there are any omissions.",
+      "Thanks for these at the same time:"
+    ]
+  },
+  "TechnologyStack": {
+    "dependency": "Dependencies of this Project",
+    "ptppHistory": "History of Project ` @:common.name `",
+    "stackTableColumn": {
+      "homepage": "Homepage"
+    },
+    "thankNote": "The birth of 'PT Plugin Plus' is established on the base of these projects. Thanks all the participants of the project, thanks for your contribution!"
+  },
+  "common": {
+    "action": "Action",
+    "btn": {
+      "add": "Add"
+    },
+    "checkbox": {
+      "all": "ALL"
+    },
+    "default": "default",
+    "dialog": {
+      "cancel": "Cancel",
+      "next": "Next",
+      "ok": "Complete",
+      "prev": "Prev",
+      "reset": "Reset",
+      "title": {
+        "confirmAction": "Confirm Action"
+      }
+    },
+    "edit": "Edit",
+    "language": "Language",
+    "name": "Name",
+    "project": "PT Plugin Plus",
+    "remove": "Delete",
+    "sortIndex": "Priority",
+    "test": "Text",
+    "version": "Version"
+  },
+  "layout": {
+    "header": {
+      "emptySearchNotice": "Get the first page of each tracker",
+      "home": "Home",
+      "navBarTip": "Click to show/hide the navigation bar",
+      "search": "Search",
+      "searchPlan": {
+        "all": "<All Sites>",
+        "default": "<Default>"
+      },
+      "searchTip": "Input keyword, IMDb numbers to search",
+      "wiki": "Wiki",
+      "wrongPixelRatioNotice": "Your page display may be affected by zooming. It is recommended to zoom at 100% to ensure your browsing experience~"
+    },
+    "init": "Not Ready, please wait for UI init."
+  },
+  "route": {
+    "About": {
+      "ChangeLog": "Change Log",
+      "Donate": "Donate",
+      "SpecialThank": "Special Thanks",
+      "TechnologyStack": "Project Reference",
+      "default": "About"
+    },
+    "Devtools": {
+      "Debugger": "Debugger",
+      "SystemLog": "System Log",
+      "default": "Devtools"
+    },
+    "Overview": {
+      "DownloadHistory": "Download History",
+      "KeepUploadTask": "Reseed Task",
+      "MyClient": "My BtClient",
+      "MyCollection": "Collection",
+      "MyData": "My Data",
+      "SearchEntity": "Search Results",
+      "SearchResultSnapshot": "Search Snapshot",
+      "default": "Overview"
+    },
+    "Settings": {
+      "default": "Settings",
+      "setBackup": "Backup & Restore",
+      "setBase": "General",
+      "setDownloadPaths": "Download Paths",
+      "setDownloader": "Download Server",
+      "setSearchSolution": "Search Solution",
+      "setSite": "Sites"
+    }
+  },
+  "setBase": {
+    "tab": {
+      "ui": "Option UI"
+    },
+    "ui": {
+      "changeLanguage": "Switch Language",
+      "displayMode": {
+        "auto": "Auto (Follow Browser or System)",
+        "dark": "Dark Mode",
+        "index": "UI display mode",
+        "light": "Light Mode"
+      }
+    }
+  },
+  "setDownloader": {
+    "add": {
+      "NoneSelectNotice": "Please select a server type",
+      "newType": "Come here to add the server type you want!",
+      "step": {
+        "selectType": "Select server type",
+        "setOptions": "Configuration"
+      },
+      "title": "Add Download Client"
+    },
+    "common": {
+      "address": "Server Address",
+      "name": "Server Name",
+      "type": "Type",
+      "uid": "Server Id",
+      "username": "Username"
+    },
+    "delete": {
+      "text": "Are you sure to delete these {0} Download Servers?"
+    },
+    "edit": {
+      "title": "Edit Download Server"
+    },
+    "editor": {
+      "addressTip": "Full Server Address (may include port or path), Like: http://192.168.1.1:5000/",
+      "autoStart": "Automatically start downloading when sending a torrent",
+      "connect": {
+        "default": "Check Connect",
+        "error": "Connect Failed! Check Form Input or Download Server",
+        "success": "Connect Successful! You can enter next step."
+      },
+      "nameTip": "Pick a nice and recognizable name for this Download Server",
+      "password": "Password",
+      "timeout": "Timeout (seconds)",
+      "uidPlaceholder": " (Generate automatically)"
+    },
+    "index": {
+      "changeDefaultDownloader": "Change Default Downloader Successful!",
+      "emptyNotice": "Before using the download service, you need to add at least one download server.",
+      "remove": {
+        "multi": "Are you sure to delete these {count} download servers?",
+        "single": "Are you sure to delete this download server?"
+      },
+      "table": {
+        "action": {
+          "deleteDownloader": "Delete this downloader server",
+          "setDefault": "Set this downloader server as Default Downloader."
+        }
+      }
+    }
+  },
+  "setSite": {
+    "add": {
+      "selectSitePlaceholder": "Please Select a site to add (support search in url and site name)",
+      "title": "Add Site"
+    },
+    "common": {
+      "aka": "AKA",
+      "allowQueryUserInfo": "Allow access USP",
+      "allowSearch": "Allow Search",
+      "isOffline": "Offline",
+      "name": "Site Name",
+      "showMessageCount": "Show Notice",
+      "tags": "Tags",
+      "type": "Type",
+      "url": "URL"
+    },
+    "delete": {
+      "text": "Are you sure to delete these {0} Site?"
+    },
+    "edit": {
+      "title": "Edit Site Config"
+    },
+    "editor": {
+      "addUrlTip": "Add a site url which you current used, for example: https://example.com/",
+      "description": "Site description",
+      "sortIndexTip": "Can be used for search sorting",
+      "tagTip": "press Enter to add multiple. ( Only first 4 tags will show on lists )",
+      "timezone": "Timezone"
+    },
+    "index": {
+      "settingNote": [
+        "Only the configured site will display the plugin icon and the corresponding function;",
+        "the offline site will no longer participate in the search and information acquisition;"
+      ]
+    },
+    "spDialog": {
+      "noDefNotice": "This site does not define any search categories, please go to help!",
+      "notice": "It is not recommended to set it here, and it is recommended to configure your user CP in site or use search solution",
+      "selectAllNotice": "(Notice: In most cases, you don't need to select all search terms! )",
+      "title": "Set default search params for Site {name}"
+    }
+  }
+}

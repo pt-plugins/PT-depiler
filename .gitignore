@@ -1,17 +1,29 @@
-/artifacts
+node_modules
+dist
+dist-ssr
+*.local
 
-# local env files
-.env.local
-.env.*.local
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
 # Editor directories and files
-.idea
 .vscode
+.idea
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+
+# local env files
+.env.local
+.env.*.local
 
 # Vue Browser Extension Output
 *.pem
@@ -72,16 +84,6 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-### Node template
-# Logs
-logs
-*.log
-pnpm-debug.log*
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
-
 # Diagnostic reports (https://nodejs.org/api/report.html)
 report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 
@@ -125,6 +127,7 @@ web_modules/
 
 # Optional npm cache directory
 .npm
+.npmrc
 
 # Optional eslint cache
 .eslintcache
@@ -158,7 +161,6 @@ out
 
 # Nuxt.js build / generate output
 .nuxt
-dist
 
 # Gatsby files
 .cache/
@@ -190,4 +192,6 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+
 

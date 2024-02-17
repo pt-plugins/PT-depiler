@@ -1,10 +1,9 @@
 {
   "extName": {
-    "message": "ptpp-next",
+    "message": "PT Depiler",
     "description": "The title of the application, displayed in the web store."
   },
   "extDesc": {
-    "message": "Next PTPP",
-    "description":"The description of the application, displayed in the web store."
+    "message": "PT Depiler"
   }
 }

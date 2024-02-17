@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es2018",
-    "module": "esnext",
+    "target": "ES2022",
+    "module": "ESNext",
     "strict": true,
     "jsx": "preserve",
     "importHelpers": true,
@@ -9,40 +9,39 @@
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
-    "noImplicitReturns": false,
+    "noImplicitReturns": true,
     "noImplicitOverride": true,
+    "useDefineForClassFields": true,
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "experimentalDecorators": true,
     "resolveJsonModule": true,
-    "sourceMap": true,
     "baseUrl": ".",
     "types": [
       "node",
-      "chrome",
-      "webpack-env"
+      "chrome"
     ],
     "paths": {
-      "@/*": [
-        "src/*"
-      ]
+      "~/*": ["src/*"],
+      "@/*": ["src/entries/*"],
+      "@ptd/*": ["src/packages/*"]
     },
     "lib": [
-      "ESNEXT",
+      "ESNext",
       "DOM",
-      "DOM.Iterable",
-      "ScriptHost"
-    ]
+      "DOM.Iterable"
+    ],
+
   },
-  "include": [
-    "src/*.ts",
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/**/*.vue",
-    "tests/**/*.ts",
-    "tests/**/*.tsx"
-  ],
+  "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
   "exclude": [
     "node_modules"
-  ]
+  ],
+  "references": [{ "path": "./tsconfig.node.json" }]
 }
