@@ -1,19 +1,20 @@
 <script lang="ts" setup>
+import {ref} from "vue";
+import {useI18n} from "vue-i18n";
+import {REPO_URL} from "@/shared/constants.ts";
 
-import { ref } from "vue";
-import { REPO_URL } from "@/shared/constants";
-import { useI18n } from "vue-i18n";
-import SolutionLabels from "@/options/components/Settings/setSearchSolution/SolutionLabels.vue";
-import { storedSearchSolution, useSiteStore } from "@/shared/store/site";
-import EditorDialog from "@/options/components/Settings/setSearchSolution/EditorDialog.vue";
+import EditorDialog from "./EditorDialog.vue";
+import DeleteDialog from "./DeleteDialog.vue";
+import SolutionLabels from "./SolutionLabels.vue";
 
+import {storedSearchSolution, useSiteStore} from "@/shared/store/site.ts";
 
-const { t } = useI18n();
+const {t} = useI18n();
 const siteStore = useSiteStore();
 
 const showEditorDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
-const toDoSolution = ref<storedSearchSolution> ();
+
 
 const searchSolutionTableHeader = [
   {
@@ -44,6 +45,8 @@ const searchSolutionTableHeader = [
   }
 ];
 
+const toDoSolution = ref<storedSearchSolution>();
+
 function addSearchSolution() {
   toDoSolution.value = {
     id: "",
@@ -54,15 +57,17 @@ function addSearchSolution() {
   showEditorDialog.value = true;
 }
 
-function editSearchSolution(solution) {
+function editSearchSolution(solution: storedSearchSolution) {
   toDoSolution.value = solution;
   showEditorDialog.value = true;
 }
 
-function deleteSearchSolution(solution) {
-  siteStore.removeSearchSolution(solution.id);
-}
+const toDeleteSolutionId = ref<string>("");
 
+function deleteSearchSolution(solutionId: string) {
+  toDeleteSolutionId.value = solutionId;
+  showDeleteDialog.value = true;
+}
 </script>
 
 <template>
@@ -78,7 +83,7 @@ function deleteSearchSolution(solution) {
         >
           {{ $t("common.btn.add") }}
         </v-btn>
-        <v-divider class="mx-3" inset vertical />
+        <v-divider class="mx-3" inset vertical/>
         <v-btn
           :href="REPO_URL + '/wiki'" color="info"
           rel="noopener noreferrer nofollow"
@@ -87,7 +92,7 @@ function deleteSearchSolution(solution) {
         >
           如何使用
         </v-btn>
-        <v-spacer />
+        <v-spacer/>
         <v-text-field
           append-icon="mdi-magnify"
           label="Search"
@@ -105,14 +110,14 @@ function deleteSearchSolution(solution) {
       must-sort :sort-by="[{key: 'sort', order: 'asc'}, {key: 'name', order: 'asc'}]"
     >
       <template #item.name="{item}">
-        {{ '<' + siteStore.getSolutionName(item.raw.id) + '>' }}
+        {{ '<' + siteStore.getSolutionName(item.id) + '>' }}
       </template>
 
       <template #item.solution="{ item }">
-        <span v-if="item.raw.id === 'default'">
+        <span v-if="item.id === 'default'">
           默认搜索配置请在站点页面进行配置
         </span>
-        <SolutionLabels v-else :solution="item.raw" />
+        <SolutionLabels v-else :solution="item"/>
       </template>
       <template #item.action="{ item }">
         <v-btn-group variant="plain">
@@ -120,22 +125,23 @@ function deleteSearchSolution(solution) {
             size="small" icon="mdi-pencil"
             :title="$t('common.edit')"
             color="info"
-            :disabled="item.raw.id === 'default'"
-            @click="editSearchSolution(item.raw)"
+            :disabled="item.id === 'default'"
+            @click="editSearchSolution(item)"
           />
           <v-btn
             size="small" icon="mdi-delete"
             color="error"
             :title="$t('common.remove')"
-            :disabled="item.raw.id === 'default'"
-            @click="deleteSearchSolution(item.raw)"
+            :disabled="item.id === 'default'"
+            @click="deleteSearchSolution(item.id)"
           />
         </v-btn-group>
       </template>
     </v-data-table>
   </v-card>
 
-  <EditorDialog v-model="showEditorDialog" :solution="toDoSolution" />
+  <EditorDialog v-model="showEditorDialog" :solution="toDoSolution"/>
+  <DeleteDialog v-model="showDeleteDialog" :to-delete-id="toDeleteSolutionId"/>
 </template>
 
 <style scoped></style>

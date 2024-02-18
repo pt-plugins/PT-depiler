@@ -31,7 +31,7 @@ const toggleExpand = useToggle(showExpand);
     <v-icon
       v-if="props.expand && props.expand.length > 0" style="max-width: 20px"
       :icon="showExpand ? 'mdi-chevron-up' : 'mdi-chevron-down'"
-      @click="toggleExpand()"
+      @click="toggleExpand"
     />
   </div>
 </template>

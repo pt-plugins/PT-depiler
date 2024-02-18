@@ -60,6 +60,7 @@ async function saveSite() {
         <!-- TODO want: v-stepper -->
         <v-window v-model="currentStep">
           <v-window-item :key="0">
+            <!-- FIXME https://github.com/vuetifyjs/vuetify/pull/19104 -->
             <v-autocomplete
               v-model="selectedSite"
               :items="canAddSites"
@@ -82,7 +83,7 @@ async function saveSite() {
               <template #item="{ props, item: {value: item} }">
                 <v-list-item
                   v-bind="props"
-                  title=""
+                  :title="item.name"
                   :prepend-avatar="siteFavicons[item.id] || ''"
                   :subtitle="item.url ?? ''"
                 >
@@ -90,11 +91,6 @@ async function saveSite() {
                     <v-list-item-action>
                       <TypeAndSchemaChip :site="item" direction="row" />
                     </v-list-item-action>
-                  </template>
-                  <template #title>
-                    <v-list-item-title>
-                      {{ item.name }}
-                    </v-list-item-title>
                   </template>
                 </v-list-item>
               </template>

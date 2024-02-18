@@ -25,5 +25,6 @@ watch(lang, (newLang) => {
    */
   document.querySelector("html")?.setAttribute("lang", newLang);
 
+  // @ts-ignore
   i18n.locale.value = newLang;
 });

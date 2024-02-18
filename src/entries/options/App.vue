@@ -21,6 +21,7 @@ function setIgnoreWrongPixelRatio() {
   </template>
   <router-view v-else  v-slot="{ Component, route }">
     <v-app id="ptd" :theme="uiStore.uiTheme">
+      <!-- 页面比例提示 -->
       <v-system-bar
         v-if="(pixelRatio > 1 || pixelRatio < 0.8) && !uiStore.ignoreWrongPixelRatio"
         color="purple-darken-2" class="justify-center"
@@ -29,6 +30,7 @@ function setIgnoreWrongPixelRatio() {
         <v-icon icon="mdi-close" class="ms-2" @click="setIgnoreWrongPixelRatio" />
       </v-system-bar>
 
+      <!-- 顶部工具条 -->
       <Topbar />
 
       <!-- 导航栏 -->

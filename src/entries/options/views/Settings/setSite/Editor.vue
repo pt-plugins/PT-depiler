@@ -134,7 +134,7 @@ const timeZone: Array<{value: timezoneOffset, title: string}> = [
               icon="mdi-delete" variant="text"
               color="error"
               :disabled="siteUrls.length <= 1"
-              @click="() => deleteUrl(url)"
+              @click="deleteUrl(url)"
             />
           </template>
         </v-radio>

@@ -9,7 +9,7 @@ const buildInfo = computedAsync(getBuildInfo);
 <template>
   <v-footer id="ptpp-footer" app fixed>
     <span class="pl-2 grey--text text--darken-1">
-      PTPP-next &copy; {{ year }},
+      PT-Depiler &copy; {{ year }},
       {{ $t('common.version') }}
       <span>
         {{ EXT_VERSION }}<a

@@ -2,6 +2,8 @@
 
 </script>
 
-<template>setDownloadPaths</template>
+<template>
+  setDownloadPaths
+</template>
 
 <style scoped></style>

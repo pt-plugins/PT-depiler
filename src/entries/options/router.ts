@@ -1,9 +1,5 @@
 import {createRouter, createWebHashHistory, RouteRecordRaw} from "vue-router";
 
-function dynamicImportView(viewName: string) {
-  return () => import(`./views/${viewName}.vue`);
-}
-
 export const routes: RouteRecordRaw[] = [
   {
     path: "/",
@@ -17,13 +13,14 @@ export const routes: RouteRecordRaw[] = [
         meta: { icon: "mdi-view-dashboard" },
         component: () => import("./views/Overview/MyData.vue")
       },
+      {
+        path: "/search-entity",
+        name: "SearchEntity",
+        meta: { icon: "mdi-magnify", keepAlive: true },
+        component: () => import("./views/Overview/SearchEntity.vue"),
+      },
       /**
-       * {
-       *         path: "/search-entity",
-       *         name: "SearchEntity",
-       *         meta: { icon: "mdi-magnify", keepAlive: true },
-       *         component: () => import("./views/Overview/SearchEntity.vue"),
-       *       },
+       *
        *       {
        *         path: '/my-client',
        *         name: 'MyClient',
@@ -75,16 +72,12 @@ export const routes: RouteRecordRaw[] = [
         meta: { icon: "mdi-earth" },
         component: () => import("./views/Settings/setSite/Index.vue")
       },
-      /**
-       *
-       *             {
-       *         path: "/set-search-solution",
-       *         name: "setSearchSolution",
-       *         meta: { icon: "mdi-widgets" },
-       *         component: () => import("./views/Settings/setSearchSolution.vue")
-       *       },
-       */
-
+      {
+        path: "/set-search-solution",
+        name: "setSearchSolution",
+        meta: { icon: "mdi-widgets" },
+        component: () => import("./views/Settings/setSearchSolution/Index.vue")
+      },
       {
         path: "/set-downloader",
         name: "setDownloader",

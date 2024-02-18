@@ -61,19 +61,19 @@ const log = async (v: any) => {
                 <v-col class="d-flex align-center">
                   <v-btn
                     class="mr-2" :disabled="!selectedSite"
-                    @click="() => log(getSiteConfig(selectedSite, useCustomerConfig))"
+                    @click="log(getSiteConfig(selectedSite, useCustomerConfig))"
                   >
                     输出配置信息
                   </v-btn>
                   <v-btn
                     class="mr-2" :disabled="!selectedSite"
-                    @click="() => log(getSiteInstance(selectedSite, {flush: true, mergeUserConfig: useCustomerConfig}))"
+                    @click="log(getSiteInstance(selectedSite, {flush: true, mergeUserConfig: useCustomerConfig}))"
                   >
                     输出站点实例
                   </v-btn>
                   <v-btn
                     class="mr-2" :disabled="!selectedSite"
-                    @click="() => log(getSiteFavicon(selectedSite, true))"
+                    @click="log(getSiteFavicon(selectedSite, true))"
                   >
                     输出Favicon
                   </v-btn>
@@ -101,7 +101,7 @@ const log = async (v: any) => {
                 <v-col class="d-flex align-center">
                   <v-btn
                     class="mr-2" :disabled="!selectedPiniaStore"
-                    @click="() => log(getPiniaStore(selectedPiniaStore))"
+                    @click="log(getPiniaStore(selectedPiniaStore))"
                   >
                     输出Pinia信息
                   </v-btn>

@@ -15,7 +15,7 @@
           <v-container>
             <v-row>
               <a href="https://github.com/ronggang" target="_blank">ronggang</a>
-              <v-spacer />
+              <v-spacer/>
               <v-chip label color="primary">
                 Creator
               </v-chip>
@@ -23,7 +23,6 @@
           </v-container>
         </v-card-title>
         <v-card-text>
-          <v-img src="/img/donate/ronggang.png" />
           <v-btn
             variant="text"
             color="warning" href="https://www.paypal.me/ronggang"
@@ -41,7 +40,7 @@
           <v-container>
             <v-row>
               <a href="https://github.com/Rhilip" target="_blank">Rhilip</a>
-              <v-spacer />
+              <v-spacer/>
               <v-chip label color="green">
                 Maintainer
               </v-chip>
@@ -49,7 +48,6 @@
           </v-container>
         </v-card-title>
         <v-card-text>
-          <v-img src="/img/donate/Rhilip.png" />
           <v-btn
             variant="text"
             color="warning" href="https://blog.rhilip.info"

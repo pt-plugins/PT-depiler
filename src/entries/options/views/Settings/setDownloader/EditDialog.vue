@@ -1,10 +1,9 @@
 <script lang="ts" setup>
-import {ref, toRaw, watch} from "vue";
+import {ref, watch} from "vue";
 import { useVModels } from "@vueuse/core";
 import { useDownloaderStore } from "@/shared/store/downloader.ts";
 import type { DownloaderBaseConfig } from "@ptd/downloader";
 import Editor from "./Editor.vue";
-import {copy} from "@ptd/util/filter.ts";
 
 const downloaderStore = useDownloaderStore();
 
@@ -21,7 +20,7 @@ const isClientConfigValid = ref<boolean>(true);  // 修改时默认配置合法
 const clientConfig = ref<DownloaderBaseConfig>();
 watch(() => componentProps.clientConfig, () => {
   if (componentProps.clientConfig.id) {
-    clientConfig.value = copy(componentProps.clientConfig);  // 防止直接修改父组件的数据
+    clientConfig.value = {...componentProps.clientConfig};  // 防止直接修改父组件的数据
   }
 });
 

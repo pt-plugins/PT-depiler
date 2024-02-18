@@ -2,7 +2,7 @@
 import { useVModels } from "@vueuse/core";
 import { ISiteRuntimeConfig } from "@/shared/adapters/site.ts";
 import { useSiteStore } from "@/shared/store/site.ts";
-import SiteSPExpansionPanel from "@/options/components/Settings/setSearchSolution/siteSPExpansionPanel.vue";
+import SiteSPExpansionPanel from "@/options/views/Settings/setSearchSolution/siteSPExpansionPanel.vue";
 
 const componentProps = defineProps<{
   modelValue: boolean,
