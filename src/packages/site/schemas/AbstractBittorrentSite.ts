@@ -8,21 +8,16 @@ import {
   ISiteMetadata,
   ITorrent,
   ITorrentTag,
-  transPostDataTo,
   NeedLoginError,
   NoTorrentsError,
+  transPostDataTo,
 } from "../types";
-import type { TQueryFilter } from "../utils";
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
+import type {TQueryFilter} from "../utils";
+import {cfDecodeEmail, parseSizeString, parseTimeWithZone, runFilter,} from "../utils";
+import axios, {AxiosError, AxiosRequestConfig, AxiosResponse} from "axios";
 import Sizzle from "sizzle";
 import urlJoin from "url-join";
-import { chunk, get, merge, pick } from "lodash-es";
-import {
-  runFilter,
-  cfDecodeEmail,
-  parseSizeString,
-  parseTimeWithZone,
-} from "../utils";
+import {chunk, get, merge, pick} from "lodash-es";
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   search: {},
@@ -30,7 +25,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export default class BittorrentSite {
-  protected readonly config: ISiteMetadata; // 实际过程中使用的配置文件
+  public readonly config: ISiteMetadata; // 实际过程中使用的配置文件
 
   constructor (config: ISiteMetadata) {
     this.config = config;
@@ -207,6 +202,7 @@ export default class BittorrentSite {
           axiosConfig
         })
       );
+      result.status = ESearchResultParseStatus.success;
     } catch (e) {
       if (e instanceof NeedLoginError) {
         result.status = ESearchResultParseStatus.needLogin;
@@ -491,14 +487,11 @@ export default class BittorrentSite {
     torrent: ITorrent,
     requestConfig: ISearchRequestConfig
   ): ITorrent {
-    // 检查种子的id属性是否存在，如果不存在，则由 url, link 属性替代
-    if (!torrent.id) {
-      if (torrent.url) {
-        torrent.id = torrent.url;
-      } else if (torrent.link) {
-        torrent.id = torrent.link;
-      }
-    }
+    // 补全种子的 site 属性
+    torrent.site ??= this.config.id!;
+
+    // 补全种子的 id 属性，如果不存在，则由 url, link 属性替代
+    torrent.id ??= torrent.url || torrent.link;
 
     for (const [key, value] of Object.entries(torrent)) {
       let updateValue = value;

@@ -6,7 +6,7 @@
  */
 import { defineStore } from "pinia";
 import { usePreferredDark } from "@vueuse/core";
-import { useBrowserStore } from "@/shared/browser/storage";
+import { useBrowserStore } from "@/shared/browser/storage.ts";
 
 interface ILangMetaData {
   title: string,
@@ -45,7 +45,17 @@ export const useUIStore = defineStore("ui", {
     {
       theme: "light" as supportThemeType,
       isNavBarOpen: true,
-      ignoreWrongPixelRatio: false
+      ignoreWrongPixelRatio: false,
+      tableBehavior: {
+        setSite: {
+          sortBy: [
+            { key: "sortIndex", order: "desc" },
+            { key: "isOffline", order: "asc" },
+            { key: "allowSearch", order: "desc" },
+            { key: "allowQueryUserInfo", order: "desc" }
+          ]
+        }
+      }
     }
   ),
   getters: {

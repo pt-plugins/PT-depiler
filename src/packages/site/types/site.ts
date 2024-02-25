@@ -58,6 +58,14 @@ export type listSelectors = {
     }[];
   }; // Tags相关选择器
 
+export interface ISiteUserInputMeta {
+  name: string, // 名称
+  key: string, // 键
+  hint: string, // 提示
+  required: boolean, // 是否必填
+}
+
+
 /**
  * 站点配置，这部分配置由系统提供，并随着每次更新而更新
  */
@@ -134,7 +142,7 @@ export interface ISiteMetadata {
   search?: {
     /**
      * 搜索时进行请求，为了避免过于重复/麻烦的配置项
-     * 设置了默认的 AxiosRequestConfig 为 { responseType: 'document', url: '/' }
+     * 设置了默认的 AxiosRequestConfig 垫片，其值为 { responseType: 'document', url: '/' }
      * 则意味则如果是 json 返回，应该自己覆写 responseType
      */
     requestConfig?: AxiosRequestConfig & { transferPostData?: transPostDataTo };
@@ -193,6 +201,12 @@ export interface ISiteMetadata {
   };
 
   /**
+   * 是否允许查询该站点个人信息，未指定时默认为 true
+   * 比 ISiteBaseMetadata.feature.queryUserInfo 优先级低
+   */
+  allowQueryUserInfo?: boolean;
+
+  /**
    * 该配置项仅对 基于 PrivateSite 模板，且未改写 flushUserInfo 的站点生效
    */
   userInfo?: {
@@ -224,9 +238,9 @@ export interface ISiteMetadata {
     selectors?: { [userinfoKey in keyof IUserInfo]?: IElementQuery }; // 用户信息相关选择器
   };
 
-  /**
-   * 是否允许查询该站点个人信息，未指定时默认为 true
-   * 比 ISiteBaseMetadata.feature.queryUserInfo 优先级低
+  /** TODO
+   * 极其特殊的情况下，我们可能需要用户输入一些字段，这些字段对应的表单将会在用户配置站点时展示，
+   * 并被最终设置到 config.userInput 中，以便后续使用
    */
-  allowQueryUserInfo?: boolean;
+  userInputMeta?: ISiteUserInputMeta[];
 }

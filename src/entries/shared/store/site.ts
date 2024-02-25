@@ -1,21 +1,16 @@
-import { nanoid } from "nanoid";
-import { remove } from "lodash-es";
-import { defineStore } from "pinia";
-import { computedAsync } from "@vueuse/core";
-import { ISearchParamsMap, type SiteID } from "@ptd/site";
-import { faviconCache, getSiteConfig, getSiteFavicon, diffSiteConfig, ISiteRuntimeConfig } from "@/shared/adapters/site";
-import { i18n } from "@/shared/plugins/i18n";
+import {nanoid} from "nanoid";
+import {remove} from "lodash-es";
+import {defineStore} from "pinia";
+import {ISearchParamsMap, type ITorrent, type SiteID} from "@ptd/site";
+import {diffSiteConfig, getSiteConfig, getSiteFavicon, ISiteRuntimeConfig} from "@/shared/adapters/site";
+import {i18n} from "@/shared/plugins/i18n";
 
-// 在store中缓存favicon对象，以保持单一性
-export const siteFavicons = computedAsync(async () => {
-  const ret: Record<string, string | false> = {};
-  await faviconCache.iterate(function (value: string, key: string) {
-    ret[key] = value;
-  });
-  return ret;
-}, {});
+export {faviconCache as siteFavicons} from "@/shared/adapters/site";
+
+type PlanId = string;
 
 export interface searchPlan {
+  id: string,
   site: SiteID,
   filters: ISearchParamsMap
 }
@@ -29,10 +24,15 @@ export interface storedSearchSolution {
   sort?: number
 }
 
+export interface ISearchTorrent extends ITorrent {
+  plan: PlanId
+}
+
 export const useSiteStore = defineStore("site", {
   persist: true,
   state: () => ({
     sites: {} as Record<SiteID, ISiteRuntimeConfig>,
+    defaultSearchSolution: 'default',
     searchSolutions: {
       default: {
         id: "default",
@@ -76,16 +76,16 @@ export const useSiteStore = defineStore("site", {
     },
 
     getSolutionPlan: (state) => {
-      return (id: SolutionId) => {
+      return (id: SolutionId): Required<storedSearchSolution> => {
         if (id === "default") {
-          /**
-           * 由于对于默认搜索方案，所有的字段都定义在 ISiteRuntimeConfig.defaultSearchParams 上，
-           * 所以此处需要从 siteStore 中遍历获取
-           */
-          return Object.entries(state.sites)
+          state.searchSolutions['default'].plan = Object.entries(state.sites)
             .map(([site, config]) => ({
-              site, filters: config.defaultSearchParams ?? []
-            }));
+              id: site,
+              site,
+              filters: config.defaultSearchParams ?? []
+            }) as searchPlan);
+
+          return state.searchSolutions['default'];
         } else {
           return state.searchSolutions[id];
         }

@@ -5,6 +5,7 @@ import {useVModel} from "@vueuse/core";
 import {ISiteRuntimeConfig} from "@/shared/adapters/site.ts";
 import type {storedSearchSolution} from "@/shared/store/site.ts";
 import {find} from "lodash-es";
+import {nanoid} from "nanoid";
 
 const componentProps = defineProps<{
   solution: storedSearchSolution,
@@ -64,8 +65,8 @@ function perAddSiteSearchSolution(site: ISiteRuntimeConfig) {
 
   if (!find(solutionRef.value.plan, addSearchSolution)) {
     solutionRef.value.plan.push({
-      site: site.id,
-      filters: planFilter,
+      ...addSearchSolution,
+      id: nanoid()  // 为该方案生成一个唯一的ID
     });
   }
 

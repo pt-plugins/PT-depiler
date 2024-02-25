@@ -38,6 +38,7 @@
     "localforage": "^1.10.0",
     "lodash-es": "^4.17.21",
     "nanoid": "^5.0.5",
+    "p-queue": "^8.0.1",
     "parse-torrent": "^11.0.16",
     "pinia": "^2.1.7",
     "sizzle": "^2.3.10",

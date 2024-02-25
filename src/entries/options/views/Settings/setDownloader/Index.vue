@@ -77,9 +77,7 @@ function deleteDownloader (clientId: string | string[]) {
 </script>
 
 <template>
-  <v-alert type="info">
-    {{ $t("route.Settings.setDownloader") }}
-  </v-alert>
+  <v-alert type="info" :title="$t('route.Settings.setDownloader')" />
   <v-card class="set-downloader">
     <v-card-title>
       <v-row class="ma-0">

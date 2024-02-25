@@ -1,10 +1,10 @@
 import {isEqual, pick} from "lodash-es";
-import {createInstance as createLocalforageInstance} from "localforage";
 import {
   getSite as createSiteInstance,
   getFavicon, getDefinedSiteConfig, getFaviconMetadata,
   type SiteID, type TSite, type ISiteMetadata as ISiteDefinedMetadata, type ISearchParamsMap,
 } from "@ptd/site";
+import {useLocalStorage} from "@vueuse/core";
 
 export interface ISiteRuntimeConfig extends Partial<ISiteDefinedMetadata> {
   id: SiteID;
@@ -13,6 +13,7 @@ export interface ISiteRuntimeConfig extends Partial<ISiteDefinedMetadata> {
   sortIndex?: number;  // 排序号
   showMessageCount?: boolean;
 
+  userInput?: Record<string, any>;  // 用户输入的站点配置
   defaultSearchParams?: ISearchParamsMap; // 默认搜索模块（强烈不推荐使用！更建议在站点配置中配置或使用搜索方案！）
 }
 
@@ -22,7 +23,7 @@ const pickList: Array<keyof ISiteRuntimeConfig> = [
   // ISiteDefinedMetadata 中定义的boolean类型字段
   "isOffline", "allowSearch", "allowQueryUserInfo",
   // ISiteRuntimeConfig 中额外定义的字段
-  "entryPoint", "sortIndex", "showMessageCount", "defaultSearchParams"
+  "entryPoint", "sortIndex", "showMessageCount", "defaultSearchParams", "userInput"
 ];
 
 export async function diffSiteConfig(site: ISiteRuntimeConfig, mergeUserConfig: boolean = true) {
@@ -50,6 +51,7 @@ export async function getSiteConfig(siteId: SiteID, mergeUserConfig: boolean = t
   // 此处补全一些和 ISiteRuntimeConfig 有关的字段
   siteMetaData.sortIndex ??= 100;
   siteMetaData.showMessageCount ??= Object.hasOwn(siteMetaData, "userInfo") && siteMetaData.allowQueryUserInfo === true;
+  siteMetaData.userInput ??= {};
   siteMetaData.defaultSearchParams ??= {};
 
   return siteMetaData as unknown as ISiteDefinedMetadata;
@@ -71,21 +73,18 @@ export async function getSiteInstance(siteId: SiteID, options: { flush?: boolean
   return siteInstanceCache[siteId];
 }
 
-export const faviconCache = createLocalforageInstance({
-  name: "Favicon",
-});
+export const faviconCache = useLocalStorage<Record<string, string>>("PTD_SiteFavicon", {});
 
 export async function getSiteFavicon(site: SiteID | getFaviconMetadata, flush: boolean = false) {
   const siteId = typeof site === "string" ? site : site.id;
 
-  let siteFavicon = await faviconCache.getItem<string>(siteId) ?? false;
+  let siteFavicon = faviconCache.value[siteId] ?? false;
   if (flush || !siteFavicon) {
     const siteConfig = typeof site === "string" ? await getSiteConfig(siteId) : site;
     if (siteConfig) {
       siteFavicon = await getFavicon(siteConfig);
 
-      // noinspection ES6MissingAwait
-      faviconCache.setItem(siteId, siteFavicon);
+      faviconCache.value[siteId] = siteFavicon;
     }
   }
   return siteFavicon;

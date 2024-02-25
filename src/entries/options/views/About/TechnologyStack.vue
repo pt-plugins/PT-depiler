@@ -2,7 +2,7 @@
 import axios from "axios";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { useStorage } from "@vueuse/core";
+import {useLocalStorage} from "@vueuse/core";
 import pkg from '~/../package.json';
 import {REPO_URL} from "@/shared/constants.ts";
 
@@ -38,7 +38,7 @@ interface ITData {
   url: string
 }
 
-const technologyData = useStorage<Record<string, ITData>>("technology-data", {
+const technologyData = useLocalStorage<Record<string, ITData>>("PTD_TechnologyData", {
   Jackett: {
     name: "Jackett",
     version: "latest",
@@ -83,7 +83,7 @@ const TechnologyStackTableHeader = [
   {
     title: t("TechnologyStack.stackTableColumn.homepage"),
     key: "url",
-    align: "left",
+    align: "start",
     filterable: false,
     sortable: false,
   },

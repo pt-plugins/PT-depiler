@@ -13,11 +13,9 @@ import SearchParamsDialog from "@/options/views/Settings/setSite/SearchParamsDia
 import ExpandInfo from "@/options/views/Settings/setSite/ExpandInfo.vue";
 import TypeAndSchemaChip from "@/options/views/Settings/setSite/TypeAndSchemaChip.vue";
 import EditDialog from "@/options/views/Settings/setSite/EditDialog.vue";
-import { useRuntimeStore } from "@/shared/store/runtime.ts";
 
 const { t } = useI18n();
 const siteStore = useSiteStore();
-const runtimeStore = useRuntimeStore();
 
 const showAddDialog = ref<boolean>(false);
 const showEditDialog = ref<boolean>(false);
@@ -137,9 +135,7 @@ function lightSiteSearchEntityBtn(sp: ISearchParamsMap): boolean {
 </script>
 
 <template>
-  <v-alert type="info">
-    {{ $t("route.Settings.setSite") }}
-  </v-alert>
+  <v-alert type="info" :title="$t('route.Settings.setSite')" />
   <v-card>
     <v-card-title>
       <v-row class="ma-0">

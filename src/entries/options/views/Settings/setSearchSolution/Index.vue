@@ -20,13 +20,13 @@ const searchSolutionTableHeader = [
   {
     title: t("common.name"),
     key: "name",
-    align: "left",
+    align: "start",
     width: 150
   },
   {
     title: "范围",
     key: "solution",
-    align: "left",
+    align: "start",
     filterable: false,
     sortable: false,
   },
@@ -71,9 +71,7 @@ function deleteSearchSolution(solutionId: string) {
 </script>
 
 <template>
-  <v-alert type="info">
-    搜索方案定义
-  </v-alert>
+  <v-alert type="info" :title="`搜索方案定义`" />
   <v-card>
     <v-card-title>
       <v-row class="ma-0">

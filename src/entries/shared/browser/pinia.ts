@@ -3,7 +3,7 @@
  */
 import { ref, type Ref } from "vue";
 import { PiniaPluginContext, MutationType } from "pinia";
-import { persistent, restore } from "./storage";
+import { persistent, restore } from "./storage.ts";
 
 export interface PersistedStateOptions {
   /**

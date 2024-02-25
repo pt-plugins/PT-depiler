@@ -31,7 +31,9 @@ export interface ITorrentTag {
 
 // 作为一个种子最基本应该有的属性
 export interface ITorrent {
-  id: number | string;
+  site: string, // 所在站点id
+
+  id: number | string;  // 该种子id
   title: string; // 主标题
   subTitle?: string; // 次标题
 
