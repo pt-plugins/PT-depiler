@@ -14,6 +14,7 @@ lerna-debug.log*
 
 # Editor directories and files
 .vscode
+!.vscode/extensions.json
 .idea
 *.suo
 *.ntvs*
@@ -192,6 +193,3 @@ out
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
-
-
-
