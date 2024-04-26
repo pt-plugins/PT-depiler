@@ -68,7 +68,15 @@ export const siteMetadata: ISiteMetadata = {
       {
         requestConfig: { url: "/userdetails.php" },
         assertion: { id: "id" },
-        fields: ["uploaded", "downloaded", "ratio", "levelName", "joinTime", "seeding", "seedingSize"],
+        fields: [
+          "uploaded",
+          "downloaded",
+          "ratio",
+          "levelName",
+          "joinTime",
+          "seeding",
+          "seedingSize",
+        ],
       },
     ],
     selectors: {
@@ -114,7 +122,8 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseNumber" }],
       },
       seedingSize: {
-        selector: "td.colhead:contains('Seed'):contains('bonus') + td > div > b:nth-child(2):last", // FIXME  这里同时用了 :nth-child(2):last 似乎有问题
+        selector:
+          "td.colhead:contains('Seed'):contains('bonus') + td > div > b:nth-child(2):last", // FIXME  这里同时用了 :nth-child(2):last 似乎有问题
         filters: [{ name: "parseSize" }],
       },
     },

@@ -24,8 +24,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     advanceKeyword: {
       imdb: {
-        skip: true
-      }
+        skip: true,
+      },
     },
     selectors: {
       // 建立group基本信息: category, title, url, time, size, author , seeders, leechers, completed, comments
@@ -91,7 +91,10 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["a.username[href*='user.php']:first"],
       },
       messageCount: {
-        selector: ["div.alert-bar > a[href*='inbox.php']", "div.alertbar > a[href*='inbox.php']"],
+        selector: [
+          "div.alert-bar > a[href*='inbox.php']",
+          "div.alertbar > a[href*='inbox.php']",
+        ],
         filters: [
           (query: string) => {
             const queryMatch = query.match(/(\d+)/);
@@ -176,7 +179,7 @@ export default class morethantv extends PrivateSite {
       // 搜索种子信息 id, link, subTitle
       const torrentAnother = Sizzle(
         'td:has(> .torrent_icon_container:has(a[href^="/torrents.php?action=download"]))',
-        tr
+        tr,
       );
       torrentAnother.forEach((t) => {
         const torrentInfo = this.getFieldsData(t, "search", ["id", "link", "subTitle"]);

@@ -26,8 +26,8 @@ export const siteMetadata: ISiteMetadata = {
             query === "--"
               ? ETorrentStatus.unknown
               : parseFloat(query) >= 100
-              ? ETorrentStatus.completed
-              : ETorrentStatus.inactive,
+                ? ETorrentStatus.completed
+                : ETorrentStatus.inactive,
         ],
       },
     },

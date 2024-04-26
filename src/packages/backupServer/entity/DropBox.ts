@@ -35,9 +35,7 @@ export const serverConfig: DropBoxConfig = {
 };
 
 export const serverMetaData: IBackupMetadata<DropBoxConfig> = {
-  requiredField: [
-    { name: "access_token", key: "access_token", type: "string" },
-  ],
+  requiredField: [{ name: "access_token", key: "access_token", type: "string" }],
 };
 
 interface DropBoxBaseEntry {
@@ -101,9 +99,7 @@ export default class DropBox implements IBackupServer<DropBoxConfig> {
     this.accessToken = config.config.access_token;
   }
 
-  private async request<T>(
-    config: AxiosRequestConfig
-  ): Promise<AxiosResponse<T>> {
+  private async request<T>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return axios.request<T>(
       merge(
         {
@@ -113,8 +109,8 @@ export default class DropBox implements IBackupServer<DropBoxConfig> {
           },
           responseType: "json",
         },
-        config
-      )
+        config,
+      ),
     );
   }
 
@@ -184,9 +180,7 @@ export default class DropBox implements IBackupServer<DropBoxConfig> {
     while (hasMore) {
       // @ts-ignore
       const { data } = await this.request<DropBoxList>({
-        url: `https://api.dropboxapi.com/2/files/list_folder${
-          cursor ? "/continue" : ""
-        }`,
+        url: `https://api.dropboxapi.com/2/files/list_folder${cursor ? "/continue" : ""}`,
         data: cursor ? { cursor } : { path: "" },
       });
 
@@ -196,7 +190,7 @@ export default class DropBox implements IBackupServer<DropBoxConfig> {
             filename: dropboxEntry.name,
             path: dropboxEntry.path_display,
             time: +new Date(
-              dropboxEntry.client_modified || dropboxEntry.server_modified
+              dropboxEntry.client_modified || dropboxEntry.server_modified,
             ),
             size: dropboxEntry.size,
           } as IBackupFileInfo);

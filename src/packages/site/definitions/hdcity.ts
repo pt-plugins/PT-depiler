@@ -65,7 +65,7 @@ export const siteMetadata: ISiteMetadata = {
           config.params.search_area = 1; // params "&search_area=1"
           return config;
         },
-      }
+      },
     },
     selectors: {
       rows: {
@@ -96,29 +96,20 @@ export const siteMetadata: ISiteMetadata = {
       progress: {
         selector: ["div.pbo div.pbc.sd, div.pbo div.pbc.ns, .pbo div.pbc.dl"],
         elementProcess: (element: HTMLElement) => {
-          if (
-            element.classList.contains("sd") ||
-            element.classList.contains("ns")
-          ) {
+          if (element.classList.contains("sd") || element.classList.contains("ns")) {
             return 100;
           } else if (element.classList.contains("dl")) {
             const queryMatch = (element.getAttribute("style") || "").match(
-              /width:([ \d.]+)%/
+              /width:([ \d.]+)%/,
             );
-            return queryMatch && queryMatch.length >= 2
-              ? parseFloat(queryMatch[1])
-              : 0;
+            return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0;
           } else {
             return 0;
           }
         },
       },
       status: {
-        selector: [
-          "div.pbo div.pbc.sd",
-          "div.pbo div.pbc.ns",
-          ".pbo div.pbc.dl",
-        ],
+        selector: ["div.pbo div.pbc.sd", "div.pbo div.pbc.ns", ".pbo div.pbc.dl"],
         elementProcess: (element: HTMLElement) => {
           if (element.classList.contains("sd")) {
             return ETorrentStatus.seeding;
@@ -141,9 +132,7 @@ export const siteMetadata: ISiteMetadata = {
         filters: [
           (query: string) => {
             const queryMatch = query.match(/\d+/);
-            return queryMatch && queryMatch.length >= 1
-              ? parseInt(queryMatch[0])
-              : 0;
+            return queryMatch && queryMatch.length >= 1 ? parseInt(queryMatch[0]) : 0;
           },
         ],
       },
@@ -211,13 +200,13 @@ export default class hdcity extends NexusPHP {
     const userId = this.getFieldData(
       userDetailDocument,
       // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-      this.config.userInfo?.selectors?.id!
+      this.config.userInfo?.selectors?.id!,
     );
     return parseInt(userId);
   }
 
   protected override async requestUserDetailsPage(
-    userId: number | null
+    userId: number | null,
   ): Promise<Document> {
     const { data: userDetailDocument } = await this.request<Document>({
       url: "/userdetails",
@@ -230,7 +219,7 @@ export default class hdcity extends NexusPHP {
 
   protected override async requestUserSeedingPage(
     userId: number,
-    type: string = "seeding"
+    type: string = "seeding",
   ): Promise<string | null> {
     const { data } = await this.request<string>({
       url: "/getusertorrentlistajax",

@@ -13,7 +13,8 @@ export const siteMetadata: ISiteMetadata = {
     keywordsParam: "keywords",
     selectors: {
       rows: {
-        selector: 'table.forum_header_border tr[name="hover"].forum_header_border:has(a.magnet)',
+        selector:
+          'table.forum_header_border tr[name="hover"].forum_header_border:has(a.magnet)',
       },
       id: {
         selector: "td:nth-child(2) a",
@@ -39,7 +40,9 @@ export const siteMetadata: ISiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Eztv extends BittorrentSite {
-  protected override async transformSearchFilter(filter: ISearchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter(
+    filter: ISearchFilter,
+  ): Promise<AxiosRequestConfig> {
     const config = await super.transformSearchFilter(filter);
     config.url = filter.keywords ? `/search/${filter.keywords}` : "/";
     return config;

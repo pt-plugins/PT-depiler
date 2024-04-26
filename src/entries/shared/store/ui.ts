@@ -9,9 +9,9 @@ import { usePreferredDark } from "@vueuse/core";
 import { useBrowserStore } from "@/shared/browser/storage.ts";
 
 interface ILangMetaData {
-  title: string,
-  value: string,
-  authors: readonly string[],
+  title: string;
+  value: string;
+  authors: readonly string[];
 }
 
 /**
@@ -31,33 +31,33 @@ export const definedLangMetaData: readonly ILangMetaData[] = [
   },
 ] as const;
 
-
-export const lang = useBrowserStore<typeof definedLangMetaData[number]["value"]>("ui_language", "en");
+export const lang = useBrowserStore<(typeof definedLangMetaData)[number]["value"]>(
+  "ui_language",
+  "en",
+);
 
 export const supportTheme = ["auto", "light", "dark"] as const;
-type supportThemeType = typeof supportTheme[number];
+type supportThemeType = (typeof supportTheme)[number];
 
-const preferDark =  usePreferredDark();
+const preferDark = usePreferredDark();
 
 export const useUIStore = defineStore("ui", {
   persist: true,
-  state: () => (
-    {
-      theme: "light" as supportThemeType,
-      isNavBarOpen: true,
-      ignoreWrongPixelRatio: false,
-      tableBehavior: {
-        setSite: {
-          sortBy: [
-            { key: "sortIndex", order: "desc" },
-            { key: "isOffline", order: "asc" },
-            { key: "allowSearch", order: "desc" },
-            { key: "allowQueryUserInfo", order: "desc" }
-          ]
-        }
-      }
-    }
-  ),
+  state: () => ({
+    theme: "light" as supportThemeType,
+    isNavBarOpen: true,
+    ignoreWrongPixelRatio: false,
+    tableBehavior: {
+      setSite: {
+        sortBy: [
+          { key: "sortIndex", order: "desc" },
+          { key: "isOffline", order: "asc" },
+          { key: "allowSearch", order: "desc" },
+          { key: "allowQueryUserInfo", order: "desc" },
+        ],
+      },
+    },
+  }),
   getters: {
     uiTheme(): Exclude<supportThemeType, "auto"> {
       if (this.theme === "auto") {
@@ -68,7 +68,7 @@ export const useUIStore = defineStore("ui", {
 
     isLightUiTheme(): boolean {
       return this.uiTheme === "light";
-    }
+    },
   },
-  actions: {}
+  actions: {},
 });

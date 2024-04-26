@@ -51,9 +51,11 @@ declare module "pinia" {
   }
 }
 
-
 export default function piniaBridgePlugin(context: PiniaPluginContext) {
-  const {options: {persist}, store} = context;
+  const {
+    options: { persist },
+    store,
+  } = context;
 
   if (!persist) {
     return {};
@@ -66,7 +68,7 @@ export default function piniaBridgePlugin(context: PiniaPluginContext) {
     autoSaveType = false,
     beforeRestore = null,
     afterRestore = null,
-    onRestoreError = null
+    onRestoreError = null,
   } = typeof persist !== "boolean" ? persist : {};
 
   const $ready = ref(false);
@@ -76,15 +78,17 @@ export default function piniaBridgePlugin(context: PiniaPluginContext) {
     initialValue: store.$state,
     storage: storageArea,
     writeDefaults: writeDefaultState,
-    onError: onRestoreError
-  })
-    .then(value => {
-      store.$patch(value as unknown as typeof store.$state);
-      $ready.value = true;
-      afterRestore?.(context);
-    });
+    onError: onRestoreError,
+  }).then((value) => {
+    store.$patch(value as unknown as typeof store.$state);
+    $ready.value = true;
+    afterRestore?.(context);
+  });
 
-  function onChanged(changes: Record<string, chrome.storage.StorageChange>, areaName: string) {
+  function onChanged(
+    changes: Record<string, chrome.storage.StorageChange>,
+    areaName: string,
+  ) {
     if (areaName === storageArea && Object.hasOwn(changes, key)) {
       store.$patch(changes[key].newValue);
     }
@@ -98,8 +102,7 @@ export default function piniaBridgePlugin(context: PiniaPluginContext) {
       // HACK: we might want to find a better way of deeply unwrapping a reactive object.
       await persistent(key, newState, storageArea);
       chrome.storage.onChanged.addListener(onChanged);
-    } catch (_error) {
-    }
+    } catch (_error) {}
   };
 
   if (autoSaveType && Array.isArray(autoSaveType)) {
@@ -116,5 +119,5 @@ export default function piniaBridgePlugin(context: PiniaPluginContext) {
     store.$dispose();
   };
 
-  return {$dispose, $save, $ready};
+  return { $dispose, $save, $ready };
 }

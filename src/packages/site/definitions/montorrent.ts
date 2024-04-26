@@ -51,7 +51,10 @@ export const siteMetadata: ISiteMetadata = {
       category: {
         selector: 'a[href*="id_cat"]',
         attr: "class",
-        filters: [(q: string) => q.replace("liste-categorie-couleur ", ""), (q: string) => CategoryMap.get(q)],
+        filters: [
+          (q: string) => q.replace("liste-categorie-couleur ", ""),
+          (q: string) => CategoryMap.get(q),
+        ],
       },
     },
   },

@@ -27,15 +27,15 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     advanceKeyword: {
       imdb: {
-        skip: true
-      }
+        skip: true,
+      },
     },
   },
 };
 
 export default class sogoimusic extends GazelleJSONAPI {
   protected override async getUserSeedingTorrents(
-    userId?: number
+    userId?: number,
   ): Promise<Partial<IUserInfo>> {
     const { data: userPage } = await this.request<Document>({
       url: "/user.php",

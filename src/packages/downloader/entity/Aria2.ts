@@ -36,8 +36,8 @@ export const clientMetaData: TorrentClientMetaData = {
       description: CustomPathDescription,
     },
     DefaultAutoStart: {
-      allowed: true
-    }
+      allowed: true,
+    },
   },
 };
 
@@ -143,11 +143,11 @@ export default class Aria2 extends AbstractBittorrentClient {
   private _wsClient: WebSocket;
   private _msgId = 0;
 
-  get msgId () {
+  get msgId() {
     return this._msgId++;
   }
 
-  constructor (options: Partial<DownloaderBaseConfig>) {
+  constructor(options: Partial<DownloaderBaseConfig>) {
     super({ ...clientConfig, ...options });
 
     // 修正服务器地址
@@ -161,7 +161,10 @@ export default class Aria2 extends AbstractBittorrentClient {
     this._wsClient = new WebSocket(address.replace(/^http/, "ws"));
   }
 
-  private async methodSend<T> (methodName: METHODS, params: any[] = []): Promise<jsonRPCResponse<T>> {
+  private async methodSend<T>(
+    methodName: METHODS,
+    params: any[] = [],
+  ): Promise<jsonRPCResponse<T>> {
     return new Promise((resolve, reject) => {
       let postParams;
       if (methodName === "system.multicall") {
@@ -190,13 +193,13 @@ export default class Aria2 extends AbstractBittorrentClient {
         JSON.stringify({
           method: methodName,
           id: msgId,
-          params: postParams
-        })
+          params: postParams,
+        }),
       );
     });
   }
 
-  async ping (): Promise<boolean> {
+  async ping(): Promise<boolean> {
     try {
       const { result: pingData } = await this.methodSend<{
         version: string;
@@ -208,7 +211,7 @@ export default class Aria2 extends AbstractBittorrentClient {
     }
   }
 
-  protected async getClientVersionFromRemote (): Promise<string> {
+  protected async getClientVersionFromRemote(): Promise<string> {
     const { result: versionData } = await this.methodSend<{
       version: string;
       enabledFeatures: string[];
@@ -217,7 +220,7 @@ export default class Aria2 extends AbstractBittorrentClient {
   }
 
   // Aria2 只能知道当前的传输速度，其他都不知道
-  override async getClientStatus (): Promise<TorrentClientStatus> {
+  override async getClientStatus(): Promise<TorrentClientStatus> {
     const { result: statusData } = await this.methodSend<{
       downloadSpeed: string;
       uploadSpeed: string;
@@ -228,7 +231,10 @@ export default class Aria2 extends AbstractBittorrentClient {
     };
   }
 
-  async addTorrent (url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
+  async addTorrent(
+    url: string,
+    options: Partial<CAddTorrentOptions> = {},
+  ): Promise<boolean> {
     const addOption: any = {
       pause: options.addAtPaused ?? false,
     };
@@ -263,20 +269,22 @@ export default class Aria2 extends AbstractBittorrentClient {
     }
   }
 
-  async getAllTorrents (): Promise<CTorrent<rawTask>[]> {
+  async getAllTorrents(): Promise<CTorrent<rawTask>[]> {
     const torrents: CTorrent[] = [];
-    const { result: tasks } = await this.methodSend<[[rawTask[]], [rawTask[]], [rawTask[]]]>("system.multicall", [
+    const { result: tasks } = await this.methodSend<
+      [[rawTask[]], [rawTask[]], [rawTask[]]]
+    >("system.multicall", [
       {
         methodName: "aria2.tellActive",
-        params: []
+        params: [],
       },
       {
         methodName: "aria2.tellWaiting",
-        params: [0, 1000]
+        params: [0, 1000],
       },
       {
         methodName: "aria2.tellStopped",
-        params: [0, 1000]
+        params: [0, 1000],
       },
     ] as multiCallParams);
 
@@ -292,37 +300,33 @@ export default class Aria2 extends AbstractBittorrentClient {
     return torrents;
   }
 
-  override async getTorrent (id: string): Promise<CTorrent<rawTask>> {
-    const { result: task } = await this.methodSend<rawTask>(
-      "aria2.tellStatus",
-      [id]
-    );
+  override async getTorrent(id: string): Promise<CTorrent<rawTask>> {
+    const { result: task } = await this.methodSend<rawTask>("aria2.tellStatus", [id]);
     return this.parseRawTorrent(task);
   }
 
-  async pauseTorrent (id: string): Promise<boolean> {
+  async pauseTorrent(id: string): Promise<boolean> {
     await this.methodSend<string>("aria2.pause", [id]);
     return true;
   }
 
-  async removeTorrent (id: string, removeData?: boolean): Promise<boolean> {
+  async removeTorrent(id: string, removeData?: boolean): Promise<boolean> {
     await this.methodSend<string>("aria2.remove", [id]);
     await this.methodSend<"OK">("aria2.removeDownloadResult", [id]);
     return true;
   }
 
-  async resumeTorrent (id: any): Promise<boolean> {
+  async resumeTorrent(id: any): Promise<boolean> {
     await this.methodSend<string>("aria2.unpause", [id]);
     return true;
   }
 
-  private parseRawTorrent (rawTask: rawTask): CTorrent<rawTask> {
+  private parseRawTorrent(rawTask: rawTask): CTorrent<rawTask> {
     const progress = rawTask.completedLength / rawTask.totalLength || 0;
     let state = CTorrentState.unknown;
     switch (rawTask.status) {
       case "active":
-        state =
-          progress >= 100 ? CTorrentState.seeding : CTorrentState.downloading;
+        state = progress >= 100 ? CTorrentState.seeding : CTorrentState.downloading;
         break;
 
       case "error":

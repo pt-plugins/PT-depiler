@@ -7,11 +7,11 @@ import { ISiteMetadata } from "../types";
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   search: {},
-  userInfo: {}
+  userInfo: {},
 };
 
 export default class PrivateSite extends BittorrentSite {
-  get allowQueryUserInfo() : boolean {
+  get allowQueryUserInfo(): boolean {
     return this.isOnline && !(this.config.allowQueryUserInfo === false);
   }
 
@@ -19,9 +19,7 @@ export default class PrivateSite extends BittorrentSite {
    * 获得当前站点最新的用户信息用于更新
    * 这里获取 lastUserInfo 以及 保存/更新 UserInfo 均由调用的上层完成
    */
-  public async getUserInfo(
-    lastUserInfo: Partial<IUserInfo> = {}
-  ): Promise<IUserInfo> {
+  public async getUserInfo(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     if (!this.config.userInfo?.process) {
       throw new Error("尚不支持，未定义 userInfo 属性或处理流程");
     } else {
@@ -44,7 +42,7 @@ export default class PrivateSite extends BittorrentSite {
         // 检查相关元素是否已有
         const existField = intersection(
           thisUserInfo.fields,
-          Object.keys(flushUserInfo)
+          Object.keys(flushUserInfo),
         );
         if (existField.length === thisUserInfo.fields.length) {
           continue; // 如果全部数据都有则直接跳过本轮
@@ -56,17 +54,17 @@ export default class PrivateSite extends BittorrentSite {
           AxiosRequestConfig & { transferPostData?: transPostDataTo }
         >(
           { url: "/", params: {}, responseType: "document" },
-          thisUserInfo.requestConfig
+          thisUserInfo.requestConfig,
         );
         if (thisUserInfo.assertion) {
           for (const [requiredField, paramsKey] of Object.entries(
-            thisUserInfo.assertion
+            thisUserInfo.assertion,
           )) {
             if (flushUserInfo[requiredField]) {
               if (requestConfig.url?.includes(`$${paramsKey}$`)) {
                 requestConfig.url = requestConfig.url.replace(
                   `$${paramsKey}$`,
-                  flushUserInfo[requiredField]
+                  flushUserInfo[requiredField],
                 );
               } else {
                 requestConfig.params[paramsKey!] = flushUserInfo[requiredField];
@@ -82,7 +80,7 @@ export default class PrivateSite extends BittorrentSite {
             requestConfig.transferPostData || "raw";
           requestConfig.data = this.transferPostData(
             requestConfig.params,
-            transferPostData
+            transferPostData,
           );
           if (transferPostData !== "raw") {
             requestConfig.params = {}; // 清空 params 参数
@@ -95,7 +93,7 @@ export default class PrivateSite extends BittorrentSite {
           ...this.getFieldsData(
             dataDocument,
             "userInfo",
-            difference(thisUserInfo.fields, Object.keys(flushUserInfo))
+            difference(thisUserInfo.fields, Object.keys(flushUserInfo)),
           ),
         };
       }
@@ -107,21 +105,14 @@ export default class PrivateSite extends BittorrentSite {
   /**
    * 这是一个比较通用的检查是否登录方法，如果不行请考虑覆写扩展
    */
-  protected override loggedCheck(
-    res: AxiosResponse,
-    strict: boolean = false
-  ): boolean {
+  protected override loggedCheck(res: AxiosResponse, strict: boolean = false): boolean {
     const request = res.request as XMLHttpRequest;
     try {
-      if (
-        /doLogin|login|verify|checkpoint|returnto/gi.test(request.responseURL)
-      ) {
+      if (/doLogin|login|verify|checkpoint|returnto/gi.test(request.responseURL)) {
         return false; // 检查最终的URL看是不是需要登陆
       } else if (
         res.headers.refresh &&
-        /\d+; url=.+(login|verify|checkpoint|returnto).+/gi.test(
-          res.headers.refresh
-        )
+        /\d+; url=.+(login|verify|checkpoint|returnto).+/gi.test(res.headers.refresh)
       ) {
         return false; // 检查responseHeader有没有重定向
       } else if (strict) {

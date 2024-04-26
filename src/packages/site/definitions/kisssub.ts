@@ -5,7 +5,8 @@ import dayjs from "../utils/datetime";
 export const siteMetadata: ISiteMetadata = {
   name: "爱恋动漫",
   type: "public",
-  description: "爱恋BT分享站，动画～漫画～游戏～动漫音乐～片源（RAW）～各类ACG资源聚集地～欢迎各大佬发布入住！",
+  description:
+    "爱恋BT分享站，动画～漫画～游戏～动漫音乐～片源（RAW）～各类ACG资源聚集地～欢迎各大佬发布入住！",
   url: "http://www.kisssub.org/",
   search: {
     requestConfig: { url: "/search.php" },
@@ -39,7 +40,10 @@ export const siteMetadata: ISiteMetadata = {
                 standard.add(-2, "days");
               }
 
-              return dayjs(`${standard.format("YYYY/MM/DD")} ${timeRawPattern[2]}`, "YYYY/MM/DD HH:mm").valueOf();
+              return dayjs(
+                `${standard.format("YYYY/MM/DD")} ${timeRawPattern[2]}`,
+                "YYYY/MM/DD HH:mm",
+              ).valueOf();
             } else {
               return dayjs(q, "YYYY/MM/DD").valueOf();
             }
@@ -61,7 +65,7 @@ export default class Kisssub extends BittorrentSite {
     const transformTorrent = super.parseRowToTorrent(row);
     // 我们只要知道hash就可以种子了，但是如果不传入name的话，种子命名是 `{hash}.torrent`
     transformTorrent.link = `http://v2.uploadbt.com/?r=down&hash=${transformTorrent.id}&name=${encodeURIComponent(
-      transformTorrent.title as string
+      transformTorrent.title as string,
     )}`;
 
     return transformTorrent;

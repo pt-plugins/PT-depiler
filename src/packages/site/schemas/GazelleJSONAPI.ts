@@ -253,8 +253,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       joinTime: {
         selector: ["response.stats.joinedDate"],
         filters: [
-          (query: string) =>
-            dayjs(query).isValid() ? dayjs(query).valueOf() : query,
+          (query: string) => (dayjs(query).isValid() ? dayjs(query).valueOf() : query),
         ],
       },
       seeding: {
@@ -274,7 +273,7 @@ export default class GazelleJSONAPI extends PrivateSite {
 
   protected async requestApi<T extends jsonResponse>(
     action: apiType,
-    params: { [key: string]: any }
+    params: { [key: string]: any },
   ): Promise<AxiosResponse<T>> {
     return await this.request<T>({
       url: "/ajax.php",
@@ -284,10 +283,7 @@ export default class GazelleJSONAPI extends PrivateSite {
   }
 
   protected async requestApiInfo(): Promise<infoJsonResponse> {
-    const { data: apiInfo } = await this.requestApi<infoJsonResponse>(
-      "index",
-      {}
-    );
+    const { data: apiInfo } = await this.requestApi<infoJsonResponse>("index", {});
     return apiInfo;
   }
 
@@ -303,7 +299,7 @@ export default class GazelleJSONAPI extends PrivateSite {
   }
 
   protected async transformUnGroupTorrent(
-    group: torrentBrowseResult
+    group: torrentBrowseResult,
   ): Promise<ITorrent> {
     const { authkey, passkey } = await this.getAuthKey();
 
@@ -328,7 +324,7 @@ export default class GazelleJSONAPI extends PrivateSite {
 
   protected async transformGroupTorrent(
     group: groupBrowseResult,
-    torrent: groupTorrent
+    torrent: groupTorrent,
   ): Promise<ITorrent> {
     const { authkey, passkey } = await this.getAuthKey();
     return {
@@ -341,9 +337,7 @@ export default class GazelleJSONAPI extends PrivateSite {
         (torrent.remastered ? ` / ${torrent.remasterYear}` : "") +
         (torrent.remasterTitle ? ` / ${torrent.remasterTitle}` : "") +
         (torrent.scene ? " / Scene" : "") +
-        (torrent.isFreeleech ||
-        torrent.isNeutralLeech ||
-        torrent.isPersonalFreeleech
+        (torrent.isFreeleech || torrent.isNeutralLeech || torrent.isPersonalFreeleech
           ? " / Freeleech"
           : ""),
       url: `/torrents.php?id=${group.groupId}&torrentid=${torrent.torrentId}`,
@@ -359,7 +353,7 @@ export default class GazelleJSONAPI extends PrivateSite {
   }
 
   protected override async transformSearchPage(
-    doc: browseJsonResponse | any
+    doc: browseJsonResponse | any,
   ): Promise<ITorrent[]> {
     const torrents: ITorrent[] = [];
 
@@ -371,7 +365,7 @@ export default class GazelleJSONAPI extends PrivateSite {
           for (const rawTorrent of group.torrents) {
             const torrent: ITorrent = await this.transformGroupTorrent(
               group,
-              rawTorrent
+              rawTorrent,
             );
             torrents.push(torrent);
           }
@@ -386,7 +380,7 @@ export default class GazelleJSONAPI extends PrivateSite {
   }
 
   public override async getUserInfo(
-    lastUserInfo: Partial<IUserInfo> = {}
+    lastUserInfo: Partial<IUserInfo> = {},
   ): Promise<IUserInfo> {
     let userInfo: Partial<IUserInfo> = {};
     userInfo = { ...userInfo, ...(await this.getUserBaseInfo()) };
@@ -413,18 +407,14 @@ export default class GazelleJSONAPI extends PrivateSite {
     ]);
   }
 
-  protected async getUserExtendInfo(
-    userId: number
-  ): Promise<Partial<IUserInfo>> {
+  protected async getUserExtendInfo(userId: number): Promise<Partial<IUserInfo>> {
     const apiUser = await this.requestApi<userJsonResponse>("user", {
       id: userId,
     });
     return this.getFieldsData(apiUser, "userInfo", ["joinTime", "seeding"]);
   }
 
-  protected async getUserSeedingTorrents(
-    userId?: number
-  ): Promise<Partial<IUserInfo>> {
+  protected async getUserSeedingTorrents(userId?: number): Promise<Partial<IUserInfo>> {
     const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
 
     const { data: seedPage } = await this.request<Document>({
@@ -435,14 +425,14 @@ export default class GazelleJSONAPI extends PrivateSite {
     const rows = Sizzle("tr.torrent_row > td.nobr", seedPage);
     rows.forEach((element) => {
       userSeedingTorrent.seedingSize! += parseSizeString(
-        (element as HTMLElement).innerText.trim()
+        (element as HTMLElement).innerText.trim(),
       );
     });
 
     if (this.config.userInfo?.selectors?.bonus) {
       userSeedingTorrent.bonus = this.getFieldData(
         seedPage,
-        this.config.userInfo.selectors.bonus
+        this.config.userInfo.selectors.bonus,
       );
     }
 

@@ -5,9 +5,15 @@ import BittorrentSite from "../schemas/AbstractBittorrentSite";
 export const siteMetadata: ISiteMetadata = {
   name: "ETTV",
   type: "public",
-  description: "ETTV is a Public torrent site for TV / MOVIES, home of the  ETTV, ETHD and DTOne groups.",
+  description:
+    "ETTV is a Public torrent site for TV / MOVIES, home of the  ETTV, ETHD and DTOne groups.",
   url: "https://www.ettvcentral.com/",
-  legacyUrls: ["https://www.ettv.tv/", "https://www.ettv.to/", "https://www.ettvdl.com/", "https://www.ettv.be/"],
+  legacyUrls: [
+    "https://www.ettv.tv/",
+    "https://www.ettv.to/",
+    "https://www.ettvdl.com/",
+    "https://www.ettv.be/",
+  ],
   category: {
     key: "cat",
     options: [
@@ -96,9 +102,7 @@ export const siteMetadata: ISiteMetadata = {
         text: "Other",
         selector: "td:nth-child(1) a",
         attr: "href",
-        filters: [
-          {name: "querystring", args:["cat"]},
-        ],
+        filters: [{ name: "querystring", args: ["cat"] }],
       },
       author: { selector: "td:nth-child(8)" },
     },
@@ -112,7 +116,9 @@ export const siteMetadata: ISiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Ettv extends BittorrentSite {
-  protected override async transformSearchFilter(filter: ISearchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter(
+    filter: ISearchFilter,
+  ): Promise<AxiosRequestConfig> {
     const config = await super.transformSearchFilter(filter);
     config.url = filter.keywords ? "/torrents-search.php" : "/torrents.php";
 

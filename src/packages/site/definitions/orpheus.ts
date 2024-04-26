@@ -43,15 +43,15 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     advanceKeyword: {
       imdb: {
-        skip: true
-      }
+        skip: true,
+      },
     },
   },
 };
 
 export default class orpheus extends GazelleJSONAPI {
   protected override async getUserExtendInfo(
-    userId: number
+    userId: number,
   ): Promise<Partial<IUserInfo>> {
     const { data: userPage } = await this.request<any>({
       url: "/user.php",
@@ -60,9 +60,7 @@ export default class orpheus extends GazelleJSONAPI {
     return this.getFieldsData(userPage, "userInfo", ["joinTime"]);
   }
 
-  protected override async getUserSeedingTorrents(): Promise<
-    Partial<IUserInfo>
-  > {
+  protected override async getUserSeedingTorrents(): Promise<Partial<IUserInfo>> {
     const { data: bonusPage } = await this.request<Document>({
       url: "/bonus.php",
       params: { action: "bprates" },

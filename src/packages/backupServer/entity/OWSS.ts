@@ -78,9 +78,7 @@ export default class OWSS implements IBackupServer<OWSSConfig> {
     this.address = address;
   }
 
-  private async request<T>(
-    config: AxiosRequestConfig
-  ): Promise<AxiosResponse<T>> {
+  private async request<T>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
     return await axios.request<T>({
       baseURL: this.address,
       timeout: 45e3,
@@ -98,9 +96,7 @@ export default class OWSS implements IBackupServer<OWSSConfig> {
     return false;
   }
 
-  public async list(
-    options: IBackupFileListOption = {}
-  ): Promise<IBackupFileInfo[]> {
+  public async list(options: IBackupFileListOption = {}): Promise<IBackupFileInfo[]> {
     const { data: listData } = await this.request<OWSSResponse<OWSSRawList[]>>({
       url: "/list",
       params: options,

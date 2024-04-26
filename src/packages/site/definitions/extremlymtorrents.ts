@@ -4,7 +4,8 @@ export const siteMetadata: ISiteMetadata = {
   name: "ExtremlymTorrents",
   type: "private",
   timezoneOffset: "+0000",
-  description: "ExtremlymTorrents (XTR) is a Semi-Private tracker for MOVIES / TV / GENERAL",
+  description:
+    "ExtremlymTorrents (XTR) is a Semi-Private tracker for MOVIES / TV / GENERAL",
   url: "https://extremlymtorrents.ws/",
   tags: ["综合"],
   category: {
@@ -84,7 +85,13 @@ export const siteMetadata: ISiteMetadata = {
       link: { selector: 'a[href^="download.php?id="]', attr: "href" },
       time: {
         selector: "td:nth-last-child(1)",
-        filters: [(query: string) => query.replace(/(\d{2}).(\d{2}).(\d{4})\n?(\d{2}:\d{2}:\d{2})/, "$3-$2-$1 $4")],
+        filters: [
+          (query: string) =>
+            query.replace(
+              /(\d{2}).(\d{2}).(\d{4})\n?(\d{2}:\d{2}:\d{2})/,
+              "$3-$2-$1 $4",
+            ),
+        ],
       },
       size: { selector: "td:nth-last-child(4)" },
       author: { selector: "td:eq(3)" },

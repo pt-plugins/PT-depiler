@@ -20,7 +20,7 @@ export const dateUnit = [
   "minute",
   "second",
 ];
-export const nonStandDateUnitMap = new Map<string, typeof dateUnit[number]>([
+export const nonStandDateUnitMap = new Map<string, (typeof dateUnit)[number]>([
   // 中文
   ["分", "minute"],
   ["时", "hour"],
@@ -43,10 +43,7 @@ export function parseTimeToLive(ttl: string): number {
   dateUnit.forEach((v) => {
     const matched = ttl.match(new RegExp(`([.\\d]+) ?(${v}s?)`));
     if (matched) {
-      nowDayJs = nowDayJs.add(
-        -parseFloat(matched![1]),
-        matched![2] as ManipulateType
-      );
+      nowDayJs = nowDayJs.add(-parseFloat(matched![1]), matched![2] as ManipulateType);
     }
   });
 
@@ -55,7 +52,7 @@ export function parseTimeToLive(ttl: string): number {
 
 export function parseValidTimeString(
   query: string,
-  format?: OptionType
+  format?: OptionType,
 ): number | string {
   const time = dayjs(query, format);
   return time.isValid() ? time.valueOf() : query;
@@ -63,7 +60,7 @@ export function parseValidTimeString(
 
 export function parseTimeWithZone(
   time: number | string,
-  timezoneOffset: timezoneOffset = "+0000"
+  timezoneOffset: timezoneOffset = "+0000",
 ): number {
   if (!timezoneOffset || !time) {
     return dayjs(time).valueOf();

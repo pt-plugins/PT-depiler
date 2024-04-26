@@ -19,7 +19,7 @@ export const siteMetadata: ISiteMetadata = {
           config.params.search_area = 1; // params "&search_area=1"
           return config;
         },
-      }
+      },
     },
     selectors: {
       progress: {

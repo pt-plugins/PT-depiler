@@ -63,7 +63,9 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["td:has(> img[alt='Torrents seeding'])"],
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/(Active Torrents:|当前活动：|當前活動：).*?(\d+)/);
+            const queryMatch = query.match(
+              /(Active Torrents:|当前活动：|當前活動：).*?(\d+)/,
+            );
             return queryMatch && queryMatch.length >= 3 ? parseInt(queryMatch[2]) : 0;
           },
         ],

@@ -28,12 +28,7 @@ export type SiteSchema =
   | "GazelleJSONAPI"
   | "AvistaZ";
 
-export type advanceKeywordType =
-  | "imdb"
-  | "douban"
-  | "bangumi"
-  | "anidb"
-  | string
+export type advanceKeywordType = "imdb" | "douban" | "bangumi" | "anidb" | string;
 
 export type listSelectors = {
   /**
@@ -47,30 +42,27 @@ export type listSelectors = {
     filter?: <T>(rows: T) => T;
     merge?: number;
   };
-} &
-  { [torrentKey in keyof Omit<ITorrent, "tags">]?: IElementQuery } &
-  {
-    // 种子相关选择器
-    tags?: {
-      selector: string;
-      name: keyof typeof ETorrentBaseTagColor | string;
-      color?: string;
-    }[];
-  }; // Tags相关选择器
+} & { [torrentKey in keyof Omit<ITorrent, "tags">]?: IElementQuery } & {
+  // 种子相关选择器
+  tags?: {
+    selector: string;
+    name: keyof typeof ETorrentBaseTagColor | string;
+    color?: string;
+  }[];
+}; // Tags相关选择器
 
 export interface ISiteUserInputMeta {
-  name: string, // 名称
-  key: string, // 键
-  hint: string, // 提示
-  required: boolean, // 是否必填
+  name: string; // 名称
+  key: string; // 键
+  hint: string; // 提示
+  required: boolean; // 是否必填
 }
-
 
 /**
  * 站点配置，这部分配置由系统提供，并随着每次更新而更新
  */
 export interface ISiteMetadata {
-  id?: SiteID;   // 如有，必须和站点文件名（无扩展）相同
+  id?: SiteID; // 如有，必须和站点文件名（无扩展）相同
   name: string; // 站点名
   aka?: string[]; // 站点别名
   description?: string; // 站点说明
@@ -123,7 +115,10 @@ export interface ISiteMetadata {
    *  1. public/icons/site/{siteId | siteHost}.{png | ico} 路径
    *  2.
    */
-  favicon?: `${fullUrl}${string}` | `data:image/${string}` | `./${string}.${"png" | "ico"}`;
+  favicon?:
+    | `${fullUrl}${string}`
+    | `data:image/${string}`
+    | `./${string}.${"png" | "ico"}`;
 
   /**
    * 站点是否已经离线，对于已经离线的站点不再设置进行搜索、用户信息获取
@@ -156,20 +151,24 @@ export interface ISiteMetadata {
      */
     advanceKeyword?: Record<
       advanceKeywordType,
-      {
-        /**
-         * 是否跳过该类别（一般情况下是该站点不支持此类搜索时才跳过）
-         */
-        skip?: boolean,
-        /**
-         * 定义如何处理该高级搜索词， 注意此函数（如果定义的话）是在 searchTorrents 中进行
-         *
-         * @param config 已根据 requestConfig 和传入的 filter 信息生成了普通搜索时的 Axios 配置
-         * @param filter 原始搜索条件，注意此处的 keywords 已经被去除了前缀 `${advanceKeywordType}|`
-         */
-        transformer?: (config: AxiosRequestConfig, filter: ISearchFilter) => AxiosRequestConfig
-      } | false  // 等同于 { skip: false }
-    >
+      | {
+          /**
+           * 是否跳过该类别（一般情况下是该站点不支持此类搜索时才跳过）
+           */
+          skip?: boolean;
+          /**
+           * 定义如何处理该高级搜索词， 注意此函数（如果定义的话）是在 searchTorrents 中进行
+           *
+           * @param config 已根据 requestConfig 和传入的 filter 信息生成了普通搜索时的 Axios 配置
+           * @param filter 原始搜索条件，注意此处的 keywords 已经被去除了前缀 `${advanceKeywordType}|`
+           */
+          transformer?: (
+            config: AxiosRequestConfig,
+            filter: ISearchFilter,
+          ) => AxiosRequestConfig;
+        }
+      | false // 等同于 { skip: false }
+    >;
 
     categories?: ISearchCategories[]; // 站点对应搜索入口的种子分类信息
 

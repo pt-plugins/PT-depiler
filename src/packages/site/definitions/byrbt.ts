@@ -4,7 +4,8 @@ export const siteMetadata: ISiteMetadata = {
   name: "BYRBT",
   type: "private",
   schema: "NexusPHP",
-  description: "著名教育网PT站点（仅支持ipv6访问与下载），有10大类资源，资源更新快，保种好。",
+  description:
+    "著名教育网PT站点（仅支持ipv6访问与下载），有10大类资源，资源更新快，保种好。",
   url: "https://byr.pt/",
   formerHosts: ["bt.byr.cn"],
   tags: ["教育网", "影视", "综合"],

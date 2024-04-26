@@ -32,7 +32,10 @@ export const siteMetadata: ISiteMetadata = {
       title: { selector: "div.link a" },
       url: { selector: "div.link a" },
       link: {
-        selector: ['div.links > a[href$=".torrent"]', 'div.links > a[href^="magnet:?xt="]'],
+        selector: [
+          'div.links > a[href$=".torrent"]',
+          'div.links > a[href^="magnet:?xt="]',
+        ],
         attr: "href",
       },
       time: {

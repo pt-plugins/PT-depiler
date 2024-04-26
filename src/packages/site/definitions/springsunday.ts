@@ -35,9 +35,7 @@ export const siteMetadata: ISiteMetadata = {
           } else if (element.classList.contains("downloading")) {
             const title = element.getAttribute("title") || "";
             const titleMatch = title.match(/(\d.+)%/);
-            return titleMatch && titleMatch.length >= 2
-              ? parseFloat(titleMatch[1])
-              : 0;
+            return titleMatch && titleMatch.length >= 2 ? parseFloat(titleMatch[1]) : 0;
           } else {
             return 0;
           }

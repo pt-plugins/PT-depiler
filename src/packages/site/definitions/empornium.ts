@@ -93,7 +93,9 @@ export const siteMetadata: ISiteMetadata = {
         filters: [
           (query: string) => {
             const queryMatch = query.match(/(\d+)]=1/);
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : "Other";
+            return queryMatch && queryMatch.length >= 2
+              ? parseInt(queryMatch[1])
+              : "Other";
           },
         ],
       },
@@ -138,7 +140,16 @@ export const siteMetadata: ISiteMetadata = {
     process: [
       {
         requestConfig: { url: "/index.php" },
-        fields: ["id", "name", "messageCount", "seeding", "uploaded", "downloaded", "ratio", "bonus"],
+        fields: [
+          "id",
+          "name",
+          "messageCount",
+          "seeding",
+          "uploaded",
+          "downloaded",
+          "ratio",
+          "bonus",
+        ],
       },
       {
         requestConfig: { url: "/user.php" },

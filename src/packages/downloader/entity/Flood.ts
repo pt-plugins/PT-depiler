@@ -32,8 +32,7 @@ export const clientConfig: TorrentClientConfig = {
 
 // noinspection JSUnusedGlobalSymbols
 export const clientMetaData: TorrentClientMetaData = {
-  description:
-    "Flood 是 ruTorrent 的另一款基于Node的Web前端面板，界面美观，加载速度快",
+  description: "Flood 是 ruTorrent 的另一款基于Node的Web前端面板，界面美观，加载速度快",
   warning: [
     "同时兼容 Flood 原版以及 jesec修改版",
     "如果当前已登录Flood面板，请退出登陆后再做连接性测试",
@@ -45,8 +44,8 @@ export const clientMetaData: TorrentClientMetaData = {
       description: CustomPathDescription,
     },
     DefaultAutoStart: {
-      allowed: true
-    }
+      allowed: true,
+    },
   },
 };
 
@@ -196,9 +195,9 @@ const legacyActivityEventType = [
  * @param path
  * @param event
  */
-function legacyActivityStreamWrapper (
+function legacyActivityStreamWrapper(
   path: string,
-  event: typeof legacyActivityEventType[number]
+  event: (typeof legacyActivityEventType)[number],
 ): Promise<any> {
   return new Promise<any>((resolve) => {
     const sse = new EventSource(path);
@@ -288,11 +287,11 @@ export default class Flood extends AbstractBittorrentClient {
 
   private apiType?: FloodApiType;
 
-  constructor (options: Partial<TorrentClientConfig> = {}) {
+  constructor(options: Partial<TorrentClientConfig> = {}) {
     super({ ...clientConfig, ...options });
   }
 
-  private async getEndPointType (): Promise<FloodApiType> {
+  private async getEndPointType(): Promise<FloodApiType> {
     if (this.apiType == null) {
       try {
         await axios.get(FloodApiEndpointMap.legacy.verify, {
@@ -307,12 +306,15 @@ export default class Flood extends AbstractBittorrentClient {
     return this.apiType as FloodApiType;
   }
 
-  private async getEndPointUrl (endpoint: FloodApiEndpoint): Promise<string> {
+  private async getEndPointUrl(endpoint: FloodApiEndpoint): Promise<string> {
     const endPointType = await this.getEndPointType();
     return FloodApiEndpointMap[endPointType][endpoint];
   }
 
-  private async request<T> (endpoint: FloodApiEndpoint, config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> {
+  private async request<T>(
+    endpoint: FloodApiEndpoint,
+    config: AxiosRequestConfig = {},
+  ): Promise<AxiosResponse<T>> {
     const endPointUrl = await this.getEndPointUrl(endpoint);
 
     try {
@@ -324,10 +326,7 @@ export default class Flood extends AbstractBittorrentClient {
       });
     } catch (e) {
       // not authenticated or token expired
-      if (
-        (e as AxiosError).response?.status === 401 &&
-        endpoint !== "authenticate"
-      ) {
+      if ((e as AxiosError).response?.status === 401 && endpoint !== "authenticate") {
         if (await this.login()) {
           return await this.request(endpoint, config);
         }
@@ -337,7 +336,7 @@ export default class Flood extends AbstractBittorrentClient {
     }
   }
 
-  private async login (): Promise<boolean> {
+  private async login(): Promise<boolean> {
     try {
       const req = await this.request<{ success: boolean }>("authenticate", {
         method: "post",
@@ -353,7 +352,7 @@ export default class Flood extends AbstractBittorrentClient {
     }
   }
 
-  async ping (): Promise<boolean> {
+  async ping(): Promise<boolean> {
     try {
       const req = await this.request("connection-test");
       return (req.data as { isConnect: boolean }).isConnect;
@@ -362,13 +361,13 @@ export default class Flood extends AbstractBittorrentClient {
     }
   }
 
-  protected async getClientVersionFromRemote (): Promise<string> {
+  protected async getClientVersionFromRemote(): Promise<string> {
     return ""; // TODO
   }
 
-  async addTorrent (
+  async addTorrent(
     url: string,
-    options: Partial<CAddTorrentOptions> = {}
+    options: Partial<CAddTorrentOptions> = {},
   ): Promise<boolean> {
     let postData: any = {
       destination: "",
@@ -425,7 +424,7 @@ export default class Flood extends AbstractBittorrentClient {
     return true;
   }
 
-  async getAllTorrents (): Promise<CTorrent<TorrentProperties>[]> {
+  async getAllTorrents(): Promise<CTorrent<TorrentProperties>[]> {
     const endPointType = await this.getEndPointType();
 
     let rawTorrents: TorrentList;
@@ -434,7 +433,7 @@ export default class Flood extends AbstractBittorrentClient {
 
       const r = await legacyActivityStreamWrapper(
         urlJoin(this.config.address, "/api/activity-stream"),
-        "TORRENT_LIST_FULL_UPDATE"
+        "TORRENT_LIST_FULL_UPDATE",
       );
 
       rawTorrents = JSON.parse(r) as TorrentList; // Example: https://pastebin.com/cCNsMRdx
@@ -488,7 +487,7 @@ export default class Flood extends AbstractBittorrentClient {
     }) as CTorrent<TorrentProperties>[];
   }
 
-  async pauseTorrent (id: any): Promise<boolean> {
+  async pauseTorrent(id: any): Promise<boolean> {
     await this.request("stopTorrent", {
       method: "post",
       data: {
@@ -498,7 +497,7 @@ export default class Flood extends AbstractBittorrentClient {
     return true;
   }
 
-  async resumeTorrent (id: any): Promise<boolean> {
+  async resumeTorrent(id: any): Promise<boolean> {
     await this.request("startTorrent", {
       method: "post",
       data: {
@@ -508,7 +507,7 @@ export default class Flood extends AbstractBittorrentClient {
     return true;
   }
 
-  async removeTorrent (id: any, removeData: boolean = false): Promise<boolean> {
+  async removeTorrent(id: any, removeData: boolean = false): Promise<boolean> {
     const endPointType = await this.getEndPointType();
     const hashFieldKey = endPointType === "jesec" ? "hashes" : "hash";
 

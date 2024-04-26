@@ -25,7 +25,7 @@ export const siteMetadata: ISiteMetadata = {
           config.params.s = "";
           return config;
         },
-      }
+      },
     },
     selectors: {
       rows: { selector: "#unsticky-torrent-table dl" },
@@ -39,12 +39,16 @@ export const siteMetadata: ISiteMetadata = {
       url: {
         selector: ":self",
         attr: "id",
-        filters: [(query: string) => `/details.php?id=${query.replace("dl_torrent_", "")}`],
+        filters: [
+          (query: string) => `/details.php?id=${query.replace("dl_torrent_", "")}`,
+        ],
       },
       link: {
         selector: ":self",
         attr: "id",
-        filters: [(query: string) => `/download.php?id=${query.replace("dl_torrent_", "")}`],
+        filters: [
+          (query: string) => `/download.php?id=${query.replace("dl_torrent_", "")}`,
+        ],
       },
       time: { selector: ".torrent_added" },
       author: { selector: ".torrent_owner" },
@@ -80,7 +84,14 @@ export const siteMetadata: ISiteMetadata = {
       {
         requestConfig: { url: "/userdetail.php" },
         assertion: { id: "id" },
-        fields: ["uploaded", "downloaded", "levelName", "joinTime", "seeding", "seedingSize"],
+        fields: [
+          "uploaded",
+          "downloaded",
+          "levelName",
+          "joinTime",
+          "seeding",
+          "seedingSize",
+        ],
       },
     ],
     selectors: {

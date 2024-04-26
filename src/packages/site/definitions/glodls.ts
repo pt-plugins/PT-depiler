@@ -52,10 +52,7 @@ export const siteMetadata: ISiteMetadata = {
       title: { selector: "td:nth-child(2) a[title]", attr: "title" },
       url: { selector: "td:nth-child(2) a[title]", attr: "href" },
       link: {
-        selector: [
-          'a[href^="/down.php?id="]',
-          'a[href*="itorrents.org/torrent/"]',
-        ],
+        selector: ['a[href^="/down.php?id="]', 'a[href*="itorrents.org/torrent/"]'],
         attr: "href",
       },
       size: { selector: "td:nth-child(5)" },

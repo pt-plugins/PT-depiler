@@ -33,14 +33,19 @@ export const siteMetadata: ISiteMetadata = {
       url: {
         selector: 'form[action*="download.php"]:first',
         attr: "action",
-        filters: [{ name: "querystring", args: ["id"] }, {name: "perpend", args: ["/details.php?id="]}],
+        filters: [
+          { name: "querystring", args: ["id"] },
+          { name: "perpend", args: ["/details.php?id="] },
+        ],
       },
       link: {
         selector: 'form[action*="download.php"]:first',
         attr: "action",
       },
       progress: {
-        selector: ["div.progressseeding, div.progressfinished, div.progressdownloading, div.progressdownloaded"],
+        selector: [
+          "div.progressseeding, div.progressfinished, div.progressdownloading, div.progressdownloaded",
+        ],
         attr: "style",
         filters: [
           (query: string | undefined) => {

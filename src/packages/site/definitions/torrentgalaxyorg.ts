@@ -4,8 +4,7 @@ import dayjs, { parseTimeToLive } from "../utils/datetime";
 export const siteMetadata: ISiteMetadata = {
   name: "TorrentGalaxy.org",
   type: "public",
-  description:
-    "TorrentGalaxy.org (TGx) is a Public site for TV / MOVIES / GENERAL",
+  description: "TorrentGalaxy.org (TGx) is a Public site for TV / MOVIES / GENERAL",
   url: "https://torrentgalaxy.to/",
   legacyUrls: ["https://torrentgalaxy.mx/", "https://torrentgalaxy.su/"],
   category: {

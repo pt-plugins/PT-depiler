@@ -43,9 +43,13 @@ export const siteMetadata: ISiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Ibit extends BittorrentSite {
-  protected override async transformSearchFilter(filter: ISearchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter(
+    filter: ISearchFilter,
+  ): Promise<AxiosRequestConfig> {
     const config = await super.transformSearchFilter(filter);
-    config.url = filter.keywords ? `torrent-search/${filter.keywords}` : "/torrents/all";
+    config.url = filter.keywords
+      ? `torrent-search/${filter.keywords}`
+      : "/torrents/all";
     return config;
   }
 }

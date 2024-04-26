@@ -30,7 +30,7 @@ export const siteMetadata: ISiteMetadata = {
           delete config.params.search;
           return config;
         },
-      }
+      },
     },
     selectors: {
       rows: {
@@ -50,13 +50,14 @@ export const siteMetadata: ISiteMetadata = {
       comments: { selector: 'span[id^="commenttorrentcount"]' },
       progress: {
         selector: ["i.fal.fa-seedling, i.fal.fa-check[title='Snatched']"],
-        elementProcess: (element: HTMLElement) => (element.getAttribute("title") ? 100 : 0),
+        elementProcess: (element: HTMLElement) =>
+          element.getAttribute("title") ? 100 : 0,
       },
       status: {
         selector: ":self",
         case: {
           "i.fal.fa-seedling": ETorrentStatus.seeding,
-          "i.fal.fa-check[title='Snatched']":  ETorrentStatus.completed
+          "i.fal.fa-check[title='Snatched']": ETorrentStatus.completed,
         },
       },
       tags: [
@@ -89,7 +90,9 @@ export const siteMetadata: ISiteMetadata = {
       },
       bonus: {
         selector: ["#beta-stats a[href*='bonus']:first"],
-        filters: [(query: string) => query.replace(/,|\n|\s+/g, "").replace(/BP:/g, "")],
+        filters: [
+          (query: string) => query.replace(/,|\n|\s+/g, "").replace(/BP:/g, ""),
+        ],
       },
       seeding: { selector: "#beta-stats a:has(> i.fa-seedling)" },
       messageCount: { selector: ".beta-alert[href$='/mail'] .notify" },
@@ -122,7 +125,9 @@ export default class beyondhd extends Unit3D {
     }) as `${string}.${string}`;
   }
 
-  public override async getUserInfo(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+  public override async getUserInfo(
+    lastUserInfo: Partial<IUserInfo> = {},
+  ): Promise<IUserInfo> {
     const flushUserInfo: Partial<IUserInfo> = {};
 
     const userPath = await this.getUserInfoPathFromSite();
@@ -134,7 +139,7 @@ export default class beyondhd extends Unit3D {
     for (const userInfoAttrValue of Object.keys(this.config.userInfo?.selectors!)) {
       flushUserInfo[userInfoAttrValue] = this.getFieldData(
         userDetailDocument,
-        this.config.userInfo?.selectors?.[userInfoAttrValue]!
+        this.config.userInfo?.selectors?.[userInfoAttrValue]!,
       );
     }
 

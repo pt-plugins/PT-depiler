@@ -131,7 +131,7 @@ export const siteMetadata: ISiteMetadata = {
           { name: "种子区", value: "/torrents.php" },
           { name: "LIVE区", value: "/live.php" },
         ],
-      }
+      },
     ],
     selectors: {
       progress: selectorSearchProgress,

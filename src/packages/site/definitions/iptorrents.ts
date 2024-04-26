@@ -44,7 +44,9 @@ export const siteMetadata: ISiteMetadata = {
         filters: [
           (query: string) => {
             const queryMatch = query.match(/(?:\| )?([\d.]+ .+? ago)/);
-            return queryMatch && queryMatch.length >= 2 ? parseTimeToLive(queryMatch[1]) : "";
+            return queryMatch && queryMatch.length >= 2
+              ? parseTimeToLive(queryMatch[1])
+              : "";
           },
         ],
       },

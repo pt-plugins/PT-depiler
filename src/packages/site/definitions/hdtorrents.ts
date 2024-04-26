@@ -10,7 +10,11 @@ export const siteMetadata: ISiteMetadata = {
   timezoneOffset: "+0000",
   description: "HD-Torrents.org",
   url: "https://hd-torrents.org/",
-  legacyUrls: ["https://hdts.ru/", "https://hd-torrents.net/", "https://hd-torrents.me/"],
+  legacyUrls: [
+    "https://hdts.ru/",
+    "https://hd-torrents.net/",
+    "https://hd-torrents.me/",
+  ],
   tags: ["综合"],
   search: {
     keywordsParam: "search",
@@ -26,12 +30,13 @@ export const siteMetadata: ISiteMetadata = {
           config.params.options = 2; // "&options=2"
           return config;
         },
-      }
+      },
     },
 
     selectors: {
       rows: {
-        selector: 'table.mainblockcontenttt tr:has(td.mainblockcontent:has(a[href*="details.php"]))',
+        selector:
+          'table.mainblockcontenttt tr:has(td.mainblockcontent:has(a[href*="details.php"]))',
       },
       id: {
         selector: 'a[href^="details.php?id="]',
@@ -43,7 +48,10 @@ export const siteMetadata: ISiteMetadata = {
       link: { selector: "a[href*='download.php']", attr: "href" },
       time: {
         selector: "> td:eq(6)",
-        filters: [(query: string) => dayjs(query.replace("  ", " "), "HH:mm:ss MM/DD/YYYY").valueOf()],
+        filters: [
+          (query: string) =>
+            dayjs(query.replace("  ", " "), "HH:mm:ss MM/DD/YYYY").valueOf(),
+        ],
       },
       size: { selector: "> td:eq(7)" },
       author: { selector: "> td:eq(8)" },
@@ -92,7 +100,16 @@ export const siteMetadata: ISiteMetadata = {
       {
         requestConfig: { url: "/usercp.php" },
         assertion: { id: "uid" },
-        fields: ["name", "uploaded", "downloaded", "ratio", "levelName", "bonus", "joinTime", "seeding"],
+        fields: [
+          "name",
+          "uploaded",
+          "downloaded",
+          "ratio",
+          "levelName",
+          "bonus",
+          "joinTime",
+          "seeding",
+        ],
       },
     ],
     selectors: {
@@ -161,13 +178,19 @@ export default class hdtorrents extends PrivateSite {
   }
    */
 
-  public override async getUserInfo(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+  public override async getUserInfo(
+    lastUserInfo: Partial<IUserInfo> = {},
+  ): Promise<IUserInfo> {
     const baseUserInfo = await super.getUserInfo();
 
     if (baseUserInfo.id && !baseUserInfo.seedingSize) {
       baseUserInfo.seedingSize = 0;
 
-      for (const pageInfo = { count: 0, current: 0 }; pageInfo.current <= pageInfo.count; pageInfo.current++) {
+      for (
+        const pageInfo = { count: 0, current: 0 };
+        pageInfo.current <= pageInfo.count;
+        pageInfo.current++
+      ) {
         const TListDocument = await this.request({
           url: "/usercp.php",
           params: { uid: baseUserInfo.id, activepage: pageInfo.current },
@@ -176,18 +199,25 @@ export default class hdtorrents extends PrivateSite {
 
         // 更新最大页数
         if (pageInfo.count === 0) {
-          pageInfo.count = parseInt(this.getFieldData(TListDocument, {
-            selector: ["a[href*='activepage']:contains('1'):last"],
-            attr: "href",
-            filters: [{ name: "querystring", args: ["activepage"] }],
-          })) || -1;
+          pageInfo.count =
+            parseInt(
+              this.getFieldData(TListDocument, {
+                selector: ["a[href*='activepage']:contains('1'):last"],
+                attr: "href",
+                filters: [{ name: "querystring", args: ["activepage"] }],
+              }),
+            ) || -1;
         }
 
         // 遍历并更新做种体积
-        const trAnothers = Sizzle("tr#SeedingtorrentsHideShowTR table > tbody > tr:gt(0)");
+        const trAnothers = Sizzle(
+          "tr#SeedingtorrentsHideShowTR table > tbody > tr:gt(0)",
+        );
         trAnothers.forEach((trAnother) => {
           const sizeAnother = Sizzle("td:eq(1)", trAnother)[0];
-          baseUserInfo.seedingSize! += parseSizeString((sizeAnother as HTMLElement).innerText.trim());
+          baseUserInfo.seedingSize! += parseSizeString(
+            (sizeAnother as HTMLElement).innerText.trim(),
+          );
         });
       }
     }

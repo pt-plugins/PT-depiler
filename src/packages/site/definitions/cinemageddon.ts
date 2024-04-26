@@ -78,7 +78,16 @@ export const siteMetadata: ISiteMetadata = {
       {
         requestConfig: { url: "/userdetails.php" },
         assertion: { id: "id" },
-        fields: ["uploaded", "downloaded", "levelName", "messageCount", "bonus", "joinTime", "seeding", "seedingSize"],
+        fields: [
+          "uploaded",
+          "downloaded",
+          "levelName",
+          "messageCount",
+          "bonus",
+          "joinTime",
+          "seeding",
+          "seedingSize",
+        ],
       },
     ],
     selectors: {
@@ -116,7 +125,9 @@ export const siteMetadata: ISiteMetadata = {
         filters: [
           (query: string) => {
             const timeString = query.split(" (")[0];
-            return dayjs(timeString).isValid() ? dayjs(timeString).valueOf() : timeString;
+            return dayjs(timeString).isValid()
+              ? dayjs(timeString).valueOf()
+              : timeString;
           },
         ],
       },
@@ -135,7 +146,9 @@ export const siteMetadata: ISiteMetadata = {
           const trAnothers = Sizzle("tr:gt(0)", table);
           trAnothers.forEach((trAnother) => {
             const sizeAnother = Sizzle("td:eq(2)", trAnother);
-            seedingSize += findThenParseSizeString((sizeAnother[0] as HTMLTableCellElement).innerText.trim());
+            seedingSize += findThenParseSizeString(
+              (sizeAnother[0] as HTMLTableCellElement).innerText.trim(),
+            );
           });
           return seedingSize;
         },

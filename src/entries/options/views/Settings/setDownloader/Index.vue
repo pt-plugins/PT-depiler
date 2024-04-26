@@ -22,7 +22,7 @@ const clientTableHeader = [
     key: "type",
     align: "center",
     filterable: false,
-    width: 80
+    width: 80,
   },
   {
     title: t("setDownloader.common.name"),
@@ -34,7 +34,7 @@ const clientTableHeader = [
     key: "id",
     align: "start",
     filterable: false,
-    sortable: false
+    sortable: false,
   },
   {
     title: t("setDownloader.common.address"),
@@ -44,13 +44,13 @@ const clientTableHeader = [
   {
     title: t("setDownloader.common.username"),
     key: "username",
-    align: "start"
+    align: "start",
   },
   {
     title: t("common.action"),
     key: "action",
     filterable: false,
-    sortable: false
+    sortable: false,
   },
 ];
 
@@ -61,13 +61,13 @@ function editDownloader(perEditClientConfig: any) {
 }
 
 const showSetDefaultDownloaderSnackbar = ref<boolean>(false);
-function setDefaultDownloader(clientId:string) {
+function setDefaultDownloader(clientId: string) {
   downloaderStore.defaultDownloaderId = clientId;
   showSetDefaultDownloaderSnackbar.value = true;
 }
 
 const toDeleteIds = ref<string[]>([]);
-function deleteDownloader (clientId: string | string[]) {
+function deleteDownloader(clientId: string | string[]) {
   if (typeof clientId === "string") {
     clientId = [clientId];
   }
@@ -82,14 +82,16 @@ function deleteDownloader (clientId: string | string[]) {
     <v-card-title>
       <v-row class="ma-0">
         <v-btn
-          color="success" prepend-icon="mdi-plus"
+          color="success"
+          prepend-icon="mdi-plus"
           class="mr-2"
           @click="showAddDialog = true"
         >
           {{ $t("common.btn.add") }}
         </v-btn>
         <v-btn
-          color="error" prepend-icon="mdi-minus"
+          color="error"
+          prepend-icon="mdi-minus"
           :disabled="clientTableSelected.length === 0"
           @click="deleteDownloader(clientTableSelected)"
         >
@@ -126,7 +128,7 @@ function deleteDownloader (clientId: string | string[]) {
           <template v-if="downloaderStore.isDefaultDownloader(item.id)">
             <v-spacer />
             <v-chip label small color="blue">
-              {{ $t('common.default') }}
+              {{ $t("common.default") }}
             </v-chip>
           </template>
         </v-row>
@@ -138,21 +140,26 @@ function deleteDownloader (clientId: string | string[]) {
       </template>
       <template #item.action="{ item }">
         <v-btn
-          size="small" icon="mdi-home"
-          variant="plain" class="mr-2"
+          size="small"
+          icon="mdi-home"
+          variant="plain"
+          class="mr-2"
           :disabled="downloaderStore.isDefaultDownloader(item.id)"
           :title="$t('setDownloader.index.table.action.setDefault')"
           @click="setDefaultDownloader(item.id)"
         />
         <v-btn
-          size="small" icon="mdi-pencil"
+          size="small"
+          icon="mdi-pencil"
           variant="plain"
           :title="$t('common.edit')"
           @click="editDownloader(item)"
         />
         <v-btn
-          size="small" icon="mdi-delete"
-          variant="plain" color="error"
+          size="small"
+          icon="mdi-delete"
+          variant="plain"
+          color="error"
           :title="$t('common.remove')"
           @click="deleteDownloader(item.id)"
         />
@@ -161,7 +168,7 @@ function deleteDownloader (clientId: string | string[]) {
 
     <!-- 应该放入data-table的 no-data slot -->
     <v-alert v-if="downloaderStore.clients.length === 0">
-      {{ $t('setDownloader.index.emptyNotice') }}
+      {{ $t("setDownloader.index.emptyNotice") }}
     </v-alert>
   </v-card>
 
@@ -172,7 +179,7 @@ function deleteDownloader (clientId: string | string[]) {
 
   <!-- Snackbar - 设置默认下载器 -->
   <v-snackbar v-model="showSetDefaultDownloaderSnackbar">
-    {{ $t('setDownloader.index.changeDefaultDownloader') }}
+    {{ $t("setDownloader.index.changeDefaultDownloader") }}
   </v-snackbar>
 </template>
 

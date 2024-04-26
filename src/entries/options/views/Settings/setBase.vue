@@ -8,17 +8,12 @@ const setTab = ref<string>("ui");
 
 <template>
   <v-card>
-    <v-tabs
-      v-model="setTab" centered
-      color="primary"
-    >
+    <v-tabs v-model="setTab" centered color="primary">
       <v-tab value="ui">
         <v-icon icon="mdi-cog" />
         {{ $t("setBase.tab.ui") }}
       </v-tab>
-      <v-tab value="test">
-        test
-      </v-tab>
+      <v-tab value="test"> test </v-tab>
     </v-tabs>
 
     <v-window v-model="setTab">
@@ -28,16 +23,18 @@ const setTab = ref<string>("ui");
             <v-col>
               <!-- 插件语言设置 -->
               <v-select
-                v-model="lang" :label="$t('setBase.ui.changeLanguage')"
+                v-model="lang"
+                :label="$t('setBase.ui.changeLanguage')"
                 :items="definedLangMetaData"
               />
 
               <!-- 明亮模式设置 -->
               <v-select
-                v-model="uiStore.theme" :label="$t('setBase.ui.displayMode.index')"
+                v-model="uiStore.theme"
+                :label="$t('setBase.ui.displayMode.index')"
                 :items="supportTheme"
               >
-                <template #selection="{item}">
+                <template #selection="{ item }">
                   {{ $t("setBase.ui.displayMode." + item.raw) }}
                 </template>
 
@@ -53,9 +50,7 @@ const setTab = ref<string>("ui");
         </v-container>
       </v-window-item>
 
-      <v-window-item value="test">
-        test2
-      </v-window-item>
+      <v-window-item value="test"> test2 </v-window-item>
     </v-window>
   </v-card>
 </template>

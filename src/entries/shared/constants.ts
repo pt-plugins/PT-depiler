@@ -17,40 +17,55 @@ export const isDebug = !isProd;
 // 插件相关
 export const EXT_MANIFEST = chrome.runtime.getManifest();
 export const EXT_BASEURL = chrome.runtime.getURL("");
-export const EXT_VERSION =  "v" + EXT_MANIFEST.version;  // v2.0.0.2022
+export const EXT_VERSION = "v" + EXT_MANIFEST.version; // v2.0.0.2022
 
-export const EXT_GIT = "git" in EXT_MANIFEST ? EXT_MANIFEST.git as { short: string, date: string, count: number, branch: string, message: string } : null;
+export const EXT_GIT =
+  "git" in EXT_MANIFEST
+    ? (EXT_MANIFEST.git as {
+        short: string;
+        date: string;
+        count: number;
+        branch: string;
+        message: string;
+      })
+    : null;
 
 interface IBuildInfo {
-  buildAt: number,
+  buildAt: number;
   gitVersion: {
-    short: string,
-    long: string,
-    date: string,
-    count: number,
-    branch: string
-  },
+    short: string;
+    long: string;
+    date: string;
+    count: number;
+    branch: string;
+  };
   buildOs: {
-    arch: string,
-    platform: string,
-    release: string,
-    type: string,
-  },
-  siteIcons: Array<`${string}.ico` | `${string}.png` | string>
+    arch: string;
+    platform: string;
+    release: string;
+    type: string;
+  };
+  siteIcons: Array<`${string}.ico` | `${string}.png` | string>;
 }
 
 let buildInfo: IBuildInfo | null = null;
 export async function getBuildInfo(): Promise<IBuildInfo> {
   if (buildInfo === null) {
-    const {data} = await axios.get("/build_info.json");
+    const { data } = await axios.get("/build_info.json");
     buildInfo = data;
   }
   return buildInfo as IBuildInfo;
 }
 
 export async function getInstallType(): Promise<EInstallType> {
-  if ("update_url" in EXT_MANIFEST || EXT_MANIFEST.browser_specific_settings?.gecko?.update_url) {
-    const update_url: string = EXT_MANIFEST.update_url ?? EXT_MANIFEST.browser_specific_settings?.gecko?.update_url ?? "";
+  if (
+    "update_url" in EXT_MANIFEST ||
+    EXT_MANIFEST.browser_specific_settings?.gecko?.update_url
+  ) {
+    const update_url: string =
+      EXT_MANIFEST.update_url ??
+      EXT_MANIFEST.browser_specific_settings?.gecko?.update_url ??
+      "";
     return update_url.includes("github") ? EInstallType.packed : EInstallType.normal;
   } else {
     const detail = await chrome.management.getSelf();

@@ -48,9 +48,7 @@ export const siteMetadata: ISiteMetadata = {
         filters: [
           (query: string) => {
             const queryMatch = query.match(/(\d+ New)/);
-            return queryMatch && queryMatch.length >= 2
-              ? parseInt(queryMatch[1])
-              : 0;
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
           },
         ],
       },
@@ -88,5 +86,5 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
     },
-  }
+  },
 };

@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {ref, watch} from "vue";
+import { ref, watch } from "vue";
 import { useVModels } from "@vueuse/core";
 import { useDownloaderStore } from "@/shared/store/downloader.ts";
 import type { DownloaderBaseConfig } from "@ptd/downloader";
@@ -8,23 +8,24 @@ import Editor from "./Editor.vue";
 const downloaderStore = useDownloaderStore();
 
 const componentProps = defineProps<{
-  modelValue: boolean,
-  clientConfig: DownloaderBaseConfig
+  modelValue: boolean;
+  clientConfig: DownloaderBaseConfig;
 }>();
 
-const {
-  modelValue: showDialog
-} = useVModels(componentProps);
-const isClientConfigValid = ref<boolean>(true);  // 修改时默认配置合法
+const { modelValue: showDialog } = useVModels(componentProps);
+const isClientConfigValid = ref<boolean>(true); // 修改时默认配置合法
 
 const clientConfig = ref<DownloaderBaseConfig>();
-watch(() => componentProps.clientConfig, () => {
-  if (componentProps.clientConfig.id) {
-    clientConfig.value = {...componentProps.clientConfig};  // 防止直接修改父组件的数据
-  }
-});
+watch(
+  () => componentProps.clientConfig,
+  () => {
+    if (componentProps.clientConfig.id) {
+      clientConfig.value = { ...componentProps.clientConfig }; // 防止直接修改父组件的数据
+    }
+  },
+);
 
-function patchClient () {
+function patchClient() {
   downloaderStore.patchClient(clientConfig.value!);
   showDialog.value = false;
 }
@@ -35,7 +36,7 @@ function patchClient () {
     <v-card>
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey darken-2">
-          <v-toolbar-title>{{ $t('setDownloader.edit.title') }}</v-toolbar-title>
+          <v-toolbar-title>{{ $t("setDownloader.edit.title") }}</v-toolbar-title>
         </v-toolbar>
       </v-card-title>
       <v-divider />
@@ -45,11 +46,7 @@ function patchClient () {
       <v-divider />
       <v-card-actions>
         <v-spacer />
-        <v-btn
-          color="error"
-          variant="text"
-          @click="showDialog = false"
-        >
+        <v-btn color="error" variant="text" @click="showDialog = false">
           <v-icon icon="mdi-close-circle" />
           {{ $t("common.dialog.cancel") }}
         </v-btn>
@@ -68,6 +65,4 @@ function patchClient () {
   </v-dialog>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

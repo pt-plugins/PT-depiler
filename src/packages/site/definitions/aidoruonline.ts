@@ -11,7 +11,8 @@ export const siteMetadata: ISiteMetadata = {
   name: "Aidoru!Online",
   type: "private",
   timezoneOffset: "+0000",
-  description: "Aidoru!Online is a Private Torrent Tracker for Female Japanese Idol related files",
+  description:
+    "Aidoru!Online is a Private Torrent Tracker for Female Japanese Idol related files",
   favicon: "https://aidoru-online.me/themes/default/images/favicon.ico",
   url: "https://aidoru-online.me/",
   legacyUrls: ["https://aidoru-online.org/"],
@@ -142,7 +143,15 @@ export const siteMetadata: ISiteMetadata = {
         requestConfig: {
           url: "/index.php",
         },
-        fields: ["name", "messageCount", "uploaded", "downloaded", "ratio", "levelName", "bonus"],
+        fields: [
+          "name",
+          "messageCount",
+          "uploaded",
+          "downloaded",
+          "ratio",
+          "levelName",
+          "bonus",
+        ],
       },
       {
         requestConfig: {
@@ -193,7 +202,7 @@ export const siteMetadata: ISiteMetadata = {
           let seedSize = 0;
           const sizeAnother = Sizzle(
             "b:contains('Currently seeding') + br + table tr:not(:first-child) > td:nth-child(4)",
-            element
+            element,
           );
           sizeAnother.forEach((e) => {
             seedSize += parseSizeString((e as HTMLElement).innerText.trim());

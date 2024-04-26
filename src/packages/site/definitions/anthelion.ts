@@ -1,5 +1,8 @@
 import type { ISiteMetadata, ITorrent } from "../types";
-import type { groupBrowseResult, groupTorrent as defaultGroupTorrent } from "../schemas/GazelleJSONAPI";
+import type {
+  groupBrowseResult,
+  groupTorrent as defaultGroupTorrent,
+} from "../schemas/GazelleJSONAPI";
 import GazelleJSONAPI from "../schemas/GazelleJSONAPI";
 
 export const siteMetadata: ISiteMetadata = {
@@ -27,8 +30,8 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     advanceKeyword: {
       imdb: {
-        skip: true
-      }
+        skip: true,
+      },
     },
   },
 };
@@ -41,7 +44,10 @@ interface groupTorrent extends defaultGroupTorrent {
 }
 
 export default class anthelion extends GazelleJSONAPI {
-  protected override async transformGroupTorrent(group: groupBrowseResult, torrent: groupTorrent): Promise<ITorrent> {
+  protected override async transformGroupTorrent(
+    group: groupBrowseResult,
+    torrent: groupTorrent,
+  ): Promise<ITorrent> {
     const parsedTorrent = await super.transformGroupTorrent(group, torrent);
 
     /**
@@ -56,7 +62,9 @@ export default class anthelion extends GazelleJSONAPI {
       (torrent.hasCue ? " / Cue" : "") +
       (torrent.remastered ? ` / ${torrent.remasterYear}` : "") +
       (torrent.scene ? " / Scene" : "") +
-      (torrent.isFreeleech || torrent.isNeutralLeech || torrent.isPersonalFreeleech ? " / Freeleech" : "");
+      (torrent.isFreeleech || torrent.isNeutralLeech || torrent.isPersonalFreeleech
+        ? " / Freeleech"
+        : "");
 
     return parsedTorrent;
   }

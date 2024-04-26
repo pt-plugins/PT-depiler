@@ -91,9 +91,13 @@ export const siteMetadata: ISiteMetadata = {
           if (elementText === "--") {
             return ETorrentStatus.unknown;
           } else if (element.classList.contains("peer-active")) {
-            return floatElementText >= 100 ? ETorrentStatus.seeding : ETorrentStatus.downloading;
+            return floatElementText >= 100
+              ? ETorrentStatus.seeding
+              : ETorrentStatus.downloading;
           } else {
-            return floatElementText >= 100 ? ETorrentStatus.completed : ETorrentStatus.inactive;
+            return floatElementText >= 100
+              ? ETorrentStatus.completed
+              : ETorrentStatus.inactive;
           }
         },
       },
@@ -123,7 +127,11 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class mteam extends NexusPHP {
-  private async getUserTorrentList(userId: number, page: number = 0, type: string = "seeding"): Promise<Document> {
+  private async getUserTorrentList(
+    userId: number,
+    page: number = 0,
+    type: string = "seeding",
+  ): Promise<Document> {
     const { data: TListDocument } = await this.request<Document>({
       url: "/getusertorrentlist.php",
       params: {
@@ -136,7 +144,9 @@ export default class mteam extends NexusPHP {
     return TListDocument;
   }
 
-  protected override async getUserSeedingStatus(userId: number): Promise<{ seeding: number; seedingSize: number }> {
+  protected override async getUserSeedingStatus(
+    userId: number,
+  ): Promise<{ seeding: number; seedingSize: number }> {
     let seedStatus = { seeding: 0, seedingSize: 0 };
 
     /**
@@ -144,7 +154,10 @@ export default class mteam extends NexusPHP {
      * 转而请求 /getusertorrentlist.php 页面
      */
     const userSeedingRequestString = await this.requestUserSeedingPage(userId);
-    if (userSeedingRequestString && userSeedingRequestString.indexOf("OVERLOADED") === -1) {
+    if (
+      userSeedingRequestString &&
+      userSeedingRequestString.indexOf("OVERLOADED") === -1
+    ) {
       const userSeedingDocument = createDocument(userSeedingRequestString);
       seedStatus = this.countSeedingStatusFromDocument(userSeedingDocument);
     } else {
@@ -159,7 +172,10 @@ export default class mteam extends NexusPHP {
           pageInfo.count = this.getFieldData(TListDocument, {
             selector: ["a[href*='page=']:contains('-'):last"],
             attr: "href",
-            filters: [(query: string) => parseInt(new URL(query).searchParams.get("page") || "-1")],
+            filters: [
+              (query: string) =>
+                parseInt(new URL(query).searchParams.get("page") || "-1"),
+            ],
           });
         }
 

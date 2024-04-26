@@ -20,8 +20,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     advanceKeyword: {
       imdb: {
-        skip: true
-      }
+        skip: true,
+      },
     },
     selectors: {
       rows: { selector: "table.torrents > tbody > tr:gt(0)" },
@@ -62,12 +62,9 @@ export const siteMetadata: ISiteMetadata = {
       status: {
         selector: ":self",
         elementProcess: (tr: HTMLElement) => {
-          const statusAnothers = Sizzle(
-            "> td:eq(4), > td:eq(5), > td:eq(6)",
-            tr
-          );
+          const statusAnothers = Sizzle("> td:eq(4), > td:eq(5), > td:eq(6)", tr);
           const statusStyle: (string | null)[] = statusAnothers.map((e) =>
-            e.getAttribute("style")
+            e.getAttribute("style"),
           );
           if (statusStyle[0]) {
             return ETorrentStatus.seeding;
@@ -128,8 +125,7 @@ export const siteMetadata: ISiteMetadata = {
       bonus: {
         selector: "#ratio",
         filters: [
-          (query: string) =>
-            query.replace("论坛积分:", "").replace(/,/g, "").trim(),
+          (query: string) => query.replace("论坛积分:", "").replace(/,/g, "").trim(),
           parseFloat,
         ],
       },
@@ -145,8 +141,7 @@ export const siteMetadata: ISiteMetadata = {
         text: 0,
         selector: "#psts li:contains('即时保种数')",
         filters: [
-          (query: string) =>
-            query.replace("即时保种数", "").replace(/,/g, "").trim(),
+          (query: string) => query.replace("即时保种数", "").replace(/,/g, "").trim(),
           parseFloat,
         ],
       },

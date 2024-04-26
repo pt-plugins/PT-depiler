@@ -12,8 +12,8 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     advanceKeyword: {
       imdb: {
-        skip: true
-      }
+        skip: true,
+      },
     },
     selectors: {
       time: { selector: "> td:eq(1)" },
@@ -37,7 +37,9 @@ export const siteMetadata: ISiteMetadata = {
           }
 
           if (groupElement && groupElement.querySelector("td.cats_col > div[title]")) {
-            return groupElement.querySelector("td.cats_col > div[title]")!.getAttribute("title")!;
+            return groupElement
+              .querySelector("td.cats_col > div[title]")!
+              .getAttribute("title")!;
           } else {
             return "Other";
           }

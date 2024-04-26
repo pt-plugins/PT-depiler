@@ -66,7 +66,7 @@ export const siteMetadata: ISiteMetadata = {
           config.params.search_field = config.params.search_field.replace("tt", "IMDB");
           return config;
         },
-      }
+      },
     },
     categories: [
       {
@@ -87,7 +87,8 @@ export const siteMetadata: ISiteMetadata = {
       },
       subTitle: {
         selector: "div.name_left > a > b",
-        elementProcess: (e: HTMLElement) => extractContent(e.innerHTML.split("<br>")[1] || ""),
+        elementProcess: (e: HTMLElement) =>
+          extractContent(e.innerHTML.split("<br>")[1] || ""),
       },
       url: { selector: "div.name_left > a", attr: "href" },
       link: { selector: "a.dl_a", attr: "href" },
@@ -147,15 +148,22 @@ export const siteMetadata: ISiteMetadata = {
         selector: "a[href*='userdetails.php']:first",
       },
       messageCount: {
-        selector: "td[style*='background'] > b > a[href*='messages.php'], a[href='#notice']",
+        selector:
+          "td[style*='background'] > b > a[href*='messages.php'], a[href='#notice']",
         filters: [{ name: "parseNumber" }],
       },
       uploaded: {
-        selector: ["td.rowhead:contains('上传量') + td", "td.rowhead:contains('上傳量') + td"],
+        selector: [
+          "td.rowhead:contains('上传量') + td",
+          "td.rowhead:contains('上傳量') + td",
+        ],
         filters: [{ name: "parseSize" }],
       },
       downloaded: {
-        selector: ["td.rowhead:contains('下载量') + td", "td.rowhead:contains('下載量') + td"],
+        selector: [
+          "td.rowhead:contains('下载量') + td",
+          "td.rowhead:contains('下載量') + td",
+        ],
         filters: [{ name: "parseSize" }],
       },
       ratio: {
@@ -163,14 +171,23 @@ export const siteMetadata: ISiteMetadata = {
         filters: [parseFloat],
       },
       levelName: {
-        selector: ["td.rowhead:contains('等级') + td", "td.rowhead:contains('等級') + td"],
+        selector: [
+          "td.rowhead:contains('等级') + td",
+          "td.rowhead:contains('等級') + td",
+        ],
       },
       bonus: {
-        selector: ["td.rowhead:contains('积分') + td", "td.rowhead:contains('積分') + td"],
+        selector: [
+          "td.rowhead:contains('积分') + td",
+          "td.rowhead:contains('積分') + td",
+        ],
         filters: [parseFloat],
       },
       joinTime: {
-        selector: ["td.rowhead:contains('注册日期') + td", "td.rowhead:contains('註冊日期') + td"],
+        selector: [
+          "td.rowhead:contains('注册日期') + td",
+          "td.rowhead:contains('註冊日期') + td",
+        ],
         filters: [{ name: "parseTime" }],
       },
       seeding: {
@@ -189,7 +206,9 @@ export const siteMetadata: ISiteMetadata = {
           const trAnothers = Sizzle("tr:not(:eq(0))", element);
           trAnothers.forEach((trAnother) => {
             const sizeAnother = Sizzle("td:eq(3)", trAnother)[0];
-            seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim());
+            seedingSize += parseSizeString(
+              (sizeAnother as HTMLElement).innerText.trim(),
+            );
           });
           return seedingSize;
         },
@@ -199,15 +218,19 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class totheglory extends PrivateSite {
-  protected override async transformSearchFilter(filter: ISearchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter(
+    filter: ISearchFilter,
+  ): Promise<AxiosRequestConfig> {
     const category = filter.extraParams?.find((x) => x.key === "分类");
     if (category) {
       const categoryValue: string[] =
-        typeof category.value === "string" ? [category.value] : (category.value as string[]);
+        typeof category.value === "string"
+          ? [category.value]
+          : (category.value as string[]);
       filter.keywords += " " + categoryValue.map((v) => `分类:\`${v}\``).join(" ");
       filter.extraParams?.splice(
         filter.extraParams?.findIndex((x) => x.key === "分类"),
-        1
+        1,
       );
     }
     return super.transformSearchFilter(filter);

@@ -31,7 +31,8 @@ const userInfoMap: Record<"en" | "ja", Record<boxName | keyof IUserInfo, string>
 function genUserInfoSelector(boxName: boxName, field: keyof IUserInfo): string[] {
   const failBack = userInfoMap.en[field]; // 默认使用英文，这样就可以减小重复字段了
   return Object.values(userInfoMap).map(
-    (value) => `div:contains('${value[boxName]}') + ul.stats > li:contains('${value[field] || failBack}')`
+    (value) =>
+      `div:contains('${value[boxName]}') + ul.stats > li:contains('${value[field] || failBack}')`,
   );
 }
 
@@ -61,8 +62,8 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     advanceKeyword: {
       imdb: {
-        skip: true
-      }
+        skip: true,
+      },
     },
     selectors: {
       // 对于特定站点，不使用自动生成列表，而是直接指定selector
@@ -114,7 +115,10 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseTime" }],
       },
       messageCount: {
-        selector: ["#alerts > .alertbar > a[href='notice.php']", "div.alertbar > a[href*='inbox.php']"],
+        selector: [
+          "#alerts > .alertbar > a[href='notice.php']",
+          "div.alertbar > a[href*='inbox.php']",
+        ],
         filters: [
           (query: string) => {
             const queryMatch = query.match(/(\d+)/);
@@ -130,7 +134,10 @@ export default class jpopsuki extends Gazelle {
   protected override async transformSearchPage(doc: Document): Promise<ITorrent[]> {
     const torrents: ITorrent[] = [];
 
-    const rows = Sizzle("table.torrent_table:last > tbody > tr:gt(0)", doc) as HTMLElement[];
+    const rows = Sizzle(
+      "table.torrent_table:last > tbody > tr:gt(0)",
+      doc,
+    ) as HTMLElement[];
 
     let albumAttr: Partial<ITorrent> = {};
     for (let i = 0; i < rows.length; i++) {
@@ -149,7 +156,9 @@ export default class jpopsuki extends Gazelle {
 
         // 移除掉其他无关元素后的作为专辑标题
         const albumRow = Sizzle("> td:eq(3)", tr)[0].cloneNode(true) as HTMLElement;
-        Sizzle(">span, div.tags, a[title='View Comments']", albumRow).forEach((e) => e.remove());
+        Sizzle(">span, div.tags, a[title='View Comments']", albumRow).forEach((e) =>
+          e.remove(),
+        );
         albumAttr.title = albumRow.innerText.trim();
         continue;
       } else if (tr.classList.contains("group_torrent_redline")) {
@@ -163,10 +172,17 @@ export default class jpopsuki extends Gazelle {
         torrent.subTitle = this.getFieldData(tr, {
           selector: '> td:eq(3) > a[href*="torrents.php?id="]',
         });
-      } else if (tr.classList.contains("torrent_redline") || tr.classList.contains("torrent")) {
+      } else if (
+        tr.classList.contains("torrent_redline") ||
+        tr.classList.contains("torrent")
+      ) {
         // 单种行
-        const cloneTitleAnother = titleAnother[0].parentElement!.cloneNode(true) as HTMLElement;
-        Sizzle(">span, div.tags, a[title='View Comments']", cloneTitleAnother).forEach((e) => e.remove());
+        const cloneTitleAnother = titleAnother[0].parentElement!.cloneNode(
+          true,
+        ) as HTMLElement;
+        Sizzle(">span, div.tags, a[title='View Comments']", cloneTitleAnother).forEach(
+          (e) => e.remove(),
+        );
         torrent.title = cloneTitleAnother.innerText.trim();
       } else {
         continue;
@@ -185,7 +201,11 @@ export default class jpopsuki extends Gazelle {
     return torrents;
   }
 
-  private async getUserTorrentList(userId: number, page: number = 0, type: string = "seeding"): Promise<Document> {
+  private async getUserTorrentList(
+    userId: number,
+    page: number = 0,
+    type: string = "seeding",
+  ): Promise<Document> {
     const { data: TListDocument } = await this.request<Document>({
       url: "/torrents.php",
       params: {
@@ -198,7 +218,9 @@ export default class jpopsuki extends Gazelle {
     return TListDocument;
   }
 
-  public override async getUserInfo(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+  public override async getUserInfo(
+    lastUserInfo: Partial<IUserInfo> = {},
+  ): Promise<IUserInfo> {
     const flushUserInfo = await super.getUserInfo();
 
     if (flushUserInfo.id) {
@@ -206,13 +228,19 @@ export default class jpopsuki extends Gazelle {
 
       const pageInfo = { count: 0, current: 0 }; // 生成页面信息
       for (; pageInfo.current <= pageInfo.count; pageInfo.current++) {
-        const TListDocument = await this.getUserTorrentList(flushUserInfo.id as number, pageInfo.current);
+        const TListDocument = await this.getUserTorrentList(
+          flushUserInfo.id as number,
+          pageInfo.current,
+        );
         // 更新最大页数
         if (pageInfo.count === 0) {
           pageInfo.count = this.getFieldData(TListDocument, {
             selector: ["a[href*='torrents.php?page=']:contains('Last'):last"],
             attr: "href",
-            filters: [(query: string) => parseInt(new URL(query).searchParams.get("page") || "-1")],
+            filters: [
+              (query: string) =>
+                parseInt(new URL(query).searchParams.get("page") || "-1"),
+            ],
           });
         }
 
@@ -220,7 +248,9 @@ export default class jpopsuki extends Gazelle {
         torrentAnothers.forEach((element) => {
           const sizeAnother = Sizzle("td:eq(5)", element);
           if (sizeAnother && sizeAnother.length >= 0) {
-            seedingSize += parseSizeString((sizeAnother[0] as HTMLElement).innerText.trim());
+            seedingSize += parseSizeString(
+              (sizeAnother[0] as HTMLElement).innerText.trim(),
+            );
           }
         });
       }

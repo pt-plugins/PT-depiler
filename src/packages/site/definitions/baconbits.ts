@@ -60,7 +60,15 @@ export const siteMetadata: ISiteMetadata = {
       {
         requestConfig: { url: "/user.php" },
         assertion: { id: "id" },
-        fields: ["uploaded", "downloaded", "ratio", "seeding", "levelName", "bonus", "joinTime"],
+        fields: [
+          "uploaded",
+          "downloaded",
+          "ratio",
+          "seeding",
+          "levelName",
+          "bonus",
+          "joinTime",
+        ],
       },
     ],
     selectors: {

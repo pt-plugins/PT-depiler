@@ -5,21 +5,22 @@ export const useDownloaderStore = defineStore("downloader", {
   persist: true,
   state: () => ({
     defaultDownloaderId: null as unknown as string,
-    clients: [] as DownloaderBaseConfig[]
+    clients: [] as DownloaderBaseConfig[],
   }),
 
   getters: {
-    isDefaultDownloader (state) {
+    isDefaultDownloader(state) {
       return (clientId: string) => state.defaultDownloaderId === clientId;
     },
 
-    getClient (state) {
-      return (clientId: string) => state.clients.find(client => client.id === clientId);
-    }
+    getClient(state) {
+      return (clientId: string) =>
+        state.clients.find((client) => client.id === clientId);
+    },
   },
 
   actions: {
-    addClient (client: DownloaderBaseConfig) {
+    addClient(client: DownloaderBaseConfig) {
       this.clients.push(client);
 
       // 如果此时只有一个下载器 or 未设置默认下载器，则将这个下载器设置为默认下载器
@@ -29,16 +30,16 @@ export const useDownloaderStore = defineStore("downloader", {
       this.$save();
     },
 
-    patchClient (client: DownloaderBaseConfig) {
-      const clientIndex = this.clients.findIndex(data => {
+    patchClient(client: DownloaderBaseConfig) {
+      const clientIndex = this.clients.findIndex((data) => {
         return data.id === client.id;
       });
       this.clients[clientIndex] = client;
       this.$save();
     },
 
-    removeClient (clientId: string) {
-      const clientIndex = this.clients.findIndex(data => {
+    removeClient(clientId: string) {
+      const clientIndex = this.clients.findIndex((data) => {
         return data.id === clientId;
       });
 
@@ -50,6 +51,6 @@ export const useDownloaderStore = defineStore("downloader", {
         this.defaultDownloaderId = null as unknown as string;
       }
       this.$save();
-    }
-  }
+    },
+  },
 });

@@ -120,7 +120,7 @@ export default class GoogleDrive implements IBackupServer<GoogleDriveConfig> {
           client_secret: this.authConfig.client_secret,
           refresh_token: this.authConfig.refresh_token,
           grant_type: "refresh_token",
-        })
+        }),
       );
       this.accessInformation = { ...data, expired_at: Date.now() + 3500 * 1e3 };
     }
@@ -130,7 +130,7 @@ export default class GoogleDrive implements IBackupServer<GoogleDriveConfig> {
 
   private async request<T extends ApiResponse>(
     config: AxiosRequestConfig = {},
-    retry = 3
+    retry = 3,
   ): Promise<AxiosResponse<T>> {
     // generateAuthRequestConfig
     const accessToken = await this.fetchAccessToken();
@@ -152,7 +152,7 @@ export default class GoogleDrive implements IBackupServer<GoogleDriveConfig> {
       }
 
       throw Error(
-        `Network Error: ${response.status} ${response.statusText || ""}`.trim()
+        `Network Error: ${response.status} ${response.statusText || ""}`.trim(),
       );
     }
   }
@@ -203,7 +203,7 @@ export default class GoogleDrive implements IBackupServer<GoogleDriveConfig> {
     const form = new FormData();
     form.append(
       "metadata",
-      new Blob([JSON.stringify(metadata)], { type: "application/json" })
+      new Blob([JSON.stringify(metadata)], { type: "application/json" }),
     );
     form.append("file", file);
 
@@ -250,8 +250,7 @@ export default class GoogleDrive implements IBackupServer<GoogleDriveConfig> {
     const params: AxiosRequestConfig["params"] = {
       spaces: await this.getScope(),
       q: `'${await this.getParentId()}' in parents and trashed = false`,
-      fields:
-        "nextPageToken, files(kind, id, name, mimeType, size, createdTime)",
+      fields: "nextPageToken, files(kind, id, name, mimeType, size, createdTime)",
       pageSize: 1000,
     };
 

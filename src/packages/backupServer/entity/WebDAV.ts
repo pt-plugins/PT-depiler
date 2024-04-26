@@ -6,7 +6,7 @@ import type {
   IBackupServer,
 } from "../type.ts";
 import { localSort } from "../utils.ts";
-import { AuthType, createClient, type FileStat,type WebDAVClient } from "webdav";
+import { AuthType, createClient, type FileStat, type WebDAVClient } from "webdav";
 
 interface WebDAVConfig extends IBackupConfig {
   config: {

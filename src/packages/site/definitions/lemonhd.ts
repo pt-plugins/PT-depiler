@@ -42,7 +42,7 @@ export const siteMetadata: ISiteMetadata = {
           config.params.search_area = "imdb"; // params "&search_area=imdb"
           return config;
         },
-      }
+      },
     },
     selectors: {
       id: {
@@ -72,9 +72,13 @@ export const siteMetadata: ISiteMetadata = {
           if (query === "--") {
             return ETorrentStatus.unknown;
           } else if (element.classList.contains("peer-active")) {
-            return parseFloat(query) > 100 ? ETorrentStatus.seeding : ETorrentStatus.downloading;
+            return parseFloat(query) > 100
+              ? ETorrentStatus.seeding
+              : ETorrentStatus.downloading;
           } else {
-            return parseFloat(query) > 100 ? ETorrentStatus.completed : ETorrentStatus.inactive;
+            return parseFloat(query) > 100
+              ? ETorrentStatus.completed
+              : ETorrentStatus.inactive;
           }
         },
       },
@@ -97,8 +101,12 @@ export const siteMetadata: ISiteMetadata = {
         filters: [
           (query: string) => {
             query = query.replace(/,/g, "");
-            const queryMatch = query.match(/(?:总做种体积|seedingSize).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
-            return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0;
+            const queryMatch = query.match(
+              /(?:总做种体积|seedingSize).+?([\d.]+ ?[ZEPTGMK]?i?B)/,
+            );
+            return queryMatch && queryMatch.length >= 2
+              ? parseSizeString(queryMatch[1])
+              : 0;
           },
         ],
       },

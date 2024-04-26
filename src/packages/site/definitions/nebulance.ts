@@ -28,8 +28,8 @@ export const siteMetadata: ISiteMetadata = {
     keywordsParam: "searchtext",
     advanceKeyword: {
       imdb: {
-        skip: true
-      }
+        skip: true,
+      },
     },
     selectors: {
       rows: { selector: ".torrent_table > tbody > tr[class^='torrent row']" },
@@ -108,8 +108,12 @@ export const siteMetadata: ISiteMetadata = {
         selector: "ul.stats.nobullet > li:contains('Seeding Size:')",
         filters: [
           (query: string) => {
-            const queryMatch = query.replace(/,/g, "").match(/Seeding Size:.+?([\d.]+ ?[ZEPTGMK]?i?B)/);
-            return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0;
+            const queryMatch = query
+              .replace(/,/g, "")
+              .match(/Seeding Size:.+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+            return queryMatch && queryMatch.length >= 2
+              ? parseSizeString(queryMatch[1])
+              : 0;
           },
         ],
       },

@@ -49,8 +49,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     advanceKeyword: {
       imdb: {
-        skip: true
-      }
+        skip: true,
+      },
     },
     selectors: {
       rows: { selector: "table.dataTable:last > tbody > tr:gt(0)" },
@@ -180,11 +180,13 @@ export const siteMetadata: ISiteMetadata = {
           const trAnothers = Sizzle("tr:not(:eq(0))", doc);
           trAnothers.forEach((trAnother) => {
             const sizeAnother = Sizzle("td:eq(2)", trAnother);
-            seedingSize += findThenParseSizeString((sizeAnother[0] as HTMLElement).innerText.trim());
+            seedingSize += findThenParseSizeString(
+              (sizeAnother[0] as HTMLElement).innerText.trim(),
+            );
           });
           return seedingSize;
         },
       },
     },
-  }
+  },
 };

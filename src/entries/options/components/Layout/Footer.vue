@@ -10,18 +10,19 @@ const buildInfo = computedAsync(getBuildInfo);
   <v-footer id="ptpp-footer" app fixed>
     <span class="pl-2 grey--text text--darken-1">
       PT-Depiler &copy; {{ year }},
-      {{ $t('common.version') }}
+      {{ $t("common.version") }}
       <span>
-        {{ EXT_VERSION }}<a
+        {{ EXT_VERSION
+        }}<a
           v-if="buildInfo?.gitVersion"
           :href="`${REPO_URL}/commit/${buildInfo.gitVersion.long}`"
           target="_blank"
-        >+{{ buildInfo.gitVersion.short }}</a>
+          >+{{ buildInfo.gitVersion.short }}</a
+        >
       </span>
     </span>
     <v-spacer />
   </v-footer>
 </template>
 
-<style lang="scss" scoped>
-</style>
+<style lang="scss" scoped></style>

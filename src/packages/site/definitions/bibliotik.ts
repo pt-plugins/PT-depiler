@@ -21,8 +21,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     advanceKeyword: {
       imdb: {
-        skip: true
-      }
+        skip: true,
+      },
     },
     selectors: {
       rows: { selector: "table#torrents_table > tbody > tr:has(.title)" },
@@ -105,7 +105,9 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class bibliotik extends PrivateSite {
-  public override async getUserInfo(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+  public override async getUserInfo(
+    lastUserInfo: Partial<IUserInfo> = {},
+  ): Promise<IUserInfo> {
     let userInfo = await super.getUserInfo();
 
     if (userInfo.id) {
@@ -124,11 +126,17 @@ export default class bibliotik extends PrivateSite {
           pageInfo.count = this.getFieldData(TListDocument, {
             selector: ".pagination a[href*='?page']:contains('Last >>'):first",
             attr: "href",
-            filters: [(query: string) => parseInt((new URL(query)).searchParams.get("page") as string) || -1],
+            filters: [
+              (query: string) =>
+                parseInt(new URL(query).searchParams.get("page") as string) || -1,
+            ],
           });
         }
 
-        const pageSeedAnother = Sizzle("table#torrents_table:first tbody > tr", TListDocument);
+        const pageSeedAnother = Sizzle(
+          "table#torrents_table:first tbody > tr",
+          TListDocument,
+        );
 
         userInfo.seeding! += pageSeedAnother.length;
         pageSeedAnother.forEach((another) => {

@@ -3,9 +3,9 @@ import { useToggle } from "@vueuse/core";
 import { ref } from "vue";
 
 const props = defineProps<{
-  open?: boolean
-  main: string,
-  expand?: string[],
+  open?: boolean;
+  main: string;
+  expand?: string[];
 }>();
 
 const showExpand = ref<boolean>(props.open ?? false);
@@ -29,13 +29,12 @@ const toggleExpand = useToggle(showExpand);
       </template>
     </ul>
     <v-icon
-      v-if="props.expand && props.expand.length > 0" style="max-width: 20px"
+      v-if="props.expand && props.expand.length > 0"
+      style="max-width: 20px"
       :icon="showExpand ? 'mdi-chevron-up' : 'mdi-chevron-down'"
       @click="toggleExpand"
     />
   </div>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

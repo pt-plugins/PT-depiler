@@ -32,7 +32,10 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["td.rowfollow:last-child"],
         filters: [
           // 未交待具体情况，不能准确判断时候是在下载中，所以置 unknown
-          (query: string) => (parseFloat(query) >= 100 ? ETorrentStatus.completed : ETorrentStatus.unknown),
+          (query: string) =>
+            parseFloat(query) >= 100
+              ? ETorrentStatus.completed
+              : ETorrentStatus.unknown,
         ],
       },
     },
