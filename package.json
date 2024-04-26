@@ -80,7 +80,7 @@
   },
   "lint-staged": {
     "*.{js,jsx,cjs,mjs,ts,tsx,json,yml,yaml}": [
-      "prettier --ignore-path ./.prettierignore --write "
+      "prettier --ignore-path --write "
     ]
   }
 }
