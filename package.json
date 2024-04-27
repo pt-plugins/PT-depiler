@@ -79,8 +79,8 @@
     "trailingComma": "all"
   },
   "lint-staged": {
-    "*.{js,jsx,cjs,mjs,ts,tsx,json,yml,yaml,vue}": [
-      "prettier --ignore-path --write "
+    "*.{js,jsx,cjs,mjs,ts,tsx,json,yml,yaml,vue,html}": [
+      "prettier --write "
     ]
   }
 }
