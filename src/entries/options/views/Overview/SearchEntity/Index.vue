@@ -153,9 +153,20 @@ watch(
 <template>
   <v-alert type="info">
     <v-alert-title>
-      搜索结果 {{ searchData.searchKey }} 的
-      <!-- TODO 搜索结果情况概况展示（部分搜索条目重试按钮） -->
-      <!-- TODO 全局重新搜索按钮 -->
+      搜索 [{{ searchData.searchKey }}] （方案 <{{
+        siteStore.getSolutionName(searchData.searchPlanKey)
+      }}>）的结果，
+
+      <template v-if="searchData.isSearching"> 正在搜索中..... </template>
+      <template v-else>
+        搜索完成， 共找到 个结果， 耗时：秒。
+
+        <!-- TODO 搜索结果情况概况展示（部分搜索条目重试按钮） -->
+        <v-btn>展示搜索方案详情</v-btn>
+
+        <!-- TODO 全局重新搜索按钮 -->
+        <v-btn @click="doSearch">重新搜索</v-btn>
+      </template>
     </v-alert-title>
   </v-alert>
   <v-card>
