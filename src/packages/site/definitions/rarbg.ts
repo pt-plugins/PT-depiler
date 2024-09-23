@@ -100,7 +100,7 @@ export default class Rarbg extends BittorrentSite {
 
   override async request<T>(
     axiosConfig: AxiosRequestConfig = {},
-    retry: boolean = true
+    retry: boolean = true,
   ): Promise<AxiosResponse<T>> {
     axiosConfig.url = this.apiPoint;
     axiosConfig.params.token = await this.getApiToken();

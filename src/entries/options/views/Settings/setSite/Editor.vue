@@ -8,7 +8,7 @@ import { type VForm } from "vuetify/components";
 import { type fullUrl, type timezoneOffset } from "@ptd/site";
 
 const componentProps = defineProps<{
-  modelValue: ISiteRuntimeConfig,
+  modelValue: ISiteRuntimeConfig;
 }>();
 
 const siteConfig = useVModel(componentProps);
@@ -33,7 +33,7 @@ const siteUrls = computed({
     if (siteConfig.value?.activateUrl && !val.includes(siteConfig.value.activateUrl)) {
       siteConfig.value.activateUrl = val[0] as fullUrl;
     }
-  }
+  },
 });
 
 function deleteUrl(url: string) {
@@ -56,7 +56,7 @@ function addUrl() {
   }
 }
 
-const timeZone: Array<{value: timezoneOffset, title: string}> = [
+const timeZone: Array<{ value: timezoneOffset; title: string }> = [
   { value: "-1200", title: "(UTC -12:00) Enitwetok, Kwajalien" },
   { value: "-1100", title: "(UTC -11:00) Midway Island, Samoa" },
   { value: "-1000", title: "(UTC -10:00) Hawaii" },
@@ -70,7 +70,10 @@ const timeZone: Array<{value: timezoneOffset, title: string}> = [
   { value: "-0300", title: "(UTC -03:00) Brazil, Buenos Aires, Falkland Is." },
   { value: "-0200", title: "(UTC -02:00) Mid-Atlantic, Ascention Is., St Helena" },
   { value: "-0100", title: "(UTC -01:00) Azores, Cape Verde Islands" },
-  { value: "+0000", title: "(UTC ±00:00) Casablanca, Dublin, London, Lisbon, Monrovia" },
+  {
+    value: "+0000",
+    title: "(UTC ±00:00) Casablanca, Dublin, London, Lisbon, Monrovia",
+  },
   { value: "+0100", title: "(UTC +01:00) Brussels, Copenhagen, Madrid, Paris" },
   { value: "+0200", title: "(UTC +02:00) Sofia, Izrael, South Africa," },
   { value: "+0300", title: "(UTC +03:00) Baghdad, Riyadh, Moscow, Nairobi" },
@@ -81,14 +84,16 @@ const timeZone: Array<{value: timezoneOffset, title: string}> = [
   { value: "+0530", title: "(UTC +05:30) Bombay, Calcutta, Madras, New Delhi" },
   { value: "+0600", title: "(UTC +06:00) Almaty, Colomba, Dhakra" },
   { value: "+0700", title: "(UTC +07:00) Bangkok, Hanoi, Jakarta" },
-  { value: "+0800", title: "(UTC +08:00) ShangHai, HongKong, Perth, Singapore, Taipei" },
+  {
+    value: "+0800",
+    title: "(UTC +08:00) ShangHai, HongKong, Perth, Singapore, Taipei",
+  },
   { value: "+0900", title: "(UTC +09:00) Osaka, Sapporo, Seoul, Tokyo, Yakutsk" },
   { value: "+0930", title: "(UTC +09:30) Adelaide, Darwin" },
   { value: "+1000", title: "(UTC +10:00) Melbourne, Papua New Guinea, Sydney" },
   { value: "+1100", title: "(UTC +11:00) Magadan, New Caledonia, Solomon Is." },
-  { value: "+1200", title: "(UTC +12:00) Auckland, Fiji, Marshall Island" }
+  { value: "+1200", title: "(UTC +12:00) Auckland, Fiji, Marshall Island" },
 ];
-
 </script>
 
 <template>
@@ -98,12 +103,17 @@ const timeZone: Array<{value: timezoneOffset, title: string}> = [
         <v-row>
           <v-col cols="12" md="4">
             <v-text-field
-              v-model="siteConfig.name" :label="$t('setSite.common.name')"
+              v-model="siteConfig.name"
+              :label="$t('setSite.common.name')"
               :rules="[formValidateRules.require()]"
             />
           </v-col>
           <v-col cols="12" md="4">
-            <v-text-field v-model="siteConfig.schema" :label="$t('setSite.common.type')" disabled />
+            <v-text-field
+              v-model="siteConfig.schema"
+              :label="$t('setSite.common.type')"
+              disabled
+            />
           </v-col>
           <v-col cols="12" md="4">
             <v-text-field
@@ -117,21 +127,20 @@ const timeZone: Array<{value: timezoneOffset, title: string}> = [
         </v-row>
       </v-container>
       <v-radio-group v-model="siteConfig.activateUrl" :label="$t('setSite.common.url')">
-        <v-radio
-          v-for="url in siteUrls" :key="url"
-          :value="url"
-        >
+        <v-radio v-for="url in siteUrls" :key="url" :value="url">
           <template #label>
             {{ url }}
             <v-spacer />
             <v-btn
-              icon="mdi-arrow-top-right-bold-box-outline" variant="text"
+              icon="mdi-arrow-top-right-bold-box-outline"
+              variant="text"
               color="info"
               :href="url"
               target="_blank"
             />
             <v-btn
-              icon="mdi-delete" variant="text"
+              icon="mdi-delete"
+              variant="text"
               color="error"
               :disabled="siteUrls.length <= 1"
               @click="deleteUrl(url)"
@@ -147,28 +156,29 @@ const timeZone: Array<{value: timezoneOffset, title: string}> = [
           variant="underlined"
           :error="preAddUrlError"
           :hint="$t('setSite.editor.addUrlTip')"
-          @update:model-value="() => preAddUrlError = false"
+          @update:model-value="() => (preAddUrlError = false)"
         >
           <template #append>
-            <v-btn
-              icon="mdi-plus" variant="text"
-              color="success"
-              @click="addUrl"
-            />
+            <v-btn icon="mdi-plus" variant="text" color="success" @click="addUrl" />
           </template>
         </v-text-field>
       </v-radio-group>
 
       <v-combobox
-        v-model="siteConfig.aka" chips
+        v-model="siteConfig.aka"
+        chips
         multiple
         :label="$t('setSite.common.aka')"
       />
 
-      <v-text-field v-model="siteConfig.description" :label="$t('setSite.editor.description')" />
+      <v-text-field
+        v-model="siteConfig.description"
+        :label="$t('setSite.editor.description')"
+      />
 
       <v-combobox
-        v-model="siteConfig.tags" chips
+        v-model="siteConfig.tags"
+        chips
         multiple
         :label="$t('setSite.common.tags')"
         :hint="$t('setSite.editor.tagTip')"
@@ -184,6 +194,4 @@ const timeZone: Array<{value: timezoneOffset, title: string}> = [
   </v-card>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

@@ -7,20 +7,21 @@ import {
   getDownloaderMetaData,
   getDownloaderIcon,
   getDownloaderDefaultConfig,
-  DownloaderBaseConfig, TorrentClientMetaData,
+  DownloaderBaseConfig,
+  TorrentClientMetaData,
 } from "@ptd/downloader";
 import { useDownloaderStore } from "@/shared/store/downloader.ts";
 import Editor from "./Editor.vue";
 
 const componentProps = defineProps<{
-  modelValue: boolean
+  modelValue: boolean;
 }>();
 
 const showDialog = useVModel(componentProps);
 
 const currentStep = ref<0 | 1>(0);
 const selectedClientType = ref<string | null>(null);
-const isClientConfigValid = ref<boolean>(false);   // 新增时默认配置不合法
+const isClientConfigValid = ref<boolean>(false); // 新增时默认配置不合法
 
 watch(showDialog, () => {
   currentStep.value = 0;
@@ -31,14 +32,14 @@ watch(showDialog, () => {
 const clientConfig = ref<DownloaderBaseConfig>();
 const clientMetaData = reactive<Record<string, TorrentClientMetaData>>({});
 
-async function updateSelectedClientType (selectClientType: string) {
+async function updateSelectedClientType(selectClientType: string) {
   if (!clientMetaData[selectClientType]) {
     clientMetaData[selectClientType] = await getDownloaderMetaData(selectClientType);
   }
   clientConfig.value = await getDownloaderDefaultConfig(selectClientType);
 }
 
-function saveClient () {
+function saveClient() {
   const downloaderStore = useDownloaderStore();
   downloaderStore.addClient(clientConfig.value!);
   showDialog.value = false;
@@ -50,7 +51,7 @@ function saveClient () {
     <v-card>
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey darken-2">
-          <v-toolbar-title>{{ $t('setDownloader.add.title') }}</v-toolbar-title>
+          <v-toolbar-title>{{ $t("setDownloader.add.title") }}</v-toolbar-title>
           <v-spacer />
           <v-btn
             icon="mdi-help-circle"
@@ -69,7 +70,10 @@ function saveClient () {
             <v-autocomplete
               v-model="selectedClientType"
               :items="entityList"
-              :hint="clientMetaData[selectedClientType!]?.description ?? $t('setDownloader.add.NoneSelectNotice')"
+              :hint="
+                clientMetaData[selectedClientType!]?.description ??
+                $t('setDownloader.add.NoneSelectNotice')
+              "
               persistent-hint
               @update:model-value="updateSelectedClientType"
             >
@@ -83,7 +87,10 @@ function saveClient () {
             </v-autocomplete>
           </v-window-item>
           <v-window-item :key="1">
-            <Editor v-model="clientConfig" v-model:is-config-valid="isClientConfigValid" />
+            <Editor
+              v-model="clientConfig"
+              v-model:is-config-valid="isClientConfigValid"
+            />
           </v-window-item>
         </v-window>
       </v-card-text>
@@ -98,16 +105,12 @@ function saveClient () {
           rel="noopener noreferrer nofollow"
         >
           <v-icon icon="mdi-help-circle" />
-          <span class="ml-1">{{ $t('setDownloader.add.newType') }}</span>
+          <span class="ml-1">{{ $t("setDownloader.add.newType") }}</span>
         </v-btn>
         <v-spacer />
-        <v-btn
-          color="error"
-          variant="text"
-          @click="showDialog = false"
-        >
+        <v-btn color="error" variant="text" @click="showDialog = false">
           <v-icon icon="mdi-close-circle" />
-          {{ $t('common.dialog.cancel') }}
+          {{ $t("common.dialog.cancel") }}
         </v-btn>
         <v-btn
           v-if="currentStep === 1"
@@ -116,7 +119,7 @@ function saveClient () {
           @click="currentStep--"
         >
           <v-icon icon="mdi-chevron-left" />
-          {{ $t('common.dialog.prev') }}
+          {{ $t("common.dialog.prev") }}
         </v-btn>
         <v-btn
           v-if="currentStep === 0"
@@ -125,7 +128,7 @@ function saveClient () {
           variant="text"
           @click="currentStep++"
         >
-          {{ $t('common.dialog.next') }}
+          {{ $t("common.dialog.next") }}
           <v-icon icon="mdi-chevron-right" />
         </v-btn>
         <v-btn
@@ -136,7 +139,7 @@ function saveClient () {
           @click="saveClient"
         >
           <v-icon icon="mdi-check-circle-outline" />
-          {{ $t('common.dialog.ok') }}
+          {{ $t("common.dialog.ok") }}
         </v-btn>
       </v-card-actions>
     </v-card>

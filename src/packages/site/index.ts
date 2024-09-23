@@ -11,25 +11,27 @@ import { fullUrl } from "./types";
 export { BittorrentSite, PrivateSite };
 
 interface schemaEntity {
-  default: TSite,
-  SchemaMetadata: Partial<ISiteMetadata>
+  default: TSite;
+  SchemaMetadata: Partial<ISiteMetadata>;
 }
 
 interface definitionEntity {
   default?: TSite;
-  siteMetadata: ISiteMetadata & Required<Pick<ISiteMetadata, "id" | "schema" | "isOffline">>;
+  siteMetadata: ISiteMetadata &
+    Required<Pick<ISiteMetadata, "id" | "schema" | "isOffline">>;
 }
 
 const schemaContent = import.meta.glob<schemaEntity>("./schemas/*.ts");
 
 const definitionContent = import.meta.glob<definitionEntity>("./definitions/*.ts");
 
-function transContent (value: string) {
+function transContent(value: string) {
   return value.replace(/^\.\/(schemas|definitions)\//, "").replace(/\.ts$/, "");
 }
 
 export const schemaList: string[] = Object.keys(schemaContent).map(transContent);
-export const definitionList: string[] = Object.keys(definitionContent).map(transContent);
+export const definitionList: string[] =
+  Object.keys(definitionContent).map(transContent);
 
 export type TSite = PrivateSite | BittorrentSite;
 
@@ -37,17 +39,20 @@ export async function getSchemaModule(schema: string): Promise<schemaEntity> {
   return await schemaContent[`./schemas/${schema}.ts`]();
 }
 
-async function getDefinitionModule (definition: string): Promise<definitionEntity> {
+async function getDefinitionModule(definition: string): Promise<definitionEntity> {
   const module = await definitionContent[`./definitions/${definition}.ts`]();
 
   // 补全缺失字段（此处补影响站点meta构造的内容，其余内容在 getDefinedSiteConfig 里面构造）
   module.siteMetadata.id ??= definition;
-  module.siteMetadata.schema ??= module.siteMetadata.type === "private" ? "AbstractPrivateSite" : "AbstractBittorrentSite";
+  module.siteMetadata.schema ??=
+    module.siteMetadata.type === "private"
+      ? "AbstractPrivateSite"
+      : "AbstractBittorrentSite";
 
   return module;
 }
 
-function restoreSecureLink (url: string): fullUrl {
+function restoreSecureLink(url: string): fullUrl {
   return (url.startsWith("aHR0c") ? atob(url) : url) as fullUrl;
 }
 
@@ -55,12 +60,14 @@ function restoreSecureLink (url: string): fullUrl {
  * 使用 lodash 的 mergeWith 来合并站点配置和模板配置
  * 注意：此时未合并对应站点的用户配置！！！
  */
-export async function getDefinedSiteConfig (definition: string): Promise<ISiteMetadata> {
-  const { siteMetadata: definedSiteConfig} = await getDefinitionModule(definition);
-  const { SchemaMetadata: definedSchemaConfig } = await getSchemaModule(definedSiteConfig.schema!);
+export async function getDefinedSiteConfig(definition: string): Promise<ISiteMetadata> {
+  const { siteMetadata: definedSiteConfig } = await getDefinitionModule(definition);
+  const { SchemaMetadata: definedSchemaConfig } = await getSchemaModule(
+    definedSiteConfig.schema!,
+  );
 
   const siteConfig = mergeWith(
-    {},  // use empty dict at first place since _.mergeWith will rewrite object
+    {}, // use empty dict at first place since _.mergeWith will rewrite object
     definedSchemaConfig,
     definedSiteConfig,
     (objValue, srcValue, key) => {
@@ -70,11 +77,12 @@ export async function getDefinedSiteConfig (definition: string): Promise<ISiteMe
           return srcValue;
         } else {
           return ([] as any[])
-            .concat(srcValue, objValue)   // 保证后并入的配置优先
+            .concat(srcValue, objValue) // 保证后并入的配置优先
             .filter((x) => typeof x !== "undefined");
         }
       }
-    }) as ISiteMetadata;
+    },
+  ) as ISiteMetadata;
 
   // 解密url加密过的站点
   siteConfig.url = restoreSecureLink(siteConfig.url);
@@ -92,20 +100,22 @@ export async function getDefinedSiteConfig (definition: string): Promise<ISiteMe
   siteConfig.timezoneOffset ??= siteConfig.schema === "NexusPHP" ? "+0800" : "+0000";
 
   if (siteConfig.category && siteConfig.search) {
-    siteConfig.search.categories = ([] as any[]).concat(
-      {
-        name: "Category",
-        ...siteConfig.category,
-      },
-      siteConfig.search.categories
-    ).filter((x) => typeof x !== "undefined");
+    siteConfig.search.categories = ([] as any[])
+      .concat(
+        {
+          name: "Category",
+          ...siteConfig.category,
+        },
+        siteConfig.search.categories,
+      )
+      .filter((x) => typeof x !== "undefined");
   }
 
   return siteConfig;
 }
 
 // FIXME 部分用户自定义的站点（此时在 js/site 目录中不存在对应模块），不能进行 dynamicImport 的情况，对此应该直接从 schema 中导入
-export async function getSite (siteMetadata: ISiteMetadata): Promise<TSite> {
+export async function getSite(siteMetadata: ISiteMetadata): Promise<TSite> {
   const { id: SiteId } = siteMetadata;
 
   let SiteClass;

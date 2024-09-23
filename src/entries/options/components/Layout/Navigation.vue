@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import {useUIStore} from "@/shared/store/ui";
+import { useUIStore } from "@/shared/store/ui";
 import { useDisplay } from "vuetify";
 import { routes } from "../../router";
 import { watch } from "vue";
@@ -30,12 +30,11 @@ const menuOptions = routes
     };
   }); // 根据 meta 的 isMainMenu 属性筛选出应该列在目录中的路径
 
-function clickMenuItem () {
+function clickMenuItem() {
   if (display.smAndDown.value && uiStore.isNavBarOpen) {
     uiStore.isNavBarOpen = false;
   }
 }
-
 </script>
 
 <template>
@@ -47,7 +46,8 @@ function clickMenuItem () {
     permanent
   >
     <v-list
-      v-for="(group, groupIndex) in menuOptions" :key="groupIndex"
+      v-for="(group, groupIndex) in menuOptions"
+      :key="groupIndex"
       density="compact"
       nav
     >

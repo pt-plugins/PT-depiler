@@ -4,9 +4,8 @@
 import { AxiosRequestConfig } from "axios";
 
 export type TorrentClientFeature =
-  | "CustomPath"  // 支持设置自定义目录作为下载目录
-  | "DefaultAutoStart" // 支持发送种子时自动开始
-  ;
+  | "CustomPath" // 支持设置自定义目录作为下载目录
+  | "DefaultAutoStart"; // 支持发送种子时自动开始
 
 /**
  * 客户端配置信息
@@ -59,7 +58,8 @@ export interface TorrentClientFeatureMetaData {
 }
 
 // 最通用的自定义目录提示词
-export const CustomPathDescription = "当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/ 或 D:\\download\\music\\。请确保对应路径软件有写入权限。";
+export const CustomPathDescription =
+  "当前目录列表配置是指定硬盘上的绝对路径，如 /volume1/music/ 或 D:\\download\\music\\。请确保对应路径软件有写入权限。";
 
 /**
  * 客户端介绍信息
@@ -178,21 +178,23 @@ export interface CAddTorrentOptions {
 /**
  * 客户端具体要实现的抽象方法
  */
-export abstract class AbstractBittorrentClient<T extends DownloaderBaseConfig = DownloaderBaseConfig> {
+export abstract class AbstractBittorrentClient<
+  T extends DownloaderBaseConfig = DownloaderBaseConfig,
+> {
   abstract version: `v${number}.${number}.${number}`;
   readonly config: T;
 
   private clientVersion?: string;
 
-  protected constructor (options: T) {
+  protected constructor(options: T) {
     this.config = options as T;
   }
 
   // 检查客户端是否可以连接
-  public abstract ping (): Promise<boolean>;
+  public abstract ping(): Promise<boolean>;
 
   // 获取客户端版本信息( wrapper with local cache )
-  public async getClientVersion (): Promise<string> {
+  public async getClientVersion(): Promise<string> {
     if (!this.clientVersion) {
       this.clientVersion = await this.getClientVersionFromRemote();
     }
@@ -200,20 +202,20 @@ export abstract class AbstractBittorrentClient<T extends DownloaderBaseConfig = 
   }
 
   // 获取客户端版本信息( wrapper with local cache )
-  protected abstract getClientVersionFromRemote (): Promise<string>;
+  protected abstract getClientVersionFromRemote(): Promise<string>;
 
   // 获取客户端状态
-  public async getClientStatus (): Promise<TorrentClientStatus> {
+  public async getClientStatus(): Promise<TorrentClientStatus> {
     return {
       dlSpeed: 0,
       upSpeed: 0,
       dlData: 0,
-      upData: 0
+      upData: 0,
     };
   }
 
   // 剩余磁盘空间
-  public async getClientFreeSpace (): Promise<number | "N/A"> {
+  public async getClientFreeSpace(): Promise<number | "N/A"> {
     return "N/A";
   }
 
@@ -229,9 +231,9 @@ export abstract class AbstractBittorrentClient<T extends DownloaderBaseConfig = 
    * 此时，则同时需要完成 3个方法（部分情况下为其中1个或2个）的 override
    *
    */
-  public abstract getAllTorrents (): Promise<CTorrent[]>;
+  public abstract getAllTorrents(): Promise<CTorrent[]>;
 
-  public async getTorrentsBy (filter: CTorrentFilterRules): Promise<CTorrent[]> {
+  public async getTorrentsBy(filter: CTorrentFilterRules): Promise<CTorrent[]> {
     let torrents = await this.getAllTorrents();
     if (filter.ids) {
       const filterIds = Array.isArray(filter.ids) ? filter.ids : [filter.ids];
@@ -247,25 +249,22 @@ export abstract class AbstractBittorrentClient<T extends DownloaderBaseConfig = 
     return torrents;
   }
 
-  public async getTorrent (id: string): Promise<CTorrent> {
+  public async getTorrent(id: string): Promise<CTorrent> {
     return (await this.getTorrentsBy({ ids: id }))[0];
   }
 
   // 添加种子
-  public abstract addTorrent (
+  public abstract addTorrent(
     url: string,
-    options: Partial<CAddTorrentOptions>
+    options: Partial<CAddTorrentOptions>,
   ): Promise<boolean>;
 
   // 暂停种子
-  public abstract pauseTorrent (id: any): Promise<boolean>;
+  public abstract pauseTorrent(id: any): Promise<boolean>;
 
   // 恢复种子
-  public abstract resumeTorrent (id: any): Promise<boolean>;
+  public abstract resumeTorrent(id: any): Promise<boolean>;
 
   // 删除种子
-  public abstract removeTorrent (
-    id: any,
-    removeData?: boolean
-  ): Promise<boolean>;
+  public abstract removeTorrent(id: any, removeData?: boolean): Promise<boolean>;
 }

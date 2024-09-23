@@ -109,7 +109,10 @@ export const siteMetadata: ISiteMetadata = {
       },
       joinTime: {
         selector: "li:contains('注册时间')",
-        filters: [(query: string) => query.replace("注册时间", ""), { name: "parseTime" }],
+        filters: [
+          (query: string) => query.replace("注册时间", ""),
+          { name: "parseTime" },
+        ],
       },
     },
   },
@@ -167,7 +170,9 @@ const nonTorrentCategory = [
 ];
 
 export default class neu6 extends PrivateSite {
-  protected override async transformSearchFilter(filter: ISearchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter(
+    filter: ISearchFilter,
+  ): Promise<AxiosRequestConfig> {
     const baseConfig: AxiosRequestConfig = {
       url: "/search.php",
       responseType: "document",

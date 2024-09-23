@@ -26,9 +26,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [
           (query: string) => {
             const queryMatch = query.match(/\/torrent\/(\d+)/);
-            return queryMatch && queryMatch.length >= 2
-              ? parseInt(queryMatch[1])
-              : 0;
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
           },
         ],
       },
@@ -135,10 +133,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         ],
       },
       seeding: {
-        selector: [
-          "li:contains('Seeding'):first",
-          "li:contains('Seeds'):first",
-        ],
+        selector: ["li:contains('Seeding'):first", "li:contains('Seeds'):first"],
         filters: [{ name: "parseNumber" }],
       },
     },
@@ -147,7 +142,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 
 export default class AvistaZ extends PrivateSite {
   public override async getUserInfo(
-    lastUserInfo: Partial<IUserInfo> = {}
+    lastUserInfo: Partial<IUserInfo> = {},
   ): Promise<IUserInfo> {
     let baseUserInfo = await super.getUserInfo();
 
@@ -181,13 +176,10 @@ export default class AvistaZ extends PrivateSite {
 
         const trAnothers = Sizzle(
           "table.table.table-condensed > tbody > tr",
-          TListDocument
+          TListDocument,
         );
         trAnothers.forEach((trAnother) => {
-          const statusAnother = Sizzle(
-            "> td:eq(3)",
-            trAnother
-          )[0] as HTMLElement;
+          const statusAnother = Sizzle("> td:eq(3)", trAnother)[0] as HTMLElement;
           if (statusAnother && statusAnother.innerText.includes("seed")) {
             // 只统计做种状态的
             baseUserInfo.seedingSize += this.getFieldData(trAnother, {

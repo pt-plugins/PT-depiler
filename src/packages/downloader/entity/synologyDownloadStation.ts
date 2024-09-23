@@ -37,8 +37,8 @@ export const clientMetaData: TorrentClientMetaData = {
         "因 Synology Download Station API 接口限制，保存目录依赖于“暂存位置”，并且只允许使用相对路径；<br/>如暂存位置为 /volume1/，期望存储目的地位置为 /volume1/music/，那么请在“目录列表”中填写：<span style='color:red'>music</span>",
     },
     DefaultAutoStart: {
-      allowed: true
-    }
+      allowed: true,
+    },
   },
 };
 
@@ -57,7 +57,7 @@ type SYNOApiCGIPath =
  */
 type SynoApiEndPointBase =
   | "SYNO.API.Info" // Provides available API info
-  | "SYNO.API.Auth"  // Performs session login and logout.
+  | "SYNO.API.Auth" // Performs session login and logout.
   | "SYNO.Core.Package";
 
 /**
@@ -118,12 +118,9 @@ type SynoApiEndPoint =
 
 type SynologySessionName = "DownloadStation" | "FileStation";
 
-function transObjToData (field: Record<string, any>, toForm: true): FormData;
-function transObjToData (
-  field: Record<string, any>,
-  toForm?: false
-): URLSearchParams;
-function transObjToData (field: Record<string, any>, toForm = false) {
+function transObjToData(field: Record<string, any>, toForm: true): FormData;
+function transObjToData(field: Record<string, any>, toForm?: false): URLSearchParams;
+function transObjToData(field: Record<string, any>, toForm = false) {
   const data = toForm ? new FormData() : new URLSearchParams();
   Object.entries(field).forEach(([k, v]) => {
     if (v !== undefined) {
@@ -359,18 +356,18 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
   private _sessionId?: string;
   private _apiInfo?: SynologyInfoApiResponseData;
 
-  constructor (options: Partial<TorrentClientConfig> = {}) {
+  constructor(options: Partial<TorrentClientConfig> = {}) {
     super({ ...clientConfig, ...options });
   }
 
-  private async getSessionId (): Promise<string> {
+  private async getSessionId(): Promise<string> {
     if (!this._sessionId) {
       await this.login();
     }
     return this._sessionId as string;
   }
 
-  private async getApiInfo (): Promise<SynologyInfoApiResponseData> {
+  private async getApiInfo(): Promise<SynologyInfoApiResponseData> {
     if (!this._apiInfo) {
       // 我们不捕捉此处的错误
       const req = await this.request<SynologyInfoApiResponseData>("query.cgi", {
@@ -389,9 +386,9 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
   }
 
   // 核心请求方法
-  private async request<T> (
+  private async request<T>(
     cgi: SYNOApiCGIPath,
-    config: AxiosRequestConfig
+    config: AxiosRequestConfig,
   ): Promise<SynologyResponse<T>> {
     return (
       await axios.request<SynologyResponse<T>>({
@@ -405,8 +402,8 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
   }
 
   // entry.cgi 请求方法
-  private async requestEntryCGI<T> (
-    field: DSRequestField | FormData
+  private async requestEntryCGI<T>(
+    field: DSRequestField | FormData,
   ): Promise<SynologyResponse<T>> {
     // 覆写 _sid 参数
     const sid = await this.getSessionId();
@@ -427,7 +424,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
   }
 
   // 请求登录并获得sid信息
-  private async login (): Promise<boolean> {
+  private async login(): Promise<boolean> {
     const apiInfo = await this.getApiInfo();
 
     /**
@@ -435,8 +432,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
      * 由于 DSM 7 以上， SYNO.API.Auth 接口当 version 为 2 时，会直接报 103 错误
      * 此时将 version 指到 3，可以正常获得 sid
      */
-    const loginVersion =
-      (apiInfo["SYNO.API.Auth"]?.maxVersion || 6) >= 7 ? 3 : 2;
+    const loginVersion = (apiInfo["SYNO.API.Auth"]?.maxVersion || 6) >= 7 ? 3 : 2;
 
     try {
       const req = await this.request<{ sid: string }>("auth.cgi", {
@@ -460,20 +456,23 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
     }
   }
 
-  async ping (): Promise<boolean> {
+  async ping(): Promise<boolean> {
     return this.login();
   }
 
-  override async getClientStatus (): Promise<TorrentClientStatus> {
+  override async getClientStatus(): Promise<TorrentClientStatus> {
     const status = {
       dlSpeed: 0,
-      upSpeed: 0
+      upSpeed: 0,
     };
 
-    const data = await this.requestEntryCGI<{ download_rate: number, upload_rate: number }>({
+    const data = await this.requestEntryCGI<{
+      download_rate: number;
+      upload_rate: number;
+    }>({
       api: "SYNO.DownloadStation2.Task.Statistic",
       method: "get",
-      version: 1
+      version: 1,
     });
     if (data.success) {
       status.upSpeed = data.data.upload_rate;
@@ -483,10 +482,16 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
     return status;
   }
 
-  protected async getClientVersionFromRemote (): Promise<string> {
+  protected async getClientVersionFromRemote(): Promise<string> {
     const data = await this.requestEntryCGI<{
-      packages: Array<{ id: string, name: string, timestamp: number, version: string, additional?: any }>,
-      total: number
+      packages: Array<{
+        id: string;
+        name: string;
+        timestamp: number;
+        version: string;
+        additional?: any;
+      }>;
+      total: number;
     }>({
       api: "SYNO.Core.Package",
       method: "list",
@@ -495,16 +500,16 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
 
     let dsmVersion = "";
     if (data.success) {
-      const dsmDetails = data.data.packages.find(pkg => pkg.id === "DownloadStation");
+      const dsmDetails = data.data.packages.find((pkg) => pkg.id === "DownloadStation");
       dsmVersion = dsmDetails?.version ?? "";
     }
 
     return dsmVersion;
   }
 
-  async addTorrent (
+  async addTorrent(
     url: string,
-    options: Partial<CAddTorrentOptions> = {}
+    options: Partial<CAddTorrentOptions> = {},
   ): Promise<boolean> {
     // 基本参数
     const params: DSRequestField = {
@@ -559,13 +564,11 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
     return req.success;
   }
 
-  async getAllTorrents (): Promise<CTorrent[]> {
+  async getAllTorrents(): Promise<CTorrent[]> {
     return await this.getTorrentsBy({});
   }
 
-  override async getTorrentsBy (
-    filter: CTorrentFilterRules
-  ): Promise<CTorrent[]> {
+  override async getTorrentsBy(filter: CTorrentFilterRules): Promise<CTorrent[]> {
     const params: DSRequestField = {
       api: "SYNO.DownloadStation2.Task",
       method: "list",
@@ -580,9 +583,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
       params.id = filter.ids;
     }
 
-    const req = (await this.requestEntryCGI(
-      params
-    )) as SynologySuccessResponse<{
+    const req = (await this.requestEntryCGI(params)) as SynologySuccessResponse<{
       offset: number;
       task: rawTask[];
       total: number;
@@ -690,7 +691,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
       });
   }
 
-  async pauseTorrent (id: string): Promise<boolean> {
+  async pauseTorrent(id: string): Promise<boolean> {
     return (
       await this.requestEntryCGI({
         id: id,
@@ -701,7 +702,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
     ).success;
   }
 
-  async resumeTorrent (id: string): Promise<boolean> {
+  async resumeTorrent(id: string): Promise<boolean> {
     return (
       await this.requestEntryCGI({
         id: id,
@@ -718,10 +719,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
    * @param id
    * @param removeData
    */
-  async removeTorrent (
-    id: any,
-    removeData: boolean | undefined
-  ): Promise<boolean> {
+  async removeTorrent(id: any, removeData: boolean | undefined): Promise<boolean> {
     return (
       await this.requestEntryCGI({
         id: id,

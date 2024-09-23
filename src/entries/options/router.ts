@@ -1,4 +1,4 @@
-import {createRouter, createWebHashHistory, RouteRecordRaw} from "vue-router";
+import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 
 export const routes: RouteRecordRaw[] = [
   {
@@ -11,7 +11,7 @@ export const routes: RouteRecordRaw[] = [
         name: "MyData",
         alias: "",
         meta: { icon: "mdi-view-dashboard" },
-        component: () => import("./views/Overview/MyData.vue")
+        component: () => import("./views/Overview/MyData.vue"),
       },
       {
         path: "/search-entity",
@@ -52,7 +52,7 @@ export const routes: RouteRecordRaw[] = [
        *         component: () => import("./views/Overview/KeepUploadTask.vue")
        *       }
        */
-    ]
+    ],
   },
 
   {
@@ -64,39 +64,39 @@ export const routes: RouteRecordRaw[] = [
         path: "/set-base",
         name: "setBase",
         meta: { icon: "mdi-cog" },
-        component: () => import("./views/Settings/setBase.vue")
+        component: () => import("./views/Settings/setBase.vue"),
       },
       {
         path: "/set-site",
         name: "setSite",
         meta: { icon: "mdi-earth" },
-        component: () => import("./views/Settings/setSite/Index.vue")
+        component: () => import("./views/Settings/setSite/Index.vue"),
       },
       {
         path: "/set-search-solution",
         name: "setSearchSolution",
         meta: { icon: "mdi-widgets" },
-        component: () => import("./views/Settings/setSearchSolution/Index.vue")
+        component: () => import("./views/Settings/setSearchSolution/Index.vue"),
       },
       {
         path: "/set-downloader",
         name: "setDownloader",
         meta: { icon: "mdi-cloud-download" },
-        component: () => import("./views/Settings/setDownloader/Index.vue")
+        component: () => import("./views/Settings/setDownloader/Index.vue"),
       },
       {
         path: "/set-download-paths",
         name: "setDownloadPaths",
         meta: { icon: "mdi-folder-open" },
-        component: () => import("./views/Settings/setDownloadPaths.vue")
+        component: () => import("./views/Settings/setDownloadPaths.vue"),
       },
       {
         path: "/set-backup",
         name: "setBackup",
         meta: { icon: "mdi-backup-restore" },
-        component: () => import("./views/Settings/setBackup.vue")
-      }
-    ]
+        component: () => import("./views/Settings/setBackup.vue"),
+      },
+    ],
   },
   {
     path: "/about",
@@ -107,21 +107,21 @@ export const routes: RouteRecordRaw[] = [
         path: "/technology-stack",
         name: "TechnologyStack",
         meta: { icon: "mdi-developer-board" },
-        component: () => import("./views/About/TechnologyStack.vue")
+        component: () => import("./views/About/TechnologyStack.vue"),
       },
       {
         path: "/special-thank",
         name: "SpecialThank",
         meta: { icon: "mdi-account-multiple" },
-        component: () => import("./views/About/SpecialThank.vue")
+        component: () => import("./views/About/SpecialThank.vue"),
       },
       {
         path: "/donate",
         name: "Donate",
         meta: { icon: "mdi-coffee" },
-        component: () => import("./views/About/Donate.vue")
-      }
-    ]
+        component: () => import("./views/About/Donate.vue"),
+      },
+    ],
   },
   {
     path: "/devtools",
@@ -132,26 +132,25 @@ export const routes: RouteRecordRaw[] = [
         path: "/system-log",
         name: "SystemLog",
         meta: { icon: "mdi-clipboard-text" },
-        component: () => import("./views/Devtools/SystemLog.vue")
-      }
-    ]
+        component: () => import("./views/Devtools/SystemLog.vue"),
+      },
+    ],
   },
 
-  {path: "/:pathMatch(.*)*", name: "NotFound", redirect: "/"}
-]
-
+  { path: "/:pathMatch(.*)*", name: "NotFound", redirect: "/" },
+];
 
 if (localStorage.getItem("enable_debugger") !== null) {
-  const devRouteIndex = routes.findIndex(x => x.name == "Devtools");
+  const devRouteIndex = routes.findIndex((x) => x.name == "Devtools");
   routes[devRouteIndex].children?.push({
     path: "/debugger",
     name: "Debugger",
     meta: { icon: "mdi-bug" },
-    component: () => import("./views/Devtools/Debugger.vue")
+    component: () => import("./views/Devtools/Debugger.vue"),
   });
 }
 
 export const routerInstance = createRouter({
   history: createWebHashHistory(),
-  routes
+  routes,
 });

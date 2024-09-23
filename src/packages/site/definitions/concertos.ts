@@ -37,7 +37,9 @@ export const siteMetadata: ISiteMetadata = {
       category: {
         selector: 'a[href*="?category_"]',
         attr: "href",
-        filters: [(query: string) => (query.match(/category_(\d+)/) || ["", "Other"])[1]],
+        filters: [
+          (query: string) => (query.match(/category_(\d+)/) || ["", "Other"])[1],
+        ],
       },
       seeders: { selector: "td:nth-last-child(3)" },
       leechers: { selector: "td:nth-last-child(2)" },
@@ -50,7 +52,15 @@ export const siteMetadata: ISiteMetadata = {
     process: [
       {
         requestConfig: { url: "/" },
-        fields: ["name", "id", "messageCount", "uploaded", "downloaded", "ratio", "levelName"],
+        fields: [
+          "name",
+          "id",
+          "messageCount",
+          "uploaded",
+          "downloaded",
+          "ratio",
+          "levelName",
+        ],
       },
       {
         requestConfig: { url: "/user/$userId$" },
@@ -98,7 +108,9 @@ export const siteMetadata: ISiteMetadata = {
       // page: '/user/$user.id$'
       joinTime: {
         selector: ["div.profile-block__age"],
-        filters: [(query: string) => dayjs(query.replace("Member since ", "")).valueOf()],
+        filters: [
+          (query: string) => dayjs(query.replace("Member since ", "")).valueOf(),
+        ],
       },
       bonus: {
         selector: ["td:contains('BONs') + td"],

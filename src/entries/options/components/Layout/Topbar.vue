@@ -1,13 +1,12 @@
 <script lang="ts" setup>
-import {ref} from "vue";
-import {useDisplay} from "vuetify";
-import {useRouter} from "vue-router";
+import { ref } from "vue";
+import { useDisplay } from "vuetify";
+import { useRouter } from "vue-router";
 
-import {REPO_URL} from "@/shared/constants";
-import {useUIStore} from "@/shared/store/ui";
-import {searchData} from "@/shared/store/runtime";
-import {useSiteStore} from "@/shared/store/site";
-
+import { REPO_URL } from "@/shared/constants";
+import { useUIStore } from "@/shared/store/ui";
+import { searchData } from "@/shared/store/runtime";
+import { useSiteStore } from "@/shared/store/site";
 
 const router = useRouter();
 const display = useDisplay();
@@ -15,33 +14,31 @@ const display = useDisplay();
 const uiStore = useUIStore();
 const siteStore = useSiteStore();
 
-const appendMenu: Array<{ title: string, icon: string, [str: string]: any }> = [
+const appendMenu: Array<{ title: string; icon: string; [str: string]: any }> = [
   {
     title: "layout.header.home",
     icon: "mdi-home",
-    href: REPO_URL
+    href: REPO_URL,
   },
   {
     title: "layout.header.wiki",
     icon: "mdi-help-circle",
-    href: `${REPO_URL}/wiki`
-  }
+    href: `${REPO_URL}/wiki`,
+  },
 ];
 
-
-const searchText = ref<string>(searchData.value.searchKey || '');
-const searchPlan = ref<string>(searchData.value.searchPlanKey || '');
+const searchText = ref<string>(searchData.value.searchKey || "");
+const searchPlan = ref<string>(searchData.value.searchPlanKey || "");
 
 function startSearchEntity() {
   router.push({
     name: "SearchEntity",
     query: {
       search: searchText.value,
-      plan: searchPlan.value
-    }
+      plan: searchPlan.value,
+    },
   });
 }
-
 </script>
 
 <template>
@@ -69,7 +66,7 @@ function startSearchEntity() {
         <v-menu>
           <template #activator="{ props }">
             <v-btn size="small" v-bind="props">
-              {{ '<' + siteStore.getSolutionName(searchPlan) + '>' }}
+              {{ "<" + siteStore.getSolutionName(searchPlan) + ">" }}
             </v-btn>
           </template>
           <v-list>
@@ -79,18 +76,24 @@ function startSearchEntity() {
               :value="solutionId"
               @click="searchPlan = solutionId"
             >
-              <v-list-item-title>{{ '<' + siteStore.getSolutionName(solutionId) + '>' }}</v-list-item-title>
+              <v-list-item-title>{{
+                "<" + siteStore.getSolutionName(solutionId) + ">"
+              }}</v-list-item-title>
             </v-list-item>
             <!-- TODO 添加搜索方案 -->
           </v-list>
         </v-menu>
       </template>
       <template #append>
-        <v-btn icon="mdi-magnify" :disabled="searchData.isSearching" @click="startSearchEntity"/>
+        <v-btn
+          icon="mdi-magnify"
+          :disabled="searchData.isSearching"
+          @click="startSearchEntity"
+        />
       </template>
     </v-text-field>
 
-    <v-spacer v-if="!display.mdAndDown.value"/>
+    <v-spacer v-if="!display.mdAndDown.value" />
 
     <template #append>
       <!-- 处于大屏幕，完整显示所有btn -->
@@ -106,20 +109,16 @@ function startSearchEntity() {
           size="large"
           target="_blank"
         >
-          <v-icon :icon="append.icon"/>
+          <v-icon :icon="append.icon" />
           <span class="ml-1">{{ $t(append.title) }}</span>
         </v-btn>
       </template>
 
       <!-- 处于小屏幕，只显示点，btn以menu列表形式展示 -->
       <template v-else>
-        <v-menu
-          v-if="display.mdAndDown.value"
-          bottom
-          left offset-y
-        >
+        <v-menu v-if="display.mdAndDown.value" bottom left offset-y>
           <template #activator="{ props }">
-            <v-btn icon="mdi-dots-vertical" variant="text" v-bind="props"/>
+            <v-btn icon="mdi-dots-vertical" variant="text" v-bind="props" />
           </template>
 
           <v-list>

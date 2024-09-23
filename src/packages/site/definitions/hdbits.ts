@@ -31,8 +31,8 @@ export const siteMetadata: ISiteMetadata = {
           config.params.imdb = config.params.search;
           delete config.params.search;
           return config;
-        }
-      }
+        },
+      },
     },
     selectors: {
       rows: {
@@ -74,7 +74,16 @@ export const siteMetadata: ISiteMetadata = {
       {
         requestConfig: { url: "/userdetails.php" },
         assertion: { id: "id" },
-        fields: ["uploaded", "downloaded", "ratio", "levelName", "bonus", "joinTime", "seeding", "seedingSize"],
+        fields: [
+          "uploaded",
+          "downloaded",
+          "ratio",
+          "levelName",
+          "bonus",
+          "joinTime",
+          "seeding",
+          "seedingSize",
+        ],
       },
     ],
     selectors: {

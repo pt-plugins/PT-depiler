@@ -21,7 +21,7 @@ export function extractContent(s: string): string {
 
 export function createDocument(
   str: string,
-  type: DOMParserSupportedType = "text/html"
+  type: DOMParserSupportedType = "text/html",
 ): Document {
   return new DOMParser().parseFromString(str, type);
 }

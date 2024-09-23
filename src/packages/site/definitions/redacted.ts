@@ -34,15 +34,15 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     advanceKeyword: {
       imdb: {
-        skip: true
-      }
+        skip: true,
+      },
     },
   },
 };
 
 export default class redacted extends GazelleJSONAPI {
   protected override async getUserSeedingTorrents(
-    userId?: number
+    userId?: number,
   ): Promise<Partial<IUserInfo>> {
     const { data: apiStats } = await this.requestApi("community_stats", {
       userid: userId,

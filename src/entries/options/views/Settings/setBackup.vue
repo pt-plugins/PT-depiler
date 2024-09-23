@@ -1,9 +1,5 @@
-<script lang="ts" setup>
+<script lang="ts" setup></script>
 
-</script>
-
-<template>
-  setBackup
-</template>
+<template>setBackup</template>
 
 <style scoped></style>

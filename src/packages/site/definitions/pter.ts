@@ -48,9 +48,7 @@ export const siteMetadata: ISiteMetadata = {
               widthMatch && widthMatch.length >= 2
                 ? (parseFloat(widthMatch[1]) / 98) * 100 /* 修正下载进度 */
                 : 0;
-            return element.classList.contains("progbarred")
-              ? progress
-              : 100 - progress; // 如果是 .progbarred 则代表已完成进度，而 .progbarred 则为未完成进度，取反
+            return element.classList.contains("progbarred") ? progress : 100 - progress; // 如果是 .progbarred 则代表已完成进度，而 .progbarred 则为未完成进度，取反
           } else {
             return 0;
           }
@@ -66,7 +64,7 @@ export const siteMetadata: ISiteMetadata = {
             element.classList.contains("progbarred")
           ) {
             const widthMatch = (element.getAttribute("style") || "").match(
-              /width:([ \d.]+)%/
+              /width:([ \d.]+)%/,
             );
             const progress =
               widthMatch && widthMatch.length >= 2

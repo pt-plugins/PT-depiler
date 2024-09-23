@@ -12,14 +12,14 @@ import TypeAndSchemaChip from "./TypeAndSchemaChip.vue";
 const siteStore = useSiteStore();
 
 const componentProps = defineProps<{
-  modelValue: boolean
+  modelValue: boolean;
 }>();
 
 const showDialog = useVModel(componentProps);
 
 const currentStep = ref<0 | 1>(0);
 const selectedSite = ref<ISiteRuntimeConfig | null>(null);
-const isSiteConfigValid = computed(() => typeof selectedSite.value?.id !== "undefined");   // 新增时默认配置合法
+const isSiteConfigValid = computed(() => typeof selectedSite.value?.id !== "undefined"); // 新增时默认配置合法
 
 watch(showDialog, () => {
   currentStep.value = 0;
@@ -27,11 +27,13 @@ watch(showDialog, () => {
 });
 
 const canAddSites = computedAsync(async () => {
-  const canAddedSiteList = definitionList.filter(x => !siteStore.addedSiteIds.includes(x));
+  const canAddedSiteList = definitionList.filter(
+    (x) => !siteStore.addedSiteIds.includes(x),
+  );
   return await siteStore.getSites(canAddedSiteList);
 }, []);
 
-console.log(canAddSites)
+console.log(canAddSites);
 
 async function saveSite() {
   await siteStore.addSite(selectedSite.value!);
@@ -66,21 +68,29 @@ async function saveSite() {
               :items="canAddSites"
               :multiple="false"
               :placeholder="selectedSite ? '' : $t('setSite.add.selectSitePlaceholder')"
-              :hint="selectedSite ? (selectedSite?.url + ': ' + (selectedSite?.description ?? '')) : ''"
+              :hint="
+                selectedSite
+                  ? selectedSite?.url + ': ' + (selectedSite?.description ?? '')
+                  : ''
+              "
               :filter-keys="['value.name', 'value.url']"
               persistent-hint
             >
-              <template #selection="{props, item: {value: item}}">
+              <template #selection="{ props, item: { value: item } }">
                 <v-list-item v-bind="props">
                   <template #prepend>
-                    <v-avatar v-bind="props" size="x-small" :image="siteFavicons[item.id] || ''" />
+                    <v-avatar
+                      v-bind="props"
+                      size="x-small"
+                      :image="siteFavicons[item.id] || ''"
+                    />
                   </template>
                   <v-list-item-title>
-                    {{ item.name ?? '' }}
+                    {{ item.name ?? "" }}
                   </v-list-item-title>
                 </v-list-item>
               </template>
-              <template #item="{ props, item: {value: item} }">
+              <template #item="{ props, item: { value: item } }">
                 <v-list-item
                   v-bind="props"
                   :title="item.name"
@@ -104,11 +114,7 @@ async function saveSite() {
       <v-divider />
       <v-card-actions>
         <v-spacer />
-        <v-btn
-          color="error"
-          variant="text"
-          @click="showDialog = false"
-        >
+        <v-btn color="error" variant="text" @click="showDialog = false">
           <v-icon icon="mdi-close-circle" />
           {{ $t("common.dialog.cancel") }}
         </v-btn>
@@ -146,6 +152,4 @@ async function saveSite() {
   </v-dialog>
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

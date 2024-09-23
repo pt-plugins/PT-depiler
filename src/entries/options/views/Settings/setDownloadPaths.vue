@@ -1,9 +1,5 @@
-<script lang="ts" setup>
+<script lang="ts" setup></script>
 
-</script>
-
-<template>
-  setDownloadPaths
-</template>
+<template>setDownloadPaths</template>
 
 <style scoped></style>

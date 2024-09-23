@@ -16,11 +16,12 @@
 
 import axios from "axios";
 import { ISiteMetadata } from "../index";
-import {getBuildInfo} from "@/shared/constants.ts";
+import { getBuildInfo } from "@/shared/constants.ts";
 
 // from: https://stackoverflow.com/a/9967193/8824471
 // from: http://proger.i-forge.net/%D0%9A%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80/[20121112]%20The%20smallest%20transparent%20pixel.html
-export const NO_IMAGE = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=";
+export const NO_IMAGE =
+  "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=";
 
 const FAVICON_FROM_LINK = [
   "link[rel='icon' i][href]",
@@ -39,51 +40,56 @@ interface IParsedFavicon {
   blob?: Blob;
 }
 
-const remoteBetterFaviconOrder = [{
-  key: "source",   // favicon.ico - 2
-  rank: (item: IParsedFavicon) => {
-    const rule = ["favicon", "link", "manifest"].reverse();
-    let rank = 0;
-    for (const n in rule) {
-      rank += rule[n] === item.source ? parseInt(n) : 0;
-    }
-    return rank;
-  }
-}, {  // favicon.ico - 3
-  key: "ext",
-  rank: (item: IParsedFavicon) => {
-    const rule = [/\.ico$/im, /\.png$/im, /\.jpg$/im, /\.svg$/im].reverse();
-    let rank = 0;
-    for (const n in rule) {
-      rank += rule[n].test(item.href) ? parseInt(n) : 0;
-    }
-    return rank;
-  }
-}, {
-  key: "sizes",
-  rank: (item: IParsedFavicon) => {
-    let rank = 0;
-    if (!item.sizes) return rank;
-    const wh = item.sizes.split("x");
-    const size = parseInt(wh[0]);
-    if (wh[0] != wh[1]) return rank;
-    if (size > 24 && size < 40) {
-      rank = 4;
-    } else if (size > 36 && size < 90) {
-      rank = 3;
-    } else if (size > 88 && size < 260) {
-      rank = 2;
-    } else if (size > 15 && size < 26) {
-      rank = 1;
-    } else {
-      rank = 0;
-    }
-    return rank;
-  }
-}].reverse();
+const remoteBetterFaviconOrder = [
+  {
+    key: "source", // favicon.ico - 2
+    rank: (item: IParsedFavicon) => {
+      const rule = ["favicon", "link", "manifest"].reverse();
+      let rank = 0;
+      for (const n in rule) {
+        rank += rule[n] === item.source ? parseInt(n) : 0;
+      }
+      return rank;
+    },
+  },
+  {
+    // favicon.ico - 3
+    key: "ext",
+    rank: (item: IParsedFavicon) => {
+      const rule = [/\.ico$/im, /\.png$/im, /\.jpg$/im, /\.svg$/im].reverse();
+      let rank = 0;
+      for (const n in rule) {
+        rank += rule[n].test(item.href) ? parseInt(n) : 0;
+      }
+      return rank;
+    },
+  },
+  {
+    key: "sizes",
+    rank: (item: IParsedFavicon) => {
+      let rank = 0;
+      if (!item.sizes) return rank;
+      const wh = item.sizes.split("x");
+      const size = parseInt(wh[0]);
+      if (wh[0] != wh[1]) return rank;
+      if (size > 24 && size < 40) {
+        rank = 4;
+      } else if (size > 36 && size < 90) {
+        rank = 3;
+      } else if (size > 88 && size < 260) {
+        rank = 2;
+      } else if (size > 15 && size < 26) {
+        rank = 1;
+      } else {
+        rank = 0;
+      }
+      return rank;
+    },
+  },
+].reverse();
 
 // FIXME 转成公共函数 BlobToBase64
-function transformBlob (blob: Blob): Promise<any> {
+function transformBlob(blob: Blob): Promise<any> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.addEventListener("loadend", () => {
@@ -98,7 +104,7 @@ function transformBlob (blob: Blob): Promise<any> {
   });
 }
 
-async function getFaviconFromUrl (url: string): Promise<Blob> {
+async function getFaviconFromUrl(url: string): Promise<Blob> {
   const baseUrl = new URL(url);
 
   const { data: doc } = await axios.get<Document>(url, { responseType: "document" });
@@ -118,16 +124,15 @@ async function getFaviconFromUrl (url: string): Promise<Blob> {
   });
 
   // 2. Parse from manifest
-  const manifestElement = doc.querySelector('head link[rel="manifest" i]') as HTMLLinkElement;
+  const manifestElement = doc.querySelector(
+    'head link[rel="manifest" i]',
+  ) as HTMLLinkElement;
   if (manifestElement) {
     const { data: manifest } = await axios.get<{
       icons: Record<"sizes" | "src" | "type", string>[];
     }>(manifestElement.href, { responseType: "json" });
 
-    manifest.icons.forEach(({
-      sizes,
-      src
-    }) => {
+    manifest.icons.forEach(({ sizes, src }) => {
       favicons.push({
         href: src,
         sizes,
@@ -150,8 +155,7 @@ async function getFaviconFromUrl (url: string): Promise<Blob> {
         blob: faviconIco.data,
       } as IParsedFavicon);
     }
-  } catch (e) {
-  }
+  } catch (e) {}
 
   // 如果前面获取到足够的 favicons，我们需要比较下哪个更合适，并排序
   if (favicons.length > 0) {
@@ -168,7 +172,7 @@ async function getFaviconFromUrl (url: string): Promise<Blob> {
 
         return {
           ...icon,
-          rank
+          rank,
         };
       })
       .sort((a, b) => (a.rank < b.rank ? 1 : -1));
@@ -189,8 +193,7 @@ async function getFaviconFromUrl (url: string): Promise<Blob> {
 
           const { data } = await axios.get(faviconUrl, { responseType: "blob" });
           return data;
-        } catch {
-        }
+        } catch {}
       }
     }
   }
@@ -198,37 +201,35 @@ async function getFaviconFromUrl (url: string): Promise<Blob> {
   throw new Error("Can't find any favicons from this site");
 }
 
-export type getFaviconMetadata = Required<Pick<ISiteMetadata, "id" | "host" | "url">> & Pick<ISiteMetadata, "favicon" | "activateUrl">
+export type getFaviconMetadata = Required<Pick<ISiteMetadata, "id" | "host" | "url">> &
+  Pick<ISiteMetadata, "favicon" | "activateUrl">;
 
-export async function getFavicon (site: ISiteMetadata | getFaviconMetadata): Promise<string> {
-  const {
-    id: siteId,
-    host: siteHost,
-    favicon: siteFavicon
-  } = site;
+export async function getFavicon(
+  site: ISiteMetadata | getFaviconMetadata,
+): Promise<string> {
+  const { id: siteId, host: siteHost, favicon: siteFavicon } = site;
 
   // 1. 检查本地icons目录是否存在对应文件
   let checkLocalIconPaths = [
-    `${siteId}.png`, `${siteId}.ico`,
-    `${siteHost}.png`, `${siteHost}.ico`
+    `${siteId}.png`,
+    `${siteId}.ico`,
+    `${siteHost}.png`,
+    `${siteHost}.ico`,
   ];
 
   if (siteFavicon) {
     if (siteFavicon.startsWith("data:image/")) {
-      return siteFavicon;  // base64直接返回就行了
+      return siteFavicon; // base64直接返回就行了
     } else if (siteFavicon.startsWith("./")) {
-      checkLocalIconPaths = [
-        siteFavicon.replace(/^\.\//, ''),
-        ...checkLocalIconPaths]
-      ;  // 优先使用 已定义的 favicon
+      checkLocalIconPaths = [siteFavicon.replace(/^\.\//, ""), ...checkLocalIconPaths]; // 优先使用 已定义的 favicon
     }
   }
 
   const buildInfo = await getBuildInfo();
-  const packedIconList = buildInfo['siteIcons'] ?? [];
+  const packedIconList = buildInfo["siteIcons"] ?? [];
 
   for (const checkLocalIconPath of checkLocalIconPaths) {
-    if ((packedIconList).includes(checkLocalIconPath)) {
+    if (packedIconList.includes(checkLocalIconPath)) {
       return `/icons/site/${checkLocalIconPath}`;
     }
   }
@@ -241,22 +242,20 @@ export async function getFavicon (site: ISiteMetadata | getFaviconMetadata): Pro
     try {
       const configReq = await axios.get(siteFavicon, { responseType: "blob" });
       faviconMeta = configReq.data;
-    } catch {
-    }
+    } catch {}
   }
 
   // 2.2 请求网站首页，并从返回的html中解析所需要的 favicon 字段
   if (!faviconMeta) {
     try {
       faviconMeta = await getFaviconFromUrl(site.activateUrl ?? site.url);
-    } catch {
-    }
+    } catch {}
   }
 
   // 将请求结果转为 base64
   let faviconBase64;
   if (typeof faviconMeta !== "undefined") {
-    faviconBase64 = await transformBlob(faviconMeta);      // 将 faviconMeta 转成 base64，并缓存
+    faviconBase64 = await transformBlob(faviconMeta); // 将 faviconMeta 转成 base64，并缓存
   }
 
   // 3. fallback 使用 NO_IMAGE 替代
@@ -264,4 +263,3 @@ export async function getFavicon (site: ISiteMetadata | getFaviconMetadata): Pro
 
   return faviconBase64;
 }
-

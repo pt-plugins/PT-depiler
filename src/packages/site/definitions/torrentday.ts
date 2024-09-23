@@ -73,7 +73,9 @@ export const siteMetadata: ISiteMetadata = {
       },
       link: {
         selector: "t",
-        filters: [(torrentId: number) => `/download.php/${torrentId}/${torrentId}.torrent`],
+        filters: [
+          (torrentId: number) => `/download.php/${torrentId}/${torrentId}.torrent`,
+        ],
       },
       time: { selector: "ctime" },
       size: { selector: "size" },

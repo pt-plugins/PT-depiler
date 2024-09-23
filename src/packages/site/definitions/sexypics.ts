@@ -29,7 +29,7 @@ export const siteMetadata: ISiteMetadata = {
 // noinspection JSUnusedGlobalSymbols
 export default class Sexypics extends BittorrentSite {
   protected override async transformSearchFilter(
-    filter: ISearchFilter
+    filter: ISearchFilter,
   ): Promise<AxiosRequestConfig> {
     const config = await super.transformSearchFilter(filter);
     config.url = filter.keywords

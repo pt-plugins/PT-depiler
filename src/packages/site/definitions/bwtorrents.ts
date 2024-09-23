@@ -143,7 +143,13 @@ export const siteMetadata: ISiteMetadata = {
       link: { selector: 'a[href^="download.php/"]', attr: "href" },
       time: {
         selector: "td:eq(4) nobr",
-        filters: [(query: string) => query.replace(/(\d{2})-(\d{2})-(\d{4})\n?(\d{2}:\d{2}:\d{2})/, "$3-$2-$1 $4")],
+        filters: [
+          (query: string) =>
+            query.replace(
+              /(\d{2})-(\d{2})-(\d{4})\n?(\d{2}:\d{2}:\d{2})/,
+              "$3-$2-$1 $4",
+            ),
+        ],
       },
       size: { selector: "td:nth-child(6)" },
       author: { selector: "td:eq(10)" },
@@ -166,7 +172,15 @@ export const siteMetadata: ISiteMetadata = {
       {
         requestConfig: { url: "/userdetailsmore.php" },
         assertion: { id: "id" },
-        fields: ["uploaded", "downloaded", "levelName", "joinTime", "seeding", "seedingSize", "bonus"],
+        fields: [
+          "uploaded",
+          "downloaded",
+          "levelName",
+          "joinTime",
+          "seeding",
+          "seedingSize",
+          "bonus",
+        ],
       },
     ],
     selectors: {

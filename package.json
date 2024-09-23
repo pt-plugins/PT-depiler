@@ -4,6 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "homepage": "https://github.com/pt-plugins/PT-depiler",
+  "packageManager": "pnpm@9.0.6",
   "author": {
     "name": "Pt-Plugins",
     "url": "https://github.com/pt-plugins"
@@ -25,9 +26,11 @@
     }
   ],
   "scripts": {
+    "format": "prettier --list-different -w ./",
     "build": "vite build",
     "watch": "vite build --watch --mode development --minify false",
-    "dev": "vite"
+    "dev": "vite",
+    "prepare": "husky"
   },
   "dependencies": {
     "@mdi/font": "^7.4.47",
@@ -60,6 +63,9 @@
     "@types/sizzle": "^2.3.8",
     "@vitejs/plugin-vue": "^5.0.3",
     "git-rev-sync": "^3.0.2",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.2",
+    "prettier": "^3.2.5",
     "sass": "^1.71.0",
     "typescript": "^5.3.3",
     "vite": "^5.1.0",
@@ -67,5 +73,14 @@
     "vite-plugin-node-polyfills": "^0.21.0",
     "vite-plugin-vuetify": "^2.0.1",
     "vue-tsc": "^1.8.27"
+  },
+  "prettier": {
+    "printWidth": 88,
+    "trailingComma": "all"
+  },
+  "lint-staged": {
+    "*.{js,jsx,cjs,mjs,ts,tsx,json,yml,yaml,vue,html}": [
+      "prettier --write "
+    ]
   }
 }

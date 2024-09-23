@@ -3,7 +3,7 @@ import { EListOrderBy, EListOrderMode } from "./type.ts";
 
 export function localSort(
   files: IBackupFileInfo[],
-  options: IBackupFileListOption
+  options: IBackupFileListOption,
 ): IBackupFileInfo[] {
   if (files.length > 0 && Object.keys(options).length > 0) {
     const orderMode: EListOrderMode = options.orderMode ?? EListOrderMode.desc;

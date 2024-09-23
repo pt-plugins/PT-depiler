@@ -62,8 +62,7 @@ const CategoryMap = new Map([
 export const siteMetadata: ISiteMetadata = {
   name: "The Pirate Bay",
   type: "public",
-  description:
-    "Pirate Bay (TPB) is the galaxy’s most resilient Public BitTorrent site",
+  description: "Pirate Bay (TPB) is the galaxy’s most resilient Public BitTorrent site",
   url: "https://thepiratebay.org/",
   search: {
     requestConfig: {

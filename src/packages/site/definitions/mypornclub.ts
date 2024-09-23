@@ -18,7 +18,8 @@ export const siteMetadata: ISiteMetadata = {
       time: {
         selector: "div.torrent_element_info span:nth-child(2)",
         filters: [
-          (q: string) => q.replace("Last year", "1 year ago").replace("Last month", "1 month ago"),
+          (q: string) =>
+            q.replace("Last year", "1 year ago").replace("Last month", "1 month ago"),
           { name: "parseTTL" },
         ],
       },

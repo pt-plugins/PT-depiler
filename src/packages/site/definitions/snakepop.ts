@@ -25,7 +25,7 @@ export const siteMetadata: ISiteMetadata = {
 
 export default class snakepop extends GazelleJSONAPI {
   protected override async getUserSeedingTorrents(
-    userId?: number
+    userId?: number,
   ): Promise<Partial<IUserInfo>> {
     const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0, bonus: 0 };
 
@@ -60,7 +60,7 @@ export default class snakepop extends GazelleJSONAPI {
       const sizeAnothers = Sizzle("td.number_column.nobr", seedPage);
       sizeAnothers.forEach((sizeAnother) => {
         userSeedingTorrent.seedingSize! += parseSizeString(
-          (sizeAnother as HTMLElement).innerText.trim()
+          (sizeAnother as HTMLElement).innerText.trim(),
         );
       });
     }

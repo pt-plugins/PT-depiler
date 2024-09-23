@@ -25,5 +25,5 @@ export const siteMetadata: ISiteMetadata = {
       { value: 504, name: "SM调教（限制级）" },
     ],
     cross: { mode: "append" },
-  }
+  },
 };

@@ -35,8 +35,8 @@ export const clientMetaData: TorrentClientMetaData = {
       description: CustomPathDescription,
     },
     DefaultAutoStart: {
-      allowed: true
-    }
+      allowed: true,
+    },
   },
 };
 
@@ -108,10 +108,7 @@ interface AddTorrentResponse extends TransmissionBaseResponse {
   };
 }
 
-type TransmissionTorrentIds =
-  | number
-  | Array<number | string>
-  | "recently-active";
+type TransmissionTorrentIds = number | Array<number | string> | "recently-active";
 
 type TransmissionRequestMethod =
   | "session-get"
@@ -215,8 +212,7 @@ interface TransmissionTorrentGetArguments extends TransmissionTorrentArguments {
   fields: TransmissionTorrentsField[];
 }
 
-interface TransmissionTorrentRemoveArguments
-  extends TransmissionTorrentArguments {
+interface TransmissionTorrentRemoveArguments extends TransmissionTorrentArguments {
   "delete-local-data"?: boolean;
 }
 
@@ -244,7 +240,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
 
   private sessionId = "";
 
-  constructor (options: Partial<TorrentClientConfig> = {}) {
+  constructor(options: Partial<TorrentClientConfig> = {}) {
     super({ ...clientConfig, ...options });
 
     // 修正服务器地址
@@ -255,30 +251,33 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     this.address = address;
   }
 
-  async ping (): Promise<boolean> {
+  async ping(): Promise<boolean> {
     try {
-      const { data } = await this.request<TransmissionBaseResponse>(
-        "session-get"
-      );
+      const { data } = await this.request<TransmissionBaseResponse>("session-get");
       return data.result === "success";
     } catch (e) {
       return false;
     }
   }
 
-  protected async getClientVersionFromRemote (): Promise<string> {
+  protected async getClientVersionFromRemote(): Promise<string> {
     const {
       data: { arguments: sessionData },
-    } = await this.request<TransmissionBaseResponse<{ version: string; "rpc-version": number }>>("session-get");
+    } =
+      await this.request<
+        TransmissionBaseResponse<{ version: string; "rpc-version": number }>
+      >("session-get");
     return `${sessionData.version}, RPC ${sessionData["rpc-version"]}`;
   }
 
-  override async getClientStatus (): Promise<TorrentClientStatus> {
+  override async getClientStatus(): Promise<TorrentClientStatus> {
     const retStatus: TorrentClientStatus = await super.getClientStatus();
 
     const statsReq = this.request<TransmissionStatsResponse>("session-stats");
 
-    const { data: { arguments: statsData } } = await statsReq;
+    const {
+      data: { arguments: statsData },
+    } = await statsReq;
     retStatus.dlSpeed = statsData.downloadSpeed;
     retStatus.upSpeed = statsData.uploadSpeed;
     retStatus.dlData = statsData["current-stats"].downloadedBytes;
@@ -287,8 +286,15 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     return retStatus;
   }
 
-  override async getClientFreeSpace (): Promise<number> {
-    const { data: { arguments: sessionData } } = await this.request<TransmissionBaseResponse<{ "download-dir": string; "download-dir-free-space"?: number; }>>("session-get");
+  override async getClientFreeSpace(): Promise<number> {
+    const {
+      data: { arguments: sessionData },
+    } = await this.request<
+      TransmissionBaseResponse<{
+        "download-dir": string;
+        "download-dir-free-space"?: number;
+      }>
+    >("session-get");
 
     /**
      * 由于 download-dir-free-space 在 rpc-spec 中属于过时的方法，
@@ -301,14 +307,16 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     if (sessionData["download-dir-free-space"]) {
       return sessionData["download-dir-free-space"];
     } else {
-      const { data } = await this.request<TransmissionBaseResponse<{ path: string; "size-bytes": number }>>("free-space", { path: sessionData["download-dir"] });
+      const { data } = await this.request<
+        TransmissionBaseResponse<{ path: string; "size-bytes": number }>
+      >("free-space", { path: sessionData["download-dir"] });
       return data.arguments["size-bytes"];
     }
   }
 
-  async addTorrent (
+  async addTorrent(
     url: string,
-    options: Partial<CAddTorrentOptions> = {}
+    options: Partial<CAddTorrentOptions> = {},
   ): Promise<boolean> {
     const addTorrentOptions: Partial<TransmissionAddTorrentOptions> = {
       paused: options.addAtPaused ?? false,
@@ -332,7 +340,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     try {
       const { data } = await this.request<AddTorrentResponse>(
         "torrent-add",
-        addTorrentOptions
+        addTorrentOptions,
       );
 
       // Transmission 3.0 以上才支持label
@@ -343,8 +351,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
             ids: torrentId,
             label: [options.label],
           });
-        } catch (e) {
-        }
+        } catch (e) {}
       }
 
       return data.result === "success";
@@ -353,12 +360,12 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     }
   }
 
-  async getAllTorrents (): Promise<CTorrent[]> {
+  async getAllTorrents(): Promise<CTorrent[]> {
     return await this.getTorrentsBy({});
   }
 
-  override async getTorrentsBy (
-    filter: TransmissionTorrentFilterRules
+  override async getTorrentsBy(
+    filter: TransmissionTorrentFilterRules,
   ): Promise<CTorrent[]> {
     const args: TransmissionTorrentGetArguments = {
       fields: this.torrentRequestFields,
@@ -370,7 +377,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
 
     const { data } = await this.request<TransmissionTorrentGetResponse>(
       "torrent-get",
-      args
+      args,
     );
 
     let returnTorrents: CTorrent[] = data.arguments.torrents.map((torrent) => {
@@ -396,10 +403,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
         ratio: torrent.uploadRatio,
         dateAdded: torrent.addedDate,
         savePath: torrent.downloadDir,
-        label:
-          torrent.labels && torrent.labels.length
-            ? torrent.labels[0]
-            : undefined,
+        label: torrent.labels && torrent.labels.length ? torrent.labels[0] : undefined,
         state: state,
         totalSize: torrent.totalSize,
         uploadSpeed: torrent.rateUpload,
@@ -418,7 +422,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     return returnTorrents;
   }
 
-  async pauseTorrent (id: any): Promise<any> {
+  async pauseTorrent(id: any): Promise<any> {
     const args: TransmissionTorrentArguments = {
       ids: id,
     };
@@ -426,10 +430,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     return true;
   }
 
-  async removeTorrent (
-    id: number,
-    removeData: boolean | undefined
-  ): Promise<boolean> {
+  async removeTorrent(id: number, removeData: boolean | undefined): Promise<boolean> {
     const args: TransmissionTorrentRemoveArguments = {
       ids: id,
       "delete-local-data": removeData,
@@ -438,7 +439,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     return true;
   }
 
-  async resumeTorrent (id: any): Promise<boolean> {
+  async resumeTorrent(id: any): Promise<boolean> {
     const args: TransmissionTorrentArguments = {
       ids: id,
     };
@@ -446,9 +447,9 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     return true;
   }
 
-  async request<T> (
+  async request<T>(
     method: TransmissionRequestMethod,
-    args: any = {}
+    args: any = {},
   ): Promise<AxiosResponse<T>> {
     try {
       return await axios.post<T>(
@@ -466,7 +467,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
             "X-Transmission-Session-Id": this.sessionId,
           },
           timeout: this.config.timeout,
-        }
+        },
       );
     } catch (error: any) {
       if (isAxiosError(error) && error?.response?.status === 409) {

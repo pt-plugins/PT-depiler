@@ -25,7 +25,7 @@ export const siteMetadata: ISiteMetadata = {
           config.params.search_type = "imdb";
           return config;
         },
-      }
+      },
     },
     selectors: {
       rows: {
@@ -41,7 +41,10 @@ export const siteMetadata: ISiteMetadata = {
       link: { selector: 'a[href^="/down.php/"]', attr: "href" },
       time: {
         selector: "td:nth-child(9)",
-        filters: [(query: string) => query.replace(/([A-Za-z]{3})\s(\d+)\s'(\d{2})/, "$2 $1 $3")],
+        filters: [
+          (query: string) =>
+            query.replace(/([A-Za-z]{3})\s(\d+)\s'(\d{2})/, "$2 $1 $3"),
+        ],
       },
       size: { selector: "td:nth-child(11)" },
       author: { selector: "td:eq(7)" },
@@ -102,7 +105,8 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseSize" }],
       },
       ratio: {
-        selector: "td.rowhead:contains('Share ratio') + td > table > tbody > tr > td:nth-child(1) > font",
+        selector:
+          "td.rowhead:contains('Share ratio') + td > table > tbody > tr > td:nth-child(1) > font",
         filters: [parseFloat],
       },
       levelName: {
@@ -126,7 +130,9 @@ export const siteMetadata: ISiteMetadata = {
           const trAnothers = Sizzle("> tr[style*='padding-top:0px']", tbody);
           trAnothers.forEach((trAnother) => {
             const sizeAnother = Sizzle("td:eq(9)", trAnother)[0];
-            seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim());
+            seedingSize += parseSizeString(
+              (sizeAnother as HTMLElement).innerText.trim(),
+            );
           });
           return seedingSize;
         },

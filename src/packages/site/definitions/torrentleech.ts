@@ -90,8 +90,7 @@ export const siteMetadata: ISiteMetadata = {
       link: {
         selector: ":self",
         filters: [
-          (torrent: rawTorrent) =>
-            `/download/${torrent.fid}/${torrent.filename}`,
+          (torrent: rawTorrent) => `/download/${torrent.fid}/${torrent.filename}`,
         ],
       },
       time: { selector: "addedTimestamp" },
@@ -133,9 +132,7 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       // url: '/'
       name: {
-        selector: [
-          "span.centerTopBar span[onclick*='/profile/'][onclick*='view']",
-        ],
+        selector: ["span.centerTopBar span[onclick*='/profile/'][onclick*='view']"],
       },
       // page: '/profile/$user.name$',
       uploaded: {
@@ -166,9 +163,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["div.profile-details div.label-user-class"],
       },
       joinTime: {
-        selector: [
-          "table.profileViewTable td:contains('Registration date') + td",
-        ],
+        selector: ["table.profileViewTable td:contains('Registration date') + td"],
         filters: [
           (query: string) => {
             const date = query.split(" ").slice(1).join(" ");
@@ -191,9 +186,7 @@ export const siteMetadata: ISiteMetadata = {
           const trAnothers = Sizzle("> tr", tbody);
           trAnothers.forEach((tr) => {
             const sizeTd = Sizzle("> td:nth-child(2)", tr);
-            seedingSize += parseSizeString(
-              (sizeTd[0] as HTMLElement).innerText.trim()
-            );
+            seedingSize += parseSizeString((sizeTd[0] as HTMLElement).innerText.trim());
           });
           return seedingSize;
         },
@@ -204,13 +197,13 @@ export const siteMetadata: ISiteMetadata = {
 
 export default class torrentleech extends PrivateSite {
   protected override async transformSearchFilter(
-    filter: ISearchFilter
+    filter: ISearchFilter,
   ): Promise<AxiosRequestConfig> {
     const urlSearch = ["/torrents/browse/list"];
 
     if (filter.extraParams?.find((param) => param.key === "category")) {
       const categoryParams = filter.extraParams?.find(
-        (param) => param.key === "category"
+        (param) => param.key === "category",
       );
       urlSearch.push(...["categories", categoryParams!.value as string]);
     }

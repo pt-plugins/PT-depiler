@@ -15,8 +15,8 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     advanceKeyword: {
       imdb: {
-        skip: true
-      }
+        skip: true,
+      },
     },
     selectors: {
       rows: { selector: "#content > table > tbody > tr" },
@@ -57,8 +57,7 @@ export const siteMetadata: ISiteMetadata = {
           "#subnav > div > div > ul > li.dropdown.pull-right > a > span.hidden-sm",
       },
       uploaded: {
-        selector:
-          "#header > div > div > div > span.navbar-text.stats.hidden-sm",
+        selector: "#header > div > div > div > span.navbar-text.stats.hidden-sm",
         filters: [
           (query: string) => {
             query = query.split(":")[1].split("D")[0].trim();
@@ -67,15 +66,10 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
       downloaded: {
-        selector:
-          "#header > div > div > div > span.navbar-text.stats.hidden-sm",
+        selector: "#header > div > div > div > span.navbar-text.stats.hidden-sm",
         filters: [
           (query: string) => {
-            query = query
-              .split(":")[2]
-              .split("R")[0]
-              .replace(/Bytes/g, "")
-              .trim();
+            query = query.split(":")[2].split("R")[0].replace(/Bytes/g, "").trim();
             return parseSizeString(query);
           },
         ],
@@ -102,7 +96,7 @@ export const siteMetadata: ISiteMetadata = {
 
 export default class pornbits extends PrivateSite {
   protected override async transformSearchFilter(
-    filter: ISearchFilter
+    filter: ISearchFilter,
   ): Promise<AxiosRequestConfig> {
     const config: AxiosRequestConfig = {};
     if (filter.keywords) {

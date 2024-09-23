@@ -34,7 +34,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           config.params.search_area = 4; // params "&search_area=4"
           return config;
         },
-      }
+      },
     },
     selectors: {
       // row 等信息由 transformSearchPage 根据搜索结果自动生成
@@ -42,8 +42,8 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       url: {
         ...baseLinkQuery,
         filters: [
-          { name: "querystring", args:["id"] },
-          { name:"perpend", args: ["/details.php?id="] },
+          { name: "querystring", args: ["id"] },
+          { name: "perpend", args: ["/details.php?id="] },
         ],
       }, // 种子页面链接
       id: {
@@ -61,8 +61,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         selector: ["a:first"],
         elementProcess: (element: HTMLElement) => {
           let category = "Other";
-          const categoryImgAnother =
-            element.querySelector("img:nth-child(1)"); // img:first
+          const categoryImgAnother = element.querySelector("img:nth-child(1)"); // img:first
           if (categoryImgAnother) {
             category =
               categoryImgAnother.getAttribute("title") ||
@@ -81,7 +80,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           let time: number | string = 0;
           try {
             const AccurateTimeAnother = element.querySelector(
-              "span[title], time[title]"
+              "span[title], time[title]",
             );
             if (AccurateTimeAnother) {
               time = AccurateTimeAnother.getAttribute("title")!;
@@ -139,9 +138,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [
           (query: string | number) => {
             const queryMatch = String(query || "").match(/(\d+)/); // query 有时会直接传入 0
-            return queryMatch && queryMatch.length >= 2
-              ? parseInt(queryMatch[1])
-              : 0;
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
           },
         ],
       },
@@ -236,7 +233,9 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 };
 
 export default class NexusPHP extends PrivateSite {
-  protected override async transformSearchPage (doc: Document | object): Promise<ITorrent[]> {
+  protected override async transformSearchPage(
+    doc: Document | object,
+  ): Promise<ITorrent[]> {
     // 返回是 Document 的情况才自动生成
     if (doc instanceof Document) {
       // 如果配置文件没有传入 search 的选择器，则我们自己生成
@@ -258,9 +257,7 @@ export default class NexusPHP extends PrivateSite {
       // 开始遍历我们的head行，并设置其他参数
       const headSelector =
         legacyTableSelector +
-        (legacyTableHasThead
-          ? " > thead > tr > th"
-          : " > tbody > tr:eq(0) > td");
+        (legacyTableHasThead ? " > thead > tr > th" : " > tbody > tr:eq(0) > td");
       const headAnother = Sizzle(headSelector, doc) as HTMLElement[];
       headAnother.forEach((element, elementIndex) => {
         // 比较好处理的一些元素，都是可以直接获取的
@@ -290,7 +287,7 @@ export default class NexusPHP extends PrivateSite {
               selector: [`> td:eq(${elementIndex})`],
             },
             // @ts-ignore
-            this.config.search.selectors[updateSelectorField] || {}
+            this.config.search.selectors[updateSelectorField] || {},
           );
         }
       });
@@ -341,7 +338,7 @@ export default class NexusPHP extends PrivateSite {
     if (this.config.search?.selectors?.title?.filters) {
       title = this.runQueryFilters(
         title,
-        this.config.search?.selectors?.title?.filters
+        this.config.search?.selectors?.title?.filters,
       );
     }
 
@@ -351,7 +348,10 @@ export default class NexusPHP extends PrivateSite {
     };
   }
 
-  protected parseTorrentSubTitleFromTitleAnother (titleAnother: Element, row: Element): string {
+  protected parseTorrentSubTitleFromTitleAnother(
+    titleAnother: Element,
+    row: Element,
+  ): string {
     let subTitle = "";
     try {
       const testSubTitle = titleAnother.parentElement!.innerHTML.split("<br>");
@@ -361,14 +361,16 @@ export default class NexusPHP extends PrivateSite {
       if (this.config.search?.selectors?.subTitle?.filters) {
         subTitle = this.runQueryFilters(
           subTitle,
-          this.config.search?.selectors?.subTitle?.filters
+          this.config.search?.selectors?.subTitle?.filters,
         );
       }
     } catch (e) {}
     return subTitle;
   }
 
-  public override async getUserInfo (lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+  public override async getUserInfo(
+    lastUserInfo: Partial<IUserInfo> = {},
+  ): Promise<IUserInfo> {
     let flushUserInfo: Partial<IUserInfo> = {};
 
     try {
@@ -387,7 +389,7 @@ export default class NexusPHP extends PrivateSite {
     // 导入基本 Details 页面获取到的用户信息
     flushUserInfo = Object.assign(
       flushUserInfo,
-      await this.getUserInfoFromDetailsPage(userId)
+      await this.getUserInfoFromDetailsPage(userId),
     );
 
     // 导入用户做种信息
@@ -400,7 +402,7 @@ export default class NexusPHP extends PrivateSite {
         await this.getUserSeedingStatus(userId),
         (objValue, srcValue) => {
           return objValue > 0 ? objValue : srcValue;
-        }
+        },
       );
     }
 
@@ -415,7 +417,7 @@ export default class NexusPHP extends PrivateSite {
     const userId = this.getFieldData(
       indexDocument,
       // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-      this.config.userInfo?.selectors?.id!
+      this.config.userInfo?.selectors?.id!,
     );
     return parseInt(userId);
   }
@@ -431,7 +433,7 @@ export default class NexusPHP extends PrivateSite {
   }
 
   protected async getUserInfoFromDetailsPage(
-    userId: number
+    userId: number,
   ): Promise<Partial<IUserInfo>> {
     const userDetailDocument = await this.requestUserDetailsPage(userId);
 
@@ -450,7 +452,7 @@ export default class NexusPHP extends PrivateSite {
     return this.getFieldsData(
       userDetailDocument,
       "userInfo",
-      detailsPageAttrs
+      detailsPageAttrs,
     ) as Partial<IUserInfo>;
   }
 
@@ -466,7 +468,7 @@ export default class NexusPHP extends PrivateSite {
    */
   protected async requestUserSeedingPage(
     userId: number,
-    type: string = "seeding"
+    type: string = "seeding",
   ): Promise<string | null> {
     const { data } = await this.request<string>({
       url: "/getusertorrentlistajax.php",
@@ -497,18 +499,16 @@ export default class NexusPHP extends PrivateSite {
       trAnothers.forEach((trAnother) => {
         const sizeSelector = Sizzle(
           `td.rowfollow:eq(${sizeIndex})`,
-          trAnother
+          trAnother,
         )[0] as HTMLElement;
-        seedStatus.seedingSize += parseSizeString(
-          sizeSelector.innerText.trim()
-        );
+        seedStatus.seedingSize += parseSizeString(sizeSelector.innerText.trim());
       });
     }
     return seedStatus;
   }
 
   protected async getUserSeedingStatus(
-    userId: number
+    userId: number,
   ): Promise<{ seeding: number; seedingSize: number }> {
     let seedStatus = { seeding: 0, seedingSize: 0 };
 

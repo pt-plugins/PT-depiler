@@ -21,8 +21,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     advanceKeyword: {
       imdb: {
-        skip: true
-      }
+        skip: true,
+      },
     },
     selectors: {
       rows: {
@@ -75,10 +75,7 @@ export const siteMetadata: ISiteMetadata = {
         filters: [
           (query: string) => {
             const peerStatus = query.split(",");
-            return peerStatus[1]
-              .split("=")[0]
-              .replace(" leecher(s) ", "")
-              .trim();
+            return peerStatus[1].split("=")[0].replace(" leecher(s) ", "").trim();
           },
         ],
       },
@@ -92,9 +89,7 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class torrentseeds extends PrivateSite {
-  protected override async transformSearchPage(
-    doc: Document
-  ): Promise<ITorrent[]> {
+  protected override async transformSearchPage(doc: Document): Promise<ITorrent[]> {
     // 当搜索结果只有1条时会自动重定向到种子详情页，这时直接解析页面
     if (/Info\shash/.test(doc.documentElement.outerHTML)) {
       return [

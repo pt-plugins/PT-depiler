@@ -18,7 +18,8 @@ export const siteMetadata: ISiteMetadata = {
     keywordsParam: "search",
     selectors: {
       rows: {
-        selector: 'table table table.lista > tbody > tr:has(a[href^="download.php?id="])',
+        selector:
+          'table table table.lista > tbody > tr:has(a[href^="download.php?id="])',
       },
       id: {
         selector: 'a[title][href^="index.php?page=torrent-details&id="]',

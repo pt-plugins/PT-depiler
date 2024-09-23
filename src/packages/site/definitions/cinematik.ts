@@ -111,7 +111,9 @@ export const siteMetadata: ISiteMetadata = {
           const trAnothers = Sizzle("tr:not(:eq(0))", table);
           trAnothers.forEach((trAnother) => {
             const sizeAnother = Sizzle("td:eq(4)", trAnother)[0];
-            seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim());
+            seedingSize += parseSizeString(
+              (sizeAnother as HTMLElement).innerText.trim(),
+            );
           });
         },
       },
@@ -120,11 +122,17 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class cinematik extends PrivateSite {
-  public override async getUserInfo(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+  public override async getUserInfo(
+    lastUserInfo: Partial<IUserInfo> = {},
+  ): Promise<IUserInfo> {
     let userInfo = await super.getUserInfo();
     if (userInfo.id && (!userInfo.seeding || !userInfo.seedingSize)) {
       userInfo = { seeding: 0, seedingSize: 0, ...userInfo };
-      for (const pageInfo = { current: 0, count: 0 }; pageInfo.current <= pageInfo.count; pageInfo.current++) {
+      for (
+        const pageInfo = { current: 0, count: 0 };
+        pageInfo.current <= pageInfo.count;
+        pageInfo.current++
+      ) {
         const { data: TLDocument } = await this.request<Document>({
           url: "/userdetails-tab.php",
           params: { SID: "", mode: 7, page: pageInfo.current },
@@ -135,11 +143,16 @@ export default class cinematik extends PrivateSite {
           pageInfo.count = this.getFieldData(TLDocument, {
             selector: "a[href*='type=seeding']:contains('1'):last",
             attr: "href",
-            filters: [(q: string) => parseInt((new URL(q)).searchParams.get("page") || "-1")],
+            filters: [
+              (q: string) => parseInt(new URL(q).searchParams.get("page") || "-1"),
+            ],
           });
         }
 
-        const { seeding, seedingSize } = this.getFieldsData(TLDocument, "userInfo", ["seeding", "seedingSize"]);
+        const { seeding, seedingSize } = this.getFieldsData(TLDocument, "userInfo", [
+          "seeding",
+          "seedingSize",
+        ]);
         userInfo.seeding += seeding;
         userInfo.seedingSize += seedingSize;
       }

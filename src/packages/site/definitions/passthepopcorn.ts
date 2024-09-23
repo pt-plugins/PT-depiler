@@ -39,9 +39,7 @@ export const siteMetadata: ISiteMetadata = {
         filters: [
           (query: string) => {
             const queryMatch = query.replace(/\s+/g, "").match(/(\d+)/);
-            return queryMatch && queryMatch.length >= 2
-              ? parseInt(queryMatch[1])
-              : 0;
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
           },
         ],
       },
@@ -60,9 +58,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: "ul.list > li:contains('Ratio:')",
         filters: [
           (query: string) => {
-            const queryMatch = query
-              .replace(/,|\n|\s+/g, "")
-              .match(/Ratio.+?([\d.]+)/);
+            const queryMatch = query.replace(/,|\n|\s+/g, "").match(/Ratio.+?([\d.]+)/);
             return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : 0;
           },
         ],
@@ -71,12 +67,8 @@ export const siteMetadata: ISiteMetadata = {
         selector: "ul.list > li:contains('Seeding:')",
         filters: [
           (query: string) => {
-            const queryMatch = query
-              .replace(/[,\n]/g, "")
-              .match(/:.+?([\d.]+)/);
-            return queryMatch && queryMatch.length >= 2
-              ? parseFloat(queryMatch[1])
-              : 0;
+            const queryMatch = query.replace(/[,\n]/g, "").match(/:.+?([\d.]+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0;
           },
         ],
       },
@@ -103,11 +95,8 @@ export const siteMetadata: ISiteMetadata = {
           (query: string) => {
             query = query.replace(/,|\n|\s+/g, "");
             const queryMatch =
-              query.match(/Points.+?([\d.]+)/) ||
-              query.match(/SeedBonus.+?([\d.]+)/);
-            return queryMatch && queryMatch.length >= 2
-              ? parseFloat(queryMatch[1])
-              : 0;
+              query.match(/Points.+?([\d.]+)/) || query.match(/SeedBonus.+?([\d.]+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0;
           },
         ],
       },
@@ -159,7 +148,7 @@ interface SearchResponse {
 
 export default class passthepopcorn extends Gazelle {
   protected override async transformSearchPage(
-    doc: SearchResponse
+    doc: SearchResponse,
   ): Promise<ITorrent[]> {
     const authKey = doc.AuthKey;
     const passKey = doc.PassKey;
@@ -177,7 +166,7 @@ export default class passthepopcorn extends Gazelle {
         size: parseFloat(rawTorrent.Size),
         time: parseTimeWithZone(
           rawTorrent.UploadTime,
-          this.config.timezoneOffset || "+0000"
+          this.config.timezoneOffset || "+0000",
         ),
         author: "",
         seeders: parseInt(rawTorrent.Seeders),

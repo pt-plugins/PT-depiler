@@ -17,16 +17,17 @@ function setIgnoreWrongPixelRatio() {
 
 <template>
   <template v-if="!uiStore.$ready">
-    {{ $t('layout.init') }}
+    {{ $t("layout.init") }}
   </template>
-  <router-view v-else  v-slot="{ Component, route }">
+  <router-view v-else v-slot="{ Component, route }">
     <v-app id="ptd" :theme="uiStore.uiTheme">
       <!-- 页面比例提示 -->
       <v-system-bar
         v-if="(pixelRatio > 1 || pixelRatio < 0.8) && !uiStore.ignoreWrongPixelRatio"
-        color="purple-darken-2" class="justify-center"
+        color="purple-darken-2"
+        class="justify-center"
       >
-        {{ $t('layout.header.wrongPixelRatioNotice') }}&nbsp;&nbsp;
+        {{ $t("layout.header.wrongPixelRatioNotice") }}&nbsp;&nbsp;
         <v-icon icon="mdi-close" class="ms-2" @click="setIgnoreWrongPixelRatio" />
       </v-system-bar>
 
@@ -47,13 +48,8 @@ function setIgnoreWrongPixelRatio() {
 
       <!-- 页脚 -->
       <Footer />
-
     </v-app>
   </router-view>
-
-
 </template>
 
-<style scoped>
-
-</style>
+<style scoped></style>

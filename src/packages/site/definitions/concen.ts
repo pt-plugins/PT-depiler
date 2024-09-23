@@ -3,7 +3,8 @@ import type { ISiteMetadata } from "../types";
 export const siteMetadata: ISiteMetadata = {
   name: "ConCen",
   type: "public",
-  description: "ConCen (Conspiracy Central) is a Public conspiracy related torrent index",
+  description:
+    "ConCen (Conspiracy Central) is a Public conspiracy related torrent index",
   url: "https://concen.org/",
   search: {
     keywordsParam: "title",

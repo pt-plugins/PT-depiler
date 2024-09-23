@@ -168,7 +168,9 @@ export const siteMetadata: ISiteMetadata = {
       category: {
         selector: 'td[class^="coll-1"] a[href^="/sub/"]',
         attr: "href",
-        filters: [(q: string) => categoryMap[parseInt(q.match(/\/sub\/(\d+)/)![1])] || "Other"],
+        filters: [
+          (q: string) => categoryMap[parseInt(q.match(/\/sub\/(\d+)/)![1])] || "Other",
+        ],
       },
     },
   },
@@ -182,7 +184,9 @@ export const siteMetadata: ISiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class x1337x extends BittorrentSite {
-  protected override async transformSearchFilter(filter: ISearchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter(
+    filter: ISearchFilter,
+  ): Promise<AxiosRequestConfig> {
     const { keywords, extraParams } = filter;
     let searchPath = "search";
 
@@ -211,7 +215,7 @@ export default class x1337x extends BittorrentSite {
         String(category?.value || ""),
         String(sort?.value || ""),
         String(sort ? order?.value || "desc" : ""),
-        "1/"
+        "1/",
       ),
     };
   }

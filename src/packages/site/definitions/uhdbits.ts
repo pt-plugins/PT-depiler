@@ -39,7 +39,7 @@ export const siteMetadata: ISiteMetadata = {
           delete config.params.searchstr;
           return config;
         },
-      }
+      },
     },
     selectors: {
       rows: { selector: "table.torrent_table:last > tbody > tr.torrent" },
@@ -49,9 +49,7 @@ export const siteMetadata: ISiteMetadata = {
         filters: [
           (query: string) => {
             const urlSearchParams = new URL(query).searchParams;
-            return (
-              urlSearchParams.get("torrentid") || urlSearchParams.get("id")
-            );
+            return urlSearchParams.get("torrentid") || urlSearchParams.get("id");
           },
         ],
       },
@@ -59,25 +57,20 @@ export const siteMetadata: ISiteMetadata = {
         selector: "div.group_info:has(> a[href*='torrents.php?id='])",
         elementProcess: (element: HTMLElement) => {
           const cloneElement = element.cloneNode(true) as HTMLElement;
-          Sizzle(">span, div.torrent_info", cloneElement).forEach((e) =>
-            e.remove()
-          );
+          Sizzle(">span, div.torrent_info", cloneElement).forEach((e) => e.remove());
           return cloneElement.innerText.trim();
         },
       },
       subTitle: { selector: "div.group_info > div.torrent_info:first" },
       url: { selector: "a[href*='torrents.php?id=']", attr: "href" },
       link: {
-        selector:
-          "a[href*='torrents.php?action=download'][title='Download']:first",
+        selector: "a[href*='torrents.php?action=download'][title='Download']:first",
         attr: "href",
       },
       time: {
         selector: ">td:eq(4)",
         elementProcess: (element: HTMLElement) => {
-          const AccurateTimeAnother = element.querySelector(
-            "span[title], time[title]"
-          );
+          const AccurateTimeAnother = element.querySelector("span[title], time[title]");
           if (AccurateTimeAnother) {
             return AccurateTimeAnother.getAttribute("title")! + ":00";
           } else if (element.getAttribute("title")) {
@@ -131,15 +124,10 @@ export default class uhdbits extends GazelleJSONAPI {
    * @param doc
    * @protected
    */
-  protected override async transformSearchPage(
-    doc: Document
-  ): Promise<ITorrent[]> {
+  protected override async transformSearchPage(doc: Document): Promise<ITorrent[]> {
     const torrents: ITorrent[] = [];
 
-    const trs = Sizzle(
-      this.config.search!.selectors!.rows!.selector as string,
-      doc
-    );
+    const trs = Sizzle(this.config.search!.selectors!.rows!.selector as string, doc);
     trs?.forEach((tr: any) => {
       torrents.push(this.parseRowToTorrent(tr) as ITorrent);
     });
@@ -150,7 +138,7 @@ export default class uhdbits extends GazelleJSONAPI {
   private async getUserTorrentList(
     userId: number,
     page: number = 0,
-    type: string = "seeding"
+    type: string = "seeding",
   ): Promise<Document> {
     const { data: TListDocument } = await this.request<Document>({
       url: "/torrents.php",
@@ -165,16 +153,13 @@ export default class uhdbits extends GazelleJSONAPI {
   }
 
   protected override async getUserSeedingTorrents(
-    userId: number
+    userId: number,
   ): Promise<Partial<IUserInfo>> {
     const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
     const pageInfo = { count: 0, current: 0 }; // 生成页面信息
 
     for (; pageInfo.current <= pageInfo.count; pageInfo.current++) {
-      const TListDocument = await this.getUserTorrentList(
-        userId,
-        pageInfo.current
-      );
+      const TListDocument = await this.getUserTorrentList(userId, pageInfo.current);
       // 更新最大页数
       if (pageInfo.count === 0) {
         pageInfo.count = this.getFieldData(TListDocument, {
@@ -191,7 +176,7 @@ export default class uhdbits extends GazelleJSONAPI {
       if (!userSeedingTorrent.bonus && this.config.userInfo?.selectors?.bonus) {
         userSeedingTorrent.bonus = this.getFieldData(
           TListDocument,
-          this.config.userInfo.selectors.bonus
+          this.config.userInfo.selectors.bonus,
         );
       }
 
@@ -199,7 +184,7 @@ export default class uhdbits extends GazelleJSONAPI {
       const sizeAnothers = Sizzle("td.number_column.nobr", TListDocument);
       sizeAnothers.forEach((element) => {
         userSeedingTorrent.seedingSize! += parseSizeString(
-          (element as HTMLElement).innerText.trim()
+          (element as HTMLElement).innerText.trim(),
         );
       });
     }

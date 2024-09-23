@@ -1,18 +1,24 @@
 <script lang="ts" setup>
 import { ISiteMetadata, SiteSchema } from "@ptd/site";
 
-const props = withDefaults(defineProps<{
-  site: Pick<ISiteMetadata, "type" | "schema">,
-  direction?: "row" | "column",
-  fullWidth?: boolean,
-}>(), {
-  direction: "column",
-  fullWidth: true
-});
+const props = withDefaults(
+  defineProps<{
+    site: Pick<ISiteMetadata, "type" | "schema">;
+    direction?: "row" | "column";
+    fullWidth?: boolean;
+  }>(),
+  {
+    direction: "column",
+    fullWidth: true,
+  },
+);
 
-const typeChipColorMap: Record<ISiteMetadata["type"], any>= {private: "primary", public: "secondary"};
+const typeChipColorMap: Record<ISiteMetadata["type"], any> = {
+  private: "primary",
+  public: "secondary",
+};
 
-function shortSchema (schema: SiteSchema) {
+function shortSchema(schema: SiteSchema) {
   if (schema.includes("Abstract") || schema.length > 10) {
     return schema.replace(/[a-z]/g, "");
   }

@@ -17,7 +17,7 @@ interface snatchListResponseData {
     string, // Ratio
     number, // Announcements
     number, // Completed
-    string // Active
+    string, // Active
   ][];
   iTotalDisplayRecords: number;
   iTotalRecords: number;
@@ -178,10 +178,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: "#profileTable td:contains('Join Date') + td",
         filters: [
           (query: string) => {
-            return dayjs(
-              query.split(" ").slice(1).join(" "),
-              "Do MMMM YYYY"
-            ).valueOf();
+            return dayjs(query.split(" ").slice(1).join(" "), "Do MMMM YYYY").valueOf();
           },
         ],
       },

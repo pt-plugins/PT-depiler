@@ -32,9 +32,7 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class greatposterwall extends GazelleJSONAPI {
-  protected override async getUserSeedingTorrents(): Promise<
-    Partial<IUserInfo>
-  > {
+  protected override async getUserSeedingTorrents(): Promise<Partial<IUserInfo>> {
     const { data: bonusPage } = await this.request<Document>({
       url: "/bonus.php",
       params: { action: "bprates" },

@@ -1,10 +1,5 @@
 import PrivateSite from "./AbstractPrivateSite";
-import {
-  ISiteMetadata,
-  ETorrentStatus,
-  ITorrent,
-  listSelectors,
-} from "../types";
+import { ISiteMetadata, ETorrentStatus, ITorrent, listSelectors } from "../types";
 import Sizzle from "sizzle";
 import { merge } from "lodash-es";
 import dayjs from "../utils/datetime";
@@ -23,23 +18,18 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       id: {
         selector: "a[href*='torrents.php?id=']",
         attr: "href",
-        filters: [
-          { name: "querystring", args: ["torrentid", "id"] },
-        ],
+        filters: [{ name: "querystring", args: ["torrentid", "id"] }],
       },
       title: { selector: "a[href*='torrents.php?id=']" },
       url: { selector: "a[href*='torrents.php?id=']", attr: "href" },
       link: {
-        selector:
-          "a[href*='torrents.php?action=download'][title='Download']:first",
+        selector: "a[href*='torrents.php?action=download'][title='Download']:first",
         attr: "href",
       },
       // TODO category: {}
       time: {
         elementProcess: (element: HTMLElement) => {
-          const AccurateTimeAnother = element.querySelector(
-            "span[title], time[title]"
-          );
+          const AccurateTimeAnother = element.querySelector("span[title], time[title]");
           if (AccurateTimeAnother) {
             return AccurateTimeAnother.getAttribute("title")! + ":00";
           } else if (element.getAttribute("title")) {
@@ -86,9 +76,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       id: {
         selector: ["a.username[href*='user.php']:first"],
         attr: "href",
-        filters: [
-          { name: "querystring", args: ["id"] }
-        ],
+        filters: [{ name: "querystring", args: ["id"] }],
       },
       name: {
         selector: ["a.username[href*='user.php']:first"],
@@ -101,17 +89,14 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [
           (query: string) => {
             const queryMatch = query.match(/(\d+)/);
-            return queryMatch && queryMatch.length >= 2
-              ? parseInt(queryMatch[1])
-              : 0;
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
           },
         ],
       },
 
       // "page": "/user.php?id=$user.id$",
       uploaded: {
-        selector:
-          "div:contains('Stats') + ul.stats > li:contains('Uploaded')",
+        selector: "div:contains('Stats') + ul.stats > li:contains('Uploaded')",
         filters: [
           (query: string) => {
             const queryMatch = query
@@ -124,8 +109,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         ],
       },
       downloaded: {
-        selector:
-          "div:contains('Stats') + ul.stats > li:contains('Downloaded')",
+        selector: "div:contains('Stats') + ul.stats > li:contains('Downloaded')",
         filters: [
           (query: string) => {
             const queryMatch = query
@@ -141,18 +125,13 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         selector: "div:contains('Stats') + ul.stats > li:contains('Ratio:')",
         filters: [
           (query: string) => {
-            const queryMatch = query
-              .replace(/,/g, "")
-              .match(/Ratio.+?([\d.]+)/);
-            return queryMatch && queryMatch.length >= 2
-              ? parseFloat(queryMatch[1])
-              : 0;
+            const queryMatch = query.replace(/,/g, "").match(/Ratio.+?([\d.]+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0;
           },
         ],
       },
       levelName: {
-        selector:
-          "div:contains('Personal') + ul.stats > li:contains('Class:')",
+        selector: "div:contains('Personal') + ul.stats > li:contains('Class:')",
         filters: [
           (query: string) => {
             const queryMatch = query.match(/Class:.+?(.+)/);
@@ -171,20 +150,14 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
             const queryMatch =
               query.match(/Bonus Points.+?([\d.]+)/) ||
               query.match(/SeedBonus.+?([\d.]+)/);
-            return queryMatch && queryMatch.length >= 2
-              ? parseFloat(queryMatch[1])
-              : 0;
+            return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0;
           },
         ],
       },
       joinTime: {
-        selector: [
-          "div:contains('Stats') + ul.stats > li:contains('Joined:') > span",
-        ],
+        selector: ["div:contains('Stats') + ul.stats > li:contains('Joined:') > span"],
         elementProcess: (element: HTMLElement) => {
-          const query = (
-            element.getAttribute("title") || element.innerText
-          ).trim();
+          const query = (element.getAttribute("title") || element.innerText).trim();
           return dayjs(query).isValid() ? dayjs(query).valueOf() : query;
         },
       },
@@ -194,7 +167,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 
 export default class Gazelle extends PrivateSite {
   protected override async transformSearchPage(
-    doc: Document | any
+    doc: Document | any,
   ): Promise<ITorrent[]> {
     // 如果配置文件没有传入 search 的选择器，则我们自己生成
     const legacyTableSelector = "table.torrent_table:last";
@@ -208,7 +181,7 @@ export default class Gazelle extends PrivateSite {
     // 对于 Gazelle ，一般来说，表的第一行应该是标题行，即 `> tbody > tr:nth-child(1)`
     const tableHeadAnother = Sizzle(
       `${legacyTableSelector} > tbody > tr:first > td`,
-      doc
+      doc,
     ) as HTMLElement[];
 
     tableHeadAnother.forEach((element, elementIndex) => {
@@ -221,24 +194,20 @@ export default class Gazelle extends PrivateSite {
       } as Record<keyof ITorrent, string>)) {
         if (Sizzle(dectSelector, element).length > 0) {
           // @ts-ignore
-          this.config.search.selectors[dectField as keyof listSelectors] =
-            merge(
-              {
-                selector: [`> td:eq(${elementIndex})`],
-              },
-              // @ts-ignore
-              this.config.search.selectors[dectField] || {}
-            );
+          this.config.search.selectors[dectField as keyof listSelectors] = merge(
+            {
+              selector: [`> td:eq(${elementIndex})`],
+            },
+            // @ts-ignore
+            this.config.search.selectors[dectField] || {},
+          );
         }
       }
     });
 
     // 遍历数据行
     const torrents: ITorrent[] = [];
-    const trs = Sizzle(
-      this.config.search!.selectors!.rows.selector as string,
-      doc
-    );
+    const trs = Sizzle(this.config.search!.selectors!.rows.selector as string, doc);
 
     for (let i = 0; i < trs.length; i++) {
       const tr = trs[i];

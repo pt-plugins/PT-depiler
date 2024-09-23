@@ -49,14 +49,18 @@ export const siteMetadata: ISiteMetadata = {
       link: {
         selector: 'a[href^="details"]',
         filters: [
-          (query: string) => query.replace("details", "download").replace("&hit=1", "") + "&trackerssl=1", // 强制SSL
+          (query: string) =>
+            query.replace("details", "download").replace("&hit=1", "") +
+            "&trackerssl=1", // 强制SSL
         ],
       },
       time: {
         selector: "div.small",
         elementProcess: (element: HTMLElement) => {
           if (timeRegex.test(element.innerHTML)) {
-            return (element.innerHTML.match(timeRegex) || ["0000-00-00 00:00:00"])[0].trim();
+            return (element.innerHTML.match(timeRegex) || [
+              "0000-00-00 00:00:00",
+            ])[0].trim();
           }
           return 0;
         },
@@ -82,13 +86,21 @@ export const siteMetadata: ISiteMetadata = {
 
       // "/userdetails.php?id=$user.id$"
       uploaded: {
-        selector: ["td.rowfollow:contains('分享率')", "td.rowhead:contains('传输') + td"],
+        selector: [
+          "td.rowfollow:contains('分享率')",
+          "td.rowhead:contains('传输') + td",
+        ],
       }, // 不覆蓋filter
       downloaded: {
-        selector: ["td.rowfollow:contains('分享率')", "td.rowhead:contains('传输') + td"],
+        selector: [
+          "td.rowfollow:contains('分享率')",
+          "td.rowhead:contains('传输') + td",
+        ],
       }, // 不覆蓋filter
       levelName: {
-        selector: ["td.rowhead:contains('等級') + td > img, td.rowhead:contains('等级') + td > img"],
+        selector: [
+          "td.rowhead:contains('等級') + td > img, td.rowhead:contains('等级') + td > img",
+        ],
         attr: "title",
       },
       bonus: { selector: ["td.rowhead:contains('沙粒') + td"] },

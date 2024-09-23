@@ -17,12 +17,13 @@ export const siteMetadata: ISiteMetadata = {
     },
     advanceKeyword: {
       imdb: {
-        skip: true
-      }
+        skip: true,
+      },
     },
     selectors: {
       rows: {
-        selector: 'table[border="1"][cellpadding="5"] > tbody > tr:has(a[href^="details.php?id="])',
+        selector:
+          'table[border="1"][cellpadding="5"] > tbody > tr:has(a[href^="details.php?id="])',
       },
       id: {
         selector: 'a[title][href^="details.php?id="]',
@@ -54,19 +55,23 @@ export const siteMetadata: ISiteMetadata = {
       tags: [
         {
           name: "Free",
-          selector: "font[color='#C20603']:has( > img[href*='arrowdown1.gif']):contains('免费')",
+          selector:
+            "font[color='#C20603']:has( > img[href*='arrowdown1.gif']):contains('免费')",
         },
         {
           name: "30%",
-          selector: "font[color='#C20603']:has( > img[href*='arrowdown1.gif']):contains('0.3x')",
+          selector:
+            "font[color='#C20603']:has( > img[href*='arrowdown1.gif']):contains('0.3x')",
         },
         {
           name: "50%",
-          selector: "font[color='#C20603']:has( > img[href*='arrowdown1.gif']):contains('0.5x')",
+          selector:
+            "font[color='#C20603']:has( > img[href*='arrowdown1.gif']):contains('0.5x')",
         },
         {
           name: "2xUp",
-          selector: "font[color='#4A8D04']:has( > img[href*='arrowup1.gif']):contains('2x')",
+          selector:
+            "font[color='#4A8D04']:has( > img[href*='arrowup1.gif']):contains('2x')",
         },
       ],
     },
@@ -81,7 +86,15 @@ export const siteMetadata: ISiteMetadata = {
       {
         requestConfig: { url: "/userdetails.php" },
         assertion: { id: "id" },
-        fields: ["uploaded", "downloaded", "levelName", "bonus", "joinTime", "seeding", "seedingSize"],
+        fields: [
+          "uploaded",
+          "downloaded",
+          "levelName",
+          "bonus",
+          "joinTime",
+          "seeding",
+          "seedingSize",
+        ],
       },
     ],
     selectors: {
@@ -111,7 +124,9 @@ export const siteMetadata: ISiteMetadata = {
         filters: [parseFloat],
       },
       joinTime: {
-        selector: ["注册日期", "註冊日期"].map((x) => `td.rowhead:contains('${x}') + td`),
+        selector: ["注册日期", "註冊日期"].map(
+          (x) => `td.rowhead:contains('${x}') + td`,
+        ),
         filters: [{ name: "parseTime" }],
       },
       seeding: {
@@ -133,7 +148,9 @@ export const siteMetadata: ISiteMetadata = {
             const trAnothers = Sizzle("tr:gt(0)", tbody);
             trAnothers.forEach((trAnother) => {
               const sizeAnother = Sizzle("td:eq(3)", trAnother)[0];
-              seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim());
+              seedingSize += parseSizeString(
+                (sizeAnother as HTMLElement).innerText.trim(),
+              );
             });
             return seedingSize;
           },

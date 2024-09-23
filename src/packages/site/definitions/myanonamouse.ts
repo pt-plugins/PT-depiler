@@ -133,8 +133,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     advanceKeyword: {
       imdb: {
-        skip: true
-      }
+        skip: true,
+      },
     },
     selectors: {
       rows: { selector: "data" },
@@ -231,7 +231,9 @@ export default class myanonamouse extends PrivateSite {
     return tags;
   }
 
-  private async getUserSeedingInfo(userid: number): Promise<{ seeding?: number; seedingSize?: number }> {
+  private async getUserSeedingInfo(
+    userid: number,
+  ): Promise<{ seeding?: number; seedingSize?: number }> {
     const retInfo = { seeding: 0, seedingSize: 0 };
 
     let mamId;
@@ -244,7 +246,11 @@ export default class myanonamouse extends PrivateSite {
 
     if (mamId) {
       for (const type of ["seedUnsat", "seedHnr", "sSat", "upAct"]) {
-        for (const pageInfo = { count: 0, current: 0 }; pageInfo.current <= pageInfo.count; pageInfo.current++) {
+        for (
+          const pageInfo = { count: 0, current: 0 };
+          pageInfo.current <= pageInfo.count;
+          pageInfo.current++
+        ) {
           const { data: seedJson } = await this.request<seedingResp>({
             url: "https://cdn.myanonamouse.net/json/loadUserDetailsTorrents.php",
             params: {
@@ -276,7 +282,9 @@ export default class myanonamouse extends PrivateSite {
     return retInfo;
   }
 
-  public override async getUserInfo(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+  public override async getUserInfo(
+    lastUserInfo: Partial<IUserInfo> = {},
+  ): Promise<IUserInfo> {
     let userInfo = await super.getUserInfo();
 
     if (userInfo.id && (!userInfo.seeding || !userInfo.seedingSize)) {

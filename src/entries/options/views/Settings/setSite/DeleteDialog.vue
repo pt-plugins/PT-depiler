@@ -3,16 +3,13 @@ import { useVModels } from "@vueuse/core";
 import { useSiteStore } from "@/shared/store/site.ts";
 
 const componentProps = defineProps<{
-  modelValue: boolean,
-  toDeleteIds: string[]
+  modelValue: boolean;
+  toDeleteIds: string[];
 }>();
 
-const {
-  modelValue: showDialog,
-  toDeleteIds
-} = useVModels(componentProps);
+const { modelValue: showDialog, toDeleteIds } = useVModels(componentProps);
 
-function removeSites () {
+function removeSites() {
   const siteStore = useSiteStore();
 
   for (const toDeleteId of toDeleteIds.value) {
@@ -27,29 +24,26 @@ function removeSites () {
   <v-dialog v-model="showDialog" width="300">
     <v-card>
       <v-card-title class="bg-red-lighten-2">
-        {{ $t('common.dialog.title.confirmAction') }}
+        {{ $t("common.dialog.title.confirmAction") }}
       </v-card-title>
 
       <v-card-text>
-        {{ $t('setSite.delete.text', [toDeleteIds.length]) }}
+        {{ $t("setSite.delete.text", [toDeleteIds.length]) }}
       </v-card-text>
 
       <v-card-actions>
         <v-spacer />
-        <v-btn variant="text" color="info" @click="showDialog=false">
+        <v-btn variant="text" color="info" @click="showDialog = false">
           <v-icon icon="mdi-close-circle" />
-          <span class="ml-1">{{ $t('common.dialog.cancel') }}</span>
+          <span class="ml-1">{{ $t("common.dialog.cancel") }}</span>
         </v-btn>
         <v-btn variant="text" color="error" @click="removeSites">
           <v-icon icon="mdi-check-circle-outline" />
-          <span class="ml-1">{{ $t('common.dialog.ok') }}</span>
+          <span class="ml-1">{{ $t("common.dialog.ok") }}</span>
         </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
-
-<style scoped>
-
-</style>
+<style scoped></style>

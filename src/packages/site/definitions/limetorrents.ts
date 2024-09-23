@@ -5,7 +5,8 @@ import BittorrentSite from "../schemas/AbstractBittorrentSite";
 export const siteMetadata: ISiteMetadata = {
   name: "LimeTorrents",
   type: "public",
-  description: "LimeTorrents is a Public general torrent index with mostly verified torrents",
+  description:
+    "LimeTorrents is a Public general torrent index with mostly verified torrents",
   url: "https://www.limetorrents.info/",
   legacyUrls: [
     "https://www.limetorrents.asia/",
@@ -42,7 +43,9 @@ export const siteMetadata: ISiteMetadata = {
       title: {
         selector: 'div.tt-name > a[href^="/"]',
         attr: "href",
-        filters: [(q: string) => q.match(/\/?(.+?)-torrent-\d+\.html/)![1].replace(/-/gi, " ")],
+        filters: [
+          (q: string) => q.match(/\/?(.+?)-torrent-\d+\.html/)![1].replace(/-/gi, " "),
+        ],
       },
       url: { selector: 'div.tt-name > a[href^="/"]', attr: "href" },
       time: {
@@ -65,7 +68,10 @@ export const siteMetadata: ISiteMetadata = {
   detail: {
     selectors: {
       link: {
-        selector: ['a.csprite_dltorrent[href^="magnet:"]', 'a.csprite_dltorrent[href^="http://itorrents.org/"]'],
+        selector: [
+          'a.csprite_dltorrent[href^="magnet:"]',
+          'a.csprite_dltorrent[href^="http://itorrents.org/"]',
+        ],
         attr: "href",
       },
     },
@@ -74,7 +80,9 @@ export const siteMetadata: ISiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Limetorrents extends BittorrentSite {
-  protected override async transformSearchFilter(filter: ISearchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter(
+    filter: ISearchFilter,
+  ): Promise<AxiosRequestConfig> {
     const config = await super.transformSearchFilter(filter);
     config.url = filter.keywords ? `search/all/${filter.keywords}/` : "/latest100";
     return config;

@@ -37,8 +37,7 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "querystring", args: ["id"] }],
       },
       title: {
-        selector:
-          'tr:nth-child(1) td.desc-top a[type="application/x-bittorrent"]',
+        selector: 'tr:nth-child(1) td.desc-top a[type="application/x-bittorrent"]',
       },
       url: {
         selector: 'tr:nth-child(1)  a[href^="details.php?id="]',
@@ -55,9 +54,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: "tr:nth-child(2) td.desc-bot",
         filters: [
           (q: string) =>
-            dayjs(
-              q.match(/Date: (.+?) \|?/)![1].replace("UTC", "+00:00")
-            ).valueOf(),
+            dayjs(q.match(/Date: (.+?) \|?/)![1].replace("UTC", "+00:00")).valueOf(),
         ],
       },
       size: {

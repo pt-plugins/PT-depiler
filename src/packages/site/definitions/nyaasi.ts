@@ -86,8 +86,8 @@ export const siteMetadata: ISiteMetadata = {
           { name: "Descending", value: "desc" },
           { name: "Ascending", value: "asc" },
         ],
-      }
+      },
     ],
     selectors: NyaaSelectors,
-  }
+  },
 };

@@ -1,29 +1,36 @@
-import {type Ref, shallowRef, ref, unref} from "vue";
-import {type UseStorageOptions, watchWithFilter} from "@vueuse/core";
+import { type Ref, shallowRef, ref, unref } from "vue";
+import { type UseStorageOptions, watchWithFilter } from "@vueuse/core";
 
-export async function persistent<T>(key: string, newValue: T, storage: chrome.storage.AreaName = "local") {
-  await chrome.storage[storage].set({[key]: JSON.parse(JSON.stringify(newValue))});
+export async function persistent<T>(
+  key: string,
+  newValue: T,
+  storage: chrome.storage.AreaName = "local",
+) {
+  await chrome.storage[storage].set({ [key]: JSON.parse(JSON.stringify(newValue)) });
 }
 
 export interface restoreOptions<T = any> {
-  initialValue?: T | Ref<T>,
-  storage?: chrome.storage.AreaName,
-  writeDefaults?: boolean
-  onError?: null | ((e: any) => void),
+  initialValue?: T | Ref<T>;
+  storage?: chrome.storage.AreaName;
+  writeDefaults?: boolean;
+  onError?: null | ((e: any) => void);
 }
 
-export async function restore<T>(key: string, options: restoreOptions<T> = {}): Promise<T> {
+export async function restore<T>(
+  key: string,
+  options: restoreOptions<T> = {},
+): Promise<T> {
   const {
     initialValue,
     storage = "local",
     writeDefaults = true,
-    onError = null
+    onError = null,
   } = options;
 
   const rawInit: T = unref(initialValue)!;
 
   try {
-    const {[key]: fromStorage} = await chrome.storage[storage].get(key);
+    const { [key]: fromStorage } = await chrome.storage[storage].get(key);
     if (fromStorage) {
       return fromStorage as T;
     } else {
@@ -42,7 +49,7 @@ export function useBrowserStore<T>(
   key: string,
   initialValue?: T | Ref<T>,
   storage: chrome.storage.AreaName = "local",
-  options: Omit<UseStorageOptions<T>, "window" | "serializer"> = {}
+  options: Omit<UseStorageOptions<T>, "window" | "serializer"> = {},
 ): Ref<T> {
   const {
     flush = "pre",
@@ -58,8 +65,9 @@ export function useBrowserStore<T>(
 
   const data = (shallow ? shallowRef : ref)(initialValue) as Ref<T>;
 
-  restore(key, {initialValue, storage, onError, writeDefaults})
-    .then((v) => data.value = v);
+  restore(key, { initialValue, storage, onError, writeDefaults }).then(
+    (v) => (data.value = v),
+  );
 
   if (listenToStorageChanges) {
     chrome.storage.onChanged.addListener((item, changeStorage) => {
@@ -86,7 +94,7 @@ export function useBrowserStore<T>(
       flush,
       deep,
       eventFilter,
-    }
+    },
   );
 
   return data;

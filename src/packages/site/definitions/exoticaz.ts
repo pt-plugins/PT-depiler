@@ -12,8 +12,8 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     advanceKeyword: {
       imdb: {
-        skip: true
-      }
+        skip: true,
+      },
     },
   },
 };

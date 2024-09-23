@@ -33,10 +33,7 @@ export const siteMetadata: ISiteMetadata = {
         filters: [
           (q: string) => {
             const dateRaw = q.match(/AddDate:\s*\u00a0\s*(.+?)$/)![1];
-            return dayjs(
-              `${dateRaw} -07:00`,
-              "HH:mm:ss DD/MM/YYYY Z"
-            ).valueOf();
+            return dayjs(`${dateRaw} -07:00`, "HH:mm:ss DD/MM/YYYY Z").valueOf();
           },
         ],
       },
@@ -50,15 +47,12 @@ export const siteMetadata: ISiteMetadata = {
       },
       leechers: {
         selector: 'td[valign="middle"] > p:nth-child(5)',
-        filters: [
-          (q: string) => q.match(/Leechers:\s*\u00a0\s*(\d+)\u00a0/)![1],
-        ],
+        filters: [(q: string) => q.match(/Leechers:\s*\u00a0\s*(\d+)\u00a0/)![1]],
       },
       completed: {
         selector: 'td[valign="middle"] > p:nth-child(5)',
         filters: [
-          (q: string) =>
-            q.match(/Complete:\s*\u00a0\s*(.+?)$/)![1].replace("---", "0"),
+          (q: string) => q.match(/Complete:\s*\u00a0\s*(.+?)$/)![1].replace("---", "0"),
         ],
       },
     },

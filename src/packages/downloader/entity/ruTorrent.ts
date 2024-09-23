@@ -33,8 +33,8 @@ export const clientMetaData: TorrentClientMetaData = {
       description: CustomPathDescription,
     },
     DefaultAutoStart: {
-      allowed: true
-    }
+      allowed: true,
+    },
   },
 };
 
@@ -72,15 +72,15 @@ type torrentData = [
   string, // torrent_comment
   string, // free_diskspace
   string, // private
-  string // multi_file
+  string, // multi_file
 ];
 
 type statusData = [
   string, // up_total
   string, // down_total
   string, // upload_rate
-  string  // download_rate
-]
+  string, // download_rate
+];
 
 interface ListResponse {
   t: {
@@ -89,17 +89,23 @@ interface ListResponse {
   cid: number;
 }
 
-function iv (val: string | null): number {
+function iv(val: string | null): number {
   const v = val == null ? 0 : parseInt(val + "");
   return isNaN(v) ? 0 : v;
 }
 
-function buildRequestXML (calls: Array<[string, string[]?]>): string {
-  let retXML = '<?xml version="1.0" encoding="UTF-8"?><methodCall><methodName>system.multicall</methodName><params><param><value><array><data>';
+function buildRequestXML(calls: Array<[string, string[]?]>): string {
+  let retXML =
+    '<?xml version="1.0" encoding="UTF-8"?><methodCall><methodName>system.multicall</methodName><params><param><value><array><data>';
   for (const [method, params = []] of calls) {
     retXML += "<value><struct>";
     retXML += `<member><name>methodName</name><value><string>${method}</string></value></member>`;
-    retXML += "<member><name>params</name><value><array><data>" + params.map(param => `<value><string>${String(param)}</string></value>`).join("") + "</data></array></value></member>";
+    retXML +=
+      "<member><name>params</name><value><array><data>" +
+      params
+        .map((param) => `<value><string>${String(param)}</string></value>`)
+        .join("") +
+      "</data></array></value></member>";
     retXML += "</struct></value>";
   }
 
@@ -107,23 +113,25 @@ function buildRequestXML (calls: Array<[string, string[]?]>): string {
   return retXML;
 }
 
-function parseResponseXML (resp: string): string[] {
-  const parsedXML = (new DOMParser()).parseFromString(resp, "text/xml");
+function parseResponseXML(resp: string): string[] {
+  const parsedXML = new DOMParser().parseFromString(resp, "text/xml");
   // noinspection CssInvalidHtmlTagReference
-  const dataNode = parsedXML.querySelectorAll("params > param > value > array > data > value > array > data > value");
+  const dataNode = parsedXML.querySelectorAll(
+    "params > param > value > array > data > value > array > data > value",
+  );
 
-  return Array.from(dataNode).map(node => node.textContent!);
+  return Array.from(dataNode).map((node) => node.textContent!);
 }
 
 // noinspection JSUnusedGlobalSymbols
 export default class RuTorrent extends AbstractBittorrentClient<TorrentClientConfig> {
   readonly version = "v0.0.1";
 
-  constructor (options: Partial<TorrentClientConfig> = {}) {
+  constructor(options: Partial<TorrentClientConfig> = {}) {
     super({ ...clientConfig, ...options });
   }
 
-  async request<T> (config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> {
+  async request<T>(config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> {
     return await axios.request({
       baseURL: this.config.address,
       auth: {
@@ -135,7 +143,7 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
     });
   }
 
-  async requestHttpRpc<T> (data: any = {}): Promise<AxiosResponse<T>> {
+  async requestHttpRpc<T>(data: any = {}): Promise<AxiosResponse<T>> {
     return this.request<T>({
       method: "post",
       url: "/plugins/httprpc/action.php",
@@ -147,7 +155,7 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
    * 鉴于ruTorrent请求 `php/getplugins.php` 页面获取信息为js格式，不好处理，
    * 故考虑请求 `/php/getsettings.php` 页面，如果返回json格式的信息则说明可连接
    */
-  async ping (): Promise<boolean> {
+  async ping(): Promise<boolean> {
     try {
       await this.request({
         url: "/php/getsettings.php",
@@ -159,15 +167,18 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
     return true;
   }
 
-  protected async getClientVersionFromRemote (): Promise<string> {
-    const postData = buildRequestXML([["system.client_version"], ["system.api_version"]]);
+  protected async getClientVersionFromRemote(): Promise<string> {
+    const postData = buildRequestXML([
+      ["system.client_version"],
+      ["system.api_version"],
+    ]);
     const { data: responseXML } = await this.requestHttpRpc<string>(postData);
     const versionList = parseResponseXML(responseXML);
 
     return versionList.join("/");
   }
 
-  override async getClientStatus (): Promise<TorrentClientStatus> {
+  override async getClientStatus(): Promise<TorrentClientStatus> {
     const postData = new URLSearchParams({ mode: "ttl" });
     const { data } = await this.requestHttpRpc<statusData>(postData);
     const [upData, dlData, upSpeed, dlSpeed] = data.map(iv);
@@ -176,18 +187,22 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
       upData,
       dlData,
       upSpeed,
-      dlSpeed
+      dlSpeed,
     };
   }
 
-  override async getClientFreeSpace (): Promise<number | "N/A"> {
-    const { data: { free } } = await this.request<{ total: number, free: number }>({ url: "/rutorrent/plugins/diskspace/action.php" });
+  override async getClientFreeSpace(): Promise<number | "N/A"> {
+    const {
+      data: { free },
+    } = await this.request<{ total: number; free: number }>({
+      url: "/rutorrent/plugins/diskspace/action.php",
+    });
     return free;
   }
 
-  async addTorrent (
+  async addTorrent(
     url: string,
-    options: Partial<CAddTorrentOptions> = {}
+    options: Partial<CAddTorrentOptions> = {},
   ): Promise<boolean> {
     let postData: URLSearchParams | FormData;
     if (url.startsWith("magnet:") || !options.localDownload) {
@@ -230,7 +245,7 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
     return data.result === "Success";
   }
 
-  async getAllTorrents (): Promise<CTorrent[]> {
+  async getAllTorrents(): Promise<CTorrent[]> {
     const postData = new URLSearchParams({ mode: "list" });
     const { data } = await this.requestHttpRpc<ListResponse>(postData);
 
@@ -246,9 +261,7 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
 
       const chunksProcessing =
         isHashChecking === 0 ? iv(rawTorrent[6]) : iv(rawTorrent[24]);
-      const TorrentDone = Math.floor(
-        (chunksProcessing / iv(rawTorrent[7])) * 1000
-      );
+      const TorrentDone = Math.floor((chunksProcessing / iv(rawTorrent[7])) * 1000);
       const isCompleted = TorrentDone >= 1000;
 
       const basePath = rawTorrent[25];
@@ -264,18 +277,13 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
           state = CTorrentState.paused;
         } else {
           // eslint-disable-next-line eqeqeq
-          state = isCompleted
-            ? CTorrentState.seeding
-            : CTorrentState.downloading;
+          state = isCompleted ? CTorrentState.seeding : CTorrentState.downloading;
         }
       } else if (getHashing !== 0) {
         state = CTorrentState.queued;
       } else if (isHashChecking !== 0) {
         state = CTorrentState.checking;
-      } else if (
-        torrentMsg.length &&
-        torrentMsg !== "Tracker: [Tried all trackers.]"
-      ) {
+      } else if (torrentMsg.length && torrentMsg !== "Tracker: [Tried all trackers.]") {
         state = CTorrentState.error;
       }
 
@@ -301,7 +309,7 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
     });
   }
 
-  async pauseTorrent (id: any): Promise<boolean> {
+  async pauseTorrent(id: any): Promise<boolean> {
     const postData = new URLSearchParams({
       mode: "pause",
       hash: id.toUpperCase(),
@@ -310,7 +318,7 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
     return true;
   }
 
-  async removeTorrent (id: any, removeData: boolean = false): Promise<boolean> {
+  async removeTorrent(id: any, removeData: boolean = false): Promise<boolean> {
     const upId = id.toUpperCase();
 
     let postData: string | URLSearchParams;
@@ -318,12 +326,12 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
       postData = buildRequestXML([
         ["d.custom5.set", [upId, 1]],
         ["d.delete_tied", [upId]],
-        ["d.erase", [upId]]
+        ["d.erase", [upId]],
       ]);
     } else {
       postData = new URLSearchParams({
         mode: "remove",
-        hash: upId
+        hash: upId,
       });
     }
 
@@ -331,7 +339,7 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
     return true;
   }
 
-  async resumeTorrent (id: string): Promise<boolean> {
+  async resumeTorrent(id: string): Promise<boolean> {
     const postData = new URLSearchParams({
       mode: "post",
       hash: id.toUpperCase(),

@@ -18,10 +18,10 @@ export const siteMetadata: ISiteMetadata = {
           { name: "电视剧", value: 402 },
           { name: "综艺", value: 403 },
           { name: "纪录片", value: 404 },
-          { name: "动漫", value: 405 }
+          { name: "动漫", value: 405 },
         ],
-        cross: { mode: "append" }
-      }
+        cross: { mode: "append" },
+      },
     ],
     selectors: {
       progress: {
@@ -31,17 +31,17 @@ export const siteMetadata: ISiteMetadata = {
           (query: string) => {
             const queryMatch = query.match(/([.\d]+)%/);
             return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0;
-          }
-        ]
+          },
+        ],
       },
       status: {
         selector: ".torrentname td:first-child > div[title]:last-child",
         case: {
           '[title^="leeching"]': ETorrentStatus.downloading,
           '[title^="seeding"]': ETorrentStatus.seeding,
-          '[title^="inactivity"]': ETorrentStatus.completed
-        }
-      }
-    }
-  }
+          '[title^="inactivity"]': ETorrentStatus.completed,
+        },
+      },
+    },
+  },
 };

@@ -23,25 +23,15 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "baseUrl": ".",
-    "types": [
-      "node",
-      "chrome"
-    ],
+    "types": ["node", "chrome"],
     "paths": {
       "~/*": ["src/*"],
       "@/*": ["src/entries/*"],
       "@ptd/*": ["src/packages/*"]
     },
-    "lib": [
-      "ESNext",
-      "DOM",
-      "DOM.Iterable"
-    ],
-
+    "lib": ["ESNext", "DOM", "DOM.Iterable"]
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
-  "exclude": [
-    "node_modules"
-  ],
+  "exclude": ["node_modules"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

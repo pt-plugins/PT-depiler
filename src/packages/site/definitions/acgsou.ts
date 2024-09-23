@@ -6,7 +6,8 @@ import BittorrentSite from "../schemas/AbstractBittorrentSite";
 export const siteMetadata: ISiteMetadata = {
   name: "ACGsou",
   type: "public",
-  description: "简单动漫BT下载站全面为网友提供日本动画，漫画，电子书，动漫音乐，动漫游戏等优质资源的BT下载服务。",
+  description:
+    "简单动漫BT下载站全面为网友提供日本动画，漫画，电子书，动漫音乐，动漫游戏等优质资源的BT下载服务。",
   url: "https://www.36dm.com/",
   legacyUrls: ["https://www.36dm.club/", "https://www.acgsou.com/"],
   timezoneOffset: "+0800",
@@ -73,7 +74,9 @@ export const siteMetadata: ISiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Acgsou extends BittorrentSite {
-  protected override async transformSearchFilter(filter: ISearchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter(
+    filter: ISearchFilter,
+  ): Promise<AxiosRequestConfig> {
     const config = await super.transformSearchFilter(filter);
     config.url = filter.keywords ? "/search.php" : "1.html";
 

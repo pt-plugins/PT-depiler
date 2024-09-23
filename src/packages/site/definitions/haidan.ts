@@ -39,8 +39,8 @@ export const siteMetadata: ISiteMetadata = {
             query === ""
               ? ETorrentStatus.unknown
               : query === "100%"
-              ? ETorrentStatus.seeding
-              : ETorrentStatus.downloading,
+                ? ETorrentStatus.seeding
+                : ETorrentStatus.downloading,
         ],
       },
       tags: [

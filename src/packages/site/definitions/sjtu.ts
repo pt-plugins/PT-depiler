@@ -88,7 +88,7 @@ export const siteMetadata: ISiteMetadata = {
 export default class sjtu extends NexusPHP {
   protected override async requestUserSeedingPage(
     userId: number,
-    type: string = "seeding"
+    type: string = "seeding",
   ): Promise<string | null> {
     const { data } = await this.request<string>({
       url: "/viewusertorrents.php",

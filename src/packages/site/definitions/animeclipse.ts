@@ -107,19 +107,24 @@ export const siteMetadata: ISiteMetadata = {
       url: { text: "http://www.animeclipse.com/" },
       link: { selector: 'a[href*="/download/"]', attr: "href" },
       time: {
-        selector: "td:nth-child(2) > table:nth-child(2) td:nth-child(2) span.torrentInfoData",
+        selector:
+          "td:nth-child(2) > table:nth-child(2) td:nth-child(2) span.torrentInfoData",
       },
       size: {
-        selector: "td:nth-child(2) > table:nth-child(2) td:nth-child(1) span.torrentInfoData",
+        selector:
+          "td:nth-child(2) > table:nth-child(2) td:nth-child(1) span.torrentInfoData",
       },
       seeders: {
-        selector: "td:nth-child(2) > table:nth-child(2) td:nth-child(5) span.torrentInfoData",
+        selector:
+          "td:nth-child(2) > table:nth-child(2) td:nth-child(5) span.torrentInfoData",
       },
       leechers: {
-        selector: "td:nth-child(2) > table:nth-child(2) td:nth-child(6) span.torrentInfoData",
+        selector:
+          "td:nth-child(2) > table:nth-child(2) td:nth-child(6) span.torrentInfoData",
       },
       completed: {
-        selector: "td:nth-child(2) > table:nth-child(2) td:nth-child(4) span.torrentInfoData",
+        selector:
+          "td:nth-child(2) > table:nth-child(2) td:nth-child(4) span.torrentInfoData",
       },
     },
   },
@@ -127,9 +132,11 @@ export const siteMetadata: ISiteMetadata = {
 
 // noinspection JSUnusedGlobalSymbols
 export default class Animeclipse extends BittorrentSite {
-  protected override async transformSearchFilter(filter: ISearchFilter): Promise<AxiosRequestConfig> {
+  protected override async transformSearchFilter(
+    filter: ISearchFilter,
+  ): Promise<AxiosRequestConfig> {
     const extraSortParamsIndex = filter.extraParams?.findIndex(
-      (v) => v.key === "order" && ["3", "4", "5"].includes(<string>v.value)
+      (v) => v.key === "order" && ["3", "4", "5"].includes(<string>v.value),
     );
 
     if (extraSortParamsIndex && extraSortParamsIndex > -1) {

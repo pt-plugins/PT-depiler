@@ -1,7 +1,11 @@
 import { parseSizeString } from "./filesize";
 import { parseValidTimeString, parseTimeToLive } from "./datetime";
 
-export type TDefinedFilterNameWithArgs = "querystring" | "append" | "perpend" | "replace";
+export type TDefinedFilterNameWithArgs =
+  | "querystring"
+  | "append"
+  | "perpend"
+  | "replace";
 export type TDefinedFilterName =
   | "parseNumber"
   | "parseSize"
@@ -38,13 +42,11 @@ export function findThenParseSizeString(query: string): number {
     .trim()
     .replace(/[ ,\n]/g, "")
     .match(/([\d.]+ ?[ZEPTGMK]?i?B)/);
-  return queryMatch && queryMatch.length >= 2
-    ? parseSizeString(queryMatch[1])
-    : 0;
+  return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0;
 }
 
 export function runFilter(query: any, filter: IDefinedQueryFilter): any {
-  const {name, args = []} = filter;
+  const { name, args = [] } = filter;
   switch (name) {
     case "parseNumber": {
       return parseNumber(query);

@@ -3,7 +3,8 @@ import type { ISiteMetadata } from "../types";
 export const siteMetadata: ISiteMetadata = {
   name: "AniRena",
   type: "public",
-  description: "AniRena is a Public torrent tracker for the latest anime and Japanese related torrents",
+  description:
+    "AniRena is a Public torrent tracker for the latest anime and Japanese related torrents",
   url: "https://www.anirena.com/",
   search: {
     keywordsParam: "s",

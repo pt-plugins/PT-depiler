@@ -1,5 +1,8 @@
 import type { ISiteMetadata, IUserInfo, ITorrent } from "../types";
-import GazelleJSONAPI, { groupBrowseResult, groupTorrent } from "../schemas/GazelleJSONAPI";
+import GazelleJSONAPI, {
+  groupBrowseResult,
+  groupTorrent,
+} from "../schemas/GazelleJSONAPI";
 
 export const siteMetadata: ISiteMetadata = {
   name: "HD-Forever",
@@ -25,7 +28,10 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class hdforever extends GazelleJSONAPI {
-  protected override async transformGroupTorrent(group: groupBrowseResult, torrent: groupTorrent): Promise<ITorrent> {
+  protected override async transformGroupTorrent(
+    group: groupBrowseResult,
+    torrent: groupTorrent,
+  ): Promise<ITorrent> {
     const parsedTorrent = await super.transformGroupTorrent(group, torrent);
 
     /**
@@ -34,7 +40,9 @@ export default class hdforever extends GazelleJSONAPI {
      */
     parsedTorrent.title =
       `${group.groupName} [${group.groupYear}] ${torrent.encoding} / ${torrent.format} / ${torrent.media}` +
-      (torrent.isFreeleech || torrent.isNeutralLeech || torrent.isPersonalFreeleech ? " / Freeleech" : "");
+      (torrent.isFreeleech || torrent.isNeutralLeech || torrent.isPersonalFreeleech
+        ? " / Freeleech"
+        : "");
     parsedTorrent.subTitle = undefined;
 
     return parsedTorrent;

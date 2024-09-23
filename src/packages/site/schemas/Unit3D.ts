@@ -30,7 +30,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           delete config.params.search;
           return config;
         },
-      }
+      },
     },
     selectors: {
       rows: { selector: "div.table-responsive > table:first > tbody > tr" },
@@ -58,9 +58,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       link: {
         selector: ["a[href*='/download/']", "a[href*='/download_check/']"],
         attr: "href",
-        filters: [
-          (query: string) => query.replace("/download_check/", "/download/"),
-        ],
+        filters: [(query: string) => query.replace("/download_check/", "/download/")],
       },
       // /resources/views/torrent/results.blade.php#L399-L401
       time: { selector: ["time"], filters: [{ name: "parseTTL" }] },
@@ -157,12 +155,8 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         selector: ["div.ratio-bar span:has( > i.fa-upload)"],
         filters: [
           (query: string) => {
-            const queryMatch = query
-              .replace(/[,\n]/g, "")
-              .match(/:.+?([\d.]+)/);
-            return queryMatch && queryMatch.length >= 2
-              ? parseInt(queryMatch[1])
-              : 0;
+            const queryMatch = query.replace(/[,\n]/g, "").match(/:.+?([\d.]+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
           },
         ],
       },
@@ -170,12 +164,8 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         selector: ["div.ratio-bar span:has( > i.fa-download)"],
         filters: [
           (query: string) => {
-            const queryMatch = query
-              .replace(/[,\n]/g, "")
-              .match(/:.+?([\d.]+)/);
-            return queryMatch && queryMatch.length >= 2
-              ? parseInt(queryMatch[1])
-              : 0;
+            const queryMatch = query.replace(/[,\n]/g, "").match(/:.+?([\d.]+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
           },
         ],
       },
@@ -188,9 +178,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       seedingSize: {
         // table.table-condensed:first
         selector: seedingSizeTrans.map((x) => `td:contains('${x}') + td`),
-        filters: [
-          (query: string) => parseSizeString(query.replace(/,/g, "")),
-        ],
+        filters: [(query: string) => parseSizeString(query.replace(/,/g, ""))],
       },
       levelName: {
         selector: "div.content span.badge-user",
@@ -211,12 +199,11 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       },
     },
   },
-
 };
 
 export default class Unit3D extends PrivateSite {
   public override async getUserInfo(
-    lastUserInfo: Partial<IUserInfo> = {}
+    lastUserInfo: Partial<IUserInfo> = {},
   ): Promise<IUserInfo> {
     let flushUserInfo: Partial<IUserInfo> = {};
 
@@ -232,7 +219,7 @@ export default class Unit3D extends PrivateSite {
     // 导入基本 Details 页面获取到的用户信息
     flushUserInfo = Object.assign(
       flushUserInfo,
-      await this.getUserInfoFromDetailsPage(userName)
+      await this.getUserInfoFromDetailsPage(userName),
     );
 
     return flushUserInfo as IUserInfo;
@@ -247,12 +234,12 @@ export default class Unit3D extends PrivateSite {
     return this.getFieldData(
       indexDocument,
       // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-      this.config.userInfo?.selectors?.name!
+      this.config.userInfo?.selectors?.name!,
     );
   }
 
   protected async getUserInfoFromDetailsPage(
-    userName: string
+    userName: string,
   ): Promise<Partial<IUserInfo>> {
     const { data: userDetailDocument } = await this.request<Document>({
       url: urlJoin("/users", userName),
@@ -275,7 +262,7 @@ export default class Unit3D extends PrivateSite {
     return this.getFieldsData(
       userDetailDocument,
       "userInfo",
-      detailsPageAttrs
+      detailsPageAttrs,
     ) as Partial<IUserInfo>;
   }
 }

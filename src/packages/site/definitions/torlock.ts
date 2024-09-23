@@ -28,8 +28,7 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     selectors: {
       rows: {
-        selector:
-          'table > tbody > tr:has(td:has(div:has(a[href^="/torrent/"])))',
+        selector: 'table > tbody > tr:has(td:has(div:has(a[href^="/torrent/"])))',
       },
       id: {
         selector: 'td:nth-child(1) > div > a[href^="/torrent/"]',
@@ -44,9 +43,7 @@ export const siteMetadata: ISiteMetadata = {
       link: {
         selector: 'td:nth-child(1) > div > a[href^="/torrent/"]',
         attr: "href",
-        filters: [
-          (q: string) => `/tor/${q.match(/\/torrent\/(\d+)/)![1]}.torrent`,
-        ],
+        filters: [(q: string) => `/tor/${q.match(/\/torrent\/(\d+)/)![1]}.torrent`],
       },
       time: {
         selector: "td:nth-child(2)",
@@ -76,7 +73,7 @@ export const siteMetadata: ISiteMetadata = {
 // noinspection JSUnusedGlobalSymbols
 export default class Torlock extends BittorrentSite {
   protected override async transformSearchFilter(
-    filter: ISearchFilter
+    filter: ISearchFilter,
   ): Promise<AxiosRequestConfig> {
     const config = await super.transformSearchFilter(filter);
     config.url = filter.keywords

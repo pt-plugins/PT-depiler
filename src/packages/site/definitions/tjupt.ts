@@ -8,9 +8,7 @@ export const selectorSearchProgress: IElementQuery = {
     (query: string) => {
       query = query || "";
       const queryMatch = query.match(/width:([ \d.]+)%/);
-      return queryMatch && queryMatch.length >= 2
-        ? parseFloat(queryMatch[1])
-        : 0;
+      return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0;
     },
   ],
 };

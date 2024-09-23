@@ -20,15 +20,17 @@ export const siteMetadata: ISiteMetadata = {
     advanceKeyword: {
       imdb: {
         transformer: (config) => {
-          config?.params?.search && (config.params.search = config.params.search.replace("tt", "IMDB"));
+          config?.params?.search &&
+            (config.params.search = config.params.search.replace("tt", "IMDB"));
           return config;
         },
-      }
+      },
     },
 
     selectors: {
       rows: {
-        selector: 'table.lista > tbody > tr:has(a[href*="index.php?page=torrent-details"])',
+        selector:
+          'table.lista > tbody > tr:has(a[href*="index.php?page=torrent-details"])',
       },
       id: {
         selector: 'a[href*="index.php?page=torrent-details"]',
@@ -48,7 +50,10 @@ export const siteMetadata: ISiteMetadata = {
           (query: string) => {
             if (query.includes("at")) {
               query = query.replace("Today", dayjs().format("DD/MM/YYYY"));
-              query = query.replace("Yesterday", dayjs().add(-1, "day").format("DD/MM/YYYY"));
+              query = query.replace(
+                "Yesterday",
+                dayjs().add(-1, "day").format("DD/MM/YYYY"),
+              );
               query = query.replace(" at ", " ");
               return dayjs(query, "DD/MM/YYYY HH:mm:ss").valueOf();
             } else {
@@ -81,7 +86,17 @@ export const siteMetadata: ISiteMetadata = {
     process: [
       {
         requestConfig: { url: "/index.php" },
-        fields: ["id", "name", "messageCount", "uploaded", "downloaded", "ratio", "levelName", "bonus", "seeding"],
+        fields: [
+          "id",
+          "name",
+          "messageCount",
+          "uploaded",
+          "downloaded",
+          "ratio",
+          "levelName",
+          "bonus",
+          "seeding",
+        ],
       },
       {
         requestConfig: { url: "/index.php", params: { page: "usercp" } },
@@ -97,7 +112,8 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "querystring", args: ["uid"] }],
       },
       name: {
-        selector: "td[align='center'][style='text-align:center;']:contains('Welcome back')>span",
+        selector:
+          "td[align='center'][style='text-align:center;']:contains('Welcome back')>span",
       },
       messageCount: {
         selector: ["a[href*='do=pm']"],
@@ -129,7 +145,9 @@ export const siteMetadata: ISiteMetadata = {
         filters: [(query: string) => query.replace("Bonus: ", "")],
       },
       seeding: {
-        selector: ["#menu + table > tbody > tr > td:nth-child(4) b > font:nth-child(2)"],
+        selector: [
+          "#menu + table > tbody > tr > td:nth-child(4) b > font:nth-child(2)",
+        ],
       },
       seedingSize: {
         text: "N/A", // FIXME 实际是能获取到的

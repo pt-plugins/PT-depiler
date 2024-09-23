@@ -34,31 +34,37 @@ export const siteMetadata: ISiteMetadata = {
     },
     advanceKeyword: {
       imdb: {
-        skip: true
-      }
+        skip: true,
+      },
     },
   },
   userInfo: {
     selectors: {
       uploaded: {
-        selector: "#section2 > div > div.statistics > div:nth-child(3) > ul > li:nth-child(1)",
+        selector:
+          "#section2 > div > div.statistics > div:nth-child(3) > ul > li:nth-child(1)",
       },
       downloaded: {
-        selector: "#section2 > div > div.statistics > div:nth-child(3) > ul > li:nth-child(7)",
+        selector:
+          "#section2 > div > div.statistics > div:nth-child(3) > ul > li:nth-child(7)",
       },
       ratio: { text: "---", selector: null, filters: [] },
       levelName: {
-        selector: "#section2 > div > div.statistics > div:nth-child(1) > ul > li:nth-child(2)",
+        selector:
+          "#section2 > div > div.statistics > div:nth-child(1) > ul > li:nth-child(2)",
       },
       bonus: {
-        selector: "#section2 > div > div.statistics > div:nth-child(1) > ul > li:nth-child(5) > a",
+        selector:
+          "#section2 > div > div.statistics > div:nth-child(1) > ul > li:nth-child(5) > a",
         filters: [(query: string) => query.replace(/,/g, "")],
       },
       joinTime: {
-        selector: "#section2 > div > div.statistics > div:nth-child(1) > ul > li:nth-child(1) > span",
+        selector:
+          "#section2 > div > div.statistics > div:nth-child(1) > ul > li:nth-child(1) > span",
       },
       seeding: {
-        selector: "#section2 > div > div.statistics > div:nth-child(3) > ul > li:nth-child(4)",
+        selector:
+          "#section2 > div > div.statistics > div:nth-child(3) > ul > li:nth-child(4)",
         filters: [
           (query: string) => {
             const queryMatch = query.replace(/,/g, "").match(/Seeding:.+?(\d+).+?/);
@@ -67,11 +73,16 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
       seedingSize: {
-        selector: "#section2 > div > div.statistics > div:nth-child(3) > ul > li:nth-child(5)",
+        selector:
+          "#section2 > div > div.statistics > div:nth-child(3) > ul > li:nth-child(5)",
         filters: [
           (query: string) => {
-            const queryMatch = query.replace(/,/g, "").match(/Seeding Size:.+?([\d.]+ ?[TGMK]?i?B)/);
-            return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0;
+            const queryMatch = query
+              .replace(/,/g, "")
+              .match(/Seeding Size:.+?([\d.]+ ?[TGMK]?i?B)/);
+            return queryMatch && queryMatch.length >= 2
+              ? parseSizeString(queryMatch[1])
+              : 0;
           },
         ],
       },
