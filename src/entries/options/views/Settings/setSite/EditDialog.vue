@@ -2,33 +2,29 @@
 import { useVModels } from "@vueuse/core";
 import Editor from "@/options/views/Settings/setSite/Editor.vue";
 
-import { type ISiteRuntimeConfig } from "@/shared/adapters/site.ts";
-import { useSiteStore } from "@/shared/store/site.ts";
-import { ref, watch } from "vue";
+import { provide, ref, watch } from "vue";
+import { type ISiteUserConfig, type TSiteID } from "@ptd/site";
+import { useSiteStore } from "@/options/stores/site.ts";
 
 const componentProps = defineProps<{
   modelValue: boolean;
-  siteConfig: ISiteRuntimeConfig;
+  siteId: TSiteID;
 }>();
 
 const { modelValue: showDialog } = useVModels(componentProps);
+const siteStore = useSiteStore();
 
-const siteConfig = ref<ISiteRuntimeConfig>();
-watch(
-  () => componentProps.siteConfig,
-  () => {
-    if (componentProps.siteConfig.id) {
-      siteConfig.value = { ...componentProps.siteConfig }; // 防止直接修改父组件的数据
-    }
-  },
-);
+const storedSiteUserConfig = ref<ISiteUserConfig & { valid?: boolean }>({ valid: false });
+provide("storedSiteUserConfig", storedSiteUserConfig);
 
-function patchSite() {
-  const store = useSiteStore();
+watch(showDialog, async () => {
+  storedSiteUserConfig.value = {
+    valid: false,
+    ...(await siteStore.getSiteUserConfig(componentProps.siteId)),
+  };
+});
 
-  store.patchSite(siteConfig.value!);
-  showDialog.value = false;
-}
+function patchSite() {}
 </script>
 
 <template>
@@ -41,7 +37,7 @@ function patchSite() {
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <Editor v-model="siteConfig" />
+        <Editor v-model="componentProps.siteId" />
       </v-card-text>
       <v-divider />
       <v-card-actions>
@@ -51,7 +47,7 @@ function patchSite() {
           {{ $t("common.dialog.cancel") }}
         </v-btn>
 
-        <v-btn variant="text" color="success" @click="patchSite">
+        <v-btn variant="text" color="success" @click="patchSite" :disabled="!storedSiteUserConfig.valid">
           <v-icon icon="mdi-check-circle-outline" />
           {{ $t("common.dialog.ok") }}
         </v-btn>

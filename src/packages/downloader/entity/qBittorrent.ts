@@ -17,7 +17,7 @@ import {
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import urlJoin from "url-join";
 import { getRemoteTorrentFile } from "../utils";
-import { merge } from "lodash-es";
+import { merge } from "es-toolkit";
 
 export const clientConfig: TorrentClientConfig = {
   type: "qBittorrent",
@@ -30,8 +30,7 @@ export const clientConfig: TorrentClientConfig = {
 
 // noinspection JSUnusedGlobalSymbols
 export const clientMetaData: TorrentClientMetaData = {
-  description:
-    "qBittorrent是一个跨平台的自由BitTorrent客户端，其图形用户界面是由Qt所写成的。",
+  description: "qBittorrent是一个跨平台的自由BitTorrent客户端，其图形用户界面是由Qt所写成的。",
   warning: [
     "当前仅支持 qBittorrent v4.1+",
     "由于浏览器限制，需要禁用 qBittorrent 的『启用跨站请求伪造(CSRF)保护』功能才能正常使用",
@@ -219,20 +218,13 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     form.append("username", this.config.username);
     form.append("password", this.config.password);
 
-    return await axios.post(
-      urlJoin(this.config.address, "/api/v2", "/auth/login"),
-      form,
-      {
-        timeout: this.config.timeout,
-        withCredentials: true,
-      },
-    );
+    return await axios.post(urlJoin(this.config.address, "/api/v2", "/auth/login"), form, {
+      timeout: this.config.timeout,
+      withCredentials: true,
+    });
   }
 
-  private async request<T>(
-    path: string,
-    config: AxiosRequestConfig = {},
-  ): Promise<AxiosResponse<T>> {
+  private async request<T>(path: string, config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> {
     if (this.isLogin === null) {
       await this.ping();
     }
@@ -255,16 +247,12 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
       this.syncData = data.full_update ? data : merge(this.syncData, data);
 
       if (this.syncData.torrents && this.syncData.torrents_removed) {
-        this.syncData.torrents_removed.forEach(
-          (hash) => delete this.syncData.torrents![hash],
-        );
+        this.syncData.torrents_removed.forEach((hash) => delete this.syncData.torrents![hash]);
         delete this.syncData.torrents_removed;
       }
 
       if (this.syncData.categories && this.syncData.categories_removed) {
-        this.syncData.categories_removed.forEach(
-          (cat) => delete this.syncData.categories![cat],
-        );
+        this.syncData.categories_removed.forEach((cat) => delete this.syncData.categories![cat]);
         delete this.syncData.categories_removed;
       }
 
@@ -284,10 +272,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     return this.syncData;
   }
 
-  async addTorrent(
-    url: string,
-    options: Partial<CAddTorrentOptions> = {},
-  ): Promise<boolean> {
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
     const formData = new FormData();
 
     // 处理链接
@@ -410,10 +395,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
   }
 
   // 注意方法虽然支持一次对多个种子进行操作，但仍建议每次均只操作一个种子
-  async removeTorrent(
-    hashes: string | string[] | "all",
-    removeData: boolean = false,
-  ): Promise<boolean> {
+  async removeTorrent(hashes: string | string[] | "all", removeData: boolean = false): Promise<boolean> {
     const params = {
       hashes: hashes === "all" ? "all" : normalizePieces(hashes),
       removeData,

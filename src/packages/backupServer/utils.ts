@@ -1,10 +1,7 @@
-import type { IBackupFileInfo, IBackupFileListOption } from "./type.ts";
-import { EListOrderBy, EListOrderMode } from "./type.ts";
+import type { IBackupFileInfo, IBackupFileListOption } from "./type";
+import { EListOrderBy, EListOrderMode } from "./type";
 
-export function localSort(
-  files: IBackupFileInfo[],
-  options: IBackupFileListOption,
-): IBackupFileInfo[] {
+export function localSort(files: IBackupFileInfo[], options: IBackupFileListOption): IBackupFileInfo[] {
   if (files.length > 0 && Object.keys(options).length > 0) {
     const orderMode: EListOrderMode = options.orderMode ?? EListOrderMode.desc;
     const orderBy: EListOrderBy = options.orderBy ?? EListOrderBy.time;

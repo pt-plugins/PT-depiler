@@ -1,5 +1,5 @@
+export * from "./utils/html";
 export * from "./utils/datetime";
 export * from "./utils/filesize";
-export * from "./utils/html";
-export * from "./utils/filters";
+export * from "./utils/filter";
 export * from "./utils/favicon";

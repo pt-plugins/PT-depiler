@@ -195,10 +195,7 @@ const legacyActivityEventType = [
  * @param path
  * @param event
  */
-function legacyActivityStreamWrapper(
-  path: string,
-  event: (typeof legacyActivityEventType)[number],
-): Promise<any> {
+function legacyActivityStreamWrapper(path: string, event: (typeof legacyActivityEventType)[number]): Promise<any> {
   return new Promise<any>((resolve) => {
     const sse = new EventSource(path);
     sse.addEventListener(event, (evt: any) => {
@@ -311,10 +308,7 @@ export default class Flood extends AbstractBittorrentClient {
     return FloodApiEndpointMap[endPointType][endpoint];
   }
 
-  private async request<T>(
-    endpoint: FloodApiEndpoint,
-    config: AxiosRequestConfig = {},
-  ): Promise<AxiosResponse<T>> {
+  private async request<T>(endpoint: FloodApiEndpoint, config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> {
     const endPointUrl = await this.getEndPointUrl(endpoint);
 
     try {
@@ -365,10 +359,7 @@ export default class Flood extends AbstractBittorrentClient {
     return ""; // TODO
   }
 
-  async addTorrent(
-    url: string,
-    options: Partial<CAddTorrentOptions> = {},
-  ): Promise<boolean> {
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
     let postData: any = {
       destination: "",
       tags: [],
@@ -470,10 +461,7 @@ export default class Flood extends AbstractBittorrentClient {
         state,
         isCompleted: rawTorrent.isComplete,
         progress: rawTorrent.percentComplete,
-        label:
-          rawTorrent.tags && rawTorrent.tags.length > 1
-            ? rawTorrent.tags[0]
-            : undefined,
+        label: rawTorrent.tags && rawTorrent.tags.length > 1 ? rawTorrent.tags[0] : undefined,
         savePath: rawTorrent.directory,
         totalSize: rawTorrent.sizeBytes,
         ratio: rawTorrent.ratio,

@@ -1,3 +1,5 @@
+import { TSiteFullUrl } from "../types";
+
 /**
  * cloudflare Email 解码方法，来自 https://usamaejaz.com/cloudflare-email-decoding/
  * @param {*} encodedString
@@ -19,9 +21,10 @@ export function extractContent(s: string): string {
   return span.textContent || span.innerText;
 }
 
-export function createDocument(
-  str: string,
-  type: DOMParserSupportedType = "text/html",
-): Document {
+export function createDocument(str: string, type: DOMParserSupportedType = "text/html"): Document {
   return new DOMParser().parseFromString(str, type);
+}
+
+export function restoreSecureLink(url: string): TSiteFullUrl {
+  return (url.startsWith("aHR0c") ? atob(url) : url) as TSiteFullUrl;
 }

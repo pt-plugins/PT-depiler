@@ -1,136 +1,75 @@
-<script lang="ts" setup>
-import { reactive, ref } from "vue";
+<script setup lang="ts">
+import { type TSiteID } from "@ptd/site";
+
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
+import { useUIStore } from "@/options/stores/ui.ts";
+import { useSiteStore } from "@/options/stores/site.ts";
 
-import { useSiteStore, siteFavicons } from "@/shared/store/site.ts";
-import { ISearchParamsMap, type SiteID } from "@ptd/site";
-import { getSiteFavicon, ISiteRuntimeConfig } from "@/shared/adapters/site.ts";
-
-import AddDialog from "@/options/views/Settings/setSite/AddDialog.vue";
-import DeleteDialog from "@/options/views/Settings/setSite/DeleteDialog.vue";
-import SearchParamsDialog from "@/options/views/Settings/setSite/SearchParamsDialog.vue";
-import ExpandInfo from "@/options/views/Settings/setSite/ExpandInfo.vue";
-import TypeAndSchemaChip from "@/options/views/Settings/setSite/TypeAndSchemaChip.vue";
-import EditDialog from "@/options/views/Settings/setSite/EditDialog.vue";
+import AddDialog from "./AddDialog.vue";
+import DeleteDialog from "./DeleteDialog.vue";
+import EditDialog from "./EditDialog.vue";
+import SiteFavicon from "@/options/components/SiteFavicon.vue";
 
 const { t } = useI18n();
+const uiStore = useUIStore();
 const siteStore = useSiteStore();
 
 const showAddDialog = ref<boolean>(false);
 const showEditDialog = ref<boolean>(false);
-const showSearchParamsDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
-
-const sites = computedAsync(async () => await siteStore.getSites(), []);
 
 const siteTableSearch = ref("");
 const siteTableSelected = ref<string[]>([]);
-const siteTableSort = reactive([
-  { key: "sortIndex", order: "desc" },
-  { key: "isOffline", order: "asc" },
-  { key: "allowSearch", order: "desc" },
-  { key: "allowQueryUserInfo", order: "desc" },
-]); // FIXME move to ui store
 const siteTableHeader = [
-  {
-    title: "", // site favicon
-    key: "sortIndex",
-    align: "center",
-    filterable: false,
-    width: 48,
-  },
-  {
-    title: t("setSite.common.name"),
-    key: "name",
-    align: "center",
-    width: 120,
-  },
-  {
-    title: t("setSite.common.type"),
-    key: "type",
-    filterable: false,
-    align: "center",
-    width: 100,
-  },
-  {
-    title: t("setSite.common.url"),
-    key: "url",
-    align: "start",
-  },
-  {
-    title: t("setSite.common.tags"),
-    key: "tags",
-    align: "start",
-    sortable: false,
-    width: 150,
-  },
-  {
-    title: t("setSite.common.isOffline"),
-    key: "isOffline",
-    align: "start",
-    filterable: false,
-    width: 120,
-  },
-  {
-    title: t("setSite.common.allowSearch"),
-    key: "allowSearch",
-    align: "center",
-    filterable: false,
-    width: 110,
-  },
+  // site favicon
+  { title: "", key: "sortIndex", align: "center", width: 48 },
+  { title: t("setSite.common.name"), key: "name", align: "left", width: 120 },
+  { title: t("setSite.common.url"), key: "url", align: "start" },
+  { title: t("setSite.common.isOffline"), key: "isOffline", align: "center", width: 180 },
+  { title: t("setSite.common.allowSearch"), key: "allowSearch", align: "center", width: 180 },
   {
     title: t("setSite.common.allowQueryUserInfo"),
     key: "allowQueryUserInfo",
     align: "center",
-    filterable: false,
-    width: 120,
-  },
-  {
-    title: t("setSite.common.showMessageCount"),
-    key: "showMessageCount",
-    align: "center",
-    filterable: false,
-    width: 120,
+    width: 180,
   },
   {
     title: t("common.action"),
     key: "action",
-    filterable: false,
     sortable: false,
   },
 ];
 
-const siteConfig = ref<ISiteRuntimeConfig>();
-function editSite(site: ISiteRuntimeConfig) {
-  siteConfig.value = site;
+function updateTableSortBy(v: any) {
+  uiStore.tableBehavior.setSite.sortBy = v;
+  uiStore.$save();
+}
+
+const sites = computedAsync(async () => {
+  const sitesReturn = [];
+  for (const [siteId, siteUserConfig] of Object.entries(siteStore.sites)) {
+    sitesReturn.push({
+      id: siteId,
+      metadata: await siteStore.getSiteMetadata(siteId),
+      userConfig: siteUserConfig,
+    });
+  }
+
+  return sitesReturn;
+});
+
+const toEditId = ref<TSiteID | null>(null);
+function editSite(siteId: TSiteID) {
+  toEditId.value = siteId;
   showEditDialog.value = true;
 }
 
-function editSearchEntity(site: ISiteRuntimeConfig) {
-  siteConfig.value = site;
-  showSearchParamsDialog.value = true;
-}
-
-const toDeleteIds = ref<string[]>([]);
-function deleteSite(siteId: SiteID | SiteID[]) {
-  if (typeof siteId === "string") {
-    siteId = [siteId];
-  }
-  toDeleteIds.value = siteId;
+const toDeleteIds = ref<TSiteID[]>([]);
+function deleteSite(siteId: TSiteID | TSiteID[]) {
+  toDeleteIds.value = Array.isArray(siteId) ? siteId : [siteId];
   showDeleteDialog.value = true;
-}
-
-function lightSiteSearchEntityBtn(sp: ISearchParamsMap): boolean {
-  for (const spV of Object.values(sp)) {
-    if (Array.isArray(spV) && spV.length > 0) {
-      return true;
-    } else if (typeof spV === "string" && spV.length > 0) {
-      return true;
-    }
-  }
-
-  return false;
 }
 </script>
 
@@ -139,12 +78,7 @@ function lightSiteSearchEntityBtn(sp: ISearchParamsMap): boolean {
   <v-card>
     <v-card-title>
       <v-row class="ma-0">
-        <v-btn
-          color="success"
-          prepend-icon="mdi-plus"
-          class="mr-2"
-          @click="showAddDialog = true"
-        >
+        <v-btn color="success" prepend-icon="mdi-plus" class="mr-2" @click="showAddDialog = true">
           {{ $t("common.btn.add") }}
         </v-btn>
         <v-btn
@@ -175,115 +109,48 @@ function lightSiteSearchEntityBtn(sp: ISearchParamsMap): boolean {
       :items="sites"
       :items-per-page="50"
       item-value="id"
-      :sort-by="siteTableSort"
+      :sort-by="uiStore.tableBehavior.setSite.sortBy"
       multi-sort
       :search="siteTableSearch"
       show-select
+      @update:sortBy="updateTableSortBy"
     >
       <template #item.sortIndex="{ item }">
-        <v-btn
-          icon
-          flat
-          :loading="siteFavicons[item.id] === false"
-          @click="getSiteFavicon(item.id, true)"
-        >
-          <v-avatar :image="siteFavicons[item.id] || ''" />
-        </v-btn>
+        <SiteFavicon v-model="item.id" />
       </template>
       <template #item.name="{ item }">
-        <ExpandInfo :main="item.name" :expand="item.aka" :open="false">
-          <template #default="{ data, field }">
-            <span :title="field === 'main' ? item.description ?? '' : ''">{{
-              data
-            }}</span>
-          </template>
-        </ExpandInfo>
-      </template>
-      <template #item.type="{ item }">
-        <TypeAndSchemaChip :site="item" />
+        {{ item.userConfig?.merge?.name ?? item.metadata?.name }}
       </template>
       <template #item.url="{ item }">
-        <ExpandInfo
-          :main="item.url"
-          :expand="item.legacyUrls"
-          :open="item.legacyUrls?.includes(item.activateUrl)"
-        >
-          <template #default="{ data, field }">
-            <a
-              v-if="data.startsWith('http')"
-              :href="
-                field === 'main' || item.activateUrl === data
-                  ? item.entryPoint ?? data
-                  : data /* 存在entryPoint时，替换和url或activateUrl相同的地址为entryPoint */
-              "
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-              :class="[item.activateUrl === data && 'font-weight-bold']"
-              >{{ data }}</a
-            >
-            <template v-else>
-              {{ data }}
-            </template>
-          </template>
-        </ExpandInfo>
-      </template>
-      <template #item.tags="{ item }">
-        <v-chip
-          v-for="tag in item.tags?.slice(0, 4) /* 只显示前4个tag */"
-          :key="tag"
-          class="mr-1 mb-1"
-          label
-          size="x-small"
-          :title="tag"
-        >
-          {{ tag }}
-        </v-chip>
+        {{ item.userConfig?.url ?? item.metadata?.urls?.[0] }}
       </template>
       <template #item.isOffline="{ item }">
         <v-switch
-          v-model="item.isOffline"
+          v-model="item.userConfig.isOffline"
           color="success"
           hide-details
-          @update:model-value="
-            (v) => siteStore.simplePatchSite(item.id, 'isOffline', v)
-          "
+          class="site-switch-btn"
+          @update:model-value="(v) => siteStore.simplePatchSite(item.id, 'isOffline', v as boolean)"
         />
       </template>
       <template #item.allowSearch="{ item }">
         <v-switch
-          v-model="item.allowSearch"
+          v-model="item.userConfig.allowSearch"
           color="success"
           hide-details
-          :disabled="item.isOffline || !Object.hasOwn(item, 'search')"
-          @update:model-value="
-            (v) => siteStore.simplePatchSite(item.id, 'allowSearch', v)
-          "
+          class="site-switch-btn"
+          :disabled="item.userConfig.isOffline || !Object.hasOwn(item.metadata, 'search')"
+          @update:model-value="(v) => siteStore.simplePatchSite(item.id, 'allowSearch', v as boolean)"
         />
       </template>
       <template #item.allowQueryUserInfo="{ item }">
         <v-switch
-          v-model="item.allowQueryUserInfo"
+          v-model="item.userConfig.allowQueryUserInfo"
           color="success"
           hide-details
-          :disabled="item.isOffline || !Object.hasOwn(item, 'userInfo')"
-          @update:model-value="
-            (v) => siteStore.simplePatchSite(item.id, 'allowQueryUserInfo', v)
-          "
-        />
-      </template>
-      <template #item.showMessageCount="{ item }">
-        <v-switch
-          v-model="item.showMessageCount"
-          color="success"
-          hide-details
-          :disabled="
-            item.isOffline ||
-            !Object.hasOwn(item, 'userInfo') ||
-            item.allowQueryUserInfo === false
-          "
-          @update:model-value="
-            (v) => siteStore.simplePatchSite(item.id, 'showMessageCount', v)
-          "
+          class="site-switch-btn"
+          :disabled="item.userConfig.isOffline || !Object.hasOwn(item.metadata, 'userInfo')"
+          @update:model-value="(v) => siteStore.simplePatchSite(item.id, 'allowQueryUserInfo', v as boolean)"
         />
       </template>
       <template #item.action="{ item }">
@@ -293,41 +160,30 @@ function lightSiteSearchEntityBtn(sp: ISearchParamsMap): boolean {
             icon="mdi-pencil"
             :title="$t('common.edit')"
             color="info"
-            @click="editSite(item)"
+            @click="() => editSite(item.id)"
           />
-          <v-btn
-            size="small"
-            icon="mdi-magnify"
-            title="search entity"
-            :color="lightSiteSearchEntityBtn(item.defaultSearchParams) ? 'warning' : ''"
-            @click="editSearchEntity(item)"
-          />
-          <!-- userinfo -->
           <v-btn
             size="small"
             icon="mdi-delete"
-            color="error"
             :title="$t('common.remove')"
-            @click="deleteSite(item.id)"
-          />
+            color="error"
+            @click="() => deleteSite(item.id)"
+          >
+          </v-btn>
         </v-btn-group>
       </template>
     </v-data-table>
   </v-card>
 
   <AddDialog v-model="showAddDialog" />
-  <EditDialog v-model="showEditDialog" v-model:site-config="siteConfig" />
-  <SearchParamsDialog
-    v-model="showSearchParamsDialog"
-    v-model:site-config="siteConfig"
-  />
   <DeleteDialog v-model="showDeleteDialog" :to-delete-ids="toDeleteIds" />
-
-  <v-alert color="grey">
-    <template v-for="i in $tm('setSite.index.settingNote')" :key="i">
-      {{ $rt(i) }} <br />
-    </template>
-  </v-alert>
+  <EditDialog v-model="showEditDialog" :site-id="toEditId!" />
 </template>
 
-<style scoped></style>
+<style scoped lang="scss">
+.site-switch-btn {
+  :deep(.v-selection-control) {
+    justify-content: center;
+  }
+}
+</style>

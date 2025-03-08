@@ -26,10 +26,7 @@ export const clientConfig: DownloaderBaseConfig = {
 
 export const clientMetaData: TorrentClientMetaData = {
   description: "Aria2是一款自由、跨平台命令行界面的下载管理器",
-  warning: [
-    "使用 WebSocket + `rpc-secret` 形式连接，请设置好 `rpc-secret` 配置项",
-    "不支持使用用户名+密码的认证方式",
-  ],
+  warning: ["使用 WebSocket + `rpc-secret` 形式连接，请设置好 `rpc-secret` 配置项", "不支持使用用户名+密码的认证方式"],
   feature: {
     CustomPath: {
       allowed: true,
@@ -161,10 +158,7 @@ export default class Aria2 extends AbstractBittorrentClient {
     this._wsClient = new WebSocket(address.replace(/^http/, "ws"));
   }
 
-  private async methodSend<T>(
-    methodName: METHODS,
-    params: any[] = [],
-  ): Promise<jsonRPCResponse<T>> {
+  private async methodSend<T>(methodName: METHODS, params: any[] = []): Promise<jsonRPCResponse<T>> {
     return new Promise((resolve, reject) => {
       let postParams;
       if (methodName === "system.multicall") {
@@ -231,10 +225,7 @@ export default class Aria2 extends AbstractBittorrentClient {
     };
   }
 
-  async addTorrent(
-    url: string,
-    options: Partial<CAddTorrentOptions> = {},
-  ): Promise<boolean> {
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
     const addOption: any = {
       pause: options.addAtPaused ?? false,
     };
@@ -271,9 +262,7 @@ export default class Aria2 extends AbstractBittorrentClient {
 
   async getAllTorrents(): Promise<CTorrent<rawTask>[]> {
     const torrents: CTorrent[] = [];
-    const { result: tasks } = await this.methodSend<
-      [[rawTask[]], [rawTask[]], [rawTask[]]]
-    >("system.multicall", [
+    const { result: tasks } = await this.methodSend<[[rawTask[]], [rawTask[]], [rawTask[]]]>("system.multicall", [
       {
         methodName: "aria2.tellActive",
         params: [],

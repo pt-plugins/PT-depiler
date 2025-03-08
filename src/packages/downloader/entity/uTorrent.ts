@@ -12,8 +12,7 @@ import {
 } from "../types";
 import urlJoin from "url-join";
 import axios from "axios";
-import { getRemoteTorrentFile } from "../utils";
-import parseTorrent, { Instance as TorrentInstance } from "parse-torrent";
+import { extractMagnetHash, getRemoteTorrentFile } from "../utils";
 
 export const clientConfig: TorrentClientConfig = {
   type: "uTorrent",
@@ -187,10 +186,7 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
     ).data;
   }
 
-  async addTorrent(
-    url: string,
-    options: Partial<CAddTorrentOptions> = {},
-  ): Promise<boolean> {
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
     const _sid = await this.getSessionId();
 
     let formData: FormData | null = new FormData();
@@ -200,19 +196,21 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
       path: options.savePath ? options.savePath : "",
     };
 
-    let torrentInfo: TorrentInstance;
+    let torrentInfoHash: string | null;
     if (url.startsWith("magnet:") || !options.localDownload) {
       formData = null;
       params.action = "add-url";
       params.s = url;
-      torrentInfo = parseTorrent(url) as TorrentInstance; // Thought it's wrong !
+
+      torrentInfoHash = extractMagnetHash(url);
     } else {
       params.action = "add-file";
       const torrent = await getRemoteTorrentFile({
         url,
         ...(options.localDownloadOption || {}),
       });
-      torrentInfo = torrent.info;
+
+      torrentInfoHash = torrent.info?.infoHash;
 
       formData.append("torrent_file", torrent.metadata.blob(), torrent.name);
     }
@@ -226,14 +224,14 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
       timeout: this.config.timeout,
     });
 
-    if (torrentInfo && torrentInfo.infoHash) {
+    if (torrentInfoHash) {
       // 添加种子后，根据本地获取的 infoHash 值设置对应属性
       if (options.addAtPaused) {
-        await this.pauseTorrent(torrentInfo.infoHash);
+        await this.pauseTorrent(torrentInfoHash);
       }
 
       if (options.label) {
-        await this.setTorrentProp(torrentInfo.infoHash, {
+        await this.setTorrentProp(torrentInfoHash, {
           s: "label",
           v: options.label,
         });
@@ -297,10 +295,7 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
     }) as CTorrent[];
   }
 
-  private async setTorrentProp(
-    id: string,
-    props: Record<string, string | number>,
-  ): Promise<boolean> {
+  private async setTorrentProp(id: string, props: Record<string, string | number>): Promise<boolean> {
     await this.request<BaseUtorrentResponse>("setprops", {
       hash: id,
       ...props,

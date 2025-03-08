@@ -24,8 +24,7 @@ export const clientConfig: TorrentClientConfig = {
 
 // noinspection JSUnusedGlobalSymbols
 export const clientMetaData: TorrentClientMetaData = {
-  description:
-    "Transmission 是一个跨平台的BitTorrent客户端，特点是硬件资源消耗极少，界面极度精简",
+  description: "Transmission 是一个跨平台的BitTorrent客户端，特点是硬件资源消耗极少，界面极度精简",
   warning: [
     "默认情况下，系统会请求 http://ip:port/transmission/rpc 这个路径，如果无法连接，请确认 `settings.json` 文件的 `rpc-url` 值；详情可参考：https://github.com/ronggang/PT-Plugin-Plus/issues/32",
   ],
@@ -263,10 +262,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
   protected async getClientVersionFromRemote(): Promise<string> {
     const {
       data: { arguments: sessionData },
-    } =
-      await this.request<
-        TransmissionBaseResponse<{ version: string; "rpc-version": number }>
-      >("session-get");
+    } = await this.request<TransmissionBaseResponse<{ version: string; "rpc-version": number }>>("session-get");
     return `${sessionData.version}, RPC ${sessionData["rpc-version"]}`;
   }
 
@@ -307,17 +303,15 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     if (sessionData["download-dir-free-space"]) {
       return sessionData["download-dir-free-space"];
     } else {
-      const { data } = await this.request<
-        TransmissionBaseResponse<{ path: string; "size-bytes": number }>
-      >("free-space", { path: sessionData["download-dir"] });
+      const { data } = await this.request<TransmissionBaseResponse<{ path: string; "size-bytes": number }>>(
+        "free-space",
+        { path: sessionData["download-dir"] },
+      );
       return data.arguments["size-bytes"];
     }
   }
 
-  async addTorrent(
-    url: string,
-    options: Partial<CAddTorrentOptions> = {},
-  ): Promise<boolean> {
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
     const addTorrentOptions: Partial<TransmissionAddTorrentOptions> = {
       paused: options.addAtPaused ?? false,
     };
@@ -338,10 +332,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     }
 
     try {
-      const { data } = await this.request<AddTorrentResponse>(
-        "torrent-add",
-        addTorrentOptions,
-      );
+      const { data } = await this.request<AddTorrentResponse>("torrent-add", addTorrentOptions);
 
       // Transmission 3.0 以上才支持label
       if (options.label) {
@@ -364,9 +355,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     return await this.getTorrentsBy({});
   }
 
-  override async getTorrentsBy(
-    filter: TransmissionTorrentFilterRules,
-  ): Promise<CTorrent[]> {
+  override async getTorrentsBy(filter: TransmissionTorrentFilterRules): Promise<CTorrent[]> {
     const args: TransmissionTorrentGetArguments = {
       fields: this.torrentRequestFields,
     };
@@ -375,10 +364,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
       args.ids = filter.ids;
     }
 
-    const { data } = await this.request<TransmissionTorrentGetResponse>(
-      "torrent-get",
-      args,
-    );
+    const { data } = await this.request<TransmissionTorrentGetResponse>("torrent-get", args);
 
     let returnTorrents: CTorrent[] = data.arguments.torrents.map((torrent) => {
       let state = CTorrentState.unknown;
@@ -447,10 +433,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     return true;
   }
 
-  async request<T>(
-    method: TransmissionRequestMethod,
-    args: any = {},
-  ): Promise<AxiosResponse<T>> {
+  async request<T>(method: TransmissionRequestMethod, args: any = {}): Promise<AxiosResponse<T>> {
     try {
       return await axios.post<T>(
         this.address,

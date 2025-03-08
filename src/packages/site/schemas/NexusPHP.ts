@@ -1,15 +1,16 @@
 import PrivateSite from "./AbstractPrivateSite";
-import { ISiteMetadata, IUserInfo, ETorrentStatus, ITorrent } from "../types";
+import { ISiteMetadata, IUserInfo, ETorrentStatus, ITorrent, ISearchInput } from "../types";
 import Sizzle from "sizzle";
-import { merge, mergeWith } from "lodash-es";
-import dayjs from "../utils/datetime";
+import { mergeWith, toMerged } from "es-toolkit";
 import {
   createDocument,
   extractContent,
   parseSizeString,
   parseTimeToLive,
+  parseValidTimeString,
   sizePattern,
 } from "../utils";
+import { set } from "es-toolkit/compat";
 
 const baseLinkQuery = {
   selector: 'a[href*="download.php?id="]:has(> img[alt="download"])',
@@ -21,18 +22,19 @@ const baseLinkQuery = {
  * @protected
  */
 export const SchemaMetadata: Partial<ISiteMetadata> = {
+  version: 0,
   timezoneOffset: "+0800", // NPHP 一般都是国内用，时区多为 +0800
   search: {
-    keywordsParam: "search",
+    keywordPath: "params.search",
     requestConfig: {
       url: "/torrents.php",
       params: { notnewword: 1 },
     },
-    advanceKeyword: {
+    advanceKeywordParams: {
       imdb: {
-        transformer: (config) => {
-          config.params.search_area = 4; // params "&search_area=4"
-          return config;
+        requestConfigTransformer: ({ requestConfig: config }) => {
+          set(config!, "params.search_area", 4); // params "&search_area=4"
+          return config!;
         },
       },
     },
@@ -50,6 +52,24 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         ...baseLinkQuery,
         filters: [{ name: "querystring", args: ["id"] }],
       },
+      title: {
+        text: "",
+        selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
+        elementProcess: (element) => {
+          return (element.getAttribute("title") || element.textContent || "").trim();
+        },
+      },
+      subTitle: {
+        text: "",
+        selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
+        elementProcess: (element) => {
+          const testSubTitle = element.parentElement!.innerHTML.split("<br>");
+          if (testSubTitle && testSubTitle.length > 1) {
+            return extractContent(testSubTitle[testSubTitle.length - 1]).trim();
+          }
+          return "";
+        },
+      },
       progress: {
         text: 0,
       },
@@ -63,10 +83,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           let category = "Other";
           const categoryImgAnother = element.querySelector("img:nth-child(1)"); // img:first
           if (categoryImgAnother) {
-            category =
-              categoryImgAnother.getAttribute("title") ||
-              categoryImgAnother.getAttribute("alt") ||
-              category;
+            category = categoryImgAnother.getAttribute("title") || categoryImgAnother.getAttribute("alt") || category;
           } else {
             return element.textContent || category;
           }
@@ -79,9 +96,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         elementProcess: (element: HTMLElement) => {
           let time: number | string = 0;
           try {
-            const AccurateTimeAnother = element.querySelector(
-              "span[title], time[title]",
-            );
+            const AccurateTimeAnother = element.querySelector("span[title], time[title]");
             if (AccurateTimeAnother) {
               time = AccurateTimeAnother.getAttribute("title")!;
             } else {
@@ -91,15 +106,13 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
             if (time.match(/\d+[分时天月年]/g)) {
               time = parseTimeToLive(time);
             } else {
-              time = dayjs(time).valueOf();
+              time = parseValidTimeString(time);
             }
           } catch (e) {}
           return time as number;
         },
       },
       tags: [
-        // 这里的 selector仅放最基础的（NPHP默认），如果各站有更改请在对应站点修改，不要污染全局空间
-        // 因为 tags是会 concat 接起来的
         { name: "Free", selector: "img.pro_free" },
         { name: "2xFree", selector: "img.pro_free2up" },
         { name: "2xUp", selector: "img.pro_2up" },
@@ -119,18 +132,12 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
     selectors: {
       // "page": "/index.php",
       id: {
-        selector: [
-          "a[href*='userdetails.php'][class*='Name']:first",
-          "a[href*='userdetails.php']:first",
-        ],
+        selector: ["a[href*='userdetails.php'][class*='Name']:first", "a[href*='userdetails.php']:first"],
         attr: "href",
         filters: [{ name: "querystring", args: ["id"] }],
       },
       name: {
-        selector: [
-          "a[href*='userdetails.php'][class*='Name']:first",
-          "a[href*='userdetails.php']:first",
-        ],
+        selector: ["a[href*='userdetails.php'][class*='Name']:first", "a[href*='userdetails.php']:first"],
       },
       messageCount: {
         text: 0,
@@ -153,12 +160,8 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         ],
         filters: [
           (query: string) => {
-            const queryMatch = query
-              .replace(/,/g, "")
-              .match(/(上[传傳]量|Uploaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
-            return queryMatch && queryMatch.length === 3
-              ? parseSizeString(queryMatch[2])
-              : 0;
+            const queryMatch = query.replace(/,/g, "").match(/(上[传傳]量|Uploaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+            return queryMatch && queryMatch.length === 3 ? parseSizeString(queryMatch[2]) : 0;
           },
         ],
       },
@@ -171,12 +174,8 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         ],
         filters: [
           (query: string) => {
-            const queryMatch = query
-              .replace(/,/g, "")
-              .match(/(下[载載]量|Downloaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
-            return queryMatch && queryMatch.length === 3
-              ? parseSizeString(queryMatch[2])
-              : 0;
+            const queryMatch = query.replace(/,/g, "").match(/(下[载載]量|Downloaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+            return queryMatch && queryMatch.length === 3 ? parseSizeString(queryMatch[2]) : 0;
           },
         ],
       },
@@ -209,14 +208,11 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         ],
       },
       joinTime: {
-        selector: [
-          "td.rowhead:contains('加入日期') + td",
-          "td.rowhead:contains('Join'):contains('date') + td",
-        ],
+        selector: ["td.rowhead:contains('加入日期') + td", "td.rowhead:contains('Join'):contains('date') + td"],
         filters: [
           (query: string) => {
             query = query.split(" (")[0];
-            return dayjs(query).isValid() ? dayjs(query).valueOf() : query;
+            return parseValidTimeString(query);
           },
         ],
       },
@@ -229,35 +225,55 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       // seeding: { }
       // seedingSize: { }
     },
+    process: [
+      {
+        requestConfig: { url: "/index.php", responseType: "document" },
+        fields: ["id"],
+      },
+      {
+        requestConfig: { url: "/userdetails.php", responseType: "document" },
+        assertion: { id: "params.id" },
+        fields: [
+          "name",
+          "levelName",
+          "uploaded",
+          "downloaded",
+          "seeding",
+          "seedingSize",
+          "bonus",
+          "messageCount",
+          "joinTime",
+        ],
+      },
+    ],
   },
 };
 
 export default class NexusPHP extends PrivateSite {
   protected override async transformSearchPage(
-    doc: Document | object,
+    doc: Document | object | any,
+    searchConfig: ISearchInput,
   ): Promise<ITorrent[]> {
+    const { keywords, searchEntry, requestConfig } = searchConfig;
+
     // 返回是 Document 的情况才自动生成
     if (doc instanceof Document) {
       // 如果配置文件没有传入 search 的选择器，则我们自己生成
       const legacyTableSelector = "table.torrents:last";
 
       // 对于NPHP，一般来说，表的第一行应该是标题行，即 `> tbody > tr:nth-child(1)` ，但是也有部分站点为 `> thead > tr`
-      const legacyTableHasThead =
-        Sizzle(`${legacyTableSelector} > thead > tr`, doc).length > 0;
+      const legacyTableHasThead = Sizzle(`${legacyTableSelector} > thead > tr`, doc).length > 0;
 
-      if (!this.config.search!.selectors!.rows) {
-        this.config.search!.selectors!.rows = {
+      if (!searchEntry!.selectors!.rows) {
+        searchEntry!.selectors!.rows = {
           // 对于有thead的站点，认为 > tbody > tr 均为种子信息，而无 thead 的站点则为 > tbody > tr:gt(0)
-          selector:
-            `${legacyTableSelector} > tbody > tr` +
-            (legacyTableHasThead ? "" : ":gt(0)"),
+          selector: `${legacyTableSelector} > tbody > tr` + (legacyTableHasThead ? "" : ":gt(0)"),
         };
       }
 
       // 开始遍历我们的head行，并设置其他参数
       const headSelector =
-        legacyTableSelector +
-        (legacyTableHasThead ? " > thead > tr > th" : " > tbody > tr:eq(0) > td");
+        legacyTableSelector + (legacyTableHasThead ? " > thead > tr > th" : " > tbody > tr:eq(0) > td");
       const headAnother = Sizzle(headSelector, doc) as HTMLElement[];
       headAnother.forEach((element, elementIndex) => {
         // 比较好处理的一些元素，都是可以直接获取的
@@ -282,124 +298,29 @@ export default class NexusPHP extends PrivateSite {
 
         if (updateSelectorField) {
           // @ts-ignore
-          this.config.search.selectors[updateSelectorField] = merge(
+          searchEntry.selectors[updateSelectorField] = toMerged(
             {
               selector: [`> td:eq(${elementIndex})`],
             },
             // @ts-ignore
-            this.config.search.selectors[updateSelectorField] || {},
+            searchEntry.selectors[updateSelectorField] || {},
           );
         }
       });
     }
 
-    // !!! 其他一些比较难处理的，我们把他 hack 到 parseRowToTorrent 中 !!!
-    return super.transformSearchPage(doc);
+    // !!! 其他一些比较难处理的，我们把他 hack 到 parseWholeTorrentFromRow 中 !!!
+    return super.transformSearchPage(doc, { keywords, searchEntry, requestConfig });
   }
 
-  protected override parseRowToTorrent(row: Element): Partial<ITorrent> {
-    let torrent = super.parseRowToTorrent(row);
-
-    // 处理标题、副标题
-    if (!torrent.title || !torrent.subTitle) {
-      torrent = Object.assign(torrent, this.parseTorrentTitleFromRow(row));
-    }
-
-    return torrent;
-  }
-
-  // 处理标题、副标题
-  protected parseTorrentTitleFromRow(row: Element): {
-    title?: string;
-    subTitle?: string;
-  } {
-    const testSelectors = ["a[href*='hit'][title]", "a[href*='hit']:has(b)"];
-
-    let titleAnother;
-    for (let i = 0; i < testSelectors.length; i++) {
-      const testTitleAnother = Sizzle(testSelectors[i], row as Element);
-      if (testTitleAnother.length > 0) {
-        titleAnother = testTitleAnother[0];
-        break;
-      }
-    }
-
-    // 没有 titleAnother 则直接返回，不继续对 title和 subTitle 进行查找
-    if (!titleAnother) {
-      return {};
-    }
-
-    let title = (
-      titleAnother.getAttribute("title") ||
-      titleAnother.textContent ||
-      ""
-    ).trim();
-
-    if (this.config.search?.selectors?.title?.filters) {
-      title = this.runQueryFilters(
-        title,
-        this.config.search?.selectors?.title?.filters,
-      );
-    }
-
-    return {
-      title,
-      subTitle: this.parseTorrentSubTitleFromTitleAnother(titleAnother, row),
-    };
-  }
-
-  protected parseTorrentSubTitleFromTitleAnother(
-    titleAnother: Element,
-    row: Element,
-  ): string {
-    let subTitle = "";
-    try {
-      const testSubTitle = titleAnother.parentElement!.innerHTML.split("<br>");
-      if (testSubTitle && testSubTitle.length > 1) {
-        subTitle = extractContent(testSubTitle[testSubTitle.length - 1]).trim();
-      }
-      if (this.config.search?.selectors?.subTitle?.filters) {
-        subTitle = this.runQueryFilters(
-          subTitle,
-          this.config.search?.selectors?.subTitle?.filters,
-        );
-      }
-    } catch (e) {}
-    return subTitle;
-  }
-
-  public override async getUserInfo(
-    lastUserInfo: Partial<IUserInfo> = {},
-  ): Promise<IUserInfo> {
-    let flushUserInfo: Partial<IUserInfo> = {};
-
-    try {
-      flushUserInfo = await super.getUserInfo();
-    } catch (e) {}
-
-    let userId: number;
-    if (flushUserInfo && flushUserInfo.id) {
-      userId = flushUserInfo.id as number;
-    } else {
-      // 如果没有 id 信息，则访问一次 index.php
-      userId = await this.getUserIdFromSite();
-    }
-    flushUserInfo!.id = userId;
-
-    // 导入基本 Details 页面获取到的用户信息
-    flushUserInfo = Object.assign(
-      flushUserInfo,
-      await this.getUserInfoFromDetailsPage(userId),
-    );
+  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+    let flushUserInfo = await super.getUserInfoResult();
 
     // 导入用户做种信息
-    if (
-      typeof flushUserInfo.seeding === "undefined" ||
-      typeof flushUserInfo.seedingSize === "undefined"
-    ) {
+    if (typeof flushUserInfo.seeding === "undefined" || typeof flushUserInfo.seedingSize === "undefined") {
       flushUserInfo = mergeWith(
         flushUserInfo,
-        await this.getUserSeedingStatus(userId),
+        await this.parseUserInfoForSeedingStatus(flushUserInfo.id as number),
         (objValue, srcValue) => {
           return objValue > 0 ? objValue : srcValue;
         },
@@ -407,53 +328,6 @@ export default class NexusPHP extends PrivateSite {
     }
 
     return flushUserInfo as IUserInfo;
-  }
-
-  protected async getUserIdFromSite(): Promise<number> {
-    const { data: indexDocument } = await this.request<Document>({
-      url: "/index.php",
-      responseType: "document",
-    });
-    const userId = this.getFieldData(
-      indexDocument,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-      this.config.userInfo?.selectors?.id!,
-    );
-    return parseInt(userId);
-  }
-
-  protected async requestUserDetailsPage(userId: number): Promise<Document> {
-    const { data: userDetailDocument } = await this.request<Document>({
-      url: "/userdetails.php",
-      params: { id: userId },
-      responseType: "document",
-      checkLogin: true,
-    });
-    return userDetailDocument;
-  }
-
-  protected async getUserInfoFromDetailsPage(
-    userId: number,
-  ): Promise<Partial<IUserInfo>> {
-    const userDetailDocument = await this.requestUserDetailsPage(userId);
-
-    const detailsPageAttrs = [
-      "name",
-      "messageCount",
-      "uploaded",
-      "downloaded",
-      "levelName",
-      "bonus",
-      "joinTime",
-      "seeding",
-      "seedingSize",
-    ];
-
-    return this.getFieldsData(
-      userDetailDocument,
-      "userInfo",
-      detailsPageAttrs,
-    ) as Partial<IUserInfo>;
   }
 
   /**
@@ -466,10 +340,7 @@ export default class NexusPHP extends PrivateSite {
    * @param type
    * @protected
    */
-  protected async requestUserSeedingPage(
-    userId: number,
-    type: string = "seeding",
-  ): Promise<string | null> {
+  protected async requestUserSeedingPage(userId: number, type: string = "seeding"): Promise<string | null> {
     const { data } = await this.request<string>({
       url: "/getusertorrentlistajax.php",
       params: { userid: userId, type },
@@ -477,46 +348,32 @@ export default class NexusPHP extends PrivateSite {
     return data || null;
   }
 
-  protected countSeedingStatusFromDocument(userSeedingDocument: Document): {
-    seeding: number;
-    seedingSize: number;
-  } {
-    const seedStatus = { seeding: 0, seedingSize: 0 };
-    const trAnothers = Sizzle("table:last tr:not(:eq(0))", userSeedingDocument);
-    if (trAnothers.length > 0) {
-      seedStatus.seeding = trAnothers.length;
-
-      // 根据自动判断应该用 td.rowfollow:eq(?)
-      let sizeIndex = 2;
-      const tdAnothers = Sizzle("> td", trAnothers[0]);
-      for (let i = 0; i < tdAnothers.length; i++) {
-        if (sizePattern.test((tdAnothers[i] as HTMLElement).innerText)) {
-          sizeIndex = i;
-          break;
-        }
-      }
-
-      trAnothers.forEach((trAnother) => {
-        const sizeSelector = Sizzle(
-          `td.rowfollow:eq(${sizeIndex})`,
-          trAnother,
-        )[0] as HTMLElement;
-        seedStatus.seedingSize += parseSizeString(sizeSelector.innerText.trim());
-      });
-    }
-    return seedStatus;
-  }
-
-  protected async getUserSeedingStatus(
-    userId: number,
-  ): Promise<{ seeding: number; seedingSize: number }> {
+  protected async parseUserInfoForSeedingStatus(userId: number): Promise<{ seeding: number; seedingSize: number }> {
     let seedStatus = { seeding: 0, seedingSize: 0 };
 
     const userSeedingRequestString = await this.requestUserSeedingPage(userId);
 
     if (userSeedingRequestString) {
       const userSeedingDocument = createDocument(userSeedingRequestString);
-      seedStatus = this.countSeedingStatusFromDocument(userSeedingDocument);
+      const trAnothers = Sizzle("table:last tr:not(:eq(0))", userSeedingDocument);
+      if (trAnothers.length > 0) {
+        seedStatus.seeding = trAnothers.length;
+
+        // 根据自动判断应该用 td.rowfollow:eq(?)
+        let sizeIndex = 2;
+        const tdAnothers = Sizzle("> td", trAnothers[0]);
+        for (let i = 0; i < tdAnothers.length; i++) {
+          if (sizePattern.test((tdAnothers[i] as HTMLElement).innerText)) {
+            sizeIndex = i;
+            break;
+          }
+        }
+
+        trAnothers.forEach((trAnother) => {
+          const sizeSelector = Sizzle(`td.rowfollow:eq(${sizeIndex})`, trAnother)[0] as HTMLElement;
+          seedStatus.seedingSize += parseSizeString(sizeSelector.innerText.trim());
+        });
+      }
     }
 
     return seedStatus;

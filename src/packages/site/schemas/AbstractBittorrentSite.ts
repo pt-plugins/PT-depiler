@@ -1,203 +1,188 @@
 import {
   ESearchResultParseStatus,
-  ETorrentBaseTagColor,
   IElementQuery,
-  ISearchFilter,
-  ISearchRequestConfig,
   ISearchResult,
   ISiteMetadata,
   ITorrent,
-  ITorrentTag,
   NeedLoginError,
   NoTorrentsError,
-  transPostDataTo,
+  IAdvancedSearchRequestConfig,
+  IAdvanceKeywordSearchConfig,
+  ISearchInput,
+  ITorrentTag,
+  ISiteUserConfig,
 } from "../types";
-import type { TQueryFilter } from "../utils";
-import { cfDecodeEmail, parseSizeString, parseTimeWithZone, runFilter } from "../utils";
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
+import {
+  definedFilters,
+  filterNames,
+  TQueryFilter,
+  cfDecodeEmail,
+  parseSizeString,
+  parseTimeWithZone,
+  tryToNumber,
+} from "../utils";
+import axios, { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
 import Sizzle from "sizzle";
 import urlJoin from "url-join";
-import { chunk, get, merge, pick } from "lodash-es";
+import { get, isEmpty, set } from "es-toolkit/compat";
+import { chunk, pascalCase, pick, toMerged, union } from "es-toolkit";
+import { setupCache } from "axios-cache-interceptor";
+
+setupCache(axios);
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
+  version: -1,
   search: {},
 };
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export default class BittorrentSite {
-  public readonly config: ISiteMetadata; // 实际过程中使用的配置文件
+  public readonly metadata: ISiteMetadata; // 实际过程中使用的配置文件
+  public readonly userConfig: ISiteUserConfig;
 
-  constructor(config: ISiteMetadata) {
-    this.config = config;
+  constructor(metadata: ISiteMetadata, userConfig: ISiteUserConfig = {}) {
+    this.metadata = toMerged(metadata, userConfig.merge ?? {});
+    this.userConfig = userConfig;
   }
 
-  get activateUrl(): string {
-    return this.config.activateUrl || this.config.url;
+  get url(): string {
+    return this.userConfig.url ?? this.metadata.urls[0];
   }
 
   get isOnline(): boolean {
-    return !(this.config.isOffline ?? false);
-  }
-
-  protected transferPostData<T extends Record<string, any>>(
-    params: T,
-    transTo: transPostDataTo,
-  ) {
-    let postData: T | FormData | URLSearchParams = params;
-
-    if (transTo !== "raw") {
-      if (transTo === "form") {
-        postData = new FormData();
-      } else if (transTo === "params") {
-        postData = new URLSearchParams();
-      }
-
-      Object.keys(params).forEach((k) => {
-        postData.append(k, params[k]);
-      });
-    }
-    return postData;
-  }
-
-  /**
-   * 根据搜索筛选条件，生成 AxiosRequestConfig
-   * @param filter
-   */
-  protected async transformSearchFilter(
-    filter: ISearchFilter,
-  ): Promise<AxiosRequestConfig> {
-    const config: AxiosRequestConfig = {
-      params: {},
-      data: {},
-    };
-
-    const params: any = {};
-    if (filter.keywords) {
-      params[this.config.search?.keywordsParam || "keywords"] = filter.keywords || "";
-    }
-
-    if (filter.extraParams) {
-      for (let i = 0; i < filter.extraParams?.length; i++) {
-        let { key, value } = filter.extraParams[i];
-
-        if (key === "#changePath") {
-          config.url = value as string;
-        } else {
-          //  其他参数视为params
-          if (Array.isArray(value)) {
-            /**
-             * 如果传入的 value 是 Array，我们认为这是 cross 模式，并作相应处理
-             * 但是如果此时未在对应 category 中做相应定义声明的话，将直接把对应信息交给 axios，而不做额外处理
-             */
-            const paramsForKey = this.config.search?.categories?.find(
-              (d) => d.key === key,
-            ); // 检索 key 的定义情况
-            if (paramsForKey?.cross) {
-              key = paramsForKey.cross.key || key; // 覆盖 key
-              const crossMode = paramsForKey?.cross.mode || "brackets";
-              if (crossMode === "comma") {
-                value = value.join(",");
-              } else if (crossMode !== "brackets") {
-                value.forEach((v: string | number) => {
-                  if (crossMode === "append") {
-                    params[`${key}${v}`] = 1;
-                  } else if (crossMode === "appendQuote") {
-                    params[`${key}[${v}]`] = 1;
-                  }
-                });
-                continue; // 跳过，不再将原始字段值插入params
-              }
-            }
-          }
-
-          params[key] = value;
-        }
-      }
-    }
-
-    if (this.config.search?.requestConfig?.method?.toLowerCase() === "post") {
-      // POST
-      config.data = this.transferPostData(
-        params,
-        this.config.search?.requestConfig.transferPostData || "raw",
-      );
-    } else {
-      // GET
-      config.params = params;
-    }
-
-    return config;
+    return !(this.userConfig.isOffline ?? false);
   }
 
   get allowSearch(): boolean {
-    return this.isOnline && !(this.config.allowSearch === false);
+    return this.isOnline && !!this.metadata.search && !(this.userConfig.allowSearch === false);
   }
 
-  // noinspection JSUnusedGlobalSymbols
+  /**
+   * 登录检查方法，对于公开站点，该方法一定直接返回 True
+   * @param raw
+   */
+  protected loggedCheck(raw: AxiosResponse): boolean {
+    return true;
+  }
+
+  public async request<T>(axiosConfig: AxiosRequestConfig, checkLogin: boolean = true): Promise<AxiosResponse<T>> {
+    // 统一设置一些 AxiosRequestConfig， 当作默认值
+    axiosConfig.baseURL ??= this.url;
+    axiosConfig.url ??= "/";
+
+    let req: AxiosResponse;
+    try {
+      req = await axios.request<T>(axiosConfig);
+
+      // 全局性的替换 span.__cf_email__
+      if (axiosConfig.responseType === "document") {
+        const doc = req.data;
+
+        // 进行简单的检查，防止无意义的替换
+        if (doc instanceof Document && doc.documentElement.outerHTML.search("__cf_email__")) {
+          const cfProtectSpan = Sizzle(".__cf_email__", doc);
+
+          cfProtectSpan.forEach((element) => {
+            element.replaceWith(cfDecodeEmail((element as HTMLElement).dataset.cfemail!));
+          });
+        }
+
+        req.data = doc;
+      }
+    } catch (e) {
+      req = (e as AxiosError).response!;
+      if (req.status >= 400) {
+        throw Error(`Network Error: ${req.status} ${req.statusText || ""}`.trim());
+      }
+    }
+
+    if (checkLogin && !this.loggedCheck(req)) {
+      throw new NeedLoginError(); // FIXME i18n
+    }
+
+    return req;
+  }
+
   /**
    * 种子搜索方法
-   * @param filter
+   * @param keywords
+   * @param searchEntry
    */
-  public async searchTorrents(filter: ISearchFilter = {}): Promise<ISearchResult> {
+  public async getSearchResult(
+    keywords?: string,
+    searchEntry: IAdvancedSearchRequestConfig = {},
+  ): Promise<ISearchResult> {
     const result: ISearchResult = {
       data: [],
-      status: ESearchResultParseStatus.success,
+      status: ESearchResultParseStatus.unknownError,
     };
 
-    // 检查该站点是否支持搜索
+    // 0. 检查该站点是否允许搜索
     if (!this.allowSearch) {
       result.status = ESearchResultParseStatus.passSearch;
       return result;
     }
 
-    // 检查高级搜索词
-    let advanceKeywordTransformer: any = false;
-    if (filter.keywords && this.config.search?.advanceKeyword) {
-      for (const [advanceField, advanceConfig] of Object.entries(
-        this.config.search.advanceKeyword,
-      )) {
-        if (filter.keywords.startsWith(`${advanceField}|`)) {
+    // 1. 形成搜索入口，默认情况下需要合并 this.config.search
+    if (searchEntry && (isEmpty(searchEntry) || searchEntry.merge !== false)) {
+      searchEntry = toMerged(this.metadata.search!, searchEntry)!;
+    } else {
+      searchEntry = searchEntry ?? this.metadata.search!;
+    }
+
+    // 2. 生成对应站点的基础 requestConfig
+    let requestConfig: AxiosRequestConfig = toMerged(
+      { url: "/", responseType: "document", params: {}, data: {} }, // 最基础的垫片，baseUrl 会在 request 方法中被补全，此处不用额外声明
+      searchEntry.requestConfig || {}, // 使用默认配置覆盖垫片配置，如果是站点是 json 返回，应该在此处覆写 responseType，并准备基础参数
+    );
+
+    // 3. 预检查 keywords 是否为高级搜索词，如果是，则查找对应的 searchEntry.advanceKeywordParams[*] 并改写 keywords
+    let advanceKeywordType: string | undefined;
+    let advanceKeywordConfig: IAdvanceKeywordSearchConfig | false = false;
+    if (keywords && searchEntry.advanceKeywordParams) {
+      for (const [advanceField, advanceConfig] of Object.entries(searchEntry.advanceKeywordParams)) {
+        if (keywords.startsWith(`${advanceField}|`)) {
           // 检查是否跳过
-          if (advanceConfig === false || advanceConfig.skip === true) {
+          if (advanceConfig === false || advanceConfig.enabled === false) {
             result.status = ESearchResultParseStatus.passSearch;
             return result;
           }
 
-          // 改写 filter.keywords 并缓存 transformer
-          filter.keywords = filter.keywords?.replace(`${advanceField}|`, "");
-          advanceKeywordTransformer = advanceConfig.transformer!;
+          // 改写 keywords 并缓存 transformer
+          keywords = keywords?.replace(`${advanceField}|`, "");
+          advanceKeywordType = advanceField;
+          advanceKeywordConfig = advanceConfig;
+          break;
         }
       }
     }
 
-    // 根据配置和搜索关键词生成 AxiosRequestConfig
-    let axiosConfig: AxiosRequestConfig = merge(
-      {
-        url: "/",
-        responseType: "document",
-      },
-      this.config.search?.requestConfig, // 使用默认配置覆盖垫片配置
-      await this.transformSearchFilter(filter), // 根据搜索信息生成配置
-    );
-
-    // 如果是 Imdb 搜索，且定义了 imdbTransformer 方法，则改写 AxiosRequestConfig
-    if (advanceKeywordTransformer) {
-      axiosConfig = advanceKeywordTransformer(axiosConfig, filter);
+    // 4. 首先将搜索关键词根据 keywordsParam 放入请求配置中，注意如果是 advanceKeyword 已经被去除了前缀 `${advanceKeywordType}|`
+    if (keywords) {
+      set(requestConfig, searchEntry.keywordPath || "params.keywords", keywords || "");
     }
 
-    // 请求页面并转化为document
+    // 5. 如果是高级搜索词搜索，则在对应基础上改写 AxiosRequestConfig
+    if (advanceKeywordConfig) {
+      if (advanceKeywordConfig.requestConfig) {
+        requestConfig = toMerged(requestConfig, advanceKeywordConfig.requestConfig || {});
+      }
+
+      if (typeof advanceKeywordConfig.requestConfigTransformer === "function") {
+        requestConfig = advanceKeywordConfig.requestConfigTransformer({ keywords, searchEntry, requestConfig });
+      }
+    }
+
+    // 6. 如果有 requestConfigTransformer，则会在最后一步对请求配置进行处理
+    if (typeof searchEntry.requestConfigTransformer === "function") {
+      // 一般情况下，此项可以用于调试，如： (config) => {console.log(config); return config;}
+      requestConfig = searchEntry.requestConfigTransformer({ keywords, searchEntry, requestConfig });
+    }
+
+    // 7. 请求页面并转化为document
     try {
-      const req = await this.request({
-        ...axiosConfig,
-        checkLogin: true,
-      });
-      const rawTorrent = await this.transformSearchPage(req.data);
-      result.data = rawTorrent.map((t) =>
-        this.fixParsedTorrent(t, {
-          filter,
-          axiosConfig,
-        }),
-      );
+      const req = await this.request(requestConfig);
+      result.data = await this.transformSearchPage(req.data, { keywords, searchEntry, requestConfig });
       result.status = ESearchResultParseStatus.success;
     } catch (e) {
       if (e instanceof NeedLoginError) {
@@ -211,55 +196,6 @@ export default class BittorrentSite {
     return result;
   }
 
-  async request<T>(
-    axiosConfig: AxiosRequestConfig & {
-      requestName?: string;
-      checkLogin?: boolean;
-    },
-  ): Promise<AxiosResponse<T>> {
-    // 统一设置一些 AxiosRequestConfig， 当作默认值
-    axiosConfig.baseURL = axiosConfig.baseURL || this.activateUrl;
-    axiosConfig.url = axiosConfig.url || "/";
-    console.log(axiosConfig);
-
-    let req: AxiosResponse;
-    try {
-      req = await axios.request<T>(axiosConfig);
-
-      // 全局性的替换 span.__cf_email__
-      if (axiosConfig.responseType === "document") {
-        const doc = req.data;
-
-        // 进行简单的检查，防止无意义的替换
-        if (
-          doc instanceof Document &&
-          doc.documentElement.outerHTML.search("__cf_email__")
-        ) {
-          const cfProtectSpan = Sizzle(".__cf_email__", doc);
-
-          cfProtectSpan.forEach((element) => {
-            element.replaceWith(
-              cfDecodeEmail((element as HTMLElement).dataset.cfemail!),
-            );
-          });
-        }
-
-        req.data = doc;
-      }
-    } catch (e) {
-      req = (e as AxiosError).response!;
-      if (req.status >= 400) {
-        throw Error(`Network Error: ${req.status} ${req.statusText || ""}`.trim());
-      }
-    }
-
-    if (axiosConfig.checkLogin && !this.loggedCheck(req)) {
-      throw new NeedLoginError(); // FIXME i18n
-    }
-
-    return req;
-  }
-
   /**
    * @warning 此方法不可以在 getFieldData 的 filters 中使用，
    *          对于约定的 url, link 本方法会自动调用进行补全
@@ -270,7 +206,7 @@ export default class BittorrentSite {
     let url = uri;
 
     if (uri.length > 0 && !uri.startsWith("magnet:")) {
-      const baseUrl = requestConfig.baseURL || this.activateUrl;
+      const baseUrl = requestConfig.baseURL || this.url;
       if (uri.startsWith("//")) {
         // 当 传入的uri 以 /{2,} 开头时，被转换成类似 https?:///xxxx/xxxx 的形式，
         // 虽不符合url规范，但是浏览器容错高，所以不用担心 2333
@@ -287,20 +223,18 @@ export default class BittorrentSite {
   /**
    * getFieldData 的上层方法，目的是直接获取一批数据，并以字典形式返回
    * @param element
-   * @param selectorGroup
    * @param fields
+   * @param selectors
    * @protected
    */
   protected getFieldsData<
     G extends "search" | "detail" | "userInfo",
-    // @ts-ignore
-    F extends keyof Required<Required<ISiteMetadata>[G]>["selectors"],
-  >(element: Element | object, selectorGroup: G, fields: F[]): { [key in F]?: any } {
-    const ret: { [key in F]?: any } = {};
+    S extends Required<Required<ISiteMetadata>[G]>["selectors"],
+  >(element: Element | object, fields: (keyof S)[], selectors: S): { [key in keyof S]?: any } {
+    const ret: { [key in keyof S]?: any } = {};
 
-    for (const [key, selector] of Object.entries(
-      pick(this.config[selectorGroup]!.selectors, fields),
-    )) {
+    // @ts-ignore
+    for (const [key, selector] of Object.entries(pick(selectors, fields))) {
       // @ts-ignore
       ret[key] = this.getFieldData(element, selector as IElementQuery);
     }
@@ -309,43 +243,37 @@ export default class BittorrentSite {
   }
 
   protected getFieldData(element: Element | object, elementQuery: IElementQuery): any {
-    const { selector } = elementQuery;
-    let query: string | number | object = String(elementQuery.text ?? "");
-    let selectorId = 0;
-    if (elementQuery) {
-      const selectors = ([] as string[]).concat(selector!);
-      for (; selectorId < selectors.length; selectorId++) {
-        const selector = selectors[selectorId];
+    let query: any = String(elementQuery.text ?? "");
+
+    if (elementQuery.selector) {
+      let usedSelector: string;
+      const selectors = ([] as string[]).concat(elementQuery.selector);
+      for (usedSelector of selectors) {
         if (element instanceof Node) {
           // 这里我们预定义一个特殊的 Css Selector，即不进行子元素选择
           const another = (
-            selector === ":self"
-              ? element
-              : Sizzle(selector, element as Element | Document)[0]
+            usedSelector === ":self" ? element : Sizzle(usedSelector, element as Element | Document)[0]
           ) as HTMLElement;
           if (another) {
             if (elementQuery.elementProcess) {
-              query = this.runQueryFilters<string>(
-                another,
-                elementQuery.elementProcess,
-              );
+              query = this.runQueryFilters<string>(another, elementQuery.elementProcess);
             } else if (elementQuery.case) {
               for (const [match, value] of Object.entries(elementQuery.case)) {
                 if (Sizzle.matchesSelector(another, match)) {
-                  query = value ?? "";
+                  query = value ?? query;
                   break;
                 }
               }
             } else if (elementQuery.data) {
-              query = another.dataset[elementQuery.data] ?? "";
+              query = another.dataset[elementQuery.data] ?? query;
             } else if (elementQuery.attr) {
-              query = another.getAttribute(elementQuery.attr) ?? "";
+              query = another.getAttribute(elementQuery.attr) ?? query;
             } else {
-              query = another.innerText.replace(/\n/gi, " ") || "";
+              query = another.innerText.replace(/\n/gi, " ") || query;
             }
           }
         } else {
-          query = selector === ":self" ? element : get(element, selector)!;
+          query = usedSelector === ":self" ? element : get(element, usedSelector)!;
         }
 
         // noinspection SuspiciousTypeOfGuard
@@ -356,18 +284,12 @@ export default class BittorrentSite {
           break;
         }
       }
-    }
 
-    if (elementQuery.switchFilters && elementQuery.switchFilters.length > 0) {
-      /** FIXME
-       * 当所有selector都未匹配时 selectorId = selectors.length，此时可能
-       * 导致 switchFilters[selectorId] === undefined ，所以此时不应运行 switchFilters
-       */
-      if (selectorId < elementQuery.switchFilters.length) {
-        query = this.runQueryFilters(query, elementQuery.switchFilters[selectorId]);
+      if (selectors.length > 0 && elementQuery.switchFilters?.[usedSelector!]) {
+        query = this.runQueryFilters(query, elementQuery.switchFilters[usedSelector!]);
+      } else if (elementQuery.filters && elementQuery.filters?.length > 0) {
+        query = this.runQueryFilters(query, elementQuery.filters);
       }
-    } else if (elementQuery.filters && elementQuery.filters.length > 0) {
-      query = this.runQueryFilters(query, elementQuery.filters);
     }
 
     // noinspection SuspiciousTypeOfGuard
@@ -384,38 +306,30 @@ export default class BittorrentSite {
 
   protected runQueryFilters<T>(query: any, filters: TQueryFilter[] | TQueryFilter): T {
     const realFilters = ([] as TQueryFilter[]).concat(filters);
-    for (let i = 0; i < realFilters.length; i++) {
-      const fn = realFilters[i];
-
-      if (typeof fn === "function") {
-        query = fn(query);
-      } else {
-        query = runFilter(query, fn);
+    for (const realFilter of realFilters) {
+      if (typeof realFilter === "function") {
+        query = realFilter(query);
+      } else if (realFilter?.name) {
+        const { name, args = [] } = realFilter;
+        if (filterNames.includes(name)) {
+          query = definedFilters[name](query, args);
+        }
       }
     }
+
     return query;
   }
 
   /**
-   * 登录检查方法，对于公开站点，该方法一定直接返回 True
-   * @param raw
-   */
-  protected loggedCheck(raw: AxiosResponse): boolean {
-    return true;
-  }
-
-  /**
    * 如何解析 JSON 或者 Document，获得种子详情列表
-   * @param doc
    */
-  protected async transformSearchPage(
-    doc: Document | object | any,
-  ): Promise<ITorrent[]> {
-    if (!this.config.search?.selectors?.rows) {
+  protected async transformSearchPage(doc: Document | object | any, searchConfig: ISearchInput): Promise<ITorrent[]> {
+    const { searchEntry, requestConfig } = searchConfig;
+    if (!searchEntry!.selectors?.rows) {
       throw Error("列表选择器未定义");
     }
 
-    const rowsSelector = this.config.search.selectors.rows;
+    const rowsSelector = searchEntry!.selectors.rows;
     const torrents: ITorrent[] = [];
 
     let trs: any;
@@ -446,10 +360,7 @@ export default class BittorrentSite {
       }
     } else {
       // 同样定义一个 :self 以防止对于JSON返回的情况下，所有items在顶层字典（实际是 Object[] ）下
-      trs =
-        rowsSelector.selector === ":self"
-          ? doc
-          : get(doc, rowsSelector.selector as string);
+      trs = rowsSelector.selector === ":self" ? doc : get(doc, rowsSelector.selector as string);
 
       if (rowsSelector.filter) {
         trs = rowsSelector.filter(trs);
@@ -462,144 +373,111 @@ export default class BittorrentSite {
     }
 
     trs?.forEach((tr: any) => {
-      torrents.push(this.parseRowToTorrent(tr) as ITorrent);
+      torrents.push(this.parseWholeTorrentFromRow({}, tr, searchConfig!) as ITorrent);
     });
 
     return torrents;
   }
 
-  protected fixParsedTorrent(
-    torrent: ITorrent,
-    requestConfig: ISearchRequestConfig,
-  ): ITorrent {
-    // 补全种子的 site 属性
-    torrent.site ??= this.config.id!;
+  protected parseWholeTorrentFromRow(
+    torrent: Partial<ITorrent> = {},
+    row: Element | Document | object,
+    searchConfig: ISearchInput,
+  ): Partial<ITorrent> {
+    const { searchEntry, requestConfig } = searchConfig;
 
-    // 补全种子的 id 属性，如果不存在，则由 url, link 属性替代
-    torrent.id ??= torrent.url || torrent.link;
+    // FIXME 对于每个 searchEntry，其需要获取的 torrentKey 应该都是一样的，但是目前会导致在每个loop中都重复生成相同的 key，但是没太大关系
+    const definedTorrentSelectorKey = Object.keys(searchEntry!.selectors!).filter((key) => key !== "rows");
+    const defaultTorrentSelectorKey = [
+      "id",
+      "title",
+      "subTitle",
+      "url",
+      "link",
+      "time",
+      "size",
+      "author",
+      "seeders",
+      "leechers",
+      "completed",
+      "comments",
+      "category",
+      "tags",
+      "progress",
+      "status",
+    ];
 
-    for (const [key, value] of Object.entries(torrent)) {
-      let updateValue = value;
-      if (key === "url" || key === "link") {
-        // 将相对链接补齐至绝对链接地址
-        updateValue = this.fixLink(value as string, requestConfig.axiosConfig);
-      } else if (key === "size" && typeof value === "string") {
-        // 将获取到的 size 从 string 转化为 bytes
-        updateValue = parseSizeString(value);
-      } else if (key === "time") {
-        // 不指定时区的话默认按0时区处理
-        updateValue = parseTimeWithZone(value, this.config.timezoneOffset || "+0000");
-      } else if (
-        [
-          "id",
-          "size",
-          "seeders",
-          "leechers",
-          "completed",
-          "comments",
-          "category",
-          "status",
-        ].includes(key)
-      ) {
-        // 其他一些能够为数字的统一转化为数字
-        if (typeof updateValue === "string") {
-          updateValue = updateValue.replace(/[, ]/gi, ""); // 统一处理 `1,024` `1 024` 之类的情况
-          if (/^-?\d+$/.test(updateValue)) {
-            // 尽可能的将返回值转成数字类型
-            updateValue = isNaN(parseInt(updateValue)) ? 0 : parseInt(updateValue);
+    /**
+     * 对种子文件的任意非rows属性进行处理，例如 "id" 属性：
+     * - 如果对应的实例中有 parseTorrentRowForId 方法，则调用该方法，注意该方法会需要返回更新后的 torrent 对象
+     * - 不然则使用 selectors.id 的定义来获取，此时只更新 torrent 的id属性
+     */
+    for (const key of union(definedTorrentSelectorKey, defaultTorrentSelectorKey) as (keyof Omit<ITorrent, "site">)[]) {
+      // 如果已经有值，则跳过
+      if (Object.hasOwn(torrent, key)) {
+        continue;
+      }
+
+      const dynamicParseFuncKey = `parseTorrentRowFor${pascalCase(key)}` as keyof this;
+      if (dynamicParseFuncKey in this && typeof this[dynamicParseFuncKey] === "function") {
+        torrent = this[dynamicParseFuncKey](torrent, row, searchConfig);
+      } else if (searchEntry!.selectors![key]) {
+        torrent[key] = this.getFieldData(row, searchEntry!.selectors![key] as IElementQuery);
+      }
+    }
+
+    // 对获取到的种子进行一些通用的处理
+    torrent.site ??= this.metadata.id; // 补全种子的 site 属性
+    torrent.id ??= tryToNumber(torrent.url || torrent.link); // 补全种子的 id 属性，如果不存在，则由 url, link 属性替代
+    torrent.url = this.fixLink(torrent.url as string, requestConfig!);
+    torrent.link = this.fixLink(torrent.link as string, requestConfig!);
+    if (typeof (torrent.size as unknown) === "string") {
+      torrent.size = parseSizeString(torrent.size as unknown as string);
+    }
+    torrent.size = tryToNumber(torrent.size);
+    torrent.seeders = tryToNumber(torrent.seeders);
+    torrent.leechers = tryToNumber(torrent.leechers);
+    torrent.completed = tryToNumber(torrent.completed);
+    torrent.comments = tryToNumber(torrent.comments);
+    torrent.category = tryToNumber(torrent.category);
+    torrent.status = tryToNumber(torrent.status);
+    torrent.time = parseTimeWithZone(torrent.time as unknown as string, this.metadata.timezoneOffset || "+0000");
+
+    // 在此基础上，不同 schema 可以复写处理过程
+    torrent = this.fixParsedTorrent(torrent as ITorrent, row, searchConfig);
+    return torrent;
+  }
+
+  protected parseTorrentTagsFromRow(
+    torrent: Partial<ITorrent>,
+    row: Element | Document | object,
+    searchConfig: ISearchInput,
+  ): Partial<ITorrent> {
+    if (searchConfig?.searchEntry?.selectors?.tags) {
+      const tags: ITorrentTag[] = [];
+      searchConfig.searchEntry.selectors.tags.forEach(({ name, selector }) => {
+        if (row instanceof Element) {
+          if (Sizzle(selector, row).length > 0) {
+            tags.push({ name });
+          }
+        } else {
+          if (get(row, selector)) {
+            tags.push({ name });
           }
         }
-      }
-
-      // 如果定义了 this.config.category，则尝试对其进行转化
-      if (key === "category" && this.config.category) {
-        const CategoryData = this.config.category.options.find(
-          (d) => d.value === updateValue,
-        );
-        if (CategoryData) {
-          updateValue = CategoryData.name;
-        }
-      }
-
-      // @ts-ignore
-      torrent[key] = updateValue;
+      });
+      torrent.tags = tags;
     }
 
     return torrent;
   }
 
-  protected parseRowToTorrent(
+  protected fixParsedTorrent(
+    torrent: ITorrent,
     row: Element | Document | object,
-    torrent: Partial<ITorrent> = {},
-  ): Partial<ITorrent> {
-    const leftKeys = Object.keys(this.config.search!.selectors!).filter((key) => {
-      return (
-        ![
-          "rows", // rows 已经在前面被处理过了
-          "tags", // tags 转由 parseTagsFromRow 方法处理
-        ].includes(key) && !(key in torrent)
-      );
-    }) as (keyof Required<ISiteMetadata>["search"]["selectors"])[];
-
-    torrent = {
-      ...torrent,
-      ...this.getFieldsData(row, "search", leftKeys),
-    };
-
-    // 处理Tags
-    if (this.config.search?.selectors?.tags) {
-      torrent.tags = this.parseTagsFromRow(row);
-    }
-
-    // 处理下载进度
-    if (!torrent.progress || !torrent.status) {
-      torrent = { ...torrent, ...this.parseDownloadProcessFromRow(row) };
-    }
-
+    searchConfig: ISearchInput,
+  ): ITorrent {
     return torrent;
-  }
-
-  protected parseTagsFromRow(row: Element | Document | object): ITorrentTag[] {
-    const tags: ITorrentTag[] = [];
-    const tagsQuerys = this.config.search!.selectors!.tags!;
-    for (let i = 0; i < tagsQuerys.length; i++) {
-      const tagsQuery = tagsQuerys[i];
-
-      if (!tagsQuery.color) {
-        // 补全 tags 的颜色信息
-        if (Object.keys(ETorrentBaseTagColor).includes(tagsQuery.name)) {
-          // @ts-ignore
-          tagsQuery.color = ETorrentBaseTagColor[tagsQuery.name];
-        } else {
-          tagsQuery.color = "#ffc107";
-        }
-      }
-
-      const { selector, name, color } = tagsQuerys[i];
-      if (row instanceof Element) {
-        if (Sizzle(selector, row).length > 0) {
-          tags.push({
-            name,
-            color,
-          });
-        }
-      } else {
-        if (get(row, selector)) {
-          tags.push({
-            name,
-            color,
-          });
-        }
-      }
-    }
-
-    return tags;
-  }
-
-  protected parseDownloadProcessFromRow(
-    row: Element | Document | object,
-  ): Pick<ITorrent, "progress" | "status"> {
-    return {};
   }
 
   async getTorrentPageLink(torrent: ITorrent): Promise<string> {
@@ -607,17 +485,11 @@ export default class BittorrentSite {
   }
 
   async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
-    if (!torrent.link && this.config?.detail?.selectors?.link) {
+    if (!torrent.link && this.metadata?.detail?.selectors?.link) {
       const { data } = await this.request<any>(
-        merge(
-          {
-            responseType: "document",
-            url: torrent.url,
-          },
-          this.config.detail?.requestConfig,
-        ),
+        toMerged({ responseType: "document", url: torrent.url }, this.metadata.detail?.requestConfig!),
       );
-      return this.getFieldData(data, this.config.detail.selectors.link);
+      return this.getFieldData(data, this.metadata.detail.selectors.link);
     }
 
     return torrent.link;

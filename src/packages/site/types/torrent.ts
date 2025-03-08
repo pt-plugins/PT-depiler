@@ -1,4 +1,6 @@
 // 种子当前状态
+import { TAdvanceSearchKeyword } from "@ptd/site";
+
 export enum ETorrentStatus {
   unknown, // 状态不明
   downloading, // 正在下载
@@ -7,26 +9,24 @@ export enum ETorrentStatus {
   completed, // 已完成，未做种， 旧版值 255
 }
 
-// 一些比较基础的 Tag 及其对应颜色
-export enum ETorrentBaseTagColor {
-  "Free" = "blue", // 免费下载
-  "2xFree" = "green", // 免费下载 + 2x 上传
-  "2xUp" = "lime", // 2x 上传
-  "2x50%" = "light-green", // 2x 上传 + 50% 下载
-  "25%" = "purple", // 25% 下载
-  "30%" = "indigo", // 30% 下载
-  "35%" = "indigo darken-3", // 35% 下载
-  "50%" = "orange", // 50% 下载
-  "70%" = "blue-grey", // 70% 下载
-  "75%" = "lime darken-3", // 75% 下载
-  "VIP" = "orange darken-2", // 仅 VIP 可下载
-  "Excl." = "deep-orange darken-1", // 禁止转载
-}
+// 比较基础的种子 Tag
+export type TBaseTorrentTagName =
+  | "Free" // 免费下载 "blue",
+  | "2xFree" // 免费下载 + 2x 上传 "green",
+  | "2xUp" // 2x 上传   "lime",
+  | "2x50%" // 2x 上传 + 50% 下载 "light-green",
+  | "25%" // 25% 下载 "purple",
+  | "30%" // 30% 下载 "indigo",
+  | "35%" // 35% 下载 "indigo darken-3",
+  | "50%" // 50% 下载 "orange",
+  | "70%" // 70% 下载 "blue-grey",
+  | "75%" // 75% 下载 "lime darken-3",
+  | "VIP" // 仅 VIP 可下载 "orange darken-2",
+  | "Excl." // 禁止转载 "deep-orange darken-1",
+  | string;
 
-// 定义种子中 tag 的展示形式
 export interface ITorrentTag {
-  color?: string; // 标签背景色，文字（前景色）一律为白色
-  name?: keyof typeof ETorrentBaseTagColor | string; // tag说明
+  name: TBaseTorrentTagName;
 }
 
 // 作为一个种子最基本应该有的属性
@@ -58,6 +58,8 @@ export interface ITorrent {
 
   category?: string | number;
   tags?: ITorrentTag[];
+
+  [key: `ext_${TAdvanceSearchKeyword}`]: string | number | null; // 外部资源id
 
   // 对于PT种子才 获取以下部分
   progress?: number | null; // 进度（100表示完成）

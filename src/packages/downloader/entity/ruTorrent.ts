@@ -102,9 +102,7 @@ function buildRequestXML(calls: Array<[string, string[]?]>): string {
     retXML += `<member><name>methodName</name><value><string>${method}</string></value></member>`;
     retXML +=
       "<member><name>params</name><value><array><data>" +
-      params
-        .map((param) => `<value><string>${String(param)}</string></value>`)
-        .join("") +
+      params.map((param) => `<value><string>${String(param)}</string></value>`).join("") +
       "</data></array></value></member>";
     retXML += "</struct></value>";
   }
@@ -116,9 +114,7 @@ function buildRequestXML(calls: Array<[string, string[]?]>): string {
 function parseResponseXML(resp: string): string[] {
   const parsedXML = new DOMParser().parseFromString(resp, "text/xml");
   // noinspection CssInvalidHtmlTagReference
-  const dataNode = parsedXML.querySelectorAll(
-    "params > param > value > array > data > value > array > data > value",
-  );
+  const dataNode = parsedXML.querySelectorAll("params > param > value > array > data > value > array > data > value");
 
   return Array.from(dataNode).map((node) => node.textContent!);
 }
@@ -168,10 +164,7 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
   }
 
   protected async getClientVersionFromRemote(): Promise<string> {
-    const postData = buildRequestXML([
-      ["system.client_version"],
-      ["system.api_version"],
-    ]);
+    const postData = buildRequestXML([["system.client_version"], ["system.api_version"]]);
     const { data: responseXML } = await this.requestHttpRpc<string>(postData);
     const versionList = parseResponseXML(responseXML);
 
@@ -200,10 +193,7 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
     return free;
   }
 
-  async addTorrent(
-    url: string,
-    options: Partial<CAddTorrentOptions> = {},
-  ): Promise<boolean> {
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
     let postData: URLSearchParams | FormData;
     if (url.startsWith("magnet:") || !options.localDownload) {
       postData = new URLSearchParams();
@@ -259,17 +249,14 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
       const isActive = iv(rawTorrent[28]);
       const torrentMsg = rawTorrent[30];
 
-      const chunksProcessing =
-        isHashChecking === 0 ? iv(rawTorrent[6]) : iv(rawTorrent[24]);
+      const chunksProcessing = isHashChecking === 0 ? iv(rawTorrent[6]) : iv(rawTorrent[24]);
       const TorrentDone = Math.floor((chunksProcessing / iv(rawTorrent[7])) * 1000);
       const isCompleted = TorrentDone >= 1000;
 
       const basePath = rawTorrent[25];
       const basePathPos = basePath.lastIndexOf("/");
       const savePath =
-        basePath.substring(basePathPos + 1) === rawTorrent[4]
-          ? basePath.substring(0, basePathPos)
-          : basePath;
+        basePath.substring(basePathPos + 1) === rawTorrent[4] ? basePath.substring(0, basePathPos) : basePath;
 
       let state = CTorrentState.unknown;
       if (isOpen !== 0) {

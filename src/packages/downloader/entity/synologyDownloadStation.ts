@@ -111,10 +111,7 @@ type SynoApiEndPointDownloadV2 =
   | "SYNO.DownloadStation2.eMule.Search"
   | "SYNO.DownloadStation2.eMule.Server";
 
-type SynoApiEndPoint =
-  | SynoApiEndPointBase
-  | SynoApiEndPointDownload
-  | SynoApiEndPointDownloadV2;
+type SynoApiEndPoint = SynoApiEndPointBase | SynoApiEndPointDownload | SynoApiEndPointDownloadV2;
 
 type SynologySessionName = "DownloadStation" | "FileStation";
 
@@ -386,10 +383,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
   }
 
   // 核心请求方法
-  private async request<T>(
-    cgi: SYNOApiCGIPath,
-    config: AxiosRequestConfig,
-  ): Promise<SynologyResponse<T>> {
+  private async request<T>(cgi: SYNOApiCGIPath, config: AxiosRequestConfig): Promise<SynologyResponse<T>> {
     return (
       await axios.request<SynologyResponse<T>>({
         baseURL: this.config.address,
@@ -402,9 +396,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
   }
 
   // entry.cgi 请求方法
-  private async requestEntryCGI<T>(
-    field: DSRequestField | FormData,
-  ): Promise<SynologyResponse<T>> {
+  private async requestEntryCGI<T>(field: DSRequestField | FormData): Promise<SynologyResponse<T>> {
     // 覆写 _sid 参数
     const sid = await this.getSessionId();
 
@@ -507,10 +499,7 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
     return dsmVersion;
   }
 
-  async addTorrent(
-    url: string,
-    options: Partial<CAddTorrentOptions> = {},
-  ): Promise<boolean> {
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
     // 基本参数
     const params: DSRequestField = {
       api: "SYNO.DownloadStation2.Task",

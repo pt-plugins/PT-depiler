@@ -178,9 +178,7 @@ export interface CAddTorrentOptions {
 /**
  * 客户端具体要实现的抽象方法
  */
-export abstract class AbstractBittorrentClient<
-  T extends DownloaderBaseConfig = DownloaderBaseConfig,
-> {
+export abstract class AbstractBittorrentClient<T extends DownloaderBaseConfig = DownloaderBaseConfig> {
   abstract version: `v${number}.${number}.${number}`;
   readonly config: T;
 
@@ -254,10 +252,7 @@ export abstract class AbstractBittorrentClient<
   }
 
   // 添加种子
-  public abstract addTorrent(
-    url: string,
-    options: Partial<CAddTorrentOptions>,
-  ): Promise<boolean>;
+  public abstract addTorrent(url: string, options: Partial<CAddTorrentOptions>): Promise<boolean>;
 
   // 暂停种子
   public abstract pauseTorrent(id: any): Promise<boolean>;

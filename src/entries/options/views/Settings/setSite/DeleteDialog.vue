@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useVModels } from "@vueuse/core";
-import { useSiteStore } from "@/shared/store/site.ts";
+import { useSiteStore } from "@/options/stores/site.ts";
 
 const componentProps = defineProps<{
   modelValue: boolean;

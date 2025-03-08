@@ -1,8 +1,8 @@
 import PrivateSite from "./AbstractPrivateSite";
 import { ISiteMetadata, IUserInfo, ETorrentStatus } from "../types";
-import { parseSizeString } from "../utils";
-import dayjs from "../utils/datetime";
+import { parseSizeString, parseValidTimeString } from "../utils";
 import urlJoin from "url-join";
+import { set } from "es-toolkit/compat";
 
 /**
  * Trans Array
@@ -13,9 +13,10 @@ const seedingSizeTrans: string[] = ["Seeding Size", "做种体积", "做種體�
 const joinTimeTrans: string[] = ["Registration date", "注册日期", "註冊日期"];
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
+  version: 0,
   timezoneOffset: "+0000",
   search: {
-    keywordsParam: "search",
+    keywordPath: "params.search",
     requestConfig: {
       url: "/torrents/filter",
       responseType: "document",
@@ -23,12 +24,12 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         view: "list", // 强制使用 种子列表 的形式返回
       },
     },
-    advanceKeyword: {
+    advanceKeywordParams: {
       imdb: {
-        transformer: (config) => {
-          config.params.imdb = config.params.search.replace("tt", "");
-          delete config.params.search;
-          return config;
+        requestConfigTransformer: ({ requestConfig: config }) => {
+          set(config!, "params.imdb", config!.params.search.replace("tt", ""));
+          delete config!.params.search;
+          return config!;
         },
       },
     },
@@ -118,10 +119,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         },
       },
       tags: [
-        {
-          name: "Free",
-          selector: "i.fa-star.text-gold, i.fa-globe.text-blue",
-        },
+        { name: "Free", selector: "i.fa-star.text-gold, i.fa-globe.text-blue" },
         { name: "2xUp", selector: "i.fa-gem.text-green" },
       ],
     },
@@ -193,7 +191,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [
           (query: string) => {
             query = query.replace(RegExp(joinTimeTrans.join("|")), "").trim();
-            return dayjs(query).isValid() ? dayjs(query).valueOf() : query;
+            return parseValidTimeString(query);
           },
         ],
       },
@@ -202,9 +200,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 };
 
 export default class Unit3D extends PrivateSite {
-  public override async getUserInfo(
-    lastUserInfo: Partial<IUserInfo> = {},
-  ): Promise<IUserInfo> {
+  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let flushUserInfo: Partial<IUserInfo> = {};
 
     let userName: string;
@@ -217,52 +213,47 @@ export default class Unit3D extends PrivateSite {
     flushUserInfo.name = userName;
 
     // 导入基本 Details 页面获取到的用户信息
-    flushUserInfo = Object.assign(
-      flushUserInfo,
-      await this.getUserInfoFromDetailsPage(userName),
-    );
+    flushUserInfo = Object.assign(flushUserInfo, await this.getUserInfoFromDetailsPage(userName));
 
     return flushUserInfo as IUserInfo;
   }
 
   protected async getUserNameFromSite(): Promise<string> {
-    const { data: indexDocument } = await this.request<Document>({
-      url: "/",
-      responseType: "document",
-      checkLogin: true,
-    });
+    const { data: indexDocument } = await this.request<Document>(
+      {
+        url: "/",
+        responseType: "document",
+      },
+      true,
+    );
     return this.getFieldData(
       indexDocument,
       // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-      this.config.userInfo?.selectors?.name!,
+      this.metadata.userInfo?.selectors?.name!,
     );
   }
 
-  protected async getUserInfoFromDetailsPage(
-    userName: string,
-  ): Promise<Partial<IUserInfo>> {
+  protected async getUserInfoFromDetailsPage(userName: string): Promise<Partial<IUserInfo>> {
     const { data: userDetailDocument } = await this.request<Document>({
       url: urlJoin("/users", userName),
       responseType: "document",
     });
 
-    const detailsPageAttrs: (keyof IUserInfo)[] = [
-      "id",
-      "messageCount",
-      "uploaded",
-      "downloaded",
-      "levelName",
-      "bonus",
-      "joinTime",
-      "seeding",
-      "seedingSize",
-      "leeching",
-    ];
-
     return this.getFieldsData(
       userDetailDocument,
-      "userInfo",
-      detailsPageAttrs,
+      [
+        "id",
+        "messageCount",
+        "uploaded",
+        "downloaded",
+        "levelName",
+        "bonus",
+        "joinTime",
+        "seeding",
+        "seedingSize",
+        "leeching",
+      ] as (keyof IUserInfo)[],
+      this.metadata.userInfo?.selectors!,
     ) as Partial<IUserInfo>;
   }
 }

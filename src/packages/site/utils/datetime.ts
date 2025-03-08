@@ -1,76 +1,79 @@
-import dayjs from "dayjs";
-import type { OptionType, ManipulateType } from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-import advancedFormat from "dayjs/plugin/advancedFormat";
-
-dayjs.extend(advancedFormat);
-dayjs.extend(customParseFormat);
-
-export default dayjs;
+import { sub, parse, isValid, format, type DurationUnit } from "date-fns";
 
 export type timezoneOffset = `${"UTC" | ""}${"-" | "+"}${number}`;
 
-export const dateUnit = [
-  "year",
-  "quarter",
-  "month",
-  "week",
-  "day",
-  "hour",
-  "minute",
-  "second",
-];
-export const nonStandDateUnitMap = new Map<string, (typeof dateUnit)[number]>([
-  // 中文
-  ["分", "minute"],
-  ["时", "hour"],
-  ["天", "day"],
-  ["月", "month"],
-  ["年", "year"],
-  // 英文缩写
-  ["hr", "hour"],
-  ["min", "minute"],
-  ["sec", "second"],
-]);
+export const dateUnit: Array<DurationUnit | "quarters"> = [
+  "years",
+  "quarters",
+  "months",
+  "weeks",
+  "days",
+  "hours",
+  "minutes",
+  "seconds",
+] as const;
+
+export const nonStandDateUnitMap: Record<(typeof dateUnit)[number], string[]> = {
+  years: ["年", "year", "yr"],
+  quarters: ["季度", "quarter", "qtr"],
+  months: ["月", "month", "mo"],
+  weeks: ["周", "week", "wk"],
+  days: ["天", "day"],
+  hours: ["时", "hour", "hr"],
+  minutes: ["分", "minute", "min"],
+  seconds: ["秒", "second", "sec"],
+};
 
 export function parseTimeToLive(ttl: string): number {
   // 处理原始字符串中的非标准Unit
-  nonStandDateUnitMap.forEach((v, k) => {
-    ttl = ttl.replace(k, v);
-  });
+  for (const [k, v] of Object.entries(nonStandDateUnitMap)) {
+    for (const unit of v) {
+      ttl = ttl.replace(unit, k);
+    }
+  }
 
-  let nowDayJs = dayjs();
+  let nowDate = new Date();
   dateUnit.forEach((v) => {
     const matched = ttl.match(new RegExp(`([.\\d]+) ?(${v}s?)`));
     if (matched) {
-      nowDayJs = nowDayJs.add(-parseFloat(matched![1]), matched![2] as ManipulateType);
+      const amount = parseFloat(matched[1]);
+      switch (v) {
+        case "quarters":
+          nowDate = sub(nowDate, { months: amount * 3 });
+          break;
+        case "years":
+        case "months":
+        case "weeks":
+        case "days":
+        case "hours":
+        case "minutes":
+        case "seconds":
+          nowDate = sub(nowDate, { [v]: amount });
+          break;
+      }
     }
   });
 
-  return nowDayJs.valueOf();
+  return +nowDate;
 }
 
-export function parseValidTimeString(
-  query: string,
-  format?: OptionType,
-): number | string {
-  const time = dayjs(query, format);
-  return time.isValid() ? time.valueOf() : query;
-}
-
-export function parseTimeWithZone(
-  time: number | string,
-  timezoneOffset: timezoneOffset = "+0000",
-): number {
-  if (!timezoneOffset || !time) {
-    return dayjs(time).valueOf();
+export function parseValidTimeString(query: string, format: string[] = []): number | string {
+  for (const f of [...format, "YYYY-MM-dd'T'HH:mm:ssXXX", "YYYY-MM-dd HH:mm:ss", "YYYY-MM-dd HH:mm:ss.SSS"]) {
+    let time = parse(query, f, new Date());
+    if (isValid(time)) {
+      return +time;
+    }
   }
+  return query;
+}
+
+export function parseTimeWithZone(time: number | string, timezoneOffset: timezoneOffset = "+0000"): number {
   let result = time;
   // 标准时间戳需要 * 1000
   if (/^(\d){10}$/.test(result + "")) {
     result = parseInt(result + "") * 1000;
   }
   // 时间格式按 ISO 8601 标准设置，如：2020-01-01T00:00:01+0800
-  const datetime = dayjs(result).format("YYYY-MM-DDTHH:mm:ss");
-  return new Date(`${datetime}${timezoneOffset}`).getTime();
+  const datetime = format(new Date(result), "yyyy-MM-dd'T'HH:mm:ss");
+  return +new Date(`${datetime}${timezoneOffset}`);
 }

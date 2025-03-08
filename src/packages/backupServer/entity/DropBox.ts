@@ -10,15 +10,9 @@
  *   并点击 Generated access token 的 Generate 按钮，记住生成的 access_token 并填入设置页面（请勿重复生成）
  */
 
-import type {
-  IBackupConfig,
-  IBackupMetadata,
-  IBackupServer,
-  IBackupFileListOption,
-  IBackupFileInfo,
-} from "../type.ts";
-import { localSort } from "../utils.ts";
-import { merge } from "lodash-es";
+import type { IBackupConfig, IBackupMetadata, IBackupServer, IBackupFileListOption, IBackupFileInfo } from "../type";
+import { localSort } from "../utils";
+import { merge } from "es-toolkit";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
 interface DropBoxConfig extends IBackupConfig {
@@ -189,9 +183,7 @@ export default class DropBox implements IBackupServer<DropBoxConfig> {
           files.push({
             filename: dropboxEntry.name,
             path: dropboxEntry.path_display,
-            time: +new Date(
-              dropboxEntry.client_modified || dropboxEntry.server_modified,
-            ),
+            time: +new Date(dropboxEntry.client_modified || dropboxEntry.server_modified),
             size: dropboxEntry.size,
           } as IBackupFileInfo);
         }

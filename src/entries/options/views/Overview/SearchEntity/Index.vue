@@ -1,77 +1,19 @@
 <script setup lang="ts">
 import { watch } from "vue";
-import dayjs from "dayjs";
 import { filesize } from "filesize";
 import { useRoute } from "vue-router";
+import PQueue from "p-queue";
 
-import { ESearchResultParseStatus } from "@ptd/site";
-import { initialSearchData, searchData } from "@/shared/store/runtime.ts";
-import { getSiteFavicon, getSiteInstance } from "@/shared/adapters/site.ts";
-import { ISearchTorrent, useSiteStore } from "@/shared/store/site.ts";
-
-import TorrentProgress from "./TorrentProgress.vue";
+import { ISearchResultTorrent, TSearchSolutionKey, useRuntimeStore } from "@/options/stores/runtime.ts";
+import { TSolutionID, useSiteStore } from "@/options/stores/site.ts";
+import { ESearchResultParseStatus, IAdvancedSearchRequestConfig, TSiteID } from "@ptd/site";
+import { sendMessage } from "@/messages";
+import SiteFavicon from "@/options/components/SiteFavicon.vue";
 
 const route = useRoute();
+const runtimeStore = useRuntimeStore();
 const siteStore = useSiteStore();
-
-export interface ISearchShowTorrent extends ISearchTorrent {
-  siteName: string;
-  siteUrl: string;
-  siteFavicon: string;
-}
-
-async function doSearch(flush: boolean = true) {
-  if (flush) {
-    searchData.value = initialSearchData();
-  }
-
-  // 设置搜索初始值
-  searchData.value.isSearching = true;
-  searchData.value.startAt = Date.now();
-  searchData.value.searchKey = (route.query.search as string) || "";
-  searchData.value.searchPlanKey = (route.query.plan as string) || "default";
-  const searchPlan = (searchData.value.searchPlan = siteStore.getSolutionPlan(
-    searchData.value.searchPlanKey,
-  )); // 展开searchPlanKey对应的搜索方案
-
-  // TODO 增加p-queue作为前台控制（后台不做控制）
-
-  for (const plan of searchPlan.plan) {
-    // TODO 此处步骤全部移入offscreen运行
-    const site = await getSiteInstance(plan.site);
-    const siteName = site.config.name;
-    const siteUrl = site.activateUrl;
-    const siteFavicon = await getSiteFavicon(plan.site);
-
-    const v = await site.searchTorrents({
-      keywords: searchData.value.searchKey,
-      extraParams: Object.entries(plan.filters).map((x) => ({
-        key: x[0],
-        value: x[1],
-      })),
-    });
-
-    // 为搜索plan结果增加站点属性字段
-    const sv = v.data.map((torrent) => {
-      (torrent as ISearchShowTorrent).plan = plan.id;
-      (torrent as ISearchShowTorrent).siteName = siteName;
-      (torrent as ISearchShowTorrent).siteFavicon = siteFavicon;
-      (torrent as ISearchShowTorrent).siteUrl = siteUrl;
-      return torrent;
-    }) as ISearchTorrent[];
-
-    // TODO 将offscreen运行的返回值更新到searchData中
-    searchData.value.searchPlanStatus[plan.id] = v.status;
-    if (v.status === ESearchResultParseStatus.success) {
-      searchData.value.searchResult.push(...sv);
-    }
-  }
-
-  searchData.value.isSearching = false;
-  searchData.value.costTime = Date.now() - searchData.value.startAt;
-}
-
-console.log(searchData);
+const queue = new PQueue({ concurrency: 1 }); // Use settingStore
 
 const tableHeader = [
   {
@@ -136,141 +78,108 @@ const tableHeader = [
 watch(
   () => route.query,
   (newParams, oldParams) => {
-    console.log("search", newParams, oldParams);
-
-    if (newParams.snapshot) {
-      // TODO 处理搜索快照
-    } else if (
-      newParams.search != oldParams.search ||
-      newParams.plan != oldParams.plan
+    if (
+      newParams.flush &&
+      ((newParams.search && newParams.search != oldParams.search) ||
+        (newParams.plan && newParams.plan != oldParams.plan))
     ) {
-      doSearch();
+      doSearch(Boolean(newParams.flush));
     }
   },
 );
+
+async function doSearchEntry(siteId: TSiteID, solutionId: TSolutionID, searchEntry: IAdvancedSearchRequestConfig) {
+  const keywords = runtimeStore.search.searchKey ?? "";
+  const solutionKey = `${siteId}-${solutionId}` as TSearchSolutionKey;
+  runtimeStore.search.searchPlanStatus[solutionKey] = ESearchResultParseStatus.working;
+  sendMessage("getSiteSearchResult", { keywords, siteId, searchEntry }).then(
+    ({ status: searchStatus, data: searchResult }) => {
+      console.log(solutionKey, searchResult);
+      runtimeStore.search.searchPlanStatus[solutionKey] = searchStatus;
+      for (const item of searchResult) {
+        (item as ISearchResultTorrent).solutionId = solutionKey;
+        runtimeStore.search.searchResult.push(item as ISearchResultTorrent);
+      }
+    },
+  );
+}
+
+async function doSearch(flush = true) {
+  // Reset search data
+  if (flush) {
+    runtimeStore.resetSearchData();
+  }
+
+  runtimeStore.search.isSearching = true;
+  runtimeStore.search.searchKey = (route.query.search as string) || "";
+  runtimeStore.search.searchPlanKey = (route.query.plan as string) || "default";
+
+  // Expand search plan
+  const searchSolution = await siteStore.getSearchSolution(runtimeStore.search.searchPlanKey);
+  for (const { siteId, searchEntries } of searchSolution.solutions) {
+    for (const [solutionId, searchEntry] of Object.entries(searchEntries)) {
+      const solutionKey = `${siteId}-${solutionId}` as TSearchSolutionKey;
+      runtimeStore.search.searchPlanStatus[solutionKey] = ESearchResultParseStatus.waiting;
+
+      // Search site by plan in queue
+      await queue.add(async () => {
+        runtimeStore.search.searchPlanStatus[solutionKey] = ESearchResultParseStatus.working;
+        const { status: searchStatus, data: searchResult } = await sendMessage("getSiteSearchResult", {
+          keyword: runtimeStore.search.searchKey,
+          siteId,
+          searchEntry,
+        });
+        runtimeStore.search.searchPlanStatus[solutionKey] = searchStatus;
+        for (const item of searchResult) {
+          const isDuplicate = runtimeStore.search.searchResult.some(
+            (result) => result.site == item.site && result.id == item.id,
+          );
+          if (!isDuplicate) {
+            (item as ISearchResultTorrent).solutionId = solutionKey;
+            runtimeStore.search.searchResult.push(item as ISearchResultTorrent);
+          }
+        }
+      });
+    }
+  }
+
+  // Wait for all search tasks to complete
+  await queue.onIdle();
+  runtimeStore.search.isSearching = false;
+  runtimeStore.search.costTime = +new Date() - runtimeStore.search.startAt;
+}
 </script>
 
 <template>
   <v-alert type="info">
     <v-alert-title>
-      搜索 [{{ searchData.searchKey }}] （方案 <{{
-        siteStore.getSolutionName(searchData.searchPlanKey)
-      }}>）的结果，
-
-      <template v-if="searchData.isSearching"> 正在搜索中..... </template>
+      搜索结果：
+      <template v-if="runtimeStore.search.isSearching"> 正在搜索中..... </template>
       <template v-else>
-        搜索完成， 共找到 个结果， 耗时：秒。
-
-        <!-- TODO 搜索结果情况概况展示（部分搜索条目重试按钮） -->
-        <v-btn>展示搜索方案详情</v-btn>
+        搜索完成， 共找到 {{ runtimeStore.search.searchResult.length }} 个结果， 耗时：
+        {{ runtimeStore.search.costTime / 1000 }} 秒。
 
         <!-- TODO 全局重新搜索按钮 -->
-        <v-btn @click="doSearch">重新搜索</v-btn>
+        <v-btn color="primary" @click="doSearch">重新搜索</v-btn>
       </template>
     </v-alert-title>
   </v-alert>
   <v-card>
-    <v-card-title>
-      <!-- 创建快照（非快照情况下） -->
-
-      <!-- 高级选项 -->
-
-      <!-- TODO 筛选功能 -->
-    </v-card-title>
-
-    <v-data-table
-      :items="searchData.searchResult"
-      :headers="tableHeader"
-      :per-page="100"
-      show-select
-      multi-sort
-      :sort-by="[{ key: 'time', order: 'desc' }]"
-    >
-      <!-- 站点 -->
+    <v-data-table :headers="tableHeader" :items="runtimeStore.search.searchResult">
       <template #item.site="{ item }">
-        <v-avatar :image="item.siteFavicon" size="18" />
-        <a
-          :href="item.siteUrl"
-          target="_blank"
-          rel="noopener noreferrer nofollow"
-          class="captionText"
-          >{{ item.siteName }}</a
-        >
+        <SiteFavicon v-model="item.site" />
+        <a :href="'#'" target="_blank" rel="noopener noreferrer nofollow" class="captionText">{{ item.site }}</a>
       </template>
-
-      <!-- 标题，副标题（如有），标签（如有），| ， -->
       <template #item.title="{ item }">
-        <a
-          :href="item.url"
-          target="_blank"
-          rel="noopener noreferrer nofollow"
-          class="text-body-1 font-weight-medium"
-          >{{ item.title }}</a
-        >
-
-        <div v-if="(item.tags && item.tags.length) || item.subTitle">
-          <span class="mr-1" v-if="item.tags && item.tags.length">
-            <span
-              v-for="(tag, index) in item.tags"
-              :key="index"
-              class="tag"
-              :title="tag.name"
-              :style="{
-                'background-color': `${tag.color}`,
-                'border-color': `${tag.color}`,
-              }"
-              >{{ tag.name }}</span
-            >
-          </span>
-
-          <span v-if="item.subTitle" :title="item.subTitle">{{ item.subTitle }}</span>
-        </div>
+        {{ item.title }}
+        <br />
+        {{ item.subTitle ?? "" }}
       </template>
-
-      <!-- 分类 -->
-      <template #item.category="{ item }">{{ item.category }}</template>
-
-      <!-- 大小，下载进度（如有） -->
       <template #item.size="{ item }">
-        {{ filesize(item.size, { base: 2 }) }}
-        <TorrentProgress v-if="item.progress && item.status" :torrent="item" />
-      </template>
-
-      <!-- 上传数（不需要自定义template） -->
-      <!-- 下载数（不需要自定义template） -->
-      <!-- 完成数（不需要自定义template） -->
-      <!-- 评论数（不需要自定义template） -->
-      <!-- 上传时间 -->
-      <template #item.time="{ item }">{{
-        dayjs(item.time).format("YYYY-MM-DD HH:mm")
-      }}</template>
-
-      <!-- 操作 -->
-      <template #item.action="{ item }">
-        <!-- 下载到 -->
-        <!-- 下载种子文件 -->
-        <!-- 复制下载链接 -->
-        <!-- 收藏 -->
+        {{ filesize(item.size) }}
       </template>
     </v-data-table>
   </v-card>
 </template>
 
-<style scoped>
-a,
-:deep(a) {
-  color: black;
-  text-decoration: none;
-}
-
-.captionText {
-  color: #aaaaaa;
-}
-
-.tag {
-  margin: 0 1px;
-  border-radius: 2px;
-  color: #fff;
-  padding: 1px 3px;
-}
-</style>
+<style scoped lang="scss"></style>

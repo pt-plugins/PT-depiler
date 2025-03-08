@@ -6,7 +6,8 @@
     "moduleResolution": "node",
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
+    "allowImportingTsExtensions": true,
     "baseUrl": "."
   },
-  "include": ["package.json", "vite.config.ts"]
+  "include": ["package.json", "vite.config.ts", "vite/*.ts"]
 }

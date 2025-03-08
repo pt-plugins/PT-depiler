@@ -1,13 +1,14 @@
 import PrivateSite from "./AbstractPrivateSite";
-import { ISiteMetadata, ETorrentStatus, ITorrent, listSelectors } from "../types";
+import { ISiteMetadata, ETorrentStatus, ITorrent, ISearchInput } from "../types";
 import Sizzle from "sizzle";
-import { merge } from "lodash-es";
-import dayjs from "../utils/datetime";
+import { merge } from "es-toolkit";
+import { parseValidTimeString } from "../utils/datetime";
 import { parseSizeString } from "../utils";
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
+  version: 0,
   search: {
-    keywordsParam: "searchstr",
+    keywordPath: "params.searchstr",
     requestConfig: {
       url: "/torrents.php",
       responseType: "document",
@@ -82,10 +83,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         selector: ["a.username[href*='user.php']:first"],
       },
       messageCount: {
-        selector: [
-          "div.alert-bar > a[href*='inbox.php']",
-          "div.alertbar > a[href*='inbox.php']",
-        ],
+        selector: ["div.alert-bar > a[href*='inbox.php']", "div.alertbar > a[href*='inbox.php']"],
         filters: [
           (query: string) => {
             const queryMatch = query.match(/(\d+)/);
@@ -99,12 +97,8 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         selector: "div:contains('Stats') + ul.stats > li:contains('Uploaded')",
         filters: [
           (query: string) => {
-            const queryMatch = query
-              .replace(/,/g, "")
-              .match(/Upload.+?([\d.]+ ?[ZEPTGMK]?i?B)/);
-            return queryMatch && queryMatch.length >= 2
-              ? parseSizeString(queryMatch[1])
-              : 0;
+            const queryMatch = query.replace(/,/g, "").match(/Upload.+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+            return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0;
           },
         ],
       },
@@ -112,12 +106,8 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         selector: "div:contains('Stats') + ul.stats > li:contains('Downloaded')",
         filters: [
           (query: string) => {
-            const queryMatch = query
-              .replace(/,/g, "")
-              .match(/Download.+?([\d.]+ ?[ZEPTGMK]?i?B)/);
-            return queryMatch && queryMatch.length >= 2
-              ? parseSizeString(queryMatch[1])
-              : 0;
+            const queryMatch = query.replace(/,/g, "").match(/Download.+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+            return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0;
           },
         ],
       },
@@ -147,9 +137,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [
           (query: string) => {
             query = query.replace(/,/g, "");
-            const queryMatch =
-              query.match(/Bonus Points.+?([\d.]+)/) ||
-              query.match(/SeedBonus.+?([\d.]+)/);
+            const queryMatch = query.match(/Bonus Points.+?([\d.]+)/) || query.match(/SeedBonus.+?([\d.]+)/);
             return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0;
           },
         ],
@@ -158,7 +146,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         selector: ["div:contains('Stats') + ul.stats > li:contains('Joined:') > span"],
         elementProcess: (element: HTMLElement) => {
           const query = (element.getAttribute("title") || element.innerText).trim();
-          return dayjs(query).isValid() ? dayjs(query).valueOf() : query;
+          return parseValidTimeString(qeury, ["YYYY-MM-dd HH:mm:ss"]);
         },
       },
     },
@@ -166,23 +154,19 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 };
 
 export default class Gazelle extends PrivateSite {
-  protected override async transformSearchPage(
-    doc: Document | any,
-  ): Promise<ITorrent[]> {
+  protected override async transformSearchPage(doc: Document | any, searchConfig: ISearchInput): Promise<ITorrent[]> {
+    const { keywords, searchEntry, requestConfig } = searchConfig;
     // 如果配置文件没有传入 search 的选择器，则我们自己生成
     const legacyTableSelector = "table.torrent_table:last";
 
     // 生成 rows的
-    if (!this.config.search?.selectors?.rows) {
-      this.config.search!.selectors!.rows = {
+    if (!searchEntry!.selectors?.rows) {
+      searchEntry!.selectors!.rows = {
         selector: `${legacyTableSelector} > tbody > tr:gt(0)`,
       };
     }
     // 对于 Gazelle ，一般来说，表的第一行应该是标题行，即 `> tbody > tr:nth-child(1)`
-    const tableHeadAnother = Sizzle(
-      `${legacyTableSelector} > tbody > tr:first > td`,
-      doc,
-    ) as HTMLElement[];
+    const tableHeadAnother = Sizzle(`${legacyTableSelector} > tbody > tr:first > td`, doc) as HTMLElement[];
 
     tableHeadAnother.forEach((element, elementIndex) => {
       for (const [dectField, dectSelector] of Object.entries({
@@ -207,16 +191,18 @@ export default class Gazelle extends PrivateSite {
 
     // 遍历数据行
     const torrents: ITorrent[] = [];
-    const trs = Sizzle(this.config.search!.selectors!.rows.selector as string, doc);
+    const trs = Sizzle(searchEntry!.selectors!.rows.selector as string, doc);
 
-    for (let i = 0; i < trs.length; i++) {
-      const tr = trs[i];
-
+    for (const tr of trs) {
       // 对 url 和 link 结果做个检查，检查通过的再进入 parseRowToTorrent
-      const url = this.getFieldData(tr, this.config.search!.selectors!.url!);
-      const link = this.getFieldData(tr, this.config.search!.selectors!.link!);
+      const url = this.getFieldData(tr, searchEntry!.selectors!.url!);
+      const link = this.getFieldData(tr, searchEntry!.selectors!.link!);
       if (url && link) {
-        const torrent = this.parseRowToTorrent(tr, { url, link }) as ITorrent;
+        const torrent = this.parseWholeTorrentFromRow({ url, link }, tr, {
+          keywords,
+          searchEntry,
+          requestConfig,
+        }) as ITorrent;
         torrents.push(torrent);
       }
     }

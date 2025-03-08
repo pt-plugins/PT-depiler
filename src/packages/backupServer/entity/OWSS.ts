@@ -1,10 +1,4 @@
-import type {
-  IBackupConfig,
-  IBackupFileInfo,
-  IBackupFileListOption,
-  IBackupMetadata,
-  IBackupServer,
-} from "../type.ts";
+import type { IBackupConfig, IBackupFileInfo, IBackupFileListOption, IBackupMetadata, IBackupServer } from "../type";
 import urlJoin from "url-join";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 

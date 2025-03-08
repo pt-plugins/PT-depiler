@@ -1,9 +1,14 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 
-import { piniaInstance as pinia } from "@/shared/plugins/pinia.ts";
-import { i18nInstance as i18n } from "@/shared/plugins/i18n.ts";
-import { vuetifyInstance as vuetify } from "@/shared/plugins/vuetify.ts";
-import { routerInstance as router } from "./router.ts";
+import { vuetifyInstance as vuetify } from "./plugins/vuetify";
+import { piniaInstance as pinia } from "./plugins/pinia";
+import { routerInstance as router } from "./plugins/router";
+import { i18nInstance as i18n } from "./plugins/i18n";
+
+import { sendMessage } from "@/messages.ts";
 
 createApp(App).use(pinia).use(i18n).use(router).use(vuetify).mount("#app");
+
+// @ts-ignore
+globalThis["sendMessage"] = sendMessage;

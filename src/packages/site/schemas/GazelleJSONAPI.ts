@@ -1,8 +1,7 @@
 import type { AxiosResponse } from "axios";
-import type { IUserInfo, ITorrent, ISiteMetadata } from "../types";
+import { IUserInfo, ITorrent, ISiteMetadata } from "../types";
 import PrivateSite from "./AbstractPrivateSite";
 import { parseSizeString, parseTimeWithZone } from "../utils";
-import dayjs from "../utils/datetime";
 import Sizzle from "sizzle";
 
 /**
@@ -214,8 +213,9 @@ export interface userJsonResponse extends jsonResponse {
 }
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
+  version: 0,
   search: {
-    keywordsParam: "searchstr",
+    keywordPath: "params.searchstr",
     requestConfig: {
       url: "/ajax.php",
       responseType: "json",
@@ -252,9 +252,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       // "/ajax.php?action=user&id=$user.id$"
       joinTime: {
         selector: ["response.stats.joinedDate"],
-        filters: [
-          (query: string) => (dayjs(query).isValid() ? dayjs(query).valueOf() : query),
-        ],
+        filters: [{ name: "parseTime" }],
       },
       seeding: {
         selector: ["response.community.seeding"],
@@ -278,7 +276,6 @@ export default class GazelleJSONAPI extends PrivateSite {
     return await this.request<T>({
       url: "/ajax.php",
       params: { action, ...params },
-      requestName: `/ajax.php?action=${action}`,
     });
   }
 
@@ -298,36 +295,31 @@ export default class GazelleJSONAPI extends PrivateSite {
     return this._authKey;
   }
 
-  protected async transformUnGroupTorrent(
-    group: torrentBrowseResult,
-  ): Promise<ITorrent> {
+  protected async transformUnGroupTorrent(group: torrentBrowseResult): Promise<ITorrent> {
     const { authkey, passkey } = await this.getAuthKey();
 
     return {
+      site: this.metadata.id, // 补全种子的 site 属性
       id: group.torrentId,
       title: group.groupName,
       url: `/torrents.php?id=${group.groupId}&torrentid=${group.torrentId}`,
       link: `/torrents.php?action=download&id=${group.torrentId}&authkey=${authkey}&torrent_pass=${passkey}`,
-      time: parseTimeWithZone(group.groupTime, this.config.timezoneOffset),
+      time: parseTimeWithZone(group.groupTime, this.metadata.timezoneOffset),
       size: group.size,
       author: "",
       seeders: group.seeders,
       leechers: group.leechers,
       completed: group.snatches,
       comments: 0,
-      tags: group.tags.map((tag) => {
-        return { name: tag };
-      }),
+      tags: group.tags.map((tag) => ({ name: tag })),
       category: group.category,
     } as ITorrent;
   }
 
-  protected async transformGroupTorrent(
-    group: groupBrowseResult,
-    torrent: groupTorrent,
-  ): Promise<ITorrent> {
+  protected async transformGroupTorrent(group: groupBrowseResult, torrent: groupTorrent): Promise<ITorrent> {
     const { authkey, passkey } = await this.getAuthKey();
     return {
+      site: this.metadata.id, // 补全种子的 site 属性
       id: torrent.torrentId,
       title: `${group.artist} - ${group.groupName} [${group.groupYear}] [${group.releaseType}]`,
       subTitle:
@@ -337,12 +329,10 @@ export default class GazelleJSONAPI extends PrivateSite {
         (torrent.remastered ? ` / ${torrent.remasterYear}` : "") +
         (torrent.remasterTitle ? ` / ${torrent.remasterTitle}` : "") +
         (torrent.scene ? " / Scene" : "") +
-        (torrent.isFreeleech || torrent.isNeutralLeech || torrent.isPersonalFreeleech
-          ? " / Freeleech"
-          : ""),
+        (torrent.isFreeleech || torrent.isNeutralLeech || torrent.isPersonalFreeleech ? " / Freeleech" : ""),
       url: `/torrents.php?id=${group.groupId}&torrentid=${torrent.torrentId}`,
       link: `/torrents.php?action=download&id=${torrent.torrentId}&authkey=${authkey}&torrent_pass=${passkey}`,
-      time: parseTimeWithZone(torrent.time, this.config.timezoneOffset),
+      time: parseTimeWithZone(torrent.time, this.metadata.timezoneOffset),
       size: torrent.size,
       author: "",
       seeders: torrent.seeders,
@@ -352,9 +342,7 @@ export default class GazelleJSONAPI extends PrivateSite {
     } as ITorrent;
   }
 
-  protected override async transformSearchPage(
-    doc: browseJsonResponse | any,
-  ): Promise<ITorrent[]> {
+  protected override async transformSearchPage(doc: browseJsonResponse | any): Promise<ITorrent[]> {
     const torrents: ITorrent[] = [];
 
     if (doc.status === "success") {
@@ -363,10 +351,7 @@ export default class GazelleJSONAPI extends PrivateSite {
         if ("torrents" in group) {
           // is groupBrowseResult
           for (const rawTorrent of group.torrents) {
-            const torrent: ITorrent = await this.transformGroupTorrent(
-              group,
-              rawTorrent,
-            );
+            const torrent: ITorrent = await this.transformGroupTorrent(group, rawTorrent);
             torrents.push(torrent);
           }
         } else {
@@ -379,9 +364,7 @@ export default class GazelleJSONAPI extends PrivateSite {
     return torrents;
   }
 
-  public override async getUserInfo(
-    lastUserInfo: Partial<IUserInfo> = {},
-  ): Promise<IUserInfo> {
+  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let userInfo: Partial<IUserInfo> = {};
     userInfo = { ...userInfo, ...(await this.getUserBaseInfo()) };
     if (userInfo.id) {
@@ -396,22 +379,24 @@ export default class GazelleJSONAPI extends PrivateSite {
 
   protected async getUserBaseInfo(): Promise<Partial<IUserInfo>> {
     const apiInfo = await this.requestApiInfo();
-    return this.getFieldsData(apiInfo, "userInfo", [
-      "id",
-      "name",
-      "messageCount",
-      "uploaded",
-      "downloaded",
-      "ratio",
-      "levelName",
-    ]);
+
+    return this.getFieldsData(
+      apiInfo,
+      ["id", "name", "messageCount", "uploaded", "downloaded", "ratio", "levelName"] as (keyof IUserInfo)[],
+      this.metadata.userInfo!.selectors!,
+    ) as Partial<IUserInfo>;
   }
 
   protected async getUserExtendInfo(userId: number): Promise<Partial<IUserInfo>> {
-    const apiUser = await this.requestApi<userJsonResponse>("user", {
+    const { data: apiUser } = await this.requestApi<userJsonResponse>("user", {
       id: userId,
     });
-    return this.getFieldsData(apiUser, "userInfo", ["joinTime", "seeding"]);
+
+    return this.getFieldsData(
+      apiUser,
+      ["joinTime", "seeding"] as (keyof Partial<IUserInfo>)[],
+      this.metadata.userInfo!.selectors!,
+    ) as Partial<IUserInfo>;
   }
 
   protected async getUserSeedingTorrents(userId?: number): Promise<Partial<IUserInfo>> {
@@ -424,16 +409,11 @@ export default class GazelleJSONAPI extends PrivateSite {
     });
     const rows = Sizzle("tr.torrent_row > td.nobr", seedPage);
     rows.forEach((element) => {
-      userSeedingTorrent.seedingSize! += parseSizeString(
-        (element as HTMLElement).innerText.trim(),
-      );
+      userSeedingTorrent.seedingSize! += parseSizeString((element as HTMLElement).innerText.trim());
     });
 
-    if (this.config.userInfo?.selectors?.bonus) {
-      userSeedingTorrent.bonus = this.getFieldData(
-        seedPage,
-        this.config.userInfo.selectors.bonus,
-      );
+    if (this.userConfig.selectors?.bonus) {
+      userSeedingTorrent.bonus = this.getFieldData(seedPage, this.userConfig.userInfo.selectors.bonus);
     }
 
     return userSeedingTorrent;

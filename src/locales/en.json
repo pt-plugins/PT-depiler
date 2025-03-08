@@ -1,35 +1,4 @@
 {
-  "ChangeLog": {
-    "loadFail": "Failed to load the release notes, @:ChangeLog.seeReleasePage",
-    "loading": "Loading... (If it fails to load, @:ChangeLog.seeReleasePage )",
-    "noteCommit": "Changelog for this commit",
-    "noteVersion": "Changelog of the main version",
-    "seeReleasePage": "Please go to {releasePage} to view."
-  },
-  "Donate": {
-    "note": "This project is completed by the author in his spare time. You can support the author's continued development through donations.",
-    "thanks": "Thank you for your attention and support"
-  },
-  "SpecialThank": {
-    "contributor": "Contributors",
-    "issue": "Suggesters",
-    "langContributor": "@:SpecialThank.contributor For Language",
-    "preWorkContributor": "@:SpecialThank.contributor For preliminary work",
-    "sortByName": "The list is sorted by name",
-    "thankNote": [
-      "During the development and testing of this project, they have given a lot of help and support (or development, or testing, or sending invite, or suggesting, or encouraging, or spurring), thank you.",
-      "Since we can't list all the people who helped, Please understand if there are any omissions.",
-      "Thanks for these at the same time:"
-    ]
-  },
-  "TechnologyStack": {
-    "dependency": "Dependencies of this Project",
-    "ptppHistory": "History of Project ` @:common.name `",
-    "stackTableColumn": {
-      "homepage": "Homepage"
-    },
-    "thankNote": "The birth of 'PT Plugin Plus' is established on the base of these projects. Thanks all the participants of the project, thanks for your contribution!"
-  },
   "common": {
     "action": "Action",
     "btn": {
@@ -52,7 +21,7 @@
     "edit": "Edit",
     "language": "Language",
     "name": "Name",
-    "project": "PT Plugin Plus",
+    "project": "PT Depiler",
     "remove": "Delete",
     "sortIndex": "Priority",
     "test": "Text",
@@ -71,8 +40,11 @@
       "searchTip": "Input keyword, IMDb numbers to search",
       "wiki": "Wiki",
       "wrongPixelRatioNotice": "Your page display may be affected by zooming. It is recommended to zoom at 100% to ensure your browsing experience~"
-    },
-    "init": "Not Ready, please wait for UI init."
+    }
+  },
+  "manifest": {
+    "extDesc": "PT Depiler",
+    "extName": "PT Depiler"
   },
   "route": {
     "About": {
@@ -105,71 +77,6 @@
       "setDownloader": "Download Server",
       "setSearchSolution": "Search Solution",
       "setSite": "Sites"
-    }
-  },
-  "setBase": {
-    "tab": {
-      "ui": "Option UI"
-    },
-    "ui": {
-      "changeLanguage": "Switch Language",
-      "displayMode": {
-        "auto": "Auto (Follow Browser or System)",
-        "dark": "Dark Mode",
-        "index": "UI display mode",
-        "light": "Light Mode"
-      }
-    }
-  },
-  "setDownloader": {
-    "add": {
-      "NoneSelectNotice": "Please select a server type",
-      "newType": "Come here to add the server type you want!",
-      "step": {
-        "selectType": "Select server type",
-        "setOptions": "Configuration"
-      },
-      "title": "Add Download Client"
-    },
-    "common": {
-      "address": "Server Address",
-      "name": "Server Name",
-      "type": "Type",
-      "uid": "Server Id",
-      "username": "Username"
-    },
-    "delete": {
-      "text": "Are you sure to delete these {0} Download Servers?"
-    },
-    "edit": {
-      "title": "Edit Download Server"
-    },
-    "editor": {
-      "addressTip": "Full Server Address (may include port or path), Like: http://192.168.1.1:5000/",
-      "autoStart": "Automatically start downloading when sending a torrent",
-      "connect": {
-        "default": "Check Connect",
-        "error": "Connect Failed! Check Form Input or Download Server",
-        "success": "Connect Successful! You can enter next step."
-      },
-      "nameTip": "Pick a nice and recognizable name for this Download Server",
-      "password": "Password",
-      "timeout": "Timeout (seconds)",
-      "uidPlaceholder": " (Generate automatically)"
-    },
-    "index": {
-      "changeDefaultDownloader": "Change Default Downloader Successful!",
-      "emptyNotice": "Before using the download service, you need to add at least one download server.",
-      "remove": {
-        "multi": "Are you sure to delete these {count} download servers?",
-        "single": "Are you sure to delete this download server?"
-      },
-      "table": {
-        "action": {
-          "deleteDownloader": "Delete this downloader server",
-          "setDefault": "Set this downloader server as Default Downloader."
-        }
-      }
     }
   },
   "setSite": {

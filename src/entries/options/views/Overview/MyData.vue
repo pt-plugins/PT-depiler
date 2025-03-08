@@ -1,5 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useRoute } from "vue-router";
 
-<template>MyData</template>
+const route = useRoute();
+</script>
 
-<style scoped></style>
+<template>route: {{ route }}</template>
+
+<style scoped lang="scss"></style>

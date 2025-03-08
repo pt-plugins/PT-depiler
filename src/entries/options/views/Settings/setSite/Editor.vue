@@ -1,60 +1,50 @@
 <script setup lang="ts">
-import { computed, ref, unref } from "vue";
-import { useVModel } from "@vueuse/core";
-import { ISiteRuntimeConfig } from "@/shared/adapters/site.ts";
+import { timezoneOffset, ISiteUserConfig, type TSiteID, ISiteMetadata, TSiteFullUrl } from "@ptd/site";
+import { watch, ref, onMounted, inject } from "vue";
+import { useSiteStore } from "@/options/stores/site.ts";
 import { formValidateRules } from "@/options/utils.ts";
+import { get, set } from "es-toolkit/compat";
 
-import { type VForm } from "vuetify/components";
-import { type fullUrl, type timezoneOffset } from "@ptd/site";
+const siteStore = useSiteStore();
 
-const componentProps = defineProps<{
-  modelValue: ISiteRuntimeConfig;
-}>();
+const siteId = defineModel<TSiteID>({ default: "" });
+const siteMetaData = ref<ISiteMetadata>({} as unknown as ISiteMetadata);
+const siteUserConfig = inject<ISiteUserConfig & { valid: boolean }>("storedSiteUserConfig", { valid: false });
+const customSiteUrl = ref<string>("");
 
-const siteConfig = useVModel(componentProps);
+async function overrideSiteConfig(path: string, value: string) {
+  const rawSiteMetaData = await siteStore.getSiteMetadata(siteId.value);
+  if (get(rawSiteMetaData, path) === value) return;
+  set(siteUserConfig.value.merge!, path, value);
+}
 
-const siteUrls = computed({
-  get: () => {
-    const urls = [];
-    if (siteConfig.value.url) {
-      urls.push(siteConfig.value.url);
-    }
-    if (siteConfig.value.legacyUrls?.length) {
-      urls.push(...siteConfig.value.legacyUrls);
-    }
+function setSiteUserInputSetting(path: string, value: string) {
+  siteUserConfig.value.inputSetting ??= {};
+  set(siteUserConfig.value.inputSetting, path, value);
+}
 
-    return urls;
-  },
-  set: (val) => {
-    siteConfig.value.url = val[0] as fullUrl;
-    if (val.length > 1) {
-      siteConfig.value.legacyUrls = val.slice(1) as fullUrl[];
-    }
-    if (siteConfig.value?.activateUrl && !val.includes(siteConfig.value.activateUrl)) {
-      siteConfig.value.activateUrl = val[0] as fullUrl;
-    }
-  },
+async function initSiteData(siteId: TSiteID) {
+  siteMetaData.value = await siteStore.getSiteMetadata(siteId);
+  siteUserConfig.value = {
+    url: siteMetaData.value.urls[0],
+    isOffline: false,
+    allowSearch: Object.hasOwn(siteMetaData.value, "search"),
+    allowQueryUserInfo: Object.hasOwn(siteMetaData.value, "userInfo"),
+    inputSetting: {},
+    merge: {},
+    ...(await siteStore.getSiteUserConfig(siteId)),
+  };
+}
+
+function deleteUrl(url: string) {}
+
+onMounted(() => {
+  initSiteData(siteId.value);
 });
 
-function deleteUrl(url: string) {
-  const currentUrls = unref(siteUrls);
-  currentUrls.splice(currentUrls.indexOf(url), 1);
-  siteUrls.value = currentUrls;
-}
-
-const preAddUrl = ref<fullUrl>();
-const preAddUrlError = ref<boolean>(false);
-function addUrl() {
-  const currentUrls = unref(siteUrls);
-  const url = preAddUrl.value! ?? "";
-  if (!currentUrls.includes(url) && /^https?:\/\//.test(url) && /\/$/.test(url)) {
-    currentUrls.push(url);
-    siteUrls.value = currentUrls;
-    siteConfig.value.activateUrl = url;
-  } else {
-    preAddUrlError.value = true;
-  }
-}
+watch(siteId, (newValue) => {
+  initSiteData(newValue);
+});
 
 const timeZone: Array<{ value: timezoneOffset; title: string }> = [
   { value: "-1200", title: "(UTC -12:00) Enitwetok, Kwajalien" },
@@ -70,10 +60,7 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
   { value: "-0300", title: "(UTC -03:00) Brazil, Buenos Aires, Falkland Is." },
   { value: "-0200", title: "(UTC -02:00) Mid-Atlantic, Ascention Is., St Helena" },
   { value: "-0100", title: "(UTC -01:00) Azores, Cape Verde Islands" },
-  {
-    value: "+0000",
-    title: "(UTC ±00:00) Casablanca, Dublin, London, Lisbon, Monrovia",
-  },
+  { value: "+0000", title: "(UTC ±00:00) Casablanca, Dublin, London, Lisbon, Monrovia" },
   { value: "+0100", title: "(UTC +01:00) Brussels, Copenhagen, Madrid, Paris" },
   { value: "+0200", title: "(UTC +02:00) Sofia, Izrael, South Africa," },
   { value: "+0300", title: "(UTC +03:00) Baghdad, Riyadh, Moscow, Nairobi" },
@@ -84,40 +71,36 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
   { value: "+0530", title: "(UTC +05:30) Bombay, Calcutta, Madras, New Delhi" },
   { value: "+0600", title: "(UTC +06:00) Almaty, Colomba, Dhakra" },
   { value: "+0700", title: "(UTC +07:00) Bangkok, Hanoi, Jakarta" },
-  {
-    value: "+0800",
-    title: "(UTC +08:00) ShangHai, HongKong, Perth, Singapore, Taipei",
-  },
+  { value: "+0800", title: "(UTC +08:00) ShangHai, HongKong, Perth, Singapore, Taipei" },
   { value: "+0900", title: "(UTC +09:00) Osaka, Sapporo, Seoul, Tokyo, Yakutsk" },
   { value: "+0930", title: "(UTC +09:30) Adelaide, Darwin" },
   { value: "+1000", title: "(UTC +10:00) Melbourne, Papua New Guinea, Sydney" },
   { value: "+1100", title: "(UTC +11:00) Magadan, New Caledonia, Solomon Is." },
   { value: "+1200", title: "(UTC +12:00) Auckland, Fiji, Marshall Island" },
 ];
+
+const log = console.log;
 </script>
 
 <template>
   <v-card class="mb-5">
-    <v-form fast-fail>
+    <v-form fast-fail validate-on="eager invalid-input" v-model="siteUserConfig.valid">
       <v-container class="pa-0">
         <v-row>
           <v-col cols="12" md="4">
             <v-text-field
-              v-model="siteConfig.name"
+              v-model="siteMetaData.name"
               :label="$t('setSite.common.name')"
               :rules="[formValidateRules.require()]"
-            />
+              @update:modelValue="(val) => overrideSiteConfig('name', val)"
+            ></v-text-field>
+          </v-col>
+          <v-col cols="12" md="4">
+            <v-text-field v-model="siteMetaData.schema" :label="$t('setSite.common.type')" disabled />
           </v-col>
           <v-col cols="12" md="4">
             <v-text-field
-              v-model="siteConfig.schema"
-              :label="$t('setSite.common.type')"
-              disabled
-            />
-          </v-col>
-          <v-col cols="12" md="4">
-            <v-text-field
-              v-model="siteConfig.sortIndex"
+              v-model="siteUserConfig.sortIndex"
               :label="$t('common.sortIndex')"
               :placeholder="$t('setSite.editor.sortIndexTip')"
               :rules="[formValidateRules.require()]"
@@ -125,73 +108,67 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
             />
           </v-col>
         </v-row>
+        <v-row>
+          <v-radio-group v-model="siteUserConfig.url" :label="$t('setSite.common.url')" class="edit-select-url">
+            <v-radio v-for="url in siteMetaData.urls" :key="url" :value="url" @click="siteUserConfig.valid = true">
+              <template #label style="width: 100%">
+                {{ url }}
+                <v-spacer />
+                <v-btn
+                  icon="mdi-arrow-top-right-bold-box-outline"
+                  variant="text"
+                  color="info"
+                  :href="url"
+                  target="_blank"
+                />
+              </template>
+            </v-radio>
+            <v-radio v-model="customSiteUrl" :value="customSiteUrl" @click="siteUserConfig.valid = false">
+              <template #label>
+                <v-text-field
+                  v-model="customSiteUrl"
+                  :placeholder="$t('setSite.editor.customUrlPlaceholder')"
+                  :rules="[(val) => (val ? formValidateRules.url()(val) : true)]"
+                  @update:modelValue="(val) => (siteUserConfig.url = val as TSiteFullUrl)"
+                ></v-text-field>
+              </template>
+            </v-radio>
+          </v-radio-group>
+        </v-row>
+
+        <v-autocomplete
+          v-model="siteMetaData.timezoneOffset"
+          :items="timeZone"
+          :label="$t('setSite.editor.timezone')"
+          @update:modelValue="(val) => overrideSiteConfig('timezoneOffset', val)"
+        />
+
+        <template v-if="siteMetaData.userInputSettingMeta">
+          <v-divider />
+          <v-label class="my-2">{{ $t("setSite.editor.extraUserInputSetting") }}</v-label>
+          <v-text-field
+            v-for="userInputMeta in siteMetaData.userInputSettingMeta"
+            :key="userInputMeta.name"
+            :label="userInputMeta.label"
+            :hint="userInputMeta.hint"
+            :rules="[(val) => (userInputMeta.required ? formValidateRules.require()(val) : true)]"
+            @update:modelValue="(val) => setSiteUserInputSetting(userInputMeta.name, val)"
+          >
+          </v-text-field>
+        </template>
       </v-container>
-      <v-radio-group v-model="siteConfig.activateUrl" :label="$t('setSite.common.url')">
-        <v-radio v-for="url in siteUrls" :key="url" :value="url">
-          <template #label>
-            {{ url }}
-            <v-spacer />
-            <v-btn
-              icon="mdi-arrow-top-right-bold-box-outline"
-              variant="text"
-              color="info"
-              :href="url"
-              target="_blank"
-            />
-            <v-btn
-              icon="mdi-delete"
-              variant="text"
-              color="error"
-              :disabled="siteUrls.length <= 1"
-              @click="deleteUrl(url)"
-            />
-          </template>
-        </v-radio>
-        <v-text-field
-          v-model="preAddUrl"
-          style="margin-left: 40px"
-          density="compact"
-          single-line
-          persistent-hint
-          variant="underlined"
-          :error="preAddUrlError"
-          :hint="$t('setSite.editor.addUrlTip')"
-          @update:model-value="() => (preAddUrlError = false)"
-        >
-          <template #append>
-            <v-btn icon="mdi-plus" variant="text" color="success" @click="addUrl" />
-          </template>
-        </v-text-field>
-      </v-radio-group>
-
-      <v-combobox
-        v-model="siteConfig.aka"
-        chips
-        multiple
-        :label="$t('setSite.common.aka')"
-      />
-
-      <v-text-field
-        v-model="siteConfig.description"
-        :label="$t('setSite.editor.description')"
-      />
-
-      <v-combobox
-        v-model="siteConfig.tags"
-        chips
-        multiple
-        :label="$t('setSite.common.tags')"
-        :hint="$t('setSite.editor.tagTip')"
-        persistent-hint
-      />
-
-      <v-autocomplete
-        v-model="siteConfig.timezoneOffset"
-        :items="timeZone"
-        :label="$t('setSite.editor.timezone')"
-      />
     </v-form>
   </v-card>
 </template>
 
-<style scoped></style>
+<style scoped lang="scss">
+.edit-select-url {
+  :deep(.v-selection-control) {
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+  :deep(.v-selection-control .v-label) {
+    width: 100%;
+  }
+}
+</style>

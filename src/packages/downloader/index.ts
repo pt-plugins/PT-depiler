@@ -1,12 +1,9 @@
-import {
-  AbstractBittorrentClient,
-  DownloaderBaseConfig,
-  TorrentClientMetaData,
-} from "./types";
+import { AbstractBittorrentClient, type DownloaderBaseConfig, type TorrentClientMetaData } from "./types";
+import { cloneDeep } from "es-toolkit";
+import { nanoid } from "nanoid";
+
 export * from "./types";
 export { getRemoteTorrentFile } from "./utils";
-import { copy } from "@ptd/util/filter";
-import { nanoid } from "nanoid";
 
 interface downloaderEntity {
   default: AbstractBittorrentClient;
@@ -20,16 +17,12 @@ export const entityList = Object.keys(requireContext).map((value: string) => {
 }) as string[];
 
 // 从 requireContext 中获取对应模块
-export async function getDownloaderModule(
-  configType: string,
-): Promise<downloaderEntity> {
+export async function getDownloaderModule(configType: string): Promise<downloaderEntity> {
   return await requireContext[`./entity/${configType}.ts`]();
 }
 
-export async function getDownloaderDefaultConfig(
-  type: string,
-): Promise<DownloaderBaseConfig> {
-  const config = copy((await getDownloaderModule(type)).clientConfig);
+export async function getDownloaderDefaultConfig(type: string): Promise<DownloaderBaseConfig> {
+  const config = cloneDeep((await getDownloaderModule(type)).clientConfig);
   // 填入/覆盖 缺失项
   config.id = nanoid();
   config.feature ??= { DefaultAutoStart: false };
@@ -37,10 +30,8 @@ export async function getDownloaderDefaultConfig(
   return config;
 }
 
-export async function getDownloaderMetaData(
-  type: string,
-): Promise<TorrentClientMetaData> {
-  return copy((await getDownloaderModule(type)).clientMetaData);
+export async function getDownloaderMetaData(type: string): Promise<TorrentClientMetaData> {
+  return cloneDeep((await getDownloaderModule(type)).clientMetaData);
 }
 
 const clientInstanceCache: Record<string, AbstractBittorrentClient> = {};

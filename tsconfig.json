@@ -22,16 +22,15 @@
     "forceConsistentCasingInFileNames": true,
     "experimentalDecorators": true,
     "resolveJsonModule": true,
-    "baseUrl": ".",
     "types": ["node", "chrome"],
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "baseUrl": ".",
     "paths": {
       "~/*": ["src/*"],
       "@/*": ["src/entries/*"],
       "@ptd/*": ["src/packages/*"]
-    },
-    "lib": ["ESNext", "DOM", "DOM.Iterable"]
+    }
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],
-  "exclude": ["node_modules"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

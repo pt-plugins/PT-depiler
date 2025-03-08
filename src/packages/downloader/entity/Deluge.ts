@@ -136,14 +136,7 @@ interface DelugeRawTorrent {
   time_added: number;
   save_path: string;
   label?: string;
-  state:
-    | "Downloading"
-    | "Seeding"
-    | "Active"
-    | "Paused"
-    | "Queued"
-    | "Checking"
-    | "Error";
+  state: "Downloading" | "Seeding" | "Active" | "Paused" | "Queued" | "Checking" | "Error";
   total_size: number;
   upload_payload_rate: number;
   download_payload_rate: number;
@@ -199,16 +192,10 @@ export default class Deluge extends AbstractBittorrentClient {
   }
 
   override async getClientStatus(): Promise<TorrentClientStatus> {
-    const statusKeys = [
-      "download_rate",
-      "upload_rate",
-      "total_download",
-      "total_upload",
-    ] as const;
-    const statusData = await this.request<Record<(typeof statusKeys)[number], number>>(
-      "core.get_session_status",
-      [statusKeys],
-    );
+    const statusKeys = ["download_rate", "upload_rate", "total_download", "total_upload"] as const;
+    const statusData = await this.request<Record<(typeof statusKeys)[number], number>>("core.get_session_status", [
+      statusKeys,
+    ]);
 
     return {
       upSpeed: statusData.upload_rate,
@@ -222,10 +209,7 @@ export default class Deluge extends AbstractBittorrentClient {
     return await this.request<number>("core.get_free_space");
   }
 
-  async addTorrent(
-    url: string,
-    options: Partial<CAddTorrentOptions> = {},
-  ): Promise<boolean> {
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
     const delugeOptions: any = {
       add_paused: options.addAtPaused ?? false,
     };
@@ -272,9 +256,7 @@ export default class Deluge extends AbstractBittorrentClient {
     return await this.getTorrentsBy({});
   }
 
-  override async getTorrentsBy(
-    filter: DelugeTorrentFilterRules,
-  ): Promise<CTorrent<DelugeRawTorrent>[]> {
+  override async getTorrentsBy(filter: DelugeTorrentFilterRules): Promise<CTorrent<DelugeRawTorrent>[]> {
     if (filter.ids) {
       filter.hash = filter.ids;
       delete filter.ids;
@@ -285,17 +267,16 @@ export default class Deluge extends AbstractBittorrentClient {
       delete filter.complete;
     }
 
-    const torrents = await this.request<Record<string, DelugeRawTorrent>>(
-      "core.get_torrents_status",
-      [filter, this.torrentRequestField],
-    );
+    const torrents = await this.request<Record<string, DelugeRawTorrent>>("core.get_torrents_status", [
+      filter,
+      this.torrentRequestField,
+    ]);
 
     return Object.values(torrents).map((torrent) => {
       // normalize state to enum
       let state = CTorrentState.unknown;
       if (Object.keys(CTorrentState).includes(torrent.state.toLowerCase())) {
-        state =
-          CTorrentState[torrent.state.toLowerCase() as keyof typeof CTorrentState];
+        state = CTorrentState[torrent.state.toLowerCase() as keyof typeof CTorrentState];
       }
 
       return {

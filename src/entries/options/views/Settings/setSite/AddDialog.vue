@@ -1,42 +1,44 @@
-<script lang="ts" setup>
-import { computed, ref, watch } from "vue";
-import { REPO_URL } from "@/shared/constants.ts";
-import { computedAsync, useVModel } from "@vueuse/core";
-import { useSiteStore, siteFavicons } from "@/shared/store/site.ts";
-import { definitionList } from "@ptd/site";
-import { type ISiteRuntimeConfig } from "@/shared/adapters/site.ts";
+<script setup lang="ts">
+import { provide, ref, watch } from "vue";
+import { asyncComputed, useVModel } from "@vueuse/core";
+import { REPO_URL } from "~/helper.ts";
+import { definitionList, type ISiteUserConfig, type TSiteID } from "@ptd/site";
+import { useSiteStore } from "@/options/stores/site";
 
+import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import Editor from "./Editor.vue";
-import TypeAndSchemaChip from "./TypeAndSchemaChip.vue";
-
-const siteStore = useSiteStore();
 
 const componentProps = defineProps<{
   modelValue: boolean;
 }>();
-
 const showDialog = useVModel(componentProps);
+const siteStore = useSiteStore();
 
 const currentStep = ref<0 | 1>(0);
-const selectedSite = ref<ISiteRuntimeConfig | null>(null);
-const isSiteConfigValid = computed(() => typeof selectedSite.value?.id !== "undefined"); // 新增时默认配置合法
+const selectedSiteId = ref<TSiteID | null>(null);
+const storedSiteUserConfig = ref<ISiteUserConfig & { valid?: boolean }>({ valid: false });
+
+provide("storedSiteUserConfig", storedSiteUserConfig);
 
 watch(showDialog, () => {
   currentStep.value = 0;
-  selectedSite.value = null;
+  selectedSiteId.value = null;
+  storedSiteUserConfig.value = { valid: false };
 });
 
-const canAddSites = computedAsync(async () => {
-  const canAddedSiteList = definitionList.filter(
-    (x) => !siteStore.addedSiteIds.includes(x),
-  );
-  return await siteStore.getSites(canAddedSiteList);
+const canAddSites = asyncComputed(async () => {
+  const canAddedSiteMetadata = [];
+  const canAddedSiteList = definitionList.filter((x) => !siteStore.getAddedSiteIds.includes(x));
+
+  for (const string of canAddedSiteList) {
+    canAddedSiteMetadata.push(await siteStore.getSiteMetadata(string));
+  }
+  return canAddedSiteMetadata;
 }, []);
 
-console.log(canAddSites);
-
-async function saveSite() {
-  await siteStore.addSite(selectedSite.value!);
+function saveSite() {
+  siteStore.addSite(selectedSiteId.value!, storedSiteUserConfig.value);
+  siteStore.$save();
   showDialog.value = false;
 }
 </script>
@@ -59,55 +61,65 @@ async function saveSite() {
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <!-- TODO want: v-stepper -->
         <v-window v-model="currentStep">
+          <!-- 选取可添加的站点 -->
           <v-window-item :key="0">
-            <!-- FIXME https://github.com/vuetifyjs/vuetify/pull/19104 -->
             <v-autocomplete
-              v-model="selectedSite"
+              v-model="selectedSiteId"
               :items="canAddSites"
+              item-title="name"
+              item-value="id"
               :multiple="false"
-              :placeholder="selectedSite ? '' : $t('setSite.add.selectSitePlaceholder')"
-              :hint="
-                selectedSite
-                  ? selectedSite?.url + ': ' + (selectedSite?.description ?? '')
-                  : ''
-              "
-              :filter-keys="['value.name', 'value.url']"
+              :placeholder="selectedSiteId ? '' : $t('setSite.add.selectSitePlaceholder')"
+              :filter-keys="['raw.name', 'raw.urls']"
               persistent-hint
             >
-              <template #selection="{ props, item: { value: item } }">
-                <v-list-item v-bind="props">
+              <template #selection="{ item: { raw: site } }">
+                <v-list-item>
                   <template #prepend>
-                    <v-avatar
-                      v-bind="props"
-                      size="x-small"
-                      :image="siteFavicons[item.id] || ''"
-                    />
+                    <SiteFavicon v-model="site.id" class="mr-2" />
                   </template>
                   <v-list-item-title>
-                    {{ item.name ?? "" }}
+                    {{ site.name ?? "" }}
                   </v-list-item-title>
                 </v-list-item>
               </template>
-              <template #item="{ props, item: { value: item } }">
-                <v-list-item
-                  v-bind="props"
-                  :title="item.name"
-                  :prepend-avatar="siteFavicons[item.id] || ''"
-                  :subtitle="item.url ?? ''"
-                >
+              <template #item="{ props, item: { raw: site } }">
+                <v-list-item v-bind="props" :subtitle="site.description ?? ''">
+                  <template #prepend>
+                    <SiteFavicon v-model="site.id" class="mr-2" />
+                  </template>
+                  <template #title>
+                    <v-list-item-title class="mb-1">
+                      <b>{{ site.name ?? "" }}</b>
+                      <!-- 站点类型 -->
+                      <v-chip
+                        label
+                        size="x-small"
+                        :color="site.type === 'private' ? 'primary' : 'secondary'"
+                        class="ml-2"
+                      >
+                        {{
+                          site.schema ?? (site.type === "private" ? "AbstractPrivateSite" : "AbstractBittorrentSite")
+                        }}
+                      </v-chip>
+                      <v-chip label size="x-small" color="green" class="ml-2">
+                        {{ site.version ? "v" + site.version : "" }}
+                      </v-chip>
+                    </v-list-item-title>
+                  </template>
                   <template #append>
                     <v-list-item-action>
-                      <TypeAndSchemaChip :site="item" direction="row" />
+                      {{ site.tags?.join(", ") ?? "" }}
                     </v-list-item-action>
                   </template>
                 </v-list-item>
               </template>
             </v-autocomplete>
           </v-window-item>
+          <!-- 具体配置站点 -->
           <v-window-item :key="1">
-            <Editor v-if="selectedSite !== null" v-model="selectedSite" />
+            <Editor v-model="selectedSiteId!" />
           </v-window-item>
         </v-window>
       </v-card-text>
@@ -118,18 +130,13 @@ async function saveSite() {
           <v-icon icon="mdi-close-circle" />
           {{ $t("common.dialog.cancel") }}
         </v-btn>
-        <v-btn
-          v-if="currentStep === 1"
-          color="blue-darken-1"
-          variant="text"
-          @click="currentStep--"
-        >
+        <v-btn v-if="currentStep === 1" color="blue-darken-1" variant="text" @click="currentStep--">
           <v-icon icon="mdi-chevron-left" />
           {{ $t("common.dialog.prev") }}
         </v-btn>
         <v-btn
           v-if="currentStep === 0"
-          :disabled="selectedSite == null"
+          :disabled="selectedSiteId == null"
           color="blue-darken-1"
           variant="text"
           @click="currentStep++"
@@ -139,9 +146,9 @@ async function saveSite() {
         </v-btn>
         <v-btn
           v-if="currentStep === 1"
+          :disabled="!storedSiteUserConfig.valid"
           variant="text"
           color="success"
-          :disabled="!isSiteConfigValid"
           @click="saveSite"
         >
           <v-icon icon="mdi-check-circle-outline" />
@@ -152,4 +159,4 @@ async function saveSite() {
   </v-dialog>
 </template>
 
-<style scoped></style>
+<style scoped lang="scss"></style>

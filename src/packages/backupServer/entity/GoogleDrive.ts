@@ -17,16 +17,10 @@
  *
  * 请注意，对于同一个账号使用同一个 client_id 和 client_secret ，其 Scope 是唯一的。
  */
-import type {
-  IBackupConfig,
-  IBackupFileInfo,
-  IBackupFileListOption,
-  IBackupMetadata,
-  IBackupServer,
-} from "../type.ts";
-import { EListOrderBy, EListOrderMode } from "../type.ts";
+import type { IBackupConfig, IBackupFileInfo, IBackupFileListOption, IBackupMetadata, IBackupServer } from "../type";
+import { EListOrderBy, EListOrderMode } from "../type";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import { sleep } from "@ptd/util/filter";
+import { sleep } from "~/helper.ts";
 import urlJoin from "url-join";
 
 interface GoogleDriveConfig extends IBackupConfig {
@@ -109,10 +103,7 @@ export default class GoogleDrive implements IBackupServer<GoogleDriveConfig> {
   }
 
   private async fetchAccessToken(): Promise<AuthInformation> {
-    if (
-      this.accessInformation === undefined ||
-      this.accessInformation.expired_at < Date.now()
-    ) {
+    if (this.accessInformation === undefined || this.accessInformation.expired_at < Date.now()) {
       const { data } = await axios.post<AuthInformationResponse>(
         "https://www.googleapis.com/oauth2/v4/token",
         new URLSearchParams({
@@ -128,10 +119,7 @@ export default class GoogleDrive implements IBackupServer<GoogleDriveConfig> {
     return this.accessInformation!;
   }
 
-  private async request<T extends ApiResponse>(
-    config: AxiosRequestConfig = {},
-    retry = 3,
-  ): Promise<AxiosResponse<T>> {
+  private async request<T extends ApiResponse>(config: AxiosRequestConfig = {}, retry = 3): Promise<AxiosResponse<T>> {
     // generateAuthRequestConfig
     const accessToken = await this.fetchAccessToken();
     config.headers = {
@@ -151,17 +139,13 @@ export default class GoogleDrive implements IBackupServer<GoogleDriveConfig> {
         }
       }
 
-      throw Error(
-        `Network Error: ${response.status} ${response.statusText || ""}`.trim(),
-      );
+      throw Error(`Network Error: ${response.status} ${response.statusText || ""}`.trim());
     }
   }
 
   private async getScope(): Promise<"appDataFolder" | "drive"> {
     const accessToken = await this.fetchAccessToken();
-    return accessToken.scope === "https://www.googleapis.com/auth/drive.appdata"
-      ? "appDataFolder"
-      : "drive";
+    return accessToken.scope === "https://www.googleapis.com/auth/drive.appdata" ? "appDataFolder" : "drive";
   }
 
   private async getParentId(): Promise<string> {
@@ -201,10 +185,7 @@ export default class GoogleDrive implements IBackupServer<GoogleDriveConfig> {
     };
 
     const form = new FormData();
-    form.append(
-      "metadata",
-      new Blob([JSON.stringify(metadata)], { type: "application/json" }),
-    );
+    form.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
     form.append("file", file);
 
     const { data } = await this.request<File>({

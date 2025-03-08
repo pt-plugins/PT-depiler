@@ -1,7 +1,10 @@
 node_modules
+
+## Build files
 dist
 dist-ssr
 *.local
+public/_locales
 
 # Logs
 logs

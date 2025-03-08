@@ -13,12 +13,18 @@ export interface ParsedTorrent {
   info: TorrentInstance;
 }
 
+const magnetURIComponent =
+  /(?:^magnet:\?|[^?&]&)xt(?:\.1)?=urn:(?:(?:aich|bitprint|btih|ed2k|ed2khash|kzhash|md5|sha1|tree:tiger):(?<hash>[a-z0-9]{32}(?:[a-z0-9]{8})?)|btmh:1220(?<hash>[a-z0-9]{64}))(?:$|&)/i;
+
 const utf8FilenameRegex = /filename\*=UTF-8''([\w%\-\.]+)(?:; ?|$)/i;
 const asciiFilenameRegex = /^filename=(["']?)(.*?[^\\])\1(?:; ?|$)/i;
 
-export async function getRemoteTorrentFile(
-  options: AxiosRequestConfig = {},
-): Promise<ParsedTorrent> {
+export function extractMagnetHash(magnetURI: string): string | null {
+  const match = magnetURIComponent.exec(magnetURI);
+  return match?.groups?.hash ?? null;
+}
+
+export async function getRemoteTorrentFile(options: AxiosRequestConfig = {}): Promise<ParsedTorrent> {
   const req = await axios.request({
     ...options,
     responseType: "arraybuffer", // 统一以 ArrayBuffer 形式获取，方便后面转化
@@ -29,10 +35,7 @@ export async function getRemoteTorrentFile(
    * 但响应头值不是 application/x-bittorrent 或 application/octet-stream，
    * 则我们认为非正常的种子：
    */
-  if (
-    req.headers["content-type"] &&
-    !/octet-stream|x-bittorrent/gi.test(req.headers["content-type"])
-  ) {
+  if (req.headers["content-type"] && !/octet-stream|x-bittorrent/gi.test(req.headers["content-type"])) {
     throw new Error("Invalid Torrent From Server");
   }
 

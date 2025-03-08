@@ -3,7 +3,7 @@
  *
  * 我们不用很在意 Favicon 的本地缓存情况，因为这部分可以随时重新获取，所以直接用 localforage 就行了
  * 程序按照如下顺序获取Favicon：
- *   1. '../icons' 目录中是否存在对应 png 或 ico 文件 `${config.name | config.host}.${"png" | "ico"}`
+ *   1. '../icons' 目录中是否存在对应 png 或 ico 文件 `${config.id}.${"png" | "ico"}`
        注意：1. 主要方便 以解压缩形式安装的用户覆写 以及部分教育网站点可能需要特殊方法访问的情况
             2. 此时，ISiteMetadata 中定义的 favicon 字段配置项不起作用，强制刷新缓存不起作用（本地硬配置优先）
  *   2. localforage 中已有的 base64 缓存（根据站点的 host 值）
@@ -15,13 +15,11 @@
  */
 
 import axios from "axios";
-import { ISiteMetadata } from "../index";
-import { getBuildInfo } from "@/shared/constants.ts";
+import { ISiteMetadata } from "../types";
 
 // from: https://stackoverflow.com/a/9967193/8824471
 // from: http://proger.i-forge.net/%D0%9A%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80/[20121112]%20The%20smallest%20transparent%20pixel.html
-export const NO_IMAGE =
-  "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=";
+export const NO_IMAGE = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=";
 
 const FAVICON_FROM_LINK = [
   "link[rel='icon' i][href]",
@@ -124,9 +122,7 @@ async function getFaviconFromUrl(url: string): Promise<Blob> {
   });
 
   // 2. Parse from manifest
-  const manifestElement = doc.querySelector(
-    'head link[rel="manifest" i]',
-  ) as HTMLLinkElement;
+  const manifestElement = doc.querySelector('head link[rel="manifest" i]') as HTMLLinkElement;
   if (manifestElement) {
     const { data: manifest } = await axios.get<{
       icons: Record<"sizes" | "src" | "type", string>[];
@@ -201,21 +197,13 @@ async function getFaviconFromUrl(url: string): Promise<Blob> {
   throw new Error("Can't find any favicons from this site");
 }
 
-export type getFaviconMetadata = Required<Pick<ISiteMetadata, "id" | "host" | "url">> &
-  Pick<ISiteMetadata, "favicon" | "activateUrl">;
+export type getFaviconMetadata = Required<Pick<ISiteMetadata, "id" | "urls">> & Pick<ISiteMetadata, "favicon">;
 
-export async function getFavicon(
-  site: ISiteMetadata | getFaviconMetadata,
-): Promise<string> {
-  const { id: siteId, host: siteHost, favicon: siteFavicon } = site;
+export async function getFavicon(site: getFaviconMetadata): Promise<string> {
+  const { id: siteId, urls: siteUrls, favicon: siteFavicon } = site;
 
   // 1. 检查本地icons目录是否存在对应文件
-  let checkLocalIconPaths = [
-    `${siteId}.png`,
-    `${siteId}.ico`,
-    `${siteHost}.png`,
-    `${siteHost}.ico`,
-  ];
+  let checkLocalIconPaths = [`${siteId}.png`, `${siteId}.ico`];
 
   if (siteFavicon) {
     if (siteFavicon.startsWith("data:image/")) {
@@ -225,11 +213,8 @@ export async function getFavicon(
     }
   }
 
-  const buildInfo = await getBuildInfo();
-  const packedIconList = buildInfo["siteIcons"] ?? [];
-
   for (const checkLocalIconPath of checkLocalIconPaths) {
-    if (packedIconList.includes(checkLocalIconPath)) {
+    if (__RESOURCE_SITE_ICONS__.includes(checkLocalIconPath)) {
       return `/icons/site/${checkLocalIconPath}`;
     }
   }
@@ -247,9 +232,12 @@ export async function getFavicon(
 
   // 2.2 请求网站首页，并从返回的html中解析所需要的 favicon 字段
   if (!faviconMeta) {
-    try {
-      faviconMeta = await getFaviconFromUrl(site.activateUrl ?? site.url);
-    } catch {}
+    for (const url of siteUrls) {
+      try {
+        faviconMeta = await getFaviconFromUrl(url);
+        break;
+      } catch {}
+    }
   }
 
   // 将请求结果转为 base64
