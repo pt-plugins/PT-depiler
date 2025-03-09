@@ -22,6 +22,13 @@ function base_path(_path = "") {
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  css: {
+    preprocessorOptions: {
+      scss: {
+        api: "modern",
+      },
+    },
+  },
   plugins: [
     vitePluginGenerateWebextLocales(),
     nodePolyfills({
