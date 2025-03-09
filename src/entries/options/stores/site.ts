@@ -1,23 +1,13 @@
 import { defineStore } from "pinia";
-import { getDefinedSiteMetadata, type IAdvancedSearchRequestConfig, ISiteUserConfig, TSiteID } from "@ptd/site";
-import { sendMessage } from "@/messages.ts";
-
-export type TSolutionID = string;
-export interface ISearchSolution {
-  siteId: TSiteID;
-  searchEntries: Record<string, IAdvancedSearchRequestConfig>;
-}
-
-export interface ISearchSolutionState {
-  name: string;
-  solutions: ISearchSolution[];
-}
+import { getDefinedSiteMetadata, ISiteUserConfig, TSiteID } from "@ptd/site";
+import { SiteSchema, TSolutionID, ISearchSolutionState, ISearchSolution } from "@/storage.ts";
+import { isEmpty, set } from "es-toolkit/compat";
 
 export const useSiteStore = defineStore("site", {
   persist: true,
-  state: () => ({
-    sites: {} as Record<TSiteID, ISiteUserConfig>,
-    solutions: {} as Record<TSolutionID, ISearchSolutionState>,
+  state: (): SiteSchema => ({
+    sites: {},
+    solutions: {},
   }),
   getters: {
     getAddedSiteIds(state) {
@@ -60,8 +50,9 @@ export const useSiteStore = defineStore("site", {
       this.sites[siteId] = siteConfig;
       this.$save();
     },
+
     simplePatchSite<T extends keyof ISiteUserConfig>(siteId: TSiteID, key: T, value: ISiteUserConfig[T]) {
-      this.sites[siteId][key] = value;
+      set(this.sites[siteId], key, value);
       this.$save();
     },
 
@@ -70,7 +61,16 @@ export const useSiteStore = defineStore("site", {
     },
 
     async getSiteUserConfig(siteId: TSiteID) {
-      return sendMessage("getSiteUserConfig", siteId);
+      const siteUserConfig = this.sites[siteId] ?? {};
+      if (isEmpty(siteUserConfig)) {
+        const siteMetaData = await this.getSiteMetadata(siteId);
+        siteUserConfig.isOffline ??= false;
+        siteUserConfig.allowSearch ??= Object.hasOwn(siteMetaData, "search");
+        siteUserConfig.allowQueryUserInfo ??= Object.hasOwn(siteMetaData, "userInfo");
+        siteUserConfig.inputSetting ??= {};
+        siteUserConfig.merge ??= {};
+      }
+      return siteUserConfig;
     },
   },
 });

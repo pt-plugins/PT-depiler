@@ -46,12 +46,17 @@ export const useUIStore = defineStore("ui", {
     ignoreWrongPixelRatio: false,
     tableBehavior: {
       setSite: {
+        itemsPerPage: -1,
         sortBy: [
           { key: "sortIndex", order: "desc" },
           { key: "isOffline", order: "asc" },
           { key: "allowSearch", order: "desc" },
           { key: "allowQueryUserInfo", order: "desc" },
         ],
+      },
+      searchEntity: {
+        itemsPerPage: 100,
+        sortBy: [{ key: "time", order: "desc" }],
       },
     },
   }),
@@ -67,5 +72,11 @@ export const useUIStore = defineStore("ui", {
       return this.uiTheme === "light";
     },
   },
-  actions: {},
+  actions: {
+    updateTableBehavior(table: string, key: string, data: any) {
+      // @ts-ignore
+      this.tableBehavior[table][key] = data;
+      this.$save();
+    },
+  },
 });

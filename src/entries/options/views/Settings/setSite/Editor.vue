@@ -1,42 +1,28 @@
 <script setup lang="ts">
 import { timezoneOffset, ISiteUserConfig, type TSiteID, ISiteMetadata, TSiteFullUrl } from "@ptd/site";
-import { watch, ref, onMounted, inject } from "vue";
+import { watch, ref, onMounted, inject, computed } from "vue";
 import { useSiteStore } from "@/options/stores/site.ts";
 import { formValidateRules } from "@/options/utils.ts";
-import { get, set } from "es-toolkit/compat";
 
 const siteStore = useSiteStore();
 
 const siteId = defineModel<TSiteID>({ default: "" });
 const siteMetaData = ref<ISiteMetadata>({} as unknown as ISiteMetadata);
 const siteUserConfig = inject<ISiteUserConfig & { valid: boolean }>("storedSiteUserConfig", { valid: false });
+const siteName = computed({
+  get: () => siteUserConfig.value.merge?.name ?? siteMetaData.value.name,
+  set: (value) => siteStore.simplePatchSite(siteId.value, "merge.name", value),
+});
+const siteTimezoneOffset = computed({
+  get: () => siteUserConfig.value.merge?.timezoneOffset ?? siteMetaData.value.timezoneOffset,
+  set: (value) => siteStore.simplePatchSite(siteId.value, "merge.timezoneOffset", value),
+});
 const customSiteUrl = ref<string>("");
-
-async function overrideSiteConfig(path: string, value: string) {
-  const rawSiteMetaData = await siteStore.getSiteMetadata(siteId.value);
-  if (get(rawSiteMetaData, path) === value) return;
-  set(siteUserConfig.value.merge!, path, value);
-}
-
-function setSiteUserInputSetting(path: string, value: string) {
-  siteUserConfig.value.inputSetting ??= {};
-  set(siteUserConfig.value.inputSetting, path, value);
-}
 
 async function initSiteData(siteId: TSiteID) {
   siteMetaData.value = await siteStore.getSiteMetadata(siteId);
-  siteUserConfig.value = {
-    url: siteMetaData.value.urls[0],
-    isOffline: false,
-    allowSearch: Object.hasOwn(siteMetaData.value, "search"),
-    allowQueryUserInfo: Object.hasOwn(siteMetaData.value, "userInfo"),
-    inputSetting: {},
-    merge: {},
-    ...(await siteStore.getSiteUserConfig(siteId)),
-  };
+  siteUserConfig.value = await siteStore.getSiteUserConfig(siteId);
 }
-
-function deleteUrl(url: string) {}
 
 onMounted(() => {
   initSiteData(siteId.value);
@@ -89,10 +75,9 @@ const log = console.log;
         <v-row>
           <v-col cols="12" md="4">
             <v-text-field
-              v-model="siteMetaData.name"
+              v-model="siteName"
               :label="$t('setSite.common.name')"
               :rules="[formValidateRules.require()]"
-              @update:modelValue="(val) => overrideSiteConfig('name', val)"
             ></v-text-field>
           </v-col>
           <v-col cols="12" md="4">
@@ -136,23 +121,18 @@ const log = console.log;
           </v-radio-group>
         </v-row>
 
-        <v-autocomplete
-          v-model="siteMetaData.timezoneOffset"
-          :items="timeZone"
-          :label="$t('setSite.editor.timezone')"
-          @update:modelValue="(val) => overrideSiteConfig('timezoneOffset', val)"
-        />
+        <v-autocomplete v-model="siteTimezoneOffset" :items="timeZone" :label="$t('setSite.editor.timezone')" />
 
         <template v-if="siteMetaData.userInputSettingMeta">
           <v-divider />
           <v-label class="my-2">{{ $t("setSite.editor.extraUserInputSetting") }}</v-label>
           <v-text-field
             v-for="userInputMeta in siteMetaData.userInputSettingMeta"
+            v-model="siteUserConfig.inputSetting[userInputMeta.name]"
             :key="userInputMeta.name"
             :label="userInputMeta.label"
             :hint="userInputMeta.hint"
             :rules="[(val) => (userInputMeta.required ? formValidateRules.require()(val) : true)]"
-            @update:modelValue="(val) => setSiteUserInputSetting(userInputMeta.name, val)"
           >
           </v-text-field>
         </template>

@@ -104,6 +104,7 @@
     },
     "editor": {
       "addUrlTip": "增加一个你正在使用的站点域名，输入的应该以 https:// 或 http:// 开头，以 / 结尾，例如 https://example.com/",
+      "customUrlPlaceholder": "自定义站点域名",
       "description": "网站描述",
       "sortIndexTip": "可用于搜索排序",
       "tagTip": "标签输入完成后按回车添加。（只有前4个会在列表页显示）",

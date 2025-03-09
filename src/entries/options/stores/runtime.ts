@@ -7,7 +7,7 @@
 
 import { defineStore } from "pinia";
 import type { ESearchResultParseStatus, ITorrent, TSiteID } from "@ptd/site";
-import { type TSolutionID } from "@/options/stores/site.ts";
+import { TSolutionID } from "@/storage.ts";
 
 export type TSearchSolutionKey = `${TSiteID}-${TSolutionID}`;
 

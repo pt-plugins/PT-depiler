@@ -1,41 +1,30 @@
 import {
-  getSite as createSiteInstance,
-  getFavicon,
+  BittorrentSite,
   getDefinedSiteMetadata,
+  getFavicon,
   getFaviconMetadata,
-  type TSiteID,
+  getSite as createSiteInstance,
   ISiteUserConfig,
   PrivateSite,
-  BittorrentSite,
+  type TSiteID,
 } from "@ptd/site";
 import { useLocalStorage } from "@vueuse/core";
 import { sendMessage } from "@/messages.ts";
 
-export const siteInstanceCache: Record<TSiteID, PrivateSite | BittorrentSite> = {};
-
 export async function getSiteInstance<TYPE extends "private" | "public">(
   siteId: TSiteID,
-  options: { flush?: boolean; mergeUserConfig?: boolean } = {},
+  options: { mergeUserConfig?: boolean } = {},
 ) {
-  const { flush = false, mergeUserConfig = true } = options;
-  if (flush || typeof siteInstanceCache[siteId] === "undefined") {
-    const siteMetaData = await getDefinedSiteMetadata(siteId);
-    if (siteMetaData) {
-      let storedSiteUserConfig: ISiteUserConfig = {};
-      if (mergeUserConfig) {
-        storedSiteUserConfig = await sendMessage("getSiteUserConfig", siteId);
-      }
-
-      // 补全 userConfig 中可能缺失的内容
-      storedSiteUserConfig.allowSearch ??= Object.hasOwn(siteMetaData, "search");
-      storedSiteUserConfig.allowQueryUserInfo ??= Object.hasOwn(siteMetaData, "userInfo");
-      storedSiteUserConfig.showMessageCount ??= Object.hasOwn(siteMetaData, "userInfo");
-
-      siteInstanceCache[siteId] = await createSiteInstance<TYPE>(siteMetaData, storedSiteUserConfig);
-    }
+  const { mergeUserConfig = true } = options;
+  let storedSiteUserConfig: ISiteUserConfig = {};
+  if (mergeUserConfig) {
+    storedSiteUserConfig = await sendMessage("getSiteUserConfig", siteId);
   }
 
-  return siteInstanceCache[siteId] as TYPE extends "private" ? PrivateSite : BittorrentSite;
+  console.log(`siteInstance ${siteId} created with userConfig:`, storedSiteUserConfig);
+  return (await createSiteInstance<TYPE>(siteId, storedSiteUserConfig)) as TYPE extends "private"
+    ? PrivateSite
+    : BittorrentSite;
 }
 
 export const faviconCache = useLocalStorage<Record<string, string>>("PTD_SiteFavicon", {});

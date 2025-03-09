@@ -20,11 +20,15 @@ provide("storedSiteUserConfig", storedSiteUserConfig);
 watch(showDialog, async () => {
   storedSiteUserConfig.value = {
     valid: false,
-    ...(await siteStore.getSiteUserConfig(componentProps.siteId)),
+    ...(siteStore.sites[componentProps.siteId] ?? {}),
   };
 });
 
-function patchSite() {}
+function patchSite() {
+  siteStore.addSite(componentProps.siteId, storedSiteUserConfig.value);
+  siteStore.$save();
+  showDialog.value = false;
+}
 </script>
 
 <template>

@@ -5,14 +5,18 @@ import { useRoute } from "vue-router";
 import PQueue from "p-queue";
 
 import { ISearchResultTorrent, TSearchSolutionKey, useRuntimeStore } from "@/options/stores/runtime.ts";
-import { TSolutionID, useSiteStore } from "@/options/stores/site.ts";
+import { useSiteStore } from "@/options/stores/site.ts";
 import { ESearchResultParseStatus, IAdvancedSearchRequestConfig, TSiteID } from "@ptd/site";
 import { sendMessage } from "@/messages";
-import SiteFavicon from "@/options/components/SiteFavicon.vue";
+import { format } from "date-fns";
+import { useUIStore } from "@/options/stores/ui.ts";
+import SiteIcon from "@/options/views/Overview/searchEntity/SiteIcon.vue";
 
 const route = useRoute();
-const runtimeStore = useRuntimeStore();
+const uiStore = useUIStore();
 const siteStore = useSiteStore();
+const runtimeStore = useRuntimeStore();
+
 const queue = new PQueue({ concurrency: 1 }); // Use settingStore
 
 const tableHeader = [
@@ -22,7 +26,7 @@ const tableHeader = [
     align: "center",
   },
   {
-    title: "名称",
+    title: "标题",
     key: "title",
     align: "start",
   },
@@ -41,32 +45,32 @@ const tableHeader = [
   {
     title: "上传",
     key: "seeders",
-    align: "center",
-    width: 60,
+    align: "end",
+    width: 90,
   },
   {
     title: "下载",
     key: "leechers",
-    align: "center",
-    width: 60,
+    align: "end",
+    width: 90,
   },
   {
     title: "完成",
     key: "completed",
-    align: "center",
-    width: 60,
+    align: "end",
+    width: 90,
   },
   {
     title: "评论",
     key: "comments",
-    align: "center",
-    width: 60,
+    align: "end",
+    width: 90,
   },
   {
-    title: "发布时间(~)",
+    title: "发布于(≈)",
     key: "time",
     align: "center",
-    width: 130,
+    width: 150,
   },
   {
     title: "操作",
@@ -116,25 +120,30 @@ async function doSearch(flush = true) {
 
   // Expand search plan
   const searchSolution = await siteStore.getSearchSolution(runtimeStore.search.searchPlanKey);
+  console.log("Expand Search Plan: ", searchSolution);
   for (const { siteId, searchEntries } of searchSolution.solutions) {
     for (const [solutionId, searchEntry] of Object.entries(searchEntries)) {
       const solutionKey = `${siteId}-${solutionId}` as TSearchSolutionKey;
       runtimeStore.search.searchPlanStatus[solutionKey] = ESearchResultParseStatus.waiting;
 
       // Search site by plan in queue
+      console.log(`Add search ${solutionId} to queue.`);
       await queue.add(async () => {
+        console.log(`search ${solutionId} start.`);
         runtimeStore.search.searchPlanStatus[solutionKey] = ESearchResultParseStatus.working;
         const { status: searchStatus, data: searchResult } = await sendMessage("getSiteSearchResult", {
           keyword: runtimeStore.search.searchKey,
           siteId,
           searchEntry,
         });
+        console.log(`success get search ${solutionId} result, with code ${searchStatus}: `, searchResult);
         runtimeStore.search.searchPlanStatus[solutionKey] = searchStatus;
         for (const item of searchResult) {
           const isDuplicate = runtimeStore.search.searchResult.some(
             (result) => result.site == item.site && result.id == item.id,
           );
           if (!isDuplicate) {
+            // 补充一些参数
             (item as ISearchResultTorrent).solutionId = solutionKey;
             runtimeStore.search.searchResult.push(item as ISearchResultTorrent);
           }
@@ -156,19 +165,29 @@ async function doSearch(flush = true) {
       搜索结果：
       <template v-if="runtimeStore.search.isSearching"> 正在搜索中..... </template>
       <template v-else>
-        搜索完成， 共找到 {{ runtimeStore.search.searchResult.length }} 个结果， 耗时：
+        搜索完成， 共找到 {{ runtimeStore.search.searchResult.length }} 条结果， 耗时：
         {{ runtimeStore.search.costTime / 1000 }} 秒。
 
         <!-- TODO 全局重新搜索按钮 -->
-        <v-btn color="primary" @click="doSearch">重新搜索</v-btn>
+        <v-btn color="primary" size="small" @click="doSearch">重新搜索</v-btn>
       </template>
     </v-alert-title>
   </v-alert>
   <v-card>
-    <v-data-table :headers="tableHeader" :items="runtimeStore.search.searchResult">
+    <v-card-title>Title</v-card-title>
+    <v-data-table
+      class="search-entity-table"
+      :headers="tableHeader"
+      :items="runtimeStore.search.searchResult"
+      :items-per-page="uiStore.tableBehavior.searchEntity.itemsPerPage"
+      show-select
+      multi-sort
+      :sort-by="uiStore.tableBehavior.searchEntity.sortBy"
+      @update:itemsPerPage="(v) => uiStore.updateTableBehavior('searchEntity', 'itemsPerPage', v)"
+      @update:sortBy="(v) => uiStore.updateTableBehavior('searchEntity', 'sortBy', v)"
+    >
       <template #item.site="{ item }">
-        <SiteFavicon v-model="item.site" />
-        <a :href="'#'" target="_blank" rel="noopener noreferrer nofollow" class="captionText">{{ item.site }}</a>
+        <SiteIcon :site-id="item.site"></SiteIcon>
       </template>
       <template #item.title="{ item }">
         {{ item.title }}
@@ -176,8 +195,12 @@ async function doSearch(flush = true) {
         {{ item.subTitle ?? "" }}
       </template>
       <template #item.size="{ item }">
-        {{ filesize(item.size) }}
+        {{ filesize(item.size ?? 0) }}
       </template>
+      <template #item.time="{ item }">
+        {{ format(item.time ?? 0, "yyyy-MM-dd HH:mm") }}
+      </template>
+      <template #item.action="{ item }"> </template>
     </v-data-table>
   </v-card>
 </template>

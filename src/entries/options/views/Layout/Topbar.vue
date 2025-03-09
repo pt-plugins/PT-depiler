@@ -2,7 +2,7 @@
 import { REPO_URL } from "~/helper";
 
 import { useDisplay } from "vuetify";
-import { useRoute, useRouter, onBeforeRouteUpdate } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useUIStore } from "@/options/stores/ui";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { ref, watch } from "vue";

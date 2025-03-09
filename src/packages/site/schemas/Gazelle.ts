@@ -146,7 +146,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         selector: ["div:contains('Stats') + ul.stats > li:contains('Joined:') > span"],
         elementProcess: (element: HTMLElement) => {
           const query = (element.getAttribute("title") || element.innerText).trim();
-          return parseValidTimeString(qeury, ["YYYY-MM-dd HH:mm:ss"]);
+          return parseValidTimeString(query, ["yyyy-MM-dd HH:mm:ss"]);
         },
       },
     },

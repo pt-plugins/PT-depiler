@@ -3,7 +3,7 @@ import { cloneDeep } from "es-toolkit";
 export * from "./types";
 export * from "./utils";
 
-import type { ISiteMetadata, ISiteUserConfig } from "./types";
+import type { ISiteMetadata, ISiteUserConfig, TSiteID } from "./types";
 import BittorrentSite from "./schemas/AbstractBittorrentSite";
 import PrivateSite from "./schemas/AbstractPrivateSite";
 import { type TSiteFullUrl } from "./types";
@@ -52,34 +52,37 @@ function restoreSecureLink(url: string): TSiteFullUrl {
 }
 
 export async function getDefinedSiteMetadata(definition: string): Promise<ISiteMetadata> {
-  const { siteMetadata: definedSiteConfig } = await getDefinitionModule(definition);
+  const { siteMetadata: definedSiteMetadata } = await getDefinitionModule(definition);
 
-  const siteConfig = cloneDeep(definedSiteConfig);
+  const siteMetadata = cloneDeep(definedSiteMetadata);
 
   // 解密url加密过的站点
-  siteConfig.urls = siteConfig.urls!.map(restoreSecureLink);
+  siteMetadata.urls = siteMetadata.urls!.map(restoreSecureLink);
 
   // 补全一些可以缺失字段
-  siteConfig.tags ??= [];
-  siteConfig.host ??= new URL(siteConfig.urls[0]).host;
-  siteConfig.timezoneOffset ??= siteConfig.schema === "NexusPHP" ? "+0800" : "+0000";
+  siteMetadata.tags ??= [];
+  siteMetadata.host ??= new URL(siteMetadata.urls[0]).host;
+  siteMetadata.timezoneOffset ??= siteMetadata.schema === "NexusPHP" ? "+0800" : "+0000";
 
-  return siteConfig;
+  return siteMetadata;
 }
 
-// FIXME 部分用户自定义的站点（此时在 js/site 目录中不存在对应模块），不能进行 dynamicImport 的情况，对此应该直接从 schema 中导入
 export async function getSite<TYPE extends "private" | "public">(
-  siteMetadata: ISiteMetadata,
+  siteId: TSiteID,
   userConfig: ISiteUserConfig = {},
 ): Promise<TYPE extends "private" ? PrivateSite : BittorrentSite> {
-  const { id: SiteId } = siteMetadata;
+  let SiteClass,
+    siteMetadata = {};
 
-  let SiteClass;
-  if (definitionList.includes(SiteId!)) {
-    const DefinitionClass = (await getDefinitionModule(SiteId!)).default;
+  if (definitionList.includes(siteId!)) {
+    siteMetadata = await getDefinedSiteMetadata(siteId);
+    const DefinitionClass = (await getDefinitionModule(siteId!)).default;
     if (DefinitionClass) {
       SiteClass = DefinitionClass;
     }
+  } else {
+    // FIXME 部分用户自定义的站点（此时在 js/site 目录中不存在对应模块），不能进行 dynamicImport 的情况，对此应该直接从 schema 中导入
+    throw new Error(`siteMetadata ${siteId} not found in build, skip creating siteInstance`);
   }
 
   /**
@@ -87,9 +90,15 @@ export async function getSite<TYPE extends "private" | "public">(
    * 并覆写基类的的 siteMetaData 信息
    */
   if (!SiteClass) {
+    // @ts-ignore
     const schemaModule = await getSchemaModule(siteMetadata.schema!);
     SiteClass = schemaModule.default;
   }
+
+  // 补全 userConfig 中可能缺失的内容
+  userConfig.allowSearch ??= Object.hasOwn(siteMetadata, "search");
+  userConfig.allowQueryUserInfo ??= Object.hasOwn(siteMetadata, "userInfo");
+  userConfig.showMessageCount ??= Object.hasOwn(siteMetadata, "userInfo");
 
   // @ts-ignore
   return new SiteClass(siteMetadata, userConfig);

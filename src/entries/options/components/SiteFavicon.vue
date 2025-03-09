@@ -3,9 +3,13 @@ import { NO_IMAGE, type TSiteID } from "@ptd/site";
 import { asyncComputed } from "@vueuse/core";
 import { getSiteFavicon } from "@/shared/adapters/site.ts";
 
-const props = defineProps<{
-  modelValue: TSiteID;
-}>();
+const props = withDefaults(
+  defineProps<{
+    modelValue: TSiteID;
+    size?: number;
+  }>(),
+  { size: 32 },
+);
 
 const siteFavicon = asyncComputed(() => {
   return getSiteFavicon(props.modelValue);
@@ -13,7 +17,7 @@ const siteFavicon = asyncComputed(() => {
 </script>
 
 <template>
-  <v-img :src="siteFavicon" width="32" height="32" />
+  <v-img :src="siteFavicon" :height="props.size" :width="props.size" />
 </template>
 
 <style scoped lang="scss"></style>

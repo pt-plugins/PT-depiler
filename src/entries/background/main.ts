@@ -3,7 +3,7 @@ import { extStorage } from "@/storage.ts";
 
 // 监听 点击图标 事件
 chrome.action.onClicked.addListener(async () => {
-  chrome.runtime.openOptionsPage();
+  await chrome.runtime.openOptionsPage();
 });
 
 chrome.runtime.onInstalled.addListener(() => {
@@ -17,15 +17,17 @@ onMessage("getExtStorage", async ({ data: key }) => {
 
 onMessage("setExtStorage", async ({ data: { key, value } }) => {
   await extStorage.setItem(key, value);
+  console.log(`setExtStorage for ${key}: `, value);
 });
 
 onMessage("getSiteUserConfig", async ({ data: siteId }) => {
-  const siteUserConfig = await extStorage.getItem("siteUserConfig");
-  const storedSiteUserConfig = siteUserConfig?.[siteId] ?? { id: siteId };
+  const siteUserConfig = await extStorage.getItem("site");
+  const storedSiteUserConfig = siteUserConfig?.sites?.[siteId] ?? { id: siteId };
   storedSiteUserConfig.isOffline ??= false;
   storedSiteUserConfig.sortIndex ??= 100;
   storedSiteUserConfig.merge ??= {};
 
+  console.log(`getSiteUserConfig for ${siteId}: `, storedSiteUserConfig);
   return storedSiteUserConfig;
 });
 

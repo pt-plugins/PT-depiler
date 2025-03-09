@@ -42,11 +42,6 @@ const siteTableHeader = [
   },
 ];
 
-function updateTableSortBy(v: any) {
-  uiStore.tableBehavior.setSite.sortBy = v;
-  uiStore.$save();
-}
-
 const sites = computedAsync(async () => {
   const sitesReturn = [];
   for (const [siteId, siteUserConfig] of Object.entries(siteStore.sites)) {
@@ -60,7 +55,7 @@ const sites = computedAsync(async () => {
   return sitesReturn;
 });
 
-const toEditId = ref<TSiteID | null>(null);
+const toEditId = ref<TSiteID | null>("");
 function editSite(siteId: TSiteID) {
   toEditId.value = siteId;
   showEditDialog.value = true;
@@ -107,13 +102,14 @@ function deleteSite(siteId: TSiteID | TSiteID[]) {
       v-model="siteTableSelected"
       :headers="siteTableHeader"
       :items="sites"
-      :items-per-page="50"
+      :items-per-page="uiStore.tableBehavior.setSite.itemsPerPage"
       item-value="id"
       :sort-by="uiStore.tableBehavior.setSite.sortBy"
       multi-sort
       :search="siteTableSearch"
       show-select
-      @update:sortBy="updateTableSortBy"
+      @update:itemsPerPage="(v) => uiStore.updateTableBehavior('setSite', 'itemsPerPage', v)"
+      @update:sortBy="(v) => uiStore.updateTableBehavior('setSite', 'sortBy', v)"
     >
       <template #item.sortIndex="{ item }">
         <SiteFavicon v-model="item.id" />
