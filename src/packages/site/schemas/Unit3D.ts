@@ -119,8 +119,8 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         },
       },
       tags: [
-        { name: "Free", selector: "i.fa-star.text-gold, i.fa-globe.text-blue" },
-        { name: "2xUp", selector: "i.fa-gem.text-green" },
+        { name: "Free", selector: "i.fa-star.text-gold, i.fa-globe.text-blue", color: "blue" },
+        { name: "2xUp", selector: "i.fa-gem.text-green", color: "lime" },
       ],
     },
   },

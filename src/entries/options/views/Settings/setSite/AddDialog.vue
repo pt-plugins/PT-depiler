@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { provide, ref, watch } from "vue";
-import { asyncComputed, useVModel } from "@vueuse/core";
+import { computedAsync, useVModel } from "@vueuse/core";
 import { REPO_URL } from "~/helper.ts";
 import { definitionList, type ISiteUserConfig, type TSiteID } from "@ptd/site";
 import { useSiteStore } from "@/options/stores/site";
@@ -26,7 +26,7 @@ watch(showDialog, () => {
   storedSiteUserConfig.value = { valid: false };
 });
 
-const canAddSites = asyncComputed(async () => {
+const canAddSites = computedAsync(async () => {
   const canAddedSiteMetadata = [];
   const canAddedSiteList = definitionList.filter((x) => !siteStore.getAddedSiteIds.includes(x));
 

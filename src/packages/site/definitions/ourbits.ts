@@ -52,6 +52,7 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
       tags: [
+        ...SchemaMetadata.search!.selectors!.tags!,
         { selector: ".tag.tag-gf", name: "官方" },
         { selector: ".tag.tag-diy", name: "DIY" },
         { selector: ".tag.tag-sf", name: "首发" },

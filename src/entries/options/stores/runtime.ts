@@ -12,7 +12,9 @@ import { TSolutionID } from "@/storage.ts";
 export type TSearchSolutionKey = `${TSiteID}-${TSolutionID}`;
 
 export interface ISearchResultTorrent extends ITorrent {
-  solutionId: TSolutionID;
+  uniqueId: string; // 每个种子的uniqueId，由 `${site}-${id}` 组成
+  solutionId: TSolutionID; // 对应搜索方案的id
+  solutionKey: TSearchSolutionKey; // 对应搜索方案的key，由 `${site}-${solutionId}` 组成
 }
 
 interface ISearchData {
@@ -32,7 +34,7 @@ interface ISearchData {
 
 export const initialSearchData: () => ISearchData = () => ({
   isSearching: false,
-  startAt: +Date.now(),
+  startAt: 0,
   costTime: 0,
   searchKey: "",
   searchPlanKey: "default",
@@ -41,7 +43,8 @@ export const initialSearchData: () => ISearchData = () => ({
 });
 
 export const useRuntimeStore = defineStore("runtime", {
-  persist: false,
+  persist: true,
+  persistWebExt: false,
   state: () => ({
     search: initialSearchData(),
   }),

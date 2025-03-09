@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { type TSiteID } from "@ptd/site";
 
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 import { useUIStore } from "@/options/stores/ui.ts";
@@ -20,12 +20,10 @@ const showAddDialog = ref<boolean>(false);
 const showEditDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 
-const siteTableSearch = ref("");
-const siteTableSelected = ref<string[]>([]);
-const siteTableHeader = [
+const fullTableHeader = [
   // site favicon
-  { title: "", key: "sortIndex", align: "center", width: 48 },
-  { title: t("setSite.common.name"), key: "name", align: "left", width: 120 },
+  { title: "", key: "sortIndex", align: "center", width: 48, alwaysShow: true },
+  { title: t("setSite.common.name"), key: "name", align: "left", width: 120, alwaysShow: true },
   { title: t("setSite.common.url"), key: "url", align: "start" },
   { title: t("setSite.common.isOffline"), key: "isOffline", align: "center", width: 180 },
   { title: t("setSite.common.allowSearch"), key: "allowSearch", align: "center", width: 180 },
@@ -39,8 +37,16 @@ const siteTableHeader = [
     title: t("common.action"),
     key: "action",
     sortable: false,
+    alwaysShow: true,
   },
 ];
+
+const tableHeader = computed(() => {
+  return fullTableHeader.filter((item) => item.alwaysShow || uiStore.tableBehavior.setSite.columns!.includes(item.key));
+});
+
+const tableFilter = ref("");
+const tableSelected = ref<TSiteID[]>([]);
 
 const sites = computedAsync(async () => {
   const sitesReturn = [];
@@ -77,10 +83,10 @@ function deleteSite(siteId: TSiteID | TSiteID[]) {
           {{ $t("common.btn.add") }}
         </v-btn>
         <v-btn
-          :disabled="siteTableSelected.length === 0"
+          :disabled="tableSelected.length === 0"
           color="error"
           prepend-icon="mdi-minus"
-          @click="deleteSite(siteTableSelected)"
+          @click="deleteSite(tableSelected)"
         >
           {{ $t("common.remove") }}
         </v-btn>
@@ -88,7 +94,7 @@ function deleteSite(siteId: TSiteID | TSiteID[]) {
         <!-- TODO 一键导入站点 -->
         <v-spacer />
         <v-text-field
-          v-model="siteTableSearch"
+          v-model="tableFilter"
           append-icon="mdi-magnify"
           label="Search"
           single-line
@@ -99,14 +105,14 @@ function deleteSite(siteId: TSiteID | TSiteID[]) {
     </v-card-title>
 
     <v-data-table
-      v-model="siteTableSelected"
-      :headers="siteTableHeader"
+      v-model="tableSelected"
+      :headers="tableHeader"
       :items="sites"
       :items-per-page="uiStore.tableBehavior.setSite.itemsPerPage"
       item-value="id"
       :sort-by="uiStore.tableBehavior.setSite.sortBy"
       multi-sort
-      :search="siteTableSearch"
+      :search="tableFilter"
       show-select
       @update:itemsPerPage="(v) => uiStore.updateTableBehavior('setSite', 'itemsPerPage', v)"
       @update:sortBy="(v) => uiStore.updateTableBehavior('setSite', 'sortBy', v)"

@@ -448,21 +448,21 @@ export default class BittorrentSite {
     return torrent;
   }
 
-  protected parseTorrentTagsFromRow(
+  protected parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
     row: Element | Document | object,
     searchConfig: ISearchInput,
   ): Partial<ITorrent> {
     if (searchConfig?.searchEntry?.selectors?.tags) {
       const tags: ITorrentTag[] = [];
-      searchConfig.searchEntry.selectors.tags.forEach(({ name, selector }) => {
+      searchConfig.searchEntry.selectors.tags.forEach(({ name, color, selector }) => {
         if (row instanceof Element) {
           if (Sizzle(selector, row).length > 0) {
-            tags.push({ name });
+            tags.push({ name, color });
           }
         } else {
           if (get(row, selector)) {
-            tags.push({ name });
+            tags.push({ name, color });
           }
         }
       });

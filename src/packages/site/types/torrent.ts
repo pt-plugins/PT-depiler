@@ -27,6 +27,7 @@ export type TBaseTorrentTagName =
 
 export interface ITorrentTag {
   name: TBaseTorrentTagName;
+  color?: string;
 }
 
 // 作为一个种子最基本应该有的属性

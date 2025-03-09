@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { NO_IMAGE, type TSiteID } from "@ptd/site";
-import { asyncComputed } from "@vueuse/core";
+import { computedAsync } from "@vueuse/core";
 import { getSiteFavicon } from "@/shared/adapters/site.ts";
 
 const props = withDefaults(
@@ -11,7 +11,7 @@ const props = withDefaults(
   { size: 32 },
 );
 
-const siteFavicon = asyncComputed(() => {
+const siteFavicon = computedAsync(() => {
   return getSiteFavicon(props.modelValue);
 }, NO_IMAGE);
 </script>

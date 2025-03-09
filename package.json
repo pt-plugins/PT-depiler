@@ -48,6 +48,8 @@
     "p-queue": "^8.1.0",
     "parse-torrent": "^11.0.18",
     "pinia": "^3.0.1",
+    "pinia-plugin-state-persistence": "^1.10.1",
+    "search-query-parser": "^1.6.0",
     "sizzle": "^2.3.10",
     "tailwindcss": "^4.0.12",
     "url-join": "^5.0.0",

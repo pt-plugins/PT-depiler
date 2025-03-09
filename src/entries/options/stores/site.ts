@@ -4,7 +4,7 @@ import { SiteSchema, TSolutionID, ISearchSolutionState, ISearchSolution } from "
 import { isEmpty, set } from "es-toolkit/compat";
 
 export const useSiteStore = defineStore("site", {
-  persist: true,
+  persistWebExt: true,
   state: (): SiteSchema => ({
     sites: {},
     solutions: {},

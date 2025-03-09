@@ -95,6 +95,7 @@ export interface ISearchConfig extends IBaseSearchConfig {
     tags?: {
       name: TBaseTorrentTagName;
       selector: string;
+      color?: string;
     }[];
   };
 }

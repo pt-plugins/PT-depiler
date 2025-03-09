@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import { TSiteID } from "@ptd/site";
-import { asyncComputed } from "@vueuse/core";
+import { computedAsync } from "@vueuse/core";
 import { useSiteStore } from "@/options/stores/site.ts";
 
 const siteStore = useSiteStore();
@@ -12,7 +12,7 @@ const props = defineProps<{
 
 const siteConfig = siteStore.sites[props.siteId];
 
-const siteUrl = asyncComputed(async () => {
+const siteUrl = computedAsync(async () => {
   if (siteConfig.url) {
     return siteConfig.url;
   }
@@ -20,7 +20,7 @@ const siteUrl = asyncComputed(async () => {
   return siteMetadata.urls?.[0] ?? "#";
 }, "#");
 
-const siteName = asyncComputed(async () => {
+const siteName = computedAsync(async () => {
   if (siteConfig.merge?.name) {
     return siteConfig.merge.name;
   }
@@ -36,7 +36,7 @@ const siteName = asyncComputed(async () => {
       :href="siteUrl"
       target="_blank"
       rel="noopener noreferrer nofollow"
-      class="text-caption text-decoration-none text-blue-grey-lighten-1"
+      class="text-caption text-decoration-none text-grey"
     >
       {{ siteName }}
     </a>

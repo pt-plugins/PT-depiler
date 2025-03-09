@@ -52,6 +52,12 @@ importers:
       pinia:
         specifier: ^3.0.1
         version: 3.0.1(typescript@5.6.3)(vue@3.5.13(typescript@5.6.3))
+      pinia-plugin-state-persistence:
+        specifier: ^1.10.1
+        version: 1.10.1(pinia@3.0.1(typescript@5.6.3)(vue@3.5.13(typescript@5.6.3)))
+      search-query-parser:
+        specifier: ^1.6.0
+        version: 1.6.0
       sizzle:
         specifier: ^2.3.10
         version: 2.3.10
@@ -3375,6 +3381,12 @@ packages:
     engines: { node: ">=0.10" }
     hasBin: true
 
+  pinia-plugin-state-persistence@1.10.1:
+    resolution:
+      { integrity: sha512-HstifL8aF7EvkTHCEOhR6ROaOam890QfeT6lQrG+ZiYn+7F1BD4pwQXk8z1v7MzcbT6e8+zRq+2Xkb4pdIW7qg== }
+    peerDependencies:
+      pinia: ^2.3.0 || ^3.0.0
+
   pinia@3.0.1:
     resolution:
       { integrity: sha512-WXglsDzztOTH6IfcJ99ltYZin2mY8XZCXujkYWVIJlBjqsP6ST7zw+Aarh63E1cDVYeyUcPCxPHzJpEOmzB6Wg== }
@@ -3627,6 +3639,10 @@ packages:
   sax@1.4.1:
     resolution:
       { integrity: sha512-+aWOz7yVScEGoKNd4PA10LZ8sk0A/z5+nXQG5giUO5rprX9jgYsTdov9qCchZiPIZezbZH+jRut8nPodFAX4Jg== }
+
+  search-query-parser@1.6.0:
+    resolution:
+      { integrity: sha512-bhf+phLlKF38nuniwLcVHWPArHGdzenlPhPi955CR3vm1QQifXIuPHwAffhjapojdVVzmv4hgIJ6NOX1d/w+Uw== }
 
   semver-diff@4.0.0:
     resolution:
@@ -6975,6 +6991,10 @@ snapshots:
 
   pidtree@0.6.0: {}
 
+  pinia-plugin-state-persistence@1.10.1(pinia@3.0.1(typescript@5.6.3)(vue@3.5.13(typescript@5.6.3))):
+    dependencies:
+      pinia: 3.0.1(typescript@5.6.3)(vue@3.5.13(typescript@5.6.3))
+
   pinia@3.0.1(typescript@5.6.3)(vue@3.5.13(typescript@5.6.3)):
     dependencies:
       "@vue/devtools-api": 7.7.2
@@ -7189,6 +7209,8 @@ snapshots:
       "@parcel/watcher": 2.5.1
 
   sax@1.4.1: {}
+
+  search-query-parser@1.6.0: {}
 
   semver-diff@4.0.0:
     dependencies:
