@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { getDefinedSiteMetadata, ISiteUserConfig, TSiteID } from "@ptd/site";
+import { getDefinedSiteMetadata, ISiteMetadata, ISiteUserConfig, TSiteID } from "@ptd/site";
 import { SiteSchema, TSolutionID, ISearchSolutionState, ISearchSolution } from "@/storage.ts";
 import { isEmpty, set } from "es-toolkit/compat";
 
@@ -71,6 +71,32 @@ export const useSiteStore = defineStore("site", {
         siteUserConfig.merge ??= {};
       }
       return siteUserConfig;
+    },
+
+    async getSiteMergedMetadata<T extends keyof ISiteMetadata>(
+      siteId: TSiteID,
+      field: keyof ISiteMetadata,
+      defaultValue?: ISiteMetadata[T],
+    ) {
+      const siteConfig = await this.getSiteUserConfig(siteId);
+      if (siteConfig.merge?.[field]) {
+        return siteConfig.merge[field];
+      }
+      const siteMetadata = await this.getSiteMetadata(siteId);
+      return siteMetadata[field] ?? defaultValue;
+    },
+
+    async getSiteName(siteId: TSiteID): Promise<string> {
+      return await this.getSiteMergedMetadata(siteId, "name", siteId);
+    },
+
+    async getSiteUrl(siteId: TSiteID): Promise<string> {
+      const siteConfig = await this.getSiteUserConfig(siteId);
+      if (siteConfig.url) {
+        return siteConfig.url;
+      }
+      const siteMetadata = await this.getSiteMetadata(siteId);
+      return siteMetadata.urls?.[0] ?? "#";
     },
   },
 });

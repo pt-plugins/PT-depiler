@@ -1,18 +1,23 @@
 <script setup lang="ts">
+import { ESearchResultParseStatus } from "@ptd/site";
+
 import { watch, ref, computed } from "vue";
 import { filesize } from "filesize";
 import { useRoute } from "vue-router";
 import PQueue from "p-queue";
 import { format } from "date-fns";
-import searchQueryParser from "search-query-parser";
-
-import { ISearchResultTorrent, TSearchSolutionKey, useRuntimeStore } from "@/options/stores/runtime.ts";
-import { useSiteStore } from "@/options/stores/site.ts";
-import { ESearchResultParseStatus, parseSizeString, parseValidTimeString } from "@ptd/site";
-import { sendMessage } from "@/messages";
-import { useUIStore } from "@/options/stores/ui.ts";
-import SiteIcon from "./SiteIcon.vue";
 import { refDebounced } from "@vueuse/core";
+
+import { useSiteStore } from "@/options/stores/site.ts";
+import { useUIStore } from "@/options/stores/ui.ts";
+
+import { sendMessage } from "@/messages";
+import { tableCustomFilter } from "./utils.ts";
+import { type ISearchResultTorrent, type TSearchSolutionKey, useRuntimeStore } from "@/options/stores/runtime.ts";
+
+import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
+import SiteFavicon from "@/options/components/SiteFavicon.vue";
+import SiteName from "@/options/components/SiteName.vue";
 
 const route = useRoute();
 const uiStore = useUIStore();
@@ -20,6 +25,8 @@ const siteStore = useSiteStore();
 const runtimeStore = useRuntimeStore();
 
 const queue = new PQueue({ concurrency: 1 }); // Use settingStore
+
+const showAdvanceFilterGenerateDialog = ref<boolean>(false);
 
 const fullTableHeader = [
   { title: "站点", key: "site", align: "center", width: 90, alwaysShow: true },
@@ -42,79 +49,16 @@ const tableHeader = computed(() => {
 
 const tableWaitFilter = ref("");
 const tableFilter = refDebounced(tableWaitFilter, 500); // 延迟搜索过滤词的生成
-const tableParsedFilter = computed(() =>
-  searchQueryParser.parse(tableFilter.value, {
-    keywords: ["site", "tags"],
-    // ranges项的exclude不做支持，FIXME 目前是静默忽视，需要给出提示信息
-    ranges: ["date", "size", "seeders", "leechers", "completed"],
-    tokenize: true,
-    offsets: false,
-    alwaysArray: true,
-  }),
-);
 const tableSelected = ref<Array<ISearchResultTorrent["uniqueId"]>>([]);
-const dateFilterFormat = ["yyyyMMdd'T'HHmmss", "yyyyMMdd'T'HHmm", "yyyyMMdd'T'HH", "yyyyMMdd", "yyyyMM", "yyyy"];
-
-function checkRange(range: any, value: number) {
-  if (range?.from && value < range.from) return false;
-  if (range?.to && value > range.to) return false;
-  return true;
-}
-
-function tableCustomFilter(value: any, query: string, item: any) {
-  const rawItem = item.raw as ISearchResultTorrent;
-  const itemTitle = `${rawItem.title}|$|${rawItem.subTitle ?? ""}`.toLowerCase();
-  const itemTags = (rawItem.tags ?? []).map((tag) => tag.name);
-
-  const { site, tags, date, size, seeders, leechers, completed, text, exclude } = tableParsedFilter.value;
-
-  if (site && !site.includes(rawItem.site)) return false;
-  if (tags && !tags.every((tag: string) => itemTags.includes(tag))) return false;
-
-  if (date && rawItem.time) {
-    const startDateTimestamp = parseValidTimeString(date.from, dateFilterFormat);
-    const endDateTimestamp = parseValidTimeString(date.to, dateFilterFormat);
-    if (!checkRange({ from: startDateTimestamp, to: endDateTimestamp }, rawItem.time)) return false;
-  } else if (date) {
-    return false;
-  }
-
-  if (size && rawItem.size) {
-    const startSize = size.from ? parseSizeString(size.from) : 0;
-    const endSize = size.to ? parseSizeString(size.to) : Infinity;
-    if (!checkRange({ from: startSize, to: endSize }, rawItem.size)) return false;
-  } else if (size) {
-    return false;
-  }
-
-  if (seeders && rawItem.seeders && !checkRange(seeders, rawItem.seeders)) return false;
-  if (leechers && rawItem.leechers && !checkRange(leechers, rawItem.leechers)) return false;
-  if (completed && rawItem.completed && !checkRange(completed, rawItem.completed)) return false;
-
-  if (text && !text.map((x) => x.toLowerCase()).every((keyword: string) => itemTitle.includes(keyword))) return false;
-
-  if (exclude) {
-    const { site: exSite, tags: exTags, text: exText } = exclude;
-    if (exSite && exSite.includes(rawItem.site)) return false;
-    if (exTags && exTags.some((tag: string) => itemTags.includes(tag))) return false;
-    if (exText) {
-      const excludesText = (Array.isArray(exText) ? exText : [exText]).map((x) => x.toLowerCase());
-      if (excludesText.some((keyword: string) => itemTitle.includes(keyword))) return false;
-    }
-  }
-
-  return true;
-}
 
 watch(
   () => route.query,
   (newParams, oldParams) => {
     if (
-      newParams.flush &&
-      ((newParams.search && newParams.search != oldParams.search) ||
-        (newParams.plan && newParams.plan != oldParams.plan))
+      (newParams.search && newParams.search != oldParams.search) ||
+      (newParams.plan && newParams.plan != oldParams.plan)
     ) {
-      doSearch(Boolean(newParams.flush));
+      doSearch();
     }
   },
 );
@@ -195,11 +139,14 @@ async function doSearch(flush = true) {
         <v-text-field
           v-model="tableWaitFilter"
           append-icon="mdi-magnify"
+          prepend-inner-icon="mdi-filter"
           label="在搜索结果中进一步过滤"
           single-line
           density="compact"
           :disabled="runtimeStore.search.isSearching"
           hide-details
+          max-width="500"
+          @click:prepend-inner="showAdvanceFilterGenerateDialog = true"
         />
       </v-row>
     </v-card-title>
@@ -221,7 +168,10 @@ async function doSearch(flush = true) {
     >
       <!-- 站点图标 -->
       <template #item.site="{ item }">
-        <SiteIcon :site-id="item.site"></SiteIcon>
+        <div class="d-flex flex-column align-center">
+          <SiteFavicon :site-id="item.site" :size="18" />
+          <SiteName :site-id="item.site" />
+        </div>
       </template>
 
       <!-- 主标题，副标题，优惠及标签 -->
@@ -290,6 +240,11 @@ async function doSearch(flush = true) {
       <template #item.action="{ item }"></template>
     </v-data-table>
   </v-card>
+
+  <AdvanceFilterGenerateDialog
+    v-model="showAdvanceFilterGenerateDialog"
+    @update:table-filter="(v) => (tableWaitFilter = v)"
+  />
 </template>
 
 <style scoped lang="scss"></style>

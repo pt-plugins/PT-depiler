@@ -52,7 +52,6 @@ function startSearchEntity() {
     query: {
       search: searchKey.value,
       plan: searchPlanKey.value,
-      flush: 1,
     },
   });
 }

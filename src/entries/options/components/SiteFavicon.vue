@@ -5,15 +5,13 @@ import { getSiteFavicon } from "@/shared/adapters/site.ts";
 
 const props = withDefaults(
   defineProps<{
-    modelValue: TSiteID;
+    siteId: TSiteID;
     size?: number;
   }>(),
   { size: 32 },
 );
 
-const siteFavicon = computedAsync(() => {
-  return getSiteFavicon(props.modelValue);
-}, NO_IMAGE);
+const siteFavicon = computedAsync(() => getSiteFavicon(props.siteId), NO_IMAGE);
 </script>
 
 <template>
