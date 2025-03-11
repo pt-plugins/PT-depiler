@@ -86,6 +86,7 @@
     "semi": true,
     "trailingComma": "all",
     "bracketSpacing": true,
+    "vueIndentScriptAndStyle": false,
     "endOfLine": "lf"
   },
   "lint-staged": {

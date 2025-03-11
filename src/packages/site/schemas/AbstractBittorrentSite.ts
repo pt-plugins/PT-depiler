@@ -45,6 +45,10 @@ export default class BittorrentSite {
     this.userConfig = userConfig;
   }
 
+  get name(): string {
+    return this.userConfig.merge?.name ?? this.metadata.name;
+  }
+
   get url(): string {
     return this.userConfig.url ?? this.metadata.urls[0];
   }
@@ -480,10 +484,13 @@ export default class BittorrentSite {
     return torrent;
   }
 
-  async getTorrentPageLink(torrent: ITorrent): Promise<string> {
-    return torrent.url;
-  }
-
+  /**
+   * 使用该方法返回种子文件的下载链接
+   * 可以在某些特殊站点通过覆写本方法，来更新搜索结果中的种子链接：
+   *  - 如果在搜索页面没有提供下载链接，可以在这里进行补全
+   *  - 如果搜索页面提供的下载链接有特定的生存期限，可以在这里进行更新
+   * @param torrent
+   */
   async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
     if (!torrent.link && this.metadata?.detail?.selectors?.link) {
       const { data } = await this.request<any>(
@@ -492,6 +499,23 @@ export default class BittorrentSite {
       return this.getFieldData(data, this.metadata.detail.selectors.link);
     }
 
-    return torrent.link;
+    return torrent.link!;
+  }
+
+  /**
+   * 使用该方法返回种子文件的下载配置
+   * @param torrent
+   */
+  async getTorrentDownloadOptions(torrent: ITorrent): Promise<chrome.downloads.DownloadOptions> {
+    const torrentDownloadLink = await this.getTorrentDownloadLink(torrent);
+    return toMerged(
+      {
+        conflictAction: "uniquify",
+        url: torrentDownloadLink,
+        method: "GET",
+        filename: `[${this.name}] ${torrent.title}.torrent`,
+      },
+      this.metadata.download?.downloadOptions ?? {},
+    );
   }
 }

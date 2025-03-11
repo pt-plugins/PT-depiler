@@ -14,6 +14,16 @@ export const useSiteStore = defineStore("site", {
       return Object.keys(state.sites);
     },
 
+    getSearchSolutionName(state) {
+      return (solutionId: TSolutionID): string => {
+        if (solutionId === "default") {
+          return "默认"; // FIXME i18n
+        }
+
+        return state.solutions[solutionId].name;
+      };
+    },
+
     getSearchSolution(state) {
       return async (solutionId: TSolutionID | "default"): Promise<ISearchSolutionState> => {
         if (solutionId === "default") {

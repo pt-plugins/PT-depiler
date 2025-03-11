@@ -75,18 +75,18 @@ function generateRangeField(data: (number | undefined)[]): IRangedValue {
 
 function resetFilter() {
   const searchResult = runtimeStore.search.searchResult;
+
   advanceFilterDict.text = { required: [], exclude: [] };
 
   advanceFilterDict.site = { all: uniq(searchResult.map((x) => x.site)), required: [], exclude: [] };
-
-  const allTags = (advanceFilterDict.tags = {
+  advanceFilterDict.tags = {
     all: uniqBy(
       flatten(searchResult.filter((x) => x.tags && x.tags.length > 0).map((x) => x.tags)),
       (x) => x!.name,
     ) as { name: string; color: string }[],
     required: [],
     exclude: [],
-  });
+  };
 
   advanceFilterDict.date = generateRangeField(searchResult.map((x) => x.time));
   advanceFilterDict.size = generateRangeField(searchResult.map((x) => x.size));
@@ -290,7 +290,6 @@ function updateTableFilter() {
             </v-col>
           </v-row>
         </v-container>
-        {{ stringifyFilter }}
       </v-card-text>
       <v-divider />
       <v-card-actions>

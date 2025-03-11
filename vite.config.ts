@@ -91,6 +91,7 @@ export default defineConfig({
           "notifications",
           "scripting",
           "storage",
+          "downloads",
           "unlimitedStorage",
           "offscreen",
         ],

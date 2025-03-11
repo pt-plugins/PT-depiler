@@ -9,7 +9,7 @@ import { defineStore } from "pinia";
 import type { ESearchResultParseStatus, ITorrent, TSiteID } from "@ptd/site";
 import { TSolutionID } from "@/storage.ts";
 
-export type TSearchSolutionKey = `${TSiteID}-${TSolutionID}`;
+export type TSearchSolutionKey = `${TSiteID}|$|${TSolutionID}`;
 
 export interface ISearchResultTorrent extends ITorrent {
   uniqueId: string; // 每个种子的uniqueId，由 `${site}-${id}` 组成

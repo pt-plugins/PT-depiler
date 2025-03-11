@@ -1,36 +1,33 @@
 <script setup lang="ts">
-import { ESearchResultParseStatus } from "@ptd/site";
-
 import { watch, ref, computed } from "vue";
 import { filesize } from "filesize";
 import { useRoute } from "vue-router";
-import PQueue from "p-queue";
 import { format } from "date-fns";
 import { refDebounced } from "@vueuse/core";
 
 import { useSiteStore } from "@/options/stores/site.ts";
 import { useUIStore } from "@/options/stores/ui.ts";
+import { type ISearchResultTorrent, useRuntimeStore } from "@/options/stores/runtime.ts";
 
-import { sendMessage } from "@/messages";
-import { tableCustomFilter } from "./utils.ts";
-import { type ISearchResultTorrent, type TSearchSolutionKey, useRuntimeStore } from "@/options/stores/runtime.ts";
+import { tableCustomFilter, doSearch, searchQueue } from "./utils.ts"; // <-- 主要方法在这个文件中！！！
 
-import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
-import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import SiteName from "@/options/components/SiteName.vue";
+import SiteFavicon from "@/options/components/SiteFavicon.vue";
+import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
+import SearchStatusDialog from "./SearchStatusDialog.vue";
+import ActionTd from "@/options/views/Overview/searchEntity/ActionTd.vue";
 
 const route = useRoute();
 const uiStore = useUIStore();
 const siteStore = useSiteStore();
 const runtimeStore = useRuntimeStore();
 
-const queue = new PQueue({ concurrency: 1 }); // Use settingStore
-
 const showAdvanceFilterGenerateDialog = ref<boolean>(false);
+const showSearchStatusDialog = ref<boolean>(false);
 
 const fullTableHeader = [
   { title: "站点", key: "site", align: "center", width: 90, alwaysShow: true },
-  { title: "标题", key: "title", align: "start", maxWidth: "35vw", alwaysShow: true },
+  { title: "标题", key: "title", align: "start", maxWidth: "32vw", alwaysShow: true },
   { title: "分类/入口", key: "category", align: "center", width: 150, minWidth: 150 },
   { title: "大小", key: "size", align: "end" },
   { title: "上传", key: "seeders", align: "end", width: 90, minWidth: 90 },
@@ -38,7 +35,7 @@ const fullTableHeader = [
   { title: "完成", key: "completed", align: "end", width: 90, minWidth: 90 },
   { title: "评论", key: "comments", align: "end", width: 90, minWidth: 90 },
   { title: "发布于(≈)", key: "time", align: "center" },
-  { title: "操作", key: "action", align: "center", width: 130, minWidth: 130, alwaysShow: true },
+  { title: "操作", key: "action", align: "center", width: 125, minWidth: 125, sortable: false, alwaysShow: true },
 ];
 
 const tableHeader = computed(() => {
@@ -58,60 +55,29 @@ watch(
       (newParams.search && newParams.search != oldParams.search) ||
       (newParams.plan && newParams.plan != oldParams.plan)
     ) {
-      doSearch();
+      doSearch((newParams.search as string) ?? "", (newParams.plan as string) ?? "default", true);
     }
   },
 );
 
-async function doSearch(flush = true) {
-  // Reset search data
-  if (flush) {
-    runtimeStore.resetSearchData();
-  }
+const isSearchingParsed = ref<boolean>(searchQueue.isPaused);
 
-  runtimeStore.search.startAt = +Date.now();
-  runtimeStore.search.isSearching = true;
-  runtimeStore.search.searchKey = (route.query.search as string) || "";
-  runtimeStore.search.searchPlanKey = (route.query.plan as string) || "default";
+function pauseSearchQueue() {
+  console.log("pauseSearchQueue", searchQueue);
+  searchQueue.pause();
+  isSearchingParsed.value = true;
+}
 
-  // Expand search plan
-  const searchSolution = await siteStore.getSearchSolution(runtimeStore.search.searchPlanKey);
-  console.log("Expand Search Plan: ", searchSolution);
-  for (const { siteId, searchEntries } of searchSolution.solutions) {
-    for (const [solutionId, searchEntry] of Object.entries(searchEntries)) {
-      const solutionKey = `${siteId}-${solutionId}` as TSearchSolutionKey;
-      runtimeStore.search.searchPlanStatus[solutionKey] = ESearchResultParseStatus.waiting;
+function startSearchQueue() {
+  console.log("startSearchQueue", searchQueue);
+  searchQueue.start();
+  isSearchingParsed.value = false;
+}
 
-      // Search site by plan in queue
-      console.log(`Add search ${solutionId} to queue.`);
-      await queue.add(async () => {
-        console.log(`search ${solutionId} start.`);
-        runtimeStore.search.searchPlanStatus[solutionKey] = ESearchResultParseStatus.working;
-        const { status: searchStatus, data: searchResult } = await sendMessage("getSiteSearchResult", {
-          keyword: runtimeStore.search.searchKey,
-          siteId,
-          searchEntry,
-        });
-        console.log(`success get search ${solutionId} result, with code ${searchStatus}: `, searchResult);
-        runtimeStore.search.searchPlanStatus[solutionKey] = searchStatus;
-        for (const item of searchResult) {
-          const itemUniqueId = `${item.site}-${item.id}`;
-          const isDuplicate = runtimeStore.search.searchResult.some((result) => result.uniqueId == itemUniqueId);
-          if (!isDuplicate) {
-            (item as ISearchResultTorrent).uniqueId = itemUniqueId;
-            (item as ISearchResultTorrent).solutionId = solutionId;
-            (item as ISearchResultTorrent).solutionKey = solutionKey;
-            runtimeStore.search.searchResult.push(item as ISearchResultTorrent);
-          }
-        }
-      });
-    }
-  }
-
-  // Wait for all search tasks to complete
-  await queue.onIdle();
+function cancelSearchQueue() {
+  console.log("cancelSearchQueue", searchQueue);
+  searchQueue.clear();
   runtimeStore.search.isSearching = false;
-  runtimeStore.search.costTime = +new Date() - runtimeStore.search.startAt;
 }
 </script>
 
@@ -120,14 +86,16 @@ async function doSearch(flush = true) {
     <v-alert-title>
       <template v-if="runtimeStore.search.startAt === 0">请输入搜索关键词开始搜索</template>
       <template v-else>
-        搜索结果：
-        <template v-if="runtimeStore.search.isSearching"> 正在搜索中.....</template>
+        <v-btn color="primary" size="small" @click="showSearchStatusDialog = true" class="mr-2">搜索情况</v-btn>
+        <template v-if="runtimeStore.search.isSearching">
+          <template v-if="isSearchingParsed">搜索暂停中...</template>
+          <template v-else>搜索中...</template>
+        </template>
         <template v-else>
-          搜索完成， 共找到 {{ runtimeStore.search.searchResult.length }} 条结果， 耗时：
+          使用方案 [{{ siteStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) }}] 搜索关键词 [{{
+            runtimeStore.search.searchKey
+          }}] 完成， 共找到 {{ runtimeStore.search.searchResult.length }} 条结果， 耗时：
           {{ runtimeStore.search.costTime / 1000 }} 秒。
-
-          <!-- TODO 全局重新搜索按钮 -->
-          <v-btn color="primary" size="small" @click="doSearch">重新搜索</v-btn>
         </template>
       </template>
     </v-alert-title>
@@ -135,12 +103,51 @@ async function doSearch(flush = true) {
   <v-card>
     <v-card-title>
       <v-row class="ma-0">
+        <v-btn-group size="small" variant="text">
+          <v-btn
+            v-show="isSearchingParsed"
+            @click="() => startSearchQueue()"
+            icon="mdi-play"
+            color="success"
+            title="开始搜索队列"
+          ></v-btn>
+          <v-btn
+            v-show="!isSearchingParsed"
+            @click="() => pauseSearchQueue()"
+            icon="mdi-pause"
+            color="success"
+            title="暂停搜索队列"
+          ></v-btn>
+
+          <v-btn
+            v-show="runtimeStore.search.isSearching"
+            icon="mdi-cancel"
+            color="red"
+            title="取消当前搜索"
+            @click="cancelSearchQueue"
+          ></v-btn>
+          <v-btn
+            v-show="!runtimeStore.search.isSearching"
+            icon="mdi-cached"
+            color="red"
+            title="重新搜索"
+            :disabled="isSearchingParsed"
+            @click="() => doSearch(null as unknown as string, null as unknown as string, true)"
+          ></v-btn>
+
+          <!-- TODO 创建搜索快照 -->
+          <v-btn icon="mdi-camera-plus" color="cyan" :disabled="true || runtimeStore.search.isSearching"></v-btn>
+        </v-btn-group>
+
+        <v-divider vertical class="mx-2" />
+        <ActionTd :torrent-ids="tableSelected" />
+
         <v-spacer />
         <v-text-field
           v-model="tableWaitFilter"
           append-icon="mdi-magnify"
           prepend-inner-icon="mdi-filter"
-          label="在搜索结果中进一步过滤"
+          label="过滤搜索结果"
           single-line
           density="compact"
           :disabled="runtimeStore.search.isSearching"
@@ -197,7 +204,7 @@ async function doSearch(flush = true) {
               :title="item.subTitle"
               :style="{
                 // 防止标签导致的副标题溢出，这里假定每个 tag 的 width 为 40px 并额外增加 80px
-                'max-width': item.tags ? `calc(35vw - ${40 * (item.tags.length + 2)}px)` : false,
+                'max-width': item.tags ? `calc(30vw - ${40 * (item.tags.length + 2)}px)` : false,
               }"
             >
               {{ item.subTitle }}
@@ -237,7 +244,9 @@ async function doSearch(flush = true) {
       </template>
 
       <!-- 其他操作 -->
-      <template #item.action="{ item }"></template>
+      <template #item.action="{ item }">
+        <ActionTd :torrent-ids="[item.uniqueId]" density="compact" />
+      </template>
     </v-data-table>
   </v-card>
 
@@ -245,6 +254,7 @@ async function doSearch(flush = true) {
     v-model="showAdvanceFilterGenerateDialog"
     @update:table-filter="(v) => (tableWaitFilter = v)"
   />
+  <SearchStatusDialog v-model="showSearchStatusDialog"></SearchStatusDialog>
 </template>
 
 <style scoped lang="scss"></style>

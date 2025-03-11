@@ -45,8 +45,8 @@ export interface ITorrent {
    *    - 对于 PT站点 应该是种子的链接
    *    - 对于 BT站点 应尽可能为种子链接，只有不存在种子链接或种子链接经过某些种子生成站时，才使用 magnet 链接
    */
-  url: string;
-  link: string;
+  url?: string;
+  link?: string;
 
   time?: number; // 发布时间戳（毫秒级）
   size?: number; // 大小

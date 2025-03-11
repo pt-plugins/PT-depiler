@@ -109,6 +109,15 @@ export interface ISiteMetadata {
     } & { [torrentKey in keyof ITorrent]?: IElementQuery }; // 种子相关选择器
   };
 
+  download?: {
+    /**
+     * 对一些特殊的站点（比如需要post方法），你可以为种子下载定义额外的 downloadOptions
+     * 会通过 toMerged({ url: torrent.link, method: 'get' }, download.downloadOptions ?? {}) 进行合并，
+     * 如果该站点的下载过于复杂（比如需要传递额外生成的 header），更建议覆写 getTorrentDownloadOptions(torrent) 方法
+     */
+    downloadOptions?: Omit<chrome.downloads.DownloadOptions, "url">;
+  };
+
   /**
    * 该配置项仅对 基于 PrivateSite 模板，且未改写 flushUserInfo 的站点生效
    */

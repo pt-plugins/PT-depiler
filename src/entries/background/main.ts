@@ -31,6 +31,10 @@ onMessage("getSiteUserConfig", async ({ data: siteId }) => {
   return storedSiteUserConfig;
 });
 
+onMessage("downloadFile", async ({ data: downloadOptions }) => {
+  return await chrome.downloads.download(downloadOptions);
+});
+
 // create offscreen for DOM_PARSER and other reason ( f**k google )
 chrome.offscreen?.hasDocument((has) => {
   !has &&

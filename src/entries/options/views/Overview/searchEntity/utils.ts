@@ -1,7 +1,11 @@
-import searchQueryParser, { type SearchParserOptions } from "search-query-parser";
-import { type ISearchResultTorrent } from "@/options/stores/runtime.ts";
-import { parseSizeString, parseValidTimeString } from "@ptd/site";
 import { computed } from "vue";
+import PQueue from "p-queue";
+import searchQueryParser, { type SearchParserOptions } from "search-query-parser";
+
+import { ESearchResultParseStatus, parseSizeString, parseValidTimeString } from "@ptd/site";
+import { sendMessage } from "@/messages.ts";
+import { useSiteStore } from "@/options/stores/site.ts";
+import { type ISearchResultTorrent, type TSearchSolutionKey, useRuntimeStore } from "@/options/stores/runtime.ts";
 
 export const searchQueryParserOptions: SearchParserOptions = {
   keywords: ["site", "tags"],
@@ -70,4 +74,66 @@ export function tableCustomFilter(value: any, query: string, item: any) {
   }
 
   return true;
+}
+
+export const searchQueue = new PQueue({ concurrency: 1 }); // FIXME Use settingStore
+
+export async function doSearch(search: string, plan: string, flush = true) {
+  const runtimeStore = useRuntimeStore();
+  const siteStore = useSiteStore();
+
+  const searchKey = search ?? runtimeStore.search.searchKey ?? "";
+  const searchPlanKey = plan ?? runtimeStore.search.searchPlanKey ?? "default";
+
+  // Reset search data
+  if (flush) {
+    runtimeStore.resetSearchData();
+  }
+
+  console.log("Start search with: ", searchKey, searchPlanKey, flush);
+
+  runtimeStore.search.startAt = +Date.now();
+  runtimeStore.search.isSearching = true;
+  runtimeStore.search.searchKey = searchKey;
+  runtimeStore.search.searchPlanKey = searchPlanKey;
+
+  // Expand search plan
+  const searchSolution = await siteStore.getSearchSolution(runtimeStore.search.searchPlanKey);
+  console.log(`Expanded Search Plan for ${searchPlanKey}: `, searchSolution);
+
+  for (const { siteId, searchEntries } of searchSolution.solutions) {
+    for (const [solutionId, searchEntry] of Object.entries(searchEntries)) {
+      const solutionKey = `${siteId}|$|${solutionId}` as TSearchSolutionKey;
+      runtimeStore.search.searchPlanStatus[solutionKey] = ESearchResultParseStatus.waiting;
+
+      // Search site by plan in queue
+      console.log(`Add search ${solutionId} to queue.`);
+      await searchQueue.add(async () => {
+        console.log(`search ${solutionId} start.`);
+        runtimeStore.search.searchPlanStatus[solutionKey] = ESearchResultParseStatus.working;
+        const { status: searchStatus, data: searchResult } = await sendMessage("getSiteSearchResult", {
+          keyword: runtimeStore.search.searchKey,
+          siteId,
+          searchEntry,
+        });
+        console.log(`success get search ${solutionId} result, with code ${searchStatus}: `, searchResult);
+        runtimeStore.search.searchPlanStatus[solutionKey] = searchStatus;
+        for (const item of searchResult) {
+          const itemUniqueId = `${item.site}-${item.id}`;
+          const isDuplicate = runtimeStore.search.searchResult.some((result) => result.uniqueId == itemUniqueId);
+          if (!isDuplicate) {
+            (item as ISearchResultTorrent).uniqueId = itemUniqueId;
+            (item as ISearchResultTorrent).solutionId = solutionId;
+            (item as ISearchResultTorrent).solutionKey = solutionKey;
+            runtimeStore.search.searchResult.push(item as ISearchResultTorrent);
+          }
+        }
+      });
+    }
+  }
+
+  // Wait for all search tasks to complete
+  await searchQueue.onIdle();
+  runtimeStore.search.isSearching = false;
+  runtimeStore.search.costTime = +new Date() - runtimeStore.search.startAt;
 }
