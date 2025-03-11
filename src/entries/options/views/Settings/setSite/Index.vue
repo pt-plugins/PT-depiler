@@ -118,7 +118,7 @@ function deleteSite(siteId: TSiteID | TSiteID[]) {
       @update:sortBy="(v) => uiStore.updateTableBehavior('setSite', 'sortBy', v)"
     >
       <template #item.sortIndex="{ item }">
-        <SiteFavicon v-model="item.id" />
+        <SiteFavicon :site-id="item.id" />
       </template>
       <template #item.name="{ item }">
         {{ item.userConfig?.merge?.name ?? item.metadata?.name }}

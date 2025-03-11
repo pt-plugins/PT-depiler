@@ -3,11 +3,15 @@ import { computed, ref } from "vue";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { sendMessage } from "@/messages.ts";
 
-const runtimeStore = useRuntimeStore();
+const props = withDefaults(
+  defineProps<{
+    torrentIds: string[];
+    density?: "compact" | "default";
+  }>(),
+  { density: "default" },
+);
 
-const props = defineProps<{
-  torrentIds: string[];
-}>();
+const runtimeStore = useRuntimeStore();
 
 const torrentItems = computed(() => {
   return runtimeStore.search.searchResult.filter((x) => props.torrentIds.includes(x.uniqueId));
@@ -47,15 +51,18 @@ async function localDlTorrentDownloadLink() {
   localDlTorrentDownloadLinkBtnStatus.value = false;
 }
 
+const showDownloadClientDialog = ref(false);
+
 function noop() {
+  showDownloadClientDialog.value = true;
   // do nothing
 }
 </script>
 
 <template>
-  <v-btn-group size="small" variant="text" color="grey">
+  <v-btn-group size="small" variant="text" color="grey" :density="props.density">
     <!-- TODO 下载到服务器 -->
-    <v-btn icon="mdi-cloud-download" :disabled="true || props.torrentIds.length == 0" @click="() => noop()"></v-btn>
+    <v-btn icon="mdi-cloud-download" :disabled="props.torrentIds.length == 0" @click="() => noop()"></v-btn>
     <!-- 复制下载链接 -->
     <v-btn
       icon="mdi-content-copy"
@@ -76,6 +83,11 @@ function noop() {
     <!-- TODO 收藏 -->
     <v-btn icon="mdi-heart-outline" :disabled="true || props.torrentIds.length == 0" @click="() => noop()"></v-btn>
   </v-btn-group>
+
+  <!-- TODO 在点击发送到远程服务器时，弹出选择下载器及其他自定义选项 -->
+  <teleport to="#ptd-main">
+    <v-dialog v-model="showDownloadClientDialog" scrollable max-width="800">showDownloadClientDialog</v-dialog>
+  </teleport>
 </template>
 
 <style scoped lang="scss"></style>

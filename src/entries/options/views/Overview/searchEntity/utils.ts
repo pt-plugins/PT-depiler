@@ -102,33 +102,48 @@ export async function doSearch(search: string, plan: string, flush = true) {
   console.log(`Expanded Search Plan for ${searchPlanKey}: `, searchSolution);
 
   for (const { siteId, searchEntries } of searchSolution.solutions) {
-    for (const [solutionId, searchEntry] of Object.entries(searchEntries)) {
-      const solutionKey = `${siteId}|$|${solutionId}` as TSearchSolutionKey;
-      runtimeStore.search.searchPlanStatus[solutionKey] = ESearchResultParseStatus.waiting;
+    for (const [searchEntryName, searchEntry] of Object.entries(searchEntries)) {
+      const solutionKey = `${siteId}|$|${searchEntryName}` as TSearchSolutionKey;
+      runtimeStore.search.searchPlan[solutionKey] = {
+        siteId,
+        searchEntryName,
+        searchEntry,
+        status: ESearchResultParseStatus.waiting,
+        count: 0,
+      };
 
       // Search site by plan in queue
-      console.log(`Add search ${solutionId} to queue.`);
-      await searchQueue.add(async () => {
-        console.log(`search ${solutionId} start.`);
-        runtimeStore.search.searchPlanStatus[solutionKey] = ESearchResultParseStatus.working;
-        const { status: searchStatus, data: searchResult } = await sendMessage("getSiteSearchResult", {
-          keyword: runtimeStore.search.searchKey,
-          siteId,
-          searchEntry,
-        });
-        console.log(`success get search ${solutionId} result, with code ${searchStatus}: `, searchResult);
-        runtimeStore.search.searchPlanStatus[solutionKey] = searchStatus;
-        for (const item of searchResult) {
-          const itemUniqueId = `${item.site}-${item.id}`;
-          const isDuplicate = runtimeStore.search.searchResult.some((result) => result.uniqueId == itemUniqueId);
-          if (!isDuplicate) {
-            (item as ISearchResultTorrent).uniqueId = itemUniqueId;
-            (item as ISearchResultTorrent).solutionId = solutionId;
-            (item as ISearchResultTorrent).solutionKey = solutionKey;
-            runtimeStore.search.searchResult.push(item as ISearchResultTorrent);
+      console.log(`Add search ${searchEntryName} to queue.`);
+      runtimeStore.search.searchPlan[solutionKey].queueAt = +new Date();
+      await searchQueue.add(
+        async () => {
+          const startAt = (runtimeStore.search.searchPlan[solutionKey].startAt = +new Date());
+          console.log(`search ${searchEntryName} start at ${startAt}`);
+          runtimeStore.search.searchPlan[solutionKey].status = ESearchResultParseStatus.working;
+          const { status: searchStatus, data: searchResult } = await sendMessage("getSiteSearchResult", {
+            keyword: runtimeStore.search.searchKey,
+            siteId,
+            searchEntry,
+          });
+          console.log(`success get search ${searchEntryName} result, with code ${searchStatus}: `, searchResult);
+          runtimeStore.search.searchPlan[solutionKey].status = searchStatus;
+          for (const item of searchResult) {
+            const itemUniqueId = `${item.site}-${item.id}`;
+            const isDuplicate = runtimeStore.search.searchResult.some((result) => result.uniqueId == itemUniqueId);
+            if (!isDuplicate) {
+              (item as ISearchResultTorrent).uniqueId = itemUniqueId;
+              (item as ISearchResultTorrent).solutionId = searchEntryName;
+              (item as ISearchResultTorrent).solutionKey = solutionKey;
+              runtimeStore.search.searchResult.push(item as ISearchResultTorrent);
+            }
           }
-        }
-      });
+          runtimeStore.search.searchPlan[solutionKey].count = runtimeStore.search.searchResult.filter(
+            (item) => item.solutionKey == solutionKey,
+          ).length;
+          runtimeStore.search.searchPlan[solutionKey].costTime = +new Date() - startAt;
+        },
+        { priority: 1, id: solutionKey },
+      );
     }
   }
 

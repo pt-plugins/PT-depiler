@@ -44,6 +44,59 @@ export const useSiteStore = defineStore("site", {
         }
       };
     },
+
+    getSiteMetadata(state) {
+      return async (siteId: TSiteID): Promise<ISiteMetadata> => {
+        return await getDefinedSiteMetadata(siteId);
+      };
+    },
+
+    getSiteUserConfig(state) {
+      return async (siteId: TSiteID): Promise<ISiteUserConfig> => {
+        const siteUserConfig = state.sites[siteId] ?? {};
+        if (isEmpty(siteUserConfig)) {
+          const siteMetaData = await this.getSiteMetadata(siteId);
+          siteUserConfig.isOffline ??= false;
+          siteUserConfig.allowSearch ??= Object.hasOwn(siteMetaData, "search");
+          siteUserConfig.allowQueryUserInfo ??= Object.hasOwn(siteMetaData, "userInfo");
+          siteUserConfig.inputSetting ??= {};
+          siteUserConfig.merge ??= {};
+        }
+        return siteUserConfig;
+      };
+    },
+
+    getSiteMergedMetadata(state) {
+      return async <T extends keyof ISiteMetadata>(
+        siteId: TSiteID,
+        field: keyof ISiteMetadata,
+        defaultValue?: ISiteMetadata[T],
+      ): Promise<ISiteMetadata[T]> => {
+        const siteConfig = await this.getSiteUserConfig(siteId);
+        if (siteConfig.merge?.[field]) {
+          return siteConfig.merge[field];
+        }
+        const siteMetadata = await this.getSiteMetadata(siteId);
+        return siteMetadata[field] ?? defaultValue;
+      };
+    },
+
+    getSiteName(state) {
+      return async (siteId: TSiteID): Promise<string> => {
+        return await this.getSiteMergedMetadata(siteId, "name", siteId);
+      };
+    },
+
+    getSiteUrl(state) {
+      return async (siteId: TSiteID): Promise<string> => {
+        const siteConfig = await this.getSiteUserConfig(siteId);
+        if (siteConfig.url) {
+          return siteConfig.url;
+        }
+        const siteMetadata = await this.getSiteMetadata(siteId);
+        return siteMetadata.urls?.[0] ?? "#";
+      };
+    },
   },
   actions: {
     addSite(siteId: TSiteID, siteConfig: ISiteUserConfig) {
@@ -64,49 +117,6 @@ export const useSiteStore = defineStore("site", {
     simplePatchSite<T extends keyof ISiteUserConfig>(siteId: TSiteID, key: T, value: ISiteUserConfig[T]) {
       set(this.sites[siteId], key, value);
       this.$save();
-    },
-
-    async getSiteMetadata(siteId: TSiteID) {
-      return await getDefinedSiteMetadata(siteId);
-    },
-
-    async getSiteUserConfig(siteId: TSiteID) {
-      const siteUserConfig = this.sites[siteId] ?? {};
-      if (isEmpty(siteUserConfig)) {
-        const siteMetaData = await this.getSiteMetadata(siteId);
-        siteUserConfig.isOffline ??= false;
-        siteUserConfig.allowSearch ??= Object.hasOwn(siteMetaData, "search");
-        siteUserConfig.allowQueryUserInfo ??= Object.hasOwn(siteMetaData, "userInfo");
-        siteUserConfig.inputSetting ??= {};
-        siteUserConfig.merge ??= {};
-      }
-      return siteUserConfig;
-    },
-
-    async getSiteMergedMetadata<T extends keyof ISiteMetadata>(
-      siteId: TSiteID,
-      field: keyof ISiteMetadata,
-      defaultValue?: ISiteMetadata[T],
-    ) {
-      const siteConfig = await this.getSiteUserConfig(siteId);
-      if (siteConfig.merge?.[field]) {
-        return siteConfig.merge[field];
-      }
-      const siteMetadata = await this.getSiteMetadata(siteId);
-      return siteMetadata[field] ?? defaultValue;
-    },
-
-    async getSiteName(siteId: TSiteID): Promise<string> {
-      return await this.getSiteMergedMetadata(siteId, "name", siteId);
-    },
-
-    async getSiteUrl(siteId: TSiteID): Promise<string> {
-      const siteConfig = await this.getSiteUserConfig(siteId);
-      if (siteConfig.url) {
-        return siteConfig.url;
-      }
-      const siteMetadata = await this.getSiteMetadata(siteId);
-      return siteMetadata.urls?.[0] ?? "#";
     },
   },
 });

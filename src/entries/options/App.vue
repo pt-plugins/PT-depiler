@@ -31,7 +31,7 @@ function setIgnoreWrongPixelRatio() {
     <!-- 导航栏 -->
     <Navigation />
 
-    <v-main>
+    <v-main id="ptd-main">
       <v-container fluid>
         <router-view v-slot="{ Component, route }">
           <keep-alive v-if="route.meta.keepAlive">

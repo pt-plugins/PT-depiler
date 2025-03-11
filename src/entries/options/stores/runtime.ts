@@ -28,7 +28,19 @@ interface ISearchData {
   searchPlanKey: string;
 
   // 该搜索相关的搜索结果
-  searchPlanStatus: Record<TSearchSolutionKey, ESearchResultParseStatus>;
+  searchPlan: Record<
+    TSearchSolutionKey,
+    {
+      siteId: TSiteID;
+      searchEntryName: string;
+      searchEntry: Record<string, any>;
+      status: ESearchResultParseStatus;
+      queueAt?: number;
+      startAt?: number;
+      costTime?: number;
+      count?: number;
+    }
+  >;
   searchResult: ISearchResultTorrent[];
 }
 
@@ -38,7 +50,7 @@ export const initialSearchData: () => ISearchData = () => ({
   costTime: 0,
   searchKey: "",
   searchPlanKey: "default",
-  searchPlanStatus: {},
+  searchPlan: {},
   searchResult: [],
 });
 
