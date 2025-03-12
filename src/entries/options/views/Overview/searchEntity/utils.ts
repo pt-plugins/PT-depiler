@@ -95,7 +95,7 @@ searchQueue.on("empty", () => {
 
 export async function raiseSearchPriority(solutionKey: TSearchSolutionKey) {
   const currentPriority = runtimeStore.search.searchPlan[solutionKey].queuePriority ?? 1;
-  searchQueue.changePriority(solutionKey, currentPriority + 1);
+  searchQueue.setPriority(solutionKey, currentPriority + 1);
 }
 
 export async function doSearchEntity(
