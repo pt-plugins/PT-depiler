@@ -2,7 +2,13 @@ import { computed } from "vue";
 import PQueue from "p-queue";
 import searchQueryParser, { type SearchParserOptions } from "search-query-parser";
 
-import { ESearchResultParseStatus, parseSizeString, parseValidTimeString } from "@ptd/site";
+import {
+  ESearchResultParseStatus,
+  IAdvanceKeywordSearchConfig,
+  parseSizeString,
+  parseValidTimeString,
+  TSiteID,
+} from "@ptd/site";
 import { sendMessage } from "@/messages.ts";
 import { useSiteStore } from "@/options/stores/site.ts";
 import { type ISearchResultTorrent, type TSearchSolutionKey, useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -76,12 +82,83 @@ export function tableCustomFilter(value: any, query: string, item: any) {
   return true;
 }
 
+const runtimeStore = useRuntimeStore();
 export const searchQueue = new PQueue({ concurrency: 1 }); // FIXME Use settingStore
 
-export async function doSearch(search: string, plan: string, flush = true) {
-  const runtimeStore = useRuntimeStore();
-  const siteStore = useSiteStore();
+searchQueue.on("active", () => {
+  runtimeStore.search.isSearching = true;
+});
 
+searchQueue.on("empty", () => {
+  runtimeStore.search.isSearching = false;
+});
+
+export async function raiseSearchPriority(solutionKey: TSearchSolutionKey) {
+  const currentPriority = runtimeStore.search.searchPlan[solutionKey].queuePriority ?? 1;
+  searchQueue.changePriority(solutionKey, currentPriority + 1);
+}
+
+export async function doSearchEntity(
+  siteId: TSiteID,
+  searchEntryName: string,
+  searchEntry: IAdvanceKeywordSearchConfig,
+  flush: boolean = false,
+) {
+  const solutionKey = `${siteId}|$|${searchEntryName}` as TSearchSolutionKey;
+  let queuePriority = runtimeStore.search.searchPlan[solutionKey].queuePriority ?? 1;
+
+  // 对重新搜索的，清除对应搜索方法的搜索结果
+  if (flush) {
+    runtimeStore.search.searchResult = runtimeStore.search.searchResult.filter(
+      (item) => item.solutionKey != solutionKey,
+    );
+    queuePriority -= 1; // 对重新搜索的，降低优先级
+  }
+
+  runtimeStore.search.searchPlan[solutionKey] = {
+    siteId,
+    searchEntryName,
+    searchEntry,
+    status: ESearchResultParseStatus.waiting,
+    queuePriority,
+    count: 0,
+  };
+
+  // Search site by plan in queue
+  console.log(`Add search ${searchEntryName} to queue.`);
+  runtimeStore.search.searchPlan[solutionKey].queueAt = +new Date();
+  await searchQueue.add(
+    async () => {
+      const startAt = (runtimeStore.search.searchPlan[solutionKey].startAt = +new Date());
+      console.log(`search ${searchEntryName} start at ${startAt}`);
+      runtimeStore.search.searchPlan[solutionKey].status = ESearchResultParseStatus.working;
+      const { status: searchStatus, data: searchResult } = await sendMessage("getSiteSearchResult", {
+        keyword: runtimeStore.search.searchKey,
+        siteId,
+        searchEntry,
+      });
+      console.log(`success get search ${searchEntryName} result, with code ${searchStatus}: `, searchResult);
+      runtimeStore.search.searchPlan[solutionKey].status = searchStatus;
+      for (const item of searchResult) {
+        const itemUniqueId = `${item.site}-${item.id}`;
+        const isDuplicate = runtimeStore.search.searchResult.some((result) => result.uniqueId == itemUniqueId);
+        if (!isDuplicate) {
+          (item as ISearchResultTorrent).uniqueId = itemUniqueId;
+          (item as ISearchResultTorrent).solutionId = searchEntryName;
+          (item as ISearchResultTorrent).solutionKey = solutionKey;
+          runtimeStore.search.searchResult.push(item as ISearchResultTorrent);
+        }
+      }
+      runtimeStore.search.searchPlan[solutionKey].count = runtimeStore.search.searchResult.filter(
+        (item) => item.solutionKey == solutionKey,
+      ).length;
+      runtimeStore.search.searchPlan[solutionKey].costTime = +new Date() - startAt;
+    },
+    { priority: queuePriority, id: solutionKey },
+  );
+}
+
+export async function doSearch(search: string, plan: string, flush = true) {
   const searchKey = search ?? runtimeStore.search.searchKey ?? "";
   const searchPlanKey = plan ?? runtimeStore.search.searchPlanKey ?? "default";
 
@@ -98,57 +175,16 @@ export async function doSearch(search: string, plan: string, flush = true) {
   runtimeStore.search.searchPlanKey = searchPlanKey;
 
   // Expand search plan
+  const siteStore = useSiteStore();
   const searchSolution = await siteStore.getSearchSolution(runtimeStore.search.searchPlanKey);
   console.log(`Expanded Search Plan for ${searchPlanKey}: `, searchSolution);
 
   for (const { siteId, searchEntries } of searchSolution.solutions) {
     for (const [searchEntryName, searchEntry] of Object.entries(searchEntries)) {
-      const solutionKey = `${siteId}|$|${searchEntryName}` as TSearchSolutionKey;
-      runtimeStore.search.searchPlan[solutionKey] = {
-        siteId,
-        searchEntryName,
-        searchEntry,
-        status: ESearchResultParseStatus.waiting,
-        count: 0,
-      };
-
-      // Search site by plan in queue
-      console.log(`Add search ${searchEntryName} to queue.`);
-      runtimeStore.search.searchPlan[solutionKey].queueAt = +new Date();
-      await searchQueue.add(
-        async () => {
-          const startAt = (runtimeStore.search.searchPlan[solutionKey].startAt = +new Date());
-          console.log(`search ${searchEntryName} start at ${startAt}`);
-          runtimeStore.search.searchPlan[solutionKey].status = ESearchResultParseStatus.working;
-          const { status: searchStatus, data: searchResult } = await sendMessage("getSiteSearchResult", {
-            keyword: runtimeStore.search.searchKey,
-            siteId,
-            searchEntry,
-          });
-          console.log(`success get search ${searchEntryName} result, with code ${searchStatus}: `, searchResult);
-          runtimeStore.search.searchPlan[solutionKey].status = searchStatus;
-          for (const item of searchResult) {
-            const itemUniqueId = `${item.site}-${item.id}`;
-            const isDuplicate = runtimeStore.search.searchResult.some((result) => result.uniqueId == itemUniqueId);
-            if (!isDuplicate) {
-              (item as ISearchResultTorrent).uniqueId = itemUniqueId;
-              (item as ISearchResultTorrent).solutionId = searchEntryName;
-              (item as ISearchResultTorrent).solutionKey = solutionKey;
-              runtimeStore.search.searchResult.push(item as ISearchResultTorrent);
-            }
-          }
-          runtimeStore.search.searchPlan[solutionKey].count = runtimeStore.search.searchResult.filter(
-            (item) => item.solutionKey == solutionKey,
-          ).length;
-          runtimeStore.search.searchPlan[solutionKey].costTime = +new Date() - startAt;
-        },
-        { priority: 1, id: solutionKey },
-      );
+      await doSearchEntity(siteId, searchEntryName, searchEntry);
     }
   }
 
   // Wait for all search tasks to complete
   await searchQueue.onIdle();
-  runtimeStore.search.isSearching = false;
-  runtimeStore.search.costTime = +new Date() - runtimeStore.search.startAt;
 }

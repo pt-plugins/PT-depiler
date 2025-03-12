@@ -96,7 +96,7 @@ function cancelSearchQueue() {
           使用方案 [{{ siteStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) }}] 搜索关键词 [{{
             runtimeStore.search.searchKey
           }}] 完成， 共找到 {{ runtimeStore.search.searchResult.length }} 条结果， 耗时：
-          {{ runtimeStore.search.costTime / 1000 }} 秒。
+          {{ runtimeStore.searchCostTime / 1000 }} 秒。
         </template>
       </template>
     </v-alert-title>

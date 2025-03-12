@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { computed } from "vue";
 import { useVModel } from "@vueuse/core";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useSiteStore } from "@/options/stores/site.ts";
 import { ESearchResultParseStatus } from "@ptd/site";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import SiteName from "@/options/components/SiteName.vue";
+import { doSearchEntity, raiseSearchPriority } from "@/options/views/Overview/searchEntity/utils.ts";
 
 const componentProps = defineProps<{
   modelValue: boolean;
@@ -25,13 +25,6 @@ const StatusMap: Record<ESearchResultParseStatus, string> = {
   [ESearchResultParseStatus.needLogin]: "需要登录！",
   [ESearchResultParseStatus.noResults]: "无结果！",
 };
-
-const otherCostTime = computed(() => {
-  return (
-    runtimeStore.search.costTime -
-    Object.values(runtimeStore.search.searchPlan).reduce((acc, cur) => acc + (cur.costTime ?? 0), 0)
-  );
-});
 </script>
 
 <template>
@@ -40,16 +33,15 @@ const otherCostTime = computed(() => {
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey darken-2">
           <v-toolbar-title>
-            [{{ siteStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) }}] 搜索状态
+            方案 [{{ siteStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) }}] 搜索状态
           </v-toolbar-title>
           <v-spacer />
-          <span class="mr-5">其他用时开销 {{ otherCostTime / 1000 }}s</span>
         </v-toolbar>
       </v-card-title>
       <v-divider />
       <v-card-text>
         <v-list>
-          <v-list-item v-for="(searchPlan, key) in runtimeStore.search.searchPlan">
+          <v-list-item v-for="(searchPlan, solutionKey) in runtimeStore.search.searchPlan">
             <template #prepend>
               <SiteFavicon :site-id="searchPlan.siteId" class="mr-2" />
             </template>
@@ -75,6 +67,7 @@ const otherCostTime = computed(() => {
                   v-if="searchPlan.status === ESearchResultParseStatus.waiting"
                   color="warning"
                   icon="mdi-arrow-collapse-up"
+                  @click="() => raiseSearchPriority(solutionKey)"
                 >
                 </v-btn>
                 <!-- TODO 重新搜索 -->
@@ -83,6 +76,9 @@ const otherCostTime = computed(() => {
                   icon="mdi-cached"
                   color="red"
                   :loading="searchPlan.status === ESearchResultParseStatus.working"
+                  @click="
+                    () => doSearchEntity(searchPlan.siteId, searchPlan.searchEntryName, searchPlan.searchEntry, true)
+                  "
                 ></v-btn>
               </v-btn-group>
             </template>

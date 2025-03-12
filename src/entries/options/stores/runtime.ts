@@ -21,7 +21,6 @@ interface ISearchData {
   isSearching: boolean; // 是否正在搜索
   // 该搜索相关时间情况
   startAt: number;
-  costTime: number; // 搜索耗时
 
   // 该搜索相关的搜索条件
   searchKey: string;
@@ -36,6 +35,7 @@ interface ISearchData {
       searchEntry: Record<string, any>;
       status: ESearchResultParseStatus;
       queueAt?: number;
+      queuePriority?: number;
       startAt?: number;
       costTime?: number;
       count?: number;
@@ -47,7 +47,6 @@ interface ISearchData {
 export const initialSearchData: () => ISearchData = () => ({
   isSearching: false,
   startAt: 0,
-  costTime: 0,
   searchKey: "",
   searchPlanKey: "default",
   searchPlan: {},
@@ -60,6 +59,12 @@ export const useRuntimeStore = defineStore("runtime", {
   state: () => ({
     search: initialSearchData(),
   }),
+
+  getters: {
+    searchCostTime(state) {
+      return Object.values(state.search.searchPlan).reduce((acc, cur) => acc + (cur.costTime ?? 0), 0);
+    },
+  },
 
   actions: {
     resetSearchData() {
