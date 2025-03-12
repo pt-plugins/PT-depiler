@@ -17,6 +17,7 @@ import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import ActionTd from "@/options/views/Overview/searchEntity/ActionTd.vue";
 import SearchStatusDialog from "@/options/views/Overview/searchEntity/SearchStatusDialog.vue";
 import AdvanceFilterGenerateDialog from "@/options/views/Overview/searchEntity/AdvanceFilterGenerateDialog.vue";
+import { log } from "~/helper.ts";
 
 const route = useRoute();
 const uiStore = useUIStore();
@@ -64,19 +65,19 @@ watch(
 const isSearchingParsed = ref<boolean>(searchQueue.isPaused);
 
 function pauseSearchQueue() {
-  console.log("pauseSearchQueue", searchQueue);
+  log("pauseSearchQueue", searchQueue);
   searchQueue.pause();
   isSearchingParsed.value = true;
 }
 
 function startSearchQueue() {
-  console.log("startSearchQueue", searchQueue);
+  log("startSearchQueue", searchQueue);
   searchQueue.start();
   isSearchingParsed.value = false;
 }
 
 function cancelSearchQueue() {
-  console.log("cancelSearchQueue", searchQueue);
+  log("cancelSearchQueue", searchQueue);
   searchQueue.clear();
   runtimeStore.search.isSearching = false;
 }

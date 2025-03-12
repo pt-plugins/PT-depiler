@@ -8,6 +8,7 @@ export const useSiteStore = defineStore("site", {
   state: (): SiteSchema => ({
     sites: {},
     solutions: {},
+    lastUserInfo: {},
   }),
   getters: {
     getAddedSiteIds(state) {
@@ -69,7 +70,7 @@ export const useSiteStore = defineStore("site", {
     getSiteMergedMetadata(state) {
       return async <T extends keyof ISiteMetadata>(
         siteId: TSiteID,
-        field: keyof ISiteMetadata,
+        field: T,
         defaultValue?: ISiteMetadata[T],
       ): Promise<ISiteMetadata[T]> => {
         const siteConfig = await this.getSiteUserConfig(siteId);
@@ -77,7 +78,7 @@ export const useSiteStore = defineStore("site", {
           return siteConfig.merge[field];
         }
         const siteMetadata = await this.getSiteMetadata(siteId);
-        return siteMetadata[field] ?? defaultValue;
+        return siteMetadata[field] ?? (defaultValue as ISiteMetadata[T]);
       };
     },
 

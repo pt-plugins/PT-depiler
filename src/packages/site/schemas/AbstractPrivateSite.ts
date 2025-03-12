@@ -94,7 +94,6 @@ export default class PrivateSite extends BittorrentSite {
 
         // 如果有 requestConfigTransformer，则会在最后一步对请求配置进行处理
         if (typeof thisUserInfo.requestConfigTransformer === "function") {
-          // 一般情况下，此项可以用于调试，如： (config) => {console.log(config); return config;}
           requestConfig = thisUserInfo.requestConfigTransformer(requestConfig, flushUserInfo);
         }
 

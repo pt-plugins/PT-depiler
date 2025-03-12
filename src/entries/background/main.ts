@@ -1,5 +1,6 @@
 import { onMessage } from "@/messages.ts";
 import { extStorage } from "@/storage.ts";
+import { log } from "~/helper.ts";
 
 // 监听 点击图标 事件
 chrome.action.onClicked.addListener(async () => {
@@ -7,7 +8,7 @@ chrome.action.onClicked.addListener(async () => {
 });
 
 chrome.runtime.onInstalled.addListener(() => {
-  console.log("Installed!");
+  log("Installed!");
 });
 
 // @ts-ignore
@@ -17,7 +18,7 @@ onMessage("getExtStorage", async ({ data: key }) => {
 
 onMessage("setExtStorage", async ({ data: { key, value } }) => {
   await extStorage.setItem(key, value);
-  console.log(`setExtStorage for ${key}: `, value);
+  log(`setExtStorage for ${key}: `, value);
 });
 
 onMessage("getSiteUserConfig", async ({ data: siteId }) => {
@@ -27,7 +28,7 @@ onMessage("getSiteUserConfig", async ({ data: siteId }) => {
   storedSiteUserConfig.sortIndex ??= 100;
   storedSiteUserConfig.merge ??= {};
 
-  console.log(`getSiteUserConfig for ${siteId}: `, storedSiteUserConfig);
+  log(`getSiteUserConfig for ${siteId}: `, storedSiteUserConfig);
   return storedSiteUserConfig;
 });
 

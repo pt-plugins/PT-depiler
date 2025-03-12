@@ -12,6 +12,7 @@ import {
 import { sendMessage } from "@/messages.ts";
 import { useSiteStore } from "@/options/stores/site.ts";
 import { type ISearchResultTorrent, type TSearchSolutionKey, useRuntimeStore } from "@/options/stores/runtime.ts";
+import { log } from "~/helper.ts";
 
 export const searchQueryParserOptions: SearchParserOptions = {
   keywords: ["site", "tags"],
@@ -125,19 +126,19 @@ export async function doSearchEntity(
   };
 
   // Search site by plan in queue
-  console.log(`Add search ${searchEntryName} to queue.`);
+  log(`Add search ${searchEntryName} to queue.`);
   runtimeStore.search.searchPlan[solutionKey].queueAt = +new Date();
   await searchQueue.add(
     async () => {
       const startAt = (runtimeStore.search.searchPlan[solutionKey].startAt = +new Date());
-      console.log(`search ${searchEntryName} start at ${startAt}`);
+      log(`search ${searchEntryName} start at ${startAt}`);
       runtimeStore.search.searchPlan[solutionKey].status = ESearchResultParseStatus.working;
       const { status: searchStatus, data: searchResult } = await sendMessage("getSiteSearchResult", {
         keyword: runtimeStore.search.searchKey,
         siteId,
         searchEntry,
       });
-      console.log(`success get search ${searchEntryName} result, with code ${searchStatus}: `, searchResult);
+      log(`success get search ${searchEntryName} result, with code ${searchStatus}: `, searchResult);
       runtimeStore.search.searchPlan[solutionKey].status = searchStatus;
       for (const item of searchResult) {
         const itemUniqueId = `${item.site}-${item.id}`;
@@ -167,7 +168,7 @@ export async function doSearch(search: string, plan: string, flush = true) {
     runtimeStore.resetSearchData();
   }
 
-  console.log("Start search with: ", searchKey, searchPlanKey, flush);
+  log("Start search with: ", searchKey, searchPlanKey, flush);
 
   runtimeStore.search.startAt = +Date.now();
   runtimeStore.search.isSearching = true;
@@ -177,7 +178,7 @@ export async function doSearch(search: string, plan: string, flush = true) {
   // Expand search plan
   const siteStore = useSiteStore();
   const searchSolution = await siteStore.getSearchSolution(runtimeStore.search.searchPlanKey);
-  console.log(`Expanded Search Plan for ${searchPlanKey}: `, searchSolution);
+  log(`Expanded Search Plan for ${searchPlanKey}: `, searchSolution);
 
   for (const { siteId, searchEntries } of searchSolution.solutions) {
     for (const [searchEntryName, searchEntry] of Object.entries(searchEntries)) {

@@ -2,6 +2,7 @@
 import { computed, ref } from "vue";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { sendMessage } from "@/messages.ts";
+import { log } from "~/helper.ts";
 
 const props = withDefaults(
   defineProps<{
@@ -22,7 +23,7 @@ async function getTorrentDownloadLinks() {
 
   for (const torrent of torrentItems.value) {
     const downloadUrl = await sendMessage("getTorrentDownloadLink", torrent);
-    console.log(`torrent download link:`, torrent, downloadUrl);
+    log(`torrent download link:`, torrent, downloadUrl);
     downloadUrls.push({ torrent, downloadUrl });
   }
 

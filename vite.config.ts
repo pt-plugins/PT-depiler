@@ -99,6 +99,42 @@ export default defineConfig({
       }),
       additionalInputs: ["src/entries/offscreen/offscreen.html"],
       watchFilePaths: ["package.json"],
+      htmlViteConfig: {
+        plugins: [
+          {
+            name: "sort-asserts",
+            config(config) {
+              config.build.rollupOptions.output = {
+                ...config.build?.rollupOptions.output,
+                chunkFileNames: (chunkInfo) => {
+                  // 特殊情况下 facadeModuleId 可能为 null，这时我们使用 moduleIds 的最后一个作为 chunkName
+                  const chunkName = chunkInfo.facadeModuleId || chunkInfo.moduleIds.slice(-1)[0];
+
+                  if (
+                    /[\\/]src[\\/]packages[\\/](downloader|backupServer|site).+\.ts/.test(chunkName) ||
+                    /[\\/]src[\\/]entries[\\/].+\.vue/.test(chunkName)
+                  ) {
+                    const name = chunkName.replace(/^.+?[\\/]src[\\/]/, "").replace(/\..+?$/, "");
+                    return `${name}-[hash].js`;
+                  }
+
+                  return "assets/[name]-[hash].js"; // vite default
+                },
+                entryFileNames: (chunkInfo) => {
+                  if (chunkInfo.name.includes("entries")) {
+                    return "[name]-[hash].js";
+                  }
+
+                  return "assets/[name]-[hash].js"; // vite default
+                },
+                assetFileNames: "assets/[name]-[hash][extname]",
+              };
+
+              return config;
+            },
+          },
+        ],
+      },
     }),
   ],
   resolve: {

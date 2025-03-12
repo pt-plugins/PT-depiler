@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { REPO_URL } from "~/helper";
+import { log, REPO_URL } from "~/helper";
 
 import { useDisplay } from "vuetify";
 import { useRoute, useRouter } from "vue-router";
@@ -26,23 +26,17 @@ const appendMenu: Array<{ title: string; icon: string; [str: string]: any }> = [
   },
 ];
 
-console.log(route, router);
-
 const searchKey = ref((route.query?.search as string) ?? "");
 const searchPlanKey = ref((route.query?.plan as string) ?? "default");
 
-function initSearchInput(route) {
-  if (route.name === "SearchEntity") {
-    searchKey.value = (route.query?.search as string) ?? "";
-    searchPlanKey.value = (route.query?.plan as string) ?? "default";
-  }
-}
-
 watch(
   () => route,
-  (newValue) => {
-    console.log("route changed", newValue);
-    initSearchInput(newValue);
+  (newRoute) => {
+    log("route changed", newRoute);
+    if (newRoute.name === "SearchEntity") {
+      searchKey.value = (newRoute.query?.search as string) ?? "";
+      searchPlanKey.value = (newRoute.query?.plan as string) ?? "default";
+    }
   },
 );
 

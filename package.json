@@ -28,7 +28,8 @@
   "scripts": {
     "dev": "vite",
     "format": "prettier --list-different -w ./",
-    "build:dist": "vue-tsc --noEmit && vite build",
+    "check": "vue-tsc --noEmit",
+    "build:dist": "vite build",
     "build:watch": "vite build --watch --mode development --minify false",
     "prepare": "husky"
   },

@@ -9,6 +9,7 @@ import {
 } from "@ptd/site";
 import { useLocalStorage } from "@vueuse/core";
 import { sendMessage } from "@/messages.ts";
+import { log } from "~/helper.ts";
 
 export async function getSiteInstance<TYPE extends "private" | "public">(
   siteId: TSiteID,
@@ -20,7 +21,7 @@ export async function getSiteInstance<TYPE extends "private" | "public">(
     storedSiteUserConfig = await sendMessage("getSiteUserConfig", siteId);
   }
 
-  console.log(`siteInstance ${siteId} created with userConfig:`, storedSiteUserConfig);
+  log(`siteInstance ${siteId} created with userConfig:`, storedSiteUserConfig);
   return (await createSiteInstance<TYPE>(siteId, storedSiteUserConfig)) as TYPE extends "private"
     ? PrivateSite
     : BittorrentSite;

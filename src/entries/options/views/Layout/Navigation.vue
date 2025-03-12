@@ -3,7 +3,8 @@ import { useUIStore } from "@/options/stores/ui";
 import { useDisplay } from "vuetify";
 import { routes } from "@/options/plugins/router";
 import { watch } from "vue";
-import { buildInfo, EXT_VERSION, REPO_URL } from "~/helper.ts";
+import { buildInfo, REPO_URL } from "~/helper.ts";
+import { version as EXT_VERSION } from "~/../package.json";
 
 const year = new Date().getFullYear();
 const uiStore = useUIStore();
@@ -67,13 +68,10 @@ function clickMenuItem() {
           <span class="pa-2 grey--text text--darken-1">
             &copy; {{ year }}, {{ $t("common.version") }}
             <span>
-              {{ EXT_VERSION
-              }}<a
-                v-if="buildInfo?.gitVersion"
-                :href="`${REPO_URL}/commit/${buildInfo.gitVersion.long}`"
-                target="_blank"
-                >+{{ buildInfo.gitVersion.short }}</a
-              >
+              {{ "v" + EXT_VERSION }}
+              <a v-if="buildInfo?.gitVersion" :href="`${REPO_URL}/commit/${buildInfo.gitVersion.long}`" target="_blank">
+                +{{ buildInfo.gitVersion.short }}
+              </a>
             </span>
           </span>
         </v-row>
