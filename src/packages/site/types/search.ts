@@ -108,6 +108,36 @@ export interface IAdvancedSearchRequestConfig extends Partial<ISearchConfig> {
   merge?: boolean;
 }
 
+export interface ISearchCategoryOptions {
+  name: string;
+  value: string | number;
+}
+
+export interface ISearchCategories {
+  name: string; // 搜索大类名称
+  key: string; // 搜索大类
+  notes?: string; // 分类说明
+  options: ISearchCategoryOptions[];
+  // 该搜索大类是否允许内部交叉 （ 不声明，则默认不允许（False） ）
+  cross?:
+    | {
+        /**
+         * 当允许搜索类别内部交叉时，该搜索类别 {key: [v1, v2]} 在请求时字段如何处理，
+         * 如果定义了 cross.key， 则外层的 key 会被覆盖，即 key = cross.key | key
+         *
+         * | mode | query | axios config |
+         * |:--:|:---|:---|
+         * | brackets | {key}[]={v1}&{key}[]={v2} | { key: [v1,v2] } |
+         * | comma | {key}={v1},{v2} | { key: `${v1},${v2}` } |
+         * | append | {key}{v1}=1&{key}{v2}=1 | { `${key}${v1}`: 1, `${key}${v2}`: 1 } |
+         * | appendQuote | {key}[{v1}]=1&{key}[{v2}]=1 | { `${key}[${v1}]`: 1, `${key}[${v2}]`: 1 } |
+         */
+        mode?: "brackets" | "comma" | "append" | "appendQuote";
+        key?: string; // 当内部交叉时，params与已定义的 key 不一致时使用
+      }
+    | false;
+}
+
 /**
  * 搜索结果解析状态
  */

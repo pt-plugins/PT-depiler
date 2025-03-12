@@ -26,8 +26,8 @@ interface ProtocolMap {
   getSiteUserInfoResult(siteId: TSiteID): IUserInfo;
 
   // 种子下载相关功能
-  getTorrentDownloadLink(data: { siteId: TSiteID; torrent: ITorrent }): string;
-  downloadTorrentFile(data: { siteId: TSiteID; torrent: ITorrent }): number;
+  getTorrentDownloadLink(torrent: ITorrent): string;
+  downloadTorrentFile(torrent: ITorrent): number;
 }
 
 export const { sendMessage, onMessage } = defineExtensionMessaging<ProtocolMap>({});

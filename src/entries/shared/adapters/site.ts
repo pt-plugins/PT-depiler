@@ -1,6 +1,5 @@
 import {
   BittorrentSite,
-  getDefinedSiteMetadata,
   getFavicon,
   getFaviconMetadata,
   getSite as createSiteInstance,

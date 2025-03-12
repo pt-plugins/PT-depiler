@@ -105,7 +105,7 @@ export async function doSearchEntity(
   flush: boolean = false,
 ) {
   const solutionKey = `${siteId}|$|${searchEntryName}` as TSearchSolutionKey;
-  let queuePriority = runtimeStore.search.searchPlan[solutionKey].queuePriority ?? 1;
+  let queuePriority = runtimeStore.search.searchPlan[solutionKey]?.queuePriority ?? 1;
 
   // 对重新搜索的，清除对应搜索方法的搜索结果
   if (flush) {

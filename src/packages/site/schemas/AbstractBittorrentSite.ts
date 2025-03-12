@@ -506,16 +506,8 @@ export default class BittorrentSite {
    * 使用该方法返回种子文件的下载配置
    * @param torrent
    */
-  async getTorrentDownloadOptions(torrent: ITorrent): Promise<chrome.downloads.DownloadOptions> {
+  async getTorrentDownloadRequestConfig(torrent: ITorrent): Promise<AxiosRequestConfig> {
     const torrentDownloadLink = await this.getTorrentDownloadLink(torrent);
-    return toMerged(
-      {
-        conflictAction: "uniquify",
-        url: torrentDownloadLink,
-        method: "GET",
-        filename: `[${this.name}] ${torrent.title}.torrent`,
-      },
-      this.metadata.download?.downloadOptions ?? {},
-    );
+    return toMerged({ url: torrentDownloadLink, method: "GET" }, this.metadata.download?.requestConfig ?? {});
   }
 }

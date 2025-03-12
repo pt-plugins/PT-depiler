@@ -2,9 +2,9 @@
 
 import type { AxiosRequestConfig } from "axios";
 import type { TSiteID, TSiteHost, TSiteUrl, TSiteFullUrl } from "./base";
-import type { IUserInfo } from "./userinfo";
+import { ILevelRequirement, IUserInfo } from "./userinfo";
 import type { ITorrent } from "./torrent";
-import type { IAdvancedSearchRequestConfig, IElementQuery, ISearchConfig } from "./search";
+import { IAdvancedSearchRequestConfig, IElementQuery, ISearchCategories, ISearchConfig } from "./search";
 import type { timezoneOffset } from "../utils";
 
 export type SiteSchema =
@@ -79,7 +79,7 @@ export interface ISiteMetadata {
    */
   favicon?: `${TSiteFullUrl}${string}` | `data:image/${string}` | `./${string}.${"png" | "ico"}`;
 
-  category?: any;
+  category?: ISearchCategories[];
 
   search?: ISearchConfig; // 站点搜索方法如何配置
 
@@ -111,11 +111,11 @@ export interface ISiteMetadata {
 
   download?: {
     /**
-     * 对一些特殊的站点（比如需要post方法），你可以为种子下载定义额外的 downloadOptions
-     * 会通过 toMerged({ url: torrent.link, method: 'get' }, download.downloadOptions ?? {}) 进行合并，
-     * 如果该站点的下载过于复杂（比如需要传递额外生成的 header），更建议覆写 getTorrentDownloadOptions(torrent) 方法
+     * 对一些特殊的站点（比如需要post方法），你可以为种子下载定义额外的 requestConfig
+     * 会通过 toMerged({ url: torrent.link, method: 'get' }, download.requestConfig ?? {}) 进行合并，
+     * 如果该站点的下载过于复杂（比如需要传递额外生成的 header），更建议覆写 getTorrentDownloadRequestConfig(torrent) 方法
      */
-    downloadOptions?: Omit<chrome.downloads.DownloadOptions, "url">;
+    requestConfig?: AxiosRequestConfig;
   };
 
   /**
@@ -151,6 +151,11 @@ export interface ISiteMetadata {
 
     selectors?: { [userinfoKey in keyof IUserInfo]?: IElementQuery }; // 用户信息相关选择器
   };
+
+  /**
+   * 站点用户等级定义
+   */
+  levelRequirements?: ILevelRequirement[];
 
   /**
    * 在站点配置过程中，部分站点可能需要额外输入一些信息，此处用于定义这些信息

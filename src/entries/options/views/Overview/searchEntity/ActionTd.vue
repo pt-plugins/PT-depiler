@@ -21,7 +21,7 @@ async function getTorrentDownloadLinks() {
   const downloadUrls = [];
 
   for (const torrent of torrentItems.value) {
-    const downloadUrl = await sendMessage("getTorrentDownloadLink", { siteId: torrent.site, torrent });
+    const downloadUrl = await sendMessage("getTorrentDownloadLink", torrent);
     console.log(`torrent download link:`, torrent, downloadUrl);
     downloadUrls.push({ torrent, downloadUrl });
   }
@@ -46,7 +46,7 @@ const localDlTorrentDownloadLinkBtnStatus = ref(false);
 async function localDlTorrentDownloadLink() {
   localDlTorrentDownloadLinkBtnStatus.value = true;
   for (const torrent of torrentItems.value) {
-    await sendMessage("downloadTorrentFile", { siteId: torrent.site, torrent });
+    await sendMessage("downloadTorrentFile", torrent);
   }
   localDlTorrentDownloadLinkBtnStatus.value = false;
 }
