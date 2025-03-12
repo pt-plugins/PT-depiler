@@ -4,18 +4,19 @@ import { filesize } from "filesize";
 import { useRoute } from "vue-router";
 import { format } from "date-fns";
 import { refDebounced } from "@vueuse/core";
+import { UseElementSize } from "@vueuse/components";
 
 import { useSiteStore } from "@/options/stores/site.ts";
 import { useUIStore } from "@/options/stores/ui.ts";
 import { type ISearchResultTorrent, useRuntimeStore } from "@/options/stores/runtime.ts";
 
-import { tableCustomFilter, doSearch, searchQueue } from "./utils.ts"; // <-- 主要方法在这个文件中！！！
+import { tableCustomFilter, doSearch, searchQueue } from "@/options/views/Overview/searchEntity/utils.ts"; // <-- 主要方法在这个文件中！！！
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
-import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
-import SearchStatusDialog from "./SearchStatusDialog.vue";
 import ActionTd from "@/options/views/Overview/searchEntity/ActionTd.vue";
+import SearchStatusDialog from "@/options/views/Overview/searchEntity/SearchStatusDialog.vue";
+import AdvanceFilterGenerateDialog from "@/options/views/Overview/searchEntity/AdvanceFilterGenerateDialog.vue";
 
 const route = useRoute();
 const uiStore = useUIStore();
@@ -27,7 +28,7 @@ const showSearchStatusDialog = ref<boolean>(false);
 
 const fullTableHeader = [
   { title: "站点", key: "site", align: "center", width: 90, alwaysShow: true },
-  { title: "标题", key: "title", align: "start", maxWidth: "32vw", alwaysShow: true },
+  { title: "标题", key: "title", align: "start", minWidth: 600, maxWidth: "32vw", alwaysShow: true },
   { title: "分类/入口", key: "category", align: "center", width: 150, minWidth: 150 },
   { title: "大小", key: "size", align: "end" },
   { title: "上传", key: "seeders", align: "end", width: 90, minWidth: 90 },
@@ -183,34 +184,38 @@ function cancelSearchQueue() {
 
       <!-- 主标题，副标题，优惠及标签 -->
       <template #item.title="{ item }">
-        <v-container class="t_main">
-          <v-row>
-            <a
-              :href="item.url"
-              class="t_title text-decoration-none text-subtitle-1 text-black text-truncate"
-              :title="item.title"
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-              >{{ item.title }}</a
-            >
-          </v-row>
-          <v-row>
-            <v-chip v-for="tag in item.tags" label size="x-small" class="mr-1" :color="tag.color">
-              {{ tag.name }}
-            </v-chip>
-            <span
-              v-if="item.subTitle"
-              class="t_subTitle text-grey text-truncate"
-              :title="item.subTitle"
-              :style="{
-                // 防止标签导致的副标题溢出，这里假定每个 tag 的 width 为 40px 并额外增加 80px
-                'max-width': item.tags ? `calc(30vw - ${40 * (item.tags.length + 2)}px)` : false,
-              }"
-            >
-              {{ item.subTitle }}
-            </span>
-          </v-row>
-        </v-container>
+        <use-element-size v-slot="{ width }">
+          <v-container class="t_main">
+            <v-row>
+              <a
+                :href="item.url"
+                class="t_title text-decoration-none text-subtitle-1 text-black text-truncate"
+                :title="item.title"
+                target="_blank"
+                rel="noopener noreferrer nofollow"
+              >
+                {{ item.title }}
+              </a>
+            </v-row>
+            <v-row>
+              <v-chip v-for="tag in item.tags" label size="x-small" class="mr-1" :color="tag.color">
+                {{ tag.name }}
+              </v-chip>
+
+              <span
+                v-if="item.subTitle"
+                class="t_subTitle text-grey text-truncate"
+                :title="item.subTitle"
+                :style="{
+                  // 防止标签导致的副标题溢出，这里假定每个 tag 的 width 为 40px 并额外增加 40px （用于消除 padding）
+                  'max-width': item.tags ? `${width - 40 * (item.tags.length + 1)}px` : false,
+                }"
+              >
+                {{ item.subTitle }}
+              </span>
+            </v-row>
+          </v-container>
+        </use-element-size>
       </template>
 
       <!-- 种子大小 -->

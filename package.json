@@ -35,6 +35,7 @@
   "dependencies": {
     "@mdi/font": "^7.4.47",
     "@tailwindcss/vite": "^4.0.12",
+    "@vueuse/components": "^13.0.0",
     "@vueuse/core": "^12.8.2",
     "@vueuse/router": "^12.8.2",
     "@webext-core/messaging": "^2.2.0",

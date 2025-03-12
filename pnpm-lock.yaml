@@ -13,6 +13,9 @@ importers:
       "@tailwindcss/vite":
         specifier: ^4.0.12
         version: 4.0.12(vite@5.4.14(@types/node@22.13.9)(lightningcss@1.29.2)(sass@1.85.1))
+      "@vueuse/components":
+        specifier: ^13.0.0
+        version: 13.0.0(vue@3.5.13(typescript@5.6.3))
       "@vueuse/core":
         specifier: ^12.8.2
         version: 12.8.2(typescript@5.6.3)
@@ -1256,13 +1259,29 @@ packages:
       vue: ^3.0.0
       vuetify: ^3.0.0
 
+  "@vueuse/components@13.0.0":
+    resolution:
+      { integrity: sha512-rcGp3c5Yu4SVLGUhBXT0q227nduFx1HTKzJBQkPLpIhwG1SB8RZ5bbri9sbusGaFZB5CYc6jza5+gfSJ7YidIg== }
+    peerDependencies:
+      vue: ^3.5.0
+
   "@vueuse/core@12.8.2":
     resolution:
       { integrity: sha512-HbvCmZdzAu3VGi/pWYm5Ut+Kd9mn1ZHnn4L5G8kOQTPs/IwIAmJoBrmYk2ckLArgMXZj0AW3n5CAejLUO+PhdQ== }
 
+  "@vueuse/core@13.0.0":
+    resolution:
+      { integrity: sha512-rkgb4a8/0b234lMGCT29WkCjPfsX0oxrIRR7FDndRoW3FsaC9NBzefXg/9TLhAgwM11f49XnutshM4LzJBrQ5g== }
+    peerDependencies:
+      vue: ^3.5.0
+
   "@vueuse/metadata@12.8.2":
     resolution:
       { integrity: sha512-rAyLGEuoBJ/Il5AmFHiziCPdQzRt88VxR+Y/A/QhJ1EWtWqPBBAxTAFaSkviwEuOEZNtW8pvkPgoCZQ+HxqW1A== }
+
+  "@vueuse/metadata@13.0.0":
+    resolution:
+      { integrity: sha512-TRNksqmvtvqsuHf7bbgH9OSXEV2b6+M3BSN4LR5oxWKykOFT9gV78+C2/0++Pq9KCp9KQ1OQDPvGlWNQpOb2Mw== }
 
   "@vueuse/router@12.8.2":
     resolution:
@@ -1273,6 +1292,12 @@ packages:
   "@vueuse/shared@12.8.2":
     resolution:
       { integrity: sha512-dznP38YzxZoNloI0qpEfpkms8knDtaoQ6Y/sfS0L7Yki4zh40LFHEhur0odJC6xTHG5dxWVPiUWBXn+wCG2s5w== }
+
+  "@vueuse/shared@13.0.0":
+    resolution:
+      { integrity: sha512-9MiHhAPw+sqCF/RLo8V6HsjRqEdNEWVpDLm2WBRW2G/kSQjb8X901sozXpSCaeLG0f7TEfMrT4XNaA5m1ez7Dg== }
+    peerDependencies:
+      vue: ^3.5.0
 
   "@webext-core/messaging@2.2.0":
     resolution:
@@ -5242,6 +5267,12 @@ snapshots:
       vue: 3.5.13(typescript@5.6.3)
       vuetify: 3.7.15(typescript@5.6.3)(vite-plugin-vuetify@2.1.0)(vue@3.5.13(typescript@5.6.3))
 
+  "@vueuse/components@13.0.0(vue@3.5.13(typescript@5.6.3))":
+    dependencies:
+      "@vueuse/core": 13.0.0(vue@3.5.13(typescript@5.6.3))
+      "@vueuse/shared": 13.0.0(vue@3.5.13(typescript@5.6.3))
+      vue: 3.5.13(typescript@5.6.3)
+
   "@vueuse/core@12.8.2(typescript@5.6.3)":
     dependencies:
       "@types/web-bluetooth": 0.0.21
@@ -5251,7 +5282,16 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
+  "@vueuse/core@13.0.0(vue@3.5.13(typescript@5.6.3))":
+    dependencies:
+      "@types/web-bluetooth": 0.0.21
+      "@vueuse/metadata": 13.0.0
+      "@vueuse/shared": 13.0.0(vue@3.5.13(typescript@5.6.3))
+      vue: 3.5.13(typescript@5.6.3)
+
   "@vueuse/metadata@12.8.2": {}
+
+  "@vueuse/metadata@13.0.0": {}
 
   "@vueuse/router@12.8.2(typescript@5.6.3)(vue-router@4.5.0(vue@3.5.13(typescript@5.6.3)))":
     dependencies:
@@ -5266,6 +5306,10 @@ snapshots:
       vue: 3.5.13(typescript@5.6.3)
     transitivePeerDependencies:
       - typescript
+
+  "@vueuse/shared@13.0.0(vue@3.5.13(typescript@5.6.3))":
+    dependencies:
+      vue: 3.5.13(typescript@5.6.3)
 
   "@webext-core/messaging@2.2.0":
     dependencies:
