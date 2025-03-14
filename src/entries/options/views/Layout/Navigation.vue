@@ -3,9 +3,10 @@ import { useUIStore } from "@/options/stores/ui";
 import { useDisplay } from "vuetify";
 import { routes } from "@/options/plugins/router";
 import { watch } from "vue";
-import { buildInfo, REPO_URL } from "~/helper.ts";
+import { isDebug, REPO_URL } from "~/helper.ts";
 import { version as EXT_VERSION } from "~/../package.json";
 
+const git = __GIT_VERSION__;
 const year = new Date().getFullYear();
 const uiStore = useUIStore();
 
@@ -66,13 +67,12 @@ function clickMenuItem() {
       <v-footer>
         <v-row justify="center">
           <span class="pa-2 grey--text text--darken-1">
-            &copy; {{ year }}, {{ $t("common.version") }}
+            &copy; {{ year }},
             <span>
-              {{ "v" + EXT_VERSION }}
-              <a v-if="buildInfo?.gitVersion" :href="`${REPO_URL}/commit/${buildInfo.gitVersion.long}`" target="_blank">
-                +{{ buildInfo.gitVersion.short }}
-              </a>
+              {{ "v" + EXT_VERSION + (git.count ? "." + git.count : "") }}
+              <a v-if="git" :href="`${REPO_URL}/commit/${git.long}`" target="_blank"> +{{ git.short }} </a>
             </span>
+            <v-chip v-if="isDebug" size="x-small" label class="pa-1 ml-1 mb-1" color="amber">测试</v-chip>
           </span>
         </v-row>
       </v-footer>

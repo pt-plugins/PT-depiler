@@ -11,7 +11,7 @@ export const routes: RouteRecordRaw[] = [
         name: "MyData",
         alias: "",
         meta: { icon: "mdi-view-dashboard" },
-        component: () => import("../views/Overview/MyData.vue"),
+        component: () => import("../views/Overview/MyData/Index.vue"),
       },
       {
         path: "/search-entity",

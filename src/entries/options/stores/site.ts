@@ -1,11 +1,11 @@
 import { defineStore } from "pinia";
 import { getDefinedSiteMetadata, ISiteMetadata, ISiteUserConfig, TSiteID } from "@ptd/site";
-import { SiteSchema, TSolutionID, ISearchSolutionState, ISearchSolution } from "@/storage.ts";
+import { ISitePiniaStorageSchema, TSolutionID, ISearchSolutionState, ISearchSolution } from "@/storage.ts";
 import { isEmpty, set } from "es-toolkit/compat";
 
 export const useSiteStore = defineStore("site", {
   persistWebExt: true,
-  state: (): SiteSchema => ({
+  state: (): ISitePiniaStorageSchema => ({
     sites: {},
     solutions: {},
     lastUserInfo: {},

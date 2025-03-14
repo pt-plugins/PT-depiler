@@ -142,7 +142,43 @@ function cancelSearchQueue() {
         </v-btn-group>
 
         <v-divider vertical class="mx-2" />
+
         <ActionTd :torrent-ids="tableSelected" />
+
+        <v-divider vertical class="mx-2" />
+
+        <v-combobox
+          multiple
+          chips
+          v-model="uiStore.tableBehavior.searchEntity.columns"
+          :items="fullTableHeader.map((item) => item.key)"
+          max-width="250"
+          density="compact"
+          hide-details
+          class="search-entity-table-header-filter"
+          prepend-inner-icon="mdi-filter-cog"
+        >
+          <template #chip="{ item, index }">
+            <v-chip v-if="index === 0">
+              <span>{{ fullTableHeader.find((x) => x.key == item.title)?.title }}</span>
+            </v-chip>
+            <span v-if="index === 1" class="grey--text caption">
+              (+{{ uiStore.tableBehavior.searchEntity.columns!.length - 1 }} others)
+            </span>
+          </template>
+          <template v-slot:item="{ props, item }">
+            <v-list-item>
+              <v-checkbox
+                v-model="uiStore.tableBehavior.searchEntity.columns"
+                density="compact"
+                hide-details
+                :value="item.title"
+                :disabled="fullTableHeader.find((x) => x.key == item.title)?.alwaysShow"
+                :label="fullTableHeader.find((x) => x.key == item.title)?.title"
+              ></v-checkbox>
+            </v-list-item>
+          </template>
+        </v-combobox>
 
         <v-spacer />
         <v-text-field
@@ -263,4 +299,8 @@ function cancelSearchQueue() {
   <SearchStatusDialog v-model="showSearchStatusDialog"></SearchStatusDialog>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.search-entity-table-header-filter:deep(input[size="1"][type="text"]) {
+  display: none;
+}
+</style>

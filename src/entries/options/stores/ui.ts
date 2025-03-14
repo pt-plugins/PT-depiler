@@ -3,11 +3,11 @@
  */
 import { defineStore } from "pinia";
 import { usePreferredDark } from "@vueuse/core";
-import type { supportThemeType, UiSchema } from "@/storage.ts";
+import { IUiPiniaStorageSchema, supportThemeType } from "@/storage.ts";
 
 export const useUIStore = defineStore("ui", {
   persistWebExt: true,
-  state: (): UiSchema => ({
+  state: (): IUiPiniaStorageSchema => ({
     lang: "zh_CN",
     theme: "light",
     isNavBarOpen: true,
@@ -25,7 +25,18 @@ export const useUIStore = defineStore("ui", {
       },
       searchEntity: {
         itemsPerPage: 50,
-        columns: ["site", "title", "category", "size", "seeders", "leechers", "completed", "comments", "time"],
+        columns: [
+          "site",
+          "title",
+          "category",
+          "size",
+          "seeders",
+          "leechers",
+          "completed",
+          "comments",
+          "time",
+          "action",
+        ],
         sortBy: [{ key: "time", order: "desc" }],
       },
     },

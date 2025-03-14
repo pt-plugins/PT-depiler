@@ -13,7 +13,6 @@ export const isProd = import.meta.env.PROD;
 export const isDebug = !isProd;
 
 // 插件相关
-
 export const EXT_BASEURL = chrome.runtime?.getURL("");
 
 export const buildInfo = {

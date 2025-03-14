@@ -9,7 +9,7 @@ interface UiTableBehaviorItem<T = string> {
   sortBy?: { key: T; order: "asc" | "desc" }[];
 }
 
-export interface UiPiniaStorageSchema {
+export interface IUiPiniaStorageSchema {
   lang: TLangCode;
   theme: supportThemeType;
   isNavBarOpen: boolean;
