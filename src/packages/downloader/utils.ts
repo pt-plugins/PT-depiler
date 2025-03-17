@@ -13,15 +13,21 @@ export interface ParsedTorrent {
   info: TorrentInstance;
 }
 
-const magnetURIComponent =
-  /(?:^magnet:\?|[^?&]&)xt(?:\.1)?=urn:(?:(?:aich|bitprint|btih|ed2k|ed2khash|kzhash|md5|sha1|tree:tiger):(?<hash>[a-z0-9]{32}(?:[a-z0-9]{8})?)|btmh:1220(?<hash>[a-z0-9]{64}))(?:$|&)/i;
-
 const utf8FilenameRegex = /filename\*=UTF-8''([\w%\-\.]+)(?:; ?|$)/i;
 const asciiFilenameRegex = /^filename=(["']?)(.*?[^\\])\1(?:; ?|$)/i;
 
-export function extractMagnetHash(magnetURI: string): string | null {
-  const match = magnetURIComponent.exec(magnetURI);
-  return match?.groups?.hash ?? null;
+const magnetUriV1Pattern = /xt(?:\.1)?=urn:btih:(?<hash>[a-z0-9]{32}(?:[a-z0-9]{8})?)/i;
+const magnetUriV2Pattern = /xt(?:\.1)?=urn:btmh:1220(?<hash>[a-z0-9]{64})/i;
+
+export function extractMagnetHash(magnetUri: string): string | null {
+  // 先尝试使用 v1 模式匹配
+  const v1Match = magnetUri.match(magnetUriV1Pattern);
+  if (v1Match) {
+    return v1Match.groups?.hash || null;
+  }
+  // 若 v1 匹配失败，再尝试使用 v2 模式匹配
+  const v2Match = magnetUri.match(magnetUriV2Pattern);
+  return v2Match?.groups?.hash || null;
 }
 
 export async function getRemoteTorrentFile(options: AxiosRequestConfig = {}): Promise<ParsedTorrent> {
