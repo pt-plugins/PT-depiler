@@ -1,9 +1,11 @@
 import type { ITorrent } from "./torrent";
+import { TSiteID } from "@ptd/site";
 
 export type ILevelId = number;
 export type ILevelName = string;
 
 export interface IUserInfo {
+  site: TSiteID;
   id: number | string; // 用户ID
   name: string; // 用户名
   levelId?: ILevelId; // 等级ID
@@ -13,6 +15,7 @@ export interface IUserInfo {
   downloaded: number; // 下载量
   ratio?: number; // 分享率，Ratio并不是必须获得的，如果站点未提供，助手会使用 uploaded/downloaded 自动计算
 
+  uploads?: number; // 发布种子数
   seeding?: number; // 当前做种数量
   seedingSize?: number; // 做种体积
   leeching?: number; // 当前下载数量

@@ -125,10 +125,10 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 
   userInfo: {
     /**
-     * 我们认为NPHP站的 id 的情况永远不变（实质上对于所有站点都应该是这样的）
+     * 我们认为NPHP站的 id, joinTime 的情况永远不变（实质上对于所有站点都应该是这样的）
      * 部分 NPHP 站点允许修改 name，所以 name 不能视为不变 ！！！
      */
-    pickLast: ["id"],
+    pickLast: ["id", "joinTime"],
     selectors: {
       // "page": "/index.php",
       id: {

@@ -1,6 +1,7 @@
 import { onMessage } from "@/messages.ts";
-import { extStorage } from "@/storage.ts";
+import { extStorage, ISitePiniaStorageSchema } from "@/storage.ts";
 import { log } from "~/helper.ts";
+import { format } from "date-fns";
 
 // 监听 点击图标 事件
 chrome.action.onClicked.addListener(async () => {
@@ -30,6 +31,24 @@ onMessage("getSiteUserConfig", async ({ data: siteId }) => {
 
   log(`getSiteUserConfig for ${siteId}: `, storedSiteUserConfig);
   return storedSiteUserConfig;
+});
+
+onMessage("setSiteLastUserInfo", async ({ data: userData }) => {
+  console.log("setSiteLastUserInfo", userData);
+  const site = userData.site;
+
+  // 存储用户信息到 site 中
+  const siteStore = (await extStorage.getItem("site")) ?? {};
+  (siteStore as ISitePiniaStorageSchema).lastUserInfo ??= {};
+  (siteStore as ISitePiniaStorageSchema).lastUserInfo[site] = userData;
+  await extStorage.setItem("site", siteStore as ISitePiniaStorageSchema);
+
+  // 存储用户信息到 userInfo 中
+  const userInfoStore = (await extStorage.getItem("userInfo")) ?? {};
+  userInfoStore[site] ??= {};
+  const dateTime = format(userData.updateAt, "yyyy-MM-dd");
+  userInfoStore[site][dateTime] = userData;
+  await extStorage.setItem("userInfo", userInfoStore);
 });
 
 onMessage("downloadFile", async ({ data: downloadOptions }) => {

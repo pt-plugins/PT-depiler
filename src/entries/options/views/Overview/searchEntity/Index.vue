@@ -152,7 +152,7 @@ function cancelSearchQueue() {
           chips
           v-model="uiStore.tableBehavior.searchEntity.columns"
           :items="fullTableHeader.map((item) => item.key)"
-          max-width="250"
+          max-width="220"
           density="compact"
           hide-details
           class="search-entity-table-header-filter"

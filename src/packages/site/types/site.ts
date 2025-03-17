@@ -6,6 +6,7 @@ import { ILevelRequirement, IUserInfo } from "./userinfo";
 import type { ITorrent } from "./torrent";
 import { IAdvancedSearchRequestConfig, IElementQuery, ISearchCategories, ISearchConfig } from "./search";
 import type { timezoneOffset } from "../utils";
+import { type PrivateSite } from "@ptd/site";
 
 export type SiteSchema =
   | "AbstractBittorrentSite"
@@ -144,7 +145,16 @@ export interface ISiteMetadata {
         [key in keyof IUserInfo]?: string;
       };
 
-      requestConfigTransformer?: (config: AxiosRequestConfig, userConfig: ISiteUserConfig) => AxiosRequestConfig;
+      /**
+       * 请求配置转换器，用于在请求配置中添加一些特殊的配置项
+       * @param config
+       * @param userInfo
+       */
+      requestConfigTransformer?: (
+        config: AxiosRequestConfig,
+        userInfo: IUserInfo,
+        siteInstance: PrivateSite,
+      ) => AxiosRequestConfig;
 
       fields: (keyof IUserInfo)[];
     }[];

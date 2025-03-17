@@ -4,6 +4,6 @@ export interface IStoredUserInfo extends IUserInfo {}
 
 export interface IUserInfoStorageSchema {
   [key: TSiteID]: {
-    [key: `${string}-${string}-${string}`]: IStoredUserInfo;
+    [key: string]: IStoredUserInfo; // key is date format `yyyy-MM-dd`
   };
 }

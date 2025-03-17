@@ -10,7 +10,9 @@ onMessage("getSiteSearchResult", async ({ data: { siteId, keyword = "", searchEn
 
 onMessage("getSiteUserInfoResult", async ({ data: siteId }) => {
   const site = await getSiteInstance<"private">(siteId);
-  return await site.getUserInfoResult();
+  const userInfo = await site.getUserInfoResult();
+  await sendMessage("setSiteLastUserInfo", userInfo);
+  return userInfo;
 });
 
 onMessage("getTorrentDownloadLink", async ({ data: torrent }) => {

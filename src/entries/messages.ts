@@ -24,6 +24,7 @@ interface ProtocolMap {
     searchEntry?: IAdvancedSearchRequestConfig;
   }): ISearchResult;
   getSiteUserInfoResult(siteId: TSiteID): IUserInfo;
+  setSiteLastUserInfo(userInfo: IUserInfo): void;
 
   // 种子下载相关功能
   getTorrentDownloadLink(torrent: ITorrent): string;

@@ -50,7 +50,7 @@ export default class PrivateSite extends BittorrentSite {
     if (!this.metadata.userInfo?.process) {
       throw new Error("尚不支持，未定义 userInfo 属性或处理流程");
     } else {
-      let flushUserInfo: Partial<IUserInfo> = {};
+      let flushUserInfo: Partial<IUserInfo> = { site: this.metadata.id };
 
       if (!this.allowQueryUserInfo) {
         return flushUserInfo as IUserInfo;
@@ -94,7 +94,7 @@ export default class PrivateSite extends BittorrentSite {
 
         // 如果有 requestConfigTransformer，则会在最后一步对请求配置进行处理
         if (typeof thisUserInfo.requestConfigTransformer === "function") {
-          requestConfig = thisUserInfo.requestConfigTransformer(requestConfig, flushUserInfo);
+          requestConfig = thisUserInfo.requestConfigTransformer(requestConfig, flushUserInfo as IUserInfo, this);
         }
 
         const { data: dataDocument } = await this.request<any>(requestConfig);
@@ -110,6 +110,13 @@ export default class PrivateSite extends BittorrentSite {
             );
           }
         }
+      }
+
+      // 如果前面没有获取到用户等级的id，则通过定义的 levelRequirements 来获取
+      if (this.metadata.levelRequirements && flushUserInfo.levelName && typeof flushUserInfo.levelId === "undefined") {
+        flushUserInfo.levelId = this.metadata.levelRequirements.find(
+          (level) => level.name == flushUserInfo.levelName,
+        )?.id;
       }
 
       flushUserInfo.updateAt = +new Date();
