@@ -30,7 +30,7 @@ export const routes: RouteRecordRaw[] = [
         path: "/set-site",
         name: "setSite",
         meta: { icon: "mdi-earth" },
-        component: () => import("../views/Settings/setSite/Index.vue"),
+        component: () => import("../views/Settings/SetSite/Index.vue"),
       },
     ],
   },

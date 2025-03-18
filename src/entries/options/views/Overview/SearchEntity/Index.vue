@@ -10,14 +10,14 @@ import { useSiteStore } from "@/options/stores/site.ts";
 import { useUIStore } from "@/options/stores/ui.ts";
 import { type ISearchResultTorrent, useRuntimeStore } from "@/options/stores/runtime.ts";
 
-import { tableCustomFilter, doSearch, searchQueue } from "@/options/views/Overview/searchEntity/utils.ts"; // <-- 主要方法在这个文件中！！！
-
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
-import ActionTd from "@/options/views/Overview/searchEntity/ActionTd.vue";
-import SearchStatusDialog from "@/options/views/Overview/searchEntity/SearchStatusDialog.vue";
-import AdvanceFilterGenerateDialog from "@/options/views/Overview/searchEntity/AdvanceFilterGenerateDialog.vue";
+import ActionTd from "./ActionTd.vue";
+import SearchStatusDialog from "./SearchStatusDialog.vue";
+import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
+
 import { log } from "~/helper.ts";
+import { tableCustomFilter, doSearch, searchQueue } from "./utils.ts"; // <-- 主要方法在这个文件中！！！
 
 const route = useRoute();
 const uiStore = useUIStore();
@@ -42,7 +42,7 @@ const fullTableHeader = [
 
 const tableHeader = computed(() => {
   return fullTableHeader.filter(
-    (item) => item.alwaysShow || uiStore.tableBehavior.searchEntity.columns!.includes(item.key),
+    (item) => item.alwaysShow || uiStore.tableBehavior.SearchEntity.columns!.includes(item.key),
   );
 });
 
@@ -150,7 +150,7 @@ function cancelSearchQueue() {
         <v-combobox
           multiple
           chips
-          v-model="uiStore.tableBehavior.searchEntity.columns"
+          v-model="uiStore.tableBehavior.SearchEntity.columns"
           :items="fullTableHeader.map((item) => item.key)"
           max-width="220"
           density="compact"
@@ -163,13 +163,13 @@ function cancelSearchQueue() {
               <span>{{ fullTableHeader.find((x) => x.key == item.title)?.title }}</span>
             </v-chip>
             <span v-if="index === 1" class="grey--text caption">
-              (+{{ uiStore.tableBehavior.searchEntity.columns!.length - 1 }} others)
+              (+{{ uiStore.tableBehavior.SearchEntity.columns!.length - 1 }} others)
             </span>
           </template>
           <template v-slot:item="{ props, item }">
             <v-list-item>
               <v-checkbox
-                v-model="uiStore.tableBehavior.searchEntity.columns"
+                v-model="uiStore.tableBehavior.SearchEntity.columns"
                 density="compact"
                 hide-details
                 :value="item.title"
@@ -200,16 +200,16 @@ function cancelSearchQueue() {
       class="search-entity-table"
       :headers="tableHeader"
       :items="runtimeStore.search.searchResult"
-      :items-per-page="uiStore.tableBehavior.searchEntity.itemsPerPage"
+      :items-per-page="uiStore.tableBehavior.SearchEntity.itemsPerPage"
       item-value="uniqueId"
       :search="tableFilter"
       :custom-filter="tableCustomFilter"
       :filter-keys="['uniqueId'] /* 对每个item值只检索一次 */"
       show-select
       multi-sort
-      :sort-by="uiStore.tableBehavior.searchEntity.sortBy"
-      @update:itemsPerPage="(v) => uiStore.updateTableBehavior('searchEntity', 'itemsPerPage', v)"
-      @update:sortBy="(v) => uiStore.updateTableBehavior('searchEntity', 'sortBy', v)"
+      :sort-by="uiStore.tableBehavior.SearchEntity.sortBy"
+      @update:itemsPerPage="(v) => uiStore.updateTableBehavior('SearchEntity', 'itemsPerPage', v)"
+      @update:sortBy="(v) => uiStore.updateTableBehavior('SearchEntity', 'sortBy', v)"
     >
       <!-- 站点图标 -->
       <template #item.site="{ item }">

@@ -5,7 +5,7 @@ import { useSiteStore } from "@/options/stores/site.ts";
 import { EResultParseStatus } from "@ptd/site";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import SiteName from "@/options/components/SiteName.vue";
-import { doSearchEntity, raiseSearchPriority } from "@/options/views/Overview/searchEntity/utils.ts";
+import { doSearchEntity, raiseSearchPriority } from "@/options/views/Overview/SearchEntity/utils.ts";
 
 const componentProps = defineProps<{
   modelValue: boolean;

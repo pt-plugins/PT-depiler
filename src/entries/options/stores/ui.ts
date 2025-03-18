@@ -13,7 +13,7 @@ export const useUIStore = defineStore("ui", {
     isNavBarOpen: true,
     ignoreWrongPixelRatio: false,
     tableBehavior: {
-      setSite: {
+      SetSite: {
         itemsPerPage: -1,
         columns: ["name", "url", "time", "isOffline", "allowSearch", "allowQueryUserInfo"],
         sortBy: [
@@ -23,7 +23,7 @@ export const useUIStore = defineStore("ui", {
           { key: "allowQueryUserInfo", order: "desc" },
         ],
       },
-      searchEntity: {
+      SearchEntity: {
         itemsPerPage: 50,
         columns: [
           "site",

@@ -1,6 +1,6 @@
 <script lang="ts" setup>
 import { useVModels } from "@vueuse/core";
-import Editor from "@/options/views/Settings/setSite/Editor.vue";
+import Editor from "./Editor.vue";
 
 import { provide, ref, watch } from "vue";
 import { type ISiteUserConfig, type TSiteID } from "@ptd/site";
