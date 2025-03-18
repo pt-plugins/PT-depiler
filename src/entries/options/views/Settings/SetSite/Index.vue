@@ -42,7 +42,7 @@ const fullTableHeader = [
 ];
 
 const tableHeader = computed(() => {
-  return fullTableHeader.filter((item) => item.alwaysShow || uiStore.tableBehavior.setSite.columns!.includes(item.key));
+  return fullTableHeader.filter((item) => item.alwaysShow || uiStore.tableBehavior.SetSite.columns!.includes(item.key));
 });
 
 const tableFilter = ref("");
@@ -75,7 +75,7 @@ function deleteSite(siteId: TSiteID | TSiteID[]) {
 </script>
 
 <template>
-  <v-alert type="info" :title="$t('route.Settings.setSite')" />
+  <v-alert type="info" :title="$t('route.Settings.SetSite')" />
   <v-card>
     <v-card-title>
       <v-row class="ma-0">
@@ -108,14 +108,14 @@ function deleteSite(siteId: TSiteID | TSiteID[]) {
       v-model="tableSelected"
       :headers="tableHeader"
       :items="sites"
-      :items-per-page="uiStore.tableBehavior.setSite.itemsPerPage"
+      :items-per-page="uiStore.tableBehavior.SetSite.itemsPerPage"
       item-value="id"
-      :sort-by="uiStore.tableBehavior.setSite.sortBy"
+      :sort-by="uiStore.tableBehavior.SetSite.sortBy"
       multi-sort
       :search="tableFilter"
       show-select
-      @update:itemsPerPage="(v) => uiStore.updateTableBehavior('setSite', 'itemsPerPage', v)"
-      @update:sortBy="(v) => uiStore.updateTableBehavior('setSite', 'sortBy', v)"
+      @update:itemsPerPage="(v) => uiStore.updateTableBehavior('SetSite', 'itemsPerPage', v)"
+      @update:sortBy="(v) => uiStore.updateTableBehavior('SetSite', 'sortBy', v)"
     >
       <template #item.sortIndex="{ item }">
         <SiteFavicon :site-id="item.id" />

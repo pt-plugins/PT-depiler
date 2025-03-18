@@ -76,7 +76,7 @@
       "setDownloadPaths": "Download Paths",
       "setDownloader": "Download Server",
       "setSearchSolution": "Search Solution",
-      "setSite": "Sites"
+      "SetSite": "Sites"
     }
   },
   "setSite": {

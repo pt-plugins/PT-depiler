@@ -77,7 +77,7 @@
       "setDownloadPaths": "下载目录设置",
       "setDownloader": "下载器设置",
       "setSearchSolution": "搜索方案定义",
-      "setSite": "站点设置"
+      "SetSite": "站点设置"
     }
   },
   "setSite": {
