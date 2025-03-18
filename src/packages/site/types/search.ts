@@ -1,5 +1,6 @@
 import type { AxiosRequestConfig } from "axios";
 import type { TQueryFilter } from "@ptd/site";
+import type { EResultParseStatus } from "./base";
 import type { ITorrent, TBaseTorrentTagName } from "./torrent";
 
 export type TAdvanceSearchKeyword = "imdb" | "tmdb" | "douban" | "bangumi" | "anidb" | "tvdb" | string;
@@ -138,20 +139,6 @@ export interface ISearchCategories {
     | false;
 }
 
-/**
- * 搜索结果解析状态
- */
-export enum ESearchResultParseStatus {
-  unknownError,
-  waiting,
-  working,
-  success,
-  parseError,
-  passSearch,
-  needLogin,
-  noResults, // 等同于原先的 noTorrents 和 torrentTableIsEmpty ，这两个在结果上没有区别
-}
-
 export interface IElementQuery {
   /**
    * 当text输入时，text会作为默认值
@@ -194,6 +181,6 @@ export interface IElementQuery {
 }
 
 export interface ISearchResult {
-  status: ESearchResultParseStatus;
+  status: EResultParseStatus;
   data: ITorrent[];
 }

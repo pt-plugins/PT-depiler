@@ -39,6 +39,23 @@ export const useUIStore = defineStore("ui", {
         ],
         sortBy: [{ key: "time", order: "desc" }],
       },
+      MyData: {
+        itemsPerPage: 20,
+        columns: [
+          "site",
+          "name",
+          "levelName",
+          "uploaded",
+          "ratio",
+          "uploads",
+          "seeding",
+          "seedingSize",
+          "bonus",
+          "joinTime",
+          "updateAt",
+          "action",
+        ],
+      },
     },
   }),
   getters: {

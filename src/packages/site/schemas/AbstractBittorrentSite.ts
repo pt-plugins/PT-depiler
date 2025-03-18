@@ -1,5 +1,5 @@
 import {
-  ESearchResultParseStatus,
+  EResultParseStatus,
   IElementQuery,
   ISearchResult,
   ISiteMetadata,
@@ -28,7 +28,10 @@ import { get, isEmpty, set } from "es-toolkit/compat";
 import { chunk, pascalCase, pick, toMerged, union } from "es-toolkit";
 import { setupCache } from "axios-cache-interceptor";
 
-setupCache(axios);
+// 在生产环境下，默认启用 axios-cache-interceptor，以减少对站点的请求次数
+if (import.meta.env.PROD) {
+  setupCache(axios);
+}
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: -1,
@@ -118,12 +121,12 @@ export default class BittorrentSite {
   ): Promise<ISearchResult> {
     const result: ISearchResult = {
       data: [],
-      status: ESearchResultParseStatus.unknownError,
+      status: EResultParseStatus.unknownError,
     };
 
     // 0. 检查该站点是否允许搜索
     if (!this.allowSearch) {
-      result.status = ESearchResultParseStatus.passSearch;
+      result.status = EResultParseStatus.passParse;
       return result;
     }
 
@@ -148,7 +151,7 @@ export default class BittorrentSite {
         if (keywords.startsWith(`${advanceField}|`)) {
           // 检查是否跳过
           if (advanceConfig === false || advanceConfig.enabled === false) {
-            result.status = ESearchResultParseStatus.passSearch;
+            result.status = EResultParseStatus.passParse;
             return result;
           }
 
@@ -186,14 +189,14 @@ export default class BittorrentSite {
     try {
       const req = await this.request(requestConfig);
       result.data = await this.transformSearchPage(req.data, { keywords, searchEntry, requestConfig });
-      result.status = ESearchResultParseStatus.success;
+      result.status = EResultParseStatus.success;
     } catch (e) {
       if (e instanceof NeedLoginError) {
-        result.status = ESearchResultParseStatus.needLogin;
+        result.status = EResultParseStatus.needLogin;
       } else if (e instanceof NoTorrentsError) {
-        result.status = ESearchResultParseStatus.noResults;
+        result.status = EResultParseStatus.noResults;
       } else {
-        result.status = ESearchResultParseStatus.parseError;
+        result.status = EResultParseStatus.parseError;
       }
     }
     return result;

@@ -6,7 +6,7 @@
  */
 
 import { defineStore } from "pinia";
-import type { ESearchResultParseStatus, ITorrent, TSiteID } from "@ptd/site";
+import type { EResultParseStatus, ITorrent, TSiteID } from "@ptd/site";
 import { TSolutionID } from "@/storage.ts";
 
 export type TSearchSolutionKey = `${TSiteID}|$|${TSolutionID}`;
@@ -15,6 +15,18 @@ export interface ISearchResultTorrent extends ITorrent {
   uniqueId: string; // 每个种子的uniqueId，由 `${site}-${id}` 组成
   solutionId: TSolutionID; // 对应搜索方案的id
   solutionKey: TSearchSolutionKey; // 对应搜索方案的key，由 `${site}-${solutionId}` 组成
+}
+
+interface ISearchPlanStatus {
+  siteId: TSiteID;
+  searchEntryName: string;
+  searchEntry: Record<string, any>;
+  status: EResultParseStatus;
+  queueAt?: number;
+  queuePriority?: number;
+  startAt?: number;
+  costTime?: number;
+  count?: number;
 }
 
 interface ISearchData {
@@ -27,20 +39,7 @@ interface ISearchData {
   searchPlanKey: string;
 
   // 该搜索相关的搜索结果
-  searchPlan: Record<
-    TSearchSolutionKey,
-    {
-      siteId: TSiteID;
-      searchEntryName: string;
-      searchEntry: Record<string, any>;
-      status: ESearchResultParseStatus;
-      queueAt?: number;
-      queuePriority?: number;
-      startAt?: number;
-      costTime?: number;
-      count?: number;
-    }
-  >;
+  searchPlan: Record<TSearchSolutionKey, ISearchPlanStatus>;
   searchResult: ISearchResultTorrent[];
 }
 
@@ -58,6 +57,15 @@ export const useRuntimeStore = defineStore("runtime", {
   persistWebExt: false,
   state: () => ({
     search: initialSearchData(),
+    userInfo: {
+      isFlush: false,
+      flushPlan: {} as Record<
+        TSiteID,
+        {
+          isFlush: boolean;
+        }
+      >,
+    },
   }),
 
   getters: {

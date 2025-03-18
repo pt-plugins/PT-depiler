@@ -3,7 +3,7 @@ import PQueue from "p-queue";
 import searchQueryParser, { type SearchParserOptions } from "search-query-parser";
 
 import {
-  ESearchResultParseStatus,
+  EResultParseStatus,
   IAdvanceKeywordSearchConfig,
   parseSizeString,
   parseValidTimeString,
@@ -120,7 +120,7 @@ export async function doSearchEntity(
     siteId,
     searchEntryName,
     searchEntry,
-    status: ESearchResultParseStatus.waiting,
+    status: EResultParseStatus.waiting,
     queuePriority,
     count: 0,
   };
@@ -132,7 +132,7 @@ export async function doSearchEntity(
     async () => {
       const startAt = (runtimeStore.search.searchPlan[solutionKey].startAt = +new Date());
       log(`search ${searchEntryName} start at ${startAt}`);
-      runtimeStore.search.searchPlan[solutionKey].status = ESearchResultParseStatus.working;
+      runtimeStore.search.searchPlan[solutionKey].status = EResultParseStatus.working;
       const { status: searchStatus, data: searchResult } = await sendMessage("getSiteSearchResult", {
         keyword: runtimeStore.search.searchKey,
         siteId,

@@ -2,7 +2,7 @@
 import { useVModel } from "@vueuse/core";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useSiteStore } from "@/options/stores/site.ts";
-import { ESearchResultParseStatus } from "@ptd/site";
+import { EResultParseStatus } from "@ptd/site";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import SiteName from "@/options/components/SiteName.vue";
 import { doSearchEntity, raiseSearchPriority } from "@/options/views/Overview/searchEntity/utils.ts";
@@ -15,15 +15,15 @@ const showDialog = useVModel(componentProps);
 const runtimeStore = useRuntimeStore();
 const siteStore = useSiteStore();
 
-const StatusMap: Record<ESearchResultParseStatus, string> = {
-  [ESearchResultParseStatus.unknownError]: "未知错误！",
-  [ESearchResultParseStatus.waiting]: "队列等待中...",
-  [ESearchResultParseStatus.working]: "正在搜索中...",
-  [ESearchResultParseStatus.success]: "搜索成功！",
-  [ESearchResultParseStatus.parseError]: "解析错误",
-  [ESearchResultParseStatus.passSearch]: "未启用搜索！",
-  [ESearchResultParseStatus.needLogin]: "需要登录！",
-  [ESearchResultParseStatus.noResults]: "无结果！",
+const StatusMap: Record<EResultParseStatus, string> = {
+  [EResultParseStatus.unknownError]: "未知错误！",
+  [EResultParseStatus.waiting]: "队列等待中...",
+  [EResultParseStatus.working]: "正在搜索中...",
+  [EResultParseStatus.success]: "搜索成功！",
+  [EResultParseStatus.parseError]: "解析错误",
+  [EResultParseStatus.passParse]: "未启用搜索！",
+  [EResultParseStatus.needLogin]: "需要登录！",
+  [EResultParseStatus.noResults]: "无结果！",
 };
 </script>
 
@@ -53,7 +53,7 @@ const StatusMap: Record<ESearchResultParseStatus, string> = {
             <template #append>
               <span class="text-subtitle-2 text-end">
                 {{ StatusMap[searchPlan.status] }}
-                <template v-if="searchPlan.status === ESearchResultParseStatus.success">
+                <template v-if="searchPlan.status === EResultParseStatus.success">
                   <br />
                   <span class="text-end">
                     共找到 {{ searchPlan.count }} 条结果，用时 {{ (searchPlan.costTime ?? 0) / 1000 }}s
@@ -64,7 +64,7 @@ const StatusMap: Record<ESearchResultParseStatus, string> = {
               <v-btn-group variant="text" size="small">
                 <!-- TODO 上移队列 -->
                 <v-btn
-                  v-if="searchPlan.status === ESearchResultParseStatus.waiting"
+                  v-if="searchPlan.status === EResultParseStatus.waiting"
                   color="warning"
                   icon="mdi-arrow-collapse-up"
                   @click="() => raiseSearchPriority(solutionKey)"
@@ -75,7 +75,7 @@ const StatusMap: Record<ESearchResultParseStatus, string> = {
                   v-else
                   icon="mdi-cached"
                   color="red"
-                  :loading="searchPlan.status === ESearchResultParseStatus.working"
+                  :loading="searchPlan.status === EResultParseStatus.working"
                   @click="
                     () => doSearchEntity(searchPlan.siteId, searchPlan.searchEntryName, searchPlan.searchEntry, true)
                   "

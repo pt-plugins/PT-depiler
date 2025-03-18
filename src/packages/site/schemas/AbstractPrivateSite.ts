@@ -1,5 +1,5 @@
 // 所有PT站点的基类
-import { IElementQuery, ISiteMetadata, IUserInfo } from "../types";
+import { EResultParseStatus, IElementQuery, ISiteMetadata, IUserInfo } from "../types";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import BittorrentSite from "./AbstractBittorrentSite";
 import { difference, intersection, pascalCase, pick, toMerged } from "es-toolkit";
@@ -47,19 +47,23 @@ export default class PrivateSite extends BittorrentSite {
    * 这里获取 lastUserInfo 以及 保存/更新 UserInfo 均由调用的上层完成
    */
   public async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    if (!this.metadata.userInfo?.process) {
-      throw new Error("尚不支持，未定义 userInfo 属性或处理流程");
-    } else {
-      let flushUserInfo: Partial<IUserInfo> = { site: this.metadata.id };
+    let flushUserInfo: IUserInfo = {
+      status: EResultParseStatus.unknownError,
+      updateAt: +new Date(),
+      site: this.metadata.id,
+    };
 
-      if (!this.allowQueryUserInfo) {
-        return flushUserInfo as IUserInfo;
-      }
+    if (!this.allowQueryUserInfo || !this.metadata.userInfo?.process) {
+      flushUserInfo.status = EResultParseStatus.passParse;
+      return flushUserInfo;
+    }
 
-      if (this.metadata.userInfo.pickLast) {
-        flushUserInfo = toMerged(flushUserInfo, pick(lastUserInfo, this.metadata.userInfo.pickLast));
-      }
+    // 如果有 lastUserInfo 则合并
+    if (this.metadata.userInfo.pickLast) {
+      flushUserInfo = toMerged(flushUserInfo, pick(lastUserInfo, this.metadata.userInfo.pickLast));
+    }
 
+    try {
       for (let i = 0; i < this.metadata.userInfo.process.length; i++) {
         const thisUserInfo = this.metadata.userInfo.process[i];
 
@@ -87,6 +91,7 @@ export default class PrivateSite extends BittorrentSite {
                 set(requestConfig, pathKey as string, flushUserInfo[requiredField]);
               }
             } else {
+              // noinspection ExceptionCaughtLocallyJS
               throw new Error(`断言字段 ${requiredField} 缺失`);
             }
           }
@@ -119,8 +124,11 @@ export default class PrivateSite extends BittorrentSite {
         )?.id;
       }
 
-      flushUserInfo.updateAt = +new Date();
-      return flushUserInfo as IUserInfo;
+      flushUserInfo.status = EResultParseStatus.success;
+    } catch (error) {
+      flushUserInfo.status = EResultParseStatus.parseError;
     }
+
+    return flushUserInfo;
   }
 }

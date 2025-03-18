@@ -125,7 +125,7 @@ function cancelSearchQueue() {
             v-show="runtimeStore.search.isSearching"
             icon="mdi-cancel"
             color="red"
-            title="取消当前搜索"
+            title="取消当前等待的搜索"
             @click="cancelSearchQueue"
           ></v-btn>
           <v-btn
@@ -257,27 +257,27 @@ function cancelSearchQueue() {
 
       <!-- 种子大小 -->
       <template #item.size="{ item }">
-        <span class="t_size text-no-wrap"> {{ filesize(item.size ?? 0) }}</span>
+        <span class="t_size text-no-wrap">{{ filesize(item.size ?? 0, { base: 2 }) }}</span>
       </template>
 
       <!-- 上传人数 -->
       <template #item.seeders="{ item }">
-        <span class="t_seeders text-no-wrap"> {{ item.seeders }}</span>
+        <span class="t_seeders text-no-wrap">{{ item.seeders }}</span>
       </template>
 
       <!-- 下载人数 -->
       <template #item.leechers="{ item }">
-        <span class="t_leechers text-no-wrap"> {{ item.leechers }}</span>
+        <span class="t_leechers text-no-wrap">{{ item.leechers }}</span>
       </template>
 
       <!-- 完成人数 -->
       <template #item.completed="{ item }">
-        <span class="t_completed text-no-wrap"> {{ item.completed }}</span>
+        <span class="t_completed text-no-wrap">{{ item.completed }}</span>
       </template>
 
       <!-- 评论人数 -->
       <template #item.comments="{ item }">
-        <span class="t_comments text-no-wrap"> {{ item.comments }}</span>
+        <span class="t_comments text-no-wrap">{{ item.comments }}</span>
       </template>
 
       <!-- 发布日期 -->

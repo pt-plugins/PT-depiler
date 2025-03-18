@@ -1,5 +1,5 @@
 import type { AxiosResponse } from "axios";
-import { IUserInfo, ITorrent, ISiteMetadata } from "../types";
+import { IUserInfo, ITorrent, ISiteMetadata, EResultParseStatus } from "../types";
 import PrivateSite from "./AbstractPrivateSite";
 import { parseSizeString, parseTimeWithZone } from "../utils";
 import Sizzle from "sizzle";
@@ -365,16 +365,32 @@ export default class GazelleJSONAPI extends PrivateSite {
   }
 
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    let userInfo: Partial<IUserInfo> = {};
-    userInfo = { ...userInfo, ...(await this.getUserBaseInfo()) };
-    if (userInfo.id) {
-      userInfo = {
-        ...userInfo,
-        ...(await this.getUserExtendInfo(userInfo.id as number)),
-        ...(await this.getUserSeedingTorrents(userInfo.id as number)),
-      };
+    let flushUserInfo: IUserInfo = {
+      status: EResultParseStatus.unknownError,
+      updateAt: +new Date(),
+      site: this.metadata.id,
+    };
+
+    if (!this.allowQueryUserInfo || !this.metadata.userInfo?.process) {
+      flushUserInfo.status = EResultParseStatus.passParse;
+      return flushUserInfo;
     }
-    return userInfo as IUserInfo;
+
+    try {
+      flushUserInfo = { ...flushUserInfo, ...(await this.getUserBaseInfo()) };
+      if (flushUserInfo.id) {
+        flushUserInfo = {
+          ...flushUserInfo,
+          ...(await this.getUserExtendInfo(flushUserInfo.id as number)),
+          ...(await this.getUserSeedingTorrents(flushUserInfo.id as number)),
+        };
+      }
+      flushUserInfo.status = EResultParseStatus.success;
+    } catch (error) {
+      flushUserInfo.status = EResultParseStatus.parseError;
+    }
+
+    return flushUserInfo;
   }
 
   protected async getUserBaseInfo(): Promise<Partial<IUserInfo>> {

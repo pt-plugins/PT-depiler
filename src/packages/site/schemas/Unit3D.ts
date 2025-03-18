@@ -1,8 +1,9 @@
 import PrivateSite from "./AbstractPrivateSite";
-import { ISiteMetadata, IUserInfo, ETorrentStatus } from "../types";
+import { ISiteMetadata, IUserInfo, ETorrentStatus, EResultParseStatus } from "../types";
 import { parseSizeString, parseValidTimeString } from "../utils";
 import urlJoin from "url-join";
 import { set } from "es-toolkit/compat";
+import { toMerged } from "es-toolkit";
 
 /**
  * Trans Array
@@ -201,21 +202,35 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 
 export default class Unit3D extends PrivateSite {
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    let flushUserInfo: Partial<IUserInfo> = {};
+    let flushUserInfo: IUserInfo = {
+      status: EResultParseStatus.unknownError,
+      updateAt: +new Date(),
+      site: this.metadata.id,
+    };
 
-    let userName: string;
-    if (lastUserInfo !== null && lastUserInfo.name) {
-      userName = lastUserInfo.name as string;
-    } else {
-      // 如果没有 id 信息，则访问一次 index.php
-      userName = await this.getUserNameFromSite();
+    if (!this.allowQueryUserInfo || !this.metadata.userInfo?.process) {
+      flushUserInfo.status = EResultParseStatus.passParse;
+      return flushUserInfo;
     }
-    flushUserInfo.name = userName;
 
-    // 导入基本 Details 页面获取到的用户信息
-    flushUserInfo = Object.assign(flushUserInfo, await this.getUserInfoFromDetailsPage(userName));
+    try {
+      let userName: string;
+      if (lastUserInfo !== null && lastUserInfo.name) {
+        userName = lastUserInfo.name as string;
+      } else {
+        // 如果没有 id 信息，则访问一次 index.php
+        userName = await this.getUserNameFromSite();
+      }
+      flushUserInfo.name = userName;
 
-    return flushUserInfo as IUserInfo;
+      // 导入基本 Details 页面获取到的用户信息
+      flushUserInfo = toMerged(flushUserInfo, await this.getUserInfoFromDetailsPage(userName));
+      flushUserInfo.status = EResultParseStatus.success;
+    } catch (e) {
+      flushUserInfo.status = EResultParseStatus.parseError;
+    }
+
+    return flushUserInfo;
   }
 
   protected async getUserNameFromSite(): Promise<string> {

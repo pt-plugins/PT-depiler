@@ -1,5 +1,5 @@
 import PrivateSite from "./AbstractPrivateSite";
-import { ISiteMetadata, IUserInfo, ETorrentStatus, ITorrent, ISearchInput } from "../types";
+import { EResultParseStatus, ETorrentStatus, ISearchInput, ISiteMetadata, ITorrent, IUserInfo } from "../types";
 import Sizzle from "sizzle";
 import { mergeWith, toMerged } from "es-toolkit";
 import {
@@ -314,10 +314,13 @@ export default class NexusPHP extends PrivateSite {
   }
 
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    let flushUserInfo = await super.getUserInfoResult();
+    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
 
     // 导入用户做种信息
-    if (typeof flushUserInfo.seeding === "undefined" || typeof flushUserInfo.seedingSize === "undefined") {
+    if (
+      flushUserInfo.status === EResultParseStatus.success &&
+      (typeof flushUserInfo.seeding === "undefined" || typeof flushUserInfo.seedingSize === "undefined")
+    ) {
       flushUserInfo = mergeWith(
         flushUserInfo,
         await this.parseUserInfoForSeedingStatus(flushUserInfo.id as number),
@@ -327,7 +330,7 @@ export default class NexusPHP extends PrivateSite {
       );
     }
 
-    return flushUserInfo as IUserInfo;
+    return flushUserInfo;
   }
 
   /**

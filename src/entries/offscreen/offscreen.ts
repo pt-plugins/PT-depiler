@@ -1,7 +1,7 @@
 import { getSiteInstance } from "../shared/adapters/site.ts";
 import { onMessage, sendMessage } from "@/messages.ts";
 import { getRemoteTorrentFile } from "@ptd/downloader";
-import { ITorrent } from "@ptd/site";
+import { type ITorrent, type IUserInfo } from "@ptd/site";
 
 onMessage("getSiteSearchResult", async ({ data: { siteId, keyword = "", searchEntry = {} } }) => {
   const site = await getSiteInstance<"public">(siteId);
@@ -10,9 +10,9 @@ onMessage("getSiteSearchResult", async ({ data: { siteId, keyword = "", searchEn
 
 onMessage("getSiteUserInfoResult", async ({ data: siteId }) => {
   const site = await getSiteInstance<"private">(siteId);
-  const userInfo = await site.getUserInfoResult();
-  await sendMessage("setSiteLastUserInfo", userInfo);
-  return userInfo;
+  const userInfoResult = await site.getUserInfoResult();
+  await sendMessage("setSiteLastUserInfo", userInfoResult.data as IUserInfo);
+  return userInfoResult;
 });
 
 onMessage("getTorrentDownloadLink", async ({ data: torrent }) => {
