@@ -33,6 +33,10 @@
     "build:watch": "vite build --watch --mode development --minify false",
     "prepare": "husky"
   },
+  "engines": {
+    "node": ">=23.7.0",
+    "pnpm": ">=9.11.0"
+  },
   "dependencies": {
     "@mdi/font": "^7.4.47",
     "@tailwindcss/vite": "^4.0.12",
