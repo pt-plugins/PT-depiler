@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { watch, ref, computed } from "vue";
-import { filesize } from "filesize";
 import { useRoute } from "vue-router";
-import { format } from "date-fns";
 import { refDebounced } from "@vueuse/core";
 import { UseElementSize } from "@vueuse/components";
 
@@ -17,6 +15,7 @@ import SearchStatusDialog from "./SearchStatusDialog.vue";
 import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
 
 import { log } from "~/helper.ts";
+import { formatDate, formatSize } from "@/options/utils.ts";
 import { tableCustomFilter, doSearch, searchQueue } from "./utils.ts"; // <-- 主要方法在这个文件中！！！
 
 const route = useRoute();
@@ -257,7 +256,7 @@ function cancelSearchQueue() {
 
       <!-- 种子大小 -->
       <template #item.size="{ item }">
-        <span class="t_size text-no-wrap">{{ filesize(item.size ?? 0, { base: 2 }) }}</span>
+        <span class="t_size text-no-wrap">{{ formatSize(item.size ?? 0) }}</span>
       </template>
 
       <!-- 上传人数 -->
@@ -282,7 +281,7 @@ function cancelSearchQueue() {
 
       <!-- 发布日期 -->
       <template #item.time="{ item }">
-        <span class="t_time text-no-wrap">{{ format(item.time ?? 0, "yyyy-MM-dd HH:mm") }}</span>
+        <span class="t_time text-no-wrap">{{ formatDate(item.time ?? 0) }}</span>
       </template>
 
       <!-- 其他操作 -->

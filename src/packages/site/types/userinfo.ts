@@ -1,45 +1,68 @@
 import type { ITorrent } from "./torrent";
 import { type EResultParseStatus, TSiteID } from "@ptd/site";
 
-export type ILevelId = number;
-export type ILevelName = string;
+export type TLevelId = number;
+export type TLevelName = string;
+export type TLevelGroupType = "user" | "vip" | "manager";
 
 export interface ILevelRequirement {
-  id: ILevelId; // 等级序列，主要用来排序
-  name: ILevelName;
-  interval?: number; // 需要等待的周数需求
+  id: TLevelId; // 等级序列，应该是一个递增的序列，不可重复
+  name: TLevelName; // 需要与 IUserInfo中对应的 levelName 相同
+  groupType?: TLevelGroupType; // 等级组别，不指定的话，默认为 user
+  privilege?: string; // 获得的特权说明
+
+  // 以下为对应等级需求，如果不指定的话，则表示不需要该需求
+  interval?: `P${string}`; // 需要等待的日期需求（ISO 8601 - 时间段表示法）  如 P5W 代表等待五周，P2M 代表等待二个月
+
+  /**
+   * 对 涉及体积的 其 number 类型的需求，我们更建议使用 utils/filesize 提供的单位明确真实 Byte 数值
+   * TODO 也可以考虑直接使用 string 类型，如 "1.5 TB"，会自动实现转换
+   */
+
+  totalTraffic?: number | string; // 总流量需求
   downloaded?: number | string; // 下载量需求
+  trueDownloaded?: number | string; // 真实下载量需求
   uploaded?: number | string; // 上传量需求
+  trueUploaded?: number | string; // 真实上传量需求
   ratio?: number; // 分享率需求
-  seedingPoints?: number; // 做种积分需求
-  privilege?: string; // 获得的特权
+  trueRatio?: number; // 真实分享率需求
+
+  seeding?: number; // 做种数量需求
+  seedingSize?: number | string; // 做种体积需求
+  seedingTime?: number; // 做种时间需求
+  averageSeedingTime?: number; // 平均做种时间需求
+
+  bonus?: number; // 魔力值/积分需求
+  bonusPerHour?: number; // 魔力值/积分每小时需求
+  seedingBonus?: number; // 做种积分需求
+
+  uploads?: number; // 发布种子数需求
+  leeching?: number; // 下载数量需求
+  snatches?: number; // 完成种子数需求
 }
 
-export interface IUserInfo {
+export interface IUserInfo extends Omit<ILevelRequirement, "id" | "name" | "groupType" | "privilege" | "interval"> {
   status: EResultParseStatus;
   updateAt: number; // 更新时间
   site: TSiteID;
 
   id?: number | string; // 用户ID
   name?: string; // 用户名
-  levelId?: ILevelId; // 等级ID
-  levelName?: ILevelName; // 等级名称
+  levelId?: TLevelId; // 等级ID
+  levelName?: TLevelName; // 等级名称
+  joinTime?: number; // 入站时间
 
-  uploaded?: number; // 上传量
-  downloaded?: number; // 下载量
-  ratio?: number; // 分享率，Ratio并不是必须获得的，如果站点未提供，助手会使用 uploaded/downloaded 自动计算
-
-  uploads?: number; // 发布种子数
-  seeding?: number; // 当前做种数量
-  seedingSize?: number; // 做种体积
-  leeching?: number; // 当前下载数量
-
-  bonus?: number; // 魔力值/积分
   messageCount?: number; // 消息数量
   invites?: number; // 邀请数量
-
-  joinTime?: number; // 入站时间
   avatar?: string; // 头像
+
+  // 一些信息与 ILevelRequirement 重复，但是这里是实际的数据，而 ILevelRequirement 是需求
+  // 此处仅对变化项进行覆写，其他项不再累述
+  downloaded?: number; // 下载量需求
+  trueDownloaded?: number; // 真实下载量需求
+  uploaded?: number; // 上传量需求
+  trueUploaded?: number; // 真实上传量需求
+  seedingSize?: number; // 做种体积需求
 
   [key: string]: any; // 其他信息
 }

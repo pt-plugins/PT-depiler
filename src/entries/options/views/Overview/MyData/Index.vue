@@ -1,7 +1,5 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
-import { format } from "date-fns";
-import { filesize } from "filesize";
 import { computedAsync } from "@vueuse/core";
 
 import { useSiteStore } from "@/options/stores/site.ts";
@@ -11,9 +9,11 @@ import { getFixedRatio, flushSiteLastUserInfo } from "./utils.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
+import UserLevelRequirementsTd from "@/options/views/Overview/MyData/UserLevelRequirementsTd.vue";
 
 import { TSiteID } from "@ptd/site";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { formatDate, formatNumber, formatSize } from "@/options/utils.ts";
 
 const siteStore = useSiteStore();
 const uiStore = useUIStore();
@@ -24,6 +24,7 @@ const fullTableHeader = [
   { title: "用户名", key: "name", align: "center", width: 90, alwaysShow: true },
   { title: "等级", key: "levelName", align: "center", width: 90 },
   { title: "数据量", key: "uploaded", align: "right" },
+  { title: "真实数据量", key: "trueUploaded", align: "right" }, // 默认不显示
   { title: "分享率", key: "ratio", align: "left" },
   { title: "发布数", key: "uploads", align: "left" },
   { title: "做种数", key: "seeding", align: "right" },
@@ -43,8 +44,22 @@ const tableData = computedAsync(async () => {
   const allPrivateSiteUserInfoData = [];
   for (const site of allSite) {
     const siteMeta = await siteStore.getSiteMetadata(site);
+
+    // 仅私有站点存在个人信息
     if (siteMeta?.type === "private") {
       const siteUserInfoData = siteStore.lastUserInfo[site] ?? { site: site };
+
+      // 对 siteUserInfoData 进行一些预处理（不涉及渲染格式）
+      let { uploaded = 0, downloaded = 0 } = siteUserInfoData;
+      if (typeof siteUserInfoData.ratio === "undefined") {
+        let ratio = -1;
+        if (downloaded == 0 && uploaded > 0) {
+          ratio = Infinity; // 没有下载量时设置分享率为无限
+        } else if (downloaded > 0) {
+          ratio = uploaded / downloaded;
+        }
+        siteUserInfoData.ratio = ratio;
+      }
 
       allPrivateSiteUserInfoData.push(siteUserInfoData);
     }
@@ -83,21 +98,42 @@ const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
         <span :title="item.id" class="text-no-wrap">{{ item.name }}</span>
       </template>
 
-      <!-- 等级信息 -->
+      <!-- 等级信息，升级信息 -->
       <template #item.levelName="{ item }">
-        <span class="text-no-wrap"><v-icon icon="mdi-badge-account"></v-icon>{{ item.levelName }}</span>
-        <!-- TODO 升级信息，另起一个component -->
+        <UserLevelRequirementsTd :user-info="item" />
       </template>
 
       <!-- 上传、下载 -->
       <template #item.uploaded="{ item }">
         <v-container>
           <v-row justify="end">
-            <span class="text-no-wrap">{{ item.uploaded ? filesize(item.uploaded, { base: 2 }) : "-" }}</span>
+            <span class="text-no-wrap">
+              {{ item.uploaded ? formatSize(item.uploaded) : "-" }}
+            </span>
             <v-icon small color="green-darken-4" icon="mdi-chevron-up"></v-icon>
           </v-row>
           <v-row justify="end">
-            <span class="text-no-wrap">{{ item.downloaded ? filesize(item.downloaded, { base: 2 }) : "-" }}</span>
+            <span class="text-no-wrap">
+              {{ item.downloaded ? formatSize(item.downloaded) : "-" }}
+            </span>
+            <v-icon small color="red-darken-4" icon="mdi-chevron-down"></v-icon>
+          </v-row>
+        </v-container>
+      </template>
+
+      <!-- 真实上传、下载 -->
+      <template #item.trueUploaded="{ item }">
+        <v-container>
+          <v-row justify="end">
+            <span class="text-no-wrap">
+              {{ item.trueUploaded ? formatSize(item.trueUploaded) : "-" }}
+            </span>
+            <v-icon small color="green-darken-4" icon="mdi-chevron-up"></v-icon>
+          </v-row>
+          <v-row justify="end">
+            <span class="text-no-wrap">
+              {{ item.trueDownloaded ? trueDownloaded(item.trueUploaded) : "-" }}
+            </span>
             <v-icon small color="red-darken-4" icon="mdi-chevron-down"></v-icon>
           </v-row>
         </v-container>
@@ -120,26 +156,22 @@ const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
 
       <!-- 做种体积 -->
       <template #item.seedingSize="{ item }">
-        <span class="text-no-wrap">{{ item.seedingSize ? filesize(item.seedingSize, { base: 2 }) : "-" }}</span>
+        <span class="text-no-wrap">{{ item.seedingSize ? formatSize(item.seedingSize) : "-" }}</span>
       </template>
 
       <!-- 魔力/积分 -->
       <template #item.bonus="{ item }">
-        <span class="text-no-wrap">{{
-          item.bonus
-            ? Number(item.bonus).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2 })
-            : "-"
-        }}</span>
+        <span class="text-no-wrap">{{ item.bonus ? formatNumber(item.bonus) : "-" }}</span>
       </template>
 
       <!-- 入站时间 -->
       <template #item.joinTime="{ item }">
-        <span class="text-no-wrap">{{ item.joinTime ? format(item.joinTime, "yyyy-MM-dd HH:mm:ss") : "-" }}</span>
+        <span class="text-no-wrap">{{ item.joinTime ? formatDate(item.joinTime) : "-" }}</span>
       </template>
 
       <!-- 更新时间 -->
       <template #item.updateAt="{ item }">
-        {{ format(item.updateAt, "yyyy-MM-dd HH:mm:ss") }}
+        {{ formatDate(item.updateAt) }}
       </template>
 
       <!-- 操作 -->

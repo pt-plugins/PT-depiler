@@ -1,4 +1,4 @@
-import { IUserInfo, TSiteID } from "@ptd/site";
+import { IUserInfo, TLevelGroupType, TSiteID } from "@ptd/site";
 import PQueue from "p-queue";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -10,17 +10,11 @@ export function getFixedRatio(
 ): string | "∞" | "" {
   let ratio = userInfo.ratio ?? -1;
 
-  if (ratio === -1) {
-    if (userInfo.uploaded && userInfo.downloaded) {
-      ratio = userInfo.uploaded / userInfo.downloaded;
-    }
-  }
-
-  if (ratio > 10000) {
+  if (ratio > 10000 || ratio === -1) {
     return "∞";
   }
 
-  if (ratio === -1 || isNaN(ratio)) {
+  if (isNaN(ratio)) {
     return "";
   }
 
@@ -45,4 +39,33 @@ export async function flushSiteLastUserInfo(sites: TSiteID[]) {
       runtimeStore.userInfo.flushPlan[site].isFlush = false;
     });
   }
+}
+
+export function guessUserLevelGroupType(levelName: string): TLevelGroupType {
+  let userLevel = levelName.toLowerCase();
+  let specialNames: Record<"manager" | "vip", string[]> = {
+    manager: [
+      "admin",
+      "moderator",
+      "sys",
+      "retire",
+      "uploader",
+      "管理",
+      "版主",
+      "发种",
+      "保种",
+      "上传",
+      "退休",
+      "开发",
+    ],
+    vip: ["vip", "贵宾"],
+  };
+  let res = "user";
+  for (const [k, levelNames] of Object.entries(specialNames)) {
+    if (levelNames.some((n: string) => userLevel?.includes(n))) {
+      res = k;
+      break;
+    }
+  }
+  return res as TLevelGroupType;
 }
