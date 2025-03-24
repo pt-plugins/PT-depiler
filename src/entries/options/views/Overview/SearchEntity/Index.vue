@@ -154,7 +154,7 @@ function cancelSearchQueue() {
           max-width="220"
           density="compact"
           hide-details
-          class="search-entity-table-header-filter"
+          class="table-header-filter-clear"
           prepend-inner-icon="mdi-filter-cog"
         >
           <template #chip="{ item, index }">
@@ -298,8 +298,4 @@ function cancelSearchQueue() {
   <SearchStatusDialog v-model="showSearchStatusDialog"></SearchStatusDialog>
 </template>
 
-<style scoped lang="scss">
-.search-entity-table-header-filter:deep(input[size="1"][type="text"]) {
-  display: none;
-}
-</style>
+<style scoped lang="scss"></style>

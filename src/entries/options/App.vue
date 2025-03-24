@@ -46,4 +46,8 @@ function setIgnoreWrongPixelRatio() {
 
 <style scoped>
 @import "tailwindcss";
+
+:deep(.v-combobox.table-header-filter-clear input[size="1"][type="text"]) {
+  display: none;
+}
 </style>

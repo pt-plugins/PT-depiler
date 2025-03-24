@@ -6,6 +6,7 @@ import { defineConfig } from "vite";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 import vue from "@vitejs/plugin-vue";
 import vuetify from "vite-plugin-vuetify";
+import Inspect from "vite-plugin-inspect";
 import VueDevTools from "vite-plugin-vue-devtools";
 import webExtension from "vite-plugin-web-extension";
 
@@ -30,6 +31,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    Inspect(),
     vitePluginGenerateWebextLocales(),
     nodePolyfills({
       include: ["buffer", "path"],
@@ -110,24 +112,15 @@ export default defineConfig({
                   // 特殊情况下 facadeModuleId 可能为 null，这时我们使用 moduleIds 的最后一个作为 chunkName
                   const chunkName = chunkInfo.facadeModuleId || chunkInfo.moduleIds.slice(-1)[0];
 
-                  if (
-                    /[\\/]src[\\/]packages[\\/](downloader|backupServer|site).+\.ts/.test(chunkName) ||
-                    /[\\/]src[\\/]entries[\\/].+\.vue/.test(chunkName)
-                  ) {
+                  if (/[\\/]src[\\/]packages[\\/](downloader|backupServer|site).+\.ts/.test(chunkName)) {
                     const name = chunkName.replace(/^.+?[\\/]src[\\/]/, "").replace(/\..+?$/, "");
                     return `${name}-[hash].js`;
                   }
 
                   return "assets/[name]-[hash].js"; // vite default
                 },
-                entryFileNames: (chunkInfo) => {
-                  if (chunkInfo.name.includes("entries")) {
-                    return "[name]-[hash].js";
-                  }
-
-                  return "assets/[name]-[hash].js"; // vite default
-                },
-                assetFileNames: "assets/[name]-[hash][extname]",
+                entryFileNames: "assets/[name]-[hash].js", // vite default
+                assetFileNames: "assets/[name]-[hash][extname]", // vite default
               };
 
               return config;

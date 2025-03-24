@@ -1,5 +1,5 @@
 import type { ITorrent } from "./torrent";
-import { type EResultParseStatus, TSiteID } from "@ptd/site";
+import type { EResultParseStatus, isoDuration, TSiteID } from "@ptd/site";
 
 export type TLevelId = number;
 export type TLevelName = string;
@@ -12,7 +12,7 @@ export interface ILevelRequirement {
   privilege?: string; // 获得的特权说明
 
   // 以下为对应等级需求，如果不指定的话，则表示不需要该需求
-  interval?: `P${string}`; // 需要等待的日期需求（ISO 8601 - 时间段表示法）  如 P5W 代表等待五周，P2M 代表等待二个月
+  interval?: isoDuration; // 需要等待的日期需求（ISO 8601 - 时间段表示法）  如 P5W 代表等待五周，P2M 代表等待二个月
 
   /**
    * 对 涉及体积的 其 number 类型的需求，我们更建议使用 utils/filesize 提供的单位明确真实 Byte 数值

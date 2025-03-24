@@ -32,7 +32,7 @@ const fullTableHeader = [
   { title: "魔力/积分", key: "bonus", align: "center" },
   { title: "入站时间", key: "joinTime", align: "center" },
   { title: "数据更新于", key: "updateAt", align: "center", alwaysShow: true },
-  { title: "操作", key: "action", align: "center", width: 90 },
+  { title: "操作", key: "action", align: "center", width: 90, alwaysShow: true },
 ];
 
 const tableHeader = computed(() => {
@@ -76,13 +76,50 @@ const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
   </v-alert>
   <v-card>
     <v-card-title>
-      <v-btn
-        prepend-icon="mdi-cached"
-        color="green"
-        :disabled="runtimeStore.userInfo.isFlush || tableSelected.length === 0"
-        @click="() => flushSiteLastUserInfo(tableSelected)"
-        >刷新所选站点的数据
-      </v-btn>
+      <v-row class="ma-0">
+        <v-btn
+          prepend-icon="mdi-cached"
+          color="green"
+          :disabled="runtimeStore.userInfo.isFlush || tableSelected.length === 0"
+          @click="() => flushSiteLastUserInfo(tableSelected)"
+          >刷新所选站点的数据
+        </v-btn>
+
+        <v-divider vertical class="mx-2" />
+
+        <v-combobox
+          multiple
+          chips
+          v-model="uiStore.tableBehavior.MyData.columns"
+          :items="fullTableHeader.map((item) => item.key)"
+          max-width="240"
+          density="compact"
+          hide-details
+          class="table-header-filter-clear"
+          prepend-inner-icon="mdi-filter-cog"
+        >
+          <template #chip="{ item, index }">
+            <v-chip v-if="index === 0">
+              <span>{{ fullTableHeader.find((x) => x.key == item.title)?.title }}</span>
+            </v-chip>
+            <span v-if="index === 1" class="grey--text caption">
+              (+{{ uiStore.tableBehavior.MyData.columns!.length - 1 }} others)
+            </span>
+          </template>
+          <template v-slot:item="{ props, item }">
+            <v-list-item>
+              <v-checkbox
+                v-model="uiStore.tableBehavior.MyData.columns"
+                density="compact"
+                hide-details
+                :value="item.title"
+                :disabled="fullTableHeader.find((x) => x.key == item.title)?.alwaysShow"
+                :label="fullTableHeader.find((x) => x.key == item.title)?.title"
+              ></v-checkbox>
+            </v-list-item>
+          </template>
+        </v-combobox>
+      </v-row>
     </v-card-title>
     <v-data-table v-model="tableSelected" :headers="tableHeader" :items="tableData" item-value="site" show-select>
       <!-- 站点信息 -->
