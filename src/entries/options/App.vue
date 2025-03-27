@@ -37,11 +37,8 @@ function setIgnoreWrongPixelRatio() {
 
     <v-main id="ptd-main">
       <v-container fluid>
-        <router-view v-slot="{ Component, route }">
-          <keep-alive v-if="route.meta.keepAlive">
-            <component :is="Component" />
-          </keep-alive>
-          <component :is="Component" v-else />
+        <router-view v-slot="{ Component }">
+          <component :is="Component" />
         </router-view>
       </v-container>
     </v-main>

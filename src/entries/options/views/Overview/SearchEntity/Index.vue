@@ -52,6 +52,7 @@ const tableSelected = ref<Array<ISearchResultTorrent["uniqueId"]>>([]);
 watch(
   () => route.query,
   (newParams, oldParams) => {
+    console.log("route.query", newParams, oldParams);
     if (newParams.flush || newParams.search != oldParams.search || newParams.plan != oldParams.plan) {
       doSearch((newParams.search as string) ?? "", (newParams.plan as string) ?? "default", true);
     }

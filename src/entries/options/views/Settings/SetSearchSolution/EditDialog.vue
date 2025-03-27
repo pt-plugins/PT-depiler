@@ -8,7 +8,7 @@ import { find } from "es-toolkit/compat";
 import type { ISearchSolution, ISearchSolutionState, TSolutionID } from "@/shared/storages/site.ts";
 
 import { useSiteStore } from "@/options/stores/site";
-import { formValidateRules, globalSnakebars } from "@/options/utils.ts";
+import { formValidateRules } from "@/options/utils.ts";
 
 import SolutionLabel from "./SolutionLabel.vue";
 import SiteCategoryPanel from "./SiteCategoryPanel.vue";

@@ -16,7 +16,7 @@ export const routes: RouteRecordRaw[] = [
       {
         path: "/search-entity",
         name: "SearchEntity",
-        meta: { icon: "mdi-magnify", keepAlive: true },
+        meta: { icon: "mdi-magnify" },
         component: () => import("../views/Overview/SearchEntity/Index.vue"),
       },
     ],
