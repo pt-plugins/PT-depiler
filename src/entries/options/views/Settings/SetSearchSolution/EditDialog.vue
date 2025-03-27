@@ -1,16 +1,20 @@
 <script setup lang="ts">
-import { useVModels } from "@vueuse/core";
-import { ISearchSolution, ISearchSolutionState, TSolutionID } from "@/shared/storages/site.ts";
-import { watch, ref } from "vue";
-import { useSiteStore } from "@/options/stores/site";
-import { cloneDeep } from "es-toolkit";
 import { nanoid } from "nanoid";
-import { formValidateRules } from "@/options/utils.ts";
+import { watch, ref } from "vue";
+import { useVModels } from "@vueuse/core";
+import { cloneDeep } from "es-toolkit";
+import { find } from "es-toolkit/compat";
 
+import type { ISearchSolution, ISearchSolutionState, TSolutionID } from "@/shared/storages/site.ts";
+
+import { useSiteStore } from "@/options/stores/site";
+import { formValidateRules, globalSnakebars } from "@/options/utils.ts";
+
+import SolutionLabel from "./SolutionLabel.vue";
 import SiteCategoryPanel from "./SiteCategoryPanel.vue";
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
-import SolutionLabel from "@/options/views/Settings/SetSearchSolution/SolutionLabel.vue";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 const props = defineProps<{
   modelValue: boolean;
@@ -28,7 +32,10 @@ const initSolution = () =>
   }) as ISearchSolutionState;
 
 const siteStore = useSiteStore();
+const runtimeStore = useRuntimeStore();
+
 const solution = ref<ISearchSolutionState>(initSolution());
+const formValid = ref<boolean>(false);
 
 watch(props, (newVal, oldVal) => {
   if (newVal.modelValue) {
@@ -44,7 +51,14 @@ watch(props, (newVal, oldVal) => {
 });
 
 function addSolution(addSolution: ISearchSolution) {
-  // TODO 去重复
+  // 基于 siteId 和 selectedCategories 判断是否已存在，如果存在则不添加
+  if (
+    find(solution.value.solutions, { siteId: addSolution.siteId, selectedCategories: addSolution.selectedCategories })
+  ) {
+    runtimeStore.showSnakebar("已存在相同的搜索方案，无法重复添加", { color: "error" });
+    return;
+  }
+
   solution.value.solutions.push(addSolution);
 }
 
@@ -70,47 +84,49 @@ function saveSolutionState() {
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <v-row>
-          <v-col>
-            <v-text-field
-              v-model="solution.name"
-              :label="$t('common.name')"
-              :rules="[formValidateRules.require()]"
-              autofocus
-              required
-            />
-          </v-col>
-          <v-col cols="3">
-            <v-text-field v-model="solution.id" label="ID" disabled />
-          </v-col>
-          <v-col cols="2">
-            <v-text-field v-model="solution.sort" :label="$t('common.sortIndex')" type="number" min="0" max="100" />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="8">
-            <v-text-field append-inner-icon="mdi-magnify" prepend-icon="mdi-sitemap" />
+        <v-form v-model="formValid">
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-model="solution.name"
+                :label="$t('common.name')"
+                :rules="[formValidateRules.require()]"
+                autofocus
+                required
+              />
+            </v-col>
+            <v-col cols="3">
+              <v-text-field v-model="solution.id" label="ID" disabled />
+            </v-col>
+            <v-col cols="2">
+              <v-text-field v-model="solution.sort" :label="$t('common.sortIndex')" type="number" min="0" max="100" />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="8">
+              <v-text-field append-inner-icon="mdi-magnify" prepend-icon="mdi-sitemap" />
 
-            <v-expansion-panels>
-              <v-expansion-panel v-for="site in siteStore.getAddedSiteIds" :id="site">
-                <v-expansion-panel-title>
-                  <SiteFavicon :site-id="site" class="mr-2" inline />
+              <v-expansion-panels>
+                <v-expansion-panel v-for="site in siteStore.getAddedSiteIds" :id="site">
+                  <v-expansion-panel-title>
+                    <SiteFavicon :site-id="site" class="mr-2" inline />
 
-                  <v-chip color="green" label>
-                    <SiteName :site-id="site" :class="['text-no-wrap']" />
-                  </v-chip>
-                </v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <SiteCategoryPanel :site-id="site" @update:solution="addSolution" />
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-            </v-expansion-panels>
-          </v-col>
-          <v-col cols="4">
-            <p class="text-h4 pa-2">已添加方案{{ solution.solutions.length }}个</p>
-            <SolutionLabel :solutions="solution.solutions" @remove:solution="removeSolution" closable />
-          </v-col>
-        </v-row>
+                    <v-chip color="green" label>
+                      <SiteName :site-id="site" :class="['text-no-wrap']" />
+                    </v-chip>
+                  </v-expansion-panel-title>
+                  <v-expansion-panel-text>
+                    <SiteCategoryPanel :site-id="site" @update:solution="addSolution" />
+                  </v-expansion-panel-text>
+                </v-expansion-panel>
+              </v-expansion-panels>
+            </v-col>
+            <v-col cols="4">
+              <p class="text-h4 pa-2">已添加方案{{ solution.solutions.length }}个</p>
+              <SolutionLabel :solutions="solution.solutions" @remove:solution="removeSolution" closable />
+            </v-col>
+          </v-row>
+        </v-form>
       </v-card-text>
       <v-divider />
       <v-card-actions>
@@ -119,7 +135,12 @@ function saveSolutionState() {
           <v-icon icon="mdi-close-circle" />
           {{ $t("common.dialog.cancel") }}
         </v-btn>
-        <v-btn variant="text" color="success" @click="saveSolutionState" :disabled="solution.solutions.length === 0">
+        <v-btn
+          variant="text"
+          color="success"
+          @click="saveSolutionState"
+          :disabled="!formValid || solution.solutions.length === 0"
+        >
           <v-icon icon="mdi-check-circle-outline" />
           {{ $t("common.dialog.ok") }}
         </v-btn>

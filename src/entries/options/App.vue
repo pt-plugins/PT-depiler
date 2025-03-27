@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { useDevicePixelRatio } from "@vueuse/core";
+
+import { useUIStore } from "@/options/stores/ui.ts";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
+
 import Navigation from "./views/Layout/Navigation.vue";
 import Topbar from "./views/Layout/Topbar.vue";
-import { useUIStore } from "@/options/stores/ui.ts";
 
 const uiStore = useUIStore();
+const runtimeStore = useRuntimeStore();
 
 const { pixelRatio } = useDevicePixelRatio();
 function setIgnoreWrongPixelRatio() {
@@ -42,6 +46,8 @@ function setIgnoreWrongPixelRatio() {
       </v-container>
     </v-main>
   </v-app>
+
+  <v-snackbar v-model="runtimeStore.uiGlobalSnakebar.show" v-bind="runtimeStore.uiGlobalSnakebar"></v-snackbar>
 </template>
 
 <style scoped>

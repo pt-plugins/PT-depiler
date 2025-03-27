@@ -52,6 +52,12 @@ export const initialSearchData: () => ISearchData = () => ({
   searchResult: [],
 });
 
+export const resetUiGlobalSnakebar = () => ({
+  show: false,
+  text: "",
+  color: "success",
+});
+
 export const useRuntimeStore = defineStore("runtime", {
   persist: true,
   persistWebExt: false,
@@ -66,6 +72,7 @@ export const useRuntimeStore = defineStore("runtime", {
         }
       >,
     },
+    uiGlobalSnakebar: resetUiGlobalSnakebar(),
   }),
 
   getters: {
@@ -77,6 +84,19 @@ export const useRuntimeStore = defineStore("runtime", {
   actions: {
     resetSearchData() {
       this.search = initialSearchData();
+    },
+
+    showSnakebar(text: string, options: any) {
+      this.uiGlobalSnakebar = {
+        show: true,
+        text,
+        ...options,
+      };
+      if (options.timeout) {
+        setTimeout(() => {
+          this.uiGlobalSnakebar = resetUiGlobalSnakebar();
+        }, options.timeout);
+      }
     },
   },
 });

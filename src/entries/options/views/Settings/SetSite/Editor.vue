@@ -126,7 +126,7 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
           <v-label class="my-2">{{ $t("setSite.editor.extraUserInputSetting") }}</v-label>
           <v-text-field
             v-for="userInputMeta in siteMetaData.userInputSettingMeta"
-            v-model="siteUserConfig.inputSetting[userInputMeta.name]"
+            v-model="siteUserConfig.inputSetting![userInputMeta.name]"
             :key="userInputMeta.name"
             :label="userInputMeta.label"
             :hint="userInputMeta.hint"
