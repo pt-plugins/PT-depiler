@@ -51,17 +51,6 @@ const searchPlans = computedAsync(async () => {
   return [defaultPlan, ...searchSolutions];
 }, []);
 
-watch(
-  () => route,
-  (newRoute) => {
-    log("route changed", newRoute);
-    if (newRoute.name === "SearchEntity") {
-      searchKey.value = (newRoute.query?.search as string) ?? "";
-      searchPlanKey.value = (newRoute.query?.plan as string) ?? "default";
-    }
-  },
-);
-
 function startSearchEntity() {
   router.push({
     name: "SearchEntity",

@@ -3,7 +3,7 @@ import type { ISearchSolution } from "@/shared/storages/site.ts";
 
 import { useSiteStore } from "@/options/stores/site.ts";
 
-import SolutionDetail from "./SolutionDetail.vue";
+import SolutionDetail from "@/options/components/SolutionDetail.vue";
 import SiteName from "@/options/components/SiteName.vue";
 
 const props = withDefaults(

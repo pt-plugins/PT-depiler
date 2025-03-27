@@ -16,10 +16,10 @@ const solutionId = ref<TSolutionID>("");
 
 const tableSelected = ref<TSolutionID[]>([]);
 const tableHeader = [
+  { title: "排序", key: "sort", align: "center", width: 100, filterable: false },
   { title: t("common.name"), key: "name", align: "start", width: 150 },
   { title: "范围", key: "solution", align: "start", filterable: false, sortable: false },
   { title: "启用？", key: "enabled", align: "center", filterable: false, width: 100 },
-  { title: "排序", key: "sort", align: "center", width: 100, filterable: false },
   { title: t("common.action"), key: "action", filterable: false, sortable: false, width: 200 },
 ];
 const tableFilter = ref("");
@@ -47,7 +47,7 @@ function deleteSearchSolution(solutionId: TSolutionID | TSolutionID[]) {
 
 function simplePatchSearchSolution(solutionId: TSolutionID, value: boolean) {
   siteStore.solutions[solutionId].enabled = value;
-  siteStore.save();
+  siteStore.$save();
 }
 </script>
 
@@ -93,6 +93,11 @@ function simplePatchSearchSolution(solutionId: TSolutionID, value: boolean) {
       :items="siteStore.getSearchSolutions"
       :items-per-page="10"
       item-value="id"
+      :sort-by="[
+        // 因为此处涉及到了搜索栏的显示，所以我们不接受用户 **保存** 自定义排序
+        { key: 'enabled', order: 'desc' },
+        { key: 'sort', order: 'desc' },
+      ]"
       :search="tableFilter"
       show-select
     >

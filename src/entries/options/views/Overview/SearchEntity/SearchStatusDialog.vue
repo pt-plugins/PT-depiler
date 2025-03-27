@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { useVModel } from "@vueuse/core";
+
+import { EResultParseStatus } from "@ptd/site";
+
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useSiteStore } from "@/options/stores/site.ts";
-import { EResultParseStatus } from "@ptd/site";
+
+import { doSearchEntity, raiseSearchPriority } from "@/options/views/Overview/SearchEntity/utils.ts";
+
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import SiteName from "@/options/components/SiteName.vue";
-import { doSearchEntity, raiseSearchPriority } from "@/options/views/Overview/SearchEntity/utils.ts";
-import SolutionDetail from "@/options/views/Settings/SetSearchSolution/SolutionDetail.vue";
+import SolutionDetail from "@/options/components/SolutionDetail.vue";
 
 const componentProps = defineProps<{
   modelValue: boolean;
