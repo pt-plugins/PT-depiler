@@ -34,6 +34,7 @@ interface ITextValue {
 interface IKeywordValue<T> extends ITextValue {
   all: T[];
 }
+
 interface IRangedValue {
   range: [number, number];
   value: [number, number];
@@ -51,6 +52,11 @@ interface IAdvanceFilterDict {
 }
 
 type IAdvanceFilterDictKey = keyof IAdvanceFilterDict;
+
+const advanceFilterFormat = {
+  date: (value: number) => format(value, "yyyyMMdd'T'HHmmss"),
+  size: (value: number) => filesize(value, { spacer: "" }),
+};
 
 const advanceFilterDict = reactive<IAdvanceFilterDict>({
   text: { required: [], exclude: [] },
@@ -115,7 +121,14 @@ const stringifyFilter = computed(() => {
       advanceFilterDict[key].value[1] !== advanceFilterDict[key].range[1]
     ) {
       // @ts-ignore
-      filters[key] = { from: advanceFilterDict[key].value[0], to: advanceFilterDict[key].value[1] };
+      const valueFormat = advanceFilterFormat[key] ?? ((x) => x);
+      // @ts-ignore
+      filters[key] = {
+        // @ts-ignore
+        from: valueFormat(advanceFilterDict[key].value[0]),
+        // @ts-ignore
+        to: valueFormat(advanceFilterDict[key].value[1]),
+      };
     }
   });
 

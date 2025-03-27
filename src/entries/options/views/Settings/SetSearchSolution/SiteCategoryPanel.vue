@@ -123,7 +123,7 @@ function generateSolution() {
 <template>
   <v-container class="pa-0">
     <v-row no-gutters>
-      <v-col cols="11" style="max-width: calc(100% - 48px)">
+      <v-col class="v-col-category-select">
         <v-expansion-panels v-if="siteMetaCategory!.length > 0" v-model="showPanel" multiple>
           <v-expansion-panel v-for="category in siteMetaCategory" :key="category.key">
             <v-expansion-panel-title>
@@ -203,4 +203,9 @@ function generateSolution() {
   </v-container>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.v-col-category-select {
+  max-width: calc(100% - 48px);
+  flex-basis: calc(100% - 48px);
+}
+</style>
