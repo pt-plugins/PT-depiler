@@ -22,6 +22,7 @@ export interface ISearchSolutionState {
   id: TSolutionID;
   name: string;
   sort: number;
+  enabled: boolean;
   createdAt: number;
   solutions: ISearchSolution[];
 }

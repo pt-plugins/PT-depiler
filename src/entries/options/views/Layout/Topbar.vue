@@ -39,10 +39,14 @@ const searchPlans = computedAsync(async () => {
     id: "default",
     name: "default",
   };
-  const searchSolutions = siteStore.getSearchSolutions.map((x) => ({
-    id: x.id,
-    name: x.name,
-  }));
+
+  const searchSolutions = siteStore.getSearchSolutions
+    .filter((x) => !!x.enabled) // 过滤掉未启用的搜索方案
+    .sort((a, b) => b.sort - a.sort) // 按照 sort 降序排序
+    .map((x) => ({
+      id: x.id,
+      name: x.name,
+    }));
 
   return [defaultPlan, ...searchSolutions];
 }, []);

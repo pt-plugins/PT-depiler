@@ -6,6 +6,7 @@ import { EResultParseStatus } from "@ptd/site";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import SiteName from "@/options/components/SiteName.vue";
 import { doSearchEntity, raiseSearchPriority } from "@/options/views/Overview/SearchEntity/utils.ts";
+import SolutionDetail from "@/options/views/Settings/SetSearchSolution/SolutionDetail.vue";
 
 const componentProps = defineProps<{
   modelValue: boolean;
@@ -25,6 +26,10 @@ const StatusMap: Record<EResultParseStatus, string> = {
   [EResultParseStatus.needLogin]: "需要登录！",
   [EResultParseStatus.noResults]: "无结果！",
 };
+
+function getSearchSolution(planKey: string, entryName: string) {
+  return siteStore.solutions[planKey]?.solutions.find((x) => x.id === entryName)!;
+}
 </script>
 
 <template>
@@ -36,6 +41,7 @@ const StatusMap: Record<EResultParseStatus, string> = {
             方案 [{{ siteStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) }}] 搜索状态
           </v-toolbar-title>
           <v-spacer />
+          <span class="text-subtitle-2 mr-5"><{{ runtimeStore.search.searchPlanKey }}></span>
         </v-toolbar>
       </v-card-title>
       <v-divider />
@@ -47,8 +53,17 @@ const StatusMap: Record<EResultParseStatus, string> = {
             </template>
             <v-list-item-title>
               <SiteName :site-id="searchPlan.siteId" :class="['text-decoration-none', 'text-black']" />
-              -
-              <span><{{ searchPlan.searchEntryName }}></span>
+              ->
+              <span v-if="searchPlan.searchEntryName === 'default'">
+                {{ searchPlan.searchEntryName }}
+              </span>
+              <span v-else>
+                <SolutionDetail
+                  :solution="getSearchSolution(runtimeStore.search.searchPlanKey, searchPlan.searchEntryName)"
+                />
+              </span>
+              <br />
+              <span class="text-subtitle-2 text-grey"> <{{ searchPlan.searchEntryName }}> </span>
             </v-list-item-title>
             <template #append>
               <span class="text-subtitle-2 text-end">

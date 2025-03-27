@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import { getDefinedSiteMetadata, ISiteMetadata, ISiteUserConfig, TSiteID } from "@ptd/site";
+import { getDefinedSiteMetadata, ISearchCategories, ISiteMetadata, ISiteUserConfig, TSiteID } from "@ptd/site";
 import { ISitePiniaStorageSchema, TSolutionID, ISearchSolutionState, ISearchSolution } from "@/storage.ts";
 import { isEmpty, set } from "es-toolkit/compat";
 
@@ -43,7 +43,7 @@ export const useSiteStore = defineStore("site", {
           });
         }
 
-        return { name: "default", id: "default", sort: 0, createdAt: 0, solutions };
+        return { name: "default", id: "default", sort: 0, enabled: true, createdAt: 0, solutions };
       };
     },
 
@@ -107,6 +107,39 @@ export const useSiteStore = defineStore("site", {
         }
         const siteMetadata = await this.getSiteMetadata(siteId);
         return siteMetadata.urls?.[0] ?? "#";
+      };
+    },
+
+    getSiteCategory(state) {
+      return async (siteId: TSiteID, categoryKey?: string): Promise<ISearchCategories | ISearchCategories[]> => {
+        const siteMetadataCategory = await this.getSiteMergedMetadata(siteId, "category", []);
+        if (categoryKey) {
+          return siteMetadataCategory?.find((x) => x.key === categoryKey) as ISearchCategories;
+        }
+        return siteMetadataCategory as ISearchCategories[];
+      };
+    },
+
+    getSiteCategoryName(state) {
+      return async (siteId: TSiteID, categoryKey: string): Promise<string> => {
+        const siteMetadataCategory = (await this.getSiteCategory(siteId, categoryKey)) as ISearchCategories;
+        return siteMetadataCategory?.name ?? categoryKey;
+      };
+    },
+
+    getSiteCategoryOptionName(state) {
+      return async (
+        siteId: TSiteID,
+        categoryKey: string,
+        optionKey: string | number | (string | number)[],
+      ): Promise<string> => {
+        const siteMetadataCategory = (await this.getSiteCategory(siteId, categoryKey)) as ISearchCategories;
+        const options = siteMetadataCategory?.options ?? [];
+        if (Array.isArray(optionKey)) {
+          return optionKey.map((v) => options.find((o) => o.value === v)?.name ?? v).join(", ");
+        } else {
+          return options.find((o) => o.value === optionKey)?.name ?? (optionKey as string);
+        }
       };
     },
   },

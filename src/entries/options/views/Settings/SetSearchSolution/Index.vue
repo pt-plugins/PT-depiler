@@ -18,7 +18,8 @@ const tableSelected = ref<TSolutionID[]>([]);
 const tableHeader = [
   { title: t("common.name"), key: "name", align: "start", width: 150 },
   { title: "范围", key: "solution", align: "start", filterable: false, sortable: false },
-  { title: "排序", key: "sort", align: "center", width: 100 },
+  { title: "启用？", key: "enabled", align: "center", filterable: false, width: 100 },
+  { title: "排序", key: "sort", align: "center", width: 100, filterable: false },
   { title: t("common.action"), key: "action", filterable: false, sortable: false, width: 200 },
 ];
 const tableFilter = ref("");
@@ -42,6 +43,11 @@ const toDeleteIds = ref<TSolutionID[]>([]);
 function deleteSearchSolution(solutionId: TSolutionID | TSolutionID[]) {
   toDeleteIds.value = Array.isArray(solutionId) ? solutionId : [solutionId];
   showDeleteDialog.value = true;
+}
+
+function simplePatchSearchSolution(solutionId: TSolutionID, value: boolean) {
+  siteStore.solutions[solutionId].enabled = value;
+  siteStore.save();
 }
 </script>
 
@@ -92,6 +98,15 @@ function deleteSearchSolution(solutionId: TSolutionID | TSolutionID[]) {
     >
       <template #item.solution="{ item }">
         <SolutionLabel :solutions="item.solutions" :closable="false" />
+      </template>
+
+      <template #item.enabled="{ item }">
+        <v-switch
+          v-model="item.enabled"
+          color="success"
+          hide-details
+          @update:model-value="(v) => simplePatchSearchSolution(item.id, v as boolean)"
+        />
       </template>
 
       <template #item.action="{ item }">

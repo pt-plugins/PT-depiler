@@ -27,6 +27,7 @@ const initSolution = () =>
     id: nanoid(),
     name: "",
     sort: 1,
+    enabled: true,
     createdAt: Date.now(),
     solutions: [],
   }) as ISearchSolutionState;
