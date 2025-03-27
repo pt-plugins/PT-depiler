@@ -24,13 +24,15 @@ const menuOptions = routes
       title: `route.${String(route.name)}.default`,
       name: route.name,
       icon: route.meta?.icon,
-      children: route.children!.map((childrenRoute) => {
-        return {
-          title: `route.${String(route.name)}.${String(childrenRoute.name)}`,
-          name: childrenRoute.name,
-          icon: childrenRoute.meta?.icon,
-        };
-      }),
+      children: route
+        .children!.filter((childrenRoute) => !(childrenRoute.meta?.show === false)) // 允许通过 meta.show = false 隐藏子路由
+        .map((childrenRoute) => {
+          return {
+            title: `route.${String(route.name)}.${String(childrenRoute.name)}`,
+            name: childrenRoute.name,
+            icon: childrenRoute.meta?.icon,
+          };
+        }),
     };
   }); // 根据 meta 的 isMainMenu 属性筛选出应该列在目录中的路径
 
@@ -46,7 +48,7 @@ function clickMenuItem() {
     <!-- 侧边栏导航标题 -->
     <v-list density="compact" nav>
       <template v-for="(group, groupIndex) in menuOptions" :key="groupIndex">
-        <v-list-subheader class="grey--text text--darken-1">
+        <v-list-subheader class="text-grey-darken-1">
           {{ $t(group.title) }}
         </v-list-subheader>
         <v-list-item
@@ -66,7 +68,7 @@ function clickMenuItem() {
     <template v-slot:append>
       <v-footer>
         <v-row justify="center">
-          <span class="pa-2 grey--text text--darken-1">
+          <span class="pa-2 text-grey-darken-1">
             &copy; {{ year }},
             <span>
               {{ "v" + EXT_VERSION + (git.count ? "." + git.count : "") }}
@@ -79,3 +81,9 @@ function clickMenuItem() {
     </template>
   </v-navigation-drawer>
 </template>
+
+<style lang="scss" scoped>
+:deep(.v-list-item__prepend > .v-icon ~ .v-list-item__spacer) {
+  width: 12px;
+}
+</style>

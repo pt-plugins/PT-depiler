@@ -23,16 +23,16 @@ const fullTableHeader = [
   { title: "站点", key: "site", align: "center", width: 90, alwaysShow: true },
   { title: "用户名", key: "name", align: "center", width: 90, alwaysShow: true },
   { title: "等级", key: "levelName", align: "center", width: 90 },
-  { title: "数据量", key: "uploaded", align: "right" },
-  { title: "真实数据量", key: "trueUploaded", align: "right" }, // 默认不显示
-  { title: "分享率", key: "ratio", align: "left" },
-  { title: "发布数", key: "uploads", align: "left" },
-  { title: "做种数", key: "seeding", align: "right" },
-  { title: "做种体积", key: "seedingSize", align: "right" },
-  { title: "魔力/积分", key: "bonus", align: "center" },
+  { title: "数据量", key: "uploaded", align: "end" },
+  { title: "真实数据量", key: "trueUploaded", align: "end" }, // 默认不显示
+  { title: "分享率", key: "ratio", align: "end" },
+  { title: "发布数", key: "uploads", align: "end" },
+  { title: "做种数", key: "seeding", align: "end" },
+  { title: "做种体积", key: "seedingSize", align: "end" },
+  { title: "魔力/积分", key: "bonus", align: "end" },
   { title: "入站时间", key: "joinTime", align: "center" },
   { title: "数据更新于", key: "updateAt", align: "center", alwaysShow: true },
-  { title: "操作", key: "action", align: "center", width: 90, alwaysShow: true },
+  { title: "操作", key: "action", align: "center", width: 90, sortable: false, alwaysShow: true },
 ];
 
 const tableHeader = computed(() => {
@@ -102,7 +102,7 @@ const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
             <v-chip v-if="index === 0">
               <span>{{ fullTableHeader.find((x) => x.key == item.title)?.title }}</span>
             </v-chip>
-            <span v-if="index === 1" class="grey--text caption">
+            <span v-if="index === 1" class="text-grey caption">
               (+{{ uiStore.tableBehavior.MyData.columns!.length - 1 }} others)
             </span>
           </template>

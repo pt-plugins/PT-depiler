@@ -32,6 +32,12 @@ export const routes: RouteRecordRaw[] = [
         meta: { icon: "mdi-earth" },
         component: () => import("../views/Settings/SetSite/Index.vue"),
       },
+      {
+        path: "/set-search-solution",
+        name: "SetSearchSolution",
+        meta: { icon: "mdi-magnify" },
+        component: () => import("../views/Settings/SetSearchSolution/Index.vue"),
+      },
     ],
   },
   { path: "/:pathMatch(.*)*", name: "NotFound", redirect: "/" },

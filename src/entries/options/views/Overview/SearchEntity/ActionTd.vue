@@ -40,6 +40,7 @@ async function copyTorrentDownloadLink() {
       .join("\n")
       .trim(),
   );
+  // TODO 增加 snake bar 提示
   copyTorrentDownloadLinkBtnStatus.value = false;
 }
 

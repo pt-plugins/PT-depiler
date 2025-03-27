@@ -6,7 +6,6 @@ import { defineConfig } from "vite";
 import { nodePolyfills } from "vite-plugin-node-polyfills";
 import vue from "@vitejs/plugin-vue";
 import vuetify from "vite-plugin-vuetify";
-import Inspect from "vite-plugin-inspect";
 import VueDevTools from "vite-plugin-vue-devtools";
 import webExtension from "vite-plugin-web-extension";
 
@@ -31,7 +30,6 @@ export default defineConfig({
     },
   },
   plugins: [
-    Inspect(),
     vitePluginGenerateWebextLocales(),
     nodePolyfills({
       include: ["buffer", "path"],

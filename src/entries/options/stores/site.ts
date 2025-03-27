@@ -21,25 +21,36 @@ export const useSiteStore = defineStore("site", {
           return "默认"; // FIXME i18n
         }
 
-        return state.solutions[solutionId].name;
+        return state.solutions[solutionId]?.name ?? solutionId;
+      };
+    },
+
+    getSearchSolutions(state) {
+      return Object.values(state.solutions);
+    },
+
+    getDefaultSearchSolution(state) {
+      return async () => {
+        const solutions: ISearchSolution[] = [];
+
+        const addedSiteIds = Object.keys(state.sites);
+        for (const siteId of addedSiteIds) {
+          const siteMetadata = await getDefinedSiteMetadata(siteId);
+          solutions.push({
+            id: "default",
+            siteId,
+            searchEntries: siteMetadata.searchEntry ?? { default: {} },
+          });
+        }
+
+        return { name: "default", id: "default", sort: 0, createdAt: 0, solutions };
       };
     },
 
     getSearchSolution(state) {
       return async (solutionId: TSolutionID | "default"): Promise<ISearchSolutionState> => {
         if (solutionId === "default") {
-          const solutions: ISearchSolution[] = [];
-
-          const addedSiteIds = Object.keys(state.sites);
-          for (const siteId of addedSiteIds) {
-            const siteMetadata = await getDefinedSiteMetadata(siteId);
-            solutions.push({
-              siteId,
-              searchEntries: siteMetadata.searchEntry ?? { default: {} },
-            });
-          }
-
-          return { name: "default", solutions };
+          return await this.getDefaultSearchSolution();
         } else {
           return state.solutions[solutionId];
         }
@@ -117,6 +128,16 @@ export const useSiteStore = defineStore("site", {
 
     simplePatchSite<T extends keyof ISiteUserConfig>(siteId: TSiteID, key: T, value: ISiteUserConfig[T]) {
       set(this.sites[siteId], key, value);
+      this.$save();
+    },
+
+    addSearchSolution(solution: ISearchSolutionState) {
+      this.solutions[solution.id] = solution;
+      this.$save();
+    },
+
+    removeSearchSolution(solutionId: TSolutionID) {
+      delete this.solutions[solutionId];
       this.$save();
     },
   },

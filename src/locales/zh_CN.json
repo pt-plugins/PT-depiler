@@ -76,7 +76,7 @@
       "setBase": "常规设置",
       "setDownloadPaths": "下载目录设置",
       "setDownloader": "下载器设置",
-      "setSearchSolution": "搜索方案定义",
+      "SetSearchSolution": "搜索方案定义",
       "SetSite": "站点设置"
     }
   },

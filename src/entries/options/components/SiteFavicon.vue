@@ -15,7 +15,7 @@ const siteFavicon = computedAsync(() => getSiteFavicon(props.siteId), NO_IMAGE);
 </script>
 
 <template>
-  <v-img :src="siteFavicon" :height="props.size" :width="props.size" />
+  <v-img :src="siteFavicon" :height="props.size" :width="props.size" aspect-ratio="1/1" />
 </template>
 
 <style scoped lang="scss"></style>

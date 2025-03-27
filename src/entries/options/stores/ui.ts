@@ -13,14 +13,21 @@ export const useUIStore = defineStore("ui", {
     isNavBarOpen: true,
     ignoreWrongPixelRatio: false,
     tableBehavior: {
-      SetSite: {
-        itemsPerPage: -1,
-        columns: ["name", "url", "time", "isOffline", "allowSearch", "allowQueryUserInfo"],
-        sortBy: [
-          { key: "sortIndex", order: "desc" },
-          { key: "isOffline", order: "asc" },
-          { key: "allowSearch", order: "desc" },
-          { key: "allowQueryUserInfo", order: "desc" },
+      MyData: {
+        itemsPerPage: 20,
+        columns: [
+          "site",
+          "name",
+          "levelName",
+          "uploaded",
+          "ratio",
+          "uploads",
+          "seeding",
+          "seedingSize",
+          "bonus",
+          "joinTime",
+          "updateAt",
+          "action",
         ],
       },
       SearchEntity: {
@@ -39,21 +46,14 @@ export const useUIStore = defineStore("ui", {
         ],
         sortBy: [{ key: "time", order: "desc" }],
       },
-      MyData: {
-        itemsPerPage: 20,
-        columns: [
-          "site",
-          "name",
-          "levelName",
-          "uploaded",
-          "ratio",
-          "uploads",
-          "seeding",
-          "seedingSize",
-          "bonus",
-          "joinTime",
-          "updateAt",
-          "action",
+      SetSite: {
+        itemsPerPage: -1,
+        columns: ["name", "url", "time", "isOffline", "allowSearch", "allowQueryUserInfo"],
+        sortBy: [
+          { key: "sortIndex", order: "desc" },
+          { key: "isOffline", order: "asc" },
+          { key: "allowSearch", order: "desc" },
+          { key: "allowQueryUserInfo", order: "desc" },
         ],
       },
     },

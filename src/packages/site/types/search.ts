@@ -114,12 +114,54 @@ export interface ISearchCategoryOptions {
   value: string | number;
 }
 
+export type TSelectSearchCategoryValue = ISearchCategoryOptions["value"] | ISearchCategoryOptions["value"][];
+
+/**
+ * 对自定义搜索方案的分类进行定义
+ *
+ * 生成请求配置的规则：
+ *   1， 如果定义了 generateRequestConfig 方法，则根据该方法生成请求配置
+ *   2. 如果未定义 generateRequestConfig 方法，则根据 key, keyPath, cross 信息综合生成请求配置
+ *     - 首先检查 cross 是否存在，如果存在则根据 cross.mode + key 生成请求配置
+ *     - 如果 cross 不存在，则根据 keyPath 生成请求配置
+ *     - 如果 keyPath 不存在，则默认为 params
+ * 注意：
+ *   1. 对于根据 key, keyPath, cross 信息综合生成请求配置，都会不设置 { merge: false }，以便在生成请求配置时合并站点默认配置
+ *   2. 如果需要覆盖站点默认配置，请使用 generateRequestConfig 方法并主动设置 { merge: false } （不建议！！）
+ *   3. 在多个 category 组合时，会使用 es-toolkit 中的 merge 方法进行合并
+ * 例如：（以下均假设 options 为 [{ name: '电影', value: 4010 }, { name: '电视剧', value: 4011}]）
+ *  - 搜索类别为 cat，该搜索类别不允许多选，搜索类别值为 4010
+ *    { key: 'cat', options }
+ *    -> { requestConfig: { params: { cat: 4010 } } }
+ *  - 搜索类别为 cat，该搜索类别不允许多选，搜索类别值为 4010，在请求时应该放入 post.data 中
+ *    { key: 'cat', options, keyPath: 'data' }
+ *    -> { requestConfig: { data: { cat: 4010 } } }
+ *  - 搜索类别为 cat，该搜索类别允许多选，生成方式为 brackets
+ *    {  key: 'cat', options, cross: { mode: 'brackets' } }
+ *    -> { requestConfig: { params: { cat: [4010, 4011] } } }
+ *  - 搜索类别为 cat，该搜索类别允许多选，生成方式为 comma
+ *    {  key: 'cat', options, cross: { mode: 'comma' } }
+ *    -> { requestConfig: { params: { cat: '4010,4011' } } }
+ *  - 搜索类别为 cat，该搜索类别允许多选，生成方式为 append，同时需要覆写 key 为 category_
+ *    {  key: 'cat', options, cross: { mode: 'append', key: 'category_' } }
+ *    -> { requestConfig: { params: { 'category_4010': 1, 'category_4011': 1 } } }
+ *  - 搜索类别为 cat，该搜索类别允许多选，生成方式为 appendQuote
+ *    {  key: 'cat', options, cross: { mode: 'appendQuote' } }
+ *    -> { requestConfig: { params: { 'cat[4010]': 1, 'cat[4011]': 1 } } }
+ *  - 搜索类别为 cat，定义了 generateRequestConfig 方法
+ *    { key: 'cat', options, generateRequestConfig: (selectedCategories) => ({ requestConfig: { params: { cat: selectedCategories[0].value } } }) }
+ *    -> { requestConfig: { params: { cat: 4010 } } }
+ *
+ */
 export interface ISearchCategories {
   name: string; // 搜索大类名称
-  key: string; // 搜索大类
   notes?: string; // 分类说明
+
+  key: string; // 搜索大类
+  keyPath?: "data" | "params"; // 用于指导怎么生成请求参数，未指定时默认为 params
+
   options: ISearchCategoryOptions[];
-  // 该搜索大类是否允许内部交叉 （ 不声明，则默认不允许（False） ）
+  // 该搜索大类是否允许内部交叉（即多选） （ 不声明，则默认不允许（False） ）
   cross?:
     | {
         /**
@@ -137,6 +179,12 @@ export interface ISearchCategories {
         key?: string; // 当内部交叉时，params与已定义的 key 不一致时使用
       }
     | false;
+
+  /**
+   * 生成请求配置（高级）
+   * @param category 用户选择的搜索类别
+   */
+  generateRequestConfig?: (selectedCategories: TSelectSearchCategoryValue) => IAdvancedSearchRequestConfig;
 }
 
 export interface IElementQuery {

@@ -75,7 +75,7 @@
       "setBase": "General",
       "setDownloadPaths": "Download Paths",
       "setDownloader": "Download Server",
-      "setSearchSolution": "Search Solution",
+      "SetSearchSolution": "Search Solution",
       "SetSite": "Sites"
     }
   },

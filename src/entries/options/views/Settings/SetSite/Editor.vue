@@ -64,8 +64,6 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
   { value: "+1100", title: "(UTC +11:00) Magadan, New Caledonia, Solomon Is." },
   { value: "+1200", title: "(UTC +12:00) Auckland, Fiji, Marshall Island" },
 ];
-
-const log = console.log;
 </script>
 
 <template>

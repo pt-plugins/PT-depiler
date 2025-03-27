@@ -1,16 +1,21 @@
 <script lang="ts" setup>
 import { log, REPO_URL } from "~/helper";
 
+import { ref, watch } from "vue";
 import { useDisplay } from "vuetify";
 import { useRoute, useRouter } from "vue-router";
+
 import { useUIStore } from "@/options/stores/ui";
+import { useSiteStore } from "@/options/stores/site.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { ref, watch } from "vue";
+import { computedAsync } from "@vueuse/core";
 
 const route = useRoute();
 const router = useRouter();
 const display = useDisplay();
+
 const uiStore = useUIStore();
+const siteStore = useSiteStore();
 const runtimeStore = useRuntimeStore();
 
 const appendMenu: Array<{ title: string; icon: string; [str: string]: any }> = [
@@ -29,6 +34,19 @@ const appendMenu: Array<{ title: string; icon: string; [str: string]: any }> = [
 const searchKey = ref((route.query?.search as string) ?? "");
 const searchPlanKey = ref((route.query?.plan as string) ?? "default");
 
+const searchPlans = computedAsync(async () => {
+  const defaultPlan = {
+    id: "default",
+    name: "default",
+  };
+  const searchSolutions = siteStore.getSearchSolutions.map((x) => ({
+    id: x.id,
+    name: x.name,
+  }));
+
+  return [defaultPlan, ...searchSolutions];
+}, []);
+
 watch(
   () => route,
   (newRoute) => {
@@ -46,6 +64,7 @@ function startSearchEntity() {
     query: {
       search: searchKey.value,
       plan: searchPlanKey.value,
+      flush: 1,
     },
   });
 }
@@ -83,6 +102,24 @@ function startSearchEntity() {
     >
       <template #append>
         <v-btn icon="mdi-magnify" :disabled="runtimeStore.search.isSearching" @click="startSearchEntity" />
+      </template>
+
+      <template #prepend-inner>
+        <v-menu>
+          <template v-slot:activator="{ props }">
+            <v-btn color="primary" v-bind="props"> {{ siteStore.getSearchSolutionName(searchPlanKey) }} </v-btn>
+          </template>
+          <v-list>
+            <v-list-item
+              v-for="(item, index) in searchPlans"
+              :key="index"
+              :value="index"
+              @click="() => (searchPlanKey = item.id)"
+            >
+              <v-list-item-title>{{ siteStore.getSearchSolutionName(item.id) }}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
       </template>
     </v-text-field>
 

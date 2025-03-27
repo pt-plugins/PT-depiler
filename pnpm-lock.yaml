@@ -131,9 +131,6 @@ importers:
       vite:
         specifier: ^5.4.14
         version: 5.4.14(@types/node@22.13.9)(lightningcss@1.29.2)(sass@1.85.1)
-      vite-plugin-inspect:
-        specifier: ^0.8.9
-        version: 0.8.9(rollup@4.34.9)(vite@5.4.14(@types/node@22.13.9)(lightningcss@1.29.2)(sass@1.85.1))
       vite-plugin-node-polyfills:
         specifier: ^0.23.0
         version: 0.23.0(rollup@4.34.9)(vite@5.4.14(@types/node@22.13.9)(lightningcss@1.29.2)(sass@1.85.1))
