@@ -1,4 +1,4 @@
-import { ISiteMetadata, ETorrentStatus } from "../types";
+import { type ISiteMetadata, ETorrentStatus } from "../types";
 import { SchemaMetadata } from "../schemas/NexusPHP";
 import { GB, TB } from "@ptd/site";
 
@@ -181,7 +181,7 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.search,
     selectors: {
       ...SchemaMetadata.search!.selectors,
-      ext_imdb: { selector: "label.imdb_rate", data: "imdbid" },
+      ext_imdb: { selector: "label.imdb_rate", data: "imdbid", filters: [{ name: "extImdbId" }] },
       ext_douban: { selector: "label.douban_rate", data: "doubanid" },
       progress: {
         selector: "div.progressBar > div",
@@ -216,18 +216,18 @@ export const siteMetadata: ISiteMetadata = {
       },
       tags: [
         ...SchemaMetadata.search!.selectors!.tags!,
-        { selector: ".tag.tag-gf", name: "官方" },
-        { selector: ".tag.tag-diy", name: "DIY" },
-        { selector: ".tag.tag-sf", name: "首发" },
-        { selector: ".tag.tag-gy", name: "国语" },
-        { selector: ".tag.tag-zz", name: "中字" },
-        { selector: ".tag.tag-yq", name: "应求" },
-        { selector: ".tag.tag-jz", name: "Excl." }, // 禁转
-        { selector: ".tag.tag-bd", name: "蓝光" }, // 不明，这个标签已经不做使用
-        { selector: ".tag.tag-db", name: "杜比视界" },
-        { selector: ".tag.tag-hdr10", name: "HDR10" },
-        { selector: ".tag.tag-hdr10p", name: "HDR10+" },
-        { selector: ".tag.tag-hlg", name: "HLG" },
+        { selector: ".tag.tag-gf", name: "官方", color: "blue" },
+        { selector: ".tag.tag-diy", name: "DIY", color: "orange" },
+        { selector: ".tag.tag-sf", name: "首发", color: "pink" },
+        { selector: ".tag.tag-gy", name: "国语", color: "teal" },
+        { selector: ".tag.tag-zz", name: "中字", color: "indigo" },
+        { selector: ".tag.tag-yq", name: "应求", color: "purple" },
+        { selector: ".tag.tag-jz", name: "禁转", color: "red" }, // Excl.
+        // { selector: ".tag.tag-bd", name: "蓝光" }, // 不明，这个标签已经不做使用
+        { selector: ".tag.tag-db", name: "杜比视界", color: "black" },
+        { selector: ".tag.tag-hdr10", name: "HDR10", color: "green" },
+        { selector: ".tag.tag-hdr10p", name: "HDR10+", color: "green-darken-3" },
+        { selector: ".tag.tag-hlg", name: "HLG", color: "green-lighten-1" },
       ],
     },
   },

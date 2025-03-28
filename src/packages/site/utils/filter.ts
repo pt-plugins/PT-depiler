@@ -157,6 +157,23 @@ export const definedFilters: Record<string, TQueryFilterFn> = {
 
   // TODO parseFuzzyTime with wanasit/chrono
 
+  extImdbId: (query) => {
+    // Extract the IMDb ID from the URL.
+    const imdbUrlMatch = query.match(/(?:https?:\/\/)?(?:www\.)?imdb\.com\/title\/(tt\d+)\/?/);
+    if (imdbUrlMatch) {
+      return imdbUrlMatch[1];
+    }
+
+    if (/tt(\d+)/.test(query)) {
+      return query;
+    }
+
+    // 如果是纯数字的字符串，则补齐并返回
+    if (/^\d+$/.test(query)) {
+      return "tt" + (query.length < 7 ? query.padStart(7, "0") : query);
+    }
+  },
+
   /**
    * Print the query to the console.
    * This filter is used for debugging purposes.

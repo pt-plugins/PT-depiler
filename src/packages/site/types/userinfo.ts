@@ -23,8 +23,8 @@ export interface IImplicitUserInfo {
 
   seeding?: number; // 做种数量需求
   seedingSize?: number | string; // 做种体积需求
-  seedingTime?: number; // 做种时间需求
-  averageSeedingTime?: number; // 平均做种时间需求
+  seedingTime?: number | isoDuration; // 做种时间（秒）需求，如果是 string 则类似 isoDuration，可以定义 30天 为 "30D"
+  averageSeedingTime?: number | isoDuration; // 平均做种时间（秒）需求
 
   bonus?: number; // 魔力值/积分需求
   bonusPerHour?: number; // 魔力值/积分每小时需求
@@ -33,6 +33,8 @@ export interface IImplicitUserInfo {
   uploads?: number; // 发布种子数需求
   leeching?: number; // 下载数量需求
   snatches?: number; // 完成种子数需求
+
+  hnrUnsatisfied?: number; // H&R 未满足的数量需求
 
   posts?: number; // 发布帖子数需求
 

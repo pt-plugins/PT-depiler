@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { log, REPO_URL } from "~/helper";
 
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useDisplay } from "vuetify";
 import { useRoute, useRouter } from "vue-router";
 

@@ -213,7 +213,7 @@ function updateTableFilter() {
                 density="compact"
               >
                 <template #label>
-                  <v-chip label variant="text" class="mr-1" :color="tag.color">
+                  <v-chip label class="mr-1" size="small" :color="tag.color">
                     {{ tag.name }}
                   </v-chip>
                 </template>

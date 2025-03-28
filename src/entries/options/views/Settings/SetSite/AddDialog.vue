@@ -77,7 +77,7 @@ function saveSite() {
               <template #selection="{ item: { raw: site } }">
                 <v-list-item>
                   <template #prepend>
-                    <SiteFavicon v-model="site.id" class="mr-2" />
+                    <SiteFavicon :site-id="site.id" class="mr-2" />
                   </template>
                   <v-list-item-title>
                     {{ site.name ?? "" }}
@@ -85,10 +85,11 @@ function saveSite() {
                 </v-list-item>
               </template>
               <template #item="{ props, item: { raw: site } }">
-                <v-list-item v-bind="props" :subtitle="site.description ?? ''">
+                <v-list-item v-bind="props">
                   <template #prepend>
-                    <SiteFavicon v-model="site.id" class="mr-2" />
+                    <SiteFavicon :site-id="site.id" class="mr-2" />
                   </template>
+
                   <template #title>
                     <v-list-item-title class="mb-1">
                       <b>{{ site.name ?? "" }}</b>
@@ -108,6 +109,17 @@ function saveSite() {
                       </v-chip>
                     </v-list-item-title>
                   </template>
+
+                  <template #subtitle>
+                    <v-list-item-subtitle
+                      :title="site.description ?? ''"
+                      class="text-decoration-none text-ellipsis"
+                      style="max-width: 500px"
+                    >
+                      {{ site.description ?? "" }}
+                    </v-list-item-subtitle>
+                  </template>
+
                   <template #append>
                     <v-list-item-action>
                       {{ site.tags?.join(", ") ?? "" }}

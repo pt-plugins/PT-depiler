@@ -43,10 +43,19 @@ const tableData = computedAsync(async () => {
   const allSite = siteStore.getAddedSiteIds;
   const allPrivateSiteUserInfoData = [];
   for (const site of allSite) {
-    const siteMeta = await siteStore.getSiteMetadata(site);
+    // noinspection BadExpressionStatementJS
+    siteStore.lastUserInfo[site]; // 使得 computedAsync 能够收集依赖以便触发数据更新
+  }
 
-    // 仅私有站点存在个人信息
-    if (siteMeta?.type === "private") {
+  for (const site of allSite) {
+    // 判断之前有无个人信息，没有则从siteMetadata中根据 type = 'private' 判断是否能获取个人信息
+    let canHanSiteUserInfo = !!siteStore.lastUserInfo[site];
+    if (!canHanSiteUserInfo) {
+      const siteMeta = await siteStore.getSiteMetadata(site);
+      canHanSiteUserInfo = siteMeta?.type === "private";
+    }
+
+    if (canHanSiteUserInfo) {
       const siteUserInfoData = siteStore.lastUserInfo[site] ?? { site: site };
 
       // 对 siteUserInfoData 进行一些预处理（不涉及渲染格式）
@@ -132,7 +141,7 @@ const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
 
       <!-- 用户名，用户ID -->
       <template #item.name="{ item }">
-        <span :title="item.id" class="text-no-wrap">{{ item.name }}</span>
+        <span :title="item.id" class="text-no-wrap">{{ item.name ?? "-" }}</span>
       </template>
 
       <!-- 等级信息，升级信息 -->
@@ -169,7 +178,7 @@ const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
           </v-row>
           <v-row justify="end">
             <span class="text-no-wrap">
-              {{ item.trueDownloaded ? trueDownloaded(item.trueUploaded) : "-" }}
+              {{ item.trueDownloaded ? formatSize(item.trueUploaded) : "-" }}
             </span>
             <v-icon small color="red-darken-4" icon="mdi-chevron-down"></v-icon>
           </v-row>
@@ -208,7 +217,7 @@ const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
 
       <!-- 更新时间 -->
       <template #item.updateAt="{ item }">
-        {{ formatDate(item.updateAt) }}
+        {{ item.updateAt ? formatDate(item.updateAt) : "-" }}
       </template>
 
       <!-- 操作 -->

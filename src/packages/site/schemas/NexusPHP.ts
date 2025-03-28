@@ -23,6 +23,8 @@ const baseLinkQuery = {
  */
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: 0,
+  schema: "NexusPHP",
+  type: "private",
   timezoneOffset: "+0800", // NPHP 一般都是国内用，时区多为 +0800
   search: {
     keywordPath: "params.search",
