@@ -11,7 +11,7 @@ const props = withDefaults(
     class?: string[] | string;
   }>(),
   {
-    class: ["text-caption", "text-decoration-none", "text-grey"],
+    class: ["text-caption", "text-decoration-none", "text-grey", "text-no-wrap"],
   },
 );
 

@@ -64,6 +64,8 @@ watch(
   { immediate: true, deep: true },
 );
 
+// TODO 通过 watch uiStore的设置，动态调整 队列长度
+
 const isSearchingParsed = ref<boolean>(searchQueue.isPaused);
 
 function pauseSearchQueue() {
