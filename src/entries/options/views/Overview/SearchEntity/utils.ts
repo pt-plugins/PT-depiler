@@ -128,7 +128,9 @@ export async function doSearchEntity(
   // Search site by plan in queue
   log(`Add search ${searchEntryName} to queue.`);
   runtimeStore.search.searchPlan[solutionKey].queueAt = +new Date();
-  await searchQueue.add(
+
+  // noinspection ES6MissingAwait
+  searchQueue.add(
     async () => {
       const startAt = (runtimeStore.search.searchPlan[solutionKey].startAt = +new Date());
       log(`search ${searchEntryName} start at ${startAt}`);
