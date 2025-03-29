@@ -43,8 +43,8 @@ export default class PrivateSite extends BittorrentSite {
   }
 
   /**
-   * 获得当前站点最新的用户信息用于更新
-   * 这里获取 lastUserInfo 以及 保存/更新 UserInfo 均由调用的上层完成
+   * 获得当前站点最新的用户信息方法入口
+   * 这里 lastUserInfo 以及 保存/更新 UserInfo 均由调用的上层完成
    */
   public async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let flushUserInfo: IUserInfo = {

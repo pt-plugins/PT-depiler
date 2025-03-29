@@ -88,7 +88,7 @@ export interface ISearchConfig extends IBaseSearchConfig {
     /**
      * 对于种子的基本属性（除 tags 外）使用 IElementQuery 提供的字段进行检索
      */
-    [torrentKey in keyof Omit<ITorrent, "tags">]?: IElementQuery; // 种子相关选择器
+    [torrentKey in keyof Omit<ITorrent, "site" | "tags">]?: IElementQuery; // 种子相关选择器
   } & {
     /**
      * 对于种子的 tags 属性，如果对应 selector 存在，则认为对应tag存在
@@ -158,7 +158,7 @@ export interface ISearchCategories {
   notes?: string; // 分类说明
 
   key: string; // 搜索大类
-  keyPath?: "data" | "params"; // 用于指导怎么生成请求参数，未指定时默认为 params
+  keyPath?: "data" | "params" | string; // 用于指导怎么生成请求参数，未指定时默认为 params
 
   options: ISearchCategoryOptions[];
   // 该搜索大类是否允许内部交叉（即多选） （ 不声明，则默认不允许（False） ）

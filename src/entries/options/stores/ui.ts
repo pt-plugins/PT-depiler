@@ -48,12 +48,11 @@ export const useUIStore = defineStore("ui", {
       },
       SetSite: {
         itemsPerPage: -1,
-        columns: ["name", "url", "time", "isOffline", "allowSearch", "allowQueryUserInfo"],
         sortBy: [
-          { key: "sortIndex", order: "desc" },
-          { key: "isOffline", order: "asc" },
-          { key: "allowSearch", order: "desc" },
-          { key: "allowQueryUserInfo", order: "desc" },
+          { key: "userConfig.isOffline", order: "asc" },
+          { key: "userConfig.allowSearch", order: "desc" },
+          { key: "userConfig.allowQueryUserInfo", order: "desc" },
+          { key: "userConfig.sortIndex", order: "desc" },
         ],
       },
     },

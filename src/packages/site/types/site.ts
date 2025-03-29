@@ -120,7 +120,7 @@ export interface ISiteMetadata {
   };
 
   /**
-   * 该配置项仅对 基于 PrivateSite 模板，且未改写 flushUserInfo 的站点生效
+   * 该配置项仅对 基于 PrivateSite 模板，且未改写 getUserInfoResult 的站点生效
    */
   userInfo?: {
     /**
@@ -183,6 +183,7 @@ export interface ISiteMetadata {
  */
 export interface ISiteUserConfig {
   id?: TSiteID; // 站点id
+  sortIndex?: number; // 站点排序索引
 
   /**
    * 用户在 search, queryUserInfo 时实际使用的 baseUrl

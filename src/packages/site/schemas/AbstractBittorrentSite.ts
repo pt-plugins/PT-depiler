@@ -111,7 +111,7 @@ export default class BittorrentSite {
   }
 
   /**
-   * 种子搜索方法
+   * 种子搜索方法入口
    * @param keywords
    * @param searchEntry
    */

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { type TSiteID } from "@ptd/site";
 
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 import { useUIStore } from "@/options/stores/ui.ts";
@@ -20,30 +20,34 @@ const showAddDialog = ref<boolean>(false);
 const showEditDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 
-const fullTableHeader = [
+const tableHeader = [
   // site favicon
-  { title: "", key: "sortIndex", align: "center", width: 48, alwaysShow: true },
-  { title: t("setSite.common.name"), key: "name", align: "left", width: 120, alwaysShow: true },
-  { title: t("setSite.common.url"), key: "url", align: "start" },
-  { title: t("setSite.common.isOffline"), key: "isOffline", align: "center", width: 180 },
-  { title: t("setSite.common.allowSearch"), key: "allowSearch", align: "center", width: 180 },
+  { title: "", key: "userConfig.sortIndex", align: "center", width: 48, alwaysShow: true, filterable: false },
+  { title: t("setSite.common.name"), key: "name", align: "left", width: 120, alwaysShow: true, sortable: false },
+  { title: t("setSite.common.url"), key: "url", align: "start", sortable: false },
+  { title: t("setSite.common.isOffline"), key: "userConfig.isOffline", align: "center", width: 180, filterable: false },
   {
-    title: t("setSite.common.allowQueryUserInfo"),
-    key: "allowQueryUserInfo",
+    title: t("setSite.common.allowSearch"),
+    key: "userConfig.allowSearch",
     align: "center",
     width: 180,
+    filterable: false,
+  },
+  {
+    title: t("setSite.common.allowQueryUserInfo"),
+    key: "userConfig.allowQueryUserInfo",
+    align: "center",
+    width: 180,
+    filterable: false,
   },
   {
     title: t("common.action"),
     key: "action",
     sortable: false,
+    filterable: false,
     alwaysShow: true,
   },
 ];
-
-const tableHeader = computed(() => {
-  return fullTableHeader.filter((item) => item.alwaysShow || uiStore.tableBehavior.SetSite.columns!.includes(item.key));
-});
 
 const tableFilter = ref("");
 const tableSelected = ref<TSiteID[]>([]);
@@ -117,16 +121,18 @@ function deleteSite(siteId: TSiteID | TSiteID[]) {
       @update:itemsPerPage="(v) => uiStore.updateTableBehavior('SetSite', 'itemsPerPage', v)"
       @update:sortBy="(v) => uiStore.updateTableBehavior('SetSite', 'sortBy', v)"
     >
-      <template #item.sortIndex="{ item }">
+      <template #item.userConfig.sortIndex="{ item }">
         <SiteFavicon :site-id="item.id" />
       </template>
       <template #item.name="{ item }">
         {{ item.userConfig?.merge?.name ?? item.metadata?.name }}
       </template>
       <template #item.url="{ item }">
-        {{ item.userConfig?.url ?? item.metadata?.urls?.[0] }}
+        <a :href="item.userConfig?.url ?? item.metadata?.urls?.[0]" target="_blank">
+          {{ item.userConfig?.url ?? item.metadata?.urls?.[0] }}
+        </a>
       </template>
-      <template #item.isOffline="{ item }">
+      <template #item.userConfig.isOffline="{ item }">
         <v-switch
           v-model="item.userConfig.isOffline"
           color="success"
@@ -135,7 +141,7 @@ function deleteSite(siteId: TSiteID | TSiteID[]) {
           @update:model-value="(v) => siteStore.simplePatchSite(item.id, 'isOffline', v as boolean)"
         />
       </template>
-      <template #item.allowSearch="{ item }">
+      <template #item.userConfig.allowSearch="{ item }">
         <v-switch
           v-model="item.userConfig.allowSearch"
           color="success"
@@ -145,7 +151,7 @@ function deleteSite(siteId: TSiteID | TSiteID[]) {
           @update:model-value="(v) => siteStore.simplePatchSite(item.id, 'allowSearch', v as boolean)"
         />
       </template>
-      <template #item.allowQueryUserInfo="{ item }">
+      <template #item.userConfig.allowQueryUserInfo="{ item }">
         <v-switch
           v-model="item.userConfig.allowQueryUserInfo"
           color="success"

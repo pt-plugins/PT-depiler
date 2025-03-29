@@ -69,6 +69,7 @@ export const useSiteStore = defineStore("site", {
         if (isEmpty(siteUserConfig)) {
           const siteMetaData = await this.getSiteMetadata(siteId);
           siteUserConfig.isOffline ??= false;
+          siteUserConfig.sortIndex ??= 100;
           siteUserConfig.allowSearch ??= Object.hasOwn(siteMetaData, "search");
           siteUserConfig.allowQueryUserInfo ??= Object.hasOwn(siteMetaData, "userInfo");
           siteUserConfig.inputSetting ??= {};

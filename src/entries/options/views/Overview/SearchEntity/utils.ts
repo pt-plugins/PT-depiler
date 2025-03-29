@@ -4,14 +4,15 @@ import searchQueryParser, { type SearchParserOptions } from "search-query-parser
 
 import {
   EResultParseStatus,
-  IAdvanceKeywordSearchConfig,
   parseSizeString,
   parseValidTimeString,
-  TSiteID,
+  type IAdvanceKeywordSearchConfig,
+  type TSiteID,
 } from "@ptd/site";
+import type { ISearchResultTorrent, TSearchSolutionKey } from "@/shared/storages/runtime.ts";
 import { sendMessage } from "@/messages.ts";
 import { useSiteStore } from "@/options/stores/site.ts";
-import { type ISearchResultTorrent, type TSearchSolutionKey, useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { log } from "~/helper.ts";
 
 export const searchQueryParserOptions: SearchParserOptions = {
