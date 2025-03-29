@@ -105,7 +105,7 @@ export default class PrivateSite extends BittorrentSite {
         for (const key of difference(thisUserInfoProcess.fields, Object.keys(flushUserInfo)) as string[]) {
           const dynamicParseFuncKey = `parseUserInfoFor${pascalCase(key)}` as keyof this;
           if (dynamicParseFuncKey in this && typeof this[dynamicParseFuncKey] === "function") {
-            flushUserInfo = this[dynamicParseFuncKey](flushUserInfo, dataDocument, requestConfig);
+            flushUserInfo = await this[dynamicParseFuncKey](flushUserInfo, dataDocument, requestConfig);
           } else if (this.metadata.userInfo!.selectors![key]) {
             flushUserInfo[key] = this.getFieldData(
               dataDocument,

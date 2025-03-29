@@ -378,18 +378,18 @@ export default class BittorrentSite {
       throw new NoTorrentsError();
     }
 
-    trs?.forEach((tr: any) => {
-      torrents.push(this.parseWholeTorrentFromRow({}, tr, searchConfig!) as ITorrent);
-    });
+    for (const tr of trs) {
+      torrents.push((await this.parseWholeTorrentFromRow({}, tr, searchConfig!)) as ITorrent);
+    }
 
     return torrents;
   }
 
-  protected parseWholeTorrentFromRow(
+  protected async parseWholeTorrentFromRow(
     torrent: Partial<ITorrent> = {},
     row: Element | Document | object,
     searchConfig: ISearchInput,
-  ): Partial<ITorrent> {
+  ): Promise<Partial<ITorrent>> {
     const { searchEntry, requestConfig } = searchConfig;
 
     // FIXME 对于每个 searchEntry，其需要获取的 torrentKey 应该都是一样的，但是目前会导致在每个loop中都重复生成相同的 key，但是没太大关系
@@ -426,7 +426,7 @@ export default class BittorrentSite {
 
       const dynamicParseFuncKey = `parseTorrentRowFor${pascalCase(key)}` as keyof this;
       if (dynamicParseFuncKey in this && typeof this[dynamicParseFuncKey] === "function") {
-        torrent = this[dynamicParseFuncKey](torrent, row, searchConfig);
+        torrent = await this[dynamicParseFuncKey](torrent, row, searchConfig);
       } else if (searchEntry!.selectors![key]) {
         torrent[key] = this.getFieldData(row, searchEntry!.selectors![key] as IElementQuery);
       }

@@ -353,13 +353,12 @@ export default class NexusPHP extends PrivateSite {
       flushUserInfo.status === EResultParseStatus.success &&
       (typeof flushUserInfo.seeding === "undefined" || typeof flushUserInfo.seedingSize === "undefined")
     ) {
-      flushUserInfo = mergeWith(
-        flushUserInfo,
-        await this.parseUserInfoForSeedingStatus(flushUserInfo.id as number),
-        (objValue, srcValue) => {
-          return objValue > 0 ? objValue : srcValue;
-        },
-      );
+      flushUserInfo = (await this.parseUserInfoForSeedingStatus(flushUserInfo)) as IUserInfo;
+    }
+
+    // 导入用户发布信息
+    if (flushUserInfo.status === EResultParseStatus.success && typeof flushUserInfo.published === "undefined") {
+      flushUserInfo = (await this.parseUserInfoForUploads(flushUserInfo)) as IUserInfo;
     }
 
     return flushUserInfo;
@@ -383,12 +382,13 @@ export default class NexusPHP extends PrivateSite {
     return data || null;
   }
 
-  protected async parseUserInfoForSeedingStatus(userId: number): Promise<{ seeding: number; seedingSize: number }> {
-    let seedStatus = { seeding: 0, seedingSize: 0 };
-
+  protected async parseUserInfoForSeedingStatus(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
+    const userId = flushUserInfo.id as number;
     const userSeedingRequestString = await this.requestUserSeedingPage(userId);
 
-    if (userSeedingRequestString) {
+    if (userSeedingRequestString && userSeedingRequestString?.includes("<table")) {
+      let seedStatus = { seeding: 0, seedingSize: 0 };
+
       const userSeedingDocument = createDocument(userSeedingRequestString);
       const trAnothers = Sizzle("table:last tr:not(:eq(0))", userSeedingDocument);
       if (trAnothers.length > 0) {
@@ -409,8 +409,24 @@ export default class NexusPHP extends PrivateSite {
           seedStatus.seedingSize += parseSizeString(sizeSelector.innerText.trim());
         });
       }
+
+      flushUserInfo = mergeWith(flushUserInfo, seedStatus, (objValue, srcValue) => {
+        return objValue > 0 ? objValue : srcValue;
+      });
     }
 
-    return seedStatus;
+    return flushUserInfo;
+  }
+
+  protected async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
+    const userId = flushUserInfo.id as number;
+    const userUploadsRequestString = await this.requestUserSeedingPage(userId, "uploaded");
+    flushUserInfo.uploads = 0;
+    if (userUploadsRequestString && userUploadsRequestString?.includes("<table")) {
+      const userUploadsDocument = createDocument(userUploadsRequestString);
+      const trAnothers = Sizzle("table:last tr:not(:eq(0))", userUploadsDocument);
+      flushUserInfo.uploads = trAnothers.length;
+    }
+    return flushUserInfo;
   }
 }
