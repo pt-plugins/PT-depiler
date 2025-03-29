@@ -206,5 +206,50 @@ export const siteMetadata: ISiteMetadata = {
       ratio: 4.55,
       privilege: "账号永久保留",
     },
+    {
+      id: 9,
+      name: "福音组",
+      groupType: "manager",
+      privilege: "热心会员自发参与组成。如果他们的种子存在问题，请勇敢指正; 不经候选直接上传种子; 查看已屏蔽的种子.",
+    },
+    {
+      id: 10,
+      name: "现充",
+      groupType: "manager",
+      privilege: "授予曾经做出贡献的管理成员、发布员、压制组等的荣誉头衔.",
+    },
+    {
+      id: 11,
+      name: "FFF团",
+      groupType: "manager",
+      privilege:
+        "帮助通过和拒绝候选的热心用户。如果他们的操作存在问题，请联系管理组; 属于管理组成员，可查看受理咨询、建议、投诉等; " +
+        "管理论坛主题和帖子; 屏蔽种子评论; 编辑/屏蔽种子; 设置/清除种子置顶; 设置种子人工优惠; 查看机密日志; 管理字幕区;" +
+        "查看匿名用户身份; 编辑/屏蔽/决定候选; 查看邀请记录.",
+    },
+    {
+      id: 12,
+      name: "执事",
+      groupType: "manager",
+      privilege: "维护群聊区风纪; 发起站内投票; 对会员进行警告、停用/启用账号; 管理史册.",
+    },
+    {
+      id: 13,
+      name: "司铎",
+      groupType: "manager",
+      privilege: "统筹执事工作，主导规则制定、管理策划和争议调解; 发布、管理站点公告; 管理论坛版块; 彻底删除种子.",
+    },
+    {
+      id: 14,
+      name: "枢机",
+      groupType: "manager",
+      privilege: "负责程序开发和服务器维护，管理站点设定; 修改会员资料，变更用户名、邮箱地址、重设密码.",
+    },
+    {
+      id: 15,
+      name: "站宗",
+      groupType: "manager",
+      privilege: "网站创始人，可以做任何事.",
+    },
   ],
 };

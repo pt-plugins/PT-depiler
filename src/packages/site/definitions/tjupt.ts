@@ -138,6 +138,17 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
+  userInfo: {
+    ...SchemaMetadata.userInfo,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors,
+      uploaded: {
+        selector: ["td.rowhead:contains('上传量') + td"],
+        filters: [{ name: "parseSize" }],
+      },
+    },
+  },
+
   levelRequirements: [
     {
       id: 1,

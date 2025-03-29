@@ -288,7 +288,7 @@ export default class NexusPHP extends PrivateSite {
   ): Promise<ITorrent[]> {
     const { keywords, searchEntry, requestConfig } = searchConfig;
 
-    // 返回是 Document 的情况才自动生成
+    // 返回是 Document 的情况才自动生成 row 选择器以及其他属性的选择器
     if (doc instanceof Document) {
       // 如果配置文件没有传入 search 的选择器，则我们自己生成
       const legacyTableSelector = "table.torrents:last";
