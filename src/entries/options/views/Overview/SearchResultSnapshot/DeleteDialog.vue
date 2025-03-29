@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { useSiteStore } from "@/options/stores/site.ts";
+import { useSearchResultSnapshotStore } from "@/options/stores/searchResultSnapshot.ts";
 
 const showDialog = defineModel<boolean>();
 const toDeleteIds = defineModel<string[]>("toDeleteIds");
 
-function removeSolutions() {
-  const siteStore = useSiteStore();
+function removeSearchResultSnapshots() {
+  const searchSnapshotStore = useSearchResultSnapshotStore();
 
-  for (const toDeleteId of toDeleteIds.value) {
-    siteStore.removeSearchSolution(toDeleteId);
+  for (const toDeleteId of toDeleteIds.value!) {
+    searchSnapshotStore.removeSearchSnapshotData(toDeleteId);
   }
   showDialog.value = false;
   toDeleteIds.value = [];
@@ -23,7 +23,7 @@ function removeSolutions() {
       </v-card-title>
 
       <v-card-text>
-        {{ $t("setSearchSolution.delete.text", [toDeleteIds.length]) }}
+        {{ $t("searchResultSnapshot.delete.text", [toDeleteIds!.length]) }}
       </v-card-text>
 
       <v-card-actions>
@@ -32,7 +32,7 @@ function removeSolutions() {
           <v-icon icon="mdi-close-circle" />
           <span class="ml-1">{{ $t("common.dialog.cancel") }}</span>
         </v-btn>
-        <v-btn variant="text" color="error" @click="removeSolutions">
+        <v-btn variant="text" color="error" @click="removeSearchResultSnapshots">
           <v-icon icon="mdi-check-circle-outline" />
           <span class="ml-1">{{ $t("common.dialog.ok") }}</span>
         </v-btn>

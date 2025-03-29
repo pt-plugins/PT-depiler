@@ -7,7 +7,6 @@
  */
 import { format } from "date-fns";
 import { filesize } from "filesize";
-import { useVModel } from "@vueuse/core";
 import { computed, reactive, watch } from "vue";
 import { uniq, flatten, uniqBy } from "es-toolkit";
 import searchQueryParser from "search-query-parser";
@@ -20,11 +19,8 @@ import SiteFavicon from "@/options/components/SiteFavicon.vue";
 
 const runtimeStore = useRuntimeStore();
 
-const componentProps = defineProps<{
-  modelValue: boolean;
-}>();
+const showDialog = defineModel<boolean>();
 const emit = defineEmits(["update:tableFilter", "update:modelValue"]);
-const showDialog = useVModel(componentProps);
 
 interface ITextValue {
   required: string[];
@@ -213,7 +209,7 @@ function updateTableFilter() {
                 density="compact"
               >
                 <template #label>
-                  <v-chip label class="mr-1" size="small" :color="tag.color">
+                  <v-chip label variant="tonal" class="mr-1" size="small" :color="tag.color">
                     {{ tag.name }}
                   </v-chip>
                 </template>

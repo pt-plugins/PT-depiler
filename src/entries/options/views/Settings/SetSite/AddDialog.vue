@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { provide, ref, watch } from "vue";
-import { computedAsync, useVModel } from "@vueuse/core";
+import { computedAsync } from "@vueuse/core";
 import { REPO_URL } from "~/helper.ts";
 import { definitionList, type ISiteUserConfig, type TSiteID } from "@ptd/site";
 import { useSiteStore } from "@/options/stores/site";
@@ -8,10 +8,7 @@ import { useSiteStore } from "@/options/stores/site";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import Editor from "./Editor.vue";
 
-const componentProps = defineProps<{
-  modelValue: boolean;
-}>();
-const showDialog = useVModel(componentProps);
+const showDialog = defineModel<boolean>();
 const siteStore = useSiteStore();
 
 const currentStep = ref<0 | 1>(0);

@@ -1,17 +1,15 @@
 <script lang="ts" setup>
-import { useVModels } from "@vueuse/core";
 import Editor from "./Editor.vue";
 
 import { provide, ref, watch } from "vue";
 import { type ISiteUserConfig, type TSiteID } from "@ptd/site";
 import { useSiteStore } from "@/options/stores/site.ts";
 
-const componentProps = defineProps<{
-  modelValue: boolean;
+const showDialog = defineModel<boolean>();
+const props = defineProps<{
   siteId: TSiteID;
 }>();
 
-const { modelValue: showDialog } = useVModels(componentProps);
 const siteStore = useSiteStore();
 
 const storedSiteUserConfig = ref<ISiteUserConfig & { valid?: boolean }>({ valid: false });
@@ -20,12 +18,12 @@ provide("storedSiteUserConfig", storedSiteUserConfig);
 watch(showDialog, async () => {
   storedSiteUserConfig.value = {
     valid: false,
-    ...(siteStore.sites[componentProps.siteId] ?? {}),
+    ...(siteStore.sites[props.siteId] ?? {}),
   };
 });
 
 function patchSite() {
-  siteStore.addSite(componentProps.siteId, storedSiteUserConfig.value);
+  siteStore.addSite(props.siteId, storedSiteUserConfig.value);
   siteStore.$save();
   showDialog.value = false;
 }
@@ -41,7 +39,7 @@ function patchSite() {
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <Editor v-model="componentProps.siteId" />
+        <Editor v-model="props.siteId" />
       </v-card-text>
       <v-divider />
       <v-card-actions>

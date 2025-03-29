@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import { useVModel } from "@vueuse/core";
-
 import { EResultParseStatus } from "@ptd/site";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -12,10 +10,7 @@ import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import SiteName from "@/options/components/SiteName.vue";
 import SolutionDetail from "@/options/components/SolutionDetail.vue";
 
-const componentProps = defineProps<{
-  modelValue: boolean;
-}>();
-const showDialog = useVModel(componentProps);
+const showDialog = defineModel<boolean>();
 
 const runtimeStore = useRuntimeStore();
 const siteStore = useSiteStore();

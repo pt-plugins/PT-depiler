@@ -1,11 +1,12 @@
 <script setup lang="ts">
-import { ref, watchEffect } from "vue";
+import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useSiteStore } from "@/options/stores/site.ts";
 import EditDialog from "./EditDialog.vue";
 import { TSolutionID } from "@/shared/storages/site.ts";
-import SolutionLabel from "@/options/views/Settings/SetSearchSolution/SolutionLabel.vue";
-import DeleteDialog from "@/options/views/Settings/SetSearchSolution/DeleteDialog.vue";
+
+import SolutionLabel from "./SolutionLabel.vue";
+import DeleteDialog from "./DeleteDialog.vue";
 
 const { t } = useI18n();
 const siteStore = useSiteStore();
@@ -33,9 +34,9 @@ function editSearchSolution(toEditSolutionId: TSolutionID) {
   showEditDialog.value = true;
 }
 
-watchEffect(() => {
-  if (showEditDialog.value === false) {
-    solutionId.value = "";
+watch(showDeleteDialog, (value) => {
+  if (value === false) {
+    toDeleteIds.value = [];
   }
 });
 
@@ -137,7 +138,7 @@ function simplePatchSearchSolution(solutionId: TSolutionID, value: boolean) {
   </v-card>
 
   <EditDialog v-model="showEditDialog" :solution-id="solutionId" />
-  <DeleteDialog v-model="showDeleteDialog" :to-delete-ids="toDeleteIds" />
+  <DeleteDialog v-model="showDeleteDialog" v-model:to-delete-ids="toDeleteIds" />
 </template>
 
 <style scoped lang="scss"></style>

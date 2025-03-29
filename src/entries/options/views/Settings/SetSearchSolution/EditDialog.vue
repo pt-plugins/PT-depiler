@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { nanoid } from "nanoid";
 import { watch, ref } from "vue";
-import { useVModels } from "@vueuse/core";
 import { cloneDeep } from "es-toolkit";
 import { find } from "es-toolkit/compat";
 
@@ -16,11 +15,8 @@ import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
-const props = defineProps<{
-  modelValue: boolean;
-  solutionId: TSolutionID;
-}>();
-const { modelValue: showDialog } = useVModels(props);
+const showDialog = defineModel<boolean>();
+const solutionId = defineModel<TSolutionID>("solutionId");
 
 const initSolution = () =>
   ({
@@ -38,9 +34,9 @@ const runtimeStore = useRuntimeStore();
 const solution = ref<ISearchSolutionState>(initSolution());
 const formValid = ref<boolean>(false);
 
-watch(props, (newVal, oldVal) => {
-  if (newVal.modelValue) {
-    let storedSolution = siteStore.solutions[newVal.solutionId];
+watch(showDialog, (newVal, oldVal) => {
+  if (newVal) {
+    let storedSolution = siteStore.solutions[solutionId];
     if (!storedSolution) {
       storedSolution = initSolution();
     }

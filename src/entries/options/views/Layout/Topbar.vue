@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { log, REPO_URL } from "~/helper";
+import { REPO_URL } from "~/helper";
 
 import { ref } from "vue";
 import { useDisplay } from "vuetify";
@@ -64,7 +64,7 @@ function startSearchEntity() {
 </script>
 
 <template>
-  <v-app-bar id="ptpp-topbar" app color="amber">
+  <v-app-bar id="ptd-topbar" app color="amber">
     <template #prepend>
       <v-app-bar-nav-icon
         :title="$t('layout.header.navBarTip')"
@@ -88,7 +88,7 @@ function startSearchEntity() {
     <v-text-field
       v-model="searchKey"
       hide-details
-      class="ptpp-search-input pl-2"
+      class="ptd-search-input pl-2"
       @keydown.enter="startSearchEntity"
       :placeholder="$t('layout.header.searchTip')"
       style="width: 300px"
@@ -169,7 +169,7 @@ function startSearchEntity() {
   margin-inline-end: 16px;
 }
 
-.ptpp-search-input:deep(.v-input__append) {
+.ptd-search-input:deep(.v-input__append) {
   padding-top: 4px;
 }
 </style>

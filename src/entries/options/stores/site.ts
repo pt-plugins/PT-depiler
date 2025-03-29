@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import { getDefinedSiteMetadata, ISearchCategories, ISiteMetadata, ISiteUserConfig, TSiteID } from "@ptd/site";
-import { ISitePiniaStorageSchema, TSolutionID, ISearchSolutionState, ISearchSolution } from "@/storage.ts";
+import type { ISitePiniaStorageSchema, TSolutionID, ISearchSolutionState, ISearchSolution } from "@/storage.ts";
 import { isEmpty, set } from "es-toolkit/compat";
 
 export const useSiteStore = defineStore("site", {

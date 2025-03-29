@@ -3,7 +3,7 @@
  */
 import { defineStore } from "pinia";
 import { usePreferredDark } from "@vueuse/core";
-import { IUiPiniaStorageSchema, supportThemeType } from "@/storage.ts";
+import type { IUiPiniaStorageSchema, supportThemeType } from "@/storage.ts";
 
 export const useUIStore = defineStore("ui", {
   persistWebExt: true,

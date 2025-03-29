@@ -44,7 +44,7 @@ function clickMenuItem() {
 </script>
 
 <template>
-  <v-navigation-drawer id="ptpp-navigation" v-model="uiStore.isNavBarOpen" :width="220" expand-on-hover permanent>
+  <v-navigation-drawer id="ptd-navigation" v-model="uiStore.isNavBarOpen" :width="220" expand-on-hover permanent>
     <!-- 侧边栏导航标题 -->
     <v-list density="compact" nav>
       <template v-for="(group, groupIndex) in menuOptions" :key="groupIndex">

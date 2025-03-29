@@ -1,18 +1,13 @@
 <script setup lang="ts">
-import { useVModels } from "@vueuse/core";
 import { useSiteStore } from "@/options/stores/site.ts";
 
-const componentProps = defineProps<{
-  modelValue: boolean;
-  toDeleteIds: string[];
-}>();
-
-const { modelValue: showDialog, toDeleteIds } = useVModels(componentProps);
+const showDialog = defineModel<boolean>();
+const toDeleteIds = defineModel<string[]>("toDeleteIds");
 
 function removeSites() {
   const siteStore = useSiteStore();
 
-  for (const toDeleteId of toDeleteIds.value) {
+  for (const toDeleteId of toDeleteIds.value!) {
     siteStore.removeSite(toDeleteId);
   }
   showDialog.value = false;
@@ -28,7 +23,7 @@ function removeSites() {
       </v-card-title>
 
       <v-card-text>
-        {{ $t("setSite.delete.text", [toDeleteIds.length]) }}
+        {{ $t("setSite.delete.text", [toDeleteIds!.length]) }}
       </v-card-text>
 
       <v-card-actions>

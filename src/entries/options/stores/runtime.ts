@@ -6,42 +6,7 @@
  */
 
 import { defineStore } from "pinia";
-import type { EResultParseStatus, ITorrent, TSiteID } from "@ptd/site";
-import { TSolutionID } from "@/storage.ts";
-
-export type TSearchSolutionKey = `${TSiteID}|$|${TSolutionID}`;
-
-export interface ISearchResultTorrent extends ITorrent {
-  uniqueId: string; // 每个种子的uniqueId，由 `${site}-${id}` 组成
-  solutionId: TSolutionID; // 对应搜索方案的id
-  solutionKey: TSearchSolutionKey; // 对应搜索方案的key，由 `${site}-${solutionId}` 组成
-}
-
-interface ISearchPlanStatus {
-  siteId: TSiteID;
-  searchEntryName: string;
-  searchEntry: Record<string, any>;
-  status: EResultParseStatus;
-  queueAt?: number;
-  queuePriority?: number;
-  startAt?: number;
-  costTime?: number;
-  count?: number;
-}
-
-interface ISearchData {
-  isSearching: boolean; // 是否正在搜索
-  // 该搜索相关时间情况
-  startAt: number;
-
-  // 该搜索相关的搜索条件
-  searchKey: string;
-  searchPlanKey: string;
-
-  // 该搜索相关的搜索结果
-  searchPlan: Record<TSearchSolutionKey, ISearchPlanStatus>;
-  searchResult: ISearchResultTorrent[];
-}
+import type { IRuntimePiniaStorageSchema, ISearchData } from "@/shared/storages/runtime.ts";
 
 export const initialSearchData: () => ISearchData = () => ({
   isSearching: false,
@@ -61,19 +26,15 @@ export const resetUiGlobalSnakebar = () => ({
 export const useRuntimeStore = defineStore("runtime", {
   persist: true,
   persistWebExt: false,
-  state: () => ({
-    search: initialSearchData(),
-    userInfo: {
-      isFlush: false,
-      flushPlan: {} as Record<
-        TSiteID,
-        {
-          isFlush: boolean;
-        }
-      >,
-    },
-    uiGlobalSnakebar: resetUiGlobalSnakebar(),
-  }),
+  state: () =>
+    ({
+      search: initialSearchData(),
+      userInfo: {
+        isFlush: false,
+        flushPlan: {},
+      },
+      uiGlobalSnakebar: resetUiGlobalSnakebar(),
+    }) as IRuntimePiniaStorageSchema,
 
   getters: {
     searchCostTime(state) {
@@ -86,16 +47,13 @@ export const useRuntimeStore = defineStore("runtime", {
       this.search = initialSearchData();
     },
 
-    showSnakebar(text: string, options: any) {
-      this.uiGlobalSnakebar = {
-        show: true,
-        text,
-        ...options,
-      };
+    showSnakebar(text: string, options: Omit<IRuntimePiniaStorageSchema["uiGlobalSnakebar"], "show" | "text"> = {}) {
+      // @ts-ignore
+      this.uiGlobalSnakebar = { show: true, text, ...options };
       if (options.timeout) {
         setTimeout(() => {
           this.uiGlobalSnakebar = resetUiGlobalSnakebar();
-        }, options.timeout);
+        }, Number(options.timeout));
       }
     },
   },

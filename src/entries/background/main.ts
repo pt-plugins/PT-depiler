@@ -51,6 +51,23 @@ onMessage("setSiteLastUserInfo", async ({ data: userData }) => {
   await extStorage.setItem("userInfo", userInfoStore);
 });
 
+onMessage("getSearchResultSnapshotData", async ({ data: snapshotId }) => {
+  const snapshotData = (await extStorage.getItem("searchResultSnapshot")) ?? {};
+  return snapshotData?.[snapshotId];
+});
+
+onMessage("saveSearchResultSnapshotData", async ({ data: { snapshotId, data } }) => {
+  const snapshotData = (await extStorage.getItem("searchResultSnapshot")) ?? {};
+  snapshotData[snapshotId] = data;
+  await extStorage.setItem("searchResultSnapshot", snapshotData);
+});
+
+onMessage("removeSearchResultSnapshotData", async ({ data: snapshotId }) => {
+  const snapshotData = (await extStorage.getItem("searchResultSnapshot")) ?? {};
+  delete snapshotData[snapshotId];
+  await extStorage.setItem("searchResultSnapshot", snapshotData);
+});
+
 onMessage("downloadFile", async ({ data: downloadOptions }) => {
   return await chrome.downloads.download(downloadOptions);
 });

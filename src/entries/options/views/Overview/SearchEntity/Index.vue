@@ -1,22 +1,25 @@
 <script setup lang="ts">
-import { watch, ref, computed } from "vue";
+import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { refDebounced } from "@vueuse/core";
 import { UseElementSize } from "@vueuse/components";
+import { type ISearchResultTorrent } from "@/shared/storages/runtime.ts";
 
 import { useSiteStore } from "@/options/stores/site.ts";
 import { useUIStore } from "@/options/stores/ui.ts";
-import { type ISearchResultTorrent, useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import ActionTd from "./ActionTd.vue";
 import SearchStatusDialog from "./SearchStatusDialog.vue";
+import SaveSnapshotDialog from "./SaveSnapshotDialog.vue";
 import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
 
 import { log } from "~/helper.ts";
 import { formatDate, formatSize } from "@/options/utils.ts";
-import { tableCustomFilter, doSearch, searchQueue } from "./utils.ts"; // <-- 主要方法在这个文件中！！！
+import { doSearch, searchQueue, tableCustomFilter } from "./utils.ts";
+import { useSearchResultSnapshotStore } from "@/options/stores/searchResultSnapshot.ts"; // <-- 主要方法在这个文件中！！！
 
 const route = useRoute();
 const uiStore = useUIStore();
@@ -25,6 +28,7 @@ const runtimeStore = useRuntimeStore();
 
 const showAdvanceFilterGenerateDialog = ref<boolean>(false);
 const showSearchStatusDialog = ref<boolean>(false);
+const showSaveSnapshotDialog = ref<boolean>(false);
 
 const fullTableHeader = [
   { title: "站点", key: "site", align: "center", width: 90, alwaysShow: true },
@@ -53,12 +57,19 @@ watch(
   () => route.query,
   (newParams, oldParams) => {
     console.log("route.query", newParams, oldParams);
-    if (
-      newParams.flush ||
-      (newParams.search && newParams.search != oldParams?.search) ||
-      (newParams.plan && newParams.plan != oldParams?.plan)
-    ) {
-      doSearch((newParams.search as string) ?? "", (newParams.plan as string) ?? "default", true);
+    if (newParams.snapshot) {
+      const searchSnapshotStore = useSearchResultSnapshotStore();
+      searchSnapshotStore.getSearchSnapshotData(newParams.snapshot as string).then((data) => {
+        data && (runtimeStore.search = data);
+      });
+    } else {
+      if (
+        newParams.flush ||
+        (newParams.search && newParams.search != oldParams?.search) ||
+        (newParams.plan && newParams.plan != oldParams?.plan)
+      ) {
+        doSearch((newParams.search as string) ?? "", (newParams.plan as string) ?? "default", true);
+      }
     }
   },
   { immediate: true, deep: true },
@@ -142,7 +153,12 @@ function cancelSearchQueue() {
           ></v-btn>
 
           <!-- TODO 创建搜索快照 -->
-          <v-btn icon="mdi-camera-plus" color="cyan" :disabled="true || runtimeStore.search.isSearching"></v-btn>
+          <v-btn
+            icon="mdi-camera-plus"
+            color="cyan"
+            :disabled="runtimeStore.search.isSearching || runtimeStore.search.searchResult.length === 0"
+            @click="showSaveSnapshotDialog = true"
+          ></v-btn>
         </v-btn-group>
 
         <v-divider vertical class="mx-2" />
@@ -200,6 +216,7 @@ function cancelSearchQueue() {
       </v-row>
     </v-card-title>
     <v-data-table
+      id="ptd-search-entity-table"
       v-model="tableSelected"
       class="search-entity-table"
       :headers="tableHeader"
@@ -301,6 +318,11 @@ function cancelSearchQueue() {
     @update:table-filter="(v) => (tableWaitFilter = v)"
   />
   <SearchStatusDialog v-model="showSearchStatusDialog"></SearchStatusDialog>
+  <SaveSnapshotDialog v-model="showSaveSnapshotDialog"></SaveSnapshotDialog>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+#ptd-search-entity-table:deep(td.v-data-table__td) {
+  padding: 0 8px;
+}
+</style>

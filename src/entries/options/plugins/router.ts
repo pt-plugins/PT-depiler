@@ -19,6 +19,12 @@ export const routes: RouteRecordRaw[] = [
         meta: { icon: "mdi-magnify" },
         component: () => import("../views/Overview/SearchEntity/Index.vue"),
       },
+      {
+        path: "/search-result-snapshot",
+        name: "SearchResultSnapshot",
+        meta: { icon: "mdi-history" },
+        component: () => import("../views/Overview/SearchResultSnapshot/Index.vue"),
+      },
     ],
   },
   {

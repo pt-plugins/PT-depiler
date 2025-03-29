@@ -178,7 +178,7 @@ function deleteSite(siteId: TSiteID | TSiteID[]) {
   </v-card>
 
   <AddDialog v-model="showAddDialog" />
-  <DeleteDialog v-model="showDeleteDialog" :to-delete-ids="toDeleteIds" />
+  <DeleteDialog v-model="showDeleteDialog" v-model:to-delete-ids="toDeleteIds" />
   <EditDialog v-model="showEditDialog" :site-id="toEditId!" />
 </template>
 
