@@ -2,6 +2,7 @@ import { getSiteInstance } from "../shared/adapters/site.ts";
 import { onMessage, sendMessage } from "@/messages.ts";
 import { getRemoteTorrentFile } from "@ptd/downloader";
 import { type ITorrent, type IUserInfo } from "@ptd/site";
+import { type ISitePiniaStorageSchema } from "@/shared/storages/site.ts";
 
 onMessage("getSiteSearchResult", async ({ data: { siteId, keyword = "", searchEntry = {} } }) => {
   const site = await getSiteInstance<"public">(siteId);
@@ -10,7 +11,11 @@ onMessage("getSiteSearchResult", async ({ data: { siteId, keyword = "", searchEn
 
 onMessage("getSiteUserInfoResult", async ({ data: siteId }) => {
   const site = await getSiteInstance<"private">(siteId);
-  const userInfo = await site.getUserInfoResult();
+
+  // 获取历史信息
+  const siteStoreRaw = (await sendMessage("getExtStorage", "site")) as ISitePiniaStorageSchema;
+
+  const userInfo = await site.getUserInfoResult(siteStoreRaw?.lastUserInfo?.[siteId as string] ?? {});
   await sendMessage("setSiteLastUserInfo", userInfo as IUserInfo);
   return userInfo;
 });

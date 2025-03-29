@@ -1,5 +1,5 @@
 import { type ISiteMetadata, ETorrentStatus } from "../types";
-import { SchemaMetadata } from "../schemas/NexusPHP";
+import { CategoryInclbookmarked, CategoryIncldead, SchemaMetadata } from "../schemas/NexusPHP";
 import { extractContent, GB, TB } from "@ptd/site";
 
 export const siteMetadata: ISiteMetadata = {
@@ -140,16 +140,7 @@ export const siteMetadata: ISiteMetadata = {
       ],
       cross: { mode: "brackets" },
     },
-    {
-      name: "断种/活种？",
-      key: "incldead",
-      options: [
-        { name: "包括断种", value: 0 },
-        { name: "活种", value: 1 },
-        { name: "断种", value: 2 },
-      ],
-      cross: false,
-    },
+    CategoryIncldead,
     {
       name: "促销种子？",
       key: "spstate",
@@ -165,16 +156,7 @@ export const siteMetadata: ISiteMetadata = {
       ],
       cross: false,
     },
-    {
-      name: "收藏？",
-      key: "inclbookmarked",
-      options: [
-        { name: "全部", value: 0 },
-        { name: "仅收藏", value: 1 },
-        { name: "仅未收藏", value: 2 },
-      ],
-      cross: false,
-    },
+    CategoryInclbookmarked,
   ],
 
   search: {

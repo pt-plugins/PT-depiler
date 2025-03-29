@@ -1,5 +1,13 @@
 import PrivateSite from "./AbstractPrivateSite";
-import { EResultParseStatus, ETorrentStatus, ISearchInput, ISiteMetadata, ITorrent, IUserInfo } from "../types";
+import {
+  EResultParseStatus,
+  ETorrentStatus,
+  ISearchCategories,
+  ISearchInput,
+  ISiteMetadata,
+  ITorrent,
+  IUserInfo,
+} from "../types";
 import Sizzle from "sizzle";
 import { mergeWith, toMerged } from "es-toolkit";
 import {
@@ -15,6 +23,28 @@ import { set } from "es-toolkit/compat";
 const baseLinkQuery = {
   selector: 'a[href*="download.php?id="]:has(> img[alt="download"])',
   attr: "href",
+};
+
+export const CategoryIncldead: ISearchCategories = {
+  name: "显示断种/活种？",
+  key: "incldead",
+  options: [
+    { name: "全部", value: 0 },
+    { name: "仅活种", value: 1 },
+    { name: "仅断种", value: 2 },
+  ],
+  cross: false,
+};
+
+export const CategoryInclbookmarked: ISearchCategories = {
+  name: "显示收藏？",
+  key: "inclbookmarked",
+  options: [
+    { name: "全部", value: 0 },
+    { name: "仅收藏", value: 1 },
+    { name: "仅未收藏", value: 2 },
+  ],
+  cross: false,
 };
 
 /**

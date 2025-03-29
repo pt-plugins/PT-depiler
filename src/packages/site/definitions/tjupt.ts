@@ -1,5 +1,5 @@
 import { ETorrentStatus, type IElementQuery, type ISiteMetadata } from "@ptd/site";
-import { SchemaMetadata } from "../schemas/NexusPHP";
+import { CategoryInclbookmarked, CategoryIncldead, SchemaMetadata } from "../schemas/NexusPHP";
 import { set } from "es-toolkit/compat";
 
 // TJUPT 中的 selector.search.progress 以及 selector.search.status 被其他站公用
@@ -71,16 +71,7 @@ export const siteMetadata: ISiteMetadata = {
       ],
       cross: { mode: "brackets" },
     },
-    {
-      name: "显示断种/活种？",
-      key: "incldead",
-      options: [
-        { name: "全部", value: 0 },
-        { name: "仅活种", value: 1 },
-        { name: "仅断种", value: 2 },
-      ],
-      cross: false,
-    },
+    CategoryIncldead,
     {
       name: "显示促销种子？",
       key: "spstate",
@@ -105,16 +96,7 @@ export const siteMetadata: ISiteMetadata = {
       ],
       cross: false,
     },
-    {
-      name: "显示收藏？",
-      key: "inclbookmarked",
-      options: [
-        { name: "全部", value: 0 },
-        { name: "仅收藏", value: 1 },
-        { name: "仅未收藏", value: 2 },
-      ],
-      cross: false,
-    },
+    CategoryInclbookmarked,
     {
       name: "显示保种？",
       key: "keepseed",

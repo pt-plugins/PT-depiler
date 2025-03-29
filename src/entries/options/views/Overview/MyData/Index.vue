@@ -22,7 +22,7 @@ const runtimeStore = useRuntimeStore();
 const fullTableHeader = [
   { title: "站点", key: "site", align: "center", width: 90, alwaysShow: true },
   { title: "用户名", key: "name", align: "center", width: 90, alwaysShow: true },
-  { title: "等级", key: "levelName", align: "center", width: 90 },
+  { title: "等级", key: "levelName", align: "start", width: 90 },
   { title: "数据量", key: "uploaded", align: "end" },
   { title: "真实数据量", key: "trueUploaded", align: "end" }, // 默认不显示
   { title: "分享率", key: "ratio", align: "end" },

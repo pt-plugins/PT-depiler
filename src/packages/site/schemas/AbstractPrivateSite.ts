@@ -64,22 +64,20 @@ export default class PrivateSite extends BittorrentSite {
     }
 
     try {
-      for (let i = 0; i < this.metadata.userInfo.process.length; i++) {
-        const thisUserInfo = this.metadata.userInfo.process[i];
-
+      for (const thisUserInfoProcess of this.metadata.userInfo.process) {
         // 检查相关元素是否均已有
-        const existField = intersection(thisUserInfo.fields, Object.keys(flushUserInfo));
-        if (existField.length === thisUserInfo.fields.length) {
+        const existField = intersection(thisUserInfoProcess.fields, Object.keys(flushUserInfo));
+        if (existField.length === thisUserInfoProcess.fields.length) {
           continue; // 如果全部数据都有则直接跳过本轮
         }
 
         // 更新请求字段，如果字段缺失则跳出循环
         let requestConfig: AxiosRequestConfig = toMerged(
           { url: "/", params: {}, data: {}, responseType: "document" },
-          thisUserInfo.requestConfig,
+          thisUserInfoProcess.requestConfig,
         );
-        if (thisUserInfo.assertion) {
-          for (const [requiredField, pathKey] of Object.entries(thisUserInfo.assertion)) {
+        if (thisUserInfoProcess.assertion) {
+          for (const [requiredField, pathKey] of Object.entries(thisUserInfoProcess.assertion)) {
             if (flushUserInfo[requiredField]) {
               if (has(requestConfig, pathKey as string)) {
                 let oldData = get(requestConfig, pathKey as string);
@@ -98,13 +96,13 @@ export default class PrivateSite extends BittorrentSite {
         }
 
         // 如果有 requestConfigTransformer，则会在最后一步对请求配置进行处理
-        if (typeof thisUserInfo.requestConfigTransformer === "function") {
-          requestConfig = thisUserInfo.requestConfigTransformer(requestConfig, flushUserInfo as IUserInfo, this);
+        if (typeof thisUserInfoProcess.requestConfigTransformer === "function") {
+          requestConfig = thisUserInfoProcess.requestConfigTransformer(requestConfig, flushUserInfo as IUserInfo, this);
         }
 
         const { data: dataDocument } = await this.request<any>(requestConfig);
 
-        for (const key of difference(thisUserInfo.fields, Object.keys(flushUserInfo)) as string[]) {
+        for (const key of difference(thisUserInfoProcess.fields, Object.keys(flushUserInfo)) as string[]) {
           const dynamicParseFuncKey = `parseUserInfoFor${pascalCase(key)}` as keyof this;
           if (dynamicParseFuncKey in this && typeof this[dynamicParseFuncKey] === "function") {
             flushUserInfo = this[dynamicParseFuncKey](flushUserInfo, dataDocument, requestConfig);
