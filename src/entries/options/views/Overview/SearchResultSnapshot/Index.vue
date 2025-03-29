@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import { refDebounced } from "@vueuse/core";
 import { useRouter } from "vue-router";
 
 import { useSearchResultSnapshotStore } from "@/options/stores/searchResultSnapshot.ts";
@@ -7,7 +8,7 @@ import { type TSearchSnapshotKey } from "@/shared/storages/searchResultSnapshot.
 import { formatDate } from "../../../utils.ts";
 
 import DeleteDialog from "./DeleteDialog.vue";
-import EditNameDialog from "@/options/views/Overview/SearchResultSnapshot/EditNameDialog.vue";
+import EditNameDialog from "./EditNameDialog.vue";
 
 const router = useRouter();
 const searchSnapshotStore = useSearchResultSnapshotStore();
@@ -17,11 +18,13 @@ const showDeleteDialog = ref<boolean>(false);
 
 const tableHeader = [
   { title: "快照名称", key: "name", align: "start", minWidth: 600 },
-  { title: "种子数", key: "recordCount", align: "end", width: 160, minWidth: 160 },
-  { title: "创建时间", key: "createdAt", align: "center", width: 150, minWidth: 150 },
+  { title: "种子数", key: "recordCount", align: "end", width: 160, minWidth: 160, filterable: false },
+  { title: "创建时间", key: "createdAt", align: "center", width: 150, minWidth: 150, filterable: false },
   { title: "操作", key: "action", align: "center", width: 125, minWidth: 125, sortable: false, alwaysShow: true },
 ];
 const tableSelected = ref<TSearchSnapshotKey[]>([]);
+const tableWaitFilter = ref("");
+const tableFilter = refDebounced(tableWaitFilter, 500); // 延迟搜索过滤词的生成
 
 function viewSnapshot(searchSnapshotId: TSearchSnapshotKey) {
   router.push({
@@ -60,6 +63,18 @@ function deleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey | TSearchSnap
         >
           {{ $t("common.remove") }}
         </v-btn>
+
+        <v-spacer />
+        <v-text-field
+          v-model="tableWaitFilter"
+          append-icon="mdi-magnify"
+          prepend-inner-icon="mdi-filter"
+          label="快照名称过滤"
+          single-line
+          density="compact"
+          hide-details
+          max-width="500"
+        />
       </v-row>
     </v-card-title>
 
@@ -67,6 +82,7 @@ function deleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey | TSearchSnap
       v-model="tableSelected"
       :headers="tableHeader"
       :items="searchSnapshotStore.getSearchSnapshotList"
+      :search="tableFilter"
       show-select
       item-value="id"
       :sort-by="[{ key: 'createdAt', order: 'desc' }]"
