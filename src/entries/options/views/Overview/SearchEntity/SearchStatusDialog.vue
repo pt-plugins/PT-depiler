@@ -2,7 +2,7 @@
 import { EResultParseStatus } from "@ptd/site";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { useSiteStore } from "@/options/stores/site.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 import { doSearchEntity, raiseSearchPriority } from "@/options/views/Overview/SearchEntity/utils.ts";
 
@@ -13,7 +13,7 @@ import SolutionDetail from "@/options/components/SolutionDetail.vue";
 const showDialog = defineModel<boolean>();
 
 const runtimeStore = useRuntimeStore();
-const siteStore = useSiteStore();
+const metadataStore = useMetadataStore();
 
 const StatusMap: Record<EResultParseStatus, string> = {
   [EResultParseStatus.unknownError]: "未知错误！",
@@ -27,7 +27,7 @@ const StatusMap: Record<EResultParseStatus, string> = {
 };
 
 function getSearchSolution(planKey: string, entryName: string) {
-  return siteStore.solutions[planKey]?.solutions.find((x) => x.id === entryName)!;
+  return metadataStore.solutions[planKey]?.solutions.find((x) => x.id === entryName)!;
 }
 </script>
 
@@ -37,7 +37,7 @@ function getSearchSolution(planKey: string, entryName: string) {
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey darken-2">
           <v-toolbar-title>
-            方案 [{{ siteStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) }}] 搜索状态
+            方案 [{{ metadataStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) }}] 搜索状态
           </v-toolbar-title>
           <v-spacer />
           <span class="text-subtitle-2 mr-5"><{{ runtimeStore.search.searchPlanKey }}></span>

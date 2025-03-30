@@ -392,7 +392,7 @@ export default class BittorrentSite {
   ): Promise<Partial<ITorrent>> {
     const { searchEntry, requestConfig } = searchConfig;
 
-    // FIXME 对于每个 searchEntry，其需要获取的 torrentKey 应该都是一样的，但是目前会导致在每个loop中都重复生成相同的 key，但是没太大关系
+    // FIXME 对于每个 searchEntry，其需要获取的 torrentKey 应该都是一样的，但是目前会导致在每个loop中都重复生成相同的 key，不过没太大关系
     const definedTorrentSelectorKey = Object.keys(searchEntry!.selectors!).filter((key) => key !== "rows");
     const defaultTorrentSelectorKey = [
       "id",

@@ -1,12 +1,12 @@
 import type { EResultParseStatus, ITorrent, TSiteID } from "@ptd/site";
-import type { TSolutionID } from "@/shared/storages/site.ts";
+import type { TSolutionKey } from "@/storage.ts";
 import type { VSnackbar } from "vuetify/components";
 
-export type TSearchSolutionKey = `${TSiteID}|$|${TSolutionID}`;
+export type TSearchSolutionKey = `${TSiteID}|$|${TSolutionKey}`;
 
 export interface ISearchResultTorrent extends ITorrent {
   uniqueId: string; // 每个种子的uniqueId，由 `${site}-${id}` 组成
-  solutionId: TSolutionID; // 对应搜索方案的id
+  solutionId: TSolutionKey; // 对应搜索方案的id
   solutionKey: TSearchSolutionKey; // 对应搜索方案的key，由 `${site}-${solutionId}` 组成
 }
 

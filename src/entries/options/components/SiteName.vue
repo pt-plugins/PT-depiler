@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { computedAsync } from "@vueuse/core";
-import { useSiteStore } from "@/options/stores/site.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { TSiteID } from "@ptd/site";
 
-const siteStore = useSiteStore();
+const metadataStore = useMetadataStore();
 
 const props = withDefaults(
   defineProps<{
@@ -15,8 +15,8 @@ const props = withDefaults(
   },
 );
 
-const siteUrl = computedAsync(() => siteStore.getSiteUrl(props.siteId), "#");
-const siteName = computedAsync(() => siteStore.getSiteMergedMetadata(props.siteId, "name", props.siteId));
+const siteUrl = computedAsync(() => metadataStore.getSiteUrl(props.siteId), "#");
+const siteName = computedAsync(() => metadataStore.getSiteMergedMetadata(props.siteId, "name", props.siteId));
 </script>
 
 <template>

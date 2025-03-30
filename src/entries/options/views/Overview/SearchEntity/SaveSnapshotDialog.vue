@@ -1,23 +1,21 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 
-import { useSiteStore } from "@/options/stores/site.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { useSearchResultSnapshotStore } from "@/options/stores/searchResultSnapshot.ts";
 import { formatDate } from "@/options/utils.ts";
 
 const showDialog = defineModel<boolean>();
 
-const siteStore = useSiteStore();
+const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
-const searchSnapshotStore = useSearchResultSnapshotStore();
 
 const snapshotName = ref("");
 
 watch(showDialog, () => {
   snapshotName.value =
     "[" +
-    siteStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) +
+    metadataStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) +
     "] " +
     runtimeStore.search.searchKey +
     " (" +
@@ -26,7 +24,7 @@ watch(showDialog, () => {
 });
 
 function saveSearchSnapshotData() {
-  searchSnapshotStore.saveSearchSnapshotData(snapshotName.value);
+  metadataStore.saveSearchSnapshotData(snapshotName.value);
   showDialog.value = false;
 }
 </script>

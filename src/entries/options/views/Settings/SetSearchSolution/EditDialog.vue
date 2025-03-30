@@ -4,19 +4,20 @@ import { watch, ref } from "vue";
 import { cloneDeep } from "es-toolkit";
 import { find } from "es-toolkit/compat";
 
-import type { ISearchSolution, ISearchSolutionState, TSolutionID } from "@/shared/storages/site.ts";
+import type { ISearchSolution, ISearchSolutionMetadata, TSolutionKey } from "@/storage.ts";
 
-import { useSiteStore } from "@/options/stores/site";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
+
 import { formValidateRules } from "@/options/utils.ts";
 
 import SolutionLabel from "./SolutionLabel.vue";
 import SiteCategoryPanel from "./SiteCategoryPanel.vue";
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
-import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 const showDialog = defineModel<boolean>();
-const solutionId = defineModel<TSolutionID>("solutionId");
+const solutionId = defineModel<TSolutionKey>("solutionId");
 
 const initSolution = () =>
   ({
@@ -26,17 +27,17 @@ const initSolution = () =>
     enabled: true,
     createdAt: Date.now(),
     solutions: [],
-  }) as ISearchSolutionState;
+  }) as ISearchSolutionMetadata;
 
-const siteStore = useSiteStore();
+const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 
-const solution = ref<ISearchSolutionState>(initSolution());
+const solution = ref<ISearchSolutionMetadata>(initSolution());
 const formValid = ref<boolean>(false);
 
 watch(showDialog, (newVal, oldVal) => {
   if (newVal) {
-    let storedSolution = siteStore.solutions[solutionId];
+    let storedSolution = metadataStore.solutions[solutionId.value!];
     if (!storedSolution) {
       storedSolution = initSolution();
     }
@@ -64,7 +65,7 @@ function removeSolution(removeSolution: ISearchSolution) {
 }
 
 function saveSolutionState() {
-  siteStore.addSearchSolution(solution.value);
+  metadataStore.addSearchSolution(solution.value);
   showDialog.value = false;
 }
 </script>
@@ -104,7 +105,7 @@ function saveSolutionState() {
               <v-text-field append-inner-icon="mdi-magnify" prepend-icon="mdi-sitemap" />
 
               <v-expansion-panels>
-                <v-expansion-panel v-for="site in siteStore.getAddedSiteIds" :id="site">
+                <v-expansion-panel v-for="site in metadataStore.getAddedSiteIds" :id="site">
                   <v-expansion-panel-title>
                     <SiteFavicon :site-id="site" class="mr-2" inline />
 

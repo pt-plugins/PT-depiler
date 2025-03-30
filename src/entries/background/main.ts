@@ -1,7 +1,8 @@
 import { onMessage } from "@/messages.ts";
-import { extStorage, ISitePiniaStorageSchema } from "@/storage.ts";
+import { extStorage } from "@/storage.ts";
 import { log } from "~/helper.ts";
 import { format } from "date-fns";
+import { IMetadataPiniaStorageSchema } from "@/shared/storages/metadata.ts";
 
 // 监听 点击图标 事件
 chrome.action.onClicked.addListener(async () => {
@@ -23,7 +24,7 @@ onMessage("setExtStorage", async ({ data: { key, value } }) => {
 });
 
 onMessage("getSiteUserConfig", async ({ data: siteId }) => {
-  const siteUserConfig = await extStorage.getItem("site");
+  const siteUserConfig = await extStorage.getItem("metadata");
   const storedSiteUserConfig = siteUserConfig?.sites?.[siteId] ?? { id: siteId };
   storedSiteUserConfig.isOffline ??= false;
   storedSiteUserConfig.sortIndex ??= 100;
@@ -38,10 +39,10 @@ onMessage("setSiteLastUserInfo", async ({ data: userData }) => {
   const site = userData.site;
 
   // 存储用户信息到 site 中
-  const siteStore = (await extStorage.getItem("site")) ?? {};
-  (siteStore as ISitePiniaStorageSchema).lastUserInfo ??= {};
-  (siteStore as ISitePiniaStorageSchema).lastUserInfo[site] = userData;
-  await extStorage.setItem("site", siteStore as ISitePiniaStorageSchema);
+  const metadataStore = (await extStorage.getItem("metadata")) ?? {};
+  (metadataStore as IMetadataPiniaStorageSchema).lastUserInfo ??= {};
+  (metadataStore as IMetadataPiniaStorageSchema).lastUserInfo[site] = userData;
+  await extStorage.setItem("metadata", metadataStore as IMetadataPiniaStorageSchema);
 
   // 存储用户信息到 userInfo 中
   const userInfoStore = (await extStorage.getItem("userInfo")) ?? {};

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { type TSearchSnapshotKey } from "@/shared/storages/searchResultSnapshot.ts";
-import { useSearchResultSnapshotStore } from "@/options/stores/searchResultSnapshot.ts";
+
+import { useMetadataStore } from "@/options/stores/metadata.ts";
+
+import { type TSearchSnapshotKey } from "@/shared/storages/metadata.ts";
 
 const showDialog = defineModel<boolean>();
 
@@ -9,8 +11,7 @@ const props = defineProps<{
   editId: TSearchSnapshotKey;
 }>();
 
-const searchSnapshotStore = useSearchResultSnapshotStore();
-
+const metadataStore = useMetadataStore();
 const snapshotName = ref("");
 
 watch(showDialog, () => {
@@ -18,11 +19,11 @@ watch(showDialog, () => {
     return;
   }
 
-  snapshotName.value = searchSnapshotStore.snapshot[props.editId].name;
+  snapshotName.value = metadataStore.snapshots[props.editId].name;
 });
 
 function saveSearchSnapshotData() {
-  searchSnapshotStore.editSearchSnapshotDataName(props.editId, snapshotName.value);
+  metadataStore.editSearchSnapshotDataName(props.editId, snapshotName.value);
   showDialog.value = false;
 }
 </script>

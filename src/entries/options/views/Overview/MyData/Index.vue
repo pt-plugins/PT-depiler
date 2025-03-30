@@ -2,22 +2,23 @@
 import { computed, ref } from "vue";
 import { computedAsync } from "@vueuse/core";
 
-import { useSiteStore } from "@/options/stores/site.ts";
 import { useUIStore } from "@/options/stores/ui.ts";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 import { getFixedRatio, flushSiteLastUserInfo } from "./utils.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
-import UserLevelRequirementsTd from "@/options/views/Overview/MyData/UserLevelRequirementsTd.vue";
+import UserLevelRequirementsTd from "./UserLevelRequirementsTd.vue";
 
 import { TSiteID } from "@ptd/site";
-import { useRuntimeStore } from "@/options/stores/runtime.ts";
+
 import { formatDate, formatNumber, formatSize } from "@/options/utils.ts";
 
-const siteStore = useSiteStore();
 const uiStore = useUIStore();
 const runtimeStore = useRuntimeStore();
+const metadataStore = useMetadataStore();
 
 const fullTableHeader = [
   { title: "站点", key: "site", align: "center", width: 90, alwaysShow: true },
@@ -40,23 +41,23 @@ const tableHeader = computed(() => {
 });
 
 const tableData = computedAsync(async () => {
-  const allSite = siteStore.getAddedSiteIds;
+  const allSite = metadataStore.getAddedSiteIds;
   const allPrivateSiteUserInfoData = [];
   for (const site of allSite) {
     // noinspection BadExpressionStatementJS
-    siteStore.lastUserInfo[site]; // 使得 computedAsync 能够收集依赖以便触发数据更新
+    metadataStore.lastUserInfo[site]; // 使得 computedAsync 能够收集依赖以便触发数据更新
   }
 
   for (const site of allSite) {
     // 判断之前有无个人信息，没有则从siteMetadata中根据 type = 'private' 判断是否能获取个人信息
-    let canHanSiteUserInfo = !!siteStore.lastUserInfo[site];
+    let canHanSiteUserInfo = !!metadataStore.lastUserInfo[site];
     if (!canHanSiteUserInfo) {
-      const siteMeta = await siteStore.getSiteMetadata(site);
+      const siteMeta = await metadataStore.getSiteMetadata(site);
       canHanSiteUserInfo = siteMeta?.type === "private";
     }
 
     if (canHanSiteUserInfo) {
-      const siteUserInfoData = siteStore.lastUserInfo[site] ?? { site: site };
+      const siteUserInfoData = metadataStore.lastUserInfo[site] ?? { site: site };
 
       // 对 siteUserInfoData 进行一些预处理（不涉及渲染格式）
       let { uploaded = 0, downloaded = 0 } = siteUserInfoData;

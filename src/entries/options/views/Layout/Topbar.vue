@@ -6,7 +6,7 @@ import { useDisplay } from "vuetify";
 import { useRoute, useRouter } from "vue-router";
 
 import { useUIStore } from "@/options/stores/ui";
-import { useSiteStore } from "@/options/stores/site.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { computedAsync } from "@vueuse/core";
 
@@ -15,7 +15,7 @@ const router = useRouter();
 const display = useDisplay();
 
 const uiStore = useUIStore();
-const siteStore = useSiteStore();
+const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 
 const appendMenu: Array<{ title: string; icon: string; [str: string]: any }> = [
@@ -40,7 +40,7 @@ const searchPlans = computedAsync(async () => {
     name: "default",
   };
 
-  const searchSolutions = siteStore.getSearchSolutions
+  const searchSolutions = metadataStore.getSearchSolutions
     .filter((x) => !!x.enabled) // 过滤掉未启用的搜索方案
     .sort((a, b) => b.sort - a.sort) // 按照 sort 降序排序
     .map((x) => ({
@@ -100,7 +100,7 @@ function startSearchEntity() {
       <template #prepend-inner>
         <v-menu>
           <template v-slot:activator="{ props }">
-            <v-btn color="primary" v-bind="props"> {{ siteStore.getSearchSolutionName(searchPlanKey) }} </v-btn>
+            <v-btn color="primary" v-bind="props"> {{ metadataStore.getSearchSolutionName(searchPlanKey) }} </v-btn>
           </template>
           <v-list>
             <v-list-item
@@ -109,7 +109,7 @@ function startSearchEntity() {
               :value="index"
               @click="() => (searchPlanKey = item.id)"
             >
-              <v-list-item-title>{{ siteStore.getSearchSolutionName(item.id) }}</v-list-item-title>
+              <v-list-item-title>{{ metadataStore.getSearchSolutionName(item.id) }}</v-list-item-title>
             </v-list-item>
           </v-list>
         </v-menu>

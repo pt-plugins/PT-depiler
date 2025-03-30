@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import { IAdvancedSearchRequestConfig, ISearchCategories, TSelectSearchCategoryValue, TSiteID } from "@ptd/site";
-import { computedAsync } from "@vueuse/core";
-import { useSiteStore } from "@/options/stores/site.ts";
 import { ref } from "vue";
-import { ISearchSolution } from "@/shared/storages/site.ts";
 import { nanoid } from "nanoid";
+import { computedAsync } from "@vueuse/core";
 import { cloneDeep, toMerged } from "es-toolkit";
 import { set } from "es-toolkit/compat";
+
+import { useMetadataStore } from "@/options/stores/metadata.ts";
+
 import { log } from "~/helper.ts";
+
+import type { ISearchSolution } from "@/storage.ts";
+import type { IAdvancedSearchRequestConfig, ISearchCategories, TSelectSearchCategoryValue, TSiteID } from "@ptd/site";
 
 const props = defineProps<{
   siteId: TSiteID;
@@ -15,7 +18,7 @@ const props = defineProps<{
 
 const emit = defineEmits(["update:solution"]);
 
-const siteStore = useSiteStore();
+const metadataStore = useMetadataStore();
 
 const selectCategory = ref<Record<ISearchCategories["key"], TSelectSearchCategoryValue | symbol>>({});
 const siteMetaCategory = computedAsync(async () => {
@@ -25,7 +28,7 @@ const siteMetaCategory = computedAsync(async () => {
 const radioDefault = Symbol("default");
 
 async function getSiteMetaCategory() {
-  const siteMetaCategory = await siteStore.getSiteMergedMetadata(props.siteId, "category");
+  const siteMetaCategory = await metadataStore.getSiteMergedMetadata(props.siteId, "category");
   for (const category of siteMetaCategory!) {
     selectCategory.value[category.key] = category.cross ? [] : radioDefault;
   }

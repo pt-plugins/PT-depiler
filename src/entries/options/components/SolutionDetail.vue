@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { computedAsync } from "@vueuse/core";
 
-import type { ISearchSolution } from "@/shared/storages/site.ts";
+import type { ISearchSolution } from "@/storage.ts";
 import type { ISearchCategories } from "@ptd/site";
 
-import { useSiteStore } from "@/options/stores/site.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 const props = defineProps<{
   solution: ISearchSolution;
 }>();
 
-const siteStore = useSiteStore();
+const metadataStore = useMetadataStore();
 
 const siteMetaCategory = computedAsync(async () => {
-  return (await siteStore.getSiteMergedMetadata(props.solution.siteId, "category")) as ISearchCategories[];
+  return (await metadataStore.getSiteMergedMetadata(props.solution.siteId, "category")) as ISearchCategories[];
 }, []);
 
 function getCategory(key: string) {

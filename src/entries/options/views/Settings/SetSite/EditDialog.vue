@@ -3,14 +3,14 @@ import Editor from "./Editor.vue";
 
 import { provide, ref, watch } from "vue";
 import { type ISiteUserConfig, type TSiteID } from "@ptd/site";
-import { useSiteStore } from "@/options/stores/site.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 const showDialog = defineModel<boolean>();
 const props = defineProps<{
   siteId: TSiteID;
 }>();
 
-const siteStore = useSiteStore();
+const metadataStore = useMetadataStore();
 
 const storedSiteUserConfig = ref<ISiteUserConfig & { valid?: boolean }>({ valid: false });
 provide("storedSiteUserConfig", storedSiteUserConfig);
@@ -18,13 +18,13 @@ provide("storedSiteUserConfig", storedSiteUserConfig);
 watch(showDialog, async () => {
   storedSiteUserConfig.value = {
     valid: false,
-    ...(siteStore.sites[props.siteId] ?? {}),
+    ...(metadataStore.sites[props.siteId] ?? {}),
   };
 });
 
 function patchSite() {
-  siteStore.addSite(props.siteId, storedSiteUserConfig.value);
-  siteStore.$save();
+  metadataStore.addSite(props.siteId, storedSiteUserConfig.value);
+  metadataStore.$save();
   showDialog.value = false;
 }
 </script>

@@ -5,7 +5,7 @@ import { refDebounced } from "@vueuse/core";
 import { UseElementSize } from "@vueuse/components";
 import { type ISearchResultTorrent } from "@/shared/storages/runtime.ts";
 
-import { useSiteStore } from "@/options/stores/site.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useUIStore } from "@/options/stores/ui.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
@@ -18,12 +18,11 @@ import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
 
 import { log } from "~/helper.ts";
 import { formatDate, formatSize } from "@/options/utils.ts";
-import { doSearch, searchQueue, tableCustomFilter } from "./utils.ts";
-import { useSearchResultSnapshotStore } from "@/options/stores/searchResultSnapshot.ts"; // <-- 主要方法在这个文件中！！！
+import { doSearch, searchQueue, tableCustomFilter } from "./utils.ts"; // <-- 主要方法在这个文件中！！！
 
 const route = useRoute();
 const uiStore = useUIStore();
-const siteStore = useSiteStore();
+const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 
 const showAdvanceFilterGenerateDialog = ref<boolean>(false);
@@ -58,8 +57,7 @@ watch(
   (newParams, oldParams) => {
     console.log("route.query", newParams, oldParams);
     if (newParams.snapshot) {
-      const searchSnapshotStore = useSearchResultSnapshotStore();
-      searchSnapshotStore.getSearchSnapshotData(newParams.snapshot as string).then((data) => {
+      metadataStore.getSearchSnapshotData(newParams.snapshot as string).then((data) => {
         data && (runtimeStore.search = data);
       });
     } else {
@@ -109,7 +107,7 @@ function cancelSearchQueue() {
           <template v-else>搜索中...</template>
         </template>
         <template v-else>
-          使用方案 [{{ siteStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) }}] 搜索关键词 [{{
+          使用方案 [{{ metadataStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) }}] 搜索关键词 [{{
             runtimeStore.search.searchKey
           }}] 完成， 共找到 {{ runtimeStore.search.searchResult.length }} 条结果， 耗时：
           {{ runtimeStore.searchCostTime / 1000 }} 秒。

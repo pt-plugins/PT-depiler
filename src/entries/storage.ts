@@ -1,26 +1,20 @@
 import { defineExtensionStorage } from "@webext-core/storage";
-import type { ISitePiniaStorageSchema } from "@/shared/storages/site.ts";
+import type { IMetadataPiniaStorageSchema, IStoredUserInfo, TSearchSnapshotKey } from "@/shared/storages/metadata.ts";
 import type { IUiPiniaStorageSchema } from "@/shared/storages/ui.ts";
-import type { IUserInfoStorageSchema } from "@/shared/storages/userinfo.ts";
-import type {
-  ISearchResultSnapshotDataStorageSchema,
-  ISearchResultSnapshotPiniaStorageSchema,
-} from "@/shared/storages/searchResultSnapshot.ts";
+import type { ISearchData } from "@/shared/storages/runtime.ts";
+import type { TSiteID } from "@ptd/site";
 
 // 代理转发所有导出
-export * from "@/shared/storages/site.ts";
+export * from "@/shared/storages/metadata.ts";
 export * from "@/shared/storages/ui.ts";
-export * from "@/shared/storages/userinfo.ts";
-export * from "@/shared/storages/searchResultSnapshot.ts";
 
 export interface ExtensionStorageSchema {
   // 既可以被 pinia 使用，也可以被其他地方使用
-  site: ISitePiniaStorageSchema;
   ui: IUiPiniaStorageSchema;
-  searchResultSnapshotMetaData: ISearchResultSnapshotPiniaStorageSchema;
+  metadata: IMetadataPiniaStorageSchema;
 
-  userInfo: IUserInfoStorageSchema;
-  searchResultSnapshot: ISearchResultSnapshotDataStorageSchema;
+  userInfo: Record<TSiteID, Record<string, IStoredUserInfo>>; // 用于存储用户信息
+  searchResultSnapshot: Record<TSearchSnapshotKey, ISearchData>; // 用于存储搜索结果快照
 }
 
 export type ExtensionStorageKey = keyof ExtensionStorageSchema;

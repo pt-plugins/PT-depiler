@@ -1,21 +1,22 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { useSiteStore } from "@/options/stores/site.ts";
-import EditDialog from "./EditDialog.vue";
-import { TSolutionID } from "@/shared/storages/site.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
-import SolutionLabel from "./SolutionLabel.vue";
+import type { TSolutionKey } from "@/storage.ts";
+
+import EditDialog from "./EditDialog.vue";
 import DeleteDialog from "./DeleteDialog.vue";
+import SolutionLabel from "./SolutionLabel.vue";
 
 const { t } = useI18n();
-const siteStore = useSiteStore();
+const metadataStore = useMetadataStore();
 
 const showEditDialog = ref(false);
 const showDeleteDialog = ref(false);
-const solutionId = ref<TSolutionID>("");
+const solutionId = ref<TSolutionKey>("");
 
-const tableSelected = ref<TSolutionID[]>([]);
+const tableSelected = ref<TSolutionKey[]>([]);
 const tableHeader = [
   { title: "排序", key: "sort", align: "center", width: 100, filterable: false },
   { title: t("common.name"), key: "name", align: "start", width: 150 },
@@ -29,7 +30,7 @@ function addSearchSolution() {
   showEditDialog.value = true;
 }
 
-function editSearchSolution(toEditSolutionId: TSolutionID) {
+function editSearchSolution(toEditSolutionId: TSolutionKey) {
   solutionId.value = toEditSolutionId;
   showEditDialog.value = true;
 }
@@ -40,15 +41,15 @@ watch(showDeleteDialog, (value) => {
   }
 });
 
-const toDeleteIds = ref<TSolutionID[]>([]);
-function deleteSearchSolution(solutionId: TSolutionID | TSolutionID[]) {
+const toDeleteIds = ref<TSolutionKey[]>([]);
+function deleteSearchSolution(solutionId: TSolutionKey | TSolutionKey[]) {
   toDeleteIds.value = Array.isArray(solutionId) ? solutionId : [solutionId];
   showDeleteDialog.value = true;
 }
 
-function simplePatchSearchSolution(solutionId: TSolutionID, value: boolean) {
-  siteStore.solutions[solutionId].enabled = value;
-  siteStore.$save();
+function simplePatchSearchSolution(solutionId: TSolutionKey, value: boolean) {
+  metadataStore.solutions[solutionId].enabled = value;
+  metadataStore.$save();
 }
 </script>
 
@@ -91,7 +92,7 @@ function simplePatchSearchSolution(solutionId: TSolutionID, value: boolean) {
     <v-data-table
       v-model="tableSelected"
       :headers="tableHeader"
-      :items="siteStore.getSearchSolutions"
+      :items="metadataStore.getSearchSolutions"
       :items-per-page="10"
       item-value="id"
       :sort-by="[

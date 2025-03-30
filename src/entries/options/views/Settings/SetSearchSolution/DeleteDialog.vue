@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { useSiteStore } from "@/options/stores/site.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 const showDialog = defineModel<boolean>();
 const toDeleteIds = defineModel<string[]>("toDeleteIds");
 
 function removeSolutions() {
-  const siteStore = useSiteStore();
+  const metadataStore = useMetadataStore();
 
   for (const toDeleteId of toDeleteIds.value) {
-    siteStore.removeSearchSolution(toDeleteId);
+    metadataStore.removeSearchSolution(toDeleteId);
   }
   showDialog.value = false;
   toDeleteIds.value = [];

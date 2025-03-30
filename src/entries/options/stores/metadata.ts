@@ -1,22 +1,34 @@
+import { nanoid } from "nanoid";
 import { defineStore } from "pinia";
-import { getDefinedSiteMetadata, ISearchCategories, ISiteMetadata, ISiteUserConfig, TSiteID } from "@ptd/site";
-import type { ISitePiniaStorageSchema, TSolutionID, ISearchSolutionState, ISearchSolution } from "@/storage.ts";
-import { isEmpty, set } from "es-toolkit/compat";
 
-export const useSiteStore = defineStore("site", {
+import type {
+  IMetadataPiniaStorageSchema,
+  TSearchSnapshotKey,
+  ISearchSolution,
+  TSolutionKey,
+} from "@/shared/storages/metadata.ts";
+import { getDefinedSiteMetadata, ISearchCategories, ISiteMetadata, ISiteUserConfig, TSiteID } from "@ptd/site";
+import { isEmpty, set } from "es-toolkit/compat";
+import { sendMessage } from "@/messages.ts";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { ISearchSolutionMetadata } from "@/shared/storages/metadata.ts";
+
+export const useMetadataStore = defineStore("metadata", {
   persistWebExt: true,
-  state: (): ISitePiniaStorageSchema => ({
+  state: (): IMetadataPiniaStorageSchema => ({
     sites: {},
     solutions: {},
+    snapshots: {},
     lastUserInfo: {},
   }),
+
   getters: {
     getAddedSiteIds(state) {
       return Object.keys(state.sites);
     },
 
     getSearchSolutionName(state) {
-      return (solutionId: TSolutionID): string => {
+      return (solutionId: TSolutionKey): string => {
         if (solutionId === "default") {
           return "默认"; // FIXME i18n
         }
@@ -48,7 +60,7 @@ export const useSiteStore = defineStore("site", {
     },
 
     getSearchSolution(state) {
-      return async (solutionId: TSolutionID | "default"): Promise<ISearchSolutionState> => {
+      return async (solutionId: TSolutionKey | "default"): Promise<ISearchSolutionMetadata> => {
         if (solutionId === "default") {
           return await this.getDefaultSearchSolution();
         } else {
@@ -143,6 +155,23 @@ export const useSiteStore = defineStore("site", {
         }
       };
     },
+
+    getSearchSnapshotList(state) {
+      return Object.values(state.snapshots);
+    },
+
+    getSearchSnapshotData(state) {
+      return async (id: TSearchSnapshotKey) => {
+        const snapshotInfo = state.snapshots[id];
+        if (snapshotInfo?.id) {
+          return await sendMessage("getSearchResultSnapshotData", id);
+        } else {
+          const runtimeStorage = useRuntimeStore();
+          runtimeStorage.showSnakebar("未找到该搜索快照...", { color: "error" });
+          return;
+        }
+      };
+    },
   },
   actions: {
     addSite(siteId: TSiteID, siteConfig: ISiteUserConfig) {
@@ -165,13 +194,47 @@ export const useSiteStore = defineStore("site", {
       this.$save();
     },
 
-    addSearchSolution(solution: ISearchSolutionState) {
+    addSearchSolution(solution: ISearchSolutionMetadata) {
       this.solutions[solution.id] = solution;
       this.$save();
     },
 
-    removeSearchSolution(solutionId: TSolutionID) {
+    removeSearchSolution(solutionId: TSolutionKey) {
       delete this.solutions[solutionId];
+      this.$save();
+    },
+
+    async saveSearchSnapshotData(name: string) {
+      const runtimeStorage = useRuntimeStore();
+      const searchSnapshotData = runtimeStorage.search;
+
+      if (searchSnapshotData.isSearching) {
+        runtimeStorage.showSnakebar("你不能创建一个正在搜索中的快照...", { color: "error" });
+        return;
+      }
+
+      const snapshotId = nanoid();
+      this.snapshots[snapshotId] = {
+        id: snapshotId,
+        name,
+        createdAt: Date.now(),
+        recordCount: searchSnapshotData.searchResult.length,
+      };
+
+      // 保存搜索快照数据
+      await sendMessage("saveSearchResultSnapshotData", { snapshotId, data: searchSnapshotData });
+
+      this.$save();
+    },
+
+    async editSearchSnapshotDataName(id: TSearchSnapshotKey, name: string) {
+      this.snapshots[id].name = name;
+      this.$save();
+    },
+
+    async removeSearchSnapshotData(id: TSearchSnapshotKey) {
+      delete this.snapshots[id]; // 删除搜索快照元数据
+      await sendMessage("removeSearchResultSnapshotData", id); // 删除搜索快照数据
       this.$save();
     },
   },

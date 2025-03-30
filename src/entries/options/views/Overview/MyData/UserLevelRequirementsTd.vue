@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { IUserInfo, TLevelGroupType } from "@ptd/site";
-import { useSiteStore } from "@/options/stores/site.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { computedAsync } from "@vueuse/core";
 import { guessUserLevelGroupType } from "./utils.ts";
 import { computed } from "vue";
@@ -9,10 +9,10 @@ const props = defineProps<{
   userInfo: IUserInfo;
 }>();
 
-const siteStore = useSiteStore();
+const metadataStore = useMetadataStore();
 
 const userLevelRequirements = computedAsync(() => {
-  return siteStore.getSiteMergedMetadata(props.userInfo.site, "levelRequirements");
+  return metadataStore.getSiteMergedMetadata(props.userInfo.site, "levelRequirements");
 }, []);
 
 const matchedLevelRequirements = computed(() => {

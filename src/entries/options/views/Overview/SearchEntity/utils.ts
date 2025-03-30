@@ -11,7 +11,7 @@ import {
 } from "@ptd/site";
 import type { ISearchResultTorrent, TSearchSolutionKey } from "@/shared/storages/runtime.ts";
 import { sendMessage } from "@/messages.ts";
-import { useSiteStore } from "@/options/stores/site.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { log } from "~/helper.ts";
 
@@ -179,8 +179,8 @@ export async function doSearch(search: string, plan: string, flush = true) {
   runtimeStore.search.searchPlanKey = searchPlanKey;
 
   // Expand search plan
-  const siteStore = useSiteStore();
-  const searchSolution = await siteStore.getSearchSolution(runtimeStore.search.searchPlanKey);
+  const metadataStore = useMetadataStore();
+  const searchSolution = await metadataStore.getSearchSolution(runtimeStore.search.searchPlanKey);
   log(`Expanded Search Plan for ${searchPlanKey}: `, searchSolution);
 
   for (const { siteId, searchEntries } of searchSolution.solutions) {

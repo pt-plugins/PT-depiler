@@ -3,13 +3,13 @@ import { provide, ref, watch } from "vue";
 import { computedAsync } from "@vueuse/core";
 import { REPO_URL } from "~/helper.ts";
 import { definitionList, type ISiteUserConfig, type TSiteID } from "@ptd/site";
-import { useSiteStore } from "@/options/stores/site";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import Editor from "./Editor.vue";
 
 const showDialog = defineModel<boolean>();
-const siteStore = useSiteStore();
+const metadataStore = useMetadataStore();
 
 const currentStep = ref<0 | 1>(0);
 const selectedSiteId = ref<TSiteID | null>(null);
@@ -25,17 +25,17 @@ watch(showDialog, () => {
 
 const canAddSites = computedAsync(async () => {
   const canAddedSiteMetadata = [];
-  const canAddedSiteList = definitionList.filter((x) => !siteStore.getAddedSiteIds.includes(x));
+  const canAddedSiteList = definitionList.filter((x) => !metadataStore.getAddedSiteIds.includes(x));
 
   for (const string of canAddedSiteList) {
-    canAddedSiteMetadata.push(await siteStore.getSiteMetadata(string));
+    canAddedSiteMetadata.push(await metadataStore.getSiteMetadata(string));
   }
   return canAddedSiteMetadata;
 }, []);
 
 function saveSite() {
-  siteStore.addSite(selectedSiteId.value!, storedSiteUserConfig.value);
-  siteStore.$save();
+  metadataStore.addSite(selectedSiteId.value!, storedSiteUserConfig.value);
+  metadataStore.$save();
   showDialog.value = false;
 }
 </script>

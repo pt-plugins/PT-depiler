@@ -1,27 +1,27 @@
 <script setup lang="ts">
 import { timezoneOffset, ISiteUserConfig, type TSiteID, ISiteMetadata, TSiteFullUrl } from "@ptd/site";
 import { watch, ref, onMounted, inject, computed } from "vue";
-import { useSiteStore } from "@/options/stores/site.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { formValidateRules } from "@/options/utils.ts";
 
-const siteStore = useSiteStore();
+const metadataStore = useMetadataStore();
 
 const siteId = defineModel<TSiteID>({ default: "" });
 const siteMetaData = ref<ISiteMetadata>({} as unknown as ISiteMetadata);
 const siteUserConfig = inject<ISiteUserConfig & { valid: boolean }>("storedSiteUserConfig", { valid: false });
 const siteName = computed({
   get: () => siteUserConfig.value.merge?.name ?? siteMetaData.value.name,
-  set: (value) => siteStore.simplePatchSite(siteId.value, "merge.name", value),
+  set: (value) => metadataStore.simplePatchSite(siteId.value, "merge.name", value),
 });
 const siteTimezoneOffset = computed({
   get: () => siteUserConfig.value.merge?.timezoneOffset ?? siteMetaData.value.timezoneOffset,
-  set: (value) => siteStore.simplePatchSite(siteId.value, "merge.timezoneOffset", value),
+  set: (value) => metadataStore.simplePatchSite(siteId.value, "merge.timezoneOffset", value),
 });
 const customSiteUrl = ref<string>("");
 
 async function initSiteData(siteId: TSiteID) {
-  siteMetaData.value = await siteStore.getSiteMetadata(siteId);
-  siteUserConfig.value = await siteStore.getSiteUserConfig(siteId);
+  siteMetaData.value = await metadataStore.getSiteMetadata(siteId);
+  siteUserConfig.value = await metadataStore.getSiteUserConfig(siteId);
 }
 
 onMounted(() => {

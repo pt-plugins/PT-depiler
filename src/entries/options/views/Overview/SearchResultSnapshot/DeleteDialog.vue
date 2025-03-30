@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { useSearchResultSnapshotStore } from "@/options/stores/searchResultSnapshot.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 const showDialog = defineModel<boolean>();
 const toDeleteIds = defineModel<string[]>("toDeleteIds");
 
 function removeSearchResultSnapshots() {
-  const searchSnapshotStore = useSearchResultSnapshotStore();
+  const metadataStore = useMetadataStore();
 
   for (const toDeleteId of toDeleteIds.value!) {
-    searchSnapshotStore.removeSearchSnapshotData(toDeleteId);
+    metadataStore.removeSearchSnapshotData(toDeleteId);
   }
   showDialog.value = false;
   toDeleteIds.value = [];

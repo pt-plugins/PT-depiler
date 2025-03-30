@@ -5,7 +5,7 @@ import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 import { useUIStore } from "@/options/stores/ui.ts";
-import { useSiteStore } from "@/options/stores/site.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 import AddDialog from "./AddDialog.vue";
 import DeleteDialog from "./DeleteDialog.vue";
@@ -14,7 +14,7 @@ import SiteFavicon from "@/options/components/SiteFavicon.vue";
 
 const { t } = useI18n();
 const uiStore = useUIStore();
-const siteStore = useSiteStore();
+const metadataStore = useMetadataStore();
 
 const showAddDialog = ref<boolean>(false);
 const showEditDialog = ref<boolean>(false);
@@ -54,10 +54,10 @@ const tableSelected = ref<TSiteID[]>([]);
 
 const sites = computedAsync(async () => {
   const sitesReturn = [];
-  for (const [siteId, siteUserConfig] of Object.entries(siteStore.sites)) {
+  for (const [siteId, siteUserConfig] of Object.entries(metadataStore.sites)) {
     sitesReturn.push({
       id: siteId,
-      metadata: await siteStore.getSiteMetadata(siteId),
+      metadata: await metadataStore.getSiteMetadata(siteId),
       userConfig: siteUserConfig,
     });
   }
@@ -138,7 +138,7 @@ function deleteSite(siteId: TSiteID | TSiteID[]) {
           color="success"
           hide-details
           class="site-switch-btn"
-          @update:model-value="(v) => siteStore.simplePatchSite(item.id, 'isOffline', v as boolean)"
+          @update:model-value="(v) => metadataStore.simplePatchSite(item.id, 'isOffline', v as boolean)"
         />
       </template>
       <template #item.userConfig.allowSearch="{ item }">
@@ -148,7 +148,7 @@ function deleteSite(siteId: TSiteID | TSiteID[]) {
           hide-details
           class="site-switch-btn"
           :disabled="item.userConfig.isOffline || !Object.hasOwn(item.metadata, 'search')"
-          @update:model-value="(v) => siteStore.simplePatchSite(item.id, 'allowSearch', v as boolean)"
+          @update:model-value="(v) => metadataStore.simplePatchSite(item.id, 'allowSearch', v as boolean)"
         />
       </template>
       <template #item.userConfig.allowQueryUserInfo="{ item }">
@@ -158,7 +158,7 @@ function deleteSite(siteId: TSiteID | TSiteID[]) {
           hide-details
           class="site-switch-btn"
           :disabled="item.userConfig.isOffline || !Object.hasOwn(item.metadata, 'userInfo')"
-          @update:model-value="(v) => siteStore.simplePatchSite(item.id, 'allowQueryUserInfo', v as boolean)"
+          @update:model-value="(v) => metadataStore.simplePatchSite(item.id, 'allowQueryUserInfo', v as boolean)"
         />
       </template>
       <template #item.action="{ item }">

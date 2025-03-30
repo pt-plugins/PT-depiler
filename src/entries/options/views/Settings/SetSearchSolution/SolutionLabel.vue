@@ -1,7 +1,5 @@
 <script setup lang="ts">
-import type { ISearchSolution } from "@/shared/storages/site.ts";
-
-import { useSiteStore } from "@/options/stores/site.ts";
+import type { ISearchSolution } from "@/storage.ts";
 
 import SolutionDetail from "@/options/components/SolutionDetail.vue";
 import SiteName from "@/options/components/SiteName.vue";
@@ -17,8 +15,6 @@ const props = withDefaults(
 );
 
 const emit = defineEmits(["remove:solution"]);
-
-const siteStore = useSiteStore();
 
 function removeSolution(solution: ISearchSolution) {
   emit("remove:solution", solution);

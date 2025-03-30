@@ -3,15 +3,16 @@ import { ref } from "vue";
 import { refDebounced } from "@vueuse/core";
 import { useRouter } from "vue-router";
 
-import { useSearchResultSnapshotStore } from "@/options/stores/searchResultSnapshot.ts";
-import { type TSearchSnapshotKey } from "@/shared/storages/searchResultSnapshot.ts";
 import { formatDate } from "../../../utils.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 import DeleteDialog from "./DeleteDialog.vue";
 import EditNameDialog from "./EditNameDialog.vue";
 
+import { type TSearchSnapshotKey } from "@/shared/storages/metadata.ts";
+
 const router = useRouter();
-const searchSnapshotStore = useSearchResultSnapshotStore();
+const metadataStore = useMetadataStore();
 
 const showEditNameDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
@@ -81,7 +82,7 @@ function deleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey | TSearchSnap
     <v-data-table
       v-model="tableSelected"
       :headers="tableHeader"
-      :items="searchSnapshotStore.getSearchSnapshotList"
+      :items="metadataStore.getSearchSnapshotList"
       :search="tableFilter"
       show-select
       item-value="id"
