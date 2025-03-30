@@ -175,7 +175,7 @@ export interface ISearchCategories {
          * | append | {key}{v1}=1&{key}{v2}=1 | { `${key}${v1}`: 1, `${key}${v2}`: 1 } |
          * | appendQuote | {key}[{v1}]=1&{key}[{v2}]=1 | { `${key}[${v1}]`: 1, `${key}[${v2}]`: 1 } |
          */
-        mode?: "brackets" | "comma" | "append" | "appendQuote";
+        mode?: "brackets" | "comma" | "append" | "appendQuote" | "custom";
         key?: string; // 当内部交叉时，params与已定义的 key 不一致时使用
       }
     | false;

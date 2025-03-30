@@ -21,7 +21,7 @@ import {
 import { set } from "es-toolkit/compat";
 
 const baseLinkQuery = {
-  selector: 'a[href*="download.php?id="]:has(> img[alt="download"])',
+  selector: ['a[href*="download.php?id="]:has(> img[alt="download"])'],
   attr: "href",
 };
 
