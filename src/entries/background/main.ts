@@ -52,6 +52,17 @@ onMessage("setSiteLastUserInfo", async ({ data: userData }) => {
   await extStorage.setItem("userInfo", userInfoStore);
 });
 
+onMessage("getSiteUserInfo", async ({ data: siteId }) => {
+  const userInfoStore = await extStorage.getItem("userInfo");
+  return userInfoStore?.[siteId] ?? {};
+});
+
+onMessage("removeSiteUserInfo", async ({ data: { siteId, date } }) => {
+  const userInfoStore = await extStorage.getItem("userInfo");
+  delete userInfoStore?.[siteId]?.[date];
+  await extStorage.setItem("userInfo", userInfoStore!);
+});
+
 onMessage("getSearchResultSnapshotData", async ({ data: snapshotId }) => {
   const snapshotData = (await extStorage.getItem("searchResultSnapshot")) ?? {};
   return snapshotData?.[snapshotId];

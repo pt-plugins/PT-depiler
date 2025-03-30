@@ -6,7 +6,7 @@ import { useUIStore } from "@/options/stores/ui.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
-import { getFixedRatio, flushSiteLastUserInfo } from "./utils.ts";
+import { getFixedRatio, flushSiteLastUserInfo, fixUserInfo } from "./utils.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
@@ -15,6 +15,7 @@ import UserLevelRequirementsTd from "./UserLevelRequirementsTd.vue";
 import { TSiteID } from "@ptd/site";
 
 import { formatDate, formatNumber, formatSize } from "@/options/utils.ts";
+import HistoryDataViewDialog from "@/options/views/Overview/MyData/HistoryDataViewDialog.vue";
 
 const uiStore = useUIStore();
 const runtimeStore = useRuntimeStore();
@@ -59,25 +60,20 @@ const tableData = computedAsync(async () => {
     if (canHanSiteUserInfo) {
       const siteUserInfoData = metadataStore.lastUserInfo[site] ?? { site: site };
 
-      // 对 siteUserInfoData 进行一些预处理（不涉及渲染格式）
-      let { uploaded = 0, downloaded = 0 } = siteUserInfoData;
-      if (typeof siteUserInfoData.ratio === "undefined") {
-        let ratio = -1;
-        if (downloaded == 0 && uploaded > 0) {
-          ratio = Infinity; // 没有下载量时设置分享率为无限
-        } else if (downloaded > 0) {
-          ratio = uploaded / downloaded;
-        }
-        siteUserInfoData.ratio = ratio;
-      }
-
-      allPrivateSiteUserInfoData.push(siteUserInfoData);
+      allPrivateSiteUserInfoData.push(fixUserInfo(siteUserInfoData));
     }
   }
 
   return allPrivateSiteUserInfoData;
 }, []);
 const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
+
+const showHistoryDataViewDialog = ref<boolean>(false);
+const historyDataViewDialogSiteId = ref<TSiteID | null>(null);
+function viewHistoryData(siteId: TSiteID) {
+  showHistoryDataViewDialog.value = true;
+  historyDataViewDialogSiteId.value = siteId;
+}
 </script>
 
 <template>
@@ -179,7 +175,7 @@ const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
           </v-row>
           <v-row justify="end">
             <span class="text-no-wrap">
-              {{ item.trueDownloaded ? formatSize(item.trueUploaded) : "-" }}
+              {{ item.trueDownloaded ? formatSize(item.trueDownloaded) : "-" }}
             </span>
             <v-icon small color="red-darken-4" icon="mdi-chevron-down"></v-icon>
           </v-row>
@@ -223,18 +219,22 @@ const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
 
       <!-- 操作 -->
       <template #item.action="{ item }">
-        <v-btn
-          icon="mdi-cached"
-          color="green"
-          size="small"
-          variant="text"
-          :loading="runtimeStore.userInfo.flushPlan[item.site]?.isFlush"
-          :disabled="runtimeStore.userInfo.flushPlan[item.site]?.isFlush"
-          @click="() => flushSiteLastUserInfo([item.site])"
-        ></v-btn>
+        <v-btn-group variant="text">
+          <v-btn icon="mdi-view-list" color="blue" size="small" @click="() => viewHistoryData(item.site)"> </v-btn>
+          <v-btn
+            icon="mdi-cached"
+            color="green"
+            size="small"
+            :loading="runtimeStore.userInfo.flushPlan[item.site]?.isFlush"
+            :disabled="runtimeStore.userInfo.flushPlan[item.site]?.isFlush"
+            @click="() => flushSiteLastUserInfo([item.site])"
+          ></v-btn>
+        </v-btn-group>
       </template>
     </v-data-table>
   </v-card>
+
+  <HistoryDataViewDialog v-model="showHistoryDataViewDialog" :site-id="historyDataViewDialogSiteId!" />
 </template>
 
 <style scoped lang="scss"></style>
