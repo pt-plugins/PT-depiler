@@ -89,13 +89,13 @@ function deleteSiteUserInfo(date: string) {
             <v-container>
               <v-row justify="end">
                 <span class="text-no-wrap">
-                  {{ item.uploaded ? formatSize(item.uploaded) : "-" }}
+                  {{ typeof item.uploaded !== "undefined" ? formatSize(item.uploaded) : "-" }}
                 </span>
                 <v-icon small color="green-darken-4" icon="mdi-chevron-up"></v-icon>
               </v-row>
               <v-row justify="end">
                 <span class="text-no-wrap">
-                  {{ item.downloaded ? formatSize(item.downloaded) : "-" }}
+                  {{ typeof item.downloaded !== "undefined" ? formatSize(item.downloaded) : "-" }}
                 </span>
                 <v-icon small color="red-darken-4" icon="mdi-chevron-down"></v-icon>
               </v-row>
@@ -119,7 +119,9 @@ function deleteSiteUserInfo(date: string) {
 
           <!-- 做种体积 -->
           <template #item.seedingSize="{ item }">
-            <span class="text-no-wrap">{{ item.seedingSize ? formatSize(item.seedingSize) : "-" }}</span>
+            <span class="text-no-wrap">
+              {{ typeof item.seedingSize !== "undefined" ? formatSize(item.seedingSize) : "-" }}
+            </span>
           </template>
 
           <!-- 魔力/积分 -->

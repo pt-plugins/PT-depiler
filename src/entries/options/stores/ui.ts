@@ -16,7 +16,7 @@ export const useUIStore = defineStore("ui", {
       MyData: {
         itemsPerPage: 20,
         columns: [
-          "site",
+          "siteUserConfig.sortIndex",
           "name",
           "levelName",
           "uploaded",
@@ -29,6 +29,7 @@ export const useUIStore = defineStore("ui", {
           "updateAt",
           "action",
         ],
+        sortBy: [{ key: "siteUserConfig.sortIndex", order: "desc" }],
       },
       SearchEntity: {
         itemsPerPage: 50,
@@ -49,10 +50,10 @@ export const useUIStore = defineStore("ui", {
       SetSite: {
         itemsPerPage: -1,
         sortBy: [
+          { key: "userConfig.sortIndex", order: "desc" },
           { key: "userConfig.isOffline", order: "asc" },
           { key: "userConfig.allowSearch", order: "desc" },
           { key: "userConfig.allowQueryUserInfo", order: "desc" },
-          { key: "userConfig.sortIndex", order: "desc" },
         ],
       },
     },

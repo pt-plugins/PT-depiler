@@ -12,7 +12,7 @@ import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import UserLevelRequirementsTd from "./UserLevelRequirementsTd.vue";
 
-import { TSiteID } from "@ptd/site";
+import { type ISiteUserConfig, IUserInfo, TSiteID } from "@ptd/site";
 
 import { formatDate, formatNumber, formatSize } from "@/options/utils.ts";
 import HistoryDataViewDialog from "@/options/views/Overview/MyData/HistoryDataViewDialog.vue";
@@ -22,7 +22,7 @@ const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 
 const fullTableHeader = [
-  { title: "站点", key: "site", align: "center", width: 90, alwaysShow: true },
+  { title: "站点", key: "siteUserConfig.sortIndex", align: "center", width: 90, alwaysShow: true },
   { title: "用户名", key: "name", align: "center", width: 90, alwaysShow: true },
   { title: "等级", key: "levelName", align: "start", width: 90 },
   { title: "数据量", key: "uploaded", align: "end" },
@@ -41,7 +41,7 @@ const tableHeader = computed(() => {
   return fullTableHeader.filter((item) => item.alwaysShow || uiStore.tableBehavior.MyData.columns!.includes(item.key));
 });
 
-const tableData = computedAsync(async () => {
+const tableData = computedAsync<Array<IUserInfo & { siteUserConfig: ISiteUserConfig }>>(async () => {
   const allSite = metadataStore.getAddedSiteIds;
   const allPrivateSiteUserInfoData = [];
   for (const site of allSite) {
@@ -49,18 +49,18 @@ const tableData = computedAsync(async () => {
     metadataStore.lastUserInfo[site]; // 使得 computedAsync 能够收集依赖以便触发数据更新
   }
 
-  for (const site of allSite) {
+  for (const [siteId, siteUserConfig] of Object.entries(metadataStore.sites)) {
+    console.log(siteId, siteUserConfig);
     // 判断之前有无个人信息，没有则从siteMetadata中根据 type = 'private' 判断是否能获取个人信息
-    let canHanSiteUserInfo = !!metadataStore.lastUserInfo[site];
+    let canHanSiteUserInfo = !!metadataStore.lastUserInfo[siteId];
     if (!canHanSiteUserInfo) {
-      const siteMeta = await metadataStore.getSiteMetadata(site);
+      const siteMeta = await metadataStore.getSiteMetadata(siteId);
       canHanSiteUserInfo = siteMeta?.type === "private";
     }
 
     if (canHanSiteUserInfo) {
-      const siteUserInfoData = metadataStore.lastUserInfo[site] ?? { site: site };
-
-      allPrivateSiteUserInfoData.push(fixUserInfo(siteUserInfoData));
+      const siteUserInfoData = metadataStore.lastUserInfo[siteId] ?? { site: siteId, siteUserConfig };
+      allPrivateSiteUserInfoData.push({ ...fixUserInfo(siteUserInfoData), siteUserConfig });
     }
   }
 
@@ -127,9 +127,16 @@ function viewHistoryData(siteId: TSiteID) {
         </v-combobox>
       </v-row>
     </v-card-title>
-    <v-data-table v-model="tableSelected" :headers="tableHeader" :items="tableData" item-value="site" show-select>
+    <v-data-table
+      v-model="tableSelected"
+      :headers="tableHeader"
+      :items="tableData"
+      item-value="site"
+      show-select
+      :sort-by="uiStore.tableBehavior.MyData.sortBy"
+    >
       <!-- 站点信息 -->
-      <template #item.site="{ item }">
+      <template #item.siteUserConfig.sortIndex="{ item }">
         <div class="d-flex flex-column align-center">
           <SiteFavicon :site-id="item.site" :size="18" />
           <SiteName :site-id="item.site" />
