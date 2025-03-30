@@ -1,5 +1,5 @@
 import { ETorrentStatus, extractContent, type ISiteMetadata } from "@ptd/site";
-import {
+import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
   CategorySpstate,
@@ -216,3 +216,17 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
+
+export default class Byrbt extends NexusPHP {
+  protected override guessSearchFieldIndexConfig(): Record<string, string[]> {
+    return {
+      author: ['a[href*="sort=9"]'], // 发布者
+      comments: ["div.icons.comments"], // 评论数
+      completed: ["div.icons.snatched"], // 完成数
+      leechers: ["div.icons.leechers"], // 下载数
+      seeders: ["div.icons.seeders"], // 种子数
+      size: ["div.icons.size"], // 大小
+      time: ["div.icons.time"], // 发布时间 （仅生成 selector， 后面会覆盖）
+    };
+  }
+}

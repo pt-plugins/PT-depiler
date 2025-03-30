@@ -298,6 +298,18 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 };
 
 export default class NexusPHP extends PrivateSite {
+  protected guessSearchFieldIndexConfig(): Record<string, string[]> {
+    return {
+      author: ['a[href*="sort=9"]'], // 发布者
+      comments: ["img.comments"], // 评论数
+      completed: ["img.snatched"], // 完成数
+      leechers: ["img.leechers"], // 下载数
+      seeders: ["img.seeders"], // 种子数
+      size: ["img.size"], // 大小
+      time: ["img.time"], // 发布时间 （仅生成 selector， 后面会覆盖）
+    } as Record<keyof ITorrent, string[]>;
+  }
+
   protected override async transformSearchPage(
     doc: Document | object | any,
     searchConfig: ISearchInput,
@@ -329,15 +341,7 @@ export default class NexusPHP extends PrivateSite {
         if (/(cat|类型|類型|分类|分類|Тип)/gi.test(element.innerText)) {
           updateSelectorField = "category";
         } else {
-          for (const [dectField, dectSelector] of Object.entries({
-            author: ['a[href*="sort=9"]'], // 发布者
-            comments: ["img.comments", "div.icons.comments"], // 评论数
-            completed: ["img.snatched", "div.icons.snatched"], // 完成数
-            leechers: ["img.leechers", "div.icons.leechers"], // 下载数
-            seeders: ["img.seeders", "div.icons.seeders"], // 种子数
-            size: ["img.size", "div.icons.size"], // 大小
-            time: ["img.time", "div.icons.time"], // 发布时间 （仅生成 selector， 后面会覆盖）
-          } as Record<keyof ITorrent, string[]>)) {
+          for (const [dectField, dectSelector] of Object.entries(this.guessSearchFieldIndexConfig())) {
             for (const dectFieldElement of dectSelector) {
               if (Sizzle(dectFieldElement, element).length > 0) {
                 updateSelectorField = dectField;
