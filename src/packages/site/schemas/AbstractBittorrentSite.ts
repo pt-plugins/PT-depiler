@@ -196,6 +196,9 @@ export default class BittorrentSite {
       } else if (e instanceof NoTorrentsError) {
         result.status = EResultParseStatus.noResults;
       } else {
+        if (import.meta.env.DEV) {
+          console.error(e);
+        }
         result.status = EResultParseStatus.parseError;
       }
     }

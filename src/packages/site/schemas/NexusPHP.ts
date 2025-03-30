@@ -245,7 +245,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [
           (query: string) => {
             query = query.replace(/,/g, "");
-            if (/(魅力值|沙粒|魔力值):?/.test(query)) {
+            if (/(魅力值|沙粒|魔力值).+?([\d.]+)/.test(query)) {
               query = query.match(/(魅力值|沙粒|魔力值).+?([\d.]+)/)![2];
               return parseFloat(query);
             } else if (/[\d.]+/.test(query)) {
@@ -330,16 +330,19 @@ export default class NexusPHP extends PrivateSite {
           updateSelectorField = "category";
         } else {
           for (const [dectField, dectSelector] of Object.entries({
-            author: 'a[href*="sort=9"]', // 发布者
-            comments: "img.comments", // 评论数
-            completed: "img.snatched", // 完成数
-            leechers: "img.leechers", // 下载数
-            seeders: "img.seeders", // 种子数
-            size: "img.size", // 大小
-            time: "img.time", // 发布时间 （仅生成 selector， 后面会覆盖）
-          } as Record<keyof ITorrent, string>)) {
-            if (Sizzle(dectSelector, element).length > 0) {
-              updateSelectorField = dectField;
+            author: ['a[href*="sort=9"]'], // 发布者
+            comments: ["img.comments", "div.icons.comments"], // 评论数
+            completed: ["img.snatched", "div.icons.snatched"], // 完成数
+            leechers: ["img.leechers", "div.icons.leechers"], // 下载数
+            seeders: ["img.seeders", "div.icons.seeders"], // 种子数
+            size: ["img.size", "div.icons.size"], // 大小
+            time: ["img.time", "div.icons.time"], // 发布时间 （仅生成 selector， 后面会覆盖）
+          } as Record<keyof ITorrent, string[]>)) {
+            for (const dectFieldElement of dectSelector) {
+              if (Sizzle(dectFieldElement, element).length > 0) {
+                updateSelectorField = dectField;
+                break;
+              }
             }
           }
         }

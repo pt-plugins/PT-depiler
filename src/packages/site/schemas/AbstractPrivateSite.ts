@@ -124,6 +124,10 @@ export default class PrivateSite extends BittorrentSite {
 
       flushUserInfo.status = EResultParseStatus.success;
     } catch (error) {
+      if (import.meta.env.DEV) {
+        console.error(error);
+      }
+
       flushUserInfo.status = EResultParseStatus.parseError;
     }
 
