@@ -402,9 +402,8 @@ export default class NexusPHP extends PrivateSite {
     const userId = flushUserInfo.id as number;
     const userSeedingRequestString = await this.requestUserSeedingPage(userId);
 
+    let seedStatus = { seeding: 0, seedingSize: 0 };
     if (userSeedingRequestString && userSeedingRequestString?.includes("<table")) {
-      let seedStatus = { seeding: 0, seedingSize: 0 };
-
       const userSeedingDocument = createDocument(userSeedingRequestString);
       const trAnothers = Sizzle("table:last tr:not(:eq(0))", userSeedingDocument);
       if (trAnothers.length > 0) {
@@ -425,11 +424,11 @@ export default class NexusPHP extends PrivateSite {
           seedStatus.seedingSize += parseSizeString(sizeSelector.innerText.trim());
         });
       }
-
-      flushUserInfo = mergeWith(flushUserInfo, seedStatus, (objValue, srcValue) => {
-        return objValue > 0 ? objValue : srcValue;
-      });
     }
+
+    flushUserInfo = mergeWith(flushUserInfo, seedStatus, (objValue, srcValue) => {
+      return typeof srcValue === "undefined" ? objValue : srcValue;
+    });
 
     return flushUserInfo;
   }
