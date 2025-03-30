@@ -1,19 +1,25 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { type IUserInfo, type TSiteID } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
 import { fixUserInfo, getFixedRatio } from "./utils.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
-import { formatNumber, formatSize } from "@/options/utils.ts";
+import { formatNumber, formatSize, formatDate } from "@/options/utils.ts";
 
 const showDialog = defineModel<boolean>();
 const props = defineProps<{
   siteId: TSiteID | null;
 }>();
+const currentDate = computed(() => formatDate(+new Date(), "yyyy-MM-dd"));
+const jsonData = ref<any>({});
 
-const siteHistoryData = ref<Array<IUserInfo & { date: string }>>([]);
+interface IShowUserInfo extends IUserInfo {
+  date: string;
+}
+
+const siteHistoryData = ref<IShowUserInfo[]>([]);
 const tableHeader = [
   { title: "日期", key: "date", align: "center" },
   { title: "用户名", key: "name", align: "center", sortable: false },
@@ -50,6 +56,12 @@ function deleteSiteUserInfo(date: string) {
       loadSiteHistoryData(props.siteId!);
     });
   }
+}
+
+const showStoreDataDialog = ref<boolean>(false);
+function viewStoreData(data: IShowUserInfo) {
+  jsonData.value = data;
+  showStoreDataDialog.value = true;
 }
 </script>
 
@@ -132,12 +144,27 @@ function deleteSiteUserInfo(date: string) {
           <!-- 操作 -->
           <template #item.action="{ item }">
             <v-btn-group variant="text">
-              <v-btn icon="mdi-delete" color="red" size="small" @click="() => deleteSiteUserInfo(item.date)"></v-btn>
+              <v-btn icon="mdi-eye" size="small" @click="() => viewStoreData(item)"></v-btn>
+              <v-btn
+                icon="mdi-delete"
+                color="red"
+                size="small"
+                :disabled="item.date == currentDate"
+                @click="() => deleteSiteUserInfo(item.date)"
+              ></v-btn>
             </v-btn-group>
           </template>
         </v-data-table>
       </v-card-text>
     </v-card>
+
+    <v-dialog v-model="showStoreDataDialog" width="800">
+      <v-card>
+        <v-card-text>
+          <pre> {{ JSON.stringify(jsonData, null, 2) }}</pre>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-dialog>
 </template>
 
