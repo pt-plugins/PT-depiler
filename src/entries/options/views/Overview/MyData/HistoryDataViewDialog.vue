@@ -16,13 +16,13 @@ const props = defineProps<{
 const siteHistoryData = ref<Array<IUserInfo & { date: string }>>([]);
 const tableHeader = [
   { title: "日期", key: "date", align: "center" },
-  { title: "用户名", key: "name", align: "center" },
-  { title: "等级", key: "levelName", align: "start" },
-  { title: "数据量", key: "uploaded", align: "end" },
-  { title: "分享率", key: "ratio", align: "end" },
-  { title: "做种数", key: "seeding", align: "end" },
-  { title: "做种体积", key: "seedingSize", align: "end" },
-  { title: "魔力/积分", key: "bonus", align: "end" },
+  { title: "用户名", key: "name", align: "center", sortable: false },
+  { title: "等级", key: "levelName", align: "start", sortable: false },
+  { title: "数据量", key: "uploaded", align: "end", sortable: false },
+  { title: "分享率", key: "ratio", align: "end", sortable: false },
+  { title: "做种数", key: "seeding", align: "end", sortable: false },
+  { title: "做种体积", key: "seedingSize", align: "end", sortable: false },
+  { title: "魔力/积分", key: "bonus", align: "end", sortable: false },
   { title: "操作", key: "action", align: "center", width: 90, sortable: false },
 ];
 
@@ -34,7 +34,7 @@ function loadSiteHistoryData(siteId: TSiteID) {
       retData.push({ ...fixUserInfo(item), date });
     }
 
-    siteHistoryData.value = retData.sort((a, b) => b.date.localeCompare(a.date));
+    siteHistoryData.value = retData;
   });
 }
 
@@ -46,8 +46,8 @@ watch(showDialog, () => {
 
 function deleteSiteUserInfo(date: string) {
   if (confirm("确定删除该条记录吗？")) {
-    sendMessage("removeSiteUserInfo", { siteId: props.siteId, date }).then(() => {
-      loadSiteHistoryData(props.siteId);
+    sendMessage("removeSiteUserInfo", { siteId: props.siteId!, date }).then(() => {
+      loadSiteHistoryData(props.siteId!);
     });
   }
 }
@@ -58,12 +58,17 @@ function deleteSiteUserInfo(date: string) {
     <v-card>
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title> 用户数据@<SiteName :site-id="props.siteId" class="" /> </v-toolbar-title>
+          <v-toolbar-title> 用户数据@<SiteName :site-id="props.siteId!" class="" /> </v-toolbar-title>
         </v-toolbar>
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <v-data-table :headers="tableHeader" :items="siteHistoryData" :items-per-page="25">
+        <v-data-table
+          :headers="tableHeader"
+          :items="siteHistoryData"
+          :items-per-page="25"
+          :sort-by="[{ key: 'date', order: 'desc' }]"
+        >
           <!-- -->
           <template #item.date="{ item }">
             <span class="text-no-wrap">{{ item.date }}</span>

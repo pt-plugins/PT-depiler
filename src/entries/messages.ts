@@ -28,7 +28,7 @@ interface ProtocolMap {
   setSiteLastUserInfo(userInfo: IUserInfo): void;
 
   getSiteUserInfo(siteId: TSiteID): Record<string, IUserInfo>;
-  removeSiteUserInfo(siteId: TSiteID, date: string): void;
+  removeSiteUserInfo(data: { siteId: TSiteID; date: string }): void;
 
   // 搜索快照相关功能
   getSearchResultSnapshotData(snapshotId: TSearchSnapshotKey): ISearchData;
