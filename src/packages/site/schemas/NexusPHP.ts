@@ -36,6 +36,22 @@ export const CategoryIncldead: ISearchCategories = {
   cross: false,
 };
 
+export const CategorySpstate: ISearchCategories = {
+  name: "促销种子？",
+  key: "spstate",
+  options: [
+    { name: "全部", value: 0 },
+    { name: "普通", value: 1 },
+    { name: "免费", value: 2 },
+    { name: "2X", value: 3 },
+    { name: "2X免费", value: 4 },
+    { name: "50%", value: 5 },
+    { name: "2X 50%", value: 6 },
+    { name: "30%", value: 7 },
+  ],
+  cross: false,
+};
+
 export const CategoryInclbookmarked: ISearchCategories = {
   name: "显示收藏？",
   key: "inclbookmarked",
