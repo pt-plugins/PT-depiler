@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { type IUserInfo, type TSiteID } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
@@ -12,7 +12,7 @@ const showDialog = defineModel<boolean>();
 const props = defineProps<{
   siteId: TSiteID | null;
 }>();
-const currentDate = computed(() => formatDate(+new Date(), "yyyy-MM-dd"));
+const currentDate = formatDate(+new Date(), "yyyy-MM-dd");
 const jsonData = ref<any>({});
 
 interface IShowUserInfo extends IUserInfo {
