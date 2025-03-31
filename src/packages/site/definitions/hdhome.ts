@@ -53,9 +53,22 @@ export const siteMetadata: ISiteMetadata = {
 
   category: [
     {
+      name: "搜索入口",
+      key: "url",
+      options: [
+        { name: "种子区", value: "/torrents.php" },
+        { name: "LIVE区", value: "/live.php" },
+      ],
+      cross: false,
+      generateRequestConfig: (selectedCategories) => {
+        const ret = { requestConfig: { url: selectedCategories, params: {} } };
+        return ret as IAdvancedSearchRequestConfig;
+      },
+    },
+    {
       name: "类别（种子区）",
       key: "cat_torrent", // 仅作为示例，实际上并没有这个 key
-      notes: "请勿与 LIVE 区类别同时选择！",
+      notes: "请先设置搜索入口为“种子区”！请勿与 LIVE 区类别同时选择！",
       options: [
         { value: 411, name: "Movies SD" },
         { value: 412, name: "Movies IPad" },
@@ -108,19 +121,12 @@ export const siteMetadata: ISiteMetadata = {
         { value: 449, name: "Anime 2160p" },
         { value: 501, name: "Anime UHD Blu-ray" },
       ],
-      cross: { mode: "custom" },
-      generateRequestConfig: (value: TSelectSearchCategoryValue): IAdvancedSearchRequestConfig => {
-        const ret = { requestConfig: { url: "/torrents.php", params: {} } };
-        (value as string[]).forEach((v) => {
-          set(ret, `requestConfig.params.cat${v}`, 1);
-        });
-        return ret as IAdvancedSearchRequestConfig;
-      },
+      cross: { mode: "append", key: "cat" },
     },
     {
       name: "类别（LIVE 区）",
       key: "cat_live", // 仅作为示例，实际上并没有这个 key
-      notes: "请勿与种子区类别同时选择！",
+      notes: "请先设置搜索入口为“LIVE区”！请勿与种子区类别同时选择！",
       options: [
         { value: 494, name: "LIVE/Movies Bluray" },
         { value: 495, name: "LIVE/Doc Bluray" },
@@ -151,14 +157,7 @@ export const siteMetadata: ISiteMetadata = {
         { value: 498, name: "LIVE/Anime Bluray" },
         { value: 493, name: "LIVE/Anime 2160p" },
       ],
-      cross: { mode: "custom" },
-      generateRequestConfig: (value: TSelectSearchCategoryValue): IAdvancedSearchRequestConfig => {
-        const ret = { requestConfig: { url: "/live.php", params: {} } };
-        (value as string[]).forEach((v) => {
-          set(ret, `requestConfig.params.cat${v}`, 1);
-        });
-        return ret as IAdvancedSearchRequestConfig;
-      },
+      cross: { mode: "append", key: "cat" },
     },
     {
       name: "来源",

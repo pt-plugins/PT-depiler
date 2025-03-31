@@ -173,10 +173,10 @@ function deleteSite(siteId: TSiteID | TSiteID[]) {
             @click="() => editSite(item.id)"
           />
 
-          <!-- 站点搜索入口编辑（只有配置了 siteMetadata.searchEntry 的站点才支持该设置） -->
+          <!-- 默认站点搜索入口编辑（只有配置了 siteMetadata.searchEntry 的站点才支持该设置） -->
           <v-btn size="small" :disabled="!item.metadata.searchEntry">
             <v-icon icon="mdi-magnify"></v-icon>
-            <v-menu activator="parent">
+            <v-menu activator="parent" :close-on-content-click="false">
               <EditSearchEntryList :item="item" />
             </v-menu>
           </v-btn>

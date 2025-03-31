@@ -2,11 +2,11 @@
 
 import type { AxiosRequestConfig } from "axios";
 import type { TSiteID, TSiteHost, TSiteUrl, TSiteFullUrl } from "./base";
-import { ILevelRequirement, IUserInfo } from "./userinfo";
 import type { ITorrent } from "./torrent";
-import { IAdvancedSearchRequestConfig, IElementQuery, ISearchCategories, ISearchConfig } from "./search";
+import type { ILevelRequirement, IUserInfo } from "./userinfo";
+import type { IElementQuery, ISearchCategories, ISearchConfig, ISearchEntryRequestConfig } from "./search";
 import type { timezoneOffset } from "../utils";
-import { type PrivateSite } from "@ptd/site";
+import type { PrivateSite } from "@ptd/site";
 
 export type SiteSchema =
   | "AbstractBittorrentSite"
@@ -89,13 +89,7 @@ export interface ISiteMetadata {
    * 1. 站点有多个搜索入口，且不同搜索入口结果不同时
    * 2. 有单次搜索多页的需求（我们不推荐这种做法，因为会导致搜索结果的不稳定性和站点的过重负担）
    */
-  searchEntry?: Record<
-    string,
-    IAdvancedSearchRequestConfig & {
-      name?: string; // 别名
-      enabled?: boolean; // 是否默认启用
-    }
-  >;
+  searchEntry?: Record<string, ISearchEntryRequestConfig>;
 
   /**
    * 种子列表页配置（用于展示插件）

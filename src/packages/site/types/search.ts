@@ -109,6 +109,11 @@ export interface IAdvancedSearchRequestConfig extends Partial<ISearchConfig> {
   merge?: boolean;
 }
 
+export interface ISearchEntryRequestConfig extends IAdvancedSearchRequestConfig {
+  name?: string; // 别名
+  enabled?: boolean; // 是否默认启用
+}
+
 export interface ISearchCategoryOptions {
   name: string;
   value: string | number;

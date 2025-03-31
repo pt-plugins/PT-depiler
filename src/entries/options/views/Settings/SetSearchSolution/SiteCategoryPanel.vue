@@ -90,7 +90,7 @@ function generateSolution() {
         }
         if (category.cross.mode === "append") {
           for (const option of field as (string | number)[]) {
-            set(entriesConfig, `${updatePath}.${fieldKey}_${option}`, 1);
+            set(entriesConfig, `${updatePath}.${fieldKey}${option}`, 1);
           }
         } else if (category.cross.mode === "appendQuote") {
           for (const option of field as (string | number)[]) {

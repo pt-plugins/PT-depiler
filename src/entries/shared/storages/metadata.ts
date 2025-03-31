@@ -1,6 +1,6 @@
-import type {
-  IAdvancedSearchRequestConfig,
+import {
   ISearchCategories,
+  ISearchEntryRequestConfig,
   ISiteUserConfig,
   IUserInfo,
   TSiteID as TSiteKey,
@@ -11,7 +11,7 @@ export interface ISearchSolution {
   id: string;
   siteId: TSiteKey;
   selectedCategories?: Record<ISearchCategories["key"], TSelectSearchCategoryValue>;
-  searchEntries: Record<string, IAdvancedSearchRequestConfig>;
+  searchEntries: Record<string, ISearchEntryRequestConfig>;
 }
 
 export type TSolutionKey = string;
