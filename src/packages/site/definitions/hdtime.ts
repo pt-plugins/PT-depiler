@@ -44,15 +44,20 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       ...SchemaMetadata.search!.selectors,
       progress: {
-        selector: ["div.progressarea"],
-        filters: [{ name: "parseNumber" }],
+        selector: ["div[title*='seeding']", "div[title*='inactivity']"],
+        attr: "title",
+        switchFilters: {
+          "div[title*='seeding']": [() => 100],
+          "div[title*='inactivity']": [{ name: "split", args: [" ", 1] }, { name: "parseNumber" }],
+        },
       },
       status: {
-        selector: ["div.progressarea"],
-        filters: [
-          // 未交待具体情况，不能准确判断时候是在下载中，所以置 unknown
-          (query: string) => (parseFloat(query) >= 100 ? ETorrentStatus.completed : ETorrentStatus.unknown),
-        ],
+        text: ETorrentStatus.unknown,
+        selector: ["table.torrentname"],
+        case: {
+          "div[title*='seeding']": ETorrentStatus.seeding,
+          "div[title*='inactivity']": ETorrentStatus.inactive,
+        },
       },
     },
   },

@@ -268,7 +268,7 @@ export default class BittorrentSite {
     let query: any = String(elementQuery.text ?? "");
 
     if (elementQuery.selector) {
-      let usedSelector: string;
+      let usedSelector: string | undefined;
       const selectors = ([] as string[]).concat(elementQuery.selector);
       for (usedSelector of selectors) {
         if (element instanceof Node) {
@@ -305,6 +305,8 @@ export default class BittorrentSite {
         if (query !== "") {
           break;
         }
+
+        usedSelector = undefined; // 在每次循环结束后，重置 usedSelector
       }
 
       if (selectors.length > 0 && elementQuery.switchFilters?.[usedSelector!]) {
