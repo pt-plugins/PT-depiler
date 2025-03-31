@@ -5,8 +5,7 @@ import {
   CategorySpstate,
   SchemaMetadata,
 } from "@ptd/site/schemas/NexusPHP.ts";
-import { ETorrentStatus, IAdvancedSearchRequestConfig, TSelectSearchCategoryValue } from "@ptd/site";
-import { set } from "es-toolkit/compat";
+import { ETorrentStatus, IAdvancedSearchRequestConfig } from "@ptd/site";
 
 // HDHOME 中的 selector.search.progress 以及 selector.search.status 被其他站公用
 export const selectorSearchProgress: IElementQuery = {
@@ -327,4 +326,79 @@ export const siteMetadata: ISiteMetadata = {
     area_torrent: { name: "种子区", requestConfig: { url: "/torrents.php" } },
     area_live: { name: "LIVE区", enabled: false, requestConfig: { url: "/live.php" } },
   },
+
+  levelRequirements: [
+    {
+      id: 1,
+      name: "Power User",
+      interval: "P5W",
+      downloaded: "256GB",
+      ratio: 2.0,
+      seedingPoints: "40000",
+      privilege: "无",
+    },
+    {
+      id: 2,
+      name: "Elite User",
+      interval: "P8W",
+      downloaded: "386GB",
+      ratio: 2.5,
+      seedingPoints: "100000",
+      privilege: "无",
+    },
+    {
+      id: 3,
+      name: "Crazy User",
+      interval: "P12W",
+      downloaded: "512GB",
+      ratio: 3.0,
+      seedingPoints: "180000",
+      privilege: "可以在做种/下载/发布的时候选择匿名模式",
+    },
+    {
+      id: 4,
+      name: "Insane User",
+      interval: "P16W",
+      downloaded: "768GB",
+      ratio: 3.5,
+      seedingPoints: "280000",
+      privilege: "无",
+    },
+    {
+      id: 5,
+      name: "Veteran User",
+      interval: "P20W",
+      downloaded: "1TB",
+      ratio: 4.0,
+      seedingPoints: "400000",
+      privilege: "可以查看其它用户的评论、帖子历史",
+    },
+    {
+      id: 6,
+      name: "Extreme User",
+      interval: "P24W",
+      downloaded: "2TB",
+      ratio: 4.5,
+      seedingPoints: "540000",
+      privilege: "得到1个邀请名额，可以更新过期的外部信息；可以查看Extreme User论坛",
+    },
+    {
+      id: 7,
+      name: "Ultimate User",
+      interval: "P30W",
+      downloaded: "8TB",
+      ratio: 5.0,
+      seedingPoints: "700000",
+      privilege: "得到1个邀请名额",
+    },
+    {
+      id: 8,
+      name: "Nexus Master",
+      interval: "P36W",
+      downloaded: "10TB",
+      ratio: 10,
+      seedingPoints: "1000000",
+      privilege: "得到1个邀请名额，账号永久保留",
+    },
+  ],
 };

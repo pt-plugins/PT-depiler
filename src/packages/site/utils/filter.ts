@@ -24,7 +24,7 @@ export const definedFilters: Record<string, TQueryFilterFn> = {
    * results: 123
    */
   querystring: (query, args) => {
-    const baseUrl = /^https?:/.test(query as string) ? "" : "http://localhost/";
+    const baseUrl = /^https?:/.test(query as string) ? undefined : "http://localhost/";
 
     const parsedQueryString = new URL(query, baseUrl).searchParams;
     for (const arg of args!) {

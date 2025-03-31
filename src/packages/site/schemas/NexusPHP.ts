@@ -267,7 +267,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 
       /**
        * 如果指定 seeding 和 seedingSize，则会尝试从 "/userdetails.php?id=$user.id$" 页面获取，
-       * 否则将使用方法 getUserSeedingStatus 进行获取
+       * 否则将使用方法 parseUserInfoForSeedingStatus 进行获取
        *
        */
       // seeding: { }
