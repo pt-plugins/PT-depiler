@@ -10,6 +10,7 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import AddDialog from "./AddDialog.vue";
 import DeleteDialog from "./DeleteDialog.vue";
 import EditDialog from "./EditDialog.vue";
+import EditSearchEntryList from "./EditSearchEntryList.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 
 const { t } = useI18n();
@@ -163,6 +164,7 @@ function deleteSite(siteId: TSiteID | TSiteID[]) {
       </template>
       <template #item.action="{ item }">
         <v-btn-group variant="plain">
+          <!-- 站点信息编辑 -->
           <v-btn
             size="small"
             icon="mdi-pencil"
@@ -170,6 +172,15 @@ function deleteSite(siteId: TSiteID | TSiteID[]) {
             color="info"
             @click="() => editSite(item.id)"
           />
+
+          <!-- 站点搜索入口编辑（只有配置了 siteMetadata.searchEntry 的站点才支持该设置） -->
+          <v-btn size="small" :disabled="!item.metadata.searchEntry">
+            <v-icon icon="mdi-magnify"></v-icon>
+            <v-menu activator="parent">
+              <EditSearchEntryList :item="item" />
+            </v-menu>
+          </v-btn>
+
           <v-btn
             size="small"
             icon="mdi-delete"

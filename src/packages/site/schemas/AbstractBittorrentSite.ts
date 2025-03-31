@@ -46,6 +46,7 @@ export default class BittorrentSite {
   constructor(metadata: ISiteMetadata, userConfig: ISiteUserConfig = {}) {
     this.metadata = toMerged(metadata, userConfig.merge ?? {});
     this.userConfig = userConfig;
+    console?.log(`[Site] ${this.name} Initialized with Metadata: `, this.metadata, "UserConfig: ", this.userConfig);
   }
 
   get name(): string {
@@ -119,6 +120,7 @@ export default class BittorrentSite {
     keywords?: string,
     searchEntry: IAdvancedSearchRequestConfig = {},
   ): Promise<ISearchResult> {
+    console?.log(`[Site] ${this.name} start search with keywords:`, keywords, "input searchEntry:", searchEntry);
     const result: ISearchResult = {
       data: [],
       status: EResultParseStatus.unknownError,
@@ -136,6 +138,15 @@ export default class BittorrentSite {
     } else {
       searchEntry = searchEntry ?? this.metadata.search!;
     }
+
+    // 检查该搜索入口是否设置为禁用
+    // noinspection PointlessBooleanExpressionJS
+    if ((searchEntry as IAdvancedSearchRequestConfig & { enabled?: boolean }).enabled === false) {
+      result.status = EResultParseStatus.passParse;
+      return result;
+    }
+
+    console?.log(`[Site] ${this.name} start search with merged searchEntry:`, searchEntry);
 
     // 2. 生成对应站点的基础 requestConfig
     let requestConfig: AxiosRequestConfig = toMerged(
@@ -184,6 +195,8 @@ export default class BittorrentSite {
     if (typeof searchEntry.requestConfigTransformer === "function") {
       requestConfig = searchEntry.requestConfigTransformer({ keywords, searchEntry, requestConfig });
     }
+
+    console?.log(`[Site] ${this.name} start search with requestConfig:`, requestConfig);
 
     // 7. 请求页面并转化为document
     try {

@@ -48,11 +48,15 @@ export const useMetadataStore = defineStore("metadata", {
         const addedSiteIds = Object.keys(state.sites);
         for (const siteId of addedSiteIds) {
           const siteMetadata = await getDefinedSiteMetadata(siteId);
-          solutions.push({
-            id: "default",
-            siteId,
-            searchEntries: siteMetadata.searchEntry ?? { default: {} },
-          });
+
+          let searchEntries = siteMetadata.searchEntry ?? { default: {} };
+          for (const [key, value] of Object.entries(state.sites[siteId]?.merge?.searchEntry ?? {})) {
+            if (searchEntries[key] && typeof value.enabled === "boolean") {
+              searchEntries[key] = { ...searchEntries[key], enabled: value.enabled };
+            }
+          }
+
+          solutions.push({ id: "default", siteId, searchEntries });
         }
 
         return { name: "default", id: "default", sort: 0, enabled: true, createdAt: 0, solutions };

@@ -174,6 +174,9 @@ export interface ISearchCategories {
          * | comma | {key}={v1},{v2} | { key: `${v1},${v2}` } |
          * | append | {key}{v1}=1&{key}{v2}=1 | { `${key}${v1}`: 1, `${key}${v2}`: 1 } |
          * | appendQuote | {key}[{v1}]=1&{key}[{v2}]=1 | { `${key}[${v1}]`: 1, `${key}[${v2}]`: 1 } |
+         *
+         * 注意：
+         *  custom 仅为一个占位符，并没有实际的实现，需要在 generateRequestConfig 中自行实现
          */
         mode?: "brackets" | "comma" | "append" | "appendQuote" | "custom";
         key?: string; // 当内部交叉时，params与已定义的 key 不一致时使用

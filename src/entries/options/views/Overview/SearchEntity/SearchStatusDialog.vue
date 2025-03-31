@@ -53,8 +53,8 @@ function getSearchSolution(planKey: string, entryName: string) {
             <v-list-item-title>
               <SiteName :site-id="searchPlan.siteId" :class="['text-decoration-none', 'text-black']" />
               ->
-              <span v-if="searchPlan.searchEntryName === 'default'">
-                {{ searchPlan.searchEntryName }}
+              <span v-if="runtimeStore.search.searchPlanKey === 'default'">
+                {{ searchPlan.searchEntry.name ?? searchPlan.searchEntryName }}
               </span>
               <span v-else>
                 <SolutionDetail
