@@ -31,8 +31,20 @@ export const formValidateRules: Record<string, (args?: any) => (v: any) => boole
   },
 };
 
-export const formatSize = (size: number, options?: FileSizeOptions) => filesize(size, { base: 2, ...(options ?? {}) });
-export const formatDate = (date: number, format: string = "yyyy-MM-dd HH:mm:ss") => dateFormat(date, format);
+export const formatSize = (size: number, options?: FileSizeOptions) => {
+  try {
+    return filesize(size, { base: 2, ...(options ?? {}) });
+  } catch (e) {
+    return size;
+  }
+};
+export const formatDate = (date: number, format: string = "yyyy-MM-dd HH:mm:ss") => {
+  try {
+    return dateFormat(date, format);
+  } catch (e) {
+    return date;
+  }
+};
 export const formatNumber = (
   num: number,
   options: Intl.NumberFormatOptions = { maximumFractionDigits: 2, minimumFractionDigits: 2 },
