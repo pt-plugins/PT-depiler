@@ -139,6 +139,7 @@ function generateSolution() {
             </v-expansion-panel-title>
             <v-expansion-panel-text>
               <v-container class="pa-0">
+                <!-- 如果该类别支持多选，则显示全选按钮 -->
                 <v-row v-if="category.cross?.mode" no-gutters>
                   <v-col cols="12">
                     <v-checkbox
@@ -159,8 +160,17 @@ function generateSolution() {
                   </v-col>
                 </v-row>
                 <v-row no-gutters>
+                  <!-- 多选类别选项 -->
                   <template v-if="category.cross?.mode">
-                    <v-col v-for="options in category.options" :key="options.value" cols="4">
+                    <v-col
+                      v-for="options in category.options"
+                      :key="options.value"
+                      lg="2"
+                      md="4"
+                      sm="6"
+                      cols="12"
+                      class="py-0"
+                    >
                       <v-checkbox
                         v-model="selectCategory[category.key]"
                         :value="options.value"
@@ -169,6 +179,7 @@ function generateSolution() {
                       />
                     </v-col>
                   </template>
+                  <!-- 单选类别选项 -->
                   <template v-else>
                     <v-radio-group
                       v-model="selectCategory[category.key]"
@@ -176,13 +187,13 @@ function generateSolution() {
                       hide-details
                       inline
                     >
-                      <v-radio :value="radioDefault" :label="'default'"></v-radio>
-                      <v-radio
-                        v-for="options in category.options"
-                        :key="options.value"
-                        :value="options.value"
-                        :label="options.name"
-                      />
+                      <!-- 增加一个代表默认的值，说明该类别什么都不选（尊重站点默认）。（不然的话，只能全部重置才能取消选择） -->
+                      <v-col lg="2" md="4" sm="6" cols="12" class="py-0">
+                        <v-radio :value="radioDefault" :label="'default'"></v-radio>
+                      </v-col>
+                      <v-col v-for="options in category.options" lg="2" md="4" sm="6" cols="12" class="py-0">
+                        <v-radio :key="options.value" :value="options.value" :label="options.name" />
+                      </v-col>
                     </v-radio-group>
                   </template>
                 </v-row>

@@ -1,5 +1,4 @@
 import {
-  createDocument,
   ETorrentStatus,
   IAdvancedSearchRequestConfig,
   ISiteMetadata,
