@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { type TSiteID } from "@ptd/site";
 
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 import { useUIStore } from "@/options/stores/ui.ts";
@@ -77,6 +77,17 @@ function deleteSite(siteId: TSiteID | TSiteID[]) {
   toDeleteIds.value = Array.isArray(siteId) ? siteId : [siteId];
   showDeleteDialog.value = true;
 }
+
+watch(toDeleteIds, (newVal, oldValue) => {
+  if (newVal.length === 0 && oldValue.length > 0) {
+    for (const id of oldValue) {
+      const index = tableSelected.value.indexOf(id);
+      if (index !== -1) {
+        tableSelected.value.splice(index, 1);
+      }
+    }
+  }
+});
 </script>
 
 <template>

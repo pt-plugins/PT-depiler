@@ -178,32 +178,32 @@ export const useMetadataStore = defineStore("metadata", {
     },
   },
   actions: {
-    addSite(siteId: TSiteID, siteConfig: ISiteUserConfig) {
+    async addSite(siteId: TSiteID, siteConfig: ISiteUserConfig) {
       delete siteConfig.valid;
       this.sites[siteId] = siteConfig;
-      this.$save();
+      await this.$save();
     },
-    removeSite(siteId: TSiteID) {
+    async removeSite(siteId: TSiteID) {
       delete this.sites[siteId];
-      this.$save();
+      await this.$save();
     },
-    updateSite(siteId: TSiteID, siteConfig: ISiteUserConfig) {
+    async updateSite(siteId: TSiteID, siteConfig: ISiteUserConfig) {
       delete siteConfig.valid;
       this.sites[siteId] = siteConfig;
-      this.$save();
+      await this.$save();
     },
 
-    simplePatchSite<T extends keyof ISiteUserConfig>(siteId: TSiteID, key: T, value: ISiteUserConfig[T]) {
+    async simplePatchSite<T extends keyof ISiteUserConfig>(siteId: TSiteID, key: T, value: ISiteUserConfig[T]) {
       set(this.sites[siteId], key, value);
-      this.$save();
+      await this.$save();
     },
 
-    addSearchSolution(solution: ISearchSolutionMetadata) {
+    async addSearchSolution(solution: ISearchSolutionMetadata) {
       this.solutions[solution.id] = solution;
-      this.$save();
+      await this.$save();
     },
 
-    removeSearchSolution(solutionId: TSolutionKey) {
+    async removeSearchSolution(solutionId: TSolutionKey) {
       delete this.solutions[solutionId];
       this.$save();
     },
@@ -228,18 +228,18 @@ export const useMetadataStore = defineStore("metadata", {
       // 保存搜索快照数据
       await sendMessage("saveSearchResultSnapshotData", { snapshotId, data: searchSnapshotData });
 
-      this.$save();
+      await this.$save();
     },
 
     async editSearchSnapshotDataName(id: TSearchSnapshotKey, name: string) {
       this.snapshots[id].name = name;
-      this.$save();
+      await this.$save();
     },
 
     async removeSearchSnapshotData(id: TSearchSnapshotKey) {
       delete this.snapshots[id]; // 删除搜索快照元数据
       await sendMessage("removeSearchResultSnapshotData", id); // 删除搜索快照数据
-      this.$save();
+      await this.$save();
     },
   },
 });

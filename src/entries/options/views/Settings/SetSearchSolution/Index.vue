@@ -47,6 +47,17 @@ function deleteSearchSolution(solutionId: TSolutionKey | TSolutionKey[]) {
   showDeleteDialog.value = true;
 }
 
+watch(toDeleteIds, (newVal, oldValue) => {
+  if (newVal.length === 0 && oldValue.length > 0) {
+    for (const id of oldValue) {
+      const index = tableSelected.value.indexOf(id);
+      if (index !== -1) {
+        tableSelected.value.splice(index, 1);
+      }
+    }
+  }
+});
+
 function simplePatchSearchSolution(solutionId: TSolutionKey, value: boolean) {
   metadataStore.solutions[solutionId].enabled = value;
   metadataStore.$save();

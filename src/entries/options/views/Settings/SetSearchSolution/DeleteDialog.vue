@@ -4,11 +4,11 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 const showDialog = defineModel<boolean>();
 const toDeleteIds = defineModel<string[]>("toDeleteIds");
 
-function removeSolutions() {
+async function removeSolutions() {
   const metadataStore = useMetadataStore();
 
-  for (const toDeleteId of toDeleteIds.value) {
-    metadataStore.removeSearchSolution(toDeleteId);
+  for (const toDeleteId of toDeleteIds.value!) {
+    await metadataStore.removeSearchSolution(toDeleteId);
   }
   showDialog.value = false;
   toDeleteIds.value = [];
@@ -23,7 +23,7 @@ function removeSolutions() {
       </v-card-title>
 
       <v-card-text>
-        {{ $t("setSearchSolution.delete.text", [toDeleteIds.length]) }}
+        {{ $t("setSearchSolution.delete.text", [toDeleteIds!.length]) }}
       </v-card-text>
 
       <v-card-actions>

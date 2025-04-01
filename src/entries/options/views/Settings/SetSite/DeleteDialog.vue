@@ -4,11 +4,11 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 const showDialog = defineModel<boolean>();
 const toDeleteIds = defineModel<string[]>("toDeleteIds");
 
-function removeSites() {
+async function removeSites() {
   const metadataStore = useMetadataStore();
 
   for (const toDeleteId of toDeleteIds.value!) {
-    metadataStore.removeSite(toDeleteId);
+    await metadataStore.removeSite(toDeleteId);
   }
   showDialog.value = false;
   toDeleteIds.value = [];
