@@ -44,6 +44,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["https://open.cd/", "https://www.open.cd/"],
+  favicon: "./opencd.ico",
 
   category: [
     {

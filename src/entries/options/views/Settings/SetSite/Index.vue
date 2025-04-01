@@ -12,6 +12,7 @@ import DeleteDialog from "./DeleteDialog.vue";
 import EditDialog from "./EditDialog.vue";
 import EditSearchEntryList from "./EditSearchEntryList.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
+import { getSiteFavicon } from "@/shared/adapters/site.ts";
 
 const { t } = useI18n();
 const uiStore = useUIStore();
@@ -88,6 +89,14 @@ watch(toDeleteIds, (newVal, oldValue) => {
     }
   }
 });
+
+const isFaviconFlushing = ref(false);
+async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
+  const siteIds = Array.isArray(siteId) ? siteId : [siteId];
+  for (const id of siteIds) {
+    await getSiteFavicon(id, true);
+  }
+}
 </script>
 
 <template>
@@ -99,14 +108,25 @@ watch(toDeleteIds, (newVal, oldValue) => {
           {{ $t("common.btn.add") }}
         </v-btn>
         <v-btn
-          :disabled="tableSelected.length === 0"
           color="error"
           prepend-icon="mdi-minus"
+          :disabled="tableSelected.length === 0"
           @click="deleteSite(tableSelected)"
         >
           {{ $t("common.remove") }}
         </v-btn>
         <v-divider class="mx-3" inset vertical />
+        <v-btn-group size="small" variant="text" density="compact">
+          <v-btn
+            icon="mdi-face-recognition"
+            color="indigo"
+            :loading="isFaviconFlushing"
+            :disabled="tableSelected.length === 0"
+            title="刷新站点图标"
+            @click="() => flushSiteFavicon(tableSelected)"
+          ></v-btn>
+        </v-btn-group>
+
         <!-- TODO 一键导入站点 -->
         <v-spacer />
         <v-text-field
@@ -191,6 +211,15 @@ watch(toDeleteIds, (newVal, oldValue) => {
               <EditSearchEntryList :item="item" />
             </v-menu>
           </v-btn>
+
+          <v-btn
+            size="small"
+            icon="mdi-face-recognition"
+            :loading="isFaviconFlushing"
+            color="indigo"
+            title="刷新站点图标"
+            @click="() => flushSiteFavicon(item.id)"
+          ></v-btn>
 
           <v-btn
             size="small"
