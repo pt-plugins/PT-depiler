@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { refDebounced } from "@vueuse/core";
 import { useRouter } from "vue-router";
 
@@ -48,7 +48,7 @@ function deleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey | TSearchSnap
   showDeleteDialog.value = true;
 }
 
-watch(toDeleteIds, (newVal, oldValue) => {)
+watch(toDeleteIds, (newVal, oldValue) => {
   if (newVal.length === 0 && oldValue.length > 0) {
     for (const id of oldValue) {
       const index = tableSelected.value.indexOf(id);
