@@ -2,23 +2,23 @@
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { refDebounced } from "@vueuse/core";
-import { UseElementSize } from "@vueuse/components";
 import { type ISearchResultTorrent } from "@/shared/storages/runtime.ts";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useUIStore } from "@/options/stores/ui.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
-import SiteName from "@/options/components/SiteName.vue";
-import SiteFavicon from "@/options/components/SiteFavicon.vue";
-import ActionTd from "./ActionTd.vue";
-import SearchStatusDialog from "./SearchStatusDialog.vue";
-import SaveSnapshotDialog from "./SaveSnapshotDialog.vue";
-import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
-
 import { log } from "~/helper.ts";
 import { formatDate, formatSize } from "@/options/utils.ts";
 import { doSearch, searchQueue, tableCustomFilter } from "./utils.ts"; // <-- 主要方法在这个文件中！！！
+
+import SiteName from "@/options/components/SiteName.vue";
+import SiteFavicon from "@/options/components/SiteFavicon.vue";
+import ActionTd from "./ActionTd.vue";
+import TorrentTitleTd from "./TorrentTitleTd.vue";
+import SearchStatusDialog from "./SearchStatusDialog.vue";
+import SaveSnapshotDialog from "./SaveSnapshotDialog.vue";
+import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
 
 const route = useRoute();
 const uiStore = useUIStore();
@@ -240,38 +240,7 @@ function cancelSearchQueue() {
 
       <!-- 主标题，副标题，优惠及标签 -->
       <template #item.title="{ item }">
-        <use-element-size v-slot="{ width }">
-          <v-container class="t_main">
-            <v-row>
-              <a
-                :href="item.url"
-                class="t_title text-decoration-none text-subtitle-1 text-black text-truncate"
-                :title="item.title"
-                target="_blank"
-                rel="noopener noreferrer nofollow"
-              >
-                {{ item.title }}
-              </a>
-            </v-row>
-            <v-row>
-              <v-chip v-for="tag in item.tags" label size="x-small" class="mr-1" :color="tag.color">
-                {{ tag.name }}
-              </v-chip>
-
-              <span
-                v-if="item.subTitle"
-                class="t_subTitle text-grey text-truncate"
-                :title="item.subTitle"
-                :style="{
-                  // 防止标签导致的副标题溢出，这里假定每个 tag 的 width 为 40px 并额外增加 40px （用于消除 padding）
-                  'max-width': item.tags ? `${width - 40 * (item.tags.length + 1)}px` : false,
-                }"
-              >
-                {{ item.subTitle }}
-              </span>
-            </v-row>
-          </v-container>
-        </use-element-size>
+        <TorrentTitleTd :item="item" />
       </template>
 
       <!-- 种子大小 -->
