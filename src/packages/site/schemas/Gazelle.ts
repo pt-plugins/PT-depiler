@@ -59,7 +59,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           },
           responseType: "document",
         },
-        assertion: { id: "id" },
+        assertion: { id: "params.id" },
         fields: [
           "uploaded",
           "downloaded",

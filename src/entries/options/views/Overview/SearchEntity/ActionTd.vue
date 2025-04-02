@@ -46,7 +46,6 @@ async function copyTorrentDownloadLink() {
     runtimeStore.showSnakebar("复制下载链接失败", { color: "error" });
   }
 
-  // TODO 增加 snake bar 提示
   copyTorrentDownloadLinkBtnStatus.value = false;
 }
 
