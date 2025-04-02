@@ -34,12 +34,18 @@ const copyTorrentDownloadLinkBtnStatus = ref(false);
 async function copyTorrentDownloadLink() {
   copyTorrentDownloadLinkBtnStatus.value = true;
   const downloadUrls = await getTorrentDownloadLinks();
-  await navigator.clipboard.writeText(
-    downloadUrls
-      .map((x) => x.downloadUrl)
-      .join("\n")
-      .trim(),
-  );
+  try {
+    await navigator.clipboard.writeText(
+      downloadUrls
+        .map((x) => x.downloadUrl)
+        .join("\n")
+        .trim(),
+    );
+    runtimeStore.showSnakebar("下载链接已复制到剪贴板", { color: "success" });
+  } catch (e) {
+    runtimeStore.showSnakebar("复制下载链接失败", { color: "error" });
+  }
+
   // TODO 增加 snake bar 提示
   copyTorrentDownloadLinkBtnStatus.value = false;
 }

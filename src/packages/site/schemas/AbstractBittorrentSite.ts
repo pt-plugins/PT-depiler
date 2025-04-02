@@ -514,7 +514,7 @@ export default class BittorrentSite {
   async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
     if (!torrent.link && this.metadata?.detail?.selectors?.link) {
       const { data } = await this.request<any>(
-        toMerged({ responseType: "document", url: torrent.url }, this.metadata.detail?.requestConfig!),
+        toMerged({ responseType: "document", url: torrent.url }, this.metadata.detail?.requestConfig ?? {}),
       );
       return this.getFieldData(data, this.metadata.detail.selectors.link);
     }

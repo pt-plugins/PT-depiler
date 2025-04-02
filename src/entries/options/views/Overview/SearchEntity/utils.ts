@@ -85,10 +85,11 @@ export function tableCustomFilter(value: any, query: string, item: any) {
 }
 
 const runtimeStore = useRuntimeStore();
-export const searchQueue = new PQueue({ concurrency: 1 }); // FIXME Use settingStore
+export const searchQueue = new PQueue({ concurrency: 1 }); // 默认设置为 1，避免并发搜索
 
 searchQueue.on("active", () => {
   runtimeStore.search.isSearching = true;
+  // FIXME 启动后，根据 uiStore 的值，自动更新 searchQueue 的并发数
 });
 
 searchQueue.on("empty", () => {

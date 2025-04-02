@@ -156,6 +156,14 @@ export const definedFilters: Record<string, TQueryFilterFn> = {
   parseTTL: parseTimeToLive,
 
   // TODO parseFuzzyTime with wanasit/chrono
+  extDoubanId: (query) => {
+    const doubanUrlMatch = query.match(/(?:https?:\/\/)?(?:(?:movie|www)\.)?douban\.com\/(?:subject|movie)\/(\d+)\/?/);
+    if (doubanUrlMatch) {
+      return doubanUrlMatch[1];
+    }
+
+    return query;
+  },
 
   extImdbId: (query) => {
     // Extract the IMDb ID from the URL.
