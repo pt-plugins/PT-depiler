@@ -105,7 +105,11 @@ function saveSolutionState() {
               <v-text-field append-inner-icon="mdi-magnify" prepend-icon="mdi-sitemap" />
 
               <v-expansion-panels>
-                <v-expansion-panel v-for="site in metadataStore.getAddedSiteIds" :id="site">
+                <v-expansion-panel
+                  v-for="site in metadataStore.getAddedSiteIds"
+                  :disabled="!!metadataStore.sites[site].isOffline || !metadataStore.sites[site].allowSearch"
+                  :id="site"
+                >
                   <v-expansion-panel-title>
                     <SiteFavicon :site-id="site" class="mr-2" inline />
 
