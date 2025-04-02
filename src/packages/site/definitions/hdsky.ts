@@ -236,6 +236,73 @@ export const siteMetadata: ISiteMetadata = {
       method: "POST",
     },
   },
+
+  levelRequirements: [
+    {
+      id: 1,
+      name: "Power User",
+      interval: "P5W",
+      downloaded: "200GB",
+      ratio: 2.0,
+      privilege: "NFO文档；请求续种；查看其它用户的种子历史；删除自己上传的字幕",
+    },
+    {
+      id: 2,
+      name: "Elite User",
+      interval: "P10W",
+      downloaded: "500GB",
+      ratio: 2.5,
+      privilege: "查看邀请区",
+    },
+    {
+      id: 3,
+      name: "Crazy User",
+      interval: "P15W",
+      downloaded: "1TB",
+      ratio: 3.0,
+      privilege: "在做种/下载/发布的时候选择匿名模式",
+    },
+    {
+      id: 4,
+      name: "Insane User",
+      interval: "P20W",
+      downloaded: "2TB",
+      ratio: 3.5,
+      privilege: "查看普通日志",
+    },
+    {
+      id: 5,
+      name: "Veteran User",
+      interval: "P25W",
+      downloaded: "4TB",
+      ratio: 4.0,
+      privilege: "封存账号后不会被删除；查看其它用户的评论、帖子历史",
+    },
+    {
+      id: 6,
+      name: "Extreme User",
+      interval: "P30W",
+      downloaded: "6TB",
+      ratio: 4.5,
+      privilege: "更新过期的外部信息；查看Extreme User论坛",
+    },
+    {
+      id: 7,
+      name: "Ultimate User",
+      interval: "P45W",
+      downloaded: "8TB",
+      ratio: 5.0,
+      privilege: "永远保留账号",
+    },
+    {
+      id: 8,
+      name: "Nexus Master",
+      interval: "P65W",
+      downloaded: "10TB",
+      ratio: 5.5,
+      privilege: "直接发布种子；可以查看排行榜；在网站开放邀请期间发送邀请",
+    },
+  ],
 };
 
 export default class Hdsky extends NexusPHP {
@@ -250,7 +317,7 @@ export default class Hdsky extends NexusPHP {
       if (currentTimestamp < expiredTimestamp) {
         return torrent.link;
       } else {
-        delete torrent.link;
+        delete torrent.link; // 删除过期链接属性，以便重新获取
       }
     }
 
