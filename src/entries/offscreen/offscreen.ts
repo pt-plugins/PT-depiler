@@ -1,7 +1,7 @@
 import { getSiteInstance } from "../shared/adapters/site.ts";
 import { onMessage, sendMessage } from "@/messages.ts";
 import { getRemoteTorrentFile } from "@ptd/downloader";
-import { type ITorrent, type IUserInfo } from "@ptd/site";
+import { EResultParseStatus, type ITorrent, type IUserInfo } from "@ptd/site";
 import { IMetadataPiniaStorageSchema } from "@/shared/storages/metadata.ts";
 
 onMessage("getSiteSearchResult", async ({ data: { siteId, keyword = "", searchEntry = {} } }) => {
@@ -14,8 +14,12 @@ onMessage("getSiteUserInfoResult", async ({ data: siteId }) => {
 
   // 获取历史信息
   const metadataStoreRaw = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
+  let lastUserInfo = metadataStoreRaw?.lastUserInfo?.[siteId as string] ?? {};
+  if ((lastUserInfo as IUserInfo).status !== EResultParseStatus.success) {
+    lastUserInfo = {} as IUserInfo;
+  }
 
-  const userInfo = await site.getUserInfoResult(metadataStoreRaw?.lastUserInfo?.[siteId as string] ?? {});
+  let userInfo = await site.getUserInfoResult(lastUserInfo);
   await sendMessage("setSiteLastUserInfo", userInfo as IUserInfo);
   return userInfo;
 });

@@ -1,4 +1,4 @@
-import { ISiteMetadata } from "@ptd/site";
+import type { ISiteMetadata } from "@ptd/site";
 import {
   CategoryInclbookmarked,
   CategoryIncldead,
