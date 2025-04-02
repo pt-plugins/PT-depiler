@@ -15,7 +15,7 @@ import {
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
 
-  version: 1,
+  version: 2,
   id: "hddolby",
   name: "HD Dolby",
   description: "高清杜比",
@@ -171,6 +171,9 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.search!,
     selectors: {
       ...SchemaMetadata.search!.selectors!,
+      subTitle: {
+        selector: ["td:has(a[href*='hit'][title]) > span:last"],
+      },
       progress: selectorSearchProgress,
       status: selectorSearchStatus,
       tags: [...SchemaMetadata.search!.selectors!.tags!, ...allTagSelectors],
