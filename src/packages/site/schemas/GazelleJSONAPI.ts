@@ -1,5 +1,5 @@
 import type { AxiosResponse } from "axios";
-import { IUserInfo, ITorrent, ISiteMetadata, EResultParseStatus } from "../types";
+import { IUserInfo, ITorrent, ISiteMetadata, EResultParseStatus, ISearchInput } from "../types";
 import PrivateSite from "./AbstractPrivateSite";
 import { parseSizeString, parseTimeWithZone } from "../utils";
 import Sizzle from "sizzle";
@@ -342,7 +342,10 @@ export default class GazelleJSONAPI extends PrivateSite {
     } as ITorrent;
   }
 
-  protected override async transformSearchPage(doc: browseJsonResponse | any): Promise<ITorrent[]> {
+  protected override async transformSearchPage(
+    doc: browseJsonResponse | any,
+    searchConfig: ISearchInput,
+  ): Promise<ITorrent[]> {
     const torrents: ITorrent[] = [];
 
     if (doc.status === "success") {
@@ -371,7 +374,7 @@ export default class GazelleJSONAPI extends PrivateSite {
       site: this.metadata.id,
     };
 
-    if (!this.allowQueryUserInfo || !this.metadata.userInfo?.process) {
+    if (!this.allowQueryUserInfo) {
       flushUserInfo.status = EResultParseStatus.passParse;
       return flushUserInfo;
     }
@@ -428,8 +431,8 @@ export default class GazelleJSONAPI extends PrivateSite {
       userSeedingTorrent.seedingSize! += parseSizeString((element as HTMLElement).innerText.trim());
     });
 
-    if (this.userConfig.selectors?.bonus) {
-      userSeedingTorrent.bonus = this.getFieldData(seedPage, this.userConfig.userInfo.selectors.bonus);
+    if (this.metadata.userInfo?.selectors?.bonus) {
+      userSeedingTorrent.bonus = this.getFieldData(seedPage, this.metadata.userInfo.selectors.bonus);
     }
 
     return userSeedingTorrent;
