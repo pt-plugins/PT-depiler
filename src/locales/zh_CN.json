@@ -119,5 +119,107 @@
       "selectAllNotice": "（注意：在大多数情况下，你并不需要全选所有搜索项！）",
       "title": "配置站点默认搜索模式 - {name}"
     }
+  },
+  "setDownloader": {
+    "add": {
+      "NoneSelectNotice": "请选择一个服务器类型",
+      "newType": "找不到想要的服务器类型？来这里添加吧！",
+      "step": {
+        "selectType": "选择服务器类型",
+        "setOptions": "详细配置"
+      },
+      "title": "新增下载服务器"
+    },
+    "common": {
+      "address": "服务器地址",
+      "name": "服务器名称",
+      "type": "类型",
+      "uid": "服务器ID",
+      "username": "用户名"
+    },
+    "delete": {
+      "text": "确认删除这 {0} 个下载服务器吗？"
+    },
+    "edit": {
+      "title": "编辑下载服务器"
+    },
+    "editor": {
+      "addressTip": "完整的服务器地址（含端口），如：http://192.168.1.1:5000/",
+      "autoStart": "发送种子时自动开始下载",
+      "connect": {
+        "default": "检查连接性",
+        "error": "连接失败！请检查填写的信息或者你的下载服务器。",
+        "success": "连接成功，你可以顺利进行下一步。"
+      },
+      "nameTip": "取一个好听又好分辨的名称",
+      "password": "密码",
+      "timeout": "超时时长（秒）",
+      "uidPlaceholder": "（自动生成）"
+    },
+    "index": {
+      "changeDefaultDownloader": "更新默认下载服务器成功！",
+      "emptyNotice": "在使用推送服务之前，您至少需要添加一个下载服务器。",
+      "remove": {
+        "multi": "你确定删除这{count}个下载服务器吗？",
+        "single": "确认要删除这个下载服务器吗？"
+      },
+      "table": {
+        "action": {
+          "deleteDownloader": "删除该下载服务器",
+          "setDefault": "设置为默认下载服务器"
+        }
+      }
+    },
+    "setDownloader": {
+      "add": {
+        "NoneSelectNotice": "Please select a server type",
+        "newType": "Come here to add the server type you want!",
+        "step": {
+          "selectType": "Select server type",
+          "setOptions": "Configuration"
+        },
+        "title": "Add Download Client"
+      },
+      "common": {
+        "address": "Server Address",
+        "name": "Server Name",
+        "type": "Type",
+        "uid": "Server Id",
+        "username": "Username"
+      },
+      "delete": {
+        "text": "Are you sure to delete these {0} Download Servers?"
+      },
+      "edit": {
+        "title": "Edit Download Server"
+      },
+      "editor": {
+        "addressTip": "Full Server Address (may include port or path), Like: http://192.168.1.1:5000/",
+        "autoStart": "Automatically start downloading when sending a torrent",
+        "connect": {
+          "default": "Check Connect",
+          "error": "Connect Failed! Check Form Input or Download Server",
+          "success": "Connect Successful! You can enter next step."
+        },
+        "nameTip": "Pick a nice and recognizable name for this Download Server",
+        "password": "Password",
+        "timeout": "Timeout (seconds)",
+        "uidPlaceholder": " (Generate automatically)"
+      },
+      "index": {
+        "changeDefaultDownloader": "Change Default Downloader Successful!",
+        "emptyNotice": "Before using the download service, you need to add at least one download server.",
+        "remove": {
+          "multi": "Are you sure to delete these {count} download servers?",
+          "single": "Are you sure to delete this download server?"
+        },
+        "table": {
+          "action": {
+            "deleteDownloader": "Delete this downloader server",
+            "setDefault": "Set this downloader server as Default Downloader."
+          }
+        }
+      }
+    }
   }
 }

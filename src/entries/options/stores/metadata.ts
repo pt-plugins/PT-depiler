@@ -6,8 +6,16 @@ import type {
   TSearchSnapshotKey,
   ISearchSolution,
   TSolutionKey,
+  IDownloaderMetadata,
+  TDownloaderKey,
 } from "@/shared/storages/metadata.ts";
-import { getDefinedSiteMetadata, ISearchCategories, ISiteMetadata, ISiteUserConfig, TSiteID } from "@ptd/site";
+import {
+  getDefinedSiteMetadata,
+  type ISearchCategories,
+  type ISiteMetadata,
+  type ISiteUserConfig,
+  type TSiteID,
+} from "@ptd/site";
 import { isEmpty, set } from "es-toolkit/compat";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -28,50 +36,8 @@ export const useMetadataStore = defineStore("metadata", {
       return Object.keys(state.sites);
     },
 
-    getSearchSolutionName(state) {
-      return (solutionId: TSolutionKey): string => {
-        if (solutionId === "default") {
-          return "默认"; // FIXME i18n
-        }
-
-        return state.solutions[solutionId]?.name ?? solutionId;
-      };
-    },
-
-    getSearchSolutions(state) {
-      return Object.values(state.solutions);
-    },
-
-    getDefaultSearchSolution(state) {
-      return async () => {
-        const solutions: ISearchSolution[] = [];
-
-        const addedSiteIds = Object.keys(state.sites);
-        for (const siteId of addedSiteIds) {
-          const siteMetadata = await getDefinedSiteMetadata(siteId);
-
-          let searchEntries = siteMetadata.searchEntry ?? { default: {} };
-          for (const [key, value] of Object.entries(state.sites[siteId]?.merge?.searchEntry ?? {})) {
-            if (searchEntries[key] && typeof value.enabled === "boolean") {
-              searchEntries[key] = { ...searchEntries[key], enabled: value.enabled };
-            }
-          }
-
-          solutions.push({ id: "default", siteId, searchEntries });
-        }
-
-        return { name: "default", id: "default", sort: 0, enabled: true, createdAt: 0, solutions };
-      };
-    },
-
-    getSearchSolution(state) {
-      return async (solutionId: TSolutionKey | "default"): Promise<ISearchSolutionMetadata> => {
-        if (solutionId === "default") {
-          return await this.getDefaultSearchSolution();
-        } else {
-          return state.solutions[solutionId];
-        }
-      };
+    getAddedSites(state) {
+      return Object.values(state.sites);
     },
 
     getSiteMetadata(state) {
@@ -161,6 +127,56 @@ export const useMetadataStore = defineStore("metadata", {
       };
     },
 
+    getSearchSolutionName(state) {
+      return (solutionId: TSolutionKey): string => {
+        if (solutionId === "default") {
+          return "默认"; // FIXME i18n
+        }
+
+        return state.solutions[solutionId]?.name ?? solutionId;
+      };
+    },
+
+    getSearchSolutionIds(state) {
+      return Object.keys(state.solutions);
+    },
+
+    getSearchSolutions(state) {
+      return Object.values(state.solutions);
+    },
+
+    getDefaultSearchSolution(state) {
+      return async () => {
+        const solutions: ISearchSolution[] = [];
+
+        const addedSiteIds = Object.keys(state.sites);
+        for (const siteId of addedSiteIds) {
+          const siteMetadata = await getDefinedSiteMetadata(siteId);
+
+          let searchEntries = siteMetadata.searchEntry ?? { default: {} };
+          for (const [key, value] of Object.entries(state.sites[siteId]?.merge?.searchEntry ?? {})) {
+            if (searchEntries[key] && typeof value.enabled === "boolean") {
+              searchEntries[key] = { ...searchEntries[key], enabled: value.enabled };
+            }
+          }
+
+          solutions.push({ id: "default", siteId, searchEntries });
+        }
+
+        return { name: "default", id: "default", sort: 0, enabled: true, createdAt: 0, solutions };
+      };
+    },
+
+    getSearchSolution(state) {
+      return async (solutionId: TSolutionKey | "default"): Promise<ISearchSolutionMetadata> => {
+        if (solutionId === "default") {
+          return await this.getDefaultSearchSolution();
+        } else {
+          return state.solutions[solutionId];
+        }
+      };
+    },
+
     getSearchSnapshotList(state) {
       return Object.values(state.snapshots);
     },
@@ -177,6 +193,14 @@ export const useMetadataStore = defineStore("metadata", {
         }
       };
     },
+
+    getDownloaderIds(state) {
+      return Object.keys(state.downloaders);
+    },
+
+    getDownloaders(state) {
+      return Object.values(state.downloaders);
+    },
   },
   actions: {
     async addSite(siteId: TSiteID, siteConfig: ISiteUserConfig) {
@@ -184,13 +208,9 @@ export const useMetadataStore = defineStore("metadata", {
       this.sites[siteId] = siteConfig;
       await this.$save();
     },
+
     async removeSite(siteId: TSiteID) {
       delete this.sites[siteId];
-      await this.$save();
-    },
-    async updateSite(siteId: TSiteID, siteConfig: ISiteUserConfig) {
-      delete siteConfig.valid;
-      this.sites[siteId] = siteConfig;
       await this.$save();
     },
 
@@ -240,6 +260,26 @@ export const useMetadataStore = defineStore("metadata", {
     async removeSearchSnapshotData(id: TSearchSnapshotKey) {
       delete this.snapshots[id]; // 删除搜索快照元数据
       await sendMessage("removeSearchResultSnapshotData", id); // 删除搜索快照数据
+      await this.$save();
+    },
+
+    async addDownloader(downloaderConfig: IDownloaderMetadata) {
+      delete downloaderConfig.vaild;
+      this.downloaders[downloaderConfig.id] = downloaderConfig;
+      await this.$save();
+    },
+
+    async removeDownloader(downloaderId: TDownloaderKey) {
+      delete this.downloaders[downloaderId];
+      await this.$save();
+    },
+
+    async simplePatchDownloader<T extends keyof IDownloaderMetadata>(
+      downloaderId: TDownloaderKey,
+      key: T,
+      value: IDownloaderMetadata[T],
+    ) {
+      set(this.downloaders[downloaderId], key, value);
       await this.$save();
     },
   },

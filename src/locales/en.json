@@ -121,5 +121,56 @@
       "selectAllNotice": "(Notice: In most cases, you don't need to select all search terms! )",
       "title": "Set default search params for Site {name}"
     }
+  },
+  "setDownloader": {
+    "add": {
+      "NoneSelectNotice": "Please select a server type",
+      "newType": "Come here to add the server type you want!",
+      "step": {
+        "selectType": "Select server type",
+        "setOptions": "Configuration"
+      },
+      "title": "Add Download Client"
+    },
+    "common": {
+      "address": "Server Address",
+      "name": "Server Name",
+      "type": "Type",
+      "uid": "Server Id",
+      "username": "Username"
+    },
+    "delete": {
+      "text": "Are you sure to delete these {0} Download Servers?"
+    },
+    "edit": {
+      "title": "Edit Download Server"
+    },
+    "editor": {
+      "addressTip": "Full Server Address (may include port or path), Like: http://192.168.1.1:5000/",
+      "autoStart": "Automatically start downloading when sending a torrent",
+      "connect": {
+        "default": "Check Connect",
+        "error": "Connect Failed! Check Form Input or Download Server",
+        "success": "Connect Successful! You can enter next step."
+      },
+      "nameTip": "Pick a nice and recognizable name for this Download Server",
+      "password": "Password",
+      "timeout": "Timeout (seconds)",
+      "uidPlaceholder": " (Generate automatically)"
+    },
+    "index": {
+      "changeDefaultDownloader": "Change Default Downloader Successful!",
+      "emptyNotice": "Before using the download service, you need to add at least one download server.",
+      "remove": {
+        "multi": "Are you sure to delete these {count} download servers?",
+        "single": "Are you sure to delete this download server?"
+      },
+      "table": {
+        "action": {
+          "deleteDownloader": "Delete this downloader server",
+          "setDefault": "Set this downloader server as Default Downloader."
+        }
+      }
+    }
   }
 }

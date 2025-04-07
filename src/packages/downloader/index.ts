@@ -24,7 +24,6 @@ export async function getDownloaderModule(configType: string): Promise<downloade
 export async function getDownloaderDefaultConfig(type: string): Promise<DownloaderBaseConfig> {
   const config = cloneDeep((await getDownloaderModule(type)).clientConfig);
   // 填入/覆盖 缺失项
-  config.id = nanoid();
   config.feature ??= { DefaultAutoStart: false };
 
   return config;

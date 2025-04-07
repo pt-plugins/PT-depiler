@@ -40,6 +40,8 @@ export type TDownloaderKey = string;
 export interface IDownloaderMetadata extends DownloaderBaseConfig {
   id: TDownloaderKey;
   enabled: boolean;
+
+  [key: string]: any; // 其他配置项
 }
 
 export interface IMetadataPiniaStorageSchema {

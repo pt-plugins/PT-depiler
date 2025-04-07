@@ -33,9 +33,8 @@ const canAddSites = computedAsync(async () => {
   return canAddedSiteMetadata;
 }, []);
 
-function saveSite() {
-  metadataStore.addSite(selectedSiteId.value!, storedSiteUserConfig.value);
-  metadataStore.$save();
+async function saveSite() {
+  await metadataStore.addSite(selectedSiteId.value!, storedSiteUserConfig.value);
   showDialog.value = false;
 }
 </script>
