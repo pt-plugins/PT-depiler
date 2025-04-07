@@ -6,6 +6,7 @@ import {
   TSiteID as TSiteKey,
 } from "@ptd/site";
 import { TSelectSearchCategoryValue } from "@ptd/site";
+import { DownloaderBaseConfig } from "@ptd/downloader";
 
 export interface ISearchSolution {
   id: string;
@@ -34,10 +35,18 @@ export interface ISearchSnapshotMetadata {
 
 export interface IStoredUserInfo extends IUserInfo {}
 
+export type TDownloaderKey = string;
+
+export interface IDownloaderMetadata extends DownloaderBaseConfig {
+  id: TDownloaderKey;
+  enabled: boolean;
+}
+
 export interface IMetadataPiniaStorageSchema {
-  sites: Record<TSiteKey, ISiteUserConfig>;
-  solutions: Record<TSolutionKey, ISearchSolutionMetadata>;
-  snapshots: Record<TSearchSnapshotKey, ISearchSnapshotMetadata>;
+  sites: Record<TSiteKey, ISiteUserConfig>; // 站点配置(用户配置)
+  solutions: Record<TSolutionKey, ISearchSolutionMetadata>; // 搜索方案配置
+  snapshots: Record<TSearchSnapshotKey, ISearchSnapshotMetadata>; // 搜索快照配置（元信息）
+  downloaders: Record<TDownloaderKey, IDownloaderMetadata>; // 下载器配置
 
   /**
    * 此处仅存储站点最近一次的记录，如果需要获取历史记录，需要使用 storage 方法获取

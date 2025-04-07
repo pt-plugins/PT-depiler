@@ -1,6 +1,7 @@
 import type { EResultParseStatus, ITorrent, TSiteID } from "@ptd/site";
 import type { TSolutionKey } from "@/storage.ts";
 import type { VSnackbar } from "vuetify/components";
+import type { VNodeProps } from "vue";
 
 export type TSearchSolutionKey = `${TSiteID}|$|${TSolutionKey}`;
 
@@ -36,13 +37,30 @@ export interface ISearchData {
   searchResult: ISearchResultTorrent[];
 }
 
+export type SnackbarMessageOptions = Partial<
+  Omit<
+    VSnackbar["$props"],
+    | "modelValue"
+    | "onUpdate:modelValue"
+    | "activator"
+    | "activatorProps"
+    | "closeDelay"
+    | "openDelay"
+    | "openOnClick"
+    | "openOnFocus"
+    | "openOnHover"
+    | "$children"
+    | "v-slots"
+    | `v-slot:${string}`
+    | keyof VNodeProps
+  >
+>;
+
 export interface IRuntimePiniaStorageSchema {
   search: ISearchData;
   userInfo: {
     isFlush: boolean;
     flushPlan: Record<TSiteID, { isFlush: boolean }>;
   };
-  uiGlobalSnakebar: {
-    show: boolean;
-  } & Partial<VSnackbar>;
+  uiGlobalSnakebar: SnackbarMessageOptions[]; // https://vuetifyjs.com/en/components/snackbar-queue/#props-model-value
 }

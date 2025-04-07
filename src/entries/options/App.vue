@@ -44,11 +44,7 @@ function setIgnoreWrongPixelRatio() {
     </v-main>
   </v-app>
 
-  <v-snackbar v-model="runtimeStore.uiGlobalSnakebar.show" v-bind="runtimeStore.uiGlobalSnakebar">
-    <template v-slot:actions>
-      <v-btn icon="mdi-close-circle" variant="text" @click="runtimeStore.uiGlobalSnakebar.show = false"> </v-btn>
-    </template>
-  </v-snackbar>
+  <v-snackbar-queue v-model="runtimeStore.uiGlobalSnakebar" closable></v-snackbar-queue>
 </template>
 
 <style scoped>

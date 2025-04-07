@@ -6,7 +6,7 @@
  */
 
 import { defineStore } from "pinia";
-import type { IRuntimePiniaStorageSchema, ISearchData } from "@/shared/storages/runtime.ts";
+import type { IRuntimePiniaStorageSchema, ISearchData, SnackbarMessageOptions } from "@/shared/storages/runtime.ts";
 
 export const initialSearchData: () => ISearchData = () => ({
   isSearching: false,
@@ -26,15 +26,14 @@ export const resetUiGlobalSnakebar = () => ({
 export const useRuntimeStore = defineStore("runtime", {
   persist: true,
   persistWebExt: false,
-  state: () =>
-    ({
-      search: initialSearchData(),
-      userInfo: {
-        isFlush: false,
-        flushPlan: {},
-      },
-      uiGlobalSnakebar: resetUiGlobalSnakebar(),
-    }) as IRuntimePiniaStorageSchema,
+  state: (): IRuntimePiniaStorageSchema => ({
+    search: initialSearchData(),
+    userInfo: {
+      isFlush: false,
+      flushPlan: {},
+    },
+    uiGlobalSnakebar: [],
+  }),
 
   getters: {
     searchCostTime(state) {
@@ -47,14 +46,9 @@ export const useRuntimeStore = defineStore("runtime", {
       this.search = initialSearchData();
     },
 
-    showSnakebar(text: string, options: Omit<IRuntimePiniaStorageSchema["uiGlobalSnakebar"], "show" | "text"> = {}) {
+    showSnakebar(text: string, options: SnackbarMessageOptions = {}) {
       // @ts-ignore
-      this.uiGlobalSnakebar = { show: true, text, ...options };
-      if (options.timeout) {
-        setTimeout(() => {
-          this.uiGlobalSnakebar = resetUiGlobalSnakebar();
-        }, Number(options.timeout));
-      }
+      this.uiGlobalSnakebar.push({ text, ...options });
     },
   },
 });

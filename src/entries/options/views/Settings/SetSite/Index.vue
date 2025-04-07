@@ -101,7 +101,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
 
 <template>
   <v-alert type="info" :title="$t('route.Settings.SetSite')" />
-  <v-card>
+  <v-card class="set-site">
     <v-card-title>
       <v-row class="ma-0">
         <v-btn color="success" prepend-icon="mdi-plus" class="mr-2" @click="showAddDialog = true">

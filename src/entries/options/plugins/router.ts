@@ -39,6 +39,12 @@ export const routes: RouteRecordRaw[] = [
         component: () => import("../views/Settings/SetSite/Index.vue"),
       },
       {
+        path: "/set-downloader",
+        name: "SetDownloader",
+        meta: { icon: "mdi-cloud-download" },
+        component: () => import("../views/Settings/SetDownloader/Index.vue"),
+      },
+      {
         path: "/set-search-solution",
         name: "SetSearchSolution",
         meta: { icon: "mdi-magnify" },

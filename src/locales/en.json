@@ -74,7 +74,7 @@
       "setBackup": "Backup & Restore",
       "setBase": "General",
       "setDownloadPaths": "Download Paths",
-      "setDownloader": "Download Server",
+      "SetDownloader": "Download Server",
       "SetSearchSolution": "Search Solution",
       "SetSite": "Sites"
     }

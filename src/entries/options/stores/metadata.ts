@@ -19,6 +19,7 @@ export const useMetadataStore = defineStore("metadata", {
     sites: {},
     solutions: {},
     snapshots: {},
+    downloaders: {},
     lastUserInfo: {},
   }),
 

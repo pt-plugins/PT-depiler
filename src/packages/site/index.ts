@@ -21,7 +21,6 @@ interface definitionEntity {
 }
 
 const schemaContent = import.meta.glob<schemaEntity>("./schemas/*.ts");
-
 const definitionContent = import.meta.glob<definitionEntity>("./definitions/*.ts");
 
 function transContent(value: string) {
