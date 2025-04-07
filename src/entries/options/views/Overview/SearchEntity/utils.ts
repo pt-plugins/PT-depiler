@@ -174,8 +174,6 @@ export async function doSearch(search: string, plan: string, flush = true) {
 
   log("Start search with: ", searchKey, searchPlanKey, flush);
 
-  runtimeStore.search.startAt = +Date.now();
-  runtimeStore.search.isSearching = true;
   runtimeStore.search.searchKey = searchKey;
   runtimeStore.search.searchPlanKey = searchPlanKey;
 
@@ -183,6 +181,14 @@ export async function doSearch(search: string, plan: string, flush = true) {
   const metadataStore = useMetadataStore();
   const searchSolution = await metadataStore.getSearchSolution(runtimeStore.search.searchPlanKey);
   log(`Expanded Search Plan for ${searchPlanKey}: `, searchSolution);
+
+  if (searchSolution.solutions.length === 0) {
+    runtimeStore.showSnakebar("请至少添加一个站点进行搜索", { color: "error" });
+    return;
+  }
+
+  runtimeStore.search.startAt = +Date.now();
+  runtimeStore.search.isSearching = true;
 
   for (const { siteId, searchEntries } of searchSolution.solutions) {
     for (const [searchEntryName, searchEntry] of Object.entries(searchEntries)) {

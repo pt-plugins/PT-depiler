@@ -35,9 +35,12 @@ function getCategoryOptionName(key: string, value: string | number | (string | n
 </script>
 
 <template>
-  <span v-for="(value, category) in solution.selectedCategories" :key="category">
-    {{ getCategoryName(category) }}: {{ getCategoryOptionName(category, value) }};&nbsp;
-  </span>
+  <template v-if="solution">
+    <span v-for="(value, category) in solution.selectedCategories" :key="category">
+      {{ getCategoryName(category) }}: {{ getCategoryOptionName(category, value) }};&nbsp;
+    </span>
+  </template>
+  <template v-else>Unknown</template>
 </template>
 
 <style scoped lang="scss"></style>
