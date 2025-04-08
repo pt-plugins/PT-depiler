@@ -1,5 +1,5 @@
 import { onMessage } from "@/messages.ts";
-import { extStorage } from "@/storage.ts";
+import { extStorage, type IDownloaderMetadata } from "@/storage.ts";
 import { log } from "~/helper.ts";
 import { format } from "date-fns";
 import { IMetadataPiniaStorageSchema } from "@/shared/storages/metadata.ts";
@@ -13,6 +13,10 @@ chrome.runtime.onInstalled.addListener(() => {
   log("Installed!");
 });
 
+onMessage("downloadFile", async ({ data: downloadOptions }) => {
+  return await chrome.downloads.download(downloadOptions);
+});
+
 // @ts-ignore
 onMessage("getExtStorage", async ({ data: key }) => {
   return await extStorage.getItem(key);
@@ -24,8 +28,8 @@ onMessage("setExtStorage", async ({ data: { key, value } }) => {
 });
 
 onMessage("getSiteUserConfig", async ({ data: siteId }) => {
-  const siteUserConfig = await extStorage.getItem("metadata");
-  const storedSiteUserConfig = siteUserConfig?.sites?.[siteId] ?? { id: siteId };
+  const metadataStore = await extStorage.getItem("metadata");
+  const storedSiteUserConfig = metadataStore?.sites?.[siteId] ?? { id: siteId };
   storedSiteUserConfig.isOffline ??= false;
   storedSiteUserConfig.sortIndex ??= 100;
   storedSiteUserConfig.merge ??= {};
@@ -80,8 +84,9 @@ onMessage("removeSearchResultSnapshotData", async ({ data: snapshotId }) => {
   await extStorage.setItem("searchResultSnapshot", snapshotData);
 });
 
-onMessage("downloadFile", async ({ data: downloadOptions }) => {
-  return await chrome.downloads.download(downloadOptions);
+onMessage("getDownloaderConfig", async ({ data: downloaderId }) => {
+  const metadataStore = await extStorage.getItem("metadata");
+  return metadataStore?.downloaders?.[downloaderId] ?? ({} as IDownloaderMetadata);
 });
 
 // create offscreen for DOM_PARSER and other reason ( f**k google )

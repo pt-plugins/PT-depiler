@@ -1,8 +1,9 @@
 import { getSiteInstance } from "../shared/adapters/site.ts";
 import { onMessage, sendMessage } from "@/messages.ts";
-import { getRemoteTorrentFile } from "@ptd/downloader";
-import { EResultParseStatus, type ITorrent, type IUserInfo } from "@ptd/site";
+import { getDownloader, getRemoteTorrentFile } from "@ptd/downloader";
+import { EResultParseStatus, type IUserInfo } from "@ptd/site";
 import { IMetadataPiniaStorageSchema } from "@/shared/storages/metadata.ts";
+import { log } from "~/helper.ts";
 
 onMessage("getSiteSearchResult", async ({ data: { siteId, keyword = "", searchEntry = {} } }) => {
   const site = await getSiteInstance<"public">(siteId);
@@ -29,14 +30,11 @@ onMessage("getTorrentDownloadLink", async ({ data: torrent }) => {
   return await site.getTorrentDownloadLink(torrent);
 });
 
-async function getTorrentInstance(torrent: ITorrent) {
+onMessage("downloadTorrentFile", async ({ data: torrent }) => {
   const site = await getSiteInstance<"public">(torrent.site);
   const downloadRequestConfig = await site.getTorrentDownloadRequestConfig(torrent);
-  return await getRemoteTorrentFile(downloadRequestConfig);
-}
+  const torrentInstance = await getRemoteTorrentFile(downloadRequestConfig);
 
-onMessage("downloadTorrentFile", async ({ data: torrent }) => {
-  const torrentInstance = await getTorrentInstance(torrent);
   const torrentUrl = URL.createObjectURL(torrentInstance.metadata.blob());
   let filename = torrentInstance.name;
   if (filename === "1.torrent") {
@@ -47,6 +45,23 @@ onMessage("downloadTorrentFile", async ({ data: torrent }) => {
   const downloadId = await sendMessage("downloadFile", { url: torrentUrl, filename, conflictAction: "uniquify" });
   URL.revokeObjectURL(torrentUrl);
   return downloadId;
+});
+
+onMessage("sendTorrentToDownloader", async ({ data: { torrent, downloaderId, addTorrentOptions } }) => {
+  log("sendTorrentToDownloader.Init", torrent, downloaderId, addTorrentOptions);
+  const site = await getSiteInstance<"public">(torrent.site);
+  const downloadRequestConfig = await site.getTorrentDownloadRequestConfig(torrent);
+
+  const downloaderConfig = await sendMessage("getDownloaderConfig", downloaderId);
+  if (downloaderConfig.id && downloaderConfig.enabled) {
+    const downloaderInstance = await getDownloader(downloaderConfig);
+    if (addTorrentOptions.localDownload !== false) {
+      addTorrentOptions.localDownloadOption = downloadRequestConfig;
+    }
+
+    log("sendTorrentToDownloader", downloadRequestConfig, addTorrentOptions);
+    await downloaderInstance.addTorrent(downloadRequestConfig.url!, addTorrentOptions);
+  }
 });
 
 if (import.meta.env.DEV) {

@@ -393,7 +393,7 @@ export default class Flood extends AbstractBittorrentClient {
       });
 
       if (endPointType === "jesec") {
-        postData.files = [torrent.metadata.base64];
+        postData.files = [torrent.metadata.base64()];
       } else {
         const formData = new FormData();
 

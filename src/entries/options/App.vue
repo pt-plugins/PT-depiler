@@ -47,10 +47,4 @@ function setIgnoreWrongPixelRatio() {
   <v-snackbar-queue v-model="runtimeStore.uiGlobalSnakebar" closable></v-snackbar-queue>
 </template>
 
-<style scoped>
-@import "tailwindcss";
-
-:deep(.v-combobox.table-header-filter-clear input[size="1"][type="text"]) {
-  display: none;
-}
-</style>
+<style scoped></style>

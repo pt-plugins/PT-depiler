@@ -1,6 +1,5 @@
 import { AbstractBittorrentClient, type DownloaderBaseConfig, type TorrentClientMetaData } from "./types";
 import { cloneDeep } from "es-toolkit";
-import { nanoid } from "nanoid";
 
 export * from "./types";
 export { getRemoteTorrentFile } from "./utils";
@@ -34,20 +33,11 @@ export async function getDownloaderMetaData(type: string): Promise<TorrentClient
   return cloneDeep((await getDownloaderModule(type)).clientMetaData);
 }
 
-const clientInstanceCache: Record<string, AbstractBittorrentClient> = {};
+export async function getDownloader(config: DownloaderBaseConfig): Promise<AbstractBittorrentClient> {
+  const DownloaderClass = (await getDownloaderModule(config.type)).default;
 
-export async function getDownloader(
-  config: DownloaderBaseConfig,
-  flush: boolean = false,
-): Promise<AbstractBittorrentClient> {
-  if (flush || typeof clientInstanceCache[config.id!] === "undefined") {
-    const DownloaderClass = (await getDownloaderModule(config.type)).default;
-
-    // @ts-ignore
-    clientInstanceCache[config.id] = new DownloaderClass(config);
-  }
-
-  return clientInstanceCache[config.id!];
+  // @ts-ignore
+  return new DownloaderClass(config);
 }
 
 export function getDownloaderIcon(type: string) {

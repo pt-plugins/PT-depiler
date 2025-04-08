@@ -234,7 +234,7 @@ export default class Deluge extends AbstractBittorrentClient {
         ...(options.localDownloadOption || {}),
       });
 
-      params = ["", torrent.metadata.base64, delugeOptions];
+      params = ["", torrent.metadata.base64(), delugeOptions];
     }
 
     try {

@@ -103,7 +103,7 @@ watch(toDeleteIds, (newVal, oldValue) => {
         <span class="text-no-wrap"> {{ formatDate(item.createdAt) }}</span>
       </template>
       <template #item.action="{ item }">
-        <v-btn-group variant="plain">
+        <v-btn-group variant="plain" density="compact" class="table-action">
           <v-btn
             size="small"
             icon="mdi-archive-search"

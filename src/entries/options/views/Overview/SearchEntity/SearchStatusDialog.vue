@@ -35,7 +35,7 @@ function getSearchSolution(planKey: string, entryName: string) {
   <v-dialog v-model="showDialog" max-width="800" scrollable>
     <v-card>
       <v-card-title style="padding: 0">
-        <v-toolbar color="blue-grey darken-2">
+        <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title>
             方案 [{{ metadataStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) }}] 搜索状态
           </v-toolbar-title>

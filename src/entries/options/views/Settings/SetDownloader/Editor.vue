@@ -31,7 +31,7 @@ const formRef = ref<VForm>();
 async function checkConnect() {
   if ((await formRef.value!.validate()).valid) {
     connectTesting.value = true;
-    const client = await getDownloader(clientConfig.value!, true);
+    const client = await getDownloader(clientConfig.value!);
     try {
       connectStatusRef.value = (await client.ping()) ? connectStatus.success : connectStatus.error;
     } catch (e) {

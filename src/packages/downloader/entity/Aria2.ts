@@ -249,7 +249,7 @@ export default class Aria2 extends AbstractBittorrentClient {
         ...(options.localDownloadOption ?? {}),
       });
 
-      params = [torrent.metadata.base64, [], addOption];
+      params = [torrent.metadata.base64(), [], addOption];
     }
 
     try {

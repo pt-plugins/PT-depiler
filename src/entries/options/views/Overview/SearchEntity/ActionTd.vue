@@ -4,6 +4,8 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { sendMessage } from "@/messages.ts";
 import { log } from "~/helper.ts";
 
+import SentToDownloaderDialog from "./SentToDownloaderDialog.vue";
+
 const props = withDefaults(
   defineProps<{
     torrentIds: string[];
@@ -11,6 +13,10 @@ const props = withDefaults(
   }>(),
   { density: "default" },
 );
+
+const btnSize = computed(() => {
+  return props.density === "compact" ? "small" : "default";
+});
 
 const runtimeStore = useRuntimeStore();
 
@@ -67,11 +73,17 @@ function noop() {
 </script>
 
 <template>
-  <v-btn-group size="small" variant="text" color="grey" :density="props.density">
+  <v-btn-group variant="text" color="grey" :density="props.density" class="table-action">
     <!-- TODO 下载到服务器 -->
-    <v-btn icon="mdi-cloud-download" :disabled="props.torrentIds.length == 0" @click="() => noop()"></v-btn>
+    <v-btn
+      :size="btnSize"
+      icon="mdi-cloud-download"
+      :disabled="props.torrentIds.length == 0"
+      @click="() => noop()"
+    ></v-btn>
     <!-- 复制下载链接 -->
     <v-btn
+      :size="btnSize"
       icon="mdi-content-copy"
       :loading="copyTorrentDownloadLinkBtnStatus"
       :disabled="props.torrentIds.length == 0"
@@ -81,6 +93,7 @@ function noop() {
     </v-btn>
     <!-- 下载种子文件到本地 -->
     <v-btn
+      :size="btnSize"
       icon="mdi-content-save"
       :loading="localDlTorrentDownloadLinkBtnStatus"
       :disabled="props.torrentIds.length == 0"
@@ -88,13 +101,16 @@ function noop() {
       @click="() => localDlTorrentDownloadLink()"
     ></v-btn>
     <!-- TODO 收藏 -->
-    <v-btn icon="mdi-heart-outline" :disabled="true || props.torrentIds.length == 0" @click="() => noop()"></v-btn>
+    <v-btn
+      :size="btnSize"
+      icon="mdi-heart-outline"
+      :disabled="true || props.torrentIds.length == 0"
+      @click="() => noop()"
+    ></v-btn>
   </v-btn-group>
 
-  <!-- TODO 在点击发送到远程服务器时，弹出选择下载器及其他自定义选项 -->
-  <teleport to="#ptd-main">
-    <v-dialog v-model="showDownloadClientDialog" scrollable max-width="800">showDownloadClientDialog</v-dialog>
-  </teleport>
+  <!-- 在点击发送到远程服务器时，弹出选择下载器及其他自定义选项 -->
+  <SentToDownloaderDialog v-model="showDownloadClientDialog" :torrent-items="torrentItems"></SentToDownloaderDialog>
 </template>
 
 <style scoped lang="scss"></style>

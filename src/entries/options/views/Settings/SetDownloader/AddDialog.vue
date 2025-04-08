@@ -56,7 +56,7 @@ async function saveStoredDownloaderConfig() {
   <v-dialog v-model="showDialog" max-width="800" scrollable>
     <v-card>
       <v-card-title style="padding: 0">
-        <v-toolbar color="blue-grey darken-2">
+        <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title>{{ $t("setDownloader.add.title") }}</v-toolbar-title>
           <v-spacer />
           <v-btn
@@ -110,7 +110,7 @@ async function saveStoredDownloaderConfig() {
         <v-btn
           v-show="currentStep === 0"
           flat
-          color="grey--text text--darken-1"
+          color="grey-darken-1"
           :href="`${REPO_URL}/tree/master/src/packages/downloader`"
           target="_blank"
           rel="noopener noreferrer nofollow"

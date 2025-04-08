@@ -194,7 +194,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
         />
       </template>
       <template #item.action="{ item }">
-        <v-btn-group variant="plain">
+        <v-btn-group variant="plain" density="compact" class="table-action">
           <!-- 站点信息编辑 -->
           <v-btn
             size="small"
@@ -205,7 +205,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
           />
 
           <!-- 默认站点搜索入口编辑（只有配置了 siteMetadata.searchEntry 的站点才支持该设置） -->
-          <v-btn size="small" :disabled="!item.metadata.searchEntry">
+          <v-btn size="small" :disabled="!item.metadata.searchEntry" class="v-btn--icon">
             <v-icon icon="mdi-magnify"></v-icon>
             <v-menu activator="parent" :close-on-content-click="false">
               <EditSearchEntryList :item="item" />

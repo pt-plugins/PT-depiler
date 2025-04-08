@@ -1,1 +1,11 @@
 @import "tailwindcss" prefix(tw);
+
+/* 在表头过滤器中不显示 v-combobox 的输入框 */
+.v-combobox.table-header-filter-clear input[size="1"][type="text"] {
+    display: none;
+}
+
+/* 表格中 density-compact 的按钮组中添加间距 */
+.table-action.v-btn-group--density-compact > button:not(:last-child) {
+    margin-right: 4px;
+}

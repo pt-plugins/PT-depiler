@@ -95,8 +95,8 @@ function iv(val: string | null): number {
 }
 
 function buildRequestXML(calls: Array<[string, string[]?]>): string {
-  let retXML =
-    '<?xml version="1.0" encoding="UTF-8"?><methodCall><methodName>system.multicall</methodName><params><param><value><array><data>';
+  let retXML = '<?xml version="1.0" encoding="UTF-8"?>';
+  retXML += "<methodCall><methodName>system.multicall</methodName><params><param><value><array><data>";
   for (const [method, params = []] of calls) {
     retXML += "<value><struct>";
     retXML += `<member><name>methodName</name><value><string>${method}</string></value></member>`;

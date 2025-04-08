@@ -237,10 +237,10 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     });
   }
 
-  private async getSyncData() {
-    if (Date.now() > this.lastSyncTimestamp + 5e3) {
+  private async getSyncData(fullSync: boolean = false) {
+    if (Date.now() > this.lastSyncTimestamp + 15e3) {
       const { data } = await this.request<rawSyncMaindata>("/sync/maindata", {
-        params: { rid: this.syncData.rid },
+        params: { rid: fullSync ? 0 : this.syncData.rid },
       });
 
       this.lastSyncTimestamp = Date.now();

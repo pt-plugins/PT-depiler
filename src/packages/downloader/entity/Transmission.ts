@@ -125,6 +125,7 @@ interface TransmissionAddTorrentOptions {
   filename: string;
   metainfo: string;
   paused: boolean;
+  labels: string[]; // RPC Version >= 17，使用前需要判断
 }
 
 interface TransmissionTorrentFilterRules extends CTorrentFilterRules {
@@ -316,6 +317,9 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
       paused: options.addAtPaused ?? false,
     };
 
+    const clientVersion = await this.getClientVersion();
+    let supportLabelAtAdd = parseInt(clientVersion.match(/RPC (\d+)/)?.[1] || "0", 10) >= 17;
+
     if (options.localDownload) {
       const torrent = await getRemoteTorrentFile({
         url,
@@ -331,11 +335,15 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
       addTorrentOptions["download-dir"] = options.savePath;
     }
 
+    if (options.label && supportLabelAtAdd) {
+      addTorrentOptions.labels = [options.label];
+    }
+
     try {
       const { data } = await this.request<AddTorrentResponse>("torrent-add", addTorrentOptions);
 
       // Transmission 3.0 以上才支持label
-      if (options.label) {
+      if (!supportLabelAtAdd && options.label) {
         try {
           const torrentId = data.arguments["torrent-added"].id;
           await this.request("torrent-set", {

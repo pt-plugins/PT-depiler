@@ -127,16 +127,6 @@ export const useMetadataStore = defineStore("metadata", {
       };
     },
 
-    getSearchSolutionName(state) {
-      return (solutionId: TSolutionKey): string => {
-        if (solutionId === "default") {
-          return "默认"; // FIXME i18n
-        }
-
-        return state.solutions[solutionId]?.name ?? solutionId;
-      };
-    },
-
     getSearchSolutionIds(state) {
       return Object.keys(state.solutions);
     },
@@ -177,6 +167,16 @@ export const useMetadataStore = defineStore("metadata", {
       };
     },
 
+    getSearchSolutionName(state) {
+      return (solutionId: TSolutionKey): string => {
+        if (solutionId === "default") {
+          return "默认"; // FIXME i18n
+        }
+
+        return state.solutions[solutionId]?.name ?? solutionId;
+      };
+    },
+
     getSearchSnapshotList(state) {
       return Object.values(state.snapshots);
     },
@@ -200,6 +200,10 @@ export const useMetadataStore = defineStore("metadata", {
 
     getDownloaders(state) {
       return Object.values(state.downloaders);
+    },
+
+    getEnabledDownloaders(state) {
+      return Object.values(state.downloaders).filter((downloader) => downloader.enabled);
     },
   },
   actions: {
@@ -264,7 +268,7 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     async addDownloader(downloaderConfig: IDownloaderMetadata) {
-      delete downloaderConfig.vaild;
+      delete downloaderConfig.valid;
       this.downloaders[downloaderConfig.id] = downloaderConfig;
       await this.$save();
     },

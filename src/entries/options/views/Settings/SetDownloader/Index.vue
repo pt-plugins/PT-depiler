@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
+import { computedAsync } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import type { TDownloaderKey } from "@/shared/storages/metadata.ts";
-import { getDownloaderIcon } from "@ptd/downloader";
+import { getDownloaderIcon, getDownloaderMetaData, type TorrentClientMetaData } from "@ptd/downloader";
 
 import AddDialog from "./AddDialog.vue";
 import EditDialog from "./EditDialog.vue";
@@ -15,6 +16,14 @@ const metadataStore = useMetadataStore();
 const showAddDialog = ref<boolean>(false);
 const showEditDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
+
+const downloaderMetadata = computedAsync(async () => {
+  const downloaderMetaData: Record<string, TorrentClientMetaData> = {};
+  for (const type of new Set(metadataStore.getDownloaders.map((x) => x.type))) {
+    downloaderMetaData[type] = await getDownloaderMetaData(type);
+  }
+  return downloaderMetaData;
+}, {});
 
 const fullTableHeader = [
   { title: t("setDownloader.common.type"), key: "type", align: "center", filterable: false },
@@ -110,7 +119,7 @@ watch(toDeleteIds, (newVal, oldValue) => {
           color="success"
           hide-details
           class="downloader-switch-btn"
-          :disabled="!item.enabled"
+          :disabled="!item.enabled || downloaderMetadata?.[item.type]?.features?.DefaultAutoStart === false"
           @update:model-value="
             (v) => metadataStore.simplePatchDownloader(item.id, 'feature.DefaultAutoStart', v as boolean)
           "
@@ -118,21 +127,26 @@ watch(toDeleteIds, (newVal, oldValue) => {
       </template>
 
       <template #item.action="{ item }">
-        <v-btn
-          size="small"
-          icon="mdi-pencil"
-          variant="plain"
-          :title="t('common.edit')"
-          @click="editDownloader(item.id)"
-        />
-        <v-btn
-          size="small"
-          icon="mdi-delete"
-          variant="plain"
-          color="error"
-          :title="t('common.remove')"
-          @click="deleteDownloader(item.id)"
-        />
+        <v-btn-group variant="plain" density="compact" class="table-action">
+          <v-btn
+            size="small"
+            icon="mdi-pencil"
+            color="info"
+            :title="t('common.edit')"
+            @click="editDownloader(item.id)"
+          />
+          <!-- TODO 该下载服务器下载路径和标签选择 -->
+          <v-btn size="small" icon="mdi-folder-multiple"></v-btn>
+          <v-btn size="small" icon="mdi-tag-multiple"></v-btn>
+
+          <v-btn
+            size="small"
+            icon="mdi-delete"
+            color="error"
+            :title="t('common.remove')"
+            @click="deleteDownloader(item.id)"
+          />
+        </v-btn-group>
       </template>
     </v-data-table>
   </v-card>

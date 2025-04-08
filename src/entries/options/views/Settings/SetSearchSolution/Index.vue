@@ -128,7 +128,7 @@ function simplePatchSearchSolution(solutionId: TSolutionKey, value: boolean) {
       </template>
 
       <template #item.action="{ item }">
-        <v-btn-group variant="plain">
+        <v-btn-group variant="plain" density="compact" class="table-action">
           <v-btn
             size="small"
             icon="mdi-pencil"
