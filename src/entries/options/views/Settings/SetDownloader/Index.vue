@@ -17,11 +17,13 @@ const showEditDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 
 const fullTableHeader = [
-  { title: "类型", key: "type", align: "center", filterable: false },
-  { title: "名称", key: "name", align: "start" },
-  { title: "UID", key: "id", align: "start", filterable: false, sortable: false },
-  { title: "地址", key: "address", align: "start" },
-  { title: "用户名", key: "username", align: "start" },
+  { title: t("setDownloader.common.type"), key: "type", align: "center", filterable: false },
+  { title: t("setDownloader.common.name"), key: "name", align: "start" },
+  { title: t("setDownloader.common.uid"), key: "id", align: "start", filterable: false, sortable: false },
+  { title: t("setDownloader.common.address"), key: "address", align: "start" },
+  { title: t("setDownloader.common.username"), key: "username", align: "start" },
+  { title: "启用", key: "enabled", align: "center", filterable: false },
+  { title: "自动下载？", key: "feature.DefaultAutoStart", align: "center", filterable: false },
   { title: t("common.action"), key: "action", filterable: false, sortable: false },
 ];
 const tableSelected = ref<TDownloaderKey[]>([]);
@@ -33,7 +35,7 @@ function editDownloader(downloaderId: TDownloaderKey) {
 }
 
 const toDeleteIds = ref<TDownloaderKey[]>([]);
-function deleteDownloader(downloaderId: TDownloaderKey) {
+function deleteDownloader(downloaderId: TDownloaderKey | TDownloaderKey[]) {
   toDeleteIds.value = Array.isArray(downloaderId) ? downloaderId : [downloaderId];
   showDeleteDialog.value = true;
 }
@@ -56,7 +58,7 @@ watch(toDeleteIds, (newVal, oldValue) => {
     <v-card-title>
       <v-row class="ma-0">
         <v-btn color="success" prepend-icon="mdi-plus" class="mr-2" @click="showAddDialog = true">
-          {{ $t("common.btn.add") }}
+          {{ t("common.btn.add") }}
         </v-btn>
         <v-btn
           color="error"
@@ -64,7 +66,7 @@ watch(toDeleteIds, (newVal, oldValue) => {
           :disabled="tableSelected.length === 0"
           @click="deleteDownloader(tableSelected)"
         >
-          {{ $t("common.remove") }}
+          {{ t("common.remove") }}
         </v-btn>
       </v-row>
     </v-card-title>
@@ -79,15 +81,40 @@ watch(toDeleteIds, (newVal, oldValue) => {
       <template #item.type="{ item }">
         <v-avatar :image="getDownloaderIcon(item.type)" :alt="item.type" />
       </template>
+
       <template #item.id="{ item }">
         <v-row class="ma-0" align="center">
           <code>{{ item.id }}</code>
         </v-row>
       </template>
+
       <template #item.address="{ item }">
         <a :href="item.address" target="_blank" rel="noopener noreferrer nofollow">
           {{ item.address }}
         </a>
+      </template>
+
+      <template #item.enabled="{ item }">
+        <v-switch
+          v-model="item.enabled"
+          color="success"
+          hide-details
+          class="downloader-switch-btn"
+          @update:model-value="(v) => metadataStore.simplePatchDownloader(item.id, 'enabled', v as boolean)"
+        />
+      </template>
+
+      <template #item.feature.DefaultAutoStart="{ item }">
+        <v-switch
+          v-model="item.feature!.DefaultAutoStart"
+          color="success"
+          hide-details
+          class="downloader-switch-btn"
+          :disabled="!item.enabled"
+          @update:model-value="
+            (v) => metadataStore.simplePatchDownloader(item.id, 'feature.DefaultAutoStart', v as boolean)
+          "
+        />
       </template>
 
       <template #item.action="{ item }">
@@ -95,7 +122,7 @@ watch(toDeleteIds, (newVal, oldValue) => {
           size="small"
           icon="mdi-pencil"
           variant="plain"
-          :title="$t('common.edit')"
+          :title="t('common.edit')"
           @click="editDownloader(item.id)"
         />
         <v-btn
@@ -103,7 +130,7 @@ watch(toDeleteIds, (newVal, oldValue) => {
           icon="mdi-delete"
           variant="plain"
           color="error"
-          :title="$t('common.remove')"
+          :title="t('common.remove')"
           @click="deleteDownloader(item.id)"
         />
       </template>
@@ -115,4 +142,10 @@ watch(toDeleteIds, (newVal, oldValue) => {
   <DeleteDialog v-model="showDeleteDialog" v-model:to-delete-ids="toDeleteIds" />
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.downloader-switch-btn {
+  :deep(.v-selection-control) {
+    justify-content: center;
+  }
+}
+</style>

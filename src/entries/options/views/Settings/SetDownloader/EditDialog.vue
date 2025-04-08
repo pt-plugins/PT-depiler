@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import type { IDownloaderMetadata } from "@/shared/storages/metadata.ts";
+import { cloneDeep } from "es-toolkit";
+
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import type { IDownloaderMetadata } from "@/shared/storages/metadata.ts";
+import { log } from "~/helper.ts";
+
 import Editor from "./Editor.vue";
 
 const showDialog = defineModel<boolean>();
@@ -14,9 +18,9 @@ const metadataStore = useMetadataStore();
 watch(
   () => props.clientConfig,
   (newValue) => {
-    console.log("clientConfig", newValue);
+    log("Edit clientConfig:", newValue);
     if (newValue?.id) {
-      clientConfig.value = { ...newValue, valid: true }; // 防止直接修改父组件的数据
+      clientConfig.value = { ...cloneDeep(newValue), valid: true }; // 防止直接修改父组件的数据
     }
   },
   { immediate: true, deep: true },
