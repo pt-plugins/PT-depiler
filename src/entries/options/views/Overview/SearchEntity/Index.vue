@@ -2,8 +2,9 @@
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { refDebounced } from "@vueuse/core";
-import { type ISearchResultTorrent } from "@/shared/storages/runtime.ts";
+import { ETorrentStatus } from "@ptd/site";
 
+import { type ISearchResultTorrent } from "@/shared/storages/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useUIStore } from "@/options/stores/ui.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -14,8 +15,9 @@ import { doSearch, searchQueue, tableCustomFilter } from "./utils.ts"; // <-- �
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
-import ActionTd from "./ActionTd.vue";
 import TorrentTitleTd from "./TorrentTitleTd.vue";
+import TorrentProcessTd from "./TorrentProcessTd.vue";
+import ActionTd from "./ActionTd.vue";
 import SearchStatusDialog from "./SearchStatusDialog.vue";
 import SaveSnapshotDialog from "./SaveSnapshotDialog.vue";
 import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
@@ -243,9 +245,20 @@ function cancelSearchQueue() {
         <TorrentTitleTd :item="item" />
       </template>
 
-      <!-- 种子大小 -->
+      <!-- 种子大小，下载情况 -->
       <template #item.size="{ item }">
-        <span class="t_size text-no-wrap">{{ formatSize(item.size ?? 0) }}</span>
+        <v-container no-gutters>
+          <v-row>
+            <v-col class="pa-0">
+              <span class="t_size text-no-wrap">{{ formatSize(item.size ?? 0) }}</span>
+            </v-col>
+          </v-row>
+          <v-row v-if="item.status !== ETorrentStatus.unknown">
+            <v-col class="pa-0">
+              <TorrentProcessTd :torrent="item"></TorrentProcessTd>
+            </v-col>
+          </v-row>
+        </v-container>
       </template>
 
       <!-- 上传人数 -->
