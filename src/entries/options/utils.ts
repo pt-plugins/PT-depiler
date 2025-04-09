@@ -38,7 +38,7 @@ export const formatSize = (size: number, options?: FileSizeOptions) => {
     return size;
   }
 };
-export const formatDate = (date: number, format: string = "yyyy-MM-dd HH:mm:ss") => {
+export const formatDate = (date: Date | number | string, format: string = "yyyy-MM-dd HH:mm:ss") => {
   try {
     return dateFormat(date, format);
   } catch (e) {

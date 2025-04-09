@@ -6,6 +6,7 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { IDownloaderMetadata } from "@/shared/storages/metadata.ts";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { formatDate } from "@/options/utils.ts";
 
 const showDialog = defineModel<boolean>();
 const { torrentItems } = defineProps<{
@@ -48,15 +49,31 @@ async function sendToDownloader() {
 
   isSending.value = true;
   try {
-    const realAddTorrentOptions: Partial<CAddTorrentOptions> = { ...addTorrentOptions };
-    if (realAddTorrentOptions.savePath === "") {
-      delete realAddTorrentOptions.savePath;
-    }
-    if (realAddTorrentOptions.label === "") {
-      delete realAddTorrentOptions.label;
-    }
-
     for (const torrent of torrentItems) {
+      const realAddTorrentOptions: Partial<CAddTorrentOptions> = { ...addTorrentOptions };
+      if (realAddTorrentOptions.savePath) {
+        if (realAddTorrentOptions.savePath === "") {
+          delete realAddTorrentOptions.savePath;
+        } else {
+          const nowDate = new Date();
+          const replaceMap: Record<string, string> = {
+            "torrent.site": torrent.site,
+            "torrent.siteName": await metadataStore.getSiteName(torrent.site),
+            "torrent.category": (torrent.category as string) ?? "",
+            "date:YYYY": formatDate(nowDate, "yyyy") as string,
+            "date:MM": formatDate(nowDate, "MM") as string,
+            "date:DD": formatDate(nowDate, "dd") as string,
+          };
+
+          for (const [key, value] of Object.entries(replaceMap)) {
+            realAddTorrentOptions.savePath = realAddTorrentOptions.savePath.replace(`$${key}$`, value);
+          }
+        }
+      }
+      if (realAddTorrentOptions.label === "") {
+        delete realAddTorrentOptions.label;
+      }
+
       // noinspection ES6MissingAwait
       sendMessage("sendTorrentToDownloader", {
         torrent,
@@ -80,6 +97,8 @@ async function sendToDownloader() {
         <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title> 为 {{ torrentItems.length }} 个种子选择下载器 </v-toolbar-title>
           <v-spacer />
+          <!-- TODO 添加说明 -->
+          <v-btn icon="mdi-help-circle-outline" variant="text" color="green" class="mr-2"></v-btn>
         </v-toolbar>
       </v-card-title>
       <v-card-text>
@@ -114,16 +133,17 @@ async function sendToDownloader() {
             </v-row>
             <v-row>
               <!-- FIXME 改为v-combobox 使得在添加 下载路径设置后 可以选择，并默认支持一些特殊的key -->
-              <v-col class="py-0 pl-0">
+              <v-col cols="6" class="py-0 pl-0">
                 <v-combobox
                   v-model="addTorrentOptions.savePath"
                   :items="suggestFolders"
                   label="保存路径"
                   persistent-hint
                   hint="不设置则为该下载服务器的默认路径"
-                ></v-combobox>
+                >
+                </v-combobox>
               </v-col>
-              <v-col class="py-0">
+              <v-col cols="6" class="py-0 pr-0">
                 <v-combobox
                   v-model="addTorrentOptions.label"
                   :items="suggestTags"
@@ -131,10 +151,6 @@ async function sendToDownloader() {
                   persistent-hint
                   hint="（如果该下载服务器支持）"
                 ></v-combobox>
-              </v-col>
-              <v-col cols="1" class="pr-0">
-                <!-- TODO 添加说明 -->
-                <v-btn icon="mdi-help-circle-outline" variant="text" color="green"></v-btn>
               </v-col>
             </v-row>
             <v-row>

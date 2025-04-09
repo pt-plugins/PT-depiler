@@ -22,6 +22,7 @@ watch(
   async (newValue) => {
     log("Edit clientId:", newValue);
     if (newValue) {
+      openedPanel.value = "note";
       clientConfig.value = { suggestFolders: [], suggestTags: [], ...metadataStore.downloaders[newValue] }; // 防止直接修改父组件的数据
       clientMetadata.value = await getDownloaderMetaData(clientConfig.value.type);
     }
@@ -84,6 +85,41 @@ function saveClientConfig() {
           <v-expansion-panel title="使用说明" value="note" color="info">
             <v-expansion-panel-text>
               <!-- TODO 增加使用说明 -->
+              <v-alert variant="outlined" color="info">
+                <span>下载路径中可包含以下关键字：</span>
+                <v-table density="compact">
+                  <tbody>
+                    <tr>
+                      <td>$torrent.site$</td>
+                      <td>
+                        将被替换为当前站点id；
+                        <br />
+                        例如：/volume1/$torrent.site$/music -> /volume1/opencd/music
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>$torrent.siteName$</td>
+                      <td>
+                        将被替换为当前站点名称；
+                        <br />
+                        例如：/volume1/$torrent.siteName$/music -> /volume1/OpenCD/music
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>$date:YYYY$</td>
+                      <td>例如：/volume1/$date:YYYY$/music -> /volume1/2019/music</td>
+                    </tr>
+                    <tr>
+                      <td>$date:MM$</td>
+                      <td>例如：/volume1/$date:MM$/music -> /volume1/10/music</td>
+                    </tr>
+                    <tr>
+                      <td>$date:DD$</td>
+                      <td>例如：/volume1/$date:DD$/music -> /volume1/01/music</td>
+                    </tr>
+                  </tbody>
+                </v-table>
+              </v-alert>
             </v-expansion-panel-text>
           </v-expansion-panel>
 
