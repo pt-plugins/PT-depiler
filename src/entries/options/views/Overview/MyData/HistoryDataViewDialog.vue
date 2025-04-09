@@ -147,7 +147,7 @@ function viewStoreData(data: IShowUserInfo) {
               <v-btn icon="mdi-eye" size="small" @click="() => viewStoreData(item)"></v-btn>
               <v-btn
                 icon="mdi-delete"
-                color="red"
+                color="error"
                 size="small"
                 :disabled="item.date == currentDate"
                 @click="() => deleteSiteUserInfo(item.date)"

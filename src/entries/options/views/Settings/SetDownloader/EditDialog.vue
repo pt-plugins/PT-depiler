@@ -1,29 +1,28 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { cloneDeep } from "es-toolkit";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import type { IDownloaderMetadata } from "@/shared/storages/metadata.ts";
+import type { IDownloaderMetadata, TDownloaderKey } from "@/shared/storages/metadata.ts";
 import { log } from "~/helper.ts";
 
 import Editor from "./Editor.vue";
 
 const showDialog = defineModel<boolean>();
-const props = defineProps<{
-  clientConfig: IDownloaderMetadata & { valid?: boolean };
+const { clientId } = defineProps<{
+  clientId: TDownloaderKey;
 }>();
 const clientConfig = ref<IDownloaderMetadata & { valid?: boolean }>();
 const metadataStore = useMetadataStore();
 
 watch(
-  () => props.clientConfig,
+  () => clientId,
   (newValue) => {
-    log("Edit clientConfig:", newValue);
-    if (newValue?.id) {
-      clientConfig.value = { ...cloneDeep(newValue), valid: true }; // 防止直接修改父组件的数据
+    log("Edit clientId:", newValue);
+    if (newValue) {
+      clientConfig.value = { ...metadataStore.downloaders[newValue], valid: true }; // 防止直接修改父组件的数据
     }
   },
-  { immediate: true, deep: true },
+  { immediate: true },
 );
 
 function editClientConfig() {

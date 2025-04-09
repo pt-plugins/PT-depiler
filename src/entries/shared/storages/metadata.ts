@@ -41,6 +41,9 @@ export interface IDownloaderMetadata extends DownloaderBaseConfig {
   id: TDownloaderKey;
   enabled: boolean;
 
+  suggestFolders?: string[];
+  suggestTags?: string[];
+
   [key: string]: any; // 其他配置项
 }
 

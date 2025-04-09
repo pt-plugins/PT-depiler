@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { ref, reactive, watch } from "vue";
+import { ref, reactive, watch, computed } from "vue";
 import { type CAddTorrentOptions, getDownloaderIcon } from "@ptd/downloader";
 import { ISearchResultTorrent } from "@/shared/storages/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { IDownloaderMetadata } from "@/shared/storages/metadata.ts";
-import { sleep } from "~/helper.ts";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
@@ -23,6 +22,9 @@ const addTorrentOptions = reactive<CAddTorrentOptions>({
   savePath: "",
   label: "",
 });
+
+const suggestFolders = computed(() => selectedDownloader.value?.suggestFolders ?? []);
+const suggestTags = computed(() => selectedDownloader.value?.suggestTags ?? []);
 
 const downloaderTitle = (downloader: IDownloaderMetadata) => `${downloader.name} [${downloader.address}]`;
 
@@ -55,6 +57,7 @@ async function sendToDownloader() {
     }
 
     for (const torrent of torrentItems) {
+      // noinspection ES6MissingAwait
       sendMessage("sendTorrentToDownloader", {
         torrent,
         downloaderId: selectedDownloader.value?.id!,
@@ -88,6 +91,7 @@ async function sendToDownloader() {
                 :items="metadataStore.getEnabledDownloaders"
                 placeholder="选择下载器"
                 clearable
+                @update:model-value="restoreAddTorrentOptions"
               >
                 <template #selection="{ item: { raw: downloader } }">
                   <v-list-item
@@ -111,20 +115,22 @@ async function sendToDownloader() {
             <v-row>
               <!-- FIXME 改为v-combobox 使得在添加 下载路径设置后 可以选择，并默认支持一些特殊的key -->
               <v-col class="py-0 pl-0">
-                <v-text-field
+                <v-combobox
                   v-model="addTorrentOptions.savePath"
+                  :items="suggestFolders"
                   label="保存路径"
                   persistent-hint
                   hint="不设置则为该下载服务器的默认路径"
-                ></v-text-field>
+                ></v-combobox>
               </v-col>
               <v-col class="py-0">
-                <v-text-field
+                <v-combobox
                   v-model="addTorrentOptions.label"
+                  :items="suggestTags"
                   label="种子标签"
                   persistent-hint
                   hint="（如果该下载服务器支持）"
-                ></v-text-field>
+                ></v-combobox>
               </v-col>
               <v-col cols="1" class="pr-0">
                 <!-- TODO 添加说明 -->

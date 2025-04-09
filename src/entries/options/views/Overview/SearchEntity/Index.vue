@@ -75,8 +75,6 @@ watch(
   { immediate: true, deep: true },
 );
 
-// TODO 通过 watch uiStore的设置，动态调整 队列长度
-
 const isSearchingParsed = ref<boolean>(searchQueue.isPaused);
 
 function pauseSearchQueue() {
@@ -302,7 +300,13 @@ function cancelSearchQueue() {
 </template>
 
 <style scoped lang="scss">
-#ptd-search-entity-table:deep(td.v-data-table__td) {
-  padding: 0 8px;
+#ptd-search-entity-table {
+  :deep(tr.v-data-table__tr:nth-child(even)) {
+    background-color: #f1f1f1;
+  }
+
+  :deep(td.v-data-table__td) {
+    padding: 0 8px;
+  }
 }
 </style>

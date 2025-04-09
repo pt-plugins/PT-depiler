@@ -53,6 +53,7 @@ function clickMenuItem() {
         </v-list-subheader>
         <v-list-item
           v-for="(nav, navIndex) in group.children"
+          class="list-item-half-spacer"
           :key="`${groupIndex}-${navIndex}`"
           :prepend-icon="nav.icon! as string"
           :to="{ name: nav.name }"
@@ -82,8 +83,4 @@ function clickMenuItem() {
   </v-navigation-drawer>
 </template>
 
-<style lang="scss" scoped>
-:deep(.v-list-item__prepend > .v-icon ~ .v-list-item__spacer) {
-  width: 12px;
-}
-</style>
+<style lang="scss" scoped></style>

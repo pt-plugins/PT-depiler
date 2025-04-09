@@ -9,12 +9,14 @@ import { getDownloaderIcon, getDownloaderMetaData, type TorrentClientMetaData } 
 import AddDialog from "./AddDialog.vue";
 import EditDialog from "./EditDialog.vue";
 import DeleteDialog from "./DeleteDialog.vue";
+import PathAndTagSuggestDialog from "@/options/views/Settings/SetDownloader/PathAndTagSuggestDialog.vue";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
 
 const showAddDialog = ref<boolean>(false);
 const showEditDialog = ref<boolean>(false);
+const showPathAndTagSuggestDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 
 const downloaderMetadata = computedAsync(async () => {
@@ -37,10 +39,15 @@ const fullTableHeader = [
 ];
 const tableSelected = ref<TDownloaderKey[]>([]);
 
-const toEditDownloaderConfig = ref({});
+const toEditDownloaderId = ref<TDownloaderKey | null>(null);
 function editDownloader(downloaderId: TDownloaderKey) {
-  toEditDownloaderConfig.value = metadataStore.downloaders[downloaderId];
+  toEditDownloaderId.value = downloaderId;
   showEditDialog.value = true;
+}
+
+function editDownloaderPathAndTag(downloaderId: TDownloaderKey) {
+  toEditDownloaderId.value = downloaderId;
+  showPathAndTagSuggestDialog.value = true;
 }
 
 const toDeleteIds = ref<TDownloaderKey[]>([]);
@@ -119,7 +126,7 @@ watch(toDeleteIds, (newVal, oldValue) => {
           color="success"
           hide-details
           class="downloader-switch-btn"
-          :disabled="!item.enabled || downloaderMetadata?.[item.type]?.features?.DefaultAutoStart === false"
+          :disabled="!item.enabled || downloaderMetadata?.[item.type]?.feature?.DefaultAutoStart.allowed === false"
           @update:model-value="
             (v) => metadataStore.simplePatchDownloader(item.id, 'feature.DefaultAutoStart', v as boolean)
           "
@@ -128,6 +135,9 @@ watch(toDeleteIds, (newVal, oldValue) => {
 
       <template #item.action="{ item }">
         <v-btn-group variant="plain" density="compact" class="table-action">
+          <!-- 查看该下载服务器现状 -->
+          <v-btn size="small" icon="mdi-information-outline" :disabled="true"></v-btn>
+
           <v-btn
             size="small"
             icon="mdi-pencil"
@@ -136,8 +146,12 @@ watch(toDeleteIds, (newVal, oldValue) => {
             @click="editDownloader(item.id)"
           />
           <!-- TODO 该下载服务器下载路径和标签选择 -->
-          <v-btn size="small" icon="mdi-folder-multiple"></v-btn>
-          <v-btn size="small" icon="mdi-tag-multiple"></v-btn>
+          <v-btn
+            size="small"
+            icon="mdi-tag-multiple"
+            title="设置预设的下载路径和标签"
+            @click="editDownloaderPathAndTag(item.id)"
+          ></v-btn>
 
           <v-btn
             size="small"
@@ -152,7 +166,8 @@ watch(toDeleteIds, (newVal, oldValue) => {
   </v-card>
 
   <AddDialog v-model="showAddDialog" />
-  <EditDialog v-model="showEditDialog" :client-config="toEditDownloaderConfig" />
+  <EditDialog v-model="showEditDialog" :client-id="toEditDownloaderId" />
+  <PathAndTagSuggestDialog v-model="showPathAndTagSuggestDialog" :client-id="toEditDownloaderId" />
   <DeleteDialog v-model="showDeleteDialog" v-model:to-delete-ids="toDeleteIds" />
 </template>
 

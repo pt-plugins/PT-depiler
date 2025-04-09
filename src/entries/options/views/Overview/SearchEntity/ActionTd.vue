@@ -65,9 +65,11 @@ async function localDlTorrentDownloadLink() {
 }
 
 const showDownloadClientDialog = ref(false);
+function sendToDownloader() {
+  showDownloadClientDialog.value = true;
+}
 
 function noop() {
-  showDownloadClientDialog.value = true;
   // do nothing
 }
 </script>
@@ -79,7 +81,7 @@ function noop() {
       :size="btnSize"
       icon="mdi-cloud-download"
       :disabled="props.torrentIds.length == 0"
-      @click="() => noop()"
+      @click="() => sendToDownloader()"
     ></v-btn>
     <!-- 复制下载链接 -->
     <v-btn

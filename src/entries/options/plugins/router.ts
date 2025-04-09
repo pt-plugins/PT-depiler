@@ -22,8 +22,14 @@ export const routes: RouteRecordRaw[] = [
       {
         path: "/search-result-snapshot",
         name: "SearchResultSnapshot",
-        meta: { icon: "mdi-history" },
+        meta: { icon: "mdi-camera-plus" },
         component: () => import("../views/Overview/SearchResultSnapshot/Index.vue"),
+      },
+      {
+        path: "/download-history",
+        name: "DownloadHistory",
+        meta: { icon: "mdi-history" },
+        component: () => import("../views/Overview/DownloadHistory/Index.vue"),
       },
     ],
   },
