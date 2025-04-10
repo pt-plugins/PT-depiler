@@ -21,7 +21,7 @@ const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 const isSending = ref(false);
 const selectedDownloader = ref<IDownloaderMetadata | null>(null);
-const addTorrentOptions = reactive<CAddTorrentOptions>({
+const addTorrentOptions = reactive<Required<Omit<CAddTorrentOptions, "localDownloadOption">>>({
   localDownload: true,
   addAtPaused: false,
   savePath: "",

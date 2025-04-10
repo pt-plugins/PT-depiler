@@ -226,7 +226,7 @@ export abstract class AbstractBittorrentClient<T extends DownloaderBaseConfig = 
   // 获取客户端中的已有的标签
   public async getClientLabels(): Promise<string[]> {
     const torrents = await this.getAllTorrents();
-    return Array.from(new Set(torrents.map((t) => t.label))).filter(Boolean);
+    return Array.from(new Set(torrents.map((t) => t.label))).filter(Boolean) as string[];
   }
 
   /**

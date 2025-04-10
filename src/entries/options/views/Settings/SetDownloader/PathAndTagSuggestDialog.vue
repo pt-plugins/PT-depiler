@@ -1,16 +1,20 @@
 <script setup lang="ts">
-import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { ref, watch } from "vue";
-import type { IDownloaderMetadata } from "@/shared/storages/metadata.ts";
-import { log } from "~/helper.ts";
-import { getDownloader, getDownloaderMetaData, type TorrentClientMetaData } from "@ptd/downloader";
 import { VueDraggable } from "vue-draggable-plus";
+import { getDownloader, getDownloaderMetaData, type TorrentClientMetaData } from "@ptd/downloader";
+import type { IDownloaderMetadata } from "@/shared/storages/metadata.ts";
+
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
+
+import { log } from "~/helper.ts";
 
 const showDialog = defineModel<boolean>();
 const { clientId } = defineProps<{
   clientId: string;
 }>();
 
+const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 
 const clientConfig = ref<IDownloaderMetadata>();
@@ -61,10 +65,15 @@ const isLoadingClientFolders = ref<boolean>(false);
 async function loadClientFolders() {
   isLoadingClientFolders.value = true;
   const client = await getDownloader(clientConfig.value!);
-  const clientPaths = await client.getClientPaths();
-  for (const path of clientPaths) {
-    addSuggestFolder(path);
+  try {
+    const clientPaths = await client.getClientPaths();
+    for (const path of clientPaths) {
+      addSuggestFolder(path);
+    }
+  } catch (e) {
+    runtimeStore.showSnakebar("获取下载器文件夹列表失败", { color: "error" });
   }
+
   isLoadingClientFolders.value = false;
 }
 
@@ -89,10 +98,15 @@ const isLoadingClientLabels = ref<boolean>(false);
 async function loadClientLabels() {
   isLoadingClientLabels.value = true;
   const client = await getDownloader(clientConfig.value!);
-  const clientLabels = await client.getClientLabels();
-  for (const label of clientLabels) {
-    addSuggestTag(label);
+  try {
+    const clientLabels = await client.getClientLabels();
+    for (const label of clientLabels) {
+      addSuggestTag(label);
+    }
+  } catch (e) {
+    runtimeStore.showSnakebar("获取下载器标签列表失败", { color: "error" });
   }
+
   isLoadingClientLabels.value = false;
 }
 
@@ -222,7 +236,7 @@ function saveClientConfig() {
                     class="list-item-half-spacer"
                   >
                     <template #prepend>
-                      <v-icon color="amber" icon="mdi-tag-multiple" size="large"></v-icon>
+                      <v-icon color="amber" icon="mdi-tag" size="large"></v-icon>
                     </template>
                     <template #append>
                       <v-btn

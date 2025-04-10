@@ -149,6 +149,7 @@ watch(toDeleteIds, (newVal, oldValue) => {
           <v-btn
             size="small"
             icon="mdi-tag-multiple"
+            color="amber"
             title="设置预设的下载路径和标签"
             @click="editDownloaderPathAndTag(item.id)"
           ></v-btn>
