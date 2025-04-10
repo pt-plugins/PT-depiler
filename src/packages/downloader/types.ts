@@ -217,6 +217,18 @@ export abstract class AbstractBittorrentClient<T extends DownloaderBaseConfig = 
     return "N/A";
   }
 
+  // 获取客户端中的已有的下载目录
+  async getClientPaths(): Promise<string[]> {
+    const torrents = await this.getAllTorrents();
+    return Array.from(new Set(torrents.map((t) => t.savePath))).filter(Boolean);
+  }
+
+  // 获取客户端中的已有的标签
+  public async getClientLabels(): Promise<string[]> {
+    const torrents = await this.getAllTorrents();
+    return Array.from(new Set(torrents.map((t) => t.label))).filter(Boolean);
+  }
+
   /**
    * 获取种子信息的方法
    *

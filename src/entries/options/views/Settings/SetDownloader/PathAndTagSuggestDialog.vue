@@ -3,7 +3,7 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { ref, watch } from "vue";
 import type { IDownloaderMetadata } from "@/shared/storages/metadata.ts";
 import { log } from "~/helper.ts";
-import { getDownloaderMetaData, type TorrentClientMetaData } from "@ptd/downloader";
+import { getDownloader, getDownloaderMetaData, type TorrentClientMetaData } from "@ptd/downloader";
 import { VueDraggable } from "vue-draggable-plus";
 
 const showDialog = defineModel<boolean>();
@@ -37,9 +37,11 @@ watch(
 );
 
 const suggestFolderInput = ref<string>("");
-function addSuggestFolder() {
-  if (suggestFolderInput.value !== "" && !clientConfig.value?.suggestFolders!.includes(suggestFolderInput.value)) {
-    clientConfig.value?.suggestFolders!.push(suggestFolderInput.value);
+function addSuggestFolder(input: string) {
+  if (input !== "" && !clientConfig.value?.suggestFolders!.includes(input)) {
+    clientConfig.value?.suggestFolders!.push(input);
+  }
+  if (suggestFolderInput.value == input) {
     suggestFolderInput.value = "";
   }
 }
@@ -55,10 +57,23 @@ function removeSuggestFolder(folder: string) {
   }
 }
 
+const isLoadingClientFolders = ref<boolean>(false);
+async function loadClientFolders() {
+  isLoadingClientFolders.value = true;
+  const client = await getDownloader(clientConfig.value!);
+  const clientPaths = await client.getClientPaths();
+  for (const path of clientPaths) {
+    addSuggestFolder(path);
+  }
+  isLoadingClientFolders.value = false;
+}
+
 const suggestTagInput = ref<string>("");
-function addSuggestTag() {
-  if (suggestTagInput.value !== "" && !clientConfig.value?.suggestTags!.includes(suggestTagInput.value)) {
-    clientConfig.value?.suggestTags!.push(suggestTagInput.value);
+function addSuggestTag(input: string) {
+  if (input !== "" && !clientConfig.value?.suggestTags!.includes(input)) {
+    clientConfig.value?.suggestTags!.push(input);
+  }
+  if (suggestTagInput.value == input) {
     suggestTagInput.value = "";
   }
 }
@@ -68,6 +83,17 @@ function removeSuggestTag(tag: string) {
   if (tagId > -1) {
     clientConfig.value?.suggestTags!.splice(tagId, 1);
   }
+}
+
+const isLoadingClientLabels = ref<boolean>(false);
+async function loadClientLabels() {
+  isLoadingClientLabels.value = true;
+  const client = await getDownloader(clientConfig.value!);
+  const clientLabels = await client.getClientLabels();
+  for (const label of clientLabels) {
+    addSuggestTag(label);
+  }
+  isLoadingClientLabels.value = false;
 }
 
 function saveClientConfig() {
@@ -130,7 +156,20 @@ function saveClientConfig() {
                 <v-list-item>
                   <v-text-field v-model="suggestFolderInput" label="添加预设下载路径" clearable>
                     <template #append>
-                      <v-btn icon="mdi-keyboard-return" variant="text" @click="addSuggestFolder"></v-btn>
+                      <v-btn
+                        icon="mdi-keyboard-return"
+                        variant="text"
+                        @click="addSuggestFolder(suggestFolderInput)"
+                      ></v-btn>
+                    </template>
+                    <template #prepend>
+                      <v-btn
+                        icon="mdi-import"
+                        variant="text"
+                        title="一键导入下载器中已有的文件夹列表"
+                        :loading="isLoadingClientFolders"
+                        @click="loadClientFolders"
+                      ></v-btn>
                     </template>
                     <template #details>
                       <v-chip
@@ -199,7 +238,16 @@ function saveClientConfig() {
                 <v-list-item>
                   <v-text-field v-model="suggestTagInput" label="添加预设标签" clearable>
                     <template #append>
-                      <v-btn icon="mdi-keyboard-return" variant="text" @click="addSuggestTag"></v-btn>
+                      <v-btn icon="mdi-keyboard-return" variant="text" @click="addSuggestTag(suggestTagInput)"></v-btn>
+                    </template>
+                    <template #prepend>
+                      <v-btn
+                        icon="mdi-import"
+                        variant="text"
+                        title="一键导入下载器中已有的标签"
+                        :loading="isLoadingClientLabels"
+                        @click="loadClientLabels"
+                      ></v-btn>
                     </template>
                   </v-text-field>
                 </v-list-item>
