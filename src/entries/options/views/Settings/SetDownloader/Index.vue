@@ -135,7 +135,7 @@ watch(toDeleteIds, (newVal, oldValue) => {
 
       <template #item.action="{ item }">
         <v-btn-group variant="plain" density="compact" class="table-action">
-          <!-- 查看该下载服务器现状 -->
+          <!-- TODO 查看该下载服务器现状 -->
           <v-btn size="small" icon="mdi-information-outline" :disabled="true"></v-btn>
 
           <v-btn
@@ -145,7 +145,7 @@ watch(toDeleteIds, (newVal, oldValue) => {
             :title="t('common.edit')"
             @click="editDownloader(item.id)"
           />
-          <!-- TODO 该下载服务器下载路径和标签选择 -->
+          <!-- 该下载服务器下载路径和标签选择 -->
           <v-btn
             size="small"
             icon="mdi-tag-multiple"

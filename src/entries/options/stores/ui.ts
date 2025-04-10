@@ -12,6 +12,7 @@ export const useUIStore = defineStore("ui", {
     theme: "light",
     isNavBarOpen: true,
     ignoreWrongPixelRatio: false,
+    lastDownloader: {},
     tableBehavior: {
       MyData: {
         itemsPerPage: 20,

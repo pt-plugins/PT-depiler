@@ -1,11 +1,14 @@
 <script setup lang="ts">
 import { ref, reactive, watch, computed } from "vue";
 import { type CAddTorrentOptions, getDownloaderIcon } from "@ptd/downloader";
-import { ISearchResultTorrent } from "@/shared/storages/runtime.ts";
-import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { IDownloaderMetadata } from "@/shared/storages/metadata.ts";
-import { sendMessage } from "@/messages.ts";
+import { type ISearchResultTorrent } from "@/shared/storages/runtime.ts";
+import { type IDownloaderMetadata } from "@/shared/storages/metadata.ts";
+
+import { useUIStore } from "@/options/stores/ui.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
+
+import { sendMessage } from "@/messages.ts";
 import { formatDate } from "@/options/utils.ts";
 
 const showDialog = defineModel<boolean>();
@@ -13,6 +16,7 @@ const { torrentItems } = defineProps<{
   torrentItems: ISearchResultTorrent[];
 }>();
 
+const uiStore = useUIStore();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 const isSending = ref(false);
@@ -37,8 +41,12 @@ function restoreAddTorrentOptions() {
 }
 
 watch(showDialog, () => {
-  restoreAddTorrentOptions();
-  selectedDownloader.value = null;
+  restoreAddTorrentOptions(); // 先重置所有选项，然后从uiStore中获取历史情况
+
+  const lastDownloaderId = uiStore.lastDownloader.id;
+  selectedDownloader.value = lastDownloaderId ? metadataStore.downloaders[lastDownloaderId] : null;
+  addTorrentOptions.savePath = uiStore.lastDownloader.savePath ?? "";
+  addTorrentOptions.label = uiStore.lastDownloader.label ?? "";
 });
 
 async function sendToDownloader() {
@@ -46,6 +54,12 @@ async function sendToDownloader() {
     runtimeStore.showSnakebar("请先选择下载器", { color: "error" });
     return;
   }
+
+  uiStore.lastDownloader = {
+    id: selectedDownloader.value.id,
+    savePath: addTorrentOptions.savePath,
+    label: addTorrentOptions.label,
+  };
 
   isSending.value = true;
   try {
@@ -160,6 +174,7 @@ async function sendToDownloader() {
                   color="success"
                   v-model="addTorrentOptions.localDownload"
                   label="本地中转（如非必要请勿禁用）"
+                  disabled
                   hide-details
                 ></v-switch>
               </v-col>

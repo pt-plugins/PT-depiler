@@ -14,5 +14,12 @@ export interface IUiPiniaStorageSchema {
   theme: supportThemeType;
   isNavBarOpen: boolean;
   ignoreWrongPixelRatio: boolean;
+
+  lastDownloader: {
+    id: string;
+    savePath: string;
+    label: string;
+  };
+
   tableBehavior: Record<UiTableBehaviorKey, UiTableBehaviorItem>;
 }
