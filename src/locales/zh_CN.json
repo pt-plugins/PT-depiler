@@ -221,5 +221,13 @@
         }
       }
     }
+  },
+  "TechnologyStack": {
+    "dependency": "项目依赖",
+    "ptppHistory": "@:common.project 的历史",
+    "stackTableColumn": {
+      "homepage": "项目主页"
+    },
+    "thankNote": "PT 助手的诞生是建立在这些项目基础之上，在此感谢所有项目的参与人员，感谢他们的付出！"
   }
 }

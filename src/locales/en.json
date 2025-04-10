@@ -172,5 +172,13 @@
         }
       }
     }
+  },
+  "TechnologyStack": {
+    "dependency": "Dependencies of this Project",
+    "ptppHistory": "History of Project ` @:common.name `",
+    "stackTableColumn": {
+      "homepage": "Homepage"
+    },
+    "thankNote": "The birth of 'PT Plugin Plus' is established on the base of these projects. Thanks all the participants of the project, thanks for your contribution!"
   }
 }

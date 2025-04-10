@@ -58,6 +58,20 @@ export const routes: RouteRecordRaw[] = [
       },
     ],
   },
+  {
+    path: "/about",
+    name: "About",
+    meta: { isMainMenu: true, keepAlive: true },
+    children: [
+      {
+        path: "/technology-stack",
+        name: "TechnologyStack",
+        meta: { icon: "mdi-developer-board" },
+        component: () => import("../views/About/TechnologyStack.vue"),
+      },
+    ],
+  },
+
   { path: "/:pathMatch(.*)*", name: "NotFound", redirect: "/" },
 ];
 

@@ -167,7 +167,7 @@ function saveClientConfig() {
                     </template>
                   </v-list-item>
                 </vue-draggable>
-                <v-list-item>
+                <v-list-item class="px-0">
                   <v-text-field v-model="suggestFolderInput" label="添加预设下载路径" clearable>
                     <template #append>
                       <v-btn
@@ -249,7 +249,7 @@ function saveClientConfig() {
                     </template>
                   </v-list-item>
                 </vue-draggable>
-                <v-list-item>
+                <v-list-item class="px-0">
                   <v-text-field v-model="suggestTagInput" label="添加预设标签" clearable>
                     <template #append>
                       <v-btn icon="mdi-keyboard-return" variant="text" @click="addSuggestTag(suggestTagInput)"></v-btn>
