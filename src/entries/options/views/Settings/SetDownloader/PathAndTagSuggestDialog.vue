@@ -15,14 +15,20 @@ const metadataStore = useMetadataStore();
 
 const clientConfig = ref<IDownloaderMetadata>();
 const clientMetadata = ref<TorrentClientMetaData>();
-const openedPanel = ref<string>("note");
+
+const pathReplaceMap: Record<string, string> = {
+  "$torrent.site$": "将被替换为当前站点id；\n例如：/volume1/$torrent.site$/music -> /volume1/opencd/music",
+  "$torrent.siteName$": "将被替换为当前站点名称；\n例如：/volume1/$torrent.siteName$/music -> /volume1/OpenCD/music",
+  "$date:YYYY$": "例如：/volume1/$date:YYYY$/music -> /volume1/2019/music",
+  "$date:MM$": "例如：/volume1/$date:MM$/music -> /volume1/10/music",
+  "$date:DD$": "例如：/volume1/$date:DD$/music -> /volume1/01/music",
+};
 
 watch(
   () => clientId,
   async (newValue) => {
     log("Edit clientId:", newValue);
     if (newValue) {
-      openedPanel.value = "note";
       clientConfig.value = { suggestFolders: [], suggestTags: [], ...metadataStore.downloaders[newValue] }; // 防止直接修改父组件的数据
       clientMetadata.value = await getDownloaderMetaData(clientConfig.value.type);
     }
@@ -36,6 +42,10 @@ function addSuggestFolder() {
     clientConfig.value?.suggestFolders!.push(suggestFolderInput.value);
     suggestFolderInput.value = "";
   }
+}
+
+function addPathReplaceToSuggestFolder(key: string) {
+  suggestFolderInput.value = suggestFolderInput.value + "/" + key;
 }
 
 function removeSuggestFolder(folder: string) {
@@ -67,7 +77,7 @@ function saveClientConfig() {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" width="800" scrollable>
+  <v-dialog v-model="showDialog" width="1000" scrollable>
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar
@@ -81,48 +91,7 @@ function saveClientConfig() {
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <v-expansion-panels v-model="openedPanel">
-          <v-expansion-panel title="使用说明" value="note" color="info">
-            <v-expansion-panel-text>
-              <!-- TODO 增加使用说明 -->
-              <v-alert variant="outlined" color="info">
-                <span>下载路径中可包含以下关键字：</span>
-                <v-table density="compact">
-                  <tbody>
-                    <tr>
-                      <td>$torrent.site$</td>
-                      <td>
-                        将被替换为当前站点id；
-                        <br />
-                        例如：/volume1/$torrent.site$/music -> /volume1/opencd/music
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>$torrent.siteName$</td>
-                      <td>
-                        将被替换为当前站点名称；
-                        <br />
-                        例如：/volume1/$torrent.siteName$/music -> /volume1/OpenCD/music
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>$date:YYYY$</td>
-                      <td>例如：/volume1/$date:YYYY$/music -> /volume1/2019/music</td>
-                    </tr>
-                    <tr>
-                      <td>$date:MM$</td>
-                      <td>例如：/volume1/$date:MM$/music -> /volume1/10/music</td>
-                    </tr>
-                    <tr>
-                      <td>$date:DD$</td>
-                      <td>例如：/volume1/$date:DD$/music -> /volume1/01/music</td>
-                    </tr>
-                  </tbody>
-                </v-table>
-              </v-alert>
-            </v-expansion-panel-text>
-          </v-expansion-panel>
-
+        <v-expansion-panels>
           <v-expansion-panel
             title="下载路径"
             value="path"
@@ -130,7 +99,9 @@ function saveClientConfig() {
           >
             <v-expansion-panel-text>
               <v-list density="compact">
-                <v-list-subheader v-if="clientConfig!.suggestFolders!.length > 0">已添加的预设路径</v-list-subheader>
+                <v-list-subheader v-if="clientConfig!.suggestFolders!.length > 0">
+                  已添加的预设路径（支持拖拽排序）
+                </v-list-subheader>
                 <vue-draggable v-model="clientConfig!.suggestFolders!">
                   <v-list-item
                     v-for="item in clientConfig!.suggestFolders"
@@ -153,19 +124,46 @@ function saveClientConfig() {
                   </v-list-item>
                 </vue-draggable>
                 <v-list-item>
-                  <v-text-field v-model="suggestFolderInput" label="添加预设下载路径">
+                  <v-text-field v-model="suggestFolderInput" label="添加预设下载路径" clearable>
                     <template #append>
                       <v-btn icon="mdi-keyboard-return" variant="text" @click="addSuggestFolder"></v-btn>
+                    </template>
+                    <template #details>
+                      <v-chip
+                        v-for="(note, key) in pathReplaceMap"
+                        :key="key"
+                        @click="addPathReplaceToSuggestFolder(key)"
+                        size="small"
+                        class="mr-1"
+                        :title="note"
+                      >
+                        {{ key }}
+                      </v-chip>
                     </template>
                   </v-text-field>
                 </v-list-item>
               </v-list>
+              <v-alert variant="outlined" color="info" closable>
+                <span>下载路径中可包含以下关键字：</span>
+                <v-table density="compact">
+                  <tbody>
+                    <tr v-for="(note, key) in pathReplaceMap" :key="key">
+                      <td>{{ key }}</td>
+                      <td>
+                        <pre>{{ note }}</pre>
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-table>
+              </v-alert>
             </v-expansion-panel-text>
           </v-expansion-panel>
           <v-expansion-panel title="标签" value="tag">
             <v-expansion-panel-text>
               <v-list density="compact">
-                <v-list-subheader v-if="clientConfig!.suggestTags!.length > 0">已添加的预设标签</v-list-subheader>
+                <v-list-subheader v-if="clientConfig!.suggestTags!.length > 0">
+                  已添加的预设标签（支持拖拽排序）
+                </v-list-subheader>
                 <vue-draggable v-model="clientConfig!.suggestTags!">
                   <v-list-item
                     v-for="item in clientConfig!.suggestTags"
@@ -174,7 +172,7 @@ function saveClientConfig() {
                     class="list-item-half-spacer"
                   >
                     <template #prepend>
-                      <v-icon color="amber" icon="mdi-folder" size="large"></v-icon>
+                      <v-icon color="amber" icon="mdi-tag-multiple" size="large"></v-icon>
                     </template>
                     <template #append>
                       <v-btn
