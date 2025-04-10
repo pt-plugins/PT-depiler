@@ -92,11 +92,15 @@ function saveClientConfig() {
       <v-divider />
       <v-card-text>
         <v-expansion-panels>
-          <v-expansion-panel
-            title="下载路径"
-            value="path"
-            :disabled="clientMetadata?.feature?.CustomPath?.allowed === false"
-          >
+          <v-expansion-panel value="path" :disabled="clientMetadata?.feature?.CustomPath?.allowed === false">
+            <v-expansion-panel-title>
+              下载路径
+              <v-spacer />
+              <v-chip :color="clientConfig!.suggestFolders!.length > 0 ? 'info' : ''" size="small">
+                +{{ clientConfig!.suggestFolders!.length }}
+              </v-chip>
+            </v-expansion-panel-title>
+
             <v-expansion-panel-text>
               <v-list density="compact">
                 <v-list-subheader v-if="clientConfig!.suggestFolders!.length > 0">
@@ -158,7 +162,14 @@ function saveClientConfig() {
               </v-alert>
             </v-expansion-panel-text>
           </v-expansion-panel>
-          <v-expansion-panel title="标签" value="tag">
+          <v-expansion-panel value="tag">
+            <v-expansion-panel-title>
+              标签
+              <v-spacer />
+              <v-chip :color="clientConfig!.suggestTags!.length > 0 ? 'info' : ''" size="small">
+                +{{ clientConfig!.suggestTags!.length }}
+              </v-chip>
+            </v-expansion-panel-title>
             <v-expansion-panel-text>
               <v-list density="compact">
                 <v-list-subheader v-if="clientConfig!.suggestTags!.length > 0">
@@ -186,7 +197,7 @@ function saveClientConfig() {
                   </v-list-item>
                 </vue-draggable>
                 <v-list-item>
-                  <v-text-field v-model="suggestTagInput" label="添加预设标签">
+                  <v-text-field v-model="suggestTagInput" label="添加预设标签" clearable>
                     <template #append>
                       <v-btn icon="mdi-keyboard-return" variant="text" @click="addSuggestTag"></v-btn>
                     </template>
