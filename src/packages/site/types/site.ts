@@ -206,6 +206,8 @@ export interface ISiteUserConfig {
    */
   allowQueryUserInfo?: boolean;
 
+  timeout?: number; // 请求超时时间，单位为毫秒，如果不设置默认为 30000ms
+
   /**
    * 存储用户输入的配置项信息
    */

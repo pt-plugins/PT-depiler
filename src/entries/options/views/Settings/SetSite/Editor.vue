@@ -2,7 +2,7 @@
 import { timezoneOffset, ISiteUserConfig, type TSiteID, ISiteMetadata, TSiteFullUrl } from "@ptd/site";
 import { watch, ref, onMounted, inject, computed } from "vue";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { formValidateRules } from "@/options/utils.ts";
+import { formatDate, formValidateRules } from "@/options/utils.ts";
 
 const metadataStore = useMetadataStore();
 
@@ -67,7 +67,7 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
 </script>
 
 <template>
-  <v-card class="mb-5">
+  <v-card class="mb-5 pa-1">
     <v-form fast-fail validate-on="eager invalid-input" v-model="siteUserConfig.valid">
       <v-container class="pa-0">
         <v-row>
@@ -120,6 +120,23 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
         </v-row>
 
         <v-autocomplete v-model="siteTimezoneOffset" :items="timeZone" :label="$t('setSite.editor.timezone')" />
+
+        <v-slider
+          label="请求超时"
+          v-model="siteUserConfig.timeout"
+          :color="siteUserConfig.timeout! > 8 * 60e3 ? 'red' : siteUserConfig.timeout! > 5 * 60e3 ? 'amber' : 'green'"
+          :min="0"
+          :max="10 * 60e3"
+          :step="1e3"
+          hint="影响该站点请求（种子搜索、用户信息获取）的超时等待时间"
+          persistent-hint
+        >
+          <template #append>
+            <v-btn variant="flat" @click="siteUserConfig.timeout = 30e3">
+              {{ formatDate(siteUserConfig.timeout!, "mm:ss") }}
+            </v-btn>
+          </template>
+        </v-slider>
 
         <template v-if="siteMetaData.userInputSettingMeta">
           <v-divider />

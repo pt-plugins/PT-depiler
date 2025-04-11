@@ -77,6 +77,7 @@ export default class BittorrentSite {
     // 统一设置一些 AxiosRequestConfig， 当作默认值
     axiosConfig.baseURL ??= this.url;
     axiosConfig.url ??= "/";
+    axiosConfig.timeout ??= this.userConfig.timeout ?? 30e3;
 
     let req: AxiosResponse;
     try {

@@ -53,7 +53,7 @@ function getSearchSolution(planKey: string, entryName: string) {
             <v-list-item-title>
               <SiteName :site-id="searchPlan.siteId" :class="['text-decoration-none', 'text-black']" />
               ->
-              <span v-if="runtimeStore.search.searchPlanKey === 'default'">
+              <span v-if="runtimeStore.search.searchPlanKey === 'all'">
                 {{ searchPlan.searchEntry.name ?? searchPlan.searchEntryName }}
               </span>
               <span v-else>
@@ -76,7 +76,7 @@ function getSearchSolution(planKey: string, entryName: string) {
               </span>
               <v-divider vertical class="mx-2" />
               <v-btn-group variant="text" size="small">
-                <!-- TODO 上移队列 -->
+                <!-- 上移队列 -->
                 <v-btn
                   v-if="searchPlan.status === EResultParseStatus.waiting"
                   color="warning"
@@ -84,7 +84,7 @@ function getSearchSolution(planKey: string, entryName: string) {
                   @click="() => raiseSearchPriority(solutionKey)"
                 >
                 </v-btn>
-                <!-- TODO 重新搜索 -->
+                <!-- 重新搜索 -->
                 <v-btn
                   v-else
                   icon="mdi-cached"

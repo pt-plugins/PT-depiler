@@ -58,6 +58,7 @@ export const useMetadataStore = defineStore("metadata", {
           siteUserConfig.sortIndex ??= 100;
           siteUserConfig.allowSearch ??= Object.hasOwn(siteMetaData, "search");
           siteUserConfig.allowQueryUserInfo ??= Object.hasOwn(siteMetaData, "userInfo");
+          siteUserConfig.timeout = 30e3;
           siteUserConfig.inputSetting ??= {};
           siteUserConfig.merge ??= {};
         }
