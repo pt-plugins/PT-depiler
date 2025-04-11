@@ -135,7 +135,7 @@ export const useMetadataStore = defineStore("metadata", {
       return Object.values(state.solutions);
     },
 
-    getDefaultSearchSolution(state) {
+    getDefaultAllSearchSolution(state) {
       return async () => {
         const solutions: ISearchSolution[] = [];
 
@@ -160,7 +160,7 @@ export const useMetadataStore = defineStore("metadata", {
     getSearchSolution(state) {
       return async (solutionId: TSolutionKey | "default"): Promise<ISearchSolutionMetadata> => {
         if (solutionId === "default") {
-          return await this.getDefaultSearchSolution();
+          return await this.getDefaultAllSearchSolution();
         } else {
           return state.solutions[solutionId];
         }

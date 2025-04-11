@@ -69,6 +69,12 @@ export const routes: RouteRecordRaw[] = [
         meta: { icon: "mdi-developer-board" },
         component: () => import("../views/About/TechnologyStack.vue"),
       },
+      {
+        path: "/special-thank",
+        name: "SpecialThank",
+        meta: { icon: "mdi-account-multiple" },
+        component: () => import("../views/About/SpecialThank.vue"),
+      },
     ],
   },
 

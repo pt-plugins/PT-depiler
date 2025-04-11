@@ -34,7 +34,7 @@ const showSaveSnapshotDialog = ref<boolean>(false);
 const fullTableHeader = [
   { title: "站点", key: "site", align: "center", width: 90, alwaysShow: true },
   { title: "标题", key: "title", align: "start", minWidth: 600, maxWidth: "32vw", alwaysShow: true },
-  { title: "分类/入口", key: "category", align: "center", width: 150, minWidth: 150 },
+  { title: "分类", key: "category", align: "center", width: 90 },
   { title: "大小", key: "size", align: "end" },
   { title: "上传", key: "seeders", align: "end", width: 90, minWidth: 90 },
   { title: "下载", key: "leechers", align: "end", width: 90, minWidth: 90 },

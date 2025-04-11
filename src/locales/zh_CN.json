@@ -169,57 +169,6 @@
           "setDefault": "设置为默认下载服务器"
         }
       }
-    },
-    "setDownloader": {
-      "add": {
-        "NoneSelectNotice": "Please select a server type",
-        "newType": "Come here to add the server type you want!",
-        "step": {
-          "selectType": "Select server type",
-          "setOptions": "Configuration"
-        },
-        "title": "Add Download Client"
-      },
-      "common": {
-        "address": "Server Address",
-        "name": "Server Name",
-        "type": "Type",
-        "uid": "Server Id",
-        "username": "Username"
-      },
-      "delete": {
-        "text": "Are you sure to delete these {0} Download Servers?"
-      },
-      "edit": {
-        "title": "Edit Download Server"
-      },
-      "editor": {
-        "addressTip": "Full Server Address (may include port or path), Like: http://192.168.1.1:5000/",
-        "autoStart": "Automatically start downloading when sending a torrent",
-        "connect": {
-          "default": "Check Connect",
-          "error": "Connect Failed! Check Form Input or Download Server",
-          "success": "Connect Successful! You can enter next step."
-        },
-        "nameTip": "Pick a nice and recognizable name for this Download Server",
-        "password": "Password",
-        "timeout": "Timeout (seconds)",
-        "uidPlaceholder": " (Generate automatically)"
-      },
-      "index": {
-        "changeDefaultDownloader": "Change Default Downloader Successful!",
-        "emptyNotice": "Before using the download service, you need to add at least one download server.",
-        "remove": {
-          "multi": "Are you sure to delete these {count} download servers?",
-          "single": "Are you sure to delete this download server?"
-        },
-        "table": {
-          "action": {
-            "deleteDownloader": "Delete this downloader server",
-            "setDefault": "Set this downloader server as Default Downloader."
-          }
-        }
-      }
     }
   },
   "TechnologyStack": {
@@ -229,5 +178,17 @@
       "homepage": "项目主页"
     },
     "thankNote": "PT 助手的诞生是建立在这些项目基础之上，在此感谢所有项目的参与人员，感谢他们的付出！"
+  },
+  "SpecialThank": {
+    "contributor": "协作者",
+    "issue": "反馈",
+    "langContributor": "语言@:SpecialThank.contributor",
+    "preWorkContributor": "前期工作@:SpecialThank.contributor",
+    "sortByName": "列表按字母排序",
+    "thankNote": [
+      "在项目的开发和测试中，他们给予了很多帮助和支持（或开发，或测试，或发💊，或建议，或鼓励，或鞭策），在此表示感谢。",
+      "列表中未能一一列出所有给予帮助的同学，也对他们表示感谢，如有遗漏敬请谅解。",
+      "同时一并感谢这些："
+    ]
   }
 }

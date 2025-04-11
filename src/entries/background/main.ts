@@ -42,7 +42,7 @@ onMessage("setSiteLastUserInfo", async ({ data: userData }) => {
   console.log("setSiteLastUserInfo", userData);
   const site = userData.site;
 
-  // 存储用户信息到 site 中
+  // 存储用户信息到 metadata 中（ pinia/webExtPersistence 会自动同步该部分信息 ）
   const metadataStore = (await extStorage.getItem("metadata")) ?? {};
   (metadataStore as IMetadataPiniaStorageSchema).lastUserInfo ??= {};
   (metadataStore as IMetadataPiniaStorageSchema).lastUserInfo[site] = userData;
