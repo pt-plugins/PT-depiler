@@ -18,16 +18,8 @@ const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 
 const appendMenu: Array<{ title: string; icon: string; [str: string]: any }> = [
-  {
-    title: "layout.header.home",
-    icon: "mdi-home",
-    href: REPO_URL,
-  },
-  {
-    title: "layout.header.wiki",
-    icon: "mdi-help-circle",
-    href: `${REPO_URL}/wiki`,
-  },
+  { title: "layout.header.home", icon: "mdi-home", href: REPO_URL },
+  { title: "layout.header.wiki", icon: "mdi-help-circle", href: `${REPO_URL}/wiki` },
 ];
 
 const searchKey = ref((route.query?.search as string) ?? "");
@@ -101,9 +93,11 @@ function startSearchEntity() {
               @click="() => (searchPlanKey = 'default')"
               :title="'默认'"
               :subtitle="
-                metadataStore.defaultSolutionId !== 'default'
+                '<' +
+                (metadataStore.defaultSolutionId !== 'default'
                   ? metadataStore.getSearchSolutionName(metadataStore.defaultSolutionId)
-                  : ''
+                  : '全站') +
+                '>'
               "
             ></v-list-item>
             <v-divider />
