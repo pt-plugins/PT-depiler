@@ -2,8 +2,9 @@ import type { AxiosRequestConfig } from "axios";
 import type { TQueryFilter } from "@ptd/site";
 import type { EResultParseStatus } from "./base";
 import type { ITorrent, TBaseTorrentTagName } from "./torrent";
+import type { TSupportSocialSite } from "@ptd/social/types.ts";
 
-export type TAdvanceSearchKeyword = "imdb" | "tmdb" | "douban" | "bangumi" | "anidb" | "tvdb" | string;
+export type TAdvanceSearchKeyword = TSupportSocialSite | string;
 
 export interface ISearchInput {
   keywords?: `${TAdvanceSearchKeyword}|${string}` | string;

@@ -163,7 +163,7 @@ export async function doSearchEntity(
   );
 }
 
-export async function doSearch(search: string, plan: string, flush = true) {
+export async function doSearch(search: string, plan?: string, flush?: boolean = true) {
   const searchKey = search ?? runtimeStore.search.searchKey ?? "";
   const searchPlanKey = plan ?? runtimeStore.search.searchPlanKey ?? "default";
 

@@ -43,6 +43,9 @@ importers:
       filesize:
         specifier: ^10.1.6
         version: 10.1.6
+      idb:
+        specifier: ^8.0.2
+        version: 8.0.2
       nanoid:
         specifier: ^5.1.5
         version: 5.1.5
@@ -2499,6 +2502,10 @@ packages:
     resolution:
       { integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw== }
     engines: { node: ">=0.10.0" }
+
+  idb@8.0.2:
+    resolution:
+      { integrity: sha512-CX70rYhx7GDDQzwwQMDwF6kDRQi5vVs6khHUumDrMecBylKkwvZ8HWvKV08AGb7VbpoGCWUQ4aHzNDgoUiOIUg== }
 
   ieee754@1.2.1:
     resolution:
@@ -6350,6 +6357,8 @@ snapshots:
   iconv-lite@0.6.3:
     dependencies:
       safer-buffer: 2.1.2
+
+  idb@8.0.2: {}
 
   ieee754@1.2.1: {}
 

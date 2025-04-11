@@ -1,5 +1,6 @@
 import { parseTimeToLive, parseValidTimeString } from "./datetime.ts";
 import { parseSizeString } from "./filesize.ts";
+import { socialParseUrlMap } from "@ptd/social/index.ts";
 
 export function tryToNumber(value: any): number {
   if (typeof value === "string") {
@@ -156,31 +157,14 @@ export const definedFilters: Record<string, TQueryFilterFn> = {
   parseTTL: parseTimeToLive,
 
   // TODO parseFuzzyTime with wanasit/chrono
-  extDoubanId: (query) => {
-    const doubanUrlMatch = query.match(/(?:https?:\/\/)?(?:(?:movie|www)\.)?douban\.com\/(?:subject|movie)\/(\d+)\/?/);
-    if (doubanUrlMatch) {
-      return doubanUrlMatch[1];
-    }
 
-    return query;
-  },
-
-  extImdbId: (query) => {
-    // Extract the IMDb ID from the URL.
-    const imdbUrlMatch = query.match(/(?:https?:\/\/)?(?:www\.)?imdb\.com\/title\/(tt\d+)\/?/);
-    if (imdbUrlMatch) {
-      return imdbUrlMatch[1];
-    }
-
-    if (/tt(\d+)/.test(query)) {
-      return query;
-    }
-
-    // 如果是纯数字的字符串，则补齐并返回
-    if (/^\d+$/.test(query)) {
-      return "tt" + (query.length < 7 ? query.padStart(7, "0") : query);
-    }
-  },
+  // Social Site Parser
+  extAnidbId: socialParseUrlMap.anidb,
+  extBangumiId: socialParseUrlMap.bangumi,
+  extDoubanId: socialParseUrlMap.douban,
+  extImdbId: socialParseUrlMap.imdb,
+  extTmdbId: socialParseUrlMap.tmdb,
+  extTvdbId: socialParseUrlMap.tvdb,
 
   /**
    * Print the query to the console.

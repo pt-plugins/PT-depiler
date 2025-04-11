@@ -1,8 +1,12 @@
 <script setup lang="ts">
-import type { ISearchResultTorrent } from "@/shared/storages/runtime.ts";
+import { onMounted, reactive, useTemplateRef } from "vue";
 import { useElementSize } from "@vueuse/core";
-import { useTemplateRef } from "vue";
-import { TAdvanceSearchKeyword } from "@ptd/site";
+
+import type { ISearchResultTorrent } from "@/shared/storages/runtime.ts";
+import type { ISocialInformation, TSupportSocialSite } from "@ptd/social/types.ts";
+
+import { socialBuildUrlMap } from "@ptd/social";
+import { get as getSocialInformation } from "@/options/stores/socialInformation.ts";
 
 const { item } = defineProps<{
   item: ISearchResultTorrent;
@@ -12,27 +16,26 @@ const { width: containerWidth } = useElementSize(useTemplateRef<HTMLDivElement>(
 const { width: tagsWidth } = useElementSize(useTemplateRef<HTMLDivElement>("tags"));
 const { width: socialWidth } = useElementSize(useTemplateRef<HTMLDivElement>("social"));
 
-interface SocialMeta {
-  url: (id) => string;
-}
+// @ts-ignore
+const socialInformation = reactive<Record<TSupportSocialSite, ISocialInformation>>({});
 
-const socialMap: Record<TAdvanceSearchKeyword, SocialMeta> = {
-  imdb: {
-    url: (id) => `https://www.imdb.com/title/${id}/`,
-  },
-  douban: {
-    url: (id) => `https://movie.douban.com/subject/${id}/`,
-  },
-  bangumi: {
-    url: (id) => `https://bgm.tv/subject/${id}/`,
-  },
-  tmdb: {
-    url: (id) => `https://www.themoviedb.org/${id}/`,
-  },
-  tvdb: {
-    url: (id) => `https://thetvdb.com/dereferrer/series/${id}/`,
-  },
-};
+onMounted(() => {
+  for (const key in socialBuildUrlMap) {
+    const site = key as TSupportSocialSite;
+    if (item[`ext_${site}`]) {
+      getSocialInformation(site, item[`ext_${site}`]! as string).then((info) => {
+        socialInformation[site] = info;
+      });
+    }
+  }
+});
+
+function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
+  const searchKey = encodeURIComponent(`${site}|${sid}`);
+  window.open(`${location.origin}${location.pathname}#/search-entity?search=${searchKey}&flush=1`, "_blank");
+
+  // doSearch(`${site}|${sid}`);
+}
 </script>
 
 <template>
@@ -51,22 +54,72 @@ const socialMap: Record<TAdvanceSearchKeyword, SocialMeta> = {
         {{ item.title }}
       </a>
       <div ref="social" class="ml-2">
-        <template v-for="(meta, key) in socialMap" :key="key">
-          <a
-            v-if="item[`ext_${key}`]"
-            :href="meta.url(item[`ext_${key}`])"
-            target="_blank"
-            rel="noopener noreferrer nofollow"
-            :title="`${key}: ${item[`ext_${key}`]}`"
-          >
-            <v-avatar
-              v-if="item[`ext_${key}`]"
-              :image="`/icons/social/${key}.png`"
-              rounded="0"
-              size="x-small"
-              class="ml-1"
-            ></v-avatar>
-          </a>
+        <template v-for="(meta, key) in socialBuildUrlMap" :key="key">
+          <v-menu v-if="item[`ext_${key}`]">
+            <template v-slot:activator="{ props }">
+              <v-avatar
+                v-bind="props"
+                :image="`/icons/social/${key}.png`"
+                rounded="0"
+                size="x-small"
+                class="ml-1"
+              ></v-avatar>
+            </template>
+            <v-card>
+              <v-card-text class="pa-0 py-1">
+                <div class="text-center" style="max-width: 150px">
+                  <template v-if="socialInformation[key]?.id">
+                    <v-img
+                      aspect-ratio="2/3"
+                      :src="socialInformation[key]?.poster"
+                      class="mb-1"
+                      width="150"
+                      lazy-src="/icons/movie_placeholder.png"
+                    >
+                    </v-img>
+                    <h3
+                      v-if="socialInformation[key]?.title"
+                      class="text-decoration-none text-ellipsis text-truncate font-weight-bold"
+                      :title="socialInformation[key]?.title"
+                    >
+                      {{ socialInformation[key]?.title.split(" / ")[0] }}
+                    </h3>
+                    <p class="text-caption">
+                      {{ socialInformation[key]?.ratingScore }} from {{ socialInformation[key]?.ratingCount }} votes
+                    </p>
+                  </template>
+                  <template v-else>
+                    <h3 class="font-weight-bold my-2">No Information</h3>
+                  </template>
+
+                  <v-divider class="my-1" />
+                  <v-btn
+                    variant="text"
+                    block
+                    append-icon="mdi-magnify"
+                    @click="doAdvanceSearch(key, item[`ext_${key}`] as string)"
+                  >
+                    搜索
+                  </v-btn>
+
+                  <v-divider class="my-1" />
+                  <v-btn
+                    variant="text"
+                    :href="meta(item[`ext_${key}`]! as string)"
+                    target="_blank"
+                    block
+                    rel="noopener noreferrer nofollow"
+                    :title="`${key}: ${item[`ext_${key}`]}`"
+                    append-icon="mdi-arrow-top-right-bold-box-outline"
+                  >
+                    访问
+                  </v-btn>
+                  <v-divider class="my-1" />
+                  <p class="text-caption mt-1">( {{ key }}: {{ item[`ext_${key}`] }} )</p>
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-menu>
         </template>
       </div>
     </v-row>
