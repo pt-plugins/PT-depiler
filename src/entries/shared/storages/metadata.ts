@@ -21,6 +21,7 @@ export interface ISearchSolutionMetadata {
   name: string;
   sort: number;
   enabled: boolean;
+  isDefault: boolean;
   createdAt: number;
   solutions: ISearchSolution[];
 }
@@ -52,6 +53,8 @@ export interface IMetadataPiniaStorageSchema {
   solutions: Record<TSolutionKey, ISearchSolutionMetadata>; // 搜索方案配置
   snapshots: Record<TSearchSnapshotKey, ISearchSnapshotMetadata>; // 搜索快照配置（元信息）
   downloaders: Record<TDownloaderKey, IDownloaderMetadata>; // 下载器配置
+
+  defaultSolutionId: TSolutionKey | "default"; // 默认搜索方案
 
   /**
    * 此处仅存储站点最近一次的记录，如果需要获取历史记录，需要使用 storage 方法获取

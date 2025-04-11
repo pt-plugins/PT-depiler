@@ -25,6 +25,7 @@ const initSolution = () =>
     name: "",
     sort: 1,
     enabled: true,
+    isDefault: false,
     createdAt: Date.now(),
     solutions: [],
   }) as ISearchSolutionMetadata;

@@ -31,6 +31,7 @@ export interface ISearchData {
   // 该搜索相关的搜索条件
   searchKey: string;
   searchPlanKey: string;
+  searchPlanName: string;
 
   // 该搜索相关的搜索结果
   searchPlan: Record<TSearchSolutionKey, ISearchPlanStatus>;

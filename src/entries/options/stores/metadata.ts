@@ -28,6 +28,9 @@ export const useMetadataStore = defineStore("metadata", {
     solutions: {},
     snapshots: {},
     downloaders: {},
+
+    defaultSolutionId: "default",
+
     lastUserInfo: {},
   }),
 
@@ -136,7 +139,7 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     getDefaultAllSearchSolution(state) {
-      return async () => {
+      return async (isAll: boolean = false) => {
         const solutions: ISearchSolution[] = [];
 
         const addedSiteIds = Object.keys(state.sites);
@@ -153,24 +156,26 @@ export const useMetadataStore = defineStore("metadata", {
           solutions.push({ id: "default", siteId, searchEntries });
         }
 
-        return { name: "default", id: "default", sort: 0, enabled: true, createdAt: 0, solutions };
+        return { name: "all", id: "all", sort: 0, enabled: true, isDefault: true, createdAt: 0, solutions };
       };
     },
 
     getSearchSolution(state) {
-      return async (solutionId: TSolutionKey | "default"): Promise<ISearchSolutionMetadata> => {
-        if (solutionId === "default") {
+      return async (solutionId: TSolutionKey | "default" | "all"): Promise<ISearchSolutionMetadata> => {
+        if (solutionId === "all" || (solutionId === "default" && state.defaultSolutionId === "default")) {
           return await this.getDefaultAllSearchSolution();
-        } else {
-          return state.solutions[solutionId];
+        } else if (solutionId === "default") {
+          solutionId = state.defaultSolutionId;
         }
+
+        return state.solutions[solutionId];
       };
     },
 
     getSearchSolutionName(state) {
       return (solutionId: TSolutionKey): string => {
-        if (solutionId === "default") {
-          return "默认"; // FIXME i18n
+        if (solutionId === "all") {
+          return "全站"; // FIXME i18n
         }
 
         return state.solutions[solutionId]?.name ?? solutionId;
@@ -230,6 +235,11 @@ export const useMetadataStore = defineStore("metadata", {
 
     async removeSearchSolution(solutionId: TSolutionKey) {
       delete this.solutions[solutionId];
+
+      if (this.defaultSolutionId === solutionId) {
+        this.defaultSolutionId = "default";
+      }
+
       this.$save();
     },
 

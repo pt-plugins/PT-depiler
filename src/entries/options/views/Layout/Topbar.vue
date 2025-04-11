@@ -1,14 +1,13 @@
 <script lang="ts" setup>
 import { REPO_URL } from "~/helper";
 
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useDisplay } from "vuetify";
 import { useRoute, useRouter } from "vue-router";
 
 import { useUIStore } from "@/options/stores/ui";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { computedAsync } from "@vueuse/core";
 
 const route = useRoute();
 const router = useRouter();
@@ -34,22 +33,15 @@ const appendMenu: Array<{ title: string; icon: string; [str: string]: any }> = [
 const searchKey = ref((route.query?.search as string) ?? "");
 const searchPlanKey = ref((route.query?.plan as string) ?? "default");
 
-const searchPlans = computedAsync(async () => {
-  const defaultPlan = {
-    id: "default",
-    name: "default",
-  };
-
-  const searchSolutions = metadataStore.getSearchSolutions
+const searchPlans = computed(() =>
+  metadataStore.getSearchSolutions
     .filter((x) => !!x.enabled) // 过滤掉未启用的搜索方案
     .sort((a, b) => b.sort - a.sort) // 按照 sort 降序排序
     .map((x) => ({
       id: x.id,
       name: x.name,
-    }));
-
-  return [defaultPlan, ...searchSolutions];
-}, []);
+    })),
+);
 
 function startSearchEntity() {
   router.push({
@@ -100,9 +92,21 @@ function startSearchEntity() {
       <template #prepend-inner>
         <v-menu>
           <template v-slot:activator="{ props }">
-            <v-btn color="primary" v-bind="props"> {{ metadataStore.getSearchSolutionName(searchPlanKey) }} </v-btn>
+            <v-btn color="primary" v-bind="props">
+              {{ searchPlanKey == "default" ? "默认" : metadataStore.getSearchSolutionName(searchPlanKey) }}
+            </v-btn>
           </template>
           <v-list>
+            <v-list-item
+              @click="() => (searchPlanKey = 'default')"
+              :title="'默认'"
+              :subtitle="
+                metadataStore.defaultSolutionId !== 'default'
+                  ? metadataStore.getSearchSolutionName(metadataStore.defaultSolutionId)
+                  : ''
+              "
+            ></v-list-item>
+            <v-divider />
             <v-list-item
               v-for="(item, index) in searchPlans"
               :key="index"
@@ -111,6 +115,10 @@ function startSearchEntity() {
             >
               <v-list-item-title>{{ metadataStore.getSearchSolutionName(item.id) }}</v-list-item-title>
             </v-list-item>
+            <template v-if="metadataStore.defaultSolutionId !== 'default'">
+              <v-divider />
+              <v-list-item @click="() => (searchPlanKey = 'all')" :title="'全站'"></v-list-item>
+            </template>
           </v-list>
         </v-menu>
       </template>

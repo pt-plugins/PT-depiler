@@ -163,7 +163,7 @@ export async function doSearchEntity(
   );
 }
 
-export async function doSearch(search: string, plan?: string, flush?: boolean = true) {
+export async function doSearch(search: string, plan?: string, flush: boolean = true) {
   const searchKey = search ?? runtimeStore.search.searchKey ?? "";
   const searchPlanKey = plan ?? runtimeStore.search.searchPlanKey ?? "default";
 
@@ -180,6 +180,7 @@ export async function doSearch(search: string, plan?: string, flush?: boolean = 
   // Expand search plan
   const metadataStore = useMetadataStore();
   const searchSolution = await metadataStore.getSearchSolution(runtimeStore.search.searchPlanKey);
+  runtimeStore.search.searchPlanKey = searchSolution.id; // 重写 searchPlanKey 为实际的 id
   log(`Expanded Search Plan for ${searchPlanKey}: `, searchSolution);
 
   if (searchSolution.solutions.length === 0) {

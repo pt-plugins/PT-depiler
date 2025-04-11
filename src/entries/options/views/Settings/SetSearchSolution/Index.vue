@@ -22,6 +22,7 @@ const tableHeader = [
   { title: t("common.name"), key: "name", align: "start", width: 150 },
   { title: "范围", key: "solution", align: "start", filterable: false, sortable: false },
   { title: "启用？", key: "enabled", align: "center", filterable: false, width: 100 },
+  { title: "默认？", key: "isDefault", align: "center", filterable: false, width: 100, sortable: false },
   { title: t("common.action"), key: "action", filterable: false, sortable: false, width: 200 },
 ];
 const tableFilter = ref("");
@@ -60,6 +61,21 @@ watch(toDeleteIds, (newVal, oldValue) => {
 
 function simplePatchSearchSolution(solutionId: TSolutionKey, value: boolean) {
   metadataStore.solutions[solutionId].enabled = value;
+  metadataStore.$save();
+}
+
+function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) {
+  console.log(toDefault, solutionId);
+  if (toDefault) {
+    metadataStore.defaultSolutionId = solutionId;
+    for (const solutionKey of Object.keys(metadataStore.solutions)) {
+      metadataStore.solutions[solutionKey].isDefault = solutionKey === solutionId;
+    }
+  } else {
+    metadataStore.defaultSolutionId = "default";
+    metadataStore.solutions[solutionId].isDefault = false;
+  }
+
   metadataStore.$save();
 }
 </script>
@@ -124,6 +140,15 @@ function simplePatchSearchSolution(solutionId: TSolutionKey, value: boolean) {
           color="success"
           hide-details
           @update:model-value="(v) => simplePatchSearchSolution(item.id, v as boolean)"
+        />
+      </template>
+
+      <template #item.isDefault="{ item }">
+        <v-switch
+          v-model="item.isDefault"
+          color="success"
+          hide-details
+          @update:model-value="(v) => setDefaultSearchSolution(v as boolean, item.id)"
         />
       </template>
 
