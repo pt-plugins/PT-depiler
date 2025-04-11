@@ -41,18 +41,23 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
 <template>
   <v-container class="t_main" ref="container">
     <v-row>
-      <a
-        :href="item.url"
-        class="t_title text-decoration-none text-subtitle-1 text-black text-truncate"
-        :title="item.title"
-        target="_blank"
-        rel="noopener noreferrer nofollow"
+      <span
+        class="text-truncate"
         :style="{
           width: `${containerWidth - socialWidth}px`,
         }"
       >
-        {{ item.title }}
-      </a>
+        <a
+          :href="item.url"
+          class="t_title text-decoration-none text-subtitle-1 text-black text-truncate"
+          :title="item.title"
+          target="_blank"
+          rel="noopener noreferrer nofollow"
+        >
+          {{ item.title }}
+        </a>
+      </span>
+
       <div ref="social" class="ml-2">
         <template v-for="(meta, key) in socialBuildUrlMap" :key="key">
           <v-menu v-if="item[`ext_${key}`]">
