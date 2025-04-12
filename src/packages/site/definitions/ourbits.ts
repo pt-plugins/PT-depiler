@@ -1,6 +1,12 @@
 import { type ISiteMetadata, ETorrentStatus } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
-import { extractContent, GB, TB } from "@ptd/site";
+import {
+  CategoryInclbookmarked,
+  CategoryIncldead,
+  CategorySpstate,
+  SchemaMetadata,
+  subTitleRemoveExtraElement,
+} from "../schemas/NexusPHP";
+import { GB, TB } from "@ptd/site";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -152,19 +158,7 @@ export const siteMetadata: ISiteMetadata = {
       subTitle: {
         text: "",
         selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
-        elementProcess: (element) => {
-          const testSubTitle = element.parentElement!.innerHTML.split("<br>");
-          if (testSubTitle && testSubTitle.length > 1) {
-            const subTitleHtml = testSubTitle[testSubTitle.length - 1];
-
-            // 移除 div > a:has(span.tag) 的内容
-            const div = document.createElement("div");
-            div.innerHTML = subTitleHtml;
-            div.querySelectorAll("div > a span.tag").forEach((el) => el.parentElement!.remove());
-            return extractContent(div.innerHTML).trim();
-          }
-          return "";
-        },
+        elementProcess: subTitleRemoveExtraElement(["a span.tag"]),
       },
       ext_imdb: { selector: "label.imdb_rate", data: "imdbid", filters: [{ name: "extImdbId" }] },
       ext_douban: { selector: "label.douban_rate", data: "doubanid" },
