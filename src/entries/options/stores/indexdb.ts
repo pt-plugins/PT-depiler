@@ -6,7 +6,7 @@ import { openDB } from "idb";
 import type { ISocialInformation, TSupportSocialSite } from "@ptd/social/types.ts";
 import { getSocialSiteInformation } from "@ptd/social";
 
-export const ptdIndexDb = await openDB("ptd", 1, {
+export const ptdIndexDb = openDB("ptd", 1, {
   upgrade(db) {
     db.createObjectStore("social_information");
   },
@@ -14,7 +14,7 @@ export const ptdIndexDb = await openDB("ptd", 1, {
 
 export async function getSocialInformation(site: TSupportSocialSite, sid: string) {
   const key = `${site}:${sid}`;
-  let stored = await ptdIndexDb.get("social_information", key);
+  let stored = await (await ptdIndexDb).get("social_information", key);
   if (!stored) {
     stored = await getSocialSiteInformation(site, sid, {});
     if (stored) {
@@ -27,14 +27,14 @@ export async function getSocialInformation(site: TSupportSocialSite, sid: string
 
 export async function setSocialInformation(site: TSupportSocialSite, sid: string, val: ISocialInformation) {
   const key = `${site}:${sid}`;
-  return ptdIndexDb.put("social_information", val, key);
+  return (await ptdIndexDb).put("social_information", val, key);
 }
 
 export async function deleteSocialInformation(site: TSupportSocialSite, sid: string) {
   const key = `${site}:${sid}`;
-  return ptdIndexDb.delete("social_information", key);
+  return (await ptdIndexDb).delete("social_information", key);
 }
 
 export async function clearSocialInformation() {
-  return ptdIndexDb.clear("social_information");
+  return (await ptdIndexDb).clear("social_information");
 }
