@@ -67,7 +67,10 @@ export const CategoryInclbookmarked: ISearchCategories = {
  * NexusPHP 模板默认配置，对于大多数NPHP站点都通用
  * @protected
  */
-export const SchemaMetadata: Partial<ISiteMetadata> = {
+export const SchemaMetadata: Pick<
+  ISiteMetadata,
+  "version" | "schema" | "type" | "timezoneOffset" | "search" | "userInfo"
+> = {
   version: 0,
   schema: "NexusPHP",
   type: "private",
@@ -187,6 +190,8 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       name: {
         selector: ["a[href*='userdetails.php'][class*='Name']:first", "a[href*='userdetails.php']:first"],
       },
+
+      // "page": "/userdetails.php?id=$user.id$",
       messageCount: {
         text: 0,
         selector: "td[style*='background: red'] a[href*='messages.php']",
@@ -197,8 +202,6 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           },
         ],
       },
-
-      // "page": "/userdetails.php?id=$user.id$",
       uploaded: {
         selector: [
           "td.rowhead:contains('传输') + td",
@@ -213,6 +216,22 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           },
         ],
       },
+      trueUploaded: {
+        selector: [
+          "td.rowhead:contains('传输') + td",
+          "td.rowhead:contains('傳送') + td",
+          "td.rowhead:contains('Transfers') + td",
+          "td.rowfollow:contains('分享率')",
+        ],
+        filters: [
+          (query: string) => {
+            const queryMatch = query
+              .replace(/,/g, "")
+              .match(/(实际上传量|實際上傳量|Actual Uploaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+            return queryMatch && queryMatch.length === 3 ? parseSizeString(queryMatch[2]) : 0;
+          },
+        ],
+      },
       downloaded: {
         selector: [
           "td.rowhead:contains('传输') + td",
@@ -223,6 +242,22 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [
           (query: string) => {
             const queryMatch = query.replace(/,/g, "").match(/(下[载載]量|Downloaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+            return queryMatch && queryMatch.length === 3 ? parseSizeString(queryMatch[2]) : 0;
+          },
+        ],
+      },
+      trueDownloaded: {
+        selector: [
+          "td.rowhead:contains('传输') + td",
+          "td.rowhead:contains('傳送') + td",
+          "td.rowhead:contains('Transfers') + td",
+          "td.rowfollow:contains('分享率')",
+        ],
+        filters: [
+          (query: string) => {
+            const queryMatch = query
+              .replace(/,/g, "")
+              .match(/(实际下载量|實際下載量|Actual Downloaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
             return queryMatch && queryMatch.length === 3 ? parseSizeString(queryMatch[2]) : 0;
           },
         ],
@@ -276,21 +311,22 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
     process: [
       {
         requestConfig: { url: "/index.php", responseType: "document" },
-        fields: ["id"],
+        fields: ["id", "name"],
       },
       {
         requestConfig: { url: "/userdetails.php", responseType: "document" },
         assertion: { id: "params.id" },
         fields: [
-          "name",
-          "levelName",
+          "messageCount",
           "uploaded",
+          "trueUploaded",
           "downloaded",
+          "trueDownloaded",
+          "levelName",
+          "bonus",
+          "joinTime",
           "seeding",
           "seedingSize",
-          "bonus",
-          "messageCount",
-          "joinTime",
         ],
       },
     ],

@@ -30,7 +30,7 @@ const tableHeader = [
   { title: "做种体积", key: "seedingSize", align: "end", sortable: false },
   { title: "魔力/积分", key: "bonus", align: "end", sortable: false },
   { title: "操作", key: "action", align: "center", width: 90, sortable: false },
-];
+] as const;
 
 function loadSiteHistoryData(siteId: TSiteID) {
   sendMessage("getSiteUserInfo", siteId).then((data) => {
