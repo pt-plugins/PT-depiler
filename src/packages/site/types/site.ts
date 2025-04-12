@@ -75,10 +75,10 @@ export interface ISiteMetadata {
    * 站点图标，具体处理过程见 `../utils/favicon.ts` 的说明
    * 此处填写格式如下：
    *  - 站点 favicon.ico 的完整url，例如 https://xxxx.site/favicon.ico   （从 `http` 开始写）
-   *  - 本地 public/icons/site 目录下的文件，例如 ./{name}.png 或 ./{name}.ico     （从 `./` 开始写）
+   *  - 本地 public/icons/site 目录下的文件，例如 ./{name}.png 或 ./{name}.ico 或 ./{name}.svg     （从 `./` 开始写）
    *  - `data:image/` 开头的Base64字符串 （不会有人这么做吧，一定过不了 Code Review 的）
    */
-  favicon?: `${TSiteFullUrl}${string}` | `data:image/${string}` | `./${string}.${"png" | "ico"}`;
+  favicon?: `${TSiteFullUrl}${string}` | `data:image/${string}` | `./${string}.${"png" | "ico" | "svg"}`;
 
   category?: ISearchCategories[];
 

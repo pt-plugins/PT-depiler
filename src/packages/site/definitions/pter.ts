@@ -128,6 +128,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "已审核", value: "checked" },
         { name: "待修改", value: "need_edit" },
       ],
+      cross: false,
     },
   ],
 

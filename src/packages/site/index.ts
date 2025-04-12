@@ -3,10 +3,9 @@ import { cloneDeep } from "es-toolkit";
 export * from "./types";
 export * from "./utils";
 
-import type { ISiteMetadata, ISiteUserConfig, TSiteID } from "./types";
+import type { ISiteMetadata, ISiteUserConfig, TSiteID, TSiteFullUrl } from "./types";
 import BittorrentSite from "./schemas/AbstractBittorrentSite";
 import PrivateSite from "./schemas/AbstractPrivateSite";
-import { type TSiteFullUrl } from "./types";
 
 export { BittorrentSite, PrivateSite };
 

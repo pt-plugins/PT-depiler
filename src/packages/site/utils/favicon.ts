@@ -203,7 +203,7 @@ export async function getFavicon(site: getFaviconMetadata): Promise<string> {
   const { id: siteId, urls: siteUrls, favicon: siteFavicon } = site;
 
   // 1. 检查本地icons目录是否存在对应文件
-  let checkLocalIconPaths = [`${siteId}.png`, `${siteId}.ico`];
+  let checkLocalIconPaths = [`${siteId}.png`, `${siteId}.ico`, `${siteId}.svg`];
 
   if (siteFavicon) {
     if (siteFavicon.startsWith("data:image/")) {
