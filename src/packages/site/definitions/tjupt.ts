@@ -251,25 +251,25 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "首次升级至此等级时将获得3个永久邀请。",
     },
     {
-      id: 10,
+      id: 100,
       name: "西域来客",
       groupType: "vip",
       privilege: "免除自动降级，不记录下载量，免除HnR考核。",
     },
     {
-      id: 11,
+      id: 200,
       name: "扫地僧",
       groupType: "manager",
       privilege: "退休的管理组成员。",
     },
     {
-      id: 12,
+      id: 201,
       name: "龙门镖局",
       groupType: "manager",
       privilege: "查看匿名用户的真实身份；每月魔力值奖励和邀请码奖励（根据发种情况浮动）",
     },
     {
-      id: 13,
+      id: 202,
       name: "六扇门",
       groupType: "manager",
       privilege:
@@ -277,7 +277,7 @@ export const siteMetadata: ISiteMetadata = {
         "编辑、删除论坛帖子/种子评论；查看用户基础信息；拥有无限量邀请权限；每周魔力值奖励",
     },
     {
-      id: 14,
+      id: 203,
       name: "中枢六部",
       groupType: "manager",
       privilege:
@@ -285,13 +285,13 @@ export const siteMetadata: ISiteMetadata = {
         "修改站点友链、论坛板块、种子板块、规则、常见问题、公告等站点信息；发放魔力值、批量邀请用户",
     },
     {
-      id: 15,
+      id: 204,
       name: "锦衣卫",
       groupType: "manager",
       privilege: "修改站点设定；管理站点代码、服务器等",
     },
     {
-      id: 16,
+      id: 205,
       name: "九五之尊",
       groupType: "manager",
       privilege: "管理捐赠；管理管理组任命；其他未被提及的权限...",

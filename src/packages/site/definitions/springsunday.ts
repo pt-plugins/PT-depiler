@@ -314,7 +314,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "精英",
       downloaded: "500GB",
       ratio: 1.2,
-      alternative: [{ seedingPoints: "100000", uploads: 1 }, { seedingPoints: "150000" }],
+      alternative: [{ seedingBonus: 100000, uploads: 1 }, { seedingBonus: 150000 }],
       privilege:
         "可以在做种/下载/发布的时候选择匿名模式；可以查看用户列表；可以查看排行榜；可以浏览论坛邀请区；自助申请保种员；等级加成 0.05。",
     },
@@ -323,7 +323,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "大师",
       downloaded: "1TB",
       ratio: 1.2,
-      alternative: [{ seedingPoints: "500000", uploads: 100 }, { seedingPoints: "1000000" }],
+      alternative: [{ seedingBonus: 500000, uploads: 100 }, { seedingBonus: 1000000 }],
       privilege: "可以访问高级用户论坛，等级加成 0.15。",
     },
     {
@@ -331,7 +331,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "神仙",
       downloaded: "3TB",
       ratio: 2,
-      alternative: [{ seedingPoints: "1200000", uploads: 300 }, { seedingPoints: "2400000" }],
+      alternative: [{ seedingBonus: 1200000, uploads: 300 }, { seedingBonus: 2400000 }],
       privilege: "彩色 ID 特权；可以查看普通日志；等级加成 0.25。",
     },
   ],

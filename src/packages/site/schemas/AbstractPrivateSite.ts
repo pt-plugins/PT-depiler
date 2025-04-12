@@ -1,9 +1,10 @@
 // 所有PT站点的基类
-import { EResultParseStatus, IElementQuery, ISiteMetadata, IUserInfo } from "../types";
+import { EResultParseStatus, IElementQuery, ISiteMetadata, IUserInfo, TLevelId } from "../types";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import BittorrentSite from "./AbstractBittorrentSite";
 import { difference, intersection, pascalCase, pick, toMerged } from "es-toolkit";
 import { get, has, set } from "es-toolkit/compat";
+import { guessUserLevelId } from "@ptd/site/utils/level.ts";
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: -1,
@@ -115,11 +116,9 @@ export default class PrivateSite extends BittorrentSite {
         }
       }
 
-      // 如果前面没有获取到用户等级的id，则通过定义的 levelRequirements 来获取
+      // 如果前面没有获取到用户等级的id，则尝试通过定义的 levelRequirements 来获取
       if (this.metadata.levelRequirements && flushUserInfo.levelName && typeof flushUserInfo.levelId === "undefined") {
-        flushUserInfo.levelId = this.metadata.levelRequirements.find(
-          (level) => level.name == flushUserInfo.levelName,
-        )?.id;
+        flushUserInfo.levelId = this.guessUserLevelId(flushUserInfo as IUserInfo);
       }
 
       flushUserInfo.status = EResultParseStatus.success;
@@ -132,5 +131,10 @@ export default class PrivateSite extends BittorrentSite {
     }
 
     return flushUserInfo;
+  }
+
+  // 允许子类覆盖
+  protected guessUserLevelId(userInfo: IUserInfo): TLevelId {
+    return guessUserLevelId(userInfo, this.metadata.levelRequirements ?? []);
   }
 }

@@ -1,6 +1,11 @@
 import type { ITorrent } from "./torrent";
-import type { EResultParseStatus, isoDuration, TSiteID } from "@ptd/site";
+import { EResultParseStatus, isoDuration, TSiteID, TSize } from "@ptd/site";
 
+/**
+ * user     组别 0-99
+ * vip      组别 100-199
+ * manager  组别 200-300
+ */
 export type TLevelId = number;
 export type TLevelName = string;
 export type TLevelGroupType = "user" | "vip" | "manager";
@@ -13,36 +18,37 @@ export interface IImplicitUserInfo {
    * TODO 也可以考虑直接使用 string 类型，如 "1.5 TB"，会自动实现转换
    */
 
-  totalTraffic?: number | string; // 总流量需求
-  downloaded?: number | string; // 下载量需求
-  trueDownloaded?: number | string; // 真实下载量需求
-  uploaded?: number | string; // 上传量需求
-  trueUploaded?: number | string; // 真实上传量需求
-  ratio?: number | string; // 分享率需求
+  totalTraffic?: number | TSize; // 总流量需求
+  downloaded?: number | TSize; // 下载量需求
+  trueDownloaded?: number | TSize; // 真实下载量需求
+  uploaded?: number | TSize; // 上传量需求
+  trueUploaded?: number | TSize; // 真实上传量需求
+  ratio?: number | TSize; // 分享率需求
   trueRatio?: number; // 真实分享率需求
 
   seeding?: number; // 做种数量需求
-  seedingSize?: number | string; // 做种体积需求
+  seedingSize?: number | TSize; // 做种体积需求
   seedingTime?: number | isoDuration; // 做种时间（秒）需求，如果是 string 则类似 isoDuration，可以定义 30天 为 "30D"
   averageSeedingTime?: number | isoDuration; // 平均做种时间（秒）需求
 
   bonus?: number; // 魔力值/积分需求
-  bonusPerHour?: number; // 魔力值/积分每小时需求
   seedingBonus?: number; // 做种积分需求
+  bonusPerHour?: number; // 魔力值/积分每小时需求
 
   uploads?: number; // 发布种子数需求
   leeching?: number; // 下载数量需求
   snatches?: number; // 完成种子数需求
+  posts?: number; // 发布帖子数需求
 
   hnrUnsatisfied?: number; // H&R 未满足的数量需求
-
-  posts?: number; // 发布帖子数需求
 
   [key: string]: any; // 其他需求
 }
 
+export const MinNonUserLevelId = 100; // 最大等级ID
+
 export interface ILevelRequirement extends IImplicitUserInfo {
-  id: TLevelId; // 等级序列，应该是一个递增的序列，不可重复
+  id: TLevelId; // 等级序列，应该是一个递增的序列，不可重复，应当小于 MaxUserLevelId - 1
   name: TLevelName; // 需要与 IUserInfo中对应的 levelName 相同
   groupType?: TLevelGroupType; // 等级组别，不指定的话，默认为 user
   privilege?: string; // 获得的特权说明

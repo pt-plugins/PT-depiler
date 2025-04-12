@@ -134,6 +134,7 @@ function viewHistoryData(siteId: TSiteID) {
       :items="tableData"
       item-value="site"
       show-select
+      hover
       :sort-by="uiStore.tableBehavior.MyData.sortBy"
     >
       <!-- 站点信息 -->

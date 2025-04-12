@@ -226,6 +226,7 @@ function cancelSearchQueue() {
       :filter-keys="['uniqueId'] /* 对每个item值只检索一次 */"
       show-select
       multi-sort
+      hover
       :sort-by="uiStore.tableBehavior.SearchEntity.sortBy"
       @update:itemsPerPage="(v) => uiStore.updateTableBehavior('SearchEntity', 'itemsPerPage', v)"
       @update:sortBy="(v) => uiStore.updateTableBehavior('SearchEntity', 'sortBy', v)"

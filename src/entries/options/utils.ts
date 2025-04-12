@@ -31,7 +31,7 @@ export const formValidateRules: Record<string, (args?: any) => (v: any) => boole
   },
 };
 
-export const formatSize = (size: number, options?: FileSizeOptions) => {
+export const formatSize = (size: number | string, options?: FileSizeOptions) => {
   try {
     return filesize(size, { base: 2, ...(options ?? {}) });
   } catch (e) {

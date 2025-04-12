@@ -166,25 +166,25 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "最高晋级用户等级：使用魔力值修改用户名（支持中文）；可以领取专属荣誉徽章",
     },
     {
-      id: 9,
+      id: 100,
       name: "贵宾",
       groupType: "vip",
       privilege: "免除分享率考核",
     },
     {
-      id: 10,
+      id: 200,
       name: "养老族",
       groupType: "manager",
       privilege: "免除上传速度监测",
     },
     {
-      id: 11,
+      id: 201,
       name: "发布员",
       groupType: "manager",
       privilege: "查看匿名用户的真实身份；查看被禁止的种子；访问论坛工作组专区",
     },
     {
-      id: 12,
+      id: 202,
       name: "总版主",
       groupType: "manager",
       privilege:
@@ -192,13 +192,13 @@ export const siteMetadata: ISiteMetadata = {
         "管理趣味盒；管理字幕区；查看机密日志；查看管理组信箱",
     },
     {
-      id: 13,
+      id: 203,
       name: "维护开发员",
       groupType: "manager",
       privilege: "查看网站运行状态；管理站点设定；管理网站代码",
     },
     {
-      id: 14,
+      id: 204,
       name: "主管",
       groupType: "manager",
       privilege: "管理组成员的任免；发放特殊用户组和管理组的工资（魔力值）；管理站点任务系统；其他未被提及的权限",

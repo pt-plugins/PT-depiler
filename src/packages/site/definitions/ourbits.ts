@@ -278,25 +278,25 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到三个永久邀请",
     },
     {
-      id: 9,
+      id: 100,
       name: "贵宾",
       groupType: "vip",
       privilege: "免除自动降级，只计算上传量，不计算下载量。",
     },
     {
-      id: 10,
+      id: 101,
       name: "荣誉会员",
       groupType: "vip",
       privilege: "退休后的管理组成员。",
     },
     {
-      id: 11,
+      id: 200,
       name: "发布员",
       groupType: "manager",
       privilege: "官方小组的成员。免除自动降级；可以查看匿名用户的真实身份。",
     },
     {
-      id: 12,
+      id: 201,
       name: "总版主",
       groupType: "manager",
       privilege:
@@ -305,19 +305,19 @@ export const siteMetadata: ISiteMetadata = {
         "不能管理友情链接、最近消息、论坛版块；不能将种子设为置顶或促销；不能查看用户IP或Email等机密信息；不能删除账号。",
     },
     {
-      id: 13,
+      id: 202,
       name: "管理员",
       groupType: "manager",
       privilege: "除了不能改变站点设定、管理捐赠外，可以做任何事。",
     },
     {
-      id: 14,
+      id: 203,
       name: "维护开发员",
       groupType: "manager",
       privilege: "网站开发/维护人员，可以改变站点设定，不能管理捐赠。",
     },
     {
-      id: 15,
+      id: 204,
       name: "主管",
       groupType: "manager",
       privilege: "网站主管，可以做任何事。",

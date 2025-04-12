@@ -291,25 +291,25 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "除了数据考核要求，其他权利等同于VIP，包括没有上传速度的限制",
     },
     {
-      id: 9,
+      id: 100,
       name: "贵宾",
       groupType: "vip",
       privilege: "为 FRDS 做出过卓越贡献的精英成员。免除自动降级。",
     },
     {
-      id: 10,
+      id: 200,
       name: "养老族",
       groupType: "manager",
       privilege: "退休后的管理组成员。",
     },
     {
-      id: 11,
+      id: 201,
       name: "发布员",
       groupType: "manager",
       privilege: "专注的发布者。可以查看匿名用户的真实身份。",
     },
     {
-      id: 12,
+      id: 202,
       name: "总版主",
       groupType: "manager",
       privilege:
@@ -319,19 +319,19 @@ export const siteMetadata: ISiteMetadata = {
         "不能将种子设为置顶或促销；不能查看用户IP或Email等机密信息；不能删除账号。",
     },
     {
-      id: 13,
+      id: 203,
       name: "管理员",
       groupType: "manager",
       privilege: "除了不能改变站点设定、管理捐赠外，可以做任何事。",
     },
     {
-      id: 14,
+      id: 204,
       name: "维护开发员",
       groupType: "manager",
       privilege: "网站开发/维护人员，可以改变站点设定，不能管理捐赠。",
     },
     {
-      id: 15,
+      id: 205,
       name: "主管",
       groupType: "manager",
       privilege: "网站主管，可以做任何事。",
