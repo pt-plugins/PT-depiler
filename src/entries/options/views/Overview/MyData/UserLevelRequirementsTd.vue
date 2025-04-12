@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import { computed } from "vue";
+import { computedAsync } from "@vueuse/core";
+import { isEmpty } from "es-toolkit/compat";
+
 import {
   convertIsoDurationToDate,
   getNextLevelUnMet,
@@ -7,12 +11,9 @@ import {
   TLevelGroupType,
 } from "@ptd/site";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { computedAsync } from "@vueuse/core";
-
-import { computed } from "vue";
 import { formatDate } from "../../../utils.ts";
-import UserLevelShowSpan from "@/options/views/Overview/MyData/UserLevelShowSpan.vue";
-import { isEmpty } from "es-toolkit/compat";
+
+import UserLevelShowSpan from "./UserLevelShowSpan.vue";
 
 const { userInfo } = defineProps<{
   userInfo: IUserInfo;
@@ -69,39 +70,50 @@ const userLevelGroupIcon = computed(() => {
       </template>
 
       <template v-slot>
-        <v-card class="border-sm">
+        <v-card class="border-sm overflow-y-auto" max-height="500" max-width="800">
           <v-card-text class="pa-2">
             <template v-if="!isEmpty(nextLevelUnMet)">
               <!-- 计算剩余升级情况 -->
             </template>
-            <ul>
-              <li v-for="userLevel in userLevelRequirements" :key="userLevel.id">
-                <v-icon
-                  :icon="userLevel.id <= (userInfo.levelId ?? -1) ? 'mdi-check' : 'mdi-block-helper'"
-                  :color="userLevel.id <= (userInfo.levelId ?? -1) ? 'green' : 'red'"
-                  size="small"
-                />
-                <span v-if="userLevel.interval">
-                  {{
-                    formatDate(
-                      convertIsoDurationToDate(userLevel.interval, userInfo.joinTime ?? currentTime),
-                      "yyyy-MM-dd",
-                    )
-                  }}
-                </span>
-                <span>&nbsp;({{ userLevel.name }}):</span>
-                <UserLevelShowSpan :level-requirement="userLevel" />
-                <template v-if="userLevel.alternative">
-                  <v-icon size="small" icon="mdi-file-table-box-multiple-outline" />
-                  (
-                  <template v-for="(alternative, key) in userLevel.alternative" :key="key">
-                    [ <UserLevelShowSpan :level-requirement="alternative" /> ]
+            <v-list density="compact" class="pa-0">
+              <template v-for="(userLevel, index) in userLevelRequirements" :key="userLevel.id">
+                <v-list-item class="list-item-half-spacer px-1 py-0">
+                  <template #prepend>
+                    <v-icon
+                      :icon="userLevel.id <= (userInfo.levelId ?? -1) ? 'mdi-check' : 'mdi-block-helper'"
+                      :color="userLevel.id <= (userInfo.levelId ?? -1) ? 'green' : 'red'"
+                      size="small"
+                    />
                   </template>
-                  )
-                </template>
-                {{ userLevel.privilege ?? "" }}
-              </li>
-            </ul>
+
+                  <div>
+                    <span v-if="userLevel.interval">
+                      {{
+                        formatDate(
+                          convertIsoDurationToDate(userLevel.interval, userInfo.joinTime ?? currentTime),
+                          "yyyy-MM-dd",
+                        )
+                      }}
+                    </span>
+                    <span>&nbsp;({{ userLevel.name }}):</span>
+                    <UserLevelShowSpan :level-requirement="userLevel" />
+                    <template v-if="userLevel.alternative">
+                      <v-icon size="small" icon="mdi-file-table-box-multiple-outline" />
+                      (
+                      <template v-for="(alternative, key) in userLevel.alternative" :key="key">
+                        [ <UserLevelShowSpan :level-requirement="alternative" /> ]
+                      </template>
+                      )
+                    </template>
+                  </div>
+
+                  <div class="text-ellipsis text-truncate" :title="userLevel.privilege">
+                    {{ userLevel.privilege }}
+                  </div>
+                </v-list-item>
+                <v-divider v-if="index + 1 != userLevelRequirements.length" class="ma-1"></v-divider>
+              </template>
+            </v-list>
           </v-card-text>
         </v-card>
       </template>
