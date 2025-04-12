@@ -16,9 +16,9 @@ export interface IUiPiniaStorageSchema {
   ignoreWrongPixelRatio: boolean;
 
   lastDownloader: {
-    id: string;
-    savePath: string;
-    label: string;
+    id?: string;
+    savePath?: string;
+    label?: string;
   };
 
   tableBehavior: Record<UiTableBehaviorKey, UiTableBehaviorItem>;

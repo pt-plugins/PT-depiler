@@ -300,6 +300,14 @@ function cancelSearchQueue() {
 </template>
 
 <style scoped lang="scss">
+.v-theme--dark {
+  #ptd-search-entity-table {
+    :deep(tr.v-data-table__tr:nth-child(even)) {
+      background-color: #2a2a2a;
+    }
+  }
+}
+
 #ptd-search-entity-table {
   :deep(tr.v-data-table__tr:nth-child(even)) {
     background-color: #f1f1f1;

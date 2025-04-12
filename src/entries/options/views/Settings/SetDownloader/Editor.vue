@@ -1,12 +1,16 @@
 <script setup lang="ts">
-import { IDownloaderMetadata } from "@/shared/storages/metadata.ts";
-import { getDownloader, getDownloaderMetaData } from "@ptd/downloader";
 import { ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
+
 import { type VForm } from "vuetify/components";
+import { type IDownloaderMetadata } from "@/shared/storages/metadata.ts";
+
+import { getDownloader, getDownloaderMetaData } from "@ptd/downloader";
 import { formatDate, formValidateRules } from "@/options/utils.ts";
 
 const clientConfig = defineModel<IDownloaderMetadata & { valid?: boolean }>();
+const { t } = useI18n();
 
 const clientMeta = computedAsync(async () => await getDownloaderMetaData(clientConfig.value!.type));
 
@@ -51,21 +55,21 @@ async function checkConnect() {
       <v-container class="pa-0">
         <v-row>
           <v-col cols="12" md="4">
-            <v-text-field v-model="clientConfig.type" :label="$t('setDownloader.common.type')" disabled />
+            <v-text-field v-model="clientConfig.type" :label="t('SetDownloader.common.type')" disabled />
           </v-col>
           <v-col cols="12" md="4">
             <v-text-field
               v-model="clientConfig.name"
-              :label="$t('setDownloader.common.name')"
-              :placeholder="$t('setDownloader.common.name')"
-              :rules="[formValidateRules.require($t('setDownloader.editor.nameTip'))]"
+              :label="t('SetDownloader.common.name')"
+              :placeholder="t('SetDownloader.common.name')"
+              :rules="[formValidateRules.require(t('SetDownloader.editor.nameTip'))]"
               required
             />
           </v-col>
           <v-col cols="12" md="4">
             <v-text-field
               v-model="clientConfig.id"
-              :label="$t('setDownloader.common.uid') + $t('setDownloader.editor.uidPlaceholder')"
+              :label="t('SetDownloader.common.uid') + t('SetDownloader.editor.uidPlaceholder')"
               disabled
             />
           </v-col>
@@ -73,8 +77,8 @@ async function checkConnect() {
         <v-row>
           <v-text-field
             v-model="clientConfig.address"
-            :label="$t('setDownloader.common.address')"
-            :rules="[formValidateRules.url($t('setDownloader.editor.addressTip'))]"
+            :label="t('SetDownloader.common.address')"
+            :rules="[formValidateRules.url(t('SetDownloader.editor.addressTip'))]"
             required
           />
         </v-row>
@@ -82,13 +86,13 @@ async function checkConnect() {
           <v-text-field
             v-if="typeof clientConfig.username !== 'undefined'"
             v-model="clientConfig.username"
-            :label="$t('setDownloader.common.username')"
+            :label="t('SetDownloader.common.username')"
           />
         </v-row>
         <v-row>
           <v-text-field
             v-model="clientConfig.password"
-            :label="$t('setDownloader.editor.password')"
+            :label="t('SetDownloader.editor.password')"
             :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
             :type="showPassword ? 'text' : 'password'"
             class="pr-5"
@@ -96,15 +100,14 @@ async function checkConnect() {
           />
         </v-row>
         <v-row>
-          <div class="text-caption v-label ml-4">
-            {{ $t("setDownloader.editor.timeout") }}
-          </div>
           <v-slider
             v-model="clientConfig.timeout"
+            class="px-2"
             :color="clientConfig.timeout! > 8 * 60e3 ? 'red' : clientConfig.timeout! > 5 * 60e3 ? 'amber' : 'green'"
             :min="0"
             :max="10 * 60e3"
             :step="1e3"
+            :label="$t('SetDownloader.editor.timeout')"
           >
             <template #append>
               <v-btn variant="flat" @click="clientConfig.timeout = 60e3">
@@ -119,7 +122,7 @@ async function checkConnect() {
             v-model="clientConfig.feature!.DefaultAutoStart"
             class="ml-4"
             color="success"
-            :label="$t('setDownloader.editor.autoStart')"
+            :label="t('SetDownloader.editor.autoStart')"
           />
         </v-row>
       </v-container>
@@ -133,7 +136,7 @@ async function checkConnect() {
         @click="checkConnect"
       >
         <v-icon :icon="connectBtnMap[connectStatusRef]['icon']" />
-        {{ $t("setDownloader.editor.connect." + connectStatusRef) }}
+        {{ t("SetDownloader.editor.connect." + connectStatusRef) }}
       </v-btn>
 
       <v-alert v-if="clientMeta?.warning" color="warning">

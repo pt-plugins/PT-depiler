@@ -2,27 +2,39 @@
 import { computedAsync } from "@vueuse/core";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { TSiteID } from "@ptd/site";
+import { reactive } from "vue";
+import { omit } from "es-toolkit";
 
 const metadataStore = useMetadataStore();
 
-const props = withDefaults(
-  defineProps<{
-    siteId: TSiteID;
-    class?: string[] | string;
-  }>(),
-  {
-    class: ["text-caption", "text-decoration-none", "text-grey", "text-no-wrap"],
-  },
-);
+const props = defineProps<{
+  siteId: TSiteID;
+  tag?: string;
+  class?: string[] | string;
+}>();
 
-const siteUrl = computedAsync(() => metadataStore.getSiteUrl(props.siteId), "#");
 const siteName = computedAsync(() => metadataStore.getSiteMergedMetadata(props.siteId, "name", props.siteId));
+
+const tagIs = props.tag ?? "a";
+
+const renderProp = reactive<Record<string, any>>({
+  ...omit(props, ["siteId", "tag", "class"]),
+  class: props.class ?? ["text-caption", "text-decoration-none", "text-grey", "text-no-wrap"],
+});
+
+if (tagIs === "a") {
+  renderProp.href = "#";
+  renderProp.target = "_blank";
+  renderProp.rel = "noopener noreferrer nofollow";
+
+  metadataStore.getSiteUrl(props.siteId).then((url) => {
+    renderProp.href = url;
+  });
+}
 </script>
 
 <template>
-  <a :href="siteUrl" target="_blank" rel="noopener noreferrer nofollow" :class="props.class">
-    {{ siteName }}
-  </a>
+  <component :is="tagIs" v-bind="renderProp">{{ siteName }}</component>
 </template>
 
 <style scoped lang="scss"></style>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { VueDraggable } from "vue-draggable-plus";
 import { getDownloader, getDownloaderMetaData, type TorrentClientMetaData } from "@ptd/downloader";
 import type { IDownloaderMetadata } from "@/shared/storages/metadata.ts";
@@ -14,19 +15,21 @@ const { clientId } = defineProps<{
   clientId: string;
 }>();
 
+const { t } = useI18n();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 
 const clientConfig = ref<IDownloaderMetadata>();
 const clientMetadata = ref<TorrentClientMetaData>();
 
-const pathReplaceMap: Record<string, string> = {
-  "$torrent.site$": "将被替换为当前站点id；\n例如：/volume1/$torrent.site$/music -> /volume1/opencd/music",
-  "$torrent.siteName$": "将被替换为当前站点名称；\n例如：/volume1/$torrent.siteName$/music -> /volume1/OpenCD/music",
-  "$date:YYYY$": "例如：/volume1/$date:YYYY$/music -> /volume1/2019/music",
-  "$date:MM$": "例如：/volume1/$date:MM$/music -> /volume1/10/music",
-  "$date:DD$": "例如：/volume1/$date:DD$/music -> /volume1/01/music",
-};
+const pathReplaceMap: [string, string, string][] = [
+  // [key (for i18n), value, example]
+  ["torrentSite", "$torrent.site$", "/volume1/$torrent.site$/music -> /volume1/opencd/music"],
+  ["torrentSiteName", "$torrent.siteName$", "/volume1/$torrent.siteName$/music -> /volume1/OpenCD/music"],
+  ["dateYear", "$date:YYYY$", "/volume1/$date:YYYY$/music -> /volume1/2019/music"],
+  ["dateMonth", "$date:MM$", "/volume1/$date:MM$/music -> /volume1/10/music"],
+  ["dateDay", "$date:DD$", "/volume1/$date:DD$/music -> /volume1/01/music"],
+];
 
 watch(
   () => clientId,
@@ -71,7 +74,7 @@ async function loadClientFolders() {
       addSuggestFolder(path);
     }
   } catch (e) {
-    runtimeStore.showSnakebar("获取下载器文件夹列表失败", { color: "error" });
+    runtimeStore.showSnakebar(t("SetDownloader.PathAndTag.downloadPath.autoImportFail"), { color: "error" });
   }
 
   isLoadingClientFolders.value = false;
@@ -104,7 +107,7 @@ async function loadClientLabels() {
       addSuggestTag(label);
     }
   } catch (e) {
-    runtimeStore.showSnakebar("获取下载器标签列表失败", { color: "error" });
+    runtimeStore.showSnakebar(t("SetDownloader.PathAndTag.tags.autoImportFail"), { color: "error" });
   }
 
   isLoadingClientLabels.value = false;
@@ -122,7 +125,7 @@ function saveClientConfig() {
       <v-card-title class="pa-0">
         <v-toolbar
           color="blue-grey darken-2"
-          :title="`为下载器 [${clientConfig?.name ?? clientId}] 设置预设的下载路径和标签`"
+          :title="t('SetDownloader.PathAndTag.title', [clientConfig?.name ?? clientId])"
         >
           <template #append>
             <v-btn icon="mdi-close" @click="showDialog = false"> </v-btn>
@@ -134,7 +137,7 @@ function saveClientConfig() {
         <v-expansion-panels>
           <v-expansion-panel value="path" :disabled="clientMetadata?.feature?.CustomPath?.allowed === false">
             <v-expansion-panel-title>
-              下载路径
+              {{ t("SetDownloader.PathAndTag.downloadPath.title") }}
               <v-spacer />
               <v-chip :color="clientConfig!.suggestFolders!.length > 0 ? 'info' : ''" size="small">
                 +{{ clientConfig!.suggestFolders!.length }}
@@ -144,7 +147,7 @@ function saveClientConfig() {
             <v-expansion-panel-text>
               <v-list density="compact">
                 <v-list-subheader v-if="clientConfig!.suggestFolders!.length > 0">
-                  已添加的预设路径（支持拖拽排序）
+                  {{ t("SetDownloader.PathAndTag.downloadPath.addTitle") }}
                 </v-list-subheader>
                 <vue-draggable v-model="clientConfig!.suggestFolders!">
                   <v-list-item
@@ -168,7 +171,11 @@ function saveClientConfig() {
                   </v-list-item>
                 </vue-draggable>
                 <v-list-item class="px-0">
-                  <v-text-field v-model="suggestFolderInput" label="添加预设下载路径" clearable>
+                  <v-text-field
+                    v-model="suggestFolderInput"
+                    :label="t('SetDownloader.PathAndTag.downloadPath.addInputLabel')"
+                    clearable
+                  >
                     <template #append>
                       <v-btn
                         icon="mdi-keyboard-return"
@@ -180,34 +187,42 @@ function saveClientConfig() {
                       <v-btn
                         icon="mdi-import"
                         variant="text"
-                        title="一键导入下载器中已有的文件夹列表"
+                        :title="t('SetDownloader.PathAndTag.downloadPath.autoImport')"
                         :loading="isLoadingClientFolders"
                         @click="loadClientFolders"
                       ></v-btn>
                     </template>
                     <template #details>
                       <v-chip
-                        v-for="(note, key) in pathReplaceMap"
-                        :key="key"
-                        @click="addPathReplaceToSuggestFolder(key)"
+                        v-for="pathReplace in pathReplaceMap"
+                        :key="pathReplace[1]"
+                        @click="addPathReplaceToSuggestFolder(pathReplace[1])"
                         size="small"
                         class="mr-1"
-                        :title="note"
+                        :title="pathReplace[2]"
                       >
-                        {{ key }}
+                        {{ pathReplace[1] }}
                       </v-chip>
                     </template>
                   </v-text-field>
                 </v-list-item>
               </v-list>
               <v-alert variant="outlined" color="info" closable>
-                <span>下载路径中可包含以下关键字：</span>
+                <span>{{ t("SetDownloader.PathAndTag.downloadPath.note.index") }}</span>
                 <v-table density="compact">
+                  <thead>
+                    <tr>
+                      <th>{{ t("SetDownloader.PathAndTag.downloadPath.note.table.keywords") }}</th>
+                      <th>{{ t("SetDownloader.PathAndTag.downloadPath.note.table.note") }}</th>
+                      <th>{{ t("SetDownloader.PathAndTag.downloadPath.note.table.example") }}</th>
+                    </tr>
+                  </thead>
                   <tbody>
-                    <tr v-for="(note, key) in pathReplaceMap" :key="key">
-                      <td>{{ key }}</td>
+                    <tr v-for="pathReplace in pathReplaceMap" :key="pathReplace[1]">
+                      <td>{{ pathReplace[1] }}</td>
+                      <td>{{ t(`SetDownloader.PathAndTag.downloadPath.note.replaceNote.${pathReplace[0]}`) }}</td>
                       <td>
-                        <pre>{{ note }}</pre>
+                        <pre>{{ pathReplace[2] }}</pre>
                       </td>
                     </tr>
                   </tbody>
@@ -217,7 +232,7 @@ function saveClientConfig() {
           </v-expansion-panel>
           <v-expansion-panel value="tag">
             <v-expansion-panel-title>
-              标签
+              {{ t("SetDownloader.PathAndTag.tags.title") }}
               <v-spacer />
               <v-chip :color="clientConfig!.suggestTags!.length > 0 ? 'info' : ''" size="small">
                 +{{ clientConfig!.suggestTags!.length }}
@@ -226,7 +241,7 @@ function saveClientConfig() {
             <v-expansion-panel-text>
               <v-list density="compact">
                 <v-list-subheader v-if="clientConfig!.suggestTags!.length > 0">
-                  已添加的预设标签（支持拖拽排序）
+                  {{ t("SetDownloader.PathAndTag.tags.addTitle") }}
                 </v-list-subheader>
                 <vue-draggable v-model="clientConfig!.suggestTags!">
                   <v-list-item
@@ -250,7 +265,11 @@ function saveClientConfig() {
                   </v-list-item>
                 </vue-draggable>
                 <v-list-item class="px-0">
-                  <v-text-field v-model="suggestTagInput" label="添加预设标签" clearable>
+                  <v-text-field
+                    v-model="suggestTagInput"
+                    :label="t('SetDownloader.PathAndTag.tags.addInputLabel')"
+                    clearable
+                  >
                     <template #append>
                       <v-btn icon="mdi-keyboard-return" variant="text" @click="addSuggestTag(suggestTagInput)"></v-btn>
                     </template>
@@ -258,7 +277,7 @@ function saveClientConfig() {
                       <v-btn
                         icon="mdi-import"
                         variant="text"
-                        title="一键导入下载器中已有的标签"
+                        :title="t('SetDownloader.PathAndTag.tags.autoImport')"
                         :loading="isLoadingClientLabels"
                         @click="loadClientLabels"
                       ></v-btn>

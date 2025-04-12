@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nanoid } from "nanoid";
 import { ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 import {
   entityList,
@@ -16,6 +17,8 @@ import { REPO_URL } from "~/helper.ts";
 import Editor from "./Editor.vue";
 
 const showDialog = defineModel<boolean>();
+
+const { t } = useI18n();
 const metadataStore = useMetadataStore();
 
 const currentStep = ref<0 | 1>(0);
@@ -57,7 +60,7 @@ async function saveStoredDownloaderConfig() {
     <v-card>
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title>{{ $t("setDownloader.add.title") }}</v-toolbar-title>
+          <v-toolbar-title>{{ t("SetDownloader.add.title") }}</v-toolbar-title>
           <v-spacer />
           <v-btn
             icon="mdi-help-circle"
@@ -79,10 +82,10 @@ async function saveStoredDownloaderConfig() {
               item-title="type"
               item-value="type"
               :multiple="false"
-              :placeholder="'请选择一个下载服务器（支持搜索）'"
+              :placeholder="t('SetDownloader.add.selectPlaceholder')"
               :filter-keys="['type']"
               :hint="
-                allTorrentClientMetaData[selectedClientType!]?.description ?? $t('setDownloader.add.NoneSelectNotice')
+                allTorrentClientMetaData[selectedClientType!]?.description ?? t('SetDownloader.add.NoneSelectNotice')
               "
               persistent-hint
               @update:model-value="(e) => updateStoredDownloaderConfigByDefault(e)"
@@ -116,16 +119,16 @@ async function saveStoredDownloaderConfig() {
           rel="noopener noreferrer nofollow"
         >
           <v-icon icon="mdi-help-circle" />
-          <span class="ml-1">{{ $t("setDownloader.add.newType") }}</span>
+          <span class="ml-1">{{ t("SetDownloader.add.newType") }}</span>
         </v-btn>
         <v-spacer />
         <v-btn color="error" variant="text" @click="showDialog = false">
           <v-icon icon="mdi-close-circle" />
-          {{ $t("common.dialog.cancel") }}
+          {{ t("common.dialog.cancel") }}
         </v-btn>
         <v-btn v-if="currentStep === 1" color="blue-darken-1" variant="text" @click="currentStep--">
           <v-icon icon="mdi-chevron-left" />
-          {{ $t("common.dialog.prev") }}
+          {{ t("common.dialog.prev") }}
         </v-btn>
         <v-btn
           v-if="currentStep === 0"

@@ -16,6 +16,10 @@
     margin-right: 4px;
 }
 
+.list-item-none-spacer > .v-list-item__prepend > .v-icon ~ .v-list-item__spacer {
+    display: none;
+}
+
 .list-item-half-spacer > .v-list-item__prepend > .v-icon ~ .v-list-item__spacer {
     width: 12px;
 }

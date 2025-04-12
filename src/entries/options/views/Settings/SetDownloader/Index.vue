@@ -28,13 +28,13 @@ const downloaderMetadata = computedAsync(async () => {
 }, {});
 
 const fullTableHeader = [
-  { title: t("setDownloader.common.type"), key: "type", align: "center", filterable: false },
-  { title: t("setDownloader.common.name"), key: "name", align: "start" },
-  { title: t("setDownloader.common.uid"), key: "id", align: "start", filterable: false, sortable: false },
-  { title: t("setDownloader.common.address"), key: "address", align: "start" },
-  { title: t("setDownloader.common.username"), key: "username", align: "start" },
-  { title: "启用", key: "enabled", align: "center", filterable: false },
-  { title: "自动下载？", key: "feature.DefaultAutoStart", align: "center", filterable: false },
+  { title: t("SetDownloader.common.type"), key: "type", align: "center", filterable: false },
+  { title: t("SetDownloader.common.name"), key: "name", align: "start" },
+  { title: t("SetDownloader.common.uid"), key: "id", align: "start", filterable: false, sortable: false },
+  { title: t("SetDownloader.common.address"), key: "address", align: "start" },
+  { title: t("SetDownloader.common.username"), key: "username", align: "start" },
+  { title: t("SetDownloader.index.table.enabled"), key: "enabled", align: "center", filterable: false },
+  { title: t("SetDownloader.index.table.autodl"), key: "feature.DefaultAutoStart", align: "center", filterable: false },
   { title: t("common.action"), key: "action", filterable: false, sortable: false },
 ];
 const tableSelected = ref<TDownloaderKey[]>([]);
@@ -111,26 +111,30 @@ watch(toDeleteIds, (newVal, oldValue) => {
       </template>
 
       <template #item.enabled="{ item }">
-        <v-switch
-          v-model="item.enabled"
-          color="success"
-          hide-details
-          class="downloader-switch-btn"
-          @update:model-value="(v) => metadataStore.simplePatchDownloader(item.id, 'enabled', v as boolean)"
-        />
+        <div class="d-flex justify-center">
+          <v-switch
+            v-model="item.enabled"
+            color="success"
+            hide-details
+            class="downloader-switch-btn"
+            @update:model-value="(v) => metadataStore.simplePatchDownloader(item.id, 'enabled', v as boolean)"
+          />
+        </div>
       </template>
 
       <template #item.feature.DefaultAutoStart="{ item }">
-        <v-switch
-          v-model="item.feature!.DefaultAutoStart"
-          color="success"
-          hide-details
-          class="downloader-switch-btn"
-          :disabled="!item.enabled || downloaderMetadata?.[item.type]?.feature?.DefaultAutoStart.allowed === false"
-          @update:model-value="
-            (v) => metadataStore.simplePatchDownloader(item.id, 'feature.DefaultAutoStart', v as boolean)
-          "
-        />
+        <div class="d-flex justify-center">
+          <v-switch
+            v-model="item.feature!.DefaultAutoStart"
+            color="success"
+            hide-details
+            class="downloader-switch-btn"
+            :disabled="!item.enabled || downloaderMetadata?.[item.type]?.feature?.DefaultAutoStart.allowed === false"
+            @update:model-value="
+              (v) => metadataStore.simplePatchDownloader(item.id, 'feature.DefaultAutoStart', v as boolean)
+            "
+          />
+        </div>
       </template>
 
       <template #item.action="{ item }">
@@ -150,7 +154,7 @@ watch(toDeleteIds, (newVal, oldValue) => {
             size="small"
             icon="mdi-tag-multiple"
             color="amber"
-            title="设置预设的下载路径和标签"
+            :title="t('SetDownloader.index.table.setPathAndTag')"
             @click="editDownloaderPathAndTag(item.id)"
           ></v-btn>
 

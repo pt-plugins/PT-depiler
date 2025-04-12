@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { watch } from "vue";
+import { useI18n } from "vue-i18n";
+import { useLocale as useVuetifyLocal } from "vuetify";
 import { useDevicePixelRatio } from "@vueuse/core";
 
 import { useUIStore } from "@/options/stores/ui.ts";
@@ -7,8 +10,22 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import Navigation from "./views/Layout/Navigation.vue";
 import Topbar from "./views/Layout/Topbar.vue";
 
+import { vuetifyLangMap } from "@/options/plugins/vuetify.ts";
+
+const { current: currentVuetifyLocal } = useVuetifyLocal();
+const { locale: currentVueI18nLocal } = useI18n({ useScope: "global" });
+
 const uiStore = useUIStore();
 const runtimeStore = useRuntimeStore();
+
+watch(
+  () => uiStore.lang,
+  (newLang) => {
+    currentVueI18nLocal.value = newLang; // 修改 vue-i18n 的语言
+    currentVuetifyLocal.value = vuetifyLangMap[newLang]; // 修改 vuetify 的语言
+  },
+  { immediate: true },
+);
 
 const { pixelRatio } = useDevicePixelRatio();
 function setIgnoreWrongPixelRatio() {

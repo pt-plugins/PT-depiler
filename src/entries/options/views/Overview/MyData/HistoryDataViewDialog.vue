@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { type IUserInfo, type TSiteID } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
@@ -12,6 +13,8 @@ const showDialog = defineModel<boolean>();
 const props = defineProps<{
   siteId: TSiteID | null;
 }>();
+const { t } = useI18n();
+
 const currentDate = formatDate(+new Date(), "yyyy-MM-dd");
 const jsonData = ref<any>({});
 
@@ -21,15 +24,15 @@ interface IShowUserInfo extends IUserInfo {
 
 const siteHistoryData = ref<IShowUserInfo[]>([]);
 const tableHeader = [
-  { title: "日期", key: "date", align: "center" },
-  { title: "用户名", key: "name", align: "center", sortable: false },
-  { title: "等级", key: "levelName", align: "start", sortable: false },
-  { title: "数据量", key: "uploaded", align: "end", sortable: false },
-  { title: "分享率", key: "ratio", align: "end", sortable: false },
-  { title: "做种数", key: "seeding", align: "end", sortable: false },
-  { title: "做种体积", key: "seedingSize", align: "end", sortable: false },
-  { title: "魔力/积分", key: "bonus", align: "end", sortable: false },
-  { title: "操作", key: "action", align: "center", width: 90, sortable: false },
+  { title: t("common.date"), key: "date", align: "center" },
+  { title: t("MyData.table.username"), key: "name", align: "center", sortable: false },
+  { title: t("MyData.table.levelName"), key: "levelName", align: "start", sortable: false },
+  { title: t("MyData.table.userData"), key: "uploaded", align: "end", sortable: false },
+  { title: t("MyData.table.ratio"), key: "ratio", align: "end", sortable: false },
+  { title: t("MyData.table.seeding"), key: "seeding", align: "end", sortable: false },
+  { title: t("MyData.table.seedingSize"), key: "seedingSize", align: "end", sortable: false },
+  { title: t("MyData.table.bonus"), key: "bonus", align: "end", sortable: false },
+  { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false },
 ];
 
 function loadSiteHistoryData(siteId: TSiteID) {
@@ -51,7 +54,7 @@ watch(showDialog, () => {
 });
 
 function deleteSiteUserInfo(date: string) {
-  if (confirm("确定删除该条记录吗？")) {
+  if (confirm(t("MyData.HistoryDataView.deleteConfirm"))) {
     sendMessage("removeSiteUserInfo", { siteId: props.siteId!, date }).then(() => {
       loadSiteHistoryData(props.siteId!);
     });
@@ -70,7 +73,9 @@ function viewStoreData(data: IShowUserInfo) {
     <v-card>
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title> 用户数据@<SiteName :site-id="props.siteId!" class="" /> </v-toolbar-title>
+          <v-toolbar-title>
+            {{ t("MyData.HistoryDataView.title") }}<SiteName :site-id="props.siteId!" tag="span" class="" />
+          </v-toolbar-title>
         </v-toolbar>
       </v-card-title>
       <v-divider />
@@ -144,11 +149,20 @@ function viewStoreData(data: IShowUserInfo) {
           <!-- 操作 -->
           <template #item.action="{ item }">
             <v-btn-group variant="text">
-              <v-btn icon="mdi-eye" size="small" @click="() => viewStoreData(item)"></v-btn>
+              <!-- 查看原始记录 -->
+              <v-btn
+                icon="mdi-eye"
+                size="small"
+                :title="t('MyData.HistoryDataView.action.viewRaw')"
+                @click="() => viewStoreData(item)"
+              ></v-btn>
+
+              <!-- 删除 -->
               <v-btn
                 icon="mdi-delete"
                 color="error"
                 size="small"
+                :title="t('common.remove')"
                 :disabled="item.date == currentDate"
                 @click="() => deleteSiteUserInfo(item.date)"
               ></v-btn>

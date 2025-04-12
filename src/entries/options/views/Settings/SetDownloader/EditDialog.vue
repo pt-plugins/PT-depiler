@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import type { IDownloaderMetadata, TDownloaderKey } from "@/shared/storages/metadata.ts";
@@ -12,6 +13,8 @@ const { clientId } = defineProps<{
   clientId: TDownloaderKey;
 }>();
 const clientConfig = ref<IDownloaderMetadata & { valid?: boolean }>();
+
+const { t } = useI18n();
 const metadataStore = useMetadataStore();
 
 watch(
@@ -36,7 +39,7 @@ function editClientConfig() {
     <v-card>
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey darken-2">
-          <v-toolbar-title>{{ $t("setDownloader.edit.title") }}</v-toolbar-title>
+          <v-toolbar-title>{{ t("SetDownloader.edit.title") }}</v-toolbar-title>
         </v-toolbar>
       </v-card-title>
       <v-divider />
@@ -48,12 +51,12 @@ function editClientConfig() {
         <v-spacer />
         <v-btn color="error" variant="text" @click="showDialog = false">
           <v-icon icon="mdi-close-circle" />
-          {{ $t("common.dialog.cancel") }}
+          {{ t("common.dialog.cancel") }}
         </v-btn>
 
         <v-btn variant="text" color="success" @click="editClientConfig">
           <v-icon icon="mdi-check-circle-outline" />
-          {{ $t("common.dialog.ok") }}
+          {{ t("common.dialog.ok") }}
         </v-btn>
       </v-card-actions>
     </v-card>

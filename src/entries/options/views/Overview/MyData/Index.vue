@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { computed, reactive, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 
 import { useUIStore } from "@/options/stores/ui.ts";
@@ -17,25 +18,27 @@ import { type ISiteUserConfig, IUserInfo, TSiteID } from "@ptd/site";
 import { formatDate, formatNumber, formatSize } from "@/options/utils.ts";
 import HistoryDataViewDialog from "@/options/views/Overview/MyData/HistoryDataViewDialog.vue";
 
+const { t } = useI18n();
 const uiStore = useUIStore();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 
-const fullTableHeader = [
-  { title: "站点", key: "siteUserConfig.sortIndex", align: "center", width: 90, alwaysShow: true },
-  { title: "用户名", key: "name", align: "center", width: 90, alwaysShow: true },
-  { title: "等级", key: "levelName", align: "start", width: 90 },
-  { title: "数据量", key: "uploaded", align: "end" },
-  { title: "真实数据量", key: "trueUploaded", align: "end" }, // 默认不显示
-  { title: "分享率", key: "ratio", align: "end" },
-  { title: "发布数", key: "uploads", align: "end" },
-  { title: "做种数", key: "seeding", align: "end" },
-  { title: "做种体积", key: "seedingSize", align: "end" },
-  { title: "魔力/积分", key: "bonus", align: "end" },
-  { title: "入站时间", key: "joinTime", align: "center" },
-  { title: "数据更新于", key: "updateAt", align: "center", alwaysShow: true },
-  { title: "操作", key: "action", align: "center", width: 90, sortable: false, alwaysShow: true },
-];
+const fullTableHeader = reactive([
+  { title: t("MyData.table.site"), key: "siteUserConfig.sortIndex", align: "center", width: 90, alwaysShow: true },
+  { title: t("MyData.table.username"), key: "name", align: "center", width: 90, alwaysShow: true },
+  { title: t("MyData.table.levelName"), key: "levelName", align: "start", width: 90 },
+  // NOTE: 这里将key设为 uploaded, trueUploaded 而不是虚拟的 userData，可以让 v-data-table 使用 uploaded 的进行排序
+  { title: t("MyData.table.userData"), key: "uploaded", align: "end" },
+  { title: t("MyData.table.trueUserData"), key: "trueUploaded", align: "end" }, // 默认不显示
+  { title: t("MyData.table.ratio"), key: "ratio", align: "end" },
+  { title: t("MyData.table.uploads"), key: "uploads", align: "end" },
+  { title: t("MyData.table.seeding"), key: "seeding", align: "end" },
+  { title: t("MyData.table.seedingSize"), key: "seedingSize", align: "end" },
+  { title: t("MyData.table.bonus"), key: "bonus", align: "end" },
+  { title: t("MyData.table.joinTime"), key: "joinTime", align: "center" },
+  { title: t("MyData.table.updateAt"), key: "updateAt", align: "center", alwaysShow: true },
+  { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false, alwaysShow: true },
+]);
 
 const tableHeader = computed(() => {
   return fullTableHeader.filter((item) => item.alwaysShow || uiStore.tableBehavior.MyData.columns!.includes(item.key));
@@ -77,9 +80,7 @@ function viewHistoryData(siteId: TSiteID) {
 </script>
 
 <template>
-  <v-alert type="info">
-    <v-alert-title> 我的数据 </v-alert-title>
-  </v-alert>
+  <v-alert type="info" :title="t('route.Overview.MyData')" />
   <v-card>
     <v-card-title>
       <v-row class="ma-0">
@@ -88,7 +89,7 @@ function viewHistoryData(siteId: TSiteID) {
           color="green"
           :disabled="runtimeStore.userInfo.isFlush || tableSelected.length === 0"
           @click="() => flushSiteLastUserInfo(tableSelected)"
-          >刷新所选站点的数据
+          >{{ t("MyData.index.flushSelectSite") }}
         </v-btn>
 
         <v-divider vertical class="mx-2" />
@@ -199,7 +200,7 @@ function viewHistoryData(siteId: TSiteID) {
         <span class="text-no-wrap">{{ item.uploads ?? "-" }}</span>
       </template>
 
-      <!-- 做种数 -->
+      <!-- TODO 做种数， H&R 情况  -->
       <template #item.seeding="{ item }">
         <span class="text-no-wrap">{{ item.seeding ?? "-" }}</span>
       </template>
@@ -229,11 +230,19 @@ function viewHistoryData(siteId: TSiteID) {
       <!-- 操作 -->
       <template #item.action="{ item }">
         <v-btn-group variant="text">
-          <v-btn icon="mdi-view-list" color="blue" size="small" @click="() => viewHistoryData(item.site)"> </v-btn>
+          <v-btn
+            icon="mdi-view-list"
+            color="blue"
+            size="small"
+            :title="t('MyData.table.action.viewHistoryData')"
+            @click="() => viewHistoryData(item.site)"
+          >
+          </v-btn>
           <v-btn
             icon="mdi-cached"
             color="green"
             size="small"
+            :title="t('MyData.table.action.flushData')"
             :loading="runtimeStore.userInfo.flushPlan[item.site]?.isFlush"
             :disabled="runtimeStore.userInfo.flushPlan[item.site]?.isFlush"
             @click="() => flushSiteLastUserInfo([item.site])"

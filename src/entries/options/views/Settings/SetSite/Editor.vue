@@ -1,9 +1,12 @@
 <script setup lang="ts">
-import { timezoneOffset, ISiteUserConfig, type TSiteID, ISiteMetadata, TSiteFullUrl } from "@ptd/site";
 import { watch, ref, onMounted, inject, computed } from "vue";
+import { useI18n } from "vue-i18n";
+import { timezoneOffset, ISiteUserConfig, type TSiteID, ISiteMetadata } from "@ptd/site";
+
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { formatDate, formValidateRules } from "@/options/utils.ts";
 
+const { t } = useI18n();
 const metadataStore = useMetadataStore();
 
 const siteId = defineModel<TSiteID>({ default: "" });
@@ -74,25 +77,25 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
           <v-col cols="12" md="4">
             <v-text-field
               v-model="siteName"
-              :label="$t('setSite.common.name')"
+              :label="t('SetSite.common.name')"
               :rules="[formValidateRules.require()]"
             ></v-text-field>
           </v-col>
           <v-col cols="12" md="4">
-            <v-text-field v-model="siteMetaData.schema" :label="$t('setSite.common.type')" disabled />
+            <v-text-field v-model="siteMetaData.schema" :label="t('SetSite.common.type')" disabled />
           </v-col>
           <v-col cols="12" md="4">
             <v-text-field
               v-model="siteUserConfig.sortIndex"
-              :label="$t('common.sortIndex')"
-              :placeholder="$t('setSite.editor.sortIndexTip')"
+              :label="t('common.sortIndex')"
+              :placeholder="t('SetSite.editor.sortIndexTip')"
               :rules="[formValidateRules.require()]"
               type="number"
             />
           </v-col>
         </v-row>
         <v-row>
-          <v-radio-group v-model="siteUserConfig.url" :label="$t('setSite.common.url')" class="edit-select-url">
+          <v-radio-group v-model="siteUserConfig.url" :label="t('SetSite.common.url')" class="edit-select-url">
             <v-radio v-for="url in siteMetaData.urls" :key="url" :value="url" @click="siteUserConfig.valid = true">
               <template #label style="width: 100%">
                 {{ url }}
@@ -110,16 +113,16 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
               <template #label>
                 <v-text-field
                   v-model="customSiteUrl"
-                  :placeholder="$t('setSite.editor.customUrlPlaceholder')"
+                  :placeholder="t('SetSite.editor.customUrlPlaceholder')"
                   :rules="[(val) => (val ? formValidateRules.url()(val) : true)]"
-                  @update:modelValue="(val) => (siteUserConfig.url = val as TSiteFullUrl)"
+                  @update:modelValue="(val) => (siteUserConfig.url = val)"
                 ></v-text-field>
               </template>
             </v-radio>
           </v-radio-group>
         </v-row>
 
-        <v-autocomplete v-model="siteTimezoneOffset" :items="timeZone" :label="$t('setSite.editor.timezone')" />
+        <v-autocomplete v-model="siteTimezoneOffset" :items="timeZone" :label="t('SetSite.editor.timezone')" />
 
         <v-slider
           label="请求超时"
@@ -140,7 +143,7 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
 
         <template v-if="siteMetaData.userInputSettingMeta">
           <v-divider />
-          <v-label class="my-2">{{ $t("setSite.editor.extraUserInputSetting") }}</v-label>
+          <v-label class="my-2">{{ t("SetSite.editor.extraUserInputSetting") }}</v-label>
           <v-text-field
             v-for="userInputMeta in siteMetaData.userInputSettingMeta"
             v-model="siteUserConfig.inputSetting![userInputMeta.name]"

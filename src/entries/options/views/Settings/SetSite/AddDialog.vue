@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { provide, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 import { REPO_URL } from "~/helper.ts";
 import { definitionList, type ISiteUserConfig, type TSiteID } from "@ptd/site";
@@ -9,6 +10,8 @@ import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import Editor from "./Editor.vue";
 
 const showDialog = defineModel<boolean>();
+
+const { t } = useI18n();
 const metadataStore = useMetadataStore();
 
 const currentStep = ref<0 | 1>(0);
@@ -44,7 +47,7 @@ async function saveSite() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title>{{ $t("setSite.add.title") }}</v-toolbar-title>
+          <v-toolbar-title>{{ t("SetSite.add.title") }}</v-toolbar-title>
           <v-spacer />
           <v-btn
             icon="mdi-help-circle"
@@ -66,7 +69,7 @@ async function saveSite() {
               item-title="name"
               item-value="id"
               :multiple="false"
-              :placeholder="selectedSiteId ? '' : $t('setSite.add.selectSitePlaceholder')"
+              :placeholder="selectedSiteId ? '' : t('SetSite.add.selectSitePlaceholder')"
               :filter-keys="['raw.name', 'raw.urls']"
               persistent-hint
             >
@@ -136,11 +139,11 @@ async function saveSite() {
         <v-spacer />
         <v-btn color="error" variant="text" @click="showDialog = false">
           <v-icon icon="mdi-close-circle" />
-          {{ $t("common.dialog.cancel") }}
+          {{ t("common.dialog.cancel") }}
         </v-btn>
         <v-btn v-if="currentStep === 1" color="blue-darken-1" variant="text" @click="currentStep--">
           <v-icon icon="mdi-chevron-left" />
-          {{ $t("common.dialog.prev") }}
+          {{ t("common.dialog.prev") }}
         </v-btn>
         <v-btn
           v-if="currentStep === 0"
@@ -149,7 +152,7 @@ async function saveSite() {
           variant="text"
           @click="currentStep++"
         >
-          {{ $t("common.dialog.next") }}
+          {{ t("common.dialog.next") }}
           <v-icon icon="mdi-chevron-right" />
         </v-btn>
         <v-btn
@@ -160,7 +163,7 @@ async function saveSite() {
           @click="saveSite"
         >
           <v-icon icon="mdi-check-circle-outline" />
-          {{ $t("common.dialog.ok") }}
+          {{ t("common.dialog.ok") }}
         </v-btn>
       </v-card-actions>
     </v-card>
