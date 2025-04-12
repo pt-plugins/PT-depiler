@@ -39,6 +39,12 @@ export const routes: RouteRecordRaw[] = [
     meta: { isMainMenu: true },
     children: [
       {
+        path: "/set-base",
+        name: "SetBase",
+        meta: { icon: "mdi-cog" },
+        component: () => import("../views/Settings/SetBase/Index.vue"),
+      },
+      {
         path: "/set-site",
         name: "SetSite",
         meta: { icon: "mdi-earth" },

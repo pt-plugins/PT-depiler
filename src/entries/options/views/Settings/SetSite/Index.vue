@@ -13,9 +13,11 @@ import EditDialog from "./EditDialog.vue";
 import EditSearchEntryList from "./EditSearchEntryList.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import { getSiteFavicon } from "@/shared/adapters/site.ts";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 const { t } = useI18n();
 const uiStore = useUIStore();
+const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 
 const showAddDialog = ref<boolean>(false);
@@ -25,18 +27,18 @@ const showDeleteDialog = ref<boolean>(false);
 const tableHeader = [
   // site favicon
   { title: "", key: "userConfig.sortIndex", align: "center", width: 48, alwaysShow: true, filterable: false },
-  { title: t("setSite.common.name"), key: "name", align: "left", width: 120, alwaysShow: true, sortable: false },
-  { title: t("setSite.common.url"), key: "url", align: "start", sortable: false },
-  { title: t("setSite.common.isOffline"), key: "userConfig.isOffline", align: "center", width: 180, filterable: false },
+  { title: t("SetSite.common.name"), key: "name", align: "left", width: 120, alwaysShow: true, sortable: false },
+  { title: t("SetSite.common.url"), key: "url", align: "start", sortable: false },
+  { title: t("SetSite.common.isOffline"), key: "userConfig.isOffline", align: "center", width: 180, filterable: false },
   {
-    title: t("setSite.common.allowSearch"),
+    title: t("SetSite.common.allowSearch"),
     key: "userConfig.allowSearch",
     align: "center",
     width: 180,
     filterable: false,
   },
   {
-    title: t("setSite.common.allowQueryUserInfo"),
+    title: t("SetSite.common.allowQueryUserInfo"),
     key: "userConfig.allowQueryUserInfo",
     align: "center",
     width: 180,
@@ -96,16 +98,17 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
   for (const id of siteIds) {
     await getSiteFavicon(id, true);
   }
+  runtimeStore.showSnakebar(t("SetSite.index.flushFaviconFinish"), { color: "success" });
 }
 </script>
 
 <template>
-  <v-alert type="info" :title="$t('route.Settings.SetSite')" />
+  <v-alert type="info" :title="t('route.Settings.SetSite')" />
   <v-card class="set-site">
     <v-card-title>
       <v-row class="ma-0">
         <v-btn color="success" prepend-icon="mdi-plus" class="mr-2" @click="showAddDialog = true">
-          {{ $t("common.btn.add") }}
+          {{ t("common.btn.add") }}
         </v-btn>
         <v-btn
           color="error"
@@ -113,18 +116,18 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
           :disabled="tableSelected.length === 0"
           @click="deleteSite(tableSelected)"
         >
-          {{ $t("common.remove") }}
+          {{ t("common.remove") }}
         </v-btn>
         <v-divider class="mx-3" inset vertical />
-        <v-btn-group size="small" variant="text" density="compact">
+        <v-btn-group size="small" density="compact">
           <v-btn
-            icon="mdi-face-recognition"
+            prepend-icon="mdi-face-recognition"
             color="indigo"
             :loading="isFaviconFlushing"
             :disabled="tableSelected.length === 0"
-            title="刷新站点图标"
             @click="() => flushSiteFavicon(tableSelected)"
-          ></v-btn>
+            >{{ t("SetSite.index.table.flushFavicon") }}</v-btn
+          >
         </v-btn-group>
 
         <!-- TODO 一键导入站点 -->
@@ -199,7 +202,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
           <v-btn
             size="small"
             icon="mdi-pencil"
-            :title="$t('common.edit')"
+            :title="t('common.edit')"
             color="info"
             @click="() => editSite(item.id)"
           />
@@ -217,14 +220,14 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
             icon="mdi-face-recognition"
             :loading="isFaviconFlushing"
             color="indigo"
-            title="刷新站点图标"
+            :title="t('SetSite.index.table.flushFavicon')"
             @click="() => flushSiteFavicon(item.id)"
           ></v-btn>
 
           <v-btn
             size="small"
             icon="mdi-delete"
-            :title="$t('common.remove')"
+            :title="t('common.remove')"
             color="error"
             @click="() => deleteSite(item.id)"
           >

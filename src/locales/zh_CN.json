@@ -8,10 +8,12 @@
       "all": "全选"
     },
     "default": "默认",
+    "date": "日期",
     "dialog": {
       "cancel": "取消",
       "next": "下一步",
       "ok": "完成",
+      "confirm": "确认",
       "prev": "上一步",
       "reset": "重置",
       "title": {
@@ -23,9 +25,11 @@
     "name": "名称",
     "project": "PT 助手 Plus",
     "remove": "删除",
+    "save": "保存",
     "sortIndex": "优先级",
     "test": "测试",
-    "version": "版本"
+    "version": "版本",
+    "howToUse": "如何使用？"
   },
   "layout": {
     "header": {
@@ -34,8 +38,8 @@
       "navBarTip": "点击显示/隐藏导航栏",
       "search": "搜索",
       "searchPlan": {
-        "all": "<所有站点>",
-        "default": "<默　　认>"
+        "all": "全站",
+        "default": "默认"
       },
       "searchTip": "输入种子关键字、IMDb编号进行搜索",
       "wiki": "帮助",
@@ -72,15 +76,28 @@
     },
     "Settings": {
       "default": "参数设置",
-      "setBackup": "参数备份与恢复",
-      "setBase": "常规设置",
-      "setDownloadPaths": "下载目录设置",
+      "SetBackup": "参数备份与恢复",
+      "SetBase": "常规设置",
       "SetDownloader": "下载器设置",
       "SetSearchSolution": "搜索方案定义",
       "SetSite": "站点设置"
     }
   },
-  "setSite": {
+  "SetBase": {
+    "tab": {
+      "ui": "界面UI"
+    },
+    "ui": {
+      "changeLanguage": "切换语言",
+      "displayMode": {
+        "auto": "跟随系统",
+        "dark": "暗黑模式",
+        "index": "页面显示模式",
+        "light": "明亮模式"
+      }
+    }
+  },
+  "SetSite": {
     "add": {
       "selectSitePlaceholder": "请选择一个站点（支持搜索）",
       "title": "添加站点"
@@ -111,6 +128,10 @@
       "timezone": "时区"
     },
     "index": {
+      "flushFaviconFinish": "所选站点的图标已成功刷新！",
+      "table": {
+        "flushFavicon": "刷新站点图标"
+      },
       "settingNote": ["只有配置过的站点才会显示插件图标及相应的功能；", "已离线的站点不再参与搜索和信息获取；"]
     },
     "spDialog": {
@@ -120,9 +141,10 @@
       "title": "配置站点默认搜索模式 - {name}"
     }
   },
-  "setDownloader": {
+  "SetDownloader": {
     "add": {
       "NoneSelectNotice": "请选择一个服务器类型",
+      "selectPlaceholder": "@:SetDownloader.add.NoneSelectNotice （支持搜索）",
       "newType": "找不到想要的服务器类型？来这里添加吧！",
       "step": {
         "selectType": "选择服务器类型",
@@ -164,10 +186,46 @@
         "single": "确认要删除这个下载服务器吗？"
       },
       "table": {
+        "enabled": "启用？",
+        "autodl": "自动下载？",
         "action": {
+          "setPathAndTag": "设置预设的下载路径和标签",
           "deleteDownloader": "删除该下载服务器",
           "setDefault": "设置为默认下载服务器"
         }
+      }
+    },
+    "PathAndTag": {
+      "title": "为下载器 [{0}] @:SetDownloader.index.table.action.setPathAndTag",
+      "supportDragNote": "（支持拖拽排序）",
+      "downloadPath": {
+        "title": "下载路径",
+        "addTitle": "已添加的@:SetDownloader.PathAndTag.downloadPath.title@:SetDownloader.PathAndTag.supportDragNote",
+        "addInputLabel": "添加@:SetDownloader.PathAndTag.downloadPath.title",
+        "autoImport": "一键导入下载器中已有的@:SetDownloader.PathAndTag.downloadPath.title",
+        "autoImportFail": "@:SetDownloader.PathAndTag.downloadPath.autoImport 失败，请手动添加。",
+        "note": {
+          "index": "@:SetDownloader.PathAndTag.downloadPath.title中可包含以下关键字：",
+          "table": {
+            "keywords": "关键词",
+            "note": "说明",
+            "example": "示例"
+          },
+          "replaceNote": {
+            "torrentSite": "将被替换为当前站点id",
+            "torrentSiteName": "将被替换为当前站点名称；",
+            "dateYear": "将被替换为当前年份",
+            "dateMonth": "将被替换为当前月份",
+            "dateDay": "将被替换为当前日份"
+          }
+        }
+      },
+      "tags": {
+        "title": "标签",
+        "addTitle": "已添加的@:SetDownloader.PathAndTag.tags.title@:SetDownloader.PathAndTag.supportDragNote",
+        "addInputLabel": "添加@:SetDownloader.PathAndTag.tags.title",
+        "autoImport": "一键导入下载器中已有的@:SetDownloader.PathAndTag.tags.title",
+        "autoImportFail": "@:SetDownloader.PathAndTag.tags.autoImport 失败，请手动添加。"
       }
     }
   },
@@ -190,5 +248,51 @@
       "列表中未能一一列出所有给予帮助的同学，也对他们表示感谢，如有遗漏敬请谅解。",
       "同时一并感谢这些："
     ]
+  },
+  "MyData": {
+    "index": {
+      "flushSelectSite": "刷新所选站点的数据"
+    },
+    "table": {
+      "site": "站点",
+      "username": "用户名",
+      "levelName": "等级",
+      "userData": "数据量",
+      "trueUserData": "真实数据量",
+      "ratio": "分享率",
+      "uploads": "发布数",
+      "seeding": "做种数",
+      "seedingSize": "做种体积",
+      "bonus": "魔力/积分",
+      "joinTime": "入站时间",
+      "updateAt": "数据更新于",
+      "action": {
+        "viewHistoryData": "查看历史数据",
+        "flushData": "刷新数据"
+      }
+    },
+    "HistoryDataView": {
+      "title": "用户历史数据 @ ",
+      "deleteConfirm": "确认删除这条历史数据吗？",
+      "action": {
+        "viewRaw": "查看原始数据"
+      }
+    }
+  },
+  "SetSearchSolution": {
+    "solution": "搜索方案",
+    "delete": {
+      "text": "确认删除这 {0} 个@:SetSearchSolution.solution吗？"
+    },
+    "edit": {
+      "title": "自定义@:SetSearchSolution.solution",
+      "addCount": "已添加@:SetSearchSolution.solution {0} 个",
+      "cantAddByDuplicateNote": "已存在相同的@:SetSearchSolution.solution，无法重复添加。",
+      "filterPlaceholder": "通过站点名称或 url 进行搜索"
+    },
+    "table": {
+      "enable": "启用？",
+      "default": "默认？"
+    }
   }
 }

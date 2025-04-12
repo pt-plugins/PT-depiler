@@ -180,6 +180,12 @@ export async function doSearch(search: string, plan?: string, flush: boolean = t
   // Expand search plan
   const metadataStore = useMetadataStore();
   const searchSolution = await metadataStore.getSearchSolution(runtimeStore.search.searchPlanKey);
+
+  if (!searchSolution) {
+    runtimeStore.showSnakebar(`搜索方案 [${searchPlanKey}] 不存在`, { color: "error" });
+    return;
+  }
+
   runtimeStore.search.searchPlanKey = searchSolution.id; // 重写 searchPlanKey 为实际的 id
   log(`Expanded Search Plan for ${searchPlanKey}: `, searchSolution);
 

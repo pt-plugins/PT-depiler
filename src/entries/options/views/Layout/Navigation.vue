@@ -65,17 +65,19 @@ function clickMenuItem() {
       </template>
     </v-list>
 
-    <!-- 页脚 -->
+    <!-- 页脚，用于展示版本信息 -->
     <template v-slot:append>
       <v-footer>
         <v-row justify="center">
           <span class="pa-2 text-grey-darken-1">
             &copy; {{ year }},
-            <span>
-              {{ "v" + EXT_VERSION + (git.count ? "." + git.count : "") }}
-              <a v-if="git" :href="`${REPO_URL}/commit/${git.long}`" target="_blank"> +{{ git.short }} </a>
-            </span>
-            <v-chip v-if="isDebug" size="x-small" label class="pa-1 ml-1 mb-1" color="amber">测试</v-chip>
+            <a v-if="git.long" :href="`${REPO_URL}/commit/${git.long}`" target="_blank">
+              {{ "v" + EXT_VERSION + (git.count ? "." + git.count : "") + (git.short ? "+" + git.short : "") }}
+            </a>
+            <span v-else>{{ "v" + EXT_VERSION }}</span>
+            <v-chip v-if="isDebug" size="x-small" label class="pa-1 ml-1 mb-1" color="amber">
+              {{ $t("common.test") }}
+            </v-chip>
           </span>
         </v-row>
       </v-footer>

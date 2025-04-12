@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { nanoid } from "nanoid";
 import { watch, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { cloneDeep } from "es-toolkit";
 import { find } from "es-toolkit/compat";
+import { computedAsync, refDebounced } from "@vueuse/core";
 
 import type { ISearchSolution, ISearchSolutionMetadata, TSolutionKey } from "@/storage.ts";
 
@@ -18,6 +20,8 @@ import SiteFavicon from "@/options/components/SiteFavicon.vue";
 
 const showDialog = defineModel<boolean>();
 const solutionId = defineModel<TSolutionKey>("solutionId");
+
+const { t } = useI18n();
 
 const initSolution = () =>
   ({
@@ -36,7 +40,33 @@ const runtimeStore = useRuntimeStore();
 const solution = ref<ISearchSolutionMetadata>(initSolution());
 const formValid = ref<boolean>(false);
 
-watch(showDialog, (newVal, oldVal) => {
+const siteWaitFilter = ref("");
+const siteFilter = refDebounced(siteWaitFilter, 500); // 延迟搜索过滤词的生成
+
+const addedSiteInfo = computedAsync(() => {
+  const promises = metadataStore.getAddedSiteIds.map(async (siteId) => ({
+    siteId,
+    siteName: await metadataStore.getSiteName(siteId),
+    siteUrl: await metadataStore.getSiteUrl(siteId),
+  }));
+  return Promise.all(promises);
+}, []);
+
+const filteredSite = computedAsync(() => {
+  const filter = siteFilter.value.toLowerCase();
+
+  return addedSiteInfo.value
+    .filter((item) => {
+      const siteKey = [item.siteId, item.siteName, item.siteUrl]
+        .filter(Boolean)
+        .map((x: string) => x.toLowerCase())
+        .join("|");
+      return siteKey.includes(filter);
+    })
+    .map((item) => item.siteId);
+}, []);
+
+watch(showDialog, (newVal) => {
   if (newVal) {
     let storedSolution = metadataStore.solutions[solutionId.value!];
     if (!storedSolution) {
@@ -54,7 +84,7 @@ function addSolution(addSolution: ISearchSolution) {
   if (
     find(solution.value.solutions, { siteId: addSolution.siteId, selectedCategories: addSolution.selectedCategories })
   ) {
-    runtimeStore.showSnakebar("已存在相同的搜索方案，无法重复添加", { color: "error" });
+    runtimeStore.showSnakebar(t("SetSearchSolution.edit.cantAddByDuplicateNote"), { color: "error" });
     return;
   }
 
@@ -75,7 +105,7 @@ function saveSolutionState() {
   <v-dialog v-model="showDialog" fullscreen>
     <v-card>
       <v-card-title class="pa-0">
-        <v-toolbar color="blue-grey darken-2" title="自定义搜索模式">
+        <v-toolbar color="blue-grey darken-2" :title="t('SetSearchSolution.edit.title')">
           <template #append>
             <v-btn icon="mdi-close" @click="showDialog = false"> </v-btn>
           </template>
@@ -88,7 +118,7 @@ function saveSolutionState() {
             <v-col>
               <v-text-field
                 v-model="solution.name"
-                :label="$t('common.name')"
+                :label="t('common.name')"
                 :rules="[formValidateRules.require()]"
                 autofocus
                 required
@@ -98,16 +128,22 @@ function saveSolutionState() {
               <v-text-field v-model="solution.id" label="ID" disabled />
             </v-col>
             <v-col cols="2">
-              <v-text-field v-model="solution.sort" :label="$t('common.sortIndex')" type="number" min="0" max="100" />
+              <v-text-field v-model="solution.sort" :label="t('common.sortIndex')" type="number" min="0" max="100" />
             </v-col>
           </v-row>
           <v-row>
-            <v-col cols="8">
-              <v-text-field append-inner-icon="mdi-magnify" prepend-icon="mdi-sitemap" />
+            <v-col md="8" cols="12">
+              <v-text-field
+                v-model="siteWaitFilter"
+                append-inner-icon="mdi-magnify"
+                prepend-icon="mdi-sitemap"
+                clearable
+                :placeholder="t('SetSearchSolution.edit.filterPlaceholder')"
+              />
 
               <v-expansion-panels>
                 <v-expansion-panel
-                  v-for="site in metadataStore.getAddedSiteIds"
+                  v-for="site in filteredSite"
                   :disabled="!!metadataStore.sites[site].isOffline || !metadataStore.sites[site].allowSearch"
                   :id="site"
                 >
@@ -124,8 +160,13 @@ function saveSolutionState() {
                 </v-expansion-panel>
               </v-expansion-panels>
             </v-col>
-            <v-col cols="4">
-              <p class="text-h4 pa-2">已添加方案{{ solution.solutions.length }}个</p>
+            <v-col md="4" cols="12">
+              <v-alert class="mb-2" type="success">
+                <v-alert-title>
+                  {{ t("SetSearchSolution.edit.addCount", [solution.solutions.length]) }}
+                </v-alert-title>
+              </v-alert>
+
               <SolutionLabel :solutions="solution.solutions" @remove:solution="removeSolution" closable />
             </v-col>
           </v-row>
@@ -136,7 +177,7 @@ function saveSolutionState() {
         <v-spacer />
         <v-btn color="error" variant="text" @click="showDialog = false">
           <v-icon icon="mdi-close-circle" />
-          {{ $t("common.dialog.cancel") }}
+          {{ t("common.dialog.cancel") }}
         </v-btn>
         <v-btn
           variant="text"
@@ -145,7 +186,7 @@ function saveSolutionState() {
           :disabled="!formValid || solution.solutions.length === 0"
         >
           <v-icon icon="mdi-check-circle-outline" />
-          {{ $t("common.dialog.ok") }}
+          {{ t("common.dialog.ok") }}
         </v-btn>
       </v-card-actions>
     </v-card>

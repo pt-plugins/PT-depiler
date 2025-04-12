@@ -1,16 +1,19 @@
 <script setup lang="ts">
 import { onMounted, reactive, useTemplateRef } from "vue";
 import { useElementSize } from "@vueuse/core";
+import { useRouter } from "vue-router";
 
 import type { ISearchResultTorrent } from "@/shared/storages/runtime.ts";
 import type { ISocialInformation, TSupportSocialSite } from "@ptd/social/types.ts";
 
 import { socialBuildUrlMap } from "@ptd/social";
-import { get as getSocialInformation } from "@/options/stores/socialInformation.ts";
+import { getSocialInformation } from "@/options/stores/indexdb.ts";
 
 const { item } = defineProps<{
   item: ISearchResultTorrent;
 }>();
+
+const router = useRouter();
 
 const { width: containerWidth } = useElementSize(useTemplateRef<HTMLDivElement>("container"));
 const { width: tagsWidth } = useElementSize(useTemplateRef<HTMLDivElement>("tags"));
@@ -31,10 +34,14 @@ onMounted(() => {
 });
 
 function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
-  const searchKey = encodeURIComponent(`${site}|${sid}`);
-  window.open(`${location.origin}${location.pathname}#/search-entity?search=${searchKey}&flush=1`, "_blank");
+  const toRoute = { name: "SearchEntity", query: { search: `${site}|${sid}`, flush: 1 } };
 
-  // doSearch(`${site}|${sid}`);
+  // FIXME check uiStore
+  if (true) {
+    window.open(router.resolve(toRoute).href, "_blank");
+  } else {
+    router.push(toRoute);
+  }
 }
 </script>
 
@@ -49,8 +56,8 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
       >
         <a
           :href="item.url"
-          class="t_title text-decoration-none text-subtitle-1 text-black text-truncate"
           :title="item.title"
+          class="t_title text-decoration-none text-subtitle-1 text-truncate"
           target="_blank"
           rel="noopener noreferrer nofollow"
         >
@@ -74,13 +81,13 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
               <v-card-text class="pa-0 py-1">
                 <div class="text-center" style="max-width: 150px">
                   <template v-if="socialInformation[key]?.id">
-                    <v-img
-                      aspect-ratio="2/3"
-                      :src="socialInformation[key]?.poster"
-                      class="mb-1"
-                      width="150"
-                      lazy-src="/icons/movie_placeholder.png"
-                    >
+                    <v-img :src="socialInformation[key]?.poster" class="mb-1" width="150" aspect-ratio="2/3">
+                      <template #placeholder>
+                        <v-skeleton-loader type="image@2" height="225"></v-skeleton-loader>
+                      </template>
+                      <template #error>
+                        <v-img width="150" src="/icons/movie_placeholder.png" class="mb-1" />
+                      </template>
                     </v-img>
                     <h3
                       v-if="socialInformation[key]?.title"

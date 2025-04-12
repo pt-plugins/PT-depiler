@@ -18,11 +18,18 @@ const solutionId = ref<TSolutionKey>("");
 
 const tableSelected = ref<TSolutionKey[]>([]);
 const tableHeader = [
-  { title: "排序", key: "sort", align: "center", width: 100, filterable: false },
+  { title: t("common.sortIndex"), key: "sort", align: "center", width: 100, filterable: false },
   { title: t("common.name"), key: "name", align: "start", width: 150 },
-  { title: "范围", key: "solution", align: "start", filterable: false, sortable: false },
-  { title: "启用？", key: "enabled", align: "center", filterable: false, width: 100 },
-  { title: "默认？", key: "isDefault", align: "center", filterable: false, width: 100, sortable: false },
+  { title: t("SetSearchSolution.solution"), key: "solution", align: "start", filterable: false, sortable: false },
+  { title: t("SetSearchSolution.table.enable"), key: "enabled", align: "center", filterable: false, width: 120 },
+  {
+    title: t("SetSearchSolution.table.default"),
+    key: "isDefault",
+    align: "center",
+    filterable: false,
+    width: 120,
+    sortable: false,
+  },
   { title: t("common.action"), key: "action", filterable: false, sortable: false, width: 200 },
 ];
 const tableFilter = ref("");
@@ -82,7 +89,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
 
 <template>
   <v-alert type="info">
-    <v-alert-title> 搜索方案定义 </v-alert-title>
+    <v-alert-title> {{ t("route.Settings.SetSearchSolution") }} </v-alert-title>
   </v-alert>
   <v-card>
     <v-card-title>
@@ -101,7 +108,9 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
 
         <v-divider vertical inset class="mx-2" />
 
-        <v-btn color="light-blue" prepend-icon="mdi-help-circle">如何使用</v-btn>
+        <v-btn color="light-blue" prepend-icon="mdi-help-circle" disabled>
+          {{ t("common.howToUse") }}
+        </v-btn>
 
         <v-spacer></v-spacer>
 
@@ -135,21 +144,25 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
       </template>
 
       <template #item.enabled="{ item }">
-        <v-switch
-          v-model="item.enabled"
-          color="success"
-          hide-details
-          @update:model-value="(v) => simplePatchSearchSolution(item.id, v as boolean)"
-        />
+        <div class="d-flex justify-center">
+          <v-switch
+            v-model="item.enabled"
+            color="success"
+            hide-details
+            @update:model-value="(v) => simplePatchSearchSolution(item.id, v as boolean)"
+          />
+        </div>
       </template>
 
       <template #item.isDefault="{ item }">
-        <v-switch
-          v-model="item.isDefault"
-          color="success"
-          hide-details
-          @update:model-value="(v) => setDefaultSearchSolution(v as boolean, item.id)"
-        />
+        <div class="d-flex justify-center">
+          <v-switch
+            v-model="item.isDefault"
+            color="success"
+            hide-details
+            @update:model-value="(v) => setDefaultSearchSolution(v as boolean, item.id)"
+          />
+        </div>
       </template>
 
       <template #item.action="{ item }">

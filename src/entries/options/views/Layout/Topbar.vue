@@ -2,6 +2,7 @@
 import { REPO_URL } from "~/helper";
 
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify";
 import { useRoute, useRouter } from "vue-router";
 
@@ -12,15 +13,16 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 const route = useRoute();
 const router = useRouter();
 const display = useDisplay();
+const { t } = useI18n();
 
 const uiStore = useUIStore();
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 
-const appendMenu: Array<{ title: string; icon: string; [str: string]: any }> = [
-  { title: "layout.header.home", icon: "mdi-home", href: REPO_URL },
-  { title: "layout.header.wiki", icon: "mdi-help-circle", href: `${REPO_URL}/wiki` },
-];
+const appendMenu = computed<Array<{ title: string; icon: string; [str: string]: any }>>(() => [
+  { title: t("layout.header.home"), icon: "mdi-home", href: REPO_URL },
+  { title: t("layout.header.wiki"), icon: "mdi-help-circle", href: `${REPO_URL}/wiki` },
+]);
 
 const searchKey = ref((route.query?.search as string) ?? "");
 const searchPlanKey = ref((route.query?.plan as string) ?? "default");
@@ -51,7 +53,7 @@ function startSearchEntity() {
   <v-app-bar id="ptd-topbar" app color="amber">
     <template #prepend>
       <v-app-bar-nav-icon
-        :title="$t('layout.header.navBarTip')"
+        :title="t('layout.header.navBarTip')"
         variant="text"
         @click="uiStore.isNavBarOpen = !uiStore.isNavBarOpen"
       >
@@ -66,37 +68,43 @@ function startSearchEntity() {
 
     <v-app-bar-title v-show="display.smAndUp.value" style="min-width: 120px; max-width: 160px" ref="titleTarget">
       <v-img src="/icons/logo/64.png" width="24" inline></v-img>
-      {{ $t("manifest.extName") }}
+      {{ t("manifest.extName") }}
     </v-app-bar-title>
 
+    <!-- 搜索输入框 -->
     <v-text-field
       v-model="searchKey"
       hide-details
       class="ptd-search-input pl-2"
       @keydown.enter="startSearchEntity"
-      :placeholder="$t('layout.header.searchTip')"
+      :placeholder="t('layout.header.searchTip')"
       style="width: 300px"
     >
       <template #append>
         <v-btn icon="mdi-magnify" :disabled="runtimeStore.search.isSearching" @click="startSearchEntity" />
       </template>
 
+      <!-- 搜索方案选择框 -->
       <template #prepend-inner>
         <v-menu>
           <template v-slot:activator="{ props }">
             <v-btn color="primary" v-bind="props">
-              {{ searchPlanKey == "default" ? "默认" : metadataStore.getSearchSolutionName(searchPlanKey) }}
+              {{
+                searchPlanKey == "default"
+                  ? t("layout.header.searchPlan.default")
+                  : metadataStore.getSearchSolutionName(searchPlanKey)
+              }}
             </v-btn>
           </template>
           <v-list>
             <v-list-item
               @click="() => (searchPlanKey = 'default')"
-              :title="'默认'"
+              :title="t('layout.header.searchPlan.default')"
               :subtitle="
                 '<' +
                 (metadataStore.defaultSolutionId !== 'default'
                   ? metadataStore.getSearchSolutionName(metadataStore.defaultSolutionId)
-                  : '全站') +
+                  : t('layout.header.searchPlan.all')) +
                 '>'
               "
             ></v-list-item>
@@ -111,7 +119,10 @@ function startSearchEntity() {
             </v-list-item>
             <template v-if="metadataStore.defaultSolutionId !== 'default'">
               <v-divider />
-              <v-list-item @click="() => (searchPlanKey = 'all')" :title="'全站'"></v-list-item>
+              <v-list-item
+                @click="() => (searchPlanKey = 'all')"
+                :title="t('layout.header.searchPlan.all')"
+              ></v-list-item>
             </template>
           </v-list>
         </v-menu>
@@ -128,14 +139,14 @@ function startSearchEntity() {
           :key="index"
           v-bind.prop="append.prop"
           :href="append.href"
-          :title="$t(append.title)"
+          :title="append.title"
           variant="text"
           rel="noopener noreferrer nofollow"
           size="large"
           target="_blank"
         >
           <v-icon :icon="append.icon" />
-          <span class="ml-1">{{ $t(append.title) }}</span>
+          <span class="ml-1">{{ append.title }}</span>
         </v-btn>
       </template>
 
@@ -152,11 +163,11 @@ function startSearchEntity() {
               :key="index"
               :href="item.href"
               :prepend-icon="item.icon"
-              :title="$t(item.title)"
+              :title="item.title"
               variant="text"
               rel="noopener noreferrer nofollow"
               size="large"
-              class="menu-item"
+              class="menu-item list-item-none-spacer"
               target="_blank"
             />
           </v-list>

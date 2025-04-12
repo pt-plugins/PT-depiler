@@ -1,9 +1,10 @@
-import { ETorrentStatus, extractContent, type ISiteMetadata } from "@ptd/site";
+import { ETorrentStatus, type ISiteMetadata } from "@ptd/site";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
   CategorySpstate,
   SchemaMetadata,
+  subTitleRemoveExtraElement,
 } from "@ptd/site/schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
@@ -59,19 +60,7 @@ export const siteMetadata: ISiteMetadata = {
       subTitle: {
         text: "",
         selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
-        elementProcess: (element) => {
-          const testSubTitle = element.parentElement!.innerHTML.split("<br>");
-          if (testSubTitle && testSubTitle.length > 1) {
-            const subTitleHtml = testSubTitle[testSubTitle.length - 1];
-
-            // 移除 span 的内容
-            const div = document.createElement("div");
-            div.innerHTML = subTitleHtml;
-            div.querySelectorAll("span").forEach((el) => el.parentElement!.remove());
-            return extractContent(div.innerHTML).trim();
-          }
-          return "";
-        },
+        elementProcess: subTitleRemoveExtraElement(["span"]),
       },
       url: {
         selector: "a[title][href*='details.php?id=']",

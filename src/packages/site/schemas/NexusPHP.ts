@@ -63,6 +63,24 @@ export const CategoryInclbookmarked: ISearchCategories = {
   cross: false,
 };
 
+export const subTitleRemoveExtraElement =
+  (removeSelectors: string[] = [], self: boolean = false) =>
+  (element: HTMLElement) => {
+    const testSubTitle = element.parentElement!.innerHTML.split("<br>");
+    if (testSubTitle && testSubTitle.length > 1) {
+      const subTitleHtml = testSubTitle[testSubTitle.length - 1];
+
+      // 移除 removeSelectors 的内容
+      const div = document.createElement("div");
+      div.innerHTML = subTitleHtml;
+      for (const removeSelectorsKey of removeSelectors) {
+        div.querySelectorAll(removeSelectorsKey).forEach((el) => (self ? el : el.parentElement!).remove());
+      }
+      return extractContent(div.innerHTML).trim();
+    }
+    return "";
+  };
+
 /**
  * NexusPHP 模板默认配置，对于大多数NPHP站点都通用
  * @protected
@@ -113,13 +131,7 @@ export const SchemaMetadata: Pick<
       subTitle: {
         text: "",
         selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
-        elementProcess: (element) => {
-          const testSubTitle = element.parentElement!.innerHTML.split("<br>");
-          if (testSubTitle && testSubTitle.length > 1) {
-            return extractContent(testSubTitle[testSubTitle.length - 1]).trim();
-          }
-          return "";
-        },
+        elementProcess: subTitleRemoveExtraElement(),
       },
       progress: {
         text: 0,

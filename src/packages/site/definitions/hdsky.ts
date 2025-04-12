@@ -1,9 +1,10 @@
-import { ETorrentStatus, extractContent, ISiteMetadata, ITorrent } from "@ptd/site";
+import { ETorrentStatus, ISiteMetadata, ITorrent } from "@ptd/site";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
   CategorySpstate,
   SchemaMetadata,
+  subTitleRemoveExtraElement,
 } from "@ptd/site/schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
@@ -175,20 +176,10 @@ export const siteMetadata: ISiteMetadata = {
         text: "",
         selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
         elementProcess: (element) => {
-          const testSubTitle = element.parentElement!.innerHTML.split("<br>");
-          if (testSubTitle && testSubTitle.length > 1) {
-            const subTitleHtml = testSubTitle[testSubTitle.length - 1];
+          const noTagSubTitle = subTitleRemoveExtraElement(["span.optiontag"])(element);
 
-            // 移除 span.optiontag 的内容
-            const div = document.createElement("div");
-            div.innerHTML = subTitleHtml;
-            div.querySelectorAll("span.optiontag").forEach((el) => el.parentElement!.remove());
-            const noTagSubTitle = extractContent(div.innerHTML).trim();
-
-            // 移除 [优惠剩余时间：17时50分] [ promotion will end in 23 hours 16 mins] [優惠剩餘時間：23時16分] 内容
-            return noTagSubTitle.replace(/\[(优惠剩余时间| promotion will end in | 優惠剩餘時間).*\]/g, "").trim();
-          }
-          return "";
+          // 移除 [优惠剩余时间：17时50分] [ promotion will end in 23 hours 16 mins] [優惠剩餘時間：23時16分] 内容
+          return noTagSubTitle.replace(/\[(优惠剩余时间| promotion will end in | 優惠剩餘時間).*\]/g, "").trim();
         },
       },
       link: {

@@ -4,6 +4,7 @@ import {
   CategoryIncldead,
   CategorySpstate,
   SchemaMetadata,
+  subTitleRemoveExtraElement,
 } from "@ptd/site/schemas/NexusPHP.ts";
 import { ETorrentStatus, IAdvancedSearchRequestConfig } from "@ptd/site";
 
@@ -322,6 +323,11 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.search,
     selectors: {
       ...SchemaMetadata.search!.selectors,
+      subTitle: {
+        text: "",
+        selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
+        elementProcess: subTitleRemoveExtraElement(["span.tags"], true),
+      },
       progress: selectorSearchProgress,
       status: selectorSearchStatus,
       tags: [...SchemaMetadata.search!.selectors!.tags!, ...allTagSelectors],

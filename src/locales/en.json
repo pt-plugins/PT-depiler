@@ -8,10 +8,12 @@
       "all": "ALL"
     },
     "default": "default",
+    "date": "Date",
     "dialog": {
       "cancel": "Cancel",
       "next": "Next",
       "ok": "Complete",
+      "confirm": "Confirm",
       "prev": "Prev",
       "reset": "Reset",
       "title": {
@@ -23,9 +25,11 @@
     "name": "Name",
     "project": "PT Depiler",
     "remove": "Delete",
+    "save": "Save",
     "sortIndex": "Priority",
-    "test": "Text",
-    "version": "Version"
+    "test": "Test",
+    "version": "Version",
+    "howToUse": "How To Use"
   },
   "layout": {
     "header": {
@@ -34,8 +38,8 @@
       "navBarTip": "Click to show/hide the navigation bar",
       "search": "Search",
       "searchPlan": {
-        "all": "<All Sites>",
-        "default": "<Default>"
+        "all": "All Sites",
+        "default": "Default"
       },
       "searchTip": "Input keyword, IMDb numbers to search",
       "wiki": "Wiki",
@@ -71,15 +75,28 @@
     },
     "Settings": {
       "default": "Settings",
-      "setBackup": "Backup & Restore",
-      "setBase": "General",
-      "setDownloadPaths": "Download Paths",
+      "SetBackup": "Backup & Restore",
+      "SetBase": "General",
       "SetDownloader": "Download Server",
       "SetSearchSolution": "Search Solution",
       "SetSite": "Sites"
     }
   },
-  "setSite": {
+  "SetBase": {
+    "tab": {
+      "ui": "Option UI"
+    },
+    "ui": {
+      "changeLanguage": "Switch Language",
+      "displayMode": {
+        "auto": "Auto (Follow Browser or System)",
+        "dark": "Dark Mode",
+        "index": "UI display mode",
+        "light": "Light Mode"
+      }
+    }
+  },
+  "SetSite": {
     "add": {
       "selectSitePlaceholder": "Please Select a site to add (support search in url and site name)",
       "title": "Add Site"
@@ -110,6 +127,10 @@
       "timezone": "Timezone"
     },
     "index": {
+      "flushFaviconFinish": "The selected site favicon has been flushed successfully!",
+      "table": {
+        "flushFavicon": "Flush Site Favicon"
+      },
       "settingNote": [
         "Only the configured site will display the plugin icon and the corresponding function;",
         "the offline site will no longer participate in the search and information acquisition;"
@@ -122,9 +143,10 @@
       "title": "Set default search params for Site {name}"
     }
   },
-  "setDownloader": {
+  "SetDownloader": {
     "add": {
       "NoneSelectNotice": "Please select a server type",
+      "selectPlaceholder": "@:SetDownloader.add.NoneSelectNotice ( Support Search )",
       "newType": "Come here to add the server type you want!",
       "step": {
         "selectType": "Select server type",
@@ -166,10 +188,46 @@
         "single": "Are you sure to delete this download server?"
       },
       "table": {
+        "enabled": "Enabled ?",
+        "autodl": "Auto DL ?",
         "action": {
+          "setPathAndTag": "Set Suggest Download Path and Tags",
           "deleteDownloader": "Delete this downloader server",
           "setDefault": "Set this downloader server as Default Downloader."
         }
+      }
+    },
+    "PathAndTag": {
+      "title": "@:SetDownloader.index.table.action.setPathAndTag for downloader [{0}]",
+      "supportDragNote": "(Support drag to sort)",
+      "downloadPath": {
+        "title": "Download Paths",
+        "addTitle": "Added @:SetDownloader.PathAndTag.downloadPath.title @:SetDownloader.PathAndTag.supportDragNote",
+        "addInputLabel": "Added @:SetDownloader.PathAndTag.downloadPath.title",
+        "autoImport": "One-click to import of existing @:SetDownloader.PathAndTag.downloadPath.title from the downloader",
+        "autoImportFail": "@:SetDownloader.PathAndTag.downloadPath.autoImport failed, please add manually.",
+        "note": {
+          "index": "The @:SetDownloader.PathAndTag.downloadPath.title can include the following keywords:",
+          "table": {
+            "keywords": "Keywords",
+            "note": "Note",
+            "example": "Example"
+          },
+          "replaceNote": {
+            "torrentSite": "The Site ID of torrent",
+            "torrentSiteName": "The Site name of torrent",
+            "dateYear": "current year",
+            "dateMonth": "current month",
+            "dateDay": "current day"
+          }
+        }
+      },
+      "tags": {
+        "title": "Tags",
+        "addTitle": "Added @:SetDownloader.PathAndTag.tags.title @:SetDownloader.PathAndTag.supportDragNote",
+        "addInputLabel": "Added @:SetDownloader.PathAndTag.tags.title",
+        "autoImport": "One-click to import of existing @:SetDownloader.PathAndTag.tags.title from the downloader",
+        "autoImportFail": "@:SetDownloader.PathAndTag.tags.autoImport failed, please add manually."
       }
     }
   },
@@ -192,5 +250,51 @@
       "Since we can't list all the people who helped, Please understand if there are any omissions.",
       "Thanks for these at the same time:"
     ]
+  },
+  "MyData": {
+    "index": {
+      "flushSelectSite": "Flush selected"
+    },
+    "table": {
+      "site": "Site",
+      "username": "Username",
+      "levelName": "Level",
+      "userData": "Data",
+      "trueUserData": "True Data",
+      "ratio": "Ratio",
+      "uploads": "Uploads",
+      "seeding": "Seeding",
+      "seedingSize": "Seeding Size",
+      "bonus": "Bonus",
+      "joinTime": "Join Time",
+      "updateAt": "Updated At",
+      "action": {
+        "viewHistoryData": "View History Data",
+        "flushData": "Flush Data"
+      }
+    },
+    "HistoryDataView": {
+      "title": "User History Data @ ",
+      "deleteConfirm": "Confirm to delete this history data?",
+      "action": {
+        "viewRaw": "View Raw Data"
+      }
+    }
+  },
+  "SetSearchSolution": {
+    "solution": "Search Solution",
+    "table": {
+      "enable": "Enabled ?",
+      "default": "Default ?"
+    },
+    "edit": {
+      "title": "Customize @:SetSearchSolution.solution",
+      "addCount": "Added {0} @:SetSearchSolution.solution",
+      "cantAddByDuplicateNote": "A duplicate @:SetSearchSolution.solution already exists and cannot be added again.",
+      "filterPlaceholder": "Filter by site name or url"
+    },
+    "delete": {
+      "text": "Are you sure to delete these {0} @:SetSearchSolution.solution ?"
+    }
   }
 }
