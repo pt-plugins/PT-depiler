@@ -110,7 +110,7 @@ export default defineConfig({
                   // 特殊情况下 facadeModuleId 可能为 null，这时我们使用 moduleIds 的最后一个作为 chunkName
                   const chunkName = chunkInfo.facadeModuleId || chunkInfo.moduleIds.slice(-1)[0];
 
-                  if (/[\\/]src[\\/]packages[\\/](downloader|backupServer|site).+\.ts/.test(chunkName)) {
+                  if (/[\\/]src[\\/]packages[\\/](downloader|backupServer|site|social).+\.ts/.test(chunkName)) {
                     const name = chunkName.replace(/^.+?[\\/]src[\\/]/, "").replace(/\..+?$/, "");
                     return `${name}-[hash].js`;
                   }

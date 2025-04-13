@@ -1,5 +1,9 @@
+// noinspection ES6PreferShortImport
+
+import { type TSiteID, EResultParseStatus } from "./base";
 import type { ITorrent } from "./torrent";
-import { EResultParseStatus, isoDuration, TSiteID, TSize } from "@ptd/site";
+import type { isoDuration } from "../utils/datetime";
+import type { TSize } from "../utils/filesize";
 
 /**
  * user     组别 0-99

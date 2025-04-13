@@ -1,4 +1,4 @@
-import { IFetchSocialSiteInformationConfig, IPtgenApiResponse, ISocialInformation } from "../types.ts";
+import type { IFetchSocialSiteInformationConfig, IPtgenApiResponse, ISocialInformation } from "../types";
 
 export function build(id: string): string {
   return `https://www.imdb.com/title/${id}/`;

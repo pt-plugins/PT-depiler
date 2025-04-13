@@ -1,6 +1,7 @@
-// 种子当前状态
-import { TAdvanceSearchKeyword } from "@ptd/site";
+import type { TAdvanceSearchKeyword } from "@ptd/site";
+import type { TSiteID } from "./base";
 
+// 种子当前状态
 export enum ETorrentStatus {
   unknown, // 状态不明
   downloading, // 正在下载
@@ -32,7 +33,7 @@ export interface ITorrentTag {
 
 // 作为一个种子最基本应该有的属性
 export interface ITorrent {
-  site: string; // 所在站点id
+  site: TSiteID; // 所在站点id
 
   id: number | string; // 该种子id
   title: string; // 主标题

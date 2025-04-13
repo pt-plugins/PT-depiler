@@ -17,7 +17,7 @@ export interface ISocialInformation {
 
 export interface IFetchSocialSiteInformationConfig {
   usePtGen?: boolean;
-  ptGenEndpoint?: string; // 只是最优先而已，如果失败，这回从默认的 buildInPtGenApi 中依次尝试
+  ptGenEndpoint?: string; // 只是最优先而已，如果失败，则会从默认的 buildInPtGenApi 中依次尝试
   timeout?: number; // 请求超时时间
 }
 

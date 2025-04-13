@@ -1,4 +1,4 @@
-import { IFetchSocialSiteInformationConfig, ISocialInformation } from "@ptd/social/types.ts";
+import type { IFetchSocialSiteInformationConfig, ISocialInformation } from "../types";
 
 export function build(id: string): string {
   return `https://anidb.net/anime/${id}`;

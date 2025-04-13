@@ -1,8 +1,10 @@
+// noinspection ES6PreferShortImport
+
 import type { AxiosRequestConfig } from "axios";
-import type { TQueryFilter } from "@ptd/site";
+import type { TSupportSocialSite } from "@ptd/social";
 import type { EResultParseStatus } from "./base";
 import type { ITorrent, TBaseTorrentTagName } from "./torrent";
-import type { TSupportSocialSite } from "@ptd/social/types.ts";
+import type { TQueryFilter } from "../utils/filter";
 
 export type TAdvanceSearchKeyword = TSupportSocialSite | string;
 
