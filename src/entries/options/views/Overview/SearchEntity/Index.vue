@@ -15,7 +15,7 @@ import { doSearch, searchQueue, tableCustomFilter } from "./utils.ts"; // <-- ä¸
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
-import TorrentTitleTd from "./TorrentTitleTd.vue";
+import TorrentTitleTd from "@/options/components/TorrentTitleTd.vue";
 import TorrentProcessTd from "./TorrentProcessTd.vue";
 import ActionTd from "./ActionTd.vue";
 import SearchStatusDialog from "./SearchStatusDialog.vue";

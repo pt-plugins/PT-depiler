@@ -88,7 +88,7 @@ function startSearchEntity() {
       <template #prepend-inner>
         <v-menu>
           <template v-slot:activator="{ props }">
-            <v-btn color="primary" v-bind="props">
+            <v-btn v-bind="props" color="primary">
               {{
                 searchPlanKey == "default"
                   ? t("layout.header.searchPlan.default")
@@ -154,7 +154,7 @@ function startSearchEntity() {
       <template v-else>
         <v-menu bottom left offset-y>
           <template #activator="{ props }">
-            <v-btn icon="mdi-dots-vertical" variant="text" v-bind="props" />
+            <v-btn v-bind="props" icon="mdi-dots-vertical" variant="text" />
           </template>
 
           <v-list>

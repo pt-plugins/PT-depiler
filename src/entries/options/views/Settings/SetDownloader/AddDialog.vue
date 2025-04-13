@@ -95,9 +95,9 @@ async function saveStoredDownloaderConfig() {
               </template>
               <template #item="{ props, item: { raw: downloader } }">
                 <v-list-item
+                  v-bind="props"
                   :prepend-avatar="getDownloaderIcon(downloader.type)"
                   :title="downloader.type"
-                  v-bind="props"
                 >
                 </v-list-item>
               </template>

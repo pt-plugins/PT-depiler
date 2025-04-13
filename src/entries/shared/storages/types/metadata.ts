@@ -2,7 +2,6 @@ import {
   ISearchCategories,
   ISearchEntryRequestConfig,
   ISiteUserConfig,
-  ITorrent,
   IUserInfo,
   TSiteID as TSiteKey,
 } from "@ptd/site";
@@ -49,23 +48,11 @@ export interface IDownloaderMetadata extends DownloaderBaseConfig {
   [key: string]: any; // 其他配置项
 }
 
-export type TTorrentDownloadKey = string;
-
-export interface ITorrentDownloadMetadata extends Pick<ITorrent, "title" | "subTitle" | "url" | "link"> {
-  id: TTorrentDownloadKey; // 使用nanoid给每个下载任务生成的唯一id
-  siteId: TSiteKey; // 站点id
-  torrentId: ITorrent["id"]; // 种子id
-  downloaderId: TDownloaderKey | "local"; // 下载器id，注意 local 是一个特殊的关键词，表示本地下载
-  downloadAt: number; // 下载时间
-  downloadStatus: "pending" | "downloading" | "completed" | "failed"; // 下载状态
-}
-
 export interface IMetadataPiniaStorageSchema {
   sites: Record<TSiteKey, ISiteUserConfig>; // 站点配置(用户配置)
   solutions: Record<TSolutionKey, ISearchSolutionMetadata>; // 搜索方案配置
   snapshots: Record<TSearchSnapshotKey, ISearchSnapshotMetadata>; // 搜索快照配置（元信息）
   downloaders: Record<TDownloaderKey, IDownloaderMetadata>; // 下载器配置
-  downloadHistory: Record<TTorrentDownloadKey, ITorrentDownloadMetadata>; // 下载历史
 
   defaultSolutionId: TSolutionKey | "default"; // 默认搜索方案
 

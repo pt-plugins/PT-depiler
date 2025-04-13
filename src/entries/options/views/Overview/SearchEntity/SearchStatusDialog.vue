@@ -51,7 +51,11 @@ function getSearchSolution(planKey: string, entryName: string) {
               <SiteFavicon :site-id="searchPlan.siteId" class="mr-2" />
             </template>
             <v-list-item-title>
-              <SiteName :site-id="searchPlan.siteId" :class="['text-decoration-none', 'text-black']" />
+              <SiteName
+                :class="['text-decoration-none', 'font-weight-bold', 'text-black']"
+                :site-id="searchPlan.siteId"
+                tag="span"
+              />
               ->
               <span v-if="runtimeStore.search.searchPlanKey === 'all'">
                 {{ searchPlan.searchEntry.name ?? searchPlan.searchEntryName }}

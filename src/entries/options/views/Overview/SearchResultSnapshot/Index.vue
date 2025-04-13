@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
-import { refDebounced } from "@vueuse/core";
+import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
+import { refDebounced } from "@vueuse/core";
 
 import { formatDate } from "../../../utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -11,6 +12,7 @@ import EditNameDialog from "./EditNameDialog.vue";
 
 import { type TSearchSnapshotKey } from "@/shared/storages/types/metadata.ts";
 
+const { t } = useI18n();
 const router = useRouter();
 const metadataStore = useMetadataStore();
 
@@ -61,9 +63,7 @@ watch(toDeleteIds, (newVal, oldValue) => {
 </script>
 
 <template>
-  <v-alert type="info">
-    <v-alert-title> 搜索快照 </v-alert-title>
-  </v-alert>
+  <v-alert type="info" :title="t('route.Overview.SearchResultSnapshot')" />
   <v-card>
     <v-card-title>
       <v-row class="ma-0">

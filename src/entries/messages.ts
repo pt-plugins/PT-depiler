@@ -15,6 +15,8 @@ import type {
   ISearchData,
   TSearchSnapshotKey,
 } from "@/storage.ts";
+import { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/storages/types/indexdb.ts";
+import type { ISocialInformation, TSupportSocialSite } from "@ptd/social";
 
 interface ProtocolMap {
   // 1. 与 chrome 相关的功能，需要在 service worker 中注册，主要供 offscreen, options 使用
@@ -48,12 +50,17 @@ interface ProtocolMap {
 
   // 2.2 种子下载相关功能
   getTorrentDownloadLink(torrent: ITorrent): string;
-  downloadTorrentFile(torrent: ITorrent): number;
-  sendTorrentToDownloader(data: {
+  downloadTorrentToLocalFile(torrent: ITorrent): TTorrentDownloadKey;
+  downloadTorrentToDownloader(data: {
     torrent: ITorrent;
     downloaderId: string;
     addTorrentOptions: CAddTorrentOptions;
-  }): void;
+  }): TTorrentDownloadKey;
+
+  // 2.3 IndexDB 相关功能封装
+  getSocialInformation(data: { site: TSupportSocialSite; sid: string }): ISocialInformation;
+  getDownloadHistory(): ITorrentDownloadMetadata[];
+  getDownloadHistoryById(downloadId: TTorrentDownloadKey): ITorrentDownloadMetadata;
 }
 
 export const { sendMessage, onMessage } = defineExtensionMessaging<ProtocolMap>({});

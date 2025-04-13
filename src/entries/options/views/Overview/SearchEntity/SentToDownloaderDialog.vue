@@ -89,7 +89,7 @@ async function sendToDownloader() {
       }
 
       // noinspection ES6MissingAwait
-      sendMessage("sendTorrentToDownloader", {
+      sendMessage("downloadTorrentToDownloader", {
         torrent,
         downloaderId: selectedDownloader.value?.id!,
         addTorrentOptions: realAddTorrentOptions as CAddTorrentOptions,
@@ -134,9 +134,9 @@ async function sendToDownloader() {
                 </template>
                 <template #item="{ props, item: { raw: downloader } }">
                   <v-list-item
+                    v-bind="props"
                     :prepend-avatar="getDownloaderIcon(downloader.type)"
                     :title="downloaderTitle(downloader)"
-                    v-bind="props"
                   >
                     <template #append>
                       <v-chip color="indigo" label>{{ downloader.type }}</v-chip>

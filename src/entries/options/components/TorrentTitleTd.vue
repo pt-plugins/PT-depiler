@@ -4,10 +4,10 @@ import { useElementSize } from "@vueuse/core";
 import { useRouter } from "vue-router";
 
 import { socialBuildUrlMap } from "@ptd/social";
-import { getSocialInformation } from "@/shared/storages/indexdb.ts";
 
 import type { ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
 import type { ISocialInformation, TSupportSocialSite } from "@ptd/social/types.ts";
+import { sendMessage } from "@/messages.ts";
 
 const { item } = defineProps<{
   item: ISearchResultTorrent;
@@ -26,7 +26,7 @@ onMounted(() => {
   for (const key in socialBuildUrlMap) {
     const site = key as TSupportSocialSite;
     if (item[`ext_${site}`]) {
-      getSocialInformation(site, item[`ext_${site}`]! as string).then((info) => {
+      sendMessage("getSocialInformation", { site, sid: item[`ext_${site}`]! }).then((info) => {
         socialInformation[site] = info;
       });
     }
