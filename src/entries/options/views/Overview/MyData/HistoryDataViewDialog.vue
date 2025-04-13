@@ -83,7 +83,8 @@ function viewStoreData(data: IShowUserInfo) {
         <v-data-table
           :headers="tableHeader"
           :items="siteHistoryData"
-          :items-per-page="25"
+          items-per-page="10"
+          class="table-stripe"
           :sort-by="[{ key: 'date', order: 'desc' }]"
         >
           <!-- -->

@@ -93,6 +93,7 @@ watch(toDeleteIds, (newVal, oldValue) => {
       :items="metadataStore.getDownloaders"
       item-value="id"
       show-select
+      class="table-stripe"
     >
       <template #item.type="{ item }">
         <v-avatar :image="getDownloaderIcon(item.type)" :alt="item.type" />

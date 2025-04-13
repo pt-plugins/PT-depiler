@@ -92,6 +92,7 @@ watch(toDeleteIds, (newVal, oldValue) => {
 
     <v-data-table
       v-model="tableSelected"
+      class="table-stripe"
       :headers="tableHeader"
       :items="metadataStore.getSearchSnapshotList"
       :search="tableFilter"

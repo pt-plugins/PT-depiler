@@ -11,6 +11,20 @@
     }
 }
 
+.v-theme--dark {
+    .table-stripe {
+        tr.v-data-table__tr:nth-child(even) {
+            background-color: #2a2a2a;
+        }
+    }
+}
+
+.table-stripe {
+    tr.v-data-table__tr:nth-child(even) {
+        background-color: #f1f1f1;
+    }
+}
+
 /* 表格中 density-compact 的按钮组中添加间距 */
 .table-action.v-btn-group--density-compact > button:not(:last-child) {
     margin-right: 4px;

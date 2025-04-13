@@ -216,7 +216,7 @@ function cancelSearchQueue() {
     <v-data-table
       id="ptd-search-entity-table"
       v-model="tableSelected"
-      class="search-entity-table"
+      class="search-entity-table table-stripe"
       :headers="tableHeader"
       :items="runtimeStore.search.searchResult"
       :items-per-page="uiStore.tableBehavior.SearchEntity.itemsPerPage"
@@ -301,19 +301,7 @@ function cancelSearchQueue() {
 </template>
 
 <style scoped lang="scss">
-.v-theme--dark {
-  #ptd-search-entity-table {
-    :deep(tr.v-data-table__tr:nth-child(even)) {
-      background-color: #2a2a2a;
-    }
-  }
-}
-
 #ptd-search-entity-table {
-  :deep(tr.v-data-table__tr:nth-child(even)) {
-    background-color: #f1f1f1;
-  }
-
   :deep(td.v-data-table__td) {
     padding: 0 8px;
   }

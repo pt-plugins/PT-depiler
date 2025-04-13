@@ -145,6 +145,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
 
     <v-data-table
       v-model="tableSelected"
+      class="table-stripe"
       :headers="tableHeader"
       :items="sites"
       :items-per-page="uiStore.tableBehavior.SetSite.itemsPerPage"
