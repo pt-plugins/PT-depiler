@@ -15,8 +15,9 @@ import UserLevelRequirementsTd from "./UserLevelRequirementsTd.vue";
 
 import { EResultParseStatus, type ISiteUserConfig, IUserInfo, TSiteID } from "@ptd/site";
 
-import { formatDate, formatNumber, formatSize, ResultParseStatusMap } from "@/options/utils.ts";
+import { formatDate, formatNumber, formatSize } from "@/options/utils.ts";
 import HistoryDataViewDialog from "@/options/views/Overview/MyData/HistoryDataViewDialog.vue";
+import ResultParseStatus from "@/options/components/ResultParseStatus.vue";
 
 const { t } = useI18n();
 const uiStore = useUIStore();
@@ -236,7 +237,7 @@ function viewHistoryData(siteId: TSiteID) {
           {{ item.updateAt ? formatDate(item.updateAt) : "-" }}
         </template>
         <template v-else>
-          <v-chip label>{{ ResultParseStatusMap[item.status] }}</v-chip>
+          <v-chip label><ResultParseStatus :status="item.status" /></v-chip>
         </template>
       </template>
 

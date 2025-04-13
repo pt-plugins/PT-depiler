@@ -9,7 +9,7 @@ import { doSearchEntity, raiseSearchPriority } from "@/options/views/Overview/Se
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import SiteName from "@/options/components/SiteName.vue";
 import SolutionDetail from "@/options/components/SolutionDetail.vue";
-import { ResultParseStatusMap } from "@/options/utils.ts";
+import ResultParseStatus from "@/options/components/ResultParseStatus.vue";
 
 const showDialog = defineModel<boolean>();
 
@@ -60,7 +60,7 @@ function getSearchSolution(planKey: string, entryName: string) {
             </v-list-item-title>
             <template #append>
               <span class="text-subtitle-2 text-end">
-                {{ ResultParseStatusMap[searchPlan.status] }}
+                <ResultParseStatus :status="searchPlan.status" />
                 <template v-if="searchPlan.status === EResultParseStatus.success">
                   <br />
                   <span class="text-end">

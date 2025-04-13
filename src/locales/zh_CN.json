@@ -105,6 +105,17 @@
     "posts": "发布帖子数",
     "hnrUnsatisfied": "H&R 未满足的数量"
   },
+  "resultParseStatus": {
+    "unknownError": "未知错误！",
+    "waiting": "队列等待中...",
+    "working": "正在获取中...",
+    "success": "获取成功！",
+    "parseError": "解析错误！",
+    "passParse": "未启用！",
+    "needLogin": "需要登录！",
+    "noResults": "无结果！",
+    "unknown": "未知状态！"
+  },
   "SetBase": {
     "tab": {
       "ui": "界面UI"

@@ -104,6 +104,17 @@
     "posts": "Posted Threads",
     "hnrUnsatisfied": "Unsatisfied H&R Count"
   },
+  "resultParseStatus": {
+    "unknownError": "Unknown Error!",
+    "waiting": "Waiting in Queue...",
+    "working": "Fetching...",
+    "success": "Fetch Successful!",
+    "parseError": "Parse Error!",
+    "passParse": "Not Enabled!",
+    "needLogin": "Login Required!",
+    "noResults": "No Results!",
+    "unknown": "Unknown Status!"
+  },
   "SetBase": {
     "tab": {
       "ui": "Option UI"
