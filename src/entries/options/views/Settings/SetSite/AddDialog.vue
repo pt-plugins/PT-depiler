@@ -72,6 +72,7 @@ async function saveSite() {
               :placeholder="selectedSiteId ? '' : t('SetSite.add.selectSitePlaceholder')"
               :filter-keys="['raw.name', 'raw.urls']"
               persistent-hint
+              autofocus
             >
               <template #selection="{ item: { raw: site } }">
                 <v-list-item>

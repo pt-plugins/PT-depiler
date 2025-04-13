@@ -31,7 +31,7 @@ const matchedLevelRequirements = computed(() => {
   return userLevelRequirements.value?.find((r) => r.id === userInfo.levelId);
 });
 
-const nextLevelUnMet = computed(() => getNextLevelUnMet(userInfo, userLevelRequirements.value!));
+const nextLevelUnMet = computedAsync(() => getNextLevelUnMet(userInfo, userLevelRequirements.value!));
 
 const userLevelGroupType = computedAsync(() => {
   // 首先尝试从 matchedLevelRequirements 中找到对应的等级组
@@ -72,10 +72,31 @@ const userLevelGroupIcon = computed(() => {
       <template v-slot>
         <v-card class="border-sm overflow-y-auto" max-height="500" max-width="800">
           <v-card-text class="pa-2">
-            <template v-if="!isEmpty(nextLevelUnMet)">
-              <!-- 计算剩余升级情况 -->
-            </template>
             <v-list density="compact" class="pa-0">
+              <!-- 计算剩余升级情况 -->
+              <template v-if="userLevelGroupType === 'user' && !isEmpty(nextLevelUnMet)">
+                <v-list-item class="list-item-half-spacer px-1 py-0" border>
+                  <template #prepend>
+                    <v-icon icon="mdi-keyboard-tab" color="orange" size="small" />
+                  </template>
+
+                  <span v-if="nextLevelUnMet.level">{{ nextLevelUnMet.level.name }}:</span>
+
+                  <UserLevelShowSpan :level-requirement="nextLevelUnMet" />
+                  <template v-if="nextLevelUnMet.alternative">
+                    <v-icon size="small" icon="mdi-file-table-box-multiple-outline" />
+                    (
+                    <template v-for="(alternative, key) in nextLevelUnMet.alternative" :key="key">
+                      [ <UserLevelShowSpan :level-requirement="alternative" /> ]
+                    </template>
+                    )
+                  </template>
+                </v-list-item>
+              </template>
+
+              <v-list-subheader v-if="userLevelRequirements.length > 0"> 用户等级列表 </v-list-subheader>
+
+              <!-- 展示站点用户等级 -->
               <template v-for="(userLevel, index) in userLevelRequirements" :key="userLevel.id">
                 <v-list-item class="list-item-half-spacer px-1 py-0">
                   <template #prepend>

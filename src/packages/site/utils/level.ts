@@ -57,9 +57,10 @@ export function levelRequirementUnMet(
 
   // 比较加入时间
   if (compareRequirement.interval) {
-    const passTime = convertIsoDurationToDate(compareRequirement.interval, userInfo.joinTime ?? currentTime);
+    const baseTimeInfo = userInfo.joinTime ?? currentTime;
+    const passTime = convertIsoDurationToDate(compareRequirement.interval, baseTimeInfo);
     if (passTime > currentTime) {
-      unmetRequirement.interval = compareRequirement.interval;
+      unmetRequirement.interval = compareRequirement.interval - baseTimeInfo;
     }
   }
 
@@ -81,8 +82,9 @@ export function levelRequirementUnMet(
       currentSizeRequirement = parseSizeString(currentSizeRequirement);
     }
 
-    if ((userInfo[currentSizeElement] ?? 0) < currentSizeRequirement) {
-      unmetRequirement[currentSizeElement] = currentSizeRequirement;
+    const baseSizeInfo = userInfo[currentSizeElement] ?? 0;
+    if (baseSizeInfo < currentSizeRequirement) {
+      unmetRequirement[currentSizeElement] = currentSizeRequirement - baseSizeInfo;
     }
   }
 
@@ -117,7 +119,7 @@ export function levelRequirementUnMet(
     }
 
     if ((userInfo[currentRatioElement] ?? -1) < currentRatioRequirement) {
-      unmetRequirement[currentRatioElement] = currentRatioRequirement;
+      unmetRequirement[currentRatioElement] = compareRequirement[currentRatioElement]; // 无法做差比较，直接使用设置
     }
   }
 
@@ -137,8 +139,9 @@ export function levelRequirementUnMet(
         (convertIsoDurationToDate(currentDurationRequirement as isoDuration, currentTime) - currentTime) / 1e3;
     }
 
-    if ((userInfo[currentDurationElement] ?? 0) < currentDurationRequirement) {
-      unmetRequirement[currentDurationElement] = currentDurationRequirement;
+    const baseDurationInfo = userInfo[currentDurationElement] ?? 0;
+    if (baseDurationInfo < currentDurationRequirement) {
+      unmetRequirement[currentDurationElement] = currentDurationRequirement - baseDurationInfo;
     }
   }
 
@@ -156,8 +159,10 @@ export function levelRequirementUnMet(
     if (typeof currentGtRequirement === "undefined") {
       continue; // 如果没有这个字段要求则跳过
     }
-    if ((userInfo[currentGtRequirement] ?? 0) < currentGtRequirement) {
-      unmetRequirement[currentGtElement] = currentGtRequirement;
+
+    const baseGtInfo = userInfo[currentGtElement] ?? 0;
+    if (baseGtInfo < currentGtRequirement) {
+      unmetRequirement[currentGtElement] = currentGtRequirement - baseGtInfo;
     }
   }
 
@@ -167,8 +172,10 @@ export function levelRequirementUnMet(
     if (typeof currentLtRequirement === "undefined") {
       continue; // 如果没有这个字段要求则跳过
     }
-    if ((userInfo[currentLtElement] ?? 0) > currentLtRequirement) {
-      unmetRequirement[currentLtElement] = currentLtRequirement;
+
+    const baseLtInfo = userInfo[currentLtElement] ?? 0;
+    if (baseLtInfo > currentLtRequirement) {
+      unmetRequirement[currentLtElement] = baseLtInfo - currentLtRequirement;
     }
   }
 
@@ -205,13 +212,13 @@ export function getMaxUserLevelId(levelRequirements: ILevelRequirement[]): TLeve
 export function getNextLevelUnMet(
   userInfo: IUserInfo,
   levelRequirements: ILevelRequirement[],
-): Partial<IImplicitUserInfo> {
+): Partial<IImplicitUserInfo & { level?: ILevelRequirement }> {
   let nextLevelUnMet: Partial<IImplicitUserInfo> = {};
 
   const currentLevelId = userInfo.levelId ?? -1;
   if (currentLevelId < getMaxUserLevelId(levelRequirements)) {
     const nextLevelRequirement = levelRequirements.find((level) => level.id > currentLevelId);
-    nextLevelUnMet = levelRequirementUnMet(userInfo, nextLevelRequirement!);
+    nextLevelUnMet = { ...levelRequirementUnMet(userInfo, nextLevelRequirement!), level: nextLevelRequirement };
   }
 
   return nextLevelUnMet;
