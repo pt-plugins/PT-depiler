@@ -7,7 +7,7 @@ import { useUIStore } from "@/options/stores/ui.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
-import { getFixedRatio, flushSiteLastUserInfo, fixUserInfo } from "./utils.ts";
+import { formatRatio, flushSiteLastUserInfo, fixUserInfo } from "./utils.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
@@ -30,11 +30,12 @@ const fullTableHeader = reactive([
   // NOTE: 这里将key设为 uploaded, trueUploaded 而不是虚拟的 userData，可以让 v-data-table 使用 uploaded 的进行排序
   { title: t("MyData.table.userData"), key: "uploaded", align: "end" },
   { title: t("MyData.table.trueUserData"), key: "trueUploaded", align: "end" }, // 默认不显示
-  { title: t("MyData.table.ratio"), key: "ratio", align: "end" },
-  { title: t("MyData.table.uploads"), key: "uploads", align: "end" },
-  { title: t("MyData.table.seeding"), key: "seeding", align: "end" },
-  { title: t("MyData.table.seedingSize"), key: "seedingSize", align: "end" },
-  { title: t("MyData.table.bonus"), key: "bonus", align: "end" },
+  { title: t("levelRequirement.ratio"), key: "ratio", align: "end" },
+  { title: t("levelRequirement.trueRatio"), key: "trueRatio", align: "end" }, // 默认不显示
+  { title: t("levelRequirement.uploads"), key: "uploads", align: "end" },
+  { title: t("levelRequirement.seeding"), key: "seeding", align: "end" },
+  { title: t("levelRequirement.seedingSize"), key: "seedingSize", align: "end" },
+  { title: t("levelRequirement.bonus"), key: "bonus", align: "end" },
   { title: t("MyData.table.joinTime"), key: "joinTime", align: "center" },
   { title: t("MyData.table.updateAt"), key: "updateAt", align: "center", alwaysShow: true },
   { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false, alwaysShow: true },
@@ -193,7 +194,12 @@ function viewHistoryData(siteId: TSiteID) {
 
       <!-- 分享率 -->
       <template #item.ratio="{ item }">
-        <span class="text-no-wrap">{{ getFixedRatio(item) }}</span>
+        <span class="text-no-wrap">{{ formatRatio(item) }}</span>
+      </template>
+
+      <!-- 真实分享率 -->
+      <template #item.trueRatio="{ item }">
+        <span class="text-no-wrap">{{ formatRatio(item, "trueRatio") }}</span>
       </template>
 
       <!-- 发布数 -->

@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n";
 import { type IUserInfo, type TSiteID } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
-import { fixUserInfo, getFixedRatio } from "./utils.ts";
+import { fixUserInfo, formatRatio } from "./utils.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import { formatNumber, formatSize, formatDate } from "@/options/utils.ts";
@@ -28,10 +28,10 @@ const tableHeader = [
   { title: t("MyData.table.username"), key: "name", align: "center", sortable: false },
   { title: t("MyData.table.levelName"), key: "levelName", align: "start", sortable: false },
   { title: t("MyData.table.userData"), key: "uploaded", align: "end", sortable: false },
-  { title: t("MyData.table.ratio"), key: "ratio", align: "end", sortable: false },
-  { title: t("MyData.table.seeding"), key: "seeding", align: "end", sortable: false },
-  { title: t("MyData.table.seedingSize"), key: "seedingSize", align: "end", sortable: false },
-  { title: t("MyData.table.bonus"), key: "bonus", align: "end", sortable: false },
+  { title: t("levelRequirement.ratio"), key: "ratio", align: "end", sortable: false },
+  { title: t("levelRequirement.seeding"), key: "seeding", align: "end", sortable: false },
+  { title: t("levelRequirement.seedingSize"), key: "seedingSize", align: "end", sortable: false },
+  { title: t("levelRequirement.bonus"), key: "bonus", align: "end", sortable: false },
   { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false },
 ];
 
@@ -121,7 +121,7 @@ function viewStoreData(data: IShowUserInfo) {
 
           <!-- 分享率 -->
           <template #item.ratio="{ item }">
-            <span class="text-no-wrap">{{ getFixedRatio(item) }}</span>
+            <span class="text-no-wrap">{{ formatRatio(item) }}</span>
           </template>
 
           <!-- 发布数 -->

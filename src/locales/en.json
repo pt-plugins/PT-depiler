@@ -283,11 +283,6 @@
       "levelName": "Level",
       "userData": "Data",
       "trueUserData": "True Data",
-      "ratio": "Ratio",
-      "uploads": "Uploads",
-      "seeding": "Seeding",
-      "seedingSize": "Seeding Size",
-      "bonus": "Bonus",
       "joinTime": "Join Time",
       "updateAt": "Updated At",
       "action": {

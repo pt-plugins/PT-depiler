@@ -281,11 +281,6 @@
       "levelName": "等级",
       "userData": "数据量",
       "trueUserData": "真实数据量",
-      "ratio": "分享率",
-      "uploads": "发布数",
-      "seeding": "做种数",
-      "seedingSize": "做种体积",
-      "bonus": "魔力/积分",
       "joinTime": "入站时间",
       "updateAt": "数据更新于",
       "action": {

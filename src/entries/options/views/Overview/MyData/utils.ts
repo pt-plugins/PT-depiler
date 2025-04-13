@@ -1,4 +1,4 @@
-import type { IUserInfo, TSiteID } from "@ptd/site";
+import { fixRatio, IUserInfo, TSiteID } from "@ptd/site";
 import PQueue from "p-queue";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -7,29 +7,22 @@ const runtimeStore = useRuntimeStore();
 
 // 对 siteUserInfoData 进行一些预处理（不涉及渲染格式）
 export function fixUserInfo(userInfo: Partial<IUserInfo>): IUserInfo {
-  let { uploaded = 0, downloaded = 0 } = userInfo;
-  if (typeof userInfo.ratio === "undefined") {
-    let ratio = -1;
-    if (downloaded == 0 && uploaded > 0) {
-      ratio = Infinity; // 没有下载量时设置分享率为无限
-    } else if (downloaded > 0) {
-      ratio = uploaded / downloaded;
-    }
-    userInfo.ratio = ratio;
-  }
+  userInfo.ratio = fixRatio(userInfo);
+  userInfo.trueRatio = fixRatio(userInfo, "trueRatio");
   return userInfo as IUserInfo;
 }
 
-export function getFixedRatio(
-  userInfo: Partial<Pick<IUserInfo, "uploaded" | "downloaded" | "ratio">>,
+export function formatRatio(
+  userInfo: Partial<IUserInfo>,
+  ratioKey: "ratio" | "trueRatio" = "ratio",
 ): string | "∞" | "" {
-  let ratio = userInfo.ratio ?? -1;
+  let ratio = userInfo[ratioKey] ?? -1;
 
   if (ratio > 10000 || ratio === -1) {
     return "∞";
   }
 
-  if (isNaN(ratio)) {
+  if (isNaN(ratio) || ratio === -Infinity) {
     return "";
   }
 

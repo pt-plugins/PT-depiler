@@ -18,6 +18,30 @@ export function cleanLevelName(levelName: string): string {
   return levelName.replace(/[\s _]+/g, "").toLowerCase();
 }
 
+const ratioCountMap = {
+  ratio: ["uploaded", "downloaded"],
+  trueRatio: ["trueUploaded", "trueDownloaded"],
+};
+
+export function fixRatio(userInfo: Partial<IUserInfo>, ratioKey: "ratio" | "trueRatio" = "ratio"): number {
+  let ratio = -1;
+  if (typeof userInfo[ratioKey] === "undefined") {
+    const [uploadedKey, downloadedKey] = ratioCountMap[ratioKey];
+    const { [uploadedKey]: uploaded = 0, [downloadedKey]: downloaded = 0 } = userInfo;
+
+    if (downloaded == 0 && uploaded == 0) {
+      return -Infinity;
+    } else if (downloaded == 0 && uploaded > 0) {
+      ratio = Infinity; // 没有下载量时设置分享率为无限
+    } else if (downloaded > 0) {
+      ratio = uploaded / downloaded;
+    }
+  } else {
+    ratio = userInfo[ratioKey];
+  }
+  return ratio;
+}
+
 export function guessUserLevelGroupType(levelName: string): TLevelGroupType {
   let userLevel = levelName.toLowerCase();
   let specialNames: Record<"manager" | "vip", string[]> = {
@@ -89,24 +113,8 @@ export function levelRequirementUnMet(
   }
 
   // 比较 ratio, trueRatio 等比率类字段需求，首先计算并设置 ratio
-  if (typeof userInfo.ratio === "undefined") {
-    let { uploaded = 0, downloaded = 0, ratio = -1 } = userInfo;
-    if (downloaded == 0 && uploaded > 0) {
-      ratio = Infinity; // 没有下载量时设置分享率为无限
-    } else if (downloaded > 0) {
-      ratio = uploaded / downloaded;
-    }
-    userInfo.ratio = ratio;
-  }
-  if (typeof userInfo.trueRatio === "undefined") {
-    let { trueUploaded = 0, trueDownloaded = 0, trueRatio = -1 } = userInfo;
-    if (trueDownloaded == 0 && trueUploaded > 0) {
-      trueRatio = Infinity; // 没有下载量时设置分享率为无限
-    } else if (trueDownloaded > 0) {
-      trueRatio = trueUploaded / trueDownloaded;
-    }
-    userInfo.trueRatio = trueRatio;
-  }
+  userInfo.ratio = fixRatio(userInfo);
+  userInfo.trueRatio = fixRatio(userInfo, "trueRatio");
 
   for (const currentRatioElement of ["ratio", "trueRatio"] as unknown as (keyof ILevelRequirement)[]) {
     let currentRatioRequirement = compareRequirement[currentRatioElement];

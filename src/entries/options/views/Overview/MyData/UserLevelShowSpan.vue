@@ -122,7 +122,7 @@ function formatDuration(duration: number | isoDuration) {
   </template>
 
   <template v-if="levelRequirement.posts">
-    <v-icon small color="green darken-4" icon="mdi-note-plus" :title="t('levelRequirement.bonus')" />
+    <v-icon small color="green darken-4" icon="mdi-note-plus" :title="t('levelRequirement.posts')" />
     {{ formatNumber(levelRequirement.posts, { minimumFractionDigits: 0 }) }};
   </template>
 </template>
