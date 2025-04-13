@@ -82,6 +82,28 @@
       "SetSite": "Sites"
     }
   },
+  "levelRequirement": {
+    "interval": "Required Waiting Days",
+    "totalTraffic": "Total Traffic",
+    "downloaded": "Downloaded",
+    "trueDownloaded": "True Downloaded",
+    "uploaded": "Uploaded",
+    "trueUploaded": "True Uploaded",
+    "ratio": "Ratio",
+    "trueRatio": "True Ratio",
+    "seeding": "Seeding Count",
+    "seedingSize": "Seeding Size",
+    "seedingTime": "Seeding Time",
+    "averageSeedingTime": "Average Seeding Time",
+    "bonus": "Bonus Points",
+    "seedingBonus": "Seeding Bonus Points",
+    "bonusPerHour": "Bonus Points Per Hour",
+    "uploads": "Uploaded Torrents",
+    "leeching": "Leeching Torrents",
+    "snatches": "Completed Torrents",
+    "posts": "Posted Threads",
+    "hnrUnsatisfied": "Unsatisfied H&R Count"
+  },
   "SetBase": {
     "tab": {
       "ui": "Option UI"

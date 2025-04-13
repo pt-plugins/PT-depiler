@@ -45,7 +45,5 @@ export const formatDate = (date: Date | number | string, format: string = "yyyy-
     return date;
   }
 };
-export const formatNumber = (
-  num: number,
-  options: Intl.NumberFormatOptions = { maximumFractionDigits: 2, minimumFractionDigits: 2 },
-) => Number(num).toLocaleString("en-US", options);
+export const formatNumber = (num: number, options: Intl.NumberFormatOptions = {}) =>
+  Number(num).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2, ...options });

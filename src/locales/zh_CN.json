@@ -83,6 +83,28 @@
       "SetSite": "站点设置"
     }
   },
+  "levelRequirement": {
+    "interval": "需要等待的日期",
+    "totalTraffic": "总流量",
+    "downloaded": "下载量",
+    "trueDownloaded": "真实下载量",
+    "uploaded": "上传量",
+    "trueUploaded": "真实上传量",
+    "ratio": "分享率",
+    "trueRatio": "真实分享率",
+    "seeding": "做种数量",
+    "seedingSize": "做种体积",
+    "seedingTime": "做种时间",
+    "averageSeedingTime": "平均做种时间",
+    "bonus": "魔力值/积分",
+    "seedingBonus": "做种积分",
+    "bonusPerHour": "魔力值/积分每小时",
+    "uploads": "发布种子数",
+    "leeching": "下载数量",
+    "snatches": "完成种子数",
+    "posts": "发布帖子数",
+    "hnrUnsatisfied": "H&R 未满足的数量"
+  },
   "SetBase": {
     "tab": {
       "ui": "界面UI"

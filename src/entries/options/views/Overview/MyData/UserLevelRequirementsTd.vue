@@ -13,7 +13,7 @@ import {
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { formatDate } from "../../../utils.ts";
 
-import UserLevelShowSpan from "./UserLevelShowSpan.vue";
+import UserLevelsComponent from "./UserLevelsComponent.vue";
 
 const { userInfo } = defineProps<{
   userInfo: IUserInfo;
@@ -31,7 +31,7 @@ const matchedLevelRequirements = computed(() => {
   return userLevelRequirements.value?.find((r) => r.id === userInfo.levelId);
 });
 
-const nextLevelUnMet = computedAsync(() => getNextLevelUnMet(userInfo, userLevelRequirements.value!));
+const nextLevelUnMet = computedAsync(() => getNextLevelUnMet(userInfo, userLevelRequirements.value!), {});
 
 const userLevelGroupType = computedAsync(() => {
   // 首先尝试从 matchedLevelRequirements 中找到对应的等级组
@@ -80,17 +80,19 @@ const userLevelGroupIcon = computed(() => {
                     <v-icon icon="mdi-keyboard-tab" color="orange" size="small" />
                   </template>
 
-                  <span v-if="nextLevelUnMet.level">{{ nextLevelUnMet.level.name }}:</span>
+                  <span v-if="nextLevelUnMet.level">{{ nextLevelUnMet.level.name }}:&nbsp;</span>
 
-                  <UserLevelShowSpan :level-requirement="nextLevelUnMet" />
-                  <template v-if="nextLevelUnMet.alternative">
-                    <v-icon size="small" icon="mdi-file-table-box-multiple-outline" />
-                    (
-                    <template v-for="(alternative, key) in nextLevelUnMet.alternative" :key="key">
-                      [ <UserLevelShowSpan :level-requirement="alternative" /> ]
-                    </template>
-                    )
+                  <template v-if="nextLevelUnMet.level && nextLevelUnMet.interval">
+                    <v-icon size="small" icon="mdi-calendar-check-outline" :title="$t('levelRequirement.interval')" />
+                    {{
+                      formatDate(
+                        convertIsoDurationToDate(nextLevelUnMet.level.interval!, userInfo.joinTime ?? currentTime),
+                        "yyyy-MM-dd",
+                      )
+                    }}
                   </template>
+
+                  <UserLevelsComponent :level-requirement="nextLevelUnMet" />
                 </v-list-item>
               </template>
 
@@ -116,16 +118,8 @@ const userLevelGroupIcon = computed(() => {
                         )
                       }}
                     </span>
-                    <span>&nbsp;({{ userLevel.name }}):</span>
-                    <UserLevelShowSpan :level-requirement="userLevel" />
-                    <template v-if="userLevel.alternative">
-                      <v-icon size="small" icon="mdi-file-table-box-multiple-outline" />
-                      (
-                      <template v-for="(alternative, key) in userLevel.alternative" :key="key">
-                        [ <UserLevelShowSpan :level-requirement="alternative" /> ]
-                      </template>
-                      )
-                    </template>
+                    <span>&nbsp;({{ userLevel.name }}):&nbsp;</span>
+                    <UserLevelsComponent :level-requirement="userLevel" />
                   </div>
 
                   <div class="text-ellipsis text-truncate" :title="userLevel.privilege">
