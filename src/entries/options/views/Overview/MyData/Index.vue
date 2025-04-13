@@ -2,6 +2,7 @@
 import { computed, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
+import { isUndefined } from "es-toolkit/compat";
 
 import { useUIStore } from "@/options/stores/ui.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -223,7 +224,25 @@ function viewHistoryData(siteId: TSiteID) {
 
       <!-- 魔力/积分 -->
       <template #item.bonus="{ item }">
-        <span class="text-no-wrap">{{ typeof item.bonus !== "undefined" ? formatNumber(item.bonus) : "-" }}</span>
+        <v-container>
+          <v-row justify="end" align="center">
+            <v-icon :title="t('levelRequirement.bonus')" color="green-darken-4" icon="mdi-currency-usd" size="small" />
+            <span class="text-no-wrap">
+              {{ typeof item.bonus !== "undefined" ? formatNumber(item.bonus) : "-" }}
+            </span>
+          </v-row>
+          <v-row justify="end" align="center" v-if="!isUndefined(item.seedingBonus)">
+            <v-icon
+              :title="t('levelRequirement.seedingBonus')"
+              color="green-darken-4"
+              icon="mdi-lightning-bolt-circle"
+              size="small"
+            />
+            <span class="text-no-wrap">
+              {{ formatNumber(item.seedingBonus) }}
+            </span>
+          </v-row>
+        </v-container>
       </template>
 
       <!-- 入站时间 -->

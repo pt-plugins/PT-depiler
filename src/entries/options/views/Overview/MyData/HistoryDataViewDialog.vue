@@ -144,7 +144,14 @@ function viewStoreData(data: IShowUserInfo) {
 
           <!-- 魔力/积分 -->
           <template #item.bonus="{ item }">
-            <span class="text-no-wrap">{{ item.bonus ? formatNumber(item.bonus) : "-" }}</span>
+            <v-container>
+              <v-row justify="end" align="center">
+                <span class="text-no-wrap">{{ item.bonus ? formatNumber(item.bonus) : "-" }}</span>
+              </v-row>
+              <v-row justify="end" align="center">
+                <span class="text-no-wrap">{{ item.seedingBonus ? formatNumber(item.seedingBonus) : "-" }}</span>
+              </v-row>
+            </v-container>
           </template>
 
           <!-- 操作 -->
