@@ -50,8 +50,13 @@ export async function flushSiteLastUserInfo(sites: TSiteID[]) {
   for (const site of sites) {
     runtimeStore.userInfo.flushPlan[site] = { isFlush: true };
     await flushQueue.add(async () => {
-      await sendMessage("getSiteUserInfoResult", site);
-      runtimeStore.userInfo.flushPlan[site].isFlush = false;
+      try {
+        await sendMessage("getSiteUserInfoResult", site);
+      } catch (e) {
+        runtimeStore.showSnakebar(`获取站点 [${site}] 用户信息失败`, { color: "error" });
+      } finally {
+        runtimeStore.userInfo.flushPlan[site].isFlush = false;
+      }
     });
   }
 }
