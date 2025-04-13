@@ -302,6 +302,29 @@ export const SchemaMetadata: Pick<
           },
         ],
       },
+      seedingBonus: {
+        selector: [
+          "td.rowhead:contains('做种积分') + td",
+          "td.rowhead:contains('Seeding Points') + td",
+          "td.rowhead:contains('做種積分') + td",
+          "td.rowhead:contains('保种积分') + td",
+          "td.rowfollow:contains('做种积分')",
+          "td.rowfollow:contains('Seeding Points')",
+          "td.rowfollow:contains('做種積分')",
+        ],
+        filters: [
+          (query: string) => {
+            query = query.replace(/,/g, "");
+            if (/(做种积分|做種積分|Seeding Points).*?([\d.]+)/.test(query)) {
+              query = query.match(/(做种积分|做種積分|Seeding Points).*?([\d.]+)/)![2];
+              return parseFloat(query);
+            } else if (/[\d.]+/.test(query)) {
+              return parseFloat(query.match(/[\d.]+/)![0]);
+            }
+            return query;
+          },
+        ],
+      },
       joinTime: {
         selector: ["td.rowhead:contains('加入日期') + td", "td.rowhead:contains('Join'):contains('date') + td"],
         filters: [
@@ -336,6 +359,7 @@ export const SchemaMetadata: Pick<
           "trueDownloaded",
           "levelName",
           "bonus",
+          "seedingBonus",
           "joinTime",
           "seeding",
           "seedingSize",
