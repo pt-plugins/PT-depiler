@@ -106,7 +106,7 @@ export default class BittorrentSite {
     }
 
     if (checkLogin && !this.loggedCheck(req)) {
-      throw new NeedLoginError(); // FIXME i18n
+      throw new NeedLoginError();
     }
 
     return req;
@@ -205,15 +205,15 @@ export default class BittorrentSite {
       result.data = await this.transformSearchPage(req.data, { keywords, searchEntry, requestConfig });
       result.status = EResultParseStatus.success;
     } catch (e) {
+      if (import.meta.env.DEV) {
+        console.error(e);
+      }
+      result.status = EResultParseStatus.parseError;
+
       if (e instanceof NeedLoginError) {
         result.status = EResultParseStatus.needLogin;
       } else if (e instanceof NoTorrentsError) {
         result.status = EResultParseStatus.noResults;
-      } else {
-        if (import.meta.env.DEV) {
-          console.error(e);
-        }
-        result.status = EResultParseStatus.parseError;
       }
     }
     return result;

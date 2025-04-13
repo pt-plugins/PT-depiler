@@ -1,6 +1,7 @@
 import { toRaw, isRef, isReactive, isProxy } from "vue";
 import { filesize, type FileSizeOptions } from "filesize";
 import { format as dateFormat } from "date-fns";
+import { EResultParseStatus } from "@ptd/site";
 
 export function deepToRaw<T extends Record<string, any>>(sourceObj: T): T {
   const objectIterator = (input: any): any => {
@@ -47,3 +48,15 @@ export const formatDate = (date: Date | number | string, format: string = "yyyy-
 };
 export const formatNumber = (num: number, options: Intl.NumberFormatOptions = {}) =>
   Number(num).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2, ...options });
+
+// FIXME 临时先放在这里，后面再调整为一个 component
+export const ResultParseStatusMap: Record<EResultParseStatus, string> = {
+  [EResultParseStatus.unknownError]: "未知错误！",
+  [EResultParseStatus.waiting]: "队列等待中...",
+  [EResultParseStatus.working]: "正在搜索中...",
+  [EResultParseStatus.success]: "搜索成功！",
+  [EResultParseStatus.parseError]: "解析错误",
+  [EResultParseStatus.passParse]: "未启用搜索！",
+  [EResultParseStatus.needLogin]: "需要登录！",
+  [EResultParseStatus.noResults]: "无结果！",
+};

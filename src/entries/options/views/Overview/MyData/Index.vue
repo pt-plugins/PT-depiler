@@ -13,9 +13,9 @@ import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import UserLevelRequirementsTd from "./UserLevelRequirementsTd.vue";
 
-import { type ISiteUserConfig, IUserInfo, TSiteID } from "@ptd/site";
+import { EResultParseStatus, type ISiteUserConfig, IUserInfo, TSiteID } from "@ptd/site";
 
-import { formatDate, formatNumber, formatSize } from "@/options/utils.ts";
+import { formatDate, formatNumber, formatSize, ResultParseStatusMap } from "@/options/utils.ts";
 import HistoryDataViewDialog from "@/options/views/Overview/MyData/HistoryDataViewDialog.vue";
 
 const { t } = useI18n();
@@ -232,7 +232,12 @@ function viewHistoryData(siteId: TSiteID) {
 
       <!-- 更新时间 -->
       <template #item.updateAt="{ item }">
-        {{ item.updateAt ? formatDate(item.updateAt) : "-" }}
+        <template v-if="item.status === EResultParseStatus.success">
+          {{ item.updateAt ? formatDate(item.updateAt) : "-" }}
+        </template>
+        <template v-else>
+          <v-chip label>{{ ResultParseStatusMap[item.status] }}</v-chip>
+        </template>
       </template>
 
       <!-- 操作 -->

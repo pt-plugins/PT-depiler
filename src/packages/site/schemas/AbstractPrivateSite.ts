@@ -1,5 +1,5 @@
 // 所有PT站点的基类
-import { EResultParseStatus, IElementQuery, ISiteMetadata, IUserInfo, TLevelId } from "../types";
+import { EResultParseStatus, IElementQuery, ISiteMetadata, IUserInfo, NeedLoginError, TLevelId } from "../types";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import BittorrentSite from "./AbstractBittorrentSite";
 import { difference, intersection, pascalCase, pick, toMerged } from "es-toolkit";
@@ -128,6 +128,10 @@ export default class PrivateSite extends BittorrentSite {
       }
 
       flushUserInfo.status = EResultParseStatus.parseError;
+
+      if (error instanceof NeedLoginError) {
+        flushUserInfo.status = EResultParseStatus.needLogin;
+      }
     }
 
     return flushUserInfo;

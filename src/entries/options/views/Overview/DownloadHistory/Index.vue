@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
-
 import { getDownloaderIcon } from "@ptd/downloader";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -163,7 +162,7 @@ function deleteDownloadHistory(downloadHistoryIds: TTorrentDownloadKey[]) {
               color="error"
               icon="mdi-delete"
               size="small"
-              @click="() => deleteDownloadHistory([item.id])"
+              @click="() => deleteDownloadHistory([item.id!])"
             />
           </v-btn-group>
         </template>

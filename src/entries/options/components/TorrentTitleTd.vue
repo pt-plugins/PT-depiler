@@ -26,7 +26,7 @@ onMounted(() => {
   for (const key in socialBuildUrlMap) {
     const site = key as TSupportSocialSite;
     if (item[`ext_${site}`]) {
-      sendMessage("getSocialInformation", { site, sid: item[`ext_${site}`]! }).then((info) => {
+      sendMessage("getSocialInformation", { site, sid: item[`ext_${site}`] as unknown as string }).then((info) => {
         socialInformation[site] = info;
       });
     }

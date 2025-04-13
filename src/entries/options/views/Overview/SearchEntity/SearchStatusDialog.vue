@@ -9,22 +9,12 @@ import { doSearchEntity, raiseSearchPriority } from "@/options/views/Overview/Se
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import SiteName from "@/options/components/SiteName.vue";
 import SolutionDetail from "@/options/components/SolutionDetail.vue";
+import { ResultParseStatusMap } from "@/options/utils.ts";
 
 const showDialog = defineModel<boolean>();
 
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
-
-const StatusMap: Record<EResultParseStatus, string> = {
-  [EResultParseStatus.unknownError]: "未知错误！",
-  [EResultParseStatus.waiting]: "队列等待中...",
-  [EResultParseStatus.working]: "正在搜索中...",
-  [EResultParseStatus.success]: "搜索成功！",
-  [EResultParseStatus.parseError]: "解析错误",
-  [EResultParseStatus.passParse]: "未启用搜索！",
-  [EResultParseStatus.needLogin]: "需要登录！",
-  [EResultParseStatus.noResults]: "无结果！",
-};
 
 function getSearchSolution(planKey: string, entryName: string) {
   return metadataStore.solutions[planKey]?.solutions.find((x) => x.id === entryName)!;
@@ -70,7 +60,7 @@ function getSearchSolution(planKey: string, entryName: string) {
             </v-list-item-title>
             <template #append>
               <span class="text-subtitle-2 text-end">
-                {{ StatusMap[searchPlan.status] }}
+                {{ ResultParseStatusMap[searchPlan.status] }}
                 <template v-if="searchPlan.status === EResultParseStatus.success">
                   <br />
                   <span class="text-end">
