@@ -3,7 +3,7 @@ import { ref, watch } from "vue";
 import { computedAsync } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import type { TDownloaderKey } from "@/shared/storages/metadata.ts";
+import type { TDownloaderKey } from "@/shared/storages/types/metadata.ts";
 import { getDownloaderIcon, getDownloaderMetaData, type TorrentClientMetaData } from "@ptd/downloader";
 
 import AddDialog from "./AddDialog.vue";
@@ -69,17 +69,17 @@ watch(toDeleteIds, (newVal, oldValue) => {
 </script>
 
 <template>
-  <v-alert type="info" :title="t('route.Settings.SetDownloader')" />
+  <v-alert :title="t('route.Settings.SetDownloader')" type="info" />
   <v-card class="set-downloader">
     <v-card-title>
       <v-row class="ma-0">
-        <v-btn color="success" prepend-icon="mdi-plus" class="mr-2" @click="showAddDialog = true">
+        <v-btn class="mr-2" color="success" prepend-icon="mdi-plus" @click="showAddDialog = true">
           {{ t("common.btn.add") }}
         </v-btn>
         <v-btn
+          :disabled="tableSelected.length === 0"
           color="error"
           prepend-icon="mdi-minus"
-          :disabled="tableSelected.length === 0"
           @click="deleteDownloader(tableSelected)"
         >
           {{ t("common.remove") }}
@@ -91,9 +91,9 @@ watch(toDeleteIds, (newVal, oldValue) => {
       v-model="tableSelected"
       :headers="fullTableHeader"
       :items="metadataStore.getDownloaders"
+      class="table-stripe"
       item-value="id"
       show-select
-      class="table-stripe"
     >
       <template #item.type="{ item }">
         <v-avatar :image="getDownloaderIcon(item.type)" :alt="item.type" />
@@ -115,9 +115,9 @@ watch(toDeleteIds, (newVal, oldValue) => {
         <div class="d-flex justify-center">
           <v-switch
             v-model="item.enabled"
+            class="downloader-switch-btn"
             color="success"
             hide-details
-            class="downloader-switch-btn"
             @update:model-value="(v) => metadataStore.simplePatchDownloader(item.id, 'enabled', v as boolean)"
           />
         </div>
@@ -127,10 +127,10 @@ watch(toDeleteIds, (newVal, oldValue) => {
         <div class="d-flex justify-center">
           <v-switch
             v-model="item.feature!.DefaultAutoStart"
+            :disabled="!item.enabled || downloaderMetadata?.[item.type]?.feature?.DefaultAutoStart.allowed === false"
+            class="downloader-switch-btn"
             color="success"
             hide-details
-            class="downloader-switch-btn"
-            :disabled="!item.enabled || downloaderMetadata?.[item.type]?.feature?.DefaultAutoStart.allowed === false"
             @update:model-value="
               (v) => metadataStore.simplePatchDownloader(item.id, 'feature.DefaultAutoStart', v as boolean)
             "
@@ -139,31 +139,31 @@ watch(toDeleteIds, (newVal, oldValue) => {
       </template>
 
       <template #item.action="{ item }">
-        <v-btn-group variant="plain" density="compact" class="table-action">
+        <v-btn-group class="table-action" density="compact" variant="plain">
           <!-- TODO 查看该下载服务器现状 -->
-          <v-btn size="small" icon="mdi-information-outline" :disabled="true"></v-btn>
+          <v-btn :disabled="true" icon="mdi-information-outline" size="small"></v-btn>
 
           <v-btn
-            size="small"
-            icon="mdi-pencil"
-            color="info"
             :title="t('common.edit')"
+            color="info"
+            icon="mdi-pencil"
+            size="small"
             @click="editDownloader(item.id)"
           />
           <!-- 该下载服务器下载路径和标签选择 -->
           <v-btn
-            size="small"
-            icon="mdi-tag-multiple"
-            color="amber"
             :title="t('SetDownloader.index.table.setPathAndTag')"
+            color="amber"
+            icon="mdi-tag-multiple"
+            size="small"
             @click="editDownloaderPathAndTag(item.id)"
           ></v-btn>
 
           <v-btn
-            size="small"
-            icon="mdi-delete"
-            color="error"
             :title="t('common.remove')"
+            color="error"
+            icon="mdi-delete"
+            size="small"
             @click="deleteDownloader(item.id)"
           />
         </v-btn-group>
@@ -172,8 +172,8 @@ watch(toDeleteIds, (newVal, oldValue) => {
   </v-card>
 
   <AddDialog v-model="showAddDialog" />
-  <EditDialog v-model="showEditDialog" :client-id="toEditDownloaderId" />
-  <PathAndTagSuggestDialog v-model="showPathAndTagSuggestDialog" :client-id="toEditDownloaderId" />
+  <EditDialog v-model="showEditDialog" :client-id="toEditDownloaderId!" />
+  <PathAndTagSuggestDialog v-model="showPathAndTagSuggestDialog" :client-id="toEditDownloaderId!" />
   <DeleteDialog v-model="showDeleteDialog" v-model:to-delete-ids="toDeleteIds" />
 </template>
 

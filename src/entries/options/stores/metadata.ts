@@ -8,7 +8,7 @@ import type {
   TSolutionKey,
   IDownloaderMetadata,
   TDownloaderKey,
-} from "@/shared/storages/metadata.ts";
+} from "@/shared/storages/types/metadata.ts";
 import {
   getDefinedSiteMetadata,
   type ISearchCategories,
@@ -19,7 +19,7 @@ import {
 import { isEmpty, set } from "es-toolkit/compat";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { ISearchSolutionMetadata } from "@/shared/storages/metadata.ts";
+import { ISearchSolutionMetadata } from "@/shared/storages/types/metadata.ts";
 
 export const useMetadataStore = defineStore("metadata", {
   persistWebExt: true,

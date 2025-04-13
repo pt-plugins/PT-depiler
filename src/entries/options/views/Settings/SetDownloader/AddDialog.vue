@@ -10,7 +10,7 @@ import {
   getDownloaderMetaData,
   type TorrentClientMetaData,
 } from "@ptd/downloader";
-import type { IDownloaderMetadata, TDownloaderKey } from "@/shared/storages/metadata.ts";
+import type { IDownloaderMetadata, TDownloaderKey } from "@/shared/storages/types/metadata.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { REPO_URL } from "~/helper.ts";
 
@@ -63,11 +63,11 @@ async function saveStoredDownloaderConfig() {
           <v-toolbar-title>{{ t("SetDownloader.add.title") }}</v-toolbar-title>
           <v-spacer />
           <v-btn
-            icon="mdi-help-circle"
-            color="success"
             :href="`${REPO_URL}/wiki/config-download-client`"
-            target="_blank"
+            color="success"
+            icon="mdi-help-circle"
             rel="noopener noreferrer nofollow"
+            target="_blank"
           />
         </v-toolbar>
       </v-card-title>
@@ -78,15 +78,15 @@ async function saveStoredDownloaderConfig() {
           <v-window-item :key="0">
             <v-autocomplete
               v-model="selectedClientType"
-              :items="Object.values(allTorrentClientMetaData)"
-              item-title="type"
-              item-value="type"
-              :multiple="false"
-              :placeholder="t('SetDownloader.add.selectPlaceholder')"
               :filter-keys="['type']"
               :hint="
                 allTorrentClientMetaData[selectedClientType!]?.description ?? t('SetDownloader.add.NoneSelectNotice')
               "
+              :items="Object.values(allTorrentClientMetaData)"
+              :multiple="false"
+              :placeholder="t('SetDownloader.add.selectPlaceholder')"
+              item-title="type"
+              item-value="type"
               persistent-hint
               @update:model-value="(e) => updateStoredDownloaderConfigByDefault(e)"
             >
@@ -95,9 +95,9 @@ async function saveStoredDownloaderConfig() {
               </template>
               <template #item="{ props, item: { raw: downloader } }">
                 <v-list-item
-                  v-bind="props"
                   :prepend-avatar="getDownloaderIcon(downloader.type)"
                   :title="downloader.type"
+                  v-bind="props"
                 >
                 </v-list-item>
               </template>
@@ -112,11 +112,11 @@ async function saveStoredDownloaderConfig() {
       <v-card-actions>
         <v-btn
           v-show="currentStep === 0"
-          flat
-          color="grey-darken-1"
           :href="`${REPO_URL}/tree/master/src/packages/downloader`"
-          target="_blank"
+          color="grey-darken-1"
+          flat
           rel="noopener noreferrer nofollow"
+          target="_blank"
         >
           <v-icon icon="mdi-help-circle" />
           <span class="ml-1">{{ t("SetDownloader.add.newType") }}</span>
@@ -142,10 +142,10 @@ async function saveStoredDownloaderConfig() {
         </v-btn>
         <v-btn
           v-if="currentStep === 1"
-          variant="text"
-          color="success"
-          @click="saveStoredDownloaderConfig"
           :disabled="!storedDownloaderConfig.valid"
+          color="success"
+          variant="text"
+          @click="saveStoredDownloaderConfig"
         >
           <v-icon icon="mdi-check-circle-outline" />
           {{ $t("common.dialog.ok") }}

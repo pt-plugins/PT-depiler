@@ -2,7 +2,7 @@ import { onMessage } from "@/messages.ts";
 import { extStorage, type IDownloaderMetadata } from "@/storage.ts";
 import { log } from "~/helper.ts";
 import { format } from "date-fns";
-import { IMetadataPiniaStorageSchema } from "@/shared/storages/metadata.ts";
+import { IMetadataPiniaStorageSchema } from "@/shared/storages/types/metadata.ts";
 
 // 监听 点击图标 事件
 chrome.action.onClicked.addListener(async () => {

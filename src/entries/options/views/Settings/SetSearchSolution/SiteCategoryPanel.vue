@@ -133,7 +133,7 @@ function generateSolution() {
               {{ category.name }}
               <span class="ml-1 text-grey-darken-1">{{ category.notes ?? "" }}</span>
               <v-spacer />
-              <v-chip label :color="isDefaultCategory(selectCategory[category.key]) ? '' : 'info'">
+              <v-chip :color="isDefaultCategory(selectCategory[category.key]) ? '' : 'info'" label>
                 {{ category.key }}
               </v-chip>
             </v-expansion-panel-title>
@@ -165,16 +165,16 @@ function generateSolution() {
                     <v-col
                       v-for="options in category.options"
                       :key="options.value"
+                      class="py-0"
+                      cols="12"
                       lg="2"
                       md="4"
                       sm="6"
-                      cols="12"
-                      class="py-0"
                     >
                       <v-checkbox
                         v-model="selectCategory[category.key]"
-                        :value="options.value"
                         :label="options.name"
+                        :value="options.value"
                         hide-details
                       />
                     </v-col>
@@ -188,11 +188,11 @@ function generateSolution() {
                       inline
                     >
                       <!-- 增加一个代表默认的值，说明该类别什么都不选（尊重站点默认）。（不然的话，只能全部重置才能取消选择） -->
-                      <v-col lg="2" md="4" sm="6" cols="12" class="py-0">
-                        <v-radio :value="radioDefault" :label="'default'"></v-radio>
+                      <v-col class="py-0" cols="12" lg="2" md="4" sm="6">
+                        <v-radio :label="'default'" :value="radioDefault"></v-radio>
                       </v-col>
-                      <v-col v-for="options in category.options" lg="2" md="4" sm="6" cols="12" class="py-0">
-                        <v-radio :key="options.value" :value="options.value" :label="options.name" />
+                      <v-col v-for="options in category.options" class="py-0" cols="12" lg="2" md="4" sm="6">
+                        <v-radio :key="options.value" :label="options.name" :value="options.value" />
                       </v-col>
                     </v-radio-group>
                   </template>
@@ -207,10 +207,10 @@ function generateSolution() {
       </v-col>
       <v-col align-self="center">
         <v-row justify="end">
-          <v-btn @click="() => getSiteMetaCategory()" icon="mdi-cached" color="red" variant="text"></v-btn>
+          <v-btn color="red" icon="mdi-cached" variant="text" @click="() => getSiteMetaCategory()"></v-btn>
         </v-row>
         <v-row justify="end">
-          <v-btn @click="() => generateSolution()" icon="mdi-arrow-right-bold" color="blue" variant="text"></v-btn>
+          <v-btn color="blue" icon="mdi-arrow-right-bold" variant="text" @click="() => generateSolution()"></v-btn>
         </v-row>
       </v-col>
     </v-row>

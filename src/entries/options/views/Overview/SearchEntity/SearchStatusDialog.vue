@@ -74,8 +74,8 @@ function getSearchSolution(planKey: string, entryName: string) {
                   </span>
                 </template>
               </span>
-              <v-divider vertical class="mx-2" />
-              <v-btn-group variant="text" size="small">
+              <v-divider class="mx-2" vertical />
+              <v-btn-group size="small" variant="text">
                 <!-- 上移队列 -->
                 <v-btn
                   v-if="searchPlan.status === EResultParseStatus.waiting"
@@ -87,9 +87,9 @@ function getSearchSolution(planKey: string, entryName: string) {
                 <!-- 重新搜索 -->
                 <v-btn
                   v-else
-                  icon="mdi-cached"
-                  color="red"
                   :loading="searchPlan.status === EResultParseStatus.working"
+                  color="red"
+                  icon="mdi-cached"
                   @click="
                     () => doSearchEntity(searchPlan.siteId, searchPlan.searchEntryName, searchPlan.searchEntry, true)
                   "

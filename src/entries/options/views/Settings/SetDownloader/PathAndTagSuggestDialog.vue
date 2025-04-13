@@ -3,7 +3,7 @@ import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { VueDraggable } from "vue-draggable-plus";
 import { getDownloader, getDownloaderMetaData, type TorrentClientMetaData } from "@ptd/downloader";
-import type { IDownloaderMetadata } from "@/shared/storages/metadata.ts";
+import type { IDownloaderMetadata } from "@/shared/storages/types/metadata.ts";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -120,12 +120,12 @@ function saveClientConfig() {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" width="1000" scrollable>
+  <v-dialog v-model="showDialog" scrollable width="1000">
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar
-          color="blue-grey darken-2"
           :title="t('SetDownloader.PathAndTag.title', [clientConfig?.name ?? clientId])"
+          color="blue-grey darken-2"
         >
           <template #append>
             <v-btn icon="mdi-close" @click="showDialog = false"> </v-btn>
@@ -135,7 +135,7 @@ function saveClientConfig() {
       <v-divider />
       <v-card-text>
         <v-expansion-panels>
-          <v-expansion-panel value="path" :disabled="clientMetadata?.feature?.CustomPath?.allowed === false">
+          <v-expansion-panel :disabled="clientMetadata?.feature?.CustomPath?.allowed === false" value="path">
             <v-expansion-panel-title>
               {{ t("SetDownloader.PathAndTag.downloadPath.title") }}
               <v-spacer />
@@ -161,10 +161,10 @@ function saveClientConfig() {
                     </template>
                     <template #append>
                       <v-btn
-                        icon="mdi-delete"
-                        variant="text"
                         color="error"
+                        icon="mdi-delete"
                         size="small"
+                        variant="text"
                         @click="removeSuggestFolder(item)"
                       ></v-btn>
                     </template>
@@ -185,10 +185,10 @@ function saveClientConfig() {
                     </template>
                     <template #prepend>
                       <v-btn
+                        :loading="isLoadingClientFolders"
+                        :title="t('SetDownloader.PathAndTag.downloadPath.autoImport')"
                         icon="mdi-import"
                         variant="text"
-                        :title="t('SetDownloader.PathAndTag.downloadPath.autoImport')"
-                        :loading="isLoadingClientFolders"
                         @click="loadClientFolders"
                       ></v-btn>
                     </template>
@@ -196,10 +196,10 @@ function saveClientConfig() {
                       <v-chip
                         v-for="pathReplace in pathReplaceMap"
                         :key="pathReplace[1]"
-                        @click="addPathReplaceToSuggestFolder(pathReplace[1])"
-                        size="small"
-                        class="mr-1"
                         :title="pathReplace[2]"
+                        class="mr-1"
+                        size="small"
+                        @click="addPathReplaceToSuggestFolder(pathReplace[1])"
                       >
                         {{ pathReplace[1] }}
                       </v-chip>
@@ -207,7 +207,7 @@ function saveClientConfig() {
                   </v-text-field>
                 </v-list-item>
               </v-list>
-              <v-alert variant="outlined" color="info" closable>
+              <v-alert closable color="info" variant="outlined">
                 <span>{{ t("SetDownloader.PathAndTag.downloadPath.note.index") }}</span>
                 <v-table density="compact">
                   <thead>
@@ -255,10 +255,10 @@ function saveClientConfig() {
                     </template>
                     <template #append>
                       <v-btn
-                        icon="mdi-delete"
-                        variant="text"
                         color="error"
+                        icon="mdi-delete"
                         size="small"
+                        variant="text"
                         @click="removeSuggestTag(item)"
                       ></v-btn>
                     </template>
@@ -275,10 +275,10 @@ function saveClientConfig() {
                     </template>
                     <template #prepend>
                       <v-btn
+                        :loading="isLoadingClientLabels"
+                        :title="t('SetDownloader.PathAndTag.tags.autoImport')"
                         icon="mdi-import"
                         variant="text"
-                        :title="t('SetDownloader.PathAndTag.tags.autoImport')"
-                        :loading="isLoadingClientLabels"
                         @click="loadClientLabels"
                       ></v-btn>
                     </template>
@@ -292,7 +292,7 @@ function saveClientConfig() {
       <v-divider />
       <v-card-actions>
         <v-spacer />
-        <v-btn variant="text" color="success" @click="saveClientConfig">
+        <v-btn color="success" variant="text" @click="saveClientConfig">
           <v-icon icon="mdi-check-circle-outline" />
           {{ $t("common.dialog.ok") }}
         </v-btn>

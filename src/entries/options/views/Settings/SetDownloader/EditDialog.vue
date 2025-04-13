@@ -3,7 +3,7 @@ import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import type { IDownloaderMetadata, TDownloaderKey } from "@/shared/storages/metadata.ts";
+import type { IDownloaderMetadata, TDownloaderKey } from "@/shared/storages/types/metadata.ts";
 import { log } from "~/helper.ts";
 
 import Editor from "./Editor.vue";
@@ -54,7 +54,7 @@ function editClientConfig() {
           {{ t("common.dialog.cancel") }}
         </v-btn>
 
-        <v-btn variant="text" color="success" @click="editClientConfig">
+        <v-btn color="success" variant="text" @click="editClientConfig">
           <v-icon icon="mdi-check-circle-outline" />
           {{ t("common.dialog.ok") }}
         </v-btn>

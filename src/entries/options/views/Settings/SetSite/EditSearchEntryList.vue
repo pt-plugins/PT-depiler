@@ -35,10 +35,10 @@ onMounted(() => {
       <v-list-item-title>
         <v-switch
           v-model="searchEntryEnabledStatus[entryKey]"
-          color="success"
-          class="mx-3"
-          hide-details
           :label="searchEntry.name"
+          class="mx-3"
+          color="success"
+          hide-details
           @update:model-value="
             (v) => metadataStore.simplePatchSite(item.id, `merge.searchEntry.${entryKey}.enabled`, v as boolean)
           "

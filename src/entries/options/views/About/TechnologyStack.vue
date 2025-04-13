@@ -73,17 +73,17 @@ const tableDependencies = computed(() => Object.values(technologyData.value));
 </script>
 
 <template>
-  <v-alert type="info" class="mb-2" :title="$t('TechnologyStack.thankNote')" />
+  <v-alert :title="$t('TechnologyStack.thankNote')" class="mb-2" type="info" />
   <v-card class="mb-2">
-    <v-card-title>{{ $t("TechnologyStack.ptppHistory") }}</v-card-title>
+    <v-card-title>{{ t("TechnologyStack.ptppHistory") }}</v-card-title>
     <v-card-text>
       <v-timeline side="end">
         <v-timeline-item
           v-for="history in ptppHistory"
           :key="history.name"
-          rounded
-          :size="history.color ? 'default' : 'x-small'"
           :dot-color="history.color ?? ''"
+          :size="history.color ? 'default' : 'x-small'"
+          rounded
         >
           <template #opposite>
             {{ history.time }}
@@ -101,18 +101,18 @@ const tableDependencies = computed(() => Object.values(technologyData.value));
     </v-card-text>
   </v-card>
   <v-card>
-    <v-card-title>{{ $t("TechnologyStack.dependency") }}</v-card-title>
+    <v-card-title>{{ t("TechnologyStack.dependency") }}</v-card-title>
     <v-card-text>
       <v-data-table
         :headers="TechnologyStackTableHeader"
         :items="tableDependencies"
-        item-value="id"
         :items-per-page="-1"
-        must-sort
         :sort-by="[{ key: 'name', order: 'asc' }]"
+        item-value="id"
+        must-sort
       >
         <template #item.url="{ item }">
-          <a :href="item.url" target="_blank" rel="noopener noreferrer nofollow">{{ item.url }}</a>
+          <a :href="item.url" rel="noopener noreferrer nofollow" target="_blank">{{ item.url }}</a>
         </template>
       </v-data-table>
     </v-card-text>

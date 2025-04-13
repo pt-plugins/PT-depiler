@@ -38,11 +38,11 @@ function saveSearchSnapshotData() {
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <v-text-field v-model="snapshotName" label="快照名称" outlined dense hide-details></v-text-field>
+        <v-text-field v-model="snapshotName" dense hide-details label="快照名称" outlined></v-text-field>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn @click="saveSearchSnapshotData" color="primary">保存</v-btn>
+        <v-btn color="primary" @click="saveSearchSnapshotData">保存</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

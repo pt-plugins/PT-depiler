@@ -162,19 +162,19 @@ function updateTableFilter() {
             <v-col>
               <v-combobox
                 v-model="advanceFilterDict.text.required"
-                label="必要项"
-                multiple
                 chips
                 hide-details
+                label="必要项"
+                multiple
               ></v-combobox>
             </v-col>
             <v-col>
               <v-combobox
                 v-model="advanceFilterDict.text.exclude"
-                label="排除项"
-                multiple
                 chips
                 hide-details
+                label="排除项"
+                multiple
               ></v-combobox>
             </v-col>
           </v-row>
@@ -183,33 +183,33 @@ function updateTableFilter() {
             <v-col v-for="site in advanceFilterDict.site.all" :key="site" class="pa-0" :cols="3">
               <v-checkbox
                 v-model="advanceFilterDict.site.required"
-                :value="site"
                 :label="site"
-                indeterminate
-                hide-details
-                @click.stop="() => toggleState('site', site)"
+                :value="site"
                 density="compact"
+                hide-details
+                indeterminate
+                @click.stop="() => toggleState('site', site)"
               >
                 <template #label>
                   <SiteFavicon :site-id="site" :size="16" class="mr-2" />
-                  <SiteName :site-id="site" :class="['text-decoration-none', 'text-black']" />
+                  <SiteName :class="['text-decoration-none', 'text-black']" :site-id="site" />
                 </template>
               </v-checkbox>
             </v-col>
           </v-row>
           <v-row><v-label>标签</v-label></v-row>
           <v-row>
-            <v-col v-for="tag in advanceFilterDict.tags.all" :key="tag.name" class="pa-0" :cols="2">
+            <v-col v-for="tag in advanceFilterDict.tags.all" :key="tag.name" :cols="2" class="pa-0">
               <v-checkbox
                 v-model="advanceFilterDict.tags.required"
                 :value="tag.name"
-                indeterminate
-                hide-details
-                @click.stop="() => toggleState('tags', tag.name)"
                 density="compact"
+                hide-details
+                indeterminate
+                @click.stop="() => toggleState('tags', tag.name)"
               >
                 <template #label>
-                  <v-chip label variant="tonal" class="mr-1" size="small" :color="tag.color">
+                  <v-chip :color="tag.color" class="mr-1" label size="small" variant="tonal">
                     {{ tag.name }}
                   </v-chip>
                 </template>
@@ -224,8 +224,8 @@ function updateTableFilter() {
                   v-model="advanceFilterDict.date.value"
                   :max="advanceFilterDict.date.range[1]"
                   :min="advanceFilterDict.date.range[0]"
-                  :thumb-label="true"
                   :step="60 * 1000"
+                  :thumb-label="true"
                   class="px-6"
                   hide-details
                 >
@@ -242,8 +242,8 @@ function updateTableFilter() {
                   v-model="advanceFilterDict.size.value"
                   :max="advanceFilterDict.size.range[1]"
                   :min="advanceFilterDict.size.range[0]"
-                  :thumb-label="true"
                   :step="1024 ** 3"
+                  :thumb-label="true"
                   class="px-6"
                   hide-details
                 >
@@ -263,9 +263,9 @@ function updateTableFilter() {
                   :max="advanceFilterDict.seeders.range[1]"
                   :min="advanceFilterDict.seeders.range[0]"
                   :thumb-label="true"
-                  step="1"
                   class="px-6"
                   hide-details
+                  step="1"
                 />
               </v-row>
             </v-col>
@@ -278,8 +278,8 @@ function updateTableFilter() {
                   :min="advanceFilterDict.leechers.range[0]"
                   :thumb-label="true"
                   class="px-6"
-                  step="1"
                   hide-details
+                  step="1"
                 />
               </v-row>
             </v-col>
@@ -292,8 +292,8 @@ function updateTableFilter() {
                   :min="advanceFilterDict.completed.range[0]"
                   :thumb-label="true"
                   class="px-6"
-                  step="1"
                   hide-details
+                  step="1"
                 />
               </v-row>
             </v-col>

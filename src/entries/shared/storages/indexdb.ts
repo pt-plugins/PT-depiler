@@ -3,8 +3,7 @@
  */
 
 import { openDB } from "idb";
-import type { ISocialInformation, TSupportSocialSite } from "@ptd/social/types.ts";
-import { getSocialSiteInformation } from "@ptd/social";
+import { getSocialSiteInformation, type ISocialInformation, type TSupportSocialSite } from "@ptd/social";
 
 export const ptdIndexDb = openDB("ptd", 1, {
   upgrade(db) {

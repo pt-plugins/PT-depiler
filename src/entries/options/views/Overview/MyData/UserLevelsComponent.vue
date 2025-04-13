@@ -10,7 +10,7 @@ const { levelRequirement } = defineProps<{
 <template>
   <UserLevelShowSpan :level-requirement="levelRequirement" />
   <template v-if="levelRequirement.alternative">
-    <v-icon size="small" icon="mdi-file-table-box-multiple-outline" />
+    <v-icon icon="mdi-file-table-box-multiple-outline" size="small" />
     (
     <template v-for="(alternative, key) in levelRequirement.alternative" :key="key">
       [ <UserLevelShowSpan :level-requirement="alternative" /> ]

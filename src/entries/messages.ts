@@ -8,14 +8,19 @@ import type {
   TSiteID,
 } from "@ptd/site";
 import type { CAddTorrentOptions } from "@ptd/downloader";
-import { ExtensionStorageKey, ExtensionStorageSchema, IDownloaderMetadata, TSearchSnapshotKey } from "@/storage.ts";
-import type { ISearchData } from "@/shared/storages/runtime.ts";
+import type {
+  TExtensionStorageKey,
+  IExtensionStorageSchema,
+  IDownloaderMetadata,
+  ISearchData,
+  TSearchSnapshotKey,
+} from "@/storage.ts";
 
 interface ProtocolMap {
   // 1. 与 chrome 相关的功能，需要在 service worker 中注册，主要供 offscreen, options 使用
   downloadFile(downloadOptions: chrome.downloads.DownloadOptions): number;
-  getExtStorage<T extends ExtensionStorageKey>(key: T): ExtensionStorageSchema[T];
-  setExtStorage<T extends ExtensionStorageKey>(key: T, value: ExtensionStorageSchema[T]): void;
+  getExtStorage<T extends TExtensionStorageKey>(key: T): IExtensionStorageSchema[T];
+  setExtStorage<T extends TExtensionStorageKey>(key: T, value: IExtensionStorageSchema[T]): void;
 
   // 1.1 站点相关功能
   getSiteUserConfig(siteId: TSiteID): ISiteUserConfig;

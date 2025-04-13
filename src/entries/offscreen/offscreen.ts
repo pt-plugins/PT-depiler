@@ -2,7 +2,7 @@ import { getSiteInstance } from "../shared/adapters/site.ts";
 import { onMessage, sendMessage } from "@/messages.ts";
 import { getDownloader, getRemoteTorrentFile } from "@ptd/downloader";
 import { EResultParseStatus, type IUserInfo } from "@ptd/site";
-import { IMetadataPiniaStorageSchema } from "@/shared/storages/metadata.ts";
+import { IMetadataPiniaStorageSchema } from "@/shared/storages/types/metadata.ts";
 import { log } from "~/helper.ts";
 
 onMessage("getSiteSearchResult", async ({ data: { siteId, keyword = "", searchEntry = {} } }) => {

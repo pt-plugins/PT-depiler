@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n";
 import { useUIStore } from "@/options/stores/ui";
 
 import { definedLangMetaData } from "@/options/plugins/i18n.ts";
-import { supportTheme } from "@/shared/storages/ui.ts";
+import { supportTheme } from "@/shared/storages/types/ui.ts";
 
 const { t } = useI18n();
 

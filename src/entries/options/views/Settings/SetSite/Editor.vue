@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { watch, ref, onMounted, inject, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { timezoneOffset, ISiteUserConfig, type TSiteID, ISiteMetadata } from "@ptd/site";
+import { timezoneOffset, ISiteUserConfig, type TSiteID, ISiteMetadata, TSiteUrl } from "@ptd/site";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { formatDate, formValidateRules } from "@/options/utils.ts";
@@ -71,7 +71,7 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
 
 <template>
   <v-card class="mb-5 pa-1">
-    <v-form fast-fail validate-on="eager invalid-input" v-model="siteUserConfig.valid">
+    <v-form v-model="siteUserConfig.valid" fast-fail validate-on="eager invalid-input">
       <v-container class="pa-0">
         <v-row>
           <v-col cols="12" md="4">
@@ -101,11 +101,11 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
                 {{ url }}
                 <v-spacer />
                 <v-btn
-                  icon="mdi-arrow-top-right-bold-box-outline"
-                  variant="text"
-                  color="info"
                   :href="url"
+                  color="info"
+                  icon="mdi-arrow-top-right-bold-box-outline"
                   target="_blank"
+                  variant="text"
                 />
               </template>
             </v-radio>
@@ -115,7 +115,7 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
                   v-model="customSiteUrl"
                   :placeholder="t('SetSite.editor.customUrlPlaceholder')"
                   :rules="[(val) => (val ? formValidateRules.url()(val) : true)]"
-                  @update:modelValue="(val) => (siteUserConfig.url = val)"
+                  @update:modelValue="(val) => (siteUserConfig.url = val as unknown as TSiteUrl)"
                 ></v-text-field>
               </template>
             </v-radio>
@@ -125,13 +125,13 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
         <v-autocomplete v-model="siteTimezoneOffset" :items="timeZone" :label="t('SetSite.editor.timezone')" />
 
         <v-slider
-          label="请求超时"
           v-model="siteUserConfig.timeout"
           :color="siteUserConfig.timeout! > 8 * 60e3 ? 'red' : siteUserConfig.timeout! > 5 * 60e3 ? 'amber' : 'green'"
-          :min="0"
           :max="10 * 60e3"
+          :min="0"
           :step="1e3"
           hint="影响该站点请求（种子搜索、用户信息获取）的超时等待时间"
+          label="请求超时"
           persistent-hint
         >
           <template #append>
@@ -146,10 +146,10 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
           <v-label class="my-2">{{ t("SetSite.editor.extraUserInputSetting") }}</v-label>
           <v-text-field
             v-for="userInputMeta in siteMetaData.userInputSettingMeta"
-            v-model="siteUserConfig.inputSetting![userInputMeta.name]"
             :key="userInputMeta.name"
-            :label="userInputMeta.label"
+            v-model="siteUserConfig.inputSetting![userInputMeta.name]"
             :hint="userInputMeta.hint"
+            :label="userInputMeta.label"
             :rules="[(val) => (userInputMeta.required ? formValidateRules.require()(val) : true)]"
           >
           </v-text-field>

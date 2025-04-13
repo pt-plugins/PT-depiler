@@ -53,11 +53,11 @@ function clickMenuItem() {
         </v-list-subheader>
         <v-list-item
           v-for="(nav, navIndex) in group.children"
-          class="list-item-half-spacer"
           :key="`${groupIndex}-${navIndex}`"
           :prepend-icon="nav.icon! as string"
           :to="{ name: nav.name }"
           :value="nav"
+          class="list-item-half-spacer"
           @click="clickMenuItem"
         >
           {{ $t(nav.title) }}
@@ -75,7 +75,7 @@ function clickMenuItem() {
               {{ "v" + EXT_VERSION + (git.count ? "." + git.count : "") + (git.short ? "+" + git.short : "") }}
             </a>
             <span v-else>{{ "v" + EXT_VERSION }}</span>
-            <v-chip v-if="isDebug" size="x-small" label class="pa-1 ml-1 mb-1" color="amber">
+            <v-chip v-if="isDebug" class="pa-1 ml-1 mb-1" color="amber" label size="x-small">
               {{ $t("common.test") }}
             </v-chip>
           </span>

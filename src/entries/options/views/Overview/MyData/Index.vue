@@ -81,14 +81,14 @@ function viewHistoryData(siteId: TSiteID) {
 </script>
 
 <template>
-  <v-alert type="info" :title="t('route.Overview.MyData')" />
+  <v-alert :title="t('route.Overview.MyData')" type="info" />
   <v-card>
     <v-card-title>
       <v-row class="ma-0">
         <v-btn
-          prepend-icon="mdi-cached"
-          color="green"
           :disabled="runtimeStore.userInfo.isFlush || tableSelected.length === 0"
+          color="green"
+          prepend-icon="mdi-cached"
           @click="() => flushSiteLastUserInfo(tableSelected)"
           >{{ t("MyData.index.flushSelectSite") }}
         </v-btn>
@@ -96,14 +96,14 @@ function viewHistoryData(siteId: TSiteID) {
         <v-divider vertical class="mx-2" />
 
         <v-combobox
-          multiple
-          chips
           v-model="uiStore.tableBehavior.MyData.columns"
           :items="fullTableHeader.map((item) => item.key)"
-          max-width="240"
+          chips
+          class="table-header-filter-clear"
           density="compact"
           hide-details
-          class="table-header-filter-clear"
+          max-width="240"
+          multiple
           prepend-inner-icon="mdi-filter-cog"
         >
           <template #chip="{ item, index }">
@@ -118,11 +118,11 @@ function viewHistoryData(siteId: TSiteID) {
             <v-list-item>
               <v-checkbox
                 v-model="uiStore.tableBehavior.MyData.columns"
-                density="compact"
-                hide-details
-                :value="item.title"
                 :disabled="fullTableHeader.find((x) => x.key == item.title)?.alwaysShow"
                 :label="fullTableHeader.find((x) => x.key == item.title)?.title"
+                :value="item.title"
+                density="compact"
+                hide-details
               ></v-checkbox>
             </v-list-item>
           </template>
@@ -133,11 +133,11 @@ function viewHistoryData(siteId: TSiteID) {
       v-model="tableSelected"
       :headers="tableHeader"
       :items="tableData"
+      :sort-by="uiStore.tableBehavior.MyData.sortBy"
+      class="table-stripe"
+      hover
       item-value="site"
       show-select
-      hover
-      class="table-stripe"
-      :sort-by="uiStore.tableBehavior.MyData.sortBy"
     >
       <!-- 站点信息 -->
       <template #item.siteUserConfig.sortIndex="{ item }">
@@ -164,13 +164,13 @@ function viewHistoryData(siteId: TSiteID) {
             <span class="text-no-wrap">
               {{ typeof item.uploaded !== "undefined" ? formatSize(item.uploaded) : "-" }}
             </span>
-            <v-icon small color="green-darken-4" icon="mdi-chevron-up"></v-icon>
+            <v-icon color="green-darken-4" icon="mdi-chevron-up" small></v-icon>
           </v-row>
           <v-row justify="end">
             <span class="text-no-wrap">
               {{ typeof item.downloaded !== "undefined" ? formatSize(item.downloaded) : "-" }}
             </span>
-            <v-icon small color="red-darken-4" icon="mdi-chevron-down"></v-icon>
+            <v-icon color="red-darken-4" icon="mdi-chevron-down" small></v-icon>
           </v-row>
         </v-container>
       </template>
@@ -182,13 +182,13 @@ function viewHistoryData(siteId: TSiteID) {
             <span class="text-no-wrap">
               {{ typeof item.trueUploaded !== "undefined" ? formatSize(item.trueUploaded) : "-" }}
             </span>
-            <v-icon small color="green-darken-4" icon="mdi-chevron-up"></v-icon>
+            <v-icon color="green-darken-4" icon="mdi-chevron-up" small></v-icon>
           </v-row>
           <v-row justify="end">
             <span class="text-no-wrap">
               {{ typeof item.trueDownloaded !== "undefined" ? formatSize(item.trueDownloaded) : "-" }}
             </span>
-            <v-icon small color="red-darken-4" icon="mdi-chevron-down"></v-icon>
+            <v-icon color="red-darken-4" icon="mdi-chevron-down" small></v-icon>
           </v-row>
         </v-container>
       </template>
@@ -239,20 +239,20 @@ function viewHistoryData(siteId: TSiteID) {
       <template #item.action="{ item }">
         <v-btn-group variant="text">
           <v-btn
-            icon="mdi-view-list"
-            color="blue"
-            size="small"
             :title="t('MyData.table.action.viewHistoryData')"
+            color="blue"
+            icon="mdi-view-list"
+            size="small"
             @click="() => viewHistoryData(item.site)"
           >
           </v-btn>
           <v-btn
-            icon="mdi-cached"
-            color="green"
-            size="small"
-            :title="t('MyData.table.action.flushData')"
-            :loading="runtimeStore.userInfo.flushPlan[item.site]?.isFlush"
             :disabled="runtimeStore.userInfo.flushPlan[item.site]?.isFlush"
+            :loading="runtimeStore.userInfo.flushPlan[item.site]?.isFlush"
+            :title="t('MyData.table.action.flushData')"
+            color="green"
+            icon="mdi-cached"
+            size="small"
             @click="() => flushSiteLastUserInfo([item.site])"
           ></v-btn>
         </v-btn-group>

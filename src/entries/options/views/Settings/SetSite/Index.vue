@@ -103,28 +103,28 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
 </script>
 
 <template>
-  <v-alert type="info" :title="t('route.Settings.SetSite')" />
+  <v-alert :title="t('route.Settings.SetSite')" type="info" />
   <v-card class="set-site">
     <v-card-title>
       <v-row class="ma-0">
-        <v-btn color="success" prepend-icon="mdi-plus" class="mr-2" @click="showAddDialog = true">
+        <v-btn class="mr-2" color="success" prepend-icon="mdi-plus" @click="showAddDialog = true">
           {{ t("common.btn.add") }}
         </v-btn>
         <v-btn
+          :disabled="tableSelected.length === 0"
           color="error"
           prepend-icon="mdi-minus"
-          :disabled="tableSelected.length === 0"
           @click="deleteSite(tableSelected)"
         >
           {{ t("common.remove") }}
         </v-btn>
         <v-divider class="mx-3" inset vertical />
-        <v-btn-group size="small" density="compact">
+        <v-btn-group density="compact" size="small">
           <v-btn
-            prepend-icon="mdi-face-recognition"
-            color="indigo"
-            :loading="isFaviconFlushing"
             :disabled="tableSelected.length === 0"
+            :loading="isFaviconFlushing"
+            color="indigo"
+            prepend-icon="mdi-face-recognition"
             @click="() => flushSiteFavicon(tableSelected)"
             >{{ t("SetSite.index.table.flushFavicon") }}</v-btn
           >
@@ -135,24 +135,24 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
         <v-text-field
           v-model="tableFilter"
           append-icon="mdi-magnify"
-          label="Search"
-          single-line
           density="compact"
           hide-details
+          label="Search"
+          single-line
         />
       </v-row>
     </v-card-title>
 
     <v-data-table
       v-model="tableSelected"
-      class="table-stripe"
       :headers="tableHeader"
       :items="sites"
       :items-per-page="uiStore.tableBehavior.SetSite.itemsPerPage"
-      item-value="id"
-      :sort-by="uiStore.tableBehavior.SetSite.sortBy"
-      multi-sort
       :search="tableFilter"
+      :sort-by="uiStore.tableBehavior.SetSite.sortBy"
+      class="table-stripe"
+      item-value="id"
+      multi-sort
       show-select
       @update:itemsPerPage="(v) => uiStore.updateTableBehavior('SetSite', 'itemsPerPage', v)"
       @update:sortBy="(v) => uiStore.updateTableBehavior('SetSite', 'sortBy', v)"
@@ -171,65 +171,65 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
       <template #item.userConfig.isOffline="{ item }">
         <v-switch
           v-model="item.userConfig.isOffline"
+          class="site-switch-btn"
           color="success"
           hide-details
-          class="site-switch-btn"
           @update:model-value="(v) => metadataStore.simplePatchSite(item.id, 'isOffline', v as boolean)"
         />
       </template>
       <template #item.userConfig.allowSearch="{ item }">
         <v-switch
           v-model="item.userConfig.allowSearch"
+          :disabled="item.userConfig.isOffline || !Object.hasOwn(item.metadata, 'search')"
+          class="site-switch-btn"
           color="success"
           hide-details
-          class="site-switch-btn"
-          :disabled="item.userConfig.isOffline || !Object.hasOwn(item.metadata, 'search')"
           @update:model-value="(v) => metadataStore.simplePatchSite(item.id, 'allowSearch', v as boolean)"
         />
       </template>
       <template #item.userConfig.allowQueryUserInfo="{ item }">
         <v-switch
           v-model="item.userConfig.allowQueryUserInfo"
+          :disabled="item.userConfig.isOffline || !Object.hasOwn(item.metadata, 'userInfo')"
+          class="site-switch-btn"
           color="success"
           hide-details
-          class="site-switch-btn"
-          :disabled="item.userConfig.isOffline || !Object.hasOwn(item.metadata, 'userInfo')"
           @update:model-value="(v) => metadataStore.simplePatchSite(item.id, 'allowQueryUserInfo', v as boolean)"
         />
       </template>
       <template #item.action="{ item }">
-        <v-btn-group variant="plain" density="compact" class="table-action">
+        <v-btn-group class="table-action" density="compact" variant="plain">
           <!-- 站点信息编辑 -->
           <v-btn
-            size="small"
-            icon="mdi-pencil"
             :title="t('common.edit')"
             color="info"
+            icon="mdi-pencil"
+            size="small"
             @click="() => editSite(item.id)"
           />
 
           <!-- 默认站点搜索入口编辑（只有配置了 siteMetadata.searchEntry 的站点才支持该设置） -->
-          <v-btn size="small" :disabled="!item.metadata.searchEntry" class="v-btn--icon">
+          <v-btn :disabled="!item.metadata.searchEntry" class="v-btn--icon" size="small">
             <v-icon icon="mdi-magnify"></v-icon>
-            <v-menu activator="parent" :close-on-content-click="false">
+            <v-menu :close-on-content-click="false" activator="parent">
               <EditSearchEntryList :item="item" />
             </v-menu>
           </v-btn>
 
           <v-btn
-            size="small"
-            icon="mdi-face-recognition"
             :loading="isFaviconFlushing"
-            color="indigo"
             :title="t('SetSite.index.table.flushFavicon')"
+            color="indigo"
+            icon="mdi-face-recognition"
+            size="small"
             @click="() => flushSiteFavicon(item.id)"
           ></v-btn>
 
           <v-btn
-            size="small"
-            icon="mdi-delete"
             :title="t('common.remove')"
             color="error"
+            icon="mdi-delete"
+            size="small"
             @click="() => deleteSite(item.id)"
           >
           </v-btn>

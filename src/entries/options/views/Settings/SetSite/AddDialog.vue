@@ -50,11 +50,11 @@ async function saveSite() {
           <v-toolbar-title>{{ t("SetSite.add.title") }}</v-toolbar-title>
           <v-spacer />
           <v-btn
-            icon="mdi-help-circle"
-            color="success"
             :href="`${REPO_URL}/wiki/config-site`"
-            target="_blank"
+            color="success"
+            icon="mdi-help-circle"
             rel="noopener noreferrer nofollow"
+            target="_blank"
           />
         </v-toolbar>
       </v-card-title>
@@ -65,14 +65,14 @@ async function saveSite() {
           <v-window-item :key="0">
             <v-autocomplete
               v-model="selectedSiteId"
+              :filter-keys="['raw.name', 'raw.urls']"
               :items="canAddSites"
-              item-title="name"
-              item-value="id"
               :multiple="false"
               :placeholder="selectedSiteId ? '' : t('SetSite.add.selectSitePlaceholder')"
-              :filter-keys="['raw.name', 'raw.urls']"
-              persistent-hint
               autofocus
+              item-title="name"
+              item-value="id"
+              persistent-hint
             >
               <template #selection="{ item: { raw: site } }">
                 <v-list-item>
@@ -95,16 +95,16 @@ async function saveSite() {
                       <b>{{ site.name ?? "" }}</b>
                       <!-- 站点类型 -->
                       <v-chip
-                        label
-                        size="x-small"
                         :color="site.type === 'private' ? 'primary' : 'secondary'"
                         class="ml-2"
+                        label
+                        size="x-small"
                       >
                         {{
                           site.schema ?? (site.type === "private" ? "AbstractPrivateSite" : "AbstractBittorrentSite")
                         }}
                       </v-chip>
-                      <v-chip label size="x-small" color="green" class="ml-2">
+                      <v-chip class="ml-2" color="green" label size="x-small">
                         {{ site.version ? "v" + site.version : "" }}
                       </v-chip>
                     </v-list-item-title>
@@ -159,8 +159,8 @@ async function saveSite() {
         <v-btn
           v-if="currentStep === 1"
           :disabled="!storedSiteUserConfig.valid"
-          variant="text"
           color="success"
+          variant="text"
           @click="saveSite"
         >
           <v-icon icon="mdi-check-circle-outline" />

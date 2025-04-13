@@ -30,11 +30,11 @@ async function removeClients() {
 
       <v-card-actions>
         <v-spacer />
-        <v-btn variant="text" color="info" @click="showDialog = false">
+        <v-btn color="info" variant="text" @click="showDialog = false">
           <v-icon icon="mdi-close-circle" />
           <span class="ml-1">{{ t("common.dialog.cancel") }}</span>
         </v-btn>
-        <v-btn variant="text" color="error" @click="removeClients">
+        <v-btn color="error" variant="text" @click="removeClients">
           <v-icon icon="mdi-check-circle-outline" />
           <span class="ml-1">{{ t("common.dialog.confirm") }}</span>
         </v-btn>

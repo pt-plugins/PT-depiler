@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { ETorrentStatus } from "@ptd/site";
-import { ISearchResultTorrent } from "@/shared/storages/runtime.ts";
+import { ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
 
 const { torrent } = defineProps<{
   torrent: ISearchResultTorrent;
@@ -43,7 +43,7 @@ const color = computed(() => {
 <template>
   <v-row class="pt-1">
     <v-col class="pa-0" cols="2">
-      <v-icon :icon="icon" :color="color" size="x-small"></v-icon>
+      <v-icon :color="color" :icon="icon" size="x-small"></v-icon>
     </v-col>
     <v-col class="pl-1">
       <v-progress-linear v-model="torrent.progress!" :color="color" :title="`${torrent.progress}%`"></v-progress-linear>

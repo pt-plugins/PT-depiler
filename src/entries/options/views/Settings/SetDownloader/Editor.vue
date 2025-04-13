@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 
 import { type VForm } from "vuetify/components";
-import { type IDownloaderMetadata } from "@/shared/storages/metadata.ts";
+import { type IDownloaderMetadata } from "@/shared/storages/types/metadata.ts";
 
 import { getDownloader, getDownloaderMetaData } from "@ptd/downloader";
 import { formatDate, formValidateRules } from "@/options/utils.ts";
@@ -51,7 +51,7 @@ async function checkConnect() {
 
 <template>
   <v-card class="mb-5">
-    <v-form ref="formRef" fast-fail v-if="clientConfig">
+    <v-form v-if="clientConfig" ref="formRef" fast-fail>
       <v-container class="pa-0">
         <v-row>
           <v-col cols="12" md="4">
@@ -92,8 +92,8 @@ async function checkConnect() {
         <v-row>
           <v-text-field
             v-model="clientConfig.password"
-            :label="t('SetDownloader.editor.password')"
             :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
+            :label="t('SetDownloader.editor.password')"
             :type="showPassword ? 'text' : 'password'"
             class="pr-5"
             @click:append="showPassword = !showPassword"
@@ -102,12 +102,12 @@ async function checkConnect() {
         <v-row>
           <v-slider
             v-model="clientConfig.timeout"
-            class="px-2"
             :color="clientConfig.timeout! > 8 * 60e3 ? 'red' : clientConfig.timeout! > 5 * 60e3 ? 'amber' : 'green'"
-            :min="0"
-            :max="10 * 60e3"
-            :step="1e3"
             :label="$t('SetDownloader.editor.timeout')"
+            :max="10 * 60e3"
+            :min="0"
+            :step="1e3"
+            class="px-2"
           >
             <template #append>
               <v-btn variant="flat" @click="clientConfig.timeout = 60e3">
@@ -120,17 +120,17 @@ async function checkConnect() {
           <v-switch
             v-if="clientMeta?.feature?.DefaultAutoStart?.allowed"
             v-model="clientConfig.feature!.DefaultAutoStart"
+            :label="t('SetDownloader.editor.autoStart')"
             class="ml-4"
             color="success"
-            :label="t('SetDownloader.editor.autoStart')"
           />
         </v-row>
       </v-container>
 
       <v-btn
-        :loading="connectTesting"
-        :disabled="connectTesting"
         :color="connectBtnMap[connectStatusRef]['color']"
+        :disabled="connectTesting"
+        :loading="connectTesting"
         block
         variant="text"
         @click="checkConnect"

@@ -58,9 +58,9 @@ const userLevelGroupIcon = computed(() => {
   <span v-if="userInfo.levelName" class="text-no-wrap">
     <v-tooltip
       v-if="userLevelRequirements && userLevelRequirements.length > 0"
-      location="bottom left"
       content-class="bg-white pa-0"
       interactive
+      location="bottom left"
     >
       <template v-slot:activator="{ props }">
         <span v-bind="props" class="ml-1">
@@ -72,10 +72,10 @@ const userLevelGroupIcon = computed(() => {
       <template v-slot>
         <v-card class="border-sm overflow-y-auto" max-height="500" max-width="800">
           <v-card-text class="pa-2">
-            <v-list density="compact" class="pa-0">
+            <v-list class="pa-0" density="compact">
               <!-- 计算剩余升级情况 -->
               <template v-if="userLevelGroupType === 'user' && !isEmpty(nextLevelUnMet)">
-                <v-list-item class="list-item-half-spacer px-1 py-0" border>
+                <v-list-item border class="list-item-half-spacer px-1 py-0">
                   <template #prepend>
                     <v-icon icon="mdi-keyboard-tab" color="orange" size="small" />
                   </template>
@@ -83,7 +83,7 @@ const userLevelGroupIcon = computed(() => {
                   <span v-if="nextLevelUnMet.level">{{ nextLevelUnMet.level.name }}:&nbsp;</span>
 
                   <template v-if="nextLevelUnMet.level && nextLevelUnMet.interval">
-                    <v-icon size="small" icon="mdi-calendar-check-outline" :title="$t('levelRequirement.interval')" />
+                    <v-icon :title="$t('levelRequirement.interval')" icon="mdi-calendar-check-outline" size="small" />
                     {{
                       formatDate(
                         convertIsoDurationToDate(nextLevelUnMet.level.interval!, userInfo.joinTime ?? currentTime),
@@ -103,8 +103,8 @@ const userLevelGroupIcon = computed(() => {
                 <v-list-item class="list-item-half-spacer px-1 py-0">
                   <template #prepend>
                     <v-icon
-                      :icon="userLevel.id <= (userInfo.levelId ?? -1) ? 'mdi-check' : 'mdi-block-helper'"
                       :color="userLevel.id <= (userInfo.levelId ?? -1) ? 'green' : 'red'"
+                      :icon="userLevel.id <= (userInfo.levelId ?? -1) ? 'mdi-check' : 'mdi-block-helper'"
                       size="small"
                     />
                   </template>

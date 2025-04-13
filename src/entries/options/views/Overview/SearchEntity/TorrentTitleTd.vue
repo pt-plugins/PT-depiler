@@ -3,11 +3,11 @@ import { onMounted, reactive, useTemplateRef } from "vue";
 import { useElementSize } from "@vueuse/core";
 import { useRouter } from "vue-router";
 
-import type { ISearchResultTorrent } from "@/shared/storages/runtime.ts";
-import type { ISocialInformation, TSupportSocialSite } from "@ptd/social/types.ts";
-
 import { socialBuildUrlMap } from "@ptd/social";
-import { getSocialInformation } from "@/options/stores/indexdb.ts";
+import { getSocialInformation } from "@/shared/storages/indexdb.ts";
+
+import type { ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
+import type { ISocialInformation, TSupportSocialSite } from "@ptd/social/types.ts";
 
 const { item } = defineProps<{
   item: ISearchResultTorrent;
@@ -20,7 +20,7 @@ const { width: tagsWidth } = useElementSize(useTemplateRef<HTMLDivElement>("tags
 const { width: socialWidth } = useElementSize(useTemplateRef<HTMLDivElement>("social"));
 
 // @ts-ignore
-const socialInformation = reactive<Record<TSupportSocialSite, ISocialInformation>>({});
+const socialInformation = reactive<Record<TSupportSocialSite | string, ISocialInformation>>({});
 
 onMounted(() => {
   for (const key in socialBuildUrlMap) {
@@ -46,25 +46,27 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
 </script>
 
 <template>
-  <v-container class="t_main" ref="container">
+  <v-container ref="container" class="t_main">
     <v-row>
+      <!-- 种子主标题信息 -->
       <span
-        class="text-truncate"
         :style="{
           width: `${containerWidth - socialWidth}px`,
         }"
+        class="text-truncate"
       >
         <a
           :href="item.url"
           :title="item.title"
           class="t_title text-decoration-none text-subtitle-1 text-truncate"
-          target="_blank"
           rel="noopener noreferrer nofollow"
+          target="_blank"
         >
           {{ item.title }}
         </a>
       </span>
 
+      <!-- 种子的媒体信息 -->
       <div ref="social" class="ml-2">
         <template v-for="(meta, key) in socialBuildUrlMap" :key="key">
           <v-menu v-if="item[`ext_${key}`]">
@@ -136,19 +138,21 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
       </div>
     </v-row>
     <v-row>
+      <!-- 种子标签信息 -->
       <div ref="tags">
-        <v-chip v-for="tag in item.tags" label size="x-small" class="mr-1" :color="tag.color">
+        <v-chip v-for="tag in item.tags" :color="tag.color" class="mr-1" label size="x-small">
           {{ tag.name }}
         </v-chip>
       </div>
 
+      <!-- 种子副标题信息 -->
       <span
         v-if="item.subTitle"
-        class="t_subTitle text-grey text-truncate"
-        :title="item.subTitle"
         :style="{
           'max-width': item.tags ? `${containerWidth - tagsWidth}px` : false,
         }"
+        :title="item.subTitle"
+        class="t_subTitle text-grey text-truncate"
       >
         {{ item.subTitle }}
       </span>

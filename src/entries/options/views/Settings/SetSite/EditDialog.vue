@@ -52,7 +52,7 @@ function patchSite() {
           {{ t("common.dialog.cancel") }}
         </v-btn>
 
-        <v-btn variant="text" color="success" @click="patchSite" :disabled="!storedSiteUserConfig.valid">
+        <v-btn :disabled="!storedSiteUserConfig.valid" color="success" variant="text" @click="patchSite">
           <v-icon icon="mdi-check-circle-outline" />
           {{ t("common.dialog.ok") }}
         </v-btn>

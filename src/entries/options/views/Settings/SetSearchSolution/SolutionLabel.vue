@@ -24,12 +24,12 @@ function removeSolution(solution: ISearchSolution) {
 <template>
   <v-chip
     v-for="solution in props.solutions"
-    @click:close="() => removeSolution(solution)"
-    :closable="props.closable"
     :key="solution.id"
+    :closable="props.closable"
     class="mb-1 mr-1"
     label
     size="small"
+    @click:close="() => removeSolution(solution)"
   >
     <SiteName :site-id="solution.siteId" :class="['text-black']" />&nbsp;->&nbsp;
     <SolutionDetail :solution="solution" />

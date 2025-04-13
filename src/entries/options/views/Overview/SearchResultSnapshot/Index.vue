@@ -9,7 +9,7 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import DeleteDialog from "./DeleteDialog.vue";
 import EditNameDialog from "./EditNameDialog.vue";
 
-import { type TSearchSnapshotKey } from "@/shared/storages/metadata.ts";
+import { type TSearchSnapshotKey } from "@/shared/storages/types/metadata.ts";
 
 const router = useRouter();
 const metadataStore = useMetadataStore();
@@ -68,9 +68,9 @@ watch(toDeleteIds, (newVal, oldValue) => {
     <v-card-title>
       <v-row class="ma-0">
         <v-btn
+          :disabled="tableSelected.length === 0"
           color="error"
           prepend-icon="mdi-minus"
-          :disabled="tableSelected.length === 0"
           @click="deleteSearchSnapshot(tableSelected)"
         >
           {{ $t("common.remove") }}
@@ -80,50 +80,50 @@ watch(toDeleteIds, (newVal, oldValue) => {
         <v-text-field
           v-model="tableWaitFilter"
           append-icon="mdi-magnify"
-          prepend-inner-icon="mdi-filter"
-          label="快照名称过滤"
-          single-line
           density="compact"
           hide-details
+          label="快照名称过滤"
           max-width="500"
+          prepend-inner-icon="mdi-filter"
+          single-line
         />
       </v-row>
     </v-card-title>
 
     <v-data-table
       v-model="tableSelected"
-      class="table-stripe"
       :headers="tableHeader"
       :items="metadataStore.getSearchSnapshotList"
       :search="tableFilter"
-      show-select
-      item-value="id"
       :sort-by="[{ key: 'createdAt', order: 'desc' }]"
+      class="table-stripe"
+      item-value="id"
+      show-select
     >
       <template #item.createdAt="{ item }">
         <span class="text-no-wrap"> {{ formatDate(item.createdAt) }}</span>
       </template>
       <template #item.action="{ item }">
-        <v-btn-group variant="plain" density="compact" class="table-action">
+        <v-btn-group class="table-action" density="compact" variant="plain">
           <v-btn
-            size="small"
-            icon="mdi-archive-search"
-            title="查看"
             color="green"
+            icon="mdi-archive-search"
+            size="small"
+            title="查看"
             @click="() => viewSnapshot(item.id)"
           ></v-btn>
           <v-btn
-            size="small"
-            icon="mdi-archive-edit"
-            title="编辑标题"
             color="blue"
+            icon="mdi-archive-edit"
+            size="small"
+            title="编辑标题"
             @click="() => editSnapshotName(item.id)"
           ></v-btn>
           <v-btn
-            size="small"
-            icon="mdi-delete"
             :title="$t('common.remove')"
             color="error"
+            icon="mdi-delete"
+            size="small"
             @click="deleteSearchSnapshot(item.id)"
           >
           </v-btn>

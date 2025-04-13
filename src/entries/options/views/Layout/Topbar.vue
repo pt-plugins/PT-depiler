@@ -61,27 +61,27 @@ function startSearchEntity() {
           <v-icon icon="$menu"></v-icon>
         </template>
         <template v-else>
-          <v-img src="/icons/logo/64.png" width="24" inline></v-img>
+          <v-img inline src="/icons/logo/64.png" width="24"></v-img>
         </template>
       </v-app-bar-nav-icon>
     </template>
 
-    <v-app-bar-title v-show="display.smAndUp.value" style="min-width: 120px; max-width: 160px" ref="titleTarget">
-      <v-img src="/icons/logo/64.png" width="24" inline></v-img>
+    <v-app-bar-title v-show="display.smAndUp.value" ref="titleTarget" style="min-width: 120px; max-width: 160px">
+      <v-img inline src="/icons/logo/64.png" width="24"></v-img>
       {{ t("manifest.extName") }}
     </v-app-bar-title>
 
     <!-- 搜索输入框 -->
     <v-text-field
       v-model="searchKey"
-      hide-details
-      class="ptd-search-input pl-2"
-      @keydown.enter="startSearchEntity"
       :placeholder="t('layout.header.searchTip')"
+      class="ptd-search-input pl-2"
+      hide-details
       style="width: 300px"
+      @keydown.enter="startSearchEntity"
     >
       <template #append>
-        <v-btn icon="mdi-magnify" :disabled="runtimeStore.search.isSearching" @click="startSearchEntity" />
+        <v-btn :disabled="runtimeStore.search.isSearching" icon="mdi-magnify" @click="startSearchEntity" />
       </template>
 
       <!-- 搜索方案选择框 -->
@@ -98,8 +98,6 @@ function startSearchEntity() {
           </template>
           <v-list>
             <v-list-item
-              @click="() => (searchPlanKey = 'default')"
-              :title="t('layout.header.searchPlan.default')"
               :subtitle="
                 '<' +
                 (metadataStore.defaultSolutionId !== 'default'
@@ -107,6 +105,8 @@ function startSearchEntity() {
                   : t('layout.header.searchPlan.all')) +
                 '>'
               "
+              :title="t('layout.header.searchPlan.default')"
+              @click="() => (searchPlanKey = 'default')"
             ></v-list-item>
             <v-divider />
             <v-list-item
@@ -120,8 +120,8 @@ function startSearchEntity() {
             <template v-if="metadataStore.defaultSolutionId !== 'default'">
               <v-divider />
               <v-list-item
-                @click="() => (searchPlanKey = 'all')"
                 :title="t('layout.header.searchPlan.all')"
+                @click="() => (searchPlanKey = 'all')"
               ></v-list-item>
             </template>
           </v-list>

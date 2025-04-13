@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, reactive, watch, computed } from "vue";
 import { type CAddTorrentOptions, getDownloaderIcon } from "@ptd/downloader";
-import { type ISearchResultTorrent } from "@/shared/storages/runtime.ts";
-import { type IDownloaderMetadata } from "@/shared/storages/metadata.ts";
+import { type ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
+import { type IDownloaderMetadata } from "@/shared/storages/types/metadata.ts";
 
 import { useUIStore } from "@/options/stores/ui.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -105,14 +105,14 @@ async function sendToDownloader() {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" scrollable max-width="800" :persistent="isSending">
+  <v-dialog v-model="showDialog" :persistent="isSending" max-width="800" scrollable>
     <v-card>
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title> 为 {{ torrentItems.length }} 个种子选择下载器 </v-toolbar-title>
           <v-spacer />
           <!-- TODO 添加说明 -->
-          <v-btn icon="mdi-help-circle-outline" variant="text" color="green" class="mr-2"></v-btn>
+          <v-btn class="mr-2" color="green" icon="mdi-help-circle-outline" variant="text"></v-btn>
         </v-toolbar>
       </v-card-title>
       <v-card-text>
@@ -122,8 +122,8 @@ async function sendToDownloader() {
               <v-autocomplete
                 v-model="selectedDownloader"
                 :items="metadataStore.getEnabledDownloaders"
-                placeholder="选择下载器"
                 clearable
+                placeholder="选择下载器"
                 @update:model-value="restoreAddTorrentOptions"
               >
                 <template #selection="{ item: { raw: downloader } }">
@@ -134,12 +134,12 @@ async function sendToDownloader() {
                 </template>
                 <template #item="{ props, item: { raw: downloader } }">
                   <v-list-item
-                    v-bind="props"
                     :prepend-avatar="getDownloaderIcon(downloader.type)"
                     :title="downloaderTitle(downloader)"
+                    v-bind="props"
                   >
                     <template #append>
-                      <v-chip label color="indigo">{{ downloader.type }}</v-chip>
+                      <v-chip color="indigo" label>{{ downloader.type }}</v-chip>
                     </template>
                   </v-list-item>
                 </template>
@@ -147,23 +147,23 @@ async function sendToDownloader() {
             </v-row>
             <v-row>
               <!-- FIXME 改为v-combobox 使得在添加 下载路径设置后 可以选择，并默认支持一些特殊的key -->
-              <v-col cols="6" class="py-0 pl-0">
+              <v-col class="py-0 pl-0" cols="6">
                 <v-combobox
                   v-model="addTorrentOptions.savePath"
                   :items="suggestFolders"
+                  hint="不设置则为该下载服务器的默认路径"
                   label="保存路径"
                   persistent-hint
-                  hint="不设置则为该下载服务器的默认路径"
                 >
                 </v-combobox>
               </v-col>
-              <v-col cols="6" class="py-0 pr-0">
+              <v-col class="py-0 pr-0" cols="6">
                 <v-combobox
                   v-model="addTorrentOptions.label"
                   :items="suggestTags"
+                  hint="（如果该下载服务器支持）"
                   label="种子标签"
                   persistent-hint
-                  hint="（如果该下载服务器支持）"
                 ></v-combobox>
               </v-col>
             </v-row>
@@ -171,19 +171,19 @@ async function sendToDownloader() {
               <v-col>
                 <!-- FIXME 添加设置项，默认 disabled -->
                 <v-switch
-                  color="success"
                   v-model="addTorrentOptions.localDownload"
-                  label="本地中转（如非必要请勿禁用）"
+                  color="success"
                   disabled
                   hide-details
+                  label="本地中转（如非必要请勿禁用）"
                 ></v-switch>
               </v-col>
               <v-col>
                 <v-switch
-                  color="success"
                   v-model="addTorrentOptions.addAtPaused"
-                  label="添加时默认暂停"
+                  color="success"
                   hide-details
+                  label="添加时默认暂停"
                 ></v-switch>
               </v-col>
             </v-row>
@@ -194,15 +194,15 @@ async function sendToDownloader() {
       <v-card-actions>
         <!-- TODO 说明 -->
         <v-spacer />
-        <v-btn variant="text" color="info" :disabled="isSending" @click="showDialog = false">
+        <v-btn :disabled="isSending" color="info" variant="text" @click="showDialog = false">
           <v-icon icon="mdi-close-circle" />
           <span class="ml-1">{{ $t("common.dialog.cancel") }}</span>
         </v-btn>
         <v-btn
-          variant="text"
-          color="error"
           :disabled="!selectedDownloader"
           :loading="isSending"
+          color="error"
+          variant="text"
           @click="sendToDownloader"
         >
           <v-icon icon="mdi-check-circle-outline" />

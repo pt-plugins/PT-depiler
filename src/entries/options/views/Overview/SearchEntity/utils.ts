@@ -9,7 +9,7 @@ import {
   type IAdvanceKeywordSearchConfig,
   type TSiteID,
 } from "@ptd/site";
-import type { ISearchResultTorrent, TSearchSolutionKey } from "@/shared/storages/runtime.ts";
+import type { ISearchResultTorrent, TSearchSolutionKey } from "@/shared/storages/types/runtime.ts";
 import { sendMessage } from "@/messages.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";

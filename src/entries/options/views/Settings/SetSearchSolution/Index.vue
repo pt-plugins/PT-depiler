@@ -44,7 +44,7 @@ function editSearchSolution(toEditSolutionId: TSolutionKey) {
 }
 
 watch(showDeleteDialog, (value) => {
-  if (value === false) {
+  if (!value) {
     toDeleteIds.value = [];
   }
 });
@@ -94,21 +94,21 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
   <v-card>
     <v-card-title>
       <v-row class="ma-0">
-        <v-btn color="success" prepend-icon="mdi-plus" class="mr-2" @click="addSearchSolution">
+        <v-btn class="mr-2" color="success" prepend-icon="mdi-plus" @click="addSearchSolution">
           {{ t("common.btn.add") }}
         </v-btn>
         <v-btn
+          :disabled="tableSelected.length === 0"
           color="error"
           prepend-icon="mdi-minus"
-          :disabled="tableSelected.length === 0"
           @click="deleteSearchSolution(tableSelected)"
         >
           {{ t("common.remove") }}
         </v-btn>
 
-        <v-divider vertical inset class="mx-2" />
+        <v-divider class="mx-2" inset vertical />
 
-        <v-btn color="light-blue" prepend-icon="mdi-help-circle" disabled>
+        <v-btn color="light-blue" disabled prepend-icon="mdi-help-circle">
           {{ t("common.howToUse") }}
         </v-btn>
 
@@ -117,31 +117,31 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
         <v-text-field
           v-model="tableFilter"
           append-icon="mdi-magnify"
-          label="Search"
-          single-line
           density="compact"
           hide-details
+          label="Search"
+          single-line
         />
       </v-row>
     </v-card-title>
 
     <v-data-table
       v-model="tableSelected"
-      class="table-stripe"
       :headers="tableHeader"
       :items="metadataStore.getSearchSolutions"
       :items-per-page="10"
-      item-value="id"
+      :search="tableFilter"
       :sort-by="[
         // 因为此处涉及到了搜索栏的显示，所以我们不接受用户 **保存** 自定义排序
         { key: 'enabled', order: 'desc' },
         { key: 'sort', order: 'desc' },
       ]"
-      :search="tableFilter"
+      class="table-stripe"
+      item-value="id"
       show-select
     >
       <template #item.solution="{ item }">
-        <SolutionLabel :solutions="item.solutions" :closable="false" />
+        <SolutionLabel :closable="false" :solutions="item.solutions" />
       </template>
 
       <template #item.enabled="{ item }">
@@ -167,19 +167,19 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
       </template>
 
       <template #item.action="{ item }">
-        <v-btn-group variant="plain" density="compact" class="table-action">
+        <v-btn-group class="table-action" density="compact" variant="plain">
           <v-btn
-            size="small"
-            icon="mdi-pencil"
             :title="$t('common.edit')"
             color="info"
+            icon="mdi-pencil"
+            size="small"
             @click="() => editSearchSolution(item.id)"
           />
           <v-btn
-            size="small"
-            icon="mdi-delete"
             :title="$t('common.remove')"
             color="error"
+            icon="mdi-delete"
+            size="small"
             @click="() => deleteSearchSolution(item.id)"
           >
           </v-btn>

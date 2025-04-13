@@ -1,6 +1,9 @@
 <script lang="ts" setup>
+import { useI18n } from "vue-i18n";
 import { REPO_URL } from "~/helper.ts";
 import { definedLangMetaData } from "@/options/plugins/i18n.ts";
+
+const { rt, tm, t } = useI18n();
 
 const sortedPeople = [
   "Rhilip (R酱)",
@@ -21,24 +24,24 @@ const sortedPeople = [
 
 <template>
   <v-alert border="start" border-color="deep-purple accent-4" class="mb-2" elevation="2">
-    <template v-for="i in $tm('SpecialThank.thankNote')" :key="i"> {{ $rt(i) }} <br /> </template>
-    {{ $t("SpecialThank.contributor") }}:
+    <template v-for="i in tm('SpecialThank.thankNote')" :key="i"> {{ rt(i) }} <br /> </template>
+    {{ t("SpecialThank.contributor") }}:
     <a :href="`${REPO_URL}/graphs/contributors`" rel="noopener noreferrer nofollow" target="_blank">
       {{ REPO_URL }}/graphs/contributors
     </a>
     <br />
-    {{ $t("SpecialThank.issue") }}:
+    {{ t("SpecialThank.issue") }}:
     <a :href="`${REPO_URL}/issues`" rel="noopener noreferrer nofollow" target="_blank">{{ REPO_URL }}/issues</a>
   </v-alert>
 
   <v-card class="mb-2">
-    <v-card-title>{{ $t("SpecialThank.langContributor") }}</v-card-title>
+    <v-card-title>{{ t("SpecialThank.langContributor") }}</v-card-title>
     <v-table>
       <thead>
         <tr>
           <th>Code</th>
-          <th>{{ $t("common.language") }}</th>
-          <th>{{ $t("SpecialThank.contributor") }}</th>
+          <th>{{ t("common.language") }}</th>
+          <th>{{ t("SpecialThank.contributor") }}</th>
         </tr>
       </thead>
       <tbody>
@@ -52,7 +55,7 @@ const sortedPeople = [
   </v-card>
 
   <v-card class="mb-2">
-    <v-card-title>{{ $t("SpecialThank.preWorkContributor") }} ({{ $t("SpecialThank.sortByName") }})</v-card-title>
+    <v-card-title>{{ t("SpecialThank.preWorkContributor") }} ({{ t("SpecialThank.sortByName") }})</v-card-title>
 
     <v-table>
       <tbody>
@@ -67,9 +70,4 @@ const sortedPeople = [
   </v-card>
 </template>
 
-<style scoped>
-.people {
-  align-items: center;
-  display: flex;
-}
-</style>
+<style scoped></style>

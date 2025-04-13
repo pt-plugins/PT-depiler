@@ -75,38 +75,38 @@ function noop() {
 </script>
 
 <template>
-  <v-btn-group variant="text" color="grey" :density="props.density" class="table-action">
+  <v-btn-group :density="props.density" class="table-action" color="grey" variant="text">
     <!-- TODO 下载到服务器 -->
     <v-btn
+      :disabled="props.torrentIds.length == 0"
       :size="btnSize"
       icon="mdi-cloud-download"
-      :disabled="props.torrentIds.length == 0"
       @click="() => sendToDownloader()"
     ></v-btn>
     <!-- 复制下载链接 -->
     <v-btn
+      :disabled="props.torrentIds.length == 0"
+      :loading="copyTorrentDownloadLinkBtnStatus"
       :size="btnSize"
       icon="mdi-content-copy"
-      :loading="copyTorrentDownloadLinkBtnStatus"
-      :disabled="props.torrentIds.length == 0"
       title="复制下载链接"
       @click="() => copyTorrentDownloadLink()"
     >
     </v-btn>
     <!-- 下载种子文件到本地 -->
     <v-btn
+      :disabled="props.torrentIds.length == 0"
+      :loading="localDlTorrentDownloadLinkBtnStatus"
       :size="btnSize"
       icon="mdi-content-save"
-      :loading="localDlTorrentDownloadLinkBtnStatus"
-      :disabled="props.torrentIds.length == 0"
       title="下载种子文件到本地"
       @click="() => localDlTorrentDownloadLink()"
     ></v-btn>
     <!-- TODO 收藏 -->
     <v-btn
+      :disabled="true || props.torrentIds.length == 0"
       :size="btnSize"
       icon="mdi-heart-outline"
-      :disabled="true || props.torrentIds.length == 0"
       @click="() => noop()"
     ></v-btn>
   </v-btn-group>

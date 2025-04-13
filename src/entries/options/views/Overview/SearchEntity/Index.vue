@@ -4,7 +4,7 @@ import { useRoute } from "vue-router";
 import { refDebounced } from "@vueuse/core";
 import { ETorrentStatus } from "@ptd/site";
 
-import { type ISearchResultTorrent } from "@/shared/storages/runtime.ts";
+import { type ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useUIStore } from "@/options/stores/ui.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -101,7 +101,7 @@ function cancelSearchQueue() {
     <v-alert-title>
       <template v-if="runtimeStore.search.startAt === 0">请输入搜索关键词开始搜索</template>
       <template v-else>
-        <v-btn color="primary" size="small" @click="showSearchStatusDialog = true" class="mr-2">搜索情况</v-btn>
+        <v-btn class="mr-2" color="primary" size="small" @click="showSearchStatusDialog = true">搜索情况</v-btn>
         <template v-if="runtimeStore.search.isSearching">
           <template v-if="isSearchingParsed">搜索暂停中...</template>
           <template v-else>搜索中...</template>
@@ -121,40 +121,40 @@ function cancelSearchQueue() {
         <v-btn-group size="small" variant="text">
           <v-btn
             v-show="isSearchingParsed"
-            @click="() => startSearchQueue()"
-            icon="mdi-play"
             color="success"
+            icon="mdi-play"
             title="开始搜索队列"
+            @click="() => startSearchQueue()"
           ></v-btn>
           <v-btn
             v-show="!isSearchingParsed"
-            @click="() => pauseSearchQueue()"
-            icon="mdi-pause"
             color="success"
+            icon="mdi-pause"
             title="暂停搜索队列"
+            @click="() => pauseSearchQueue()"
           ></v-btn>
 
           <v-btn
             v-show="runtimeStore.search.isSearching"
-            icon="mdi-cancel"
             color="red"
+            icon="mdi-cancel"
             title="取消当前等待的搜索"
             @click="cancelSearchQueue"
           ></v-btn>
           <v-btn
             v-show="!runtimeStore.search.isSearching"
-            icon="mdi-cached"
-            color="red"
-            title="重新搜索"
             :disabled="isSearchingParsed"
+            color="red"
+            icon="mdi-cached"
+            title="重新搜索"
             @click="() => doSearch(null as unknown as string, null as unknown as string, true)"
           ></v-btn>
 
-          <!-- TODO 创建搜索快照 -->
+          <!-- 创建搜索快照 -->
           <v-btn
-            icon="mdi-camera-plus"
-            color="cyan"
             :disabled="runtimeStore.search.isSearching || runtimeStore.search.searchResult.length === 0"
+            color="cyan"
+            icon="mdi-camera-plus"
             @click="showSaveSnapshotDialog = true"
           ></v-btn>
         </v-btn-group>
@@ -166,14 +166,14 @@ function cancelSearchQueue() {
         <v-divider vertical class="mx-2" />
 
         <v-combobox
-          multiple
-          chips
           v-model="uiStore.tableBehavior.SearchEntity.columns"
           :items="fullTableHeader.map((item) => item.key)"
-          max-width="220"
+          chips
+          class="table-header-filter-clear"
           density="compact"
           hide-details
-          class="table-header-filter-clear"
+          max-width="220"
+          multiple
           prepend-inner-icon="mdi-filter-cog"
         >
           <template #chip="{ item, index }">
@@ -188,11 +188,11 @@ function cancelSearchQueue() {
             <v-list-item>
               <v-checkbox
                 v-model="uiStore.tableBehavior.SearchEntity.columns"
-                density="compact"
-                hide-details
-                :value="item.title"
                 :disabled="fullTableHeader.find((x) => x.key == item.title)?.alwaysShow"
                 :label="fullTableHeader.find((x) => x.key == item.title)?.title"
+                :value="item.title"
+                density="compact"
+                hide-details
               ></v-checkbox>
             </v-list-item>
           </template>
@@ -201,14 +201,14 @@ function cancelSearchQueue() {
         <v-spacer />
         <v-text-field
           v-model="tableWaitFilter"
-          append-icon="mdi-magnify"
-          prepend-inner-icon="mdi-filter"
-          label="过滤搜索结果"
-          single-line
-          density="compact"
           :disabled="runtimeStore.search.isSearching"
+          append-icon="mdi-magnify"
+          density="compact"
           hide-details
+          label="过滤搜索结果"
           max-width="500"
+          prepend-inner-icon="mdi-filter"
+          single-line
           @click:prepend-inner="showAdvanceFilterGenerateDialog = true"
         />
       </v-row>
@@ -216,18 +216,18 @@ function cancelSearchQueue() {
     <v-data-table
       id="ptd-search-entity-table"
       v-model="tableSelected"
-      class="search-entity-table table-stripe"
+      :custom-filter="tableCustomFilter"
+      :filter-keys="['uniqueId'] /* 对每个item值只检索一次 */"
       :headers="tableHeader"
       :items="runtimeStore.search.searchResult"
       :items-per-page="uiStore.tableBehavior.SearchEntity.itemsPerPage"
-      item-value="uniqueId"
       :search="tableFilter"
-      :custom-filter="tableCustomFilter"
-      :filter-keys="['uniqueId'] /* 对每个item值只检索一次 */"
-      show-select
-      multi-sort
-      hover
       :sort-by="uiStore.tableBehavior.SearchEntity.sortBy"
+      class="search-entity-table table-stripe"
+      hover
+      item-value="uniqueId"
+      multi-sort
+      show-select
       @update:itemsPerPage="(v) => uiStore.updateTableBehavior('SearchEntity', 'itemsPerPage', v)"
       @update:sortBy="(v) => uiStore.updateTableBehavior('SearchEntity', 'sortBy', v)"
     >

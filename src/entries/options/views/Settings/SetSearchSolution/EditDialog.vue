@@ -105,7 +105,7 @@ function saveSolutionState() {
   <v-dialog v-model="showDialog" fullscreen>
     <v-card>
       <v-card-title class="pa-0">
-        <v-toolbar color="blue-grey darken-2" :title="t('SetSearchSolution.edit.title')">
+        <v-toolbar :title="t('SetSearchSolution.edit.title')" color="blue-grey darken-2">
           <template #append>
             <v-btn icon="mdi-close" @click="showDialog = false"> </v-btn>
           </template>
@@ -125,33 +125,33 @@ function saveSolutionState() {
               />
             </v-col>
             <v-col cols="3">
-              <v-text-field v-model="solution.id" label="ID" disabled />
+              <v-text-field v-model="solution.id" disabled label="ID" />
             </v-col>
             <v-col cols="2">
-              <v-text-field v-model="solution.sort" :label="t('common.sortIndex')" type="number" min="0" max="100" />
+              <v-text-field v-model="solution.sort" :label="t('common.sortIndex')" max="100" min="0" type="number" />
             </v-col>
           </v-row>
           <v-row>
-            <v-col md="8" cols="12">
+            <v-col cols="12" md="8">
               <v-text-field
                 v-model="siteWaitFilter"
-                append-inner-icon="mdi-magnify"
-                prepend-icon="mdi-sitemap"
-                clearable
                 :placeholder="t('SetSearchSolution.edit.filterPlaceholder')"
+                append-inner-icon="mdi-magnify"
+                clearable
+                prepend-icon="mdi-sitemap"
               />
 
               <v-expansion-panels>
                 <v-expansion-panel
                   v-for="site in filteredSite"
-                  :disabled="!!metadataStore.sites[site].isOffline || !metadataStore.sites[site].allowSearch"
                   :id="site"
+                  :disabled="!!metadataStore.sites[site].isOffline || !metadataStore.sites[site].allowSearch"
                 >
                   <v-expansion-panel-title>
                     <SiteFavicon :site-id="site" class="mr-2" inline />
 
                     <v-chip color="green" label>
-                      <SiteName :site-id="site" :class="['text-no-wrap']" />
+                      <SiteName :class="['text-no-wrap']" :site-id="site" />
                     </v-chip>
                   </v-expansion-panel-title>
                   <v-expansion-panel-text>
@@ -160,7 +160,7 @@ function saveSolutionState() {
                 </v-expansion-panel>
               </v-expansion-panels>
             </v-col>
-            <v-col md="4" cols="12">
+            <v-col cols="12" md="4">
               <v-alert class="mb-2" type="success">
                 <v-alert-title>
                   {{ t("SetSearchSolution.edit.addCount", [solution.solutions.length]) }}
@@ -180,10 +180,10 @@ function saveSolutionState() {
           {{ t("common.dialog.cancel") }}
         </v-btn>
         <v-btn
-          variant="text"
-          color="success"
-          @click="saveSolutionState"
           :disabled="!formValid || solution.solutions.length === 0"
+          color="success"
+          variant="text"
+          @click="saveSolutionState"
         >
           <v-icon icon="mdi-check-circle-outline" />
           {{ t("common.dialog.ok") }}

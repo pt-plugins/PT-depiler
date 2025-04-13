@@ -39,11 +39,11 @@ function setIgnoreWrongPixelRatio() {
     <!-- 页面比例提示 -->
     <v-system-bar
       v-if="(pixelRatio > 1.1 || pixelRatio < 0.8) && !uiStore.ignoreWrongPixelRatio"
-      color="purple-darken-2"
       class="justify-center"
+      color="purple-darken-2"
     >
       {{ $t("layout.header.wrongPixelRatioNotice") }}&nbsp;&nbsp;
-      <v-icon icon="mdi-close" class="ms-2" @click="setIgnoreWrongPixelRatio" />
+      <v-icon class="ms-2" icon="mdi-close" @click="setIgnoreWrongPixelRatio" />
     </v-system-bar>
 
     <!-- 顶部工具条 -->

@@ -74,7 +74,7 @@ function viewStoreData(data: IShowUserInfo) {
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title>
-            {{ t("MyData.HistoryDataView.title") }}<SiteName :site-id="props.siteId!" tag="span" class="" />
+            {{ t("MyData.HistoryDataView.title") }}<SiteName :site-id="props.siteId!" class="" tag="span" />
           </v-toolbar-title>
         </v-toolbar>
       </v-card-title>
@@ -83,9 +83,9 @@ function viewStoreData(data: IShowUserInfo) {
         <v-data-table
           :headers="tableHeader"
           :items="siteHistoryData"
-          items-per-page="10"
-          class="table-stripe"
           :sort-by="[{ key: 'date', order: 'desc' }]"
+          class="table-stripe"
+          items-per-page="10"
         >
           <!-- -->
           <template #item.date="{ item }">
@@ -109,13 +109,13 @@ function viewStoreData(data: IShowUserInfo) {
                 <span class="text-no-wrap">
                   {{ typeof item.uploaded !== "undefined" ? formatSize(item.uploaded) : "-" }}
                 </span>
-                <v-icon small color="green-darken-4" icon="mdi-chevron-up"></v-icon>
+                <v-icon color="green-darken-4" icon="mdi-chevron-up" small></v-icon>
               </v-row>
               <v-row justify="end">
                 <span class="text-no-wrap">
                   {{ typeof item.downloaded !== "undefined" ? formatSize(item.downloaded) : "-" }}
                 </span>
-                <v-icon small color="red-darken-4" icon="mdi-chevron-down"></v-icon>
+                <v-icon color="red-darken-4" icon="mdi-chevron-down" small></v-icon>
               </v-row>
             </v-container>
           </template>
@@ -152,19 +152,19 @@ function viewStoreData(data: IShowUserInfo) {
             <v-btn-group variant="text">
               <!-- 查看原始记录 -->
               <v-btn
+                :title="t('MyData.HistoryDataView.action.viewRaw')"
                 icon="mdi-eye"
                 size="small"
-                :title="t('MyData.HistoryDataView.action.viewRaw')"
                 @click="() => viewStoreData(item)"
               ></v-btn>
 
               <!-- 删除 -->
               <v-btn
-                icon="mdi-delete"
-                color="error"
-                size="small"
-                :title="t('common.remove')"
                 :disabled="item.date == currentDate"
+                :title="t('common.remove')"
+                color="error"
+                icon="mdi-delete"
+                size="small"
                 @click="() => deleteSiteUserInfo(item.date)"
               ></v-btn>
             </v-btn-group>

@@ -1,7 +1,8 @@
-import type { EResultParseStatus, ITorrent, TSiteID } from "@ptd/site";
-import type { TSolutionKey } from "@/storage.ts";
-import type { VSnackbar } from "vuetify/components";
 import type { VNodeProps } from "vue";
+import type { VSnackbar } from "vuetify/components";
+import type { EResultParseStatus, ITorrent, TSiteID } from "@ptd/site";
+
+import type { TSolutionKey } from "./metadata";
 
 export type TSearchSolutionKey = `${TSiteID}|$|${TSolutionKey}`;
 
