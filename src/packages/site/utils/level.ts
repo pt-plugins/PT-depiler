@@ -253,9 +253,15 @@ export function guessUserLevelId(userInfo: IUserInfo, levelRequirements: ILevelR
 
   // 如果还是没有找到，说明应当是 user 类别的某一个，则尝试通过 userInfo 和 levelRequirements 的具体项匹配
   let testLevel = -1;
-  for (const level of levelRequirements ?? []) {
-    testLevel = level.id;
-    if (!isLevelRequirementMet(userInfo, level)) {
+  for (const levelIndex in levelRequirements ?? []) {
+    const testLevelRequirement = levelRequirements[levelIndex];
+    if (!isLevelRequirementMet(userInfo, testLevelRequirement)) {
+      // 这个 level 对应的条件没有满足，返回上一个 level 的 id
+      const prevLevelIndex = parseInt(levelIndex) - 1;
+      if (prevLevelIndex >= 0) {
+        testLevel = levelRequirements[prevLevelIndex].id;
+      }
+
       break;
     }
   }
