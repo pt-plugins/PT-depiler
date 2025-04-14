@@ -9,7 +9,7 @@ import {
   TLevelId,
 } from "@ptd/site";
 import { intersection } from "es-toolkit";
-import { isEmpty } from "es-toolkit/compat";
+import { set, isEmpty } from "es-toolkit/compat";
 import { intervalToDuration } from "date-fns";
 
 export const MinVipLevelId = 100;
@@ -22,7 +22,7 @@ export function cleanLevelName(levelName: string): string {
 const ratioCountMap = {
   ratio: ["uploaded", "downloaded"],
   trueRatio: ["trueUploaded", "trueDownloaded"],
-};
+} as const;
 
 export function fixRatio(userInfo: Partial<IUserInfo>, ratioKey: "ratio" | "trueRatio" = "ratio"): number {
   let ratio = -1;
@@ -74,11 +74,11 @@ export function guessUserLevelGroupType(levelName: string): TLevelGroupType {
 
 export function levelRequirementUnMet(
   userInfo: IUserInfo,
-  levelRequirement: ILevelRequirement,
+  levelRequirement: ILevelRequirement | IImplicitUserInfo,
 ): Partial<Omit<ILevelRequirement, "id" | "name" | "groupType" | "privilege">> {
   const unmetRequirement: Partial<Omit<ILevelRequirement, "id" | "name" | "groupType" | "privilege">> = {};
   const currentTime = +new Date();
-  const levelRequirementKeys = Object.keys(levelRequirement);
+  const levelRequirementKeys: (keyof ILevelRequirement)[] = Object.keys(levelRequirement);
 
   // 比较加入时间
   if (levelRequirement.interval) {
@@ -111,19 +111,85 @@ export function levelRequirementUnMet(
     }
   }
 
-  // 比较 ratio, trueRatio 等比率类字段需求，首先计算并设置 ratio
-  userInfo.ratio = fixRatio(userInfo);
-  userInfo.trueRatio = fixRatio(userInfo, "trueRatio");
+  for (const ratioKey of intersection(["ratio", "trueRatio"], levelRequirementKeys) as ("ratio" | "trueRatio")[]) {
+    // 计算并设置 ratio 或 trueRatio
+    userInfo[ratioKey] = fixRatio(userInfo, ratioKey);
 
-  for (const currentRatioElement of intersection(["ratio", "trueRatio"], levelRequirementKeys)) {
-    let currentRatioRequirement = levelRequirement[currentRatioElement];
+    const requireRatio = levelRequirement[ratioKey];
 
-    if (typeof currentRatioRequirement === "string") {
-      currentRatioRequirement = parseFloat(currentRatioRequirement);
+    let minRequireRatio: number | undefined;
+    let maxRequireRatio: number | undefined;
+
+    // [number, number]，分享率限制模式
+    if (Array.isArray(requireRatio) && requireRatio.length === 2 && requireRatio.every((x) => typeof x === "number")) {
+      [minRequireRatio, maxRequireRatio] = requireRatio.sort((a, b) => a - b);
+      // number 格式 直接赋值
+    } else if (typeof requireRatio === "number") {
+      minRequireRatio = requireRatio;
+    } else {
+      // string格式输入的容错处理
+      minRequireRatio = parseFloat(String(requireRatio));
     }
 
-    if ((userInfo[currentRatioElement] ?? -1) < currentRatioRequirement) {
-      unmetRequirement[currentRatioElement] = levelRequirement[currentRatioElement]; // 无法做差比较，直接使用设置
+    const [uploadedKey, downloadedKey] = ratioCountMap[ratioKey];
+
+    // 获取当前数值
+    const {
+      [uploadedKey]: baseUploaded = 0,
+      [downloadedKey]: baseDownloaded = 0,
+      [ratioKey]: baseRatio = -1,
+    } = userInfo;
+
+    const requiredDownloaded =
+      typeof levelRequirement[downloadedKey] === "string"
+        ? parseSizeString(levelRequirement[downloadedKey])
+        : (levelRequirement[downloadedKey] ?? 0);
+
+    const requiredUploaded =
+      typeof levelRequirement[uploadedKey] === "string"
+        ? parseSizeString(levelRequirement[uploadedKey])
+        : (levelRequirement[uploadedKey] ?? 0);
+
+    // 只有上传和ratio要求，没有下载要求的情况
+    if (minRequireRatio && requiredUploaded > 0 && requiredDownloaded === 0) {
+      // 计算满足ratio要求所允许的最大下载量
+      const maxAllowedDownload = requiredUploaded / minRequireRatio;
+
+      // 如果当前下载量已经超过这个允许值，那么需要增加上传量
+      if (baseDownloaded > maxAllowedDownload) {
+        const neededUpload = baseDownloaded * minRequireRatio;
+        set(unmetRequirement, uploadedKey, Math.max(unmetRequirement[uploadedKey] || 0, neededUpload - baseUploaded));
+      }
+    }
+
+    // 检查最小 ratio 限制
+    if (minRequireRatio && baseRatio < minRequireRatio) {
+      unmetRequirement[ratioKey] = minRequireRatio;
+
+      // 使用当前下载量和要求下载量中的较大值作为基准
+      const targetDownload = Math.max(baseDownloaded, requiredDownloaded);
+      const neededUpload = targetDownload * minRequireRatio;
+
+      // 即使上传量已经超过了基本上传要求，也可能因为下载量大而导致 ratio 不足
+      // 此时需要额外上传以满足 ratio 要求
+      if (baseUploaded < neededUpload) {
+        set(unmetRequirement, uploadedKey, Math.max(unmetRequirement[uploadedKey] || 0, neededUpload - baseUploaded));
+      }
+    }
+
+    // 检查最大 ratio 限制
+    if (maxRequireRatio && baseRatio > maxRequireRatio) {
+      unmetRequirement[ratioKey] = maxRequireRatio;
+
+      const neededDownload = baseUploaded / maxRequireRatio;
+
+      if (baseDownloaded < neededDownload) {
+        set(
+          unmetRequirement,
+          downloadedKey,
+          Math.max(unmetRequirement[downloadedKey] || 0, neededDownload - baseDownloaded),
+        );
+      }
     }
   }
 
@@ -171,7 +237,7 @@ export function levelRequirementUnMet(
     let alternativeUnMet = [];
 
     for (const alternative of levelRequirement.alternative) {
-      alternativeUnMet.push(levelRequirementUnMet(userInfo, alternative as ILevelRequirement));
+      alternativeUnMet.push(levelRequirementUnMet(userInfo, alternative));
     }
 
     alternativeUnMet = alternativeUnMet.filter((x) => !isEmpty(x));
