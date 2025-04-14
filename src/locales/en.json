@@ -115,6 +115,63 @@
     "noResults": "No Results!",
     "unknown": "Unknown Status!"
   },
+  "SpecialThank": {
+    "contributor": "Contributors",
+    "issue": "Suggesters",
+    "langContributor": "@:SpecialThank.contributor For Language",
+    "preWorkContributor": "@:SpecialThank.contributor For preliminary work",
+    "sortByName": "The list is sorted by name",
+    "thankNote": [
+      "During the development and testing of this project, they have given a lot of help and support (or development, or testing, or sending invite, or suggesting, or encouraging, or spurring), thank you.",
+      "Since we can't list all the people who helped, Please understand if there are any omissions.",
+      "Thanks for these at the same time:"
+    ]
+  },
+  "TechnologyStack": {
+    "dependency": "Dependencies of this Project",
+    "ptppHistory": "History of Project ` @:common.name `",
+    "stackTableColumn": {
+      "homepage": "Homepage"
+    },
+    "thankNote": "The birth of 'PT Plugin Plus' is established on the base of these projects. Thanks all the participants of the project, thanks for your contribution!"
+  },
+  "MyData": {
+    "index": {
+      "flushSelectSite": "Flush selected"
+    },
+    "table": {
+      "site": "Site",
+      "username": "Username",
+      "levelName": "Level",
+      "userData": "Data",
+      "trueUserData": "True Data",
+      "joinTime": "Join Time",
+      "updateAt": "Updated At",
+      "action": {
+        "viewHistoryData": "View History Data",
+        "flushData": "Flush Data"
+      }
+    },
+    "HistoryDataView": {
+      "title": "User History Data @ ",
+      "deleteConfirm": "Confirm to delete this history data?",
+      "action": {
+        "viewRaw": "View Raw Data"
+      }
+    }
+  },
+  "SearchEntity": {
+    "AdvanceFilterGenerateDialog": {
+      "date": {
+        "day": "Today",
+        "week": "Week",
+        "month": "Month",
+        "quarter": "Quarter",
+        "year": "Year",
+        "custom": "Custom"
+      }
+    }
+  },
   "SetBase": {
     "tab": {
       "ui": "Option UI"
@@ -127,53 +184,6 @@
         "index": "UI display mode",
         "light": "Light Mode"
       }
-    }
-  },
-  "SetSite": {
-    "add": {
-      "selectSitePlaceholder": "Please Select a site to add (support search in url and site name)",
-      "title": "Add Site"
-    },
-    "common": {
-      "aka": "AKA",
-      "allowQueryUserInfo": "Allow access USP",
-      "allowSearch": "Allow Search",
-      "isOffline": "Offline",
-      "name": "Site Name",
-      "showMessageCount": "Show Notice",
-      "tags": "Tags",
-      "type": "Type",
-      "url": "URL"
-    },
-    "delete": {
-      "text": "Are you sure to delete these {0} Site?"
-    },
-    "edit": {
-      "title": "Edit Site Config"
-    },
-    "editor": {
-      "addUrlTip": "Add a site url which you current used, for example: https://example.com/",
-      "customUrlPlaceholder": "Custom site url",
-      "description": "Site description",
-      "sortIndexTip": "Can be used for search sorting",
-      "tagTip": "press Enter to add multiple. ( Only first 4 tags will show on lists )",
-      "timezone": "Timezone"
-    },
-    "index": {
-      "flushFaviconFinish": "The selected site favicon has been flushed successfully!",
-      "table": {
-        "flushFavicon": "Flush Site Favicon"
-      },
-      "settingNote": [
-        "Only the configured site will display the plugin icon and the corresponding function;",
-        "the offline site will no longer participate in the search and information acquisition;"
-      ]
-    },
-    "spDialog": {
-      "noDefNotice": "This site does not define any search categories, please go to help!",
-      "notice": "It is not recommended to set it here, and it is recommended to configure your user CP in site or use search solution",
-      "selectAllNotice": "(Notice: In most cases, you don't need to select all search terms! )",
-      "title": "Set default search params for Site {name}"
     }
   },
   "SetDownloader": {
@@ -264,51 +274,6 @@
       }
     }
   },
-  "TechnologyStack": {
-    "dependency": "Dependencies of this Project",
-    "ptppHistory": "History of Project ` @:common.name `",
-    "stackTableColumn": {
-      "homepage": "Homepage"
-    },
-    "thankNote": "The birth of 'PT Plugin Plus' is established on the base of these projects. Thanks all the participants of the project, thanks for your contribution!"
-  },
-  "SpecialThank": {
-    "contributor": "Contributors",
-    "issue": "Suggesters",
-    "langContributor": "@:SpecialThank.contributor For Language",
-    "preWorkContributor": "@:SpecialThank.contributor For preliminary work",
-    "sortByName": "The list is sorted by name",
-    "thankNote": [
-      "During the development and testing of this project, they have given a lot of help and support (or development, or testing, or sending invite, or suggesting, or encouraging, or spurring), thank you.",
-      "Since we can't list all the people who helped, Please understand if there are any omissions.",
-      "Thanks for these at the same time:"
-    ]
-  },
-  "MyData": {
-    "index": {
-      "flushSelectSite": "Flush selected"
-    },
-    "table": {
-      "site": "Site",
-      "username": "Username",
-      "levelName": "Level",
-      "userData": "Data",
-      "trueUserData": "True Data",
-      "joinTime": "Join Time",
-      "updateAt": "Updated At",
-      "action": {
-        "viewHistoryData": "View History Data",
-        "flushData": "Flush Data"
-      }
-    },
-    "HistoryDataView": {
-      "title": "User History Data @ ",
-      "deleteConfirm": "Confirm to delete this history data?",
-      "action": {
-        "viewRaw": "View Raw Data"
-      }
-    }
-  },
   "SetSearchSolution": {
     "solution": "Search Solution",
     "table": {
@@ -323,6 +288,53 @@
     },
     "delete": {
       "text": "Are you sure to delete these {0} @:SetSearchSolution.solution ?"
+    }
+  },
+  "SetSite": {
+    "add": {
+      "selectSitePlaceholder": "Please Select a site to add (support search in url and site name)",
+      "title": "Add Site"
+    },
+    "common": {
+      "aka": "AKA",
+      "allowQueryUserInfo": "Allow access USP",
+      "allowSearch": "Allow Search",
+      "isOffline": "Offline",
+      "name": "Site Name",
+      "showMessageCount": "Show Notice",
+      "tags": "Tags",
+      "type": "Type",
+      "url": "URL"
+    },
+    "delete": {
+      "text": "Are you sure to delete these {0} Site?"
+    },
+    "edit": {
+      "title": "Edit Site Config"
+    },
+    "editor": {
+      "addUrlTip": "Add a site url which you current used, for example: https://example.com/",
+      "customUrlPlaceholder": "Custom site url",
+      "description": "Site description",
+      "sortIndexTip": "Can be used for search sorting",
+      "tagTip": "press Enter to add multiple. ( Only first 4 tags will show on lists )",
+      "timezone": "Timezone"
+    },
+    "index": {
+      "flushFaviconFinish": "The selected site favicon has been flushed successfully!",
+      "table": {
+        "flushFavicon": "Flush Site Favicon"
+      },
+      "settingNote": [
+        "Only the configured site will display the plugin icon and the corresponding function;",
+        "the offline site will no longer participate in the search and information acquisition;"
+      ]
+    },
+    "spDialog": {
+      "noDefNotice": "This site does not define any search categories, please go to help!",
+      "notice": "It is not recommended to set it here, and it is recommended to configure your user CP in site or use search solution",
+      "selectAllNotice": "(Notice: In most cases, you don't need to select all search terms! )",
+      "title": "Set default search params for Site {name}"
     }
   }
 }

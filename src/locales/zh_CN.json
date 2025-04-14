@@ -116,6 +116,63 @@
     "noResults": "无结果！",
     "unknown": "未知状态！"
   },
+  "SpecialThank": {
+    "contributor": "协作者",
+    "issue": "反馈",
+    "langContributor": "语言@:SpecialThank.contributor",
+    "preWorkContributor": "前期工作@:SpecialThank.contributor",
+    "sortByName": "列表按字母排序",
+    "thankNote": [
+      "在项目的开发和测试中，他们给予了很多帮助和支持（或开发，或测试，或发💊，或建议，或鼓励，或鞭策），在此表示感谢。",
+      "列表中未能一一列出所有给予帮助的同学，也对他们表示感谢，如有遗漏敬请谅解。",
+      "同时一并感谢这些："
+    ]
+  },
+  "TechnologyStack": {
+    "dependency": "项目依赖",
+    "ptppHistory": "@:common.project 的历史",
+    "stackTableColumn": {
+      "homepage": "项目主页"
+    },
+    "thankNote": "PT 助手的诞生是建立在这些项目基础之上，在此感谢所有项目的参与人员，感谢他们的付出！"
+  },
+  "MyData": {
+    "index": {
+      "flushSelectSite": "刷新所选站点的数据"
+    },
+    "table": {
+      "site": "站点",
+      "username": "用户名",
+      "levelName": "等级",
+      "userData": "数据量",
+      "trueUserData": "真实数据量",
+      "joinTime": "入站时间",
+      "updateAt": "数据更新于",
+      "action": {
+        "viewHistoryData": "查看历史数据",
+        "flushData": "刷新数据"
+      }
+    },
+    "HistoryDataView": {
+      "title": "用户历史数据 @ ",
+      "deleteConfirm": "确认删除这条历史数据吗？",
+      "action": {
+        "viewRaw": "查看原始数据"
+      }
+    }
+  },
+  "SearchEntity": {
+    "AdvanceFilterGenerateDialog": {
+      "date": {
+        "day": "本日",
+        "week": "本周",
+        "month": "本月",
+        "quarter": "本季度",
+        "year": "本年",
+        "custom": "自定义"
+      }
+    }
+  },
   "SetBase": {
     "tab": {
       "ui": "界面UI"
@@ -128,50 +185,6 @@
         "index": "页面显示模式",
         "light": "明亮模式"
       }
-    }
-  },
-  "SetSite": {
-    "add": {
-      "selectSitePlaceholder": "请选择一个站点（支持搜索）",
-      "title": "添加站点"
-    },
-    "common": {
-      "aka": "站点别名",
-      "allowQueryUserInfo": "获取个人信息",
-      "allowSearch": "允许搜索",
-      "isOffline": "已离线",
-      "name": "站点名称",
-      "showMessageCount": "信息提醒",
-      "tags": "标签",
-      "type": "类型",
-      "url": "网站链接"
-    },
-    "delete": {
-      "text": "确认删除这 {0} 个站点吗？"
-    },
-    "edit": {
-      "title": "编辑站点配置"
-    },
-    "editor": {
-      "addUrlTip": "增加一个你正在使用的站点域名，输入的应该以 https:// 或 http:// 开头，以 / 结尾，例如 https://example.com/",
-      "customUrlPlaceholder": "自定义站点域名",
-      "description": "网站描述",
-      "sortIndexTip": "可用于搜索排序",
-      "tagTip": "标签输入完成后按回车添加。（只有前4个会在列表页显示）",
-      "timezone": "时区"
-    },
-    "index": {
-      "flushFaviconFinish": "所选站点的图标已成功刷新！",
-      "table": {
-        "flushFavicon": "刷新站点图标"
-      },
-      "settingNote": ["只有配置过的站点才会显示插件图标及相应的功能；", "已离线的站点不再参与搜索和信息获取；"]
-    },
-    "spDialog": {
-      "noDefNotice": "该站点未定义搜索模块，请到项目仓库提供帮助！",
-      "notice": "不推荐在此处进行设置，更建议在对应站点的个人设置中配置或使用插件提供的搜索方案功能！",
-      "selectAllNotice": "（注意：在大多数情况下，你并不需要全选所有搜索项！）",
-      "title": "配置站点默认搜索模式 - {name}"
     }
   },
   "SetDownloader": {
@@ -262,51 +275,6 @@
       }
     }
   },
-  "TechnologyStack": {
-    "dependency": "项目依赖",
-    "ptppHistory": "@:common.project 的历史",
-    "stackTableColumn": {
-      "homepage": "项目主页"
-    },
-    "thankNote": "PT 助手的诞生是建立在这些项目基础之上，在此感谢所有项目的参与人员，感谢他们的付出！"
-  },
-  "SpecialThank": {
-    "contributor": "协作者",
-    "issue": "反馈",
-    "langContributor": "语言@:SpecialThank.contributor",
-    "preWorkContributor": "前期工作@:SpecialThank.contributor",
-    "sortByName": "列表按字母排序",
-    "thankNote": [
-      "在项目的开发和测试中，他们给予了很多帮助和支持（或开发，或测试，或发💊，或建议，或鼓励，或鞭策），在此表示感谢。",
-      "列表中未能一一列出所有给予帮助的同学，也对他们表示感谢，如有遗漏敬请谅解。",
-      "同时一并感谢这些："
-    ]
-  },
-  "MyData": {
-    "index": {
-      "flushSelectSite": "刷新所选站点的数据"
-    },
-    "table": {
-      "site": "站点",
-      "username": "用户名",
-      "levelName": "等级",
-      "userData": "数据量",
-      "trueUserData": "真实数据量",
-      "joinTime": "入站时间",
-      "updateAt": "数据更新于",
-      "action": {
-        "viewHistoryData": "查看历史数据",
-        "flushData": "刷新数据"
-      }
-    },
-    "HistoryDataView": {
-      "title": "用户历史数据 @ ",
-      "deleteConfirm": "确认删除这条历史数据吗？",
-      "action": {
-        "viewRaw": "查看原始数据"
-      }
-    }
-  },
   "SetSearchSolution": {
     "solution": "搜索方案",
     "delete": {
@@ -321,6 +289,50 @@
     "table": {
       "enable": "启用？",
       "default": "默认？"
+    }
+  },
+  "SetSite": {
+    "add": {
+      "selectSitePlaceholder": "请选择一个站点（支持搜索）",
+      "title": "添加站点"
+    },
+    "common": {
+      "aka": "站点别名",
+      "allowQueryUserInfo": "获取个人信息",
+      "allowSearch": "允许搜索",
+      "isOffline": "已离线",
+      "name": "站点名称",
+      "showMessageCount": "信息提醒",
+      "tags": "标签",
+      "type": "类型",
+      "url": "网站链接"
+    },
+    "delete": {
+      "text": "确认删除这 {0} 个站点吗？"
+    },
+    "edit": {
+      "title": "编辑站点配置"
+    },
+    "editor": {
+      "addUrlTip": "增加一个你正在使用的站点域名，输入的应该以 https:// 或 http:// 开头，以 / 结尾，例如 https://example.com/",
+      "customUrlPlaceholder": "自定义站点域名",
+      "description": "网站描述",
+      "sortIndexTip": "可用于搜索排序",
+      "tagTip": "标签输入完成后按回车添加。（只有前4个会在列表页显示）",
+      "timezone": "时区"
+    },
+    "index": {
+      "flushFaviconFinish": "所选站点的图标已成功刷新！",
+      "table": {
+        "flushFavicon": "刷新站点图标"
+      },
+      "settingNote": ["只有配置过的站点才会显示插件图标及相应的功能；", "已离线的站点不再参与搜索和信息获取；"]
+    },
+    "spDialog": {
+      "noDefNotice": "该站点未定义搜索模块，请到项目仓库提供帮助！",
+      "notice": "不推荐在此处进行设置，更建议在对应站点的个人设置中配置或使用插件提供的搜索方案功能！",
+      "selectAllNotice": "（注意：在大多数情况下，你并不需要全选所有搜索项！）",
+      "title": "配置站点默认搜索模式 - {name}"
     }
   }
 }
