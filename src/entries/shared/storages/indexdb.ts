@@ -56,3 +56,11 @@ export async function getDownloadHistoryById(id: TTorrentDownloadKey) {
 export async function setDownloadHistory(data: ITorrentDownloadMetadata) {
   return await (await ptdIndexDb).put("download_history", data);
 }
+
+export async function deleteDownloadHistoryById(id: TTorrentDownloadKey) {
+  return await (await ptdIndexDb).delete("download_history", id);
+}
+
+export async function clearDownloadHistory() {
+  return await (await ptdIndexDb).clear("download_history");
+}

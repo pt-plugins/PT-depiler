@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { computedAsync } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -8,8 +8,8 @@ import { getDownloaderIcon, getDownloaderMetaData, type TorrentClientMetaData } 
 
 import AddDialog from "./AddDialog.vue";
 import EditDialog from "./EditDialog.vue";
-import DeleteDialog from "./DeleteDialog.vue";
-import PathAndTagSuggestDialog from "@/options/views/Settings/SetDownloader/PathAndTagSuggestDialog.vue";
+import PathAndTagSuggestDialog from "./PathAndTagSuggestDialog.vue";
+import DeleteDialog from "@/options/components/DeleteDialog.vue";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
@@ -51,21 +51,18 @@ function editDownloaderPathAndTag(downloaderId: TDownloaderKey) {
 }
 
 const toDeleteIds = ref<TDownloaderKey[]>([]);
-function deleteDownloader(downloaderId: TDownloaderKey | TDownloaderKey[]) {
-  toDeleteIds.value = Array.isArray(downloaderId) ? downloaderId : [downloaderId];
+function deleteDownloader(downloaderId: TDownloaderKey[]) {
+  toDeleteIds.value = downloaderId;
   showDeleteDialog.value = true;
 }
 
-watch(toDeleteIds, (newVal, oldValue) => {
-  if (newVal.length === 0 && oldValue.length > 0) {
-    for (const id of oldValue) {
-      const index = tableSelected.value.indexOf(id);
-      if (index !== -1) {
-        tableSelected.value.splice(index, 1);
-      }
-    }
+async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
+  await metadataStore.removeDownloader(toDeleteId);
+  const index = tableSelected.value.indexOf(downloaderId);
+  if (index !== -1) {
+    tableSelected.value.splice(index, 1);
   }
-});
+}
 </script>
 
 <template>
@@ -164,7 +161,7 @@ watch(toDeleteIds, (newVal, oldValue) => {
             color="error"
             icon="mdi-delete"
             size="small"
-            @click="deleteDownloader(item.id)"
+            @click="deleteDownloader([item.id])"
           />
         </v-btn-group>
       </template>
@@ -174,7 +171,11 @@ watch(toDeleteIds, (newVal, oldValue) => {
   <AddDialog v-model="showAddDialog" />
   <EditDialog v-model="showEditDialog" :client-id="toEditDownloaderId!" />
   <PathAndTagSuggestDialog v-model="showPathAndTagSuggestDialog" :client-id="toEditDownloaderId!" />
-  <DeleteDialog v-model="showDeleteDialog" v-model:to-delete-ids="toDeleteIds" />
+  <DeleteDialog
+    v-model="showDeleteDialog"
+    :to-delete-ids="toDeleteIds"
+    @confirm-delete="confirmDeleteDownloader"
+  ></DeleteDialog>
 </template>
 
 <style scoped lang="scss">

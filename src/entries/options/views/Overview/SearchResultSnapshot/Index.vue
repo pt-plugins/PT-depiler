@@ -7,8 +7,8 @@ import { refDebounced } from "@vueuse/core";
 import { formatDate } from "../../../utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
-import DeleteDialog from "./DeleteDialog.vue";
 import EditNameDialog from "./EditNameDialog.vue";
+import DeleteDialog from "@/options/components/DeleteDialog.vue";
 
 import { type TSearchSnapshotKey } from "@/shared/storages/types/metadata.ts";
 
@@ -45,21 +45,18 @@ function editSnapshotName(searchSnapshotId: TSearchSnapshotKey) {
 }
 
 const toDeleteIds = ref<TSearchSnapshotKey[]>([]);
-function deleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey | TSearchSnapshotKey[]) {
-  toDeleteIds.value = Array.isArray(searchSnapshotId) ? searchSnapshotId : [searchSnapshotId];
+function tryToDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey[]) {
+  toDeleteIds.value = searchSnapshotId;
   showDeleteDialog.value = true;
 }
 
-watch(toDeleteIds, (newVal, oldValue) => {
-  if (newVal.length === 0 && oldValue.length > 0) {
-    for (const id of oldValue) {
-      const index = tableSelected.value.indexOf(id);
-      if (index !== -1) {
-        tableSelected.value.splice(index, 1);
-      }
-    }
+async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey) {
+  await metadataStore.removeSearchSnapshotData(searchSnapshotId);
+  const index = tableSelected.value.indexOf(searchSnapshotId);
+  if (index !== -1) {
+    tableSelected.value.splice(index, 1);
   }
-});
+}
 </script>
 
 <template>
@@ -71,7 +68,7 @@ watch(toDeleteIds, (newVal, oldValue) => {
           :disabled="tableSelected.length === 0"
           color="error"
           prepend-icon="mdi-minus"
-          @click="deleteSearchSnapshot(tableSelected)"
+          @click="tryToDeleteSearchSnapshot(tableSelected)"
         >
           {{ $t("common.remove") }}
         </v-btn>
@@ -124,7 +121,7 @@ watch(toDeleteIds, (newVal, oldValue) => {
             color="error"
             icon="mdi-delete"
             size="small"
-            @click="deleteSearchSnapshot(item.id)"
+            @click="tryToDeleteSearchSnapshot([item.id])"
           >
           </v-btn>
         </v-btn-group>
@@ -133,7 +130,11 @@ watch(toDeleteIds, (newVal, oldValue) => {
   </v-card>
 
   <EditNameDialog v-model="showEditNameDialog" :edit-id="toEditId!" />
-  <DeleteDialog v-model="showDeleteDialog" v-model:to-delete-ids="toDeleteIds"></DeleteDialog>
+  <DeleteDialog
+    v-model="showDeleteDialog"
+    :to-delete-ids="toDeleteIds"
+    @confirm-delete="confirmDeleteSearchSnapshot"
+  ></DeleteDialog>
 </template>
 
 <style scoped lang="scss"></style>

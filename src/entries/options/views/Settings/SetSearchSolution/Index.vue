@@ -6,8 +6,8 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import type { TSolutionKey } from "@/storage.ts";
 
 import EditDialog from "./EditDialog.vue";
-import DeleteDialog from "./DeleteDialog.vue";
 import SolutionLabel from "./SolutionLabel.vue";
+import DeleteDialog from "@/options/components/DeleteDialog.vue";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
@@ -50,21 +50,18 @@ watch(showDeleteDialog, (value) => {
 });
 
 const toDeleteIds = ref<TSolutionKey[]>([]);
-function deleteSearchSolution(solutionId: TSolutionKey | TSolutionKey[]) {
-  toDeleteIds.value = Array.isArray(solutionId) ? solutionId : [solutionId];
+function deleteSearchSolution(solutionId: TSolutionKey[]) {
+  toDeleteIds.value = solutionId;
   showDeleteDialog.value = true;
 }
 
-watch(toDeleteIds, (newVal, oldValue) => {
-  if (newVal.length === 0 && oldValue.length > 0) {
-    for (const id of oldValue) {
-      const index = tableSelected.value.indexOf(id);
-      if (index !== -1) {
-        tableSelected.value.splice(index, 1);
-      }
-    }
+function confirmDeleteSearchSolution(solutionId: TSolutionKey) {
+  metadataStore.removeSearchSolution(solutionId);
+  const index = tableSelected.value.indexOf(solutionId);
+  if (index !== -1) {
+    tableSelected.value.splice(index, 1);
   }
-});
+}
 
 function simplePatchSearchSolution(solutionId: TSolutionKey, value: boolean) {
   metadataStore.solutions[solutionId].enabled = value;
@@ -180,7 +177,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
             color="error"
             icon="mdi-delete"
             size="small"
-            @click="() => deleteSearchSolution(item.id)"
+            @click="() => deleteSearchSolution([item.id])"
           >
           </v-btn>
         </v-btn-group>
@@ -189,7 +186,11 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
   </v-card>
 
   <EditDialog v-model="showEditDialog" :solution-id="solutionId" />
-  <DeleteDialog v-model="showDeleteDialog" v-model:to-delete-ids="toDeleteIds" />
+  <DeleteDialog
+    v-model="showDeleteDialog"
+    :to-delete-ids="toDeleteIds"
+    @confirm-delete="confirmDeleteSearchSolution"
+  ></DeleteDialog>
 </template>
 
 <style scoped lang="scss"></style>

@@ -1,19 +1,23 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { useMetadataStore } from "@/options/stores/metadata.ts";
+
+type TDeleteId = any;
 
 const showDialog = defineModel<boolean>();
-const toDeleteIds = defineModel<string[]>("toDeleteIds");
+const { toDeleteIds } = defineProps<{
+  toDeleteIds: TDeleteId[];
+}>();
+const emits = defineEmits<{
+  (e: "confirmDelete", toDeleteId: TDeleteId): void;
+}>();
+
 const { t } = useI18n();
 
-async function removeClients() {
-  const metadataStore = useMetadataStore();
-
-  for (const toDeleteId of toDeleteIds.value!) {
-    await metadataStore.removeDownloader(toDeleteId);
+async function confirmDelete() {
+  for (const toDeleteId of toDeleteIds) {
+    emits("confirmDelete", toDeleteId);
   }
   showDialog.value = false;
-  toDeleteIds.value = [];
 }
 </script>
 
@@ -25,7 +29,7 @@ async function removeClients() {
       </v-card-title>
 
       <v-card-text>
-        {{ t("SetDownloader.delete.text", [toDeleteIds!.length]) }}
+        {{ t("common.dialog.deleteText", [toDeleteIds!.length]) }}
       </v-card-text>
 
       <v-card-actions>
@@ -34,9 +38,9 @@ async function removeClients() {
           <v-icon icon="mdi-close-circle" />
           <span class="ml-1">{{ t("common.dialog.cancel") }}</span>
         </v-btn>
-        <v-btn color="error" variant="text" @click="removeClients">
+        <v-btn color="error" variant="text" @click="confirmDelete">
           <v-icon icon="mdi-check-circle-outline" />
-          <span class="ml-1">{{ t("common.dialog.confirm") }}</span>
+          <span class="ml-1">{{ t("common.dialog.ok") }}</span>
         </v-btn>
       </v-card-actions>
     </v-card>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { throttle } from "es-toolkit";
 import { getDownloaderIcon } from "@ptd/downloader";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -14,12 +15,13 @@ import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/sto
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import SiteName from "@/options/components/SiteName.vue";
 import TorrentTitleTd from "@/options/components/TorrentTitleTd.vue";
+import DeleteDialog from "@/options/components/DeleteDialog.vue";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
 
-const downloadHistory = reactive<Record<TTorrentDownloadKey, ITorrentDownloadMetadata>>({});
-const downloadHistoryList = computed(() => Object.values(downloadHistory));
+const downloadHistory = ref<Record<TTorrentDownloadKey, ITorrentDownloadMetadata>>({});
+const downloadHistoryList = computed(() => Object.values(downloadHistory.value));
 
 const downloaderConfig = (downloaderId: TDownloaderKey) =>
   computed(() => {
@@ -40,6 +42,7 @@ const tableHeader = [
   { title: "下载状态", key: "downloadStatus" },
   { title: "操作", key: "action", align: "center", width: 90, minWidth: 90, sortable: false, alwaysShow: true },
 ];
+const tableSelected = ref<TTorrentDownloadKey[]>([]);
 
 const downloadStatusMap: Record<
   ITorrentDownloadMetadata["downloadStatus"],
@@ -56,7 +59,7 @@ const watchingMap = reactive<Record<TTorrentDownloadKey, number>>({});
 function watchDownloadHistory(downloadHistoryId: TTorrentDownloadKey) {
   watchingMap[downloadHistoryId] = setTimeout(async () => {
     const history = await sendMessage("getDownloadHistoryById", downloadHistoryId);
-    downloadHistory[downloadHistoryId] = history;
+    downloadHistory.value[downloadHistoryId] = history;
     if (history.downloadStatus == "downloading" || history.downloadStatus == "pending") {
       watchDownloadHistory(downloadHistoryId);
     } else {
@@ -73,8 +76,9 @@ function loadDownloadHistory() {
   }
 
   sendMessage("getDownloadHistory", undefined).then((history: ITorrentDownloadMetadata[]) => {
+    downloadHistory.value = {}; // 清空目前的下载记录
     history.forEach((item) => {
-      downloadHistory[item.id!] = item;
+      downloadHistory.value[item.id!] = item;
       if (item.downloadStatus == "downloading" || item.downloadStatus == "pending") {
         watchDownloadHistory(item.id!);
       }
@@ -86,9 +90,23 @@ onMounted(() => {
   loadDownloadHistory();
 });
 
+const showDeleteDialog = ref<boolean>(false);
 const toDeleteIds = ref<TTorrentDownloadKey[]>([]);
-function deleteDownloadHistory(downloadHistoryIds: TTorrentDownloadKey[]) {
-  // TODO
+async function deleteDownloadHistory(downloadHistoryIds: TTorrentDownloadKey[]) {
+  toDeleteIds.value = downloadHistoryIds;
+  showDeleteDialog.value = true;
+}
+
+const throttleLoadDownloadHistory = throttle(loadDownloadHistory, 1e3);
+
+async function confirmDeleteDownloadHistory(downloadHistoryId: TTorrentDownloadKey) {
+  await sendMessage("deleteDownloadHistoryById", downloadHistoryId);
+  const index = tableSelected.value.indexOf(downloadHistoryId);
+  if (index !== -1) {
+    tableSelected.value.splice(index, 1);
+  }
+
+  throttleLoadDownloadHistory();
 }
 </script>
 
@@ -97,15 +115,38 @@ function deleteDownloadHistory(downloadHistoryIds: TTorrentDownloadKey[]) {
   <v-card>
     <v-card-title>
       <!-- TODO -->
-      <v-btn>刷新状态</v-btn>
-      <v-btn>删除</v-btn>
+      <v-btn color="green" prepend-icon="mdi-cached" @click="() => loadDownloadHistory()">刷新下载记录列表 </v-btn>
+
+      <v-divider vertical class="mx-2" />
+
+      <v-btn
+        :disabled="tableSelected.length === 0"
+        color="error"
+        prepend-icon="mdi-minus"
+        @click="deleteDownloadHistory(tableSelected)"
+      >
+        {{ $t("common.remove") }}
+      </v-btn>
+      <v-btn
+        :disabled="downloadHistoryList.length === 0"
+        color="error"
+        class="ml-2"
+        prepend-icon="mdi-close"
+        disabled
+        @click="deleteDownloadHistory(tableSelected)"
+      >
+        清空
+      </v-btn>
     </v-card-title>
     <v-card-text>
       <v-data-table
+        v-model="tableSelected"
         :headers="tableHeader"
         :items="downloadHistoryList"
         :items-per-page="50"
         :sort-by="[{ key: 'id', order: 'desc' }]"
+        class="table-stripe"
+        item-value="id"
         show-select
       >
         <template #item.siteId="{ item }">
@@ -121,7 +162,7 @@ function deleteDownloadHistory(downloadHistoryIds: TTorrentDownloadKey[]) {
 
         <template #item.downloaderId="{ item }">
           <template v-if="item.downloaderId === 'local'">
-            <v-icon class="ml-1" icon="mdi-folder-download" size="40" color="amber" />
+            <v-icon class="ml-1" color="amber" icon="mdi-folder-download" size="40" />
             <span class="ml-3 font-weight-bold">本地下载</span>
           </template>
           <template v-else>
@@ -169,6 +210,12 @@ function deleteDownloadHistory(downloadHistoryIds: TTorrentDownloadKey[]) {
       </v-data-table>
     </v-card-text>
   </v-card>
+
+  <DeleteDialog
+    v-model="showDeleteDialog"
+    :to-delete-ids="toDeleteIds"
+    @confirm-delete="confirmDeleteDownloadHistory"
+  />
 </template>
 
 <style scoped lang="scss"></style>

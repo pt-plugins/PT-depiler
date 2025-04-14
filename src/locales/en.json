@@ -18,7 +18,8 @@
       "reset": "Reset",
       "title": {
         "confirmAction": "Confirm Action"
-      }
+      },
+      "deleteText": "Are you sure to delete these {0} item?"
     },
     "edit": "Edit",
     "language": "Language",

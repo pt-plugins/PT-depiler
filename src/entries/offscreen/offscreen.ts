@@ -5,6 +5,8 @@ import { EResultParseStatus, type ITorrent, type IUserInfo } from "@ptd/site";
 import type { IMetadataPiniaStorageSchema } from "@/shared/storages/types/metadata.ts";
 import { log } from "~/helper.ts";
 import {
+  clearDownloadHistory,
+  deleteDownloadHistoryById,
   getDownloadHistory,
   getDownloadHistoryById,
   getSocialInformation,
@@ -121,6 +123,14 @@ onMessage("getDownloadHistory", async () => {
 
 onMessage("getDownloadHistoryById", async ({ data: downloadId }) => {
   return (await getDownloadHistoryById(downloadId))!;
+});
+
+onMessage("clearDownloadHistory", async () => {
+  return await clearDownloadHistory();
+});
+
+onMessage("deleteDownloadHistoryById", async ({ data: downloadId }) => {
+  return await deleteDownloadHistoryById(downloadId);
 });
 
 if (import.meta.env.DEV) {

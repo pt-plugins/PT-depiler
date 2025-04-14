@@ -1,19 +1,19 @@
 <script setup lang="ts">
 import { type TSiteID } from "@ptd/site";
 
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 import { useUIStore } from "@/options/stores/ui.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { getSiteFavicon } from "@/shared/adapters/site.ts";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 import AddDialog from "./AddDialog.vue";
-import DeleteDialog from "./DeleteDialog.vue";
 import EditDialog from "./EditDialog.vue";
 import EditSearchEntryList from "./EditSearchEntryList.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
-import { getSiteFavicon } from "@/shared/adapters/site.ts";
-import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import DeleteDialog from "@/options/components/DeleteDialog.vue";
 
 const { t } = useI18n();
 const uiStore = useUIStore();
@@ -76,21 +76,18 @@ function editSite(siteId: TSiteID) {
 }
 
 const toDeleteIds = ref<TSiteID[]>([]);
-function deleteSite(siteId: TSiteID | TSiteID[]) {
-  toDeleteIds.value = Array.isArray(siteId) ? siteId : [siteId];
+function deleteSite(siteId: TSiteID[]) {
+  toDeleteIds.value = siteId;
   showDeleteDialog.value = true;
 }
 
-watch(toDeleteIds, (newVal, oldValue) => {
-  if (newVal.length === 0 && oldValue.length > 0) {
-    for (const id of oldValue) {
-      const index = tableSelected.value.indexOf(id);
-      if (index !== -1) {
-        tableSelected.value.splice(index, 1);
-      }
-    }
+async function confirmDeleteSite(siteId: TSiteID) {
+  await metadataStore.removeSite(siteId);
+  const index = tableSelected.value.indexOf(siteId);
+  if (index !== -1) {
+    tableSelected.value.splice(index, 1);
   }
-});
+}
 
 const isFaviconFlushing = ref(false);
 async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
@@ -230,7 +227,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
             color="error"
             icon="mdi-delete"
             size="small"
-            @click="() => deleteSite(item.id)"
+            @click="() => deleteSite([item.id])"
           >
           </v-btn>
         </v-btn-group>
@@ -239,7 +236,11 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
   </v-card>
 
   <AddDialog v-model="showAddDialog" />
-  <DeleteDialog v-model="showDeleteDialog" v-model:to-delete-ids="toDeleteIds" />
+  <DeleteDialog
+    v-model="showDeleteDialog"
+    :to-delete-ids="toDeleteIds"
+    @confirm-delete="confirmDeleteSite"
+  ></DeleteDialog>
   <EditDialog v-model="showEditDialog" :site-id="toEditId!" />
 </template>
 

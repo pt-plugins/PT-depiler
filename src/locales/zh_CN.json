@@ -18,7 +18,8 @@
       "reset": "重置",
       "title": {
         "confirmAction": "确认操作"
-      }
+      },
+      "deleteText": "确认删除这 {0} 条记录吗？"
     },
     "edit": "编辑",
     "language": "语言",
