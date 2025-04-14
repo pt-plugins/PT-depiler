@@ -8,8 +8,9 @@ import {
   TLevelGroupType,
   TLevelId,
 } from "@ptd/site";
-import { omit } from "es-toolkit";
+import { intersection } from "es-toolkit";
 import { isEmpty } from "es-toolkit/compat";
+import { intervalToDuration } from "date-fns";
 
 export const MinVipLevelId = 100;
 export const MinManagerLevelId = 200;
@@ -77,30 +78,28 @@ export function levelRequirementUnMet(
 ): Partial<Omit<ILevelRequirement, "id" | "name" | "groupType" | "privilege">> {
   const unmetRequirement: Partial<Omit<ILevelRequirement, "id" | "name" | "groupType" | "privilege">> = {};
   const currentTime = +new Date();
-  const compareRequirement = omit(levelRequirement, ["id", "name", "groupType", "alternative", "privilege"]);
+  const levelRequirementKeys = Object.keys(levelRequirement);
 
   // 比较加入时间
-  if (compareRequirement.interval) {
+  if (levelRequirement.interval) {
     const baseTimeInfo = userInfo.joinTime ?? currentTime;
-    const passTime = convertIsoDurationToDate(compareRequirement.interval, baseTimeInfo);
+    const passTime = convertIsoDurationToDate(levelRequirement.interval, baseTimeInfo);
     if (passTime > currentTime) {
-      unmetRequirement.interval = compareRequirement.interval - baseTimeInfo;
+      const leftDuration = intervalToDuration({ start: baseTimeInfo, end: currentTime });
+      let interval = "P";
+      if (leftDuration.years) interval += `${leftDuration.years}Y`;
+      if (leftDuration.months) interval += `${leftDuration.months}M`;
+      if (leftDuration.days) interval += `${leftDuration.days}D`;
+      unmetRequirement.interval = interval; // 只保留日期部分
     }
   }
 
   // 比较 totalTraffic, downloaded, trueDownloaded, uploaded, trueUploaded, seedingSize 等体积类字段需求
-  for (const currentSizeElement of [
-    "totalTraffic",
-    "downloaded",
-    "trueDownloaded",
-    "uploaded",
-    "trueUploaded",
-    "seedingSize",
-  ] as unknown as (keyof ILevelRequirement)[]) {
-    let currentSizeRequirement = compareRequirement[currentSizeElement];
-    if (typeof currentSizeRequirement === "undefined") {
-      continue; // 如果没有这个字段要求则跳过
-    }
+  for (const currentSizeElement of intersection(
+    ["totalTraffic", "downloaded", "trueDownloaded", "uploaded", "trueUploaded", "seedingSize"],
+    levelRequirementKeys,
+  )) {
+    let currentSizeRequirement = levelRequirement[currentSizeElement];
 
     if (typeof currentSizeRequirement === "string") {
       currentSizeRequirement = parseSizeString(currentSizeRequirement);
@@ -116,33 +115,24 @@ export function levelRequirementUnMet(
   userInfo.ratio = fixRatio(userInfo);
   userInfo.trueRatio = fixRatio(userInfo, "trueRatio");
 
-  for (const currentRatioElement of ["ratio", "trueRatio"] as unknown as (keyof ILevelRequirement)[]) {
-    let currentRatioRequirement = compareRequirement[currentRatioElement];
-    if (typeof currentRatioRequirement === "undefined") {
-      continue; // 如果没有这个字段要求则跳过
-    }
+  for (const currentRatioElement of intersection(["ratio", "trueRatio"], levelRequirementKeys)) {
+    let currentRatioRequirement = levelRequirement[currentRatioElement];
 
     if (typeof currentRatioRequirement === "string") {
       currentRatioRequirement = parseFloat(currentRatioRequirement);
     }
 
     if ((userInfo[currentRatioElement] ?? -1) < currentRatioRequirement) {
-      unmetRequirement[currentRatioElement] = compareRequirement[currentRatioElement]; // 无法做差比较，直接使用设置
+      unmetRequirement[currentRatioElement] = levelRequirement[currentRatioElement]; // 无法做差比较，直接使用设置
     }
   }
 
   // 比较 seedingTime, averageSeedingTime 等时间长度类字段需求
-  for (const currentDurationElement of [
-    "seedingTime",
-    "averageSeedingTime",
-  ] as unknown as (keyof ILevelRequirement)[]) {
-    let currentDurationRequirement = compareRequirement[currentDurationElement];
-    if (typeof currentDurationRequirement === "undefined") {
-      continue; // 如果没有这个字段要求则跳过
-    }
+  for (const currentDurationElement of intersection(["seedingTime", "averageSeedingTime"], levelRequirementKeys)) {
+    let currentDurationRequirement = levelRequirement[currentDurationElement];
 
     if (typeof currentDurationRequirement === "string") {
-      // 将 isoDuration 转为 秒！
+      // 将 isoDuration 转为 秒！！！
       currentDurationRequirement =
         (convertIsoDurationToDate(currentDurationRequirement as isoDuration, currentTime) - currentTime) / 1e3;
     }
@@ -154,34 +144,23 @@ export function levelRequirementUnMet(
   }
 
   // 比较 bonus, bonusPerHour, seedingBonus, uploads, leeching, snatches, posts 等应该大于的字段
-  for (const currentGtElement of [
-    "bonus",
-    "bonusPerHour",
-    "seedingBonus",
-    "uploads",
-    "leeching",
-    "snatches",
-    "posts",
-  ] as unknown as (keyof ILevelRequirement)[]) {
-    let currentGtRequirement = compareRequirement[currentGtElement];
-    if (typeof currentGtRequirement === "undefined") {
-      continue; // 如果没有这个字段要求则跳过
-    }
-
+  for (const currentGtElement of intersection(
+    ["bonus", "bonusPerHour", "seedingBonus", "uploads", "leeching", "snatches", "posts"],
+    levelRequirementKeys,
+  )) {
+    let currentGtRequirement = levelRequirement[currentGtElement];
     const baseGtInfo = userInfo[currentGtElement] ?? 0;
+
     if (baseGtInfo < currentGtRequirement) {
       unmetRequirement[currentGtElement] = currentGtRequirement - baseGtInfo;
     }
   }
 
   // 比较 hnrUnsatisfied 等应该小于等于的字段
-  for (const currentLtElement of ["hnrUnsatisfied"] as unknown as (keyof ILevelRequirement)[]) {
-    let currentLtRequirement = compareRequirement[currentLtElement];
-    if (typeof currentLtRequirement === "undefined") {
-      continue; // 如果没有这个字段要求则跳过
-    }
-
+  for (const currentLtElement of intersection(["hnrUnsatisfied"], levelRequirementKeys)) {
+    let currentLtRequirement = levelRequirement[currentLtElement];
     const baseLtInfo = userInfo[currentLtElement] ?? 0;
+
     if (baseLtInfo > currentLtRequirement) {
       unmetRequirement[currentLtElement] = baseLtInfo - currentLtRequirement;
     }
