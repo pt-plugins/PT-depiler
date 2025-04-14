@@ -10,10 +10,11 @@ import { useI18n } from "vue-i18n";
 import { computed, reactive, ref, watch } from "vue";
 import { uniq, flatten, uniqBy } from "es-toolkit";
 import searchQueryParser from "search-query-parser";
-import { format, startOfDay, startOfWeek, startOfMonth, startOfQuarter, startOfYear } from "date-fns";
+import { startOfDay, startOfWeek, startOfMonth, startOfQuarter, startOfYear } from "date-fns";
 
-import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { formatDate } from "@/options/utils.ts";
 import { searchQueryParserOptions } from "./utils.ts";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
@@ -53,7 +54,7 @@ interface IAdvanceFilterDict {
 type IAdvanceFilterDictKey = keyof IAdvanceFilterDict;
 
 const advanceFilterFormat = {
-  date: (value: number) => format(value, "yyyyMMdd'T'HHmmss"),
+  date: (value: number) => formatDate(value, "yyyyMMdd'T'HHmmss"),
   size: (value: number) => filesize(value, { spacer: "" }),
 };
 
@@ -223,7 +224,7 @@ function updateTableFilter() {
               >
                 <template #label>
                   <SiteFavicon :site-id="site" :size="16" class="mr-2" />
-                  <SiteName :class="['text-decoration-none', 'text-black']" :site-id="site" />
+                  <SiteName :class="['text-decoration-none', 'text-black']" :site-id="site" tag="span" />
                 </template>
               </v-checkbox>
             </v-col>
@@ -291,7 +292,7 @@ function updateTableFilter() {
                 >
                   <template #tick-label></template>
                   <template #thumb-label="{ modelValue }">
-                    <span class="text-no-wrap">{{ format(modelValue ?? 0, "yyyy-MM-dd HH:mm") }}</span>
+                    <span class="text-no-wrap">{{ formatDate(modelValue ?? 0, "yyyy-MM-dd HH:mm") }}</span>
                   </template>
                 </v-range-slider>
               </v-row>
