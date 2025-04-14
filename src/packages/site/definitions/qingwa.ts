@@ -19,13 +19,18 @@ import NexusPHP, {
 
 const levelRequirements: ISiteMetadata["levelRequirements"] = [
   {
+    id: 0,
+    name: "User(蝌蚪)",
+    privilege: `新用户的默认级别。`,
+  },
+  {
     id: 1,
     name: "Power User(幼蛙)",
     interval: "P5W",
     privilege: `得到1个邀请名额，可以直接发布种子，可以查看NFO文档，可以查看用户列表，可以请求续种， 可以发送邀请，可以查看排行榜，可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。`,
     alternative: [
       { seedingBonus: 40000, ratio: 1.0, uploads: 50 },
-      { seedingBonus: 40000, ratio: "1.0-4.0之间", downloaded: 150 * GB },
+      { seedingBonus: 40000, ratio: [1.0, 4.0], downloaded: 150 * GB },
     ],
   },
   {
@@ -35,7 +40,7 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
     privilege: `得到2个邀请名额；封存账号后不会被删除。`,
     alternative: [
       { seedingBonus: 70000, ratio: 1.0, uploads: 120 },
-      { seedingBonus: 80000, ratio: "1.0-4.5之间", downloaded: 300 * GB },
+      { seedingBonus: 80000, ratio: [1.0, 4.5], downloaded: 300 * GB },
     ],
   },
   {
@@ -45,7 +50,7 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
     privilege: "得到3个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
     alternative: [
       { seedingBonus: 90000, ratio: 1.0, uploads: 200 },
-      { seedingBonus: 160000, ratio: "1.0-5.0之间", downloaded: 1 * TB },
+      { seedingBonus: 160000, ratio: [1.0, 5.0], downloaded: 1 * TB },
     ],
   },
   {
@@ -55,7 +60,7 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
     privilege: "得到3个邀请名额；可以查看普通日志。",
     alternative: [
       { seedingBonus: 150000, ratio: 1.0, uploads: 300 },
-      { seedingBonus: 320000, ratio: "1.0-5.5之间", downloaded: 2 * TB },
+      { seedingBonus: 320000, ratio: [1.0, 5.5], downloaded: 2 * TB },
     ],
   },
   {
@@ -65,7 +70,7 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
     privilege: "得到4个邀请名额；可以查看其它用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。",
     alternative: [
       { seedingBonus: 200000, ratio: 1.0, uploads: 500 },
-      { seedingBonus: 640000, ratio: "1.0-6.0之间", downloaded: 4 * TB },
+      { seedingBonus: 640000, ratio: [1.0, 6.0], downloaded: 4 * TB },
     ],
   },
   {
@@ -75,7 +80,7 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
     privilege: "得到4个邀请名额；可以更新过期的外部信息。",
     alternative: [
       { seedingBonus: 280000, ratio: 1.0, uploads: 650 },
-      { seedingBonus: 1280000, ratio: "1.0-6.5之间", downloaded: 8 * TB },
+      { seedingBonus: 1280000, ratio: [1.0, 6.5], downloaded: 8 * TB },
     ],
   },
   {
@@ -85,7 +90,7 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
     privilege: "得到5个邀请名额。",
     alternative: [
       { seedingBonus: 400000, ratio: 1.0, uploads: 800 },
-      { seedingBonus: 2560000, ratio: "1.0-7.0之间", downloaded: 16 * TB },
+      { seedingBonus: 2560000, ratio: [1.0, 7.0], downloaded: 16 * TB },
     ],
   },
 ];

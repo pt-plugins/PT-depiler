@@ -27,8 +27,8 @@ export interface IImplicitUserInfo {
   trueDownloaded?: number | TSize; // 真实下载量需求
   uploaded?: number | TSize; // 上传量需求
   trueUploaded?: number | TSize; // 真实上传量需求
-  ratio?: number | string; // 分享率需求
-  trueRatio?: number | string; // 真实分享率需求
+  ratio?: number | [number, number]; // 分享率需求
+  trueRatio?: number | [number, number]; // 真实分享率需求
 
   seeding?: number; // 做种数量需求
   seedingSize?: number | TSize; // 做种体积需求
