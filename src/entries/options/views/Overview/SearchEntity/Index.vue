@@ -203,6 +203,7 @@ function cancelSearchQueue() {
           v-model="tableWaitFilter"
           :disabled="runtimeStore.search.isSearching"
           append-icon="mdi-magnify"
+          clearable
           density="compact"
           hide-details
           label="过滤搜索结果"

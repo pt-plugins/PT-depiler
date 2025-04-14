@@ -24,12 +24,12 @@ onMessage("getSiteUserInfoResult", async ({ data: siteId }) => {
   // 获取历史信息
   const metadataStoreRaw = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
   let lastUserInfo = metadataStoreRaw?.lastUserInfo?.[siteId as string] ?? {};
-  if ((lastUserInfo as IUserInfo).status !== EResultParseStatus.success) {
-    lastUserInfo = {} as IUserInfo;
-  }
 
   let userInfo = await site.getUserInfoResult(lastUserInfo);
-  await sendMessage("setSiteLastUserInfo", userInfo as IUserInfo);
+  if (userInfo.status === EResultParseStatus.success) {
+    await sendMessage("setSiteLastUserInfo", userInfo as IUserInfo); // 只有获取成功才保存
+  }
+
   return userInfo;
 });
 
