@@ -57,7 +57,7 @@ function deleteDownloader(downloaderId: TDownloaderKey[]) {
 }
 
 async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
-  await metadataStore.removeDownloader(toDeleteId);
+  await metadataStore.removeDownloader(downloaderId);
   const index = tableSelected.value.indexOf(downloaderId);
   if (index !== -1) {
     tableSelected.value.splice(index, 1);

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
@@ -42,12 +42,6 @@ function editSearchSolution(toEditSolutionId: TSolutionKey) {
   solutionId.value = toEditSolutionId;
   showEditDialog.value = true;
 }
-
-watch(showDeleteDialog, (value) => {
-  if (!value) {
-    toDeleteIds.value = [];
-  }
-});
 
 const toDeleteIds = ref<TSolutionKey[]>([]);
 function deleteSearchSolution(solutionId: TSolutionKey[]) {

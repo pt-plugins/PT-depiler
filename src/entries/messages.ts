@@ -17,7 +17,6 @@ import type {
 } from "@/storage.ts";
 import { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/storages/types/indexdb.ts";
 import type { ISocialInformation, TSupportSocialSite } from "@ptd/social";
-import { deleteDownloadHistoryById } from "@/shared/storages/indexdb.ts";
 
 interface ProtocolMap {
   // 1. 与 chrome 相关的功能，需要在 service worker 中注册，主要供 offscreen, options 使用
