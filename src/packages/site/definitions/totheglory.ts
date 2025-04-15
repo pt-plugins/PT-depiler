@@ -279,6 +279,11 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
+      name: "Byte",
+      privilege: "入站最初始等级，接受新人考核制。",
+    },
+    {
+      id: 2,
       name: "KiloByte",
       interval: "P5W",
       downloaded: "60GB",
@@ -286,7 +291,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可申请种子候选",
     },
     {
-      id: 2,
+      id: 3,
       name: "MegaByte",
       interval: "P8W",
       downloaded: "150GB",
@@ -294,7 +299,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "无",
     },
     {
-      id: 3,
+      id: 4,
       name: "GigaByte",
       interval: "P8W",
       downloaded: "250GB",
@@ -302,7 +307,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可挂起，可进入积分商城",
     },
     {
-      id: 4,
+      id: 5,
       name: "TeraByte",
       interval: "P8W",
       downloaded: "500GB",
@@ -310,7 +315,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可用积分购买邀请，并可浏览全站（新加游戏分类页），可以访问邀请区",
     },
     {
-      id: 5,
+      id: 6,
       name: "PetaByte",
       interval: "P16W",
       downloaded: "750GB",
@@ -318,7 +323,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可直接发布种子",
     },
     {
-      id: 6,
+      id: 7,
       name: "ExaByte",
       interval: "P24W",
       downloaded: "1TB",
@@ -326,7 +331,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "自行挂起账号后不会被清除",
     },
     {
-      id: 7,
+      id: 8,
       name: "ZettaByte",
       interval: "P24W",
       downloaded: "1.5TB",
@@ -334,7 +339,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "无",
     },
     {
-      id: 8,
+      id: 9,
       name: "YottaByte",
       interval: "P24W",
       downloaded: "2.5TB",
@@ -342,7 +347,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可查看排行榜",
     },
     {
-      id: 9,
+      id: 10,
       name: "BrontoByte",
       interval: "P32W",
       downloaded: "3.5TB",
@@ -350,7 +355,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "永远保留账号",
     },
     {
-      id: 10,
+      id: 11,
       name: "NonaByte",
       interval: "P48W",
       downloaded: "5TB",
@@ -359,13 +364,25 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "无",
     },
     {
-      id: 11,
+      id: 12,
       name: "DoggaByte",
       interval: "P48W",
       downloaded: "10TB",
       uploaded: "100TB",
       ratio: 6.0,
       privilege: "无",
+    },
+    {
+      id: 100,
+      groupType: "vip",
+      name: "资深组",
+      privilege: "元老组，免考核且长期不活动不访问也将保留账号。",
+    },
+    {
+      id: 101,
+      groupType: "vip",
+      name: "VIP",
+      privilege: "为TTG做出特殊重大贡献的用户或合作者等。只计算上传量，不计算下载量。",
     },
   ],
 };

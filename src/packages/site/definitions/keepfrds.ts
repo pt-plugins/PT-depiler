@@ -220,6 +220,11 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
+      name: "User",
+      privilege: `新用户的默认级别。可以查看NFO文档；`,
+    },
+    {
+      id: 2,
       name: "Power User",
       interval: "P5W",
       downloaded: "50GB",
@@ -228,7 +233,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "请求续种；查看排行榜；查看其它用户的种子历史；查看IMDB/Douban信息；使用魔力值",
     },
     {
-      id: 2,
+      id: 3,
       name: "Elite User",
       interval: "P10W",
       downloaded: "150GB",
@@ -237,7 +242,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "封存账号后不会被删除；查看排行榜，IMDB/Douban Top榜单和论坛的邀请区",
     },
     {
-      id: 3,
+      id: 4,
       name: "Crazy User",
       interval: "P15W",
       downloaded: "300GB",
@@ -246,7 +251,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "在做种/下载的时候选择匿名模式；使用自动合集功能",
     },
     {
-      id: 4,
+      id: 5,
       name: "Insane User",
       interval: "P30W",
       downloaded: "500GB",
@@ -255,7 +260,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "查看普通日志",
     },
     {
-      id: 5,
+      id: 6,
       name: "Veteran User",
       interval: "P60W",
       downloaded: "1TB",
@@ -264,7 +269,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "查看其它用户的评论、帖子历史；永远保留账号",
     },
     {
-      id: 6,
+      id: 7,
       name: "Extreme User",
       interval: "P90W",
       downloaded: "2TB",
@@ -273,7 +278,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "上传量按照等级对应的限速计算",
     },
     {
-      id: 7,
+      id: 8,
       name: "Ultimate User",
       interval: "P120W",
       downloaded: "3TB",
@@ -282,7 +287,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "上传速度限制提升为普通用户的二倍",
     },
     {
-      id: 8,
+      id: 9,
       name: "Nexus Master",
       interval: "P150W",
       downloaded: "4TB",

@@ -9,7 +9,7 @@ import {
   TLevelId,
 } from "@ptd/site";
 import { intersection } from "es-toolkit";
-import { set, isEmpty } from "es-toolkit/compat";
+import { set, isEmpty, includes } from "es-toolkit/compat";
 import { intervalToDuration } from "date-fns";
 
 export const MinVipLevelId = 100;
@@ -47,24 +47,39 @@ export function guessUserLevelGroupType(levelName: string): TLevelGroupType {
   let userLevel = levelName.toLowerCase();
   let specialNames: Record<"manager" | "vip", string[]> = {
     manager: [
-      "admin",
-      "moderator",
-      "sys",
-      "retire",
+      "retiree",
+      "养老",
+      "退休",
       "uploader",
-      "管理",
-      "版主",
+      "helper",
+      "seeder",
+      "transferrer",
+      "torrent",
+      "assistant",
+      "发布",
       "发种",
       "保种",
       "上传",
-      "退休",
+      "助手",
+      "助理",
+      "转载",
+      "种子",
+      "moderator",
+      "forum",
+      "版主",
+      "admin",
+      "管理",
+      "sys",
+      "coder",
       "开发",
+      "staff",
+      "主管",
     ],
-    vip: ["vip", "贵宾"],
+    vip: ["vip", "贵宾", "honor", "荣誉"],
   };
   let res = "user";
   for (const [k, levelNames] of Object.entries(specialNames)) {
-    if (levelNames.some((n: string) => userLevel?.includes(n))) {
+    if (levelNames.some((n: string) => includes(userLevel, n))) {
       res = k;
       break;
     }
@@ -278,8 +293,10 @@ export function getNextLevelUnMet(
 }
 
 export function guessUserLevelId(userInfo: IUserInfo, levelRequirements: ILevelRequirement[]): TLevelId {
-  // 首先尝试 levelName 的直接匹配
-  let level = levelRequirements.find((level) => cleanLevelName(level.name) == cleanLevelName(userInfo.levelName!));
+  // 首先尝试 levelName 的直接匹配，站点levelRequirements中配置的 name 一定要等于或包含 获取到的 levelName 中才会匹配成功
+  let level = levelRequirements.find((level) => {
+    return includes(cleanLevelName(level.name), cleanLevelName(userInfo.levelName!));
+  });
   if (level) {
     return level.id;
   }

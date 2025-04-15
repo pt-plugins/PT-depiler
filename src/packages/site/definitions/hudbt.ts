@@ -124,6 +124,11 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
+      name: "User",
+      privilege: `新用户的默认级别。`,
+    },
+    {
+      id: 2,
       name: "易形(Power User)",
       interval: "P4W",
       downloaded: "50GB",
@@ -133,7 +138,7 @@ export const siteMetadata: ISiteMetadata = {
         '可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
     },
     {
-      id: 2,
+      id: 3,
       name: "化蛹(Elite User)",
       interval: "P9W",
       downloaded: "120GB",
@@ -141,7 +146,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "化蛹(Elite User)及以上用户封存账号后不会被删除。",
     },
     {
-      id: 3,
+      id: 4,
       name: "破茧(Crazy User)",
       interval: "P16W",
       downloaded: "300GB",
@@ -151,7 +156,7 @@ export const siteMetadata: ISiteMetadata = {
         "可以在做种/下载/发布的时候选择匿名模式。",
     },
     {
-      id: 4,
+      id: 5,
       name: "恋风(Insane User)",
       interval: "P25W",
       downloaded: "500GB",
@@ -159,7 +164,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以查看普通日志。",
     },
     {
-      id: 5,
+      id: 6,
       name: "翩跹(Veteran User)",
       interval: "P36W",
       downloaded: "750GB",
@@ -167,7 +172,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到一个邀请名额；可以查看其它用户的评论、帖子历史。翩跹(Veteran User)及以上用户会永远保留账号。",
     },
     {
-      id: 6,
+      id: 7,
       name: "归尘(Extreme User)",
       interval: "P49W",
       downloaded: "1TB",
@@ -175,7 +180,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。（未启用）",
     },
     {
-      id: 7,
+      id: 8,
       name: "幻梦(Ultimate User)",
       interval: "P64W",
       downloaded: "1.5TB",
@@ -183,7 +188,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "",
     },
     {
-      id: 8,
+      id: 9,
       name: "逍遥(Nexus Master)",
       interval: "P81W",
       downloaded: "3TB",

@@ -250,6 +250,11 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
+      name: "採女-正八品(User)",
+      privilege: `新用户的默认级别；可以查看NFO/LOG文档。`,
+    },
+    {
+      id: 2,
       name: "常在-正七品(Power User)",
       interval: "P5W",
       ratio: 1.5,
@@ -258,7 +263,7 @@ export const siteMetadata: ISiteMetadata = {
         '得到一个邀请名额；可以请求续种； 可以发送邀请； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
     },
     {
-      id: 2,
+      id: 3,
       name: "贵人-正六品(Elite User)",
       interval: "P10W",
       ratio: 2.0,
@@ -267,7 +272,7 @@ export const siteMetadata: ISiteMetadata = {
         "得到两个邀请名额；贵人-正六品(Elite User)及以上用户封存账号后规定时间内不会被删除；发布三个种子后无需经过候选 可直接发布种子。",
     },
     {
-      id: 3,
+      id: 4,
       name: "良媛-正五品(Crazy User)",
       interval: "P15W",
       ratio: 2.5,
@@ -275,7 +280,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到三个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
     },
     {
-      id: 4,
+      id: 5,
       name: "容华-正四品(Insane User)",
       interval: "P20W",
       ratio: 3.0,
@@ -283,7 +288,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到四个邀请名额；可以查看普通日志。",
     },
     {
-      id: 5,
+      id: 6,
       name: "贵嫔-正三品(Veteran User)",
       interval: "P25W",
       ratio: 3.5,
@@ -292,7 +297,7 @@ export const siteMetadata: ISiteMetadata = {
         "得到五个邀请名额；可以查看用户列表，可以查看其它用户的评论、帖子历史。贵嫔-正三品(Veteran User)及以上用户会永远保留账号。",
     },
     {
-      id: 6,
+      id: 7,
       name: "淑仪-正二品(Extreme User)",
       interval: "P25W",
       ratio: 4.0,
@@ -300,7 +305,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到六个邀请名额；可以更新过期的外部信息。",
     },
     {
-      id: 7,
+      id: 8,
       name: "贵妃-正一品(Ultimate User)",
       interval: "P30W",
       ratio: 4.5,
@@ -308,7 +313,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到七个邀请名额；查看种子文件的结构。",
     },
     {
-      id: 8,
+      id: 9,
       name: "皇后(Nexus Master)",
       interval: "P30W",
       ratio: 5.0,

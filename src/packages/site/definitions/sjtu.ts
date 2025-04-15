@@ -145,6 +145,11 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
+      name: "User",
+      privilege: `新用户的默认级别。可以同时下载2个种子;可以删除自己上传的字幕.`,
+    },
+    {
+      id: 2,
       name: "Power User",
       interval: "P4W",
       downloaded: "50GB",
@@ -155,7 +160,7 @@ export const siteMetadata: ISiteMetadata = {
         "可以在魔力值系统购买更多邀请名额.可以同时下载5个种子.",
     },
     {
-      id: 2,
+      id: 3,
       name: "Elite User",
       interval: "P8W",
       downloaded: "120GB",
@@ -163,7 +168,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "Elite User及以上用户Park后不会被删除帐号;可以直接上传种子.可以同时下载8个种子.",
     },
     {
-      id: 3,
+      id: 4,
       name: "Crazy User",
       interval: "P15W",
       downloaded: "300GB",
@@ -171,7 +176,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到一个邀请名额; 可以发送邀请; 可以在做种/下载/上传的时候选择匿名模式.可以同时下载10个种子.",
     },
     {
-      id: 4,
+      id: 5,
       name: "Insane User",
       interval: "P25W",
       downloaded: "500GB",
@@ -179,7 +184,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到一个邀请名额; 可以查看普通日志.同时下载种子线程无限制.",
     },
     {
-      id: 5,
+      id: 6,
       name: "Veteran User",
       interval: "P40W",
       downloaded: "750GB",
@@ -187,7 +192,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以查看其它用户的评论、帖子历史;Veteran User及以上用户会永远保留账号.",
     },
     {
-      id: 6,
+      id: 7,
       name: "Extreme User",
       interval: "P60W",
       downloaded: "1TB",
@@ -195,7 +200,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到一个邀请名额; 可以更新过期的外部信息.",
     },
     {
-      id: 7,
+      id: 8,
       name: "Ultimate User",
       interval: "P80W",
       downloaded: "1.5TB",
@@ -203,7 +208,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以查看种子文件结构.",
     },
     {
-      id: 8,
+      id: 9,
       name: "Nexus Master",
       interval: "P100W",
       downloaded: "3TB",
@@ -281,7 +286,6 @@ export default class sjtu extends NexusPHP {
   protected override async parseUserInfoForSeedingStatus(
     flushUserInfo: Partial<IUserInfo>,
   ): Promise<Partial<IUserInfo>> {
-
     const userId = flushUserInfo.id as number;
     const userSeedingRequestResponse = await this.request<string>({
       url: "/viewusertorrents.php",
@@ -293,10 +297,10 @@ export default class sjtu extends NexusPHP {
     if (userSeedingRequestString && userSeedingRequestString?.includes("<table")) {
       const userSeedingDocument = createDocument(userSeedingRequestString);
 
-      const rows = Array.from(userSeedingDocument.querySelectorAll('tr')).slice(1); // 从第二行开始获取全部 tr
+      const rows = Array.from(userSeedingDocument.querySelectorAll("tr")).slice(1); // 从第二行开始获取全部 tr
       seedStatus.seeding = rows.length; // 计算行数，作为正在做种的数量
 
-      rows.forEach((row) => { 
+      rows.forEach((row) => {
         const sizeElement = row.querySelector("td:nth-child(3)");
         if (sizeElement) {
           seedStatus.seedingSize += parseSizeString(sizeElement.textContent || "0");
@@ -324,11 +328,11 @@ export default class sjtu extends NexusPHP {
     if (match) {
       const textBetween = match[0]; // 提取出 </a> 和 <div id="ka"> 之间的文本内容
       const numberMatch = textBetween.match(/(\d+)/);
-        if (numberMatch) {
-            var number = numberMatch[0];
-            flushUserInfo.uploads = number;
-        }
+      if (numberMatch) {
+        var number = numberMatch[0];
+        flushUserInfo.uploads = number;
       }
+    }
 
     return flushUserInfo;
   }

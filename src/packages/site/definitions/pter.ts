@@ -229,6 +229,11 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
+      name: "伯曼猫 User",
+      privilege: `新用户的默认级别。`,
+    },
+    {
+      id: 2,
       name: "加菲猫 POWER USER",
       interval: "P5W",
       downloaded: "50GB",
@@ -238,7 +243,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以直接发布种子；可以查看邀请区；可以上传字幕和删除自己上传的字幕",
     },
     {
-      id: 2,
+      id: 3,
       name: "布偶猫 ELITE USER",
       interval: "P10W",
       downloaded: "120GB",
@@ -248,7 +253,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以请求续种",
     },
     {
-      id: 3,
+      id: 4,
       name: "雪鞋猫 CRAZY USER",
       interval: "P24W",
       downloaded: "300GB",
@@ -258,7 +263,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以查看排行榜",
     },
     {
-      id: 4,
+      id: 5,
       name: "暹罗猫 INSANE USER",
       interval: "P32W",
       downloaded: "500GB",
@@ -268,7 +273,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以查看普通日志",
     },
     {
-      id: 5,
+      id: 6,
       name: "安哥拉猫 VETERAN USER",
       interval: "P40W",
       downloaded: "750GB",
@@ -280,7 +285,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以查看其它用户的评论、帖子历史；封存账号后，不会因不活跃原因被临时封禁",
     },
     {
-      id: 6,
+      id: 7,
       name: "孟加拉猫 EXTREME USER",
       interval: "P48W",
       downloaded: "1024GB",
@@ -292,7 +297,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可2次无条件不活跃解封，可以查看邀请树统计，初次升级赠送1枚永久邀请码",
     },
     {
-      id: 7,
+      id: 8,
       name: "山东狮子猫 ULTIMATE USER",
       interval: "P56W",
       downloaded: "1536GB",
@@ -304,7 +309,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "追加1次无条件不活跃解封，可以查看邀请树图，初次升级赠送2枚永久邀请码",
     },
     {
-      id: 8,
+      id: 9,
       name: "四川简州猫 NEXUS MASTER",
       interval: "P112W",
       downloaded: "3072GB",

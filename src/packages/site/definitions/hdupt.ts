@@ -203,6 +203,11 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
+      name: "User",
+      privilege: `新用户的默认级别。`,
+    },
+    {
+      id: 2,
       name: "初窥门径(Power User)",
       interval: "P4W",
       downloaded: "50GB",
@@ -212,7 +217,7 @@ export const siteMetadata: ISiteMetadata = {
         '可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
     },
     {
-      id: 2,
+      id: 3,
       name: "略有小成(Elite User)",
       interval: "P8W",
       downloaded: "120GB",
@@ -220,7 +225,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "略有小成(Elite User)及以上用户封存账号后不会被删除，可以进入论坛邀请区。",
     },
     {
-      id: 3,
+      id: 4,
       name: "驾轻就熟(Crazy User)",
       interval: "P15W",
       downloaded: "300GB",
@@ -228,7 +233,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到一个邀请名额。",
     },
     {
-      id: 4,
+      id: 5,
       name: "渐入佳境(Insane User)",
       interval: "P25W",
       downloaded: "500GB",
@@ -236,7 +241,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到一个邀请名额。",
     },
     {
-      id: 5,
+      id: 6,
       name: "炉火纯青(Veteran User)",
       interval: "P40W",
       downloaded: "750GB",
@@ -244,7 +249,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到一个邀请名额；可以查看其它用户的评论、帖子历史。炉火纯青(Veteran User)及以上用户会永远保留账号。",
     },
     {
-      id: 6,
+      id: 7,
       name: "登峰造极(Extreme User)",
       interval: "P60W",
       downloaded: "1TB",
@@ -252,7 +257,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到一个邀请名额；可以更新过期的外部信息；可以查看Extreme User论坛。",
     },
     {
-      id: 7,
+      id: 8,
       name: "举世无双(Ultimate User)",
       interval: "P80W",
       downloaded: "1.5TB",
@@ -260,7 +265,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到两个邀请名额。",
     },
     {
-      id: 8,
+      id: 9,
       name: "超凡入圣(Nexus Master)",
       interval: "P100W",
       downloaded: "3TB",

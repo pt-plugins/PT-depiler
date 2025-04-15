@@ -65,6 +65,11 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
+      name: "User",
+      privilege: `新用户的默认级别。`,
+    },
+    {
+      id: 2,
       name: "感冒(Power User)",
       interval: "P4W",
       downloaded: "50GB",
@@ -75,7 +80,7 @@ export const siteMetadata: ISiteMetadata = {
         ' 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
     },
     {
-      id: 2,
+      id: 3,
       name: "发热(Elite User)",
       interval: "P8W",
       downloaded: "150GB",
@@ -84,7 +89,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "Elite User及以上用户封存账号后不会被删除。",
     },
     {
-      id: 3,
+      id: 4,
       name: "低烧(Crazy User)",
       interval: "P15W",
       downloaded: "500GB",
@@ -93,7 +98,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到两个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
     },
     {
-      id: 4,
+      id: 5,
       name: "中烧(Insane User)",
       interval: "P25W",
       downloaded: "750GB",
@@ -102,7 +107,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以查看普通日志。",
     },
     {
-      id: 5,
+      id: 6,
       name: "高烧(Veteran User)",
       interval: "P40W",
       downloaded: "1.5TB",
@@ -112,7 +117,7 @@ export const siteMetadata: ISiteMetadata = {
         "免除增量考核；得到三个邀请名额；可以查看其它用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。",
     },
     {
-      id: 6,
+      id: 7,
       name: "烧糊涂(Extreme User)",
       interval: "P60W",
       downloaded: "3TB",
@@ -121,7 +126,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。",
     },
     {
-      id: 7,
+      id: 8,
       name: "走火入魔(Ultimate User)",
       interval: "P80W",
       downloaded: "5TB",
@@ -130,7 +135,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到五个邀请名额。",
     },
     {
-      id: 8,
+      id: 9,
       name: "骨灰(HDtime Master)",
       interval: "P100W",
       downloaded: "10TB",

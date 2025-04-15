@@ -97,12 +97,12 @@ export const siteMetadata: ISiteMetadata = {
 
   levelRequirements: [
     {
-      id: 0,
+      id: 1,
       name: "User",
       privilege: "新用户的默认级别：上传字幕；发布趣味盒；查看用户列表；查看NFO文档；",
     },
     {
-      id: 1,
+      id: 2,
       name: "Power User",
       interval: "P14D",
       uploaded: "32GB",
@@ -110,7 +110,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "请求续种；查看排行榜；查看普通日志；删除自己上传的字幕；使用流量条；更新外部信息；新增求种",
     },
     {
-      id: 2,
+      id: 3,
       name: "Elite User",
       interval: "P56D",
       uploaded: "512GB",
@@ -118,7 +118,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "查看其它用户的种子历史（如果用户隐私等级未设置为“强”）；直接发布种子",
     },
     {
-      id: 3,
+      id: 4,
       name: "Crazy User",
       interval: "P84D",
       uploaded: "1024GB",
@@ -126,7 +126,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "购买邀请；发送邀请；在做种/下载/发布的时候选择匿名模式",
     },
     {
-      id: 4,
+      id: 5,
       name: "Insane User",
       interval: "P168D",
       uploaded: "2048GB",
@@ -134,7 +134,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "申请发布徽章；更新外部信息；购买用户名特效",
     },
     {
-      id: 5,
+      id: 6,
       name: "Veteran User",
       interval: "P168D",
       uploaded: "4096GB",
@@ -142,7 +142,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "查看其他用户的评论和帖子历史记录（如果用户隐私等级未设置为“强”）；查看种子结构",
     },
     {
-      id: 6,
+      id: 7,
       name: "Extreme User",
       interval: "P168D",
       uploaded: "8192GB",
@@ -150,7 +150,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以购买用户名特效（动态）",
     },
     {
-      id: 7,
+      id: 8,
       name: "Ultimate User",
       interval: "P336D",
       uploaded: "32768GB",
@@ -158,7 +158,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "更加高级",
     },
     {
-      id: 8,
+      id: 9,
       name: "Nexus Master",
       interval: "P48W",
       uploaded: "131072GB",
