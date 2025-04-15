@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { throttle } from "es-toolkit";
-import { type CAddTorrentOptions, getDownloaderIcon } from "@ptd/downloader";
+import { getDownloaderIcon } from "@ptd/downloader";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
@@ -16,6 +16,7 @@ import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import SiteName from "@/options/components/SiteName.vue";
 import TorrentTitleTd from "@/options/components/TorrentTitleTd.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
+import ReDownloadSelectDialog from "@/options/views/Overview/DownloadHistory/ReDownloadSelectDialog.vue";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
@@ -88,31 +89,18 @@ function loadDownloadHistory() {
 
 const throttleLoadDownloadHistory = throttle(loadDownloadHistory, 1e3);
 
-const isReDownloading = ref<boolean>(false);
+const showReDownloadSelectDialog = ref<boolean>(false);
+const reDownloadTorrentListRef = shallowRef<ITorrentDownloadMetadata[]>([]);
 function reDownloadTorrent(downloadHistoryIds: TTorrentDownloadKey[]) {
-  isReDownloading.value = true;
-  const promises = [];
+  const reDownloadTorrentList = [];
   for (const downloadHistoryId of downloadHistoryIds) {
     const history: ITorrentDownloadMetadata = downloadHistory.value[downloadHistoryId];
     if (history) {
-      const historyTorrent = history.torrent;
-      if (history.downloaderId === "local") {
-        promises.push(sendMessage("downloadTorrentToLocalFile", historyTorrent));
-      } else {
-        promises.push(
-          sendMessage("downloadTorrentToDownloader", {
-            torrent: historyTorrent,
-            downloaderId: history.downloaderId,
-            addTorrentOptions: (history.addTorrentOptions ?? {}) as CAddTorrentOptions,
-          }),
-        );
-      }
+      reDownloadTorrentList.push(history);
     }
   }
-  Promise.all(promises).then(() => {
-    isReDownloading.value = false;
-    throttleLoadDownloadHistory();
-  });
+  reDownloadTorrentListRef.value = reDownloadTorrentList;
+  showReDownloadSelectDialog.value = true;
 }
 
 const showDeleteDialog = ref<boolean>(false);
@@ -149,7 +137,6 @@ onMounted(() => {
 
         <v-btn
           :disabled="tableSelected.length === 0"
-          :loading="isReDownloading"
           color="primary"
           prepend-icon="mdi-tray-arrow-down"
           @click="() => reDownloadTorrent(tableSelected)"
@@ -253,6 +240,12 @@ onMounted(() => {
       </v-data-table>
     </v-card-text>
   </v-card>
+
+  <ReDownloadSelectDialog
+    v-model="showReDownloadSelectDialog"
+    :torrent-items="reDownloadTorrentListRef"
+    @re-download-complete="() => throttleLoadDownloadHistory()"
+  />
 
   <DeleteDialog
     v-model="showDeleteDialog"

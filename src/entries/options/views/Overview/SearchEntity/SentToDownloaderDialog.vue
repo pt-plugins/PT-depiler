@@ -15,6 +15,9 @@ const showDialog = defineModel<boolean>();
 const { torrentItems } = defineProps<{
   torrentItems: ISearchResultTorrent[];
 }>();
+const emit = defineEmits<{
+  (e: "done"): void;
+}>();
 
 const uiStore = useUIStore();
 const runtimeStore = useRuntimeStore();
@@ -110,6 +113,7 @@ async function sendToDownloader() {
     .finally(() => {
       isSending.value = false;
       showDialog.value = false;
+      emit("done");
     });
 }
 </script>
@@ -156,7 +160,6 @@ async function sendToDownloader() {
               </v-autocomplete>
             </v-row>
             <v-row>
-              <!-- FIXME 改为v-combobox 使得在添加 下载路径设置后 可以选择，并默认支持一些特殊的key -->
               <v-col class="py-0 pl-0" cols="6">
                 <v-combobox
                   v-model="addTorrentOptions.savePath"
