@@ -24,7 +24,7 @@ const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 const isSending = ref(false);
 const selectedDownloader = ref<IDownloaderMetadata | null>(null);
-const addTorrentOptions = reactive<Required<Omit<CAddTorrentOptions, "localDownloadOption">>>({
+const addTorrentOptions = ref<Required<Omit<CAddTorrentOptions, "localDownloadOption">>>({
   localDownload: true,
   addAtPaused: false,
   savePath: "",
@@ -36,20 +36,21 @@ const suggestTags = computed(() => selectedDownloader.value?.suggestTags ?? []);
 
 const downloaderTitle = (downloader: IDownloaderMetadata) => `${downloader.name} [${downloader.address}]`;
 
-function restoreAddTorrentOptions() {
-  addTorrentOptions.localDownload = true;
-  addTorrentOptions.addAtPaused = false;
-  addTorrentOptions.savePath = "";
-  addTorrentOptions.label = "";
+function restoreAddTorrentOptions(downloader?: IDownloaderMetadata) {
+  addTorrentOptions.value.localDownload = true;
+  addTorrentOptions.value.addAtPaused = !(downloader?.feature?.DefaultAutoStart ?? true);
+  addTorrentOptions.value.savePath = "";
+  addTorrentOptions.value.label = "";
 }
 
 watch(showDialog, () => {
   restoreAddTorrentOptions(); // 先重置所有选项，然后从uiStore中获取历史情况
 
-  const lastDownloaderId = uiStore.lastDownloader.id;
+  const lastDownloaderId = uiStore.lastDownloader?.id;
   selectedDownloader.value = lastDownloaderId ? metadataStore.downloaders[lastDownloaderId] : null;
-  addTorrentOptions.savePath = uiStore.lastDownloader.savePath ?? "";
-  addTorrentOptions.label = uiStore.lastDownloader.label ?? "";
+  addTorrentOptions.value = (uiStore.lastDownloader?.options ?? {}) as Required<
+    Omit<CAddTorrentOptions, "localDownloadOption">
+  >;
 });
 
 async function sendToDownloader() {
@@ -58,17 +59,18 @@ async function sendToDownloader() {
     return;
   }
 
+  // 保存此次选择记录
   uiStore.lastDownloader = {
     id: selectedDownloader.value.id,
-    savePath: addTorrentOptions.savePath,
-    label: addTorrentOptions.label,
+    options: addTorrentOptions.value,
   };
+  await uiStore.$save();
 
   isSending.value = true;
   const promises = [];
 
   for (const torrent of torrentItems) {
-    const realAddTorrentOptions: Partial<CAddTorrentOptions> = { ...addTorrentOptions };
+    const realAddTorrentOptions: Partial<CAddTorrentOptions> = { ...addTorrentOptions.value };
     if (realAddTorrentOptions.savePath) {
       if (realAddTorrentOptions.savePath === "") {
         delete realAddTorrentOptions.savePath;
