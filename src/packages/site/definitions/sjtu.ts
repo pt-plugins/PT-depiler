@@ -1,4 +1,5 @@
-import { ETorrentStatus, ISiteMetadata, IUserInfo } from "@ptd/site";
+import { mergeWith } from "es-toolkit";
+import { parseSizeString, createDocument, ETorrentStatus, ISiteMetadata, IUserInfo } from "@ptd/site";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
@@ -15,7 +16,7 @@ export const siteMetadata: ISiteMetadata = {
   description: "Free Share, Join us",
   tags: ["教育网", "影视", "综合"],
 
-  collaborator: ["Rhilip", "Yincircle"],
+  collaborator: ["Rhilip", "Yincircle", "Hui-Shao"],
 
   type: "private",
   schema: "NexusPHP",
@@ -276,15 +277,59 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class sjtu extends NexusPHP {
-  // SJTU 不返回正在做种的种子信息
+  // 正在做种的种子信息
   protected override async parseUserInfoForSeedingStatus(
     flushUserInfo: Partial<IUserInfo>,
   ): Promise<Partial<IUserInfo>> {
+
+    const userId = flushUserInfo.id as number;
+    const userSeedingRequestResponse = await this.request<string>({
+      url: "/viewusertorrents.php",
+      params: { id: userId, show: "seeding" },
+    });
+    const userSeedingRequestString = userSeedingRequestResponse.data;
+
+    let seedStatus = { seeding: 0, seedingSize: 0 };
+    if (userSeedingRequestString && userSeedingRequestString?.includes("<table")) {
+      const userSeedingDocument = createDocument(userSeedingRequestString);
+
+      const rows = Array.from(userSeedingDocument.querySelectorAll('tr')).slice(1); // 从第二行开始获取全部 tr
+      seedStatus.seeding = rows.length; // 计算行数，作为正在做种的数量
+
+      rows.forEach((row) => { 
+        const sizeElement = row.querySelector("td:nth-child(3)");
+        if (sizeElement) {
+          seedStatus.seedingSize += parseSizeString(sizeElement.textContent || "0");
+        }
+      });
+    }
+
+    flushUserInfo = mergeWith(flushUserInfo, seedStatus, (objValue, srcValue) => {
+      return typeof srcValue === "undefined" ? objValue : srcValue;
+    });
+
     return flushUserInfo;
   }
 
-  // SJTU 不返回用户上传的种子信息
+  // 用户的发种信息
   protected override async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
+    const userId = flushUserInfo.id as number;
+    const userUploadsRequestResponse = await this.request<string>({
+      url: "/viewtorrentsdetail.php",
+      params: { id: userId },
+    });
+
+    const userUploadsRequestString = userUploadsRequestResponse.data;
+    const match = userUploadsRequestString.match(/<\/a>\s*[^<]*<div id="ka"/);
+    if (match) {
+      const textBetween = match[0]; // 提取出 </a> 和 <div id="ka"> 之间的文本内容
+      const numberMatch = textBetween.match(/(\d+)/);
+        if (numberMatch) {
+            var number = numberMatch[0];
+            flushUserInfo.uploads = number;
+        }
+      }
+
     return flushUserInfo;
   }
 }
