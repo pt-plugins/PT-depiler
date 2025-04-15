@@ -58,7 +58,7 @@ export default class BittorrentSite {
   }
 
   get isOnline(): boolean {
-    return !(this.userConfig.isOffline ?? false);
+    return !this.metadata.isDead && !this.userConfig.isOffline;
   }
 
   get allowSearch(): boolean {

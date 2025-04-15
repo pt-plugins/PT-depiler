@@ -14,7 +14,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 
 export default class PrivateSite extends BittorrentSite {
   get allowQueryUserInfo(): boolean {
-    return this.isOnline && !(this.userConfig.allowQueryUserInfo === false);
+    return this.isOnline && !!this.metadata.userInfo && !(this.userConfig.allowQueryUserInfo === false);
   }
 
   /**

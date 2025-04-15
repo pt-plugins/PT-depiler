@@ -31,7 +31,10 @@ const canAddSites = computedAsync(async () => {
   const canAddedSiteList = definitionList.filter((x) => !metadataStore.getAddedSiteIds.includes(x));
 
   for (const string of canAddedSiteList) {
-    canAddedSiteMetadata.push(await metadataStore.getSiteMetadata(string));
+    const siteMetadata = await metadataStore.getSiteMetadata(string);
+    if (!siteMetadata.isDead) {
+      canAddedSiteMetadata.push(siteMetadata);
+    }
   }
   return canAddedSiteMetadata;
 }, []);

@@ -168,6 +168,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
       <template #item.userConfig.isOffline="{ item }">
         <v-switch
           v-model="item.userConfig.isOffline"
+          :disabled="item.metadata.isDead"
           class="site-switch-btn"
           color="success"
           hide-details
@@ -177,7 +178,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
       <template #item.userConfig.allowSearch="{ item }">
         <v-switch
           v-model="item.userConfig.allowSearch"
-          :disabled="item.userConfig.isOffline || !Object.hasOwn(item.metadata, 'search')"
+          :disabled="item.metadata.isDead || item.userConfig.isOffline || !Object.hasOwn(item.metadata, 'search')"
           class="site-switch-btn"
           color="success"
           hide-details
@@ -187,7 +188,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
       <template #item.userConfig.allowQueryUserInfo="{ item }">
         <v-switch
           v-model="item.userConfig.allowQueryUserInfo"
-          :disabled="item.userConfig.isOffline || !Object.hasOwn(item.metadata, 'userInfo')"
+          :disabled="item.metadata.isDead || item.userConfig.isOffline || !Object.hasOwn(item.metadata, 'userInfo')"
           class="site-switch-btn"
           color="success"
           hide-details
@@ -198,6 +199,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
         <v-btn-group class="table-action" density="compact" variant="plain">
           <!-- 站点信息编辑 -->
           <v-btn
+            :disabled="item.metadata.isDead"
             :title="t('common.edit')"
             color="info"
             icon="mdi-pencil"
@@ -206,7 +208,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
           />
 
           <!-- 默认站点搜索入口编辑（只有配置了 siteMetadata.searchEntry 的站点才支持该设置） -->
-          <v-btn :disabled="!item.metadata.searchEntry" class="v-btn--icon" size="small">
+          <v-btn :disabled="item.metadata.isDead || !item.metadata.searchEntry" class="v-btn--icon" size="small">
             <v-icon icon="mdi-magnify"></v-icon>
             <v-menu :close-on-content-click="false" activator="parent">
               <EditSearchEntryList :item="item" />
@@ -214,6 +216,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
           </v-btn>
 
           <v-btn
+            :disabled="item.metadata.isDead"
             :loading="isFaviconFlushing"
             :title="t('SetSite.index.table.flushFavicon')"
             color="indigo"
