@@ -342,7 +342,12 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
-      name: "Power User",
+      name: "临时演员(User)",
+      privilege: `新用户的默认级别。`,
+    },
+    {
+      id: 2,
+      name: "跑龙套(Power User)",
       interval: "P5W",
       downloaded: "256GB",
       ratio: 2.0,
@@ -350,8 +355,8 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "无",
     },
     {
-      id: 2,
-      name: "Elite User",
+      id: 3,
+      name: "配角(Elite User)",
       interval: "P8W",
       downloaded: "386GB",
       ratio: 2.5,
@@ -359,8 +364,8 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "无",
     },
     {
-      id: 3,
-      name: "Crazy User",
+      id: 4,
+      name: "主演(Crazy User)",
       interval: "P12W",
       downloaded: "512GB",
       ratio: 3.0,
@@ -368,8 +373,8 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以在做种/下载/发布的时候选择匿名模式",
     },
     {
-      id: 4,
-      name: "Insane User",
+      id: 5,
+      name: "领衔主演(Insane User)",
       interval: "P16W",
       downloaded: "768GB",
       ratio: 3.5,
@@ -377,8 +382,8 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "无",
     },
     {
-      id: 5,
-      name: "Veteran User",
+      id: 6,
+      name: "明星(Veteran User)",
       interval: "P20W",
       downloaded: "1TB",
       ratio: 4.0,
@@ -386,8 +391,8 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以查看其它用户的评论、帖子历史",
     },
     {
-      id: 6,
-      name: "Extreme User",
+      id: 7,
+      name: "国际大腕(Extreme User)",
       interval: "P24W",
       downloaded: "2TB",
       ratio: 4.5,
@@ -395,8 +400,8 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到1个邀请名额，可以更新过期的外部信息；可以查看Extreme User论坛",
     },
     {
-      id: 7,
-      name: "Ultimate User",
+      id: 8,
+      name: "影帝(Ultimate User)",
       interval: "P30W",
       downloaded: "8TB",
       ratio: 5.0,
@@ -404,8 +409,8 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到1个邀请名额",
     },
     {
-      id: 8,
-      name: "Nexus Master",
+      id: 9,
+      name: "终身影帝(Nexus Master)",
       interval: "P36W",
       downloaded: "10TB",
       ratio: 10,

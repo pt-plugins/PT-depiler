@@ -84,12 +84,12 @@ export const siteMetadata: ISiteMetadata = {
 
   levelRequirements: [
     {
-      id: 0,
+      id: 1,
       name: "本科新生",
       privilege: "新用户的默认级别。",
     },
     {
-      id: 1,
+      id: 2,
       name: "小小学士",
       interval: "P2W",
       downloaded: "30GB",
@@ -99,7 +99,7 @@ export const siteMetadata: ISiteMetadata = {
         '可以请求续种；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
     },
     {
-      id: 2,
+      id: 3,
       name: "优秀硕士",
       interval: "P5W",
       downloaded: "50GB",
@@ -107,7 +107,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "优秀硕士及以上用户封存账号后不会被删除。",
     },
     {
-      id: 3,
+      id: 4,
       name: "初为博士",
       interval: "P10W",
       downloaded: "100GB",
@@ -115,7 +115,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以在做种/下载/发布的时候选择匿名模式，可以在邀请传送门版块发帖。",
     },
     {
-      id: 4,
+      id: 5,
       name: "海归博后",
       interval: "P15W",
       downloaded: "300GB",
@@ -123,7 +123,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以查看普通日志。",
     },
     {
-      id: 5,
+      id: 6,
       name: "大学讲师",
       interval: "P20W",
       downloaded: "500GB",
@@ -131,7 +131,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以查看排行榜；可以查看其它用户的评论、帖子历史。大学讲师及以上用户会永远保留账号。",
     },
     {
-      id: 6,
+      id: 7,
       name: "晋升副教",
       interval: "P30W",
       downloaded: "700GB",
@@ -139,7 +139,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以更新过期的外部信息；可以查看晋升副教论坛。",
     },
     {
-      id: 7,
+      id: 8,
       name: "终身教授",
       interval: "P80W",
       downloaded: "900GB",
@@ -147,7 +147,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "更加高级。",
     },
     {
-      id: 8,
+      id: 9,
       name: "荣誉院士",
       interval: "P100W",
       downloaded: "1TB",

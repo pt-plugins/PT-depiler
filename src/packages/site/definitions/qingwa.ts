@@ -20,21 +20,30 @@ import NexusPHP, {
 const levelRequirements: ISiteMetadata["levelRequirements"] = [
   {
     id: 0,
+    groupType: "user",
+    name: "Peasant(青蛙卵)",
+    privilege: `因为分享率过低而被降级的用户。如果不在一定时间内提升分享率，账号会被禁用。`,
+  },
+  {
+    id: 1,
+    groupType: "user",
     name: "User(蝌蚪)",
     privilege: `新用户的默认级别。`,
   },
   {
-    id: 1,
+    id: 2,
+    groupType: "user",
     name: "Power User(幼蛙)",
     interval: "P5W",
-    privilege: `得到1个邀请名额，可以直接发布种子，可以查看NFO文档，可以查看用户列表，可以请求续种， 可以发送邀请，可以查看排行榜，可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。`,
+    privilege: `得到1个邀请名额；拥有网站基本权限，请自行探索。`,
     alternative: [
       { seedingBonus: 40000, ratio: 1.0, uploads: 50 },
       { seedingBonus: 40000, ratio: [1.0, 4.0], downloaded: 150 * GB },
     ],
   },
   {
-    id: 2,
+    id: 3,
+    groupType: "user",
     name: "Elite User(成蛙)",
     interval: "P16W",
     privilege: `得到2个邀请名额；封存账号后不会被删除。`,
@@ -44,7 +53,8 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
     ],
   },
   {
-    id: 3,
+    id: 4,
+    groupType: "user",
     name: "Crazy User(妙蛙种子)",
     interval: "P25W",
     privilege: "得到3个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
@@ -54,7 +64,8 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
     ],
   },
   {
-    id: 4,
+    id: 5,
+    groupType: "user",
     name: "Insane User(妙蛙草)",
     interval: "P36W",
     privilege: "得到3个邀请名额；可以查看普通日志。",
@@ -64,7 +75,8 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
     ],
   },
   {
-    id: 5,
+    id: 6,
+    groupType: "user",
     name: "Veteran User(妙蛙花)",
     interval: "P52W",
     privilege: "得到4个邀请名额；可以查看其它用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。",
@@ -74,7 +86,8 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
     ],
   },
   {
-    id: 6,
+    id: 7,
+    groupType: "user",
     name: "Extreme User(mega妙蛙花)",
     interval: "P60W",
     privilege: "得到4个邀请名额；可以更新过期的外部信息。",
@@ -84,7 +97,8 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
     ],
   },
   {
-    id: 7,
+    id: 8,
+    groupType: "user",
     name: "Ultimate User(极巨化妙蛙花)",
     interval: "P100W",
     privilege: "得到5个邀请名额。",
@@ -92,6 +106,18 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
       { seedingBonus: 400000, ratio: 1.0, uploads: 800 },
       { seedingBonus: 2560000, ratio: [1.0, 7.0], downloaded: 16 * TB },
     ],
+  },
+  {
+    id: 99,
+    groupType: "user",
+    name: "SVIP(闪光妙蛙花)",
+    privilege: "网站元老用户，和VIP权限完全相同，免除自动降级，但计算下载量。",
+  },
+  {
+    id: 100,
+    groupType: "vip",
+    name: "VIP(贵宾)	",
+    privilege: "和SVIP权限完全相同，免除自动降级，且不计算下载量。",
   },
 ];
 

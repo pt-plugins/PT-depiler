@@ -143,7 +143,18 @@ export const siteMetadata: ISiteMetadata = {
 
   levelRequirements: [
     {
+      id: 0,
+      name: "异教徒",
+      privilege: "查看会员列表; 请求补种; 查看普通日志; 使用流量信息条",
+    },
+    {
       id: 1,
+      name: "路人",
+      privilege:
+        "新用户的默认等级; 查看种子结构; 查看其它用户的评论、帖子历史; 查看排行榜; 查看其它用户的历史种子列表; 上传字幕; 删除自己上传的字幕; 提交候选.",
+    },
+    {
+      id: 2,
       name: "御宅族",
       interval: "P4W",
       downloaded: "50GB",
@@ -151,7 +162,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "查看会员列表; 请求补种; 查看普通日志; 使用流量信息条",
     },
     {
-      id: 2,
+      id: 3,
       name: "宅修士",
       interval: "P8W",
       downloaded: "120GB",
@@ -159,7 +170,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "无",
     },
     {
-      id: 3,
+      id: 4,
       name: "宅教士",
       interval: "P15W",
       downloaded: "300GB",
@@ -167,7 +178,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "无",
     },
     {
-      id: 4,
+      id: 5,
       name: "宅传教士",
       interval: "P25W",
       downloaded: "500GB",
@@ -175,7 +186,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "无",
     },
     {
-      id: 5,
+      id: 6,
       name: "宅护法",
       interval: "P40W",
       downloaded: "750GB",
@@ -183,7 +194,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "使用邀请名额; 无可用邀请时，购买邀请",
     },
     {
-      id: 6,
+      id: 7,
       name: "宅贤者",
       interval: "P60W",
       downloaded: "1024GB",
@@ -191,7 +202,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "无",
     },
     {
-      id: 7,
+      id: 8,
       name: "宅圣",
       interval: "P80W",
       downloaded: "1536GB",
@@ -199,7 +210,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "账号封存后永久保留.",
     },
     {
-      id: 8,
+      id: 9,
       name: "宅神",
       interval: "P100W",
       downloaded: "3072GB",

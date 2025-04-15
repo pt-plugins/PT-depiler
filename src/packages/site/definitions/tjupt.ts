@@ -152,13 +152,12 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
-      name: "无名小辈",
-      privilege: "发布/下载种子；求种区求种；查看种子NFO",
+      name: "无名小辈(User)",
+      privilege: `新用户的默认级别。`,
     },
-
     {
       id: 2,
-      name: "拜师学艺",
+      name: "拜师学艺(Power User)",
       interval: "P4W",
       snatches: 20,
       seedingTime: "P30D",
@@ -169,7 +168,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 3,
-      name: "持剑下山",
+      name: "持剑下山(Elite User)",
       interval: "P8W",
       snatches: 60,
       seedingTime: "P120D",
@@ -180,7 +179,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 4,
-      name: "初入江湖",
+      name: "初入江湖(Crazy User)",
       interval: "P16W",
       snatches: 150,
       seedingTime: "P450D",
@@ -192,7 +191,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 5,
-      name: "小有名气",
+      name: "小有名气(Insane User)",
       interval: "P28W",
       downloads: "300",
       seedingTime: "P1500D",
@@ -204,7 +203,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 6,
-      name: "威震一方",
+      name: "威震一方(Veteran User)",
       interval: "P48W",
       downloads: "600",
       seedingTime: "P4200D",
@@ -216,7 +215,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 7,
-      name: "横扫群雄",
+      name: "横扫群雄(Extreme User)",
       interval: "P72W",
       downloads: "1000",
       seedingTime: "P28000D",
@@ -228,7 +227,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 8,
-      name: "开宗立派",
+      name: "开宗立派(Ultimate User)",
       interval: "P100W",
       downloads: "1800",
       seedingTime: "P90000D",
@@ -240,7 +239,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 9,
-      name: "天下无敌",
+      name: "天下无敌(Nexus Master)",
       interval: "P132W",
       downloads: "3000",
       seedingTime: "P300000D",

@@ -194,6 +194,11 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
+      name: "User",
+      privilege: `新用户的默认级别。`,
+    },
+    {
+      id: 2,
       name: "Power User",
       interval: "P2W",
       downloaded: "120GB",
@@ -204,8 +209,8 @@ export const siteMetadata: ISiteMetadata = {
         '以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
     },
     {
-      id: 2,
-      name: "Elite User",
+      id: 3,
+      name: "(连长)Elite User",
       interval: "P4W",
       downloaded: "256GB",
       ratio: 2.5,
@@ -213,7 +218,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "Elite User及以上用户封存账号后不会被删除。",
     },
     {
-      id: 3,
+      id: 4,
       name: "Crazy User",
       interval: "P8W",
       downloaded: "512GB",
@@ -222,7 +227,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到0个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
     },
     {
-      id: 4,
+      id: 5,
       name: "Insane User",
       interval: "P12W",
       downloaded: "768GB",
@@ -231,7 +236,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "无",
     },
     {
-      id: 5,
+      id: 6,
       name: "Veteran User",
       interval: "P20W",
       downloaded: "1TB",
@@ -240,7 +245,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以查看其它用户的评论、帖子历史。",
     },
     {
-      id: 6,
+      id: 7,
       name: "Extreme User",
       interval: "P28W",
       downloaded: "2TB",
@@ -249,7 +254,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "Extreme User及以上用户会永远保留账号。",
     },
     {
-      id: 7,
+      id: 8,
       name: "Ultimate User",
       interval: "P40W",
       downloaded: "4TB",
@@ -258,7 +263,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "无",
     },
     {
-      id: 8,
+      id: 9,
       name: "Nexus Master",
       interval: "P56W",
       downloaded: "8TB",

@@ -311,7 +311,12 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
-      name: "精英",
+      name: "新人(User)",
+      privilege: `新用户的默认级别。可以发种，可以请求续种；可以在做种/下载/发布的时候选择匿名模式；可以上传字幕或删除自己上传的字幕；可以更新过期的外部信息。`,
+    },
+    {
+      id: 2,
+      name: "精英(Elite)",
       downloaded: "500GB",
       ratio: 1.2,
       alternative: [{ seedingBonus: 100000, uploads: 1 }, { seedingBonus: 150000 }],
@@ -319,20 +324,32 @@ export const siteMetadata: ISiteMetadata = {
         "可以在做种/下载/发布的时候选择匿名模式；可以查看用户列表；可以查看排行榜；可以浏览论坛邀请区；自助申请保种员；等级加成 0.05。",
     },
     {
-      id: 2,
-      name: "大师",
+      id: 3,
+      name: "大师(Master)	",
       downloaded: "1TB",
       ratio: 1.2,
       alternative: [{ seedingBonus: 500000, uploads: 100 }, { seedingBonus: 1000000 }],
       privilege: "可以访问高级用户论坛，等级加成 0.15。",
     },
     {
-      id: 3,
-      name: "神仙",
+      id: 4,
+      name: "神仙(God)",
       downloaded: "3TB",
       ratio: 2,
       alternative: [{ seedingBonus: 1200000, uploads: 300 }, { seedingBonus: 2400000 }],
       privilege: "彩色 ID 特权；可以查看普通日志；等级加成 0.25。",
+    },
+    {
+      id: 5,
+      name: "神王(Immortal)",
+      privilege:
+        "成为当月神王时奖励当时邀请茉莉价格的一半茉莉，最酷炫的动态彩色 ID 特权；常规时期可以购买及发送邀请；等级加成0.35。",
+    },
+    {
+      id: 100,
+      name: "贵宾(VIP)",
+      groupType: "vip",
+      privilege: "贵宾(VIP)的权限和神王(Immortal)相同。贵宾(VIP)及其以上等级免除自动降级。",
     },
   ],
 };
