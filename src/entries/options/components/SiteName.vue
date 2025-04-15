@@ -34,7 +34,9 @@ if (tagIs === "a") {
 </script>
 
 <template>
-  <component :is="tagIs" v-bind="renderProp">{{ siteName }}</component>
+  <slot :name="siteName">
+    <component :is="tagIs" v-bind="renderProp">{{ siteName }}</component>
+  </slot>
 </template>
 
 <style scoped lang="scss"></style>

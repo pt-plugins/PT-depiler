@@ -62,45 +62,55 @@ async function sendToDownloader() {
   };
 
   isSending.value = true;
-  try {
-    for (const torrent of torrentItems) {
-      const realAddTorrentOptions: Partial<CAddTorrentOptions> = { ...addTorrentOptions };
-      if (realAddTorrentOptions.savePath) {
-        if (realAddTorrentOptions.savePath === "") {
-          delete realAddTorrentOptions.savePath;
-        } else {
-          const nowDate = new Date();
-          const replaceMap: Record<string, string> = {
-            "torrent.site": torrent.site,
-            "torrent.siteName": await metadataStore.getSiteName(torrent.site),
-            "torrent.category": (torrent.category as string) ?? "",
-            "date:YYYY": formatDate(nowDate, "yyyy") as string,
-            "date:MM": formatDate(nowDate, "MM") as string,
-            "date:DD": formatDate(nowDate, "dd") as string,
-          };
+  const promises = [];
 
-          for (const [key, value] of Object.entries(replaceMap)) {
-            realAddTorrentOptions.savePath = realAddTorrentOptions.savePath.replace(`$${key}$`, value);
-          }
+  for (const torrent of torrentItems) {
+    const realAddTorrentOptions: Partial<CAddTorrentOptions> = { ...addTorrentOptions };
+    if (realAddTorrentOptions.savePath) {
+      if (realAddTorrentOptions.savePath === "") {
+        delete realAddTorrentOptions.savePath;
+      } else {
+        const nowDate = new Date();
+        const replaceMap: Record<string, string> = {
+          "torrent.site": torrent.site,
+          "torrent.siteName": await metadataStore.getSiteName(torrent.site),
+          "torrent.category": (torrent.category as string) ?? "",
+          "date:YYYY": formatDate(nowDate, "yyyy") as string,
+          "date:MM": formatDate(nowDate, "MM") as string,
+          "date:DD": formatDate(nowDate, "dd") as string,
+        };
+
+        for (const [key, value] of Object.entries(replaceMap)) {
+          realAddTorrentOptions.savePath = realAddTorrentOptions.savePath.replace(`$${key}$`, value);
         }
       }
-      if (realAddTorrentOptions.label === "") {
-        delete realAddTorrentOptions.label;
-      }
+    }
+    if (realAddTorrentOptions.label === "") {
+      delete realAddTorrentOptions.label;
+    }
 
-      // noinspection ES6MissingAwait
+    promises.push(
       sendMessage("downloadTorrentToDownloader", {
         torrent,
         downloaderId: selectedDownloader.value?.id!,
         addTorrentOptions: realAddTorrentOptions as CAddTorrentOptions,
-      });
-    }
-  } catch (error) {
-    // 此处的错误不捕捉，因为我们不等待 sendTorrentToDownloader 完成
-  } finally {
-    isSending.value = false;
-    showDialog.value = false;
+      }).catch((x) => {
+        runtimeStore.showSnakebar(`[${torrent.title}] 发送到下载器失败！错误信息： ${x}`, { color: "error" });
+      }),
+    );
   }
+
+  Promise.all(promises)
+    .then(() => {
+      runtimeStore.showSnakebar("发送到下载器成功", { color: "success" });
+    })
+    .catch((x) => {
+      runtimeStore.showSnakebar("有任务发送到下载器失败，请在下载历史页面重试", { color: "error" });
+    })
+    .finally(() => {
+      isSending.value = false;
+      showDialog.value = false;
+    });
 }
 </script>
 

@@ -74,7 +74,7 @@ function viewStoreData(data: IShowUserInfo) {
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title>
-            {{ t("MyData.HistoryDataView.title") }}<SiteName :site-id="props.siteId!" class="" tag="span" />
+            {{ t("MyData.HistoryDataView.title") }} @ <SiteName :site-id="props.siteId!" class="" tag="span" />
           </v-toolbar-title>
         </v-toolbar>
       </v-card-title>

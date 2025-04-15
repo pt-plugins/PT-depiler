@@ -1,6 +1,6 @@
 import { getSiteInstance } from "../shared/adapters/site.ts";
 import { onMessage, sendMessage } from "@/messages.ts";
-import { getDownloader, getRemoteTorrentFile } from "@ptd/downloader";
+import { type CAddTorrentOptions, getDownloader, getRemoteTorrentFile } from "@ptd/downloader";
 import { EResultParseStatus, type ITorrent, type IUserInfo } from "@ptd/site";
 import type { IMetadataPiniaStorageSchema } from "@/shared/storages/types/metadata.ts";
 import { log } from "~/helper.ts";
@@ -40,7 +40,11 @@ onMessage("getTorrentDownloadLink", async ({ data: torrent }) => {
   return await site.getTorrentDownloadLink(torrent);
 });
 
-function buildDownloadHistory(torrent: ITorrent, downloaderId: string = "local"): ITorrentDownloadMetadata {
+function buildDownloadHistory(
+  torrent: ITorrent,
+  downloaderId: string = "local",
+  addTorrentOptions: CAddTorrentOptions = {} as CAddTorrentOptions,
+): ITorrentDownloadMetadata {
   return {
     siteId: torrent.site,
     torrentId: torrent.id,
@@ -51,6 +55,7 @@ function buildDownloadHistory(torrent: ITorrent, downloaderId: string = "local")
     link: torrent.link,
     downloadAt: +Date.now(),
     downloadStatus: "pending",
+    addTorrentOptions,
     torrent: torrent as ISearchResultTorrent,
   };
 }
@@ -85,7 +90,7 @@ onMessage("downloadTorrentToLocalFile", async ({ data: torrent }) => {
 onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId, addTorrentOptions } }) => {
   log("downloadTorrentToDownloader.Init", torrent, downloaderId, addTorrentOptions);
 
-  const downloadHistory = buildDownloadHistory(torrent, downloaderId);
+  const downloadHistory = buildDownloadHistory(torrent, downloaderId, addTorrentOptions);
   const downloadId = await setDownloadHistory(downloadHistory);
 
   const site = await getSiteInstance<"public">(torrent.site);

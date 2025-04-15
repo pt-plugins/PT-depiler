@@ -9,6 +9,7 @@ import type { ISocialInformation } from "@ptd/social";
 import { ITorrent, TSiteID as TSiteKey } from "@ptd/site";
 import { TDownloaderKey } from "./metadata.ts";
 import { ISearchResultTorrent } from "./runtime.ts";
+import type { CAddTorrentOptions } from "@ptd/downloader";
 
 export type TTorrentDownloadKey = number;
 
@@ -20,6 +21,7 @@ export interface ITorrentDownloadMetadata extends Pick<ITorrent, "title" | "subT
   downloadAt: number; // 下载时间
   downloadStatus: "pending" | "downloading" | "completed" | "failed"; // 下载状态
   torrent: ISearchResultTorrent; // 种子信息
+  addTorrentOptions: Partial<CAddTorrentOptions>;
 }
 
 export interface IPtdDBSchemaV1 extends DBSchema {

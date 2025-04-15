@@ -2,7 +2,7 @@
 import { computed, onMounted, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { throttle } from "es-toolkit";
-import { getDownloaderIcon } from "@ptd/downloader";
+import { type CAddTorrentOptions, getDownloaderIcon } from "@ptd/downloader";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
@@ -86,9 +86,34 @@ function loadDownloadHistory() {
   });
 }
 
-onMounted(() => {
-  loadDownloadHistory();
-});
+const throttleLoadDownloadHistory = throttle(loadDownloadHistory, 1e3);
+
+const isReDownloading = ref<boolean>(false);
+function reDownloadTorrent(downloadHistoryIds: TTorrentDownloadKey[]) {
+  isReDownloading.value = true;
+  const promises = [];
+  for (const downloadHistoryId of downloadHistoryIds) {
+    const history: ITorrentDownloadMetadata = downloadHistory.value[downloadHistoryId];
+    if (history) {
+      const historyTorrent = history.torrent;
+      if (history.downloaderId === "local") {
+        promises.push(sendMessage("downloadTorrentToLocalFile", historyTorrent));
+      } else {
+        promises.push(
+          sendMessage("downloadTorrentToDownloader", {
+            torrent: historyTorrent,
+            downloaderId: history.downloaderId,
+            addTorrentOptions: (history.addTorrentOptions ?? {}) as CAddTorrentOptions,
+          }),
+        );
+      }
+    }
+  }
+  Promise.all(promises).then(() => {
+    isReDownloading.value = false;
+    throttleLoadDownloadHistory();
+  });
+}
 
 const showDeleteDialog = ref<boolean>(false);
 const toDeleteIds = ref<TTorrentDownloadKey[]>([]);
@@ -96,8 +121,6 @@ async function deleteDownloadHistory(downloadHistoryIds: TTorrentDownloadKey[]) 
   toDeleteIds.value = downloadHistoryIds;
   showDeleteDialog.value = true;
 }
-
-const throttleLoadDownloadHistory = throttle(loadDownloadHistory, 1e3);
 
 async function confirmDeleteDownloadHistory(downloadHistoryId: TTorrentDownloadKey) {
   await sendMessage("deleteDownloadHistoryById", downloadHistoryId);
@@ -108,35 +131,52 @@ async function confirmDeleteDownloadHistory(downloadHistoryId: TTorrentDownloadK
 
   throttleLoadDownloadHistory();
 }
+
+onMounted(() => {
+  loadDownloadHistory();
+});
 </script>
 
 <template>
   <v-alert :title="t('route.Overview.DownloadHistory')" type="info" />
   <v-card>
     <v-card-title>
-      <!-- TODO -->
-      <v-btn color="green" prepend-icon="mdi-cached" @click="() => loadDownloadHistory()">刷新下载记录列表 </v-btn>
+      <v-row class="ma-0">
+        <!-- TODO -->
+        <v-btn color="green" prepend-icon="mdi-cached" @click="() => loadDownloadHistory()">刷新下载记录列表 </v-btn>
 
-      <v-divider vertical class="mx-2" />
+        <v-divider vertical class="mx-2" />
 
-      <v-btn
-        :disabled="tableSelected.length === 0"
-        color="error"
-        prepend-icon="mdi-minus"
-        @click="deleteDownloadHistory(tableSelected)"
-      >
-        {{ $t("common.remove") }}
-      </v-btn>
-      <v-btn
-        :disabled="downloadHistoryList.length === 0"
-        color="error"
-        class="ml-2"
-        prepend-icon="mdi-close"
-        disabled
-        @click="deleteDownloadHistory(tableSelected)"
-      >
-        清空
-      </v-btn>
+        <v-btn
+          :disabled="tableSelected.length === 0"
+          :loading="isReDownloading"
+          color="primary"
+          prepend-icon="mdi-tray-arrow-down"
+          @click="() => reDownloadTorrent(tableSelected)"
+        >
+          重新下载
+        </v-btn>
+
+        <v-divider vertical class="mx-2" />
+
+        <v-btn
+          :disabled="tableSelected.length === 0"
+          color="error"
+          prepend-icon="mdi-minus"
+          @click="deleteDownloadHistory(tableSelected)"
+        >
+          {{ t("common.remove") }}
+        </v-btn>
+        <v-btn
+          :disabled="downloadHistoryList.length === 0"
+          class="ml-2"
+          color="error"
+          prepend-icon="mdi-close"
+          @click="deleteDownloadHistory(tableSelected)"
+        >
+          清空
+        </v-btn>
+      </v-row>
     </v-card-title>
     <v-card-text>
       <v-data-table
@@ -198,6 +238,9 @@ async function confirmDeleteDownloadHistory(downloadHistoryId: TTorrentDownloadK
 
         <template #item.action="{ item }">
           <v-btn-group class="table-action" density="compact" variant="plain">
+            <v-btn color="primary" icon="mdi-tray-arrow-down" size="small" @click="() => reDownloadTorrent([item.id!])">
+            </v-btn>
+
             <v-btn
               :title="t('common.remove')"
               color="error"

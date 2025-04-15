@@ -155,7 +155,7 @@
       }
     },
     "HistoryDataView": {
-      "title": "用户历史数据 @ ",
+      "title": "用户历史数据",
       "deleteConfirm": "确认删除这条历史数据吗？",
       "action": {
         "viewRaw": "查看原始数据"
