@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { type IUserInfo, type TSiteID } from "@ptd/site";
+import { EResultParseStatus, type IUserInfo, type TSiteID } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
 import { fixUserInfo, formatRatio } from "./utils.ts";
@@ -167,7 +167,7 @@ function viewStoreData(data: IShowUserInfo) {
 
               <!-- 删除 -->
               <v-btn
-                :disabled="item.date == currentDate"
+                :disabled="item.status == EResultParseStatus.success && item.date == currentDate"
                 :title="t('common.remove')"
                 color="error"
                 icon="mdi-delete"

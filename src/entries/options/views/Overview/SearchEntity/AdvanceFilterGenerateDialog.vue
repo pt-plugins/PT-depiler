@@ -20,7 +20,7 @@ import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 
 const showDialog = defineModel<boolean>();
-const emit = defineEmits(["update:tableFilter", "update:modelValue"]);
+const emit = defineEmits(["update:tableFilter"]);
 
 const { t } = useI18n();
 const runtimeStore = useRuntimeStore();
