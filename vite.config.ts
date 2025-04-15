@@ -55,7 +55,7 @@ export default defineConfig({
         name: "__MSG_extName__",
         description: "__MSG_extDesc__",
         default_locale: "en",
-        homepage_url: "https://github.com/ronggang/PT-Plugin-Plus",
+        homepage_url: "https://github.com/pt-plugins/PT-depiler",
         icons: {
           "16": "icons/logo/16.png",
           "19": "icons/logo/19.png",
