@@ -193,7 +193,7 @@ onMounted(() => {
             <span class="ml-3 font-weight-bold">本地下载</span>
           </template>
           <template v-else>
-            <v-container>
+            <v-container v-if="metadataStore.downloaders[item.downloaderId]">
               <v-row>
                 <v-col class="pa-0">
                   <v-avatar :image="downloaderIcon(item.downloaderId).value" />
@@ -207,6 +207,7 @@ onMounted(() => {
                 </v-col>
               </v-row>
             </v-container>
+            <span v-else class="text-decoration-line-through text-no-wrap">[{{ item.downloaderId }}]</span>
           </template>
         </template>
 
