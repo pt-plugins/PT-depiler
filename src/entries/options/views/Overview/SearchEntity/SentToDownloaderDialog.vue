@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, reactive, watch, computed } from "vue";
+import { ref, watch, computed } from "vue";
 import { type CAddTorrentOptions, getDownloaderIcon } from "@ptd/downloader";
 import { type ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
 import { type IDownloaderMetadata } from "@/shared/storages/types/metadata.ts";
@@ -16,6 +16,7 @@ const { torrentItems } = defineProps<{
   torrentItems: ISearchResultTorrent[];
 }>();
 const emit = defineEmits<{
+  (e: "cancel"): void;
   (e: "done"): void;
 }>();
 
@@ -121,7 +122,7 @@ async function sendToDownloader() {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" :persistent="isSending" max-width="800" scrollable>
+  <v-dialog v-model="showDialog" :persistent="isSending" max-width="800" scrollable @after-leave="() => emit('cancel')">
     <v-card>
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey-darken-2">

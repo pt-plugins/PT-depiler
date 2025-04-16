@@ -45,13 +45,6 @@ const advanceFilterDict = reactive<IAdvanceFilterDict>({
   date: { range: [0, 0], ticks: [], value: [0, 0] },
 });
 
-const downloadStatusList: ITorrentDownloadMetadata["downloadStatus"][] = [
-  "pending",
-  "downloading",
-  "completed",
-  "failed",
-];
-
 const resetCount = ref<number>(0);
 function resetFilter() {
   resetCount.value = +new Date(); // 更新重置计数，触发 vue 更新 site 和 tags 的 v-checkbox ，防止因为 :key 的问题导致无法重置

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import type { ITorrentDownloadMetadata } from "@/shared/storages/types/indexdb.ts";
-import { sendMessage } from "@/messages.ts";
-import type { CAddTorrentOptions } from "@ptd/downloader";
 import { reactive, ref, shallowRef } from "vue";
+import type { CAddTorrentOptions } from "@ptd/downloader";
+
+import { sendMessage } from "@/messages.ts";
+import type { ITorrentDownloadMetadata } from "@/shared/storages/types/indexdb.ts";
 import SentToDownloaderDialog from "@/options/views/Overview/SearchEntity/SentToDownloaderDialog.vue";
 
 const showDialog = defineModel<boolean>();
@@ -105,6 +106,7 @@ function reDownload(reDownloadType: TReDownloadType) {
   <SentToDownloaderDialog
     v-model="showSentToDownloaderDialog"
     :torrent-items="downloadTorrentsRef"
+    @cancel="() => (isReDownloading['downloader'] = false)"
     @done="() => submitDownloadFinish('downloader')"
   />
 </template>
