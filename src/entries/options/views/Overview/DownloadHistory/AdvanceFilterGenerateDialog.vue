@@ -1,87 +1,71 @@
 <script setup lang="ts">
-/**
- * 因为 Vuetify 的限制，无法实现  indeterminate -> checked -> unchecked -> indeterminate 的循环切换，
- * 只能由 indeterminate -> checked <-> unchecked 之间切换，当 checked 是为 required，unchecked 时为 exclude，
- * 如果需要忽略，目前只能重置过滤词。
- * refs: https://github.com/vuetifyjs/vuetify/blob/0ca7e93ad011b358591da646fdbd6ebe83625d25/packages/vuetify/src/components/VCheckbox/VCheckboxBtn.tsx#L49-L53
- */
-import { filesize } from "filesize";
-import { useI18n } from "vue-i18n";
 import { reactive, ref, watch } from "vue";
-import { uniq, flatten, uniqBy } from "es-toolkit";
+import { useI18n } from "vue-i18n";
+import { uniq } from "es-toolkit";
 import { addDays, startOfDay } from "date-fns";
 
 import { formatDate } from "@/options/utils.ts";
-import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import type { ITorrentDownloadMetadata } from "@/shared/storages/types/indexdb.ts";
+import { searchQueryParserOptions } from "@/options/views/Overview/DownloadHistory/utils.ts";
 import {
-  generateRangeField,
   getThisDateUnitRange,
   setDateRangeByDatePicker,
+  generateRangeField,
+  IKeywordValue,
+  IRangedValue,
+  ITextValue,
   stringifyFilter,
-  type ITextValue,
-  type IKeywordValue,
-  type IRangedValue,
 } from "@/shared/utils/advanceFilter.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
-import { searchQueryParserOptions } from "@/options/views/Overview/SearchEntity/utils.ts";
+import DownloaderLabel from "@/options/components/DownloaderLabel.vue";
 
 const showDialog = defineModel<boolean>();
+const { records } = defineProps<{
+  records: ITorrentDownloadMetadata[];
+}>();
 const emit = defineEmits(["update:tableFilter"]);
 
 const { t } = useI18n();
-const runtimeStore = useRuntimeStore();
 
 interface IAdvanceFilterDict {
   text: ITextValue;
   site: IKeywordValue<string>;
-  tags: IKeywordValue<{ name: string; color: string }>;
+  downloader: IKeywordValue<string>;
+  status: IKeywordValue<string>;
   date: IRangedValue;
-  size: IRangedValue;
-  seeders: IRangedValue;
-  leechers: IRangedValue;
-  completed: IRangedValue;
 }
 
 const advanceFilterDict = reactive<IAdvanceFilterDict>({
   text: { required: [], exclude: [] },
   site: { all: [], required: [], exclude: [] },
-  tags: { all: [], required: [], exclude: [] },
+  downloader: { all: [], required: [], exclude: [] },
+  status: { all: [], required: [], exclude: [] },
   date: { range: [0, 0], ticks: [], value: [0, 0] },
-  size: { range: [0, 0], ticks: [], value: [0, 0] },
-  seeders: { range: [0, 0], ticks: [], value: [0, 0] },
-  leechers: { range: [0, 0], ticks: [], value: [0, 0] },
-  completed: { range: [0, 0], ticks: [], value: [0, 0] },
 });
+
+const downloadStatusList: ITorrentDownloadMetadata["downloadStatus"][] = [
+  "pending",
+  "downloading",
+  "completed",
+  "failed",
+];
 
 const resetCount = ref<number>(0);
 function resetFilter() {
   resetCount.value = +new Date(); // 更新重置计数，触发 vue 更新 site 和 tags 的 v-checkbox ，防止因为 :key 的问题导致无法重置
-  const searchResult = runtimeStore.search.searchResult;
 
   advanceFilterDict.text = { required: [], exclude: [] };
-
-  advanceFilterDict.site = { all: uniq(searchResult.map((x) => x.site)), required: [], exclude: [] };
-  advanceFilterDict.tags = {
-    all: uniqBy(
-      flatten(searchResult.filter((x) => x.tags && x.tags.length > 0).map((x) => x.tags)),
-      (x) => x!.name,
-    ) as { name: string; color: string }[],
-    required: [],
-    exclude: [],
-  };
-
-  advanceFilterDict.date = generateRangeField(searchResult.map((x) => x.time));
-  advanceFilterDict.size = generateRangeField(searchResult.map((x) => x.size));
-  advanceFilterDict.seeders = generateRangeField(searchResult.map((x) => x.seeders));
-  advanceFilterDict.leechers = generateRangeField(searchResult.map((x) => x.leechers));
-  advanceFilterDict.completed = generateRangeField(searchResult.map((x) => x.completed));
+  advanceFilterDict.site = { all: uniq(records.map((x) => x.siteId)), required: [], exclude: [] };
+  advanceFilterDict.downloader = { all: uniq(records.map((x) => x.downloaderId)), required: [], exclude: [] };
+  advanceFilterDict.status = { all: uniq(records.map((x) => x.downloadStatus)), required: [], exclude: [] };
+  advanceFilterDict.date = generateRangeField(records.map((x) => x.downloadAt));
 }
 
 watch(showDialog, resetFilter);
 
-function toggleState(field: "site" | "tags", value: string) {
+function toggleState(field: "site" | "downloader" | "status", value: string) {
   const state = advanceFilterDict[field].required.includes(value);
   if (state) {
     advanceFilterDict[field].exclude.push(value);
@@ -97,7 +81,7 @@ function updateTableFilter() {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" max-width="800" scrollable>
+  <v-dialog v-model="showDialog" width="800">
     <v-card>
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey-darken-2">
@@ -147,27 +131,30 @@ function updateTableFilter() {
               </v-checkbox>
             </v-col>
           </v-row>
-          <v-row><v-label>标签</v-label></v-row>
+          <v-row><v-label>下载器</v-label></v-row>
           <v-row>
-            <v-col v-for="tag in advanceFilterDict.tags.all" :key="`${resetCount}_${tag.name}`" :cols="2" class="pa-0">
+            <v-col
+              v-for="downloader in advanceFilterDict.downloader.all"
+              :key="`${resetCount}_${downloader}`"
+              :cols="6"
+              class="pa-0"
+            >
               <v-checkbox
-                v-model="advanceFilterDict.tags.required"
-                :value="tag.name"
+                v-model="advanceFilterDict.downloader.required"
+                :value="downloader"
                 density="compact"
                 hide-details
                 indeterminate
-                @click.stop="() => toggleState('tags', tag.name)"
+                @click.stop="() => toggleState('downloader', downloader)"
               >
                 <template #label>
-                  <v-chip :color="tag.color" class="mr-1" label size="small" variant="tonal">
-                    {{ tag.name }}
-                  </v-chip>
+                  <DownloaderLabel :downloader="downloader" />
                 </template>
               </v-checkbox>
             </v-col>
           </v-row>
           <v-row>
-            <v-col cols="6">
+            <v-col cols="12">
               <v-row class="pr-4">
                 <v-label>日期</v-label>
                 <v-spacer />
@@ -213,87 +200,6 @@ function updateTableFilter() {
                   <template #thumb-label="{ modelValue }">
                     <span class="text-no-wrap">{{ formatDate(modelValue ?? 0, "yyyy-MM-dd HH:mm") }}</span>
                   </template>
-                </v-range-slider>
-              </v-row>
-            </v-col>
-            <v-col cols="6">
-              <v-row><v-label>种子大小</v-label></v-row>
-              <v-row>
-                <v-range-slider
-                  v-model="advanceFilterDict.size.value"
-                  :max="advanceFilterDict.size.range[1]"
-                  :min="advanceFilterDict.size.range[0]"
-                  :step="1024 ** 3"
-                  :thumb-label="true"
-                  :ticks="advanceFilterDict.size.ticks"
-                  class="px-6"
-                  hide-details
-                  show-ticks="always"
-                  tick-size="4"
-                >
-                  <template #tick-label></template>
-                  <template #thumb-label="{ modelValue }">
-                    <span class="text-no-wrap">{{ filesize(modelValue ?? 0) }}</span>
-                  </template>
-                </v-range-slider>
-              </v-row>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="4">
-              <v-row><v-label>上传人数</v-label></v-row>
-              <v-row>
-                <v-range-slider
-                  v-model="advanceFilterDict.seeders.value"
-                  :max="advanceFilterDict.seeders.range[1]"
-                  :min="advanceFilterDict.seeders.range[0]"
-                  :thumb-label="true"
-                  :ticks="advanceFilterDict.seeders.ticks"
-                  class="px-6"
-                  hide-details
-                  show-ticks="always"
-                  step="1"
-                  tick-size="4"
-                >
-                  <template #tick-label></template>
-                </v-range-slider>
-              </v-row>
-            </v-col>
-            <v-col cols="4">
-              <v-row><v-label>下载人数</v-label></v-row>
-              <v-row>
-                <v-range-slider
-                  v-model="advanceFilterDict.leechers.value"
-                  :max="advanceFilterDict.leechers.range[1]"
-                  :min="advanceFilterDict.leechers.range[0]"
-                  :thumb-label="true"
-                  :ticks="advanceFilterDict.leechers.ticks"
-                  class="px-6"
-                  hide-details
-                  show-ticks="always"
-                  step="1"
-                  tick-size="4"
-                >
-                  <template #tick-label></template>
-                </v-range-slider>
-              </v-row>
-            </v-col>
-            <v-col cols="4">
-              <v-row><v-label>完成人数</v-label></v-row>
-              <v-row>
-                <v-range-slider
-                  v-model="advanceFilterDict.completed.value"
-                  :max="advanceFilterDict.completed.range[1]"
-                  :min="advanceFilterDict.completed.range[0]"
-                  :thumb-label="true"
-                  :ticks="advanceFilterDict.completed.ticks"
-                  class="px-6"
-                  hide-details
-                  show-ticks="always"
-                  step="1"
-                  tick-size="4"
-                >
-                  <template #tick-label></template>
                 </v-range-slider>
               </v-row>
             </v-col>

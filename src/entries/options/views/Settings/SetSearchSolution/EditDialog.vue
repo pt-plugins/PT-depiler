@@ -105,7 +105,7 @@ function saveSolutionState() {
   <v-dialog v-model="showDialog" fullscreen>
     <v-card>
       <v-card-title class="pa-0">
-        <v-toolbar :title="t('SetSearchSolution.edit.title')" color="blue-grey darken-2">
+        <v-toolbar :title="t('SetSearchSolution.edit.title')" color="blue-grey-darken-2">
           <template #append>
             <v-btn icon="mdi-close" @click="showDialog = false"> </v-btn>
           </template>

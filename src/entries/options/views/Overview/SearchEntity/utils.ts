@@ -1,5 +1,6 @@
-import { computed } from "vue";
 import PQueue from "p-queue";
+import { computed, ref } from "vue";
+import { refDebounced } from "@vueuse/core";
 import searchQueryParser, { type SearchParserOptions } from "search-query-parser";
 
 import {
@@ -13,7 +14,7 @@ import type { ISearchResultTorrent, TSearchSolutionKey } from "@/shared/storages
 import { sendMessage } from "@/messages.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { log } from "~/helper.ts";
+import { log, checkRange, dateFilterFormat } from "~/helper.ts";
 
 export const searchQueryParserOptions: SearchParserOptions = {
   keywords: ["site", "tags"],
@@ -24,17 +25,11 @@ export const searchQueryParserOptions: SearchParserOptions = {
   alwaysArray: true,
 };
 
-const dateFilterFormat = ["T", "yyyyMMdd'T'HHmmss", "yyyyMMdd'T'HHmm", "yyyyMMdd'T'HH", "yyyyMMdd", "yyyyMM", "yyyy"];
-
-function checkRange(range: any, value: number) {
-  if (range?.from && value < range.from) return false;
-  if (range?.to && value > range.to) return false;
-  return true;
-}
+export const tableWaitFilter = ref("");
+export const tableFilter = refDebounced(tableWaitFilter, 500); // 延迟搜索过滤词的生成
+const tableParsedFilter = computed(() => searchQueryParser.parse(tableFilter.value, searchQueryParserOptions));
 
 export function tableCustomFilter(value: any, query: string, item: any) {
-  const tableParsedFilter = computed(() => searchQueryParser.parse(query, searchQueryParserOptions));
-
   const rawItem = item.raw as ISearchResultTorrent;
   const itemTitle = `${rawItem.title}|$|${rawItem.subTitle ?? ""}`.toLowerCase();
   const itemTags = (rawItem.tags ?? []).map((tag) => tag.name);
@@ -46,8 +41,8 @@ export function tableCustomFilter(value: any, query: string, item: any) {
   if (tags && !tags.every((tag: string) => itemTags.includes(tag))) return false;
 
   if (date && rawItem.time) {
-    const startDateTimestamp = parseValidTimeString(date.from, dateFilterFormat);
-    const endDateTimestamp = parseValidTimeString(date.to, dateFilterFormat);
+    const startDateTimestamp = parseValidTimeString(date.from, dateFilterFormat) as number;
+    const endDateTimestamp = parseValidTimeString(date.to, dateFilterFormat) as number;
     if (!checkRange({ from: startDateTimestamp, to: endDateTimestamp }, rawItem.time)) return false;
   } else if (date) {
     return false;

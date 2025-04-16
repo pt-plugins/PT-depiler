@@ -38,7 +38,7 @@ function editClientConfig() {
   <v-dialog v-model="showDialog" max-width="800" scrollable>
     <v-card>
       <v-card-title style="padding: 0">
-        <v-toolbar color="blue-grey darken-2">
+        <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title>{{ t("SetDownloader.edit.title") }}</v-toolbar-title>
         </v-toolbar>
       </v-card-title>

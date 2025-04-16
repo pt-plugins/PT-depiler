@@ -125,7 +125,7 @@ function saveClientConfig() {
       <v-card-title class="pa-0">
         <v-toolbar
           :title="t('SetDownloader.PathAndTag.title', [clientConfig?.name ?? clientId])"
-          color="blue-grey darken-2"
+          color="blue-grey-darken-2"
         >
           <template #append>
             <v-btn icon="mdi-close" @click="showDialog = false"> </v-btn>

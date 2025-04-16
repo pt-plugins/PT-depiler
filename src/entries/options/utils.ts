@@ -1,7 +1,6 @@
 import { toRaw, isRef, isReactive, isProxy } from "vue";
 import { filesize, type FileSizeOptions } from "filesize";
 import { format as dateFormat } from "date-fns";
-import { EResultParseStatus } from "@ptd/site";
 
 export function deepToRaw<T extends Record<string, any>>(sourceObj: T): T {
   const objectIterator = (input: any): any => {
@@ -46,5 +45,6 @@ export const formatDate = (date: Date | number | string, format: string = "yyyy-
     return date;
   }
 };
+
 export const formatNumber = (num: number, options: Intl.NumberFormatOptions = {}) =>
   Number(num).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2, ...options });

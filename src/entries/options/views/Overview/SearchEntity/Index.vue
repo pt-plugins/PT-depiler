@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { refDebounced } from "@vueuse/core";
 import { ETorrentStatus } from "@ptd/site";
 
 import { type ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
@@ -11,7 +10,7 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 import { log } from "~/helper.ts";
 import { formatDate, formatSize } from "@/options/utils.ts";
-import { doSearch, searchQueue, tableCustomFilter } from "./utils.ts"; // <-- 主要方法在这个文件中！！！
+import { doSearch, searchQueue, tableCustomFilter, tableWaitFilter, tableFilter } from "./utils.ts"; // <-- 主要方法在这个文件中！！！
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
@@ -50,8 +49,6 @@ const tableHeader = computed(() => {
   );
 });
 
-const tableWaitFilter = ref("");
-const tableFilter = refDebounced(tableWaitFilter, 500); // 延迟搜索过滤词的生成
 const tableSelected = ref<Array<ISearchResultTorrent["uniqueId"]>>([]);
 
 watch(

@@ -329,8 +329,7 @@ export default class sjtu extends NexusPHP {
       const textBetween = match[0]; // 提取出 </a> 和 <div id="ka"> 之间的文本内容
       const numberMatch = textBetween.match(/(\d+)/);
       if (numberMatch) {
-        var number = numberMatch[0];
-        flushUserInfo.uploads = number;
+        flushUserInfo.uploads = numberMatch[0];
       }
     }
 

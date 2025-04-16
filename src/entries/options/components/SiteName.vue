@@ -11,6 +11,7 @@ const props = defineProps<{
   siteId: TSiteID;
   tag?: string;
   class?: string[] | string;
+  [key: string]: any;
 }>();
 
 const siteName = computedAsync(() => metadataStore.getSiteMergedMetadata(props.siteId, "name", props.siteId));

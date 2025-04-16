@@ -116,7 +116,7 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
   {
     id: 100,
     groupType: "vip",
-    name: "VIP(贵宾)	",
+    name: "VIP(贵宾)",
     privilege: "和SVIP权限完全相同，免除自动降级，且不计算下载量。",
   },
 ];

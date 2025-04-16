@@ -1,38 +1,26 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { throttle } from "es-toolkit";
-import { getDownloaderIcon } from "@ptd/downloader";
-
-import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { computed, onMounted, reactive, ref, shallowRef } from "vue";
 
 import { sendMessage } from "@/messages.ts";
 import { formatDate } from "@/options/utils.ts";
-
-import type { TDownloaderKey } from "@/shared/storages/types/metadata.ts";
 import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/storages/types/indexdb.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import SiteName from "@/options/components/SiteName.vue";
 import TorrentTitleTd from "@/options/components/TorrentTitleTd.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
-import ReDownloadSelectDialog from "@/options/views/Overview/DownloadHistory/ReDownloadSelectDialog.vue";
+import DownloaderLabel from "@/options/components/DownloaderLabel.vue"; // <-- 主要方法
+import ReDownloadSelectDialog from "./ReDownloadSelectDialog.vue";
+import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
+
+import { downloadStatusMap, tableCustomFilterFn, tableWaitFilter, tableFilter } from "./utils.ts";
 
 const { t } = useI18n();
-const metadataStore = useMetadataStore();
 
 const downloadHistory = ref<Record<TTorrentDownloadKey, ITorrentDownloadMetadata>>({});
 const downloadHistoryList = computed(() => Object.values(downloadHistory.value));
-
-const downloaderConfig = (downloaderId: TDownloaderKey) =>
-  computed(() => {
-    return metadataStore.downloaders[downloaderId];
-  });
-
-const downloaderIcon = (downloaderId: TDownloaderKey) =>
-  computed(() => {
-    return getDownloaderIcon(downloaderConfig(downloaderId).value.type);
-  });
 
 const tableHeader = [
   { title: "№", key: "id", align: "center", width: 50, filterable: false },
@@ -45,15 +33,7 @@ const tableHeader = [
 ];
 const tableSelected = ref<TTorrentDownloadKey[]>([]);
 
-const downloadStatusMap: Record<
-  ITorrentDownloadMetadata["downloadStatus"],
-  { title: string; icon: string; color: string }
-> = {
-  downloading: { title: "下载中", icon: "mdi-download", color: "blue" },
-  pending: { title: "等待中", icon: "mdi-clock", color: "orange" },
-  completed: { title: "已完成", icon: "mdi-check", color: "green" },
-  failed: { title: "错误", icon: "mdi-alert", color: "red" },
-};
+const showAdvanceFilterDialog = ref<boolean>(false);
 
 // 使用 setTimeout 监听下载状态变化
 const watchingMap = reactive<Record<TTorrentDownloadKey, number>>({});
@@ -121,7 +101,7 @@ async function confirmDeleteDownloadHistory(downloadHistoryId: TTorrentDownloadK
 }
 
 onMounted(() => {
-  loadDownloadHistory();
+  throttleLoadDownloadHistory();
 });
 </script>
 
@@ -130,8 +110,8 @@ onMounted(() => {
   <v-card>
     <v-card-title>
       <v-row class="ma-0">
-        <!-- TODO -->
-        <v-btn color="green" prepend-icon="mdi-cached" @click="() => loadDownloadHistory()">刷新下载记录列表 </v-btn>
+        <!-- 按钮组 -->
+        <v-btn color="green" prepend-icon="mdi-cached" @click="() => loadDownloadHistory()"> 刷新下载记录列表 </v-btn>
 
         <v-divider vertical class="mx-2" />
 
@@ -144,35 +124,45 @@ onMounted(() => {
           重新下载
         </v-btn>
 
-        <v-divider vertical class="mx-2" />
-
         <v-btn
           :disabled="tableSelected.length === 0"
           color="error"
+          class="ml-2"
           prepend-icon="mdi-minus"
           @click="deleteDownloadHistory(tableSelected)"
         >
           {{ t("common.remove") }}
         </v-btn>
-        <v-btn
-          :disabled="downloadHistoryList.length === 0"
-          class="ml-2"
-          color="error"
-          prepend-icon="mdi-close"
-          @click="deleteDownloadHistory(tableSelected)"
-        >
-          清空
-        </v-btn>
+
+        <v-spacer />
+
+        <!-- 筛选框 -->
+        <v-text-field
+          v-model="tableWaitFilter"
+          append-icon="mdi-magnify"
+          clearable
+          density="compact"
+          hide-details
+          label="过滤下载记录"
+          max-width="500"
+          prepend-inner-icon="mdi-filter"
+          single-line
+          @click:prepend-inner="showAdvanceFilterDialog = true"
+        />
       </v-row>
     </v-card-title>
     <v-card-text>
-      <v-data-table
+      <v-data-table-virtual
         v-model="tableSelected"
+        :custom-filter="tableCustomFilterFn"
+        :filter-keys="['id'] /* 对每个item值只检索一次 */"
         :headers="tableHeader"
+        :height="'calc(100vh - 250px)'"
         :items="downloadHistoryList"
-        :items-per-page="50"
+        :search="tableFilter"
         :sort-by="[{ key: 'id', order: 'desc' }]"
         class="table-stripe"
+        fixed-header
         item-value="id"
         show-select
       >
@@ -188,27 +178,7 @@ onMounted(() => {
         </template>
 
         <template #item.downloaderId="{ item }">
-          <template v-if="item.downloaderId === 'local'">
-            <v-icon class="ml-1" color="amber" icon="mdi-folder-download" size="40" />
-            <span class="ml-3 font-weight-bold">本地下载</span>
-          </template>
-          <template v-else>
-            <v-container v-if="metadataStore.downloaders[item.downloaderId]">
-              <v-row>
-                <v-col class="pa-0">
-                  <v-avatar :image="downloaderIcon(item.downloaderId).value" />
-                </v-col>
-                <v-col class="pa-0 ml-2">
-                  <span class="font-weight-bold">{{ downloaderConfig(item.downloaderId).value.name }}</span>
-                  <br />
-                  <a :href="downloaderConfig(item.downloaderId).value.address" class="text-caption" target="_blank">
-                    [{{ downloaderConfig(item.downloaderId).value.address }}]
-                  </a>
-                </v-col>
-              </v-row>
-            </v-container>
-            <span v-else class="text-decoration-line-through text-no-wrap">[{{ item.downloaderId }}]</span>
-          </template>
+          <DownloaderLabel :downloader="item.downloaderId" />
         </template>
 
         <template #item.downloadAt="{ item }">
@@ -238,7 +208,7 @@ onMounted(() => {
             />
           </v-btn-group>
         </template>
-      </v-data-table>
+      </v-data-table-virtual>
     </v-card-text>
   </v-card>
 
@@ -246,6 +216,12 @@ onMounted(() => {
     v-model="showReDownloadSelectDialog"
     :torrent-items="reDownloadTorrentListRef"
     @re-download-complete="() => throttleLoadDownloadHistory()"
+  />
+
+  <AdvanceFilterGenerateDialog
+    v-model="showAdvanceFilterDialog"
+    :records="downloadHistoryList"
+    @update:table-filter="(v) => (tableWaitFilter = v)"
   />
 
   <DeleteDialog
