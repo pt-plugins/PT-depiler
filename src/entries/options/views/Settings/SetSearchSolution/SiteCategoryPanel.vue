@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { nanoid } from "nanoid";
 import { computedAsync } from "@vueuse/core";
 import { cloneDeep, toMerged } from "es-toolkit";
-import { set } from "es-toolkit/compat";
+import { isEmpty, set } from "es-toolkit/compat";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
@@ -58,7 +58,7 @@ function isDefaultCategory(field: TSelectSearchCategoryValue | symbol) {
   return Array.isArray(field) ? field.length === 0 : field === radioDefault;
 }
 
-function generateSolution() {
+async function generateSolution() {
   let id = nanoid(); // 通过这种panel生成的solution，其 entries 只有一个值，所以可以直接将id作为entries的id
   const searchSolution: ISearchSolution = {
     id,
@@ -108,18 +108,18 @@ function generateSolution() {
     }
   }
 
-  // 如果构建的entriesConfig为空，则不生成
-  if (Object.keys(entriesConfig).length === 0) {
-    return;
+  if (!isEmpty(entriesConfig)) {
+    searchSolution.searchEntries![id] = entriesConfig;
+  } else {
+    searchSolution.id = "default";
+    searchSolution.searchEntries = {};
   }
-
-  searchSolution.searchEntries![id] = entriesConfig;
 
   log("generateSolution", searchSolution);
   emit("update:solution", searchSolution);
 
   // 重置本 expansion panel 的数据
-  getSiteMetaCategory();
+  await getSiteMetaCategory();
 }
 </script>
 

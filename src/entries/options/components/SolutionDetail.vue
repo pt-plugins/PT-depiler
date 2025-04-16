@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computedAsync } from "@vueuse/core";
-
-import type { ISearchSolution } from "@/storage.ts";
+import { isEmpty } from "es-toolkit/compat";
 import type { ISearchCategories } from "@ptd/site";
+import type { ISearchSolution } from "@/storage.ts";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
@@ -36,9 +36,12 @@ function getCategoryOptionName(key: string, value: string | number | (string | n
 
 <template>
   <template v-if="solution">
-    <span v-for="(value, category) in solution.selectedCategories" :key="category">
-      {{ getCategoryName(category) }}: {{ getCategoryOptionName(category, value) }};&nbsp;
-    </span>
+    <template v-if="isEmpty(solution.selectedCategories)">默认</template>
+    <template v-else>
+      <span v-for="(value, category) in solution.selectedCategories" :key="category">
+        {{ getCategoryName(category) }}: {{ getCategoryOptionName(category, value) }};&nbsp;
+      </span>
+    </template>
   </template>
   <template v-else>Unknown</template>
 </template>

@@ -279,12 +279,12 @@
   "SetSearchSolution": {
     "solution": "搜索方案",
     "delete": {
-      "text": "确认删除这 {0} 个@:SetSearchSolution.solution吗？"
+      "text": "确认删除这 {0} 个 @:SetSearchSolution.solution 吗？"
     },
     "edit": {
-      "title": "自定义@:SetSearchSolution.solution",
-      "addCount": "已添加@:SetSearchSolution.solution {0} 个",
-      "cantAddByDuplicateNote": "已存在相同的@:SetSearchSolution.solution，无法重复添加。",
+      "title": "自定义 @:SetSearchSolution.solution",
+      "addCount": "已添加 @:SetSearchSolution.solution {0} 个",
+      "cantAddByDuplicateNote": "已存在相同的 @:SetSearchSolution.solution ，无法重复添加。",
       "filterPlaceholder": "通过站点名称或 url 进行搜索"
     },
     "table": {

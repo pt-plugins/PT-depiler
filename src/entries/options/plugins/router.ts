@@ -59,7 +59,7 @@ export const routes: RouteRecordRaw[] = [
       {
         path: "/set-search-solution",
         name: "SetSearchSolution",
-        meta: { icon: "mdi-magnify" },
+        meta: { icon: "mdi-widgets" },
         component: () => import("../views/Settings/SetSearchSolution/Index.vue"),
       },
     ],

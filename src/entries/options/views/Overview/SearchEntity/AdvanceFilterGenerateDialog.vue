@@ -5,13 +5,12 @@
  * 如果需要忽略，目前只能重置过滤词。
  * refs: https://github.com/vuetifyjs/vuetify/blob/0ca7e93ad011b358591da646fdbd6ebe83625d25/packages/vuetify/src/components/VCheckbox/VCheckboxBtn.tsx#L49-L53
  */
-import { filesize } from "filesize";
 import { useI18n } from "vue-i18n";
 import { reactive, ref } from "vue";
 import { uniq, flatten, uniqBy } from "es-toolkit";
 import { addDays, startOfDay } from "date-fns";
 
-import { formatDate } from "@/options/utils.ts";
+import { formatDate, formatSize } from "@/options/utils.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import {
   generateRangeField,
@@ -95,7 +94,7 @@ function updateTableFilter() {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" max-width="800" scrollable @after-leave="resetFilter">
+  <v-dialog v-model="showDialog" max-width="800" scrollable @after-enter="resetFilter">
     <v-card>
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey-darken-2">
@@ -231,7 +230,7 @@ function updateTableFilter() {
                 >
                   <template #tick-label></template>
                   <template #thumb-label="{ modelValue }">
-                    <span class="text-no-wrap">{{ filesize(modelValue ?? 0) }}</span>
+                    <span class="text-no-wrap">{{ formatSize(modelValue ?? 0) }}</span>
                   </template>
                 </v-range-slider>
               </v-row>

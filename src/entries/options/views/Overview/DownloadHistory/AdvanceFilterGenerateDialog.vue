@@ -72,7 +72,7 @@ function updateTableFilter() {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" width="800" @after-leave="resetFilter">
+  <v-dialog v-model="showDialog" width="800" @after-enter="resetFilter">
     <v-card>
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey-darken-2">

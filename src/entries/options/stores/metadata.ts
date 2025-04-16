@@ -2,16 +2,18 @@ import { nanoid } from "nanoid";
 import { defineStore } from "pinia";
 
 import type {
-  IMetadataPiniaStorageSchema,
-  TSearchSnapshotKey,
-  ISearchSolution,
-  TSolutionKey,
   IDownloaderMetadata,
+  IMetadataPiniaStorageSchema,
+  ISearchSolution,
   TDownloaderKey,
+  TSearchSnapshotKey,
+  TSolutionKey,
 } from "@/shared/storages/types/metadata.ts";
+import { ISearchSolutionMetadata } from "@/shared/storages/types/metadata.ts";
 import {
   getDefinedSiteMetadata,
   type ISearchCategories,
+  type ISearchEntryRequestConfig,
   type ISiteMetadata,
   type ISiteUserConfig,
   type TSiteID,
@@ -19,7 +21,6 @@ import {
 import { isEmpty, set } from "es-toolkit/compat";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { ISearchSolutionMetadata } from "@/shared/storages/types/metadata.ts";
 
 export const useMetadataStore = defineStore("metadata", {
   persistWebExt: true,
@@ -139,21 +140,27 @@ export const useMetadataStore = defineStore("metadata", {
       return Object.values(state.solutions);
     },
 
+    getSiteDefaultSearchSolution(state) {
+      return async (siteId: TSiteID): Promise<Record<string, ISearchEntryRequestConfig>> => {
+        const siteMetadata = await getDefinedSiteMetadata(siteId);
+
+        let searchEntries = siteMetadata.searchEntry ?? { default: {} };
+        for (const [key, value] of Object.entries(state.sites[siteId]?.merge?.searchEntry ?? {})) {
+          if (searchEntries[key] && typeof value.enabled === "boolean") {
+            searchEntries[key] = { ...searchEntries[key], enabled: value.enabled };
+          }
+        }
+        return searchEntries;
+      };
+    },
+
     getDefaultAllSearchSolution(state) {
-      return async (isAll: boolean = false) => {
+      return async () => {
         const solutions: ISearchSolution[] = [];
 
         const addedSiteIds = Object.keys(state.sites);
         for (const siteId of addedSiteIds) {
-          const siteMetadata = await getDefinedSiteMetadata(siteId);
-
-          let searchEntries = siteMetadata.searchEntry ?? { default: {} };
-          for (const [key, value] of Object.entries(state.sites[siteId]?.merge?.searchEntry ?? {})) {
-            if (searchEntries[key] && typeof value.enabled === "boolean") {
-              searchEntries[key] = { ...searchEntries[key], enabled: value.enabled };
-            }
-          }
-
+          const searchEntries = await this.getSiteDefaultSearchSolution(siteId);
           solutions.push({ id: "default", siteId, searchEntries });
         }
 
@@ -169,7 +176,17 @@ export const useMetadataStore = defineStore("metadata", {
           solutionId = state.defaultSolutionId;
         }
 
-        return state.solutions[solutionId];
+        // 对于已经存在的搜索方案，其中如果有 id === "default" 的特殊情况，将其动态解开
+        let solution = state.solutions[solutionId] as ISearchSolutionMetadata;
+        for (const solutionsIndex in solution.solutions) {
+          let solutionItem = solution.solutions[solutionsIndex];
+          if (solutionItem.id === "default") {
+            solutionItem.searchEntries = await this.getSiteDefaultSearchSolution(solutionItem.siteId);
+            solution.solutions[solutionsIndex] = solutionItem;
+          }
+        }
+
+        return solution;
       };
     },
 

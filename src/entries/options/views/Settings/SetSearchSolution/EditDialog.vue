@@ -2,7 +2,7 @@
 import { nanoid } from "nanoid";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { cloneDeep } from "es-toolkit";
+import { cloneDeep, isEqual } from "es-toolkit";
 import { find } from "es-toolkit/compat";
 import { computedAsync, refDebounced } from "@vueuse/core";
 
@@ -43,12 +43,15 @@ const formValid = ref<boolean>(false);
 const siteWaitFilter = ref("");
 const siteFilter = refDebounced(siteWaitFilter, 500); // 延迟搜索过滤词的生成
 
-const addedSiteInfo = computedAsync(() => {
-  const promises = metadataStore.getAddedSiteIds.map(async (siteId) => ({
-    siteId,
-    siteName: await metadataStore.getSiteName(siteId),
-    siteUrl: await metadataStore.getSiteUrl(siteId),
-  }));
+const addedSiteInfo = computedAsync(async () => {
+  const promises = metadataStore.getAddedSiteIds
+    .sort((a, b) => Number(metadataStore.sites[b].allowSearch) - Number(metadataStore.sites[a].allowSearch))
+    .map(async (siteId) => ({
+      siteId,
+      siteName: await metadataStore.getSiteName(siteId),
+      siteUrl: await metadataStore.getSiteUrl(siteId),
+    }));
+
   return Promise.all(promises);
 }, []);
 
@@ -69,7 +72,9 @@ const filteredSite = computedAsync(() => {
 function addSolution(addSolution: ISearchSolution) {
   // 基于 siteId 和 selectedCategories 判断是否已存在，如果存在则不添加
   if (
-    find(solution.value.solutions, { siteId: addSolution.siteId, selectedCategories: addSolution.selectedCategories })
+    find(solution.value.solutions, (item) => {
+      return item.siteId === addSolution.siteId && isEqual(item.selectedCategories, addSolution.selectedCategories);
+    })
   ) {
     runtimeStore.showSnakebar(t("SetSearchSolution.edit.cantAddByDuplicateNote"), { color: "error" });
     return;
@@ -141,24 +146,26 @@ function dialogLeave() {
                 prepend-icon="mdi-sitemap"
               />
 
-              <v-expansion-panels>
-                <v-expansion-panel
-                  v-for="site in filteredSite"
-                  :id="site"
-                  :disabled="!!metadataStore.sites[site].isOffline || !metadataStore.sites[site].allowSearch"
-                >
-                  <v-expansion-panel-title>
-                    <SiteFavicon :site-id="site" class="mr-2" inline />
+              <v-card class="overflow-y-auto" height="calc(100vh - 340px)">
+                <v-expansion-panels>
+                  <v-expansion-panel
+                    v-for="site in filteredSite"
+                    :id="site"
+                    :disabled="!!metadataStore.sites[site].isOffline || !metadataStore.sites[site].allowSearch"
+                  >
+                    <v-expansion-panel-title>
+                      <SiteFavicon :site-id="site" class="mr-2" inline />
 
-                    <v-chip color="green" label>
-                      <SiteName :class="['text-no-wrap']" :site-id="site" />
-                    </v-chip>
-                  </v-expansion-panel-title>
-                  <v-expansion-panel-text>
-                    <SiteCategoryPanel :site-id="site" @update:solution="addSolution" />
-                  </v-expansion-panel-text>
-                </v-expansion-panel>
-              </v-expansion-panels>
+                      <v-chip color="green" label>
+                        <SiteName :class="['text-no-wrap']" :site-id="site" />
+                      </v-chip>
+                    </v-expansion-panel-title>
+                    <v-expansion-panel-text>
+                      <SiteCategoryPanel :site-id="site" @update:solution="addSolution" />
+                    </v-expansion-panel-text>
+                  </v-expansion-panel>
+                </v-expansion-panels>
+              </v-card>
             </v-col>
             <v-col cols="12" md="4">
               <v-alert class="mb-2" type="success">
