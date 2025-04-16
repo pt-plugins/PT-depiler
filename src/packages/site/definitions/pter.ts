@@ -211,6 +211,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: [
           "td.rowhead:contains('猫粮') + td, td.rowhead:contains('Karma Points') + td, td.rowhead:contains('貓糧') + td",
         ],
+        filters: [{ name: "parseNumber" }],
       },
       // 从顶端用户栏获取做种数量，这样就可以避免对 /getusertorrentlist.php 页面的请求
       seeding: {
@@ -328,14 +329,17 @@ export default class Pter extends NexusPHP {
     const userName = flushUserInfo.name;
     const { data: userTorrentPage } = await this.request({
       url: "/torrents.php",
-      params: { incldead: 0, spstate: 0, inclbookmarked: 0, search: userName, search_area: 3, search_mode: 3 },
+      params: { incldead: 1, spstate: 0, inclbookmarked: 0, check: "checked", search: userName, search_area: 3, search_mode: 3 }, // 已审核，未断种
       responseType: "document",
     });
 
     flushUserInfo.uploads = 0;
     if (userTorrentPage) {
-      const trAnothers = Sizzle("table.torrents:last tr:not(:eq(0))", userTorrentPage as Document);
-      flushUserInfo.uploads = trAnothers ? trAnothers.length : 0;
+      const trAnothers = Sizzle("p.np-pager:first b:last", userTorrentPage as Document);
+      if (trAnothers.length > 0) {
+        const match = trAnothers[0].innerHTML.trim().match(/\d+$/); // 末尾的数字
+        flushUserInfo.uploads = match ? parseInt(match[0]) : 0;
+      }
     }
     return flushUserInfo;
   }
