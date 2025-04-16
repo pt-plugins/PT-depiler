@@ -14,22 +14,23 @@ const props = defineProps<{
 const metadataStore = useMetadataStore();
 const snapshotName = ref("");
 
-watch(showDialog, () => {
-  if (props.editId === null) {
-    return;
-  }
-
-  snapshotName.value = metadataStore.snapshots[props.editId].name;
-});
-
 function saveSearchSnapshotData() {
   metadataStore.editSearchSnapshotDataName(props.editId, snapshotName.value);
   showDialog.value = false;
 }
+
+function dialogEnter() {
+  snapshotName.value = metadataStore.snapshots[props.editId].name;
+}
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" width="500">
+  <v-dialog
+    v-model="showDialog"
+    width="500"
+    @after-enter="() => props.editId && dialogEnter()"
+    @after-leave="() => (snapshotName = '')"
+  >
     <v-card>
       <v-card-title class="bg-cyan-darken-2">
         <span>搜索快照重命名</span>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch, computed } from "vue";
+import { ref, computed } from "vue";
 import { type CAddTorrentOptions, getDownloaderIcon } from "@ptd/downloader";
 import { type ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
 import { type IDownloaderMetadata } from "@/shared/storages/types/metadata.ts";
@@ -43,16 +43,6 @@ function restoreAddTorrentOptions(downloader?: IDownloaderMetadata) {
   addTorrentOptions.value.savePath = "";
   addTorrentOptions.value.label = "";
 }
-
-watch(showDialog, () => {
-  restoreAddTorrentOptions(); // 先重置所有选项，然后从uiStore中获取历史情况
-
-  const lastDownloaderId = uiStore.lastDownloader?.id;
-  selectedDownloader.value = lastDownloaderId ? metadataStore.downloaders[lastDownloaderId] : null;
-  addTorrentOptions.value = (uiStore.lastDownloader?.options ?? {}) as Required<
-    Omit<CAddTorrentOptions, "localDownloadOption">
-  >;
-});
 
 async function sendToDownloader() {
   if (!selectedDownloader.value?.id) {
@@ -119,10 +109,30 @@ async function sendToDownloader() {
       emit("done");
     });
 }
+
+function dialogEnter() {
+  const lastDownloaderId = uiStore.lastDownloader?.id;
+  selectedDownloader.value = lastDownloaderId ? metadataStore.downloaders[lastDownloaderId] : null;
+  addTorrentOptions.value = (uiStore.lastDownloader?.options ?? {}) as Required<
+    Omit<CAddTorrentOptions, "localDownloadOption">
+  >;
+}
+
+function dialogLeave() {
+  restoreAddTorrentOptions(); // 先重置所有选项，然后从uiStore中获取历史情况
+  emit("cancel");
+}
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" :persistent="isSending" max-width="800" scrollable @after-leave="() => emit('cancel')">
+  <v-dialog
+    v-model="showDialog"
+    :persistent="isSending"
+    max-width="800"
+    scrollable
+    @after-enter="dialogEnter"
+    @after-leave="dialogLeave"
+  >
     <v-card>
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey-darken-2">

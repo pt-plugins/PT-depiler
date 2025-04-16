@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { EResultParseStatus, type IUserInfo, type TSiteID } from "@ptd/site";
 
@@ -22,7 +22,7 @@ interface IShowUserInfo extends IUserInfo {
   date: string;
 }
 
-const siteHistoryData = ref<IShowUserInfo[]>([]);
+const siteHistoryData = shallowRef<IShowUserInfo[]>([]);
 const tableHeader = [
   { title: t("common.date"), key: "date", align: "center" },
   { title: t("MyData.table.username"), key: "name", align: "center", sortable: false },
@@ -47,12 +47,6 @@ function loadSiteHistoryData(siteId: TSiteID) {
   });
 }
 
-watch(showDialog, () => {
-  if (showDialog.value === true && props.siteId) {
-    loadSiteHistoryData(props.siteId);
-  }
-});
-
 function deleteSiteUserInfo(date: string) {
   if (confirm(t("MyData.HistoryDataView.deleteConfirm"))) {
     sendMessage("removeSiteUserInfo", { siteId: props.siteId!, date }).then(() => {
@@ -69,7 +63,12 @@ function viewStoreData(data: IShowUserInfo) {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" width="1200">
+  <v-dialog
+    v-model="showDialog"
+    width="1200"
+    @after-enter="() => props.siteId && loadSiteHistoryData(props.siteId!)"
+    @after-leave="() => (siteHistoryData = [])"
+  >
     <v-card>
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey-darken-2">

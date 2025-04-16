@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { provide, ref, watch } from "vue";
+import { provide, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 import { REPO_URL } from "~/helper.ts";
@@ -20,11 +20,11 @@ const storedSiteUserConfig = ref<ISiteUserConfig & { valid?: boolean }>({ valid:
 
 provide("storedSiteUserConfig", storedSiteUserConfig);
 
-watch(showDialog, () => {
+function resetDialog() {
   currentStep.value = 0;
   selectedSiteId.value = null;
   storedSiteUserConfig.value = { valid: false };
-});
+}
 
 const canAddSites = computedAsync(async () => {
   const canAddedSiteMetadata = [];
@@ -46,7 +46,7 @@ async function saveSite() {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" max-width="800" scrollable>
+  <v-dialog v-model="showDialog" max-width="800" scrollable @after-leave="resetDialog">
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">

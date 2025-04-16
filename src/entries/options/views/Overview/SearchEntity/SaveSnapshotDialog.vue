@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed } from "vue";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -10,18 +10,16 @@ const showDialog = defineModel<boolean>();
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 
-const snapshotName = ref("");
-
-watch(showDialog, () => {
-  snapshotName.value =
+const snapshotName = computed(
+  () =>
     "[" +
     metadataStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) +
     "] " +
     runtimeStore.search.searchKey +
     " (" +
     formatDate(runtimeStore.search.startAt) +
-    ")";
-});
+    ")",
+);
 
 function saveSearchSnapshotData() {
   metadataStore.saveSearchSnapshotData(snapshotName.value);

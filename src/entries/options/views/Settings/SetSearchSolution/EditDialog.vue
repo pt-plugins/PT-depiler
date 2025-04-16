@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nanoid } from "nanoid";
-import { watch, ref } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { cloneDeep } from "es-toolkit";
 import { find } from "es-toolkit/compat";
@@ -66,19 +66,6 @@ const filteredSite = computedAsync(() => {
     .map((item) => item.siteId);
 }, []);
 
-watch(showDialog, (newVal) => {
-  if (newVal) {
-    let storedSolution = metadataStore.solutions[solutionId.value!];
-    if (!storedSolution) {
-      storedSolution = initSolution();
-    }
-
-    solution.value = cloneDeep(storedSolution);
-  } else {
-    solution.value = initSolution();
-  }
-});
-
 function addSolution(addSolution: ISearchSolution) {
   // 基于 siteId 和 selectedCategories 判断是否已存在，如果存在则不添加
   if (
@@ -99,10 +86,23 @@ function saveSolutionState() {
   metadataStore.addSearchSolution(solution.value);
   showDialog.value = false;
 }
+
+function dialogEnter() {
+  let storedSolution = metadataStore.solutions[solutionId.value!];
+  if (!storedSolution) {
+    storedSolution = initSolution();
+  }
+
+  solution.value = cloneDeep(storedSolution);
+}
+
+function dialogLeave() {
+  solution.value = initSolution();
+}
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" fullscreen>
+  <v-dialog v-model="showDialog" fullscreen @after-enter="dialogEnter" @after-leave="dialogLeave">
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar :title="t('SetSearchSolution.edit.title')" color="blue-grey-darken-2">

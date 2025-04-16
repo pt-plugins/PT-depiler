@@ -7,7 +7,7 @@
  */
 import { filesize } from "filesize";
 import { useI18n } from "vue-i18n";
-import { reactive, ref, watch } from "vue";
+import { reactive, ref } from "vue";
 import { uniq, flatten, uniqBy } from "es-toolkit";
 import { addDays, startOfDay } from "date-fns";
 
@@ -79,8 +79,6 @@ function resetFilter() {
   advanceFilterDict.completed = generateRangeField(searchResult.map((x) => x.completed));
 }
 
-watch(showDialog, resetFilter);
-
 function toggleState(field: "site" | "tags", value: string) {
   const state = advanceFilterDict[field].required.includes(value);
   if (state) {
@@ -97,7 +95,7 @@ function updateTableFilter() {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" max-width="800" scrollable>
+  <v-dialog v-model="showDialog" max-width="800" scrollable @after-leave="resetFilter">
     <v-card>
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey-darken-2">

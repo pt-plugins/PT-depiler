@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from "vue";
+import { reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { uniq } from "es-toolkit";
 import { addDays, startOfDay } from "date-fns";
@@ -56,8 +56,6 @@ function resetFilter() {
   advanceFilterDict.date = generateRangeField(records.map((x) => x.downloadAt));
 }
 
-watch(showDialog, resetFilter);
-
 function toggleState(field: "site" | "downloader" | "status", value: string) {
   const state = advanceFilterDict[field].required.includes(value);
   if (state) {
@@ -74,7 +72,7 @@ function updateTableFilter() {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" width="800">
+  <v-dialog v-model="showDialog" width="800" @after-leave="resetFilter">
     <v-card>
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey-darken-2">

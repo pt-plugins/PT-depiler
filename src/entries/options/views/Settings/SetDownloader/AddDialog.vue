@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { nanoid } from "nanoid";
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 import {
@@ -25,11 +25,11 @@ const currentStep = ref<0 | 1>(0);
 const selectedClientType = ref<TDownloaderKey | null>(null);
 const storedDownloaderConfig = ref<Partial<IDownloaderMetadata> & { valid?: boolean }>({ valid: false });
 
-watch(showDialog, () => {
+function resetDialog() {
   currentStep.value = 0;
   selectedClientType.value = null;
   storedDownloaderConfig.value = { valid: false };
-});
+}
 
 const allTorrentClientMetaData = computedAsync(async () => {
   const clientMetaData: Record<TDownloaderKey, TorrentClientMetaData & { type: TDownloaderKey }> = {};
@@ -56,7 +56,7 @@ async function saveStoredDownloaderConfig() {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" max-width="800" scrollable>
+  <v-dialog v-model="showDialog" max-width="800" scrollable @after-leave="resetDialog">
     <v-card>
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey-darken-2">

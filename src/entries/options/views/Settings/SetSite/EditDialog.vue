@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { provide, ref, watch } from "vue";
+import { provide, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { type ISiteUserConfig, type TSiteID } from "@ptd/site";
@@ -18,22 +18,22 @@ const metadataStore = useMetadataStore();
 const storedSiteUserConfig = ref<ISiteUserConfig & { valid?: boolean }>({ valid: false });
 provide("storedSiteUserConfig", storedSiteUserConfig);
 
-watch(showDialog, async () => {
-  storedSiteUserConfig.value = {
-    valid: false,
-    ...(metadataStore.sites[props.siteId] ?? {}),
-  };
-});
-
 function patchSite() {
   metadataStore.addSite(props.siteId, storedSiteUserConfig.value);
   metadataStore.$save();
   showDialog.value = false;
 }
+
+function dialogEnter() {
+  storedSiteUserConfig.value = {
+    valid: false,
+    ...(metadataStore.sites[props.siteId] ?? {}),
+  };
+}
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" max-width="800" scrollable>
+  <v-dialog v-model="showDialog" max-width="800" scrollable @after-enter="dialogEnter">
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
