@@ -222,12 +222,6 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
-  download: {
-    requestConfig: {
-      method: "POST",
-    },
-  },
-
   levelRequirements: [
     {
       id: 1,
