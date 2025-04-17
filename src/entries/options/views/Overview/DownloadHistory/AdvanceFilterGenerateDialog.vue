@@ -80,7 +80,7 @@ function updateTableFilter() {
         </v-toolbar>
       </v-card-title>
       <v-divider />
-      <v-card-text>
+      <v-card-text class="overflow-y-auto">
         <v-container>
           <v-row><v-label>关键词</v-label> </v-row>
           <v-row>
@@ -105,7 +105,13 @@ function updateTableFilter() {
           </v-row>
           <v-row><v-label>站点</v-label></v-row>
           <v-row>
-            <v-col v-for="site in advanceFilterDict.site.all" :key="`${resetCount}_${site}`" class="pa-0" :cols="3">
+            <v-col
+              v-for="site in advanceFilterDict.site.all"
+              :key="`${resetCount}_${site}`"
+              class="pa-0"
+              sm="3"
+              :cols="6"
+            >
               <v-checkbox
                 v-model="advanceFilterDict.site.required"
                 :label="site"
@@ -127,7 +133,8 @@ function updateTableFilter() {
             <v-col
               v-for="downloader in advanceFilterDict.downloader.all"
               :key="`${resetCount}_${downloader}`"
-              :cols="6"
+              sm="6"
+              :cols="12"
               class="pa-0"
             >
               <v-checkbox

@@ -31,7 +31,7 @@ export function formatRatio(
 }
 
 const configStore = useConfigStore();
-export const flushQueue = new PQueue({ concurrency: 1 }); // FIXME Use settingStore
+export const flushQueue = new PQueue({ concurrency: 1 }); // 默认设置为 1，避免并发搜索
 
 flushQueue.on("active", () => {
   runtimeStore.userInfo.isFlush = true;
@@ -41,7 +41,7 @@ flushQueue.on("active", () => {
   }
 });
 
-flushQueue.on("empty", () => {
+flushQueue.on("idle", () => {
   runtimeStore.userInfo.isFlush = false;
 });
 

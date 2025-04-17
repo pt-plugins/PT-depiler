@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { ETorrentStatus } from "@ptd/site";
+import { EResultParseStatus, ETorrentStatus } from "@ptd/site";
 
 import { type ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -88,7 +88,14 @@ function startSearchQueue() {
 
 function cancelSearchQueue() {
   log("cancelSearchQueue", searchQueue);
-  searchQueue.clear();
+  searchQueue.clear(); // 清空搜索队列
+  // 将搜索队列中状态设置为跳过
+  for (const key of Object.keys(runtimeStore.search.searchPlan)) {
+    if (runtimeStore.search.searchPlan[key]!.status === EResultParseStatus.waiting) {
+      runtimeStore.search.searchPlan[key]!.status = EResultParseStatus.passParse;
+    }
+  }
+
   runtimeStore.search.isSearching = false;
 }
 </script>

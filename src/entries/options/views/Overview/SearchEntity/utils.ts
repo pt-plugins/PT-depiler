@@ -93,7 +93,7 @@ searchQueue.on("active", () => {
   }
 });
 
-searchQueue.on("empty", () => {
+searchQueue.on("idle", () => {
   runtimeStore.search.isSearching = false;
 });
 

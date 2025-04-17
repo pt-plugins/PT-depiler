@@ -25,8 +25,8 @@ const downloadHistoryList = computed(() => Object.values(downloadHistory.value))
 const tableHeader = [
   { title: "№", key: "id", align: "center", width: 50, filterable: false },
   { title: "站点", key: "siteId", align: "center", width: 90 },
-  { title: "种子", key: "title", align: "start", filterable: false },
-  { title: "下载服务器", key: "downloaderId", align: "start" },
+  { title: "种子", key: "title", align: "start", minWidth: 600, maxWidth: "32vw", filterable: false },
+  { title: "下载服务器", key: "downloaderId", minWidth: 200, align: "start" },
   { title: "下载时间", key: "downloadAt", align: "center", filterable: false },
   { title: "下载状态", key: "downloadStatus" },
   { title: "操作", key: "action", align: "center", width: 90, minWidth: 90, sortable: false, alwaysShow: true },
