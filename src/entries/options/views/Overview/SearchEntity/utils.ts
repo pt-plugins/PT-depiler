@@ -15,6 +15,7 @@ import { sendMessage } from "@/messages.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { log, checkRange, dateFilterFormat } from "~/helper.ts";
+import { useConfigStore } from "@/options/stores/config.ts";
 
 export const searchQueryParserOptions: SearchParserOptions = {
   keywords: ["site", "tags"],
@@ -80,11 +81,16 @@ export function tableCustomFilter(value: any, query: string, item: any) {
 }
 
 const runtimeStore = useRuntimeStore();
+const configStore = useConfigStore();
 export const searchQueue = new PQueue({ concurrency: 1 }); // 默认设置为 1，避免并发搜索
 
 searchQueue.on("active", () => {
   runtimeStore.search.isSearching = true;
-  // FIXME 启动后，根据 uiStore 的值，自动更新 searchQueue 的并发数
+  // 启动后，根据 configStore 的值，自动更新 searchQueue 的并发数
+  if (searchQueue.concurrency != configStore.searchEntity.queueConcurrency) {
+    searchQueue.concurrency = configStore.searchEntity.queueConcurrency;
+    log("Search queue concurrency changed to: ", searchQueue.concurrency);
+  }
 });
 
 searchQueue.on("empty", () => {

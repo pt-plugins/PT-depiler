@@ -176,7 +176,10 @@
   },
   "SetBase": {
     "tab": {
-      "ui": "界面UI"
+      "ui": "界面UI",
+      "search-entity": "搜索",
+      "user-info": "用户信息",
+      "reset": "重置"
     },
     "ui": {
       "changeLanguage": "切换语言",

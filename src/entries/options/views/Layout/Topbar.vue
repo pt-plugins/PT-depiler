@@ -6,7 +6,7 @@ import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify";
 import { useRoute, useRouter } from "vue-router";
 
-import { useUIStore } from "@/options/stores/ui";
+import { useConfigStore } from "@/options/stores/config.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
@@ -15,7 +15,7 @@ const router = useRouter();
 const display = useDisplay();
 const { t } = useI18n();
 
-const uiStore = useUIStore();
+const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 
@@ -55,7 +55,7 @@ function startSearchEntity() {
       <v-app-bar-nav-icon
         :title="t('layout.header.navBarTip')"
         variant="text"
-        @click="uiStore.isNavBarOpen = !uiStore.isNavBarOpen"
+        @click="configStore.isNavBarOpen = !configStore.isNavBarOpen"
       >
         <template v-if="display.smAndUp.value">
           <v-icon icon="$menu"></v-icon>

@@ -1,26 +1,25 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 
-import { useUIStore } from "@/options/stores/ui";
+import { useConfigStore } from "@/options/stores/config.ts";
 
 import { definedLangMetaData } from "@/options/plugins/i18n.ts";
-import { supportTheme } from "@/shared/storages/types/ui.ts";
+import { supportTheme } from "@/shared/storages/types/config.ts";
 
 const { t } = useI18n();
-
-const uiStore = useUIStore();
+const configStore = useConfigStore();
 </script>
 
 <template>
   <v-card>
     <v-card-text>
       <v-row>
-        <v-col>
+        <v-col md="6">
           <!-- 插件语言设置 -->
-          <v-select v-model="uiStore.lang" :label="t('SetBase.ui.changeLanguage')" :items="definedLangMetaData" />
+          <v-select v-model="configStore.lang" :label="t('SetBase.ui.changeLanguage')" :items="definedLangMetaData" />
 
           <!-- 明亮模式设置 -->
-          <v-select v-model="uiStore.theme" :label="t('SetBase.ui.displayMode.index')" :items="supportTheme">
+          <v-select v-model="configStore.theme" :label="t('SetBase.ui.displayMode.index')" :items="supportTheme">
             <template #selection="{ item }">
               {{ t("SetBase.ui.displayMode." + item.raw) }}
             </template>
@@ -34,8 +33,16 @@ const uiStore = useUIStore();
     </v-card-text>
     <v-divider />
     <v-card-actions>
-      <v-spacer />
-      <v-btn @click="() => uiStore.$save()">{{ $t("common.save") }}</v-btn>
+      <v-row class="ml-2 my-1">
+        <v-btn
+          color="green"
+          variant="elevated"
+          prepend-icon="mdi-check-circle-outline"
+          @click="() => configStore.$save()"
+        >
+          {{ t("common.save") }}
+        </v-btn>
+      </v-row>
     </v-card-actions>
   </v-card>
 </template>

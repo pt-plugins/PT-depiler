@@ -4,7 +4,7 @@ import { type TSiteID } from "@ptd/site";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
-import { useUIStore } from "@/options/stores/ui.ts";
+import { useConfigStore } from "@/options/stores/config.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { getSiteFavicon } from "@/shared/adapters/site.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -16,7 +16,7 @@ import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 
 const { t } = useI18n();
-const uiStore = useUIStore();
+const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 
@@ -144,15 +144,15 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
       v-model="tableSelected"
       :headers="tableHeader"
       :items="sites"
-      :items-per-page="uiStore.tableBehavior.SetSite.itemsPerPage"
+      :items-per-page="configStore.tableBehavior.SetSite.itemsPerPage"
       :search="tableFilter"
-      :sort-by="uiStore.tableBehavior.SetSite.sortBy"
+      :sort-by="configStore.tableBehavior.SetSite.sortBy"
       class="table-stripe"
       item-value="id"
       multi-sort
       show-select
-      @update:itemsPerPage="(v) => uiStore.updateTableBehavior('SetSite', 'itemsPerPage', v)"
-      @update:sortBy="(v) => uiStore.updateTableBehavior('SetSite', 'sortBy', v)"
+      @update:itemsPerPage="(v) => configStore.updateTableBehavior('SetSite', 'itemsPerPage', v)"
+      @update:sortBy="(v) => configStore.updateTableBehavior('SetSite', 'sortBy', v)"
     >
       <template #item.userConfig.sortIndex="{ item }">
         <SiteFavicon :site-id="item.id" />

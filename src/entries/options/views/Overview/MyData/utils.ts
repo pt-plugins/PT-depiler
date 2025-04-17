@@ -2,6 +2,7 @@ import { fixRatio, IUserInfo, TSiteID } from "@ptd/site";
 import PQueue from "p-queue";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useConfigStore } from "@/options/stores/config.ts";
 
 const runtimeStore = useRuntimeStore();
 
@@ -29,10 +30,15 @@ export function formatRatio(
   return ratio.toFixed(2);
 }
 
+const configStore = useConfigStore();
 export const flushQueue = new PQueue({ concurrency: 1 }); // FIXME Use settingStore
 
 flushQueue.on("active", () => {
   runtimeStore.userInfo.isFlush = true;
+  if (flushQueue.concurrency != configStore.userInfo.queueConcurrency) {
+    flushQueue.concurrency = configStore.userInfo.queueConcurrency;
+    runtimeStore.showSnakebar(`用户信息刷新队列并发数已更改为 ${flushQueue.concurrency}`, { color: "info" });
+  }
 });
 
 flushQueue.on("empty", () => {
