@@ -138,7 +138,8 @@
   },
   "MyData": {
     "index": {
-      "flushSelectSite": "Flush selected"
+      "flushSelectSite": "Flush selected",
+      "flushCancel": "Flush canceled"
     },
     "table": {
       "site": "Site",

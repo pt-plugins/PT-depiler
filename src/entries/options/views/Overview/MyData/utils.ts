@@ -3,6 +3,7 @@ import PQueue from "p-queue";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
+import { log } from "~/helper.ts";
 
 const runtimeStore = useRuntimeStore();
 
@@ -37,7 +38,7 @@ flushQueue.on("active", () => {
   runtimeStore.userInfo.isFlush = true;
   if (flushQueue.concurrency != configStore.userInfo.queueConcurrency) {
     flushQueue.concurrency = configStore.userInfo.queueConcurrency;
-    runtimeStore.showSnakebar(`用户信息刷新队列并发数已更改为 ${flushQueue.concurrency}`, { color: "info" });
+    log(`用户信息刷新队列并发数已更改为 ${flushQueue.concurrency}`, { color: "info" });
   }
 });
 

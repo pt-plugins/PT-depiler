@@ -8,7 +8,7 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
-import { formatRatio, flushSiteLastUserInfo, fixUserInfo } from "./utils.ts";
+import { formatRatio, flushSiteLastUserInfo, fixUserInfo, flushQueue } from "./utils.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
@@ -82,6 +82,14 @@ function viewHistoryData(siteId: TSiteID) {
   showHistoryDataViewDialog.value = true;
   historyDataViewDialogSiteId.value = siteId;
 }
+
+function cancelFlush() {
+  flushQueue.clear();
+
+  for (const runtimeStoreKey in runtimeStore.userInfo.flushPlan) {
+    runtimeStore.userInfo.flushPlan[runtimeStoreKey].isFlush = false;
+  }
+}
 </script>
 
 <template>
@@ -89,12 +97,18 @@ function viewHistoryData(siteId: TSiteID) {
   <v-card>
     <v-card-title>
       <v-row class="ma-0">
+        <v-btn v-if="runtimeStore.userInfo.isFlush" color="red" prepend-icon="mdi-cancel" @click="cancelFlush">
+          {{ t("MyData.index.flushCancel") }}
+        </v-btn>
+
         <v-btn
-          :disabled="runtimeStore.userInfo.isFlush || tableSelected.length === 0"
+          v-else
+          :disabled="tableSelected.length === 0"
           color="green"
           prepend-icon="mdi-cached"
           @click="() => flushSiteLastUserInfo(tableSelected)"
-          >{{ t("MyData.index.flushSelectSite") }}
+        >
+          {{ t("MyData.index.flushSelectSite") }}
         </v-btn>
 
         <v-divider vertical class="mx-2" />

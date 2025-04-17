@@ -91,7 +91,9 @@ function cancelSearchQueue() {
   searchQueue.clear(); // 清空搜索队列
   // 将搜索队列中状态设置为跳过
   for (const key of Object.keys(runtimeStore.search.searchPlan)) {
+    // @ts-ignore
     if (runtimeStore.search.searchPlan[key]!.status === EResultParseStatus.waiting) {
+      // @ts-ignore
       runtimeStore.search.searchPlan[key]!.status = EResultParseStatus.passParse;
     }
   }
