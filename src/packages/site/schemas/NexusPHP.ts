@@ -287,6 +287,7 @@ export const SchemaMetadata: Pick<
           "td.rowhead:contains('魔力') + td",
           "td.rowhead:contains('Karma'):contains('Points') + td",
           "td.rowhead:contains('麦粒') + td",
+          "td.rowhead:contains('魔力值') + td",
           "td.rowfollow:contains('魔力值')",
         ],
         filters: [
