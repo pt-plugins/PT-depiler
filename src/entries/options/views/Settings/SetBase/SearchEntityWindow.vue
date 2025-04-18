@@ -1,9 +1,18 @@
 <script setup lang="ts">
-import { useConfigStore } from "@/options/stores/config.ts";
 import { useI18n } from "vue-i18n";
+import { useConfigStore } from "@/options/stores/config.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 const { t } = useI18n();
 const configStore = useConfigStore();
+const metadataStore = useMetadataStore();
+
+function clearLastFilter(v: boolean) {
+  if (!v) {
+    // noinspection JSIgnoredPromiseFromCall
+    metadataStore.setLastSearchFilter("");
+  }
+}
 </script>
 
 <template>
@@ -18,6 +27,18 @@ const configStore = useConfigStore();
             controlVariant="default"
             label="请求队列长度"
           ></v-number-input>
+        </v-col>
+      </v-row>
+
+      <v-row>
+        <v-col md="6">
+          <v-switch
+            v-model="configStore.searchEntity.saveLastFilter"
+            color="success"
+            hide-details
+            label="保存上一次使用的搜索筛选词"
+            @update:model-value="clearLastFilter"
+          ></v-switch>
         </v-col>
       </v-row>
     </v-card-text>

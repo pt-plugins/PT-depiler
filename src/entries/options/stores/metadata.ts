@@ -32,6 +32,7 @@ export const useMetadataStore = defineStore("metadata", {
 
     defaultSolutionId: "default",
 
+    lastSearchFilter: "",
     lastUserInfo: {},
     lastDownloader: {},
   }),
@@ -313,6 +314,11 @@ export const useMetadataStore = defineStore("metadata", {
       value: IDownloaderMetadata[T],
     ) {
       set(this.downloaders[downloaderId], key, value);
+      await this.$save();
+    },
+
+    async setLastSearchFilter(filter: string) {
+      this.lastSearchFilter = filter;
       await this.$save();
     },
   },

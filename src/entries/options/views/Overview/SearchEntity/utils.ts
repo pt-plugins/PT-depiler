@@ -1,5 +1,5 @@
 import PQueue from "p-queue";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { refDebounced } from "@vueuse/core";
 import searchQueryParser, { type SearchParserOptions } from "search-query-parser";
 
@@ -14,8 +14,9 @@ import type { ISearchResultTorrent, TSearchSolutionKey } from "@/shared/storages
 import { sendMessage } from "@/messages.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { log, checkRange, dateFilterFormat } from "~/helper.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
+
+import { log, checkRange, dateFilterFormat } from "~/helper.ts";
 
 export const searchQueryParserOptions: SearchParserOptions = {
   keywords: ["site", "tags"],
@@ -26,7 +27,11 @@ export const searchQueryParserOptions: SearchParserOptions = {
   alwaysArray: true,
 };
 
-export const tableWaitFilter = ref("");
+const runtimeStore = useRuntimeStore();
+const configStore = useConfigStore();
+const metadataStore = useMetadataStore();
+
+export const tableWaitFilter = ref(metadataStore.lastSearchFilter ?? ""); // 搜索过滤词
 export const tableFilter = refDebounced(tableWaitFilter, 500); // 延迟搜索过滤词的生成
 const tableParsedFilter = computed(() => searchQueryParser.parse(tableFilter.value, searchQueryParserOptions));
 
@@ -80,8 +85,13 @@ export function tableCustomFilter(value: any, query: string, item: any) {
   return true;
 }
 
-const runtimeStore = useRuntimeStore();
-const configStore = useConfigStore();
+watch(tableFilter, (newValue) => {
+  if (configStore.searchEntity.saveLastFilter) {
+    // noinspection JSIgnoredPromiseFromCall
+    metadataStore.setLastSearchFilter(newValue);
+  }
+});
+
 export const searchQueue = new PQueue({ concurrency: 1 }); // 默认设置为 1，避免并发搜索
 
 searchQueue.on("active", () => {

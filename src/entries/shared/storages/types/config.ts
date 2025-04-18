@@ -35,6 +35,7 @@ export interface IConfigPiniaStorageSchema {
   };
 
   searchEntity: {
+    saveLastFilter: boolean;
     queueConcurrency: number;
   };
 }

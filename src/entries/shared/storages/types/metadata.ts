@@ -61,6 +61,7 @@ export interface IMetadataPiniaStorageSchema {
    */
   lastUserInfo: Record<TSiteKey, IStoredUserInfo>;
 
+  lastSearchFilter?: string;
   lastDownloader?: {
     id?: TDownloaderKey;
     options?: Omit<CAddTorrentOptions, "localDownloadOption">;
