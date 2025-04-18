@@ -178,6 +178,7 @@
     "tab": {
       "ui": "Option UI",
       "search-entity": "Search",
+      "download": "Download",
       "user-info": "UserInfo",
       "reset": "Reset"
     },
@@ -188,6 +189,16 @@
         "dark": "Dark Mode",
         "index": "UI display mode",
         "light": "Light Mode"
+      }
+    },
+    "download": {
+      "localDownloadMethod": {
+        "web": "Web Page",
+        "webTip": "Open the page corresponding to the download link (only applicable to the simplest method; if conditions are not met, it will fall back to @:SetBase.download.localDownloadMethod.extension )",
+        "browser": "Browser Method",
+        "browserTip": "Use the browser's download method provided by the extension to download directly",
+        "extension": "Extension Proxy",
+        "extensionTip": "The extension downloads the torrent in the background and proxies it to @:SetBase.download.localDownloadMethod.browser for downloading"
       }
     }
   },

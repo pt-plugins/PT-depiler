@@ -57,9 +57,10 @@ export async function getRemoteTorrentFile(options: AxiosRequestConfig = {}): Pr
    * 不然，文件名会被设置为解析后的种子名，缺省为 `1.torrent`
    */
   let torrentName = parsedInfo.name || "1.torrent";
+
   const disposition: string | null = req.headers["content-disposition"];
-  let dispositionName;
   if (disposition && disposition.includes("filename")) {
+    let dispositionName = "";
     if (utf8FilenameRegex.test(disposition)) {
       dispositionName = decode(utf8FilenameRegex.exec(disposition)![1]);
     } else {
@@ -74,10 +75,7 @@ export async function getRemoteTorrentFile(options: AxiosRequestConfig = {}): Pr
         }
       }
     }
-  }
 
-  // 我们不一定信任服务器的设置
-  if (dispositionName) {
     /**
      * hdsky 返回 filename="xxxxxxx.torrent" ; charset=utf-8 需要额外处理，同时此处包含了 trim
      * 注意，由于上面对该情况使用 ascii 转换，这样仍然会导致文件名出现异常

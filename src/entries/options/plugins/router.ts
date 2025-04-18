@@ -15,6 +15,12 @@ export const setBaseChildren: RouteRecordRaw[] = [
     component: () => import("../views/Settings/SetBase/SearchEntityWindow.vue"),
   },
   {
+    path: "download",
+    name: "SetBaseDownload",
+    meta: { icon: "mdi-download-network" },
+    component: () => import("../views/Settings/SetBase/DownloadWindow.vue"),
+  },
+  {
     path: "user-info",
     name: "SetBaseUserInfo",
     meta: { icon: "mdi-account" },

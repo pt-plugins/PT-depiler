@@ -59,7 +59,7 @@ const localDlTorrentDownloadLinkBtnStatus = ref(false);
 async function localDlTorrentDownloadLink() {
   localDlTorrentDownloadLinkBtnStatus.value = true;
   for (const torrent of torrentItems.value) {
-    await sendMessage("downloadTorrentToLocalFile", torrent);
+    await sendMessage("downloadTorrentToLocalFile", { torrent });
   }
   localDlTorrentDownloadLinkBtnStatus.value = false;
 }

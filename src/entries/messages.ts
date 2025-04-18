@@ -8,15 +8,16 @@ import type {
   TSiteID,
 } from "@ptd/site";
 import type { CAddTorrentOptions } from "@ptd/downloader";
+import type { ISocialInformation, TSupportSocialSite } from "@ptd/social";
 import type {
   TExtensionStorageKey,
   IExtensionStorageSchema,
   IDownloaderMetadata,
   ISearchData,
   TSearchSnapshotKey,
+  TLocalDownloadMethod,
 } from "@/storage.ts";
-import { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/storages/types/indexdb.ts";
-import type { ISocialInformation, TSupportSocialSite } from "@ptd/social";
+import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/storages/types/indexdb.ts";
 
 interface ProtocolMap {
   // 1. 与 chrome 相关的功能，需要在 service worker 中注册，主要供 offscreen, options 使用
@@ -50,7 +51,10 @@ interface ProtocolMap {
 
   // 2.2 种子下载相关功能
   getTorrentDownloadLink(torrent: ITorrent): string;
-  downloadTorrentToLocalFile(torrent: ITorrent): TTorrentDownloadKey;
+  downloadTorrentToLocalFile(data: {
+    torrent: ITorrent;
+    localDownloadMethod?: TLocalDownloadMethod;
+  }): TTorrentDownloadKey;
   downloadTorrentToDownloader(data: {
     torrent: ITorrent;
     downloaderId: string;

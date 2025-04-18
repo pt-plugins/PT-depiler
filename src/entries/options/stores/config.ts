@@ -60,6 +60,11 @@ export const useConfigStore = defineStore("config", {
     userInfo: {
       queueConcurrency: 1,
     },
+
+    download: {
+      localDownloadMethod: "browser",
+    },
+
     searchEntity: {
       queueConcurrency: 1,
     },

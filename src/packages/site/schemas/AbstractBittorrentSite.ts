@@ -530,7 +530,7 @@ export default class BittorrentSite {
   async getTorrentDownloadRequestConfig(torrent: ITorrent): Promise<AxiosRequestConfig> {
     const torrentDownloadLink = await this.getTorrentDownloadLink(torrent);
     return toMerged(
-      { url: torrentDownloadLink, method: "GET", timeout: this.userConfig.timeout ?? 30e3 },
+      { baseURL: this.url, url: torrentDownloadLink, method: "GET", timeout: this.userConfig.timeout ?? 30e3 },
       this.metadata.download?.requestConfig ?? {},
     );
   }
