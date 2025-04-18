@@ -138,7 +138,8 @@
   },
   "MyData": {
     "index": {
-      "flushSelectSite": "Flush selected"
+      "flushSelectSite": "Flush selected",
+      "flushCancel": "Flush canceled"
     },
     "table": {
       "site": "Site",
@@ -175,7 +176,10 @@
   },
   "SetBase": {
     "tab": {
-      "ui": "Option UI"
+      "ui": "Option UI",
+      "search-entity": "Search",
+      "user-info": "UserInfo",
+      "reset": "Reset"
     },
     "ui": {
       "changeLanguage": "Switch Language",

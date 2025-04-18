@@ -1,5 +1,4 @@
 import type { TLangCode } from "@/options/plugins/i18n.ts";
-import type { CAddTorrentOptions } from "@ptd/downloader";
 
 export const supportTheme = ["auto", "light", "dark"] as const;
 export type supportThemeType = (typeof supportTheme)[number];
@@ -10,16 +9,19 @@ interface UiTableBehaviorItem<T = string> {
   sortBy?: { key: T; order: "asc" | "desc" }[];
 }
 
-export interface IUiPiniaStorageSchema {
+export interface IConfigPiniaStorageSchema {
   lang: TLangCode;
   theme: supportThemeType;
   isNavBarOpen: boolean;
   ignoreWrongPixelRatio: boolean;
 
-  lastDownloader: {
-    id?: string;
-    options: Omit<CAddTorrentOptions, "localDownloadOption">;
+  tableBehavior: Record<UiTableBehaviorKey, UiTableBehaviorItem>;
+
+  userInfo: {
+    queueConcurrency: number;
   };
 
-  tableBehavior: Record<UiTableBehaviorKey, UiTableBehaviorItem>;
+  searchEntity: {
+    queueConcurrency: number;
+  };
 }

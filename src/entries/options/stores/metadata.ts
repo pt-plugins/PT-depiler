@@ -33,6 +33,7 @@ export const useMetadataStore = defineStore("metadata", {
     defaultSolutionId: "default",
 
     lastUserInfo: {},
+    lastDownloader: {},
   }),
 
   getters: {

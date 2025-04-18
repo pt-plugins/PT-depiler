@@ -21,12 +21,6 @@ export const initialSearchData: () => ISearchData = () => ({
   searchResult: [],
 });
 
-export const resetUiGlobalSnakebar = () => ({
-  show: false,
-  text: "",
-  color: "success",
-});
-
 export const useRuntimeStore = defineStore("runtime", {
   persist: true,
   persistWebExt: false,

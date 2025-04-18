@@ -3,16 +3,15 @@
  */
 import { defineStore } from "pinia";
 import { usePreferredDark } from "@vueuse/core";
-import type { IUiPiniaStorageSchema, supportThemeType } from "@/storage.ts";
+import type { IConfigPiniaStorageSchema, supportThemeType } from "@/storage.ts";
 
-export const useUIStore = defineStore("ui", {
+export const useConfigStore = defineStore("config", {
   persistWebExt: true,
-  state: (): IUiPiniaStorageSchema => ({
+  state: (): IConfigPiniaStorageSchema => ({
     lang: "zh_CN",
     theme: "light",
     isNavBarOpen: true,
     ignoreWrongPixelRatio: false,
-    lastDownloader: {},
     tableBehavior: {
       MyData: {
         itemsPerPage: 20,
@@ -57,6 +56,12 @@ export const useUIStore = defineStore("ui", {
           { key: "userConfig.allowQueryUserInfo", order: "desc" },
         ],
       },
+    },
+    userInfo: {
+      queueConcurrency: 1,
+    },
+    searchEntity: {
+      queueConcurrency: 1,
     },
   }),
   getters: {

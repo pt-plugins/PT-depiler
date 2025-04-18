@@ -6,7 +6,7 @@ import {
   TSiteID as TSiteKey,
 } from "@ptd/site";
 import { TSelectSearchCategoryValue } from "@ptd/site";
-import { DownloaderBaseConfig } from "@ptd/downloader";
+import { CAddTorrentOptions, DownloaderBaseConfig } from "@ptd/downloader";
 
 export interface ISearchSolution {
   id: string;
@@ -60,4 +60,9 @@ export interface IMetadataPiniaStorageSchema {
    * 此处仅存储站点最近一次的记录，如果需要获取历史记录，需要使用 storage 方法获取
    */
   lastUserInfo: Record<TSiteKey, IStoredUserInfo>;
+
+  lastDownloader?: {
+    id?: TDownloaderKey;
+    options?: Omit<CAddTorrentOptions, "localDownloadOption">;
+  };
 }

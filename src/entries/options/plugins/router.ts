@@ -1,5 +1,33 @@
 import { createRouter, createWebHashHistory, type RouteRecordRaw } from "vue-router";
 
+export const setBaseChildren: RouteRecordRaw[] = [
+  {
+    path: "",
+    alias: "ui",
+    name: "SetBaseUi",
+    meta: { icon: "mdi-palette" },
+    component: () => import("../views/Settings/SetBase/UiWindow.vue"),
+  },
+  {
+    path: "search-entity",
+    name: "SetBaseSearchEntity",
+    meta: { icon: "mdi-magnify" },
+    component: () => import("../views/Settings/SetBase/SearchEntityWindow.vue"),
+  },
+  {
+    path: "user-info",
+    name: "SetBaseUserInfo",
+    meta: { icon: "mdi-account" },
+    component: () => import("../views/Settings/SetBase/UserInfoWindow.vue"),
+  },
+  {
+    path: "reset",
+    name: "SetBaseReset",
+    meta: { icon: "mdi-refresh" },
+    component: () => import("../views/Settings/SetBase/ResetWindow.vue"),
+  },
+] as const;
+
 export const routes: RouteRecordRaw[] = [
   {
     path: "/",
@@ -43,6 +71,7 @@ export const routes: RouteRecordRaw[] = [
         name: "SetBase",
         meta: { icon: "mdi-cog" },
         component: () => import("../views/Settings/SetBase/Index.vue"),
+        children: setBaseChildren,
       },
       {
         path: "/set-site",

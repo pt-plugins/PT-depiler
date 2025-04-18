@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
-import { ETorrentStatus } from "@ptd/site";
+import { EResultParseStatus, ETorrentStatus } from "@ptd/site";
 
 import { type ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { useUIStore } from "@/options/stores/ui.ts";
+import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 import { log } from "~/helper.ts";
@@ -22,7 +22,7 @@ import SaveSnapshotDialog from "./SaveSnapshotDialog.vue";
 import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
 
 const route = useRoute();
-const uiStore = useUIStore();
+const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 
@@ -45,7 +45,7 @@ const fullTableHeader = [
 
 const tableHeader = computed(() => {
   return fullTableHeader.filter(
-    (item) => item.alwaysShow || uiStore.tableBehavior.SearchEntity.columns!.includes(item.key),
+    (item) => item.alwaysShow || configStore.tableBehavior.SearchEntity.columns!.includes(item.key),
   );
 });
 
@@ -88,7 +88,16 @@ function startSearchQueue() {
 
 function cancelSearchQueue() {
   log("cancelSearchQueue", searchQueue);
-  searchQueue.clear();
+  searchQueue.clear(); // 清空搜索队列
+  // 将搜索队列中状态设置为跳过
+  for (const key of Object.keys(runtimeStore.search.searchPlan)) {
+    // @ts-ignore
+    if (runtimeStore.search.searchPlan[key]!.status === EResultParseStatus.waiting) {
+      // @ts-ignore
+      runtimeStore.search.searchPlan[key]!.status = EResultParseStatus.passParse;
+    }
+  }
+
   runtimeStore.search.isSearching = false;
 }
 </script>
@@ -163,7 +172,7 @@ function cancelSearchQueue() {
         <v-divider vertical class="mx-2" />
 
         <v-combobox
-          v-model="uiStore.tableBehavior.SearchEntity.columns"
+          v-model="configStore.tableBehavior.SearchEntity.columns"
           :items="fullTableHeader.map((item) => item.key)"
           chips
           class="table-header-filter-clear"
@@ -178,13 +187,13 @@ function cancelSearchQueue() {
               <span>{{ fullTableHeader.find((x) => x.key == item.title)?.title }}</span>
             </v-chip>
             <span v-if="index === 1" class="grey--text caption">
-              (+{{ uiStore.tableBehavior.SearchEntity.columns!.length - 1 }} others)
+              (+{{ configStore.tableBehavior.SearchEntity.columns!.length - 1 }} others)
             </span>
           </template>
           <template v-slot:item="{ props, item }">
             <v-list-item>
               <v-checkbox
-                v-model="uiStore.tableBehavior.SearchEntity.columns"
+                v-model="configStore.tableBehavior.SearchEntity.columns"
                 :disabled="fullTableHeader.find((x) => x.key == item.title)?.alwaysShow"
                 :label="fullTableHeader.find((x) => x.key == item.title)?.title"
                 :value="item.title"
@@ -218,16 +227,16 @@ function cancelSearchQueue() {
       :filter-keys="['uniqueId'] /* 对每个item值只检索一次 */"
       :headers="tableHeader"
       :items="runtimeStore.search.searchResult"
-      :items-per-page="uiStore.tableBehavior.SearchEntity.itemsPerPage"
+      :items-per-page="configStore.tableBehavior.SearchEntity.itemsPerPage"
       :search="tableFilter"
-      :sort-by="uiStore.tableBehavior.SearchEntity.sortBy"
+      :sort-by="configStore.tableBehavior.SearchEntity.sortBy"
       class="search-entity-table table-stripe"
       hover
       item-value="uniqueId"
       multi-sort
       show-select
-      @update:itemsPerPage="(v) => uiStore.updateTableBehavior('SearchEntity', 'itemsPerPage', v)"
-      @update:sortBy="(v) => uiStore.updateTableBehavior('SearchEntity', 'sortBy', v)"
+      @update:itemsPerPage="(v) => configStore.updateTableBehavior('SearchEntity', 'itemsPerPage', v)"
+      @update:sortBy="(v) => configStore.updateTableBehavior('SearchEntity', 'sortBy', v)"
     >
       <!-- 站点图标 -->
       <template #item.site="{ item }">

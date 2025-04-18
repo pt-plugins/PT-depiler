@@ -4,11 +4,11 @@ import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 import { isUndefined } from "es-toolkit/compat";
 
-import { useUIStore } from "@/options/stores/ui.ts";
+import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
-import { formatRatio, flushSiteLastUserInfo, fixUserInfo } from "./utils.ts";
+import { formatRatio, flushSiteLastUserInfo, fixUserInfo, flushQueue } from "./utils.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
@@ -21,7 +21,7 @@ import HistoryDataViewDialog from "@/options/views/Overview/MyData/HistoryDataVi
 import ResultParseStatus from "@/options/components/ResultParseStatus.vue";
 
 const { t } = useI18n();
-const uiStore = useUIStore();
+const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 
@@ -44,7 +44,9 @@ const fullTableHeader = reactive([
 ]);
 
 const tableHeader = computed(() => {
-  return fullTableHeader.filter((item) => item.alwaysShow || uiStore.tableBehavior.MyData.columns!.includes(item.key));
+  return fullTableHeader.filter(
+    (item) => item.alwaysShow || configStore.tableBehavior.MyData.columns!.includes(item.key),
+  );
 });
 
 const tableData = computedAsync<Array<IUserInfo & { siteUserConfig: ISiteUserConfig }>>(async () => {
@@ -80,6 +82,14 @@ function viewHistoryData(siteId: TSiteID) {
   showHistoryDataViewDialog.value = true;
   historyDataViewDialogSiteId.value = siteId;
 }
+
+function cancelFlush() {
+  flushQueue.clear();
+
+  for (const runtimeStoreKey in runtimeStore.userInfo.flushPlan) {
+    runtimeStore.userInfo.flushPlan[runtimeStoreKey].isFlush = false;
+  }
+}
 </script>
 
 <template>
@@ -87,18 +97,24 @@ function viewHistoryData(siteId: TSiteID) {
   <v-card>
     <v-card-title>
       <v-row class="ma-0">
+        <v-btn v-if="runtimeStore.userInfo.isFlush" color="red" prepend-icon="mdi-cancel" @click="cancelFlush">
+          {{ t("MyData.index.flushCancel") }}
+        </v-btn>
+
         <v-btn
-          :disabled="runtimeStore.userInfo.isFlush || tableSelected.length === 0"
+          v-else
+          :disabled="tableSelected.length === 0"
           color="green"
           prepend-icon="mdi-cached"
           @click="() => flushSiteLastUserInfo(tableSelected)"
-          >{{ t("MyData.index.flushSelectSite") }}
+        >
+          {{ t("MyData.index.flushSelectSite") }}
         </v-btn>
 
         <v-divider vertical class="mx-2" />
 
         <v-combobox
-          v-model="uiStore.tableBehavior.MyData.columns"
+          v-model="configStore.tableBehavior.MyData.columns"
           :items="fullTableHeader.map((item) => item.key)"
           chips
           class="table-header-filter-clear"
@@ -113,13 +129,13 @@ function viewHistoryData(siteId: TSiteID) {
               <span>{{ fullTableHeader.find((x) => x.key == item.title)?.title }}</span>
             </v-chip>
             <span v-if="index === 1" class="text-grey caption">
-              (+{{ uiStore.tableBehavior.MyData.columns!.length - 1 }} others)
+              (+{{ configStore.tableBehavior.MyData.columns!.length - 1 }} others)
             </span>
           </template>
           <template v-slot:item="{ props, item }">
             <v-list-item>
               <v-checkbox
-                v-model="uiStore.tableBehavior.MyData.columns"
+                v-model="configStore.tableBehavior.MyData.columns"
                 :disabled="fullTableHeader.find((x) => x.key == item.title)?.alwaysShow"
                 :label="fullTableHeader.find((x) => x.key == item.title)?.title"
                 :value="item.title"
@@ -135,7 +151,7 @@ function viewHistoryData(siteId: TSiteID) {
       v-model="tableSelected"
       :headers="tableHeader"
       :items="tableData"
-      :sort-by="uiStore.tableBehavior.MyData.sortBy"
+      :sort-by="configStore.tableBehavior.MyData.sortBy"
       class="table-stripe"
       hover
       item-value="site"

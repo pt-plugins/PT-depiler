@@ -139,7 +139,8 @@
   },
   "MyData": {
     "index": {
-      "flushSelectSite": "刷新所选站点的数据"
+      "flushSelectSite": "刷新数据",
+      "flushCancel": "取消刷新"
     },
     "table": {
       "site": "站点",
@@ -176,7 +177,10 @@
   },
   "SetBase": {
     "tab": {
-      "ui": "界面UI"
+      "ui": "界面UI",
+      "search-entity": "搜索",
+      "user-info": "用户信息",
+      "reset": "重置"
     },
     "ui": {
       "changeLanguage": "切换语言",
@@ -278,8 +282,9 @@
   },
   "SetSearchSolution": {
     "solution": "搜索方案",
-    "delete": {
-      "text": "确认删除这 {0} 个 @:SetSearchSolution.solution 吗？"
+    "table": {
+      "enable": "启用？",
+      "default": "默认？"
     },
     "edit": {
       "title": "自定义 @:SetSearchSolution.solution",
@@ -287,9 +292,8 @@
       "cantAddByDuplicateNote": "已存在相同的 @:SetSearchSolution.solution ，无法重复添加。",
       "filterPlaceholder": "通过站点名称或 url 进行搜索"
     },
-    "table": {
-      "enable": "启用？",
-      "default": "默认？"
+    "delete": {
+      "text": "确认删除这 {0} 个 @:SetSearchSolution.solution 吗？"
     }
   },
   "SetSite": {

@@ -4,7 +4,6 @@ import { type CAddTorrentOptions, getDownloaderIcon } from "@ptd/downloader";
 import { type ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
 import { type IDownloaderMetadata } from "@/shared/storages/types/metadata.ts";
 
-import { useUIStore } from "@/options/stores/ui.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
@@ -20,7 +19,6 @@ const emit = defineEmits<{
   (e: "done"): void;
 }>();
 
-const uiStore = useUIStore();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 const isSending = ref(false);
@@ -51,11 +49,11 @@ async function sendToDownloader() {
   }
 
   // 保存此次选择记录
-  uiStore.lastDownloader = {
+  metadataStore.lastDownloader = {
     id: selectedDownloader.value.id,
     options: addTorrentOptions.value,
   };
-  await uiStore.$save();
+  await metadataStore.$save();
 
   isSending.value = true;
   const promises = [];
@@ -111,9 +109,9 @@ async function sendToDownloader() {
 }
 
 function dialogEnter() {
-  const lastDownloaderId = uiStore.lastDownloader?.id;
+  const lastDownloaderId = metadataStore.lastDownloader?.id;
   selectedDownloader.value = lastDownloaderId ? metadataStore.downloaders[lastDownloaderId] : null;
-  addTorrentOptions.value = (uiStore.lastDownloader?.options ?? {}) as Required<
+  addTorrentOptions.value = (metadataStore.lastDownloader?.options ?? {}) as Required<
     Omit<CAddTorrentOptions, "localDownloadOption">
   >;
 }
