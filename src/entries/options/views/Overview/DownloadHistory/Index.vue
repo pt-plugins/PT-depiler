@@ -163,6 +163,7 @@ onMounted(() => {
         :sort-by="[{ key: 'id', order: 'desc' }]"
         class="table-stripe"
         fixed-header
+        hover
         item-value="id"
         show-select
       >

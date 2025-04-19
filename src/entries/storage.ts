@@ -4,7 +4,7 @@ import type {
   IStoredUserInfo,
   TSearchSnapshotKey,
 } from "@/shared/storages/types/metadata.ts";
-import { IConfigPiniaStorageSchema } from "@/shared/storages/types/config.ts";
+import type { IConfigPiniaStorageSchema } from "@/shared/storages/types/config.ts";
 import type { ISearchData } from "@/shared/storages/types/runtime.ts";
 import type { TSiteID } from "@ptd/site";
 

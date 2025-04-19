@@ -128,6 +128,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
         { key: 'sort', order: 'desc' },
       ]"
       class="table-stripe"
+      hover
       item-value="id"
       show-select
     >

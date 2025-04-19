@@ -34,12 +34,14 @@ export async function setSiteLastUserInfo(userData: IUserInfo) {
   (metadataStore as IMetadataPiniaStorageSchema).lastUserInfo[site] = userData;
   await sendMessage("setExtStorage", { key: "metadata", value: metadataStore });
 
-  // 存储用户信息到 userInfo 中
-  const userInfoStore = ((await sendMessage("getExtStorage", "userInfo")) ?? {}) as TUserInfoStorageSchema;
-  userInfoStore[site] ??= {};
-  const dateTime = format(userData.updateAt, "yyyy-MM-dd");
-  userInfoStore[site][dateTime] = userData;
-  await sendMessage("setExtStorage", { key: "userInfo", value: userInfoStore });
+  // 存储用户信息到 userInfo 中（仅当获取成功时）
+  if (userData.status === EResultParseStatus.success) {
+    const userInfoStore = ((await sendMessage("getExtStorage", "userInfo")) ?? {}) as TUserInfoStorageSchema;
+    userInfoStore[site] ??= {};
+    const dateTime = format(userData.updateAt, "yyyy-MM-dd");
+    userInfoStore[site][dateTime] = userData;
+    await sendMessage("setExtStorage", { key: "userInfo", value: userInfoStore });
+  }
 }
 
 onMessage("setSiteLastUserInfo", async ({ data: userData }) => await setSiteLastUserInfo(userData));

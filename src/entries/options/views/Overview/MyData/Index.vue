@@ -151,11 +151,14 @@ function cancelFlush() {
       v-model="tableSelected"
       :headers="tableHeader"
       :items="tableData"
+      :items-per-page="configStore.tableBehavior.MyData.itemsPerPage"
       :sort-by="configStore.tableBehavior.MyData.sortBy"
       class="table-stripe"
       hover
       item-value="site"
       show-select
+      @update:itemsPerPage="(v) => configStore.updateTableBehavior('MyData', 'itemsPerPage', v)"
+      @update:sortBy="(v) => configStore.updateTableBehavior('MyData', 'sortBy', v)"
     >
       <!-- 站点信息 -->
       <template #item.siteUserConfig.sortIndex="{ item }">

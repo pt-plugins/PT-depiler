@@ -94,6 +94,7 @@ async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey)
       :search="tableFilter"
       :sort-by="[{ key: 'createdAt', order: 'desc' }]"
       class="table-stripe"
+      hover
       item-value="id"
       show-select
     >

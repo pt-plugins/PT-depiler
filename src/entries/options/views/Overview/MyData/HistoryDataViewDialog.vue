@@ -84,6 +84,7 @@ function viewStoreData(data: IShowUserInfo) {
           :items="siteHistoryData"
           :sort-by="[{ key: 'date', order: 'desc' }]"
           class="table-stripe"
+          hover
           items-per-page="10"
         >
           <!-- -->

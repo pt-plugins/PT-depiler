@@ -89,6 +89,7 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
       :headers="fullTableHeader"
       :items="metadataStore.getDownloaders"
       class="table-stripe"
+      hover
       item-value="id"
       show-select
     >

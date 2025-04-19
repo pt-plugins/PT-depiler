@@ -108,6 +108,7 @@ const tableDependencies = computed(() => Object.values(technologyData.value));
         :items="tableDependencies"
         :items-per-page="-1"
         :sort-by="[{ key: 'name', order: 'asc' }]"
+        hover
         item-value="id"
         must-sort
       >

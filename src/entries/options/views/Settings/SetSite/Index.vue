@@ -150,6 +150,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
       class="table-stripe"
       item-value="id"
       multi-sort
+      hover
       show-select
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('SetSite', 'itemsPerPage', v)"
       @update:sortBy="(v) => configStore.updateTableBehavior('SetSite', 'sortBy', v)"
