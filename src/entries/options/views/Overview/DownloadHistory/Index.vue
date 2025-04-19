@@ -16,6 +16,7 @@ import ReDownloadSelectDialog from "./ReDownloadSelectDialog.vue";
 import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
 
 import { downloadStatusMap, tableCustomFilterFn, tableWaitFilter, tableFilter } from "./utils.ts";
+import NavButton from "@/options/components/NavButton.vue";
 
 const { t } = useI18n();
 
@@ -111,28 +112,26 @@ onMounted(() => {
     <v-card-title>
       <v-row class="ma-0">
         <!-- 按钮组 -->
-        <v-btn color="green" prepend-icon="mdi-cached" @click="() => loadDownloadHistory()"> 刷新下载记录列表 </v-btn>
+        <NavButton color="green" icon="mdi-cached" text="刷新下载记录列表" @click="() => loadDownloadHistory()" />
 
         <v-divider vertical class="mx-2" />
 
-        <v-btn
+        <NavButton
           :disabled="tableSelected.length === 0"
           color="primary"
-          prepend-icon="mdi-tray-arrow-down"
+          icon="mdi-tray-arrow-down"
+          text="重新下载"
           @click="() => reDownloadTorrent(tableSelected)"
-        >
-          重新下载
-        </v-btn>
+        />
 
-        <v-btn
+        <NavButton
           :disabled="tableSelected.length === 0"
-          color="error"
+          :text="t('common.remove')"
           class="ml-2"
-          prepend-icon="mdi-minus"
+          color="error"
+          icon="mdi-minus"
           @click="deleteDownloadHistory(tableSelected)"
-        >
-          {{ t("common.remove") }}
-        </v-btn>
+        />
 
         <v-spacer />
 

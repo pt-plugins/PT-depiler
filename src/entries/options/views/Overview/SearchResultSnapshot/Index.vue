@@ -11,6 +11,7 @@ import EditNameDialog from "./EditNameDialog.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 
 import { type TSearchSnapshotKey } from "@/shared/storages/types/metadata.ts";
+import NavButton from "@/options/components/NavButton.vue";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -64,14 +65,13 @@ async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey)
   <v-card>
     <v-card-title>
       <v-row class="ma-0">
-        <v-btn
+        <NavButton
           :disabled="tableSelected.length === 0"
           color="error"
-          prepend-icon="mdi-minus"
+          icon="mdi-minus"
+          :text="$t('common.remove')"
           @click="tryToDeleteSearchSnapshot(tableSelected)"
-        >
-          {{ $t("common.remove") }}
-        </v-btn>
+        />
 
         <v-spacer />
         <v-text-field

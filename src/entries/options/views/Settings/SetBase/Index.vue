@@ -10,7 +10,7 @@ const router = useRouter();
 const setBaseTabs = setBaseChildren.map((x) => ({
   key: x.alias ?? x.path,
   route: x.name,
-  icon: x.meta.icon,
+  icon: x.meta!.icon,
 }));
 
 const setTab = ref<string>("");
@@ -32,8 +32,8 @@ function enterTab(routeName: string) {
       stacked
       @update:model-value="(v) => enterTab(v as string)"
     >
-      <v-tab v-for="tab in setBaseTabs" :key="tab.key" :value="tab.route">
-        <v-icon :icon="tab.icon" />
+      <v-tab v-for="tab in setBaseTabs" :key="tab.key as string" :value="tab.route">
+        <v-icon :icon="tab.icon as string" />
         {{ t(`SetBase.tab.${tab.key}`) }}
       </v-tab>
     </v-tabs>

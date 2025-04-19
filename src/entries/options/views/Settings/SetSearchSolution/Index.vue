@@ -8,6 +8,7 @@ import type { TSolutionKey } from "@/storage.ts";
 import EditDialog from "./EditDialog.vue";
 import SolutionLabel from "./SolutionLabel.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
+import NavButton from "@/options/components/NavButton.vue";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
@@ -85,25 +86,26 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
   <v-card>
     <v-card-title>
       <v-row class="ma-0">
-        <v-btn class="mr-2" color="success" prepend-icon="mdi-plus" @click="addSearchSolution">
-          {{ t("common.btn.add") }}
-        </v-btn>
-        <v-btn
+        <NavButton
+          :text="t('common.btn.add')"
+          class="mr-2"
+          color="success"
+          icon="mdi-plus"
+          @click="addSearchSolution"
+        />
+
+        <NavButton
           :disabled="tableSelected.length === 0"
+          :text="t('common.remove')"
           color="error"
-          prepend-icon="mdi-minus"
+          icon="mdi-minus"
           @click="deleteSearchSolution(tableSelected)"
-        >
-          {{ t("common.remove") }}
-        </v-btn>
+        />
 
         <v-divider class="mx-2" inset vertical />
 
-        <v-btn color="light-blue" disabled prepend-icon="mdi-help-circle">
-          {{ t("common.howToUse") }}
-        </v-btn>
-
-        <v-spacer></v-spacer>
+        <NavButton :text="t('common.howToUse')" color="light-blue" disabled icon="mdi-help-circle" />
+        <v-spacer />
 
         <v-text-field
           v-model="tableFilter"

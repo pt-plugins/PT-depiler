@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { type ISiteMetadata, type ISiteUserConfig, type TSiteID } from "@ptd/site";
-
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync, refDebounced } from "@vueuse/core";
+import searchQueryParser, { SearchParserOptions } from "search-query-parser";
+import { type ISiteMetadata, type ISiteUserConfig, type TSiteID } from "@ptd/site";
+
+import { sendMessage } from "@/messages.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -13,10 +15,10 @@ import EditDialog from "./EditDialog.vue";
 import EditSearchEntryList from "./EditSearchEntryList.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
-import { sendMessage } from "@/messages.ts";
-import searchQueryParser, { SearchParserOptions } from "search-query-parser";
+import NavButton from "@/options/components/NavButton.vue";
 
 const { t } = useI18n();
+
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
@@ -29,7 +31,7 @@ const tableHeader = [
   // site favicon
   { title: "", key: "userConfig.sortIndex", align: "center", width: 48, alwaysShow: true, filterable: false },
   { title: t("SetSite.common.name"), key: "name", align: "left", width: 120, alwaysShow: true, sortable: false },
-  { title: "站点分类", key: "groups", align: "left", sortable: false },
+  { title: "站点分类", key: "groups", align: "left", minWidth: 120, sortable: false },
   { title: t("SetSite.common.url"), key: "url", align: "start", sortable: false },
   { title: t("SetSite.common.isOffline"), key: "userConfig.isOffline", align: "center", width: 180, filterable: false },
   {
@@ -90,7 +92,12 @@ const sites = computedAsync<ISiteTableItem[]>(async () => {
 function tableCustomFilter(value: any, query: string, item: any) {
   const rawItem = item.raw as ISiteTableItem;
 
-  const itemTitle = [rawItem.metadata.name, rawItem.userConfig.merge?.name, ...rawItem.metadata.urls]
+  const itemTitle = [
+    rawItem.metadata.name,
+    ...rawItem.metadata.urls,
+    rawItem.userConfig.merge?.name,
+    rawItem.userConfig.url,
+  ]
     .filter(Boolean)
     .join("|")
     .toLowerCase();
@@ -148,28 +155,30 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
   <v-card class="set-site">
     <v-card-title>
       <v-row class="ma-0">
-        <v-btn class="mr-2" color="success" prepend-icon="mdi-plus" @click="showAddDialog = true">
-          {{ t("common.btn.add") }}
-        </v-btn>
-        <v-btn
+        <NavButton
+          :text="t('common.btn.add')"
+          class="mr-2"
+          color="success"
+          icon="mdi-plus"
+          @click="showAddDialog = true"
+        />
+
+        <NavButton
           :disabled="tableSelected.length === 0"
+          :text="t('common.remove')"
           color="error"
-          prepend-icon="mdi-minus"
+          icon="mdi-minus"
           @click="deleteSite(tableSelected)"
-        >
-          {{ t("common.remove") }}
-        </v-btn>
-        <v-divider class="mx-3" inset vertical />
-        <v-btn-group density="compact" size="small">
-          <v-btn
-            :disabled="tableSelected.length === 0"
-            :loading="isFaviconFlushing"
-            color="indigo"
-            prepend-icon="mdi-face-recognition"
-            @click="() => flushSiteFavicon(tableSelected)"
-            >{{ t("SetSite.index.table.flushFavicon") }}</v-btn
-          >
-        </v-btn-group>
+        />
+        <v-divider class="mx-2" inset vertical />
+        <NavButton
+          :disabled="tableSelected.length === 0"
+          :loading="isFaviconFlushing"
+          :text="t('SetSite.index.table.flushFavicon')"
+          color="indigo"
+          icon="mdi-face-recognition"
+          @click="() => flushSiteFavicon(tableSelected)"
+        />
 
         <!-- TODO 一键导入站点 -->
         <v-spacer />
@@ -184,7 +193,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
           <template #prepend-inner>
             <v-menu min-width="100">
               <template v-slot:activator="{ props }">
-                <v-icon icon="mdi-filter" variant="plain" v-bind="props" />
+                <v-icon icon="mdi-filter" v-bind="props" variant="plain" />
               </template>
               <v-list class="pa-0">
                 <v-list-item-subtitle class="ma-2">站点分类</v-list-item-subtitle>
@@ -192,8 +201,9 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
                 <v-list-item
                   v-for="(item, index) in metadataStore.getSitesGroupData"
                   :key="index"
-                  :value="index"
                   :title="`${index} (${item.length})`"
+                  :value="index"
+                  class="pr-6"
                   @click="() => (tableWaitFilter = (tableWaitFilter + ` site:${item.join(',')}`).trim())"
                 >
                 </v-list-item>

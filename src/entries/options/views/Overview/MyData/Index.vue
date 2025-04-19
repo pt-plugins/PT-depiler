@@ -19,6 +19,7 @@ import { EResultParseStatus, type ISiteUserConfig, IUserInfo, TSiteID } from "@p
 import { formatDate, formatNumber, formatSize } from "@/options/utils.ts";
 import HistoryDataViewDialog from "@/options/views/Overview/MyData/HistoryDataViewDialog.vue";
 import ResultParseStatus from "@/options/components/ResultParseStatus.vue";
+import NavButton from "@/options/components/NavButton.vue";
 
 const { t } = useI18n();
 const configStore = useConfigStore();
@@ -97,19 +98,23 @@ function cancelFlush() {
   <v-card>
     <v-card-title>
       <v-row class="ma-0">
-        <v-btn v-if="runtimeStore.userInfo.isFlush" color="red" prepend-icon="mdi-cancel" @click="cancelFlush">
-          {{ t("MyData.index.flushCancel") }}
-        </v-btn>
+        <!-- 刷新，取消刷新 -->
+        <NavButton
+          v-if="runtimeStore.userInfo.isFlush"
+          :text="t('MyData.index.flushCancel')"
+          color="red"
+          icon="mdi-cancel"
+          @click="cancelFlush"
+        />
 
-        <v-btn
+        <NavButton
           v-else
           :disabled="tableSelected.length === 0"
           color="green"
-          prepend-icon="mdi-cached"
+          icon="mdi-cached"
+          :text="t('MyData.index.flushSelectSite')"
           @click="() => flushSiteLastUserInfo(tableSelected)"
-        >
-          {{ t("MyData.index.flushSelectSite") }}
-        </v-btn>
+        />
 
         <v-divider vertical class="mx-2" />
 

@@ -10,6 +10,7 @@ import AddDialog from "./AddDialog.vue";
 import EditDialog from "./EditDialog.vue";
 import PathAndTagSuggestDialog from "./PathAndTagSuggestDialog.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
+import NavButton from "@/options/components/NavButton.vue";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
@@ -70,17 +71,21 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
   <v-card class="set-downloader">
     <v-card-title>
       <v-row class="ma-0">
-        <v-btn class="mr-2" color="success" prepend-icon="mdi-plus" @click="showAddDialog = true">
-          {{ t("common.btn.add") }}
-        </v-btn>
-        <v-btn
+        <NavButton
+          :text="t('common.btn.add')"
+          class="mr-2"
+          color="success"
+          icon="mdi-plus"
+          @click="showAddDialog = true"
+        />
+
+        <NavButton
           :disabled="tableSelected.length === 0"
+          :text="t('common.remove')"
           color="error"
-          prepend-icon="mdi-minus"
+          icon="mdi-minus"
           @click="deleteDownloader(tableSelected)"
-        >
-          {{ t("common.remove") }}
-        </v-btn>
+        />
       </v-row>
     </v-card-title>
 
