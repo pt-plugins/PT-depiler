@@ -31,6 +31,7 @@ export interface IConfigPiniaStorageSchema {
 
   download: {
     // 当使用本地方法下载时，如何下载种子
+    saveLastDownloader: boolean;
     localDownloadMethod: TLocalDownloadMethod;
   };
 

@@ -3,10 +3,18 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import { useI18n } from "vue-i18n";
 import { LocalDownloadMethod } from "@/shared/storages/types/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 const { t } = useI18n();
 const runtimeStore = useRuntimeStore();
 const configStore = useConfigStore();
+const metadataStore = useMetadataStore();
+
+async function clearLastDownloader(v: boolean) {
+  if (!v) {
+    await metadataStore.setLastDownloader({});
+  }
+}
 
 async function save() {
   await configStore.$save();
@@ -32,6 +40,18 @@ async function save() {
             persistent-hint
           >
           </v-select>
+        </v-col>
+      </v-row>
+
+      <v-row>
+        <v-col md="6">
+          <v-switch
+            v-model="configStore.download.saveLastDownloader"
+            color="success"
+            hide-details
+            label="保存上一次使用的下载服务器设置"
+            @update:model-value="clearLastDownloader"
+          ></v-switch>
         </v-col>
       </v-row>
     </v-card-text>

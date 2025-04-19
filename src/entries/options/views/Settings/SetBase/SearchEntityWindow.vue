@@ -9,10 +9,9 @@ const runtimeStore = useRuntimeStore();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 
-function clearLastFilter(v: boolean) {
+async function clearLastFilter(v: boolean) {
   if (!v) {
-    // noinspection JSIgnoredPromiseFromCall
-    metadataStore.setLastSearchFilter("");
+    await metadataStore.setLastSearchFilter("");
   }
 }
 
@@ -44,7 +43,7 @@ async function save() {
             color="success"
             hide-details
             label="保存上一次使用的搜索筛选词"
-            @update:model-value="clearLastFilter"
+            @update:model-value="(v) => clearLastFilter(v as boolean)"
           ></v-switch>
         </v-col>
       </v-row>

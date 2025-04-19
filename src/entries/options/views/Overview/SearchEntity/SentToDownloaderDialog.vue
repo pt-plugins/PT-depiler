@@ -1,14 +1,14 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { type CAddTorrentOptions, getDownloaderIcon } from "@ptd/downloader";
-import { type ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
-import { type IDownloaderMetadata } from "@/shared/storages/types/metadata.ts";
-
-import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 import { sendMessage } from "@/messages.ts";
 import { formatDate } from "@/options/utils.ts";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { useConfigStore } from "@/options/stores/config.ts";
+import { type ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
+import { type IDownloaderMetadata } from "@/shared/storages/types/metadata.ts";
 
 const showDialog = defineModel<boolean>();
 const { torrentItems } = defineProps<{
@@ -19,6 +19,7 @@ const emit = defineEmits<{
   (e: "done"): void;
 }>();
 
+const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 const isSending = ref(false);
@@ -49,11 +50,13 @@ async function sendToDownloader() {
   }
 
   // 保存此次选择记录
-  metadataStore.lastDownloader = {
-    id: selectedDownloader.value.id,
-    options: addTorrentOptions.value,
-  };
-  await metadataStore.$save();
+  if (configStore.download.saveLastDownloader) {
+    // noinspection ES6MissingAwait
+    metadataStore.setLastDownloader({
+      id: selectedDownloader.value.id,
+      options: addTorrentOptions.value,
+    });
+  }
 
   isSending.value = true;
   const promises = [];
@@ -113,7 +116,11 @@ async function sendToDownloader() {
 
 function dialogEnter() {
   const lastDownloaderId = metadataStore.lastDownloader?.id;
-  selectedDownloader.value = lastDownloaderId ? metadataStore.downloaders[lastDownloaderId] : null;
+  selectedDownloader.value = lastDownloaderId // 如果有上次选择的下载器，则直接使用
+    ? metadataStore.downloaders[lastDownloaderId]
+    : metadataStore.getEnabledDownloaders.length === 1 // 如果只有一个启用的下载器，则直接使用
+      ? metadataStore.getEnabledDownloaders[0]
+      : null;
   addTorrentOptions.value = (metadataStore.lastDownloader?.options ?? {}) as Required<
     Omit<CAddTorrentOptions, "localDownloadOption">
   >;

@@ -314,5 +314,10 @@ export const useMetadataStore = defineStore("metadata", {
       this.lastSearchFilter = filter;
       await this.$save();
     },
+
+    async setLastDownloader(downloader: IMetadataPiniaStorageSchema["lastDownloader"]) {
+      this.lastDownloader = downloader;
+      await this.$save();
+    },
   },
 });
