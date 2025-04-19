@@ -46,6 +46,20 @@ export const useMetadataStore = defineStore("metadata", {
       return Object.values(state.sites);
     },
 
+    getSitesGroupData(state) {
+      const sitesGroupData: Record<string, TSiteID[]> = {};
+      for (const siteId in state.sites) {
+        const site = state.sites[siteId];
+        if (site.groups) {
+          for (const group of site.groups) {
+            sitesGroupData[group] ??= [];
+            sitesGroupData[group].push(siteId);
+          }
+        }
+      }
+      return sitesGroupData;
+    },
+
     getSiteMetadata(state) {
       return async (siteId: TSiteID): Promise<ISiteMetadata> => {
         return await getDefinedSiteMetadata(siteId);

@@ -5,11 +5,12 @@ import { log } from "~/helper.ts";
 
 export * from "./types.ts";
 
+// From https://github.com/ourbits/PtGen#usage
 export const buildInPtGenApi = [
-  "https://ourbits.github.io/PtGen/<site>/<sid>.json",
-  "https://pt-gen.netlify.app/<site>/<sid>.json",
-  "https://cdn.ourhelp.club/ptgen/<site>/<sid>.json",
-  "https://api.ourhelp.club/infogen?site=<site>&sid=<sid>",
+  { provider: "Github Pages", url: "https://ourbits.github.io/PtGen/<site>/<sid>.json" },
+  { provider: "Netlify", url: "https://pt-gen.netlify.app/<site>/<sid>.json" },
+  { provider: "OurHelp CDN", url: "https://cdn.ourhelp.club/ptgen/<site>/<sid>.json" },
+  { provider: "OurHelp API", url: "https://api.ourhelp.club/infogen?site=<site>&sid=<sid>" },
 ];
 
 interface socialEntity {
@@ -51,9 +52,9 @@ export async function getSocialSiteInformation(
   // @ts-ignore
 ): Promise<ISocialInformation | undefined> {
   const socialModule = getSocialModule(site);
-  const { usePtGen = true, ptGenEndpoint = buildInPtGenApi[0].url, timeout = 5e3 } = config;
+  const { preferPtGen = true, ptGenEndpoint = buildInPtGenApi[0].url, timeout = 5e3 } = config;
 
-  if (usePtGen && PtGenApiSupportSite.includes(site)) {
+  if (preferPtGen && PtGenApiSupportSite.includes(site)) {
     log("Use PtGen API to fetch social site information ", { site, id });
 
     for (const ptGenEndpointElement of new Set<string>([ptGenEndpoint, buildInPtGenApi.at(-1)!.url])) {

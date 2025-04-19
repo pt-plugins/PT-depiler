@@ -134,6 +134,14 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
           </v-radio-group>
         </v-row>
 
+        <v-combobox
+          v-model="siteUserConfig.groups"
+          :items="siteMetaData.tags"
+          label="站点分类"
+          chips
+          multiple
+        ></v-combobox>
+
         <v-autocomplete v-model="siteTimezoneOffset" :items="timeZone" :label="t('SetSite.editor.timezone')" />
 
         <v-slider

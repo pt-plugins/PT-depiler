@@ -213,6 +213,8 @@ export interface ISiteUserConfig {
    */
   allowQueryUserInfo?: boolean;
 
+  groups?: string[]; // 分类信息，默认为 ISiteMetadata.tags， 也允许用户自定义添加，相同的会被合并到一类中
+
   timeout?: number; // 请求超时时间，单位为毫秒，如果不设置默认为 30000ms
 
   /**
