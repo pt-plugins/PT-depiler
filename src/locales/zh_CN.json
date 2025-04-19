@@ -197,7 +197,7 @@
         "web": "网页打开",
         "webTip": "打开下载链接对应的页面（只适用于最简单的方式，如果不符合条件，则会回落到 @:SetBase.download.localDownloadMethod.extension ）",
         "browser": "浏览器方法",
-        "browserTip": "调用浏览器为插件提供的下载方法直接下载",
+        "browserTip": "（推荐）调用浏览器为插件提供的下载方法直接下载",
         "extension": "插件中转",
         "extensionTip": "插件后台下载种子，并中转到 @:SetBase.download.localDownloadMethod.browser 进行下载"
       }

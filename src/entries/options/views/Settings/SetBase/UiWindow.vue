@@ -5,9 +5,16 @@ import { useConfigStore } from "@/options/stores/config.ts";
 
 import { definedLangMetaData } from "@/options/plugins/i18n.ts";
 import { supportTheme } from "@/shared/storages/types/config.ts";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 const { t } = useI18n();
 const configStore = useConfigStore();
+const runtimeStore = useRuntimeStore();
+
+async function save() {
+  await configStore.$save();
+  runtimeStore.showSnakebar("保存成功", { color: "success" });
+}
 </script>
 
 <template>
@@ -34,12 +41,7 @@ const configStore = useConfigStore();
     <v-divider />
     <v-card-actions>
       <v-row class="ml-2 my-1">
-        <v-btn
-          color="green"
-          variant="elevated"
-          prepend-icon="mdi-check-circle-outline"
-          @click="() => configStore.$save()"
-        >
+        <v-btn color="green" variant="elevated" prepend-icon="mdi-check-circle-outline" @click="save">
           {{ t("common.save") }}
         </v-btn>
       </v-row>
