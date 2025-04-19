@@ -21,11 +21,14 @@ const metadataStore = useMetadataStore();
 
 const clientConfig = ref<IDownloaderMetadata>();
 const clientMetadata = ref<TorrentClientMetaData>();
+const expansionPanelOpen = ref<string>("note");
 
 const pathReplaceMap: [string, string, string][] = [
   // [key (for i18n), value, example]
   ["torrentSite", "$torrent.site$", "/volume1/$torrent.site$/music -> /volume1/opencd/music"],
   ["torrentSiteName", "$torrent.siteName$", "/volume1/$torrent.siteName$/music -> /volume1/OpenCD/music"],
+  ["searchKeyword", "$search:keyword$", "/volume1/$search:keyword$/music -> /volume1/keyword/music"],
+  ["searchPlan", "$search:plan$", "/volume1/$search:plan$/music -> /volume1/all/music"],
   ["dateYear", "$date:YYYY$", "/volume1/$date:YYYY$/music -> /volume1/2019/music"],
   ["dateMonth", "$date:MM$", "/volume1/$date:MM$/music -> /volume1/10/music"],
   ["dateDay", "$date:DD$", "/volume1/$date:DD$/music -> /volume1/01/music"],
@@ -51,10 +54,6 @@ function addSuggestFolder(input: string) {
   if (suggestFolderInput.value == input) {
     suggestFolderInput.value = "";
   }
-}
-
-function addPathReplaceToSuggestFolder(key: string) {
-  suggestFolderInput.value = suggestFolderInput.value + "/" + key;
 }
 
 function removeSuggestFolder(folder: string) {
@@ -134,7 +133,7 @@ function saveClientConfig() {
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <v-expansion-panels>
+        <v-expansion-panels v-model="expansionPanelOpen">
           <v-expansion-panel :disabled="clientMetadata?.feature?.CustomPath?.allowed === false" value="path">
             <v-expansion-panel-title>
               {{ t("SetDownloader.PathAndTag.downloadPath.title") }}
@@ -199,7 +198,7 @@ function saveClientConfig() {
                         :title="pathReplace[2]"
                         class="mr-1"
                         size="small"
-                        @click="addPathReplaceToSuggestFolder(pathReplace[1])"
+                        @click="() => (suggestFolderInput += '/' + pathReplace[1])"
                       >
                         {{ pathReplace[1] }}
                       </v-chip>
@@ -207,27 +206,6 @@ function saveClientConfig() {
                   </v-text-field>
                 </v-list-item>
               </v-list>
-              <v-alert closable color="info" variant="outlined">
-                <span>{{ t("SetDownloader.PathAndTag.downloadPath.note.index") }}</span>
-                <v-table density="compact">
-                  <thead>
-                    <tr>
-                      <th>{{ t("SetDownloader.PathAndTag.downloadPath.note.table.keywords") }}</th>
-                      <th>{{ t("SetDownloader.PathAndTag.downloadPath.note.table.note") }}</th>
-                      <th>{{ t("SetDownloader.PathAndTag.downloadPath.note.table.example") }}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr v-for="pathReplace in pathReplaceMap" :key="pathReplace[1]">
-                      <td>{{ pathReplace[1] }}</td>
-                      <td>{{ t(`SetDownloader.PathAndTag.downloadPath.note.replaceNote.${pathReplace[0]}`) }}</td>
-                      <td>
-                        <pre>{{ pathReplace[2] }}</pre>
-                      </td>
-                    </tr>
-                  </tbody>
-                </v-table>
-              </v-alert>
             </v-expansion-panel-text>
           </v-expansion-panel>
           <v-expansion-panel value="tag">
@@ -282,9 +260,46 @@ function saveClientConfig() {
                         @click="loadClientLabels"
                       ></v-btn>
                     </template>
+                    <template #details>
+                      <v-chip
+                        v-for="pathReplace in pathReplaceMap"
+                        :key="pathReplace[1]"
+                        :title="pathReplace[2]"
+                        class="mr-1"
+                        size="small"
+                        @click="() => (suggestTagInput += pathReplace[1])"
+                      >
+                        {{ pathReplace[1] }}
+                      </v-chip>
+                    </template>
                   </v-text-field>
                 </v-list-item>
               </v-list>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+          <v-expansion-panel :title="t('SetDownloader.PathAndTag.note.title')" value="note">
+            <v-expansion-panel-text>
+              <v-alert class="mt-2" color="info" variant="outlined">
+                <span>{{ t("SetDownloader.PathAndTag.note.index") }}</span>
+                <v-table density="compact">
+                  <thead>
+                    <tr>
+                      <th>{{ t("SetDownloader.PathAndTag.note.table.keywords") }}</th>
+                      <th>{{ t("SetDownloader.PathAndTag.note.table.note") }}</th>
+                      <th>{{ t("SetDownloader.PathAndTag.note.table.example") }}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr v-for="pathReplace in pathReplaceMap" :key="pathReplace[1]">
+                      <td>{{ pathReplace[1] }}</td>
+                      <td>{{ t(`SetDownloader.PathAndTag.note.replaceNote.${pathReplace[0]}`) }}</td>
+                      <td>
+                        <pre>{{ pathReplace[2] }}</pre>
+                      </td>
+                    </tr>
+                  </tbody>
+                </v-table>
+              </v-alert>
             </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>

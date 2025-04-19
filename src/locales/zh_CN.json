@@ -265,22 +265,7 @@
         "addTitle": "已添加的@:SetDownloader.PathAndTag.downloadPath.title@:SetDownloader.PathAndTag.supportDragNote",
         "addInputLabel": "添加@:SetDownloader.PathAndTag.downloadPath.title",
         "autoImport": "一键导入下载器中已有的@:SetDownloader.PathAndTag.downloadPath.title",
-        "autoImportFail": "@:SetDownloader.PathAndTag.downloadPath.autoImport 失败，请手动添加。",
-        "note": {
-          "index": "@:SetDownloader.PathAndTag.downloadPath.title中可包含以下关键字：",
-          "table": {
-            "keywords": "关键词",
-            "note": "说明",
-            "example": "示例"
-          },
-          "replaceNote": {
-            "torrentSite": "将被替换为当前站点id",
-            "torrentSiteName": "将被替换为当前站点名称；",
-            "dateYear": "将被替换为当前年份",
-            "dateMonth": "将被替换为当前月份",
-            "dateDay": "将被替换为当前日份"
-          }
-        }
+        "autoImportFail": "@:SetDownloader.PathAndTag.downloadPath.autoImport 失败，请手动添加。"
       },
       "tags": {
         "title": "标签",
@@ -288,6 +273,24 @@
         "addInputLabel": "添加@:SetDownloader.PathAndTag.tags.title",
         "autoImport": "一键导入下载器中已有的@:SetDownloader.PathAndTag.tags.title",
         "autoImportFail": "@:SetDownloader.PathAndTag.tags.autoImport 失败，请手动添加。"
+      },
+      "note": {
+        "title": "说明",
+        "index": "@:SetDownloader.PathAndTag.downloadPath.title 或 @:SetDownloader.PathAndTag.tags.title 中可包含以下关键字：",
+        "table": {
+          "keywords": "关键词",
+          "note": "说明",
+          "example": "示例"
+        },
+        "replaceNote": {
+          "torrentSite": "将被替换为当前站点id",
+          "torrentSiteName": "将被替换为当前站点名称；",
+          "searchKeyword": "将被替换为当前搜索关键字",
+          "searchPlan": "将被替换为当前搜索方案名称",
+          "dateYear": "将被替换为当前年份",
+          "dateMonth": "将被替换为当前月份",
+          "dateDay": "将被替换为当前日份"
+        }
       }
     }
   },

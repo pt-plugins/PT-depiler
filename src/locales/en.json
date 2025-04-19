@@ -264,22 +264,7 @@
         "addTitle": "Added @:SetDownloader.PathAndTag.downloadPath.title @:SetDownloader.PathAndTag.supportDragNote",
         "addInputLabel": "Added @:SetDownloader.PathAndTag.downloadPath.title",
         "autoImport": "One-click to import of existing @:SetDownloader.PathAndTag.downloadPath.title from the downloader",
-        "autoImportFail": "@:SetDownloader.PathAndTag.downloadPath.autoImport failed, please add manually.",
-        "note": {
-          "index": "The @:SetDownloader.PathAndTag.downloadPath.title can include the following keywords:",
-          "table": {
-            "keywords": "Keywords",
-            "note": "Note",
-            "example": "Example"
-          },
-          "replaceNote": {
-            "torrentSite": "The Site ID of torrent",
-            "torrentSiteName": "The Site name of torrent",
-            "dateYear": "current year",
-            "dateMonth": "current month",
-            "dateDay": "current day"
-          }
-        }
+        "autoImportFail": "@:SetDownloader.PathAndTag.downloadPath.autoImport failed, please add manually."
       },
       "tags": {
         "title": "Tags",
@@ -287,6 +272,24 @@
         "addInputLabel": "Added @:SetDownloader.PathAndTag.tags.title",
         "autoImport": "One-click to import of existing @:SetDownloader.PathAndTag.tags.title from the downloader",
         "autoImportFail": "@:SetDownloader.PathAndTag.tags.autoImport failed, please add manually."
+      },
+      "note": {
+        "title": "Note",
+        "index": "The @:SetDownloader.PathAndTag.downloadPath.title or @:SetDownloader.PathAndTag.tags.title can include the following keywords:",
+        "table": {
+          "keywords": "Keywords",
+          "note": "Note",
+          "example": "Example"
+        },
+        "replaceNote": {
+          "torrentSite": "The Site ID of torrent",
+          "torrentSiteName": "The Site name of torrent",
+          "searchKeyword": "Search Keywords",
+          "searchPlan": "Search Plan Name",
+          "dateYear": "current year",
+          "dateMonth": "current month",
+          "dateDay": "current day"
+        }
       }
     }
   },

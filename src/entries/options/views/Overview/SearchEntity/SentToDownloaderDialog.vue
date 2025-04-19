@@ -60,28 +60,31 @@ async function sendToDownloader() {
 
   for (const torrent of torrentItems) {
     const realAddTorrentOptions: Partial<CAddTorrentOptions> = { ...addTorrentOptions.value };
-    if (realAddTorrentOptions.savePath) {
-      if (realAddTorrentOptions.savePath === "") {
-        delete realAddTorrentOptions.savePath;
-      } else {
-        const nowDate = new Date();
-        const replaceMap: Record<string, string> = {
-          "torrent.site": torrent.site,
-          "torrent.siteName": await metadataStore.getSiteName(torrent.site),
-          "torrent.category": (torrent.category as string) ?? "",
-          "date:YYYY": formatDate(nowDate, "yyyy") as string,
-          "date:MM": formatDate(nowDate, "MM") as string,
-          "date:DD": formatDate(nowDate, "dd") as string,
-        };
 
-        for (const [key, value] of Object.entries(replaceMap)) {
-          realAddTorrentOptions.savePath = realAddTorrentOptions.savePath.replace(`$${key}$`, value);
+    const nowDate = new Date();
+    const replaceMap: Record<string, string> = {
+      "torrent.site": torrent.site,
+      "torrent.siteName": await metadataStore.getSiteName(torrent.site),
+      "torrent.category": (torrent.category as string) ?? "",
+      "search:keyword": runtimeStore.search.searchKey,
+      "search:plan": metadataStore.getSearchSolutionName(runtimeStore.search.searchPlanKey),
+      "date:YYYY": formatDate(nowDate, "yyyy") as string,
+      "date:MM": formatDate(nowDate, "MM") as string,
+      "date:DD": formatDate(nowDate, "dd") as string,
+    };
+
+    (["savePath", "label"] as (keyof typeof realAddTorrentOptions)[]).forEach((key) => {
+      if (realAddTorrentOptions[key]) {
+        if (realAddTorrentOptions[key] === "") {
+          delete realAddTorrentOptions[key];
+        } else {
+          for (const [replaceKey, value] of Object.entries(replaceMap)) {
+            // @ts-ignore
+            realAddTorrentOptions[key] = (realAddTorrentOptions[key]! as string).replace(`$${replaceKey}$`, value);
+          }
         }
       }
-    }
-    if (realAddTorrentOptions.label === "") {
-      delete realAddTorrentOptions.label;
-    }
+    });
 
     promises.push(
       sendMessage("downloadTorrentToDownloader", {
