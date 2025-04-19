@@ -18,38 +18,32 @@ import type {
   TLocalDownloadMethod,
 } from "@/storage.ts";
 import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/storages/types/indexdb.ts";
+import { getFaviconMetadata } from "@ptd/site";
 
 interface ProtocolMap {
   // 1. 与 chrome 相关的功能，需要在 service worker 中注册，主要供 offscreen, options 使用
   downloadFile(downloadOptions: chrome.downloads.DownloadOptions): number;
   getExtStorage<T extends TExtensionStorageKey>(key: T): IExtensionStorageSchema[T];
-  setExtStorage<T extends TExtensionStorageKey>(key: T, value: IExtensionStorageSchema[T]): void;
-
-  // 1.1 站点相关功能
-  getSiteUserConfig(siteId: TSiteID): ISiteUserConfig;
-  setSiteLastUserInfo(userInfo: IUserInfo): void;
-  getSiteUserInfo(siteId: TSiteID): Record<string, IUserInfo>;
-  removeSiteUserInfo(data: { siteId: TSiteID; date: string }): void;
-
-  // 1.2 搜索快照相关功能
-  getSearchResultSnapshotData(snapshotId: TSearchSnapshotKey): ISearchData;
-  saveSearchResultSnapshotData(data: { snapshotId: TSearchSnapshotKey; data: ISearchData }): void;
-  removeSearchResultSnapshotData(snapshotId: TSearchSnapshotKey): void;
-
-  // 1.3 下载器相关功能
-  getDownloaderConfig(downloaderId: string): IDownloaderMetadata;
+  setExtStorage<T extends TExtensionStorageKey>(data: { key: T; value: IExtensionStorageSchema[T] }): void;
 
   // 2. 在 offscreen 中注册，涉及页面解析等功能，主要供 options 使用
 
-  // 2.1 站点相关功能
+  // 2.1 站点基础 ( utils/site )
+  getSiteUserConfig(data: { siteId: TSiteID; flush?: boolean }): ISiteUserConfig;
+  getSiteFavicon(data: { site: TSiteID | getFaviconMetadata; flush?: boolean }): string;
+
+  // 2.2 站点搜索、搜索快照 ( utils/search )
   getSiteSearchResult(data: {
     siteId: TSiteID;
     keyword: string;
     searchEntry?: IAdvancedSearchRequestConfig;
   }): ISearchResult;
-  getSiteUserInfoResult(siteId: TSiteID): IUserInfo;
+  getSearchResultSnapshotData(snapshotId: TSearchSnapshotKey): ISearchData;
+  saveSearchResultSnapshotData(data: { snapshotId: TSearchSnapshotKey; data: ISearchData }): void;
+  removeSearchResultSnapshotData(snapshotId: TSearchSnapshotKey): void;
 
-  // 2.2 种子下载相关功能
+  // 2.3 下载器、下载历史 ( utils/download )
+  getDownloaderConfig(downloaderId: string): IDownloaderMetadata;
   getTorrentDownloadLink(torrent: ITorrent): string;
   downloadTorrentToLocalFile(data: {
     torrent: ITorrent;
@@ -60,13 +54,19 @@ interface ProtocolMap {
     downloaderId: string;
     addTorrentOptions: CAddTorrentOptions;
   }): TTorrentDownloadKey;
-
-  // 2.3 IndexDB 相关功能封装
-  getSocialInformation(data: { site: TSupportSocialSite; sid: string }): ISocialInformation;
   getDownloadHistory(): ITorrentDownloadMetadata[];
   getDownloadHistoryById(downloadId: TTorrentDownloadKey): ITorrentDownloadMetadata;
   deleteDownloadHistoryById(downloadId: TTorrentDownloadKey): void;
   clearDownloadHistory(): void;
+
+  // 2.4 用户信息 ( utils/userInfo )
+  getSiteUserInfoResult(siteId: TSiteID): IUserInfo;
+  setSiteLastUserInfo(userInfo: IUserInfo): void;
+  getSiteUserInfo(siteId: TSiteID): Record<string, IUserInfo>;
+  removeSiteUserInfo(data: { siteId: TSiteID; date: string }): void;
+
+  // 2.5 社交信息 ( utils/socialInformation )
+  getSocialInformation(data: { site: TSupportSocialSite; sid: string }): ISocialInformation;
 }
 
 export const { sendMessage, onMessage } = defineExtensionMessaging<ProtocolMap>({});

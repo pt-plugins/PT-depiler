@@ -31,9 +31,16 @@ export interface IPtdDBSchemaV1 extends DBSchema {
   };
 }
 
-export interface IPtdDBSchema extends IPtdDBSchemaV1 {
+export interface IPtdDBSchemaV2 extends IPtdDBSchemaV1 {
   download_history: {
     key: TTorrentDownloadKey;
     value: ITorrentDownloadMetadata;
+  };
+}
+
+export interface IPtdDBSchema extends IPtdDBSchemaV2 {
+  favicon: {
+    key: TSiteKey;
+    value: string;
   };
 }

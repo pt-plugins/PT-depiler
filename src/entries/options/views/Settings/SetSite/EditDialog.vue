@@ -15,6 +15,8 @@ const props = defineProps<{
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
 
+const isFormValid = ref<boolean>(false);
+
 const storedSiteUserConfig = ref<ISiteUserConfig & { valid?: boolean }>({ valid: false });
 provide("storedSiteUserConfig", storedSiteUserConfig);
 
@@ -42,7 +44,7 @@ function dialogEnter() {
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <Editor v-model="props.siteId" />
+        <Editor v-model="props.siteId" @update:form-valid="(v) => (isFormValid = v)" />
       </v-card-text>
       <v-divider />
       <v-card-actions>
@@ -52,7 +54,7 @@ function dialogEnter() {
           {{ t("common.dialog.cancel") }}
         </v-btn>
 
-        <v-btn :disabled="!storedSiteUserConfig.valid" color="success" variant="text" @click="patchSite">
+        <v-btn :disabled="!isFormValid" color="success" variant="text" @click="patchSite">
           <v-icon icon="mdi-check-circle-outline" />
           {{ t("common.dialog.ok") }}
         </v-btn>

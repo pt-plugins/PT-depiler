@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { watch, ref, onMounted, inject, computed } from "vue";
 import { useI18n } from "vue-i18n";
+import { set } from "es-toolkit/compat";
 import { timezoneOffset, ISiteUserConfig, type TSiteID, ISiteMetadata, TSiteUrl } from "@ptd/site";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -10,21 +11,27 @@ const { t } = useI18n();
 const metadataStore = useMetadataStore();
 
 const siteId = defineModel<TSiteID>({ default: "" });
+const emit = defineEmits<{
+  (e: "update:formValid", v: boolean): void;
+}>();
+
 const siteMetaData = ref<ISiteMetadata>({} as unknown as ISiteMetadata);
-const siteUserConfig = inject<ISiteUserConfig & { valid: boolean }>("storedSiteUserConfig", { valid: false });
+const siteUserConfig = inject<ISiteUserConfig>("storedSiteUserConfig", {});
 const siteName = computed({
   get: () => siteUserConfig.value.merge?.name ?? siteMetaData.value.name,
-  set: (value) => metadataStore.simplePatchSite(siteId.value, "merge.name", value),
+  set: (value) => set(siteUserConfig.value, "merge.name", value),
 });
 const siteTimezoneOffset = computed({
   get: () => siteUserConfig.value.merge?.timezoneOffset ?? siteMetaData.value.timezoneOffset,
-  set: (value) => metadataStore.simplePatchSite(siteId.value, "merge.timezoneOffset", value),
+  set: (value) => set(siteUserConfig.value, "merge.timezoneOffset", value),
 });
 const customSiteUrl = ref<string>("");
+const isFormValid = ref<boolean>(false);
 
-async function initSiteData(siteId: TSiteID) {
+async function initSiteData(siteId: TSiteID, flush = false) {
+  console.log("initSiteData", siteId, flush);
   siteMetaData.value = await metadataStore.getSiteMetadata(siteId);
-  siteUserConfig.value = await metadataStore.getSiteUserConfig(siteId);
+  siteUserConfig.value = await metadataStore.getSiteUserConfig(siteId, flush);
 }
 
 onMounted(() => {
@@ -71,7 +78,12 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
 
 <template>
   <v-card class="mb-5 pa-1">
-    <v-form v-model="siteUserConfig.valid" fast-fail validate-on="eager invalid-input">
+    <v-form
+      v-model="isFormValid"
+      fast-fail
+      validate-on="eager invalid-input"
+      @update:model-value="(v) => emit('update:formValid', v as boolean)"
+    >
       <v-container class="pa-0">
         <v-row>
           <v-col cols="12" md="4">

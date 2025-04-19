@@ -1,5 +1,14 @@
 import { nanoid } from "nanoid";
 import { defineStore } from "pinia";
+import { isEmpty, set } from "es-toolkit/compat";
+import {
+  getDefinedSiteMetadata,
+  type ISearchCategories,
+  type ISearchEntryRequestConfig,
+  type ISiteMetadata,
+  type ISiteUserConfig,
+  type TSiteID,
+} from "@ptd/site";
 
 import type {
   IDownloaderMetadata,
@@ -10,15 +19,6 @@ import type {
   TSolutionKey,
 } from "@/shared/storages/types/metadata.ts";
 import { ISearchSolutionMetadata } from "@/shared/storages/types/metadata.ts";
-import {
-  getDefinedSiteMetadata,
-  type ISearchCategories,
-  type ISearchEntryRequestConfig,
-  type ISiteMetadata,
-  type ISiteUserConfig,
-  type TSiteID,
-} from "@ptd/site";
-import { isEmpty, set } from "es-toolkit/compat";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
@@ -53,17 +53,10 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     getSiteUserConfig(state) {
-      return async (siteId: TSiteID): Promise<ISiteUserConfig> => {
+      return async (siteId: TSiteID, flush: boolean = false): Promise<ISiteUserConfig> => {
         const siteUserConfig = state.sites[siteId] ?? {};
-        if (isEmpty(siteUserConfig)) {
-          const siteMetaData = await this.getSiteMetadata(siteId);
-          siteUserConfig.isOffline ??= false;
-          siteUserConfig.sortIndex ??= 100;
-          siteUserConfig.allowSearch ??= Object.hasOwn(siteMetaData, "search");
-          siteUserConfig.allowQueryUserInfo ??= Object.hasOwn(siteMetaData, "userInfo");
-          siteUserConfig.timeout = 30e3;
-          siteUserConfig.inputSetting ??= {};
-          siteUserConfig.merge ??= {};
+        if (flush || isEmpty(siteUserConfig)) {
+          return await sendMessage("getSiteUserConfig", { siteId, flush });
         }
         return siteUserConfig;
       };

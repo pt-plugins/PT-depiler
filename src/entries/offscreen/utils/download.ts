@@ -1,22 +1,32 @@
 import axios from "axios";
 import { stringify } from "urlencode";
 import { isEmpty } from "es-toolkit/compat";
-import { CAddTorrentOptions, getDownloader, getRemoteTorrentFile } from "@ptd/downloader";
+import { type CAddTorrentOptions, getDownloader, getRemoteTorrentFile } from "@ptd/downloader";
 import type { ITorrent } from "@ptd/site";
-
-import { onMessage, sendMessage } from "@/messages.ts";
-import { getSiteInstance } from "@/shared/adapters/site.ts";
-import { setDownloadHistory } from "@/shared/storages/indexdb.ts";
-import type { ITorrentDownloadMetadata } from "@/shared/storages/types/indexdb.ts";
-import type { ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
-import type { IConfigPiniaStorageSchema } from "@/shared/storages/types/config.ts";
 
 import { log } from "~/helper.ts";
 
-onMessage("getTorrentDownloadLink", async ({ data: torrent }) => {
+import { onMessage, sendMessage } from "@/messages.ts";
+import { getSiteInstance } from "./site.ts";
+import { ptdIndexDb } from "../adapter/indexdb.ts";
+import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/storages/types/indexdb.ts";
+import type { ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
+import type { IConfigPiniaStorageSchema } from "@/shared/storages/types/config.ts";
+import type { IDownloaderMetadata, IMetadataPiniaStorageSchema } from "@/storage.ts";
+
+export async function getDownloaderConfig(downloaderId: string) {
+  const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
+  return metadataStore?.downloaders?.[downloaderId] ?? ({} as IDownloaderMetadata);
+}
+
+onMessage("getDownloaderConfig", async ({ data: downloaderId }) => await getDownloaderConfig(downloaderId));
+
+export async function getTorrentDownloadLink(torrent: ITorrent) {
   const site = await getSiteInstance<"public">(torrent.site);
   return await site.getTorrentDownloadLink(torrent);
-});
+}
+
+onMessage("getTorrentDownloadLink", async ({ data: torrent }) => await getTorrentDownloadLink(torrent));
 
 function buildDownloadHistory(
   torrent: ITorrent,
@@ -132,7 +142,7 @@ onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId,
   const site = await getSiteInstance<"public">(torrent.site);
   const downloadRequestConfig = await site.getTorrentDownloadRequestConfig(torrent);
 
-  const downloaderConfig = await sendMessage("getDownloaderConfig", downloaderId);
+  const downloaderConfig = await getDownloaderConfig(downloaderId);
   if (downloaderConfig.id && downloaderConfig.enabled) {
     const downloaderInstance = await getDownloader(downloaderConfig);
     if (addTorrentOptions.localDownload !== false) {
@@ -153,3 +163,31 @@ onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId,
 
   return downloadId;
 });
+
+export async function getDownloadHistory() {
+  return await (await ptdIndexDb).getAll("download_history");
+}
+
+onMessage("getDownloadHistory", getDownloadHistory);
+
+export async function getDownloadHistoryById(downloadId: TTorrentDownloadKey) {
+  return await (await ptdIndexDb).get("download_history", downloadId);
+}
+
+onMessage("getDownloadHistoryById", async ({ data: downloadId }) => (await getDownloadHistoryById(downloadId))!);
+
+export async function setDownloadHistory(data: ITorrentDownloadMetadata) {
+  return await (await ptdIndexDb).put("download_history", data);
+}
+
+export async function deleteDownloadHistoryById(downloadId: TTorrentDownloadKey) {
+  return await (await ptdIndexDb).delete("download_history", downloadId);
+}
+
+onMessage("deleteDownloadHistoryById", async ({ data: downloadId }) => await deleteDownloadHistoryById(downloadId));
+
+export async function clearDownloadHistory() {
+  return await (await ptdIndexDb).clear("download_history");
+}
+
+onMessage("clearDownloadHistory", clearDownloadHistory);

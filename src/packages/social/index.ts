@@ -51,12 +51,12 @@ export async function getSocialSiteInformation(
   // @ts-ignore
 ): Promise<ISocialInformation | undefined> {
   const socialModule = getSocialModule(site);
-  const { usePtGen = true, ptGenEndpoint = buildInPtGenApi[0], timeout = 5e3 } = config;
+  const { usePtGen = true, ptGenEndpoint = buildInPtGenApi[0].url, timeout = 5e3 } = config;
 
   if (usePtGen && PtGenApiSupportSite.includes(site)) {
     log("Use PtGen API to fetch social site information ", { site, id });
 
-    for (const ptGenEndpointElement of new Set<string>([ptGenEndpoint, ...buildInPtGenApi])) {
+    for (const ptGenEndpointElement of new Set<string>([ptGenEndpoint, buildInPtGenApi.at(-1)!.url])) {
       const ptGenUrl = ptGenEndpointElement.replace("<site>", site).replace("<sid>", id);
       try {
         const req = await axios.get(ptGenUrl, { timeout, responseType: "json" });

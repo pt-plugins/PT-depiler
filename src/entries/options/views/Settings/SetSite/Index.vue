@@ -6,7 +6,6 @@ import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { getSiteFavicon } from "@/shared/adapters/site.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 import AddDialog from "./AddDialog.vue";
@@ -14,6 +13,7 @@ import EditDialog from "./EditDialog.vue";
 import EditSearchEntryList from "./EditSearchEntryList.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
+import { sendMessage } from "@/messages.ts";
 
 const { t } = useI18n();
 const configStore = useConfigStore();
@@ -93,7 +93,7 @@ const isFaviconFlushing = ref(false);
 async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
   const siteIds = Array.isArray(siteId) ? siteId : [siteId];
   for (const id of siteIds) {
-    await getSiteFavicon(id, true);
+    await sendMessage("getSiteFavicon", { site: id, force: true });
   }
   runtimeStore.showSnakebar(t("SetSite.index.flushFaviconFinish"), { color: "success" });
 }

@@ -1,21 +1,18 @@
 <script setup lang="ts">
 import { NO_IMAGE, type TSiteID } from "@ptd/site";
 import { computedAsync } from "@vueuse/core";
-import { getSiteFavicon } from "@/shared/adapters/site.ts";
+import { sendMessage } from "@/messages.ts";
 
-const props = withDefaults(
-  defineProps<{
-    siteId: TSiteID;
-    size?: number;
-  }>(),
-  { size: 32 },
-);
+const { siteId, size = 32 } = defineProps<{
+  siteId: TSiteID;
+  size?: number;
+}>();
 
-const siteFavicon = computedAsync(() => getSiteFavicon(props.siteId), NO_IMAGE);
+const siteFavicon = computedAsync(async () => await sendMessage("getSiteFavicon", { site: siteId }), NO_IMAGE);
 </script>
 
 <template>
-  <v-img :height="props.size" :src="siteFavicon" :width="props.size" aspect-ratio="1/1" />
+  <v-img :height="size" :src="siteFavicon" :width="size" aspect-ratio="1/1" />
 </template>
 
 <style scoped lang="scss"></style>

@@ -54,6 +54,7 @@ export async function flushSiteLastUserInfo(sites: TSiteID[]) {
         await sendMessage("getSiteUserInfoResult", site);
       } catch (e) {
         runtimeStore.showSnakebar(`获取站点 [${site}] 用户信息失败`, { color: "error" });
+        console.error(e);
       } finally {
         runtimeStore.userInfo.flushPlan[site].isFlush = false;
       }
