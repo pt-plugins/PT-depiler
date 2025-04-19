@@ -1,21 +1,17 @@
 <script setup lang="ts">
-import { reactive, ref } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { uniq } from "es-toolkit";
 import { addDays, startOfDay } from "date-fns";
 
 import { formatDate } from "@/options/utils.ts";
 import type { ITorrentDownloadMetadata } from "@/shared/storages/types/indexdb.ts";
-import { searchQueryParserOptions } from "@/options/views/Overview/DownloadHistory/utils.ts";
 import {
+  generateRangeField,
   getThisDateUnitRange,
   setDateRangeByDatePicker,
-  generateRangeField,
-  IKeywordValue,
-  IRangedValue,
-  ITextValue,
-  stringifyFilter,
-} from "@/shared/utils/advanceFilter.ts";
+} from "@/options/directives/useAdvanceFilter.ts";
+import { tableCustomFilter } from "@/options/views/Overview/DownloadHistory/utils.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
@@ -29,44 +25,34 @@ const emit = defineEmits(["update:tableFilter"]);
 
 const { t } = useI18n();
 
-interface IAdvanceFilterDict {
-  text: ITextValue;
-  site: IKeywordValue<string>;
-  downloader: IKeywordValue<string>;
-  status: IKeywordValue<string>;
-  date: IRangedValue;
-}
-
-const advanceFilterDict = reactive<IAdvanceFilterDict>({
-  text: { required: [], exclude: [] },
-  site: { all: [], required: [], exclude: [] },
-  downloader: { all: [], required: [], exclude: [] },
-  status: { all: [], required: [], exclude: [] },
-  date: { range: [0, 0], ticks: [], value: [0, 0] },
-});
+const { advanceFilterDictRef: advanceFilterDict, stringifyFilterFn } = tableCustomFilter;
 
 const resetCount = ref<number>(0);
 function resetFilter() {
   resetCount.value = +new Date(); // 更新重置计数，触发 vue 更新 site 和 tags 的 v-checkbox ，防止因为 :key 的问题导致无法重置
 
-  advanceFilterDict.text = { required: [], exclude: [] };
-  advanceFilterDict.site = { all: uniq(records.map((x) => x.siteId)), required: [], exclude: [] };
-  advanceFilterDict.downloader = { all: uniq(records.map((x) => x.downloaderId)), required: [], exclude: [] };
-  advanceFilterDict.status = { all: uniq(records.map((x) => x.downloadStatus)), required: [], exclude: [] };
-  advanceFilterDict.date = generateRangeField(records.map((x) => x.downloadAt));
+  advanceFilterDict.value.text = { required: [], exclude: [] };
+  advanceFilterDict.value.siteId = { all: uniq(records.map((x) => x.siteId)), required: [], exclude: [] };
+  advanceFilterDict.value.downloaderId = { all: uniq(records.map((x) => x.downloaderId)), required: [], exclude: [] };
+  advanceFilterDict.value.downloadStatus = {
+    all: uniq(records.map((x) => x.downloadStatus)),
+    required: [],
+    exclude: [],
+  };
+  advanceFilterDict.value.downloadAt = generateRangeField(records.map((x) => x.downloadAt));
 }
 
-function toggleState(field: "site" | "downloader" | "status", value: string) {
-  const state = advanceFilterDict[field].required.includes(value);
+function toggleState(field: "siteId" | "downloaderId" | "downloadStatus", value: string) {
+  const state = advanceFilterDict.value[field].required.includes(value);
   if (state) {
-    advanceFilterDict[field].exclude.push(value);
+    advanceFilterDict.value[field].exclude!.push(value);
   } else {
-    advanceFilterDict[field].exclude = advanceFilterDict[field].exclude.filter((x) => x !== value);
+    advanceFilterDict.value[field].exclude! = advanceFilterDict.value[field].exclude!.filter((x) => x !== value);
   }
 }
 
 function updateTableFilter() {
-  emit("update:tableFilter", stringifyFilter(advanceFilterDict, searchQueryParserOptions));
+  emit("update:tableFilter", stringifyFilterFn());
   showDialog.value = false;
 }
 </script>
@@ -106,20 +92,20 @@ function updateTableFilter() {
           <v-row><v-label>站点</v-label></v-row>
           <v-row>
             <v-col
-              v-for="site in advanceFilterDict.site.all"
+              v-for="site in advanceFilterDict.siteId.all"
               :key="`${resetCount}_${site}`"
               class="pa-0"
               sm="3"
               :cols="6"
             >
               <v-checkbox
-                v-model="advanceFilterDict.site.required"
+                v-model="advanceFilterDict.siteId.required"
                 :label="site"
                 :value="site"
                 density="compact"
                 hide-details
                 indeterminate
-                @click.stop="() => toggleState('site', site)"
+                @click.stop="() => toggleState('siteId', site)"
               >
                 <template #label>
                   <SiteFavicon :site-id="site" :size="16" class="mr-2" />
@@ -131,19 +117,19 @@ function updateTableFilter() {
           <v-row><v-label>下载器</v-label></v-row>
           <v-row>
             <v-col
-              v-for="downloader in advanceFilterDict.downloader.all"
+              v-for="downloader in advanceFilterDict.downloaderId.all"
               :key="`${resetCount}_${downloader}`"
               sm="6"
               :cols="12"
               class="pa-0"
             >
               <v-checkbox
-                v-model="advanceFilterDict.downloader.required"
+                v-model="advanceFilterDict.downloaderId.required"
                 :value="downloader"
                 density="compact"
                 hide-details
                 indeterminate
-                @click.stop="() => toggleState('downloader', downloader)"
+                @click.stop="() => toggleState('downloaderId', downloader)"
               >
                 <template #label>
                   <DownloaderLabel :downloader="downloader" />
@@ -151,6 +137,7 @@ function updateTableFilter() {
               </v-checkbox>
             </v-col>
           </v-row>
+          <!-- TODO 下载状态 -->
           <v-row>
             <v-col cols="12">
               <v-row class="pr-4">
@@ -162,7 +149,11 @@ function updateTableFilter() {
                   size="x-small"
                   class="mr-1"
                   @click="
-                    () => (advanceFilterDict.date.value = getThisDateUnitRange(dateUnit, advanceFilterDict.date.range))
+                    () =>
+                      (advanceFilterDict.downloadAt.value = getThisDateUnitRange(
+                        dateUnit,
+                        advanceFilterDict.downloadAt.range,
+                      ))
                   "
                 >
                   {{ t(`SearchEntity.AdvanceFilterGenerateDialog.date.${dateUnit}`) }}
@@ -171,24 +162,24 @@ function updateTableFilter() {
                   {{ t("SearchEntity.AdvanceFilterGenerateDialog.date.custom") }}
                   <v-menu activator="parent" location="top" :close-on-content-click="false">
                     <v-date-picker
-                      :max="addDays(new Date(advanceFilterDict.date.range[1]), 1)"
-                      :min="startOfDay(new Date(advanceFilterDict.date.range[0]))"
+                      :max="addDays(new Date(advanceFilterDict.downloadAt.range[1]), 1)"
+                      :min="startOfDay(new Date(advanceFilterDict.downloadAt.range[0]))"
                       hide-header
                       multiple="range"
                       show-adjacent-months
-                      @update:model-value="(v) => (advanceFilterDict.date.value = setDateRangeByDatePicker(v))"
+                      @update:model-value="(v) => (advanceFilterDict.downloadAt.value = setDateRangeByDatePicker(v))"
                     ></v-date-picker>
                   </v-menu>
                 </v-chip>
               </v-row>
               <v-row>
                 <v-range-slider
-                  v-model="advanceFilterDict.date.value"
-                  :max="advanceFilterDict.date.range[1]"
-                  :min="advanceFilterDict.date.range[0]"
+                  v-model="advanceFilterDict.downloadAt.value"
+                  :max="advanceFilterDict.downloadAt.range[1]"
+                  :min="advanceFilterDict.downloadAt.range[0]"
                   :step="60 * 1000"
                   :thumb-label="true"
-                  :ticks="advanceFilterDict.date.ticks"
+                  :ticks="advanceFilterDict.downloadAt.ticks"
                   class="px-6"
                   hide-details
                   show-ticks="always"

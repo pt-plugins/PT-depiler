@@ -110,6 +110,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
         <v-text-field
           v-model="tableFilter"
           append-icon="mdi-magnify"
+          clearable
           density="compact"
           hide-details
           label="Search"

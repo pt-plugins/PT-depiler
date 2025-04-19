@@ -7,11 +7,11 @@ import { refDebounced } from "@vueuse/core";
 import { formatDate } from "../../../utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
-import EditNameDialog from "./EditNameDialog.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
+import NavButton from "@/options/components/NavButton.vue";
+import EditNameDialog from "./EditNameDialog.vue";
 
 import { type TSearchSnapshotKey } from "@/shared/storages/types/metadata.ts";
-import NavButton from "@/options/components/NavButton.vue";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -77,6 +77,7 @@ async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey)
         <v-text-field
           v-model="tableWaitFilter"
           append-icon="mdi-magnify"
+          clearable
           density="compact"
           hide-details
           label="快照名称过滤"

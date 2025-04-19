@@ -11,14 +11,15 @@ import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import SiteName from "@/options/components/SiteName.vue";
 import TorrentTitleTd from "@/options/components/TorrentTitleTd.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
-import DownloaderLabel from "@/options/components/DownloaderLabel.vue"; // <-- 主要方法
+import DownloaderLabel from "@/options/components/DownloaderLabel.vue";
+import NavButton from "@/options/components/NavButton.vue";
 import ReDownloadSelectDialog from "./ReDownloadSelectDialog.vue";
 import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
 
-import { downloadStatusMap, tableCustomFilterFn, tableWaitFilter, tableFilter } from "./utils.ts";
-import NavButton from "@/options/components/NavButton.vue";
+import { downloadStatusMap, tableCustomFilter } from "./utils.ts"; // <-- 主要方法
 
 const { t } = useI18n();
+const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
 
 const downloadHistory = ref<Record<TTorrentDownloadKey, ITorrentDownloadMetadata>>({});
 const downloadHistoryList = computed(() => Object.values(downloadHistory.value));
@@ -137,7 +138,7 @@ onMounted(() => {
 
         <!-- 筛选框 -->
         <v-text-field
-          v-model="tableWaitFilter"
+          v-model="tableWaitFilterRef"
           append-icon="mdi-magnify"
           clearable
           density="compact"
@@ -153,12 +154,12 @@ onMounted(() => {
     <v-card-text>
       <v-data-table-virtual
         v-model="tableSelected"
-        :custom-filter="tableCustomFilterFn"
+        :custom-filter="tableFilterFn"
         :filter-keys="['id'] /* 对每个item值只检索一次 */"
         :headers="tableHeader"
         :height="'calc(100vh - 250px)'"
         :items="downloadHistoryList"
-        :search="tableFilter"
+        :search="tableFilterRef"
         :sort-by="[{ key: 'id', order: 'desc' }]"
         class="table-stripe"
         fixed-header
@@ -221,7 +222,7 @@ onMounted(() => {
   <AdvanceFilterGenerateDialog
     v-model="showAdvanceFilterDialog"
     :records="downloadHistoryList"
-    @update:table-filter="(v) => (tableWaitFilter = v)"
+    @update:table-filter="(v) => (tableWaitFilterRef = v)"
   />
 
   <DeleteDialog

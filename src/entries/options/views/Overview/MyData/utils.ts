@@ -49,7 +49,9 @@ flushQueue.on("idle", () => {
 export async function flushSiteLastUserInfo(sites: TSiteID[]) {
   for (const site of sites) {
     runtimeStore.userInfo.flushPlan[site] = { isFlush: true };
-    await flushQueue.add(async () => {
+
+    // noinspection ES6MissingAwait
+    flushQueue.add(async () => {
       try {
         await sendMessage("getSiteUserInfoResult", site);
       } catch (e) {

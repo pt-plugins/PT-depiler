@@ -7,6 +7,7 @@ import { isUndefined } from "es-toolkit/compat";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
 
 import { formatRatio, flushSiteLastUserInfo, fixUserInfo, flushQueue } from "./utils.ts";
 
@@ -50,7 +51,25 @@ const tableHeader = computed(() => {
   );
 });
 
-const tableData = computedAsync<Array<IUserInfo & { siteUserConfig: ISiteUserConfig }>>(async () => {
+interface IUserInfoItem extends IUserInfo {
+  siteUserConfig: ISiteUserConfig;
+}
+
+const { tableWaitFilterRef, tableFilterRef, tableFilterFn, advanceFilterDictRef, updateTableFilterValue } =
+  useTableCustomFilter<IUserInfoItem>({
+    parseOptions: {
+      keywords: ["site", "status"],
+    },
+    titleFields: ["site", "name", "siteUserConfig.merge.name"],
+  });
+
+// FIXME
+function addRequiredSite(site: string[]) {
+  advanceFilterDictRef.value.site.required = site;
+  updateTableFilterValue();
+}
+
+const tableData = computedAsync<IUserInfoItem[]>(async () => {
   const allSite = metadataStore.getAddedSiteIds;
   const allPrivateSiteUserInfoData = [];
   for (const site of allSite) {
@@ -150,12 +169,48 @@ function cancelFlush() {
             </v-list-item>
           </template>
         </v-combobox>
+
+        <v-spacer />
+
+        <v-text-field
+          v-model="tableWaitFilterRef"
+          append-icon="mdi-magnify"
+          clearable
+          density="compact"
+          hide-details
+          label="Search"
+          single-line
+        >
+          <template #prepend-inner>
+            <v-menu min-width="100">
+              <template v-slot:activator="{ props }">
+                <v-icon icon="mdi-filter" v-bind="props" variant="plain" />
+              </template>
+              <v-list class="pa-0">
+                <v-list-item-subtitle class="ma-2">站点分类</v-list-item-subtitle>
+
+                <v-list-item
+                  v-for="(item, index) in metadataStore.getSitesGroupData"
+                  :key="index"
+                  :title="`${index} (${item.length})`"
+                  :value="index"
+                  class="pr-6"
+                  @click="() => addRequiredSite(item)"
+                >
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </template>
+        </v-text-field>
       </v-row>
     </v-card-title>
     <v-data-table
       v-model="tableSelected"
       :headers="tableHeader"
       :items="tableData"
+      :search="tableFilterRef"
+      :filter-keys="['site'] /* 对每个item值只检索一次 */"
+      :custom-filter="tableFilterFn"
       :items-per-page="configStore.tableBehavior.MyData.itemsPerPage"
       :sort-by="configStore.tableBehavior.MyData.sortBy"
       class="table-stripe"

@@ -1,91 +1,36 @@
 import PQueue from "p-queue";
-import { computed, ref, watch } from "vue";
-import { refDebounced } from "@vueuse/core";
-import searchQueryParser, { type SearchParserOptions } from "search-query-parser";
+import { watch } from "vue";
 
-import {
-  EResultParseStatus,
-  parseSizeString,
-  parseValidTimeString,
-  type IAdvanceKeywordSearchConfig,
-  type TSiteID,
-} from "@ptd/site";
+import { EResultParseStatus, type IAdvanceKeywordSearchConfig, type TSiteID, ITorrentTag } from "@ptd/site";
 import type { ISearchResultTorrent, TSearchSolutionKey } from "@/shared/storages/types/runtime.ts";
 import { sendMessage } from "@/messages.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
+import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
 
-import { log, checkRange, dateFilterFormat } from "~/helper.ts";
-
-export const searchQueryParserOptions: SearchParserOptions = {
-  keywords: ["site", "tags"],
-  // ranges项的exclude不做支持，FIXME 目前是静默忽视，需要给出提示信息
-  ranges: ["date", "size", "seeders", "leechers", "completed"],
-  tokenize: true,
-  offsets: false,
-  alwaysArray: true,
-};
+import { log } from "~/helper.ts";
 
 const runtimeStore = useRuntimeStore();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 
-export const tableWaitFilter = ref(metadataStore.lastSearchFilter ?? ""); // 搜索过滤词
-export const tableFilter = refDebounced(tableWaitFilter, 500); // 延迟搜索过滤词的生成
-const tableParsedFilter = computed(() => searchQueryParser.parse(tableFilter.value, searchQueryParserOptions));
+export const tableCustomFilter = useTableCustomFilter({
+  parseOptions: {
+    keywords: ["site", "tags"],
+    ranges: ["time", "size", "seeders", "leechers", "completed"],
+  },
+  titleFields: ["title", "subTitle"],
+  format: {
+    tags: {
+      parse: (value: ITorrentTag) => (value ?? {}).name,
+    },
+    time: "date",
+    size: "size",
+  },
+});
 
-export function tableCustomFilter(value: any, query: string, item: any) {
-  const rawItem = item.raw as ISearchResultTorrent;
-  const itemTitle = `${rawItem.title}|$|${rawItem.subTitle ?? ""}`.toLowerCase();
-  const itemTags = (rawItem.tags ?? []).map((tag) => tag.name);
-
-  // @ts-ignore
-  const { site, tags, date, size, seeders, leechers, completed, text, exclude } = tableParsedFilter.value;
-
-  if (site && !site.includes(rawItem.site)) return false;
-  if (tags && !tags.every((tag: string) => itemTags.includes(tag))) return false;
-
-  if (date && rawItem.time) {
-    const startDateTimestamp = parseValidTimeString(date.from, dateFilterFormat) as number;
-    const endDateTimestamp = parseValidTimeString(date.to, dateFilterFormat) as number;
-    if (!checkRange({ from: startDateTimestamp, to: endDateTimestamp }, rawItem.time)) return false;
-  } else if (date) {
-    return false;
-  }
-
-  if (size && rawItem.size) {
-    const startSize = size.from ? parseSizeString(size.from) : 0;
-    const endSize = size.to ? parseSizeString(size.to) : Infinity;
-    if (!checkRange({ from: startSize, to: endSize }, rawItem.size)) return false;
-  } else if (size) {
-    return false;
-  }
-
-  // @ts-ignore
-  if (seeders && !isNaN(rawItem.seeders) && !checkRange(seeders, rawItem.seeders)) return false;
-  // @ts-ignore
-  if (leechers && !isNaN(rawItem.leechers) && !checkRange(leechers, rawItem.leechers)) return false;
-  // @ts-ignore
-  if (completed && !isNaN(rawItem.completed) && !checkRange(completed, rawItem.completed)) return false;
-
-  if (text && !text.map((x: string) => x.toLowerCase()).every((keyword: string) => itemTitle.includes(keyword)))
-    return false;
-
-  if (exclude) {
-    const { site: exSite, tags: exTags, text: exText } = exclude;
-    if (exSite && exSite.includes(rawItem.site)) return false;
-    if (exTags && exTags.some((tag: string) => itemTags.includes(tag))) return false;
-    if (exText) {
-      const excludesText = (Array.isArray(exText) ? exText : [exText]).map((x) => x.toLowerCase());
-      if (excludesText.some((keyword: string) => itemTitle.includes(keyword))) return false;
-    }
-  }
-
-  return true;
-}
-
-watch(tableFilter, (newValue) => {
+watch(tableCustomFilter.tableFilterRef, (newValue) => {
   if (configStore.searchEntity.saveLastFilter) {
     // noinspection JSIgnoredPromiseFromCall
     metadataStore.setLastSearchFilter(newValue);

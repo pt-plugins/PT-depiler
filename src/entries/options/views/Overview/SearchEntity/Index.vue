@@ -10,7 +10,7 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 import { log } from "~/helper.ts";
 import { formatDate, formatSize } from "@/options/utils.ts";
-import { doSearch, searchQueue, tableCustomFilter, tableWaitFilter, tableFilter } from "./utils.ts"; // <-- 主要方法在这个文件中！！！
+import { doSearch, searchQueue, tableCustomFilter } from "./utils.ts"; // <-- 主要方法在这个文件中！！！
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
@@ -48,6 +48,8 @@ const tableHeader = computed(() => {
     (item) => item.alwaysShow || configStore.tableBehavior.SearchEntity.columns!.includes(item.key),
   );
 });
+
+const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
 
 const tableSelected = ref<Array<ISearchResultTorrent["uniqueId"]>>([]);
 
@@ -206,7 +208,7 @@ function cancelSearchQueue() {
 
         <v-spacer />
         <v-text-field
-          v-model="tableWaitFilter"
+          v-model="tableWaitFilterRef"
           :disabled="runtimeStore.search.isSearching"
           append-icon="mdi-magnify"
           clearable
@@ -223,12 +225,12 @@ function cancelSearchQueue() {
     <v-data-table
       id="ptd-search-entity-table"
       v-model="tableSelected"
-      :custom-filter="tableCustomFilter"
+      :custom-filter="tableFilterFn"
       :filter-keys="['uniqueId'] /* 对每个item值只检索一次 */"
       :headers="tableHeader"
       :items="runtimeStore.search.searchResult"
       :items-per-page="configStore.tableBehavior.SearchEntity.itemsPerPage"
-      :search="tableFilter"
+      :search="tableFilterRef"
       :sort-by="configStore.tableBehavior.SearchEntity.sortBy"
       class="search-entity-table table-stripe"
       hover
@@ -301,7 +303,7 @@ function cancelSearchQueue() {
 
   <AdvanceFilterGenerateDialog
     v-model="showAdvanceFilterGenerateDialog"
-    @update:table-filter="(v) => (tableWaitFilter = v)"
+    @update:table-filter="(v) => (tableWaitFilterRef = v)"
   />
   <SearchStatusDialog v-model="showSearchStatusDialog"></SearchStatusDialog>
   <SaveSnapshotDialog v-model="showSaveSnapshotDialog"></SaveSnapshotDialog>

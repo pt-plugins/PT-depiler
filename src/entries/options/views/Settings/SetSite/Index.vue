@@ -1,14 +1,14 @@
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { computedAsync, refDebounced } from "@vueuse/core";
-import searchQueryParser, { SearchParserOptions } from "search-query-parser";
+import { computedAsync } from "@vueuse/core";
 import { type ISiteMetadata, type ISiteUserConfig, type TSiteID } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
 
 import AddDialog from "./AddDialog.vue";
 import EditDialog from "./EditDialog.vue";
@@ -57,24 +57,20 @@ const tableHeader = [
   },
 ];
 
-const tableWaitFilter = ref(""); // 搜索过滤词
-const tableFilter = refDebounced(tableWaitFilter, 500); // 延迟搜索过滤词的生成
-const tableSelected = ref<TSiteID[]>([]);
-
-const searchQueryParserOptions: SearchParserOptions = {
-  keywords: ["site"],
-  tokenize: true,
-  offsets: false,
-  alwaysArray: true,
-};
-
-const tableParsedFilter = computed(() => searchQueryParser.parse(tableFilter.value, searchQueryParserOptions));
-
 interface ISiteTableItem {
   id: TSiteID;
   metadata: ISiteMetadata;
   userConfig: ISiteUserConfig;
 }
+
+const { tableWaitFilterRef, tableFilterRef, tableFilterFn } = useTableCustomFilter<ISiteTableItem>({
+  parseOptions: {
+    keywords: ["id"],
+  },
+  titleFields: ["metadata.name", "metadata.urls", "userConfig.merge.name", "userConfig.url"],
+});
+
+const tableSelected = ref<TSiteID[]>([]);
 
 const sites = computedAsync<ISiteTableItem[]>(async () => {
   const sitesReturn = [];
@@ -88,37 +84,6 @@ const sites = computedAsync<ISiteTableItem[]>(async () => {
 
   return sitesReturn;
 });
-
-function tableCustomFilter(value: any, query: string, item: any) {
-  const rawItem = item.raw as ISiteTableItem;
-
-  const itemTitle = [
-    rawItem.metadata.name,
-    ...rawItem.metadata.urls,
-    rawItem.userConfig.merge?.name,
-    rawItem.userConfig.url,
-  ]
-    .filter(Boolean)
-    .join("|")
-    .toLowerCase();
-
-  // @ts-ignore
-  const { site, text, exclude } = tableParsedFilter.value;
-  if (site && !site.includes(rawItem.id)) return false;
-  if (text && !text.map((x: string) => x.toLowerCase()).every((keyword: string) => itemTitle.includes(keyword)))
-    return false;
-
-  if (exclude) {
-    const { site: exSite, text: exText } = exclude;
-    if (exSite && exSite.includes(rawItem.id)) return false;
-    if (exText) {
-      const excludesText = (Array.isArray(exText) ? exText : [exText]).map((x) => x.toLowerCase());
-      if (excludesText.some((keyword: string) => itemTitle.includes(keyword))) return false;
-    }
-  }
-
-  return true;
-}
 
 const toEditId = ref<TSiteID | null>("");
 function editSite(siteId: TSiteID) {
@@ -183,8 +148,9 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
         <!-- TODO 一键导入站点 -->
         <v-spacer />
         <v-text-field
-          v-model="tableWaitFilter"
+          v-model="tableWaitFilterRef"
           append-icon="mdi-magnify"
+          clearable
           density="compact"
           hide-details
           label="Search"
@@ -204,7 +170,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
                   :title="`${index} (${item.length})`"
                   :value="index"
                   class="pr-6"
-                  @click="() => (tableWaitFilter = (tableWaitFilter + ` site:${item.join(',')}`).trim())"
+                  @click="() => (tableWaitFilterRef = (tableWaitFilterRef + ` id:${item.join(',')}`).trim())"
                 >
                 </v-list-item>
               </v-list>
@@ -219,9 +185,9 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
       :headers="tableHeader"
       :items="sites"
       :items-per-page="configStore.tableBehavior.SetSite.itemsPerPage"
-      :custom-filter="tableCustomFilter"
+      :custom-filter="tableFilterFn"
       :filter-keys="['id'] /* 对每个item值只检索一次 */"
-      :search="tableFilter"
+      :search="tableFilterRef"
       :sort-by="configStore.tableBehavior.SetSite.sortBy"
       class="table-stripe"
       item-value="id"

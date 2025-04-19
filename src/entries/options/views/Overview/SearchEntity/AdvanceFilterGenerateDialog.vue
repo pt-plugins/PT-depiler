@@ -6,25 +6,17 @@
  * refs: https://github.com/vuetifyjs/vuetify/blob/0ca7e93ad011b358591da646fdbd6ebe83625d25/packages/vuetify/src/components/VCheckbox/VCheckboxBtn.tsx#L49-L53
  */
 import { useI18n } from "vue-i18n";
-import { reactive, ref } from "vue";
+import { ref } from "vue";
 import { uniq, flatten, uniqBy } from "es-toolkit";
 import { addDays, startOfDay } from "date-fns";
 
 import { formatDate, formatSize } from "@/options/utils.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import {
-  generateRangeField,
-  getThisDateUnitRange,
-  setDateRangeByDatePicker,
-  stringifyFilter,
-  type ITextValue,
-  type IKeywordValue,
-  type IRangedValue,
-} from "@/shared/utils/advanceFilter.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
-import { searchQueryParserOptions } from "@/options/views/Overview/SearchEntity/utils.ts";
+import { tableCustomFilter } from "@/options/views/Overview/SearchEntity/utils.ts";
+import { generateRangeField } from "@/options/directives/useAdvanceFilter.ts";
 
 const showDialog = defineModel<boolean>();
 const emit = defineEmits(["update:tableFilter"]);
@@ -32,37 +24,17 @@ const emit = defineEmits(["update:tableFilter"]);
 const { t } = useI18n();
 const runtimeStore = useRuntimeStore();
 
-interface IAdvanceFilterDict {
-  text: ITextValue;
-  site: IKeywordValue<string>;
-  tags: IKeywordValue<{ name: string; color: string }>;
-  date: IRangedValue;
-  size: IRangedValue;
-  seeders: IRangedValue;
-  leechers: IRangedValue;
-  completed: IRangedValue;
-}
-
-const advanceFilterDict = reactive<IAdvanceFilterDict>({
-  text: { required: [], exclude: [] },
-  site: { all: [], required: [], exclude: [] },
-  tags: { all: [], required: [], exclude: [] },
-  date: { range: [0, 0], ticks: [], value: [0, 0] },
-  size: { range: [0, 0], ticks: [], value: [0, 0] },
-  seeders: { range: [0, 0], ticks: [], value: [0, 0] },
-  leechers: { range: [0, 0], ticks: [], value: [0, 0] },
-  completed: { range: [0, 0], ticks: [], value: [0, 0] },
-});
+const { advanceFilterDictRef, stringifyFilterFn } = tableCustomFilter;
 
 const resetCount = ref<number>(0);
 function resetFilter() {
   resetCount.value = +new Date(); // 更新重置计数，触发 vue 更新 site 和 tags 的 v-checkbox ，防止因为 :key 的问题导致无法重置
   const searchResult = runtimeStore.search.searchResult;
 
-  advanceFilterDict.text = { required: [], exclude: [] };
+  advanceFilterDictRef.value.text = { required: [], exclude: [] };
 
-  advanceFilterDict.site = { all: uniq(searchResult.map((x) => x.site)), required: [], exclude: [] };
-  advanceFilterDict.tags = {
+  advanceFilterDictRef.value.site = { all: uniq(searchResult.map((x) => x.site)), required: [], exclude: [] };
+  advanceFilterDictRef.value.tags = {
     all: uniqBy(
       flatten(searchResult.filter((x) => x.tags && x.tags.length > 0).map((x) => x.tags)),
       (x) => x!.name,
@@ -71,24 +43,24 @@ function resetFilter() {
     exclude: [],
   };
 
-  advanceFilterDict.date = generateRangeField(searchResult.map((x) => x.time));
-  advanceFilterDict.size = generateRangeField(searchResult.map((x) => x.size));
-  advanceFilterDict.seeders = generateRangeField(searchResult.map((x) => x.seeders));
-  advanceFilterDict.leechers = generateRangeField(searchResult.map((x) => x.leechers));
-  advanceFilterDict.completed = generateRangeField(searchResult.map((x) => x.completed));
+  advanceFilterDictRef.value.time = generateRangeField(searchResult.map((x) => x.time));
+  advanceFilterDictRef.value.size = generateRangeField(searchResult.map((x) => x.size));
+  advanceFilterDictRef.value.seeders = generateRangeField(searchResult.map((x) => x.seeders));
+  advanceFilterDictRef.value.leechers = generateRangeField(searchResult.map((x) => x.leechers));
+  advanceFilterDictRef.value.completed = generateRangeField(searchResult.map((x) => x.completed));
 }
 
 function toggleState(field: "site" | "tags", value: string) {
-  const state = advanceFilterDict[field].required.includes(value);
+  const state = advanceFilterDictRef.value[field].required!.includes(value);
   if (state) {
-    advanceFilterDict[field].exclude.push(value);
+    advanceFilterDictRef.value[field].exclude!.push(value);
   } else {
-    advanceFilterDict[field].exclude = advanceFilterDict[field].exclude.filter((x) => x !== value);
+    advanceFilterDictRef.value[field].exclude! = advanceFilterDictRef.value[field].exclude!.filter((x) => x !== value);
   }
 }
 
 function updateTableFilter() {
-  emit("update:tableFilter", stringifyFilter(advanceFilterDict, searchQueryParserOptions));
+  emit("update:tableFilter", stringifyFilterFn());
   showDialog.value = false;
 }
 </script>
@@ -108,7 +80,7 @@ function updateTableFilter() {
           <v-row>
             <v-col>
               <v-combobox
-                v-model="advanceFilterDict.text.required"
+                v-model="advanceFilterDictRef.text.required"
                 chips
                 hide-details
                 label="必要项"
@@ -117,7 +89,7 @@ function updateTableFilter() {
             </v-col>
             <v-col>
               <v-combobox
-                v-model="advanceFilterDict.text.exclude"
+                v-model="advanceFilterDictRef.text.exclude"
                 chips
                 hide-details
                 label="排除项"
@@ -127,9 +99,9 @@ function updateTableFilter() {
           </v-row>
           <v-row><v-label>站点</v-label></v-row>
           <v-row>
-            <v-col v-for="site in advanceFilterDict.site.all" :key="`${resetCount}_${site}`" class="pa-0" :cols="3">
+            <v-col v-for="site in advanceFilterDictRef.site.all" :key="`${resetCount}_${site}`" class="pa-0" :cols="3">
               <v-checkbox
-                v-model="advanceFilterDict.site.required"
+                v-model="advanceFilterDictRef.site.required"
                 :label="site"
                 :value="site"
                 density="compact"
@@ -146,9 +118,14 @@ function updateTableFilter() {
           </v-row>
           <v-row><v-label>标签</v-label></v-row>
           <v-row>
-            <v-col v-for="tag in advanceFilterDict.tags.all" :key="`${resetCount}_${tag.name}`" :cols="2" class="pa-0">
+            <v-col
+              v-for="tag in advanceFilterDictRef.tags.all"
+              :key="`${resetCount}_${tag.name}`"
+              :cols="2"
+              class="pa-0"
+            >
               <v-checkbox
-                v-model="advanceFilterDict.tags.required"
+                v-model="advanceFilterDictRef.tags.required"
                 :value="tag.name"
                 density="compact"
                 hide-details
@@ -174,7 +151,11 @@ function updateTableFilter() {
                   size="x-small"
                   class="mr-1"
                   @click="
-                    () => (advanceFilterDict.date.value = getThisDateUnitRange(dateUnit, advanceFilterDict.date.range))
+                    () =>
+                      (advanceFilterDictRef.time.value = getThisDateUnitRange(
+                        dateUnit,
+                        advanceFilterDictRef.date.range,
+                      ))
                   "
                 >
                   {{ t(`SearchEntity.AdvanceFilterGenerateDialog.date.${dateUnit}`) }}
@@ -183,24 +164,24 @@ function updateTableFilter() {
                   {{ t("SearchEntity.AdvanceFilterGenerateDialog.date.custom") }}
                   <v-menu activator="parent" location="top" :close-on-content-click="false">
                     <v-date-picker
-                      :max="addDays(new Date(advanceFilterDict.date.range[1]), 1)"
-                      :min="startOfDay(new Date(advanceFilterDict.date.range[0]))"
+                      :max="addDays(new Date(advanceFilterDictRef.time.range[1]), 1)"
+                      :min="startOfDay(new Date(advanceFilterDictRef.time.range[0]))"
                       hide-header
                       multiple="range"
                       show-adjacent-months
-                      @update:model-value="(v) => (advanceFilterDict.date.value = setDateRangeByDatePicker(v))"
+                      @update:model-value="(v) => (advanceFilterDictRef.time.value = setDateRangeByDatePicker(v))"
                     ></v-date-picker>
                   </v-menu>
                 </v-chip>
               </v-row>
               <v-row>
                 <v-range-slider
-                  v-model="advanceFilterDict.date.value"
-                  :max="advanceFilterDict.date.range[1]"
-                  :min="advanceFilterDict.date.range[0]"
+                  v-model="advanceFilterDictRef.time.value"
+                  :max="advanceFilterDictRef.time.range[1]"
+                  :min="advanceFilterDictRef.time.range[0]"
                   :step="60 * 1000"
                   :thumb-label="true"
-                  :ticks="advanceFilterDict.date.ticks"
+                  :ticks="advanceFilterDictRef.time.ticks"
                   class="px-6"
                   hide-details
                   show-ticks="always"
@@ -217,12 +198,12 @@ function updateTableFilter() {
               <v-row><v-label>种子大小</v-label></v-row>
               <v-row>
                 <v-range-slider
-                  v-model="advanceFilterDict.size.value"
-                  :max="advanceFilterDict.size.range[1]"
-                  :min="advanceFilterDict.size.range[0]"
+                  v-model="advanceFilterDictRef.size.value"
+                  :max="advanceFilterDictRef.size.range[1]"
+                  :min="advanceFilterDictRef.size.range[0]"
                   :step="1024 ** 3"
                   :thumb-label="true"
-                  :ticks="advanceFilterDict.size.ticks"
+                  :ticks="advanceFilterDictRef.size.ticks"
                   class="px-6"
                   hide-details
                   show-ticks="always"
@@ -241,11 +222,11 @@ function updateTableFilter() {
               <v-row><v-label>上传人数</v-label></v-row>
               <v-row>
                 <v-range-slider
-                  v-model="advanceFilterDict.seeders.value"
-                  :max="advanceFilterDict.seeders.range[1]"
-                  :min="advanceFilterDict.seeders.range[0]"
+                  v-model="advanceFilterDictRef.seeders.value"
+                  :max="advanceFilterDictRef.seeders.range[1]"
+                  :min="advanceFilterDictRef.seeders.range[0]"
                   :thumb-label="true"
-                  :ticks="advanceFilterDict.seeders.ticks"
+                  :ticks="advanceFilterDictRef.seeders.ticks"
                   class="px-6"
                   hide-details
                   show-ticks="always"
@@ -260,11 +241,11 @@ function updateTableFilter() {
               <v-row><v-label>下载人数</v-label></v-row>
               <v-row>
                 <v-range-slider
-                  v-model="advanceFilterDict.leechers.value"
-                  :max="advanceFilterDict.leechers.range[1]"
-                  :min="advanceFilterDict.leechers.range[0]"
+                  v-model="advanceFilterDictRef.leechers.value"
+                  :max="advanceFilterDictRef.leechers.range[1]"
+                  :min="advanceFilterDictRef.leechers.range[0]"
                   :thumb-label="true"
-                  :ticks="advanceFilterDict.leechers.ticks"
+                  :ticks="advanceFilterDictRef.leechers.ticks"
                   class="px-6"
                   hide-details
                   show-ticks="always"
@@ -279,11 +260,11 @@ function updateTableFilter() {
               <v-row><v-label>完成人数</v-label></v-row>
               <v-row>
                 <v-range-slider
-                  v-model="advanceFilterDict.completed.value"
-                  :max="advanceFilterDict.completed.range[1]"
-                  :min="advanceFilterDict.completed.range[0]"
+                  v-model="advanceFilterDictRef.completed.value"
+                  :max="advanceFilterDictRef.completed.range[1]"
+                  :min="advanceFilterDictRef.completed.range[0]"
                   :thumb-label="true"
-                  :ticks="advanceFilterDict.completed.ticks"
+                  :ticks="advanceFilterDictRef.completed.ticks"
                   class="px-6"
                   hide-details
                   show-ticks="always"

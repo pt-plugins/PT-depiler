@@ -49,12 +49,7 @@ export const useConfigStore = defineStore("config", {
       },
       SetSite: {
         itemsPerPage: -1,
-        sortBy: [
-          { key: "userConfig.sortIndex", order: "desc" },
-          { key: "userConfig.isOffline", order: "asc" },
-          { key: "userConfig.allowSearch", order: "desc" },
-          { key: "userConfig.allowQueryUserInfo", order: "desc" },
-        ],
+        sortBy: [{ key: "userConfig.sortIndex", order: "desc" }],
       },
     },
     userInfo: {

@@ -27,19 +27,3 @@ export const warn = (...args: any[]) => console.warn(...args);
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
-
-export const dateFilterFormat = [
-  "T",
-  "yyyyMMdd'T'HHmmss",
-  "yyyyMMdd'T'HHmm",
-  "yyyyMMdd'T'HH",
-  "yyyyMMdd",
-  "yyyyMM",
-  "yyyy",
-];
-
-export function checkRange(range: { from?: number; to?: number }, value: number) {
-  if (range?.from && value < range.from) return false;
-  if (range?.to && value > range.to) return false;
-  return true;
-}
