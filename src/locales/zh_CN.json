@@ -39,8 +39,8 @@
       "navBarTip": "点击显示/隐藏导航栏",
       "search": "搜索",
       "searchPlan": {
-        "all": "全站",
-        "default": "默认"
+        "all": "@:manifest.searchPlanAll",
+        "default": "@:manifest.searchPlanDefault"
       },
       "searchTip": "输入种子关键字、IMDb编号进行搜索",
       "wiki": "帮助",
@@ -50,7 +50,10 @@
   },
   "manifest": {
     "extDesc": "PT Depiler",
-    "extName": "PT Depiler"
+    "extName": "PT Depiler",
+    "searchPlanAll": "全站",
+    "searchPlanDefault": "默认",
+    "omniboxSearch": "在 [ $1 ] 中搜索 $2"
   },
   "route": {
     "About": {

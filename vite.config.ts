@@ -77,6 +77,10 @@ export default defineConfig({
           service_worker: "src/entries/background/main.ts",
         },
 
+        omnibox: {
+          keyword: "ptd",
+        },
+
         options_ui: {
           page: "src/entries/options/index.html",
           open_in_tab: true,
