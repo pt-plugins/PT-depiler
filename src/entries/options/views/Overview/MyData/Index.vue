@@ -253,13 +253,13 @@ function cancelFlush() {
       <!-- 上传、下载 -->
       <template #item.uploaded="{ item }">
         <v-container>
-          <v-row justify="end">
+          <v-row class="flex-nowrap" justify="end">
             <span class="text-no-wrap">
               {{ typeof item.uploaded !== "undefined" ? formatSize(item.uploaded) : "-" }}
             </span>
             <v-icon color="green-darken-4" icon="mdi-chevron-up" small></v-icon>
           </v-row>
-          <v-row justify="end">
+          <v-row class="flex-nowrap" justify="end">
             <span class="text-no-wrap">
               {{ typeof item.downloaded !== "undefined" ? formatSize(item.downloaded) : "-" }}
             </span>
@@ -271,13 +271,13 @@ function cancelFlush() {
       <!-- 真实上传、下载 -->
       <template #item.trueUploaded="{ item }">
         <v-container>
-          <v-row justify="end">
+          <v-row class="flex-nowrap" justify="end">
             <span class="text-no-wrap">
               {{ typeof item.trueUploaded !== "undefined" ? formatSize(item.trueUploaded) : "-" }}
             </span>
             <v-icon color="green-darken-4" icon="mdi-chevron-up" small></v-icon>
           </v-row>
-          <v-row justify="end">
+          <v-row class="flex-nowrap" justify="end">
             <span class="text-no-wrap">
               {{ typeof item.trueDownloaded !== "undefined" ? formatSize(item.trueDownloaded) : "-" }}
             </span>
@@ -316,13 +316,13 @@ function cancelFlush() {
       <!-- 魔力/积分 -->
       <template #item.bonus="{ item }">
         <v-container>
-          <v-row justify="end" align="center">
+          <v-row align="center" class="flex-nowrap" justify="end">
             <v-icon :title="t('levelRequirement.bonus')" color="green-darken-4" icon="mdi-currency-usd" size="small" />
             <span class="text-no-wrap">
               {{ typeof item.bonus !== "undefined" ? formatNumber(item.bonus) : "-" }}
             </span>
           </v-row>
-          <v-row justify="end" align="center" v-if="!isUndefined(item.seedingBonus)">
+          <v-row v-if="!isUndefined(item.seedingBonus)" align="center" class="flex-nowrap" justify="end">
             <v-icon
               :title="t('levelRequirement.seedingBonus')"
               color="green-darken-4"
@@ -344,7 +344,7 @@ function cancelFlush() {
       <!-- 更新时间 -->
       <template #item.updateAt="{ item }">
         <template v-if="item.status === EResultParseStatus.success">
-          {{ item.updateAt ? formatDate(item.updateAt) : "-" }}
+          <span class="text-no-wrap">{{ item.updateAt ? formatDate(item.updateAt) : "-" }}</span>
         </template>
         <template v-else>
           <v-chip label><ResultParseStatus :status="item.status" /></v-chip>
