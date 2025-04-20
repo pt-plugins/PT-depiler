@@ -9,12 +9,16 @@
     input[size="1"][type="text"] {
         display: none;
     }
-}
 
-.v-theme--dark {
-    .table-stripe {
-        tr.v-data-table__tr:nth-child(even) {
-            background-color: #2a2a2a;
+    @media (max-width: 600px) {
+        .v-field {
+            flex: none;
+            grid-template-areas: "prepend-inner field clear append-inner";
+            grid-template-columns: min-content 0 min-content min-content;
+        }
+
+        .v-field__field {
+            display: none;
         }
     }
 }
@@ -36,4 +40,13 @@
 
 .list-item-half-spacer > .v-list-item__prepend > .v-icon ~ .v-list-item__spacer {
     width: 12px;
+}
+
+/* 暗黑模式覆写 */
+.v-theme--dark {
+    .table-stripe {
+        tr.v-data-table__tr:nth-child(even) {
+            background-color: #2a2a2a;
+        }
+    }
 }

@@ -103,12 +103,12 @@ function noop() {
       @click="() => localDlTorrentDownloadLink()"
     ></v-btn>
     <!-- TODO 收藏 -->
-    <v-btn
+    <!--<v-btn
       :disabled="true || props.torrentIds.length == 0"
       :size="btnSize"
       icon="mdi-heart-outline"
       @click="() => noop()"
-    ></v-btn>
+    ></v-btn>-->
   </v-btn-group>
 
   <!-- 在点击发送到远程服务器时，弹出选择下载器及其他自定义选项 -->

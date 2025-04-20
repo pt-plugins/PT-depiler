@@ -193,7 +193,7 @@ function cancelSearchQueue() {
             </span>
           </template>
           <template v-slot:item="{ props, item }">
-            <v-list-item>
+            <v-list-item v-bind="props" title="">
               <v-checkbox
                 v-model="configStore.tableBehavior.SearchEntity.columns"
                 :disabled="fullTableHeader.find((x) => x.key == item.title)?.alwaysShow"
