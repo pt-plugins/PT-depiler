@@ -106,7 +106,6 @@ export function levelRequirementUnMet(
       if (leftDuration.years) interval += `${leftDuration.years}Y`;
       if (leftDuration.months) interval += `${leftDuration.months}M`;
       if (leftDuration.days) interval += `${leftDuration.days}D`;
-      if (leftDuration.hours) interval += `${leftDuration.hours}H`;
       unmetRequirement.interval = interval; // 只保留日期部分
     }
   }
