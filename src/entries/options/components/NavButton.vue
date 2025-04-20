@@ -1,22 +1,17 @@
 <script setup lang="ts">
 import { useDisplay } from "vuetify/framework";
-import { omit } from "es-toolkit";
-import { computed } from "vue";
 
 const display = useDisplay();
 
 const props = defineProps<{
   icon: string;
   text: string;
-  [key: string]: any;
 }>();
-
-const renderProps = computed(() => omit(props, ["icon", "text"]));
 </script>
 
 <template>
   <v-btn
-    v-bind="renderProps"
+    v-bind="$attrs"
     :icon="display.smAndDown.value"
     :prepend-icon="display.smAndDown.value ? undefined : props.icon"
     :rounded="display.smAndDown.value ? 0 : 4 /* default rounded */"

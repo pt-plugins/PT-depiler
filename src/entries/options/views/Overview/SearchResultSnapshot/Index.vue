@@ -6,15 +6,17 @@ import { refDebounced } from "@vueuse/core";
 
 import { formatDate } from "../../../utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { useConfigStore } from "@/options/stores/config.ts";
+
+import { type TSearchSnapshotKey } from "@/shared/storages/types/metadata.ts";
 
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";
 import EditNameDialog from "./EditNameDialog.vue";
 
-import { type TSearchSnapshotKey } from "@/shared/storages/types/metadata.ts";
-
 const { t } = useI18n();
 const router = useRouter();
+const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 
 const showEditNameDialog = ref<boolean>(false);
@@ -92,12 +94,16 @@ async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey)
       v-model="tableSelected"
       :headers="tableHeader"
       :items="metadataStore.getSearchSnapshotList"
+      :items-per-page="configStore.tableBehavior.SearchResultSnapshot.itemsPerPage"
       :search="tableFilter"
-      :sort-by="[{ key: 'createdAt', order: 'desc' }]"
+      :sort-by="configStore.tableBehavior.SearchResultSnapshot.sortBy"
       class="table-stripe"
       hover
       item-value="id"
+      multi-sort
       show-select
+      @update:itemsPerPage="(v) => configStore.updateTableBehavior('SearchResultSnapshot', 'itemsPerPage', v)"
+      @update:sortBy="(v) => configStore.updateTableBehavior('SearchResultSnapshot', 'sortBy', v)"
     >
       <template #item.createdAt="{ item }">
         <span class="text-no-wrap"> {{ formatDate(item.createdAt) }}</span>

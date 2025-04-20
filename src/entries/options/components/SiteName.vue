@@ -1,9 +1,8 @@
 <script setup lang="ts">
+import { reactive, useAttrs } from "vue";
 import { computedAsync } from "@vueuse/core";
+import { type TSiteID } from "@ptd/site";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { TSiteID } from "@ptd/site";
-import { reactive } from "vue";
-import { omit } from "es-toolkit";
 
 const metadataStore = useMetadataStore();
 
@@ -11,15 +10,16 @@ const props = defineProps<{
   siteId: TSiteID;
   tag?: string;
   class?: string[] | string;
-  [key: string]: any;
 }>();
+
+const attrs = useAttrs();
 
 const siteName = computedAsync(() => metadataStore.getSiteMergedMetadata(props.siteId, "name", props.siteId));
 
 const tagIs = props.tag ?? "a";
 
 const renderProp = reactive<Record<string, any>>({
-  ...omit(props, ["siteId", "tag", "class"]),
+  ...attrs,
   class: props.class ?? ["text-caption", "text-decoration-none", "text-grey", "text-no-wrap"],
 });
 

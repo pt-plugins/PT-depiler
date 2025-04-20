@@ -23,6 +23,7 @@ export interface IConfigPiniaStorageSchema {
   isNavBarOpen: boolean;
   ignoreWrongPixelRatio: boolean;
 
+  saveTableBehavior: boolean;
   tableBehavior: Record<UiTableBehaviorKey, UiTableBehaviorItem>;
 
   userInfo: {

@@ -158,7 +158,7 @@ function cancelFlush() {
             </span>
           </template>
           <template v-slot:item="{ props, item }">
-            <v-list-item>
+            <v-list-item v-bind="props" title="">
               <v-checkbox
                 v-model="configStore.tableBehavior.MyData.columns"
                 :disabled="fullTableHeader.find((x) => x.key == item.title)?.alwaysShow"
@@ -217,16 +217,17 @@ function cancelFlush() {
     </v-card-title>
     <v-data-table
       v-model="tableSelected"
+      :custom-filter="tableFilterFn"
+      :filter-keys="['site'] /* 对每个item值只检索一次 */"
       :headers="tableHeader"
       :items="tableData"
-      :search="tableFilterRef"
-      :filter-keys="['site'] /* 对每个item值只检索一次 */"
-      :custom-filter="tableFilterFn"
       :items-per-page="configStore.tableBehavior.MyData.itemsPerPage"
+      :search="tableFilterRef"
       :sort-by="configStore.tableBehavior.MyData.sortBy"
       class="table-stripe"
       hover
       item-value="site"
+      multi-sort
       show-select
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('MyData', 'itemsPerPage', v)"
       @update:sortBy="(v) => configStore.updateTableBehavior('MyData', 'sortBy', v)"

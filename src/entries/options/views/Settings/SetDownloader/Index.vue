@@ -4,6 +4,7 @@ import { computedAsync } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import { countBy } from "es-toolkit";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { useConfigStore } from "@/options/stores/config.ts";
 import type { TDownloaderKey } from "@/shared/storages/types/metadata.ts";
 import { getDownloaderIcon, getDownloaderMetaData, type TorrentClientMetaData } from "@ptd/downloader";
 import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
@@ -16,6 +17,7 @@ import NavButton from "@/options/components/NavButton.vue";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
+const configStore = useConfigStore();
 
 const showAddDialog = ref<boolean>(false);
 const showEditDialog = ref<boolean>(false);
@@ -172,15 +174,20 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
 
     <v-data-table
       v-model="tableSelected"
+      :custom-filter="tableFilterFn"
       :filter-keys="['id']"
       :headers="fullTableHeader"
-      :custom-filter="tableFilterFn"
       :items="metadataStore.getDownloaders"
+      :items-per-page="configStore.tableBehavior.SetDownloader.itemsPerPage"
       :search="tableFilterRef"
+      :sort-by="configStore.tableBehavior.SetDownloader.sortBy"
       class="table-stripe"
       hover
       item-value="id"
+      multi-sort
       show-select
+      @update:itemsPerPage="(v) => configStore.updateTableBehavior('SetDownloader', 'itemsPerPage', v)"
+      @update:sortBy="(v) => configStore.updateTableBehavior('SetDownloader', 'sortBy', v)"
     >
       <template #item.type="{ item }">
         <v-avatar :image="getDownloaderIcon(item.type)" :alt="item.type" />

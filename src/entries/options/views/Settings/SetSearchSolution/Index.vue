@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { useConfigStore } from "@/options/stores/config.ts";
 
 import type { TSolutionKey } from "@/storage.ts";
 
@@ -11,6 +12,7 @@ import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";
 
 const { t } = useI18n();
+const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 
 const showEditDialog = ref(false);
@@ -19,7 +21,7 @@ const solutionId = ref<TSolutionKey>("");
 
 const tableSelected = ref<TSolutionKey[]>([]);
 const tableHeader = [
-  { title: t("common.sortIndex"), key: "sort", align: "center", width: 100, filterable: false },
+  { title: t("common.sortIndex"), key: "sort", align: "center", width: 150, filterable: false },
   { title: t("common.name"), key: "name", align: "start", width: 150 },
   { title: t("SetSearchSolution.solution"), key: "solution", align: "start", filterable: false, sortable: false },
   { title: t("SetSearchSolution.table.enable"), key: "enabled", align: "center", filterable: false, width: 120 },
@@ -125,7 +127,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
       :filter-keys="['name']"
       :headers="tableHeader"
       :items="metadataStore.getSearchSolutions"
-      :items-per-page="10"
+      :items-per-page="configStore.tableBehavior.SetSearchSolution.itemsPerPage"
       :search="tableFilter"
       :sort-by="[
         // 因为此处涉及到了搜索栏的显示，所以我们不接受用户 **保存** 自定义排序
@@ -135,7 +137,9 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
       class="table-stripe"
       hover
       item-value="id"
+      multi-sort
       show-select
+      @update:itemsPerPage="(v) => configStore.updateTableBehavior('SetSearchSolution', 'itemsPerPage', v)"
     >
       <template #item.solution="{ item }">
         <SolutionLabel :closable="false" :solutions="item.solutions" />

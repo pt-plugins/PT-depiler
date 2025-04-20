@@ -35,6 +35,13 @@ async function save() {
               <v-list-item v-bind="props" :title="t('SetBase.ui.displayMode.' + item.raw)" />
             </template>
           </v-select>
+
+          <v-switch
+            v-model="configStore.saveTableBehavior"
+            color="success"
+            hide-details
+            label="记忆部分表格的 表头列展示、排序、分页 等信息"
+          ></v-switch>
         </v-col>
       </v-row>
     </v-card-text>

@@ -12,6 +12,8 @@ export const useConfigStore = defineStore("config", {
     theme: "light",
     isNavBarOpen: true,
     ignoreWrongPixelRatio: false,
+    saveTableBehavior: true,
+
     tableBehavior: {
       MyData: {
         itemsPerPage: 20,
@@ -46,6 +48,17 @@ export const useConfigStore = defineStore("config", {
           "action",
         ],
         sortBy: [{ key: "time", order: "desc" }],
+      },
+      SearchResultSnapshot: {
+        itemsPerPage: 25,
+        sortBy: [{ key: "createdAt", order: "desc" }],
+      },
+      SetDownloader: {
+        itemsPerPage: 10,
+        sortBy: [{ key: "enabled", order: "desc" }],
+      },
+      SetSearchSolution: {
+        itemsPerPage: 10,
       },
       SetSite: {
         itemsPerPage: -1,
@@ -83,7 +96,9 @@ export const useConfigStore = defineStore("config", {
     updateTableBehavior(table: string, key: string, data: any) {
       // @ts-ignore
       this.tableBehavior[table][key] = data;
-      this.$save();
+      if (this.saveTableBehavior) {
+        this.$save();
+      }
     },
   },
 });
