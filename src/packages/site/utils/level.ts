@@ -100,7 +100,8 @@ export function levelRequirementUnMet(
     const baseTimeInfo = userInfo.joinTime ?? currentTime;
     const passTime = convertIsoDurationToDate(levelRequirement.interval, baseTimeInfo);
     if (passTime > currentTime) {
-      const leftDuration = intervalToDuration({ start: baseTimeInfo, end: currentTime });
+      // 计算通过时间与当前时间的时间差
+      const leftDuration = intervalToDuration({ start: currentTime, end: passTime });
       let interval = "P";
       if (leftDuration.years) interval += `${leftDuration.years}Y`;
       if (leftDuration.months) interval += `${leftDuration.months}M`;
