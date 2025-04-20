@@ -63,16 +63,32 @@ interface ISiteTableItem {
   userConfig: ISiteUserConfig;
 }
 
-const { tableWaitFilterRef, tableFilterRef, tableFilterFn } = useTableCustomFilter<ISiteTableItem>({
+const booleanUserConfigKeywords = ["isOffline", "allowSearch", "allowQueryUserInfo"];
+
+const {
+  tableWaitFilterRef,
+  tableFilterRef,
+  tableFilterFn,
+  advanceFilterDictRef,
+  toggleKeywordStateFn,
+  resetAdvanceFilterDictFn,
+  updateTableFilterValueFn,
+} = useTableCustomFilter<ISiteTableItem>({
   parseOptions: {
-    keywords: ["id"],
+    keywords: ["id", ...booleanUserConfigKeywords.map((x) => `userConfig.${x}`), "userConfig.groups"],
   },
   titleFields: ["metadata.name", "metadata.urls", "userConfig.merge.name", "userConfig.url"],
+  format: {
+    ...Object.fromEntries(booleanUserConfigKeywords.map((x) => [`userConfig.${x}`, "boolean"])),
+  },
 });
 
 const tableSelected = ref<TSiteID[]>([]);
 
 const sites = computedAsync<ISiteTableItem[]>(async () => {
+  // noinspection BadExpressionStatementJS
+  Object.values(metadataStore.sites).map((x) => x);
+
   const sitesReturn = [];
   for (const [siteId, siteUserConfig] of Object.entries(metadataStore.sites)) {
     sitesReturn.push({
@@ -156,23 +172,45 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
           label="Search"
           max-width="500"
           single-line
+          @click:clear="resetAdvanceFilterDictFn"
         >
           <template #prepend-inner>
             <v-menu min-width="100">
               <template v-slot:activator="{ props }">
-                <v-icon icon="mdi-filter" v-bind="props" variant="plain" />
+                <v-icon icon="mdi-filter" v-bind="props" variant="plain" @click="resetAdvanceFilterDictFn" />
               </template>
               <v-list class="pa-0">
+                <v-list-item v-for="keyword in booleanUserConfigKeywords" :key="keyword">
+                  <v-checkbox
+                    v-model="advanceFilterDictRef[`userConfig.${keyword}`].required"
+                    :label="t(`SetSite.common.${keyword}`)"
+                    density="compact"
+                    hide-details
+                    indeterminate
+                    true-value="1"
+                    @click.stop="(v: any) => toggleKeywordStateFn(`userConfig.${keyword}`, '1')"
+                    @update:model-value="() => updateTableFilterValueFn()"
+                  ></v-checkbox>
+                </v-list-item>
+
                 <v-list-item-subtitle class="ma-2">站点分类</v-list-item-subtitle>
 
                 <v-list-item
                   v-for="(item, index) in metadataStore.getSitesGroupData"
                   :key="index"
-                  :title="`${index} (${item.length})`"
                   :value="index"
                   class="pr-6"
-                  @click="() => (tableWaitFilterRef = (tableWaitFilterRef + ` id:${item.join(',')}`).trim())"
                 >
+                  <v-checkbox
+                    v-model="advanceFilterDictRef[`userConfig.groups`].required"
+                    :label="`${index} (${item.length})`"
+                    :value="index"
+                    density="compact"
+                    hide-details
+                    indeterminate
+                    @click.stop="(v: any) => toggleKeywordStateFn(`userConfig.groups`, index)"
+                    @update:model-value="() => updateTableFilterValueFn()"
+                  ></v-checkbox>
                 </v-list-item>
               </v-list>
             </v-menu>

@@ -83,7 +83,12 @@ onMounted(() => {
     <v-card-title>
       <v-row class="ma-0">
         <!-- 按钮组 -->
-        <NavButton color="green" icon="mdi-cached" text="刷新下载记录列表" @click="() => loadDownloadHistory()" />
+        <NavButton
+          color="green"
+          icon="mdi-cached"
+          text="刷新下载记录列表"
+          @click="() => throttleLoadDownloadHistory()"
+        />
 
         <v-divider vertical class="mx-2" />
 

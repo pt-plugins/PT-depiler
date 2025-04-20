@@ -2,14 +2,14 @@ import { filesize } from "filesize";
 import { get } from "es-toolkit/compat";
 import { refDebounced } from "@vueuse/core";
 import { computed, type Ref, ref, unref } from "vue";
-import { flatten, flattenDeep, uniqBy } from "es-toolkit";
+import { flatten, flattenDeep, isEqual, uniq, uniqBy } from "es-toolkit";
 import { startOfDay, startOfMonth, startOfQuarter, startOfWeek, startOfYear } from "date-fns";
 import searchQueryParser, { type SearchParserOptions, SearchParserResult } from "search-query-parser";
 
 import { parseSizeString, parseValidTimeString } from "@ptd/site";
 import { formatDate } from "@/options/utils.ts";
 
-type TAdvanceFilterFormat = "date" | "size";
+type TAdvanceFilterFormat = "date" | "size" | "boolean";
 
 export interface ITextValue {
   required: string[];
@@ -33,7 +33,7 @@ interface IAdvanceFilterDict {
 
 interface IValueFormat {
   parse?: (value: any) => any;
-  build?: (value: any) => any;
+  build?: (value: any) => string;
 }
 
 export const dateFilterFormat = [
@@ -59,7 +59,11 @@ const advanceFilterFormat: Record<TAdvanceFilterFormat, IValueFormat> = {
       if (typeof value === "number") return value;
       else return parseSizeString(value);
     },
-    build: (value: string | number) => filesize(value, { spacer: "" }),
+    build: (value: string | number) => filesize(value, { spacer: "" }) as string,
+  },
+  boolean: {
+    parse: (value: string) => (value ? "1" : "0"),
+    build: (value: boolean) => (value ? "1" : "0"),
   },
 } as const;
 
@@ -128,9 +132,9 @@ export function checkKeywordValue(
   format: TFormat = {},
   // @ts-ignore
 ): boolean | undefined {
-  if (filter[keyword] && rawItem[keyword]) {
+  const itemValue = get(rawItem, keyword); // true    filter[keyword] = ['1']
+  if (filter[keyword] && typeof itemValue !== "undefined") {
     const valueFormat = getValueFormat(keyword as string, format);
-    const itemValue = rawItem[keyword];
     if (Array.isArray(itemValue)) {
       const parsedItemValue = itemValue.map((v: any) => valueFormat.parse(v)) as string[];
       return filter[keyword].every((keyword: string) => parsedItemValue.includes(keyword));
@@ -147,9 +151,10 @@ export function checkRangeValue(
   format: TFormat = {},
   // @ts-ignore
 ): boolean | undefined {
-  if (filter[keyword] && rawItem[keyword]) {
+  const itemValue = get(rawItem, keyword);
+  if (filter[keyword] && typeof itemValue !== "undefined") {
     const valueFormat = getValueFormat(keyword, format);
-    const value = valueFormat.parse(rawItem[keyword]) as number;
+    const value = valueFormat.parse(itemValue) as number;
     const from = valueFormat.parse((filter[keyword] as any).from) as number;
     const to = valueFormat.parse((filter[keyword] as any).to) as number;
 
@@ -220,13 +225,13 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
 
   resetAdvanceFilterDictFn();
 
-  function toggleKeywordStateFn(field: string, value: string) {
+  function toggleKeywordStateFn<T = any>(field: string, value: T) {
     const state = advanceFilterDictRef.value[field].required!.includes(value);
     if (state) {
       advanceFilterDictRef.value[field].exclude!.push(value);
     } else {
       advanceFilterDictRef.value[field].exclude! = advanceFilterDictRef.value[field].exclude!.filter(
-        (x: string) => x !== value,
+        (x: T) => !isEqual(x, value),
       );
     }
   }
@@ -285,8 +290,8 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
     ["text", ...keywords].forEach((key) => {
       const valueFormat = getValueFormat(key, format);
       const { required, exclude } = advanceFilterDictRef.value[key] as unknown as ITextValue;
-      if (required?.length > 0) filters[key] = required.map((v) => valueFormat.build(v));
-      if (exclude?.length > 0) filters.exclude[key] = exclude.map((v) => valueFormat.build(v));
+      if (required?.length > 0) filters[key] = uniq(flattenDeep(required.map((v) => valueFormat.build(v))));
+      if (exclude?.length > 0) filters.exclude[key] = uniq(flattenDeep(exclude.map((v) => valueFormat.build(v))));
     });
 
     ranges.forEach((key) => {
@@ -300,7 +305,7 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
     return searchQueryParser.stringify(filters, parseOptions);
   }
 
-  function updateTableFilterValue() {
+  function updateTableFilterValueFn() {
     tableWaitFilterRef.value = stringifyFilterFn();
   }
 
@@ -314,6 +319,6 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
     toggleKeywordStateFn,
     tableFilterFn,
     stringifyFilterFn,
-    updateTableFilterValue,
+    updateTableFilterValueFn,
   };
 }

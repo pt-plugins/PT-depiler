@@ -122,6 +122,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
 
     <v-data-table
       v-model="tableSelected"
+      :filter-keys="['name']"
       :headers="tableHeader"
       :items="metadataStore.getSearchSolutions"
       :items-per-page="10"

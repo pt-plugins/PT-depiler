@@ -55,19 +55,20 @@ interface IUserInfoItem extends IUserInfo {
   siteUserConfig: ISiteUserConfig;
 }
 
-const { tableWaitFilterRef, tableFilterRef, tableFilterFn, advanceFilterDictRef, updateTableFilterValue } =
-  useTableCustomFilter<IUserInfoItem>({
-    parseOptions: {
-      keywords: ["site", "status"],
-    },
-    titleFields: ["site", "name", "siteUserConfig.merge.name"],
-  });
-
-// FIXME
-function addRequiredSite(site: string[]) {
-  advanceFilterDictRef.value.site.required = site;
-  updateTableFilterValue();
-}
+const {
+  tableWaitFilterRef,
+  tableFilterRef,
+  tableFilterFn,
+  advanceFilterDictRef,
+  updateTableFilterValueFn,
+  resetAdvanceFilterDictFn,
+  toggleKeywordStateFn,
+} = useTableCustomFilter<IUserInfoItem>({
+  parseOptions: {
+    keywords: ["site", "status"],
+  },
+  titleFields: ["site", "name", "siteUserConfig.merge.name"],
+});
 
 const tableData = computedAsync<IUserInfoItem[]>(async () => {
   const allSite = metadataStore.getAddedSiteIds;
@@ -181,6 +182,7 @@ function cancelFlush() {
           label="Search"
           max-width="500"
           single-line
+          @click:clear="resetAdvanceFilterDictFn"
         >
           <template #prepend-inner>
             <v-menu min-width="100">
@@ -193,11 +195,24 @@ function cancelFlush() {
                 <v-list-item
                   v-for="(item, index) in metadataStore.getSitesGroupData"
                   :key="index"
-                  :title="`${index} (${item.length})`"
                   :value="index"
                   class="pr-6"
-                  @click="() => addRequiredSite(item)"
                 >
+                  <v-checkbox
+                    v-model="advanceFilterDictRef[`site`].required"
+                    :label="`${index} (${item.length})`"
+                    :value="item"
+                    density="compact"
+                    hide-details
+                    indeterminate
+                    multiple
+                    @click.stop="
+                      (v: any) => {
+                        toggleKeywordStateFn(`site`, item);
+                      }
+                    "
+                    @update:model-value="() => updateTableFilterValueFn()"
+                  ></v-checkbox>
                 </v-list-item>
               </v-list>
             </v-menu>

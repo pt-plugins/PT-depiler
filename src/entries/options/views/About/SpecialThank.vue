@@ -23,7 +23,7 @@ const sortedPeople = [
 </script>
 
 <template>
-  <v-alert border="start" border-color="deep-purple accent-4" class="mb-2" elevation="2">
+  <v-alert border="start" border-color="deep-purple-accent-4" class="mb-2" elevation="2">
     <template v-for="i in tm('SpecialThank.thankNote')" :key="i"> {{ rt(i) }} <br /> </template>
     {{ t("SpecialThank.contributor") }}:
     <a :href="`${REPO_URL}/graphs/contributors`" rel="noopener noreferrer nofollow" target="_blank">

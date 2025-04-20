@@ -22,18 +22,20 @@ function removeSolution(solution: ISearchSolution) {
 </script>
 
 <template>
-  <v-chip
-    v-for="solution in props.solutions"
-    :key="solution.id"
-    :closable="props.closable"
-    class="mb-1 mr-1"
-    label
-    size="small"
-    @click:close="() => removeSolution(solution)"
-  >
-    <SiteName :site-id="solution.siteId" :class="['text-black']" />&nbsp;->&nbsp;
-    <SolutionDetail :solution="solution" />
-  </v-chip>
+  <div class="pt-1">
+    <v-chip
+      v-for="solution in props.solutions"
+      :key="solution.id"
+      :closable="props.closable"
+      class="mb-1 mr-1"
+      label
+      size="small"
+      @click:close="() => removeSolution(solution)"
+    >
+      <SiteName :site-id="solution.siteId" :class="['text-black']" />&nbsp;->&nbsp;
+      <SolutionDetail :solution="solution" />
+    </v-chip>
+  </div>
 </template>
 
 <style scoped lang="scss"></style>
