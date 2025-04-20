@@ -28,8 +28,14 @@ const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 
 const fullTableHeader = reactive([
-  { title: t("MyData.table.site"), key: "siteUserConfig.sortIndex", align: "center", width: 90, alwaysShow: true },
-  { title: t("MyData.table.username"), key: "name", align: "center", width: 90, alwaysShow: true },
+  {
+    title: t("MyData.table.site"),
+    key: "siteUserConfig.sortIndex",
+    align: "center",
+    width: 90,
+    props: { disabled: true },
+  },
+  { title: t("MyData.table.username"), key: "name", align: "center", width: 90, props: { disabled: true } },
   { title: t("MyData.table.levelName"), key: "levelName", align: "start", width: 90 },
   // NOTE: 这里将key设为 uploaded, trueUploaded 而不是虚拟的 userData，可以让 v-data-table 使用 uploaded 的进行排序
   { title: t("MyData.table.userData"), key: "uploaded", align: "end" },
@@ -41,13 +47,13 @@ const fullTableHeader = reactive([
   { title: t("levelRequirement.seedingSize"), key: "seedingSize", align: "end" },
   { title: t("levelRequirement.bonus"), key: "bonus", align: "end" },
   { title: t("MyData.table.joinTime"), key: "joinTime", align: "center" },
-  { title: t("MyData.table.updateAt"), key: "updateAt", align: "center", alwaysShow: true },
-  { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false, alwaysShow: true },
+  { title: t("MyData.table.updateAt"), key: "updateAt", align: "center", props: { disabled: true } },
+  { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false, props: { disabled: true } },
 ]);
 
 const tableHeader = computed(() => {
   return fullTableHeader.filter(
-    (item) => item.alwaysShow || configStore.tableBehavior.MyData.columns!.includes(item.key),
+    (item) => item?.props?.disabled || configStore.tableBehavior.MyData.columns!.includes(item.key),
   );
 });
 
@@ -140,34 +146,24 @@ function cancelFlush() {
 
         <v-combobox
           v-model="configStore.tableBehavior.MyData.columns"
-          :items="fullTableHeader.map((item) => item.key)"
+          :items="fullTableHeader"
+          :return-object="false"
           chips
           class="table-header-filter-clear"
           density="compact"
+          item-value="key"
           hide-details
-          max-width="240"
+          max-width="200"
           multiple
           prepend-inner-icon="mdi-filter-cog"
         >
           <template #chip="{ item, index }">
             <v-chip v-if="index === 0">
-              <span>{{ fullTableHeader.find((x) => x.key == item.title)?.title }}</span>
+              <span>{{ item.title }}</span>
             </v-chip>
             <span v-if="index === 1" class="text-grey caption">
-              (+{{ configStore.tableBehavior.MyData.columns!.length - 1 }} others)
+              (+{{ configStore.tableBehavior.MyData.columns!.length - 1 }})
             </span>
-          </template>
-          <template v-slot:item="{ props, item }">
-            <v-list-item v-bind="props" title="">
-              <v-checkbox
-                v-model="configStore.tableBehavior.MyData.columns"
-                :disabled="fullTableHeader.find((x) => x.key == item.title)?.alwaysShow"
-                :label="fullTableHeader.find((x) => x.key == item.title)?.title"
-                :value="item.title"
-                density="compact"
-                hide-details
-              ></v-checkbox>
-            </v-list-item>
           </template>
         </v-combobox>
 

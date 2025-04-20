@@ -31,8 +31,8 @@ const showSearchStatusDialog = ref<boolean>(false);
 const showSaveSnapshotDialog = ref<boolean>(false);
 
 const fullTableHeader = [
-  { title: "站点", key: "site", align: "center", width: 90, alwaysShow: true },
-  { title: "标题", key: "title", align: "start", minWidth: 600, maxWidth: "32vw", alwaysShow: true },
+  { title: "站点", key: "site", align: "center", width: 90, props: { disabled: true } },
+  { title: "标题", key: "title", align: "start", minWidth: 600, maxWidth: "32vw", props: { disabled: true } },
   { title: "分类", key: "category", align: "center", width: 90 },
   { title: "大小", key: "size", align: "end" },
   { title: "上传", key: "seeders", align: "end", width: 90, minWidth: 90 },
@@ -40,12 +40,20 @@ const fullTableHeader = [
   { title: "完成", key: "completed", align: "end", width: 90, minWidth: 90 },
   { title: "评论", key: "comments", align: "end", width: 90, minWidth: 90 },
   { title: "发布于(≈)", key: "time", align: "center" },
-  { title: "操作", key: "action", align: "center", width: 125, minWidth: 125, sortable: false, alwaysShow: true },
+  {
+    title: "操作",
+    key: "action",
+    align: "center",
+    width: 125,
+    minWidth: 125,
+    sortable: false,
+    props: { disabled: true },
+  },
 ];
 
 const tableHeader = computed(() => {
   return fullTableHeader.filter(
-    (item) => item.alwaysShow || configStore.tableBehavior.SearchEntity.columns!.includes(item.key),
+    (item) => item?.props?.disabled || configStore.tableBehavior.SearchEntity.columns!.includes(item.key),
   );
 });
 
@@ -175,34 +183,24 @@ function cancelSearchQueue() {
 
         <v-combobox
           v-model="configStore.tableBehavior.SearchEntity.columns"
-          :items="fullTableHeader.map((item) => item.key)"
+          :items="fullTableHeader"
+          :return-object="false"
           chips
           class="table-header-filter-clear"
           density="compact"
           hide-details
-          max-width="220"
+          item-value="key"
+          max-width="180"
           multiple
           prepend-inner-icon="mdi-filter-cog"
         >
           <template #chip="{ item, index }">
             <v-chip v-if="index === 0">
-              <span>{{ fullTableHeader.find((x) => x.key == item.title)?.title }}</span>
+              <span>{{ item.title }}</span>
             </v-chip>
             <span v-if="index === 1" class="grey--text caption">
-              (+{{ configStore.tableBehavior.SearchEntity.columns!.length - 1 }} others)
+              (+{{ configStore.tableBehavior.SearchEntity.columns!.length - 1 }})
             </span>
-          </template>
-          <template v-slot:item="{ props, item }">
-            <v-list-item v-bind="props" title="">
-              <v-checkbox
-                v-model="configStore.tableBehavior.SearchEntity.columns"
-                :disabled="fullTableHeader.find((x) => x.key == item.title)?.alwaysShow"
-                :label="fullTableHeader.find((x) => x.key == item.title)?.title"
-                :value="item.title"
-                density="compact"
-                hide-details
-              ></v-checkbox>
-            </v-list-item>
           </template>
         </v-combobox>
 
