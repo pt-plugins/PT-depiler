@@ -20,7 +20,7 @@ const emit = defineEmits(["update:tableFilter"]);
 
 const { t } = useI18n();
 
-const { advanceFilterDictRef, stringifyFilterFn, resetAdvanceFilterDictFn, resetCount, toggleKeywordStateFn } =
+const { advanceFilterDictRef, stringifyFilterFn, resetAdvanceFilterDictFn, resetCountRef, toggleKeywordStateFn } =
   tableCustomFilter;
 
 function updateTableFilter() {
@@ -63,7 +63,12 @@ function updateTableFilter() {
           </v-row>
           <v-row><v-label>站点</v-label></v-row>
           <v-row>
-            <v-col v-for="site in advanceFilterDictRef.site.all" :key="`${resetCount}_${site}`" class="pa-0" :cols="3">
+            <v-col
+              v-for="site in advanceFilterDictRef.site.all"
+              :key="`${resetCountRef}_${site}`"
+              class="pa-0"
+              :cols="3"
+            >
               <v-checkbox
                 v-model="advanceFilterDictRef.site.required"
                 :label="site"
@@ -84,7 +89,7 @@ function updateTableFilter() {
           <v-row>
             <v-col
               v-for="tag in advanceFilterDictRef.tags.all"
-              :key="`${resetCount}_${tag.name}`"
+              :key="`${resetCountRef}_${tag.name}`"
               :cols="2"
               class="pa-0"
             >

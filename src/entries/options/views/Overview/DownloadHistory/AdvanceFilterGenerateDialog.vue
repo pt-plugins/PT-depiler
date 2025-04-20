@@ -15,7 +15,7 @@ const emit = defineEmits(["update:tableFilter"]);
 
 const { t } = useI18n();
 
-const { advanceFilterDictRef, stringifyFilterFn, resetCount, resetAdvanceFilterDictFn, toggleKeywordStateFn } =
+const { advanceFilterDictRef, stringifyFilterFn, resetCountRef, resetAdvanceFilterDictFn, toggleKeywordStateFn } =
   tableCustomFilter;
 
 function updateTableFilter() {
@@ -60,7 +60,7 @@ function updateTableFilter() {
           <v-row>
             <v-col
               v-for="site in advanceFilterDictRef.siteId.all"
-              :key="`${resetCount}_${site}`"
+              :key="`${resetCountRef}_${site}`"
               class="pa-0"
               sm="3"
               :cols="6"
@@ -85,7 +85,7 @@ function updateTableFilter() {
           <v-row>
             <v-col
               v-for="downloader in advanceFilterDictRef.downloaderId.all"
-              :key="`${resetCount}_${downloader}`"
+              :key="`${resetCountRef}_${downloader}`"
               sm="6"
               :cols="12"
               class="pa-0"

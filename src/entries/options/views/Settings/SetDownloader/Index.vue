@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { computedAsync } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
+import { countBy } from "es-toolkit";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import type { TDownloaderKey } from "@/shared/storages/types/metadata.ts";
 import { getDownloaderIcon, getDownloaderMetaData, type TorrentClientMetaData } from "@ptd/downloader";
+import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
 
 import AddDialog from "./AddDialog.vue";
 import EditDialog from "./EditDialog.vue";
@@ -20,6 +22,8 @@ const showEditDialog = ref<boolean>(false);
 const showPathAndTagSuggestDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 
+const downloaderTypeCount = computed(() => countBy(metadataStore.getDownloaders, (x) => x.type));
+
 const downloaderMetadata = computedAsync(async () => {
   const downloaderMetaData: Record<string, TorrentClientMetaData> = {};
   for (const type of new Set(metadataStore.getDownloaders.map((x) => x.type))) {
@@ -31,7 +35,7 @@ const downloaderMetadata = computedAsync(async () => {
 const fullTableHeader = [
   { title: t("SetDownloader.common.type"), key: "type", align: "center", filterable: false },
   { title: t("SetDownloader.common.name"), key: "name", align: "start" },
-  { title: t("SetDownloader.common.uid"), key: "id", align: "start", filterable: false, sortable: false },
+  { title: t("SetDownloader.common.uid"), key: "id", align: "start", sortable: false },
   { title: t("SetDownloader.common.address"), key: "address", align: "start" },
   { title: t("SetDownloader.common.username"), key: "username", align: "start" },
   { title: t("SetDownloader.index.table.enabled"), key: "enabled", align: "center", filterable: false },
@@ -39,6 +43,31 @@ const fullTableHeader = [
   { title: t("common.action"), key: "action", filterable: false, sortable: false },
 ];
 const tableSelected = ref<TDownloaderKey[]>([]);
+
+const booleanField = {
+  "feature.DefaultAutoStart": "SetDownloader.index.table.autodl",
+  enabled: "SetDownloader.index.table.enabled",
+};
+
+const {
+  tableWaitFilterRef,
+  tableFilterRef,
+  tableFilterFn,
+  advanceFilterDictRef,
+  updateTableFilterValueFn,
+  resetAdvanceFilterDictFn,
+  toggleKeywordStateFn,
+} = useTableCustomFilter({
+  parseOptions: {
+    keywords: ["type", ...Object.keys(booleanField)],
+  },
+  titleFields: ["name", "address"],
+  format: {
+    enabled: "boolean",
+    "feature.DefaultAutoStart": "boolean",
+  },
+  initialItems: metadataStore.getDownloaders,
+});
 
 const toEditDownloaderId = ref<TDownloaderKey | null>(null);
 function editDownloader(downloaderId: TDownloaderKey) {
@@ -86,13 +115,68 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
           icon="mdi-minus"
           @click="deleteDownloader(tableSelected)"
         />
+
+        <v-spacer />
+
+        <v-text-field
+          v-model="tableWaitFilterRef"
+          append-icon="mdi-magnify"
+          clearable
+          density="compact"
+          hide-details
+          label="Search"
+          max-width="500"
+          single-line
+          @click:clear="resetAdvanceFilterDictFn"
+        >
+          <template #prepend-inner>
+            <v-menu min-width="100">
+              <template v-slot:activator="{ props }">
+                <v-icon icon="mdi-filter" v-bind="props" variant="plain" @click:clear="resetAdvanceFilterDictFn" />
+              </template>
+              <v-list class="pa-0">
+                <v-list-item v-for="(transKey, filterKey) in booleanField">
+                  <v-checkbox
+                    v-model="advanceFilterDictRef[filterKey].required"
+                    :label="t(transKey)"
+                    density="compact"
+                    hide-details
+                    indeterminate
+                    true-value="1"
+                    @click.stop="(v: any) => toggleKeywordStateFn(filterKey, '1')"
+                    @update:model-value="() => updateTableFilterValueFn()"
+                  ></v-checkbox>
+                </v-list-item>
+
+                <v-divider />
+
+                <v-list-item-subtitle class="ma-2">下载器分类</v-list-item-subtitle>
+                <v-list-item v-for="(count, type) in downloaderTypeCount" :key="type" :value="type">
+                  <v-checkbox
+                    v-model="advanceFilterDictRef.type.required"
+                    :label="`${type} (${count})`"
+                    :value="type"
+                    density="compact"
+                    hide-details
+                    indeterminate
+                    @click.stop="(v: any) => toggleKeywordStateFn('type', type)"
+                    @update:model-value="() => updateTableFilterValueFn()"
+                  ></v-checkbox>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </template>
+        </v-text-field>
       </v-row>
     </v-card-title>
 
     <v-data-table
       v-model="tableSelected"
+      :filter-keys="['id']"
       :headers="fullTableHeader"
+      :custom-filter="tableFilterFn"
       :items="metadataStore.getDownloaders"
+      :search="tableFilterRef"
       class="table-stripe"
       hover
       item-value="id"

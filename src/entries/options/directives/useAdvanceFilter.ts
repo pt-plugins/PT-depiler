@@ -314,7 +314,7 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
     tableFilterRef,
     tableParsedFilterRef,
     advanceFilterDictRef,
-    resetCount: resetAdvanceFilterDictCountRef,
+    resetCountRef: resetAdvanceFilterDictCountRef,
     resetAdvanceFilterDictFn,
     toggleKeywordStateFn,
     tableFilterFn,

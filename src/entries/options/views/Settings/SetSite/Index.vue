@@ -193,8 +193,9 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
                   ></v-checkbox>
                 </v-list-item>
 
-                <v-list-item-subtitle class="ma-2">站点分类</v-list-item-subtitle>
+                <v-divider />
 
+                <v-list-item-subtitle class="ma-2">站点分类</v-list-item-subtitle>
                 <v-list-item
                   v-for="(item, index) in metadataStore.getSitesGroupData"
                   :key="index"

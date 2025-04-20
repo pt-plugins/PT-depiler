@@ -65,7 +65,7 @@ const {
   toggleKeywordStateFn,
 } = useTableCustomFilter<IUserInfoItem>({
   parseOptions: {
-    keywords: ["site", "status"],
+    keywords: ["site", "status", "siteUserConfig.groups"],
   },
   titleFields: ["site", "name", "siteUserConfig.merge.name"],
 });
@@ -199,18 +199,13 @@ function cancelFlush() {
                   class="pr-6"
                 >
                   <v-checkbox
-                    v-model="advanceFilterDictRef[`site`].required"
+                    v-model="advanceFilterDictRef[`siteUserConfig.groups`].required"
                     :label="`${index} (${item.length})`"
-                    :value="item"
+                    :value="index"
                     density="compact"
                     hide-details
                     indeterminate
-                    multiple
-                    @click.stop="
-                      (v: any) => {
-                        toggleKeywordStateFn(`site`, item);
-                      }
-                    "
+                    @click.stop="(v: any) => toggleKeywordStateFn(`siteUserConfig.groups`, index)"
                     @update:model-value="() => updateTableFilterValueFn()"
                   ></v-checkbox>
                 </v-list-item>
