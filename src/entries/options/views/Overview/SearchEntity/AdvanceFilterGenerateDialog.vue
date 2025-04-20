@@ -32,9 +32,12 @@ function updateTableFilter() {
 <template>
   <v-dialog v-model="showDialog" max-width="800" scrollable @after-enter="resetAdvanceFilterDictFn">
     <v-card>
-      <v-card-title style="padding: 0">
+      <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title> 生成高级过滤词 </v-toolbar-title>
+          <template #append>
+            <v-btn icon="mdi-close" @click="showDialog = false"> </v-btn>
+          </template>
         </v-toolbar>
       </v-card-title>
       <v-divider />

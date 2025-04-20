@@ -70,11 +70,14 @@ function viewStoreData(data: IShowUserInfo) {
     @after-leave="() => (siteHistoryData = [])"
   >
     <v-card>
-      <v-card-title style="padding: 0">
+      <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title>
             {{ t("MyData.HistoryDataView.title") }} @ <SiteName :site-id="props.siteId!" class="" tag="span" />
           </v-toolbar-title>
+          <template #append>
+            <v-btn icon="mdi-close" @click="showDialog = false"> </v-btn>
+          </template>
         </v-toolbar>
       </v-card-title>
       <v-divider />

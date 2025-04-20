@@ -75,11 +75,12 @@ function reDownload(reDownloadType: TReDownloadType) {
 <template>
   <v-dialog v-model="showDialog" max-width="600">
     <v-card>
-      <v-card-title style="padding: 0">
+      <v-card-title class="pa-0">
         <v-toolbar color="primary">
           <v-toolbar-title>重新下载 {{ torrentItems.length }} 条记录</v-toolbar-title>
-          <v-spacer />
-          <v-btn icon="mdi-close" @click="showDialog = false" class="mr-1"></v-btn>
+          <template #append>
+            <v-btn icon="mdi-close" @click="showDialog = false"> </v-btn>
+          </template>
         </v-toolbar>
       </v-card-title>
       <v-card-title>

@@ -30,8 +30,13 @@ function saveSearchSnapshotData() {
 <template>
   <v-dialog v-model="showDialog" width="500">
     <v-card>
-      <v-card-title class="bg-cyan-darken-2">
-        <span>保存搜索快照</span>
+      <v-card-title class="pa-0">
+        <v-toolbar color="cyan-darken-2">
+          <v-toolbar-title>保存搜索快照</v-toolbar-title>
+          <template #append>
+            <v-btn icon="mdi-close" @click="showDialog = false"> </v-btn>
+          </template>
+        </v-toolbar>
         <v-spacer />
       </v-card-title>
       <v-divider />

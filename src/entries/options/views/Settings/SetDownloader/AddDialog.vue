@@ -58,7 +58,7 @@ async function saveStoredDownloaderConfig() {
 <template>
   <v-dialog v-model="showDialog" max-width="800" scrollable @after-leave="resetDialog">
     <v-card>
-      <v-card-title style="padding: 0">
+      <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title>{{ t("SetDownloader.add.title") }}</v-toolbar-title>
           <v-spacer />

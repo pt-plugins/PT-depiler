@@ -24,13 +24,16 @@ function getSearchSolution(planKey: string, entryName: string) {
 <template>
   <v-dialog v-model="showDialog" max-width="800" scrollable>
     <v-card>
-      <v-card-title style="padding: 0">
+      <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title>
-            方案 [{{ metadataStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) }}] 搜索状态
+            方案 [{{ metadataStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) }}] 搜索状态 <br />
+            <p class="text-caption"><{{ runtimeStore.search.searchPlanKey }}></p>
           </v-toolbar-title>
-          <v-spacer />
-          <span class="text-subtitle-2 mr-5"><{{ runtimeStore.search.searchPlanKey }}></span>
+
+          <template #append>
+            <v-btn icon="mdi-close" @click="showDialog = false"> </v-btn>
+          </template>
         </v-toolbar>
       </v-card-title>
       <v-divider />

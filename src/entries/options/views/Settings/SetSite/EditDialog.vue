@@ -40,6 +40,9 @@ function dialogEnter() {
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title>{{ t("SetSite.edit.title") }}</v-toolbar-title>
+          <template #append>
+            <v-btn icon="mdi-close" @click="showDialog = false"> </v-btn>
+          </template>
         </v-toolbar>
       </v-card-title>
       <v-divider />

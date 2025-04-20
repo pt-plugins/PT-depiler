@@ -1,5 +1,5 @@
 import PQueue from "p-queue";
-import { watch } from "vue";
+import { computed, watch } from "vue";
 
 import { EResultParseStatus, type IAdvanceKeywordSearchConfig, type TSiteID, ITorrentTag } from "@ptd/site";
 import type { ISearchResultTorrent, TSearchSolutionKey } from "@/shared/storages/types/runtime.ts";
@@ -22,7 +22,7 @@ export const tableCustomFilter = useTableCustomFilter({
   },
   titleFields: ["title", "subTitle"],
   initialSearchValue: metadataStore.lastSearchFilter,
-  initialItems: runtimeStore.search.searchResult,
+  initialItems: computed(() => runtimeStore.search.searchResult),
   format: {
     tags: {
       parse: (value: ITorrentTag) => (value ?? {}).name,

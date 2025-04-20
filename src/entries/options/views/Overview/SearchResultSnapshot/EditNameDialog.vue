@@ -32,9 +32,13 @@ function dialogEnter() {
     @after-leave="() => (snapshotName = '')"
   >
     <v-card>
-      <v-card-title class="bg-cyan-darken-2">
-        <span>搜索快照重命名</span>
-        <v-spacer />
+      <v-card-title class="pa-0">
+        <v-toolbar color="cyan-darken-2">
+          <v-toolbar-title>搜索快照重命名</v-toolbar-title>
+          <template #append>
+            <v-btn icon="mdi-close" @click="showDialog = false"> </v-btn>
+          </template>
+        </v-toolbar>
       </v-card-title>
       <v-divider />
       <v-card-text>
