@@ -154,6 +154,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
           density="compact"
           hide-details
           label="Search"
+          max-width="500"
           single-line
         >
           <template #prepend-inner>

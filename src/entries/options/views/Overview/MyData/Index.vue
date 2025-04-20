@@ -179,6 +179,7 @@ function cancelFlush() {
           density="compact"
           hide-details
           label="Search"
+          max-width="500"
           single-line
         >
           <template #prepend-inner>

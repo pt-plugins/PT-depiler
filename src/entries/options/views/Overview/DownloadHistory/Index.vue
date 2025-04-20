@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { throttle } from "es-toolkit";
-import { computed, onMounted, reactive, ref, shallowRef } from "vue";
+import { onMounted, ref, shallowRef } from "vue";
 
 import { sendMessage } from "@/messages.ts";
 import { formatDate } from "@/options/utils.ts";
@@ -16,13 +15,16 @@ import NavButton from "@/options/components/NavButton.vue";
 import ReDownloadSelectDialog from "./ReDownloadSelectDialog.vue";
 import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
 
-import { downloadStatusMap, tableCustomFilter } from "./utils.ts"; // <-- 主要方法
+import {
+  downloadHistory,
+  downloadHistoryList,
+  downloadStatusMap,
+  tableCustomFilter,
+  throttleLoadDownloadHistory,
+} from "./utils.ts"; // <-- 主要方法
 
 const { t } = useI18n();
 const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
-
-const downloadHistory = ref<Record<TTorrentDownloadKey, ITorrentDownloadMetadata>>({});
-const downloadHistoryList = computed(() => Object.values(downloadHistory.value));
 
 const tableHeader = [
   { title: "№", key: "id", align: "center", width: 50, filterable: false },
@@ -37,42 +39,9 @@ const tableSelected = ref<TTorrentDownloadKey[]>([]);
 
 const showAdvanceFilterDialog = ref<boolean>(false);
 
-// 使用 setTimeout 监听下载状态变化
-const watchingMap = reactive<Record<TTorrentDownloadKey, number>>({});
-function watchDownloadHistory(downloadHistoryId: TTorrentDownloadKey) {
-  watchingMap[downloadHistoryId] = setTimeout(async () => {
-    const history = await sendMessage("getDownloadHistoryById", downloadHistoryId);
-    downloadHistory.value[downloadHistoryId] = history;
-    if (history.downloadStatus == "downloading" || history.downloadStatus == "pending") {
-      watchDownloadHistory(downloadHistoryId);
-    } else {
-      delete watchingMap[downloadHistoryId];
-    }
-  }, 1e3) as unknown as number;
-}
-
-function loadDownloadHistory() {
-  // 首先清除所有的下载状态监听
-  for (const key of Object.keys(watchingMap)) {
-    clearTimeout(watchingMap[key as unknown as number]);
-    delete watchingMap[key as unknown as number];
-  }
-
-  sendMessage("getDownloadHistory", undefined).then((history: ITorrentDownloadMetadata[]) => {
-    downloadHistory.value = {}; // 清空目前的下载记录
-    history.forEach((item) => {
-      downloadHistory.value[item.id!] = item;
-      if (item.downloadStatus == "downloading" || item.downloadStatus == "pending") {
-        watchDownloadHistory(item.id!);
-      }
-    });
-  });
-}
-
-const throttleLoadDownloadHistory = throttle(loadDownloadHistory, 1e3);
-
 const showReDownloadSelectDialog = ref<boolean>(false);
 const reDownloadTorrentListRef = shallowRef<ITorrentDownloadMetadata[]>([]);
+
 function reDownloadTorrent(downloadHistoryIds: TTorrentDownloadKey[]) {
   const reDownloadTorrentList = [];
   for (const downloadHistoryId of downloadHistoryIds) {
@@ -87,6 +56,7 @@ function reDownloadTorrent(downloadHistoryIds: TTorrentDownloadKey[]) {
 
 const showDeleteDialog = ref<boolean>(false);
 const toDeleteIds = ref<TTorrentDownloadKey[]>([]);
+
 async function deleteDownloadHistory(downloadHistoryIds: TTorrentDownloadKey[]) {
   toDeleteIds.value = downloadHistoryIds;
   showDeleteDialog.value = true;
@@ -221,7 +191,6 @@ onMounted(() => {
 
   <AdvanceFilterGenerateDialog
     v-model="showAdvanceFilterDialog"
-    :records="downloadHistoryList"
     @update:table-filter="(v) => (tableWaitFilterRef = v)"
   />
 

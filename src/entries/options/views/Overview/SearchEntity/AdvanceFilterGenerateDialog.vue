@@ -6,58 +6,22 @@
  * refs: https://github.com/vuetifyjs/vuetify/blob/0ca7e93ad011b358591da646fdbd6ebe83625d25/packages/vuetify/src/components/VCheckbox/VCheckboxBtn.tsx#L49-L53
  */
 import { useI18n } from "vue-i18n";
-import { ref } from "vue";
-import { uniq, flatten, uniqBy } from "es-toolkit";
 import { addDays, startOfDay } from "date-fns";
 
 import { formatDate, formatSize } from "@/options/utils.ts";
-import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import { tableCustomFilter } from "@/options/views/Overview/SearchEntity/utils.ts";
-import { generateRangeField } from "@/options/directives/useAdvanceFilter.ts";
+import { setDateRangeByDatePicker, getThisDateUnitRange } from "@/options/directives/useAdvanceFilter.ts";
 
 const showDialog = defineModel<boolean>();
 const emit = defineEmits(["update:tableFilter"]);
 
 const { t } = useI18n();
-const runtimeStore = useRuntimeStore();
 
-const { advanceFilterDictRef, stringifyFilterFn } = tableCustomFilter;
-
-const resetCount = ref<number>(0);
-function resetFilter() {
-  resetCount.value = +new Date(); // 更新重置计数，触发 vue 更新 site 和 tags 的 v-checkbox ，防止因为 :key 的问题导致无法重置
-  const searchResult = runtimeStore.search.searchResult;
-
-  advanceFilterDictRef.value.text = { required: [], exclude: [] };
-
-  advanceFilterDictRef.value.site = { all: uniq(searchResult.map((x) => x.site)), required: [], exclude: [] };
-  advanceFilterDictRef.value.tags = {
-    all: uniqBy(
-      flatten(searchResult.filter((x) => x.tags && x.tags.length > 0).map((x) => x.tags)),
-      (x) => x!.name,
-    ) as { name: string; color: string }[],
-    required: [],
-    exclude: [],
-  };
-
-  advanceFilterDictRef.value.time = generateRangeField(searchResult.map((x) => x.time));
-  advanceFilterDictRef.value.size = generateRangeField(searchResult.map((x) => x.size));
-  advanceFilterDictRef.value.seeders = generateRangeField(searchResult.map((x) => x.seeders));
-  advanceFilterDictRef.value.leechers = generateRangeField(searchResult.map((x) => x.leechers));
-  advanceFilterDictRef.value.completed = generateRangeField(searchResult.map((x) => x.completed));
-}
-
-function toggleState(field: "site" | "tags", value: string) {
-  const state = advanceFilterDictRef.value[field].required!.includes(value);
-  if (state) {
-    advanceFilterDictRef.value[field].exclude!.push(value);
-  } else {
-    advanceFilterDictRef.value[field].exclude! = advanceFilterDictRef.value[field].exclude!.filter((x) => x !== value);
-  }
-}
+const { advanceFilterDictRef, stringifyFilterFn, resetAdvanceFilterDictFn, resetCount, toggleKeywordStateFn } =
+  tableCustomFilter;
 
 function updateTableFilter() {
   emit("update:tableFilter", stringifyFilterFn());
@@ -66,7 +30,7 @@ function updateTableFilter() {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" max-width="800" scrollable @after-enter="resetFilter">
+  <v-dialog v-model="showDialog" max-width="800" scrollable @after-enter="resetAdvanceFilterDictFn">
     <v-card>
       <v-card-title style="padding: 0">
         <v-toolbar color="blue-grey-darken-2">
@@ -107,7 +71,7 @@ function updateTableFilter() {
                 density="compact"
                 hide-details
                 indeterminate
-                @click.stop="() => toggleState('site', site)"
+                @click.stop="() => toggleKeywordStateFn('site', site)"
               >
                 <template #label>
                   <SiteFavicon :site-id="site" :size="16" class="mr-2" />
@@ -130,7 +94,7 @@ function updateTableFilter() {
                 density="compact"
                 hide-details
                 indeterminate
-                @click.stop="() => toggleState('tags', tag.name)"
+                @click.stop="() => toggleKeywordStateFn('tags', tag.name)"
               >
                 <template #label>
                   <v-chip :color="tag.color" class="mr-1" label size="small" variant="tonal">
@@ -154,7 +118,7 @@ function updateTableFilter() {
                     () =>
                       (advanceFilterDictRef.time.value = getThisDateUnitRange(
                         dateUnit,
-                        advanceFilterDictRef.date.range,
+                        advanceFilterDictRef.time.range,
                       ))
                   "
                 >
@@ -280,7 +244,7 @@ function updateTableFilter() {
       </v-card-text>
       <v-divider />
       <v-card-actions>
-        <v-btn variant="text" @click="resetFilter">重置搜索词</v-btn>
+        <v-btn variant="text" @click="resetAdvanceFilterDictFn">重置搜索词</v-btn>
         <v-spacer />
         <v-btn color="error" variant="text" @click="showDialog = false">取消</v-btn>
         <v-btn color="primary" variant="text" @click="updateTableFilter">生成</v-btn>

@@ -1,13 +1,13 @@
-import { computed, ref } from "vue";
 import { filesize } from "filesize";
+import { get } from "es-toolkit/compat";
 import { refDebounced } from "@vueuse/core";
+import { computed, type Ref, ref, unref } from "vue";
+import { flatten, flattenDeep, uniqBy } from "es-toolkit";
+import { startOfDay, startOfMonth, startOfQuarter, startOfWeek, startOfYear } from "date-fns";
 import searchQueryParser, { type SearchParserOptions, SearchParserResult } from "search-query-parser";
+
 import { parseSizeString, parseValidTimeString } from "@ptd/site";
 import { formatDate } from "@/options/utils.ts";
-
-import { get } from "es-toolkit/compat";
-import { flattenDeep } from "es-toolkit";
-import { startOfDay, startOfMonth, startOfQuarter, startOfWeek, startOfYear } from "date-fns";
 
 type TAdvanceFilterFormat = "date" | "size";
 
@@ -36,16 +36,54 @@ interface IValueFormat {
   build?: (value: any) => any;
 }
 
+export const dateFilterFormat = [
+  "T",
+  "yyyyMMdd'T'HHmmss",
+  "yyyyMMdd'T'HHmm",
+  "yyyyMMdd'T'HH",
+  "yyyyMMdd",
+  "yyyyMM",
+  "yyyy",
+];
+
 const advanceFilterFormat: Record<TAdvanceFilterFormat, IValueFormat> = {
   date: {
-    parse: (value: string) => parseValidTimeString(value, dateFilterFormat) as number,
+    parse: (value: string | number) => {
+      if (typeof value === "number") return value;
+      else return parseValidTimeString(value, dateFilterFormat) as number;
+    },
     build: (value: string | number) => formatDate(value, "yyyyMMdd'T'HHmmss") as string,
   },
   size: {
-    parse: parseSizeString,
+    parse: (value: string | number) => {
+      if (typeof value === "number") return value;
+      else return parseSizeString(value);
+    },
     build: (value: string | number) => filesize(value, { spacer: "" }),
   },
 } as const;
+
+type TFormat = Record<string, TAdvanceFilterFormat | IValueFormat>;
+
+const getRaw = (x: any) => x;
+function getValueFormat(key: string, format: TFormat = {}): Required<IValueFormat> {
+  let valueFormatFn: IValueFormat = {};
+
+  if (format[key]) {
+    if (typeof format[key] === "string" && advanceFilterFormat[format[key] as TAdvanceFilterFormat]) {
+      valueFormatFn = advanceFilterFormat[format[key] as TAdvanceFilterFormat];
+    } else {
+      const { parse: parseFn, build: buildFn } = format[key] as IValueFormat;
+      valueFormatFn.parse ??= parseFn;
+      valueFormatFn.build ??= buildFn;
+    }
+  }
+
+  valueFormatFn.parse ??= getRaw;
+  valueFormatFn.build ??= getRaw;
+
+  return valueFormatFn as Required<IValueFormat>;
+}
 
 export function generateRange(data: (number | undefined)[]): [number, number] {
   const numData = data.filter((x) => !isNaN(x as unknown as number)) as number[];
@@ -74,39 +112,73 @@ export function generateRangeField(data: (number | undefined)[]): IRangedValue {
   const range = generateRange(data);
   return { range, ticks: Array.from(new Set(data)) as number[], value: range };
 }
-export const dateFilterFormat = [
-  "T",
-  "yyyyMMdd'T'HHmmss",
-  "yyyyMMdd'T'HHmm",
-  "yyyyMMdd'T'HH",
-  "yyyyMMdd",
-  "yyyyMM",
-  "yyyy",
-];
-
-export function checkRange(range: { from?: number; to?: number }, value: number) {
-  if (range?.from && value < range.from) return false;
-  if (range?.to && value > range.to) return false;
-  return true;
-}
 
 export function setDateRangeByDatePicker(value: unknown[]): [number, number] {
   const dateRange = value as Date[];
   return [dateRange[0].getTime(), dateRange[dateRange.length - 1].getTime()];
 }
 
-interface TableCustomFilterOptions {
+type TFilter = SearchParserResult & { [key: string]: any[] };
+type TRawItem = { [key: string]: any };
+
+export function checkKeywordValue(
+  filter: TFilter,
+  rawItem: TRawItem,
+  keyword: string,
+  format: TFormat = {},
+  // @ts-ignore
+): boolean | undefined {
+  if (filter[keyword] && rawItem[keyword]) {
+    const valueFormat = getValueFormat(keyword as string, format);
+    const itemValue = rawItem[keyword];
+    if (Array.isArray(itemValue)) {
+      const parsedItemValue = itemValue.map((v: any) => valueFormat.parse(v)) as string[];
+      return filter[keyword].every((keyword: string) => parsedItemValue.includes(keyword));
+    } else {
+      return filter[keyword].includes(valueFormat.parse(itemValue) as string);
+    }
+  }
+}
+
+export function checkRangeValue(
+  filter: TFilter,
+  rawItem: TRawItem,
+  keyword: string,
+  format: TFormat = {},
+  // @ts-ignore
+): boolean | undefined {
+  if (filter[keyword] && rawItem[keyword]) {
+    const valueFormat = getValueFormat(keyword, format);
+    const value = valueFormat.parse(rawItem[keyword]) as number;
+    const from = valueFormat.parse((filter[keyword] as any).from) as number;
+    const to = valueFormat.parse((filter[keyword] as any).to) as number;
+
+    return Boolean(from && value >= from && to && value <= to);
+  }
+}
+
+interface TableCustomFilterOptions<ItemType> {
   parseOptions: SearchParserOptions;
   titleFields: string[]; // item的那些部分作为title
 
-  format?: Record<string, TAdvanceFilterFormat | IValueFormat>;
+  format?: TFormat;
 
   initialSearchValue?: string;
+  initialItems?: Ref<ItemType[]> | ItemType[];
   debouncedMs?: number;
 }
 
-export function useTableCustomFilter<ItemType extends Record<string, any>>(options: TableCustomFilterOptions) {
-  const { parseOptions, titleFields = ["title"], format = {}, initialSearchValue = "", debouncedMs = 500 } = options;
+export function useTableCustomFilter<ItemType extends Record<string, any>>(
+  options: TableCustomFilterOptions<ItemType>,
+) {
+  const {
+    parseOptions,
+    titleFields = ["title"],
+    format = {},
+    initialSearchValue = "",
+    initialItems = [],
+    debouncedMs = 500,
+  } = options;
 
   parseOptions.tokenize = true;
   parseOptions.offsets = false;
@@ -116,53 +188,46 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(optio
   const tableFilterRef = refDebounced(tableWaitFilterRef, debouncedMs); // 延迟搜索过滤词的生成
 
   // @ts-ignore
-  const tableParsedFilterRef = computed<SearchParserResult>(() =>
-    searchQueryParser.parse(tableFilterRef.value, parseOptions),
-  );
+  const tableParsedFilterRef = computed<TFilter>(() => searchQueryParser.parse(tableFilterRef.value, parseOptions));
 
-  const advanceFilterDictRef = ref<Record<string, any>>({ text: { required: [], exclude: [] } });
-  parseOptions.keywords?.forEach((key) => {
-    advanceFilterDictRef.value[key] = { all: [], required: [], exclude: [] };
-  });
-  parseOptions.ranges?.forEach((key) => {
-    advanceFilterDictRef.value[key] = { range: [0, 0], ticks: [], value: [0, 0] };
-  });
+  const advanceFilterDictRef = ref<Record<string, any>>({});
 
-  const getRaw = (x: any) => x;
-  function getValueFormat(key: string): Required<IValueFormat> {
-    let valueFormatFn: IValueFormat = {};
+  const resetAdvanceFilterDictCountRef = ref<number>(0);
 
-    if (format[key]) {
-      if (typeof format[key] === "string" && advanceFilterFormat[format[key] as TAdvanceFilterFormat]) {
-        valueFormatFn = advanceFilterFormat[format[key] as TAdvanceFilterFormat];
-      } else {
-        const { parse: parseFn, build: buildFn } = format[key] as IValueFormat;
-        valueFormatFn.parse ??= parseFn;
-        valueFormatFn.build ??= buildFn;
-      }
-    }
+  function resetAdvanceFilterDictFn() {
+    resetAdvanceFilterDictCountRef.value++; // 更新重置计数，防止因为 :key 的问题导致 vue 无法重置 v-checkbox
+    advanceFilterDictRef.value.text = { required: [], exclude: [] };
+    parseOptions.keywords?.forEach((keyword) => {
+      const valueFormat = getValueFormat(keyword, format);
 
-    valueFormatFn.parse ??= getRaw;
-    valueFormatFn.build ??= getRaw;
-
-    return valueFormatFn as Required<IValueFormat>;
+      advanceFilterDictRef.value[keyword] = {
+        all: uniqBy(
+          flatten(
+            unref(initialItems)
+              .map((item) => item[keyword])
+              .filter(Boolean),
+          ),
+          (x) => valueFormat.parse(x),
+        ),
+        required: [],
+        exclude: [],
+      };
+    });
+    parseOptions.ranges?.forEach((keyword) => {
+      advanceFilterDictRef.value[keyword] = generateRangeField(unref(initialItems).map((item) => item[keyword]));
+    });
   }
 
-  function checkKeywordValue<K extends string>(
-    filter: Record<K, string[]>,
-    rawItem: ItemType,
-    keyword: K,
-    // @ts-ignore
-  ): boolean | undefined {
-    if (filter[keyword] && rawItem[keyword]) {
-      const valueFormat = getValueFormat(keyword);
-      const itemValue = rawItem[keyword];
-      if (Array.isArray(itemValue)) {
-        const parsedItemValue = itemValue.map((v: any) => valueFormat.parse(v)) as string[];
-        return filter[keyword].every((keyword: string) => parsedItemValue.includes(keyword));
-      } else {
-        return filter[keyword].includes(valueFormat.parse(itemValue) as string);
-      }
+  resetAdvanceFilterDictFn();
+
+  function toggleKeywordStateFn(field: string, value: string) {
+    const state = advanceFilterDictRef.value[field].required!.includes(value);
+    if (state) {
+      advanceFilterDictRef.value[field].exclude!.push(value);
+    } else {
+      advanceFilterDictRef.value[field].exclude! = advanceFilterDictRef.value[field].exclude!.filter(
+        (x: string) => x !== value,
+      );
     }
   }
 
@@ -176,8 +241,6 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(optio
       .join("|$|")
       .toLowerCase();
 
-    console.log(rawItem, tableParsedFilterRef.value);
-
     if (text) {
       const includeText = (Array.isArray(text) ? text : [text]).map((x) => x.toLowerCase());
       if (!includeText.every((keyword: string) => itemTitle.includes(keyword))) return false;
@@ -185,19 +248,13 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(optio
 
     if (parseOptions.keywords) {
       for (const keyword of parseOptions.keywords) {
-        if (checkKeywordValue(tableParsedFilterRef.value, rawItem, keyword) === false) return false;
+        if (checkKeywordValue(tableParsedFilterRef.value, rawItem, keyword, format) === false) return false;
       }
     }
 
     if (parseOptions.ranges) {
       for (const keyword of parseOptions.ranges) {
-        if (tableParsedFilterRef.value[keyword] && rawItem[keyword]) {
-          const valueFormat = getValueFormat(keyword);
-          const from = valueFormat.parse((tableParsedFilterRef.value[keyword] as any).from) as number;
-          const to = valueFormat.parse((tableParsedFilterRef.value[keyword] as any).to) as number;
-
-          if (!checkRange({ from, to }, rawItem[keyword as string])) return false;
-        }
+        if (checkRangeValue(tableParsedFilterRef.value, rawItem, keyword, format) === false) return false;
       }
     }
 
@@ -211,21 +268,11 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(optio
 
       if (parseOptions.keywords) {
         for (const keyword of parseOptions.keywords) {
-          if (checkKeywordValue(exclude, rawItem, keyword) === true) return false;
+          if (checkKeywordValue(exclude, rawItem, keyword, format) === true) return false;
         }
       }
 
-      if (parseOptions.ranges) {
-        for (const keyword of parseOptions.ranges) {
-          if (exclude[keyword] && rawItem[keyword]) {
-            const valueFormat = getValueFormat(keyword);
-            const from = valueFormat.parse((exclude[keyword] as any).from) as number;
-            const to = valueFormat.parse((exclude[keyword] as any).to) as number;
-
-            if (checkRange({ from, to }, rawItem[keyword as string])) return false;
-          }
-        }
-      }
+      // NOTE： search-query-parser 不支持 range 的 exclude
     }
 
     return true;
@@ -236,14 +283,14 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(optio
     const filters: any = { exclude: {} };
 
     ["text", ...keywords].forEach((key) => {
-      const valueFormat = getValueFormat(key);
+      const valueFormat = getValueFormat(key, format);
       const { required, exclude } = advanceFilterDictRef.value[key] as unknown as ITextValue;
       if (required?.length > 0) filters[key] = required.map((v) => valueFormat.build(v));
-      if (exclude?.length > 0) filters.exclude[key] = required.map((v) => valueFormat.build(v));
+      if (exclude?.length > 0) filters.exclude[key] = exclude.map((v) => valueFormat.build(v));
     });
 
     ranges.forEach((key) => {
-      const valueFormat = getValueFormat(key);
+      const valueFormat = getValueFormat(key, format);
       const { range, value } = advanceFilterDictRef.value[key] as unknown as IRangedValue;
       if (value[0] !== range[0] || value[1] !== range[1]) {
         filters[key] = { from: valueFormat.build(value[0]), to: valueFormat.build(value[1]) };
@@ -262,6 +309,9 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(optio
     tableFilterRef,
     tableParsedFilterRef,
     advanceFilterDictRef,
+    resetCount: resetAdvanceFilterDictCountRef,
+    resetAdvanceFilterDictFn,
+    toggleKeywordStateFn,
     tableFilterFn,
     stringifyFilterFn,
     updateTableFilterValue,

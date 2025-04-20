@@ -21,6 +21,8 @@ export const tableCustomFilter = useTableCustomFilter({
     ranges: ["time", "size", "seeders", "leechers", "completed"],
   },
   titleFields: ["title", "subTitle"],
+  initialSearchValue: metadataStore.lastSearchFilter,
+  initialItems: runtimeStore.search.searchResult,
   format: {
     tags: {
       parse: (value: ITorrentTag) => (value ?? {}).name,

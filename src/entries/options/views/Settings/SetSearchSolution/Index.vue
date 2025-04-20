@@ -114,6 +114,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
           density="compact"
           hide-details
           label="Search"
+          max-width="500"
           single-line
         />
       </v-row>
