@@ -155,8 +155,8 @@ export function checkRangeValue(
   if (filter[keyword] && typeof itemValue !== "undefined") {
     const valueFormat = getValueFormat(keyword, format);
     const value = valueFormat.parse(itemValue) as number;
-    const from = valueFormat.parse((filter[keyword] as any).from) as number;
-    const to = valueFormat.parse((filter[keyword] as any).to) as number;
+    const from = valueFormat.parse((filter[keyword] as any).from || -Infinity) as number;
+    const to = valueFormat.parse((filter[keyword] as any).to || Infinity) as number;
 
     return Boolean(from && value >= from && to && value <= to);
   }
