@@ -107,11 +107,15 @@ export default class PrivateSite extends BittorrentSite {
           const dynamicParseFuncKey = `parseUserInfoFor${pascalCase(key)}` as keyof this;
           if (dynamicParseFuncKey in this && typeof this[dynamicParseFuncKey] === "function") {
             flushUserInfo = await this[dynamicParseFuncKey](flushUserInfo, dataDocument, requestConfig);
-          } else if (this.metadata.userInfo!.selectors![key]) {
-            flushUserInfo[key] = this.getFieldData(
-              dataDocument,
-              this.metadata.userInfo!.selectors![key] as IElementQuery,
-            );
+          } else {
+            // 优先使用本步骤定义的选择器，如果没有则使用 userInfo 全局的选择器
+            let elementQuery = thisUserInfoProcess.selectors?.[key] ?? this.metadata.userInfo?.selectors?.[key];
+            if (elementQuery) {
+              flushUserInfo[key] = this.getFieldData(dataDocument, elementQuery as IElementQuery);
+            } else {
+              // noinspection ExceptionCaughtLocallyJS
+              throw new Error(`字段 ${key} 未设置 selector 或 ${String(dynamicParseFuncKey)} 方法`);
+            }
           }
         }
       }

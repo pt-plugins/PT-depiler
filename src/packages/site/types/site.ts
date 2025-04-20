@@ -164,9 +164,11 @@ export interface ISiteMetadata {
       ) => AxiosRequestConfig;
 
       fields: (keyof IUserInfo)[];
+
+      selectors?: { [userinfoKey in keyof IUserInfo]?: IElementQuery }; // 用户信息相关选择器（仅限该步骤使用）
     }[];
 
-    selectors?: { [userinfoKey in keyof IUserInfo]?: IElementQuery }; // 用户信息相关选择器
+    selectors?: { [userinfoKey in keyof IUserInfo]?: IElementQuery }; // 用户信息相关选择器（全部步骤均可使用）
   };
 
   /**
