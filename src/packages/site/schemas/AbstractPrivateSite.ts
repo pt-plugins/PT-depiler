@@ -114,7 +114,7 @@ export default class PrivateSite extends BittorrentSite {
               flushUserInfo[key] = this.getFieldData(dataDocument, elementQuery as IElementQuery);
             } else {
               // noinspection ExceptionCaughtLocallyJS
-              throw new Error(`字段 ${key} 未设置 selector 或 ${String(dynamicParseFuncKey)} 方法`);
+              // throw new Error(`字段 ${key} 未设置 selector 或 ${String(dynamicParseFuncKey)} 方法`);
             }
           }
         }
