@@ -16,6 +16,7 @@ import EditSearchEntryList from "./EditSearchEntryList.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";
+import OneClickImportDialog from "@/options/views/Settings/SetSite/OneClickImportDialog.vue";
 
 const { t } = useI18n();
 
@@ -26,6 +27,7 @@ const metadataStore = useMetadataStore();
 const showAddDialog = ref<boolean>(false);
 const showEditDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
+const showOneClickImportDialog = ref<boolean>(false);
 
 const tableHeader = [
   // site favicon
@@ -151,17 +153,28 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
           icon="mdi-minus"
           @click="deleteSite(tableSelected)"
         />
+
         <v-divider class="mx-2" inset vertical />
+
+        <NavButton
+          color="info"
+          icon="mdi-crosshairs-gps"
+          text="一键导入站点"
+          @click="() => (showOneClickImportDialog = true)"
+        />
+
+        <v-divider class="mx-2" inset vertical />
+
         <NavButton
           :disabled="tableSelected.length === 0"
           :loading="isFaviconFlushing"
           :text="t('SetSite.index.table.flushFavicon')"
+          class="mr-2"
           color="indigo"
           icon="mdi-face-recognition"
           @click="() => flushSiteFavicon(tableSelected)"
         />
 
-        <!-- TODO 一键导入站点 -->
         <v-spacer />
         <v-text-field
           v-model="tableWaitFilterRef"
@@ -229,7 +242,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
       :filter-keys="['id'] /* 对每个item值只检索一次 */"
       :search="tableFilterRef"
       :sort-by="configStore.tableBehavior.SetSite.sortBy"
-      class="table-stripe"
+      class="table-stripe table-header-no-wrap"
       item-value="id"
       multi-sort
       hover
@@ -247,8 +260,14 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
         {{ (item.userConfig.groups ?? []).join(", ") }}
       </template>
       <template #item.url="{ item }">
-        <a :href="item.userConfig?.url ?? item.metadata?.urls?.[0]" target="_blank">
+        <a
+          :href="item.userConfig?.url ?? item.metadata?.urls?.[0]"
+          class="text-primary font-weight-medium text-decoration-underline"
+          rel="noopener noreferrer nofollow"
+          target="_blank"
+        >
           {{ item.userConfig?.url ?? item.metadata?.urls?.[0] }}
+          <v-icon icon="mdi-open-in-new" size="x-small"></v-icon>
         </a>
       </template>
       <template #item.userConfig.isOffline="{ item }">
@@ -331,6 +350,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
     @confirm-delete="confirmDeleteSite"
   ></DeleteDialog>
   <EditDialog v-model="showEditDialog" :site-id="toEditId!" />
+  <OneClickImportDialog v-model="showOneClickImportDialog" />
 </template>
 
 <style scoped lang="scss">

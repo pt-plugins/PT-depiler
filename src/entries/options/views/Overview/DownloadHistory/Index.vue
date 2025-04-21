@@ -136,7 +136,7 @@ onMounted(() => {
         :items="downloadHistoryList"
         :search="tableFilterRef"
         :sort-by="[{ key: 'id', order: 'desc' }]"
-        class="table-stripe"
+        class="table-stripe table-header-no-wrap"
         fixed-header
         hover
         item-value="id"
@@ -172,8 +172,12 @@ onMounted(() => {
 
         <template #item.action="{ item }">
           <v-btn-group class="table-action" density="compact" variant="plain">
-            <v-btn color="primary" icon="mdi-tray-arrow-down" size="small" @click="() => reDownloadTorrent([item.id!])">
-            </v-btn>
+            <v-btn
+              color="primary"
+              icon="mdi-tray-arrow-down"
+              size="small"
+              @click="() => reDownloadTorrent([item.id!])"
+            />
 
             <v-btn
               :title="t('common.remove')"

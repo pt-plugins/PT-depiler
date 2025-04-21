@@ -127,7 +127,7 @@ function saveClientConfig() {
           color="blue-grey-darken-2"
         >
           <template #append>
-            <v-btn icon="mdi-close" @click="showDialog = false"> </v-btn>
+            <v-btn icon="mdi-close" @click="showDialog = false" />
           </template>
         </v-toolbar>
       </v-card-title>
@@ -249,7 +249,7 @@ function saveClientConfig() {
                     clearable
                   >
                     <template #append>
-                      <v-btn icon="mdi-keyboard-return" variant="text" @click="addSuggestTag(suggestTagInput)"></v-btn>
+                      <v-btn icon="mdi-keyboard-return" variant="text" @click="addSuggestTag(suggestTagInput)" />
                     </template>
                     <template #prepend>
                       <v-btn

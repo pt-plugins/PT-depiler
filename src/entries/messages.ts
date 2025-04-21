@@ -35,7 +35,7 @@ interface ProtocolMap {
   // 2.2 站点搜索、搜索快照 ( utils/search )
   getSiteSearchResult(data: {
     siteId: TSiteID;
-    keyword: string;
+    keyword?: string;
     searchEntry?: IAdvancedSearchRequestConfig;
   }): ISearchResult;
   getSearchResultSnapshotData(snapshotId: TSearchSnapshotKey): ISearchData;

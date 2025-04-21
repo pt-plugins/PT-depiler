@@ -207,7 +207,7 @@ function cancelSearchQueue() {
         <v-spacer />
         <v-text-field
           v-model="tableWaitFilterRef"
-          :disabled="runtimeStore.search.isSearching"
+          :disabled="runtimeStore.search.searchResult.length === 0"
           append-icon="mdi-magnify"
           clearable
           density="compact"
@@ -230,7 +230,7 @@ function cancelSearchQueue() {
       :items-per-page="configStore.tableBehavior.SearchEntity.itemsPerPage"
       :search="tableFilterRef"
       :sort-by="configStore.tableBehavior.SearchEntity.sortBy"
-      class="search-entity-table table-stripe"
+      class="search-entity-table table-stripe table-header-no-wrap"
       hover
       item-value="uniqueId"
       multi-sort

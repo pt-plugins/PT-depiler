@@ -134,7 +134,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
         { key: 'enabled', order: 'desc' },
         { key: 'sort', order: 'desc' },
       ]"
-      class="table-stripe"
+      class="table-stripe table-header-no-wrap"
       hover
       item-value="id"
       multi-sort

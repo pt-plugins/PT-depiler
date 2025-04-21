@@ -97,7 +97,7 @@ async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey)
       :items-per-page="configStore.tableBehavior.SearchResultSnapshot.itemsPerPage"
       :search="tableFilter"
       :sort-by="configStore.tableBehavior.SearchResultSnapshot.sortBy"
-      class="table-stripe"
+      class="table-stripe table-header-no-wrap"
       hover
       item-value="id"
       multi-sort

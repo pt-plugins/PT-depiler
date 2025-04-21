@@ -32,7 +32,7 @@ function getSearchSolution(planKey: string, entryName: string) {
           </v-toolbar-title>
 
           <template #append>
-            <v-btn icon="mdi-close" @click="showDialog = false"> </v-btn>
+            <v-btn icon="mdi-close" @click="showDialog = false" />
           </template>
         </v-toolbar>
       </v-card-title>

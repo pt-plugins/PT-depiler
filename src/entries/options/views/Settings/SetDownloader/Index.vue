@@ -181,7 +181,7 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
       :items-per-page="configStore.tableBehavior.SetDownloader.itemsPerPage"
       :search="tableFilterRef"
       :sort-by="configStore.tableBehavior.SetDownloader.sortBy"
-      class="table-stripe"
+      class="table-stripe table-header-no-wrap"
       hover
       item-value="id"
       multi-sort
@@ -200,8 +200,14 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
       </template>
 
       <template #item.address="{ item }">
-        <a :href="item.address" target="_blank" rel="noopener noreferrer nofollow">
+        <a
+          :href="item.address"
+          class="text-primary font-weight-medium text-decoration-underline"
+          rel="noopener noreferrer nofollow"
+          target="_blank"
+        >
           {{ item.address }}
+          <v-icon icon="mdi-open-in-new" size="x-small"></v-icon>
         </a>
       </template>
 
@@ -235,7 +241,7 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
       <template #item.action="{ item }">
         <v-btn-group class="table-action" density="compact" variant="plain">
           <!-- TODO 查看该下载服务器现状 -->
-          <v-btn :disabled="true" icon="mdi-information-outline" size="small"></v-btn>
+          <v-btn :disabled="true" icon="mdi-information-outline" size="small" />
 
           <v-btn
             :title="t('common.edit')"

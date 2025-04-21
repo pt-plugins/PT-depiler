@@ -146,7 +146,7 @@ function dialogLeave() {
         <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title> 为 {{ torrentItems.length }} 个种子选择下载器 </v-toolbar-title>
           <template #append>
-            <v-btn icon="mdi-close" @click="showDialog = false"> </v-btn>
+            <v-btn icon="mdi-close" @click="showDialog = false" />
           </template>
         </v-toolbar>
       </v-card-title>

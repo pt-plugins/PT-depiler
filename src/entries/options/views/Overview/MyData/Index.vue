@@ -220,7 +220,7 @@ function cancelFlush() {
       :items-per-page="configStore.tableBehavior.MyData.itemsPerPage"
       :search="tableFilterRef"
       :sort-by="configStore.tableBehavior.MyData.sortBy"
-      class="table-stripe"
+      class="table-stripe table-header-no-wrap"
       hover
       item-value="site"
       multi-sort

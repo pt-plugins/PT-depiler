@@ -207,10 +207,10 @@ async function generateSolution() {
       </v-col>
       <v-col align-self="center">
         <v-row justify="end">
-          <v-btn color="red" icon="mdi-cached" variant="text" @click="() => getSiteMetaCategory()"></v-btn>
+          <v-btn color="red" icon="mdi-cached" variant="text" @click="() => getSiteMetaCategory()" />
         </v-row>
         <v-row justify="end">
-          <v-btn color="blue" icon="mdi-arrow-right-bold" variant="text" @click="() => generateSolution()"></v-btn>
+          <v-btn color="blue" icon="mdi-arrow-right-bold" variant="text" @click="() => generateSolution()" />
         </v-row>
       </v-col>
     </v-row>

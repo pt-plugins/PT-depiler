@@ -3,8 +3,9 @@ import { provide, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 import { REPO_URL } from "~/helper.ts";
-import { definitionList, type ISiteUserConfig, type TSiteID } from "@ptd/site";
+import { type ISiteUserConfig, type TSiteID } from "@ptd/site";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { getCanAddedSiteMetadata } from "@/options/views/Settings/SetSite/utils.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import Editor from "./Editor.vue";
@@ -28,16 +29,7 @@ function resetDialog() {
 }
 
 const canAddSites = computedAsync(async () => {
-  const canAddedSiteMetadata = [];
-  const canAddedSiteList = definitionList.filter((x) => !metadataStore.getAddedSiteIds.includes(x));
-
-  for (const string of canAddedSiteList) {
-    const siteMetadata = await metadataStore.getSiteMetadata(string);
-    if (!siteMetadata.isDead) {
-      canAddedSiteMetadata.push(siteMetadata);
-    }
-  }
-  return canAddedSiteMetadata;
+  return Object.values(await getCanAddedSiteMetadata());
 }, []);
 
 async function saveSite() {

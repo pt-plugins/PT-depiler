@@ -41,7 +41,7 @@ function editClientConfig() {
         <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title>{{ t("SetDownloader.edit.title") }}</v-toolbar-title>
           <template #append>
-            <v-btn icon="mdi-close" @click="showDialog = false"> </v-btn>
+            <v-btn icon="mdi-close" @click="showDialog = false" />
           </template>
         </v-toolbar>
       </v-card-title>
