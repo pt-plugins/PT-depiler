@@ -76,7 +76,7 @@ function noop() {
 
 <template>
   <v-btn-group :density="props.density" class="table-action" color="grey" variant="text">
-    <!-- TODO 下载到服务器 -->
+    <!-- 下载到服务器 -->
     <v-btn
       :disabled="props.torrentIds.length == 0"
       :size="btnSize"

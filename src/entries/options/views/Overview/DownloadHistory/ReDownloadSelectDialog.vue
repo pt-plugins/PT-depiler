@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { reactive, ref, shallowRef } from "vue";
+import { ref, shallowRef } from "vue";
 import type { CAddTorrentOptions } from "@ptd/downloader";
 
 import { sendMessage } from "@/messages.ts";
 import type { ITorrentDownloadMetadata } from "@/shared/storages/types/indexdb.ts";
 import SentToDownloaderDialog from "@/options/views/Overview/SearchEntity/SentToDownloaderDialog.vue";
+import { useResetableRef } from "@/options/directives/useResetableRef.ts";
 
 const showDialog = defineModel<boolean>();
 const emit = defineEmits<{
@@ -17,12 +18,13 @@ const { torrentItems } = defineProps<{
 
 type TReDownloadType = "old" | "local" | "downloader";
 
-const isReDownloading = reactive<Record<TReDownloadType, boolean>>({
+const { ref: isReDownloading, reset: resetIsReDownloading } = useResetableRef<Record<TReDownloadType, boolean>>({
   old: false,
   local: false,
   downloader: false,
 });
 
+const disableLocalDownload = ref<boolean>(false);
 const showSentToDownloaderDialog = ref<boolean>(false);
 const downloadTorrentsRef = shallowRef<ITorrentDownloadMetadata["torrent"][]>([]);
 
@@ -33,13 +35,13 @@ const btnItem: Record<TReDownloadType, { icon: string; color: string; title: str
 };
 
 function submitDownloadFinish(reDownloadType: TReDownloadType) {
-  isReDownloading[reDownloadType] = false;
+  isReDownloading.value[reDownloadType] = false;
   emit("reDownloadComplete");
   showDialog.value = false;
 }
 
 function reDownload(reDownloadType: TReDownloadType) {
-  isReDownloading[reDownloadType] = true;
+  isReDownloading.value[reDownloadType] = true;
   if (reDownloadType === "downloader") {
     // 对 downloader 则弹出 SentToDownloaderDialog 进行下一步操作
     downloadTorrentsRef.value = torrentItems.map((x) => x.torrent);
@@ -70,10 +72,17 @@ function reDownload(reDownloadType: TReDownloadType) {
     });
   }
 }
+
+function dialogEnter() {
+  resetIsReDownloading();
+
+  // 如果传入的种子列表中有 magnet 链接，则禁用本地下载按钮
+  disableLocalDownload.value = torrentItems.some((t) => t?.torrent?.link?.startsWith("magnet:"));
+}
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" max-width="600">
+  <v-dialog v-model="showDialog" max-width="600" @after-enter="dialogEnter">
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="primary">
@@ -107,7 +116,7 @@ function reDownload(reDownloadType: TReDownloadType) {
   <SentToDownloaderDialog
     v-model="showSentToDownloaderDialog"
     :torrent-items="downloadTorrentsRef"
-    @cancel="() => (isReDownloading['downloader'] = false)"
+    @cancel="() => (isReDownloading.downloader = false)"
     @done="() => submitDownloadFinish('downloader')"
   />
 </template>

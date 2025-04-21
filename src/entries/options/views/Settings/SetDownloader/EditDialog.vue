@@ -1,10 +1,9 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import type { IDownloaderMetadata, TDownloaderKey } from "@/shared/storages/types/metadata.ts";
-import { log } from "~/helper.ts";
 
 import Editor from "./Editor.vue";
 
@@ -17,16 +16,11 @@ const clientConfig = ref<IDownloaderMetadata & { valid?: boolean }>();
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
 
-watch(
-  () => clientId,
-  (newValue) => {
-    log("Edit clientId:", newValue);
-    if (newValue) {
-      clientConfig.value = { ...metadataStore.downloaders[newValue], valid: true }; // 防止直接修改父组件的数据
-    }
-  },
-  { immediate: true },
-);
+function dialogEnter() {
+  if (clientId) {
+    clientConfig.value = { ...metadataStore.downloaders[clientId], valid: true }; // 防止直接修改父组件的数据
+  }
+}
 
 function editClientConfig() {
   metadataStore.addDownloader(clientConfig.value as IDownloaderMetadata);
@@ -35,7 +29,7 @@ function editClientConfig() {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" max-width="800" scrollable>
+  <v-dialog v-model="showDialog" max-width="800" scrollable @after-enter="dialogEnter">
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">

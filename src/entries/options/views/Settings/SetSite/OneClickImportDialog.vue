@@ -8,6 +8,7 @@ import NavButton from "@/options/components/NavButton.vue";
 import { isEmpty } from "es-toolkit/compat";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useResetableRef } from "@/options/directives/useResetableRef.ts";
 
 const showDialog = defineModel<boolean>();
 
@@ -19,7 +20,7 @@ interface IImportStatus {
   failed: TSiteID[];
 }
 
-const importStatus = ref<IImportStatus>({
+const { ref: importStatus, reset: resetImportStatus } = useResetableRef<IImportStatus>({
   isWorking: false,
   toWork: [],
   working: "",
@@ -119,14 +120,7 @@ async function doAutoImport() {
 }
 
 async function dialogEnter() {
-  // Logic to execute after the dialog has entered
-  importStatus.value = {
-    isWorking: false,
-    toWork: [],
-    working: "",
-    success: [],
-    failed: [],
-  };
+  resetImportStatus(); // 重置状态
 
   const canAddedSiteMetadata: Record<TSiteID, ISiteMetadata> = {};
   const metadataStore = useMetadataStore();
