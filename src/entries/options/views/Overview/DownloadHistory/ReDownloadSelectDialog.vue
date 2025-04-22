@@ -3,9 +3,10 @@ import { ref, shallowRef } from "vue";
 import type { CAddTorrentOptions } from "@ptd/downloader";
 
 import { sendMessage } from "@/messages.ts";
-import type { ITorrentDownloadMetadata } from "@/shared/storages/types/indexdb.ts";
-import SentToDownloaderDialog from "@/options/views/Overview/SearchEntity/SentToDownloaderDialog.vue";
 import { useResetableRef } from "@/options/directives/useResetableRef.ts";
+import type { ITorrentDownloadMetadata } from "@/shared/storages/types/indexdb.ts";
+
+import SentToDownloaderDialog from "@/options/views/Overview/SearchEntity/SentToDownloaderDialog.vue";
 
 const showDialog = defineModel<boolean>();
 const emit = defineEmits<{
@@ -18,11 +19,11 @@ const { torrentItems } = defineProps<{
 
 type TReDownloadType = "old" | "local" | "downloader";
 
-const { ref: isReDownloading, reset: resetIsReDownloading } = useResetableRef<Record<TReDownloadType, boolean>>({
+const { ref: isReDownloading, reset: resetIsReDownloading } = useResetableRef<Record<TReDownloadType, boolean>>(() => ({
   old: false,
   local: false,
   downloader: false,
-});
+}));
 
 const disableLocalDownload = ref<boolean>(false);
 const showSentToDownloaderDialog = ref<boolean>(false);

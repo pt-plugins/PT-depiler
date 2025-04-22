@@ -1,14 +1,17 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { computed, ref, shallowRef } from "vue";
-import { definitionList, EResultParseStatus, ISiteMetadata, ISiteUserConfig, TSiteID } from "@ptd/site";
-import { useMetadataStore } from "@/options/stores/metadata.ts";
-import SiteFavicon from "@/options/components/SiteFavicon.vue";
-import NavButton from "@/options/components/NavButton.vue";
+import { computed, shallowRef } from "vue";
 import { isEmpty } from "es-toolkit/compat";
+import { EResultParseStatus, ISiteMetadata, ISiteUserConfig, TSiteID } from "@ptd/site";
+
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useResetableRef } from "@/options/directives/useResetableRef.ts";
+import { getCanAddedSiteMetadata } from "@/options/views/Settings/SetSite/utils.ts";
+
+import SiteFavicon from "@/options/components/SiteFavicon.vue";
+import NavButton from "@/options/components/NavButton.vue";
 
 const showDialog = defineModel<boolean>();
 
@@ -20,13 +23,13 @@ interface IImportStatus {
   failed: TSiteID[];
 }
 
-const { ref: importStatus, reset: resetImportStatus } = useResetableRef<IImportStatus>({
+const { ref: importStatus, reset: resetImportStatus } = useResetableRef<IImportStatus>(() => ({
   isWorking: false,
   toWork: [],
   working: "",
   success: [],
   failed: [],
-});
+}));
 
 const { t } = useI18n();
 const runtimeStore = useRuntimeStore();
@@ -121,17 +124,7 @@ async function doAutoImport() {
 
 async function dialogEnter() {
   resetImportStatus(); // 重置状态
-
-  const canAddedSiteMetadata: Record<TSiteID, ISiteMetadata> = {};
-  const metadataStore = useMetadataStore();
-  const canAddedSiteList = definitionList.filter((x) => !metadataStore.getAddedSiteIds.includes(x));
-  for (const siteId of canAddedSiteList) {
-    const siteMetadata = await metadataStore.getSiteMetadata(siteId);
-    if (!siteMetadata.isDead) {
-      canAddedSiteMetadata[siteId] = siteMetadata;
-    }
-  }
-  canAddSites.value = canAddedSiteMetadata;
+  canAddSites.value = await getCanAddedSiteMetadata(); // 加载待添加站点
 }
 </script>
 

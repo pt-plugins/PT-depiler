@@ -85,7 +85,6 @@ const tableData = computedAsync<IUserInfoItem[]>(async () => {
   }
 
   for (const [siteId, siteUserConfig] of Object.entries(metadataStore.sites)) {
-    console.log(siteId, siteUserConfig);
     // 判断之前有无个人信息，没有则从siteMetadata中根据 type = 'private' 判断是否能获取个人信息
     let canHanSiteUserInfo = !!metadataStore.lastUserInfo[siteId];
     if (!canHanSiteUserInfo) {
