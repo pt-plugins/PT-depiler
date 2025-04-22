@@ -119,19 +119,28 @@ export const routes: RouteRecordRaw[] = [
     ],
   },
 
+  {
+    path: "/devtools",
+    name: "Devtools",
+    meta: { isMainMenu: false },
+    children: [
+      {
+        path: "/debugger",
+        name: "Debugger",
+        meta: { icon: "mdi-bug" },
+        component: () => import("../views/Devtools/Debugger.vue"),
+      },
+    ],
+  },
+
   { path: "/:pathMatch(.*)*", name: "NotFound", redirect: "/" },
 ];
 
-if (localStorage.getItem("enable_debugger") !== null) {
+if (localStorage.getItem("enable_devtools") !== null) {
   const devRouteIndex = routes.findIndex((x) => x.name == "Devtools");
-  /**
-   * routes[devRouteIndex].children?.push({
-   *     path: "/debugger",
-   *     name: "Debugger",
-   *     meta: { icon: "mdi-bug" },
-   *     component: () => import("./views/Devtools/Debugger.vue"),
-   *   });
-   */
+  routes[devRouteIndex].meta!.isMainMenu = true;
+} else {
+  console.log('Input `localStorage.setItem("enable_devtools", 1)` in console to enable devtools.');
 }
 
 export const routerInstance = createRouter({
