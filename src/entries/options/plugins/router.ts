@@ -133,6 +133,13 @@ export const routes: RouteRecordRaw[] = [
     ],
   },
 
+  {
+    path: "/user-data-timeline",
+    name: "UserDataTimeline",
+    meta: { isMainMenu: false },
+    component: () => import("../views/Overview/MyData/UserDataTimeline/Index.vue"),
+  },
+
   { path: "/:pathMatch(.*)*", name: "NotFound", redirect: "/" },
 ];
 

@@ -80,6 +80,8 @@ export interface IUserInfo extends Omit<IImplicitUserInfo, "interval"> {
   trueDownloaded?: number; // 真实下载量
   uploaded?: number; // 上传量
   trueUploaded?: number; // 真实上传量
+  ratio?: number; // 分享率
+  trueRatio?: number; // 真实分享率
   seedingSize?: number; // 做种体积
 
   [key: string]: any; // 其他信息

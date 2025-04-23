@@ -86,13 +86,13 @@ const tableData = computedAsync<IUserInfoItem[]>(async () => {
 
   for (const [siteId, siteUserConfig] of Object.entries(metadataStore.sites)) {
     // 判断之前有无个人信息，没有则从siteMetadata中根据 type = 'private' 判断是否能获取个人信息
-    let canHanSiteUserInfo = !!metadataStore.lastUserInfo[siteId];
-    if (!canHanSiteUserInfo) {
+    let canHaveSiteUserInfo = !!metadataStore.lastUserInfo[siteId];
+    if (!canHaveSiteUserInfo) {
       const siteMeta = await metadataStore.getSiteMetadata(siteId);
-      canHanSiteUserInfo = siteMeta?.type === "private";
+      canHaveSiteUserInfo = siteMeta?.type === "private";
     }
 
-    if (canHanSiteUserInfo) {
+    if (canHaveSiteUserInfo) {
       const siteUserInfoData = metadataStore.lastUserInfo[siteId] ?? { site: siteId, siteUserConfig };
       allPrivateSiteUserInfoData.push({ ...fixUserInfo(siteUserInfoData), siteUserConfig });
     }

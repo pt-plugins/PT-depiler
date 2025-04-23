@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { computedAsync } from "@vueuse/core";
-import { type ISiteMetadata, type ISiteUserConfig, type TSiteID } from "@ptd/site";
+import { type TSiteID } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
@@ -17,6 +16,8 @@ import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";
 import OneClickImportDialog from "@/options/views/Settings/SetSite/OneClickImportDialog.vue";
+
+import { allAddedSiteInfo } from "@/options/views/Settings/SetSite/utils.ts"; // <-- 数据来源
 
 const { t } = useI18n();
 
@@ -59,12 +60,6 @@ const tableHeader = [
   },
 ];
 
-interface ISiteTableItem {
-  id: TSiteID;
-  metadata: ISiteMetadata;
-  userConfig: ISiteUserConfig;
-}
-
 const booleanUserConfigKeywords = ["isOffline", "allowSearch", "allowQueryUserInfo"];
 
 const {
@@ -86,22 +81,6 @@ const {
 });
 
 const tableSelected = ref<TSiteID[]>([]);
-
-const sites = computedAsync<ISiteTableItem[]>(async () => {
-  // noinspection BadExpressionStatementJS
-  Object.values(metadataStore.sites).map((x) => x);
-
-  const sitesReturn = [];
-  for (const [siteId, siteUserConfig] of Object.entries(metadataStore.sites)) {
-    sitesReturn.push({
-      id: siteId,
-      metadata: await metadataStore.getSiteMetadata(siteId),
-      userConfig: siteUserConfig,
-    });
-  }
-
-  return sitesReturn;
-});
 
 const toEditId = ref<TSiteID | null>("");
 function editSite(siteId: TSiteID) {
@@ -236,7 +215,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
     <v-data-table
       v-model="tableSelected"
       :headers="tableHeader"
-      :items="sites"
+      :items="allAddedSiteInfo"
       :items-per-page="configStore.tableBehavior.SetSite.itemsPerPage"
       :custom-filter="tableFilterFn"
       :filter-keys="['id'] /* 对每个item值只检索一次 */"
