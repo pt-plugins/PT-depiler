@@ -8,10 +8,22 @@ import { log } from "~/helper.ts";
 const runtimeStore = useRuntimeStore();
 
 // 对 siteUserInfoData 进行一些预处理（不涉及渲染格式）
-export function fixUserInfo(userInfo: Partial<IUserInfo>): IUserInfo {
+export function fixUserInfo<T extends IUserInfo = IUserInfo>(userInfo: Partial<T>): Required<T> {
   userInfo.ratio = fixRatio(userInfo);
   userInfo.trueRatio = fixRatio(userInfo, "trueRatio");
-  return userInfo as IUserInfo;
+  return userInfo as Required<T>;
+}
+
+export function realFormatRatio(ratio: number): string | "∞" | "" {
+  if (ratio > 10000 || ratio === -1 || ratio === Infinity || ratio === null) {
+    return "∞";
+  }
+
+  if (isNaN(ratio) || ratio === -Infinity) {
+    return "-";
+  }
+
+  return ratio.toFixed(2);
 }
 
 export function formatRatio(
@@ -19,16 +31,7 @@ export function formatRatio(
   ratioKey: "ratio" | "trueRatio" = "ratio",
 ): string | "∞" | "" {
   let ratio = userInfo[ratioKey] ?? -1;
-
-  if (ratio > 10000 || ratio === -1) {
-    return "∞";
-  }
-
-  if (isNaN(ratio) || ratio === -Infinity) {
-    return "";
-  }
-
-  return ratio.toFixed(2);
+  return realFormatRatio(ratio);
 }
 
 const configStore = useConfigStore();

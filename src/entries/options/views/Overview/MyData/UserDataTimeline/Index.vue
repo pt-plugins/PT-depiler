@@ -1,190 +1,56 @@
 <script setup lang="ts">
-import { computed, onMounted, ref, shallowRef, useTemplateRef } from "vue";
+import { computed, onMounted, reactive, ref, shallowRef, useTemplateRef } from "vue";
 import { useElementSize } from "@vueuse/core";
-import { useDisplay } from "vuetify";
-import { deepToRaw, formatDate, formatSize, formValidateRules } from "@/options/utils.ts";
+import { formatDate } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { useResetableRef } from "@/options/directives/useResetableRef.ts";
-import {
-  definitionList,
-  EResultParseStatus,
-  ISiteMetadata,
-  ISiteUserConfig,
-  IUserInfo,
-  NO_IMAGE,
-  TSiteID,
-} from "@ptd/site";
-import { IStoredUserInfo } from "@/shared/storages/types/metadata.ts";
-import { formatRatio } from "@/options/views/Overview/MyData/utils.ts";
+import { definitionList, ISiteMetadata, NO_IMAGE, TSiteID } from "@ptd/site";
 import { sendMessage } from "@/messages.ts";
-import { differenceInDays } from "date-fns";
 import { version as EXT_VERSION } from "~/../package.json";
 import Konva from "konva";
+import { useI18n } from "vue-i18n";
+import {
+  allSiteMetadata,
+  canThisSiteShow,
+  CTimelineUserInfoField,
+  ITimelineUserInfoField,
+  timelineDataRef,
+  topSiteRenderAttr,
+} from "@/options/views/Overview/MyData/UserDataTimeline/utils.ts";
+import { set } from "es-toolkit/compat";
+import SiteFavicon from "@/options/components/SiteFavicon.vue";
+import SiteName from "@/options/components/SiteName.vue";
+import NavButton from "@/options/components/NavButton.vue";
 
 const git = __GIT_VERSION__;
+
+const { t } = useI18n();
+const { userDataTimelineControl: control, lastUserInfo } = useMetadataStore();
+const allowEdit = reactive({ name: false, title: false }); // 是否允许编辑用户名、时间轴标题
+const selectedSites = ref<TSiteID[]>([]); // 选择的站点
 
 const { width: containerWidth } = useElementSize(useTemplateRef("canvasContainer"));
 const canvasStage = useTemplateRef("canvasStage"); // await canvasStage.value.getStage().toBlob()
 
-const display = useDisplay();
-const metadataStore = useMetadataStore();
-
-interface IMaxInfo {
-  site: IStoredUserInfo;
-  maxValue: number;
-  subSite: IStoredUserInfo;
-  subValue: number;
-}
-
-type ITimelineUserInfoField = "uploads" | "uploaded" | "downloaded" | "seeding" | "seedingSize";
-
-interface ITimelineData {
-  createAt: Date;
-  nameInfo: {
-    name: string;
-    maxCount: number;
-  };
-  joinTimeInfo: {
-    site: IStoredUserInfo;
-    time: number;
-    years: string;
-  };
-  siteInfo: IStoredUserInfo[];
-  maxUploadsInfo: IMaxInfo;
-  maxUploadedInfo: IMaxInfo;
-  maxDownloadedInfo: IMaxInfo;
-  maxSeedingInfo: IMaxInfo;
-  maxSeedingSizeInfo: IMaxInfo;
-  total: {
-    sites: number;
-  } & Required<Pick<IUserInfo, ITimelineUserInfoField | "ratio">>;
-}
-
-const userInfoToResultKeymap: Record<ITimelineUserInfoField, keyof ITimelineData> = {
-  uploads: "maxUploadsInfo",
-  uploaded: "maxUploadedInfo",
-  downloaded: "maxDownloadedInfo",
-  seeding: "maxSeedingInfo",
-  seedingSize: "maxSeedingSizeInfo",
-};
-
-const allSiteMetadata = shallowRef<Record<TSiteID, ISiteMetadata>>({});
-
-function canThisSiteShow(siteId: TSiteID) {
-  return computed(() => {
-    const siteUserInfo = metadataStore.lastUserInfo[siteId] as IStoredUserInfo;
-    if (
-      !siteUserInfo ||
-      !siteUserInfo.name ||
-      !siteUserInfo.joinTime ||
-      siteUserInfo.status !== EResultParseStatus.success
-    ) {
-      return false;
-    }
-
-    const siteUserConfig = (metadataStore.sites[siteId] ?? {}) as ISiteUserConfig;
-    const siteMetadata = (allSiteMetadata.value[siteId] ?? {}) as ISiteMetadata;
-
-    return !(
-      // siteMetadata.isDead ||
-      // siteUserConfig.isOffline ||
-      (!Object.hasOwn(siteMetadata, "userInfo") || !siteUserConfig.allowQueryUserInfo)
-    );
-  });
-}
-
-const selectedSites = ref<TSiteID[]>([]); // 选中的站点
-const { ref: timelineData, reset: resetTimelineData } = useResetableRef<ITimelineData>(() => {
-  // 初始化需要展示的数据
-  const currentDate = new Date();
-  const result: ITimelineData = {
-    createAt: currentDate,
-    nameInfo: { name: "test", maxCount: 0 },
-    joinTimeInfo: { site: {} as IStoredUserInfo, time: Infinity, years: "0" },
-    siteInfo: [],
-    maxUploadsInfo: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
-    maxUploadedInfo: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
-    maxDownloadedInfo: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
-    maxSeedingInfo: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
-    maxSeedingSizeInfo: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
-    total: { sites: 0, uploads: 0, uploaded: 0, downloaded: 0, seeding: 0, seedingSize: 0, ratio: -1 },
-  };
-
-  const lastUserInfo = deepToRaw(Object.values(metadataStore.lastUserInfo)) as IStoredUserInfo[]; // 获取所有站点的用户信息，并取消响应式
-  const userNames: Record<string, number> = {};
-  const addedSiteInfo: IStoredUserInfo[] = [];
-  for (const userInfo of lastUserInfo) {
-    // 未勾选的站点不展示
-    //if (!selectedSites.value.includes(userInfo.site)) {
-    //  continue;
-    //}
-
-    // 不能获取站点信息的站点，即使勾选了也不展示
-    if (!canThisSiteShow(userInfo.site).value) {
-      continue;
-    }
-
-    // 更新 result 信息， 这里其实并不需要判断 name & joinTime，但为了 ts 不报错。。。
-    if (userInfo.name && userInfo.joinTime) {
-      result.total.sites++;
-      addedSiteInfo.push(userInfo); // 记录下所有能添加的站点
-
-      if (!userNames[userInfo.name]) {
-        userNames[userInfo.name] = 0;
-      }
-      userNames[userInfo.name]++;
-
-      // 获取使用最多的用户名
-      if (userNames[userInfo.name] > result.nameInfo.maxCount) {
-        result.nameInfo.name = userInfo.name;
-      }
-
-      // 获取加入时间最久的站点
-      if (userInfo.joinTime < result.joinTimeInfo.time) {
-        result.joinTimeInfo.site = userInfo;
-        result.joinTimeInfo.time = userInfo.joinTime;
-        // 此处先不计算 years，在完成全部站点遍历后再计算
-      }
-
-      // 更新 uploads, uploaded, downloaded, seeding, seedingSize 信息
-      for (const [userInfoKey, resultKey] of Object.entries(userInfoToResultKeymap)) {
-        if (userInfo[userInfoKey] && userInfo[userInfoKey] > 0) {
-          result.total[userInfoKey as ITimelineUserInfoField] += userInfo[userInfoKey]; // 更新总量
-
-          // 更新最大值和次大值
-          if (userInfo[userInfoKey] > (result[resultKey] as IMaxInfo).maxValue) {
-            (result[resultKey] as IMaxInfo).subValue = (result[resultKey] as IMaxInfo).maxValue;
-            (result[resultKey] as IMaxInfo).subSite = (result[resultKey] as IMaxInfo).site;
-            (result[resultKey] as IMaxInfo).maxValue = userInfo[userInfoKey];
-            (result[resultKey] as IMaxInfo).site = userInfo;
-          } else if (userInfo[userInfoKey] > (result[resultKey] as IMaxInfo).subValue) {
-            (result[resultKey] as IMaxInfo).subValue = userInfo[userInfoKey];
-            (result[resultKey] as IMaxInfo).subSite = userInfo;
-          }
-        }
-      }
-    }
-  }
-
-  if (result.total.downloaded > 0) {
-    result.total.ratio = result.total.uploaded / result.total.downloaded;
-  }
-
-  if (result.joinTimeInfo.time !== Infinity) {
-    result.joinTimeInfo.years = (differenceInDays(currentDate, result.joinTimeInfo.time) / 365).toFixed(2);
-  }
-
-  result.siteInfo = addedSiteInfo.toSorted((a, b) => a.joinTime! - b.joinTime!); // 按照加入时间排序
-
-  return result;
-});
-
-const cols = computed(() => {
-  return display.mdAndUp.value ? [6, 6] : [12, 12];
-});
-
 const canvasWidth = 650; // 650px 是设计稿的宽度
-const canvasHeight = computed<number>(() => 460 + 160 * timelineData.value.siteInfo.length); // FIXME 这是一个计算的值，应该是基础值加上选择站点的数量
+const perSiteHeight = 160; // 给每个站点 160px 的高度
+
+const realShowField = computed(() => {
+  const showField: ITimelineUserInfoField[] = [];
+  for (const key of CTimelineUserInfoField) {
+    if (control.showField[key.name]) {
+      showField.push(key);
+    }
+  }
+  return showField;
+});
+
+// 动态计算 canvas 的高度
+const nameInfoHeight = 70;
+const topAndTotalInfoHeight = computed<number>(() => 10 + (realShowField.value.length + 2) * 30);
+const siteTimeHeight = computed<number>(() =>
+  control.showTimeline ? 95 + perSiteHeight * selectedSites.value.length : 0,
+);
+const canvasHeight = computed<number>(() => nameInfoHeight + topAndTotalInfoHeight.value + siteTimeHeight.value + 25);
 const scale = computed(() => Math.min(containerWidth.value, canvasWidth) / canvasWidth); // 按照 650 来绘图，然后缩放显示
 const stageConfig = computed(() => {
   return {
@@ -194,10 +60,6 @@ const stageConfig = computed(() => {
     scaleY: scale.value,
   };
 });
-
-// FIXME move it to control
-const blue = ref<number>(0);
-const allSiteFavicons = shallowRef<Record<TSiteID, HTMLImageElement>>({}); // 站点的图片
 
 type TKonvaConfig = Record<string, any>;
 const text = (config: TKonvaConfig) => ({ x: 0, y: 0, fontSize: 24, fill: "#fff", ...config });
@@ -218,48 +80,47 @@ const image = (config: TKonvaConfig) => {
   };
 };
 
-const favicon = (config: TKonvaConfig) => {
-  return image({
+const favicon = (config: TKonvaConfig) =>
+  image({
     image: allSiteFavicons.value[config.site],
     filters: [Konva.Filters.Blur],
-    blurRadius: blue.value,
+    blurRadius: control.faviconBlue,
     ...config,
   });
-};
 
-const icon = (config: TKonvaConfig) => ({
-  fontSize: 32,
-  fontFamily: "Material Design Icons",
-  fill: "#ffffff",
-  ...config,
-});
+const icon = (config: TKonvaConfig) =>
+  text({
+    fontSize: 32,
+    fontFamily: "Material Design Icons",
+    ...config,
+  });
 
 const siteFaviconClipFunc =
-  (radius: number = 24) =>
+  (radius: number = 24, position: [number, number] = [stageConfig.value.width / 2, 0]) =>
   (ctx: any) => {
-    const radius = 24;
     ctx.beginPath();
-    ctx.arc(stageConfig.value.width / 2, 0, radius, 0, 2 * Math.PI);
+    ctx.arc(position[0], position[1], radius, 0, 2 * Math.PI);
     ctx.strokeStyle = "#fff";
     ctx.fillStyle = "#fff";
     ctx.stroke();
     ctx.fill();
   };
 
-const topSiteRenderAttr = [
-  { iconFill: "#C9B037", siteKey: "site", valueKey: "maxValue" },
-  { iconFill: "#B4B4B4", siteKey: "subSite", valueKey: "subValue" },
-];
+const { ref: timelineData, reset: resetTimelineData } = timelineDataRef;
+const siteInfo = computed(() => timelineData.value.siteInfo.filter((x) => selectedSites.value.includes(x.site)));
 
-const topSiteItemRenderAttr = [
-  { name: "maxUploadsInfo", format: (x: number) => x },
-  { name: "maxUploadedInfo", format: (x: number) => formatSize(x) },
-  { name: "maxDownloadedInfo", format: (x: number) => formatSize(x) },
-  { name: "maxSeedingSizeInfo", format: (x: number) => formatSize(x) },
-  { name: "maxSeedingInfo", format: (x: number) => x },
-];
+// FIXME move it to control
+
+const allSiteFavicons = shallowRef<Record<TSiteID, HTMLImageElement>>({}); // 站点的图片
+
+const isLoading = ref<boolean>(false);
+
+const realAllSite = computed(() =>
+  timelineData.value.siteInfo.map((x) => x.site).filter((x) => canThisSiteShow(x).value),
+);
 
 onMounted(async () => {
+  isLoading.value = true;
   // 加载所有站点的 metadata
   const canAddedSiteFavicons: Record<TSiteID, HTMLImageElement> = {};
   const canAddedSiteMetadata: Record<TSiteID, ISiteMetadata & { siteName: string }> = {};
@@ -289,11 +150,20 @@ onMounted(async () => {
   // TODO 从 route 中加载选择的站点，如果没有，则从 metaStore 中加载，如果还是没有，则选择全部可以的站点
 
   resetTimelineData();
+
+  selectedSites.value = realAllSite.value;
+
+  isLoading.value = false;
   // 从metaStore 中加载并更新 timelieData 的部分属性；
   // timelineData.value.nameInfo.name = "test";
 });
 
 const faviconRefs = ref<Array<{ getNode: () => any; getStage: () => any }>>([]);
+
+function update(field: string, value: any) {
+  // 更新 timelineData 的属性
+  set(timelineData.value, field, value);
+}
 
 function updateBlue() {
   for (const faviconRef of faviconRefs.value) {
@@ -308,15 +178,17 @@ function updateBlue() {
     <v-row class="pa-2" justify="start">
       <v-col
         ref="canvasContainer"
-        :cols="cols[0]"
-        class="mb-3 pa-0"
         :style="{
-          width: `${stageConfig.width * scale.value}px`,
           'max-width': `${canvasWidth}px`,
-          height: `${stageConfig.height * scale.value}px`,
+          height: `${stageConfig.height * scale}px`,
         }"
+        class="mb-3 pa-0 mr-3"
+        cols="12"
       >
-        <vk-stage :config="stageConfig" ref="canvasStage">
+        <v-skeleton-loader v-if="isLoading" :min-height="canvasHeight" type="image@20"> </v-skeleton-loader>
+
+        <!-- 使用 konva 来绘制 UserDataTimeLine -->
+        <vk-stage ref="canvasStage" :config="stageConfig">
           <vk-layer>
             <!-- 1. 添加背景颜色，颜色为 blue-grey-darken-2，填满整个画布 -->
             <vk-rect :config="{ fill: '#455A64', x: 0, y: 0, width: stageConfig.width, height: stageConfig.height }" />
@@ -330,32 +202,49 @@ function updateBlue() {
             </vk-group>
 
             <!-- 3. 绘制基础信息 -->
-            <vk-group :config="{ x: 20, y: 70 }">
-              <!-- 3.1 左侧 total -->
-              <vk-text :config="text({ y: 0, text: `站点总数: ${timelineData.total.sites}` })" />
-              <vk-text :config="text({ y: 30, text: `发布总数: ${timelineData.total.uploads}` })" />
-              <vk-text :config="text({ y: 60, text: `上传总量: ${formatSize(timelineData.total.uploaded)}` })" />
-              <vk-text :config="text({ y: 90, text: `下载总量: ${formatSize(timelineData.total.downloaded)}` })" />
-              <vk-text :config="text({ y: 120, text: `做种总量: ${formatSize(timelineData.total.seedingSize)}` })" />
-              <vk-text :config="text({ y: 150, text: `做种总数: ${timelineData.total.seeding}` })" />
-              <vk-text :config="text({ y: 180, text: `总分享率: ${formatRatio(timelineData.total)}` })" />
-              <vk-text :config="text({ y: 210, text: `． ．P龄: ≈ ${timelineData.joinTimeInfo.years} 年` })" />
+            <vk-group :config="{ x: 20, y: nameInfoHeight }">
+              <!-- 3.1 左侧 totalInfo -->
+              <vk-text :config="text({ y: 0, text: `站点总数: ${timelineData.totalInfo.sites}` })" />
+              <vk-text
+                v-for="(key, index) in realShowField"
+                :key="key.name"
+                :config="
+                  text({
+                    y: 30 * (index + 1),
+                    text: `${t(`levelRequirement.${key.name}`)}: ${key.format(timelineData.totalInfo[key.name])}`,
+                  })
+                "
+              />
+              <vk-text
+                :config="
+                  text({
+                    y: 30 * (realShowField.length + 1),
+                    text: `． ．P龄: ≈ ${timelineData.joinTimeInfo.years} 年`,
+                  })
+                "
+              />
 
               <!-- 3.2 中间分隔线、右侧冠军及亚军站点 -->
-              <vk-group :config="{ x: 260, y: 0 }">
+              <vk-group v-if="control.showTop" :config="{ x: 260, y: 0 }">
                 <!-- 3.2.1 中间分隔线 -->
-                <vk-line :config="divider({ points: [0, 5, 0, 235] })" />
+                <vk-line :config="divider({ points: [0, 5, 0, topAndTotalInfoHeight - 15] })" />
                 <!-- 3.2.2 右侧冠军及亚军站点 -->
                 <template v-for="(type, index) in topSiteRenderAttr" :key="type.iconFill">
                   <vk-group :config="{ x: 20 + index * 180, y: 0 }">
                     <vk-text :config="icon({ y: 0, fill: type.iconFill, fontSize: 24, text: `󰔸` /* trophy */ })" />
-                    <template v-for="(key, index) in topSiteItemRenderAttr" :key="key">
-                      <vk-group v-if="timelineData[key.name][type.siteKey]" :config="{ x: 0, y: 30 * (index + 1) }">
+                    <template v-for="(key, index) in realShowField" :key="key.name">
+                      <vk-group
+                        v-if="timelineData.topInfo[key.name][type.siteKey]"
+                        :config="{ x: 0, y: 30 * (index + 1) }"
+                      >
                         <vk-image
-                          :ref="(el) => faviconRefs.push(el)"
-                          :config="favicon({ site: timelineData[key.name][type.siteKey].site, size: 20 })"
+                          :ref="(el: any) => faviconRefs.push(el)"
+                          :config="favicon({ site: timelineData.topInfo[key.name][type.siteKey].site, size: 20 })"
                         />
-                        <vk-text :config="text({ x: 30, text: key.format(timelineData[key.name][type.valueKey]) })" />
+                        <vk-text
+                          v-if="timelineData.topInfo[key.name][type.valueKey] > 0"
+                          :config="text({ x: 30, text: key.format(timelineData.topInfo[key.name][type.valueKey]) })"
+                        />
                       </vk-group>
                     </template>
                   </vk-group>
@@ -364,7 +253,7 @@ function updateBlue() {
             </vk-group>
 
             <!-- 4. 绘制站点信息 -->
-            <vk-group :config="{ x: 0, y: 320 }">
+            <vk-group v-if="control.showTimeline" :config="{ x: 0, y: nameInfoHeight + topAndTotalInfoHeight }">
               <!-- 4.1 分割线 -->
               <vk-line :config="divider({ points: [20, 0, 630, 0] })" />
               <!-- 4.2 提示词 -->
@@ -372,73 +261,74 @@ function updateBlue() {
                 :config="
                   text({
                     y: 15,
-                    text: '...这些年走过的路...',
+                    text: timelineData.timelineTitle,
                     align: 'center',
                     fontStyle: 'bold',
                     width: stageConfig.width,
                   })
                 "
               />
-              <vk-text
-                :config="
-                  text({
-                    y: 50,
-                    text: '数据更新于 ' + formatDate(timelineData.createAt),
-                    align: 'center',
-                    fontSize: 12,
-                    fill: '#b5b5b5',
-                    width: stageConfig.width,
-                  })
-                "
-              />
+
               <!-- 4.3 站点信息 -->
-              <vk-group :config="{ x: 0, y: 70 }">
+              <vk-group :config="{ x: 0, y: 50 }">
                 <!-- 4.3.1 分割线 -->
                 <vk-line
                   :config="
                     divider({
                       x: stageConfig.width / 2,
                       y: 0,
-                      points: [0, 10, 0, timelineData.siteInfo.length * 160 + 10],
+                      points: [0, 10, 0, selectedSites.length * perSiteHeight + 10],
                     })
                   "
                 />
                 <!-- 4.3.2 不同站点的信息 -->
-                <template v-for="(site, index) in timelineData.siteInfo" :key="site.site">
-                  <vk-group :config="{ x: 0, y: index * 160 + 100 }">
+                <template v-for="(site, index) in siteInfo" :key="site.site">
+                  <vk-group :config="{ x: 0, y: index * perSiteHeight + 100 }">
                     <!-- 首先画出 favicon 并 clip -->
                     <vk-group :config="{ clipFunc: siteFaviconClipFunc(24) }">
                       <vk-image
-                        :ref="(el) => faviconRefs.push(el)"
+                        :ref="(el: any) => faviconRefs.push(el)"
                         :config="favicon({ site: site.site, size: 38, x: stageConfig.width / 2 - 19, y: 0 - 19 })"
                       />
                     </vk-group>
 
+                    <!-- 站点数据（上传下载等） -->
                     <vk-group :config="index % 2 == 0 ? { x: 30, y: -80 } : { x: stageConfig.width / 2 + 60, y: -80 }">
-                      <vk-text :config="text({ y: 20, text: `发布数: ${site.uploads ?? 0}`, fontSize: 16 })" />
                       <vk-text
-                        :config="text({ y: 40, text: `上传量: ${formatSize(site.uploaded ?? 0)}`, fontSize: 16 })"
+                        v-for="(key, index) in realShowField"
+                        :key="key.name"
+                        :config="
+                          text({
+                            y: 20 * (index + 1),
+                            text: `${t(`levelRequirement.${key.name}`)}: ${key.format(site[key.name] ?? 0)}`,
+                            fontSize: 16,
+                          })
+                        "
                       />
-                      <vk-text
-                        :config="text({ y: 60, text: `下载量: ${formatSize(site.downloaded ?? 0)}`, fontSize: 16 })"
-                      />
-                      <vk-text
-                        :config="text({ y: 80, text: `做种量: ${formatSize(site.seedingSize ?? 0)}`, fontSize: 16 })"
-                      />
-                      <vk-text :config="text({ y: 100, text: `做种数: ${site.seeding ?? 0}`, fontSize: 16 })" />
-                      <vk-text :config="text({ y: 120, text: `分享率: ${formatRatio(site)}`, fontSize: 16 })" />
                       <vk-line
-                        v-if="index != timelineData.siteInfo.length - 1"
+                        v-if="index != siteInfo.length - 1"
                         :config="divider({ points: [0, 160, stageConfig.width / 2 - 80, 160] })"
                       />
                     </vk-group>
+
+                    <!-- 站点数据（用户名、用户等级、用户UID等） -->
                     <vk-group :config="index % 2 == 0 ? { x: stageConfig.width / 2 + 60, y: -20 } : { x: 30, y: -20 }">
                       <vk-text
                         :config="text({ y: 0, text: `${formatDate(site.joinTime!, 'yyyy-MM-dd')}`, fontStyle: 'bold' })"
                       />
                       <vk-text
                         :config="
-                          text({ y: 28, text: site.name! + ` <${site.levelName!}>` + ` <${site.id!}>`, fontSize: 16 })
+                          text({
+                            y: 28,
+                            text: [
+                              control.showPerSiteField.name ? site.name! : '',
+                              control.showPerSiteField.level ? `<${site.levelName!}>` : '',
+                              control.showPerSiteField.uid ? `<${site.id!}>` : '',
+                            ]
+                              .filter(Boolean)
+                              .join(' '),
+                            fontSize: 16,
+                          })
                         "
                       ></vk-text>
                     </vk-group>
@@ -448,7 +338,7 @@ function updateBlue() {
             </vk-group>
 
             <!-- 5. 构建信息 -->
-            <vk-group :config="{ x: 0, y: 435 + 160 * timelineData.siteInfo.length, drawBorder: true }">
+            <vk-group :config="{ x: 0, y: nameInfoHeight + topAndTotalInfoHeight + siteTimeHeight }">
               <vk-line :config="divider({ points: [20, -10, 630, -10] })" />
               <vk-text
                 :config="
@@ -460,7 +350,8 @@ function updateBlue() {
                       EXT_VERSION +
                       (git?.count ? '.' + git.count : '') +
                       (git?.short ? '+' + git.short : '') +
-                      ')',
+                      ') at ' +
+                      formatDate(timelineData.createAt),
                     fontSize: 12,
                     fill: '#b5b5b5',
                   })
@@ -470,9 +361,160 @@ function updateBlue() {
           </vk-layer>
         </vk-stage>
       </v-col>
-      <v-col :cols="cols[1]">
-        <v-slider v-model="blue" :min="0" :max="8" :step="1" @update:model-value="updateBlue"></v-slider>
-        <v-text-field v-model="timelineData.nameInfo.name" :rules="[formValidateRules.require()]"></v-text-field>
+      <v-col cols="12" sm>
+        <v-alert title="编辑生成时间轴样式" type="info" class="mb-2">
+          <template #append>
+            <v-btn variant="text" icon="mdi-content-save" size="small"></v-btn>
+          </template>
+        </v-alert>
+
+        <!--<pre>{{ timelineData }}</pre>-->
+
+        <v-label class="my-2">用户名及标题</v-label>
+
+        <v-row>
+          <v-col cols="12" sm>
+            <v-text-field
+              v-model="timelineData.nameInfo.name"
+              :readonly="!allowEdit.name"
+              append-inner-icon="mdi-history"
+              hide-details
+              label="用户名"
+              @update:model-value="(v: string) => (control.name = v)"
+              @click:append-inner="() => resetTimelineData()"
+            >
+              <template #prepend>
+                <v-icon
+                  :color="allowEdit.name ? 'success' : ''"
+                  :icon="!allowEdit.name ? 'mdi-lock' : 'mdi-lock-open'"
+                  @click="allowEdit.name = !allowEdit.name"
+                ></v-icon>
+              </template>
+            </v-text-field>
+          </v-col>
+          <v-col cols="12" sm>
+            <v-text-field
+              v-model="timelineData.timelineTitle"
+              :disabled="!control.showTimeline"
+              :readonly="!allowEdit.title"
+              append-inner-icon="mdi-history"
+              hide-details
+              label="时间轴标题"
+              @update:model-value="(v: string) => (control.timelineTitle = v)"
+              @click:append-inner="() => resetTimelineData()"
+            >
+              <template #prepend>
+                <v-icon
+                  :color="allowEdit.title ? 'success' : ''"
+                  :icon="!allowEdit.title ? 'mdi-lock' : 'mdi-lock-open'"
+                  @click="allowEdit.title = !allowEdit.title"
+                ></v-icon>
+              </template>
+            </v-text-field>
+          </v-col>
+        </v-row>
+
+        <v-label class="my-2">组件</v-label>
+
+        <v-switch v-model="control.showTop" color="success" hide-details label="展示各类数据的冠军及亚军站点" />
+        <v-switch v-model="control.showTimeline" color="success" hide-details label="展示各个站点信息（总开关）" />
+
+        <v-label class="my-2">站点展示组件</v-label>
+
+        <v-row>
+          <v-col cols="10">
+            <v-slider
+              v-model="control.faviconBlue"
+              :min="0"
+              :max="8"
+              :step="1"
+              label="站点Favicon模糊度"
+              class="pr-5"
+              @update:model-value="updateBlue"
+              hide-details
+            />
+          </v-col>
+        </v-row>
+
+        <v-row class="my-2">
+          <v-col class="ml-2" align-self="center">
+            <v-label>展示内容</v-label>
+          </v-col>
+          <v-col cols="12" sm="10">
+            <v-row class="pl-5">
+              <v-col v-for="(v, key) in control.showField" class="pa-0" cols="6" sm="4">
+                <v-switch
+                  :key="key"
+                  v-model="control.showField[key]"
+                  :label="key"
+                  color="success"
+                  hide-details
+                  density="compact"
+                />
+              </v-col>
+            </v-row>
+            <v-row class="pl-5">
+              <v-col v-for="(v, key) in control.showPerSiteField" class="pa-0" cols="6" sm="4">
+                <v-switch
+                  :key="key"
+                  v-model="control.showPerSiteField[key]"
+                  :label="key"
+                  color="success"
+                  density="compact"
+                  hide-details
+                />
+              </v-col>
+            </v-row>
+          </v-col>
+        </v-row>
+
+        <v-divider class="my-2" />
+
+        <v-row justify="space-between" class="ma-0 pa-0">
+          <v-col class="pa-0"><v-label>展示站点</v-label></v-col>
+          <v-spacer />
+          <NavButton
+            icon="mdi-checkbox-marked"
+            size="small"
+            text="全选"
+            variant="tonal"
+            @click="selectedSites = realAllSite"
+          />
+          <NavButton
+            icon="mdi-checkbox-blank-off-outline"
+            text="全不选"
+            size="small"
+            variant="tonal"
+            @click="selectedSites = []"
+          />
+          <NavButton
+            icon="mdi-checkbox-intermediate-variant"
+            text="反选"
+            size="small"
+            variant="tonal"
+            @click="selectedSites = realAllSite.filter((site) => !selectedSites.includes(site))"
+          />
+        </v-row>
+
+        <v-row class="my-2">
+          <v-col v-for="(site, siteId) in lastUserInfo" :key="siteId" cols="6" sm="3" class="py-0">
+            <v-checkbox
+              v-model="selectedSites"
+              multiple
+              :value="siteId"
+              hide-details
+              density="compact"
+              :indeterminate="!canThisSiteShow(siteId).value"
+              indeterminate-icon="mdi-close"
+              :disabled="!canThisSiteShow(siteId).value"
+            >
+              <template #label>
+                <SiteFavicon :site-id="siteId" :size="16" />
+                <SiteName :site-id="siteId" tag="p" :class="['ml-1']" />
+              </template>
+            </v-checkbox>
+          </v-col>
+        </v-row>
       </v-col>
     </v-row>
   </v-card>

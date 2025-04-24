@@ -3,10 +3,13 @@ import {
   ISearchEntryRequestConfig,
   ISiteUserConfig,
   IUserInfo,
+  TSiteID,
   TSiteID as TSiteKey,
 } from "@ptd/site";
-import { TSelectSearchCategoryValue } from "@ptd/site";
-import { CAddTorrentOptions, DownloaderBaseConfig } from "@ptd/downloader";
+import type { TSelectSearchCategoryValue } from "@ptd/site";
+import type { CAddTorrentOptions, DownloaderBaseConfig } from "@ptd/downloader";
+
+import { ITimelineUserInfoField } from "@/options/views/Overview/MyData/UserDataTimeline/utils.ts";
 
 export interface ISearchSolution {
   id: string;
@@ -55,6 +58,16 @@ export interface IMetadataPiniaStorageSchema {
   downloaders: Record<TDownloaderKey, IDownloaderMetadata>; // 下载器配置
 
   defaultSolutionId: TSolutionKey | "default"; // 默认搜索方案
+
+  userDataTimelineControl: {
+    name: string; // 展示的用户名，如果为 "" 则由使用最多的站点决定
+    timelineTitle: string; // 时间线标题
+    showTop: boolean;
+    showTimeline: boolean;
+    showField: Record<ITimelineUserInfoField["name"] | "ratio", boolean>; // 需要展示的数据，注意 ratio, siteCount, totalYear 不作为设置项
+    showPerSiteField: Record<"name" | "level" | "uid", boolean>; // 需要展示的站点数据
+    faviconBlue: number;
+  };
 
   /**
    * 此处仅存储站点最近一次的记录，如果需要获取历史记录，需要使用 storage 方法获取

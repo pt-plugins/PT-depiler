@@ -32,6 +32,27 @@ export const useMetadataStore = defineStore("metadata", {
 
     defaultSolutionId: "default",
 
+    userDataTimelineControl: {
+      name: "",
+      timelineTitle: "...这些年走过的路...",
+      showField: {
+        uploads: true,
+        uploaded: true,
+        downloaded: true,
+        seeding: true,
+        seedingSize: true,
+        ratio: true,
+      },
+      showPerSiteField: {
+        name: true,
+        level: true,
+        uid: true,
+      },
+      showTop: true,
+      showTimeline: true,
+      faviconBlue: 0,
+    },
+
     lastSearchFilter: "",
     lastUserInfo: {},
     lastDownloader: {},
