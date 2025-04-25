@@ -462,10 +462,11 @@ function saveControl() {
 
         <v-row>
           <v-col cols="12" sm>
-            <v-text-field
+            <v-combobox
               v-model="timelineData.nameInfo.name"
               :readonly="!allowEdit.name"
               append-inner-icon="mdi-history"
+              :items="Array.from(new Set(siteInfo.map((site) => site.name)))"
               hide-details
               label="用户名"
               @update:model-value="(v: string) => (control.name = v)"
@@ -483,7 +484,7 @@ function saveControl() {
                   @click="allowEdit.name = !allowEdit.name"
                 ></v-icon>
               </template>
-            </v-text-field>
+            </v-combobox>
           </v-col>
           <v-col cols="12" sm>
             <v-text-field
