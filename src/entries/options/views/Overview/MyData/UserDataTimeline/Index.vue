@@ -209,7 +209,6 @@ onMounted(async () => {
 });
 
 function exportTimelineImg() {
-  console.log(canvasStage);
   const stage = canvasStage.value!.getStage();
   stage.toDataURL({
     mimeType: "image/png",
@@ -301,7 +300,12 @@ function saveControl() {
                         :config="{ x: 0, y: 30 * (index + 1) }"
                       >
                         <vk-image
-                          :ref="(el: any) => faviconRefs.push(el)"
+                          :ref="
+                            (el: any) => {
+                              faviconRefs.push(el);
+                              el?.getNode().cache();
+                            }
+                          "
                           :config="favicon({ site: timelineData.topInfo[key.name][type.siteKey].site, size: 20 })"
                         />
                         <vk-text
@@ -350,7 +354,12 @@ function saveControl() {
                     <!-- 首先画出 favicon 并 clip -->
                     <vk-group :config="{ clipFunc: siteFaviconClipFunc(24) }">
                       <vk-image
-                        :ref="(el: any) => faviconRefs.push(el)"
+                        :ref="
+                          (el: any) => {
+                            faviconRefs.push(el);
+                            el?.getNode().cache();
+                          }
+                        "
                         :config="favicon({ site: site.site, size: 38, x: stageConfig.width / 2 - 19, y: 0 - 19 })"
                       />
                     </vk-group>

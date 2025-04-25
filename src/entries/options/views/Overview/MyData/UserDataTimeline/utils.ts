@@ -76,8 +76,6 @@ export const selectedSites = ref<TSiteID[]>([]); // 选择的站点
 export const allSiteFavicons = shallowRef<Record<TSiteID, HTMLImageElement>>({}); // 站点的图片
 
 export const timelineDataRef = useResetableRef<ITimelineData>(() => {
-  console.log(selectedSites.value);
-
   // 初始化需要展示的数据
   const currentDate = new Date();
   const result: ITimelineData = {
