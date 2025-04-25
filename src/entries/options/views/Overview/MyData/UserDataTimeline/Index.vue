@@ -43,6 +43,20 @@ const isLoading = ref<boolean>(false);
 const { ref: timelineData, reset: resetTimelineData } = timelineDataRef;
 const allowEdit = reactive({ name: false, title: false }); // 是否允许编辑用户名、时间轴标题
 
+function resetTimelineDataWithControl() {
+  // 开始生成 timeline 的数据
+  resetTimelineData();
+
+  // 将 control 中的 name 和 timelineTitle 覆盖掉自动生成的
+  if (control.name !== "") {
+    timelineData.value.nameInfo.name = control.name;
+  }
+
+  if (control.timelineTitle !== "") {
+    timelineData.value.timelineTitle = control.timelineTitle;
+  }
+}
+
 type KonvaNode = { getNode: () => any; getStage: () => any };
 
 const canvasStage = useTemplateRef<KonvaNode>("canvasStage"); // await canvasStage.value.getStage().toBlob()
@@ -154,7 +168,7 @@ const faviconRefs = ref<KonvaNode[]>([]);
 function updateBlue() {
   for (const faviconRef of faviconRefs.value) {
     const rectNode = faviconRef.getNode();
-    rectNode.cache();
+    rectNode?.cache();
   }
 }
 
@@ -194,16 +208,7 @@ onMounted(async () => {
   }
 
   // 开始生成 timeline 的数据
-  resetTimelineData();
-
-  // 将 control 中的 name 和 timelineTitle 覆盖掉自动生成的
-  if (control.name !== "") {
-    timelineData.value.nameInfo.name = control.name;
-  }
-
-  if (control.timelineTitle !== "") {
-    timelineData.value.timelineTitle = control.timelineTitle;
-  }
+  resetTimelineDataWithControl();
 
   isLoading.value = false;
 });
@@ -296,7 +301,7 @@ function saveControl() {
                     <vk-text :config="icon({ y: 0, fill: type.iconFill, fontSize: 24, text: `󰔸` /* trophy */ })" />
                     <template v-for="(key, index) in realShowField" :key="key.name">
                       <vk-group
-                        v-if="timelineData.topInfo[key.name][type.siteKey]"
+                        v-if="timelineData.topInfo[key.name][type.valueKey] > 0"
                         :config="{ x: 0, y: 30 * (index + 1) }"
                       >
                         <vk-image
@@ -467,7 +472,7 @@ function saveControl() {
               @click:append-inner="
                 () => {
                   control.name = '';
-                  resetTimelineData();
+                  resetTimelineDataWithControl();
                 }
               "
             >
@@ -492,7 +497,7 @@ function saveControl() {
               @click:append-inner="
                 () => {
                   control.timelineTitle = '';
-                  resetTimelineData();
+                  resetTimelineDataWithControl();
                 }
               "
             >
@@ -583,7 +588,7 @@ function saveControl() {
               @click="
                 () => {
                   selectedSites = realAllSite;
-                  resetTimelineData();
+                  resetTimelineDataWithControl();
                 }
               "
             />
@@ -596,7 +601,7 @@ function saveControl() {
               @click="
                 () => {
                   selectedSites = [];
-                  resetTimelineData();
+                  resetTimelineDataWithControl();
                 }
               "
             />
@@ -608,7 +613,7 @@ function saveControl() {
               @click="
                 () => {
                   selectedSites = realAllSite.filter((site) => !selectedSites.includes(site));
-                  resetTimelineData();
+                  resetTimelineDataWithControl();
                 }
               "
             />
@@ -626,7 +631,7 @@ function saveControl() {
               :indeterminate="!canThisSiteShow(siteId).value"
               indeterminate-icon="mdi-close"
               :disabled="!canThisSiteShow(siteId).value"
-              @update:model-value="() => resetTimelineData()"
+              @update:model-value="resetTimelineDataWithControl"
             >
               <template #label>
                 <SiteFavicon :site-id="siteId" :size="16" />
