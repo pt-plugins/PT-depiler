@@ -34,7 +34,7 @@ export const useMetadataStore = defineStore("metadata", {
 
     userDataTimelineControl: {
       name: "",
-      timelineTitle: "...这些年走过的路...",
+      timelineTitle: "",
       showField: {
         uploads: true,
         uploaded: true,
@@ -44,12 +44,14 @@ export const useMetadataStore = defineStore("metadata", {
         ratio: true,
       },
       showPerSiteField: {
+        siteName: true,
         name: true,
         level: true,
         uid: true,
       },
       showTop: true,
       showTimeline: true,
+      dateFormat: "time_added",
       faviconBlue: 0,
     },
 

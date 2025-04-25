@@ -166,6 +166,22 @@
       }
     }
   },
+  "UserDateTimeline": {
+    "total": "总",
+    "field": {
+      "site": "站点数",
+      "uploads": "发布数",
+      "uploaded": "上传量",
+      "downloaded": "下载量",
+      "seeding": "做种数",
+      "seedingSize": "做种量",
+      "ratio": "分享率",
+      "siteName": "站点名称",
+      "name": "用户名",
+      "level": "用户等级",
+      "uid": "用户ID"
+    }
+  },
   "SearchEntity": {
     "AdvanceFilterGenerateDialog": {
       "date": {

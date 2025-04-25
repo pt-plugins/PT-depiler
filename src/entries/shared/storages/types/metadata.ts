@@ -3,7 +3,6 @@ import {
   ISearchEntryRequestConfig,
   ISiteUserConfig,
   IUserInfo,
-  TSiteID,
   TSiteID as TSiteKey,
 } from "@ptd/site";
 import type { TSelectSearchCategoryValue } from "@ptd/site";
@@ -65,7 +64,8 @@ export interface IMetadataPiniaStorageSchema {
     showTop: boolean;
     showTimeline: boolean;
     showField: Record<ITimelineUserInfoField["name"] | "ratio", boolean>; // 需要展示的数据，注意 ratio, siteCount, totalYear 不作为设置项
-    showPerSiteField: Record<"name" | "level" | "uid", boolean>; // 需要展示的站点数据
+    showPerSiteField: Record<"siteName" | "name" | "level" | "uid", boolean>; // 需要展示的站点数据
+    dateFormat: "time_added" /* 发生时间  yyyy-MM-dd */ | "time_alive" /* 过去时间 xxx ago */;
     faviconBlue: number;
   };
 

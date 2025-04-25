@@ -165,6 +165,23 @@
       }
     }
   },
+
+  "UserDateTimeline": {
+    "total": "TOT ",
+    "field": {
+      "site": "Site",
+      "uploads": "Uploads",
+      "uploaded": "UP Size",
+      "downloaded": "DL Size",
+      "seeding": "Seeding",
+      "seedingSize": "SD Size",
+      "ratio": "Ratio",
+      "siteName": "Site Name",
+      "name": "Username",
+      "level": "User Level",
+      "uid": "User ID"
+    }
+  },
   "SearchEntity": {
     "AdvanceFilterGenerateDialog": {
       "date": {

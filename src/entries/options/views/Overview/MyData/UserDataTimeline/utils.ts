@@ -4,7 +4,7 @@ import { EResultParseStatus, ISiteMetadata, ISiteUserConfig, IUserInfo, TSiteID 
 import { useResetableRef } from "@/options/directives/useResetableRef.ts";
 import { differenceInDays } from "date-fns";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { computed, shallowRef } from "vue";
+import { computed, ref, shallowRef } from "vue";
 import { fixUserInfo, realFormatRatio } from "@/options/views/Overview/MyData/utils.ts";
 
 const metadataStore = useMetadataStore();
@@ -51,7 +51,7 @@ export interface ITimelineData {
   } & Required<Pick<IUserInfo, ITimelineUserInfoField["name"] | "ratio">>;
 }
 
-export const allSiteMetadata = shallowRef<Record<TSiteID, ISiteMetadata>>({});
+export const allSiteMetadata = shallowRef<Record<TSiteID, ISiteMetadata & { siteName: string }>>({});
 
 export function canThisSiteShow(siteId: TSiteID) {
   return computed(() => {
@@ -68,21 +68,22 @@ export function canThisSiteShow(siteId: TSiteID) {
     const siteUserConfig = (metadataStore.sites[siteId] ?? {}) as ISiteUserConfig;
     const siteMetadata = (allSiteMetadata.value[siteId] ?? {}) as ISiteMetadata;
 
-    return !(
-      // siteMetadata.isDead ||
-      // siteUserConfig.isOffline ||
-      (!Object.hasOwn(siteMetadata, "userInfo") || !siteUserConfig.allowQueryUserInfo)
-    );
+    return Object.hasOwn(siteMetadata, "userInfo") && siteUserConfig.allowQueryUserInfo;
   });
 }
 
+export const selectedSites = ref<TSiteID[]>([]); // 选择的站点
+export const allSiteFavicons = shallowRef<Record<TSiteID, HTMLImageElement>>({}); // 站点的图片
+
 export const timelineDataRef = useResetableRef<ITimelineData>(() => {
+  console.log(selectedSites.value);
+
   // 初始化需要展示的数据
   const currentDate = new Date();
   const result: ITimelineData = {
     createAt: currentDate,
     nameInfo: { name: "test", maxCount: 0 },
-    timelineTitle: "...这些年走过的路...", // FIXME i18n
+    timelineTitle: "这些年走过的路", // FIXME i18n
     joinTimeInfo: { site: {} as IStoredUserInfo, time: Infinity, years: "0" },
     siteInfo: [],
     topInfo: {
@@ -101,9 +102,9 @@ export const timelineDataRef = useResetableRef<ITimelineData>(() => {
   const addedSiteInfo: IStoredUserInfo[] = [];
   for (let userInfo of lastUserInfo) {
     // 未勾选的站点不展示
-    //if (!selectedSites.value.includes(userInfo.site)) {
-    //  continue;
-    //}
+    if (!selectedSites.value.includes(userInfo.site)) {
+      continue;
+    }
 
     // 不能获取站点信息的站点，即使勾选了也不展示
     if (!canThisSiteShow(userInfo.site).value) {

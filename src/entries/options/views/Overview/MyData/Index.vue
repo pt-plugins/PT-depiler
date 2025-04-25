@@ -21,8 +21,10 @@ import { formatDate, formatNumber, formatSize } from "@/options/utils.ts";
 import HistoryDataViewDialog from "@/options/views/Overview/MyData/HistoryDataViewDialog.vue";
 import ResultParseStatus from "@/options/components/ResultParseStatus.vue";
 import NavButton from "@/options/components/NavButton.vue";
+import { useRouter } from "vue-router";
 
 const { t } = useI18n();
+const router = useRouter();
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
@@ -116,6 +118,15 @@ function cancelFlush() {
     runtimeStore.userInfo.flushPlan[runtimeStoreKey].isFlush = false;
   }
 }
+
+function viewTimeline() {
+  router.push({
+    name: "UserDataTimeline",
+    query: {
+      sites: tableSelected.value,
+    },
+  });
+}
 </script>
 
 <template>
@@ -140,6 +151,10 @@ function cancelFlush() {
           :text="t('MyData.index.flushSelectSite')"
           @click="() => flushSiteLastUserInfo(tableSelected)"
         />
+
+        <v-divider vertical class="mx-2" />
+
+        <NavButton text="时间轴" color="green" icon="mdi-chart-timeline-variant" @click="viewTimeline" />
 
         <v-divider vertical class="mx-2" />
 
