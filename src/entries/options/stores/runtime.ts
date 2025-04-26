@@ -27,7 +27,6 @@ export const useRuntimeStore = defineStore("runtime", {
   state: (): IRuntimePiniaStorageSchema => ({
     search: initialSearchData(),
     userInfo: {
-      isFlush: false,
       flushPlan: {},
     },
     uiGlobalSnakebar: [],
@@ -36,6 +35,10 @@ export const useRuntimeStore = defineStore("runtime", {
   getters: {
     searchCostTime(state) {
       return Object.values(state.search.searchPlan).reduce((acc, cur) => acc + (cur.costTime ?? 0), 0);
+    },
+
+    isUserInfoFlush(state) {
+      return Object.values(state.userInfo.flushPlan).some((v) => v);
     },
   },
 

@@ -1,9 +1,6 @@
 import { fixRatio, IUserInfo, TSiteID } from "@ptd/site";
-import PQueue from "p-queue";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { useConfigStore } from "@/options/stores/config.ts";
-import { log } from "~/helper.ts";
 
 const runtimeStore = useRuntimeStore();
 
@@ -34,35 +31,30 @@ export function formatRatio(
   return realFormatRatio(ratio);
 }
 
-const configStore = useConfigStore();
-export const flushQueue = new PQueue({ concurrency: 1 }); // 默认设置为 1，避免并发搜索
-
-flushQueue.on("active", () => {
-  runtimeStore.userInfo.isFlush = true;
-  if (flushQueue.concurrency != configStore.userInfo.queueConcurrency) {
-    flushQueue.concurrency = configStore.userInfo.queueConcurrency;
-    log(`用户信息刷新队列并发数已更改为 ${flushQueue.concurrency}`, { color: "info" });
-  }
-});
-
-flushQueue.on("idle", () => {
-  runtimeStore.userInfo.isFlush = false;
-});
-
-export async function flushSiteLastUserInfo(sites: TSiteID[]) {
+export function flushSiteLastUserInfo(sites: TSiteID[]) {
   for (const site of sites) {
-    runtimeStore.userInfo.flushPlan[site] = { isFlush: true };
+    runtimeStore.userInfo.flushPlan[site] = true;
 
-    // noinspection ES6MissingAwait
-    flushQueue.add(async () => {
-      try {
-        await sendMessage("getSiteUserInfoResult", site);
-      } catch (e) {
-        runtimeStore.showSnakebar(`获取站点 [${site}] 用户信息失败`, { color: "error" });
-        console.error(e);
-      } finally {
-        runtimeStore.userInfo.flushPlan[site].isFlush = false;
-      }
-    });
+    sendMessage("getSiteUserInfoResult", site)
+      .catch((e) => {
+        // 首先检查是否还在刷新，如果没有，则说明队列已经取消了，此时不报错
+        if (!runtimeStore.userInfo.flushPlan[site]) {
+          runtimeStore.showSnakebar(`获取站点 [${site}] 用户信息失败`, { color: "error" });
+          console.error(e);
+        }
+      })
+      .finally(() => {
+        runtimeStore.userInfo.flushPlan[site] = false;
+      });
   }
+}
+
+export async function cancelFlushSiteLastUserInfo() {
+  for (const runtimeStoreKey in runtimeStore.userInfo.flushPlan) {
+    runtimeStore.userInfo.flushPlan[runtimeStoreKey] = false;
+  }
+
+  await sendMessage("cancelUserInfoQueue", undefined);
+
+  runtimeStore.showSnakebar(`用户信息刷新队列已取消`, { color: "error" });
 }

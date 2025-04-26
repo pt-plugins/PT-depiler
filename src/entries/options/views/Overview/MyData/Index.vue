@@ -9,7 +9,7 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
 
-import { formatRatio, flushSiteLastUserInfo, fixUserInfo, flushQueue } from "./utils.ts";
+import { formatRatio, flushSiteLastUserInfo, fixUserInfo, cancelFlushSiteLastUserInfo } from "./utils.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
@@ -111,14 +111,6 @@ function viewHistoryData(siteId: TSiteID) {
   historyDataViewDialogSiteId.value = siteId;
 }
 
-function cancelFlush() {
-  flushQueue.clear();
-
-  for (const runtimeStoreKey in runtimeStore.userInfo.flushPlan) {
-    runtimeStore.userInfo.flushPlan[runtimeStoreKey].isFlush = false;
-  }
-}
-
 function viewTimeline() {
   router.push({
     name: "UserDataTimeline",
@@ -136,11 +128,11 @@ function viewTimeline() {
       <v-row class="ma-0">
         <!-- 刷新，取消刷新 -->
         <NavButton
-          v-if="runtimeStore.userInfo.isFlush"
+          v-if="runtimeStore.isUserInfoFlush"
           :text="t('MyData.index.flushCancel')"
           color="red"
           icon="mdi-cancel"
-          @click="cancelFlush"
+          @click="cancelFlushSiteLastUserInfo"
         />
 
         <NavButton
@@ -373,8 +365,8 @@ function viewTimeline() {
           >
           </v-btn>
           <v-btn
-            :disabled="runtimeStore.userInfo.flushPlan[item.site]?.isFlush"
-            :loading="runtimeStore.userInfo.flushPlan[item.site]?.isFlush"
+            :disabled="!!runtimeStore.userInfo.flushPlan[item.site]"
+            :loading="!!runtimeStore.userInfo.flushPlan[item.site]"
             :title="t('MyData.table.action.flushData')"
             color="green"
             icon="mdi-cached"

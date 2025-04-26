@@ -60,8 +60,7 @@ export type SnackbarMessageOptions = Partial<
 export interface IRuntimePiniaStorageSchema {
   search: ISearchData;
   userInfo: {
-    isFlush: boolean;
-    flushPlan: Record<TSiteID, { isFlush: boolean }>;
+    flushPlan: Record<TSiteID, boolean>;
   };
   uiGlobalSnakebar: SnackbarMessageOptions[]; // https://vuetifyjs.com/en/components/snackbar-queue/#props-model-value
 }
