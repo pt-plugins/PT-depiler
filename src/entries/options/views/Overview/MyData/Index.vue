@@ -111,6 +111,15 @@ function viewHistoryData(siteId: TSiteID) {
   historyDataViewDialogSiteId.value = siteId;
 }
 
+async function multiOpen() {
+  for (const siteId of tableSelected.value) {
+    const siteUrl = await metadataStore.getSiteUrl(siteId);
+    if (siteUrl) {
+      window.open(siteUrl, "_blank", "noopener noreferrer nofollow");
+    }
+  }
+}
+
 function viewTimeline() {
   router.push({
     name: "UserDataTimeline",
@@ -142,6 +151,15 @@ function viewTimeline() {
           icon="mdi-cached"
           :text="t('MyData.index.flushSelectSite')"
           @click="() => flushSiteLastUserInfo(tableSelected)"
+        />
+
+        <NavButton
+          :disabled="tableSelected.length === 0"
+          class="ml-1"
+          color="indigo"
+          icon="mdi-open-in-new"
+          text="批量打开"
+          @click="multiOpen"
         />
 
         <v-divider vertical class="mx-2" />

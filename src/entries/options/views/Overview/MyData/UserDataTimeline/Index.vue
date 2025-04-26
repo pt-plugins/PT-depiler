@@ -1,3 +1,4 @@
+<!--suppress HtmlUnknownTag -->
 <script setup lang="ts">
 import Konva from "konva";
 import { useI18n } from "vue-i18n";
@@ -33,13 +34,14 @@ import {
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import SiteName from "@/options/components/SiteName.vue";
 import NavButton from "@/options/components/NavButton.vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 const git = __GIT_VERSION__;
 
 const { t } = useI18n();
 const route = useRoute();
+const router = useRouter();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 const control = metadataStore.userDataTimelineControl;
@@ -458,8 +460,16 @@ function saveControl() {
         </vk-stage>
       </v-col>
       <v-col cols="12" sm>
-        <v-alert title="编辑生成时间轴样式" type="info" class="mb-2">
+        <v-alert title="时间轴样式设置" type="info" class="mb-2">
           <template #append>
+            <NavButton
+              icon="mdi-arrow-left"
+              class="mr-1"
+              size="small"
+              color="grey"
+              text="返回"
+              @click="() => router.back()"
+            />
             <NavButton
               class="mr-1"
               color="grey"
@@ -468,7 +478,6 @@ function saveControl() {
               text="导出图片"
               @click="exportTimelineImg"
             />
-            <NavButton icon="mdi-content-save" size="small" text="保存设置" color="grey" @click="saveControl" />
           </template>
         </v-alert>
 
@@ -593,7 +602,16 @@ function saveControl() {
           </v-col>
         </v-row>
 
-        <v-alert type="info" title="展示站点" class="mt-4 mb-2">
+        <v-divider class="my-2" />
+
+        <v-row class="flex-nowrap">
+          <v-col class="d-flex">
+            <v-spacer />
+            <NavButton icon="mdi-content-save" text="保存样式设置" color="green" @click="saveControl" />
+          </v-col>
+        </v-row>
+
+        <v-alert type="info" title="展示站点设置" class="mt-4 mb-2">
           <template #append>
             <NavButton
               icon="mdi-checkbox-marked"
