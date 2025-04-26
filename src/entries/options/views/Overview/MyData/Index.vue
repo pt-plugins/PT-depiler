@@ -324,7 +324,12 @@ function viewTimeline() {
               {{ typeof item.bonus !== "undefined" ? formatNumber(item.bonus) : "-" }}
             </span>
           </v-row>
-          <v-row v-if="!isUndefined(item.seedingBonus)" align="center" class="flex-nowrap" justify="end">
+          <v-row
+            v-if="item.seedingBonus !== '' && !isUndefined(item.seedingBonus)"
+            align="center"
+            class="flex-nowrap"
+            justify="end"
+          >
             <v-icon
               :title="t('levelRequirement.seedingBonus')"
               color="green-darken-4"
