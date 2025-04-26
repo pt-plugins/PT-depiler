@@ -64,12 +64,6 @@ async function deleteDownloadHistory(downloadHistoryIds: TTorrentDownloadKey[]) 
 
 async function confirmDeleteDownloadHistory(downloadHistoryId: TTorrentDownloadKey) {
   await sendMessage("deleteDownloadHistoryById", downloadHistoryId);
-  const index = tableSelected.value.indexOf(downloadHistoryId);
-  if (index !== -1) {
-    tableSelected.value.splice(index, 1);
-  }
-
-  throttleLoadDownloadHistory();
 }
 
 onMounted(() => {
@@ -206,7 +200,8 @@ onMounted(() => {
   <DeleteDialog
     v-model="showDeleteDialog"
     :to-delete-ids="toDeleteIds"
-    @confirm-delete="confirmDeleteDownloadHistory"
+    :confirm-delete="confirmDeleteDownloadHistory"
+    @all-delete="() => throttleLoadDownloadHistory()"
   />
 </template>
 

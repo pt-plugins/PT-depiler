@@ -90,10 +90,6 @@ function deleteDownloader(downloaderId: TDownloaderKey[]) {
 
 async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
   await metadataStore.removeDownloader(downloaderId);
-  const index = tableSelected.value.indexOf(downloaderId);
-  if (index !== -1) {
-    tableSelected.value.splice(index, 1);
-  }
 }
 </script>
 
@@ -274,11 +270,7 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
   <AddDialog v-model="showAddDialog" />
   <EditDialog v-model="showEditDialog" :client-id="toEditDownloaderId!" />
   <PathAndTagSuggestDialog v-model="showPathAndTagSuggestDialog" :client-id="toEditDownloaderId!" />
-  <DeleteDialog
-    v-model="showDeleteDialog"
-    :to-delete-ids="toDeleteIds"
-    @confirm-delete="confirmDeleteDownloader"
-  ></DeleteDialog>
+  <DeleteDialog v-model="showDeleteDialog" :to-delete-ids="toDeleteIds" :confirm-delete="confirmDeleteDownloader" />
 </template>
 
 <style scoped lang="scss">

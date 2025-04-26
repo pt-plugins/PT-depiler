@@ -96,10 +96,6 @@ function deleteSite(siteId: TSiteID[]) {
 
 async function confirmDeleteSite(siteId: TSiteID) {
   await metadataStore.removeSite(siteId);
-  const index = tableSelected.value.indexOf(siteId);
-  if (index !== -1) {
-    tableSelected.value.splice(index, 1);
-  }
 }
 
 const isFaviconFlushing = ref(false);
@@ -323,11 +319,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
   </v-card>
 
   <AddDialog v-model="showAddDialog" />
-  <DeleteDialog
-    v-model="showDeleteDialog"
-    :to-delete-ids="toDeleteIds"
-    @confirm-delete="confirmDeleteSite"
-  ></DeleteDialog>
+  <DeleteDialog v-model="showDeleteDialog" :to-delete-ids="toDeleteIds" :confirm-delete="confirmDeleteSite" />
   <EditDialog v-model="showEditDialog" :site-id="toEditId!" />
   <OneClickImportDialog v-model="showOneClickImportDialog" />
 </template>

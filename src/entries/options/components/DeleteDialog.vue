@@ -4,20 +4,24 @@ import { useI18n } from "vue-i18n";
 type TDeleteId = any;
 
 const showDialog = defineModel<boolean>();
-const { toDeleteIds } = defineProps<{
+const { toDeleteIds, confirmDelete: confirmDeleteFn } = defineProps<{
   toDeleteIds: TDeleteId[];
+  confirmDelete: (toDeleteId: TDeleteId) => Promise<void> | void;
 }>();
 const emits = defineEmits<{
-  (e: "confirmDelete", toDeleteId: TDeleteId): void;
+  (e: "allDelete"): void;
 }>();
 
 const { t } = useI18n();
 
+console.log(toDeleteIds, confirmDeleteFn);
+
 async function confirmDelete() {
   for (const toDeleteId of toDeleteIds) {
-    emits("confirmDelete", toDeleteId);
+    await confirmDeleteFn(toDeleteId);
   }
   showDialog.value = false;
+  emits("allDelete");
 }
 </script>
 

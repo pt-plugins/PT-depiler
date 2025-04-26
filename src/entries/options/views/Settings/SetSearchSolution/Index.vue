@@ -52,12 +52,8 @@ function deleteSearchSolution(solutionId: TSolutionKey[]) {
   showDeleteDialog.value = true;
 }
 
-function confirmDeleteSearchSolution(solutionId: TSolutionKey) {
-  metadataStore.removeSearchSolution(solutionId);
-  const index = tableSelected.value.indexOf(solutionId);
-  if (index !== -1) {
-    tableSelected.value.splice(index, 1);
-  }
+async function confirmDeleteSearchSolution(solutionId: TSolutionKey) {
+  await metadataStore.removeSearchSolution(solutionId);
 }
 
 function simplePatchSearchSolution(solutionId: TSolutionKey, value: boolean) {
@@ -190,11 +186,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
   </v-card>
 
   <EditDialog v-model="showEditDialog" :solution-id="solutionId" />
-  <DeleteDialog
-    v-model="showDeleteDialog"
-    :to-delete-ids="toDeleteIds"
-    @confirm-delete="confirmDeleteSearchSolution"
-  ></DeleteDialog>
+  <DeleteDialog v-model="showDeleteDialog" :to-delete-ids="toDeleteIds" :confirm-delete="confirmDeleteSearchSolution" />
 </template>
 
 <style scoped lang="scss"></style>

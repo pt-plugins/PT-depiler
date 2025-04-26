@@ -55,10 +55,6 @@ function tryToDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey[]) {
 
 async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey) {
   await metadataStore.removeSearchSnapshotData(searchSnapshotId);
-  const index = tableSelected.value.indexOf(searchSnapshotId);
-  if (index !== -1) {
-    tableSelected.value.splice(index, 1);
-  }
 }
 </script>
 
@@ -138,11 +134,7 @@ async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey)
   </v-card>
 
   <EditNameDialog v-model="showEditNameDialog" :edit-id="toEditId!" />
-  <DeleteDialog
-    v-model="showDeleteDialog"
-    :to-delete-ids="toDeleteIds"
-    @confirm-delete="confirmDeleteSearchSnapshot"
-  ></DeleteDialog>
+  <DeleteDialog v-model="showDeleteDialog" :to-delete-ids="toDeleteIds" :confirm-delete="confirmDeleteSearchSnapshot" />
 </template>
 
 <style scoped lang="scss"></style>

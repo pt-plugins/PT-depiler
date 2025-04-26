@@ -290,7 +290,7 @@ export const useMetadataStore = defineStore("metadata", {
         this.defaultSolutionId = "default";
       }
 
-      this.$save();
+      await this.$save();
     },
 
     async saveSearchSnapshotData(name: string) {
