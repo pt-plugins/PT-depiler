@@ -45,7 +45,7 @@ function updateTableFilter() {
         <v-container>
           <v-row><v-label>关键词</v-label> </v-row>
           <v-row>
-            <v-col>
+            <v-col cols="12" md="6">
               <v-combobox
                 v-model="advanceFilterDictRef.text.required"
                 chips
@@ -54,7 +54,7 @@ function updateTableFilter() {
                 multiple
               ></v-combobox>
             </v-col>
-            <v-col>
+            <v-col cols="12" md="6">
               <v-combobox
                 v-model="advanceFilterDictRef.text.exclude"
                 chips
@@ -70,7 +70,9 @@ function updateTableFilter() {
               v-for="site in advanceFilterDictRef.site.all"
               :key="`${resetCountRef}_${site}`"
               class="pa-0"
-              :cols="3"
+              cols="6"
+              md="3"
+              sm="4"
             >
               <v-checkbox
                 v-model="advanceFilterDictRef.site.required"
@@ -93,8 +95,10 @@ function updateTableFilter() {
             <v-col
               v-for="tag in advanceFilterDictRef.tags.all"
               :key="`${resetCountRef}_${tag.name}`"
-              :cols="2"
               class="pa-0"
+              cols="4"
+              md="2"
+              sm="3"
             >
               <v-checkbox
                 v-model="advanceFilterDictRef.tags.required"

@@ -259,7 +259,7 @@ function cancelSearchQueue() {
               <span class="t_size text-no-wrap">{{ formatSize(item.size ?? 0) }}</span>
             </v-col>
           </v-row>
-          <v-row v-if="item.status !== ETorrentStatus.unknown">
+          <v-row v-if="item.status && (item.status as ETorrentStatus) !== ETorrentStatus.unknown">
             <v-col class="pa-0">
               <TorrentProcessTd :torrent="item"></TorrentProcessTd>
             </v-col>
