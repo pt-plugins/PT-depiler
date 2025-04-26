@@ -124,7 +124,7 @@ export const siteMetadata: ISiteMetadata = {
       joinTime: {
         selector: genUserInfoSelector("stats", "joinTime").map((x) => `${x} > span`),
         attr: "title",
-        filters: [{ name: "parseTime" }],
+        filters: [{ name: "parseTime", args: ["MMM dd yyyy, HH:mm"] }],
       },
       messageCount: {
         selector: ["#alerts > .alertbar > a[href='notice.php']", "div.alertbar > a[href*='inbox.php']"],

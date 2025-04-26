@@ -58,8 +58,8 @@ export function parseTimeToLive(ttl: string): number {
   return +nowDate;
 }
 
-export function parseValidTimeString(query: string, format: string[] = []): number | string {
-  for (const f of [...format, "yyyy-MM-dd'T'HH:mm:ssXXX", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS"]) {
+export function parseValidTimeString(query: string, formatString: string[] = []): number | string {
+  for (const f of [...formatString, "yyyy-MM-dd'T'HH:mm:ssXXX", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS"]) {
     let time = parse(query, f, new Date());
     if (isValid(time)) {
       return +time;
