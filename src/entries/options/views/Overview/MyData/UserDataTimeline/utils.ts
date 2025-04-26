@@ -32,7 +32,7 @@ export const CTimelineUserInfoField = [
 
 export type ITimelineUserInfoField = (typeof CTimelineUserInfoField)[number];
 
-export interface ITimelineData {
+interface ITimelineData {
   createAt: Date;
   siteInfo: IStoredUserInfo[];
   nameInfo: {
@@ -51,7 +51,13 @@ export interface ITimelineData {
   } & Required<Pick<IUserInfo, ITimelineUserInfoField["name"] | "ratio">>;
 }
 
-export const allSiteMetadata = shallowRef<Record<TSiteID, ISiteMetadata & { siteName: string }>>({});
+export interface ITimelineSiteMetadata extends Pick<ISiteMetadata, "id"> {
+  siteName: string; // 解析后的站点名称
+  hasUserInfo: boolean; // 是否有用户配置
+  faviconElement: HTMLImageElement; // 站点的图片
+}
+
+export const allSiteMetadata = shallowRef<Record<TSiteID, ITimelineSiteMetadata>>({});
 
 export function canThisSiteShow(siteId: TSiteID) {
   return computed(() => {
@@ -66,14 +72,13 @@ export function canThisSiteShow(siteId: TSiteID) {
     }
 
     const siteUserConfig = (metadataStore.sites[siteId] ?? {}) as ISiteUserConfig;
-    const siteMetadata = (allSiteMetadata.value[siteId] ?? {}) as ISiteMetadata;
+    const siteMetadata = (allSiteMetadata.value[siteId] ?? {}) as ITimelineSiteMetadata;
 
-    return Object.hasOwn(siteMetadata, "userInfo") && siteUserConfig.allowQueryUserInfo;
+    return siteMetadata.hasUserInfo && siteUserConfig.allowQueryUserInfo;
   });
 }
 
 export const selectedSites = ref<TSiteID[]>([]); // 选择的站点
-export const allSiteFavicons = shallowRef<Record<TSiteID, HTMLImageElement>>({}); // 站点的图片
 
 export const timelineDataRef = useResetableRef<ITimelineData>(() => {
   // 初始化需要展示的数据
@@ -165,3 +170,29 @@ export const timelineDataRef = useResetableRef<ITimelineData>(() => {
 
   return result;
 });
+
+export type TKonvaConfig = Record<string, any>;
+export const text = (config: TKonvaConfig) => ({ x: 0, y: 0, fontSize: 24, fill: "#fff", ...config });
+export const divider = (config: TKonvaConfig) => ({ x: 0, y: 0, stroke: "#0000001f", strokeWidth: 2, ...config });
+export const image = (config: TKonvaConfig) => {
+  const imageBaseSize = config.size ?? 24;
+  const imageWidth = config.image?.width ?? imageBaseSize;
+  const imageHeight = config.image?.height ?? imageBaseSize;
+
+  return {
+    x: 0,
+    y: 0,
+    scaleX: imageBaseSize / imageWidth,
+    scaleY: imageBaseSize / imageHeight,
+    width: imageBaseSize,
+    height: imageBaseSize,
+    ...config,
+  };
+};
+
+export const icon = (config: TKonvaConfig) =>
+  text({
+    fontSize: 32,
+    fontFamily: "Material Design Icons",
+    ...config,
+  });

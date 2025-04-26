@@ -5,7 +5,7 @@ import { useElementSize } from "@vueuse/core";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN as dFLocalZhCn } from "date-fns/locale/zh-CN";
 import { computed, onMounted, reactive, ref, useTemplateRef } from "vue";
-import { definitionList, type ISiteMetadata, NO_IMAGE, type TSiteID } from "@ptd/site";
+import { NO_IMAGE, type TSiteID } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
 import { formatDate } from "@/options/utils.ts";
@@ -20,9 +20,14 @@ import {
   timelineDataRef,
   selectedSites,
   topSiteRenderAttr,
-  ITimelineUserInfoField,
   CTimelineUserInfoField,
-  allSiteFavicons,
+  image,
+  text,
+  divider,
+  icon,
+  type ITimelineUserInfoField,
+  type ITimelineSiteMetadata,
+  type TKonvaConfig,
 } from "./utils.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
@@ -59,8 +64,9 @@ function resetTimelineDataWithControl() {
 
 type KonvaNode = { getNode: () => any; getStage: () => any };
 
-const canvasStage = useTemplateRef<KonvaNode>("canvasStage"); // await canvasStage.value.getStage().toBlob()
 const { width: containerWidth } = useElementSize(useTemplateRef("canvasContainer"));
+const canvasStage = useTemplateRef<KonvaNode>("canvasStage");
+const canvasLayer = useTemplateRef<KonvaNode>("canvasLayer");
 
 const realAllSite = computed(() =>
   Object.values(metadataStore.lastUserInfo)
@@ -68,15 +74,15 @@ const realAllSite = computed(() =>
     .filter((x) => canThisSiteShow(x).value),
 );
 
-// Konvas 绘图部分
-const canvasWidth = 650; // 650px 是设计稿的宽度
-const perSiteHeight = 160; // 给每个站点 160px 的高度
-
-// 动态计算 canvas 的高度
+// 动态计算 canvas 的的各类属性
+const canvasWidth = 650; // 650px 是设计稿的宽度，下面各类宽高均根据设计稿进行调整，然后使用 scale 来控制缩放
 const nameInfoHeight = 70;
 const topAndTotalInfoHeight = computed<number>(() => 10 + (realShowField.value.length + 2) * 30);
+const perSiteHeight = computed<number>(
+  () => (control.showPerSiteField.siteName ? 24 : 20) + (realShowField.value.length + 1) * 20 + 20,
+); // 给每个站点 160px 的高度
 const siteTimeHeight = computed<number>(() =>
-  control.showTimeline ? 95 + perSiteHeight * selectedSites.value.length : 0,
+  control.showTimeline ? 95 + perSiteHeight.value * selectedSites.value.length : 0,
 );
 const canvasHeight = computed<number>(() => nameInfoHeight + topAndTotalInfoHeight.value + siteTimeHeight.value + 25);
 
@@ -92,37 +98,11 @@ const stageConfig = computed(() => {
 });
 
 // 绘制相关辅助函数
-type TKonvaConfig = Record<string, any>;
-const text = (config: TKonvaConfig) => ({ x: 0, y: 0, fontSize: 24, fill: "#fff", ...config });
-const divider = (config: TKonvaConfig) => ({ x: 0, y: 0, stroke: "#0000001f", strokeWidth: 2, ...config });
-const image = (config: TKonvaConfig) => {
-  const imageBaseSize = config.size ?? 24;
-  const imageWidth = config.image?.width ?? imageBaseSize;
-  const imageHeight = config.image?.height ?? imageBaseSize;
-
-  return {
-    x: 0,
-    y: 0,
-    scaleX: imageBaseSize / imageWidth,
-    scaleY: imageBaseSize / imageHeight,
-    width: imageBaseSize,
-    height: imageBaseSize,
-    ...config,
-  };
-};
-
 const favicon = (config: TKonvaConfig) =>
   image({
-    image: allSiteFavicons.value[config.site],
+    image: allSiteMetadata.value[config.site].faviconElement,
     filters: [Konva.Filters.Blur],
     blurRadius: control.faviconBlue,
-    ...config,
-  });
-
-const icon = (config: TKonvaConfig) =>
-  text({
-    fontSize: 32,
-    fontFamily: "Material Design Icons",
     ...config,
   });
 
@@ -165,24 +145,22 @@ const formatSiteDate = (siteDate: number) =>
   });
 
 const faviconRefs = ref<KonvaNode[]>([]);
+
 function updateBlue() {
+  Konva.autoDrawEnabled = false;
   for (const faviconRef of faviconRefs.value) {
-    const rectNode = faviconRef.getNode();
-    rectNode?.cache();
+    faviconRef.getNode()?.cache();
   }
+  canvasLayer.value?.getNode()?.batchDraw();
+  Konva.autoDrawEnabled = true;
 }
 
 onMounted(async () => {
   isLoading.value = true;
-  // 加载所有站点的 metadata
-  const canAddedSiteFavicons: Record<TSiteID, HTMLImageElement> = {};
-  const canAddedSiteMetadata: Record<TSiteID, ISiteMetadata & { siteName: string }> = {};
-  const metadataStore = useMetadataStore();
-  for (const siteId of definitionList) {
-    canAddedSiteMetadata[siteId] = {
-      siteName: await metadataStore.getSiteName(siteId),
-      ...(await metadataStore.getSiteMetadata(siteId)),
-    };
+  // 加载所有已添加的站点 metadata
+  const canAddedSiteMetadata: Record<TSiteID, ITimelineSiteMetadata> = {};
+  for (const siteId of metadataStore.getAddedSiteIds) {
+    const siteMetadata = await metadataStore.getSiteMetadata(siteId);
     const siteFaviconUrl = await sendMessage("getSiteFavicon", { site: siteId });
 
     // 加载站点图标
@@ -195,12 +173,17 @@ onMounted(async () => {
       await siteFavicon.decode();
     }
 
-    canAddedSiteFavicons[siteId] = siteFavicon;
+    canAddedSiteMetadata[siteId] = {
+      id: siteId,
+      siteName: await metadataStore.getSiteName(siteId),
+      faviconElement: siteFavicon,
+      hasUserInfo: Object.hasOwn(siteMetadata, "userInfo"),
+    };
   }
-  allSiteFavicons.value = canAddedSiteFavicons;
+
   allSiteMetadata.value = canAddedSiteMetadata;
 
-  // 从 route 中加载选择的站点，如果没有，则选择默认全部可以的站点
+  // 从 route 中加载选择的站点，如果没有，则选择默认全部可以的站点（注意，这里我们不记住选择过的站点！！）
   if (route.query.sites?.length) {
     selectedSites.value = route.query.sites as string[];
   } else {
@@ -249,7 +232,7 @@ function saveControl() {
 
         <!-- 使用 konva 来绘制 UserDataTimeLine -->
         <vk-stage ref="canvasStage" :config="stageConfig">
-          <vk-layer>
+          <vk-layer ref="canvasLayer">
             <!-- 1. 添加背景颜色，颜色为 blue-grey-darken-2，填满整个画布 -->
             <vk-rect :config="{ fill: '#455A64', x: 0, y: 0, width: stageConfig.width, height: stageConfig.height }" />
 
@@ -342,7 +325,7 @@ function saveControl() {
               />
 
               <!-- 4.3 站点信息 -->
-              <vk-group :config="{ x: 0, y: 50 }">
+              <vk-group :config="{ x: 0, y: 40 }">
                 <!-- 4.3.1 分割线 -->
                 <vk-line
                   :config="
@@ -354,10 +337,10 @@ function saveControl() {
                   "
                 />
                 <!-- 4.3.2 不同站点的信息 -->
-                <template v-for="(site, index) in siteInfo" :key="site.site">
-                  <vk-group :config="{ x: 0, y: index * perSiteHeight + 100 }">
+                <template v-for="(userInfo, index) in siteInfo" :key="userInfo.site">
+                  <vk-group :config="{ x: 0, y: index * perSiteHeight }">
                     <!-- 首先画出 favicon 并 clip -->
-                    <vk-group :config="{ clipFunc: siteFaviconClipFunc(24) }">
+                    <vk-group :config="{ y: perSiteHeight / 2, clipFunc: siteFaviconClipFunc(24) }">
                       <vk-image
                         :ref="
                           (el: any) => {
@@ -365,47 +348,78 @@ function saveControl() {
                             el?.getNode().cache();
                           }
                         "
-                        :config="favicon({ site: site.site, size: 38, x: stageConfig.width / 2 - 19, y: 0 - 19 })"
+                        :config="favicon({ site: userInfo.site, size: 38, x: stageConfig.width / 2 - 19, y: 0 - 19 })"
                       />
                     </vk-group>
 
                     <!-- 站点数据（上传下载等） -->
-                    <vk-group :config="index % 2 == 0 ? { x: 30, y: -60 } : { x: stageConfig.width / 2 + 60, y: -60 }">
+                    <vk-group
+                      :config="{
+                        x: index % 2 == 0 ? 30 : stageConfig.width / 2 + 60,
+                        y: perSiteHeight / 2 - 10 - realShowField.length * 10,
+                      }"
+                    >
                       <vk-text
                         v-if="control.showPerSiteField.siteName"
-                        :config="text({ y: -10, text: allSiteMetadata[site.site].siteName, fontStyle: 'bold' })"
-                      />
-
-                      <vk-text
-                        v-for="(key, index) in realShowField"
-                        :key="key.name"
                         :config="
                           text({
-                            y: 20 * (index + 1) - (control.showPerSiteField.siteName ? 0 : 10),
-                            text: `${t('UserDateTimeline.field.' + key.name)}: ${key.format(site[key.name] ?? 0)}`,
-                            fontSize: 16,
+                            y: 0,
+                            text: allSiteMetadata[userInfo.site].siteName,
+                            fontStyle: 'bold',
                           })
                         "
                       />
-                      <vk-line
-                        v-if="index != siteInfo.length - 1"
-                        :config="divider({ points: [0, 150, stageConfig.width / 2 - 80, 150] })"
-                      />
+                      <vk-group
+                        :config="{
+                          x: 0,
+                          y: control.showPerSiteField.siteName ? 10 : 0,
+                        }"
+                      >
+                        <vk-text
+                          v-for="(key, index) in realShowField"
+                          :key="key.name"
+                          :config="
+                            text({
+                              y: 20 * (index + 1),
+                              text: `${t('UserDateTimeline.field.' + key.name)}: ${key.format(userInfo[key.name] ?? 0)}`,
+                              fontSize: 16,
+                            })
+                          "
+                        />
+                        <vk-line
+                          v-if="
+                            index != siteInfo.length - 1 &&
+                            (control.showPerSiteField.siteName || realShowField.length > 0)
+                          "
+                          :config="
+                            divider({
+                              points: [
+                                0,
+                                (realShowField.length + 1.5) * 20,
+                                stageConfig.width / 2 - 80,
+                                (realShowField.length + 1.5) * 20,
+                              ],
+                            })
+                          "
+                        />
+                      </vk-group>
                     </vk-group>
 
                     <!-- 站点数据（用户名、用户等级、用户UID等） -->
-                    <vk-group :config="index % 2 == 0 ? { x: stageConfig.width / 2 + 60, y: -20 } : { x: 30, y: -20 }">
+                    <vk-group
+                      :config="{ x: index % 2 == 0 ? stageConfig.width / 2 + 60 : 30, y: perSiteHeight / 2 - 20 }"
+                    >
                       <vk-text
-                        :config="text({ y: 0, text: `${formatSiteDate(site.joinTime!).value}`, fontStyle: 'bold' })"
+                        :config="text({ y: 0, text: `${formatSiteDate(userInfo.joinTime!).value}`, fontStyle: 'bold' })"
                       />
                       <vk-text
                         :config="
                           text({
                             y: 28,
                             text: [
-                              control.showPerSiteField.name ? site.name! : '',
-                              control.showPerSiteField.level ? `<${site.levelName!}>` : '',
-                              control.showPerSiteField.uid ? `<${site.id!}>` : '',
+                              control.showPerSiteField.name ? userInfo.name! : '',
+                              control.showPerSiteField.level ? `<${userInfo.levelName!}>` : '',
+                              control.showPerSiteField.uid ? `<${userInfo.id!}>` : '',
                             ]
                               .filter(Boolean)
                               .join(' '),
