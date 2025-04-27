@@ -78,6 +78,7 @@ const {
   titleFields: ["site", "name", "siteUserConfig.merge.name"],
 });
 
+const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
 const tableData = computedAsync<IUserInfoItem[]>(async () => {
   const allSite = metadataStore.getAddedSiteIds;
   const allPrivateSiteUserInfoData = [];
@@ -102,7 +103,6 @@ const tableData = computedAsync<IUserInfoItem[]>(async () => {
 
   return allPrivateSiteUserInfoData;
 }, []);
-const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
 
 const showHistoryDataViewDialog = ref<boolean>(false);
 const historyDataViewDialogSiteId = ref<TSiteID | null>(null);
@@ -155,7 +155,6 @@ function viewTimeline() {
 
         <NavButton
           :disabled="tableSelected.length === 0"
-          class="ml-1"
           color="indigo"
           icon="mdi-open-in-new"
           text="批量打开"
@@ -262,7 +261,7 @@ function viewTimeline() {
 
       <!-- 用户名，用户ID -->
       <template #item.name="{ item }">
-        <span :title="item.id" class="text-no-wrap">{{ item.name ?? "-" }}</span>
+        <span :title="item.id as string" class="text-no-wrap">{{ item.name ?? "-" }}</span>
       </template>
 
       <!-- 等级信息，升级信息 -->

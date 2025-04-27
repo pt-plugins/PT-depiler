@@ -97,7 +97,6 @@ onMounted(() => {
         <NavButton
           :disabled="tableSelected.length === 0"
           :text="t('common.remove')"
-          class="ml-2"
           color="error"
           icon="mdi-minus"
           @click="deleteDownloadHistory(tableSelected)"

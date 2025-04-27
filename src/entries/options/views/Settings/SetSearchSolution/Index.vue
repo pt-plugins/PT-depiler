@@ -84,13 +84,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
   <v-card>
     <v-card-title>
       <v-row class="ma-0">
-        <NavButton
-          :text="t('common.btn.add')"
-          class="mr-2"
-          color="success"
-          icon="mdi-plus"
-          @click="addSearchSolution"
-        />
+        <NavButton :text="t('common.btn.add')" color="success" icon="mdi-plus" @click="addSearchSolution" />
 
         <NavButton
           :disabled="tableSelected.length === 0"

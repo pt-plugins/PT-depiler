@@ -113,13 +113,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
   <v-card class="set-site">
     <v-card-title>
       <v-row class="ma-0">
-        <NavButton
-          :text="t('common.btn.add')"
-          class="mr-2"
-          color="success"
-          icon="mdi-plus"
-          @click="showAddDialog = true"
-        />
+        <NavButton :text="t('common.btn.add')" color="success" icon="mdi-plus" @click="showAddDialog = true" />
 
         <NavButton
           :disabled="tableSelected.length === 0"
@@ -144,7 +138,6 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
           :disabled="tableSelected.length === 0"
           :loading="isFaviconFlushing"
           :text="t('SetSite.index.table.flushFavicon')"
-          class="mr-2"
           color="indigo"
           icon="mdi-face-recognition"
           @click="() => flushSiteFavicon(tableSelected)"

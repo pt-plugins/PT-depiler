@@ -12,6 +12,7 @@ const props = defineProps<{
 <template>
   <v-btn
     v-bind="$attrs"
+    :class="{ 'nav-button-full': !display.smAndDown.value }"
     :icon="display.smAndDown.value"
     :prepend-icon="display.smAndDown.value ? undefined : props.icon"
     :rounded="display.smAndDown.value ? 0 : 4 /* default rounded */"
@@ -24,4 +25,8 @@ const props = defineProps<{
   </v-btn>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.nav-button-full + .nav-button-full {
+  margin-left: 4px;
+}
+</style>

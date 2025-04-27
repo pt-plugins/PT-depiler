@@ -98,13 +98,7 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
   <v-card class="set-downloader">
     <v-card-title>
       <v-row class="ma-0">
-        <NavButton
-          :text="t('common.btn.add')"
-          class="mr-2"
-          color="success"
-          icon="mdi-plus"
-          @click="showAddDialog = true"
-        />
+        <NavButton :text="t('common.btn.add')" color="success" icon="mdi-plus" @click="showAddDialog = true" />
 
         <NavButton
           :disabled="tableSelected.length === 0"

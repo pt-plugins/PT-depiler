@@ -462,16 +462,8 @@ function saveControl() {
       <v-col cols="12" sm>
         <v-alert title="时间轴样式设置" type="info" class="mb-2">
           <template #append>
+            <NavButton icon="mdi-arrow-left" size="small" color="grey" text="返回" @click="() => router.back()" />
             <NavButton
-              icon="mdi-arrow-left"
-              class="mr-1"
-              size="small"
-              color="grey"
-              text="返回"
-              @click="() => router.back()"
-            />
-            <NavButton
-              class="mr-1"
               color="grey"
               icon="mdi-file-export-outline"
               size="small"
@@ -630,7 +622,6 @@ function saveControl() {
               text="全不选"
               size="small"
               color="grey"
-              class="mx-1"
               @click="
                 () => {
                   selectedSites = [];
