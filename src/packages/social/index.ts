@@ -8,7 +8,6 @@ export * from "./types.ts";
 // From https://github.com/ourbits/PtGen#usage
 export const buildInPtGenApi = [
   { provider: "Github Pages", url: "https://ourbits.github.io/PtGen/<site>/<sid>.json" },
-  { provider: "Netlify", url: "https://pt-gen.netlify.app/<site>/<sid>.json" },
   { provider: "OurHelp CDN", url: "https://cdn.ourhelp.club/ptgen/<site>/<sid>.json" },
   { provider: "OurHelp API", url: "https://api.ourhelp.club/infogen?site=<site>&sid=<sid>" },
 ];

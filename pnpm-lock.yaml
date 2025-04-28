@@ -37,6 +37,9 @@ importers:
       date-fns:
         specifier: ^4.1.0
         version: 4.1.0
+      echarts:
+        specifier: ^5.6.0
+        version: 5.6.0
       es-toolkit:
         specifier: ^1.35.0
         version: 1.35.0
@@ -88,6 +91,9 @@ importers:
       vue-draggable-plus:
         specifier: ^0.6.0
         version: 0.6.0(@types/sortablejs@1.15.8)
+      vue-echarts:
+        specifier: ^7.0.3
+        version: 7.0.3(@vue/runtime-core@3.5.13)(echarts@5.6.0)(vue@3.5.13(typescript@5.6.3))
       vue-i18n:
         specifier: ^11.1.3
         version: 11.1.3(vue@3.5.13(typescript@5.6.3))
@@ -1966,6 +1972,10 @@ packages:
   eastasianwidth@0.2.0:
     resolution:
       { integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA== }
+
+  echarts@5.6.0:
+    resolution:
+      { integrity: sha512-oTbVTsXfKuEhxftHqL5xprgLoc0k7uScAwtryCgWF6hPYFLRwOUHiFmHGCBKP5NPFNkDVopOieyUqYGH8Fa3kA== }
 
   electron-to-chromium@1.5.140:
     resolution:
@@ -3989,6 +3999,10 @@ packages:
     peerDependencies:
       typescript: ">=4.8.4"
 
+  tslib@2.3.0:
+    resolution:
+      { integrity: sha512-N82ooyxVNm6h1riLCoyS9e3fuJ3AMG2zIZs2Gd1ATcSFjSA23Q0fzjjZeh0jbJvWVDZ0cJT8yaNNaaXHzueNjg== }
+
   tty-browserify@0.0.1:
     resolution:
       { integrity: sha512-C3TaO7K81YvjCgQH9Q1S3R3P3BtN3RIM8n+OvX4il1K1zgE8ZhI0op7kClgkxtutIE8hQrcrHBXvIheqKUUCxw== }
@@ -4220,6 +4234,18 @@ packages:
     resolution:
       { integrity: sha512-/BpdSx+yCQGnCvecbyXdxHDkuk55/G3xwnC0GqY4gmQ3j+A+g8kzzgB4Nk/SINjqn6+waqw3EgbVF2QKExkRxQ== }
 
+  vue-demi@0.13.11:
+    resolution:
+      { integrity: sha512-IR8HoEEGM65YY3ZJYAjMlKygDQn25D5ajNFNoKh9RSDMQtlzCxtfQjdQgv9jjK+m3377SsJXY8ysq8kLCZL25A== }
+    engines: { node: ">=12" }
+    hasBin: true
+    peerDependencies:
+      "@vue/composition-api": ^1.0.0-rc.1
+      vue: ^3.0.0-0 || ^2.6.0
+    peerDependenciesMeta:
+      "@vue/composition-api":
+        optional: true
+
   vue-draggable-plus@0.6.0:
     resolution:
       { integrity: sha512-G5TSfHrt9tX9EjdG49InoFJbt2NYk0h3kgjgKxkFWr3ulIUays0oFObr5KZ8qzD4+QnhtALiRwIqY6qul4egqw== }
@@ -4228,6 +4254,17 @@ packages:
       "@vue/composition-api": "*"
     peerDependenciesMeta:
       "@vue/composition-api":
+        optional: true
+
+  vue-echarts@7.0.3:
+    resolution:
+      { integrity: sha512-/jSxNwOsw5+dYAUcwSfkLwKPuzTQ0Cepz1LxCOpj2QcHrrmUa/Ql0eQqMmc1rTPQVrh2JQ29n2dhq75ZcHvRDw== }
+    peerDependencies:
+      "@vue/runtime-core": ^3.0.0
+      echarts: ^5.5.1
+      vue: ^2.7.0 || ^3.1.1
+    peerDependenciesMeta:
+      "@vue/runtime-core":
         optional: true
 
   vue-i18n@11.1.3:
@@ -4429,6 +4466,10 @@ packages:
   zip-dir@2.0.0:
     resolution:
       { integrity: sha512-uhlsJZWz26FLYXOD6WVuq+fIcZ3aBPGo/cFdiLlv3KNwpa52IF3ISV8fLhQLiqVu5No3VhlqlgthN6gehil1Dg== }
+
+  zrender@5.6.1:
+    resolution:
+      { integrity: sha512-OFXkDJKcrlx5su2XbzJvj/34Q3m6PvyCZkVPHGYpcCJ52ek4U/ymZyfuV1nKE23AyBJ51E/6Yr0mhZ7xGTO4ag== }
 
 snapshots:
   "@ampproject/remapping@2.3.0":
@@ -5901,6 +5942,11 @@ snapshots:
       gopd: 1.2.0
 
   eastasianwidth@0.2.0: {}
+
+  echarts@5.6.0:
+    dependencies:
+      tslib: 2.3.0
+      zrender: 5.6.1
 
   electron-to-chromium@1.5.140: {}
 
@@ -7531,6 +7577,8 @@ snapshots:
     dependencies:
       typescript: 5.6.3
 
+  tslib@2.3.0: {}
+
   tty-browserify@0.0.1: {}
 
   type-check@0.4.0:
@@ -7754,9 +7802,23 @@ snapshots:
 
   vscode-uri@3.1.0: {}
 
+  vue-demi@0.13.11(vue@3.5.13(typescript@5.6.3)):
+    dependencies:
+      vue: 3.5.13(typescript@5.6.3)
+
   vue-draggable-plus@0.6.0(@types/sortablejs@1.15.8):
     dependencies:
       "@types/sortablejs": 1.15.8
+
+  vue-echarts@7.0.3(@vue/runtime-core@3.5.13)(echarts@5.6.0)(vue@3.5.13(typescript@5.6.3)):
+    dependencies:
+      echarts: 5.6.0
+      vue: 3.5.13(typescript@5.6.3)
+      vue-demi: 0.13.11(vue@3.5.13(typescript@5.6.3))
+    optionalDependencies:
+      "@vue/runtime-core": 3.5.13
+    transitivePeerDependencies:
+      - "@vue/composition-api"
 
   vue-i18n@11.1.3(vue@3.5.13(typescript@5.6.3)):
     dependencies:
@@ -7939,3 +8001,7 @@ snapshots:
     dependencies:
       async: 3.2.6
       jszip: 3.10.1
+
+  zrender@5.6.1:
+    dependencies:
+      tslib: 2.3.0

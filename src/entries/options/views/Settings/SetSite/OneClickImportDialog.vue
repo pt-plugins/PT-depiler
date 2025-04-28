@@ -12,6 +12,7 @@ import { getCanAddedSiteMetadata } from "@/options/views/Settings/SetSite/utils.
 
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import NavButton from "@/options/components/NavButton.vue";
+import CheckSwitchButton from "@/options/components/CheckSwitchButton.vue";
 
 const showDialog = defineModel<boolean>();
 
@@ -165,28 +166,13 @@ async function dialogEnter() {
             </span>
           </template>
           <template #append>
-            <v-btn-group base-color="blue-lighten-1" divided>
-              <NavButton
-                icon="mdi-checkbox-marked"
-                text="全选"
-                variant="tonal"
-                @click="importStatus.toWork = realCanAutoAddSiteId"
-              />
-              <NavButton
-                icon="mdi-checkbox-blank-off-outline"
-                text="全不选"
-                variant="tonal"
-                @click="importStatus.toWork = []"
-              />
-              <NavButton
-                icon="mdi-checkbox-intermediate-variant"
-                text="反选"
-                variant="tonal"
-                @click="
-                  importStatus.toWork = realCanAutoAddSiteId.filter((site) => !importStatus.toWork.includes(site))
-                "
-              />
-            </v-btn-group>
+            <CheckSwitchButton
+              v-model="importStatus.toWork"
+              :all="realCanAutoAddSiteId"
+              :size="undefined"
+              color="blue-lighten-1"
+              variant="tonal"
+            />
           </template>
         </v-alert>
 

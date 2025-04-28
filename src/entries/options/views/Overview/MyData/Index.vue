@@ -128,6 +128,15 @@ function viewTimeline() {
     },
   });
 }
+
+function viewStatistic() {
+  router.push({
+    name: "UserDataStatistic",
+    query: {
+      sites: tableSelected.value,
+    },
+  });
+}
 </script>
 
 <template>
@@ -164,6 +173,7 @@ function viewTimeline() {
         <v-divider vertical class="mx-2" />
 
         <NavButton text="时间轴" color="green" icon="mdi-chart-timeline-variant" @click="viewTimeline" />
+        <NavButton text="数据图表" color="green" icon="mdi-equalizer" @click="viewStatistic" />
 
         <v-divider vertical class="mx-2" />
 

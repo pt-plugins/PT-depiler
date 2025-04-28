@@ -165,8 +165,22 @@
       }
     }
   },
-
-  "UserDateTimeline": {
+  "UserDataStatistic": {
+    "chart": {
+      "totalSiteBase": "Basic Data",
+      "totalSiteSeeding": "Seeding Data",
+      "perSiteKuploaded": "Uploaded Data per Site",
+      "perSiteKdownloaded": "Downloaded Data per Site",
+      "perSiteKseeding": "Seeding Count per Site",
+      "perSiteKseedingSize": "Seeding Size per Site",
+      "perSiteKbonus": "Bonus Points per Site"
+    },
+    "dateRange": {
+      "custom": "Custom",
+      "all": "All"
+    }
+  },
+  "UserDataTimeline": {
     "total": "TOT ",
     "field": {
       "site": "Site",

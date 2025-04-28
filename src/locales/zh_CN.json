@@ -166,7 +166,23 @@
       }
     }
   },
-  "UserDateTimeline": {
+  "UserDataStatistic": {
+    "chart": {
+      "totalSiteBase": "基本数据",
+      "totalSiteSeeding": "做种数据",
+      "perSiteKuploaded": "分站点上传数据",
+      "perSiteKdownloaded": "分站点下载数据",
+      "perSiteKseeding": "分站点做种数",
+      "perSiteKseedingSize": "分站点做种体积",
+      "perSiteKbonus": "分站点魔力"
+    },
+    "dateRange": {
+      "day": "近 {0} 天",
+      "custom": "自定义",
+      "all": "全部"
+    }
+  },
+  "UserDataTimeline": {
     "total": "总",
     "field": {
       "site": "站点数",

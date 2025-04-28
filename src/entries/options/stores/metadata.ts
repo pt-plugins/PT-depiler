@@ -25,6 +25,7 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 export const useMetadataStore = defineStore("metadata", {
   persistWebExt: true,
   state: (): IMetadataPiniaStorageSchema => ({
+    userName: "",
     sites: {},
     solutions: {},
     snapshots: {},
@@ -33,8 +34,7 @@ export const useMetadataStore = defineStore("metadata", {
     defaultSolutionId: "default",
 
     userDataTimelineControl: {
-      name: "",
-      timelineTitle: "",
+      title: "",
       showField: {
         uploads: true,
         uploaded: true,
@@ -55,12 +55,57 @@ export const useMetadataStore = defineStore("metadata", {
       faviconBlue: 0,
     },
 
+    userStatisticControl: {
+      showChart: {
+        totalSiteBase: true,
+        totalSiteSeeding: true,
+        perSiteKuploaded: true,
+        perSiteKdownloaded: true,
+        perSiteKseeding: true,
+        perSiteKseedingSize: true,
+        perSiteKbonus: true,
+      },
+      dateRange: 30,
+    },
+
     lastSearchFilter: "",
     lastUserInfo: {},
     lastDownloader: {},
   }),
 
   getters: {
+    getUserName(): string {
+      if (this.userName === "") {
+        return this.getUserNames.perfName;
+      } else {
+        return this.userName;
+      }
+    },
+
+    getUserNames(state) {
+      const userNames = {
+        perfName: "",
+        names: {} as Record<string, number>,
+      };
+
+      const allNames = Object.values(state.lastUserInfo)
+        .map((userInfo) => userInfo.name)
+        .filter(Boolean) as string[];
+
+      for (const name of allNames) {
+        if (!userNames.names[name]) {
+          userNames.names[name] = 0;
+        }
+        userNames.names[name]++;
+
+        if (name !== userNames.perfName && userNames.names[name] > (userNames.names[userNames.perfName] ?? 0)) {
+          userNames.perfName = name;
+        }
+      }
+
+      return userNames;
+    },
+
     getAddedSiteIds(state) {
       return Object.keys(state.sites);
     },

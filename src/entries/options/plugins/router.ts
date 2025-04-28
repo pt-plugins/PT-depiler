@@ -140,6 +140,13 @@ export const routes: RouteRecordRaw[] = [
     component: () => import("../views/Overview/MyData/UserDataTimeline/Index.vue"),
   },
 
+  {
+    path: "/user-data-statistic",
+    name: "UserDataStatistic",
+    meta: { isMainMenu: false },
+    component: () => import("../views/Overview/MyData/UserDataStatistic/Index.vue"),
+  },
+
   { path: "/:pathMatch(.*)*", name: "NotFound", redirect: "/" },
 ];
 

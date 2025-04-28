@@ -5,7 +5,12 @@ import { useResetableRef } from "@/options/directives/useResetableRef.ts";
 import { differenceInDays } from "date-fns";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { computed, ref, shallowRef } from "vue";
-import { fixUserInfo, realFormatRatio } from "@/options/views/Overview/MyData/utils.ts";
+import {
+  allAddedSiteMetadata,
+  fixUserInfo,
+  realFormatRatio,
+  TOptionSiteMetadatas,
+} from "@/options/views/Overview/MyData/utils.ts";
 
 const metadataStore = useMetadataStore();
 
@@ -34,12 +39,8 @@ export type ITimelineUserInfoField = (typeof CTimelineUserInfoField)[number];
 
 interface ITimelineData {
   createAt: Date;
+  title: string;
   siteInfo: IStoredUserInfo[];
-  nameInfo: {
-    name: string;
-    maxCount: number;
-  };
-  timelineTitle: string;
   joinTimeInfo: {
     site: IStoredUserInfo;
     time: number;
@@ -57,25 +58,21 @@ export interface ITimelineSiteMetadata extends Pick<ISiteMetadata, "id"> {
   faviconElement: HTMLImageElement; // 站点的图片
 }
 
-export const allSiteMetadata = shallowRef<Record<TSiteID, ITimelineSiteMetadata>>({});
-
 export function canThisSiteShow(siteId: TSiteID) {
-  return computed(() => {
-    const siteUserInfo = metadataStore.lastUserInfo[siteId] as IStoredUserInfo;
-    if (
-      !siteUserInfo ||
-      !siteUserInfo.name ||
-      !siteUserInfo.joinTime ||
-      siteUserInfo.status !== EResultParseStatus.success
-    ) {
-      return false;
-    }
+  const siteUserInfo = metadataStore.lastUserInfo[siteId] as IStoredUserInfo;
+  if (
+    !siteUserInfo ||
+    !siteUserInfo.name ||
+    !siteUserInfo.joinTime ||
+    siteUserInfo.status !== EResultParseStatus.success
+  ) {
+    return false;
+  }
 
-    const siteUserConfig = (metadataStore.sites[siteId] ?? {}) as ISiteUserConfig;
-    const siteMetadata = (allSiteMetadata.value[siteId] ?? {}) as ITimelineSiteMetadata;
+  const siteUserConfig = (metadataStore.sites[siteId] ?? {}) as ISiteUserConfig;
+  const siteMetadata = (allAddedSiteMetadata[siteId] ?? {}) as TOptionSiteMetadatas[typeof siteId];
 
-    return siteMetadata.hasUserInfo && siteUserConfig.allowQueryUserInfo;
-  });
+  return siteMetadata.hasUserInfo && siteUserConfig.allowQueryUserInfo;
 }
 
 export const selectedSites = ref<TSiteID[]>([]); // 选择的站点
@@ -85,8 +82,7 @@ export const timelineDataRef = useResetableRef<ITimelineData>(() => {
   const currentDate = new Date();
   const result: ITimelineData = {
     createAt: currentDate,
-    nameInfo: { name: "test", maxCount: 0 },
-    timelineTitle: "这些年走过的路", // FIXME i18n
+    title: "这些年走过的路", // FIXME i18n
     joinTimeInfo: { site: {} as IStoredUserInfo, time: Infinity, years: "0" },
     siteInfo: [],
     topInfo: {
@@ -110,7 +106,7 @@ export const timelineDataRef = useResetableRef<ITimelineData>(() => {
     }
 
     // 不能获取站点信息的站点，即使勾选了也不展示
-    if (!canThisSiteShow(userInfo.site).value) {
+    if (!canThisSiteShow(userInfo.site)) {
       continue;
     }
 
@@ -124,11 +120,6 @@ export const timelineDataRef = useResetableRef<ITimelineData>(() => {
         userNames[userInfo.name] = 0;
       }
       userNames[userInfo.name]++;
-
-      // 获取使用最多的用户名
-      if (userNames[userInfo.name] > result.nameInfo.maxCount) {
-        result.nameInfo.name = userInfo.name;
-      }
 
       // 获取加入时间最久的站点
       if (userInfo.joinTime < result.joinTimeInfo.time) {

@@ -1,22 +1,21 @@
 <!--suppress HtmlUnknownTag -->
 <script setup lang="ts">
+import { computed, onMounted, reactive, ref, shallowRef, useTemplateRef } from "vue";
 import Konva from "konva";
 import { useI18n } from "vue-i18n";
+import { useRoute, useRouter } from "vue-router";
 import { useElementSize } from "@vueuse/core";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN as dFLocalZhCn } from "date-fns/locale/zh-CN";
-import { computed, onMounted, reactive, ref, useTemplateRef } from "vue";
-import { NO_IMAGE, type TSiteID } from "@ptd/site";
 
-import { sendMessage } from "@/messages.ts";
 import { formatDate } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { allAddedSiteMetadata, loadAllAddedSiteMetadata } from "@/options/views/Overview/MyData/utils.ts";
 import { version as EXT_VERSION } from "~/../package.json";
 
 import {
-  allSiteMetadata,
   canThisSiteShow,
   timelineDataRef,
   selectedSites,
@@ -27,15 +26,13 @@ import {
   divider,
   icon,
   type ITimelineUserInfoField,
-  type ITimelineSiteMetadata,
   type TKonvaConfig,
 } from "./utils.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import SiteName from "@/options/components/SiteName.vue";
 import NavButton from "@/options/components/NavButton.vue";
-import { useRoute, useRouter } from "vue-router";
-import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import CheckSwitchButton from "@/options/components/CheckSwitchButton.vue";
 
 const git = __GIT_VERSION__;
 
@@ -55,12 +52,12 @@ function resetTimelineDataWithControl() {
   resetTimelineData();
 
   // 将 control 中的 name 和 timelineTitle 覆盖掉自动生成的
-  if (control.name !== "") {
-    timelineData.value.nameInfo.name = control.name;
+  if (metadataStore.userName == "") {
+    metadataStore.userName = metadataStore.getUserNames.perfName;
   }
 
-  if (control.timelineTitle !== "") {
-    timelineData.value.timelineTitle = control.timelineTitle;
+  if (control.title !== "") {
+    timelineData.value.title = control.title;
   }
 }
 
@@ -70,11 +67,7 @@ const { width: containerWidth } = useElementSize(useTemplateRef("canvasContainer
 const canvasStage = useTemplateRef<KonvaNode>("canvasStage");
 const canvasLayer = useTemplateRef<KonvaNode>("canvasLayer");
 
-const realAllSite = computed(() =>
-  Object.values(metadataStore.lastUserInfo)
-    .map((x) => x.site)
-    .filter((x) => canThisSiteShow(x).value),
-);
+const realAllSite = shallowRef<string[]>([]);
 
 // 动态计算 canvas 的的各类属性
 const canvasWidth = 650; // 650px 是设计稿的宽度，下面各类宽高均根据设计稿进行调整，然后使用 scale 来控制缩放
@@ -102,7 +95,7 @@ const stageConfig = computed(() => {
 // 绘制相关辅助函数
 const favicon = (config: TKonvaConfig) =>
   image({
-    image: allSiteMetadata.value[config.site].faviconElement,
+    image: allAddedSiteMetadata[config.site].faviconElement,
     filters: [Konva.Filters.Blur],
     blurRadius: control.faviconBlue,
     ...config,
@@ -159,38 +152,18 @@ function updateBlue() {
 
 onMounted(async () => {
   isLoading.value = true;
-  // 加载所有已添加的站点 metadata
-  const canAddedSiteMetadata: Record<TSiteID, ITimelineSiteMetadata> = {};
-  for (const siteId of metadataStore.getAddedSiteIds) {
-    const siteMetadata = await metadataStore.getSiteMetadata(siteId);
-    const siteFaviconUrl = await sendMessage("getSiteFavicon", { site: siteId });
 
-    // 加载站点图标
-    const siteFavicon = new Image();
-    siteFavicon.src = siteFaviconUrl;
-    try {
-      await siteFavicon.decode();
-    } catch (e) {
-      siteFavicon.src = NO_IMAGE;
-      await siteFavicon.decode();
-    }
+  // 加载所有站点的元数据
+  await loadAllAddedSiteMetadata();
 
-    canAddedSiteMetadata[siteId] = {
-      id: siteId,
-      siteName: await metadataStore.getSiteName(siteId),
-      faviconElement: siteFavicon,
-      hasUserInfo: Object.hasOwn(siteMetadata, "userInfo"),
-    };
-  }
-
-  allSiteMetadata.value = canAddedSiteMetadata;
+  realAllSite.value = Object.values(metadataStore.lastUserInfo)
+    .map((x) => x.site)
+    .filter((x) => canThisSiteShow(x));
 
   // 从 route 中加载选择的站点，如果没有，则选择默认全部可以的站点（注意，这里我们不记住选择过的站点！！）
-  if (route.query.sites?.length) {
-    selectedSites.value = route.query.sites as string[];
-  } else {
-    selectedSites.value = realAllSite.value;
-  }
+  const { sites = [] } = route.query ?? {};
+  console.log(realAllSite.value);
+  selectedSites.value = ((sites as string[]).length > 0 ? sites : realAllSite.value) as string[];
 
   // 开始生成 timeline 的数据
   resetTimelineDataWithControl();
@@ -206,7 +179,7 @@ function exportTimelineImg() {
     callback: (dataUrl: string) => {
       const a = document.createElement("a");
       a.href = dataUrl;
-      a.download = `${timelineData.value.nameInfo.name}的时间轴（${formatDate(timelineData.value.createAt)}）.png`;
+      a.download = `${metadataStore.userName}的时间轴（${formatDate(timelineData.value.createAt)}）.png`;
       a.click();
     },
   });
@@ -243,7 +216,7 @@ function saveControl() {
               <!-- 2.1 用户图标 -->
               <vk-text :config="icon({ x: 20, y: 20, text: '󰀉' /* account-circle */ })" />
               <!-- 2.2 用户名 -->
-              <vk-text :config="text({ x: 65, y: 26, text: timelineData.nameInfo.name, fontSize: 26 })" />
+              <vk-text :config="text({ x: 65, y: 26, text: metadataStore.userName, fontSize: 26 })" />
             </vk-group>
 
             <!-- 3. 绘制基础信息 -->
@@ -253,7 +226,7 @@ function saveControl() {
                 :config="
                   text({
                     y: 0,
-                    text: `${t('UserDateTimeline.total')}${t('UserDateTimeline.field.site')}: ${timelineData.totalInfo.sites}`,
+                    text: `${t('UserDataTimeline.total')}${t('UserDataTimeline.field.site')}: ${timelineData.totalInfo.sites}`,
                   })
                 "
               />
@@ -263,7 +236,7 @@ function saveControl() {
                 :config="
                   text({
                     y: 30 * (index + 1),
-                    text: `${t('UserDateTimeline.total')}${t('UserDateTimeline.field.' + key.name)}: ${key.format(timelineData.totalInfo[key.name])}`,
+                    text: `${t('UserDataTimeline.total')}${t('UserDataTimeline.field.' + key.name)}: ${key.format(timelineData.totalInfo[key.name])}`,
                   })
                 "
               />
@@ -318,7 +291,7 @@ function saveControl() {
                 :config="
                   text({
                     y: 15,
-                    text: `... ${timelineData.timelineTitle} ...`,
+                    text: `... ${timelineData.title} ...`,
                     align: 'center',
                     fontStyle: 'bold',
                     width: stageConfig.width,
@@ -366,7 +339,7 @@ function saveControl() {
                         :config="
                           text({
                             y: 0,
-                            text: allSiteMetadata[userInfo.site].siteName,
+                            text: allAddedSiteMetadata[userInfo.site].siteName,
                             fontStyle: 'bold',
                           })
                         "
@@ -383,7 +356,7 @@ function saveControl() {
                           :config="
                             text({
                               y: 20 * (index + 1),
-                              text: `${t('UserDateTimeline.field.' + key.name)}: ${key.format(userInfo[key.name] ?? 0)}`,
+                              text: `${t('UserDataTimeline.field.' + key.name)}: ${key.format(userInfo[key.name] ?? 0)}`,
                               fontSize: 16,
                             })
                           "
@@ -478,19 +451,13 @@ function saveControl() {
         <v-row>
           <v-col cols="12" sm>
             <v-combobox
-              v-model="timelineData.nameInfo.name"
+              v-model="metadataStore.userName"
               :readonly="!allowEdit.name"
               append-inner-icon="mdi-history"
-              :items="Array.from(new Set(siteInfo.map((site) => site.name)))"
+              :items="Object.keys(metadataStore.getUserNames.names)"
               hide-details
               label="用户名"
-              @update:model-value="(v: string) => (control.name = v)"
-              @click:append-inner="
-                () => {
-                  control.name = '';
-                  resetTimelineDataWithControl();
-                }
-              "
+              @click:append-inner="() => (metadataStore.userName = metadataStore.getUserNames.perfName)"
             >
               <template #prepend>
                 <v-icon
@@ -503,16 +470,16 @@ function saveControl() {
           </v-col>
           <v-col cols="12" sm>
             <v-text-field
-              v-model="timelineData.timelineTitle"
+              v-model="timelineData.title"
               :disabled="!control.showTimeline"
               :readonly="!allowEdit.title"
               append-inner-icon="mdi-history"
               hide-details
               label="时间轴标题"
-              @update:model-value="(v: string) => (control.timelineTitle = v)"
+              @update:model-value="(v: string) => (control.title = v)"
               @click:append-inner="
                 () => {
-                  control.timelineTitle = '';
+                  control.title = '';
                   resetTimelineDataWithControl();
                 }
               "
@@ -556,11 +523,10 @@ function saveControl() {
           </v-col>
           <v-col cols="12" sm="10">
             <v-row class="pl-5">
-              <v-col v-for="(v, key) in control.showField" class="pa-0" cols="6" sm="4">
+              <v-col v-for="(v, key) in control.showField" class="pa-0" cols="6" sm="4" :key="key">
                 <v-switch
-                  :key="key"
                   v-model="control.showField[key]"
-                  :label="t('UserDateTimeline.field.' + key)"
+                  :label="t('UserDataTimeline.field.' + key)"
                   color="success"
                   hide-details
                   density="compact"
@@ -572,7 +538,7 @@ function saveControl() {
                 <v-switch
                   :key="key"
                   v-model="control.showPerSiteField[key]"
-                  :label="t('UserDateTimeline.field.' + key)"
+                  :label="t('UserDataTimeline.field.' + key)"
                   color="success"
                   density="compact"
                   hide-details
@@ -605,41 +571,11 @@ function saveControl() {
 
         <v-alert type="info" title="展示站点设置" class="mt-4 mb-2">
           <template #append>
-            <NavButton
-              icon="mdi-checkbox-marked"
-              size="small"
-              text="全选"
+            <CheckSwitchButton
+              v-model="selectedSites"
+              :all="realAllSite"
               color="grey"
-              @click="
-                () => {
-                  selectedSites = realAllSite;
-                  resetTimelineDataWithControl();
-                }
-              "
-            />
-            <NavButton
-              icon="mdi-checkbox-blank-off-outline"
-              text="全不选"
-              size="small"
-              color="grey"
-              @click="
-                () => {
-                  selectedSites = [];
-                  resetTimelineDataWithControl();
-                }
-              "
-            />
-            <NavButton
-              icon="mdi-checkbox-intermediate-variant"
-              text="反选"
-              size="small"
-              color="grey"
-              @click="
-                () => {
-                  selectedSites = realAllSite.filter((site) => !selectedSites.includes(site));
-                  resetTimelineDataWithControl();
-                }
-              "
+              @update:model-value="resetTimelineDataWithControl"
             />
           </template>
         </v-alert>
@@ -652,9 +588,9 @@ function saveControl() {
               :value="siteId"
               hide-details
               density="compact"
-              :indeterminate="!canThisSiteShow(siteId).value"
+              :indeterminate="!canThisSiteShow(siteId)"
               indeterminate-icon="mdi-close"
-              :disabled="!canThisSiteShow(siteId).value"
+              :disabled="!canThisSiteShow(siteId)"
               @update:model-value="resetTimelineDataWithControl"
             >
               <template #label>

@@ -1,7 +1,10 @@
-import { fixRatio, IUserInfo, TSiteID } from "@ptd/site";
+import { definitionList, fixRatio, ISiteMetadata, IUserInfo, NO_IMAGE, TSiteID } from "@ptd/site";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { isEmpty } from "es-toolkit/compat";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
+const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 
 // 对 siteUserInfoData 进行一些预处理（不涉及渲染格式）
@@ -57,4 +60,44 @@ export async function cancelFlushSiteLastUserInfo() {
   await sendMessage("cancelUserInfoQueue", undefined);
 
   runtimeStore.showSnakebar(`用户信息刷新队列已取消`, { color: "error" });
+}
+
+export interface ITimelineSiteMetadata extends Pick<ISiteMetadata, "id"> {
+  siteName: string; // 解析后的站点名称
+  hasUserInfo: boolean; // 是否有用户配置
+  faviconSrc: string;
+  faviconElement: HTMLImageElement; // 站点的图片
+}
+
+export type TOptionSiteMetadatas = Record<TSiteID, ITimelineSiteMetadata>;
+
+export const allAddedSiteMetadata: TOptionSiteMetadatas = {};
+
+export async function loadAllAddedSiteMetadata(): Promise<TOptionSiteMetadatas> {
+  if (isEmpty(allAddedSiteMetadata)) {
+    for (const siteId of definitionList) {
+      const siteMetadata = await metadataStore.getSiteMetadata(siteId);
+      const siteFaviconUrl = await sendMessage("getSiteFavicon", { site: siteId });
+
+      // 加载站点图标
+      const siteFavicon = new Image();
+      siteFavicon.src = siteFaviconUrl;
+      try {
+        await siteFavicon.decode();
+      } catch (e) {
+        siteFavicon.src = NO_IMAGE;
+        await siteFavicon.decode();
+      }
+
+      (allAddedSiteMetadata as TOptionSiteMetadatas)[siteId] = {
+        id: siteId,
+        siteName: await metadataStore.getSiteName(siteId),
+        hasUserInfo: Object.hasOwn(siteMetadata, "userInfo"),
+        faviconSrc: siteFaviconUrl,
+        faviconElement: siteFavicon,
+      };
+    }
+  }
+
+  return allAddedSiteMetadata;
 }
