@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
+import { useElementSize } from "@vueuse/core";
 import { computed, onMounted, ref, shallowRef, provide, useTemplateRef } from "vue";
-import { format as formatDate } from "date-fns";
+
 import { flatten, mapValues, pick, uniq } from "es-toolkit";
 import VChart, { THEME_KEY } from "vue-echarts";
 import { isNumber } from "es-toolkit/compat";
@@ -19,7 +21,7 @@ import {
   type GridComponentOption,
 } from "echarts/components";
 
-import { formatSize } from "@/options/utils.ts";
+import { formatSize, formatDate } from "@/options/utils.ts";
 import { IStoredUserInfo } from "@/shared/storages/types/metadata.ts";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -31,9 +33,10 @@ import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import SiteName from "@/options/components/SiteName.vue";
 import NavButton from "@/options/components/NavButton.vue";
 import CheckSwitchButton from "@/options/components/CheckSwitchButton.vue";
-import { useElementSize } from "@vueuse/core";
+
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { useI18n } from "vue-i18n";
+
+import { version as EXT_VERSION } from "~/../package.json";
 
 type EChartsLineChartOption = ComposeOption<
   TitleComponentOption | TooltipComponentOption | LegendComponentOption | GridComponentOption | LineSeriesOption
@@ -44,6 +47,8 @@ type EChartsBarChartOption = ComposeOption<
 >;
 
 useEcharts([TitleComponent, TooltipComponent, LegendComponent, GridComponent, LineChart, BarChart, CanvasRenderer]);
+
+const git = __GIT_VERSION__;
 
 const { t } = useI18n();
 const route = useRoute();
@@ -248,8 +253,81 @@ onMounted(async () => {
   selectedSites.value = ((sites as string[]).length > 0 ? sites : allSites.value) as string[];
 });
 
-function exportStatisticImg() {
-  // 创建一个 canvas，然后将图表渲染到 canvas 上
+const chartRefs = ref<any[]>([]);
+
+async function exportStatisticImg() {
+  const createdAt = formatDate(new Date());
+  const mainCanvas = document.createElement("canvas");
+
+  let count = 0;
+  for (const key in metadataStore.userStatisticControl.showChart) {
+    // @ts-ignore
+    if (metadataStore.userStatisticControl.showChart[key] === true) {
+      count++;
+    }
+  }
+  mainCanvas.width = containerWidth.value;
+  mainCanvas.height = (perChartHeight.value + 10) * count + 10;
+
+  const ctx = mainCanvas.getContext("2d") as CanvasRenderingContext2D;
+
+  // 填充白色背景
+  ctx.fillStyle = "white";
+  ctx.fillRect(0, 0, mainCanvas.width, mainCanvas.height);
+
+  // 将 echart 图表渲染到 canvas 上
+  let yIndex = 0;
+  for (const key in metadataStore.userStatisticControl.showChart) {
+    // @ts-ignore
+    if (metadataStore.userStatisticControl.showChart[key] === true) {
+      const chartRef = chartRefs.value.findLast((x) => x?.group == key);
+
+      const img = new Image();
+      img.src = chartRef.getDataURL();
+
+      // 创建一个 Promise 来处理图像加载
+      const imageLoaded = new Promise((resolve, reject) => {
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error("图像加载失败"));
+      });
+
+      try {
+        // 等待图像加载完成
+        const loadedImage = await imageLoaded;
+        // 在 canvas 上绘制图像
+        ctx.drawImage(loadedImage as CanvasImageSource, 0, yIndex);
+      } catch (error) {
+        console.error(error);
+      }
+
+      yIndex += perChartHeight.value + 10;
+    }
+  }
+
+  // 在 canvas 上添加右对齐文字
+  ctx.font = "12px Arial";
+  ctx.fillStyle = "#b5b5b5";
+  ctx.textAlign = "right"; // 设置文字右对齐
+
+  const textX = containerWidth.value - 10; // 距离右侧边缘 10px
+  const textY = yIndex;
+  ctx.fillText(
+    "Created By PT-Depiler (v" +
+      EXT_VERSION +
+      (git?.count ? "." + git.count : "") +
+      (git?.short ? "+" + git.short : "") +
+      ") at " +
+      createdAt,
+    textX,
+    textY,
+  );
+
+  // 导出图片
+  const dataURL = mainCanvas.toDataURL("image/png");
+  const link = document.createElement("a");
+  link.href = dataURL;
+  link.download = `${metadataStore.userName}的数据图表（${createdAt}）.png`;
+  link.click();
 }
 
 function saveControl() {
@@ -265,18 +343,22 @@ function saveControl() {
         <!-- 总上传、总下载、总积分 -->
         <v-chart
           v-if="metadataStore.userStatisticControl.showChart.totalSiteBase"
+          :ref="(el: any) => chartRefs.push(el)"
           :option="totalSiteBaseInfoChartOptions"
           :style="{ height: `${perChartHeight}px` }"
           autoresize
           class="chart"
+          group="totalSiteBase"
         />
         <!-- 总保种体积、总保种数量 -->
         <v-chart
           v-if="metadataStore.userStatisticControl.showChart.totalSiteSeeding"
+          :ref="(el: any) => chartRefs.push(el)"
           :option="totalSiteSeedingInfoChartOptions"
           :style="{ height: `${perChartHeight}px` }"
           autoresize
           class="chart"
+          group="totalSiteSeeding"
         />
         <!-- 分站点上传、下载、做种、做种体积、积分、时魔数据 -->
         <template v-for="[field, format] in perSiteChartField" :key="field">
@@ -285,6 +367,8 @@ function saveControl() {
               // @ts-ignore
               metadataStore.userStatisticControl.showChart[`perSiteK${field}`]
             "
+            :ref="(el: any) => chartRefs.push(el)"
+            :group="`perSiteK${field}`"
             :option="createPerSiteChartOptionsFn(field, format).value"
             :style="{ height: `${perChartHeight}px` }"
             autoresize
@@ -293,7 +377,7 @@ function saveControl() {
         </template>
       </v-col>
       <v-col>
-        <v-alert title="显示组件" type="info" class="mb-2">
+        <v-alert title="数据图表样式设置" type="info" class="mb-2">
           <template #append>
             <NavButton icon="mdi-arrow-left" size="small" color="grey" text="返回" @click="() => router.back()" />
             <NavButton
@@ -301,7 +385,6 @@ function saveControl() {
               icon="mdi-file-export-outline"
               size="small"
               text="导出图片"
-              disabled
               @click="exportStatisticImg"
             />
           </template>
@@ -410,16 +493,11 @@ function saveControl() {
           </v-col>
         </v-row>
 
-        <v-alert type="info" title="展示设置" class="mt-4 mb-2"> </v-alert>
-
-        <v-row>
-          <v-col align-self="center">
-            <v-label>展示站点</v-label>
-          </v-col>
-          <v-col class="d-flex justify-end">
+        <v-alert type="info" title="展示站点设置" class="mt-4 mb-2">
+          <template #append>
             <CheckSwitchButton v-model="selectedSites" :all="allSites" color="grey" />
-          </v-col>
-        </v-row>
+          </template>
+        </v-alert>
 
         <v-row class="my-2">
           <v-col v-for="siteId in allSites" :key="siteId" cols="6" sm="3" class="py-0">
