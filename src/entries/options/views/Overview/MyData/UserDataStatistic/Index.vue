@@ -56,7 +56,7 @@ const router = useRouter();
 const metadataStore = useMetadataStore();
 const configStore = useConfigStore();
 const { width: containerWidth } = useElementSize(useTemplateRef("chartContainer"));
-const perChartHeight = computed(() => Math.min(containerWidth.value, 800) / 2); // 按照 650 来绘图，然后缩放显示
+const perChartHeight = computed(() => 400);
 
 const allowEditName = ref<boolean>(false);
 const rawDataRef = ref<TUserDataStatistic>({});
@@ -198,12 +198,10 @@ const createPerSiteChartOptionsFn = (field: keyof IStoredUserInfo, format: keyof
       title: { text: `[${metadataStore.userName}] ${t("UserDataStatistic.chart.perSiteK" + field)}`, left: "center" },
       tooltip: { trigger: "item" },
       legend: {
-        data: seriesTotal
-          .sort((a, b) => b.value - a.value)
-          .slice(0, 5)
-          .map((x) => x.name),
+        data: seriesTotal.sort((a, b) => b.value - a.value).map((x) => x.name),
         bottom: 10,
         orient: "horizontal",
+        type: "scroll",
         formatter: (site) => allAddedSiteMetadata[site].siteName ?? site,
       },
       grid: { left: "3%", right: "4%", bottom: "10%", containLabel: true },
