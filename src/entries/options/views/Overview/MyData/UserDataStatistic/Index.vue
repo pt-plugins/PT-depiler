@@ -55,7 +55,8 @@ const route = useRoute();
 const router = useRouter();
 const metadataStore = useMetadataStore();
 const configStore = useConfigStore();
-const { width: containerWidth } = useElementSize(useTemplateRef("chartContainer"));
+const chartContainerRef = useTemplateRef<HTMLDivElement>("chartContainer");
+const { width: containerWidth } = useElementSize(chartContainerRef);
 const perChartHeight = computed(() => 400);
 
 const allowEditName = ref<boolean>(false);
@@ -251,21 +252,13 @@ onMounted(async () => {
   selectedSites.value = ((sites as string[]).length > 0 ? sites : allSites.value) as string[];
 });
 
-const chartRefs = ref<any[]>([]);
-
 async function exportStatisticImg() {
   const createdAt = formatDate(new Date());
   const mainCanvas = document.createElement("canvas");
+  const chartsCanvas = document.querySelectorAll("#chartContainer canvas");
 
-  let count = 0;
-  for (const key in metadataStore.userStatisticControl.showChart) {
-    // @ts-ignore
-    if (metadataStore.userStatisticControl.showChart[key] === true) {
-      count++;
-    }
-  }
   mainCanvas.width = containerWidth.value;
-  mainCanvas.height = (perChartHeight.value + 10) * count + 10;
+  mainCanvas.height = (perChartHeight.value + 10) * chartsCanvas.length + 10;
 
   const ctx = mainCanvas.getContext("2d") as CanvasRenderingContext2D;
 
@@ -275,31 +268,9 @@ async function exportStatisticImg() {
 
   // 将 echart 图表渲染到 canvas 上
   let yIndex = 0;
-  for (const key in metadataStore.userStatisticControl.showChart) {
-    // @ts-ignore
-    if (metadataStore.userStatisticControl.showChart[key] === true) {
-      const chartRef = chartRefs.value.findLast((x) => x?.group == key);
-
-      const img = new Image();
-      img.src = chartRef.getDataURL();
-
-      // 创建一个 Promise 来处理图像加载
-      const imageLoaded = new Promise((resolve, reject) => {
-        img.onload = () => resolve(img);
-        img.onerror = () => reject(new Error("图像加载失败"));
-      });
-
-      try {
-        // 等待图像加载完成
-        const loadedImage = await imageLoaded;
-        // 在 canvas 上绘制图像
-        ctx.drawImage(loadedImage as CanvasImageSource, 0, yIndex);
-      } catch (error) {
-        console.error(error);
-      }
-
-      yIndex += perChartHeight.value + 10;
-    }
+  for (const chartCanvas of chartsCanvas) {
+    ctx.drawImage(chartCanvas as HTMLCanvasElement, 0, yIndex);
+    yIndex += perChartHeight.value + 10;
   }
 
   // 在 canvas 上添加右对齐文字
@@ -337,11 +308,10 @@ function saveControl() {
 <template>
   <v-card>
     <v-row class="pa-2" justify="start">
-      <v-col ref="chartContainer" style="max-width: 800px">
+      <v-col ref="chartContainer" id="chartContainer" style="max-width: 800px">
         <!-- 总上传、总下载、总积分 -->
         <v-chart
           v-if="metadataStore.userStatisticControl.showChart.totalSiteBase"
-          :ref="(el: any) => chartRefs.push(el)"
           :option="totalSiteBaseInfoChartOptions"
           :style="{ height: `${perChartHeight}px` }"
           autoresize
@@ -351,7 +321,6 @@ function saveControl() {
         <!-- 总保种体积、总保种数量 -->
         <v-chart
           v-if="metadataStore.userStatisticControl.showChart.totalSiteSeeding"
-          :ref="(el: any) => chartRefs.push(el)"
           :option="totalSiteSeedingInfoChartOptions"
           :style="{ height: `${perChartHeight}px` }"
           autoresize
@@ -365,7 +334,6 @@ function saveControl() {
               // @ts-ignore
               metadataStore.userStatisticControl.showChart[`perSiteK${field}`]
             "
-            :ref="(el: any) => chartRefs.push(el)"
             :group="`perSiteK${field}`"
             :option="createPerSiteChartOptionsFn(field, format).value"
             :style="{ height: `${perChartHeight}px` }"
@@ -468,7 +436,7 @@ function saveControl() {
                     show-adjacent-months
                     @update:model-value="
                       (v: unknown) => {
-                        selectedDateRanges = (v as Date[]).map((x) => formatDate(x, 'yyyy-MM-dd'));
+                        selectedDateRanges = (v as Date[]).map((x) => formatDate(x, 'yyyy-MM-dd')) as string[];
                         metadataStore.userStatisticControl.dateRange = 'custom';
                       }
                     "
