@@ -4,6 +4,7 @@
 import { defineStore } from "pinia";
 import { usePreferredDark } from "@vueuse/core";
 import type { IConfigPiniaStorageSchema, supportThemeType } from "@/storage.ts";
+import { useMetadataStore } from "./metadata.ts";
 
 export const useConfigStore = defineStore("config", {
   persistWebExt: true,
@@ -65,6 +66,44 @@ export const useConfigStore = defineStore("config", {
         sortBy: [{ key: "userConfig.sortIndex", order: "desc" }],
       },
     },
+
+    userName: "",
+
+    userDataTimelineControl: {
+      title: "",
+      showField: {
+        uploads: true,
+        uploaded: true,
+        downloaded: true,
+        seeding: true,
+        seedingSize: true,
+        ratio: true,
+      },
+      showPerSiteField: {
+        siteName: true,
+        name: true,
+        level: true,
+        uid: true,
+      },
+      showTop: true,
+      showTimeline: true,
+      dateFormat: "time_added",
+      faviconBlue: 0,
+    },
+
+    userStatisticControl: {
+      showChart: {
+        totalSiteBase: true,
+        totalSiteSeeding: true,
+        perSiteKuploaded: true,
+        perSiteKdownloaded: true,
+        perSiteKseeding: true,
+        perSiteKseedingSize: true,
+        perSiteKbonus: true,
+      },
+      dateRange: 30,
+    },
+
     userInfo: {
       queueConcurrency: 1,
     },
@@ -90,6 +129,40 @@ export const useConfigStore = defineStore("config", {
 
     isLightUiTheme(): boolean {
       return this.uiTheme === "light";
+    },
+
+    getUserName(): string {
+      if (this.userName === "") {
+        return this.getUserNames.perfName;
+      } else {
+        return this.userName;
+      }
+    },
+
+    getUserNames(state) {
+      const metadataStore = useMetadataStore();
+
+      const userNames = {
+        perfName: "",
+        names: {} as Record<string, number>,
+      };
+
+      const allNames = Object.values(metadataStore.lastUserInfo)
+        .map((userInfo) => userInfo.name)
+        .filter(Boolean) as string[];
+
+      for (const name of allNames) {
+        if (!userNames.names[name]) {
+          userNames.names[name] = 0;
+        }
+        userNames.names[name]++;
+
+        if (name !== userNames.perfName && userNames.names[name] > (userNames.names[userNames.perfName] ?? 0)) {
+          userNames.perfName = name;
+        }
+      }
+
+      return userNames;
     },
   },
   actions: {

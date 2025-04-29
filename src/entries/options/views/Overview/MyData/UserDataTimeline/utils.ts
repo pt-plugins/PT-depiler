@@ -4,7 +4,7 @@ import { EResultParseStatus, ISiteMetadata, ISiteUserConfig, IUserInfo, TSiteID 
 import { useResetableRef } from "@/options/directives/useResetableRef.ts";
 import { differenceInDays } from "date-fns";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { computed, ref, shallowRef } from "vue";
+import { ref } from "vue";
 import {
   allAddedSiteMetadata,
   fixUserInfo,

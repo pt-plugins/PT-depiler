@@ -41,7 +41,7 @@ const route = useRoute();
 const router = useRouter();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
-const control = metadataStore.userDataTimelineControl;
+const control = configStore.userDataTimelineControl;
 
 const isLoading = ref<boolean>(false);
 const { ref: timelineData, reset: resetTimelineData } = timelineDataRef;
@@ -52,8 +52,8 @@ function resetTimelineDataWithControl() {
   resetTimelineData();
 
   // 将 control 中的 name 和 timelineTitle 覆盖掉自动生成的
-  if (metadataStore.userName == "") {
-    metadataStore.userName = metadataStore.getUserNames.perfName;
+  if (configStore.userName == "") {
+    configStore.userName = configStore.getUserNames.perfName;
   }
 
   if (control.title !== "") {
@@ -179,14 +179,14 @@ function exportTimelineImg() {
     callback: (dataUrl: string) => {
       const a = document.createElement("a");
       a.href = dataUrl;
-      a.download = `${metadataStore.userName}的时间轴（${formatDate(timelineData.value.createAt)}）.png`;
+      a.download = `${configStore.userName}的时间轴（${formatDate(timelineData.value.createAt)}）.png`;
       a.click();
     },
   });
 }
 
 function saveControl() {
-  metadataStore.$save();
+  configStore.$save();
   useRuntimeStore().showSnakebar("保存成功", { color: "success" });
 }
 </script>
@@ -216,7 +216,7 @@ function saveControl() {
               <!-- 2.1 用户图标 -->
               <vk-text :config="icon({ x: 20, y: 20, text: '󰀉' /* account-circle */ })" />
               <!-- 2.2 用户名 -->
-              <vk-text :config="text({ x: 65, y: 26, text: metadataStore.userName, fontSize: 26 })" />
+              <vk-text :config="text({ x: 65, y: 26, text: configStore.userName, fontSize: 26 })" />
             </vk-group>
 
             <!-- 3. 绘制基础信息 -->
@@ -451,13 +451,13 @@ function saveControl() {
         <v-row>
           <v-col cols="12" sm>
             <v-combobox
-              v-model="metadataStore.userName"
+              v-model="configStore.userName"
               :readonly="!allowEdit.name"
               append-inner-icon="mdi-history"
-              :items="Object.keys(metadataStore.getUserNames.names)"
+              :items="Object.keys(configStore.getUserNames.names)"
               hide-details
               label="用户名"
-              @click:append-inner="() => (metadataStore.userName = metadataStore.getUserNames.perfName)"
+              @click:append-inner="() => (configStore.userName = configStore.getUserNames.perfName)"
             >
               <template #prepend>
                 <v-icon

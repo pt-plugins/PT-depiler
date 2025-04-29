@@ -116,7 +116,7 @@ const totalSiteBaseInfoChartOptions = computed<EChartsLineChartOption>(() => {
 
   return {
     title: {
-      text: `[${metadataStore.userName}] ${t("UserDataStatistic.chart.totalSiteBase")}`,
+      text: `[${configStore.userName}] ${t("UserDataStatistic.chart.totalSiteBase")}`,
       subtext: `上传: ${formatSize(uploaded.at(-1)!)}, 下载: ${formatSize(downloaded.at(-1)!)}, 积分: ${(bonus.at(-1) ?? 0).toFixed(2)}`,
       left: "center", // 设置标题居中
     },
@@ -145,7 +145,7 @@ const totalSiteSeedingInfoChartOptions = computed<EChartsLineChartOption>(() => 
 
   return {
     title: {
-      text: `[${metadataStore.userName}] ${t("UserDataStatistic.chart.totalSiteSeeding")}`,
+      text: `[${configStore.userName}] ${t("UserDataStatistic.chart.totalSiteSeeding")}`,
       subtext: `做种体积: ${formatSize(seedingSize.at(-1)!)}, 数量: ${(seeding.at(-1) ?? 0).toFixed(2)}`,
       left: "center", // 设置标题居中
     },
@@ -196,7 +196,7 @@ const createPerSiteChartOptionsFn = (field: keyof IStoredUserInfo, format: keyof
     const seriesTotal = series.map((x) => ({ name: x.name, value: x.data.reduce((a, b) => a + b, 0) }));
 
     return {
-      title: { text: `[${metadataStore.userName}] ${t("UserDataStatistic.chart.perSiteK" + field)}`, left: "center" },
+      title: { text: `[${configStore.userName}] ${t("UserDataStatistic.chart.perSiteK" + field)}`, left: "center" },
       tooltip: { trigger: "item" },
       legend: {
         data: seriesTotal.sort((a, b) => b.value - a.value).map((x) => x.name),
@@ -235,7 +235,7 @@ onMounted(async () => {
   // 从路由中加载默认参数
   const { days = -1, sites = [] } = route.query ?? {};
 
-  const dateRange = (days as number) > 0 ? days : metadataStore.userStatisticControl.dateRange;
+  const dateRange = (days as number) > 0 ? days : configStore.userStatisticControl.dateRange;
 
   // noinspection SuspiciousTypeOfGuard
   if (typeof dateRange === "number") {
@@ -243,13 +243,17 @@ onMounted(async () => {
   } else {
     // 我们不保存上一次自定义时间段的范围，所以如果上一次是自定义时间段，则默认显示所有数据
     if (dateRange === "custom") {
-      metadataStore.userStatisticControl.dateRange = "all";
+      configStore.userStatisticControl.dateRange = "all";
     }
 
     selectedDateRanges.value = allDateRanges.value;
   }
 
   selectedSites.value = ((sites as string[]).length > 0 ? sites : allSites.value) as string[];
+
+  if (configStore.userName === "") {
+    configStore.userName = configStore.getUserNames.perfName;
+  }
 });
 
 async function exportStatisticImg() {
@@ -295,12 +299,12 @@ async function exportStatisticImg() {
   const dataURL = mainCanvas.toDataURL("image/png");
   const link = document.createElement("a");
   link.href = dataURL;
-  link.download = `${metadataStore.userName}的数据图表（${createdAt}）.png`;
+  link.download = `${configStore.userName}的数据图表（${createdAt}）.png`;
   link.click();
 }
 
 function saveControl() {
-  metadataStore.$save();
+  configStore.$save();
   useRuntimeStore().showSnakebar("保存成功", { color: "success" });
 }
 </script>
@@ -311,7 +315,7 @@ function saveControl() {
       <v-col ref="chartContainer" id="chartContainer" style="max-width: 800px">
         <!-- 总上传、总下载、总积分 -->
         <v-chart
-          v-if="metadataStore.userStatisticControl.showChart.totalSiteBase"
+          v-if="configStore.userStatisticControl.showChart.totalSiteBase"
           :option="totalSiteBaseInfoChartOptions"
           :style="{ height: `${perChartHeight}px` }"
           autoresize
@@ -320,7 +324,7 @@ function saveControl() {
         />
         <!-- 总保种体积、总保种数量 -->
         <v-chart
-          v-if="metadataStore.userStatisticControl.showChart.totalSiteSeeding"
+          v-if="configStore.userStatisticControl.showChart.totalSiteSeeding"
           :option="totalSiteSeedingInfoChartOptions"
           :style="{ height: `${perChartHeight}px` }"
           autoresize
@@ -332,7 +336,7 @@ function saveControl() {
           <v-chart
             v-if="
               // @ts-ignore
-              metadataStore.userStatisticControl.showChart[`perSiteK${field}`]
+              configStore.userStatisticControl.showChart[`perSiteK${field}`]
             "
             :group="`perSiteK${field}`"
             :option="createPerSiteChartOptionsFn(field, format).value"
@@ -362,13 +366,13 @@ function saveControl() {
           </v-col>
           <v-col cols="12" sm="10">
             <v-combobox
-              v-model="metadataStore.userName"
+              v-model="configStore.userName"
               :readonly="!allowEditName"
               append-inner-icon="mdi-history"
-              :items="Object.keys(metadataStore.getUserNames.names)"
+              :items="Object.keys(configStore.getUserNames.names)"
               hide-details
               label="用户名"
-              @click:append-inner="() => (metadataStore.userName = metadataStore.getUserNames.perfName)"
+              @click:append-inner="() => (configStore.userName = configStore.getUserNames.perfName)"
             >
               <template #prepend>
                 <v-icon
@@ -388,13 +392,13 @@ function saveControl() {
           <v-col cols="12" sm="10">
             <v-row>
               <v-col
-                v-for="(item, index) in metadataStore.userStatisticControl.showChart"
+                v-for="(item, index) in configStore.userStatisticControl.showChart"
                 class="py-0"
                 :key="index"
                 cols="6"
               >
                 <v-checkbox
-                  v-model="metadataStore.userStatisticControl.showChart[index]"
+                  v-model="configStore.userStatisticControl.showChart[index]"
                   :label="t('UserDataStatistic.chart.' + index)"
                   density="compact"
                   hide-details
@@ -410,7 +414,7 @@ function saveControl() {
           </v-col>
           <v-col cols="12" sm="10">
             <v-btn-toggle
-              v-model="metadataStore.userStatisticControl.dateRange"
+              v-model="configStore.userStatisticControl.dateRange"
               density="comfortable"
               mandatory
               variant="tonal"
@@ -437,7 +441,7 @@ function saveControl() {
                     @update:model-value="
                       (v: unknown) => {
                         selectedDateRanges = (v as Date[]).map((x) => formatDate(x, 'yyyy-MM-dd')) as string[];
-                        metadataStore.userStatisticControl.dateRange = 'custom';
+                        configStore.userStatisticControl.dateRange = 'custom';
                       }
                     "
                   />

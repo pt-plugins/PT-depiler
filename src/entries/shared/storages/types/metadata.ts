@@ -51,33 +51,12 @@ export interface IDownloaderMetadata extends DownloaderBaseConfig {
 }
 
 export interface IMetadataPiniaStorageSchema {
-  userName: string; // 用 timeline 和 statistic 展示的用户名，如果为 "" 则由使用最多的站点决定
   sites: Record<TSiteKey, ISiteUserConfig>; // 站点配置(用户配置)
   solutions: Record<TSolutionKey, ISearchSolutionMetadata>; // 搜索方案配置
   snapshots: Record<TSearchSnapshotKey, ISearchSnapshotMetadata>; // 搜索快照配置（元信息）
   downloaders: Record<TDownloaderKey, IDownloaderMetadata>; // 下载器配置
 
   defaultSolutionId: TSolutionKey | "default"; // 默认搜索方案
-
-  userDataTimelineControl: {
-    title: string; // 时间线标题
-    showTop: boolean;
-    showTimeline: boolean;
-    showField: Record<ITimelineUserInfoField["name"] | "ratio", boolean>; // 需要展示的数据，注意 ratio, siteCount, totalYear 不作为设置项
-    showPerSiteField: Record<"siteName" | "name" | "level" | "uid", boolean>; // 需要展示的站点数据
-    dateFormat: "time_added" /* 发生时间  yyyy-MM-dd */ | "time_alive" /* 过去时间 xxx ago */;
-    faviconBlue: number;
-  };
-
-  userStatisticControl: {
-    showChart: Record<
-      | "totalSiteBase"
-      | "totalSiteSeeding"
-      | `perSiteK${"uploaded" | "downloaded" | "seeding" | "seedingSize" | "bonus"}`,
-      boolean
-    >;
-    dateRange: number | "custom" | "all";
-  };
 
   /**
    * 此处仅存储站点最近一次的记录，如果需要获取历史记录，需要使用 storage 方法获取

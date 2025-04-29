@@ -1,4 +1,5 @@
 import type { TLangCode } from "@/options/plugins/i18n.ts";
+import { ITimelineUserInfoField } from "@/options/views/Overview/MyData/UserDataTimeline/utils.ts";
 
 export const supportTheme = ["auto", "light", "dark"] as const;
 export type supportThemeType = (typeof supportTheme)[number];
@@ -25,6 +26,28 @@ export interface IConfigPiniaStorageSchema {
 
   saveTableBehavior: boolean;
   tableBehavior: Record<UiTableBehaviorKey, UiTableBehaviorItem>;
+
+  userName: string; // 用 timeline 和 statistic 展示的用户名，如果为 "" 则由使用最多的站点决定
+
+  userDataTimelineControl: {
+    title: string; // 时间线标题
+    showTop: boolean;
+    showTimeline: boolean;
+    showField: Record<ITimelineUserInfoField["name"] | "ratio", boolean>; // 需要展示的数据，注意 ratio, siteCount, totalYear 不作为设置项
+    showPerSiteField: Record<"siteName" | "name" | "level" | "uid", boolean>; // 需要展示的站点数据
+    dateFormat: "time_added" /* 发生时间  yyyy-MM-dd */ | "time_alive" /* 过去时间 xxx ago */;
+    faviconBlue: number;
+  };
+
+  userStatisticControl: {
+    showChart: Record<
+      | "totalSiteBase"
+      | "totalSiteSeeding"
+      | `perSiteK${"uploaded" | "downloaded" | "seeding" | "seedingSize" | "bonus"}`,
+      boolean
+    >;
+    dateRange: number | "custom" | "all";
+  };
 
   userInfo: {
     queueConcurrency: number;
