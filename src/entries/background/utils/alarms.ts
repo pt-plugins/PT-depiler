@@ -65,7 +65,7 @@ export async function createFlushUserInfoJob() {
         await jobs.scheduleJob({
           id: EJobType.FlushUserInfo + "-Retry-" + retryIndex,
           type: "once",
-          date: +curDate + (retryIndex + 1) * retryInterval * 60 * 1000, // retryInterval in minutes
+          date: +curDate + retryInterval * 60 * 1000, // retryInterval in minutes
           execute: autoFlushUserInfo(retryIndex + 1),
         });
       }
