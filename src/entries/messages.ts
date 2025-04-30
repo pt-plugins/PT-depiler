@@ -26,6 +26,8 @@ interface ProtocolMap {
   getExtStorage<T extends TExtensionStorageKey>(key: T): IExtensionStorageSchema[T];
   setExtStorage<T extends TExtensionStorageKey>(data: { key: T; value: IExtensionStorageSchema[T] }): void;
 
+  setFlushUserInfoJob(): void;
+
   // 2. 在 offscreen 中注册，涉及页面解析等功能，主要供 options 使用
 
   // 2.1 站点基础 ( utils/site )

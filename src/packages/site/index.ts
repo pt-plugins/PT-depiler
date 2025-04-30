@@ -4,10 +4,8 @@ export * from "./types";
 export * from "./utils";
 
 import type { ISiteMetadata, ISiteUserConfig, TSiteID, TSiteFullUrl } from "./types";
-import BittorrentSite from "./schemas/AbstractBittorrentSite";
-import PrivateSite from "./schemas/AbstractPrivateSite";
-
-export { BittorrentSite, PrivateSite };
+import type BittorrentSite from "./schemas/AbstractBittorrentSite";
+import type PrivateSite from "./schemas/AbstractPrivateSite";
 
 interface schemaEntity {
   default: TSite;

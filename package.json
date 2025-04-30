@@ -43,6 +43,7 @@
     "@vueuse/components": "^13.1.0",
     "@vueuse/core": "^13.1.0",
     "@vueuse/router": "^13.1.0",
+    "@webext-core/job-scheduler": "^1.0.0",
     "@webext-core/messaging": "^2.2.0",
     "@webext-core/storage": "^1.2.0",
     "axios": "^1.8.4",

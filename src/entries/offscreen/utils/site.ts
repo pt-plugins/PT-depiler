@@ -1,13 +1,11 @@
 import { isEmpty } from "es-toolkit/compat";
 import {
-  BittorrentSite,
   getDefinedSiteMetadata,
   getFavicon,
   getFaviconMetadata,
   getSite as createSiteInstance,
   ISiteUserConfig,
   NO_IMAGE,
-  PrivateSite,
   type TSiteID,
 } from "@ptd/site";
 
@@ -50,9 +48,7 @@ export async function getSiteInstance<TYPE extends "private" | "public">(
   }
 
   log(`siteInstance ${siteId} created with userConfig:`, storedSiteUserConfig);
-  return (await createSiteInstance<TYPE>(siteId, storedSiteUserConfig)) as TYPE extends "private"
-    ? PrivateSite
-    : BittorrentSite;
+  return await createSiteInstance<TYPE>(siteId, storedSiteUserConfig);
 }
 
 export async function getSiteFavicon(site: TSiteID | getFaviconMetadata, flush: boolean = false): Promise<string> {

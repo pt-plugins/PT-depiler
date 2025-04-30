@@ -106,6 +106,14 @@ export const useConfigStore = defineStore("config", {
 
     userInfo: {
       queueConcurrency: 1,
+      autoReflush: {
+        enabled: true,
+        interval: 60, // hours
+        retry: {
+          max: 3,
+          interval: 5, // minutes
+        },
+      },
     },
 
     download: {

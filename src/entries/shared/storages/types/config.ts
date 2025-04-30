@@ -50,12 +50,26 @@ export interface IConfigPiniaStorageSchema {
   };
 
   userInfo: {
+    // 更新用户信息时的最大并发数
     queueConcurrency: number;
+    autoReflush: {
+      // 是否开启自动刷新
+      enabled: boolean;
+      // 自动刷新间隔（ 1-12 小时 ）
+      interval: number;
+      retry: {
+        // 最大重试次数
+        max: number;
+        // 每次重试的间隔（ 1-5 分钟 ）
+        interval: number;
+      };
+    };
   };
 
   download: {
-    // 当使用本地方法下载时，如何下载种子
     saveLastDownloader: boolean;
+
+    // 当使用本地方法下载时，如何下载种子
     localDownloadMethod: TLocalDownloadMethod;
   };
 

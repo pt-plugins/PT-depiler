@@ -22,6 +22,9 @@ importers:
       "@vueuse/router":
         specifier: ^13.1.0
         version: 13.1.0(vue-router@4.5.0(vue@3.5.13(typescript@5.6.3)))(vue@3.5.13(typescript@5.6.3))
+      "@webext-core/job-scheduler":
+        specifier: ^1.0.0
+        version: 1.0.0
       "@webext-core/messaging":
         specifier: ^2.2.0
         version: 2.2.0
@@ -1327,6 +1330,10 @@ packages:
     peerDependencies:
       vue: ^3.5.0
 
+  "@webext-core/job-scheduler@1.0.0":
+    resolution:
+      { integrity: sha512-DdowrAsLWa3/YnvPSFC3FzgTv/foDeHXl1y8ZVYdVjpRexi/ogAC0vKW5Sdyd7koBwFAMa2EvTUXkm3/vveFJg== }
+
   "@webext-core/messaging@2.2.0":
     resolution:
       { integrity: sha512-CRKFSH8ZAp55QpzfseOO/RlW6fAVSGWYNJK1j23khB855Ba9wHu8PB3uuqMVZtfEAwAmsw/2U8HIkony5adFBQ== }
@@ -1777,6 +1784,11 @@ packages:
   create-require@1.1.1:
     resolution:
       { integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ== }
+
+  cron-parser@4.9.0:
+    resolution:
+      { integrity: sha512-p0SaNjrHOnQeR8/VnfGbmg9te2kfyYSQ7Sc/j/6DtPL3JQvKxmjO9TSjNFpujqV3vEYYBvNNvXSxzyksBWAx1Q== }
+    engines: { node: ">=12.0.0" }
 
   cross-fetch-ponyfill@1.0.3:
     resolution:
@@ -2286,6 +2298,10 @@ packages:
     resolution:
       { integrity: sha512-hGfm/slu0ZabnNt4oaRZ6uREyfCj6P4fT/n6A1rGV+Z0VdGXjfOhVUpkn6qVQONHGIFwmveGXyDs75+nr6FM8w== }
     engines: { node: ">= 6" }
+
+  format-duration@3.0.2:
+    resolution:
+      { integrity: sha512-pKzJDSRgK2lqAiPW3uizDaIJaJnataZclsahz25UMwfdryBGDa+1HlbXGjzpMvX/2kMh4O0sNevFXKaEfCjHsA== }
 
   formdata-polyfill@4.0.10:
     resolution:
@@ -3026,6 +3042,11 @@ packages:
   lru-cache@5.1.1:
     resolution:
       { integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w== }
+
+  luxon@3.6.1:
+    resolution:
+      { integrity: sha512-tJLxrKJhO2ukZ5z0gyjY1zPh3Rh88Ej9P7jNrZiHMUXHae1yvI2imgOZtL1TO8TW6biMMKfTtAOoEJANgtWBMQ== }
+    engines: { node: ">=12" }
 
   magic-string@0.30.17:
     resolution:
@@ -5399,6 +5420,12 @@ snapshots:
     dependencies:
       vue: 3.5.13(typescript@5.6.3)
 
+  "@webext-core/job-scheduler@1.0.0":
+    dependencies:
+      cron-parser: 4.9.0
+      format-duration: 3.0.2
+      webextension-polyfill: 0.10.0
+
   "@webext-core/messaging@2.2.0":
     dependencies:
       serialize-error: 11.0.3
@@ -5790,6 +5817,10 @@ snapshots:
       sha.js: 2.4.11
 
   create-require@1.1.1: {}
+
+  cron-parser@4.9.0:
+    dependencies:
+      luxon: 3.6.1
 
   cross-fetch-ponyfill@1.0.3:
     dependencies:
@@ -6241,6 +6272,8 @@ snapshots:
       combined-stream: 1.0.8
       es-set-tostringtag: 2.1.0
       mime-types: 2.1.35
+
+  format-duration@3.0.2: {}
 
   formdata-polyfill@4.0.10:
     dependencies:
@@ -6785,6 +6818,8 @@ snapshots:
   lru-cache@5.1.1:
     dependencies:
       yallist: 3.1.1
+
+  luxon@3.6.1: {}
 
   magic-string@0.30.17:
     dependencies:

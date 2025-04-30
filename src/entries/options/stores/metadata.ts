@@ -35,6 +35,7 @@ export const useMetadataStore = defineStore("metadata", {
     lastSearchFilter: "",
     lastUserInfo: {},
     lastDownloader: {},
+    lastUserInfoAutoFlushAt: 0,
   }),
 
   getters: {

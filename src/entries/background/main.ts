@@ -3,6 +3,11 @@ import { extStorage } from "@/storage.ts";
 import { log } from "~/helper.ts";
 
 import "./utils/omnibox.ts";
+import "./utils/offscreen.ts";
+import "./utils/alarms.ts";
+
+import { createFlushUserInfoJob } from "@/background/utils/alarms.ts";
+import { setupOffscreenDocument } from "@/background/utils/offscreen.ts";
 
 // 监听 点击图标 事件
 chrome.action.onClicked.addListener(async () => {
@@ -24,14 +29,4 @@ onMessage("getExtStorage", async ({ data: key }) => {
 
 onMessage("setExtStorage", async ({ data: { key, value } }) => {
   await extStorage.setItem(key, value);
-});
-
-// create offscreen for DOM_PARSER and other reason ( f**k google )
-chrome.offscreen?.hasDocument((has) => {
-  !has &&
-    chrome.offscreen.createDocument({
-      url: "src/entries/offscreen/offscreen.html",
-      reasons: [chrome.offscreen.Reason.DOM_PARSER],
-      justification: "Allow DOM_PARSER, CLIPBOARD, BLOBS in background.",
-    });
 });

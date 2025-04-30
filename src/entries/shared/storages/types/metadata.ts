@@ -8,8 +8,6 @@ import {
 import type { TSelectSearchCategoryValue } from "@ptd/site";
 import type { CAddTorrentOptions, DownloaderBaseConfig } from "@ptd/downloader";
 
-import { ITimelineUserInfoField } from "@/options/views/Overview/MyData/UserDataTimeline/utils.ts";
-
 export interface ISearchSolution {
   id: string;
   siteId: TSiteKey;
@@ -51,21 +49,37 @@ export interface IDownloaderMetadata extends DownloaderBaseConfig {
 }
 
 export interface IMetadataPiniaStorageSchema {
-  sites: Record<TSiteKey, ISiteUserConfig>; // 站点配置(用户配置)
-  solutions: Record<TSolutionKey, ISearchSolutionMetadata>; // 搜索方案配置
-  snapshots: Record<TSearchSnapshotKey, ISearchSnapshotMetadata>; // 搜索快照配置（元信息）
-  downloaders: Record<TDownloaderKey, IDownloaderMetadata>; // 下载器配置
+  // 站点配置(用户配置)
+  sites: Record<TSiteKey, ISiteUserConfig>;
 
-  defaultSolutionId: TSolutionKey | "default"; // 默认搜索方案
+  // 搜索方案配置
+  solutions: Record<TSolutionKey, ISearchSolutionMetadata>;
+
+  // 默认搜索方案
+  defaultSolutionId: TSolutionKey | "default";
+
+  /**
+   * 搜索快照配置（元信息）
+   * 具体快照内容需要通过 getSearchResultSnapshotData() 方法获取
+   */
+  snapshots: Record<TSearchSnapshotKey, ISearchSnapshotMetadata>;
+
+  // 下载器配置
+  downloaders: Record<TDownloaderKey, IDownloaderMetadata>;
+
+  // 上一次搜索时在结果页面的筛选词，需要启用 configStore.searchEntity.saveLastFilter
+  lastSearchFilter?: string;
 
   /**
    * 此处仅存储站点最近一次的记录，如果需要获取历史记录，需要使用 storage 方法获取
    */
   lastUserInfo: Record<TSiteKey, IStoredUserInfo>;
 
-  lastSearchFilter?: string;
   lastDownloader?: {
     id?: TDownloaderKey;
     options?: Omit<CAddTorrentOptions, "localDownloadOption">;
   };
+
+  // 上一次自动刷新的时间戳
+  lastUserInfoAutoFlushAt: number;
 }
