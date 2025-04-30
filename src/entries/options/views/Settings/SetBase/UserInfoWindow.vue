@@ -30,6 +30,8 @@ async function save() {
   if (configStore.userInfo.autoReflush.enabled) {
     // noinspection ES6MissingAwait
     getNextFlushUserInfoAt();
+  } else {
+    nextFlushUserInfoAt.value = 0;
   }
 }
 
@@ -60,7 +62,7 @@ onMounted(async () => {
           />
           <v-row v-if="configStore.userInfo.autoReflush.enabled" class="mt-1 ml-2">
             <v-alert type="info" variant="outlined">
-              <div class="d-inline-flex align-center">
+              <div class="d-inline-flex align-center text-no-wrap">
                 每隔
                 <v-select
                   v-model="configStore.userInfo.autoReflush.interval"
@@ -75,8 +77,8 @@ onMounted(async () => {
                 <p class="font-weight-bold">未刷新过</p>
                 的站点
               </div>
-              <div class="d-inline-flex align-center">
-                如果刷新中存在刷新失败，则重试
+              <div class="d-inline-flex align-center text-no-wrap">
+                如果刷新失败，则重试
                 <v-select
                   v-model="configStore.userInfo.autoReflush.retry.max"
                   :items="range(0, 6)"
@@ -84,7 +86,7 @@ onMounted(async () => {
                   density="compact"
                   hide-details
                 />
-                次，每次重试间隔
+                次，每次间隔
                 <v-select
                   v-model="configStore.userInfo.autoReflush.retry.interval"
                   :items="range(1, 11)"
@@ -98,7 +100,8 @@ onMounted(async () => {
                 最近一次刷新时间: {{ formatDate(metadataStore.lastUserInfoAutoFlushAt) }} &nbsp; 下一次刷新时间:
                 {{ nextFlushUserInfoAt != 0 ? formatDate(nextFlushUserInfoAt) : "-" }}
                 <v-btn
-                  v-if="nextFlushUserInfoAt == 0"
+                  class="ml-1"
+                  density="compact"
                   icon="mdi-refresh"
                   size="x-small"
                   variant="text"
@@ -113,7 +116,7 @@ onMounted(async () => {
     <v-divider />
     <v-card-actions>
       <v-row class="ml-2 my-1">
-        <v-btn color="green" variant="elevated" prepend-icon="mdi-check-circle-outline" @click="save">
+        <v-btn color="green" prepend-icon="mdi-check-circle-outline" variant="elevated" @click="save">
           {{ t("common.save") }}
         </v-btn>
       </v-row>

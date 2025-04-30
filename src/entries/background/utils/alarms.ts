@@ -23,7 +23,7 @@ export async function createFlushUserInfoJob() {
     retry: { max: retryMax = 0, interval: retryInterval = 5 } = {},
   } = configStore?.userInfo?.autoReflush ?? {};
 
-  function autoFlushUserInfo(isRetry: boolean = false) {
+  function autoFlushUserInfo(isRetry: boolean = false, retryIndex: number = 1) {
     return async () => {
       const curDate = new Date();
       const curDateFormat = format(curDate, "yyyy-MM-dd");
@@ -34,7 +34,7 @@ export async function createFlushUserInfoJob() {
       const failFlushSites: TSiteID[] = [];
       for (const siteId of Object.keys(metadataStore.sites)) {
         flushPromises.push(
-          new Promise(async (resolve) => {
+          new Promise(async (resolve, reject) => {
             const siteConfig = await sendMessage("getSiteUserConfig", { siteId });
             if (siteConfig.allowQueryUserInfo) {
               // 检查当天的记录是否存在
@@ -43,10 +43,11 @@ export async function createFlushUserInfoJob() {
                 const userInfoResult = await sendMessage("getSiteUserInfoResult", siteId);
                 if (userInfoResult.status !== EResultParseStatus.success) {
                   failFlushSites.push(siteId);
+                  reject(siteId); // 仅有刷新失败的时候才reject
                 }
-                resolve(userInfoResult);
               }
             }
+            resolve(siteId); // 其他状态（刷新成功、已有当天记录、不设置刷新）均视为resolve
           }),
         );
       }
@@ -60,17 +61,13 @@ export async function createFlushUserInfoJob() {
       await extStorage.setItem("metadata", metadataStore);
 
       // 如果本次有失败的刷新操作，则设置重试
-      if (failFlushSites.length > 0 && !isRetry) {
-        let retryIndex = 0;
-        while (retryIndex < retryMax) {
-          retryIndex++;
-          await jobs.scheduleJob({
-            id: EJobType.FlushUserInfo + "-Retry-" + retryIndex,
-            type: "once",
-            date: +curDate + retryIndex * retryInterval * 60 * 1000, // retryInterval in minutes
-            execute: autoFlushUserInfo(true),
-          });
-        }
+      if (failFlushSites.length > 0 && !isRetry && retryIndex < retryMax) {
+        await jobs.scheduleJob({
+          id: EJobType.FlushUserInfo + "-Retry-" + retryIndex,
+          type: "once",
+          date: +curDate + retryIndex * retryInterval * 60 * 1000, // retryInterval in minutes
+          execute: autoFlushUserInfo(true, retryIndex + 1),
+        });
       }
     };
   }

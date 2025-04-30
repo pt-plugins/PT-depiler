@@ -108,7 +108,7 @@ export const useConfigStore = defineStore("config", {
       queueConcurrency: 1,
       autoReflush: {
         enabled: true,
-        interval: 60, // hours
+        interval: 3, // hours
         retry: {
           max: 3,
           interval: 5, // minutes
