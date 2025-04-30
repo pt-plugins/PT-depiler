@@ -23,7 +23,7 @@ export async function createFlushUserInfoJob() {
     retry: { max: retryMax = 0, interval: retryInterval = 5 } = {},
   } = configStore?.userInfo?.autoReflush ?? {};
 
-  function autoFlushUserInfo(isRetry: boolean = false, retryIndex: number = 1) {
+  function autoFlushUserInfo(retryIndex: number = 0) {
     return async () => {
       const curDate = new Date();
       const curDateFormat = format(curDate, "yyyy-MM-dd");
@@ -61,12 +61,12 @@ export async function createFlushUserInfoJob() {
       await extStorage.setItem("metadata", metadataStore);
 
       // 如果本次有失败的刷新操作，则设置重试
-      if (failFlushSites.length > 0 && !isRetry && retryIndex < retryMax) {
+      if (failFlushSites.length > 0 && retryIndex < retryMax) {
         await jobs.scheduleJob({
           id: EJobType.FlushUserInfo + "-Retry-" + retryIndex,
           type: "once",
-          date: +curDate + retryIndex * retryInterval * 60 * 1000, // retryInterval in minutes
-          execute: autoFlushUserInfo(true, retryIndex + 1),
+          date: +curDate + (retryIndex + 1) * retryInterval * 60 * 1000, // retryInterval in minutes
+          execute: autoFlushUserInfo(retryIndex + 1),
         });
       }
     };
