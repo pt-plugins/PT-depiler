@@ -6,7 +6,7 @@ import type { ITorrent } from "./torrent";
 import type { ILevelRequirement, IUserInfo } from "./userinfo";
 import type { IElementQuery, ISearchCategories, ISearchConfig, ISearchEntryRequestConfig } from "./search";
 import type { timezoneOffset } from "../utils";
-import type { PrivateSite } from "@ptd/site";
+import type PrivateSite from "../schemas/AbstractPrivateSite.ts";
 
 export type SiteSchema =
   | "AbstractBittorrentSite"

@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { onMounted, ref } from "vue";
 import { range } from "es-toolkit";
 import { useI18n } from "vue-i18n";
 import { sendMessage } from "@/messages.ts";
+import { EJobType } from "@/background/utils/alarms.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -12,11 +14,29 @@ const runtimeStore = useRuntimeStore();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 
+const nextFlushUserInfoAt = ref<number>(0);
+
+async function getNextFlushUserInfoAt() {
+  const alarm = await chrome.alarms.get(EJobType.FlushUserInfo);
+  if (alarm) {
+    nextFlushUserInfoAt.value = alarm.scheduledTime;
+  }
+}
+
 async function save() {
   await configStore.$save();
   await sendMessage("setFlushUserInfoJob", undefined);
   runtimeStore.showSnakebar("保存成功", { color: "success" });
+  if (configStore.userInfo.autoReflush.enabled) {
+    // noinspection ES6MissingAwait
+    getNextFlushUserInfoAt();
+  }
 }
+
+onMounted(async () => {
+  // noinspection ES6MissingAwait
+  getNextFlushUserInfoAt();
+});
 </script>
 
 <template>
@@ -44,22 +64,22 @@ async function save() {
                 每隔
                 <v-select
                   v-model="configStore.userInfo.autoReflush.interval"
-                  :items="range(1, 23)"
+                  :items="range(1, 24)"
                   :max="23"
                   :min="1"
                   class="mx-2"
                   density="compact"
                   hide-details
                 />
-                小时，自动刷新一次当天<span class="font-weight-bold">未刷新过</span>的站点
+                小时，自动刷新一次当天
+                <p class="font-weight-bold">未刷新过</p>
+                的站点
               </div>
               <div class="d-inline-flex align-center">
                 如果刷新中存在刷新失败，则重试
                 <v-select
                   v-model="configStore.userInfo.autoReflush.retry.max"
-                  :items="range(0, 5)"
-                  :max="5"
-                  :min="0"
+                  :items="range(0, 6)"
                   class="mx-2"
                   density="compact"
                   hide-details
@@ -67,17 +87,23 @@ async function save() {
                 次，每次重试间隔
                 <v-select
                   v-model="configStore.userInfo.autoReflush.retry.interval"
-                  :items="range(1, 10)"
-                  :max="10"
-                  :min="0"
+                  :items="range(1, 11)"
                   class="mx-2"
                   density="compact"
                   hide-details
                 />
                 分钟。
               </div>
-              <div class="d-flex justify-end mt-1">
-                最近一次刷新时间： {{ formatDate(metadataStore.lastUserInfoAutoFlushAt) }}
+              <div class="d-flex align-center justify-end mt-1">
+                最近一次刷新时间: {{ formatDate(metadataStore.lastUserInfoAutoFlushAt) }} &nbsp; 下一次刷新时间:
+                {{ nextFlushUserInfoAt != 0 ? formatDate(nextFlushUserInfoAt) : "-" }}
+                <v-btn
+                  v-if="nextFlushUserInfoAt == 0"
+                  icon="mdi-refresh"
+                  size="x-small"
+                  variant="text"
+                  @click="getNextFlushUserInfoAt"
+                ></v-btn>
               </div>
             </v-alert>
           </v-row>

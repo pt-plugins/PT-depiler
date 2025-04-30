@@ -14,8 +14,6 @@ const emits = defineEmits<{
 
 const { t } = useI18n();
 
-console.log(toDeleteIds, confirmDeleteFn);
-
 async function confirmDelete() {
   for (const toDeleteId of toDeleteIds) {
     await confirmDeleteFn(toDeleteId);

@@ -6,7 +6,7 @@ import { extStorage } from "@/storage.ts";
 import { onMessage, sendMessage } from "@/messages.ts";
 import { setupOffscreenDocument } from "@/background/utils/offscreen.ts";
 
-enum EJobType {
+export enum EJobType {
   FlushUserInfo = "flushUserInfo",
 }
 

@@ -6,9 +6,6 @@ import "./utils/omnibox.ts";
 import "./utils/offscreen.ts";
 import "./utils/alarms.ts";
 
-import { createFlushUserInfoJob } from "@/background/utils/alarms.ts";
-import { setupOffscreenDocument } from "@/background/utils/offscreen.ts";
-
 // 监听 点击图标 事件
 chrome.action.onClicked.addListener(async () => {
   await chrome.runtime.openOptionsPage();
