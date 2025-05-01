@@ -5,10 +5,8 @@ import Konva from "konva";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { useElementSize } from "@vueuse/core";
-import { formatDistanceToNow } from "date-fns";
-import { zhCN as dFLocalZhCn } from "date-fns/locale/zh-CN";
 
-import { formatDate } from "@/options/utils.ts";
+import { formatDate, formatTimeAgo } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -128,14 +126,7 @@ const formatSiteDate = (siteDate: number) =>
     if (control.dateFormat === "time_added") {
       return formatDate(siteDate, "yyyy-MM-dd");
     } else {
-      const formatOptions: any = {
-        addSuffix: true,
-      };
-      if (configStore.lang === "zh_CN") {
-        formatOptions.locale = dFLocalZhCn;
-      }
-
-      return formatDistanceToNow(siteDate, formatOptions);
+      return formatTimeAgo(siteDate);
     }
   });
 

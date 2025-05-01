@@ -9,6 +9,17 @@
     },
     "default": "default",
     "date": "Date",
+    "time": {
+      "year": "Year",
+      "month": "Month",
+      "week": "Week",
+      "day": "Day",
+      "hour": "Hour",
+      "minute": "Minute",
+      "second": "Second",
+      "lessThanAWeek": "Less than a week",
+      "ago": " Ago"
+    },
     "dialog": {
       "cancel": "Cancel",
       "next": "Next",
@@ -142,7 +153,15 @@
   "MyData": {
     "index": {
       "flushSelectSite": "Flush selected",
-      "flushCancel": "Flush canceled"
+      "flushCancel": "Flush canceled",
+      "showSiteName": "Show Site Name",
+      "showUserName": "Show Username",
+      "normalizeLevelName": "Use Site-defined Level Name",
+      "showLevelRequirement": "Show Level Requirement",
+      "showHnR": "Show H&R",
+      "showSeedingBonus": "Show Seeding Bonus",
+      "joinTimeWeekOnly": "Display join time as relative weeks",
+      "updateAtFormatAsAlive": "Display update At as Relative Time"
     },
     "table": {
       "site": "Site",

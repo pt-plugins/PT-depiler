@@ -11,6 +11,7 @@ import {
   TLevelGroupType,
 } from "@ptd/site";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { useConfigStore } from "@/options/stores/config.ts";
 import { formatDate } from "../../../utils.ts";
 
 import UserLevelsComponent from "./UserLevelsComponent.vue";
@@ -21,6 +22,7 @@ const { userInfo } = defineProps<{
 
 const currentTime = +new Date();
 
+const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 
 const userLevelRequirements = computedAsync(() => {
@@ -29,6 +31,14 @@ const userLevelRequirements = computedAsync(() => {
 
 const matchedLevelRequirements = computed(() => {
   return userLevelRequirements.value?.find((r) => r.id === userInfo.levelId);
+});
+
+const levelName = computed(() => {
+  if (!configStore.myDataTableControl.normalizeLevelName) {
+    return userInfo.levelName;
+  }
+
+  return matchedLevelRequirements.value?.name ?? userInfo.levelName;
 });
 
 const nextLevelUnMet = computedAsync(() => getNextLevelUnMet(userInfo, userLevelRequirements.value!), {});
@@ -57,15 +67,17 @@ const userLevelGroupIcon = computed(() => {
 <template>
   <span v-if="userInfo.levelName" class="text-no-wrap">
     <v-tooltip
-      v-if="userLevelRequirements && userLevelRequirements.length > 0"
+      v-if="
+        configStore.myDataTableControl.showLevelRequirement && userLevelRequirements && userLevelRequirements.length > 0
+      "
       content-class="bg-white pa-0"
       interactive
       location="bottom left"
     >
       <template v-slot:activator="{ props }">
-        <span v-bind="props" class="ml-1">
+        <span v-bind="props">
           <v-icon :icon="userLevelGroupIcon" size="16"></v-icon>
-          {{ matchedLevelRequirements?.name ?? userInfo.levelName }}
+          {{ levelName }}
         </span>
       </template>
 
@@ -135,7 +147,7 @@ const userLevelGroupIcon = computed(() => {
     </v-tooltip>
     <span v-else>
       <v-icon :icon="userLevelGroupIcon" size="16"></v-icon>
-      {{ matchedLevelRequirements?.name ?? userInfo.levelName }}
+      {{ levelName }}
     </span>
   </span>
 

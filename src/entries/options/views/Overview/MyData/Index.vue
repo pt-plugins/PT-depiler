@@ -17,7 +17,7 @@ import UserLevelRequirementsTd from "./UserLevelRequirementsTd.vue";
 
 import { EResultParseStatus, type ISiteUserConfig, IUserInfo, TSiteID } from "@ptd/site";
 
-import { formatDate, formatNumber, formatSize } from "@/options/utils.ts";
+import { formatDate, formatNumber, formatSize, formatTimeAgo } from "@/options/utils.ts";
 import HistoryDataViewDialog from "@/options/views/Overview/MyData/HistoryDataViewDialog.vue";
 import ResultParseStatus from "@/options/components/ResultParseStatus.vue";
 import NavButton from "@/options/components/NavButton.vue";
@@ -156,9 +156,9 @@ function viewStatistic() {
         <NavButton
           v-else
           :disabled="tableSelected.length === 0"
+          :text="t('MyData.index.flushSelectSite')"
           color="green"
           icon="mdi-cached"
-          :text="t('MyData.index.flushSelectSite')"
           @click="() => flushSiteLastUserInfo(tableSelected)"
         />
 
@@ -170,12 +170,35 @@ function viewStatistic() {
           @click="multiOpen"
         />
 
-        <v-divider vertical class="mx-2" />
+        <v-divider class="mx-2" vertical />
 
-        <NavButton text="时间轴" color="green" icon="mdi-chart-timeline-variant" @click="viewTimeline" />
-        <NavButton text="数据图表" color="green" icon="mdi-equalizer" @click="viewStatistic" />
+        <NavButton color="green" icon="mdi-chart-timeline-variant" text="时间轴" @click="viewTimeline" />
+        <NavButton color="green" icon="mdi-equalizer" text="数据图表" @click="viewStatistic" />
 
-        <v-divider vertical class="mx-2" />
+        <v-divider class="mx-2" vertical />
+
+        <v-menu :close-on-content-clicks="false">
+          <template v-slot:activator="{ props }">
+            <NavButton color="blue" icon="mdi-cog" text="设置" class="mr-1" v-bind="props" />
+          </template>
+          <v-list>
+            <v-list-item v-for="(item, index) in configStore.myDataTableControl" :key="index" :value="index">
+              <template v-slot:prepend>
+                <v-list-item-action start class="ml-2">
+                  <v-switch
+                    v-model="configStore.myDataTableControl[index]"
+                    :label="`&nbsp;${t('MyData.index.' + index)}`"
+                    color="success"
+                    density="compact"
+                    hide-details
+                    @click.stop
+                    @update:model-value="() => configStore.$save()"
+                  />
+                </v-list-item-action>
+              </template>
+            </v-list-item>
+          </v-list>
+        </v-menu>
 
         <v-combobox
           v-model="configStore.tableBehavior.MyData.columns"
@@ -184,8 +207,8 @@ function viewStatistic() {
           chips
           class="table-header-filter-clear"
           density="compact"
-          item-value="key"
           hide-details
+          item-value="key"
           max-width="200"
           multiple
           prepend-inner-icon="mdi-filter-cog"
@@ -236,7 +259,7 @@ function viewStatistic() {
                     indeterminate
                     @click.stop="(v: any) => toggleKeywordStateFn(`siteUserConfig.groups`, index)"
                     @update:model-value="() => updateTableFilterValueFn()"
-                  ></v-checkbox>
+                  />
                 </v-list-item>
               </v-list>
             </v-menu>
@@ -264,14 +287,16 @@ function viewStatistic() {
       <!-- 站点信息 -->
       <template #item.siteUserConfig.sortIndex="{ item }">
         <div class="d-flex flex-column align-center">
-          <SiteFavicon :site-id="item.site" :size="18" />
-          <SiteName :site-id="item.site" />
+          <SiteFavicon :site-id="item.site" :size="configStore.myDataTableControl.showSiteName ? 18 : 24" />
+          <SiteName v-if="configStore.myDataTableControl.showSiteName" :site-id="item.site" />
         </div>
       </template>
 
       <!-- 用户名，用户ID -->
       <template #item.name="{ item }">
-        <span :title="item.id as string" class="text-no-wrap">{{ item.name ?? "-" }}</span>
+        <span :title="item.id as string" class="text-no-wrap">
+          {{ configStore.myDataTableControl.showUserName ? (item.name ?? "-") : "******" }}
+        </span>
       </template>
 
       <!-- 等级信息，升级信息 -->
@@ -352,7 +377,11 @@ function viewStatistic() {
             </span>
           </v-row>
           <v-row
-            v-if="item.seedingBonus !== '' && !isUndefined(item.seedingBonus)"
+            v-if="
+              configStore.myDataTableControl.showSeedingBonus &&
+              item.seedingBonus !== '' &&
+              !isUndefined(item.seedingBonus)
+            "
             align="center"
             class="flex-nowrap"
             justify="end"
@@ -372,13 +401,29 @@ function viewStatistic() {
 
       <!-- 入站时间 -->
       <template #item.joinTime="{ item }">
-        <span class="text-no-wrap">{{ typeof item.joinTime !== "undefined" ? formatDate(item.joinTime) : "-" }}</span>
+        <span class="text-no-wrap" :title="item.joinTime ? (formatDate(item.joinTime) as string) : '-'">
+          {{
+            typeof item.joinTime !== "undefined"
+              ? configStore.myDataTableControl.joinTimeWeekOnly
+                ? formatTimeAgo(item.joinTime, true)
+                : formatDate(item.joinTime)
+              : "-"
+          }}
+        </span>
       </template>
 
       <!-- 更新时间 -->
       <template #item.updateAt="{ item }">
         <template v-if="item.status === EResultParseStatus.success">
-          <span class="text-no-wrap">{{ item.updateAt ? formatDate(item.updateAt) : "-" }}</span>
+          <span class="text-no-wrap" :title="item.updateAt ? (formatDate(item.updateAt) as string) : '-'">
+            {{
+              item.updateAt
+                ? configStore.myDataTableControl.updateAtFormatAsAlive
+                  ? formatTimeAgo(item.updateAt)
+                  : formatDate(item.updateAt)
+                : "-"
+            }}
+          </span>
         </template>
         <template v-else>
           <v-chip label><ResultParseStatus :status="item.status" /></v-chip>

@@ -25,9 +25,32 @@ export interface IConfigPiniaStorageSchema {
   ignoreWrongPixelRatio: boolean;
 
   saveTableBehavior: boolean;
+
+  // 用于存储 v-data-table 表格的展示
   tableBehavior: Record<UiTableBehaviorKey, UiTableBehaviorItem>;
 
-  userName: string; // 用 timeline 和 statistic 展示的用户名，如果为 "" 则由使用最多的站点决定
+  // 用 timeline 和 statistic 等展示的用户名，如果为 "" 则由使用最多的站点决定（使用 configStore.getUserNames.perfName 获取）
+  userName: string;
+
+  // 对 MyData 页面 v-data-table 展示的额外控制项
+  myDataTableControl: {
+    // 是否展示站点名称
+    showSiteName: boolean;
+    // 是否展示用户名，如果不展示，则显示为 ******
+    showUserName: boolean;
+    // 是否使用站点定义中的 levelRequirements 中的名称来统一显示等级名称，如果不使用，则直接显示为 getUserInfo 获取到的信息
+    normalizeLevelName: boolean;
+    // 是否展示升级情况及站点等级情况
+    showLevelRequirement: boolean;
+    // TODO 是否展示HnR
+    showHnR: boolean;
+    // 是否展示保种积分
+    showSeedingBonus: boolean;
+    // 加入时间显示为周数，默认不使用
+    joinTimeWeekOnly: boolean;
+    // 是否使用 time_alive(过去时间) 来展示，如果不使用，则使用 time_added(发生时间) 来展示，默认不使用
+    updateAtFormatAsAlive: boolean;
+  };
 
   userDataTimelineControl: {
     title: string; // 时间线标题
@@ -35,7 +58,7 @@ export interface IConfigPiniaStorageSchema {
     showTimeline: boolean;
     showField: Record<ITimelineUserInfoField["name"] | "ratio", boolean>; // 需要展示的数据，注意 ratio, siteCount, totalYear 不作为设置项
     showPerSiteField: Record<"siteName" | "name" | "level" | "uid", boolean>; // 需要展示的站点数据
-    dateFormat: "time_added" /* 发生时间  yyyy-MM-dd */ | "time_alive" /* 过去时间 xxx ago */;
+    dateFormat: "time_added" /*     yyyy-MM-dd */ | "time_alive" /* 过去时间 xxx ago */;
     faviconBlue: number;
   };
 

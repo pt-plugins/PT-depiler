@@ -69,6 +69,17 @@ export const useConfigStore = defineStore("config", {
 
     userName: "",
 
+    myDataTableControl: {
+      showSiteName: true,
+      showUserName: true,
+      normalizeLevelName: true,
+      showLevelRequirement: true,
+      showHnR: true,
+      showSeedingBonus: true,
+      joinTimeWeekOnly: false,
+      updateAtFormatAsAlive: false,
+    },
+
     userDataTimelineControl: {
       title: "",
       showField: {

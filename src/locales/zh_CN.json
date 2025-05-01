@@ -9,6 +9,17 @@
     },
     "default": "默认",
     "date": "日期",
+    "time": {
+      "year": "年",
+      "month": "月",
+      "week": "周",
+      "day": "日",
+      "hour": "时",
+      "minute": "分",
+      "second": "秒",
+      "lessThanAWeek": "不足一周",
+      "ago": "前"
+    },
     "dialog": {
       "cancel": "取消",
       "next": "下一步",
@@ -143,7 +154,15 @@
   "MyData": {
     "index": {
       "flushSelectSite": "刷新数据",
-      "flushCancel": "取消刷新"
+      "flushCancel": "取消刷新",
+      "showSiteName": "显示站点名称",
+      "showUserName": "显示用户名",
+      "normalizeLevelName": "使用站点定义的等级名称",
+      "showLevelRequirement": "显示等级要求",
+      "showHnR": "显示 H&R",
+      "showSeedingBonus": "显示做种积分",
+      "joinTimeWeekOnly": "入站时间显示为相对周数",
+      "updateAtFormatAsAlive": "更新时间显示为相对时间"
     },
     "table": {
       "site": "站点",
