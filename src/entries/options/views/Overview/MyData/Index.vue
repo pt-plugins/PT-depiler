@@ -74,6 +74,7 @@ const {
 } = useTableCustomFilter<IUserInfoItem>({
   parseOptions: {
     keywords: ["site", "status", "siteUserConfig.groups"],
+    ranges: ["updateAt", "messageCount"],
   },
   titleFields: ["site", "name", "siteUserConfig.merge.name"],
 });
@@ -242,6 +243,42 @@ function viewStatistic() {
                 <v-icon icon="mdi-filter" v-bind="props" variant="plain" />
               </template>
               <v-list class="pa-0">
+                <v-list-item-subtitle class="ma-2">站点状态</v-list-item-subtitle>
+
+                <v-list-item
+                  title="今日未更新"
+                  @click.stop="
+                    () => {
+                      advanceFilterDictRef.updateAt.value = ['', formatDate(new Date(), 'yyyyMMdd')];
+                      updateTableFilterValueFn();
+                    }
+                  "
+                />
+
+                <v-list-item
+                  title="最后更新状态异常"
+                  @click.stop="
+                    () => {
+                      advanceFilterDictRef.status.required = [
+                        EResultParseStatus.parseError,
+                        EResultParseStatus.unknownError,
+                        EResultParseStatus.needLogin,
+                      ].map((item) => item.toString());
+                      updateTableFilterValueFn();
+                    }
+                  "
+                />
+
+                <v-list-item
+                  title="未读信息"
+                  @click.stop="
+                    () => {
+                      advanceFilterDictRef.messageCount.value = [1, ' '];
+                      updateTableFilterValueFn();
+                    }
+                  "
+                />
+
                 <v-list-item-subtitle class="ma-2">站点分类</v-list-item-subtitle>
 
                 <v-list-item
