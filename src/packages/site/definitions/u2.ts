@@ -107,12 +107,12 @@ export const siteMetadata: ISiteMetadata = {
       },
       seeding: {
         selector: [":self"],
-        filters: [(query: string) => (query.match(/<b>(\d+)<\/b>条记录/) || ["0"])[1], { name: "parseNumber" }],
+        filters: [(query: string) => query.match(/<b>(\d+)<\/b>条记录/)?.[1] ?? "0", { name: "parseNumber" }],
       },
       seedingSize: {
         selector: [":self"],
         filters: [
-          (query: string) => (query.match(/大小.+?([\d.]+ [ZEPTGMK]?i?B)</) || ["0 B"])[1],
+          (query: string) => query.match(/大小.+?([\d.]+ [ZEPTGMK]?i?B)</)?.[1] ?? "0 B",
           { name: "parseSize" },
         ],
       },
