@@ -26,12 +26,6 @@ export const setBaseChildren: RouteRecordRaw[] = [
     meta: { icon: "mdi-account" },
     component: () => import("../views/Settings/SetBase/UserInfoWindow.vue"),
   },
-  {
-    path: "reset",
-    name: "SetBaseReset",
-    meta: { icon: "mdi-refresh" },
-    component: () => import("../views/Settings/SetBase/ResetWindow.vue"),
-  },
 ] as const;
 
 export const routes: RouteRecordRaw[] = [

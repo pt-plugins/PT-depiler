@@ -33,6 +33,7 @@ interface ProtocolMap {
   // 2.1 站点基础 ( utils/site )
   getSiteUserConfig(data: { siteId: TSiteID; flush?: boolean }): ISiteUserConfig;
   getSiteFavicon(data: { site: TSiteID | getFaviconMetadata; flush?: boolean }): string;
+  clearSiteFaviconCache(): void;
 
   // 2.2 站点搜索、搜索快照 ( utils/search )
   getSiteSearchResult(data: {
@@ -70,6 +71,7 @@ interface ProtocolMap {
 
   // 2.5 社交信息 ( utils/socialInformation )
   getSocialInformation(data: { site: TSupportSocialSite; sid: string }): ISocialInformation;
+  clearSocialInformationCache(): void;
 }
 
 export const { sendMessage, onMessage } = defineExtensionMessaging<ProtocolMap>({});

@@ -31,3 +31,7 @@ export async function deleteSocialInformation(site: TSupportSocialSite, sid: str
 export async function clearSocialInformation() {
   return await (await ptdIndexDb).clear("social_information");
 }
+
+onMessage("clearSocialInformationCache", async () => {
+  await clearSocialInformation();
+});

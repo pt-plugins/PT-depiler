@@ -8,6 +8,8 @@ import {
   type TSiteID,
 } from "@ptd/site";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { useConfigStore } from "@/options/stores/config.ts";
+import { sendMessage } from "@/messages.ts";
 
 const selectedSite = ref<TSiteID>("");
 const useCustomerConfig = ref<boolean>(true);
@@ -54,6 +56,72 @@ async function getPiniaStore(storeName: string) {
 const log = async (v: any) => {
   console.log(await v);
 };
+
+interface resetItem {
+  title: string;
+  subTitle?: string;
+  resetFn: () => Promise<void>;
+}
+
+const resetItems: resetItem[] = [
+  {
+    title: "重置系统设置",
+    subTitle: "重置所有系统设置（包括但不限于语言、主题、表格展示、图片样式等常规设置）为默认值",
+    resetFn: async () => {
+      const configStore = useConfigStore();
+      configStore.$reset();
+      await configStore.$save();
+    },
+  },
+  {
+    title: "清空用户配置",
+    subTitle: "清空所有用户配置（包括但不限于站点、下载器、搜索方案及默认值、搜索快照元数据、最近一次用户信息）",
+    resetFn: async () => {
+      const metadataStore = useMetadataStore();
+      metadataStore.$reset();
+      await metadataStore.$save();
+    },
+  },
+  {
+    title: "清空站点数据",
+    subTitle: "清空用户所有历史获取的站点数据",
+    resetFn: async () => {
+      await sendMessage("setExtStorage", { key: "userInfo", value: {} });
+    },
+  },
+  {
+    title: "清空历史下载记录",
+    resetFn: async () => {
+      await sendMessage("clearDownloadHistory", undefined);
+    },
+  },
+  {
+    title: "清空站点 Favicon 缓存",
+    resetFn: async () => {
+      await sendMessage("clearSiteFaviconCache", undefined);
+    },
+  },
+  {
+    title: "清空来自豆瓣、IMDb等信息站点的媒体简介缓存",
+    resetFn: async () => {
+      await sendMessage("clearSocialInformationCache", undefined);
+    },
+  },
+  {
+    title: "清空搜索快照",
+    subTitle: "清空所有搜索快照数据",
+    resetFn: async () => {
+      await sendMessage("setExtStorage", { key: "searchResultSnapshot", value: {} });
+    },
+  },
+];
+
+async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
+  if (confirm("确定要重置吗？")) {
+    await resetFn();
+    alert("重置成功");
+  }
+}
 </script>
 
 <template>
@@ -106,6 +174,38 @@ const log = async (v: any) => {
                   <v-btn class="mr-2" :disabled="!selectedPiniaStore" @click="log(getPiniaStore(selectedPiniaStore))">
                     输出Pinia信息
                   </v-btn>
+                </v-col>
+              </v-row>
+            </v-container>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div class="d-flex justify-center align-center text-body-2">设置重置</div>
+          </td>
+          <td>
+            <v-container>
+              <v-row no-gutters>
+                <v-col cols="12">
+                  <v-alert type="warning" variant="tonal">极其危险！！！！</v-alert>
+                </v-col>
+                <v-col md="8">
+                  <v-list>
+                    <v-list-item
+                      v-for="item in resetItems"
+                      :key="item.title"
+                      :title="item.title"
+                      :subtitle="item.subTitle"
+                      color="primary"
+                      rounded
+                    >
+                      <template v-slot:prepend>
+                        <v-list-item-action class="mr-2">
+                          <v-btn color="red" @click="() => resetFnWrapper(item.resetFn)">重置</v-btn>
+                        </v-list-item-action>
+                      </template>
+                    </v-list-item>
+                  </v-list>
                 </v-col>
               </v-row>
             </v-container>

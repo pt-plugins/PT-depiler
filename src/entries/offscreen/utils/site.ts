@@ -75,3 +75,9 @@ export async function getSiteFavicon(site: TSiteID | getFaviconMetadata, flush: 
 }
 
 onMessage("getSiteFavicon", async ({ data: { site, flush } }) => (await getSiteFavicon(site, flush))!);
+
+export async function clearSiteFaviconCache() {
+  return await (await ptdIndexDb).clear("favicon");
+}
+
+onMessage("clearSiteFaviconCache", async () => await clearSiteFaviconCache());
