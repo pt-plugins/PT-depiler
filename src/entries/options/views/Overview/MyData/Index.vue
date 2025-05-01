@@ -392,9 +392,33 @@ function viewStatistic() {
         <span class="text-no-wrap">{{ item.uploads ?? "-" }}</span>
       </template>
 
-      <!-- TODO 做种数， H&R 情况  -->
+      <!-- 做种数， H&R 情况  -->
       <template #item.seeding="{ item }">
-        <span class="text-no-wrap">{{ item.seeding ?? "-" }}</span>
+        <v-container>
+          <v-row align="center" class="flex-nowrap" justify="end">
+            <span class="text-no-wrap">{{ item.seeding ?? "-" }}</span>
+          </v-row>
+          <v-row
+            v-if="
+              configStore.myDataTableControl.showHnR &&
+              typeof item.hnrUnsatisfied !== 'undefined' &&
+              item.hnrUnsatisfied > 0
+            "
+            align="center"
+            class="flex-nowrap"
+            justify="end"
+          >
+            <v-icon
+              :title="t('levelRequirement.hnrUnsatisfied')"
+              color="yellow-darken-4"
+              icon="mdi-alert"
+              size="small"
+            />
+            <span class="text-no-wrap">
+              {{ item.hnrUnsatisfied }}
+            </span>
+          </v-row>
+        </v-container>
       </template>
 
       <!-- 做种体积 -->
