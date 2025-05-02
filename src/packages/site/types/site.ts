@@ -15,7 +15,8 @@ export type SiteSchema =
   | "Unit3D"
   | "Gazelle"
   | "GazelleJSONAPI"
-  | "AvistaZ";
+  | "AvistaZ"
+  | string;
 
 export interface ISiteUserInputMeta {
   name: string; // 存储在 userConfig.inputSetting 中的名称

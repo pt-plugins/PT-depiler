@@ -1,5 +1,6 @@
 <!--suppress HtmlUnknownTag -->
 <script setup lang="ts">
+import { saveAs } from "file-saver";
 import { computed, onMounted, reactive, ref, shallowRef, useTemplateRef } from "vue";
 import Konva from "konva";
 import { useI18n } from "vue-i18n";
@@ -168,10 +169,7 @@ function exportTimelineImg() {
     mimeType: "image/png",
     pixelRatio: 3,
     callback: (dataUrl: string) => {
-      const a = document.createElement("a");
-      a.href = dataUrl;
-      a.download = `${configStore.userName}的时间轴（${formatDate(timelineData.value.createAt)}）.png`;
-      a.click();
+      saveAs(dataUrl, `${configStore.userName}的时间轴（${formatDate(timelineData.value.createAt)}）.png`);
     },
   });
 }

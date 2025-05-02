@@ -1,18 +1,23 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
+import { omit } from "es-toolkit";
+import { saveAs } from "file-saver";
+import { ISearchSolutionMetadata, TSolutionKey } from "@/storage.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-
-import type { TSolutionKey } from "@/storage.ts";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 import EditDialog from "./EditDialog.vue";
 import SolutionLabel from "./SolutionLabel.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";
+import { nanoid } from "nanoid";
+import { formatDate } from "@/options/utils.ts";
 
 const { t } = useI18n();
 const configStore = useConfigStore();
+const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 
 const showEditDialog = ref(false);
@@ -46,9 +51,61 @@ function editSearchSolution(toEditSolutionId: TSolutionKey) {
   showEditDialog.value = true;
 }
 
+type IExportedSearchSolution = Omit<ISearchSolutionMetadata, "id" | "enabled" | "createdAt" | "isDefault" | "sort">;
+
+const importFileInputRef = useTemplateRef<HTMLInputElement>("importFile");
+function importSearchSolution(e: Event) {
+  if (e.target instanceof HTMLInputElement && e.target.files && e.target.files.length > 0) {
+    for (const file of e.target.files) {
+      const r = new FileReader();
+      r.onload = (e: any) => {
+        try {
+          const result = JSON.parse(e.target.result) as IExportedSearchSolution[];
+          for (const solution of result) {
+            let importSolution = solution as ISearchSolutionMetadata;
+
+            if (importSolution.solutions && importSolution.solutions.length > 0) {
+              // 补全导出时移除的字段
+              importSolution.id = nanoid();
+              importSolution.enabled = false;
+              importSolution.createdAt = +new Date();
+              importSolution.isDefault = false;
+              importSolution.sort = 1;
+
+              metadataStore.addSearchSolution(importSolution);
+            }
+          }
+        } catch (error) {
+          runtimeStore.showSnakebar("Invalid JSON format when import search solution", { color: "error" });
+        }
+      };
+      r.onerror = () => {
+        runtimeStore.showSnakebar("Invalid JSON format when load import file", { color: "error" });
+      };
+      r.readAsText(file);
+    }
+  }
+}
+
+function exportSearchSolutions(solutionIds: TSolutionKey[]) {
+  const exportedSolutions: IExportedSearchSolution[] = [];
+  for (const solutionId of solutionIds) {
+    exportedSolutions.push(
+      omit(metadataStore.solutions[solutionId], ["id", "enabled", "createdAt", "isDefault", "sort"]),
+    );
+  }
+
+  if (exportedSolutions.length > 0) {
+    const exportedSolutionBlob = new Blob([JSON.stringify(exportedSolutions)], { type: "application/json" });
+    saveAs(exportedSolutionBlob, `search-solutions-export-${formatDate(new Date(), "yyyyMMdd'T'HHmm")}.json`); // FIXME filename
+  } else {
+    runtimeStore.showSnakebar("No solutions to export", { color: "error" });
+  }
+}
+
 const toDeleteIds = ref<TSolutionKey[]>([]);
-function deleteSearchSolution(solutionId: TSolutionKey[]) {
-  toDeleteIds.value = solutionId;
+function deleteSearchSolutions(solutionIds: TSolutionKey[]) {
+  toDeleteIds.value = solutionIds;
   showDeleteDialog.value = true;
 }
 
@@ -91,12 +148,33 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
           :text="t('common.remove')"
           color="error"
           icon="mdi-minus"
-          @click="deleteSearchSolution(tableSelected)"
+          @click="deleteSearchSolutions(tableSelected)"
+        />
+
+        <v-divider class="mx-2" inset vertical />
+
+        <input
+          ref="importFile"
+          accept="application/json"
+          multiple
+          style="display: none"
+          type="file"
+          @change="importSearchSolution"
+        />
+
+        <NavButton color="info" icon="mdi-import" text="导入" @click="() => importFileInputRef?.click()" />
+        <NavButton
+          :disabled="tableSelected.length === 0"
+          color="info"
+          icon="mdi-export"
+          text="导出"
+          @click="exportSearchSolutions(tableSelected)"
         />
 
         <v-divider class="mx-2" inset vertical />
 
         <NavButton :text="t('common.howToUse')" color="light-blue" disabled icon="mdi-help-circle" />
+
         <v-spacer />
 
         <v-text-field
@@ -167,11 +245,18 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
             @click="() => editSearchSolution(item.id)"
           />
           <v-btn
+            :title="`导出`"
+            size="small"
+            color="info"
+            icon="mdi-export"
+            @click="exportSearchSolutions([item.id])"
+          />
+          <v-btn
             :title="$t('common.remove')"
             color="error"
             icon="mdi-delete"
             size="small"
-            @click="() => deleteSearchSolution([item.id])"
+            @click="() => deleteSearchSolutions([item.id])"
           >
           </v-btn>
         </v-btn-group>

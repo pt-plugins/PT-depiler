@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { saveAs } from "file-saver";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { useElementSize } from "@vueuse/core";
 import { computed, onMounted, ref, shallowRef, provide, useTemplateRef } from "vue";
-
 import { flatten, mapValues, pick, uniq } from "es-toolkit";
 import VChart, { THEME_KEY } from "vue-echarts";
 import { isNumber } from "es-toolkit/compat";
@@ -296,11 +296,9 @@ async function exportStatisticImg() {
   );
 
   // 导出图片
-  const dataURL = mainCanvas.toDataURL("image/png");
-  const link = document.createElement("a");
-  link.href = dataURL;
-  link.download = `${configStore.userName}的数据图表（${createdAt}）.png`;
-  link.click();
+  mainCanvas.toBlob((blob) => {
+    saveAs(blob!, `${configStore.userName}的数据图表（${createdAt}）.png`);
+  });
 }
 
 function saveControl() {
