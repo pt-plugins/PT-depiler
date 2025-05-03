@@ -213,6 +213,7 @@ export const siteMetadata: ISiteMetadata = {
           "joinTime",
           "seeding",
           "seedingSize",
+          "uploads",
         ],
       },
     ],
@@ -271,6 +272,14 @@ export const siteMetadata: ISiteMetadata = {
             seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim());
           });
           return seedingSize;
+        },
+      },
+      uploads: {
+        text: 0,
+        selector: "div#ka1",
+        elementProcess: (element: HTMLElement) => {
+          const trAnothers = Sizzle("tr:not(:eq(0))", element);
+          return trAnothers.length;
         },
       },
     },
