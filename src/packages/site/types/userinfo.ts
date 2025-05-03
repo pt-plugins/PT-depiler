@@ -83,6 +83,7 @@ export interface IUserInfo extends Omit<IImplicitUserInfo, "interval"> {
   ratio?: number; // 分享率
   trueRatio?: number; // 真实分享率
   seedingSize?: number; // 做种体积
+  uploads?: number; // 发布种子数
 
   [key: string]: any; // 其他信息
 }
