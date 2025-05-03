@@ -8,7 +8,7 @@ import type { TSize } from "../utils/filesize";
 /**
  * user     组别 0-99
  * vip      组别 100-199
- * manager  组别 200-300
+ * manager  组别 200-299
  */
 export type TLevelId = number;
 export type TLevelName = string;
@@ -83,7 +83,6 @@ export interface IUserInfo extends Omit<IImplicitUserInfo, "interval"> {
   ratio?: number; // 分享率
   trueRatio?: number; // 真实分享率
   seedingSize?: number; // 做种体积
-  uploads?: number; // 发布种子数
 
   [key: string]: any; // 其他信息
 }

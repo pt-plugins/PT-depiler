@@ -1,4 +1,7 @@
+import axios from "axios";
+import { uniq } from "es-toolkit";
 import type { IFetchSocialSiteInformationConfig, IPtgenApiResponse, ISocialInformation } from "../types";
+import { name as EXT_NAME, version as EXT_VERSION } from "~/../package.json";
 
 export function build(id: string): string {
   return `https://bgm.tv/subject/${id}`;
@@ -31,18 +34,78 @@ export function transformPtGen(data: IBangumiPtGen): ISocialInformation {
   };
 }
 
-// TODO 解析页面获取信息
+/** 完整定义见 https://github.com/bangumi/api/blob/d04e007e0bcc9e7695b6d0de34f9ff9ada7ff806/open-api/v0.yaml#L3539-L3685
+ *  此处仅列出了我们需要的部分
+ */
+interface IBangumiApiResp {
+  id: number;
+  name: string;
+  name_cn: string;
+  images: Record<"small" | "grid" | "large" | "medium" | "common", string>;
+  infobox: Array<{ key: string; value: string | Array<{ v: string }> }>;
+  ranking: {
+    rank: number;
+    total: number;
+    count: Record<"1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10", number>;
+    score: number;
+  };
+}
+
+// 解析页面获取信息
 export async function fetchInformation(
   id: string,
   config: IFetchSocialSiteInformationConfig = {},
 ): Promise<ISocialInformation> {
-  return {
+  const realId = parse(id);
+  const resDict = {
     site: "bangumi",
-    id,
+    id: realId,
     title: "",
     poster: "",
     ratingScore: 0,
     ratingCount: 0,
     createAt: 0,
   } as ISocialInformation;
+
+  const bangumiApiReqHeader: Record<string, any> = {
+    // 由于 XMLHttpRequest 不允许设置 User-Agent，我们这里使用 x-user-agent 来告知 Bangumi Server 实际的 User-Agent
+    "x-user-agent": `${EXT_NAME}/${EXT_VERSION}`,
+  };
+  if (config?.socialSite?.bangumi?.apikey) {
+    bangumiApiReqHeader.Authorization = `Bearer ${config.socialSite.bangumi.apikey}`;
+  }
+
+  const bangumiApiResp = await axios.get<IBangumiApiResp>(`https://api.bgm.tv/v0/subjects/${realId}`, {
+    timeout: config.timeout ?? 10e3,
+    responseType: "json",
+    headers: bangumiApiReqHeader,
+  });
+
+  if (bangumiApiResp.status === 200) {
+    const data = bangumiApiResp.data;
+
+    const titles = [data.name_cn ?? "", data.name ?? ""];
+    // 处理 infobox 中的别名
+    const aka = data.infobox
+      .filter((item) => item.key === "别名")
+      .flatMap((item) => {
+        if (typeof item.value === "string") {
+          return [item.value];
+        } else if (Array.isArray(item.value)) {
+          return item.value.map((v) => v.v);
+        }
+        return [];
+      });
+
+    resDict.title = uniq([...titles, ...aka])
+      .filter(Boolean)
+      .join(" / ");
+
+    resDict.poster = data.images.large || data.images.common || data.images.medium;
+    resDict.ratingScore = data.ranking?.score ?? 0;
+    resDict.ratingCount = data.ranking?.total ?? 0;
+  }
+
+  resDict.createAt = +Date.now();
+  return resDict;
 }
