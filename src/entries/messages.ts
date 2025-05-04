@@ -22,10 +22,19 @@ import type { getFaviconMetadata } from "@ptd/site";
 
 interface ProtocolMap {
   // 1. 与 chrome 相关的功能，需要在 service worker 中注册，主要供 offscreen, options 使用
+
+  // 1.1 chrome.downloads
   downloadFile(downloadOptions: chrome.downloads.DownloadOptions): number;
+
+  // 1.2 chrome.storage
   getExtStorage<T extends TExtensionStorageKey>(key: T): IExtensionStorageSchema[T];
   setExtStorage<T extends TExtensionStorageKey>(data: { key: T; value: IExtensionStorageSchema[T] }): void;
 
+  // 1.3 chrome.declarativeNetRequest
+  updateDNRSessionRules(data: chrome.declarativeNetRequest.Rule): void;
+  removeDNRSessionRuleById(data: chrome.declarativeNetRequest.Rule["id"]): void;
+
+  // 1.4 chrome.alarms
   setFlushUserInfoJob(): void;
 
   // 2. 在 offscreen 中注册，涉及页面解析等功能，主要供 options 使用

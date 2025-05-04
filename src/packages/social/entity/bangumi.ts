@@ -1,7 +1,11 @@
 import axios from "axios";
 import { uniq } from "es-toolkit";
 import type { IFetchSocialSiteInformationConfig, IPtgenApiResponse, ISocialInformation } from "../types";
+
+import { setupDummyHeaderReplace } from "~/extends/axios/replaceUnsafeHeader.ts";
 import { name as EXT_NAME, version as EXT_VERSION } from "~/../package.json";
+
+setupDummyHeaderReplace(axios);
 
 export function build(id: string): string {
   return `https://bgm.tv/subject/${id}`;
@@ -68,8 +72,7 @@ export async function fetchInformation(
   } as ISocialInformation;
 
   const bangumiApiReqHeader: Record<string, any> = {
-    // 由于 XMLHttpRequest 不允许设置 User-Agent，我们这里使用 x-user-agent 来告知 Bangumi Server 实际的 User-Agent
-    "x-user-agent": `${EXT_NAME}/${EXT_VERSION}`,
+    "user-agent": `${EXT_NAME}/${EXT_VERSION}`,
   };
 
   // Bangumi 默认不需要 apikey，但是如果设置了 apikey，则使用 apikey 进行请求

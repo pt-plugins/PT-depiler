@@ -5,6 +5,7 @@ import { log } from "~/helper.ts";
 import "./utils/omnibox.ts";
 import "./utils/offscreen.ts";
 import "./utils/alarms.ts";
+import "./utils/webRequest.ts";
 
 // 监听 点击图标 事件
 chrome.action.onClicked.addListener(async () => {

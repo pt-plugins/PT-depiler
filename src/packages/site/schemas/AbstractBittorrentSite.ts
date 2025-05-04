@@ -27,10 +27,15 @@ import urlJoin from "url-join";
 import { get, isEmpty, set } from "es-toolkit/compat";
 import { chunk, pascalCase, pick, toMerged, union } from "es-toolkit";
 import { setupCache } from "axios-cache-interceptor";
+import { setupDummyHeaderReplace } from "~/extends/axios/replaceUnsafeHeader.ts";
 
 // 在生产环境下，默认启用 axios-cache-interceptor，以减少对站点的请求次数
 if (import.meta.env.PROD) {
   setupCache(axios);
+}
+
+if (chrome?.declarativeNetRequest) {
+  setupDummyHeaderReplace(axios);
 }
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
