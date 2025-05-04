@@ -17,7 +17,7 @@ import Sizzle from "sizzle";
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
 
-  version: 1,
+  version: 2,
   id: "pter",
   name: "PTer",
   aka: ["PTerClub", "猫站"],
@@ -138,7 +138,7 @@ export const siteMetadata: ISiteMetadata = {
       ...SchemaMetadata.search!.selectors!,
 
       title: {
-        selector: ["a[href*='details.php?id='][title]:first"],
+        selector: ["a[href*='details.php?id='][title]:first", "a[href*='detailsgame.php?id='][title]:first"],
       },
       subTitle: {
         selector: ["div > span:eq(0)"],
@@ -329,7 +329,15 @@ export default class Pter extends NexusPHP {
     const userName = flushUserInfo.name;
     const { data: userTorrentPage } = await this.request({
       url: "/torrents.php",
-      params: { incldead: 1, spstate: 0, inclbookmarked: 0, check: "checked", search: userName, search_area: 3, search_mode: 3 }, // 已审核，未断种
+      params: {
+        incldead: 1,
+        spstate: 0,
+        inclbookmarked: 0,
+        check: "checked",
+        search: userName,
+        search_area: 3,
+        search_mode: 3,
+      }, // 已审核，未断种
       responseType: "document",
     });
 
