@@ -8,7 +8,7 @@ export async function getSocialInformation(site: TSupportSocialSite, sid: string
   let stored = await (await ptdIndexDb).get("social_information", key);
   if (!stored) {
     stored = await getSocialSiteInformation(site, sid, {});
-    if (stored) {
+    if (stored && (stored.title !== "" || stored.poster !== "")) {
       await setSocialInformation(site, sid, stored);
     }
   }

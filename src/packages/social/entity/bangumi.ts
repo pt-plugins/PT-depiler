@@ -71,18 +71,18 @@ export async function fetchInformation(
     // 由于 XMLHttpRequest 不允许设置 User-Agent，我们这里使用 x-user-agent 来告知 Bangumi Server 实际的 User-Agent
     "x-user-agent": `${EXT_NAME}/${EXT_VERSION}`,
   };
+
+  // Bangumi 默认不需要 apikey，但是如果设置了 apikey，则使用 apikey 进行请求
   if (config?.socialSite?.bangumi?.apikey) {
     bangumiApiReqHeader.Authorization = `Bearer ${config.socialSite.bangumi.apikey}`;
   }
 
-  const bangumiApiResp = await axios.get<IBangumiApiResp>(`https://api.bgm.tv/v0/subjects/${realId}`, {
-    timeout: config.timeout ?? 10e3,
-    responseType: "json",
-    headers: bangumiApiReqHeader,
-  });
-
-  if (bangumiApiResp.status === 200) {
-    const data = bangumiApiResp.data;
+  try {
+    const { data } = await axios.get<IBangumiApiResp>(`https://api.bgm.tv/v0/subjects/${realId}`, {
+      timeout: config.timeout ?? 10e3,
+      responseType: "json",
+      headers: bangumiApiReqHeader,
+    });
 
     const titles = [data.name_cn ?? "", data.name ?? ""];
     // 处理 infobox 中的别名
@@ -101,11 +101,14 @@ export async function fetchInformation(
       .filter(Boolean)
       .join(" / ");
 
-    resDict.poster = data.images.large || data.images.common || data.images.medium;
+    resDict.poster = data.images?.large ?? data.images?.common ?? data.images?.medium ?? "";
     resDict.ratingScore = data.ranking?.score ?? 0;
     resDict.ratingCount = data.ranking?.total ?? 0;
+  } catch (error) {
+    // pass
+  } finally {
+    resDict.createAt = +Date.now();
   }
 
-  resDict.createAt = +Date.now();
   return resDict;
 }

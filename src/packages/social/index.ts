@@ -68,8 +68,9 @@ export async function getSocialSiteInformation(
         }
       } catch (error) {}
     }
-  } else {
-    log("Use build-in API to fetch social site information:", { site, id });
-    return await socialModule.fetchInformation(id, config);
   }
+
+  // 如果没有使用 PtGen API 或者 PtGen API 获取失败，则使用内置的解析方法
+  log("Use build-in API to fetch social site information:", { site, id });
+  return await socialModule.fetchInformation(id, config);
 }

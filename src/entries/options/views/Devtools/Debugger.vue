@@ -9,7 +9,19 @@ import {
 } from "@ptd/site";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
+
 import { sendMessage } from "@/messages.ts";
+import * as estoolkit from "es-toolkit";
+import axios from "axios";
+import Sizzle from "sizzle";
+
+function enableLibrary() {
+  (window as any).axios = axios;
+  (window as any).Sizzle = Sizzle;
+  (window as any)._ = estoolkit;
+  (window as any).sendMessage = sendMessage;
+  console.log("开发库已启用");
+}
 
 const selectedSite = ref<TSiteID>("");
 const useCustomerConfig = ref<boolean>(true);
@@ -134,6 +146,21 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
       <tbody>
         <tr>
           <td>
+            <div class="d-flex justify-center align-center text-body-2">启用开发库</div>
+          </td>
+          <td>
+            <v-container>
+              <v-row dense>
+                <v-col class="d-flex align-center">
+                  <v-btn @click="enableLibrary" class="mr-3">启用</v-btn>
+                  在console中启用 <code>sendMessage, axios, Sizzle, es-toolkit ( as _ ）</code> 等方法
+                </v-col>
+              </v-row>
+            </v-container>
+          </td>
+        </tr>
+        <tr>
+          <td>
             <div class="d-flex justify-center align-center text-body-2">调试内置站点</div>
           </td>
           <td>
@@ -181,7 +208,7 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
         </tr>
         <tr>
           <td>
-            <div class="d-flex justify-center align-center text-body-2">设置重置</div>
+            <div class="d-flex justify-center align-center text-body-2">插件重置</div>
           </td>
           <td>
             <v-container>
