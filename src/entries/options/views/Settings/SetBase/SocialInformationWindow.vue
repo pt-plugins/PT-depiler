@@ -66,6 +66,21 @@ async function save() {
       <v-row>
         <v-col md="6">
           <v-text-field
+            v-model="configStore.socialSiteInformation.socialSite!.anidb.client"
+            :label="`AniDB Client ID`"
+            clearable
+            messages="请在 https://anidb.net/perl-bin/animedb.pl?show=client 中申请 Client ID， 并按照 `Name/Version` 的格式填写"
+          >
+            <template #prepend>
+              <v-avatar image="/icons/social/anidb.png" />
+            </template>
+          </v-text-field>
+        </v-col>
+      </v-row>
+
+      <v-row>
+        <v-col md="6">
+          <v-text-field
             v-model="configStore.socialSiteInformation.socialSite!.bangumi.apikey"
             :label="`Bangumi API Key`"
             clearable

@@ -61,7 +61,7 @@ export async function fetchInformation(
   id: string,
   config: IFetchSocialSiteInformationConfig = {},
 ): Promise<ISocialInformation> {
-  const realId = parse(id);
+  const realId = parse(String(id));
   const resDict = {
     site: "bangumi",
     id: realId,
@@ -110,7 +110,7 @@ export async function fetchInformation(
     resDict.ratingScore = data.ranking?.score ?? 0;
     resDict.ratingCount = data.ranking?.total ?? 0;
   } catch (error) {
-    // pass
+    console.warn(error);
   } finally {
     resDict.createAt = +Date.now();
   }

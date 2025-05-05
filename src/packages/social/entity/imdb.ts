@@ -68,7 +68,7 @@ export async function fetchInformation(
   id: string,
   config: IFetchSocialSiteInformationConfig = {},
 ): Promise<ISocialInformation> {
-  const realId = parse(id);
+  const realId = parse(String(id));
   const resDict = {
     site: "imdb",
     id: realId,
@@ -88,6 +88,7 @@ export async function fetchInformation(
     const { data } = await axios.get(
       `https://p.media-imdb.com/static-content/documents/v1/title/${realId}/ratings%3Fjsonp=imdb.rating.run:imdb.api.title.ratings/data.json`,
       {
+        timeout: config.timeout ?? 10e3,
         responseType: "text",
       },
     );
@@ -98,8 +99,8 @@ export async function fetchInformation(
       resDict.ratingScore = imdbRatingData.resource.rating ?? 0;
       resDict.ratingCount = imdbRatingData.resource.ratingCount ?? 0;
     }
-  } catch (e) {
-    // pass
+  } catch (error) {
+    console.warn(error);
   } finally {
     resDict.createAt = +Date.now();
   }
