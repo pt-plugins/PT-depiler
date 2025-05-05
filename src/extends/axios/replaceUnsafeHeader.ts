@@ -50,7 +50,8 @@ export function setupReplaceUnsafeHeader(axios: AxiosInstance): AxiosAllowUnsafe
       const requestHeaders = [] as chrome.declarativeNetRequest.ModifyHeaderInfo[];
 
       for (const [key, value] of config.headers) {
-        if (unsafeHeaders[key.toLowerCase()]) {
+        const lowerKey = key.toLowerCase();
+        if (unsafeHeaders[lowerKey] || lowerKey.startsWith("sec-") || lowerKey.startsWith("proxy-")) {
           requestHeaders.push({
             header: key,
             operation: "set" as chrome.declarativeNetRequest.HeaderOperation.SET,
