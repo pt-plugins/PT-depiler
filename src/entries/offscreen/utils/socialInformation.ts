@@ -5,11 +5,14 @@ import { ptdIndexDb } from "@/offscreen/adapter/indexdb.ts";
 import type { IConfigPiniaStorageSchema } from "@/shared/storages/types/config.ts";
 
 export async function getSocialInformation(site: TSupportSocialSite, sid: string): Promise<ISocialInformation> {
+  const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
+  const socialInformationConfig = configStoreRaw.socialSiteInformation ?? {};
+
   const key = `${site}:${sid}`;
   let stored = await (await ptdIndexDb).get("social_information", key);
-  if (!stored) {
-    const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
-    stored = await getSocialSiteInformation(site, sid, configStoreRaw.socialSiteInformation ?? {});
+
+  if (!stored || stored.createAt < Date.now() - 86400000 * (socialInformationConfig.cacheDay ?? 3)) {
+    stored = await getSocialSiteInformation(site, sid, socialInformationConfig);
     if (stored && (stored.title !== "" || stored.poster !== "")) {
       await setSocialInformation(site, sid, stored);
     }
