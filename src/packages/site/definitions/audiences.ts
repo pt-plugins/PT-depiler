@@ -1,21 +1,13 @@
-import {
-  ETorrentStatus,
-  ISiteMetadata,
-  IUserInfo,
-} from "@ptd/site";
+import Sizzle from "sizzle";
+import { mergeWith } from "es-toolkit";
+import { ETorrentStatus, ISiteMetadata, IUserInfo } from "@ptd/site";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
   CategorySpstate,
   SchemaMetadata,
 } from "@ptd/site/schemas/NexusPHP.ts";
-import {
-  tryToNumber,
-  parseSizeString,
-  createDocument,
-} from "../utils"
-import Sizzle from "sizzle";
-import { mergeWith, toMerged } from "es-toolkit";
+import { createDocument, parseSizeString, tryToNumber } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -108,8 +100,7 @@ export const siteMetadata: ISiteMetadata = {
         elementProcess: (element: HTMLElement) => {
           const elementStyle = element.getAttribute("style") || "";
           const widthMatch = elementStyle.match(/width:([ \d.]+)%/);
-          const progress = widthMatch && widthMatch.length >= 2 ? (parseFloat(widthMatch[1])) : 0;
-          return progress;
+          return widthMatch && widthMatch.length >= 2 ? parseFloat(widthMatch[1]) : 0;
         },
       },
       status: {
@@ -117,11 +108,11 @@ export const siteMetadata: ISiteMetadata = {
         elementProcess: (element: HTMLElement) => {
           if (element.classList.contains("torrents-progress2")) {
             const widthMatch = (element.getAttribute("style") || "").match(/width:([ \d.]+)%/);
-            const progress = widthMatch && widthMatch.length >= 2 ? (parseFloat(widthMatch[1])) : 0;
+            const progress = widthMatch && widthMatch.length >= 2 ? parseFloat(widthMatch[1]) : 0;
             return progress >= 100 ? ETorrentStatus.completed : ETorrentStatus.inactive;
           } else if (element.classList.contains("torrents-progress")) {
             const widthMatch = (element.getAttribute("style") || "").match(/width:([ \d.]+)%/);
-            const progress = widthMatch && widthMatch.length >= 2 ? (parseFloat(widthMatch[1])) : 0;
+            const progress = widthMatch && widthMatch.length >= 2 ? parseFloat(widthMatch[1]) : 0;
             return progress >= 100 ? ETorrentStatus.seeding : ETorrentStatus.downloading;
           } else {
             return ETorrentStatus.unknown;
@@ -161,9 +152,7 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       ...SchemaMetadata.userInfo!.selectors!,
       bonus: {
-        selector: [
-          "td.rowhead:contains('爆米花') + td, td.rowhead:contains('Karma Points') + td",
-        ],
+        selector: ["td.rowhead:contains('爆米花') + td, td.rowhead:contains('Karma Points') + td"],
         filters: [{ name: "parseNumber" }],
       },
     },
@@ -173,7 +162,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 0,
       name: "小鬼当家(User)",
-      privilege: "新用户的默认级别；可以请求续种。"
+      privilege: "新用户的默认级别；可以请求续种。",
     },
     {
       id: 1,
@@ -182,7 +171,8 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "120GB",
       ratio: 2.0,
       seedingBonus: 100000,
-      privilege: "可以查看NFO文档；可以查看用户列表； 可以查看其它用户的种子历史(如果用户隐私等级未设置为\"强\")； 可以删除自己上传的字幕；发布10种通过候选后可直接发布种子。"
+      privilege:
+        '可以查看NFO文档；可以查看用户列表； 可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕；发布10种通过候选后可直接发布种子。',
     },
     {
       id: 2,
@@ -191,7 +181,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "240GB",
       ratio: 2.5,
       seedingBonus: 200000,
-      privilege: "同年轻气盛(Power User)"
+      privilege: "同年轻气盛(Power User)",
     },
     {
       id: 3,
@@ -200,7 +190,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "400GB",
       ratio: 3.0,
       seedingBonus: 400000,
-      privilege: "可以查看排行榜。"
+      privilege: "可以查看排行榜。",
     },
     {
       id: 4,
@@ -209,7 +199,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "600GB",
       ratio: 3.5,
       seedingBonus: 640000,
-      privilege: "同街头霸王(Crazy User)"
+      privilege: "同街头霸王(Crazy User)",
     },
     {
       id: 5,
@@ -218,7 +208,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "1024GB",
       ratio: 4.0,
       seedingBonus: 880000,
-      privilege: "可以查看其它用户的评论、帖子历史。"
+      privilege: "可以查看其它用户的评论、帖子历史。",
     },
     {
       id: 6,
@@ -227,7 +217,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "2048GB",
       ratio: 4.5,
       seedingBonus: 1200000,
-      privilege: "可以更新过期的外部信息。头号玩家(Extreme User)及以上用户会永远保留账号。"
+      privilege: "可以更新过期的外部信息。头号玩家(Extreme User)及以上用户会永远保留账号。",
     },
     {
       id: 7,
@@ -236,7 +226,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "4096GB",
       ratio: 5.0,
       seedingBonus: 1500000,
-      privilege: "同头号玩家(Extreme User)"
+      privilege: "同头号玩家(Extreme User)",
     },
     {
       id: 8,
@@ -245,7 +235,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "8192GB",
       ratio: 6.0,
       seedingBonus: 1800000,
-      privilege: "同一代宗师(Ultimate User)"
+      privilege: "同一代宗师(Ultimate User)",
     },
     {
       id: 9,
@@ -254,32 +244,40 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "10240GB",
       ratio: 8.0,
       seedingBonus: 2400000,
-      privilege: "保持等级期间会显示彩虹ID，做种积分要求逐年增加（具体数值以通知为准），彩虹照耀(Rainbow)用户未到更新后的要求会被降级"
+      privilege:
+        "保持等级期间会显示彩虹ID，做种积分要求逐年增加（具体数值以通知为准），彩虹照耀(Rainbow)用户未到更新后的要求会被降级",
     },
   ],
 };
 
 export default class Audiences extends NexusPHP {
+  protected override async requestUserSeedingPage(userId: number, type: string = "seeding"): Promise<string | null> {
+    const { data } = await this.request<string>({
+      url: "/getusertorrentlistajax.php",
+      params: { userid: userId, type },
+      headers: {
+        Referer: atob("aHR0cHM6Ly9hdWRpZW5jZXMubWUvdXNlcmRldGFpbHMucGhw"), // 不提供 Referer，无法获取到数据
+      },
+    });
+    return data || null;
+  }
+
   // 获取做种信息
-  protected override async parseUserInfoForSeedingStatus(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
+  protected override async parseUserInfoForSeedingStatus(
+    flushUserInfo: Partial<IUserInfo>,
+  ): Promise<Partial<IUserInfo>> {
     let seedStatus = { seeding: 0, seedingSize: 0 };
 
     const userId = flushUserInfo.id as number;
-    const { data } = await this.request<string>({
-      url: "/getusertorrentlistajax.php",
-      params: { userid: userId, type: "seeding" },
-      headers: { // 不提供 Referer，无法获取到数据
-        Referer: "https://audiences.me/userdetails.php",
-      },
-    });
+    const data = await this.requestUserSeedingPage(userId, "seeding");
 
     if (data && data?.includes("<table")) {
       const userSeedingPage = createDocument(data);
       const trAnothers = Sizzle("table:first tr:contains('Total')", userSeedingPage as Document);
       if (trAnothers.length > 0) {
-        const tds = trAnothers[0].getElementsByTagName('td');
+        const tds = trAnothers[0].getElementsByTagName("td");
         seedStatus.seeding = tryToNumber(tds[1].innerText.trim());
-        seedStatus.seedingSize = parseSizeString(tds[2].innerText.trim())
+        seedStatus.seedingSize = parseSizeString(tds[2].innerText.trim());
       }
     }
 
@@ -290,18 +288,12 @@ export default class Audiences extends NexusPHP {
     return flushUserInfo;
   }
 
-  // 获取发种信息 
+  // 获取发种信息
   protected override async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
     flushUserInfo.uploads = 0;
 
     const userId = flushUserInfo.id as number;
-    const { data } = await this.request<string>({
-      url: "/getusertorrentlistajax.php",
-      params: { userid: userId, type: "uploaded" },
-      headers: {
-        Referer: "https://audiences.me/userdetails.php",
-      },
-    });
+    const data = await this.requestUserSeedingPage(userId, "uploaded");
 
     if (data && data?.includes("<b")) {
       const userUploadedPage = createDocument(data);
