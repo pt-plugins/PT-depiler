@@ -1,4 +1,4 @@
-export const supportSocialSite = ["imdb", "tmdb", "douban", "bangumi", "anidb", "tvdb"] as const;
+export const supportSocialSite = ["imdb", "tmdb", "douban", "bangumi", "anidb"] as const;
 export type TSupportSocialSite = (typeof supportSocialSite)[number];
 
 export interface ISocialSiteMetadata {
@@ -16,10 +16,16 @@ export interface ISocialInformation {
 }
 
 export interface IFetchSocialSiteInformationConfig {
+  // 是否优先使用 ptgen 接口获取信息
   preferPtGen?: boolean;
-  ptGenEndpoint?: string; // 只是最优先而已，如果失败，则会从默认的 buildInPtGenApi 中依次尝试
-  timeout?: number; // 请求超时时间
-  socialSite?: Record<TSupportSocialSite, any>;
+  // 只是最优先而已，如果失败，则会从默认的 buildInPtGenApi 中依次尝试
+  ptGenEndpoint?: string;
+  // 请求超时时间（毫秒）
+  timeout?: number;
+  // 缓存时间（天）
+  cacheDay?: number;
+
+  socialSite?: Record<TSupportSocialSite, Record<"apikey" | string, any>>;
 }
 
 export interface IPtgenApiResponse {

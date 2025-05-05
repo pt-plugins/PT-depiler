@@ -136,6 +136,19 @@ export const useConfigStore = defineStore("config", {
       saveLastFilter: false,
       queueConcurrency: 1,
     },
+
+    socialSiteInformation: {
+      preferPtGen: true,
+      timeout: 10e3,
+      cacheDay: 7,
+      socialSite: {
+        anidb: {},
+        bangumi: {},
+        douban: {},
+        imdb: {},
+        tmdb: {},
+      },
+    },
   }),
   getters: {
     uiTheme(): Exclude<supportThemeType, "auto"> {

@@ -1,13 +1,15 @@
 import type { ISocialInformation, TSupportSocialSite } from "@ptd/social";
 import { getSocialSiteInformation } from "@ptd/social";
-import { onMessage } from "@/messages.ts";
+import { onMessage, sendMessage } from "@/messages.ts";
 import { ptdIndexDb } from "@/offscreen/adapter/indexdb.ts";
+import type { IConfigPiniaStorageSchema } from "@/shared/storages/types/config.ts";
 
 export async function getSocialInformation(site: TSupportSocialSite, sid: string): Promise<ISocialInformation> {
   const key = `${site}:${sid}`;
   let stored = await (await ptdIndexDb).get("social_information", key);
   if (!stored) {
-    stored = await getSocialSiteInformation(site, sid, {});
+    const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
+    stored = await getSocialSiteInformation(site, sid, configStoreRaw.socialSiteInformation ?? {});
     if (stored && (stored.title !== "" || stored.poster !== "")) {
       await setSocialInformation(site, sid, stored);
     }

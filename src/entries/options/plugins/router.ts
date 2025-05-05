@@ -26,6 +26,12 @@ export const setBaseChildren: RouteRecordRaw[] = [
     meta: { icon: "mdi-account" },
     component: () => import("../views/Settings/SetBase/UserInfoWindow.vue"),
   },
+  {
+    path: "social-information",
+    name: "SetBaseSocialInformation",
+    meta: { icon: "mdi-multimedia" },
+    component: () => import("../views/Settings/SetBase/SocialInformationWindow.vue"),
+  },
 ] as const;
 
 export const routes: RouteRecordRaw[] = [

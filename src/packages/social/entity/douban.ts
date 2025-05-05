@@ -43,7 +43,7 @@ export function transformPtGen(data: IDoubanPtGen): ISocialInformation {
     poster: data.poster ?? "",
     ratingScore: Number(data.douban_rating_average ?? 0),
     ratingCount: Number(data.douban_votes ?? 0),
-    createAt: data.update_at ? new Date(data.update_at).getTime() : +Date.now(),
+    createAt: +Date.now(),
   };
 }
 

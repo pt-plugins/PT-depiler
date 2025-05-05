@@ -2,6 +2,7 @@ import axios from "axios";
 import { uniq } from "es-toolkit";
 import type { IFetchSocialSiteInformationConfig, IPtgenApiResponse, ISocialInformation } from "../types";
 
+import { REPO_URL } from "~/helper.ts";
 import { setupReplaceUnsafeHeader } from "~/extends/axios/replaceUnsafeHeader.ts";
 import { name as EXT_NAME, version as EXT_VERSION } from "~/../package.json";
 
@@ -34,7 +35,7 @@ export function transformPtGen(data: IBangumiPtGen): ISocialInformation {
     poster: data.cover ?? "",
     ratingScore: data?.rating?.score ?? 0,
     ratingCount: data?.rating?.total ?? 0,
-    createAt: data.update_at ? new Date(data.update_at).getTime() : +Date.now(),
+    createAt: +Date.now(),
   };
 }
 
@@ -72,7 +73,8 @@ export async function fetchInformation(
   } as ISocialInformation;
 
   const bangumiApiReqHeader: Record<string, any> = {
-    "user-agent": `${EXT_NAME}/${EXT_VERSION}`,
+    // refs: https://github.com/bangumi/api/blob/master/docs-raw/user%20agent.md
+    "user-agent": `${EXT_NAME}/${EXT_VERSION} (${REPO_URL})`,
   };
 
   // Bangumi 默认不需要 apikey，但是如果设置了 apikey，则使用 apikey 进行请求

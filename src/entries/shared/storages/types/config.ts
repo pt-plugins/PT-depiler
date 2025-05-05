@@ -1,5 +1,6 @@
+import type { IFetchSocialSiteInformationConfig } from "@ptd/social";
 import type { TLangCode } from "@/options/plugins/i18n.ts";
-import { ITimelineUserInfoField } from "@/options/views/Overview/MyData/UserDataTimeline/utils.ts";
+import type { ITimelineUserInfoField } from "@/options/views/Overview/MyData/UserDataTimeline/utils.ts";
 
 export const supportTheme = ["auto", "light", "dark"] as const;
 export type supportThemeType = (typeof supportTheme)[number];
@@ -100,4 +101,6 @@ export interface IConfigPiniaStorageSchema {
     saveLastFilter: boolean;
     queueConcurrency: number;
   };
+
+  socialSiteInformation: IFetchSocialSiteInformationConfig;
 }
