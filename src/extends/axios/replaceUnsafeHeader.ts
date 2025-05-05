@@ -81,7 +81,7 @@ export function setupReplaceUnsafeHeader(axios: AxiosInstance): AxiosAllowUnsafe
           },
         } as chrome.declarativeNetRequest.Rule;
 
-        await sendMessage("updateDNRSessionRules", rule);
+        await sendMessage("updateDNRSessionRules", { rule });
       }
     }
 

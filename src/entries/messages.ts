@@ -31,7 +31,7 @@ interface ProtocolMap {
   setExtStorage<T extends TExtensionStorageKey>(data: { key: T; value: IExtensionStorageSchema[T] }): void;
 
   // 1.3 chrome.declarativeNetRequest
-  updateDNRSessionRules(data: chrome.declarativeNetRequest.Rule): void;
+  updateDNRSessionRules(data: { rule: chrome.declarativeNetRequest.Rule; extOnly?: boolean }): void;
   removeDNRSessionRuleById(data: chrome.declarativeNetRequest.Rule["id"]): void;
 
   // 1.4 chrome.alarms
