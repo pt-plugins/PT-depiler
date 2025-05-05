@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, useTemplateRef } from "vue";
+import { reactive, useTemplateRef } from "vue";
 import { useElementSize } from "@vueuse/core";
 import { useRouter } from "vue-router";
 
@@ -19,19 +19,21 @@ const { width: containerWidth } = useElementSize(useTemplateRef<HTMLDivElement>(
 const { width: tagsWidth } = useElementSize(useTemplateRef<HTMLDivElement>("tags"));
 const { width: socialWidth } = useElementSize(useTemplateRef<HTMLDivElement>("social"));
 
-// @ts-ignore
-const socialInformation = reactive<Record<TSupportSocialSite | string, ISocialInformation>>({});
+interface ISocialInformationData extends ISocialInformation {
+  loading?: boolean;
+}
 
-onMounted(() => {
-  for (const key in socialBuildUrlMap) {
-    const site = key as TSupportSocialSite;
-    if (item[`ext_${site}`]) {
-      sendMessage("getSocialInformation", { site, sid: item[`ext_${site}`] as unknown as string }).then((info) => {
-        socialInformation[site] = info;
-      });
-    }
+// @ts-ignore
+const socialInformation = reactive<Record<TSupportSocialSite | string, ISocialInformationData>>({});
+
+function loadSocialInformation(site: TSupportSocialSite) {
+  if (item[`ext_${site}`]) {
+    socialInformation[site] = { loading: true } as ISocialInformationData;
+    sendMessage("getSocialInformation", { site, sid: item[`ext_${site}`] as unknown as string }).then((info) => {
+      socialInformation[site] = info;
+    });
   }
-});
+}
 
 function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
   const toRoute = { name: "SearchEntity", query: { search: `${site}|${sid}`, flush: 1 } };
@@ -77,12 +79,16 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
                 rounded="0"
                 size="x-small"
                 class="ml-1"
-              ></v-avatar>
+                @click="() => loadSocialInformation(key as TSupportSocialSite)"
+              />
             </template>
             <v-card>
               <v-card-text class="pa-0 py-1">
                 <div class="text-center" style="max-width: 150px">
-                  <template v-if="socialInformation[key]?.id">
+                  <template v-if="socialInformation[key]?.loading === true">
+                    <h3 class="font-weight-bold my-2">Loading....</h3>
+                  </template>
+                  <template v-else-if="socialInformation[key]?.id">
                     <v-img :src="socialInformation[key]?.poster" class="mb-1" width="150" aspect-ratio="2/3">
                       <template #placeholder>
                         <v-skeleton-loader type="image@2" height="225"></v-skeleton-loader>
@@ -111,7 +117,7 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
                     variant="text"
                     block
                     append-icon="mdi-magnify"
-                    @click="doAdvanceSearch(key, item[`ext_${key}`] as string)"
+                    @click="doAdvanceSearch(key as TSupportSocialSite, item[`ext_${key}`] as string)"
                   >
                     搜索
                   </v-btn>
