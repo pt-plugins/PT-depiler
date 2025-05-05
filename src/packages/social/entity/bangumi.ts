@@ -2,10 +2,10 @@ import axios from "axios";
 import { uniq } from "es-toolkit";
 import type { IFetchSocialSiteInformationConfig, IPtgenApiResponse, ISocialInformation } from "../types";
 
-import { setupDummyHeaderReplace } from "~/extends/axios/replaceUnsafeHeader.ts";
+import { setupReplaceUnsafeHeader } from "~/extends/axios/replaceUnsafeHeader.ts";
 import { name as EXT_NAME, version as EXT_VERSION } from "~/../package.json";
 
-setupDummyHeaderReplace(axios);
+setupReplaceUnsafeHeader(axios);
 
 export function build(id: string): string {
   return `https://bgm.tv/subject/${id}`;

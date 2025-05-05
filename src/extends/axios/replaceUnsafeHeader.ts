@@ -28,22 +28,23 @@ export const unsafeHeaders: { [key: string]: boolean } = {
   via: true,
 };
 
-interface AxiosAllowDummyHeaderInstance extends AxiosInstance {
+interface AxiosAllowUnsafeHeaderInstance extends AxiosInstance {
   defaults: AxiosInstance["defaults"] & {
-    dummyHeader: boolean;
+    allowUnsafeHeader: boolean;
   };
 }
 
-export function setupDummyHeaderReplace(axios: AxiosInstance): AxiosAllowDummyHeaderInstance {
-  const axiosAllowDummyHeader = axios as AxiosAllowDummyHeaderInstance;
+export function setupReplaceUnsafeHeader(axios: AxiosInstance): AxiosAllowUnsafeHeaderInstance {
+  const axiosAllowUnsafeHeaderInstance = axios as AxiosAllowUnsafeHeaderInstance;
 
-  if (axiosAllowDummyHeader.defaults.dummyHeader) {
-    console.warn("setupDummyHeaderReplace() should be called only once");
-    return axiosAllowDummyHeader;
+  if (axiosAllowUnsafeHeaderInstance.defaults.allowUnsafeHeader) {
+    console.warn("setupReplaceUnsafeHeader() should be called only once");
+    return axiosAllowUnsafeHeaderInstance;
   }
+  axiosAllowUnsafeHeaderInstance.defaults.allowUnsafeHeader = true;
 
   // Add a request interceptor
-  axiosAllowDummyHeader.interceptors.request.use(async function (config) {
+  axiosAllowUnsafeHeaderInstance.interceptors.request.use(async function (config) {
     if (config.headers) {
       // 准备扔给 chrome.declarativeNetRequest 的请求头
       const requestHeaders = [] as chrome.declarativeNetRequest.ModifyHeaderInfo[];
@@ -52,7 +53,7 @@ export function setupDummyHeaderReplace(axios: AxiosInstance): AxiosAllowDummyHe
         if (unsafeHeaders[key.toLowerCase()]) {
           requestHeaders.push({
             header: key,
-            operation: chrome.declarativeNetRequest.HeaderOperation.SET,
+            operation: "set" as chrome.declarativeNetRequest.HeaderOperation.SET,
             value: String(value),
           });
           config.headers.delete(key);
@@ -75,7 +76,7 @@ export function setupDummyHeaderReplace(axios: AxiosInstance): AxiosAllowDummyHe
           },
           condition: {
             urlFilter: requestUrl,
-            resourceTypes: [chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST],
+            resourceTypes: ["xmlhttprequest" as chrome.declarativeNetRequest.ResourceType.XMLHTTPREQUEST],
             requestMethods: [(config.method || "GET").toLowerCase() as chrome.declarativeNetRequest.RequestMethod],
           },
         } as chrome.declarativeNetRequest.Rule;
@@ -95,7 +96,7 @@ export function setupDummyHeaderReplace(axios: AxiosInstance): AxiosAllowDummyHe
   }
 
   // 请求完成后，根据 dummyHeaderRequestId 自动删除 DNR 规则
-  axiosAllowDummyHeader.interceptors.response.use(
+  axiosAllowUnsafeHeaderInstance.interceptors.response.use(
     function (response) {
       removeDummyHeaderRequestId(response);
       return response;
@@ -106,5 +107,5 @@ export function setupDummyHeaderReplace(axios: AxiosInstance): AxiosAllowDummyHe
     },
   );
 
-  return axiosAllowDummyHeader;
+  return axiosAllowUnsafeHeaderInstance;
 }

@@ -14,9 +14,9 @@ import { sendMessage } from "@/messages.ts";
 import * as estoolkit from "es-toolkit";
 import axios from "axios";
 import Sizzle from "sizzle";
-import { setupDummyHeaderReplace } from "~/extends/axios/replaceUnsafeHeader.ts";
+import { setupReplaceUnsafeHeader } from "~/extends/axios/replaceUnsafeHeader.ts";
 
-setupDummyHeaderReplace(axios);
+setupReplaceUnsafeHeader(axios);
 
 function enableLibrary() {
   (window as any).axios = axios;
