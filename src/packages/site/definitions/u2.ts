@@ -94,6 +94,11 @@ export const siteMetadata: ISiteMetadata = {
           return parseInt(element.firstChild!.textContent!);
         },
       },
+      ext_anidb: {
+        selector: ["a[href*='http://anidb.net/']"],
+        attr: "href",
+        filters: [{ name: "extAnidbId" }],
+      },
     },
   },
   userInfo: {

@@ -28,6 +28,7 @@ export async function getSiteUserConfig(siteId: TSiteID, flush = false) {
     storedSiteUserConfig.timeout ??= 30e3;
     storedSiteUserConfig.inputSetting ??= {};
     storedSiteUserConfig.groups ??= siteMetaData.tags ?? [];
+    storedSiteUserConfig.downloadInterval ??= siteMetaData?.download?.interval ?? 0;
     storedSiteUserConfig.merge ??= {};
   }
 

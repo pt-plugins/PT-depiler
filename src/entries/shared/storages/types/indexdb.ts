@@ -14,7 +14,7 @@ import type { CAddTorrentOptions } from "@ptd/downloader";
 export type TTorrentDownloadKey = number;
 
 export interface ITorrentDownloadMetadata extends Pick<ITorrent, "title" | "subTitle" | "url" | "link"> {
-  id?: TTorrentDownloadKey; // 使用nanoid给每个下载任务生成的唯一id
+  id?: TTorrentDownloadKey; // 每个下载任务生成的唯一id
   siteId: TSiteKey; // 站点id
   torrentId: ITorrent["id"]; // 种子id
   downloaderId: TDownloaderKey | "local"; // 下载器id，注意 local 是一个特殊的关键词，表示本地下载

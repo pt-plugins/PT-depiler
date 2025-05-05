@@ -58,9 +58,7 @@ async function copyTorrentDownloadLink() {
 const localDlTorrentDownloadLinkBtnStatus = ref(false);
 async function localDlTorrentDownloadLink() {
   localDlTorrentDownloadLinkBtnStatus.value = true;
-  for (const torrent of torrentItems.value) {
-    await sendMessage("downloadTorrentToLocalFile", { torrent });
-  }
+  await Promise.allSettled(torrentItems.value.map((torrent) => sendMessage("downloadTorrentToLocalFile", { torrent })));
   localDlTorrentDownloadLinkBtnStatus.value = false;
 }
 

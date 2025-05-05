@@ -125,6 +125,13 @@ export interface ISiteMetadata {
      * 如果该站点的下载过于复杂（比如需要传递额外生成的 header），更建议覆写 getTorrentDownloadRequestConfig(torrent) 方法
      */
     requestConfig?: AxiosRequestConfig;
+
+    /**
+     * 在批量下载每个种子时，与（本站）上一个种子之间的间隔时间，单位为秒
+     * 在生成站点 ISiteUserConfig 时，这一配置会被提升到 ISiteUserConfig.downloadInterval 中，
+     * 如果站点没有定义该项，则默认设置为 0
+     */
+    interval?: number;
   };
 
   /**
@@ -216,9 +223,14 @@ export interface ISiteUserConfig {
    */
   allowQueryUserInfo?: boolean;
 
-  groups?: string[]; // 分类信息，默认为 ISiteMetadata.tags， 也允许用户自定义添加，相同的会被合并到一类中
+  // 分类信息，默认为 ISiteMetadata.tags， 也允许用户自定义添加，相同的会被合并到一类中
+  groups?: string[];
 
-  timeout?: number; // 请求超时时间，单位为毫秒，如果不设置默认为 30000ms
+  // 请求超时时间，单位为毫秒，如果不设置默认为 30000ms
+  timeout?: number;
+
+  // 在批量下载每个种子时，与（本站）上一个种子之间的间隔时间，单位为秒，如果不设置默认为 0
+  downloadInterval?: number;
 
   /**
    * 存储用户输入的配置项信息

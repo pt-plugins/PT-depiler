@@ -15,9 +15,7 @@ const emits = defineEmits<{
 const { t } = useI18n();
 
 async function confirmDelete() {
-  for (const toDeleteId of toDeleteIds) {
-    await confirmDeleteFn(toDeleteId);
-  }
+  await Promise.allSettled(toDeleteIds.map((toDeleteId) => confirmDeleteFn(toDeleteId)));
   showDialog.value = false;
   emits("allDelete");
 }

@@ -1,6 +1,7 @@
 import axios from "axios";
 import { stringify } from "urlencode";
 import { isEmpty } from "es-toolkit/compat";
+import pWaitFor from "p-wait-for";
 import { type CAddTorrentOptions, getDownloader, getRemoteTorrentFile } from "@ptd/downloader";
 import type { ITorrent } from "@ptd/site";
 
@@ -48,17 +49,27 @@ function buildDownloadHistory(
   };
 }
 
+const lastSiteDownloadAt = new Map<string, number>();
+
 onMessage("downloadTorrentToLocalFile", async ({ data: { torrent, localDownloadMethod } }) => {
-  const downloadHistory = buildDownloadHistory(torrent);
-  const downloadId = await setDownloadHistory(downloadHistory);
-
-  const site = await getSiteInstance<"public">(torrent.site);
-  const downloadRequestConfig = await site.getTorrentDownloadRequestConfig(torrent);
-
   if (!localDownloadMethod) {
     const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
     localDownloadMethod = configStoreRaw?.download?.localDownloadMethod ?? "web";
   }
+
+  const downloadHistory = buildDownloadHistory(torrent);
+  const downloadId = await setDownloadHistory(downloadHistory);
+
+  const site = await getSiteInstance<"public">(torrent.site);
+  if (site.downloadInterval > 0) {
+    if (localDownloadMethod === "web") localDownloadMethod = "extension";
+    await pWaitFor(
+      () => new Date().getTime() - (lastSiteDownloadAt.get(torrent.site) ?? 0) > site.downloadInterval * 1000,
+    );
+    lastSiteDownloadAt.set(torrent.site, new Date().getTime());
+  }
+
+  const downloadRequestConfig = await site.getTorrentDownloadRequestConfig(torrent);
 
   const downloadUri = axios.getUri(downloadRequestConfig); // 组装 baseURL, url, params
   const {
@@ -67,14 +78,14 @@ onMessage("downloadTorrentToLocalFile", async ({ data: { torrent, localDownloadM
     headers: downloadHeaders = {} as Record<string, string>,
   } = downloadRequestConfig;
 
-  await setDownloadHistory({ ...downloadHistory, id: downloadId, downloadStatus: "downloading" });
+  await patchDownloadHistory(downloadId, { downloadStatus: "downloading" });
 
   // 如果设置为 web 方法，且没有 headers 的情况，直接使用 window.open 方法
   if (localDownloadMethod === "web") {
     if (downloadMethod.toUpperCase() === "GET" && isEmpty(downloadHeaders)) {
       log("downloadTorrentToLocalFile.web", downloadUri);
       window.open(downloadUri, "_blank");
-      await setDownloadHistory({ ...downloadHistory, id: downloadId, downloadStatus: "completed" });
+      await patchDownloadHistory(downloadId, { downloadStatus: "completed" });
       return downloadId;
     } else {
       localDownloadMethod = "extension"; // 如果是不能直接使用 window.open 方法的情况，直接使用 extension 方法
@@ -101,7 +112,7 @@ onMessage("downloadTorrentToLocalFile", async ({ data: { torrent, localDownloadM
 
       log("downloadTorrentToLocalFile.browser", downloadOptions);
       await sendMessage("downloadFile", downloadOptions);
-      await setDownloadHistory({ ...downloadHistory, id: downloadId, downloadStatus: "completed" });
+      await patchDownloadHistory(downloadId, { downloadStatus: "completed" });
       return downloadId;
     } catch (e) {
       localDownloadMethod = "extension"; // 如果下载失败，直接使用 extension 方法（怎么可能？）
@@ -123,10 +134,10 @@ onMessage("downloadTorrentToLocalFile", async ({ data: { torrent, localDownloadM
       }
 
       await sendMessage("downloadFile", { url: torrentUrl, filename, conflictAction: "uniquify" });
-      await setDownloadHistory({ ...downloadHistory, id: downloadId, downloadStatus: "completed" });
+      await patchDownloadHistory(downloadId, { downloadStatus: "completed" });
       URL.revokeObjectURL(torrentUrl);
     } catch (e) {
-      await setDownloadHistory({ ...downloadHistory, id: downloadId, downloadStatus: "failed" });
+      await patchDownloadHistory(downloadId, { downloadStatus: "failed" });
     }
   }
 
@@ -140,6 +151,13 @@ onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId,
   const downloadId = await setDownloadHistory(downloadHistory);
 
   const site = await getSiteInstance<"public">(torrent.site);
+  if (site.downloadInterval > 0) {
+    await pWaitFor(
+      () => new Date().getTime() - (lastSiteDownloadAt.get(torrent.site) ?? 0) > site.downloadInterval * 1000,
+    );
+    lastSiteDownloadAt.set(torrent.site, new Date().getTime());
+  }
+
   const downloadRequestConfig = await site.getTorrentDownloadRequestConfig(torrent);
 
   const downloaderConfig = await getDownloaderConfig(downloaderId);
@@ -149,16 +167,16 @@ onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId,
       addTorrentOptions.localDownloadOption = downloadRequestConfig;
     }
 
-    await setDownloadHistory({ ...downloadHistory, id: downloadId, downloadStatus: "downloading" });
+    await patchDownloadHistory(downloadId, { downloadStatus: "downloading" });
     try {
       log("downloadTorrentToDownloader", downloadRequestConfig, addTorrentOptions);
       await downloaderInstance.addTorrent(downloadRequestConfig.url!, addTorrentOptions);
-      await setDownloadHistory({ ...downloadHistory, id: downloadId, downloadStatus: "completed" });
+      await patchDownloadHistory(downloadId, { downloadStatus: "completed" });
     } catch (e) {
-      await setDownloadHistory({ ...downloadHistory, id: downloadId, downloadStatus: "failed" });
+      await patchDownloadHistory(downloadId, { downloadStatus: "failed" });
     }
   } else {
-    await setDownloadHistory({ ...downloadHistory, id: downloadId, downloadStatus: "failed" });
+    await patchDownloadHistory(downloadId, { downloadStatus: "failed" });
   }
 
   return downloadId;
@@ -178,6 +196,13 @@ onMessage("getDownloadHistoryById", async ({ data: downloadId }) => (await getDo
 
 export async function setDownloadHistory(data: ITorrentDownloadMetadata) {
   return await (await ptdIndexDb).put("download_history", data);
+}
+
+export async function patchDownloadHistory(downloadId: TTorrentDownloadKey, data: Partial<ITorrentDownloadMetadata>) {
+  const downloadHistory = await getDownloadHistoryById(downloadId);
+  if (downloadHistory) {
+    await setDownloadHistory({ ...downloadHistory, ...data });
+  }
 }
 
 export async function deleteDownloadHistoryById(downloadId: TTorrentDownloadKey) {

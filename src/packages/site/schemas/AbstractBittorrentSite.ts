@@ -68,6 +68,10 @@ export default class BittorrentSite {
     return this.isOnline && !!this.metadata.search && !(this.userConfig.allowSearch === false);
   }
 
+  get downloadInterval(): number {
+    return this.userConfig.downloadInterval ?? this.metadata.download?.interval ?? 0;
+  }
+
   /**
    * 登录检查方法，对于公开站点，该方法一定直接返回 True
    * @param raw

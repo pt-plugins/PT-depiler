@@ -6,6 +6,7 @@ import { timezoneOffset, ISiteUserConfig, type TSiteID, ISiteMetadata, TSiteUrl 
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { formatDate, formValidateRules } from "@/options/utils.ts";
+import { lightFormat } from "date-fns";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
@@ -157,6 +158,21 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
           <template #append>
             <v-btn variant="flat" @click="siteUserConfig.timeout = 30e3">
               {{ formatDate(siteUserConfig.timeout!, "mm:ss") }}
+            </v-btn>
+          </template>
+        </v-slider>
+
+        <v-slider
+          v-model="siteUserConfig.downloadInterval"
+          :min="0"
+          :max="1800"
+          hint="影响该站点的下载间隔时间"
+          label="下载间隔"
+          persistent-hint
+        >
+          <template #append>
+            <v-btn variant="flat" @click="siteUserConfig.downloadInterval = 0">
+              {{ formatDate((siteUserConfig.downloadInterval ?? 0) * 1e3, "mm:ss") }}
             </v-btn>
           </template>
         </v-slider>
