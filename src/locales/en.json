@@ -217,6 +217,14 @@
     }
   },
   "SearchEntity": {
+    "index": {
+      "showSiteName": "Show Site Name",
+      "showTorrentTag": "Show Torrent Tags",
+      "showTorrentSubtitle": "Show Torrent Subtitle",
+      "showSocialInformation": "Show Media Rating Information",
+      "socialInformationSearchOnNewTab": "Open Media Rating Search in a New Tab",
+      "uploadAtFormatAsAlive": "Display Upload Time as Relative Time"
+    },
     "AdvanceFilterGenerateDialog": {
       "date": {
         "day": "Today",

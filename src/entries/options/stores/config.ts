@@ -116,6 +116,15 @@ export const useConfigStore = defineStore("config", {
       dateRange: 30,
     },
 
+    searchEntifyControl: {
+      showSiteName: true,
+      showTorrentTag: true,
+      showTorrentSubtitle: true,
+      showSocialInformation: true,
+      socialInformationSearchOnNewTab: true,
+      uploadAtFormatAsAlive: false,
+    },
+
     userInfo: {
       queueConcurrency: 1,
       autoReflush: {

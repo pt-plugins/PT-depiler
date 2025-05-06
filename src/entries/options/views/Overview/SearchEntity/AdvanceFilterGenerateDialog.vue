@@ -9,16 +9,18 @@ import { useI18n } from "vue-i18n";
 import { addDays, startOfDay } from "date-fns";
 
 import { formatDate, formatSize } from "@/options/utils.ts";
+import { useConfigStore } from "@/options/stores/config.ts";
+import { tableCustomFilter } from "@/options/views/Overview/SearchEntity/utils.ts";
+import { setDateRangeByDatePicker, getThisDateUnitRange } from "@/options/directives/useAdvanceFilter.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
-import { tableCustomFilter } from "@/options/views/Overview/SearchEntity/utils.ts";
-import { setDateRangeByDatePicker, getThisDateUnitRange } from "@/options/directives/useAdvanceFilter.ts";
 
 const showDialog = defineModel<boolean>();
 const emit = defineEmits(["update:tableFilter"]);
 
 const { t } = useI18n();
+const configStore = useConfigStore();
 
 const { advanceFilterDictRef, stringifyFilterFn, resetAdvanceFilterDictFn, resetCountRef, toggleKeywordStateFn } =
   tableCustomFilter;
@@ -90,32 +92,34 @@ function updateTableFilter() {
               </v-checkbox>
             </v-col>
           </v-row>
-          <v-row><v-label>标签</v-label></v-row>
-          <v-row>
-            <v-col
-              v-for="tag in advanceFilterDictRef.tags.all"
-              :key="`${resetCountRef}_${tag.name}`"
-              class="pa-0"
-              cols="4"
-              md="2"
-              sm="3"
-            >
-              <v-checkbox
-                v-model="advanceFilterDictRef.tags.required"
-                :value="tag.name"
-                density="compact"
-                hide-details
-                indeterminate
-                @click.stop="() => toggleKeywordStateFn('tags', tag.name)"
+          <template v-if="configStore.searchEntifyControl.showTorrentTag">
+            <v-row><v-label>标签</v-label></v-row>
+            <v-row>
+              <v-col
+                v-for="tag in advanceFilterDictRef.tags.all"
+                :key="`${resetCountRef}_${tag.name}`"
+                class="pa-0"
+                cols="4"
+                md="2"
+                sm="3"
               >
-                <template #label>
-                  <v-chip :color="tag.color" class="mr-1" label size="small" variant="tonal">
-                    {{ tag.name }}
-                  </v-chip>
-                </template>
-              </v-checkbox>
-            </v-col>
-          </v-row>
+                <v-checkbox
+                  v-model="advanceFilterDictRef.tags.required"
+                  :value="tag.name"
+                  density="compact"
+                  hide-details
+                  indeterminate
+                  @click.stop="() => toggleKeywordStateFn('tags', tag.name)"
+                >
+                  <template #label>
+                    <v-chip :color="tag.color" class="mr-1" label size="small" variant="tonal">
+                      {{ tag.name }}
+                    </v-chip>
+                  </template>
+                </v-checkbox>
+              </v-col>
+            </v-row>
+          </template>
           <v-row>
             <v-col cols="6">
               <v-row class="pr-4">

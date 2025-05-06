@@ -75,6 +75,26 @@ export interface IConfigPiniaStorageSchema {
     dateRange: number | "custom" | "all";
   };
 
+  /**
+   * 注意：
+   * showTorrentTag, showTorrentSubtitle, showSocialInformation, socialInformationSearchTargetBlank
+   * 这四个选项同时影响下载历史中的展示
+   */
+  searchEntifyControl: {
+    // 是否展示站点名称
+    showSiteName: boolean;
+    // 是否展示种子的Tags信息
+    showTorrentTag: boolean;
+    // 是否展示种子的副标题信息
+    showTorrentSubtitle: boolean;
+    // 是否展示种子额外的媒体评分信息（需要该种子提供 ext_{imdb, douban} 信息）
+    showSocialInformation: boolean;
+    // 对种子额外的媒体评分信息中 “搜索” 是另开窗口还是当前窗口 （需要 showSocialInformation 为 true 才有实际效果）
+    socialInformationSearchOnNewTab: boolean;
+    // 是否使用 time_alive(过去时间) 来展示，如果不使用，则使用 time_added(发生时间) 来展示，默认不使用
+    uploadAtFormatAsAlive: boolean;
+  };
+
   userInfo: {
     // 更新用户信息时的最大并发数
     queueConcurrency: number;

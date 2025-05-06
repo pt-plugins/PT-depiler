@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
+import { useI18n } from "vue-i18n";
 import { EResultParseStatus, ETorrentStatus } from "@ptd/site";
 
 import { type ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
@@ -9,7 +10,7 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 import { log } from "~/helper.ts";
-import { formatDate, formatSize } from "@/options/utils.ts";
+import { formatDate, formatSize, formatTimeAgo } from "@/options/utils.ts";
 import { doSearch, searchQueue, tableCustomFilter } from "./utils.ts"; // <-- 主要方法在这个文件中！！！
 
 import SiteName from "@/options/components/SiteName.vue";
@@ -21,6 +22,7 @@ import SearchStatusDialog from "./SearchStatusDialog.vue";
 import SaveSnapshotDialog from "./SaveSnapshotDialog.vue";
 import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
 
+const { t } = useI18n();
 const route = useRoute();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
@@ -181,12 +183,37 @@ function cancelSearchQueue() {
 
         <v-divider vertical class="mx-2" />
 
+        <v-menu>
+          <template v-slot:activator="{ props }">
+            <v-btn-group size="small" variant="text">
+              <v-btn color="blue" icon="mdi-cog" v-bind="props" />
+            </v-btn-group>
+          </template>
+          <v-list>
+            <v-list-item v-for="(item, index) in configStore.searchEntifyControl" :key="index" :value="index">
+              <template v-slot:prepend>
+                <v-list-item-action start class="ml-2">
+                  <v-switch
+                    v-model="configStore.searchEntifyControl[index]"
+                    :label="`&nbsp;${t('SearchEntity.index.' + index)}`"
+                    color="success"
+                    density="compact"
+                    hide-details
+                    @click.stop
+                    @update:model-value="() => configStore.$save()"
+                  />
+                </v-list-item-action>
+              </template>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+
         <v-combobox
           v-model="configStore.tableBehavior.SearchEntity.columns"
           :items="fullTableHeader"
           :return-object="false"
           chips
-          class="table-header-filter-clear"
+          class="table-header-filter-clear ml-1"
           density="compact"
           hide-details
           item-value="key"
@@ -241,8 +268,8 @@ function cancelSearchQueue() {
       <!-- 站点图标 -->
       <template #item.site="{ item }">
         <div class="d-flex flex-column align-center">
-          <SiteFavicon :site-id="item.site" :size="18" />
-          <SiteName :site-id="item.site" />
+          <SiteFavicon :site-id="item.site" :size="configStore.searchEntifyControl.showSiteName ? 18 : 24" />
+          <SiteName v-if="configStore.searchEntifyControl.showSiteName" :site-id="item.site" />
         </div>
       </template>
 
@@ -289,7 +316,15 @@ function cancelSearchQueue() {
 
       <!-- 发布日期 -->
       <template #item.time="{ item }">
-        <span class="t_time text-no-wrap">{{ formatDate(item.time ?? 0) }}</span>
+        <span class="t_time text-no-wrap" :title="item.time ? (formatDate(item.time) as string) : '-'">
+          {{
+            item.time
+              ? configStore.searchEntifyControl.uploadAtFormatAsAlive
+                ? formatTimeAgo(item.time)
+                : formatDate(item.time)
+              : "-"
+          }}
+        </span>
       </template>
 
       <!-- 其他操作 -->
