@@ -8,6 +8,7 @@ import { tableCustomFilter } from "@/options/views/Overview/DownloadHistory/util
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import DownloaderLabel from "@/options/components/DownloaderLabel.vue";
+import { setDateRangeByDatePicker, getThisDateUnitRange } from "@/options/directives/useAdvanceFilter.ts";
 
 const showDialog = defineModel<boolean>();
 
@@ -120,9 +121,9 @@ function updateTableFilter() {
                   class="mr-1"
                   @click="
                     () =>
-                      (advanceFilterDict.downloadAt.value = getThisDateUnitRange(
+                      (advanceFilterDictRef.downloadAt.value = getThisDateUnitRange(
                         dateUnit,
-                        advanceFilterDict.downloadAt.range,
+                        advanceFilterDictRef.downloadAt.range,
                       ))
                   "
                 >
@@ -137,7 +138,7 @@ function updateTableFilter() {
                       hide-header
                       multiple="range"
                       show-adjacent-months
-                      @update:model-value="(v) => (advanceFilterDict.downloadAt.value = setDateRangeByDatePicker(v))"
+                      @update:model-value="(v) => (advanceFilterDictRef.downloadAt.value = setDateRangeByDatePicker(v))"
                     ></v-date-picker>
                   </v-menu>
                 </v-chip>
