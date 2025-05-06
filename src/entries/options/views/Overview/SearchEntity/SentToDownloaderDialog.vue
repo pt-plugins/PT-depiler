@@ -207,9 +207,9 @@ function dialogLeave() {
                 <v-switch
                   v-model="addTorrentOptions.localDownload"
                   color="success"
-                  disabled
+                  :disabled="!configStore.download.allowDirectSendToClient"
                   hide-details
-                  label="本地中转（如非必要请勿禁用）"
+                  label="本地中转"
                 ></v-switch>
               </v-col>
               <v-col>

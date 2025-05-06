@@ -17,39 +17,34 @@ async function save() {
 <template>
   <v-card>
     <v-card-text>
-      <v-label class="my-2">基本配置</v-label>
-
       <v-row>
         <v-col md="6">
+          <v-label>基本配置</v-label>
           <v-number-input
             v-model="configStore.socialSiteInformation.cacheDay"
             :label="`缓存有效期（天）`"
             :min="3"
             messages="缓存时间过短会导致频繁请求，过长会导致数据不及时"
           />
+          <v-number-input
+            v-model="configStore.socialSiteInformation.timeout"
+            :label="`请求超时时间 (毫秒)`"
+            hide-details
+          />
         </v-col>
       </v-row>
 
       <v-row>
         <v-col md="6">
-          <v-number-input v-model="configStore.socialSiteInformation.timeout" :label="`请求超时时间 (毫秒)`" />
-        </v-col>
-      </v-row>
-
-      <v-label class="my-2">PtGen 配置</v-label>
-      <v-row>
-        <v-col md="6">
+          <v-label>PtGen 配置</v-label>
           <v-switch
             v-model="configStore.socialSiteInformation.preferPtGen"
             :label="`优先使用 PtGen 提供的数据`"
             color="success"
             hide-details
           />
-        </v-col>
-      </v-row>
-      <v-row v-if="configStore.socialSiteInformation.preferPtGen">
-        <v-col md="6">
           <v-combobox
+            v-if="configStore.socialSiteInformation.preferPtGen"
             v-model="configStore.socialSiteInformation.ptGenEndpoint"
             :items="buildInPtGenApi"
             :return-object="false"
@@ -61,10 +56,9 @@ async function save() {
         </v-col>
       </v-row>
 
-      <v-label class="my-2">各媒体评分站点配置</v-label>
-
       <v-row>
         <v-col md="6">
+          <v-label>各媒体评分站点配置</v-label>
           <v-text-field
             v-model="configStore.socialSiteInformation.socialSite!.anidb.client"
             :label="`AniDB Client ID`"
@@ -75,11 +69,7 @@ async function save() {
               <v-avatar image="/icons/social/anidb.png" />
             </template>
           </v-text-field>
-        </v-col>
-      </v-row>
 
-      <v-row>
-        <v-col md="6">
           <v-text-field
             v-model="configStore.socialSiteInformation.socialSite!.bangumi.apikey"
             :label="`Bangumi API Key`"

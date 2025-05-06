@@ -32,19 +32,14 @@ async function save() {
             :min="1"
             controlVariant="default"
             label="请求队列长度"
-          ></v-number-input>
-        </v-col>
-      </v-row>
-
-      <v-row>
-        <v-col md="6">
+          />
           <v-switch
             v-model="configStore.searchEntity.saveLastFilter"
             color="success"
             hide-details
             label="保存上一次使用的搜索筛选词"
             @update:model-value="(v) => clearLastFilter(v as boolean)"
-          ></v-switch>
+          />
         </v-col>
       </v-row>
     </v-card-text>

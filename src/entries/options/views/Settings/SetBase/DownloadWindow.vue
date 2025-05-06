@@ -27,6 +27,7 @@ async function save() {
     <v-card-text>
       <v-row>
         <v-col md="6">
+          <v-label>本地下载</v-label>
           <v-select
             v-model="configStore.download.localDownloadMethod"
             label="本地下载方式"
@@ -38,20 +39,26 @@ async function save() {
             "
             :hint="t(`SetBase.download.localDownloadMethod.${configStore.download.localDownloadMethod}Tip`)"
             persistent-hint
-          >
-          </v-select>
+          />
         </v-col>
       </v-row>
 
       <v-row>
         <v-col md="6">
+          <v-label>下载服务器推送</v-label>
           <v-switch
             v-model="configStore.download.saveLastDownloader"
             color="success"
             hide-details
             label="保存上一次使用的下载服务器设置"
-            @update:model-value="clearLastDownloader"
-          ></v-switch>
+            @update:model-value="(v) => clearLastDownloader(v as unknown as boolean)"
+          />
+          <v-switch
+            v-model="configStore.download.allowDirectSendToClient"
+            color="success"
+            hide-details
+            label="是否允许直接将链接（而不是种子文件）发送到下载服务器（如非必要请勿启用）"
+          />
         </v-col>
       </v-row>
     </v-card-text>
