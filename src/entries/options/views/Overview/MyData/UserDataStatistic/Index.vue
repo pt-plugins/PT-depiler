@@ -109,7 +109,7 @@ function createTotalInfoTooltipFormatter(type: (keyof typeof formatDict)[]) {
   };
 }
 
-const totalSiteBaseInfoChartOptions = computed<EChartsLineChartOption>(() => {
+const totalSiteBaseInfoChartOptions = computed(() => {
   const uploaded = getTotalDataByField("uploaded");
   const downloaded = getTotalDataByField("downloaded");
   const bonus = getTotalDataByField("bonus");
@@ -136,10 +136,10 @@ const totalSiteBaseInfoChartOptions = computed<EChartsLineChartOption>(() => {
       { name: "下载", type: "line", smooth: true, data: downloaded, yAxisIndex: 0 },
       { name: "积分", type: "line", smooth: true, data: bonus, yAxisIndex: 1 },
     ],
-  };
+  } as EChartsLineChartOption;
 });
 
-const totalSiteSeedingInfoChartOptions = computed<EChartsLineChartOption>(() => {
+const totalSiteSeedingInfoChartOptions = computed(() => {
   const seeding = getTotalDataByField("seeding");
   const seedingSize = getTotalDataByField("seedingSize");
 
@@ -164,11 +164,11 @@ const totalSiteSeedingInfoChartOptions = computed<EChartsLineChartOption>(() => 
       { name: "做种体积", type: "line", smooth: true, data: seedingSize, yAxisIndex: 0 },
       { name: "做种数", type: "line", smooth: true, data: seeding, yAxisIndex: 1 },
     ],
-  };
+  } as EChartsLineChartOption;
 });
 
 const createPerSiteChartOptionsFn = (field: keyof IStoredUserInfo, format: keyof typeof formatDict) =>
-  computed<EChartsBarChartOption>(() => {
+  computed(() => {
     const series = selectedSites.value.map((site) => {
       const data = selectedDateRanges.value.map((date) => selectedDataComputed.value[date]?.[site]?.[field] ?? 0);
       return {
@@ -209,7 +209,7 @@ const createPerSiteChartOptionsFn = (field: keyof IStoredUserInfo, format: keyof
       xAxis: { type: "category", boundaryGap: false, data: selectedDateRanges.value }, // 时间轴
       yAxis: [{ type: "value", name: "数据", axisLabel: { formatter: formatDict[format] } }],
       series,
-    };
+    } as EChartsBarChartOption;
   });
 
 const perSiteChartField: [keyof IStoredUserInfo, keyof typeof formatDict][] = [

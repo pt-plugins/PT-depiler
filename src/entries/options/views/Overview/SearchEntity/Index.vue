@@ -21,6 +21,7 @@ import ActionTd from "./ActionTd.vue";
 import SearchStatusDialog from "./SearchStatusDialog.vue";
 import SaveSnapshotDialog from "./SaveSnapshotDialog.vue";
 import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
+import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -51,12 +52,12 @@ const fullTableHeader = [
     sortable: false,
     props: { disabled: true },
   },
-];
+] as (DataTableHeader & { props?: any })[];
 
 const tableHeader = computed(() => {
   return fullTableHeader.filter(
-    (item) => item?.props?.disabled || configStore.tableBehavior.SearchEntity.columns!.includes(item.key),
-  );
+    (item) => item?.props?.disabled || configStore.tableBehavior.SearchEntity.columns!.includes(item.key!),
+  ) as DataTableHeader[];
 });
 
 const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;

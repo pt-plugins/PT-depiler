@@ -140,10 +140,12 @@ async function generateSolution() {
             <v-expansion-panel-text>
               <v-container class="pa-0">
                 <!-- 如果该类别支持多选，则显示全选按钮 -->
-                <v-row v-if="category.cross?.mode" no-gutters>
+                <v-row v-if="category.cross && category.cross.mode" no-gutters>
                   <v-col cols="12">
                     <v-checkbox
-                      :indeterminate="selectCategory[category.key]?.length > 0 && checkBtnIndeterminate(category)"
+                      :indeterminate="
+                        (selectCategory[category.key] as any[])?.length > 0 && checkBtnIndeterminate(category)
+                      "
                       :model-value="!checkBtnIndeterminate(category)"
                       hide-details
                       @update:model-value="(e) => clickAllBtn(category, e as boolean)"
@@ -161,7 +163,7 @@ async function generateSolution() {
                 </v-row>
                 <v-row no-gutters>
                   <!-- 多选类别选项 -->
-                  <template v-if="category.cross?.mode">
+                  <template v-if="category.cross && category.cross.mode">
                     <v-col
                       v-for="options in category.options"
                       :key="options.value"

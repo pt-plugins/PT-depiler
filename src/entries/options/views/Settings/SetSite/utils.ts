@@ -15,7 +15,7 @@ export async function getCanAddedSiteMetadata() {
   return canAddedSiteMetadata;
 }
 
-interface ISiteTableItem {
+export interface ISiteTableItem {
   id: TSiteID;
   metadata: ISiteMetadata;
   userConfig: ISiteUserConfig;

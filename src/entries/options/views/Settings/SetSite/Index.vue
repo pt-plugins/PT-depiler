@@ -2,6 +2,7 @@
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { type TSiteID } from "@ptd/site";
+import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 import { sendMessage } from "@/messages.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
@@ -17,7 +18,7 @@ import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";
 import OneClickImportDialog from "@/options/views/Settings/SetSite/OneClickImportDialog.vue";
 
-import { allAddedSiteInfo } from "@/options/views/Settings/SetSite/utils.ts"; // <-- 数据来源
+import { allAddedSiteInfo, type ISiteTableItem } from "@/options/views/Settings/SetSite/utils.ts"; // <-- 数据来源
 
 const { t } = useI18n();
 
@@ -32,33 +33,15 @@ const showOneClickImportDialog = ref<boolean>(false);
 
 const tableHeader = [
   // site favicon
-  { title: "", key: "userConfig.sortIndex", align: "center", width: 48, alwaysShow: true, filterable: false },
+  { title: "", key: "userConfig.sortIndex", align: "center", width: 48, alwaysShow: true },
   { title: t("SetSite.common.name"), key: "name", align: "left", width: 120, alwaysShow: true, sortable: false },
   { title: "站点分类", key: "groups", align: "left", minWidth: 120, sortable: false },
   { title: t("SetSite.common.url"), key: "url", align: "start", sortable: false },
-  { title: t("SetSite.common.isOffline"), key: "userConfig.isOffline", align: "center", width: 180, filterable: false },
-  {
-    title: t("SetSite.common.allowSearch"),
-    key: "userConfig.allowSearch",
-    align: "center",
-    width: 180,
-    filterable: false,
-  },
-  {
-    title: t("SetSite.common.allowQueryUserInfo"),
-    key: "userConfig.allowQueryUserInfo",
-    align: "center",
-    width: 180,
-    filterable: false,
-  },
-  {
-    title: t("common.action"),
-    key: "action",
-    sortable: false,
-    filterable: false,
-    alwaysShow: true,
-  },
-];
+  { title: t("SetSite.common.isOffline"), key: "userConfig.isOffline", align: "center", width: 180 },
+  { title: t("SetSite.common.allowSearch"), key: "userConfig.allowSearch", align: "center", width: 180 },
+  { title: t("SetSite.common.allowQueryUserInfo"), key: "userConfig.allowQueryUserInfo", align: "center", width: 180 },
+  { title: t("common.action"), key: "action", sortable: false, alwaysShow: true },
+] as DataTableHeader[];
 
 const booleanUserConfigKeywords = ["isOffline", "allowSearch", "allowQueryUserInfo"];
 

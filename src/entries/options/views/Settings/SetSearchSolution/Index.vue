@@ -3,6 +3,8 @@ import { ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { omit } from "es-toolkit";
 import { saveAs } from "file-saver";
+import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
+
 import { ISearchSolutionMetadata, TSolutionKey } from "@/storage.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
@@ -26,20 +28,13 @@ const solutionId = ref<TSolutionKey>("");
 
 const tableSelected = ref<TSolutionKey[]>([]);
 const tableHeader = [
-  { title: t("common.sortIndex"), key: "sort", align: "center", width: 150, filterable: false },
+  { title: t("common.sortIndex"), key: "sort", align: "center", width: 150 },
   { title: t("common.name"), key: "name", align: "start", width: 150 },
-  { title: t("SetSearchSolution.solution"), key: "solution", align: "start", filterable: false, sortable: false },
-  { title: t("SetSearchSolution.table.enable"), key: "enabled", align: "center", filterable: false, width: 120 },
-  {
-    title: t("SetSearchSolution.table.default"),
-    key: "isDefault",
-    align: "center",
-    filterable: false,
-    width: 120,
-    sortable: false,
-  },
-  { title: t("common.action"), key: "action", filterable: false, sortable: false, width: 200 },
-];
+  { title: t("SetSearchSolution.solution"), key: "solution", align: "start", sortable: false },
+  { title: t("SetSearchSolution.table.enable"), key: "enabled", align: "center", width: 120 },
+  { title: t("SetSearchSolution.table.default"), key: "isDefault", align: "center", width: 120, sortable: false },
+  { title: t("common.action"), key: "action", sortable: false, width: 200 },
+] as DataTableHeader[];
 const tableFilter = ref("");
 
 function addSearchSolution() {

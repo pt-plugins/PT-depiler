@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { onMounted, ref, shallowRef } from "vue";
+import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 import { sendMessage } from "@/messages.ts";
 import { formatDate } from "@/options/utils.ts";
@@ -27,14 +28,14 @@ const { t } = useI18n();
 const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
 
 const tableHeader = [
-  { title: "№", key: "id", align: "center", width: 50, filterable: false },
+  { title: "№", key: "id", align: "center", width: 50 },
   { title: "站点", key: "siteId", align: "center", width: 90 },
-  { title: "种子", key: "title", align: "start", minWidth: 600, maxWidth: "32vw", filterable: false },
+  { title: "种子", key: "title", align: "start", minWidth: 600, maxWidth: "32vw" },
   { title: "下载服务器", key: "downloaderId", minWidth: 200, align: "start" },
-  { title: "下载时间", key: "downloadAt", align: "center", filterable: false },
+  { title: "下载时间", key: "downloadAt", align: "center" },
   { title: "下载状态", key: "downloadStatus" },
-  { title: "操作", key: "action", align: "center", width: 90, minWidth: 90, sortable: false, alwaysShow: true },
-];
+  { title: "操作", key: "action", align: "center", width: 90, minWidth: 90, sortable: false },
+] as DataTableHeader[];
 const tableSelected = ref<TTorrentDownloadKey[]>([]);
 
 const showAdvanceFilterDialog = ref<boolean>(false);

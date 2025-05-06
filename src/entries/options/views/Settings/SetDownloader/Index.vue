@@ -3,6 +3,8 @@ import { computed, ref } from "vue";
 import { computedAsync } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import { countBy } from "es-toolkit";
+import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
+
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import type { TDownloaderKey } from "@/shared/storages/types/metadata.ts";
@@ -35,15 +37,15 @@ const downloaderMetadata = computedAsync(async () => {
 }, {});
 
 const fullTableHeader = [
-  { title: t("SetDownloader.common.type"), key: "type", align: "center", filterable: false },
+  { title: t("SetDownloader.common.type"), key: "type", align: "center" },
   { title: t("SetDownloader.common.name"), key: "name", align: "start" },
   { title: t("SetDownloader.common.uid"), key: "id", align: "start", sortable: false },
   { title: t("SetDownloader.common.address"), key: "address", align: "start" },
   { title: t("SetDownloader.common.username"), key: "username", align: "start" },
-  { title: t("SetDownloader.index.table.enabled"), key: "enabled", align: "center", filterable: false },
-  { title: t("SetDownloader.index.table.autodl"), key: "feature.DefaultAutoStart", align: "center", filterable: false },
-  { title: t("common.action"), key: "action", filterable: false, sortable: false },
-];
+  { title: t("SetDownloader.index.table.enabled"), key: "enabled", align: "center" },
+  { title: t("SetDownloader.index.table.autodl"), key: "feature.DefaultAutoStart", align: "center" },
+  { title: t("common.action"), key: "action", sortable: false },
+] as DataTableHeader[];
 const tableSelected = ref<TDownloaderKey[]>([]);
 
 const booleanField = {

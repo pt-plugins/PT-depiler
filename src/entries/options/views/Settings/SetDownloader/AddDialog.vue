@@ -104,7 +104,7 @@ async function saveStoredDownloaderConfig() {
             </v-autocomplete>
           </v-window-item>
           <v-window-item :key="1">
-            <Editor v-if="storedDownloaderConfig.type" v-model="storedDownloaderConfig" />
+            <Editor v-if="storedDownloaderConfig.type" v-model="storedDownloaderConfig as IDownloaderMetadata" />
           </v-window-item>
         </v-window>
       </v-card-text>

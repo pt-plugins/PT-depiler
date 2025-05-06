@@ -5,6 +5,7 @@ import { useI18n } from "vue-i18n";
 import { useLocalStorage } from "@vueuse/core";
 import { dependencies, devDependencies } from "~/../package.json";
 import { REPO_URL } from "~/helper.ts";
+import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 const { t } = useI18n();
 
@@ -58,16 +59,10 @@ Object.entries({ ...dependencies, ...devDependencies }).forEach((value) => {
 });
 
 const TechnologyStackTableHeader = [
-  { title: t("common.name"), key: "name", align: "start", filterable: false },
-  { title: t("common.version"), key: "version", align: "center", filterable: false, sortable: false },
-  {
-    title: t("TechnologyStack.stackTableColumn.homepage"),
-    key: "url",
-    align: "start",
-    filterable: false,
-    sortable: false,
-  },
-];
+  { title: t("common.name"), key: "name", align: "start" },
+  { title: t("common.version"), key: "version", align: "center", sortable: false },
+  { title: t("TechnologyStack.stackTableColumn.homepage"), key: "url", align: "start", sortable: false },
+] as DataTableHeader[];
 
 const tableDependencies = computed(() => Object.values(technologyData.value));
 </script>

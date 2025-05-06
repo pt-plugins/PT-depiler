@@ -3,6 +3,7 @@ import { computed, reactive, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 import { isUndefined } from "es-toolkit/compat";
+import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -51,12 +52,12 @@ const fullTableHeader = reactive([
   { title: t("MyData.table.joinTime"), key: "joinTime", align: "center" },
   { title: t("MyData.table.updateAt"), key: "updateAt", align: "center", props: { disabled: true } },
   { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false, props: { disabled: true } },
-]);
+] as (DataTableHeader & { props?: any })[]);
 
 const tableHeader = computed(() => {
   return fullTableHeader.filter(
-    (item) => item?.props?.disabled || configStore.tableBehavior.MyData.columns!.includes(item.key),
-  );
+    (item) => item?.props?.disabled || configStore.tableBehavior.MyData.columns!.includes(item.key!),
+  ) as DataTableHeader[];
 });
 
 interface IUserInfoItem extends IUserInfo {

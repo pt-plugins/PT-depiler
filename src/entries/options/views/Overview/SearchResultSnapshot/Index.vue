@@ -3,6 +3,7 @@ import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { refDebounced } from "@vueuse/core";
+import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 import { formatDate } from "../../../utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -24,10 +25,10 @@ const showDeleteDialog = ref<boolean>(false);
 
 const tableHeader = [
   { title: "快照名称", key: "name", align: "start" },
-  { title: "种子数", key: "recordCount", align: "end", width: 100, filterable: false },
-  { title: "创建时间", key: "createdAt", align: "center", width: 150, minWidth: 150, filterable: false },
+  { title: "种子数", key: "recordCount", align: "end", width: 100 },
+  { title: "创建时间", key: "createdAt", align: "center", width: 150, minWidth: 150 },
   { title: "操作", key: "action", align: "center", width: 125, minWidth: 125, sortable: false, alwaysShow: true },
-];
+] as DataTableHeader[];
 const tableSelected = ref<TSearchSnapshotKey[]>([]);
 const tableWaitFilter = ref("");
 const tableFilter = refDebounced(tableWaitFilter, 500); // 延迟搜索过滤词的生成

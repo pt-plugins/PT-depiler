@@ -2,6 +2,7 @@
 import { ref, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { EResultParseStatus, type IUserInfo, type TSiteID } from "@ptd/site";
+import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 import { sendMessage } from "@/messages.ts";
 import { fixUserInfo, formatRatio } from "./utils.ts";
@@ -33,7 +34,7 @@ const tableHeader = [
   { title: t("levelRequirement.seedingSize"), key: "seedingSize", align: "end", sortable: false },
   { title: t("levelRequirement.bonus"), key: "bonus", align: "end", sortable: false },
   { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false },
-];
+] as DataTableHeader[];
 
 function loadSiteHistoryData(siteId: TSiteID) {
   sendMessage("getSiteUserInfo", siteId).then((data) => {
@@ -97,7 +98,7 @@ function viewStoreData(data: IShowUserInfo) {
 
           <!-- 用户名，用户ID -->
           <template #item.name="{ item }">
-            <span :title="item.id" class="text-no-wrap">{{ item.name ?? "-" }}</span>
+            <span :title="item.id as string" class="text-no-wrap">{{ item.name ?? "-" }}</span>
           </template>
 
           <!-- 等级 -->
