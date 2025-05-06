@@ -324,7 +324,15 @@ function viewStatistic() {
       <!-- 站点信息 -->
       <template #item.siteUserConfig.sortIndex="{ item }">
         <div class="d-flex flex-column align-center">
-          <SiteFavicon :site-id="item.site" :size="configStore.myDataTableControl.showSiteName ? 18 : 24" />
+          <v-badge
+            v-if="configStore.myDataTableControl.showUnreadMessage && (item.messageCount ?? 0) > 0"
+            :content="item.messageCount"
+            :max="10"
+            color="error"
+          >
+            <SiteFavicon :site-id="item.site" :size="configStore.myDataTableControl.showSiteName ? 18 : 24" />
+          </v-badge>
+          <SiteFavicon v-else :site-id="item.site" :size="configStore.myDataTableControl.showSiteName ? 18 : 24" />
           <SiteName v-if="configStore.myDataTableControl.showSiteName" :site-id="item.site" />
         </div>
       </template>

@@ -62,16 +62,13 @@ export const siteMetadata: ISiteMetadata = {
         },
       },
       status: {
-        selector: [".progress:eq(0) > div"],
-        elementProcess: (element: HTMLElement) => {
-          const elementClass = element.getAttribute("class") || "";
-          const statusMap: Record<string, ETorrentStatus> = {
-            progress_seeding: ETorrentStatus.seeding,
-            progress_completed: ETorrentStatus.completed,
-            progress_no_downloading: ETorrentStatus.inactive,
-            progress_downloading: ETorrentStatus.downloading,
-          };
-          return statusMap[elementClass] ?? ETorrentStatus.unknown;
+        text: ETorrentStatus.unknown,
+        selector: [".progress_seeding", ".progress_downloading", ".progress_completed", ".progress_no_downloading"],
+        case: {
+          ".progress_seeding": ETorrentStatus.seeding,
+          ".progress_downloading": ETorrentStatus.downloading,
+          ".progress_completed": ETorrentStatus.completed,
+          ".progress_no_downloading": ETorrentStatus.inactive,
         },
       },
       tags: [

@@ -71,6 +71,7 @@ export const useConfigStore = defineStore("config", {
 
     myDataTableControl: {
       showSiteName: true,
+      showUnreadMessage: true,
       showUserName: true,
       normalizeLevelName: true,
       showLevelRequirement: true,
@@ -146,7 +147,6 @@ export const useConfigStore = defineStore("config", {
         bangumi: {},
         douban: {},
         imdb: {},
-        tmdb: {},
       },
     },
   }),

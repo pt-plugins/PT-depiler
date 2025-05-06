@@ -37,6 +37,8 @@ export interface IConfigPiniaStorageSchema {
   myDataTableControl: {
     // 是否展示站点名称
     showSiteName: boolean;
+    // 是否展示未读信息情况
+    showUnreadMessage: boolean;
     // 是否展示用户名，如果不展示，则显示为 ******
     showUserName: boolean;
     // 是否使用站点定义中的 levelRequirements 中的名称来统一显示等级名称，如果不使用，则直接显示为 getUserInfo 获取到的信息

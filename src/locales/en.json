@@ -155,6 +155,7 @@
       "flushSelectSite": "Flush selected",
       "flushCancel": "Flush canceled",
       "showSiteName": "Show Site Name",
+      "showUnreadMessage": "Show Unread Messages",
       "showUserName": "Show Username",
       "normalizeLevelName": "Use Site-defined Level Name",
       "showLevelRequirement": "Show Level Requirement",
