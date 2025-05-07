@@ -137,7 +137,7 @@ async function saveStoredDownloaderConfig() {
           variant="text"
           @click="currentStep++"
         >
-          {{ $t("common.dialog.next") }}
+          {{ t("common.dialog.next") }}
           <v-icon icon="mdi-chevron-right" />
         </v-btn>
         <v-btn
@@ -148,7 +148,7 @@ async function saveStoredDownloaderConfig() {
           @click="saveStoredDownloaderConfig"
         >
           <v-icon icon="mdi-check-circle-outline" />
-          {{ $t("common.dialog.ok") }}
+          {{ t("common.dialog.ok") }}
         </v-btn>
       </v-card-actions>
     </v-card>

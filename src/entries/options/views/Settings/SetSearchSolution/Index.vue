@@ -163,7 +163,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
           color="info"
           icon="mdi-export"
           text="导出"
-          @click="exportSearchSolutions(tableSelected)"
+          @click="() => exportSearchSolutions(tableSelected)"
         />
 
         <v-divider class="mx-2" inset vertical />

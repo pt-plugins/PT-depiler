@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { ref, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
+import { saveAs } from "file-saver";
 import { EResultParseStatus, type IUserInfo, type TSiteID } from "@ptd/site";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 import { sendMessage } from "@/messages.ts";
+import { formatNumber, formatSize, formatDate } from "@/options/utils.ts";
 import { fixUserInfo, formatRatio } from "./utils.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
-import { formatNumber, formatSize, formatDate } from "@/options/utils.ts";
+import NavButton from "@/options/components/NavButton.vue";
 
 const showDialog = defineModel<boolean>();
 const props = defineProps<{
@@ -61,6 +63,11 @@ function viewStoreData(data: IShowUserInfo) {
   jsonData.value = data;
   showStoreDataDialog.value = true;
 }
+
+function exportSiteHistoryData() {
+  const exportedSolutionBlob = new Blob([JSON.stringify(siteHistoryData.value, null, 2)], { type: "application/json" });
+  saveAs(exportedSolutionBlob, `site-history-data-${props.siteId}.json`); // FIXME filename
+}
 </script>
 
 <template>
@@ -109,13 +116,13 @@ function viewStoreData(data: IShowUserInfo) {
           <!-- 上传、下载 -->
           <template #item.uploaded="{ item }">
             <v-container>
-              <v-row justify="end">
+              <v-row class="flex-nowrap" justify="end">
                 <span class="text-no-wrap">
                   {{ typeof item.uploaded !== "undefined" ? formatSize(item.uploaded) : "-" }}
                 </span>
                 <v-icon color="green-darken-4" icon="mdi-chevron-up" small></v-icon>
               </v-row>
-              <v-row justify="end">
+              <v-row class="flex-nowrap" justify="end">
                 <span class="text-no-wrap">
                   {{ typeof item.downloaded !== "undefined" ? formatSize(item.downloaded) : "-" }}
                 </span>
@@ -179,6 +186,11 @@ function viewStoreData(data: IShowUserInfo) {
                 @click="() => deleteSiteUserInfo(item.date)"
               ></v-btn>
             </v-btn-group>
+          </template>
+
+          <template #footer.prepend>
+            <NavButton color="info" icon="mdi-export" text="导出" @click="exportSiteHistoryData" />
+            <v-spacer />
           </template>
         </v-data-table>
       </v-card-text>

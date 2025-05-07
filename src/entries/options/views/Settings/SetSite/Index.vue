@@ -33,14 +33,14 @@ const showOneClickImportDialog = ref<boolean>(false);
 
 const tableHeader = [
   // site favicon
-  { title: "", key: "userConfig.sortIndex", align: "center", width: 48, alwaysShow: true },
-  { title: t("SetSite.common.name"), key: "name", align: "left", width: 120, alwaysShow: true, sortable: false },
+  { title: "", key: "userConfig.sortIndex", align: "center", width: 48 },
+  { title: t("SetSite.common.name"), key: "name", align: "left", width: 120, sortable: false },
   { title: "站点分类", key: "groups", align: "left", minWidth: 120, sortable: false },
   { title: t("SetSite.common.url"), key: "url", align: "start", sortable: false },
   { title: t("SetSite.common.isOffline"), key: "userConfig.isOffline", align: "center", width: 180 },
   { title: t("SetSite.common.allowSearch"), key: "userConfig.allowSearch", align: "center", width: 180 },
   { title: t("SetSite.common.allowQueryUserInfo"), key: "userConfig.allowQueryUserInfo", align: "center", width: 180 },
-  { title: t("common.action"), key: "action", sortable: false, alwaysShow: true },
+  { title: t("common.action"), key: "action", sortable: false },
 ] as DataTableHeader[];
 
 const booleanUserConfigKeywords = ["isOffline", "allowSearch", "allowQueryUserInfo"];
