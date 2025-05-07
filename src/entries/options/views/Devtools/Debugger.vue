@@ -7,6 +7,8 @@ import {
   getSite as createSiteInstance,
   type TSiteID,
 } from "@ptd/site";
+import { getDownloader } from "@ptd/downloader";
+import { type TDownloaderKey } from "@/shared/storages/types/metadata.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 
@@ -28,6 +30,8 @@ function enableLibrary() {
 
 const selectedSite = ref<TSiteID>("");
 const useCustomerConfig = ref<boolean>(true);
+
+const selectedDownloader = ref<TDownloaderKey>("");
 
 const piniaStoreContent = import.meta.glob<Record<string, Function>>("@/options/stores/*.ts");
 const piniaStoreName: Array<{ title: string; value: string }> = Object.keys(piniaStoreContent).map((x) => ({
@@ -180,6 +184,43 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
                   <v-btn :disabled="!selectedSite" class="mr-2" @click="log(getSiteConfig())"> 输出用户配置信息 </v-btn>
                   <v-btn :disabled="!selectedSite" class="mr-2" @click="log(getSiteInstance())"> 输出站点实例 </v-btn>
                   <v-btn :disabled="!selectedSite" class="mr-2" @click="log(getSiteFavicon())"> 输出Favicon </v-btn>
+                </v-col>
+              </v-row>
+            </v-container>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div class="d-flex justify-center align-center text-body-2">调试下载服务器</div>
+          </td>
+          <td>
+            <v-container>
+              <v-row dense>
+                <v-col cols="4">
+                  <v-autocomplete
+                    v-model="selectedDownloader"
+                    :items="metadataStore.getDownloaders"
+                    item-title="name"
+                    item-value="id"
+                    label="downloader"
+                    :messages="`请先在 SetDownloader 页面添加下载服务器`"
+                  />
+                </v-col>
+                <v-col class="d-flex align-center">
+                  <v-btn
+                    :disabled="!selectedDownloader"
+                    class="mr-2"
+                    @click="log(metadataStore.downloaders[selectedDownloader])"
+                  >
+                    输出用户配置信息
+                  </v-btn>
+                  <v-btn
+                    :disabled="!selectedDownloader"
+                    class="mr-2"
+                    @click="log(getDownloader(metadataStore.downloaders[selectedDownloader]))"
+                  >
+                    输出下载器实例
+                  </v-btn>
                 </v-col>
               </v-row>
             </v-container>
