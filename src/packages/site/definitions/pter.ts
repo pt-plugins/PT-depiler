@@ -158,12 +158,12 @@ export const siteMetadata: ISiteMetadata = {
         elementProcess: (element: HTMLElement) => {
           if (element.classList.contains("progbargreen")) {
             return 100;
-          } else if (element.classList.contains("progbarred") || element.classList.contains("progbarred")) {
+          } else if (element.classList.contains("progbarred") || element.classList.contains("progbarrest")) {
             const elementStyle = element.getAttribute("style") || "";
             const widthMatch = elementStyle.match(/width:([ \d.]+)%/);
             const progress =
               widthMatch && widthMatch.length >= 2 ? (parseFloat(widthMatch[1]) / 98) * 100 /* 修正下载进度 */ : 0;
-            return element.classList.contains("progbarred") ? progress : 100 - progress; // 如果是 .progbarred 则代表已完成进度，而 .progbarred 则为未完成进度，取反
+            return element.classList.contains("progbarred") ? progress : 100 - progress; // 如果是 .progbarred 则代表已完成进度，而 .progbarrest 则为未完成进度，取反
           } else {
             return 0;
           }
@@ -174,7 +174,7 @@ export const siteMetadata: ISiteMetadata = {
         elementProcess: (element: HTMLElement) => {
           if (element.classList.contains("progbargreen")) {
             return ETorrentStatus.seeding;
-          } else if (element.classList.contains("progbarred") || element.classList.contains("progbarred")) {
+          } else if (element.classList.contains("progbarred") || element.classList.contains("progbarrest")) {
             const widthMatch = (element.getAttribute("style") || "").match(/width:([ \d.]+)%/);
             const progress = widthMatch && widthMatch.length >= 2 ? (parseFloat(widthMatch[1]) / 98) * 100 : 0;
             const realProgress = element.classList.contains("progbarred") ? progress : 100 - progress;
