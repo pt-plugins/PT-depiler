@@ -326,29 +326,36 @@ export const siteMetadata: ISiteMetadata = {
 
 export default class Pter extends NexusPHP {
   protected override async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
-    const userName = flushUserInfo.name;
+    flushUserInfo.uploads = 0;
+    if (flushUserInfo.name) {
+      flushUserInfo.uploads += await this.getUserUploads(flushUserInfo.name, "prechecked"); // 初审通过
+      flushUserInfo.uploads += await this.getUserUploads(flushUserInfo.name, "checked"); // 终审通过
+    }
+    return flushUserInfo;
+  }
+
+  private async getUserUploads(userName: string, checkState: string): Promise<number> {
     const { data: userTorrentPage } = await this.request({
       url: "/torrents.php",
       params: {
-        incldead: 1,
-        spstate: 0,
-        inclbookmarked: 0,
-        check: "checked",
+        incldead: 1, // 筛选仅显示未断种
+        spstate: 0, // 促销类型：全部
+        inclbookmarked: 0, // 收藏状态：全部
+        check: checkState, // 审核状态：prechecked = 初审通过；checked = 人工审核通过。
         search: userName,
         search_area: 3,
         search_mode: 3,
-      }, // 已审核，未断种
+      },
       responseType: "document",
     });
 
-    flushUserInfo.uploads = 0;
     if (userTorrentPage) {
       const trAnothers = Sizzle("p.np-pager:first b:last", userTorrentPage as Document);
       if (trAnothers.length > 0) {
         const match = trAnothers[0].innerHTML.trim().match(/\d+$/); // 末尾的数字
-        flushUserInfo.uploads = match ? parseInt(match[0]) : 0;
+        return match ? parseInt(match[0], 10) : 0;
       }
     }
-    return flushUserInfo;
+    return 0;
   }
 }
