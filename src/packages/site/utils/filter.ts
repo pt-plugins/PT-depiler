@@ -1,3 +1,5 @@
+// noinspection ES6PreferShortImport
+
 import { parseTimeToLive, parseValidTimeString } from "./datetime.ts";
 import { parseSizeString } from "./filesize.ts";
 import { socialParseUrlMap } from "@ptd/social/index.ts";

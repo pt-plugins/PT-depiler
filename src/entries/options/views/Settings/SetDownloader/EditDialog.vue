@@ -11,14 +11,14 @@ const showDialog = defineModel<boolean>();
 const { clientId } = defineProps<{
   clientId: TDownloaderKey;
 }>();
-const clientConfig = ref<IDownloaderMetadata & { valid?: boolean }>();
+const clientConfig = ref<IDownloaderMetadata>();
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
 
 function dialogEnter() {
   if (clientId) {
-    clientConfig.value = { ...metadataStore.downloaders[clientId], valid: true }; // 防止直接修改父组件的数据
+    clientConfig.value = { ...metadataStore.downloaders[clientId] }; // 防止直接修改父组件的数据
   }
 }
 

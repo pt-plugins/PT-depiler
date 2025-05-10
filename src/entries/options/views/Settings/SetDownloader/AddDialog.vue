@@ -23,12 +23,14 @@ const metadataStore = useMetadataStore();
 
 const currentStep = ref<0 | 1>(0);
 const selectedClientType = ref<TDownloaderKey | null>(null);
-const storedDownloaderConfig = ref<Partial<IDownloaderMetadata> & { valid?: boolean }>({ valid: false });
+const storedDownloaderConfig = ref<Partial<IDownloaderMetadata>>({});
+const isDownloaderConfigValid = ref<boolean>(false);
 
 function resetDialog() {
   currentStep.value = 0;
   selectedClientType.value = null;
-  storedDownloaderConfig.value = { valid: false };
+  storedDownloaderConfig.value = {};
+  isDownloaderConfigValid.value = false;
 }
 
 const allTorrentClientMetaData = computedAsync(async () => {
@@ -104,7 +106,11 @@ async function saveStoredDownloaderConfig() {
             </v-autocomplete>
           </v-window-item>
           <v-window-item :key="1">
-            <Editor v-if="storedDownloaderConfig.type" v-model="storedDownloaderConfig as IDownloaderMetadata" />
+            <Editor
+              v-if="storedDownloaderConfig.type"
+              v-model="storedDownloaderConfig as IDownloaderMetadata"
+              @update:config-valid="(v) => (isDownloaderConfigValid = v)"
+            />
           </v-window-item>
         </v-window>
       </v-card-text>
@@ -142,7 +148,7 @@ async function saveStoredDownloaderConfig() {
         </v-btn>
         <v-btn
           v-if="currentStep === 1"
-          :disabled="!storedDownloaderConfig.valid"
+          :disabled="!isDownloaderConfigValid"
           color="success"
           variant="text"
           @click="saveStoredDownloaderConfig"

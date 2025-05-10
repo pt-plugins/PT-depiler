@@ -60,6 +60,12 @@ export const routes: RouteRecordRaw[] = [
         component: () => import("../views/Overview/SearchResultSnapshot/Index.vue"),
       },
       {
+        path: "/media-server-entity",
+        name: "MediaServerEntity",
+        meta: { icon: "mdi-play-network" },
+        component: () => import("../views/Overview/MediaServerEntity/Index.vue"),
+      },
+      {
         path: "/download-history",
         name: "DownloadHistory",
         meta: { icon: "mdi-history" },

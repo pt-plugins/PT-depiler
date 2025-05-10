@@ -68,7 +68,7 @@ async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey)
           :disabled="tableSelected.length === 0"
           color="error"
           icon="mdi-minus"
-          :text="$t('common.remove')"
+          :text="t('common.remove')"
           @click="tryToDeleteSearchSnapshot(tableSelected)"
         />
 
@@ -81,7 +81,6 @@ async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey)
           hide-details
           label="快照名称过滤"
           max-width="500"
-          prepend-inner-icon="mdi-filter"
           single-line
         />
       </v-row>
@@ -122,7 +121,7 @@ async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey)
             @click="() => editSnapshotName(item.id)"
           ></v-btn>
           <v-btn
-            :title="$t('common.remove')"
+            :title="t('common.remove')"
             color="error"
             icon="mdi-delete"
             size="small"

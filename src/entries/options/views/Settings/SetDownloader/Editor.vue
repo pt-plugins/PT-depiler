@@ -1,27 +1,33 @@
 <script setup lang="ts">
-import { ref, useTemplateRef } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 
 import { type VForm } from "vuetify/components";
 import { type IDownloaderMetadata } from "@/shared/storages/types/metadata.ts";
 
-import { getDownloader, getDownloaderMetaData } from "@ptd/downloader";
+import { getDownloader, getDownloaderMetaData, TorrentClientMetaData } from "@ptd/downloader";
 import { formatDate, formValidateRules } from "@/options/utils.ts";
 
 import ConnectCheckButton from "@/options/components/ConnectCheckButton.vue";
 
 const { t } = useI18n();
 
-const clientConfig = defineModel<IDownloaderMetadata & { valid?: boolean }>();
-const clientMeta = computedAsync(async () => await getDownloaderMetaData(clientConfig.value!.type), {});
+const clientConfig = defineModel<IDownloaderMetadata>();
+const emits = defineEmits<{
+  (e: "update:configValid", value: boolean): void;
+}>();
+const clientMeta = computedAsync<TorrentClientMetaData>(
+  async () => await getDownloaderMetaData(clientConfig.value!.type),
+  {} as TorrentClientMetaData,
+);
 
 const showPassword = ref<boolean>(false);
 
-const formRef = useTemplateRef<VForm>();
+const formValid = ref<boolean>(false);
 
 async function checkConnect() {
-  if ((await formRef.value!.validate()).valid) {
+  if (formValid) {
     const client = await getDownloader(clientConfig.value!);
     return await client.ping();
   }
@@ -31,7 +37,7 @@ async function checkConnect() {
 
 <template>
   <v-card class="mb-5">
-    <v-form v-if="clientConfig" ref="formRef" fast-fail>
+    <v-form v-if="clientConfig" v-model="formValid" fast-fail>
       <v-container class="pa-0">
         <v-row>
           <v-col cols="12" md="4">
@@ -83,7 +89,7 @@ async function checkConnect() {
           <v-slider
             v-model="clientConfig.timeout"
             :color="clientConfig.timeout! > 8 * 60e3 ? 'red' : clientConfig.timeout! > 5 * 60e3 ? 'amber' : 'green'"
-            :label="$t('SetDownloader.editor.timeout')"
+            :label="t('SetDownloader.editor.timeout')"
             :max="10 * 60e3"
             :min="0"
             :step="1e3"
@@ -111,7 +117,7 @@ async function checkConnect() {
         :check-fn="checkConnect"
         :reset-timeout="3e3"
         @after:check-connect="
-          () => (clientConfig.valid = true) // 不管是否测试成功，都允许用户进行下一步操作（保存下载服务器配置）
+          () => emits('update:configValid', formValid && true) // 不管是否测试成功，都允许用户进行下一步操作（保存下载服务器配置）
         "
       />
 

@@ -80,6 +80,7 @@
     },
     "Overview": {
       "DownloadHistory": "Download History",
+      "MediaServerEntity": "Media Server Search",
       "KeepUploadTask": "Reseed Task",
       "MyClient": "My BtClient",
       "MyCollection": "Collection",
@@ -100,7 +101,7 @@
   },
   "connectCheck": {
     "default": "Check Connect",
-    "error": "Connect Failed! Check Form Input or Download Server",
+    "error": "Connect Failed! Check Form Input or Remote Server",
     "success": "Connect Successful! You can enter next step."
   },
   "levelRequirement": {

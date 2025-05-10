@@ -12,7 +12,7 @@ import type {
   SnackbarMessageOptions,
 } from "@/shared/storages/types/runtime.ts";
 
-export const initialSearchData: () => ISearchData = () => ({
+const initialSearchData: () => ISearchData = () => ({
   isSearching: false,
   startAt: 0,
   searchKey: "",
@@ -21,14 +21,20 @@ export const initialSearchData: () => ISearchData = () => ({
   searchResult: [],
 });
 
+const initialMediaServerSearchData = () => ({
+  isSearching: false,
+  searchStatus: {},
+  searchResult: [],
+});
+
 export const useRuntimeStore = defineStore("runtime", {
-  persist: true,
   persistWebExt: false,
   state: (): IRuntimePiniaStorageSchema => ({
     search: initialSearchData(),
     userInfo: {
       flushPlan: {},
     },
+    mediaServerSearch: initialMediaServerSearchData(),
     uiGlobalSnakebar: [],
   }),
 
@@ -45,6 +51,10 @@ export const useRuntimeStore = defineStore("runtime", {
   actions: {
     resetSearchData() {
       this.search = initialSearchData();
+    },
+
+    resetMediaServerSearchData() {
+      this.mediaServerSearch = initialMediaServerSearchData();
     },
 
     showSnakebar(text: string, options: SnackbarMessageOptions = {}) {

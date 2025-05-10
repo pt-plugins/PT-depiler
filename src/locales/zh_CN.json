@@ -81,6 +81,7 @@
     },
     "Overview": {
       "DownloadHistory": "下载历史",
+      "MediaServerEntity": "媒体服务器搜索",
       "KeepUploadTask": "辅种任务",
       "MyClient": "我的下载器",
       "MyCollection": "收藏列表",
@@ -101,7 +102,7 @@
   },
   "connectCheck": {
     "default": "检查连接性",
-    "error": "连接失败！请检查填写的信息或者你的下载服务器。",
+    "error": "连接失败！请检查填写的信息或者你的远程服务器。",
     "success": "连接成功，你可以顺利进行下一步。"
   },
   "levelRequirement": {

@@ -2,7 +2,6 @@
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
-import type { VForm } from "vuetify/components";
 import { getMediaServer, getMediaServerMetaData, IMediaServerMetadata } from "@ptd/mediaServer";
 
 import type { IMediaServerMetadata as IMediaServerConfig } from "@/shared/storages/types/metadata.ts";
@@ -18,8 +17,8 @@ const emits = defineEmits<{
 }>();
 
 const clientMeta = computedAsync<IMediaServerMetadata>(
-  async () => await getMediaServerMetaData(clientConfig.value.type),
-  {},
+  async () => await getMediaServerMetaData(clientConfig.value!.type),
+  {} as IMediaServerMetadata,
 );
 const formValid = ref<boolean>(false);
 
@@ -68,7 +67,7 @@ async function checkConnect() {
 
         <v-row>
           <v-col class="py-0"><v-label>认证信息</v-label></v-col>
-          <v-col v-for="auth_field in clientMeta.auth_field" :key="auth_field" cols="12">
+          <v-col v-for="auth_field in clientMeta!.auth_field" :key="auth_field" cols="12">
             <v-text-field
               v-model="clientConfig.auth[auth_field]"
               :label="auth_field"
@@ -83,7 +82,7 @@ async function checkConnect() {
           <v-slider
             v-model="clientConfig.timeout"
             :color="clientConfig.timeout! > 8 * 60e3 ? 'red' : clientConfig.timeout! > 5 * 60e3 ? 'amber' : 'green'"
-            :label="$t('SetDownloader.editor.timeout')"
+            :label="t('SetDownloader.editor.timeout')"
             :max="10 * 60e3"
             :min="0"
             :step="1e3"

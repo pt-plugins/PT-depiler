@@ -3,10 +3,20 @@ import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 import { nanoid } from "nanoid";
-import { getMediaServerDefaultConfig, getMediaServerMetaData, entityList, getMediaServerIcon } from "@ptd/mediaServer";
+import {
+  getMediaServerDefaultConfig,
+  getMediaServerMetaData,
+  entityList,
+  getMediaServerIcon,
+  type IMediaServerMetadata,
+} from "@ptd/mediaServer";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import type { IMediaServerMetadata, TDownloaderKey, TMediaServerKey } from "@/shared/storages/types/metadata.ts";
+import type {
+  IMediaServerMetadata as IMediaServerUserConfig,
+  TDownloaderKey,
+  TMediaServerKey,
+} from "@/shared/storages/types/metadata.ts";
 
 import Editor from "./Editor.vue";
 
@@ -17,7 +27,7 @@ const metadataStore = useMetadataStore();
 
 const currentStep = ref<0 | 1>(0);
 const selectedMediaServerType = ref<TMediaServerKey | null>(null);
-const storedMediaServerConfig = ref<Partial<IMediaServerMetadata>>({});
+const storedMediaServerConfig = ref<Partial<IMediaServerUserConfig>>({});
 const isMediaServerConfigValid = ref<boolean>(false);
 
 function resetDialog() {
@@ -27,10 +37,14 @@ function resetDialog() {
   isMediaServerConfigValid.value = false;
 }
 
+interface MediaServerMetaData extends IMediaServerMetadata {
+  type: TMediaServerKey;
+}
+
 const allMediaServerMetaData = computedAsync(async () => {
-  const mediaServerMetaData: Record<TMediaServerKey, IMediaServerMetadata & { type: TMediaServerKey }> = {};
+  const mediaServerMetaData: Record<TMediaServerKey, MediaServerMetaData> = {};
   for (const type of entityList) {
-    mediaServerMetaData[type] = { type, ...(await getMediaServerMetaData(type)) };
+    mediaServerMetaData[type] = { type, ...(await getMediaServerMetaData(type)) } as MediaServerMetaData;
   }
   return mediaServerMetaData;
 }, {});
@@ -45,7 +59,7 @@ async function updateStoredMediaServerConfigByDefault(e: TDownloaderKey) {
 }
 
 async function saveStoredMediaServerConfig() {
-  await metadataStore.addMediaServer(storedMediaServerConfig.value as IMediaServerMetadata);
+  await metadataStore.addMediaServer(storedMediaServerConfig.value as IMediaServerUserConfig);
   showDialog.value = false;
 }
 </script>
@@ -95,7 +109,7 @@ async function saveStoredMediaServerConfig() {
           <v-window-item :key="1">
             <Editor
               v-if="storedMediaServerConfig.type"
-              v-model="storedMediaServerConfig as IMediaServerMetadata"
+              v-model="storedMediaServerConfig as IMediaServerUserConfig"
               @update:config-valid="(e) => (isMediaServerConfigValid = e)"
             />
           </v-window-item>

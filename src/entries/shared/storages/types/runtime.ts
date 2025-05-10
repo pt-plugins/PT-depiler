@@ -1,8 +1,9 @@
 import type { VNodeProps } from "vue";
 import type { VSnackbar } from "vuetify/components";
 import type { EResultParseStatus, ITorrent, TSiteID } from "@ptd/site";
+import type { IMediaServerItem } from "@ptd/mediaServer";
 
-import type { TSolutionKey } from "./metadata";
+import type { TMediaServerKey, TSolutionKey } from "./metadata";
 
 export type TSearchSolutionKey = `${TSiteID}|$|${TSolutionKey}`;
 
@@ -61,6 +62,11 @@ export interface IRuntimePiniaStorageSchema {
   search: ISearchData;
   userInfo: {
     flushPlan: Record<TSiteID, boolean>;
+  };
+  mediaServerSearch: {
+    isSearching: boolean; // 是否正在搜索
+    searchStatus: Record<TMediaServerKey, EResultParseStatus>;
+    searchResult: IMediaServerItem[];
   };
   uiGlobalSnakebar: SnackbarMessageOptions[]; // https://vuetifyjs.com/en/components/snackbar-queue/#props-model-value
 }

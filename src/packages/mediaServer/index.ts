@@ -32,10 +32,10 @@ export async function getMediaServerDefaultConfig(type: string): Promise<IMediaS
 }
 
 export async function getMediaServer(config: IMediaServerBaseConfig): Promise<AbstractMediaServer> {
-  const DownloaderClass = (await getMediaServerModule(config.type)).default;
+  const mediaServerClass = (await getMediaServerModule(config.type)).default;
 
   // @ts-ignore
-  return new DownloaderClass(config);
+  return new mediaServerClass(config);
 }
 
 export function getMediaServerIcon(type: string) {
