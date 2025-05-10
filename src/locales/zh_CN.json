@@ -94,9 +94,15 @@
       "SetBackup": "参数备份与恢复",
       "SetBase": "常规设置",
       "SetDownloader": "下载器设置",
+      "SetMediaServer": "媒体服务器设置",
       "SetSearchSolution": "搜索方案定义",
       "SetSite": "站点设置"
     }
+  },
+  "connectCheck": {
+    "default": "检查连接性",
+    "error": "连接失败！请检查填写的信息或者你的下载服务器。",
+    "success": "连接成功，你可以顺利进行下一步。"
   },
   "levelRequirement": {
     "interval": "需要等待的日期",
@@ -293,11 +299,6 @@
     "editor": {
       "addressTip": "完整的服务器地址（含端口），如：http://192.168.1.1:5000/",
       "autoStart": "发送种子时自动开始下载",
-      "connect": {
-        "default": "检查连接性",
-        "error": "连接失败！请检查填写的信息或者你的下载服务器。",
-        "success": "连接成功，你可以顺利进行下一步。"
-      },
       "nameTip": "取一个好听又好分辨的名称",
       "password": "密码",
       "timeout": "超时时长（秒）",

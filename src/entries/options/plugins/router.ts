@@ -97,6 +97,12 @@ export const routes: RouteRecordRaw[] = [
         meta: { icon: "mdi-cloud-download" },
         component: () => import("../views/Settings/SetDownloader/Index.vue"),
       },
+      {
+        path: "/set-media-server",
+        name: "SetMediaServer",
+        meta: { icon: "mdi-video-input-svideo" },
+        component: () => import("../views/Settings/SetMediaServer/Index.vue"),
+      },
     ],
   },
   {

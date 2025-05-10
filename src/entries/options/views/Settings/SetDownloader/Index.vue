@@ -51,7 +51,7 @@ const tableSelected = ref<TDownloaderKey[]>([]);
 const booleanField = {
   "feature.DefaultAutoStart": "SetDownloader.index.table.autodl",
   enabled: "SetDownloader.index.table.enabled",
-};
+} as const;
 
 const {
   tableWaitFilterRef,
@@ -204,30 +204,26 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
       </template>
 
       <template #item.enabled="{ item }">
-        <div class="d-flex justify-center">
-          <v-switch
-            v-model="item.enabled"
-            class="downloader-switch-btn"
-            color="success"
-            hide-details
-            @update:model-value="(v) => metadataStore.simplePatchDownloader(item.id, 'enabled', v as boolean)"
-          />
-        </div>
+        <v-switch
+          v-model="item.enabled"
+          class="table-switch-btn"
+          color="success"
+          hide-details
+          @update:model-value="(v) => metadataStore.simplePatch('downloaders', item.id, 'enabled', v as boolean)"
+        />
       </template>
 
       <template #item.feature.DefaultAutoStart="{ item }">
-        <div class="d-flex justify-center">
-          <v-switch
-            v-model="item.feature!.DefaultAutoStart"
-            :disabled="!item.enabled || downloaderMetadata?.[item.type]?.feature?.DefaultAutoStart.allowed === false"
-            class="downloader-switch-btn"
-            color="success"
-            hide-details
-            @update:model-value="
-              (v) => metadataStore.simplePatchDownloader(item.id, 'feature.DefaultAutoStart', v as boolean)
-            "
-          />
-        </div>
+        <v-switch
+          v-model="item.feature!.DefaultAutoStart"
+          :disabled="!item.enabled || downloaderMetadata?.[item.type]?.feature?.DefaultAutoStart.allowed === false"
+          class="table-switch-btn"
+          color="success"
+          hide-details
+          @update:model-value="
+            (v) => metadataStore.simplePatch('downloaders', item.id, 'feature.DefaultAutoStart', v as boolean)
+          "
+        />
       </template>
 
       <template #item.action="{ item }">
@@ -269,10 +265,4 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
   <DeleteDialog v-model="showDeleteDialog" :to-delete-ids="toDeleteIds" :confirm-delete="confirmDeleteDownloader" />
 </template>
 
-<style scoped lang="scss">
-.downloader-switch-btn {
-  :deep(.v-selection-control) {
-    justify-content: center;
-  }
-}
-</style>
+<style scoped lang="scss"></style>

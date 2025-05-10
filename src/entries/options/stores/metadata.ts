@@ -10,17 +10,24 @@ import {
   type TSiteID,
 } from "@ptd/site";
 
-import type {
+import {
   IDownloaderMetadata,
+  IMediaServerMetadata,
   IMetadataPiniaStorageSchema,
   ISearchSolution,
   TDownloaderKey,
+  TMediaServerKey,
   TSearchSnapshotKey,
   TSolutionKey,
 } from "@/shared/storages/types/metadata.ts";
 import { ISearchSolutionMetadata } from "@/shared/storages/types/metadata.ts";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+
+type TSimplePatchFieldKey = keyof Pick<
+  IMetadataPiniaStorageSchema,
+  "sites" | "solutions" | "snapshots" | "downloaders" | "mediaServers"
+>;
 
 export const useMetadataStore = defineStore("metadata", {
   persistWebExt: true,
@@ -29,6 +36,7 @@ export const useMetadataStore = defineStore("metadata", {
     solutions: {},
     snapshots: {},
     downloaders: {},
+    mediaServers: {},
 
     defaultSolutionId: "default",
 
@@ -238,8 +246,30 @@ export const useMetadataStore = defineStore("metadata", {
     getEnabledDownloaders(state) {
       return Object.values(state.downloaders).filter((downloader) => downloader.enabled);
     },
+
+    getMediaServerIds(state) {
+      return Object.keys(state.mediaServers);
+    },
+
+    getMediaServers(state) {
+      return Object.values(state.mediaServers);
+    },
+
+    getEnabledMediaServers(state) {
+      return Object.values(state.mediaServers).filter((mediaServer) => mediaServer.enabled);
+    },
   },
   actions: {
+    async simplePatch<
+      Field extends TSimplePatchFieldKey,
+      Id extends keyof IMetadataPiniaStorageSchema[Field],
+      Key extends keyof IMetadataPiniaStorageSchema[Field][Id],
+      Value extends IMetadataPiniaStorageSchema[Field][Id][Key],
+    >(schemaKey: Field, id: Id, key: Key | string, value: Value | any) {
+      set(this[schemaKey][id], key, value);
+      await this.$save();
+    },
+
     async addSite(siteId: TSiteID, siteConfig: ISiteUserConfig) {
       delete siteConfig.valid;
       this.sites[siteId] = siteConfig;
@@ -248,11 +278,6 @@ export const useMetadataStore = defineStore("metadata", {
 
     async removeSite(siteId: TSiteID) {
       delete this.sites[siteId];
-      await this.$save();
-    },
-
-    async simplePatchSite<T extends keyof ISiteUserConfig>(siteId: TSiteID, key: T, value: ISiteUserConfig[T]) {
-      set(this.sites[siteId], key, value);
       await this.$save();
     },
 
@@ -316,15 +341,6 @@ export const useMetadataStore = defineStore("metadata", {
       await this.$save();
     },
 
-    async simplePatchDownloader<T extends keyof IDownloaderMetadata>(
-      downloaderId: TDownloaderKey,
-      key: T,
-      value: IDownloaderMetadata[T],
-    ) {
-      set(this.downloaders[downloaderId], key, value);
-      await this.$save();
-    },
-
     async setLastSearchFilter(filter: string) {
       this.lastSearchFilter = filter;
       await this.$save();
@@ -332,6 +348,16 @@ export const useMetadataStore = defineStore("metadata", {
 
     async setLastDownloader(downloader: IMetadataPiniaStorageSchema["lastDownloader"]) {
       this.lastDownloader = downloader;
+      await this.$save();
+    },
+
+    async addMediaServer(mediaServerConfig: IMediaServerMetadata) {
+      this.mediaServers[mediaServerConfig.id] = mediaServerConfig;
+      await this.$save();
+    },
+
+    async removeMediaServer(mediaServerId: TMediaServerKey) {
+      delete this.mediaServers[mediaServerId];
       await this.$save();
     },
   },

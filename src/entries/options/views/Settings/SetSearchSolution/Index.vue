@@ -209,25 +209,23 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
       </template>
 
       <template #item.enabled="{ item }">
-        <div class="d-flex justify-center">
-          <v-switch
-            v-model="item.enabled"
-            color="success"
-            hide-details
-            @update:model-value="(v) => simplePatchSearchSolution(item.id, v as boolean)"
-          />
-        </div>
+        <v-switch
+          v-model="item.enabled"
+          class="table-switch-btn"
+          color="success"
+          hide-details
+          @update:model-value="(v) => simplePatchSearchSolution(item.id, v as boolean)"
+        />
       </template>
 
       <template #item.isDefault="{ item }">
-        <div class="d-flex justify-center">
-          <v-switch
-            v-model="item.isDefault"
-            color="success"
-            hide-details
-            @update:model-value="(v) => setDefaultSearchSolution(v as boolean, item.id)"
-          />
-        </div>
+        <v-switch
+          v-model="item.isDefault"
+          class="table-switch-btn"
+          color="success"
+          hide-details
+          @update:model-value="(v) => setDefaultSearchSolution(v as boolean, item.id)"
+        />
       </template>
 
       <template #item.action="{ item }">

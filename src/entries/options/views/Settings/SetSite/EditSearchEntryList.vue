@@ -40,7 +40,7 @@ onMounted(() => {
           color="success"
           hide-details
           @update:model-value="
-            (v) => metadataStore.simplePatchSite(item.id, `merge.searchEntry.${entryKey}.enabled`, v as boolean)
+            (v) => metadataStore.simplePatch('sites', item.id, `merge.searchEntry.${entryKey}.enabled`, v as boolean)
           "
         ></v-switch>
       </v-list-item-title>

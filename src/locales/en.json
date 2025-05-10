@@ -93,9 +93,15 @@
       "SetBackup": "Backup & Restore",
       "SetBase": "General",
       "SetDownloader": "Download Server",
+      "SetMediaServer": "Media Server",
       "SetSearchSolution": "Search Solution",
       "SetSite": "Sites"
     }
+  },
+  "connectCheck": {
+    "default": "Check Connect",
+    "error": "Connect Failed! Check Form Input or Download Server",
+    "success": "Connect Successful! You can enter next step."
   },
   "levelRequirement": {
     "interval": "Required Waiting Days",
@@ -291,11 +297,6 @@
     "editor": {
       "addressTip": "Full Server Address (may include port or path), Like: http://192.168.1.1:5000/",
       "autoStart": "Automatically start downloading when sending a torrent",
-      "connect": {
-        "default": "Check Connect",
-        "error": "Connect Failed! Check Form Input or Download Server",
-        "success": "Connect Successful! You can enter next step."
-      },
       "nameTip": "Pick a nice and recognizable name for this Download Server",
       "password": "Password",
       "timeout": "Timeout (seconds)",

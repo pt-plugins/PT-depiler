@@ -225,30 +225,30 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
         <v-switch
           v-model="item.userConfig.isOffline"
           :disabled="item.metadata.isDead"
-          class="site-switch-btn"
+          class="table-switch-btn"
           color="success"
           hide-details
-          @update:model-value="(v) => metadataStore.simplePatchSite(item.id, 'isOffline', v as boolean)"
+          @update:model-value="(v) => metadataStore.simplePatch('sites', item.id, 'isOffline', v as boolean)"
         />
       </template>
       <template #item.userConfig.allowSearch="{ item }">
         <v-switch
           v-model="item.userConfig.allowSearch"
           :disabled="item.metadata.isDead || item.userConfig.isOffline || !Object.hasOwn(item.metadata, 'search')"
-          class="site-switch-btn"
+          class="table-switch-btn"
           color="success"
           hide-details
-          @update:model-value="(v) => metadataStore.simplePatchSite(item.id, 'allowSearch', v as boolean)"
+          @update:model-value="(v) => metadataStore.simplePatch('sites', item.id, 'allowSearch', v as boolean)"
         />
       </template>
       <template #item.userConfig.allowQueryUserInfo="{ item }">
         <v-switch
           v-model="item.userConfig.allowQueryUserInfo"
           :disabled="item.metadata.isDead || item.userConfig.isOffline || !Object.hasOwn(item.metadata, 'userInfo')"
-          class="site-switch-btn"
+          class="table-switch-btn"
           color="success"
           hide-details
-          @update:model-value="(v) => metadataStore.simplePatchSite(item.id, 'allowQueryUserInfo', v as boolean)"
+          @update:model-value="(v) => metadataStore.simplePatch('sites', item.id, 'allowQueryUserInfo', v as boolean)"
         />
       </template>
       <template #item.action="{ item }">
@@ -300,10 +300,4 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
   <OneClickImportDialog v-model="showOneClickImportDialog" />
 </template>
 
-<style scoped lang="scss">
-.site-switch-btn {
-  :deep(.v-selection-control) {
-    justify-content: center;
-  }
-}
-</style>
+<style scoped lang="scss"></style>

@@ -7,6 +7,7 @@ import {
 } from "@ptd/site";
 import type { TSelectSearchCategoryValue } from "@ptd/site";
 import type { CAddTorrentOptions, DownloaderBaseConfig } from "@ptd/downloader";
+import { IMediaServerBaseConfig } from "@ptd/mediaServer";
 
 export interface ISearchSolution {
   id: string;
@@ -48,6 +49,13 @@ export interface IDownloaderMetadata extends DownloaderBaseConfig {
   [key: string]: any; // 其他配置项
 }
 
+export type TMediaServerKey = string;
+export interface IMediaServerMetadata extends IMediaServerBaseConfig {
+  id: TMediaServerKey;
+  enabled: boolean;
+  [key: string]: any; // 其他配置项
+}
+
 export interface IMetadataPiniaStorageSchema {
   // 站点配置(用户配置)
   sites: Record<TSiteKey, ISiteUserConfig>;
@@ -66,6 +74,8 @@ export interface IMetadataPiniaStorageSchema {
 
   // 下载器配置
   downloaders: Record<TDownloaderKey, IDownloaderMetadata>;
+
+  mediaServers: Record<TMediaServerKey, IMediaServerMetadata>;
 
   // 上一次搜索时在结果页面的筛选词，需要启用 configStore.searchEntity.saveLastFilter
   lastSearchFilter?: string;

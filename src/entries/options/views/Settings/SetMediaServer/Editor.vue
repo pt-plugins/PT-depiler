@@ -1,28 +1,31 @@
 <script setup lang="ts">
-import { ref, useTemplateRef } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
+import type { VForm } from "vuetify/components";
+import { getMediaServer, getMediaServerMetaData, IMediaServerMetadata } from "@ptd/mediaServer";
 
-import { type VForm } from "vuetify/components";
-import { type IDownloaderMetadata } from "@/shared/storages/types/metadata.ts";
-
-import { getDownloader, getDownloaderMetaData } from "@ptd/downloader";
+import type { IMediaServerMetadata as IMediaServerConfig } from "@/shared/storages/types/metadata.ts";
 import { formatDate, formValidateRules } from "@/options/utils.ts";
 
 import ConnectCheckButton from "@/options/components/ConnectCheckButton.vue";
 
 const { t } = useI18n();
 
-const clientConfig = defineModel<IDownloaderMetadata & { valid?: boolean }>();
-const clientMeta = computedAsync(async () => await getDownloaderMetaData(clientConfig.value!.type), {});
+const clientConfig = defineModel<IMediaServerConfig>();
+const emits = defineEmits<{
+  (e: "update:configValid", value: boolean): void;
+}>();
 
-const showPassword = ref<boolean>(false);
-
-const formRef = useTemplateRef<VForm>();
+const clientMeta = computedAsync<IMediaServerMetadata>(
+  async () => await getMediaServerMetaData(clientConfig.value.type),
+  {},
+);
+const formValid = ref<boolean>(false);
 
 async function checkConnect() {
-  if ((await formRef.value!.validate()).valid) {
-    const client = await getDownloader(clientConfig.value!);
+  if (formValid) {
+    const client = await getMediaServer(clientConfig.value!);
     return await client.ping();
   }
   return false;
@@ -31,7 +34,7 @@ async function checkConnect() {
 
 <template>
   <v-card class="mb-5">
-    <v-form v-if="clientConfig" ref="formRef" fast-fail>
+    <v-form v-model="formValid" v-if="clientConfig" fast-fail>
       <v-container class="pa-0">
         <v-row>
           <v-col cols="12" md="4">
@@ -62,23 +65,20 @@ async function checkConnect() {
             required
           />
         </v-row>
+
         <v-row>
-          <v-text-field
-            v-if="typeof clientConfig.username !== 'undefined'"
-            v-model="clientConfig.username"
-            :label="t('SetDownloader.common.username')"
-          />
+          <v-col class="py-0"><v-label>认证信息</v-label></v-col>
+          <v-col v-for="auth_field in clientMeta.auth_field" :key="auth_field" cols="12">
+            <v-text-field
+              v-model="clientConfig.auth[auth_field]"
+              :label="auth_field"
+              :rules="[formValidateRules.require()]"
+              hide-details
+              required
+            />
+          </v-col>
         </v-row>
-        <v-row>
-          <v-text-field
-            v-model="clientConfig.password"
-            :append-icon="showPassword ? 'mdi-eye' : 'mdi-eye-off'"
-            :label="t('SetDownloader.editor.password')"
-            :type="showPassword ? 'text' : 'password'"
-            class="pr-5"
-            @click:append="showPassword = !showPassword"
-          />
-        </v-row>
+
         <v-row>
           <v-slider
             v-model="clientConfig.timeout"
@@ -96,30 +96,21 @@ async function checkConnect() {
             </template>
           </v-slider>
         </v-row>
-        <v-row>
-          <v-switch
-            v-if="clientMeta?.feature?.DefaultAutoStart?.allowed"
-            v-model="clientConfig.feature!.DefaultAutoStart"
-            :label="t('SetDownloader.editor.autoStart')"
-            class="ml-4"
-            color="success"
-          />
-        </v-row>
+
+        <ConnectCheckButton
+          :check-fn="checkConnect"
+          :reset-timeout="3e3"
+          @after:check-connect="
+            () => emits('update:configValid', formValid && true) // 不管是否测试成功，都允许用户进行下一步操作（保存下载服务器配置）
+          "
+        />
+
+        <v-alert v-if="clientMeta?.warning" color="warning">
+          <ul>
+            <li v-for="(data, index) in clientMeta.warning" :key="index">● {{ data }}</li>
+          </ul>
+        </v-alert>
       </v-container>
-
-      <ConnectCheckButton
-        :check-fn="checkConnect"
-        :reset-timeout="3e3"
-        @after:check-connect="
-          () => (clientConfig.valid = true) // 不管是否测试成功，都允许用户进行下一步操作（保存下载服务器配置）
-        "
-      />
-
-      <v-alert v-if="clientMeta?.warning" color="warning">
-        <ul>
-          <li v-for="(data, index) in clientMeta.warning" :key="index">● {{ data }}</li>
-        </ul>
-      </v-alert>
     </v-form>
   </v-card>
 </template>
