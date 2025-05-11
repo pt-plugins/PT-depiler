@@ -8,7 +8,7 @@ import {
   type TSiteID,
 } from "@ptd/site";
 import { getDownloader } from "@ptd/downloader";
-import { type TDownloaderKey } from "@/shared/storages/types/metadata.ts";
+import type { TDownloaderKey, TMediaServerKey } from "@/shared/storages/types/metadata.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 
@@ -17,6 +17,7 @@ import * as estoolkit from "es-toolkit";
 import axios from "axios";
 import Sizzle from "sizzle";
 import { setupReplaceUnsafeHeader } from "~/extends/axios/replaceUnsafeHeader.ts";
+import { getMediaServer } from "@ptd/mediaServer";
 
 setupReplaceUnsafeHeader(axios);
 
@@ -32,6 +33,7 @@ const selectedSite = ref<TSiteID>("");
 const useCustomerConfig = ref<boolean>(true);
 
 const selectedDownloader = ref<TDownloaderKey>("");
+const selectedMediaServer = ref<TMediaServerKey>("");
 
 const piniaStoreContent = import.meta.glob<Record<string, Function>>("@/options/stores/*.ts");
 const piniaStoreName: Array<{ title: string; value: string }> = Object.keys(piniaStoreContent).map((x) => ({
@@ -219,7 +221,44 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
                     class="mr-2"
                     @click="log(getDownloader(metadataStore.downloaders[selectedDownloader]))"
                   >
-                    输出下载器实例
+                    输出下载服务器实例
+                  </v-btn>
+                </v-col>
+              </v-row>
+            </v-container>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div class="d-flex justify-center align-center text-body-2">调试媒体服务器</div>
+          </td>
+          <td>
+            <v-container>
+              <v-row dense>
+                <v-col cols="4">
+                  <v-autocomplete
+                    v-model="selectedMediaServer"
+                    :items="metadataStore.getMediaServers"
+                    item-title="name"
+                    item-value="id"
+                    label="mediaServer"
+                    :messages="`请先在 SetMediaServer 页面添加媒体服务器`"
+                  />
+                </v-col>
+                <v-col class="d-flex align-center">
+                  <v-btn
+                    :disabled="!selectedMediaServer"
+                    class="mr-2"
+                    @click="log(metadataStore.mediaServers[selectedMediaServer])"
+                  >
+                    输出用户配置信息
+                  </v-btn>
+                  <v-btn
+                    :disabled="!selectedMediaServer"
+                    class="mr-2"
+                    @click="log(getMediaServer(metadataStore.mediaServers[selectedMediaServer]))"
+                  >
+                    输出媒体服务器实例
                   </v-btn>
                 </v-col>
               </v-row>

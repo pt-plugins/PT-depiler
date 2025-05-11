@@ -13,8 +13,7 @@ onMessage("getMediaServerSearchResult", async ({ data: { mediaServerId, keywords
   const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
   const mediaServerConfig = metadataStore.mediaServers[mediaServerId];
   const mediaServer = await getMediaServer(mediaServerConfig);
-
-  return await mediaServer.getSearchResult(keywords, options);
+  return await mediaServer.getSearchResult(keywords ?? "", options);
 });
 
 async function getSnapshotData() {
