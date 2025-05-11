@@ -80,6 +80,12 @@ interface IQueryItem {
     Id: number;
   }>;
   MediaType: string;
+  UserData: {
+    IsFavorite: boolean;
+    PlayCount: number;
+    PlaybackPositionTicks: number;
+    Played: boolean;
+  };
 }
 
 interface IQueryResult<T extends any> {
@@ -208,6 +214,10 @@ export default class Emby extends AbstractMediaServer<IEmbyConfig> {
               type: stream.Type,
               format: stream.Codec,
             })),
+            user: {
+              IsFavorite: item.UserData?.IsFavorite ?? false,
+              IsPlayed: item.UserData?.Played ?? false,
+            },
             raw: item,
           };
           result.items.push(mediaItem);

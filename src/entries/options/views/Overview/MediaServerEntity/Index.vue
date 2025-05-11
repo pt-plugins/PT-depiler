@@ -136,6 +136,19 @@ onMounted(async () => {
               scrim
             >
               <template v-slot:activator="{ props, isActive }">
+                <div style="z-index: 999; position: absolute; padding-right: 4px; padding-top: 4px; right: 0">
+                  <!-- 用户状态（观看、喜欢） -->
+                  <v-chip
+                    v-if="item.user"
+                    :variant="isActive ? 'tonal' : 'elevated'"
+                    label
+                    base-color="grey-lighten-2"
+                    size="x-small"
+                  >
+                    <v-icon :icon="item.user?.IsPlayed ? 'mdi-check-bold' : 'mdi-radiobox-blank'" color="green" />
+                    <v-icon :icon="item.user?.IsFavorite ? 'mdi-heart' : 'mdi-heart-outline'" color="red" />
+                  </v-chip>
+                </div>
                 <div style="z-index: 999; position: absolute; padding-left: 4px; padding-top: 4px">
                   <!-- 封装格式 -->
                   <v-chip
@@ -152,6 +165,7 @@ onMounted(async () => {
                     </template>
                   </v-chip>
                   <br />
+                  <!-- 大小 -->
                   <v-chip
                     v-if="item.size"
                     :variant="isActive ? 'tonal' : 'elevated'"

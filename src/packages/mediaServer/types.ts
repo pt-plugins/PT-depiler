@@ -59,6 +59,12 @@ export interface IMediaServerItem<RAW = any> {
     format: string; // 流格式
   }[];
 
+  // 用户对该媒体的情况
+  user: {
+    IsFavorite?: boolean; // 是否喜欢
+    IsPlayed?: boolean; // 是否已播放过
+  };
+
   // 服务器的原始返回
   raw: RAW;
 }
