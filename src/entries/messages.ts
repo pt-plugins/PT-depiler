@@ -9,6 +9,7 @@ import type {
 } from "@ptd/site";
 import type { CAddTorrentOptions } from "@ptd/downloader";
 import type { ISocialInformation, TSupportSocialSite } from "@ptd/social";
+import type { IMediaServerId, IMediaServerSearchOptions, IMediaServerSearchResult } from "@ptd/mediaServer";
 import type {
   TExtensionStorageKey,
   IExtensionStorageSchema,
@@ -50,6 +51,11 @@ interface ProtocolMap {
     keyword?: string;
     searchEntry?: IAdvancedSearchRequestConfig;
   }): ISearchResult;
+  getMediaServerSearchResult(data: {
+    mediaServerId: IMediaServerId;
+    keywords?: string;
+    options?: IMediaServerSearchOptions;
+  }): IMediaServerSearchResult;
   getSearchResultSnapshotData(snapshotId: TSearchSnapshotKey): ISearchData;
   saveSearchResultSnapshotData(data: { snapshotId: TSearchSnapshotKey; data: ISearchData }): void;
   removeSearchResultSnapshotData(snapshotId: TSearchSnapshotKey): void;

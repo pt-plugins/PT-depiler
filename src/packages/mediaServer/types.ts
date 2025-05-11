@@ -92,6 +92,6 @@ export abstract class AbstractMediaServer<T extends IMediaServerBaseConfig = IMe
    */
   public abstract getSearchResult(
     keywords?: string,
-    config?: IMediaServerSearchOptions,
+    options?: IMediaServerSearchOptions,
   ): Promise<IMediaServerSearchResult>;
 }

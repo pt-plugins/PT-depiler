@@ -82,15 +82,6 @@ interface IQueryItem {
   MediaType: string;
 }
 
-interface IQueryFolderInfo {
-  Name: string;
-  Id: string;
-  SubFolders: Array<{
-    Name: string;
-    Id: string;
-  }>;
-}
-
 interface IQueryResult<T extends any> {
   Items: T[];
   TotalRecordCount: number;

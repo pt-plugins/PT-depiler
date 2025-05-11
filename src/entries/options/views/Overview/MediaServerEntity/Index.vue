@@ -2,22 +2,16 @@
 import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
-import { omit } from "es-toolkit";
 import { isEmpty } from "es-toolkit/compat";
-import {
-  getMediaServer,
-  getMediaServerIcon,
-  type IMediaServerItem,
-  type IMediaServerSearchOptions,
-} from "@ptd/mediaServer";
+import { getMediaServerIcon, type IMediaServerItem } from "@ptd/mediaServer";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { formatSize } from "@/options/utils.ts";
-import { type TMediaServerKey } from "@/shared/storages/types/metadata.ts";
 
 import ItemInformationDialog from "./ItemInformationDialog.vue";
+import { doSearch, searchMediaServerIds } from "@/options/views/Overview/MediaServerEntity/utils.ts";
 
 const { t } = useI18n();
 const route = useRoute();
@@ -26,9 +20,6 @@ const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 
 const search = ref<string>((route.query.search as string) || "");
-const searchMediaServerIds = ref<TMediaServerKey[]>(
-  metadataStore.getEnabledMediaServers.map((mediaServer) => mediaServer.id) ?? [],
-);
 
 const showItem = ref<IMediaServerItem | null>(null);
 const showItemInformationDialog = ref<boolean>(false);
@@ -44,49 +35,6 @@ function showItemInformation(item: IMediaServerItem) {
   showItemInformationDialog.value = true;
 }
 
-async function doSearch(loadMore: boolean = false) {
-  if (runtimeStore.mediaServerSearch.isSearching) {
-    return;
-  }
-
-  if (search.value != runtimeStore.mediaServerSearch.searchKey) {
-    runtimeStore.resetMediaServerSearchData();
-  }
-
-  runtimeStore.mediaServerSearch.isSearching = true;
-  runtimeStore.mediaServerSearch.searchKey = search.value ?? "";
-
-  // TODO move to offscreen
-  for (const enabledMediaServerId of searchMediaServerIds.value) {
-    const enabledMediaServer = metadataStore.mediaServers[enabledMediaServerId];
-    const mediaServer = await getMediaServer(enabledMediaServer);
-
-    let searchOptions: IMediaServerSearchOptions = { limit: configStore.mediaServerEntity.searchLimit ?? 50 };
-    if (loadMore) {
-      searchOptions = runtimeStore.mediaServerSearch.searchStatus[enabledMediaServer.id]?.options ?? {};
-      searchOptions.startIndex = (searchOptions.startIndex ?? 0) + (searchOptions.limit ?? 0);
-    }
-
-    const searchResult = await mediaServer.getSearchResult(search.value ?? "", searchOptions);
-    runtimeStore.mediaServerSearch.searchStatus[enabledMediaServer.id] = {
-      ...omit(searchResult, ["items"]),
-      canLoadMore: false,
-    };
-
-    for (const item of searchResult.items) {
-      // 根据 url 去重
-      const isDuplicate = runtimeStore.mediaServerSearch.searchResult.some((result) => result.url == item.url);
-      if (!isDuplicate) {
-        runtimeStore.mediaServerSearch.searchResult.push(item);
-        // 如果本次有成功添加的，则认为可以加载更多
-        runtimeStore.mediaServerSearch.searchStatus[enabledMediaServer.id].canLoadMore = true;
-      }
-    }
-  }
-
-  runtimeStore.mediaServerSearch.isSearching = false;
-}
-
 function onScroll() {
   // 当滚动到页面底部时加载更多
   if (
@@ -95,14 +43,14 @@ function onScroll() {
     !runtimeStore.mediaServerSearch.isSearching &&
     hasMore.value
   ) {
-    doSearch(true);
+    doSearch({ searchKey: search.value, loadMore: true });
   }
 }
 
 onMounted(async () => {
   if (configStore.mediaServerEntity.autoSearchWhenMount) {
     // noinspection ES6MissingAwait
-    doSearch();
+    doSearch({ searchKey: search.value });
   }
 });
 </script>
@@ -122,8 +70,8 @@ onMounted(async () => {
           hide-details
           max-width="500"
           placeholder="搜索词"
-          @keyup.enter="() => doSearch()"
-          @click:append="() => doSearch()"
+          @keyup.enter="() => doSearch({ searchKey: search })"
+          @click:append="() => doSearch({ searchKey: search })"
         >
           <template #prepend-inner>
             <v-menu :close-on-content-clicks="false">
@@ -258,7 +206,7 @@ onMounted(async () => {
           <v-btn
             :disabled="!hasMore"
             :loading="runtimeStore.mediaServerSearch.isSearching"
-            @click="() => doSearch(true)"
+            @click="() => doSearch({ searchKey: search, loadMore: true })"
           >
             Load More
           </v-btn>

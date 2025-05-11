@@ -136,7 +136,6 @@ export async function doSearch(search: string, plan?: string, flush: boolean = t
   runtimeStore.search.searchPlanKey = searchPlanKey;
 
   // Expand search plan
-  const metadataStore = useMetadataStore();
   const searchSolution = await metadataStore.getSearchSolution(runtimeStore.search.searchPlanKey);
 
   if (!searchSolution) {

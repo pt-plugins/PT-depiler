@@ -1,10 +1,20 @@
+import { getMediaServer } from "@ptd/mediaServer";
+
 import { onMessage, sendMessage } from "@/messages.ts";
 import { getSiteInstance } from "./site.ts";
-import type { TSearchResultSnapshotStorageSchema } from "@/storage.ts";
+import type { IMetadataPiniaStorageSchema, TSearchResultSnapshotStorageSchema } from "@/storage.ts";
 
 onMessage("getSiteSearchResult", async ({ data: { siteId, keyword = "", searchEntry = {} } }) => {
   const site = await getSiteInstance<"public">(siteId);
   return await site.getSearchResult(keyword, searchEntry);
+});
+
+onMessage("getMediaServerSearchResult", async ({ data: { mediaServerId, keywords = "", options = {} } }) => {
+  const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
+  const mediaServerConfig = metadataStore.mediaServers[mediaServerId];
+  const mediaServer = await getMediaServer(mediaServerConfig);
+
+  return await mediaServer.getSearchResult(keywords, options);
 });
 
 async function getSnapshotData() {
