@@ -23,6 +23,7 @@ const initialSearchData: () => ISearchData = () => ({
 
 const initialMediaServerSearchData = () => ({
   isSearching: false,
+  searchKey: "",
   searchStatus: {},
   searchResult: [],
 });

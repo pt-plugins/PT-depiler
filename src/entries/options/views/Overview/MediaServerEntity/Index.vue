@@ -45,7 +45,16 @@ function showItemInformation(item: IMediaServerItem) {
 }
 
 async function doSearch(loadMore: boolean = false) {
+  if (runtimeStore.mediaServerSearch.isSearching) {
+    return;
+  }
+
+  if (search.value != runtimeStore.mediaServerSearch.searchKey) {
+    runtimeStore.resetMediaServerSearchData();
+  }
+
   runtimeStore.mediaServerSearch.isSearching = true;
+  runtimeStore.mediaServerSearch.searchKey = search.value ?? "";
 
   // TODO move to offscreen
   for (const enabledMediaServerId of searchMediaServerIds.value) {
@@ -106,6 +115,7 @@ onMounted(async () => {
         <v-spacer />
         <v-text-field
           v-model="search"
+          :loading="runtimeStore.mediaServerSearch.isSearching"
           append-icon="mdi-magnify"
           clearable
           density="compact"

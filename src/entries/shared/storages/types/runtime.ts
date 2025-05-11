@@ -65,6 +65,7 @@ export interface IRuntimePiniaStorageSchema {
   };
   mediaServerSearch: {
     isSearching: boolean; // 是否正在搜索
+    searchKey: string;
     searchStatus: Record<TMediaServerKey, Omit<IMediaServerSearchResult, "items"> & { canLoadMore?: boolean }>; // 搜索状态
     searchResult: IMediaServerItem[];
   };
