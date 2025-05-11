@@ -60,6 +60,7 @@
     "p-wait-for": "^5.0.2",
     "parse-torrent": "^11.0.18",
     "pinia": "^3.0.2",
+    "pinia-plugin-state-persistence": "^1.10.2",
     "search-query-parser": "^1.6.0",
     "sizzle": "^2.3.10",
     "tailwindcss": "^4.1.5",

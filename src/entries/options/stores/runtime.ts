@@ -29,6 +29,9 @@ const initialMediaServerSearchData = () => ({
 });
 
 export const useRuntimeStore = defineStore("runtime", {
+  persist: {
+    storage: sessionStorage,
+  },
   persistWebExt: false,
   state: (): IRuntimePiniaStorageSchema => ({
     search: initialSearchData(),
