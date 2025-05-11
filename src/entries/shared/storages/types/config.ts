@@ -122,8 +122,22 @@ export interface IConfigPiniaStorageSchema {
   };
 
   searchEntity: {
+    // 是否保存上一次使用的筛选词
     saveLastFilter: boolean;
+    // 搜索时的最大并发数
     queueConcurrency: number;
+  };
+
+  // 配置同样在 searchEntity 页面（偷懒下）
+  mediaServerEntity: {
+    // 搜索时的最大并发数
+    queueConcurrency: number;
+    // 单次搜索的最大数量
+    searchLimit: number;
+    // 是否在 onMount 时自动搜索
+    autoSearchWhenMount: boolean;
+    // 是否在搜索结果中自动加载更多
+    autoSearchMoreWhenScroll: boolean;
   };
 
   socialSiteInformation: IFetchSocialSiteInformationConfig;

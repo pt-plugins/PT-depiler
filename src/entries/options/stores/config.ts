@@ -148,6 +148,13 @@ export const useConfigStore = defineStore("config", {
       queueConcurrency: 1,
     },
 
+    mediaServerEntity: {
+      queueConcurrency: 1,
+      searchLimit: 50,
+      autoSearchWhenMount: true,
+      autoSearchMoreWhenScroll: true,
+    },
+
     socialSiteInformation: {
       preferPtGen: true,
       timeout: 10e3,

@@ -241,7 +241,7 @@ function viewStatistic() {
           <template #prepend-inner>
             <v-menu min-width="100">
               <template v-slot:activator="{ props }">
-                <v-icon icon="mdi-filter" v-bind="props" variant="plain" />
+                <v-icon v-bind="props" icon="mdi-filter" variant="plain" />
               </template>
               <v-list class="pa-0">
                 <v-list-item-subtitle class="ma-2">站点状态</v-list-item-subtitle>
@@ -512,8 +512,8 @@ function viewStatistic() {
           >
           </v-btn>
           <v-btn
-            :disabled="!!runtimeStore.userInfo.flushPlan[item.site]"
-            :loading="!!runtimeStore.userInfo.flushPlan[item.site]"
+            :disabled="runtimeStore.userInfo.flushPlan[item.site]"
+            :loading="runtimeStore.userInfo.flushPlan[item.site]"
             :title="t('MyData.table.action.flushData')"
             color="green"
             icon="mdi-cached"

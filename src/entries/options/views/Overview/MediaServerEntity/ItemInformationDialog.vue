@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { IMediaServerItem } from "@ptd/mediaServer";
 import { formatSize } from "@/options/utils.ts";
 
@@ -6,6 +7,15 @@ const showDialog = defineModel<boolean>();
 const { item } = defineProps<{
   item: IMediaServerItem;
 }>();
+
+function streamsTextFactory(type: "Video" | "Audio" | "Subtitle") {
+  return computed(() =>
+    (item.streams ?? [])
+      .filter((s) => s.type === type)
+      .map((x) => x.title)
+      .join(" / "),
+  );
+}
 
 function secondsToISO8601(seconds: number) {
   seconds = Math.abs(seconds);
@@ -75,8 +85,10 @@ function secondsToISO8601(seconds: number) {
                   :key="tag.name"
                   :href="tag.url ?? (false as unknown as undefined)"
                   :target="tag.url ? '_blank' : undefined"
+                  base-color="orange"
                   class="mr-1"
                   label
+                  prepend-icon="mdi-tag"
                   rel="noopener noreferrer nofollow"
                   size="small"
                 >
@@ -86,13 +98,13 @@ function secondsToISO8601(seconds: number) {
             </div>
             <div v-if="item.duration" class="info-label">
               <v-label class="pr-3">时长：</v-label>
-              <v-chip class="mr-1" label size="small" prepend-icon="mdi-clock-time-four">
+              <v-chip base-color="green" class="mr-1" label prepend-icon="mdi-clock-time-four" size="small">
                 {{ secondsToISO8601(item.duration ?? 0) }}
               </v-chip>
             </div>
             <div v-if="item.size" class="info-label">
               <v-label class="pr-3">大小：</v-label>
-              <v-chip class="mr-1" label size="small" prepend-icon="mdi-harddisk">
+              <v-chip base-color="deep-purple" class="mr-1" label prepend-icon="mdi-harddisk" size="small">
                 {{ formatSize(item.size ?? 0) }}
               </v-chip>
             </div>
@@ -106,7 +118,7 @@ function secondsToISO8601(seconds: number) {
                   prepend-icon="mdi-movie"
                   size="small"
                 >
-                  {{ item.streams.filter((s) => s.type === "Video")[0].title }}
+                  {{ streamsTextFactory("Video") }}
                 </v-chip>
 
                 <v-chip
@@ -116,7 +128,7 @@ function secondsToISO8601(seconds: number) {
                   prepend-icon="mdi-expansion-card"
                   size="small"
                 >
-                  {{ item.streams.filter((s) => s.type === "Audio").length }}
+                  {{ streamsTextFactory("Audio") }}
                 </v-chip>
 
                 <v-chip
@@ -126,7 +138,7 @@ function secondsToISO8601(seconds: number) {
                   prepend-icon="mdi-closed-caption"
                   size="small"
                 >
-                  {{ item.streams.filter((s) => s.type === "Subtitle").length }}
+                  {{ streamsTextFactory("Subtitle") }}
                 </v-chip>
               </v-chip-group>
             </div>
@@ -150,9 +162,8 @@ function secondsToISO8601(seconds: number) {
 <style scoped lang="scss">
 .info-label {
   display: flex;
-  + .info-label {
-    margin-top: 4px;
-  }
+  margin-top: 4px;
+
   :deep(.v-chip-group .v-chip) {
     margin-top: 0;
     margin-bottom: 0;

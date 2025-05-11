@@ -180,16 +180,13 @@ export default class Emby extends AbstractMediaServer<IEmbyConfig> {
     }
     requestConfig.params["IncludeItemTypes"] = "Movie,Series";
     requestConfig.params["Recursive"] = true;
-    requestConfig.params["startIndex"] = config.startIndex ?? 0;
-    requestConfig.params["Limit"] = config.limit ?? 50;
+    config.startIndex = requestConfig.params["startIndex"] = config.startIndex ?? 0;
+    config.limit = requestConfig.params["Limit"] = config.limit ?? 50;
     requestConfig.params["Fields"] =
       "BasicSyncInfo,Path,Status,ExternalUrls,CommunityRating,MediaSources,DisplayPreferences,Genres,DateCreated,Overview,ExtraIds";
 
     // 处理额外的请求配置
-    requestConfig = toMerged(
-      requestConfig,
-      config.extraRequestConfig ?? this.config.defaultSearchExtraRequestConfig ?? {},
-    );
+    requestConfig = toMerged(requestConfig, this.config.defaultSearchExtraRequestConfig ?? {});
 
     try {
       const response = await this.request<IQueryResult<IQueryItem>>(url, requestConfig);
@@ -224,8 +221,10 @@ export default class Emby extends AbstractMediaServer<IEmbyConfig> {
           };
           result.items.push(mediaItem);
         }
+        result.options = config;
+        result.status = EResultParseStatus.success;
       }
-      result.status = EResultParseStatus.success;
+      result.status = EResultParseStatus.needLogin;
     } catch (e) {
       result.status = EResultParseStatus.parseError;
     }

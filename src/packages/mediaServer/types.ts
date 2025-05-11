@@ -66,7 +66,6 @@ export interface IMediaServerItem<RAW = any> {
 export interface IMediaServerSearchOptions {
   startIndex?: number; // 起始索引
   limit?: number; // 限制数量
-  extraRequestConfig?: AxiosRequestConfig; // 额外的请求配置
 }
 
 export interface IMediaServerSearchResult<RAW = any> {
@@ -74,6 +73,7 @@ export interface IMediaServerSearchResult<RAW = any> {
 
   // 搜索结果
   items: IMediaServerItem<RAW>[];
+  options?: IMediaServerSearchOptions;
 }
 
 export abstract class AbstractMediaServer<T extends IMediaServerBaseConfig = IMediaServerBaseConfig> {

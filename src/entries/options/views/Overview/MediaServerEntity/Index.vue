@@ -1,16 +1,27 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
+import { omit } from "es-toolkit";
+import { isEmpty } from "es-toolkit/compat";
+import {
+  getMediaServer,
+  getMediaServerIcon,
+  type IMediaServerItem,
+  type IMediaServerSearchOptions,
+} from "@ptd/mediaServer";
+
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { getMediaServer, getMediaServerIcon, IMediaServerItem } from "@ptd/mediaServer";
+import { useConfigStore } from "@/options/stores/config.ts";
 import { formatSize } from "@/options/utils.ts";
-import { TMediaServerKey } from "@/shared/storages/types/metadata.ts";
-import ItemInformationDialog from "@/options/views/Overview/MediaServerEntity/ItemInformationDialog.vue";
+import { type TMediaServerKey } from "@/shared/storages/types/metadata.ts";
+
+import ItemInformationDialog from "./ItemInformationDialog.vue";
 
 const { t } = useI18n();
 const route = useRoute();
+const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 
@@ -22,27 +33,44 @@ const searchMediaServerIds = ref<TMediaServerKey[]>(
 const showItem = ref<IMediaServerItem | null>(null);
 const showItemInformationDialog = ref<boolean>(false);
 
+const hasMore = computed<boolean>(() =>
+  isEmpty(runtimeStore.mediaServerSearch.searchStatus)
+    ? true
+    : Object.values(runtimeStore.mediaServerSearch.searchStatus).some((x) => x?.canLoadMore ?? true),
+);
+
 function showItemInformation(item: IMediaServerItem) {
   showItem.value = item;
   showItemInformationDialog.value = true;
 }
 
-async function doSearch() {
-  runtimeStore.resetMediaServerSearchData();
+async function doSearch(loadMore: boolean = false) {
   runtimeStore.mediaServerSearch.isSearching = true;
 
   // TODO move to offscreen
   for (const enabledMediaServerId of searchMediaServerIds.value) {
     const enabledMediaServer = metadataStore.mediaServers[enabledMediaServerId];
     const mediaServer = await getMediaServer(enabledMediaServer);
-    const searchResult = await mediaServer.getSearchResult(search.value ?? "");
-    runtimeStore.mediaServerSearch.searchStatus[enabledMediaServer.id] = searchResult.status;
+
+    let searchOptions: IMediaServerSearchOptions = { limit: configStore.mediaServerEntity.searchLimit ?? 50 };
+    if (loadMore) {
+      searchOptions = runtimeStore.mediaServerSearch.searchStatus[enabledMediaServer.id]?.options ?? {};
+      searchOptions.startIndex = (searchOptions.startIndex ?? 0) + (searchOptions.limit ?? 0);
+    }
+
+    const searchResult = await mediaServer.getSearchResult(search.value ?? "", searchOptions);
+    runtimeStore.mediaServerSearch.searchStatus[enabledMediaServer.id] = {
+      ...omit(searchResult, ["items"]),
+      canLoadMore: false,
+    };
 
     for (const item of searchResult.items) {
       // 根据 url 去重
       const isDuplicate = runtimeStore.mediaServerSearch.searchResult.some((result) => result.url == item.url);
       if (!isDuplicate) {
         runtimeStore.mediaServerSearch.searchResult.push(item);
+        // 如果本次有成功添加的，则认为可以加载更多
+        runtimeStore.mediaServerSearch.searchStatus[enabledMediaServer.id].canLoadMore = true;
       }
     }
   }
@@ -50,15 +78,29 @@ async function doSearch() {
   runtimeStore.mediaServerSearch.isSearching = false;
 }
 
+function onScroll() {
+  // 当滚动到页面底部时加载更多
+  if (
+    configStore.mediaServerEntity.autoSearchMoreWhenScroll &&
+    window.innerHeight + window.scrollY >= document.body.offsetHeight - 50 &&
+    !runtimeStore.mediaServerSearch.isSearching &&
+    hasMore.value
+  ) {
+    doSearch(true);
+  }
+}
+
 onMounted(async () => {
-  // noinspection ES6MissingAwait
-  doSearch();
+  if (configStore.mediaServerEntity.autoSearchWhenMount) {
+    // noinspection ES6MissingAwait
+    doSearch();
+  }
 });
 </script>
 
 <template>
   <v-alert :title="t('route.Overview.MediaServerEntity')" type="info" />
-  <v-card>
+  <v-card v-scroll="onScroll">
     <v-card-title>
       <v-row class="ma-0">
         <v-spacer />
@@ -69,16 +111,60 @@ onMounted(async () => {
           density="compact"
           hide-details
           max-width="500"
-          single-line
-          placeholder="在媒体服务器中搜索"
-          @keyup.enter="doSearch"
-          @click:append="doSearch"
-        />
+          placeholder="搜索词"
+          @keyup.enter="() => doSearch()"
+          @click:append="() => doSearch()"
+        >
+          <template #prepend-inner>
+            <v-menu :close-on-content-clicks="false">
+              <template v-slot:activator="{ props }">
+                <v-icon v-bind="props" icon="mdi-server" variant="plain" />
+              </template>
+              <v-list class="pa-0">
+                <v-list-item>
+                  <v-checkbox
+                    hide-details
+                    indeterminate
+                    label="全选"
+                    @click.stop
+                    @update:model-value="
+                      (v: unknown) => {
+                        if (v) {
+                          searchMediaServerIds = metadataStore.getEnabledMediaServers.map(
+                            (mediaServer) => mediaServer.id,
+                          );
+                        } else {
+                          searchMediaServerIds = [];
+                        }
+                      }
+                    "
+                  />
+                </v-list-item>
+                <v-divider />
+                <v-list-item v-for="item in metadataStore.getMediaServers" :key="item.id">
+                  <v-checkbox
+                    v-model="searchMediaServerIds"
+                    :label="item.name"
+                    :value="item.id"
+                    :disabled="item.enabled === false"
+                    hide-details
+                    multiple
+                    @click.stop
+                  >
+                    <template #append>
+                      <v-avatar :image="getMediaServerIcon(item.type)" :alt="item.type" size="x-small" />
+                    </template>
+                  </v-checkbox>
+                </v-list-item>
+              </v-list>
+            </v-menu>
+          </template>
+        </v-text-field>
       </v-row>
     </v-card-title>
 
     <!--  瀑布流形式展示媒体服务器搜索结果 -->
-    <div class="masonry-grid">
+    <div v-if="runtimeStore.mediaServerSearch.searchResult.length > 0" class="masonry-grid">
       <div v-for="item in runtimeStore.mediaServerSearch.searchResult" :key="item.url" class="masonry-item">
         <v-card>
           <div class="position-relative mb-1">
@@ -151,12 +237,21 @@ onMounted(async () => {
         </v-card>
       </div>
     </div>
+    <v-row v-else>
+      <v-col class="d-flex justify-center text-body-1"> No Items, use Search Input or Load More Button to Load </v-col>
+    </v-row>
 
     <!-- TODO 点击加载更多 -->
     <v-container>
       <v-row>
         <v-col class="d-flex justify-center">
-          <v-btn>Load More</v-btn>
+          <v-btn
+            :disabled="!hasMore"
+            :loading="runtimeStore.mediaServerSearch.isSearching"
+            @click="() => doSearch(true)"
+          >
+            Load More
+          </v-btn>
         </v-col>
       </v-row>
     </v-container>
