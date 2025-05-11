@@ -14,8 +14,8 @@ import { EResultParseStatus } from "@ptd/site";
 export const mediaServerMetaData: IMediaServerMetadata = {
   description: "Emby 是一款开源的媒体服务器软件，支持多种平台和设备",
   warning: [
-    "apikey 可通过在console面板中执行 `JSON.parse(localStorage.getItem('servercredentials3')).Servers[0].AccessToken` 来获取",
-    "userId 可通过在console面板执行 `JSON.parse(localStorage.getItem('servercredentials3')).Servers[0].UserId` 获取",
+    'apikey, userId 可通过在console面板中执行 var c = JSON.parse(localStorage.getItem("servercredentials3")).Servers[0]; c.Users.filter(u => u.UserId == c.UserId)[0] 来获取',
+    "apikey 也可以在 `API 密钥` 中设置，或网络请求等其他地方中获取， userId 也可以在 url 等其他地方获取。（请参见 Wiki ）",
   ],
   auth_field: ["apikey", "userId"],
 } as const;
