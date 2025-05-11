@@ -61,7 +61,7 @@ function secondsToISO8601(seconds: number) {
       </v-card-title>
       <v-divider />
 
-      <v-container>
+      <v-card-text>
         <v-row align="center">
           <v-col cols="8" offset="2" offset-sm="0" sm="4">
             <v-img :src="item.poster" :title="item.name" />
@@ -143,18 +143,24 @@ function secondsToISO8601(seconds: number) {
               </v-chip-group>
             </div>
             <v-divider class="my-2" />
-            <v-btn
-              :href="item.url"
-              append-icon="mdi-arrow-top-right-bold-box-outline"
-              block
-              target="_blank"
-              rel="noopener noreferrer nofollow"
-            >
-              访问
-            </v-btn>
+
+            <div class="d-flex w-100 align-center">
+              <v-icon :icon="item.user?.IsPlayed ? 'mdi-check-bold' : 'mdi-radiobox-blank'" color="green" size="36" />
+              <v-icon :icon="item.user?.IsFavorite ? 'mdi-heart' : 'mdi-heart-outline'" color="red" size="36" />
+              <v-spacer />
+              <v-btn
+                :href="item.url"
+                append-icon="mdi-arrow-top-right-bold-box-outline"
+                target="_blank"
+                class="visit-btn"
+                rel="noopener noreferrer nofollow"
+              >
+                访问
+              </v-btn>
+            </div>
           </v-col>
         </v-row>
-      </v-container>
+      </v-card-text>
     </v-card>
   </v-dialog>
 </template>
@@ -168,5 +174,10 @@ function secondsToISO8601(seconds: number) {
     margin-top: 0;
     margin-bottom: 0;
   }
+}
+
+.visit-btn {
+  width: calc(100% - 80px);
+  margin-left: 8px;
 }
 </style>
