@@ -19,6 +19,8 @@ export interface IMediaServerBaseConfig {
   // 媒体服务器请求超时
   timeout?: number;
 
+  defaultSearchExtraRequestConfig?: AxiosRequestConfig; // 默认的搜索请求配置
+
   [key: string]: any;
 }
 
@@ -41,13 +43,15 @@ export interface IMediaServerItem<RAW = any> {
   // 对应服务器浏览地址
   url: string;
 
-  type: "Movie" | string; // 影片类型
-
   // 媒体信息
+  type: "Movie" | string; // 影片类型
+  description?: string; // 影片描述
   format?: string; // 容器格式 如 MP4, MKV
   size?: number; // 文件大小
   duration?: number; // 时长
-  poster?: string;
+  poster?: string; // 封面图
+  tags?: Array<{ name: string; url?: string }>; // 标签
+  rating?: number | "-"; // 评分
 
   streams?: {
     title: string;
@@ -60,6 +64,7 @@ export interface IMediaServerItem<RAW = any> {
 }
 
 export interface IMediaServerSearchOptions {
+  startIndex?: number; // 起始索引
   limit?: number; // 限制数量
   extraRequestConfig?: AxiosRequestConfig; // 额外的请求配置
 }

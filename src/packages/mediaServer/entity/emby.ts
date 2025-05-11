@@ -44,10 +44,12 @@ interface ISystemInfo {
   Id: string;
 }
 
-interface IQueryResultItem {
+interface IQueryItem {
   Name: string;
   ServerId: string;
   Id: string;
+  ParentId: string;
+  Overview: string;
   Container: string;
   MediaSources: Array<{
     Path: string;
@@ -64,7 +66,7 @@ interface IQueryResultItem {
     >;
   }>;
   Path: string;
-  CommunityRating: number;
+  CommunityRating?: number;
   RunTimeTicks: number;
   Size: number;
   ProviderIds: Record<string, string>;
@@ -73,28 +75,54 @@ interface IQueryResultItem {
     Logo?: string;
     Thumb?: string;
   };
+  GenreItems: Array<{
+    Name: string;
+    Id: number;
+  }>;
   MediaType: string;
 }
 
-interface IQueryResult {
-  Items: IQueryResultItem[];
+interface IQueryFolderInfo {
+  Name: string;
+  Id: string;
+  SubFolders: Array<{
+    Name: string;
+    Id: string;
+  }>;
+}
+
+interface IQueryResult<T extends any> {
+  Items: T[];
   TotalRecordCount: number;
 }
 
 export default class Emby extends AbstractMediaServer<IEmbyConfig> {
+  /**
+   * 修正baseUrl，如果用户传入的地址为 https://127.0.0.1:8096/web/index.html 或者 https://127.0.0.1:8096/
+   * 则将其修正为 JSON API 入口 https://127.0.0.1:8096/emby/
+   */
+  get apiBaseUrl() {
+    let serverAddress = this.config.address;
+    if (!serverAddress.includes("/emby/")) {
+      serverAddress = serverAddress.replace(/\/web\/index.html#.+/, "");
+      serverAddress = urlJoin(serverAddress, "/emby/");
+    }
+
+    return serverAddress;
+  }
+
+  get webBaseUrl() {
+    let serverAddress = this.config.address;
+    serverAddress = serverAddress.replace(/\/web\/index.html#.+/, "");
+    return urlJoin(serverAddress, "/web/index.html");
+  }
+
   protected async request<T = any, R = AxiosResponse<T>, D = any>(
     url: string,
     config: AxiosRequestConfig<D> = {},
   ): Promise<R> {
-    // 修正baseUrl，如果用户传入的地址为 https://127.0.0.1:8096 则将其修正为 https://127.0.0.1:8096/emby/
-    let serverAddress = this.config.address;
-    if (!serverAddress.includes("/emby/")) {
-      serverAddress = urlJoin(serverAddress, "/emby/");
-    }
-    config.baseURL = serverAddress;
-
-    // 未额外传入 timeout 时，使用默认的 timeout
-    config.timeout ??= this.config.timeout;
+    config.baseURL = this.apiBaseUrl;
+    config.timeout ??= this.config.timeout; // 未额外传入 timeout 时，使用默认的 timeout
 
     // 处理认证方式
     config.headers = {
@@ -125,7 +153,7 @@ export default class Emby extends AbstractMediaServer<IEmbyConfig> {
     config: IMediaServerSearchOptions = {},
   ): Promise<IMediaServerSearchResult> {
     // 预定义搜索结果
-    const result: IMediaServerSearchResult<IQueryResultItem> = {
+    const result: IMediaServerSearchResult<IQueryItem> = {
       status: EResultParseStatus.unknownError,
       items: [],
     };
@@ -150,36 +178,45 @@ export default class Emby extends AbstractMediaServer<IEmbyConfig> {
       // 如果没有关键词，则展示推荐？
       requestConfig.params["SortBy"] = "IsFavoriteOrLiked,Random";
     }
-    requestConfig.params["IncludeItemTypes"] = "Movie,Series,Episode";
+    requestConfig.params["IncludeItemTypes"] = "Movie,Series";
     requestConfig.params["Recursive"] = true;
-    requestConfig.params["Limit"] = config.limit ?? 20;
+    requestConfig.params["startIndex"] = config.startIndex ?? 0;
+    requestConfig.params["Limit"] = config.limit ?? 50;
     requestConfig.params["Fields"] =
-      "BasicSyncInfo,Path,Status,ProviderIds,CommunityRating,MediaSources,DisplayPreferences,Genres,DateCreated,Overview";
+      "BasicSyncInfo,Path,Status,ExternalUrls,CommunityRating,MediaSources,DisplayPreferences,Genres,DateCreated,Overview,ExtraIds";
 
     // 处理额外的请求配置
-    if (config.extraRequestConfig) {
-      requestConfig = toMerged(requestConfig, config.extraRequestConfig);
-    }
+    requestConfig = toMerged(
+      requestConfig,
+      config.extraRequestConfig ?? this.config.defaultSearchExtraRequestConfig ?? {},
+    );
 
     try {
-      const response = await this.request<IQueryResult>(url, requestConfig);
+      const response = await this.request<IQueryResult<IQueryItem>>(url, requestConfig);
       if (response.status === 200) {
         const {
           data: { Items = [] },
         } = response;
         for (const item of Items) {
           // 处理搜索结果
-          const mediaItem: IMediaServerItem<IQueryResultItem> = {
+
+          const mediaItem: IMediaServerItem<IQueryItem> = {
             server: this.config.id!,
             name: item.Name,
-            url: urlJoin(this.config.address, `/web/index.html#!/item?id=${item.Id}&serverId=${item.ServerId}`),
+            url: this.webBaseUrl + `#!/item?id=${item.Id}&serverId=${item.ServerId}`,
             type: item.MediaType,
+            description: item.Overview ?? "",
             format: item.Container,
             size: item.Size,
             duration: item.RunTimeTicks / 10000000, // 10000 ticks = 1 ms, 10000 ms = 1 s
-            poster: urlJoin(this.config.address, `/emby/Items/${item.Id}/Images/Primary`),
+            poster: urlJoin(this.apiBaseUrl, `/Items/${item.Id}/Images/Primary`),
+            tags: item.GenreItems?.map((tag) => ({
+              name: tag.Name,
+              url: this.webBaseUrl + `#!/list/list.html?genreId=${tag.Id}&serverId=${item.ServerId}`,
+            })),
+            rating: item.CommunityRating ?? "-",
             streams: item.MediaSources?.[0]?.MediaStreams?.map((stream) => ({
-              title: stream.DisplayTitle,
+              title: stream.Title ?? stream.DisplayTitle,
               type: stream.Type,
               format: stream.Codec,
             })),

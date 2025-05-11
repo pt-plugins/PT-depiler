@@ -27,6 +27,7 @@ export async function getMediaServerMetaData(type: string): Promise<IMediaServer
 export async function getMediaServerDefaultConfig(type: string): Promise<IMediaServerBaseConfig> {
   const config = cloneDeep((await getMediaServerModule(type)).mediaServerConfig);
   // 填入/覆盖 缺失项
+  config.defaultSearchExtraRequestConfig ??= { params: {} };
 
   return config;
 }

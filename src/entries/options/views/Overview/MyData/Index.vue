@@ -117,7 +117,7 @@ async function multiOpen() {
   for (const siteId of tableSelected.value) {
     const siteUrl = await metadataStore.getSiteUrl(siteId);
     if (siteUrl) {
-      window.open(siteUrl, "_blank", "noopener noreferrer nofollow");
+      window.open(siteUrl, "_blank", "noopener noreferrer");
     }
   }
 }
