@@ -17,6 +17,11 @@ function streamsTextFactory(type: "Video" | "Audio" | "Subtitle") {
   );
 }
 
+const showSteams = [
+  { name: "Audio", icon: "mdi-expansion-card" },
+  { name: "Subtitle", icon: "mdi-closed-caption" },
+];
+
 function secondsToISO8601(seconds: number) {
   seconds = Math.abs(seconds);
 
@@ -110,7 +115,11 @@ function secondsToISO8601(seconds: number) {
             </div>
             <div v-if="item.streams && item.streams.length > 0" class="info-label">
               <v-label class="pr-3">媒体信息：</v-label>
-              <v-chip-group>
+              <v-chip-group show-arrows>
+                <v-chip v-if="item.format" base-color="blue" label prepend-icon="mdi-aspect-ratio" size="small">
+                  {{ item.format?.toUpperCase() }}
+                </v-chip>
+
                 <v-chip
                   v-if="item.streams.filter((s) => s.type === 'Video')!.length > 0"
                   base-color="blue"
@@ -118,28 +127,31 @@ function secondsToISO8601(seconds: number) {
                   prepend-icon="mdi-movie"
                   size="small"
                 >
-                  {{ streamsTextFactory("Video") }}
+                  {{ item.streams.filter((s) => s.type === "Video")[0].title }}
                 </v-chip>
 
-                <v-chip
-                  v-if="item.streams.filter((s) => s.type === 'Audio')!.length > 0"
-                  base-color="blue"
-                  label
-                  prepend-icon="mdi-expansion-card"
-                  size="small"
-                >
-                  {{ streamsTextFactory("Audio") }}
-                </v-chip>
+                <template v-for="showStream in showSteams" :key="showStream.name">
+                  <v-menu v-if="item.streams.filter((s) => s.type === showStream.name)!.length > 0" open-on-hover>
+                    <template #activator="{ props }">
+                      <v-chip v-bind="props" :prepend-icon="showStream.icon" base-color="blue" label size="small">
+                        {{ item.streams.filter((s) => s.type === showStream.name)!.length }}
+                      </v-chip>
+                    </template>
 
-                <v-chip
-                  v-if="item.streams.filter((s) => s.type === 'Subtitle')!.length > 0"
-                  base-color="blue"
-                  label
-                  prepend-icon="mdi-closed-caption"
-                  size="small"
-                >
-                  {{ streamsTextFactory("Subtitle") }}
-                </v-chip>
+                    <v-card class="pl-2">
+                      <v-chip-group direction="vertical">
+                        <v-chip
+                          v-for="stream in item.streams.filter((s) => s.type === showStream.name)"
+                          :prepend-icon="showStream.icon"
+                          label
+                          size="small"
+                        >
+                          {{ stream.title }}
+                        </v-chip>
+                      </v-chip-group>
+                    </v-card>
+                  </v-menu>
+                </template>
               </v-chip-group>
             </div>
             <v-divider class="my-2" />
@@ -151,9 +163,9 @@ function secondsToISO8601(seconds: number) {
               <v-btn
                 :href="item.url"
                 append-icon="mdi-arrow-top-right-bold-box-outline"
-                target="_blank"
                 class="visit-btn"
                 rel="noopener noreferrer nofollow"
+                target="_blank"
               >
                 访问
               </v-btn>

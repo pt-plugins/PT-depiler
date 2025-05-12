@@ -573,18 +573,18 @@ function saveControl() {
           <v-col v-for="(site, siteId) in metadataStore.lastUserInfo" :key="siteId" cols="6" sm="3" class="py-0">
             <v-checkbox
               v-model="selectedSites"
-              multiple
-              :value="siteId"
-              hide-details
-              density="compact"
-              :indeterminate="!canThisSiteShow(siteId)"
-              indeterminate-icon="mdi-close"
               :disabled="!canThisSiteShow(siteId)"
+              :indeterminate="!canThisSiteShow(siteId)"
+              :value="siteId"
+              density="compact"
+              hide-details
+              indeterminate-icon="mdi-close"
+              multiple
               @update:model-value="resetTimelineDataWithControl"
             >
               <template #label>
                 <SiteFavicon :site-id="siteId" :size="16" />
-                <SiteName :site-id="siteId" tag="p" :class="['ml-1']" />
+                <SiteName :class="['ml-1']" :site-id="siteId" tag="p" />
               </template>
             </v-checkbox>
           </v-col>

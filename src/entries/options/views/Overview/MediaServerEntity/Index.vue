@@ -102,15 +102,17 @@ onMounted(async () => {
                 <v-list-item v-for="item in metadataStore.getMediaServers" :key="item.id">
                   <v-checkbox
                     v-model="searchMediaServerIds"
+                    :disabled="item.enabled === false"
+                    :indeterminate="item.enabled === false"
                     :label="item.name"
                     :value="item.id"
-                    :disabled="item.enabled === false"
                     hide-details
+                    indeterminate-icon="mdi-close"
                     multiple
                     @click.stop
                   >
                     <template #append>
-                      <v-avatar :image="getMediaServerIcon(item.type)" :alt="item.type" size="x-small" />
+                      <v-avatar :alt="item.type" :image="getMediaServerIcon(item.type)" size="x-small" />
                     </template>
                   </v-checkbox>
                 </v-list-item>
@@ -136,20 +138,20 @@ onMounted(async () => {
               scrim
             >
               <template v-slot:activator="{ props, isActive }">
-                <div style="z-index: 999; position: absolute; padding-right: 4px; padding-top: 4px; right: 0">
+                <div class="masonry-right-label">
                   <!-- 用户状态（观看、喜欢） -->
                   <v-chip
                     v-if="item.user"
                     :variant="isActive ? 'tonal' : 'elevated'"
-                    label
                     base-color="grey-lighten-2"
+                    label
                     size="x-small"
                   >
                     <v-icon :icon="item.user?.IsPlayed ? 'mdi-check-bold' : 'mdi-radiobox-blank'" color="green" />
                     <v-icon :icon="item.user?.IsFavorite ? 'mdi-heart' : 'mdi-heart-outline'" color="red" />
                   </v-chip>
                 </div>
-                <div style="z-index: 999; position: absolute; padding-left: 4px; padding-top: 4px">
+                <div class="masonry-left-label">
                   <!-- 封装格式 -->
                   <v-chip
                     v-if="item.format"
@@ -170,8 +172,8 @@ onMounted(async () => {
                     v-if="item.size"
                     :variant="isActive ? 'tonal' : 'elevated'"
                     label
-                    size="x-small"
                     prepend-icon="mdi-movie"
+                    size="x-small"
                   >
                     {{ formatSize(item.size ?? 0) }}
                   </v-chip>
@@ -179,13 +181,13 @@ onMounted(async () => {
                 <v-img v-bind="props" :src="item.poster" :title="item.name" />
               </template>
 
-              <v-btn block append-icon="mdi-information-outline" @click="() => showItemInformation(item)">详情</v-btn>
+              <v-btn append-icon="mdi-information-outline" block @click="() => showItemInformation(item)">详情</v-btn>
               <v-btn
                 :href="item.url"
                 append-icon="mdi-arrow-top-right-bold-box-outline"
                 block
-                target="_blank"
                 rel="noopener noreferrer nofollow"
+                target="_blank"
               >
                 访问
               </v-btn>
@@ -193,14 +195,14 @@ onMounted(async () => {
           </div>
 
           <v-card-subtitle class="text-center my-1" style="white-space: normal">
-            <a class="font-weight-bold my-2" :href="item.url" target="_blank" :title="item.name">
+            <a :href="item.url" :title="item.name" class="font-weight-bold my-2" target="_blank">
               {{ item.name }}
             </a>
 
             <div v-if="metadataStore.mediaServers[item.server]" class="d-flex justify-center align-center mt-1">
               <v-avatar
-                :image="getMediaServerIcon(metadataStore.mediaServers[item.server].type)"
                 :alt="metadataStore.mediaServers[item.server].name"
+                :image="getMediaServerIcon(metadataStore.mediaServers[item.server].type)"
                 size="x-small"
               />
               &nbsp; {{ metadataStore.mediaServers[item.server].name }}
@@ -260,6 +262,28 @@ onMounted(async () => {
 .masonry-item {
   break-inside: avoid;
   margin-bottom: 1rem;
+
+  .masonry-left-label {
+    z-index: 998;
+    position: absolute;
+    max-width: calc(100% - 50px);
+    padding-left: 4px;
+    padding-top: 4px;
+
+    :deep(.v-chip__content) {
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+  }
+
+  .masonry-right-label {
+    z-index: 999;
+    position: absolute;
+    padding-right: 4px;
+    padding-top: 4px;
+    right: 0;
+  }
 }
 
 :deep(.masonry-img-overlay) {

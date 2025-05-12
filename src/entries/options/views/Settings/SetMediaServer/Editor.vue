@@ -67,14 +67,25 @@ async function checkConnect() {
 
         <v-row>
           <v-col class="py-0"><v-label>认证信息</v-label></v-col>
-          <v-col v-for="auth_field in clientMeta!.auth_field" :key="auth_field" cols="12">
-            <v-text-field
-              v-model="clientConfig.auth[auth_field]"
-              :label="auth_field"
-              :rules="[formValidateRules.require()]"
-              hide-details
-              required
-            />
+          <v-col v-for="(auth_field, index) in clientMeta!.auth_field" :key="index" cols="12">
+            <template v-if="typeof auth_field === 'string'">
+              <v-text-field
+                v-model="clientConfig.auth[auth_field]"
+                :label="auth_field"
+                :rules="[formValidateRules.require()]"
+                hide-details
+                required
+              />
+            </template>
+            <template v-else>
+              <v-text-field
+                v-model="clientConfig.auth[auth_field.name]"
+                :label="auth_field.name"
+                :messages="auth_field.message ?? ''"
+                :rules="auth_field.required ? [formValidateRules.require()] : []"
+                required
+              />
+            </template>
           </v-col>
         </v-row>
 

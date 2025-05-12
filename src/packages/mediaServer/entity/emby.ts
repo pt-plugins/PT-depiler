@@ -12,15 +12,16 @@ import { toMerged } from "es-toolkit";
 import { EResultParseStatus } from "@ptd/site";
 
 export const mediaServerMetaData: IMediaServerMetadata = {
-  description: "Emby 是一款开源的媒体服务器软件，支持多种平台和设备",
+  description: "Emby 是一款家庭媒体库管理软件，能整理服务器上的音视频并流式传输到客户端设备，提供良好的影音体验",
   warning: [
     'apikey, userId 可通过在console面板中执行 var c = JSON.parse(localStorage.getItem("servercredentials3")).Servers[0]; c.Users.filter(u => u.UserId == c.UserId)[0] 来获取',
-    "apikey 也可以在 `API 密钥` 中设置，或网络请求等其他地方中获取， userId 也可以在 url 等其他地方获取。（请参见 Wiki ）",
+    "apikey 也可以在 `API 密钥` 中设置，或网络请求等其他地方中获取， userId 也可以在 url 等其他地方获取。（ 请参见 Wiki ）",
   ],
-  auth_field: ["apikey", "userId"],
+  auth_field: ["apikey", { name: "userId", required: false, message: "可以额外获取用户喜欢、观看情况" }],
 } as const;
 
 interface IEmbyConfig extends IMediaServerBaseConfig {
+  type: "emby";
   auth: {
     apikey: string;
     userId: string;
@@ -38,23 +39,22 @@ export const mediaServerConfig: IEmbyConfig = {
   timeout: 5000,
 };
 
-interface ISystemInfo {
+export interface IEmbySystemInfo {
   ServerName: string;
   Version: string;
   Id: string;
 }
 
-interface IQueryItem {
+export interface IEmbyQueryItem {
   Name: string;
   ServerId: string;
   Id: string;
-  ParentId: string;
   Overview: string;
   Container: string;
   MediaSources: Array<{
     Path: string;
     Container: string;
-    Size: string;
+    Size: number;
     Name: string;
     MediaStreams: Array<
       {
@@ -69,7 +69,6 @@ interface IQueryItem {
   CommunityRating?: number;
   RunTimeTicks: number;
   Size: number;
-  ProviderIds: Record<string, string>;
   ImageTags: {
     Primary?: string;
     Logo?: string;
@@ -88,7 +87,7 @@ interface IQueryItem {
   };
 }
 
-interface IQueryResult<T extends any> {
+export interface IEmbyQueryResult<T extends any> {
   Items: T[];
   TotalRecordCount: number;
 }
@@ -135,7 +134,7 @@ export default class Emby extends AbstractMediaServer<IEmbyConfig> {
 
   public override async ping(): Promise<boolean> {
     try {
-      const response = await this.request<ISystemInfo>("/System/Info", { responseType: "json" });
+      const response = await this.request<IEmbySystemInfo>("/System/Info", { responseType: "json" });
       if (response.status === 200 && response.data?.Id) {
         return true;
       }
@@ -150,14 +149,15 @@ export default class Emby extends AbstractMediaServer<IEmbyConfig> {
     config: IMediaServerSearchOptions = {},
   ): Promise<IMediaServerSearchResult> {
     // 预定义搜索结果
-    const result: IMediaServerSearchResult<IQueryItem> = {
+    const result: IMediaServerSearchResult<IEmbyQueryItem> = {
       status: EResultParseStatus.unknownError,
       items: [],
     };
 
     // 处理搜索参数
     let url = "/Items";
-    if (this.config.auth.userId) {
+    const hasUserId = this.config.auth.userId && this.config.auth.userId != "";
+    if (hasUserId) {
       // 如果有 userId，则使用 userId 进行搜索
       url = `/Users/${this.config.auth.userId}/Items`;
     }
@@ -173,7 +173,7 @@ export default class Emby extends AbstractMediaServer<IEmbyConfig> {
       }
     } else {
       // 如果没有关键词，则展示推荐？
-      requestConfig.params["SortBy"] = "IsFavoriteOrLiked,Random";
+      requestConfig.params["SortBy"] = (hasUserId ? "IsFavoriteOrLiked," : "") + "Random";
     }
     requestConfig.params["IncludeItemTypes"] = "Movie,Series";
     requestConfig.params["Recursive"] = true;
@@ -186,7 +186,7 @@ export default class Emby extends AbstractMediaServer<IEmbyConfig> {
     requestConfig = toMerged(requestConfig, this.config.defaultSearchExtraRequestConfig ?? {});
 
     try {
-      const response = await this.request<IQueryResult<IQueryItem>>(url, requestConfig);
+      const response = await this.request<IEmbyQueryResult<IEmbyQueryItem>>(url, requestConfig);
       if (response.status === 200) {
         const {
           data: { Items = [] },
@@ -194,7 +194,7 @@ export default class Emby extends AbstractMediaServer<IEmbyConfig> {
         for (const item of Items) {
           // 处理搜索结果
 
-          const mediaItem: IMediaServerItem<IQueryItem> = {
+          const mediaItem: IMediaServerItem<IEmbyQueryItem> = {
             server: this.config.id!,
             name: item.Name,
             url: this.webBaseUrl + `#!/item?id=${item.Id}&serverId=${item.ServerId}`,

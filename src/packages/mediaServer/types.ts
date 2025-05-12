@@ -32,7 +32,11 @@ export interface IMediaServerMetadata {
   /**
    * 该客户端的认证的字段，对应字段会被放入 config.auth 中
    */
-  auth_field: string[];
+  auth_field: Array<
+    | string //  等同于 { name: string; required: true }
+    // name: 字段名称  required: 是否必填  message: 提示信息
+    | { name: string; required: boolean; message?: string }
+  >;
 }
 
 export interface IMediaServerItem<RAW = any> {
