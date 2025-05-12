@@ -224,8 +224,9 @@ export default class Emby extends AbstractMediaServer<IEmbyConfig> {
         }
         result.options = config;
         result.status = EResultParseStatus.success;
+      } else {
+        result.status = EResultParseStatus.needLogin;
       }
-      result.status = EResultParseStatus.needLogin;
     } catch (e) {
       result.status = EResultParseStatus.parseError;
     }

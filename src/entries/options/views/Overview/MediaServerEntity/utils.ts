@@ -9,6 +9,7 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import type { TMediaServerKey } from "@/shared/storages/types/metadata.ts";
+import { EResultParseStatus } from "@ptd/site";
 
 const runtimeStore = useRuntimeStore();
 const configStore = useConfigStore();
@@ -61,6 +62,15 @@ export async function doSearch(option: { searchKey?: string; loadMore?: boolean 
         ...omit(searchResult, ["items"]),
         canLoadMore: false,
       };
+
+      if (searchResult.status !== EResultParseStatus.success) {
+        const mediaServerDetail = metadataStore.mediaServers[mediaServerId];
+        runtimeStore.showSnakebar(
+          `媒体服务器 ${mediaServerDetail.name} [${mediaServerDetail.address}] 更新失败，请检查认证信息`,
+          { color: "error" },
+        );
+        return;
+      }
 
       for (const item of searchResult.items) {
         // 根据 url 去重

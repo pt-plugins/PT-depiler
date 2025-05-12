@@ -48,7 +48,7 @@ function onScroll() {
 }
 
 onMounted(async () => {
-  if (configStore.mediaServerEntity.autoSearchWhenMount) {
+  if (configStore.mediaServerEntity.autoSearchWhenMount && runtimeStore.mediaServerSearch.searchResult.length === 0) {
     // noinspection ES6MissingAwait
     doSearch({ searchKey: search.value });
   }
