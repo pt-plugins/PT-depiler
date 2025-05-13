@@ -18,6 +18,8 @@ export type SiteSchema =
   | "AvistaZ"
   | string;
 
+type TUserInfoParseKey = keyof Omit<IUserInfo, "site" | "status" | "updateAt">;
+
 export interface ISiteUserInputMeta {
   name: string; // 存储在 userConfig.inputSetting 中的名称
   label: string; // 标签名称
@@ -83,10 +85,11 @@ export interface ISiteMetadata {
    * 站点图标，具体处理过程见 `../utils/favicon.ts` 的说明
    * 此处填写格式如下：
    *  - 站点 favicon.ico 的完整url，例如 https://xxxx.site/favicon.ico   （从 `http` 开始写）
-   *  - 本地 public/icons/site 目录下的文件，例如 ./{name}.png 或 ./{name}.ico 或 ./{name}.svg     （从 `./` 开始写）
+   *  - 本地 public/icons/site 目录下的文件，例如 ./{name}.png 或 ./{name}.ico 或 ./{name}.svg
+   *    （从 `./` 开始写，如果 /public/icons/site 下有对应 {id}.{png, ico, svg} 文件则不需要显式定义，其他后缀的图片格式需要明确
    *  - `data:image/` 开头的Base64字符串 （不会有人这么做吧，一定过不了 Code Review 的）
    */
-  favicon?: `${TSiteFullUrl}${string}` | `data:image/${string}` | `./${string}.${"png" | "ico" | "svg"}`;
+  favicon?: `${TSiteFullUrl}${string}` | `data:image/${string}` | `./${string}.${"png" | "ico" | "svg" | string}`;
 
   category?: ISearchCategories[];
 
@@ -142,7 +145,7 @@ export interface ISiteMetadata {
      * 如果可以，则从插件历史缓存的数据中获取那些数据（一般是比较恒定的数据，如 id, name, joinTime ）
      * 并可以帮助我们减少网络请求的字段
      */
-    pickLast?: (keyof IUserInfo)[];
+    pickLast?: TUserInfoParseKey[];
 
     /**
      * 有执行顺序，从上到下依次执行，第一个不应该有断言 assertion，后续配置项可以有断言
@@ -157,7 +160,7 @@ export interface ISiteMetadata {
        * - { id: 'params.uid' } 则表示 替换的键值在 params.uid 中，因为此时params.uid未定义，则 直接设置 params.uid 为之前获取的id值
        */
       assertion?: {
-        [key in keyof IUserInfo]?: string;
+        [key in TUserInfoParseKey]?: string;
       };
 
       /**
@@ -171,12 +174,12 @@ export interface ISiteMetadata {
         siteInstance: PrivateSite,
       ) => AxiosRequestConfig;
 
-      fields: (keyof IUserInfo)[];
+      fields: TUserInfoParseKey[];
 
-      selectors?: { [userinfoKey in keyof IUserInfo]?: IElementQuery }; // 用户信息相关选择器（仅限该步骤使用）
+      selectors?: { [userinfoKey in TUserInfoParseKey]?: IElementQuery }; // 用户信息相关选择器（仅限该步骤使用）
     }[];
 
-    selectors?: { [userinfoKey in keyof IUserInfo]?: IElementQuery }; // 用户信息相关选择器（全部步骤均可使用）
+    selectors?: { [userinfoKey in TUserInfoParseKey]?: IElementQuery }; // 用户信息相关选择器（全部步骤均可使用）
   };
 
   /**

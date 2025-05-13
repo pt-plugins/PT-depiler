@@ -1,5 +1,5 @@
 import axios from "axios";
-import type { IFetchSocialSiteInformationConfig, ISocialInformation } from "./types.ts";
+import { IFetchSocialSiteInformationConfig, ISocialInformation, TSupportSocialSite } from "./types.ts";
 
 import { log } from "~/helper.ts";
 
@@ -22,15 +22,15 @@ interface socialEntity {
 export const socialContent = import.meta.glob<socialEntity>("./entity/*.ts", { eager: true });
 export const socialEntityList = Object.keys(socialContent).map((value: string) => {
   return value.replace(/^\.\/entity\//, "").replace(/\.ts$/, "");
-}) as string[];
+}) as TSupportSocialSite[];
 
-export type TSupportSocialSite = (typeof socialEntityList)[number];
+export type TSupportSocialSite$1 = (typeof socialEntityList)[number];
 
-const PtGenApiSupportSite: TSupportSocialSite[] = [] as const;
-export const socialBuildUrlMap: Record<TSupportSocialSite, socialEntity["build"]> = {};
-export const socialParseUrlMap: Record<TSupportSocialSite, socialEntity["parse"]> = {};
+const PtGenApiSupportSite: TSupportSocialSite$1[] = [] as const;
+export const socialBuildUrlMap = {} as Record<TSupportSocialSite$1, socialEntity["build"]>;
+export const socialParseUrlMap = {} as Record<TSupportSocialSite$1, socialEntity["parse"]>;
 
-export function getSocialModule(site: TSupportSocialSite): socialEntity {
+export function getSocialModule(site: TSupportSocialSite$1): socialEntity {
   return socialContent[`./entity/${site}.ts`];
 }
 
@@ -45,7 +45,7 @@ for (const socialEntity of socialEntityList) {
 }
 
 export async function getSocialSiteInformation(
-  site: TSupportSocialSite,
+  site: TSupportSocialSite$1,
   id: string,
   config: IFetchSocialSiteInformationConfig = {},
   // @ts-ignore

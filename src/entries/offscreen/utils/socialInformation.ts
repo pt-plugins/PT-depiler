@@ -1,10 +1,10 @@
-import type { ISocialInformation, TSupportSocialSite } from "@ptd/social";
+import type { ISocialInformation, TSupportSocialSite$1 } from "@ptd/social";
 import { getSocialSiteInformation } from "@ptd/social";
 import { onMessage, sendMessage } from "@/messages.ts";
 import { ptdIndexDb } from "@/offscreen/adapter/indexdb.ts";
 import type { IConfigPiniaStorageSchema } from "@/shared/storages/types/config.ts";
 
-export async function getSocialInformation(site: TSupportSocialSite, sid: string): Promise<ISocialInformation> {
+export async function getSocialInformation(site: TSupportSocialSite$1, sid: string): Promise<ISocialInformation> {
   const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
   const socialInformationConfig = configStoreRaw.socialSiteInformation ?? {};
 
@@ -23,12 +23,12 @@ export async function getSocialInformation(site: TSupportSocialSite, sid: string
 
 onMessage("getSocialInformation", async ({ data: { site, sid } }) => await getSocialInformation(site, sid));
 
-export async function setSocialInformation(site: TSupportSocialSite, sid: string, val: ISocialInformation) {
+export async function setSocialInformation(site: TSupportSocialSite$1, sid: string, val: ISocialInformation) {
   const key = `${site}:${sid}`;
   return await (await ptdIndexDb).put("social_information", val, key);
 }
 
-export async function deleteSocialInformation(site: TSupportSocialSite, sid: string) {
+export async function deleteSocialInformation(site: TSupportSocialSite$1, sid: string) {
   const key = `${site}:${sid}`;
   return await (await ptdIndexDb).delete("social_information", key);
 }

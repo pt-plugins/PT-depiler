@@ -61,7 +61,7 @@ async function saveSite() {
           <v-window-item :key="0">
             <v-autocomplete
               v-model="selectedSiteId"
-              :filter-keys="['raw.name', 'raw.urls']"
+              :filter-keys="['raw.name', 'raw.urls', 'raw.aka']"
               :items="canAddSites"
               :multiple="false"
               :placeholder="selectedSiteId ? '' : t('SetSite.add.selectSitePlaceholder')"

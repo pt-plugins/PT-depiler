@@ -1,12 +1,12 @@
 // noinspection ES6PreferShortImport
 
 import type { AxiosRequestConfig } from "axios";
-import type { TSupportSocialSite } from "@ptd/social";
+import type { TSupportSocialSite$1 } from "@ptd/social";
 import type { EResultParseStatus } from "./base";
 import type { ITorrent, TBaseTorrentTagName } from "./torrent";
 import type { TQueryFilter } from "../utils/filter";
 
-export type TAdvanceSearchKeyword = TSupportSocialSite | string;
+export type TAdvanceSearchKeyword = TSupportSocialSite$1 | string;
 
 export interface ISearchInput {
   keywords?: `${TAdvanceSearchKeyword}|${string}` | string;
@@ -35,7 +35,7 @@ export interface IBaseSearchConfig {
    *
    * 注意：
    * 1. 每一步生成的字段均会被下一步操作给合并覆盖
-   * 2. 对于post请求，如果类型为 form 或 params，请参照 axios 说明设置 content-type 请求头：
+   * 2. 对于post请求，如果类型为 form 或 params （默认为 json），请参照 axios 说明设置 content-type 请求头：
    *    - 'application/x-www-form-urlencoded': https://axios-http.com/docs/urlencoded#automatic-serialization
    *    - 'multipart/form-data': https://axios-http.com/docs/multipart#automatic-serialization
    *
@@ -68,11 +68,12 @@ export interface ISearchConfig extends IBaseSearchConfig {
    *  - imdb|tt17097088
    *  - douban|35131346
    *
-   * 注意：我们断言高级搜索词的内容是单一的，即不会出现多个高级搜索词{或,和}普通搜索词 同时出现的情况
+   * 注意：1. 我们断言高级搜索词的内容是单一的，即不会出现多个高级搜索词{或,和}普通搜索词 同时出现的情况
+   *      2. 高级搜索词需要明确声明，如未声明则相当于搜索 普通搜索词
    */
   advanceKeywordParams?: Record<
     TAdvanceSearchKeyword,
-    IAdvanceKeywordSearchConfig | false /* 等同于 { enabled: false }*/
+    IAdvanceKeywordSearchConfig | false /* 等同于 { enabled: false } */
   >;
 
   selectors?: {

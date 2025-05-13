@@ -72,7 +72,7 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
       <div ref="social" class="ml-2">
         <template v-if="configStore.searchEntifyControl.showSocialInformation">
           <template v-for="(meta, key) in socialBuildUrlMap" :key="key">
-            <v-menu v-if="item[`ext_${key}`]">
+            <v-menu v-if="item[`ext_${key}`]" open-on-hover>
               <template v-slot:activator="{ props }">
                 <v-avatar
                   v-bind="props"

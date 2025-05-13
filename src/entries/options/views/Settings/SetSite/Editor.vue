@@ -86,16 +86,18 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
       @update:model-value="(v) => emit('update:formValid', v as boolean)"
     >
       <v-container class="pa-0">
+        <v-label class="my-2">基本信息</v-label>
         <v-row>
           <v-col cols="12" md="4">
             <v-text-field
               v-model="siteName"
               :label="t('SetSite.common.name')"
               :rules="[formValidateRules.require()]"
+              hide-details
             ></v-text-field>
           </v-col>
           <v-col cols="12" md="4">
-            <v-text-field v-model="siteMetaData.schema" :label="t('SetSite.common.type')" disabled />
+            <v-text-field v-model="siteMetaData.schema" :label="t('SetSite.common.type')" disabled hide-details />
           </v-col>
           <v-col cols="12" md="4">
             <v-text-field
@@ -103,12 +105,37 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
               :label="t('common.sortIndex')"
               :placeholder="t('SetSite.editor.sortIndexTip')"
               :rules="[formValidateRules.require()]"
+              hide-details
               type="number"
             />
           </v-col>
+          <v-col cols="12">
+            <v-combobox
+              v-model="siteUserConfig.groups"
+              :items="siteMetaData.tags"
+              chips
+              label="站点分类"
+              multiple
+              hide-details
+            />
+          </v-col>
+          <v-col cols="12">
+            <v-autocomplete
+              v-model="siteTimezoneOffset"
+              :items="timeZone"
+              :label="t('SetSite.editor.timezone')"
+              hide-details
+            />
+          </v-col>
         </v-row>
+
         <v-row>
-          <v-radio-group v-model="siteUserConfig.url" :label="t('SetSite.common.url')" class="edit-select-url">
+          <v-radio-group
+            v-model="siteUserConfig.url"
+            :label="t('SetSite.common.url')"
+            class="edit-select-url"
+            hide-detailsi
+          >
             <v-radio v-for="url in siteMetaData.urls" :key="url" :value="url" @click="siteUserConfig.valid = true">
               <template #label style="width: 100%">
                 {{ url }}
@@ -135,15 +162,22 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
           </v-radio-group>
         </v-row>
 
-        <v-combobox
-          v-model="siteUserConfig.groups"
-          :items="siteMetaData.tags"
-          label="站点分类"
-          chips
-          multiple
-        ></v-combobox>
+        <v-divider />
 
-        <v-autocomplete v-model="siteTimezoneOffset" :items="timeZone" :label="t('SetSite.editor.timezone')" />
+        <v-label class="my-2">站点设置</v-label>
+
+        <template v-if="siteMetaData.userInputSettingMeta">
+          <v-text-field
+            v-for="userInputMeta in siteMetaData.userInputSettingMeta"
+            :key="userInputMeta.name"
+            v-model="siteUserConfig.inputSetting![userInputMeta.name]"
+            :hint="userInputMeta.hint"
+            :label="userInputMeta.label"
+            :rules="[(val) => (userInputMeta.required ? formValidateRules.require()(val) : true)]"
+            validate-on="input"
+          >
+          </v-text-field>
+        </template>
 
         <v-slider
           v-model="siteUserConfig.timeout"
@@ -176,20 +210,6 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
             </v-btn>
           </template>
         </v-slider>
-
-        <template v-if="siteMetaData.userInputSettingMeta">
-          <v-divider />
-          <v-label class="my-2">{{ t("SetSite.editor.extraUserInputSetting") }}</v-label>
-          <v-text-field
-            v-for="userInputMeta in siteMetaData.userInputSettingMeta"
-            :key="userInputMeta.name"
-            v-model="siteUserConfig.inputSetting![userInputMeta.name]"
-            :hint="userInputMeta.hint"
-            :label="userInputMeta.label"
-            :rules="[(val) => (userInputMeta.required ? formValidateRules.require()(val) : true)]"
-          >
-          </v-text-field>
-        </template>
       </v-container>
     </v-form>
   </v-card>

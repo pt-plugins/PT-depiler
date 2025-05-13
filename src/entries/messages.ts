@@ -8,7 +8,7 @@ import type {
   TSiteID,
 } from "@ptd/site";
 import type { CAddTorrentOptions } from "@ptd/downloader";
-import type { ISocialInformation, TSupportSocialSite } from "@ptd/social";
+import type { ISocialInformation, TSupportSocialSite$1 } from "@ptd/social";
 import type { IMediaServerId, IMediaServerSearchOptions, IMediaServerSearchResult } from "@ptd/mediaServer";
 import type {
   TExtensionStorageKey,
@@ -85,7 +85,7 @@ interface ProtocolMap {
   removeSiteUserInfo(data: { siteId: TSiteID; date: string }): void;
 
   // 2.5 社交信息 ( utils/socialInformation )
-  getSocialInformation(data: { site: TSupportSocialSite; sid: string }): ISocialInformation;
+  getSocialInformation(data: { site: TSupportSocialSite$1; sid: string }): ISocialInformation;
   clearSocialInformationCache(): void;
 }
 

@@ -106,14 +106,18 @@ export default class BittorrentSite {
         req.data = doc;
       }
     } catch (e) {
+      // 从 AxiosError 中获取 response
       req = (e as AxiosError).response!;
-      if (req.status >= 400) {
-        throw Error(`Network Error: ${req.status} ${req.statusText || ""}`.trim());
-      }
     }
 
-    if (checkLogin && !this.loggedCheck(req)) {
+    // 首先检查是否需要登录
+    if (checkLogin && !this.loggedCheck(req!)) {
       throw new NeedLoginError();
+    }
+
+    // 如果非需要登录的情况，但还是返回了 4xx 或者 5xx ，则抛出错误
+    if (req.status >= 400) {
+      throw Error(`Network Error: ${req.status} ${req.statusText || ""}`.trim());
     }
 
     return req;
@@ -461,8 +465,8 @@ export default class BittorrentSite {
     // 对获取到的种子进行一些通用的处理
     torrent.site ??= this.metadata.id; // 补全种子的 site 属性
     torrent.id ??= tryToNumber(torrent.url || torrent.link); // 补全种子的 id 属性，如果不存在，则由 url, link 属性替代
-    torrent.url = this.fixLink(torrent.url as string, requestConfig!);
-    torrent.link = this.fixLink(torrent.link as string, requestConfig!);
+    torrent.url && (torrent.url = this.fixLink(torrent.url as string, requestConfig!));
+    torrent.link && (torrent.link = this.fixLink(torrent.link as string, requestConfig!));
     if (typeof (torrent.size as unknown) === "string") {
       torrent.size = parseSizeString(torrent.size as unknown as string);
     }
@@ -519,7 +523,7 @@ export default class BittorrentSite {
    *  - 如果搜索页面提供的下载链接有特定的生存期限，可以在这里进行更新
    * @param torrent
    */
-  async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+  protected async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
     if (!torrent.link && this.metadata?.detail?.selectors?.link) {
       const { data } = await this.request<any>(
         toMerged({ responseType: "document", url: torrent.url }, this.metadata.detail?.requestConfig ?? {}),
@@ -534,7 +538,7 @@ export default class BittorrentSite {
    * 使用该方法返回种子文件的下载配置
    * @param torrent
    */
-  async getTorrentDownloadRequestConfig(torrent: ITorrent): Promise<AxiosRequestConfig> {
+  protected async getTorrentDownloadRequestConfig(torrent: ITorrent): Promise<AxiosRequestConfig> {
     const torrentDownloadLink = await this.getTorrentDownloadLink(torrent);
     return toMerged(
       { baseURL: this.url, url: torrentDownloadLink, method: "GET", timeout: this.userConfig.timeout ?? 30e3 },
