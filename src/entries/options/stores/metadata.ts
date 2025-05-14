@@ -7,6 +7,7 @@ import {
   type ISearchEntryRequestConfig,
   type ISiteMetadata,
   type ISiteUserConfig,
+  type TSiteHost,
   type TSiteID,
 } from "@ptd/site";
 
@@ -29,6 +30,16 @@ type TSimplePatchFieldKey = keyof Pick<
   "sites" | "solutions" | "snapshots" | "downloaders" | "mediaServers"
 >;
 
+function getHostFromUrl(url: string): TSiteHost {
+  let host = url;
+  try {
+    const urlObj = new URL(url);
+    host = urlObj.host;
+  } catch (e) {}
+
+  return host;
+}
+
 export const useMetadataStore = defineStore("metadata", {
   persistWebExt: true,
   state: (): IMetadataPiniaStorageSchema => ({
@@ -44,6 +55,8 @@ export const useMetadataStore = defineStore("metadata", {
     lastUserInfo: {},
     lastDownloader: {},
     lastUserInfoAutoFlushAt: 0,
+
+    siteHostMap: {},
   }),
 
   getters: {
@@ -273,12 +286,43 @@ export const useMetadataStore = defineStore("metadata", {
     async addSite(siteId: TSiteID, siteConfig: ISiteUserConfig) {
       delete siteConfig.valid;
       this.sites[siteId] = siteConfig;
+      await this.buildSiteHostMap();
       await this.$save();
     },
 
     async removeSite(siteId: TSiteID) {
       delete this.sites[siteId];
+      await this.buildSiteHostMap();
       await this.$save();
+    },
+
+    /**
+     * 在添加、编辑站点时调用，重新生成 host 对站点的映射，
+     * 便于 content-script 等其他地方通过 (await extStorage.getItem('metadata')).siteHostMap[host] 获取站点 ID
+     *
+     * Note: 对于在本commit之前就安装了插件的站点，需要重新编辑站点配置一次才能生成该映射
+     */
+    async buildSiteHostMap() {
+      const siteHostMap: Record<TSiteHost, TSiteID> = {};
+      for (const siteId in this.sites) {
+        const site = this.sites[siteId];
+        if (site.url) {
+          siteHostMap[getHostFromUrl(site.url)] = siteId;
+        }
+        const urls = await this.getSiteMergedMetadata(siteId, "urls", []);
+        if (urls.length > 0) {
+          for (const url of urls) {
+            siteHostMap[getHostFromUrl(url)] = siteId;
+          }
+        }
+        const formerHosts = (await this.getSiteMergedMetadata(siteId, "formerHosts", []))!;
+        if (formerHosts.length > 0) {
+          for (const host of formerHosts) {
+            siteHostMap[host] = siteId;
+          }
+        }
+      }
+      this.siteHostMap = siteHostMap;
     },
 
     async addSearchSolution(solution: ISearchSolutionMetadata) {

@@ -3,6 +3,7 @@ import {
   ISearchEntryRequestConfig,
   ISiteUserConfig,
   IUserInfo,
+  TSiteHost,
   TSiteID as TSiteKey,
 } from "@ptd/site";
 import type { TSelectSearchCategoryValue } from "@ptd/site";
@@ -75,6 +76,7 @@ export interface IMetadataPiniaStorageSchema {
   // 下载器配置
   downloaders: Record<TDownloaderKey, IDownloaderMetadata>;
 
+  // 媒体服务器配置
   mediaServers: Record<TMediaServerKey, IMediaServerMetadata>;
 
   // 上一次搜索时在结果页面的筛选词，需要启用 configStore.searchEntity.saveLastFilter
@@ -92,4 +94,6 @@ export interface IMetadataPiniaStorageSchema {
 
   // 上一次自动刷新的时间戳
   lastUserInfoAutoFlushAt: number;
+
+  siteHostMap: Record<TSiteHost, TSiteKey>; // 站点 host 映射表
 }
