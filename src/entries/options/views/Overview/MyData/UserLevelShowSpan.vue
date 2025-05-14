@@ -88,7 +88,10 @@ function formatDuration(duration: number | isoDuration) {
 
   <template v-if="levelRequirement.bonus">
     <v-icon :title="t('levelRequirement.bonus')" color="green-darken-4" icon="mdi-currency-usd" size="small" />
-    {{ formatNumber(levelRequirement.bonus) }};
+    {{
+      formatNumber(levelRequirement.bonus) +
+      (levelRequirement.bonusNeededInterval ? ` (${levelRequirement.bonusNeededInterval})` : "")
+    }};
   </template>
 
   <template v-if="levelRequirement.seedingBonus">
@@ -98,7 +101,10 @@ function formatDuration(duration: number | isoDuration) {
       icon="mdi-lightning-bolt-circle"
       size="small"
     />
-    {{ formatNumber(levelRequirement.seedingBonus) }};
+    {{
+      formatNumber(levelRequirement.seedingBonus) +
+      (levelRequirement.seedingBonusNeededInterval ? ` (${levelRequirement.seedingBonusNeededInterval})` : "")
+    }};
   </template>
 
   <template v-if="levelRequirement.bonusPerHour">

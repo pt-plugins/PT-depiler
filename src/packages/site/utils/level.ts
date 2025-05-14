@@ -238,6 +238,19 @@ export function levelRequirementUnMet(
     }
   }
 
+  // 额外计算 增加到达下一级魔力所需时间 （#7）
+  for (const bonusKey of ["bonus", "seedingBonus"]) {
+    if (unmetRequirement[bonusKey] && userInfo.bonusPerHour > 0) {
+      // 如果未满足 bonus 条件，且获取到了 bonusPerHour
+      const currentBonus = userInfo[bonusKey] ?? 0;
+      const leftBonus = unmetRequirement[bonusKey] - currentBonus;
+      if (leftBonus > 0) {
+        const leftTime = leftBonus / userInfo.bonusPerHour;
+        unmetRequirement[`${bonusKey}NeededInterval`] = `${Math.floor(leftTime)}H`;
+      }
+    }
+  }
+
   // 比较 hnrUnsatisfied 等应该小于等于的字段
   for (const currentLtElement of intersection(["hnrUnsatisfied"], levelRequirementKeys)) {
     let currentLtRequirement = levelRequirement[currentLtElement];

@@ -39,6 +39,14 @@ export interface IImplicitUserInfo {
   seedingBonus?: number; // 做种积分需求
   bonusPerHour?: number; // 魔力值/积分每小时需求
 
+  /**
+   * bonusNeededInterval 和 seedingBonusNeededInterval 是一个由 levelRequirementUnMet 计算得到的结果，
+   * 用于表示 下一等级魔力差值与 bonusPerHour 相除的结果
+   * 此处仅作示例，表示 getNextLevelUnMet 的结果中 可能会有这个键值，！！请不要在 levelRequirements 中定义该值！！
+   */
+  // bonusNeededInterval?: `${number}H`;
+  // seedingBonusNeededInterval?: `${number}H`;
+
   uploads?: number; // 发布种子数需求
   leeching?: number; // 下载数量需求
   snatches?: number; // 完成种子数需求
