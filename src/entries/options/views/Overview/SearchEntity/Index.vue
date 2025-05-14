@@ -70,7 +70,7 @@ watch(
     console.log("route.query", newParams, oldParams);
     if (newParams.snapshot) {
       metadataStore.getSearchSnapshotData(newParams.snapshot as string).then((data) => {
-        data && (runtimeStore.search = data);
+        data && (runtimeStore.search = { ...data, snapshot: newParams.snapshot as string });
       });
     } else {
       if (
@@ -126,10 +126,14 @@ function cancelSearchQueue() {
           <template v-else>搜索中...</template>
         </template>
         <template v-else>
-          使用方案 [{{ metadataStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) }}] 搜索关键词 [{{
-            runtimeStore.search.searchKey
-          }}] 完成， 共找到 {{ runtimeStore.search.searchResult.length }} 条结果， 耗时：
-          {{ runtimeStore.searchCostTime / 1000 }} 秒。
+          <template v-if="runtimeStore.search.snapshot">
+            搜索快照 [{{ metadataStore.snapshots[runtimeStore.search.snapshot].name }}] ，
+          </template>
+          <template v-else>
+            搜索方案 [{{ metadataStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) }}] ，
+          </template>
+          关键词 [{{ runtimeStore.search.searchKey }}]， 共 {{ runtimeStore.search.searchResult.length }} 条结果，
+          耗时： {{ runtimeStore.searchCostTime / 1000 }} 秒。
         </template>
       </template>
     </v-alert-title>

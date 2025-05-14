@@ -3,7 +3,7 @@ import type { VSnackbar } from "vuetify/components";
 import type { EResultParseStatus, ITorrent, TSiteID } from "@ptd/site";
 import type { IMediaServerItem, IMediaServerSearchResult } from "@ptd/mediaServer";
 
-import type { TMediaServerKey, TSolutionKey } from "./metadata";
+import type { TMediaServerKey, TSearchSnapshotKey, TSolutionKey } from "./metadata";
 
 export type TSearchSolutionKey = `${TSiteID}|$|${TSolutionKey}`;
 
@@ -26,6 +26,7 @@ export interface ISearchPlanStatus {
 }
 
 export interface ISearchData {
+  snapshot?: TSearchSnapshotKey; // 是否是一个搜索快照
   isSearching: boolean; // 是否正在搜索
   // 该搜索相关时间情况
   startAt: number;
