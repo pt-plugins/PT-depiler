@@ -311,6 +311,11 @@ export default class BittorrentSite {
         }
 
         // noinspection SuspiciousTypeOfGuard
+        if (typeof query === "undefined") {
+          query = "";
+        }
+
+        // noinspection SuspiciousTypeOfGuard
         if (typeof query === "string") {
           query = query.trim();
         }

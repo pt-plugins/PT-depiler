@@ -2,7 +2,7 @@
 import { EResultParseStatus, IElementQuery, ISiteMetadata, IUserInfo, NeedLoginError, TLevelId } from "../types";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import BittorrentSite from "./AbstractBittorrentSite";
-import { difference, intersection, pascalCase, pick, toMerged } from "es-toolkit";
+import { difference, intersection, pascalCase, pick, toMerged, uniq } from "es-toolkit";
 import { get, has, set } from "es-toolkit/compat";
 import { guessUserLevelId } from "@ptd/site/utils/level.ts";
 
@@ -67,10 +67,10 @@ export default class PrivateSite extends BittorrentSite {
     try {
       for (const thisUserInfoProcess of this.metadata.userInfo.process) {
         // 该步骤能够获取的字段
-        const processFields = [
+        const processFields = uniq([
           ...(thisUserInfoProcess.fields ?? []),
           ...Object.keys(thisUserInfoProcess.selectors ?? {}),
-        ];
+        ]);
         // 检查相关元素是否均已有
         const existField = intersection(processFields, Object.keys(flushUserInfo));
         if (existField.length === processFields.length) {
