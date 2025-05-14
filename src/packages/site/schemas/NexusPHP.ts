@@ -336,6 +336,16 @@ export const SchemaMetadata: Pick<
         ],
       },
 
+      bonusPerHour: {
+        selector: [
+          "#outer td[rowspan]",
+          "div:contains('你当前每小时能获取'):last",
+          "div:contains('You are currently getting'):last",
+          "div:contains('你當前每小時能獲取'):last",
+        ],
+        filters: [{ name: "parseNumber" }],
+      },
+
       /**
        * 如果指定 seeding 和 seedingSize，则会尝试从 "/userdetails.php?id=$user.id$" 页面获取，
        * 否则将使用方法 parseUserInfoForSeedingStatus 进行获取
@@ -365,6 +375,10 @@ export const SchemaMetadata: Pick<
           "seeding",
           "seedingSize",
         ],
+      },
+      {
+        requestConfig: { url: "/mybonus.php", responseType: "document" },
+        fields: ["bonusPerHour"],
       },
     ],
   },
