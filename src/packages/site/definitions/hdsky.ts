@@ -296,7 +296,7 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class Hdsky extends NexusPHP {
-  protected override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
     if (torrent.link) {
       // FIXME 这里假定下载链接有效期10分钟（具体不明）
       const linkCreatedTime = this.runQueryFilters(torrent.link, [{ name: "querystring", args: ["t"] }]) as string;

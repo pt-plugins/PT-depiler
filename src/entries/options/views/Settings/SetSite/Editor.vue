@@ -134,7 +134,7 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
             v-model="siteUserConfig.url"
             :label="t('SetSite.common.url')"
             class="edit-select-url"
-            hide-detailsi
+            hide-details
           >
             <v-radio v-for="url in siteMetaData.urls" :key="url" :value="url" @click="siteUserConfig.valid = true">
               <template #label style="width: 100%">

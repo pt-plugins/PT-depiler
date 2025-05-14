@@ -512,7 +512,7 @@ export default class MTeam extends PrivateSite {
     return torrent;
   }
 
-  protected override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
     const { data } = await this.request<IMTeamRawResp<string>>({
       method: "POST",
       url: "/api/torrent/genDlToken",

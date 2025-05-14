@@ -523,7 +523,7 @@ export default class BittorrentSite {
    *  - 如果搜索页面提供的下载链接有特定的生存期限，可以在这里进行更新
    * @param torrent
    */
-  protected async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+  public async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
     if (!torrent.link && this.metadata?.detail?.selectors?.link) {
       const { data } = await this.request<any>(
         toMerged({ responseType: "document", url: torrent.url }, this.metadata.detail?.requestConfig ?? {}),
@@ -538,7 +538,7 @@ export default class BittorrentSite {
    * 使用该方法返回种子文件的下载配置
    * @param torrent
    */
-  protected async getTorrentDownloadRequestConfig(torrent: ITorrent): Promise<AxiosRequestConfig> {
+  public async getTorrentDownloadRequestConfig(torrent: ITorrent): Promise<AxiosRequestConfig> {
     const torrentDownloadLink = await this.getTorrentDownloadLink(torrent);
     return toMerged(
       { baseURL: this.url, url: torrentDownloadLink, method: "GET", timeout: this.userConfig.timeout ?? 30e3 },
