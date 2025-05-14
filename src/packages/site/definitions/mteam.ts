@@ -333,7 +333,6 @@ export const siteMetadata: ISiteMetadata = {
     process: [
       {
         requestConfig: { url: "/api/member/profile", method: "POST", responseType: "json" },
-        fields: ["id", "name", "joinTime", "uploaded", "downloaded", "levelName", "levelId", "bonus"],
         selectors: {
           id: { selector: "data.id", filters: [{ name: "parseNumber" }] },
           name: { selector: "data.username" },
@@ -353,7 +352,6 @@ export const siteMetadata: ISiteMetadata = {
       },
       {
         requestConfig: { url: "/api/tracker/myPeerStatistics", method: "POST", responseType: "json" },
-        fields: ["seeding", "seedingSize", "uploads"],
         selectors: {
           seeding: { selector: "data.seederCount", filters: [{ name: "parseNumber" }] },
           seedingSize: { selector: "data.seederSize", filters: [{ name: "parseNumber" }] },
@@ -362,7 +360,6 @@ export const siteMetadata: ISiteMetadata = {
       },
       {
         requestConfig: { url: "/api/tracker/mybonus", method: "POST", responseType: "json" },
-        fields: ["bonusPerHour"],
         selectors: {
           bonusPerHour: { selector: "data.formulaParams.finalBs", filters: [{ name: "parseNumber" }] },
         },

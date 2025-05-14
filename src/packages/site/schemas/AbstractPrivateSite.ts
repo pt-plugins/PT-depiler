@@ -66,9 +66,14 @@ export default class PrivateSite extends BittorrentSite {
 
     try {
       for (const thisUserInfoProcess of this.metadata.userInfo.process) {
+        // 该步骤能够获取的字段
+        const processFields = [
+          ...(thisUserInfoProcess.fields ?? []),
+          ...Object.keys(thisUserInfoProcess.selectors ?? {}),
+        ];
         // 检查相关元素是否均已有
-        const existField = intersection(thisUserInfoProcess.fields, Object.keys(flushUserInfo));
-        if (existField.length === thisUserInfoProcess.fields.length) {
+        const existField = intersection(processFields, Object.keys(flushUserInfo));
+        if (existField.length === processFields.length) {
           continue; // 如果全部数据都有则直接跳过本轮
         }
 
@@ -103,7 +108,7 @@ export default class PrivateSite extends BittorrentSite {
 
         const { data: dataDocument } = await this.request<any>(requestConfig);
 
-        for (const key of difference(thisUserInfoProcess.fields, Object.keys(flushUserInfo)) as string[]) {
+        for (const key of difference(processFields, Object.keys(flushUserInfo)) as string[]) {
           const dynamicParseFuncKey = `parseUserInfoFor${pascalCase(key)}` as keyof this;
           if (dynamicParseFuncKey in this && typeof this[dynamicParseFuncKey] === "function") {
             flushUserInfo = await this[dynamicParseFuncKey](flushUserInfo, dataDocument, requestConfig);

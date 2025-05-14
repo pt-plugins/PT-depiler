@@ -198,91 +198,80 @@ export const siteMetadata: ISiteMetadata = {
     process: [
       {
         requestConfig: { url: "/index.php" },
-        fields: ["id", "name"],
+        selectors: {
+          id: {
+            selector: "a[href*='userdetails.php']:first",
+            attr: "href",
+            filters: [{ name: "querystring", args: ["id"] }],
+          },
+          name: {
+            selector: "a[href*='userdetails.php']:first",
+          },
+        },
       },
       {
         requestConfig: { url: "/userdetails.php" },
         assertion: { id: "params.id" },
-        fields: [
-          "messageCount",
-          "uploaded",
-          "downloaded",
-          "ratio",
-          "levelName",
-          "bonus",
-          "joinTime",
-          "seeding",
-          "seedingSize",
-          "uploads",
-        ],
+        selectors: {
+          messageCount: {
+            selector: "td[style*='background'] > b > a[href*='messages.php'], a[href='#notice']",
+            filters: [{ name: "parseNumber" }],
+          },
+          uploaded: {
+            selector: ["td.rowhead:contains('上传量') + td", "td.rowhead:contains('上傳量') + td"],
+            filters: [{ name: "parseSize" }],
+          },
+          downloaded: {
+            selector: ["td.rowhead:contains('下载量') + td", "td.rowhead:contains('下載量') + td"],
+            filters: [{ name: "parseSize" }],
+          },
+          ratio: {
+            selector: "td.rowhead:contains('分享率') + td",
+            filters: [{ name: "parseNumber" }],
+          },
+          levelName: {
+            selector: ["td.rowhead:contains('等级') + td", "td.rowhead:contains('等級') + td"],
+          },
+          bonus: {
+            selector: ["td.rowhead:contains('积分') + td", "td.rowhead:contains('積分') + td"],
+            filters: [{ name: "parseNumber" }],
+          },
+          joinTime: {
+            selector: ["td.rowhead:contains('注册日期') + td", "td.rowhead:contains('註冊日期') + td"],
+            filters: [{ name: "parseTime" }],
+          },
+          seeding: {
+            text: 0,
+            selector: "div#ka2",
+            elementProcess: (element: HTMLElement) => {
+              const trAnothers = Sizzle("tr:not(:eq(0))", element);
+              return trAnothers.length;
+            },
+          },
+          seedingSize: {
+            text: 0,
+            selector: "div#ka2",
+            elementProcess: (element: HTMLElement) => {
+              let seedingSize = 0;
+              const trAnothers = Sizzle("tr:not(:eq(0))", element);
+              trAnothers.forEach((trAnother) => {
+                const sizeAnother = Sizzle("td:eq(3)", trAnother)[0];
+                seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim());
+              });
+              return seedingSize;
+            },
+          },
+          uploads: {
+            text: 0,
+            selector: "div#ka1",
+            elementProcess: (element: HTMLElement) => {
+              const trAnothers = Sizzle("tr:not(:eq(0))", element);
+              return trAnothers.length;
+            },
+          },
+        },
       },
     ],
-    selectors: {
-      id: {
-        selector: "a[href*='userdetails.php']:first",
-        attr: "href",
-        filters: [{ name: "querystring", args: ["id"] }],
-      },
-      name: {
-        selector: "a[href*='userdetails.php']:first",
-      },
-      messageCount: {
-        selector: "td[style*='background'] > b > a[href*='messages.php'], a[href='#notice']",
-        filters: [{ name: "parseNumber" }],
-      },
-      uploaded: {
-        selector: ["td.rowhead:contains('上传量') + td", "td.rowhead:contains('上傳量') + td"],
-        filters: [{ name: "parseSize" }],
-      },
-      downloaded: {
-        selector: ["td.rowhead:contains('下载量') + td", "td.rowhead:contains('下載量') + td"],
-        filters: [{ name: "parseSize" }],
-      },
-      ratio: {
-        selector: "td.rowhead:contains('分享率') + td",
-        filters: [{ name: "parseNumber" }],
-      },
-      levelName: {
-        selector: ["td.rowhead:contains('等级') + td", "td.rowhead:contains('等級') + td"],
-      },
-      bonus: {
-        selector: ["td.rowhead:contains('积分') + td", "td.rowhead:contains('積分') + td"],
-        filters: [{ name: "parseNumber" }],
-      },
-      joinTime: {
-        selector: ["td.rowhead:contains('注册日期') + td", "td.rowhead:contains('註冊日期') + td"],
-        filters: [{ name: "parseTime" }],
-      },
-      seeding: {
-        text: 0,
-        selector: "div#ka2",
-        elementProcess: (element: HTMLElement) => {
-          const trAnothers = Sizzle("tr:not(:eq(0))", element);
-          return trAnothers.length;
-        },
-      },
-      seedingSize: {
-        text: 0,
-        selector: "div#ka2",
-        elementProcess: (element: HTMLElement) => {
-          let seedingSize = 0;
-          const trAnothers = Sizzle("tr:not(:eq(0))", element);
-          trAnothers.forEach((trAnother) => {
-            const sizeAnother = Sizzle("td:eq(3)", trAnother)[0];
-            seedingSize += parseSizeString((sizeAnother as HTMLElement).innerText.trim());
-          });
-          return seedingSize;
-        },
-      },
-      uploads: {
-        text: 0,
-        selector: "div#ka1",
-        elementProcess: (element: HTMLElement) => {
-          const trAnothers = Sizzle("tr:not(:eq(0))", element);
-          return trAnothers.length;
-        },
-      },
-    },
   },
 
   levelRequirements: [

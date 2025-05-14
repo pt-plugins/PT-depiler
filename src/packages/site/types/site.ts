@@ -174,8 +174,14 @@ export interface ISiteMetadata {
         siteInstance: PrivateSite,
       ) => AxiosRequestConfig;
 
-      fields: TUserInfoParseKey[];
-
+      /**
+       * fields 和 selectors 共同控制着该步骤能够获取到的字段（如果该字段已经存在于前一步步骤或 pickLast 生成的 userInfo 中，则不会再次请求）
+       * 实际，本步骤能获取的 fields 为 [...fields, ...Object.keys(selectors)]
+       *
+       * 建议： 1. 对 schema 使用 fields 来定义，这样在 definitions 可以直接通过覆写 userInfo.selectors 快速调整
+       *       2. 对 definition 这种 process 全部控制的站点，使用 selectors 来定义，这样可以不用重复定义 fields
+       */
+      fields?: TUserInfoParseKey[];
       selectors?: { [userinfoKey in TUserInfoParseKey]?: IElementQuery }; // 用户信息相关选择器（仅限该步骤使用）
     }[];
 

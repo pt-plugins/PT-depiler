@@ -241,76 +241,65 @@ export const siteMetadata: ISiteMetadata = {
     process: [
       {
         requestConfig: { url: "/" },
-        fields: ["id"],
+        selectors: {
+          id: {
+            selector: ["a[href*='/u/']:first", "a[href*='userdetails.php']:first"],
+            attr: "href",
+            switchFilters: {
+              "a[href*='/u/']:first": [
+                (query: string) => {
+                  const queryMatch = query.match(/u\/(.+)/);
+                  return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : "";
+                },
+              ],
+              "a[href*='userdetails.php']:first": [{ name: "querystring", args: ["id"] }],
+            },
+          },
+        },
       },
       {
         requestConfig: { url: "/user.php" },
         assertion: { id: "params.u" },
-        fields: [
-          "messageCount",
-          "name",
-          "uploaded",
-          "downloaded",
-          "ratio",
-          "levelName",
-          "bonus",
-          "joinTime",
-          "seeding",
-          "seedingSize",
-        ],
-      },
-    ],
-    selectors: {
-      id: {
-        selector: ["a[href*='/u/']:first", "a[href*='userdetails.php']:first"],
-        attr: "href",
-        switchFilters: {
-          "a[href*='/u/']:first": [
-            (query: string) => {
-              const queryMatch = query.match(/u\/(.+)/);
-              return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : "";
-            },
-          ],
-          "a[href*='userdetails.php']:first": [{ name: "querystring", args: ["id"] }],
+        selectors: {
+          messageCount: {
+            selector: ["td[style*='background: red'] a[href*='messages.php']"],
+            filters: [{ name: "parseNumber" }],
+          },
+          name: {
+            selector: "h1.c0",
+          },
+          uploaded: {
+            selector: "th:contains('Uploaded') + td",
+            filters: [{ name: "parseSize" }],
+          },
+          downloaded: {
+            selector: "th:contains('Downloaded') + td",
+            filters: [{ name: "parseSize" }],
+          },
+          ratio: {
+            selector: "th:contains('Share ratio') + td",
+            filters: [{ name: "parseNumber" }],
+          },
+          levelName: {
+            selector: "th:contains('Class') + td",
+          },
+          bonus: {
+            selector: "a[href='/mybonus.php']",
+            filters: [{ name: "parseNumber" }],
+          },
+          joinTime: {
+            selector: "th:contains('Join date') + td",
+            filters: [(query: string) => query.split(" (")[0], { name: "parseTime" }],
+          },
+          seeding: {
+            selector: "th:contains('Seeding') + td",
+            filters: [{ name: "parseNumber" }],
+          },
+          seedingSize: {
+            text: "N/A",
+          },
         },
       },
-      messageCount: {
-        selector: ["td[style*='background: red'] a[href*='messages.php']"],
-        filters: [{ name: "parseNumber" }],
-      },
-      name: {
-        selector: "h1.c0",
-      },
-      uploaded: {
-        selector: "th:contains('Uploaded') + td",
-        filters: [{ name: "parseSize" }],
-      },
-      downloaded: {
-        selector: "th:contains('Downloaded') + td",
-        filters: [{ name: "parseSize" }],
-      },
-      ratio: {
-        selector: "th:contains('Share ratio') + td",
-        filters: [{ name: "parseNumber" }],
-      },
-      levelName: {
-        selector: "th:contains('Class') + td",
-      },
-      bonus: {
-        selector: "a[href='/mybonus.php']",
-        filters: [{ name: "parseNumber" }],
-      },
-      joinTime: {
-        selector: "th:contains('Join date') + td",
-        filters: [(query: string) => query.split(" (")[0], { name: "parseTime" }],
-      },
-      seeding: {
-        selector: "th:contains('Seeding') + td",
-        filters: [{ name: "parseNumber" }],
-      },
-      seedingSize: {
-        text: "N/A",
-      },
-    },
+    ],
   },
 };

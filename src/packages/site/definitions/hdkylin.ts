@@ -320,7 +320,4 @@ export const siteMetadata: ISiteMetadata = {
       cross: false,
     },
   ],
-  search: {
-    ...SchemaMetadata.search,
-  },
 };
