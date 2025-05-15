@@ -2,6 +2,7 @@ import { onMessage } from "@/messages.ts";
 import { extStorage } from "@/storage.ts";
 import { log } from "~/helper.ts";
 
+import "./utils/cookies.ts";
 import "./utils/omnibox.ts";
 import "./utils/offscreen.ts";
 import "./utils/alarms.ts";

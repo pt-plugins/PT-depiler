@@ -1,12 +1,12 @@
 import {
   convertIsoDurationToDate,
-  IImplicitUserInfo,
-  ILevelRequirement,
-  isoDuration,
-  IUserInfo,
   parseSizeString,
-  TLevelGroupType,
-  TLevelId,
+  type IImplicitUserInfo,
+  type ILevelRequirement,
+  type isoDuration,
+  type IUserInfo,
+  type TLevelGroupType,
+  type TLevelId,
 } from "@ptd/site";
 import { intersection } from "es-toolkit";
 import { set, isEmpty, includes } from "es-toolkit/compat";
@@ -117,6 +117,7 @@ export function levelRequirementUnMet(
   )) {
     let currentSizeRequirement = levelRequirement[currentSizeElement];
 
+    // noinspection SuspiciousTypeOfGuard
     if (typeof currentSizeRequirement === "string") {
       currentSizeRequirement = parseSizeString(currentSizeRequirement);
     }
