@@ -26,7 +26,7 @@ const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 
 const userLevelRequirements = computedAsync(() => {
-  return metadataStore.getSiteMergedMetadata(userInfo.site, "levelRequirements");
+  return metadataStore.getSiteMergedMetadata(userInfo.site, "levelRequirements", []);
 }, []);
 
 const matchedLevelRequirements = computed(() => {

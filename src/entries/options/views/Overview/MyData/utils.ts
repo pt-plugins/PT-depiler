@@ -11,6 +11,7 @@ const runtimeStore = useRuntimeStore();
 export function fixUserInfo<T extends IUserInfo = IUserInfo>(userInfo: Partial<T>): Required<T> {
   userInfo.ratio = fixRatio(userInfo);
   userInfo.trueRatio = fixRatio(userInfo, "trueRatio");
+  userInfo.messageCount ??= 0;
   return userInfo as Required<T>;
 }
 
