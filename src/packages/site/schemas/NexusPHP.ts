@@ -2,10 +2,12 @@ import PrivateSite from "./AbstractPrivateSite";
 import {
   EResultParseStatus,
   ETorrentStatus,
+  IElementQuery,
   ISearchCategories,
   ISearchInput,
   ISiteMetadata,
   ITorrent,
+  ITorrentTag,
   IUserInfo,
 } from "../types";
 import Sizzle from "sizzle";
@@ -62,6 +64,21 @@ export const CategoryInclbookmarked: ISearchCategories = {
   ],
   cross: false,
 };
+
+const baseTitleSelector = {
+  selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
+};
+
+const parseProgressElement = (element: HTMLElement) => {
+  const progressElement = element.parentElement?.querySelector("div");
+  if (!progressElement) return null;
+  const progressTitle = progressElement.getAttribute("title");
+  const parts = progressTitle?.split(" ");
+  if (!parts || parts.length != 2) return null;
+  const status = parts[0];
+  const progress = parts[1];
+  return { status: status, progress: progress };
+}
 
 export const subTitleRemoveExtraElement =
   (removeSelectors: string[] = [], self: boolean = false) =>
@@ -122,22 +139,41 @@ export const SchemaMetadata: Pick<
         filters: [{ name: "querystring", args: ["id"] }],
       },
       title: {
+        ...baseTitleSelector,
         text: "",
-        selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
         elementProcess: (element) => {
           return (element.getAttribute("title") || element.textContent || "").trim();
         },
       },
       subTitle: {
+        ...baseTitleSelector,
         text: "",
-        selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
-        elementProcess: subTitleRemoveExtraElement(),
+        elementProcess: subTitleRemoveExtraElement(["a, span, img"], true),
       },
       progress: {
-        text: 0,
+        ...baseTitleSelector,
+        elementProcess: (element) => {
+          const parsedProgress = parseProgressElement(element);
+          if (!parsedProgress) return "0";
+          return parseFloat(parsedProgress.progress);
+        },
       },
       status: {
+        ...baseTitleSelector,
         text: ETorrentStatus.unknown,
+        elementProcess: (element) => {
+          const parsedProgress = parseProgressElement(element);
+          if (!parsedProgress) return ETorrentStatus.unknown;
+          switch (parsedProgress.status) {
+            case "leeching":
+              return ETorrentStatus.downloading;
+            case "seeding":
+              return ETorrentStatus.seeding;
+            case "inactivity":
+              return parsedProgress.progress == "100%" ? ETorrentStatus.completed : ETorrentStatus.inactive;
+          }
+          return ETorrentStatus.unknown;
+        },
       },
       category: {
         text: "Other",
@@ -551,5 +587,26 @@ export default class NexusPHP extends PrivateSite {
       }
     }
     return flushUserInfo;
+  }
+
+  protected override parseTorrentRowForTags(torrent: Partial<ITorrent>, row: Element | Document, searchConfig: ISearchInput): Partial<ITorrent> {
+    super.parseTorrentRowForTags(torrent, row, searchConfig);
+
+    const customTags = row.querySelectorAll("span[style*='background-color'][style*='color'][title]");
+    if (customTags.length > 0) {
+      const tags: ITorrentTag[] = torrent.tags || [];
+      customTags.forEach((element) => {
+        const htmlElement = element as HTMLElement;
+        const tagName = htmlElement.textContent;
+        const tagColor = htmlElement.style.backgroundColor;
+        if (tagName && tagColor) {
+          tags.push({ name: tagName, color: tagColor });
+        }
+      });
+
+      torrent.tags = tags;
+    }
+
+    return torrent;
   }
 }
