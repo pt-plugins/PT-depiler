@@ -43,23 +43,6 @@ const selectorSearchStatus: IElementQuery = {
   },
 };
 
-const allCustomTags = [
-  { name: "原盘", value: 14, selector: "span[style*='background-color:#483d8b']", color: "#483d8b" },
-  { name: "中文字幕", value: 8, selector: "span[style*='background-color:#ff00ff']", color: "#ff00ff" },
-  { name: "禁转", value: 1, selector: "span[style*='background-color:#ff0000']", color: "#ff0000" },
-  { name: "自购", value: 2, selector: "span[style*='background-color:#8F77B5']", color: "#8F77B5" },
-  { name: "合集", value: 6, selector: "span[style*='background-color:#006400']", color: "#006400" },
-  { name: "新作", value: 7, selector: "span[style*='background-color:#38b03f']", color: "#38b03f" },
-  { name: "非原档", value: 17, selector: "span[style*='background-color:#FF7575']", color: "#FF7575" },
-  { name: "不漏点软色情", value: 16, selector: "span[style*='background-color:#7373B9']", color: "#7373B9" },
-  { name: "有水印", value: 15, selector: "span[style*='background-color:#7E3D76']", color: "#7E3D76" },
-  { name: "全身有码", value: 13, selector: "span[style*='background-color:#aa0aa0']", color: "#aa0aa0" },
-  { name: "脸部无码", value: 12, selector: "span[style*='background-color:#ff8c00']", color: "#ff8c00" },
-  { name: "下身无码", value: 11, selector: "span[style*='background-color:#0000ff']", color: "#0000ff" },
-  { name: "全身无码", value: 10, selector: "span[style*='background-color:#46d5ff']", color: "#46d5ff" },
-  { name: "口罩/面具等", value: 9, selector: "span[style*='background-color:#6a3906']", color: "#6a3906" },
-];
-
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
 
@@ -179,7 +162,22 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "标签",
       key: "tag_id",
-      options: allCustomTags,
+      options: [
+        { name: "原盘", value: 14 },
+        { name: "中文字幕", value: 8 },
+        { name: "禁转", value: 1 },
+        { name: "自购", value: 2 },
+        { name: "合集", value: 6 },
+        { name: "新作", value: 7 },
+        { name: "非原档", value: 17 },
+        { name: "不漏点软色情", value: 16 },
+        { name: "有水印", value: 15 },
+        { name: "全身有码", value: 13 },
+        { name: "脸部无码", value: 12 },
+        { name: "下身无码", value: 11 },
+        { name: "全身无码", value: 10 },
+        { name: "口罩/面具等", value: 9 },
+      ],
     },
     CategoryIncldead,
     CategorySpstate,
@@ -196,7 +194,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       progress: selectorSearchProgress,
       status: selectorSearchStatus,
-      tags: [...SchemaMetadata.search!.selectors!.tags!, ...allCustomTags],
+      tags: [...SchemaMetadata.search!.selectors!.tags!],
     },
   },
 

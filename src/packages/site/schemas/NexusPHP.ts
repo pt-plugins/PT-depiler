@@ -6,6 +6,7 @@ import {
   ISearchInput,
   ISiteMetadata,
   ITorrent,
+  ITorrentTag,
   IUserInfo,
 } from "../types";
 import Sizzle from "sizzle";
@@ -551,5 +552,26 @@ export default class NexusPHP extends PrivateSite {
       }
     }
     return flushUserInfo;
+  }
+
+  protected override parseTorrentRowForTags(torrent: Partial<ITorrent>, row: Element | Document, searchConfig: ISearchInput): Partial<ITorrent> {
+    super.parseTorrentRowForTags(torrent, row, searchConfig);
+
+    const customTags = row.querySelectorAll("span[style*='background-color'][style*='color'][title]");
+    if (customTags.length > 0) {
+      const tags: ITorrentTag[] = torrent.tags || [];
+      customTags.forEach((element) => {
+        const htmlElement = element as HTMLElement;
+        const tagName = htmlElement.textContent;
+        const tagColor = htmlElement.style.backgroundColor;
+        if (tagName && tagColor) {
+          tags.push({ name: tagName, color: tagColor });
+        }
+      });
+
+      torrent.tags = tags;
+    }
+
+    return torrent;
   }
 }
