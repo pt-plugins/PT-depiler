@@ -2,6 +2,7 @@ import PrivateSite from "./AbstractPrivateSite";
 import {
   EResultParseStatus,
   ETorrentStatus,
+  IElementQuery,
   ISearchCategories,
   ISearchInput,
   ISiteMetadata,
@@ -64,6 +65,21 @@ export const CategoryInclbookmarked: ISearchCategories = {
   cross: false,
 };
 
+const baseTitleSelector = {
+  selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
+};
+
+const parseProgressElement = (element: HTMLElement) => {
+  const progressElement = element.parentElement?.querySelector("div");
+  if (!progressElement) return null;
+  const progressTitle = progressElement.getAttribute("title");
+  const parts = progressTitle?.split(" ");
+  if (!parts || parts.length != 2) return null;
+  const status = parts[0];
+  const progress = parts[1];
+  return { status: status, progress: progress };
+}
+
 export const subTitleRemoveExtraElement =
   (removeSelectors: string[] = [], self: boolean = false) =>
   (element: HTMLElement) => {
@@ -123,22 +139,41 @@ export const SchemaMetadata: Pick<
         filters: [{ name: "querystring", args: ["id"] }],
       },
       title: {
+        ...baseTitleSelector,
         text: "",
-        selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
         elementProcess: (element) => {
           return (element.getAttribute("title") || element.textContent || "").trim();
         },
       },
       subTitle: {
+        ...baseTitleSelector,
         text: "",
-        selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
-        elementProcess: subTitleRemoveExtraElement(),
+        elementProcess: subTitleRemoveExtraElement(["a, span, img"], true),
       },
       progress: {
-        text: 0,
+        ...baseTitleSelector,
+        elementProcess: (element) => {
+          const parsedProgress = parseProgressElement(element);
+          if (!parsedProgress) return "0";
+          return parseFloat(parsedProgress.progress);
+        },
       },
       status: {
+        ...baseTitleSelector,
         text: ETorrentStatus.unknown,
+        elementProcess: (element) => {
+          const parsedProgress = parseProgressElement(element);
+          if (!parsedProgress) return ETorrentStatus.unknown;
+          switch (parsedProgress.status) {
+            case "leeching":
+              return ETorrentStatus.downloading;
+            case "seeding":
+              return ETorrentStatus.seeding;
+            case "inactivity":
+              return parsedProgress.progress == "100%" ? ETorrentStatus.completed : ETorrentStatus.inactive;
+          }
+          return ETorrentStatus.unknown;
+        },
       },
       category: {
         text: "Other",

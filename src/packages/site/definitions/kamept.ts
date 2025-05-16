@@ -1,47 +1,11 @@
-import { type ISiteMetadata, ETorrentStatus, IAdvancedSearchRequestConfig, IElementQuery } from "../types";
+import { type ISiteMetadata, IAdvancedSearchRequestConfig } from "../types";
 import {
   CategoryInclbookmarked,
   CategoryIncldead,
   CategorySpstate,
   SchemaMetadata,
-  subTitleRemoveExtraElement,
 } from "../schemas/NexusPHP";
 import { GB, TB } from "@ptd/site";
-
-const selectorSearchProgress: IElementQuery = {
-  ...SchemaMetadata.search!.selectors!.title!,
-  elementProcess: (element) => {
-    const progressElement = element.parentElement.querySelector("div");
-    if (!progressElement) return "";
-    const progressTitle = progressElement.getAttribute("title");
-    const split = progressTitle.split(" ");
-    const progress = split[1];
-    return progress;
-  },
-  filters: [(query: string) => parseFloat(query)],
-};
-
-const selectorSearchStatus: IElementQuery = {
-  text: ETorrentStatus.unknown,
-  ...SchemaMetadata.search!.selectors!.title!,
-  elementProcess: (element) => {
-    const progressElement = element.parentElement.querySelector("div");
-    if (!progressElement) return "";
-    const progressTitle = progressElement.getAttribute("title");
-    const split = progressTitle.split(" ");
-    const progress = split[1];
-    const status = split[0];
-    switch (status) {
-      case "leeching":
-        return ETorrentStatus.downloading;
-      case "seeding":
-        return ETorrentStatus.seeding;
-      case "inactivity":
-        return progress == "100%" ? ETorrentStatus.completed : ETorrentStatus.inactive;
-    }
-    return ETorrentStatus.unknown;
-  },
-};
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -183,20 +147,6 @@ export const siteMetadata: ISiteMetadata = {
     CategorySpstate,
     CategoryInclbookmarked,
   ],
-
-  search: {
-    ...SchemaMetadata.search,
-    selectors: {
-      ...SchemaMetadata.search!.selectors,
-      subTitle: {
-        ...SchemaMetadata.search!.selectors!.subTitle!,
-        elementProcess: subTitleRemoveExtraElement(["a, span, img"], true),
-      },
-      progress: selectorSearchProgress,
-      status: selectorSearchStatus,
-      tags: [...SchemaMetadata.search!.selectors!.tags!],
-    },
-  },
 
   searchEntry: {
     area_torrents: { name: "种子区", requestConfig: { url: "/torrents.php" } },
