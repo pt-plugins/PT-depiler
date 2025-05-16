@@ -10,10 +10,12 @@
  *   并点击 Generated access token 的 Generate 按钮，记住生成的 access_token 并填入设置页面（请勿重复生成）
  */
 
-import type { IBackupConfig, IBackupMetadata, IBackupServer, IBackupFileListOption, IBackupFileInfo } from "../type";
-import { localSort } from "../utils";
 import { merge } from "es-toolkit";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+
+import AbstractBackupServer from "../AbstractBackupServer.ts";
+import { localSort } from "../utils";
+import type { IBackupConfig, IBackupMetadata, IBackupFileListOption, IBackupFileInfo, IBackupData } from "../type";
 
 interface DropBoxConfig extends IBackupConfig {
   config: {
@@ -84,13 +86,11 @@ interface DropBoxList {
   has_more: boolean;
 }
 
-export default class DropBox implements IBackupServer<DropBoxConfig> {
-  readonly config: DropBoxConfig;
-  readonly accessToken?: string;
+export default class DropBox extends AbstractBackupServer<DropBoxConfig> {
+  protected version = "1.0.0";
 
-  constructor(config: DropBoxConfig) {
-    this.config = config;
-    this.accessToken = config.config.access_token;
+  get accessToken(): string {
+    return this.userConfig.access_token;
   }
 
   private async request<T>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
@@ -108,7 +108,7 @@ export default class DropBox implements IBackupServer<DropBoxConfig> {
     );
   }
 
-  async ping(): Promise<boolean> {
+  public async ping(): Promise<boolean> {
     try {
       const { data } = await this.request<{ account_id?: string }>({
         url: "https://api.dropboxapi.com/2/users/get_current_account",
@@ -119,17 +119,14 @@ export default class DropBox implements IBackupServer<DropBoxConfig> {
     }
   }
 
-  async addFile(fileName: string, file: Blob): Promise<boolean> {
+  public async addFile(fileName: string, file: IBackupData): Promise<boolean> {
     try {
       const { data } = await this.request<{ is_downloadable?: boolean }>({
         url: "https://content.dropboxapi.com/2/files/upload",
         headers: {
-          "Dropbox-API-Arg": JSON.stringify({
-            path: `/${fileName}`,
-            mode: "overwrite",
-          }),
+          "Dropbox-API-Arg": JSON.stringify({ path: `/${fileName}`, mode: "overwrite" }),
         },
-        data: file,
+        data: await this.backupDataToJSZipBlob(file),
       });
 
       return !!data.is_downloadable;
@@ -138,7 +135,7 @@ export default class DropBox implements IBackupServer<DropBoxConfig> {
     }
   }
 
-  async getFile(path: string): Promise<Blob> {
+  public async getFile(path: string): Promise<IBackupData> {
     const { data } = await this.request<Blob>({
       url: "https://content.dropboxapi.com/2/files/download",
       headers: {
@@ -147,10 +144,10 @@ export default class DropBox implements IBackupServer<DropBoxConfig> {
       responseType: "blob",
     });
 
-    return data;
+    return await this.jsZipBlobToBackupData(data);
   }
 
-  async deleteFile(path: string): Promise<boolean> {
+  public async deleteFile(path: string): Promise<boolean> {
     try {
       const { data } = await this.request<{
         error_summary?: string;

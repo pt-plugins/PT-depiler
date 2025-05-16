@@ -1,6 +1,8 @@
-import type { IBackupConfig, IBackupFileInfo, IBackupFileListOption, IBackupMetadata, IBackupServer } from "../type";
-import { localSort } from "../utils";
 import { AuthType, createClient, type FileStat, type WebDAVClient } from "webdav";
+
+import AbstractBackupServer from "../AbstractBackupServer.ts";
+import { localSort } from "../utils";
+import type { IBackupConfig, IBackupData, IBackupFileInfo, IBackupFileListOption, IBackupMetadata } from "../type";
 
 interface WebDAVConfig extends IBackupConfig {
   config: {
@@ -25,25 +27,25 @@ export const serverMetaData: IBackupMetadata<WebDAVConfig> = {
   ],
 };
 
-export default class WebDAV implements IBackupServer<WebDAVConfig> {
-  config: WebDAVConfig;
-  private server: WebDAVClient;
+export default class WebDAV extends AbstractBackupServer<WebDAVConfig> {
+  protected version = "1.0.0";
 
-  constructor(config: WebDAVConfig) {
-    this.config = config;
+  private server?: WebDAVClient;
 
-    const { config: options } = config;
-
-    this.server = createClient(config.address, {
-      username: options.loginName,
-      password: options.loginPwd,
-      authType: options.digest ? AuthType.Digest : undefined,
-    });
+  private getServer(): WebDAVClient {
+    if (!this.server) {
+      this.server = createClient(this.config.address, {
+        username: this.userConfig.loginName,
+        password: this.userConfig.loginPwd,
+        authType: this.userConfig.digest ? AuthType.Digest : undefined,
+      });
+    }
+    return this.server;
   }
 
   async ping(): Promise<boolean> {
     try {
-      await this.server.getDirectoryContents("/");
+      await this.getServer().getDirectoryContents("/");
       return true;
     } catch {}
     return false;
@@ -52,7 +54,7 @@ export default class WebDAV implements IBackupServer<WebDAVConfig> {
   async list(options: IBackupFileListOption = {}): Promise<IBackupFileInfo[]> {
     const retFileList: IBackupFileInfo[] = [];
 
-    const fileList = (await this.server.getDirectoryContents("/", {
+    const fileList = (await this.getServer().getDirectoryContents("/", {
       glob: "*.zip",
     })) as FileStat[];
     fileList.forEach((item) => {
@@ -67,25 +69,28 @@ export default class WebDAV implements IBackupServer<WebDAVConfig> {
     return localSort(retFileList, options);
   }
 
-  async addFile(fileName: string, file: Blob): Promise<boolean> {
+  async addFile(fileName: string, file: IBackupData): Promise<boolean> {
+    const fileBlob = await this.backupDataToJSZipBlob(file);
     const fileBuffer = (await new Promise((resolve) => {
       const fr = new FileReader();
       fr.onload = function () {
         resolve(this.result as ArrayBuffer);
       };
-      fr.readAsArrayBuffer(file);
+      fr.readAsArrayBuffer(fileBlob);
     })) as ArrayBuffer;
 
-    return await this.server.putFileContents(fileName, fileBuffer);
+    return await this.getServer().putFileContents(fileName, fileBuffer);
   }
 
-  async getFile(path: string): Promise<Blob> {
-    const fileBuffer = await this.server.getFileContents(`/${path}`);
-    return new Blob([fileBuffer as Buffer]);
+  async getFile(path: string): Promise<IBackupData> {
+    const fileBuffer = await this.getServer().getFileContents(`/${path}`);
+    const data = new Blob([fileBuffer as Buffer]);
+
+    return await this.jsZipBlobToBackupData(data);
   }
 
   async deleteFile(path: string): Promise<boolean> {
-    await this.server.deleteFile(`/${path}`);
+    await this.getServer().deleteFile(`/${path}`);
     return true;
   }
 }

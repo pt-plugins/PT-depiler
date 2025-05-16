@@ -1,6 +1,8 @@
-import type { IBackupConfig, IBackupFileInfo, IBackupFileListOption, IBackupMetadata, IBackupServer } from "../type";
 import urlJoin from "url-join";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+
+import AbstractBackupServer from "../AbstractBackupServer.ts";
+import type { IBackupConfig, IBackupData, IBackupFileInfo, IBackupFileListOption, IBackupMetadata } from "../type";
 
 interface OWSSConfig extends IBackupConfig {
   config: {
@@ -42,34 +44,24 @@ export const serverConfig: OWSSConfig = {
 };
 
 export const serverMetaData: IBackupMetadata<OWSSConfig> = {
-  requiredField: [
-    {
-      name: "授权码",
-      key: "authCode",
-      type: "string",
-      description: "OWSS首次部署时生成的授权码",
-    },
-  ],
+  requiredField: [{ name: "授权码", key: "authCode", type: "string", description: "OWSS首次部署时生成的授权码" }],
 };
 
 /**
  * OWSS 客户端实现
  * @see: https://github.com/ronggang/OWSS
  */
-export default class OWSS implements IBackupServer<OWSSConfig> {
-  readonly config: OWSSConfig;
-  private readonly address: string;
+export default class OWSS extends AbstractBackupServer<OWSSConfig> {
+  protected version = "1.0.0";
 
-  constructor(config: OWSSConfig) {
-    this.config = config;
-
+  get address(): string {
     // 生成实际使用的访问链接
     let { address } = this.config;
     if (address.indexOf("storage") === -1) {
       address = urlJoin(address, "storage");
     }
-    address = urlJoin(address, this.config.config.authCode);
-    this.address = address;
+    address = urlJoin(address, this.userConfig.authCode);
+    return address;
   }
 
   private async request<T>(config: AxiosRequestConfig): Promise<AxiosResponse<T>> {
@@ -113,10 +105,10 @@ export default class OWSS implements IBackupServer<OWSSConfig> {
     return backupFiles;
   }
 
-  public async addFile(fileName: string, file: Blob): Promise<boolean> {
+  public async addFile(fileName: string, file: IBackupData): Promise<boolean> {
     const formData = new FormData();
     formData.append("name", fileName);
-    formData.append("data", file, fileName);
+    formData.append("data", await this.backupDataToJSZipBlob(file), fileName);
 
     const { data } = await this.request<OWSSResponse<boolean>>({
       method: "post",
@@ -134,11 +126,11 @@ export default class OWSS implements IBackupServer<OWSSConfig> {
     return !!data.data;
   }
 
-  public async getFile(path: string): Promise<Blob> {
+  public async getFile(path: string): Promise<IBackupData> {
     const { data } = await this.request<Blob>({
       url: urlJoin("/get", path),
       responseType: "blob",
     });
-    return data;
+    return await this.jsZipBlobToBackupData(data);
   }
 }

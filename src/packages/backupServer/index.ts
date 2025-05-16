@@ -1,11 +1,13 @@
-import type { IBackupConfig, IBackupServer, IBackupMetadata } from "./type";
-import { cloneDeep } from "es-toolkit";
 import { nanoid } from "nanoid";
+import { cloneDeep } from "es-toolkit";
+
+import type AbstractBackupServer from "./AbstractBackupServer.ts";
+import type { IBackupConfig, IBackupMetadata } from "./type";
 
 export * from "./type";
 
 interface backupServerEntity {
-  default: IBackupServer<IBackupConfig>;
+  default: AbstractBackupServer<IBackupConfig>;
   serverConfig: IBackupConfig;
   serverMetaData: IBackupMetadata<IBackupConfig>;
 }
@@ -32,15 +34,9 @@ export async function getBackupServerDefaultConfig(configType: string): Promise<
   return config;
 }
 
-const backupServerInstanceCache: Record<string, IBackupServer<IBackupConfig>> = {};
+export async function getBackupServer(config: IBackupConfig): Promise<AbstractBackupServer<IBackupConfig>> {
+  const ServerClass = (await getServerModule(config.type)).default;
 
-export async function getBackupServer(config: IBackupConfig): Promise<IBackupServer<IBackupConfig>> {
-  if (typeof backupServerInstanceCache[config.id!] === "undefined") {
-    const ServerClass = (await getServerModule(config.type)).default;
-
-    // @ts-ignore
-    backupServerInstanceCache[config.id] = new ServerClass(config);
-  }
-
-  return backupServerInstanceCache[config.id!];
+  // @ts-ignore
+  return new ServerClass(config);
 }

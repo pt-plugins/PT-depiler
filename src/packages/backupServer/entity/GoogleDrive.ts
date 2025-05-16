@@ -17,11 +17,13 @@
  *
  * 请注意，对于同一个账号使用同一个 client_id 和 client_secret ，其 Scope 是唯一的。
  */
-import type { IBackupConfig, IBackupFileInfo, IBackupFileListOption, IBackupMetadata, IBackupServer } from "../type";
-import { EListOrderBy, EListOrderMode } from "../type";
-import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import { sleep } from "~/helper.ts";
 import urlJoin from "url-join";
+import { sleep } from "~/helper.ts";
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
+
+import AbstractBackupServer from "../AbstractBackupServer.ts";
+import { EListOrderBy, EListOrderMode } from "../type";
+import type { IBackupConfig, IBackupFileInfo, IBackupFileListOption, IBackupMetadata, IBackupData } from "../type";
 
 interface GoogleDriveConfig extends IBackupConfig {
   config: {
@@ -89,27 +91,22 @@ interface AuthInformation extends AuthInformationResponse {
   expired_at: number;
 }
 
-export default class GoogleDrive implements IBackupServer<GoogleDriveConfig> {
-  readonly config: GoogleDriveConfig;
-  readonly authConfig: GoogleDriveConfig["config"];
+export default class GoogleDrive extends AbstractBackupServer<GoogleDriveConfig> {
+  protected version = "1.0.0";
+
   private accessInformation?: AuthInformation;
 
-  private rootFolderName = "PTPP Backup";
+  private rootFolderName = "PTD Backup";
   private ApiEndpoint = "https://www.googleapis.com/drive/v3/files";
-
-  constructor(config: GoogleDriveConfig) {
-    this.config = config;
-    this.authConfig = config.config;
-  }
 
   private async fetchAccessToken(): Promise<AuthInformation> {
     if (this.accessInformation === undefined || this.accessInformation.expired_at < Date.now()) {
       const { data } = await axios.post<AuthInformationResponse>(
         "https://www.googleapis.com/oauth2/v4/token",
         new URLSearchParams({
-          client_id: this.authConfig.client_id,
-          client_secret: this.authConfig.client_secret,
-          refresh_token: this.authConfig.refresh_token,
+          client_id: this.userConfig.client_id,
+          client_secret: this.userConfig.client_secret,
+          refresh_token: this.userConfig.refresh_token,
           grant_type: "refresh_token",
         }),
       );
@@ -178,7 +175,7 @@ export default class GoogleDrive implements IBackupServer<GoogleDriveConfig> {
     }
   }
 
-  async addFile(fileName: string, file: Blob): Promise<boolean> {
+  async addFile(fileName: string, file: IBackupData): Promise<boolean> {
     const metadata = {
       name: fileName,
       parents: [await this.getParentId()],
@@ -186,7 +183,7 @@ export default class GoogleDrive implements IBackupServer<GoogleDriveConfig> {
 
     const form = new FormData();
     form.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
-    form.append("file", file);
+    form.append("file", await this.backupDataToJSZipBlob(file));
 
     const { data } = await this.request<File>({
       method: "post",
@@ -198,7 +195,7 @@ export default class GoogleDrive implements IBackupServer<GoogleDriveConfig> {
     return !!data.id;
   }
 
-  async getFile(path: string): Promise<Blob> {
+  async getFile(path: string): Promise<IBackupData> {
     const { data } = await this.request<Blob>({
       url: urlJoin(this.ApiEndpoint, path),
       // If you provide the URL parameter alt=media, then the response includes the file contents in the response body.
@@ -206,7 +203,7 @@ export default class GoogleDrive implements IBackupServer<GoogleDriveConfig> {
       responseType: "blob",
     });
 
-    return data;
+    return await this.jsZipBlobToBackupData(data);
   }
 
   async deleteFile(path: string): Promise<boolean> {

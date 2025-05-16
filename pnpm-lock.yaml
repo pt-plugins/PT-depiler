@@ -58,6 +58,9 @@ importers:
       idb:
         specifier: ^8.0.3
         version: 8.0.3
+      jszip:
+        specifier: ^3.10.1
+        version: 3.10.1
       konva:
         specifier: ^9.3.20
         version: 9.3.20
