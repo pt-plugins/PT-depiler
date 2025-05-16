@@ -499,24 +499,32 @@ export default class NexusPHP extends PrivateSite {
     let seedStatus = { seeding: 0, seedingSize: 0 };
     if (userSeedingRequestString && userSeedingRequestString?.includes("<table")) {
       const userSeedingDocument = createDocument(userSeedingRequestString);
-      const trAnothers = Sizzle("table:last tr:not(:eq(0))", userSeedingDocument);
-      if (trAnothers.length > 0) {
-        seedStatus.seeding = trAnothers.length;
+      const divSeeding = Sizzle("div > div:contains(' | ')", userSeedingDocument);
+      if (divSeeding.length > 0 && divSeeding[0].textContent) {
+        const seedingText = divSeeding[0].textContent.split("|");
+        seedStatus.seeding = parseInt(seedingText[0].trim());
+        const sizeText = seedingText[1].trim().replace(/总大小：|總大小：|Total size: /g, "");
+        seedStatus.seedingSize = parseSizeString(sizeText);
+      } else {
+        const trAnothers = Sizzle("table:last tr:not(:eq(0))", userSeedingDocument);
+        if (trAnothers.length > 0) {
+          seedStatus.seeding = trAnothers.length;
 
-        // 根据自动判断应该用 td.rowfollow:eq(?)
-        let sizeIndex = 2;
-        const tdAnothers = Sizzle("> td", trAnothers[0]);
-        for (let i = 0; i < tdAnothers.length; i++) {
-          if (sizePattern.test((tdAnothers[i] as HTMLElement).innerText)) {
-            sizeIndex = i;
-            break;
+          // 根据自动判断应该用 td.rowfollow:eq(?)
+          let sizeIndex = 2;
+          const tdAnothers = Sizzle("> td", trAnothers[0]);
+          for (let i = 0; i < tdAnothers.length; i++) {
+            if (sizePattern.test((tdAnothers[i] as HTMLElement).innerText)) {
+              sizeIndex = i;
+              break;
+            }
           }
-        }
 
-        trAnothers.forEach((trAnother) => {
-          const sizeSelector = Sizzle(`td.rowfollow:eq(${sizeIndex})`, trAnother)[0] as HTMLElement;
-          seedStatus.seedingSize += parseSizeString(sizeSelector.innerText.trim());
-        });
+          trAnothers.forEach((trAnother) => {
+            const sizeSelector = Sizzle(`td.rowfollow:eq(${sizeIndex})`, trAnother)[0] as HTMLElement;
+            seedStatus.seedingSize += parseSizeString(sizeSelector.innerText.trim());
+          });
+        }
       }
     }
 
@@ -533,8 +541,14 @@ export default class NexusPHP extends PrivateSite {
     flushUserInfo.uploads = 0;
     if (userUploadsRequestString && userUploadsRequestString?.includes("<table")) {
       const userUploadsDocument = createDocument(userUploadsRequestString);
-      const trAnothers = Sizzle("table:last tr:not(:eq(0))", userUploadsDocument);
-      flushUserInfo.uploads = trAnothers.length;
+      const divSeeding = Sizzle("div > div:contains(' | ')", userUploadsDocument);
+      if (divSeeding.length > 0 && divSeeding[0].textContent) {
+        const seedingText = divSeeding[0].textContent.split("|");
+        flushUserInfo.uploads = parseInt(seedingText[0].trim());
+      } else {
+        const trAnothers = Sizzle("table:last tr:not(:eq(0))", userUploadsDocument);
+        flushUserInfo.uploads = trAnothers.length;
+      }
     }
     return flushUserInfo;
   }
