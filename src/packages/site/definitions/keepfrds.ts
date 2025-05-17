@@ -1,5 +1,10 @@
-import { extractContent, type ISiteMetadata } from "@ptd/site";
-import NexusPHP, { CategoryInclbookmarked, CategoryIncldead, SchemaMetadata } from "@ptd/site/schemas/NexusPHP.ts";
+import { type ISiteMetadata } from "@ptd/site";
+import NexusPHP, {
+  CategoryInclbookmarked,
+  CategoryIncldead,
+  SchemaMetadata,
+  subTitleRemoveExtraElement,
+} from "@ptd/site/schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -162,19 +167,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
         // 处理类似以下 尾部中括号的情况
         // The Invisible Man 2020 Bluray 1080p x265 10bit 2Audios DDP 7.1 MNHD-FRDS[ ] [限时禁转]
-        elementProcess: (element) => {
-          const testSubTitle = element.parentElement!.innerHTML.split("<br>");
-          if (testSubTitle && testSubTitle.length > 1) {
-            const subTitleHtml = testSubTitle[testSubTitle.length - 1];
-
-            // 移除 b 的内容
-            const div = document.createElement("div");
-            div.innerHTML = subTitleHtml;
-            div.querySelectorAll("b").forEach((el) => el.parentElement!.remove());
-            return extractContent(div.innerHTML).trim();
-          }
-          return "";
-        },
+        elementProcess: subTitleRemoveExtraElement(["b"]),
       },
       tags: [
         ...SchemaMetadata.search!.selectors!.tags!,

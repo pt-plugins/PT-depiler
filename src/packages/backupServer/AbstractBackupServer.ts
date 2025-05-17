@@ -13,7 +13,7 @@ export default abstract class AbstractBackupServer<T extends IBackupConfig> {
   protected abstract version: string;
 
   protected config: T;
-  protected encryptionKey?: string;
+  protected _encryptionKey?: string;
 
   protected constructor(config: T) {
     this.config = config;
@@ -23,8 +23,13 @@ export default abstract class AbstractBackupServer<T extends IBackupConfig> {
     return this.config.config;
   }
 
+  // 默认情况下，我们使用 外部设置的加密密钥， subclass 可以覆写 从而使用 userConfig 等其他地方的值
+  get encryptionKey() {
+    return this._encryptionKey;
+  }
+
   public setEncryptionKey(key: string): void {
-    this.encryptionKey = key;
+    this._encryptionKey = key;
   }
 
   /**
@@ -52,7 +57,7 @@ export default abstract class AbstractBackupServer<T extends IBackupConfig> {
   /**
    * 注意，我们不直接使用用户提供的 secretKey 作为 AES 的密钥，因为可能无法提供足够强度的密钥
    */
-  private encryptData(data: any): string {
+  protected encryptData(data: any): string {
     if (!this.encryptionKey) {
       return JSON.stringify(data);
     }
@@ -60,7 +65,7 @@ export default abstract class AbstractBackupServer<T extends IBackupConfig> {
     return CryptoJS.AES.encrypt(data, the_key).toString();
   }
 
-  private decryptData<T = any>(data: string): T {
+  protected decryptData<T = any>(data: string): T {
     if (!this.encryptionKey) {
       return JSON.parse(data);
     }
@@ -72,11 +77,10 @@ export default abstract class AbstractBackupServer<T extends IBackupConfig> {
   protected async backupDataToJSZipBlob(data: IBackupData): Promise<Blob> {
     const zip = new JSZip();
 
-    const createdAt = new Date().getTime();
     const manifest: IBackupFileManifest = {
-      encryption: this.encryptionKey !== "",
+      encryption: typeof this.encryptionKey === "string" && this.encryptionKey !== "",
       version: `${this.config.type} (${this.version})`,
-      time: createdAt,
+      time: new Date().getTime(),
       fileHash: {},
     };
 
@@ -106,17 +110,16 @@ export default abstract class AbstractBackupServer<T extends IBackupConfig> {
       });
 
     if (manifest) {
-      for (const fileName of Object.keys(zipContent.files)) {
-        if (fileName !== "manifest.json" && fileName.endsWith(".json")) {
-          const fileContent = await zipContent.file(fileName)?.async("string");
-          if (fileContent) {
-            const key = fileName.replace(/\.json$/, "");
-            const fileContentHash = CryptoJS.MD5(fileContent).toString();
-            if (fileContentHash !== manifest.fileHash?.[key]) {
-              throw new Error(`File hash mismatch for ${fileName}.`);
-            }
-            data[key] = this.decryptData(fileContent);
+      // 只解出 manifest 中记录的文件
+      for (const [fileName, manifestContentHash] of Object.entries(manifest.fileHash ?? {})) {
+        const fileContent = await zipContent.file(`${fileName}.json`)?.async("string");
+        if (fileContent) {
+          const key = fileName.replace(/\.json$/, "");
+          const fileContentHash = CryptoJS.MD5(fileContent).toString();
+          if (fileContentHash !== manifestContentHash) {
+            throw new Error(`File hash mismatch for ${fileName}.`);
           }
+          data[key] = this.decryptData(fileContent);
         }
       }
     } else {
