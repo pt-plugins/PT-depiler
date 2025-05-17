@@ -6,18 +6,20 @@ import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { formatDate } from "@/options/utils.ts";
 import { BackupFields, TBackupServerKey } from "@/shared/storages/types/metadata.ts";
+import { sendMessage } from "@/messages.ts";
 
 import NavButton from "@/options/components/NavButton.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import AddDialog from "@/options/views/Settings/SetBackup/AddDialog.vue";
 import EditDialog from "@/options/views/Settings/SetBackup/EditDialog.vue";
-import { sendMessage } from "@/messages.ts";
+import LocalExportConfirmDialog from "@/options/views/Settings/SetBackup/LocalExportConfirmDialog.vue";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
 const importFileInputRef = useTemplateRef<HTMLInputElement>("importFile");
 
 const showAddDialog = ref<boolean>(false);
+const showLocalExportConfirmDialog = ref<boolean>(false);
 const showHistoryDialog = ref<boolean>(false);
 const showEditDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
@@ -34,15 +36,19 @@ const tableSelected = ref<TBackupServerKey[]>([]);
 
 const localBackup = Symbol("localBackup");
 const doBackupStatus = ref<Record<TBackupServerKey | symbol, boolean>>({});
-async function doBackup(id: TBackupServerKey | symbol) {
-  doBackupStatus.value[id] = true;
+async function doBackup(backupServerId: TBackupServerKey | symbol) {
+  // doBackupStatus.value[backupServerId] = true;
 
-  await sendMessage("exportBackupData", {
-    backupFields: BackupFields,
-    backupServerId: id == localBackup ? "local" : id,
-  });
+  if (typeof backupServerId == "string") {
+    const backupFields = metadataStore.backupServers[backupServerId].backupFields ?? [...BackupFields];
+    await sendMessage("exportBackupData", { backupFields, backupServerId });
+  } else if (backupServerId == localBackup) {
+    showLocalExportConfirmDialog.value = true;
+  } else {
+    console.log('"doBackup" without backupServerId');
+  }
 
-  doBackupStatus.value[id] = false;
+  doBackupStatus.value[backupServerId] = false;
 }
 
 const toEditBackupServerId = ref<TBackupServerKey | null>(null);
@@ -166,6 +172,7 @@ async function confirmDeleteBackupServer(id: TBackupServerKey) {
   <AddDialog v-model="showAddDialog" />
   <EditDialog v-model="showEditDialog" :client-id="toEditBackupServerId!" />
   <DeleteDialog v-model="showDeleteDialog" :to-delete-ids="toDeleteIds" :confirm-delete="confirmDeleteBackupServer" />
+  <LocalExportConfirmDialog v-model="showLocalExportConfirmDialog" />
 </template>
 
 <style scoped lang="scss"></style>

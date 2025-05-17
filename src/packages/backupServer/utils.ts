@@ -7,11 +7,12 @@ import type { IBackupData, IBackupFileInfo, IBackupFileListOption, IBackupFileMa
  * 注意，我们不直接使用用户提供的 secretKey 作为 AES 的密钥，因为可能无法提供足够强度的密钥
  */
 export function encryptData(data: any, encryptionKey?: string): string {
+  const stringifyData = JSON.stringify(data);
   if (!encryptionKey) {
-    return JSON.stringify(data);
+    return stringifyData;
   }
   const the_key = CryptoJS.MD5(encryptionKey).toString().substring(0, 16);
-  return CryptoJS.AES.encrypt(data, the_key).toString();
+  return CryptoJS.AES.encrypt(stringifyData, the_key).toString();
 }
 
 export function decryptData<T = any>(data: string, encryptionKey?: string): T {

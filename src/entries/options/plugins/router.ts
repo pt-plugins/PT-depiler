@@ -27,6 +27,12 @@ export const setBaseChildren: RouteRecordRaw[] = [
     component: () => import("../views/Settings/SetBase/UserInfoWindow.vue"),
   },
   {
+    path: "backup",
+    name: "SetBaseBackup",
+    meta: { icon: "mdi-backup-restore" },
+    component: () => import("../views/Settings/SetBase/BackupWindow.vue"),
+  },
+  {
     path: "social-information",
     name: "SetBaseSocialInformation",
     meta: { icon: "mdi-multimedia" },

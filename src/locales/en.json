@@ -243,18 +243,14 @@
       }
     }
   },
-  "SetBackup": {
-    "tab": {
-      "backup-server": "Backup Server",
-      "cookie-cloud": "CookieCloud Sync"
-    }
-  },
+  "SetBackup": {},
   "SetBase": {
     "tab": {
       "ui": "Option UI",
       "search-entity": "Search",
       "download": "Download",
       "user-info": "UserInfo",
+      "backup": "Backup & Restore",
       "social-information": "Social Rating"
     },
     "ui": {

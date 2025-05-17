@@ -245,18 +245,14 @@
       }
     }
   },
-  "SetBackup": {
-    "tab": {
-      "backup-server": "备份服务器",
-      "cookie-cloud": "CookieCloud同步"
-    }
-  },
+  "SetBackup": {},
   "SetBase": {
     "tab": {
       "ui": "界面UI",
       "search-entity": "搜索",
       "download": "下载",
       "user-info": "用户信息",
+      "backup": "备份恢复",
       "social-information": "媒体评分"
     },
     "ui": {
