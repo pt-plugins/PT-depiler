@@ -1,11 +1,15 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { setBaseChildren } from "@/options/plugins/router.ts";
+import { useConfigStore } from "@/options/stores/config.ts";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 const { t } = useI18n();
 const router = useRouter();
+const configStore = useConfigStore();
+const runtimeStore = useRuntimeStore();
 
 const setBaseTabs = setBaseChildren.map((x) => ({
   key: x.alias ?? x.path,
@@ -14,9 +18,16 @@ const setBaseTabs = setBaseChildren.map((x) => ({
 }));
 
 const setTab = ref<string>("");
+const setTabRef = useTemplateRef<{ afterSave?: () => Promise<void> }>("setTabRef");
 
 function enterTab(routeName: string) {
   router.push({ name: routeName });
+}
+
+async function save() {
+  await configStore.$save();
+  runtimeStore.showSnakebar("保存成功", { color: "success" });
+  await setTabRef.value?.afterSave?.();
 }
 </script>
 
@@ -35,9 +46,21 @@ function enterTab(routeName: string) {
       </v-tab>
     </v-tabs>
 
-    <router-view v-slot="{ Component }">
-      <component :is="Component" />
-    </router-view>
+    <v-card>
+      <v-card-text>
+        <router-view v-slot="{ Component }">
+          <component :is="Component" ref="setTabRef" />
+        </router-view>
+      </v-card-text>
+      <v-divider />
+      <v-card-actions>
+        <v-row class="ml-2 my-1">
+          <v-btn color="green" prepend-icon="mdi-check-circle-outline" variant="elevated" @click="save">
+            {{ t("common.save") }}
+          </v-btn>
+        </v-row>
+      </v-card-actions>
+    </v-card>
   </v-card>
 </template>
 
