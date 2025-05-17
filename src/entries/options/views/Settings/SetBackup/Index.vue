@@ -5,12 +5,13 @@ import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { formatDate } from "@/options/utils.ts";
-import type { TBackupServerKey } from "@/shared/storages/types/metadata.ts";
+import { BackupFields, TBackupServerKey } from "@/shared/storages/types/metadata.ts";
 
 import NavButton from "@/options/components/NavButton.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import AddDialog from "@/options/views/Settings/SetBackup/AddDialog.vue";
 import EditDialog from "@/options/views/Settings/SetBackup/EditDialog.vue";
+import { sendMessage } from "@/messages.ts";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
@@ -36,7 +37,10 @@ const doBackupStatus = ref<Record<TBackupServerKey | symbol, boolean>>({});
 async function doBackup(id: TBackupServerKey | symbol) {
   doBackupStatus.value[id] = true;
 
-  // TODO backup
+  await sendMessage("exportBackupData", {
+    backupFields: BackupFields,
+    backupServerId: id == localBackup ? "local" : id,
+  });
 
   doBackupStatus.value[id] = false;
 }

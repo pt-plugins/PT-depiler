@@ -47,7 +47,7 @@ export interface IBackupFileManifest {
 }
 
 export interface IBackupData {
-  manifest?: IBackupFileManifest;
+  manifest?: Partial<IBackupFileManifest>;
 
   cookies?: Record<string, chrome.cookies.Cookie[]>;
 

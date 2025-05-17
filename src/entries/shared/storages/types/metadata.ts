@@ -59,7 +59,7 @@ export interface IMediaServerMetadata extends IMediaServerBaseConfig {
 }
 
 export const BackupFields = [
-  "cookie", // 备份已添加站点的Cookie
+  "cookies", // 备份已添加站点的Cookie
   "config", // 备份插件基本配置
   "metadata", // 备份插件元数据（站点、搜索方案、下载器、媒体服务器等配置）
   "userInfo", // 备份插件历史获取的用户信息

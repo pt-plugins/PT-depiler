@@ -155,6 +155,11 @@ export const useConfigStore = defineStore("config", {
       autoSearchMoreWhenScroll: true,
     },
 
+    backup: {
+      encryptionKey: "",
+      enabledAutoBackup: false,
+    },
+
     socialSiteInformation: {
       preferPtGen: true,
       timeout: 10e3,

@@ -12,7 +12,6 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { allAddedSiteMetadata, loadAllAddedSiteMetadata } from "@/options/views/Overview/MyData/utils.ts";
-import { version as EXT_VERSION } from "~/../package.json";
 
 import {
   canThisSiteShow,
@@ -33,7 +32,7 @@ import SiteName from "@/options/components/SiteName.vue";
 import NavButton from "@/options/components/NavButton.vue";
 import CheckSwitchButton from "@/options/components/CheckSwitchButton.vue";
 
-const git = __GIT_VERSION__;
+const ext_version = __EXT_VERSION__;
 
 const { t } = useI18n();
 const route = useRoute();
@@ -405,13 +404,7 @@ function saveControl() {
                   text({
                     width: stageConfig.width - 20,
                     align: 'right',
-                    text:
-                      'Created By PT-Depiler (v' +
-                      EXT_VERSION +
-                      (git?.count ? '.' + git.count : '') +
-                      (git?.short ? '+' + git.short : '') +
-                      ') at ' +
-                      formatDate(timelineData.createAt),
+                    text: 'Created By PT-Depiler (' + ext_version + ') at ' + formatDate(timelineData.createAt),
                     fontSize: 12,
                     fill: '#b5b5b5',
                   })

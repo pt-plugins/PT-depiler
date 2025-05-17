@@ -108,7 +108,7 @@ export default class Gist extends AbstractBackupServer<GistConfig> {
   }
 
   async addFile(fileName: string, file: IBackupData): Promise<boolean> {
-    let patchFile = {} as Record<string, { content: string }>;
+    let patchFile = {} as Record<string, { content: string } | null>;
 
     const manifest = {
       encryption: typeof this.encryptionKey === "string" && this.encryptionKey !== "",
@@ -118,7 +118,7 @@ export default class Gist extends AbstractBackupServer<GistConfig> {
       files: {},
     } as IGistBackupFileManifest;
 
-    const writeFile = {} as Record<string, { content: string }>;
+    const writeFile = {} as Record<string, { content: string } | null>;
     for (const [key, value] of Object.entries(file)) {
       const writeFileName = `${key}.${manifest.encryption ? "txt" : "json"}`;
       const fileContent = this.encryptData(value);
@@ -130,6 +130,16 @@ export default class Gist extends AbstractBackupServer<GistConfig> {
     patchFile = { ...patchFile, ...writeFile };
 
     try {
+      const currentGistStatus = await this.request<{ files: Record<string, { content: string }> }>("");
+      const currentGistFileKeys = Object.keys(currentGistStatus.data?.files ?? {});
+
+      // 如果用户初次编辑的时候添加了任意的文件，我们需要进行删除，不然会遗留了不需要的文件
+      for (const currentGistFileKey of currentGistFileKeys) {
+        if (typeof patchFile[currentGistFileKey] === "undefined" && !currentGistFileKey.includes(".keep.")) {
+          patchFile[currentGistFileKey] = null;
+        }
+      }
+
       await this.request("", {
         method: "PATCH",
         data: {

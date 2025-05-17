@@ -140,6 +140,7 @@ export default defineConfig({
     },
   },
   define: {
+    __EXT_VERSION__: JSON.stringify(`v${pkg.version}.${git.count()}+${git.short(__dirname)}`),
     __GIT_VERSION__: {
       short: git.short(__dirname),
       long: git.long(__dirname),

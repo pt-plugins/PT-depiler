@@ -17,6 +17,10 @@ chrome.runtime.onInstalled.addListener(() => {
   log("Installed!");
 });
 
+onMessage("ping", async ({ data }) => {
+  return data ?? "pong";
+});
+
 onMessage("downloadFile", async ({ data: downloadOptions }) => {
   return await chrome.downloads.download(downloadOptions);
 });

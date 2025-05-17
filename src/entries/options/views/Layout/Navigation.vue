@@ -4,9 +4,9 @@ import { useDisplay } from "vuetify";
 import { routes } from "@/options/plugins/router";
 import { watch } from "vue";
 import { isDebug, REPO_URL } from "~/helper.ts";
-import { version as EXT_VERSION } from "~/../package.json";
 
 const git = __GIT_VERSION__;
+const ext_version = __EXT_VERSION__;
 const year = new Date().getFullYear();
 const configStore = useConfigStore();
 
@@ -71,10 +71,7 @@ function clickMenuItem() {
         <v-row justify="center">
           <span class="pa-2 text-grey-darken-1">
             &copy; {{ year }},
-            <a v-if="git.long" :href="`${REPO_URL}/commit/${git.long}`" target="_blank">
-              {{ "v" + EXT_VERSION + (git.count ? "." + git.count : "") + (git.short ? "+" + git.short : "") }}
-            </a>
-            <span v-else>{{ "v" + EXT_VERSION }}</span>
+            <a :href="`${REPO_URL}${git.long ? `/commit/${git.long}` : ''}`" target="_blank">{{ ext_version }}</a>
             <v-chip v-if="isDebug" class="pa-1 ml-1 mb-1" color="amber" label size="x-small">
               {{ $t("common.test") }}
             </v-chip>

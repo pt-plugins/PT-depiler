@@ -36,8 +36,6 @@ import CheckSwitchButton from "@/options/components/CheckSwitchButton.vue";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
-import { version as EXT_VERSION } from "~/../package.json";
-
 type EChartsLineChartOption = ComposeOption<
   TitleComponentOption | TooltipComponentOption | LegendComponentOption | GridComponentOption | LineSeriesOption
 >;
@@ -47,8 +45,6 @@ type EChartsBarChartOption = ComposeOption<
 >;
 
 useEcharts([TitleComponent, TooltipComponent, LegendComponent, GridComponent, LineChart, BarChart, CanvasRenderer]);
-
-const git = __GIT_VERSION__;
 
 const { t } = useI18n();
 const route = useRoute();
@@ -284,16 +280,7 @@ async function exportStatisticImg() {
 
   const textX = containerWidth.value - 10; // 距离右侧边缘 10px
   const textY = yIndex;
-  ctx.fillText(
-    "Created By PT-Depiler (v" +
-      EXT_VERSION +
-      (git?.count ? "." + git.count : "") +
-      (git?.short ? "+" + git.short : "") +
-      ") at " +
-      createdAt,
-    textX,
-    textY,
-  );
+  ctx.fillText("Created By PT-Depiler (" + __EXT_VERSION__ + ") at " + createdAt, textX, textY);
 
   // 导出图片
   mainCanvas.toBlob((blob) => {

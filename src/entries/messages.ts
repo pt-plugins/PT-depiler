@@ -17,12 +17,14 @@ import type {
   ISearchData,
   TSearchSnapshotKey,
   TLocalDownloadMethod,
+  TBackupFields,
 } from "@/storage.ts";
 import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/storages/types/indexdb.ts";
 import type { getFaviconMetadata } from "@ptd/site";
 
 interface ProtocolMap {
   // 1. 与 chrome 相关的功能，需要在 service worker 中注册，主要供 offscreen, options 使用
+  ping<T extends any>(data?: T): T extends undefined ? "pong" : T;
 
   // 1.1 chrome.downloads
   downloadFile(downloadOptions: chrome.downloads.DownloadOptions): number;
@@ -91,6 +93,9 @@ interface ProtocolMap {
   // 2.5 社交信息 ( utils/socialInformation )
   getSocialInformation(data: { site: TSupportSocialSite$1; sid: string }): ISocialInformation;
   clearSocialInformationCache(): void;
+
+  // 2.6 备份/恢复 ( utils/backup )
+  exportBackupData(data: { backupServerId: string | "local"; backupFields: TBackupFields[] }): boolean;
 }
 
 export const { sendMessage, onMessage } = defineExtensionMessaging<ProtocolMap>({});
