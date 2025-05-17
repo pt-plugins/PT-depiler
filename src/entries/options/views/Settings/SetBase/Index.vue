@@ -27,7 +27,7 @@ function enterTab(routeName: string) {
 async function save() {
   await configStore.$save();
   runtimeStore.showSnakebar("保存成功", { color: "success" });
-  await setTabRef.value?.afterSave?.();
+  await setTabRef.value?.afterSave?.(); // 如果对应的 tab 有 afterSave 方法，则调用
 }
 </script>
 

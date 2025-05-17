@@ -21,6 +21,8 @@ import type {
 } from "@/storage.ts";
 import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/storages/types/indexdb.ts";
 import type { getFaviconMetadata } from "@ptd/site";
+import { getBackupHistory } from "@/offscreen/utils/backup.ts";
+import { IBackupFileInfo } from "@ptd/backupServer";
 
 interface ProtocolMap {
   // 1. 与 chrome 相关的功能，需要在 service worker 中注册，主要供 offscreen, options 使用
@@ -96,6 +98,8 @@ interface ProtocolMap {
 
   // 2.6 备份/恢复 ( utils/backup )
   exportBackupData(data: { backupServerId: string | "local"; backupFields: TBackupFields[] }): boolean;
+  getBackupHistory(data: string): IBackupFileInfo[];
+  deleteBackupHistory(data: { backupServerId: string; path: string }): boolean;
 }
 
 export const { sendMessage, onMessage } = defineExtensionMessaging<ProtocolMap>({});

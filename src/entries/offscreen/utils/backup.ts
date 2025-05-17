@@ -1,10 +1,11 @@
-import { getBackupServer, IBackupData } from "@ptd/backupServer";
-import { type IMetadataPiniaStorageSchema, TBackupFields } from "@/shared/storages/types/metadata.ts";
+import { getBackupServer, IBackupData, IBackupFileInfo } from "@ptd/backupServer";
+import { type IMetadataPiniaStorageSchema, TBackupFields, TBackupServerKey } from "@/shared/storages/types/metadata.ts";
 import { onMessage, sendMessage } from "@/messages.ts";
 import { ptdIndexDb } from "@/offscreen/adapter/indexdb.ts";
 import type { IConfigPiniaStorageSchema, TExtensionStorageKey } from "@/storage.ts";
 import { backupDataToJSZipBlob } from "@ptd/backupServer/utils.ts";
 import { formatDate } from "date-fns";
+import AbstractBackupServer from "@ptd/backupServer/AbstractBackupServer.ts";
 
 export async function createBackupData(backupFields: TBackupFields[] = []): Promise<IBackupData> {
   const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
@@ -43,6 +44,12 @@ export async function createBackupData(backupFields: TBackupFields[] = []): Prom
   return backupData;
 }
 
+export async function getBackupServerInstance(backupServerId: TBackupServerKey): Promise<AbstractBackupServer<any>> {
+  const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
+  const backupServerConfig = metadataStore.backupServers[backupServerId];
+  return await getBackupServer(backupServerConfig);
+}
+
 export async function exportBackupData(
   backupServerId: string | "local",
   backupFields: TBackupFields[] = [],
@@ -59,9 +66,7 @@ export async function exportBackupData(
     await sendMessage("downloadFile", { url: blobUrl, filename: backupFilename, conflictAction: "uniquify" });
     return true;
   } else {
-    const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
-    const backupServerConfig = metadataStore.backupServers[backupServerId];
-    const backupServerInstance = await getBackupServer(backupServerConfig);
+    const backupServerInstance = await getBackupServerInstance(backupServerId);
     backupServerInstance.setEncryptionKey(encryptionKey);
     return await backupServerInstance.addFile(backupFilename, backupData);
   }
@@ -69,4 +74,22 @@ export async function exportBackupData(
 
 onMessage("exportBackupData", async ({ data: { backupServerId, backupFields } }) => {
   return await exportBackupData(backupServerId, backupFields);
+});
+
+export async function getBackupHistory(backupServerId: string): Promise<IBackupFileInfo[]> {
+  const backupServerInstance = await getBackupServerInstance(backupServerId);
+  return await backupServerInstance.list();
+}
+
+onMessage("getBackupHistory", async ({ data: backupServerId }) => {
+  return await getBackupHistory(backupServerId);
+});
+
+export async function deleteBackupHistory(backupServerId: string, path: string): Promise<boolean> {
+  const backupServerInstance = await getBackupServerInstance(backupServerId);
+  return await backupServerInstance.deleteFile(path);
+}
+
+onMessage("deleteBackupHistory", async ({ data: { backupServerId, path } }) => {
+  return await deleteBackupHistory(backupServerId, path);
 });

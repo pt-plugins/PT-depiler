@@ -54,6 +54,12 @@ export const serverMetaData: IBackupMetadata<GistConfig> = {
   ],
 };
 
+interface IGistCommitHistory {
+  committed_at: string;
+  version: string;
+  change_status: { total: number; additions: number; deletions: number };
+}
+
 interface IGistBackupFileManifest {
   encryption: boolean;
   fileName: string;
@@ -90,18 +96,21 @@ export default class Gist extends AbstractBackupServer<GistConfig> {
     return false;
   }
 
-  async list(options: IBackupFileListOption): Promise<IBackupFileInfo[]> {
+  async list(options: IBackupFileListOption = {}): Promise<IBackupFileInfo[]> {
     const retFileList = [] as IBackupFileInfo[];
-    const listReq = await this.request<{ committed_at: string; version: string }[]>("/commits", {
+    const listReq = await this.request<IGistCommitHistory[]>("/commits", {
       params: { per_page: 100 },
     });
     for (const datum of listReq.data) {
-      retFileList.push({
-        filename: datum.version,
-        path: datum.version,
-        time: new Date(datum.committed_at).getTime(),
-        size: "N/A",
-      });
+      // 假定了 每次更新记录 都会产生 deletions， 如果 deletions = 0 则说明是 第一次创建，应该过滤掉 （实际并不一定）
+      if (datum.change_status?.deletions > 0) {
+        retFileList.push({
+          filename: datum.version,
+          path: datum.version,
+          time: new Date(datum.committed_at).getTime(),
+          size: "N/A",
+        });
+      }
     }
 
     return localSort(retFileList, options);

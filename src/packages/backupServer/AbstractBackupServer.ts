@@ -33,7 +33,7 @@ export default abstract class AbstractBackupServer<T extends IBackupConfig> {
    * 获取资源列表
    * @param options
    */
-  public abstract list(options: IBackupFileListOption): Promise<IBackupFileInfo[]>;
+  public abstract list(options?: IBackupFileListOption): Promise<IBackupFileInfo[]>;
 
   public abstract addFile(fileName: string, file: IBackupData): Promise<boolean>;
 

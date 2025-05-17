@@ -4,6 +4,7 @@ import { useI18n } from "vue-i18n";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { formatDate } from "@/options/utils.ts";
 import { BackupFields, TBackupServerKey } from "@/shared/storages/types/metadata.ts";
 import { sendMessage } from "@/messages.ts";
@@ -13,8 +14,10 @@ import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import AddDialog from "@/options/views/Settings/SetBackup/AddDialog.vue";
 import EditDialog from "@/options/views/Settings/SetBackup/EditDialog.vue";
 import LocalExportConfirmDialog from "@/options/views/Settings/SetBackup/LocalExportConfirmDialog.vue";
+import HistoryDialog from "@/options/views/Settings/SetBackup/HistoryDialog.vue";
 
 const { t } = useI18n();
+const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 const importFileInputRef = useTemplateRef<HTMLInputElement>("importFile");
 
@@ -37,11 +40,16 @@ const tableSelected = ref<TBackupServerKey[]>([]);
 const localBackup = Symbol("localBackup");
 const doBackupStatus = ref<Record<TBackupServerKey | symbol, boolean>>({});
 async function doBackup(backupServerId: TBackupServerKey | symbol) {
-  // doBackupStatus.value[backupServerId] = true;
+  doBackupStatus.value[backupServerId] = true;
 
   if (typeof backupServerId == "string") {
     const backupFields = metadataStore.backupServers[backupServerId].backupFields ?? [...BackupFields];
-    await sendMessage("exportBackupData", { backupFields, backupServerId });
+    const backupStatus = await sendMessage("exportBackupData", { backupFields, backupServerId });
+    if (backupStatus) {
+      runtimeStore.showSnakebar("备份成功", { color: "success" });
+    } else {
+      runtimeStore.showSnakebar("备份失败", { color: "error" });
+    }
   } else if (backupServerId == localBackup) {
     showLocalExportConfirmDialog.value = true;
   } else {
@@ -172,6 +180,7 @@ async function confirmDeleteBackupServer(id: TBackupServerKey) {
   <AddDialog v-model="showAddDialog" />
   <EditDialog v-model="showEditDialog" :client-id="toEditBackupServerId!" />
   <DeleteDialog v-model="showDeleteDialog" :to-delete-ids="toDeleteIds" :confirm-delete="confirmDeleteBackupServer" />
+  <HistoryDialog v-model="showHistoryDialog" :backup-server-id="toShowHistoryBackupServerId!" />
   <LocalExportConfirmDialog v-model="showLocalExportConfirmDialog" />
 </template>
 

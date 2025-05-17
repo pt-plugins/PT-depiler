@@ -163,7 +163,7 @@ export default class DropBox extends AbstractBackupServer<DropBoxConfig> {
     }
   }
 
-  async list(options: IBackupFileListOption): Promise<IBackupFileInfo[]> {
+  async list(options: IBackupFileListOption = {}): Promise<IBackupFileInfo[]> {
     const files: IBackupFileInfo[] = [];
 
     let cursor;

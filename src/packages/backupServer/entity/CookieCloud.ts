@@ -123,7 +123,7 @@ export default class CookieCloud extends AbstractBackupServer<CookieCloudConfig>
       local_storage_data: {}, // 我们不支持 local_storage_data
       ptd_data: {},
       metadata: {
-        manifest: file.manifest,
+        manifest: file.manifest as IBackupFileManifest,
         fileName,
         path: "",
         time: new Date().getTime(),
@@ -176,7 +176,7 @@ export default class CookieCloud extends AbstractBackupServer<CookieCloudConfig>
     throw new Error("No data found");
   }
 
-  public async list(options: IBackupFileListOption): Promise<IBackupFileInfo[]> {
+  public async list(options: IBackupFileListOption = {}): Promise<IBackupFileInfo[]> {
     const list = [] as IBackupFileInfo[];
 
     const file = await this.getFile("");

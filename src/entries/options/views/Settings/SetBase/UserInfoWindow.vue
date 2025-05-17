@@ -2,15 +2,11 @@
 import { onMounted, ref } from "vue";
 import { range } from "es-toolkit";
 import { useI18n } from "vue-i18n";
-import { sendMessage } from "@/messages.ts";
 import { EJobType } from "@/background/utils/alarms.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { formatDate } from "@/options/utils.ts";
 
-const { t } = useI18n();
-const runtimeStore = useRuntimeStore();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 
