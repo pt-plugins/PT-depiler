@@ -16,10 +16,7 @@ const setBaseTabs = setBaseChildren.map((x) => ({
 const setTab = ref<string>("");
 
 function enterTab(routeName: string) {
-  console.log("enterTab", routeName);
-  router.push({
-    name: routeName,
-  });
+  router.push({ name: routeName });
 }
 </script>
 

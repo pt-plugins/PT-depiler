@@ -24,7 +24,6 @@ const showDeleteDialog = ref<boolean>(false);
 const fullTableHeader = [
   { title: t("SetDownloader.common.type"), key: "type", align: "center" },
   { title: t("SetDownloader.common.name"), key: "name", align: "start" },
-  { title: t("SetDownloader.common.uid"), key: "id", align: "start", sortable: false },
   { title: t("SetDownloader.common.address"), key: "address", align: "start" },
   { title: t("SetDownloader.index.table.enabled"), key: "enabled", align: "center" },
   { title: t("common.action"), key: "action", sortable: false },
@@ -44,7 +43,7 @@ function deleteMediaServer(mediaServerId: TMediaServerKey[]) {
 }
 
 async function confirmDeleteMediaServer(mediaServerId: TMediaServerKey) {
-  await metadataStore.removeMediaServer(mediaServerId);
+  return await metadataStore.removeMediaServer(mediaServerId);
 }
 </script>
 

@@ -6,6 +6,7 @@ import type { IBackupConfig, IBackupData, IBackupFileInfo, IBackupFileListOption
 
 interface WebDAVConfig extends IBackupConfig {
   config: {
+    address: string;
     loginName: string;
     loginPwd: string;
     digest?: boolean;
@@ -15,12 +16,13 @@ interface WebDAVConfig extends IBackupConfig {
 export const serverConfig: WebDAVConfig = {
   name: "WebDAV",
   type: "WebDAV",
-  address: "http://127.0.0.1/webdav",
-  config: { loginName: "", loginPwd: "", digest: false },
+  config: { address: "http://127.0.0.1/webdav", loginName: "", loginPwd: "", digest: false },
 };
 
 export const serverMetaData: IBackupMetadata<WebDAVConfig> = {
+  description: "WebDAV 是一种基于 HTTP 协议的文件传输协议，支持文件存储和共享功能。",
   requiredField: [
+    { name: "地址", key: "address", type: "string" },
     { name: "用户名", key: "loginName", type: "string" },
     { name: "密码", key: "loginPwd", type: "string" },
     { name: "Digest", key: "digest", type: "boolean" },
@@ -34,7 +36,7 @@ export default class WebDAV extends AbstractBackupServer<WebDAVConfig> {
 
   private getServer(): WebDAVClient {
     if (!this.server) {
-      this.server = createClient(this.config.address, {
+      this.server = createClient(this.userConfig.address, {
         username: this.userConfig.loginName,
         password: this.userConfig.loginPwd,
         authType: this.userConfig.digest ? AuthType.Digest : undefined,

@@ -105,7 +105,7 @@ function deleteSearchSolutions(solutionIds: TSolutionKey[]) {
 }
 
 async function confirmDeleteSearchSolution(solutionId: TSolutionKey) {
-  await metadataStore.removeSearchSolution(solutionId);
+  return await metadataStore.removeSearchSolution(solutionId);
 }
 
 function simplePatchSearchSolution(solutionId: TSolutionKey, value: boolean) {

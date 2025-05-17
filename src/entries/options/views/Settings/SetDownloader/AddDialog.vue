@@ -10,7 +10,7 @@ import {
   getDownloaderMetaData,
   type TorrentClientMetaData,
 } from "@ptd/downloader";
-import type { IDownloaderMetadata, TDownloaderKey } from "@/shared/storages/types/metadata.ts";
+import type { IDownloaderMetadata } from "@/shared/storages/types/metadata.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { REPO_URL } from "~/helper.ts";
 
@@ -22,7 +22,7 @@ const { t } = useI18n();
 const metadataStore = useMetadataStore();
 
 const currentStep = ref<0 | 1>(0);
-const selectedClientType = ref<TDownloaderKey | null>(null);
+const selectedClientType = ref<string | null>(null);
 const storedDownloaderConfig = ref<Partial<IDownloaderMetadata>>({});
 const isDownloaderConfigValid = ref<boolean>(false);
 
@@ -34,17 +34,17 @@ function resetDialog() {
 }
 
 const allTorrentClientMetaData = computedAsync(async () => {
-  const clientMetaData: Record<TDownloaderKey, TorrentClientMetaData & { type: TDownloaderKey }> = {};
+  const clientMetaData: Record<string, TorrentClientMetaData & { type: string }> = {};
   for (const type of entityList) {
     clientMetaData[type] = { type, ...(await getDownloaderMetaData(type)) };
   }
   return clientMetaData;
 }, {});
 
-async function updateStoredDownloaderConfigByDefault(e: TDownloaderKey) {
+async function updateStoredDownloaderConfigByDefault(type: string) {
   storedDownloaderConfig.value = {
     valid: false,
-    ...(await getDownloaderDefaultConfig(e)),
+    ...(await getDownloaderDefaultConfig(type)),
     enabled: true,
     id: nanoid(),
   };

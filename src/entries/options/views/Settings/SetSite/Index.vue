@@ -78,7 +78,7 @@ function deleteSite(siteId: TSiteID[]) {
 }
 
 async function confirmDeleteSite(siteId: TSiteID) {
-  await metadataStore.removeSite(siteId);
+  return await metadataStore.removeSite(siteId);
 }
 
 const isFaviconFlushing = ref(false);

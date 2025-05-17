@@ -109,6 +109,12 @@ export const routes: RouteRecordRaw[] = [
         meta: { icon: "mdi-video-input-svideo" },
         component: () => import("../views/Settings/SetMediaServer/Index.vue"),
       },
+      {
+        path: "/set-backup",
+        name: "SetBackup",
+        meta: { icon: "mdi-backup-restore" },
+        component: () => import("../views/Settings/SetBackup/Index.vue"),
+      },
     ],
   },
   {

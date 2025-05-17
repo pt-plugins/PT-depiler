@@ -64,7 +64,7 @@ async function deleteDownloadHistory(downloadHistoryIds: TTorrentDownloadKey[]) 
 }
 
 async function confirmDeleteDownloadHistory(downloadHistoryId: TTorrentDownloadKey) {
-  await sendMessage("deleteDownloadHistoryById", downloadHistoryId);
+  return await sendMessage("deleteDownloadHistoryById", downloadHistoryId);
 }
 
 onMounted(() => {

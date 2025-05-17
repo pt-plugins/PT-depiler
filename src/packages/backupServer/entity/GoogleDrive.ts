@@ -36,11 +36,11 @@ interface GoogleDriveConfig extends IBackupConfig {
 export const serverConfig: GoogleDriveConfig = {
   name: "GoogleDrive",
   type: "GoogleDrive",
-  address: "https://www.googleapis.com/", // 这个其实没用，只是占位
   config: { client_id: "", client_secret: "", refresh_token: "" },
 };
 
 export const serverMetaData: IBackupMetadata<GoogleDriveConfig> = {
+  description: "Google Drive 是 Google 提供的云存储服务，支持文件存储和共享功能。",
   requiredField: [
     { name: "client_id", key: "client_id", type: "string" },
     { name: "client_secret", key: "client_secret", type: "string" },

@@ -6,6 +6,7 @@ import type { IBackupConfig, IBackupData, IBackupFileInfo, IBackupFileListOption
 
 interface OWSSConfig extends IBackupConfig {
   config: {
+    address: string;
     authCode: string;
   };
 }
@@ -39,12 +40,15 @@ interface OWSSRawList {
 export const serverConfig: OWSSConfig = {
   name: "OWSS",
   type: "OWSS",
-  address: "http://127.0.0.1:8088/storage",
-  config: { authCode: "" },
+  config: { address: "http://127.0.0.1:8088/storage", authCode: "" },
 };
 
 export const serverMetaData: IBackupMetadata<OWSSConfig> = {
-  requiredField: [{ name: "授权码", key: "authCode", type: "string", description: "OWSS首次部署时生成的授权码" }],
+  description: "Open Web Simple Storage（OWSS），一个基于 nodejs 简单的 Web 存储微服务，可用于私人配置文件集中存储。",
+  requiredField: [
+    { name: "地址", key: "address", type: "string" },
+    { name: "授权码", key: "authCode", type: "string", description: "OWSS首次部署时生成的授权码" },
+  ],
 };
 
 /**
@@ -56,11 +60,11 @@ export default class OWSS extends AbstractBackupServer<OWSSConfig> {
 
   get address(): string {
     // 生成实际使用的访问链接
-    let { address } = this.config;
+    let { address, authCode } = this.userConfig;
     if (address.indexOf("storage") === -1) {
       address = urlJoin(address, "storage");
     }
-    address = urlJoin(address, this.userConfig.authCode);
+    address = urlJoin(address, authCode);
     return address;
   }
 

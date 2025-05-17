@@ -26,11 +26,11 @@ interface DropBoxConfig extends IBackupConfig {
 export const serverConfig: DropBoxConfig = {
   name: "DropBox",
   type: "DropBox",
-  address: "https://api.dropboxapi.com/", // 同样没用，只是占位
   config: { access_token: "" },
 };
 
 export const serverMetaData: IBackupMetadata<DropBoxConfig> = {
+  description: "DropBox 是一个云存储服务，提供文件存储和共享功能。",
   requiredField: [{ name: "access_token", key: "access_token", type: "string" }],
 };
 

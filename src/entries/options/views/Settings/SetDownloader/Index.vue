@@ -39,7 +39,6 @@ const downloaderMetadata = computedAsync(async () => {
 const fullTableHeader = [
   { title: t("SetDownloader.common.type"), key: "type", align: "center" },
   { title: t("SetDownloader.common.name"), key: "name", align: "start" },
-  { title: t("SetDownloader.common.uid"), key: "id", align: "start", sortable: false },
   { title: t("SetDownloader.common.address"), key: "address", align: "start" },
   { title: t("SetDownloader.common.username"), key: "username", align: "start" },
   { title: t("SetDownloader.index.table.enabled"), key: "enabled", align: "center" },
@@ -91,7 +90,7 @@ function deleteDownloader(downloaderId: TDownloaderKey[]) {
 }
 
 async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
-  await metadataStore.removeDownloader(downloaderId);
+  return await metadataStore.removeDownloader(downloaderId);
 }
 </script>
 

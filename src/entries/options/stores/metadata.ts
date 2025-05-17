@@ -12,6 +12,7 @@ import {
 } from "@ptd/site";
 
 import {
+  IBackupServerMetadata,
   IDownloaderMetadata,
   IMediaServerMetadata,
   IMetadataPiniaStorageSchema,
@@ -27,7 +28,7 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 type TSimplePatchFieldKey = keyof Pick<
   IMetadataPiniaStorageSchema,
-  "sites" | "solutions" | "snapshots" | "downloaders" | "mediaServers"
+  "sites" | "solutions" | "snapshots" | "downloaders" | "mediaServers" | "backupServers"
 >;
 
 function getHostFromUrl(url: string): TSiteHost {
@@ -48,6 +49,7 @@ export const useMetadataStore = defineStore("metadata", {
     snapshots: {},
     downloaders: {},
     mediaServers: {},
+    backupServers: {},
 
     defaultSolutionId: "default",
 
@@ -271,6 +273,14 @@ export const useMetadataStore = defineStore("metadata", {
     getEnabledMediaServers(state) {
       return Object.values(state.mediaServers).filter((mediaServer) => mediaServer.enabled);
     },
+
+    getBackupServerIds(state) {
+      return Object.keys(state.backupServers);
+    },
+
+    getBackupServers(state) {
+      return Object.values(state.backupServers);
+    },
   },
   actions: {
     async simplePatch<
@@ -402,6 +412,16 @@ export const useMetadataStore = defineStore("metadata", {
 
     async removeMediaServer(mediaServerId: TMediaServerKey) {
       delete this.mediaServers[mediaServerId];
+      await this.$save();
+    },
+
+    async addBackupServer(backupServerConfig: IBackupServerMetadata) {
+      this.backupServers[backupServerConfig.id] = backupServerConfig;
+      await this.$save();
+    },
+
+    async removeBackupServer(backupServerId: string) {
+      delete this.backupServers[backupServerId];
       await this.$save();
     },
   },

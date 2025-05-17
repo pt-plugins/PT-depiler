@@ -245,6 +245,12 @@
       }
     }
   },
+  "SetBackup": {
+    "tab": {
+      "backup-server": "备份服务器",
+      "cookie-cloud": "CookieCloud同步"
+    }
+  },
   "SetBase": {
     "tab": {
       "ui": "界面UI",

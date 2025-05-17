@@ -1,13 +1,5 @@
-import JSZip from "jszip";
-import CryptoJS from "crypto-js";
 import { IBackupConfig, IBackupData, IBackupFileInfo, IBackupFileListOption } from "./type.ts";
-
-interface IBackupFileManifest {
-  encryption: boolean;
-  version: string;
-  time: number;
-  fileHash: Record<string, string>;
-}
+import { backupDataToJSZipBlob, decryptData, encryptData, jsZipBlobToBackupData } from "./utils.ts";
 
 export default abstract class AbstractBackupServer<T extends IBackupConfig> {
   protected abstract version: string;
@@ -54,78 +46,19 @@ export default abstract class AbstractBackupServer<T extends IBackupConfig> {
 
   public abstract deleteFile(path: string): Promise<boolean>;
 
-  /**
-   * 注意，我们不直接使用用户提供的 secretKey 作为 AES 的密钥，因为可能无法提供足够强度的密钥
-   */
   protected encryptData(data: any): string {
-    if (!this.encryptionKey) {
-      return JSON.stringify(data);
-    }
-    const the_key = CryptoJS.MD5(this.encryptionKey).toString().substring(0, 16);
-    return CryptoJS.AES.encrypt(data, the_key).toString();
+    return encryptData(data, this.encryptionKey);
   }
 
   protected decryptData<T = any>(data: string): T {
-    if (!this.encryptionKey) {
-      return JSON.parse(data);
-    }
-    const the_key = CryptoJS.MD5(this.encryptionKey).toString().substring(0, 16);
-    const decrypted = CryptoJS.AES.decrypt(data, the_key).toString(CryptoJS.enc.Utf8);
-    return JSON.parse(decrypted) as T;
+    return decryptData(data, this.encryptionKey);
   }
 
   protected async backupDataToJSZipBlob(data: IBackupData): Promise<Blob> {
-    const zip = new JSZip();
-
-    const manifest: IBackupFileManifest = {
-      encryption: typeof this.encryptionKey === "string" && this.encryptionKey !== "",
-      version: `${this.config.type} (${this.version})`,
-      time: new Date().getTime(),
-      fileHash: {},
-    };
-
-    for (const [key, value] of Object.entries(data)) {
-      const fileName = `${key}.json`;
-      const fileContent = this.encryptData(value);
-      zip.file(fileName, fileContent);
-      manifest.fileHash[key] = CryptoJS.MD5(fileContent).toString();
-    }
-
-    zip.file("manifest.json", JSON.stringify(manifest));
-
-    return await zip.generateAsync({ type: "blob", compression: "DEFLATE", compressionOptions: { level: 9 } });
+    return await backupDataToJSZipBlob(data, this.encryptionKey);
   }
 
   protected async jsZipBlobToBackupData(blob: Blob): Promise<IBackupData> {
-    const zip = new JSZip();
-    const zipContent = await zip.loadAsync(blob);
-    const data = {} as IBackupData;
-
-    // 首先解出 manifest.json 的内容
-    const manifest = await zipContent
-      .file("manifest.json")
-      ?.async("string")
-      .then((content) => {
-        return JSON.parse(content) as IBackupFileManifest;
-      });
-
-    if (manifest) {
-      // 只解出 manifest 中记录的文件
-      for (const [fileName, manifestContentHash] of Object.entries(manifest.fileHash ?? {})) {
-        const fileContent = await zipContent.file(`${fileName}.json`)?.async("string");
-        if (fileContent) {
-          const key = fileName.replace(/\.json$/, "");
-          const fileContentHash = CryptoJS.MD5(fileContent).toString();
-          if (fileContentHash !== manifestContentHash) {
-            throw new Error(`File hash mismatch for ${fileName}.`);
-          }
-          data[key] = this.decryptData(fileContent);
-        }
-      }
-    } else {
-      throw new Error("Manifest not found in the zip file");
-    }
-
-    return data;
+    return await jsZipBlobToBackupData(blob, this.encryptionKey);
   }
 }

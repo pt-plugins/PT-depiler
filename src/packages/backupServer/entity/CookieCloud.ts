@@ -17,10 +17,18 @@
 
 import axios, { AxiosRequestConfig } from "axios";
 import AbstractBackupServer from "../AbstractBackupServer.ts";
-import type { IBackupConfig, IBackupData, IBackupFileInfo, IBackupFileListOption, IBackupMetadata } from "../type.ts";
+import type {
+  IBackupConfig,
+  IBackupData,
+  IBackupFileInfo,
+  IBackupFileListOption,
+  IBackupFileManifest,
+  IBackupMetadata,
+} from "../type.ts";
 
 interface CookieCloudConfig extends IBackupConfig {
   config: {
+    address: string;
     uuid: string;
     password: string;
     headers: string;
@@ -30,12 +38,14 @@ interface CookieCloudConfig extends IBackupConfig {
 export const serverConfig: CookieCloudConfig = {
   name: "CookieCloud",
   type: "CookieCloud",
-  address: "https://cookiecloud.example.com/",
-  config: { uuid: "", password: "", headers: "" },
+  config: { address: "https://cookiecloud.example.com/", uuid: "", password: "", headers: "" },
 };
 
 export const serverMetaData: IBackupMetadata<CookieCloudConfig> = {
+  description:
+    "CookieCloud是一个和自架服务器同步Cookie的小工具，可以将浏览器的Cookie同步到手机和云端，它内置端对端加密。",
   requiredField: [
+    { name: "地址", key: "address", type: "string" },
     {
       name: "UUID",
       key: "uuid",
@@ -51,6 +61,19 @@ export const serverMetaData: IBackupMetadata<CookieCloudConfig> = {
     },
   ],
 };
+
+interface ICookieCloudFile {
+  cookie_data: Record<string, chrome.cookies.Cookie[]>;
+  local_storage_data: {};
+  ptd_data: Omit<IBackupData, "manifest" | "cookies">;
+  metadata: {
+    fileName: string;
+    path: string;
+    time: number;
+    size: "N/A";
+    manifest?: IBackupFileManifest;
+  };
+}
 
 export default class CookieCloud extends AbstractBackupServer<CookieCloudConfig> {
   protected version = "0.0.1";
@@ -77,7 +100,7 @@ export default class CookieCloud extends AbstractBackupServer<CookieCloudConfig>
     }
 
     return axios.request<T>({
-      baseURL: this.config.address,
+      baseURL: this.userConfig.address,
       url,
       ...config,
       headers,
@@ -95,11 +118,12 @@ export default class CookieCloud extends AbstractBackupServer<CookieCloudConfig>
   }
 
   public async addFile(fileName: string, file: IBackupData): Promise<boolean> {
-    const fileData = {
+    const fileData: ICookieCloudFile = {
       cookie_data: {},
       local_storage_data: {}, // 我们不支持 local_storage_data
       ptd_data: {},
       metadata: {
+        manifest: file.manifest,
         fileName,
         path: "",
         time: new Date().getTime(),
@@ -112,6 +136,7 @@ export default class CookieCloud extends AbstractBackupServer<CookieCloudConfig>
       fileData.cookie_data = file.cookies;
       delete file.cookies; // 删除原有的 file.cookies 以免重复存储
     }
+    delete file.manifest; // 删除 manifest 以免重复存储
     fileData.ptd_data = file; // 其他的数据直接放在 ptd_data 里
 
     // 按照 CookieCloud 的流程对数据进行加密
@@ -138,10 +163,11 @@ export default class CookieCloud extends AbstractBackupServer<CookieCloudConfig>
     if (fileResp.data?.encrypted) {
       const theKey = CryptoJS.MD5(`${this.userConfig.uuid}-${this.userConfig.password}`).toString().substring(0, 16);
       const decrypted = CryptoJS.AES.decrypt(fileResp.data.encrypted, theKey).toString(CryptoJS.enc.Utf8);
-      const parsed = JSON.parse(decrypted);
+      const parsed = JSON.parse(decrypted) as ICookieCloudFile;
 
-      const retFile = parsed.ptd_data;
+      const retFile = parsed.ptd_data as IBackupData;
       retFile.cookies = parsed.cookie_data;
+      retFile.manifest = parsed.metadata?.manifest;
       retFile.metadata = parsed.metadata;
 
       return retFile;

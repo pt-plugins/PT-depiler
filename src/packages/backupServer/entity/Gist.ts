@@ -32,18 +32,17 @@ interface GistConfig extends IBackupConfig {
 export const serverConfig: GistConfig = {
   name: "Gist",
   type: "Gist",
-  address: "https://gist.github.com/", // 这个其实没用，只是占位
   config: { gist_id: "", access_token: "" },
 };
 
 export const serverMetaData: IBackupMetadata<GistConfig> = {
+  description: "Gist 是 GitHub 提供的一个代码片段分享平台，支持文件存储和共享功能。",
   requiredField: [
     {
       name: "Gist ID",
       key: "gist_id",
       type: "string",
-      description:
-        "在 https://gist.github.com/ 创建一个 secret gist ，你会获得 类似 https://gist.github.com/<userName>/<gist_id> 的地址",
+      description: "填入 https://gist.github.com/<userName>/<gist_id> 的地址中 gist_id 部分，创建一个 secret gist 即可",
     },
     {
       name: "Access Token",
@@ -109,7 +108,7 @@ export default class Gist extends AbstractBackupServer<GistConfig> {
   }
 
   async addFile(fileName: string, file: IBackupData): Promise<boolean> {
-    const patchFile = {} as Record<string, any>;
+    let patchFile = {} as Record<string, { content: string }>;
 
     const manifest = {
       encryption: typeof this.encryptionKey === "string" && this.encryptionKey !== "",
@@ -119,14 +118,16 @@ export default class Gist extends AbstractBackupServer<GistConfig> {
       files: {},
     } as IGistBackupFileManifest;
 
+    const writeFile = {} as Record<string, { content: string }>;
     for (const [key, value] of Object.entries(file)) {
-      const fileName = `${key}.${manifest.encryption ? "txt" : "json"}`;
+      const writeFileName = `${key}.${manifest.encryption ? "txt" : "json"}`;
       const fileContent = this.encryptData(value);
-      manifest.files[key] = { name: fileContent, hash: CryptoJS.MD5(fileContent).toString() };
-      patchFile[fileName] = { content: fileContent };
+      manifest.files[key] = { name: writeFileName, hash: CryptoJS.MD5(fileContent).toString() };
+      writeFile[writeFileName] = { content: fileContent };
     }
 
     patchFile["_manifest.json"] = { content: JSON.stringify(manifest, null, 2) };
+    patchFile = { ...patchFile, ...writeFile };
 
     try {
       await this.request("", {

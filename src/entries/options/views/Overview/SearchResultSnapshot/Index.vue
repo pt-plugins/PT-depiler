@@ -55,7 +55,7 @@ function tryToDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey[]) {
 }
 
 async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey) {
-  await metadataStore.removeSearchSnapshotData(searchSnapshotId);
+  return await metadataStore.removeSearchSnapshotData(searchSnapshotId);
 }
 </script>
 

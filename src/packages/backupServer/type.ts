@@ -1,7 +1,6 @@
 export interface IBackupConfig {
   id?: string;
   type: string;
-  address: string;
   name: string;
 
   config: Record<string, string | boolean | number>;
@@ -40,10 +39,17 @@ export interface IBackupFileListOption {
   orderMode?: EListOrderMode;
 }
 
-export interface IBackupData {
-  metadata?: any;
+export interface IBackupFileManifest {
+  time: number;
+  version: string;
+  encryption: boolean;
+  files: Record<string, { hash: string; name: string }>;
+}
 
-  cookies?: any;
+export interface IBackupData {
+  manifest?: IBackupFileManifest;
+
+  cookies?: Record<string, chrome.cookies.Cookie[]>;
 
   [key: string]: any;
 }
