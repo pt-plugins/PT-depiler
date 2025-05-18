@@ -40,3 +40,7 @@ export async function getBackupServer(config: IBackupConfig): Promise<AbstractBa
   // @ts-ignore
   return new ServerClass(config);
 }
+
+export function getBackupServerIcon(type: string) {
+  return `/icons/backupServer/${type}.png`;
+}

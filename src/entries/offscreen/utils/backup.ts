@@ -68,7 +68,16 @@ export async function exportBackupData(
   } else {
     const backupServerInstance = await getBackupServerInstance(backupServerId);
     backupServerInstance.setEncryptionKey(encryptionKey);
-    return await backupServerInstance.addFile(backupFilename, backupData);
+    const backupStatus = await backupServerInstance.addFile(backupFilename, backupData);
+
+    // 更新最后一次备份时间
+    if (backupStatus) {
+      const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
+      metadataStore.backupServers[backupServerId].lastBackupAt = new Date().getTime();
+      await sendMessage("setExtStorage", { key: "metadata", data: metadataStore });
+    }
+
+    return backupStatus;
   }
 }
 

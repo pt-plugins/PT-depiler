@@ -2,6 +2,7 @@
 import { ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
+import { getBackupServerIcon } from "@ptd/backupServer";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -124,6 +125,10 @@ async function confirmDeleteBackupServer(id: TBackupServerKey) {
       class="table-stripe table-header-no-wrap"
       show-select
     >
+      <template #item.type="{ item }">
+        <v-avatar :image="getBackupServerIcon(item.type)" :alt="item.type" :title="item.type" />
+      </template>
+
       <template #item.backupFields="{ item }">
         <v-chip-group show-arrows>
           <v-chip v-for="backupField in item.backupFields" label :key="backupField">

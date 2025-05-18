@@ -15,6 +15,7 @@
  *  4. 使用公用 CookieCloud 可能存在数据丢失、泄露的风险，同时 CookieCloud Server 也有备份文件大小的限制
  */
 
+import CryptoJS from "crypto-js";
 import axios, { AxiosRequestConfig } from "axios";
 import AbstractBackupServer from "../AbstractBackupServer.ts";
 import type {
@@ -169,6 +170,9 @@ export default class CookieCloud extends AbstractBackupServer<CookieCloudConfig>
       retFile.cookies = parsed.cookie_data;
       retFile.manifest = parsed.metadata?.manifest;
       retFile.metadata = parsed.metadata;
+
+      // 尝试从响应头中解出 CookieCloud 的备份大小
+      retFile.metadata.size = parseInt(fileResp.headers?.["content-length"] ?? "0") || "N/A";
 
       return retFile;
     }

@@ -20,7 +20,14 @@ import axios, { AxiosRequestConfig } from "axios";
 import CryptoJS from "crypto-js";
 import AbstractBackupServer from "../AbstractBackupServer.ts";
 import { localSort } from "../utils.ts";
-import type { IBackupConfig, IBackupData, IBackupFileInfo, IBackupFileListOption, IBackupMetadata } from "../type.ts";
+import {
+  IBackupConfig,
+  IBackupData,
+  IBackupFileInfo,
+  IBackupFileListOption,
+  IBackupFileManifest,
+  IBackupMetadata,
+} from "../type.ts";
 
 interface GistConfig extends IBackupConfig {
   config: {
@@ -60,12 +67,8 @@ interface IGistCommitHistory {
   change_status: { total: number; additions: number; deletions: number };
 }
 
-interface IGistBackupFileManifest {
-  encryption: boolean;
+interface IGistBackupFileManifest extends IBackupFileManifest {
   fileName: string;
-  version: string;
-  time: number;
-  files: Record<string, { name: string; hash: string }>;
 }
 
 export default class Gist extends AbstractBackupServer<GistConfig> {
@@ -120,10 +123,12 @@ export default class Gist extends AbstractBackupServer<GistConfig> {
     let patchFile = {} as Record<string, { content: string } | null>;
 
     const manifest = {
-      encryption: typeof this.encryptionKey === "string" && this.encryptionKey !== "",
-      fileName,
       version: `${this.config.type} (${this.version})`,
       time: new Date().getTime(),
+      ...(file.manifest ?? {}),
+
+      encryption: typeof this.encryptionKey === "string" && this.encryptionKey !== "",
+      fileName,
       files: {},
     } as IGistBackupFileManifest;
 

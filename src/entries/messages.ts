@@ -22,6 +22,7 @@ import type {
 import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/storages/types/indexdb.ts";
 import type { getFaviconMetadata } from "@ptd/site";
 import { IBackupFileInfo } from "@ptd/backupServer";
+import { isDebug } from "~/helper.ts";
 
 interface ProtocolMap {
   // 1. 与 chrome 相关的功能，需要在 service worker 中注册，主要供 offscreen, options 使用
@@ -143,6 +144,6 @@ function createMessageWrapper<PM extends TMessageMap>(original: {
 // 使用示例
 export const { sendMessage, onMessage } = createMessageWrapper(
   defineExtensionMessaging<TMessageMap>({
-    logger: console,
+    logger: __BROWSER__ == "firefox" || isDebug ? console : undefined,
   }),
 );

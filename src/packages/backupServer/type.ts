@@ -44,6 +44,8 @@ export interface IBackupFileManifest {
   version: string;
   encryption: boolean;
   files: Record<string, { hash: string; name: string }>;
+
+  [key: string]: any;
 }
 
 export interface IBackupData {
