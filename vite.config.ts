@@ -1,4 +1,5 @@
 import fs from "node:fs";
+import process from "node:process";
 import path from "node:path";
 
 // Vite And it's plugins
@@ -19,6 +20,20 @@ import pkg from "./package.json";
 function base_path(_path = "") {
   return path.resolve(__dirname, _path);
 }
+
+const target = process.env.TARGET || "chrome";
+const permissions = [
+  "activeTab",
+  "alarms",
+  "clipboardWrite",
+  "contextMenus",
+  "cookies",
+  "downloads",
+  "declarativeNetRequest",
+  "notifications",
+  "storage",
+  "unlimitedStorage",
+];
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -44,10 +59,11 @@ export default defineConfig({
     vue(),
     vuetify(),
     webExtension({
+      browser: target,
       disableAutoLaunch: true,
       skipManifestValidation: true,
       manifest: () => ({
-        "{{chrome}}.manifest_version": 3,
+        manifest_version: 3,
         minimum_chrome_version: "120",
 
         version: pkg.version,
@@ -77,6 +93,10 @@ export default defineConfig({
           service_worker: "src/entries/background/main.ts",
         },
 
+        "{{firefox}}.background": {
+          scripts: ["src/entries/background/ff_main.ts"],
+        },
+
         omnibox: {
           keyword: "ptd",
         },
@@ -86,22 +106,11 @@ export default defineConfig({
           open_in_tab: true,
         },
 
-        permissions: [
-          "activeTab",
-          "alarms",
-          "clipboardWrite",
-          "contextMenus",
-          "cookies",
-          "downloads",
-          "declarativeNetRequest",
-          "notifications",
-          "offscreen",
-          "storage",
-          "unlimitedStorage",
-        ],
+        "{{chrome}}.permissions": [...permissions, "offscreen"],
+        "{{firefox}}.permissions": permissions,
         host_permissions: ["*://*/*"],
       }),
-      additionalInputs: ["src/entries/offscreen/offscreen.html"],
+      additionalInputs: target == "chrome" ? ["src/entries/offscreen/offscreen.html"] : undefined,
       watchFilePaths: ["package.json"],
       htmlViteConfig: {
         plugins: [
@@ -140,6 +149,7 @@ export default defineConfig({
     },
   },
   define: {
+    __BROWSER__: JSON.stringify(target),
     __EXT_VERSION__: JSON.stringify(`v${pkg.version}.${git.count()}+${git.short(__dirname)}`),
     __GIT_VERSION__: {
       short: git.short(__dirname),

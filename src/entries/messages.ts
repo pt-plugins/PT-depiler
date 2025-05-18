@@ -21,7 +21,6 @@ import type {
 } from "@/storage.ts";
 import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/storages/types/indexdb.ts";
 import type { getFaviconMetadata } from "@ptd/site";
-import { getBackupHistory } from "@/offscreen/utils/backup.ts";
 import { IBackupFileInfo } from "@ptd/backupServer";
 
 interface ProtocolMap {
@@ -102,4 +101,50 @@ interface ProtocolMap {
   deleteBackupHistory(data: { backupServerId: string; path: string }): boolean;
 }
 
-export const { sendMessage, onMessage } = defineExtensionMessaging<ProtocolMap>({});
+type TMessageMap = Record<string, (data: any) => any>;
+
+// 全局消息处理函数映射
+export const messageMaps: Partial<TMessageMap> = {};
+
+function createMessageWrapper<PM extends TMessageMap>(original: {
+  sendMessage: <K extends keyof PM>(type: K, data: Parameters<PM[K]>[0]) => Promise<ReturnType<PM[K]>>;
+  onMessage: <K extends keyof PM>(type: K, handler: PM[K]) => void;
+}) {
+  // 包装后的 onMessage：将异步处理函数存入 messageMaps
+  const wrappedOnMessage = <K extends keyof PM>(type: K, handler: PM[K]) => {
+    // @ts-ignore
+    messageMaps[type] = handler;
+    original.onMessage(type, handler);
+  };
+
+  // 包装后的 sendMessage：优先使用 messageMaps 中的异步处理函数
+  const wrappedSendMessage = async <K extends keyof PM>(
+    type: K,
+    data: Parameters<PM[K]>[0],
+  ): Promise<ReturnType<PM[K]>> => {
+    // @ts-ignore
+    const localHandler = messageMaps[type] as PM[K] | undefined;
+
+    debugger;
+
+    if (localHandler) {
+      if (typeof data === "string") {
+        data = { data };
+      }
+
+      // 执行本地异步处理
+      return await localHandler(data);
+    }
+
+    // 执行远程异步调用
+    return await original.sendMessage(type, data);
+  };
+
+  return {
+    sendMessage: wrappedSendMessage,
+    onMessage: wrappedOnMessage,
+  };
+}
+
+// 使用示例
+export const { sendMessage, onMessage } = createMessageWrapper(defineExtensionMessaging<TMessageMap>({}));

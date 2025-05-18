@@ -37,6 +37,9 @@ importers:
       axios-cache-interceptor:
         specifier: ^1.8.0
         version: 1.8.0(axios@1.9.0)
+      cross-env:
+        specifier: ^7.0.3
+        version: 7.0.3
       crypto-js:
         specifier: ^4.2.0
         version: 4.2.0
@@ -1790,6 +1793,12 @@ packages:
     resolution:
       { integrity: sha512-p0SaNjrHOnQeR8/VnfGbmg9te2kfyYSQ7Sc/j/6DtPL3JQvKxmjO9TSjNFpujqV3vEYYBvNNvXSxzyksBWAx1Q== }
     engines: { node: ">=12.0.0" }
+
+  cross-env@7.0.3:
+    resolution:
+      { integrity: sha512-+/HKd6EgcQCJGh2PSjZuUitQBQynKor4wrFbRg4DtAgS1aWO+gU52xpH7M9ScGgXSYmAVS9bIJ8EzuaGw0oNAw== }
+    engines: { node: ">=10.14", npm: ">=6", yarn: ">=1" }
+    hasBin: true
 
   cross-fetch-ponyfill@1.0.3:
     resolution:
@@ -5661,6 +5670,10 @@ snapshots:
   cron-parser@4.9.0:
     dependencies:
       luxon: 3.6.1
+
+  cross-env@7.0.3:
+    dependencies:
+      cross-spawn: 7.0.6
 
   cross-fetch-ponyfill@1.0.3:
     dependencies:

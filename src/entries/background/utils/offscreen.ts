@@ -3,6 +3,11 @@ let creating: Promise<void> | null; // A global promise to avoid concurrency iss
 const offscreenPath = "src/entries/offscreen/offscreen.html";
 
 export async function setupOffscreenDocument() {
+  // Firefox 环境下不构建 offscreen
+  if (__BROWSER__ == "firefox") {
+    return;
+  }
+
   // Check all windows controlled by the service worker to see if one
   // of them is the offscreen document with the given path
   const offscreenUrl = chrome.runtime.getURL(offscreenPath);

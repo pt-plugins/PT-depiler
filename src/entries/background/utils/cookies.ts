@@ -21,7 +21,7 @@ export async function setCookie(cookie: chrome.cookies.SetDetails): Promise<void
   (
     ["name", "value", "domain", "path", "secure", "httpOnly", "sameSite"] as (keyof chrome.cookies.SetDetails)[]
   ).forEach((key) => {
-    if (key == "sameSite" && cookie[key] && cookie[key].toLowerCase() == "unspecified" && false /*&& is_firefox()*/) {
+    if (key == "sameSite" && cookie[key] && cookie[key].toLowerCase() == "unspecified" && __BROWSER__ === "firefox") {
       // firefox 下 unspecified 会导致cookie无法设置
       // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/cookies/SameSiteStatus
       new_cookie["sameSite"] = "no_restriction";
