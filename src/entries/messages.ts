@@ -116,12 +116,15 @@ const messageMaps: Partial<ProtocolMap> = {};
  */
 function createMessageWrapper<PM extends ProtocolMap>(original: {
   sendMessage: <K extends keyof PM>(type: K, data: Parameters<PM[K]>[0]) => Promise<ReturnType<PM[K]>>;
-  onMessage: <K extends keyof PM>(type: K, handler: (message: any) => void | Promise<ReturnType<PM[K]>>) => void;
+  onMessage: <K extends keyof PM>(
+    type: K,
+    handler: (message: { data: Parameters<PM[K]>[0] }) => void | Promise<ReturnType<PM[K]>>,
+  ) => void;
 }) {
   // 包装后的 onMessage：将异步处理函数存入 messageMaps
   const wrappedOnMessage = <K extends keyof PM>(
     type: K,
-    handler: (message: any) => void | Promise<ReturnType<PM[K]>>,
+    handler: (message: { data: Parameters<PM[K]>[0] }) => void | Promise<ReturnType<PM[K]>>,
   ) => {
     // @ts-expect-error
     messageMaps[type] = handler;

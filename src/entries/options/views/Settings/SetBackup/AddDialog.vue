@@ -5,6 +5,7 @@ import { BackupFields, IBackupServerMetadata } from "@/shared/storages/types/met
 import {
   entityList,
   getBackupServerDefaultConfig,
+  getBackupServerIcon,
   getBackupServerMetaData,
   type IBackupMetadata,
 } from "@ptd/backupServer";
@@ -60,7 +61,7 @@ function resetDialog() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title> {{ t("common.dialog.title.add") }}</v-toolbar-title>
+          <v-toolbar-title> 添加备份服务器 </v-toolbar-title>
           <v-spacer />
           <v-btn
             :href="`${REPO_URL}/wiki/config-backup-server`"
@@ -89,7 +90,19 @@ function resetDialog() {
                 t('SetDownloader.add.NoneSelectNotice')
               "
               @update:model-value="(e) => updateStoredDownloaderConfigByDefault(e)"
-            />
+            >
+              <template #selection="{ item: { raw: backupServer } }">
+                <v-list-item :prepend-avatar="getBackupServerIcon(backupServer.type)" :title="backupServer.type" />
+              </template>
+              <template #item="{ props, item: { raw: backupServer } }">
+                <v-list-item
+                  v-bind="props"
+                  :prepend-avatar="getBackupServerIcon(backupServer.type)"
+                  :title="backupServer.type"
+                >
+                </v-list-item>
+              </template>
+            </v-autocomplete>
           </v-window-item>
           <v-window-item :key="1">
             <Editor
