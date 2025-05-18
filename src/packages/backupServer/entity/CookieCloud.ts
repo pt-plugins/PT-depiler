@@ -63,17 +63,19 @@ export const serverMetaData: IBackupMetadata<CookieCloudConfig> = {
   ],
 };
 
+interface ICookieCloudManifest extends IBackupFileManifest {
+  encryption: true;
+  fileName: string;
+  path: string;
+  time: number;
+  size: "N/A";
+}
+
 interface ICookieCloudFile {
   cookie_data: Record<string, chrome.cookies.Cookie[]>;
   local_storage_data: {};
   ptd_data: Omit<IBackupData, "manifest" | "cookies">;
-  metadata: {
-    fileName: string;
-    path: string;
-    time: number;
-    size: "N/A";
-    manifest?: IBackupFileManifest;
-  };
+  manifest: ICookieCloudManifest;
 }
 
 export default class CookieCloud extends AbstractBackupServer<CookieCloudConfig> {
@@ -119,17 +121,20 @@ export default class CookieCloud extends AbstractBackupServer<CookieCloudConfig>
   }
 
   public async addFile(fileName: string, file: IBackupData): Promise<boolean> {
+    const manifest = {
+      ...(file.manifest ?? {}),
+      encryption: true,
+      fileName,
+      path: "",
+      size: "N/A",
+      files: {}, // 这里我们制空，减少上传体积
+    } as ICookieCloudManifest;
+
     const fileData: ICookieCloudFile = {
       cookie_data: {},
       local_storage_data: {}, // 我们不支持 local_storage_data
       ptd_data: {},
-      metadata: {
-        manifest: file.manifest as IBackupFileManifest,
-        fileName,
-        path: "",
-        time: new Date().getTime(),
-        size: "N/A",
-      },
+      manifest,
     };
 
     // 将 file.cookie 转换为 CookieCloud 需要的格式
@@ -168,11 +173,20 @@ export default class CookieCloud extends AbstractBackupServer<CookieCloudConfig>
 
       const retFile = parsed.ptd_data as IBackupData;
       retFile.cookies = parsed.cookie_data;
-      retFile.manifest = parsed.metadata?.manifest;
-      retFile.metadata = parsed.metadata;
+
+      // 重新构建 manifest.files
+      const fileMap: Record<string, any> = {};
+      for (const [key, value] of Object.entries(retFile)) {
+        if (typeof value === "object") {
+          fileMap[key] = true;
+        }
+      }
+
+      retFile.manifest = parsed.manifest as ICookieCloudManifest;
+      retFile.manifest.files = fileMap;
 
       // 尝试从响应头中解出 CookieCloud 的备份大小
-      retFile.metadata.size = parseInt(fileResp.headers?.["content-length"] ?? "0") || "N/A";
+      retFile.manifest.size = parseInt(fileResp.headers?.["content-length"] ?? "0") || "N/A";
 
       return retFile;
     }
@@ -184,12 +198,12 @@ export default class CookieCloud extends AbstractBackupServer<CookieCloudConfig>
     const list = [] as IBackupFileInfo[];
 
     const file = await this.getFile("");
-    if (file.metadata) {
+    if (file.manifest) {
       list.push({
-        filename: file.metadata.fileName,
+        filename: file.manifest.fileName,
         path: "",
-        time: file.metadata.time,
-        size: "N/A",
+        time: file.manifest.time!,
+        size: file.manifest.size ?? "N/A",
       });
     }
 

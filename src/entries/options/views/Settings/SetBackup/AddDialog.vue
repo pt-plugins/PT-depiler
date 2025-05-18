@@ -77,7 +77,7 @@ function resetDialog() {
       <v-card-text>
         <v-window v-model="currentStep">
           <!-- 选取可添加的备份服务器类型 -->
-          <v-window-item :key="0">
+          <v-window-item :value="0">
             <v-autocomplete
               v-model="selectedBackupServerType"
               :items="Object.values(allBackupServerMetaData)"
@@ -104,7 +104,7 @@ function resetDialog() {
               </template>
             </v-autocomplete>
           </v-window-item>
-          <v-window-item :key="1">
+          <v-window-item :value="1">
             <Editor
               v-if="storedBackupServerConfig.type"
               v-model="storedBackupServerConfig"
@@ -129,32 +129,36 @@ function resetDialog() {
           <span class="ml-1">{{ t("SetDownloader.add.newType") }}</span>
         </v-btn>
         <v-spacer />
-        <v-btn color="error" variant="text" @click="showDialog = false">
-          <v-icon icon="mdi-close-circle" />
+        <v-btn color="error" prepend-icon="mdi-close-circle" variant="text" @click="showDialog = false">
           {{ t("common.dialog.cancel") }}
         </v-btn>
-        <v-btn v-if="currentStep === 1" color="blue-darken-1" variant="text" @click="currentStep--">
-          <v-icon icon="mdi-chevron-left" />
+        <v-btn
+          v-if="currentStep === 1"
+          color="blue-darken-1"
+          prepend-icon="mdi-chevron-left"
+          variant="text"
+          @click="currentStep--"
+        >
           {{ t("common.dialog.prev") }}
         </v-btn>
         <v-btn
           v-if="currentStep === 0"
           :disabled="selectedBackupServerType == null"
+          append-icon="mdi-chevron-right"
           color="blue-darken-1"
           variant="text"
           @click="currentStep++"
         >
           {{ t("common.dialog.next") }}
-          <v-icon icon="mdi-chevron-right" />
         </v-btn>
         <v-btn
           v-if="currentStep === 1"
           :disabled="!isBackupServerConfigValid"
           color="success"
+          prepend-icon="mdi-check-circle-outline"
           variant="text"
           @click="saveStoredBackupServerConfig"
         >
-          <v-icon icon="mdi-check-circle-outline" />
           {{ t("common.dialog.ok") }}
         </v-btn>
       </v-card-actions>

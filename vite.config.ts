@@ -69,7 +69,7 @@ export default defineConfig({
       skipManifestValidation: true,
       manifest: () => ({
         manifest_version: 3,
-        minimum_chrome_version: "120",
+        "{{chrome}}.minimum_chrome_version": "120",
 
         version: pkg.version,
 
@@ -98,6 +98,7 @@ export default defineConfig({
           service_worker: "src/entries/background/main.ts",
         },
 
+        // 在 Firefox 中，background 不能使用 service_worker
         "{{firefox}}.background": {
           scripts: ["src/entries/background/ff_main.ts"],
         },
@@ -111,6 +112,7 @@ export default defineConfig({
           open_in_tab: true,
         },
 
+        // 在 Chrome 中需要多注册一个 offscreen 权限
         "{{chrome}}.permissions": [...permissions, "offscreen"],
         "{{firefox}}.permissions": permissions,
         host_permissions: ["*://*/*"],

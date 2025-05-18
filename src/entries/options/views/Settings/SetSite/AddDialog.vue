@@ -58,11 +58,12 @@ async function saveSite() {
       <v-card-text>
         <v-window v-model="currentStep">
           <!-- 选取可添加的站点 -->
-          <v-window-item :key="0">
+          <v-window-item :value="0">
             <v-autocomplete
               v-model="selectedSiteId"
               :filter-keys="['raw.name', 'raw.urls', 'raw.aka']"
               :items="canAddSites"
+              :messages="canAddSites.find((i) => i.id === selectedSiteId)?.description ?? ''"
               :multiple="false"
               :placeholder="selectedSiteId ? '' : t('SetSite.add.selectSitePlaceholder')"
               autofocus
@@ -126,7 +127,7 @@ async function saveSite() {
             </v-autocomplete>
           </v-window-item>
           <!-- 具体配置站点 -->
-          <v-window-item :key="1">
+          <v-window-item :value="1">
             <Editor v-model="selectedSiteId!" @update:form-valid="(v) => (isFormValid = v)" />
           </v-window-item>
         </v-window>

@@ -11,7 +11,7 @@ import type { CAddTorrentOptions } from "@ptd/downloader";
 import type { ISocialInformation, TSupportSocialSite$1 } from "@ptd/social";
 import type { IMediaServerId, IMediaServerSearchOptions, IMediaServerSearchResult } from "@ptd/mediaServer";
 import type { getFaviconMetadata } from "@ptd/site";
-import type { IBackupFileInfo } from "@ptd/backupServer";
+import type { IBackupData, IBackupFileInfo } from "@ptd/backupServer";
 import type {
   TExtensionStorageKey,
   IExtensionStorageSchema,
@@ -24,6 +24,13 @@ import type {
 import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/storages/types/indexdb.ts";
 
 import { isDebug } from "~/helper.ts";
+
+// FIXME
+export interface IRestoreOptions {
+  fields?: TBackupFields[]; // 需要恢复的字段
+  expandCookieMinutes?: number; // 是否延长 cookie 过期时间（单位：分钟），（小于0）表示不延长
+  keepExistUserInfo?: boolean; // 是否保留现有的用户信息
+}
 
 type TMessageMap = Record<string, (data: any) => any>;
 
@@ -103,6 +110,8 @@ interface ProtocolMap extends TMessageMap {
   exportBackupData(data: { backupServerId: string | "local"; backupFields: TBackupFields[] }): boolean;
   getBackupHistory(data: string): IBackupFileInfo[];
   deleteBackupHistory(data: { backupServerId: string; path: string }): boolean;
+  restoreBackupData(data: { restoreData: IBackupData; restoreOptions?: IRestoreOptions }): boolean;
+  getRemoteBackupData(data: { backupServerId: string; path: string; decryptKey?: string }): IBackupData;
 }
 
 // 全局消息处理函数映射

@@ -78,7 +78,7 @@ async function saveStoredMediaServerConfig() {
       <v-divider />
       <v-card-text>
         <v-window v-model="currentStep">
-          <v-window-item :key="0">
+          <v-window-item :value="0">
             <v-autocomplete
               v-model="selectedMediaServerType"
               :filter-keys="['type']"
@@ -106,7 +106,7 @@ async function saveStoredMediaServerConfig() {
               </template>
             </v-autocomplete>
           </v-window-item>
-          <v-window-item :key="1">
+          <v-window-item :value="1">
             <Editor
               v-if="storedMediaServerConfig.type"
               v-model="storedMediaServerConfig as IMediaServerUserConfig"

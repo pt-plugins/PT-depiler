@@ -59,17 +59,26 @@ export async function jsZipBlobToBackupData(blob: Blob, encryptionKey?: string):
       return JSON.parse(content) as IBackupFileManifest;
     });
 
-  if (manifest) {
+  if (manifest?.files) {
+    if (!manifest.encryption && encryptionKey) {
+      encryptionKey = "";
+    }
+
     // 只解出 manifest 中记录的文件
-    for (const [fileName, manifestFileData] of Object.entries(manifest.files ?? {})) {
-      const fileContent = await zipContent.file(`${fileName}.json`)?.async("string");
+    for (const [fileKey, manifestFileData] of Object.entries(manifest.files ?? {})) {
+      const { name: fileName, hash: manifestFileHash } = manifestFileData;
+      const fileContent = await zipContent.file(fileName)?.async("string");
       if (fileContent) {
-        const key = fileName.replace(/\.json$/, "");
         const fileContentHash = CryptoJS.MD5(fileContent).toString();
-        if (fileContentHash !== manifestFileData.hash) {
+        if (fileKey != "manifest" && fileContentHash !== manifestFileHash) {
           throw new Error(`File hash mismatch for ${fileName}.`);
         }
-        data[key] = decryptData(fileContent, encryptionKey);
+
+        try {
+          data[fileKey] = decryptData(fileContent, encryptionKey);
+        } catch (e) {
+          throw new Error(`Failed to decrypt file.`);
+        }
       }
     }
   } else {

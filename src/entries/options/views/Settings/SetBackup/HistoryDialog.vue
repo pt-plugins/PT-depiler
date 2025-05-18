@@ -11,6 +11,7 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import NavButton from "@/options/components/NavButton.vue";
+import RestoreDialog from "@/options/views/Settings/SetBackup/RestoreDialog.vue";
 
 const showDialog = defineModel<boolean>();
 const { backupServerId } = defineProps<{
@@ -31,6 +32,13 @@ const tableHeaders = [
   { title: "操作", key: "action", sortable: false },
 ] as DataTableHeader[];
 const tableSelected = ref<string[]>([]);
+
+const showRestoreDialog = ref<boolean>(false);
+const restoreMetadata = ref<{ type: "remote"; server: string; path: string }>({ type: "remote", server: "", path: "" });
+function restoreBackup(path: string) {
+  restoreMetadata.value = { type: "remote", server: backupServerId, path };
+  showRestoreDialog.value = true;
+}
 
 const showDeleteDialog = ref<boolean>(false);
 const toDeleteBackupHistory = ref<string[]>([]);
@@ -112,7 +120,7 @@ async function dialogEnter() {
 
           <template #item.action="{ item }">
             <v-btn-group class="table-action" density="compact" variant="plain">
-              <v-btn color="blue" icon="mdi-cloud-download" size="small"></v-btn>
+              <v-btn color="blue" icon="mdi-cloud-download" size="small" @click="restoreBackup(item.path)" />
 
               <v-btn
                 :title="t('common.remove')"
@@ -128,6 +136,7 @@ async function dialogEnter() {
     </v-card>
   </v-dialog>
 
+  <RestoreDialog v-model="showRestoreDialog" :restore-metadata="restoreMetadata" />
   <DeleteDialog
     v-model="showDeleteDialog"
     :confirm-delete="confirmDeleteBackupHistory"

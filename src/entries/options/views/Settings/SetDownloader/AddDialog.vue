@@ -77,7 +77,7 @@ async function saveStoredDownloaderConfig() {
       <v-card-text>
         <v-window v-model="currentStep">
           <!-- 选取可添加的站点 -->
-          <v-window-item :key="0">
+          <v-window-item :value="0">
             <v-autocomplete
               v-model="selectedClientType"
               :filter-keys="['type']"
@@ -105,7 +105,7 @@ async function saveStoredDownloaderConfig() {
               </template>
             </v-autocomplete>
           </v-window-item>
-          <v-window-item :key="1">
+          <v-window-item :value="1">
             <Editor
               v-if="storedDownloaderConfig.type"
               v-model="storedDownloaderConfig as IDownloaderMetadata"

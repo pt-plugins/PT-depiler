@@ -1,11 +1,20 @@
-import { getBackupServer, IBackupData, IBackupFileInfo } from "@ptd/backupServer";
-import { type IMetadataPiniaStorageSchema, TBackupFields, TBackupServerKey } from "@/shared/storages/types/metadata.ts";
-import { onMessage, sendMessage } from "@/messages.ts";
-import { ptdIndexDb } from "@/offscreen/adapter/indexdb.ts";
-import type { IConfigPiniaStorageSchema, TExtensionStorageKey } from "@/storage.ts";
-import { backupDataToJSZipBlob } from "@ptd/backupServer/utils.ts";
+import { intersection, toMerged } from "es-toolkit";
 import { formatDate } from "date-fns";
+import { getBackupServer, IBackupData, IBackupFileInfo } from "@ptd/backupServer";
+import { backupDataToJSZipBlob } from "@ptd/backupServer/utils.ts";
 import AbstractBackupServer from "@ptd/backupServer/AbstractBackupServer.ts";
+
+import { IRestoreOptions, onMessage, sendMessage } from "@/messages.ts";
+import { ptdIndexDb } from "@/offscreen/adapter/indexdb.ts";
+import {
+  IConfigPiniaStorageSchema,
+  IExtensionStorageSchema,
+  TExtensionStorageKey,
+  TUserInfoStorageSchema,
+} from "@/storage.ts";
+import { type IMetadataPiniaStorageSchema, TBackupFields, TBackupServerKey } from "@/shared/storages/types/metadata.ts";
+
+export const storageKey = ["config", "metadata", "userInfo", "searchResultSnapshot"] as TExtensionStorageKey[];
 
 export async function createBackupData(backupFields: TBackupFields[] = []): Promise<IBackupData> {
   const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
@@ -25,9 +34,9 @@ export async function createBackupData(backupFields: TBackupFields[] = []): Prom
   }
 
   // 处理直接从 chrome.storage.local 读取的字段
-  for (const field of ["config", "metadata", "userInfo", "searchResultSnapshot"]) {
+  for (const field of storageKey) {
     if (backupFields.includes(field as TBackupFields)) {
-      backupData[field] = await sendMessage("getExtStorage", field as TExtensionStorageKey);
+      backupData[field] = await sendMessage("getExtStorage", field);
     }
   }
 
@@ -38,7 +47,7 @@ export async function createBackupData(backupFields: TBackupFields[] = []): Prom
 
   backupData.manifest = {
     time: new Date().getTime(),
-    version: __EXT_VERSION__,
+    version: `PT-Depiler (${__EXT_VERSION__})`,
   };
 
   return backupData;
@@ -74,7 +83,7 @@ export async function exportBackupData(
     if (backupStatus) {
       const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
       metadataStore.backupServers[backupServerId].lastBackupAt = new Date().getTime();
-      await sendMessage("setExtStorage", { key: "metadata", data: metadataStore });
+      await sendMessage("setExtStorage", { key: "metadata", value: metadataStore });
     }
 
     return backupStatus;
@@ -83,6 +92,62 @@ export async function exportBackupData(
 
 onMessage("exportBackupData", async ({ data: { backupServerId, backupFields } }) => {
   return await exportBackupData(backupServerId, backupFields);
+});
+
+export async function restoreBackupData(
+  restoreData: IBackupData, // 已经解密了的数据
+  restoreOptions: IRestoreOptions = {},
+): Promise<boolean> {
+  const { fields = [], expandCookieMinutes = -1, keepExistUserInfo = true } = restoreOptions;
+
+  const restoreDataExistFields = Object.keys(restoreData.manifest?.files ?? {});
+  const restoreFields = intersection(fields, restoreDataExistFields);
+
+  // 恢复下载历史
+  if (restoreFields.includes("downloadHistory")) {
+    const db = await ptdIndexDb;
+    await db.clear("download_history");
+    for (const downloadHistoryElement of restoreData.downloadHistory) {
+      await db.put("download_history", downloadHistoryElement);
+    }
+  }
+
+  // 恢复直接从 chrome.storage.local 读取的字段
+  for (const field of storageKey.toReversed()) {
+    if (restoreFields.includes(field as TBackupFields)) {
+      let fieldData = restoreData[field] as IExtensionStorageSchema[typeof field];
+      if (fieldData) {
+        if (field === "userInfo" && keepExistUserInfo) {
+          const userInfoStore = ((await sendMessage("getExtStorage", "userInfo")) ?? {}) as TUserInfoStorageSchema;
+          fieldData = toMerged(fieldData, userInfoStore);
+        }
+
+        await sendMessage("setExtStorage", { key: field, value: fieldData });
+      }
+    }
+  }
+
+  // 恢复已添加站点的Cookie
+  if (restoreFields.includes("cookies")) {
+    const now = new Date().getTime() / 1000;
+
+    for (const cookieData of Object.values(restoreData.cookies!)) {
+      for (const cookie of cookieData) {
+        // 延长 cookie 过期时间
+        if (expandCookieMinutes > 0) {
+          cookie.expirationDate = Math.max(cookie.expirationDate ?? 0, now) + expandCookieMinutes * 60;
+        }
+
+        await sendMessage("setCookie", cookie as unknown as chrome.cookies.SetDetails);
+      }
+    }
+  }
+
+  return true;
+}
+
+onMessage("restoreBackupData", async ({ data: { restoreData, restoreOptions = {} } }) => {
+  return await restoreBackupData(restoreData, restoreOptions);
 });
 
 export async function getBackupHistory(backupServerId: string): Promise<IBackupFileInfo[]> {
@@ -101,4 +166,18 @@ export async function deleteBackupHistory(backupServerId: string, path: string):
 
 onMessage("deleteBackupHistory", async ({ data: { backupServerId, path } }) => {
   return await deleteBackupHistory(backupServerId, path);
+});
+
+export async function getRemoteBackupData(
+  backupServerId: string,
+  path: string,
+  decryptKey: string = "",
+): Promise<IBackupData> {
+  const backupServerInstance = await getBackupServerInstance(backupServerId);
+  backupServerInstance.setEncryptionKey(decryptKey);
+  return await backupServerInstance.getFile(path);
+}
+
+onMessage("getRemoteBackupData", async ({ data: { backupServerId, path, decryptKey = "" } }) => {
+  return await getRemoteBackupData(backupServerId, path, decryptKey);
 });

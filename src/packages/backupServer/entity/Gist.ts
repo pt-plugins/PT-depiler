@@ -189,7 +189,11 @@ export default class Gist extends AbstractBackupServer<GistConfig> {
           throw new Error(`File hash mismatch for ${fileName}.`);
         }
 
-        result[key] = this.encryptData(fileRawContent);
+        try {
+          result[key] = this.decryptData(fileRawContent);
+        } catch (e) {
+          throw new Error(`Failed to decrypt file.`);
+        }
       }
     }
 
