@@ -39,9 +39,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: build-dist-chrome
-          path: dist
+          path: dist-chrome
 
-      - name: Upload Built to action
+      - name: Upload Firefox Built to action
         uses: actions/upload-artifact@v4
         with:
           name: build-dist-firefox
