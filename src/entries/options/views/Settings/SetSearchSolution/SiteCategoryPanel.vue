@@ -28,7 +28,7 @@ const siteMetaCategory = computedAsync(async () => {
 const radioDefault = Symbol("default");
 
 async function getSiteMetaCategory() {
-  const siteMetaCategory = await metadataStore.getSiteMergedMetadata(props.siteId, "category");
+  const siteMetaCategory = await metadataStore.getSiteMergedMetadata(props.siteId, "category", []);
   for (const category of siteMetaCategory!) {
     selectCategory.value[category.key] = category.cross ? [] : radioDefault;
   }

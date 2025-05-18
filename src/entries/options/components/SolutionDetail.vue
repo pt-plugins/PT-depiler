@@ -13,7 +13,7 @@ const props = defineProps<{
 const metadataStore = useMetadataStore();
 
 const siteMetaCategory = computedAsync(async () => {
-  return (await metadataStore.getSiteMergedMetadata(props.solution.siteId, "category")) as ISearchCategories[];
+  return (await metadataStore.getSiteMergedMetadata(props.solution.siteId, "category", [])) as ISearchCategories[];
 }, []);
 
 function getCategory(key: string) {
