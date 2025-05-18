@@ -2,7 +2,7 @@ node_modules
 
 ## Build files
 dist
-dist-ssr
+dist-*
 *.local
 public/_locales
 
