@@ -37,6 +37,10 @@ const permissions = [
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  build: {
+    outDir: `dist-${target}`,
+    emptyOutDir: true,
+  },
   css: {
     preprocessorOptions: {
       scss: {

@@ -4,37 +4,45 @@ name: Build Action Release
 
 on:
   push:
-    branches: [ "master" ]
+    branches: ["master"]
   pull_request:
-    branches: [ "master" ]
+    branches: ["master"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
-    
-    - uses: pnpm/action-setup@v4
-    
-    - name: Setup Node
-      uses: actions/setup-node@v4
-      with:
-        node-version: '>=23.7.0'
-        cache: 'pnpm'
-        
-    - name: Install dependencies
-      run: pnpm install
+      - uses: actions/checkout@v4
 
-    - name: vue-tsc check
-      run: pnpm check
-      continue-on-error: true
-    
-    - name: Build Output
-      run: pnpm build:dist
-      
-    - name: Upload Built to action
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-dist-folder
-        path: dist
+      - uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ">=23.7.0"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: vue-tsc check
+        run: pnpm check
+        continue-on-error: true
+
+      - name: Build Output
+        run: |
+          pnpm build:dist
+          pnpm build:dist-firefox
+
+      - name: Upload Chrome Built to action
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-dist-chrome
+          path: dist
+
+      - name: Upload Built to action
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-dist-firefox
+          path: dist-firefox
