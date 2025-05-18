@@ -54,7 +54,7 @@ async function doBackup(backupServerId: TBackupServerKey | symbol) {
   } else if (backupServerId == localBackup) {
     showLocalExportConfirmDialog.value = true;
   } else {
-    console.log('"doBackup" without backupServerId');
+    console.log('"doBackup" without valid backupServerId');
   }
 
   doBackupStatus.value[backupServerId] = false;

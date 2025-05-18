@@ -20,7 +20,6 @@ export async function getMediaServerModule(configType: string): Promise<MediaSer
 }
 
 export async function getMediaServerMetaData(type: string): Promise<IMediaServerMetadata> {
-  console.log("getMediaServerMetaData", type, (await getMediaServerModule(type)).mediaServerMetaData);
   return cloneDeep((await getMediaServerModule(type)).mediaServerMetaData);
 }
 
