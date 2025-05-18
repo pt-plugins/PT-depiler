@@ -1,0 +1,93 @@
+/**
+ * FIXME 无号，未进行测试
+ * 由 resource/sites/52pt.site/config.json 自动转换而来
+ */
+import { ISiteMetadata } from "@ptd/site";
+import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+
+export const siteMetadata: ISiteMetadata = {
+  ...SchemaMetadata,
+  version: 1,
+
+  id: "52pt",
+  name: "52PT",
+  description: "52PT - 我爱PT-低调地在这个PT校园快乐成长 快乐分享",
+  tags: ["高清", "电影", "电视剧"],
+  timezoneOffset: "+0800",
+
+  type: "private",
+  schema: "NexusPHP",
+
+  collaborator: ["StarGazerQQD", "zhuweitung"],
+
+  urls: ["https://52pt.site/"],
+
+  levelRequirements: [
+    {
+      id: 1,
+      name: "小学Power User",
+      interval: "P4W",
+      downloaded: "50GB",
+      ratio: 1.05,
+      privilege:
+        '得到一个邀请名额；可以查看NFO文档；可以请求续种； 可以发送邀请；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 允许发布新的趣味盒内容及编辑自己发布的趣味盒内容;可以删除自己上传的字幕。',
+    },
+    {
+      id: 2,
+      name: "初中Elite User",
+      interval: "P8W",
+      downloaded: "120GB",
+      ratio: 1.55,
+      privilege: "Elite User及以上用户封存账号后不会被删除。",
+    },
+    {
+      id: 3,
+      name: "高中Crazy User",
+      interval: "P15W",
+      downloaded: "300GB",
+      ratio: 2.05,
+      privilege: "得到两个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
+    },
+    {
+      id: 4,
+      name: "中专Insane User",
+      interval: "P25W",
+      downloaded: "1536GB",
+      ratio: 2.55,
+      privilege: "可以查看普通日志。",
+    },
+    {
+      id: 5,
+      name: "大专Veteran User",
+      interval: "P40W",
+      downloaded: "2560GB",
+      ratio: 3.05,
+      privilege: "得到三个邀请名额；可以查看其它用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。",
+    },
+    {
+      id: 6,
+      name: "本科Extreme User",
+      interval: "P60W",
+      downloaded: "3072GB",
+      ratio: 3.55,
+      privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。",
+    },
+    {
+      id: 7,
+      name: "研究生Ultimate User",
+      interval: "P80W",
+      downloaded: "4608GB",
+      ratio: 4.05,
+      privilege: "得到五个邀请名额。",
+    },
+    {
+      id: 8,
+      name: "博士Nexus Master",
+      interval: "P100W",
+      downloaded: "5632GB",
+      ratio: 4.55,
+      privilege: "得到十个邀请名额。",
+    },
+  ],
+  category: [CategoryIncldead, CategorySpstate, CategoryInclbookmarked],
+};

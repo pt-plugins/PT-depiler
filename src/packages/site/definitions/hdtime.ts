@@ -1,6 +1,5 @@
-import { createDocument, ETorrentStatus, ISiteMetadata, IUserInfo } from "@ptd/site";
-import NexusPHP, { SchemaMetadata } from "@ptd/site/schemas/NexusPHP.ts";
-import { mergeWith } from "es-toolkit";
+import { ISiteMetadata } from "@ptd/site";
+import { SchemaMetadata } from "@ptd/site/schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -41,25 +40,6 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     ...SchemaMetadata.search,
-    selectors: {
-      ...SchemaMetadata.search!.selectors,
-      progress: {
-        selector: ["div[title*='seeding']", "div[title*='inactivity']"],
-        attr: "title",
-        switchFilters: {
-          "div[title*='seeding']": [() => 100],
-          "div[title*='inactivity']": [{ name: "split", args: [" ", 1] }, { name: "parseNumber" }],
-        },
-      },
-      status: {
-        text: ETorrentStatus.unknown,
-        selector: ["table.torrentname"],
-        case: {
-          "div[title*='seeding']": ETorrentStatus.seeding,
-          "div[title*='inactivity']": ETorrentStatus.inactive,
-        },
-      },
-    },
   },
 
   levelRequirements: [
@@ -145,32 +125,3 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
-
-export default class Hdtime extends NexusPHP {
-  protected override async parseUserInfoForSeedingStatus(
-    flushUserInfo: Partial<IUserInfo>,
-  ): Promise<Partial<IUserInfo>> {
-    const userId = flushUserInfo.id as number;
-    const userSeedingRequestString = await this.requestUserSeedingPage(userId);
-
-    let seedStatus = { seeding: 0, seedingSize: 0 };
-    if (userSeedingRequestString && userSeedingRequestString?.includes("<table")) {
-      const userSeedingDocument = createDocument(userSeedingRequestString);
-      seedStatus.seeding = this.getFieldData(userSeedingDocument, {
-        selector: "b:first",
-        filters: [{ name: "parseNumber" }],
-      });
-
-      seedStatus.seedingSize = this.getFieldData(userSeedingDocument, {
-        selector: ["div:has(b):contains('总大小')"],
-        filters: [{ name: "parseSize" }],
-      });
-    }
-
-    flushUserInfo = mergeWith(flushUserInfo, seedStatus, (objValue, srcValue) => {
-      return typeof srcValue === "undefined" ? objValue : srcValue;
-    });
-
-    return flushUserInfo;
-  }
-}
