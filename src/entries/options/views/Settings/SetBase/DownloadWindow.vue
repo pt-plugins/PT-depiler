@@ -18,6 +18,17 @@ async function clearLastDownloader(v: boolean) {
 <template>
   <v-row>
     <v-col md="6">
+      <v-switch
+        v-model="configStore.download.saveDownloadHistory"
+        label="是否保存下载历史"
+        color="success"
+        hide-details
+      />
+    </v-col>
+  </v-row>
+
+  <v-row>
+    <v-col md="6">
       <v-label>本地下载</v-label>
       <v-select
         v-model="configStore.download.localDownloadMethod"

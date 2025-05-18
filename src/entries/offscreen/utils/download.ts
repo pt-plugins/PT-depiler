@@ -51,6 +51,11 @@ function buildDownloadHistory(
 
 const lastSiteDownloadAt = new Map<string, number>();
 
+async function isAllowedSaveDownloadHistory(): Promise<boolean> {
+  const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
+  return configStoreRaw.download.saveDownloadHistory ?? true;
+}
+
 onMessage("downloadTorrentToLocalFile", async ({ data: { torrent, localDownloadMethod } }) => {
   if (!localDownloadMethod) {
     const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
@@ -195,12 +200,14 @@ export async function getDownloadHistoryById(downloadId: TTorrentDownloadKey) {
 onMessage("getDownloadHistoryById", async ({ data: downloadId }) => (await getDownloadHistoryById(downloadId))!);
 
 export async function setDownloadHistory(data: ITorrentDownloadMetadata) {
-  return await (await ptdIndexDb).put("download_history", data);
+  const allowedSave = await isAllowedSaveDownloadHistory();
+  return allowedSave ? await (await ptdIndexDb).put("download_history", data) : 0;
 }
 
 export async function patchDownloadHistory(downloadId: TTorrentDownloadKey, data: Partial<ITorrentDownloadMetadata>) {
+  const allowedSave = await isAllowedSaveDownloadHistory();
   const downloadHistory = await getDownloadHistoryById(downloadId);
-  if (downloadHistory) {
+  if (allowedSave && downloadHistory) {
     await setDownloadHistory({ ...downloadHistory, ...data });
   }
 }

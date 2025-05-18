@@ -113,6 +113,8 @@ export interface IConfigPiniaStorageSchema {
   };
 
   download: {
+    // 是否保存下载记录
+    saveDownloadHistory: boolean;
     // 是否保存上一次使用的下载器
     saveLastDownloader: boolean;
     // 是否允许直接将链接（而不是种子文件）发送到客户端

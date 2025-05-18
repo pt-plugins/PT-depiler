@@ -246,7 +246,13 @@ function resetDialog() {
       <v-divider />
       <v-card-actions>
         <v-spacer />
-        <v-btn color="error" prepend-icon="mdi-close-circle" variant="text" @click="showDialog = false">
+        <v-btn
+          :disabled="isDoingRestore"
+          color="error"
+          prepend-icon="mdi-close-circle"
+          variant="text"
+          @click="showDialog = false"
+        >
           {{ t("common.dialog.cancel") }}
         </v-btn>
         <v-btn
@@ -270,6 +276,7 @@ function resetDialog() {
         </v-btn>
         <v-btn
           v-if="currentStep == 'restore'"
+          :loading="isDoingRestore"
           color="success"
           prepend-icon="mdi-import"
           variant="text"
