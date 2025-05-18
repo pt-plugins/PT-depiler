@@ -10,6 +10,8 @@ import type {
 import type { CAddTorrentOptions } from "@ptd/downloader";
 import type { ISocialInformation, TSupportSocialSite$1 } from "@ptd/social";
 import type { IMediaServerId, IMediaServerSearchOptions, IMediaServerSearchResult } from "@ptd/mediaServer";
+import type { getFaviconMetadata } from "@ptd/site";
+import type { IBackupFileInfo } from "@ptd/backupServer";
 import type {
   TExtensionStorageKey,
   IExtensionStorageSchema,
@@ -20,11 +22,12 @@ import type {
   TBackupFields,
 } from "@/storage.ts";
 import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/storages/types/indexdb.ts";
-import type { getFaviconMetadata } from "@ptd/site";
-import { IBackupFileInfo } from "@ptd/backupServer";
+
 import { isDebug } from "~/helper.ts";
 
-interface ProtocolMap {
+type TMessageMap = Record<string, (data: any) => any>;
+
+interface ProtocolMap extends TMessageMap {
   // 1. 与 chrome 相关的功能，需要在 service worker 中注册，主要供 offscreen, options 使用
   ping<T extends any>(data?: T): T extends undefined ? "pong" : T;
 
@@ -102,18 +105,25 @@ interface ProtocolMap {
   deleteBackupHistory(data: { backupServerId: string; path: string }): boolean;
 }
 
-type TMessageMap = Record<string, (data: any) => any>;
-
 // 全局消息处理函数映射
-export const messageMaps: Partial<TMessageMap> = {};
+const messageMaps: Partial<ProtocolMap> = {};
 
-function createMessageWrapper<PM extends TMessageMap>(original: {
+/**
+ * 为 sendMessage 和 onMessage 创建一个包装器
+ * 如果 sendMessage 和 onMessage 对应的 type 是在同一个 tab 中创建的，则直接调用，不然传递给 chrome.{runtime, tab}.sendMessage
+ * 有效避免 chrome 中 background 是 server worker + offscreen, 而 firefox 中是 background script
+ * 而导致的 chrome.runtime.sendMessage 无响应的问题
+ */
+function createMessageWrapper<PM extends ProtocolMap>(original: {
   sendMessage: <K extends keyof PM>(type: K, data: Parameters<PM[K]>[0]) => Promise<ReturnType<PM[K]>>;
-  onMessage: <K extends keyof PM>(type: K, handler: PM[K]) => void;
+  onMessage: <K extends keyof PM>(type: K, handler: (message: any) => void | Promise<ReturnType<PM[K]>>) => void;
 }) {
   // 包装后的 onMessage：将异步处理函数存入 messageMaps
-  const wrappedOnMessage = <K extends keyof PM>(type: K, handler: PM[K]) => {
-    // @ts-ignore
+  const wrappedOnMessage = <K extends keyof PM>(
+    type: K,
+    handler: (message: any) => void | Promise<ReturnType<PM[K]>>,
+  ) => {
+    // @ts-expect-error
     messageMaps[type] = handler;
     original.onMessage(type, handler);
   };
@@ -123,16 +133,14 @@ function createMessageWrapper<PM extends TMessageMap>(original: {
     type: K,
     data: Parameters<PM[K]>[0],
   ): Promise<ReturnType<PM[K]>> => {
-    // @ts-ignore
+    // @ts-expect-error
     const localHandler = messageMaps[type] as PM[K] | undefined;
 
     if (localHandler) {
-      // 执行本地异步处理
-      return await localHandler({ data });
+      return await localHandler({ data }); // 执行本地异步处理
     }
 
-    // 执行远程异步调用
-    return await original.sendMessage(type, data);
+    return await original.sendMessage(type, data); // 执行远程异步调用
   };
 
   return {
@@ -141,9 +149,8 @@ function createMessageWrapper<PM extends TMessageMap>(original: {
   };
 }
 
-// 使用示例
 export const { sendMessage, onMessage } = createMessageWrapper(
-  defineExtensionMessaging<TMessageMap>({
+  defineExtensionMessaging<ProtocolMap>({
     logger: __BROWSER__ == "firefox" || isDebug ? console : undefined,
   }),
 );
