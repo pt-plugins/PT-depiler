@@ -125,15 +125,9 @@ function createMessageWrapper<PM extends TMessageMap>(original: {
     // @ts-ignore
     const localHandler = messageMaps[type] as PM[K] | undefined;
 
-    debugger;
-
     if (localHandler) {
-      if (typeof data === "string") {
-        data = { data };
-      }
-
       // 执行本地异步处理
-      return await localHandler(data);
+      return await localHandler({ data });
     }
 
     // 执行远程异步调用
@@ -147,4 +141,8 @@ function createMessageWrapper<PM extends TMessageMap>(original: {
 }
 
 // 使用示例
-export const { sendMessage, onMessage } = createMessageWrapper(defineExtensionMessaging<TMessageMap>({}));
+export const { sendMessage, onMessage } = createMessageWrapper(
+  defineExtensionMessaging<TMessageMap>({
+    logger: console,
+  }),
+);

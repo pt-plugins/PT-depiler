@@ -29,8 +29,8 @@
     "dev": "vite",
     "format": "prettier --list-different -w ./",
     "check": "vue-tsc --noEmit",
-    "build:dist": "vite build",
-    "build:dist-firefox": "cross-env TARGET=firefox vite build",
+    "build:dist": "vite build --emptyOutDir",
+    "build:dist-firefox": "cross-env TARGET=firefox vite build --emptyOutDir",
     "build:watch": "vite build --watch --mode development --minify false",
     "prepare": "husky"
   },
