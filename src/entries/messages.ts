@@ -22,15 +22,9 @@ import type {
   TBackupFields,
 } from "@/storage.ts";
 import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/storages/types/indexdb.ts";
+import type { IRestoreOptions } from "@/shared/types.ts";
 
 import { isDebug } from "~/helper.ts";
-
-// FIXME
-export interface IRestoreOptions {
-  fields?: TBackupFields[]; // 需要恢复的字段
-  expandCookieMinutes?: number; // 是否延长 cookie 过期时间（单位：分钟），（小于0）表示不延长
-  keepExistUserInfo?: boolean; // 是否保留现有的用户信息
-}
 
 type TMessageMap = Record<string, (data: any) => any>;
 
@@ -51,6 +45,7 @@ interface ProtocolMap extends TMessageMap {
 
   // 1.4 chrome.alarms
   setFlushUserInfoJob(): void;
+  cleanupFlushUserInfoJob(): void;
 
   // 1.5 chrome.cookies
   getCookiesByDomain(data: string): chrome.cookies.Cookie[];

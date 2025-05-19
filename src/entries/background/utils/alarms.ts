@@ -93,14 +93,14 @@ export async function cleanupFlushUserInfoJob() {
   }
 }
 
+onMessage("cleanupFlushUserInfoJob", async () => await cleanupFlushUserInfoJob());
+
 export async function setFlushUserInfoJob() {
   await cleanupFlushUserInfoJob();
   await createFlushUserInfoJob();
 }
 
-onMessage("setFlushUserInfoJob", async () => {
-  await setFlushUserInfoJob();
-});
+onMessage("setFlushUserInfoJob", async () => await setFlushUserInfoJob());
 
 // noinspection JSIgnoredPromiseFromCall
 createFlushUserInfoJob();

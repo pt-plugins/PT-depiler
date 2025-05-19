@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { ref, shallowRef } from "vue";
+import { isEmpty } from "es-toolkit/compat";
 import { jsZipBlobToBackupData } from "@ptd/backupServer/utils.ts";
 import type { IBackupData } from "@ptd/backupServer";
 
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { IRestoreOptions, sendMessage } from "@/messages.ts";
+import { sendMessage } from "@/messages.ts";
 import { BackupFields, type TBackupFields } from "@/shared/storages/types/metadata.ts";
-import { isEmpty } from "es-toolkit/compat";
+import type { IRestoreOptions } from "@/shared/types.ts";
 
 const showDialog = defineModel<boolean>();
 const { t } = useI18n();

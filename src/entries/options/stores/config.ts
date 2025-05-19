@@ -138,6 +138,7 @@ export const useConfigStore = defineStore("config", {
     },
 
     download: {
+      saveDownloadHistory: true,
       saveLastDownloader: false,
       allowDirectSendToClient: false,
       localDownloadMethod: "browser",

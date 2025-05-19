@@ -4,7 +4,7 @@ import { getBackupServer, IBackupData, IBackupFileInfo } from "@ptd/backupServer
 import { backupDataToJSZipBlob } from "@ptd/backupServer/utils.ts";
 import AbstractBackupServer from "@ptd/backupServer/AbstractBackupServer.ts";
 
-import { IRestoreOptions, onMessage, sendMessage } from "@/messages.ts";
+import { onMessage, sendMessage } from "@/messages.ts";
 import { ptdIndexDb } from "@/offscreen/adapter/indexdb.ts";
 import {
   IConfigPiniaStorageSchema,
@@ -13,6 +13,7 @@ import {
   TUserInfoStorageSchema,
 } from "@/storage.ts";
 import { type IMetadataPiniaStorageSchema, TBackupFields, TBackupServerKey } from "@/shared/storages/types/metadata.ts";
+import { IRestoreOptions } from "@/shared/types.ts";
 
 export const storageKey = ["config", "metadata", "userInfo", "searchResultSnapshot"] as TExtensionStorageKey[];
 

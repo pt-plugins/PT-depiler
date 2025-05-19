@@ -11,7 +11,6 @@ import { useResetableRef } from "@/options/directives/useResetableRef.ts";
 import { getCanAddedSiteMetadata } from "@/options/views/Settings/SetSite/utils.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
-import NavButton from "@/options/components/NavButton.vue";
 import CheckSwitchButton from "@/options/components/CheckSwitchButton.vue";
 
 const showDialog = defineModel<boolean>();
@@ -192,7 +191,7 @@ async function dialogEnter() {
                     :value="site.id"
                     hide-details
                     multiple
-                  ></v-checkbox>
+                  />
                   <SiteFavicon :site-id="site.id" class="mr-2" />
                 </template>
 

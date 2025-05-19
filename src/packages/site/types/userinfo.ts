@@ -53,6 +53,7 @@ export interface IImplicitUserInfo {
   posts?: number; // 发布帖子数需求
 
   hnrUnsatisfied?: number; // H&R 未满足的数量需求
+  hnrPerWarning?: number; // H&R 预警
 
   [key: string]: any; // 其他需求
 }
@@ -84,6 +85,7 @@ export interface IUserInfo extends Omit<IImplicitUserInfo, "interval"> {
   avatar?: string; // 头像
 
   // 此处仅对变化项进行覆写，其他项不再累述
+  totalTraffic?: number; // 总流量
   downloaded?: number; // 下载量
   trueDownloaded?: number; // 真实下载量
   uploaded?: number; // 上传量
