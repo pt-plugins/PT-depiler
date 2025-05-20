@@ -35,17 +35,44 @@ jobs:
           pnpm build:dist
           pnpm build:dist-firefox
 
-      - name: Zip build
-        run: |
-            cd dist-chrome
-            zip -r ../dist-chrome.zip *
-            cd ../dist-firefox
-            zip -r ../dist-firefox.zip *
+      - name: Upload Chrome Built to action
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-dist-chrome
+          path: dist-chrome
+
+      - name: Upload Firefox Built to action
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-dist-firefox
+          path: dist-firefox
+
+      - run: mkdir -p build-zip
+
+      - id: zip_chrome
+        name: Build Zip For Chrome
+        uses: cardinalby/webext-buildtools-pack-extension-dir-action@v1
+        with:
+          extensionDir: 'dist-chrome'
+          zipFilePath: 'build/extension-chrome.zip'
+
+      - id: zip_firefox
+        name: Build Zip For Firefox
+        uses: cardinalby/webext-buildtools-pack-extension-dir-action@v1
+        with:
+          extensionDir: 'dist-firefox'
+          zipFilePath: 'build/extension-firefox.zip'
 
       - name: Upload Built Zip to action
         uses: actions/upload-artifact@v4
         with:
-          path: |
-            dist-chrome.zip
-            dist-firefox.zip
- 
+          name: build-zip-${{ steps.zip_chrome.outputs.extensionVersion }}
+          path: build/*.zip
+
+      - name: Upload build Zip to Telegram Channel
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        if: ${{ env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHAT_ID != '' }}
+        run: pnpm telegram:upload
+        continue-on-error: true
