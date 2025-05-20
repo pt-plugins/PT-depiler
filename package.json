@@ -32,6 +32,7 @@
     "build:dist": "vite build",
     "build:dist-firefox": "cross-env TARGET=firefox vite build",
     "build:watch": "vite build --watch --mode development --minify false",
+    "telegram:upload": "tsx vite/sendToTgChannel.ts",
     "prepare": "husky"
   },
   "engines": {
