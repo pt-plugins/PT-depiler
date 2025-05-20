@@ -116,6 +116,13 @@ export default defineConfig({
         "{{chrome}}.permissions": [...permissions, "offscreen"],
         "{{firefox}}.permissions": permissions,
         host_permissions: ["*://*/*"],
+
+        "{{firefox}}.browser_specific_settings": {
+          gecko: {
+            id: "ptplugins@gmail.com+ptdepiler@firefox",
+            strict_min_version: "42.0",
+          },
+        },
       }),
       additionalInputs: target == "chrome" ? ["src/entries/offscreen/offscreen.html"] : undefined,
       watchFilePaths: ["package.json"],
