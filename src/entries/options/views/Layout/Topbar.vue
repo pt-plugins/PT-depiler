@@ -138,14 +138,14 @@ function startSearchEntity() {
           v-for="(append, index) in appendMenu"
           :key="index"
           v-bind.prop="append.prop"
+          :append-icon="append.icon"
           :href="append.href"
           :title="append.title"
-          variant="text"
           rel="noopener noreferrer nofollow"
           size="large"
           target="_blank"
+          variant="text"
         >
-          <v-icon :icon="append.icon" />
           <span class="ml-1">{{ append.title }}</span>
         </v-btn>
       </template>

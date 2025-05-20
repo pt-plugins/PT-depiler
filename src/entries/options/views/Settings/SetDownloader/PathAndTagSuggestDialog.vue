@@ -307,8 +307,7 @@ function saveClientConfig() {
       <v-divider />
       <v-card-actions>
         <v-spacer />
-        <v-btn color="success" variant="text" @click="saveClientConfig">
-          <v-icon icon="mdi-check-circle-outline" />
+        <v-btn color="success" prepend-icon="mdi-check-circle-outline" variant="text" @click="saveClientConfig">
           {{ $t("common.dialog.ok") }}
         </v-btn>
       </v-card-actions>

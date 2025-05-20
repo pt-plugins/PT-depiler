@@ -182,17 +182,16 @@ function dialogLeave() {
       <v-divider />
       <v-card-actions>
         <v-spacer />
-        <v-btn color="error" variant="text" @click="showDialog = false">
-          <v-icon icon="mdi-close-circle" />
+        <v-btn color="error" prepend-icon="mdi-close-circle" variant="text" @click="showDialog = false">
           {{ t("common.dialog.cancel") }}
         </v-btn>
         <v-btn
           :disabled="!formValid || solution.solutions.length === 0"
           color="success"
+          prepend-icon="mdi-check-circle-outline"
           variant="text"
           @click="saveSolutionState"
         >
-          <v-icon icon="mdi-check-circle-outline" />
           {{ t("common.dialog.ok") }}
         </v-btn>
       </v-card-actions>

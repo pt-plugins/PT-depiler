@@ -45,13 +45,11 @@ function editClientConfig() {
       <v-divider />
       <v-card-actions>
         <v-spacer />
-        <v-btn color="error" variant="text" @click="showDialog = false">
-          <v-icon icon="mdi-close-circle" />
+        <v-btn color="error" prepend-icon="mdi-close-circle" variant="text" @click="showDialog = false">
           {{ t("common.dialog.cancel") }}
         </v-btn>
 
-        <v-btn color="success" variant="text" @click="editClientConfig">
-          <v-icon icon="mdi-check-circle-outline" />
+        <v-btn color="success" prepend-icon="mdi-check-circle-outline" variant="text" @click="editClientConfig">
           {{ t("common.dialog.ok") }}
         </v-btn>
       </v-card-actions>

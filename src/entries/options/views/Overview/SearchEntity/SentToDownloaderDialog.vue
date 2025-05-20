@@ -228,8 +228,13 @@ function dialogLeave() {
       <v-card-actions>
         <!-- TODO 说明 -->
         <v-spacer />
-        <v-btn :disabled="isSending" color="info" variant="text" @click="showDialog = false">
-          <v-icon icon="mdi-close-circle" />
+        <v-btn
+          :disabled="isSending"
+          color="info"
+          prepend-icon="mdi-close-circle"
+          variant="text"
+          @click="showDialog = false"
+        >
           <span class="ml-1">{{ $t("common.dialog.cancel") }}</span>
         </v-btn>
         <v-btn

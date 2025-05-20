@@ -128,32 +128,36 @@ async function saveStoredDownloaderConfig() {
           <span class="ml-1">{{ t("SetDownloader.add.newType") }}</span>
         </v-btn>
         <v-spacer />
-        <v-btn color="error" variant="text" @click="showDialog = false">
-          <v-icon icon="mdi-close-circle" />
+        <v-btn color="error" prepend-icon="mdi-close-circle" variant="text" @click="showDialog = false">
           {{ t("common.dialog.cancel") }}
         </v-btn>
-        <v-btn v-if="currentStep === 1" color="blue-darken-1" variant="text" @click="currentStep--">
-          <v-icon icon="mdi-chevron-left" />
+        <v-btn
+          v-if="currentStep === 1"
+          color="blue-darken-1"
+          prepend-icon="mdi-chevron-left"
+          variant="text"
+          @click="currentStep--"
+        >
           {{ t("common.dialog.prev") }}
         </v-btn>
         <v-btn
           v-if="currentStep === 0"
           :disabled="selectedClientType == null"
+          append-icon="mdi-chevron-right"
           color="blue-darken-1"
           variant="text"
           @click="currentStep++"
         >
           {{ t("common.dialog.next") }}
-          <v-icon icon="mdi-chevron-right" />
         </v-btn>
         <v-btn
           v-if="currentStep === 1"
           :disabled="!isDownloaderConfigValid"
           color="success"
+          prepend-icon="mdi-check-circle-outline"
           variant="text"
           @click="saveStoredDownloaderConfig"
         >
-          <v-icon icon="mdi-check-circle-outline" />
           {{ t("common.dialog.ok") }}
         </v-btn>
       </v-card-actions>
