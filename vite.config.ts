@@ -12,7 +12,7 @@ import webExtension from "vite-plugin-web-extension";
 
 // @ts-ignore
 import tailwindcss from "@tailwindcss/vite";
-import { vitePluginGenerateWebextLocales } from "./vite/generateWebextLocales";
+import { vitePluginGenerateWebextLocales } from "./vite/plugin/generateWebextLocales.ts";
 
 import git from "git-rev-sync";
 import pkg from "./package.json";

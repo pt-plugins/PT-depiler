@@ -9,5 +9,5 @@
     "allowImportingTsExtensions": true,
     "baseUrl": "."
   },
-  "include": ["package.json", "vite.config.ts", "vite/*.ts"]
+  "include": ["package.json", "vite.config.ts", "vite/**/*.ts"]
 }
