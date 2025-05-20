@@ -44,9 +44,8 @@ async function main() {
   const commitInfo = getCommitInfo();
 
   const message = `
-📦 **GitHub Action 自动推送**
-
 #${triggerInfo.eventName} #${commitInfo.author} #${commitInfo.commitHash}
+📦 **GitHub Action 自动推送**
 
 ${commitInfo.message}
 `;
