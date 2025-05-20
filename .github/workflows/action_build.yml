@@ -48,3 +48,4 @@ jobs:
           path: |
             dist-chrome.zip
             dist-firefox.zip
+ 
