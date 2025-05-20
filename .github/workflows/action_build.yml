@@ -35,14 +35,16 @@ jobs:
           pnpm build:dist
           pnpm build:dist-firefox
 
-      - name: Upload Chrome Built to action
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-dist-chrome
-          path: dist-chrome
+      - name: Zip build
+        run: |
+            cd dist-chrome
+            zip -r ../dist-chrome.zip *
+            cd ../dist-firefox
+            zip -r ../dist-firefox.zip *
 
-      - name: Upload Firefox Built to action
+      - name: Upload Built Zip to action
         uses: actions/upload-artifact@v4
         with:
-          name: build-dist-firefox
-          path: dist-firefox
+          path: |
+            dist-chrome.zip
+            dist-firefox.zip
