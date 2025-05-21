@@ -120,7 +120,7 @@ export default defineConfig({
         "{{firefox}}.browser_specific_settings": {
           gecko: {
             id: "ptdepiler.ptplugins@gmail.com",
-            strict_min_version: "109.0",
+            strict_min_version: "113.0",
           },
         },
       }),
