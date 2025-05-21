@@ -271,6 +271,15 @@ export const siteMetadata: ISiteMetadata = {
           },
         },
       },
+      {
+        requestConfig: { url: "/mybonus.php" },
+        selectors: {
+          bonusPerHour: {
+            selector: "td.rowhead:contains('总计') + td",
+            filters: [{ name: "split", args: [" ", 0] }, { name: "parseNumber" }],
+          },
+        },
+      },
     ],
   },
 

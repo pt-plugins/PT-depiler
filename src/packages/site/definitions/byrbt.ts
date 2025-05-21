@@ -95,6 +95,17 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    process: [
+      ...SchemaMetadata.userInfo!.process!.filter((item) => item.requestConfig.url !== "/mybonus.php"), // 继承、排除
+      {
+        requestConfig: { url: "/mybonus.php", params: { show: "seed" }, responseType: "document" },
+        fields: ["bonusPerHour"],
+      },
+    ],
+  },
+
   levelRequirements: [
     {
       id: 1,

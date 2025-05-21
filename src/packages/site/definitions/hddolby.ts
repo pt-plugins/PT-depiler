@@ -188,6 +188,10 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["td.rowhead:contains('鲸币') + td", "td.rowhead:contains('Karma Points') + td"],
         filters: [{ name: "parseNumber" }],
       },
+      bonusPerHour: {
+        selector: ["table[width='800'] > tbody > tr:contains('合计') > td:last-of-type"],
+        filters: [{ name: "split", args: ["/", 0] }, { name: "parseNumber" }],
+      },
     },
   },
 

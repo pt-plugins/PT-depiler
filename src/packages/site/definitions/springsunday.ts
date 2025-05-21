@@ -24,7 +24,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://springsunday.net/"],
+  urls: ["aHR0cHM6Ly9zcHJpbmdzdW5kYXkubmV0Lw=="],
   category: [
     {
       name: "类型",
@@ -309,6 +309,10 @@ export const siteMetadata: ISiteMetadata = {
             return query;
           },
         ],
+      },
+      bonusPerHour: {
+        selector: ["tbody:contains('我的数据') > tr:first > td:last"],
+        filters: [{ name: "parseNumber" }],
       },
       messageCount: {
         selector: ["a[href*='messages.php'][style*='background: red']"],

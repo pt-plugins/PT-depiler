@@ -129,6 +129,10 @@ export const siteMetadata: ISiteMetadata = {
           "seedingSize",
         ],
       },
+      {
+        requestConfig: { url: "/mybonus.php", params: { _: Date.now() }, responseType: "document" },
+        fields: ["bonusPerHour"],
+      },
     ],
   },
 
