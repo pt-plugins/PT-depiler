@@ -216,6 +216,7 @@
       "downloaded": "DL Size",
       "seeding": "Seeding",
       "seedingSize": "SD Size",
+      "bonusPerHour": "Bonus/H",
       "ratio": "Ratio",
       "siteName": "Site Name",
       "name": "Username",
@@ -243,7 +244,6 @@
       }
     }
   },
-  "SetBackup": {},
   "SetBase": {
     "tab": {
       "ui": "Option UI",

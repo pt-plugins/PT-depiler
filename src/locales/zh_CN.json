@@ -120,7 +120,7 @@
     "averageSeedingTime": "平均做种时间",
     "bonus": "魔力值/积分",
     "seedingBonus": "做种积分",
-    "bonusPerHour": "魔力值/积分每小时",
+    "bonusPerHour": "时魔",
     "uploads": "发布种子数",
     "leeching": "下载数量",
     "snatches": "完成种子数",
@@ -204,9 +204,9 @@
       "perSiteKbonus": "分站点魔力"
     },
     "dateRange": {
-      "day": "近 {0} 天",
       "custom": "自定义",
-      "all": "全部"
+      "all": "全部",
+      "day": "近 {0} 天"
     }
   },
   "UserDataTimeline": {
@@ -218,6 +218,7 @@
       "downloaded": "下载量",
       "seeding": "做种数",
       "seedingSize": "做种量",
+      "bonusPerHour": "时魔值",
       "ratio": "分享率",
       "siteName": "站点名称",
       "name": "用户名",
@@ -245,7 +246,6 @@
       }
     }
   },
-  "SetBackup": {},
   "SetBase": {
     "tab": {
       "ui": "界面UI",

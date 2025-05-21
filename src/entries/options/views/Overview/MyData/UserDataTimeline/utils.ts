@@ -32,6 +32,7 @@ export const CTimelineUserInfoField = [
   { name: "downloaded", format: (x: number) => formatSize(x) },
   { name: "seeding", format: (x: number) => x },
   { name: "seedingSize", format: (x: number) => formatSize(x) },
+  { name: "bonusPerHour", format: (x: number) => x.toFixed(2) },
   { name: "ratio", format: (x: number) => realFormatRatio(x) },
 ] as const;
 
@@ -92,8 +93,18 @@ export const timelineDataRef = useResetableRef<ITimelineData>(() => {
       seeding: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
       seedingSize: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
       ratio: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
+      bonusPerHour: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
     },
-    totalInfo: { sites: 0, uploads: 0, uploaded: 0, downloaded: 0, seeding: 0, seedingSize: 0, ratio: -1 },
+    totalInfo: {
+      sites: 0,
+      uploads: 0,
+      uploaded: 0,
+      downloaded: 0,
+      seeding: 0,
+      seedingSize: 0,
+      bonusPerHour: 0,
+      ratio: -1,
+    },
   };
 
   const lastUserInfo = deepToRaw(Object.values(metadataStore.lastUserInfo)) as IStoredUserInfo[]; // 获取所有站点的用户信息，并取消响应式

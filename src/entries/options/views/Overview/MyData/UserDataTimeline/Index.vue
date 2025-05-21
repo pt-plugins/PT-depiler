@@ -488,13 +488,15 @@ function saveControl() {
           <v-col cols="10">
             <v-slider
               v-model="control.faviconBlue"
+              :max="16"
               :min="0"
-              :max="8"
-              :step="1"
-              label="站点Favicon模糊度"
+              :step="0.5"
+              :thumb-color="control.faviconBlue > 10 ? 'red' : control.faviconBlue > 8 ? 'amber' : ''"
               class="pr-5"
-              @update:model-value="updateBlue"
               hide-details
+              label="站点Favicon模糊度"
+              thumb-label
+              @update:model-value="updateBlue"
             />
           </v-col>
         </v-row>
@@ -504,6 +506,7 @@ function saveControl() {
             <v-label>展示内容</v-label>
           </v-col>
           <v-col cols="12" sm="10">
+            <v-label class="my-2">统计部分</v-label>
             <v-row class="pl-5">
               <v-col v-for="(v, key) in control.showField" class="pa-0" cols="6" sm="4" :key="key">
                 <v-switch
@@ -515,6 +518,7 @@ function saveControl() {
                 />
               </v-col>
             </v-row>
+            <v-label class="my-2">时间轴部分</v-label>
             <v-row class="pl-5">
               <v-col v-for="(v, key) in control.showPerSiteField" class="pa-0" cols="6" sm="4">
                 <v-switch

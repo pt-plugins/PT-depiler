@@ -49,6 +49,7 @@ const fullTableHeader = reactive([
   { title: t("levelRequirement.seeding"), key: "seeding", align: "end" },
   { title: t("levelRequirement.seedingSize"), key: "seedingSize", align: "end" },
   { title: t("levelRequirement.bonus"), key: "bonus", align: "end" },
+  { title: t("levelRequirement.bonusPerHour"), key: "bonusPerHour", align: "end" },
   { title: t("MyData.table.joinTime"), key: "joinTime", align: "center" },
   { title: t("MyData.table.updateAt"), key: "updateAt", align: "center", props: { disabled: true } },
   { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false, props: { disabled: true } },
@@ -467,6 +468,12 @@ function viewStatistic() {
             </span>
           </v-row>
         </v-container>
+      </template>
+
+      <template #item.bonusPerHour="{ item }">
+        <span class="text-no-wrap">
+          {{ typeof item.bonusPerHour !== "undefined" ? formatNumber(item.bonusPerHour) : "-" }}
+        </span>
       </template>
 
       <!-- 入站时间 -->
