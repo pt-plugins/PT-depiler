@@ -32,7 +32,8 @@
     "build:dist": "vite build",
     "build:dist-firefox": "cross-env TARGET=firefox vite build",
     "build:watch": "vite build --watch --mode development --minify false",
-    "telegram:upload": "tsx vite/sendToTgChannel.ts",
+    "action:upload_telegram": "tsx vite/sendToTgChannel.ts",
+    "release:version": "conventional-changelog -p angular && git add CHANGELOG.md",
     "prepare": "husky"
   },
   "engines": {
@@ -90,6 +91,8 @@
     "@types/parse-torrent": "^5.8.7",
     "@types/sizzle": "^2.3.9",
     "@vitejs/plugin-vue": "^4.6.2",
+    "conventional-changelog": "^7.0.1",
+    "conventional-changelog-angular": "^8.0.0",
     "cross-env": "^7.0.3",
     "git-rev-sync": "^3.0.2",
     "husky": "^9.1.7",

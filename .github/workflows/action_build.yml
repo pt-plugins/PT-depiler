@@ -72,17 +72,23 @@ jobs:
       - name: Build Self-Sign Crx For Chrome
         uses: cardinalby/webext-buildtools-chrome-crx-action@v2
         env:
-          CRX_PRIVATE_KEY: ${{ secrets.CHROME_SELF_SIGN_CRX_PRIVATE_KEY }}
+          CHROME_SELF_SIGN_CRX_PRIVATE_KEY: ${{ secrets.CHROME_SELF_SIGN_CRX_PRIVATE_KEY }}
         if: ${{ env.CHROME_SELF_SIGN_CRX_PRIVATE_KEY != ''  }}
         with:
           zipFilePath: "build/extension-chrome.zip"
           crxFilePath: "build/extension.crx"
           privateKey: "${{ secrets.CHROME_SELF_SIGN_CRX_PRIVATE_KEY }}"
 
-      - name: Upload build Zip to Telegram Channel
+      - name: Upload Built Crx to action
+        uses: actions/upload-artifact@v4
+        with:
+          path: build/extension.crx
+          name: build-crx-${{ steps.zip_chrome.outputs.extensionVersion }}
+
+      - name: Upload build folder to Telegram Channel
         env:
           TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHAT_ID != '' }}
-        run: pnpm telegram:upload
+        run: pnpm action:upload_telegram
         continue-on-error: true

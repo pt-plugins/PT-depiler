@@ -1,1 +1,2 @@
+pnpm release:version
 pnpm exec lint-staged
