@@ -29,11 +29,8 @@ import { chunk, pascalCase, pick, toMerged, union } from "es-toolkit";
 import { setupCache } from "axios-cache-interceptor";
 import { setupReplaceUnsafeHeader } from "~/extends/axios/replaceUnsafeHeader.ts";
 
-// 在生产环境下，默认启用 axios-cache-interceptor，以减少对站点的请求次数
-if (import.meta.env.PROD) {
-  setupCache(axios);
-}
-
+// 默认启用 axios-cache-interceptor，以减少对站点的请求次数
+setupCache(axios);
 setupReplaceUnsafeHeader(axios);
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {

@@ -1,5 +1,12 @@
-import { ETorrentStatus, IAdvancedSearchRequestConfig, ISiteMetadata, TSelectSearchCategoryValue } from "@ptd/site";
-import { CategoryIncldead, CategorySpstate, SchemaMetadata } from "@ptd/site/schemas/NexusPHP.ts";
+import {
+  createDocument,
+  ETorrentStatus,
+  IAdvancedSearchRequestConfig,
+  ISiteMetadata,
+  IUserInfo,
+  TSelectSearchCategoryValue,
+} from "@ptd/site";
+import NexusPHP, { CategoryIncldead, CategorySpstate, SchemaMetadata } from "@ptd/site/schemas/NexusPHP.ts";
 import { set } from "es-toolkit/compat";
 
 export const siteMetadata: ISiteMetadata = {
@@ -353,3 +360,53 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
+
+export default class SpringSunday extends NexusPHP {
+  protected override async parseUserInfoForSeedingStatus(
+    flushUserInfo: Partial<IUserInfo>,
+  ): Promise<Partial<IUserInfo>> {
+    const userId = flushUserInfo.id as number;
+
+    // 这里先请求一次，不用担心 super 里面中重复请求
+    const userSeedingRequestString = await this.requestUserSeedingPage(userId);
+
+    if (userSeedingRequestString && /<b>\d+<\/b>(条记录| records|條記錄)/.test(userSeedingRequestString)) {
+      const userSeedingDocument = createDocument(userSeedingRequestString);
+
+      flushUserInfo.seeding = this.getFieldData(userSeedingDocument, {
+        selector: "b:eq(0)",
+        filters: [(x) => parseInt(x)],
+      });
+      flushUserInfo.seedingSize = this.getFieldData(userSeedingDocument, {
+        selector: "b:eq(1)",
+        filters: [{ name: "parseSize" }],
+      });
+      flushUserInfo.bonusPerHour = this.getFieldData(userSeedingDocument, {
+        selector: "b:eq(4)",
+        filters: [{ name: "parseNumber" }],
+      });
+    } else {
+      return super.parseUserInfoForSeedingStatus(flushUserInfo); // 回落到默认的处理
+    }
+
+    return flushUserInfo;
+  }
+
+  protected override async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
+    const userId = flushUserInfo.id as number;
+    const userUploadsRequestString = await this.requestUserSeedingPage(userId, "uploaded");
+    flushUserInfo.uploads = 0;
+
+    if (
+      userUploadsRequestString &&
+      /<b>\d+<\/b>(条记录| records|條記錄)|No record.|没有记录|沒有記錄/.test(userUploadsRequestString)
+    ) {
+      // 这里就不走 getFieldData 方法了，直接用正则匹配出来就好了
+      flushUserInfo.uploads = userUploadsRequestString.match(/<b>(\d+)<\/b>(条记录| records|條記錄)/)?.[1] ?? 0;
+    } else {
+      return super.parseUserInfoForUploads(flushUserInfo); // 回落到默认的处理
+    }
+
+    return flushUserInfo;
+  }
+}

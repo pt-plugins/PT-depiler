@@ -45,9 +45,10 @@ async function main() {
 
   const message = `
 #${triggerInfo.eventName} #${commitInfo.author} #${commitInfo.commitHash}
-📦 **GitHub Action 自动推送**
 
 ${commitInfo.message}
+
+📦 **GitHub Action 自动推送**
 `;
 
   const files = fs
