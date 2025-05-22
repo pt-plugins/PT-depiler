@@ -397,6 +397,9 @@ function saveControl() {
                         :config="
                           text({
                             y: 28,
+                            width: stageConfig.width / 2 - 80,
+                            wrap: 'char',
+                            lineHeight: 1.25,
                             text: [
                               control.showPerSiteField.name ? userInfo.name! : '',
                               control.showPerSiteField.level ? `<${userInfo.levelName!}>` : '',
