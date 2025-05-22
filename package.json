@@ -33,7 +33,7 @@
     "build:dist-firefox": "cross-env TARGET=firefox vite build",
     "build:watch": "vite build --watch --mode development --minify false",
     "action:upload_telegram": "tsx vite/sendToTgChannel.ts",
-    "release:version": "conventional-changelog -p angular && git add CHANGELOG.md",
+    "release:changelog": "conventional-changelog -p angular && git add CHANGELOG.md",
     "prepare": "husky"
   },
   "engines": {

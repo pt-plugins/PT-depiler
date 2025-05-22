@@ -15,6 +15,7 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import { formatDate } from "../../../utils.ts";
 
 import UserLevelsComponent from "./UserLevelsComponent.vue";
+import UserNextLevelUnMet from "@/options/views/Overview/MyData/UserNextLevelUnMet.vue";
 
 const { userInfo } = defineProps<{
   userInfo: IUserInfo;
@@ -77,7 +78,21 @@ const userLevelGroupIcon = computed(() => {
       <template v-slot:activator="{ props }">
         <span v-bind="props">
           <v-icon :icon="userLevelGroupIcon" size="16"></v-icon>
-          {{ levelName }}
+          {{ levelName }}<br />
+          <template
+            v-if="
+              configStore.myDataTableControl.showNextLevelInTable &&
+              userLevelGroupType === 'user' &&
+              !isEmpty(nextLevelUnMet)
+            "
+          >
+            <UserNextLevelUnMet
+              :next-level-un-met="nextLevelUnMet"
+              :show-next-level-name="false"
+              :user-info="userInfo"
+              icon-class="mr-1"
+            />
+          </template>
         </span>
       </template>
 
@@ -86,25 +101,15 @@ const userLevelGroupIcon = computed(() => {
           <v-card-text class="pa-2">
             <v-list class="pa-0" density="compact">
               <!-- 计算剩余升级情况 -->
-              <template v-if="userLevelGroupType === 'user' && !isEmpty(nextLevelUnMet)">
+              <template
+                v-if="
+                  configStore.myDataTableControl.showNextLevelInDialog &&
+                  userLevelGroupType === 'user' &&
+                  !isEmpty(nextLevelUnMet)
+                "
+              >
                 <v-list-item border class="list-item-half-spacer px-1 py-0">
-                  <template #prepend>
-                    <v-icon icon="mdi-keyboard-tab" color="orange" size="small" />
-                  </template>
-
-                  <span v-if="nextLevelUnMet.level">{{ nextLevelUnMet.level.name }}:&nbsp;</span>
-
-                  <template v-if="nextLevelUnMet.level && nextLevelUnMet.interval">
-                    <v-icon :title="$t('levelRequirement.interval')" icon="mdi-calendar-check-outline" size="small" />
-                    {{
-                      formatDate(
-                        convertIsoDurationToDate(nextLevelUnMet.level.interval!, userInfo.joinTime ?? currentTime),
-                        "yyyy-MM-dd",
-                      )
-                    }}
-                  </template>
-
-                  <UserLevelsComponent :level-requirement="nextLevelUnMet" />
+                  <UserNextLevelUnMet :next-level-un-met="nextLevelUnMet" :user-info="userInfo" />
                 </v-list-item>
               </template>
 

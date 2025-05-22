@@ -45,6 +45,10 @@ export interface IConfigPiniaStorageSchema {
     normalizeLevelName: boolean;
     // 是否展示升级情况及站点等级情况
     showLevelRequirement: boolean;
+    // 在表格中展示升级情况的方式
+    showNextLevelInTable: boolean;
+    // 在站点登记信息中展示升级情况的方式（需要先设置 showLevelRequirement 为 true）
+    showNextLevelInDialog: boolean;
     // TODO 是否展示HnR
     showHnR: boolean;
     // 是否展示保种积分

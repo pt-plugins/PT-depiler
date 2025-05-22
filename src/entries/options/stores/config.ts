@@ -75,6 +75,8 @@ export const useConfigStore = defineStore("config", {
       showUserName: true,
       normalizeLevelName: true,
       showLevelRequirement: true,
+      showNextLevelInTable: false,
+      showNextLevelInDialog: true,
       showHnR: true,
       showSeedingBonus: true,
       joinTimeWeekOnly: false,

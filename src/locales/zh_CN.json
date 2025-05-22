@@ -172,6 +172,8 @@
       "showUserName": "显示用户名",
       "normalizeLevelName": "使用站点定义的等级名称",
       "showLevelRequirement": "显示等级要求",
+      "showNextLevelInTable": "在表格中显示下一级别要求",
+      "showNextLevelInDialog": "在站点等级列表中显示下一级别要求",
       "showHnR": "显示 H&R",
       "showSeedingBonus": "显示做种积分",
       "joinTimeWeekOnly": "入站时间显示为相对周数",

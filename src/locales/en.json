@@ -171,6 +171,8 @@
       "showUserName": "Show Username",
       "normalizeLevelName": "Use Site-defined Level Name",
       "showLevelRequirement": "Show Level Requirement",
+      "showNextLevelInTable": "Show next level requirements in Table",
+      "showNextLevelInDialog": "Show next level requirements in Level Requirement Dialog",
       "showHnR": "Show H&R",
       "showSeedingBonus": "Show Seeding Bonus",
       "joinTimeWeekOnly": "Display join time as relative weeks",
