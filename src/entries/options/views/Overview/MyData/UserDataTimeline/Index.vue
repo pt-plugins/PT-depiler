@@ -90,11 +90,29 @@ const stageConfig = computed(() => {
   };
 });
 
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent); // FIXME 该判断移动到 utils.ts 中
+
+(Konva.Filters as any).tryNativeBlur = isSafari
+  ? Konva.Filters.Blur
+  : function (imageData: ImageData) {
+      // 创建一个和 imageData 一样大小的 OffscreenCanvas
+      const context = new OffscreenCanvas(imageData.width, imageData.height).getContext("2d");
+
+      // @ts-expect-error
+      const radius = Math.round((this as Konva.Node).blurRadius());
+      context!.filter = `blur(${radius}px)`;
+      // @ts-expect-error
+      context!.drawImage((this as any).getImage(), 0, 0);
+      const newImageData = context!.getImageData(0, 0, imageData.width, imageData.height);
+
+      imageData.data.set(newImageData.data);
+    };
+
 // 绘制相关辅助函数
 const favicon = (config: TKonvaConfig) =>
   image({
     image: allAddedSiteMetadata[config.site].faviconElement,
-    filters: [Konva.Filters.Blur],
+    filters: [(Konva.Filters as any).tryNativeBlur],
     blurRadius: control.faviconBlue,
     ...config,
   });
@@ -490,7 +508,7 @@ function saveControl() {
               v-model="control.faviconBlue"
               :max="16"
               :min="0"
-              :step="0.5"
+              :step="1"
               :thumb-color="control.faviconBlue > 10 ? 'red' : control.faviconBlue > 8 ? 'amber' : ''"
               class="pr-5"
               hide-details

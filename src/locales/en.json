@@ -99,6 +99,11 @@
       "SetSite": "Sites"
     }
   },
+  "checkSwitch": {
+    "all": "Select All",
+    "none": "Select None",
+    "invert": "Invert Selection"
+  },
   "connectCheck": {
     "default": "Check Connect",
     "error": "Connect Failed! Check Form Input or Remote Server",

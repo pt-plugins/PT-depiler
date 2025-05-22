@@ -100,6 +100,11 @@
       "SetSite": "站点设置"
     }
   },
+  "checkSwitch": {
+    "all": "全选",
+    "none": "全不选",
+    "invert": "反选"
+  },
   "connectCheck": {
     "default": "检查连接性",
     "error": "连接失败！请检查填写的信息或者你的远程服务器。",

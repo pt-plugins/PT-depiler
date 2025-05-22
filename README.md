@@ -3,14 +3,14 @@
 </p>
 
 <p align="center">
-    <a href="https://github.com/pt-plugins/PT-depiler/releases?include_prereleases/latest" title="GitHub Pre-releases">
+    <a href="../../releases?include_prereleases/latest" title="GitHub Pre-releases">
         <img src="https://img.shields.io/github/release/pt-plugins/PT-depiler.svg?include_prereleases&label=pre-release">
     </a>
-    <a href="https://github.com/pt-plugins/PT-depiler/releases" title="GitHub All Releases">
+    <a href="../../releases" title="GitHub All Releases">
         <img alt="Releases" src="https://img.shields.io/github/downloads/pt-plugins/PT-depiler/total.svg?label=Downloads">
     </a>
     <img src="https://img.shields.io/badge/Used-TypeScript%20Vue-blue.svg">
-    <a href="https://github.com/pt-plugins/PT-depiler/LICENSE" title="GitHub license">
+    <a href="./LICENSE" title="GitHub license">
         <img src="https://img.shields.io/github/license/pt-plugins/PT-depiler.svg?label=License" alt="GitHub license"/>
     </a>
     <a href="https://t.me/joinchat/NZ9NCxPKXyby8f35rn_QTw">
@@ -28,12 +28,12 @@ PT-depiler 是在原 [PT-Plugin-Plus](https://github.com/pt-plugins/PT-Plugin-Pl
 
 ### 🖥️ 功能 Features
 
-- **多站点支持**：兼容 Gazelle 等多种类型的 PT 站点，提供统一的操作界面
-- **下载器集成**：支持 ruTorrent、qBittorrent、Synology Download Station、Aria2 等多种下载器
-- **备份服务器管理**：集成 DropBox、Gist、CookieCloud 等备份服务，方便数据同步
+- **多站点支持**：兼容 NexusPHP、Gazelle 等多种类型的 PT 站点，提供聚合搜索相同关键字的种子、批量下载等功能
+- **下载器集成**：支持 qBittorrent、Transmission、Deluge、ruTorrent、Synology Download Station、Aria2 等多种下载器，并保存下载历史记录
+- **备份服务器管理**：集成 WebDav、Gist、CookieCloud、Google Drive、DropBox 等备份服务，方便数据同步
 - **智能搜索**：增强搜索功能，支持多站点同时搜索并合并结果
 - **用户信息管理**：集中显示和管理各站点的用户信息和统计数据
-- **种子信息解析**：自动提取和解析种子关键信息，如文件大小、格式等
+- 更多功能请参考 [Wiki](../../wiki)
 
 ### 🔧 安装 Installation
 
@@ -59,8 +59,10 @@ pnpm build:dist    # or pnpm build:dist-firefox
 
 PT-Depiler 并不是对 PT-Plugin-Plus 的简单移植，而是对其进行了全面的重构和改进，以获得更好的使用体验。
 
-> 目前， PT-Depiler 仅支持已适配站点的PTPP历史用户数据迁移。
+> 目前， PT-Depiler 仅支持**已适配站点**的PTPP历史用户数据迁移。
 > 请勿将 [PT-Plugin-Plus](https://github.com/pt-plugins/PT-Plugin-Plus) 或者 [PT 助手](https://github.com/ronggang/PT-Plugin) 的配置文件直接导入 PT-Depiler。
+
+更新记录请见： [CHANGELOG.md](./CHANGELOG.md)
 
 ### 💁‍♂️ 贡献 Contributors
 
