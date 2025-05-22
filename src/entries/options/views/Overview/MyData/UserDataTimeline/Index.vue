@@ -101,8 +101,10 @@ const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent); // 
       // @ts-expect-error
       const radius = Math.round((this as Konva.Node).blurRadius());
       context!.filter = `blur(${radius}px)`;
+
       // @ts-expect-error
-      context!.drawImage((this as any).getImage(), 0, 0);
+      const image = (this as any).getImage() as HTMLImageElement;
+      context!.drawImage(image, 0, 0, image.width, image.height, 0, 0, imageData.width, imageData.height);
       const newImageData = context!.getImageData(0, 0, imageData.width, imageData.height);
 
       imageData.data.set(newImageData.data);
