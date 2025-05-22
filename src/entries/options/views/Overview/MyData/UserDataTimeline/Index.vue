@@ -96,28 +96,57 @@ const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent); // 
   ? Konva.Filters.Blur
   : function (imageData: ImageData) {
       // 创建一个和 imageData 一样大小的 OffscreenCanvas
-      const context = new OffscreenCanvas(imageData.width, imageData.height).getContext("2d");
+      const context = new OffscreenCanvas(imageData.width, imageData.height).getContext("2d")!;
 
       // @ts-expect-error
       const radius = Math.round((this as Konva.Node).blurRadius());
-      context!.filter = `blur(${radius}px)`;
+      context.filter = `blur(${radius}px)`;
 
       // @ts-expect-error
       const image = (this as any).getImage() as HTMLImageElement;
-      context!.drawImage(image, 0, 0, image.width, image.height, 0, 0, imageData.width, imageData.height);
-      const newImageData = context!.getImageData(0, 0, imageData.width, imageData.height);
+      context.drawImage(image, 0, 0, image.width, image.height, 0, 0, imageData.width, imageData.height);
+      const newImageData = context.getImageData(0, 0, imageData.width, imageData.height);
 
       imageData.data.set(newImageData.data);
     };
 
 // 绘制相关辅助函数
-const favicon = (config: TKonvaConfig) =>
-  image({
-    image: allAddedSiteMetadata[config.site].faviconElement,
+const favicon = (config: TKonvaConfig) => {
+  let imageElement = allAddedSiteMetadata[config.site].faviconElement;
+  // 如果设置中传入了 canvas 这个自定义参数，我们为这个 favicon 生成一个带有白色背景的 canvas，然后在 canvas 上居中绘制 favicon
+  if (config.canvas) {
+    const { width: canvasWidth, height: canvasHeight } = config.canvas;
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d")!;
+
+    // 填充白色背景
+    ctx.fillStyle = "#fff";
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+    // 计算缩放比例和位置
+    const imageBaseSize = config.size ?? 24;
+    const imageWidth = config.image?.width ?? imageBaseSize;
+    const imageHeight = config.image?.height ?? imageBaseSize;
+
+    const x = (canvasWidth - imageWidth) / 2;
+    const y = (canvasHeight - imageHeight) / 2;
+    ctx.drawImage(imageElement, x, y, imageWidth, imageHeight); // 将 favicon 居中填充
+
+    // 防止辅助函数 image() 又一次设置 scaleX 和 scaleY
+    config.scaleX = 1;
+    config.scaleY = 1;
+
+    // @ts-ignore 将imageElement重写为我们的canvas
+    imageElement = canvas;
+  }
+
+  return image({
+    image: imageElement,
     filters: [(Konva.Filters as any).tryNativeBlur],
     blurRadius: control.faviconBlue,
     ...config,
   });
+};
 
 const siteFaviconClipFunc =
   (radius: number = 24, position: [number, number] = [stageConfig.value.width / 2, 0]) =>
@@ -331,7 +360,15 @@ function saveControl() {
                             el?.getNode().cache();
                           }
                         "
-                        :config="favicon({ site: userInfo.site, size: 38, x: stageConfig.width / 2 - 19, y: 0 - 19 })"
+                        :config="
+                          favicon({
+                            site: userInfo.site,
+                            size: 38,
+                            x: stageConfig.width / 2 - 24,
+                            y: 0 - 24,
+                            canvas: { width: 48, height: 48 },
+                          })
+                        "
                       />
                     </vk-group>
 
@@ -511,10 +548,10 @@ function saveControl() {
           <v-col cols="10">
             <v-slider
               v-model="control.faviconBlue"
-              :max="16"
+              :max="8"
               :min="0"
               :step="1"
-              :thumb-color="control.faviconBlue > 10 ? 'red' : control.faviconBlue > 8 ? 'amber' : ''"
+              :thumb-color="control.faviconBlue > 4 ? 'red' : ''"
               class="pr-5"
               hide-details
               label="站点Favicon模糊度"

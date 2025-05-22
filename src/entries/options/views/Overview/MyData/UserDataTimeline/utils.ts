@@ -184,10 +184,10 @@ export const image = (config: TKonvaConfig) => {
   return {
     x: 0,
     y: 0,
-    scaleX: imageBaseSize / imageWidth,
-    scaleY: imageBaseSize / imageHeight,
-    width: imageBaseSize,
-    height: imageBaseSize,
+    scaleX: config.scaleX ?? imageBaseSize / imageWidth,
+    scaleY: config.scaleY ?? imageBaseSize / imageHeight,
+    width: config.canvas?.width ?? imageBaseSize,
+    height: config.canvas?.height ?? imageBaseSize,
     ...config,
   };
 };
