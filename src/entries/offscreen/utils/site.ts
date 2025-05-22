@@ -14,6 +14,7 @@ import { log } from "~/helper.ts";
 import { onMessage, sendMessage } from "@/messages.ts";
 import { ptdIndexDb } from "../adapter/indexdb.ts";
 import type { IMetadataPiniaStorageSchema } from "@/shared/storages/types/metadata.ts";
+import { uniq } from "es-toolkit";
 
 export async function getSiteUserConfig(siteId: TSiteID, flush = false) {
   const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
@@ -60,7 +61,7 @@ export async function getSiteFavicon(site: TSiteID | getFaviconMetadata, flush: 
     if (siteInstance) {
       siteFavicon = await getFavicon({
         id: siteId,
-        urls: siteInstance.metadata.urls,
+        urls: uniq([siteInstance.url, ...siteInstance.metadata.urls].filter(Boolean)),
         favicon: siteInstance.metadata.favicon,
       });
 

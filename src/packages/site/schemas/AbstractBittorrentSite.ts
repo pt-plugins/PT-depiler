@@ -11,6 +11,7 @@ import {
   ISearchInput,
   ITorrentTag,
   ISiteUserConfig,
+  TSiteUrl,
 } from "../types";
 import {
   definedFilters,
@@ -53,7 +54,7 @@ export default class BittorrentSite {
     return this.userConfig.merge?.name ?? this.metadata.name;
   }
 
-  get url(): string {
+  get url(): TSiteUrl {
     return this.userConfig.url ?? this.metadata.urls[0];
   }
 

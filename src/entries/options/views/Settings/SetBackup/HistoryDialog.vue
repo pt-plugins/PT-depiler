@@ -73,10 +73,15 @@ async function dialogEnter() {
   // noinspection ES6MissingAwait
   loadBackupHistory();
 }
+
+async function dialogLeave() {
+  backupHistory.value = [];
+  tableSelected.value = [];
+}
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" max-width="1000" @after-enter="dialogEnter">
+  <v-dialog v-model="showDialog" max-width="1000" @after-enter="dialogEnter" @after-leave="dialogLeave">
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
