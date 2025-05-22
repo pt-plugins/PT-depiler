@@ -71,7 +71,7 @@ export default defineConfig({
         manifest_version: 3,
         "{{chrome}}.minimum_chrome_version": "120",
 
-        version: pkg.version,
+        version: `${pkg.version}.${git.count()}`,
 
         name: "__MSG_extName__",
         description: "__MSG_extDesc__",
