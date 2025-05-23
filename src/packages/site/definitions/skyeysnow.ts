@@ -1,6 +1,8 @@
 import { EResultParseStatus, ETorrentStatus, ISiteMetadata, IUserInfo } from "@ptd/site";
 import Sizzle from "sizzle";
 import PrivateSite from "@ptd/site/schemas/AbstractPrivateSite.ts";
+import { AxiosRequestConfig } from "axios";
+import { toMerged } from "es-toolkit";
 
 export const siteMetadata: ISiteMetadata = {
   id: "skyeysnow",
@@ -219,9 +221,66 @@ export const siteMetadata: ISiteMetadata = {
 
 export default class Skyeysnow extends PrivateSite {
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    const flushUserInfo = await super.getUserInfoResult(lastUserInfo);
+    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
     if (flushUserInfo.status == EResultParseStatus.success) {
-      //
+      // Skyeysnow 的 seeding, seedingSize, uploads 需要额外处理
+      let seedAndUploadsStatus = { seeding: 0, seedingSize: 0, uploads: 0 } as Required<
+        Pick<IUserInfo, "seeding" | "seedingSize" | "uploads">
+      >;
+
+      // 遍历 /forum.php?mod=torrents&cat_5up=on&page=<page> 页面，获取 seeding 和 seedingSize
+      for (
+        const pageInfo = { count: 0, current: 0 }; // 生成页面信息
+        pageInfo.current <= pageInfo.count;
+        pageInfo.current++
+      ) {
+        const requestConfig = {
+          url: "/forum.php",
+          params: { mod: "torrents", cat_5up: "on", page: pageInfo.current },
+          responseType: "document",
+        } as AxiosRequestConfig;
+
+        const { data: pageDocument } = await this.request<Document>(requestConfig);
+
+        // 更新最大页数
+        if (pageInfo.count === 0) {
+          pageInfo.count = this.getFieldData(pageDocument, {
+            selector: ["a[onclick*='page=']:contains('-'):last"],
+            attr: "onclick", // javascript:ajax_refreash('/torrents_list_ajax.php?mod=torrents&diy=&page=250',)
+            filters: [(query: string) => query.match(/page=(\d+)/)?.[1] ?? 0],
+          });
+        }
+
+        // 因为这个页面其实是搜索页面，所以我们可以直接使用 search 的解析器来解析
+        try {
+          const thisPageTorrents = await this.transformSearchPage(pageDocument, {
+            searchEntry: this.metadata.search,
+            requestConfig,
+            keywords: "",
+          });
+          seedAndUploadsStatus.seeding += thisPageTorrents.length;
+          seedAndUploadsStatus.seedingSize += thisPageTorrents.reduce((acc, torrent) => {
+            return acc + (torrent.size ?? 0);
+          }, 0);
+        } catch (e) {
+          break; // 这里常见的报错为 NoTorrentsError， 这种情况可以直接跳出循环
+        }
+      }
+
+      // 通过 /forum.php?mod=torrents&search=#<uid> 获取 uploads
+      const { data: uploadsDocument } = await this.request<Document>({
+        url: "/forum.php",
+        params: { mod: "torrents", search: `#${flushUserInfo.id!}` },
+        responseType: "document",
+      });
+      seedAndUploadsStatus.uploads = this.getFieldData(uploadsDocument, {
+        text: 0,
+        selector: ["a[onclick*='page=']:contains('-'):last"],
+        filters: [(query: string) => parseInt(query.split("-")?.[1] ?? "0")],
+      });
+
+      // 合并数据
+      flushUserInfo = toMerged(flushUserInfo, seedAndUploadsStatus);
     }
 
     return flushUserInfo;
