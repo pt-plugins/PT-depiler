@@ -1,16 +1,5 @@
 import type { ISiteMetadata } from "@ptd/site";
-import {
-  CategoryInclbookmarked,
-  CategoryIncldead,
-  CategorySpstate,
-  SchemaMetadata,
-} from "@ptd/site/schemas/NexusPHP.ts";
-import {
-  allCustomTags,
-  allTagSelectors,
-  selectorSearchProgress,
-  selectorSearchStatus,
-} from "@ptd/site/definitions/hdhome.ts";
+import { SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
