@@ -167,7 +167,7 @@ export interface ISearchCategories {
   notes?: string; // 分类说明
 
   key: string; // 搜索大类
-  keyPath?: "data" | "params" | string; // 用于指导怎么生成请求参数，未指定时默认为 params
+  keyPath?: "data" | "params" | string; // 在未设置 generateRequestConfig，用于指导怎么生成请求参数，未指定时默认为 params
 
   options: ISearchCategoryOptions[];
   // 该搜索大类是否允许内部交叉（即多选） （ 不声明，则默认不允许（False） ）
