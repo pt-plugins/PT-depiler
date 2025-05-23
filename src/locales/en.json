@@ -171,6 +171,7 @@
       "showUserName": "Show Username",
       "normalizeLevelName": "Use Site-defined Level Name",
       "showLevelRequirement": "Show Level Requirement",
+      "onlyShowUserLevelRequirement": "Only show the upgrade queue in level requirements",
       "showNextLevelInTable": "Show next level requirements in Table",
       "showNextLevelInDialog": "Show next level requirements in Level Requirement Dialog",
       "showHnR": "Show H&R",

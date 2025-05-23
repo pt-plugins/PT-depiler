@@ -172,6 +172,7 @@
       "showUserName": "显示用户名",
       "normalizeLevelName": "使用站点定义的等级名称",
       "showLevelRequirement": "显示等级要求",
+      "onlyShowUserLevelRequirement": "只显示等级要求中的升级队列",
       "showNextLevelInTable": "在表格中显示下一级别要求",
       "showNextLevelInDialog": "在站点等级列表中显示下一级别要求",
       "showHnR": "显示 H&R",

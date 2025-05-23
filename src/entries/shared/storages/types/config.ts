@@ -45,6 +45,17 @@ export interface IConfigPiniaStorageSchema {
     normalizeLevelName: boolean;
     // 是否展示升级情况及站点等级情况
     showLevelRequirement: boolean;
+
+    /**
+     * 是否只展示站点等级定义中 UserGroup = ‘user’ 字段的等级要求
+     * 如果为 false，则展示所有等级要求
+     * 注意，如果该用户判断出来的 UserGroup = ‘vip’ or 'manager'， 这个选项会被静默忽略掉（即显示全部）
+     *
+     * 默认值： true
+     *
+     */
+    onlyShowUserLevelRequirement: boolean;
+
     // 在表格中展示升级情况的方式
     showNextLevelInTable: boolean;
     // 在站点登记信息中展示升级情况的方式（需要先设置 showLevelRequirement 为 true）
