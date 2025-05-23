@@ -110,6 +110,16 @@ export const siteMetadata: ISiteMetadata = {
         attr: "title",
         filters: [(query: string) => parseFloat(query.replace(/,/gi, ""))],
       },
+      bonusPerHour: {
+        selector: ["table.main td.text"],
+        filters: [
+          (query: string | number) => {
+            const queryMatch = String(query || "").match(/UCoin(\d+(?:\.\d+)?)/);
+            const bonusPerDay = queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0;
+            return bonusPerDay / 24;
+          },
+        ],
+      },
       seeding: {
         selector: [":self"],
         filters: [(query: string) => query.match(/<b>(\d+)<\/b>条记录/)?.[1] ?? "0", { name: "parseNumber" }],
@@ -131,6 +141,11 @@ export const siteMetadata: ISiteMetadata = {
         requestConfig: { url: "/userdetails.php", responseType: "document" },
         assertion: { id: "params.id" },
         fields: ["name", "levelName", "uploaded", "downloaded", "bonus", "messageCount", "joinTime"],
+      },
+      {
+        requestConfig: { url: "/mprecent.php", responseType: "document" },
+        assertion: { id: "params.user" },
+        fields: ["bonusPerHour"],
       },
       {
         requestConfig: {
