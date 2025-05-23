@@ -108,7 +108,7 @@ function dialogLeave() {
 
 <template>
   <v-dialog v-model="showDialog" fullscreen @after-enter="dialogEnter" @after-leave="dialogLeave">
-    <v-card>
+    <v-card class="overflow-y-auto">
       <v-card-title class="pa-0">
         <v-toolbar :title="t('SetSearchSolution.edit.title')" color="blue-grey-darken-2">
           <template #append>
@@ -174,7 +174,16 @@ function dialogLeave() {
                 </v-alert-title>
               </v-alert>
 
-              <SolutionLabel :solutions="solution.solutions" @remove:solution="removeSolution" closable />
+              <v-card class="overflow-y-auto" height="calc(100vh - 330px)">
+                <v-card-text class="pl-3 py-0 pr-1">
+                  <SolutionLabel
+                    :group-props="{ column: true }"
+                    :solutions="solution.solutions"
+                    closable
+                    @remove:solution="removeSolution"
+                  />
+                </v-card-text>
+              </v-card>
             </v-col>
           </v-row>
         </v-form>

@@ -205,7 +205,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('SetSearchSolution', 'itemsPerPage', v)"
     >
       <template #item.solution="{ item }">
-        <SolutionLabel :closable="false" :solutions="item.solutions" />
+        <SolutionLabel :closable="false" :group-props="{ column: true }" :solutions="item.solutions" />
       </template>
 
       <template #item.enabled="{ item }">

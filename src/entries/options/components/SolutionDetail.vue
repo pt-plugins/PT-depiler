@@ -35,14 +35,18 @@ function getCategoryOptionName(key: string, value: string | number | (string | n
 </script>
 
 <template>
-  <template v-if="solution">
+  <div v-if="solution" class="text-wrap">
     <template v-if="isEmpty(solution.selectedCategories)">默认</template>
     <template v-else>
-      <span v-for="(value, category) in solution.selectedCategories" :key="category">
-        {{ getCategoryName(category) }}: {{ getCategoryOptionName(category, value) }};&nbsp;
+      <span
+        v-for="(value, category) in solution.selectedCategories"
+        :key="category"
+        :title="getCategoryName(category) + ': ' + getCategoryOptionName(category, value)"
+      >
+        <b>{{ getCategoryName(category) }}</b> : {{ getCategoryOptionName(category, value) }};&nbsp;
       </span>
     </template>
-  </template>
+  </div>
   <template v-else>Unknown</template>
 </template>
 
