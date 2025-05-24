@@ -92,6 +92,9 @@ export const siteMetadata: ISiteMetadata = {
       leechers: { selector: " > td:nth-child(6)" },
       completed: { selector: " > td:nth-child(7)" },
       comments: { text: "N/A" },
+      ext_anidb: {
+        selector: 'span[style="float:right;font-style:italic"] > a[href*="torrents&search=%24"]:nth-child(1)', // 取第一个 anidbid
+      },
       progress: {
         selector: ["div.tline1, div.tline2"],
         attr: "style",
