@@ -42,13 +42,6 @@ export default defineConfig({
     outDir: `dist-${target}`,
     emptyOutDir: true,
   },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        api: "modern",
-      },
-    },
-  },
   plugins: [
     vitePluginGenerateWebextLocales(),
     nodePolyfills({

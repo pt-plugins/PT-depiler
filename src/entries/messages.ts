@@ -51,6 +51,13 @@ interface ProtocolMap extends TMessageMap {
   getCookiesByDomain(data: string): chrome.cookies.Cookie[];
   setCookie(data: chrome.cookies.SetDetails): void;
 
+  // 1.6 chrome.notifications
+  showNotification(data: { options: chrome.notifications.NotificationOptions; timeout?: number }): void;
+
+  // 1.7 chrome.contextMenus
+  addContextMenu(data: chrome.contextMenus.CreateProperties): string;
+  removeContextMenu(data: string): void;
+
   // 2. 在 offscreen 中注册，涉及页面解析等功能，主要供 options 使用
 
   // 2.1 站点基础 ( utils/site )

@@ -91,6 +91,11 @@ const tableData = computedAsync<IUserInfoItem[]>(async () => {
   }
 
   for (const [siteId, siteUserConfig] of Object.entries(metadataStore.sites)) {
+    // 设置为已离线或者不获取用户信息的站点不显示
+    if (siteUserConfig.isOffline === true || siteUserConfig.allowQueryUserInfo === false) {
+      continue;
+    }
+
     // 判断之前有无个人信息，没有则从siteMetadata中根据 type = 'private' 判断是否能获取个人信息
     let canHaveSiteUserInfo = !!metadataStore.lastUserInfo[siteId];
     if (!canHaveSiteUserInfo) {

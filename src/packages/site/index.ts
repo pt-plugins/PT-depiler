@@ -87,7 +87,7 @@ export async function getSite<TYPE extends "private" | "public">(
   if (!SiteClass) {
     let siteSchema = siteMetadata.schema!;
     // 如果schema有声明，但是没有对应的实现（ schemas/*.ts 或者 definitions/site.ts 中的 default class ），则根据 type 回落
-    if (!definitionList.includes(siteSchema)) {
+    if (!schemaList.includes(siteSchema)) {
       siteSchema = siteMetadata.type === "private" ? "AbstractPrivateSite" : "AbstractBittorrentSite";
     }
 
