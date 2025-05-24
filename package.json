@@ -87,11 +87,11 @@
     "@types/crypto-js": "^4.2.2",
     "@types/file-saver": "^2.0.7",
     "@types/git-rev-sync": "^2.0.2",
-    "@types/node": "^22.15.18",
+    "@types/node": "^22.15.21",
     "@types/parse-torrent": "^5.8.7",
     "@types/sizzle": "^2.3.9",
     "@vitejs/plugin-vue": "^5.2.4",
-    "conventional-changelog": "^7.0.1",
+    "conventional-changelog": "^7.0.2",
     "conventional-changelog-angular": "^8.0.0",
     "cross-env": "^7.0.3",
     "git-rev-sync": "^3.0.2",
@@ -117,7 +117,7 @@
     "endOfLine": "lf"
   },
   "lint-staged": {
-    "*.{js,jsx,cjs,mjs,ts,tsx,json,yml,yaml,vue,html}": [
+    "*.{js,ts,json,vue,html}": [
       "prettier --write "
     ]
   }
