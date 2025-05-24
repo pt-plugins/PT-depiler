@@ -112,31 +112,28 @@ const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent); // 
 
 // 绘制相关辅助函数
 const favicon = (config: TKonvaConfig) => {
-  let imageElement = allAddedSiteMetadata[config.site].faviconElement;
-  // 如果设置中传入了 canvas 这个自定义参数，我们为这个 favicon 生成一个带有白色背景的 canvas，然后在 canvas 上居中绘制 favicon
+  const imageBaseSize = config.size ?? 24;
+  let imageElement: HTMLImageElement | OffscreenCanvas = allAddedSiteMetadata[config.site].faviconElement;
+  // 如果设置中传入了 canvas 这个自定义参数，我们为这个 favicon 生成一个带有背景的 canvas，然后在 canvas 上居中绘制 favicon
   if (config.canvas) {
-    const { width: canvasWidth, height: canvasHeight } = config.canvas;
-    const canvas = document.createElement("canvas");
+    const { width: canvasWidth = imageBaseSize, height: canvasHeight = imageBaseSize } = config.canvas;
+    const canvas = new OffscreenCanvas(canvasWidth, canvasHeight);
     const ctx = canvas.getContext("2d")!;
 
-    // 填充白色背景
-    ctx.fillStyle = "#fff";
+    // 填充背景
+    ctx.fillStyle = config.canvas.fillStyle ?? "#fff";
     ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
-    // 计算缩放比例和位置
-    const imageBaseSize = config.size ?? 24;
-    const imageWidth = config.image?.width ?? imageBaseSize;
-    const imageHeight = config.image?.height ?? imageBaseSize;
-
-    const x = (canvasWidth - imageWidth) / 2;
-    const y = (canvasHeight - imageHeight) / 2;
-    ctx.drawImage(imageElement, x, y, imageWidth, imageHeight); // 将 favicon 居中填充
+    // 计算缩放比例和位置，并将 favicon 居中填充
+    const x = (canvasWidth - imageBaseSize) / 2;
+    const y = (canvasHeight - imageBaseSize) / 2;
+    ctx.drawImage(imageElement, 0, 0, imageElement.width, imageElement.height, x, y, imageBaseSize, imageBaseSize);
 
     // 防止辅助函数 image() 又一次设置 scaleX 和 scaleY
     config.scaleX = 1;
     config.scaleY = 1;
 
-    // @ts-ignore 将imageElement重写为我们的canvas
+    // 将imageElement重写为我们的canvas
     imageElement = canvas;
   }
 
@@ -306,7 +303,13 @@ function saveControl() {
                               el?.getNode().cache();
                             }
                           "
-                          :config="favicon({ site: timelineData.topInfo[key.name][type.siteKey].site, size: 20 })"
+                          :config="
+                            favicon({
+                              site: timelineData.topInfo[key.name][type.siteKey].site,
+                              size: 20,
+                              canvas: { fillStyle: '#455A64' },
+                            })
+                          "
                         />
                         <vk-text
                           v-if="timelineData.topInfo[key.name][type.valueKey] > 0"

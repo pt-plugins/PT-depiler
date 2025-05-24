@@ -99,7 +99,7 @@ const userLevelGroupIcon = computed(() => {
       <template v-slot>
         <v-card class="border-sm overflow-y-auto" max-height="500" max-width="800">
           <v-card-text class="pa-2">
-            <v-list class="pa-0" density="compact">
+            <v-list class="pa-0 level_requirement_list" density="compact">
               <!-- 计算剩余升级情况 -->
               <template
                 v-if="
@@ -116,34 +116,43 @@ const userLevelGroupIcon = computed(() => {
               <v-list-subheader v-if="userLevelRequirements.length > 0"> 用户等级列表 </v-list-subheader>
 
               <!-- 展示站点用户等级 -->
-              <template v-for="(userLevel, index) in userLevelRequirements" :key="userLevel.id">
-                <v-list-item class="list-item-half-spacer px-1 py-0">
-                  <template #prepend>
-                    <v-icon
-                      :color="userLevel.id <= (userInfo.levelId ?? -1) ? 'green' : 'red'"
-                      :icon="userLevel.id <= (userInfo.levelId ?? -1) ? 'mdi-check' : 'mdi-block-helper'"
-                      size="small"
-                    />
-                  </template>
+              <template v-for="userLevel in userLevelRequirements" :key="userLevel.id">
+                <template
+                  v-if="
+                    configStore.myDataTableControl.onlyShowUserLevelRequirement
+                      ? (userLevel.groupType !== 'vip' && userLevel.groupType !== 'manager') ||
+                        userLevelGroupType !== 'user'
+                      : true
+                  "
+                >
+                  <v-list-item class="list-item-half-spacer px-1 py-0">
+                    <template #prepend>
+                      <v-icon
+                        :color="userLevel.id <= (userInfo.levelId ?? -1) ? 'green' : 'red'"
+                        :icon="userLevel.id <= (userInfo.levelId ?? -1) ? 'mdi-check' : 'mdi-block-helper'"
+                        size="small"
+                      />
+                    </template>
 
-                  <div>
-                    <span v-if="userLevel.interval">
-                      {{
-                        formatDate(
-                          convertIsoDurationToDate(userLevel.interval, userInfo.joinTime ?? currentTime),
-                          "yyyy-MM-dd",
-                        )
-                      }}
-                    </span>
-                    <span>&nbsp;({{ userLevel.name }}):&nbsp;</span>
-                    <UserLevelsComponent :level-requirement="userLevel" />
-                  </div>
+                    <div>
+                      <span v-if="userLevel.interval">
+                        {{
+                          formatDate(
+                            convertIsoDurationToDate(userLevel.interval, userInfo.joinTime ?? currentTime),
+                            "yyyy-MM-dd",
+                          )
+                        }}
+                      </span>
+                      <span>&nbsp;({{ userLevel.name }}):&nbsp;</span>
+                      <UserLevelsComponent :level-requirement="userLevel" />
+                    </div>
 
-                  <div class="text-ellipsis text-truncate" :title="userLevel.privilege">
-                    {{ userLevel.privilege }}
-                  </div>
-                </v-list-item>
-                <v-divider v-if="index + 1 != userLevelRequirements.length" class="ma-1"></v-divider>
+                    <div class="text-ellipsis text-truncate" :title="userLevel.privilege">
+                      {{ userLevel.privilege }}
+                    </div>
+                  </v-list-item>
+                  <v-divider class="ma-1"></v-divider>
+                </template>
               </template>
             </v-list>
           </v-card-text>
@@ -160,4 +169,10 @@ const userLevelGroupIcon = computed(() => {
   <template v-else>-</template>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.level_requirement_list {
+  hr:last-child {
+    display: none;
+  }
+}
+</style>
