@@ -96,7 +96,6 @@ export const siteMetadata: ISiteMetadata = {
       name: "制作组",
       key: "team",
       options: [
-        { value: 3, name: "压制组" },
         { value: 4, name: "CHDBits" },
         { value: 3, name: "SGNB" },
         { value: 1, name: "REMUX" },
@@ -161,7 +160,7 @@ export const siteMetadata: ISiteMetadata = {
       id: 6,
       name: "Veteran User",
       interval: "P25W",
-      downloaded: "1500G",
+      downloaded: "1500GB",
       ratio: 6.0,
       seedingBonus: 1000000,
       privilege: "可以查看其它用户的评论、帖子历史。",
