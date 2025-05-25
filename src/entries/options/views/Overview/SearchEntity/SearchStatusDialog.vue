@@ -44,23 +44,25 @@ function getSearchSolution(planKey: string, entryName: string) {
               <SiteFavicon :site-id="searchPlan.siteId" class="mr-2" />
             </template>
             <v-list-item-title>
-              <SiteName
-                :class="['text-decoration-none', 'font-weight-bold', 'text-black']"
-                :site-id="searchPlan.siteId"
-                tag="span"
-              />
-              ->
-              <span v-if="searchPlan.searchEntry.name">
-                {{ searchPlan.searchEntry.name }}
-              </span>
-              <span v-else-if="runtimeStore.search.searchPlanKey === 'all'">
-                {{ searchPlan.searchEntry.name ?? searchPlan.searchEntryName }}
-              </span>
-              <span v-else>
-                <SolutionDetail
-                  :solution="getSearchSolution(runtimeStore.search.searchPlanKey, searchPlan.searchEntryName)"
+              <div class="d-inline-flex">
+                <SiteName
+                  :class="['text-decoration-none', 'font-weight-bold', 'text-black']"
+                  :site-id="searchPlan.siteId"
+                  tag="span"
                 />
-              </span>
+                ->
+                <span v-if="searchPlan.searchEntry.name">
+                  {{ searchPlan.searchEntry.name }}
+                </span>
+                <span v-else-if="runtimeStore.search.searchPlanKey === 'all'">
+                  {{ searchPlan.searchEntry.name ?? searchPlan.searchEntryName }}
+                </span>
+                <span v-else>
+                  <SolutionDetail
+                    :solution="getSearchSolution(runtimeStore.search.searchPlanKey, searchPlan.searchEntryName)"
+                  />
+                </span>
+              </div>
               <br />
               <span class="text-subtitle-2 text-grey"> <{{ searchPlan.searchEntryName }}> </span>
             </v-list-item-title>
