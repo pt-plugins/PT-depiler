@@ -57,3 +57,12 @@ export interface IRestoreOptions {
   expandCookieMinutes?: number; // 是否延长 cookie 过期时间（单位：分钟），（小于0）表示不延长
   keepExistUserInfo?: boolean; // 是否保留现有的用户信息
 }
+
+export interface ILoggerItem {
+  id?: string; // 日志 ID（自动生成）
+  time?: number; // 日志时间（自动生成）
+  level?: "log" | "trace" | "debug" | "info" | "warn" | "error"; // 日志级别（不传入时默认为 log）
+  module?: string; // 产生该日志的模块
+  msg: string; // 日志内容
+  data?: any;
+}

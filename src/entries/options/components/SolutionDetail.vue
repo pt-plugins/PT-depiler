@@ -2,9 +2,9 @@
 import { computedAsync } from "@vueuse/core";
 import { isEmpty } from "es-toolkit/compat";
 import type { ISearchCategories } from "@ptd/site";
-import type { ISearchSolution } from "@/storage.ts";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import type { ISearchSolution } from "@/storage.ts";
 
 const props = defineProps<{
   solution: ISearchSolution;

@@ -6,8 +6,8 @@ import { EResultParseStatus } from "@ptd/site";
 import { onMessage, sendMessage } from "@/messages.ts";
 import { type IConfigPiniaStorageSchema, type TUserInfoStorageSchema } from "@/storage.ts";
 import { type IMetadataPiniaStorageSchema } from "@/shared/storages/types/metadata.ts";
+import { logger } from "./logger.ts";
 import { getSiteInstance } from "./site.ts";
-import { log } from "~/helper.ts";
 
 const flushQueue = new PQueue({ concurrency: 1 }); // 默认设置为 1，避免并发搜索
 
@@ -17,7 +17,9 @@ flushQueue.on("active", async () => {
 
   if (flushQueue.concurrency != queueConcurrency) {
     flushQueue.concurrency = queueConcurrency;
-    log(`用户信息刷新队列并发数已更改为 ${flushQueue.concurrency}`);
+    logger({
+      msg: `The concurrency of the user information refresh queue has been updated to ${flushQueue.concurrency}`,
+    });
   }
 });
 
@@ -27,6 +29,7 @@ onMessage("cancelUserInfoQueue", () => {
 
 export async function getSiteUserInfoResult(siteId: string) {
   return (await flushQueue.add(async () => {
+    logger({ msg: `getSiteUserInfoResult for ${siteId}` });
     // 获取站点实例
     const site = await getSiteInstance<"private">(siteId);
 
@@ -47,7 +50,7 @@ export async function getSiteUserInfoResult(siteId: string) {
 onMessage("getSiteUserInfoResult", async ({ data: siteId }) => await getSiteUserInfoResult(siteId));
 
 export async function setSiteLastUserInfo(userData: IUserInfo) {
-  console.log("setSiteLastUserInfo", userData);
+  logger({ msg: `setSiteLastUserInfo for ${userData.site}`, data: userData });
   const site = userData.site;
 
   // 存储用户信息到 metadata 中（ pinia/webExtPersistence 会自动同步该部分信息 ）

@@ -4,10 +4,13 @@ import { useDisplay } from "vuetify";
 import { routes } from "@/options/plugins/router";
 import { watch } from "vue";
 import { isDebug, REPO_URL } from "~/helper.ts";
+import { useI18n } from "vue-i18n";
 
 const git = __GIT_VERSION__;
 const ext_version = __EXT_VERSION__;
 const year = new Date().getFullYear();
+
+const { t } = useI18n();
 const configStore = useConfigStore();
 
 // 当页面窗口大小发生变化时，调整 Navigation 的显示
@@ -49,7 +52,7 @@ function clickMenuItem() {
     <v-list density="compact" nav>
       <template v-for="(group, groupIndex) in menuOptions" :key="groupIndex">
         <v-list-subheader class="text-grey-darken-1">
-          {{ $t(group.title) }}
+          {{ t(group.title) }}
         </v-list-subheader>
         <v-list-item
           v-for="(nav, navIndex) in group.children"
@@ -60,7 +63,7 @@ function clickMenuItem() {
           class="list-item-half-spacer"
           @click="clickMenuItem"
         >
-          {{ $t(nav.title) }}
+          {{ t(nav.title) }}
         </v-list-item>
       </template>
     </v-list>
@@ -73,7 +76,7 @@ function clickMenuItem() {
             &copy; {{ year }},
             <a :href="`${REPO_URL}${git.long ? `/commit/${git.long}` : ''}`" target="_blank">{{ ext_version }}</a>
             <v-chip v-if="isDebug" class="pa-1 ml-1 mb-1" color="amber" label size="x-small">
-              {{ $t("common.test") }}
+              {{ t("common.test") }}
             </v-chip>
           </span>
         </v-row>

@@ -15,8 +15,6 @@ export const isDebug = !isProd;
 // 插件相关
 export const EXT_BASEURL = chrome.runtime?.getURL("");
 
-export const log = (...args: any[]) => isDebug && console.log(...args);
-
 export function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }

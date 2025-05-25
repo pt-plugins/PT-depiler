@@ -8,7 +8,7 @@ onMessage("showNotification", async ({ data: { options, timeout = 5e3 } }) => {
     priority: 0,
     message: "",
     ...options,
-  } as chrome.notifications.NotificationOptions<true>;
+  } as chrome.notifications.NotificationCreateOptions;
   let id = Math.floor(Math.random() * 99999) + "";
 
   chrome.notifications.create(id, createNotificationOptions, function (myId) {

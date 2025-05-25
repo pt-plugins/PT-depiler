@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { EResultParseStatus } from "@ptd/site";
 import { useI18n } from "vue-i18n";
+import { EResultParseStatus } from "@ptd/site";
 
 const { status } = defineProps<{
   status: EResultParseStatus;

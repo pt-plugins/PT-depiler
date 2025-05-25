@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { nanoid } from "nanoid";
+import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 import { cloneDeep, toMerged } from "es-toolkit";
 import { isEmpty, set } from "es-toolkit/compat";
+import type { IAdvancedSearchRequestConfig, ISearchCategories, TSelectSearchCategoryValue, TSiteID } from "@ptd/site";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-
-import { log } from "~/helper.ts";
-
 import type { ISearchSolution } from "@/storage.ts";
-import type { IAdvancedSearchRequestConfig, ISearchCategories, TSelectSearchCategoryValue, TSiteID } from "@ptd/site";
 
 const props = defineProps<{
   siteId: TSiteID;
@@ -18,6 +16,7 @@ const props = defineProps<{
 
 const emit = defineEmits(["update:solution"]);
 
+const { t } = useI18n();
 const metadataStore = useMetadataStore();
 
 const selectCategory = ref<Record<ISearchCategories["key"], TSelectSearchCategoryValue | symbol>>({});
@@ -115,7 +114,7 @@ async function generateSolution() {
     searchSolution.searchEntries = {};
   }
 
-  log("generateSolution", searchSolution);
+  console.log("generateSolution", searchSolution);
   emit("update:solution", searchSolution);
 
   // 重置本 expansion panel 的数据
@@ -152,10 +151,10 @@ async function generateSolution() {
                     >
                       <template #label>
                         <p class="font-weight-bold">
-                          {{ $t("common.checkbox.all") }}
+                          {{ t("common.checkbox.all") }}
                         </p>
                         <p v-if="!checkBtnIndeterminate(category)" class="text-red-lighten-1">
-                          &nbsp;{{ $t("setSite.spDialog.selectAllNotice") }}
+                          &nbsp;{{ t("setSite.spDialog.selectAllNotice") }}
                         </p>
                       </template>
                     </v-checkbox>
@@ -204,7 +203,7 @@ async function generateSolution() {
           </v-expansion-panel>
         </v-expansion-panels>
         <div v-else>
-          {{ $t("setSite.spDialog.noDefNotice") }}
+          {{ t("setSite.spDialog.noDefNotice") }}
         </div>
       </v-col>
       <v-col align-self="center">

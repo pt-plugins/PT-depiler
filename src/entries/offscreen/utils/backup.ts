@@ -6,14 +6,15 @@ import AbstractBackupServer from "@ptd/backupServer/AbstractBackupServer.ts";
 
 import { onMessage, sendMessage } from "@/messages.ts";
 import { ptdIndexDb } from "@/offscreen/adapter/indexdb.ts";
-import {
+import { logger } from "./logger.ts";
+import type {
   IConfigPiniaStorageSchema,
   IExtensionStorageSchema,
   TExtensionStorageKey,
   TUserInfoStorageSchema,
 } from "@/storage.ts";
-import { type IMetadataPiniaStorageSchema, TBackupFields, TBackupServerKey } from "@/shared/storages/types/metadata.ts";
-import { IRestoreOptions } from "@/shared/types.ts";
+import type { IMetadataPiniaStorageSchema, TBackupFields, TBackupServerKey } from "@/shared/storages/types/metadata.ts";
+import type { IRestoreOptions } from "@/shared/types.ts";
 
 export const storageKey = ["config", "metadata", "userInfo", "searchResultSnapshot"] as TExtensionStorageKey[];
 
@@ -51,6 +52,10 @@ export async function createBackupData(backupFields: TBackupFields[] = []): Prom
     version: `PT-Depiler (${__EXT_VERSION__})`,
   };
 
+  logger({
+    msg: `A Backup data created at ${formatDate(backupData.manifest.time!, "yyyy-MM-dd HH:mm:ss")}`,
+    data: Object.keys(backupData),
+  });
   return backupData;
 }
 

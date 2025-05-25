@@ -30,7 +30,7 @@ const tableSelected = ref<TSolutionKey[]>([]);
 const tableHeader = [
   { title: t("common.sortIndex"), key: "sort", align: "center", width: 150 },
   { title: t("common.name"), key: "name", align: "start", width: 150 },
-  { title: t("SetSearchSolution.solution"), key: "solution", align: "start", sortable: false },
+  { title: t("SetSearchSolution.solution"), key: "solution", align: "start", minWidth: 400, sortable: false },
   { title: t("SetSearchSolution.table.enable"), key: "enabled", align: "center", width: 120 },
   { title: t("SetSearchSolution.table.default"), key: "isDefault", align: "center", width: 120, sortable: false },
   { title: t("common.action"), key: "action", sortable: false, width: 200 },
@@ -231,7 +231,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
       <template #item.action="{ item }">
         <v-btn-group class="table-action" density="compact" variant="plain">
           <v-btn
-            :title="$t('common.edit')"
+            :title="t('common.edit')"
             color="info"
             icon="mdi-pencil"
             size="small"
@@ -245,7 +245,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
             @click="exportSearchSolutions([item.id])"
           />
           <v-btn
-            :title="$t('common.remove')"
+            :title="t('common.remove')"
             color="error"
             icon="mdi-delete"
             size="small"

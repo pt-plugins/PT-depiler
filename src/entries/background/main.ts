@@ -1,6 +1,5 @@
 import { onMessage } from "@/messages.ts";
 import { extStorage } from "@/storage.ts";
-import { log } from "~/helper.ts";
 
 import "./utils/cookies.ts";
 import "./utils/omnibox.ts";
@@ -14,7 +13,7 @@ chrome.action.onClicked.addListener(async () => {
 });
 
 chrome.runtime.onInstalled.addListener(() => {
-  log("Installed!");
+  console.log("Installed!");
 });
 
 onMessage("ping", async ({ data }) => {

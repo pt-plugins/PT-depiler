@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { type CAddTorrentOptions, getDownloaderIcon } from "@ptd/downloader";
 
 import { sendMessage } from "@/messages.ts";
@@ -19,6 +20,7 @@ const emit = defineEmits<{
   (e: "done"): void;
 }>();
 
+const { t } = useI18n();
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
@@ -235,7 +237,7 @@ function dialogLeave() {
           variant="text"
           @click="showDialog = false"
         >
-          <span class="ml-1">{{ $t("common.dialog.cancel") }}</span>
+          <span class="ml-1">{{ t("common.dialog.cancel") }}</span>
         </v-btn>
         <v-btn
           :disabled="!selectedDownloader"
@@ -245,7 +247,7 @@ function dialogLeave() {
           @click="sendToDownloader"
         >
           <v-icon icon="mdi-check-circle-outline" />
-          <span class="ml-1">{{ $t("common.dialog.ok") }}</span>
+          <span class="ml-1">{{ t("common.dialog.ok") }}</span>
         </v-btn>
       </v-card-actions>
     </v-card>

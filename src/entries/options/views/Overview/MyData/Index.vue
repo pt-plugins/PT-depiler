@@ -96,10 +96,14 @@ const tableData = computedAsync<IUserInfoItem[]>(async () => {
       continue;
     }
 
+    const siteMeta = await metadataStore.getSiteMetadata(siteId);
+    if (siteMeta.isDead === true && !configStore.userInfo.showDeadSiteInOverview) {
+      continue;
+    }
+
     // 判断之前有无个人信息，没有则从siteMetadata中根据 type = 'private' 判断是否能获取个人信息
     let canHaveSiteUserInfo = !!metadataStore.lastUserInfo[siteId];
     if (!canHaveSiteUserInfo) {
-      const siteMeta = await metadataStore.getSiteMetadata(siteId);
       canHaveSiteUserInfo = siteMeta?.type === "private";
     }
 

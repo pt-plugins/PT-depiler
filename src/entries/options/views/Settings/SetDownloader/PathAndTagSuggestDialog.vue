@@ -8,8 +8,6 @@ import type { IDownloaderMetadata } from "@/shared/storages/types/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
-import { log } from "~/helper.ts";
-
 const showDialog = defineModel<boolean>();
 const { clientId } = defineProps<{
   clientId: string;
@@ -37,7 +35,7 @@ const pathReplaceMap: [string, string, string][] = [
 watch(
   () => clientId,
   async (newValue) => {
-    log("Edit clientId:", newValue);
+    console.log("Edit clientId:", newValue);
     if (newValue) {
       clientConfig.value = { suggestFolders: [], suggestTags: [], ...metadataStore.downloaders[newValue] }; // 防止直接修改父组件的数据
       clientMetadata.value = await getDownloaderMetaData(clientConfig.value.type);
@@ -308,7 +306,7 @@ function saveClientConfig() {
       <v-card-actions>
         <v-spacer />
         <v-btn color="success" prepend-icon="mdi-check-circle-outline" variant="text" @click="saveClientConfig">
-          {{ $t("common.dialog.ok") }}
+          {{ t("common.dialog.ok") }}
         </v-btn>
       </v-card-actions>
     </v-card>

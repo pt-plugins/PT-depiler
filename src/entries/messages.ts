@@ -22,7 +22,7 @@ import type {
   TBackupFields,
 } from "@/storage.ts";
 import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/storages/types/indexdb.ts";
-import type { IRestoreOptions } from "@/shared/types.ts";
+import { ILoggerItem, IRestoreOptions } from "@/shared/types.ts";
 
 import { isDebug } from "~/helper.ts";
 
@@ -59,6 +59,9 @@ interface ProtocolMap extends TMessageMap {
   removeContextMenu(data: string): void;
 
   // 2. 在 offscreen 中注册，涉及页面解析等功能，主要供 options 使用
+  logger(data: ILoggerItem): void;
+  getLogger(): ILoggerItem[];
+  clearLogger(): void;
 
   // 2.1 站点基础 ( utils/site )
   getSiteUserConfig(data: { siteId: TSiteID; flush?: boolean }): ISiteUserConfig;

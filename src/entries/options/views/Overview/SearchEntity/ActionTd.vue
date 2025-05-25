@@ -2,7 +2,6 @@
 import { computed, ref } from "vue";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { sendMessage } from "@/messages.ts";
-import { log } from "~/helper.ts";
 
 import SentToDownloaderDialog from "./SentToDownloaderDialog.vue";
 
@@ -29,7 +28,7 @@ async function getTorrentDownloadLinks() {
 
   for (const torrent of torrentItems.value) {
     const downloadUrl = await sendMessage("getTorrentDownloadLink", torrent);
-    log(`torrent download link:`, torrent, downloadUrl);
+    sendMessage("logger", { msg: `torrent ${torrent} download link: ${downloadUrl}` }).catch();
     downloadUrls.push({ torrent, downloadUrl });
   }
 

@@ -1,7 +1,8 @@
 <script lang="ts" setup>
 import { useI18n } from "vue-i18n";
-import { REPO_URL } from "~/helper.ts";
 import { definedLangMetaData } from "@/options/plugins/i18n.ts";
+
+import { REPO_URL } from "~/helper.ts";
 
 const { rt, tm, t } = useI18n();
 

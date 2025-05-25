@@ -9,7 +9,6 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
-import { log } from "~/helper.ts";
 import { formatDate, formatSize, formatTimeAgo } from "@/options/utils.ts";
 import { doSearch, searchQueue, tableCustomFilter } from "./utils.ts"; // <-- 主要方法在这个文件中！！！
 
@@ -67,7 +66,6 @@ const tableSelected = ref<Array<ISearchResultTorrent["uniqueId"]>>([]);
 watch(
   () => route.query,
   (newParams, oldParams) => {
-    console.log("route.query", newParams, oldParams);
     if (newParams.snapshot) {
       metadataStore.getSearchSnapshotData(newParams.snapshot as string).then((data) => {
         data && (runtimeStore.search = { ...data, snapshot: newParams.snapshot as string });
@@ -88,19 +86,19 @@ watch(
 const isSearchingParsed = ref<boolean>(searchQueue.isPaused);
 
 function pauseSearchQueue() {
-  log("pauseSearchQueue", searchQueue);
+  console.log("pauseSearchQueue", searchQueue);
   searchQueue.pause();
   isSearchingParsed.value = true;
 }
 
 function startSearchQueue() {
-  log("startSearchQueue", searchQueue);
+  console.log("startSearchQueue", searchQueue);
   searchQueue.start();
   isSearchingParsed.value = false;
 }
 
 function cancelSearchQueue() {
-  log("cancelSearchQueue", searchQueue);
+  console.log("cancelSearchQueue", searchQueue);
   searchQueue.clear(); // 清空搜索队列
   // 将搜索队列中状态设置为跳过
   for (const key of Object.keys(runtimeStore.search.searchPlan)) {

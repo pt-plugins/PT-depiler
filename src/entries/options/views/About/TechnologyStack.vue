@@ -3,9 +3,10 @@ import axios from "axios";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useLocalStorage } from "@vueuse/core";
+import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
+
 import { dependencies, devDependencies } from "~/../package.json";
 import { REPO_URL } from "~/helper.ts";
-import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 const { t } = useI18n();
 
@@ -68,7 +69,7 @@ const tableDependencies = computed(() => Object.values(technologyData.value));
 </script>
 
 <template>
-  <v-alert :title="$t('TechnologyStack.thankNote')" class="mb-2" type="info" />
+  <v-alert :title="t('TechnologyStack.thankNote')" class="mb-2" type="info" />
   <v-card class="mb-2">
     <v-card-title>{{ t("TechnologyStack.ptppHistory") }}</v-card-title>
     <v-card-text>

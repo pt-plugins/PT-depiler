@@ -27,6 +27,10 @@ export async function createFlushUserInfoJob() {
     return async () => {
       const curDate = new Date();
       const curDateFormat = format(curDate, "yyyy-MM-dd");
+      sendMessage("logger", {
+        msg: `Auto-refreshing user information at ${curDateFormat}${retryIndex > 0 ? `(Retry #${retryIndex})` : ""}`,
+      }).catch();
+
       let metadataStore = (await extStorage.getItem("metadata"))!;
 
       // 遍历 metadataStore 中添加的站点
@@ -54,6 +58,10 @@ export async function createFlushUserInfoJob() {
 
       // 等待所有刷新操作完成
       await Promise.allSettled(flushPromises);
+      sendMessage("logger", {
+        msg: `Auto-refreshing user information finished, ${flushPromises.length} sites processed, ${failFlushSites.length} failed.`,
+        data: { failFlushSites },
+      }).catch();
 
       // 将刷新时间存入 metadataStore
       metadataStore = (await extStorage.getItem("metadata"))!;
@@ -62,6 +70,9 @@ export async function createFlushUserInfoJob() {
 
       // 如果本次有失败的刷新操作，则设置重试
       if (failFlushSites.length > 0 && retryIndex < retryMax) {
+        sendMessage("logger", {
+          msg: `Retrying auto-refresh for ${failFlushSites.length} failed sites in ${retryInterval} minutes (Retry #${retryIndex + 1})`,
+        }).catch();
         await jobs.scheduleJob({
           id: EJobType.FlushUserInfo + "-Retry-" + retryIndex,
           type: "once",
@@ -91,6 +102,7 @@ export async function cleanupFlushUserInfoJob() {
       await jobs.removeJob(alarm.name);
     }
   }
+  sendMessage("logger", { msg: "All flush user info jobs have been cleaned up." }).catch();
 }
 
 onMessage("cleanupFlushUserInfoJob", async () => await cleanupFlushUserInfoJob());
@@ -98,6 +110,7 @@ onMessage("cleanupFlushUserInfoJob", async () => await cleanupFlushUserInfoJob()
 export async function setFlushUserInfoJob() {
   await cleanupFlushUserInfoJob();
   await createFlushUserInfoJob();
+  sendMessage("logger", { msg: `Flush user info job has been set successfully.` }).catch();
 }
 
 onMessage("setFlushUserInfoJob", async () => await setFlushUserInfoJob());

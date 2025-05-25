@@ -9,8 +9,6 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
 
-import { log } from "~/helper.ts";
-
 const runtimeStore = useRuntimeStore();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
@@ -46,7 +44,7 @@ searchQueue.on("active", () => {
   // 启动后，根据 configStore 的值，自动更新 searchQueue 的并发数
   if (searchQueue.concurrency != configStore.searchEntity.queueConcurrency) {
     searchQueue.concurrency = configStore.searchEntity.queueConcurrency;
-    log("Search queue concurrency changed to: ", searchQueue.concurrency);
+    console.log("Search queue concurrency changed to: ", searchQueue.concurrency);
   }
 });
 
@@ -86,21 +84,21 @@ export async function doSearchEntity(
   };
 
   // Search site by plan in queue
-  log(`Add search ${searchEntryName} to queue.`);
+  console.log(`Add search ${searchEntryName} to queue.`);
   runtimeStore.search.searchPlan[solutionKey].queueAt = +new Date();
 
   // noinspection ES6MissingAwait
   searchQueue.add(
     async () => {
       const startAt = (runtimeStore.search.searchPlan[solutionKey].startAt = +new Date());
-      log(`search ${searchEntryName} start at ${startAt}`);
+      console.log(`search ${searchEntryName} start at ${startAt}`);
       runtimeStore.search.searchPlan[solutionKey].status = EResultParseStatus.working;
       const { status: searchStatus, data: searchResult } = await sendMessage("getSiteSearchResult", {
         keyword: runtimeStore.search.searchKey,
         siteId,
         searchEntry,
       });
-      log(`success get search ${searchEntryName} result, with code ${searchStatus}: `, searchResult);
+      console.log(`success get search ${searchEntryName} result, with code ${searchStatus}: `, searchResult);
       runtimeStore.search.searchPlan[solutionKey].status = searchStatus;
       for (const item of searchResult) {
         const itemUniqueId = `${item.site}-${item.id}`;
@@ -130,7 +128,7 @@ export async function doSearch(search: string, plan?: string, flush: boolean = t
     runtimeStore.resetSearchData();
   }
 
-  log("Start search with: ", searchKey, searchPlanKey, flush);
+  console.log("Start search with: ", searchKey, searchPlanKey, flush);
 
   runtimeStore.search.searchKey = searchKey;
   runtimeStore.search.searchPlanKey = searchPlanKey;
@@ -144,7 +142,7 @@ export async function doSearch(search: string, plan?: string, flush: boolean = t
   }
 
   runtimeStore.search.searchPlanKey = searchSolution.id; // 重写 searchPlanKey 为实际的 id
-  log(`Expanded Search Plan for ${searchPlanKey}: `, searchSolution);
+  console.log(`Expanded Search Plan for ${searchPlanKey}: `, searchSolution);
 
   if (searchSolution.solutions.length === 0) {
     runtimeStore.showSnakebar("请至少添加一个站点进行搜索", { color: "error" });

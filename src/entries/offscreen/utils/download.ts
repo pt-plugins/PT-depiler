@@ -5,15 +5,15 @@ import pWaitFor from "p-wait-for";
 import { type CAddTorrentOptions, getDownloader, getRemoteTorrentFile } from "@ptd/downloader";
 import type { ITorrent } from "@ptd/site";
 
-import { log } from "~/helper.ts";
+import { getSiteInstance } from "./site.ts";
+import { logger } from "./logger.ts";
+import { ptdIndexDb } from "../adapter/indexdb.ts";
 
 import { onMessage, sendMessage } from "@/messages.ts";
-import { getSiteInstance } from "./site.ts";
-import { ptdIndexDb } from "../adapter/indexdb.ts";
+import type { IDownloaderMetadata, IMetadataPiniaStorageSchema } from "@/storage.ts";
 import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/storages/types/indexdb.ts";
 import type { ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
 import type { IConfigPiniaStorageSchema } from "@/shared/storages/types/config.ts";
-import type { IDownloaderMetadata, IMetadataPiniaStorageSchema } from "@/storage.ts";
 
 export async function getDownloaderConfig(downloaderId: string) {
   const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
@@ -88,7 +88,7 @@ onMessage("downloadTorrentToLocalFile", async ({ data: { torrent, localDownloadM
   // 如果设置为 web 方法，且没有 headers 的情况，直接使用 window.open 方法
   if (localDownloadMethod === "web") {
     if (downloadMethod.toUpperCase() === "GET" && isEmpty(downloadHeaders)) {
-      log("downloadTorrentToLocalFile.web", downloadUri);
+      logger({ msg: `Download torrent file with web method: ${downloadUri}` });
       window.open(downloadUri, "_blank");
       await patchDownloadHistory(downloadId, { downloadStatus: "completed" });
       return downloadId;
@@ -115,7 +115,7 @@ onMessage("downloadTorrentToLocalFile", async ({ data: { torrent, localDownloadM
         downloadOptions.headers = Object.entries(downloadHeaders).map(([name, value]) => ({ name, value }));
       }
 
-      log("downloadTorrentToLocalFile.browser", downloadOptions);
+      logger({ msg: `Download torrent file with browser method: ${downloadUri}`, data: downloadOptions });
       await sendMessage("downloadFile", downloadOptions);
       await patchDownloadHistory(downloadId, { downloadStatus: "completed" });
       return downloadId;
@@ -129,7 +129,8 @@ onMessage("downloadTorrentToLocalFile", async ({ data: { torrent, localDownloadM
   // 如果设置为 extension，其次考虑使用 getRemoteTorrentFile 转为 Blob 再调用 chrome.downloads
   if (localDownloadMethod === "extension") {
     try {
-      log("downloadTorrentToLocalFile.extension", downloadRequestConfig);
+      logger({ msg: `Download torrent file with extension method: ${downloadUri}`, data: downloadRequestConfig });
+
       const torrentInstance = await getRemoteTorrentFile(downloadRequestConfig);
       const torrentUrl = URL.createObjectURL(torrentInstance.metadata.blob());
       let filename = torrentInstance.name;
@@ -150,7 +151,7 @@ onMessage("downloadTorrentToLocalFile", async ({ data: { torrent, localDownloadM
 });
 
 onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId, addTorrentOptions } }) => {
-  log("downloadTorrentToDownloader.Init", torrent, downloaderId, addTorrentOptions);
+  logger({ msg: "downloadTorrentToDownloader", data: { torrent, downloaderId, addTorrentOptions } });
 
   const downloadHistory = buildDownloadHistory(torrent, downloaderId, addTorrentOptions);
   const downloadId = await setDownloadHistory(downloadHistory);
@@ -174,7 +175,7 @@ onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId,
 
     await patchDownloadHistory(downloadId, { downloadStatus: "downloading" });
     try {
-      log("downloadTorrentToDownloader", downloadRequestConfig, addTorrentOptions);
+      logger({ msg: "downloadTorrentToDownloader", data: { torrent, downloadRequestConfig, addTorrentOptions } });
       await downloaderInstance.addTorrent(downloadRequestConfig.url!, addTorrentOptions);
       await patchDownloadHistory(downloadId, { downloadStatus: "completed" });
     } catch (e) {

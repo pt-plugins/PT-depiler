@@ -1,4 +1,4 @@
-import { onMessage } from "@/messages.ts";
+import { onMessage, sendMessage } from "@/messages.ts";
 
 export async function getCookiesByDomain(domain: string): Promise<chrome.cookies.Cookie[]> {
   return await chrome.cookies.getAll({ domain });
@@ -57,6 +57,7 @@ export async function setCookie(cookie: chrome.cookies.SetDetails): Promise<void
 
   if (allowSet) {
     await chrome.cookies.set(new_cookie);
+    sendMessage("logger", { msg: `Set a new cookie ${new_cookie.name} to ${new_cookie.url}` }).catch();
   }
 }
 

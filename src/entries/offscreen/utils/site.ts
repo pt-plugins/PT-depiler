@@ -1,3 +1,4 @@
+import { uniq } from "es-toolkit";
 import { isEmpty } from "es-toolkit/compat";
 import {
   getDefinedSiteMetadata,
@@ -9,19 +10,18 @@ import {
   type TSiteID,
 } from "@ptd/site";
 
-import { log } from "~/helper.ts";
-
 import { onMessage, sendMessage } from "@/messages.ts";
-import { ptdIndexDb } from "../adapter/indexdb.ts";
 import type { IMetadataPiniaStorageSchema } from "@/shared/storages/types/metadata.ts";
-import { uniq } from "es-toolkit";
+import { logger } from "./logger.ts";
+import { ptdIndexDb } from "../adapter/indexdb.ts";
 
 export async function getSiteUserConfig(siteId: TSiteID, flush = false) {
   const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
   const storedSiteUserConfig = metadataStore?.sites?.[siteId] ?? {};
 
+  const siteMetaData = await getDefinedSiteMetadata(siteId);
+
   if (flush || isEmpty(storedSiteUserConfig)) {
-    const siteMetaData = await getDefinedSiteMetadata(siteId);
     storedSiteUserConfig.isOffline ??= false;
     storedSiteUserConfig.sortIndex ??= 100;
     storedSiteUserConfig.allowSearch ??= Object.hasOwn(siteMetaData, "search");
@@ -33,7 +33,7 @@ export async function getSiteUserConfig(siteId: TSiteID, flush = false) {
     storedSiteUserConfig.merge ??= {};
   }
 
-  log(`getSiteUserConfig for ${siteId}: `, storedSiteUserConfig);
+  logger({ msg: `getSiteUserConfig for ${siteId}`, data: storedSiteUserConfig });
   return storedSiteUserConfig;
 }
 
@@ -49,7 +49,7 @@ export async function getSiteInstance<TYPE extends "private" | "public">(
     storedSiteUserConfig = await getSiteUserConfig(siteId);
   }
 
-  log(`siteInstance ${siteId} created with userConfig:`, storedSiteUserConfig);
+  logger({ msg: `getSiteInstance for ${siteId}`, data: storedSiteUserConfig });
   return await createSiteInstance<TYPE>(siteId, storedSiteUserConfig);
 }
 
@@ -71,6 +71,7 @@ export async function getSiteFavicon(site: TSiteID | getFaviconMetadata, flush: 
 
   if (!siteFavicon) {
     siteFavicon = NO_IMAGE;
+    logger({ msg: `getSiteFavicon for ${siteId} failed, use default NO_IMAGE.`, level: "warn" });
   }
 
   return siteFavicon;
@@ -79,6 +80,7 @@ export async function getSiteFavicon(site: TSiteID | getFaviconMetadata, flush: 
 onMessage("getSiteFavicon", async ({ data: { site, flush } }) => (await getSiteFavicon(site, flush))!);
 
 export async function clearSiteFaviconCache() {
+  logger({ msg: `clearSiteFaviconCache` });
   return await (await ptdIndexDb).clear("favicon");
 }
 

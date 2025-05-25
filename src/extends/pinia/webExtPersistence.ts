@@ -4,7 +4,6 @@
 import type { Ref } from "vue";
 import { ref, unref } from "vue";
 import { MutationType, PiniaPluginContext } from "pinia";
-import { log } from "~/helper.ts";
 
 export async function persistent<T>(key: string, newValue: T, storage: chrome.storage.AreaName = "local") {
   await chrome.storage[storage].set({ [key]: JSON.parse(JSON.stringify(newValue)) });
@@ -137,7 +136,7 @@ export function piniaWebExtPersistencePlugin(context: PiniaPluginContext) {
 
   if (autoSaveType && Array.isArray(autoSaveType)) {
     store.$subscribe((mutation, state: any) => {
-      log("Store `" + store.$id + "` change subscribed: ", mutation);
+      console?.log("Store `" + store.$id + "` change subscribed: ", mutation);
       if (autoSaveType.includes(mutation.type)) {
         $save(state);
       }

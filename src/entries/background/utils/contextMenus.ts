@@ -1,5 +1,5 @@
-import { onMessage } from "@/messages.ts";
 import { nanoid } from "nanoid";
+import { onMessage } from "@/messages.ts";
 
 onMessage("addContextMenu", async ({ data }) => {
   if (!data.id) {
