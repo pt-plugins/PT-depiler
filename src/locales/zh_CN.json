@@ -38,8 +38,10 @@
     "project": "PT 助手 Plus",
     "remove": "删除",
     "save": "保存",
+    "search": "搜索",
     "sortIndex": "优先级",
     "test": "测试",
+    "visit": "访问",
     "version": "版本",
     "howToUse": "如何使用？"
   },
@@ -48,7 +50,6 @@
       "emptySearchNotice": "获取各站第一页种子",
       "home": "主页",
       "navBarTip": "点击显示/隐藏导航栏",
-      "search": "搜索",
       "searchPlan": {
         "all": "@:manifest.searchPlanAll",
         "default": "@:manifest.searchPlanDefault"
@@ -68,8 +69,7 @@
   },
   "route": {
     "About": {
-      "ChangeLog": "更新日志",
-      "Donate": "友情捐助",
+      "Logger": "插件运行日志",
       "SpecialThank": "特别感谢",
       "TechnologyStack": "项目参考与引用",
       "default": "插件相关"
@@ -109,6 +109,9 @@
     "default": "检查连接性",
     "error": "连接失败！请检查填写的信息或者你的远程服务器。",
     "success": "连接成功，你可以顺利进行下一步。"
+  },
+  "downloaderLabel": {
+    "localDownload": "本地下载"
   },
   "levelRequirement": {
     "interval": "需要等待的日期",

@@ -96,6 +96,28 @@ const statusIconPropComputed = (host: string) =>
     };
   });
 
+function transferUserInfo(userInfo: IPtppUserInfo) {
+  const newUserInfo = {} as IUserInfo;
+  for (const [key, value] of Object.entries(userInfo)) {
+    if (userInfoTransferMap[key as keyof IPtppUserInfo]) {
+      const transfer = userInfoTransferMap[key as keyof IPtppUserInfo];
+      if (transfer === false) {
+        continue;
+      } else if (transfer === undefined) {
+        newUserInfo[key] = value;
+      } else if (typeof transfer === "string") {
+        newUserInfo[transfer] = value;
+      } else {
+        const { key, format = undefined } = transfer as TUserInfoTransferFull;
+        newUserInfo[key as keyof IPtppUserInfo] = format ? format(value) : value;
+      }
+    } else {
+      newUserInfo[key] = value;
+    }
+  }
+  return newUserInfo;
+}
+
 async function doImport() {
   isImporting.value = true;
   try {
@@ -111,27 +133,22 @@ async function doImport() {
         const siteId = allSupportedSiteHostMap.value[host];
         userInfoStorage[siteId] ??= {};
 
+        // 首先处理 latest，注意我们仅处理 lastUpdateStatus 为 success ，且历史时间大于当前存储的时间（这样可以帮助我们导入 isDead 的站点）
+        if (data.latest) {
+          const latestUserInfo = data.latest;
+          if (
+            overwriteExistUserInfo.value &&
+            latestUserInfo.lastUpdateStatus === "success" &&
+            latestUserInfo.lastUpdateTime &&
+            latestUserInfo.lastUpdateTime > (metadataStore.lastUserInfo[siteId]?.updateAt ?? 0)
+          ) {
+            metadataStore.lastUserInfo[siteId] = transferUserInfo(data.latest);
+          }
+        }
+
         for (const [date, userData] of Object.entries(omit(data, ["latest"]))) {
           if (typeof userInfoStorage[siteId][date] == "undefined" || overwriteExistUserInfo.value) {
-            const userInfo = {} as IUserInfo;
-            for (const [key, value] of Object.entries(userData)) {
-              if (userInfoTransferMap[key as keyof IPtppUserInfo]) {
-                const transfer = userInfoTransferMap[key as keyof IPtppUserInfo];
-                if (transfer === false) {
-                  continue;
-                } else if (transfer === undefined) {
-                  userInfo[key] = value;
-                } else if (typeof transfer === "string") {
-                  userInfo[transfer] = value;
-                } else {
-                  const { key, format = undefined } = transfer as TUserInfoTransferFull;
-                  userInfo[key as keyof IPtppUserInfo] = format ? format(value) : value;
-                }
-              } else {
-                userInfo[key] = value;
-              }
-            }
-            userInfoStorage[siteId][date] = userInfo;
+            userInfoStorage[siteId][date] = transferUserInfo(userData);
           }
         }
       }
@@ -139,6 +156,7 @@ async function doImport() {
 
     // 更新 userInfo
     await sendMessage("setExtStorage", { key: "userInfo", value: userInfoStorage });
+    await metadataStore.$save();
 
     runtimeStore.showSnakebar("导入成功，窗口将在 5s 后自动关闭，请刷新页面。");
 
