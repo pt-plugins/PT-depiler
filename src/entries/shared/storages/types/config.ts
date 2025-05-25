@@ -110,18 +110,17 @@ export interface IConfigPiniaStorageSchema {
   userInfo: {
     // 更新用户信息时的最大并发数
     queueConcurrency: number;
+    // 自动刷新用户信息
     autoReflush: {
-      // 是否开启自动刷新
-      enabled: boolean;
-      // 自动刷新间隔（ 1-12 小时 ）
-      interval: number;
+      enabled: boolean; // 是否开启自动刷新
+      interval: number; // 自动刷新间隔（ 1-12 小时 ）
       retry: {
-        // 最大重试次数
-        max: number;
-        // 每次重试的间隔（ 1-5 分钟 ）
-        interval: number;
+        max: number; // 最大重试次数
+        interval: number; // 每次重试的间隔（ 1-5 分钟 ）
       };
     };
+    // 是否在概览中展示已被标记为死亡 （isDead） 的站点
+    showDeadSiteInOverview: boolean;
   };
 
   download: {
