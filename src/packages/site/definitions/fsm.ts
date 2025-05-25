@@ -1,4 +1,4 @@
-import { type ILevelRequirement, ISearchInput, ISiteMetadata, ITorrent, ITorrentTag, ETorrentStatus } from "@ptd/site";
+import { ETorrentStatus, type ILevelRequirement, ISearchInput, ISiteMetadata, ITorrent, ITorrentTag } from "@ptd/site";
 import PrivateSite from "@ptd/site/schemas/AbstractPrivateSite.ts";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 
@@ -28,6 +28,10 @@ const levelRequirements: (ILevelRequirement & { levelId?: number })[] = [
 ];
 
 export const siteMetadata: ISiteMetadata = {
+  // refs: https://t.me/Ptfxq/892 https://t.me/FsmNotify/292
+  isDead: true,
+  favicon: "./fsm.jpg",
+
   version: 1,
   id: "fsm",
   name: "FSM",
@@ -41,7 +45,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "FSM",
 
-  urls: [ "aHR0cHM6Ly9mc20ubmFtZS8=" ],
+  urls: ["aHR0cHM6Ly9mc20ubmFtZS8="],
   formerHosts: [],
 
   category: [
@@ -50,10 +54,8 @@ export const siteMetadata: ISiteMetadata = {
       notes: "请勾选成人以开启搜索",
       key: "tags",
       keyPath: "params",
-      options: [
-        { name: "成人", value: "[]" }
-      ],
-      cross: false
+      options: [{ name: "成人", value: "[]" }],
+      cross: false,
     },
     {
       name: "分类",
@@ -70,7 +72,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "欧美视频", value: "7" },
         { name: "其他涩涩", value: "8" },
       ],
-      cross: false
+      cross: false,
     },
     {
       name: "促销",
@@ -81,7 +83,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "2xFREE", value: "1" },
         { name: "FREE", value: "2" },
       ],
-      cross: false
+      cross: false,
     },
   ],
 
@@ -102,24 +104,24 @@ export const siteMetadata: ISiteMetadata = {
       time: { selector: "createdTs" },
       size: { selector: "fileRawSize" },
       author: { text: "FSMer" }, // 该站点强制匿名发布
-      seeders: { 
+      seeders: {
         selector: "peers.upload",
         // 该站点在种子列表搜索 API 中返回的做种数在0的状态下非string
         filters: [
           (value: any) => {
             const num = Number(value);
             return isNaN(num) ? 0 : num;
-          }
-        ]
+          },
+        ],
       },
-      leechers: { 
+      leechers: {
         selector: "peers.download",
         filters: [
           (value: any) => {
             const num = Number(value);
             return isNaN(num) ? 0 : num;
-          }
-        ]
+          },
+        ],
       },
       completed: { selector: "finish" },
       comments: { text: 0 }, // 该站点在种子列表搜索 API 中没有返回 torrentCommentNum
@@ -136,7 +138,6 @@ export const siteMetadata: ISiteMetadata = {
     process: [
       {
         requestConfig: { url: "/Users/infos", method: "GET", responseType: "json" },
-        fields: ["id", "name"],
         selectors: {
           id: { selector: "data.uid" },
           name: { selector: "data.username" },
@@ -145,9 +146,8 @@ export const siteMetadata: ISiteMetadata = {
       {
         requestConfig: { url: "/Users/profile", params: { uid: "$id$" }, method: "GET", responseType: "json" },
         assertion: { id: "params.uid" },
-        fields: ["joinTime", "uploaded", "downloaded", "levelName", "levelId", "bonus", "seedingBonus", "bonusPerHour", "seeding", "seedingSize", "uploads"],
         selectors: {
-          joinTime: { 
+          joinTime: {
             selector: "data.createdTs",
             // 该站点在用户信息 API 中返回的加入时间为timestamp
             filters: [
@@ -213,7 +213,7 @@ interface IFsmActress {
 
 interface IFsmRawTorrent {
   actress?: IFsmActress[];
-  tags?: string[];  
+  tags?: string[];
   status: {
     hasStatus: boolean;
     upCoefficient: number;
@@ -250,13 +250,13 @@ export default class Fsm extends PrivateSite {
     axiosConfig.baseURL = this.apiBaseUrl;
 
     // 设置默认的 method 和 responseType ， 这样其他配置不需要显式声明
-    axiosConfig.method = "GET"; // 站点的请求方式为 POST
+    axiosConfig.method = "GET";
     axiosConfig.responseType = "json";
 
     // 在请求的 headers 中添加 存取令牌
     axiosConfig.headers = {
       ...(axiosConfig.headers ?? {}),
-      "APITOKEN": this.userConfig.inputSetting!.token ?? "", // FIXME 是否允许我们设置一个空字符？
+      APITOKEN: this.userConfig.inputSetting!.token ?? "",
     };
     return super.request<T>(axiosConfig, checkLogin);
   }
@@ -321,12 +321,9 @@ export default class Fsm extends PrivateSite {
 
     return torrent;
   }
-  
+
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
-
     // 生成下载链接
-    const downloadUrl = `${this.apiBaseUrl}Torrents/download?tid=${torrent.id}&passkey=${this.userConfig.inputSetting!.passkey}&source=direct`;
-
-    return downloadUrl;
+    return `${this.apiBaseUrl}Torrents/download?tid=${torrent.id}&passkey=${this.userConfig.inputSetting!.passkey}&source=direct`;
   }
 }

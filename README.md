@@ -29,15 +29,25 @@ PT-depiler 是在原 [PT-Plugin-Plus](https://github.com/pt-plugins/PT-Plugin-Pl
 
 ### 🔧 安装 Installation
 
-1. 从各个浏览器的扩展商店安装
+#### 1. 从各个浏览器的扩展商店安装
 
-TODO
+|          浏览器           | 状态                                                                                                                                                    |
+|:----------------------:|:------------------------------------------------------------------------------------------------------------------------------------------------------|
+|    Chrome Web Store    | 已提交待审核                                                                                                                                                | 
+|    Firefox Add-ons     | [![Mozilla Firefox](https://img.shields.io/amo/v/pt-depiler.svg?label=Mozilla%20Firefox)](https://addons.mozilla.org/zh-CN/firefox/addon/pt-depiler/) | 
+| Microsoft Edge Add-ons | 已提交待审核                                                                                                                                                |
 
-2. 从 Github Action 或者 Release 中获取并安装
+#### 2. 从 Github Action 或者 Release 中获取并安装
 
-TODO
+[![Build Action Release](../../actions/workflows/action_build.yml/badge.svg)](../../actions/workflows/action_build.yml)
 
-3. 从源码构建
+我们使用 Github Action 自动构建了基于 master 分支的最新版本，你可以在 [Github Action](../../actions/workflows/action_build.yml)
+或者 [Release](../../releases) 页面中下载最新的版本。
+
+#### 3. 从源码构建
+
+请预先准备好 [Git](https://git-scm.com/) 、 [Node.js](https://nodejs.org/en) 和 [pnpm](https://pnpm.io/) 环境。
+建议使用 [VSCode](https://code.visualstudio.com/) 或 [WebStorm](https://www.jetbrains.com/webstorm/) 作为开发工具。
 
 ```bash
 git clone https://github.com/pt-plugins/PT-depiler
