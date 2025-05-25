@@ -31,7 +31,8 @@ type TSimplePatchFieldKey = keyof Pick<
   "sites" | "solutions" | "snapshots" | "downloaders" | "mediaServers" | "backupServers"
 >;
 
-function getHostFromUrl(url: string): TSiteHost {
+// FIXME 移动到 @ptd/site 中
+export function getHostFromUrl(url: string): TSiteHost {
   let host = url;
   try {
     const urlObj = new URL(url);

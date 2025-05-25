@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { omit } from "es-toolkit";
-import { computed, ref } from "vue";
-import { EResultParseStatus, IUserInfo, parseSizeString } from "@ptd/site";
+import { computed, ref, shallowRef } from "vue";
+import { definitionList, EResultParseStatus, IUserInfo, parseSizeString, TSiteHost, TSiteID } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
-import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { getHostFromUrl, useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import type { TUserInfoStorageSchema } from "@/storage.ts";
 import type { IPtppDumpUserInfo, IPtppUserInfo } from "@/shared/types.ts";
@@ -62,9 +62,13 @@ const userInfoTransferMap = {
 
 const isImporting = ref<boolean>(false);
 const toImportSite = ref<string[]>([]);
-const allSupportedSite = computed(() =>
+
+// 这里我们自己维护一个站点列表，而不是用 metadataStore.siteHostMap （因为 siteHostMap 只考虑了已添加的站点，无未添加的站点）
+const allSupportedSiteHostMap = shallowRef<Record<TSiteHost, TSiteID>>({});
+
+const allSupportedSiteHost = computed(() =>
   Object.keys(ptppUserData)
-    .map((x) => ({ site: metadataStore.siteHostMap[x], host: x }))
+    .map((x) => ({ site: allSupportedSiteHostMap.value[x], host: x }))
     .filter((x) => !!x.site)
     .map((x) => x.host),
 );
@@ -75,7 +79,7 @@ const statusIconPropComputed = (host: string) =>
     let progressIcon = "progress-helper"; // 默认
     let progressColor = "grey";
     let progressTitle = "";
-    if (!allSupportedSite.value.includes(host)) {
+    if (!allSupportedSiteHost.value.includes(host)) {
       progressIcon = "progress-close";
       progressColor = "purple";
       progressTitle = "该站点暂不支持";
@@ -104,7 +108,7 @@ async function doImport() {
     // 开始转换数据
     for (const [host, data] of Object.entries(ptppUserData)) {
       if (toImportSite.value.includes(host)) {
-        const siteId = metadataStore.siteHostMap[host];
+        const siteId = allSupportedSiteHostMap.value[host];
         userInfoStorage[siteId] ??= {};
 
         for (const [date, userData] of Object.entries(omit(data, ["latest"]))) {
@@ -147,8 +151,30 @@ async function doImport() {
   }
 }
 
-function entryDialog() {
-  toImportSite.value = allSupportedSite.value;
+async function entryDialog() {
+  // 构造 allSupportedSiteHostMap
+  const siteHostMap: Record<TSiteHost, TSiteID> = {};
+  for (const siteId of definitionList) {
+    if (metadataStore.sites[siteId]?.url) {
+      siteHostMap[getHostFromUrl(metadataStore.sites[siteId].url)] = siteId;
+    }
+    const urls = await metadataStore.getSiteMergedMetadata(siteId, "urls", []);
+    if (urls.length > 0) {
+      for (const url of urls) {
+        siteHostMap[getHostFromUrl(url)] = siteId;
+      }
+    }
+    const formerHosts = (await metadataStore.getSiteMergedMetadata(siteId, "formerHosts", []))!;
+    if (formerHosts.length > 0) {
+      for (const host of formerHosts) {
+        siteHostMap[host] = siteId;
+      }
+    }
+  }
+
+  allSupportedSiteHostMap.value = siteHostMap;
+
+  toImportSite.value = allSupportedSiteHost.value;
 }
 </script>
 
@@ -169,7 +195,7 @@ function entryDialog() {
           <template #append>
             <CheckSwitchButton
               v-model="toImportSite"
-              :all="allSupportedSite"
+              :all="allSupportedSiteHost"
               :size="undefined"
               :disabled="isImporting"
             />
@@ -183,8 +209,8 @@ function entryDialog() {
                   <template #prepend>
                     <v-checkbox
                       v-model="toImportSite"
-                      :disabled="!allSupportedSite.includes(host as string)"
-                      :indeterminate="!allSupportedSite.includes(host as string)"
+                      :disabled="!allSupportedSiteHost.includes(host as string)"
+                      :indeterminate="!allSupportedSiteHost.includes(host as string)"
                       :value="host"
                       hide-details
                       indeterminate-icon="mdi-close"
@@ -194,7 +220,7 @@ function entryDialog() {
                   <template #title>
                     <v-list-item-title class="d-inline-flex align-center">
                       {{ host }}
-                      <template v-if="allSupportedSite.includes(host as string)">
+                      <template v-if="allSupportedSiteHost.includes(host as string)">
                         ->
                         <SiteFavicon :site-id="metadataStore.siteHostMap[host as string]" class="mx-1" />
                         <SiteName
