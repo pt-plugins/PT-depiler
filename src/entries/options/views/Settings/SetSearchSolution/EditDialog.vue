@@ -46,11 +46,13 @@ const addedSiteInfo = computedAsync(async () => {
     .sort((a, b) => Number(metadataStore.sites[b].allowSearch) - Number(metadataStore.sites[a].allowSearch))
     .map(async (siteId) => ({
       siteId,
+      isDead: (await metadataStore.getSiteMergedMetadata(siteId, "isDead")) ?? false,
       siteName: await metadataStore.getSiteName(siteId),
       siteUrl: await metadataStore.getSiteUrl(siteId),
     }));
 
-  return Promise.all(promises);
+  const siteInfos = await Promise.all(promises);
+  return siteInfos.filter((site) => !site.isDead);
 }, []);
 
 const filteredSite = computedAsync(() => {
@@ -149,7 +151,7 @@ function dialogLeave() {
                   <v-expansion-panel
                     v-for="site in filteredSite"
                     :id="site"
-                    :disabled="!!metadataStore.sites[site].isOffline || !metadataStore.sites[site].allowSearch"
+                    :disabled="!!metadataStore.sites[site].isOffline"
                   >
                     <v-expansion-panel-title>
                       <SiteFavicon :site-id="site" class="mr-2" inline />
