@@ -3,10 +3,10 @@ import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { VueDraggable } from "vue-draggable-plus";
 import { getDownloader, getDownloaderMetaData, type TorrentClientMetaData } from "@ptd/downloader";
-import type { IDownloaderMetadata } from "@/shared/storages/types/metadata.ts";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import type { IDownloaderMetadata } from "@/shared/types.ts";
 
 const showDialog = defineModel<boolean>();
 const { clientId } = defineProps<{

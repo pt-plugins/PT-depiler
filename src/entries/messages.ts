@@ -12,17 +12,19 @@ import type { ISocialInformation, TSupportSocialSite$1 } from "@ptd/social";
 import type { IMediaServerId, IMediaServerSearchOptions, IMediaServerSearchResult } from "@ptd/mediaServer";
 import type { getFaviconMetadata } from "@ptd/site";
 import type { IBackupData, IBackupFileInfo } from "@ptd/backupServer";
+
+import type { TExtensionStorageKey, IExtensionStorageSchema } from "@/storage.ts";
 import type {
-  TExtensionStorageKey,
-  IExtensionStorageSchema,
+  ILoggerItem,
+  IRestoreOptions,
+  ITorrentDownloadMetadata,
+  TTorrentDownloadKey,
   IDownloaderMetadata,
   ISearchData,
   TSearchSnapshotKey,
   TLocalDownloadMethod,
   TBackupFields,
-} from "@/storage.ts";
-import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/storages/types/indexdb.ts";
-import { ILoggerItem, IRestoreOptions } from "@/shared/types.ts";
+} from "@/shared/types.ts";
 
 import { isDebug } from "~/helper.ts";
 

@@ -11,7 +11,8 @@ import {
 } from "@ptd/site";
 
 import { onMessage, sendMessage } from "@/messages.ts";
-import type { IMetadataPiniaStorageSchema } from "@/shared/storages/types/metadata.ts";
+import type { IMetadataPiniaStorageSchema } from "@/shared/types.ts";
+
 import { logger } from "./logger.ts";
 import { ptdIndexDb } from "../adapter/indexdb.ts";
 

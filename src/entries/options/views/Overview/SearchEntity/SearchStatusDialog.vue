@@ -4,12 +4,12 @@ import { EResultParseStatus } from "@ptd/site";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
-import { doSearchEntity, raiseSearchPriority } from "@/options/views/Overview/SearchEntity/utils.ts";
-
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import SiteName from "@/options/components/SiteName.vue";
 import SolutionDetail from "@/options/components/SolutionDetail.vue";
 import ResultParseStatus from "@/options/components/ResultParseStatus.vue";
+
+import { doSearchEntity, raiseSearchPriority } from "./utils.ts";
 
 const showDialog = defineModel<boolean>();
 

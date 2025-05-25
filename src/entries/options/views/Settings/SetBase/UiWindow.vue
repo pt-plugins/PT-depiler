@@ -2,9 +2,8 @@
 import { useI18n } from "vue-i18n";
 
 import { useConfigStore } from "@/options/stores/config.ts";
-
 import { definedLangMetaData } from "@/options/plugins/i18n.ts";
-import { supportTheme } from "@/shared/storages/types/config.ts";
+import { supportTheme } from "@/shared/types.ts";
 
 const { t } = useI18n();
 const configStore = useConfigStore();

@@ -6,10 +6,11 @@
 
 import type { DBSchema } from "idb";
 import type { ISocialInformation } from "@ptd/social";
-import { ITorrent, TSiteID as TSiteKey } from "@ptd/site";
-import { TDownloaderKey } from "./metadata.ts";
-import { ISearchResultTorrent } from "./runtime.ts";
+import type { ITorrent, TSiteID as TSiteKey } from "@ptd/site";
 import type { CAddTorrentOptions } from "@ptd/downloader";
+
+import type { TDownloaderKey } from "./metadata.ts";
+import type { ISearchResultTorrent } from "./runtime.ts";
 
 export type TTorrentDownloadKey = number;
 

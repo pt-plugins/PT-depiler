@@ -1,4 +1,5 @@
 import type { IFetchSocialSiteInformationConfig } from "@ptd/social";
+
 import type { TLangCode } from "@/options/plugins/i18n.ts";
 import type { ITimelineUserInfoField } from "@/options/views/Overview/MyData/UserDataTimeline/utils.ts";
 

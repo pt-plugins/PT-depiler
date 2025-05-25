@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { range } from "es-toolkit";
-import { useI18n } from "vue-i18n";
+
 import { EJobType } from "@/background/utils/alarms.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";

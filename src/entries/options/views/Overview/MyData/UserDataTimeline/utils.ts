@@ -1,16 +1,13 @@
-import { IStoredUserInfo } from "@/shared/storages/types/metadata.ts";
-import { deepToRaw, formatSize } from "@/options/utils.ts";
-import { EResultParseStatus, ISiteMetadata, ISiteUserConfig, IUserInfo, TSiteID } from "@ptd/site";
-import { useResetableRef } from "@/options/directives/useResetableRef.ts";
-import { differenceInDays } from "date-fns";
-import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { ref } from "vue";
-import {
-  allAddedSiteMetadata,
-  fixUserInfo,
-  realFormatRatio,
-  TOptionSiteMetadatas,
-} from "@/options/views/Overview/MyData/utils.ts";
+import { differenceInDays } from "date-fns";
+import { EResultParseStatus, ISiteMetadata, ISiteUserConfig, IUserInfo, TSiteID } from "@ptd/site";
+
+import { IStoredUserInfo } from "@/shared/types.ts";
+import { deepToRaw, formatSize } from "@/options/utils.ts";
+import { useResetableRef } from "@/options/directives/useResetableRef.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
+
+import { allAddedSiteMetadata, fixUserInfo, realFormatRatio, TOptionSiteMetadatas } from "../utils.ts";
 
 const metadataStore = useMetadataStore();
 

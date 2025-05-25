@@ -4,7 +4,7 @@ import type { CAddTorrentOptions } from "@ptd/downloader";
 
 import { sendMessage } from "@/messages.ts";
 import { useResetableRef } from "@/options/directives/useResetableRef.ts";
-import type { ITorrentDownloadMetadata } from "@/shared/storages/types/indexdb.ts";
+import type { ITorrentDownloadMetadata } from "@/shared/types.ts";
 
 import SentToDownloaderDialog from "@/options/views/Overview/SearchEntity/SentToDownloaderDialog.vue";
 

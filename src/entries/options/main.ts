@@ -1,6 +1,7 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 
+// Vue Plugins
 import { vuetifyInstance as vuetify } from "./plugins/vuetify";
 import { piniaInstance as pinia } from "./plugins/pinia";
 import { routerInstance as router } from "./plugins/router";

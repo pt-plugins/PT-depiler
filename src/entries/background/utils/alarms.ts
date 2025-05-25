@@ -4,7 +4,8 @@ import { EResultParseStatus, type TSiteID } from "@ptd/site/types/base.ts";
 
 import { extStorage } from "@/storage.ts";
 import { onMessage, sendMessage } from "@/messages.ts";
-import { setupOffscreenDocument } from "@/background/utils/offscreen.ts";
+
+import { setupOffscreenDocument } from "./offscreen.ts";
 
 export enum EJobType {
   FlushUserInfo = "flushUserInfo",

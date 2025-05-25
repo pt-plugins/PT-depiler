@@ -22,11 +22,11 @@ import {
 } from "echarts/components";
 
 import { formatSize, formatDate } from "@/options/utils.ts";
-import { IStoredUserInfo } from "@/shared/storages/types/metadata.ts";
+import { IStoredUserInfo } from "@/shared/types.ts";
 
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-import { loadFullData, setSubDate, TUserDataStatistic } from "./utils.ts";
 import { allAddedSiteMetadata, loadAllAddedSiteMetadata } from "@/options/views/Overview/MyData/utils.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
@@ -34,7 +34,7 @@ import SiteName from "@/options/components/SiteName.vue";
 import NavButton from "@/options/components/NavButton.vue";
 import CheckSwitchButton from "@/options/components/CheckSwitchButton.vue";
 
-import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { loadFullData, setSubDate, type TUserDataStatistic } from "./utils.ts";
 
 type EChartsLineChartOption = ComposeOption<
   TitleComponentOption | TooltipComponentOption | LegendComponentOption | GridComponentOption | LineSeriesOption

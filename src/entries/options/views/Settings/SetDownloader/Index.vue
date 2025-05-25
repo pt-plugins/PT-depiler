@@ -7,7 +7,7 @@ import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-import type { TDownloaderKey } from "@/shared/storages/types/metadata.ts";
+import type { TDownloaderKey } from "@/shared/types.ts";
 import { getDownloaderIcon, getDownloaderMetaData, type TorrentClientMetaData } from "@ptd/downloader";
 import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
 

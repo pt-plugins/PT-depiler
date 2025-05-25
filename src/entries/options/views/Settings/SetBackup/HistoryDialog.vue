@@ -1,17 +1,17 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { ref, shallowRef } from "vue";
 import { IBackupFileInfo } from "@ptd/backupServer";
-import { sendMessage } from "@/messages.ts";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
-import { formatDate, formatSize } from "@/options/utils.ts";
-import { useI18n } from "vue-i18n";
 
+import { sendMessage } from "@/messages.ts";
+import { formatDate, formatSize } from "@/options/utils.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
-import { useMetadataStore } from "@/options/stores/metadata.ts";
 import NavButton from "@/options/components/NavButton.vue";
-import RestoreDialog from "@/options/views/Settings/SetBackup/RestoreDialog.vue";
+import RestoreDialog from "./RestoreDialog.vue";
 
 const showDialog = defineModel<boolean>();
 const { backupServerId } = defineProps<{

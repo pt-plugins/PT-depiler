@@ -21,8 +21,8 @@ import {
   TMediaServerKey,
   TSearchSnapshotKey,
   TSolutionKey,
-} from "@/shared/storages/types/metadata.ts";
-import { ISearchSolutionMetadata } from "@/shared/storages/types/metadata.ts";
+  ISearchSolutionMetadata,
+} from "@/shared/types.ts";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 

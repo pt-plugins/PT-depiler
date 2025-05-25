@@ -10,11 +10,13 @@ import {
   getDownloaderMetaData,
   type TorrentClientMetaData,
 } from "@ptd/downloader";
-import type { IDownloaderMetadata } from "@/shared/storages/types/metadata.ts";
+
+import type { IDownloaderMetadata } from "@/shared/types.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { REPO_URL } from "~/helper.ts";
 
 import Editor from "./Editor.vue";
+
+import { REPO_URL } from "~/helper.ts";
 
 const showDialog = defineModel<boolean>();
 

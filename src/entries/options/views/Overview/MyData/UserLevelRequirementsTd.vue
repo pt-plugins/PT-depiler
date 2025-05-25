@@ -2,17 +2,17 @@
 import { computed } from "vue";
 import { computedAsync } from "@vueuse/core";
 import { isEmpty } from "es-toolkit/compat";
-
 import {
   convertIsoDurationToDate,
   getNextLevelUnMet,
   guessUserLevelGroupType,
-  IUserInfo,
-  TLevelGroupType,
+  type IUserInfo,
+  type TLevelGroupType,
 } from "@ptd/site";
+
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-import { formatDate } from "../../../utils.ts";
+import { formatDate } from "@/options/utils.ts";
 
 import UserLevelsComponent from "./UserLevelsComponent.vue";
 import UserNextLevelUnMet from "@/options/views/Overview/MyData/UserNextLevelUnMet.vue";

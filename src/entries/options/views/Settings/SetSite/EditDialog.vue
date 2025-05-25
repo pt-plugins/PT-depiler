@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { provide, ref } from "vue";
 import { useI18n } from "vue-i18n";
-
 import { type ISiteUserConfig, type TSiteID } from "@ptd/site";
+
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 import Editor from "./Editor.vue";

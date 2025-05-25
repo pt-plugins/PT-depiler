@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { useConfigStore } from "@/options/stores/config.ts";
 import { buildInPtGenApi } from "@ptd/social";
+
+import { useConfigStore } from "@/options/stores/config.ts";
 
 const configStore = useConfigStore();
 </script>

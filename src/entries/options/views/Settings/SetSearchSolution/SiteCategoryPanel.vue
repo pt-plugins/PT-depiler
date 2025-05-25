@@ -8,7 +8,7 @@ import { isEmpty, set } from "es-toolkit/compat";
 import type { IAdvancedSearchRequestConfig, ISearchCategories, TSelectSearchCategoryValue, TSiteID } from "@ptd/site";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import type { ISearchSolution } from "@/storage.ts";
+import type { ISearchSolution } from "@/shared/types.ts";
 
 const props = defineProps<{
   siteId: TSiteID;

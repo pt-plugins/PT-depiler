@@ -1,12 +1,13 @@
 /**
  * 关于 logger 方法记录
- * 在 background 中， 请使用 sendMessage("logger", {}).catch();
- * 在 offscreen 或者 options 中， 请使用 logger({}) 直接调用
+ * 在 background 等其他页面中， 请使用 sendMessage("logger", {}).catch();
+ * 在 offscreen 中， 请使用 logger({}) 直接调用
  */
-import { useSessionStorage } from "@vueuse/core";
-import type { ILoggerItem } from "@/shared/types.ts";
 import { nanoid } from "nanoid";
+import { useSessionStorage } from "@vueuse/core";
+
 import { onMessage } from "@/messages.ts";
+import type { ILoggerItem } from "@/shared/types.ts";
 
 export const loggerStorage = useSessionStorage<ILoggerItem[]>("logger", []);
 

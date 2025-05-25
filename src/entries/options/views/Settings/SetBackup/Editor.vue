@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { BackupFields, IBackupServerMetadata } from "@/shared/storages/types/metadata.ts";
-import { getBackupServer, getBackupServerMetaData, IBackupMetadata } from "@ptd/backupServer";
-import { computedAsync } from "@vueuse/core";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { computedAsync } from "@vueuse/core";
+import { getBackupServer, getBackupServerMetaData, IBackupMetadata } from "@ptd/backupServer";
+
+import { BackupFields, type IBackupServerMetadata } from "@/shared/types.ts";
 import { formValidateRules } from "@/options/utils.ts";
+
 import ConnectCheckButton from "@/options/components/ConnectCheckButton.vue";
 
 const { t } = useI18n();

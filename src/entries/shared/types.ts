@@ -2,7 +2,14 @@
  * 此处存放一些 共享的类型定义，但是又不好归类到其他模块的类型定义
  */
 
-import type { TBackupFields } from "@/shared/storages/types/metadata.ts";
+import type { TBackupFields } from "@/shared/types.ts";
+
+// 代理转发所有 types 导出
+export * from "./types/storages/config.ts";
+export * from "./types/storages/indexdb.ts";
+export * from "./types/storages/metadata.ts";
+export * from "./types/storages/runtime.ts";
+export * from "./types/storages/other.ts";
 
 // https://github.com/pt-plugins/PT-Plugin-Plus/blob/70761980a72351397e19e188bead3289d36b4f83/src/interface/common.ts#L648-L726
 export interface IPtppUserInfo {

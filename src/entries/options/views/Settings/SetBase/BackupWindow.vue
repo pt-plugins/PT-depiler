@@ -1,12 +1,15 @@
 <script setup lang="ts">
+import JSZip from "jszip";
 import { nanoid } from "nanoid";
-import { useConfigStore } from "@/options/stores/config.ts";
 import { ref, shallowRef, watch } from "vue";
 import { useThrottledRefHistory } from "@vueuse/core";
-import { REPO_NAME } from "~/helper.ts";
-import JSZip from "jszip";
-import RestorePtppUserDataDialog from "@/options/views/Settings/SetBase/RestorePtppUserDataDialog.vue";
+
+import { useConfigStore } from "@/options/stores/config.ts";
 import type { IPtppDumpUserInfo } from "@/shared/types.ts";
+
+import RestorePtppUserDataDialog from "./RestorePtppUserDataDialog.vue";
+
+import { REPO_NAME } from "~/helper.ts";
 
 const configStore = useConfigStore();
 

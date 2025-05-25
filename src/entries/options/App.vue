@@ -6,11 +6,10 @@ import { useDevicePixelRatio } from "@vueuse/core";
 
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { vuetifyLangMap } from "@/options/plugins/vuetify.ts";
 
 import Navigation from "./views/Layout/Navigation.vue";
 import Topbar from "./views/Layout/Topbar.vue";
-
-import { vuetifyLangMap } from "@/options/plugins/vuetify.ts";
 
 const { current: currentVuetifyLocal } = useVuetifyLocal();
 const { locale: currentVueI18nLocal, t } = useI18n({ useScope: "global" });

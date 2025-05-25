@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { REPO_URL } from "~/helper";
-
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify";
@@ -9,6 +7,8 @@ import { useRoute, useRouter } from "vue-router";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+
+import { REPO_URL } from "~/helper";
 
 const route = useRoute();
 const router = useRouter();

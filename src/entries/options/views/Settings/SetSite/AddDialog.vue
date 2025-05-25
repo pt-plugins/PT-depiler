@@ -2,13 +2,15 @@
 import { provide, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
-import { REPO_URL } from "~/helper.ts";
 import { type ISiteUserConfig, type TSiteID } from "@ptd/site";
+
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { getCanAddedSiteMetadata } from "@/options/views/Settings/SetSite/utils.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import Editor from "./Editor.vue";
+
+import { REPO_URL } from "~/helper.ts";
 
 const showDialog = defineModel<boolean>();
 

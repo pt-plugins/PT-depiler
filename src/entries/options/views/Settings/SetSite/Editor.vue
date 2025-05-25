@@ -2,11 +2,10 @@
 import { watch, ref, onMounted, inject, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { set } from "es-toolkit/compat";
-import { timezoneOffset, ISiteUserConfig, type TSiteID, ISiteMetadata, TSiteUrl } from "@ptd/site";
+import type { timezoneOffset, ISiteUserConfig, TSiteID, ISiteMetadata, TSiteUrl } from "@ptd/site";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { formatDate, formValidateRules } from "@/options/utils.ts";
-import { lightFormat } from "date-fns";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();

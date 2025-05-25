@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 import { getMediaServer, getMediaServerMetaData, IMediaServerMetadata } from "@ptd/mediaServer";
 
-import type { IMediaServerMetadata as IMediaServerConfig } from "@/shared/storages/types/metadata.ts";
+import type { IMediaServerMetadata as IMediaServerConfig } from "@/shared/types.ts";
 import { formatDate, formValidateRules } from "@/options/utils.ts";
 
 import ConnectCheckButton from "@/options/components/ConnectCheckButton.vue";

@@ -4,8 +4,8 @@ import type { IUserInfo } from "@ptd/site";
 import { EResultParseStatus } from "@ptd/site";
 
 import { onMessage, sendMessage } from "@/messages.ts";
-import { type IConfigPiniaStorageSchema, type TUserInfoStorageSchema } from "@/storage.ts";
-import { type IMetadataPiniaStorageSchema } from "@/shared/storages/types/metadata.ts";
+import type { IMetadataPiniaStorageSchema, IConfigPiniaStorageSchema, TUserInfoStorageSchema } from "@/shared/types.ts";
+
 import { logger } from "./logger.ts";
 import { getSiteInstance } from "./site.ts";
 

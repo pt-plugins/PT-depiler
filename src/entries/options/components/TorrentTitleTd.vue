@@ -6,7 +6,7 @@ import { useElementSize } from "@vueuse/core";
 import { socialBuildUrlMap } from "@ptd/social";
 import type { ISocialInformation, TSupportSocialSite } from "@ptd/social/types.ts";
 
-import type { ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
+import type { ISearchResultTorrent } from "@/shared/types.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { sendMessage } from "@/messages.ts";
 

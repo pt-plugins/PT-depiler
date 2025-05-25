@@ -6,12 +6,10 @@ import { cloneDeep, isEqual } from "es-toolkit";
 import { find } from "es-toolkit/compat";
 import { computedAsync, refDebounced } from "@vueuse/core";
 
-import type { ISearchSolution, ISearchSolutionMetadata, TSolutionKey } from "@/storage.ts";
-
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-
 import { formValidateRules } from "@/options/utils.ts";
+import type { ISearchSolution, ISearchSolutionMetadata, TSolutionKey } from "@/shared/types.ts";
 
 import SolutionLabel from "./SolutionLabel.vue";
 import SiteCategoryPanel from "./SiteCategoryPanel.vue";

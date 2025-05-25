@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { BackupFields, TBackupFields } from "@/shared/storages/types/metadata.ts";
-import { sendMessage } from "@/messages.ts";
 import { useI18n } from "vue-i18n";
+
+import { BackupFields, TBackupFields } from "@/shared/types.ts";
+import { sendMessage } from "@/messages.ts";
 
 const showDialog = defineModel<boolean>();
 const { t } = useI18n();

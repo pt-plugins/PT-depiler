@@ -1,6 +1,7 @@
-import { definitionList, ISiteMetadata, type ISiteUserConfig, TSiteID } from "@ptd/site";
-import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { computedAsync } from "@vueuse/core";
+import { definitionList, ISiteMetadata, type ISiteUserConfig, TSiteID } from "@ptd/site";
+
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 export async function getCanAddedSiteMetadata() {
   const canAddedSiteMetadata: Record<TSiteID, ISiteMetadata> = {};

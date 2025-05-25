@@ -4,7 +4,7 @@ import { isEmpty } from "es-toolkit/compat";
 import type { ISearchCategories } from "@ptd/site";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import type { ISearchSolution } from "@/storage.ts";
+import type { ISearchSolution } from "@/shared/types.ts";
 
 const props = defineProps<{
   solution: ISearchSolution;

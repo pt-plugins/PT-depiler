@@ -3,7 +3,7 @@ import { computed, ref, reactive } from "vue";
 import { sendMessage } from "@/messages.ts";
 import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
 
-import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/storages/types/indexdb.ts";
+import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/types.ts";
 
 export const downloadHistory = ref<Record<TTorrentDownloadKey, ITorrentDownloadMetadata>>({});
 export const downloadHistoryList = computed(() => Object.values(downloadHistory.value));

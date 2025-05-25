@@ -8,10 +8,11 @@ import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useResetableRef } from "@/options/directives/useResetableRef.ts";
-import { getCanAddedSiteMetadata } from "@/options/views/Settings/SetSite/utils.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import CheckSwitchButton from "@/options/components/CheckSwitchButton.vue";
+
+import { getCanAddedSiteMetadata } from "./utils.ts";
 
 const showDialog = defineModel<boolean>();
 

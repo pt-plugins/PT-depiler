@@ -1,22 +1,22 @@
 <script setup lang="ts">
-import { ref, useTemplateRef } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 import { getBackupServerIcon } from "@ptd/backupServer";
+import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { formatDate } from "@/options/utils.ts";
-import { BackupFields, TBackupServerKey } from "@/shared/storages/types/metadata.ts";
+import { BackupFields, type TBackupServerKey } from "@/shared/types.ts";
 import { sendMessage } from "@/messages.ts";
 
 import NavButton from "@/options/components/NavButton.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
-import AddDialog from "@/options/views/Settings/SetBackup/AddDialog.vue";
-import EditDialog from "@/options/views/Settings/SetBackup/EditDialog.vue";
-import LocalExportConfirmDialog from "@/options/views/Settings/SetBackup/LocalExportConfirmDialog.vue";
-import HistoryDialog from "@/options/views/Settings/SetBackup/HistoryDialog.vue";
-import RestoreDialog from "@/options/views/Settings/SetBackup/RestoreDialog.vue";
+import AddDialog from "./AddDialog.vue";
+import EditDialog from "./EditDialog.vue";
+import LocalExportConfirmDialog from "./LocalExportConfirmDialog.vue";
+import HistoryDialog from "./HistoryDialog.vue";
+import RestoreDialog from "./RestoreDialog.vue";
 
 const { t } = useI18n();
 const runtimeStore = useRuntimeStore();

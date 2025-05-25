@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { formatDate } from "@/options/utils.ts";
-import { convertIsoDurationToDate, type IImplicitUserInfo, type ILevelRequirement, IUserInfo } from "@ptd/site";
-import UserLevelsComponent from "./UserLevelsComponent.vue";
 import { useI18n } from "vue-i18n";
+import { convertIsoDurationToDate, type IImplicitUserInfo, type ILevelRequirement, IUserInfo } from "@ptd/site";
+
+import { formatDate } from "@/options/utils.ts";
+
+import UserLevelsComponent from "./UserLevelsComponent.vue";
 
 const {
   nextLevelUnMet,

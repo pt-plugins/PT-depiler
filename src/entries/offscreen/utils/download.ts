@@ -5,15 +5,19 @@ import pWaitFor from "p-wait-for";
 import { type CAddTorrentOptions, getDownloader, getRemoteTorrentFile } from "@ptd/downloader";
 import type { ITorrent } from "@ptd/site";
 
+import { onMessage, sendMessage } from "@/messages.ts";
+import type {
+  IConfigPiniaStorageSchema,
+  ISearchResultTorrent,
+  ITorrentDownloadMetadata,
+  TTorrentDownloadKey,
+  IDownloaderMetadata,
+  IMetadataPiniaStorageSchema,
+} from "@/shared/types.ts";
+
 import { getSiteInstance } from "./site.ts";
 import { logger } from "./logger.ts";
 import { ptdIndexDb } from "../adapter/indexdb.ts";
-
-import { onMessage, sendMessage } from "@/messages.ts";
-import type { IDownloaderMetadata, IMetadataPiniaStorageSchema } from "@/storage.ts";
-import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/storages/types/indexdb.ts";
-import type { ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
-import type { IConfigPiniaStorageSchema } from "@/shared/storages/types/config.ts";
 
 export async function getDownloaderConfig(downloaderId: string) {
   const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;

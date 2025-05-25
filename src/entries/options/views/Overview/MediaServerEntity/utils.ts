@@ -7,7 +7,7 @@ import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import type { TMediaServerKey } from "@/shared/storages/types/metadata.ts";
+import type { TMediaServerKey } from "@/shared/types.ts";
 import { EResultParseStatus } from "@ptd/site";
 const runtimeStore = useRuntimeStore();
 const configStore = useConfigStore();

@@ -8,8 +8,7 @@ import type { IBackupData } from "@ptd/backupServer";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { sendMessage } from "@/messages.ts";
-import { BackupFields, type TBackupFields } from "@/shared/storages/types/metadata.ts";
-import type { IRestoreOptions } from "@/shared/types.ts";
+import { BackupFields, type TBackupFields, type IRestoreOptions } from "@/shared/types.ts";
 
 const showDialog = defineModel<boolean>();
 const { t } = useI18n();

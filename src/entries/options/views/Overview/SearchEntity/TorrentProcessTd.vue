@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { ETorrentStatus } from "@ptd/site";
-import { ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
+
+import { ISearchResultTorrent } from "@/shared/types.ts";
 
 const { torrent } = defineProps<{
   torrent: ISearchResultTorrent;

@@ -1,9 +1,11 @@
 import type { ISocialInformation, TSupportSocialSite$1 } from "@ptd/social";
 import { getSocialSiteInformation } from "@ptd/social";
+
 import { onMessage, sendMessage } from "@/messages.ts";
-import { ptdIndexDb } from "@/offscreen/adapter/indexdb.ts";
-import type { IConfigPiniaStorageSchema } from "@/shared/storages/types/config.ts";
-import { logger } from "@/offscreen/utils/logger.ts";
+import type { IConfigPiniaStorageSchema } from "@/shared/types.ts";
+
+import { ptdIndexDb } from "../adapter/indexdb.ts";
+import { logger } from "../utils/logger.ts";
 
 export async function getSocialInformation(site: TSupportSocialSite$1, sid: string): Promise<ISocialInformation> {
   const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;

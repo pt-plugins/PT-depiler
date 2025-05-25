@@ -3,19 +3,19 @@ import { ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { omit } from "es-toolkit";
 import { saveAs } from "file-saver";
+import { nanoid } from "nanoid";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
-import { ISearchSolutionMetadata, TSolutionKey } from "@/storage.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { formatDate } from "@/options/utils.ts";
+import type { ISearchSolutionMetadata, TSolutionKey } from "@/shared/types.ts";
 
 import EditDialog from "./EditDialog.vue";
 import SolutionLabel from "./SolutionLabel.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";
-import { nanoid } from "nanoid";
-import { formatDate } from "@/options/utils.ts";
 
 const { t } = useI18n();
 const configStore = useConfigStore();

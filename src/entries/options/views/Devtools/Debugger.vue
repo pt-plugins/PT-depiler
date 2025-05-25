@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import * as estoolkit from "es-toolkit";
+import axios from "axios";
+import Sizzle from "sizzle";
 import {
   definitionList,
   getDefinedSiteMetadata,
@@ -7,16 +10,14 @@ import {
   getSite as createSiteInstance,
   type TSiteID,
 } from "@ptd/site";
+
 import { getDownloader } from "@ptd/downloader";
 import { getMediaServer } from "@ptd/mediaServer";
 import { getBackupServer } from "@ptd/backupServer";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-
 import { sendMessage } from "@/messages.ts";
-import * as estoolkit from "es-toolkit";
-import axios from "axios";
-import Sizzle from "sizzle";
+
 import { setupReplaceUnsafeHeader } from "~/extends/axios/replaceUnsafeHeader.ts";
 
 setupReplaceUnsafeHeader(axios);

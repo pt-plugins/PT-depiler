@@ -11,7 +11,8 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import { formatSize } from "@/options/utils.ts";
 
 import ItemInformationDialog from "./ItemInformationDialog.vue";
-import { doSearch, searchMediaServerIds } from "@/options/views/Overview/MediaServerEntity/utils.ts";
+
+import { doSearch, searchMediaServerIds } from "./utils.ts";
 
 const { t } = useI18n();
 const route = useRoute();

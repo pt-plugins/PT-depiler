@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ISiteMetadata, ISiteUserConfig, TSiteID } from "@ptd/site";
-import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { reactive, onMounted } from "vue";
+import { ISiteMetadata, ISiteUserConfig, TSiteID } from "@ptd/site";
+
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 const { item } = defineProps<{
   item: {

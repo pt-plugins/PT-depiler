@@ -1,13 +1,13 @@
 import PQueue from "p-queue";
 import { computed, watch } from "vue";
-
 import { EResultParseStatus, type IAdvanceKeywordSearchConfig, type TSiteID, ITorrentTag } from "@ptd/site";
-import type { ISearchResultTorrent, TSearchSolutionKey } from "@/shared/storages/types/runtime.ts";
+
 import { sendMessage } from "@/messages.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
+import type { ISearchResultTorrent, TSearchSolutionKey } from "@/shared/types.ts";
 
 const runtimeStore = useRuntimeStore();
 const configStore = useConfigStore();

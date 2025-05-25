@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import type { IDownloaderMetadata, TDownloaderKey } from "@/shared/storages/types/metadata.ts";
+import type { IDownloaderMetadata, TDownloaderKey } from "@/shared/types.ts";
 
 import Editor from "./Editor.vue";
 

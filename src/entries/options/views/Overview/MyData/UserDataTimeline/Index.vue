@@ -11,7 +11,11 @@ import { formatDate, formatTimeAgo } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { allAddedSiteMetadata, loadAllAddedSiteMetadata } from "@/options/views/Overview/MyData/utils.ts";
+
+import SiteFavicon from "@/options/components/SiteFavicon.vue";
+import SiteName from "@/options/components/SiteName.vue";
+import NavButton from "@/options/components/NavButton.vue";
+import CheckSwitchButton from "@/options/components/CheckSwitchButton.vue";
 
 import {
   canThisSiteShow,
@@ -26,11 +30,7 @@ import {
   type ITimelineUserInfoField,
   type TKonvaConfig,
 } from "./utils.ts";
-
-import SiteFavicon from "@/options/components/SiteFavicon.vue";
-import SiteName from "@/options/components/SiteName.vue";
-import NavButton from "@/options/components/NavButton.vue";
-import CheckSwitchButton from "@/options/components/CheckSwitchButton.vue";
+import { allAddedSiteMetadata, loadAllAddedSiteMetadata } from "../utils.ts";
 
 const ext_version = __EXT_VERSION__;
 

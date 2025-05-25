@@ -7,8 +7,7 @@ import { definitionList, EResultParseStatus, IUserInfo, parseSizeString, TSiteHo
 import { sendMessage } from "@/messages.ts";
 import { getHostFromUrl, useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import type { TUserInfoStorageSchema } from "@/storage.ts";
-import type { IPtppDumpUserInfo, IPtppUserInfo } from "@/shared/types.ts";
+import type { IPtppDumpUserInfo, IPtppUserInfo, TUserInfoStorageSchema } from "@/shared/types.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";

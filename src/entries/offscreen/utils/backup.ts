@@ -5,16 +5,18 @@ import { backupDataToJSZipBlob } from "@ptd/backupServer/utils.ts";
 import AbstractBackupServer from "@ptd/backupServer/AbstractBackupServer.ts";
 
 import { onMessage, sendMessage } from "@/messages.ts";
-import { ptdIndexDb } from "@/offscreen/adapter/indexdb.ts";
-import { logger } from "./logger.ts";
+import type { IExtensionStorageSchema, TExtensionStorageKey } from "@/storage.ts";
 import type {
+  IRestoreOptions,
+  IMetadataPiniaStorageSchema,
+  TBackupFields,
+  TBackupServerKey,
   IConfigPiniaStorageSchema,
-  IExtensionStorageSchema,
-  TExtensionStorageKey,
   TUserInfoStorageSchema,
-} from "@/storage.ts";
-import type { IMetadataPiniaStorageSchema, TBackupFields, TBackupServerKey } from "@/shared/storages/types/metadata.ts";
-import type { IRestoreOptions } from "@/shared/types.ts";
+} from "@/shared/types.ts";
+
+import { logger } from "./logger.ts";
+import { ptdIndexDb } from "../adapter/indexdb.ts";
 
 export const storageKey = ["config", "metadata", "userInfo", "searchResultSnapshot"] as TExtensionStorageKey[];
 

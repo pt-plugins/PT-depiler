@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import type { ISearchSolution } from "@/storage.ts";
+import type { ISearchSolution } from "@/shared/types.ts";
 
 import SolutionDetail from "@/options/components/SolutionDetail.vue";
 import SiteName from "@/options/components/SiteName.vue";

@@ -16,7 +16,7 @@ import type {
   IMediaServerMetadata as IMediaServerUserConfig,
   TDownloaderKey,
   TMediaServerKey,
-} from "@/shared/storages/types/metadata.ts";
+} from "@/shared/types.ts";
 
 import Editor from "./Editor.vue";
 

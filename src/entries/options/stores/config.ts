@@ -3,7 +3,9 @@
  */
 import { defineStore } from "pinia";
 import { usePreferredDark } from "@vueuse/core";
-import type { IConfigPiniaStorageSchema, supportThemeType } from "@/storage.ts";
+
+import type { IConfigPiniaStorageSchema, supportThemeType } from "@/shared/types.ts";
+
 import { useMetadataStore } from "./metadata.ts";
 
 export const useConfigStore = defineStore("config", {

@@ -1,5 +1,7 @@
 import { stringify } from "urlencode";
-import { extStorage, IMetadataPiniaStorageSchema } from "@/storage.ts";
+
+import { extStorage } from "@/storage.ts";
+import type { IMetadataPiniaStorageSchema } from "@/shared/types.ts";
 
 const splitString = " → ";
 

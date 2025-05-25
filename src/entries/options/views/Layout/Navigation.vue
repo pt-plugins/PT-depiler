@@ -1,10 +1,12 @@
 <script lang="ts" setup>
-import { useConfigStore } from "@/options/stores/config.ts";
-import { useDisplay } from "vuetify";
-import { routes } from "@/options/plugins/router";
 import { watch } from "vue";
-import { isDebug, REPO_URL } from "~/helper.ts";
 import { useI18n } from "vue-i18n";
+import { useDisplay } from "vuetify";
+
+import { routes } from "@/options/plugins/router";
+import { useConfigStore } from "@/options/stores/config.ts";
+
+import { isDebug, REPO_URL } from "~/helper.ts";
 
 const git = __GIT_VERSION__;
 const ext_version = __EXT_VERSION__;

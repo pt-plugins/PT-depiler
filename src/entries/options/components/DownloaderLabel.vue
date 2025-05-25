@@ -4,7 +4,7 @@ import { useI18n } from "vue-i18n";
 import { getDownloaderIcon } from "@ptd/downloader";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import type { TDownloaderKey } from "@/shared/storages/types/metadata.ts";
+import type { TDownloaderKey } from "@/shared/types.ts";
 
 const { downloader } = defineProps<{
   downloader: TDownloaderKey;

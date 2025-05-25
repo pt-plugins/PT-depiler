@@ -8,8 +8,7 @@ import { formatDate } from "@/options/utils.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-import { type ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
-import { type IDownloaderMetadata } from "@/shared/storages/types/metadata.ts";
+import type { IDownloaderMetadata, ISearchResultTorrent } from "@/shared/types.ts";
 
 const showDialog = defineModel<boolean>();
 const { torrentItems } = defineProps<{

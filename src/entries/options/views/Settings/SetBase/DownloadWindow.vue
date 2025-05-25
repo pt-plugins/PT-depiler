@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { useConfigStore } from "@/options/stores/config.ts";
 import { useI18n } from "vue-i18n";
-import { LocalDownloadMethod } from "@/shared/storages/types/config.ts";
+
+import { useConfigStore } from "@/options/stores/config.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { LocalDownloadMethod } from "@/shared/types.ts";
 
 const { t } = useI18n();
 const configStore = useConfigStore();

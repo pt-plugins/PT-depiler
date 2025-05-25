@@ -3,14 +3,13 @@ import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { EResultParseStatus, ETorrentStatus } from "@ptd/site";
+import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
-import { type ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-
 import { formatDate, formatSize, formatTimeAgo } from "@/options/utils.ts";
-import { doSearch, searchQueue, tableCustomFilter } from "./utils.ts"; // <-- 主要方法在这个文件中！！！
+import type { ISearchResultTorrent } from "@/shared/types.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
@@ -20,7 +19,8 @@ import ActionTd from "./ActionTd.vue";
 import SearchStatusDialog from "./SearchStatusDialog.vue";
 import SaveSnapshotDialog from "./SaveSnapshotDialog.vue";
 import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
-import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
+
+import { doSearch, searchQueue, tableCustomFilter } from "./utils.ts"; // <-- 主要方法在这个文件中！！！
 
 const { t } = useI18n();
 const route = useRoute();

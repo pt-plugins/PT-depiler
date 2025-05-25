@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref } from "vue";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-
-import { type TSearchSnapshotKey } from "@/shared/storages/types/metadata.ts";
+import { type TSearchSnapshotKey } from "@/shared/types.ts";
 
 const showDialog = defineModel<boolean>();
 

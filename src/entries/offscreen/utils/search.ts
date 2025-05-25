@@ -1,9 +1,10 @@
 import { getMediaServer } from "@ptd/mediaServer";
 
 import { onMessage, sendMessage } from "@/messages.ts";
+import type { IMetadataPiniaStorageSchema, TSearchResultSnapshotStorageSchema } from "@/shared/types.ts";
+
+import { logger } from "./logger.ts";
 import { getSiteInstance } from "./site.ts";
-import type { IMetadataPiniaStorageSchema, TSearchResultSnapshotStorageSchema } from "@/storage.ts";
-import { logger } from "@/offscreen/utils/logger.ts";
 
 onMessage("getSiteSearchResult", async ({ data: { siteId, keyword = "", searchEntry = {} } }) => {
   logger({

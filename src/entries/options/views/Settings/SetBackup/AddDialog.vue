@@ -1,7 +1,11 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { ref } from "vue";
-import { BackupFields, IBackupServerMetadata } from "@/shared/storages/types/metadata.ts";
+import { computedAsync } from "@vueuse/core";
+import { nanoid } from "nanoid";
+
+import { BackupFields, IBackupServerMetadata } from "@/shared/types.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 import {
   entityList,
   getBackupServerDefaultConfig,
@@ -10,10 +14,8 @@ import {
   type IBackupMetadata,
 } from "@ptd/backupServer";
 import { REPO_URL } from "~/helper.ts";
-import { computedAsync } from "@vueuse/core";
-import { nanoid } from "nanoid";
-import Editor from "@/options/views/Settings/SetBackup/Editor.vue";
-import { useMetadataStore } from "@/options/stores/metadata.ts";
+
+import Editor from "./Editor.vue";
 
 const showDialog = defineModel<boolean>();
 
