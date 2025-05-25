@@ -14,9 +14,10 @@ function getCommitInfo() {
     const commitHash = execSync("git rev-parse --short HEAD").toString().trim();
     const author = execSync('git log -1 --pretty=format:"%an"').toString().trim();
     const message = execSync('git log -1 --pretty=format:"%s"').toString().trim();
+    const moreMessage = execSync('git log -1 --pretty=format:"%b"').toString().trim();
     const timestamp = execSync('git log -1 --pretty=format:"%cd" --date=format:"%Y-%m-%d %H:%M:%S"').toString().trim();
 
-    return { commitHash, author, message, timestamp };
+    return { commitHash, author, message, moreMessage, timestamp };
   } catch (err) {
     console.error("获取 commit 信息失败:", err);
     return {
@@ -26,6 +27,10 @@ function getCommitInfo() {
       timestamp: new Date().toISOString(),
     };
   }
+}
+
+function escapeLegacyMarkdown(text: string): string {
+  return text.replace(/([*_])/g, "\\$1"); // 转义星号和下划线
 }
 
 async function main() {
@@ -42,14 +47,29 @@ async function main() {
     ref: process.env.GITHUB_REF || "unknown",
   };
   const commitInfo = getCommitInfo();
+  let buildVersion = process.env.BUILD_VERSION || "unknown";
 
-  const message = `
+  let message = `
 #${triggerInfo.eventName} #${commitInfo.author} #${commitInfo.commitHash}
 
-${commitInfo.message}
-
-📦 **GitHub Action 自动推送**
+${escapeLegacyMarkdown(commitInfo.message)}
+|$|moreMessage|$|
+🔢 \`${buildVersion}\` at \`${commitInfo.timestamp}\`
+📦 *GitHub Action 自动构建*
 `;
+
+  message = message.replace(
+    "|$|moreMessage|$|",
+    commitInfo.moreMessage
+      ? `
+\`\`\`
+${escapeLegacyMarkdown(commitInfo.moreMessage)}
+\`\`\`
+`
+      : "",
+  );
+
+  console.log(message);
 
   const files = fs
     .readdirSync(FILES_DIR)
