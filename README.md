@@ -20,11 +20,12 @@ PT-depiler 是在原 [PT-Plugin-Plus](https://github.com/pt-plugins/PT-Plugin-Pl
 
 ### 🖥️ 功能 Features
 
-- **多站点支持**：兼容 NexusPHP、Gazelle 等多种类型的 PT 站点，提供聚合搜索相同关键字的种子、批量下载等功能
+- **多站点支持**：兼容 NexusPHP、Unit3D、Gazelle 等多种类型的 PT 站点，提供聚合搜索相同关键字的种子、批量下载等功能
 - **下载器集成**：支持 qBittorrent、Transmission、Deluge、ruTorrent、Synology Download Station、Aria2 等多种下载器，并保存下载历史记录
-- **备份服务器管理**：集成 WebDav、Gist、CookieCloud、Google Drive、DropBox 等备份服务，方便数据同步
+- **备份服务器管理**：集成 WebDav、Gist、CookieCloud、Google Drive、DropBox、OWSS 等备份服务，方便数据同步
 - **智能搜索**：增强搜索功能，支持多站点同时搜索并合并结果
 - **用户信息管理**：集中显示和管理各站点的用户信息和统计数据
+- **地址栏快速搜索**：在浏览器地址栏中输入 `ptd` 后按 Tab 键即可快速调用智能搜索功能
 - 更多功能请参考 [Wiki](../../wiki)
 
 ### 🔧 安装 Installation
@@ -72,7 +73,7 @@ PT-Depiler 并不是对 PT-Plugin-Plus 的简单移植，而是对其进行了�
 
 > 请不要在 Issue 中提出一般性问题。Issue 仅用于报告错误、提出改进建议或请求新功能。
 
-我们还有一个 [help wanted](https://github.com/pt-plugins/PT-depiler/labels/help%20wanted) 的问题列表，您可能会感兴趣。
+我们还有一个 [help wanted](../../labels/help%20wanted) 的问题列表，您可能会感兴趣。
 
 ### 📝 许可证 License
 
@@ -84,4 +85,4 @@ Copyright (c) 2020-present [pt-plugins](https://github.com/pt-plugins)
 
 特别感谢以下所有为本项目做出贡献的人 😍！
 
-![Contributors](https://opencollective.com/pt-depiler/contributors.svg?width=890&button=false)
+[![Contributors](https://opencollective.com/pt-depiler/contributors.svg?width=890&button=false)](../../graphs/contributors)

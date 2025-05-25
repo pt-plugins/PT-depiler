@@ -6,12 +6,12 @@ import {
   ITorrent,
   NeedLoginError,
   NoTorrentsError,
-  IAdvancedSearchRequestConfig,
   IAdvanceKeywordSearchConfig,
   ISearchInput,
   ITorrentTag,
   ISiteUserConfig,
   TSiteUrl,
+  ISearchEntryRequestConfig,
 } from "../types";
 import {
   definedFilters,
@@ -126,10 +126,7 @@ export default class BittorrentSite {
    * @param keywords
    * @param searchEntry
    */
-  public async getSearchResult(
-    keywords?: string,
-    searchEntry: IAdvancedSearchRequestConfig = {},
-  ): Promise<ISearchResult> {
+  public async getSearchResult(keywords?: string, searchEntry: ISearchEntryRequestConfig = {}): Promise<ISearchResult> {
     console?.log(`[Site] ${this.name} start search with keywords:`, keywords, "input searchEntry:", searchEntry);
     const result: ISearchResult = {
       data: [],
@@ -143,15 +140,19 @@ export default class BittorrentSite {
     }
 
     // 1. 形成搜索入口，默认情况下需要合并 this.config.search
-    if (searchEntry && (isEmpty(searchEntry) || searchEntry.merge !== false)) {
+
+    // 如果传入了 id，说明需要首先与 metadata.searchEntry 中对应id的搜索配置的合并
+    if (searchEntry.id) {
+      searchEntry = toMerged(this.metadata.searchEntry?.[searchEntry.id] ?? {}, searchEntry)!;
+    }
+
+    // 继续检查 searchEntry， 如果为空，或者没有显示设置 merge 为 false，则进一步在 this.metadata.search 的基础上进行合并
+    if (isEmpty(searchEntry) || searchEntry.merge !== false) {
       searchEntry = toMerged(this.metadata.search!, searchEntry)!;
-    } else {
-      searchEntry = searchEntry ?? this.metadata.search!;
     }
 
     // 检查该搜索入口是否设置为禁用
-    // noinspection PointlessBooleanExpressionJS
-    if ((searchEntry as IAdvancedSearchRequestConfig & { enabled?: boolean }).enabled === false) {
+    if (searchEntry.enabled === false) {
       result.status = EResultParseStatus.passParse;
       return result;
     }

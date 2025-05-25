@@ -114,6 +114,7 @@ export interface IAdvancedSearchRequestConfig extends Partial<ISearchConfig> {
 }
 
 export interface ISearchEntryRequestConfig extends IAdvancedSearchRequestConfig {
+  id?: string; // 唯一标识（应该与 ISiteMetadata.searchEntry 中对应的key一致，一般情况下无需特别声明）
   name?: string; // 别名
   enabled?: boolean; // 是否默认启用
 }

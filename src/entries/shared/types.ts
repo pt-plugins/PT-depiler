@@ -2,7 +2,7 @@
  * 此处存放一些 共享的类型定义，但是又不好归类到其他模块的类型定义
  */
 
-import type { TBackupFields } from "@/shared/types.ts";
+import type { TBackupFields } from "./types/storages/metadata.ts";
 
 // 代理转发所有 types 导出
 export * from "./types/storages/config.ts";

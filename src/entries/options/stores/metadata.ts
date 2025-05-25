@@ -175,13 +175,23 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     getSiteDefaultSearchSolution(state) {
-      return async (siteId: TSiteID): Promise<Record<string, ISearchEntryRequestConfig>> => {
+      // 如果站点 isDead 或者 isOffline 则不返回搜索方案（ undefined ），调用该方法的地方需要额外判断
+      return async (siteId: TSiteID): Promise<Record<string, ISearchEntryRequestConfig> | undefined> => {
+        const siteUserConfig = state.sites[siteId];
         const siteMetadata = await getDefinedSiteMetadata(siteId);
 
+        if (siteUserConfig.isOffline || siteMetadata.isDead) {
+          return;
+        }
+
         let searchEntries = siteMetadata.searchEntry ?? { default: {} };
-        for (const [key, value] of Object.entries(state.sites[siteId]?.merge?.searchEntry ?? {})) {
+        for (const [key, value] of Object.entries(siteUserConfig?.merge?.searchEntry ?? {})) {
           if (searchEntries[key] && typeof value.enabled === "boolean") {
-            searchEntries[key] = { ...searchEntries[key], enabled: value.enabled };
+            /**
+             * 由于我们需要通过 sendMessage 向 offscreen 发送搜索方案，然而 sendMessage 不支持 Function 等复杂类型，
+             * 所以我们这里只传递 id, name, enabled，其他的搜索方案的内容在 站点实例里面组合
+             */
+            searchEntries[key] = { id: key, name: searchEntries[key].name, enabled: value.enabled };
           }
         }
         return searchEntries;
@@ -195,7 +205,9 @@ export const useMetadataStore = defineStore("metadata", {
         const addedSiteIds = Object.keys(state.sites);
         for (const siteId of addedSiteIds) {
           const searchEntries = await this.getSiteDefaultSearchSolution(siteId);
-          solutions.push({ id: "default", siteId, searchEntries });
+          if (searchEntries) {
+            solutions.push({ id: "default", siteId, searchEntries });
+          }
         }
 
         return { name: "all", id: "all", sort: 0, enabled: true, isDefault: true, createdAt: 0, solutions };
@@ -212,14 +224,20 @@ export const useMetadataStore = defineStore("metadata", {
 
         // 对于已经存在的搜索方案，其中如果有 id === "default" 的特殊情况，将其动态解开
         let solution = state.solutions[solutionId] as ISearchSolutionMetadata;
-        for (const solutionsIndex in solution.solutions) {
-          let solutionItem = solution.solutions[solutionsIndex];
+        let solutionItems = [];
+        for (const solutionItem of solution.solutions) {
           if (solutionItem.id === "default") {
-            solutionItem.searchEntries = await this.getSiteDefaultSearchSolution(solutionItem.siteId);
-            solution.solutions[solutionsIndex] = solutionItem;
+            const searchEntries = await this.getSiteDefaultSearchSolution(solutionItem.siteId);
+            if (searchEntries) {
+              solutionItem.searchEntries = searchEntries;
+              solutionItems.push(solutionItem);
+            }
+          } else {
+            solutionItems.push(solutionItem);
           }
         }
 
+        solution.solutions = solutionItems;
         return solution;
       };
     },

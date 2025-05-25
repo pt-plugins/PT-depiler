@@ -17,6 +17,7 @@ chrome.runtime.onInstalled.addListener(() => {
 });
 
 onMessage("ping", async ({ data }) => {
+  console.log("ping", data);
   return data ?? "pong";
 });
 

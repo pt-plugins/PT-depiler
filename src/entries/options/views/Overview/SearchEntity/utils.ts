@@ -84,21 +84,21 @@ export async function doSearchEntity(
   };
 
   // Search site by plan in queue
-  console.log(`Add search ${searchEntryName} to queue.`);
+  console.log(`Add search ${solutionKey} to queue.`);
   runtimeStore.search.searchPlan[solutionKey].queueAt = +new Date();
 
   // noinspection ES6MissingAwait
   searchQueue.add(
     async () => {
       const startAt = (runtimeStore.search.searchPlan[solutionKey].startAt = +new Date());
-      console.log(`search ${searchEntryName} start at ${startAt}`);
+      console.log(`search ${solutionKey} start at ${startAt}`);
       runtimeStore.search.searchPlan[solutionKey].status = EResultParseStatus.working;
       const { status: searchStatus, data: searchResult } = await sendMessage("getSiteSearchResult", {
         keyword: runtimeStore.search.searchKey,
         siteId,
         searchEntry,
       });
-      console.log(`success get search ${searchEntryName} result, with code ${searchStatus}: `, searchResult);
+      console.log(`success get search ${solutionKey} result, with code ${searchStatus}: `, searchResult);
       runtimeStore.search.searchPlan[solutionKey].status = searchStatus;
       for (const item of searchResult) {
         const itemUniqueId = `${item.site}-${item.id}`;
@@ -157,7 +157,4 @@ export async function doSearch(search: string, plan?: string, flush: boolean = t
       await doSearchEntity(siteId, searchEntryName, searchEntry);
     }
   }
-
-  // Wait for all search tasks to complete
-  await searchQueue.onIdle();
 }
