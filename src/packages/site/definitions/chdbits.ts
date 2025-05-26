@@ -18,7 +18,7 @@ export const siteMetadata: ISiteMetadata = {
 
   category: [
     {
-      name: "类别",
+      name: "类型",
       key: "cat",
       options: [
         { value: 401, name: "Movies电影" },
@@ -32,6 +32,17 @@ export const siteMetadata: ISiteMetadata = {
         { value: 410, name: "Games游戏" },
         { value: 411, name: "Study学习" },
         { value: 409, name: "Others其他" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "来源",
+      key: "source",
+      options: [
+        { value: 1, name: "官方" },
+        { value: 7, name: "转载" },
+        { value: 8, name: "复活区" },
+        { value: 9, name: "原创" },
       ],
       cross: { mode: "append" },
     },
@@ -91,6 +102,24 @@ export const siteMetadata: ISiteMetadata = {
         { value: 6, name: "4K" },
       ],
       cross: { mode: "append" },
+    },
+    {
+      name: "处理",
+      key: "processing",
+      options: [
+        { value: 1, name: "3D" },
+        { value: 3, name: "美剧" },
+        { value: 4, name: "日剧" },
+        { value: 5, name: "港剧" },
+        { value: 6, name: "韩剧" },
+        { value: 7, name: "英剧" },
+        { value: 8, name: "国剧" },
+        { value: 9, name: "台剧" },
+        { value: 10, name: "新剧" },
+        { value: 11, name: "马剧" },
+        { value: 13, name: "合集" },
+      ],
+      cross: { mode: "brackets" },
     },
     {
       name: "制作组",
