@@ -54,7 +54,8 @@ async function main() {
 
 ${escapeLegacyMarkdown(commitInfo.message)}
 |$|moreMessage|$|
-🔢 \`${buildVersion}\` at \`${commitInfo.timestamp}\`
+🔢 \`${buildVersion}\`
+📅 \`${commitInfo.timestamp}\`
 📦 *GitHub Action 自动构建*
 `;
 
