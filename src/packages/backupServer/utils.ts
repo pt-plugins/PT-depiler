@@ -2,6 +2,7 @@ import JSZip from "jszip";
 import CryptoJS from "crypto-js";
 import { EListOrderBy, EListOrderMode } from "./type";
 import type { IBackupData, IBackupFileInfo, IBackupFileListOption, IBackupFileManifest } from "./type";
+import { omit } from "es-toolkit";
 
 /**
  * 注意，我们不直接使用用户提供的 secretKey 作为 AES 的密钥，因为可能无法提供足够强度的密钥
@@ -34,6 +35,7 @@ export async function backupDataToJSZipBlob(data: IBackupData, encryptionKey?: s
     files: {},
   } as IBackupFileManifest;
 
+  delete data.manifest; // 确保 manifest 不会被重复添加到 zip 中
   for (const [key, value] of Object.entries(data)) {
     const fileName = `${key}.json`;
     const fileContent = encryptData(value, encryptionKey);
@@ -64,8 +66,8 @@ export async function jsZipBlobToBackupData(blob: Blob, encryptionKey?: string):
       encryptionKey = "";
     }
 
-    // 只解出 manifest 中记录的文件
-    for (const [fileKey, manifestFileData] of Object.entries(manifest.files ?? {})) {
+    // 只解出 manifest 中记录的其他文件
+    for (const [fileKey, manifestFileData] of Object.entries(omit(manifest.files ?? {}, ["manifest"]))) {
       const { name: fileName, hash: manifestFileHash } = manifestFileData;
       const fileContent = await zipContent.file(fileName)?.async("string");
       if (fileContent) {
@@ -77,10 +79,11 @@ export async function jsZipBlobToBackupData(blob: Blob, encryptionKey?: string):
         try {
           data[fileKey] = decryptData(fileContent, encryptionKey);
         } catch (e) {
-          throw new Error(`Failed to decrypt file.`);
+          throw new Error(`Failed to decrypt file: ${fileName}`);
         }
       }
     }
+    data.manifest = manifest; // 将 manifest 也添加到数据中
   } else {
     throw new Error("Manifest not found in the zip file");
   }

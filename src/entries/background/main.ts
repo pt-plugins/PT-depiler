@@ -2,8 +2,9 @@ import { onMessage } from "@/messages.ts";
 import { extStorage } from "@/storage.ts";
 
 import "./utils/cookies.ts";
-import "./utils/omnibox.ts";
 import "./utils/offscreen.ts";
+import "./utils/contextMenus.ts";
+import "./utils/omnibox.ts";
 import "./utils/alarms.ts";
 import "./utils/webRequest.ts";
 

@@ -34,6 +34,11 @@ export interface IConfigPiniaStorageSchema {
   // 用 timeline 和 statistic 等展示的用户名，如果为 "" 则由使用最多的站点决定（使用 configStore.getUserNames.perfName 获取）
   userName: string;
 
+  contextMenus: {
+    // 是否启用选择内容时搜索
+    allowSelectionTextSearch: boolean;
+  };
+
   // 对 MyData 页面 v-data-table 展示的额外控制项
   myDataTableControl: {
     // 是否展示站点名称
