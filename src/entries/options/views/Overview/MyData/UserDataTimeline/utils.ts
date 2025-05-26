@@ -140,16 +140,22 @@ export const timelineDataRef = useResetableRef<ITimelineData>(() => {
       for (const userInfoField of CTimelineUserInfoField) {
         const userInfoKey = userInfoField.name as ITimelineUserInfoField["name"];
         if (userInfo[userInfoKey] && userInfo[userInfoKey] > 0) {
-          result.totalInfo[userInfoKey] += userInfo[userInfoKey]; // 更新总量
+          // refs: https://github.com/pt-plugins/PT-depiler/issues/48
+          let value = 0;
+          try {
+            value = parseFloat(userInfo[userInfoKey]);
+          } catch (e) {}
+
+          result.totalInfo[userInfoKey] += value; // 更新总量
 
           // 更新最大值和次大值
-          if (userInfo[userInfoKey] > result.topInfo[userInfoKey].maxValue) {
+          if (value > result.topInfo[userInfoKey].maxValue) {
             result.topInfo[userInfoKey].subValue = result.topInfo[userInfoKey].maxValue;
             result.topInfo[userInfoKey].subSite = result.topInfo[userInfoKey].site;
-            result.topInfo[userInfoKey].maxValue = userInfo[userInfoKey];
+            result.topInfo[userInfoKey].maxValue = value;
             result.topInfo[userInfoKey].site = userInfo;
-          } else if (userInfo[userInfoKey] > result.topInfo[userInfoKey].subValue) {
-            result.topInfo[userInfoKey].subValue = userInfo[userInfoKey];
+          } else if (value > result.topInfo[userInfoKey].subValue) {
+            result.topInfo[userInfoKey].subValue = value;
             result.topInfo[userInfoKey].subSite = userInfo;
           }
         }
