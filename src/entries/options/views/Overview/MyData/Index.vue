@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, reactive, ref, unref, watch, watchEffect } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { computedAsync } from "@vueuse/core";
@@ -80,26 +80,17 @@ const {
 });
 
 const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
-const tableData = computedAsync<IUserInfoItem[]>(async () => {
-  const allSite = metadataStore.getAddedSiteIds;
-  const allPrivateSiteUserInfoData = [];
-  for (const site of allSite) {
-    // noinspection BadExpressionStatementJS
-    metadataStore.lastUserInfo[site]; // 使得 computedAsync 能够收集依赖以便触发数据更新
-  }
 
+const tableData = ref<IUserInfoItem[]>([]);
+
+const getUserInfoData = async () => {
+  const allPrivateSiteUserInfoData: IUserInfoItem[] = [];
   for (const [siteId, siteUserConfig] of Object.entries(metadataStore.sites)) {
-    // 设置为已离线或者不获取用户信息的站点不显示
-    if (siteUserConfig.isOffline === true || siteUserConfig.allowQueryUserInfo === false) {
-      continue;
-    }
+    if (siteUserConfig.isOffline === true || siteUserConfig.allowQueryUserInfo === false) continue;
 
     const siteMeta = await metadataStore.getSiteMetadata(siteId);
-    if (siteMeta.isDead === true && !configStore.userInfo.showDeadSiteInOverview) {
-      continue;
-    }
+    if (siteMeta.isDead === true && !configStore.userInfo.showDeadSiteInOverview) continue;
 
-    // 判断之前有无个人信息，没有则从siteMetadata中根据 type = 'private' 判断是否能获取个人信息
     let canHaveSiteUserInfo = !!metadataStore.lastUserInfo[siteId];
     if (!canHaveSiteUserInfo) {
       canHaveSiteUserInfo = siteMeta?.type === "private";
@@ -111,8 +102,12 @@ const tableData = computedAsync<IUserInfoItem[]>(async () => {
     }
   }
 
-  return allPrivateSiteUserInfoData;
-}, []);
+  tableData.value = allPrivateSiteUserInfoData;
+};
+
+getUserInfoData();
+
+watch(metadataStore.lastUserInfo, getUserInfoData);
 
 const showHistoryDataViewDialog = ref<boolean>(false);
 const historyDataViewDialogSiteId = ref<TSiteID | null>(null);
@@ -510,7 +505,9 @@ function viewStatistic() {
           </span>
         </template>
         <template v-else>
-          <v-chip label><ResultParseStatus :status="item.status" /></v-chip>
+          <v-chip label>
+            <ResultParseStatus :status="item.status" />
+          </v-chip>
         </template>
       </template>
 
