@@ -59,6 +59,7 @@ interface ProtocolMap extends TMessageMap {
   // 1.7 chrome.contextMenus
   addContextMenu(data: chrome.contextMenus.CreateProperties): string;
   removeContextMenu(data: string): void;
+  clearContextMenus(): void;
 
   // 2. 在 offscreen 中注册，涉及页面解析等功能，主要供 options 使用
   logger(data: ILoggerItem): void;

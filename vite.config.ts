@@ -30,7 +30,6 @@ const permissions = [
   "cookies",
   "downloads",
   "declarativeNetRequest",
-  "notifications",
   "storage",
   "unlimitedStorage",
 ];

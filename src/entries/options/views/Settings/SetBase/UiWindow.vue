@@ -31,7 +31,15 @@ const configStore = useConfigStore();
         color="success"
         hide-details
         label="记忆部分表格的 表头列展示、排序、分页 等信息"
-      ></v-switch>
+      />
+
+      <v-label>右键菜单</v-label>
+      <v-switch
+        v-model="configStore.contextMenus.allowSelectionTextSearch"
+        color="success"
+        hide-details
+        label="启用选中文字搜索"
+      />
     </v-col>
   </v-row>
 </template>

@@ -17,6 +17,10 @@ export const useConfigStore = defineStore("config", {
     ignoreWrongPixelRatio: false,
     saveTableBehavior: true,
 
+    contextMenus: {
+      allowSelectionTextSearch: true,
+    },
+
     tableBehavior: {
       MyData: {
         itemsPerPage: 20,
