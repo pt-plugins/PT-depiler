@@ -1,8 +1,7 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref, shallowRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
-import { computedAsync } from "@vueuse/core";
 import { isUndefined } from "es-toolkit/compat";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 import { EResultParseStatus, type ISiteUserConfig, IUserInfo, TSiteID } from "@ptd/site";
@@ -80,13 +79,10 @@ const {
 });
 
 const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
-const tableData = computedAsync<IUserInfoItem[]>(async () => {
-  const allSite = metadataStore.getAddedSiteIds;
+const tableData = shallowRef<IUserInfoItem[]>([]);
+
+async function updateTableData() {
   const allPrivateSiteUserInfoData = [];
-  for (const site of allSite) {
-    // noinspection BadExpressionStatementJS
-    metadataStore.lastUserInfo[site]; // 使得 computedAsync 能够收集依赖以便触发数据更新
-  }
 
   for (const [siteId, siteUserConfig] of Object.entries(metadataStore.sites)) {
     // 设置为已离线或者不获取用户信息的站点不显示
@@ -95,24 +91,27 @@ const tableData = computedAsync<IUserInfoItem[]>(async () => {
     }
 
     const siteMeta = await metadataStore.getSiteMetadata(siteId);
-    if (siteMeta.isDead === true && !configStore.userInfo.showDeadSiteInOverview) {
+    if (
+      siteMeta.type === "public" || // 只显示私有站点的用户信息
+      (siteMeta.isDead === true && !configStore.userInfo.showDeadSiteInOverview) // 根据配置决定是否显示已死亡站点的用户信息
+    ) {
       continue;
     }
 
     // 判断之前有无个人信息，没有则从siteMetadata中根据 type = 'private' 判断是否能获取个人信息
-    let canHaveSiteUserInfo = !!metadataStore.lastUserInfo[siteId];
-    if (!canHaveSiteUserInfo) {
-      canHaveSiteUserInfo = siteMeta?.type === "private";
-    }
-
-    if (canHaveSiteUserInfo) {
-      const siteUserInfoData = metadataStore.lastUserInfo[siteId] ?? { site: siteId, siteUserConfig };
-      allPrivateSiteUserInfoData.push({ ...fixUserInfo(siteUserInfoData), siteUserConfig });
-    }
+    const siteUserInfoData = metadataStore.lastUserInfo[siteId] ?? { site: siteId, siteUserConfig };
+    allPrivateSiteUserInfoData.push({ ...fixUserInfo(siteUserInfoData), siteUserConfig });
   }
 
-  return allPrivateSiteUserInfoData;
-}, []);
+  tableData.value = allPrivateSiteUserInfoData;
+}
+
+onMounted(() => updateTableData()); // 挂载时加载表格数据
+watch(
+  () => metadataStore.lastUserInfo, // 监听用户信息变化
+  () => updateTableData(),
+  { deep: true },
+);
 
 const showHistoryDataViewDialog = ref<boolean>(false);
 const historyDataViewDialogSiteId = ref<TSiteID | null>(null);
@@ -510,7 +509,9 @@ function viewStatistic() {
           </span>
         </template>
         <template v-else>
-          <v-chip label><ResultParseStatus :status="item.status" /></v-chip>
+          <v-chip label>
+            <ResultParseStatus :status="item.status" />
+          </v-chip>
         </template>
       </template>
 
