@@ -144,9 +144,7 @@ const category: ISiteMetadata["category"] = [
     key: "source",
     options: [
       { value: 1, name: "UHD Blu-ray" },
-      { value: 12, name: "UHD Blu-ray DIY" },
       { value: 8, name: "Blu-ray" },
-      { value: 13, name: "Blu-ray DIY" },
       { value: 9, name: "Remux" },
       { value: 10, name: "Encode" },
       { value: 7, name: "WEB-DL" },
@@ -320,8 +318,9 @@ const userInfo: ISiteMetadata["userInfo"] = merge(schemaUserInfo, {
         },
       ],
     },
+    // "page": "/mybonus.php",
     bonusPerHour: {
-      selector: ["#outer table:nth-child(3) table tr:nth-child(2) td:nth-child(17)"],
+      selector: ["h1:contains('每小时获得的合计蝌蚪') + div > table tr:last td:last"],
       filters: [{ name: "parseNumber" }],
     },
   },
