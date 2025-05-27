@@ -35,7 +35,7 @@ export const siteMetadata: ISiteMetadata = {
         { value: 408, name: "HQ Audio(音乐)" },
         { value: 410, name: "Software(软件)" },
         { value: 411, name: "Games(游戏)" },
-        { value: 409, name: "Others(其它）" },
+        { value: 409, name: "Others(其它)" },
         ],
       cross: { mode: "append" },
     },
@@ -81,7 +81,6 @@ export const siteMetadata: ISiteMetadata = {
         { value: 6, name: "AAC" },
         { value: 7, name: "Other" },
         { value: 8, name: "AC3" },
-        { value: 9, name: "DTS" },
         { value: 10, name: "DTS-HD MA" },
         { value: 11, name: "DD/AC3" },
         { value: 12, name: "DDP/EAC3" },
@@ -132,7 +131,7 @@ export const siteMetadata: ISiteMetadata = {
       ratio: 1.05,
       seedingBonus: 40000,
       privilege:
-        "首次升级赠送邀请2枚；可以查看NFO文档；可以请求续种； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为\"强\")； 可以删除自己上传的字幕。"
+        "首次升级赠送邀请1枚；可以查看NFO文档；可以请求续种； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为\"强\")； 可以删除自己上传的字幕。"
     },
     {
       id: 3,
@@ -150,7 +149,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "300GB",
       ratio: 2.05,
       seedingBonus: 150000,
-      privilege: "可以查看NFO文档；可以查看用户列表；可以请求续种；可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为\"强\")； 可以删除自己上传的字幕。可以在做种/下载/发布的时候选择匿名模式。",
+      privilege: "首次升级赠送邀请2枚；可以查看NFO文档；可以查看用户列表；可以请求续种；可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为\"强\")； 可以删除自己上传的字幕。可以在做种/下载/发布的时候选择匿名模式。",
     },
     {
       id: 5,
@@ -168,7 +167,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "750GB",
       ratio: 3.05,
       seedingBonus: 400000,
-      privilege: "可以查看其它用户的评论、帖子历史。",
+      privilege: "首次升级赠送邀请3枚；可以查看其它用户的评论、帖子历史。",
     },
     {
       id: 7,
@@ -177,7 +176,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "1024GB",
       ratio: 3.55,
       seedingBonus: 600000,
-      privilege: "首次升级赠送邀请1枚，可以更新过期的外部信息；可以查看Extreme User论坛。",
+      privilege: "首次升级赠送邀请5枚，可以更新过期的外部信息；可以查看Extreme User论坛。",
     },
     {
       id: 8,
@@ -186,7 +185,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "1536GB",
       ratio: 4.05,
       seedingBonus: 800000,
-      privilege: "首次升级赠送邀请2枚，保留帐号，在官方活动期间可发放邀请；",
+      privilege: "首次升级赠送邀请10枚，保留帐号，在官方活动期间可发放邀请；",
     },
     {
       id: 9,
