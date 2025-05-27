@@ -92,9 +92,8 @@ async function generateSolution() {
             set(entriesConfig, `${updatePath}.${fieldKey}${option}`, 1);
           }
         } else if (category.cross.mode === "appendQuote") {
-          for (const option of field as (string | number)[]) {
-            set(entriesConfig, `${updatePath}.${fieldKey}[${option}]`, 1);
-          }
+          const options = Object.fromEntries((field as (string | number)[]).map((option) => [option, 1]));
+          set(entriesConfig, `${updatePath}.${fieldKey}`, options);
         } else if (category.cross.mode === "comma") {
           set(entriesConfig, `${updatePath}.${fieldKey}`, (field as (string | number)[]).join(","));
         } else {

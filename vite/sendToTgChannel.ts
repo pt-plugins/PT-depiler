@@ -52,9 +52,11 @@ async function main() {
   let message = `
 #${triggerInfo.eventName} #${commitInfo.author} #${commitInfo.commitHash}
 
-${escapeLegacyMarkdown(commitInfo.message)}
-|$|moreMessage|$|
-🔢 \`${buildVersion}\`
+\`\`\`
+${escapeLegacyMarkdown(commitInfo.message)}|$|moreMessage|$|
+\`\`\`
+
+🔢 \`v${buildVersion}\`
 📅 \`${commitInfo.timestamp}\`
 📦 *GitHub Action 自动构建*
 `;
@@ -63,10 +65,7 @@ ${escapeLegacyMarkdown(commitInfo.message)}
     "|$|moreMessage|$|",
     commitInfo.moreMessage
       ? `
-\`\`\`
-${escapeLegacyMarkdown(commitInfo.moreMessage)}
-\`\`\`
-`
+${escapeLegacyMarkdown(commitInfo.moreMessage)}`
       : "",
   );
 
