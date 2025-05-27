@@ -53,7 +53,8 @@ async function main() {
 #${triggerInfo.eventName} #${commitInfo.author} #${commitInfo.commitHash}
 
 \`\`\`
-${escapeLegacyMarkdown(commitInfo.message)}|$|moreMessage|$|
+${escapeLegacyMarkdown(commitInfo.message)}
+|$|moreMessage|$|
 \`\`\`
 
 🔢 \`v${buildVersion}\`

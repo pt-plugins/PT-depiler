@@ -269,7 +269,7 @@ async function exportStatisticImg() {
   // 将 echart 图表渲染到 canvas 上
   let yIndex = 0;
   for (const chartCanvas of chartsCanvas) {
-    ctx.drawImage(chartCanvas as HTMLCanvasElement, 0, yIndex);
+    ctx.drawImage(chartCanvas as HTMLCanvasElement, 0, yIndex, chartCanvas.clientWidth, chartCanvas.clientHeight);
     yIndex += perChartHeight.value + 10;
   }
 
