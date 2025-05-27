@@ -320,6 +320,10 @@ const userInfo: ISiteMetadata["userInfo"] = merge(schemaUserInfo, {
         },
       ],
     },
+    bonusPerHour: {
+      selector: ["#outer table:nth-child(3) table tr:nth-child(2) td:nth-child(17)"],
+      filters: [{ name: "parseNumber" }],
+    },
   },
 });
 
