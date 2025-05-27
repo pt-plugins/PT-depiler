@@ -140,7 +140,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "120GB",
       ratio: 1.55,
       seedingBonus: 80000,
-      privilege: "",
+      privilege: "账号如果在封存后将永远保留",
     },
     {
       id: 4,
@@ -176,7 +176,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "1024GB",
       ratio: 3.55,
       seedingBonus: 600000,
-      privilege: "首次升级赠送邀请5枚，可以更新过期的外部信息；可以查看Extreme User论坛。",
+      privilege: "首次升级赠送邀请5枚，。",
     },
     {
       id: 8,
@@ -185,7 +185,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "1536GB",
       ratio: 4.05,
       seedingBonus: 800000,
-      privilege: "首次升级赠送邀请10枚，保留帐号，在官方活动期间可发放邀请；",
+      privilege: "首次升级赠送邀请10枚，保留帐号；",
     },
     {
       id: 9,
@@ -194,7 +194,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "3072GB",
       ratio: 4.55,
       seedingBonus: 1000000,
-      privilege: "首次升级赠送邀请3枚，保留帐号，在官方活动期间可发放邀请；",
+      privilege: "首次升级赠送邀请3枚，保留帐号；",
     },
   ],
 };
