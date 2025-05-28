@@ -97,6 +97,19 @@ export const siteMetadata: ISiteMetadata = {
 
   userInfo: {
     ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      messageCount: {
+        text: 0,
+        selector: "#msg-bar a[href*='messages.php'] strong",
+        filters: [
+          (query: string | number) => {
+            const queryMatch = String(query || "").match(/(\d+)/); // query 有时会直接传入 0
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
+          },
+        ],
+      },
+    },
     process: [
       ...SchemaMetadata.userInfo!.process!.filter((item) => item.requestConfig.url !== "/mybonus.php"), // 继承、排除
       {
