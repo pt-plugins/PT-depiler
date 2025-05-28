@@ -18,8 +18,9 @@ export type TLevelGroupType = "user" | "vip" | "manager";
 export interface IImplicitUserInfo {
   interval?: isoDuration; // 需要等待的日期需求（ISO 8601 - 时间段表示法）  如 P5W 代表等待五周，P2M 代表等待二个月
   /**
-   * 对 涉及体积的 其 number 类型的需求，我们更建议使用 utils/filesize 提供的单位明确真实 Byte 数值
-   * TODO 也可以考虑直接使用 string 类型，如 "1.5 TB"，会自动实现转换
+   * 对 涉及体积的 其 number 类型的需求，
+   *  - 使用 utils/filesize 提供的单位明确真实 Byte 数值
+   *  - 使用 string 类型，如 "1.5 TB"，会自动实现转换
    */
 
   totalTraffic?: number | TSize; // 总流量需求

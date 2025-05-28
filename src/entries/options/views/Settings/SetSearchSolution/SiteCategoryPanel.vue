@@ -189,7 +189,7 @@ async function generateSolution() {
                     >
                       <!-- 增加一个代表默认的值，说明该类别什么都不选（尊重站点默认）。（不然的话，只能全部重置才能取消选择） -->
                       <v-col class="py-0" cols="12" lg="2" md="4" sm="6">
-                        <v-radio :label="'default'" :value="radioDefault"></v-radio>
+                        <v-radio :label="'站点默认'" :value="radioDefault"></v-radio>
                       </v-col>
                       <v-col v-for="options in category.options" class="py-0" cols="12" lg="2" md="4" sm="6">
                         <v-radio :key="options.value" :label="options.name" :value="options.value" />

@@ -2,7 +2,7 @@
 export class NeedLoginError extends Error {}
 export class NoTorrentsError extends Error {}
 
-export type TSiteID = string; // should match regexp /[0-9a-z]+/
+export type TSiteID = Lowercase<string>; // should match regexp /[0-9a-z]+/
 export type TSiteHost = string;
 
 export type TSiteFullUrl = `${"http" | "https"}://${TSiteHost}/`;
