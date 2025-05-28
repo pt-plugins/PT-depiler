@@ -239,9 +239,9 @@ async function entryDialog() {
                       {{ host }}
                       <template v-if="allSupportedSiteHost.includes(host as string)">
                         ->
-                        <SiteFavicon :site-id="metadataStore.siteHostMap[host as string]" class="mx-1" />
+                        <SiteFavicon :site-id="allSupportedSiteHostMap[host as string]" class="mx-1" />
                         <SiteName
-                          :site-id="metadataStore.siteHostMap[host as string]"
+                          :site-id="allSupportedSiteHostMap[host as string]"
                           class="text-no-wrap font-weight-bold"
                           tag="span"
                         />
