@@ -149,6 +149,19 @@ export const siteMetadata: ISiteMetadata = {
     area_games: { name: "游戏", requestConfig: { url: "/games.php" }, enabled: false },
   },
 
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      name: {
+        selector: "a[href*='userdetails.php'][class*='Name']:first > b",
+        elementProcess: (element) => {
+          return (element.firstChild.textContent || "").trim();
+        },
+      },
+    },
+  },
+
   levelRequirements: [
     {
       id: 1,
