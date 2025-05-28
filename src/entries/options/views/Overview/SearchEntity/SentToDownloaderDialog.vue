@@ -117,6 +117,7 @@ async function sendToDownloader() {
 }
 
 function dialogEnter() {
+  restoreAddTorrentOptions(); // 先重置所有选项，然后从uiStore中获取历史情况
   const lastDownloaderId = metadataStore.lastDownloader?.id;
   selectedDownloader.value = lastDownloaderId // 如果有上次选择的下载器，则直接使用
     ? metadataStore.downloaders[lastDownloaderId]

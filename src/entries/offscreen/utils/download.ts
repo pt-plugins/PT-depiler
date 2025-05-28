@@ -157,6 +157,8 @@ onMessage("downloadTorrentToLocalFile", async ({ data: { torrent, localDownloadM
 onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId, addTorrentOptions } }) => {
   logger({ msg: "downloadTorrentToDownloader", data: { torrent, downloaderId, addTorrentOptions } });
 
+  addTorrentOptions.localDownload ??= true; // 默认开启本地中转选项（如果传递进来的没有 localDownload 值的话）
+
   const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
   if (!(configStoreRaw?.download?.allowDirectSendToClient ?? false) && !addTorrentOptions.localDownload) {
     addTorrentOptions.localDownload = true; // 如果不允许直接发送到下载器，则将本地中转选项强行设置为 true
