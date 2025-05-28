@@ -157,6 +157,11 @@ onMessage("downloadTorrentToLocalFile", async ({ data: { torrent, localDownloadM
 onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId, addTorrentOptions } }) => {
   logger({ msg: "downloadTorrentToDownloader", data: { torrent, downloaderId, addTorrentOptions } });
 
+  const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
+  if (!(configStoreRaw?.download?.allowDirectSendToClient ?? false) && !addTorrentOptions.localDownload) {
+    addTorrentOptions.localDownload = true; // 如果不允许直接发送到下载器，则将本地中转选项强行设置为 true
+  }
+
   const downloadHistory = buildDownloadHistory(torrent, downloaderId, addTorrentOptions);
   const downloadId = await setDownloadHistory(downloadHistory);
 
@@ -173,7 +178,7 @@ onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId,
   const downloaderConfig = await getDownloaderConfig(downloaderId);
   if (downloaderConfig.id && downloaderConfig.enabled) {
     const downloaderInstance = await getDownloader(downloaderConfig);
-    if (addTorrentOptions.localDownload !== false) {
+    if (addTorrentOptions.localDownload) {
       addTorrentOptions.localDownloadOption = downloadRequestConfig;
     }
 

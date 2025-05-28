@@ -9,6 +9,7 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import type { IDownloaderMetadata, ISearchResultTorrent } from "@/shared/types.ts";
+import { toMerged } from "es-toolkit";
 
 const showDialog = defineModel<boolean>();
 const { torrentItems } = defineProps<{
@@ -122,7 +123,9 @@ function dialogEnter() {
     : metadataStore.getEnabledDownloaders.length === 1 // 如果只有一个启用的下载器，则直接使用
       ? metadataStore.getEnabledDownloaders[0]
       : null;
-  addTorrentOptions.value = (metadataStore.lastDownloader?.options ?? {}) as Required<
+
+  // 将上一次的下载器选项通过 toMerged 合并到当前选项中，而不是直接覆盖
+  addTorrentOptions.value = toMerged(addTorrentOptions.value, metadataStore.lastDownloader?.options ?? {}) as Required<
     Omit<CAddTorrentOptions, "localDownloadOption">
   >;
 }
