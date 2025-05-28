@@ -139,7 +139,7 @@ export const definedFilters: Record<string, TQueryFilterFn> = {
    * Only used when you know the format of the time string.
    *
    * input: "2021-01-01 12:00:00"
-   * args: ["YYYY-MM-dd HH:mm:ss"]
+   * args: ["yyyy-MM-dd HH:mm:ss"]
    * results: 1609488000000
    */
   parseTime: parseValidTimeString,
