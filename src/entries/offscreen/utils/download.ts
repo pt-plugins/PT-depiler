@@ -180,9 +180,16 @@ onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId,
     await patchDownloadHistory(downloadId, { downloadStatus: "downloading" });
     try {
       logger({ msg: "downloadTorrentToDownloader", data: { torrent, downloadRequestConfig, addTorrentOptions } });
-      await downloaderInstance.addTorrent(downloadRequestConfig.url!, addTorrentOptions);
-      await patchDownloadHistory(downloadId, { downloadStatus: "completed" });
+      const addStatus = await downloaderInstance.addTorrent(downloadRequestConfig.url!, addTorrentOptions);
+      if (!addStatus) {
+        logger({ msg: "Failed to add torrent to downloader", data: { torrent, downloaderId, addTorrentOptions } });
+        await patchDownloadHistory(downloadId, { downloadStatus: "failed" });
+      } else {
+        logger({ msg: "Successfully added torrent to downloader", data: { torrent, downloaderId, addTorrentOptions } });
+        await patchDownloadHistory(downloadId, { downloadStatus: "completed" });
+      }
     } catch (e) {
+      logger({ msg: "Error adding torrent to downloader", data: { torrent, downloaderId, addTorrentOptions } });
       await patchDownloadHistory(downloadId, { downloadStatus: "failed" });
     }
   } else {
