@@ -293,7 +293,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     }
 
     if (options.label) {
-      formData.append("category", options.label); // Category for the torrent
+      formData.append("tags", options.label); // Tags for the torrent
     }
 
     if (options.addAtPaused) {
@@ -411,5 +411,11 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     };
     await this.request("/torrents/resume", { params });
     return true;
+  }
+
+  // 获取客户端中的已有的标签
+  public override async getClientLabels(): Promise<string[]> {
+    const { data } = await this.request<string[]>("/torrents/tags");
+    return data;
   }
 }
