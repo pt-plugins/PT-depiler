@@ -5,9 +5,8 @@ export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
 
   version: 1,
-  id: "PTzone",
+  id: "ptzone",
   name: "PTzone",
-  aka: ["PTzone"],
   description: "分享地带！",
   tags: ["影视", "综合"],
   timezoneOffset: "+0800",
