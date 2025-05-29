@@ -364,6 +364,12 @@ export const siteMetadata: ISiteMetadata = {
           bonusPerHour: { selector: "data.formulaParams.finalBs", filters: [{ name: "parseNumber" }] },
         },
       },
+      {
+        requestConfig: { url: "/api/msg/notify/statistic", method: "POST", responseType: "json" },
+        selectors: {
+          messageCount: { selector: "data.unMake", filters: [{ name: "parseNumber" }] },
+        },
+      },
     ],
   },
 
