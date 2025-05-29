@@ -41,7 +41,7 @@ export async function createFlushUserInfoJob() {
         flushPromises.push(
           new Promise(async (resolve, reject) => {
             const siteConfig = await sendMessage("getSiteUserConfig", { siteId });
-            if (siteConfig.allowQueryUserInfo) {
+            if (!siteConfig.isOffline && siteConfig.allowQueryUserInfo) {
               // 检查当天的记录是否存在
               const thisSiteUserInfo = await sendMessage("getSiteUserInfo", siteId);
               if (typeof thisSiteUserInfo[curDateFormat] === "undefined") {

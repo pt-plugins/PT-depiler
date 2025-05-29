@@ -49,7 +49,6 @@ useEcharts([TitleComponent, TooltipComponent, LegendComponent, GridComponent, Li
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const metadataStore = useMetadataStore();
 const configStore = useConfigStore();
 const chartContainerRef = useTemplateRef<HTMLDivElement>("chartContainer");
 const { width: containerWidth } = useElementSize(chartContainerRef);
@@ -219,8 +218,6 @@ const perSiteChartField: [keyof IStoredUserInfo, keyof typeof formatDict][] = [
 // echarts 主题
 const echartsTheme = computed(() => (configStore.uiTheme === "dark" ? "dark" : null));
 provide(THEME_KEY, echartsTheme);
-
-const siteData = ref<Record<string, { name: string; icon: string }>>({});
 
 onMounted(async () => {
   rawDataRef.value = await loadFullData();
