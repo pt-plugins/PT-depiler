@@ -8,10 +8,7 @@ export async function getCanAddedSiteMetadata() {
   const metadataStore = useMetadataStore();
   const canAddedSiteList = definitionList.filter((x) => !metadataStore.getAddedSiteIds.includes(x));
   for (const siteId of canAddedSiteList) {
-    const siteMetadata = await metadataStore.getSiteMetadata(siteId);
-    if (!siteMetadata.isDead) {
-      canAddedSiteMetadata[siteId] = siteMetadata;
-    }
+    canAddedSiteMetadata[siteId] = await metadataStore.getSiteMetadata(siteId);
   }
   return canAddedSiteMetadata;
 }

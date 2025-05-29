@@ -81,6 +81,7 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
     <v-form
       v-model="isFormValid"
       fast-fail
+      :disabled="siteMetaData.isDead"
       validate-on="eager invalid-input"
       @update:model-value="(v) => emit('update:formValid', v as boolean)"
     >
