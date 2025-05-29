@@ -2,6 +2,7 @@ import { nanoid } from "nanoid";
 import { defineStore } from "pinia";
 import { isEmpty, set } from "es-toolkit/compat";
 import {
+  getHostFromUrl,
   getDefinedSiteMetadata,
   type ISearchCategories,
   type ISearchEntryRequestConfig,
@@ -30,17 +31,6 @@ type TSimplePatchFieldKey = keyof Pick<
   IMetadataPiniaStorageSchema,
   "sites" | "solutions" | "snapshots" | "downloaders" | "mediaServers" | "backupServers"
 >;
-
-// FIXME 移动到 @ptd/site 中
-export function getHostFromUrl(url: string): TSiteHost {
-  let host = url;
-  try {
-    const urlObj = new URL(url);
-    host = urlObj.host;
-  } catch (e) {}
-
-  return host;
-}
 
 export const useMetadataStore = defineStore("metadata", {
   persistWebExt: true,

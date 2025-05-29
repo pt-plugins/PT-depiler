@@ -40,9 +40,13 @@ export async function getSiteUserInfoResult(siteId: string) {
       lastUserInfo = {} as IUserInfo;
     }
 
-    // 调用站点实例获取用户信息
-    let userInfo = await site.getUserInfoResult(lastUserInfo);
-    await setSiteLastUserInfo(userInfo);
+    let userInfo = lastUserInfo;
+    if (site.allowQueryUserInfo) {
+      // 调用站点实例获取用户信息
+      userInfo = await site.getUserInfoResult(lastUserInfo);
+      await setSiteLastUserInfo(userInfo);
+    }
+
     return userInfo!;
   }))!;
 }

@@ -2,10 +2,18 @@
 import { useI18n } from "vue-i18n";
 import { omit } from "es-toolkit";
 import { computed, ref, shallowRef } from "vue";
-import { definitionList, EResultParseStatus, IUserInfo, parseSizeString, TSiteHost, TSiteID } from "@ptd/site";
+import {
+  definitionList,
+  getHostFromUrl,
+  parseSizeString,
+  EResultParseStatus,
+  type IUserInfo,
+  type TSiteHost,
+  type TSiteID,
+} from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
-import { getHostFromUrl, useMetadataStore } from "@/options/stores/metadata.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import type { IPtppDumpUserInfo, IPtppUserInfo, TUserInfoStorageSchema } from "@/shared/types.ts";
 
@@ -133,16 +141,13 @@ async function doImport() {
         userInfoStorage[siteId] ??= {};
 
         // 首先处理 latest，注意我们仅处理 lastUpdateStatus 为 success ，且历史时间大于当前存储的时间（这样可以帮助我们导入 isDead 的站点）
-        if (data.latest) {
-          const latestUserInfo = data.latest;
-          if (
-            overwriteExistUserInfo.value &&
-            latestUserInfo.lastUpdateStatus === "success" &&
-            latestUserInfo.lastUpdateTime &&
-            latestUserInfo.lastUpdateTime > (metadataStore.lastUserInfo[siteId]?.updateAt ?? 0)
-          ) {
-            metadataStore.lastUserInfo[siteId] = transferUserInfo(data.latest);
-          }
+        const latestUserInfo = data.latest ?? {};
+        if (
+          overwriteExistUserInfo.value &&
+          latestUserInfo?.lastUpdateStatus === "success" &&
+          (latestUserInfo?.lastUpdateTime ?? -1) > (metadataStore.lastUserInfo[siteId]?.updateAt ?? 0)
+        ) {
+          metadataStore.lastUserInfo[siteId] = transferUserInfo(latestUserInfo);
         }
 
         for (const [date, userData] of Object.entries(omit(data, ["latest"]))) {
@@ -161,6 +166,7 @@ async function doImport() {
 
     setTimeout(() => (showDialog.value = false), 5e3);
   } catch (e) {
+    console.error("导入失败", e);
     runtimeStore.showSnakebar("导入失败。", { color: "error" });
   } finally {
     await sendMessage("setFlushUserInfoJob", undefined);

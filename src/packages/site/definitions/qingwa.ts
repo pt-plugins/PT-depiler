@@ -340,6 +340,7 @@ export const siteMetadata: ISiteMetadata = {
     "aHR0cHM6Ly93d3cucWluZ3dhcHQuY29tLw==",
     "aHR0cHM6Ly93d3cucWluZ3dhcHQub3JnLw==",
     "aHR0cHM6Ly93d3cucWluZ3dhLnByby8=",
+    "aHR0cHM6Ly9xaW5nd2FwdC5jb20v", // 增加一个和ptpp中 host 一样的url （经过实测也能访问）
   ],
   collaborator: ["Eason Wong"],
 

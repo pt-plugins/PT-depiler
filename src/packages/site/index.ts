@@ -3,6 +3,7 @@ import { cloneDeep } from "es-toolkit";
 export * from "./types";
 export * from "./utils";
 
+import { getHostFromUrl } from "./utils/html.ts";
 import type { ISiteMetadata, ISiteUserConfig, TSiteID, TSiteFullUrl } from "./types";
 import type BittorrentSite from "./schemas/AbstractBittorrentSite";
 import type PrivateSite from "./schemas/AbstractPrivateSite";
@@ -57,7 +58,7 @@ export async function getDefinedSiteMetadata(definition: string): Promise<ISiteM
 
   // 补全一些可以缺失字段
   siteMetadata.tags ??= [];
-  siteMetadata.host ??= new URL(siteMetadata.urls[0]).host;
+  siteMetadata.host ??= getHostFromUrl(siteMetadata.urls[0]);
   siteMetadata.timezoneOffset ??= siteMetadata.schema === "NexusPHP" ? "+0800" : "+0000";
 
   return siteMetadata;
