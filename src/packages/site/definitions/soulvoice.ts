@@ -54,8 +54,15 @@ export const siteMetadata: ISiteMetadata = {
         { value: 5, name: "Other" },
         { value: 2, name: "H.265" },
         { value: 1, name: "H.264" },
-        { value: 19, name: "Other-阅听" },
-        { value: 18, name: "PDF-阅听" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "编码-阅听",
+      key: "audiocodec",
+      options: [
+        { value: 19, name: "Other" },
+        { value: 18, name: "PDF" },
         { value: 3, name: "MOBI" },
         { value: 2, name: "EPUB" },
         { value: 1, name: "AZW/AZW3" },
