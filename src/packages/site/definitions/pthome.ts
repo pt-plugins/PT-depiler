@@ -18,7 +18,7 @@ export const siteMetadata: ISiteMetadata = {
 
   category: [
     {
-      name: "类别",
+      name: "类型",
       key: "cat",
       options: [
         { value: 401, name: "Movies电影" },
