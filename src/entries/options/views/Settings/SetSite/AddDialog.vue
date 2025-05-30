@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { provide, ref, shallowRef, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { computedAsync } from "@vueuse/core";
 import { ISiteMetadata, type ISiteUserConfig, type TSiteID } from "@ptd/site";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -138,7 +137,7 @@ async function saveSite() {
           </v-window-item>
           <!-- 具体配置站点 -->
           <v-window-item :value="1">
-            <Editor v-model="selectedSiteId!" @update:form-valid="(v) => (isFormValid = v)" />
+            <Editor ref="editor" v-model="selectedSiteId!" @update:form-valid="(v) => (isFormValid = v)" />
           </v-window-item>
         </v-window>
       </v-card-text>

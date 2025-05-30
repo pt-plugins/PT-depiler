@@ -30,8 +30,13 @@ const isFormValid = ref<boolean>(false);
 
 async function initSiteData(siteId: TSiteID, flush = false) {
   console.log("initSiteData", siteId, flush);
+  isFormValid.value = false;
   siteMetaData.value = await metadataStore.getSiteMetadata(siteId);
   siteUserConfig.value = await metadataStore.getSiteUserConfig(siteId, flush);
+  if (siteMetaData.value.isDead) {
+    isFormValid.value = true;
+  }
+  emit("update:formValid", isFormValid.value);
 }
 
 onMounted(() => {

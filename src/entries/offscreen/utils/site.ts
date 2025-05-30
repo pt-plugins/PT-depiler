@@ -23,10 +23,11 @@ export async function getSiteUserConfig(siteId: TSiteID, flush = false) {
   const siteMetaData = await getDefinedSiteMetadata(siteId);
 
   if (flush || isEmpty(storedSiteUserConfig)) {
-    storedSiteUserConfig.isOffline ??= false;
+    const isDeadSite = siteMetaData.isDead ?? false;
+    storedSiteUserConfig.isOffline ??= isDeadSite;
     storedSiteUserConfig.sortIndex ??= 100;
-    storedSiteUserConfig.allowSearch ??= Object.hasOwn(siteMetaData, "search");
-    storedSiteUserConfig.allowQueryUserInfo ??= Object.hasOwn(siteMetaData, "userInfo");
+    storedSiteUserConfig.allowSearch ??= !isDeadSite && Object.hasOwn(siteMetaData, "search");
+    storedSiteUserConfig.allowQueryUserInfo ??= !isDeadSite && Object.hasOwn(siteMetaData, "userInfo");
     storedSiteUserConfig.timeout ??= 30e3;
     storedSiteUserConfig.inputSetting ??= {};
     storedSiteUserConfig.groups ??= siteMetaData.tags ?? [];
