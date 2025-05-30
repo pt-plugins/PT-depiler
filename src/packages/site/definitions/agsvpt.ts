@@ -46,7 +46,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "Crazy User(翡翠森林熊)",
       interval: "P12W",
       downloaded: "300GB",
-      ratio: "2.05",
+      ratio: 2.05,
       seedingBonus: 150000,
     },
     {
