@@ -80,7 +80,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "Ultimate User(永恒铂金熊)",
       interval: "P52W",
       downloaded: "1.5TB",
-      ratio: "6.05",
+      ratio: 6.05,
       seedingBonus: 2200000,
       privilege: "首次升级至此等级的用户将获得2个邀请名额。",
     },
