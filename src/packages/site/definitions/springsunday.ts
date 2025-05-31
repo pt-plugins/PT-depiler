@@ -315,7 +315,8 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseNumber" }],
       },
       messageCount: {
-        selector: ["a[href*='messages.php'][style*='background: red']"],
+        ...SchemaMetadata.userInfo!.selectors!.messageCount,
+        selector: ["a[href*='messages.php'] > b[style*='background: darkorange']"],
       },
     },
   },

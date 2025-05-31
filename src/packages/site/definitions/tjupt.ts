@@ -146,6 +146,10 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["td.rowhead:contains('上传量') + td"],
         filters: [{ name: "parseSize" }],
       },
+      messageCount: {
+        ...SchemaMetadata.userInfo!.selectors!.messageCount,
+        selector: ["#msg-bar a[href*='messages.php'] strong"],
+      },
     },
     process: [
       ...SchemaMetadata.userInfo!.process!.filter((item) => item.requestConfig.url !== "/mybonus.php"),
