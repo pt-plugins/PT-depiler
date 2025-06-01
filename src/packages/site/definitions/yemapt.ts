@@ -1,5 +1,6 @@
 import type { ILevelRequirement, ISearchInput, ISiteMetadata, ITorrent, ITorrentTag } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
+import type { AxiosRequestConfig } from "axios";
 
 const levelRequirements: ILevelRequirement[] = [
   {
@@ -105,7 +106,6 @@ export const siteMetadata: ISiteMetadata = {
   name: "YemaPT",
   description: "YemaPT 是一个由全新技术架构构建而来的综合类资源PT站点。（因站点限制，单次最多返回40个搜索结果。）",
   tags: ["综合"],
-  timezoneOffset: "+0800",
   collaborator: ["Rhilip"],
 
   type: "private",
@@ -164,7 +164,7 @@ export const siteMetadata: ISiteMetadata = {
       id: { selector: "id" },
       title: { selector: "showName" },
       subTitle: { selector: "shortDesc" },
-      url: { selector: "id", filters: [{ name: "perpend", args: ["#/torrent/detail/"] }] },
+      url: { selector: "id", filters: [{ name: "perpend", args: ["/#/torrent/detail/"] }] },
       link: { selector: "id", filters: [{ name: "perpend", args: ["/api/torrent/download?id="] }] },
       time: { selector: "listingTime", filters: [{ name: "parseTime", args: ["yyyy-MM-dd'T'HH:mm:ss.SSSXXX"] }] },
       size: { selector: "fileSize" },
@@ -263,6 +263,10 @@ interface IYemaRawTorrent {
 }
 
 export default class YemaPT extends PrivateSite {
+  protected override fixLink(uri: string, requestConfig: AxiosRequestConfig): string {
+    return super.fixLink(uri, { ...requestConfig, baseURL: this.url }); // 将 baseURL 重新指向回 web 页面
+  }
+
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
     row: IYemaRawTorrent,

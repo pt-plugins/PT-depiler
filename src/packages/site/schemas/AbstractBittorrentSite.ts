@@ -483,7 +483,11 @@ export default class BittorrentSite {
     torrent.comments = tryToNumber(torrent.comments);
     torrent.category = tryToNumber(torrent.category);
     torrent.status = tryToNumber(torrent.status);
-    torrent.time = parseTimeWithZone(torrent.time as unknown as string, this.metadata.timezoneOffset || "+0000");
+
+    if (this.metadata.timezoneOffset) {
+      // 仅当设置了时区偏移时，才进行转换
+      torrent.time = parseTimeWithZone(torrent.time as unknown as string);
+    }
 
     // 在此基础上，不同 schema 可以复写处理过程
     torrent = this.fixParsedTorrent(torrent as ITorrent, row, searchConfig);

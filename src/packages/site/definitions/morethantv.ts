@@ -30,7 +30,6 @@ export const siteMetadata: ISiteMetadata = {
   aka: ["MTV"],
   description: "MoreThanTV is a Private Torrent Tracker for TV / MOVIES",
   tags: ["电视剧", "剧集"],
-  timezoneOffset: "+0000",
 
   collaborator: ["luckiestone", "Rhilip"],
 
