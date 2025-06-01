@@ -209,10 +209,15 @@
       "totalSiteBase": "基本数据",
       "totalSiteSeeding": "做种数据",
       "perSiteKuploaded": "分站点上传数据",
+      "perSiteKuploadedIncr": "分站点上传增量",
       "perSiteKdownloaded": "分站点下载数据",
+      "perSiteKdownloadedIncr": "分站点下载增量",
       "perSiteKseeding": "分站点做种数",
+      "perSiteKseedingIncr": "分站点做种数增量",
       "perSiteKseedingSize": "分站点做种体积",
-      "perSiteKbonus": "分站点魔力"
+      "perSiteKseedingSizeIncr": "分站点做种体积增量",
+      "perSiteKbonus": "分站点魔力",
+      "perSiteKbonusIncr": "分站点魔力增量"
     },
     "dateRange": {
       "custom": "自定义",

@@ -207,11 +207,16 @@
     "chart": {
       "totalSiteBase": "Basic Data",
       "totalSiteSeeding": "Seeding Data",
-      "perSiteKuploaded": "Uploaded Data per Site",
-      "perSiteKdownloaded": "Downloaded Data per Site",
-      "perSiteKseeding": "Seeding Count per Site",
-      "perSiteKseedingSize": "Seeding Size per Site",
-      "perSiteKbonus": "Bonus Points per Site"
+      "perSiteKuploaded": "Uploaded Data by Site",
+      "perSiteKuploadedIncr": "Upload Increment by Site",
+      "perSiteKdownloaded": "Downloaded Data by Site",
+      "perSiteKdownloadedIncr": "Download Increment by Site",
+      "perSiteKseeding": "Seeding Count by Site",
+      "perSiteKseedingIncr": "Seeding Increment by Site",
+      "perSiteKseedingSize": "Seeding Size by Site",
+      "perSiteKseedingSizeIncr": "Seeding Size Increment by Site",
+      "perSiteKbonus": "Bonus Points by Site",
+      "perSiteKbonusIncr": "Bonus Increment by Site"
     },
     "dateRange": {
       "custom": "Custom",
