@@ -1,12 +1,11 @@
-import type { IElementQuery, ISiteMetadata } from "@ptd/site";
+import { ETorrentStatus, type IElementQuery, type ISiteMetadata, type IAdvancedSearchRequestConfig } from "../types";
 import {
   CategoryInclbookmarked,
   CategoryIncldead,
   CategorySpstate,
   SchemaMetadata,
   subTitleRemoveExtraElement,
-} from "@ptd/site/schemas/NexusPHP.ts";
-import { ETorrentStatus, IAdvancedSearchRequestConfig } from "@ptd/site";
+} from "../schemas/NexusPHP.ts";
 
 // HDHOME 中的 selector.search.progress 以及 selector.search.status 被其他站公用
 export const selectorSearchProgress: IElementQuery = {

@@ -1,4 +1,4 @@
-import type { ISearchInput, ISiteMetadata, ITorrent } from "@ptd/site";
+import type { ISearchInput, ISiteMetadata, ITorrent } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 
 const categoryOptions = [

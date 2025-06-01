@@ -1,6 +1,7 @@
-import { ETorrentStatus, type IElementQuery, type ISiteMetadata } from "@ptd/site";
-import { CategoryInclbookmarked, CategoryIncldead, SchemaMetadata } from "../schemas/NexusPHP";
 import { set } from "es-toolkit/compat";
+
+import { ETorrentStatus, type IElementQuery, type ISiteMetadata } from "../types";
+import { CategoryInclbookmarked, CategoryIncldead, SchemaMetadata } from "../schemas/NexusPHP";
 
 // TJUPT 中的 selector.search.progress 以及 selector.search.status 被其他站公用
 export const selectorSearchProgress: IElementQuery = {

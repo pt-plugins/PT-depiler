@@ -1,4 +1,4 @@
-import type { ISiteMetadata } from "@ptd/site";
+import type { ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
@@ -8,7 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   id: "soulvoice",
   name: "SoulVoice",
   description: "聆音",
-  tags: ["影视", "综合","电子书","有声书"],
+  tags: ["影视", "综合", "电子书", "有声书"],
   collaborator: ["zxb0303"],
 
   type: "private",
@@ -127,12 +127,13 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 1,
       name: "Peasant",
-      privilege: "被降级的用户，有30天时间提升分享率，否则会被封禁。不能发表趣味盒内容；不能申请友情链接；不能上传字幕。"
+      privilege:
+        "被降级的用户，有30天时间提升分享率，否则会被封禁。不能发表趣味盒内容；不能申请友情链接；不能上传字幕。",
     },
     {
       id: 2,
       name: "User",
-      privilege: "新用户的默认级别。只能在每周六中午12点至每周日晚上11点59分发布种子。"
+      privilege: "新用户的默认级别。只能在每周六中午12点至每周日晚上11点59分发布种子。",
     },
     {
       id: 3,
@@ -140,7 +141,8 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P4W",
       downloaded: "50GB",
       ratio: 1.05,
-      privilege: "可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种；可以查看排行榜；可以查看其他用户的种子历史（如果用户隐私等级未设置为“强”）；可以删除自己上传的字幕。"
+      privilege:
+        "可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种；可以查看排行榜；可以查看其他用户的种子历史（如果用户隐私等级未设置为“强”）；可以删除自己上传的字幕。",
     },
     {
       id: 4,
@@ -148,7 +150,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P8W",
       downloaded: "120GB",
       ratio: 1.55,
-      privilege: "Elite User及以上用户封存账号后不会被删除。"
+      privilege: "Elite User及以上用户封存账号后不会被删除。",
     },
     {
       id: 5,
@@ -156,7 +158,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P15W",
       downloaded: "300GB",
       ratio: 2.05,
-      privilege: "可以在做种/下载/发布的时候选择匿名模式。"
+      privilege: "可以在做种/下载/发布的时候选择匿名模式。",
     },
     {
       id: 6,
@@ -164,7 +166,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P25W",
       downloaded: "500GB",
       ratio: 2.55,
-      privilege: "可以查看普通日志。"
+      privilege: "可以查看普通日志。",
     },
     {
       id: 7,
@@ -172,7 +174,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P40W",
       downloaded: "750GB",
       ratio: 3.05,
-      privilege: "可以查看其他用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。"
+      privilege: "可以查看其他用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。",
     },
     {
       id: 8,
@@ -180,7 +182,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P60W",
       downloaded: "1TB",
       ratio: 3.55,
-      privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。"
+      privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。",
     },
   ],
 };

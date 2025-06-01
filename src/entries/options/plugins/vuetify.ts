@@ -4,7 +4,7 @@ import "vuetify/styles";
 import { createVuetify } from "vuetify";
 import { en, zhHans } from "vuetify/locale";
 
-import { type TLangCode } from "@/options/plugins/i18n.ts";
+import { type TLangCode } from "./i18n.ts";
 
 export const vuetifyLangMap: Record<TLangCode, string> = {
   en: "en",

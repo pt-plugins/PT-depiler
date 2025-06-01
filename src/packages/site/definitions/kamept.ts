@@ -1,11 +1,6 @@
-import { type ISiteMetadata, IAdvancedSearchRequestConfig } from "../types";
-import {
-  CategoryInclbookmarked,
-  CategoryIncldead,
-  CategorySpstate,
-  SchemaMetadata,
-} from "../schemas/NexusPHP";
-import { GB, TB } from "@ptd/site";
+import { GB, TB } from "../utils";
+import type { ISiteMetadata, IAdvancedSearchRequestConfig } from "../types";
+import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,

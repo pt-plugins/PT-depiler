@@ -1,4 +1,4 @@
-import type { ISiteMetadata } from "@ptd/site";
+import type { ISiteMetadata } from "../types";
 
 export const siteMetadata: ISiteMetadata = {
   version: 1,

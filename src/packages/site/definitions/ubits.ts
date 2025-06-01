@@ -1,18 +1,7 @@
-import {
-  ETorrentStatus,
-  IAdvancedSearchRequestConfig,
-  ISiteMetadata,
-  TSelectSearchCategoryValue,
-  GB,
-  TB,
-} from "@ptd/site";
-import {
-  CategoryIncldead,
-  CategorySpstate,
-  CategoryInclbookmarked,
-  SchemaMetadata,
-} from "@ptd/site/schemas/NexusPHP.ts";
 import { set } from "es-toolkit/compat";
+import type { IAdvancedSearchRequestConfig, ISiteMetadata, TSelectSearchCategoryValue } from "../types";
+import { GB, TB } from "../utils";
+import { CategoryIncldead, CategorySpstate, CategoryInclbookmarked, SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,

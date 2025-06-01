@@ -1,4 +1,6 @@
+import { set } from "es-toolkit/compat";
 import { type ISiteMetadata, ETorrentStatus } from "../types";
+import { GB, TB } from "../utils";
 import {
   CategoryInclbookmarked,
   CategoryIncldead,
@@ -6,8 +8,6 @@ import {
   SchemaMetadata,
   subTitleRemoveExtraElement,
 } from "../schemas/NexusPHP";
-import { GB, TB } from "@ptd/site";
-import { set } from "es-toolkit/compat";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,

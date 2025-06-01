@@ -1,4 +1,4 @@
-import type { ISiteMetadata } from "@ptd/site";
+import type { ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
@@ -76,7 +76,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 1,
       name: "User",
-      privilege: "新用户的默认级别。只能在每周六中午12点至每周日晚上11点59分发布种子。"
+      privilege: "新用户的默认级别。只能在每周六中午12点至每周日晚上11点59分发布种子。",
     },
     {
       id: 2,
@@ -85,7 +85,8 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "50GB",
       ratio: 1.05,
       seedingBonus: 40000,
-      privilege: "可以直接发布种子；可以查看NFO文件；可以查看用户列表；可以请求续种；可以发送邀请；可以查看排行榜；可以查看其他用户的种子历史（如用户隐私等级未设置为“强”）；可以删除自己上传的字幕。"
+      privilege:
+        "可以直接发布种子；可以查看NFO文件；可以查看用户列表；可以请求续种；可以发送邀请；可以查看排行榜；可以查看其他用户的种子历史（如用户隐私等级未设置为“强”）；可以删除自己上传的字幕。",
     },
     {
       id: 3,
@@ -94,7 +95,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "120GB",
       ratio: 1.55,
       seedingBonus: 80000,
-      privilege: "Elite User及以上用户封存账号后不会被删除。"
+      privilege: "Elite User及以上用户封存账号后不会被删除。",
     },
     {
       id: 4,
@@ -103,7 +104,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "300GB",
       ratio: 2.05,
       seedingBonus: 150000,
-      privilege: "获得两个邀请名额；可以在做种/下载/发布时选择匿名模式。"
+      privilege: "获得两个邀请名额；可以在做种/下载/发布时选择匿名模式。",
     },
     {
       id: 5,
@@ -112,7 +113,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "500GB",
       ratio: 2.55,
       seedingBonus: 250000,
-      privilege: "可以查看普通日志。"
+      privilege: "可以查看普通日志。",
     },
     {
       id: 6,
@@ -121,7 +122,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "750GB",
       ratio: 3.05,
       seedingBonus: 400000,
-      privilege: "获得三个邀请名额；可以查看其他用户的评论、帖子历史。Veteran User及以上用户账号永久保留。"
+      privilege: "获得三个邀请名额；可以查看其他用户的评论、帖子历史。Veteran User及以上用户账号永久保留。",
     },
     {
       id: 7,
@@ -130,7 +131,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "1TB",
       ratio: 3.55,
       seedingBonus: 600000,
-      privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。"
+      privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。",
     },
     {
       id: 8,
@@ -139,7 +140,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "1.5TB",
       ratio: 4.05,
       seedingBonus: 800000,
-      privilege: "获得五个邀请名额。"
+      privilege: "获得五个邀请名额。",
     },
     {
       id: 9,
@@ -148,8 +149,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "3TB",
       ratio: 4.55,
       seedingBonus: 1000000,
-      privilege: "获得十个邀请名额。"
-    }
-
+      privilege: "获得十个邀请名额。",
+    },
   ],
 };

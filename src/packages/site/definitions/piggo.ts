@@ -1,4 +1,4 @@
-import type { ISiteMetadata } from "@ptd/site";
+import type { ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
@@ -8,7 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   id: "piggo",
   name: "Piggo",
   description: "猪猪网",
-  tags: ["影视", "综合","少儿"],
+  tags: ["影视", "综合", "少儿"],
   collaborator: ["zxb0303"],
 
   type: "private",
@@ -36,7 +36,7 @@ export const siteMetadata: ISiteMetadata = {
         { value: 911, name: "音乐-儿童" },
         { value: 905, name: "有声读物-儿童" },
         { value: 909, name: "儿童电影-儿童" },
-        { value: 908, name: "儿童剧集-儿童" }
+        { value: 908, name: "儿童剧集-儿童" },
       ],
       cross: { mode: "append" },
     },
@@ -48,7 +48,7 @@ export const siteMetadata: ISiteMetadata = {
         { value: 3, name: "Remux" },
         { value: 7, name: "Encode" },
         { value: 5, name: "DIY" },
-        { value: 8, name: "Other" }
+        { value: 8, name: "Other" },
       ],
       cross: { mode: "append" },
     },
@@ -108,7 +108,7 @@ export const siteMetadata: ISiteMetadata = {
         { value: 4, name: "DV（杜比视界)" },
         { value: 3, name: "HDR10+" },
         { value: 2, name: "HDR10" },
-        { value: 1, name: "SDR" }
+        { value: 1, name: "SDR" },
       ],
       cross: { mode: "brackets" },
     },
@@ -118,13 +118,14 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 1,
       name: "乳猪",
-      privilege: "新用户的默认级别。无法直接发布种子，需添加候选后等待审核。"
+      privilege: "新用户的默认级别。无法直接发布种子，需添加候选后等待审核。",
     },
     {
       id: 2,
       name: "烤乳猪",
-      downgrade: "下载≥20GB且分享率≤0.4，下载≥100GB且分享率≤0.5，下载≥200GB且分享率≤0.6，下载≥400GB且分享率≤0.7，下载≥800GB且分享率≤0.8时自动降级本级。",
-      privilege: "限制功能，如发表、申请链接、上传字幕等。"
+      downgrade:
+        "下载≥20GB且分享率≤0.4，下载≥100GB且分享率≤0.5，下载≥200GB且分享率≤0.6，下载≥400GB且分享率≤0.7，下载≥800GB且分享率≤0.8时自动降级本级。",
+      privilege: "限制功能，如发表、申请链接、上传字幕等。",
     },
     {
       id: 3,
@@ -133,7 +134,8 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "100GB",
       ratio: 2,
       seedingBonus: 40000,
-      privilege: "可直接发布种子，可查看NFO文档、用户列表，请求续种，查看排行榜，查看他人种子历史（未设强隐私时），可删除自己上传的字幕。"
+      privilege:
+        "可直接发布种子，可查看NFO文档、用户列表，请求续种，查看排行榜，查看他人种子历史（未设强隐私时），可删除自己上传的字幕。",
     },
     {
       id: 4,
@@ -142,7 +144,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "300GB",
       ratio: 2.5,
       seedingBonus: 80000,
-      privilege: "香猪及以上封存账号后不会被删除。"
+      privilege: "香猪及以上封存账号后不会被删除。",
     },
     {
       id: 5,
@@ -151,7 +153,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "500GB",
       ratio: 3,
       seedingBonus: 150000,
-      privilege: "得到一个永久邀请名额；可做种/下载/发布时选择匿名模式。"
+      privilege: "得到一个永久邀请名额；可做种/下载/发布时选择匿名模式。",
     },
     {
       id: 6,
@@ -160,7 +162,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "1TB",
       ratio: 3.5,
       seedingBonus: 250000,
-      privilege: "可以查看普通日志。"
+      privilege: "可以查看普通日志。",
     },
     {
       id: 7,
@@ -169,7 +171,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "2TB",
       ratio: 4,
       seedingBonus: 400000,
-      privilege: "得到两个永久邀请名额；可以查看其他用户评论、帖子历史。"
+      privilege: "得到两个永久邀请名额；可以查看其他用户评论、帖子历史。",
     },
     {
       id: 8,
@@ -178,7 +180,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "3TB",
       ratio: 4.5,
       seedingBonus: 600000,
-      privilege: "可以更新过期的外部信息，可以查看二师兄论坛。"
+      privilege: "可以更新过期的外部信息，可以查看二师兄论坛。",
     },
     {
       id: 9,
@@ -187,7 +189,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "4TB",
       ratio: 5,
       seedingBonus: 800000,
-      privilege: "得到三个邀请名额。"
+      privilege: "得到三个邀请名额。",
     },
     {
       id: 10,
@@ -196,7 +198,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "6TB",
       ratio: 6,
       seedingBonus: 1000000,
-      privilege: "得到五个邀请名额，天蓬元帅及以上账号永久保留。"
-    }
+      privilege: "得到五个邀请名额，天蓬元帅及以上账号永久保留。",
+    },
   ],
 };

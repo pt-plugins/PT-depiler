@@ -1,7 +1,8 @@
-import type { ISiteMetadata } from "@ptd/site";
-import { extractContent, parseSizeString } from "@ptd/site";
 import Sizzle from "sizzle";
 import { set } from "es-toolkit/compat";
+
+import type { ISiteMetadata } from "../types";
+import { extractContent, parseSizeString } from "../utils";
 
 const categoryMovieMap = [
   "电影DVDRip",

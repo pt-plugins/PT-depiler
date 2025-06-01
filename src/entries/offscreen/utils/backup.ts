@@ -62,6 +62,7 @@ export async function createBackupData(backupFields: TBackupFields[] = []): Prom
 }
 
 export async function getBackupServerInstance(backupServerId: TBackupServerKey): Promise<AbstractBackupServer<any>> {
+  logger({ msg: `Get backup server instance for ID: ${backupServerId}` });
   const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
   const backupServerConfig = metadataStore.backupServers[backupServerId];
   return await getBackupServer(backupServerConfig);
@@ -77,6 +78,7 @@ export async function exportBackupData(
   const configStore = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
   const encryptionKey = configStore?.backup?.encryptionKey ?? "";
 
+  logger({ msg: `Exporting backup data to ${backupServerId}`, data: { backupFields, backupFilename } });
   if (backupServerId === "local") {
     const jsZipBlob = await backupDataToJSZipBlob(backupData, encryptionKey);
     const blobUrl = URL.createObjectURL(jsZipBlob);

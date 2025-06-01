@@ -1,10 +1,18 @@
 // 所有PT站点的基类
-import { EResultParseStatus, IElementQuery, ISiteMetadata, IUserInfo, NeedLoginError, TLevelId } from "../types";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
-import BittorrentSite from "./AbstractBittorrentSite";
 import { difference, intersection, pascalCase, pick, toMerged, uniq } from "es-toolkit";
 import { get, has, set } from "es-toolkit/compat";
-import { guessUserLevelId } from "@ptd/site/utils/level.ts";
+
+import BittorrentSite from "./AbstractBittorrentSite";
+import { guessUserLevelId } from "../utils";
+import {
+  EResultParseStatus,
+  NeedLoginError,
+  type IElementQuery,
+  type ISiteMetadata,
+  type IUserInfo,
+  type TLevelId,
+} from "../types";
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: -1,

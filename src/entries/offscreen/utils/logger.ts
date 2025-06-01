@@ -9,6 +9,7 @@ import { useSessionStorage } from "@vueuse/core";
 import { onMessage } from "@/messages.ts";
 import type { ILoggerItem } from "@/shared/types.ts";
 
+const MAX_LOGGER_LENGTH = 500;
 export const loggerStorage = useSessionStorage<ILoggerItem[]>("logger", []);
 
 export function logger(data: ILoggerItem) {
@@ -17,6 +18,9 @@ export function logger(data: ILoggerItem) {
   data.msg = data.msg?.trim();
 
   loggerStorage.value.push(data);
+  if (loggerStorage.value.length > MAX_LOGGER_LENGTH) {
+    loggerStorage.value.shift();
+  }
 }
 
 onMessage("logger", ({ data }) => logger(data));

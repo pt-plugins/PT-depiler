@@ -1,13 +1,14 @@
-import {
-  createDocument,
-  ETorrentStatus,
-  IAdvancedSearchRequestConfig,
-  ISiteMetadata,
-  IUserInfo,
-  TSelectSearchCategoryValue,
-} from "@ptd/site";
-import NexusPHP, { CategoryIncldead, CategorySpstate, SchemaMetadata } from "@ptd/site/schemas/NexusPHP.ts";
 import { set } from "es-toolkit/compat";
+
+import {
+  ETorrentStatus,
+  type IAdvancedSearchRequestConfig,
+  type ISiteMetadata,
+  type IUserInfo,
+  type TSelectSearchCategoryValue,
+} from "../types";
+import { createDocument } from "../utils";
+import NexusPHP, { CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,

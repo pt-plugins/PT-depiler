@@ -1,11 +1,12 @@
 import { mergeWith } from "es-toolkit";
-import { parseSizeString, createDocument, ETorrentStatus, ISiteMetadata, IUserInfo } from "@ptd/site";
+import { ETorrentStatus, type ISiteMetadata, type IUserInfo } from "../types";
+import { parseSizeString, createDocument } from "../utils";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
   CategorySpstate,
   SchemaMetadata,
-} from "@ptd/site/schemas/NexusPHP.ts";
+} from "../schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,

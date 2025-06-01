@@ -1,6 +1,8 @@
-import { createDocument, EResultParseStatus, ISiteMetadata, IUserInfo } from "@ptd/site";
 import urlJoin from "url-join";
-import PrivateSite from "@ptd/site/schemas/AbstractPrivateSite.ts";
+
+import { EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
+import { createDocument } from "../utils";
+import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 
 export const siteMetadata: ISiteMetadata = {
   id: "zhixing",

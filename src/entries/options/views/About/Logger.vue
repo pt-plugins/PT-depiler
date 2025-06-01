@@ -14,7 +14,7 @@ const tableHeader = [
   { title: "ID", value: "id", width: 150 },
   { title: "Time", value: "time", width: 100 },
   { title: "Message", value: "msg" },
-  { title: "Action", value: "action", width: 150 },
+  { title: t("common.action"), value: "action", width: 150 },
 ] as DataTableHeader[];
 
 const showLogDataDialog = ref<boolean>(false);

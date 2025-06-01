@@ -1,17 +1,18 @@
+import Sizzle from "sizzle";
+import { mergeWith, toMerged } from "es-toolkit";
+import { set } from "es-toolkit/compat";
+
 import PrivateSite from "./AbstractPrivateSite";
 import {
   EResultParseStatus,
   ETorrentStatus,
-  IElementQuery,
-  ISearchCategories,
-  ISearchInput,
-  ISiteMetadata,
-  ITorrent,
-  ITorrentTag,
-  IUserInfo,
+  type ISearchCategories,
+  type ISearchInput,
+  type ISiteMetadata,
+  type ITorrent,
+  type ITorrentTag,
+  type IUserInfo,
 } from "../types";
-import Sizzle from "sizzle";
-import { mergeWith, toMerged } from "es-toolkit";
 import {
   createDocument,
   definedFilters,
@@ -21,7 +22,6 @@ import {
   parseValidTimeString,
   sizePattern,
 } from "../utils";
-import { set } from "es-toolkit/compat";
 
 const baseLinkQuery = {
   selector: ['a[href*="download.php?id="]:has(> img[alt="download"])'],

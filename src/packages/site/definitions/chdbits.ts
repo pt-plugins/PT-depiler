@@ -1,4 +1,4 @@
-import type { ISiteMetadata } from "@ptd/site";
+import { type ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
@@ -156,7 +156,7 @@ export const siteMetadata: ISiteMetadata = {
       ratio: 2.0,
       seedingBonus: 80000,
       privilege:
-        "可以查看NFO文档；可以请求续种； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为\"强\")； 可以删除自己上传的字幕。"
+        '可以查看NFO文档；可以请求续种； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
     },
     {
       id: 3,
@@ -174,7 +174,8 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "800GB",
       ratio: 4.0,
       seedingBonus: 300000,
-      privilege: "可以查看NFO文档；可以查看用户列表；可以请求续种；可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为\"强\")； 可以删除自己上传的字幕。可以在做种/下载/发布的时候选择匿名模式。",
+      privilege:
+        '可以查看NFO文档；可以查看用户列表；可以请求续种；可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。可以在做种/下载/发布的时候选择匿名模式。',
     },
     {
       id: 5,

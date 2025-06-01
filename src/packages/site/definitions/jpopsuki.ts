@@ -1,7 +1,7 @@
-import type { ISiteMetadata, ITorrent, IUserInfo } from "@ptd/site";
-import Gazelle, { SchemaMetadata } from "@ptd/site/schemas/Gazelle.ts";
 import Sizzle from "sizzle";
-import { ISearchInput, parseSizeString } from "@ptd/site";
+import { parseSizeString } from "../utils";
+import type { ISiteMetadata, ITorrent, IUserInfo, ISearchInput } from "../types";
+import Gazelle, { SchemaMetadata } from "../schemas/Gazelle.ts";
 
 type boxName = "stats" | "community" | "personal";
 

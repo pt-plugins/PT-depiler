@@ -1,5 +1,12 @@
-import { ETorrentStatus, type ILevelRequirement, ISearchInput, ISiteMetadata, ITorrent, ITorrentTag } from "@ptd/site";
-import PrivateSite from "@ptd/site/schemas/AbstractPrivateSite.ts";
+import {
+  ETorrentStatus,
+  type ILevelRequirement,
+  type ISearchInput,
+  type ISiteMetadata,
+  type ITorrent,
+  type ITorrentTag,
+} from "../types";
+import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 
 const levelRequirements: (ILevelRequirement & { levelId?: number })[] = [

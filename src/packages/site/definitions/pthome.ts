@@ -1,4 +1,4 @@
-import type { ISiteMetadata } from "@ptd/site";
+import type { ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
@@ -62,7 +62,7 @@ export const siteMetadata: ISiteMetadata = {
         { value: 1, name: "H.264(AVC)" },
         { value: 2, name: "VC-1" },
         { value: 4, name: "MPEG-2" },
-        { value: 5, name: "Other" }
+        { value: 5, name: "Other" },
       ],
       cross: { mode: "append" },
     },
@@ -81,7 +81,7 @@ export const siteMetadata: ISiteMetadata = {
         { value: 22, name: "WAV" },
         { value: 23, name: "MP3" },
         { value: 24, name: "M4A" },
-        { value: 7, name: "Other" }
+        { value: 7, name: "Other" },
       ],
       cross: { mode: "append" },
     },
@@ -95,7 +95,7 @@ export const siteMetadata: ISiteMetadata = {
         { value: 2, name: "1080i" },
         { value: 3, name: "720p" },
         { value: 4, name: "SD" },
-        { value: 11, name: "None" }
+        { value: 11, name: "None" },
       ],
       cross: { mode: "append" },
     },
@@ -110,7 +110,7 @@ export const siteMetadata: ISiteMetadata = {
         { value: 23, name: "PTHAudio" },
         { value: 24, name: "PTHeBook" },
         { value: 25, name: "PTHmusic" },
-        { value: 5, name: "Other" }
+        { value: 5, name: "Other" },
       ],
     },
   ],
@@ -119,7 +119,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 1,
       name: "User",
-      privilege: "新用户的默认级别。"
+      privilege: "新用户的默认级别。",
     },
     {
       id: 2,
@@ -128,7 +128,8 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "200GB",
       ratio: 1.0,
       seedingBonus: 20000,
-      privilege: "可以查看NFO文档；可以查看用户列表；可以请求续种；可以查看排行榜；可以查看其它用户的种子历史(如未设置隐私“强”)；可以删除自己上传的字幕；可以浏览论坛邀请专版。"
+      privilege:
+        "可以查看NFO文档；可以查看用户列表；可以请求续种；可以查看排行榜；可以查看其它用户的种子历史(如未设置隐私“强”)；可以删除自己上传的字幕；可以浏览论坛邀请专版。",
     },
     {
       id: 3,
@@ -137,7 +138,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "350GB",
       ratio: 1.1,
       seedingBonus: 50000,
-      privilege: "Elite User及以上用户封存账号后不会被删除。"
+      privilege: "Elite User及以上用户封存账号后不会被删除。",
     },
     {
       id: 4,
@@ -146,7 +147,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "500GB",
       ratio: 1.2,
       seedingBonus: 200000,
-      privilege: "可以在做种/下载/发布时选择匿名模式。"
+      privilege: "可以在做种/下载/发布时选择匿名模式。",
     },
     {
       id: 5,
@@ -155,7 +156,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "1TB",
       ratio: 1.3,
       seedingBonus: 400000,
-      privilege: "可以查看普通日志。"
+      privilege: "可以查看普通日志。",
     },
     {
       id: 6,
@@ -164,7 +165,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "2TB",
       ratio: 1.5,
       seedingBonus: 600000,
-      privilege: "可以查看其它用户的评论、帖子历史。Veteran User及以上等级账号永久保留。"
+      privilege: "可以查看其它用户的评论、帖子历史。Veteran User及以上等级账号永久保留。",
     },
     {
       id: 7,
@@ -173,7 +174,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "3TB",
       ratio: 1.5,
       seedingBonus: 800000,
-      privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。"
+      privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。",
     },
     {
       id: 8,
@@ -182,7 +183,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "4TB",
       ratio: 1.7,
       seedingBonus: 1000000,
-      privilege: "同白银用户等级权限。"
+      privilege: "同白银用户等级权限。",
     },
   ],
 };

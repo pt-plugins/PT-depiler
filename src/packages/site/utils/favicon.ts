@@ -15,7 +15,7 @@
  */
 
 import axios from "axios";
-import { ISiteMetadata } from "../types";
+import type { ISiteMetadata } from "../types";
 
 // from: https://stackoverflow.com/a/9967193/8824471
 // from: http://proger.i-forge.net/%D0%9A%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80/[20121112]%20The%20smallest%20transparent%20pixel.html

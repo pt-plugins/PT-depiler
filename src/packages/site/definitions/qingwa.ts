@@ -1,21 +1,14 @@
 import { merge, mergeWith } from "es-toolkit";
 import { set } from "es-toolkit/compat";
 
-import {
-  createDocument,
-  IAdvancedSearchRequestConfig,
-  TSelectSearchCategoryValue,
-  ISiteMetadata,
-  IUserInfo,
-  GB,
-  TB,
-} from "@ptd/site";
+import type { IAdvancedSearchRequestConfig, TSelectSearchCategoryValue, ISiteMetadata, IUserInfo } from "../types";
+import { GB, TB, createDocument } from "../utils";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
   CategorySpstate,
   SchemaMetadata,
-} from "@ptd/site/schemas/NexusPHP";
+} from "../schemas/NexusPHP";
 
 const levelRequirements: ISiteMetadata["levelRequirements"] = [
   {

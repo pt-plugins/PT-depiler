@@ -1,8 +1,9 @@
-import { EResultParseStatus, ETorrentStatus, ISiteMetadata, IUserInfo } from "@ptd/site";
 import Sizzle from "sizzle";
-import PrivateSite from "@ptd/site/schemas/AbstractPrivateSite.ts";
-import { AxiosRequestConfig } from "axios";
 import { toMerged } from "es-toolkit";
+import type { AxiosRequestConfig } from "axios";
+
+import PrivateSite from "../schemas/AbstractPrivateSite.ts";
+import { EResultParseStatus, ETorrentStatus, type ISiteMetadata, type IUserInfo } from "../types";
 
 export const siteMetadata: ISiteMetadata = {
   id: "skyeysnow",

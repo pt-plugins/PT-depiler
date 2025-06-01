@@ -13,7 +13,10 @@ onMessage("updateDNRSessionRules", async ({ data: { rule, extOnly = true } }) =>
     rule.condition.excludedTabIds ??= excludedTabIds;
   }
 
-  sendMessage("logger", { msg: `Update DNR session rules with: `, data: rule }).catch();
+  sendMessage("logger", {
+    msg: `Update DNR session rules ${rule.id} for url: ${rule.condition?.urlFilter}`,
+    data: rule,
+  }).catch();
 
   return await chrome.declarativeNetRequest.updateSessionRules({
     removeRuleIds: [rule.id],
@@ -22,6 +25,7 @@ onMessage("updateDNRSessionRules", async ({ data: { rule, extOnly = true } }) =>
 });
 
 onMessage("removeDNRSessionRuleById", async ({ data: ruleId }) => {
+  sendMessage("logger", { msg: `Remove DNR session rule by ID: ${ruleId}` }).catch();
   return await chrome.declarativeNetRequest.updateSessionRules({
     removeRuleIds: [ruleId],
   });

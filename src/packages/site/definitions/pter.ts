@@ -1,18 +1,18 @@
+import { set } from "es-toolkit/compat";
+import Sizzle from "sizzle";
 import {
   ETorrentStatus,
-  IAdvancedSearchRequestConfig,
-  ISiteMetadata,
-  IUserInfo,
-  TSelectSearchCategoryValue,
-} from "@ptd/site";
+  type IAdvancedSearchRequestConfig,
+  type ISiteMetadata,
+  type IUserInfo,
+  type TSelectSearchCategoryValue,
+} from "../types";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
   CategorySpstate,
   SchemaMetadata,
-} from "@ptd/site/schemas/NexusPHP.ts";
-import { set } from "es-toolkit/compat";
-import Sizzle from "sizzle";
+} from "../schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,

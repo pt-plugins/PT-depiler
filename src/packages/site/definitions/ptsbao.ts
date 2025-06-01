@@ -1,4 +1,4 @@
-import type { ISiteMetadata } from "@ptd/site";
+import type { ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
@@ -229,7 +229,8 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 1,
       name: "小主",
-      privilege: "最低等级，若下载达到50GB需大于0.4分享率，超100GB需大于0.5，超200GB需大于0.6，超400GB需大于0.7，超800GB需大于0.8，否则自动降级至本级。"
+      privilege:
+        "最低等级，若下载达到50GB需大于0.4分享率，超100GB需大于0.5，超200GB需大于0.6，超400GB需大于0.7，超800GB需大于0.8，否则自动降级至本级。",
     },
     {
       id: 2,
@@ -237,7 +238,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P1W",
       downloaded: "50GB",
       ratio: 1.05,
-      privilege: "符合注册满1周且下载50GB并分享率高于1.05时自动提升，随时低于0.95自动降级。"
+      privilege: "符合注册满1周且下载50GB并分享率高于1.05时自动提升，随时低于0.95自动降级。",
     },
     {
       id: 3,
@@ -245,7 +246,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P2W",
       downloaded: "150GB",
       ratio: 1.55,
-      privilege: "符合注册满2周且下载150GB并分享率高于1.55时自动提升，随时低于1.45自动降级。"
+      privilege: "符合注册满2周且下载150GB并分享率高于1.55时自动提升，随时低于1.45自动降级。",
     },
     {
       id: 4,
@@ -253,7 +254,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P4W",
       downloaded: "300GB",
       ratio: 2.05,
-      privilege: "符合注册满4周且下载300GB并分享率高于2.05时自动提升，随时低于1.95自动降级。"
+      privilege: "符合注册满4周且下载300GB并分享率高于2.05时自动提升，随时低于1.95自动降级。",
     },
     {
       id: 5,
@@ -261,7 +262,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P8W",
       downloaded: "500GB",
       ratio: 2.55,
-      privilege: "符合注册满8周且下载500GB并分享率高于2.55时自动提升，随时低于2.45自动降级。"
+      privilege: "符合注册满8周且下载500GB并分享率高于2.55时自动提升，随时低于2.45自动降级。",
     },
     {
       id: 6,
@@ -269,7 +270,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P16W",
       downloaded: "750GB",
       ratio: 3.05,
-      privilege: "符合注册满16周且下载750GB并分享率高于3.05时自动提升，随时低于2.95自动降级。"
+      privilege: "符合注册满16周且下载750GB并分享率高于3.05时自动提升，随时低于2.95自动降级。",
     },
     {
       id: 7,
@@ -277,7 +278,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P24W",
       downloaded: "1TB",
       ratio: 3.55,
-      privilege: "符合注册满24周且下载1TB并分享率高于3.55时自动提升，随时低于3.45自动降级。"
+      privilege: "符合注册满24周且下载1TB并分享率高于3.55时自动提升，随时低于3.45自动降级。",
     },
     {
       id: 8,
@@ -285,7 +286,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P36W",
       downloaded: "1.5TB",
       ratio: 4.05,
-      privilege: "符合注册满36周且下载1.5TB并分享率高于4.05时自动提升，随时低于3.95自动降级。"
+      privilege: "符合注册满36周且下载1.5TB并分享率高于4.05时自动提升，随时低于3.95自动降级。",
     },
     {
       id: 9,
@@ -293,7 +294,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P52W",
       downloaded: "3TB",
       ratio: 4.55,
-      privilege: "符合注册满52周且下载3TB并分享率高于4.55时自动提升，随时低于4.45自动降级。为网站捐款也可获得此等级。"
+      privilege: "符合注册满52周且下载3TB并分享率高于4.55时自动提升，随时低于4.45自动降级。为网站捐款也可获得此等级。",
     },
   ],
 };

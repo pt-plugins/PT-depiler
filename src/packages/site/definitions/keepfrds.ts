@@ -1,10 +1,10 @@
-import { type ISiteMetadata } from "@ptd/site";
+import { type ISiteMetadata } from "../types";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
   SchemaMetadata,
   subTitleRemoveExtraElement,
-} from "@ptd/site/schemas/NexusPHP.ts";
+} from "../schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,

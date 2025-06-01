@@ -1,4 +1,4 @@
-import { ISiteMetadata } from "@ptd/site";
+import { type ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {

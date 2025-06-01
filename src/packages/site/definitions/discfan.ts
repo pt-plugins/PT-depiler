@@ -1,4 +1,4 @@
-import type { ISiteMetadata } from "@ptd/site";
+import type { ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
@@ -63,7 +63,8 @@ export const siteMetadata: ISiteMetadata = {
       id: 1,
       name: "凡人",
       enName: "User",
-      privilege: "新用户的默认级别，拥有下载权限。不能直接发布资源，但可添加候选区。可以上传字幕但不能删除自己上传的字幕。可在部分论坛板块发帖和留言。可以在求种区求种。可以更新外部信息如IMDb信息。"
+      privilege:
+        "新用户的默认级别，拥有下载权限。不能直接发布资源，但可添加候选区。可以上传字幕但不能删除自己上传的字幕。可在部分论坛板块发帖和留言。可以在求种区求种。可以更新外部信息如IMDb信息。",
     },
     {
       id: 2,
@@ -73,7 +74,8 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "50GB",
       ratio: 1.05,
       seedingBonus: 40000,
-      privilege: "首次升级获得1个永久邀请名额。可以直接发布种子资源。可以删除自己上传的字幕。允许使用个性条。可以请求续种。可以查看和搜索用户列表。可以查看NFO文件。可以查看排行榜。可以查看他人种子历史（未设为强隐私时）。"
+      privilege:
+        "首次升级获得1个永久邀请名额。可以直接发布种子资源。可以删除自己上传的字幕。允许使用个性条。可以请求续种。可以查看和搜索用户列表。可以查看NFO文件。可以查看排行榜。可以查看他人种子历史（未设为强隐私时）。",
     },
     {
       id: 3,
@@ -83,7 +85,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "120GB",
       ratio: 1.55,
       seedingBonus: 80000,
-      privilege: "首次升级获得2个永久邀请名额。允许在魔力值中心购买邀请。允许查看邀请。"
+      privilege: "首次升级获得2个永久邀请名额。允许在魔力值中心购买邀请。允许查看邀请。",
     },
     {
       id: 4,
@@ -93,7 +95,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "300GB",
       ratio: 2.05,
       seedingBonus: 150000,
-      privilege: "首次升级获得3个永久邀请名额。可以查看特别区种子。"
+      privilege: "首次升级获得3个永久邀请名额。可以查看特别区种子。",
     },
     {
       id: 5,
@@ -103,7 +105,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "500GB",
       ratio: 2.55,
       seedingBonus: 250000,
-      privilege: "首次升级获得4个永久邀请名额。可以查看一般日志，不能查看机密日志。"
+      privilege: "首次升级获得4个永久邀请名额。可以查看一般日志，不能查看机密日志。",
     },
     {
       id: 6,
@@ -113,7 +115,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "750GB",
       ratio: 3.05,
       seedingBonus: 400000,
-      privilege: "首次升级获得6个永久邀请名额。可以查看他人的评论和帖子历史记录。"
+      privilege: "首次升级获得6个永久邀请名额。可以查看他人的评论和帖子历史记录。",
     },
     {
       id: 7,
@@ -123,7 +125,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "1024GB",
       ratio: 3.55,
       seedingBonus: 600000,
-      privilege: "首次升级获得8个永久邀请名额。"
+      privilege: "首次升级获得8个永久邀请名额。",
     },
     {
       id: 8,
@@ -133,7 +135,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "1536GB",
       ratio: 4.05,
       seedingBonus: 800000,
-      privilege: "首次升级获得10个永久邀请名额。可以查看种子文件结构。"
+      privilege: "首次升级获得10个永久邀请名额。可以查看种子文件结构。",
     },
     {
       id: 9,
@@ -143,7 +145,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "3072GB",
       ratio: 4.55,
       seedingBonus: 1000000,
-      privilege: "首次升级获得20个永久邀请名额。普通用户可以达到的最高级别。"
+      privilege: "首次升级获得20个永久邀请名额。普通用户可以达到的最高级别。",
     },
   ],
 };
