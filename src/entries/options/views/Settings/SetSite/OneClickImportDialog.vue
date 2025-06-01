@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { computed, shallowRef } from "vue";
+import { pickBy } from "es-toolkit";
 import { isEmpty } from "es-toolkit/compat";
 import { EResultParseStatus, ISiteMetadata, ISiteUserConfig, TSiteID } from "@ptd/site";
 
@@ -125,7 +126,8 @@ async function doAutoImport() {
 
 async function dialogEnter() {
   resetImportStatus(); // 重置状态
-  canAddSites.value = await getCanAddedSiteMetadata(); // 加载待添加站点
+  const allCanAddedSite = await getCanAddedSiteMetadata(); // 加载待添加站点
+  canAddSites.value = pickBy(allCanAddedSite, (site) => site.isDead !== true) as Record<string, ISiteMetadata>;
 }
 </script>
 
