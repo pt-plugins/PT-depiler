@@ -73,7 +73,7 @@ export const siteMetadata: ISiteMetadata = {
       title: { selector: "title" },
       url: { selector: "guid" },
       link: { selector: "link" },
-      time: { selector: "pubDate", filters: [{ name: "parseTime", args: ["EEE, dd MMMM yyyy HH:mm:ss xxx"] }] }, // Sat, 31 May 2025 22:24:23 +0000
+      time: { selector: "pubDate", filters: [{ name: "parseTime", args: ["EEE, d MMMM yyyy HH:mm:ss xxxx"] }] }, // Sat, 31 May 2025 22:24:23 +0000
       size: { selector: "size" },
       author: { selector: '[name="poster"]', attr: "value" }, // <torznab:attr name="poster" value="anon" />
       seeders: { selector: "[name='seeders']", attr: "value" },

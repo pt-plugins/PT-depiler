@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import * as estoolkit from "es-toolkit";
+import * as datefns from "date-fns";
 import axios from "axios";
 import Sizzle from "sizzle";
 import {
@@ -26,6 +27,7 @@ function enableLibrary() {
   (window as any).axios = axios;
   (window as any).Sizzle = Sizzle;
   (window as any)._ = estoolkit;
+  (window as any).datefns = datefns;
   (window as any).sendMessage = sendMessage;
   console.log("开发库已启用");
 }
@@ -166,7 +168,7 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
               <v-row dense>
                 <v-col class="d-flex align-center">
                   <v-btn @click="enableLibrary" class="mr-3">启用</v-btn>
-                  在console中启用 <code>sendMessage, axios, Sizzle, es-toolkit ( as _ ）</code> 等方法
+                  在console中启用 <code>sendMessage, axios, Sizzle, es-toolkit ( as _ ）, datefns</code> 等方法
                 </v-col>
               </v-row>
             </v-container>

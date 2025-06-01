@@ -24,7 +24,6 @@ import {
 } from "../utils";
 import axios, { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
 import Sizzle from "sizzle";
-import urlJoin from "url-join";
 import { get, isEmpty, set } from "es-toolkit/compat";
 import { chunk, pascalCase, pick, toMerged, union } from "es-toolkit";
 import { setupCache } from "axios-cache-interceptor";
@@ -246,7 +245,9 @@ export default class BittorrentSite {
         const urlHelper = new URL(baseUrl);
         url = `${urlHelper.protocol}:${uri}`;
       } else if (uri.slice(0, 4) !== "http") {
-        url = urlJoin(baseUrl, uri.replace(/^\./, ""));
+        // 基于请求地址，处理 ./xxx, xxxx, /xxxx 等相对路径
+        const requestUrl = axios.getUri(requestConfig);
+        url = new URL(uri, requestUrl).toString();
       }
     }
 
