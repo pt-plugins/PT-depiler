@@ -5,11 +5,10 @@ import { useRouter } from "vue-router";
 import { refDebounced } from "@vueuse/core";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
-import { formatDate } from "../../../utils.ts";
+import { formatDate } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-
-import { type TSearchSnapshotKey } from "@/shared/storages/types/metadata.ts";
+import { type TSearchSnapshotKey } from "@/shared/types.ts";
 
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";

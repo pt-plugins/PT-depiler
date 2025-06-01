@@ -6,7 +6,7 @@ import { getMediaServerIcon } from "@ptd/mediaServer";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-import type { TDownloaderKey, TMediaServerKey } from "@/shared/storages/types/metadata.ts";
+import type { TDownloaderKey, TMediaServerKey } from "@/shared/types.ts";
 
 import AddDialog from "./AddDialog.vue";
 import EditDialog from "./EditDialog.vue";
@@ -15,7 +15,6 @@ import DeleteDialog from "@/options/components/DeleteDialog.vue";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
-const configStore = useConfigStore();
 
 const showAddDialog = ref<boolean>(false);
 const showEditDialog = ref<boolean>(false);

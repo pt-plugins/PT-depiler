@@ -1,7 +1,8 @@
-import type { ISiteMetadata } from "@ptd/site";
-import { extractContent, parseSizeString } from "@ptd/site";
 import Sizzle from "sizzle";
 import { set } from "es-toolkit/compat";
+
+import type { ISiteMetadata } from "../types";
+import { extractContent, parseSizeString } from "../utils";
 
 const categoryMovieMap = [
   "电影DVDRip",
@@ -268,6 +269,15 @@ export const siteMetadata: ISiteMetadata = {
               const trAnothers = Sizzle("tr:not(:eq(0))", element);
               return trAnothers.length;
             },
+          },
+        },
+      },
+      {
+        requestConfig: { url: "/mybonus.php" },
+        selectors: {
+          bonusPerHour: {
+            selector: "td.rowhead:contains('总计') + td",
+            filters: [{ name: "split", args: [" ", 0] }, { name: "parseNumber" }],
           },
         },
       },

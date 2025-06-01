@@ -3,8 +3,8 @@ import {
   type ISearchCategories,
   type ISiteMetadata,
   type TSelectSearchCategoryValue,
-  parseTimeToLive,
-} from "@ptd/site";
+} from "../types";
+import { parseTimeToLive } from "../utils";
 import { set } from "es-toolkit/compat";
 
 const categoryPart: Pick<ISearchCategories, "cross" | "generateRequestConfig"> = {

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { computed, shallowRef } from "vue";
+import { pickBy } from "es-toolkit";
 import { isEmpty } from "es-toolkit/compat";
 import { EResultParseStatus, ISiteMetadata, ISiteUserConfig, TSiteID } from "@ptd/site";
 
@@ -8,11 +9,11 @@ import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useResetableRef } from "@/options/directives/useResetableRef.ts";
-import { getCanAddedSiteMetadata } from "@/options/views/Settings/SetSite/utils.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
-import NavButton from "@/options/components/NavButton.vue";
 import CheckSwitchButton from "@/options/components/CheckSwitchButton.vue";
+
+import { getCanAddedSiteMetadata } from "./utils.ts";
 
 const showDialog = defineModel<boolean>();
 
@@ -125,7 +126,8 @@ async function doAutoImport() {
 
 async function dialogEnter() {
   resetImportStatus(); // 重置状态
-  canAddSites.value = await getCanAddedSiteMetadata(); // 加载待添加站点
+  const allCanAddedSite = await getCanAddedSiteMetadata(); // 加载待添加站点
+  canAddSites.value = pickBy(allCanAddedSite, (site) => site.isDead !== true) as Record<string, ISiteMetadata>;
 }
 </script>
 
@@ -192,7 +194,7 @@ async function dialogEnter() {
                     :value="site.id"
                     hide-details
                     multiple
-                  ></v-checkbox>
+                  />
                   <SiteFavicon :site-id="site.id" class="mr-2" />
                 </template>
 
@@ -224,13 +226,23 @@ async function dialogEnter() {
       <v-divider />
       <v-card-actions>
         <v-spacer />
-        <v-btn color="error" variant="text" @click="showDialog = false" :disabled="importStatus.isWorking">
-          <v-icon icon="mdi-close-circle" />
+        <v-btn
+          :disabled="importStatus.isWorking"
+          color="error"
+          prepend-icon="mdi-close-circle"
+          variant="text"
+          @click="showDialog = false"
+        >
           {{ t("common.dialog.cancel") }}
         </v-btn>
 
-        <v-btn color="success" variant="text" @click="doAutoImport" :disabled="importStatus.isWorking">
-          <v-icon icon="mdi-check-circle-outline" />
+        <v-btn
+          :disabled="importStatus.isWorking"
+          color="success"
+          prepend-icon="mdi-check-circle-outline"
+          variant="text"
+          @click="doAutoImport"
+        >
           {{ t("common.dialog.ok") }}
         </v-btn>
       </v-card-actions>

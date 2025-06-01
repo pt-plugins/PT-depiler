@@ -1,13 +1,16 @@
 <script setup lang="ts">
-import type { TDownloaderKey } from "@/shared/storages/types/metadata.ts";
-import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { getDownloaderIcon } from "@ptd/downloader";
+
+import { useMetadataStore } from "@/options/stores/metadata.ts";
+import type { TDownloaderKey } from "@/shared/types.ts";
 
 const { downloader } = defineProps<{
   downloader: TDownloaderKey;
 }>();
 
+const { t } = useI18n();
 const metadataStore = useMetadataStore();
 
 const downloaderConfig = metadataStore.downloaders[downloader];
@@ -35,7 +38,7 @@ const downloaderIcon = computed(() => {
         </div>
         <v-col class="pa-0 ml-2 align-self-center">
           <span class="font-weight-bold">
-            <template v-if="downloader === 'local'">本地下载</template>
+            <template v-if="downloader === 'local'">{{ t("downloaderLabel.localDownload") }}</template>
             <template v-else-if="downloaderConfig">{{ downloaderConfig.name }}</template>
             <template v-else>
               <span class="text-decoration-line-through text-no-wrap">[{{ downloader }}]</span>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { NO_IMAGE, type TSiteID } from "@ptd/site";
 import { computedAsync } from "@vueuse/core";
+import { NO_IMAGE, type TSiteID } from "@ptd/site";
+
 import { sendMessage } from "@/messages.ts";
 
 const { siteId, size = 32 } = defineProps<{

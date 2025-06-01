@@ -11,7 +11,11 @@ import { formatDate, formatTimeAgo } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { allAddedSiteMetadata, loadAllAddedSiteMetadata } from "@/options/views/Overview/MyData/utils.ts";
+
+import SiteFavicon from "@/options/components/SiteFavicon.vue";
+import SiteName from "@/options/components/SiteName.vue";
+import NavButton from "@/options/components/NavButton.vue";
+import CheckSwitchButton from "@/options/components/CheckSwitchButton.vue";
 
 import {
   canThisSiteShow,
@@ -26,11 +30,7 @@ import {
   type ITimelineUserInfoField,
   type TKonvaConfig,
 } from "./utils.ts";
-
-import SiteFavicon from "@/options/components/SiteFavicon.vue";
-import SiteName from "@/options/components/SiteName.vue";
-import NavButton from "@/options/components/NavButton.vue";
-import CheckSwitchButton from "@/options/components/CheckSwitchButton.vue";
+import { allAddedSiteMetadata, loadAllAddedSiteMetadata } from "../utils.ts";
 
 const ext_version = __EXT_VERSION__;
 
@@ -90,14 +90,60 @@ const stageConfig = computed(() => {
   };
 });
 
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent); // FIXME 该判断移动到 utils.ts 中
+
+(Konva.Filters as any).tryNativeBlur = isSafari
+  ? Konva.Filters.Blur
+  : function (imageData: ImageData) {
+      // 创建一个和 imageData 一样大小的 OffscreenCanvas
+      const context = new OffscreenCanvas(imageData.width, imageData.height).getContext("2d")!;
+
+      // @ts-expect-error
+      const radius = Math.round((this as Konva.Node).blurRadius());
+      context.filter = `blur(${radius}px)`;
+
+      // @ts-expect-error
+      const image = (this as any).getImage() as HTMLImageElement;
+      context.drawImage(image, 0, 0, image.width, image.height, 0, 0, imageData.width, imageData.height);
+      const newImageData = context.getImageData(0, 0, imageData.width, imageData.height);
+
+      imageData.data.set(newImageData.data);
+    };
+
 // 绘制相关辅助函数
-const favicon = (config: TKonvaConfig) =>
-  image({
-    image: allAddedSiteMetadata[config.site].faviconElement,
-    filters: [Konva.Filters.Blur],
+const favicon = (config: TKonvaConfig) => {
+  const imageBaseSize = config.size ?? 24;
+  let imageElement: HTMLImageElement | OffscreenCanvas = allAddedSiteMetadata[config.site].faviconElement;
+  // 如果设置中传入了 canvas 这个自定义参数，我们为这个 favicon 生成一个带有背景的 canvas，然后在 canvas 上居中绘制 favicon
+  if (config.canvas) {
+    const { width: canvasWidth = imageBaseSize, height: canvasHeight = imageBaseSize } = config.canvas;
+    const canvas = new OffscreenCanvas(canvasWidth, canvasHeight);
+    const ctx = canvas.getContext("2d")!;
+
+    // 填充背景
+    ctx.fillStyle = config.canvas.fillStyle ?? "#fff";
+    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+    // 计算缩放比例和位置，并将 favicon 居中填充
+    const x = (canvasWidth - imageBaseSize) / 2;
+    const y = (canvasHeight - imageBaseSize) / 2;
+    ctx.drawImage(imageElement, 0, 0, imageElement.width, imageElement.height, x, y, imageBaseSize, imageBaseSize);
+
+    // 防止辅助函数 image() 又一次设置 scaleX 和 scaleY
+    config.scaleX = 1;
+    config.scaleY = 1;
+
+    // 将imageElement重写为我们的canvas
+    imageElement = canvas;
+  }
+
+  return image({
+    image: imageElement,
+    filters: [(Konva.Filters as any).tryNativeBlur],
     blurRadius: control.faviconBlue,
     ...config,
   });
+};
 
 const siteFaviconClipFunc =
   (radius: number = 24, position: [number, number] = [stageConfig.value.width / 2, 0]) =>
@@ -257,7 +303,13 @@ function saveControl() {
                               el?.getNode().cache();
                             }
                           "
-                          :config="favicon({ site: timelineData.topInfo[key.name][type.siteKey].site, size: 20 })"
+                          :config="
+                            favicon({
+                              site: timelineData.topInfo[key.name][type.siteKey].site,
+                              size: 20,
+                              canvas: { fillStyle: '#455A64' },
+                            })
+                          "
                         />
                         <vk-text
                           v-if="timelineData.topInfo[key.name][type.valueKey] > 0"
@@ -311,7 +363,15 @@ function saveControl() {
                             el?.getNode().cache();
                           }
                         "
-                        :config="favicon({ site: userInfo.site, size: 38, x: stageConfig.width / 2 - 19, y: 0 - 19 })"
+                        :config="
+                          favicon({
+                            site: userInfo.site,
+                            size: 38,
+                            x: stageConfig.width / 2 - 24,
+                            y: 0 - 24,
+                            canvas: { width: 48, height: 48 },
+                          })
+                        "
                       />
                     </vk-group>
 
@@ -379,6 +439,9 @@ function saveControl() {
                         :config="
                           text({
                             y: 28,
+                            width: stageConfig.width / 2 - 80,
+                            wrap: 'char',
+                            lineHeight: 1.25,
                             text: [
                               control.showPerSiteField.name ? userInfo.name! : '',
                               control.showPerSiteField.level ? `<${userInfo.levelName!}>` : '',
@@ -488,13 +551,15 @@ function saveControl() {
           <v-col cols="10">
             <v-slider
               v-model="control.faviconBlue"
-              :min="0"
               :max="8"
+              :min="0"
               :step="1"
-              label="站点Favicon模糊度"
+              :thumb-color="control.faviconBlue > 4 ? 'red' : ''"
               class="pr-5"
-              @update:model-value="updateBlue"
               hide-details
+              label="站点Favicon模糊度"
+              thumb-label
+              @update:model-value="updateBlue"
             />
           </v-col>
         </v-row>
@@ -504,6 +569,7 @@ function saveControl() {
             <v-label>展示内容</v-label>
           </v-col>
           <v-col cols="12" sm="10">
+            <v-label class="my-2">统计部分</v-label>
             <v-row class="pl-5">
               <v-col v-for="(v, key) in control.showField" class="pa-0" cols="6" sm="4" :key="key">
                 <v-switch
@@ -515,6 +581,7 @@ function saveControl() {
                 />
               </v-col>
             </v-row>
+            <v-label class="my-2">时间轴部分</v-label>
             <v-row class="pl-5">
               <v-col v-for="(v, key) in control.showPerSiteField" class="pa-0" cols="6" sm="4">
                 <v-switch

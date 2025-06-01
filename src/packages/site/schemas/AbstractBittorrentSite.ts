@@ -6,11 +6,12 @@ import {
   ITorrent,
   NeedLoginError,
   NoTorrentsError,
-  IAdvancedSearchRequestConfig,
   IAdvanceKeywordSearchConfig,
   ISearchInput,
   ITorrentTag,
   ISiteUserConfig,
+  TSiteUrl,
+  ISearchEntryRequestConfig,
 } from "../types";
 import {
   definedFilters,
@@ -29,11 +30,8 @@ import { chunk, pascalCase, pick, toMerged, union } from "es-toolkit";
 import { setupCache } from "axios-cache-interceptor";
 import { setupReplaceUnsafeHeader } from "~/extends/axios/replaceUnsafeHeader.ts";
 
-// 在生产环境下，默认启用 axios-cache-interceptor，以减少对站点的请求次数
-if (import.meta.env.PROD) {
-  setupCache(axios);
-}
-
+// 默认启用 axios-cache-interceptor，以减少对站点的请求次数
+setupCache(axios);
 setupReplaceUnsafeHeader(axios);
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
@@ -56,7 +54,7 @@ export default class BittorrentSite {
     return this.userConfig.merge?.name ?? this.metadata.name;
   }
 
-  get url(): string {
+  get url(): TSiteUrl {
     return this.userConfig.url ?? this.metadata.urls[0];
   }
 
@@ -128,10 +126,7 @@ export default class BittorrentSite {
    * @param keywords
    * @param searchEntry
    */
-  public async getSearchResult(
-    keywords?: string,
-    searchEntry: IAdvancedSearchRequestConfig = {},
-  ): Promise<ISearchResult> {
+  public async getSearchResult(keywords?: string, searchEntry: ISearchEntryRequestConfig = {}): Promise<ISearchResult> {
     console?.log(`[Site] ${this.name} start search with keywords:`, keywords, "input searchEntry:", searchEntry);
     const result: ISearchResult = {
       data: [],
@@ -145,15 +140,19 @@ export default class BittorrentSite {
     }
 
     // 1. 形成搜索入口，默认情况下需要合并 this.config.search
-    if (searchEntry && (isEmpty(searchEntry) || searchEntry.merge !== false)) {
+
+    // 如果传入了 id，说明需要首先与 metadata.searchEntry 中对应id的搜索配置的合并
+    if (searchEntry.id) {
+      searchEntry = toMerged(this.metadata.searchEntry?.[searchEntry.id] ?? {}, searchEntry)!;
+    }
+
+    // 继续检查 searchEntry， 如果为空，或者没有显示设置 merge 为 false，则进一步在 this.metadata.search 的基础上进行合并
+    if (isEmpty(searchEntry) || searchEntry.merge !== false) {
       searchEntry = toMerged(this.metadata.search!, searchEntry)!;
-    } else {
-      searchEntry = searchEntry ?? this.metadata.search!;
     }
 
     // 检查该搜索入口是否设置为禁用
-    // noinspection PointlessBooleanExpressionJS
-    if ((searchEntry as IAdvancedSearchRequestConfig & { enabled?: boolean }).enabled === false) {
+    if (searchEntry.enabled === false) {
       result.status = EResultParseStatus.passParse;
       return result;
     }
@@ -303,7 +302,8 @@ export default class BittorrentSite {
             } else if (elementQuery.attr) {
               query = another.getAttribute(elementQuery.attr) ?? query;
             } else {
-              query = another.innerText.replace(/\n/gi, " ") || query;
+              // 优先使用 innerText，如果没有，则使用 textContent
+              query = (another.innerText ?? another.textContent).replace(/\n/gi, " ") || query;
             }
           }
         } else {

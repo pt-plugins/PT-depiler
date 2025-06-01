@@ -6,14 +6,13 @@ import { useDevicePixelRatio } from "@vueuse/core";
 
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { vuetifyLangMap } from "@/options/plugins/vuetify.ts";
 
 import Navigation from "./views/Layout/Navigation.vue";
 import Topbar from "./views/Layout/Topbar.vue";
 
-import { vuetifyLangMap } from "@/options/plugins/vuetify.ts";
-
 const { current: currentVuetifyLocal } = useVuetifyLocal();
-const { locale: currentVueI18nLocal } = useI18n({ useScope: "global" });
+const { locale: currentVueI18nLocal, t } = useI18n({ useScope: "global" });
 
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
@@ -42,7 +41,7 @@ function setIgnoreWrongPixelRatio() {
       class="justify-center"
       color="purple-darken-2"
     >
-      {{ $t("layout.header.wrongPixelRatioNotice") }}&nbsp;&nbsp;
+      {{ t("layout.header.wrongPixelRatioNotice") }}&nbsp;&nbsp;
       <v-icon class="ms-2" icon="mdi-close" @click="setIgnoreWrongPixelRatio" />
     </v-system-bar>
 

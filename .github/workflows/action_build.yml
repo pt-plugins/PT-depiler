@@ -14,6 +14,8 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: ${{ github.event_name == 'push' && '0' || '1' }} # 根据事件类型动态设置 fetch-depth
 
       - uses: pnpm/action-setup@v4
 
@@ -46,3 +48,50 @@ jobs:
         with:
           name: build-dist-firefox
           path: dist-firefox
+
+      - run: mkdir -p build-zip
+
+      - id: zip_chrome
+        name: Build Zip For Chrome
+        uses: cardinalby/webext-buildtools-pack-extension-dir-action@v1
+        with:
+          extensionDir: "dist-chrome"
+          zipFilePath: "build/extension-chrome.zip"
+
+      - id: zip_firefox
+        name: Build Zip For Firefox
+        uses: cardinalby/webext-buildtools-pack-extension-dir-action@v1
+        with:
+          extensionDir: "dist-firefox"
+          zipFilePath: "build/extension-firefox.zip"
+
+      - name: Upload Built Zip to action
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-zip-${{ steps.zip_chrome.outputs.extensionVersion }}
+          path: build/*.zip
+
+      - name: Build Self-Sign Crx For Chrome
+        uses: cardinalby/webext-buildtools-chrome-crx-action@v2
+        env:
+          CHROME_SELF_SIGN_CRX_PRIVATE_KEY: ${{ secrets.CHROME_SELF_SIGN_CRX_PRIVATE_KEY }}
+        if: ${{ env.CHROME_SELF_SIGN_CRX_PRIVATE_KEY != ''  }}
+        with:
+          zipFilePath: "build/extension-chrome.zip"
+          crxFilePath: "build/extension.crx"
+          privateKey: "${{ secrets.CHROME_SELF_SIGN_CRX_PRIVATE_KEY }}"
+
+      - name: Upload Built Crx to action
+        uses: actions/upload-artifact@v4
+        with:
+          path: build/extension.crx
+          name: build-crx-${{ steps.zip_chrome.outputs.extensionVersion }}
+
+      - name: Upload build folder to Telegram Channel
+        env:
+          BUILD_VERSION: ${{ steps.zip_chrome.outputs.extensionVersion }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' && env.TELEGRAM_BOT_TOKEN != '' && env.TELEGRAM_CHAT_ID != '' }}
+        run: pnpm action:upload_telegram
+        continue-on-error: true

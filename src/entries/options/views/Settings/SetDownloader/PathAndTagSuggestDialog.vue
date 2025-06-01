@@ -3,12 +3,10 @@ import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { VueDraggable } from "vue-draggable-plus";
 import { getDownloader, getDownloaderMetaData, type TorrentClientMetaData } from "@ptd/downloader";
-import type { IDownloaderMetadata } from "@/shared/storages/types/metadata.ts";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-
-import { log } from "~/helper.ts";
+import type { IDownloaderMetadata } from "@/shared/types.ts";
 
 const showDialog = defineModel<boolean>();
 const { clientId } = defineProps<{
@@ -37,7 +35,7 @@ const pathReplaceMap: [string, string, string][] = [
 watch(
   () => clientId,
   async (newValue) => {
-    log("Edit clientId:", newValue);
+    console.log("Edit clientId:", newValue);
     if (newValue) {
       clientConfig.value = { suggestFolders: [], suggestTags: [], ...metadataStore.downloaders[newValue] }; // 防止直接修改父组件的数据
       clientMetadata.value = await getDownloaderMetaData(clientConfig.value.type);
@@ -307,9 +305,8 @@ function saveClientConfig() {
       <v-divider />
       <v-card-actions>
         <v-spacer />
-        <v-btn color="success" variant="text" @click="saveClientConfig">
-          <v-icon icon="mdi-check-circle-outline" />
-          {{ $t("common.dialog.ok") }}
+        <v-btn color="success" prepend-icon="mdi-check-circle-outline" variant="text" @click="saveClientConfig">
+          {{ t("common.dialog.ok") }}
         </v-btn>
       </v-card-actions>
     </v-card>

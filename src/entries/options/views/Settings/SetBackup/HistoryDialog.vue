@@ -1,16 +1,17 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { ref, shallowRef } from "vue";
 import { IBackupFileInfo } from "@ptd/backupServer";
-import { sendMessage } from "@/messages.ts";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
-import { formatDate, formatSize } from "@/options/utils.ts";
-import { useI18n } from "vue-i18n";
 
+import { sendMessage } from "@/messages.ts";
+import { formatDate, formatSize } from "@/options/utils.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
-import { useMetadataStore } from "@/options/stores/metadata.ts";
 import NavButton from "@/options/components/NavButton.vue";
+import RestoreDialog from "./RestoreDialog.vue";
 
 const showDialog = defineModel<boolean>();
 const { backupServerId } = defineProps<{
@@ -31,6 +32,13 @@ const tableHeaders = [
   { title: "操作", key: "action", sortable: false },
 ] as DataTableHeader[];
 const tableSelected = ref<string[]>([]);
+
+const showRestoreDialog = ref<boolean>(false);
+const restoreMetadata = ref<{ type: "remote"; server: string; path: string }>({ type: "remote", server: "", path: "" });
+function restoreBackup(path: string) {
+  restoreMetadata.value = { type: "remote", server: backupServerId, path };
+  showRestoreDialog.value = true;
+}
 
 const showDeleteDialog = ref<boolean>(false);
 const toDeleteBackupHistory = ref<string[]>([]);
@@ -65,10 +73,15 @@ async function dialogEnter() {
   // noinspection ES6MissingAwait
   loadBackupHistory();
 }
+
+async function dialogLeave() {
+  backupHistory.value = [];
+  tableSelected.value = [];
+}
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" max-width="1000" @after-enter="dialogEnter">
+  <v-dialog v-model="showDialog" max-width="1000" @after-enter="dialogEnter" @after-leave="dialogLeave">
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
@@ -112,7 +125,7 @@ async function dialogEnter() {
 
           <template #item.action="{ item }">
             <v-btn-group class="table-action" density="compact" variant="plain">
-              <v-btn color="blue" icon="mdi-cloud-download" size="small"></v-btn>
+              <v-btn color="blue" icon="mdi-cloud-download" size="small" @click="restoreBackup(item.path)" />
 
               <v-btn
                 :title="t('common.remove')"
@@ -128,6 +141,7 @@ async function dialogEnter() {
     </v-card>
   </v-dialog>
 
+  <RestoreDialog v-model="showRestoreDialog" :restore-metadata="restoreMetadata" />
   <DeleteDialog
     v-model="showDeleteDialog"
     :confirm-delete="confirmDeleteBackupHistory"

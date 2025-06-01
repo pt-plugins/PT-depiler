@@ -1,26 +1,27 @@
+import Sizzle from "sizzle";
+import { mergeWith, toMerged } from "es-toolkit";
+import { set } from "es-toolkit/compat";
+
 import PrivateSite from "./AbstractPrivateSite";
 import {
   EResultParseStatus,
   ETorrentStatus,
-  IElementQuery,
-  ISearchCategories,
-  ISearchInput,
-  ISiteMetadata,
-  ITorrent,
-  ITorrentTag,
-  IUserInfo,
+  type ISearchCategories,
+  type ISearchInput,
+  type ISiteMetadata,
+  type ITorrent,
+  type ITorrentTag,
+  type IUserInfo,
 } from "../types";
-import Sizzle from "sizzle";
-import { mergeWith, toMerged } from "es-toolkit";
 import {
   createDocument,
+  definedFilters,
   extractContent,
   parseSizeString,
   parseTimeToLive,
   parseValidTimeString,
   sizePattern,
 } from "../utils";
-import { set } from "es-toolkit/compat";
 
 const baseLinkQuery = {
   selector: ['a[href*="download.php?id="]:has(> img[alt="download"])'],
@@ -78,7 +79,7 @@ const parseProgressElement = (element: HTMLElement) => {
   const status = parts[0];
   const progress = parts[1];
   return { status: status, progress: progress };
-}
+};
 
 export const subTitleRemoveExtraElement =
   (removeSelectors: string[] = [], self: boolean = false) =>
@@ -538,9 +539,8 @@ export default class NexusPHP extends PrivateSite {
       const divSeeding = Sizzle("div > div:contains(' | ')", userSeedingDocument);
       if (divSeeding.length > 0 && divSeeding[0].textContent) {
         const seedingText = divSeeding[0].textContent.split("|");
-        seedStatus.seeding = parseInt(seedingText[0].trim());
-        const sizeText = seedingText[1].trim().replace(/总大小：|總大小：|Total size: /g, "");
-        seedStatus.seedingSize = parseSizeString(sizeText);
+        seedStatus.seeding = definedFilters.parseNumber(seedingText[0]);
+        seedStatus.seedingSize = definedFilters.parseSize(seedingText[1]);
       } else {
         const trAnothers = Sizzle("table:last tr:not(:eq(0))", userSeedingDocument);
         if (trAnothers.length > 0) {
@@ -580,7 +580,7 @@ export default class NexusPHP extends PrivateSite {
       const divSeeding = Sizzle("div > div:contains(' | ')", userUploadsDocument);
       if (divSeeding.length > 0 && divSeeding[0].textContent) {
         const seedingText = divSeeding[0].textContent.split("|");
-        flushUserInfo.uploads = parseInt(seedingText[0].trim());
+        flushUserInfo.uploads = definedFilters.parseNumber(seedingText[0]);
       } else {
         const trAnothers = Sizzle("table:last tr:not(:eq(0))", userUploadsDocument);
         flushUserInfo.uploads = trAnothers.length;
@@ -589,7 +589,11 @@ export default class NexusPHP extends PrivateSite {
     return flushUserInfo;
   }
 
-  protected override parseTorrentRowForTags(torrent: Partial<ITorrent>, row: Element | Document, searchConfig: ISearchInput): Partial<ITorrent> {
+  protected override parseTorrentRowForTags(
+    torrent: Partial<ITorrent>,
+    row: Element | Document,
+    searchConfig: ISearchInput,
+  ): Partial<ITorrent> {
     super.parseTorrentRowForTags(torrent, row, searchConfig);
 
     const customTags = row.querySelectorAll("span[style*='background-color'][style*='color'][title]");

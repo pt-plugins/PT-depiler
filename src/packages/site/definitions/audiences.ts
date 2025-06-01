@@ -1,12 +1,12 @@
 import Sizzle from "sizzle";
 import { mergeWith } from "es-toolkit";
-import { ETorrentStatus, ISiteMetadata, IUserInfo } from "@ptd/site";
+import { ETorrentStatus, type ISiteMetadata, type IUserInfo } from "../types";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
   CategorySpstate,
   SchemaMetadata,
-} from "@ptd/site/schemas/NexusPHP.ts";
+} from "../schemas/NexusPHP.ts";
 import { createDocument, parseSizeString, tryToNumber } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {

@@ -3,6 +3,7 @@ import { cloneDeep } from "es-toolkit";
 export * from "./types";
 export * from "./utils";
 
+import { getHostFromUrl } from "./utils/html.ts";
 import type { ISiteMetadata, ISiteUserConfig, TSiteID, TSiteFullUrl } from "./types";
 import type BittorrentSite from "./schemas/AbstractBittorrentSite";
 import type PrivateSite from "./schemas/AbstractPrivateSite";
@@ -57,7 +58,7 @@ export async function getDefinedSiteMetadata(definition: string): Promise<ISiteM
 
   // 补全一些可以缺失字段
   siteMetadata.tags ??= [];
-  siteMetadata.host ??= new URL(siteMetadata.urls[0]).host;
+  siteMetadata.host ??= getHostFromUrl(siteMetadata.urls[0]);
   siteMetadata.timezoneOffset ??= siteMetadata.schema === "NexusPHP" ? "+0800" : "+0000";
 
   return siteMetadata;
@@ -68,7 +69,7 @@ export async function getSite<TYPE extends "private" | "public">(
   userConfig: ISiteUserConfig = {},
 ): Promise<TYPE extends "private" ? PrivateSite : BittorrentSite> {
   let SiteClass,
-    siteMetadata = {};
+    siteMetadata = {} as ISiteMetadata;
 
   if (definitionList.includes(siteId!)) {
     siteMetadata = await getDefinedSiteMetadata(siteId);
@@ -77,7 +78,6 @@ export async function getSite<TYPE extends "private" | "public">(
       SiteClass = DefinitionClass;
     }
   } else {
-    // FIXME 部分用户自定义的站点（此时在 js/site 目录中不存在对应模块），不能进行 dynamicImport 的情况，对此应该直接从 schema 中导入
     throw new Error(`siteMetadata ${siteId} not found in build, skip creating siteInstance`);
   }
 
@@ -86,8 +86,13 @@ export async function getSite<TYPE extends "private" | "public">(
    * 并覆写基类的的 siteMetaData 信息
    */
   if (!SiteClass) {
-    // @ts-ignore
-    const schemaModule = await getSchemaModule(siteMetadata.schema!);
+    let siteSchema = siteMetadata.schema!;
+    // 如果schema有声明，但是没有对应的实现（ schemas/*.ts 或者 definitions/site.ts 中的 default class ），则根据 type 回落
+    if (!schemaList.includes(siteSchema)) {
+      siteSchema = siteMetadata.type === "private" ? "AbstractPrivateSite" : "AbstractBittorrentSite";
+    }
+
+    const schemaModule = await getSchemaModule(siteSchema);
     SiteClass = schemaModule.default;
   }
 

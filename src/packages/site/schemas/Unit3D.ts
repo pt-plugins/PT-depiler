@@ -1,9 +1,10 @@
-import PrivateSite from "./AbstractPrivateSite";
-import { ISiteMetadata, IUserInfo, ETorrentStatus, EResultParseStatus } from "../types";
-import { parseSizeString, parseValidTimeString } from "../utils";
 import urlJoin from "url-join";
-import { set } from "es-toolkit/compat";
 import { toMerged } from "es-toolkit";
+import { set } from "es-toolkit/compat";
+
+import PrivateSite from "./AbstractPrivateSite";
+import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
+import { parseSizeString, parseValidTimeString } from "../utils";
 
 /**
  * Trans Array

@@ -6,11 +6,7 @@
  */
 
 import { defineStore } from "pinia";
-import type {
-  IRuntimePiniaStorageSchema,
-  ISearchData,
-  SnackbarMessageOptions,
-} from "@/shared/storages/types/runtime.ts";
+import type { IRuntimePiniaStorageSchema, ISearchData, SnackbarMessageOptions } from "@/shared/types.ts";
 
 const initialSearchData: () => ISearchData = () => ({
   isSearching: false,

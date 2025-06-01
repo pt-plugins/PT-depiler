@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { ref } from "vue";
-import { BackupFields, TBackupFields } from "@/shared/storages/types/metadata.ts";
+import { useI18n } from "vue-i18n";
+
+import { BackupFields, TBackupFields } from "@/shared/types.ts";
 import { sendMessage } from "@/messages.ts";
 
 const showDialog = defineModel<boolean>();
+const { t } = useI18n();
 
 const backupFields = ref<TBackupFields[]>([]);
 
@@ -35,8 +38,10 @@ function dialogEnter() {
       <v-divider />
       <v-card-actions>
         <v-spacer />
-        <v-btn variant="text" @click="showDialog = false">取消</v-btn>
-        <v-btn variant="text" color="success" @click="() => doLocalExport()">导出</v-btn>
+        <v-btn color="error" prepend-icon="mdi-close-circle" variant="text" @click="showDialog = false">
+          {{ t("common.dialog.cancel") }}
+        </v-btn>
+        <v-btn color="success" prepend-icon="mdi-export" variant="text" @click="() => doLocalExport()">导出</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

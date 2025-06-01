@@ -2,9 +2,9 @@
 import { computedAsync } from "@vueuse/core";
 import { isEmpty } from "es-toolkit/compat";
 import type { ISearchCategories } from "@ptd/site";
-import type { ISearchSolution } from "@/storage.ts";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import type { ISearchSolution } from "@/shared/types.ts";
 
 const props = defineProps<{
   solution: ISearchSolution;
@@ -13,7 +13,7 @@ const props = defineProps<{
 const metadataStore = useMetadataStore();
 
 const siteMetaCategory = computedAsync(async () => {
-  return (await metadataStore.getSiteMergedMetadata(props.solution.siteId, "category")) as ISearchCategories[];
+  return (await metadataStore.getSiteMergedMetadata(props.solution.siteId, "category", [])) as ISearchCategories[];
 }, []);
 
 function getCategory(key: string) {
@@ -35,14 +35,18 @@ function getCategoryOptionName(key: string, value: string | number | (string | n
 </script>
 
 <template>
-  <template v-if="solution">
+  <div v-if="solution" class="text-wrap">
     <template v-if="isEmpty(solution.selectedCategories)">默认</template>
     <template v-else>
-      <span v-for="(value, category) in solution.selectedCategories" :key="category">
-        {{ getCategoryName(category) }}: {{ getCategoryOptionName(category, value) }};&nbsp;
+      <span
+        v-for="(value, category) in solution.selectedCategories"
+        :key="category"
+        :title="getCategoryName(category) + ': ' + getCategoryOptionName(category, value)"
+      >
+        <b>{{ getCategoryName(category) }}</b> : {{ getCategoryOptionName(category, value) }};&nbsp;
       </span>
     </template>
-  </template>
+  </div>
   <template v-else>Unknown</template>
 </template>
 

@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { useConfigStore } from "@/options/stores/config.ts";
 import { useI18n } from "vue-i18n";
-import { LocalDownloadMethod } from "@/shared/storages/types/config.ts";
+
+import { useConfigStore } from "@/options/stores/config.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { LocalDownloadMethod } from "@/shared/types.ts";
 
 const { t } = useI18n();
 const configStore = useConfigStore();
@@ -16,6 +17,17 @@ async function clearLastDownloader(v: boolean) {
 </script>
 
 <template>
+  <v-row>
+    <v-col md="6">
+      <v-switch
+        v-model="configStore.download.saveDownloadHistory"
+        label="是否保存下载历史"
+        color="success"
+        hide-details
+      />
+    </v-col>
+  </v-row>
+
   <v-row>
     <v-col md="6">
       <v-label>本地下载</v-label>

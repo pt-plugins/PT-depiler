@@ -73,7 +73,7 @@ export interface ISiteMetadata {
 
   /**
    * host 和 formerHosts 不支持填写 加密后的网站域名，不会自动进行 atob 解码，如果需要请填写类似
-   *  host: [ btoa('xxxxx') ]
+   *  host: btoa('xxxxx')
    */
   host?: TSiteHost; // 站点域名，如果不存在，则从url中获取
   readonly formerHosts?: TSiteHost[]; // 站点过去曾经使用过的，但现在已不再使用的域名

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { type ILevelRequirement } from "@ptd/site";
+
 import UserLevelShowSpan from "./UserLevelShowSpan.vue";
 
 const { levelRequirement } = defineProps<{

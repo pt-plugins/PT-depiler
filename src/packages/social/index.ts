@@ -1,8 +1,6 @@
 import axios from "axios";
 import { IFetchSocialSiteInformationConfig, ISocialInformation, TSupportSocialSite } from "./types.ts";
 
-import { log } from "~/helper.ts";
-
 export * from "./types.ts";
 
 // From https://github.com/ourbits/PtGen#usage
@@ -54,7 +52,7 @@ export async function getSocialSiteInformation(
   const { preferPtGen = true, ptGenEndpoint = buildInPtGenApi[0].url, timeout = 5e3 } = config;
 
   if (preferPtGen && PtGenApiSupportSite.includes(site)) {
-    log("Use PtGen API to fetch social site information ", { site, id });
+    console?.log("Use PtGen API to fetch social site information ", { site, id });
 
     for (const ptGenEndpointElement of new Set<string>([ptGenEndpoint, buildInPtGenApi.at(-1)!.url].filter(Boolean))) {
       const ptGenUrl = ptGenEndpointElement.replace("<site>", site).replace("<sid>", id);
@@ -71,6 +69,6 @@ export async function getSocialSiteInformation(
   }
 
   // 如果没有使用 PtGen API 或者 PtGen API 获取失败，则使用内置的解析方法
-  log("Use build-in API to fetch social site information:", { site, id });
+  console?.log("Use build-in API to fetch social site information:", { site, id });
   return await socialModule.fetchInformation(id, config);
 }

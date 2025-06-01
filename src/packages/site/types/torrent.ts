@@ -18,12 +18,12 @@ export type TBaseTorrentTagName =
   | "2x50%" // 2x 上传 + 50% 下载 "light-green",
   | "25%" // 25% 下载 "purple",
   | "30%" // 30% 下载 "indigo",
-  | "35%" // 35% 下载 "indigo darken-3",
+  | "35%" // 35% 下载 "indigo-darken-3",
   | "50%" // 50% 下载 "orange",
   | "70%" // 70% 下载 "blue-grey",
-  | "75%" // 75% 下载 "lime darken-3",
-  | "VIP" // 仅 VIP 可下载 "orange darken-2",
-  | "Excl." // 禁止转载 "deep-orange darken-1",
+  | "75%" // 75% 下载 "lime-darken-3",
+  | "VIP" // 仅 VIP 可下载 "orange-darken-2",
+  | "Excl." // 禁止转载 "deep-orange-darken-1",
   | string;
 
 export interface ITorrentTag {
@@ -40,7 +40,7 @@ export interface ITorrent {
   subTitle?: string; // 次标题
 
   /**
-   * 特别注意： link 和 url 两个的含义在旧版和目前版本中是完全相反的
+   * 特别注意： link 和 url 两个的含义在 ptpp 和 ptd 中是完全相反的
    * url: detail 页面链接
    * link: 种子下载链接，特别的：
    *    - 对于 PT站点 应该是种子的链接

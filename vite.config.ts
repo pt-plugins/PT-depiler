@@ -12,7 +12,7 @@ import webExtension from "vite-plugin-web-extension";
 
 // @ts-ignore
 import tailwindcss from "@tailwindcss/vite";
-import { vitePluginGenerateWebextLocales } from "./vite/generateWebextLocales";
+import { vitePluginGenerateWebextLocales } from "./vite/plugin/generateWebextLocales.ts";
 
 import git from "git-rev-sync";
 import pkg from "./package.json";
@@ -30,7 +30,6 @@ const permissions = [
   "cookies",
   "downloads",
   "declarativeNetRequest",
-  "notifications",
   "storage",
   "unlimitedStorage",
 ];
@@ -41,13 +40,6 @@ export default defineConfig({
     target: "es2023",
     outDir: `dist-${target}`,
     emptyOutDir: true,
-  },
-  css: {
-    preprocessorOptions: {
-      scss: {
-        api: "modern",
-      },
-    },
   },
   plugins: [
     vitePluginGenerateWebextLocales(),
@@ -69,9 +61,9 @@ export default defineConfig({
       skipManifestValidation: true,
       manifest: () => ({
         manifest_version: 3,
-        minimum_chrome_version: "120",
+        "{{chrome}}.minimum_chrome_version": "120",
 
-        version: pkg.version,
+        version: `${pkg.version}.${git.count()}`,
 
         name: "__MSG_extName__",
         description: "__MSG_extDesc__",
@@ -98,6 +90,7 @@ export default defineConfig({
           service_worker: "src/entries/background/main.ts",
         },
 
+        // 在 Firefox 中，background 不能使用 service_worker
         "{{firefox}}.background": {
           scripts: ["src/entries/background/ff_main.ts"],
         },
@@ -111,9 +104,17 @@ export default defineConfig({
           open_in_tab: true,
         },
 
+        // 在 Chrome 中需要多注册一个 offscreen 权限
         "{{chrome}}.permissions": [...permissions, "offscreen"],
         "{{firefox}}.permissions": permissions,
         host_permissions: ["*://*/*"],
+
+        "{{firefox}}.browser_specific_settings": {
+          gecko: {
+            id: "ptdepiler.ptplugins@gmail.com",
+            strict_min_version: "113.0",
+          },
+        },
       }),
       additionalInputs: target == "chrome" ? ["src/entries/offscreen/offscreen.html"] : undefined,
       watchFilePaths: ["package.json"],

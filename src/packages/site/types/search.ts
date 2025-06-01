@@ -114,6 +114,7 @@ export interface IAdvancedSearchRequestConfig extends Partial<ISearchConfig> {
 }
 
 export interface ISearchEntryRequestConfig extends IAdvancedSearchRequestConfig {
+  id?: string; // 唯一标识（应该与 ISiteMetadata.searchEntry 中对应的key一致，一般情况下无需特别声明）
   name?: string; // 别名
   enabled?: boolean; // 是否默认启用
 }
@@ -166,8 +167,18 @@ export interface ISearchCategories {
   name: string; // 搜索大类名称
   notes?: string; // 分类说明
 
-  key: string; // 搜索大类
-  keyPath?: "data" | "params" | string; // 用于指导怎么生成请求参数，未指定时默认为 params
+  /**
+   *  搜索大类
+   *  注意，在单个站点中搜索大类的 key 不能重复！！！
+   *
+   *  对于一些特殊的情况，如不同搜索入口，可能会出现相同的 key，你可以这样处理：
+   *  1. 将key 设置为 key_xxxx, key_yyyy
+   *  2. 如果这个搜索类别是交叉的，则建议使用 cross.key 覆盖原有的 key
+   *  3. 也可以使用 generateRequestConfig 方法覆盖原有的 key
+   *
+   */
+  key: string;
+  keyPath?: "data" | "params" | string; // 在未设置 generateRequestConfig，用于指导怎么生成请求参数，未指定时默认为 params
 
   options: ISearchCategoryOptions[];
   // 该搜索大类是否允许内部交叉（即多选） （ 不声明，则默认不允许（False） ）

@@ -6,12 +6,10 @@ import { cloneDeep, isEqual } from "es-toolkit";
 import { find } from "es-toolkit/compat";
 import { computedAsync, refDebounced } from "@vueuse/core";
 
-import type { ISearchSolution, ISearchSolutionMetadata, TSolutionKey } from "@/storage.ts";
-
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-
 import { formValidateRules } from "@/options/utils.ts";
+import type { ISearchSolution, ISearchSolutionMetadata, TSolutionKey } from "@/shared/types.ts";
 
 import SolutionLabel from "./SolutionLabel.vue";
 import SiteCategoryPanel from "./SiteCategoryPanel.vue";
@@ -48,11 +46,13 @@ const addedSiteInfo = computedAsync(async () => {
     .sort((a, b) => Number(metadataStore.sites[b].allowSearch) - Number(metadataStore.sites[a].allowSearch))
     .map(async (siteId) => ({
       siteId,
+      isDead: (await metadataStore.getSiteMergedMetadata(siteId, "isDead")) ?? false,
       siteName: await metadataStore.getSiteName(siteId),
       siteUrl: await metadataStore.getSiteUrl(siteId),
     }));
 
-  return Promise.all(promises);
+  const siteInfos = await Promise.all(promises);
+  return siteInfos.filter((site) => !site.isDead);
 }, []);
 
 const filteredSite = computedAsync(() => {
@@ -108,7 +108,7 @@ function dialogLeave() {
 
 <template>
   <v-dialog v-model="showDialog" fullscreen @after-enter="dialogEnter" @after-leave="dialogLeave">
-    <v-card>
+    <v-card class="overflow-y-auto">
       <v-card-title class="pa-0">
         <v-toolbar :title="t('SetSearchSolution.edit.title')" color="blue-grey-darken-2">
           <template #append>
@@ -151,7 +151,7 @@ function dialogLeave() {
                   <v-expansion-panel
                     v-for="site in filteredSite"
                     :id="site"
-                    :disabled="!!metadataStore.sites[site].isOffline || !metadataStore.sites[site].allowSearch"
+                    :disabled="!!metadataStore.sites[site].isOffline"
                   >
                     <v-expansion-panel-title>
                       <SiteFavicon :site-id="site" class="mr-2" inline />
@@ -174,7 +174,16 @@ function dialogLeave() {
                 </v-alert-title>
               </v-alert>
 
-              <SolutionLabel :solutions="solution.solutions" @remove:solution="removeSolution" closable />
+              <v-card class="overflow-y-auto" height="calc(100vh - 330px)">
+                <v-card-text class="pl-3 py-0 pr-1">
+                  <SolutionLabel
+                    :group-props="{ column: true }"
+                    :solutions="solution.solutions"
+                    closable
+                    @remove:solution="removeSolution"
+                  />
+                </v-card-text>
+              </v-card>
             </v-col>
           </v-row>
         </v-form>
@@ -182,17 +191,16 @@ function dialogLeave() {
       <v-divider />
       <v-card-actions>
         <v-spacer />
-        <v-btn color="error" variant="text" @click="showDialog = false">
-          <v-icon icon="mdi-close-circle" />
+        <v-btn color="error" prepend-icon="mdi-close-circle" variant="text" @click="showDialog = false">
           {{ t("common.dialog.cancel") }}
         </v-btn>
         <v-btn
           :disabled="!formValid || solution.solutions.length === 0"
           color="success"
+          prepend-icon="mdi-check-circle-outline"
           variant="text"
           @click="saveSolutionState"
         >
-          <v-icon icon="mdi-check-circle-outline" />
           {{ t("common.dialog.ok") }}
         </v-btn>
       </v-card-actions>

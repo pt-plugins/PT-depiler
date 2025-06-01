@@ -1,16 +1,6 @@
-import type { ISiteMetadata } from "@ptd/site";
-import {
-  CategoryInclbookmarked,
-  CategoryIncldead,
-  CategorySpstate,
-  SchemaMetadata,
-} from "@ptd/site/schemas/NexusPHP.ts";
-import {
-  allCustomTags,
-  allTagSelectors,
-  selectorSearchProgress,
-  selectorSearchStatus,
-} from "@ptd/site/definitions/hdhome.ts";
+import { type ISiteMetadata } from "../types";
+import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
+import { allCustomTags, allTagSelectors, selectorSearchProgress, selectorSearchStatus } from "./hdhome.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -187,6 +177,10 @@ export const siteMetadata: ISiteMetadata = {
       bonus: {
         selector: ["td.rowhead:contains('鲸币') + td", "td.rowhead:contains('Karma Points') + td"],
         filters: [{ name: "parseNumber" }],
+      },
+      bonusPerHour: {
+        selector: ["table[width='800'] > tbody > tr:contains('合计') > td:last-of-type"],
+        filters: [{ name: "split", args: ["/", 0] }, { name: "parseNumber" }],
       },
     },
   },

@@ -1,21 +1,14 @@
 import { merge, mergeWith } from "es-toolkit";
 import { set } from "es-toolkit/compat";
 
-import {
-  createDocument,
-  IAdvancedSearchRequestConfig,
-  TSelectSearchCategoryValue,
-  ISiteMetadata,
-  IUserInfo,
-  GB,
-  TB,
-} from "@ptd/site";
+import type { IAdvancedSearchRequestConfig, TSelectSearchCategoryValue, ISiteMetadata, IUserInfo } from "../types";
+import { GB, TB, createDocument } from "../utils";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
   CategorySpstate,
   SchemaMetadata,
-} from "@ptd/site/schemas/NexusPHP";
+} from "../schemas/NexusPHP";
 
 const levelRequirements: ISiteMetadata["levelRequirements"] = [
   {
@@ -144,9 +137,7 @@ const category: ISiteMetadata["category"] = [
     key: "source",
     options: [
       { value: 1, name: "UHD Blu-ray" },
-      { value: 12, name: "UHD Blu-ray DIY" },
       { value: 8, name: "Blu-ray" },
-      { value: 13, name: "Blu-ray DIY" },
       { value: 9, name: "Remux" },
       { value: 10, name: "Encode" },
       { value: 7, name: "WEB-DL" },
@@ -320,6 +311,11 @@ const userInfo: ISiteMetadata["userInfo"] = merge(schemaUserInfo, {
         },
       ],
     },
+    // "page": "/mybonus.php",
+    bonusPerHour: {
+      selector: ["h1:contains('每小时获得的合计蝌蚪') + div > table tr:last td:last"],
+      filters: [{ name: "parseNumber" }],
+    },
   },
 });
 
@@ -337,6 +333,7 @@ export const siteMetadata: ISiteMetadata = {
     "aHR0cHM6Ly93d3cucWluZ3dhcHQuY29tLw==",
     "aHR0cHM6Ly93d3cucWluZ3dhcHQub3JnLw==",
     "aHR0cHM6Ly93d3cucWluZ3dhLnByby8=",
+    "aHR0cHM6Ly9xaW5nd2FwdC5jb20v", // 增加一个和ptpp中 host 一样的url （经过实测也能访问）
   ],
   collaborator: ["Eason Wong"],
 

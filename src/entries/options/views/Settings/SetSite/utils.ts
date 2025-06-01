@@ -1,16 +1,14 @@
-import { definitionList, ISiteMetadata, type ISiteUserConfig, TSiteID } from "@ptd/site";
-import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { computedAsync } from "@vueuse/core";
+import { definitionList, ISiteMetadata, type ISiteUserConfig, TSiteID } from "@ptd/site";
+
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 export async function getCanAddedSiteMetadata() {
   const canAddedSiteMetadata: Record<TSiteID, ISiteMetadata> = {};
   const metadataStore = useMetadataStore();
   const canAddedSiteList = definitionList.filter((x) => !metadataStore.getAddedSiteIds.includes(x));
   for (const siteId of canAddedSiteList) {
-    const siteMetadata = await metadataStore.getSiteMetadata(siteId);
-    if (!siteMetadata.isDead) {
-      canAddedSiteMetadata[siteId] = siteMetadata;
-    }
+    canAddedSiteMetadata[siteId] = await metadataStore.getSiteMetadata(siteId);
   }
   return canAddedSiteMetadata;
 }

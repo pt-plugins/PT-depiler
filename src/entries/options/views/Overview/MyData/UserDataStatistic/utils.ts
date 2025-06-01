@@ -1,10 +1,8 @@
-import { sendMessage } from "@/messages.ts";
-import { type IStoredUserInfo, TUserInfoStorageSchema } from "@/storage.ts";
-import { min as minDateFn } from "date-fns/min";
-import { max as maxDateFn } from "date-fns/max";
-import { eachDayOfInterval, subDays } from "date-fns";
-import { format as formatDate } from "date-fns/format";
+import { eachDayOfInterval, subDays, min as minDateFn, max as maxDateFn, format as formatDate } from "date-fns";
 import { EResultParseStatus, TSiteID } from "@ptd/site";
+
+import { sendMessage } from "@/messages.ts";
+import { type IStoredUserInfo, TUserInfoStorageSchema } from "@/shared/types.ts";
 
 export type TUserDataStatistic = Record<TSiteID, Record<string, IStoredUserInfo>>;
 
@@ -32,7 +30,7 @@ export async function loadFullData(): Promise<TUserDataStatistic> {
     const siteId = key as TSiteID;
     const thisSiteDateRange = Object.keys(perSiteUserInfoHistory);
     const thisSiteMinDate = minDateFn(thisSiteDateRange);
-    const thisSiteMaxDate = maxDateFn([...thisSiteDateRange, maxDate]); // 确保包含全局最大日期
+    const thisSiteMaxDate = maxDateFn(thisSiteDateRange);
     const thisSiteDateRangeInInterval = eachDayOfInterval({ start: thisSiteMinDate, end: thisSiteMaxDate }).map((x) =>
       formatDate(x, "yyyy-MM-dd"),
     );

@@ -1,9 +1,9 @@
-import PrivateSite from "./AbstractPrivateSite";
-import { ISiteMetadata, ETorrentStatus, ITorrent, ISearchInput } from "../types";
 import Sizzle from "sizzle";
 import { merge } from "es-toolkit";
-import { parseValidTimeString } from "../utils/datetime";
-import { parseSizeString } from "../utils";
+
+import PrivateSite from "./AbstractPrivateSite";
+import { parseValidTimeString, parseSizeString } from "../utils";
+import { ETorrentStatus, type ISiteMetadata, type ITorrent, type ISearchInput } from "../types";
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: 0,

@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { nanoid } from "nanoid";
+import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 import { cloneDeep, toMerged } from "es-toolkit";
 import { isEmpty, set } from "es-toolkit/compat";
+import type { IAdvancedSearchRequestConfig, ISearchCategories, TSelectSearchCategoryValue, TSiteID } from "@ptd/site";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-
-import { log } from "~/helper.ts";
-
-import type { ISearchSolution } from "@/storage.ts";
-import type { IAdvancedSearchRequestConfig, ISearchCategories, TSelectSearchCategoryValue, TSiteID } from "@ptd/site";
+import type { ISearchSolution } from "@/shared/types.ts";
 
 const props = defineProps<{
   siteId: TSiteID;
@@ -18,6 +16,7 @@ const props = defineProps<{
 
 const emit = defineEmits(["update:solution"]);
 
+const { t } = useI18n();
 const metadataStore = useMetadataStore();
 
 const selectCategory = ref<Record<ISearchCategories["key"], TSelectSearchCategoryValue | symbol>>({});
@@ -28,7 +27,7 @@ const siteMetaCategory = computedAsync(async () => {
 const radioDefault = Symbol("default");
 
 async function getSiteMetaCategory() {
-  const siteMetaCategory = await metadataStore.getSiteMergedMetadata(props.siteId, "category");
+  const siteMetaCategory = await metadataStore.getSiteMergedMetadata(props.siteId, "category", []);
   for (const category of siteMetaCategory!) {
     selectCategory.value[category.key] = category.cross ? [] : radioDefault;
   }
@@ -93,9 +92,8 @@ async function generateSolution() {
             set(entriesConfig, `${updatePath}.${fieldKey}${option}`, 1);
           }
         } else if (category.cross.mode === "appendQuote") {
-          for (const option of field as (string | number)[]) {
-            set(entriesConfig, `${updatePath}.${fieldKey}[${option}]`, 1);
-          }
+          const options = Object.fromEntries((field as (string | number)[]).map((option) => [option, 1]));
+          set(entriesConfig, `${updatePath}.${fieldKey}`, options);
         } else if (category.cross.mode === "comma") {
           set(entriesConfig, `${updatePath}.${fieldKey}`, (field as (string | number)[]).join(","));
         } else {
@@ -115,7 +113,7 @@ async function generateSolution() {
     searchSolution.searchEntries = {};
   }
 
-  log("generateSolution", searchSolution);
+  console.log("generateSolution", searchSolution);
   emit("update:solution", searchSolution);
 
   // 重置本 expansion panel 的数据
@@ -152,10 +150,10 @@ async function generateSolution() {
                     >
                       <template #label>
                         <p class="font-weight-bold">
-                          {{ $t("common.checkbox.all") }}
+                          {{ t("common.checkbox.all") }}
                         </p>
                         <p v-if="!checkBtnIndeterminate(category)" class="text-red-lighten-1">
-                          &nbsp;{{ $t("setSite.spDialog.selectAllNotice") }}
+                          &nbsp;{{ t("setSite.spDialog.selectAllNotice") }}
                         </p>
                       </template>
                     </v-checkbox>
@@ -191,7 +189,7 @@ async function generateSolution() {
                     >
                       <!-- 增加一个代表默认的值，说明该类别什么都不选（尊重站点默认）。（不然的话，只能全部重置才能取消选择） -->
                       <v-col class="py-0" cols="12" lg="2" md="4" sm="6">
-                        <v-radio :label="'default'" :value="radioDefault"></v-radio>
+                        <v-radio :label="'站点默认'" :value="radioDefault"></v-radio>
                       </v-col>
                       <v-col v-for="options in category.options" class="py-0" cols="12" lg="2" md="4" sm="6">
                         <v-radio :key="options.value" :label="options.name" :value="options.value" />
@@ -204,7 +202,7 @@ async function generateSolution() {
           </v-expansion-panel>
         </v-expansion-panels>
         <div v-else>
-          {{ $t("setSite.spDialog.noDefNotice") }}
+          {{ t("setSite.spDialog.noDefNotice") }}
         </div>
       </v-col>
       <v-col align-self="center">

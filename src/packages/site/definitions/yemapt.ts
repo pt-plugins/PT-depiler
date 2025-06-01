@@ -1,5 +1,5 @@
-import { type ILevelRequirement, ISearchInput, ISiteMetadata, ITorrent, ITorrentTag } from "@ptd/site";
-import PrivateSite from "@ptd/site/schemas/AbstractPrivateSite.ts";
+import type { ILevelRequirement, ISearchInput, ISiteMetadata, ITorrent, ITorrentTag } from "../types";
+import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 
 const levelRequirements: ILevelRequirement[] = [
   {

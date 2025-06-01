@@ -3,14 +3,12 @@ import { ref } from "vue";
 import { omit } from "es-toolkit";
 import { type IMediaServerSearchOptions } from "@ptd/mediaServer";
 
-import { log } from "~/helper.ts";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import type { TMediaServerKey } from "@/shared/storages/types/metadata.ts";
+import type { TMediaServerKey } from "@/shared/types.ts";
 import { EResultParseStatus } from "@ptd/site";
-
 const runtimeStore = useRuntimeStore();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
@@ -26,7 +24,7 @@ searchQueue.on("active", () => {
   // 启动后，根据 configStore 的值，自动更新 searchQueue 的并发数
   if (searchQueue.concurrency != configStore.mediaServerEntity.queueConcurrency) {
     searchQueue.concurrency = configStore.mediaServerEntity.queueConcurrency;
-    log("Search queue concurrency changed to: ", searchQueue.concurrency);
+    sendMessage("logger", { msg: `Search queue concurrency changed to: ${searchQueue.concurrency}` }).catch();
   }
 });
 

@@ -2,11 +2,10 @@
 import { watch, ref, onMounted, inject, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { set } from "es-toolkit/compat";
-import { timezoneOffset, ISiteUserConfig, type TSiteID, ISiteMetadata, TSiteUrl } from "@ptd/site";
+import type { timezoneOffset, ISiteUserConfig, TSiteID, ISiteMetadata, TSiteUrl } from "@ptd/site";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { formatDate, formValidateRules } from "@/options/utils.ts";
-import { lightFormat } from "date-fns";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
@@ -31,8 +30,13 @@ const isFormValid = ref<boolean>(false);
 
 async function initSiteData(siteId: TSiteID, flush = false) {
   console.log("initSiteData", siteId, flush);
+  isFormValid.value = false;
   siteMetaData.value = await metadataStore.getSiteMetadata(siteId);
   siteUserConfig.value = await metadataStore.getSiteUserConfig(siteId, flush);
+  if (siteMetaData.value.isDead) {
+    isFormValid.value = true;
+  }
+  emit("update:formValid", isFormValid.value);
 }
 
 onMounted(() => {
@@ -82,6 +86,7 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
     <v-form
       v-model="isFormValid"
       fast-fail
+      :disabled="siteMetaData.isDead"
       validate-on="eager invalid-input"
       @update:model-value="(v) => emit('update:formValid', v as boolean)"
     >

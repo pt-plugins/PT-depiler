@@ -1,16 +1,13 @@
-import { IStoredUserInfo } from "@/shared/storages/types/metadata.ts";
-import { deepToRaw, formatSize } from "@/options/utils.ts";
-import { EResultParseStatus, ISiteMetadata, ISiteUserConfig, IUserInfo, TSiteID } from "@ptd/site";
-import { useResetableRef } from "@/options/directives/useResetableRef.ts";
-import { differenceInDays } from "date-fns";
-import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { ref } from "vue";
-import {
-  allAddedSiteMetadata,
-  fixUserInfo,
-  realFormatRatio,
-  TOptionSiteMetadatas,
-} from "@/options/views/Overview/MyData/utils.ts";
+import { differenceInDays } from "date-fns";
+import { EResultParseStatus, ISiteMetadata, ISiteUserConfig, IUserInfo, TSiteID } from "@ptd/site";
+
+import { IStoredUserInfo } from "@/shared/types.ts";
+import { deepToRaw, formatSize } from "@/options/utils.ts";
+import { useResetableRef } from "@/options/directives/useResetableRef.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
+
+import { allAddedSiteMetadata, fixUserInfo, realFormatRatio, TOptionSiteMetadatas } from "../utils.ts";
 
 const metadataStore = useMetadataStore();
 
@@ -32,6 +29,7 @@ export const CTimelineUserInfoField = [
   { name: "downloaded", format: (x: number) => formatSize(x) },
   { name: "seeding", format: (x: number) => x },
   { name: "seedingSize", format: (x: number) => formatSize(x) },
+  { name: "bonusPerHour", format: (x: number) => x.toFixed(2) },
   { name: "ratio", format: (x: number) => realFormatRatio(x) },
 ] as const;
 
@@ -92,8 +90,18 @@ export const timelineDataRef = useResetableRef<ITimelineData>(() => {
       seeding: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
       seedingSize: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
       ratio: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
+      bonusPerHour: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
     },
-    totalInfo: { sites: 0, uploads: 0, uploaded: 0, downloaded: 0, seeding: 0, seedingSize: 0, ratio: -1 },
+    totalInfo: {
+      sites: 0,
+      uploads: 0,
+      uploaded: 0,
+      downloaded: 0,
+      seeding: 0,
+      seedingSize: 0,
+      bonusPerHour: 0,
+      ratio: -1,
+    },
   };
 
   const lastUserInfo = deepToRaw(Object.values(metadataStore.lastUserInfo)) as IStoredUserInfo[]; // 获取所有站点的用户信息，并取消响应式
@@ -132,16 +140,22 @@ export const timelineDataRef = useResetableRef<ITimelineData>(() => {
       for (const userInfoField of CTimelineUserInfoField) {
         const userInfoKey = userInfoField.name as ITimelineUserInfoField["name"];
         if (userInfo[userInfoKey] && userInfo[userInfoKey] > 0) {
-          result.totalInfo[userInfoKey] += userInfo[userInfoKey]; // 更新总量
+          // refs: https://github.com/pt-plugins/PT-depiler/issues/48
+          let value = 0;
+          try {
+            value = parseFloat(userInfo[userInfoKey]);
+          } catch (e) {}
+
+          result.totalInfo[userInfoKey] += value; // 更新总量
 
           // 更新最大值和次大值
-          if (userInfo[userInfoKey] > result.topInfo[userInfoKey].maxValue) {
+          if (value > result.topInfo[userInfoKey].maxValue) {
             result.topInfo[userInfoKey].subValue = result.topInfo[userInfoKey].maxValue;
             result.topInfo[userInfoKey].subSite = result.topInfo[userInfoKey].site;
-            result.topInfo[userInfoKey].maxValue = userInfo[userInfoKey];
+            result.topInfo[userInfoKey].maxValue = value;
             result.topInfo[userInfoKey].site = userInfo;
-          } else if (userInfo[userInfoKey] > result.topInfo[userInfoKey].subValue) {
-            result.topInfo[userInfoKey].subValue = userInfo[userInfoKey];
+          } else if (value > result.topInfo[userInfoKey].subValue) {
+            result.topInfo[userInfoKey].subValue = value;
             result.topInfo[userInfoKey].subSite = userInfo;
           }
         }
@@ -173,10 +187,10 @@ export const image = (config: TKonvaConfig) => {
   return {
     x: 0,
     y: 0,
-    scaleX: imageBaseSize / imageWidth,
-    scaleY: imageBaseSize / imageHeight,
-    width: imageBaseSize,
-    height: imageBaseSize,
+    scaleX: config.scaleX ?? imageBaseSize / imageWidth,
+    scaleY: config.scaleY ?? imageBaseSize / imageHeight,
+    width: config.canvas?.width ?? imageBaseSize,
+    height: config.canvas?.height ?? imageBaseSize,
     ...config,
   };
 };

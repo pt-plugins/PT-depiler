@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { type CAddTorrentOptions, getDownloaderIcon } from "@ptd/downloader";
 
 import { sendMessage } from "@/messages.ts";
@@ -7,8 +8,8 @@ import { formatDate } from "@/options/utils.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-import { type ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
-import { type IDownloaderMetadata } from "@/shared/storages/types/metadata.ts";
+import type { IDownloaderMetadata, ISearchResultTorrent } from "@/shared/types.ts";
+import { toMerged } from "es-toolkit";
 
 const showDialog = defineModel<boolean>();
 const { torrentItems } = defineProps<{
@@ -19,6 +20,7 @@ const emit = defineEmits<{
   (e: "done"): void;
 }>();
 
+const { t } = useI18n();
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
@@ -115,13 +117,16 @@ async function sendToDownloader() {
 }
 
 function dialogEnter() {
+  restoreAddTorrentOptions(); // 先重置所有选项，然后如果需要则从uiStore中获取历史情况
   const lastDownloaderId = metadataStore.lastDownloader?.id;
   selectedDownloader.value = lastDownloaderId // 如果有上次选择的下载器，则直接使用
     ? metadataStore.downloaders[lastDownloaderId]
     : metadataStore.getEnabledDownloaders.length === 1 // 如果只有一个启用的下载器，则直接使用
       ? metadataStore.getEnabledDownloaders[0]
       : null;
-  addTorrentOptions.value = (metadataStore.lastDownloader?.options ?? {}) as Required<
+
+  // 将上一次的下载器选项通过 toMerged 合并到当前选项中，而不是直接覆盖
+  addTorrentOptions.value = toMerged(addTorrentOptions.value, metadataStore.lastDownloader?.options ?? {}) as Required<
     Omit<CAddTorrentOptions, "localDownloadOption">
   >;
 }
@@ -228,9 +233,14 @@ function dialogLeave() {
       <v-card-actions>
         <!-- TODO 说明 -->
         <v-spacer />
-        <v-btn :disabled="isSending" color="info" variant="text" @click="showDialog = false">
-          <v-icon icon="mdi-close-circle" />
-          <span class="ml-1">{{ $t("common.dialog.cancel") }}</span>
+        <v-btn
+          :disabled="isSending"
+          color="info"
+          prepend-icon="mdi-close-circle"
+          variant="text"
+          @click="showDialog = false"
+        >
+          <span class="ml-1">{{ t("common.dialog.cancel") }}</span>
         </v-btn>
         <v-btn
           :disabled="!selectedDownloader"
@@ -240,7 +250,7 @@ function dialogLeave() {
           @click="sendToDownloader"
         >
           <v-icon icon="mdi-check-circle-outline" />
-          <span class="ml-1">{{ $t("common.dialog.ok") }}</span>
+          <span class="ml-1">{{ t("common.dialog.ok") }}</span>
         </v-btn>
       </v-card-actions>
     </v-card>

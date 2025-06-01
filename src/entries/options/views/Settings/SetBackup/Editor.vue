@@ -1,10 +1,12 @@
 <script setup lang="ts">
-import { BackupFields, IBackupServerMetadata } from "@/shared/storages/types/metadata.ts";
-import { getBackupServer, getBackupServerMetaData, IBackupMetadata } from "@ptd/backupServer";
-import { computedAsync } from "@vueuse/core";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { computedAsync } from "@vueuse/core";
+import { getBackupServer, getBackupServerMetaData, IBackupMetadata } from "@ptd/backupServer";
+
+import { BackupFields, type IBackupServerMetadata } from "@/shared/types.ts";
 import { formValidateRules } from "@/options/utils.ts";
+
 import ConnectCheckButton from "@/options/components/ConnectCheckButton.vue";
 
 const { t } = useI18n();
@@ -34,6 +36,7 @@ async function checkConnect() {
   <v-card class="mb-5">
     <v-form v-if="clientConfig" v-model="formValid" fast-fail>
       <v-container class="pa-0">
+        <v-label class="my-2">基本信息</v-label>
         <v-row>
           <v-col cols="12" md="4">
             <v-text-field v-model="clientConfig.type" :label="t('SetDownloader.common.type')" disabled hide-details />

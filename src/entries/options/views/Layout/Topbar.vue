@@ -1,6 +1,4 @@
 <script lang="ts" setup>
-import { REPO_URL } from "~/helper";
-
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify";
@@ -9,6 +7,8 @@ import { useRoute, useRouter } from "vue-router";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+
+import { REPO_URL } from "~/helper";
 
 const route = useRoute();
 const router = useRouter();
@@ -138,14 +138,14 @@ function startSearchEntity() {
           v-for="(append, index) in appendMenu"
           :key="index"
           v-bind.prop="append.prop"
+          :append-icon="append.icon"
           :href="append.href"
           :title="append.title"
-          variant="text"
           rel="noopener noreferrer nofollow"
           size="large"
           target="_blank"
+          variant="text"
         >
-          <v-icon :icon="append.icon" />
           <span class="ml-1">{{ append.title }}</span>
         </v-btn>
       </template>

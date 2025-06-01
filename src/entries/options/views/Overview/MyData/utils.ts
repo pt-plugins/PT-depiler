@@ -1,7 +1,8 @@
+import { isEmpty } from "es-toolkit/compat";
 import { definitionList, fixRatio, ISiteMetadata, IUserInfo, NO_IMAGE, TSiteID } from "@ptd/site";
+
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { isEmpty } from "es-toolkit/compat";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 const metadataStore = useMetadataStore();

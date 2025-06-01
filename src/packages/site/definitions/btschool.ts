@@ -1,10 +1,6 @@
-import { ETorrentStatus, type ISiteMetadata, parseSizeString } from "@ptd/site";
-import {
-  CategoryInclbookmarked,
-  CategoryIncldead,
-  CategorySpstate,
-  SchemaMetadata,
-} from "@ptd/site/schemas/NexusPHP.ts";
+import { ETorrentStatus, type ISiteMetadata } from "../types";
+import { parseSizeString } from "../utils";
+import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -128,6 +124,10 @@ export const siteMetadata: ISiteMetadata = {
           "seeding",
           "seedingSize",
         ],
+      },
+      {
+        requestConfig: { url: "/mybonus.php", params: { _: Date.now() }, responseType: "document" },
+        fields: ["bonusPerHour"],
       },
     ],
   },

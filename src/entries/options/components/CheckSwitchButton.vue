@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
+
 import NavButton from "./NavButton.vue";
 
 type T = any;
+const { t } = useI18n();
 
 const selected = defineModel<T[]>({ required: true, default: [] });
 const { all } = defineProps<{
@@ -18,18 +21,24 @@ function updateSelected(value: T[]) {
 </script>
 
 <template>
-  <NavButton icon="mdi-checkbox-marked" size="small" text="全选" v-bind="$attrs" @click="() => updateSelected(all)" />
   <NavButton
+    icon="mdi-checkbox-marked"
+    size="small"
+    :text="t('checkSwitch.all')"
+    v-bind="$attrs"
+    @click="() => updateSelected(all)"
+  />
+  <NavButton
+    :text="t('checkSwitch.none')"
     icon="mdi-checkbox-blank-off-outline"
     size="small"
-    text="全不选"
     v-bind="$attrs"
     @click="() => updateSelected([])"
   />
   <NavButton
+    :text="t('checkSwitch.invert')"
     icon="mdi-checkbox-intermediate-variant"
     size="small"
-    text="反选"
     v-bind="$attrs"
     @click="() => updateSelected(all.filter((site) => !selected.includes(site)))"
   />

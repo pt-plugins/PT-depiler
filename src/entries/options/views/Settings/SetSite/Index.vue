@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
-import { type TSiteID } from "@ptd/site";
+import type { TSiteID } from "@ptd/site";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 import { sendMessage } from "@/messages.ts";
@@ -13,10 +13,10 @@ import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
 import AddDialog from "./AddDialog.vue";
 import EditDialog from "./EditDialog.vue";
 import EditSearchEntryList from "./EditSearchEntryList.vue";
+import OneClickImportDialog from "./OneClickImportDialog.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";
-import OneClickImportDialog from "@/options/views/Settings/SetSite/OneClickImportDialog.vue";
 
 import { allAddedSiteInfo, type ISiteTableItem } from "@/options/views/Settings/SetSite/utils.ts"; // <-- 数据来源
 

@@ -1,8 +1,8 @@
 <script lang="ts" setup>
 import { provide, ref } from "vue";
 import { useI18n } from "vue-i18n";
-
 import { type ISiteUserConfig, type TSiteID } from "@ptd/site";
+
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 import Editor from "./Editor.vue";
@@ -52,13 +52,17 @@ function dialogEnter() {
       <v-divider />
       <v-card-actions>
         <v-spacer />
-        <v-btn color="error" variant="text" @click="showDialog = false">
-          <v-icon icon="mdi-close-circle" />
+        <v-btn color="error" prepend-icon="mdi-close-circle" variant="text" @click="showDialog = false">
           {{ t("common.dialog.cancel") }}
         </v-btn>
 
-        <v-btn :disabled="!isFormValid" color="success" variant="text" @click="patchSite">
-          <v-icon icon="mdi-check-circle-outline" />
+        <v-btn
+          :disabled="!isFormValid"
+          color="success"
+          prepend-icon="mdi-check-circle-outline"
+          variant="text"
+          @click="patchSite"
+        >
           {{ t("common.dialog.ok") }}
         </v-btn>
       </v-card-actions>

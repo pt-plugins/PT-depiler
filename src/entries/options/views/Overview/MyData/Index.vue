@@ -1,28 +1,25 @@
 <script setup lang="ts">
-import { computed, reactive, ref } from "vue";
+import { computed, onMounted, reactive, ref, shallowRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { computedAsync } from "@vueuse/core";
+import { useRouter } from "vue-router";
 import { isUndefined } from "es-toolkit/compat";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
+import { EResultParseStatus, type ISiteUserConfig, IUserInfo, TSiteID } from "@ptd/site";
 
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
-
-import { formatRatio, flushSiteLastUserInfo, fixUserInfo, cancelFlushSiteLastUserInfo } from "./utils.ts";
+import { formatDate, formatNumber, formatSize, formatTimeAgo } from "@/options/utils.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
-import UserLevelRequirementsTd from "./UserLevelRequirementsTd.vue";
-
-import { EResultParseStatus, type ISiteUserConfig, IUserInfo, TSiteID } from "@ptd/site";
-
-import { formatDate, formatNumber, formatSize, formatTimeAgo } from "@/options/utils.ts";
-import HistoryDataViewDialog from "@/options/views/Overview/MyData/HistoryDataViewDialog.vue";
 import ResultParseStatus from "@/options/components/ResultParseStatus.vue";
 import NavButton from "@/options/components/NavButton.vue";
-import { useRouter } from "vue-router";
+import UserLevelRequirementsTd from "./UserLevelRequirementsTd.vue";
+import HistoryDataViewDialog from "./HistoryDataViewDialog.vue";
+
+import { formatRatio, flushSiteLastUserInfo, fixUserInfo, cancelFlushSiteLastUserInfo } from "./utils.ts";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -49,6 +46,7 @@ const fullTableHeader = reactive([
   { title: t("levelRequirement.seeding"), key: "seeding", align: "end" },
   { title: t("levelRequirement.seedingSize"), key: "seedingSize", align: "end" },
   { title: t("levelRequirement.bonus"), key: "bonus", align: "end" },
+  { title: t("levelRequirement.bonusPerHour"), key: "bonusPerHour", align: "end" },
   { title: t("MyData.table.joinTime"), key: "joinTime", align: "center" },
   { title: t("MyData.table.updateAt"), key: "updateAt", align: "center", props: { disabled: true } },
   { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false, props: { disabled: true } },
@@ -81,30 +79,39 @@ const {
 });
 
 const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
-const tableData = computedAsync<IUserInfoItem[]>(async () => {
-  const allSite = metadataStore.getAddedSiteIds;
+const tableData = shallowRef<IUserInfoItem[]>([]);
+
+async function updateTableData() {
   const allPrivateSiteUserInfoData = [];
-  for (const site of allSite) {
-    // noinspection BadExpressionStatementJS
-    metadataStore.lastUserInfo[site]; // 使得 computedAsync 能够收集依赖以便触发数据更新
-  }
 
   for (const [siteId, siteUserConfig] of Object.entries(metadataStore.sites)) {
-    // 判断之前有无个人信息，没有则从siteMetadata中根据 type = 'private' 判断是否能获取个人信息
-    let canHaveSiteUserInfo = !!metadataStore.lastUserInfo[siteId];
-    if (!canHaveSiteUserInfo) {
-      const siteMeta = await metadataStore.getSiteMetadata(siteId);
-      canHaveSiteUserInfo = siteMeta?.type === "private";
+    // 设置为已离线或者不获取用户信息的站点不显示
+    if (siteUserConfig.isOffline === true || siteUserConfig.allowQueryUserInfo === false) {
+      continue;
     }
 
-    if (canHaveSiteUserInfo) {
-      const siteUserInfoData = metadataStore.lastUserInfo[siteId] ?? { site: siteId, siteUserConfig };
-      allPrivateSiteUserInfoData.push({ ...fixUserInfo(siteUserInfoData), siteUserConfig });
+    const siteMeta = await metadataStore.getSiteMetadata(siteId);
+    if (
+      siteMeta.type === "public" || // 只显示私有站点的用户信息
+      (siteMeta.isDead === true && !configStore.userInfo.showDeadSiteInOverview) // 根据配置决定是否显示已死亡站点的用户信息
+    ) {
+      continue;
     }
+
+    // 判断之前有无个人信息，没有则从siteMetadata中根据 type = 'private' 判断是否能获取个人信息
+    const siteUserInfoData = metadataStore.lastUserInfo[siteId] ?? { site: siteId, siteUserConfig };
+    allPrivateSiteUserInfoData.push({ ...fixUserInfo(siteUserInfoData), siteUserConfig });
   }
 
-  return allPrivateSiteUserInfoData;
-}, []);
+  tableData.value = allPrivateSiteUserInfoData;
+}
+
+onMounted(() => updateTableData()); // 挂载时加载表格数据
+watch(
+  () => metadataStore.lastUserInfo, // 监听用户信息变化
+  () => updateTableData(),
+  { deep: true },
+);
 
 const showHistoryDataViewDialog = ref<boolean>(false);
 const historyDataViewDialogSiteId = ref<TSiteID | null>(null);
@@ -469,6 +476,12 @@ function viewStatistic() {
         </v-container>
       </template>
 
+      <template #item.bonusPerHour="{ item }">
+        <span class="text-no-wrap">
+          {{ typeof item.bonusPerHour !== "undefined" ? formatNumber(item.bonusPerHour) : "-" }}
+        </span>
+      </template>
+
       <!-- 入站时间 -->
       <template #item.joinTime="{ item }">
         <span class="text-no-wrap" :title="item.joinTime ? (formatDate(item.joinTime) as string) : '-'">
@@ -496,7 +509,9 @@ function viewStatistic() {
           </span>
         </template>
         <template v-else>
-          <v-chip label><ResultParseStatus :status="item.status" /></v-chip>
+          <v-chip label>
+            <ResultParseStatus :status="item.status" />
+          </v-chip>
         </template>
       </template>
 

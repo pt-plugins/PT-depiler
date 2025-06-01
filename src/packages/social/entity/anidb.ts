@@ -23,7 +23,6 @@ export function parse(query: string): string {
   return query;
 }
 
-// TODO 解析页面获取信息
 export async function fetchInformation(
   id: string,
   config: IFetchSocialSiteInformationConfig = {},

@@ -22,11 +22,11 @@ import {
 } from "echarts/components";
 
 import { formatSize, formatDate } from "@/options/utils.ts";
-import { IStoredUserInfo } from "@/shared/storages/types/metadata.ts";
+import { IStoredUserInfo } from "@/shared/types.ts";
 
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-import { loadFullData, setSubDate, TUserDataStatistic } from "./utils.ts";
 import { allAddedSiteMetadata, loadAllAddedSiteMetadata } from "@/options/views/Overview/MyData/utils.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
@@ -34,7 +34,7 @@ import SiteName from "@/options/components/SiteName.vue";
 import NavButton from "@/options/components/NavButton.vue";
 import CheckSwitchButton from "@/options/components/CheckSwitchButton.vue";
 
-import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { loadFullData, setSubDate, type TUserDataStatistic } from "./utils.ts";
 
 type EChartsLineChartOption = ComposeOption<
   TitleComponentOption | TooltipComponentOption | LegendComponentOption | GridComponentOption | LineSeriesOption
@@ -49,7 +49,6 @@ useEcharts([TitleComponent, TooltipComponent, LegendComponent, GridComponent, Li
 const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
-const metadataStore = useMetadataStore();
 const configStore = useConfigStore();
 const chartContainerRef = useTemplateRef<HTMLDivElement>("chartContainer");
 const { width: containerWidth } = useElementSize(chartContainerRef);
@@ -220,8 +219,6 @@ const perSiteChartField: [keyof IStoredUserInfo, keyof typeof formatDict][] = [
 const echartsTheme = computed(() => (configStore.uiTheme === "dark" ? "dark" : null));
 provide(THEME_KEY, echartsTheme);
 
-const siteData = ref<Record<string, { name: string; icon: string }>>({});
-
 onMounted(async () => {
   rawDataRef.value = await loadFullData();
 
@@ -269,7 +266,7 @@ async function exportStatisticImg() {
   // 将 echart 图表渲染到 canvas 上
   let yIndex = 0;
   for (const chartCanvas of chartsCanvas) {
-    ctx.drawImage(chartCanvas as HTMLCanvasElement, 0, yIndex);
+    ctx.drawImage(chartCanvas as HTMLCanvasElement, 0, yIndex, chartCanvas.clientWidth, chartCanvas.clientHeight);
     yIndex += perChartHeight.value + 10;
   }
 

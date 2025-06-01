@@ -3,7 +3,9 @@
  */
 import { defineStore } from "pinia";
 import { usePreferredDark } from "@vueuse/core";
-import type { IConfigPiniaStorageSchema, supportThemeType } from "@/storage.ts";
+
+import type { IConfigPiniaStorageSchema, supportThemeType } from "@/shared/types.ts";
+
 import { useMetadataStore } from "./metadata.ts";
 
 export const useConfigStore = defineStore("config", {
@@ -14,6 +16,10 @@ export const useConfigStore = defineStore("config", {
     isNavBarOpen: true,
     ignoreWrongPixelRatio: false,
     saveTableBehavior: true,
+
+    contextMenus: {
+      allowSelectionTextSearch: true,
+    },
 
     tableBehavior: {
       MyData: {
@@ -75,6 +81,9 @@ export const useConfigStore = defineStore("config", {
       showUserName: true,
       normalizeLevelName: true,
       showLevelRequirement: true,
+      onlyShowUserLevelRequirement: true,
+      showNextLevelInTable: false,
+      showNextLevelInDialog: true,
       showHnR: true,
       showSeedingBonus: true,
       joinTimeWeekOnly: false,
@@ -89,6 +98,7 @@ export const useConfigStore = defineStore("config", {
         downloaded: true,
         seeding: true,
         seedingSize: true,
+        bonusPerHour: true,
         ratio: true,
       },
       showPerSiteField: {
@@ -135,9 +145,11 @@ export const useConfigStore = defineStore("config", {
           interval: 5, // minutes
         },
       },
+      showDeadSiteInOverview: false,
     },
 
     download: {
+      saveDownloadHistory: true,
       saveLastDownloader: false,
       allowDirectSendToClient: false,
       localDownloadMethod: "browser",

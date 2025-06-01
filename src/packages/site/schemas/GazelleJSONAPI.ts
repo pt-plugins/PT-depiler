@@ -1,8 +1,9 @@
+import Sizzle from "sizzle";
 import type { AxiosResponse } from "axios";
-import { IUserInfo, ITorrent, ISiteMetadata, EResultParseStatus, ISearchInput } from "../types";
+
 import PrivateSite from "./AbstractPrivateSite";
 import { parseSizeString, parseTimeWithZone } from "../utils";
-import Sizzle from "sizzle";
+import { EResultParseStatus, type IUserInfo, type ITorrent, type ISiteMetadata, type ISearchInput } from "../types";
 
 /**
  * @refs: https://github.com/WhatCD/Gazelle/blob/63b337026d49b5cf63ce4be20fdabdc880112fa3/sections/ajax/index.php#L16

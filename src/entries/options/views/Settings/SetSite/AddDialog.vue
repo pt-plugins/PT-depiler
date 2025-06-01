@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { provide, ref } from "vue";
+import { provide, ref, shallowRef, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { computedAsync } from "@vueuse/core";
-import { REPO_URL } from "~/helper.ts";
-import { type ISiteUserConfig, type TSiteID } from "@ptd/site";
+import { ISiteMetadata, type ISiteUserConfig, type TSiteID } from "@ptd/site";
+
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { getCanAddedSiteMetadata } from "@/options/views/Settings/SetSite/utils.ts";
+import { getCanAddedSiteMetadata } from "./utils.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import Editor from "./Editor.vue";
+
+import { REPO_URL } from "~/helper.ts";
 
 const showDialog = defineModel<boolean>();
 
@@ -28,9 +29,17 @@ function resetDialog() {
   storedSiteUserConfig.value = {};
 }
 
-const canAddSites = computedAsync(async () => {
-  return Object.values(await getCanAddedSiteMetadata());
-}, []);
+const showDeadSite = ref<boolean>(false);
+const allUnAddedSites = shallowRef<ISiteMetadata[]>([]);
+const canAddSites = computed(() =>
+  allUnAddedSites.value.filter((site) => (showDeadSite.value && site.isDead) || !site.isDead),
+);
+
+async function loadCanAddSites() {
+  // Load the sites that can be added
+  const sites = await getCanAddedSiteMetadata();
+  allUnAddedSites.value = Object.values(sites);
+}
 
 async function saveSite() {
   await metadataStore.addSite(selectedSiteId.value!, storedSiteUserConfig.value!);
@@ -39,7 +48,7 @@ async function saveSite() {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" max-width="800" scrollable @after-leave="resetDialog">
+  <v-dialog v-model="showDialog" max-width="800" scrollable @after-enter="loadCanAddSites" @after-leave="resetDialog">
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
@@ -58,11 +67,12 @@ async function saveSite() {
       <v-card-text>
         <v-window v-model="currentStep">
           <!-- 选取可添加的站点 -->
-          <v-window-item :key="0">
+          <v-window-item :value="0">
             <v-autocomplete
               v-model="selectedSiteId"
               :filter-keys="['raw.name', 'raw.urls', 'raw.aka']"
               :items="canAddSites"
+              :messages="canAddSites.find((i) => i.id === selectedSiteId)?.description ?? ''"
               :multiple="false"
               :placeholder="selectedSiteId ? '' : t('SetSite.add.selectSitePlaceholder')"
               autofocus
@@ -75,7 +85,7 @@ async function saveSite() {
                   <template #prepend>
                     <SiteFavicon :site-id="site.id" class="mr-2" />
                   </template>
-                  <v-list-item-title>
+                  <v-list-item-title :class="{ 'text-decoration-line-through': site.isDead }">
                     {{ site.name ?? "" }}
                   </v-list-item-title>
                 </v-list-item>
@@ -88,7 +98,7 @@ async function saveSite() {
 
                   <template #title>
                     <v-list-item-title class="mb-1">
-                      <b>{{ site.name ?? "" }}</b>
+                      <b :class="{ 'text-decoration-line-through': site.isDead }">{{ site.name ?? "" }}</b>
                       <!-- 站点类型 -->
                       <v-chip
                         :color="site.type === 'private' ? 'primary' : 'secondary'"
@@ -126,13 +136,22 @@ async function saveSite() {
             </v-autocomplete>
           </v-window-item>
           <!-- 具体配置站点 -->
-          <v-window-item :key="1">
-            <Editor v-model="selectedSiteId!" @update:form-valid="(v) => (isFormValid = v)" />
+          <v-window-item :value="1">
+            <Editor ref="editor" v-model="selectedSiteId!" @update:form-valid="(v) => (isFormValid = v)" />
           </v-window-item>
         </v-window>
       </v-card-text>
       <v-divider />
       <v-card-actions>
+        <v-switch
+          v-if="currentStep === 0"
+          v-model="showDeadSite"
+          class="ml-5"
+          color="success"
+          density="compact"
+          hide-details
+          label="展示已死亡站点"
+        />
         <v-spacer />
         <v-btn color="error" prepend-icon="mdi-close-circle" variant="text" @click="showDialog = false">
           {{ t("common.dialog.cancel") }}

@@ -170,7 +170,9 @@ export default class Gist extends AbstractBackupServer<GistConfig> {
   async getFile(path: string): Promise<IBackupData> {
     const {
       data: { files = {} },
-    } = await this.request<{ files: Record<string, { content: string }> }>(`/${path}`);
+    } = await this.request<{ files: Record<string, { content: string; truncated: boolean; raw_url: string }> }>(
+      `/${path}`,
+    );
 
     const fileManifestContent = files?.["_manifest.json"]?.content;
     if (!fileManifestContent) {
@@ -182,17 +184,28 @@ export default class Gist extends AbstractBackupServer<GistConfig> {
     const manifest = JSON.parse(fileManifestContent) as IGistBackupFileManifest;
     for (const [key, value] of Object.entries(manifest.files)) {
       const { hash: manifestContentHash, name: fileName } = value;
-      const fileRawContent = files[fileName]?.content;
+
+      let fileRawContent = files[fileName]?.content;
       if (fileRawContent) {
+        if (files[fileName].truncated) {
+          const rawContentReq = await this.request<string>(files[fileName].raw_url);
+          fileRawContent = rawContentReq.data;
+        }
+
         const fileContentHash = CryptoJS.MD5(fileRawContent).toString();
         if (fileContentHash !== manifestContentHash) {
           throw new Error(`File hash mismatch for ${fileName}.`);
         }
 
-        result[key] = this.encryptData(fileRawContent);
+        try {
+          result[key] = this.decryptData(fileRawContent);
+        } catch (e) {
+          throw new Error(`Failed to decrypt file.`);
+        }
       }
     }
 
+    result.manifest = manifest;
     return result;
   }
 

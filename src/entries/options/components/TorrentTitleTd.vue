@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { reactive, useTemplateRef } from "vue";
-import { useElementSize } from "@vueuse/core";
+import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
+import { useElementSize } from "@vueuse/core";
 import { socialBuildUrlMap } from "@ptd/social";
 import type { ISocialInformation, TSupportSocialSite } from "@ptd/social/types.ts";
 
-import type { ISearchResultTorrent } from "@/shared/storages/types/runtime.ts";
+import type { ISearchResultTorrent } from "@/shared/types.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { sendMessage } from "@/messages.ts";
 
@@ -13,6 +14,7 @@ const { item } = defineProps<{
   item: ISearchResultTorrent;
 }>();
 
+const { t } = useI18n();
 const router = useRouter();
 const configStore = useConfigStore();
 
@@ -121,7 +123,7 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
                       append-icon="mdi-magnify"
                       @click="doAdvanceSearch(key as TSupportSocialSite, item[`ext_${key}`] as string)"
                     >
-                      搜索
+                      {{ t("common.search") }}
                     </v-btn>
 
                     <v-divider class="my-1" />
@@ -134,7 +136,7 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
                       :title="`${key}: ${item[`ext_${key}`]}`"
                       append-icon="mdi-arrow-top-right-bold-box-outline"
                     >
-                      访问
+                      {{ t("common.visit") }}
                     </v-btn>
                     <v-divider class="my-1" />
                     <p class="text-caption mt-1">( {{ key }}: {{ item[`ext_${key}`] }} )</p>

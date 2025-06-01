@@ -2,6 +2,7 @@
 import { reactive, useAttrs } from "vue";
 import { computedAsync } from "@vueuse/core";
 import { type TSiteID } from "@ptd/site";
+
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 const metadataStore = useMetadataStore();

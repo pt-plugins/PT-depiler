@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from "vue";
 import { range } from "es-toolkit";
-import { useI18n } from "vue-i18n";
+
 import { EJobType } from "@/background/utils/alarms.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -55,7 +55,7 @@ onMounted(async () => {
         color="success"
         hide-details
       />
-      <v-row v-if="configStore.userInfo.autoReflush.enabled" class="mt-1 ml-2">
+      <v-row v-if="configStore.userInfo.autoReflush.enabled" class="mt-1 ml-2 mb-2">
         <v-alert type="info" variant="outlined">
           <div class="d-inline-flex align-center text-no-wrap">
             每隔
@@ -105,6 +105,13 @@ onMounted(async () => {
           </div>
         </v-alert>
       </v-row>
+
+      <v-switch
+        v-model="configStore.userInfo.showDeadSiteInOverview"
+        :label="`在概览中展示已被标记为死亡 （isDead） 的站点`"
+        color="success"
+        hide-details
+      />
     </v-col>
   </v-row>
 </template>

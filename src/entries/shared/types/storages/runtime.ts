@@ -3,7 +3,7 @@ import type { VSnackbar } from "vuetify/components";
 import type { EResultParseStatus, ITorrent, TSiteID } from "@ptd/site";
 import type { IMediaServerItem, IMediaServerSearchResult } from "@ptd/mediaServer";
 
-import type { TMediaServerKey, TSearchSnapshotKey, TSolutionKey } from "./metadata";
+import type { TMediaServerKey, TSearchSnapshotKey, TSolutionKey } from "./metadata.ts";
 
 export type TSearchSolutionKey = `${TSiteID}|$|${TSolutionKey}`;
 

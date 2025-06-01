@@ -26,11 +26,6 @@ export interface IRangedValue {
   value: [number, number];
 }
 
-interface IAdvanceFilterDict {
-  text: ITextValue;
-  [key: string]: ITextValue | IKeywordValue<any> | IRangedValue;
-}
-
 interface IValueFormat {
   parse?: (value: any) => any;
   build?: (value: any) => string;

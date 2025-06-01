@@ -3,19 +3,19 @@ import { ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { omit } from "es-toolkit";
 import { saveAs } from "file-saver";
+import { nanoid } from "nanoid";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
-import { ISearchSolutionMetadata, TSolutionKey } from "@/storage.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { formatDate } from "@/options/utils.ts";
+import type { ISearchSolutionMetadata, TSolutionKey } from "@/shared/types.ts";
 
 import EditDialog from "./EditDialog.vue";
 import SolutionLabel from "./SolutionLabel.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";
-import { nanoid } from "nanoid";
-import { formatDate } from "@/options/utils.ts";
 
 const { t } = useI18n();
 const configStore = useConfigStore();
@@ -30,7 +30,7 @@ const tableSelected = ref<TSolutionKey[]>([]);
 const tableHeader = [
   { title: t("common.sortIndex"), key: "sort", align: "center", width: 150 },
   { title: t("common.name"), key: "name", align: "start", width: 150 },
-  { title: t("SetSearchSolution.solution"), key: "solution", align: "start", sortable: false },
+  { title: t("SetSearchSolution.solution"), key: "solution", align: "start", minWidth: 400, sortable: false },
   { title: t("SetSearchSolution.table.enable"), key: "enabled", align: "center", width: 120 },
   { title: t("SetSearchSolution.table.default"), key: "isDefault", align: "center", width: 120, sortable: false },
   { title: t("common.action"), key: "action", sortable: false, width: 200 },
@@ -205,7 +205,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('SetSearchSolution', 'itemsPerPage', v)"
     >
       <template #item.solution="{ item }">
-        <SolutionLabel :closable="false" :solutions="item.solutions" />
+        <SolutionLabel :closable="false" :group-props="{ column: true }" :solutions="item.solutions" />
       </template>
 
       <template #item.enabled="{ item }">
@@ -231,7 +231,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
       <template #item.action="{ item }">
         <v-btn-group class="table-action" density="compact" variant="plain">
           <v-btn
-            :title="$t('common.edit')"
+            :title="t('common.edit')"
             color="info"
             icon="mdi-pencil"
             size="small"
@@ -245,7 +245,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
             @click="exportSearchSolutions([item.id])"
           />
           <v-btn
-            :title="$t('common.remove')"
+            :title="t('common.remove')"
             color="error"
             icon="mdi-delete"
             size="small"

@@ -43,12 +43,16 @@ async function dialogEnter() {
 
       <v-card-actions>
         <v-spacer />
-        <v-btn color="info" variant="text" @click="showDialog = false">
-          <v-icon icon="mdi-close-circle" />
+        <v-btn color="info" prepend-icon="mdi-close-circle" variant="text" @click="showDialog = false">
           <span class="ml-1">{{ t("common.dialog.cancel") }}</span>
         </v-btn>
-        <v-btn :loading="isDeleting" color="error" variant="text" @click="confirmDelete">
-          <v-icon icon="mdi-check-circle-outline" />
+        <v-btn
+          :loading="isDeleting"
+          color="error"
+          prepend-icon="mdi-check-circle-outline"
+          variant="text"
+          @click="confirmDelete"
+        >
           <span class="ml-1">{{ t("common.dialog.ok") }}</span>
         </v-btn>
       </v-card-actions>

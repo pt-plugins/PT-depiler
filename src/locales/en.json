@@ -38,8 +38,10 @@
     "project": "PT Depiler",
     "remove": "Delete",
     "save": "Save",
+    "search": "Search",
     "sortIndex": "Priority",
     "test": "Test",
+    "visit": "Visit",
     "version": "Version",
     "howToUse": "How To Use"
   },
@@ -48,7 +50,6 @@
       "emptySearchNotice": "Get the first page of each tracker",
       "home": "Home",
       "navBarTip": "Click to show/hide the navigation bar",
-      "search": "Search",
       "searchPlan": {
         "all": "@:manifest.searchPlanAll",
         "default": "@:manifest.searchPlanDefault"
@@ -67,8 +68,7 @@
   },
   "route": {
     "About": {
-      "ChangeLog": "Change Log",
-      "Donate": "Donate",
+      "Logger": "Runtime Log",
       "SpecialThank": "Special Thanks",
       "TechnologyStack": "Project Reference",
       "default": "About"
@@ -99,10 +99,18 @@
       "SetSite": "Sites"
     }
   },
+  "checkSwitch": {
+    "all": "Select All",
+    "none": "Select None",
+    "invert": "Invert Selection"
+  },
   "connectCheck": {
     "default": "Check Connect",
     "error": "Connect Failed! Check Form Input or Remote Server",
     "success": "Connect Successful! You can enter next step."
+  },
+  "downloaderLabel": {
+    "localDownload": "Local Download"
   },
   "levelRequirement": {
     "interval": "Required Waiting Days",
@@ -166,6 +174,9 @@
       "showUserName": "Show Username",
       "normalizeLevelName": "Use Site-defined Level Name",
       "showLevelRequirement": "Show Level Requirement",
+      "onlyShowUserLevelRequirement": "Only show the upgrade queue in level requirements",
+      "showNextLevelInTable": "Show next level requirements in Table",
+      "showNextLevelInDialog": "Show next level requirements in Level Requirement Dialog",
       "showHnR": "Show H&R",
       "showSeedingBonus": "Show Seeding Bonus",
       "joinTimeWeekOnly": "Display join time as relative weeks",
@@ -216,6 +227,7 @@
       "downloaded": "DL Size",
       "seeding": "Seeding",
       "seedingSize": "SD Size",
+      "bonusPerHour": "Bonus/H",
       "ratio": "Ratio",
       "siteName": "Site Name",
       "name": "Username",
@@ -243,7 +255,6 @@
       }
     }
   },
-  "SetBackup": {},
   "SetBase": {
     "tab": {
       "ui": "Option UI",

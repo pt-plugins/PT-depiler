@@ -38,8 +38,10 @@
     "project": "PT 助手 Plus",
     "remove": "删除",
     "save": "保存",
+    "search": "搜索",
     "sortIndex": "优先级",
     "test": "测试",
+    "visit": "访问",
     "version": "版本",
     "howToUse": "如何使用？"
   },
@@ -48,7 +50,6 @@
       "emptySearchNotice": "获取各站第一页种子",
       "home": "主页",
       "navBarTip": "点击显示/隐藏导航栏",
-      "search": "搜索",
       "searchPlan": {
         "all": "@:manifest.searchPlanAll",
         "default": "@:manifest.searchPlanDefault"
@@ -68,8 +69,7 @@
   },
   "route": {
     "About": {
-      "ChangeLog": "更新日志",
-      "Donate": "友情捐助",
+      "Logger": "插件运行日志",
       "SpecialThank": "特别感谢",
       "TechnologyStack": "项目参考与引用",
       "default": "插件相关"
@@ -100,10 +100,18 @@
       "SetSite": "站点设置"
     }
   },
+  "checkSwitch": {
+    "all": "全选",
+    "none": "全不选",
+    "invert": "反选"
+  },
   "connectCheck": {
     "default": "检查连接性",
     "error": "连接失败！请检查填写的信息或者你的远程服务器。",
     "success": "连接成功，你可以顺利进行下一步。"
+  },
+  "downloaderLabel": {
+    "localDownload": "本地下载"
   },
   "levelRequirement": {
     "interval": "需要等待的日期",
@@ -120,7 +128,7 @@
     "averageSeedingTime": "平均做种时间",
     "bonus": "魔力值/积分",
     "seedingBonus": "做种积分",
-    "bonusPerHour": "魔力值/积分每小时",
+    "bonusPerHour": "时魔",
     "uploads": "发布种子数",
     "leeching": "下载数量",
     "snatches": "完成种子数",
@@ -167,6 +175,9 @@
       "showUserName": "显示用户名",
       "normalizeLevelName": "使用站点定义的等级名称",
       "showLevelRequirement": "显示等级要求",
+      "onlyShowUserLevelRequirement": "只显示等级要求中的升级队列",
+      "showNextLevelInTable": "在表格中显示下一级别要求",
+      "showNextLevelInDialog": "在站点等级列表中显示下一级别要求",
       "showHnR": "显示 H&R",
       "showSeedingBonus": "显示做种积分",
       "joinTimeWeekOnly": "入站时间显示为相对周数",
@@ -204,9 +215,9 @@
       "perSiteKbonus": "分站点魔力"
     },
     "dateRange": {
-      "day": "近 {0} 天",
       "custom": "自定义",
-      "all": "全部"
+      "all": "全部",
+      "day": "近 {0} 天"
     }
   },
   "UserDataTimeline": {
@@ -218,6 +229,7 @@
       "downloaded": "下载量",
       "seeding": "做种数",
       "seedingSize": "做种量",
+      "bonusPerHour": "时魔值",
       "ratio": "分享率",
       "siteName": "站点名称",
       "name": "用户名",
@@ -245,7 +257,6 @@
       }
     }
   },
-  "SetBackup": {},
   "SetBase": {
     "tab": {
       "ui": "界面UI",

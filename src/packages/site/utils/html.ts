@@ -1,4 +1,4 @@
-import { TSiteFullUrl } from "../types";
+import type { TSiteFullUrl, TSiteHost } from "../types";
 
 /**
  * cloudflare Email 解码方法，来自 https://usamaejaz.com/cloudflare-email-decoding/
@@ -27,4 +27,14 @@ export function createDocument(str: string, type: DOMParserSupportedType = "text
 
 export function restoreSecureLink(url: string): TSiteFullUrl {
   return (url.startsWith("aHR0c") ? atob(url) : url) as TSiteFullUrl;
+}
+
+export function getHostFromUrl(url: string): TSiteHost {
+  let host = url;
+  try {
+    const urlObj = new URL(url);
+    host = urlObj.host;
+  } catch (e) {}
+
+  return host;
 }

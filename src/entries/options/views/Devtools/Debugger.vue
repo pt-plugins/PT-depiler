@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { ref } from "vue";
+import * as estoolkit from "es-toolkit";
+import axios from "axios";
+import Sizzle from "sizzle";
 import {
   definitionList,
   getDefinedSiteMetadata,
@@ -7,17 +10,15 @@ import {
   getSite as createSiteInstance,
   type TSiteID,
 } from "@ptd/site";
+
 import { getDownloader } from "@ptd/downloader";
-import type { TDownloaderKey, TMediaServerKey } from "@/shared/storages/types/metadata.ts";
+import { getMediaServer } from "@ptd/mediaServer";
+import { getBackupServer } from "@ptd/backupServer";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-
 import { sendMessage } from "@/messages.ts";
-import * as estoolkit from "es-toolkit";
-import axios from "axios";
-import Sizzle from "sizzle";
+
 import { setupReplaceUnsafeHeader } from "~/extends/axios/replaceUnsafeHeader.ts";
-import { getMediaServer } from "@ptd/mediaServer";
 
 setupReplaceUnsafeHeader(axios);
 
@@ -32,9 +33,6 @@ function enableLibrary() {
 const selectedSite = ref<TSiteID>("");
 const useCustomerConfig = ref<boolean>(true);
 
-const selectedDownloader = ref<TDownloaderKey>("");
-const selectedMediaServer = ref<TMediaServerKey>("");
-
 const piniaStoreContent = import.meta.glob<Record<string, Function>>("@/options/stores/*.ts");
 const piniaStoreName: Array<{ title: string; value: string }> = Object.keys(piniaStoreContent).map((x) => ({
   title: x.replace(/^.+\//, "").replace(/\.ts$/, ""),
@@ -43,6 +41,12 @@ const piniaStoreName: Array<{ title: string; value: string }> = Object.keys(pini
 const selectedPiniaStore = ref();
 
 const metadataStore = useMetadataStore();
+
+const simpleServer = ref<Record<string, { selected: string; piniaKey: keyof typeof metadataStore; getFn: Function }>>({
+  Downloader: { selected: "", piniaKey: "downloaders", getFn: getDownloader },
+  MediaServer: { selected: "", piniaKey: "mediaServers", getFn: getMediaServer },
+  BackupServer: { selected: "", piniaKey: "backupServers", getFn: getBackupServer },
+});
 
 async function getSiteMetadata() {
   return await getDefinedSiteMetadata(selectedSite.value);
@@ -191,74 +195,43 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
             </v-container>
           </td>
         </tr>
-        <tr>
+        <tr v-for="(server, serverType) in simpleServer" :key="serverType">
           <td>
-            <div class="d-flex justify-center align-center text-body-2">调试下载服务器</div>
+            <div class="d-flex justify-center align-center text-body-2">调试{{ serverType }}</div>
           </td>
           <td>
             <v-container>
               <v-row dense>
                 <v-col cols="4">
                   <v-autocomplete
-                    v-model="selectedDownloader"
-                    :items="metadataStore.getDownloaders"
+                    v-model="simpleServer[serverType].selected"
+                    :items="metadataStore[`get${serverType}s` as keyof typeof metadataStore] as any[]"
                     item-title="name"
                     item-value="id"
-                    label="downloader"
-                    :messages="`请先在 SetDownloader 页面添加下载服务器`"
+                    :label="serverType"
+                    :messages="`请先在 Set${serverType} 页面添加服务器`"
                   />
                 </v-col>
                 <v-col class="d-flex align-center">
                   <v-btn
-                    :disabled="!selectedDownloader"
+                    :disabled="!server.selected"
                     class="mr-2"
-                    @click="log(metadataStore.downloaders[selectedDownloader])"
+                    @click="
+                      // @ts-ignore
+                      log(metadataStore[server.piniaKey][server.selected])
+                    "
                   >
                     输出用户配置信息
                   </v-btn>
                   <v-btn
-                    :disabled="!selectedDownloader"
+                    :disabled="!server.selected"
                     class="mr-2"
-                    @click="log(getDownloader(metadataStore.downloaders[selectedDownloader]))"
+                    @click="
+                      // @ts-ignore
+                      log(server.getFn(metadataStore[server.piniaKey][server.selected]))
+                    "
                   >
-                    输出下载服务器实例
-                  </v-btn>
-                </v-col>
-              </v-row>
-            </v-container>
-          </td>
-        </tr>
-        <tr>
-          <td>
-            <div class="d-flex justify-center align-center text-body-2">调试媒体服务器</div>
-          </td>
-          <td>
-            <v-container>
-              <v-row dense>
-                <v-col cols="4">
-                  <v-autocomplete
-                    v-model="selectedMediaServer"
-                    :items="metadataStore.getMediaServers"
-                    item-title="name"
-                    item-value="id"
-                    label="mediaServer"
-                    :messages="`请先在 SetMediaServer 页面添加媒体服务器`"
-                  />
-                </v-col>
-                <v-col class="d-flex align-center">
-                  <v-btn
-                    :disabled="!selectedMediaServer"
-                    class="mr-2"
-                    @click="log(metadataStore.mediaServers[selectedMediaServer])"
-                  >
-                    输出用户配置信息
-                  </v-btn>
-                  <v-btn
-                    :disabled="!selectedMediaServer"
-                    class="mr-2"
-                    @click="log(getMediaServer(metadataStore.mediaServers[selectedMediaServer]))"
-                  >
-                    输出媒体服务器实例
+                    输出 {{ serverType }} 实例
                   </v-btn>
                 </v-col>
               </v-row>

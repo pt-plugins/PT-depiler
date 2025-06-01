@@ -140,6 +140,12 @@ export const routes: RouteRecordRaw[] = [
         meta: { icon: "mdi-account-multiple" },
         component: () => import("../views/About/SpecialThank.vue"),
       },
+      {
+        path: "/logger",
+        name: "Logger",
+        meta: { icon: "mdi-text-box-search" },
+        component: () => import("../views/About/Logger.vue"),
+      },
     ],
   },
 

@@ -1,4 +1,5 @@
 import type { IFetchSocialSiteInformationConfig } from "@ptd/social";
+
 import type { TLangCode } from "@/options/plugins/i18n.ts";
 import type { ITimelineUserInfoField } from "@/options/views/Overview/MyData/UserDataTimeline/utils.ts";
 
@@ -33,6 +34,11 @@ export interface IConfigPiniaStorageSchema {
   // 用 timeline 和 statistic 等展示的用户名，如果为 "" 则由使用最多的站点决定（使用 configStore.getUserNames.perfName 获取）
   userName: string;
 
+  contextMenus: {
+    // 是否启用选择内容时搜索
+    allowSelectionTextSearch: boolean;
+  };
+
   // 对 MyData 页面 v-data-table 展示的额外控制项
   myDataTableControl: {
     // 是否展示站点名称
@@ -45,7 +51,19 @@ export interface IConfigPiniaStorageSchema {
     normalizeLevelName: boolean;
     // 是否展示升级情况及站点等级情况
     showLevelRequirement: boolean;
-    // TODO 是否展示HnR
+    /**
+     * 是否只展示站点等级定义中 UserGroup = ‘user’ 字段的等级要求
+     * 如果为 false，则展示所有等级要求
+     * 注意，如果该用户判断出来的 UserGroup = ‘vip’ or 'manager'， 这个选项会被静默忽略掉（即显示全部）
+     *
+     * 默认值： true
+     */
+    onlyShowUserLevelRequirement: boolean;
+    // 在表格中展示升级情况的方式
+    showNextLevelInTable: boolean;
+    // 在站点登记信息中展示升级情况的方式（需要先设置 showLevelRequirement 为 true）
+    showNextLevelInDialog: boolean;
+    // 是否展示HnR
     showHnR: boolean;
     // 是否展示保种积分
     showSeedingBonus: boolean;
@@ -98,21 +116,22 @@ export interface IConfigPiniaStorageSchema {
   userInfo: {
     // 更新用户信息时的最大并发数
     queueConcurrency: number;
+    // 自动刷新用户信息
     autoReflush: {
-      // 是否开启自动刷新
-      enabled: boolean;
-      // 自动刷新间隔（ 1-12 小时 ）
-      interval: number;
+      enabled: boolean; // 是否开启自动刷新
+      interval: number; // 自动刷新间隔（ 1-12 小时 ）
       retry: {
-        // 最大重试次数
-        max: number;
-        // 每次重试的间隔（ 1-5 分钟 ）
-        interval: number;
+        max: number; // 最大重试次数
+        interval: number; // 每次重试的间隔（ 1-5 分钟 ）
       };
     };
+    // 是否在概览中展示已被标记为死亡 （isDead） 的站点
+    showDeadSiteInOverview: boolean;
   };
 
   download: {
+    // 是否保存下载记录
+    saveDownloadHistory: boolean;
     // 是否保存上一次使用的下载器
     saveLastDownloader: boolean;
     // 是否允许直接将链接（而不是种子文件）发送到客户端

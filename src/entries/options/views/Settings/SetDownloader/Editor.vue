@@ -3,7 +3,7 @@ import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 
-import { type IDownloaderMetadata } from "@/shared/storages/types/metadata.ts";
+import { type IDownloaderMetadata } from "@/shared/types.ts";
 
 import { getDownloader, getDownloaderMetaData, TorrentClientMetaData } from "@ptd/downloader";
 import { formatDate, formValidateRules } from "@/options/utils.ts";
