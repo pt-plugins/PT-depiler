@@ -1,4 +1,4 @@
-import type { IAdvancedSearchRequestConfig, ISiteMetadata } from "../types";
+import { ETorrentStatus, IAdvancedSearchRequestConfig, ISiteMetadata } from "../types";
 import { parseSizeString } from "../utils";
 import Sizzle from "sizzle";
 
@@ -57,7 +57,7 @@ export const siteMetadata: ISiteMetadata = {
     },
 
     selectors: {
-      rows: { selector: "tr.tm_tr_top0" },
+      rows: { selector: "tr[class*='tm_tr_top']" },
       id: {
         selector: "#tm_div_name > a",
         elementProcess: (e: HTMLElement) => {
@@ -80,12 +80,34 @@ export const siteMetadata: ISiteMetadata = {
       comments: { text: "N/A" },
 
       tags: [
-        // fixme
-        { name: "Free", selector: "img[alt='free']", color: "blue" },
-        { name: "30%", selector: "img[alt='30%']", color: "indigo" },
-        { name: "50%", selector: "img[alt='50%']", color: "deep-orange-darken-1" },
-        { name: "Excl.", selector: "span.browse.excl", color: "red" },
+        { name: "Free", selector: "span#free", color: "#2bc3ee" },
+        { name: "禁转", selector: "span.tag:contains('禁转')", color: "#ff0000" },
+        { name: "官方", selector: "span.tag:contains('官方')", color: "#0040ff" },
+        { name: "驻站", selector: "span.tag:contains('驻站')", color: "#da6f00" },
+        { name: "完结", selector: "span.tag:contains('完结')", color: "#6c20b2" },
+        { name: "中字", selector: "span.tag:contains('中字')", color: "#04b404" },
+        { name: "英字", selector: "span.tag:contains('英字')", color: "#c4c800" },
+        { name: "国语", selector: "span.tag:contains('国语')", color: "#e14f4f" },
+        { name: "粤语", selector: "span.tag:contains('粤语')", color: "#cc8e8e" },
+        { name: "英语", selector: "span.tag:contains('英语')", color: "#fa58f4" },
       ],
+
+      progress: {
+        selector: "div[style*='width'][title]",
+        elementProcess: (element) => {
+          const inlineWidth = element.style.width;
+          return inlineWidth ? parseFloat(inlineWidth.replace("%", "")) : 0;
+        },
+      },
+      status: {
+        text: ETorrentStatus.unknown,
+        selector: "div[style*='background'][title]",
+        case: {
+          "div[style*='background: #bbbbbb']": ETorrentStatus.inactive, // 站点未提供 complete 和 inactive 的区分
+          "div[style*='background: #71af67']": ETorrentStatus.seeding,
+          "div[style*='background: #53c541']": ETorrentStatus.downloading,
+        },
+      },
     },
   },
 
