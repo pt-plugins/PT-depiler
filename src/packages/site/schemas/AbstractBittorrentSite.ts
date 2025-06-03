@@ -484,9 +484,9 @@ export default class BittorrentSite {
     torrent.category = tryToNumber(torrent.category);
     torrent.status = tryToNumber(torrent.status);
 
+    // 仅当设置了时区偏移时，才进行转换
     if (this.metadata.timezoneOffset) {
-      // 仅当设置了时区偏移时，才进行转换
-      torrent.time = parseTimeWithZone(torrent.time as unknown as string);
+      torrent.time = parseTimeWithZone(torrent.time as unknown as string, this.metadata.timezoneOffset);
     }
 
     // 在此基础上，不同 schema 可以复写处理过程
