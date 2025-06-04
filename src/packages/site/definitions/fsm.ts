@@ -52,7 +52,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "FSM",
 
-  urls: ["aHR0cHM6Ly9mc20ubmFtZS8="],
+  urls: ["ROT13:uggcf://sfz.anzr/"],
   formerHosts: [],
 
   category: [

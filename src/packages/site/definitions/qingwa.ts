@@ -330,10 +330,10 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["综合", "影视", "动漫", "儿童区", "纪录片"],
 
   urls: [
-    "aHR0cHM6Ly93d3cucWluZ3dhcHQuY29tLw==",
-    "aHR0cHM6Ly93d3cucWluZ3dhcHQub3JnLw==",
-    "aHR0cHM6Ly93d3cucWluZ3dhLnByby8=",
-    "aHR0cHM6Ly9xaW5nd2FwdC5jb20v", // 增加一个和ptpp中 host 一样的url （经过实测也能访问）
+    "ROT13:uggcf://jjj.dvatjncg.pbz/",
+    "ROT13:uggcf://jjj.dvatjncg.bet/",
+    "ROT13:uggcf://jjj.dvatjn.ceb/",
+    "ROT13:uggcf://dvatjncg.pbz/", // 增加一个和ptpp中 host 一样的url （经过实测也能访问）
   ],
   collaborator: ["Eason Wong"],
 

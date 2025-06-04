@@ -17,7 +17,7 @@ export const siteMetadata: ISiteMetadata = {
 
   collaborator: ["csi0n", "zhuweitung", "hui-shao"],
 
-  urls: ["aHR0cHM6Ly9oZGZhbnMub3JnLw=="],
+  urls: ["ROT13:uggcf://uqsnaf.bet/"],
 
   levelRequirements: [
     {

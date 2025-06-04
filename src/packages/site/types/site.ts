@@ -66,14 +66,14 @@ export interface ISiteMetadata {
    *
    * 1. 列表中第一个网址会作为默认的使用地址
    * 2. 如果网站支持 `https` ，请优先考虑填写 `https` 的地址
-   * 3. 部分站点可能对于站点链接存在更为隐秘的要求，则请对链接进行 btoa ，以防止在配置时泄露
+   * 3. 部分站点可能对于站点链接存在更为隐秘的要求，则请对链接进行 rot13 ，以防止在配置时泄露
    *    （但这并不能阻止用户通过安装插件后在使用过程中知道对应网址
    */
   urls: TSiteUrl[];
 
   /**
-   * host 和 formerHosts 不支持填写 加密后的网站域名，不会自动进行 atob 解码，如果需要请填写类似
-   *  host: btoa('xxxxx')
+   * host 和 formerHosts 不支持填写 加密后的网站域名，不会自动进行 rot13 解码，如果需要请填写类似
+   *  host: rot13('xxxxx')
    */
   host?: TSiteHost; // 站点域名，如果不存在，则从url中获取
   readonly formerHosts?: TSiteHost[]; // 站点过去曾经使用过的，但现在已不再使用的域名

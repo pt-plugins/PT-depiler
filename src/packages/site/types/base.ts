@@ -6,7 +6,17 @@ export type TSiteID = string; // should match regexp /[0-9a-z]+/
 export type TSiteHost = string;
 
 export type TSiteFullUrl = `${"http" | "https"}://${TSiteHost}/`;
-export type TSiteFullUrlProtect = `aHR0c${string}`; // btoa('http') -> "aHR0cA=="
+
+/**
+ * 使用 ROT13 加密的站点完整链接
+ * 这种加密方式是为了防止站点链接被爬虫等工具直接抓取，增加了一定的安全性。
+ * 注意：这种加密方式并不是真正的加密，而是一种简单的替换加密方式。
+ *
+ * 可以在 https://rot13.com/ 进行加密和解密操作。
+ *
+ * refs: https://en.wikipedia.org/wiki/ROT13
+ */
+export type TSiteFullUrlProtect = `ROT13:${"uggc" | "uggcf"}://${TSiteHost}/`;
 export type TSiteUrl = TSiteFullUrl | TSiteFullUrlProtect;
 
 /**

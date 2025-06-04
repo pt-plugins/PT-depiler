@@ -45,7 +45,7 @@ export const siteMetadata: ISiteMetadata = {
   name: "北洋园PT",
   schema: "NexusPHP",
   type: "private",
-  urls: ["aHR0cHM6Ly90anVwdC5vcmcv"],
+  urls: ["ROT13:uggcf://gwhcg.bet/"],
   description:
     "TJUPT是天津市首个、全国前列的校园Private Tracker，建立于2010年，" +
     "由天津大学信网协会和天外天共同开发的，旨在为大家建立一个更好的资源共享环境，提高资源水准。",

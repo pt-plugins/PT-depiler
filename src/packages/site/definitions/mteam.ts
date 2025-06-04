@@ -138,10 +138,10 @@ export const siteMetadata: ISiteMetadata = {
   schema: "mTorrent",
 
   urls: [
-    "aHR0cHM6Ly9rcC5tLXRlYW0uY2Mv",
-    "aHR0cHM6Ly96cC5tLXRlYW0uaW8v",
-    "aHR0cHM6Ly94cC5tLXRlYW0uY2Mv",
-    "aHR0cHM6Ly9hcC5tLXRlYW0uY2Mv",
+    "ROT13:uggcf://xc.z-grnz.pp/",
+    "ROT13:uggcf://mc.z-grnz.vb/",
+    "ROT13:uggcf://kc.z-grnz.pp/",
+    "ROT13:uggcf://nc.z-grnz.pp/",
   ],
   formerHosts: ["xp.m-team.io", "pt.m-team.cc", "tp.m-team.cc"],
 

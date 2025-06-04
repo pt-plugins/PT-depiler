@@ -16,7 +16,7 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: ["栽培者", "MewX", "fzlins", "zhuweitung", "Rhilip"],
   type: "private",
   schema: "Discuz", // 后面再看看需要不需要拆分成 schemas
-  urls: ["aHR0cHM6Ly93d3cuc2t5ZXkyLmNvbS8=", "aHR0cHM6Ly9za3lleXNub3cuY29tLw=="],
+  urls: ["ROT13:uggcf://jjj.fxlrl2.pbz/", "ROT13:uggcf://fxlrlfabj.pbz/"],
   category: [
     {
       name: "分类",

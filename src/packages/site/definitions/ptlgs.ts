@@ -17,7 +17,7 @@ export const siteMetadata: ISiteMetadata = {
 
   collaborator: ["yxlimo", "hui-shao"],
 
-  urls: ["aHR0cHM6Ly9wdGxncy5vcmcv"],
+  urls: ["ROT13:uggcf://cgytf.bet/"],
 
   category: [
     {

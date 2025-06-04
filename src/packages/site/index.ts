@@ -3,8 +3,8 @@ import { cloneDeep } from "es-toolkit";
 export * from "./types";
 export * from "./utils";
 
-import { getHostFromUrl } from "./utils/html.ts";
-import type { ISiteMetadata, ISiteUserConfig, TSiteID, TSiteFullUrl } from "./types";
+import { getHostFromUrl, restoreSecureLink } from "./utils/html.ts";
+import type { ISiteMetadata, ISiteUserConfig, TSiteID } from "./types";
 import type BittorrentSite from "./schemas/AbstractBittorrentSite";
 import type PrivateSite from "./schemas/AbstractPrivateSite";
 
@@ -42,10 +42,6 @@ async function getDefinitionModule(definition: string): Promise<definitionEntity
     module.siteMetadata.type === "private" ? "AbstractPrivateSite" : "AbstractBittorrentSite";
 
   return module;
-}
-
-function restoreSecureLink(url: string): TSiteFullUrl {
-  return (url.startsWith("aHR0c") ? atob(url) : url) as TSiteFullUrl;
 }
 
 export async function getDefinedSiteMetadata(definition: string): Promise<ISiteMetadata> {

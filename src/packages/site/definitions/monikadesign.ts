@@ -13,7 +13,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Unit3D",
 
-  urls: ["aHR0cHM6Ly9tb25pa2FkZXNpZ24udWsv"],
+  urls: ["ROT13:uggcf://zbavxnqrfvta.hx/"],
 
   category: [
     {
