@@ -28,6 +28,7 @@ export type TBaseTorrentTagName =
 
 export interface ITorrentTag {
   name: TBaseTorrentTagName;
+  // 标签颜色，如果没定义且 name 是基础标签，则会自动根据基础标签名称进行转换
   color?: string;
 }
 

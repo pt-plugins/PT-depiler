@@ -5,6 +5,22 @@ import type { IMetadataPiniaStorageSchema, TSearchResultSnapshotStorageSchema } 
 
 import { logger } from "./logger.ts";
 import { getSiteInstance } from "./site.ts";
+import { type TBaseTorrentTagName } from "@ptd/site";
+
+const torrentTagColorMap: Record<TBaseTorrentTagName, string> = {
+  Free: "blue",
+  "2xFree": "green",
+  "2xUp": "lime",
+  "2x50%": "light-green",
+  "25%": "purple",
+  "30%": "indigo",
+  "35%": "indigo-darken-3",
+  "50%": "orange",
+  "70%": "blue-grey",
+  "75%": "lime-darken-3",
+  VIP: "orange-darken-2",
+  "Excl.": "deep-orange-darken-1",
+};
 
 onMessage("getSiteSearchResult", async ({ data: { siteId, keyword = "", searchEntry = {} } }) => {
   logger({
@@ -12,7 +28,23 @@ onMessage("getSiteSearchResult", async ({ data: { siteId, keyword = "", searchEn
     data: { siteId, keyword, searchEntry },
   });
   const site = await getSiteInstance<"public">(siteId);
-  return await site.getSearchResult(keyword, searchEntry);
+
+  let searchResult = await site.getSearchResult(keyword, searchEntry);
+
+  if (searchResult.data.length > 0) {
+    // 将 tags 中的基础 tag 名称转换为对应的颜色
+    searchResult.data.forEach((item) => {
+      if (item.tags) {
+        item.tags.forEach((tag) => {
+          if (torrentTagColorMap[tag.name]) {
+            tag.color = torrentTagColorMap[tag.name];
+          }
+        });
+      }
+    });
+  }
+
+  return searchResult;
 });
 
 onMessage("getMediaServerSearchResult", async ({ data: { mediaServerId, keywords = "", options = {} } }) => {
