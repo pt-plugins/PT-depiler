@@ -29,6 +29,7 @@ export const definedLangMetaData: readonly ILangMetaData[] = [
 ] as const;
 
 export const i18nInstance = createI18n({
+  legacy: false, // you must set `false`, to use Composition API
   locale: "zh_CN",
   fallbackLocale: "en",
   messages: {

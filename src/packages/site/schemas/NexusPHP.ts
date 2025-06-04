@@ -105,7 +105,7 @@ export const subTitleRemoveExtraElement =
  */
 export const SchemaMetadata: Pick<
   ISiteMetadata,
-  "version" | "schema" | "type" | "timezoneOffset" | "search" | "userInfo"
+  "version" | "schema" | "type" | "timezoneOffset" | "search" | "list" | "userInfo" | "detail"
 > = {
   version: 0,
   schema: "NexusPHP",
@@ -221,6 +221,10 @@ export const SchemaMetadata: Pick<
         { name: "50%", selector: "img.pro_50pctdown", color: "deep-orange-darken-1" },
       ],
     },
+  },
+
+  detail: {
+    urlPattern: ["/details.php"],
   },
 
   userInfo: {
@@ -434,7 +438,7 @@ export default class NexusPHP extends PrivateSite {
     } as Record<keyof ITorrent, string[]>;
   }
 
-  protected override async transformSearchPage(
+  public override async transformSearchPage(
     doc: Document | object | any,
     searchConfig: ISearchInput,
   ): Promise<ITorrent[]> {

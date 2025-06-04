@@ -262,7 +262,7 @@ export default class BittorrentSite {
    * @protected
    */
   protected getFieldsData<
-    G extends "search" | "detail" | "userInfo",
+    G extends "search" | "list" | "detail" | "userInfo",
     S extends Required<Required<ISiteMetadata>[G]>["selectors"],
   >(element: Element | object, fields: (keyof S)[], selectors: S): { [key in keyof S]?: any } {
     const ret: { [key in keyof S]?: any } = {};
@@ -365,7 +365,7 @@ export default class BittorrentSite {
   /**
    * 如何解析 JSON 或者 Document，获得种子详情列表
    */
-  protected async transformSearchPage(doc: Document | object | any, searchConfig: ISearchInput): Promise<ITorrent[]> {
+  public async transformSearchPage(doc: Document | object | any, searchConfig: ISearchInput): Promise<ITorrent[]> {
     const { searchEntry, requestConfig } = searchConfig;
     if (!searchEntry!.selectors?.rows) {
       throw Error("列表选择器未定义");

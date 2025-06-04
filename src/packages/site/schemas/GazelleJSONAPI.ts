@@ -343,7 +343,7 @@ export default class GazelleJSONAPI extends PrivateSite {
     } as ITorrent;
   }
 
-  protected override async transformSearchPage(
+  public override async transformSearchPage(
     doc: browseJsonResponse | any,
     searchConfig: ISearchInput,
   ): Promise<ITorrent[]> {

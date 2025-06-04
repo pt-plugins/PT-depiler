@@ -38,7 +38,7 @@ export function setupReplaceUnsafeHeader(axios: AxiosInstance): AxiosAllowUnsafe
   const axiosAllowUnsafeHeaderInstance = axios as AxiosAllowUnsafeHeaderInstance;
 
   if (axiosAllowUnsafeHeaderInstance.defaults.allowUnsafeHeader) {
-    console.warn("setupReplaceUnsafeHeader() should be called only once");
+    console.debug("setupReplaceUnsafeHeader() should be called only once");
     return axiosAllowUnsafeHeaderInstance;
   }
   axiosAllowUnsafeHeaderInstance.defaults.allowUnsafeHeader = true;

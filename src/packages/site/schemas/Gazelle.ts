@@ -154,7 +154,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 };
 
 export default class Gazelle extends PrivateSite {
-  protected override async transformSearchPage(doc: Document | any, searchConfig: ISearchInput): Promise<ITorrent[]> {
+  public override async transformSearchPage(doc: Document | any, searchConfig: ISearchInput): Promise<ITorrent[]> {
     const { keywords, searchEntry, requestConfig } = searchConfig;
     // 如果配置文件没有传入 search 的选择器，则我们自己生成
     const legacyTableSelector = "table.torrent_table:last";

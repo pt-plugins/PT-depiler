@@ -107,22 +107,56 @@ export interface ISiteMetadata {
   searchEntry?: Record<string, ISearchEntryRequestConfig>;
 
   /**
-   * 种子列表页配置（用于展示插件）
+   * 种子列表页配置（主要用于展示插件）
    * 注：只有极其特殊的情况下才需要定义此处的 selectors ，未定义时，会使用Search中定义的信息
    * 一般如下：
    *  - 使用 AJAX 方法异步加载页面种子
    */
   list?: {
-    selectors?: ISearchConfig["selectors"];
+    /**
+     * 在 web 访问时，哪些些页面会被认为是种子列表页，被认为是种子列表页的页面会被插件自动添加种子列表批量下载、复制、推送的功能
+     *
+     * 一般情况下，这里不需要额外的声明， 插件会自动根据 search.requestConfig.url 以及 searchEntry[*].requestConfig.url 中的 url 自动生成，
+     * 只有当自动生成的 urlPattern 仍不能覆盖时，才需要在此处进行增加
+     *
+     * 实际使用作为匹配的字段为 uniq([...list.urlPattern, search.requestConfig.url, ...searchEntry[*].requestConfig.url])
+     * 如果 pattern 为 string，会使用 new RegExp(pattern, 'i') 生成 RegExp 对象，
+     * 如果 pattern 为 RegExp 对象，则直接使用该对象
+     *
+     * 匹配对象为 location.href ，依次匹配，任一匹配成功，则会被认为是种子列表页，
+     */
+    urlPattern?: (string | RegExp)[];
+
+    /**
+     * 对于种子列表页的解析配置，默认会使用 search.requestConfig.selectors 中的配置，
+     *
+     * 额外增加字段说明：
+     * keywords: 用于获取种子列表页中正在使用的搜索关键词，如果获取到非空字符串，则会显示 "在插件中搜索的标识"
+     *   如果未设置，插件会自动根据 search.keywordPath 或 searchEntry[*].keywordPath 来推断，比如：
+     *     - search.keywordPath 为 params.keywords 时，keywords 会被自动推断为 { selector: 'input[name="keywords"]' }
+     *     - search.keywordPath 为 data.keywords 时，keywords 会被自动推断为 { selector: 'form[method="post" i] input[name="keywords"]' }
+     */
+    selectors?: ISearchConfig["selectors"] & { keywords?: IElementQuery };
   };
 
+  /**
+   * 种子详情页配置
+   */
   detail?: {
+    /**
+     * 在 web 访问时，哪些些页面会被认为是种子详情页，被认为是种子列表页的页面会被插件自动添加种子下载、复制、推送的功能
+     *
+     * 只有在定义 detail.requestConfig 时，才会自动生成该项，其他情况下无法进行自动生成，需要显式声明（一般情况下 schema 中已有相关声明）
+     * 其他表现和 list.urlPattern 相同。
+     */
+    urlPattern?: (string | RegExp)[];
+
     requestConfig?: AxiosRequestConfig;
 
     selectors?: {
       link?: IElementQuery; // 用于获取下载链接不在搜索页，而在详情页的情况
       [key: string]: IElementQuery | undefined; // FIXME
-    } & { [torrentKey in keyof ITorrent]?: IElementQuery }; // 种子相关选择器
+    } & Omit<ISearchConfig["selectors"], "rows">; // 种子相关选择器
   };
 
   download?: {

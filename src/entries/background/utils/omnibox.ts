@@ -2,6 +2,7 @@ import { stringify } from "urlencode";
 
 import { extStorage } from "@/storage.ts";
 import type { IMetadataPiniaStorageSchema } from "@/shared/types.ts";
+import { openOptionsPage } from "@/background/utils/base.ts";
 
 const splitString = " → ";
 
@@ -72,14 +73,5 @@ chrome.omnibox.onInputEntered.addListener(async (text) => {
   }
 
   // 按关键字进行搜索
-  // noinspection ES6MissingAwait
-  chrome.tabs.create({
-    url:
-      "/src/entries/options/index.html#/search-entity?" +
-      stringify({
-        search: key,
-        plan: solutionId,
-        flush: 1,
-      }),
-  });
+  openOptionsPage({ path: "/search-entity", query: { search: key, plan: solutionId, flush: 1 } });
 });

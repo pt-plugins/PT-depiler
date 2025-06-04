@@ -166,7 +166,7 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class Jpopsuki extends Gazelle {
-  protected override async transformSearchPage(doc: Document, searchConfig: ISearchInput): Promise<ITorrent[]> {
+  public override async transformSearchPage(doc: Document, searchConfig: ISearchInput): Promise<ITorrent[]> {
     const torrents: ITorrent[] = [];
 
     const rows = Sizzle("table.torrent_table:last > tbody > tr:gt(0)", doc) as HTMLElement[];

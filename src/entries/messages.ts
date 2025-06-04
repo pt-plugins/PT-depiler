@@ -33,6 +33,7 @@ type TMessageMap = Record<string, (data: any) => any>;
 interface ProtocolMap extends TMessageMap {
   // 1. 与 chrome 相关的功能，需要在 service worker 中注册，主要供 offscreen, options 使用
   ping<T extends any>(data?: T): T extends undefined ? "pong" : T;
+  openOptionsPage(url?: string | { path: string; query?: Record<string, any> }): void;
 
   // 1.1 chrome.downloads
   downloadFile(downloadOptions: chrome.downloads.DownloadOptions): number;

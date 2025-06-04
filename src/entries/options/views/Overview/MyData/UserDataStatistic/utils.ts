@@ -57,7 +57,5 @@ export function setSubDate(days: number) {
   const today = new Date();
   const subDay = subDays(today, days);
 
-  console.log(today, subDay);
-
   return eachDayOfInterval({ start: subDay, end: today }).map((x) => formatDate(x, "yyyy-MM-dd"));
 }

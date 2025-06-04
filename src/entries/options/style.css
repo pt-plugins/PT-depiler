@@ -1,3 +1,4 @@
+@import "vuetify";
 @import "tailwindcss" prefix(tw);
 
 /* 在表头过滤器中不显示 v-combobox 的输入框 */

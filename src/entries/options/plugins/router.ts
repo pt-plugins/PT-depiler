@@ -184,7 +184,7 @@ if (localStorage.getItem("enable_devtools") !== null) {
   const devRouteIndex = routes.findIndex((x) => x.name == "Devtools");
   routes[devRouteIndex].meta!.isMainMenu = true;
 } else {
-  console.log('Input `localStorage.setItem("enable_devtools", 1)` in console to enable devtools.');
+  console.info('[PTD] Input `localStorage.setItem("enable_devtools", 1)` in console to enable devtools.');
 }
 
 export const routerInstance = createRouter({

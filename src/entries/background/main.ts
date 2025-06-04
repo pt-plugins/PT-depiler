@@ -1,6 +1,6 @@
 import { onMessage } from "@/messages.ts";
-import { extStorage } from "@/storage.ts";
 
+import "./utils/base.ts";
 import "./utils/cookies.ts";
 import "./utils/offscreen.ts";
 import "./utils/contextMenus.ts";
@@ -14,23 +14,10 @@ chrome.action.onClicked.addListener(async () => {
 });
 
 chrome.runtime.onInstalled.addListener(() => {
-  console.log("Installed!");
+  console.debug("[PTD] Installed!");
 });
 
 onMessage("ping", async ({ data }) => {
   console.log("ping", data);
   return data ?? "pong";
-});
-
-onMessage("downloadFile", async ({ data: downloadOptions }) => {
-  return await chrome.downloads.download(downloadOptions);
-});
-
-// @ts-ignore
-onMessage("getExtStorage", async ({ data: key }) => {
-  return await extStorage.getItem(key);
-});
-
-onMessage("setExtStorage", async ({ data: { key, value } }) => {
-  await extStorage.setItem(key, value);
 });

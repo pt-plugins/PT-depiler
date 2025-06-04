@@ -85,4 +85,4 @@ Copyright (c) 2020-present [pt-plugins](https://github.com/pt-plugins)
 
 特别感谢以下所有为本项目做出贡献的人 😍！
 
-[![Contributors](https://opencollective.com/pt-depiler/contributors.svg?width=890&button=false)](../../graphs/contributors)
+[![Contributors](https://contrib.rocks/image?repo=pt-plugins/PT-depiler)](../../graphs/contributors)

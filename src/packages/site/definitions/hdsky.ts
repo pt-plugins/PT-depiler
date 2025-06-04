@@ -214,7 +214,9 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   detail: {
+    ...(SchemaMetadata.detail ?? {}),
     selectors: {
+      ...(SchemaMetadata.detail?.selectors ?? {}),
       link: {
         selector: 'form[action*="download.php"]:first',
         attr: "action",

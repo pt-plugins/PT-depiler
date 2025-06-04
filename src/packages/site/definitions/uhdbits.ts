@@ -113,7 +113,7 @@ export default class UHDBits extends GazelleJSONAPI {
    * （意味着我们不能使用 BittorrentSite.prototype.transformSearchPage 方法调用
    * 所以我们得直接从基类方法中简化抄.....
    */
-  protected override async transformSearchPage(doc: Document, searchConfig: ISearchInput): Promise<ITorrent[]> {
+  public override async transformSearchPage(doc: Document, searchConfig: ISearchInput): Promise<ITorrent[]> {
     const torrents: ITorrent[] = [];
 
     const trs = Sizzle(this.metadata.search!.selectors!.rows!.selector as string, doc);

@@ -84,8 +84,8 @@ async function generateSolution() {
       const updatePath = `requestConfig.${category.keyPath ?? "params"}`;
       let fieldKey = category.key;
       if (category.cross) {
-        if (category.cross.key) {
-          fieldKey = category.cross.key;
+        if (typeof category.cross.key != "undefined") {
+          fieldKey = category.cross.key as string;
         }
         if (category.cross.mode === "append") {
           for (const option of field as (string | number)[]) {

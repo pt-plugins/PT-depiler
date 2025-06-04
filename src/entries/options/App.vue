@@ -60,7 +60,7 @@ function setIgnoreWrongPixelRatio() {
     </v-main>
   </v-app>
 
-  <v-snackbar-queue v-model="runtimeStore.uiGlobalSnakebar" closable></v-snackbar-queue>
+  <v-snackbar-queue v-model="runtimeStore.uiGlobalSnakebar" closable />
 </template>
 
 <style scoped></style>

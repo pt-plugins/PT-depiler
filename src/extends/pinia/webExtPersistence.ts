@@ -22,6 +22,7 @@ export async function restore<T>(key: string, options: restoreOptions<T> = {}): 
   const rawInit: T = unref(initialValue)!;
 
   try {
+    console.debug("Restoring state for key:", key, "from storage:", storage);
     const { [key]: fromStorage } = await chrome.storage[storage].get(key);
     if (fromStorage) {
       return fromStorage as T;
