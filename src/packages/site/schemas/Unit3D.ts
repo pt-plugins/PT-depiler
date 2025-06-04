@@ -226,6 +226,12 @@ export default class Unit3D extends PrivateSite {
 
       // 导入基本 Details 页面获取到的用户信息
       flushUserInfo = toMerged(flushUserInfo, await this.getUserInfoFromDetailsPage(userName));
+
+      // 如果前面没有获取到用户等级的id，则尝试通过定义的 levelRequirements 来获取
+      if (this.metadata.levelRequirements && flushUserInfo.levelName && typeof flushUserInfo.levelId === "undefined") {
+        flushUserInfo.levelId = this.guessUserLevelId(flushUserInfo as IUserInfo);
+      }
+
       flushUserInfo.status = EResultParseStatus.success;
     } catch (e) {
       flushUserInfo.status = EResultParseStatus.parseError;
