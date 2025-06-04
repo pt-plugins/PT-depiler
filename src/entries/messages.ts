@@ -156,6 +156,10 @@ function createMessageWrapper<PM extends ProtocolMap>(original: {
     // @ts-expect-error
     const localHandler = messageMaps[type] as PM[K] | undefined;
 
+    if (__BROWSER__ == "firefox" && typeof data !== "undefined") {
+      data = JSON.parse(JSON.stringify(data)); // 为 firefox 深拷贝数据，避免传递 proxy 出现的 DataCloneError
+    }
+
     if (localHandler) {
       return await localHandler({ data }); // 执行本地异步处理
     }
