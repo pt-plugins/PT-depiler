@@ -115,6 +115,9 @@ export default defineConfig({
             strict_min_version: "113.0",
           },
         },
+        "{{firefox}}.content_security_policy": {
+          extension_pages: "script-src 'self';",
+        },
       }),
       additionalInputs: target == "chrome" ? ["src/entries/offscreen/offscreen.html"] : undefined,
       watchFilePaths: ["package.json"],
