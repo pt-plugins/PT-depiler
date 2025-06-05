@@ -4,15 +4,17 @@ import { EResultParseStatus, TSiteID } from "@ptd/site";
 import { sendMessage } from "@/messages.ts";
 import { type IStoredUserInfo, TUserInfoStorageSchema } from "@/shared/types.ts";
 
-export type TUserDataStatistic = Record<TSiteID, Record<string, IStoredUserInfo>>;
+export interface IUserDataStatistic {
+  siteDateRange: Record<TSiteID, [string, string]>;
+  dailyUserInfo: Record<string, Record<TSiteID, IStoredUserInfo>>;
+}
 
-export async function loadFullData(): Promise<TUserDataStatistic> {
+export async function loadFullData(): Promise<IUserDataStatistic> {
   const rawData = (await sendMessage("getExtStorage", "userInfo")) as TUserInfoStorageSchema;
 
   // 提取所有日期
   const allDates = [];
-  for (const key in rawData) {
-    const perSiteUserInfoHistory = rawData[key];
+  for (const perSiteUserInfoHistory of Object.values(rawData)) {
     for (const dateStr in perSiteUserInfoHistory) {
       allDates.push(dateStr);
     }
@@ -22,18 +24,21 @@ export async function loadFullData(): Promise<TUserDataStatistic> {
   const minDate = minDateFn(allDates);
   const maxDate = maxDateFn(allDates);
   const datesInRange = eachDayOfInterval({ start: minDate, end: maxDate }).map((x) => formatDate(x, "yyyy-MM-dd"));
-  const retData: Record<string, any> = Object.fromEntries(datesInRange.map((x) => [x, {}]));
+
+  const siteDateRange: IUserDataStatistic["siteDateRange"] = {};
+  const dailyUserInfo: IUserDataStatistic["dailyUserInfo"] = Object.fromEntries(datesInRange.map((x) => [x, {}]));
+
+  console.debug("[PTD] Found UserDataStatistic used date ranges:", datesInRange);
 
   // 遍历每个站点
-  for (const key in rawData) {
-    const perSiteUserInfoHistory = rawData[key];
-    const siteId = key as TSiteID;
+  for (const [siteId, perSiteUserInfoHistory] of Object.entries(rawData)) {
     const thisSiteDateRange = Object.keys(perSiteUserInfoHistory);
     const thisSiteMinDate = minDateFn(thisSiteDateRange);
     const thisSiteMaxDate = maxDateFn(thisSiteDateRange);
     const thisSiteDateRangeInInterval = eachDayOfInterval({ start: thisSiteMinDate, end: thisSiteMaxDate }).map((x) =>
       formatDate(x, "yyyy-MM-dd"),
     );
+    siteDateRange[siteId] = [thisSiteDateRangeInInterval.at(0)!, thisSiteDateRangeInInterval.at(-1)!];
 
     let dateData;
     for (const dateStr of thisSiteDateRangeInInterval) {
@@ -45,12 +50,14 @@ export async function loadFullData(): Promise<TUserDataStatistic> {
         }
       }
       if (dateData) {
-        retData[dateStr][siteId] = dateData;
+        dailyUserInfo[dateStr][siteId] = dateData;
       }
     }
+
+    console.debug(`[PTD] UserDataStatistic for ${siteId} loaded, date range: ${thisSiteDateRangeInInterval}`);
   }
 
-  return retData;
+  return { dailyUserInfo, siteDateRange };
 }
 
 export function setSubDate(days: number) {
