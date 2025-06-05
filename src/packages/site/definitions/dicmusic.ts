@@ -8,7 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "dicmusic",
   name: "DICMusic",
-  aka: ["DIC 海豚站", "海豚"],
+  aka: ["DIC", "海豚"],
   description: "DICMusic 是一个专注于音乐的中文 Gazelle 站点",
   tags: ["音乐"],
   timezoneOffset: "+0800",
@@ -20,10 +20,10 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   type: "private",
-  schema: "GazelleJSONAPI",
+  schema: "Gazelle",
 
-  urls: [ "aHR0cHM6Ly9kaWNtdXNpYy5jb20v"],
-  formerHosts: [ "aHR0cHM6Ly9kaWNtdXNpYy5jbHViLw==" ],
+  urls: [ "ROT13:uggcf://qvpzhfvp.pbz"],
+  formerHosts: [ rot13("uggcf://qvpzhfvp.pyho") ],
 
   category: [
     {
@@ -40,13 +40,13 @@ export const siteMetadata: ISiteMetadata = {
       key: "encoding",
       options: [
         { value: "192", name: "192" },
-        { value: "APS+%28VBR%29", name: "APS (VBR)" },
-        { value: "V2+%28VBR%28", name: "V2 (VBR)" },
-        { value: "V1+%28VBR%28", name: "V1 (VBR)" },
-        { value: "q8.x+%28VBR%29", name: "q8.x (VBR)" },
+        { value: "APS (VBR)", name: "APS (VBR)" },
+        { value: "V2 (VBR)", name: "V2 (VBR)" },
+        { value: "V1 (VBR)", name: "V1 (VBR)" },
+        { value: "q8.x (VBR)", name: "q8.x (VBR)" },
         { value: "320", name: "320" },
         { value: "Lossless", name: "Lossless" },
-        { value: "24bit+Lossless", name: "24bit Lossless" },
+        { value: "24bit Lossless", name: "24bit Lossless" },
         { value: "Other", name: "Other" },
       ],
       cross: false,
@@ -62,7 +62,7 @@ export const siteMetadata: ISiteMetadata = {
         { value: "AAC", name: "AAC" },
         { value: "DTS", name: "DTS" },
         { value: "Lossless", name: "Lossless" },
-        { value: "24bit+Lossless", name: "24bit Lossless" },
+        { value: "24bit Lossless", name: "24bit Lossless" },
         { value: "Other", name: "Other" },
       ],
       cross: false,
@@ -80,7 +80,7 @@ export const siteMetadata: ISiteMetadata = {
         { value: "DAT", name: "DAT" },
         { value: "Cassette", name: "Cassette" },
         { value: "WEB", name: "WEB" },
-        { value: "Unknown+Media", name: "Unknown Media" },
+        { value: "Unknown Media", name: "Unknown Media" },
       ],
       cross: false,
     },
@@ -163,7 +163,7 @@ export const siteMetadata: ISiteMetadata = {
       id: 2,
       name: "Member",
       interval: "P1W",
-      uploaded: "10GB",
+      uploaded: "10GiB",
       ratio: 0.7,
       privilege:
         "发起求种；查看部分排行榜；完全访问「茶话会」版块",
@@ -172,7 +172,7 @@ export const siteMetadata: ISiteMetadata = {
       id: 3,
       name: "Power User",
       interval: "P2W",
-      uploaded: "25GB",
+      uploaded: "25GiB",
       ratio: 1.05,
       uploads: 5,
       privilege:
@@ -182,7 +182,7 @@ export const siteMetadata: ISiteMetadata = {
       id: 4,
       name: "Elite",
       interval: "P4W",
-      uploaded: "75GB",
+      uploaded: "75GiB",
       ratio: 1.05,
       uploads: 50,
       privilege:
@@ -192,7 +192,7 @@ export const siteMetadata: ISiteMetadata = {
       id: 5,
       name: "Torrent Master",
       interval: "P8W",
-      uploaded: "200GB",
+      uploaded: "200GiB",
       ratio: 1.05,
       uploads: 150,
       privilege:
@@ -202,7 +202,7 @@ export const siteMetadata: ISiteMetadata = {
       id: 6,
       name: "Power Torrent Master",
       interval: "P8W",
-      uploaded: "200GB",
+      uploaded: "200GiB",
       ratio: 1.05,
       uniqueGroups: 300,
       privilege:
@@ -212,7 +212,7 @@ export const siteMetadata: ISiteMetadata = {
       id: 7,
       name: "Elite Torrent Master",
       interval: "P12W",
-      uploaded: "600GB",
+      uploaded: "600GiB",
       ratio: 1.05,
       perfectFlacs: 500,
       privilege:
@@ -222,7 +222,7 @@ export const siteMetadata: ISiteMetadata = {
       id: 8,
       name: "Elite Torrent Master Plus",
       interval: "P12W",
-      uploaded: "600GB",
+      uploaded: "600GiB",
       ratio: 1.05,
       perfectFlacs: 500,
       privilege:
@@ -232,7 +232,7 @@ export const siteMetadata: ISiteMetadata = {
       id: 9,
       name: "Guru",
       interval: "P16W",
-      uploaded: "1319.41GB",
+      uploaded: "1.2TiB",
       ratio: 1.05,
       perfectFlacs: 1000,
       privilege:
@@ -247,69 +247,87 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 101,
-      name: "传说",
+      name: "Legend",
       groupType: "vip",
       privilege:
         "对站点做出过杰出贡献的会员",
     },
+    // Support Classes
     {
       id: 200,
-      name: "一线支持 [FLS]",
+      name: "First-Line Support",
       groupType: "manager",
       privilege:
         "协助站点日常工作，并在用户需要帮助时为他们提供支持",
     },
     {
       id: 201,
-      name: "种子协管 [TI]",
+      name: "Torrent Inspector",
       groupType: "manager",
       privilege:
         "协助 Torrent Moderator 的种子管理工作，并在用户需要帮助时为他们提供支持",
     },
     {
       id: 202,
-      name: "邀请维护组 [TC]",
+      name: "Interviewer",
       groupType: "manager",
       privilege:
-        "负责友站的邀请开设、维护方面的人员。并由管理人员授权",
+        "面试并邀请新会员的用户",
     },
     {
       id: 203,
-      name: "论坛版主 (Forum Moderator)",
+      name: "Translators",
+      groupType: "manager",
+      privilege:
+        "协助站点的翻译人员",
+    },
+    {
+      id: 204,
+      name: "Torrent Celebrity",
+      groupType: "manager",
+      privilege:
+        "由管理人员选出负责友站的邀请开设、维护方面的人员。并由管理人员授权",
+    },
+    { id: 205, name: "Designer", groupType: "manager" },
+    { id: 206, name: "Security", groupType: "manager" },
+    // Staff Classes
+    {
+      id: 210,
+      name: "Forum Moderator",
       groupType: "manager",
       privilege:
         "监督和审核论坛和种子评论",
     },
     {
-      id: 204,
-      name: "种子版主 (Torrent Moderator)",
+      id: 211,
+      name: "Torrent Moderator",
       groupType: "manager",
       privilege:
         "监督和完善种子",
     },
     {
-      id: 205,
-      name: "总版主 (Moderator)",
+      id: 212,
+      name: "Moderator",
       groupType: "manager",
       privilege:
         "总管种子和网站一般内容。同时帮助和指导次用户等级成员",
     },
     {
-      id: 206,
-      name: "开发 (Developer)",
+      id: 213,
+      name: "Developer",
       groupType: "manager",
       privilege:
         "设计和编写站点代码",
     },
     {
-      id: 207,
-      name: "总管理员 (Administrator)",
+      id: 214,
+      name: "Administrator",
       groupType: "manager",
       privilege:
         "一般站点管理和对其他工作人员的监督",
     },
     {
-      id: 208,
+      id: 215,
       name: "SysOp",
       groupType: "manager",
       privilege:
@@ -396,7 +414,7 @@ export default class DICMusic extends GazelleJSONAPI {
     const basegroupTorrent = await super.transformGroupTorrent(group, torrent);
 
     if (torrent.jinzhuan) {
-      basegroupTorrent.tags?.push({ name: "Excl.", color: "deep-orange darken-1" });
+      basegroupTorrent.tags?.push({ name: "Excl.", color: "deep-orange-darken-1" });
     }
 
     return basegroupTorrent;
