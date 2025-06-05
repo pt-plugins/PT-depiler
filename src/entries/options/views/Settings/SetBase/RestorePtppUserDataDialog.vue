@@ -132,7 +132,7 @@ async function doImport() {
     await sendMessage("cleanupFlushUserInfoJob", undefined);
 
     // 读出目前所有的 userInfo
-    const userInfoStorage = (await sendMessage("getExtStorage", "userInfo")) as TUserInfoStorageSchema;
+    const userInfoStorage = ((await sendMessage("getExtStorage", "userInfo")) as TUserInfoStorageSchema) ?? {};
 
     // 开始转换数据
     for (const [host, data] of Object.entries(ptppUserData)) {
