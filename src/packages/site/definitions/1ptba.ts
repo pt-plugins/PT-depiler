@@ -1,13 +1,10 @@
-import Sizzle from "sizzle";
-import { mergeWith } from "es-toolkit";
-import { ETorrentStatus, type ISiteMetadata, type IUserInfo } from "../types";
-import NexusPHP, {
+import { type ISiteMetadata } from "../types";
+import {
   CategoryInclbookmarked,
   CategoryIncldead,
   CategorySpstate,
   SchemaMetadata,
 } from "../schemas/NexusPHP.ts";
-import { createDocument, parseSizeString, rot13, tryToNumber } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
