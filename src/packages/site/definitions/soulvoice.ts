@@ -184,5 +184,21 @@ export const siteMetadata: ISiteMetadata = {
       ratio: 3.55,
       privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。",
     },
+    {
+      id: 9,
+      name: "Ultimate User",
+      interval: "P80W",
+      downloaded: "1.5TB",
+      ratio: 4.05,
+      privilege: "",
+    },
+    {
+      id: 10,
+      name: "Nexus Master",
+      interval: "P100W",
+      downloaded: "3TB",
+      ratio: 4.55,
+      privilege: "",
+    },
   ],
 };
