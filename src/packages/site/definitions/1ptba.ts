@@ -1,10 +1,5 @@
 import { type ISiteMetadata } from "../types";
-import {
-  CategoryInclbookmarked,
-  CategoryIncldead,
-  CategorySpstate,
-  SchemaMetadata,
-} from "../schemas/NexusPHP.ts";
+import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -13,7 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   id: "1ptba",
   name: "1ptba",
   aka: ["壹PT"],
-  description: "分享互联，收获快了",
+  description: "分享互联，收获快乐",
   tags: ["综合", "影视"],
   timezoneOffset: "+0800",
 
