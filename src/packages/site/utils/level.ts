@@ -325,7 +325,7 @@ export function guessUserLevelId(userInfo: IUserInfo, levelRequirements: ILevelR
   }
 
   // 如果还是没有找到，说明应当是 user 类别的某一个，则尝试通过 userInfo 和 levelRequirements 的具体项匹配
-  let testLevel = -1;
+  let testLevel = getMaxUserLevelId(levelRequirements);
   for (const levelIndex in levelRequirements ?? []) {
     const testLevelRequirement = levelRequirements[levelIndex];
     if (!isLevelRequirementMet(userInfo, testLevelRequirement)) {
