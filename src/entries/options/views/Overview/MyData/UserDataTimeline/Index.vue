@@ -127,7 +127,7 @@ const favicon = (config: TKonvaConfig) => {
     // 计算缩放比例和位置，并将 favicon 居中填充
     const x = (canvasWidth - imageBaseSize) / 2;
     const y = (canvasHeight - imageBaseSize) / 2;
-    ctx.drawImage(imageElement, 0, 0, imageElement.width, imageElement.height, x, y, imageBaseSize, imageBaseSize);
+    ctx.drawImage(imageElement, x, y, imageBaseSize, imageBaseSize);
 
     // 防止辅助函数 image() 又一次设置 scaleX 和 scaleY
     config.scaleX = 1;
