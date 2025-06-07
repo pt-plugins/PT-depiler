@@ -121,13 +121,6 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
-  userInfo: {
-    ...SchemaMetadata.userInfo!,
-    selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
-    },
-  },
-
   levelRequirements: [
     {
       id: 1,
