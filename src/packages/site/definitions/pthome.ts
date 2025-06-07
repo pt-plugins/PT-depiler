@@ -185,5 +185,14 @@ export const siteMetadata: ISiteMetadata = {
       seedingBonus: 1000000,
       privilege: "同白银用户等级权限。",
     },
+    {
+      id: 9,
+      name: "Nexus Master",
+      interval: "P100W",
+      downloaded: "6TB",
+      ratio: 1.8,
+      seedingBonus: 1200000,
+      privilege: "同白银用户等级权限。",
+    },
   ],
 };
