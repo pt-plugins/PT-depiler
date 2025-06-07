@@ -298,7 +298,7 @@ export const siteMetadata: ISiteMetadata = {
       id: { selector: "id" },
       title: { selector: "name" },
       subTitle: { selector: "smallDescr" },
-      url: { selector: "id", filters: [{ name: "perpend", args: ["/detail/"] }] },
+      url: { selector: "id", filters: [{ name: "prepend", args: ["/detail/"] }] },
       // link: 不返回，在 class 中单独构造
       time: { selector: "createdDate", filters: [{ name: "parseTime" }] },
       size: { selector: "size", filters: [{ name: "parseNumber" }] },

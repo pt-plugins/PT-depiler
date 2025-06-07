@@ -63,7 +63,7 @@ export const siteMetadata: ISiteMetadata = {
         ...linkQuery,
         filters: [
           { name: "querystring", args: ["id"] },
-          { name: "perpend", args: ["/details.php?id="] },
+          { name: "prepend", args: ["/details.php?id="] },
         ],
       },
       id: {

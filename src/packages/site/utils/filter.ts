@@ -54,7 +54,7 @@ export const definedFilters: Record<string, TQueryFilterFn> = {
    * args: ["a"]
    * results: "ab"
    */
-  perpend: (query, args) => (args![0] || "") + query,
+  prepend: (query, args) => (args![0] || "") + query,
 
   /**
    * Converts a string to lowercase letters. Does not require any parameters.

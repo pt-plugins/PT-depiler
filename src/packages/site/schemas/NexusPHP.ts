@@ -132,7 +132,7 @@ export const SchemaMetadata: Pick<
         ...baseLinkQuery,
         filters: [
           { name: "querystring", args: ["id"] },
-          { name: "perpend", args: ["/details.php?id="] },
+          { name: "prepend", args: ["/details.php?id="] },
         ],
       }, // 种子页面链接
       id: {

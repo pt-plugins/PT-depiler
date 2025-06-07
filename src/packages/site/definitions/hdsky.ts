@@ -169,7 +169,7 @@ export const siteMetadata: ISiteMetadata = {
         attr: "action",
         filters: [
           { name: "querystring", args: ["id"] },
-          { name: "perpend", args: ["/details.php?id="] },
+          { name: "prepend", args: ["/details.php?id="] },
         ],
       },
       subTitle: {
