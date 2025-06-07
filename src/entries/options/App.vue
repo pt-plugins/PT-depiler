@@ -34,7 +34,7 @@ function setIgnoreWrongPixelRatio() {
 </script>
 
 <template>
-  <v-init id="ptd" :theme="configStore.uiTheme">
+  <v-app id="ptd" :theme="configStore.uiTheme">
     <!-- 页面比例提示 -->
     <v-system-bar
       v-if="(pixelRatio > 1.1 || pixelRatio < 0.8) && !configStore.ignoreWrongPixelRatio"
@@ -58,7 +58,7 @@ function setIgnoreWrongPixelRatio() {
         </router-view>
       </v-container>
     </v-main>
-  </v-init>
+  </v-app>
 
   <v-snackbar-queue v-model="runtimeStore.uiGlobalSnakebar" closable />
 </template>
