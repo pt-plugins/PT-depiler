@@ -21,6 +21,11 @@ export const useConfigStore = defineStore("config", {
       allowSelectionTextSearch: true,
     },
 
+    contextScript: {
+      enabled: true,
+      position: { x: 0, y: 0 },
+    },
+
     tableBehavior: {
       MyData: {
         itemsPerPage: 20,
@@ -243,6 +248,12 @@ export const useConfigStore = defineStore("config", {
       if (this.saveTableBehavior) {
         this.$save();
       }
+    },
+
+    updateContentScriptPosition(x: number, y: number) {
+      this.contextScript.position.x = x;
+      this.contextScript.position.y = y;
+      this.$save();
     },
   },
 });

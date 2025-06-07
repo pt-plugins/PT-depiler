@@ -1,7 +1,7 @@
 {
   "name": "pt-depiler",
   "private": true,
-  "version": "0.0.2",
+  "version": "0.0.3",
   "type": "module",
   "homepage": "https://github.com/pt-plugins/PT-depiler",
   "packageManager": "pnpm@10.8.0",
@@ -41,7 +41,6 @@
     "pnpm": ">=9.11.0"
   },
   "dependencies": {
-    "@mdi/font": "^7.4.47",
     "@tailwindcss/vite": "^4.1.8",
     "@vueuse/components": "^13.3.0",
     "@vueuse/core": "^13.3.0",

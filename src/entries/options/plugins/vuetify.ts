@@ -1,5 +1,3 @@
-import "@mdi/font/css/materialdesignicons.css";
-
 import { createVuetify } from "vuetify";
 import { en, zhHans } from "vuetify/locale";
 

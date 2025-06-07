@@ -460,7 +460,7 @@ export default class BittorrentSite {
         continue;
       }
 
-      const dynamicParseFuncKey = `parseTorrentRowFor${pascalCase(key)}` as keyof this;
+      const dynamicParseFuncKey = `parseTorrentRowFor${pascalCase(key as string)}` as keyof this;
       if (dynamicParseFuncKey in this && typeof this[dynamicParseFuncKey] === "function") {
         torrent = await this[dynamicParseFuncKey](torrent, row, searchConfig);
       } else if (searchEntry!.selectors![key]) {
@@ -524,6 +524,40 @@ export default class BittorrentSite {
     searchConfig: ISearchInput,
   ): ITorrent {
     return torrent;
+  }
+
+  /**
+   * 此方法主要在 content-script 中调用，用于将传入的 Document 转换为种子列表
+   * @param doc
+   */
+  public async transformListPage(doc: Document): Promise<{ keywords: string; torrents: ITorrent[] }> {
+    const retData = { keywords: "", torrents: [] } as { keywords: string; torrents: ITorrent[] };
+
+    const parsedListPageUrl = doc.URL || location.href; // 获取当前页面的 URL
+    const parsedListPage = doc.cloneNode(true) as Document; // 克隆一份文档，避免污染原始文档
+
+    const searchEntry = this.metadata.search ?? { selectors: {} };
+
+    // 使用 list 中定义的 selectors 覆盖掉 search 中的 selectors
+    searchEntry.selectors = {
+      ...searchEntry.selectors,
+      ...(this.metadata.list?.selectors ?? {}),
+    };
+
+    // 如果有 keywords 选择器，则获取当前搜索页的关键词
+    if ((searchEntry.selectors as Required<Required<ISiteMetadata>["list"]>["selectors"]).keywords) {
+      retData.keywords = this.getFieldData(parsedListPage, searchEntry.selectors.keywords as IElementQuery);
+      delete searchEntry.selectors.keywords; // 删除 keywords 选择器，避免污染后续的种子解析
+    }
+
+    try {
+      retData.torrents = await this.transformSearchPage(parsedListPage, {
+        searchEntry,
+        requestConfig: { url: parsedListPageUrl },
+      });
+    } catch (e) {}
+
+    return retData;
   }
 
   /**

@@ -27,6 +27,7 @@ const initialMediaServerSearchData = () => ({
 export const useRuntimeStore = defineStore("runtime", {
   persist: {
     storage: sessionStorage,
+    key: "__ptd_runtime_store", // 由于 runtimeStore 可能会在 content-script 中注册，所以此处需要使用一个独特的 key
   },
   persistWebExt: false,
   state: (): IRuntimePiniaStorageSchema => ({
