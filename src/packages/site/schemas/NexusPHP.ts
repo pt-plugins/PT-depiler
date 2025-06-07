@@ -508,7 +508,7 @@ export default class NexusPHP extends PrivateSite {
     }
 
     // 导入用户发布信息
-    if (flushUserInfo.status === EResultParseStatus.success && typeof flushUserInfo.published === "undefined") {
+    if (flushUserInfo.status === EResultParseStatus.success && typeof flushUserInfo.uploads === "undefined") {
       flushUserInfo = (await this.parseUserInfoForUploads(flushUserInfo)) as IUserInfo;
     }
 
