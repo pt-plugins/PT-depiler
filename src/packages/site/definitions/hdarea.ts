@@ -1,5 +1,10 @@
-import { type ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
+import { ISearchInput, type ISiteMetadata, ITorrent } from "../types";
+import NexusPHP, {
+  CategoryInclbookmarked,
+  CategoryIncldead,
+  CategorySpstate,
+  SchemaMetadata,
+} from "../schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -117,6 +122,18 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
+  search: {
+    ...SchemaMetadata.search!,
+    selectors: {
+      ...SchemaMetadata.search!.selectors!,
+      tags: [
+        ...SchemaMetadata.search!.selectors!.tags!,
+        { name: "首发", selector: "img.first_publish", color: "#3887D7" },
+        { name: "禁转", selector: "img.transfer_forbidden", color: "#5E14DA" },
+      ],
+    },
+  },
+
   levelRequirements: [
     {
       id: 1,
@@ -171,3 +188,30 @@ export const siteMetadata: ISiteMetadata = {
     { id: 8, name: "Nexus Master", interval: "P40W", downloaded: "10TB", ratio: 6.0, privilege: "得到2个邀请名额。" },
   ],
 };
+
+export default class HDArea extends NexusPHP {
+  // 获取种子标签
+  protected override parseTorrentRowForTags(
+    torrent: Partial<ITorrent>,
+    row: Element | Document,
+    searchConfig: ISearchInput,
+  ): Partial<ITorrent> {
+    super.parseTorrentRowForTags(torrent, row, searchConfig);
+
+    const customTags = row.querySelectorAll("font[class]");
+    if (customTags.length > 0) {
+      const tags: ITorrentTag[] = torrent.tags || [];
+      customTags.forEach((element) => {
+        const htmlElement = element as HTMLElement;
+        const tagName = htmlElement.textContent?.replace(/\s/g, "").replace("免费", "Free");
+        if (tagName) {
+          tags.push({ name: tagName });
+        }
+      });
+
+      torrent.tags = tags;
+    }
+
+    return torrent;
+  }
+}
