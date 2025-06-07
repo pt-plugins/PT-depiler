@@ -1,4 +1,4 @@
-import { type ISearchInput, type ISiteMetadata, type ITorrent, type ITorrentTag, type IUserInfo } from "../types";
+import { type ISiteMetadata, type IUserInfo } from "../types";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
@@ -259,31 +259,5 @@ export default class Azusa extends NexusPHP {
       }
     }
     return flushUserInfo;
-  }
-
-  // 获取种子标签
-  protected override parseTorrentRowForTags(
-    torrent: Partial<ITorrent>,
-    row: Element | Document,
-    searchConfig: ISearchInput,
-  ): Partial<ITorrent> {
-    super.parseTorrentRowForTags(torrent, row, searchConfig);
-
-    const customTags = row.querySelectorAll("span[style*='background-color'][style*='color']");
-    if (customTags.length > 0) {
-      const tags: ITorrentTag[] = torrent.tags || [];
-      customTags.forEach((element) => {
-        const htmlElement = element as HTMLElement;
-        const tagName = htmlElement.textContent;
-        const tagColor = htmlElement.style.backgroundColor;
-        if (tagName && tagColor) {
-          tags.push({ name: tagName, color: tagColor });
-        }
-      });
-
-      torrent.tags = tags;
-    }
-
-    return torrent;
   }
 }
