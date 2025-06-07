@@ -19,6 +19,9 @@ export const siteMetadata: ISiteMetadata = {
 
   collaborator: ["CosmoGao", "tedzhu", "hui-shao"],
 
+  // refs: https://t.me/Ptfxq/896
+  isDead: true,
+
   category: [
     {
       name: "搜索入口",
