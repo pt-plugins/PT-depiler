@@ -73,7 +73,7 @@ function enterDialog() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title> 自定义批量操作行为 </v-toolbar-title>
+          <v-toolbar-title> 为 {{ torrentItems.length }} 个种子自定义批量操作行为 </v-toolbar-title>
           <template #append>
             <v-btn icon="mdi-close" @click="showDialog = false" />
           </template>
@@ -109,20 +109,15 @@ function enterDialog() {
       <v-divider />
       <v-card-actions>
         <v-spacer />
-        <NavButton
-          icon="mdi-content-save-all"
-          text="本地下载选择的种子"
-          color="light-blue"
-          @click="handleLocalDownloadMulti"
-        />
+        <NavButton icon="mdi-content-save-all" text="本地下载" color="light-blue" @click="handleLocalDownloadMulti" />
 
-        <NavButton color="light-blue" icon="mdi-content-copy" text="复制选择的种子链接" @click="handleLinkCopyMulti" />
+        <NavButton color="light-blue" icon="mdi-content-copy" text="复制链接" @click="handleLinkCopyMulti" />
 
         <NavButton
           key="remote_download_multi"
           color="light-blue"
           icon="mdi-tray-arrow-down"
-          text="推送选择的种子到..."
+          text="推送到..."
           @click="handleRemoteDownloadMulti"
         />
       </v-card-actions>

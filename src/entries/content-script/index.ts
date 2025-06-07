@@ -12,7 +12,7 @@ const hasVuetifyThemePre = vuetifyThemePre !== null && vuetifyThemePre instanceo
 sendMessage("getExtStorage", "config").then(async (data) => {
   const configStore = data as IConfigPiniaStorageSchema;
 
-  if (configStore.contextScript.enabled) {
+  if (configStore?.contentScript?.enabled ?? true) {
     sendMessage("getExtStorage", "metadata").then(async (data) => {
       const metadataStore = data as IMetadataPiniaStorageSchema; // 假设 metadataStore 的类型是 any
 

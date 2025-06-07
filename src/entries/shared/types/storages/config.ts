@@ -39,8 +39,8 @@ export interface IConfigPiniaStorageSchema {
     allowSelectionTextSearch: boolean;
   };
 
-  contextScript: {
-    enabled: boolean; // 是否启用 contextScript
+  contentScript: {
+    enabled: boolean; // 是否启用 contentScript
     position: { x: number; y: number }; // 图标位置
   };
 

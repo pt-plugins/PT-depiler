@@ -32,7 +32,23 @@ const configStore = useConfigStore();
         hide-details
         label="记忆部分表格的 表头列展示、排序、分页 等信息"
       />
+    </v-col>
+  </v-row>
 
+  <v-row>
+    <v-col md="6">
+      <v-label>内容脚本（站点侧边栏等）</v-label>
+      <v-alert type="warning">
+        目前内容脚本功能还在早期测试阶段，如有问题请在
+        <a href="https://github.com/pt-plugins/PT-depiler/issues/96" target="_blank">issue#96</a> 中创建 sub-issue
+        反映。
+      </v-alert>
+      <v-switch v-model="configStore.contentScript.enabled" color="success" hide-details label="启用内容脚本" />
+    </v-col>
+  </v-row>
+
+  <v-row>
+    <v-col md="6">
       <v-label>右键菜单</v-label>
       <v-switch
         v-model="configStore.contextMenus.allowSelectionTextSearch"

@@ -43,7 +43,7 @@ watch(
   () => configStore.$ready,
   (ready) => {
     if (ready) {
-      let { x: storeX = -100, y: storeY = -100 } = configStore.contextScript.position;
+      let { x: storeX = -100, y: storeY = -100 } = configStore.contentScript?.position ?? {};
       let { clientWidth, clientHeight } = document.documentElement;
 
       x.value = storeX <= 0 || storeX > clientWidth - 50 ? clientWidth - 100 : storeX; // Default to right side

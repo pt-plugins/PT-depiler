@@ -21,7 +21,7 @@ export const useConfigStore = defineStore("config", {
       allowSelectionTextSearch: true,
     },
 
-    contextScript: {
+    contentScript: {
       enabled: true,
       position: { x: 0, y: 0 },
     },
@@ -251,8 +251,8 @@ export const useConfigStore = defineStore("config", {
     },
 
     updateContentScriptPosition(x: number, y: number) {
-      this.contextScript.position.x = x;
-      this.contextScript.position.y = y;
+      this.contentScript.position.x = x;
+      this.contentScript.position.y = y;
       this.$save();
     },
   },
