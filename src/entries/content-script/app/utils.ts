@@ -12,7 +12,7 @@ type TPageType = "unknown" | "list" | "detail";
 export const pageType = ref<TPageType>("unknown");
 
 export function updatePageType() {
-  console.debug("updatePageType", location.href);
+  pageType.value = "unknown"; // 重置为 unknown
   const url = location.href;
   if (siteInstance.value) {
     const metadata = siteInstance.value.metadata;

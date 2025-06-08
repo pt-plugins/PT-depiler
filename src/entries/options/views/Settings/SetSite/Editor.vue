@@ -26,7 +26,7 @@ const siteTimezoneOffset = computed({
   set: (value) => set(siteUserConfig.value, "merge.timezoneOffset", value),
 });
 const customSiteUrl = ref<string>("");
-const isFormValid = ref<boolean>(false);
+const isFormValid = ref<boolean>(true);
 
 async function initSiteData(siteId: TSiteID, flush = false) {
   console.log("initSiteData", siteId, flush);

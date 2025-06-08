@@ -80,7 +80,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["ROT13:uggcf://uqpvgl.pvgl/"],
+  urls: ["ROT13:uggcf://uqpvgl.pvgl/", "ROT13:uggcf://uqpvgl.yravgre.bet/", "ROT13:uggcf://uqpvgl.jbex/"],
 
   category: [
     {

@@ -147,12 +147,12 @@ async function doImport() {
           latestUserInfo?.lastUpdateStatus === "success" &&
           (latestUserInfo?.lastUpdateTime ?? -1) > (metadataStore.lastUserInfo[siteId]?.updateAt ?? 0)
         ) {
-          metadataStore.lastUserInfo[siteId] = transferUserInfo(latestUserInfo);
+          metadataStore.lastUserInfo[siteId] = { ...transferUserInfo(latestUserInfo), site: siteId };
         }
 
         for (const [date, userData] of Object.entries(omit(data, ["latest"]))) {
           if (typeof userInfoStorage[siteId][date] == "undefined" || overwriteExistUserInfo.value) {
-            userInfoStorage[siteId][date] = transferUserInfo(userData);
+            userInfoStorage[siteId][date] = { ...transferUserInfo(userData), site: siteId };
           }
         }
       }
