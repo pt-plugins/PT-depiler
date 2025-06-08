@@ -87,7 +87,7 @@ function openOptions() {
         <!-- 这里根据 pageType 来决定显示哪些按钮 -->
         <component :is="currentView" :key="pageType" />
 
-        <SpeedDialBtn color="amber" icon="mdi-home" title="打开PT-Depiler页面" @click="openOptions" />
+        <SpeedDialBtn color="amber" icon="mdi-home" title="打开PTD" @click="openOptions" />
       </v-speed-dial>
     </div>
 

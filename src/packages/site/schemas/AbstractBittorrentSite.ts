@@ -550,6 +550,30 @@ export default class BittorrentSite {
     if (searchEntry.selectors.keywords) {
       retData.keywords = this.getFieldData(parsedListPage, searchEntry.selectors.keywords as IElementQuery);
       delete searchEntry.selectors.keywords; // 删除 keywords 选择器，避免污染后续的种子解析
+    } else {
+      // 参照 searchEntry 中的 keywordPath 来获取关键词
+      const keywordPath = (searchEntry as ISiteMetadata["search"])!.keywordPath || "params.keywords";
+      const [keywordField, keywordParams] = keywordPath.split(".");
+
+      // 首先尝试使用 getFieldData 获取关键词
+      retData.keywords = this.getFieldData(parsedListPage, {
+        selector: [
+          keywordField === "params" ? `input[name="${keywordParams}"]` : false,
+          keywordField === "data" ? `form[method="post" i] input[name="${keywordField}"]` : false,
+        ].filter(Boolean) as string[],
+        text: "",
+      });
+      if (retData.keywords === "") {
+        // 如果没有获取到关键词，则尝试从 URL 中解析
+        const urlParams = new URLSearchParams(parsedListPageUrl.split("?")[1] ?? "");
+        for (const keywordParams of ["keywords", "search", "keyword"]) {
+          // 尝试从 URL 中获取关键词
+          if (urlParams.has(keywordParams)) {
+            retData.keywords = urlParams.get(keywordParams) || "";
+            break;
+          }
+        }
+      }
     }
 
     try {
