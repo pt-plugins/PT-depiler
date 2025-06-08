@@ -220,6 +220,7 @@ function viewStatistic() {
           max-width="200"
           multiple
           prepend-inner-icon="mdi-filter-cog"
+          @update:model-value="(v) => configStore.updateTableBehavior('MyData', 'columns', v)"
         >
           <template #chip="{ item, index }">
             <v-chip v-if="index === 0">
