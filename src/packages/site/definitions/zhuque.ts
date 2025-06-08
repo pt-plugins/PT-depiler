@@ -1,4 +1,4 @@
-import { ISiteMetadata } from "../types";
+import { type ISearchInput, ISiteMetadata, type ITorrent, type ITorrentTag } from "../types";
 import { sendMessage } from "@/messages.ts";
 import type { IMetadataPiniaStorageSchema } from "@/shared/types/storages/metadata.ts";
 import PrivateSite from "@ptd/site/schemas/AbstractPrivateSite.ts";
@@ -132,6 +132,9 @@ export const siteMetadata: ISiteMetadata = {
       comments: { selector: "review" },
 
       progress: { selector: "progress" },
+      ext_imdb: { selector: ["imdb_id"], filters: [{ name: "extImdbId" }] },
+      // status 站点似乎未提供
+      // tags 交由 parseTorrentRowForTags 处理
     },
   },
 
@@ -243,6 +246,41 @@ export default class Zhuque extends PrivateSite {
       "x-csrf-token": (await this.getCsrfToken()) ?? "",
     };
     return super.request<T>(axiosConfig, checkLogin);
+  }
+
+  protected override parseTorrentRowForTags(
+    torrent: Partial<ITorrent>,
+    row: Element | Document | object,
+    searchConfig: ISearchInput,
+  ): Partial<ITorrent> {
+    const tags: ITorrentTag[] = [];
+
+    // 处理促销情况
+    const { uploadRate, downloadRate } = row as { uploadRate?: number; downloadRate?: number };
+    switch (uploadRate) {
+      case 2:
+        tags.push({ name: "2xUp", color: "green" });
+        break;
+    }
+    switch (downloadRate) {
+      case 0:
+        tags.push({ name: "Free", color: "blue" });
+        break;
+    }
+
+    // 处理普通标签
+    const tags_array = (row as { tags?: number[] }).tags ?? [];
+    if (tags_array.length > 0) {
+      for (const tagId of tags_array) {
+        const tagName = tagsMap[tagId];
+        if (tagName) {
+          tags.push({ name: tagName });
+        }
+      }
+    }
+
+    torrent.tags = tags;
+    return torrent;
   }
 
   private async getCsrfToken() {
