@@ -1,4 +1,4 @@
-import { computed, shallowRef } from "vue";
+import { computed, shallowRef, ref } from "vue";
 import type BittorrentSite from "@ptd/site/schemas/AbstractBittorrentSite.ts";
 import { uniq } from "es-toolkit";
 
@@ -9,8 +9,10 @@ export const siteInstance = shallowRef<BittorrentSite>();
 
 type TPageType = "unknown" | "list" | "detail";
 
-export const pageType = computed(() => {
-  let pageType: TPageType = "unknown";
+export const pageType = ref<TPageType>("unknown");
+
+export function updatePageType() {
+  console.debug("updatePageType", location.href);
   const url = location.href;
   if (siteInstance.value) {
     const metadata = siteInstance.value.metadata;
@@ -23,7 +25,7 @@ export const pageType = computed(() => {
     ]).filter(Boolean);
 
     if (listUrlPatterns.some((pattern) => new RegExp(pattern!, "i").test(url))) {
-      pageType = "list";
+      pageType.value = "list";
     } else {
       // 如果不是 list 页面，再判断是否为 detail 页面
       const detailUrlPatterns = uniq([
@@ -32,14 +34,13 @@ export const pageType = computed(() => {
       ]).filter(Boolean);
 
       if (detailUrlPatterns.some((pattern) => new RegExp(pattern, "i").test(url))) {
-        pageType = "detail";
+        pageType.value = "detail";
       }
     }
   } else {
     // TODO 判断是否为公共页面，如豆瓣、Imdb 等
   }
-  return pageType;
-});
+}
 
 /**
  * 使用 动态组件 的方式来为 content-script 实现一个简单的路由系统

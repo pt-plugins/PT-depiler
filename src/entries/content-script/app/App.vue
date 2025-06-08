@@ -7,7 +7,7 @@ import { sendMessage } from "@/messages.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { currentView, pageType, siteInstance } from "./utils.ts";
+import { currentView, pageType, siteInstance, updatePageType } from "./utils.ts";
 import SpeedDialBtn from "@/content-script/app/components/SpeedDialBtn.vue";
 
 const configStore = useConfigStore();
@@ -62,6 +62,11 @@ onMounted(async () => {
   } else {
     // TODO public site like douban, imdb, etc.
   }
+
+  updatePageType();
+  window.addEventListener("hashchange", (e) => {
+    updatePageType();
+  });
 });
 
 function openOptions() {
