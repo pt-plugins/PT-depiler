@@ -44,6 +44,7 @@ const configStore = useConfigStore();
         反映。
       </v-alert>
       <v-switch v-model="configStore.contentScript.enabled" color="success" hide-details label="启用内容脚本" />
+      <v-switch v-model="configStore.contentScript.stackedButtons" color="success" hide-details label="大图标按键" />
     </v-col>
   </v-row>
 

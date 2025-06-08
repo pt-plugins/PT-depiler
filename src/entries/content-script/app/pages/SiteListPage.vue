@@ -7,6 +7,7 @@ import { siteInstance } from "../utils.ts";
 import { sendMessage } from "@/messages.ts";
 import SentToDownloaderDialog from "@/options/views/Overview/SearchEntity/SentToDownloaderDialog.vue";
 import AdvanceListModuleDialog from "@/content-script/app/components/AdvanceListModuleDialog.vue";
+import SpeedDialBtn from "@/content-script/app/components/SpeedDialBtn.vue";
 
 const runtimeStore = useRuntimeStore();
 
@@ -80,37 +81,23 @@ function handleAdvanceListModule() {
 </script>
 
 <template>
-  <v-btn
-    key="local_download_multi"
+  <SpeedDialBtn
     color="light-blue"
     icon="mdi-content-save-all"
     title="本地下载本页全部种子"
     @click="handleLocalDownloadMulti"
   />
 
-  <v-btn
-    key="copy_multi"
-    color="light-blue"
-    icon="mdi-content-copy"
-    title="复制本页全部种子链接"
-    @click="handleLinkCopyMulti"
-  />
+  <SpeedDialBtn color="light-blue" icon="mdi-content-copy" title="复制本页全部种子链接" @click="handleLinkCopyMulti" />
 
-  <v-btn
-    key="remote_download_multi"
+  <SpeedDialBtn
     color="light-blue"
     icon="mdi-tray-arrow-down"
     title="推送本页全部种子到"
     @click="handleRemoteDownloadMulti"
   />
 
-  <v-btn
-    key="advance_module"
-    color="indigo"
-    icon="mdi-checkbox-multiple-marked"
-    title="高级列表"
-    @click="handleAdvanceListModule"
-  />
+  <SpeedDialBtn color="indigo" icon="mdi-checkbox-multiple-marked" title="高级列表" @click="handleAdvanceListModule" />
 
   <SentToDownloaderDialog
     v-model="showRemoteDownloadMultiDialog"

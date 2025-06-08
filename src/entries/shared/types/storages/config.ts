@@ -42,6 +42,7 @@ export interface IConfigPiniaStorageSchema {
   contentScript: {
     enabled: boolean; // 是否启用 contentScript
     position: { x: number; y: number }; // 图标位置
+    stackedButtons: boolean; // 是否使用堆叠按钮
   };
 
   // 对 MyData 页面 v-data-table 展示的额外控制项

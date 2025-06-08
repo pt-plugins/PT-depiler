@@ -8,6 +8,7 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { currentView, pageType, siteInstance } from "./utils.ts";
+import SpeedDialBtn from "@/content-script/app/components/SpeedDialBtn.vue";
 
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
@@ -70,7 +71,7 @@ function openOptions() {
 
 <template>
   <div ref="el" :style="style" style="position: fixed">
-    <v-speed-dial :theme="configStore.theme" :close-on-content-click="false" :transition="false">
+    <v-speed-dial :close-on-content-click="false">
       <template v-slot:activator="{ props: activatorProps }">
         <v-fab v-bind="activatorProps" color="amber" icon size="x-large">
           <v-avatar :image="ptdIcon" rounded="0" />
@@ -80,7 +81,7 @@ function openOptions() {
       <!-- 这里根据 pageType 来决定显示哪些按钮 -->
       <component :is="currentView" :key="pageType" />
 
-      <v-btn key="home" icon="mdi-home" color="amber" @click="openOptions" title="打开PT-Depiler页面" />
+      <SpeedDialBtn color="amber" icon="mdi-home" title="打开PT-Depiler页面" @click="openOptions" />
     </v-speed-dial>
   </div>
 
