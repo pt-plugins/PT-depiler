@@ -14,7 +14,7 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: ["vanchkong", "Rhilip"],
   type: "private",
   schema: "NexusPHP",
-  urls: ["ROT13:uggcf://pfcg.gbc/", "ROT13:uggcf://pfcg.pp/", "ROT13:uggcf://pfcg.qngr/"],
+  urls: ["uggcf://pfcg.gbc/", "uggcf://pfcg.pp/", "uggcf://pfcg.qngr/"],
 
   category: [
     {

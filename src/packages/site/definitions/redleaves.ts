@@ -15,7 +15,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["ROT13:uggcf://yrnirf.erq/"],
+  urls: ["uggcf://yrnirf.erq/"],
 
   collaborator: ["CosmoGao", "tedzhu", "hui-shao"],
 

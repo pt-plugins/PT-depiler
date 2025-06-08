@@ -16,7 +16,7 @@ export const siteMetadata: ISiteMetadata = {
 
   collaborator: ["jinglekang", "hui-shao", "EasonWong"],
 
-  urls: ["ROT13:uggcf://plnaoht.arg/"],
+  urls: ["uggcf://plnaoht.arg/"],
 
   levelRequirements: [
     {

@@ -13,7 +13,7 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: ["0X0000005"],
   type: "private",
   schema: "NexusPHP",
-  urls: ["ROT13:uggcf://cg.ntficg.pa/", "ROT13:uggcf://jjj.ntficg.pbz/", "ROT13:uggcf://arj.ntficg.pa/"],
+  urls: ["uggcf://cg.ntficg.pa/", "uggcf://jjj.ntficg.pbz/", "uggcf://arj.ntficg.pa/"],
   userInfo: {
     ...SchemaMetadata.userInfo!,
     selectors: {

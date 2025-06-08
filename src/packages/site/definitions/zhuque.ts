@@ -65,7 +65,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "TNode",
 
-  urls: ["ROT13:uggcf://muhdhr.va/"],
+  urls: ["uggcf://muhdhr.va/"],
 
   collaborator: ["hui-shao"],
 

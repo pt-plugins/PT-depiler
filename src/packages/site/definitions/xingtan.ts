@@ -17,7 +17,7 @@ export const siteMetadata: ISiteMetadata = {
 
   collaborator: ["koal", "yum", "hui-shao"],
 
-  urls: ["ROT13:uggcf://kvatgna.bar/"],
+  urls: ["uggcf://kvatgna.bar/"],
   formerHosts: ["xinglin.one"],
 
   category: [

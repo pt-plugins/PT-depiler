@@ -14,7 +14,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["ROT13:uggcf://cgpuqovgf.pb/"],
+  urls: ["uggcf://cgpuqovgf.pb/"],
 
   category: [
     {
