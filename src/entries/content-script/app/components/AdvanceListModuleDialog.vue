@@ -23,9 +23,9 @@ const runtimeStore = useRuntimeStore();
 const tableHeaders = computed(
   () =>
     [
-      { title: "分类", key: "category", align: "center", minWidth: 60 },
-      { title: "标题", key: "title", align: "start", maxWidth: 450 },
-      { title: "大小", key: "size", align: "end" },
+      { title: "分类", key: "category", align: "center", maxWidth: 60 },
+      { title: "标题", key: "title", align: "start" },
+      { title: "大小", key: "size", align: "end", minWidth: 60 },
       { title: "上传", key: "seeders", align: "end", minWidth: 40 },
       { title: "下载", key: "leechers", align: "end", minWidth: 40 },
       { title: "完成", key: "completed", align: "end", minWidth: 40 },

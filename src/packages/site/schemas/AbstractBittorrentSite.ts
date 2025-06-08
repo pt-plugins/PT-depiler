@@ -538,7 +538,7 @@ export default class BittorrentSite {
     const parsedListPageUrl = doc.URL || location.href; // 获取当前页面的 URL
     const parsedListPage = doc.cloneNode(true) as Document; // 克隆一份文档，避免污染原始文档
 
-    const searchEntry: { selectors: TSchemaMetadataListSelectors } = { ...(this.metadata.search ?? {}), selectors: {} };
+    const searchEntry: { selectors: TSchemaMetadataListSelectors } = { selectors: {}, ...(this.metadata.search ?? {}) };
 
     // 使用 list 中定义的 selectors 覆盖掉 search 中的 selectors
     searchEntry.selectors = {
