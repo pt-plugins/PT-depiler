@@ -10,7 +10,7 @@ function findParentByClass(element: HTMLElement, className: string): HTMLElement
   if (!element || element.classList.contains(className)) {
     return element; // 找到或到达根元素时返回当前元素
   } else {
-    return findParentByClass(element.parentNode, className); // 继续向上查找
+    return findParentByClass(element.parentNode as HTMLElement, className); // 继续向上查找
   }
 }
 
@@ -74,7 +74,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: ":self",
         elementProcess: (element: HTMLElement) => {
           const group = findParentByClass(element, "group_content");
-          return group.querySelector(".name_col > .name > .video_name").textContent?.trim() || "";
+          return group.querySelector(".name_col > .name > .video_name")?.textContent?.trim() || "";
         },
       },
       subTitle: {

@@ -38,6 +38,8 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
   search: {},
 };
 
+type TSchemaMetadataListSelectors = Required<Required<ISiteMetadata>["list"]>["selectors"];
+
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export default class BittorrentSite {
   public readonly metadata: ISiteMetadata; // 实际过程中使用的配置文件
@@ -536,7 +538,7 @@ export default class BittorrentSite {
     const parsedListPageUrl = doc.URL || location.href; // 获取当前页面的 URL
     const parsedListPage = doc.cloneNode(true) as Document; // 克隆一份文档，避免污染原始文档
 
-    const searchEntry = this.metadata.search ?? { selectors: {} };
+    const searchEntry: { selectors: TSchemaMetadataListSelectors } = { ...(this.metadata.search ?? {}), selectors: {} };
 
     // 使用 list 中定义的 selectors 覆盖掉 search 中的 selectors
     searchEntry.selectors = {
@@ -545,7 +547,7 @@ export default class BittorrentSite {
     };
 
     // 如果有 keywords 选择器，则获取当前搜索页的关键词
-    if ((searchEntry.selectors as Required<Required<ISiteMetadata>["list"]>["selectors"]).keywords) {
+    if (searchEntry.selectors.keywords) {
       retData.keywords = this.getFieldData(parsedListPage, searchEntry.selectors.keywords as IElementQuery);
       delete searchEntry.selectors.keywords; // 删除 keywords 选择器，避免污染后续的种子解析
     }

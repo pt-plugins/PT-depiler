@@ -2,6 +2,9 @@
  * 在此处的注册的css会被content-script注入到启用的页面中。
  */
 
+/*noinspection CssUnknownTarget*/
+@import "@/shared/common.css";
+
 /* 修正 Vuetify 组件样式在 content-script 中的显示问题 */
 .v-container {
     width: unset !important;
@@ -19,28 +22,5 @@
 .table-no-ext-padding {
     .v-data-table__td {
         padding: 0 4px !important;
-    }
-}
-
-.table-header-no-wrap {
-    .v-data-table-header__content {
-        span {
-            white-space: nowrap !important;
-        }
-    }
-}
-
-.table-stripe {
-    tr.v-data-table__tr:nth-child(even) {
-        background-color: #f1f1f1;
-    }
-}
-
-/* 暗黑模式覆写 */
-.v-theme--dark {
-    .table-stripe {
-        tr.v-data-table__tr:nth-child(even) {
-            background-color: #2a2a2a;
-        }
     }
 }

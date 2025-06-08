@@ -67,6 +67,4 @@ export interface ITorrent {
   // 对于PT种子才 获取以下部分
   progress?: number | null; // 进度（100表示完成）
   status?: ETorrentStatus; // 状态
-
-  [key: string]: any; // 其他额外属性
 }

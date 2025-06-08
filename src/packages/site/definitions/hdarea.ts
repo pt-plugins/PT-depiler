@@ -1,4 +1,4 @@
-import { ISearchInput, type ISiteMetadata, ITorrent } from "../types";
+import type { ISearchInput, ISiteMetadata, ITorrent, ITorrentTag } from "../types";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,

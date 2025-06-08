@@ -37,17 +37,39 @@ const configStore = useConfigStore();
 
   <v-row>
     <v-col md="6">
-      <v-label>内容脚本（站点侧边栏等）</v-label>
-      <v-alert type="warning">
-        1. 目前内容脚本功能还在早期测试阶段，请在
-        <a href="https://github.com/pt-plugins/PT-depiler/issues/96" target="_blank">issue#96</a> 中查看进度，并通过创建
-        sub-issue 反馈问题。<br />
-        2. 需要保存设置后，刷新站点页面才能生效。
-      </v-alert>
-      <v-switch v-model="configStore.contentScript.enabled" color="success" hide-details label="启用内容脚本" />
+      <div class="d-flex align-center">
+        <v-label>内容脚本（站点侧边栏等）</v-label>
+        <v-spacer />
+        <v-switch v-model="configStore.contentScript.enabled" color="success" hide-details label="启用" />
+      </div>
+
       <template v-if="configStore.contentScript.enabled">
-        <v-switch v-model="configStore.contentScript.stackedButtons" color="success" hide-details label="大图标按键" />
-        <v-switch v-model="configStore.contentScript.applyTheme" color="success" hide-details label="应用主题样式" />
+        <v-alert type="warning">
+          1. 目前内容脚本功能还在早期测试阶段，请在
+          <a href="https://github.com/pt-plugins/PT-depiler/issues/96" target="_blank">issue#96</a>
+          中查看进度，并通过创建 sub-issue 反馈问题。<br />
+          2. 启用或禁用相关功能后需要保存设置，并刷新站点页面才能生效。
+        </v-alert>
+
+        <v-row dense>
+          <v-col cols="2" class="d-flex align-center justify-center">
+            <v-label>侧边栏基本</v-label>
+          </v-col>
+          <v-col>
+            <v-switch
+              v-model="configStore.contentScript.stackedButtons"
+              color="success"
+              hide-details
+              label="使用大图标按键"
+            />
+            <v-switch
+              v-model="configStore.contentScript.applyTheme"
+              color="success"
+              hide-details
+              :label="`响应插件设置中的 ` + t('SetBase.ui.displayMode.index')"
+            />
+          </v-col>
+        </v-row>
       </template>
     </v-col>
   </v-row>
