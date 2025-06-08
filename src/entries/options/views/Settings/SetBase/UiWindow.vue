@@ -45,7 +45,10 @@ const configStore = useConfigStore();
         2. 需要保存设置后，刷新站点页面才能生效。
       </v-alert>
       <v-switch v-model="configStore.contentScript.enabled" color="success" hide-details label="启用内容脚本" />
-      <v-switch v-model="configStore.contentScript.stackedButtons" color="success" hide-details label="大图标按键" />
+      <template v-if="configStore.contentScript.enabled">
+        <v-switch v-model="configStore.contentScript.stackedButtons" color="success" hide-details label="大图标按键" />
+        <v-switch v-model="configStore.contentScript.applyTheme" color="success" hide-details label="应用主题样式" />
+      </template>
     </v-col>
   </v-row>
 

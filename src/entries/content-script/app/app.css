@@ -35,3 +35,12 @@
         background-color: #f1f1f1;
     }
 }
+
+/* 暗黑模式覆写 */
+.v-theme--dark {
+    .table-stripe {
+        tr.v-data-table__tr:nth-child(even) {
+            background-color: #2a2a2a;
+        }
+    }
+}

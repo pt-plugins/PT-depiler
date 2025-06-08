@@ -70,20 +70,22 @@ function openOptions() {
 </script>
 
 <template>
-  <div ref="el" :style="style" style="position: fixed">
-    <v-speed-dial :close-on-content-click="false">
-      <template v-slot:activator="{ props: activatorProps }">
-        <v-fab v-bind="activatorProps" color="amber" icon size="x-large">
-          <v-avatar :image="ptdIcon" rounded="0" />
-        </v-fab>
-      </template>
+  <v-theme-provider :theme="configStore.contentScript.applyTheme ? configStore.theme : ''">
+    <div ref="el" :style="style" style="position: fixed">
+      <v-speed-dial :close-on-content-click="false">
+        <template v-slot:activator="{ props: activatorProps }">
+          <v-fab v-bind="activatorProps" color="amber" icon size="x-large">
+            <v-avatar :image="ptdIcon" rounded="0" />
+          </v-fab>
+        </template>
 
-      <!-- 这里根据 pageType 来决定显示哪些按钮 -->
-      <component :is="currentView" :key="pageType" />
+        <!-- 这里根据 pageType 来决定显示哪些按钮 -->
+        <component :is="currentView" :key="pageType" />
 
-      <SpeedDialBtn color="amber" icon="mdi-home" title="打开PT-Depiler页面" @click="openOptions" />
-    </v-speed-dial>
-  </div>
+        <SpeedDialBtn color="amber" icon="mdi-home" title="打开PT-Depiler页面" @click="openOptions" />
+      </v-speed-dial>
+    </div>
 
-  <v-snackbar-queue v-model="runtimeStore.uiGlobalSnakebar" closable :attach="true" />
+    <v-snackbar-queue v-model="runtimeStore.uiGlobalSnakebar" closable :attach="true" />
+  </v-theme-provider>
 </template>
