@@ -24,7 +24,7 @@ export function mountApp(document: Document, data: any = {}) {
   // 将 css 的样式添加到 shadow DOM 中
   const baseStyleElement = document.createElement("style");
   baseStyleElement.id = "ptd-content-script-style-base";
-  baseStyleElement.textContent = appCss + "\n" + vuetifyCss;
+  baseStyleElement.textContent = (appCss + "\n" + vuetifyCss).replaceAll(":root", ":host");
   shadowRoot.appendChild(baseStyleElement);
 
   // 添加 mdi 的样式，注意 @font-face 在 shadowDOM 中无法使用，因此需要将其单独处理
