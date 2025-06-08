@@ -83,7 +83,7 @@ async function saveSite() {
               <template #selection="{ item: { raw: site } }">
                 <v-list-item>
                   <template #prepend>
-                    <SiteFavicon :site-id="site.id" class="mr-2" />
+                    <SiteFavicon :site-id="site.id" class="mr-2" flush-on-no-image />
                   </template>
                   <v-list-item-title :class="{ 'text-decoration-line-through': site.isDead }">
                     {{ site.name ?? "" }}

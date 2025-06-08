@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import { useAttrs, Transition, computed, type TransitionProps } from "vue";
 import { type VBtn } from "vuetify/components";
 
 import { useConfigStore } from "@/options/stores/config.ts";
 import { type Writeable } from "@/shared/types/extends.ts";
-import { useAttrs, Transition, type TransitionProps } from "vue";
 
 const {
   title,
@@ -17,18 +17,23 @@ const {
   transition?: TransitionProps;
 }>();
 
-const attrs = useAttrs();
-const btnProp = { ...attrs } as Writeable<Partial<VBtn>>;
-
 const configStore = useConfigStore();
+const attrs = useAttrs();
 
-if (configStore.contentScript.stackedButtons) {
-  btnProp.prependIcon = icon;
-  btnProp.stacked = true;
-  btnProp.variant = "tonal";
-} else {
-  btnProp.icon = icon;
-}
+const btnProp = computed(() => {
+  // Use Writeable to allow modification of the VBtn properties
+  const btnProps: Writeable<Partial<VBtn>> = { ...attrs };
+
+  if (configStore.contentScript.stackedButtons) {
+    btnProps.prependIcon = icon;
+    btnProps.stacked = true;
+    btnProps.variant = "tonal";
+  } else {
+    btnProps.icon = icon;
+  }
+
+  return btnProps;
+});
 </script>
 
 <template>

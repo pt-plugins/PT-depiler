@@ -39,9 +39,10 @@ const configStore = useConfigStore();
     <v-col md="6">
       <v-label>内容脚本（站点侧边栏等）</v-label>
       <v-alert type="warning">
-        目前内容脚本功能还在早期测试阶段，如有问题请在
-        <a href="https://github.com/pt-plugins/PT-depiler/issues/96" target="_blank">issue#96</a> 中创建 sub-issue
-        反映。
+        1. 目前内容脚本功能还在早期测试阶段，请在
+        <a href="https://github.com/pt-plugins/PT-depiler/issues/96" target="_blank">issue#96</a> 中查看进度，并通过创建
+        sub-issue 反馈问题。<br />
+        2. 需要保存设置后，刷新站点页面才能生效。
       </v-alert>
       <v-switch v-model="configStore.contentScript.enabled" color="success" hide-details label="启用内容脚本" />
       <v-switch v-model="configStore.contentScript.stackedButtons" color="success" hide-details label="大图标按键" />
