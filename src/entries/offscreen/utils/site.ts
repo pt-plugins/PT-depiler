@@ -27,9 +27,17 @@ export async function getSiteUserConfig(siteId: TSiteID, flush = false) {
     storedSiteUserConfig.isOffline ??= isDeadSite;
     storedSiteUserConfig.sortIndex ??= 100;
     storedSiteUserConfig.allowSearch ??= !isDeadSite && Object.hasOwn(siteMetaData, "search");
-    storedSiteUserConfig.allowQueryUserInfo ??= !isDeadSite && Object.hasOwn(siteMetaData, "userInfo");
+    storedSiteUserConfig.allowQueryUserInfo ??= Object.hasOwn(siteMetaData, "userInfo");
     storedSiteUserConfig.timeout ??= 30e3;
-    storedSiteUserConfig.inputSetting ??= {};
+
+    const inputSetting = {} as Record<string, string>;
+    if (siteMetaData.userInputSettingMeta) {
+      for (const userInputMeta of siteMetaData.userInputSettingMeta) {
+        inputSetting[userInputMeta.name] = "";
+      }
+    }
+    storedSiteUserConfig.inputSetting ??= inputSetting;
+
     storedSiteUserConfig.groups ??= siteMetaData.tags ?? [];
     storedSiteUserConfig.downloadInterval ??= siteMetaData?.download?.interval ?? 0;
     storedSiteUserConfig.merge ??= {};
