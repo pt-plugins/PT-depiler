@@ -1,7 +1,8 @@
 import { type ISearchInput, type ISiteMetadata, type ITorrent, type ITorrentTag } from "../types";
-import NexusPHP, { SchemaMetadata } from "../schemas/NexusPHP.ts";
+import { SchemaMetadata } from "../schemas/NexusPHP.ts";
 import { set } from "es-toolkit/compat";
 import { parseSizeString, parseValidTimeString } from "@ptd/site";
+import PrivateSite from "@ptd/site/schemas/AbstractPrivateSite.ts";
 
 const linkQuery = {
   selector: ['a[href*="download.php?id="]:has(> img)'],
@@ -20,7 +21,7 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: ["zhuweitung"],
 
   type: "private",
-  schema: "NexusPHP",
+  schema: "FileList",
 
   urls: ["uggcf://svyryvfg.vb/"],
 
@@ -269,11 +270,7 @@ export const siteMetadata: ISiteMetadata = {
   ],
 };
 
-export default class FileList extends NexusPHP {
-  protected async requestUserSeedingPage(userId: number, type: string = "seeding"): Promise<string | null> {
-    return null;
-  }
-
+export default class FileList extends PrivateSite {
   // 获取种子标签
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
