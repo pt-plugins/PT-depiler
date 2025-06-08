@@ -128,6 +128,17 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.userInfo!,
     selectors: {
       ...SchemaMetadata.userInfo!.selectors!,
+      name: {
+        selector: ["a[href*='userdetails.php'][class*='Name']:first"],
+        elementProcess: (element: HTMLElement) => {
+          const iconRank = element.querySelector("i.icon-rank");
+          if (iconRank) {
+            return iconRank?.previousSibling?.textContent?.trim() || element?.textContent.trim();
+          } else {
+            return element?.textContent.trim();
+          }
+        },
+      },
       bonusPerHour: {
         selector: ["#outer td[rowspan]"],
         filters: [{ name: "parseNumber" }],
