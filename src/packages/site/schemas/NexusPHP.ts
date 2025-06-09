@@ -132,7 +132,7 @@ export const SchemaMetadata: Pick<
         ...baseLinkQuery,
         filters: [
           { name: "querystring", args: ["id"] },
-          { name: "perpend", args: ["/details.php?id="] },
+          { name: "prepend", args: ["/details.php?id="] },
         ],
       }, // 种子页面链接
       id: {
@@ -508,7 +508,7 @@ export default class NexusPHP extends PrivateSite {
     }
 
     // 导入用户发布信息
-    if (flushUserInfo.status === EResultParseStatus.success && typeof flushUserInfo.published === "undefined") {
+    if (flushUserInfo.status === EResultParseStatus.success && typeof flushUserInfo.uploads === "undefined") {
       flushUserInfo = (await this.parseUserInfoForUploads(flushUserInfo)) as IUserInfo;
     }
 

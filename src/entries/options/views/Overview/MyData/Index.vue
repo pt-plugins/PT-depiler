@@ -85,22 +85,21 @@ async function updateTableData() {
   const allPrivateSiteUserInfoData = [];
 
   for (const [siteId, siteUserConfig] of Object.entries(metadataStore.sites)) {
-    // 设置为已离线或者不获取用户信息的站点不显示
-    if (siteUserConfig.isOffline === true || siteUserConfig.allowQueryUserInfo === false) {
-      continue;
-    }
-
     const siteMeta = await metadataStore.getSiteMetadata(siteId);
+
     if (
-      siteMeta.type === "public" || // 只显示私有站点的用户信息
-      (siteMeta.isDead === true && !configStore.userInfo.showDeadSiteInOverview) // 根据配置决定是否显示已死亡站点的用户信息
+      // 只显示私有站点的用户信息
+      siteMeta.type === "public" ||
+      // 根据配置决定是否显示已死亡站点的用户信息
+      (siteMeta.isDead === true && !configStore.userInfo.showDeadSiteInOverview) ||
+      // 如果站点设置了离线模式或不允许查询用户信息
+      (!siteMeta.isDead && (siteUserConfig.isOffline === true || siteUserConfig.allowQueryUserInfo === false))
     ) {
       continue;
     }
 
-    // 判断之前有无个人信息，没有则从siteMetadata中根据 type = 'private' 判断是否能获取个人信息
-    const siteUserInfoData = metadataStore.lastUserInfo[siteId] ?? { site: siteId, siteUserConfig };
-    allPrivateSiteUserInfoData.push({ ...fixUserInfo(siteUserInfoData), siteUserConfig });
+    const siteUserInfoData = metadataStore.lastUserInfo[siteId] ?? {};
+    allPrivateSiteUserInfoData.push({ ...fixUserInfo(siteUserInfoData), site: siteId, siteUserConfig });
   }
 
   tableData.value = allPrivateSiteUserInfoData;
@@ -221,6 +220,7 @@ function viewStatistic() {
           max-width="200"
           multiple
           prepend-inner-icon="mdi-filter-cog"
+          @update:model-value="(v) => configStore.updateTableBehavior('MyData', 'columns', v)"
         >
           <template #chip="{ item, index }">
             <v-chip v-if="index === 0">

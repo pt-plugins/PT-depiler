@@ -87,21 +87,68 @@ function loadRemoteBackupFile() {
   }
 }
 
+function extractVersion(str: string = "") {
+  const regex = /v(\d+\.\d+\.\d+\.\d+)/;
+  const match = str.match(regex);
+  return match ? match[1] : null;
+}
+
+/**
+ *
+ * 比较两个版本号字符串
+ *
+ * inputV1 < inputV2 返回 -1
+ * inputV1 = inputV2 返回 0
+ * inputV1 > inputV2 返回 1
+ *
+ */
+function compareVersion(inputV1?: string, inputV2?: string) {
+  const v1 = extractVersion(inputV1);
+  const v2 = extractVersion(inputV2);
+
+  if (!v1 || !v2) return null;
+
+  const parts1 = v1.split(".").map(Number);
+  const parts2 = v2.split(".").map(Number);
+  const maxLength = Math.max(parts1.length, parts2.length);
+
+  for (let i = 0; i < maxLength; i++) {
+    const num1 = parts1[i] || 0;
+    const num2 = parts2[i] || 0;
+
+    if (num1 > num2) return 1;
+    if (num1 < num2) return -1;
+  }
+
+  return 0;
+}
+
 const isDoingRestore = ref<boolean>(false);
 function doRestore() {
   isDoingRestore.value = true;
-  sendMessage("restoreBackupData", { restoreData: restoreData.value!, restoreOptions: restoreOptions.value })
-    .then(() => {
-      runtimeStore.showSnakebar("恢复成功", { color: "success" });
-      showDialog.value = false;
-    })
-    .catch((err) => {
-      runtimeStore.showSnakebar(`恢复失败: ${err}`, { color: "error" });
-      console.error(err);
-    })
-    .finally(() => {
-      isDoingRestore.value = false;
-    });
+
+  // 检查 version 字段
+  if (!restoreData.value?.manifest?.version) {
+    runtimeStore.showSnakebar("备份数据缺少版本信息，无法恢复", { color: "error" });
+    isDoingRestore.value = false;
+    return;
+  }
+
+  let warnRestore = compareVersion(restoreData.value.manifest.version, __EXT_VERSION__) == 1;
+  if (!warnRestore || confirm("备份数据版本高于当前扩展版本，恢复可能会导致数据不兼容或丢失，是否继续？")) {
+    sendMessage("restoreBackupData", { restoreData: restoreData.value!, restoreOptions: restoreOptions.value })
+      .then(() => {
+        runtimeStore.showSnakebar("恢复成功", { color: "success" });
+        showDialog.value = false;
+      })
+      .catch((err) => {
+        runtimeStore.showSnakebar(`恢复失败: ${err}`, { color: "error" });
+        console.error(err);
+      })
+      .finally(() => {
+        isDoingRestore.value = false;
+      });
+  }
 }
 
 function convertIsoDurationToMinutes(duration: string): number {

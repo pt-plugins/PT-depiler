@@ -1,19 +1,20 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { type CAddTorrentOptions, getDownloaderIcon } from "@ptd/downloader";
+import { type ITorrent } from "@ptd/site";
+import { type CAddTorrentOptions, getDownloaderIcon as getDownloaderIconRaw } from "@ptd/downloader";
 
 import { sendMessage } from "@/messages.ts";
 import { formatDate } from "@/options/utils.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-import type { IDownloaderMetadata, ISearchResultTorrent } from "@/shared/types.ts";
+import type { IDownloaderMetadata } from "@/shared/types.ts";
 import { toMerged } from "es-toolkit";
 
 const showDialog = defineModel<boolean>();
 const { torrentItems } = defineProps<{
-  torrentItems: ISearchResultTorrent[];
+  torrentItems: ITorrent[];
 }>();
 const emit = defineEmits<{
   (e: "cancel"): void;
@@ -37,6 +38,7 @@ const suggestFolders = computed(() => selectedDownloader.value?.suggestFolders ?
 const suggestTags = computed(() => selectedDownloader.value?.suggestTags ?? []);
 
 const downloaderTitle = (downloader: IDownloaderMetadata) => `${downloader.name} [${downloader.address}]`;
+const getDownloaderIcon = (x: string) => chrome.runtime.getURL(getDownloaderIconRaw(x));
 
 function restoreAddTorrentOptions(downloader?: IDownloaderMetadata) {
   addTorrentOptions.value.localDownload = true;

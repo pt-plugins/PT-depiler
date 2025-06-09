@@ -38,6 +38,7 @@ async function save() {
       v-model="setTab"
       align-tabs="center"
       bg-color="primary"
+      show-arrows
       stacked
       @update:model-value="(v) => enterTab(v as string)"
     >

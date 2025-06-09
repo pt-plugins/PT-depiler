@@ -1,5 +1,5 @@
-import { type ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/Unit3D.ts";
+import { EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
+import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -13,7 +13,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Unit3D",
 
-  urls: ["ROT13:uggcf://zbavxnqrfvta.hx/"],
+  urls: ["uggcf://zbavxnqrfvta.hx/"],
 
   category: [
     {
@@ -218,6 +218,19 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+
+      // "/users/$user.name$/bonus/transactions/create
+      bonusPerHour: {
+        selector: ["aside .panelV2 dd:nth-child(6)"],
+        filters: [(query: string) => parseFloat(query || "0")],
+      },
+    },
+  },
+
   // TODO userInfo 中的 averageSeedingTime, hnrUnsatisfied 等其他字段
 
   levelRequirements: [
@@ -279,3 +292,26 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
+
+export default class MonikaDesign extends Unit3D {
+  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
+    let userName = flushUserInfo?.name;
+    if (flushUserInfo?.status === EResultParseStatus.success && userName) {
+      // 获取时魔
+      flushUserInfo.bonusPerHour = await this.getBonusPerHourFromBonusTransactionsPage(userName);
+    }
+    return flushUserInfo;
+  }
+
+  protected async getBonusPerHourFromBonusTransactionsPage(userName: string): Promise<string> {
+    const { data: document } = await this.request<Document>(
+      {
+        url: `/users/${userName}/bonus/transactions/create`,
+        responseType: "document",
+      },
+      true,
+    );
+    return this.getFieldData(document, this.metadata.userInfo?.selectors?.bonusPerHour!);
+  }
+}

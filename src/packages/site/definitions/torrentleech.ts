@@ -137,7 +137,7 @@ export const siteMetadata: ISiteMetadata = {
       rows: { selector: "torrentList" },
       id: { selector: "fid" },
       title: { selector: "name" },
-      url: { selector: "fid", filters: [{ name: "perpend", args: ["/torrent/"] }] },
+      url: { selector: "fid", filters: [{ name: "prepend", args: ["/torrent/"] }] },
       link: {
         selector: ":self",
         filters: [(row: ITorrentLeechTorrent) => "/download/" + row.fid + "/" + row.filename],

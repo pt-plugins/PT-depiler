@@ -113,6 +113,9 @@ const resetItems: resetItem[] = [
     title: "清空站点数据",
     subTitle: "清空用户所有历史获取的站点数据",
     resetFn: async () => {
+      const metadataStore = useMetadataStore();
+      metadataStore.lastUserInfo = {};
+      await metadataStore.$save();
       await sendMessage("setExtStorage", { key: "userInfo", value: {} });
     },
   },
@@ -138,6 +141,9 @@ const resetItems: resetItem[] = [
     title: "清空搜索快照",
     subTitle: "清空所有搜索快照数据",
     resetFn: async () => {
+      const metadataStore = useMetadataStore();
+      metadataStore.snapshots = {};
+      await metadataStore.$save();
       await sendMessage("setExtStorage", { key: "searchResultSnapshot", value: {} });
     },
   },

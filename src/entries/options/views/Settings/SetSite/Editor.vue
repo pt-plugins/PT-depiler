@@ -6,6 +6,7 @@ import type { timezoneOffset, ISiteUserConfig, TSiteID, ISiteMetadata, TSiteUrl 
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { formatDate, formValidateRules } from "@/options/utils.ts";
+import { toMerged } from "es-toolkit";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
@@ -26,17 +27,21 @@ const siteTimezoneOffset = computed({
   set: (value) => set(siteUserConfig.value, "merge.timezoneOffset", value),
 });
 const customSiteUrl = ref<string>("");
-const isFormValid = ref<boolean>(false);
+const isFormValid = ref<boolean>(true);
+
+function updateFormValid(v: boolean) {
+  isFormValid.value = v;
+  emit("update:formValid", v);
+}
 
 async function initSiteData(siteId: TSiteID, flush = false) {
   console.log("initSiteData", siteId, flush);
-  isFormValid.value = false;
   siteMetaData.value = await metadataStore.getSiteMetadata(siteId);
-  siteUserConfig.value = await metadataStore.getSiteUserConfig(siteId, flush);
-  if (siteMetaData.value.isDead) {
-    isFormValid.value = true;
-  }
-  emit("update:formValid", isFormValid.value);
+  siteUserConfig.value = toMerged(
+    { inputSetting: {}, url: siteMetaData.value.urls[0] },
+    await metadataStore.getSiteUserConfig(siteId, flush),
+  );
+  updateFormValid(siteMetaData.value.isDead ? true : isFormValid.value);
 }
 
 onMounted(() => {
@@ -87,7 +92,7 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
       v-model="isFormValid"
       fast-fail
       :disabled="siteMetaData.isDead"
-      validate-on="eager invalid-input"
+      validate-on="input"
       @update:model-value="(v) => emit('update:formValid', v as boolean)"
     >
       <v-container class="pa-0">
@@ -140,8 +145,9 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
             :label="t('SetSite.common.url')"
             class="edit-select-url"
             hide-details
+            :rules="[formValidateRules.require()]"
           >
-            <v-radio v-for="url in siteMetaData.urls" :key="url" :value="url" @click="siteUserConfig.valid = true">
+            <v-radio v-for="url in siteMetaData.urls" :key="url" :value="url" @click="updateFormValid(true)">
               <template #label style="width: 100%">
                 {{ url }}
                 <v-spacer />
@@ -154,7 +160,7 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
                 />
               </template>
             </v-radio>
-            <v-radio v-model="customSiteUrl" :value="customSiteUrl" @click="siteUserConfig.valid = false">
+            <v-radio v-model="customSiteUrl" :value="customSiteUrl" @click="updateFormValid(false)">
               <template #label>
                 <v-text-field
                   v-model="customSiteUrl"
@@ -171,14 +177,16 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
 
         <v-label class="my-2">站点设置</v-label>
 
-        <template v-if="siteMetaData.userInputSettingMeta">
+        <template v-if="siteMetaData.userInputSettingMeta && siteUserConfig.inputSetting">
           <v-text-field
             v-for="userInputMeta in siteMetaData.userInputSettingMeta"
             :key="userInputMeta.name"
             v-model="siteUserConfig.inputSetting![userInputMeta.name]"
             :hint="userInputMeta.hint"
             :label="userInputMeta.label"
-            :rules="[(val) => (userInputMeta.required ? formValidateRules.require()(val) : true)]"
+            :rules="[
+              (val) => (!siteMetaData.isDead && userInputMeta.required ? formValidateRules.require()(val) : true),
+            ]"
             validate-on="input"
           >
           </v-text-field>

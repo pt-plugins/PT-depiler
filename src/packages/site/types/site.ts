@@ -53,10 +53,14 @@ export interface ISiteMetadata {
   readonly collaborator?: string[]; // 提供该站点解决方案的协作者
 
   /**
-   * 指定继承模板类型，如果未填写的话，且站点配置文件抛出了 default class 的话，会忽略掉此处的 schema 参数
+   * type 和 schema 共同描述了站点实例 的构建方法
+   *
+   * type 用于指示这个站点的类型
+   * schema 用于指定继承模板类型，如果未填写的话，且站点配置文件抛出了 default class 的话，会忽略掉此处的 schema 参数
    * 否则会根据其 type类型 进行自动更正为缺省值：
    *  - public 类型下， schema 的缺省值为 AbstractBittorrentSite
    *  - private 类型下， schema 的缺省值为 AbstractPrivateSite
+   *
    */
   readonly type: "private" | "public"; // 站点类型
   schema?: SiteSchema;
@@ -129,12 +133,16 @@ export interface ISiteMetadata {
 
     /**
      * 对于种子列表页的解析配置，默认会使用 search.requestConfig.selectors 中的配置，
+     * 需要至少解析出 id, title, url, link, time, size
+     * 如果解析出 subTitle, seeders, leechers, completed ，会在高级列表中显示
      *
      * 额外增加字段说明：
      * keywords: 用于获取种子列表页中正在使用的搜索关键词，如果获取到非空字符串，则会显示 "在插件中搜索的标识"
-     *   如果未设置，插件会自动根据 search.keywordPath 或 searchEntry[*].keywordPath 来推断，比如：
-     *     - search.keywordPath 为 params.keywords 时，keywords 会被自动推断为 { selector: 'input[name="keywords"]' }
-     *     - search.keywordPath 为 data.keywords 时，keywords 会被自动推断为 { selector: 'form[method="post" i] input[name="keywords"]' }
+     *   如果未设置，AbstractBittorrentSite.transformListPage 会自动根据 search.keywordPath 或 searchEntry[*].keywordPath 来推断，
+     *   比如：
+     *     - search.keywordPath 为 params.xxxx 时，keywords 会被自动推断为 { selector: 'input[name="xxxx"]' }
+     *     - search.keywordPath 为 data.xxxx 时，keywords 会被自动推断为 { selector: 'form[method="post" i] input[name="xxxx"]' }
+     *     - 如果仍未找到，则会尝试从url中解析 &xxxx= 以及 &search= , &keywords= , &keyword= 字段内容
      */
     selectors?: ISearchConfig["selectors"] & { keywords?: IElementQuery };
   };
@@ -153,6 +161,18 @@ export interface ISiteMetadata {
 
     requestConfig?: AxiosRequestConfig;
 
+    /**
+     * 对于种子详情页的解析配置
+     *
+     * 对页面解析需要至少解析出 id, title, url, link, time, size
+     *
+     * 注意：
+     * 1. AbstractBittorrentSite.transformDetailPage 中预设了以下规则
+     *    - 如果未定义 url 的 selector，则 url 会被自动设置为 doc.URL || location.href
+     *    - 如果未定义 id 的 selector，且 url 中有 `&id=` 或者 `&tid=` 字段，则会被自动解析为 id
+     *
+     * 2. AbstractBittorrentSite.getTorrentDownloadLink 中会使用 link 的 selector 来获取下载链接
+     */
     selectors?: {
       link?: IElementQuery; // 用于获取下载链接不在搜索页，而在详情页的情况
       [key: string]: IElementQuery | undefined; // FIXME

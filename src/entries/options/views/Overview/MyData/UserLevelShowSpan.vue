@@ -19,7 +19,7 @@ function formatDuration(duration: number | isoDuration) {
 </script>
 
 <template>
-  <slot name="perpend"></slot>
+  <slot name="prepend"></slot>
   <template v-if="levelRequirement.interval">
     <v-icon :title="t('levelRequirement.interval')" icon="mdi-calendar-clock" size="small" />
     {{ formatDuration(levelRequirement.interval) }};

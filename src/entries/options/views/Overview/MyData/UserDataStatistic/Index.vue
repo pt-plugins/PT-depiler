@@ -25,7 +25,6 @@ import { formatSize, formatDate } from "@/options/utils.ts";
 import { IStoredUserInfo } from "@/shared/types.ts";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { allAddedSiteMetadata, loadAllAddedSiteMetadata } from "@/options/views/Overview/MyData/utils.ts";
 
@@ -34,7 +33,7 @@ import SiteName from "@/options/components/SiteName.vue";
 import NavButton from "@/options/components/NavButton.vue";
 import CheckSwitchButton from "@/options/components/CheckSwitchButton.vue";
 
-import { loadFullData, setSubDate, type TUserDataStatistic } from "./utils.ts";
+import { type IUserDataStatistic, loadFullData, setSubDate } from "./utils.ts";
 
 type EChartsLineChartOption = ComposeOption<
   TitleComponentOption | TooltipComponentOption | LegendComponentOption | GridComponentOption | LineSeriesOption
@@ -55,20 +54,24 @@ const { width: containerWidth } = useElementSize(chartContainerRef);
 const perChartHeight = computed(() => 400);
 
 const allowEditName = ref<boolean>(false);
-const rawDataRef = ref<TUserDataStatistic>({});
 
-const allDateRanges = computed(() => Object.keys(rawDataRef.value));
-const allSites = computed<string[]>(() =>
-  uniq(flatten(Object.values(mapValues(rawDataRef.value, (x) => Object.keys(x))))),
-);
-const availableSites = computed(() =>
-  uniq(flatten(Object.values(mapValues(pick(rawDataRef.value, selectedDateRanges.value), (x) => Object.keys(x))))),
-);
+const rawDataRef = ref<IUserDataStatistic>({ siteDateRange: {}, dailyUserInfo: {} });
+
+const allDateRanges = computed(() => Object.keys(rawDataRef.value.dailyUserInfo));
+const allSites = computed<string[]>(() => Object.keys(rawDataRef.value.siteDateRange));
 
 const selectedDateRanges = shallowRef<string[]>([]);
+const selectedDateRangeRawData = computed<IUserDataStatistic["dailyUserInfo"]>(() =>
+  pick(rawDataRef.value.dailyUserInfo, selectedDateRanges.value),
+);
+
+const availableSites = computed(() =>
+  uniq(flatten(Object.values(mapValues(selectedDateRangeRawData.value, (x) => Object.keys(x))))),
+);
+
 const selectedSites = ref<string[]>([]);
-const selectedDataComputed = computed<TUserDataStatistic>(() =>
-  mapValues(pick(rawDataRef.value, selectedDateRanges.value), (x) => pick(x, selectedSites.value)),
+const selectedDataComputed = computed<IUserDataStatistic["dailyUserInfo"]>(() =>
+  mapValues(selectedDateRangeRawData.value, (x) => pick(x, selectedSites.value)),
 );
 
 function getTotalDataByField(field: keyof IStoredUserInfo) {
@@ -171,12 +174,28 @@ const createPerSiteChartOptionsFn = (
     const series = selectedSites.value.map((site) => {
       let data;
       if (incr) {
-        data = selectedDateRanges.value.map((date) => {
-          const currentData = selectedDataComputed.value[date]?.[site]?.[field] ?? 0;
-          const previousData =
-            selectedDataComputed.value[selectedDateRanges.value[selectedDateRanges.value.indexOf(date) - 1]]?.[site]?.[
-              field
-            ] ?? 0;
+        let minSiteDate = new Date(rawDataRef.value.siteDateRange[site]?.[0] ?? selectedDateRanges.value[0]);
+
+        data = selectedDateRanges.value.map((date, idx) => {
+          if (new Date(date) <= minSiteDate) {
+            return 0; // 对站点的第一次有数据的值进行特殊处理
+          }
+
+          let currentData = selectedDataComputed.value[date]?.[site]?.[field];
+          if (typeof currentData === "undefined" || currentData === "") {
+            return 0;
+          }
+          currentData = currentData || 0; // 确保 currentData 有值可以比较
+
+          // 获取前一个有效的数据
+          let previousDataIdx = idx;
+          let previousData;
+          do {
+            previousDataIdx--;
+            previousData = selectedDataComputed.value[selectedDateRanges.value[previousDataIdx]]?.[site]?.[field];
+          } while (previousDataIdx > 0 && (typeof previousData === "undefined" || previousData === ""));
+
+          previousData = previousData || 0; // 确保 previousData 有值可以比较
           return currentData - previousData;
         });
       } else {

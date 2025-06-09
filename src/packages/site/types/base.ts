@@ -16,7 +16,7 @@ export type TSiteFullUrl = `${"http" | "https"}://${TSiteHost}/`;
  *
  * refs: https://en.wikipedia.org/wiki/ROT13
  */
-export type TSiteFullUrlProtect = `ROT13:${"uggc" | "uggcf"}://${TSiteHost}/`;
+export type TSiteFullUrlProtect = `${"uggc" | "uggcf"}://${TSiteHost}/`;
 export type TSiteUrl = TSiteFullUrl | TSiteFullUrlProtect;
 
 /**

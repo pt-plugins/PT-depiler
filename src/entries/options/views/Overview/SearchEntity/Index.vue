@@ -223,6 +223,7 @@ function cancelSearchQueue() {
           max-width="180"
           multiple
           prepend-inner-icon="mdi-filter-cog"
+          @update:model-value="(v) => configStore.updateTableBehavior('SearchEntity', 'columns', v)"
         >
           <template #chip="{ item, index }">
             <v-chip v-if="index === 0">

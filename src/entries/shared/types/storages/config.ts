@@ -39,6 +39,13 @@ export interface IConfigPiniaStorageSchema {
     allowSelectionTextSearch: boolean;
   };
 
+  contentScript: {
+    enabled: boolean; // 是否启用 contentScript
+    position: { x: number; y: number }; // 图标位置
+    stackedButtons: boolean; // 是否使用堆叠按钮
+    applyTheme: boolean; // 是否响应主题样式
+  };
+
   // 对 MyData 页面 v-data-table 展示的额外控制项
   myDataTableControl: {
     // 是否展示站点名称

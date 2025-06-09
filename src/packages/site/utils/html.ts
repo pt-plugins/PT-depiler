@@ -47,7 +47,7 @@ export function rot13(input: string): string {
 }
 
 export function restoreSecureLink(url: string): TSiteFullUrl {
-  return (url.startsWith("ROT13:") ? rot13(url.slice(6)) : url) as TSiteFullUrl;
+  return (url.startsWith("uggc") ? rot13(url) : url) as TSiteFullUrl;
 }
 
 export function getHostFromUrl(url: string): TSiteHost {

@@ -40,6 +40,7 @@ async function main() {
   }
 
   const triggerInfo = {
+    runId: process.env.GITHUB_RUN_ID || "unknown",
     eventName: process.env.GITHUB_EVENT_NAME || "unknown",
     workflow: process.env.GITHUB_WORKFLOW || "unknown",
     actor: process.env.GITHUB_ACTOR || "unknown",
@@ -48,6 +49,10 @@ async function main() {
   };
   const commitInfo = getCommitInfo();
   let buildVersion = process.env.BUILD_VERSION || "unknown";
+
+  const repoUrl = `https://github.com/${triggerInfo.repository}`; // 获取 GitHub 仓库基础 URL
+  const commitUrl = `${repoUrl}/commit/${commitInfo.commitHash}`; // 构建 Commit 链接
+  const actionRunUrl = `${repoUrl}/actions/runs/${triggerInfo.runId}`; // 构建 GitHub Action 运行链接
 
   let message = `
 #${triggerInfo.eventName} #${commitInfo.author} #${commitInfo.commitHash}
@@ -59,7 +64,9 @@ ${escapeLegacyMarkdown(commitInfo.message)}
 
 🔢 \`v${buildVersion}\`
 📅 \`${commitInfo.timestamp}\`
-📦 *GitHub Action 自动构建*
+🔖 Commit: [${commitInfo.commitHash}](${commitUrl})
+⚙️ Workflow: [${triggerInfo.runId}](${actionRunUrl})
+📦 *由 GitHub Action 自动构建*
 `;
 
   message = message.replace(

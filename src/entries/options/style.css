@@ -1,6 +1,9 @@
 @import "vuetify";
 @import "tailwindcss" prefix(tw);
 
+/*noinspection CssUnknownTarget*/
+@import "@/shared/common.css";
+
 /* 在表头过滤器中不显示 v-combobox 的输入框 */
 .v-combobox.table-header-filter-clear  {
     .v-field__input {
@@ -24,20 +27,6 @@
     }
 }
 
-.table-header-no-wrap {
-    .v-data-table-header__content {
-        span {
-            white-space: nowrap !important;
-        }
-    }
-}
-
-.table-stripe {
-    tr.v-data-table__tr:nth-child(even) {
-        background-color: #f1f1f1;
-    }
-}
-
 .table-switch-btn {
     .v-selection-control {
         justify-content: center;
@@ -55,13 +44,4 @@
 
 .list-item-half-spacer > .v-list-item__prepend > .v-icon ~ .v-list-item__spacer {
     width: 12px;
-}
-
-/* 暗黑模式覆写 */
-.v-theme--dark {
-    .table-stripe {
-        tr.v-data-table__tr:nth-child(even) {
-            background-color: #2a2a2a;
-        }
-    }
 }

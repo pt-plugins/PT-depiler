@@ -224,6 +224,10 @@ export const siteMetadata: ISiteMetadata = {
         ],
         filters: [{ name: "parseSize" }],
       },
+      messageCount: {
+        ...SchemaMetadata.userInfo!.selectors!.messageCount,
+        selector: ["div[style*='background: red'] a[href*='messages.php']"],
+      },
     },
   },
 

@@ -137,12 +137,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "mTorrent",
 
-  urls: [
-    "ROT13:uggcf://xc.z-grnz.pp/",
-    "ROT13:uggcf://mc.z-grnz.vb/",
-    "ROT13:uggcf://kc.z-grnz.pp/",
-    "ROT13:uggcf://nc.z-grnz.pp/",
-  ],
+  urls: ["uggcf://xc.z-grnz.pp/", "uggcf://mc.z-grnz.vb/", "uggcf://kc.z-grnz.pp/", "uggcf://nc.z-grnz.pp/"],
   formerHosts: ["xp.m-team.io", "pt.m-team.cc", "tp.m-team.cc"],
 
   category: [
@@ -298,7 +293,7 @@ export const siteMetadata: ISiteMetadata = {
       id: { selector: "id" },
       title: { selector: "name" },
       subTitle: { selector: "smallDescr" },
-      url: { selector: "id", filters: [{ name: "perpend", args: ["/detail/"] }] },
+      url: { selector: "id", filters: [{ name: "prepend", args: ["/detail/"] }] },
       // link: 不返回，在 class 中单独构造
       time: { selector: "createdDate", filters: [{ name: "parseTime" }] },
       size: { selector: "size", filters: [{ name: "parseNumber" }] },
@@ -372,6 +367,27 @@ export const siteMetadata: ISiteMetadata = {
         },
       },
     ],
+  },
+
+  list: {
+    urlPattern: ["/browse"],
+    selectors: {
+      rows: { selector: "tbody.bg-\\[\\#bccad6\\] > tr" },
+      id: { selector: "a[href^='/detail/']", attr: "href", filters: [{ name: "parseNumber" }] },
+      title: { selector: "a[href^='/detail/'] strong > span:nth-last-child(1)" },
+      subTitle: { selector: "a[href^='/detail/'] + br + div > span" },
+      url: { selector: "a[href^='/detail/']", attr: "href" },
+      // link: 不返回，在 class 中单独构造
+      time: { selector: "td:nth-child(4) > span", attr: "title", filters: [{ name: "parseTime" }] },
+      size: { selector: "td:nth-child(5)", filters: [{ name: "parseSize" }] },
+      seeders: { selector: 'span[aria-label="arrow-up"] + span' },
+      leechers: { selector: 'span[aria-label="arrow-down"] + span' },
+      completed: { text: "-" }, // 页面中不返回 completed
+      comments: { selector: "td:nth-child(3)" },
+      category: { selector: "img[src*='/static/cate'][alt]", attr: "alt" },
+      ext_douban: { selector: "a[href^='https://movie.douban.com/subject/']", filters: [{ name: "extDoubanId" }] },
+      ext_imdb: { selector: "a[href^='https://www.imdb.com/title/']", filters: [{ name: "extImdbId" }] },
+    },
   },
 
   levelRequirements,

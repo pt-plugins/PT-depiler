@@ -38,6 +38,8 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
   search: {},
 };
 
+type TSchemaMetadataListSelectors = Required<Required<ISiteMetadata>["list"]>["selectors"];
+
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export default class BittorrentSite {
   public readonly metadata: ISiteMetadata; // 实际过程中使用的配置文件
@@ -460,7 +462,7 @@ export default class BittorrentSite {
         continue;
       }
 
-      const dynamicParseFuncKey = `parseTorrentRowFor${pascalCase(key)}` as keyof this;
+      const dynamicParseFuncKey = `parseTorrentRowFor${pascalCase(key as string)}` as keyof this;
       if (dynamicParseFuncKey in this && typeof this[dynamicParseFuncKey] === "function") {
         torrent = await this[dynamicParseFuncKey](torrent, row, searchConfig);
       } else if (searchEntry!.selectors![key]) {
@@ -524,6 +526,64 @@ export default class BittorrentSite {
     searchConfig: ISearchInput,
   ): ITorrent {
     return torrent;
+  }
+
+  /**
+   * 此方法主要在 content-script 中调用，用于将传入的 Document 转换为种子列表
+   * @param doc
+   */
+  public async transformListPage(doc: Document): Promise<{ keywords: string; torrents: ITorrent[] }> {
+    const retData = { keywords: "", torrents: [] } as { keywords: string; torrents: ITorrent[] };
+
+    const parsedListPageUrl = doc.URL || location.href; // 获取当前页面的 URL
+    const parsedListPage = doc.cloneNode(true) as Document; // 克隆一份文档，避免污染原始文档
+
+    const searchEntry: { selectors: TSchemaMetadataListSelectors } = { selectors: {}, ...(this.metadata.search ?? {}) };
+
+    // 使用 list 中定义的 selectors 覆盖掉 search 中的 selectors
+    searchEntry.selectors = {
+      ...searchEntry.selectors,
+      ...(this.metadata.list?.selectors ?? {}),
+    };
+
+    // 如果有 keywords 选择器，则获取当前搜索页的关键词
+    if (searchEntry.selectors.keywords) {
+      retData.keywords = this.getFieldData(parsedListPage, searchEntry.selectors.keywords as IElementQuery);
+      delete searchEntry.selectors.keywords; // 删除 keywords 选择器，避免污染后续的种子解析
+    } else {
+      // 参照 searchEntry 中的 keywordPath 来获取关键词
+      const keywordPath = (searchEntry as ISiteMetadata["search"])!.keywordPath || "params.keywords";
+      const [keywordField, keywordParams] = keywordPath.split(".");
+
+      // 首先尝试使用 getFieldData 获取关键词
+      retData.keywords = this.getFieldData(parsedListPage, {
+        selector: [
+          keywordField === "params" ? `input[name="${keywordParams}"]` : false,
+          keywordField === "data" ? `form[method="post" i] input[name="${keywordField}"]` : false,
+        ].filter(Boolean) as string[],
+        text: "",
+      });
+      if (retData.keywords === "") {
+        // 如果没有获取到关键词，则尝试从 URL 中解析
+        const urlParams = new URLSearchParams(parsedListPageUrl.split("?")[1] ?? "");
+        for (const keywordParams of ["keywords", "search", "keyword"]) {
+          // 尝试从 URL 中获取关键词
+          if (urlParams.has(keywordParams)) {
+            retData.keywords = urlParams.get(keywordParams) || "";
+            break;
+          }
+        }
+      }
+    }
+
+    try {
+      retData.torrents = await this.transformSearchPage(parsedListPage, {
+        searchEntry,
+        requestConfig: { url: parsedListPageUrl },
+      });
+    } catch (e) {}
+
+    return retData;
   }
 
   /**

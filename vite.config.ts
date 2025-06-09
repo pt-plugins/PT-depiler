@@ -104,6 +104,13 @@ export default defineConfig({
           open_in_tab: true,
         },
 
+        content_scripts: [
+          {
+            matches: ["*://*/*"],
+            js: ["src/entries/content-script/index.ts"],
+          },
+        ],
+
         // 在 Chrome 中需要多注册一个 offscreen 权限
         "{{chrome}}.permissions": [...permissions, "offscreen"],
         "{{firefox}}.permissions": permissions,
@@ -115,7 +122,26 @@ export default defineConfig({
             strict_min_version: "113.0",
           },
         },
+        "{{firefox}}.content_security_policy": {
+          extension_pages: "script-src 'self';",
+        },
+
+        web_accessible_resources: [
+          {
+            resources: ["icons/*", "lib/*", "pt-depiler.css"],
+            matches: ["*://*/*"],
+          },
+        ],
       }),
+      // vite-plugin-web-extension 会在构造中，将js中引入的css文件自动添加到 manifest 中的 content_scripts 中，我们不需要这种默认行为
+      transformManifest: (manifest) => {
+        manifest.content_scripts.forEach((script) => {
+          if (script.css) {
+            delete script.css;
+          }
+        });
+        return manifest;
+      },
       additionalInputs: target == "chrome" ? ["src/entries/offscreen/offscreen.html"] : undefined,
       watchFilePaths: ["package.json"],
       htmlViteConfig: {

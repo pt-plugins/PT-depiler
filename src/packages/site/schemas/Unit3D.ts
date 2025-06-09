@@ -10,7 +10,7 @@ import { parseSizeString, parseValidTimeString } from "../utils";
  * Trans Array
  * Source: https://github.com/HDInnovations/UNIT3D-Community-Edition/commit/cb1efe0868caf771b9917c090a79b28b4e183b74
  */
-const idTrans: string[] = ["User ID", "用户ID", "用ID"];
+const idTrans: string[] = ["User ID", "用户 ID", "用ID", "用户ID"];
 const seedingSizeTrans: string[] = ["Seeding Size", "做种体积", "做種體積"];
 const joinTimeTrans: string[] = ["Registration date", "注册日期", "註冊日期"];
 

@@ -14,7 +14,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["ROT13:uggcf://cgubzr.arg/"],
+  urls: ["uggcf://cgubzr.arg/"],
 
   category: [
     {
@@ -183,6 +183,15 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "4TB",
       ratio: 1.7,
       seedingBonus: 1000000,
+      privilege: "同白银用户等级权限。",
+    },
+    {
+      id: 9,
+      name: "Nexus Master",
+      interval: "P100W",
+      downloaded: "6TB",
+      ratio: 1.8,
+      seedingBonus: 1200000,
       privilege: "同白银用户等级权限。",
     },
   ],

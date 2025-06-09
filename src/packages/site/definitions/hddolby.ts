@@ -16,6 +16,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["https://www.hddolby.com/"],
+  formerHosts: ["hddolby.com"],
 
   category: [
     {
