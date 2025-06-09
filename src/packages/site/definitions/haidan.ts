@@ -46,10 +46,13 @@ export const siteMetadata: ISiteMetadata = {
         { name: "Misc(其他)", value: 409 },
         { name: "HQ Audio(音乐)", value: 408 },
       ],
-      cross: { mode: "append" },
+      cross: { mode: "comma" },
+    },
+    {
+      ...CategorySpstate,
+      cross: { mode: "comma" },
     },
     CategoryIncldead,
-    CategorySpstate,
     CategoryInclbookmarked,
   ],
 
