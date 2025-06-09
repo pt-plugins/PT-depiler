@@ -141,7 +141,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "Pack", selector: "i.far.fa-folder-heart", color: "#e3747a" },
         { name: "Plex", selector: "i.far.fa-play", color: "#f39c12" },
         { name: "Internal", selector: "i.far.fa-bolt", color: "#b793f0" },
-        { name: "Worthy", selector: "i.far.a-medal", color: "#00c07f" },
+        { name: "Worthy", selector: "i.far.fa-medal", color: "#00c07f" },
         { name: "Sticky", selector: "i.far.fa-thumbtack", color: "#d32f2f" },
       ],
     },
