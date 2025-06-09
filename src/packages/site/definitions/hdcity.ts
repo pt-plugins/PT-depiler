@@ -9,6 +9,11 @@ import { parseSizeString, parseValidTimeString } from "@ptd/site";
 
 const levelRequirements: (ILevelRequirement & { levelId?: number })[] = [
   {
+    id: 0,
+    name: "天使",
+    privilege: "新手上路；可以直接发布种子；可以使用 RSS",
+  },
+  {
     id: 1,
     name: "大天使",
     interval: "P4W",

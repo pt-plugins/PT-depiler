@@ -656,6 +656,11 @@ export const siteMetadata: ISiteMetadata = {
 
   levelRequirements: [
     {
+      id: 0,
+      name: "User",
+      privilege: "所有新用户的默认等级；能够使用 RSS 订阅系统；具有论坛「茶话会」版块的阅读权限",
+    },
+    {
       id: 1,
       name: "Member",
       interval: "P1W",
