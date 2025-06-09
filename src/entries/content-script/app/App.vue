@@ -76,7 +76,7 @@ function openOptions() {
 
 <template>
   <v-theme-provider :theme="configStore.contentScript.applyTheme ? configStore.theme : ''">
-    <div ref="el" :style="style" style="position: fixed">
+    <div ref="el" :style="style" style="position: fixed; z-index: 9999999">
       <v-speed-dial :close-on-content-click="false">
         <template v-slot:activator="{ props: activatorProps }">
           <v-fab v-bind="activatorProps" color="amber" icon size="x-large">

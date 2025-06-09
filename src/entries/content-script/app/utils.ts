@@ -21,20 +21,21 @@ export function updatePageType() {
     const metadata = siteInstance.value.metadata;
 
     // 首先判断是否为 list 页面
-    const listUrlPatterns = uniq([
-      ...(metadata.list?.urlPattern ?? []),
-      ...(metadata.search?.requestConfig?.url ? [metadata.search.requestConfig.url] : []),
-      ...(Object.values(metadata.searchEntry ?? {}).map((entry) => entry.requestConfig?.url) ?? []),
-    ]).filter(Boolean);
+    let listUrlPatterns = [];
+    if (metadata.list?.urlPattern) {
+      listUrlPatterns = metadata.list?.urlPattern;
+    } else {
+      listUrlPatterns = uniq([
+        ...(metadata.search?.requestConfig?.url ? [metadata.search.requestConfig.url] : []),
+        ...(Object.values(metadata.searchEntry ?? {}).map((entry) => entry.requestConfig?.url) ?? []),
+      ]).filter(Boolean);
+    }
 
     if (listUrlPatterns.some((pattern) => new RegExp(pattern!, "i").test(url))) {
       pageType.value = "list";
     } else {
       // 如果不是 list 页面，再判断是否为 detail 页面
-      const detailUrlPatterns = uniq([
-        ...(metadata.detail?.urlPattern ?? []),
-        ...(metadata.detail?.requestConfig?.url ? [metadata.detail.requestConfig.url] : []),
-      ]).filter(Boolean);
+      let detailUrlPatterns = metadata.detail?.urlPattern ?? [];
 
       if (detailUrlPatterns.some((pattern) => new RegExp(pattern, "i").test(url))) {
         pageType.value = "detail";

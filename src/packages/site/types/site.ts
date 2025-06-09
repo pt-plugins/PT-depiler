@@ -128,10 +128,10 @@ export interface ISiteMetadata {
     /**
      * 在 web 访问时，哪些些页面会被认为是种子列表页，被认为是种子列表页的页面会被插件自动添加种子列表批量下载、链接复制、远程推送的功能
      *
-     * 一般情况下，这里不需要额外的声明， 插件会自动根据 search.requestConfig.url 以及 searchEntry[*].requestConfig.url 中的 url 自动生成，
-     * 只有当自动生成的 urlPattern 仍不能覆盖时，才需要在此处进行增加
+     * 如果定义了 urlPattern 插件会严格按照 urlPattern 进行匹配，
+     * 不然，插件会自动根据 search.requestConfig.url 以及 searchEntry[*].requestConfig.url 中的 url 自动生成，
+     * 字段为 uniq([search.requestConfig.url, ...searchEntry[*].requestConfig.url])
      *
-     * 实际使用作为匹配的字段为 uniq([...list.urlPattern, search.requestConfig.url, ...searchEntry[*].requestConfig.url])
      * 如果 pattern 为 string，会使用 new RegExp(pattern, 'i') 生成 RegExp 对象，
      * 如果 pattern 为 RegExp 对象，则直接使用该对象
      *
@@ -165,7 +165,7 @@ export interface ISiteMetadata {
     /**
      * 在 web 访问时，哪些些页面会被认为是种子详情页，被认为是种子列表页的页面会被插件自动添加种子下载、链接复制、远程推送的功能
      *
-     * 只有在定义 detail.requestConfig 时，才会自动生成该项，其他情况下无法进行自动生成，需要显式声明（一般情况下 schema 中已有相关声明）
+     * urlPattern 无法进行自动生成，需要显式声明（一般情况下 schema 中已有相关声明）
      * 其他表现和 list.urlPattern 相同。
      */
     urlPattern?: (string | RegExp)[];
