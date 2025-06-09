@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, onMounted, provide, useTemplateRef, watch } from "vue";
+import { inject, onMounted, provide, useTemplateRef, ref, watch } from "vue";
 import { useDraggable } from "@vueuse/core";
 import { getSite as createSiteInstance } from "@ptd/site";
 
@@ -17,6 +17,7 @@ const metadataStore = useMetadataStore();
 const el = useTemplateRef<HTMLElement>("el");
 provide("app", el);
 
+const openSpeedDial = ref<boolean>(false);
 const { x, y, style } = useDraggable(el, {
   preventDefault: true,
   initialValue: { x: -100, y: -100 }, // Default position off-screen
@@ -44,6 +45,7 @@ watch(
   () => configStore.$ready,
   (ready) => {
     if (ready) {
+      openSpeedDial.value = configStore.contentScript?.defaultOpenSpeedDial ?? false;
       let { x: storeX = -100, y: storeY = -100 } = configStore.contentScript?.position ?? {};
       let { clientWidth, clientHeight } = document.documentElement;
 
@@ -77,7 +79,7 @@ function openOptions() {
 <template>
   <v-theme-provider :theme="configStore.contentScript.applyTheme ? configStore.theme : ''">
     <div ref="el" :style="style" style="position: fixed; z-index: 9999999">
-      <v-speed-dial :close-on-content-click="false">
+      <v-speed-dial v-model="openSpeedDial" :close-on-content-click="false">
         <template v-slot:activator="{ props: activatorProps }">
           <v-fab v-bind="activatorProps" color="amber" icon size="x-large">
             <v-avatar :image="ptdIcon" rounded="0" />

@@ -24,6 +24,7 @@ export const useConfigStore = defineStore("config", {
     contentScript: {
       enabled: true,
       position: { x: 0, y: 0 },
+      defaultOpenSpeedDial: false,
       stackedButtons: false,
       applyTheme: false,
     },

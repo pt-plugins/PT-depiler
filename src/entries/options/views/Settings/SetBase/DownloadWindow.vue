@@ -58,7 +58,7 @@ async function clearLastDownloader(v: boolean) {
       />
       <v-switch
         v-model="configStore.download.allowDirectSendToClient"
-        color="success"
+        color="warning"
         hide-details
         label="是否允许直接将链接（而不是种子文件）发送到下载服务器（如非必要请勿启用）"
       />

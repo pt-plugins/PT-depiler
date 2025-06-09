@@ -151,7 +151,7 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
     <v-row v-if="configStore.searchEntifyControl.showTorrentTag || configStore.searchEntifyControl.showTorrentSubtitle">
       <!-- 种子标签信息 -->
       <div ref="tags">
-        <template v-if="configStore.searchEntifyControl.showTorrentTag">
+        <template v-if="configStore.searchEntifyControl.showTorrentTag && item.tags && item.tags.length > 0">
           <v-chip v-for="tag in item.tags" :color="tag.color" class="mr-1" label size="x-small">
             {{ tag.name }}
           </v-chip>

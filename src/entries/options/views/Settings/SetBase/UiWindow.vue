@@ -57,6 +57,12 @@ const configStore = useConfigStore();
           </v-col>
           <v-col>
             <v-switch
+              v-model="configStore.contentScript.defaultOpenSpeedDial"
+              color="success"
+              hide-details
+              label="默认展开侧边栏按钮"
+            />
+            <v-switch
               v-model="configStore.contentScript.stackedButtons"
               color="success"
               hide-details

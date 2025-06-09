@@ -42,6 +42,7 @@ export interface IConfigPiniaStorageSchema {
   contentScript: {
     enabled: boolean; // 是否启用 contentScript
     position: { x: number; y: number }; // 图标位置
+    defaultOpenSpeedDial: boolean; // 是否默认打开按钮
     stackedButtons: boolean; // 是否使用堆叠按钮
     applyTheme: boolean; // 是否响应主题样式
   };
