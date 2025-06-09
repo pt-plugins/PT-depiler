@@ -35,6 +35,9 @@ function enableLibrary() {
 const selectedSite = ref<TSiteID>("");
 const useCustomerConfig = ref<boolean>(true);
 
+const clearSiteTarget = ref<TSiteID>("all");
+const siteSelectItems = [{ title: "全部", value: "all" }, ...definitionList.map((x) => ({ title: x, value: x }))];
+
 const piniaStoreContent = import.meta.glob<Record<string, Function>>("@/options/stores/*.ts");
 const piniaStoreName: Array<{ title: string; value: string }> = Object.keys(piniaStoreContent).map((x) => ({
   title: x.replace(/^.+\//, "").replace(/\.ts$/, ""),
@@ -114,9 +117,20 @@ const resetItems: resetItem[] = [
     subTitle: "清空用户所有历史获取的站点数据",
     resetFn: async () => {
       const metadataStore = useMetadataStore();
-      metadataStore.lastUserInfo = {};
+      if (clearSiteTarget.value === "all") {
+        // 清空所有站点数据
+        metadataStore.lastUserInfo = {};
+        await sendMessage("setExtStorage", { key: "userInfo", value: {} });
+      } else {
+        // 清空指定站点数据
+        if (metadataStore.lastUserInfo[clearSiteTarget.value]) delete metadataStore.lastUserInfo[clearSiteTarget.value];
+        const userInfo = (await sendMessage("getExtStorage", "userInfo")) as Record<string, any>;
+        if (userInfo && userInfo[clearSiteTarget.value]) {
+          delete userInfo[clearSiteTarget.value];
+          await sendMessage("setExtStorage", { key: "userInfo", value: userInfo });
+        }
+      }
       await metadataStore.$save();
-      await sendMessage("setExtStorage", { key: "userInfo", value: {} });
     },
   },
   {
@@ -294,6 +308,17 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
                         <v-list-item-action class="mr-2">
                           <v-btn color="red" @click="() => resetFnWrapper(item.resetFn)">重置</v-btn>
                         </v-list-item-action>
+                      </template>
+                      <template v-slot:append>
+                        <v-select
+                          v-if="item.title === '清空站点数据'"
+                          v-model="clearSiteTarget"
+                          :items="siteSelectItems"
+                          label="选择站点"
+                          hide-details
+                          density="compact"
+                          style="min-width: 150px; margin-left: 12px"
+                        />
                       </template>
                     </v-list-item>
                   </v-list>
