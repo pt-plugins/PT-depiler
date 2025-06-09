@@ -2,6 +2,7 @@ import Sizzle from "sizzle";
 import Gazelle, { SchemaMetadata } from "../schemas/Gazelle.ts";
 import { parseValidTimeString, parseSizeString } from "../utils";
 import type { ISiteMetadata, ITorrent, ISearchInput } from "../types";
+import { ETorrentStatus } from "../types";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -268,6 +269,7 @@ export default class PassThePopcorn extends Gazelle {
     const movieName = movie.Title || "";
     const movieYear = movie.Year || "";
     const movieImdbId = movie.ImdbId ? `tt${movie.ImdbId}` : "";
+    const category = movie.CategoryName || "";
     if (torrent) {
       const id = torrent.TorrentId;
       const tempTitleDiv = this.createTempDiv(torrent.Title);
@@ -288,8 +290,13 @@ export default class PassThePopcorn extends Gazelle {
       const leechers = parseFloat(torrent.Leechers);
       const completed = parseFloat(torrent.Snatched);
 
+      const colorType = torrent.ColorType;
+      const status = colorType === "seeding" ? ETorrentStatus.seeding : ETorrentStatus.unknown;
+      const progress = colorType === "seeding" ? 100 : 0;
+
       return {
         id,
+        category,
         title,
         subTitle,
         url,
@@ -299,6 +306,8 @@ export default class PassThePopcorn extends Gazelle {
         seeders,
         leechers,
         completed,
+        status,
+        progress,
       };
     }
     return {};
