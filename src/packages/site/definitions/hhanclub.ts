@@ -27,7 +27,7 @@ export const siteMetadata: ISiteMetadata = {
   category: [
     {
       name: "类型",
-      key: "cat[]",
+      key: "cat",
       options: [
         { name: "其他", value: 409 },
         { name: "体育", value: 407 },
@@ -38,11 +38,11 @@ export const siteMetadata: ISiteMetadata = {
         { name: "电影", value: 401 },
         { name: "短剧", value: 412 },
       ],
-      cross: { mode: "append" },
+      cross: { mode: "brackets" },
     },
     {
       name: "来源",
-      key: "source[]",
+      key: "source",
       options: [
         { name: "UHD Blu-ray", value: 7 },
         { name: "Blu-ray", value: 1 },
@@ -52,11 +52,11 @@ export const siteMetadata: ISiteMetadata = {
         { name: "TV", value: 5 },
         { name: "Other", value: 6 },
       ],
-      cross: { mode: "append" },
+      cross: { mode: "brackets" },
     },
     {
       name: "媒介",
-      key: "medium[]",
+      key: "medium",
       options: [
         { name: "UHD Blu-ray", value: 11 },
         { name: "FHD Blu-ray", value: 1 },
@@ -69,11 +69,11 @@ export const siteMetadata: ISiteMetadata = {
         { name: "CD", value: 8 },
         { name: "Track", value: 9 },
       ],
-      cross: { mode: "append" },
+      cross: { mode: "brackets" },
     },
     {
       name: "编码",
-      key: "codec[]",
+      key: "codec",
       options: [
         { name: "HEVC/H265/x265", value: 6 },
         { name: "AVC/H264/x264", value: 1 },
@@ -82,11 +82,11 @@ export const siteMetadata: ISiteMetadata = {
         { name: "VP8/9", value: 7 },
         { name: "Other", value: 5 },
       ],
-      cross: { mode: "append" },
+      cross: { mode: "brackets" },
     },
     {
       name: "分辨率",
-      key: "standard[]",
+      key: "standard",
       options: [
         { name: "4320p/8K", value: 6 },
         { name: "2160p/4K", value: 1 },
@@ -94,11 +94,11 @@ export const siteMetadata: ISiteMetadata = {
         { name: "1080i", value: 4 },
         { name: "720p", value: 3 },
       ],
-      cross: { mode: "append" },
+      cross: { mode: "brackets" },
     },
     {
       name: "处理",
-      key: "processing[]",
+      key: "processing",
       options: [
         { name: "美剧", value: 3 },
         { name: "日剧", value: 4 },
@@ -109,7 +109,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "英剧", value: 9 },
         { name: "其他", value: 10 },
       ],
-      cross: { mode: "append" },
+      cross: { mode: "brackets" },
     },
     CategoryIncldead,
     CategorySpstate,
