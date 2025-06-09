@@ -4,10 +4,11 @@ import { omit } from "es-toolkit";
 import { computed, ref, shallowRef } from "vue";
 import {
   definitionList,
-  getHostFromUrl,
-  parseSizeString,
   EResultParseStatus,
+  getHostFromUrl,
   type IUserInfo,
+  parseSizeString,
+  parseValidTimeString,
   type TSiteHost,
   type TSiteID,
 } from "@ptd/site";
@@ -65,6 +66,19 @@ const userInfoTransferMap = {
   lastErrorMsg: false,
   // uniqueGroups?: number; // 独特分组
   // perfectFLAC?: number; // “完美”FLAC
+  joinTime: {
+    key: "joinTime",
+    format: (v: any) => {
+      if (typeof v === "number") {
+        if (v > 1e12) return v; // 13位时间戳
+        if (v > 1e9) return v * 1000; // 10位时间戳转13位
+      }
+      if (typeof v === "string" && /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(v)) {
+        return parseValidTimeString(v);
+      }
+      return v;
+    },
+  },
 } as Record<keyof IPtppUserInfo, TUserInfoTransfer>;
 
 const isImporting = ref<boolean>(false);
