@@ -1,7 +1,22 @@
 import Sizzle from "sizzle";
-import { parseSizeString } from "../utils";
-import { ETorrentStatus, ISiteMetadata, IUserInfo } from "../types";
+import { parseSizeString, parseTimeWithZone, tryToNumber } from "../utils";
+import {
+  EResultParseStatus,
+  ETorrentStatus,
+  IAdvanceKeywordSearchConfig,
+  ISearchEntryRequestConfig,
+  ISearchInput,
+  ISearchResult,
+  ISiteMetadata,
+  ITorrent,
+  IUserInfo,
+  NeedLoginError,
+  NoTorrentsError,
+} from "../types";
 import Gazelle, { SchemaMetadata } from "../schemas/Gazelle.ts";
+import { toMerged } from "es-toolkit";
+import type { AxiosRequestConfig } from "axios";
+import { isEmpty, set } from "es-toolkit/compat";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -11,7 +26,7 @@ export const siteMetadata: ISiteMetadata = {
   name: "GreatPosterWall",
   aka: ["海豹", "GPW"],
   description:
-    "JGPW 全名 Great Poster Wall，结合了长城（the Great Wall）、海报墙（Poster Wall）两个词，同时，「海报」谐音「海豹」，所以大家可以在 Logo 上看到一只萌萌的小海豹",
+    "GPW 全名 Great Poster Wall，结合了长城（the Great Wall）、海报墙（Poster Wall）两个词，同时，「海报」谐音「海豹」，所以大家可以在 Logo 上看到一只萌萌的小海豹",
   tags: ["电影"],
   timezoneOffset: "+0800",
 
@@ -515,8 +530,7 @@ export const siteMetadata: ISiteMetadata = {
       params: { searchsubmit: 1, action: "basic" },
     },
     advanceKeywordParams: {
-      // TODO IMDB搜索后会302重定向到分组页面，响应头中 location=torrents.php?id=${groupId}
-      imdb: false,
+      imdb: true,
     },
     selectors: {
       ...SchemaMetadata.search!.selectors!,
@@ -573,7 +587,10 @@ export const siteMetadata: ISiteMetadata = {
         },
       },
 
-      tags: [{ selector: ".TorrentTitle-item.tl_free", name: "Free", color: "#05f" }],
+      tags: [
+        { selector: ".TorrentTitle-item.tl_free", name: "Free", color: "#05f" },
+        { selector: ".TorrentTitle-item.two_fourth_off", name: "50%", color: "#8d4b44" },
+      ],
     },
   },
 
@@ -769,5 +786,175 @@ export default class GreatPosterWall extends Gazelle {
       flushUserInfo.seedingSize = seedingSize;
     }
     return flushUserInfo;
+  }
+
+  public override async getSearchResult(
+    keywords?: string,
+    searchEntry: ISearchEntryRequestConfig = {},
+  ): Promise<ISearchResult> {
+    const result: ISearchResult = {
+      data: [],
+      status: EResultParseStatus.unknownError,
+    };
+
+    // 0. 检查该站点是否允许搜索
+    if (!this.allowSearch) {
+      result.status = EResultParseStatus.passParse;
+      return result;
+    }
+
+    // 1. 形成搜索入口，默认情况下需要合并 this.config.search
+    // 如果传入了 id，说明需要首先与 metadata.searchEntry 中对应id的搜索配置的合并
+    if (searchEntry.id) {
+      searchEntry = toMerged(this.metadata.searchEntry?.[searchEntry.id] ?? {}, searchEntry)!;
+    }
+
+    // 继续检查 searchEntry， 如果为空，或者没有显示设置 merge 为 false，则进一步在 this.metadata.search 的基础上进行合并
+    if (isEmpty(searchEntry) || searchEntry.merge !== false) {
+      searchEntry = toMerged(this.metadata.search!, searchEntry)!;
+    }
+
+    // 检查该搜索入口是否设置为禁用
+    if (searchEntry.enabled === false) {
+      result.status = EResultParseStatus.passParse;
+      return result;
+    }
+
+    // 2. 生成对应站点的基础 requestConfig
+    let requestConfig: AxiosRequestConfig = toMerged(
+      { url: "/", responseType: "document", params: {}, data: {} },
+      searchEntry.requestConfig || {},
+    );
+
+    // 3. 预检查 keywords 是否为高级搜索词，如果是，则查找对应的 searchEntry.advanceKeywordParams[*] 并改写 keywords
+    let advanceKeywordType: string | undefined;
+    let advanceKeywordConfig: IAdvanceKeywordSearchConfig | false = false;
+    if (keywords && searchEntry.advanceKeywordParams) {
+      for (const [advanceField, advanceConfig] of Object.entries(searchEntry.advanceKeywordParams)) {
+        if (keywords.startsWith(`${advanceField}|`)) {
+          // 检查是否跳过
+          if (advanceConfig === false || advanceConfig.enabled === false) {
+            result.status = EResultParseStatus.passParse;
+            return result;
+          }
+          // 改写 keywords 并缓存 transformer
+          keywords = keywords?.replace(`${advanceField}|`, "");
+          advanceKeywordType = advanceField;
+          advanceKeywordConfig = advanceConfig;
+          break;
+        }
+      }
+    }
+
+    if (!advanceKeywordConfig) {
+      // 非高级搜索 走默认搜索实现
+      return super.getSearchResult(keywords, searchEntry);
+    }
+
+    if (keywords) {
+      set(requestConfig, searchEntry.keywordPath || "params.keywords", keywords || "");
+    }
+
+    try {
+      const response = await this.request(requestConfig);
+      result.data = await this.transformGroupPage(response.data, { keywords, searchEntry, requestConfig });
+      result.status = EResultParseStatus.success;
+    } catch (e) {
+      if (import.meta.env.DEV) {
+        console.error(e);
+      }
+      result.status = EResultParseStatus.parseError;
+
+      if (e instanceof NeedLoginError) {
+        result.status = EResultParseStatus.needLogin;
+      } else if (e instanceof NoTorrentsError) {
+        result.status = EResultParseStatus.noResults;
+      }
+    }
+    return result;
+  }
+
+  public async transformGroupPage(doc: Document | object | any, searchConfig: ISearchInput): Promise<ITorrent[]> {
+    const { searchEntry, requestConfig } = searchConfig;
+
+    // 获取媒体基本信息
+    let subTitle = Sizzle(".MovieInfo-subTitle", doc)[0].textContent;
+    let year = Sizzle(".MovieInfo-year", doc)[0].textContent.match(/(\d+)/)[1];
+    const titlePrefix = subTitle + " " + year;
+
+    // 获取种子行
+    let rows = Sizzle("#torrent_details .TableTorrent-rowTitle", doc);
+    if (rows.length === 0) {
+      throw new NoTorrentsError();
+    }
+    const torrents: ITorrent[] = [];
+    const titleSelectors = [
+      ".resolution",
+      ".processing",
+      ".codec",
+      ".source",
+      ".remaster_dolby_atmos",
+      ".remaster_dolby_vision",
+      ".remaster_hdr10",
+      ".tl_chi",
+      ".tl_cn_dub",
+      ".tl_se_sub",
+      ".is-releaseGroup",
+    ];
+
+    for (const row of rows) {
+      let torrent = {} as ITorrent;
+
+      torrent.site ??= this.metadata.id;
+      torrent.id = row.getAttribute("id").match(/torrent(\d+)/)[1];
+
+      let titleEle = Sizzle(".TorrentTitle", row)[0];
+      let title = titlePrefix;
+      for (const selector of titleSelectors) {
+        title = (title +
+          " " +
+          this.getFieldData(titleEle, {
+            selector: selector,
+            elementProcess: (element: HTMLElement) => {
+              if (element.classList.contains("remaster_dolby_atmos")) {
+                return "Atoms";
+              } else if (element.classList.contains("remaster_dolby_vision")) {
+                return "Dolby Vision";
+              } else if (element.classList.contains("remaster_hdr10")) {
+                return "HDR10";
+              }
+              return element.textContent.trim();
+            },
+          })) as string;
+      }
+      torrent.title = title;
+
+      torrent.url = this.getFieldData(row, { selector: "a[href*='torrents.php?torrentid=']", attr: "href" });
+      torrent.link = this.getFieldData(row, this.metadata.search!.selectors!.link);
+      torrent.url && (torrent.url = this.fixLink(torrent.url as string, requestConfig!));
+      torrent.link && (torrent.link = this.fixLink(torrent.link as string, requestConfig!));
+
+      let detailRow = Sizzle("#torrent_detail_" + torrent.id, doc)[0];
+      torrent.time = this.getFieldData(detailRow, {
+        ...this.metadata.search!.selectors!.time!,
+        selector: ".TorrentDetail-uploaderInfo span[data-tooltip]",
+      });
+      // 仅当设置了时区偏移时，才进行转换
+      if (this.metadata.timezoneOffset) {
+        torrent.time = parseTimeWithZone(torrent.time as unknown as string, this.metadata.timezoneOffset);
+      }
+
+      torrent.size = parseSizeString(this.getFieldData(row, this.metadata.search!.selectors!.size));
+      torrent.completed = tryToNumber(this.getFieldData(row, { selector: ".TableTorrent-cellStat:nth-child(3)" }));
+      torrent.seeders = tryToNumber(this.getFieldData(row, { selector: ".TableTorrent-cellStat:nth-child(4)" }));
+      torrent.leechers = tryToNumber(this.getFieldData(row, { selector: ".TableTorrent-cellStat:nth-child(5)" }));
+      torrent.progress = this.getFieldData(row, this.metadata.search!.selectors!.progress);
+      torrent.status = tryToNumber(this.getFieldData(row, this.metadata.search!.selectors!.status));
+
+      torrent = await this.parseTorrentRowForTags(torrent, row, searchConfig);
+
+      torrents.push(torrent);
+    }
+    return torrents;
   }
 }
