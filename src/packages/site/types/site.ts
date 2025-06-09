@@ -101,7 +101,12 @@ export interface ISiteMetadata {
 
   category?: ISearchCategories[];
 
-  search?: ISearchConfig; // 站点搜索方法如何配置
+  /**
+   * 站点搜索方法配置（主要用于插件 options 的适配）
+   *
+   * 由 AbstractBittorrentSite.transformSearchPage 方法进行转换，如果子类有覆写请按子类覆写逻辑理解
+   */
+  search?: ISearchConfig;
 
   /**
    * 当用户使用默认搜索入口时启动的搜索方法，一般不需要定义（即不定义时自动使用 search.requestConfig），除非有以下情况才建议使用：
@@ -111,14 +116,17 @@ export interface ISiteMetadata {
   searchEntry?: Record<string, ISearchEntryRequestConfig>;
 
   /**
-   * 种子列表页配置（主要用于展示插件）
+   * 种子列表页配置（主要用于插件 content-script 的适配）
+   *
+   * 由 AbstractBittorrentSite.transformListPage 方法进行转换，如果子类有覆写请按子类覆写逻辑理解
+   *
    * 注：只有极其特殊的情况下才需要定义此处的 selectors ，未定义时，会使用Search中定义的信息
    * 一般如下：
    *  - 使用 AJAX 方法异步加载页面种子
    */
   list?: {
     /**
-     * 在 web 访问时，哪些些页面会被认为是种子列表页，被认为是种子列表页的页面会被插件自动添加种子列表批量下载、复制、推送的功能
+     * 在 web 访问时，哪些些页面会被认为是种子列表页，被认为是种子列表页的页面会被插件自动添加种子列表批量下载、链接复制、远程推送的功能
      *
      * 一般情况下，这里不需要额外的声明， 插件会自动根据 search.requestConfig.url 以及 searchEntry[*].requestConfig.url 中的 url 自动生成，
      * 只有当自动生成的 urlPattern 仍不能覆盖时，才需要在此处进行增加
@@ -132,50 +140,60 @@ export interface ISiteMetadata {
     urlPattern?: (string | RegExp)[];
 
     /**
-     * 对于种子列表页的解析配置，默认会使用 search.requestConfig.selectors 中的配置，
-     * 需要至少解析出 id, title, url, link, time, size
-     * 如果解析出 subTitle, seeders, leechers, completed ，会在高级列表中显示
+     * 对于种子列表页的解析配置，默认会使用 search.requestConfig.selectors 中的配置作为垫片
+     * 需要至少解析出 id, title, url, link
+     * 如果 link 不能解析出来，会调用 AbstractBittorrentSite.getTorrentDownloadLink 方法来获取下载链接
+     * 如果解析出 subTitle, seeders, leechers, completed, time, size ，会在高级列表中显示
      *
      * 额外增加字段说明：
-     * keywords: 用于获取种子列表页中正在使用的搜索关键词，如果获取到非空字符串，则会显示 "在插件中搜索的标识"
+     * keywords: 用于获取种子列表页中正在使用的搜索关键词，如果获取到非空字符串，则在点击 "在插件中搜索的标识" 时自动填充该关键词
      *   如果未设置，AbstractBittorrentSite.transformListPage 会自动根据 search.keywordPath 或 searchEntry[*].keywordPath 来推断，
      *   比如：
      *     - search.keywordPath 为 params.xxxx 时，keywords 会被自动推断为 { selector: 'input[name="xxxx"]' }
      *     - search.keywordPath 为 data.xxxx 时，keywords 会被自动推断为 { selector: 'form[method="post" i] input[name="xxxx"]' }
-     *     - 如果仍未找到，则会尝试从url中解析 &xxxx= 以及 &search= , &keywords= , &keyword= 字段内容
+     *     - 如果仍未找到，则会尝试从url中解析 &xxxx= 以及 &search= , &keywords= , &keyword=, $q= 字段内容
      */
     selectors?: ISearchConfig["selectors"] & { keywords?: IElementQuery };
   };
 
   /**
-   * 种子详情页配置
+   * 种子详情页配置（主要用于插件 content-script 、 部分无法在搜索中构造种子 link 站点的适配）
+   *
+   * 由 AbstractBittorrentSite.{transformDetailPage, getTorrentDownloadLink} 方法进行转换，如果子类有覆写请按子类覆写逻辑理解
    */
   detail?: {
     /**
-     * 在 web 访问时，哪些些页面会被认为是种子详情页，被认为是种子列表页的页面会被插件自动添加种子下载、复制、推送的功能
+     * 在 web 访问时，哪些些页面会被认为是种子详情页，被认为是种子列表页的页面会被插件自动添加种子下载、链接复制、远程推送的功能
      *
      * 只有在定义 detail.requestConfig 时，才会自动生成该项，其他情况下无法进行自动生成，需要显式声明（一般情况下 schema 中已有相关声明）
      * 其他表现和 list.urlPattern 相同。
      */
     urlPattern?: (string | RegExp)[];
 
+    /**
+     * 插件获取种子详情页时的配置，默认是在种子搜索时无法获取 link 的特殊站点使用，在使用时有垫片如下：
+     *   { responseType: "document", url: torrent.url }
+     */
     requestConfig?: AxiosRequestConfig;
 
     /**
      * 对于种子详情页的解析配置
      *
-     * 对页面解析需要至少解析出 id, title, url, link, time, size
+     * 对页面解析需要至少解析出 id, title, url, link
      *
      * 注意：
-     * 1. AbstractBittorrentSite.transformDetailPage 中预设了以下规则
-     *    - 如果未定义 url 的 selector，则 url 会被自动设置为 doc.URL || location.href
-     *    - 如果未定义 id 的 selector，且 url 中有 `&id=` 或者 `&tid=` 字段，则会被自动解析为 id
+     * 1. 为了尽可能减少配置，AbstractBittorrentSite.transformDetailPage 中预设了以下规则
+     *      - 如果未定义 url 的 selector，则 url 会被自动设置为 doc.URL || location.href
+     *      - 如果未定义 id 的 selector，且 url 中有 `&id=` 或者 `&tid=` 字段，则会被自动解析为 id
+     *                                 如果 url 中没有 `&id=` 或者 `&tid=` 字段，则 id 会被自动设置为 url
+     *      - 如果未定义 title 的 selector，则 html > body > title 会被自动设置为 title
+     *    其他模板的详见 metadata 或 override function 情况
      *
      * 2. AbstractBittorrentSite.getTorrentDownloadLink 中会使用 link 的 selector 来获取下载链接
      */
     selectors?: {
       link?: IElementQuery; // 用于获取下载链接不在搜索页，而在详情页的情况
-      [key: string]: IElementQuery | undefined; // FIXME
+      [key: string]: IElementQuery | undefined;
     } & Omit<ISearchConfig["selectors"], "rows">; // 种子相关选择器
   };
 
@@ -311,4 +329,9 @@ export interface ISiteUserConfig {
   merge?: Partial<ISiteMetadata>;
 
   [key: string]: any;
+}
+
+export interface IParsedTorrentListPage {
+  keywords: string;
+  torrents: ITorrent[];
 }

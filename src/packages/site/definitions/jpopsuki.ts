@@ -184,7 +184,7 @@ export default class Jpopsuki extends Gazelle {
       let torrent = {} as ITorrent;
       if (tr.classList.contains("group_redline")) {
         // 专辑行，获取title信息
-        albumAttr = this.getFieldsData(tr, ["comments", "category"], this.metadata.search!.selectors!);
+        albumAttr = this.getFieldsData(tr, this.metadata.search!.selectors!, ["comments", "category"]);
 
         // 移除掉其他无关元素后的作为专辑标题
         const albumRow = Sizzle("> td:eq(3)", tr)[0].cloneNode(true) as HTMLElement;

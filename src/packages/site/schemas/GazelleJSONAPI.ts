@@ -400,11 +400,15 @@ export default class GazelleJSONAPI extends PrivateSite {
   protected async getUserBaseInfo(): Promise<Partial<IUserInfo>> {
     const apiInfo = await this.requestApiInfo();
 
-    return this.getFieldsData(
-      apiInfo,
-      ["id", "name", "messageCount", "uploaded", "downloaded", "ratio", "levelName"] as (keyof IUserInfo)[],
-      this.metadata.userInfo!.selectors!,
-    ) as Partial<IUserInfo>;
+    return this.getFieldsData(apiInfo, this.metadata.userInfo!.selectors!, [
+      "id",
+      "name",
+      "messageCount",
+      "uploaded",
+      "downloaded",
+      "ratio",
+      "levelName",
+    ] as (keyof IUserInfo)[]) as Partial<IUserInfo>;
   }
 
   protected async getUserExtendInfo(userId: number): Promise<Partial<IUserInfo>> {
@@ -412,11 +416,10 @@ export default class GazelleJSONAPI extends PrivateSite {
       id: userId,
     });
 
-    return this.getFieldsData(
-      apiUser,
-      ["joinTime", "seeding"] as (keyof Partial<IUserInfo>)[],
-      this.metadata.userInfo!.selectors!,
-    ) as Partial<IUserInfo>;
+    return this.getFieldsData(apiUser, this.metadata.userInfo!.selectors!, [
+      "joinTime",
+      "seeding",
+    ] as (keyof Partial<IUserInfo>)[]) as Partial<IUserInfo>;
   }
 
   protected async getUserSeedingTorrents(userId?: number): Promise<Partial<IUserInfo>> {

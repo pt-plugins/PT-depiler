@@ -12,6 +12,7 @@ import {
   ISiteUserConfig,
   TSiteUrl,
   ISearchEntryRequestConfig,
+  IParsedTorrentListPage,
 } from "../types";
 import {
   definedFilters,
@@ -266,8 +267,12 @@ export default class BittorrentSite {
   protected getFieldsData<
     G extends "search" | "list" | "detail" | "userInfo",
     S extends Required<Required<ISiteMetadata>[G]>["selectors"],
-  >(element: Element | object, fields: (keyof S)[], selectors: S): { [key in keyof S]?: any } {
+  >(element: Element | object, selectors: S, fields?: (keyof S)[]): { [key in keyof S]?: any } {
     const ret: { [key in keyof S]?: any } = {};
+
+    if (!fields) {
+      fields = Object.keys(selectors as Record<string, any>) as (keyof S)[];
+    }
 
     // @ts-ignore
     for (const [key, selector] of Object.entries(pick(selectors, fields))) {
@@ -529,11 +534,11 @@ export default class BittorrentSite {
   }
 
   /**
-   * 此方法主要在 content-script 中调用，用于将传入的 Document 转换为种子列表
+   * 此方法主要在 content-script 中调用，用于在种子列表页将传入的 Document 转换为种子列表和关键词
    * @param doc
    */
-  public async transformListPage(doc: Document): Promise<{ keywords: string; torrents: ITorrent[] }> {
-    const retData = { keywords: "", torrents: [] } as { keywords: string; torrents: ITorrent[] };
+  public async transformListPage(doc: Document): Promise<IParsedTorrentListPage> {
+    const retData = { keywords: "", torrents: [] } as IParsedTorrentListPage;
 
     const parsedListPageUrl = doc.URL || location.href; // 获取当前页面的 URL
     const parsedListPage = doc.cloneNode(true) as Document; // 克隆一份文档，避免污染原始文档
@@ -563,13 +568,14 @@ export default class BittorrentSite {
         ].filter(Boolean) as string[],
         text: "",
       });
+
+      // 如果没有获取到关键词，则尝试从 URL 中解析
       if (retData.keywords === "") {
-        // 如果没有获取到关键词，则尝试从 URL 中解析
         const urlParams = new URLSearchParams(parsedListPageUrl.split("?")[1] ?? "");
-        for (const keywordParams of ["keywords", "search", "keyword"]) {
+        for (const keywordParam of [keywordParams, "search", "keywords", "keyword", "q"].filter(Boolean)) {
           // 尝试从 URL 中获取关键词
-          if (urlParams.has(keywordParams)) {
-            retData.keywords = urlParams.get(keywordParams) || "";
+          if (urlParams.has(keywordParam)) {
+            retData.keywords = urlParams.get(keywordParam) || "";
             break;
           }
         }
@@ -577,6 +583,7 @@ export default class BittorrentSite {
     }
 
     try {
+      // 将其委托到 transformSearchPage 方法中进行处理
       retData.torrents = await this.transformSearchPage(parsedListPage, {
         searchEntry,
         requestConfig: { url: parsedListPageUrl },
@@ -584,6 +591,47 @@ export default class BittorrentSite {
     } catch (e) {}
 
     return retData;
+  }
+
+  /**
+   * 此方法主要在 content-script 中调用，用于将传入的 Document 转换为种子列表
+   * @param doc
+   */
+  public async transformDetailPage(doc: Document): Promise<ITorrent> {
+    let torrent: Partial<ITorrent> = { site: this.metadata.id };
+    const parsedDetailsPage = doc.cloneNode(true) as Document; // 克隆一份文档，避免污染原始文档
+
+    // 首先使用selectors来尝试获取种子详情
+    const detailsSelectors = this.metadata.detail?.selectors || {};
+    torrent = toMerged(torrent, this.getFieldsData(parsedDetailsPage, detailsSelectors));
+
+    // 如果未获取到 url，则 url 会被自动设置为 doc.URL || location.href
+    if (!torrent.url) {
+      torrent.url = parsedDetailsPage.URL || location.href; // 如果没有 url，则使用当前页面的 URL
+    }
+
+    // 如果未获取到 id，且 url 中有 `&id=` 或者 `&tid=` 字段，则会被自动解析为 id
+    if (!torrent.id) {
+      const urlParams = new URLSearchParams(torrent.url.split("?")[1] ?? "");
+      for (const idParam of ["tid", "id"]) {
+        // 尝试从 URL 中获取关键词
+        if (urlParams.has(idParam)) {
+          torrent.id = urlParams.get(idParam) || "";
+          break;
+        }
+      }
+
+      // 如果还是没有 id，则使用 url 作为 id
+      if (!torrent.id) {
+        torrent.id = torrent.url;
+      }
+    }
+
+    if (!torrent.title) {
+      torrent.title = this.getFieldData(parsedDetailsPage, { text: "", selector: ["html > body > title"] });
+    }
+
+    return torrent as ITorrent;
   }
 
   /**

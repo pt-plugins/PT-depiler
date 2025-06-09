@@ -203,6 +203,11 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
+  list: {
+    ...(SchemaMetadata.list ?? {}),
+    urlPattern: ["/torrents.php", "/music.php", "/officialgroup.php"],
+  },
+
   userInfo: {
     ...SchemaMetadata.userInfo!,
     selectors: {

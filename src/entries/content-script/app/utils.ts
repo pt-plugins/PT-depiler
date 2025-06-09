@@ -1,6 +1,9 @@
-import { computed, shallowRef, ref } from "vue";
-import type BittorrentSite from "@ptd/site/schemas/AbstractBittorrentSite.ts";
+import { computed, shallowRef, ref, toValue } from "vue";
 import { uniq } from "es-toolkit";
+import type BittorrentSite from "@ptd/site/schemas/AbstractBittorrentSite.ts";
+
+import { sendMessage } from "@/messages.ts";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 import SiteListPage from "./pages/SiteListPage.vue";
 import SiteDetailPage from "./pages/SiteDetailPage.vue";
@@ -39,6 +42,22 @@ export function updatePageType() {
     }
   } else {
     // TODO 判断是否为公共页面，如豆瓣、Imdb 等
+  }
+}
+
+export function doKeywordSearch(keywords: string) {
+  if (!keywords) {
+    keywords = prompt("未解析到搜索关键词，请输入：", "")!;
+  }
+
+  if (keywords) {
+    sendMessage("openOptionsPage", {
+      path: "/search-entity",
+      query: { search: toValue(keywords), flush: 1 },
+    }).catch();
+  } else {
+    const runtimeStore = useRuntimeStore();
+    runtimeStore.showSnakebar("搜索关键词不能为空", { color: "error" });
   }
 }
 

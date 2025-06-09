@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
+import { useWindowSize } from "@vueuse/core";
 import { ITorrent } from "@ptd/site";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
+
 import { formatDate, formatSize } from "@/options/utils.ts";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import SentToDownloaderDialog from "@/options/views/Overview/SearchEntity/SentToDownloaderDialog.vue";
+
 import NavButton from "@/options/components/NavButton.vue";
-import { useWindowSize } from "@vueuse/core";
 import SimpleTorrentTitleTd from "@/content-script/app/components/SimpleTorrentTitleTd.vue";
+import SentToDownloaderDialog from "@/options/views/Overview/SearchEntity/SentToDownloaderDialog.vue";
 
 const showDialog = defineModel<boolean>();
 
@@ -82,13 +84,14 @@ function enterDialog() {
       <v-card-text class="overflow-y-hidden">
         <v-data-table-virtual
           v-model="selectedTorrentIds"
-          class="search-entity-table table-stripe table-header-no-wrap table-no-ext-padding"
-          show-select
-          hover
-          :height="windowHeight - 220"
           :headers="tableHeaders"
+          :height="windowHeight - 220"
           :items="torrentItems"
+          class="search-entity-table table-stripe table-header-no-wrap table-no-ext-padding"
+          fixed-header
+          hover
           item-value="id"
+          show-select
         >
           <template #item.title="{ item }">
             <SimpleTorrentTitleTd :item="item" />
