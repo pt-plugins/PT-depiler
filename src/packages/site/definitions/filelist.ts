@@ -238,6 +238,11 @@ export const siteMetadata: ISiteMetadata = {
 
   levelRequirements: [
     {
+      id: 0,
+      name: "User",
+      privilege: "This status is obtained by the new user of this tracker.",
+    },
+    {
       id: 1,
       name: "Power User",
       interval: "P4W",

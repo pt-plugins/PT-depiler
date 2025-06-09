@@ -213,12 +213,11 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseSize" }],
       },
       levelName: {
-        selector: "img[alt*='User(']",
-        attr: "alt",
+        selector: "a[href*='userdetails.php'][class*='_Name']:first",
+        attr: "class",
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/(\w+ User)\((.*)\)/);
-            return queryMatch && queryMatch.length >= 3 ? queryMatch[2] + " " + queryMatch[1] : "";
+            return query.match(/(.*)_Name/)![1];
           },
         ],
       },
@@ -243,6 +242,11 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   levelRequirements: [
+    {
+      id: 0,
+      name: "憨头憨脑 User",
+      privilege: "新用户的默认级别",
+    },
     {
       id: 1,
       name: "憨声憨气 Power User",

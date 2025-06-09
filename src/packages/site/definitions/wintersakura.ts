@@ -123,6 +123,11 @@ export const siteMetadata: ISiteMetadata = {
 
   levelRequirements: [
     {
+      id: 0,
+      name: "User",
+      privilege: "新用户的默认级别；可以上传的字幕",
+    },
+    {
       id: 1,
       name: "Power User",
       downloaded: "50GB",

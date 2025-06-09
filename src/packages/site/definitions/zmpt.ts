@@ -118,6 +118,11 @@ export const siteMetadata: ISiteMetadata = {
 
   levelRequirements: [
     {
+      id: 0,
+      name: "User",
+      privilege: "新用户的默认级别",
+    },
+    {
       id: 1,
       name: "中级训练家(PU)",
       interval: "P4W",
