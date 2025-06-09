@@ -295,6 +295,7 @@ export default class PassThePopcorn extends Gazelle {
       const progress = colorType === "seeding" ? 100 : 0;
 
       return {
+        site: this.metadata.id,
         id,
         category,
         title,
