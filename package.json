@@ -104,7 +104,7 @@
     "vite-plugin-node-polyfills": "^0.23.0",
     "vite-plugin-vue-devtools": "^7.7.6",
     "vite-plugin-vuetify": "^2.1.1",
-    "vite-plugin-web-extension": "^4.4.3",
+    "vite-plugin-web-extension": "^4.4.4",
     "vue-tsc": "^2.2.10"
   },
   "prettier": {
