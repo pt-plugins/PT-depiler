@@ -133,9 +133,9 @@ export const siteMetadata: ISiteMetadata = {
         elementProcess: (element: HTMLElement) => {
           const iconRank = element.querySelector("i.icon-rank");
           if (iconRank) {
-            return iconRank?.previousSibling?.textContent?.trim() || element?.textContent.trim();
+            return iconRank?.previousSibling?.textContent?.trim() || element?.textContent!.trim();
           } else {
-            return element?.textContent.trim();
+            return element?.textContent!.trim();
           }
         },
       },

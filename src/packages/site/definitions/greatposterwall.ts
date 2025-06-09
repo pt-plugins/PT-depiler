@@ -530,7 +530,7 @@ export const siteMetadata: ISiteMetadata = {
       params: { searchsubmit: 1, action: "basic" },
     },
     advanceKeywordParams: {
-      imdb: true,
+      imdb: { enabled: true },
     },
     selectors: {
       ...SchemaMetadata.search!.selectors!,
@@ -629,7 +629,7 @@ export const siteMetadata: ISiteMetadata = {
         attr: "data-tooltip",
         filters: [
           (query: string) => {
-            return query ? parseFloat(query.match(/积分速率: (\d+)/)[1]) : 0;
+            return query ? parseFloat(query.match(/积分速率: (\d+)/)?.[1] ?? "") : 0;
           },
         ],
       },
@@ -779,10 +779,10 @@ export default class GreatPosterWall extends Gazelle {
           });
         }
 
-        seeding = Sizzle(this.metadata.search?.selectors?.rows?.selector, TListDocument).length;
+        seeding = Sizzle(this.metadata.search?.selectors?.rows?.selector!, TListDocument).length;
         const sizeEleList = Sizzle(".TableTorrent-rowTitle .TableTorrent-cellStatSize", TListDocument);
         sizeEleList.forEach((element) => {
-          seedingSize += parseSizeString(element.innerText.trim());
+          seedingSize += parseSizeString((element as HTMLElement).innerText!.trim());
         });
       }
 
@@ -884,7 +884,7 @@ export default class GreatPosterWall extends Gazelle {
 
     // 获取媒体基本信息
     let subTitle = Sizzle(".MovieInfo-subTitle", doc)[0].textContent;
-    let year = Sizzle(".MovieInfo-year", doc)[0].textContent.match(/(\d+)/)[1];
+    let year = Sizzle(".MovieInfo-year", doc)[0].textContent!.match(/(\d+)/)?.[1];
     const titlePrefix = subTitle + " " + year;
 
     // 获取种子行
@@ -911,7 +911,7 @@ export default class GreatPosterWall extends Gazelle {
       let torrent = {} as ITorrent;
 
       torrent.site ??= this.metadata.id;
-      torrent.id = row.getAttribute("id").match(/torrent(\d+)/)[1];
+      torrent.id = row.getAttribute("id")?.match(/torrent(\d+)/)?.[1]!;
 
       let titleEle = Sizzle(".TorrentTitle", row)[0];
       let title = titlePrefix;
@@ -928,14 +928,14 @@ export default class GreatPosterWall extends Gazelle {
               } else if (element.classList.contains("remaster_hdr10")) {
                 return "HDR10";
               }
-              return element.textContent.trim();
+              return element.textContent!.trim();
             },
           })) as string;
       }
       torrent.title = title;
 
       torrent.url = this.getFieldData(row, { selector: "a[href*='torrents.php?torrentid=']", attr: "href" });
-      torrent.link = this.getFieldData(row, this.metadata.search!.selectors!.link);
+      torrent.link = this.getFieldData(row, this.metadata.search!.selectors!.link!);
       torrent.url && (torrent.url = this.fixLink(torrent.url as string, requestConfig!));
       torrent.link && (torrent.link = this.fixLink(torrent.link as string, requestConfig!));
 
@@ -949,14 +949,14 @@ export default class GreatPosterWall extends Gazelle {
         torrent.time = parseTimeWithZone(torrent.time as unknown as string, this.metadata.timezoneOffset);
       }
 
-      torrent.size = parseSizeString(this.getFieldData(row, this.metadata.search!.selectors!.size));
+      torrent.size = parseSizeString(this.getFieldData(row, this.metadata.search!.selectors!.size!));
       torrent.completed = tryToNumber(this.getFieldData(row, { selector: ".TableTorrent-cellStat:nth-child(3)" }));
       torrent.seeders = tryToNumber(this.getFieldData(row, { selector: ".TableTorrent-cellStat:nth-child(4)" }));
       torrent.leechers = tryToNumber(this.getFieldData(row, { selector: ".TableTorrent-cellStat:nth-child(5)" }));
-      torrent.progress = this.getFieldData(row, this.metadata.search!.selectors!.progress);
-      torrent.status = tryToNumber(this.getFieldData(row, this.metadata.search!.selectors!.status));
+      torrent.progress = this.getFieldData(row, this.metadata.search!.selectors!.progress!);
+      torrent.status = tryToNumber(this.getFieldData(row, this.metadata.search!.selectors!.status!));
 
-      torrent = await this.parseTorrentRowForTags(torrent, row, searchConfig);
+      torrent = this.parseTorrentRowForTags(torrent, row, searchConfig) as ITorrent;
 
       torrents.push(torrent);
     }
