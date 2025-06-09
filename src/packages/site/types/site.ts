@@ -180,6 +180,7 @@ export interface ISiteMetadata {
      * 对于种子详情页的解析配置
      *
      * 对页面解析需要至少解析出 id, title, url, link
+     * 注意 我们使用 typeof link != 'undefined' 来确定是否获取到正确的信息
      *
      * 注意：
      * 1. 为了尽可能减少配置，AbstractBittorrentSite.transformDetailPage 中预设了以下规则

@@ -15,7 +15,7 @@ const runtimeStore = useRuntimeStore();
 async function parseDetailPage() {
   const parsedResult = await siteInstance.value?.transformDetailPage(document);
 
-  if (!parsedResult?.link) {
+  if (typeof parsedResult?.link === "undefined") {
     runtimeStore.showSnakebar("无法解析当前页面种子链接", { color: "error" });
     throw new Error("无法解析当前页面种子链接");
   }

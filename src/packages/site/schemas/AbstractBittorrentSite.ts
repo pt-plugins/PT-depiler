@@ -566,6 +566,7 @@ export default class BittorrentSite {
           keywordField === "params" ? `input[name="${keywordParams}"]` : false,
           keywordField === "data" ? `form[method="post" i] input[name="${keywordField}"]` : false,
         ].filter(Boolean) as string[],
+        elementProcess: (el: HTMLInputElement) => el.value,
         text: "",
       });
 

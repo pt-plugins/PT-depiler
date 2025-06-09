@@ -387,6 +387,25 @@ export const siteMetadata: ISiteMetadata = {
       category: { selector: "img[src*='/static/cate'][alt]", attr: "alt" },
       ext_douban: { selector: "a[href^='https://movie.douban.com/subject/']", filters: [{ name: "extDoubanId" }] },
       ext_imdb: { selector: "a[href^='https://www.imdb.com/title/']", filters: [{ name: "extImdbId" }] },
+
+      // 其实并没有必要特别声明这个
+      keywords: { selector: "input#keyword", elementProcess: (el: HTMLInputElement) => el.value },
+    },
+  },
+
+  detail: {
+    urlPattern: ["/detail/"],
+    selectors: {
+      id: {
+        selector: ":self",
+        elementProcess: (element: Document) => {
+          const url = element.URL;
+          const match = url.match(/\/detail\/(\d+)/);
+          return match ? match[1] : url;
+        },
+      },
+      title: { selector: "h2.title > span.align-middle" },
+      link: { text: "" },
     },
   },
 
