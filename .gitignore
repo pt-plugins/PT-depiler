@@ -196,3 +196,9 @@ out
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# pnpm
+.pnpm-store
+
+# docker
+docker-compose.yml
