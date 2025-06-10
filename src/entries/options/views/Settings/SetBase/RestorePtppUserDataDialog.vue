@@ -55,7 +55,7 @@ const userInfoTransferMap = {
   unsatisfiedsPage: false,
   // classPoints?: number; // 等级积分
   unsatisfieds: { key: "hnrUnsatisfied", format: (v) => Number(v) },
-  prewarn: "hnrPerWarning",
+  prewarn: "hnrPreWarning",
   lastUpdateTime: "updateAt",
   lastUpdateStatus: {
     key: "status",

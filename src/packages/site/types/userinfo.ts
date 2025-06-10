@@ -54,7 +54,7 @@ export interface IImplicitUserInfo {
   posts?: number; // 发布帖子数需求
 
   hnrUnsatisfied?: number; // H&R 未满足的数量需求
-  hnrPerWarning?: number; // H&R 预警
+  hnrPreWarning?: number; // H&R 预警
 
   [key: string]: any; // 其他需求
 }
