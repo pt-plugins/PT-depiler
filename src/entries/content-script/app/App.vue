@@ -66,9 +66,6 @@ onMounted(async () => {
   }
 
   updatePageType();
-  window.addEventListener("hashchange", (e) => {
-    updatePageType();
-  });
 });
 
 function openOptions() {
@@ -81,7 +78,7 @@ function openOptions() {
     <div ref="el" :style="style" style="position: fixed; z-index: 9999999">
       <v-speed-dial v-model="openSpeedDial" :close-on-content-click="false">
         <template v-slot:activator="{ props: activatorProps }">
-          <v-fab v-bind="activatorProps" color="amber" icon size="x-large">
+          <v-fab v-bind="activatorProps" color="amber" icon size="x-large" @click="updatePageType">
             <v-avatar :image="ptdIcon" rounded="0" />
           </v-fab>
         </template>
