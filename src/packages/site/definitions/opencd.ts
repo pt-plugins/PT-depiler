@@ -315,5 +315,10 @@ export const siteMetadata: ISiteMetadata = {
       alternative: [{ downloaded: "3TB" }, { uploads: 600 }],
       privilege: "得到十个邀请名额。",
     },
+    {
+      id: 100,
+      name: "貴賓(VIP)",
+      groupType: "vip",
+    },
   ],
 };
