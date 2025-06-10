@@ -306,7 +306,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
 
     // formData.append('skip_checking', 'false'); // Skip hash checking. Possible values are true, false (default)
 
-    const res = await this.request("/torrents/add", {
+    const res = await this.request<"Ok." | "Fails.">("/torrents/add", {
       method: "post",
       data: formData,
     });

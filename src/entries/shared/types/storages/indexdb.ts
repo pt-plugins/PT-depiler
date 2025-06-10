@@ -14,13 +14,15 @@ import type { ISearchResultTorrent } from "./runtime.ts";
 
 export type TTorrentDownloadKey = number;
 
+export type TTorrentDownloadStatus = "pending" | "downloading" | "completed" | "failed";
+
 export interface ITorrentDownloadMetadata extends Pick<ITorrent, "title" | "subTitle" | "url" | "link"> {
   id?: TTorrentDownloadKey; // 每个下载任务生成的唯一id
   siteId: TSiteKey; // 站点id
   torrentId: ITorrent["id"]; // 种子id
   downloaderId: TDownloaderKey | "local"; // 下载器id，注意 local 是一个特殊的关键词，表示本地下载
   downloadAt: number; // 下载时间
-  downloadStatus: "pending" | "downloading" | "completed" | "failed"; // 下载状态
+  downloadStatus: TTorrentDownloadStatus; // 下载状态
   torrent: ISearchResultTorrent; // 种子信息
   addTorrentOptions: Partial<CAddTorrentOptions>;
 }

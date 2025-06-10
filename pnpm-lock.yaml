@@ -68,9 +68,6 @@ importers:
       p-queue:
         specifier: ^8.1.0
         version: 8.1.0
-      p-wait-for:
-        specifier: ^5.0.2
-        version: 5.0.2
       parse-torrent:
         specifier: ^11.0.18
         version: 11.0.18
@@ -2780,10 +2777,6 @@ packages:
   p-timeout@6.1.4:
     resolution: {integrity: sha512-MyIV3ZA/PmyBN/ud8vV9XzwTrNtR4jFrObymZYnZqMmW0zA8Z17vnT0rBgFE/TlohB+YCHqXMgZzb3Csp49vqg==}
     engines: {node: '>=14.16'}
-
-  p-wait-for@5.0.2:
-    resolution: {integrity: sha512-lwx6u1CotQYPVju77R+D0vFomni/AqRfqLmqQ8hekklqZ6gAY9rONh7lBQ0uxWMkC2AuX9b2DVAl8To0NyP1JA==}
-    engines: {node: '>=12'}
 
   package-json@10.0.1:
     resolution: {integrity: sha512-ua1L4OgXSBdsu1FPb7F3tYH0F48a6kxvod4pLUlGY9COeJAJQNX/sNH2IiEmsxw7lqYiAwrdHMjz1FctOsyDQg==}
@@ -6324,10 +6317,6 @@ snapshots:
       p-timeout: 6.1.4
 
   p-timeout@6.1.4: {}
-
-  p-wait-for@5.0.2:
-    dependencies:
-      p-timeout: 6.1.4
 
   package-json@10.0.1:
     dependencies:

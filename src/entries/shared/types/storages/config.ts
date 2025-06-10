@@ -147,6 +147,8 @@ export interface IConfigPiniaStorageSchema {
     allowDirectSendToClient: boolean;
     // 当使用本地方法下载时，如何下载种子
     localDownloadMethod: TLocalDownloadMethod;
+    // 当使用本地方法下载时，是否忽略站点的下载间隔设置；
+    ignoreSiteDownloadIntervalWhenLocalDownload: boolean;
   };
 
   searchEntity: {

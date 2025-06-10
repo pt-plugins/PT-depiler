@@ -14,7 +14,7 @@ import type { getFaviconMetadata } from "@ptd/site";
 import type { IBackupData, IBackupFileInfo } from "@ptd/backupServer";
 
 import type { TExtensionStorageKey, IExtensionStorageSchema } from "@/storage.ts";
-import type {
+import {
   ILoggerItem,
   IRestoreOptions,
   ITorrentDownloadMetadata,
@@ -24,11 +24,30 @@ import type {
   TSearchSnapshotKey,
   TLocalDownloadMethod,
   TBackupFields,
+  TTorrentDownloadStatus,
 } from "@/shared/types.ts";
 
 import { isDebug } from "~/helper.ts";
 
 type TMessageMap = Record<string, (data: any) => any>;
+
+export interface IDownloadTorrentToLocalFile {
+  torrent: ITorrent;
+  localDownloadMethod?: TLocalDownloadMethod;
+  downloadId?: TTorrentDownloadKey;
+}
+
+export interface IDownloadTorrentToClientOption {
+  torrent: ITorrent;
+  downloaderId: string;
+  addTorrentOptions: CAddTorrentOptions;
+  downloadId?: TTorrentDownloadKey;
+}
+
+export interface IDownloadTorrentResult {
+  downloadId: TTorrentDownloadKey;
+  downloadStatus: TTorrentDownloadStatus;
+}
 
 interface ProtocolMap extends TMessageMap {
   // 1. 与 chrome 相关的功能，需要在 service worker 中注册，主要供 offscreen, options 使用
@@ -49,6 +68,7 @@ interface ProtocolMap extends TMessageMap {
   // 1.4 chrome.alarms
   setFlushUserInfoJob(): void;
   cleanupFlushUserInfoJob(): void;
+  reDownloadTorrentToDownloader(data: Required<IDownloadTorrentToClientOption>): void;
 
   // 1.5 chrome.cookies
   getCookiesByDomain(data: string): chrome.cookies.Cookie[];
@@ -90,17 +110,11 @@ interface ProtocolMap extends TMessageMap {
   // 2.3 下载器、下载历史 ( utils/download )
   getDownloaderConfig(downloaderId: string): IDownloaderMetadata;
   getTorrentDownloadLink(torrent: ITorrent): string;
-  downloadTorrentToLocalFile(data: {
-    torrent: ITorrent;
-    localDownloadMethod?: TLocalDownloadMethod;
-  }): TTorrentDownloadKey;
-  downloadTorrentToDownloader(data: {
-    torrent: ITorrent;
-    downloaderId: string;
-    addTorrentOptions: CAddTorrentOptions;
-  }): TTorrentDownloadKey;
+  downloadTorrentToLocalFile(data: IDownloadTorrentToLocalFile): IDownloadTorrentResult;
+  downloadTorrentToDownloader(data: IDownloadTorrentToClientOption): IDownloadTorrentResult;
   getDownloadHistory(): ITorrentDownloadMetadata[];
   getDownloadHistoryById(downloadId: TTorrentDownloadKey): ITorrentDownloadMetadata;
+  setDownloadHistoryStatus(data: { downloadId: TTorrentDownloadKey; status: TTorrentDownloadStatus }): void;
   deleteDownloadHistoryById(downloadId: TTorrentDownloadKey): void;
   clearDownloadHistory(): void;
 

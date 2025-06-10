@@ -166,6 +166,7 @@ export const useConfigStore = defineStore("config", {
       saveLastDownloader: false,
       allowDirectSendToClient: false,
       localDownloadMethod: "browser",
+      ignoreSiteDownloadIntervalWhenLocalDownload: true,
     },
 
     searchEntity: {

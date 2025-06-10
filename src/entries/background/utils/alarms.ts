@@ -3,12 +3,14 @@ import { defineJobScheduler } from "@webext-core/job-scheduler";
 import { EResultParseStatus, type TSiteID } from "@ptd/site/types/base.ts";
 
 import { extStorage } from "@/storage.ts";
-import { onMessage, sendMessage } from "@/messages.ts";
+import { IDownloadTorrentToClientOption, IDownloadTorrentToLocalFile, onMessage, sendMessage } from "@/messages.ts";
 
 import { setupOffscreenDocument } from "./offscreen.ts";
 
 export enum EJobType {
   FlushUserInfo = "flushUserInfo",
+  ReDownloadTorrentToDownloader = "reDownloadTorrentToDownloader",
+  ReDownloadTorrentToLocalFile = "reDownloadTorrentToLocalFile",
 }
 
 const jobs = defineJobScheduler();
@@ -118,3 +120,44 @@ onMessage("setFlushUserInfoJob", async () => await setFlushUserInfoJob());
 
 // noinspection JSIgnoredPromiseFromCall
 createFlushUserInfoJob();
+
+function doReDownloadTorrentToDownloader(option: IDownloadTorrentToClientOption) {
+  return async () => {
+    await setupOffscreenDocument();
+    // 按照相同的方式重新下载种子到下载器
+    await sendMessage("downloadTorrentToDownloader", option);
+  };
+}
+
+onMessage("reDownloadTorrentToDownloader", async ({ data }) => {
+  jobs
+    .scheduleJob({
+      id: EJobType.ReDownloadTorrentToDownloader + "-" + data.downloadId!,
+      type: "once",
+      date: Date.now() + 1000 * 30, // 0.5 minute later
+      execute: doReDownloadTorrentToDownloader(data),
+    })
+    .catch(() => {
+      sendMessage("setDownloadHistoryStatus", { downloadId: data.downloadId!, status: "failed" }).catch();
+    });
+});
+
+function doReDownloadTorrentToLocalFile(option: IDownloadTorrentToLocalFile) {
+  return async () => {
+    await setupOffscreenDocument();
+    await sendMessage("downloadTorrentToLocalFile", option);
+  };
+}
+
+onMessage("reDownloadTorrentToLocalFile", async ({ data }) => {
+  jobs
+    .scheduleJob({
+      id: EJobType.ReDownloadTorrentToLocalFile + "-" + data.downloadId!,
+      type: "once",
+      date: Date.now() + 1000 * 30, // 0.5 minute later
+      execute: doReDownloadTorrentToLocalFile(data),
+    })
+    .catch(() => {
+      sendMessage("setDownloadHistoryStatus", { downloadId: data.downloadId!, status: "failed" }).catch();
+    });
+});

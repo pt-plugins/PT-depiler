@@ -21,9 +21,10 @@ async function clearLastDownloader(v: boolean) {
     <v-col md="6">
       <v-switch
         v-model="configStore.download.saveDownloadHistory"
-        label="是否保存下载历史"
         color="success"
+        false-icon="mdi-alert-octagon"
         hide-details
+        label="是否保存下载历史（如非必要请勿关闭此功能）"
       />
     </v-col>
   </v-row>
@@ -42,6 +43,12 @@ async function clearLastDownloader(v: boolean) {
         "
         :hint="t(`SetBase.download.localDownloadMethod.${configStore.download.localDownloadMethod}Tip`)"
         persistent-hint
+      />
+      <v-switch
+        v-model="configStore.download.ignoreSiteDownloadIntervalWhenLocalDownload"
+        color="success"
+        hide-details
+        label="本地下载时忽略站点下载间隔限制"
       />
     </v-col>
   </v-row>

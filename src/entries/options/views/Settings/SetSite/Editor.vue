@@ -213,7 +213,8 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
           v-model="siteUserConfig.downloadInterval"
           :min="0"
           :max="1800"
-          hint="影响该站点的下载间隔时间"
+          :step="30"
+          hint="影响该站点的下载间隔时间（为了安全考虑，插件不会严格遵守该设置，实际间隔总是会略大于等于设置的间隔）"
           label="下载间隔"
           persistent-hint
         >
