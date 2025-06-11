@@ -238,6 +238,10 @@ export const siteMetadata: ISiteMetadata = {
           },
         ],
       },
+      bonusPerHour: {
+        selector: [".grid .row-span-4"],
+        filters: [{ name: "parseNumber" }],
+      },
     },
   },
 
