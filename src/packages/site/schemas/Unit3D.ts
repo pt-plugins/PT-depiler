@@ -134,7 +134,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         {
           name: "75%",
           selector: "i[title*='75% Free'], span[title*='75% Free']",
-          color: "indigo"
+          color: "lime-darken-3"
         },
         {
           name: "50%",
