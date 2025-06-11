@@ -538,15 +538,21 @@ export default class MTeam extends PrivateSite {
     row: IMTeamRawTorrent,
     searchConfig: ISearchInput,
   ): Partial<ITorrent> {
-    //
     const tags: ITorrentTag[] = [];
-    const discount = row.status?.discount ?? "NORMAL";
-    if (discount == "FREE") {
+
+    // 处理 成人区限时free
+    if (row.status?.mallSingleFree) {
       tags.push({ name: "Free", color: "blue" });
-    } else if (discount == "PERCENT_70") {
-      tags.push({ name: "30%", color: "indigo" });
-    } else if (discount == "PERCENT_50") {
-      tags.push({ name: "50%", color: "orange" });
+    } else {
+      // 其他促销状态 从 status.discount 中获取
+      const discount = row.status?.discount ?? "NORMAL";
+      if (discount == "FREE") {
+        tags.push({ name: "Free", color: "blue" });
+      } else if (discount == "PERCENT_70") {
+        tags.push({ name: "30%", color: "indigo" });
+      } else if (discount == "PERCENT_50") {
+        tags.push({ name: "50%", color: "orange" });
+      }
     }
 
     if (row.labelsNew && row.labelsNew.length > 0) {
