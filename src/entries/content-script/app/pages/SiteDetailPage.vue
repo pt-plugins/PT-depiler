@@ -46,13 +46,14 @@ function handleSearch() {
 
 <template>
   <SpeedDialBtn
+    key="download"
+    :disabled="metadataStore.getEnabledDownloaders.length === 0"
     color="light-blue"
     icon="mdi-tray-arrow-down"
     title="推送到..."
-    :disabled="metadataStore.getEnabledDownloaders.length === 0"
     @click="handleRemoteDownload"
   />
-  <SpeedDialBtn color="indigo" icon="mdi-home-search" title="快捷搜索" @click="handleSearch" />
+  <SpeedDialBtn key="search" color="indigo" icon="mdi-home-search" title="快捷搜索" @click="handleSearch" />
 
   <SentToDownloaderDialog
     v-model="showRemoteDownloadDialog"

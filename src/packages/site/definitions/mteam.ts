@@ -373,17 +373,23 @@ export const siteMetadata: ISiteMetadata = {
     urlPattern: ["/browse"],
     selectors: {
       rows: { selector: "tbody.bg-\\[\\#bccad6\\] > tr" },
-      id: { selector: "a[href^='/detail/']", attr: "href", filters: [{ name: "parseNumber" }] },
-      title: { selector: "a[href^='/detail/'] strong > span:nth-last-child(1)" },
-      subTitle: { selector: "a[href^='/detail/'] + br + div > span" },
-      url: { selector: "a[href^='/detail/']", attr: "href" },
+      id: { selector: "a[href*='/detail/']", attr: "href", filters: [{ name: "parseNumber" }] },
+      title: { selector: "a[href*='/detail/'] strong > span:nth-last-child(1)" },
+      subTitle: { selector: "a[href*='/detail/'] + br + div > span" },
+      url: { selector: "a[href*='/detail/']", attr: "href" },
       // link: 不返回，在 class 中单独构造
-      time: { selector: "td:nth-child(4) > span", attr: "title", filters: [{ name: "parseTime" }] },
-      size: { selector: "td:nth-child(5)", filters: [{ name: "parseSize" }] },
+      time: {
+        selector: "td:nth-last-child(4) > span[title]",
+        elementProcess: (el: HTMLInputElement) => {
+          return el.getAttribute("title") || el.textContent;
+        },
+        filters: [{ name: "parseTime" }],
+      },
+      size: { selector: "td:nth-last-child(3)", filters: [{ name: "parseSize" }] },
       seeders: { selector: 'span[aria-label="arrow-up"] + span' },
       leechers: { selector: 'span[aria-label="arrow-down"] + span' },
       completed: { text: "-" }, // 页面中不返回 completed
-      comments: { selector: "td:nth-child(3)" },
+      comments: { selector: "td:nth-last-child(5)" },
       category: { selector: "img[src*='/static/cate'][alt]", attr: "alt" },
       ext_douban: { selector: "a[href^='https://movie.douban.com/subject/']", filters: [{ name: "extDoubanId" }] },
       ext_imdb: { selector: "a[href^='https://www.imdb.com/title/']", filters: [{ name: "extImdbId" }] },

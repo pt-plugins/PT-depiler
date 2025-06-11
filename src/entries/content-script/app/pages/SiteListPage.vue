@@ -90,18 +90,31 @@ async function handleSearch() {
 </script>
 
 <template>
-  <SpeedDialBtn color="light-blue" icon="mdi-content-save-all" title="本地下载" @click="handleLocalDownloadMulti" />
-  <SpeedDialBtn color="light-blue" icon="mdi-content-copy" title="复制链接" @click="handleLinkCopyMulti" />
   <SpeedDialBtn
+    key="save"
+    color="light-blue"
+    icon="mdi-content-save-all"
+    title="本地下载"
+    @click="handleLocalDownloadMulti"
+  />
+  <SpeedDialBtn key="copy" color="light-blue" icon="mdi-content-copy" title="复制链接" @click="handleLinkCopyMulti" />
+  <SpeedDialBtn
+    key="download"
+    :disabled="metadataStore.getEnabledDownloaders.length === 0"
     color="light-blue"
     icon="mdi-tray-arrow-down"
     title="推送到..."
-    :disabled="metadataStore.getEnabledDownloaders.length === 0"
     @click="handleRemoteDownloadMulti"
   />
 
-  <SpeedDialBtn color="indigo" icon="mdi-checkbox-multiple-marked" title="高级列表" @click="handleAdvanceListModule" />
-  <SpeedDialBtn color="indigo" icon="mdi-home-search" title="快捷搜索" @click="handleSearch" />
+  <SpeedDialBtn
+    key="advance"
+    color="indigo"
+    icon="mdi-checkbox-multiple-marked"
+    title="高级列表"
+    @click="handleAdvanceListModule"
+  />
+  <SpeedDialBtn key="search" color="indigo" icon="mdi-home-search" title="快捷搜索" @click="handleSearch" />
 
   <SentToDownloaderDialog
     v-model="showRemoteDownloadMultiDialog"
