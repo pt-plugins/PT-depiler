@@ -632,6 +632,10 @@ export default class BittorrentSite {
       torrent.title = this.getFieldData(parsedDetailsPage, { text: "", selector: ["html > body > title"] });
     }
 
+    if (torrent.link) {
+      torrent.link = this.fixLink(torrent.link, { baseURL: parsedDetailsPage.URL }); // 如果 link 存在，则进行修正
+    }
+
     return torrent as ITorrent;
   }
 
