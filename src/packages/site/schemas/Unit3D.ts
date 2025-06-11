@@ -121,8 +121,31 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         },
       },
       tags: [
-        { name: "Free", selector: "i.fa-star.text-gold, i.fa-globe.text-blue", color: "blue" },
-        { name: "2xUp", selector: "i.fa-gem.text-green", color: "lime" },
+        {
+          name: "Free",
+          selector: "i.fa-star.text-gold, i.fa-globe.text-blue, i[title*='100% Free'], i[title*='Featured'], span[title*='100% Free'], i[data-original-title*='Featured']",
+          color: "blue"
+        },
+        {
+          name: "2xUp",
+          selector: "i.fa-gem.text-green, i[title*='Double Upload'], i[title*='Featured'], i[data-original-title*='Featured']",
+          color: "lime"
+        },
+        {
+          name: "75%",
+          selector: "i[title*='75% Free'], span[title*='75% Free']",
+          color: "indigo"
+        },
+        {
+          name: "50%",
+          selector: "i[title*='50% Free'], span[title*='50% Free']",
+          color: "deep-orange-darken-1"
+        },
+        {
+          name: "25%",
+          selector: "i[title*='25% Free'], span[title*='25% Free']",
+          color: "blue"
+        }
       ],
     },
   },
