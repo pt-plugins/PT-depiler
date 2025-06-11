@@ -121,6 +121,11 @@ function viewHistoryData(siteId: TSiteID) {
 
 async function multiOpen() {
   for (const siteId of tableSelected.value) {
+    const siteMeta = await metadataStore.getSiteMetadata(siteId);
+    const siteUserConfig = metadataStore.sites[siteId];
+
+    if (siteMeta.isDead || siteUserConfig.isOffline === true) continue; // 跳过 isOffline 的站点
+
     const siteUrl = await metadataStore.getSiteUrl(siteId);
     if (siteUrl) {
       window.open(siteUrl, "_blank", "noopener noreferrer");
