@@ -165,7 +165,7 @@ export default class Pttime extends NexusPHP {
 
     let seedStatus = { seeding: 0, seedingSize: 0 };
 
-    if (userSeedingRequestString && userSeedingRequestString?.includes("<table")) {
+    if (userSeedingRequestString && userSeedingRequestString.includes("<table")) {
       const userSeedingDocument = createDocument(userSeedingRequestString);
 
       seedStatus.seeding =
