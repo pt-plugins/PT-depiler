@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, inject } from "vue";
 import { useWindowSize } from "@vueuse/core";
 import { ITorrent } from "@ptd/site";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
@@ -10,7 +10,6 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 import NavButton from "@/options/components/NavButton.vue";
 import SimpleTorrentTitleTd from "@/content-script/app/components/SimpleTorrentTitleTd.vue";
-import SentToDownloaderDialog from "@/options/views/Overview/SearchEntity/SentToDownloaderDialog.vue";
 
 const showDialog = defineModel<boolean>();
 
@@ -59,10 +58,11 @@ async function handleLinkCopyMulti() {
   }
 }
 
-const showRemoteDownloadMultiDialog = ref<boolean>(false);
+const remoteDownloadDialogData = inject<{ show: boolean; torrents: ITorrent[] }>("remoteDownloadDialogData")!;
 
 function handleRemoteDownloadMulti() {
-  showRemoteDownloadMultiDialog.value = true;
+  remoteDownloadDialogData.torrents = selectedTorrents.value;
+  remoteDownloadDialogData.show = true;
 }
 
 function enterDialog() {
@@ -126,12 +126,6 @@ function enterDialog() {
       </v-card-actions>
     </v-card>
   </v-dialog>
-
-  <SentToDownloaderDialog
-    v-model="showRemoteDownloadMultiDialog"
-    :content-class="['bg-white']"
-    :torrent-items="selectedTorrents"
-  />
 </template>
 
 <style scoped lang="scss"></style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, shallowRef } from "vue";
+import { inject } from "vue";
 import type { ITorrent } from "@ptd/site";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -7,7 +7,6 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { doKeywordSearch, siteInstance } from "@/content-script/app/utils.ts";
 
 import SpeedDialBtn from "@/content-script/app/components/SpeedDialBtn.vue";
-import SentToDownloaderDialog from "@/options/views/Overview/SearchEntity/SentToDownloaderDialog.vue";
 
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
@@ -27,13 +26,12 @@ async function parseDetailPage() {
   return parsedResult!;
 }
 
-const parsedTorrent = shallowRef<ITorrent[]>([]);
-const showRemoteDownloadDialog = ref<boolean>(false);
+const remoteDownloadDialogData = inject<{ show: boolean; torrents: ITorrent[] }>("remoteDownloadDialogData")!;
 
 function handleRemoteDownload() {
   parseDetailPage().then((torrent) => {
-    parsedTorrent.value = [torrent];
-    showRemoteDownloadDialog.value = true;
+    remoteDownloadDialogData.torrents = [torrent];
+    remoteDownloadDialogData.show = true;
   });
 }
 
@@ -54,12 +52,6 @@ function handleSearch() {
     @click="handleRemoteDownload"
   />
   <SpeedDialBtn key="search" color="indigo" icon="mdi-home-search" title="快捷搜索" @click="handleSearch" />
-
-  <SentToDownloaderDialog
-    v-model="showRemoteDownloadDialog"
-    :content-class="['bg-white']"
-    :torrent-items="parsedTorrent"
-  />
 </template>
 
 <style scoped lang="scss"></style>

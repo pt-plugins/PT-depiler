@@ -267,6 +267,7 @@ export interface ISiteMetadata {
 
   /**
    * 站点用户等级定义
+   * 对设置了 isDead: true 的站点请注释或删除该项
    */
   levelRequirements?: ILevelRequirement[];
 

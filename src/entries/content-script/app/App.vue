@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { inject, onMounted, provide, useTemplateRef, ref, watch } from "vue";
+import { inject, onMounted, provide, useTemplateRef, ref, watch, shallowReactive } from "vue";
 import { useDraggable } from "@vueuse/core";
-import { getSite as createSiteInstance } from "@ptd/site";
+import { getSite as createSiteInstance, type ITorrent } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
@@ -9,10 +9,14 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { currentView, pageType, siteInstance, updatePageType } from "./utils.ts";
 import SpeedDialBtn from "@/content-script/app/components/SpeedDialBtn.vue";
+import SentToDownloaderDialog from "@/options/views/Overview/SearchEntity/SentToDownloaderDialog.vue";
 
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
+
+const ptdIcon = chrome.runtime.getURL("icons/logo/64.png");
+const ptdData = inject<{ siteId?: string }>("ptd_data", {});
 
 const el = useTemplateRef<HTMLElement>("el");
 provide("app", el);
@@ -37,9 +41,6 @@ window.addEventListener("resize", () => {
   }
 });
 
-const ptdData = inject<{ siteId?: string }>("ptd_data", {});
-const ptdIcon = chrome.runtime.getURL("icons/logo/64.png");
-
 // 从 configStore 中加载初始position配置（这里不需要判断 configStore.contextScript.enabled ）
 watch(
   () => configStore.$ready,
@@ -54,6 +55,12 @@ watch(
     }
   },
 );
+
+const remoteDownloadDialogData = shallowReactive({
+  show: false,
+  torrents: [] as ITorrent[],
+});
+provide("remoteDownloadDialogData", remoteDownloadDialogData);
 
 onMounted(async () => {
   const siteId = ptdData.siteId;
@@ -91,5 +98,11 @@ function openOptions() {
     </div>
 
     <v-snackbar-queue v-model="runtimeStore.uiGlobalSnakebar" closable :attach="true" />
+
+    <SentToDownloaderDialog
+      v-model="remoteDownloadDialogData.show"
+      :content-class="['bg-white']"
+      :torrent-items="remoteDownloadDialogData.torrents"
+    />
   </v-theme-provider>
 </template>
