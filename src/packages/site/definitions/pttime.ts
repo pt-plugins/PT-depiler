@@ -1,5 +1,7 @@
-import type { ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/NexusPHP";
+import type { ISiteMetadata, IUserInfo } from "../types";
+import NexusPHP, { SchemaMetadata } from "../schemas/NexusPHP";
+import { createDocument, parseSizeString } from "@ptd/site";
+import { mergeWith } from "es-toolkit";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -8,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   id: "pttime",
   name: "PTTime",
   description: "",
-  tags: ["影视", "综合" ,"成人"],
+  tags: ["影视", "综合", "成人"],
   timezoneOffset: "+0800",
   collaborator: ["zxb0303"],
 
@@ -54,6 +56,21 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
+  userInfo: {
+    ...SchemaMetadata.userInfo,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors,
+      levelName: {
+        selector: [
+          "td.rowhead:contains('等级') + td > b",
+          "td.rowhead:contains('等級')  + td > b",
+          "td.rowhead:contains('Class')  + td > b",
+        ],
+        attr: "title",
+      },
+    },
+  },
+
   levelRequirements: [
     {
       id: 0,
@@ -61,7 +78,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 1,
-      name: "User(幼儿园)等级",
+      name: "User(幼儿园)",
       privilege: "新用户的默认级别。",
     },
     {
@@ -130,3 +147,47 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
+
+export default class Pttime extends NexusPHP {
+  protected override async requestUserSeedingPage(userId: number, type: string = "seeding"): Promise<string | null> {
+    const { data } = await this.request<string>({
+      url: "/getusertorrentlist.php",
+      params: { userid: userId, type },
+    });
+    return data || null;
+  }
+
+  protected override async parseUserInfoForSeedingStatus(
+    flushUserInfo: Partial<IUserInfo>,
+  ): Promise<Partial<IUserInfo>> {
+    const userId = flushUserInfo.id as number;
+    const userSeedingRequestString = await this.requestUserSeedingPage(userId);
+
+    let seedStatus = { seeding: 0, seedingSize: 0 };
+
+    if (userSeedingRequestString && userSeedingRequestString.includes("<table")) {
+      const userSeedingDocument = createDocument(userSeedingRequestString);
+
+      seedStatus.seeding =
+        this.getFieldData(userSeedingDocument, {
+          selector: "#outer > span:nth-child(3) > b",
+          filters: [{ name: "parseNumber" }],
+        }) ?? 0;
+
+      seedStatus.seedingSize =
+        this.getFieldData(userSeedingDocument, {
+          selector: "#outer > span:nth-child(4)",
+          elementProcess: (element: Element) => {
+            const text = element.lastChild?.textContent?.trim() ?? "";
+            return text ? parseSizeString(text) : 0;
+          },
+        }) ?? 0;
+    }
+
+    flushUserInfo = mergeWith(flushUserInfo, seedStatus, (objValue, srcValue) => {
+      return typeof srcValue === "undefined" ? objValue : srcValue;
+    });
+
+    return flushUserInfo;
+  }
+}
