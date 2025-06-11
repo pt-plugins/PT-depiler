@@ -12,7 +12,7 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: ["13City"],
   type: "private",
   schema: "NexusPHP",
-  urls: ["uggcf://13pvgl.bayvar"],
+  urls: ["https://13city.online"],
   category: [
     {
       name: "分类",
