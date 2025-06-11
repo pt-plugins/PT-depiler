@@ -136,6 +136,8 @@ export interface IConfigPiniaStorageSchema {
     };
     // 是否在概览中展示已被标记为死亡 （isDead） 的站点
     showDeadSiteInOverview: boolean;
+    // 是否在概览中展示已被标记为离线 （isOffline） 或不允许查询用户信息 （ allowQueryUserInfo === false ） 的站点
+    showPassedSiteInOverview: boolean;
   };
 
   download: {

@@ -159,6 +159,7 @@ export const useConfigStore = defineStore("config", {
         },
       },
       showDeadSiteInOverview: false,
+      showPassedSiteInOverview: false,
     },
 
     download: {

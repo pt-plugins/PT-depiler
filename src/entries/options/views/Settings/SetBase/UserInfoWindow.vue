@@ -112,6 +112,12 @@ onMounted(async () => {
         color="success"
         hide-details
       />
+      <v-switch
+        v-model="configStore.userInfo.showPassedSiteInOverview"
+        :label="`在概览中展示已被标记为离线 （isOffline） 或不允许查询用户信息的站点`"
+        color="success"
+        hide-details
+      />
     </v-col>
   </v-row>
 </template>

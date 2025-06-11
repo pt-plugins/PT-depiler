@@ -91,15 +91,23 @@ async function updateTableData() {
       // 只显示私有站点的用户信息
       siteMeta.type === "public" ||
       // 根据配置决定是否显示已死亡站点的用户信息
-      (siteMeta.isDead === true && !configStore.userInfo.showDeadSiteInOverview) ||
-      // 如果站点设置了离线模式或不允许查询用户信息
-      (!siteMeta.isDead && (siteUserConfig.isOffline === true || siteUserConfig.allowQueryUserInfo === false))
+      (!configStore.userInfo.showDeadSiteInOverview && siteMeta.isDead === true) ||
+      // 根据配置决定是否显示设置了离线模式或不允许查询用户信息的站点
+      (!siteMeta.isDead &&
+        !configStore.userInfo.showPassedSiteInOverview &&
+        (siteUserConfig.isOffline === true || siteUserConfig.allowQueryUserInfo === false))
     ) {
       continue;
     }
 
     const siteUserInfoData = metadataStore.lastUserInfo[siteId] ?? {};
-    allPrivateSiteUserInfoData.push({ ...fixUserInfo(siteUserInfoData), site: siteId, siteUserConfig });
+    allPrivateSiteUserInfoData.push({
+      ...fixUserInfo(siteUserInfoData),
+      site: siteId,
+      siteUserConfig,
+      // 对 isDead 或者 isOffline 的站点不允许选择（ https://github.com/pt-plugins/PT-depiler/pull/140 ）
+      selectable: !(siteMeta.isDead || siteUserConfig.isOffline),
+    });
   }
 
   tableData.value = allPrivateSiteUserInfoData;
@@ -323,6 +331,7 @@ function viewStatistic() {
       :sort-by="configStore.tableBehavior.MyData.sortBy"
       class="table-stripe table-header-no-wrap"
       hover
+      item-selectable="selectable"
       item-value="site"
       multi-sort
       show-select
