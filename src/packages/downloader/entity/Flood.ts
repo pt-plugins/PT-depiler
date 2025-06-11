@@ -377,6 +377,11 @@ export default class Flood extends AbstractBittorrentClient {
       postData.tags = [options.label];
     }
 
+    if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
+      // Upload speed limit in KB/s for Flood
+      postData.uploadSpeedLimit = options.uploadSpeedLimit * 1024;
+    }
+
     // 处理链接
     if (url.startsWith("magnet:") || !options.localDownload) {
       postData.urls = [url];

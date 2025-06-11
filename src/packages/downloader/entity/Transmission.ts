@@ -126,6 +126,7 @@ interface TransmissionAddTorrentOptions {
   metainfo: string;
   paused: boolean;
   labels: string[]; // RPC Version >= 17，使用前需要判断
+  uploadLimit?: number; // Upload speed limit in KB/s
 }
 
 interface TransmissionTorrentFilterRules extends CTorrentFilterRules {
@@ -337,6 +338,11 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
 
     if (options.label && supportLabelAtAdd) {
       addTorrentOptions.labels = [options.label];
+    }
+
+    if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
+      // Upload speed limit in KB/s for Transmission
+      addTorrentOptions.uploadLimit = options.uploadSpeedLimit * 1024;
     }
 
     try {

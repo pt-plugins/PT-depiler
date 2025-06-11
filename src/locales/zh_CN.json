@@ -421,7 +421,9 @@
       "description": "网站描述",
       "sortIndexTip": "可用于搜索排序",
       "tagTip": "标签输入完成后按回车添加。（只有前4个会在列表页显示）",
-      "timezone": "时区"
+      "timezone": "时区",
+      "uploadSpeedLimit": "上传速度限制 (MB/s)",
+      "uploadSpeedLimitHint": "设置向下载器推送种子时的上传速度限制，0或不填时不限速"
     },
     "index": {
       "flushFaviconFinish": "所选站点的图标已成功刷新！",

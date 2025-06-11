@@ -234,6 +234,11 @@ export default class Aria2 extends AbstractBittorrentClient {
       addOption.dir = options.savePath;
     }
 
+    if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
+      // Upload speed limit in KB/s for Aria2
+      addOption["max-upload-limit"] = `${options.uploadSpeedLimit * 1024}K`;
+    }
+
     let method: "aria2.addUri" | "aria2.addTorrent";
     let params: any;
     if (url.startsWith("magnet:") || !options.localDownload) {

@@ -194,6 +194,11 @@ onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId,
       addTorrentOptions.localDownloadOption = downloadRequestConfig;
     }
 
+    // 添加站点配置的上传速度限制
+    if (site.userConfig.uploadSpeedLimit && site.userConfig.uploadSpeedLimit > 0) {
+      addTorrentOptions.uploadSpeedLimit = site.userConfig.uploadSpeedLimit;
+    }
+
     downloadStatus = await setDownloadStatus(downloadId, "downloading");
     try {
       logger({ msg: "downloadTorrentToDownloader", data: { torrent, downloadRequestConfig, addTorrentOptions } });

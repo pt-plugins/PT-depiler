@@ -173,6 +173,12 @@ export interface CAddTorrentOptions {
    * Notice: Some clients didn't support it and will ignore this option
    */
   label?: string;
+
+  /**
+   * 上传速度限制，单位为 MB/s，0 或不填时不限速
+   * Notice: Some clients didn't support it and will ignore this option
+   */
+  uploadSpeedLimit?: number;
 }
 
 /**

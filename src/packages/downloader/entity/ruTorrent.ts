@@ -224,6 +224,11 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
       postData.append("label", options.label);
     }
 
+    if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
+      // Upload speed limit in KB/s for ruTorrent
+      postData.append("upload_rate", (options.uploadSpeedLimit * 1024).toString());
+    }
+
     const { data } = await this.request<{
       result: "Success" | "Failed" | "FailedFile";
     }>({

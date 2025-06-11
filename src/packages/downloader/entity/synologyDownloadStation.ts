@@ -546,6 +546,23 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
       if (options.addAtPaused && req.data.task_id.length > 0) {
         await this.pauseTorrent(req.data.task_id[0]);
       }
+
+      // 设置上传速度限制
+      if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0 && req.data.task_id.length > 0) {
+        // Synology DS uses bytes/sec for speed limit
+        const uploadLimitBytes = options.uploadSpeedLimit * 1024 * 1024;
+        try {
+          await this.requestEntryCGI({
+            api: "SYNO.DownloadStation2.Task",
+            method: "edit",
+            version: 2,
+            id: req.data.task_id[0],
+            upload_rate_limit: uploadLimitBytes,
+          });
+        } catch (e) {
+          // 如果设置速度限制失败，不影响主要的添加种子流程
+        }
+      }
     }
 
     // TODO 添加异常处理方法
