@@ -182,9 +182,11 @@ onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId,
   let downloadStatus = await setDownloadStatus(downloadId, "pending");
 
   let downloadRequestConfig: AxiosRequestConfig = { url: torrent.link, method: "GET", timeout: 30e3 };
+  let site: Awaited<ReturnType<typeof getSiteInstance<"public">>> | null = null;
+
   if (torrent.site) {
     // 生成站点，并检查站点下载间隔，如果触及到站点下载间隔，则将下载任务放入到 alarms 中等待
-    const site = await getSiteInstance<"public">(torrent.site);
+    site = await getSiteInstance<"public">(torrent.site);
     if (site.downloadInterval > 0) {
       if (new Date().getTime() - (lastSiteDownloadAt.get(torrent.site) ?? 0) < site.downloadInterval * 1000) {
         logger({ msg: `Site ${torrent.site} download interval not reached, waiting...` });
@@ -205,6 +207,11 @@ onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId,
     const downloaderInstance = await getDownloader(downloaderConfig);
     if (addTorrentOptions.localDownload) {
       addTorrentOptions.localDownloadOption = downloadRequestConfig;
+    }
+
+    // 添加站点配置的上传速度限制
+    if (site?.userConfig?.uploadSpeedLimit && site.userConfig.uploadSpeedLimit > 0) {
+      addTorrentOptions.uploadSpeedLimit = site.userConfig.uploadSpeedLimit;
     }
 
     downloadStatus = await setDownloadStatus(downloadId, "downloading");

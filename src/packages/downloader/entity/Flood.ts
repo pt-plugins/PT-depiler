@@ -377,6 +377,9 @@ export default class Flood extends AbstractBittorrentClient {
       postData.tags = [options.label];
     }
 
+    // Note: Flood does not support upload speed limit during torrent addition
+    // The uploadSpeedLimit parameter is not implemented as it's not supported by the API
+
     // 处理链接
     if (url.startsWith("magnet:") || !options.localDownload) {
       postData.urls = [url];

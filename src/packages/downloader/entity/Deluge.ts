@@ -218,6 +218,11 @@ export default class Deluge extends AbstractBittorrentClient {
       delugeOptions.download_location = options.savePath;
     }
 
+    if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
+      // Upload speed limit in KB/s for Deluge
+      delugeOptions.max_upload_speed = options.uploadSpeedLimit * 1024;
+    }
+
     // 由于Deluge添加链接和种子的方法名不一样，分开处理
     let method: "core.add_torrent_file" | "core.add_torrent_url";
     let params: any;

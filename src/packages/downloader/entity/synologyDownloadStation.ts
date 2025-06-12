@@ -546,6 +546,9 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
       if (options.addAtPaused && req.data.task_id.length > 0) {
         await this.pauseTorrent(req.data.task_id[0]);
       }
+
+      // Note: Synology Download Station does not support upload speed limit configuration
+      // The uploadSpeedLimit feature is not implemented as it's not supported by the API
     }
 
     // TODO 添加异常处理方法

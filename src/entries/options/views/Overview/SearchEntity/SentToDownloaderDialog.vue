@@ -32,6 +32,7 @@ const addTorrentOptions = ref<Required<Omit<CAddTorrentOptions, "localDownloadOp
   addAtPaused: false,
   savePath: "",
   label: "",
+  uploadSpeedLimit: 0,
 });
 
 const suggestFolders = computed(() => selectedDownloader.value?.suggestFolders ?? []);

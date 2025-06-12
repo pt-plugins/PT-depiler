@@ -173,6 +173,23 @@ export interface CAddTorrentOptions {
    * Notice: Some clients didn't support it and will ignore this option
    */
   label?: string;
+
+  /**
+   * 上传速度限制，单位为 MB/s，0 或不填时不限速
+   *
+   * 支持的下载器:
+   * - qBittorrent ✅
+   * - Transmission ✅
+   * - Deluge ✅
+   * - Aria2 ✅
+   * - uTorrent ✅
+   *
+   * 不支持的下载器 (将被忽略):
+   * - Flood ❌
+   * - ruTorrent ❌
+   * - Synology Download Station ❌
+   */
+  uploadSpeedLimit?: number;
 }
 
 /**

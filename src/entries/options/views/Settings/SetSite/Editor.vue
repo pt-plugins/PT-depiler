@@ -224,6 +224,22 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
             </v-btn>
           </template>
         </v-slider>
+
+        <v-slider
+          v-model="siteUserConfig.uploadSpeedLimit"
+          :min="0"
+          :max="1024"
+          :step="1"
+          :hint="t('SetSite.editor.uploadSpeedLimitHint')"
+          :label="t('SetSite.editor.uploadSpeedLimit')"
+          persistent-hint
+        >
+          <template #append>
+            <v-btn variant="flat" @click="siteUserConfig.uploadSpeedLimit = 0">
+              {{ siteUserConfig.uploadSpeedLimit ?? 0 }} MB/s
+            </v-btn>
+          </template>
+        </v-slider>
       </v-container>
     </v-form>
   </v-card>

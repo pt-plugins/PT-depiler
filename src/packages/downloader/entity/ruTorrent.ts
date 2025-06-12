@@ -224,6 +224,9 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
       postData.append("label", options.label);
     }
 
+    // Note: ruTorrent's addtorrent.php does not support upload_rate parameter
+    // The uploadSpeedLimit feature is not implemented as it's not supported by the API
+
     const { data } = await this.request<{
       result: "Success" | "Failed" | "FailedFile";
     }>({

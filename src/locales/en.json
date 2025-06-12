@@ -418,8 +418,9 @@
       "customUrlPlaceholder": "Custom site url",
       "description": "Site description",
       "sortIndexTip": "Can be used for search sorting",
-      "tagTip": "press Enter to add multiple. ( Only first 4 tags will show on lists )",
-      "timezone": "Timezone"
+      "timezone": "Timezone",
+      "uploadSpeedLimit": "Upload Speed",
+      "uploadSpeedLimitHint": "Set upload speed limit (MB/s) when pushing torrents to downloader, 0 or empty means unlimited"
     },
     "index": {
       "flushFaviconFinish": "The selected site favicon has been flushed successfully!",

@@ -319,6 +319,9 @@ export interface ISiteUserConfig {
   // 在批量下载每个种子时，与（本站）上一个种子之间的间隔时间，单位为秒，如果不设置默认为 0
   downloadInterval?: number;
 
+  // 上传速度限制，单位为 MB/s，0 或不填时不限速，用于推送种子文件到下载器的时候，传递上传速度限制
+  uploadSpeedLimit?: number;
+
   /**
    * 存储用户输入的配置项信息
    */

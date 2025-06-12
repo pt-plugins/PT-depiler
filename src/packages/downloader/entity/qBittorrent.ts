@@ -301,6 +301,11 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
       formData.append("paused", options.addAtPaused ? "true" : "false");
     }
 
+    if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
+      // Upload speed limit in bytes/sec, -1 means no limit
+      formData.append("upLimit", (options.uploadSpeedLimit * 1024 * 1024).toString());
+    }
+
     // Whether Automatic Torrent Management should be used, disables use of savepath
     formData.append("useAutoTMM", "false"); // 关闭自动管理
 
