@@ -185,7 +185,7 @@ export const siteMetadata: ISiteMetadata = {
           levelName: { selector: "div.profile-details div.label-user-class" },
           joinTime: {
             selector: "table.profileViewTable td:contains('Registration date') + td",
-            filters: [{ name: "parseTime", args: ["EEEE do MMM yyyy" /* 'Saturday 6th May 2017' */] }],
+            filters: [{ name: "parseTime", args: ["EEEE do MMMM yyyy" /* 'Saturday 6th May 2017' */] }],
           },
         },
       },
