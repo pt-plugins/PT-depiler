@@ -445,6 +445,8 @@ export const SchemaMetadata: Pick<
           "joinTime",
           "seeding",
           "seedingSize",
+          "hnrUnsatisfied",
+          "hnrPreWarning",
         ],
       },
       {

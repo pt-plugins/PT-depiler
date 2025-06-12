@@ -19,6 +19,7 @@ const torrentTagColorMap: Record<TBaseTorrentTagName, string> = {
   "70%": "blue-grey",
   "75%": "lime-darken-3",
   VIP: "orange-darken-2",
+  "H&R": "red",
   "Excl.": "deep-orange-darken-1",
 };
 
