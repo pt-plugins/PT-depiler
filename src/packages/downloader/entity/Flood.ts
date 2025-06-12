@@ -378,8 +378,8 @@ export default class Flood extends AbstractBittorrentClient {
     }
 
     if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
-      // Upload speed limit in KB/s for Flood
-      postData.uploadSpeedLimit = options.uploadSpeedLimit * 1024;
+      // Upload speed limit in bytes/sec for Flood
+      postData.uploadSpeedLimit = options.uploadSpeedLimit * 1024 * 1024;
     }
 
     // 处理链接
