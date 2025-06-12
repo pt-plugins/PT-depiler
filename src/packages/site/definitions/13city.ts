@@ -4,15 +4,16 @@ import { CategoryIncldead, CategorySpstate, CategoryInclbookmarked, SchemaMetada
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
   version: 1,
-  id: "13City",
+  id: "13city",
   name: "13City Online",
+  aka: ['13City'],
   description: "一切美好源于分享",
   tags: ["电影", "综合"],
   timezoneOffset: "+0800", // 可根据实际情况修改
   collaborator: ["13City"],
   type: "private",
   schema: "NexusPHP",
-  urls: ["https://13city.online"],
+  urls: ["https://13city.online/"],
   category: [
     {
       name: "分类",
