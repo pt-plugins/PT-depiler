@@ -8,6 +8,7 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { currentView, pageType, siteInstance, updatePageType } from "./utils.ts";
+
 import SpeedDialBtn from "@/content-script/app/components/SpeedDialBtn.vue";
 import SentToDownloaderDialog from "@/options/views/Overview/SearchEntity/SentToDownloaderDialog.vue";
 
@@ -75,6 +76,38 @@ onMounted(async () => {
   updatePageType();
 });
 
+const isDragging = ref<boolean>(false);
+
+document.addEventListener("dragstart", (e: any) => {
+  console.log(e.target, e.dataTransfer.getData("text/plain"));
+  if (e.target.tagName == "A") {
+    const link = e.target.getAttribute("href");
+    let data = {
+      site: ptdData.siteId,
+      id: link,
+      link,
+      title:
+        e.target.getAttribute("title") ||
+        // e.target.querySelector(".ant-tooltip-open")?.innerText || // 原用于适配mt，
+        e.target.innerText,
+    };
+    e.dataTransfer.setData("text/plain", JSON.stringify(data));
+  }
+});
+
+function onDrop(event: DragEvent) {
+  const data = event.dataTransfer?.getData("text/plain");
+  if (data) {
+    try {
+      const torrentData = JSON.parse(data);
+      console.log(torrentData);
+    } catch (e) {
+      console.error("Failed to parse dropped data:", data);
+    }
+  }
+  isDragging.value = false; // 重置拖拽状态
+}
+
 function openOptions() {
   sendMessage("openOptionsPage", "/");
 }
@@ -85,8 +118,19 @@ function openOptions() {
     <div ref="el" :style="style" style="position: fixed; z-index: 9999999">
       <v-speed-dial v-model="openSpeedDial" :close-on-content-click="false">
         <template v-slot:activator="{ props: activatorProps }">
-          <v-fab v-bind="activatorProps" color="amber" icon size="x-large" @click="updatePageType">
-            <v-avatar :image="ptdIcon" rounded="0" />
+          <v-fab
+            v-bind="activatorProps"
+            color="amber"
+            icon
+            size="x-large"
+            @click="updatePageType"
+            @drop.prevent="onDrop"
+            @dragover.prevent="isDragging = true"
+            @dragenter.prevent="isDragging = true"
+            @mouseleave.prevent="isDragging = false"
+            @dragleave.prevent="isDragging = false"
+          >
+            <v-avatar :image="ptdIcon" rounded="0" :class="{ 'ptd-fab-loading': isDragging }" />
           </v-fab>
         </template>
 
@@ -106,3 +150,15 @@ function openOptions() {
     />
   </v-theme-provider>
 </template>
+
+<style scoped lang="scss">
+@keyframes onFABLoading {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.ptd-fab-loading {
+  animation: onFABLoading 1.9s linear infinite running;
+}
+</style>
