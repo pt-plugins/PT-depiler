@@ -5,7 +5,7 @@ export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
   version: 1,
   id: "13city",
-  name: "13City",
+  name: "13city",
   aka: ['13城'],
   description: "一切美好源于分享",
   tags: ["影视", "综合"],
@@ -14,6 +14,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
   urls: ["https://13city.online/"],
+  
   category: [
     {
       name: "分类",
