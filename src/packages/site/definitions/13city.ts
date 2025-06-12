@@ -6,7 +6,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "13city",
   name: "13City",
-  aka: ['13城'],
+  aka: ['13 城'],
   description: "一切美好源于分享",
   tags: ["影视", "综合"],
   timezoneOffset: "+0800",
