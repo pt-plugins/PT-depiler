@@ -220,7 +220,13 @@ export const siteMetadata: ISiteMetadata = {
         selector: ['a[href*="/mail/inbox"] .point'],
         elementProcess: () => 11, // 并不能直接知道还有多少个消息未读，所以置为11，会直接出线红点而不是具体数字
       },
+      hnrPreWarning: {
+        // 考核中的 HR
+        selector: ["tr[class='userFiltered'][hr='0'][immune='0']"],
+        filters: [(query) => (query ? (query.length ?? 0) : 0)],
+      },
       hnrUnsatisfied: {
+        // 已被扣分的 HR
         selector: ["span[data-original-title='HnRs']"],
         elementProcess: (element: Element) => {
           const text = element.lastChild?.textContent?.trim() ?? "";
@@ -251,6 +257,11 @@ export const siteMetadata: ISiteMetadata = {
           "messageCount",
           "hnrUnsatisfied",
         ],
+      },
+      {
+        requestConfig: { url: "/users/$name$/unsatisfieds", responseType: "document" },
+        assertion: { name: "url" },
+        fields: ["hnrPreWarning"],
       },
       {
         requestConfig: { url: "/bonus", responseType: "document" },
