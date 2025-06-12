@@ -151,6 +151,11 @@ export const siteMetadata: ISiteMetadata = {
         ...SchemaMetadata.userInfo!.selectors!.messageCount,
         selector: ["#msg-bar a[href*='messages.php'] strong"],
       },
+      hnrPreWarning: {
+        text: 0,
+        selector: ["#info_block a[href*='hnr_details.php']:last"],
+        filters: [{ name: "parseNumber" }],
+      },
     },
     process: [
       ...SchemaMetadata.userInfo!.process!.filter((item) => item.requestConfig.url !== "/mybonus.php"),

@@ -406,6 +406,27 @@ export const SchemaMetadata: Pick<
           },
         ],
       },
+      hnrPreWarning: {
+        // example: H&R: 2/1/5
+        text: 0,
+        selector: ["#info_block a[href*='myhr.php']:last"],
+        filters: [
+          (query: string | number) => {
+            const queryMatch = String(query || "").match(/\d+/);
+            return queryMatch && queryMatch.length >= 1 ? parseInt(queryMatch[0]) : 0;
+          },
+        ],
+      },
+      hnrUnsatisfied: {
+        text: 0,
+        selector: ["#info_block a[href*='myhr.php']:last"],
+        filters: [
+          (query: string | number) => {
+            const queryMatch = String(query || "").match(/\d+\s*\/\s*(\d+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
+          },
+        ],
+      },
 
       bonusPerHour: {
         selector: [
