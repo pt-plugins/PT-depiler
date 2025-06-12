@@ -23,6 +23,7 @@ export type TBaseTorrentTagName =
   | "70%" // 70% 下载 "blue-grey",
   | "75%" // 75% 下载 "lime-darken-3",
   | "VIP" // 仅 VIP 可下载 "orange-darken-2",
+  | "H&R" // 需要 H&R "red",
   | "Excl." // 禁止转载 "deep-orange-darken-1",
   | string;
 
