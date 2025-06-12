@@ -126,7 +126,6 @@ interface TransmissionAddTorrentOptions {
   metainfo: string;
   paused: boolean;
   labels: string[]; // RPC Version >= 17，使用前需要判断
-  "upload-limit"?: number; // Upload speed limit in KB/s
 }
 
 interface TransmissionTorrentFilterRules extends CTorrentFilterRules {
@@ -340,21 +339,28 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
       addTorrentOptions.labels = [options.label];
     }
 
-    if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
-      // Upload speed limit in KB/s for Transmission
-      addTorrentOptions["upload-limit"] = options.uploadSpeedLimit * 1024;
-    }
-
     try {
       const { data } = await this.request<AddTorrentResponse>("torrent-add", addTorrentOptions);
+
+      const torrentId = data.arguments["torrent-added"].id;
 
       // Transmission 3.0 以上才支持label
       if (!supportLabelAtAdd && options.label) {
         try {
-          const torrentId = data.arguments["torrent-added"].id;
           await this.request("torrent-set", {
             ids: torrentId,
-            label: [options.label],
+            labels: [options.label],
+          });
+        } catch (e) {}
+      }
+
+      // 设置上传速度限制 - 必须在添加后使用 torrent-set
+      if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
+        try {
+          await this.request("torrent-set", {
+            ids: torrentId,
+            uploadLimit: options.uploadSpeedLimit * 1024, // KB/s
+            uploadLimited: true,
           });
         } catch (e) {}
       }

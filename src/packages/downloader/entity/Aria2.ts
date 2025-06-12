@@ -234,11 +234,6 @@ export default class Aria2 extends AbstractBittorrentClient {
       addOption.dir = options.savePath;
     }
 
-    if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
-      // Upload speed limit in KB/s for Aria2
-      addOption["max-upload-limit"] = `${options.uploadSpeedLimit * 1024}K`;
-    }
-
     let method: "aria2.addUri" | "aria2.addTorrent";
     let params: any;
     if (url.startsWith("magnet:") || !options.localDownload) {
@@ -258,7 +253,20 @@ export default class Aria2 extends AbstractBittorrentClient {
     }
 
     try {
-      await this.methodSend<string>(method, params);
+      const gid = await this.methodSend<string>(method, params);
+
+      // 设置上传速度限制 - 必须在添加后使用 aria2.changeOption
+      if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
+        try {
+          await this.methodSend("aria2.changeOption", [
+            gid,
+            {
+              "max-upload-limit": `${options.uploadSpeedLimit * 1024}K`,
+            },
+          ]);
+        } catch (e) {}
+      }
+
       return true;
     } catch (e) {
       return false;

@@ -238,10 +238,10 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
       }
 
       if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
-        // Upload speed limit in KB/s for uTorrent
+        // Upload speed limit in bytes/sec for uTorrent
         await this.setTorrentProp(torrentInfoHash, {
           s: "ulrate",
-          v: options.uploadSpeedLimit * 1024,
+          v: options.uploadSpeedLimit * 1024 * 1024,
         });
       }
     }

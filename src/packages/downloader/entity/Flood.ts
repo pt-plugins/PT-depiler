@@ -377,10 +377,8 @@ export default class Flood extends AbstractBittorrentClient {
       postData.tags = [options.label];
     }
 
-    if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
-      // Upload speed limit in bytes/sec for Flood
-      postData.uploadSpeedLimit = options.uploadSpeedLimit * 1024 * 1024;
-    }
+    // Note: Flood does not support upload speed limit during torrent addition
+    // The uploadSpeedLimit parameter is not implemented as it's not supported by the API
 
     // 处理链接
     if (url.startsWith("magnet:") || !options.localDownload) {
