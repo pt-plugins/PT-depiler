@@ -32,13 +32,13 @@ import { isDebug } from "~/helper.ts";
 type TMessageMap = Record<string, (data: any) => any>;
 
 export interface IDownloadTorrentToLocalFile {
-  torrent: ITorrent;
+  torrent: Partial<ITorrent>;
   localDownloadMethod?: TLocalDownloadMethod;
   downloadId?: TTorrentDownloadKey;
 }
 
 export interface IDownloadTorrentToClientOption {
-  torrent: ITorrent;
+  torrent: Partial<ITorrent>;
   downloaderId: string;
   addTorrentOptions: CAddTorrentOptions;
   downloadId?: TTorrentDownloadKey;
@@ -68,6 +68,7 @@ interface ProtocolMap extends TMessageMap {
   // 1.4 chrome.alarms
   setFlushUserInfoJob(): void;
   cleanupFlushUserInfoJob(): void;
+  reDownloadTorrentToLocalFile(data: Required<IDownloadTorrentToLocalFile>): void;
   reDownloadTorrentToDownloader(data: Required<IDownloadTorrentToClientOption>): void;
 
   // 1.5 chrome.cookies

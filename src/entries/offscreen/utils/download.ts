@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { type AxiosRequestConfig } from "axios";
 import { stringify } from "urlencode";
 import { isEmpty } from "es-toolkit/compat";
 import { type CAddTorrentOptions, getDownloader, getRemoteTorrentFile } from "@ptd/downloader";
@@ -18,6 +18,7 @@ import {
 import { getSiteInstance } from "./site.ts";
 import { logger } from "./logger.ts";
 import { ptdIndexDb } from "../adapter/indexdb.ts";
+import { toMerged } from "es-toolkit";
 
 export async function getDownloaderConfig(downloaderId: string) {
   const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
@@ -34,15 +35,15 @@ export async function getTorrentDownloadLink(torrent: ITorrent) {
 onMessage("getTorrentDownloadLink", async ({ data: torrent }) => await getTorrentDownloadLink(torrent));
 
 function buildDownloadHistory(
-  torrent: ITorrent,
+  torrent: Partial<ITorrent>,
   downloaderId: string = "local",
   addTorrentOptions: CAddTorrentOptions = {} as CAddTorrentOptions,
 ): ITorrentDownloadMetadata {
   return {
-    siteId: torrent.site,
-    torrentId: torrent.id,
+    siteId: torrent.site ?? "unknown",
+    torrentId: torrent.id ?? "unknown",
     downloaderId,
-    title: torrent.title,
+    title: torrent.title ?? "unknown",
     subTitle: torrent.subTitle,
     url: torrent.url,
     link: torrent.link,
@@ -73,18 +74,24 @@ onMessage("downloadTorrentToLocalFile", async ({ data: { torrent, localDownloadM
   }
   let downloadStatus = await setDownloadStatus(downloadId, "pending");
 
-  // 生成站点，并检查站点下载间隔，如果触及到站点下载间隔，则将下载任务放入到 alarms 中等待
-  const site = await getSiteInstance<"public">(torrent.site);
-  if (!(configStoreRaw?.download?.ignoreSiteDownloadIntervalWhenLocalDownload ?? true) && site.downloadInterval > 0) {
-    if (new Date().getTime() - (lastSiteDownloadAt.get(torrent.site) ?? 0) < site.downloadInterval * 1000) {
-      logger({ msg: `Site ${torrent.site} download interval not reached, waiting...` });
-      sendMessage("reDownloadTorrentToLocalFile", { torrent, localDownloadMethod, downloadId }).catch();
-      return { downloadId, downloadStatus: await setDownloadStatus(downloadId, "pending") } as IDownloadTorrentResult;
+  let downloadRequestConfig: AxiosRequestConfig = { url: torrent.link, method: "GET", timeout: 30e3 };
+  if (torrent.site) {
+    // 生成站点，并检查站点下载间隔，如果触及到站点下载间隔，则将下载任务放入到 alarms 中等待
+    const site = await getSiteInstance<"public">(torrent.site);
+    if (site.downloadInterval > 0) {
+      if (new Date().getTime() - (lastSiteDownloadAt.get(torrent.site) ?? 0) < site.downloadInterval * 1000) {
+        logger({ msg: `Site ${torrent.site} download interval not reached, waiting...` });
+        sendMessage("reDownloadTorrentToLocalFile", { torrent, localDownloadMethod, downloadId }).catch();
+        return { downloadId, downloadStatus: await setDownloadStatus(downloadId, "pending") } as IDownloadTorrentResult;
+      }
     }
-  }
-  lastSiteDownloadAt.set(torrent.site, new Date().getTime());
 
-  const downloadRequestConfig = await site.getTorrentDownloadRequestConfig(torrent);
+    lastSiteDownloadAt.set(torrent.site, new Date().getTime());
+    downloadRequestConfig = toMerged(
+      downloadRequestConfig,
+      await site.getTorrentDownloadRequestConfig(torrent as ITorrent),
+    );
+  }
 
   const downloadUri = axios.getUri(downloadRequestConfig); // 组装 baseURL, url, params
   const {
@@ -174,18 +181,24 @@ onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId,
   }
   let downloadStatus = await setDownloadStatus(downloadId, "pending");
 
-  // 生成站点，并检查站点下载间隔，如果触及到站点下载间隔，则将下载任务放入到 alarms 中等待
-  const site = await getSiteInstance<"public">(torrent.site);
-  if (site.downloadInterval > 0) {
-    if (new Date().getTime() - (lastSiteDownloadAt.get(torrent.site) ?? 0) < site.downloadInterval * 1000) {
-      logger({ msg: `Site ${torrent.site} download interval not reached, waiting...` });
-      sendMessage("reDownloadTorrentToDownloader", { torrent, downloaderId, addTorrentOptions, downloadId }).catch();
-      return { downloadId, downloadStatus: await setDownloadStatus(downloadId, "pending") } as IDownloadTorrentResult;
+  let downloadRequestConfig: AxiosRequestConfig = { url: torrent.link, method: "GET", timeout: 30e3 };
+  if (torrent.site) {
+    // 生成站点，并检查站点下载间隔，如果触及到站点下载间隔，则将下载任务放入到 alarms 中等待
+    const site = await getSiteInstance<"public">(torrent.site);
+    if (site.downloadInterval > 0) {
+      if (new Date().getTime() - (lastSiteDownloadAt.get(torrent.site) ?? 0) < site.downloadInterval * 1000) {
+        logger({ msg: `Site ${torrent.site} download interval not reached, waiting...` });
+        sendMessage("reDownloadTorrentToDownloader", { torrent, downloaderId, addTorrentOptions, downloadId }).catch();
+        return { downloadId, downloadStatus: await setDownloadStatus(downloadId, "pending") } as IDownloadTorrentResult;
+      }
     }
-  }
-  lastSiteDownloadAt.set(torrent.site, new Date().getTime());
 
-  const downloadRequestConfig = await site.getTorrentDownloadRequestConfig(torrent);
+    lastSiteDownloadAt.set(torrent.site, new Date().getTime());
+    downloadRequestConfig = toMerged(
+      downloadRequestConfig,
+      await site.getTorrentDownloadRequestConfig(torrent as ITorrent),
+    );
+  }
 
   const downloaderConfig = await getDownloaderConfig(downloaderId);
   if (downloaderConfig.id && downloaderConfig.enabled) {
