@@ -123,17 +123,17 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
-      name: "Peasant",
+      name: "Peasant(小菜鸡)",
       privilege: "当以下情况时将被自动降至本级：1.如果你已经下载了超过50GB，你应该有大于0.4的分享率。2.如果你已经下载了超过100GB，你应该有大于0.5的分享率。3.如果你已经下载了超过200GB，你应该有大于0.6的分享率。4.如果你已经下载了超过400GB，你应该有大于0.7的分享率。5.如果你已经下载了超过800GB，你应该有大于0.8的分享率。",
     },
     {
       id: 2,
-      name: "User",
+      name: "User(初窥门径)",
       privilege: "新用户的默认级别",
     },
     {
       id: 3,
-      name: "Power User",
+      name: "Power User(小有所成)",
       interval: "P4W",
       downloaded: "128GB",
       ratio: 1.05,
@@ -141,7 +141,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 4,
-      name: "Elite User",
+      name: "Elite User(懵懂求知)",
       interval: "P8W",
       downloaded: "256GB",
       ratio: 1.55,
@@ -149,7 +149,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 5,
-      name: "Crazy User",
+      name: "Crazy User(小试牛刀)",
       interval: "P15W",
       downloaded: "512GB",
       ratio: 2.05,
@@ -157,7 +157,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 6,
-      name: "Insane User",
+      name: "Insane User(渐入佳境)",
       interval: "P25W",
       downloaded: "1024GB",
       ratio: 2.55,
@@ -165,7 +165,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 7,
-      name: "Veteran User",
+      name: "Veteran User(游刃有余)",
       interval: "P40W",
       downloaded: "2048GB",
       ratio: 3.05,
@@ -173,7 +173,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 8,
-      name: "Extreme User",
+      name: "Extreme User(登堂入室)",
       interval: "P60W",
       downloaded: "4096GB",
       ratio: 3.55,
@@ -181,7 +181,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 9,
-      name: "Ultimate User",
+      name: "Ultimate User(炉火纯青)",
       interval: "P80W",
       downloaded: "8192GB",
       ratio: 4.05,
@@ -189,7 +189,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 10,
-      name: "Nexus Master",
+      name: "Nexus Master(返璞归真)",
       interval: "P100W",
       downloaded: "16384GB",
       ratio: 4.55,
