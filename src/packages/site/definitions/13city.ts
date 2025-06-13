@@ -136,7 +136,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P4W",
       downloaded: "128GB",
       ratio: 1.05,
-      privilege: "必须注册至少4周，并且下载至少128G，分享率大于1.05。当条件符合时将被自动提升。注意，无论何时，如果你的分享率低于0.95，你将自动降级。首次升级至此等级的用户将获得1个邀请名额。",
+      privilege: "首次升级至此等级的用户将获得1个邀请名额。",
     },
     {
       id: 4,
@@ -144,7 +144,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P8W",
       downloaded: "256GB",
       ratio: 1.55,
-      privilege: "必须注册至少8周，并且下载至少256G，分享率大于1.55。当条件符合时将被自动提升。注意，无论何时，如果你的分享率低于1.45，你将自动降级。首次升级至此等级的用户将获得2个邀请名额。",
+      privilege: "首次升级至此等级的用户将获得2个邀请名额。",
     },
     {
       id: 5,
@@ -152,7 +152,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P15W",
       downloaded: "512GB",
       ratio: 2.05,
-      privilege: "必须注册至少15周，并且下载至少512G，分享率大于2.05。当条件符合时将被自动提升。注意，无论何时，如果你的分享率低于1.95，你将自动降级。首次升级至此等级的用户将获得3个邀请名额。",
+      privilege: "首次升级至此等级的用户将获得3个邀请名额。",
     },
     {
       id: 6,
@@ -160,7 +160,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P25W",
       downloaded: "1024GB",
       ratio: 2.55,
-      privilege: "必须注册至少25周，并且下载至少1024G，分享率大于2.55。当条件符合时将被自动提升。注意，无论何时，如果你的分享率低于2.45，你将自动降级。首次升级至此等级的用户将获得4个邀请名额。",
+      privilege: "首次升级至此等级的用户将获得4个邀请名额。",
     },
     {
       id: 7,
@@ -168,7 +168,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P40W",
       downloaded: "2048GB",
       ratio: 3.05,
-      privilege: "必须注册至少40周，并且下载至少2048G，分享率大于3.05。当条件符合时将被自动提升。注意，无论何时，如果你的分享率低于2.95，你将自动降级。首次升级至此等级的用户将获得5个邀请名额。",
+      privilege: "首次升级至此等级的用户将获得5个邀请名额。",
     },
     {
       id: 8,
@@ -176,7 +176,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P60W",
       downloaded: "4096GB",
       ratio: 3.55,
-      privilege: "必须注册至少60周，并且下载至少4096G，分享率大于3.55。当条件符合时将被自动提升。注意，无论何时，如果你的分享率低于3.45，你将自动降级。首次升级至此等级的用户将获得5个邀请名额。",
+      privilege: "首次升级至此等级的用户将获得5个邀请名额。",
     },
     {
       id: 9,
@@ -184,7 +184,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P80W",
       downloaded: "8192GB",
       ratio: 4.05,
-      privilege: "必须注册至少80周，并且下载至少8192G，分享率大于4.05。当条件符合时将被自动提升。注意，无论何时，如果你的分享率低于3.95，你将自动降级。首次升级至此等级的用户将获得5个邀请名额。",
+      privilege: "首次升级至此等级的用户将获得5个邀请名额。",
     },
     {
       id: 10,
@@ -192,7 +192,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P100W",
       downloaded: "16384GB",
       ratio: 4.55,
-      privilege: "必须注册至少100周，并且下载至少16384G，分享率大于4.55。当条件符合时将被自动提升。注意，无论何时，如果你的分享率低于4.45，你将自动降级。首次升级至此等级的用户将获得10个邀请名额。",
+      privilege: "首次升级至此等级的用户将获得10个邀请名额。",
     },
   ],
 };
