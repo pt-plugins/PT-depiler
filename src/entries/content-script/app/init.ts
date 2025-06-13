@@ -12,9 +12,12 @@ import { piniaInstance as pinia } from "@/options/plugins/pinia.ts";
 import { i18nInstance as i18n } from "@/options/plugins/i18n.ts";
 import { vuetifyInstance as vuetify } from "@/options/plugins/vuetify.ts";
 
-const app = createApp(App).use(pinia).use(i18n).use(vuetify);
-
 export function mountApp(document: Document, data: any = {}) {
+  // 检查站点原来有没有 vuetify 的样式，如果有，则缓存其内容以便于我们的Vuetify挂载后恢复其内容
+  const siteVuetifyThemePer = document.querySelector("#vuetify-theme-stylesheet");
+  const hasSiteVuetifyThemePre = siteVuetifyThemePer !== null && siteVuetifyThemePer instanceof HTMLLinkElement;
+  const siteVuetifyThemePerContent = hasSiteVuetifyThemePre ? siteVuetifyThemePer.textContent || "" : "";
+
   // 创建一个全局的 div 并挂载到 body 中，作为 shadow DOM 的挂载点
   const contentRoot = document.createElement("div");
   contentRoot.id = "ptd-content-script";
@@ -67,8 +70,25 @@ export function mountApp(document: Document, data: any = {}) {
   document.body.append(contentRoot);
 
   // 挂载 Vue 应用
+  const app = createApp(App).use(pinia).use(i18n).use(vuetify);
   app.provide("ptd_data", data); // 提供数据给 Vue 应用
   app.mount(appMountElement);
+
+  // 此时 vuetify 已挂载了我们的主题样式，需要移动到shadow Dom中以免影响网站样式
+  const vuetifyTheme = document.querySelector("#vuetify-theme-stylesheet");
+  if (vuetifyTheme) {
+    const styleContent = vuetifyTheme.textContent || "";
+    const vuetifyThemeStylesheet = document.createElement("style");
+    vuetifyThemeStylesheet.id = "ptd-content-script-style-vuetify-theme-stylesheet"; // 设置 id 以便于后续查找
+    vuetifyThemeStylesheet.textContent = styleContent.replace(":root", ":host");
+    shadowRoot.appendChild(vuetifyThemeStylesheet); // 克隆并添加 Vuetify 的主题样式到 shadow DOM 中
+
+    if (hasSiteVuetifyThemePre) {
+      vuetifyTheme.textContent = siteVuetifyThemePerContent; // 如果有预先存在的 vuetify 主题样式，则将其内容替换为站点的主题样式
+    } else {
+      vuetifyTheme.remove(); // 移除页面中的 vuetify 主题样式
+    }
+  }
 
   return { contentRoot, shadowRoot, appMountElement, app: app };
 }

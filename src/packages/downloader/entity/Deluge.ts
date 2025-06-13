@@ -1,5 +1,5 @@
 /**
- * @see https://deluge.readthedocs.io/en/develop/reference/index.html
+ * @see https://deluge.readthedocs.io/en/latest/reference/webapi.html
  */
 import {
   CAddTorrentOptions,
