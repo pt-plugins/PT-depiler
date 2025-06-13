@@ -23,8 +23,8 @@ export interface IPtppUserInfo {
   totalTraffic?: string | number; // 总流量
   snatches?: number; // 完成数
   ratio?: number; // 分享率
-  seeding?: number; // 当前做种数量
-  seedingSize?: number; // 做种体积
+  seeding?: number; // 当前做种数
+  seedingSize?: number; // 做种量
   seedingList?: string[]; // 做种列表
   leeching?: number; // 当前下载数量
   levelName?: string; // 等级名称
@@ -33,7 +33,7 @@ export interface IPtppUserInfo {
   seedingTime?: number; // 做种时间要求
   averageSeedtime?: number; // 平均保种时间
   totalSeedtime?: number; // 总保种时间
-  bonusPerHour?: number; // 时魔
+  bonusPerHour?: number; // 时魔值
   bonusPage?: string; // 积分页面
   unsatisfiedsPage?: string; // H&R未达标页面
   joinTime?: number; // 入站时间

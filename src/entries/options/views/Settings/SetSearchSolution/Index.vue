@@ -178,7 +178,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
           clearable
           density="compact"
           hide-details
-          label="Search"
+          :label="t('common.search')"
           max-width="500"
           single-line
         />

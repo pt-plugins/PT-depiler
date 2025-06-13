@@ -218,7 +218,7 @@ export const siteMetadata: ISiteMetadata = {
         ],
         filters: [{ name: "parseNumber" }],
       },
-      // 从顶端用户栏获取做种数量，这样就可以避免对 /getusertorrentlist.php 页面的请求
+      // 从顶端用户栏获取做种数，这样就可以避免对 /getusertorrentlist.php 页面的请求
       seeding: {
         selector: ["#info_block a[href*='getusertorrentlist.php'][href*='type=seeding']"],
         filters: [{ name: "parseNumber" }],

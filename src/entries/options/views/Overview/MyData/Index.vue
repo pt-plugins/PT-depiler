@@ -248,7 +248,7 @@ function viewStatistic() {
           clearable
           density="compact"
           hide-details
-          label="Search"
+          :label="t('common.search')"
           max-width="500"
           single-line
           @click:clear="resetAdvanceFilterDictFn"
@@ -446,7 +446,7 @@ function viewStatistic() {
         </v-container>
       </template>
 
-      <!-- 做种体积 -->
+      <!-- 做种量 -->
       <template #item.seedingSize="{ item }">
         <span class="text-no-wrap">
           {{ typeof item.seedingSize !== "undefined" ? formatSize(item.seedingSize) : "-" }}
