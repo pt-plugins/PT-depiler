@@ -498,7 +498,7 @@ function viewStatistic() {
             typeof item.joinTime !== "undefined"
               ? configStore.myDataTableControl.joinTimeWeekOnly
                 ? formatTimeAgo(item.joinTime, true)
-                : formatDate(item.joinTime)
+                : formatTimeAgo(item.joinTime)
               : "-"
           }}
         </span>
