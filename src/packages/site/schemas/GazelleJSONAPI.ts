@@ -311,7 +311,6 @@ export default class GazelleJSONAPI extends PrivateSite {
       seeders: group.seeders,
       leechers: group.leechers,
       completed: group.snatches,
-      comments: 0,
       tags: group.tags.map((tag) => ({ name: tag })),
       category: group.category,
     } as ITorrent;
@@ -319,6 +318,15 @@ export default class GazelleJSONAPI extends PrivateSite {
 
   protected async transformGroupTorrent(group: groupBrowseResult, torrent: groupTorrent): Promise<ITorrent> {
     const { authkey, passkey } = await this.getAuthKey();
+    
+    const tags: { name: string; color: string }[] = [];
+    if (torrent.isFreeleech || torrent.isPersonalFreeleech) {
+      tags.push({ name: "Free", color: "blue" });
+    }
+    if (torrent.isNeutralLeech) {
+      tags.push({ name: "Neutral", color: "cyan" });
+    }
+    
     return {
       site: this.metadata.id, // 补全种子的 site 属性
       id: torrent.torrentId,
@@ -329,10 +337,9 @@ export default class GazelleJSONAPI extends PrivateSite {
         (torrent.hasCue ? " / Cue" : "") +
         (torrent.remastered ? ` / ${torrent.remasterYear}` : "") +
         (torrent.remasterTitle ? ` / ${torrent.remasterTitle}` : "") +
-        (torrent.scene ? " / Scene" : "") +
-        (torrent.isFreeleech || torrent.isNeutralLeech || torrent.isPersonalFreeleech ? " / Freeleech" : ""),
-      url: `/torrents.php?id=${group.groupId}&torrentid=${torrent.torrentId}`,
-      link: `/torrents.php?action=download&id=${torrent.torrentId}&authkey=${authkey}&torrent_pass=${passkey}`,
+        (torrent.scene ? " / Scene" : "") ,
+      url: `${this.metadata.urls}/torrents.php?id=${group.groupId}&torrentid=${torrent.torrentId}`,
+      link: `${this.metadata.urls}/torrents.php?action=download&id=${torrent.torrentId}&authkey=${authkey}&torrent_pass=${passkey}`,
       time: parseTimeWithZone(torrent.time, this.metadata.timezoneOffset),
       size: torrent.size,
       author: "",
@@ -340,6 +347,7 @@ export default class GazelleJSONAPI extends PrivateSite {
       leechers: torrent.leechers,
       completed: torrent.snatches,
       category: group.releaseType || "",
+      tags,
     } as ITorrent;
   }
 
@@ -389,6 +397,7 @@ export default class GazelleJSONAPI extends PrivateSite {
           ...(await this.getUserSeedingTorrents(flushUserInfo.id as number)),
         };
       }
+      
       flushUserInfo.status = EResultParseStatus.success;
     } catch (error) {
       flushUserInfo.status = EResultParseStatus.parseError;
