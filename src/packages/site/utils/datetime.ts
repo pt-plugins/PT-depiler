@@ -98,3 +98,29 @@ export function convertIsoDurationToDate(duration: isoDuration, timestamp: numbe
   }
   return date.getTime();
 }
+
+export function convertIsoDurationToSeconds(duration: string): number {
+  const regex = /P(?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)W)?(?:(\d+)D)?(?:T(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?)?/;
+  const match = duration.toUpperCase().match(regex);
+  if (!match) return 0;
+  const [, years, months, weeks, days, hours, minutes, seconds] = match;
+  const timeDelta = {
+    years: years ? parseInt(years, 10) : 0,
+    months: months ? parseInt(months, 10) : 0,
+    weeks: weeks ? parseInt(weeks, 10) : 0,
+    days: days ? parseInt(days, 10) : 0,
+    hours: hours ? parseInt(hours, 10) : 0,
+    minutes: minutes ? parseInt(minutes, 10) : 0,
+    seconds: seconds ? parseInt(seconds, 10) : 0,
+  };
+
+  return (
+    timeDelta.years * 365 * 24 * 3600 +
+    timeDelta.months * 30 * 24 * 3600 +
+    timeDelta.weeks * 7 * 24 * 3600 +
+    timeDelta.days * 24 * 3600 +
+    timeDelta.hours * 3600 +
+    timeDelta.minutes * 60 +
+    timeDelta.seconds
+  );
+}
