@@ -174,29 +174,32 @@ const createPerSiteChartOptionsFn = (
     const series = selectedSites.value.map((site) => {
       let data;
       if (incr) {
-        let minSiteDate = new Date(rawDataRef.value.siteDateRange[site]?.[0] ?? selectedDateRanges.value[0]);
+        // 辅助函数：获取指定日期的有效数据值
+        const getValidValue = (date: string) => {
+          const value = selectedDataComputed.value[date]?.[site]?.[field];
+          return typeof value === "undefined" || value === "" ? null : value || 0;
+        };
 
         data = selectedDateRanges.value.map((date, idx) => {
-          if (new Date(date) <= minSiteDate) {
-            return 0; // 对站点的第一次有数据的值进行特殊处理
-          }
+          const currentValue = getValidValue(date);
 
-          let currentData = selectedDataComputed.value[date]?.[site]?.[field];
-          if (typeof currentData === "undefined" || currentData === "") {
+          // 如果当前日期没有数据，返回0
+          if (currentValue === null) {
             return 0;
           }
-          currentData = currentData || 0; // 确保 currentData 有值可以比较
 
-          // 获取前一个有效的数据
-          let previousDataIdx = idx;
-          let previousData;
-          do {
-            previousDataIdx--;
-            previousData = selectedDataComputed.value[selectedDateRanges.value[previousDataIdx]]?.[site]?.[field];
-          } while (previousDataIdx > 0 && (typeof previousData === "undefined" || previousData === ""));
+          // 查找前一个有效数据的索引
+          let previousValue = null;
+          for (let i = idx - 1; i >= 0; i--) {
+            const value = getValidValue(selectedDateRanges.value[i]);
+            if (value !== null) {
+              previousValue = value;
+              break;
+            }
+          }
 
-          previousData = previousData || 0; // 确保 previousData 有值可以比较
-          return currentData - previousData;
+          // 如果没有前一个有效数据（即第一次有数据），增量为0
+          return previousValue === null ? 0 : currentValue - previousValue;
         });
       } else {
         data = selectedDateRanges.value.map((date) => selectedDataComputed.value[date]?.[site]?.[field] ?? 0);
