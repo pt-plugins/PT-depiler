@@ -169,6 +169,7 @@
     "index": {
       "flushSelectSite": "Flush selected",
       "flushCancel": "Flush canceled",
+      "tableFontSize": "Table Font Size",
       "showSiteName": "Show Site Name",
       "showUnreadMessage": "Show Unread Messages",
       "showUserName": "Show Username",

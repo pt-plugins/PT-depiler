@@ -170,6 +170,7 @@
     "index": {
       "flushSelectSite": "刷新数据",
       "flushCancel": "取消刷新",
+      "tableFontSize": "表格字体大小",
       "showSiteName": "显示站点名称",
       "showUnreadMessage": "显示未读消息",
       "showUserName": "显示用户名",
