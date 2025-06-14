@@ -170,6 +170,12 @@
       "flushSelectSite": "Flush selected",
       "flushCancel": "Flush canceled",
       "tableFontSize": "Table Font Size",
+      "joinTimeFormat": "Display join time",
+      "joinTimeFormatOptions": {
+        "alive": "Relative Time",
+        "aliveWeek": "Relative Weeks",
+        "added": "Absolute Date"
+      },
       "showSiteName": "Show Site Name",
       "showUnreadMessage": "Show Unread Messages",
       "showUserName": "Show Username",
@@ -180,7 +186,6 @@
       "showNextLevelInDialog": "Show next level requirements in Level Requirement Dialog",
       "showHnR": "Show H&R",
       "showSeedingBonus": "Show Seeding Bonus",
-      "joinTimeWeekOnly": "Display join time as relative weeks",
       "updateAtFormatAsAlive": "Display update At as Relative Time"
     },
     "table": {

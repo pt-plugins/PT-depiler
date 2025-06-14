@@ -77,8 +77,19 @@ export interface IConfigPiniaStorageSchema {
     showHnR: boolean;
     // 是否展示保种积分
     showSeedingBonus: boolean;
-    // 加入时间显示为周数，默认不使用
-    joinTimeWeekOnly: boolean;
+    // Deprecated 加入时间显示为周数，使用 joinTimeFormat
+    // joinTimeWeekOnly: boolean;
+
+    /**
+     * 如何展示加入时间
+     *
+     * alive: 使用 time_alive(过去时间) 来展示
+     * added: 使用 time_added(发生时间) 来展示（ yyyy-MM-dd ）
+     * aliveWeek: 使用 time_alive(过去时间) 来展示，按计算出来的周数来展示
+     *
+     */
+    joinTimeFormat: "alive" | "added" | "aliveWeek";
+
     // 是否使用 time_alive(过去时间) 来展示，如果不使用，则使用 time_added(发生时间) 来展示，默认不使用
     updateAtFormatAsAlive: boolean;
   };

@@ -59,22 +59,23 @@ const tableHeader = computed(() => {
 });
 
 // 表格字体大小样式计算属性
-const tableFontStyle = computed(() => {
+const tableStyle = computed(() => {
   return {
     fontSize: `${configStore.myDataTableControl.tableFontSize}%`,
   };
 });
 
-// 表格字体大小变化处理函数
-const onTableFontSizeChange = (value: number) => {
-  configStore.myDataTableControl.tableFontSize = value;
-  configStore.$save();
-};
+const tableNonBooleanControlKey = [
+  "tableFontSize",
+  "joinTimeFormat",
+  // Deprecated
+  "joinTimeWeekOnly",
+];
 
-// 过滤掉tableFontSize的其他表格控制项
-const filteredTableControlKeys = computed(() => {
+// 过滤出表格控制中非布尔类型的键
+const filteredTableBooleanControlKeys = computed(() => {
   return Object.keys(configStore.myDataTableControl).filter(
-    (key) => key !== "tableFontSize",
+    (key) => tableNonBooleanControlKey.indexOf(key) === -1,
   ) as (keyof typeof configStore.myDataTableControl)[];
 });
 
@@ -227,23 +228,53 @@ function viewStatistic() {
                 </v-list-item-action>
               </template>
               <v-slider
-                :model-value="configStore.myDataTableControl.tableFontSize"
+                v-model="configStore.myDataTableControl.tableFontSize"
                 :min="75"
-                :max="100"
+                :max="125"
                 :step="1"
                 density="compact"
                 hide-details
-                thumb-label
-                @update:model-value="onTableFontSizeChange"
+                @click.stop
+                @update:model-value="() => configStore.$save()"
               >
                 <template v-slot:thumb-label="{ modelValue }"> {{ modelValue }}% </template>
               </v-slider>
             </v-list-item>
 
+            <!-- 入站时间显示 -->
+            <v-list-item>
+              <template v-slot:prepend>
+                <v-list-item-action start class="ml-2">
+                  <v-icon icon="mdi-calendar-account" class="mr-2" />
+                  <span class="text-subtitle-2">{{ t("MyData.index.joinTimeFormat") }}</span>
+                </v-list-item-action>
+              </template>
+
+              <v-btn-toggle
+                v-model="configStore.myDataTableControl.joinTimeFormat"
+                density="compact"
+                hide-details
+                class="ml-2"
+                @click.stop
+                @update:model-value="() => configStore.$save()"
+              >
+                <v-btn
+                  v-for="type in ['alive', 'aliveWeek', 'added']"
+                  :key="type"
+                  :value="type"
+                  :title="t(`MyData.index.joinTimeFormatOptions.${type}`)"
+                  density="compact"
+                  hide-details
+                >
+                  {{ t(`MyData.index.joinTimeFormatOptions.${type}`) }}
+                </v-btn>
+              </v-btn-toggle>
+            </v-list-item>
+
             <v-divider />
 
             <!-- 其他开关控制 -->
-            <v-list-item v-for="index in filteredTableControlKeys" :key="index" :value="index">
+            <v-list-item v-for="index in filteredTableBooleanControlKeys" :key="index" :value="index">
               <template v-slot:prepend>
                 <v-list-item-action start class="ml-2">
                   <v-switch
@@ -374,7 +405,7 @@ function viewStatistic() {
       :items-per-page="configStore.tableBehavior.MyData.itemsPerPage"
       :search="tableFilterRef"
       :sort-by="configStore.tableBehavior.MyData.sortBy"
-      :style="tableFontStyle"
+      :style="tableStyle"
       class="table-stripe table-header-no-wrap"
       hover
       item-selectable="selectable"
@@ -546,9 +577,11 @@ function viewStatistic() {
         <span class="text-no-wrap" :title="item.joinTime ? (formatDate(item.joinTime) as string) : '-'">
           {{
             typeof item.joinTime !== "undefined"
-              ? configStore.myDataTableControl.joinTimeWeekOnly
+              ? configStore.myDataTableControl.joinTimeFormat === "aliveWeek"
                 ? formatTimeAgo(item.joinTime, true)
-                : formatTimeAgo(item.joinTime)
+                : configStore.myDataTableControl.joinTimeFormat === "alive"
+                  ? formatTimeAgo(item.joinTime)
+                  : formatDate(item.joinTime, "yyyy-MM-dd")
               : "-"
           }}
         </span>

@@ -95,7 +95,8 @@ export const useConfigStore = defineStore("config", {
       showNextLevelInDialog: true,
       showHnR: true,
       showSeedingBonus: true,
-      joinTimeWeekOnly: false,
+      //joinTimeWeekOnly: false,
+      joinTimeFormat: "added",
       updateAtFormatAsAlive: false,
     },
 

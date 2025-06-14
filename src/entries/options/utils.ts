@@ -64,7 +64,7 @@ export const formatTimeAgo = (sourceDate: Date | number | string, weekOnly: bool
     if (weeks < 1) {
       return i18n.t("common.time.lessThanAWeek");
     }
-    return `${weeks}${i18n.t("common.time.week")}`;
+    return `${weeks}${i18n.t("common.time.week")}` + i18n.t("common.time.ago");
   }
 
   const years = differenceInYears(nowDate, sourceDate);

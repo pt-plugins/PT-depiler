@@ -171,6 +171,12 @@
       "flushSelectSite": "刷新数据",
       "flushCancel": "取消刷新",
       "tableFontSize": "表格字体大小",
+      "joinTimeFormat": "入站时间显示",
+      "joinTimeFormatOptions": {
+        "alive": "相对时间",
+        "aliveWeek": "相对周数",
+        "added": "绝对日期"
+      },
       "showSiteName": "显示站点名称",
       "showUnreadMessage": "显示未读消息",
       "showUserName": "显示用户名",
@@ -181,7 +187,6 @@
       "showNextLevelInDialog": "在站点等级列表中显示下一级别要求",
       "showHnR": "显示 H&R",
       "showSeedingBonus": "显示做种积分",
-      "joinTimeWeekOnly": "入站时间显示为相对周数",
       "updateAtFormatAsAlive": "更新时间显示为相对时间"
     },
     "table": {
