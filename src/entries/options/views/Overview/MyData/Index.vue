@@ -58,6 +58,26 @@ const tableHeader = computed(() => {
   ) as DataTableHeader[];
 });
 
+// 表格字体大小样式计算属性
+const tableFontStyle = computed(() => {
+  return {
+    fontSize: `${configStore.myDataTableControl.tableFontSize}%`,
+  };
+});
+
+// 表格字体大小变化处理函数
+const onTableFontSizeChange = (value: number) => {
+  configStore.myDataTableControl.tableFontSize = value;
+  configStore.$save();
+};
+
+// 过滤掉tableFontSize的其他表格控制项
+const filteredTableControlKeys = computed(() => {
+  return Object.keys(configStore.myDataTableControl).filter(
+    (key) => key !== "tableFontSize",
+  ) as (keyof typeof configStore.myDataTableControl)[];
+});
+
 interface IUserInfoItem extends IUserInfo {
   siteUserConfig: ISiteUserConfig;
 }
@@ -198,7 +218,32 @@ function viewStatistic() {
             <NavButton color="blue" icon="mdi-cog" text="设置" class="mr-1" v-bind="props" />
           </template>
           <v-list>
-            <v-list-item v-for="(item, index) in configStore.myDataTableControl" :key="index" :value="index">
+            <!-- 表格字体大小控制 -->
+            <v-list-item>
+              <template v-slot:prepend>
+                <v-list-item-action start class="ml-2">
+                  <v-icon icon="mdi-format-font-size-increase" class="mr-2" />
+                  <span class="text-subtitle-2">{{ t("MyData.index.tableFontSize") }}</span>
+                </v-list-item-action>
+              </template>
+              <v-slider
+                :model-value="configStore.myDataTableControl.tableFontSize"
+                :min="75"
+                :max="100"
+                :step="1"
+                density="compact"
+                hide-details
+                thumb-label
+                @update:model-value="onTableFontSizeChange"
+              >
+                <template v-slot:thumb-label="{ modelValue }"> {{ modelValue }}% </template>
+              </v-slider>
+            </v-list-item>
+
+            <v-divider />
+
+            <!-- 其他开关控制 -->
+            <v-list-item v-for="index in filteredTableControlKeys" :key="index" :value="index">
               <template v-slot:prepend>
                 <v-list-item-action start class="ml-2">
                   <v-switch
@@ -248,7 +293,7 @@ function viewStatistic() {
           clearable
           density="compact"
           hide-details
-          label="Search"
+          :label="t('common.search')"
           max-width="500"
           single-line
           @click:clear="resetAdvanceFilterDictFn"
@@ -329,6 +374,7 @@ function viewStatistic() {
       :items-per-page="configStore.tableBehavior.MyData.itemsPerPage"
       :search="tableFilterRef"
       :sort-by="configStore.tableBehavior.MyData.sortBy"
+      :style="tableFontStyle"
       class="table-stripe table-header-no-wrap"
       hover
       item-selectable="selectable"
@@ -450,7 +496,7 @@ function viewStatistic() {
         </v-container>
       </template>
 
-      <!-- 做种体积 -->
+      <!-- 做种量 -->
       <template #item.seedingSize="{ item }">
         <span class="text-no-wrap">
           {{ typeof item.seedingSize !== "undefined" ? formatSize(item.seedingSize) : "-" }}
@@ -502,7 +548,7 @@ function viewStatistic() {
             typeof item.joinTime !== "undefined"
               ? configStore.myDataTableControl.joinTimeWeekOnly
                 ? formatTimeAgo(item.joinTime, true)
-                : formatDate(item.joinTime)
+                : formatTimeAgo(item.joinTime)
               : "-"
           }}
         </span>

@@ -84,6 +84,7 @@ export const useConfigStore = defineStore("config", {
     userName: "",
 
     myDataTableControl: {
+      tableFontSize: 100,
       showSiteName: true,
       showUnreadMessage: true,
       showUserName: true,

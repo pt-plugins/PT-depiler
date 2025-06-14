@@ -144,22 +144,22 @@ const totalSiteSeedingInfoChartOptions = computed(() => {
   return {
     title: {
       text: `[${configStore.userName}] ${t("UserDataStatistic.chart.totalSiteSeeding")}`,
-      subtext: `做种体积: ${formatSize(seedingSize.at(-1)!)}, 数量: ${(seeding.at(-1) ?? 0).toFixed(2)}`,
+      subtext: `做种量: ${formatSize(seedingSize.at(-1)!)}, 数量: ${(seeding.at(-1) ?? 0).toFixed(2)}`,
       left: "center", // 设置标题居中
     },
     tooltip: {
       trigger: "axis",
       formatter: createTotalInfoTooltipFormatter(["size", "int"]),
     },
-    legend: { data: ["做种体积", "做种数"], bottom: 10, orient: "horizontal" },
+    legend: { data: ["做种量", "做种数"], bottom: 10, orient: "horizontal" },
     grid: { left: "3%", right: "4%", bottom: "10%", containLabel: true },
     xAxis: { type: "category", boundaryGap: false, data: selectedDateRanges.value }, // 时间轴
     yAxis: [
-      { type: "value", name: "做种体积", position: "left", axisLabel: { formatter: formatSize } },
+      { type: "value", name: "做种量", position: "left", axisLabel: { formatter: formatSize } },
       { type: "value", name: "做种数", position: "right", axisLabel: { formatter: (value) => value.toFixed(0) } },
     ],
     series: [
-      { name: "做种体积", type: "line", smooth: true, data: seedingSize, yAxisIndex: 0 },
+      { name: "做种量", type: "line", smooth: true, data: seedingSize, yAxisIndex: 0 },
       { name: "做种数", type: "line", smooth: true, data: seeding, yAxisIndex: 1 },
     ],
   } as EChartsLineChartOption;
@@ -352,7 +352,7 @@ function saveControl() {
           class="chart"
           group="totalSiteSeeding"
         />
-        <!-- 分站点上传、下载、做种、做种体积、积分、时魔数据 -->
+        <!-- 分站点上传、下载、做种、做种量、积分、时魔值数据 -->
         <template v-for="[field, format] in perSiteChartField" :key="field">
           <v-chart
             v-if="
