@@ -108,7 +108,7 @@ export function levelRequirementUnMet(
 
   // 比较 totalTraffic, downloaded, trueDownloaded, uploaded, trueUploaded, seedingSize 等体积类字段需求
   for (const currentSizeElement of intersection(
-    ["totalTraffic", "downloaded", "trueDownloaded", "uploaded", "trueUploaded", "seedingSize"],
+    ["totalTraffic", "downloaded", "trueDownloaded", "uploaded", "trueUploaded", "seedingSize", "specialSeedingSize"],
     levelRequirementKeys,
   )) {
     let currentSizeRequirement = levelRequirement[currentSizeElement];
@@ -224,7 +224,7 @@ export function levelRequirementUnMet(
 
   // 比较 bonus, bonusPerHour, seedingBonus, uploads, leeching, snatches, posts 等应该大于的字段
   for (const currentGtElement of intersection(
-    ["bonus", "bonusPerHour", "seedingBonus", "uploads", "leeching", "snatches", "posts"],
+    ["bonus", "bonusPerHour", "seedingBonus", "uploads", "leeching", "snatches", "posts", "perfectFlacs", "groups"],
     levelRequirementKeys,
   )) {
     let currentGtRequirement = levelRequirement[currentGtElement];
