@@ -73,7 +73,9 @@ const onTableFontSizeChange = (value: number) => {
 
 // 过滤掉tableFontSize的其他表格控制项
 const filteredTableControlKeys = computed(() => {
-  return Object.keys(configStore.myDataTableControl).filter((key) => key !== "tableFontSize");
+  return Object.keys(configStore.myDataTableControl).filter(
+    (key) => key !== "tableFontSize",
+  ) as (keyof typeof configStore.myDataTableControl)[];
 });
 
 interface IUserInfoItem extends IUserInfo {
