@@ -397,6 +397,10 @@ export default class GazelleJSONAPI extends PrivateSite {
           ...(await this.getUserSeedingTorrents(flushUserInfo.id as number)),
         };
       }
+
+      if (this.metadata.levelRequirements && flushUserInfo.levelName && typeof flushUserInfo.levelId === "undefined") {
+        flushUserInfo.levelId = this.guessUserLevelId(flushUserInfo as IUserInfo);
+      }
       
       flushUserInfo.status = EResultParseStatus.success;
     } catch (error) {
