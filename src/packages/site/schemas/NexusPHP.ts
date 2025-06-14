@@ -614,7 +614,7 @@ export default class NexusPHP extends PrivateSite {
           }
 
           trAnothers.forEach((trAnother) => {
-            const sizeSelector = Sizzle(`td.rowfollow:eq(${sizeIndex})`, trAnother)[0] as HTMLElement;
+            const sizeSelector = Sizzle(`td:eq(${sizeIndex})`, trAnother)[0] as HTMLElement;
             seedStatus.seedingSize += parseSizeString(sizeSelector.innerText.trim());
           });
         }
