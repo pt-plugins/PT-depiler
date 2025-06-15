@@ -78,11 +78,11 @@ async function saveStoredDownloaderConfig() {
       <v-divider />
       <v-card-text>
         <v-window v-model="currentStep">
-          <!-- 选取可添加的站点 -->
+          <!-- 选取可添加的客户端 -->
           <v-window-item :value="0">
             <v-autocomplete
               v-model="selectedClientType"
-              :filter-keys="['type']"
+              :filter-keys="['raw.type']"
               :hint="
                 allTorrentClientMetaData[selectedClientType!]?.description ?? t('SetDownloader.add.NoneSelectNotice')
               "
