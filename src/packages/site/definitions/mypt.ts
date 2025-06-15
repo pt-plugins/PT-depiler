@@ -13,7 +13,7 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: ["kveat"],
   type: "private",
   schema: "NexusPHP",
-  urls: ["ROT13:uggcf://pp.zlcg.pp/"],
+  urls: ["uggcf://pp.zlcg.pp/"],
   favicon: "./mypt.ico",
 
   userInfo: {
