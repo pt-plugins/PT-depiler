@@ -221,7 +221,7 @@ const createPerSiteChartOptionsFn = (
         formatter: (site) => allAddedSiteMetadata[site].siteName ?? site,
       },
       grid: { left: "3%", right: "4%", bottom: "10%", containLabel: true },
-      xAxis: { type: "category", boundaryGap: false, data: selectedDateRanges.value }, // 时间轴
+      xAxis: { type: "category", boundaryGap: true, data: selectedDateRanges.value }, // 所有柱状图都使用 boundaryGap: true
       yAxis: [{ type: "value", name: "数据", axisLabel: { formatter: formatDict[format] } }],
       series,
     } as EChartsBarChartOption;
