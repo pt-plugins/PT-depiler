@@ -35,7 +35,7 @@ const tableHeader = [
   // site favicon
   { title: "", key: "userConfig.sortIndex", align: "center", width: 48 },
   { title: t("SetSite.common.name"), key: "name", align: "left", width: 120, sortable: false },
-  { title: "站点分类", key: "groups", align: "left", minWidth: 120, sortable: false },
+  { title: t("SetSite.common.groups"), key: "groups", align: "left", minWidth: 120, sortable: false },
   { title: t("SetSite.common.url"), key: "url", align: "start", sortable: false },
   { title: t("SetSite.common.isOffline"), key: "userConfig.isOffline", align: "center", width: 180 },
   { title: t("SetSite.common.allowSearch"), key: "userConfig.allowSearch", align: "center", width: 180 },
@@ -111,7 +111,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
         <NavButton
           color="info"
           icon="mdi-crosshairs-gps"
-          text="一键导入站点"
+          :text="t('SetSite.index.oneClickImport')"
           @click="() => (showOneClickImportDialog = true)"
         />
 
@@ -159,7 +159,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
 
                 <v-divider />
 
-                <v-list-item-subtitle class="ma-2">站点分类</v-list-item-subtitle>
+                <v-list-item-subtitle class="ma-2">{{ t("SetSite.common.groups") }}</v-list-item-subtitle>
                 <v-list-item
                   v-for="(item, index) in metadataStore.getSitesGroupData"
                   :key="index"

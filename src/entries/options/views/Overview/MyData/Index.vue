@@ -203,20 +203,25 @@ function viewStatistic() {
           :disabled="tableSelected.length === 0"
           color="indigo"
           icon="mdi-open-in-new"
-          text="批量打开"
+          :text="t('MyData.index.multiOpen')"
           @click="multiOpen"
         />
 
         <v-divider class="mx-2" vertical />
 
-        <NavButton color="green" icon="mdi-chart-timeline-variant" text="时间轴" @click="viewTimeline" />
-        <NavButton color="green" icon="mdi-equalizer" text="数据图表" @click="viewStatistic" />
+        <NavButton
+          color="green"
+          icon="mdi-chart-timeline-variant"
+          :text="t('MyData.index.viewTimeline')"
+          @click="viewTimeline"
+        />
+        <NavButton color="green" icon="mdi-equalizer" :text="t('MyData.index.viewStatistic')" @click="viewStatistic" />
 
         <v-divider class="mx-2" vertical />
 
         <v-menu :close-on-content-clicks="false">
           <template v-slot:activator="{ props }">
-            <NavButton color="blue" icon="mdi-cog" text="设置" class="mr-1" v-bind="props" />
+            <NavButton color="blue" icon="mdi-cog" :text="t('MyData.index.setting')" class="mr-1" v-bind="props" />
           </template>
           <v-list>
             <!-- 表格字体大小控制 -->
@@ -335,10 +340,12 @@ function viewStatistic() {
                 <v-icon v-bind="props" icon="mdi-filter" variant="plain" />
               </template>
               <v-list class="pa-0">
-                <v-list-item-subtitle class="ma-2">站点状态</v-list-item-subtitle>
+                <v-list-item-subtitle class="ma-2">
+                  {{ t("MyData.index.siteStatus") }}
+                </v-list-item-subtitle>
 
                 <v-list-item
-                  title="今日未更新"
+                  :title="t('MyData.index.filter.todayNotUpdated')"
                   @click.stop="
                     () => {
                       advanceFilterDictRef.updateAt.value = ['', formatDate(new Date(), 'yyyyMMdd')];
@@ -348,7 +355,7 @@ function viewStatistic() {
                 />
 
                 <v-list-item
-                  title="最后更新状态异常"
+                  :title="t('MyData.index.filter.lastUpdateError')"
                   @click.stop="
                     () => {
                       advanceFilterDictRef.status.required = [
@@ -362,7 +369,7 @@ function viewStatistic() {
                 />
 
                 <v-list-item
-                  title="未读信息"
+                  :title="t('MyData.index.filter.unreadMessage')"
                   @click.stop="
                     () => {
                       advanceFilterDictRef.messageCount.value = [1, ' '];
@@ -371,7 +378,9 @@ function viewStatistic() {
                   "
                 />
 
-                <v-list-item-subtitle class="ma-2">站点分类</v-list-item-subtitle>
+                <v-list-item-subtitle class="ma-2">
+                  {{ t("MyData.index.siteCategory") }}
+                </v-list-item-subtitle>
 
                 <v-list-item
                   v-for="(item, index) in metadataStore.getSitesGroupData"

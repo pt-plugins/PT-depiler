@@ -54,23 +54,23 @@ const statusIconPropComputed = (site: TSiteID) =>
     if (canAddSites.value[site].userInputSettingMeta) {
       progressIcon = "progress-close"; // 需要手动添加
       progressColor = "purple";
-      progressTitle = "该站点需要手动添加";
+      progressTitle = t("SetSite.oneClickImportDialog.status.manual");
     } else if (importStatus.value.working === site) {
       progressIcon = "progress-wrench"; // 正在尝试中
       progressColor = "blue";
-      progressTitle = "正在尝试中";
+      progressTitle = t("SetSite.oneClickImportDialog.status.trying");
     } else if (importStatus.value.success.includes(site)) {
       progressIcon = "progress-check"; // 已添加成功
       progressColor = "green";
-      progressTitle = "已添加成功";
+      progressTitle = t("SetSite.oneClickImportDialog.status.success");
     } else if (importStatus.value.failed.includes(site)) {
       progressIcon = "progress-alert"; // 添加失败
       progressColor = "red";
-      progressTitle = "添加失败";
+      progressTitle = t("SetSite.oneClickImportDialog.status.failed");
     } else if (importStatus.value.toWork.includes(site)) {
       progressIcon = "progress-pencil"; // 已选择
       progressColor = "";
-      progressTitle = "已选择";
+      progressTitle = t("SetSite.oneClickImportDialog.status.selected");
     }
 
     return {
@@ -142,7 +142,7 @@ async function dialogEnter() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title>一键导入站点</v-toolbar-title>
+          <v-toolbar-title>{{ t("SetSite.oneClickImportDialog.title") }}</v-toolbar-title>
           <template #append>
             <v-btn icon="mdi-close" @click="showDialog = false" :disabled="importStatus.isWorking" />
           </template>
@@ -150,21 +150,20 @@ async function dialogEnter() {
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <v-alert
-          class="mb-2"
-          title="此操作会尝试以默认配置导入你选择的站点，请确保该站点已在浏览器上登录过。导入过程不能中断，请耐心等待。"
-          type="warning"
-          variant="tonal"
-        >
+        <v-alert class="mb-2" :title="t('SetSite.oneClickImportDialog.alert1')" type="warning" variant="tonal">
         </v-alert>
 
-        <v-alert class="mb-1 py-2" title="未添加的站点列表">
+        <v-alert class="mb-1 py-2" :title="t('SetSite.oneClickImportDialog.alert2')">
           <template #text>
-            <span>已选择 {{ importStatus.toWork.length }} 个站点，</span>
-            <span class="text-green">已添加 {{ importStatus.success.length }} 个站点，</span>
-            <span class="text-red">添加失败 {{ importStatus.failed.length }} 个站点。</span>
+            {{
+              t("SetSite.oneClickImportDialog.stats", {
+                count: importStatus.toWork.length,
+                success: importStatus.success.length,
+                failed: importStatus.failed.length,
+              })
+            }}
             <span v-if="importStatus.isWorking">
-              正在尝试导入站点 [{{ canAddSites[importStatus.working].name }}] ...
+              {{ t("SetSite.oneClickImportDialog.trying", { name: canAddSites[importStatus.working].name }) }}
             </span>
           </template>
           <template #append>
