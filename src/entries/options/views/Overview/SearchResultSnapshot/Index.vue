@@ -23,10 +23,24 @@ const showEditNameDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 
 const tableHeader = [
-  { title: "快照名称", key: "name", align: "start" },
-  { title: "种子数", key: "recordCount", align: "end", width: 100 },
-  { title: "创建时间", key: "createdAt", align: "center", width: 150, minWidth: 150 },
-  { title: "操作", key: "action", align: "center", width: 125, minWidth: 125, sortable: false, alwaysShow: true },
+  { title: t("SearchResultSnapshot.table.header.name"), key: "name", align: "start" },
+  { title: t("SearchResultSnapshot.table.header.recordCount"), key: "recordCount", align: "end", width: 100 },
+  {
+    title: t("SearchResultSnapshot.table.header.createdAt"),
+    key: "createdAt",
+    align: "center",
+    width: 150,
+    minWidth: 150,
+  },
+  {
+    title: t("common.action"),
+    key: "action",
+    align: "center",
+    width: 125,
+    minWidth: 125,
+    sortable: false,
+    alwaysShow: true,
+  },
 ] as DataTableHeader[];
 const tableSelected = ref<TSearchSnapshotKey[]>([]);
 const tableWaitFilter = ref("");
@@ -78,7 +92,7 @@ async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey)
           clearable
           density="compact"
           hide-details
-          label="快照名称过滤"
+          :label="t('SearchResultSnapshot.table.filterLabel')"
           max-width="500"
           single-line
         />
@@ -109,14 +123,14 @@ async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey)
             color="green"
             icon="mdi-archive-search"
             size="small"
-            title="查看"
+            :title="t('SearchResultSnapshot.table.action.view')"
             @click="() => viewSnapshot(item.id)"
           ></v-btn>
           <v-btn
             color="blue"
             icon="mdi-archive-edit"
             size="small"
-            title="编辑标题"
+            :title="t('SearchResultSnapshot.table.action.editTitle')"
             @click="() => editSnapshotName(item.id)"
           ></v-btn>
           <v-btn
