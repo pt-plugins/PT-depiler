@@ -81,7 +81,7 @@ async function saveStoredMediaServerConfig() {
           <v-window-item :value="0">
             <v-autocomplete
               v-model="selectedMediaServerType"
-              :filter-keys="['type']"
+              :filter-keys="['raw.type']"
               :hint="
                 allMediaServerMetaData[selectedMediaServerType!]?.description ?? t('SetDownloader.add.NoneSelectNotice')
               "

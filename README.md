@@ -73,7 +73,7 @@ PT-Depiler 并不是对 PT-Plugin-Plus 的简单移植，而是对其进行了�
 
 > 请不要在 Issue 中提出一般性问题。Issue 仅用于报告错误、提出改进建议或请求新功能。
 
-我们还有一个 [help wanted](../../labels/help%20wanted) 的问题列表，您可能会感兴趣。
+我们还有一个 [help wanted](../../labels/%22help%20wanted%22) 的问题列表，您可能会感兴趣。
 
 ### 📝 许可证 License
 
