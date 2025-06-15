@@ -55,7 +55,7 @@ const perChartHeight = computed(() => 400);
 
 const allowEditName = ref<boolean>(false);
 
-const rawDataRef = ref<IUserDataStatistic>({ siteDateRange: {}, dailyUserInfo: {} });
+const rawDataRef = ref<IUserDataStatistic>({ siteDateRange: {}, dailyUserInfo: {}, incrementalData: {} });
 
 const allDateRanges = computed(() => Object.keys(rawDataRef.value.dailyUserInfo));
 const allSites = computed<string[]>(() => Object.keys(rawDataRef.value.siteDateRange));
@@ -174,29 +174,10 @@ const createPerSiteChartOptionsFn = (
     const series = selectedSites.value.map((site) => {
       let data;
       if (incr) {
-        let minSiteDate = new Date(rawDataRef.value.siteDateRange[site]?.[0] ?? selectedDateRanges.value[0]);
-
-        data = selectedDateRanges.value.map((date, idx) => {
-          if (new Date(date) <= minSiteDate) {
-            return 0; // 对站点的第一次有数据的值进行特殊处理
-          }
-
-          let currentData = selectedDataComputed.value[date]?.[site]?.[field];
-          if (typeof currentData === "undefined" || currentData === "") {
-            return 0;
-          }
-          currentData = currentData || 0; // 确保 currentData 有值可以比较
-
-          // 获取前一个有效的数据
-          let previousDataIdx = idx;
-          let previousData;
-          do {
-            previousDataIdx--;
-            previousData = selectedDataComputed.value[selectedDateRanges.value[previousDataIdx]]?.[site]?.[field];
-          } while (previousDataIdx > 0 && (typeof previousData === "undefined" || previousData === ""));
-
-          previousData = previousData || 0; // 确保 previousData 有值可以比较
-          return currentData - previousData;
+        // 使用预计算的增量数据，大幅提升性能
+        data = selectedDateRanges.value.map((date) => {
+          const incrementalValue = rawDataRef.value.incrementalData[site]?.[date]?.[field];
+          return incrementalValue ?? 0;
         });
       } else {
         data = selectedDateRanges.value.map((date) => selectedDataComputed.value[date]?.[site]?.[field] ?? 0);
@@ -240,7 +221,7 @@ const createPerSiteChartOptionsFn = (
         formatter: (site) => allAddedSiteMetadata[site].siteName ?? site,
       },
       grid: { left: "3%", right: "4%", bottom: "10%", containLabel: true },
-      xAxis: { type: "category", boundaryGap: false, data: selectedDateRanges.value }, // 时间轴
+      xAxis: { type: "category", boundaryGap: true, data: selectedDateRanges.value }, // 所有柱状图都使用 boundaryGap: true
       yAxis: [{ type: "value", name: "数据", axisLabel: { formatter: formatDict[format] } }],
       series,
     } as EChartsBarChartOption;
