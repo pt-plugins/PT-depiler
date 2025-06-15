@@ -55,7 +55,7 @@ const perChartHeight = computed(() => 400);
 
 const allowEditName = ref<boolean>(false);
 
-const rawDataRef = ref<IUserDataStatistic>({ siteDateRange: {}, dailyUserInfo: {} });
+const rawDataRef = ref<IUserDataStatistic>({ siteDateRange: {}, dailyUserInfo: {}, incrementalData: {} });
 
 const allDateRanges = computed(() => Object.keys(rawDataRef.value.dailyUserInfo));
 const allSites = computed<string[]>(() => Object.keys(rawDataRef.value.siteDateRange));
@@ -174,32 +174,10 @@ const createPerSiteChartOptionsFn = (
     const series = selectedSites.value.map((site) => {
       let data;
       if (incr) {
-        // 辅助函数：获取指定日期的有效数据值
-        const getValidValue = (date: string) => {
-          const value = selectedDataComputed.value[date]?.[site]?.[field];
-          return typeof value === "undefined" || value === "" ? null : value || 0;
-        };
-
-        data = selectedDateRanges.value.map((date, idx) => {
-          const currentValue = getValidValue(date);
-
-          // 如果当前日期没有数据，返回0
-          if (currentValue === null) {
-            return 0;
-          }
-
-          // 查找前一个有效数据的索引
-          let previousValue = null;
-          for (let i = idx - 1; i >= 0; i--) {
-            const value = getValidValue(selectedDateRanges.value[i]);
-            if (value !== null) {
-              previousValue = value;
-              break;
-            }
-          }
-
-          // 如果没有前一个有效数据（即第一次有数据），增量为0
-          return previousValue === null ? 0 : currentValue - previousValue;
+        // 使用预计算的增量数据，大幅提升性能
+        data = selectedDateRanges.value.map((date) => {
+          const incrementalValue = rawDataRef.value.incrementalData[site]?.[date]?.[field];
+          return incrementalValue ?? 0;
         });
       } else {
         data = selectedDateRanges.value.map((date) => selectedDataComputed.value[date]?.[site]?.[field] ?? 0);
