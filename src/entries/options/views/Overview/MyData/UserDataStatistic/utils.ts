@@ -11,92 +11,53 @@ export interface IUserDataStatistic {
   incrementalData: Record<TSiteID, Record<string, Record<keyof IStoredUserInfo, number>>>;
 }
 
-// 新增：预计算增量数据的函数
-function calculateIncrementalData(
-  dailyUserInfo: Record<string, Record<TSiteID, IStoredUserInfo>>,
-  siteDateRange: Record<TSiteID, [string, string]>,
-): Record<TSiteID, Record<string, Record<keyof IStoredUserInfo, number>>> {
-  const incrementalData: Record<TSiteID, Record<string, Record<keyof IStoredUserInfo, number>>> = {};
+// 数值字段列表
+const numericFields: (keyof IStoredUserInfo)[] = ["uploaded", "downloaded", "seeding", "seedingSize", "bonus"];
 
-  // 预排序日期，避免重复排序
-  const sortedDates = Object.keys(dailyUserInfo).sort();
-  const dateIndexMap = new Map(sortedDates.map((date, index) => [date, index]));
+// 新增：计算单日增量数据的函数
+function calculateDailyIncremental(
+  prevDateData: IStoredUserInfo | null,
+  dateData: IStoredUserInfo,
+  isFirstDataPoint: boolean,
+): { incremental: Record<keyof IStoredUserInfo, number>; updatedPrevData: IStoredUserInfo } {
+  const incremental: Record<keyof IStoredUserInfo, number> = {} as Record<keyof IStoredUserInfo, number>;
 
-  // 数值字段列表
-  const numericFields: (keyof IStoredUserInfo)[] = ["uploaded", "downloaded", "seeding", "seedingSize", "bonus"];
-
-  for (const [siteId, dateRange] of Object.entries(siteDateRange)) {
-    incrementalData[siteId] = {};
-    const siteFirstDate = dateRange[0];
-
-    // 构建站点数据查找表
-    const siteDataMap = new Map<string, Record<keyof IStoredUserInfo, number>>();
-    for (const date of sortedDates) {
-      const siteData = dailyUserInfo[date]?.[siteId];
-      if (siteData) {
-        const numericData: Record<string, number> = {};
-        for (const field of numericFields) {
-          const value = siteData[field];
-          if (typeof value === "number" && !isNaN(value)) {
-            numericData[field] = value;
-          }
+  for (const field of numericFields) {
+    const currentValue = dateData[field];
+    if (typeof currentValue === "number" && !isNaN(currentValue)) {
+      if (isFirstDataPoint) {
+        // 站点第一次有数据时，增量为0
+        incremental[field] = 0;
+      } else if (prevDateData) {
+        const prevValue = prevDateData[field];
+        if (typeof prevValue === "number" && !isNaN(prevValue)) {
+          // 计算增量：当前值 - 前一个有效值
+          incremental[field] = currentValue - prevValue;
+        } else {
+          // 前一个数据字段无效时，增量为0
+          incremental[field] = 0;
         }
-        if (Object.keys(numericData).length > 0) {
-          siteDataMap.set(date, numericData as Record<keyof IStoredUserInfo, number>);
-        }
-      }
-    }
-
-    // 计算增量数据
-    for (const date of sortedDates) {
-      const currentData = siteDataMap.get(date);
-      if (!currentData) continue;
-
-      incrementalData[siteId][date] = {} as Record<keyof IStoredUserInfo, number>;
-
-      for (const field of numericFields) {
-        const currentValue = currentData[field];
-        if (typeof currentValue !== "number") continue;
-
-        // 如果是站点第一次有数据的日期，增量为0
-        if (date === siteFirstDate) {
-          incrementalData[siteId][date][field] = 0;
-          continue;
-        }
-
-        // 向前查找最近的有效数据
-        let previousValue: number | null = null;
-        const currentDateIndex = dateIndexMap.get(date);
-        if (currentDateIndex !== undefined) {
-          for (let i = currentDateIndex - 1; i >= 0; i--) {
-            const prevDate = sortedDates[i];
-            const prevData = siteDataMap.get(prevDate);
-            if (prevData && typeof prevData[field] === "number") {
-              previousValue = prevData[field];
-              break;
-            }
-          }
-        }
-
-        // 计算增量
-        incrementalData[siteId][date][field] = previousValue !== null ? currentValue - previousValue : 0;
+      } else {
+        // 前一个数据不存在时，增量为0
+        incremental[field] = 0;
       }
     }
   }
 
-  return incrementalData;
+  return { incremental, updatedPrevData: dateData };
 }
 
 export async function loadFullData(): Promise<IUserDataStatistic> {
   const rawData = (await sendMessage("getExtStorage", "userInfo")) as TUserInfoStorageSchema;
 
-  // 提取所有日期
-  const allDates = [];
+  // 提取所有日期并去重
+  const allDatesSet = new Set<string>();
   for (const perSiteUserInfoHistory of Object.values(rawData)) {
     for (const dateStr in perSiteUserInfoHistory) {
-      allDates.push(dateStr);
+      allDatesSet.add(dateStr);
     }
   }
+  const allDates = Array.from(allDatesSet);
 
   // 找出最小和最大日期，并生成最小到最大日期之间的所有日期
   const minDate = minDateFn(allDates);
@@ -105,6 +66,7 @@ export async function loadFullData(): Promise<IUserDataStatistic> {
 
   const siteDateRange: IUserDataStatistic["siteDateRange"] = {};
   const dailyUserInfo: IUserDataStatistic["dailyUserInfo"] = Object.fromEntries(datesInRange.map((x) => [x, {}]));
+  const incrementalData: IUserDataStatistic["incrementalData"] = {};
 
   console.debug("[PTD] Found UserDataStatistic used date ranges:", datesInRange);
 
@@ -118,7 +80,13 @@ export async function loadFullData(): Promise<IUserDataStatistic> {
     );
     siteDateRange[siteId] = [thisSiteDateRangeInInterval.at(0)!, thisSiteDateRangeInInterval.at(-1)!];
 
-    let dateData;
+    // 初始化站点增量数据
+    incrementalData[siteId] = {};
+
+    let dateData: IStoredUserInfo | undefined;
+    let prevDateData: IStoredUserInfo | null = null;
+    let hasFoundFirstDataPoint = false;
+
     for (const dateStr of thisSiteDateRangeInInterval) {
       // 如果该日期有值，则覆盖，否则使用上一个有效日期的值
       if (perSiteUserInfoHistory[dateStr]) {
@@ -127,17 +95,25 @@ export async function loadFullData(): Promise<IUserDataStatistic> {
           dateData = thisDateData;
         }
       }
+
       if (dateData) {
         dailyUserInfo[dateStr][siteId] = dateData;
+
+        // 计算增量数据 - 判断是否是第一个有效数据点
+        const isFirstDataPoint = !hasFoundFirstDataPoint;
+        const { incremental, updatedPrevData } = calculateDailyIncremental(prevDateData, dateData, isFirstDataPoint);
+        incrementalData[siteId][dateStr] = incremental;
+
+        // 更新状态
+        prevDateData = updatedPrevData;
+        hasFoundFirstDataPoint = true;
       }
     }
 
     console.debug(`[PTD] UserDataStatistic for ${siteId} loaded, date range: ${thisSiteDateRangeInInterval}`);
   }
 
-  // 预计算增量数据
-  const incrementalData = calculateIncrementalData(dailyUserInfo, siteDateRange);
-  console.debug("[PTD] Incremental data pre-calculated for all sites");
+  console.debug("[PTD] Incremental data calculated during data loading");
 
   return { dailyUserInfo, siteDateRange, incrementalData };
 }
