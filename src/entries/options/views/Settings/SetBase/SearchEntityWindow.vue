@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { useI18n } from "vue-i18n";
 
+const { t } = useI18n();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 
@@ -15,20 +17,20 @@ async function clearLastFilter(v: boolean) {
 <template>
   <v-row>
     <v-col md="6">
-      <v-label>站点搜索配置</v-label>
+      <v-label>{{ t("route.Settings.SearchConfig.siteSearchConfig") }}</v-label>
       <v-number-input
         v-model="configStore.searchEntity.queueConcurrency"
         :max="100"
         :min="1"
         controlVariant="default"
         hide-details
-        label="请求队列长度"
+        :label="t('route.Settings.SearchConfig.siteQueueConcurrency')"
       />
       <v-switch
         v-model="configStore.searchEntity.saveLastFilter"
         color="success"
         hide-details
-        label="保存上一次使用的搜索筛选词"
+        :label="t('route.Settings.SearchConfig.saveLastSearchFilter')"
         @update:model-value="(v) => clearLastFilter(v as boolean)"
       />
     </v-col>
@@ -36,13 +38,13 @@ async function clearLastFilter(v: boolean) {
 
   <v-row>
     <v-col md="6">
-      <v-label>媒体服务器搜索配置</v-label>
+      <v-label>{{ t("route.Settings.SearchConfig.mediaServerSearchConfig") }}</v-label>
       <v-number-input
         v-model="configStore.mediaServerEntity.queueConcurrency"
         :max="100"
         :min="1"
         controlVariant="default"
-        label="请求队列长度"
+        :label="t('route.Settings.SearchConfig.mediaQueueConcurrency')"
       />
       <v-number-input
         v-model="configStore.mediaServerEntity.searchLimit"
@@ -50,20 +52,20 @@ async function clearLastFilter(v: boolean) {
         :min="1"
         :step="configStore.mediaServerEntity.searchLimit >= 100 ? 10 : 1"
         controlVariant="default"
-        label="单次搜索结果数量"
-        messages="请不要一次性加载过多的搜索结果，未作 virtual-scroll 优化，可能会导致浏览器卡死，同时也会影响媒体服务器的性能"
+        :label="t('route.Settings.SearchConfig.mediaSearchLimit')"
+        :messages="t('route.Settings.SearchConfig.mediaSearchLimitMessage')"
       />
       <v-switch
         v-model="configStore.mediaServerEntity.autoSearchWhenMount"
         color="success"
         hide-details
-        label="自动加载首屏媒体墙"
+        :label="t('route.Settings.SearchConfig.autoLoadInitialMediaWall')"
       />
       <v-switch
         v-model="configStore.mediaServerEntity.autoSearchMoreWhenScroll"
         color="success"
         hide-details
-        label="当滚动到页面底部时，自动加载新的媒体墙"
+        :label="t('route.Settings.SearchConfig.autoLoadMoreMediaOnScroll')"
       />
     </v-col>
   </v-row>

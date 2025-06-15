@@ -70,7 +70,7 @@ onMounted(async () => {
           density="compact"
           hide-details
           max-width="500"
-          placeholder="搜索词"
+          :placeholder="t('MediaServerEntity.searchPlaceholder')"
           @keyup.enter="() => doSearch({ searchKey: search })"
           @click:append="() => doSearch({ searchKey: search })"
         >
@@ -84,7 +84,7 @@ onMounted(async () => {
                   <v-checkbox
                     hide-details
                     indeterminate
-                    label="全选"
+                    :label="t('common.checkbox.all')"
                     @click.stop
                     @update:model-value="
                       (v: unknown) => {
@@ -182,7 +182,9 @@ onMounted(async () => {
                 <v-img v-bind="props" :src="item.poster" :title="item.name" />
               </template>
 
-              <v-btn append-icon="mdi-information-outline" block @click="() => showItemInformation(item)">详情</v-btn>
+              <v-btn append-icon="mdi-information-outline" block @click="() => showItemInformation(item)">
+                {{ t("MediaServerEntity.detail") }}
+              </v-btn>
               <v-btn
                 :href="item.url"
                 append-icon="mdi-arrow-top-right-bold-box-outline"
@@ -190,7 +192,7 @@ onMounted(async () => {
                 rel="noopener noreferrer nofollow"
                 target="_blank"
               >
-                访问
+                {{ t("common.visit") }}
               </v-btn>
             </v-menu>
           </div>

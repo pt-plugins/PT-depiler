@@ -29,12 +29,12 @@ const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
 
 const tableHeader = [
   { title: "№", key: "id", align: "center", width: 50 },
-  { title: "站点", key: "siteId", align: "center", width: 90 },
-  { title: "种子", key: "title", align: "start", minWidth: 600, maxWidth: "32vw" },
-  { title: "下载服务器", key: "downloaderId", minWidth: 200, align: "start" },
-  { title: "下载时间", key: "downloadAt", align: "center" },
-  { title: "下载状态", key: "downloadStatus" },
-  { title: "操作", key: "action", align: "center", width: 90, minWidth: 90, sortable: false },
+  { title: t("DownloadHistory.table.site"), key: "siteId", align: "center", width: 90 },
+  { title: t("DownloadHistory.table.title"), key: "title", align: "start", minWidth: 600, maxWidth: "32vw" },
+  { title: t("DownloadHistory.table.downloader"), key: "downloaderId", minWidth: 200, align: "start" },
+  { title: t("DownloadHistory.table.downloadAt"), key: "downloadAt", align: "center" },
+  { title: t("DownloadHistory.table.status"), key: "downloadStatus" },
+  { title: t("common.action"), key: "action", align: "center", width: 90, minWidth: 90, sortable: false },
 ] as DataTableHeader[];
 const tableSelected = ref<TTorrentDownloadKey[]>([]);
 
@@ -81,7 +81,7 @@ onMounted(() => {
         <NavButton
           color="green"
           icon="mdi-cached"
-          text="刷新下载记录列表"
+          :text="t('DownloadHistory.refresh')"
           @click="() => throttleLoadDownloadHistory()"
         />
 
@@ -91,7 +91,7 @@ onMounted(() => {
           :disabled="tableSelected.length === 0"
           color="primary"
           icon="mdi-tray-arrow-down"
-          text="重新下载"
+          :text="t('DownloadHistory.reDownload')"
           @click="() => reDownloadTorrent(tableSelected)"
         />
 
@@ -112,7 +112,7 @@ onMounted(() => {
           clearable
           density="compact"
           hide-details
-          label="过滤下载记录"
+          :label="t('DownloadHistory.filterPlaceholder')"
           max-width="500"
           prepend-inner-icon="mdi-filter"
           single-line

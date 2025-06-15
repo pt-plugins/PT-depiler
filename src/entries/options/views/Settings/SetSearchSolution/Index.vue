@@ -157,12 +157,17 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
           @change="importSearchSolution"
         />
 
-        <NavButton color="info" icon="mdi-import" text="导入" @click="() => importFileInputRef?.click()" />
+        <NavButton
+          color="info"
+          icon="mdi-import"
+          :text="t('SetSearchSolution.import')"
+          @click="() => importFileInputRef?.click()"
+        />
         <NavButton
           :disabled="tableSelected.length === 0"
           color="info"
           icon="mdi-export"
-          text="导出"
+          :text="t('SetSearchSolution.export')"
           @click="() => exportSearchSolutions(tableSelected)"
         />
 
