@@ -25,7 +25,7 @@ const { t } = useI18n();
 
 <template>
   <!-- 计算剩余升级情况，每个条件分行显示 -->
-  <template v-for="(levelUnMet, index) in nextLevelUnMet" :key="index">
+  <template v-for="(levelUnMet, index) in nextLevelUnMet" :key="levelUnMet.level?.id || index">
     <v-icon icon="mdi-keyboard-tab" color="orange" size="small" :class="iconClass" />
 
     <span v-if="showNextLevelName && levelUnMet.level">{{ levelUnMet.level.name }}:&nbsp;</span>
