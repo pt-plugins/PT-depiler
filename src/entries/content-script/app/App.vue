@@ -78,18 +78,18 @@ onMounted(async () => {
 
 const isDragging = ref<boolean>(false);
 
+function fixDraggingLink(link: string): string {
+  if (!link.startsWith("http") && !link.startsWith("magnet:")) {
+    return new URL(link, window.location.href).href; // 相对链接转换为绝对链接
+  }
+  return link;
+}
+
 document.addEventListener("dragstart", (e: any) => {
-  console.log(e.target, e.dataTransfer.getData("text/plain"));
   if (e.target.tagName == "A") {
-    const link = e.target.getAttribute("href");
     let data = {
-      site: ptdData.siteId,
-      id: link,
-      link,
-      title:
-        e.target.getAttribute("title") ||
-        // e.target.querySelector(".ant-tooltip-open")?.innerText || // 原用于适配mt，
-        e.target.innerText,
+      link: e.target.getAttribute("href"),
+      title: e.target.getAttribute("title") || e.target.innerText,
     };
     e.dataTransfer.setData("text/plain", JSON.stringify(data));
   }
@@ -99,8 +99,49 @@ function onDrop(event: DragEvent) {
   const data = event.dataTransfer?.getData("text/plain");
   if (data) {
     try {
-      const torrentData = JSON.parse(data);
-      console.log(torrentData);
+      const torrentData = { link: "" } as unknown as ITorrent;
+
+      // 处理 JSON 数据
+      if (data.startsWith("{")) {
+        const { link, title } = JSON.parse(data) as unknown as ITorrent;
+
+        if (title) {
+          torrentData.title = title;
+        }
+        torrentData.link = link;
+      } else {
+        torrentData.link = data;
+      }
+
+      if (ptdData.siteId) {
+        torrentData.site = ptdData.siteId;
+      }
+
+      if (torrentData.link && torrentData.link !== "") {
+        torrentData.link = fixDraggingLink(torrentData.link);
+
+        // 尽可能解析出 id ?
+        const url = new URL(torrentData.link);
+        for (const i of ["id", "tid", "torrent_id", "torrentId", "hash", "hash_id"]) {
+          if (url.searchParams.has(i)) {
+            torrentData.id = url.searchParams.get(i) || "";
+            break;
+          }
+        }
+
+        // 如果无法从 searchParams 中解出 id，则尝试从 pathname 中提取 id
+        if (!torrentData.id && url.pathname) {
+          for (const pathnameMatcher of [/\/(\d+)(?:\/|$)/]) {
+            if (url.pathname.match(pathnameMatcher)) {
+              torrentData.id = url.pathname.match(pathnameMatcher)?.[1] || "";
+            }
+          }
+        }
+      }
+
+      console.debug("[PTD] Dropped data:", torrentData);
+      remoteDownloadDialogData.torrents = [torrentData];
+      remoteDownloadDialogData.show = true;
     } catch (e) {
       console.error("Failed to parse dropped data:", data);
     }
