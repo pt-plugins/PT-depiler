@@ -291,62 +291,16 @@ export function getMaxUserLevelId(levelRequirements: ILevelRequirement[]): TLeve
 export function getNextLevelUnMet(
   userInfo: IUserInfo,
   levelRequirements: ILevelRequirement[],
-): Array<Partial<IImplicitUserInfo & { level?: ILevelRequirement }>> {
-  const results: Array<Partial<IImplicitUserInfo & { level?: ILevelRequirement }>> = [];
+): Partial<IImplicitUserInfo & { level?: ILevelRequirement }> {
+  let nextLevelUnMet: Partial<IImplicitUserInfo> = {};
 
   const currentLevelId = userInfo.levelId ?? -1;
   if (currentLevelId < getMaxUserLevelId(levelRequirements)) {
     const nextLevelRequirement = levelRequirements.find((level) => level.id > currentLevelId);
-
-    if (nextLevelRequirement && nextLevelRequirement.alternative) {
-      // 如果有 alternative，分别计算每个选项
-      for (const alternative of nextLevelRequirement.alternative) {
-        // 创建一个临时的 levelRequirement，将 alternative 中的值覆盖到主要求中
-        const tempLevelRequirement = { ...nextLevelRequirement };
-
-        // 将 alternative 的属性覆盖到主要求中
-        for (const [key, value] of Object.entries(alternative)) {
-          if (value !== undefined && key !== "alternative") {
-            tempLevelRequirement[key as keyof ILevelRequirement] = value as any;
-          }
-        }
-
-        // 移除 alternative 属性，避免递归
-        delete tempLevelRequirement.alternative;
-
-        const unmetRequirement = levelRequirementUnMet(userInfo, tempLevelRequirement);
-        if (!isEmpty(unmetRequirement)) {
-          results.push({ ...unmetRequirement, level: nextLevelRequirement });
-        }
-      }
-    } else {
-      // 没有 alternative，使用原来的逻辑
-      const unmetRequirement = levelRequirementUnMet(userInfo, nextLevelRequirement!);
-      if (!isEmpty(unmetRequirement)) {
-        results.push({ ...unmetRequirement, level: nextLevelRequirement });
-      }
-    }
+    nextLevelUnMet = { ...levelRequirementUnMet(userInfo, nextLevelRequirement!), level: nextLevelRequirement };
   }
 
-  // 智能去重：只有当未满足条件完全相同时才去重
-  const uniqueResults: Array<Partial<IImplicitUserInfo & { level?: ILevelRequirement }>> = [];
-
-  for (const result of results) {
-    // 创建一个不包含 level 字段的副本用于比较
-    const { level, ...unmetPart } = result;
-
-    // 检查是否已经存在相同的未满足条件
-    const isDuplicate = uniqueResults.some((existingResult) => {
-      const { level: existingLevel, ...existingUnmetPart } = existingResult;
-      return JSON.stringify(unmetPart) === JSON.stringify(existingUnmetPart);
-    });
-
-    if (!isDuplicate) {
-      uniqueResults.push(result);
-    }
-  }
-
-  return uniqueResults;
+  return nextLevelUnMet;
 }
 
 export function guessUserLevelId(userInfo: IUserInfo, levelRequirements: ILevelRequirement[]): TLevelId {
