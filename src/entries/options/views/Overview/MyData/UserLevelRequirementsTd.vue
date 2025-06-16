@@ -42,7 +42,7 @@ const levelName = computed(() => {
   return matchedLevelRequirements.value?.name ?? userInfo.levelName;
 });
 
-const nextLevelUnMet = computedAsync(() => getNextLevelUnMet(userInfo, userLevelRequirements.value!), []);
+const nextLevelUnMet = computedAsync(() => getNextLevelUnMet(userInfo, userLevelRequirements.value!), {});
 
 const userLevelGroupType = computedAsync(() => {
   // 首先尝试从 matchedLevelRequirements 中找到对应的等级组
@@ -83,7 +83,7 @@ const userLevelGroupIcon = computed(() => {
             v-if="
               configStore.myDataTableControl.showNextLevelInTable &&
               userLevelGroupType === 'user' &&
-              nextLevelUnMet.length > 0
+              !isEmpty(nextLevelUnMet)
             "
           >
             <UserNextLevelUnMet
@@ -105,7 +105,7 @@ const userLevelGroupIcon = computed(() => {
                 v-if="
                   configStore.myDataTableControl.showNextLevelInDialog &&
                   userLevelGroupType === 'user' &&
-                  nextLevelUnMet.length > 0
+                  !isEmpty(nextLevelUnMet)
                 "
               >
                 <v-list-item border class="list-item-half-spacer px-1 py-0">
