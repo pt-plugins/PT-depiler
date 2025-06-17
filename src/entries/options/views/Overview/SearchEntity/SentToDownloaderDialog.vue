@@ -177,6 +177,7 @@ function dialogLeave() {
             <v-row>
               <v-autocomplete
                 v-model="selectedDownloader"
+                :filter-keys="['raw.name', 'raw.address', 'raw.username']"
                 :items="metadataStore.getEnabledDownloaders"
                 clearable
                 placeholder="选择下载器"
