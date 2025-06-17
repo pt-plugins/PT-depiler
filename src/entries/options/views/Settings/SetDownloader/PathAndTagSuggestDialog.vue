@@ -142,6 +142,10 @@ function saveClientConfig() {
             </v-expansion-panel-title>
 
             <v-expansion-panel-text>
+              <v-alert v-if="clientMetadata?.feature?.CustomPath.description" closable type="info" variant="outlined">
+                {{ clientMetadata?.feature?.CustomPath.description }}
+              </v-alert>
+
               <v-list density="compact">
                 <v-list-subheader v-if="clientConfig!.suggestFolders!.length > 0">
                   {{ t("SetDownloader.PathAndTag.downloadPath.addTitle") }}

@@ -19,6 +19,13 @@ import urlJoin from "url-join";
 import { getRemoteTorrentFile } from "../utils";
 import { merge } from "es-toolkit";
 
+/**
+ * 定义一个 前缀，用于标识 qBittorrent 的分类
+ * 如果用户传入的 savePath 中包含了这个前缀，则认为是 qBittorrent 的分类
+ * 则设置 autoTMM = true & category = savePath.replace(category_prefix, "")
+ */
+const category_prefix = "category:";
+
 export const clientConfig: TorrentClientConfig = {
   type: "qBittorrent",
   name: "qBittorrent",
@@ -39,7 +46,9 @@ export const clientMetaData: TorrentClientMetaData = {
   feature: {
     CustomPath: {
       allowed: true,
-      description: CustomPathDescription,
+      description:
+        CustomPathDescription +
+        `（ qBittorrent 额外支持以 "${category_prefix}" 前缀的分类作为下载目录，当使用该前缀时，请在 qBittorrent 中预设分类信息。）`,
     },
     DefaultAutoStart: {
       allowed: true,
@@ -288,9 +297,18 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     }
 
     // 将通用字段转成qbt字段
+    let autoTMM = "false"; // 是否开启自动管理
     if (options.savePath) {
-      formData.append("savepath", options.savePath); // Download folder
+      // 如果是 qBittorrent 的分类，则设置 autoTMM = true & category = savePath.replace(category_prefix, "")
+      if (options.savePath.startsWith(category_prefix)) {
+        autoTMM = "true"; // 开启自动管理
+        formData.append("category", options.savePath.replace(category_prefix, "")); // 分类名称
+      } else {
+        formData.append("savepath", options.savePath); // Download folder
+      }
     }
+
+    formData.append("autoTMM", autoTMM);
 
     if (options.label) {
       formData.append("tags", options.label); // Tags for the torrent
@@ -305,9 +323,6 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
       // Upload speed limit in bytes/sec, -1 means no limit
       formData.append("upLimit", (options.uploadSpeedLimit * 1024 * 1024).toString());
     }
-
-    // Whether Automatic Torrent Management should be used, disables use of savepath
-    formData.append("useAutoTMM", "false"); // 关闭自动管理
 
     // formData.append('skip_checking', 'false'); // Skip hash checking. Possible values are true, false (default)
 
@@ -416,6 +431,19 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     };
     await this.request("/torrents/resume", { params });
     return true;
+  }
+
+  private async getClientCategories(): Promise<Record<string, { name: string; savePath: string }>> {
+    const { data: categories } =
+      await this.request<Record<string, { name: string; savePath: string }>>("/torrents/categories");
+    return categories;
+  }
+
+  public override async getClientPaths(): Promise<string[]> {
+    const savePaths: string[] = await super.getClientPaths();
+    const categories = await this.getClientCategories();
+
+    return [...Object.keys(categories).map((cat) => category_prefix + cat), ...savePaths].filter(Boolean);
   }
 
   // 获取客户端中的已有的标签
