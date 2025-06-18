@@ -189,6 +189,13 @@ const createPerSiteChartOptionsFn = (
         emphasis: {
           focus: "series",
         },
+        label: {
+          show: true,
+          position: "top",
+          formatter: (params: any) => {
+            return formatDict[format](params.value);
+          },
+        },
         stack: "site",
         tooltip: {
           formatter: (params: any) => {
