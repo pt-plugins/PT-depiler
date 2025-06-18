@@ -1,0 +1,90 @@
+import type { ISiteMetadata } from "../types";
+
+export const siteMetadata: ISiteMetadata = {
+  version: 1,
+  id: "tosky",
+  name: "ToSky",
+  tags: ["综合"],
+
+  type: "private",
+  schema: "NexusPHP",
+
+  urls: ["https://t.tosky.club/"],
+
+  isDead: true,
+
+  levelRequirements: [
+    {
+      id: 1,
+      name: "Power User",
+      interval: "P4W",
+      downloaded: "50GB",
+      ratio: 1,
+      seedingBonus: 40000,
+      privilege: "直接发布种子；查看NFO文档；删除自己上传的字幕。",
+    },
+    {
+      id: 2,
+      name: "Elite User",
+      interval: "P8W",
+      downloaded: "150GB",
+      ratio: 1.5,
+      seedingBonus: 80000,
+      privilege: "首次升级至此等级的用户将获得1个邀请名额。",
+    },
+    {
+      id: 3,
+      name: "Crazy User",
+      interval: "P13W",
+      downloaded: "500GB",
+      ratio: 2,
+      seedingBonus: 150000,
+      privilege: "",
+    },
+    {
+      id: 4,
+      name: "Insane User",
+      interval: "P23W",
+      downloaded: "800GB",
+      ratio: 2.5,
+      seedingBonus: 250000,
+      privilege: "",
+    },
+    {
+      id: 5,
+      name: "Veteran User",
+      interval: "P35W",
+      downloaded: "1.5TB",
+      ratio: 3,
+      seedingBonus: 400000,
+      privilege: "",
+    },
+    {
+      id: 6,
+      name: "Extreme User",
+      interval: "P50W",
+      downloaded: "2.5TB",
+      ratio: 3.5,
+      seedingBonus: 600000,
+      privilege: "",
+    },
+    {
+      id: 7,
+      name: "Ultimate User",
+      interval: "P65W",
+      downloaded: "3.5TB",
+      ratio: 4,
+      seedingBonus: 800000,
+      privilege: "",
+    },
+    {
+      id: 8,
+      name: "Nexus Master",
+      interval: "P80W",
+      downloaded: "4.5TB",
+      ratio: 5,
+      seedingBonus: 1000000,
+      privilege: "",
+    },
+  ],
+};

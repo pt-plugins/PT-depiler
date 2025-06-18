@@ -37,7 +37,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P4W",
       downloaded: "50GB",
       ratio: 1.0,
-      seedingPoints: 50000,
+      seedingBonus: 50000,
       privilege: "得到一个邀请名额；可以直接发布种子； 可以删除自己上传的字幕。",
     },
     {
@@ -46,7 +46,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P8W",
       downloaded: "120GB",
       ratio: 1.5,
-      seedingPoints: 100000,
+      seedingBonus: 100000,
       privilege: "权限同 Power User。",
     },
     {
@@ -55,7 +55,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P15W",
       downloaded: "256GB",
       ratio: 2.0,
-      seedingPoints: 250000,
+      seedingBonus: 250000,
       privilege: "得到两个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
     },
     {
@@ -64,7 +64,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P30W",
       downloaded: "512GB",
       ratio: 2.5,
-      seedingPoints: 400000,
+      seedingBonus: 400000,
       privilege: "可以查看普通日志。",
     },
     {
@@ -73,7 +73,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P40W",
       downloaded: "1TB",
       ratio: 3.0,
-      seedingPoints: 600000,
+      seedingBonus: 600000,
       privilege: "得到三个邀请名额；可以查看其它用户的评论、帖子历史。",
     },
     {
@@ -82,7 +82,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P50W",
       downloaded: "2TB",
       ratio: 3.5,
-      seedingPoints: 800000,
+      seedingBonus: 800000,
       privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。Extreme User及以上用户会永远保留账号。",
     },
     {
@@ -91,7 +91,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P60W",
       downloaded: "4TB",
       ratio: 4.0,
-      seedingPoints: 1000000,
+      seedingBonus: 1000000,
       privilege: "得到五个邀请名额。",
     },
     {
@@ -100,7 +100,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P100W",
       downloaded: "10TB",
       ratio: 5.0,
-      seedingPoints: 1688888,
+      seedingBonus: 1688888,
       privilege: "得到十个邀请名额。",
     },
     {

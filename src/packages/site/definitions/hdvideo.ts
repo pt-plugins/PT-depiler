@@ -21,7 +21,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P4W",
       downloaded: "128GB",
       ratio: 2.0,
-      seedingPoints: "60480",
+      seedingBonus: 60480,
       privilege:
         '得到一个邀请名额；可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种； 可以发送邀请； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
     },
@@ -31,7 +31,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P8W",
       downloaded: "256GB",
       ratio: 2.5,
-      seedingPoints: "137088",
+      seedingBonus: 137088,
       privilege: "Elite User及以上用户封存账号后不会被删除。",
     },
     {
@@ -40,7 +40,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P12W",
       downloaded: "512GB",
       ratio: 3.0,
-      seedingPoints: "262080",
+      seedingBonus: 262080,
       privilege: "可以在做种/下载/发布的时候选择匿名模式。",
     },
     {
@@ -49,7 +49,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P18W",
       downloaded: "1TB",
       ratio: 3.5,
-      seedingPoints: "453600",
+      seedingBonus: 453600,
       privilege: "得到两个邀请名额；可以查看普通日志。",
     },
     {
@@ -58,7 +58,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P24W",
       downloaded: "2TB",
       ratio: 4.0,
-      seedingPoints: "604800",
+      seedingBonus: 604800,
       privilege: "可以查看其它用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。",
     },
     {
@@ -67,7 +67,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P32W",
       downloaded: "4TB",
       ratio: 4.5,
-      seedingPoints: "806400",
+      seedingBonus: 806400,
       privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。",
     },
     {
@@ -76,7 +76,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P40W",
       downloaded: "6TB",
       ratio: 5.0,
-      seedingPoints: "1008000",
+      seedingBonus: 1008000,
       privilege: "得到三个邀请名额。",
     },
     {
@@ -85,7 +85,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P52W",
       downloaded: "8TB",
       ratio: 5.5,
-      seedingPoints: "1310400",
+      seedingBonus: 1310400,
       privilege: "得到五个邀请名额。",
     },
   ],
