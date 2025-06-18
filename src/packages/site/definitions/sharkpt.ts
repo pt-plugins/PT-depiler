@@ -1,0 +1,91 @@
+import type { ISiteMetadata } from "../types";
+
+export const siteMetadata: ISiteMetadata = {
+  version: 1,
+  id: "sharkpt",
+  name: "鲨鱼PT",
+  tags: ["影视", "综合"],
+  collaborator: ["zhuweitung", "yum"],
+
+  type: "private",
+  schema: "NexusPHP",
+
+  urls: ["https://sharkpt.net/"],
+
+  isDead: true,
+
+  levelRequirements: [
+    {
+      id: 1,
+      name: "Power User",
+      interval: "P5W",
+      downloaded: "30GB",
+      ratio: 1.0,
+      seedingPoints: 100000,
+      privilege: "请求续种；查看NFO文档；发送邀请；查看排行榜；删除自己的字幕；发布种子；购买邀请；允许个性条。",
+    },
+    {
+      id: 2,
+      name: "Elite User",
+      interval: "P13W",
+      downloaded: "60GB",
+      ratio: 1.0,
+      seedingPoints: 300000,
+      privilege: "",
+    },
+    {
+      id: 3,
+      name: "Crazy User",
+      interval: "P18W",
+      downloaded: "90GB",
+      ratio: 1.0,
+      seedingPoints: 600000,
+      privilege: "查看特别区种子。",
+    },
+    {
+      id: 4,
+      name: "Insane User",
+      interval: "P43W",
+      downloaded: "120GB",
+      ratio: 1.0,
+      seedingPoints: 1000000,
+      privilege: "",
+    },
+    {
+      id: 5,
+      name: "Veteran User",
+      interval: "P65W",
+      downloaded: "150GB",
+      ratio: 1.0,
+      seedingPoints: 1500000,
+      privilege: "查看历史记录。",
+    },
+    {
+      id: 6,
+      name: "Extreme User",
+      interval: "P90W",
+      downloaded: "180GB",
+      ratio: 1.0,
+      seedingPoints: 2100000,
+      privilege: "更新外部信息。",
+    },
+    {
+      id: 7,
+      name: "Ultimate User",
+      interval: "P120W",
+      downloaded: "210GB",
+      ratio: 1.0,
+      seedingPoints: 2800000,
+      privilege: "查看种子结构。",
+    },
+    {
+      id: 8,
+      name: "Nexus Master",
+      interval: "P155W",
+      downloaded: "240GB",
+      ratio: 1.0,
+      seedingPoints: 3600000,
+      privilege: "",
+    },
+  ],
+};
