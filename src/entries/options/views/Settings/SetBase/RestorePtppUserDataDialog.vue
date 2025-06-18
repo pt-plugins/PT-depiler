@@ -192,15 +192,26 @@ async function entryDialog() {
   // 构造 allSupportedSiteHostMap
   const siteHostMap: Record<TSiteHost, TSiteID> = {};
   for (const siteId of definitionList) {
+    // 用户自定义的 url
     if (metadataStore.sites[siteId]?.url) {
       siteHostMap[getHostFromUrl(metadataStore.sites[siteId].url)] = siteId;
     }
+
+    // 站点定义中的 urls
     const urls = await metadataStore.getSiteMergedMetadata(siteId, "urls", []);
     if (urls.length > 0) {
       for (const url of urls) {
         siteHostMap[getHostFromUrl(url)] = siteId;
       }
     }
+
+    // 站点定义中的 host
+    const host = await metadataStore.getSiteMergedMetadata(siteId, "host", "");
+    if (host) {
+      siteHostMap[host] = siteId;
+    }
+
+    // 站点定义中的 formerHosts
     const formerHosts = (await metadataStore.getSiteMergedMetadata(siteId, "formerHosts", []))!;
     if (formerHosts.length > 0) {
       for (const host of formerHosts) {

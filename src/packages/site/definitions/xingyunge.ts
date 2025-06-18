@@ -1,18 +1,19 @@
 import type { ISiteMetadata } from "../types";
+import { SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
+  ...SchemaMetadata,
+
   version: 1,
   id: "xingyunge",
   name: "星陨阁",
   description: "三十年河东，三十年河西！莫欺少年穷！",
-  tags: ["综合", "影视"],
+  tags: ["综合", "影视", "国漫"],
 
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://xingyunge.top/"],
-
-  isDead: true,
+  urls: ["https://pt.xingyungept.org/", "https://xingyunge.top/"],
 
   levelRequirements: [
     {
