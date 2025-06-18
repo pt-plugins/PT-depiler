@@ -34,6 +34,7 @@ import NavButton from "@/options/components/NavButton.vue";
 import CheckSwitchButton from "@/options/components/CheckSwitchButton.vue";
 
 import { type IUserDataStatistic, loadFullData, setSubDate } from "./utils.ts";
+import { NO_IMAGE } from "@ptd/site";
 
 type EChartsLineChartOption = ComposeOption<
   TitleComponentOption | TooltipComponentOption | LegendComponentOption | GridComponentOption | LineSeriesOption
@@ -165,6 +166,13 @@ const totalSiteSeedingInfoChartOptions = computed(() => {
   } as EChartsLineChartOption;
 });
 
+// Echart 不支持在 tooltip 中直接获取鼠标悬停的系列索引，所以我们需要通过 mousemove 事件手动记录
+const lastHoveredSeriesIndex = ref<number>(-1);
+
+function updateLastHoveredSeriesIndex(data: any) {
+  lastHoveredSeriesIndex.value = data?.seriesIndex ?? -1; // 获取鼠标悬停的系列索引
+}
+
 const createPerSiteChartOptionsFn = (
   field: keyof IStoredUserInfo,
   format: keyof typeof formatDict,
@@ -190,17 +198,6 @@ const createPerSiteChartOptionsFn = (
           focus: "series",
         },
         stack: "site",
-        tooltip: {
-          formatter: (params: any) => {
-            const siteName = allAddedSiteMetadata[site]?.siteName ?? site;
-            const siteFavicon = allAddedSiteMetadata[site]?.faviconSrc ?? "";
-
-            return (
-              `<div class="d-inline-flex align-center"><img src="${siteFavicon}" class="mr-1" style="width:16px; height: 16px; " alt="${siteName}">${siteName}</div>` +
-              `<div style='color: ${params.color}'>${params.marker}${params.name}: ${formatDict[format](params.value)}</div>`
-            );
-          },
-        },
         data,
       };
     });
@@ -212,7 +209,47 @@ const createPerSiteChartOptionsFn = (
         text: `[${configStore.userName}] ${t("UserDataStatistic.chart.perSiteK" + field + (incr ? "Incr" : ""))}`,
         left: "center",
       },
-      tooltip: { trigger: "item" },
+      tooltip: {
+        trigger: "axis",
+        axisPointer: {
+          type: "shadow",
+        },
+        formatter: (params: any[]) => {
+          let ret = "";
+          const date = params?.[0]?.name ?? "No Date"; // 从params 中拿到日期
+          ret += `<span class="font-weight-bold">${date}</span><br>`;
+
+          const totalCount = params.reduce((acc, cur) => acc + (Number(cur.data) || 0), 0); // 算出总和
+          if (totalCount > 0) {
+            ret += '<table style="width: 100%;">';
+            ret += `<tr class="font-weight-bold" style="border-bottom: 1pt solid black;"><td class="pr-3">总和</td><td class="pr-3 text-right">${formatDict[format](totalCount)}</td><td class="text-right">100%</td></tr>`;
+
+            const sortedParams = params.sort((a, b) => b.data - a.data);
+
+            for (const data of sortedParams) {
+              const dataValue = Number(data.data) || 0;
+
+              if (dataValue === 0) continue; // 跳过无数据的站点
+              const site = data.seriesName;
+              const siteName = allAddedSiteMetadata[site]?.siteName ?? site;
+              const siteFavicon = allAddedSiteMetadata[site]?.faviconSrc ?? NO_IMAGE;
+              const precentValue = ((dataValue / totalCount) * 100).toFixed(2);
+              const colorStyle = lastHoveredSeriesIndex.value === data.seriesIndex ? `color: ${data.color};` : ""; // 是否高亮此行
+
+              ret += `<tr style='${colorStyle}'>
+<td class="pr-3"><div class="d-inline-flex align-center"><img src="${siteFavicon}" class="mr-1" style="width:16px; height: 16px; " alt="${siteName}">${siteName}</div></td>
+<td class="pr-3 text-right">${formatDict[format](data.value)}</td>
+<td class="text-right">${precentValue}%</td>
+</tr>`;
+            }
+            ret += "</table>";
+          } else {
+            ret += `无数据`;
+          }
+
+          return ret;
+        },
+      },
       legend: {
         data: seriesTotal.sort((a, b) => b.value - a.value).map((x) => x.name),
         bottom: 10,
@@ -345,6 +382,7 @@ function saveControl() {
             :style="{ height: `${perChartHeight}px` }"
             autoresize
             class="chart"
+            @mousemove="updateLastHoveredSeriesIndex"
           />
           <v-chart
             v-if="
@@ -356,6 +394,7 @@ function saveControl() {
             :style="{ height: `${perChartHeight}px` }"
             autoresize
             class="chart"
+            @mousemove="updateLastHoveredSeriesIndex"
           />
         </template>
       </v-col>
