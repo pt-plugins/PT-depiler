@@ -1,6 +1,6 @@
 import { ref } from "vue";
 import { differenceInDays } from "date-fns";
-import { EResultParseStatus, ISiteMetadata, ISiteUserConfig, IUserInfo, TSiteID } from "@ptd/site";
+import { EResultParseStatus, ISiteUserConfig, IUserInfo, TSiteID } from "@ptd/site";
 
 import { IStoredUserInfo } from "@/shared/types.ts";
 import { deepToRaw, formatSize } from "@/options/utils.ts";
@@ -48,12 +48,6 @@ interface ITimelineData {
   totalInfo: {
     sites: number;
   } & Required<Pick<IUserInfo, ITimelineUserInfoField["name"] | "ratio">>;
-}
-
-export interface ITimelineSiteMetadata extends Pick<ISiteMetadata, "id"> {
-  siteName: string; // 解析后的站点名称
-  hasUserInfo: boolean; // 是否有用户配置
-  faviconElement: HTMLImageElement; // 站点的图片
 }
 
 export function canThisSiteShow(siteId: TSiteID) {

@@ -1,4 +1,4 @@
-import { isEmpty } from "es-toolkit/compat";
+import { shallowReactive } from "vue";
 import { definitionList, fixRatio, ISiteMetadata, IUserInfo, NO_IMAGE, TSiteID } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
@@ -73,33 +73,39 @@ export interface ITimelineSiteMetadata extends Pick<ISiteMetadata, "id"> {
 
 export type TOptionSiteMetadatas = Record<TSiteID, ITimelineSiteMetadata>;
 
-export const allAddedSiteMetadata: TOptionSiteMetadatas = {};
+export const allAddedSiteMetadata = shallowReactive<TOptionSiteMetadatas>({});
 
-export async function loadAllAddedSiteMetadata(): Promise<TOptionSiteMetadatas> {
-  if (isEmpty(allAddedSiteMetadata)) {
-    for (const siteId of definitionList) {
-      const siteMetadata = await metadataStore.getSiteMetadata(siteId);
-      const siteFaviconUrl = await sendMessage("getSiteFavicon", { site: siteId });
+export async function loadAllAddedSiteMetadata(sites?: string[]): Promise<TOptionSiteMetadatas> {
+  const loadSites = sites ?? definitionList;
 
-      // 加载站点图标
-      const siteFavicon = new Image();
-      siteFavicon.src = siteFaviconUrl;
-      try {
-        await siteFavicon.decode();
-      } catch (e) {
-        siteFavicon.src = NO_IMAGE;
-        await siteFavicon.decode();
-      }
+  await Promise.allSettled(
+    loadSites.map((siteId) => {
+      return new Promise<void>(async (resolve) => {
+        if (!allAddedSiteMetadata[siteId]) {
+          const siteMetadata = await metadataStore.getSiteMetadata(siteId);
+          const siteFaviconUrl = await sendMessage("getSiteFavicon", { site: siteId });
 
-      (allAddedSiteMetadata as TOptionSiteMetadatas)[siteId] = {
-        id: siteId,
-        siteName: await metadataStore.getSiteName(siteId),
-        hasUserInfo: Object.hasOwn(siteMetadata, "userInfo"),
-        faviconSrc: siteFaviconUrl,
-        faviconElement: siteFavicon,
-      };
-    }
-  }
+          // 加载站点图标
+          const siteFavicon = new Image();
+          siteFavicon.src = siteFaviconUrl;
+          siteFavicon.decode().catch(() => {
+            siteFavicon.src = NO_IMAGE;
+            siteFavicon.decode();
+          });
+
+          (allAddedSiteMetadata as TOptionSiteMetadatas)[siteId] = {
+            id: siteId,
+            siteName: await metadataStore.getSiteName(siteId),
+            hasUserInfo: Object.hasOwn(siteMetadata, "userInfo"),
+            faviconSrc: siteFaviconUrl,
+            faviconElement: siteFavicon,
+          };
+        }
+
+        resolve();
+      });
+    }),
+  );
 
   return allAddedSiteMetadata;
 }

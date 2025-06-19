@@ -191,7 +191,7 @@ onMounted(async () => {
   isLoading.value = true;
 
   // 加载所有站点的元数据
-  await loadAllAddedSiteMetadata();
+  await loadAllAddedSiteMetadata(Object.keys(metadataStore.sites));
 
   realAllSite.value = Object.values(metadataStore.lastUserInfo)
     .map((x) => x.site)
@@ -199,7 +199,6 @@ onMounted(async () => {
 
   // 从 route 中加载选择的站点，如果没有，则选择默认全部可以的站点（注意，这里我们不记住选择过的站点！！）
   const { sites = [] } = route.query ?? {};
-  console.log(realAllSite.value);
   selectedSites.value = ((sites as string[]).length > 0 ? sites : realAllSite.value) as string[];
 
   // 开始生成 timeline 的数据

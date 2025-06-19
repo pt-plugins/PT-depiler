@@ -280,7 +280,7 @@ onMounted(async () => {
   rawDataRef.value = await loadFullData();
 
   // 加载所有站点的元数据
-  await loadAllAddedSiteMetadata();
+  await loadAllAddedSiteMetadata(Object.keys(rawDataRef.value.siteDateRange));
 
   // 从路由中加载默认参数
   const { days = -1, sites = [] } = route.query ?? {};
