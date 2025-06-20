@@ -18,7 +18,7 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
-      name: "Power User",
+      name: "大斗师(Power User)",
       interval: "P4W",
       downloaded: "50GB",
       ratio: 1.05,
@@ -28,7 +28,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 2,
-      name: "Elite User",
+      name: "斗灵(Elite User)",
       interval: "P8W",
       downloaded: "120GB",
       ratio: 1.55,
@@ -37,7 +37,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 3,
-      name: "Crazy User",
+      name: "斗王(Crazy User)",
       interval: "P15W",
       downloaded: "300GB",
       ratio: 2.05,
@@ -46,7 +46,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 4,
-      name: "Insane User",
+      name: "斗皇(Insane User)",
       interval: "P25W",
       downloaded: "500GB",
       ratio: 2.55,
@@ -55,7 +55,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 5,
-      name: "Veteran User",
+      name: "斗宗(Veteran User)",
       interval: "P40W",
       downloaded: "750GB",
       ratio: 3.05,
@@ -64,7 +64,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 6,
-      name: "Extreme User",
+      name: "斗尊(Extreme User)",
       interval: "P60W",
       downloaded: "1TB",
       ratio: 3.55,
@@ -73,7 +73,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 7,
-      name: "Ultimate User",
+      name: "斗圣(Ultimate User)",
       interval: "P80W",
       downloaded: "1.5TB",
       ratio: 4.05,
@@ -82,7 +82,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 8,
-      name: "Nexus Master",
+      name: "斗帝(Nexus Master)",
       interval: "P100W",
       downloaded: "3TB",
       ratio: 4.55,
