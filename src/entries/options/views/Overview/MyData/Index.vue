@@ -19,7 +19,7 @@ import NavButton from "@/options/components/NavButton.vue";
 import UserLevelRequirementsTd from "./UserLevelRequirementsTd.vue";
 import HistoryDataViewDialog from "./HistoryDataViewDialog.vue";
 
-import { formatRatio, flushSiteLastUserInfo, fixUserInfo, cancelFlushSiteLastUserInfo } from "./utils.ts";
+import { cancelFlushSiteLastUserInfo, fixUserInfo, flushSiteLastUserInfo, formatRatio } from "./utils.ts";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -433,11 +433,13 @@ function viewStatistic() {
             :max="10"
             color="error"
           >
-            <SiteFavicon
-              :site-id="item.site"
-              :size="configStore.myDataTableControl.showSiteName ? 18 : 24"
-              @click="() => flushSiteLastUserInfo([item.site])"
-            />
+            <div class="favicon-hover-wrapper favicon-hover-bg">
+              <SiteFavicon
+                :site-id="item.site"
+                :size="configStore.myDataTableControl.showSiteName ? 18 : 24"
+                @click="() => flushSiteLastUserInfo([item.site])"
+              />
+            </div>
           </v-badge>
 
           <SiteName v-if="configStore.myDataTableControl.showSiteName" :site-id="item.site" />
@@ -644,4 +646,19 @@ function viewStatistic() {
   <HistoryDataViewDialog v-model="showHistoryDataViewDialog" :site-id="historyDataViewDialogSiteId!" />
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.favicon-hover-wrapper {
+  cursor: pointer;
+}
+
+.favicon-hover-bg {
+  border-radius: 50%;
+  transition: background 0.2s;
+  display: inline-flex;
+  padding: 4px;
+}
+
+.favicon-hover-bg:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+</style>
