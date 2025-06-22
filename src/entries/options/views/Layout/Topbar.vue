@@ -47,6 +47,11 @@ function startSearchEntity() {
     },
   });
 }
+
+function advanceSearch(type?: string) {
+  searchKey.value = (type ? type + "|" : "") + searchKey.value.replace(/^\w+\|/, ""); // 移除已有的搜索类型前缀
+  startSearchEntity();
+}
 </script>
 
 <template>
@@ -72,20 +77,31 @@ function startSearchEntity() {
     </v-app-bar-title>
 
     <!-- 搜索输入框 -->
-    <v-text-field
+    <v-combobox
       v-model="searchKey"
       :placeholder="t('layout.header.searchTip')"
       class="ptd-search-input pl-2"
       hide-details
+      :items="searchKey ? [searchKey] : undefined"
       style="width: 300px"
       @keydown.enter="startSearchEntity"
     >
       <template #append>
+        <!-- 搜索按键 -->
         <v-btn :disabled="runtimeStore.search.isSearching" icon="mdi-magnify" @click="startSearchEntity" />
       </template>
 
-      <!-- 搜索方案选择框 -->
+      <template #item="{ props, item }">
+        <v-list-item v-if="searchKey" @click="startSearchEntity" :title="`直接搜索 ”${searchKey}“`" />
+        <v-list-item
+          v-if="searchKey?.startsWith('tt')"
+          @click="advanceSearch('imdb')"
+          :title="`使用IMDb号搜索 ”${searchKey}“`"
+        />
+      </template>
+
       <template #prepend-inner>
+        <!-- 搜索方案选择框 -->
         <v-menu>
           <template v-slot:activator="{ props }">
             <v-btn v-bind="props" color="primary">
@@ -127,7 +143,7 @@ function startSearchEntity() {
           </v-list>
         </v-menu>
       </template>
-    </v-text-field>
+    </v-combobox>
 
     <v-spacer v-if="display.smAndUp.value" />
 
