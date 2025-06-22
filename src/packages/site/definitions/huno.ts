@@ -222,8 +222,11 @@ export const siteMetadata: ISiteMetadata = {
       },
       hnrPreWarning: {
         // 考核中的 HR
-        selector: ["tr[class='userFiltered'][hr='0'][immune='0']"],
-        filters: [(query) => (query ? (query.length ?? 0) : 0)],
+        selector: ["div[view='unsatisfieds'] tbody"],
+        elementProcess: (element: Element) => {
+          const length = element.querySelectorAll("tr.userFiltered[hr='0'][immune='0']").length;
+          return length > 0 ? length : 0;
+        },
       },
       hnrUnsatisfied: {
         // 已被扣分的 HR
