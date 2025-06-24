@@ -387,10 +387,6 @@ export default class SpringSunday extends NexusPHP {
         selector: "b:eq(1)",
         filters: [{ name: "parseSize" }],
       });
-      flushUserInfo.bonusPerHour = this.getFieldData(userSeedingDocument, {
-        selector: "b:eq(4)",
-        filters: [{ name: "parseNumber" }],
-      });
     } else {
       return super.parseUserInfoForSeedingStatus(flushUserInfo); // 回落到默认的处理
     }
