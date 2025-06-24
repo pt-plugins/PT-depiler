@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import { VueDraggable } from "vue-draggable-plus";
 import { getDownloader, getDownloaderMetaData, type TorrentClientMetaData } from "@ptd/downloader";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -44,23 +43,15 @@ watch(
   { immediate: true },
 );
 
-const suggestFolderInput = ref<string>("");
-function addSuggestFolder(inputs: string) {
-  for (let input of inputs.split("\n")) {
-    input = input.trim();
-    if (input !== "" && !clientConfig.value?.suggestFolders!.includes(input)) {
-      clientConfig.value?.suggestFolders!.push(input);
-    }
-  }
-  suggestFolderInput.value = "";
-}
-
-function removeSuggestFolder(folder: string) {
-  const folderId = clientConfig.value!.suggestFolders!.indexOf(folder);
-  if (folderId > -1) {
-    clientConfig.value?.suggestFolders!.splice(folderId, 1);
-  }
-}
+const suggestFolderInput = computed({
+  get: () => (clientConfig.value?.suggestFolders ?? []).join("\n"),
+  set: (value) => {
+    clientConfig.value!.suggestFolders = value
+      .split("\n")
+      .map((v) => v.trim())
+      .filter(Boolean);
+  },
+});
 
 const isLoadingClientFolders = ref<boolean>(false);
 async function loadClientFolders() {
@@ -69,7 +60,8 @@ async function loadClientFolders() {
   try {
     const clientPaths = await client.getClientPaths();
     for (const path of clientPaths) {
-      addSuggestFolder(path);
+      if ((clientConfig.value?.suggestFolders ?? []).includes(path)) continue; // 避免重复添加
+      suggestFolderInput.value += "\n" + path;
     }
   } catch (e) {
     runtimeStore.showSnakebar(t("SetDownloader.PathAndTag.downloadPath.autoImportFail"), { color: "error" });
@@ -78,23 +70,15 @@ async function loadClientFolders() {
   isLoadingClientFolders.value = false;
 }
 
-const suggestTagInput = ref<string>("");
-function addSuggestTag(inputs: string) {
-  for (let input of inputs.split("\n")) {
-    input = input.trim();
-    if (input !== "" && !clientConfig.value?.suggestTags!.includes(input)) {
-      clientConfig.value?.suggestTags!.push(input);
-    }
-  }
-  suggestTagInput.value = "";
-}
-
-function removeSuggestTag(tag: string) {
-  const tagId = clientConfig.value!.suggestTags!.indexOf(tag);
-  if (tagId > -1) {
-    clientConfig.value?.suggestTags!.splice(tagId, 1);
-  }
-}
+const suggestTagInput = computed({
+  get: () => (clientConfig.value?.suggestTags ?? []).join("\n"),
+  set: (value) => {
+    clientConfig.value!.suggestTags = value
+      .split("\n")
+      .map((v) => v.trim())
+      .filter(Boolean);
+  },
+});
 
 const isLoadingClientLabels = ref<boolean>(false);
 async function loadClientLabels() {
@@ -103,7 +87,8 @@ async function loadClientLabels() {
   try {
     const clientLabels = await client.getClientLabels();
     for (const label of clientLabels) {
-      addSuggestTag(label);
+      if ((clientConfig.value?.suggestTags ?? []).includes(label)) continue; // 避免重复添加
+      suggestTagInput.value += "\n" + label;
     }
   } catch (e) {
     runtimeStore.showSnakebar(t("SetDownloader.PathAndTag.tags.autoImportFail"), { color: "error" });
@@ -148,68 +133,37 @@ function saveClientConfig() {
                 {{ clientMetadata?.feature?.CustomPath.description }}
               </v-alert>
 
-              <v-list density="compact">
-                <v-list-subheader v-if="clientConfig!.suggestFolders!.length > 0">
-                  {{ t("SetDownloader.PathAndTag.downloadPath.addTitle") }}
-                </v-list-subheader>
-                <vue-draggable v-model="clientConfig!.suggestFolders!">
-                  <v-list-item
-                    v-for="item in clientConfig!.suggestFolders"
-                    :key="item"
-                    :title="item"
-                    class="list-item-half-spacer"
+              <v-textarea
+                v-model="suggestFolderInput"
+                :label="t('SetDownloader.PathAndTag.downloadPath.addInputLabel')"
+                class="mt-2"
+              >
+                <template #append>
+                  <div class="d-flex flex-column">
+                    <v-btn
+                      :loading="isLoadingClientFolders"
+                      :title="t('SetDownloader.PathAndTag.downloadPath.autoImport')"
+                      color="primary"
+                      icon="mdi-import"
+                      variant="text"
+                      @click="loadClientFolders"
+                    />
+                    <v-btn color="red" icon="$clear" variant="text" @click="suggestFolderInput = ''" />
+                  </div>
+                </template>
+                <template #details>
+                  <v-chip
+                    v-for="pathReplace in pathReplaceMap"
+                    :key="pathReplace[1]"
+                    :title="pathReplace[2]"
+                    class="mr-1"
+                    size="small"
+                    @click="() => (suggestFolderInput += '/' + pathReplace[1])"
                   >
-                    <template #prepend>
-                      <v-icon color="amber" icon="mdi-folder" size="large"></v-icon>
-                    </template>
-                    <template #append>
-                      <v-btn
-                        color="error"
-                        icon="mdi-delete"
-                        size="small"
-                        variant="text"
-                        @click="removeSuggestFolder(item)"
-                      ></v-btn>
-                    </template>
-                  </v-list-item>
-                </vue-draggable>
-                <v-list-item class="px-0">
-                  <v-textarea
-                    v-model="suggestFolderInput"
-                    :label="t('SetDownloader.PathAndTag.downloadPath.addInputLabel')"
-                    clearable
-                  >
-                    <template #append>
-                      <v-btn
-                        icon="mdi-keyboard-return"
-                        variant="text"
-                        @click="addSuggestFolder(suggestFolderInput)"
-                      ></v-btn>
-                    </template>
-                    <template #prepend>
-                      <v-btn
-                        :loading="isLoadingClientFolders"
-                        :title="t('SetDownloader.PathAndTag.downloadPath.autoImport')"
-                        icon="mdi-import"
-                        variant="text"
-                        @click="loadClientFolders"
-                      ></v-btn>
-                    </template>
-                    <template #details>
-                      <v-chip
-                        v-for="pathReplace in pathReplaceMap"
-                        :key="pathReplace[1]"
-                        :title="pathReplace[2]"
-                        class="mr-1"
-                        size="small"
-                        @click="() => (suggestFolderInput += '/' + pathReplace[1])"
-                      >
-                        {{ pathReplace[1] }}
-                      </v-chip>
-                    </template>
-                  </v-textarea>
-                </v-list-item>
-              </v-list>
+                    {{ pathReplace[1] }}
+                  </v-chip>
+                </template>
+              </v-textarea>
             </v-expansion-panel-text>
           </v-expansion-panel>
           <v-expansion-panel value="tag">
@@ -221,64 +175,33 @@ function saveClientConfig() {
               </v-chip>
             </v-expansion-panel-title>
             <v-expansion-panel-text>
-              <v-list density="compact">
-                <v-list-subheader v-if="clientConfig!.suggestTags!.length > 0">
-                  {{ t("SetDownloader.PathAndTag.tags.addTitle") }}
-                </v-list-subheader>
-                <vue-draggable v-model="clientConfig!.suggestTags!">
-                  <v-list-item
-                    v-for="item in clientConfig!.suggestTags"
-                    :key="item"
-                    :title="item"
-                    class="list-item-half-spacer"
+              <v-textarea v-model="suggestTagInput" :label="t('SetDownloader.PathAndTag.tags.addInputLabel')" clearable>
+                <template #append>
+                  <div class="d-flex flex-column">
+                    <v-btn
+                      :loading="isLoadingClientLabels"
+                      :title="t('SetDownloader.PathAndTag.tags.autoImport')"
+                      color="primary"
+                      icon="mdi-import"
+                      variant="text"
+                      @click="loadClientLabels"
+                    />
+                    <v-btn color="red" icon="$clear" variant="text" @click="suggestTagInput = ''" />
+                  </div>
+                </template>
+                <template #details>
+                  <v-chip
+                    v-for="pathReplace in pathReplaceMap"
+                    :key="pathReplace[1]"
+                    :title="pathReplace[2]"
+                    class="mr-1"
+                    size="small"
+                    @click="() => (suggestTagInput += pathReplace[1])"
                   >
-                    <template #prepend>
-                      <v-icon color="amber" icon="mdi-tag" size="large"></v-icon>
-                    </template>
-                    <template #append>
-                      <v-btn
-                        color="error"
-                        icon="mdi-delete"
-                        size="small"
-                        variant="text"
-                        @click="removeSuggestTag(item)"
-                      ></v-btn>
-                    </template>
-                  </v-list-item>
-                </vue-draggable>
-                <v-list-item class="px-0">
-                  <v-textarea
-                    v-model="suggestTagInput"
-                    :label="t('SetDownloader.PathAndTag.tags.addInputLabel')"
-                    clearable
-                  >
-                    <template #append>
-                      <v-btn icon="mdi-keyboard-return" variant="text" @click="addSuggestTag(suggestTagInput)" />
-                    </template>
-                    <template #prepend>
-                      <v-btn
-                        :loading="isLoadingClientLabels"
-                        :title="t('SetDownloader.PathAndTag.tags.autoImport')"
-                        icon="mdi-import"
-                        variant="text"
-                        @click="loadClientLabels"
-                      ></v-btn>
-                    </template>
-                    <template #details>
-                      <v-chip
-                        v-for="pathReplace in pathReplaceMap"
-                        :key="pathReplace[1]"
-                        :title="pathReplace[2]"
-                        class="mr-1"
-                        size="small"
-                        @click="() => (suggestTagInput += pathReplace[1])"
-                      >
-                        {{ pathReplace[1] }}
-                      </v-chip>
-                    </template>
-                  </v-textarea>
-                </v-list-item>
-              </v-list>
+                    {{ pathReplace[1] }}
+                  </v-chip>
+                </template>
+              </v-textarea>
             </v-expansion-panel-text>
           </v-expansion-panel>
           <v-expansion-panel :title="t('SetDownloader.PathAndTag.note.title')" value="note">
