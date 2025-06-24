@@ -103,7 +103,7 @@ const userLevelGroupIcon = computed(() => {
               class="pa-0 level_requirement_list"
               density="compact"
               :style="{
-                fontSize: `${configStore.myDataTableControl.tableFontSize}% !important`,
+                fontSize: `${(configStore.myDataTableControl.tableFontSize / 14) * 12}%`,
               }"
             >
               <!-- 计算剩余升级情况 -->

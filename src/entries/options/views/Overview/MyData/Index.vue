@@ -229,7 +229,14 @@ function viewStatistic() {
               <template v-slot:prepend>
                 <v-list-item-action start class="ml-2">
                   <v-icon icon="mdi-format-font-size-increase" class="mr-2" />
-                  <span class="text-subtitle-2">{{ t("MyData.index.tableFontSize") }}</span>
+                  <v-btn
+                    class="text-subtitle-2 pa-0"
+                    variant="text"
+                    :title="t('common.dialog.reset')"
+                    @click.stop="configStore.myDataTableControl.tableFontSize = 100"
+                  >
+                    {{ t("MyData.index.tableFontSize") }}
+                  </v-btn>
                 </v-list-item-action>
               </template>
               <v-slider
@@ -239,9 +246,12 @@ function viewStatistic() {
                 :step="1"
                 density="compact"
                 hide-details
+                :ticks="[100]"
+                show-ticks="always"
                 @click.stop
                 @update:model-value="() => configStore.$save()"
               >
+                <template #tick-label></template>
                 <template v-slot:thumb-label="{ modelValue }"> {{ modelValue }}% </template>
               </v-slider>
             </v-list-item>
