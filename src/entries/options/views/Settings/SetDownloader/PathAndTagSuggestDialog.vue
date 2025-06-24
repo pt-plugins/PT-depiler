@@ -45,13 +45,14 @@ watch(
 );
 
 const suggestFolderInput = ref<string>("");
-function addSuggestFolder(input: string) {
-  if (input !== "" && !clientConfig.value?.suggestFolders!.includes(input)) {
-    clientConfig.value?.suggestFolders!.push(input);
+function addSuggestFolder(inputs: string) {
+  for (let input of inputs.split("\n")) {
+    input = input.trim();
+    if (input !== "" && !clientConfig.value?.suggestFolders!.includes(input)) {
+      clientConfig.value?.suggestFolders!.push(input);
+    }
   }
-  if (suggestFolderInput.value == input) {
-    suggestFolderInput.value = "";
-  }
+  suggestFolderInput.value = "";
 }
 
 function removeSuggestFolder(folder: string) {
@@ -78,13 +79,14 @@ async function loadClientFolders() {
 }
 
 const suggestTagInput = ref<string>("");
-function addSuggestTag(input: string) {
-  if (input !== "" && !clientConfig.value?.suggestTags!.includes(input)) {
-    clientConfig.value?.suggestTags!.push(input);
+function addSuggestTag(inputs: string) {
+  for (let input of inputs.split("\n")) {
+    input = input.trim();
+    if (input !== "" && !clientConfig.value?.suggestTags!.includes(input)) {
+      clientConfig.value?.suggestTags!.push(input);
+    }
   }
-  if (suggestTagInput.value == input) {
-    suggestTagInput.value = "";
-  }
+  suggestTagInput.value = "";
 }
 
 function removeSuggestTag(tag: string) {
@@ -172,7 +174,7 @@ function saveClientConfig() {
                   </v-list-item>
                 </vue-draggable>
                 <v-list-item class="px-0">
-                  <v-text-field
+                  <v-textarea
                     v-model="suggestFolderInput"
                     :label="t('SetDownloader.PathAndTag.downloadPath.addInputLabel')"
                     clearable
@@ -205,7 +207,7 @@ function saveClientConfig() {
                         {{ pathReplace[1] }}
                       </v-chip>
                     </template>
-                  </v-text-field>
+                  </v-textarea>
                 </v-list-item>
               </v-list>
             </v-expansion-panel-text>
@@ -245,7 +247,7 @@ function saveClientConfig() {
                   </v-list-item>
                 </vue-draggable>
                 <v-list-item class="px-0">
-                  <v-text-field
+                  <v-textarea
                     v-model="suggestTagInput"
                     :label="t('SetDownloader.PathAndTag.tags.addInputLabel')"
                     clearable
@@ -274,7 +276,7 @@ function saveClientConfig() {
                         {{ pathReplace[1] }}
                       </v-chip>
                     </template>
-                  </v-text-field>
+                  </v-textarea>
                 </v-list-item>
               </v-list>
             </v-expansion-panel-text>
