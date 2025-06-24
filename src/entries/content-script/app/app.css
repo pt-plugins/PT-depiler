@@ -19,8 +19,3 @@
     min-height: unset !important;
 }
 
-.table-no-ext-padding {
-    .v-data-table__td {
-        padding: 0 4px !important;
-    }
-}

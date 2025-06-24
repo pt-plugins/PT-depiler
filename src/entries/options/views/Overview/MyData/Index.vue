@@ -415,7 +415,7 @@ function viewStatistic() {
       :search="tableFilterRef"
       :sort-by="configStore.tableBehavior.MyData.sortBy"
       :style="tableStyle"
-      class="table-stripe table-header-no-wrap"
+      class="table-stripe table-header-no-wrap table-no-ext-padding"
       hover
       item-selectable="selectable"
       item-value="site"
@@ -601,7 +601,7 @@ function viewStatistic() {
       <!-- 更新时间 -->
       <template #item.updateAt="{ item }">
         <template v-if="item.status === EResultParseStatus.success">
-          <span class="text-no-wrap" :title="item.updateAt ? (formatDate(item.updateAt) as string) : '-'">
+          <span class="text-wrap" :title="item.updateAt ? (formatDate(item.updateAt) as string) : '-'">
             {{
               item.updateAt
                 ? configStore.myDataTableControl.updateAtFormatAsAlive
