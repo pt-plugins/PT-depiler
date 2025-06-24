@@ -337,6 +337,26 @@ export const siteMetadata: ISiteMetadata = {
     area_torrent: { name: "种子区", requestConfig: { url: "/torrents.php" } },
     area_live: { name: "LIVE区", enabled: false, requestConfig: { url: "/live.php" } },
   },
+  userInfo: {
+    ...SchemaMetadata.userInfo,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors,
+      bonusPerHour: {
+        selector: ["td.text h1:first ~ div"],
+        filters: [
+          (query: string | number) => {
+            const queryMatch = String(query || "").replace(/,/g, '').match(/[\d.]+/g);
+            if (!queryMatch) return 0;
+            // 如果匹配到10个数字，取第0、5、8位相加；否则只取第0位
+            const bonusPerHour = queryMatch.length === 10 
+              ? parseFloat(queryMatch[0]) + parseFloat(queryMatch[5]) + parseFloat(queryMatch[8])
+              : parseFloat(queryMatch[0]);
+            return bonusPerHour;
+          },
+        ],
+      },
+    },
+  },
 
   levelRequirements: [
     {
