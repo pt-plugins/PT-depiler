@@ -312,7 +312,7 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
       bonusPerHour: {
-        selector: ["tbody:contains('我的数据') > tr:first > td:last"],
+        selector: ["tbody tr.nowrap:first td:last"],
         filters: [{ name: "parseNumber" }],
       },
       messageCount: {
