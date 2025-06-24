@@ -35,7 +35,7 @@ const fullTableHeader = reactive([
     width: 90,
     props: { disabled: true },
   },
-  { title: t("MyData.table.username"), key: "name", align: "center", width: 90, props: { disabled: true } },
+  { title: t("MyData.table.username"), key: "name", align: "center", width: 90 },
   { title: t("MyData.table.levelName"), key: "levelName", align: "start", width: 90 },
   // NOTE: 这里将key设为 uploaded, trueUploaded 而不是虚拟的 userData，可以让 v-data-table 使用 uploaded 的进行排序
   { title: t("MyData.table.userData"), key: "uploaded", align: "end" },
@@ -48,7 +48,7 @@ const fullTableHeader = reactive([
   { title: t("levelRequirement.bonus"), key: "bonus", align: "end" },
   { title: t("levelRequirement.bonusPerHour"), key: "bonusPerHour", align: "end" },
   { title: t("MyData.table.joinTime"), key: "joinTime", align: "center" },
-  { title: t("MyData.table.updateAt"), key: "updateAt", align: "center", props: { disabled: true } },
+  { title: t("MyData.table.updateAt"), key: "updateAt", align: "center" },
   { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false, props: { disabled: true } },
 ] as (DataTableHeader & { props?: any })[]);
 
@@ -419,7 +419,7 @@ function viewStatistic() {
       hover
       item-selectable="selectable"
       item-value="site"
-      multi-sort
+      :multi-sort="false"
       show-select
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('MyData', 'itemsPerPage', v)"
       @update:sortBy="(v) => configStore.updateTableBehavior('MyData', 'sortBy', v)"
