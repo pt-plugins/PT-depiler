@@ -140,7 +140,10 @@ function quickSendToDownloader(downloader: IDownloaderMetadata, path: string, la
   // 设置下载推送选项
   addTorrentOptions.value.localDownload = true;
   addTorrentOptions.value.addAtPaused = !(downloader?.feature?.DefaultAutoStart ?? true);
-  addTorrentOptions.value.savePath = path;
+
+  if (path) {
+    addTorrentOptions.value.savePath = path;
+  }
   if (label) {
     addTorrentOptions.value.label = label;
   }
