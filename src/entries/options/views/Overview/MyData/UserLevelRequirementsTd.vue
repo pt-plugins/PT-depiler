@@ -73,7 +73,7 @@ const userLevelGroupIcon = computed(() => {
       "
       content-class="bg-white pa-0"
       interactive
-      location="bottom left"
+      location="end bottom"
     >
       <template v-slot:activator="{ props }">
         <span v-bind="props">
