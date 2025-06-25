@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { sendMessage } from "@/messages.ts";
 
-import SentToDownloaderDialog from "./SentToDownloaderDialog.vue";
+import SentToDownloaderDialog from "@/options/components/SentToDownloaderDialog.vue";
 
 const props = withDefaults(
   defineProps<{
@@ -79,7 +79,7 @@ function noop() {
       :size="btnSize"
       icon="mdi-cloud-download"
       @click="() => sendToDownloader()"
-    ></v-btn>
+    />
     <!-- 复制下载链接 -->
     <v-btn
       :disabled="props.torrentIds.length == 0"
@@ -88,8 +88,7 @@ function noop() {
       icon="mdi-content-copy"
       title="复制下载链接"
       @click="() => copyTorrentDownloadLink()"
-    >
-    </v-btn>
+    />
     <!-- 下载种子文件到本地 -->
     <v-btn
       :disabled="props.torrentIds.length == 0"
@@ -98,14 +97,7 @@ function noop() {
       icon="mdi-content-save"
       title="下载种子文件到本地"
       @click="() => localDlTorrentDownloadLink()"
-    ></v-btn>
-    <!-- TODO 收藏 -->
-    <!--<v-btn
-      :disabled="true || props.torrentIds.length == 0"
-      :size="btnSize"
-      icon="mdi-heart-outline"
-      @click="() => noop()"
-    ></v-btn>-->
+    />
   </v-btn-group>
 
   <!-- 在点击发送到远程服务器时，弹出选择下载器及其他自定义选项 -->

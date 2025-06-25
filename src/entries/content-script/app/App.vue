@@ -10,7 +10,7 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { currentView, pageType, siteInstance, updatePageType } from "./utils.ts";
 
 import SpeedDialBtn from "@/content-script/app/components/SpeedDialBtn.vue";
-import SentToDownloaderDialog from "@/options/views/Overview/SearchEntity/SentToDownloaderDialog.vue";
+import SentToDownloaderDialog from "@/options/components/SentToDownloaderDialog.vue";
 
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();

@@ -7,7 +7,6 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { doKeywordSearch, siteInstance } from "../utils.ts";
 
-import SentToDownloaderDialog from "@/options/views/Overview/SearchEntity/SentToDownloaderDialog.vue";
 import AdvanceListModuleDialog from "@/content-script/app/components/AdvanceListModuleDialog.vue";
 import SpeedDialBtn from "@/content-script/app/components/SpeedDialBtn.vue";
 

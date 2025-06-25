@@ -164,6 +164,8 @@ export interface IConfigPiniaStorageSchema {
     localDownloadMethod: TLocalDownloadMethod;
     // 当使用本地方法下载时，是否忽略站点的下载间隔设置；
     ignoreSiteDownloadIntervalWhenLocalDownload: boolean;
+    // 是否使用快速发送到客户端功能（展平 下载器和下载目录 ）
+    useQuickSendToClient: boolean;
   };
 
   searchEntity: {

@@ -44,7 +44,7 @@ const configStore = useConfigStore();
       </div>
 
       <template v-if="configStore.contentScript.enabled">
-        <v-alert type="warning">
+        <v-alert type="warning" variant="tonal">
           1. 目前内容脚本功能还在早期测试阶段，请在
           <a href="https://github.com/pt-plugins/PT-depiler/issues/96" target="_blank">issue#96</a>
           中查看进度，并通过创建 sub-issue 反馈问题。<br />

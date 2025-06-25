@@ -170,6 +170,7 @@ export const useConfigStore = defineStore("config", {
       allowDirectSendToClient: false,
       localDownloadMethod: "browser",
       ignoreSiteDownloadIntervalWhenLocalDownload: true,
+      useQuickSendToClient: false,
     },
 
     searchEntity: {
