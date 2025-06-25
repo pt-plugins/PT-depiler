@@ -25,7 +25,9 @@ const { t } = useI18n();
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
+
 const isSending = ref(false);
+const quickSendToClient = ref<boolean>(false);
 const selectedDownloader = ref<IDownloaderMetadata | null>(null);
 const addTorrentOptions = ref<Required<Omit<CAddTorrentOptions, "localDownloadOption">>>({
   localDownload: true,
@@ -153,17 +155,23 @@ function quickSendToDownloader(downloader: IDownloaderMetadata, path: string, la
 
 function dialogEnter() {
   restoreAddTorrentOptions(); // 先重置所有选项，然后如果需要则从uiStore中获取历史情况
-  const lastDownloaderId = metadataStore.lastDownloader?.id;
-  selectedDownloader.value = lastDownloaderId // 如果有上次选择的下载器，则直接使用
-    ? metadataStore.downloaders[lastDownloaderId]
-    : metadataStore.getEnabledDownloaders.length === 1 // 如果只有一个启用的下载器，则直接使用
-      ? metadataStore.getEnabledDownloaders[0]
-      : null;
+  quickSendToClient.value = configStore.download.useQuickSendToClient;
 
-  // 将上一次的下载器选项通过 toMerged 合并到当前选项中，而不是直接覆盖
-  addTorrentOptions.value = toMerged(addTorrentOptions.value, metadataStore.lastDownloader?.options ?? {}) as Required<
-    Omit<CAddTorrentOptions, "localDownloadOption">
-  >;
+  // 如果不是快速发送到客户端模式，则尝试设置默认下载器
+  if (!quickSendToClient.value) {
+    const lastDownloaderId = metadataStore.lastDownloader?.id;
+    selectedDownloader.value = lastDownloaderId // 如果有上次选择的下载器，则直接使用
+      ? metadataStore.downloaders[lastDownloaderId]
+      : metadataStore.getEnabledDownloaders.length === 1 // 如果只有一个启用的下载器，则直接使用
+        ? metadataStore.getEnabledDownloaders[0]
+        : null;
+
+    // 将上一次的下载器选项通过 toMerged 合并到当前选项中，而不是直接覆盖
+    addTorrentOptions.value = toMerged(
+      addTorrentOptions.value,
+      metadataStore.lastDownloader?.options ?? {},
+    ) as Required<Omit<CAddTorrentOptions, "localDownloadOption">>;
+  }
 }
 
 function dialogLeave() {
@@ -194,7 +202,7 @@ function dialogLeave() {
       <v-card-text>
         <v-form>
           <!-- 快速下载选项 -->
-          <v-container v-if="configStore.download.useQuickSendToClient" class="pa-0">
+          <v-container v-if="quickSendToClient" class="pa-0">
             <v-list v-if="metadataStore.getEnabledDownloaders.length > 0">
               <template v-for="downloader in metadataStore.getEnabledDownloaders" :key="downloader.id">
                 <v-list-item
@@ -298,7 +306,8 @@ function dialogLeave() {
       </v-card-text>
       <v-divider />
       <v-card-actions>
-        <!-- TODO 说明 -->
+        <v-btn icon="mdi-cards" @click="quickSendToClient = !quickSendToClient" />
+
         <v-spacer />
         <v-btn
           :disabled="isSending"
@@ -310,7 +319,7 @@ function dialogLeave() {
           <span class="ml-1">{{ t("common.dialog.cancel") }}</span>
         </v-btn>
         <v-btn
-          :disabled="!selectedDownloader"
+          :disabled="!selectedDownloader || quickSendToClient"
           :loading="isSending"
           color="error"
           variant="text"

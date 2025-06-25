@@ -56,7 +56,12 @@ async function clearLastDownloader(v: boolean) {
   <v-row>
     <v-col md="6">
       <v-label>{{ t("SetBase.download.pushDownloadServerTitle") }}</v-label>
-      <v-switch v-model="configStore.download.useQuickSendToClient" color="success" hide-details label="启用快速推送" />
+      <v-switch
+        v-model="configStore.download.useQuickSendToClient"
+        color="success"
+        hide-details
+        label="默认使用快速推送"
+      />
       <v-alert v-if="configStore.download.useQuickSendToClient" type="info" variant="tonal">
         启用快速推送后，插件会在推送下载任务时，做以下默认操作：<br />
         1. 展平 下载器和下载目录 选项供直接点击推送。<br />
