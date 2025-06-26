@@ -26,7 +26,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "演唱会、MV/Music Videos", value: 406 },
         { name: "音乐/Music", value: 408 },
         { name: "有声小说/E-book", value: 409 },
-        { name: "纪录片/Docmentaries", value: 413 },
+        { name: "纪录片/Documentaries", value: 413 },
       ],
       cross: { mode: "append" },
     },
