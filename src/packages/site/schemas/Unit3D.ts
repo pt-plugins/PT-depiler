@@ -152,9 +152,11 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
     },
   },
 
-  list: {
-    urlPattern: ["/torrents\[\^/\]"],
-  },
+  list: [
+    {
+      urlPattern: ["/torrents\[\^/\]"],
+    },
+  ],
 
   detail: {
     urlPattern: ["/torrents/\\d+"],

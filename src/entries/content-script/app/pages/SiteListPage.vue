@@ -14,7 +14,8 @@ const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 
 async function parseListPage(showNoTorrentError = true) {
-  const parsedResult = await siteInstance.value?.transformListPage(document);
+  // 使用克隆的文档，避免污染原始文档
+  const parsedResult = await siteInstance.value?.transformListPage(document.cloneNode(true) as Document);
 
   let errorMessage = "";
   if ((parsedResult?.torrents ?? []).length === 0) {

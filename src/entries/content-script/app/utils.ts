@@ -22,14 +22,16 @@ export function updatePageType() {
 
     // 首先判断是否为 list 页面
     let listUrlPatterns = [];
-    if (metadata.list?.urlPattern) {
-      listUrlPatterns = metadata.list?.urlPattern;
+    if (metadata.list && metadata.list.length > 0) {
+      listUrlPatterns = metadata.list.flatMap((item) => item.urlPattern ?? []).filter(Boolean);
     } else {
       listUrlPatterns = uniq([
         ...(metadata.search?.requestConfig?.url ? [metadata.search.requestConfig.url] : []),
         ...(Object.values(metadata.searchEntry ?? {}).map((entry) => entry.requestConfig?.url) ?? []),
       ]).filter(Boolean);
     }
+
+    console.info("listUrlPatterns", listUrlPatterns);
 
     if (listUrlPatterns.some((pattern) => new RegExp(pattern!, "i").test(url))) {
       pageType.value = "list";

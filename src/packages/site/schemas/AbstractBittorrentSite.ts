@@ -39,7 +39,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
   search: {},
 };
 
-type TSchemaMetadataListSelectors = Required<Required<ISiteMetadata>["list"]>["selectors"];
+type TSchemaMetadataListSelectors = Required<Required<Required<ISiteMetadata>["list"]>[number]>["selectors"];
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export default class BittorrentSite {
@@ -265,7 +265,7 @@ export default class BittorrentSite {
    * @protected
    */
   protected getFieldsData<
-    G extends "search" | "list" | "detail" | "userInfo",
+    G extends "search" | "detail" | "userInfo",
     S extends Required<Required<ISiteMetadata>[G]>["selectors"],
   >(element: Element | object, selectors: S, fields?: (keyof S)[]): { [key in keyof S]?: any } {
     const ret: { [key in keyof S]?: any } = {};
@@ -541,19 +541,21 @@ export default class BittorrentSite {
     const retData = { keywords: "", torrents: [] } as IParsedTorrentListPage;
 
     const parsedListPageUrl = doc.URL || location.href; // 获取当前页面的 URL
-    const parsedListPage = doc.cloneNode(true) as Document; // 克隆一份文档，避免污染原始文档
 
     const searchEntry: { selectors: TSchemaMetadataListSelectors } = { selectors: {}, ...(this.metadata.search ?? {}) };
 
     // 使用 list 中定义的 selectors 覆盖掉 search 中的 selectors
-    searchEntry.selectors = {
-      ...searchEntry.selectors,
-      ...(this.metadata.list?.selectors ?? {}),
-    };
+    for (const list of this.metadata.list ?? []) {
+      const { urlPattern: listUrlPattern = [], selectors: listSelectors = {}, mergeSearchSelectors = true } = list;
+      if (listUrlPattern.some((pattern) => new RegExp(pattern!, "i").test(parsedListPageUrl))) {
+        searchEntry.selectors = { ...(mergeSearchSelectors ? searchEntry.selectors : {}), ...listSelectors };
+        break; // 找到匹配的 list 后，直接跳出循环
+      }
+    }
 
     // 如果有 keywords 选择器，则获取当前搜索页的关键词
     if (searchEntry.selectors.keywords) {
-      retData.keywords = this.getFieldData(parsedListPage, searchEntry.selectors.keywords as IElementQuery);
+      retData.keywords = this.getFieldData(doc, searchEntry.selectors.keywords as IElementQuery);
       delete searchEntry.selectors.keywords; // 删除 keywords 选择器，避免污染后续的种子解析
     } else {
       // 参照 searchEntry 中的 keywordPath 来获取关键词
@@ -561,7 +563,7 @@ export default class BittorrentSite {
       const [keywordField, keywordParams] = keywordPath.split(".");
 
       // 首先尝试使用 getFieldData 获取关键词
-      retData.keywords = this.getFieldData(parsedListPage, {
+      retData.keywords = this.getFieldData(doc, {
         selector: [
           keywordField === "params" ? `input[name="${keywordParams}"]` : false,
           keywordField === "data" ? `form[method="post" i] input[name="${keywordField}"]` : false,
@@ -585,11 +587,13 @@ export default class BittorrentSite {
 
     try {
       // 将其委托到 transformSearchPage 方法中进行处理
-      retData.torrents = await this.transformSearchPage(parsedListPage, {
+      retData.torrents = await this.transformSearchPage(doc, {
         searchEntry,
         requestConfig: { url: parsedListPageUrl },
       });
-    } catch (e) {}
+    } catch (e) {
+      console.error(`[PTD] site '${this.name}' transformListPage Error:`, e);
+    }
 
     return retData;
   }

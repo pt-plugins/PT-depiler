@@ -115,10 +115,11 @@ export const siteMetadata: ISiteMetadata = {
     area_9kg: { name: "十八禁", enabled: false, requestConfig: { url: "/special.php" } },
   },
 
-  list: {
-    ...(SchemaMetadata.list ?? {}),
-    urlPattern: ["/torrents.php", "/special.php"],
-  },
+  list: [
+    {
+      urlPattern: ["/torrents.php", "/special.php"],
+    },
+  ],
 
   levelRequirements: [
     {

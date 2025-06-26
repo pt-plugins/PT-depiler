@@ -31,7 +31,14 @@ export interface ISiteUserInputMeta {
  * 站点配置，这部分配置由系统提供，并随着每次插件更新而更新
  */
 export interface ISiteMetadata {
-  readonly id: TSiteID; // 必须和站点文件名（无扩展）相同
+  /**
+   * 站点的id，全局唯一，必须和站点文件名（无扩展）相同
+   * 应该是一个符合正则表达式 /[0-9a-z]+/ 的字符串（无大写字母、无特殊字符）
+   *
+   * 额外的，如果 https://github.com/Jackett/Jackett/tree/master/src/Jackett.Common/Definitions 中有相同站点配置，
+   * 建议与其相同命名
+   */
+  readonly id: TSiteID;
 
   /**
    * 对应解析的更新版本，建议每次对ISiteMetadata的修改都对此版本号 +1
@@ -124,7 +131,7 @@ export interface ISiteMetadata {
    * 一般如下：
    *  - 使用 AJAX 方法异步加载页面种子
    */
-  list?: {
+  list?: Array<{
     /**
      * 在 web 访问时，哪些些页面会被认为是种子列表页，被认为是种子列表页的页面会被插件自动添加种子列表批量下载、链接复制、远程推送的功能
      *
@@ -138,6 +145,8 @@ export interface ISiteMetadata {
      * 匹配对象为 location.href ，依次匹配，任一匹配成功，则会被认为是种子列表页，
      */
     urlPattern?: (string | RegExp)[];
+
+    mergeSearchSelectors?: boolean; // 是否合并 search.selectors 中的配置到此处的 selectors 中，默认为 true
 
     /**
      * 对于种子列表页的解析配置，默认会使用 search.requestConfig.selectors 中的配置作为垫片
@@ -154,7 +163,7 @@ export interface ISiteMetadata {
      *     - 如果仍未找到，则会尝试从url中解析 &xxxx= 以及 &search= , &keywords= , &keyword=, $q= 字段内容
      */
     selectors?: ISearchConfig["selectors"] & { keywords?: IElementQuery };
-  };
+  }>;
 
   /**
    * 种子详情页配置（主要用于插件 content-script 、 部分无法在搜索中构造种子 link 站点的适配）
