@@ -421,7 +421,11 @@ export default class BittorrentSite {
     }
 
     for (const tr of trs) {
-      torrents.push((await this.parseWholeTorrentFromRow({}, tr, searchConfig!)) as ITorrent);
+      try {
+        torrents.push((await this.parseWholeTorrentFromRow({}, tr, searchConfig!)) as ITorrent);
+      } catch (e) {
+        console.debug(`[PTD] site '${this.name}' parseWholeTorrentFromRow Error:`, e, tr);
+      }
     }
 
     return torrents;

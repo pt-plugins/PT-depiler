@@ -118,7 +118,11 @@ export default class UHDBits extends GazelleJSONAPI {
 
     const trs = Sizzle(this.metadata.search!.selectors!.rows!.selector as string, doc);
     for (const tr of trs) {
-      torrents.push((await this.parseWholeTorrentFromRow({}, tr, searchConfig)) as ITorrent);
+      try {
+        torrents.push((await this.parseWholeTorrentFromRow({}, tr, searchConfig)) as ITorrent);
+      } catch (e) {
+        console.warn(`Failed to parse torrent from row:`, e, tr);
+      }
     }
 
     return torrents;

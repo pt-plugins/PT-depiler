@@ -218,8 +218,11 @@ export default class Jpopsuki extends Gazelle {
           .trim();
       }
 
-      torrent = (await this.parseWholeTorrentFromRow(torrent, tr, searchConfig!)) as ITorrent;
-      torrents.push(torrent);
+      try {
+        torrents.push((await this.parseWholeTorrentFromRow(torrent, tr, searchConfig!)) as ITorrent);
+      } catch (e) {
+        console.warn(`Failed to parse torrent from row:`, e, tr);
+      }
     }
     return torrents;
   }
