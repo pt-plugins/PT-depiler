@@ -93,6 +93,7 @@ async function checkConnect() {
             :min="0"
             :step="1e3"
             class="px-2"
+            hide-details
           >
             <template #append>
               <v-btn variant="flat" @click="clientConfig.timeout = 60e3">
@@ -108,7 +109,28 @@ async function checkConnect() {
             :label="t('SetDownloader.editor.autoStart')"
             class="ml-4"
             color="success"
+            hide-details
           />
+        </v-row>
+
+        <v-row v-if="clientMeta.advanceAddTorrentOptions">
+          <v-col>
+            <v-expansion-panels>
+              <v-expansion-panel title="高级设置">
+                <v-expansion-panel-text>
+                  <v-switch
+                    v-for="opt in clientMeta.advanceAddTorrentOptions"
+                    :key="opt.key"
+                    v-model="clientConfig.advanceAddTorrentOptions![opt.key]"
+                    color="success"
+                    :label="opt.name"
+                    :messages="opt.description"
+                    :hide-details="!opt.description"
+                  />
+                </v-expansion-panel-text>
+              </v-expansion-panel>
+            </v-expansion-panels>
+          </v-col>
         </v-row>
       </v-container>
 

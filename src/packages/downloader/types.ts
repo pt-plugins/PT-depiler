@@ -44,6 +44,9 @@ export interface DownloaderBaseConfig {
   feature?: {
     [feature in TorrentClientFeature]?: boolean;
   };
+
+  // 在推送种子时，该下载器的一些专有设置
+  advanceAddTorrentOptions?: Record<string, any>;
 }
 
 // 强制要求填写用户名和密码
@@ -71,6 +74,16 @@ export interface TorrentClientMetaData {
   feature: {
     [feature in TorrentClientFeature]: TorrentClientFeatureMetaData;
   };
+
+  // 在推送种子时，该下载器的一些专有设置
+  advanceAddTorrentOptions?: Array<{
+    name: string; // 选项名称
+    key: string; // 选项键名
+    description?: string; // 选项描述
+    type: "string" | "number" | "boolean"; // 选项类型
+    defaultValue?: any; // 默认值
+    required?: boolean; // 是否必填
+  }>;
 }
 
 export interface TorrentClientStatus {
@@ -190,6 +203,11 @@ export interface CAddTorrentOptions {
    * - Synology Download Station ❌
    */
   uploadSpeedLimit?: number;
+
+  /**
+   * 推送下载时，该下载器的一些专有设置
+   */
+  advanceAddTorrentOptions?: Record<string, any>;
 }
 
 /**

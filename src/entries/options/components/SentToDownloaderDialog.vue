@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, shallowRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { toMerged } from "es-toolkit";
 import { type ITorrent } from "@ptd/site";
-import { type CAddTorrentOptions, getDownloaderIcon as getDownloaderIconRaw } from "@ptd/downloader";
+import {
+  type CAddTorrentOptions,
+  getDownloaderIcon as getDownloaderIconRaw,
+  getDownloaderMetaData,
+} from "@ptd/downloader";
 
 import { sendMessage } from "@/messages.ts";
 import { formatDate } from "@/options/utils.ts";
@@ -29,12 +33,14 @@ const metadataStore = useMetadataStore();
 const isSending = ref(false);
 const quickSendToClient = ref<boolean>(false);
 const selectedDownloader = ref<IDownloaderMetadata | null>(null);
+const selectedDownloaderMetadata = shallowRef();
 const addTorrentOptions = ref<Required<Omit<CAddTorrentOptions, "localDownloadOption">>>({
   localDownload: true,
   addAtPaused: false,
   savePath: "",
   label: "",
   uploadSpeedLimit: 0,
+  advanceAddTorrentOptions: {},
 });
 
 const suggestFolders = computed(() => selectedDownloader.value?.suggestFolders ?? []);
@@ -48,7 +54,16 @@ function restoreAddTorrentOptions(downloader?: IDownloaderMetadata) {
   addTorrentOptions.value.addAtPaused = !(downloader?.feature?.DefaultAutoStart ?? true);
   addTorrentOptions.value.savePath = "";
   addTorrentOptions.value.label = "";
+  addTorrentOptions.value.advanceAddTorrentOptions = downloader?.advanceAddTorrentOptions ?? {};
 }
+
+watch(selectedDownloader, (value) => {
+  if (value?.type) {
+    getDownloaderMetaData(value.type).then((v) => (selectedDownloaderMetadata.value = v));
+  } else {
+    selectedDownloaderMetadata.value = null;
+  }
+});
 
 async function sendToDownloader() {
   if (!selectedDownloader.value?.id) {
@@ -141,7 +156,8 @@ function quickSendToDownloader(downloader: IDownloaderMetadata, path: string, la
 
   // 设置下载推送选项
   addTorrentOptions.value.localDownload = true;
-  addTorrentOptions.value.addAtPaused = !(downloader?.feature?.DefaultAutoStart ?? true);
+  addTorrentOptions.value.addAtPaused = !(downloader.feature?.DefaultAutoStart ?? true);
+  addTorrentOptions.value.advanceAddTorrentOptions = downloader.advanceAddTorrentOptions ?? {};
 
   if (path) {
     addTorrentOptions.value.savePath = path;
@@ -299,6 +315,27 @@ function dialogLeave() {
                   hide-details
                   label="添加时默认暂停"
                 ></v-switch>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col class="pa-0">
+                <v-expansion-panels
+                  :disabled="!((selectedDownloaderMetadata?.advanceAddTorrentOptions ?? []).length > 0)"
+                >
+                  <v-expansion-panel title="高级设置">
+                    <v-expansion-panel-text>
+                      <v-switch
+                        v-for="opt in selectedDownloaderMetadata.advanceAddTorrentOptions"
+                        :key="opt.key"
+                        v-model="addTorrentOptions.advanceAddTorrentOptions![opt.key]"
+                        color="success"
+                        :label="opt.name"
+                        :messages="opt.description"
+                        :hide-details="!opt.description"
+                      />
+                    </v-expansion-panel-text>
+                  </v-expansion-panel>
+                </v-expansion-panels>
               </v-col>
             </v-row>
           </v-container>

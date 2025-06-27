@@ -54,7 +54,25 @@ export const clientMetaData: TorrentClientMetaData = {
       allowed: true,
     },
   },
-};
+  advanceAddTorrentOptions: [
+    {
+      name: "自动管理模式",
+      key: "autoTMM",
+      type: "boolean",
+      defaultValue: false,
+      description: `当使用 "${category_prefix}" 前缀的分类作为下载目录，会自动启用`,
+    },
+    { name: "跳过哈希校验", key: "skip_checking", type: "boolean", defaultValue: false },
+    { name: "顺序下载", key: "sequentialDownload", type: "boolean", defaultValue: false },
+    { name: "先下载首尾文件块", key: "firstLastPiecePrio", type: "boolean", defaultValue: false },
+  ],
+} as const;
+
+const QBittorrentAdvanceAddTorrentOptionsBooleanKey = clientMetaData
+  .advanceAddTorrentOptions!.filter((x) => x.type === "boolean")
+  .map((x) => x.key) as ["autoTMM", "skip_checking", "sequentialDownload", "firstLastPiecePrio"];
+type TQBittorrentAdvanceAddTorrentOptionsBooleanKey = (typeof QBittorrentAdvanceAddTorrentOptionsBooleanKey)[number];
+type TQBittorrentAdvanceAddTorrentOptionsKey = TQBittorrentAdvanceAddTorrentOptionsBooleanKey | string;
 
 type TrueFalseStr = "true" | "false";
 
@@ -283,6 +301,10 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
 
   async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
     const formData = new FormData();
+    const advanceAddTorrentOptions = (options.advanceAddTorrentOptions ?? {}) as Record<
+      TQBittorrentAdvanceAddTorrentOptionsKey,
+      any
+    >;
 
     // 处理链接
     if (url.startsWith("magnet:") || !options.localDownload) {
@@ -297,18 +319,15 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     }
 
     // 将通用字段转成qbt字段
-    let autoTMM = "false"; // 是否开启自动管理
     if (options.savePath) {
       // 如果是 qBittorrent 的分类，则设置 autoTMM = true & category = savePath.replace(category_prefix, "")
       if (options.savePath.startsWith(category_prefix)) {
-        autoTMM = "true"; // 开启自动管理
+        advanceAddTorrentOptions.autoTMM = true; // 开启自动管理
         formData.append("category", options.savePath.replace(category_prefix, "")); // 分类名称
       } else {
         formData.append("savepath", options.savePath); // Download folder
       }
     }
-
-    formData.append("autoTMM", autoTMM);
 
     if (options.label) {
       formData.append("tags", options.label); // Tags for the torrent
@@ -324,7 +343,12 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
       formData.append("upLimit", (options.uploadSpeedLimit * 1024 * 1024).toString());
     }
 
-    // formData.append('skip_checking', 'false'); // Skip hash checking. Possible values are true, false (default)
+    // 处理高级选项（Boolean类型）
+    for (const key of QBittorrentAdvanceAddTorrentOptionsBooleanKey) {
+      if (advanceAddTorrentOptions[key] === true) {
+        formData.append(key, "true");
+      }
+    }
 
     const res = await this.request<"Ok." | "Fails.">("/torrents/add", {
       method: "post",
