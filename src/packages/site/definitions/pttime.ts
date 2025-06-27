@@ -58,7 +58,7 @@ export const siteMetadata: ISiteMetadata = {
 
   searchEntry: {
     area_torrents: { name: "综合", requestConfig: { url: "/torrents.php" } },
-    area_special: { name: "9kg", requestConfig: { url: "/adults.php" } },
+    area_special: { name: "9kg", enabled: false, requestConfig: { url: "/adults.php" } },
   },
 
   userInfo: {
