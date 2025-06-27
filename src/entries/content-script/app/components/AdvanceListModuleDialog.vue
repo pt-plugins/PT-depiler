@@ -65,6 +65,10 @@ function handleRemoteDownloadMulti() {
   remoteDownloadDialogData.show = true;
 }
 
+function handleSelectSeeders() {
+  selectedTorrentIds.value = torrentItems.filter((item) => item.seeders).map((x) => x.id);
+}
+
 function enterDialog() {
   selectedTorrentIds.value = torrentItems.map((x) => x.id);
 }
@@ -82,10 +86,11 @@ function enterDialog() {
         </v-toolbar>
       </v-card-title>
       <v-card-text class="overflow-y-hidden">
+        <NavButton icon="mdi-inbox-arrow-up" text="勾选上传行" color="light-blue" @click="handleSelectSeeders" />
         <v-data-table-virtual
           v-model="selectedTorrentIds"
           :headers="tableHeaders"
-          :height="windowHeight - 220"
+          :height="windowHeight - 256"
           :items="torrentItems"
           class="search-entity-table table-stripe table-header-no-wrap table-no-ext-padding"
           fixed-header
