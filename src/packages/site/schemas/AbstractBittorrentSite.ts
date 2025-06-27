@@ -13,6 +13,7 @@ import {
   TSiteUrl,
   ISearchEntryRequestConfig,
   IParsedTorrentListPage,
+  TSchemaMetadataListSelectors,
 } from "../types";
 import {
   definedFilters,
@@ -38,8 +39,6 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: -1,
   search: {},
 };
-
-type TSchemaMetadataListSelectors = Required<Required<Required<ISiteMetadata>["list"]>[number]>["selectors"];
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export default class BittorrentSite {

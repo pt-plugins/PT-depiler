@@ -349,3 +349,5 @@ export interface IParsedTorrentListPage {
   keywords: string;
   torrents: ITorrent[];
 }
+
+export type TSchemaMetadataListSelectors = Required<Required<Required<ISiteMetadata>["list"]>[number]>["selectors"];
