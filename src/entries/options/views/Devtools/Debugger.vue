@@ -114,7 +114,7 @@ const resetItems: resetItem[] = [
   },
   {
     title: "清空站点数据",
-    subTitle: "清空用户所有历史获取的站点数据",
+    subTitle: "清空用户获取的站点数据（包括用户信息历史记录和最近一次用户信息）",
     resetFn: async () => {
       const metadataStore = useMetadataStore();
       if (clearSiteTarget.value === "all") {
@@ -294,7 +294,7 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
                 <v-col cols="12">
                   <v-alert type="warning" variant="tonal">极其危险！！！！</v-alert>
                 </v-col>
-                <v-col md="8">
+                <v-col md="10">
                   <v-list>
                     <v-list-item
                       v-for="item in resetItems"
