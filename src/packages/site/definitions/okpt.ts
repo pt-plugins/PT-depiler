@@ -1,4 +1,4 @@
-import { type ISiteMetadata } from "../types";
+import { type ISiteMetadata, type IAdvancedSearchRequestConfig } from "../types";
 import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
