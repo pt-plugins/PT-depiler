@@ -1,7 +1,12 @@
-import type { ISiteMetadata, IUserInfo } from "../types";
-import NexusPHP, { SchemaMetadata } from "../schemas/NexusPHP";
+import { IAdvancedSearchRequestConfig, ISiteMetadata, IUserInfo } from "../types";
+import NexusPHP, { CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 import { createDocument, parseSizeString } from "@ptd/site";
 import { mergeWith } from "es-toolkit";
+
+const baseLinkQuery = {
+  selector: ['a[href*="download.php?id="]'],
+  attr: "href",
+};
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -20,6 +25,19 @@ export const siteMetadata: ISiteMetadata = {
   urls: ["uggcf://jjj.cggvzr.bet/"],
 
   category: [
+    {
+      name: "搜索入口",
+      key: "url",
+      options: [
+        { name: "综合", value: "/torrents.php" },
+        { name: "9kg", value: "/adults.php" },
+      ],
+      cross: false,
+      generateRequestConfig: (selectedCategories) => {
+        const ret = { requestConfig: { url: selectedCategories, params: {} } };
+        return ret as IAdvancedSearchRequestConfig;
+      },
+    },
     {
       name: "类别",
       key: "cat",
@@ -54,7 +72,27 @@ export const siteMetadata: ISiteMetadata = {
       ],
       cross: { mode: "append" },
     },
+    CategoryIncldead,
+    CategorySpstate,
   ],
+
+  search: {
+    ...SchemaMetadata.search,
+    selectors: {
+      ...SchemaMetadata.search!.selectors,
+      rows: { selector: "table.torrents:last > tbody > tr:gt(0)" }, // 前 50 条
+      category: { text: "DEFAULT", selector: ["span.category"], attr: "title" },
+      id: { selector: [":self"], attr: "data" },
+      link: baseLinkQuery,
+      url: {
+        ...baseLinkQuery,
+        filters: [
+          { name: "querystring", args: ["id"] },
+          { name: "prepend", args: ["/details.php?id="] },
+        ],
+      },
+    },
+  },
 
   searchEntry: {
     area_torrents: { name: "综合", requestConfig: { url: "/torrents.php" } },
