@@ -19,8 +19,22 @@ export const siteMetadata: ISiteMetadata = {
 
   category: [
     {
-      name: "分类",
-      key: "cat",
+      name: "搜索入口",
+      key: "url",
+      options: [
+        { name: "综合影音", value: "/torrents.php" },
+        { name: "音乐写真", value: "/special.php" },
+      ],
+      cross: false,
+      generateRequestConfig: (selectedCategories) => {
+        const ret = { requestConfig: { url: selectedCategories, params: {} } };
+        return ret as IAdvancedSearchRequestConfig;
+      },
+    },
+    {
+      name: "分类（综合影音）",
+      key: "cat_torrents",
+      notes: "请先设置搜索入口为“综合影音”！请勿与音乐写真类别同时选择！",
       options: [
         { name: "电视剧", value: 402 },
         { name: "电影", value: 401 },
@@ -35,6 +49,19 @@ export const siteMetadata: ISiteMetadata = {
         { name: "体育", value: 407 },
         { name: "软件", value: 431 },
         { name: "其他", value: 409 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "分类（音乐写真）",
+      key: "cat_special",
+      notes: "请先设置搜索入口为“音乐写真”！请勿与综合影音类别同时选择！",
+      options: [
+        { name: "音乐", value: 415 },
+        { name: "MV", value: 406 },
+        { name: "演唱会/音乐会", value: 437 },
+        { name: "图片写真", value: 410 },
+        { name: "影视写真", value: 411 },
       ],
       cross: { mode: "append" },
     },
@@ -148,10 +175,67 @@ export const siteMetadata: ISiteMetadata = {
       ],
       cross: { mode: "append" },
     },
+    {
+      name: "地区",
+      key: "processing",
+      options: [
+        { name: "中国大陆（CN）", value: 8 },
+        { name: "港澳台（HK/MAC/TW）", value: 7 },
+        { name: "欧美（EU/US）", value: 6 },
+        { name: "日本（JP）", value: 5 },
+        { name: "韩国（KR）", value: 4 },
+        { name: "印度（India）", value: 17 },
+        { name: "东南亚（SEA）", value: 18 },
+        { name: "其他（Other）", value: 3 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "标签",
+      key: "tag_id",
+      options: [
+        { name: "官方", value: 3 },
+        { name: "禁转", value: 1 },
+        { name: "驻站", value: 56 },
+        { name: "自购", value: 11 },
+        { name: "国语", value: 5 },
+        { name: "粤语", value: 45 },
+        { name: "英语", value: 57 },
+        { name: "日语", value: 28 },
+        { name: "韩语", value: 25 },
+        { name: "中字", value: 6 },
+        { name: "英字", value: 58 },
+        { name: "HDR", value: 7 },
+        { name: "DoVi", value: 8 },
+        { name: "Atmos", value: 53 },
+        { name: "流行(Pop)", value: 13 },
+        { name: "摇滚(Rock)", value: 17 },
+        { name: "电子(Electronic)", value: 21 },
+        { name: "说唱(Rap)", value: 58 },
+        { name: "爵士(Jazz)", value: 18 },
+        { name: "古典(Classical)", value: 14 },
+        { name: "民谣(Folk)", value: 22 },
+        { name: "乡村(Country)", value: 26 },
+        { name: "蓝调(BLUES)", value: 19 },
+        { name: "金属(METAL)", value: 15 },
+        { name: "嘻哈(Hip Hop)", value: 24 },
+        { name: "拉丁(LATIN)", value: 20 },
+        { name: "原声(OST)", value: 16 },
+        { name: "欧美", value: 60 },
+        { name: "9KG", value: 49 },
+        { name: "其他音乐(Others)", value: 29 },
+      ],
+      cross: { mode: "append" },
+    },
     CategoryIncldead,
     CategorySpstate,
     CategoryInclbookmarked,
   ],
+
+  searchEntry: {
+    area_torrents: { name: "综合影音", requestConfig: { url: "/torrents.php" } },
+    area_special: { name: "音乐写真", requestConfig: { url: "/special.php" } },
+  },
 
   levelRequirements: [
     {
