@@ -632,7 +632,15 @@ export default class NexusPHP extends PrivateSite {
     const userId = flushUserInfo.id as number;
     const userUploadsRequestString = await this.requestUserSeedingPage(userId, "uploaded");
     flushUserInfo.uploads = 0;
-    if (userUploadsRequestString && userUploadsRequestString?.includes("<table")) {
+
+    if (
+      // 先按关键字匹配
+      userUploadsRequestString &&
+      /<b>\d+<\/b>(条记录| records|條記錄)|No record.|没有记录|沒有記錄/.test(userUploadsRequestString)
+    ) {
+      flushUserInfo.uploads = userUploadsRequestString.match(/<b>(\d+)<\/b>(条记录| records|條記錄)/)?.[1] ?? 0;
+    } else if (userUploadsRequestString && userUploadsRequestString?.includes("<table")) {
+      // 未匹配到关键字，则从表格中解析
       const userUploadsDocument = createDocument(userUploadsRequestString);
       const divSeeding = Sizzle("div > div:contains(' | ')", userUploadsDocument);
       if (divSeeding.length > 0 && divSeeding[0].textContent) {
@@ -643,6 +651,7 @@ export default class NexusPHP extends PrivateSite {
         flushUserInfo.uploads = trAnothers.length;
       }
     }
+
     return flushUserInfo;
   }
 
