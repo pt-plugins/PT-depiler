@@ -207,7 +207,35 @@ export const siteMetadata: ISiteMetadata = {
         ],
         filters: [{ name: "parseSize" }],
       },
+      bonusPerHour: {
+        selector: ["td.embedded:has(>i.fab.fa-btc)"],
+        filters: [
+          (query: string | number) => {
+            const queryMatch = String(query || "")
+              .replace(/,/g, "")
+              .match(/[\d.]+/g);
+            if (!queryMatch) return 0;
+            const bonusPerHour =
+              queryMatch.length === 4
+                ? parseFloat(queryMatch[1]) + parseFloat(queryMatch[3])
+                : parseFloat(queryMatch[1]);
+            return bonusPerHour;
+          },
+        ],
+      },
     },
+    process: [
+      ...SchemaMetadata.userInfo!.process!.filter((item) => item.requestConfig.url !== "/mybonus.php").map((item) => {
+        // 如果是userdetails.php，添加bonusPerHour字段，这样就能使用我们自定义的selector
+        if (item.requestConfig.url === "/userdetails.php") {
+          return {
+            ...item,
+            fields: [...(item.fields || []), "bonusPerHour"],
+          };
+        }
+        return item;
+      }),
+    ],
   },
 
   levelRequirements: [
