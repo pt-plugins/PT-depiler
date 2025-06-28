@@ -393,22 +393,4 @@ export default class SpringSunday extends NexusPHP {
 
     return flushUserInfo;
   }
-
-  protected override async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
-    const userId = flushUserInfo.id as number;
-    const userUploadsRequestString = await this.requestUserSeedingPage(userId, "uploaded");
-    flushUserInfo.uploads = 0;
-
-    if (
-      userUploadsRequestString &&
-      /<b>\d+<\/b>(条记录| records|條記錄)|No record.|没有记录|沒有記錄/.test(userUploadsRequestString)
-    ) {
-      // 这里就不走 getFieldData 方法了，直接用正则匹配出来就好了
-      flushUserInfo.uploads = userUploadsRequestString.match(/<b>(\d+)<\/b>(条记录| records|條記錄)/)?.[1] ?? 0;
-    } else {
-      return super.parseUserInfoForUploads(flushUserInfo); // 回落到默认的处理
-    }
-
-    return flushUserInfo;
-  }
 }

@@ -287,21 +287,4 @@ export default class Audiences extends NexusPHP {
 
     return flushUserInfo;
   }
-
-  // 获取发种信息
-  protected override async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
-    flushUserInfo.uploads = 0;
-
-    const userId = flushUserInfo.id as number;
-    const data = await this.requestUserSeedingPage(userId, "uploaded");
-
-    if (data && data?.includes("<b")) {
-      const userUploadedPage = createDocument(data);
-      const trAnothers = Sizzle("b:first", userUploadedPage as Document);
-      if (trAnothers.length > 0) {
-        flushUserInfo.uploads = tryToNumber(trAnothers[0].textContent?.trim());
-      }
-    }
-    return flushUserInfo;
-  }
 }
