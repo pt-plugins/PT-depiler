@@ -92,28 +92,32 @@ async function doAutoImport() {
 
     importStatus.value.working = site;
 
-    // 拿到 siteMetadata, siteUserConfig
-    const siteMetadata = canAddSites.value[site] as ISiteMetadata;
-    const siteUserConfig = (await metadataStore.getSiteUserConfig(site, true)) as ISiteUserConfig;
+    try {
+      // 拿到 siteMetadata, siteUserConfig
+      const siteMetadata = canAddSites.value[site] as ISiteMetadata;
+      const siteUserConfig = (await metadataStore.getSiteUserConfig(site, true)) as ISiteUserConfig;
 
-    let isThisSiteSuccess = false;
+      let isThisSiteSuccess = false;
 
-    // 遍历所有设置的 urls
-    for (const siteUrl of siteMetadata.urls) {
-      siteUserConfig.url = siteUrl;
-      await metadataStore.addSite(site, siteUserConfig); // 临时将该设置存入 metadataStore
-      const { status: testStatus } = await sendMessage("getSiteSearchResult", { siteId: site });
-      if (testStatus === EResultParseStatus.success) {
-        isThisSiteSuccess = true; // 如果搜索成功，说明该站点可以自动添加
-        break;
+      // 遍历所有设置的 urls
+      for (const siteUrl of siteMetadata.urls) {
+        siteUserConfig.url = siteUrl;
+        await metadataStore.addSite(site, siteUserConfig); // 临时将该设置存入 metadataStore
+        const { status: testStatus } = await sendMessage("getSiteSearchResult", { siteId: site });
+        if (testStatus === EResultParseStatus.success) {
+          isThisSiteSuccess = true; // 如果搜索成功，说明该站点可以自动添加
+          break;
+        }
       }
-    }
 
-    if (isThisSiteSuccess) {
-      importStatus.value.success.push(site);
-    } else {
+      if (isThisSiteSuccess) {
+        importStatus.value.success.push(site);
+      } else {
+        importStatus.value.failed.push(site);
+        await metadataStore.removeSite(site); // 如果搜索失败，说明该站点不能自动添加，移除在 metadataStore 中临时添加的配置项
+      }
+    } catch (e) {
       importStatus.value.failed.push(site);
-      await metadataStore.removeSite(site); // 如果搜索失败，说明该站点不能自动添加，移除在 metadataStore 中临时添加的配置项
     }
   }
 
