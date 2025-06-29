@@ -34,6 +34,9 @@ const permissions = [
   "unlimitedStorage",
 ];
 
+const base_version = `${pkg.version}.${git.count()}`;
+const commit_version = `${base_version}+${git.short(__dirname)}`;
+
 // https://vitejs.dev/config/
 export default defineConfig({
   build: {
@@ -63,7 +66,8 @@ export default defineConfig({
         manifest_version: 3,
         "{{chrome}}.minimum_chrome_version": "120",
 
-        version: `${pkg.version}.${git.count()}`,
+        version: base_version,
+        "{{chrome}}.version_name": commit_version,
 
         name: "__MSG_extName__",
         description: "__MSG_extDesc__",
@@ -182,7 +186,7 @@ export default defineConfig({
   },
   define: {
     __BROWSER__: JSON.stringify(target),
-    __EXT_VERSION__: JSON.stringify(`v${pkg.version}.${git.count()}+${git.short(__dirname)}`),
+    __EXT_VERSION__: JSON.stringify(`v${commit_version}`),
     __GIT_VERSION__: {
       short: git.short(__dirname),
       long: git.long(__dirname),
