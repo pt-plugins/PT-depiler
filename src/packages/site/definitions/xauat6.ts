@@ -1,8 +1,8 @@
 import { type ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/NexusPHP";
+// import { SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  // ...SchemaMetadata,
   version: 1,
   id: "xauat6",
   name: "溪涧草堂PT",
@@ -15,6 +15,8 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["http://pt.xauat6.edu.cn/"],
+
+  isDead: true,
 
   category: [
     {
