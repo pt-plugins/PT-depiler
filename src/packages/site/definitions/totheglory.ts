@@ -194,6 +194,14 @@ export const siteMetadata: ISiteMetadata = {
     area_gamez: { name: "游戏&软件 Gamez&Warez", requestConfig: { params: { c: "G" } }, enabled: false },
   },
 
+  detail: {
+    urlPattern: ["/details.php"],
+    selectors: {
+      title: { selector: "h1" },
+      link: { selector: 'img[alt="Bittorent"] + a[href^="/dl/"]', attr: "href" },
+    },
+  },
+
   userInfo: {
     pickLast: ["id", "name"],
     process: [

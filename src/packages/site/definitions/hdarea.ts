@@ -22,6 +22,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["uggcf://uqnern.pyho/"],
+  formerHosts: ["www.hdarea.co"],
 
   category: [
     {

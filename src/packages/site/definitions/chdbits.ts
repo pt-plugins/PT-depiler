@@ -15,6 +15,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["uggcf://cgpuqovgf.pb/"],
+  formerHosts: ["chdbits.co"],
 
   category: [
     {
