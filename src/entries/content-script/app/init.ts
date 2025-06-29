@@ -22,6 +22,11 @@ export function mountApp(document: Document, data: any = {}) {
   const contentRoot = document.createElement("div");
   contentRoot.id = "ptd-content-script";
   contentRoot.style.all = "initial"; // 重置样式，避免影响页面样式
+
+  // 添加 vuetify html { ... } 的样式
+  contentRoot.style.boxSizing = "border-box";
+  contentRoot.style.wordBreak = "normal";
+
   const shadowRoot = contentRoot.attachShadow({ mode: "open" });
 
   // 将 css 的样式添加到 shadow DOM 中
