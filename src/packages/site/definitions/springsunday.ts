@@ -338,7 +338,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 3,
-      name: "大师(Master)	",
+      name: "大师(Master)",
       downloaded: "1TB",
       ratio: 1.2,
       alternative: [{ seedingBonus: 500000, uploads: 100 }, { seedingBonus: 1000000 }],

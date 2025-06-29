@@ -127,7 +127,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 0,
       name: "User",
-      privilege: "	新用户的默认级别。只能在每周六中午12点至每周日晚上11点59分发布种子。",
+      privilege: "新用户的默认级别。只能在每周六中午12点至每周日晚上11点59分发布种子。",
     },
     {
       id: 1,
@@ -164,7 +164,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "1536GB",
       ratio: 3.5,
       seedingBonus: 336000,
-      privilege: "	可以查看普通日志，Insane User及以上用户封存账号后不会被删除。",
+      privilege: "可以查看普通日志，Insane User及以上用户封存账号后不会被删除。",
     },
     {
       id: 5,
