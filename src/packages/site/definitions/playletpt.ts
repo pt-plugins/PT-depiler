@@ -8,7 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
   version: 1,
 
-  id: "playlet",
+  id: "playletpt",
   name: "PlayLet",
   description: "微而精，短而美",
   tags: ["短剧"],
