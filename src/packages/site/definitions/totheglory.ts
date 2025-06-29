@@ -195,8 +195,9 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   detail: {
-    urlPattern: ["/details.php"],
+    urlPattern: ["/details.php", /\/t\/(\d+)/],
     selectors: {
+      id: { selector: "a[tid]", attr: "tid" },
       title: { selector: "h1" },
       link: { selector: 'img[alt="Bittorent"] + a[href^="/dl/"]', attr: "href" },
     },
