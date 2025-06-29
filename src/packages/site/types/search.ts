@@ -169,15 +169,16 @@ export interface ISearchCategories {
 
   /**
    *  搜索大类
-   *  注意，在单个站点中搜索大类的 key 不能重复！！！
-   *
-   *  对于一些特殊的情况，如不同搜索入口，可能会出现相同的 key，你可以这样处理：
-   *  1. 将key 设置为 key_xxxx, key_yyyy
-   *  2. 如果这个搜索类别是交叉的，则建议使用 cross.key 覆盖原有的 key
-   *  3. 也可以使用 generateRequestConfig 方法覆盖原有的 key
-   *
+   *  注意：
+   *   1. 在单个站点中搜索大类的 key 不能重复！！！
+   *      对于一些特殊的情况，如不同搜索入口，可能会出现相同的 key，你可以这样处理：
+   *        1. 将key 设置为 key_xxxx, key_yyyy
+   *        2. 如果这个搜索类别是交叉的，则建议使用 cross.key 覆盖原有的 key
+   *        3. 也可以使用 generateRequestConfig 方法覆盖原有的 key
+   *   2. 我们约定了如下的特殊key：
+   *      - #url: 表示直接替换 requestsConfig.url 的值，此时会忽略 keyPath 和 cross 的设置
    */
-  key: string;
+  key: "#url" | string;
   keyPath?: "data" | "params" | string; // 在未设置 generateRequestConfig，用于指导怎么生成请求参数，未指定时默认为 params
 
   options: ISearchCategoryOptions[];

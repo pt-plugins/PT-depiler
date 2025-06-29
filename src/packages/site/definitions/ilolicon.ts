@@ -1,5 +1,10 @@
-import type { ISiteMetadata, IAdvancedSearchRequestConfig } from "../types";
-import NexusPHP, { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+import type { ISiteMetadata } from "../types";
+import NexusPHP, {
+  CategoryInclbookmarked,
+  CategoryIncldead,
+  CategorySpstate,
+  SchemaMetadata,
+} from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -15,23 +20,18 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  collaborator: ["haowenwu","anonymous"],
+  collaborator: ["haowenwu", "anonymous"],
 
   urls: ["uggcf://funer.vybyvpba.pbz/"],
 
   category: [
     {
       name: "搜索入口",
-      key: "url",
+      key: "#url",
       options: [
         { name: "种子区", value: "/torrents.php" },
         { name: "特别区", value: "/special.php" },
       ],
-      cross: false,
-      generateRequestConfig: (selectedCategories) => {
-        const ret = { requestConfig: { url: selectedCategories, params: {} } };
-        return ret as IAdvancedSearchRequestConfig;
-      },
     },
     {
       name: "分类（种子区）",
@@ -365,7 +365,8 @@ export const siteMetadata: ISiteMetadata = {
       id: 202,
       groupType: "manager",
       name: "至高的魔法师",
-      privilege: "可以查看管理组信箱、举报信箱；管理趣味盒内容、投票内容；可以编辑或删除任何发布的种子；可以管理候选；可以管理论坛帖子、用户评论；可以查看机密日志；可以删除任何字幕；可以管理日志中的代码、史册；可以查看用户的邀请记录；可以管理用户帐号的一般信息。不能管理友情链接、最近消息、论坛版块；不能将种子设为置顶或促销；不能查看用户IP或Email等机密信息；不能删除账号。",
+      privilege:
+        "可以查看管理组信箱、举报信箱；管理趣味盒内容、投票内容；可以编辑或删除任何发布的种子；可以管理候选；可以管理论坛帖子、用户评论；可以查看机密日志；可以删除任何字幕；可以管理日志中的代码、史册；可以查看用户的邀请记录；可以管理用户帐号的一般信息。不能管理友情链接、最近消息、论坛版块；不能将种子设为置顶或促销；不能查看用户IP或Email等机密信息；不能删除账号。",
     },
     {
       id: 203,

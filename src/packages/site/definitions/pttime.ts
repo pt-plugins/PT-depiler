@@ -1,4 +1,4 @@
-import { IAdvancedSearchRequestConfig, ISiteMetadata, IUserInfo } from "../types";
+import { ISiteMetadata, IUserInfo } from "../types";
 import NexusPHP, { CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 import { createDocument, parseSizeString } from "@ptd/site";
 import { mergeWith } from "es-toolkit";
@@ -27,16 +27,11 @@ export const siteMetadata: ISiteMetadata = {
   category: [
     {
       name: "搜索入口",
-      key: "url",
+      key: "#url",
       options: [
         { name: "综合", value: "/torrents.php" },
         { name: "9kg", value: "/adults.php" },
       ],
-      cross: false,
-      generateRequestConfig: (selectedCategories) => {
-        const ret = { requestConfig: { url: selectedCategories, params: {} } };
-        return ret as IAdvancedSearchRequestConfig;
-      },
     },
     {
       name: "类别",

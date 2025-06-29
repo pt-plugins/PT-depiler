@@ -1,4 +1,4 @@
-import type { IAdvancedSearchRequestConfig, ISiteMetadata } from "../types";
+import type { ISiteMetadata } from "../types";
 import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
@@ -17,16 +17,11 @@ export const siteMetadata: ISiteMetadata = {
   category: [
     {
       name: "搜索入口",
-      key: "url",
+      key: "#url",
       options: [
         { name: "种子区", value: "/torrents.php" },
         { name: "9KG区", value: "/special.php" },
       ],
-      cross: false,
-      generateRequestConfig: (selectedCategories) => {
-        const ret = { requestConfig: { url: selectedCategories, params: {} } };
-        return ret as IAdvancedSearchRequestConfig;
-      },
     },
     {
       name: "分类（种子区）",

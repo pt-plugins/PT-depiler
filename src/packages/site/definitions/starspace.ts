@@ -1,4 +1,4 @@
-import { ETorrentStatus, IAdvancedSearchRequestConfig, ISiteMetadata } from "../types";
+import { ETorrentStatus, type ISiteMetadata } from "../types";
 import { parseSizeString } from "../utils";
 import Sizzle from "sizzle";
 
@@ -36,16 +36,11 @@ export const siteMetadata: ISiteMetadata = {
   category: [
     {
       name: "搜索入口",
-      key: "url",
+      key: "#url",
       options: [
         { name: "影视区", value: "/p_torrent/video_list_t.php" },
         { name: "音乐区", value: "/p_music/music_list_t.php" },
       ],
-      cross: false,
-      generateRequestConfig: (selectedCategories) => {
-        const ret = { requestConfig: { url: selectedCategories, params: {} } };
-        return ret as IAdvancedSearchRequestConfig;
-      },
     },
   ],
 

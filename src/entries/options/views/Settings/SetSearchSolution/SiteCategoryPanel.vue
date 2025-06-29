@@ -81,27 +81,32 @@ async function generateSolution() {
     if (category.generateRequestConfig) {
       entriesConfig = toMerged(entriesConfig, category.generateRequestConfig(field as TSelectSearchCategoryValue));
     } else {
-      const updatePath = `requestConfig.${category.keyPath ?? "params"}`;
       let fieldKey = category.key;
-      if (category.cross) {
-        if (typeof category.cross.key != "undefined") {
-          fieldKey = category.cross.key as string;
-        }
-        if (category.cross.mode === "append") {
-          for (const option of field as (string | number)[]) {
-            set(entriesConfig, `${updatePath}.${fieldKey}${option}`, 1);
+      if (fieldKey === "#url") {
+        set(entriesConfig, "requestConfig.url", field);
+      } else {
+        const updatePath = `requestConfig.${category.keyPath ?? "params"}`;
+
+        if (category.cross) {
+          if (typeof category.cross.key != "undefined") {
+            fieldKey = category.cross.key as string;
           }
-        } else if (category.cross.mode === "appendQuote") {
-          const options = Object.fromEntries((field as (string | number)[]).map((option) => [option, 1]));
-          set(entriesConfig, `${updatePath}.${fieldKey}`, options);
-        } else if (category.cross.mode === "comma") {
-          set(entriesConfig, `${updatePath}.${fieldKey}`, (field as (string | number)[]).join(","));
+          if (category.cross.mode === "append") {
+            for (const option of field as (string | number)[]) {
+              set(entriesConfig, `${updatePath}.${fieldKey}${option}`, 1);
+            }
+          } else if (category.cross.mode === "appendQuote") {
+            const options = Object.fromEntries((field as (string | number)[]).map((option) => [option, 1]));
+            set(entriesConfig, `${updatePath}.${fieldKey}`, options);
+          } else if (category.cross.mode === "comma") {
+            set(entriesConfig, `${updatePath}.${fieldKey}`, (field as (string | number)[]).join(","));
+          } else {
+            // category.cross.mode === "brackets"
+            set(entriesConfig, `${updatePath}.${fieldKey}`, field);
+          }
         } else {
-          // category.cross.mode === "brackets"
           set(entriesConfig, `${updatePath}.${fieldKey}`, field);
         }
-      } else {
-        set(entriesConfig, `${updatePath}.${fieldKey}`, field);
       }
     }
   }
