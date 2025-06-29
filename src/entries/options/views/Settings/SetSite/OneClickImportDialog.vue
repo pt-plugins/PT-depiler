@@ -51,7 +51,7 @@ const statusIconPropComputed = (site: TSiteID) =>
     let progressIcon = "progress-helper"; // 默认
     let progressColor = "grey";
     let progressTitle = "";
-    if (canAddSites.value[site].userInputSettingMeta) {
+    if (canAddSites.value[site]?.userInputSettingMeta) {
       progressIcon = "progress-close"; // 需要手动添加
       progressColor = "purple";
       progressTitle = t("SetSite.oneClickImportDialog.status.manual");
