@@ -149,9 +149,7 @@ async function sendToDownloader() {
     });
 }
 
-function quickSendToDownloader(downloader: IDownloaderMetadata, path: string, label?: string) {
-  if (!downloader || !path) return;
-
+function quickSendToDownloader(downloader: IDownloaderMetadata, path: string = "", label?: string) {
   selectedDownloader.value = downloader;
 
   // 设置下载推送选项
