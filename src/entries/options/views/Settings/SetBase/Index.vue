@@ -19,13 +19,14 @@ const setBaseTabs = setBaseChildren.map((x) => ({
 }));
 
 const setTab = ref<string>("");
-const setTabRef = useTemplateRef<{ afterSave?: () => Promise<void> }>("setTabRef");
+const setTabRef = useTemplateRef<{ beforeSave?: () => Promise<void>; afterSave?: () => Promise<void> }>("setTabRef");
 
 function enterTab(routeName: string) {
   router.push({ name: routeName });
 }
 
 async function save() {
+  await setTabRef.value?.beforeSave?.(); // 如果对应的 tab 有 afterSave 方法，则调用
   await configStore.$save();
   runtimeStore.showSnakebar("保存成功", { color: "success" });
   await setTabRef.value?.afterSave?.(); // 如果对应的 tab 有 afterSave 方法，则调用

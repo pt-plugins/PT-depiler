@@ -331,6 +331,8 @@ export interface ISiteUserConfig {
   // 上传速度限制，单位为 MB/s，0 或不填时不限速，用于推送种子文件到下载器的时候，传递上传速度限制
   uploadSpeedLimit?: number;
 
+  allowContentScript?: boolean; // 是否允许 content-script 访问该站点，默认为 true
+
   /**
    * 存储用户输入的配置项信息
    */

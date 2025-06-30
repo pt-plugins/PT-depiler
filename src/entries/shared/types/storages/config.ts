@@ -45,6 +45,7 @@ export interface IConfigPiniaStorageSchema {
     defaultOpenSpeedDial: boolean; // 是否默认打开按钮
     stackedButtons: boolean; // 是否使用堆叠按钮
     applyTheme: boolean; // 是否响应主题样式
+    allowExceptionSites: boolean; // 是否允许在 contentScript 中排除站点（即站点不显示侧边栏）
   };
 
   // 对 MyData 页面 v-data-table 展示的额外控制项

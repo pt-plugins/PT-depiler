@@ -41,6 +41,7 @@ export async function getSiteUserConfig(siteId: TSiteID, flush = false) {
     storedSiteUserConfig.groups ??= siteMetaData.tags ?? [];
     storedSiteUserConfig.downloadInterval ??= siteMetaData?.download?.interval ?? 0;
     storedSiteUserConfig.uploadSpeedLimit ??= 0;
+    storedSiteUserConfig.allowContentScript ??= true;
     storedSiteUserConfig.merge ??= {};
   }
 

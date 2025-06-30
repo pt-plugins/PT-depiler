@@ -503,7 +503,8 @@
       "tags": "Tags",
       "type": "Type",
       "url": "URL",
-      "groups": "Site Groups"
+      "groups": "Site Groups",
+      "allowContentScript": "Load Content Script"
     },
     "delete": {
       "text": "Are you sure to delete these {0} Site?"

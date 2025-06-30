@@ -503,7 +503,8 @@
       "tags": "标签",
       "type": "类型",
       "url": "网站链接",
-      "groups": "站点分类"
+      "groups": "站点分类",
+      "allowContentScript": "加载侧边栏"
     },
     "delete": {
       "text": "确认删除这 {0} 个站点吗？"

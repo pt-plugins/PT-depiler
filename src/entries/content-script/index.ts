@@ -20,8 +20,16 @@ sendMessage("getExtStorage", "config").then(async (data) => {
       if (metadataStore.siteHostMap[host]) {
         // 如果当前页面的 host 在 metadataStore 中有对应的 siteId，加载 app
         const siteId = metadataStore.siteHostMap[host];
-        console.debug(`[PTD] host found for site: ${siteId}, loading app...`);
 
+        if (
+          configStore?.contentScript?.allowExceptionSites === true &&
+          metadataStore.sites[siteId]?.allowContentScript === false
+        ) {
+          console.debug(`[PTD] Content script is disabled for site: ${siteId}`);
+          return; // 如果允许排除站点，且站点配置中禁用了 contentScript，则不加载应用
+        }
+
+        console.debug(`[PTD] host found for site: ${siteId}, loading app...`);
         mountApp(document, { siteId });
       }
     });

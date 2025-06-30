@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import type { TSiteID } from "@ptd/site";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
@@ -31,17 +31,33 @@ const showEditDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 const showOneClickImportDialog = ref<boolean>(false);
 
-const tableHeader = [
-  // site favicon
-  { title: "", key: "userConfig.sortIndex", align: "center", width: 48 },
-  { title: t("SetSite.common.name"), key: "name", align: "left", width: 120, sortable: false },
-  { title: t("SetSite.common.groups"), key: "groups", align: "left", minWidth: 120, sortable: false },
-  { title: t("SetSite.common.url"), key: "url", align: "start", sortable: false },
-  { title: t("SetSite.common.isOffline"), key: "userConfig.isOffline", align: "center", width: 180 },
-  { title: t("SetSite.common.allowSearch"), key: "userConfig.allowSearch", align: "center", width: 180 },
-  { title: t("SetSite.common.allowQueryUserInfo"), key: "userConfig.allowQueryUserInfo", align: "center", width: 180 },
-  { title: t("common.action"), key: "action", sortable: false },
-] as DataTableHeader[];
+const tableHeader = computed(() => {
+  const baseHeaders = [
+    // site favicon
+    { title: "", key: "userConfig.sortIndex", align: "center", width: 48 },
+    { title: t("SetSite.common.name"), key: "name", align: "left", width: 120, sortable: false },
+    { title: t("SetSite.common.groups"), key: "groups", align: "left", minWidth: 120, sortable: false },
+    { title: t("SetSite.common.url"), key: "url", align: "start", sortable: false },
+    { title: t("SetSite.common.isOffline"), key: "userConfig.isOffline", align: "center", width: 180 },
+    { title: t("SetSite.common.allowSearch"), key: "userConfig.allowSearch", align: "center", width: 180 },
+    {
+      title: t("SetSite.common.allowQueryUserInfo"),
+      key: "userConfig.allowQueryUserInfo",
+      align: "center",
+      width: 180,
+    },
+  ];
+  if (configStore.contentScript.enabled && configStore.contentScript.allowExceptionSites) {
+    baseHeaders.push({
+      title: t("SetSite.common.allowContentScript"),
+      key: "userConfig.allowContentScript",
+      align: "center",
+      width: 180,
+    });
+  }
+
+  return [...baseHeaders, { title: t("common.action"), key: "action", sortable: false }] as DataTableHeader[];
+});
 
 const booleanUserConfigKeywords = ["isOffline", "allowSearch", "allowQueryUserInfo"];
 
@@ -249,6 +265,15 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
           color="success"
           hide-details
           @update:model-value="(v) => metadataStore.simplePatch('sites', item.id, 'allowQueryUserInfo', v as boolean)"
+        />
+      </template>
+      <template #item.userConfig.allowContentScript="{ item }">
+        <v-switch
+          v-model="item.userConfig.allowContentScript"
+          class="table-switch-btn"
+          color="success"
+          hide-details
+          @update:model-value="(v) => metadataStore.simplePatch('sites', item.id, 'allowContentScript', v as boolean)"
         />
       </template>
       <template #item.action="{ item }">

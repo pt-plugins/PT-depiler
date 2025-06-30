@@ -27,6 +27,7 @@ export const useConfigStore = defineStore("config", {
       defaultOpenSpeedDial: false,
       stackedButtons: false,
       applyTheme: false,
+      allowExceptionSites: false,
     },
 
     tableBehavior: {

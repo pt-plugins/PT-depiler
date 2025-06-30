@@ -1,12 +1,40 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 
-import { useConfigStore } from "@/options/stores/config.ts";
-import { definedLangMetaData } from "@/options/plugins/i18n.ts";
 import { supportTheme } from "@/shared/types.ts";
+import { definedLangMetaData } from "@/options/plugins/i18n.ts";
+
+import { useConfigStore } from "@/options/stores/config.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { isEmpty } from "es-toolkit/compat";
 
 const { t } = useI18n();
 const configStore = useConfigStore();
+const metadataStore = useMetadataStore();
+
+function initContentScriptExceptionSites() {
+  Object.keys(metadataStore.sites).forEach((site) => {
+    if (typeof metadataStore.sites[site].allowContentScript === "undefined") {
+      metadataStore.sites[site].allowContentScript = true;
+    }
+  });
+  metadataStore.$save();
+}
+
+function beforeSave() {
+  // 对从低版本升级上来的用户，在启用例外站点时，补全缺失选项
+  if (
+    configStore.contentScript.enabled &&
+    configStore.contentScript.allowExceptionSites &&
+    !isEmpty(metadataStore.sites)
+  ) {
+    initContentScriptExceptionSites();
+  }
+}
+
+defineExpose({
+  beforeSave,
+});
 </script>
 
 <template>
@@ -56,6 +84,12 @@ const configStore = useConfigStore();
             <v-label>侧边栏基本</v-label>
           </v-col>
           <v-col>
+            <v-switch
+              v-model="configStore.contentScript.allowExceptionSites"
+              color="success"
+              hide-details
+              label="允许设置不启用侧边栏的例外站点（启用后需在站点设置中对应关闭）"
+            />
             <v-switch
               v-model="configStore.contentScript.defaultOpenSpeedDial"
               color="success"
