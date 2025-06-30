@@ -479,21 +479,21 @@ export default class BittorrentSite {
     // 对获取到的种子进行一些通用的处理
     torrent.site ??= this.metadata.id; // 补全种子的 site 属性
     torrent.id ??= tryToNumber(torrent.url || torrent.link); // 补全种子的 id 属性，如果不存在，则由 url, link 属性替代
-    torrent.url && (torrent.url = this.fixLink(torrent.url as string, requestConfig!));
-    torrent.link && (torrent.link = this.fixLink(torrent.link as string, requestConfig!));
+    typeof torrent.url != "undefined" && (torrent.url = this.fixLink(torrent.url as string, requestConfig!));
+    typeof torrent.link != "undefined" && (torrent.link = this.fixLink(torrent.link as string, requestConfig!));
     if (typeof (torrent.size as unknown) === "string") {
       torrent.size = parseSizeString(torrent.size as unknown as string);
     }
-    torrent.size = tryToNumber(torrent.size);
-    torrent.seeders = tryToNumber(torrent.seeders);
-    torrent.leechers = tryToNumber(torrent.leechers);
-    torrent.completed = tryToNumber(torrent.completed);
-    torrent.comments = tryToNumber(torrent.comments);
-    torrent.category = tryToNumber(torrent.category);
-    torrent.status = tryToNumber(torrent.status);
+    typeof torrent.size != "undefined" && (torrent.size = tryToNumber(torrent.size));
+    typeof torrent.seeders != "undefined" && (torrent.seeders = tryToNumber(torrent.seeders));
+    typeof torrent.leechers != "undefined" && (torrent.leechers = tryToNumber(torrent.leechers));
+    typeof torrent.completed != "undefined" && (torrent.completed = tryToNumber(torrent.completed));
+    typeof torrent.comments != "undefined" && (torrent.comments = tryToNumber(torrent.comments));
+    typeof torrent.category != "undefined" && (torrent.category = tryToNumber(torrent.category));
+    typeof torrent.status != "undefined" && (torrent.status = tryToNumber(torrent.status));
 
     // 仅当设置了时区偏移时，才进行转换
-    if (this.metadata.timezoneOffset) {
+    if (this.metadata.timezoneOffset && typeof torrent.time !== "undefined") {
       torrent.time = parseTimeWithZone(torrent.time as unknown as string, this.metadata.timezoneOffset);
     }
 

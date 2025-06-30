@@ -1,6 +1,6 @@
 import Sizzle from "sizzle";
 import { parseSizeString } from "../utils";
-import type { ISiteMetadata, ITorrent, IUserInfo, ISearchInput } from "../types";
+import { ISiteMetadata, ITorrent, IUserInfo, ISearchInput, IParsedTorrentListPage } from "../types";
 import Gazelle, { SchemaMetadata } from "../schemas/Gazelle.ts";
 
 type boxName = "stats" | "community" | "personal";
@@ -26,6 +26,33 @@ const userInfoMap: Record<"en" | "ja", Record<boxName | keyof IUserInfo, string>
     bonus: "ボーナスポイント",
     levelName: "階級:",
   },
+};
+
+const preTorrentListPageRegex = /torrents?.php.*[?&]id=/;
+const preTorrentListPageSelectors = {
+  rows: { selector: "tr.group_torrent" },
+  id: {
+    selector: "a[href*='torrents.php?action=download&id='][title='Download']",
+    attr: "href",
+    filters: [{ name: "querystring", args: ["id"] }],
+  },
+  title: {
+    selector: ":self",
+    elementProcess: (el: HTMLElement) => {
+      const bodyElement = el.closest("body");
+      if (bodyElement) {
+        const titleElement = bodyElement.querySelector("h2");
+        return titleElement ? titleElement.textContent?.trim() || "" : "";
+      }
+      return "";
+    },
+  },
+  subTitle: { selector: ["a[onclick]"], filters: [{ name: "replace", args: ["»", ""] }, { name: "trim" }] },
+  link: { selector: ["a[href*='torrents.php?action=download'][title='Download']"], attr: "href" },
+  size: { selector: ["td:nth-child(2)"], filters: [{ name: "parseSize" }] },
+  seeders: { selector: ["td:nth-child(4)"], filters: [{ name: "parseNumber" }] },
+  leechers: { selector: ["td:nth-child(5)"], filters: [{ name: "parseNumber" }] },
+  completed: { selector: ["td:nth-child(3)"], filters: [{ name: "parseNumber" }] },
 };
 
 function genUserInfoSelector(boxName: boxName, field: keyof IUserInfo): string[] {
@@ -95,6 +122,11 @@ export const siteMetadata: ISiteMetadata = {
       tags: [{ selector: "strong:contains('Freeleech!')", name: "Free", color: "blue" }],
     },
   },
+
+  list: [
+    { urlPattern: [preTorrentListPageRegex], selectors: preTorrentListPageSelectors },
+    { urlPattern: ["torrents.php"], mergeSearchSelectors: true },
+  ],
 
   userInfo: {
     ...SchemaMetadata.userInfo!,
@@ -225,6 +257,34 @@ export default class Jpopsuki extends Gazelle {
       }
     }
     return torrents;
+  }
+
+  public override async transformListPage(doc: Document): Promise<IParsedTorrentListPage> {
+    const parsedListPageUrl = doc.URL || location.href; // 获取当前页面的 URL
+
+    // 单个种子的特殊页面处理
+    if (preTorrentListPageRegex.test(parsedListPageUrl)) {
+      const retData = { keywords: "", torrents: [] } as IParsedTorrentListPage;
+      const searchConfig = {
+        searchEntry: { selectors: preTorrentListPageSelectors },
+        requestConfig: { url: parsedListPageUrl },
+      };
+
+      const trs = Sizzle(preTorrentListPageSelectors.rows.selector, doc);
+
+      for (const tr of trs) {
+        try {
+          retData.torrents.push((await this.parseWholeTorrentFromRow({}, tr, searchConfig)) as ITorrent);
+        } catch (e) {
+          console.debug(`[PTD] site '${this.name}' parseWholeTorrentFromRow Error:`, e, tr);
+        }
+      }
+
+      return retData;
+    }
+
+    // 其他情况仍交给 super.transformListPage 处理
+    return super.transformListPage(doc);
   }
 
   private async getUserTorrentList(userId: number, page: number = 0, type: string = "seeding"): Promise<Document> {
