@@ -337,21 +337,31 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       ...SchemaMetadata.userInfo!.selectors,
       bonusPerHour: {
-        selector: ["td.text h1:first ~ div"],
-        filters: [
-          (query: string | number) => {
-            const queryMatch = String(query || "")
-              .replace(/,/g, "")
-              .match(/[\d.]+/g);
-            if (!queryMatch) return 0;
-            // 如果匹配到10个数字，取第0、5、8位相加；否则只取第0位
-            const bonusPerHour =
-              queryMatch.length === 10
-                ? parseFloat(queryMatch[0]) + parseFloat(queryMatch[5]) + parseFloat(queryMatch[8])
-                : parseFloat(queryMatch[0]);
-            return bonusPerHour;
-          },
-        ],
+        selector: ["td.text:has(>h1)"],
+        elementProcess: (element: any) => {
+          if (!element) return 0;
+
+          // 查找所有包含魔力值信息的div元素
+          const divs = element.querySelectorAll('div[align="center"]');
+          let allText = "";
+
+          // 将所有div的文本内容合并
+          divs.forEach((div: any) => {
+            allText += (div.textContent || div.innerText || "") + " ";
+          });
+
+          const queryMatch = String(allText || "")
+            .replace(/,/g, "")
+            .match(/[\d.]+/g);
+          if (!queryMatch) return 0;
+
+          // 如果匹配到10个数字，取第0、5、8位相加；否则只取第0位
+          const bonusPerHour =
+            queryMatch.length === 10
+              ? parseFloat(queryMatch[0]) + parseFloat(queryMatch[5]) + parseFloat(queryMatch[8])
+              : parseFloat(queryMatch[0]);
+          return bonusPerHour;
+        },
       },
     },
   },
