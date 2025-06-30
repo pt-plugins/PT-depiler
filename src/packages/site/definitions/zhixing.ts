@@ -87,6 +87,16 @@ export const siteMetadata: ISiteMetadata = {
       ],
     },
   },
+
+  detail: {
+    urlPattern: ["/torrents/(\\d+)"],
+    selectors: {
+      id: { selector: "a[href*='/download/']", attr: "href", filters: [{ name: "parseNumber" }] },
+      title: { selector: "div.torrent-title h1", filters: [{ name: "replace", args: ["种子名称：", ""] }] },
+      link: { selector: "a[href*='/download/']", attr: "href" },
+    },
+  },
+
   userInfo: {
     pickLast: ["id", "name"],
     process: [

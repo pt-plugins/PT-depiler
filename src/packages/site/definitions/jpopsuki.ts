@@ -274,7 +274,9 @@ export default class Jpopsuki extends Gazelle {
 
       for (const tr of trs) {
         try {
-          retData.torrents.push((await this.parseWholeTorrentFromRow({}, tr, searchConfig)) as ITorrent);
+          const torrent = (await this.parseWholeTorrentFromRow({}, tr, searchConfig)) as ITorrent;
+          torrent.url ??= parsedListPageUrl;
+          retData.torrents.push(torrent);
         } catch (e) {
           console.debug(`[PTD] site '${this.name}' parseWholeTorrentFromRow Error:`, e, tr);
         }
