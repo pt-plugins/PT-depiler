@@ -343,12 +343,11 @@ export const siteMetadata: ISiteMetadata = {
 
           // 查找所有包含魔力值信息的div元素
           const divs = element.querySelectorAll('div[align="center"]');
-          let allText = "";
 
           // 将所有div的文本内容合并
-          divs.forEach((div: any) => {
-            allText += (div.textContent || div.innerText || "") + " ";
-          });
+          const allText = Array.from(divs)
+            .map((div: any) => div.textContent || div.innerText || "")
+            .join(" ");
 
           const queryMatch = String(allText || "")
             .replace(/,/g, "")
