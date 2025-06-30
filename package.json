@@ -41,7 +41,7 @@
     "pnpm": ">=9.11.0"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.10",
+    "@tailwindcss/vite": "^4.1.11",
     "@vueuse/components": "^13.4.0",
     "@vueuse/core": "^13.4.0",
     "@webext-core/job-scheduler": "^1.0.0",
