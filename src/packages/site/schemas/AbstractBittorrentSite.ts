@@ -28,11 +28,9 @@ import axios, { type AxiosError, type AxiosRequestConfig, type AxiosResponse } f
 import Sizzle from "sizzle";
 import { get, isEmpty, set } from "es-toolkit/compat";
 import { chunk, pascalCase, pick, toMerged, union } from "es-toolkit";
-import { setupCache } from "axios-cache-interceptor";
 import { setupReplaceUnsafeHeader } from "~/extends/axios/replaceUnsafeHeader.ts";
 
-// 默认启用 axios-cache-interceptor，以减少对站点的请求次数
-setupCache(axios);
+// 默认允许 axios 请求替换 unsafeheader
 setupReplaceUnsafeHeader(axios);
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {

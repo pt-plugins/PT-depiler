@@ -48,7 +48,6 @@
     "@webext-core/messaging": "^2.3.0",
     "@webext-core/storage": "^1.2.0",
     "axios": "^1.10.0",
-    "axios-cache-interceptor": "^1.8.0",
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
     "echarts": "^5.6.0",
