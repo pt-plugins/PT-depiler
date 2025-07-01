@@ -638,7 +638,7 @@ export default class NexusPHP extends PrivateSite {
       userUploadsRequestString &&
       /<b>\d+<\/b>(条记录| records|條記錄)|No record.|没有记录|沒有記錄/.test(userUploadsRequestString)
     ) {
-      flushUserInfo.uploads = Number(userUploadsRequestString.match(/<b>(\d+)<\/b>(条记录| records|條記錄)/)?.[1]) ?? 0;
+      flushUserInfo.uploads = Number(userUploadsRequestString.match(/<b>(\d+)<\/b>(条记录| records|條記錄)/)?.[1] ?? 0);
     } else if (userUploadsRequestString && userUploadsRequestString?.includes("<table")) {
       // 未匹配到关键字，则从表格中解析
       const userUploadsDocument = createDocument(userUploadsRequestString);
