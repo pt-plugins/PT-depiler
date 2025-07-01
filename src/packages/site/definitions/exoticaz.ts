@@ -153,8 +153,8 @@ export const siteMetadata: ISiteMetadata = {
       groupType: "manager",
       privilege: "Can upload.",
     },
-    { id: 205, name: "Moderator", groupType: "manager" },
-    { id: 205, name: "Admin", groupType: "manager" },
+    { id: 203, name: "Moderator", groupType: "manager" },
+    { id: 204, name: "Admin", groupType: "manager" },
     { id: 205, name: "Super Admin", groupType: "manager" },
   ],
 
