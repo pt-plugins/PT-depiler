@@ -217,6 +217,7 @@ export const siteMetadata: ISiteMetadata = {
         { selector: ".tag.tag-hdr10", name: "HDR10", color: "green" },
         { selector: ".tag.tag-hdr10p", name: "HDR10+", color: "green-darken-3" },
         { selector: ".tag.tag-hlg", name: "HLG", color: "green-lighten-1" },
+        { selector: ".tag.tag-hdrvivid", name: "HDR Vivid", color: "#3BE500" },
       ],
     },
   },
