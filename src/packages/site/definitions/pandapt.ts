@@ -151,7 +151,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 3,
       name: "Crazy User",
-      interval: "P8W",
+      interval: "P15W",
       downloaded: "1024GB",
       ratio: 3.0,
       seedingBonus: 126000,
@@ -160,7 +160,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 4,
       name: "Insane User",
-      interval: "P15W",
+      interval: "P40W",
       downloaded: "1536GB",
       ratio: 3.5,
       seedingBonus: 336000,
@@ -169,7 +169,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 5,
       name: "Veteran User",
-      interval: "P40W",
+      interval: "P60W",
       downloaded: "2048GB",
       ratio: 4.0,
       seedingBonus: 504000,
@@ -178,7 +178,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 6,
       name: "Extreme User",
-      interval: "P60W",
+      interval: "P80W",
       downloaded: "3072GB",
       ratio: 4.5,
       seedingBonus: 672000,
@@ -187,7 +187,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 7,
       name: "Ultimate User",
-      interval: "P80W",
+      interval: "P100W",
       downloaded: "4096GB",
       ratio: 5.0,
       seedingBonus: 840000,
@@ -196,7 +196,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 8,
       name: "Nexus Master",
-      interval: "P100W",
+      interval: "P120W",
       downloaded: "8192GB",
       ratio: 6.0,
       seedingBonus: 1008000,
