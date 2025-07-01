@@ -88,7 +88,7 @@ export const SchemaMetadata: Pick<
     advanceKeywordParams: {
       imdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
-          set(config!, "params.imdb", config!.data.search.replace("tt", ""));
+          set(config!, "params.imdb", config!.params.search.replace("tt", ""));
           delete config!.params.search;
           return config!;
         }
@@ -178,7 +178,7 @@ export const SchemaMetadata: Pick<
       name: "password",
       label: "Password",
       hint: "Fill with your password" +
-      "Please confirm enable ‘Enable RSS Feed’ in acconut settings",
+      "Please confirm enable ‘Enable RSS Feed’ in account settings",
       required: true,
     },
     {
@@ -296,7 +296,6 @@ export default class AvistazNetwork extends PrivateSite {
     axiosConfig: AxiosRequestConfig, 
     checkLogin: boolean = true
   ): Promise<AxiosResponse<T>> {
-    const isApiRequest = axiosConfig.url?.startsWith("/api/v1");
 
 		if (axiosConfig.url === "/api/v1/jackett/auth") {
 			axiosConfig.method = "POST";
