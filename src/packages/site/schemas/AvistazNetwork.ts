@@ -209,7 +209,7 @@ export default class AvistazNetwork extends PrivateSite {
       site: this.metadata.id,
     }; 
 
-    if (this.allowQueryUserInfo) {
+    if (!this.allowQueryUserInfo) {
       flushUserInfo.status = EResultParseStatus.passParse;
       flushUserInfo.name = this.userConfig.inputSetting?.username;
       flushUserInfo.levelName = "应站点要求，不启用用户数据获取";
