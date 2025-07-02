@@ -6,7 +6,7 @@ export const siteMetadata: ISiteMetadata = {
 
   version: 1,
   id: "1ptba",
-  name: "1ptba",
+  name: "1PTBar",
   aka: ["壹PT"],
   description: "分享互联，收获快乐",
   tags: ["综合", "影视"],

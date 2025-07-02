@@ -100,6 +100,7 @@ export async function doSearchEntity(
       });
       console.log(`success get search ${solutionKey} result, with code ${searchStatus}: `, searchResult);
       runtimeStore.search.searchPlan[solutionKey].status = searchStatus;
+
       for (const item of searchResult) {
         const itemUniqueId = `${item.site}-${item.id}`;
         const isDuplicate = runtimeStore.search.searchResult.some((result) => result.uniqueId == itemUniqueId);

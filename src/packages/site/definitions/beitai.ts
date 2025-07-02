@@ -4,6 +4,8 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "beitai",
   name: "备胎",
+  description: "找不到家时，接纳无家可归的人",
+
   collaborator: ["wyx1818", "tongyifan"],
 
   type: "private",

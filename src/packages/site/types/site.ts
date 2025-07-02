@@ -339,6 +339,13 @@ export interface ISiteUserConfig {
   inputSetting?: Record<ISiteUserInputMeta["name"], string>;
 
   /**
+   * 站点实例在运行过程中生成的配置项
+   * 该部分内容设置时需要使用 this.storeRuntimeSettings(key, value) 方法进行设置，
+   * value 可以是任意可以 Json 化的字段
+   */
+  runtimeSettings?: Record<string, any>;
+
+  /**
    * 如果存在该项，则该项会在站点实例化时使用 toMerged 方法合并到 config 中，此处主要用于用户在特殊情况下覆盖默认配置
    * 比如用户可以通过覆盖站点配置 $.search.searchEntry[*].enabled 项，在默认搜索中启用或禁用某一搜索入口
    */

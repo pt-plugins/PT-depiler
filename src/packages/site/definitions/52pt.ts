@@ -12,7 +12,7 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["高清", "电影", "电视剧"],
   timezoneOffset: "+0800",
 
-  collaborator: ["zhuweitung"],
+  collaborator: ["StarGazerQQD", "zhuweitung"],
 
   type: "private",
   schema: "NexusPHP",

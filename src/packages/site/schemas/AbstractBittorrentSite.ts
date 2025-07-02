@@ -1,3 +1,9 @@
+import Sizzle from "sizzle";
+import { get, isEmpty, set } from "es-toolkit/compat";
+import { chunk, pascalCase, pick, toMerged, union } from "es-toolkit";
+import { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
+
+import { axios, retrieve, store } from "../utils/adapter.ts";
 import {
   EResultParseStatus,
   IElementQuery,
@@ -24,14 +30,6 @@ import {
   parseTimeWithZone,
   tryToNumber,
 } from "../utils";
-import axios, { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
-import Sizzle from "sizzle";
-import { get, isEmpty, set } from "es-toolkit/compat";
-import { chunk, pascalCase, pick, toMerged, union } from "es-toolkit";
-import { setupReplaceUnsafeHeader } from "~/extends/axios/replaceUnsafeHeader.ts";
-
-// 默认允许 axios 请求替换 unsafeheader
-setupReplaceUnsafeHeader(axios);
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: -1,
@@ -75,6 +73,17 @@ export default class BittorrentSite {
    */
   protected loggedCheck(raw: AxiosResponse): boolean {
     return true;
+  }
+
+  protected async storeRuntimeSettings<T extends any>(key: string, value: T): Promise<T> {
+    this.userConfig.runtimeSettings ??= {}; // 确保 runtimeSettings 存在
+    this.userConfig.runtimeSettings[key] = value; // 更新当前实例的 runtimeSettings
+    await store(this.metadata.id, key, value); // 持久化
+    return value;
+  }
+
+  protected async retrieveRuntimeSettings<T>(key: string): Promise<T | null> {
+    return (this.userConfig.runtimeSettings?.[key] ?? (await retrieve<T>(this.metadata.id, key))) as T | null;
   }
 
   public async request<T>(axiosConfig: AxiosRequestConfig, checkLogin: boolean = true): Promise<AxiosResponse<T>> {
