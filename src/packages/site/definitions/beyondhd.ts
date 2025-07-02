@@ -124,6 +124,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "Refund", value: "refund" },
         { name: "Rescue", value: "rescue" },
         { name: "Rewind", value: "rewind" },
+        { name: "Reboot", value: "reboot" },
       ],
       cross: { mode: "append", key: "" },
     },
@@ -449,8 +450,8 @@ interface IBhdRawTorrent {
   hdr10: number;
   "hdr10+": number;
   hlg: number;
-  audio: string[];
-  subtitles: string[];
+  audios: string;
+  subtitles: string;
   commentary: number;
   description: string;
   mediainfo: number;
@@ -473,6 +474,7 @@ interface IBhdRawTorrent {
   freeleech: number;
   rewind: number;
   refund: number;
+  reboot: number;
   limited: number;
   rescue: number;
   bumped_at: string;
@@ -504,19 +506,18 @@ export default class BeyondHD extends PrivateSite {
     }
 
     try {
-      const pickLast = await this.getUserBaseInfoFromSite();
-      flushUserInfo = toMerged(flushUserInfo, pickLast);
+      // 获取基础信息
+      flushUserInfo = toMerged(flushUserInfo, await this.getUserBaseInfoFromSite());
 
-      const { name: userName, id: userId } = pickLast;
-      if (userName && userId) {
-        const detailInfo = await this.getUserExtendInfoFromDetails(userName, String(userId));
-        flushUserInfo = toMerged(flushUserInfo, detailInfo);
+      // 获取扩展信息
+      if (lastUserInfo !== null && lastUserInfo.name && lastUserInfo.id) {
+        flushUserInfo = toMerged(flushUserInfo, await this.getUserExtendInfoFromDetails(lastUserInfo.name, lastUserInfo.id as string));
+      } else {
+        flushUserInfo = toMerged(flushUserInfo, await this.getUserExtendInfoFromDetails(flushUserInfo.name as string, flushUserInfo.id as string));
       }
 
-      const bonusInfo = await this.getBonusPerHourFromBonus();
-      if (bonusInfo) {
-        flushUserInfo = toMerged(flushUserInfo, { bonusPerHour: bonusInfo });
-      }
+      // 获取时魔
+      flushUserInfo = toMerged(flushUserInfo, await this.getBonusPerHourFromBonus());
       
       if (this.metadata.levelRequirements && flushUserInfo.levelName && typeof flushUserInfo.levelId === "undefined") {
         flushUserInfo.levelId = this.guessUserLevelId(flushUserInfo as IUserInfo);
@@ -556,49 +557,44 @@ export default class BeyondHD extends PrivateSite {
     ) as Partial<IUserInfo>;
   }
 
-  protected async getBonusPerHourFromBonus(): Promise<string> {
+  protected async getBonusPerHourFromBonus(): Promise<Partial<IUserInfo>> {
     const { data: dataDocument } = await this.request<Document>({
-        url: "/bp",
-        responseType: "document",
-      }, true);
+      url: "/bp",
+      responseType: "document",
+    });
 
-    return this.getFieldData(
+    return this.getFieldsData(
       dataDocument,
-      this.metadata.userInfo?.selectors?.bonusPerHour!);
-  }
-
-  protected override loggedCheck(raw: AxiosResponse<any>): boolean {
-    if (this.isApiResponse(raw.config?.url)) {
-      return raw.data?.success === true && raw.data?.status_code === 1;
-    }
-    return super.loggedCheck(raw);
-  }
-
-  protected isApiResponse(url?: string): boolean {
-    return url?.startsWith("/api/") ?? false;
+      this.metadata.userInfo?.selectors!,
+      ["bonusPerHour"]
+    ) as Partial<IUserInfo>;
   }
 
   public override async request<T>(
     axiosConfig: AxiosRequestConfig,
     checkLogin = true,
   ): Promise<AxiosResponse<T>> {
-    const isApi = axiosConfig.url?.startsWith("/api/") ?? false;
 
     if (axiosConfig.url === "/api/torrents") {
       const apikey = this.userConfig.inputSetting?.apikey ?? "";
+      const rsskey = this.userConfig.inputSetting?.rsskey ?? "";
       axiosConfig.url = `/api/torrents/${apikey}`;
-
-      if (this.userConfig.inputSetting?.rsskey) {
-        axiosConfig.data = {
-          ...axiosConfig.data,
-          rsskey: this.userConfig.inputSetting.rsskey,
-        };
-      }
+      axiosConfig.data = {
+        ...axiosConfig.data,
+        rsskey: `${rsskey}`,
+      };
     }
-    const response = await super.request<T>(axiosConfig, isApi ? false : checkLogin);
-    return response;
+    return  await super.request<T>(axiosConfig, checkLogin);
   }
 
+  protected override loggedCheck(raw: AxiosResponse<IBhdSearchRawResp<any>>): boolean {
+    const isApiResp = raw.config.url?.startsWith("/api") ?? false;
+    if (isApiResp) {
+      return raw.data?.success === true && raw.data?.status_code === 1;
+    }
+    return super.loggedCheck(raw);
+  }
+  
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
     row: IBhdRawTorrent,
@@ -616,6 +612,7 @@ export default class BeyondHD extends PrivateSite {
       rewind: { name: "Rewind" },
       refund: { name: "Refund" },
       rescue: { name: "Rescue" },
+      reboot: { name: "Reboot" },
       tv_pack: { name: "完结" },
     };
 
@@ -626,10 +623,16 @@ export default class BeyondHD extends PrivateSite {
     }
 
     // TODO: 增加更多中文化tag，与NPHP体验一致
-    /* const subtitleField = (row.subtitles ?? []).join(" ").toLowerCase();
-    // if (subtitleField.includes("cantonese") || subtitleField.includes("chinese")) {
-    //   tags.push({ name: "中字" });
-     }*/
+    const languageRegex = /(Chinese|Cantonese)(\s*\(.*\))?/i;
+
+    const audioArray = row.audios.split(', ').filter(item => item.trim() !== '');
+    if (audioArray.some(audio => languageRegex.test(audio))) {
+      tags.push({ name: "中配" });
+    }
+    const subtitleArray = row.subtitles.split(', ').filter(item => item.trim() !== '');
+    if (subtitleArray.some(subtitle => languageRegex.test(subtitle))) {
+      tags.push({ name: "中字" });
+    }
 
     torrent.tags = tags;
     return torrent;
