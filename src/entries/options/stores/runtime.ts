@@ -11,6 +11,7 @@ import type { IRuntimePiniaStorageSchema, ISearchData, SnackbarMessageOptions } 
 const initialSearchData: () => ISearchData = () => ({
   isSearching: false,
   startAt: 0,
+  endAt: 0,
   searchKey: "",
   searchPlanKey: "default",
   searchPlan: {},
@@ -41,7 +42,15 @@ export const useRuntimeStore = defineStore("runtime", {
 
   getters: {
     searchCostTime(state) {
-      return Object.values(state.search.searchPlan).reduce((acc, cur) => acc + (cur.costTime ?? 0), 0);
+      if (!state.search.startAt) {
+        return 0;
+      }
+
+      // 如果搜索正在进行，则使用当前时间作为结束时间；否则使用记录的结束时间
+      const endTime = state.search.isSearching ? Date.now() : state.search.endAt;
+
+      // 如果 endTime 无效（例如搜索刚结束但 endAt 未写入），则使用 startAt 作为备用，使返回值为0
+      return (endTime || state.search.startAt) - state.search.startAt;
     },
 
     isUserInfoFlush(state) {
