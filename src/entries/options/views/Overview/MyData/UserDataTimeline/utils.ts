@@ -140,6 +140,8 @@ export const timelineDataRef = useResetableRef<ITimelineData>(() => {
             value = parseFloat(userInfo[userInfoKey]);
           } catch (e) {}
 
+          if (!isFinite(value)) continue; // 如果不是有限数字，则跳过
+
           result.totalInfo[userInfoKey] += value; // 更新总量
 
           // 更新最大值和次大值
