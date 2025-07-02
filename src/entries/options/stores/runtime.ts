@@ -42,15 +42,20 @@ export const useRuntimeStore = defineStore("runtime", {
 
   getters: {
     searchCostTime(state) {
-      if (!state.search.startAt) {
+      const plans = Object.values(state.search.searchPlan).filter((plan) => plan.startAt);
+
+      if (plans.length === 0) {
         return 0;
       }
 
-      // 如果搜索正在进行，则使用当前时间作为结束时间；否则使用记录的结束时间
-      const endTime = state.search.isSearching ? Date.now() : state.search.endAt;
+      const now = Date.now();
+      const startTimes = plans.map((plan) => plan.startAt!);
+      const endTimes = plans.map((plan) => plan.endAt || (plan.costTime ? plan.startAt! + plan.costTime : now));
 
-      // 如果 endTime 无效（例如搜索刚结束但 endAt 未写入），则使用 startAt 作为备用，使返回值为0
-      return (endTime || state.search.startAt) - state.search.startAt;
+      const earliestStart = Math.min(...startTimes);
+      const latestEnd = Math.max(...endTimes);
+
+      return latestEnd - earliestStart;
     },
 
     isUserInfoFlush(state) {

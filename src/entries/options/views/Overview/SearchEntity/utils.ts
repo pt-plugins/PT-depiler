@@ -114,7 +114,9 @@ export async function doSearchEntity(
       runtimeStore.search.searchPlan[solutionKey].count = runtimeStore.search.searchResult.filter(
         (item) => item.solutionKey == solutionKey,
       ).length;
-      runtimeStore.search.searchPlan[solutionKey].costTime = Date.now() - startAt;
+      const endAt = Date.now();
+      runtimeStore.search.searchPlan[solutionKey].endAt = endAt;
+      runtimeStore.search.searchPlan[solutionKey].costTime = endAt - startAt;
     },
     { priority: queuePriority, id: solutionKey },
   );

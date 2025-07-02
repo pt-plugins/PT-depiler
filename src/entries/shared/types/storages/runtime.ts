@@ -21,6 +21,7 @@ export interface ISearchPlanStatus {
   queueAt?: number;
   queuePriority?: number;
   startAt?: number;
+  endAt?: number;
   costTime?: number;
   count?: number;
 }
