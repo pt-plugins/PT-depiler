@@ -220,7 +220,7 @@ export default class AvistazNetwork extends PrivateSite {
     };
 
     /* 预留获取用户信息
-    if (!this.allowQueryUserInfo()) {
+    if (!this.allowQueryUserInfo) {
       flushUserInfo.status = EResultParseStatus.passParse;
       return flushUserInfo;
     }
