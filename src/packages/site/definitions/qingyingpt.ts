@@ -11,7 +11,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://hitpt.org/"],
+  urls: ["uggcf://uvgcg.bet/"],
 
   // refs: https://github.com/pt-plugins/PT-Plugin-Plus/commit/d5b58d2dba5286a1e35205f1c8ad37d3e8f22f9f
   isDead: true,

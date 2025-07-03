@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://npupt.com/"],
+  urls: ["uggcf://achcg.pbz/"],
 
   isDead: true,
 };

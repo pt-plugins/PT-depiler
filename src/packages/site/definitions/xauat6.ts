@@ -14,7 +14,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["http://pt.xauat6.edu.cn/"],
+  urls: ["uggc://cg.knhng6.rqh.pa/"],
 
   isDead: true,
 

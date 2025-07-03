@@ -27,7 +27,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://pterclub.com/"],
+  urls: ["uggcf://cgrepoho.pbz/"],
   formerHosts: ["pter.club"],
 
   category: [

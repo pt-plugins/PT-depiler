@@ -11,7 +11,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://www.cnscg.club/"],
+  urls: ["uggcf://jjj.pafpt.pyho/"],
   formerHosts: ["www.hdscg.cc"],
 
   favicon: "./_default_nexusphp.png", // 实在找不到favicon了

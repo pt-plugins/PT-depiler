@@ -11,7 +11,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "meanTorrent",
 
-  urls: ["https://mine.pt/"],
+  urls: ["uggcf://zvar.cg/"],
 
   // refs: https://github.com/pt-plugins/PT-Plugin-Plus/commit/ef7a885c052a9dc23286fb54e33dbef3dd9431ed
   isDead: true,

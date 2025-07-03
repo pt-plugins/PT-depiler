@@ -19,7 +19,7 @@ export const siteMetadata: ISiteMetadata = {
 
   collaborator: ["AllenPu"],
 
-  urls: ["https://pt.itzmx.com/"],
+  urls: ["uggcf://cg.vgmzk.pbz/"],
 
   category: [
     {

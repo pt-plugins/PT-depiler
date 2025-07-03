@@ -12,7 +12,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://avgv.cc/"],
+  urls: ["uggcf://nitv.pp/"],
 
   // refs: https://github.com/pt-plugins/PT-Plugin-Plus/commit/1366757f3f42c0c3afb31fe67a6ace722a8a2663
   isDead: true,

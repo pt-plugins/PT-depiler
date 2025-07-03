@@ -22,7 +22,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://pt.sjtu.edu.cn/"],
+  urls: ["uggcf://cg.fwgh.rqh.pa/"],
 
   category: [
     {

@@ -19,7 +19,7 @@ export const siteMetadata: ISiteMetadata = {
 
   collaborator: ["端端"],
 
-  urls: ["https://playletpt.xyz/"],
+  urls: ["uggcf://cynlyrgcg.klm/"],
 
   category: [CategoryIncldead, CategorySpstate, CategoryInclbookmarked],
 

@@ -19,7 +19,7 @@ export const siteMetadata: ISiteMetadata = {
 
   collaborator: ["yum"],
 
-  urls: ["https://kufei.org/"],
+  urls: ["uggcf://xhsrv.bet/"],
 
   category: [CategoryIncldead, CategorySpstate, CategoryInclbookmarked],
 

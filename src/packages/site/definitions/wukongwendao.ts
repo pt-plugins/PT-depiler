@@ -11,7 +11,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://wukongwendao.top/", "https://wukongwendao.top/"],
+  urls: ["uggcf://jhxbatjraqnb.gbc/", "uggcf://jhxbatjraqnb.gbc/"],
 
   isDead: true,
 

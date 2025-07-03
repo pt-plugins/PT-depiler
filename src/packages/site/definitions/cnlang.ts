@@ -11,7 +11,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Discuz",
 
-  urls: ["https://cnlang.org/"],
+  urls: ["uggcf://paynag.bet/"],
 
   // refs: https://github.com/pt-plugins/PT-Plugin-Plus/commit/1aa73d0f9b0afb4511c1be7810d7dafc4268cd4d
   isDead: true,

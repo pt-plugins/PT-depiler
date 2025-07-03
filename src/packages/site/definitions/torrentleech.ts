@@ -79,11 +79,11 @@ export const siteMetadata: ISiteMetadata = {
   schema: "AbstractPrivateSite",
 
   urls: [
-    "https://www.torrentleech.org/",
-    "https://www.torrentleech.cc/",
-    "https://www.torrentleech.me/",
-    "https://www.tleechreload.org/",
-    "https://www.tlgetin.cc/",
+    "uggcf://jjj.gbeerapgyrrpu.bet/",
+    "uggcf://jjj.gbeerapgyrrpu.pp/",
+    "uggcf://jjj.gbeerapgyrrpu.zr/",
+    "uggcf://jjj.gyrrapuerybnq.bet/",
+    "uggcf://jjj.gytrgva.pp/",
   ],
 
   category: [

@@ -21,7 +21,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://byr.pt/"],
+  urls: ["uggcf://ole.cg/"],
   formerHosts: ["bt.byr.cn"],
 
   category: [

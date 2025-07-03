@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Gazelle",
 
-  urls: ["https://sanpro.pw/"],
+  urls: ["uggcf://fnaceb.cj/"],
 
   isDead: true,
 

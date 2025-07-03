@@ -11,7 +11,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["http://ihdbits.me/", "https://pt.newworld.plus/"],
+  urls: ["uggc://vuqovgf.zr/", "uggcf://cg.arjjbeyq.cyhf/"],
 
   favicon: "./_default_nexusphp.png",
 

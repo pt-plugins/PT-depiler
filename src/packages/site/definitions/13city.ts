@@ -13,7 +13,7 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: ["13City"],
   type: "private",
   schema: "NexusPHP",
-  urls: ["https://13city.org/"],
+  urls: ["uggcf://13pvgl.bet/"],
   formerHosts: ["13city.online"],
   category: [
     {

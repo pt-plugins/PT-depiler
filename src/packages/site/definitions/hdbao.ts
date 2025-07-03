@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://hdbao.cc/"],
+  urls: ["uggcf://uqonb.pp/"],
 
   category: [
     {

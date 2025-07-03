@@ -14,7 +14,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://tmpt.top/"],
+  urls: ["uggcf://gzcg.gbc/"],
 
   levelRequirements: [
     {

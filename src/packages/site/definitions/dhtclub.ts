@@ -13,7 +13,7 @@ export const siteMetadata: ISiteMetadata = {
 
   collaborator: ["AllenPu"],
 
-  urls: ["https://pt.dhtclub.com/"],
+  urls: ["uggcf://cg.qugpyho.pbz/"],
 
   isDead: true,
 

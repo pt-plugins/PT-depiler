@@ -55,7 +55,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "AbstractPrivateSite",
 
-  urls: ["https://totheglory.im/"],
+  urls: ["uggcf://gbguryrbel.vz/"],
   category: [
     {
       name: "分类入口",

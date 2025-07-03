@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://njtupt.top/"],
+  urls: ["uggcf://awghcg.gbc/"],
 
   category: [CategoryIncldead, CategorySpstate, CategoryInclbookmarked],
 

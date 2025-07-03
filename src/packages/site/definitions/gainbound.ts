@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://gainbound.net/"],
+  urls: ["uggcf://tnvaobhaq.arg/"],
 
   // refs: https://github.com/pt-plugins/PT-Plugin-Plus/commit/43a47b75a1a24523e9788a7ffca83a5407dfa5d6
   isDead: true,

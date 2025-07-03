@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://www.hd.ai/"],
+  urls: ["uggcf://jjj.uq.nv/"],
   host: "hd.ai",
 
   // refs: https://github.com/pt-plugins/PT-Plugin-Plus/commit/fc106917a4a9b5834633e5d4903912e02846235f

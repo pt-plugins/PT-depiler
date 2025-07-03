@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://hdstreet.club/"],
+  urls: ["uggcf://uqfgerrg.pyho/"],
 
   // refs: https://github.com/pt-plugins/PT-Plugin-Plus/commit/2c9591371523ad237f5c6f34335cb118738ea9ba
   isDead: true,

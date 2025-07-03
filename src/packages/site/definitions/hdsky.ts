@@ -20,7 +20,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://hdsky.me/"],
+  urls: ["uggcf://uqfxl.zr/"],
 
   category: [
     {

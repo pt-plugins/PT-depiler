@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://whu.pt/"],
+  urls: ["uggcf://juh.cg/"],
 
   isDead: true, // 于 2019年12月31日正式关站
 };

@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://hdvideo.one/"],
+  urls: ["uggcf://uqivqrb.bar/"],
 
   isDead: true,
 

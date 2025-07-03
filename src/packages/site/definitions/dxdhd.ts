@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Unit3D",
 
-  urls: ["https://dxdhd.com/"],
+  urls: ["uggcf://qkquq.pbz/"],
 
   favicon: "./_default_unit3d.ico",
 

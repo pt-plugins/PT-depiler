@@ -8,7 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Unit3D",
 
-  urls: ["https://pt.hdpost.top/"],
+  urls: ["uggcf://cg.uqcbfg.gbc/"],
 
   isDead: true,
 };

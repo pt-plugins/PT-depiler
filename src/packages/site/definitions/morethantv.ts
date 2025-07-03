@@ -36,7 +36,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Luminance",
 
-  urls: ["https://www.morethantv.me/"],
+  urls: ["uggcf://jjj.zbergunagi.zr/"],
 
   category: [
     {

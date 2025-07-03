@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://www.sts.tw/"],
+  urls: ["uggcf://jjj.fgf.gj/"],
 
   favicon: "./_default_nexusphp.png", // 实在找不到favicon了
 

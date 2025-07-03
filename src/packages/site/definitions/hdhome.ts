@@ -94,7 +94,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://hdhome.org/"],
+  urls: ["uggcf://uqubzr.bet/"],
 
   category: [
     {

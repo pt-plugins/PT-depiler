@@ -19,7 +19,7 @@ export const siteMetadata: ISiteMetadata = {
 
   collaborator: ["AllenPu"],
 
-  urls: ["https://ptvicomo.net/"],
+  urls: ["uggcf://cgivpbzb.arg/"],
 
   category: [
     {

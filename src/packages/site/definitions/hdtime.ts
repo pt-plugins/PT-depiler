@@ -13,7 +13,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://hdtime.org/"],
+  urls: ["uggcf://uqgvzr.bet/"],
 
   category: [
     {

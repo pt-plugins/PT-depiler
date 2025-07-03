@@ -17,7 +17,7 @@ export const siteMetadata: ISiteMetadata = {
   name: "OurBits",
   schema: "NexusPHP",
   type: "private",
-  urls: ["https://ourbits.club/"],
+  urls: ["uggcf://bheoygf.pyho/"],
   description: "综合性网站，有分享率要求",
   tags: ["影视", "动漫", "纪录片", "综艺"],
   collaborator: ["Rhilip"],

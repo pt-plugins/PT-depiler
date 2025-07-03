@@ -19,7 +19,7 @@ export const siteMetadata: ISiteMetadata = {
 
   collaborator: ["sewerpt"],
 
-  urls: ["https://sewerpt.com/"],
+  urls: ["uggcf://frjrecg.pbz/"],
 
   category: [CategoryIncldead, CategorySpstate, CategoryInclbookmarked],
 

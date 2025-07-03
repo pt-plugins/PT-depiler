@@ -15,7 +15,7 @@ export const siteMetadata: ISiteMetadata = {
 
   collaborator: ["haowenwu"],
 
-  urls: ["https://our.kelu.one/"],
+  urls: ["uggcf://bhe.xryh.bar/"],
 
   levelRequirements: [
     {

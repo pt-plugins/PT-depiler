@@ -12,7 +12,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   favicon: "./_default_nexusphp.png",
-  urls: ["https://www.beitai.pt/"],
+  urls: ["uggcf://jjj.orvgnv.cg/"],
 
   isDead: true,
 

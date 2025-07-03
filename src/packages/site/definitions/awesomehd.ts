@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Gazelle",
 
-  urls: ["https://awesome-hd.me/"],
+  urls: ["uggcf://njrfbzr-uq.zr/"],
 
   // refs: https://github.com/pt-plugins/PT-Plugin-Plus/commit/65e36ee58a53affd08485754b24293881b69e822
   isDead: true,

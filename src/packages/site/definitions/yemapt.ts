@@ -111,7 +111,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "YemaPT",
 
-  urls: ["https://www.yemapt.org/"],
+  urls: ["uggcf://jjj.lrzncg.bet/"],
 
   category: [
     {

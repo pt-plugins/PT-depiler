@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "GazelleJSONAPI",
 
-  urls: ["https://snakepop.art/"],
+  urls: ["uggcf://fanxrcbc.neg/"],
 
   // NOTE 这个站实在没有找到 favicon
 

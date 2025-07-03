@@ -9,7 +9,7 @@ export const siteMetadata: ISiteMetadata = {
 
   type: "private",
 
-  urls: ["https://pornbits.net/"],
+  urls: ["uggcf://cbeaovgf.arg/"],
 
   // refs: https://github.com/pt-plugins/PT-Plugin-Plus/commit/fc106917a4a9b5834633e5d4903912e02846235f
   isDead: true,

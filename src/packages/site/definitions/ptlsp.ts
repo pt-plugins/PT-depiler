@@ -12,7 +12,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://www.ptlsp.com/"],
+  urls: ["uggcf://jjj.cgyfc.pbz/"],
   host: "ptlsp.com",
 
   // refs: https://github.com/pt-plugins/PT-Plugin-Plus/commit/ef7a885c052a9dc23286fb54e33dbef3dd9431ed

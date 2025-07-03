@@ -11,7 +11,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP", // meanTorrent
 
-  urls: ["https://www.ptdream.net/", "https://plus.ptdream.net/"],
+  urls: ["uggcf://jjj.cgqernz.arg/", "uggcf://cyhf.cgqernz.arg/"],
 
   // refs: https://github.com/pt-plugins/PT-Plugin-Plus/commit/db87ee0843f474d31edb84bbe92f82dafb3236ad
   isDead: true,

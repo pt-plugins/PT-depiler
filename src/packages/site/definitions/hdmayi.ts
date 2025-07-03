@@ -11,7 +11,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["http://hdmayi.com/"],
+  urls: ["uggc://uqznlv.pbz/"],
 
   // refs: https://github.com/pt-plugins/PT-Plugin-Plus/commit/c6d81bb5bc5d8ea68fcf02860c3aa9310ae0a614
   isDead: true,

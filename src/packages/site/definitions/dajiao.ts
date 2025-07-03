@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://dajiao.cyou/"],
+  urls: ["uggcf://qnwvnb.plbh/"],
 
   isDead: true,
 };

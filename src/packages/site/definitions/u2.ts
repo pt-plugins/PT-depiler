@@ -12,7 +12,7 @@ export const siteMetadata: ISiteMetadata = {
 
   schema: "NexusPHP",
   type: "private",
-  urls: ["https://u2.dmhy.org/"],
+  urls: ["uggcf://h2.qzul.bet/"],
 
   category: [
     {

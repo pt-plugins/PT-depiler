@@ -12,7 +12,7 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["综合", "电影", "电视剧", "纪录片"],
   type: "private",
   schema: "NexusPHP",
-  urls: ["https://www.hdkyl.in/", "https://na.hdkylin.com/", "https://cf.hdkylin.com/"],
+  urls: ["uggcf://jjj.uqxly.va/", "uggcf://an.uqxlyva.pbz/", "uggcf://ps.uqxlyva.pbz/"],
   favicon: "https://www.hdkyl.in/favicon.ico",
 
   levelRequirements: [

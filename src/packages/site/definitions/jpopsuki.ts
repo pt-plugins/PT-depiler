@@ -73,7 +73,7 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: ["ronggang", "ted423", "luckiestone", "amorphobia"],
   type: "private",
   schema: "Gazelle",
-  urls: ["https://jpopsuki.eu/"],
+  urls: ["uggcf://wcbcfhxv.rh/"],
   category: [
     {
       name: "Category",

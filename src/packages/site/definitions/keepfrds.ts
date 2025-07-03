@@ -18,7 +18,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://pt.keepfrds.com/"],
+  urls: ["uggcf://cg.xrrcseqf.pbz/"],
   favicon: "https://pt.keepfrds.com/static/favicon-64x64.png",
 
   category: [

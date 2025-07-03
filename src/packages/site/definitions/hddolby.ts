@@ -15,7 +15,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://www.hddolby.com/"],
+  urls: ["uggcf://jjj.uqqbyol.pbz/"],
   formerHosts: ["hddolby.com"],
 
   category: [

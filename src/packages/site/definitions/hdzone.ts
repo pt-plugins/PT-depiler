@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://hdfun.me/"],
+  urls: ["uggcf://uqsha.zr/"],
   formerHosts: ["hdzone.me"],
 
   favicon: "./_default_nexusphp.png",

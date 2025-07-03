@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "TBSource",
 
-  urls: ["https://ccfbits.org/"],
+  urls: ["uggcf://ppsoygf.bet/"],
 
   isDead: true,
 

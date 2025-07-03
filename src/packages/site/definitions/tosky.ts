@@ -9,7 +9,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://t.tosky.club/"],
+  urls: ["uggcf://g.gbfxl.pyho/"],
 
   isDead: true,
 

@@ -12,7 +12,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://club.hares.top/"],
+  urls: ["uggcf://pyho.unerf.gbc/"],
 
   // refs: https://github.com/pt-plugins/PT-Plugin-Plus/commit/4371f6ebecf2743acb3817303fdcc36cf5b0118e
   isDead: true,

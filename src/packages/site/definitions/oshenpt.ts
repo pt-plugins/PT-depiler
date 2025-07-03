@@ -19,7 +19,7 @@ export const siteMetadata: ISiteMetadata = {
 
   collaborator: ["AllenPu"],
 
-  urls: ["https://www.oshen.win/"],
+  urls: ["uggcf://jjj.bfura.jva/"],
 
   category: [
     {

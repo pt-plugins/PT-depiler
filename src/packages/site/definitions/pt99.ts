@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://pt.j99.info/"],
+  urls: ["uggcf://cg.w99.vasb/"],
 
   favicon: "./_default_nexusphp.png", // 实在找不到favicon了
 

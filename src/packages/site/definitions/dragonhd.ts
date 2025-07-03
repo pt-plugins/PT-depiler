@@ -17,7 +17,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://www.dragonhd.xyz/"],
+  urls: ["uggcf://jjj.qentbauq.klm/"],
   formerHosts: ["dragonhd.xyz"],
 
   category: [CategoryIncldead, CategorySpstate, CategoryInclbookmarked],

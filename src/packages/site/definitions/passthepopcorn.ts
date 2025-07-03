@@ -16,7 +16,7 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: ["enigmaz"],
   type: "private",
   schema: "Gazelle",
-  urls: ["https://passthepopcorn.me/"],
+  urls: ["uggcf://cnffgurcbcpbea.zr/"],
 
   // 搜索分类
   category: [

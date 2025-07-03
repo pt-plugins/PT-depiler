@@ -17,7 +17,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://www.icc2022.com/"],
+  urls: ["uggcf://jjj.vpp2022.pbz/"],
 
   // refs: https://web.archive.org/web/20250629023542/https://www.icc2022.com/
   isDead: true,

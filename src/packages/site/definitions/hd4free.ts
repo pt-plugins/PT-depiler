@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Unit3D",
 
-  urls: ["https://hd4.xyz/"],
+  urls: ["uggcf://uq4.klm/"],
 
   // refs: https://github.com/pt-plugins/PT-Plugin-Plus/commit/2c9591371523ad237f5c6f34335cb118738ea9ba
   isDead: true,

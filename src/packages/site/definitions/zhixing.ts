@@ -16,7 +16,7 @@ export const siteMetadata: ISiteMetadata = {
 
   type: "private",
   schema: "CGBTSource",
-  urls: ["http://pt.zhixing.bjtu.edu.cn/"],
+  urls: ["uggc://cg.muvkhat.owgh.rqh.pa/"],
 
   category: [
     {
