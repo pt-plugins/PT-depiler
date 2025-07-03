@@ -4,6 +4,8 @@ import Sizzle from "sizzle";
 import { set } from "es-toolkit/compat";
 
 import PrivateSite from "./AbstractPrivateSite";
+import { retrieveStore } from "@ptd/site/utils/adapter.ts";
+
 import {
   EResultParseStatus,
   ETorrentStatus,
@@ -20,11 +22,11 @@ interface AuthSuccessResp {
   expiry: number;
 }
 
-interface AuthErrorResp {
+interface AuthFailResp {
   message: string;
 }
 
-type AvzNetAuthResp = AuthSuccessResp | AuthErrorResp;
+type AvzNetAuthResp = AuthSuccessResp | AuthFailResp;
 
 export interface IAvzNetRawTorrent {
   id: number;
@@ -166,12 +168,11 @@ export const SchemaMetadata: Pick<
       snatches: { selector: [".card .tag-yellow"], filters: [{ name: "parseNumber" }] },
       seeding: { selector: [".card .tag-indigo"], filters: [{ name: "parseNumber" }] },
       hnrUnsatisfied: { selector: [".card .tag-red"], filters: [{ name: "parseNumber" }] },
-    },
+
     // TODO：为减少token获取次数，预留存储位
-    /*
-      authToken: { selector: ["token"] },
-      authExpiry: { selector: ["expiry"] },
-    */
+      authToken: { text: "" },
+      authExpiry: { text: "" },
+    },
   },
 
   userInputSettingMeta: [
@@ -204,10 +205,6 @@ export default class AvistazNetwork extends PrivateSite {
     > User information will never be available in any form or API, as we respect the privacy and confidentiality of user information.
     @refs: https://github.com/pt-plugins/PT-Plugin-Plus/issues/996#issuecomment-1057856310
   */
-  public override get allowQueryUserInfo(): boolean {
-    return false;
-  }
-
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let flushUserInfo: IUserInfo = {
       status: EResultParseStatus.unknownError,
@@ -215,13 +212,19 @@ export default class AvistazNetwork extends PrivateSite {
       site: this.metadata.id,
     };
 
-    if (!this.allowQueryUserInfo) {
+    flushUserInfo = {
+      ...flushUserInfo,
+      status: EResultParseStatus.passParse,
+      name: this.userConfig.inputSetting?.username,
+      levelName: "应站点要求，不启用用户数据获取",
+    };
+
+    /* 预留获取用户信息
+    if (!this.allowQueryUserInfo()) {
       flushUserInfo.status = EResultParseStatus.passParse;
-      flushUserInfo.name = this.userConfig.inputSetting?.username;
-      flushUserInfo.levelName = "应站点要求，不启用用户数据获取";
       return flushUserInfo;
     }
-    /* 预留获取用户信息
+
       // 对 AvistazNetwork，如果定义了 process，则按照 AbstractPrivateSite 的方式处理
       if (Array.isArray(this.metadata.userInfo?.process)) {
         return await super.getUserInfoResult(lastUserInfo);
@@ -322,63 +325,58 @@ export default class AvistazNetwork extends PrivateSite {
     }
     if (axiosConfig.url?.startsWith("/api/v1/jackett/torrents")) {
       axiosConfig.method = "GET";
-      const apiAuth = await this.getAuthToken();
-      if ("token" in apiAuth) {
-        // If 'token' exists, TypeScript now knows authResponse is AuthSuccessResp
-        axiosConfig.headers = {
-          ...(axiosConfig.headers ?? {}),
-          Authorization: `Bearer ${apiAuth.token ?? ""}`,
-        };
-      } else {
-        throw new Error(`Authentication failed: ${apiAuth.message || "Unknown error"}`);
-      }
+      const token = await this.getAuthToken();
+			axiosConfig.headers = {
+				...(axiosConfig.headers ?? {}),
+				Authorization: `Bearer ${token}`,
+			};
     }
+
     return super.request<T>(axiosConfig, checkLogin);
   }
 
-  // TODO：为减少token获取次数，预留函数
-  /*
-  public async getAuthToken(): Promise<{ token: string; expiry: number }> {
-  // 检查当前token是否存在且未过期
-    if (this.metadata.userInfo?.selectors?.authToken &&
-        this.metadata.userInfo?.selectors?.authExpiry &&
-        this.metadata.userInfo.selectors.authExpiry > Math.floor(Date.now() / 1000)) {
-      return {
-        token: this.metadata.userInfo.selectors.authToken,
-        expiry: this.metadata.userInfo.selectors.authExpiry
-      };
+  // 使用 retrieveRuntimeSettings 作为中间存储，存储 `token` 以及 `expiry` 降低授权频率
+  public async getAuthToken(lastUserInfo: Partial<IUserInfo> = {}): Promise<string> {
+    const currentTime = Math.floor(Date.now() / 1000); // 当前时间戳，单位为秒
+
+    // 1. 判断 runtimeSettings 获取存储的 token 和 expiry
+    const storedAuthToken = await this.retrieveRuntimeSettings<string>("authToken");
+    const storedAuthExpiry = await this.retrieveRuntimeSettings<number>("authExpiry");
+
+    if (storedAuthToken && storedAuthExpiry && storedAuthExpiry > currentTime) {
+      console.log("Found valid token in runtimeSettings. Returning existing token.");
+      return storedAuthToken;
     }
 
-  // 请求新token
-    const { data: apiAuth } = await this.request<AvzNetAuthResp>(
-      {
+    // 2. 如果过期或不存在，发起新的授权请求
+    console.log("Token expired or not found. Requesting new token...");
+    try {
+      const { data: apiAuth } = await this.request<AvzNetAuthResp>({
         url: "/api/v1/jackett/auth",
         responseType: "json",
-      }, true);
+      });
 
-  // 计算并覆写过期时间戳
-    apiAuth.expiry = Math.floor(Date.now() / 1000) + apiAuth.expiry;
+      // 使用类型守卫判断响应类型
+      if ("token" in apiAuth  && typeof apiAuth.token === 'string') { // 检查 token 属性是否存在且为字符串
 
-    // 获取并写入metadata
-    this.getFieldData(
-      apiAuth,
-      this.metadata.userInfo?.selectors!,
-      ["authToken", "authExpiry"]
-    );
+        // 3. 计算新的过期时间并存储
+        const newAuthExpiry = currentTime + apiAuth.expiry; // expiry 已经是 number 类型，直接相加
+        await this.storeRuntimeSettings("authToken", apiAuth.token);
+        await this.storeRuntimeSettings("authExpiry", newAuthExpiry);
 
-    return {
-      token: this.metadata.userInfo!.selectors!.authToken!,
-      expiry: this.metadata.userInfo!.selectors!.authExpiry!
-    };
-  }
-  */
-  public async getAuthToken(): Promise<AvzNetAuthResp> {
-    const { data: apiAuth } = await this.request<AvzNetAuthResp>({
-      url: "/api/v1/jackett/auth",
-      responseType: "json",
-    });
+        console.log("Successfully obtained and stored new token.");
+        return apiAuth.token;
+      } else if ("message" in apiAuth && typeof apiAuth.message === 'string') { // 检查 message 属性是否存在且为字符串
+        console.error(`Failed to get new token: ${apiAuth.message}`);
+      } else {
+        console.error("Failed to get new token: Unexpected response format or missing required properties.");
+      }
+    } catch (error) {
+      throw new Error(`Error during authorization request`);
+    }
 
-    return apiAuth ?? [];
+    // 如果所有尝试都失败，则返回空字符串
+    return "";
   }
 
   protected override parseTorrentRowForTags(
