@@ -6,11 +6,12 @@ export const siteMetadata: ISiteMetadata = {
 
   version: 1,
   id: "tlfbits",
-  name: "The Last Fantasy",
-  description: "",
+  name: "TLFBits",
+  aka: ["TLF Bits", "The Last Fantasy"],
+  description: "水管虽小，坚持则大！宛如TLF，虽弱却奢华",
   tags: ["影视", "综合"],
   timezoneOffset: "+0800",
-  collaborator: ["zxb0303"],
+  collaborator: ["waldens", "zxb0303"],
 
   type: "private",
   schema: "NexusPHP",
@@ -89,7 +90,8 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P8W",
       downloaded: "120GB",
       ratio: 2.55,
-      privilege: "可以查看用户的种子历史记录，如下载种子的历史记录（只有用户的隐私等级没有设为’强‘时才生效）; 可以查看高级会员区 . Elite User +论坛。",
+      privilege:
+        "可以查看用户的种子历史记录，如下载种子的历史记录（只有用户的隐私等级没有设为’强‘时才生效）; 可以查看高级会员区 . Elite User +论坛。",
     },
     {
       id: 4,
@@ -97,7 +99,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P15W",
       downloaded: "300GB",
       ratio: 3.05,
-      privilege: '可以查看排行榜；可以在做种/下载/发布的时候选择匿名模式。',
+      privilege: "可以查看排行榜；可以在做种/下载/发布的时候选择匿名模式。",
     },
     {
       id: 5,
@@ -113,7 +115,8 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P40W",
       downloaded: "750GB",
       ratio: 5.05,
-      privilege: "得到一个邀请名额；可以查看其它用户的评论、帖子历史(如果用户隐私等级未设置为\"强\"); Veteran User及以上等级的账号将永远保留。",
+      privilege:
+        '得到一个邀请名额；可以查看其它用户的评论、帖子历史(如果用户隐私等级未设置为"强"); Veteran User及以上等级的账号将永远保留。',
     },
     {
       id: 7,

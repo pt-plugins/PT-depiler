@@ -16,7 +16,7 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["影视", "综合"],
   timezoneOffset: "+0800",
 
-  collaborator: ["zhuweitung"],
+  collaborator: ["lzl20110", "zhuweitung"],
 
   type: "private",
   schema: "NexusPHP",

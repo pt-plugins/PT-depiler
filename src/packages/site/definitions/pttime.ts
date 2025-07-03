@@ -14,7 +14,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "pttime",
   name: "PTTime",
-  description: "",
+  description: "PT时间",
   tags: ["影视", "综合", "成人"],
   timezoneOffset: "+0800",
   collaborator: ["zxb0303"],

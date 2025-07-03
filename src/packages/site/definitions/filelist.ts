@@ -24,6 +24,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "FileList",
 
   urls: ["uggcf://svyryvfg.vb/"],
+  formerHosts: ["flro.org"],
 
   category: [
     {
@@ -135,103 +136,104 @@ export const siteMetadata: ISiteMetadata = {
 
   userInfo: {
     pickLast: ["id", "joinTime"],
-    selectors: {
-      // "page": "/index.php",
-      id: {
-        selector: [".statusbar a[href*='userdetails.php']:has(>span)"],
-        attr: "href",
-        filters: [{ name: "querystring", args: ["id"] }],
-      },
-      name: {
-        selector: [".statusbar a[href*='userdetails.php'] span"],
-      },
-      messageCount: {
-        text: 0,
-        selector: ".statusbar a[href*='messages.php']",
-        filters: [
-          (query: string | number) => {
-            const queryMatch = String(query || "").match(/(\d+)/); // query 有时会直接传入 0
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
-          },
-        ],
-      },
-      uploaded: {
-        selector: ["span:has(img[src*='uploaded'])"],
-        filters: [
-          (query: string) => {
-            const queryMatch = query.replace(/,/g, "").match(/(上[传傳]量|Uploaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
-            return queryMatch && queryMatch.length === 3 ? parseSizeString(queryMatch[2]) : 0;
-          },
-        ],
-      },
-      downloaded: {
-        selector: ["span:has(img[src*='downloaded'])"],
-        filters: [
-          (query: string) => {
-            const queryMatch = query.replace(/,/g, "").match(/(下[载載]量|Downloaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
-            return queryMatch && queryMatch.length === 3 ? parseSizeString(queryMatch[2]) : 0;
-          },
-        ],
-      },
-      bonus: {
-        selector: [".statusbar a[href*='shop.php']"],
-        filters: [
-          (query: string) => {
-            return query ? parseFloat(query.replace(/[\s,]/g, "")) : 0;
-          },
-        ],
-      },
-
-      // "page": "/userdetails.php",
-      levelName: {
-        selector: ["td:contains('Class') + td"],
-      },
-      joinTime: {
-        selector: ["td:contains('Join'):contains('date') + td"],
-        filters: [
-          (query: string) => {
-            query = query.split(" (")[0];
-            return parseValidTimeString(query);
-          },
-        ],
-      },
-      seeding: {
-        selector: ["td:contains('Seed'):contains('bonus') + td > div:first"],
-        filters: [
-          (query: string) => {
-            const queryMatch = query?.match(/Seeding (\d+) torrents with a total seed size of ([\d.\s,ZEPTGMKiB]+)\./);
-            return queryMatch && queryMatch.length > 2 ? queryMatch[1] : 0;
-          },
-        ],
-      },
-      seedingSize: {
-        selector: ["td:contains('Seed'):contains('bonus') + td > div:first"],
-        filters: [
-          (query: string) => {
-            const queryMatch = query?.match(/Seeding (\d+) torrents with a total seed size of ([\d.\s,ZEPTGMKiB]+)\./);
-            return queryMatch && queryMatch.length > 2 ? parseSizeString(queryMatch[2]) : "0";
-          },
-        ],
-      },
-      bonusPerHour: {
-        selector: ["td:contains('Seed'):contains('bonus') + td > div:nth-child(3)"],
-        filters: [
-          (query: string) => {
-            const queryMatch = query?.match(/Total: ([\d,.]+) FLCoins \/ hour/);
-            return queryMatch && queryMatch.length > 1 ? parseFloat(queryMatch[1].replace(/,/, "")) : "0";
-          },
-        ],
-      },
-    },
     process: [
       {
         requestConfig: { url: "/index.php", responseType: "document" },
-        fields: ["id", "name", "messageCount", "uploaded", "downloaded", "bonus"],
+        selectors: {
+          id: {
+            selector: [".statusbar a[href*='userdetails.php']:has(>span)"],
+            attr: "href",
+            filters: [{ name: "querystring", args: ["id"] }],
+          },
+          name: {
+            selector: [".statusbar a[href*='userdetails.php'] span"],
+          },
+          messageCount: {
+            text: 0,
+            selector: ".statusbar a[href*='messages.php']",
+            filters: [
+              (query: string | number) => {
+                const queryMatch = String(query || "").match(/(\d+)/); // query 有时会直接传入 0
+                return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
+              },
+            ],
+          },
+          uploaded: {
+            selector: ["span:has(img[src*='uploaded'])"],
+            filters: [
+              (query: string) => {
+                const queryMatch = query.replace(/,/g, "").match(/(上[传傳]量|Uploaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+                return queryMatch && queryMatch.length === 3 ? parseSizeString(queryMatch[2]) : 0;
+              },
+            ],
+          },
+          downloaded: {
+            selector: ["span:has(img[src*='downloaded'])"],
+            filters: [
+              (query: string) => {
+                const queryMatch = query.replace(/,/g, "").match(/(下[载載]量|Downloaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+                return queryMatch && queryMatch.length === 3 ? parseSizeString(queryMatch[2]) : 0;
+              },
+            ],
+          },
+          bonus: {
+            selector: [".statusbar a[href*='shop.php']"],
+            filters: [
+              (query: string) => {
+                return query ? parseFloat(query.replace(/[\s,]/g, "")) : 0;
+              },
+            ],
+          },
+        },
       },
       {
         requestConfig: { url: "/userdetails.php", responseType: "document" },
         assertion: { id: "params.id" },
-        fields: ["levelName", "joinTime", "seeding", "seedingSize", "bonusPerHour"],
+        selectors: {
+          levelName: {
+            selector: ["td:contains('Class') + td"],
+          },
+          joinTime: {
+            selector: ["td:contains('Join'):contains('date') + td"],
+            filters: [
+              (query: string) => {
+                query = query.split(" (")[0];
+                return parseValidTimeString(query);
+              },
+            ],
+          },
+          seeding: {
+            selector: ["td:contains('Seed'):contains('bonus') + td > div:first"],
+            filters: [
+              (query: string) => {
+                const queryMatch = query?.match(
+                  /Seeding (\d+) torrents with a total seed size of ([\d.\s,ZEPTGMKiB]+)\./,
+                );
+                return queryMatch && queryMatch.length > 2 ? queryMatch[1] : 0;
+              },
+            ],
+          },
+          seedingSize: {
+            selector: ["td:contains('Seed'):contains('bonus') + td > div:first"],
+            filters: [
+              (query: string) => {
+                const queryMatch = query?.match(
+                  /Seeding (\d+) torrents with a total seed size of ([\d.\s,ZEPTGMKiB]+)\./,
+                );
+                return queryMatch && queryMatch.length > 2 ? parseSizeString(queryMatch[2]) : "0";
+              },
+            ],
+          },
+          bonusPerHour: {
+            selector: ["td:contains('Seed'):contains('bonus') + td > div:nth-child(3)"],
+            filters: [
+              (query: string) => {
+                const queryMatch = query?.match(/Total: ([\d,.]+) FLCoins \/ hour/);
+                return queryMatch && queryMatch.length > 1 ? parseFloat(queryMatch[1].replace(/,/, "")) : "0";
+              },
+            ],
+          },
+        },
       },
     ],
   },
