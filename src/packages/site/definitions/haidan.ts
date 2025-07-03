@@ -20,11 +20,11 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "haidan",
   name: "海胆",
-  aka: ["海胆之家"],
-  tags: ["电影", "电视剧"],
+  aka: ["海胆之家", "HaiDan"],
+  tags: ["电影", "电视剧", "影视", "综合"],
   timezoneOffset: "+0800",
 
-  collaborator: ["zhuweitung"],
+  collaborator: ["rsj", "zhuweitung"],
 
   type: "private",
   schema: "NexusPHP",

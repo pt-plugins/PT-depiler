@@ -7,9 +7,10 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "soulvoice",
   name: "SoulVoice",
-  description: "聆音",
+  aka: ["聆音"],
+  description: "致力于建设一个有声资源，电子书为主，学习资料，影视资源为辅的PT分享站。",
   tags: ["影视", "综合", "电子书", "有声书"],
-  collaborator: ["zxb0303"],
+  collaborator: ["Gold John King", "zxb0303"],
 
   type: "private",
   schema: "NexusPHP",

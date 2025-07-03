@@ -62,6 +62,13 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
+  search: {
+    ...SchemaMetadata.search!,
+    advanceKeywordParams: {
+      imdb: false,
+    },
+  },
+
   userInfo: {
     ...SchemaMetadata.userInfo!,
     process: [

@@ -7,9 +7,10 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "ptsbao",
   name: "PTSBao",
-  description: "骚包",
+  aka: ["烧包", "骚包"],
+  description: "烧包 - 扬帆远航 风雨同路",
   tags: ["影视", "综合"],
-  collaborator: ["zxb0303"],
+  collaborator: ["laizony", "ted423", "zxb0303"],
 
   type: "private",
   schema: "NexusPHP",

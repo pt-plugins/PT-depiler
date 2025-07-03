@@ -43,6 +43,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "tjupt",
   name: "北洋园PT",
+  aka: ["北洋园"],
   schema: "NexusPHP",
   type: "private",
   urls: ["uggcf://gwhcg.bet/"],

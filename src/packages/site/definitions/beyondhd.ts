@@ -12,14 +12,13 @@ import { convertIsoDurationToSeconds } from "../utils";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
 
 export const siteMetadata: ISiteMetadata = {
-
   version: 1,
   id: "beyondhd",
   name: "BeyondHD",
   aka: ["BHD"],
-  description: 
-    "Beyond Your Imagination, BeyondHD is a community-built Movie/TV database."
-    + "Every piece of data has been added by our amazing community since 2012.",
+  description:
+    "Beyond Your Imagination, BeyondHD is a community-built Movie/TV database." +
+    "Every piece of data has been added by our amazing community since 2012.",
   tags: ["电影", "电视剧"],
   timezoneOffset: "+0000",
 
@@ -29,7 +28,6 @@ export const siteMetadata: ISiteMetadata = {
   schema: "F3NIX",
 
   urls: ["uggcf://orlbaq-uq.zr/"],
-  formerHosts: [],
 
   category: [
     {
@@ -66,7 +64,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "480p", value: "480p" },
         { name: "Other", value: "Other" },
       ],
-      cross: { mode: "comma"},
+      cross: { mode: "comma" },
     },
     {
       name: "来源",
@@ -79,7 +77,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "HDTV", value: "HDTV" },
         { name: "DVD", value: "DVD" },
       ],
-      cross: { mode: "comma"},
+      cross: { mode: "comma" },
     },
     {
       name: "发布组",
@@ -95,13 +93,13 @@ export const siteMetadata: ISiteMetadata = {
         { name: "ZR", value: "ZR" },
         { name: "MKVULTRA", value: "MKVULTRA" },
       ],
-      cross: { mode: "comma"},
+      cross: { mode: "comma" },
     },
     {
       name: "内部组",
       key: "types",
       keyPath: "data",
-      options: [{ name: "是", value: "1" }]
+      options: [{ name: "是", value: "1" }],
     },
     {
       name: "促销",
@@ -165,7 +163,7 @@ export const siteMetadata: ISiteMetadata = {
       ],
       cross: { mode: "append", key: "" },
     },
-  // 该站点提供的搜索参数过多，仅列举常用部分
+    // 该站点提供的搜索参数过多，仅列举常用部分
   ],
 
   search: {
@@ -186,7 +184,7 @@ export const siteMetadata: ISiteMetadata = {
             delete config!.data.search;
           }
           return config!;
-        }
+        },
       },
       tmdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
@@ -195,7 +193,7 @@ export const siteMetadata: ISiteMetadata = {
             delete config!.data.search;
           }
           return config!;
-        }
+        },
       },
     },
     selectors: {
@@ -204,7 +202,7 @@ export const siteMetadata: ISiteMetadata = {
       title: { selector: "name" },
       // 该站点类似于Unit3D，不提供或者说没有subTitle
       url: { selector: "url" },
-      //不设置 RSSKEY时，该站点不提供下载链接，以url替代
+      // 不设置 RSSKEY时，该站点不提供下载链接，以url替代
       link: { selector: ["download_url", "url"] },
       time: { selector: "created_at", filters: [{ name: "parseTime" }] },
       size: { selector: "size" },
@@ -230,15 +228,18 @@ export const siteMetadata: ISiteMetadata = {
       ratio: { selector: ["ul#beta-stats li a:has(> span > i.fas.fa-sync-alt)"], filters: [{ name: "parseNumber" }] },
       bonus: { selector: ["ul#beta-stats li a:has(> i.fas.fa-star)"], filters: [{ name: "parseNumber" }] },
       seeding: { selector: ["ul#beta-stats li a:has(> i.fas.fa-seedling)"], filters: [{ name: "parseNumber" }] },
-      hnrUnsatisfied: { selector: ["ul#beta-stats li a:has(> i.fas.fa-skull-crossbones)"], filters: [{ name: "parseNumber" }] },
+      hnrUnsatisfied: {
+        selector: ["ul#beta-stats li a:has(> i.fas.fa-skull-crossbones)"],
+        filters: [{ name: "parseNumber" }],
+      },
       // '/users/$user.name$.$user.id$'
-      levelName: { 
+      levelName: {
         selector: ["div[style*='margin-left'] a.beta-alert"],
-        attr: "title" 
+        attr: "title",
       },
       uploads: {
         selector: [".button-right .bhd-block:nth-child(1) .class-highlight"],
-        filters: [ text => text.match(/\d+/)?.[0] ?? "" ]
+        filters: [(text) => text.match(/\d+/)?.[0] ?? ""],
       },
       leeching: {
         selector: [".button-right .bhd-block:nth-child(2) .bhd-tidbit-icon"],
@@ -256,7 +257,7 @@ export const siteMetadata: ISiteMetadata = {
             const match = text.match(/Member Since:\s*(\d{4}-\d{2}-\d{2})/);
             return match ? match[1] : text;
           },
-          { name: "parseTime", args: ["yyyy-MM-dd"] }
+          { name: "parseTime", args: ["yyyy-MM-dd"] },
         ],
       },
       seedingSize: {
@@ -268,23 +269,23 @@ export const siteMetadata: ISiteMetadata = {
         // 该站点提供 "1Y 2M 3D 1h 7m 1s"，需转换至秒存储
         elementProcess: (element: HTMLElement) => {
           const raw = element.textContent?.trim() || "";
-          const isoDuration = "P" + raw
-            .replace(/\s+/g, "") // 去除空格: "1Y2M3D1h7m1s"
-            .replace(/(\d+[YMD])(\d+[hms])/i, "$1T$2") // 在时间部分前加T: "P1Y2M3DT1h7m1s"
-    
+          const isoDuration =
+            "P" +
+            raw
+              .replace(/\s+/g, "") // 去除空格: "1Y2M3D1h7m1s"
+              .replace(/(\d+[YMD])(\d+[hms])/i, "$1T$2"); // 在时间部分前加T: "P1Y2M3DT1h7m1s"
+
           return convertIsoDurationToSeconds(isoDuration);
-        }
+        },
       },
       averageSeedingTime: {
         selector: ["td.bhd-user-left:contains('Average Seedtime') + td span.badge-user"],
         elementProcess: (element: HTMLElement) => {
           const raw = element.textContent?.trim() || "";
-          const isoDuration = "P" + raw
-            .replace(/\s+/g, "")
-            .replace(/(\d+[YMD])(\d+[hms])/i, "$1T$2")
-    
+          const isoDuration = "P" + raw.replace(/\s+/g, "").replace(/(\d+[YMD])(\d+[hms])/i, "$1T$2");
+
           return convertIsoDurationToSeconds(isoDuration);
-        }
+        },
       },
       specialSeedsize: {
         selector: ["td.bhd-user-left:contains('Special Seed Size') + td span.badge-user"],
@@ -308,7 +309,8 @@ export const siteMetadata: ISiteMetadata = {
       id: 1,
       name: "Recruit",
       ratio: 0.25,
-      privilege: "Can Download; Can rescue 5 torrents per day until 25 pending completion; Members in this class are capped at receiving 1,000 BP in gifts/tips per member.",
+      privilege:
+        "Can Download; Can rescue 5 torrents per day until 25 pending completion; Members in this class are capped at receiving 1,000 BP in gifts/tips per member.",
     },
     {
       id: 2,
@@ -318,12 +320,13 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P14D",
       seedingTime: "P25D",
       snatches: 5,
-      privilege: "Can Request Reseeds; Can Request Torrents; Can Remove HNRs (with BP); Bypass Upload Moderation; Change Avatar;Can rescue 6 torrents per day until 30 pending completion.",
+      privilege:
+        "Can Request Reseeds; Can Request Torrents; Can Remove HNRs (with BP); Bypass Upload Moderation; Change Avatar;Can rescue 6 torrents per day until 30 pending completion.",
     },
     {
       id: 3,
       name: "Member",
-      ratio: 0.40,
+      ratio: 0.4,
       uploaded: "400GiB",
       interval: "P1M",
       averageSeedingTime: "P10D",
@@ -347,15 +350,14 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 5,
       name: "Pro",
-      ratio: 0.70,
+      ratio: 0.7,
       uploaded: "1.25TiB",
       interval: "P6M",
       averageSeedingTime: "P30D",
       seedingTime: "P4Y11M",
       specialSeedsize: "500GiB",
       snatches: 60,
-      privilege:
-        "View Invite Forum; View Chat History; Can rescue 12 torrents per day until 36 pending completion.",
+      privilege: "View Invite Forum; View Chat History; Can rescue 12 torrents per day until 36 pending completion.",
     },
     {
       id: 6,
@@ -367,12 +369,13 @@ export const siteMetadata: ISiteMetadata = {
       seedingTime: "P9Y3M",
       specialSeedsize: "2TiB",
       snatches: 75,
-      privilege: "Can rescue 15 torrents per day until 45 pending completion. Receive 2 FL token(s) for every 30 days this class is retained.",
+      privilege:
+        "Can rescue 15 torrents per day until 45 pending completion. Receive 2 FL token(s) for every 30 days this class is retained.",
     },
     {
       id: 7,
       name: "Master",
-      ratio: 1.00,
+      ratio: 1.0,
       uploaded: "8TiB",
       interval: "P1Y",
       averageSeedingTime: "P60D",
@@ -407,7 +410,7 @@ export const siteMetadata: ISiteMetadata = {
       specialSeedsize: "48TiB",
       snatches: 10000,
       privilege:
-        "Can rescue 40 torrents per day until 120 pending completion. Receive 5 FL token(s) for every 30 days this class is retained. Receive 1 invite(s) for every 30 days this class is retained. Receive 100% discount on all downloads."
+        "Can rescue 40 torrents per day until 120 pending completion. Receive 5 FL token(s) for every 30 days this class is retained. Receive 1 invite(s) for every 30 days this class is retained. Receive 100% discount on all downloads.",
     },
     // Special Classes Overview
     { id: 100, name: "Pirater", groupType: "vip" },
@@ -511,18 +514,24 @@ export default class BeyondHD extends PrivateSite {
 
       // 获取扩展信息
       if (lastUserInfo !== null && lastUserInfo.name && lastUserInfo.id) {
-        flushUserInfo = toMerged(flushUserInfo, await this.getUserExtendInfoFromDetails(lastUserInfo.name, lastUserInfo.id as string));
+        flushUserInfo = toMerged(
+          flushUserInfo,
+          await this.getUserExtendInfoFromDetails(lastUserInfo.name, lastUserInfo.id as string),
+        );
       } else {
-        flushUserInfo = toMerged(flushUserInfo, await this.getUserExtendInfoFromDetails(flushUserInfo.name as string, flushUserInfo.id as string));
+        flushUserInfo = toMerged(
+          flushUserInfo,
+          await this.getUserExtendInfoFromDetails(flushUserInfo.name as string, flushUserInfo.id as string),
+        );
       }
 
       // 获取时魔
       flushUserInfo = toMerged(flushUserInfo, await this.getBonusPerHourFromBonus());
-      
+
       if (this.metadata.levelRequirements && flushUserInfo.levelName && typeof flushUserInfo.levelId === "undefined") {
         flushUserInfo.levelId = this.guessUserLevelId(flushUserInfo as IUserInfo);
       }
-      
+
       flushUserInfo.status = EResultParseStatus.success;
     } catch (e) {
       flushUserInfo.status = EResultParseStatus.parseError;
@@ -532,16 +541,9 @@ export default class BeyondHD extends PrivateSite {
   }
 
   protected async getUserBaseInfoFromSite(): Promise<Partial<IUserInfo>> {
-    const { data: dataDocument } = await this.request<Document>({
-      url: "/",
-      responseType: "document",
-    }, true);
+    const { data: dataDocument } = await this.request<Document>({ url: "/", responseType: "document" }, true);
 
-    return this.getFieldsData(
-      dataDocument,
-      this.metadata.userInfo?.selectors!,
-      ["id", "name"]
-    ) as Partial<IUserInfo>;
+    return this.getFieldsData(dataDocument, this.metadata.userInfo?.selectors!, ["id", "name"]) as Partial<IUserInfo>;
   }
 
   protected async getUserExtendInfoFromDetails(userName: string, userId: string): Promise<Partial<IUserInfo>> {
@@ -553,38 +555,24 @@ export default class BeyondHD extends PrivateSite {
     return this.getFieldsData(
       dataDocument,
       this.metadata.userInfo?.selectors!,
-      Object.keys(omit(this.metadata.userInfo?.selectors!, ["id", "name"]))
+      Object.keys(omit(this.metadata.userInfo?.selectors!, ["id", "name"])),
     ) as Partial<IUserInfo>;
   }
 
   protected async getBonusPerHourFromBonus(): Promise<Partial<IUserInfo>> {
-    const { data: dataDocument } = await this.request<Document>({
-      url: "/bp",
-      responseType: "document",
-    });
+    const { data: dataDocument } = await this.request<Document>({ url: "/bp", responseType: "document" });
 
-    return this.getFieldsData(
-      dataDocument,
-      this.metadata.userInfo?.selectors!,
-      ["bonusPerHour"]
-    ) as Partial<IUserInfo>;
+    return this.getFieldsData(dataDocument, this.metadata.userInfo?.selectors!, ["bonusPerHour"]) as Partial<IUserInfo>;
   }
 
-  public override async request<T>(
-    axiosConfig: AxiosRequestConfig,
-    checkLogin = true,
-  ): Promise<AxiosResponse<T>> {
-
+  public override async request<T>(axiosConfig: AxiosRequestConfig, checkLogin = true): Promise<AxiosResponse<T>> {
     if (axiosConfig.url === "/api/torrents") {
       const apikey = this.userConfig.inputSetting?.apikey ?? "";
       const rsskey = this.userConfig.inputSetting?.rsskey ?? "";
       axiosConfig.url = `/api/torrents/${apikey}`;
-      axiosConfig.data = {
-        ...axiosConfig.data,
-        rsskey: `${rsskey}`,
-      };
+      axiosConfig.data = { ...axiosConfig.data, rsskey: `${rsskey}` };
     }
-    return  await super.request<T>(axiosConfig, checkLogin);
+    return await super.request<T>(axiosConfig, checkLogin);
   }
 
   protected override loggedCheck(raw: AxiosResponse<IBhdSearchRawResp<any>>): boolean {
@@ -594,7 +582,7 @@ export default class BeyondHD extends PrivateSite {
     }
     return super.loggedCheck(raw);
   }
-  
+
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
     row: IBhdRawTorrent,
@@ -625,12 +613,12 @@ export default class BeyondHD extends PrivateSite {
     // TODO: 增加更多中文化tag，与NPHP体验一致
     const languageRegex = /(Chinese|Cantonese)(\s*\(.*\))?/i;
 
-    const audioArray = row.audios.split(', ').filter(item => item.trim() !== '');
-    if (audioArray.some(audio => languageRegex.test(audio))) {
+    const audioArray = row.audios.split(", ").filter((item) => item.trim() !== "");
+    if (audioArray.some((audio) => languageRegex.test(audio))) {
       tags.push({ name: "中配" });
     }
-    const subtitleArray = row.subtitles.split(', ').filter(item => item.trim() !== '');
-    if (subtitleArray.some(subtitle => languageRegex.test(subtitle))) {
+    const subtitleArray = row.subtitles.split(", ").filter((item) => item.trim() !== "");
+    if (subtitleArray.some((subtitle) => languageRegex.test(subtitle))) {
       tags.push({ name: "中字" });
     }
 
