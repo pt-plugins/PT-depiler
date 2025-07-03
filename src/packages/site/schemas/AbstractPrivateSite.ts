@@ -31,6 +31,11 @@ export default class PrivateSite extends BittorrentSite {
   protected override loggedCheck(res: AxiosResponse, strict: boolean = false): boolean {
     const request = res.request as XMLHttpRequest;
     try {
+      // 检查HTTP状态码，401明确表示未授权
+      if (res.status === 401) {
+        return false;
+      }
+
       if (/doLogin|login|verify|checkpoint|returnto/gi.test(request.responseURL)) {
         return false; // 检查最终的URL看是不是需要登陆
       } else if (res.headers.refresh && /\d+; url=.+(login|verify|checkpoint|returnto).+/gi.test(res.headers.refresh)) {
