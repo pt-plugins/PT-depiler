@@ -16,6 +16,7 @@ import {
   TorrentClientMetaData,
   CTorrentState,
   TorrentClientStatus,
+  CAddTorrentResult,
 } from "../types";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import urlJoin from "url-join";
@@ -359,11 +360,10 @@ export default class Flood extends AbstractBittorrentClient {
     return ""; // TODO
   }
 
-  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
-    let postData: any = {
-      destination: "",
-      tags: [],
-    };
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<CAddTorrentResult> {
+    const addResult = { success: false } as CAddTorrentResult;
+
+    let postData: any = { destination: "", tags: [] };
 
     if (options.savePath) {
       postData.destination = options.savePath;
@@ -381,41 +381,45 @@ export default class Flood extends AbstractBittorrentClient {
     // The uploadSpeedLimit parameter is not implemented as it's not supported by the API
 
     // 处理链接
-    if (url.startsWith("magnet:") || !options.localDownload) {
-      postData.urls = [url];
+    try {
+      if (url.startsWith("magnet:") || !options.localDownload) {
+        postData.urls = [url];
 
-      await this.request("addTorrentByUrl", {
-        method: "post",
-        data: postData,
-      });
-    } else {
-      const endPointType = await this.getEndPointType();
-      const torrent = await getRemoteTorrentFile({
-        url,
-        ...(options.localDownloadOption || {}),
-      });
-
-      if (endPointType === "jesec") {
-        postData.files = [torrent.metadata.base64()];
+        await this.request("addTorrentByUrl", {
+          method: "post",
+          data: postData,
+        });
       } else {
-        const formData = new FormData();
-
-        Object.keys(postData).forEach((key) => {
-          const value = postData[key];
-          formData.append(key, value);
+        const endPointType = await this.getEndPointType();
+        const torrent = await getRemoteTorrentFile({
+          url,
+          ...(options.localDownloadOption || {}),
         });
 
-        formData.append("torrents", torrent.metadata.blob(), torrent.name);
-        postData = formData; // 覆写postData
+        if (endPointType === "jesec") {
+          postData.files = [torrent.metadata.base64()];
+        } else {
+          const formData = new FormData();
+
+          Object.keys(postData).forEach((key) => {
+            const value = postData[key];
+            formData.append(key, value);
+          });
+
+          formData.append("torrents", torrent.metadata.blob(), torrent.name);
+          postData = formData; // 覆写postData
+        }
+
+        await this.request("addTorrentByFile", {
+          method: "post",
+          data: postData,
+        });
       }
 
-      await this.request("addTorrentByFile", {
-        method: "post",
-        data: postData,
-      });
-    }
+      addResult.success = true;
+    } catch (e) {}
 
-    return true;
+    return addResult;
   }
 
   async getAllTorrents(): Promise<CTorrent<TorrentProperties>[]> {

@@ -8,6 +8,7 @@ import {
   CTorrentFilterRules,
   CTorrentState,
   TorrentClientStatus,
+  CAddTorrentResult,
 } from "../types";
 import urlJoin from "url-join";
 import axios, { type AxiosResponse, isAxiosError } from "axios";
@@ -312,7 +313,9 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     }
   }
 
-  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<CAddTorrentResult> {
+    const addResult = { success: false } as CAddTorrentResult;
+
     const addTorrentOptions: Partial<TransmissionAddTorrentOptions> = {
       paused: options.addAtPaused ?? false,
     };
@@ -365,10 +368,13 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
         } catch (e) {}
       }
 
-      return data.result === "success";
-    } catch (e) {
-      return false;
-    }
+      addResult.success = data.result === "success";
+      if (!addResult.success) {
+        addResult.message = data;
+      }
+    } catch (e) {}
+
+    return addResult;
   }
 
   async getAllTorrents(): Promise<CTorrent[]> {

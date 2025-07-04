@@ -11,6 +11,7 @@ import {
   TorrentClientMetaData,
   CTorrentState,
   TorrentClientStatus,
+  CAddTorrentResult,
 } from "../types";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { getRemoteTorrentFile } from "../utils";
@@ -193,7 +194,9 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
     return free;
   }
 
-  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<CAddTorrentResult> {
+    const addResult = { success: false } as CAddTorrentResult;
+
     let postData: URLSearchParams | FormData;
     if (url.startsWith("magnet:") || !options.localDownload) {
       postData = new URLSearchParams();
@@ -235,7 +238,12 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
       data: postData,
     });
 
-    return data.result === "Success";
+    addResult.success = data.result === "Success";
+    if (!addResult.success) {
+      addResult.message = data;
+    }
+
+    return addResult;
   }
 
   async getAllTorrents(): Promise<CTorrent[]> {

@@ -215,18 +215,20 @@ onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId,
     }
 
     downloadStatus = await setDownloadStatus(downloadId, "downloading");
+    const loggerData = { torrent, downloaderId, downloadRequestConfig, addTorrentOptions } as Record<string, any>;
     try {
-      logger({ msg: "downloadTorrentToDownloader", data: { torrent, downloadRequestConfig, addTorrentOptions } });
-      const addStatus = await downloaderInstance.addTorrent(downloadRequestConfig.url!, addTorrentOptions);
-      if (!addStatus) {
-        logger({ msg: "Failed to add torrent to downloader", data: { torrent, downloaderId, addTorrentOptions } });
-        downloadStatus = await setDownloadStatus(downloadId, "failed");
-      } else {
-        logger({ msg: "Successfully added torrent to downloader", data: { torrent, downloaderId, addTorrentOptions } });
+      logger({ msg: "downloadTorrentToDownloader", data: loggerData });
+      const addTorrentResult = await downloaderInstance.addTorrent(downloadRequestConfig.url!, addTorrentOptions);
+      loggerData.addTorrentResult = addTorrentResult;
+      if (addTorrentResult?.success === true) {
+        logger({ msg: "Successfully added torrent to downloader", data: loggerData });
         downloadStatus = await setDownloadStatus(downloadId, "completed");
+      } else {
+        logger({ msg: "Failed to add torrent to downloader", data: loggerData });
+        downloadStatus = await setDownloadStatus(downloadId, "failed");
       }
     } catch (e) {
-      logger({ msg: "Error adding torrent to downloader", data: { torrent, downloaderId, addTorrentOptions } });
+      logger({ msg: "Error adding torrent to downloader", data: loggerData });
       downloadStatus = await setDownloadStatus(downloadId, "failed");
     }
   } else {
