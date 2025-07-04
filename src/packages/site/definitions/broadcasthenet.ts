@@ -1,5 +1,6 @@
-import { type ISiteMetadata } from "../types";
+import type { IAdvancedSearchRequestConfig, TSelectSearchCategoryValue, ISiteMetadata } from "../types.ts";
 import Gazelle, { SchemaMetadata } from "../schemas/Gazelle.ts";
+import { parseSizeString } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
 
@@ -26,26 +27,23 @@ export const siteMetadata: ISiteMetadata = {
             key: "searchtags",
             options: [
                 { name: "Remux", value: "Remux" },
-                { name: "!Remux", value: "!Remux" },
                 { name: "Subtitles", value: "Subtitles" },
-                { name: "!Subtitles", value: "!Subtitles" },
                 { name: "Uncut", value: "Uncut" },
-                { name: "!Uncut", value: "!Uncut" },
-                { name: "Dolby Vision", value: "Dolby+Vision" },
-                { name: "HDR10 Compatible", value: "HDR10+Compatible" },
-                { name: "Hybrid Log Gamma", value: "Hybrid+Log+Gamma" },
-                { name: "Modified Aspect Ratio", value: "Modified+Aspect+Ratio" },
-                { name: "Dolby Atmos", value: "Dolby+Atmos" },
-                { name: "5.1 Channels", value: "5.1+Channels" },
-                { name: "7.1 Channels", value: "7.1+Channels" },
-                { name: "Surround Sound", value: "Surround+Sound" },
+                { name: "Dolby Vision", value: "Dolby Vision" },
+                { name: "HDR10 Compatible", value: "HDR10 Compatible" },
+                { name: "Hybrid Log Gamma", value: "Hybrid Log Gamma" },
+                { name: "Modified Aspect Ratio", value: "Modified Aspect Ratio" },
+                { name: "Dolby Atmos", value: "Dolby Atmos" },
+                { name: "5.1 Channels", value: "5.1 Channels" },
+                { name: "7.1 Channels", value: "7.1 Channels" },
+                { name: "Surround Sound", value: "Surround Sound" },
                 { name: "Commentary", value: "Commentary" },
-                { name: "Dual Language", value: "Dual+Language" },
+                { name: "Dual Language", value: "Dual Language" },
                 { name: "Action", value: "Action" },
                 { name: "Adventure", value: "Adventure" },
                 { name: "Animation", value: "Animation" },
                 { name: "Anime", value: "Anime" },
-                { name: "Awards Show", value: "Awards+Show" },
+                { name: "Awards Show", value: "Awards Show" },
                 { name: "Children", value: "Children" },
                 { name: "Comedy", value: "Comedy" },
                 { name: "Crime", value: "Crime" },
@@ -54,12 +52,12 @@ export const siteMetadata: ISiteMetadata = {
                 { name: "Family", value: "Family" },
                 { name: "Fantasy", value: "Fantasy" },
                 { name: "Food", value: "Food" },
-                { name: "Game Show", value: "Game+Show" },
+                { name: "Game Show", value: "Game Show" },
                 { name: "History", value: "History" },
-                { name: "Home and Garden", value: "Home+and+Garden" },
+                { name: "Home and Garden", value: "Home and Garden" },
                 { name: "Horror", value: "Horror" },
                 { name: "Indie", value: "Indie" },
-                { name: "Martial Arts", value: "Martial+Arts" },
+                { name: "Martial Arts", value: "Martial Arts" },
                 { name: "Mini-Series", value: "Mini-Series" },
                 { name: "Musical", value: "Musical" },
                 { name: "Mystery", value: "Mystery" },
@@ -67,25 +65,22 @@ export const siteMetadata: ISiteMetadata = {
                 { name: "Podcast", value: "Podcast" },
                 { name: "Reality", value: "Reality" },
                 { name: "Romance", value: "Romance" },
-                { name: "Science Fiction", value: "Science+Fiction" },
+                { name: "Science Fiction", value: "Science Fiction" },
                 { name: "Soap", value: "Soap" },
                 { name: "Sport", value: "Sport" },
                 { name: "Suspense", value: "Suspense" },
-                { name: "Talk Show", value: "Talk+Show" },
+                { name: "Talk Show", value: "Talk Show" },
                 { name: "Thriller", value: "Thriller" },
                 { name: "Travel", value: "Travel" },
                 { name: "War", value: "War" },
                 { name: "Western", value: "Western" },
             ],
-            cross: {
-                key: "%2C+",
-            },
+            cross: { mode: "comma" },
         },
         {
             name: "Order By",
             key: "order_by",
             options: [
-                { name: "Added", value: "" },
                 { name: "Name", value: "name" },
                 { name: "Year", value: "year" },
                 { name: "Size", value: "size" },
@@ -98,7 +93,6 @@ export const siteMetadata: ISiteMetadata = {
             name: "Order Direction",
             key: "order_dir",
             options: [
-                { name: "Descending", value: "" },
                 { name: "Ascending", value: "asc" },
             ],
         },
@@ -106,7 +100,6 @@ export const siteMetadata: ISiteMetadata = {
             name: "Foreign Content",
             key: "foreign",
             options: [
-                { name: "Both", value: "" },
                 { name: "English Only", value: 0 },
                 { name: "Foreign Only", value: 1 },
             ],
@@ -115,7 +108,6 @@ export const siteMetadata: ISiteMetadata = {
             name: "Episode",
             key: "filter_cat%5B1%5D",
             options: [
-                { name: "Default", value: "" },
                 { name: "Checked", value: 1 },
             ],
         },
@@ -123,7 +115,6 @@ export const siteMetadata: ISiteMetadata = {
             name: "Season",
             key: "filter_cat%5B2%5D",
             options: [
-                { name: "Default", value: "" },
                 { name: "Checked", value: 1 },
             ],
         }
@@ -131,16 +122,44 @@ export const siteMetadata: ISiteMetadata = {
 
     search: {
         ...SchemaMetadata.search!,
-        requestConfig: {
-            url: "/torrents.php",
-            responseType: "document",
-            params: { noredirect: 1, grouping: 0 },
-        },
-        selectors: {},
     },
 
     userInfo: {
         ...SchemaMetadata.userInfo!,
+        selectors: {
+            uploaded: { selector: "ul.nobullet > li:contains('Upload:')", },
+            downloaded: { selector: "ul.nobullet > li:contains('Downloaded:')" },
+            levelName: { selector: "ul.nobullet > li:contains('User Class:')" },
+            bonus: {
+                selector: "ul.nobullet > li:contains('Bonus Points:') > a",
+                filters: [
+                    (query: string) => {
+                        query = query.replace(/,/g, "");
+                        return query.length > 0 ? parseFloat(query) : 0;
+                    },
+                ],
+            },
+            ratio: undefined,
+            joinTime: { selector: "ul.nobullet > li:contains('Joined:') > span" },
+            seeding: {
+                selector: "ul.nobullet > li:contains('Seeding:')",
+                filters: [
+                    (query: string) => {
+                        const queryMatch = query.replace(/,/g, "").match(/Seeding.+?([\d.]+)/);
+                        return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0;
+                    },
+                ],
+            },
+            seedingSize: {
+                selector: "ul.nobullet > li:contains('Seeding Size:')",
+                filters: [
+                    (query: string) => {
+                        const queryMatch = query.replace(/,/g, "").match(/Seeding Size:.+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+                        return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0;
+                    },
+                ],
+            },
+        },
     },
 
     levelRequirements: [
