@@ -5,6 +5,7 @@ import {
   type IUserInfo,
   type ITorrent,
   type ITorrentTag,
+  NeedLoginError,
 } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 import { omit, toMerged } from "es-toolkit";
@@ -535,6 +536,10 @@ export default class BeyondHD extends PrivateSite {
       flushUserInfo.status = EResultParseStatus.success;
     } catch (e) {
       flushUserInfo.status = EResultParseStatus.parseError;
+
+      if (e instanceof NeedLoginError) {
+        flushUserInfo.status = EResultParseStatus.needLogin;
+      }
     }
 
     return flushUserInfo;

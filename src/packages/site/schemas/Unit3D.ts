@@ -3,7 +3,7 @@ import { omit, toMerged } from "es-toolkit";
 import { set } from "es-toolkit/compat";
 
 import PrivateSite from "./AbstractPrivateSite";
-import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
+import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type IUserInfo, NeedLoginError } from "../types";
 import { parseSizeString, parseValidTimeString } from "../utils";
 
 /**
@@ -321,6 +321,10 @@ export default class Unit3D extends PrivateSite {
       flushUserInfo.status = EResultParseStatus.success;
     } catch (e) {
       flushUserInfo.status = EResultParseStatus.parseError;
+
+      if (e instanceof NeedLoginError) {
+        flushUserInfo.status = EResultParseStatus.needLogin;
+      }
     }
 
     return flushUserInfo;
