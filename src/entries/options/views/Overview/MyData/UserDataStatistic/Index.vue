@@ -219,8 +219,9 @@ const createPerSiteChartOptionsFn = (
           const date = params?.[0]?.name ?? "No Date"; // 从params 中拿到日期
           ret += `<span class="font-weight-bold">${date}</span><br>`;
 
+          const hasData = params.some((x) => Number(x.data));
           const totalCount = params.reduce((acc, cur) => acc + (Number(cur.data) || 0), 0); // 算出总和
-          if (totalCount > 0) {
+          if (hasData) {
             ret += '<table style="width: 100%;">';
             ret += `<tr class="font-weight-bold" style="border-bottom: 1pt solid black;"><td class="pr-3">总和</td><td class="pr-3 text-right">${formatDict[format](totalCount)}</td><td class="text-right">100%</td></tr>`;
 
