@@ -70,7 +70,7 @@
     "valid-filename": "^4.0.0",
     "vue": "^3.5.17",
     "vue-echarts": "^7.0.3",
-    "vue-i18n": "^11.1.7",
+    "vue-i18n": "^11.1.9",
     "vue-konva": "^3.2.1",
     "vue-router": "^4.5.1",
     "vuetify": "^3.8.11",
