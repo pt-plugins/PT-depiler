@@ -117,7 +117,7 @@ export default class BittorrentSite {
     }
 
     // 首先检查是否需要登录
-    if (checkLogin && (req.status === 401 || req.status === 403 || !this.loggedCheck(req!))) {
+    if (checkLogin && !this.loggedCheck(req!)) {
       throw new NeedLoginError();
     }
 

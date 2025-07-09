@@ -1,7 +1,7 @@
 // noinspection ES6PreferShortImport
 
 import type { AxiosRequestConfig } from "axios";
-import type { TSiteID, TSiteHost, TSiteUrl, TSiteFullUrl } from "./base";
+import { TSiteID, TSiteHost, TSiteUrl, TSiteFullUrl, TUrlPatterns } from "./base";
 import type { ITorrent } from "./torrent";
 import type { ILevelRequirement, IUserInfo } from "./userinfo";
 import type { IElementQuery, ISearchCategories, ISearchConfig, ISearchEntryRequestConfig } from "./search";
@@ -144,7 +144,7 @@ export interface ISiteMetadata {
      *
      * 匹配对象为 location.href ，依次匹配，任一匹配成功，则会被认为是种子列表页，
      */
-    urlPattern?: (string | RegExp)[];
+    urlPattern?: TUrlPatterns;
 
     mergeSearchSelectors?: boolean; // 是否合并 search.selectors 中的配置到此处的 selectors 中，默认为 true
 
@@ -177,7 +177,7 @@ export interface ISiteMetadata {
      * urlPattern 无法进行自动生成，需要显式声明（一般情况下 schema 中已有相关声明）
      * 其他表现和 list.urlPattern 相同。
      */
-    urlPattern?: (string | RegExp)[];
+    urlPattern?: TUrlPatterns;
 
     /**
      * 插件获取种子详情页时的配置，默认是在种子搜索时无法获取 link 的特殊站点使用，在使用时有垫片如下：
@@ -224,7 +224,42 @@ export interface ISiteMetadata {
   };
 
   /**
-   * 该配置项仅对 基于 PrivateSite 模板，且未改写 getUserInfoResult 的站点生效
+   * 认为用户未登录的断言设置
+   *
+   * 该配置项仅对 基于 PrivateSite 模板，且未改写 AbstractPrivateSite.loggedCheck 的站点生效
+   * 注意：
+   * 1. 每一项都可以单独设置为 false 来禁用该项检查，但不支持整体禁用，如果需要整体禁用，建议设置为 type: public 或 直接改写 loggedCheck 方法
+   */
+  noLoginAssert?: {
+    /**
+     * HTTP 状态码，表示未登录的状态码，未设置时默认 [401, 403]
+     * 如果站点响应的状态码在该数组中，则认为未登录
+     */
+    httpStatusCodes?: number[] | false;
+
+    /**
+     * 返回的 responseURL 中，哪些 URL 模式表示未登录，未设置时默认为 [/doLogin|login|verify|checkpoint|returnto/gi]
+     * 如果请求的 URL 匹配该数组中的任意一个，则认为未登录
+     */
+    urlPatterns?: TUrlPatterns | false;
+
+    /**
+     * 如果响应头中有 refresh: <time>[;,] url=<url> 字段，
+     * 且其中的 <url> 字段匹配该正则表达式，则认为未登录，未设置时默认为 noLoginAssert.urlPatterns 对应的内容
+     * 如果此时 noLoginAssert.urlPatterns 为 false，则该项也会被设置为 false
+     */
+    refreshHeaderPattern?: TUrlPatterns | false;
+
+    /**
+     * 是否严格检查响应内容，未设置时默认为 false
+     * 开启后会检查 responseText ，如果有下面情况，则判断为未登录：
+     * ①为空 ； ②过短（ < 800 ），且包含 login, auth_form, not authorized 等字段
+     */
+    checkResponseContent?: boolean;
+  };
+
+  /**
+   * 该配置项仅对 基于 PrivateSite 模板，且未改写 AbstractPrivateSite.getUserInfoResult 的站点生效
    */
   userInfo?: {
     /**

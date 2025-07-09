@@ -12,6 +12,7 @@ import {
   type ISiteMetadata,
   type IUserInfo,
   type TLevelId,
+  type TUrlPatterns,
 } from "../types";
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
@@ -25,17 +26,52 @@ export default class PrivateSite extends BittorrentSite {
     return this.isOnline && !!this.metadata.userInfo && !(this.userConfig.allowQueryUserInfo === false);
   }
 
-  /**
-   * 这是一个比较通用的检查是否登录方法，如果不行请考虑覆写扩展
-   */
-  protected override loggedCheck(res: AxiosResponse, strict: boolean = false): boolean {
+  protected get noLoginCheckHttpStatusCodes(): number[] | false {
+    return this.metadata.noLoginAssert?.httpStatusCodes ?? [401, 403];
+  }
+
+  protected get noLoginCheckUrlPatterns(): TUrlPatterns | false {
+    return this.metadata.noLoginAssert?.urlPatterns ?? [/doLogin|login|verify|checkpoint|returnto/gi];
+  }
+
+  protected get noLoginCheckRefreshHeaderPattern(): TUrlPatterns | false {
+    return this.metadata.noLoginAssert?.refreshHeaderPattern ?? this.noLoginCheckUrlPatterns;
+  }
+
+  protected override loggedCheck(res: AxiosResponse): boolean {
     const request = res.request as XMLHttpRequest;
     try {
-      if (/doLogin|login|verify|checkpoint|returnto/gi.test(request.responseURL)) {
-        return false; // 检查最终的URL看是不是需要登陆
-      } else if (res.headers.refresh && /\d+; url=.+(login|verify|checkpoint|returnto).+/gi.test(res.headers.refresh)) {
-        return false; // 检查responseHeader有没有重定向
-      } else if (strict) {
+      // 检查状态码：如果状态码在 noLoginCheckStatusCodes 中，则直接返回 false
+      if (this.noLoginCheckHttpStatusCodes && this.noLoginCheckHttpStatusCodes.includes(res.status)) {
+        return false;
+      }
+
+      if (this.noLoginCheckUrlPatterns) {
+        for (const noLoginCheckUrlPattern of this.noLoginCheckUrlPatterns) {
+          if (new RegExp(noLoginCheckUrlPattern).test(request.responseURL)) {
+            return false; // 检查URL是否匹配 noLoginCheckUrlPatterns 中的任意一个
+          }
+        }
+      }
+
+      // https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Headers/Refresh
+      if (res.headers.refresh && this.noLoginCheckRefreshHeaderPattern) {
+        // 处理带URL的情况（支持逗号/分号分隔，忽略大小写和多余空格）
+        const urlPattern = /[,;]\s*url\s*=\s*([^,\s;]+)/i;
+        const urlMatch = res.headers.refresh.match(urlPattern);
+
+        if (urlMatch) {
+          let redirectUrl = urlMatch[1].trim();
+
+          for (const noLoginCheckRefreshHeaderPattern of this.noLoginCheckRefreshHeaderPattern) {
+            if (new RegExp(noLoginCheckRefreshHeaderPattern).test(redirectUrl)) {
+              return false; // 检查URL是否匹配 noLoginCheckRefreshHeaderPattern 中的任意一个
+            }
+          }
+        }
+      }
+
+      if (this.metadata.noLoginAssert?.checkResponseContent === true) {
         const responseText =
           request.responseType === "document" ? request.responseXML?.documentElement.outerHTML : request.responseText;
         if (typeof responseText === "undefined") {
