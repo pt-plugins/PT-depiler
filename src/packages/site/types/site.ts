@@ -15,7 +15,7 @@ export type SiteSchema =
   | "Unit3D"
   | "Gazelle"
   | "GazelleJSONAPI"
-  | "AvistaZ"
+  | "AvistazNetwork"
   | string;
 
 type TUserInfoParseKey = keyof Omit<IUserInfo, "site" | "status" | "updateAt">;
