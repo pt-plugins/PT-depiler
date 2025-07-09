@@ -43,7 +43,9 @@
     "test": "测试",
     "visit": "访问",
     "version": "版本",
-    "howToUse": "如何使用？"
+    "howToUse": "如何使用？",
+    "import": "导入",
+    "export": "导出"
   },
   "layout": {
     "header": {

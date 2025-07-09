@@ -242,11 +242,11 @@ async function dialogEnter() {
         <v-btn
           :disabled="importStatus.isWorking"
           color="success"
-          prepend-icon="mdi-check-circle-outline"
+          prepend-icon="mdi-import"
           variant="text"
           @click="doAutoImport"
         >
-          {{ t("common.dialog.ok") }}
+          {{ t("common.import") }}
         </v-btn>
       </v-card-actions>
     </v-card>

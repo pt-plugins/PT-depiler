@@ -43,7 +43,9 @@
     "test": "Test",
     "visit": "Visit",
     "version": "Version",
-    "howToUse": "How To Use"
+    "howToUse": "How To Use",
+    "import": "Import",
+    "export": "Export"
   },
   "layout": {
     "header": {
