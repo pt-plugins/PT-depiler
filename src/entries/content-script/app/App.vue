@@ -110,9 +110,9 @@ document.addEventListener("dragstart", (e: DragEvent) => {
 const SIMPLE_URL_REGEX = /https?:\/\/[^\s]+/g;
 
 function extractLinksManually(dataTransfer: DataTransfer): string[] {
-  // perfer types: uri-list > html > text
+  // prefer types: uri-list > html > text
   // ref: [MDN - Recommended_drag_types](https://developer.mozilla.org/en-US/docs/Web/API/HTML_Drag_and_Drop_API/Recommended_drag_types#dragging_links)
-  if (dataTransfer.types.includes("text/uri-list")) {
+  if (Array.from(dataTransfer.types).includes("text/uri-list")) {
     const uriList = dataTransfer.getData("text/uri-list");
     if (uriList) {
       return uriList
@@ -178,8 +178,12 @@ function onDrop(event: DragEvent) {
   }
   let torrents: ITorrent[] = [];
   // perfer types: custom > manual
-  if (dataTransfer.types.includes(CUSTOM_DRAG_MIME)) {
-    torrents = JSON.parse(dataTransfer.getData(CUSTOM_DRAG_MIME));
+  if (Array.from(dataTransfer.types).includes(CUSTOM_DRAG_MIME)) {
+    try {
+      torrents = JSON.parse(dataTransfer.getData(CUSTOM_DRAG_MIME));
+    } catch (error) {
+      console.warn("[PTD] Failed to parse dropped data as JSON:", error);
+    }
   } else {
     // 尝试从其他类型中提取链接
     const links = extractLinksManually(dataTransfer);
