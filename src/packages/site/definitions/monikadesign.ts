@@ -228,11 +228,14 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.userInfo!,
     selectors: {
       ...SchemaMetadata.userInfo!.selectors!,
-
+      uploads: {
+        selector: ['div.container div.block div.text-center a[href*="/uploads"]'],
+        filters: [{ name: "parseNumber" }],
+      },
       // "/users/$user.name$/bonus/transactions/create
       bonusPerHour: {
         selector: ["aside .panelV2 dd:nth-child(6)"],
-        filters: [(query: string) => parseFloat(query || "0")],
+        filters: [(query: string) => parseFloat(query.replace(/,/g, "") || "0")],
       },
     },
   },
