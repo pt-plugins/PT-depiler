@@ -152,6 +152,8 @@ export interface IConfigPiniaStorageSchema {
     showDeadSiteInOverview: boolean;
     // 是否在概览中展示已被标记为离线 （isOffline） 或不允许查询用户信息 （ allowQueryUserInfo === false ） 的站点
     showPassedSiteInOverview: boolean;
+    // 是否自动延长即将过期的cookie
+    autoExtendCookie: boolean;
   };
 
   download: {

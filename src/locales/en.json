@@ -586,7 +586,8 @@
       "nextFlushTime": "Next refresh time:"
     },
     "showDeadSite": "Show sites marked as dead (isDead) in the overview",
-    "showPassedSite": "Show sites marked as offline (isOffline) or not allowing user info query in the overview"
+    "showPassedSite": "Show sites marked as offline (isOffline) or not allowing user info query in the overview",
+    "autoExtendCookie": "Auto-extend expiring site cookies (extend to 90 days when less than 7 days remain, applies to selected sites only)"
   },
   "ptppSettings": {
     "basicConfig": "Basic Configuration",

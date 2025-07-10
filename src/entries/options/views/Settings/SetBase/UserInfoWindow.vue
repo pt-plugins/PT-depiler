@@ -121,6 +121,12 @@ onMounted(async () => {
         color="success"
         hide-details
       />
+      <v-switch
+        v-model="configStore.userInfo.autoExtendCookie"
+        :label="t('userInfo.autoExtendCookie')"
+        color="success"
+        hide-details
+      />
     </v-col>
   </v-row>
 </template>

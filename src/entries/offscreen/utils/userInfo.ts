@@ -3,6 +3,7 @@ import { format } from "date-fns";
 import { isEmpty } from "es-toolkit/compat";
 import type { IUserInfo } from "@ptd/site";
 import { EResultParseStatus } from "@ptd/site";
+import { getHostFromUrl } from "@ptd/site/utils/html";
 
 import { onMessage, sendMessage } from "@/messages.ts";
 import type { IMetadataPiniaStorageSchema, IConfigPiniaStorageSchema, TUserInfoStorageSchema } from "@/shared/types.ts";
@@ -65,9 +66,69 @@ export async function getSiteUserInfoResult(siteId: string) {
       }
     }
 
+    // 刷新站点数据时，检查并延长即将过期的cookie（仅在配置开启时）
+    const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
+    if (configStoreRaw?.userInfo?.autoExtendCookie) {
+      await extendCookiesIfNeeded(site);
+    }
+
     await setSiteLastUserInfo(userInfo);
     return userInfo!;
   }))!;
+}
+
+// Cookie有效期相关常量
+const COOKIE_EXPIRY_THRESHOLD_DAYS = 7;
+const COOKIE_EXTENSION_DAYS = 90;
+const SECONDS_PER_DAY = 24 * 60 * 60;
+
+/**
+ * 检查站点cookie有效期，如果少于7天则延长到90天
+ */
+async function extendCookiesIfNeeded(site: { url?: string; metadata: { urls?: string[] } }) {
+  const siteUrl = site.url || site.metadata.urls?.[0];
+  if (!siteUrl) return;
+
+  const host = getHostFromUrl(siteUrl);
+  if (!host) return;
+
+  try {
+    const cookies = await sendMessage("getCookiesByDomain", host);
+    if (!cookies?.length) return;
+
+    const now = Math.floor(Date.now() / 1000);
+    const thresholdSeconds = COOKIE_EXPIRY_THRESHOLD_DAYS * SECONDS_PER_DAY;
+    const extensionSeconds = COOKIE_EXTENSION_DAYS * SECONDS_PER_DAY;
+
+    let extendedCount = 0;
+
+    for (const cookie of cookies) {
+      if (!cookie.expirationDate || typeof cookie.expirationDate !== "number") continue;
+
+      const timeUntilExpiry = cookie.expirationDate - now;
+      if (timeUntilExpiry <= 0 || timeUntilExpiry >= thresholdSeconds) continue;
+
+      const cookieDetails = {
+        name: cookie.name,
+        value: cookie.value,
+        domain: cookie.domain,
+        path: cookie.path,
+        secure: cookie.secure,
+        httpOnly: cookie.httpOnly,
+        sameSite: cookie.sameSite,
+        expirationDate: now + extensionSeconds,
+      } as chrome.cookies.SetDetails;
+
+      await sendMessage("setCookie", cookieDetails);
+      extendedCount++;
+    }
+
+    if (extendedCount > 0) {
+      logger({ msg: `Extended ${extendedCount} cookies for domain ${host} to ${COOKIE_EXTENSION_DAYS} days` });
+    }
+  } catch (error) {
+    logger({ msg: `Failed to extend cookies for domain ${host}: ${error}` });
+  }
 }
 
 onMessage("getSiteUserInfoResult", async ({ data: siteId }) => await getSiteUserInfoResult(siteId));
