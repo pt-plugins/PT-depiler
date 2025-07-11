@@ -276,7 +276,11 @@ function cancelSearchQueue() {
               <v-btn icon="mdi-help-circle" color="info" :ripple="false" />
             </v-btn-group>
           </template>
-          <div style="max-width: 300px; white-space: pre-wrap">{{ t("SearchEntity.index.help") }}</div>
+          <v-card max-width="400" elevation="0" class="rounded-lg bg-surface" outlined>
+            <v-card-text class="pa-2 text-body-2 line-height-normal">
+              {{ t("SearchEntity.index.help") }}
+            </v-card-text>
+          </v-card>
         </v-tooltip>
       </v-row>
     </v-card-title>
