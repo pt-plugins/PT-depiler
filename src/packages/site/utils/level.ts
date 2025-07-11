@@ -333,6 +333,9 @@ export function guessUserLevelId(userInfo: IUserInfo, levelRequirements: ILevelR
       const prevLevelIndex = parseInt(levelIndex) - 1;
       if (prevLevelIndex >= 0) {
         testLevel = levelRequirements[prevLevelIndex].id;
+      } else {
+        // 如果没有上一个 level，比如部分NPHP从 PU 开始定义的
+        testLevel = -1;
       }
 
       break;
