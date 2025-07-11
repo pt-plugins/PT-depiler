@@ -34,7 +34,7 @@ const fullTableHeader = [
   { title: t("SetBackup.table.name"), key: "name", align: "start" },
   { title: t("SetBackup.table.backupFields"), key: "backupFields", align: "start", sortable: false },
   { title: t("SetBackup.table.lastBackupAt"), key: "lastBackupAt", align: "end" },
-  { title: t("SetBackup.index.table.enabled"), key: "enabled", align: "center" },
+  { title: t("SetBackup.table.enabled"), key: "enabled", align: "center" },
   { title: t("common.action"), key: "action", sortable: false },
 ] as DataTableHeader[];
 const tableSelected = ref<TBackupServerKey[]>([]);
