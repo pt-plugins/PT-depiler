@@ -562,7 +562,8 @@
       "name": "Name",
       "backupFields": "Backup Content",
       "lastBackupAt": "Last Backup Time",
-      "notBackup": "Not Backed Up"
+      "notBackup": "Not Backed Up",
+      "enabled": "Enabled"
     },
     "localExport": "Local Export",
     "localImport": "Local Import",

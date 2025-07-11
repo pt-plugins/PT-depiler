@@ -559,7 +559,8 @@
       "name": "名称",
       "backupFields": "备份内容",
       "lastBackupAt": "最近一次备份时间",
-      "notBackup": "未备份"
+      "notBackup": "未备份",
+      "enabled": "启用"
     },
     "localExport": "本地导出",
     "localImport": "本地导入",
