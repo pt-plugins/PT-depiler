@@ -319,6 +319,7 @@
         "retry": "Retry Search"
       },
       "filterLabel": "Filter search results",
+      "help": "Multi-column sorting: Click column headers to sort. Numbers indicate sorting priority (1 is highest priority).",
       "showSiteName": "Show Site Name",
       "showTorrentTag": "Show Torrent Tags",
       "showTorrentSubtitle": "Show Torrent Subtitle",

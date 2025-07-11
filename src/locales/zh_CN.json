@@ -319,6 +319,7 @@
         "retry": "重新搜索"
       },
       "filterLabel": "过滤搜索结果",
+      "help": "多列排序使用方法：点击列标题进行排序，数字表示排序优先级（1为最高优先级）。",
       "showSiteName": "显示站点名称",
       "showTorrentTag": "显示种子标签",
       "showTorrentSubtitle": "显示种子副标题",

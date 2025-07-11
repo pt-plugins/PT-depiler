@@ -268,6 +268,16 @@ function cancelSearchQueue() {
           single-line
           @click:prepend-inner="showAdvanceFilterGenerateDialog = true"
         />
+
+        <!-- Multi-sort 帮助图标 -->
+        <v-tooltip location="bottom">
+          <template v-slot:activator="{ props }">
+            <v-btn-group size="small" variant="text" v-bind="props">
+              <v-btn icon="mdi-help-circle" color="info" :ripple="false" />
+            </v-btn-group>
+          </template>
+          <div style="max-width: 300px; white-space: pre-wrap">{{ t("SearchEntity.index.help") }}</div>
+        </v-tooltip>
       </v-row>
     </v-card-title>
     <v-data-table
