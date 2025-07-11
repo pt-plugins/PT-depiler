@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { computed, ref, useTemplateRef } from "vue";
+import { computed, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
-import { useRoute, useRouter, type RouteRecordRaw } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 
 import { setBaseChildren } from "@/options/plugins/router.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
