@@ -1,4 +1,8 @@
-import { type ISiteMetadata, type IUserInfo } from "../types";
+import {
+  EResultParseStatus,
+  type ISiteMetadata,
+  type IUserInfo
+} from "../types";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
@@ -245,6 +249,7 @@ export default class Azusa extends NexusPHP {
       status: EResultParseStatus.passParse,
       levelName: "应站点要求，不启用用户数据获取",
     };
+    return flushUserInfo;
   }
 /* 
   // 获取做种、发种页面
