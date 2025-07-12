@@ -665,7 +665,12 @@ export default class BittorrentSite {
       const { data } = await this.request<any>(
         toMerged({ responseType: "document", url: torrent.url }, this.metadata.detail?.requestConfig ?? {}),
       );
-      return this.getFieldData(data, this.metadata.detail.selectors.link);
+      torrent.link = this.getFieldData(data, this.metadata.detail.selectors.link) as string;
+    }
+
+    if (this.userConfig.downloadLinkAppendix) {
+      // 如果用户配置了下载链接后缀，则在链接后追加
+      torrent.link = `${torrent.link}${this.userConfig.downloadLinkAppendix}`;
     }
 
     return torrent.link!;

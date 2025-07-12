@@ -354,7 +354,7 @@ export interface ISiteUserConfig {
    */
   allowQueryUserInfo?: boolean;
 
-  // 分类信息，默认为 ISiteMetadata.tags， 也允许用户自定义添加，相同的会被合并到一类中
+  // 分类信息，默认为 ISiteMetadata.tags，也允许用户自定义添加，相同的会被合并到一类中
   groups?: string[];
 
   // 请求超时时间，单位为毫秒，如果不设置默认为 30000ms
@@ -366,7 +366,11 @@ export interface ISiteUserConfig {
   // 上传速度限制，单位为 MB/s，0 或不填时不限速，用于推送种子文件到下载器的时候，传递上传速度限制
   uploadSpeedLimit?: number;
 
-  allowContentScript?: boolean; // 是否允许 content-script 访问该站点，默认为 true
+  // 是否允许 content-script 访问该站点，默认为 true
+  allowContentScript?: boolean;
+
+  // 种子下载链接后缀，默认为空字符串，如果站点需要在下载链接后添加一些参数，可以在此处设置
+  downloadLinkAppendix?: string;
 
   /**
    * 存储用户输入的配置项信息

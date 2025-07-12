@@ -192,6 +192,22 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
           </v-text-field>
         </template>
 
+        <v-text-field
+          v-model="siteUserConfig.downloadLinkAppendix"
+          :label="`下载链接后缀`"
+          :hint="`该字段会被自动添加到该站点的下载链接后`"
+        >
+          <template #append>
+            <v-tooltip max-width="400" location="top">
+              <template #activator="{ props }">
+                <v-icon v-bind="props" class="mr-4" icon="mdi-information" color="info" />
+              </template>
+              如插件获得的链接为 https://example.com/download.php?id=1，此处设置为 &passkey=xxxx， 则最终下载链接为
+              https://example.com/download.php?id=1&passkey=xxxx
+            </v-tooltip>
+          </template>
+        </v-text-field>
+
         <v-slider
           v-model="siteUserConfig.timeout"
           :color="siteUserConfig.timeout! > 8 * 60e3 ? 'red' : siteUserConfig.timeout! > 5 * 60e3 ? 'amber' : 'green'"
