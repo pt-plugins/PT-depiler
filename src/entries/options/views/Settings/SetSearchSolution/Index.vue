@@ -205,7 +205,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
       class="table-stripe table-header-no-wrap"
       hover
       item-value="id"
-      multi-sort
+      :multi-sort="configStore.enableTableMultiSort"
       show-select
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('SetSearchSolution', 'itemsPerPage', v)"
     >

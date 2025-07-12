@@ -175,7 +175,7 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
       class="table-stripe table-header-no-wrap"
       hover
       item-value="id"
-      multi-sort
+      :multi-sort="configStore.enableTableMultiSort"
       show-select
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('SetDownloader', 'itemsPerPage', v)"
       @update:sortBy="(v) => configStore.updateTableBehavior('SetDownloader', 'sortBy', v)"

@@ -283,7 +283,7 @@ function cancelSearchQueue() {
       class="search-entity-table table-stripe table-header-no-wrap"
       hover
       item-value="uniqueId"
-      multi-sort
+      :multi-sort="configStore.enableTableMultiSort"
       show-select
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('SearchEntity', 'itemsPerPage', v)"
       @update:sortBy="(v) => configStore.updateTableBehavior('SearchEntity', 'sortBy', v)"

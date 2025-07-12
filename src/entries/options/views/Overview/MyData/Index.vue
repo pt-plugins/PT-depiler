@@ -429,7 +429,7 @@ function viewStatistic() {
       hover
       item-selectable="selectable"
       item-value="site"
-      :multi-sort="false"
+      :multi-sort="configStore.enableTableMultiSort"
       show-select
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('MyData', 'itemsPerPage', v)"
       @update:sortBy="(v) => configStore.updateTableBehavior('MyData', 'sortBy', v)"

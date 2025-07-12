@@ -14,6 +14,7 @@ import NavButton from "@/options/components/NavButton.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 
 const { t } = useI18n();
+const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 
 const showAddDialog = ref<boolean>(false);
@@ -69,7 +70,7 @@ async function confirmDeleteMediaServer(mediaServerId: TMediaServerKey) {
       class="table-stripe table-header-no-wrap"
       hover
       item-value="id"
-      multi-sort
+      :multi-sort="configStore.enableTableMultiSort"
       show-select
     >
       <template #item.type="{ item }">

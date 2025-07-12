@@ -109,7 +109,7 @@ async function confirmDeleteSearchSnapshot(searchSnapshotId: TSearchSnapshotKey)
       class="table-stripe table-header-no-wrap"
       hover
       item-value="id"
-      multi-sort
+      :multi-sort="configStore.enableTableMultiSort"
       show-select
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('SearchResultSnapshot', 'itemsPerPage', v)"
       @update:sortBy="(v) => configStore.updateTableBehavior('SearchResultSnapshot', 'sortBy', v)"

@@ -15,7 +15,9 @@ export const useConfigStore = defineStore("config", {
     theme: "light",
     isNavBarOpen: true,
     ignoreWrongPixelRatio: false,
+
     saveTableBehavior: true,
+    enableTableMultiSort: false,
 
     contextMenus: {
       allowSelectionTextSearch: true,

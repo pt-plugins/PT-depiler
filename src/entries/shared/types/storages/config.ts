@@ -27,6 +27,7 @@ export interface IConfigPiniaStorageSchema {
   ignoreWrongPixelRatio: boolean;
 
   saveTableBehavior: boolean;
+  enableTableMultiSort: boolean; // 是否启用表格多列排序
 
   // 用于存储 v-data-table 表格的展示
   tableBehavior: Record<UiTableBehaviorKey, UiTableBehaviorItem>;

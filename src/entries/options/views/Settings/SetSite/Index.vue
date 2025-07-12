@@ -211,7 +211,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
       :sort-by="configStore.tableBehavior.SetSite.sortBy"
       class="table-stripe table-header-no-wrap"
       item-value="id"
-      multi-sort
+      :multi-sort="configStore.enableTableMultiSort"
       hover
       show-select
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('SetSite', 'itemsPerPage', v)"
