@@ -233,61 +233,60 @@ export const siteMetadata: ISiteMetadata = {
 
 /*
 export default class Azusa extends NexusPHP {
-
-// 获取做种、发种页面
-protected override async requestUserSeedingPage(userId: number, type: string = "seeding"): Promise<string | null> {
-  const { data } = await this.request<string>({
-    url: "/getusertorrentlist_ajax.php",
-    params: { userid: userId, type },
-    headers: {
-      Referer: rot13("uggcf://nmhfn.jvxv/hfreqrgnvyf.cuc"), // 不提供 Referer，无法获取到数据
-    },
-  });
-  return data || null;
-}
-
-// 获取做种信息
-protected override async parseUserInfoForSeedingStatus(
-  flushUserInfo: Partial<IUserInfo>,
-): Promise<Partial<IUserInfo>> {
-  let seedStatus = { seeding: 0, seedingSize: 0 };
-
-  const userId = flushUserInfo.id as number;
-  const data = await this.requestUserSeedingPage(userId, "seeding");
-
-  if (data && data?.includes("<b")) {
-    const userSeedingPage = createDocument(`<div>${data}</div>`);
-    const divSeeding = Sizzle("div:contains(' | ')", userSeedingPage);
-    if (divSeeding.length > 0 && divSeeding[0].textContent) {
-      const seedingText = divSeeding[0].textContent.split("|");
-      seedStatus.seeding = definedFilters.parseNumber(seedingText[0]);
-      seedStatus.seedingSize = definedFilters.parseSize(seedingText[1]);
-    }
+  // 获取做种、发种页面
+  protected override async requestUserSeedingPage(userId: number, type: string = "seeding"): Promise<string | null> {
+    const { data } = await this.request<string>({
+      url: "/getusertorrentlist_ajax.php",
+      params: { userid: userId, type },
+      headers: {
+        Referer: rot13("uggcf://nmhfn.jvxv/hfreqrgnvyf.cuc"), // 不提供 Referer，无法获取到数据
+      },
+    });
+    return data || null;
   }
 
-  flushUserInfo = mergeWith(flushUserInfo, seedStatus, (objValue, srcValue) => {
-    return typeof srcValue === "undefined" ? objValue : srcValue;
-  });
+  // 获取做种信息
+  protected override async parseUserInfoForSeedingStatus(
+    flushUserInfo: Partial<IUserInfo>,
+  ): Promise<Partial<IUserInfo>> {
+    let seedStatus = { seeding: 0, seedingSize: 0 };
 
-  return flushUserInfo;
-}
+    const userId = flushUserInfo.id as number;
+    const data = await this.requestUserSeedingPage(userId, "seeding");
 
-// 获取发种信息
-protected override async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
-  flushUserInfo.uploads = 0;
-
-  const userId = flushUserInfo.id as number;
-  const data = await this.requestUserSeedingPage(userId, "uploaded");
-
-  if (data && data?.includes("<b")) {
-    const userSeedingPage = createDocument(`<div>${data}</div>`);
-    const divSeeding = Sizzle("div:contains(' | ')", userSeedingPage);
-    if (divSeeding.length > 0 && divSeeding[0].textContent) {
-      const seedingText = divSeeding[0].textContent.split("|");
-      flushUserInfo.uploads = definedFilters.parseNumber(seedingText[0]);
+    if (data && data?.includes("<b")) {
+      const userSeedingPage = createDocument(`<div>${data}</div>`);
+      const divSeeding = Sizzle("div:contains(' | ')", userSeedingPage);
+      if (divSeeding.length > 0 && divSeeding[0].textContent) {
+        const seedingText = divSeeding[0].textContent.split("|");
+        seedStatus.seeding = definedFilters.parseNumber(seedingText[0]);
+        seedStatus.seedingSize = definedFilters.parseSize(seedingText[1]);
+      }
     }
+
+    flushUserInfo = mergeWith(flushUserInfo, seedStatus, (objValue, srcValue) => {
+      return typeof srcValue === "undefined" ? objValue : srcValue;
+    });
+
+    return flushUserInfo;
   }
-  return flushUserInfo;
+
+  // 获取发种信息
+  protected override async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
+    flushUserInfo.uploads = 0;
+
+    const userId = flushUserInfo.id as number;
+    const data = await this.requestUserSeedingPage(userId, "uploaded");
+
+    if (data && data?.includes("<b")) {
+      const userSeedingPage = createDocument(`<div>${data}</div>`);
+      const divSeeding = Sizzle("div:contains(' | ')", userSeedingPage);
+      if (divSeeding.length > 0 && divSeeding[0].textContent) {
+        const seedingText = divSeeding[0].textContent.split("|");
+        flushUserInfo.uploads = definedFilters.parseNumber(seedingText[0]);
+      }
+    }
+    return flushUserInfo;
+  }
 }
-}
-*/
+ */
