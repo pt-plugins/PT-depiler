@@ -131,7 +131,7 @@ export const siteMetadata: ISiteMetadata = {
     应站点要求，取消用户数据获取
     @refs: https://t.me/c/1276598895/137893
   */
-  userInfo: undefined;
+  userInfo: undefined,
   /*
   userInfo: {
     ...SchemaMetadata.userInfo!,
