@@ -1,13 +1,5 @@
-import { type ISiteMetadata, type IUserInfo } from "../types";
-import NexusPHP, {
-  CategoryInclbookmarked,
-  CategoryIncldead,
-  CategorySpstate,
-  SchemaMetadata,
-} from "../schemas/NexusPHP.ts";
-import { createDocument, definedFilters, rot13 } from "@ptd/site";
-import Sizzle from "sizzle";
-import { mergeWith } from "es-toolkit";
+import { type ISiteMetadata } from "../types";
+import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -15,7 +7,11 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "azusa",
   name: "梓喵",
-  aka: ["梓喵"],
+  aka: ["azusa"],
+  description: [
+    "主打二次元（非视频类）相关内容，包括漫画、轻小说、GalGame、同人、CG以及二次元音乐",
+    "2025.7.12应站点公告要求取消用户信息获取",
+  ],
   tags: ["漫画", "轻小说", "Galgame", "画集"],
   timezoneOffset: "+0800",
 
@@ -124,6 +120,12 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
+  /*
+    应站点要求，取消用户数据获取
+    @refs: https://t.me/c/1276598895/137893
+  */
+  userInfo: undefined,
+  /*
   userInfo: {
     ...SchemaMetadata.userInfo!,
     selectors: {
@@ -216,10 +218,20 @@ export const siteMetadata: ISiteMetadata = {
       ratio: 7.0,
       privilege: "",
     },
-    { id: 8, name: "Nexus Master", interval: "P100W", uploads: 300, downloaded: "400GB", ratio: 8.0, privilege: "" },
+    {
+      id: 8,
+      name: "Nexus Master",
+      interval: "P100W",
+      uploads: 300,
+      downloaded: "400GB",
+      ratio: 8.0,
+      privilege: ""
+    },
   ],
+  */
 };
 
+/*
 export default class Azusa extends NexusPHP {
   // 获取做种、发种页面
   protected override async requestUserSeedingPage(userId: number, type: string = "seeding"): Promise<string | null> {
@@ -277,3 +289,4 @@ export default class Azusa extends NexusPHP {
     return flushUserInfo;
   }
 }
+ */
