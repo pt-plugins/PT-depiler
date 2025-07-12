@@ -14,7 +14,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "ultrahd",
   name: "UltraHD",
-  description: "纯韩影韩剧韩音综的韩语综合站",
+  description: "专注韩语语种内容，包含韩影、韩剧、韩综、动漫以及纪录片",
   tags: ["电影", "电视剧", "综艺", "纪录片", "动漫"],
   timezoneOffset: "+0800",
 
