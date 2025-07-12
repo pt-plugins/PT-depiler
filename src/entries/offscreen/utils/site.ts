@@ -5,9 +5,10 @@ import {
   getFavicon,
   getFaviconMetadata,
   getSite as createSiteInstance,
-  ISiteUserConfig,
   NO_IMAGE,
+  type ISiteUserConfig,
   type TSiteID,
+  checkSiteMetadataAllow,
 } from "@ptd/site";
 
 import { onMessage, sendMessage } from "@/messages.ts";
@@ -26,8 +27,8 @@ export async function getSiteUserConfig(siteId: TSiteID, flush = false) {
     const isDeadSite = siteMetaData.isDead ?? false;
     storedSiteUserConfig.isOffline ??= isDeadSite;
     storedSiteUserConfig.sortIndex ??= 100;
-    storedSiteUserConfig.allowSearch ??= !isDeadSite && Object.hasOwn(siteMetaData, "search");
-    storedSiteUserConfig.allowQueryUserInfo ??= Object.hasOwn(siteMetaData, "userInfo");
+    storedSiteUserConfig.allowSearch ??= !isDeadSite && checkSiteMetadataAllow(siteMetaData, "search");
+    storedSiteUserConfig.allowQueryUserInfo ??= !isDeadSite && checkSiteMetadataAllow(siteMetaData, "userInfo");
     storedSiteUserConfig.timeout ??= 30e3;
 
     const inputSetting = {} as Record<string, string>;
