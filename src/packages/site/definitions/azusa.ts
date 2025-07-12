@@ -1,5 +1,4 @@
 import {
-  EResultParseStatus,
   type ISiteMetadata,
   type IUserInfo
 } from "../types";
@@ -128,6 +127,12 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
+  /*
+    应站点要求，取消用户数据获取
+    @refs: https://t.me/c/1276598895/137893
+  */
+  userInfo: undefined;
+  /*
   userInfo: {
     ...SchemaMetadata.userInfo!,
     selectors: {
@@ -230,28 +235,11 @@ export const siteMetadata: ISiteMetadata = {
       privilege: ""
     },
   ],
+  */
 };
 
 export default class Azusa extends NexusPHP {
-  /*
-  应站点要求，取消用户数据获取
-  @refs: https://t.me/c/1276598895/137893
-  */
-  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    let flushUserInfo: IUserInfo = {
-      status: EResultParseStatus.unknownError,
-      updateAt: +new Date(),
-      site: this.metadata.id,
-    };
 
-    flushUserInfo = {
-      ...flushUserInfo,
-      status: EResultParseStatus.passParse,
-      levelName: "应站点要求，不启用用户数据获取",
-    };
-    return flushUserInfo;
-  }
-/* 
   // 获取做种、发种页面
   protected override async requestUserSeedingPage(userId: number, type: string = "seeding"): Promise<string | null> {
     const { data } = await this.request<string>({
@@ -307,5 +295,4 @@ export default class Azusa extends NexusPHP {
     }
     return flushUserInfo;
   }
-*/
 }
