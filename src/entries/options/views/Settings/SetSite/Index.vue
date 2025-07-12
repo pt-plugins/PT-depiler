@@ -221,7 +221,15 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
         <SiteFavicon :site-id="item.id" />
       </template>
       <template #item.name="{ item }">
-        {{ item.userConfig?.merge?.name ?? item.metadata?.name }}
+        <span>
+          {{ item.userConfig?.merge?.name ?? item.metadata?.name }}
+          <v-tooltip max-width="400" v-if="item.metadata.description" activator="parent">
+            <span v-if="typeof item.metadata.description === 'string'">{{ item.metadata.description }}</span>
+            <ul v-else>
+              <li v-for="(text, index) in item.metadata.description" :key="index">{{ text }}</li>
+            </ul>
+          </v-tooltip>
+        </span>
       </template>
       <template #item.groups="{ item }">
         {{ (item.userConfig.groups ?? []).join(", ") }}

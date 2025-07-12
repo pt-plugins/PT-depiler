@@ -53,7 +53,7 @@ export interface ISiteMetadata {
   name: string; // 站点名
 
   aka?: string[]; // 站点别名
-  description?: string; // 站点说明
+  description?: string | string[]; // 站点说明
   tags?: string[]; // 站点标签
   timezoneOffset?: timezoneOffset;
 
