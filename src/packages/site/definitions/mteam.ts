@@ -155,7 +155,13 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "mTorrent",
 
-  urls: ["uggcf://xc.z-grnz.pp/", "uggcf://mc.z-grnz.vb/", "uggcf://kc.z-grnz.pp/", "uggcf://nc.z-grnz.pp/"],
+  urls: [
+    "uggcf://xc.z-grnz.pp/",
+    "uggcf://mc.z-grnz.vb/",
+    "uggcf://kc.z-grnz.pp/",
+    "uggcf://nc.z-grnz.pp/",
+    "uggcf://arkg.z-grnz.pp/", // Next
+  ],
   formerHosts: ["xp.m-team.io", "pt.m-team.cc", "tp.m-team.cc"],
 
   category: [
