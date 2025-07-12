@@ -253,7 +253,6 @@ export const siteMetadata: ISiteMetadata = {
     urlPattern: ["/plugin_details.php"],
       
     selectors: {
-      ...SchemaMetadata.detail!.selectors!,
       id: {
         selector: ":self",
         elementProcess: (element: Document) => {
