@@ -1,5 +1,12 @@
-import { type ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+import {
+  type ISiteMetadata
+} from "../types";
+import {
+  CategoryInclbookmarked,
+  CategoryIncldead,
+  CategorySpstate,
+  SchemaMetadata,
+} from "../schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -7,7 +14,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "ultrahd",
   name: "UltraHD",
-  description: "韩剧",
+  description: "纯韩影韩剧韩音综的韩语综合站",
   tags: ["电影", "电视剧", "综艺", "纪录片", "动漫"],
   timezoneOffset: "+0800",
 
@@ -194,22 +201,5 @@ export const siteMetadata: ISiteMetadata = {
       seedingBonus: 1500000,
       privilege: "得到两个邀请名额",
     },
-    {
-      id: 100,
-      name: "贵宾(VIP)",
-      groupType: "vip",
-      privilege: "和Nexus Master拥有相同权限并被认为是精英成员。免除自动降级",
-    },
-    {
-      id: 200,
-      name: "养老族",
-      groupType: "manager",
-      privilege: "退休后的管理组成员",
-    },
-    { id: 201, name: "发布员", groupType: "manager" },
-    { id: 202, name: "总版主", groupType: "manager" },
-    { id: 203, name: "管理员", groupType: "manager" },
-    { id: 204, name: "维护开发员", groupType: "manager" },
-    { id: 205, name: "主管", groupType: "manager" },
   ],
 };
