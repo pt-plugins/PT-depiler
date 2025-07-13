@@ -6,7 +6,7 @@ export const siteMetadata: ISiteMetadata = {
 
   version: 1,
   id: "cbg",
-  name: "cbg",
+  name: "藏宝阁",
   aka: ["藏宝阁"],
   description: "开启藏宝阁，解锁你的光影世界，分享每一份热爱！",
   timezoneOffset: "+0800",
