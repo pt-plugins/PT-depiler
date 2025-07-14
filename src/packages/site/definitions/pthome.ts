@@ -7,9 +7,10 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "pthome",
   name: "PTHome",
-  description: "PT之家",
+  aka: ["PT之家"],
+  description: "分享至美 高清之家",
   tags: ["影视", "综合"],
-  collaborator: ["zxb0303"],
+  collaborator: ["waldens", "zxb0303"],
 
   type: "private",
   schema: "NexusPHP",

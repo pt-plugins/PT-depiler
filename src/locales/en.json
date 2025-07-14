@@ -43,7 +43,9 @@
     "test": "Test",
     "visit": "Visit",
     "version": "Version",
-    "howToUse": "How To Use"
+    "howToUse": "How To Use",
+    "import": "Import",
+    "export": "Export"
   },
   "layout": {
     "header": {
@@ -57,7 +59,8 @@
       "searchTip": "Input keyword, IMDb numbers to search",
       "wiki": "Wiki",
       "wrongPixelRatioNotice": "Your page display may be affected by zooming. It is recommended to zoom at 100% to ensure your browsing experience~"
-    }
+    },
+    "init": "Please wait patiently for the page to load....."
   },
   "manifest": {
     "extDesc": "PT Depiler",
@@ -96,7 +99,18 @@
       "SetDownloader": "Download Server",
       "SetMediaServer": "Media Server",
       "SetSearchSolution": "Search Solution",
-      "SetSite": "Sites"
+      "SetSite": "Sites",
+      "SearchConfig": {
+        "siteSearchConfig": "Site Search Configuration",
+        "siteQueueConcurrency": "Request Queue Concurrency",
+        "saveLastSearchFilter": "Save last used search filter",
+        "mediaServerSearchConfig": "Media Server Search Configuration",
+        "mediaQueueConcurrency": "Request Queue Concurrency",
+        "mediaSearchLimit": "Number of search results per request",
+        "mediaSearchLimitMessage": "Please do not load too many search results at once. It's not optimized with virtual-scroll, which may cause the browser to freeze and affect the performance of the media server.",
+        "autoLoadInitialMediaWall": "Automatically load the initial media wall",
+        "autoLoadMoreMediaOnScroll": "Automatically load more media when scrolling to the bottom of the page"
+      }
     }
   },
   "checkSwitch": {
@@ -165,10 +179,33 @@
     },
     "thankNote": "The birth of 'PT Plugin Plus' is established on the base of these projects. Thanks all the participants of the project, thanks for your contribution!"
   },
+  "DownloadHistory": {
+    "refresh": "Refresh download history list",
+    "reDownload": "Re-download",
+    "filterPlaceholder": "Filter download history",
+    "table": {
+      "site": "Site",
+      "title": "Torrent",
+      "downloader": "Downloader",
+      "downloadAt": "Download Time",
+      "status": "Download Status"
+    }
+  },
+  "MediaServerEntity": {
+    "searchPlaceholder": "Search term",
+    "detail": "Details"
+  },
   "MyData": {
     "index": {
       "flushSelectSite": "Flush selected",
       "flushCancel": "Flush canceled",
+      "tableFontSize": "Table Font Size",
+      "joinTimeFormat": "Display join time",
+      "joinTimeFormatOptions": {
+        "alive": "Relative Time",
+        "aliveWeek": "Relative Weeks",
+        "added": "Absolute Date"
+      },
       "showSiteName": "Show Site Name",
       "showUnreadMessage": "Show Unread Messages",
       "showUserName": "Show Username",
@@ -179,8 +216,18 @@
       "showNextLevelInDialog": "Show next level requirements in Level Requirement Dialog",
       "showHnR": "Show H&R",
       "showSeedingBonus": "Show Seeding Bonus",
-      "joinTimeWeekOnly": "Display join time as relative weeks",
-      "updateAtFormatAsAlive": "Display update At as Relative Time"
+      "updateAtFormatAsAlive": "Display update At as Relative Time",
+      "multiOpen": "Open in batch",
+      "viewTimeline": "Timeline",
+      "viewStatistic": "Data Chart",
+      "setting": "Settings",
+      "siteStatus": "Site Status",
+      "siteCategory": "Site Category",
+      "filter": {
+        "todayNotUpdated": "Not updated today",
+        "lastUpdateError": "Last update error",
+        "unreadMessage": "Unread messages"
+      }
     },
     "table": {
       "site": "Site",
@@ -220,7 +267,8 @@
     },
     "dateRange": {
       "custom": "Custom",
-      "all": "All"
+      "all": "All",
+      "day": "Last {0} days"
     }
   },
   "UserDataTimeline": {
@@ -242,6 +290,35 @@
   },
   "SearchEntity": {
     "index": {
+      "table": {
+        "site": "Site",
+        "title": "Title",
+        "category": "Category",
+        "size": "Size",
+        "seeders": "Seeders",
+        "leechers": "Leechers",
+        "completed": "Completed",
+        "comments": "Comments",
+        "time": "Published(≈)"
+      },
+      "alert": {
+        "enterKeyword": "Please enter keywords to start searching",
+        "statusButton": "Search Status",
+        "paused": "Search paused...",
+        "searching": "Searching...",
+        "snapshot": "Search Snapshot",
+        "plan": "Search Plan",
+        "keyword": "Keyword",
+        "results": "Total {0} results, ",
+        "duration": "Duration: {0} seconds."
+      },
+      "action": {
+        "start": "Start search queue",
+        "pause": "Pause search queue",
+        "cancel": "Cancel current waiting search",
+        "retry": "Retry Search"
+      },
+      "filterLabel": "Filter search results",
       "showSiteName": "Show Site Name",
       "showTorrentTag": "Show Torrent Tags",
       "showTorrentSubtitle": "Show Torrent Subtitle",
@@ -257,6 +334,20 @@
         "quarter": "Quarter",
         "year": "Year",
         "custom": "Custom"
+      }
+    }
+  },
+  "SearchResultSnapshot": {
+    "table": {
+      "header": {
+        "name": "Snapshot Name",
+        "recordCount": "Torrent Count",
+        "createdAt": "Created At"
+      },
+      "filterLabel": "Filter by snapshot name",
+      "action": {
+        "view": "View",
+        "editTitle": "Edit Title"
       }
     }
   },
@@ -276,7 +367,8 @@
         "dark": "Dark Mode",
         "index": "UI display mode",
         "light": "Light Mode"
-      }
+      },
+      "tableMultiSortNote": "Multi-column sorting: Click any table header field to start sorting, which will display the number \\\"1\\\" on the field. Click other fields sequentially to display \\\"2\\\", \\\"3\\\", indicating sorting priority. Click the same field again to toggle between ascending, descending, or cancel sorting. The sorting order is determined by these numbers, with smaller numbers having higher priority."
     },
     "download": {
       "localDownloadMethod": {
@@ -286,7 +378,13 @@
         "browserTip": "(RECOMMEND) Use the browser's download method provided by the extension to download directly",
         "extension": "Extension Proxy",
         "extensionTip": "The extension downloads the torrent in the background and proxies it to @:SetBase.download.localDownloadMethod.browser for downloading"
-      }
+      },
+      "saveDownloadHistory": "Save download history (Please do not disable this function unless necessary)",
+      "localDownloadTitle": "Local Download",
+      "localDownloadIgnoreInterval": "Ignore site download interval limit for local downloads",
+      "pushDownloadServerTitle": "Push to Download Server",
+      "saveLastDownloader": "Save the last used download server settings",
+      "allowDirectSendToClient": "Allow sending links directly (instead of torrent files) to the download server (Do not enable unless necessary)"
     }
   },
   "SetDownloader": {
@@ -377,6 +475,8 @@
   },
   "SetSearchSolution": {
     "solution": "Search Solution",
+    "import": "Import",
+    "export": "Export",
     "table": {
       "enable": "Enabled ?",
       "default": "Default ?"
@@ -405,7 +505,9 @@
       "showMessageCount": "Show Notice",
       "tags": "Tags",
       "type": "Type",
-      "url": "URL"
+      "url": "URL",
+      "groups": "Site Groups",
+      "allowContentScript": "Load Content Script"
     },
     "delete": {
       "text": "Are you sure to delete these {0} Site?"
@@ -418,8 +520,10 @@
       "customUrlPlaceholder": "Custom site url",
       "description": "Site description",
       "sortIndexTip": "Can be used for search sorting",
-      "tagTip": "press Enter to add multiple. ( Only first 4 tags will show on lists )",
-      "timezone": "Timezone"
+      "tagTip": "Press Enter to add a tag after typing. (Only the first 4 will be displayed on the list page)",
+      "timezone": "Timezone",
+      "uploadSpeedLimit": "Upload Speed",
+      "uploadSpeedLimitHint": "Set upload speed limit (MB/s) when pushing torrents to downloader, 0 or empty means unlimited"
     },
     "index": {
       "flushFaviconFinish": "The selected site favicon has been flushed successfully!",
@@ -429,13 +533,92 @@
       "settingNote": [
         "Only the configured site will display the plugin icon and the corresponding function;",
         "the offline site will no longer participate in the search and information acquisition;"
-      ]
+      ],
+      "oneClickImport": "One-Click Import Sites"
     },
     "spDialog": {
       "noDefNotice": "This site does not define any search categories, please go to help!",
       "notice": "It is not recommended to set it here, and it is recommended to configure your user CP in site or use search solution",
       "selectAllNotice": "(Notice: In most cases, you don't need to select all search terms! )",
       "title": "Set default search params for Site {name}"
+    },
+    "oneClickImportDialog": {
+      "title": "One-Click Import Sites",
+      "alert1": "This operation will attempt to import the sites you select with default configurations. Please ensure you have logged into these sites in your browser. The import process cannot be interrupted, please wait patiently.",
+      "alert2": "List of unadded sites",
+      "stats": "Selected {count} sites, added {success} sites, failed to add {failed} sites.",
+      "trying": "Trying to import site [{name}] ...",
+      "status": {
+        "manual": "This site needs to be added manually",
+        "trying": "Trying",
+        "success": "Added successfully",
+        "failed": "Failed to add",
+        "selected": "Selected"
+      }
     }
+  },
+  "SetBackup": {
+    "table": {
+      "type": "Type",
+      "name": "Name",
+      "backupFields": "Backup Content",
+      "lastBackupAt": "Last Backup Time",
+      "notBackup": "Not Backed Up",
+      "enabled": "Enabled"
+    },
+    "localExport": "Local Export",
+    "localImport": "Local Import",
+    "snackbar": {
+      "success": "Backup successful",
+      "failure": "Backup failed"
+    }
+  },
+  "userInfo": {
+    "queueConcurrency": "Request Queue Concurrency",
+    "enableAutoRefresh": "Enable background auto-refresh?",
+    "autoRefresh": {
+      "every": "Every",
+      "hoursLabel": "hours, auto-refresh today's",
+      "unrefreshedSite": "unrefreshed",
+      "ofSites": "sites",
+      "retryOnFail": "If refresh fails, retry",
+      "times": "times, with an interval of",
+      "minutes": "minutes.",
+      "lastFlushTime": "Last refresh time:",
+      "nextFlushTime": "Next refresh time:"
+    },
+    "showDeadSite": "Show sites marked as dead (isDead) in the overview",
+    "showPassedSite": "Show sites marked as offline (isOffline) or not allowing user info query in the overview"
+  },
+  "ptppSettings": {
+    "basicConfig": "Basic Configuration",
+    "saveKeyNotice": "Note: The key is only saved in the current browser and will not be backed up, please keep it safe; data cannot be recovered if the key is lost after encryption. Leave blank for no encryption.",
+    "encryptionKeyLabel": "Backup file encryption/decryption key",
+    "undoKeyTitle": "Restore previous key",
+    "randomGenTitle": "Generate Randomly",
+    "invalidFileFormat": "Invalid file format, please check if the backup was exported correctly (with the backup encryption feature turned off).",
+    "importConfigTitle": "PT-Plugin-Plus Configuration Import",
+    "importConfigInfoLine1": "{repoName} can only import user history data from the original PT-Plugin-Plus. Other configuration files are not supported.",
+    "importConfigInfoPrep": "Before importing, please make the following preparations:",
+    "importStep1": "First, please back up the current configuration file of {repoName}.",
+    "importStep2": "In the site settings of {repoName}, add the sites that need to be restored. (If a site is not added, its corresponding user history data will be ignored).",
+    "importStep3": "In PT-Plugin-Plus, disable the backup encryption feature and export the local backup file. It should be a zip file named <code>PT-Plugin-Plus-Backup-yyyy-MM-DD_hh-mm-ss.zip</code>.",
+    "importStep4": "Upload the zip package or the extracted <code>userdatas.json</code> file to the input box below.",
+    "selectBackupFile": "Select PTPP Backup File"
+  },
+  "socialConfig": {
+    "basicConfig": "Basic Configuration",
+    "cacheValidityDays": "Cache Validity (days)",
+    "cacheShortWarning": "A cache time that is too short will lead to frequent requests, while one that is too long will result in outdated data.",
+    "requestTimeoutMs": "Request Timeout (milliseconds)",
+    "ptgenConfig": "PtGen Configuration",
+    "preferPtgenLabel": "Prefer data provided by PtGen",
+    "ptgenApiAddress": "PtGen API Address",
+    "ptgenApiMessages": "Select a built-in address or enter an address like https://example.com/ptgen?site=<site>&sid=<sid>",
+    "mediaRatingConfig": "Media Rating Site Configuration",
+    "anidbClientId": "AniDB Client ID",
+    "anidbClientMessages": "Please apply for a Client ID at https://anidb.net/perl-bin/animedb.pl?show=client and fill it in the format `Name/Version`.",
+    "bangumiApiKey": "Bangumi API Key",
+    "bangumiApiMessages": "You can generate an Access Token at https://next.bgm.tv/demo/access-token"
   }
 }

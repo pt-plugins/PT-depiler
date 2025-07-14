@@ -66,7 +66,7 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
           rel="noopener noreferrer nofollow"
           target="_blank"
         >
-          {{ item.title }}
+          {{ item.title ?? item.url ?? item.link }}
         </a>
       </span>
 

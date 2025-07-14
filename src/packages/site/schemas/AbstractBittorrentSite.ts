@@ -1,3 +1,9 @@
+import Sizzle from "sizzle";
+import { get, isEmpty, set } from "es-toolkit/compat";
+import { chunk, pascalCase, pick, toMerged, union } from "es-toolkit";
+import { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
+
+import { axios, retrieve, store } from "../utils/adapter.ts";
 import {
   EResultParseStatus,
   IElementQuery,
@@ -13,6 +19,7 @@ import {
   TSiteUrl,
   ISearchEntryRequestConfig,
   IParsedTorrentListPage,
+  TSchemaMetadataListSelectors,
 } from "../types";
 import {
   definedFilters,
@@ -23,23 +30,11 @@ import {
   parseTimeWithZone,
   tryToNumber,
 } from "../utils";
-import axios, { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
-import Sizzle from "sizzle";
-import { get, isEmpty, set } from "es-toolkit/compat";
-import { chunk, pascalCase, pick, toMerged, union } from "es-toolkit";
-import { setupCache } from "axios-cache-interceptor";
-import { setupReplaceUnsafeHeader } from "~/extends/axios/replaceUnsafeHeader.ts";
-
-// 默认启用 axios-cache-interceptor，以减少对站点的请求次数
-setupCache(axios);
-setupReplaceUnsafeHeader(axios);
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: -1,
   search: {},
 };
-
-type TSchemaMetadataListSelectors = Required<Required<ISiteMetadata>["list"]>["selectors"];
 
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export default class BittorrentSite {
@@ -78,6 +73,17 @@ export default class BittorrentSite {
    */
   protected loggedCheck(raw: AxiosResponse): boolean {
     return true;
+  }
+
+  protected async storeRuntimeSettings<T extends any>(key: string, value: T): Promise<T> {
+    this.userConfig.runtimeSettings ??= {}; // 确保 runtimeSettings 存在
+    this.userConfig.runtimeSettings[key] = value; // 更新当前实例的 runtimeSettings
+    await store(this.metadata.id, key, value); // 持久化
+    return value;
+  }
+
+  protected async retrieveRuntimeSettings<T>(key: string): Promise<T | null> {
+    return (this.userConfig.runtimeSettings?.[key] ?? (await retrieve<T>(this.metadata.id, key))) as T | null;
   }
 
   public async request<T>(axiosConfig: AxiosRequestConfig, checkLogin: boolean = true): Promise<AxiosResponse<T>> {
@@ -265,7 +271,7 @@ export default class BittorrentSite {
    * @protected
    */
   protected getFieldsData<
-    G extends "search" | "list" | "detail" | "userInfo",
+    G extends "search" | "detail" | "userInfo",
     S extends Required<Required<ISiteMetadata>[G]>["selectors"],
   >(element: Element | object, selectors: S, fields?: (keyof S)[]): { [key in keyof S]?: any } {
     const ret: { [key in keyof S]?: any } = {};
@@ -422,7 +428,11 @@ export default class BittorrentSite {
     }
 
     for (const tr of trs) {
-      torrents.push((await this.parseWholeTorrentFromRow({}, tr, searchConfig!)) as ITorrent);
+      try {
+        torrents.push((await this.parseWholeTorrentFromRow({}, tr, searchConfig!)) as ITorrent);
+      } catch (e) {
+        console.debug(`[PTD] site '${this.name}' parseWholeTorrentFromRow Error:`, e, tr);
+      }
     }
 
     return torrents;
@@ -478,21 +488,21 @@ export default class BittorrentSite {
     // 对获取到的种子进行一些通用的处理
     torrent.site ??= this.metadata.id; // 补全种子的 site 属性
     torrent.id ??= tryToNumber(torrent.url || torrent.link); // 补全种子的 id 属性，如果不存在，则由 url, link 属性替代
-    torrent.url && (torrent.url = this.fixLink(torrent.url as string, requestConfig!));
-    torrent.link && (torrent.link = this.fixLink(torrent.link as string, requestConfig!));
+    typeof torrent.url != "undefined" && (torrent.url = this.fixLink(torrent.url as string, requestConfig!));
+    typeof torrent.link != "undefined" && (torrent.link = this.fixLink(torrent.link as string, requestConfig!));
     if (typeof (torrent.size as unknown) === "string") {
       torrent.size = parseSizeString(torrent.size as unknown as string);
     }
-    torrent.size = tryToNumber(torrent.size);
-    torrent.seeders = tryToNumber(torrent.seeders);
-    torrent.leechers = tryToNumber(torrent.leechers);
-    torrent.completed = tryToNumber(torrent.completed);
-    torrent.comments = tryToNumber(torrent.comments);
-    torrent.category = tryToNumber(torrent.category);
-    torrent.status = tryToNumber(torrent.status);
+    typeof torrent.size != "undefined" && (torrent.size = tryToNumber(torrent.size));
+    typeof torrent.seeders != "undefined" && (torrent.seeders = tryToNumber(torrent.seeders));
+    typeof torrent.leechers != "undefined" && (torrent.leechers = tryToNumber(torrent.leechers));
+    typeof torrent.completed != "undefined" && (torrent.completed = tryToNumber(torrent.completed));
+    typeof torrent.comments != "undefined" && (torrent.comments = tryToNumber(torrent.comments));
+    typeof torrent.category != "undefined" && (torrent.category = tryToNumber(torrent.category));
+    typeof torrent.status != "undefined" && (torrent.status = tryToNumber(torrent.status));
 
     // 仅当设置了时区偏移时，才进行转换
-    if (this.metadata.timezoneOffset) {
+    if (this.metadata.timezoneOffset && typeof torrent.time !== "undefined") {
       torrent.time = parseTimeWithZone(torrent.time as unknown as string, this.metadata.timezoneOffset);
     }
 
@@ -541,19 +551,21 @@ export default class BittorrentSite {
     const retData = { keywords: "", torrents: [] } as IParsedTorrentListPage;
 
     const parsedListPageUrl = doc.URL || location.href; // 获取当前页面的 URL
-    const parsedListPage = doc.cloneNode(true) as Document; // 克隆一份文档，避免污染原始文档
 
     const searchEntry: { selectors: TSchemaMetadataListSelectors } = { selectors: {}, ...(this.metadata.search ?? {}) };
 
     // 使用 list 中定义的 selectors 覆盖掉 search 中的 selectors
-    searchEntry.selectors = {
-      ...searchEntry.selectors,
-      ...(this.metadata.list?.selectors ?? {}),
-    };
+    for (const list of this.metadata.list ?? []) {
+      const { urlPattern: listUrlPattern = [], selectors: listSelectors = {}, mergeSearchSelectors = true } = list;
+      if (listUrlPattern.some((pattern) => new RegExp(pattern!, "i").test(parsedListPageUrl))) {
+        searchEntry.selectors = { ...(mergeSearchSelectors ? searchEntry.selectors : {}), ...listSelectors };
+        break; // 找到匹配的 list 后，直接跳出循环
+      }
+    }
 
     // 如果有 keywords 选择器，则获取当前搜索页的关键词
     if (searchEntry.selectors.keywords) {
-      retData.keywords = this.getFieldData(parsedListPage, searchEntry.selectors.keywords as IElementQuery);
+      retData.keywords = this.getFieldData(doc, searchEntry.selectors.keywords as IElementQuery);
       delete searchEntry.selectors.keywords; // 删除 keywords 选择器，避免污染后续的种子解析
     } else {
       // 参照 searchEntry 中的 keywordPath 来获取关键词
@@ -561,7 +573,7 @@ export default class BittorrentSite {
       const [keywordField, keywordParams] = keywordPath.split(".");
 
       // 首先尝试使用 getFieldData 获取关键词
-      retData.keywords = this.getFieldData(parsedListPage, {
+      retData.keywords = this.getFieldData(doc, {
         selector: [
           keywordField === "params" ? `input[name="${keywordParams}"]` : false,
           keywordField === "data" ? `form[method="post" i] input[name="${keywordField}"]` : false,
@@ -585,11 +597,13 @@ export default class BittorrentSite {
 
     try {
       // 将其委托到 transformSearchPage 方法中进行处理
-      retData.torrents = await this.transformSearchPage(parsedListPage, {
+      retData.torrents = await this.transformSearchPage(doc, {
         searchEntry,
         requestConfig: { url: parsedListPageUrl },
       });
-    } catch (e) {}
+    } catch (e) {
+      console.error(`[PTD] site '${this.name}' transformListPage Error:`, e);
+    }
 
     return retData;
   }
@@ -632,6 +646,10 @@ export default class BittorrentSite {
       torrent.title = this.getFieldData(parsedDetailsPage, { text: "", selector: ["html > body > title"] });
     }
 
+    if (torrent.link) {
+      torrent.link = this.fixLink(torrent.link, { baseURL: parsedDetailsPage.URL }); // 如果 link 存在，则进行修正
+    }
+
     return torrent as ITorrent;
   }
 
@@ -647,7 +665,12 @@ export default class BittorrentSite {
       const { data } = await this.request<any>(
         toMerged({ responseType: "document", url: torrent.url }, this.metadata.detail?.requestConfig ?? {}),
       );
-      return this.getFieldData(data, this.metadata.detail.selectors.link);
+      torrent.link = this.getFieldData(data, this.metadata.detail.selectors.link) as string;
+    }
+
+    if (this.userConfig.downloadLinkAppendix) {
+      // 如果用户配置了下载链接后缀，则在链接后追加
+      torrent.link = `${torrent.link}${this.userConfig.downloadLinkAppendix}`;
     }
 
     return torrent.link!;

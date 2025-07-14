@@ -1,5 +1,5 @@
 /**
- * @see https://deluge.readthedocs.io/en/develop/reference/index.html
+ * @see https://deluge.readthedocs.io/en/latest/reference/webapi.html
  */
 import {
   CAddTorrentOptions,
@@ -11,6 +11,7 @@ import {
   CTorrentState,
   TorrentClientStatus,
   AbstractBittorrentClient,
+  CAddTorrentResult,
 } from "../types";
 import urlJoin from "url-join";
 import axios from "axios";
@@ -40,7 +41,81 @@ export const clientMetaData: TorrentClientMetaData = {
       allowed: true,
     },
   },
+  // refs: https://github.com/deluge-torrent/deluge/blob/6ec1479cdbbfed269844041d1001de657594d6da/deluge/core/torrent.py#L121-L148
+  advanceAddTorrentOptions: [
+    {
+      name: "自动管理",
+      key: "auto_managed",
+      type: "boolean",
+      defaultValue: false,
+      description: "Set torrent to auto managed mode, i.e. will be started or queued automatically.",
+    },
+    {
+      name: "完成后自动移动",
+      key: "move_completed",
+      type: "boolean",
+      defaultValue: false,
+      description: "Move the torrent when downloading has finished.",
+    },
+    {
+      name: "预分配存储",
+      key: "pre_allocate_storage",
+      type: "boolean",
+      defaultValue: false,
+      description: "When adding the torrent should all files be pre-allocated.",
+    },
+    {
+      name: "先下载首尾文件块",
+      key: "prioritize_first_last_pieces",
+      type: "boolean",
+      defaultValue: false,
+      description: "Prioritize the first and last pieces of the torrent.",
+    },
+    {
+      name: "达到分享率时自动删除",
+      key: "remove_at_ratio",
+      type: "boolean",
+      defaultValue: false,
+      description: "Remove torrent when ratio is reached.",
+    },
+    {
+      name: "发种模式",
+      key: "seed_mode",
+      type: "boolean",
+      defaultValue: false,
+      description: "Assume that all files are present for this torrent (Only used when adding a torent).",
+    },
+    {
+      name: "顺序下载",
+      key: "sequential_download",
+      type: "boolean",
+      defaultValue: false,
+      description: "Download the pieces of the torrent in order.",
+    },
+    {
+      name: "超级做种模式",
+      key: "super_seeding",
+      type: "boolean",
+      defaultValue: false,
+      description: "Enable super seeding/initial seeding.",
+    },
+  ],
 };
+
+const DelugeAdvanceAddTorrentOptionsBooleanKey = clientMetaData
+  .advanceAddTorrentOptions!.filter((x) => x.type === "boolean")
+  .map((x) => x.key) as [
+  "auto_managed",
+  "move_completed",
+  "pre_allocate_storage",
+  "prioritize_first_last_pieces",
+  "remove_at_ratio",
+  "seed_mode",
+  "sequential_download",
+  "super_seeding",
+];
+type TDelugeAdvanceAddTorrentOptionsBooleanKey = (typeof DelugeAdvanceAddTorrentOptionsBooleanKey)[number];
+type TDelugeAdvanceAddTorrentOptionsKey = TDelugeAdvanceAddTorrentOptionsBooleanKey | string;
 
 type DelugeMethod =
   | "auth.login"
@@ -209,13 +284,31 @@ export default class Deluge extends AbstractBittorrentClient {
     return await this.request<number>("core.get_free_space");
   }
 
-  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<CAddTorrentResult> {
+    const addResult = { success: false } as CAddTorrentResult;
+
     const delugeOptions: any = {
       add_paused: options.addAtPaused ?? false,
     };
+    const advanceAddTorrentOptions = (options.advanceAddTorrentOptions ?? {}) as Record<
+      TDelugeAdvanceAddTorrentOptionsKey,
+      any
+    >;
 
     if (options.savePath) {
       delugeOptions.download_location = options.savePath;
+    }
+
+    if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
+      // Upload speed limit in KB/s for Deluge
+      delugeOptions.max_upload_speed = options.uploadSpeedLimit * 1024;
+    }
+
+    // 处理高级选项（Boolean类型）
+    for (const key of DelugeAdvanceAddTorrentOptionsBooleanKey) {
+      if (advanceAddTorrentOptions[key] === true) {
+        delugeOptions[key] = advanceAddTorrentOptions[key];
+      }
     }
 
     // 由于Deluge添加链接和种子的方法名不一样，分开处理
@@ -246,10 +339,14 @@ export default class Deluge extends AbstractBittorrentClient {
         } catch (e) {} // 即使失败了也没关系
       }
 
-      return result !== null;
-    } catch (e) {
-      return false;
-    }
+      addResult.success = result !== null;
+
+      if (!addResult.success) {
+        addResult.message = result;
+      }
+    } catch (e) {}
+
+    return addResult;
   }
 
   async getAllTorrents(): Promise<CTorrent<DelugeRawTorrent>[]> {

@@ -1,5 +1,5 @@
 import { GB, TB } from "../utils";
-import type { ISiteMetadata, IAdvancedSearchRequestConfig } from "../types";
+import type { ISiteMetadata } from "../types";
 import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
@@ -18,16 +18,11 @@ export const siteMetadata: ISiteMetadata = {
   category: [
     {
       name: "搜索入口",
-      key: "url",
+      key: "#url",
       options: [
         { name: "种子区", value: "/torrents.php" },
         { name: "特别区", value: "/special.php" },
       ],
-      cross: false,
-      generateRequestConfig: (selectedCategories) => {
-        const ret = { requestConfig: { url: selectedCategories, params: {} } };
-        return ret as IAdvancedSearchRequestConfig;
-      },
     },
     {
       name: "分类（种子区）",
@@ -160,7 +155,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P4W",
       downloaded: 50 * GB,
       ratio: 1.05,
-      seedingPoints: 40000,
+      seedingBonus: 40000,
       privilege:
         '可以直接发布种子；可以查看用户列表；可以请求续种； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以进入论坛的“PT交流区”板块；可以删除自己上传的字幕。',
     },
@@ -170,7 +165,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P8W",
       downloaded: 120 * GB,
       ratio: 1.55,
-      seedingPoints: 80000,
+      seedingBonus: 80000,
       privilege: "",
     },
     {
@@ -179,7 +174,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P15W",
       downloaded: 300 * GB,
       ratio: 2.05,
-      seedingPoints: 150000,
+      seedingBonus: 150000,
       privilege: "可以在魔力商店购买永久邀请。",
     },
     {
@@ -188,7 +183,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P25W",
       downloaded: 500 * GB,
       ratio: 2.55,
-      seedingPoints: 250000,
+      seedingBonus: 250000,
       privilege: "可以查看普通日志。",
     },
     {
@@ -197,7 +192,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P40W",
       downloaded: 750 * GB,
       ratio: 3.05,
-      seedingPoints: 400000,
+      seedingBonus: 400000,
       privilege: "得到两个邀请名额；可以查看其它用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。",
     },
     {
@@ -206,7 +201,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P60W",
       downloaded: 1 * TB,
       ratio: 3.55,
-      seedingPoints: 600000,
+      seedingBonus: 600000,
       privilege: "得到两个邀请名额；可以更新过期的外部信息；可以查看Extreme User论坛。",
     },
     {
@@ -215,7 +210,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P80W",
       downloaded: 1.5 * TB,
       ratio: 4.05,
-      seedingPoints: 800000,
+      seedingBonus: 800000,
       privilege: "得到五个邀请名额。",
     },
     {
@@ -224,7 +219,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P100W",
       downloaded: 3 * TB,
       ratio: 4.55,
-      seedingPoints: 1000000,
+      seedingBonus: 1000000,
       privilege: "得到十个邀请名额。",
     },
     {

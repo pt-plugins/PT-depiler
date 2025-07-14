@@ -15,6 +15,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["uggcf://cgpuqovgf.pb/"],
+  formerHosts: ["chdbits.co"],
 
   category: [
     {
@@ -154,7 +155,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P5W",
       downloaded: "200GB",
       ratio: 2.0,
-      seedingBonus: 80000,
+      bonus: 80000,
       privilege:
         '可以查看NFO文档；可以请求续种； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
     },
@@ -164,7 +165,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P10W",
       downloaded: "500GB",
       ratio: 3.0,
-      seedingBonus: 150000,
+      bonus: 150000,
       privilege: "",
     },
     {
@@ -173,7 +174,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P15W",
       downloaded: "800GB",
       ratio: 4.0,
-      seedingBonus: 300000,
+      bonus: 300000,
       privilege:
         '可以查看NFO文档；可以查看用户列表；可以请求续种；可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。可以在做种/下载/发布的时候选择匿名模式。',
     },
@@ -183,7 +184,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P20W",
       downloaded: "999GB",
       ratio: 5.0,
-      seedingBonus: 650000,
+      bonus: 650000,
       privilege: "可以查看普通日志。",
     },
     {
@@ -192,7 +193,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P25W",
       downloaded: "1500GB",
       ratio: 6.0,
-      seedingBonus: 1000000,
+      bonus: 1000000,
       privilege: "可以查看其它用户的评论、帖子历史。",
     },
     {
@@ -201,7 +202,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P30W",
       downloaded: "2TB",
       ratio: 7.0,
-      seedingBonus: 2200000,
+      bonus: 2200000,
       privilege: "首次升级赠送邀请1枚，可以更新过期的外部信息；可以查看Extreme User论坛。",
     },
     {
@@ -210,7 +211,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P40W",
       downloaded: "3TB",
       ratio: 8.0,
-      seedingBonus: 3500000,
+      bonus: 3500000,
       privilege: "首次升级赠送邀请2枚，保留帐号，在官方活动期间可发放邀请；",
     },
     {
@@ -219,7 +220,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P52W",
       downloaded: "4TB",
       ratio: 10,
-      seedingBonus: 5000000,
+      bonus: 5000000,
       privilege: "首次升级赠送邀请3枚，保留帐号，在官方活动期间可发放邀请；",
     },
   ],

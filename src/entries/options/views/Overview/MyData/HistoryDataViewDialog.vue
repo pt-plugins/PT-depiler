@@ -146,7 +146,7 @@ function exportSiteHistoryData() {
             <span class="text-no-wrap">{{ item.seeding ?? "-" }}</span>
           </template>
 
-          <!-- 做种体积 -->
+          <!-- 做种量 -->
           <template #item.seedingSize="{ item }">
             <span class="text-no-wrap">
               {{ typeof item.seedingSize !== "undefined" ? formatSize(item.seedingSize) : "-" }}

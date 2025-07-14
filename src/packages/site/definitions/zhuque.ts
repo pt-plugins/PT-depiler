@@ -1,8 +1,15 @@
-import { type ISearchInput, ISiteMetadata, type ITorrent, type ITorrentTag } from "../types";
-import { sendMessage } from "@/messages.ts";
-import type { IMetadataPiniaStorageSchema } from "@/shared/types/storages/metadata.ts";
+import {
+  EResultParseStatus,
+  type ISearchInput,
+  ISiteMetadata,
+  type ITorrent,
+  type ITorrentTag,
+  type IUserInfo,
+} from "../types";
+
 import PrivateSite from "@ptd/site/schemas/AbstractPrivateSite.ts";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
+import { retrieveStore } from "@ptd/site/utils/adapter.ts";
 
 const categoryMap: Record<number, string> = {
   501: "电影",
@@ -283,8 +290,30 @@ export default class Zhuque extends PrivateSite {
     return torrent;
   }
 
+  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+    const userInfo = await super.getUserInfoResult(lastUserInfo);
+
+    // FIXME 将 csrfToken 存储到 runtimeSettings 中 （是否可以用一种别的方式来获取？）
+    if (userInfo.status === EResultParseStatus.success && typeof userInfo.csrfToken !== "undefined") {
+      await this.storeRuntimeSettings("csrfToken", userInfo.csrfToken);
+      delete userInfo.csrfToken;
+    }
+    return userInfo;
+  }
+
   private async getCsrfToken() {
-    const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
-    return metadataStore?.lastUserInfo?.zhuque?.csrfToken ?? "";
+    let csrfToken = await this.retrieveRuntimeSettings("csrfToken");
+    if (csrfToken) {
+      return csrfToken;
+    } else {
+      // 如果没有设置 csrfToken，则从扩展存储中获取（兼容之前写法）
+      const csrfToken = retrieveStore("metadata", `lastUserInfo.${this.metadata.id}.csrfToken`);
+      if (csrfToken) {
+        await this.storeRuntimeSettings("csrfToken", csrfToken);
+        return csrfToken;
+      }
+    }
+
+    return ""; // 如果没有找到 csrfToken，则返回空字符串
   }
 }

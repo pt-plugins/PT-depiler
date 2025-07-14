@@ -1,8 +1,13 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, shallowRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import { toMerged } from "es-toolkit";
 import { type ITorrent } from "@ptd/site";
-import { type CAddTorrentOptions, getDownloaderIcon as getDownloaderIconRaw } from "@ptd/downloader";
+import {
+  type CAddTorrentOptions,
+  getDownloaderIcon as getDownloaderIconRaw,
+  getDownloaderMetaData,
+} from "@ptd/downloader";
 
 import { sendMessage } from "@/messages.ts";
 import { formatDate } from "@/options/utils.ts";
@@ -10,7 +15,6 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import type { IDownloaderMetadata } from "@/shared/types.ts";
-import { toMerged } from "es-toolkit";
 
 const showDialog = defineModel<boolean>();
 const { torrentItems } = defineProps<{
@@ -25,13 +29,18 @@ const { t } = useI18n();
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
+
 const isSending = ref(false);
+const quickSendToClient = ref<boolean>(false);
 const selectedDownloader = ref<IDownloaderMetadata | null>(null);
+const selectedDownloaderMetadata = shallowRef();
 const addTorrentOptions = ref<Required<Omit<CAddTorrentOptions, "localDownloadOption">>>({
   localDownload: true,
   addAtPaused: false,
   savePath: "",
   label: "",
+  uploadSpeedLimit: 0,
+  advanceAddTorrentOptions: {},
 });
 
 const suggestFolders = computed(() => selectedDownloader.value?.suggestFolders ?? []);
@@ -45,7 +54,16 @@ function restoreAddTorrentOptions(downloader?: IDownloaderMetadata) {
   addTorrentOptions.value.addAtPaused = !(downloader?.feature?.DefaultAutoStart ?? true);
   addTorrentOptions.value.savePath = "";
   addTorrentOptions.value.label = "";
+  addTorrentOptions.value.advanceAddTorrentOptions = downloader?.advanceAddTorrentOptions ?? {};
 }
+
+watch(selectedDownloader, (value) => {
+  if (value?.type) {
+    getDownloaderMetaData(value.type).then((v) => (selectedDownloaderMetadata.value = v));
+  } else {
+    selectedDownloaderMetadata.value = null;
+  }
+});
 
 async function sendToDownloader() {
   if (!selectedDownloader.value?.id) {
@@ -105,8 +123,21 @@ async function sendToDownloader() {
   }
 
   Promise.all(promises)
-    .then(() => {
-      runtimeStore.showSnakebar("发送到下载器成功", { color: "success" });
+    .then((status) => {
+      if (status.length > 0) {
+        const pendingCount = status.filter((x) => x?.downloadStatus === "pending").length;
+        const failedCount = status.filter((x) => x?.downloadStatus === "failed").length;
+        const color = failedCount > 0 ? "warning" : "success";
+
+        runtimeStore.showSnakebar(
+          `成功发送 ${status.length - failedCount} 个任务到下载器` +
+            (pendingCount > 0 ? `（${pendingCount}在下载队列中）` : "") +
+            (failedCount > 0 ? `，有 ${failedCount} 个任务发送失败` : ""),
+          { color },
+        );
+      } else {
+        runtimeStore.showSnakebar("似乎并没有任务发送到下载器", { color: "warning" });
+      }
     })
     .catch((x) => {
       runtimeStore.showSnakebar("有任务发送到下载器失败，请在下载历史页面重试", { color: "error" });
@@ -118,19 +149,43 @@ async function sendToDownloader() {
     });
 }
 
+function quickSendToDownloader(downloader: IDownloaderMetadata, path: string = "", label?: string) {
+  selectedDownloader.value = downloader;
+
+  // 设置下载推送选项
+  addTorrentOptions.value.localDownload = true;
+  addTorrentOptions.value.addAtPaused = !(downloader.feature?.DefaultAutoStart ?? true);
+  addTorrentOptions.value.advanceAddTorrentOptions = downloader.advanceAddTorrentOptions ?? {};
+
+  if (path) {
+    addTorrentOptions.value.savePath = path;
+  }
+  if (label) {
+    addTorrentOptions.value.label = label;
+  }
+
+  return sendToDownloader();
+}
+
 function dialogEnter() {
   restoreAddTorrentOptions(); // 先重置所有选项，然后如果需要则从uiStore中获取历史情况
-  const lastDownloaderId = metadataStore.lastDownloader?.id;
-  selectedDownloader.value = lastDownloaderId // 如果有上次选择的下载器，则直接使用
-    ? metadataStore.downloaders[lastDownloaderId]
-    : metadataStore.getEnabledDownloaders.length === 1 // 如果只有一个启用的下载器，则直接使用
-      ? metadataStore.getEnabledDownloaders[0]
-      : null;
+  quickSendToClient.value = configStore.download.useQuickSendToClient;
 
-  // 将上一次的下载器选项通过 toMerged 合并到当前选项中，而不是直接覆盖
-  addTorrentOptions.value = toMerged(addTorrentOptions.value, metadataStore.lastDownloader?.options ?? {}) as Required<
-    Omit<CAddTorrentOptions, "localDownloadOption">
-  >;
+  // 如果不是快速发送到客户端模式，则尝试设置默认下载器
+  if (!quickSendToClient.value) {
+    const lastDownloaderId = metadataStore.lastDownloader?.id;
+    selectedDownloader.value = lastDownloaderId // 如果有上次选择的下载器，则直接使用
+      ? metadataStore.downloaders[lastDownloaderId]
+      : metadataStore.getEnabledDownloaders.length === 1 // 如果只有一个启用的下载器，则直接使用
+        ? metadataStore.getEnabledDownloaders[0]
+        : null;
+
+    // 将上一次的下载器选项通过 toMerged 合并到当前选项中，而不是直接覆盖
+    addTorrentOptions.value = toMerged(
+      addTorrentOptions.value,
+      metadataStore.lastDownloader?.options ?? {},
+    ) as Required<Omit<CAddTorrentOptions, "localDownloadOption">>;
+  }
 }
 
 function dialogLeave() {
@@ -157,12 +212,43 @@ function dialogLeave() {
           </template>
         </v-toolbar>
       </v-card-title>
+
       <v-card-text>
         <v-form>
-          <v-container class="pb-0">
+          <!-- 快速下载选项 -->
+          <v-container v-if="quickSendToClient" class="pa-0">
+            <v-list v-if="metadataStore.getEnabledDownloaders.length > 0">
+              <template v-for="downloader in metadataStore.getEnabledDownloaders" :key="downloader.id">
+                <v-list-item
+                  v-for="path in ['', ...(downloader.suggestFolders ?? [])]"
+                  :key="path"
+                  :prepend-avatar="getDownloaderIcon(downloader.type)"
+                  :subtitle="path"
+                  :title="downloaderTitle(downloader)"
+                  @click.stop="() => quickSendToDownloader(downloader, path)"
+                >
+                  <v-menu activator="parent" open-on-hover location="end">
+                    <v-list density="compact">
+                      <v-list-item
+                        v-for="tag in downloader.suggestTags"
+                        :key="tag"
+                        :title="tag"
+                        @click.stop="() => quickSendToDownloader(downloader, path, tag)"
+                      />
+                    </v-list>
+                  </v-menu>
+                </v-list-item>
+              </template>
+            </v-list>
+            <v-alert v-else type="warning" variant="tonal"> 没有可用的下载器，请先在设置中添加下载器。 </v-alert>
+          </v-container>
+
+          <!-- 普通下载选项 -->
+          <v-container v-else class="pb-0">
             <v-row>
               <v-autocomplete
                 v-model="selectedDownloader"
+                :filter-keys="['raw.name', 'raw.address', 'raw.username']"
                 :items="metadataStore.getEnabledDownloaders"
                 clearable
                 placeholder="选择下载器"
@@ -208,6 +294,7 @@ function dialogLeave() {
                 ></v-combobox>
               </v-col>
             </v-row>
+
             <v-row>
               <v-col>
                 <!-- FIXME 添加设置项，默认 disabled -->
@@ -228,12 +315,34 @@ function dialogLeave() {
                 ></v-switch>
               </v-col>
             </v-row>
+            <v-row>
+              <v-col class="pa-0">
+                <v-expansion-panels
+                  :disabled="!((selectedDownloaderMetadata?.advanceAddTorrentOptions ?? []).length > 0)"
+                >
+                  <v-expansion-panel title="高级设置">
+                    <v-expansion-panel-text>
+                      <v-switch
+                        v-for="opt in selectedDownloaderMetadata.advanceAddTorrentOptions"
+                        :key="opt.key"
+                        v-model="addTorrentOptions.advanceAddTorrentOptions![opt.key]"
+                        color="success"
+                        :label="opt.name"
+                        :messages="opt.description"
+                        :hide-details="!opt.description"
+                      />
+                    </v-expansion-panel-text>
+                  </v-expansion-panel>
+                </v-expansion-panels>
+              </v-col>
+            </v-row>
           </v-container>
         </v-form>
       </v-card-text>
       <v-divider />
       <v-card-actions>
-        <!-- TODO 说明 -->
+        <v-btn icon="mdi-cards" @click="quickSendToClient = !quickSendToClient" />
+
         <v-spacer />
         <v-btn
           :disabled="isSending"
@@ -245,7 +354,7 @@ function dialogLeave() {
           <span class="ml-1">{{ t("common.dialog.cancel") }}</span>
         </v-btn>
         <v-btn
-          :disabled="!selectedDownloader"
+          :disabled="!selectedDownloader || quickSendToClient"
           :loading="isSending"
           color="error"
           variant="text"

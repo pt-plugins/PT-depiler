@@ -192,6 +192,22 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
           </v-text-field>
         </template>
 
+        <v-text-field
+          v-model="siteUserConfig.downloadLinkAppendix"
+          :label="`下载链接后缀`"
+          :hint="`该字段会被自动添加到该站点的下载链接后`"
+        >
+          <template #append>
+            <v-tooltip max-width="400" location="top">
+              <template #activator="{ props }">
+                <v-icon v-bind="props" class="mr-4" icon="mdi-information" color="info" />
+              </template>
+              如插件获得的链接为 https://example.com/download.php?id=1，此处设置为 &passkey=xxxx， 则最终下载链接为
+              https://example.com/download.php?id=1&passkey=xxxx
+            </v-tooltip>
+          </template>
+        </v-text-field>
+
         <v-slider
           v-model="siteUserConfig.timeout"
           :color="siteUserConfig.timeout! > 8 * 60e3 ? 'red' : siteUserConfig.timeout! > 5 * 60e3 ? 'amber' : 'green'"
@@ -213,13 +229,30 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
           v-model="siteUserConfig.downloadInterval"
           :min="0"
           :max="1800"
-          hint="影响该站点的下载间隔时间"
+          :step="30"
+          hint="影响该站点的下载间隔时间（为了安全考虑，插件不会严格遵守该设置，实际间隔总是会略大于等于设置的间隔）"
           label="下载间隔"
           persistent-hint
         >
           <template #append>
             <v-btn variant="flat" @click="siteUserConfig.downloadInterval = 0">
               {{ formatDate((siteUserConfig.downloadInterval ?? 0) * 1e3, "mm:ss") }}
+            </v-btn>
+          </template>
+        </v-slider>
+
+        <v-slider
+          v-model="siteUserConfig.uploadSpeedLimit"
+          :min="0"
+          :max="1024"
+          :step="1"
+          :hint="t('SetSite.editor.uploadSpeedLimitHint')"
+          :label="t('SetSite.editor.uploadSpeedLimit')"
+          persistent-hint
+        >
+          <template #append>
+            <v-btn variant="flat" @click="siteUserConfig.uploadSpeedLimit = 0">
+              {{ siteUserConfig.uploadSpeedLimit ?? 0 }} MB/s
             </v-btn>
           </template>
         </v-slider>

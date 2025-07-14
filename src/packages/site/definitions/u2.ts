@@ -8,11 +8,12 @@ export const siteMetadata: ISiteMetadata = {
 
   id: "u2",
   name: "U2",
+  tags: ["影视", "动漫"],
+
   schema: "NexusPHP",
   type: "private",
   urls: ["https://u2.dmhy.org/"],
-  description: "动漫花园分享园",
-  tags: ["影视", "动漫"],
+
   category: [
     {
       name: "类型",

@@ -13,11 +13,19 @@ import {
   CTorrentFilterRules,
   CTorrentState,
   TorrentClientStatus,
+  CAddTorrentResult,
 } from "../types";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import urlJoin from "url-join";
 import { getRemoteTorrentFile } from "../utils";
 import { merge } from "es-toolkit";
+
+/**
+ * 定义一个 前缀，用于标识 qBittorrent 的分类
+ * 如果用户传入的 savePath 中包含了这个前缀，则认为是 qBittorrent 的分类
+ * 则设置 autoTMM = true & category = savePath.replace(category_prefix, "")
+ */
+const category_prefix = "category:";
 
 export const clientConfig: TorrentClientConfig = {
   type: "qBittorrent",
@@ -39,13 +47,33 @@ export const clientMetaData: TorrentClientMetaData = {
   feature: {
     CustomPath: {
       allowed: true,
-      description: CustomPathDescription,
+      description:
+        CustomPathDescription +
+        `（ qBittorrent 额外支持以 "${category_prefix}" 前缀的分类作为下载目录，当使用该前缀时，请在 qBittorrent 中预设分类信息。）`,
     },
     DefaultAutoStart: {
       allowed: true,
     },
   },
-};
+  advanceAddTorrentOptions: [
+    {
+      name: "自动管理模式",
+      key: "autoTMM",
+      type: "boolean",
+      defaultValue: false,
+      description: `当使用 "${category_prefix}" 前缀的分类作为下载目录，会自动启用`,
+    },
+    { name: "跳过哈希校验", key: "skip_checking", type: "boolean", defaultValue: false },
+    { name: "顺序下载", key: "sequentialDownload", type: "boolean", defaultValue: false },
+    { name: "先下载首尾文件块", key: "firstLastPiecePrio", type: "boolean", defaultValue: false },
+  ],
+} as const;
+
+const QBittorrentAdvanceAddTorrentOptionsBooleanKey = clientMetaData
+  .advanceAddTorrentOptions!.filter((x) => x.type === "boolean")
+  .map((x) => x.key) as ["autoTMM", "skip_checking", "sequentialDownload", "firstLastPiecePrio"];
+type TQBittorrentAdvanceAddTorrentOptionsBooleanKey = (typeof QBittorrentAdvanceAddTorrentOptionsBooleanKey)[number];
+type TQBittorrentAdvanceAddTorrentOptionsKey = TQBittorrentAdvanceAddTorrentOptionsBooleanKey | string;
 
 type TrueFalseStr = "true" | "false";
 
@@ -272,8 +300,14 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     return this.syncData;
   }
 
-  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<CAddTorrentResult> {
+    const addResult = { success: false } as CAddTorrentResult;
+
     const formData = new FormData();
+    const advanceAddTorrentOptions = (options.advanceAddTorrentOptions ?? {}) as Record<
+      TQBittorrentAdvanceAddTorrentOptionsKey,
+      any
+    >;
 
     // 处理链接
     if (url.startsWith("magnet:") || !options.localDownload) {
@@ -289,7 +323,13 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
 
     // 将通用字段转成qbt字段
     if (options.savePath) {
-      formData.append("savepath", options.savePath); // Download folder
+      // 如果是 qBittorrent 的分类，则设置 autoTMM = true & category = savePath.replace(category_prefix, "")
+      if (options.savePath.startsWith(category_prefix)) {
+        advanceAddTorrentOptions.autoTMM = true; // 开启自动管理
+        formData.append("category", options.savePath.replace(category_prefix, "")); // 分类名称
+      } else {
+        formData.append("savepath", options.savePath); // Download folder
+      }
     }
 
     if (options.label) {
@@ -301,16 +341,30 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
       formData.append("paused", options.addAtPaused ? "true" : "false");
     }
 
-    // Whether Automatic Torrent Management should be used, disables use of savepath
-    formData.append("useAutoTMM", "false"); // 关闭自动管理
+    if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
+      // Upload speed limit in bytes/sec, -1 means no limit
+      formData.append("upLimit", (options.uploadSpeedLimit * 1024 * 1024).toString());
+    }
 
-    // formData.append('skip_checking', 'false'); // Skip hash checking. Possible values are true, false (default)
+    // 处理高级选项（Boolean类型）
+    for (const key of QBittorrentAdvanceAddTorrentOptionsBooleanKey) {
+      if (advanceAddTorrentOptions[key] === true) {
+        formData.append(key, "true");
+      }
+    }
 
-    const res = await this.request("/torrents/add", {
+    const res = await this.request<"Ok." | "Fails.">("/torrents/add", {
       method: "post",
       data: formData,
     });
-    return res.data === "Ok.";
+
+    addResult.success = res.data === "Ok.";
+    if (!addResult.success) {
+      addResult.message = res.data;
+      return addResult;
+    }
+
+    return addResult;
   }
 
   async getAllTorrents(): Promise<QbittorrentTorrent[]> {
@@ -411,6 +465,19 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     };
     await this.request("/torrents/resume", { params });
     return true;
+  }
+
+  private async getClientCategories(): Promise<Record<string, { name: string; savePath: string }>> {
+    const { data: categories } =
+      await this.request<Record<string, { name: string; savePath: string }>>("/torrents/categories");
+    return categories;
+  }
+
+  public override async getClientPaths(): Promise<string[]> {
+    const savePaths: string[] = await super.getClientPaths();
+    const categories = await this.getClientCategories();
+
+    return [...Object.keys(categories).map((cat) => category_prefix + cat), ...savePaths].filter(Boolean);
   }
 
   // 获取客户端中的已有的标签

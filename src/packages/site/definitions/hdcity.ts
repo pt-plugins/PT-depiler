@@ -265,88 +265,90 @@ export const siteMetadata: ISiteMetadata = {
 
   userInfo: {
     pickLast: ["id", "joinTime"],
-    selectors: {
-      // "page": "/userdetails",
-      id: {
-        selector: ["center .text_alt .text:contains('ID')"],
-        filters: [
-          (query: string) => {
-            return query.match(/(\d+)/)![1];
-          },
-        ],
-      },
-      name: {
-        selector: ["center .text_alt span[style]"],
-      },
-      messageCount: {
-        text: 0,
-        selector: "a[href*='messages']",
-        filters: [
-          (query: string) => {
-            return parseInt(query.match(/(\d+)/)![1]);
-          },
-        ],
-      },
-      uploaded: {
-        selector: [".text_alt + br + div .text:nth-child(1)"],
-        filters: [
-          (query: string) => {
-            return parseSizeString(
-              query.match(/上传量:\s+([\d.\s,ZEPTGMKiB]+)\s+下载量:\s+([\d.\s,ZEPTGMKiB]+)/)![1]!.trim(),
-            );
-          },
-        ],
-      },
-      downloaded: {
-        selector: [".text_alt + br + div .text:nth-child(1)"],
-        filters: [
-          (query: string) => {
-            return parseSizeString(
-              query.match(/上传量:\s+([\d.\s,ZEPTGMKiB]+)\s+下载量:\s+([\d.\s,ZEPTGMKiB]+)/)![2]!.trim(),
-            );
-          },
-        ],
-      },
-      levelName: {
-        selector: [".text_alt img[src*='class']:first"],
-        attr: "src",
-        filters: [
-          (query: string) => {
-            const levelId = parseInt(query.match(/\/class\/(\d+)\.gif/)![1]) - 1;
-            return levelRequirements.find((x) => x.id === levelId)?.name ?? levelId;
-          },
-        ],
-      },
-      bonus: {
-        selector: [".text_alt + br + div .text:nth-child(4)"],
-        filters: [
-          (query: string) => {
-            return parseFloat(query.match(/魅力值\s+([\d.]+)/)![1]!.trim());
-          },
-        ],
-      },
-      joinTime: {
-        selector: [".text:contains('加入日期')"],
-        filters: [
-          (query: string) => {
-            return parseValidTimeString(query.match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/)![1]);
-          },
-        ],
-      },
-      // "page": "/mybonus",
-      bonusPerHour: {
-        selector: ["div:contains('你当前每小时能获取'):last"],
-        filters: [{ name: "parseNumber" }],
-      },
-    },
     process: [
       {
         requestConfig: { url: "/userdetails", responseType: "document" },
-        fields: ["id", "name", "messageCount", "uploaded", "downloaded", "levelName", "bonus", "joinTime"],
+        selectors: {
+          id: {
+            selector: ["center .text_alt .text:contains('ID')"],
+            filters: [
+              (query: string) => {
+                return query.match(/(\d+)/)![1];
+              },
+            ],
+          },
+          name: {
+            selector: ["center .text_alt span[style]"],
+          },
+          messageCount: {
+            text: 0,
+            selector: "a[href*='messages']",
+            filters: [
+              (query: string) => {
+                return parseInt(query.match(/(\d+)/)![1]);
+              },
+            ],
+          },
+          uploaded: {
+            selector: [".text_alt + br + div .text:nth-child(1)"],
+            filters: [
+              (query: string) => {
+                return parseSizeString(
+                  query.match(/(上传量|上傳量|Uploaded):\s+([\d.]+ [ZEPTGMK]i?B)/)?.[2]?.trim() ?? "0",
+                );
+              },
+            ],
+          },
+          downloaded: {
+            selector: [".text_alt + br + div .text:nth-child(1)"],
+            filters: [
+              (query: string) => {
+                return parseSizeString(
+                  query.match(/(下载量|下載量|Downloaded):\s+([\d.\s,ZEPTGMKiB]+)/)?.[2]?.trim() ?? "0",
+                );
+              },
+            ],
+          },
+          levelName: {
+            selector: [".text_alt img[src*='class']:first"],
+            attr: "src",
+            filters: [
+              (query: string) => {
+                const levelId = parseInt(query.match(/\/class\/(\d+)\.gif/)![1]) - 1;
+                return levelRequirements.find((x) => x.id === levelId)?.name ?? levelId;
+              },
+            ],
+          },
+          bonus: {
+            selector: [".text_alt + br + div .text:nth-child(4)"],
+            filters: [
+              (query: string) => {
+                return parseFloat(query.match(/(魅力值|Karma Points)\s+([\d.]+)/)?.[2]?.trim() ?? "0");
+              },
+            ],
+          },
+          joinTime: {
+            selector: [".text:contains('加入日期')", ".text:contains('Join date')"],
+            filters: [
+              (query: string) => {
+                return parseValidTimeString(query.match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/)![1]);
+              },
+            ],
+          },
+        },
       },
       {
         requestConfig: { url: "/mybonus", responseType: "document" },
-        fields: ["bonusPerHour"],
+        selectors: {
+          bonusPerHour: {
+            selector: [
+              "div:contains('你当前每小时能获取'):last",
+              "div:contains('You are currently getting'):last",
+              "div:contains('你當前每小時能獲取'):last",
+            ],
+            filters: [{ name: "parseNumber" }],
+          },
+        },
       },
     ],
   },

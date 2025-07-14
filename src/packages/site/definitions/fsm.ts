@@ -196,6 +196,7 @@ export const siteMetadata: ISiteMetadata = {
   },
   levelRequirements,
 
+  /*
   userInputSettingMeta: [
     {
       name: "token",
@@ -210,6 +211,7 @@ export const siteMetadata: ISiteMetadata = {
       required: true,
     },
   ],
+   */
 } as const;
 
 interface IFsmActress {

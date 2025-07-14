@@ -125,7 +125,7 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
   userInfo: {
-    pickLast: ["id", "name", "joinTime"],
+    pickLast: ["id", "name"],
     process: [
       {
         requestConfig: { url: "/" },
@@ -164,7 +164,10 @@ export const siteMetadata: ISiteMetadata = {
           },
           joinTime: {
             selector: "#pbbs > li:contains('注册时间')",
-            filters: [(query: string) => query.replace("注册时间", "").trim(), { name: "parseTime" }],
+            filters: [
+              (query: string) => query.replace("注册时间", "").trim(),
+              { name: "parseTime", args: ["yyyy-MM-dd HH:mm"] },
+            ],
           },
         },
       },

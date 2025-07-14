@@ -11,6 +11,7 @@ import type { IRuntimePiniaStorageSchema, ISearchData, SnackbarMessageOptions } 
 const initialSearchData: () => ISearchData = () => ({
   isSearching: false,
   startAt: 0,
+  endAt: 0,
   searchKey: "",
   searchPlanKey: "default",
   searchPlan: {},
@@ -41,7 +42,20 @@ export const useRuntimeStore = defineStore("runtime", {
 
   getters: {
     searchCostTime(state) {
-      return Object.values(state.search.searchPlan).reduce((acc, cur) => acc + (cur.costTime ?? 0), 0);
+      const plans = Object.values(state.search.searchPlan).filter((plan) => plan.startAt);
+
+      if (plans.length === 0) {
+        return 0;
+      }
+
+      const now = Date.now();
+      const startTimes = plans.map((plan) => plan.startAt!);
+      const endTimes = plans.map((plan) => plan.endAt || (plan.costTime ? plan.startAt! + plan.costTime : now));
+
+      const earliestStart = Math.min(...startTimes);
+      const latestEnd = Math.max(...endTimes);
+
+      return latestEnd - earliestStart;
     },
 
     isUserInfoFlush(state) {

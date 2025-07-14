@@ -1,4 +1,4 @@
-import { ETorrentStatus, type IElementQuery, type ISiteMetadata, type IAdvancedSearchRequestConfig } from "../types";
+import { ETorrentStatus, type IElementQuery, type ISiteMetadata } from "../types";
 import {
   CategoryInclbookmarked,
   CategoryIncldead,
@@ -99,16 +99,11 @@ export const siteMetadata: ISiteMetadata = {
   category: [
     {
       name: "搜索入口",
-      key: "url",
+      key: "#url",
       options: [
         { name: "种子区", value: "/torrents.php" },
         { name: "LIVE区", value: "/live.php" },
       ],
-      cross: false,
-      generateRequestConfig: (selectedCategories) => {
-        const ret = { requestConfig: { url: selectedCategories, params: {} } };
-        return ret as IAdvancedSearchRequestConfig;
-      },
     },
     {
       name: "类别（种子区）",
@@ -336,6 +331,38 @@ export const siteMetadata: ISiteMetadata = {
   searchEntry: {
     area_torrent: { name: "种子区", requestConfig: { url: "/torrents.php" } },
     area_live: { name: "LIVE区", enabled: false, requestConfig: { url: "/live.php" } },
+  },
+  userInfo: {
+    ...SchemaMetadata.userInfo,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors,
+      bonusPerHour: {
+        selector: ["td.text:has(>h1)"],
+        elementProcess: (element: any) => {
+          if (!element) return 0;
+
+          // 查找所有包含魔力值信息的div元素
+          const divs = element.querySelectorAll('div[align="center"]');
+
+          // 将所有div的文本内容合并
+          const allText = Array.from(divs)
+            .map((div: any) => div.textContent || div.innerText || "")
+            .join(" ");
+
+          const queryMatch = String(allText || "")
+            .replace(/,/g, "")
+            .match(/[\d.]+/g);
+          if (!queryMatch) return 0;
+
+          // 如果匹配到10个数字，取第0、5、8位相加；否则只取第0位
+          const bonusPerHour =
+            queryMatch.length === 10
+              ? parseFloat(queryMatch[0]) + parseFloat(queryMatch[5]) + parseFloat(queryMatch[8])
+              : parseFloat(queryMatch[0]);
+          return bonusPerHour;
+        },
+      },
+    },
   },
 
   levelRequirements: [

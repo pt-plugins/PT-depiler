@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, shallowRef } from "vue";
+import { inject, ref, shallowRef } from "vue";
 import { type ITorrent } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
@@ -7,7 +7,6 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { doKeywordSearch, siteInstance } from "../utils.ts";
 
-import SentToDownloaderDialog from "@/options/views/Overview/SearchEntity/SentToDownloaderDialog.vue";
 import AdvanceListModuleDialog from "@/content-script/app/components/AdvanceListModuleDialog.vue";
 import SpeedDialBtn from "@/content-script/app/components/SpeedDialBtn.vue";
 
@@ -15,7 +14,8 @@ const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 
 async function parseListPage(showNoTorrentError = true) {
-  const parsedResult = await siteInstance.value?.transformListPage(document);
+  // 使用克隆的文档，避免污染原始文档
+  const parsedResult = await siteInstance.value?.transformListPage(document.cloneNode(true) as Document);
 
   let errorMessage = "";
   if ((parsedResult?.torrents ?? []).length === 0) {
@@ -58,19 +58,18 @@ function handleLinkCopyMulti() {
   });
 }
 
-const parsedTorrents = shallowRef<ITorrent[]>([]);
-
-const showRemoteDownloadMultiDialog = ref<boolean>(false);
+const remoteDownloadDialogData = inject<{ show: boolean; torrents: ITorrent[] }>("remoteDownloadDialogData")!;
 
 function handleRemoteDownloadMulti() {
   parseListPage().then(({ torrents }) => {
     if (torrents.length > 0) {
-      parsedTorrents.value = torrents;
-      showRemoteDownloadMultiDialog.value = true;
+      remoteDownloadDialogData.torrents = torrents;
+      remoteDownloadDialogData.show = true;
     }
   });
 }
 
+const parsedTorrents = shallowRef<ITorrent[]>([]);
 const showAdvanceListModuleDialog = ref<boolean>(false);
 
 function handleAdvanceListModule() {
@@ -90,24 +89,31 @@ async function handleSearch() {
 </script>
 
 <template>
-  <SpeedDialBtn color="light-blue" icon="mdi-content-save-all" title="本地下载" @click="handleLocalDownloadMulti" />
-  <SpeedDialBtn color="light-blue" icon="mdi-content-copy" title="复制链接" @click="handleLinkCopyMulti" />
   <SpeedDialBtn
+    key="save"
+    color="light-blue"
+    icon="mdi-content-save-all"
+    title="本地下载"
+    @click="handleLocalDownloadMulti"
+  />
+  <SpeedDialBtn key="copy" color="light-blue" icon="mdi-content-copy" title="复制链接" @click="handleLinkCopyMulti" />
+  <SpeedDialBtn
+    key="download"
+    :disabled="metadataStore.getEnabledDownloaders.length === 0"
     color="light-blue"
     icon="mdi-tray-arrow-down"
     title="推送到..."
-    :disabled="metadataStore.getEnabledDownloaders.length === 0"
     @click="handleRemoteDownloadMulti"
   />
 
-  <SpeedDialBtn color="indigo" icon="mdi-checkbox-multiple-marked" title="高级列表" @click="handleAdvanceListModule" />
-  <SpeedDialBtn color="indigo" icon="mdi-home-search" title="快捷搜索" @click="handleSearch" />
-
-  <SentToDownloaderDialog
-    v-model="showRemoteDownloadMultiDialog"
-    :content-class="['bg-white']"
-    :torrent-items="parsedTorrents"
+  <SpeedDialBtn
+    key="advance"
+    color="indigo"
+    icon="mdi-checkbox-multiple-marked"
+    title="高级列表"
+    @click="handleAdvanceListModule"
   />
+  <SpeedDialBtn key="search" color="indigo" icon="mdi-home-search" title="快捷搜索" @click="handleSearch" />
 
   <AdvanceListModuleDialog v-model="showAdvanceListModuleDialog" :torrent-items="parsedTorrents" />
 </template>

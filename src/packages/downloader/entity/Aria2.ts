@@ -12,6 +12,7 @@ import {
   CTorrentState,
   TorrentClientStatus,
   AbstractBittorrentClient,
+  CAddTorrentResult,
 } from "../types";
 import { getRemoteTorrentFile } from "../utils";
 import urlJoin from "url-join";
@@ -225,10 +226,10 @@ export default class Aria2 extends AbstractBittorrentClient {
     };
   }
 
-  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
-    const addOption: any = {
-      pause: options.addAtPaused ?? false,
-    };
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<CAddTorrentResult> {
+    const addResult = { success: false } as CAddTorrentResult;
+
+    const addOption: any = { pause: options.addAtPaused ?? false };
 
     if (options.savePath) {
       addOption.dir = options.savePath;
@@ -253,11 +254,24 @@ export default class Aria2 extends AbstractBittorrentClient {
     }
 
     try {
-      await this.methodSend<string>(method, params);
-      return true;
-    } catch (e) {
-      return false;
-    }
+      const gid = await this.methodSend<string>(method, params);
+
+      // 设置上传速度限制 - 必须在添加后使用 aria2.changeOption
+      if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
+        try {
+          await this.methodSend("aria2.changeOption", [
+            gid,
+            {
+              "max-upload-limit": `${options.uploadSpeedLimit * 1024}K`,
+            },
+          ]);
+        } catch (e) {}
+      }
+
+      addResult.success = true;
+    } catch (e) {}
+
+    return addResult;
   }
 
   async getAllTorrents(): Promise<CTorrent<rawTask>[]> {

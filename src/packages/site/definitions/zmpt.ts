@@ -110,7 +110,7 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseNumber" }],
       },
       bonusPerHour: {
-        selector: ['td[rowspan="4"]'],
+        selector: ['td[rowspan^="3"]'],
         filters: [{ name: "parseNumber" }],
       },
     },

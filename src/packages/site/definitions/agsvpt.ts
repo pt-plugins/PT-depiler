@@ -26,6 +26,11 @@ export const siteMetadata: ISiteMetadata = {
   },
   levelRequirements: [
     {
+      id: 0,
+      name: "User",
+      privilege: "新用户的默认级别。只能在每周六中午12点至每周日晚上11点59分发布种子。",
+    },
+    {
       id: 1,
       name: "Power User(北冰珍珠熊)",
       downloaded: "50GB",

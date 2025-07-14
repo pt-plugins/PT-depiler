@@ -19,7 +19,7 @@ import NavButton from "@/options/components/NavButton.vue";
 import UserLevelRequirementsTd from "./UserLevelRequirementsTd.vue";
 import HistoryDataViewDialog from "./HistoryDataViewDialog.vue";
 
-import { formatRatio, flushSiteLastUserInfo, fixUserInfo, cancelFlushSiteLastUserInfo } from "./utils.ts";
+import { cancelFlushSiteLastUserInfo, fixUserInfo, flushSiteLastUserInfo, formatRatio } from "./utils.ts";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -35,7 +35,7 @@ const fullTableHeader = reactive([
     width: 90,
     props: { disabled: true },
   },
-  { title: t("MyData.table.username"), key: "name", align: "center", width: 90, props: { disabled: true } },
+  { title: t("MyData.table.username"), key: "name", align: "center", width: 90 },
   { title: t("MyData.table.levelName"), key: "levelName", align: "start", width: 90 },
   // NOTE: 这里将key设为 uploaded, trueUploaded 而不是虚拟的 userData，可以让 v-data-table 使用 uploaded 的进行排序
   { title: t("MyData.table.userData"), key: "uploaded", align: "end" },
@@ -48,7 +48,7 @@ const fullTableHeader = reactive([
   { title: t("levelRequirement.bonus"), key: "bonus", align: "end" },
   { title: t("levelRequirement.bonusPerHour"), key: "bonusPerHour", align: "end" },
   { title: t("MyData.table.joinTime"), key: "joinTime", align: "center" },
-  { title: t("MyData.table.updateAt"), key: "updateAt", align: "center", props: { disabled: true } },
+  { title: t("MyData.table.updateAt"), key: "updateAt", align: "center" },
   { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false, props: { disabled: true } },
 ] as (DataTableHeader & { props?: any })[]);
 
@@ -56,6 +56,27 @@ const tableHeader = computed(() => {
   return fullTableHeader.filter(
     (item) => item?.props?.disabled || configStore.tableBehavior.MyData.columns!.includes(item.key!),
   ) as DataTableHeader[];
+});
+
+// 表格字体大小样式计算属性
+const tableStyle = computed(() => {
+  return {
+    fontSize: `${configStore.myDataTableControl.tableFontSize}%`,
+  };
+});
+
+const tableNonBooleanControlKey = [
+  "tableFontSize",
+  "joinTimeFormat",
+  // Deprecated
+  "joinTimeWeekOnly",
+];
+
+// 过滤出表格控制中非布尔类型的键
+const filteredTableBooleanControlKeys = computed(() => {
+  return Object.keys(configStore.myDataTableControl).filter(
+    (key) => tableNonBooleanControlKey.indexOf(key) === -1,
+  ) as (keyof typeof configStore.myDataTableControl)[];
 });
 
 interface IUserInfoItem extends IUserInfo {
@@ -91,15 +112,23 @@ async function updateTableData() {
       // 只显示私有站点的用户信息
       siteMeta.type === "public" ||
       // 根据配置决定是否显示已死亡站点的用户信息
-      (siteMeta.isDead === true && !configStore.userInfo.showDeadSiteInOverview) ||
-      // 如果站点设置了离线模式或不允许查询用户信息
-      (!siteMeta.isDead && (siteUserConfig.isOffline === true || siteUserConfig.allowQueryUserInfo === false))
+      (!configStore.userInfo.showDeadSiteInOverview && siteMeta.isDead === true) ||
+      // 根据配置决定是否显示设置了离线模式或不允许查询用户信息的站点
+      (!siteMeta.isDead &&
+        !configStore.userInfo.showPassedSiteInOverview &&
+        (siteUserConfig.isOffline === true || siteUserConfig.allowQueryUserInfo === false))
     ) {
       continue;
     }
 
     const siteUserInfoData = metadataStore.lastUserInfo[siteId] ?? {};
-    allPrivateSiteUserInfoData.push({ ...fixUserInfo(siteUserInfoData), site: siteId, siteUserConfig });
+    allPrivateSiteUserInfoData.push({
+      ...fixUserInfo(siteUserInfoData),
+      site: siteId,
+      siteUserConfig,
+      // 对 isDead 或者 isOffline 的站点不允许选择（ https://github.com/pt-plugins/PT-depiler/pull/140 ）
+      selectable: !(siteMeta.isDead || siteUserConfig.isOffline),
+    });
   }
 
   tableData.value = allPrivateSiteUserInfoData;
@@ -174,23 +203,93 @@ function viewStatistic() {
           :disabled="tableSelected.length === 0"
           color="indigo"
           icon="mdi-open-in-new"
-          text="批量打开"
+          :text="t('MyData.index.multiOpen')"
           @click="multiOpen"
         />
 
         <v-divider class="mx-2" vertical />
 
-        <NavButton color="green" icon="mdi-chart-timeline-variant" text="时间轴" @click="viewTimeline" />
-        <NavButton color="green" icon="mdi-equalizer" text="数据图表" @click="viewStatistic" />
+        <NavButton
+          color="green"
+          icon="mdi-chart-timeline-variant"
+          :text="t('MyData.index.viewTimeline')"
+          @click="viewTimeline"
+        />
+        <NavButton color="green" icon="mdi-equalizer" :text="t('MyData.index.viewStatistic')" @click="viewStatistic" />
 
         <v-divider class="mx-2" vertical />
 
         <v-menu :close-on-content-clicks="false">
           <template v-slot:activator="{ props }">
-            <NavButton color="blue" icon="mdi-cog" text="设置" class="mr-1" v-bind="props" />
+            <NavButton color="blue" icon="mdi-cog" :text="t('MyData.index.setting')" class="mr-1" v-bind="props" />
           </template>
           <v-list>
-            <v-list-item v-for="(item, index) in configStore.myDataTableControl" :key="index" :value="index">
+            <!-- 表格字体大小控制 -->
+            <v-list-item>
+              <template v-slot:prepend>
+                <v-list-item-action start class="ml-2">
+                  <v-icon icon="mdi-format-font-size-increase" class="mr-2" />
+                  <v-btn
+                    class="text-subtitle-2 pa-0"
+                    variant="text"
+                    :title="t('common.dialog.reset')"
+                    @click.stop="configStore.myDataTableControl.tableFontSize = 100"
+                  >
+                    {{ t("MyData.index.tableFontSize") }}
+                  </v-btn>
+                </v-list-item-action>
+              </template>
+              <v-slider
+                v-model="configStore.myDataTableControl.tableFontSize"
+                :min="75"
+                :max="125"
+                :step="1"
+                density="compact"
+                hide-details
+                :ticks="[100]"
+                show-ticks="always"
+                @click.stop
+                @update:model-value="() => configStore.$save()"
+              >
+                <template #tick-label></template>
+                <template v-slot:thumb-label="{ modelValue }"> {{ modelValue }}% </template>
+              </v-slider>
+            </v-list-item>
+
+            <!-- 入站时间显示 -->
+            <v-list-item>
+              <template v-slot:prepend>
+                <v-list-item-action start class="ml-2">
+                  <v-icon icon="mdi-calendar-account" class="mr-2" />
+                  <span class="text-subtitle-2">{{ t("MyData.index.joinTimeFormat") }}</span>
+                </v-list-item-action>
+              </template>
+
+              <v-btn-toggle
+                v-model="configStore.myDataTableControl.joinTimeFormat"
+                density="compact"
+                hide-details
+                class="ml-2"
+                @click.stop
+                @update:model-value="() => configStore.$save()"
+              >
+                <v-btn
+                  v-for="type in ['alive', 'aliveWeek', 'added']"
+                  :key="type"
+                  :value="type"
+                  :title="t(`MyData.index.joinTimeFormatOptions.${type}`)"
+                  density="compact"
+                  hide-details
+                >
+                  {{ t(`MyData.index.joinTimeFormatOptions.${type}`) }}
+                </v-btn>
+              </v-btn-toggle>
+            </v-list-item>
+
+            <v-divider />
+
+            <!-- 其他开关控制 -->
+            <v-list-item v-for="index in filteredTableBooleanControlKeys" :key="index" :value="index">
               <template v-slot:prepend>
                 <v-list-item-action start class="ml-2">
                   <v-switch
@@ -240,7 +339,7 @@ function viewStatistic() {
           clearable
           density="compact"
           hide-details
-          label="Search"
+          :label="t('common.search')"
           max-width="500"
           single-line
           @click:clear="resetAdvanceFilterDictFn"
@@ -251,10 +350,12 @@ function viewStatistic() {
                 <v-icon v-bind="props" icon="mdi-filter" variant="plain" />
               </template>
               <v-list class="pa-0">
-                <v-list-item-subtitle class="ma-2">站点状态</v-list-item-subtitle>
+                <v-list-item-subtitle class="ma-2">
+                  {{ t("MyData.index.siteStatus") }}
+                </v-list-item-subtitle>
 
                 <v-list-item
-                  title="今日未更新"
+                  :title="t('MyData.index.filter.todayNotUpdated')"
                   @click.stop="
                     () => {
                       advanceFilterDictRef.updateAt.value = ['', formatDate(new Date(), 'yyyyMMdd')];
@@ -264,7 +365,7 @@ function viewStatistic() {
                 />
 
                 <v-list-item
-                  title="最后更新状态异常"
+                  :title="t('MyData.index.filter.lastUpdateError')"
                   @click.stop="
                     () => {
                       advanceFilterDictRef.status.required = [
@@ -278,7 +379,7 @@ function viewStatistic() {
                 />
 
                 <v-list-item
-                  title="未读信息"
+                  :title="t('MyData.index.filter.unreadMessage')"
                   @click.stop="
                     () => {
                       advanceFilterDictRef.messageCount.value = [1, ' '];
@@ -287,7 +388,9 @@ function viewStatistic() {
                   "
                 />
 
-                <v-list-item-subtitle class="ma-2">站点分类</v-list-item-subtitle>
+                <v-list-item-subtitle class="ma-2">
+                  {{ t("MyData.index.siteCategory") }}
+                </v-list-item-subtitle>
 
                 <v-list-item
                   v-for="(item, index) in metadataStore.getSitesGroupData"
@@ -321,10 +424,12 @@ function viewStatistic() {
       :items-per-page="configStore.tableBehavior.MyData.itemsPerPage"
       :search="tableFilterRef"
       :sort-by="configStore.tableBehavior.MyData.sortBy"
-      class="table-stripe table-header-no-wrap"
+      :style="tableStyle"
+      class="table-stripe table-header-no-wrap table-no-ext-padding"
       hover
+      item-selectable="selectable"
       item-value="site"
-      multi-sort
+      :multi-sort="configStore.enableTableMultiSort"
       show-select
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('MyData', 'itemsPerPage', v)"
       @update:sortBy="(v) => configStore.updateTableBehavior('MyData', 'sortBy', v)"
@@ -333,14 +438,20 @@ function viewStatistic() {
       <template #item.siteUserConfig.sortIndex="{ item }">
         <div class="d-flex flex-column align-center">
           <v-badge
-            v-if="configStore.myDataTableControl.showUnreadMessage && (item.messageCount ?? 0) > 0"
+            :model-value="configStore.myDataTableControl.showUnreadMessage && (item.messageCount ?? 0) > 0"
             :content="item.messageCount"
             :max="10"
             color="error"
           >
-            <SiteFavicon :site-id="item.site" :size="configStore.myDataTableControl.showSiteName ? 18 : 24" />
+            <div class="favicon-hover-wrapper favicon-hover-bg">
+              <SiteFavicon
+                :site-id="item.site"
+                :size="configStore.myDataTableControl.showSiteName ? 18 : 24"
+                @click="() => flushSiteLastUserInfo([item.site])"
+              />
+            </div>
           </v-badge>
-          <SiteFavicon v-else :site-id="item.site" :size="configStore.myDataTableControl.showSiteName ? 18 : 24" />
+
           <SiteName v-if="configStore.myDataTableControl.showSiteName" :site-id="item.site" />
         </div>
       </template>
@@ -437,7 +548,7 @@ function viewStatistic() {
         </v-container>
       </template>
 
-      <!-- 做种体积 -->
+      <!-- 做种量 -->
       <template #item.seedingSize="{ item }">
         <span class="text-no-wrap">
           {{ typeof item.seedingSize !== "undefined" ? formatSize(item.seedingSize) : "-" }}
@@ -487,9 +598,11 @@ function viewStatistic() {
         <span class="text-no-wrap" :title="item.joinTime ? (formatDate(item.joinTime) as string) : '-'">
           {{
             typeof item.joinTime !== "undefined"
-              ? configStore.myDataTableControl.joinTimeWeekOnly
+              ? configStore.myDataTableControl.joinTimeFormat === "aliveWeek"
                 ? formatTimeAgo(item.joinTime, true)
-                : formatDate(item.joinTime)
+                : configStore.myDataTableControl.joinTimeFormat === "alive"
+                  ? formatTimeAgo(item.joinTime)
+                  : formatDate(item.joinTime, "yyyy-MM-dd")
               : "-"
           }}
         </span>
@@ -498,7 +611,7 @@ function viewStatistic() {
       <!-- 更新时间 -->
       <template #item.updateAt="{ item }">
         <template v-if="item.status === EResultParseStatus.success">
-          <span class="text-no-wrap" :title="item.updateAt ? (formatDate(item.updateAt) as string) : '-'">
+          <span class="text-wrap" :title="item.updateAt ? (formatDate(item.updateAt) as string) : '-'">
             {{
               item.updateAt
                 ? configStore.myDataTableControl.updateAtFormatAsAlive
@@ -543,4 +656,19 @@ function viewStatistic() {
   <HistoryDataViewDialog v-model="showHistoryDataViewDialog" :site-id="historyDataViewDialogSiteId!" />
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.favicon-hover-wrapper {
+  cursor: pointer;
+}
+
+.favicon-hover-bg {
+  border-radius: 50%;
+  transition: background 0.2s;
+  display: inline-flex;
+  padding: 4px;
+}
+
+.favicon-hover-bg:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+</style>

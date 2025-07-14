@@ -13,7 +13,7 @@ export const siteMetadata: ISiteMetadata = {
   description: "PassThePopcorn (PTP) is a Private site for MOVIES",
   tags: ["电影"],
   timezoneOffset: "+0000",
-  collaborator: ["enigmaz"],
+  collaborator: ["lengmianxia", "birdplane", "enigmaz"],
   type: "private",
   schema: "Gazelle",
   urls: ["https://passthepopcorn.me/"],

@@ -1,0 +1,202 @@
+import { type ISiteMetadata } from "../types";
+import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
+
+export const siteMetadata: ISiteMetadata = {
+  ...SchemaMetadata,
+
+  version: 1,
+  id: "cbg",
+  name: "藏宝阁",
+  aka: ["藏宝阁","cbg"],
+  tags: ["综合", "影视"],
+  description: "开启藏宝阁，解锁你的光影世界，分享每一份热爱！",
+  timezoneOffset: "+0800",
+
+  collaborator: ["slove"],
+
+  type: "private",
+  schema: "NexusPHP",
+
+  urls: ["https://cangbao.ge/"],
+
+  category: [
+    {
+      name: "分类",
+      key: "cat",
+      options: [
+        { name: "电影", value: 401 },
+        { name: "剧集", value: 402 },
+        { name: "动画", value: 403 },
+        { name: "动漫", value: 404 },
+        { name: "综艺", value: 405 },
+        { name: "纪录", value: 406 },
+        { name: "音乐", value: 407 },
+        { name: "书籍", value: 408 },
+        { name: "软件", value: 409 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "媒体",
+      key: "medium",
+      options: [
+        { name: "VCD", value: 1 },
+        { name: "DVD", value: 2 },
+        { name: "Encode", value: 3 },
+        { name: "HDTV", value: 4 },
+        { name: "UHDTV", value: 5 },
+        { name: "WEB-DL	", value: 6 },
+        { name: "Blu-ray", value: 7 },
+        { name: "Remux", value: 8 },
+        { name: "UHD", value: 9 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "编码",
+      key: "codec",
+      options: [
+        { name: "H.261", value: 1 },
+        { name: "MPEG-1", value: 2 },
+        { name: "MPEG-2", value: 3 },
+        { name: "MPEG-4", value: 4 },
+        { name: "VC-1", value: 5 },
+        { name: "AVC", value: 6 },
+        { name: "VP9", value: 7 },
+        { name: "HEVC", value: 10 },
+        { name: "AV1", value: 13 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "音频",
+      key: "audiocodec",
+      options: [
+        { name: "MP3", value: 1 },
+        { name: "AC3", value: 2 },
+        { name: "DTS", value: 3 },
+        { name: "AAC", value: 4 },
+        { name: "DDP", value: 5 },
+        { name: "Opus", value: 6 },
+        { name: "FLAC", value: 7 },
+        { name: "TrueHD", value: 15 },
+        { name: "PCM", value: 16 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "分辨率",
+      key: "standard",
+      options: [
+        { name: "480p", value: 1 },
+        { name: "540p", value: 2 },
+        { name: "720p", value: 3 },
+        { name: "1080p", value: 4 },
+        { name: "1440p", value: 5 },
+        { name: "2160p", value: 6 },
+        { name: "4320p", value: 7 },
+      ],
+      cross: { mode: "append" },
+    },
+
+    CategoryIncldead,
+    CategorySpstate,
+    CategoryInclbookmarked,
+  ],
+
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      bonus: {
+        selector: ["td.rowhead:contains('魔力值') + td"],
+        filters: [{ name: "parseNumber" }],
+      },
+      bonusPerHour: {
+        selector: ['td[rowspan^="3"]'],
+        filters: [{ name: "parseNumber" }],
+      },
+    },
+  },
+
+  levelRequirements: [
+    {
+      id: 0,
+      name: "寻宝学徒",
+      privilege: "新用户的默认级别",
+    },
+    {
+      id: 1,
+      name: "初入江湖",
+      interval: "P4W",
+      downloaded: "40GB",
+      ratio: 1.05,
+      seedingBonus: 40000,
+      privilege:
+        '升级至此等级的用户将获得1个邀请名额',
+    },
+    {
+      id: 2,
+      name: "熟练巧匠",
+      interval: "P8W",
+      downloaded: "120GB",
+      ratio: 1.55,
+      seedingBonus: 80000,
+      privilege: "升级至此等级的用户将获得0个邀请名额。",
+    },
+    {
+      id: 3,
+      name: "慧眼识珍",
+      interval: "P16W",
+      downloaded: "300GB",
+      ratio: 2.05,
+      seedingBonus: 150000,
+      privilege: "升级至此等级的用户将获得2个邀请名额。",
+    },
+    {
+      id: 4,
+      name: "护阁精英",
+      interval: "P28W",
+      downloaded: "500GB",
+      ratio: 2.55,
+      seedingBonus: 250000,
+      privilege: "升级至此等级的用户将获得0个邀请名额。",
+    },
+    {
+      id: 5,
+      name: "传法执事",
+      interval: "P40W",
+      downloaded: "750GB",
+      ratio: 3.05,
+      seedingBonus: 400000,
+      privilege: "升级至此等级的用户将获得3个邀请名额。",
+    },
+    {
+      id: 6,
+      name: "藏经长老",
+      interval: "P56W",
+      downloaded: "1TB",
+      ratio: 3.55,
+      seedingBonus: 600000,
+      privilege: "升级至此等级的用户将获得0个邀请名额。",
+    },
+    {
+      id: 7,
+      name: "镇阁宗师",
+      interval: "P76W",
+      downloaded: "1.5TB",
+      ratio: 4.05,
+      seedingBonus: 900000,
+      privilege: "升级至此等级的用户将获得5个邀请名额。",
+    },
+    {
+      id: 8,
+      name: "殿堂尊者",
+      interval: "P100W",
+      downloaded: "3TB",
+      ratio: 4.55,
+      seedingBonus: 1500000,
+      privilege: "升级至此等级的用户将获得10个邀请名额，殿堂尊者及以上用户会永远保留账号。",
+    },
+  ],
+};

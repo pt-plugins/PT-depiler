@@ -31,8 +31,8 @@ export interface IImplicitUserInfo {
   ratio?: number | [number, number]; // 分享率需求
   trueRatio?: number | [number, number]; // 真实分享率需求
 
-  seeding?: number; // 做种数量需求
-  seedingSize?: number | TSize; // 做种体积需求
+  seeding?: number; // 做种数需求
+  seedingSize?: number | TSize; // 做种量需求
   seedingTime?: number | isoDuration; // 做种时间（秒）需求，如果是 string 则类似 isoDuration，可以定义 30天 为 "30D"
   averageSeedingTime?: number | isoDuration; // 平均做种时间（秒）需求
 
@@ -48,13 +48,13 @@ export interface IImplicitUserInfo {
   // bonusNeededInterval?: `${number}H`;
   // seedingBonusNeededInterval?: `${number}H`;
 
-  uploads?: number; // 发布种子数需求
+  uploads?: number; // 发布数需求
   leeching?: number; // 下载数量需求
   snatches?: number; // 完成种子数需求
   posts?: number; // 发布帖子数需求
 
   hnrUnsatisfied?: number; // H&R 未满足的数量需求
-  hnrPerWarning?: number; // H&R 预警
+  hnrPreWarning?: number; // H&R 预警
 
   [key: string]: any; // 其他需求
 }
@@ -93,7 +93,7 @@ export interface IUserInfo extends Omit<IImplicitUserInfo, "interval"> {
   trueUploaded?: number; // 真实上传量
   ratio?: number; // 分享率
   trueRatio?: number; // 真实分享率
-  seedingSize?: number; // 做种体积
+  seedingSize?: number; // 做种量
 
   [key: string]: any; // 其他信息
 }

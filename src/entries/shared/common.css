@@ -13,6 +13,13 @@
     }
 }
 
+.table-no-ext-padding {
+    .v-data-table__td {
+        padding: 0 4px !important;
+    }
+}
+
+
 /* 暗黑模式覆写 */
 .v-theme--dark {
     .table-stripe {

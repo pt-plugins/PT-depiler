@@ -353,16 +353,12 @@ export default class QingWa extends NexusPHP {
     if (userSeedingRequestString && userSeedingRequestString?.includes("<table")) {
       const userSeedingDocument = createDocument(userSeedingRequestString);
       seedStatus.seeding = this.getFieldData(userSeedingDocument, {
-        selector: "b:first",
+        selector: "#total_count",
         filters: [{ name: "parseNumber" }],
       });
 
       seedStatus.seedingSize = this.getFieldData(userSeedingDocument, {
-        selector: [
-          "div:has(b):contains('总大小')",
-          "div:has(b):contains('總大小')",
-          "div:has(b):contains('Total size')",
-        ],
+        selector: ["#total_size"],
         filters: [{ name: "parseSize" }],
       });
     }

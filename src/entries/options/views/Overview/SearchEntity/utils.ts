@@ -50,6 +50,7 @@ searchQueue.on("active", () => {
 
 searchQueue.on("idle", () => {
   runtimeStore.search.isSearching = false;
+  runtimeStore.search.endAt = Date.now();
 });
 
 export async function raiseSearchPriority(solutionKey: TSearchSolutionKey) {
@@ -85,12 +86,12 @@ export async function doSearchEntity(
 
   // Search site by plan in queue
   console.log(`Add search ${solutionKey} to queue.`);
-  runtimeStore.search.searchPlan[solutionKey].queueAt = +new Date();
+  runtimeStore.search.searchPlan[solutionKey].queueAt = Date.now();
 
   // noinspection ES6MissingAwait
   searchQueue.add(
     async () => {
-      const startAt = (runtimeStore.search.searchPlan[solutionKey].startAt = +new Date());
+      const startAt = (runtimeStore.search.searchPlan[solutionKey].startAt = Date.now());
       console.log(`search ${solutionKey} start at ${startAt}`);
       runtimeStore.search.searchPlan[solutionKey].status = EResultParseStatus.working;
       const { status: searchStatus, data: searchResult } = await sendMessage("getSiteSearchResult", {
@@ -100,6 +101,7 @@ export async function doSearchEntity(
       });
       console.log(`success get search ${solutionKey} result, with code ${searchStatus}: `, searchResult);
       runtimeStore.search.searchPlan[solutionKey].status = searchStatus;
+
       for (const item of searchResult) {
         const itemUniqueId = `${item.site}-${item.id}`;
         const isDuplicate = runtimeStore.search.searchResult.some((result) => result.uniqueId == itemUniqueId);
@@ -113,7 +115,9 @@ export async function doSearchEntity(
       runtimeStore.search.searchPlan[solutionKey].count = runtimeStore.search.searchResult.filter(
         (item) => item.solutionKey == solutionKey,
       ).length;
-      runtimeStore.search.searchPlan[solutionKey].costTime = +new Date() - startAt;
+      const endAt = Date.now();
+      runtimeStore.search.searchPlan[solutionKey].endAt = endAt;
+      runtimeStore.search.searchPlan[solutionKey].costTime = endAt - startAt;
     },
     { priority: queuePriority, id: solutionKey },
   );
@@ -149,7 +153,7 @@ export async function doSearch(search: string, plan?: string, flush: boolean = t
     return;
   }
 
-  runtimeStore.search.startAt = +Date.now();
+  runtimeStore.search.startAt = Date.now();
   runtimeStore.search.isSearching = true;
 
   for (const { siteId, searchEntries } of searchSolution.solutions) {

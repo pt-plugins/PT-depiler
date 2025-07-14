@@ -312,7 +312,7 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
       bonusPerHour: {
-        selector: ["tbody:contains('我的数据') > tr:first > td:last"],
+        selector: ["tbody tr.nowrap:first td:last"],
         filters: [{ name: "parseNumber" }],
       },
       messageCount: {
@@ -338,7 +338,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 3,
-      name: "大师(Master)	",
+      name: "大师(Master)",
       downloaded: "1TB",
       ratio: 1.2,
       alternative: [{ seedingBonus: 500000, uploads: 100 }, { seedingBonus: 1000000 }],
@@ -387,30 +387,8 @@ export default class SpringSunday extends NexusPHP {
         selector: "b:eq(1)",
         filters: [{ name: "parseSize" }],
       });
-      flushUserInfo.bonusPerHour = this.getFieldData(userSeedingDocument, {
-        selector: "b:eq(4)",
-        filters: [{ name: "parseNumber" }],
-      });
     } else {
       return super.parseUserInfoForSeedingStatus(flushUserInfo); // 回落到默认的处理
-    }
-
-    return flushUserInfo;
-  }
-
-  protected override async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
-    const userId = flushUserInfo.id as number;
-    const userUploadsRequestString = await this.requestUserSeedingPage(userId, "uploaded");
-    flushUserInfo.uploads = 0;
-
-    if (
-      userUploadsRequestString &&
-      /<b>\d+<\/b>(条记录| records|條記錄)|No record.|没有记录|沒有記錄/.test(userUploadsRequestString)
-    ) {
-      // 这里就不走 getFieldData 方法了，直接用正则匹配出来就好了
-      flushUserInfo.uploads = userUploadsRequestString.match(/<b>(\d+)<\/b>(条记录| records|條記錄)/)?.[1] ?? 0;
-    } else {
-      return super.parseUserInfoForUploads(flushUserInfo); // 回落到默认的处理
     }
 
     return flushUserInfo;

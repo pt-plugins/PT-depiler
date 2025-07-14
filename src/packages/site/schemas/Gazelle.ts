@@ -198,12 +198,16 @@ export default class Gazelle extends PrivateSite {
       const url = this.getFieldData(tr, searchEntry!.selectors!.url!);
       const link = this.getFieldData(tr, searchEntry!.selectors!.link!);
       if (url && link) {
-        const torrent = (await this.parseWholeTorrentFromRow({ url, link }, tr, {
-          keywords,
-          searchEntry,
-          requestConfig,
-        })) as ITorrent;
-        torrents.push(torrent);
+        try {
+          const torrent = (await this.parseWholeTorrentFromRow({ url, link }, tr, {
+            keywords,
+            searchEntry,
+            requestConfig,
+          })) as ITorrent;
+          torrents.push(torrent);
+        } catch (e) {
+          console.warn(`Failed to parse torrent from row:`, e, tr);
+        }
       }
     }
 

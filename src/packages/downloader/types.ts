@@ -44,6 +44,9 @@ export interface DownloaderBaseConfig {
   feature?: {
     [feature in TorrentClientFeature]?: boolean;
   };
+
+  // 在推送种子时，该下载器的一些专有设置
+  advanceAddTorrentOptions?: Record<string, any>;
 }
 
 // 强制要求填写用户名和密码
@@ -71,6 +74,16 @@ export interface TorrentClientMetaData {
   feature: {
     [feature in TorrentClientFeature]: TorrentClientFeatureMetaData;
   };
+
+  // 在推送种子时，该下载器的一些专有设置
+  advanceAddTorrentOptions?: Array<{
+    name: string; // 选项名称
+    key: string; // 选项键名
+    description?: string; // 选项描述
+    type: "string" | "number" | "boolean"; // 选项类型
+    defaultValue?: any; // 默认值
+    required?: boolean; // 是否必填
+  }>;
 }
 
 export interface TorrentClientStatus {
@@ -173,6 +186,34 @@ export interface CAddTorrentOptions {
    * Notice: Some clients didn't support it and will ignore this option
    */
   label?: string;
+
+  /**
+   * 上传速度限制，单位为 MB/s，0 或不填时不限速
+   *
+   * 支持的下载器:
+   * - qBittorrent ✅
+   * - Transmission ✅
+   * - Deluge ✅
+   * - Aria2 ✅
+   * - uTorrent ✅
+   *
+   * 不支持的下载器 (将被忽略):
+   * - Flood ❌
+   * - ruTorrent ❌
+   * - Synology Download Station ❌
+   */
+  uploadSpeedLimit?: number;
+
+  /**
+   * 推送下载时，该下载器的一些专有设置
+   */
+  advanceAddTorrentOptions?: Record<string, any>;
+}
+
+export interface CAddTorrentResult {
+  success: boolean; // 是否添加成功
+  message?: any; // 错误信息
+  id?: string; // 添加成功后返回的种子ID
 }
 
 /**
@@ -264,7 +305,7 @@ export abstract class AbstractBittorrentClient<T extends DownloaderBaseConfig = 
   }
 
   // 添加种子
-  public abstract addTorrent(url: string, options: Partial<CAddTorrentOptions>): Promise<boolean>;
+  public abstract addTorrent(url: string, options: Partial<CAddTorrentOptions>): Promise<CAddTorrentResult>;
 
   // 暂停种子
   public abstract pauseTorrent(id: any): Promise<boolean>;

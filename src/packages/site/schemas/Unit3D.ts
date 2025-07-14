@@ -3,7 +3,7 @@ import { omit, toMerged } from "es-toolkit";
 import { set } from "es-toolkit/compat";
 
 import PrivateSite from "./AbstractPrivateSite";
-import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
+import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type IUserInfo, NeedLoginError } from "../types";
 import { parseSizeString, parseValidTimeString } from "../utils";
 
 /**
@@ -121,15 +121,42 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         },
       },
       tags: [
-        { name: "Free", selector: "i.fa-star.text-gold, i.fa-globe.text-blue", color: "blue" },
-        { name: "2xUp", selector: "i.fa-gem.text-green", color: "lime" },
+        {
+          name: "Free",
+          selector:
+            "i.fa-star.text-gold, i.fa-globe.text-blue, i[title*='100% Free'], i[title*='Featured'], span[title*='100% Free'], i[data-original-title*='Featured']",
+          color: "blue",
+        },
+        {
+          name: "2xUp",
+          selector:
+            "i.fa-gem.text-green, i[title*='Double Upload'], i[title*='Featured'], i[data-original-title*='Featured']",
+          color: "lime",
+        },
+        {
+          name: "75%",
+          selector: "i[title*='75% Free'], span[title*='75% Free']",
+          color: "lime-darken-3",
+        },
+        {
+          name: "50%",
+          selector: "i[title*='50% Free'], span[title*='50% Free']",
+          color: "deep-orange-darken-1",
+        },
+        {
+          name: "25%",
+          selector: "i[title*='25% Free'], span[title*='25% Free']",
+          color: "blue",
+        },
       ],
     },
   },
 
-  list: {
-    urlPattern: ["/torrents\[\^/\]"],
-  },
+  list: [
+    {
+      urlPattern: ["/torrents\[\^/\]"],
+    },
+  ],
 
   detail: {
     urlPattern: ["/torrents/\\d+"],
@@ -294,6 +321,10 @@ export default class Unit3D extends PrivateSite {
       flushUserInfo.status = EResultParseStatus.success;
     } catch (e) {
       flushUserInfo.status = EResultParseStatus.parseError;
+
+      if (e instanceof NeedLoginError) {
+        flushUserInfo.status = EResultParseStatus.needLogin;
+      }
     }
 
     return flushUserInfo;

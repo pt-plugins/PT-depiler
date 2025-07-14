@@ -19,6 +19,9 @@ export type TSiteFullUrl = `${"http" | "https"}://${TSiteHost}/`;
 export type TSiteFullUrlProtect = `${"uggc" | "uggcf"}://${TSiteHost}/`;
 export type TSiteUrl = TSiteFullUrl | TSiteFullUrlProtect;
 
+export type TUrlPattern = string | RegExp;
+export type TUrlPatterns = TUrlPattern[];
+
 /**
  * 解析状态
  */

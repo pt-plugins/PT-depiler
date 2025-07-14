@@ -175,6 +175,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       tags: [
         ...SchemaMetadata.search!.selectors!.tags!,
+        { name: "Free", selector: "span.promotion-tag-free", color: "blue" },
         { name: "官方", selector: "a[href*='tag_id3=1']", color: "#0000ff" },
         { name: "完结", selector: "a[href*='tag_id17=1']", color: "#4682B4" },
         { name: "原创", selector: "a[href*='tag_id8=1']", color: "#ff3300" },
@@ -237,6 +238,10 @@ export const siteMetadata: ISiteMetadata = {
             return parseValidTimeString(query);
           },
         ],
+      },
+      bonusPerHour: {
+        selector: [".grid .row-span-4"],
+        filters: [{ name: "parseNumber" }],
       },
     },
   },

@@ -8,6 +8,7 @@ import {
   CTorrentFilterRules,
   CTorrentState,
   TorrentClientStatus,
+  CAddTorrentResult,
 } from "../types";
 import urlJoin from "url-join";
 import axios, { type AxiosResponse, isAxiosError } from "axios";
@@ -312,7 +313,9 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     }
   }
 
-  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<CAddTorrentResult> {
+    const addResult = { success: false } as CAddTorrentResult;
+
     const addTorrentOptions: Partial<TransmissionAddTorrentOptions> = {
       paused: options.addAtPaused ?? false,
     };
@@ -342,21 +345,36 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     try {
       const { data } = await this.request<AddTorrentResponse>("torrent-add", addTorrentOptions);
 
+      const torrentId = data.arguments["torrent-added"].id;
+
       // Transmission 3.0 以上才支持label
       if (!supportLabelAtAdd && options.label) {
         try {
-          const torrentId = data.arguments["torrent-added"].id;
           await this.request("torrent-set", {
             ids: torrentId,
-            label: [options.label],
+            labels: [options.label],
           });
         } catch (e) {}
       }
 
-      return data.result === "success";
-    } catch (e) {
-      return false;
-    }
+      // 设置上传速度限制 - 必须在添加后使用 torrent-set
+      if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
+        try {
+          await this.request("torrent-set", {
+            ids: torrentId,
+            uploadLimit: options.uploadSpeedLimit * 1024, // KB/s
+            uploadLimited: true,
+          });
+        } catch (e) {}
+      }
+
+      addResult.success = data.result === "success";
+      if (!addResult.success) {
+        addResult.message = data;
+      }
+    } catch (e) {}
+
+    return addResult;
   }
 
   async getAllTorrents(): Promise<CTorrent[]> {

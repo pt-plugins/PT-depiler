@@ -222,7 +222,7 @@ export const siteMetadata: ISiteMetadata = {
       id: 4,
       groupType: "user",
       name: "Crazy User",
-      privilege: `	得到1个邀请名额；可以在做种/下载/发布的时候选择匿名模式。`,
+      privilege: `得到1个邀请名额；可以在做种/下载/发布的时候选择匿名模式。`,
       seedingBonus: 200000,
       ratio: 4.0,
       interval: "P15W",

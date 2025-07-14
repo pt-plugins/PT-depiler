@@ -27,6 +27,7 @@ export interface IConfigPiniaStorageSchema {
   ignoreWrongPixelRatio: boolean;
 
   saveTableBehavior: boolean;
+  enableTableMultiSort: boolean; // 是否启用表格多列排序
 
   // 用于存储 v-data-table 表格的展示
   tableBehavior: Record<UiTableBehaviorKey, UiTableBehaviorItem>;
@@ -45,10 +46,13 @@ export interface IConfigPiniaStorageSchema {
     defaultOpenSpeedDial: boolean; // 是否默认打开按钮
     stackedButtons: boolean; // 是否使用堆叠按钮
     applyTheme: boolean; // 是否响应主题样式
+    allowExceptionSites: boolean; // 是否允许在 contentScript 中排除站点（即站点不显示侧边栏）
   };
 
   // 对 MyData 页面 v-data-table 展示的额外控制项
   myDataTableControl: {
+    // 表格字体大小控制 (百分比: 75-100)
+    tableFontSize: number;
     // 是否展示站点名称
     showSiteName: boolean;
     // 是否展示未读信息情况
@@ -75,8 +79,19 @@ export interface IConfigPiniaStorageSchema {
     showHnR: boolean;
     // 是否展示保种积分
     showSeedingBonus: boolean;
-    // 加入时间显示为周数，默认不使用
-    joinTimeWeekOnly: boolean;
+    // Deprecated 加入时间显示为周数，使用 joinTimeFormat
+    // joinTimeWeekOnly: boolean;
+
+    /**
+     * 如何展示加入时间
+     *
+     * alive: 使用 time_alive(过去时间) 来展示
+     * added: 使用 time_added(发生时间) 来展示（ yyyy-MM-dd ）
+     * aliveWeek: 使用 time_alive(过去时间) 来展示，按计算出来的周数来展示
+     *
+     */
+    joinTimeFormat: "alive" | "added" | "aliveWeek";
+
     // 是否使用 time_alive(过去时间) 来展示，如果不使用，则使用 time_added(发生时间) 来展示，默认不使用
     updateAtFormatAsAlive: boolean;
   };
@@ -95,8 +110,7 @@ export interface IConfigPiniaStorageSchema {
     showChart: Record<
       | "totalSiteBase"
       | "totalSiteSeeding"
-      | `perSiteK${"uploaded" | "downloaded" | "seeding" | "seedingSize" | "bonus"}`
-      | `perSiteK${"uploaded" | "downloaded" | "seeding" | "seedingSize" | "bonus"}Incr`,
+      | `perSiteK${"uploaded" | "downloaded" | "seeding" | "seedingSize" | "bonus"}${"" | "Incr"}`,
       boolean
     >;
     dateRange: number | "custom" | "all";
@@ -136,6 +150,8 @@ export interface IConfigPiniaStorageSchema {
     };
     // 是否在概览中展示已被标记为死亡 （isDead） 的站点
     showDeadSiteInOverview: boolean;
+    // 是否在概览中展示已被标记为离线 （isOffline） 或不允许查询用户信息 （ allowQueryUserInfo === false ） 的站点
+    showPassedSiteInOverview: boolean;
   };
 
   download: {
@@ -147,6 +163,10 @@ export interface IConfigPiniaStorageSchema {
     allowDirectSendToClient: boolean;
     // 当使用本地方法下载时，如何下载种子
     localDownloadMethod: TLocalDownloadMethod;
+    // 当使用本地方法下载时，是否忽略站点的下载间隔设置；
+    ignoreSiteDownloadIntervalWhenLocalDownload: boolean;
+    // 是否使用快速发送到客户端功能（展平 下载器和下载目录 ）
+    useQuickSendToClient: boolean;
   };
 
   searchEntity: {

@@ -99,17 +99,22 @@ export const siteMetadata: ISiteMetadata = {
         selector: ['div[class^="torrents-progress"][style*="width"]:first'],
         elementProcess: (element: HTMLElement) => {
           const elementStyle = element.getAttribute("style") || "";
-          const widthMatch = elementStyle.match(/width:([ \d.]+)%/);
-          return widthMatch && widthMatch.length >= 2 ? parseFloat(widthMatch[1]) : 0;
+          const widthMatch = elementStyle.match(/width:([ \d.-]+)%/);
+          const progress = widthMatch && widthMatch.length >= 2 ? parseFloat(widthMatch[1]) : 0;
+          return progress < 0 ? 0 : progress;
         },
       },
       status: {
         selector: ['div[class^="torrents-progress"][style*="width"]:first'],
         elementProcess: (element: HTMLElement) => {
           if (element.classList.contains("torrents-progress2")) {
-            const widthMatch = (element.getAttribute("style") || "").match(/width:([ \d.]+)%/);
+            const widthMatch = (element.getAttribute("style") || "").match(/width:([ \d.-]+)%/);
             const progress = widthMatch && widthMatch.length >= 2 ? parseFloat(widthMatch[1]) : 0;
-            return progress >= 100 ? ETorrentStatus.completed : ETorrentStatus.inactive;
+            return progress < 0
+              ? ETorrentStatus.unknown
+              : progress >= 100
+                ? ETorrentStatus.completed
+                : ETorrentStatus.inactive;
           } else if (element.classList.contains("torrents-progress")) {
             const widthMatch = (element.getAttribute("style") || "").match(/width:([ \d.]+)%/);
             const progress = widthMatch && widthMatch.length >= 2 ? parseFloat(widthMatch[1]) : 0;
@@ -285,23 +290,6 @@ export default class Audiences extends NexusPHP {
       return typeof srcValue === "undefined" ? objValue : srcValue;
     });
 
-    return flushUserInfo;
-  }
-
-  // 获取发种信息
-  protected override async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
-    flushUserInfo.uploads = 0;
-
-    const userId = flushUserInfo.id as number;
-    const data = await this.requestUserSeedingPage(userId, "uploaded");
-
-    if (data && data?.includes("<b")) {
-      const userUploadedPage = createDocument(data);
-      const trAnothers = Sizzle("b:first", userUploadedPage as Document);
-      if (trAnothers.length > 0) {
-        flushUserInfo.uploads = tryToNumber(trAnothers[0].textContent?.trim());
-      }
-    }
     return flushUserInfo;
   }
 }

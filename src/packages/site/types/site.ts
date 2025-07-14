@@ -1,7 +1,7 @@
 // noinspection ES6PreferShortImport
 
 import type { AxiosRequestConfig } from "axios";
-import type { TSiteID, TSiteHost, TSiteUrl, TSiteFullUrl } from "./base";
+import { TSiteID, TSiteHost, TSiteUrl, TSiteFullUrl, TUrlPatterns } from "./base";
 import type { ITorrent } from "./torrent";
 import type { ILevelRequirement, IUserInfo } from "./userinfo";
 import type { IElementQuery, ISearchCategories, ISearchConfig, ISearchEntryRequestConfig } from "./search";
@@ -15,7 +15,7 @@ export type SiteSchema =
   | "Unit3D"
   | "Gazelle"
   | "GazelleJSONAPI"
-  | "AvistaZ"
+  | "AvistazNetwork"
   | string;
 
 type TUserInfoParseKey = keyof Omit<IUserInfo, "site" | "status" | "updateAt">;
@@ -31,7 +31,14 @@ export interface ISiteUserInputMeta {
  * 站点配置，这部分配置由系统提供，并随着每次插件更新而更新
  */
 export interface ISiteMetadata {
-  readonly id: TSiteID; // 必须和站点文件名（无扩展）相同
+  /**
+   * 站点的id，全局唯一，必须和站点文件名（无扩展）相同
+   * 应该是一个符合正则表达式 /[0-9a-z]+/ 的字符串（无大写字母、无特殊字符）
+   *
+   * 额外的，如果 https://github.com/Jackett/Jackett/tree/master/src/Jackett.Common/Definitions 中有相同站点配置，
+   * 建议与其相同命名
+   */
+  readonly id: TSiteID;
 
   /**
    * 对应解析的更新版本，建议每次对ISiteMetadata的修改都对此版本号 +1
@@ -46,7 +53,7 @@ export interface ISiteMetadata {
   name: string; // 站点名
 
   aka?: string[]; // 站点别名
-  description?: string; // 站点说明
+  description?: string | string[]; // 站点说明
   tags?: string[]; // 站点标签
   timezoneOffset?: timezoneOffset;
 
@@ -124,7 +131,7 @@ export interface ISiteMetadata {
    * 一般如下：
    *  - 使用 AJAX 方法异步加载页面种子
    */
-  list?: {
+  list?: Array<{
     /**
      * 在 web 访问时，哪些些页面会被认为是种子列表页，被认为是种子列表页的页面会被插件自动添加种子列表批量下载、链接复制、远程推送的功能
      *
@@ -137,7 +144,9 @@ export interface ISiteMetadata {
      *
      * 匹配对象为 location.href ，依次匹配，任一匹配成功，则会被认为是种子列表页，
      */
-    urlPattern?: (string | RegExp)[];
+    urlPattern?: TUrlPatterns;
+
+    mergeSearchSelectors?: boolean; // 是否合并 search.selectors 中的配置到此处的 selectors 中，默认为 true
 
     /**
      * 对于种子列表页的解析配置，默认会使用 search.requestConfig.selectors 中的配置作为垫片
@@ -154,7 +163,7 @@ export interface ISiteMetadata {
      *     - 如果仍未找到，则会尝试从url中解析 &xxxx= 以及 &search= , &keywords= , &keyword=, $q= 字段内容
      */
     selectors?: ISearchConfig["selectors"] & { keywords?: IElementQuery };
-  };
+  }>;
 
   /**
    * 种子详情页配置（主要用于插件 content-script 、 部分无法在搜索中构造种子 link 站点的适配）
@@ -168,7 +177,7 @@ export interface ISiteMetadata {
      * urlPattern 无法进行自动生成，需要显式声明（一般情况下 schema 中已有相关声明）
      * 其他表现和 list.urlPattern 相同。
      */
-    urlPattern?: (string | RegExp)[];
+    urlPattern?: TUrlPatterns;
 
     /**
      * 插件获取种子详情页时的配置，默认是在种子搜索时无法获取 link 的特殊站点使用，在使用时有垫片如下：
@@ -215,7 +224,42 @@ export interface ISiteMetadata {
   };
 
   /**
-   * 该配置项仅对 基于 PrivateSite 模板，且未改写 getUserInfoResult 的站点生效
+   * 认为用户未登录的断言设置
+   *
+   * 该配置项仅对 基于 PrivateSite 模板，且未改写 AbstractPrivateSite.loggedCheck 的站点生效
+   * 注意：
+   * 1. 每一项都可以单独设置为 false 来禁用该项检查，但不支持整体禁用，如果需要整体禁用，建议设置为 type: public 或 直接改写 loggedCheck 方法
+   */
+  noLoginAssert?: {
+    /**
+     * HTTP 状态码，表示未登录的状态码，未设置时默认 [401, 403]
+     * 如果站点响应的状态码在该数组中，则认为未登录
+     */
+    httpStatusCodes?: number[] | false;
+
+    /**
+     * 返回的 responseURL 中，哪些 URL 模式表示未登录，未设置时默认为 [/doLogin|login|verify|checkpoint|returnto/gi]
+     * 如果请求的 URL 匹配该数组中的任意一个，则认为未登录
+     */
+    urlPatterns?: TUrlPatterns | false;
+
+    /**
+     * 如果响应头中有 refresh: <time>[;,] url=<url> 字段，
+     * 且其中的 <url> 字段匹配该正则表达式，则认为未登录，未设置时默认为 noLoginAssert.urlPatterns 对应的内容
+     * 如果此时 noLoginAssert.urlPatterns 为 false，则该项也会被设置为 false
+     */
+    refreshHeaderPattern?: TUrlPatterns | false;
+
+    /**
+     * 是否严格检查响应内容，未设置时默认为 false
+     * 开启后会检查 responseText ，如果有下面情况，则判断为未登录：
+     * ①为空 ； ②过短（ < 800 ），且包含 login, auth_form, not authorized 等字段
+     */
+    checkResponseContent?: boolean;
+  };
+
+  /**
+   * 该配置项仅对 基于 PrivateSite 模板，且未改写 AbstractPrivateSite.getUserInfoResult 的站点生效
    */
   userInfo?: {
     /**
@@ -267,6 +311,7 @@ export interface ISiteMetadata {
 
   /**
    * 站点用户等级定义
+   * 对设置了 isDead: true 的站点请注释或删除该项
    */
   levelRequirements?: ILevelRequirement[];
 
@@ -309,7 +354,7 @@ export interface ISiteUserConfig {
    */
   allowQueryUserInfo?: boolean;
 
-  // 分类信息，默认为 ISiteMetadata.tags， 也允许用户自定义添加，相同的会被合并到一类中
+  // 分类信息，默认为 ISiteMetadata.tags，也允许用户自定义添加，相同的会被合并到一类中
   groups?: string[];
 
   // 请求超时时间，单位为毫秒，如果不设置默认为 30000ms
@@ -318,10 +363,26 @@ export interface ISiteUserConfig {
   // 在批量下载每个种子时，与（本站）上一个种子之间的间隔时间，单位为秒，如果不设置默认为 0
   downloadInterval?: number;
 
+  // 上传速度限制，单位为 MB/s，0 或不填时不限速，用于推送种子文件到下载器的时候，传递上传速度限制
+  uploadSpeedLimit?: number;
+
+  // 是否允许 content-script 访问该站点，默认为 true
+  allowContentScript?: boolean;
+
+  // 种子下载链接后缀，默认为空字符串，如果站点需要在下载链接后添加一些参数，可以在此处设置
+  downloadLinkAppendix?: string;
+
   /**
    * 存储用户输入的配置项信息
    */
   inputSetting?: Record<ISiteUserInputMeta["name"], string>;
+
+  /**
+   * 站点实例在运行过程中生成的配置项
+   * 该部分内容设置时需要使用 this.storeRuntimeSettings(key, value) 方法进行设置，
+   * value 可以是任意可以 Json 化的字段
+   */
+  runtimeSettings?: Record<string, any>;
 
   /**
    * 如果存在该项，则该项会在站点实例化时使用 toMerged 方法合并到 config 中，此处主要用于用户在特殊情况下覆盖默认配置
@@ -336,3 +397,5 @@ export interface IParsedTorrentListPage {
   keywords: string;
   torrents: ITorrent[];
 }
+
+export type TSchemaMetadataListSelectors = Required<Required<Required<ISiteMetadata>["list"]>[number]>["selectors"];

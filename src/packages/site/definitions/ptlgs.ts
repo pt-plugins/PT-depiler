@@ -121,7 +121,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "Power User",
       downloaded: "100GB",
       ratio: 1.1,
-      seedingPoints: 20000,
+      seedingBonus: 20000,
       privilege:
         '可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种； 可以发送邀请； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")；可以删除自己上传的字幕。',
     },
@@ -130,7 +130,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "Elite User",
       downloaded: "200GB",
       ratio: 1.2,
-      seedingPoints: 50000,
+      seedingBonus: 50000,
       privilege: "",
     },
     {
@@ -138,7 +138,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "Crazy User",
       downloaded: "500GB",
       ratio: 1.2,
-      seedingPoints: 100000,
+      seedingBonus: 100000,
       privilege: "得到两个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
     },
     {
@@ -146,7 +146,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "Insane User",
       downloaded: "1TB",
       ratio: 1.2,
-      seedingPoints: 200000,
+      seedingBonus: 200000,
       privilege: "可以查看普通日志。",
     },
     {
@@ -154,7 +154,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "Veteran User",
       downloaded: "2TB",
       ratio: 1.2,
-      seedingPoints: 500000,
+      seedingBonus: 500000,
       privilege: "得到一个邀请名额；可以查看其它用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。",
     },
     {
@@ -162,7 +162,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "Extreme User",
       downloaded: "3TB",
       ratio: 1.5,
-      seedingPoints: 800000,
+      seedingBonus: 800000,
       privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。",
     },
     {
@@ -170,7 +170,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "Ultimate User",
       downloaded: "4TB",
       ratio: 1.5,
-      seedingPoints: 1000000,
+      seedingBonus: 1000000,
       privilege: "得到一个邀请名额。",
     },
     {
@@ -178,7 +178,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "Nexus Master",
       downloaded: "5TB",
       ratio: 1.5,
-      seedingPoints: 2500000,
+      seedingBonus: 2500000,
       privilege: "得到一个邀请名额。",
     },
     {

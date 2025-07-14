@@ -12,6 +12,7 @@ import {
   CTorrentFilterRules,
   CTorrentState,
   TorrentClientStatus,
+  CAddTorrentResult,
 } from "../types";
 import urlJoin from "url-join";
 import axios, { AxiosRequestConfig } from "axios";
@@ -499,7 +500,9 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
     return dsmVersion;
   }
 
-  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<CAddTorrentResult> {
+    const addResult = { success: false } as CAddTorrentResult;
+
     // 基本参数
     const params: DSRequestField = {
       api: "SYNO.DownloadStation2.Task",
@@ -546,11 +549,18 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
       if (options.addAtPaused && req.data.task_id.length > 0) {
         await this.pauseTorrent(req.data.task_id[0]);
       }
+
+      // Note: Synology Download Station does not support upload speed limit configuration
+      // The uploadSpeedLimit feature is not implemented as it's not supported by the API
     }
 
-    // TODO 添加异常处理方法
+    // 添加异常处理方法
+    addResult.success = req.success ?? false;
+    if (!addResult.success) {
+      addResult.message = req;
+    }
 
-    return req.success;
+    return addResult;
   }
 
   async getAllTorrents(): Promise<CTorrent[]> {

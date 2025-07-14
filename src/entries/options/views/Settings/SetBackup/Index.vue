@@ -30,11 +30,11 @@ const showRestoreDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 
 const fullTableHeader = [
-  { title: t("SetDownloader.common.type"), key: "type", align: "center" },
-  { title: t("SetDownloader.common.name"), key: "name", align: "start" },
-  { title: "备份内容", key: "backupFields", align: "start", sortable: false },
-  { title: "最近一次备份时间", key: "lastBackupAt", align: "end" },
-  { title: t("SetDownloader.index.table.enabled"), key: "enabled", align: "center" },
+  { title: t("SetBackup.table.type"), key: "type", align: "center" },
+  { title: t("SetBackup.table.name"), key: "name", align: "start" },
+  { title: t("SetBackup.table.backupFields"), key: "backupFields", align: "start", sortable: false },
+  { title: t("SetBackup.table.lastBackupAt"), key: "lastBackupAt", align: "end" },
+  { title: t("SetBackup.table.enabled"), key: "enabled", align: "center" },
   { title: t("common.action"), key: "action", sortable: false },
 ] as DataTableHeader[];
 const tableSelected = ref<TBackupServerKey[]>([]);
@@ -48,9 +48,9 @@ async function doBackup(backupServerId: TBackupServerKey | symbol) {
     const backupFields = metadataStore.backupServers[backupServerId].backupFields ?? [...BackupFields];
     const backupStatus = await sendMessage("exportBackupData", { backupFields, backupServerId });
     if (backupStatus) {
-      runtimeStore.showSnakebar("备份成功", { color: "success" });
+      runtimeStore.showSnakebar(t("SetBackup.snackbar.success"), { color: "success" });
     } else {
-      runtimeStore.showSnakebar("备份失败", { color: "error" });
+      runtimeStore.showSnakebar(t("SetBackup.snackbar.failure"), { color: "error" });
     }
   } else if (backupServerId == localBackup) {
     showLocalExportConfirmDialog.value = true;
@@ -104,10 +104,15 @@ async function confirmDeleteBackupServer(id: TBackupServerKey) {
           :loading="doBackupStatus[localBackup]"
           color="success"
           icon="mdi-database-export"
-          text="本地导出"
+          :text="t('SetBackup.localExport')"
           @click="doBackup(localBackup)"
         />
-        <NavButton text="本地导入" color="blue" icon="mdi-database-import" @click="() => (showRestoreDialog = true)" />
+        <NavButton
+          color="blue"
+          icon="mdi-database-import"
+          :text="t('SetBackup.localImport')"
+          @click="() => (showRestoreDialog = true)"
+        />
 
         <v-spacer />
 

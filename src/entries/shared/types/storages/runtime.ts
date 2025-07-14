@@ -21,6 +21,7 @@ export interface ISearchPlanStatus {
   queueAt?: number;
   queuePriority?: number;
   startAt?: number;
+  endAt?: number;
   costTime?: number;
   count?: number;
 }
@@ -30,6 +31,7 @@ export interface ISearchData {
   isSearching: boolean; // 是否正在搜索
   // 该搜索相关时间情况
   startAt: number;
+  endAt?: number; // 搜索结束时间
 
   // 该搜索相关的搜索条件
   searchKey: string;

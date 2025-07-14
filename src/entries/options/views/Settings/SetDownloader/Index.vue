@@ -175,7 +175,7 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
       class="table-stripe table-header-no-wrap"
       hover
       item-value="id"
-      multi-sort
+      :multi-sort="configStore.enableTableMultiSort"
       show-select
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('SetDownloader', 'itemsPerPage', v)"
       @update:sortBy="(v) => configStore.updateTableBehavior('SetDownloader', 'sortBy', v)"
@@ -237,11 +237,12 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
             size="small"
             @click="editDownloader(item.id)"
           />
+
           <!-- 该下载服务器下载路径和标签选择 -->
           <v-btn
             :title="t('SetDownloader.index.table.setPathAndTag')"
             color="amber"
-            icon="mdi-tag-multiple"
+            icon="mdi-folder-settings"
             size="small"
             @click="editDownloaderPathAndTag(item.id)"
           ></v-btn>

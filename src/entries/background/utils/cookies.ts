@@ -1,11 +1,11 @@
 import { onMessage, sendMessage } from "@/messages.ts";
 
-export async function getCookiesByDomain(domain: string): Promise<chrome.cookies.Cookie[]> {
+onMessage("getCookiesByDomain", async ({ data: domain }) => {
   return await chrome.cookies.getAll({ domain });
-}
+});
 
-onMessage("getCookiesByDomain", async ({ data }) => {
-  return await getCookiesByDomain(data);
+onMessage("getCookie", async ({ data: detail }) => {
+  return await chrome.cookies.get(detail);
 });
 
 function buildUrl(secure: boolean, domain: string, path: string) {

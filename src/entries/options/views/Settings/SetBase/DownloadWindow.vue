@@ -21,19 +21,20 @@ async function clearLastDownloader(v: boolean) {
     <v-col md="6">
       <v-switch
         v-model="configStore.download.saveDownloadHistory"
-        label="是否保存下载历史"
         color="success"
+        false-icon="mdi-alert-octagon"
         hide-details
+        :label="t('SetBase.download.saveDownloadHistory')"
       />
     </v-col>
   </v-row>
 
   <v-row>
     <v-col md="6">
-      <v-label>本地下载</v-label>
+      <v-label>{{ t("SetBase.download.localDownloadTitle") }}</v-label>
       <v-select
         v-model="configStore.download.localDownloadMethod"
-        label="本地下载方式"
+        :label="t('SetBase.download.localDownloadMethod')"
         :items="
           LocalDownloadMethod.map((item) => ({
             title: t(`SetBase.download.localDownloadMethod.${item}`),
@@ -43,24 +44,44 @@ async function clearLastDownloader(v: boolean) {
         :hint="t(`SetBase.download.localDownloadMethod.${configStore.download.localDownloadMethod}Tip`)"
         persistent-hint
       />
+      <v-switch
+        v-model="configStore.download.ignoreSiteDownloadIntervalWhenLocalDownload"
+        color="success"
+        hide-details
+        :label="t('SetBase.download.localDownloadIgnoreInterval')"
+      />
     </v-col>
   </v-row>
 
   <v-row>
     <v-col md="6">
-      <v-label>下载服务器推送</v-label>
+      <v-label>{{ t("SetBase.download.pushDownloadServerTitle") }}</v-label>
       <v-switch
-        v-model="configStore.download.saveLastDownloader"
+        v-model="configStore.download.useQuickSendToClient"
         color="success"
         hide-details
-        label="保存上一次使用的下载服务器设置"
+        label="默认使用快速推送"
+      />
+      <v-alert type="info" variant="tonal">
+        启用快速推送后，插件会在推送下载任务时，做以下默认操作：<br />
+        1. 展平 下载器和下载目录 选项供直接点击推送。<br />
+        2. 鼠标移到选项时，则会暂开标签列表，点击时会额外添加标签信息。<br />
+        3. 均采用本地中转模式推送种子，且 `是否自动开始下载`
+        等基本设置项和下载器专有配置项值由下载器设置和站点设置决定。<br />
+      </v-alert>
+
+      <v-switch
+        v-model="configStore.download.saveLastDownloader"
+        :label="t('SetBase.download.saveLastDownloader')"
+        color="success"
+        hide-details
         @update:model-value="(v) => clearLastDownloader(v as unknown as boolean)"
       />
       <v-switch
         v-model="configStore.download.allowDirectSendToClient"
+        :label="t('SetBase.download.allowDirectSendToClient')"
         color="warning"
         hide-details
-        label="是否允许直接将链接（而不是种子文件）发送到下载服务器（如非必要请勿启用）"
       />
     </v-col>
   </v-row>

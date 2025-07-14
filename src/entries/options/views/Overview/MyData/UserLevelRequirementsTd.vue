@@ -73,7 +73,7 @@ const userLevelGroupIcon = computed(() => {
       "
       content-class="bg-white pa-0"
       interactive
-      location="bottom left"
+      location="end bottom"
     >
       <template v-slot:activator="{ props }">
         <span v-bind="props">
@@ -99,7 +99,13 @@ const userLevelGroupIcon = computed(() => {
       <template v-slot>
         <v-card class="border-sm overflow-y-auto" max-height="500" max-width="800">
           <v-card-text class="pa-2">
-            <v-list class="pa-0 level_requirement_list" density="compact">
+            <v-list
+              class="pa-0 level_requirement_list"
+              density="compact"
+              :style="{
+                fontSize: `${(configStore.myDataTableControl.tableFontSize / 14) * 12}%`,
+              }"
+            >
               <!-- 计算剩余升级情况 -->
               <template
                 v-if="

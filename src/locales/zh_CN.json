@@ -43,7 +43,9 @@
     "test": "测试",
     "visit": "访问",
     "version": "版本",
-    "howToUse": "如何使用？"
+    "howToUse": "如何使用？",
+    "import": "导入",
+    "export": "导出"
   },
   "layout": {
     "header": {
@@ -97,7 +99,18 @@
       "SetDownloader": "下载器设置",
       "SetMediaServer": "媒体服务器设置",
       "SetSearchSolution": "搜索方案定义",
-      "SetSite": "站点设置"
+      "SetSite": "站点设置",
+      "SearchConfig": {
+        "siteSearchConfig": "站点搜索配置",
+        "siteQueueConcurrency": "请求队列长度",
+        "saveLastSearchFilter": "保存上一次使用的搜索筛选词",
+        "mediaServerSearchConfig": "媒体服务器搜索配置",
+        "mediaQueueConcurrency": "请求队列长度",
+        "mediaSearchLimit": "单次搜索结果数量",
+        "mediaSearchLimitMessage": "请不要一次性加载过多的搜索结果，未作 virtual‑scroll 优化，可能会导致浏览器卡死，同时也会影响媒体服务器的性能",
+        "autoLoadInitialMediaWall": "自动加载首屏媒体墙",
+        "autoLoadMoreMediaOnScroll": "当滚动到页面底部时，自动加载新的媒体墙"
+      }
     }
   },
   "checkSwitch": {
@@ -122,14 +135,14 @@
     "trueUploaded": "真实上传量",
     "ratio": "分享率",
     "trueRatio": "真实分享率",
-    "seeding": "做种数量",
-    "seedingSize": "做种体积",
+    "seeding": "做种数",
+    "seedingSize": "做种量",
     "seedingTime": "做种时间",
     "averageSeedingTime": "平均做种时间",
     "bonus": "魔力值/积分",
     "seedingBonus": "做种积分",
-    "bonusPerHour": "时魔",
-    "uploads": "发布种子数",
+    "bonusPerHour": "时魔值",
+    "uploads": "发布数",
     "leeching": "下载数量",
     "snatches": "完成种子数",
     "posts": "发布帖子数",
@@ -166,10 +179,33 @@
     },
     "thankNote": "PT 助手的诞生是建立在这些项目基础之上，在此感谢所有项目的参与人员，感谢他们的付出！"
   },
+  "DownloadHistory": {
+    "refresh": "刷新下载记录列表",
+    "reDownload": "重新下载",
+    "filterPlaceholder": "过滤下载记录",
+    "table": {
+      "site": "站点",
+      "title": "种子",
+      "downloader": "下载服务器",
+      "downloadAt": "下载时间",
+      "status": "下载状态"
+    }
+  },
+  "MediaServerEntity": {
+    "searchPlaceholder": "搜索词",
+    "detail": "详情"
+  },
   "MyData": {
     "index": {
       "flushSelectSite": "刷新数据",
       "flushCancel": "取消刷新",
+      "tableFontSize": "表格字体大小",
+      "joinTimeFormat": "入站时间显示",
+      "joinTimeFormatOptions": {
+        "alive": "相对时间",
+        "aliveWeek": "相对周数",
+        "added": "绝对日期"
+      },
       "showSiteName": "显示站点名称",
       "showUnreadMessage": "显示未读消息",
       "showUserName": "显示用户名",
@@ -180,8 +216,18 @@
       "showNextLevelInDialog": "在站点等级列表中显示下一级别要求",
       "showHnR": "显示 H&R",
       "showSeedingBonus": "显示做种积分",
-      "joinTimeWeekOnly": "入站时间显示为相对周数",
-      "updateAtFormatAsAlive": "更新时间显示为相对时间"
+      "updateAtFormatAsAlive": "更新时间显示为相对时间",
+      "multiOpen": "批量打开",
+      "viewTimeline": "时间轴",
+      "viewStatistic": "数据图表",
+      "setting": "设置",
+      "siteStatus": "站点状态",
+      "siteCategory": "站点分类",
+      "filter": {
+        "todayNotUpdated": "今日未更新",
+        "lastUpdateError": "最后更新状态异常",
+        "unreadMessage": "未读信息"
+      }
     },
     "table": {
       "site": "站点",
@@ -214,8 +260,8 @@
       "perSiteKdownloadedIncr": "分站点下载增量",
       "perSiteKseeding": "分站点做种数",
       "perSiteKseedingIncr": "分站点做种数增量",
-      "perSiteKseedingSize": "分站点做种体积",
-      "perSiteKseedingSizeIncr": "分站点做种体积增量",
+      "perSiteKseedingSize": "分站点做种量",
+      "perSiteKseedingSizeIncr": "分站点做种量增量",
       "perSiteKbonus": "分站点魔力",
       "perSiteKbonusIncr": "分站点魔力增量"
     },
@@ -244,6 +290,35 @@
   },
   "SearchEntity": {
     "index": {
+      "table": {
+        "site": "站点",
+        "title": "标题",
+        "category": "分类",
+        "size": "大小",
+        "seeders": "上传",
+        "leechers": "下载",
+        "completed": "完成",
+        "comments": "评论",
+        "time": "发布于(≈)"
+      },
+      "alert": {
+        "enterKeyword": "请输入搜索关键词开始搜索",
+        "statusButton": "搜索情况",
+        "paused": "搜索暂停中…",
+        "searching": "搜索中…",
+        "snapshot": "搜索快照",
+        "plan": "搜索方案",
+        "keyword": "关键词",
+        "results": "共 {0} 条结果，",
+        "duration": "耗时： {0} 秒。"
+      },
+      "action": {
+        "start": "开始搜索队列",
+        "pause": "暂停搜索队列",
+        "cancel": "取消当前等待的搜索",
+        "retry": "重新搜索"
+      },
+      "filterLabel": "过滤搜索结果",
       "showSiteName": "显示站点名称",
       "showTorrentTag": "显示种子标签",
       "showTorrentSubtitle": "显示种子副标题",
@@ -259,6 +334,20 @@
         "quarter": "本季度",
         "year": "本年",
         "custom": "自定义"
+      }
+    }
+  },
+  "SearchResultSnapshot": {
+    "table": {
+      "header": {
+        "name": "快照名称",
+        "recordCount": "种子数",
+        "createdAt": "创建时间"
+      },
+      "filterLabel": "快照名称过滤",
+      "action": {
+        "view": "查看",
+        "editTitle": "编辑标题"
       }
     }
   },
@@ -278,7 +367,8 @@
         "dark": "暗黑模式",
         "index": "页面显示模式",
         "light": "明亮模式"
-      }
+      },
+      "tableMultiSortNote": "多列排序使用方法：点击任意表头字段开始排序，字段上会显示数字“1”。再点击其他字段，依次显示“2”“3”，表示排序优先级。再次点击相同字段可切换升序、降序或取消排序。排序顺序由这些数字决定，数字越小优先级越高。"
     },
     "download": {
       "localDownloadMethod": {
@@ -288,7 +378,13 @@
         "browserTip": "（推荐）调用浏览器为插件提供的下载方法直接下载",
         "extension": "插件中转",
         "extensionTip": "插件后台下载种子，并中转到 @:SetBase.download.localDownloadMethod.browser 进行下载"
-      }
+      },
+      "saveDownloadHistory": "是否保存下载历史（如非必要请勿关闭此功能）",
+      "localDownloadTitle": "本地下载",
+      "localDownloadIgnoreInterval": "本地下载时忽略站点下载间隔限制",
+      "pushDownloadServerTitle": "下载服务器推送",
+      "saveLastDownloader": "保存上一次使用的下载服务器设置",
+      "allowDirectSendToClient": "是否允许直接将链接（而不是种子文件）发送到下载服务器（如非必要请勿启用）"
     }
   },
   "SetDownloader": {
@@ -379,6 +475,8 @@
   },
   "SetSearchSolution": {
     "solution": "搜索方案",
+    "import": "导入",
+    "export": "导出",
     "table": {
       "enable": "启用？",
       "default": "默认？"
@@ -407,7 +505,9 @@
       "showMessageCount": "信息提醒",
       "tags": "标签",
       "type": "类型",
-      "url": "网站链接"
+      "url": "网站链接",
+      "groups": "站点分类",
+      "allowContentScript": "加载侧边栏"
     },
     "delete": {
       "text": "确认删除这 {0} 个站点吗？"
@@ -421,20 +521,101 @@
       "description": "网站描述",
       "sortIndexTip": "可用于搜索排序",
       "tagTip": "标签输入完成后按回车添加。（只有前4个会在列表页显示）",
-      "timezone": "时区"
+      "timezone": "时区",
+      "uploadSpeedLimit": "上传速度",
+      "uploadSpeedLimitHint": "设置向下载器推送种子时的上传速度限制 (MB/s)，0或不填时不限速"
     },
     "index": {
       "flushFaviconFinish": "所选站点的图标已成功刷新！",
       "table": {
         "flushFavicon": "刷新站点图标"
       },
-      "settingNote": ["只有配置过的站点才会显示插件图标及相应的功能；", "已离线的站点不再参与搜索和信息获取；"]
+      "settingNote": ["只有配置过的站点才会显示插件图标及相应的功能；", "已离线的站点不再参与搜索和信息获取；"],
+      "oneClickImport": "一键导入站点"
     },
     "spDialog": {
       "noDefNotice": "该站点未定义搜索模块，请到项目仓库提供帮助！",
       "notice": "不推荐在此处进行设置，更建议在对应站点的个人设置中配置或使用插件提供的搜索方案功能！",
       "selectAllNotice": "（注意：在大多数情况下，你并不需要全选所有搜索项！）",
       "title": "配置站点默认搜索模式 - {name}"
+    },
+    "oneClickImportDialog": {
+      "title": "一键导入站点",
+      "alert1": "此操作会尝试以默认配置导入你选择的站点，请确保该站点已在浏览器上登录过。导入过程不能中断，请耐心等待。",
+      "alert2": "未添加的站点列表",
+      "stats": "已选择 {count} 个站点，已添加 {success} 个站点，添加失败 {failed} 个站点。",
+      "trying": "正在尝试导入站点 [{name}] ...",
+      "status": {
+        "manual": "该站点需要手动添加",
+        "trying": "正在尝试中",
+        "success": "已添加成功",
+        "failed": "添加失败",
+        "selected": "已选择"
+      }
     }
+  },
+  "SetBackup": {
+    "table": {
+      "type": "类型",
+      "name": "名称",
+      "backupFields": "备份内容",
+      "lastBackupAt": "最近一次备份时间",
+      "notBackup": "未备份",
+      "enabled": "启用"
+    },
+    "localExport": "本地导出",
+    "localImport": "本地导入",
+    "snackbar": {
+      "success": "备份成功",
+      "failure": "备份失败"
+    }
+  },
+  "userInfo": {
+    "queueConcurrency": "请求队列长度",
+    "enableAutoRefresh": "是否启用后台定时刷新？",
+    "autoRefresh": {
+      "every": "每隔",
+      "hoursLabel": "小时，自动刷新一次当天",
+      "unrefreshedSite": "未刷新过",
+      "ofSites": "的站点",
+      "retryOnFail": "如果刷新失败，则重试",
+      "times": "次，每次间隔",
+      "minutes": "分钟。",
+      "lastFlushTime": "最近一次刷新时间:",
+      "nextFlushTime": "下一次刷新时间:"
+    },
+    "showDeadSite": "在概览中展示已被标记为死亡 （isDead） 的站点",
+    "showPassedSite": "在概览中展示已被标记为离线 （isOffline） 或不允许查询用户信息的站点"
+  },
+  "ptppSettings": {
+    "basicConfig": "基本配置",
+    "saveKeyNotice": "注意：密钥仅保存在当前浏览器，不会备份，请妥善保存；加密后如密钥丢失将无法恢复数据。留空表示不做加密。",
+    "encryptionKeyLabel": "备份文件加密、解密密钥",
+    "undoKeyTitle": "恢复上一个密钥",
+    "randomGenTitle": "随机生成",
+    "invalidFileFormat": "文件格式错误，请检查是否按正确步骤（关闭备份加密功能）导出备份。",
+    "importConfigTitle": "PT-Plugin-Plus 配置导入",
+    "importConfigInfoLine1": "{repoName} 只能导入原 PT-Plugin-Plus 的用户历史数据信息，其他配置文件不支持导入。",
+    "importConfigInfoPrep": "在导入之前，请做好以下准备：",
+    "importStep1": "请先备份好当前 {repoName} 的配置文件。",
+    "importStep2": "在 {repoName} 的站点设置中添加需要恢复的站点。（如果没有添加站点，对应的用户历史数据会被忽略）",
+    "importStep3": "在 PT-Plugin-Plus 中，关闭备份加密功能，并导出本地备份文件。其应该是一个名为 <code>PT-Plugin-Plus-Backup-yyyy-MM-DD_hh-mm-ss.zip</code> 的 zip 压缩文件。",
+    "importStep4": "将压缩包或者从压缩包中解压出的 <code>userdatas.json</code> 文件，上传到下面的输入框中。",
+    "selectBackupFile": "选择 PTPP 备份文件"
+  },
+  "socialConfig": {
+    "basicConfig": "基本配置",
+    "cacheValidityDays": "缓存有效期（天）",
+    "cacheShortWarning": "缓存时间过短会导致频繁请求，过长会导致数据不及时",
+    "requestTimeoutMs": "请求超时时间 (毫秒)",
+    "ptgenConfig": "PtGen 配置",
+    "preferPtgenLabel": "优先使用 PtGen 提供的数据",
+    "ptgenApiAddress": "PtGen API 地址",
+    "ptgenApiMessages": "选择内置地址或输入类似 https://example.com/ptgen?site=<site>&sid=<sid> 的地址",
+    "mediaRatingConfig": "各媒体评分站点配置",
+    "anidbClientId": "AniDB Client ID",
+    "anidbClientMessages": "请在 https://anidb.net/perl-bin/animedb.pl?show=client 中申请 Client ID， 并按照 `Name/Version` 的格式填写",
+    "bangumiApiKey": "Bangumi API Key",
+    "bangumiApiMessages": "你可以在 https://next.bgm.tv/demo/access-token 生成一个 Access Token"
   }
 }

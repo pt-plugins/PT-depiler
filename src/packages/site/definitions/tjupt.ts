@@ -43,6 +43,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "tjupt",
   name: "北洋园PT",
+  aka: ["北洋园"],
   schema: "NexusPHP",
   type: "private",
   urls: ["uggcf://gwhcg.bet/"],
@@ -150,6 +151,11 @@ export const siteMetadata: ISiteMetadata = {
       messageCount: {
         ...SchemaMetadata.userInfo!.selectors!.messageCount,
         selector: ["#msg-bar a[href*='messages.php'] strong"],
+      },
+      hnrPreWarning: {
+        text: 0,
+        selector: ["#info_block a[href*='hnr_details.php']:last"],
+        filters: [{ name: "parseNumber" }],
       },
     },
     process: [

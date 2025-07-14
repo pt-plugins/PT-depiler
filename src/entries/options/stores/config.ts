@@ -15,7 +15,9 @@ export const useConfigStore = defineStore("config", {
     theme: "light",
     isNavBarOpen: true,
     ignoreWrongPixelRatio: false,
+
     saveTableBehavior: true,
+    enableTableMultiSort: false,
 
     contextMenus: {
       allowSelectionTextSearch: true,
@@ -27,6 +29,7 @@ export const useConfigStore = defineStore("config", {
       defaultOpenSpeedDial: false,
       stackedButtons: false,
       applyTheme: false,
+      allowExceptionSites: false,
     },
 
     tableBehavior: {
@@ -84,6 +87,7 @@ export const useConfigStore = defineStore("config", {
     userName: "",
 
     myDataTableControl: {
+      tableFontSize: 100,
       showSiteName: true,
       showUnreadMessage: true,
       showUserName: true,
@@ -94,7 +98,8 @@ export const useConfigStore = defineStore("config", {
       showNextLevelInDialog: true,
       showHnR: true,
       showSeedingBonus: true,
-      joinTimeWeekOnly: false,
+      //joinTimeWeekOnly: false,
+      joinTimeFormat: "added",
       updateAtFormatAsAlive: false,
     },
 
@@ -159,6 +164,7 @@ export const useConfigStore = defineStore("config", {
         },
       },
       showDeadSiteInOverview: false,
+      showPassedSiteInOverview: false,
     },
 
     download: {
@@ -166,6 +172,8 @@ export const useConfigStore = defineStore("config", {
       saveLastDownloader: false,
       allowDirectSendToClient: false,
       localDownloadMethod: "browser",
+      ignoreSiteDownloadIntervalWhenLocalDownload: true,
+      useQuickSendToClient: false,
     },
 
     searchEntity: {

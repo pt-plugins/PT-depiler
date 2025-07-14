@@ -15,12 +15,14 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "ourbits",
   name: "OurBits",
-  schema: "NexusPHP",
-  type: "private",
-  urls: ["https://ourbits.club/"],
   description: "综合性网站，有分享率要求",
   tags: ["影视", "动漫", "纪录片", "综艺"],
   collaborator: ["Rhilip"],
+
+  schema: "NexusPHP",
+  type: "private",
+
+  urls: ["https://ourbits.club/", "https://www.ourbits.club/", "https://pt.ourhelp.club/"],
 
   category: [
     {
@@ -37,6 +39,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "Animation", value: 411 },
         { name: "Sports", value: 415 },
         { name: "Music-Video", value: 414 },
+        { name: "Music", value: 416 },
       ],
       cross: { mode: "brackets" },
     },
@@ -144,6 +147,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "杜比视界", value: "db" },
         { name: "HDR10", value: "hdr" },
         { name: "HDR10+", value: "hdrp" },
+        { name: "菁彩HDR", value: "hdrvivid" },
       ],
       cross: { mode: "brackets" },
     },
@@ -217,6 +221,7 @@ export const siteMetadata: ISiteMetadata = {
         { selector: ".tag.tag-hdr10", name: "HDR10", color: "green" },
         { selector: ".tag.tag-hdr10p", name: "HDR10+", color: "green-darken-3" },
         { selector: ".tag.tag-hlg", name: "HLG", color: "green-lighten-1" },
+        { selector: ".tag.tag-hdrvivid", name: "HDR Vivid", color: "#3BE500" },
       ],
     },
   },

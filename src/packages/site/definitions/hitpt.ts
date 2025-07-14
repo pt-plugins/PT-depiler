@@ -12,12 +12,13 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["教育网", "影视", "综合"],
   timezoneOffset: "+0800",
 
-  collaborator: ["zhuweitung"],
+  collaborator: ["tongyifan", "zhuweitung"],
 
   type: "private",
   schema: "NexusPHP",
 
   urls: ["uggcf://jjj.uvgcg.pbz/"],
+  formerHosts: ["pt.ghtt.net"],
 
   category: [
     {

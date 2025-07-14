@@ -6,6 +6,7 @@ import NexusPHP, {
   SchemaMetadata,
   subTitleRemoveExtraElement,
 } from "../schemas/NexusPHP.ts";
+import urlJoin from "url-join";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -300,17 +301,21 @@ export const siteMetadata: ISiteMetadata = {
 export default class Hdsky extends NexusPHP {
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
     if (torrent.link) {
-      // FIXME 这里假定下载链接有效期10分钟（具体不明）
       const linkCreatedTime = this.runQueryFilters(torrent.link, [{ name: "querystring", args: ["t"] }]) as string;
 
       const currentTimestamp = Date.now() / 1000;
-      const expiredTimestamp = parseInt(linkCreatedTime) + 10 * 60;
+      const expiredTimestamp = parseInt(linkCreatedTime || "0") + 10 * 60; // 这里假定下载链接有效期10分钟（具体不明）
 
       if (currentTimestamp < expiredTimestamp) {
         return torrent.link;
       } else {
         delete torrent.link; // 删除过期链接属性，以便重新获取
       }
+    }
+
+    // 为 content-script 的 drag 生成 url，以免 super 无法获取到 torrent.url 进而无法生成 link
+    if (torrent.id && !torrent.url) {
+      torrent.url = urlJoin(this.url, `/details.php?id=${torrent.id}`);
     }
 
     return super.getTorrentDownloadLink(torrent);
