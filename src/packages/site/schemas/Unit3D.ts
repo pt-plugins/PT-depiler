@@ -11,7 +11,7 @@ import { parseSizeString, parseValidTimeString } from "../utils";
  * Source: https://github.com/HDInnovations/UNIT3D-Community-Edition/commit/cb1efe0868caf771b9917c090a79b28b4e183b74
  */
 const idTrans: string[] = ["User ID", "用户 ID", "用ID", "用户ID"];
-const seedingSizeTrans: string[] = ["Seeding Size", "做种体积", "做種體積"];
+const seedingSizeTrans: string[] = ["Seeding Size", "Seeding size", "做种体积", "做種體積"];
 const joinTimeTrans: string[] = ["Registration date", "注册日期", "註冊日期"];
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
@@ -257,7 +257,10 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       },
       seedingSize: {
         // table.table-condensed:first
-        selector: seedingSizeTrans.map((x) => `td:contains('${x}') + td`),
+        selector: [
+          ...seedingSizeTrans.map((x) => `td:contains('${x}') + td`),
+          ...seedingSizeTrans.map((x) => `dt:contains('${x}') + dd`),
+        ],
         filters: [(query: string) => parseSizeString(query.replace(/,/g, ""))],
       },
       levelName: {
