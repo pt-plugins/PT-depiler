@@ -163,36 +163,40 @@ export function levelRequirementUnMet(
         ? parseSizeString(levelRequirement[uploadedKey])
         : (levelRequirement[uploadedKey] ?? 0);
 
-    // 只有上传和ratio要求，没有下载要求的情况
-    if (minRequireRatio && requiredUploaded > 0 && requiredDownloaded === 0) {
-      // 计算满足ratio要求所允许的最大下载量
-      const maxAllowedDownload = requiredUploaded / minRequireRatio;
-
-      // 如果当前下载量已经超过这个允许值，那么需要增加上传量
-      if (baseDownloaded > maxAllowedDownload) {
-        const neededUpload = baseDownloaded * minRequireRatio;
-        set(unmetRequirement, uploadedKey, Math.max(unmetRequirement[uploadedKey] || 0, neededUpload - baseUploaded));
-      }
-    }
-
     // 检查最小 ratio 限制
-    if (minRequireRatio && baseRatio < minRequireRatio) {
-      unmetRequirement[ratioKey] = minRequireRatio;
+    if (minRequireRatio) {
+      if (baseRatio < minRequireRatio) {
+        unmetRequirement[ratioKey] = minRequireRatio;
+      }
 
-      // 使用当前下载量和要求下载量中的较大值作为基准
-      const targetDownload = Math.max(baseDownloaded, requiredDownloaded);
-      const neededUpload = targetDownload * minRequireRatio;
+      // 只有上传和ratio要求，没有下载要求的情况
+      if (requiredUploaded > 0 && requiredDownloaded === 0) {
+        // 计算满足ratio要求所允许的最大下载量
+        const maxAllowedDownload = requiredUploaded / minRequireRatio;
 
-      // 即使上传量已经超过了基本上传要求，也可能因为下载量大而导致 ratio 不足
-      // 此时需要额外上传以满足 ratio 要求
-      if (baseUploaded < neededUpload) {
-        set(unmetRequirement, uploadedKey, Math.max(unmetRequirement[uploadedKey] || 0, neededUpload - baseUploaded));
+        // 如果当前下载量已经超过这个允许值，那么需要增加上传量
+        if (baseDownloaded > maxAllowedDownload) {
+          const neededUpload = baseDownloaded * minRequireRatio;
+          set(unmetRequirement, uploadedKey, Math.max(unmetRequirement[uploadedKey] || 0, neededUpload - baseUploaded));
+        }
+      } else {
+        // 使用当前下载量和要求下载量中的较大值作为基准
+        const targetDownload = Math.max(baseDownloaded, requiredDownloaded);
+        const neededUpload = targetDownload * minRequireRatio;
+
+        // 即使上传量已经超过了基本上传要求，也可能因为下载量大而导致 ratio 不足
+        // 此时需要额外上传以满足 ratio 要求
+        if (baseUploaded < neededUpload) {
+          set(unmetRequirement, uploadedKey, Math.max(unmetRequirement[uploadedKey] || 0, neededUpload - baseUploaded));
+        }
       }
     }
 
     // 检查最大 ratio 限制
-    if (maxRequireRatio && baseRatio > maxRequireRatio) {
-      unmetRequirement[ratioKey] = maxRequireRatio;
+    if (maxRequireRatio) {
+      if (baseRatio > maxRequireRatio) {
+        unmetRequirement[ratioKey] = maxRequireRatio;
+      }
 
       const neededDownload = baseUploaded / maxRequireRatio;
 
