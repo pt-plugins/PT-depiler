@@ -77,7 +77,7 @@ async function initContextMenus() {
   }
 }
 
-chrome.tabs.onActivated.addListener((actionInfo: chrome.tabs.TabActiveInfo) => {
+chrome.tabs.onActivated.addListener((actionInfo: chrome.tabs.OnActivatedInfo) => {
   chrome.tabs.get(actionInfo.tabId, (tab: chrome.tabs.Tab) => {
     initContextMenus().then();
   });
