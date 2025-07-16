@@ -240,7 +240,7 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
 
           <!-- 该下载服务器下载路径和标签选择 -->
           <v-btn
-            :title="t('SetDownloader.index.table.setPathAndTag')"
+            :title="t('SetDownloader.index.table.action.setPathAndTag')"
             color="amber"
             icon="mdi-folder-settings"
             size="small"
