@@ -525,24 +525,34 @@ function viewStatistic() {
           <v-row align="center" class="flex-nowrap" justify="end">
             <span class="text-no-wrap">{{ item.seeding ?? "-" }}</span>
           </v-row>
-          <v-row
-            v-if="
-              configStore.myDataTableControl.showHnR &&
-              typeof item.hnrUnsatisfied !== 'undefined' &&
-              item.hnrUnsatisfied > 0
-            "
-            align="center"
-            class="flex-nowrap"
-            justify="end"
-          >
-            <v-icon
-              :title="t('levelRequirement.hnrUnsatisfied')"
-              color="yellow-darken-4"
-              icon="mdi-alert"
-              size="small"
-            />
-            <span class="text-no-wrap">
-              {{ item.hnrUnsatisfied }}
+          <v-row v-if="configStore.myDataTableControl.showHnR" align="center" class="flex-nowrap" justify="end">
+            <span
+              v-if="typeof item.hnrPreWarning !== 'undefined' && item.hnrPreWarning > 0"
+              class="d-inline-flex align-center ml-2"
+            >
+              <v-icon
+                :title="t('levelRequirement.hnrPreWarning')"
+                color="yellow-darken-4"
+                icon="mdi-alert"
+                size="small"
+              />
+              <span class="text-no-wrap">
+                {{ item.hnrPreWarning }}
+              </span>
+            </span>
+            <span
+              v-if="typeof item.hnrUnsatisfied !== 'undefined' && item.hnrUnsatisfied > 0"
+              class="d-inline-flex align-center ml-1"
+            >
+              <v-icon
+                :title="t('levelRequirement.hnrUnsatisfied')"
+                color="red-darken-4"
+                icon="mdi-alert-circle"
+                size="small"
+              />
+              <span class="text-no-wrap">
+                {{ item.hnrUnsatisfied }}
+              </span>
             </span>
           </v-row>
         </v-container>
