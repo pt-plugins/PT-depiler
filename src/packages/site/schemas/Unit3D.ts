@@ -280,6 +280,10 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           },
         ],
       },
+      uploads: {
+        selector: [".badge-user .fa-upload + span"],
+        filters: [{ name: "parseNumber" }],
+      },
     },
   },
 };
