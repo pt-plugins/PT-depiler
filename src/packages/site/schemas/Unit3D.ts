@@ -226,27 +226,27 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         ],
       },
       uploaded: {
-        selector: ["div.ratio-bar span:has( > i.fa-arrow-up)", "li.ratio-bar__uploaded a:has( > i.fa-arrow-up)"],
+        selector: ["span:has( > i.fa-arrow-up)", "li.ratio-bar__uploaded a:has( > i.fa-arrow-up)"],
         filters: [{ name: "parseSize" }],
       },
       downloaded: {
-        selector: ["div.ratio-bar span:has( > i.fa-arrow-down)", "li.ratio-bar__downloaded a:has( > i.fa-arrow-down)"],
+        selector: ["span:has( > i.fa-arrow-down)", "li.ratio-bar__downloaded a:has( > i.fa-arrow-down)"],
         filters: [{ name: "parseSize" }],
       },
       ratio: {
-        selector: ["div.ratio-bar span:has( > i.fa-sync-alt)", "li.ratio-bar__ratio a:has( > i.fa-sync-alt)"],
+        selector: ["span:has( > i.fa-sync-alt)", "li.ratio-bar__ratio a:has( > i.fa-sync-alt)"],
         filters: [{ name: "parseNumber" }],
       },
       bonus: {
-        selector: ["div.ratio-bar span:has( > i.fa-coins)", "li.ratio-bar__points a:has( > i.fa-coins)"],
+        selector: ["span:has( > i.fa-coins)", "li.ratio-bar__points a:has( > i.fa-coins)"],
         filters: [{ name: "parseNumber" }],
       },
       seeding: {
-        selector: ["div.ratio-bar span:has( > i.fa-upload)", "li.ratio-bar__seeding a:has( > i.fa-upload)"],
+        selector: ["span:has( > i.fa-upload)", "li.ratio-bar__seeding a:has( > i.fa-upload)"],
         filters: [{ name: "parseNumber" }],
       },
       leeching: {
-        selector: ["div.ratio-bar span:has( > i.fa-download)", "li.ratio-bar__leeching a:has( > i.fa-download)"],
+        selector: ["span:has( > i.fa-download)", "li.ratio-bar__leeching a:has( > i.fa-download)"],
         filters: [{ name: "parseNumber" }],
       },
 
