@@ -146,6 +146,7 @@
     "leeching": "Leeching Torrents",
     "snatches": "Completed Torrents",
     "posts": "Posted Threads",
+    "hnrPreWarning": "PreWarning H&R Count",
     "hnrUnsatisfied": "Unsatisfied H&R Count"
   },
   "resultParseStatus": {
