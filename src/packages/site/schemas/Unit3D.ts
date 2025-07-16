@@ -67,7 +67,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       time: { selector: ["time"], filters: [{ name: "parseTTL" }] },
       // /resources/views/torrent/results.blade.php#L402-L404
       size: {
-        selector: ['td:eq(7):contains("B")'],
+        selector: ['td>span.text-blue:contains("B")'],
       },
       // /resources/views/torrent/results.blade.php#L166-L184
       author: {
@@ -95,7 +95,6 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       },
       completed: {
         selector: ['a[href*="/history"] > span.text-orange'],
-        filters: [(query: string) => query.split(" ").slice(0, -1).join("")],
       },
 
       // /resources/views/torrent/results.blade.php#L213-L219
@@ -226,27 +225,27 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         ],
       },
       uploaded: {
-        selector: ["div.ratio-bar span:has( > i.fa-arrow-up)", "li.ratio-bar__uploaded a:has( > i.fa-arrow-up)"],
+        selector: ["span:has( > i.fa-arrow-up)", "li.ratio-bar__uploaded a:has( > i.fa-arrow-up)"],
         filters: [{ name: "parseSize" }],
       },
       downloaded: {
-        selector: ["div.ratio-bar span:has( > i.fa-arrow-down)", "li.ratio-bar__downloaded a:has( > i.fa-arrow-down)"],
+        selector: ["span:has( > i.fa-arrow-down)", "li.ratio-bar__downloaded a:has( > i.fa-arrow-down)"],
         filters: [{ name: "parseSize" }],
       },
       ratio: {
-        selector: ["div.ratio-bar span:has( > i.fa-sync-alt)", "li.ratio-bar__ratio a:has( > i.fa-sync-alt)"],
+        selector: ["span:has( > i.fa-sync-alt)", "li.ratio-bar__ratio a:has( > i.fa-sync-alt)"],
         filters: [{ name: "parseNumber" }],
       },
       bonus: {
-        selector: ["div.ratio-bar span:has( > i.fa-coins)", "li.ratio-bar__points a:has( > i.fa-coins)"],
+        selector: ["span:has( > i.fa-coins)", "li.ratio-bar__points a:has( > i.fa-coins)"],
         filters: [{ name: "parseNumber" }],
       },
       seeding: {
-        selector: ["div.ratio-bar span:has( > i.fa-upload)", "li.ratio-bar__seeding a:has( > i.fa-upload)"],
+        selector: ["span:has( > i.fa-upload)", "li.ratio-bar__seeding a:has( > i.fa-upload)"],
         filters: [{ name: "parseNumber" }],
       },
       leeching: {
-        selector: ["div.ratio-bar span:has( > i.fa-download)", "li.ratio-bar__leeching a:has( > i.fa-download)"],
+        selector: ["span:has( > i.fa-download)", "li.ratio-bar__leeching a:has( > i.fa-download)"],
         filters: [{ name: "parseNumber" }],
       },
 
@@ -270,6 +269,10 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         text: 0,
         selector: ['a[href*="/mail/inbox"] .point'],
         elementProcess: () => 11, // 并不能直接知道还有多少个消息未读，所以置为11，会直接出线红点而不是具体数字
+      },
+      uploads: {
+        selector: [".badge-user .fa-upload + span", "li:has(i.fas.fa-upload) a[href*='/uploads']"],
+        filters: [{ name: "parseNumber" }],
       },
       joinTime: {
         selector: joinTimeTrans.map((x) => `div.content h4:contains('${x}')`),
