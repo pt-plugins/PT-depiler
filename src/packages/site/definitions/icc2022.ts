@@ -19,8 +19,8 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["https://www.icc2022.com/"],
 
-  // refs: https://web.archive.org/web/20250629023542/https://www.icc2022.com/
-  isDead: true,
+  // refs: https://t.me/c/1276598895/138353
+  // isDead: false,
 
   category: [
     {
