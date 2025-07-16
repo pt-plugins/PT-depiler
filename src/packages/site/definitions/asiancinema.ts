@@ -17,6 +17,12 @@ export const siteMetadata: ISiteMetadata = {
   urls: ["uggcf://rvtn.zbv/"],
   formerHosts: [rot13("nfvnapvarzn.zr")],
 
+  userInfo: {
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors,
+    },
+  },
+
   levelRequirements: [
     {
       id: 0,

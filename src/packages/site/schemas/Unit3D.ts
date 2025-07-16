@@ -67,7 +67,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       time: { selector: ["time"], filters: [{ name: "parseTTL" }] },
       // /resources/views/torrent/results.blade.php#L402-L404
       size: {
-        selector: ['td:eq(7):contains("B")'],
+        selector: ['td>span.text-blue:contains("B")'],
       },
       // /resources/views/torrent/results.blade.php#L166-L184
       author: {
@@ -95,7 +95,6 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       },
       completed: {
         selector: ['a[href*="/history"] > span.text-orange'],
-        filters: [(query: string) => query.split(" ").slice(0, -1).join("")],
       },
 
       // /resources/views/torrent/results.blade.php#L213-L219
@@ -271,6 +270,10 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         selector: ['a[href*="/mail/inbox"] .point'],
         elementProcess: () => 11, // 并不能直接知道还有多少个消息未读，所以置为11，会直接出线红点而不是具体数字
       },
+      uploads: {
+        selector: [".badge-user .fa-upload + span", "li:has(i.fas.fa-upload) a[href*='/uploads']"],
+        filters: [{ name: "parseNumber" }],
+      },
       joinTime: {
         selector: joinTimeTrans.map((x) => `div.content h4:contains('${x}')`),
         filters: [
@@ -279,10 +282,6 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
             return parseValidTimeString(query, ["MMM dd yyyy, HH:mm:ss", "MMM dd yyyy"]);
           },
         ],
-      },
-      uploads: {
-        selector: [".badge-user .fa-upload + span"],
-        filters: [{ name: "parseNumber" }],
       },
     },
   },

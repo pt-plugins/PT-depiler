@@ -33,10 +33,6 @@ export const siteMetadata: ISiteMetadata = {
         selector: "div.panel__body a.user-tag__link",
         attr: "title",
       },
-      uploads: {
-        selector: ["li.top-nav__dropdown > a[href*='uploads']"],
-        filters: [{ name: "parseNumber" }],
-      },
       joinTime: {
         selector: ["time"],
         attr: "datetime",
