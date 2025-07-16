@@ -37,11 +37,11 @@ async function clearLastDownloader(v: boolean) {
         :label="t('SetBase.download.localDownloadMethod')"
         :items="
           LocalDownloadMethod.map((item) => ({
-            title: t(`SetBase.download.localDownloadMethod.${item}`),
+            title: t(`SetBase.download.localDownloadMethodOptions.${item}`),
             value: item,
           }))
         "
-        :hint="t(`SetBase.download.localDownloadMethod.${configStore.download.localDownloadMethod}Tip`)"
+        :hint="t(`SetBase.download.localDownloadMethodOptions.${configStore.download.localDownloadMethod}Tip`)"
         persistent-hint
       />
       <v-switch

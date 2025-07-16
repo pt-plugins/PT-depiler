@@ -194,7 +194,9 @@
   },
   "MediaServerEntity": {
     "searchPlaceholder": "搜索词",
-    "detail": "详情"
+    "detail": "详情",
+    "loadMore": "加载更多",
+    "noItems": "暂无内容，请使用搜索框或点击加载更多按钮"
   },
   "MyData": {
     "index": {
@@ -372,13 +374,14 @@
       "tableMultiSortNote": "多列排序使用方法：点击任意表头字段开始排序，字段上会显示数字“1”。再点击其他字段，依次显示“2”“3”，表示排序优先级。再次点击相同字段可切换升序、降序或取消排序。排序顺序由这些数字决定，数字越小优先级越高。"
     },
     "download": {
-      "localDownloadMethod": {
+      "localDownloadMethod": "本地下载方式",
+      "localDownloadMethodOptions": {
         "web": "网页打开",
-        "webTip": "打开下载链接对应的页面（只适用于最简单的方式，如果不符合条件，则会回落到 @:SetBase.download.localDownloadMethod.extension ）",
+        "webTip": "打开下载链接对应的页面（只适用于最简单的方式，如果不符合条件，则会回落到 @:SetBase.download.localDownloadMethodOptions.extension ）",
         "browser": "浏览器方法",
         "browserTip": "（推荐）调用浏览器为插件提供的下载方法直接下载",
         "extension": "插件中转",
-        "extensionTip": "插件后台下载种子，并中转到 @:SetBase.download.localDownloadMethod.browser 进行下载"
+        "extensionTip": "插件后台下载种子，并中转到 @:SetBase.download.localDownloadMethodOptions.browser 进行下载"
       },
       "saveDownloadHistory": "是否保存下载历史（如非必要请勿关闭此功能）",
       "localDownloadTitle": "本地下载",

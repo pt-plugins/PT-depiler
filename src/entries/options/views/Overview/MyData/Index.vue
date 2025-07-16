@@ -521,11 +521,17 @@ function viewStatistic() {
 
       <!-- 做种数， H&R 情况  -->
       <template #item.seeding="{ item }">
-        <v-container>
+        <v-container
+          v-if="
+            configStore.myDataTableControl.showHnR &&
+            ((typeof item.hnrPreWarning !== 'undefined' && item.hnrPreWarning > 0) ||
+              (typeof item.hnrUnsatisfied !== 'undefined' && item.hnrUnsatisfied > 0))
+          "
+        >
           <v-row align="center" class="flex-nowrap" justify="end">
             <span class="text-no-wrap">{{ item.seeding ?? "-" }}</span>
           </v-row>
-          <v-row v-if="configStore.myDataTableControl.showHnR" align="center" class="flex-nowrap" justify="end">
+          <v-row align="center" class="flex-nowrap" justify="end">
             <span
               v-if="typeof item.hnrPreWarning !== 'undefined' && item.hnrPreWarning > 0"
               class="d-inline-flex align-center ml-2"
@@ -556,6 +562,7 @@ function viewStatistic() {
             </span>
           </v-row>
         </v-container>
+        <span v-else class="text-no-wrap">{{ item.seeding ?? "-" }}</span>
       </template>
 
       <!-- 做种量 -->
@@ -567,25 +574,22 @@ function viewStatistic() {
 
       <!-- 魔力/积分 -->
       <template #item.bonus="{ item }">
-        <v-container>
+        <v-container
+          v-if="
+            configStore.myDataTableControl.showSeedingBonus &&
+            item.seedingBonus !== '' &&
+            !isUndefined(item.seedingBonus)
+          "
+        >
           <v-row align="center" class="flex-nowrap" justify="end">
-            <v-icon :title="t('levelRequirement.bonus')" color="green-darken-4" icon="mdi-currency-usd" size="small" />
+            <v-icon title="t('levelRequirement.bonus')" color="green-darken-4" icon="mdi-currency-usd" size="small" />
             <span class="text-no-wrap">
               {{ typeof item.bonus !== "undefined" ? formatNumber(item.bonus) : "-" }}
             </span>
           </v-row>
-          <v-row
-            v-if="
-              configStore.myDataTableControl.showSeedingBonus &&
-              item.seedingBonus !== '' &&
-              !isUndefined(item.seedingBonus)
-            "
-            align="center"
-            class="flex-nowrap"
-            justify="end"
-          >
+          <v-row align="center" class="flex-nowrap" justify="end">
             <v-icon
-              :title="t('levelRequirement.seedingBonus')"
+              title="t('levelRequirement.seedingBonus')"
               color="green-darken-4"
               icon="mdi-lightning-bolt-circle"
               size="small"
@@ -595,6 +599,12 @@ function viewStatistic() {
             </span>
           </v-row>
         </v-container>
+        <template v-else>
+          <v-icon title="t('levelRequirement.bonus')" color="green-darken-4" icon="mdi-currency-usd" size="small" />
+          <span class="text-no-wrap">
+            {{ typeof item.bonus !== "undefined" ? formatNumber(item.bonus) : "-" }}
+          </span>
+        </template>
       </template>
 
       <template #item.bonusPerHour="{ item }">
