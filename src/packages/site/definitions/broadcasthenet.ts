@@ -20,6 +20,34 @@ export const siteMetadata: ISiteMetadata = {
 
   userInfo: {
     ...SchemaMetadata.userInfo!,
+    process: [
+      {
+        requestConfig: { url: "/index.php", responseType: "document" },
+        fields: ["id", "name", "messageCount"],
+      },
+      {
+        requestConfig: {
+          url: "/user.php",
+          params: {
+            /* id: flushUserInfo.id */
+          },
+          responseType: "document",
+        },
+        assertion: { id: "params.id" },
+        fields: [
+          "uploaded",
+          "downloaded",
+          "ratio",
+          "levelName",
+          "bonus",
+          "joinTime",
+          "seeding",
+          "seedingSize",
+          "totalTraffic",
+          "snatches",
+        ],
+      },
+    ],
     selectors: {
       ...SchemaMetadata.userInfo!.selectors,
       uploaded: {
@@ -62,6 +90,26 @@ export const siteMetadata: ISiteMetadata = {
       totalTraffic: {
         selector: "ul.nobullet > li:contains('Total Traffic:')",
         filters: [{ name: "parseSize" }],
+      },
+      snatches: {
+        selector: "ul.nobullet:has( > li:contains('Snatched:'))",
+        elementProcess: (element: HTMLElement) => {
+          // 查找所有包含 "Snatched:" 的元素
+          const snatchedElements = Array.from(element.querySelectorAll("li")) as HTMLElement[];
+          let totalSnatches = 0;
+
+          snatchedElements.forEach((el) => {
+            const text = el.textContent || "";
+            if (text.includes("Snatched:")) {
+              const match = text.match(/Snatched:\s*(\d+)/);
+              if (match) {
+                totalSnatches += parseInt(match[1]);
+              }
+            }
+          });
+
+          return totalSnatches;
+        },
       },
     },
   },
