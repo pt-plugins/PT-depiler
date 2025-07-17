@@ -45,8 +45,8 @@ importers:
         specifier: ^2.0.5
         version: 2.0.5
       filesize:
-        specifier: ^10.1.6
-        version: 10.1.6
+        specifier: ^11.0.1
+        version: 11.0.1
       idb:
         specifier: ^8.0.3
         version: 8.0.3
@@ -1945,8 +1945,8 @@ packages:
     resolution: {integrity: sha512-hn4cQfU6GOT/7cFHXBqeBg2TbrMBgdD0kcjLhvSQYYwm3s4B6cjvBfb7nBALJLAXqmU5xajSa7X2NnUud/VCdw==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
 
-  filesize@10.1.6:
-    resolution: {integrity: sha512-sJslQKU2uM33qH5nqewAwVB2QgR6w1aMNsYUp3aN5rMRyXEwJGmZvaWzeJFNTOXWlHQyBFCWrdj3fV/fsTOX8w==}
+  filesize@11.0.1:
+    resolution: {integrity: sha512-ua1SLPcFgqf1lICRVqTA5d8T6kqg2ZTIm0BImnUk4pZzfAlwhqO9zKv7GCE5FGl3zIbBZZSmq7yLikFNsi5eXw==}
     engines: {node: '>= 10.4.0'}
 
   fill-range@7.1.1:
@@ -5519,7 +5519,7 @@ snapshots:
 
   filename-reserved-regex@3.0.0: {}
 
-  filesize@10.1.6: {}
+  filesize@11.0.1: {}
 
   fill-range@7.1.1:
     dependencies:
