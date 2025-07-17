@@ -256,8 +256,6 @@ export default class HDBits extends PrivateSite {
   }
 
   protected override loggedCheck(res: AxiosResponse<IHDBitsApiResponse>): boolean {
-    console.log(res.data);
-
     const baseCheck = super.loggedCheck(res);
     if (baseCheck) {
       const { config: requestConfig, data: resData = { status: -1 } } = res;
