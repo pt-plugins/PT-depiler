@@ -239,7 +239,7 @@ export interface ISiteMetadata {
    */
   noLoginAssert?: {
     /**
-     * HTTP 状态码，表示未登录的状态码，未设置时默认 [401, 403]
+     * HTTP 状态码，表示未登录的状态码，未设置时默认 [401, 403, 502, 504, 521, 522, 523]
      * 如果站点响应的状态码在该数组中，则认为未登录
      */
     httpStatusCodes?: number[] | false;
