@@ -54,7 +54,7 @@ const advanceFilterFormat: Record<TAdvanceFilterFormat, IValueFormat> = {
       if (typeof value === "number") return value;
       else return parseSizeString(value);
     },
-    build: (value: string | number) => filesize(value as number, { spacer: "" }) as string,
+    build: (value: string | number) => filesize(value, { spacer: "" }) as string,
   },
   boolean: {
     parse: (value: string) => (value ? "1" : "0"),
