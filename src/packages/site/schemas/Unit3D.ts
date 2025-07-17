@@ -13,6 +13,7 @@ import { parseSizeString, parseValidTimeString } from "../utils";
 const idTrans: string[] = ["User ID", "用户 ID", "用ID", "用户ID"];
 const seedingSizeTrans: string[] = ["Seeding Size", "Seeding size", "做种体积", "做種體積"];
 const joinTimeTrans: string[] = ["Registration date", "注册日期", "註冊日期"];
+const averageSeedingTimeTrans: string[] = ["Average Seedtime", "Average seedtime", "平均做种时间", "平均做種時間"];
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: 0,
@@ -261,6 +262,14 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           ...seedingSizeTrans.map((x) => `dt:contains('${x}') + dd`),
         ],
         filters: [(query: string) => parseSizeString(query.replace(/,/g, ""))],
+      },
+      averageSeedingTime: {
+        // table.table-condensed:first
+        selector: [
+          ...averageSeedingTimeTrans.map((x) => `td:contains('${x}') + td`),
+          ...averageSeedingTimeTrans.map((x) => `dt:contains('${x}') + dd`),
+        ],
+        filters: [{ name: "parseTTL" }],
       },
       levelName: {
         selector: "div.content span.badge-user",
