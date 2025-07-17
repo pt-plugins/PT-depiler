@@ -3,7 +3,8 @@ import { get, isEmpty, set } from "es-toolkit/compat";
 import { chunk, pascalCase, pick, toMerged, union } from "es-toolkit";
 import { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
 
-import { axios, retrieve, store } from "../utils/adapter.ts";
+// noinspection ES6PreferShortImport
+import { axios, retrieve, sleep, store } from "../utils/adapter";
 import {
   EResultParseStatus,
   IElementQuery,
@@ -75,6 +76,12 @@ export default class BittorrentSite {
     return true;
   }
 
+  protected async sleepAction(ms: number | undefined): Promise<void> {
+    if (ms && ms > 0) {
+      await sleep(ms);
+    }
+  }
+
   protected async storeRuntimeSettings<T extends any>(key: string, value: T): Promise<T> {
     this.userConfig.runtimeSettings ??= {}; // 确保 runtimeSettings 存在
     this.userConfig.runtimeSettings[key] = value; // 更新当前实例的 runtimeSettings
@@ -91,6 +98,9 @@ export default class BittorrentSite {
     axiosConfig.baseURL ??= this.url;
     axiosConfig.url ??= "/";
     axiosConfig.timeout ??= this.userConfig.timeout ?? 30e3;
+
+    // 如果站点有请求延迟，则等待一段时间
+    await this.sleepAction(this.metadata.requestDelay ?? 0);
 
     let req: AxiosResponse;
     try {
@@ -213,6 +223,11 @@ export default class BittorrentSite {
     // 6. 如果有 requestConfigTransformer，则会在最后一步对请求配置进行处理
     if (typeof searchEntry.requestConfigTransformer === "function") {
       requestConfig = searchEntry.requestConfigTransformer({ keywords, searchEntry, requestConfig });
+    }
+
+    // 如果站点有搜索请求延迟，则等待一段时间
+    if ((searchEntry.requestDelay ?? 0) > 0) {
+      await sleep(searchEntry.requestDelay!);
     }
 
     console?.log(`[Site] ${this.name} start search with requestConfig:`, requestConfig);

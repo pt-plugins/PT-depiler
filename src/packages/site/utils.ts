@@ -1,3 +1,4 @@
+export * from "./utils/adapter";
 export * from "./utils/html";
 export * from "./utils/datetime";
 export * from "./utils/filesize";

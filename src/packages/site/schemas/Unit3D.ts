@@ -346,6 +346,8 @@ export default class Unit3D extends PrivateSite {
   }
 
   protected async getUserNameFromSite(): Promise<string> {
+    await this.sleepAction(this.metadata.userInfo?.requestDelay);
+
     const { data: indexDocument } = await this.request<Document>(
       {
         url: "/",
@@ -361,6 +363,8 @@ export default class Unit3D extends PrivateSite {
   }
 
   protected async getUserInfoFromDetailsPage(userName: string): Promise<Partial<IUserInfo>> {
+    await this.sleepAction(this.metadata.userInfo?.requestDelay);
+
     const { data: userDetailDocument } = await this.request<Document>({
       url: urlJoin("/users", userName),
       responseType: "document",

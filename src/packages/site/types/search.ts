@@ -43,6 +43,11 @@ export interface IBaseSearchConfig {
   requestConfig?: Partial<AxiosRequestConfig>;
 
   /**
+   * 是否在搜索发送请求前延迟一段时间，单位为毫秒
+   */
+  requestDelay?: number;
+
+  /**
    * 定义在正式开始请求前，对合并后的 AxiosRequestConfig 如何处理
    * 一般情况下，此项用于调试，如： (config) => {console.log(config); return config;}
    *

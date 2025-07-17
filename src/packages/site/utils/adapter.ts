@@ -48,3 +48,7 @@ export async function retrieveStore(store: keyof IExtensionStorageSchema, keyPat
 export async function cookie(detail: chrome.cookies.CookieDetails): Promise<chrome.cookies.Cookie | null> {
   return await sendMessage("getCookie", detail);
 }
+
+export function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}

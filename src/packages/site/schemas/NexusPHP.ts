@@ -557,11 +557,13 @@ export default class NexusPHP extends PrivateSite {
       flushUserInfo.status === EResultParseStatus.success &&
       (typeof flushUserInfo.seeding === "undefined" || typeof flushUserInfo.seedingSize === "undefined")
     ) {
+      await this.sleepAction(this.metadata.userInfo?.requestDelay);
       flushUserInfo = (await this.parseUserInfoForSeedingStatus(flushUserInfo)) as IUserInfo;
     }
 
     // 导入用户发布信息
     if (flushUserInfo.status === EResultParseStatus.success && typeof flushUserInfo.uploads === "undefined") {
+      await this.sleepAction(this.metadata.userInfo?.requestDelay);
       flushUserInfo = (await this.parseUserInfoForUploads(flushUserInfo)) as IUserInfo;
     }
 

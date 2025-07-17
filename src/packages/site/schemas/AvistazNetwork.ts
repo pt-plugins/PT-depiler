@@ -1,10 +1,9 @@
-import axios, { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
+import { type AxiosRequestConfig, type AxiosResponse } from "axios";
 import urlJoin from "url-join";
 import Sizzle from "sizzle";
 import { set } from "es-toolkit/compat";
 
 import PrivateSite from "./AbstractPrivateSite";
-import { retrieveStore } from "@ptd/site/utils/adapter.ts";
 
 import {
   EResultParseStatus,
@@ -15,7 +14,7 @@ import {
   type ITorrentTag,
   type ISearchInput,
 } from "../types";
-import { parseTimeWithZone, parseSizeString } from "../utils";
+import { parseSizeString } from "../utils";
 
 interface AuthSuccessResp {
   token: string;
@@ -168,10 +167,6 @@ export const SchemaMetadata: Pick<
       snatches: { selector: [".card .tag-yellow"], filters: [{ name: "parseNumber" }] },
       seeding: { selector: [".card .tag-indigo"], filters: [{ name: "parseNumber" }] },
       hnrUnsatisfied: { selector: [".card .tag-red"], filters: [{ name: "parseNumber" }] },
-
-    // TODO：为减少token获取次数，预留存储位
-      authToken: { text: "" },
-      authExpiry: { text: "" },
     },
   },
 
@@ -261,6 +256,7 @@ export default class AvistazNetwork extends PrivateSite {
   }
 
   protected async getBaseInfoFromSite(): Promise<Partial<IUserInfo>> {
+    await this.sleepAction(this.metadata.userInfo?.requestDelay);
     const { data: pageDocument } = await this.request<Document>({
       url: "/",
       responseType: "document",
@@ -277,6 +273,7 @@ export default class AvistazNetwork extends PrivateSite {
   }
 
   protected async getExtendInfoFromProfile(userName: string): Promise<Partial<IUserInfo>> {
+    await this.sleepAction(this.metadata.userInfo?.requestDelay);
     const { data: pageDocument } = await this.request<Document>({
       url: urlJoin("/profile", userName),
       responseType: "document",
@@ -292,6 +289,7 @@ export default class AvistazNetwork extends PrivateSite {
   }
 
   protected async getUserSeedingTorrents(userName: string): Promise<Partial<IUserInfo>> {
+    await this.sleepAction(this.metadata.userInfo?.requestDelay);
     const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
 
     const { data: seedPage } = await this.request<Document>({
@@ -326,10 +324,10 @@ export default class AvistazNetwork extends PrivateSite {
     if (axiosConfig.url?.startsWith("/api/v1/jackett/torrents")) {
       axiosConfig.method = "GET";
       const token = await this.getAuthToken();
-			axiosConfig.headers = {
-				...(axiosConfig.headers ?? {}),
-				Authorization: `Bearer ${token}`,
-			};
+      axiosConfig.headers = {
+        ...(axiosConfig.headers ?? {}),
+        Authorization: `Bearer ${token}`,
+      };
     }
 
     return super.request<T>(axiosConfig, checkLogin);
@@ -357,7 +355,8 @@ export default class AvistazNetwork extends PrivateSite {
       });
 
       // 使用类型守卫判断响应类型
-      if ("token" in apiAuth  && typeof apiAuth.token === 'string') { // 检查 token 属性是否存在且为字符串
+      if ("token" in apiAuth && typeof apiAuth.token === "string") {
+        // 检查 token 属性是否存在且为字符串
 
         // 3. 计算新的过期时间并存储
         const newAuthExpiry = currentTime + apiAuth.expiry; // expiry 已经是 number 类型，直接相加
@@ -366,7 +365,8 @@ export default class AvistazNetwork extends PrivateSite {
 
         console.log("Successfully obtained and stored new token.");
         return apiAuth.token;
-      } else if ("message" in apiAuth && typeof apiAuth.message === 'string') { // 检查 message 属性是否存在且为字符串
+      } else if ("message" in apiAuth && typeof apiAuth.message === "string") {
+        // 检查 message 属性是否存在且为字符串
         console.error(`Failed to get new token: ${apiAuth.message}`);
       } else {
         console.error("Failed to get new token: Unexpected response format or missing required properties.");

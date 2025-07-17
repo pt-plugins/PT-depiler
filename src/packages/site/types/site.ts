@@ -109,6 +109,13 @@ export interface ISiteMetadata {
   category?: ISearchCategories[];
 
   /**
+   * 站点请求延迟（该站点全局性质），单位为毫秒，默认为0
+   * 注意：此处的 requestDelay 应用于 AbstractBittorrentSite.request 方法中，
+   *      如果有设置 siteMetadata.{search, searchEntry[*], userInfo.process[*]}.requestDelay 则会叠加
+   */
+  requestDelay?: number;
+
+  /**
    * 站点搜索方法配置（主要用于插件 options 的适配）
    *
    * 由 AbstractBittorrentSite.transformSearchPage 方法进行转换，如果子类有覆写请按子类覆写逻辑理解
@@ -273,6 +280,7 @@ export interface ISiteMetadata {
      */
     process?: {
       requestConfig: AxiosRequestConfig; // { url: '/', params: {}, responseType: 'document' } 会作为基件
+
       /**
        * 请求参数替换断言
        * key为之前步骤获取到的用户信息字典，value为 requestConfig 中需要替换的键值位置：
@@ -296,6 +304,11 @@ export interface ISiteMetadata {
       ) => AxiosRequestConfig;
 
       /**
+       * 是否在 process 该步骤发送请求前延迟一段时间，单位为毫秒
+       */
+      requestDelay?: number;
+
+      /**
        * fields 和 selectors 共同控制着该步骤能够获取到的字段（如果该字段已经存在于前一步步骤或 pickLast 生成的 userInfo 中，则不会再次请求）
        * 实际，本步骤能获取的 fields 为 [...fields, ...Object.keys(selectors)]
        *
@@ -305,6 +318,11 @@ export interface ISiteMetadata {
       fields?: TUserInfoParseKey[];
       selectors?: { [userinfoKey in TUserInfoParseKey]?: IElementQuery }; // 用户信息相关选择器（仅限该步骤使用）
     }[];
+
+    /**
+     * 此处的 requestDelay 仅用于 process 中未定义时的回落，或部分 schemas 额外步骤中使用
+     */
+    requestDelay?: number;
 
     selectors?: { [userinfoKey in TUserInfoParseKey]?: IElementQuery }; // 用户信息相关选择器（全部步骤均可使用）
   };

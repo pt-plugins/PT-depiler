@@ -436,6 +436,8 @@ export default class GazelleJSONAPI extends PrivateSite {
   }
 
   protected async getUserExtendInfo(userId: number): Promise<Partial<IUserInfo>> {
+    await this.sleepAction(this.metadata.userInfo?.requestDelay);
+
     const { data: apiUser } = await this.requestApi<userJsonResponse>("user", {
       id: userId,
     });
@@ -447,6 +449,8 @@ export default class GazelleJSONAPI extends PrivateSite {
   }
 
   protected async getUserSeedingTorrents(userId?: number): Promise<Partial<IUserInfo>> {
+    await this.sleepAction(this.metadata.userInfo?.requestDelay);
+
     const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
 
     const { data: seedPage } = await this.request<Document>({

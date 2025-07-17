@@ -150,6 +150,9 @@ export default class PrivateSite extends BittorrentSite {
           requestConfig = thisUserInfoProcess.requestConfigTransformer(requestConfig, flushUserInfo as IUserInfo, this);
         }
 
+        const requestDelay = thisUserInfoProcess.requestDelay ?? this.metadata.userInfo?.requestDelay ?? 0;
+        await this.sleepAction(requestDelay);
+
         const { data: dataDocument } = await this.request<any>(requestConfig);
 
         for (const key of difference(processFields, Object.keys(flushUserInfo)) as string[]) {
