@@ -1,5 +1,5 @@
 import { toRaw, isRef, isReactive, isProxy } from "vue";
-import { filesize, type FileSizeOptions } from "filesize";
+import { filesize, type FilesizeOptions } from "filesize";
 import {
   differenceInDays,
   differenceInHours,
@@ -40,9 +40,9 @@ export const formValidateRules: Record<string, (args?: any) => (v: any) => boole
   },
 };
 
-export const formatSize = (size: number | string, options?: FileSizeOptions) => {
+export const formatSize = (size: number | string, options?: FilesizeOptions) => {
   try {
-    return filesize(size, { base: 2, ...(options ?? {}) });
+    return filesize(size as number, { base: 2, ...(options ?? {}) });
   } catch (e) {
     return size;
   }
