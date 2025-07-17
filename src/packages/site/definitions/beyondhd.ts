@@ -219,7 +219,7 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   // 该站种子列表页并不提供种子下载直链，且无法拼接获得
-  list: []
+  list: [],
 
   detail: {
     urlPattern: ["/torrents/(.+)\\.(\\d+)"],
