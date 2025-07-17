@@ -264,7 +264,7 @@ export default class HDBits extends PrivateSite {
       }
     }
 
-    return true;
+    return baseCheck;
   }
 
   protected parseTorrentRowForLink(
