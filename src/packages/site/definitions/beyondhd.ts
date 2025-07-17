@@ -229,9 +229,9 @@ export const siteMetadata: ISiteMetadata = {
         elementProcess: (element: Document) => {
           // 尝试从页面 URL 中获取 ID，例如 /torrent/158672
           const url = element.URL;
-          const urlIdMatch = url.match(/\/torrent\/(.+)\.(\d+)/);
-          if (urlIdMatch && urlIdMatch[1]) {
-            return urlIdMatch[1];
+          const urlIdMatch = url.match(/\/torrents\/(.+)\.(\d+)/);
+          if (urlIdMatch && urlIdMatch[2]) {
+            return urlIdMatch[2];
           }
 
           // 如果两种方式都找不到 ID，则返回 undefined
