@@ -27,7 +27,17 @@ export default class PrivateSite extends BittorrentSite {
   }
 
   protected get noLoginCheckHttpStatusCodes(): number[] | false {
-    return this.metadata.noLoginAssert?.httpStatusCodes ?? [401, 403];
+    return (
+      this.metadata.noLoginAssert?.httpStatusCodes ?? [
+        401, // Unauthorized
+        403, // Forbidden
+        502, // Bad Gateway
+        504, // Gateway Timeout
+        521, // used by cloudflare to signal the original webserver is refusing the connection
+        522, // used by cloudflare to signal the original webserver is not reachable at all (timeout)
+        523, // used by cloudflare to signal the original webserver is not reachable at all (Origin is unreachable)
+      ]
+    );
   }
 
   protected get noLoginCheckUrlPatterns(): TUrlPatterns | false {
