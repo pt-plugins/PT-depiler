@@ -27,6 +27,25 @@ interface AuthFailResp {
 
 type AvzNetAuthResp = AuthSuccessResp | AuthFailResp;
 
+const commonListSelectors: TSchemaMetadataListSelectors = {
+  id: {
+    selector: "div.mb-1 a[href*='/torrent/']",
+    attr: "href",
+    elementProcess: (href: string) => {
+      const torrentIdMatch = href.match(/\/torrent\/(\d+)/);
+      if (torrentIdMatch && torrentIdMatch[1]) {
+          return torrentIdMatch[1];
+      }
+      return undefined;
+    }
+  },
+  title: { selector: "div.mb-1 a[href*='/torrent/']" },
+  subTitle: { text: "" },
+  url: { selector: "div.mb-1 a[href*='/torrent/']", attr: "href" },
+  comments: { text: "N/A" },
+  category: { selector: ".category-icon[data-original-title]", attr: "data-original-title" }, //category过于动态，抓取失败
+};
+
 export interface IAvzNetRawTorrent {
   id: number;
   file_name: string;
@@ -138,6 +157,48 @@ export const SchemaMetadata: Pick<
     },
   },
 
+  list: [
+    // 种子列表页
+    {
+      urlPattern: ["/torrents"],
+      mergeSearchSelectors: false,
+      selectors: {
+        ...commonListSelectors,
+        rows: { selector: "#content-area > div.card.mt-2 > div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
+
+        link: { selector: "div.align-top a[href*='/download/torrent/']", attr: "href" },
+        link: { text: "" },
+        // time显示为1 minute/1 hour，放弃获取
+        size: { selector: "td:nth-child(5)", filters: [{ name: "parseSize" }] },
+
+        seeders: { selector: "td:nth-child(6)" },
+        leechers: { selector: "td:nth-child(7)" },
+        completed: { selector: "td:nth-child(8)" },
+
+        // ext_imdb: {
+        //   selector: "a[href^='/imdb/title'][href*='imdb=']",
+        //   filters: [{ name: "querystring", args: ["imdb"] }, { name: "extImdbId" }],
+        // },
+      },
+    },
+    // 下载历史页和HR页
+    {
+      urlPattern: ["/profile/(.+)/history"],
+      mergeSearchSelectors: false,
+      selectors: {
+        ...commonListSelectors,
+        rows: { selector: "div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
+
+        link: { selector: "div.float-right a[href*='/download/torrent/']", attr: "href" },
+        size: { selector: "span.text-yellow[data-original-title='File Size']", filters: [{ "name": "parseSize" }] },
+
+        seeders: { selector: "span.text-green.mr-2[data-original-title='Seeders']" },
+        leechers: { selector: "span.text-red.mr-2[data-original-title='Leechers']" },
+        completed: { selector: "span.text-blue.mr-2[data-original-title='Completed']" },
+      },
+    },
+  ],
+  
   userInfo: {
     pickLast: ["name"],
     selectors: {
