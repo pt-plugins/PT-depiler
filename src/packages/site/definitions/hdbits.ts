@@ -188,8 +188,24 @@ export const siteMetadata: ISiteMetadata = {
         requestConfig: { url: "/userdetails.php" },
         assertion: { id: "params.id" },
         selectors: {
-          uploaded: { selector: ["td.rowhead:contains('Uploaded') + td"], filters: [{ name: "parseSize" }] },
-          downloaded: { selector: ["td.rowhead:contains('Downloaded') + td"], filters: [{ name: "parseSize" }] },
+          uploaded: {
+            selector: ["td.rowhead:contains('Uploaded') + td"],
+            filters: [
+              (query: string) => {
+                return query.includes("(") ? query.split("(")[0] : query;
+              },
+              { name: "parseSize" },
+            ],
+          },
+          downloaded: {
+            selector: ["td.rowhead:contains('Downloaded') + td"],
+            filters: [
+              (query: string) => {
+                return query.includes("(") ? query.split("(")[0] : query;
+              },
+              { name: "parseSize" },
+            ],
+          },
           ratio: { selector: "td.rowhead:contains('Share ratio') + td", filters: [{ name: "parseNumber" }] },
           levelName: { selector: ["td.rowhead:contains('Class') + td"] },
           bonus: { selector: ["td.rowhead:contains('Bonus') + td"], filters: [{ name: "parseNumber" }] },
