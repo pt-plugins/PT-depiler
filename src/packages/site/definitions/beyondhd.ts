@@ -32,7 +32,7 @@ export const siteMetadata: ISiteMetadata = {
 
   category: [
     {
-      name: "分类",
+      name: "Category",
       key: "categories",
       keyPath: "data",
       options: [
@@ -42,7 +42,7 @@ export const siteMetadata: ISiteMetadata = {
       cross: false,
     },
     {
-      name: "类型",
+      name: "Type",
       key: "types",
       keyPath: "data",
       options: [
@@ -68,7 +68,7 @@ export const siteMetadata: ISiteMetadata = {
       cross: { mode: "comma" },
     },
     {
-      name: "来源",
+      name: "Source",
       key: "sources",
       keyPath: "data",
       options: [
@@ -81,7 +81,7 @@ export const siteMetadata: ISiteMetadata = {
       cross: { mode: "comma" },
     },
     {
-      name: "发布组",
+      name: "ReleaseGroup",
       key: "groups",
       keyPath: "data",
       options: [
@@ -97,13 +97,13 @@ export const siteMetadata: ISiteMetadata = {
       cross: { mode: "comma" },
     },
     {
-      name: "内部组",
+      name: "Internal",
       key: "types",
       keyPath: "data",
-      options: [{ name: "是", value: "1" }],
+      options: [{ name: "Yes", value: "1" }],
     },
     {
-      name: "促销",
+      name: "Discount",
       key: "discount",
       keyPath: "data",
       options: [
@@ -116,7 +116,7 @@ export const siteMetadata: ISiteMetadata = {
       cross: { mode: "append", key: "" },
     },
     {
-      name: "特色促销",
+      name: "SpecialDiscount",
       key: "specialDiscount",
       keyPath: "data",
       options: [
@@ -128,8 +128,8 @@ export const siteMetadata: ISiteMetadata = {
       cross: { mode: "append", key: "" },
     },
     {
-      name: "其他",
-      key: "extra",
+      name: "Special",
+      key: "special",
       keyPath: "data",
       options: [
         { name: "SD", value: "sd" },
@@ -141,14 +141,14 @@ export const siteMetadata: ISiteMetadata = {
       cross: { mode: "append", key: "" },
     },
     {
-      name: "断种/活种",
-      key: "incldead",
+      name: "Health",
+      key: "health",
       keyPath: "data",
       options: [
-        { name: "至少有1个做种者", value: "alive" },
-        { name: "少于3个做种者", value: "dying" },
-        { name: "无人做种", value: "dead" },
-        { name: "无人做种且在请求续种", value: "reseed" },
+        { name: "Alive", value: "alive" },
+        { name: "Dying", value: "dying" },
+        { name: "Dead", value: "dead" },
+        { name: "Reseed", value: "reseed" },
       ],
       cross: { mode: "append", key: "" },
     },
@@ -218,6 +218,49 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
+  // 该站种子列表页并不提供种子下载直链，且无法拼接获得
+  list: []
+
+  detail: {
+    urlPattern: ["/torrents/(.+)\\.(\\d+)"],
+    selectors: {
+      id: {
+        selector: ":self",
+        elementProcess: (element: Document) => {
+          // 尝试从页面 URL 中获取 ID，例如 /torrent/158672
+          const url = element.URL;
+          const urlIdMatch = url.match(/\/torrent\/(.+)\.(\d+)/);
+          if (urlIdMatch && urlIdMatch[1]) {
+            return urlIdMatch[1];
+          }
+
+          // 如果两种方式都找不到 ID，则返回 undefined
+          return undefined;
+        },
+      },
+      title: {
+        selector: [
+          "tr:has(td:first-child:contains('Name')) > td:last-child",
+        ],
+        switchFilters: {
+          "tr:has(td:first-child:contains('Name')) > td:last-child": [
+            (element: string) => {
+              if (!element) {
+                return undefined;
+              }
+              
+              return element;
+            }
+          ],
+        },
+      },
+      link: {
+        selector: ["a[href*='/download/']"],
+        attr: "href",
+      },
+    },
+  },
+  
   userInfo: {
     pickLast: ["name", "id"],
     selectors: {
@@ -270,8 +313,7 @@ export const siteMetadata: ISiteMetadata = {
         // 该站点提供 "1Y 2M 3D 1h 7m 1s"，需转换至秒存储
         elementProcess: (element: HTMLElement) => {
           const raw = element.textContent?.trim() || "";
-          const isoDuration =
-            "P" +
+          const isoDuration = "P" +
             raw
               .replace(/\s+/g, "") // 去除空格: "1Y2M3D1h7m1s"
               .replace(/(\d+[YMD])(\d+[hms])/i, "$1T$2"); // 在时间部分前加T: "P1Y2M3DT1h7m1s"
