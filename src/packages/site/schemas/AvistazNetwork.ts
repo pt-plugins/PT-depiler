@@ -8,6 +8,7 @@ import PrivateSite from "./AbstractPrivateSite";
 import {
   EResultParseStatus,
   ETorrentStatus,
+  TSchemaMetadataListSelectors,
   type ISiteMetadata,
   type IUserInfo,
   type ITorrent,
@@ -86,7 +87,7 @@ export interface IAvzNetRawTorrent {
 
 export const SchemaMetadata: Pick<
   ISiteMetadata,
-  "version" | "schema" | "type" | "timezoneOffset" | "search" | "userInfo" | "userInputSettingMeta"
+  "version" | "schema" | "type" | "timezoneOffset" | "search" | "userInfo" | "userInputSettingMeta" | "list" | "detail"
 > = {
   version: 0,
   schema: "AvistazNetwork",
@@ -167,7 +168,6 @@ export const SchemaMetadata: Pick<
         rows: { selector: "#content-area > div.card.mt-2 > div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
 
         link: { selector: "div.align-top a[href*='/download/torrent/']", attr: "href" },
-        link: { text: "" },
         // time显示为1 minute/1 hour，放弃获取
         size: { selector: "td:nth-child(5)", filters: [{ name: "parseSize" }] },
 
