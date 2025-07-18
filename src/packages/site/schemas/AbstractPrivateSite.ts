@@ -7,6 +7,7 @@ import BittorrentSite from "./AbstractBittorrentSite";
 import { guessUserLevelId } from "../utils";
 import {
   EResultParseStatus,
+  CFBlockedError,
   NeedLoginError,
   type IElementQuery,
   type ISiteMetadata,
@@ -33,9 +34,6 @@ export default class PrivateSite extends BittorrentSite {
         403, // Forbidden
         502, // Bad Gateway
         504, // Gateway Timeout
-        521, // used by cloudflare to signal the original webserver is refusing the connection
-        522, // used by cloudflare to signal the original webserver is not reachable at all (timeout)
-        523, // used by cloudflare to signal the original webserver is not reachable at all (Origin is unreachable)
       ]
     );
   }
@@ -195,7 +193,9 @@ export default class PrivateSite extends BittorrentSite {
 
       flushUserInfo.status = EResultParseStatus.parseError;
 
-      if (error instanceof NeedLoginError) {
+      if (error instanceof CFBlockedError) {
+        flushUserInfo.status = EResultParseStatus.CFBlocked;
+      } else if (error instanceof NeedLoginError) {
         flushUserInfo.status = EResultParseStatus.needLogin;
       }
     }
