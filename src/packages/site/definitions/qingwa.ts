@@ -1,4 +1,4 @@
-import { merge, mergeWith } from "es-toolkit";
+import { mergeWith, toMerged } from "es-toolkit";
 import { set } from "es-toolkit/compat";
 
 import type { IAdvancedSearchRequestConfig, TSelectSearchCategoryValue, ISiteMetadata, IUserInfo } from "../types";
@@ -293,7 +293,7 @@ const category: ISiteMetadata["category"] = [
 ];
 
 const { userInfo: schemaUserInfo = {} } = SchemaMetadata;
-const userInfo: ISiteMetadata["userInfo"] = merge(schemaUserInfo, {
+const userInfo: ISiteMetadata["userInfo"] = toMerged(schemaUserInfo, {
   selectors: {
     // "page": "/userdetails.php?id=$user.id$",
     bonus: {
