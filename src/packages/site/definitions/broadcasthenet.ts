@@ -5,6 +5,22 @@ export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
 
   version: 1,
+
+  search: {
+    ...SchemaMetadata.search,
+    keywordPath: "params.artistname", // 修复搜索参数
+    requestConfig: {
+      url: "/torrents.php",
+      responseType: "document",
+      params: {
+        action: "advanced", // BTN需要的参数
+      },
+    },
+    selectors: {
+      ...SchemaMetadata.search!.selectors,
+      rows: { selector: "table.torrent_table tr.torrent" }, // 直接选择种子行，更明确和兼容
+    },
+  },
   id: "broadcasthenet",
   name: "BroadcastTheNet",
   aka: ["BTN"],
