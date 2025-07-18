@@ -69,7 +69,7 @@ export default class BittorrentSite {
     return this.userConfig.downloadInterval ?? this.metadata.download?.interval ?? 0;
   }
 
-  protected get CFBlockCheckHttpStatusCodes(): number[] | false {
+  protected get CFBlockCheckHttpStatusCodes(): number[] {
     return [
       403, // Forbidden
       521, // used by cloudflare to signal the original webserver is refusing the connection
@@ -93,7 +93,7 @@ export default class BittorrentSite {
 
         // 403 需进一步判断
         const responseText =
-          request.responseType === "document" ? request.responseXML?.documentElement.outerHTML : request.responseText;
+          request.responseType === "document" ? request.responseXML?.documentElement?.outerHTML : request.responseText;
         if (typeof responseText === "undefined") {
           return false; // 检查最终的Text，如果什么都没有, bypass
         } else if (/Enable JavaScript and cookies to continue/.test(responseText)) {
@@ -102,7 +102,7 @@ export default class BittorrentSite {
         return false;
       }
     } catch (e) {
-      // Catch Nothing
+      console.error("[CFBlockCheck] An error occurred while checking CF block status:", e);
     }
     return false;
   }
