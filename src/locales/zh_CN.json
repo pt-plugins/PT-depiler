@@ -156,6 +156,8 @@
     "success": "获取成功！",
     "parseError": "解析错误！",
     "passParse": "未启用！",
+    "CFBlocked": "CloudFlare 错误！",
+    "CFBlockedNotes": "CloudFlare 返回的错误，可能是因为站点启用了 CloudFlare 的安全防护，导致无法获取数据。通常需要等待站点自行恢复。",
     "needLogin": "需要登录！",
     "noResults": "无结果！",
     "unknown": "未知状态！"

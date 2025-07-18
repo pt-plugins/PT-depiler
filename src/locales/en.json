@@ -156,6 +156,8 @@
     "success": "Fetch Successful!",
     "parseError": "Parse Error!",
     "passParse": "Not Enabled!",
+    "CFBlocked": "Cloudflare Error!",
+    "CFBlockedNotes": "It may be because the site has enabled CloudFlare's security protection, which makes it impossible to retrieve data. Usually you need to wait for the site to recover on its own.",
     "needLogin": "Login Required!",
     "noResults": "No Results!",
     "unknown": "Unknown Status!"
