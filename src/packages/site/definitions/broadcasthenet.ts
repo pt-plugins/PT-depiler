@@ -18,7 +18,28 @@ export const siteMetadata: ISiteMetadata = {
     },
     selectors: {
       ...SchemaMetadata.search!.selectors,
-      rows: { selector: "table.torrent_table tr.torrent" }, // 直接选择种子行，更明确和兼容
+      url: {
+        selector: "a[href*='torrents.php?id='][href*='torrentid=']", // 更精确的种子链接选择器
+        attr: "href",
+      },
+      title: {
+        selector: "span[style='float:none;']", // BTN的种子标题选择器
+      },
+      category: {
+        selector: "a[href*='filter_cat'] img", // BTN的分类选择器
+        attr: "title",
+      },
+      time: {
+        selector: "div.nobr:contains('Added:')",
+        filters: [
+          (query: string) => {
+            // 从 "Up: Anonymous - Added: 1 hour and 50 minutes ago" 中提取时间部分
+            const match = query.match(/Added:\s*(.+)/);
+            return match ? match[1].trim() : query.trim();
+          },
+          { name: "parseTTL" }, // 使用parseTTL转换相对时间为绝对时间
+        ],
+      },
     },
   },
   id: "broadcasthenet",
