@@ -183,6 +183,15 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
+  detail: {
+    urlPattern: ["/torrent/\\d+"],
+    selectors: {
+      id: { selector: 'input[name="torrentID"]', attr: "value" },
+      title: { selector: ["#torrentnameid", "#torrentName"] },
+      link: { selector: "#detailsDownloadButton", attr: "href" },
+    },
+  },
+
   userInfo: {
     pickLast: ["id", "name"],
     process: [
