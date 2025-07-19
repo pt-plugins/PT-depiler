@@ -32,13 +32,15 @@ const commonListSelectors: TSchemaMetadataListSelectors = {
   id: {
     selector: "div.mb-1 a[href*='/torrent/']",
     attr: "href",
-    elementProcess: (href: string) => {
-      const torrentIdMatch = href.match(/\/torrent\/(\d+)/);
-      if (torrentIdMatch && torrentIdMatch[1]) {
+    filters: [
+      (href: string) => {
+        const torrentIdMatch = href.match(/\/torrent\/(\d+)/);
+        if (torrentIdMatch && torrentIdMatch[1]) {
           return torrentIdMatch[1];
-      }
-      return undefined;
-    }
+        }
+        return undefined;
+      },
+    ],
   },
   title: { selector: "div.mb-1 a[href*='/torrent/']" },
   subTitle: { text: "" },
