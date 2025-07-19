@@ -210,7 +210,7 @@ function openOptions() {
 </script>
 
 <template>
-  <v-theme-provider :theme="configStore.contentScript.applyTheme ? configStore.theme : ''">
+  <v-theme-provider :theme="configStore.contentScript.applyTheme ? configStore.uiTheme : ''">
     <div ref="el" :style="style" style="position: fixed; z-index: 9999999">
       <v-speed-dial v-model="openSpeedDial" :close-on-content-click="false">
         <template v-slot:activator="{ props: activatorProps }">

@@ -1,4 +1,4 @@
-import { onMessage, sendMessage } from "@/messages.ts";
+import { onMessage } from "@/messages.ts";
 
 export function buildCookieUrl(secure: boolean, domain: string, path: string) {
   if (domain.startsWith(".")) {
