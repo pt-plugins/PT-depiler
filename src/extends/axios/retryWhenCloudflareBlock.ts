@@ -2,8 +2,8 @@
  * 此函数用于处理 Cloudflare 阻止请求的情况。
  */
 
+import { pick } from "es-toolkit";
 import type { AxiosError, AxiosInstance, AxiosResponse, AxiosStatic, AxiosRequestConfig } from "axios";
-import { omit, pick } from "es-toolkit";
 
 const cloudflareBlocked5xxCodes = [
   521, // used by cloudflare to signal the original webserver is refusing the connection
@@ -76,7 +76,7 @@ export function setupRetryWhenCloudflareBlock(axios: AxiosInstance): AxiosRetryW
   }
   axiosRetryWhenCloudflareBlockInstance.defaults.retryWhenCloudflare = true;
 
-  // 请求完成后，自动删除 我们设置的 cf_clearance cookie
+  // 请求完成后，自动删除 我们设置的 cf_clearance cookie （这不会影响具有 partitionKey 属性的原 cookie ）
   axiosRetryWhenCloudflareBlockInstance.interceptors.response.use(
     async (response) => {
       if ((response.config as any).cfCookie) {
@@ -100,7 +100,6 @@ export function setupRetryWhenCloudflareBlock(axios: AxiosInstance): AxiosRetryW
       // 如果请求参数中没有 isCfBlockedRetry 标记，说明是第一次被 Cloudflare 阻止的请求
       if (isCFBlocked && (config as any).isCfBlockedRetry !== true) {
         // 尝试获取到 cf_clearance
-
         const fullRequestUrl = axiosRetryWhenCloudflareBlockInstance.getUri(config);
         const parsedUrl = new URL(fullRequestUrl);
         const partitionSiteKey = `${parsedUrl.protocol}//${parsedUrl.hostname}`;
@@ -112,12 +111,11 @@ export function setupRetryWhenCloudflareBlock(axios: AxiosInstance): AxiosRetryW
         });
 
         if (cfCookie && cfCookie.length > 0) {
-          // 强行将 cf_clearance 这个 cookies 修改为 httpOnly: false
+          // 强行设置一个新的但是没有 partitionKey 属性的 cf_clearance 以便于fetch时能使用
           const newCfCookie = pick(cfCookie[0], [
             "domain",
             "expirationDate",
             "name",
-            "partitionKey",
             "path",
             "sameSite",
             "secure",
@@ -126,11 +124,12 @@ export function setupRetryWhenCloudflareBlock(axios: AxiosInstance): AxiosRetryW
           ]) as chrome.cookies.SetDetails;
           newCfCookie.url = buildCookieUrl(newCfCookie.secure!, newCfCookie.domain!, newCfCookie.path!);
 
-          // 设置一个新的但是没有 partitionKey 属性的 cf_clearance 以便于fetch时能使用
-          await chrome.cookies.set(omit(newCfCookie, ["partitionKey"]));
+          await chrome.cookies.set(newCfCookie);
 
           (config as any).isCfBlockedRetry = true; // 标记为已重试过，防止反复重试
-          (config as any).cfCookie = newCfCookie;
+          (config as any).cfCookie = newCfCookie; // 保存当前的 cf_clearance cookie 信息，以便于在成功获取信息时删除我们设置的 cf_clearance
+
+          // 重新发送请求
           return new Promise((resolve) => {
             fixConfig(axiosRetryWhenCloudflareBlockInstance, config);
             resolve(axiosRetryWhenCloudflareBlockInstance(config));
