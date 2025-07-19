@@ -32,6 +32,7 @@ import {
   parseTimeWithZone,
   tryToNumber,
 } from "../utils";
+import { hasNonLatinCharacters } from "../utils/character-detection";
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: -1,
@@ -180,18 +181,10 @@ export default class BittorrentSite {
 
     // 2. 检查字符集兼容性并过滤站点
     if (searchEntry.skipNonLatinCharacters && keywords) {
-      try {
-        // 动态导入字符检测模块以避免循环依赖
-        const { hasNonLatinCharacters } = await import("../utils/character-detection");
-
-        if (hasNonLatinCharacters(keywords)) {
-          console?.log(`[Site] ${this.name} skipped due to non-Latin characters in query:`, keywords);
-          result.status = EResultParseStatus.passParse;
-          return result;
-        }
-      } catch (error) {
-        // 如果字符检测失败，记录警告但继续搜索以确保功能不被阻断
-        console?.warn(`[Site] ${this.name} character detection failed, continuing with search:`, error);
+      if (hasNonLatinCharacters(keywords)) {
+        console?.log(`[Site] ${this.name} skipped due to non-Latin characters in query:`, keywords);
+        result.status = EResultParseStatus.passParse;
+        return result;
       }
     }
 
