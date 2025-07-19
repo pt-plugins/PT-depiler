@@ -683,9 +683,21 @@ export default class NexusPHP extends PrivateSite {
   }
 
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    // 如果没有 link 属性，则尝试从 id 或 url 中生成
+    if (!torrent.link) {
+      if (torrent.id) {
+        torrent.link = `/download.php?id=${torrent.id}`;
+      } else if (torrent.url) {
+        const urlMatch = torrent.url.match(/details\.php\?id=(\d+)/);
+        if (urlMatch && urlMatch.length >= 2) {
+          torrent.link = `/download.php?id=${urlMatch[1]}`;
+        }
+      }
+    }
+
     // 对 NPHP 站点，如果前端拖拽功能发来的种子链接是 details.php?id=123 的形式，
     if (torrent.link && torrent.link.includes("/details.php")) {
-      return torrent.link.replace(/details\.php\?id=(\d+)/, "download.php?id=$1").replace(/&hit=1/, ""); // hit=1 是为了统计下载次数
+      torrent.link = torrent.link.replace(/details\.php\?id=(\d+)/, "download.php?id=$1").replace(/&hit=1/, ""); // hit=1 是为了统计下载次数
     }
 
     return super.getTorrentDownloadLink(torrent);
