@@ -4,7 +4,7 @@ import { chunk, pascalCase, pick, toMerged, union } from "es-toolkit";
 import { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
 
 // noinspection ES6PreferShortImport
-import { axios, retrieve, sleep, store } from "../utils/adapter";
+import { axios, isCloudflareBlocked, retrieve, sleep, store } from "../utils/adapter";
 import {
   EResultParseStatus,
   IElementQuery,
@@ -125,6 +125,10 @@ export default class BittorrentSite {
     } catch (e) {
       // 从 AxiosError 中获取 response
       req = (e as AxiosError).response!;
+    }
+
+    if (isCloudflareBlocked(req)) {
+      throw new CFBlockedError();
     }
 
     // 随后检查是否需要登录

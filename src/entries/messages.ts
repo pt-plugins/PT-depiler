@@ -72,9 +72,10 @@ interface ProtocolMap extends TMessageMap {
   reDownloadTorrentToDownloader(data: Required<IDownloadTorrentToClientOption>): void;
 
   // 1.5 chrome.cookies
-  getCookiesByDomain(data: string): chrome.cookies.Cookie[];
+  getAllCookies(data: chrome.cookies.GetAllDetails): chrome.cookies.Cookie[];
   setCookie(data: chrome.cookies.SetDetails): void;
   getCookie(data: chrome.cookies.CookieDetails): chrome.cookies.Cookie | null;
+  removeCookie(data: chrome.cookies.CookieDetails | chrome.cookies.SetDetails): chrome.cookies.CookieDetails;
 
   // 1.6 chrome.notifications
   showNotification(data: { options: chrome.notifications.NotificationOptions; timeout?: number }): void;

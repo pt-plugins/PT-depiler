@@ -3,20 +3,14 @@
  */
 
 import { pick } from "es-toolkit";
-import { AxiosError, AxiosInstance, AxiosResponse, AxiosStatic, AxiosRequestConfig } from "axios";
+import { sendMessage } from "@/messages.ts";
+import type { AxiosError, AxiosInstance, AxiosResponse, AxiosStatic, AxiosRequestConfig } from "axios";
 
 const cloudflareBlocked5xxCodes = [
   521, // used by cloudflare to signal the original webserver is refusing the connection
   522, // used by cloudflare to signal the original webserver is not reachable at all (timeout)
   523, // used by cloudflare to signal the original webserver is not reachable at all (Origin is unreachable)
 ];
-
-export function buildCookieUrl(secure: boolean, domain: string, path: string) {
-  if (domain.startsWith(".")) {
-    domain = domain.substring(1);
-  }
-  return `http${secure ? "s" : ""}://${domain}${path}`;
-}
 
 export function isCloudflareBlocked(response: AxiosResponse): boolean {
   try {
@@ -70,8 +64,7 @@ function fixConfig(axiosInstance: AxiosInstance | AxiosStatic, config: AxiosRequ
 function removeCustomCloudflareCookie(response: AxiosResponse | undefined) {
   if ((response?.config as any).cfCookie) {
     // 如果请求中有 cf_clearance 的 set cookie detail，说明是重试请求，删除我们设置的 cf_clearance cookie
-    const cfCookie = (response!.config as any).cfCookie as chrome.cookies.SetDetails;
-    chrome.cookies.remove(pick(cfCookie, ["name", "url"]) as chrome.cookies.CookieDetails).catch();
+    sendMessage("removeCookie", (response!.config as any).cfCookie).catch();
   }
 }
 
@@ -111,7 +104,7 @@ export function setupRetryWhenCloudflareBlock(axios: AxiosInstance): AxiosRetryW
         const parsedUrl = new URL(fullRequestUrl);
         const partitionSiteKey = `${parsedUrl.protocol}//${parsedUrl.hostname}`;
 
-        const cfCookie = await chrome.cookies.getAll({
+        const cfCookie = await sendMessage("getAllCookies", {
           url: fullRequestUrl,
           name: "cf_clearance",
           partitionKey: { topLevelSite: partitionSiteKey },
@@ -129,9 +122,8 @@ export function setupRetryWhenCloudflareBlock(axios: AxiosInstance): AxiosRetryW
             "storeId",
             "value",
           ]) as chrome.cookies.SetDetails;
-          newCfCookie.url = buildCookieUrl(newCfCookie.secure!, newCfCookie.domain!, newCfCookie.path!);
 
-          await chrome.cookies.set(newCfCookie);
+          await sendMessage("setCookie", newCfCookie);
 
           (config as any).isCfBlockedRetry = true; // 标记为已重试过，防止反复重试
           (config as any).cfCookie = newCfCookie; // 保存当前的 cf_clearance cookie 信息，以便于在成功获取信息时删除我们设置的 cf_clearance

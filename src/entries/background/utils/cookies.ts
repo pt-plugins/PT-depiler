@@ -1,8 +1,14 @@
 import { onMessage, sendMessage } from "@/messages.ts";
-import { buildCookieUrl } from "~/extends/axios/retryWhenCloudflareBlock.ts"; // FIXME
 
-onMessage("getCookiesByDomain", async ({ data: domain }) => {
-  return await chrome.cookies.getAll({ domain });
+export function buildCookieUrl(secure: boolean, domain: string, path: string) {
+  if (domain.startsWith(".")) {
+    domain = domain.substring(1);
+  }
+  return `http${secure ? "s" : ""}://${domain}${path}`;
+}
+
+onMessage("getAllCookies", async ({ data }) => {
+  return await chrome.cookies.getAll(data);
 });
 
 onMessage("getCookie", async ({ data: detail }) => {
@@ -51,10 +57,25 @@ export async function setCookie(cookie: chrome.cookies.SetDetails): Promise<void
 
   if (allowSet) {
     await chrome.cookies.set(new_cookie);
-    sendMessage("logger", { msg: `Set a new cookie ${new_cookie.name} to ${new_cookie.url}` }).catch();
   }
 }
 
 onMessage("setCookie", async ({ data }) => {
   return await setCookie(data);
+});
+
+onMessage("removeCookie", async ({ data }) => {
+  const removeCookie = {} as chrome.cookies.CookieDetails;
+
+  removeCookie.name = data.name!;
+  removeCookie.storeId = data.storeId ?? "0";
+
+  if (typeof data.url === "undefined") {
+    const setDetails = data as chrome.cookies.SetDetails;
+    removeCookie.url = buildCookieUrl(setDetails.secure ?? true, setDetails.domain!, setDetails.path!);
+  } else {
+    removeCookie.url = data.url;
+  }
+
+  return await chrome.cookies.remove(removeCookie);
 });
