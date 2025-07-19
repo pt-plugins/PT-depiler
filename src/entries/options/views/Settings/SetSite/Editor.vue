@@ -175,9 +175,9 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
 
         <v-divider />
 
-        <v-label class="my-2">站点设置</v-label>
-
         <template v-if="siteMetaData.userInputSettingMeta && siteUserConfig.inputSetting">
+          <v-label class="my-2">站点设置</v-label>
+
           <v-text-field
             v-for="userInputMeta in siteMetaData.userInputSettingMeta"
             :key="userInputMeta.name"
@@ -190,7 +190,11 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
             validate-on="input"
           >
           </v-text-field>
+
+          <v-divider />
         </template>
+
+        <v-label class="my-2">其他设置</v-label>
 
         <v-text-field
           v-model="siteUserConfig.downloadLinkAppendix"
