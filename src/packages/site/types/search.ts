@@ -55,6 +55,24 @@ export interface IBaseSearchConfig {
    * @param filter 原始搜索条件，注意此处的 keywords 已经被去除了前缀 `${advanceKeywordType}|`
    */
   requestConfigTransformer?: TSearchRequestConfigTransformer;
+
+  /**
+   * 字符集支持配置
+   *
+   * 如果设置为 true，当搜索查询包含非拉丁字符（如中文、日文、阿拉伯文、西里尔文等）时，
+   * 该站点将被跳过，不会发送搜索请求。这有助于提高搜索效率，避免向不支持非拉丁字符的站点发送无效请求。
+   *
+   * 如果设置为 false 或未设置（默认），该站点将支持所有字符集的搜索，
+   * 无论搜索查询包含拉丁字符还是非拉丁字符。
+   *
+   * 注意：
+   * - 混合字符查询（同时包含拉丁和非拉丁字符）会被视为非拉丁搜索
+   * - 数字、标点符号和空格被视为字符集中性，不影响字符集检测
+   * - 此配置仅影响搜索请求的发送，不影响站点的其他功能
+   *
+   * @default false - 支持所有字符集
+   */
+  skipNonLatinCharacters?: boolean;
 }
 
 export interface IAdvanceKeywordSearchConfig extends IBaseSearchConfig {

@@ -168,6 +168,7 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
+    skipNonLatinCharacters: true,
     keywordPath: "data.search",
     requestConfig: {
       url: "/api/torrents",
@@ -239,18 +240,16 @@ export const siteMetadata: ISiteMetadata = {
         },
       },
       title: {
-        selector: [
-          "tr:has(td:first-child:contains('Name')) > td:last-child",
-        ],
+        selector: ["tr:has(td:first-child:contains('Name')) > td:last-child"],
         switchFilters: {
           "tr:has(td:first-child:contains('Name')) > td:last-child": [
             (element: string) => {
               if (!element) {
                 return undefined;
               }
-              
+
               return element;
-            }
+            },
           ],
         },
       },
@@ -260,7 +259,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
-  
+
   userInfo: {
     pickLast: ["name", "id"],
     selectors: {
@@ -313,7 +312,8 @@ export const siteMetadata: ISiteMetadata = {
         // 该站点提供 "1Y 2M 3D 1h 7m 1s"，需转换至秒存储
         elementProcess: (element: HTMLElement) => {
           const raw = element.textContent?.trim() || "";
-          const isoDuration = "P" +
+          const isoDuration =
+            "P" +
             raw
               .replace(/\s+/g, "") // 去除空格: "1Y2M3D1h7m1s"
               .replace(/(\d+[YMD])(\d+[hms])/i, "$1T$2"); // 在时间部分前加T: "P1Y2M3DT1h7m1s"
