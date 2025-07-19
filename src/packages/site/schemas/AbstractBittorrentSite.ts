@@ -279,11 +279,10 @@ export default class BittorrentSite {
     let url = uri;
 
     if (uri.length > 0 && !uri.startsWith("magnet:")) {
-      const baseUrl = requestConfig.baseURL || this.url;
       if (uri.startsWith("//")) {
         // 当 传入的uri 以 /{2,} 开头时，被转换成类似 https?:///xxxx/xxxx 的形式，
         // 虽不符合url规范，但是浏览器容错高，所以不用担心 2333
-        const urlHelper = new URL(baseUrl);
+        const urlHelper = new URL(requestConfig.baseURL || this.url);
         url = `${urlHelper.protocol}:${uri}`;
       } else if (uri.slice(0, 4) !== "http") {
         // 基于请求地址，处理 ./xxx, xxxx, /xxxx 等相对路径

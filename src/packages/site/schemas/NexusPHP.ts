@@ -683,15 +683,18 @@ export default class NexusPHP extends PrivateSite {
   }
 
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
-    // 如果没有 link 属性，则尝试从 id 或 url 中生成
+    // 如果没有 link 属性，则尝试以 (url->)id->link 的方式生成
     if (!torrent.link) {
-      if (torrent.id) {
-        torrent.link = `/download.php?id=${torrent.id}`;
-      } else if (torrent.url) {
-        const urlMatch = torrent.url.match(/details\.php\?id=(\d+)/);
+      if (!torrent.id && torrent.url) {
+        const urlMatch = torrent.url.match(/[?&]id=(\d+)/);
         if (urlMatch && urlMatch.length >= 2) {
-          torrent.link = `/download.php?id=${urlMatch[1]}`;
+          torrent.id ??= urlMatch[1];
         }
+      }
+
+      if (torrent.id) {
+        const mockRequestConfig = torrent.url?.startsWith("http") ? { url: torrent.url } : { baseURL: this.url };
+        torrent.link = this.fixLink(`/download.php?id=${torrent.id}`, mockRequestConfig);
       }
     }
 
