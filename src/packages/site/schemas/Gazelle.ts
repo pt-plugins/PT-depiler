@@ -1,5 +1,5 @@
 import Sizzle from "sizzle";
-import { merge } from "es-toolkit";
+import { toMerged } from "es-toolkit";
 
 import PrivateSite from "./AbstractPrivateSite";
 import { parseValidTimeString, parseSizeString } from "../utils";
@@ -15,7 +15,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       params: { searchsubmit: 1 },
     },
     selectors: {
-      rows: { selector: "table.torrent_table:last > tbody > tr:gt(0)" },
+      rows: { selector: "table.torrent_table:last tr:gt(0)" },
       id: {
         selector: "a[href*='torrents.php?id=']",
         attr: "href",
@@ -154,6 +154,16 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 };
 
 export default class Gazelle extends PrivateSite {
+  protected guessSearchFieldIndexConfig(): Record<string, string[]> {
+    return {
+      time: ["a[href*='order_by=time']"], // 发布时间
+      size: ["a[href*='order_by=size']"], // 大小
+      seeders: ["a[href*='order_by=seeders']"], // 种子数
+      leechers: ["a[href*='order_by=leechers']"], // 下载数
+      completed: ["a[href*='order_by=snatched']"], // 完成数
+    } as Record<keyof ITorrent, string[]>;
+  }
+
   public override async transformSearchPage(doc: Document | any, searchConfig: ISearchInput): Promise<ITorrent[]> {
     const { keywords, searchEntry, requestConfig } = searchConfig;
     // 如果配置文件没有传入 search 的选择器，则我们自己生成
@@ -162,30 +172,34 @@ export default class Gazelle extends PrivateSite {
     // 生成 rows的
     if (!searchEntry!.selectors?.rows) {
       searchEntry!.selectors!.rows = {
-        selector: `${legacyTableSelector} > tbody > tr:gt(0)`,
+        selector: `${legacyTableSelector} tr:gt(0)`,
       };
     }
-    // 对于 Gazelle ，一般来说，表的第一行应该是标题行，即 `> tbody > tr:nth-child(1)`
-    const tableHeadAnother = Sizzle(`${legacyTableSelector} > tbody > tr:first > td`, doc) as HTMLElement[];
 
-    tableHeadAnother.forEach((element, elementIndex) => {
-      for (const [dectField, dectSelector] of Object.entries({
-        time: "a[href*='order_by=time']", // 发布时间
-        size: "a[href*='order_by=size']", // 大小
-        seeders: "a[href*='order_by=seeders']", // 种子数
-        leechers: "a[href*='order_by=leechers']", // 下载数
-        completed: "a[href*='order_by=snatched']", // 完成数
-      } as Record<keyof ITorrent, string>)) {
-        if (Sizzle(dectSelector, element).length > 0) {
-          // @ts-ignore
-          this.config.search.selectors[dectField as keyof listSelectors] = merge(
-            {
-              selector: [`> td:eq(${elementIndex})`],
-            },
-            // @ts-ignore
-            this.config.search.selectors[dectField] || {},
-          );
+    // 对于 Gazelle ，一般来说，表的第一行应该是标题行，即 ` > tr:nth-child(1)`
+    const headSelector = `${legacyTableSelector} tr:first > td`;
+    const headAnother = Sizzle(headSelector, doc) as HTMLElement[];
+    headAnother.forEach((element, elementIndex) => {
+      // 比较好处理的一些元素，都是可以直接获取的
+      let updateSelectorField;
+      for (const [dectField, dectSelector] of Object.entries(this.guessSearchFieldIndexConfig())) {
+        for (const dectFieldElement of dectSelector) {
+          if (Sizzle(dectFieldElement, element).length > 0) {
+            updateSelectorField = dectField;
+            break;
+          }
         }
+      }
+
+      if (updateSelectorField) {
+        // @ts-ignore
+        searchEntry.selectors[updateSelectorField] = toMerged(
+          {
+            selector: [`> td:eq(${elementIndex})`],
+          },
+          // @ts-ignore
+          searchEntry.selectors[updateSelectorField] || {},
+        );
       }
     });
 
