@@ -32,6 +32,7 @@ import {
   parseTimeWithZone,
   tryToNumber,
 } from "../utils";
+import { hasNonLatinCharacters } from "../utils/character-detection";
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: -1,
@@ -182,13 +183,22 @@ export default class BittorrentSite {
 
     console?.log(`[Site] ${this.name} start search with merged searchEntry:`, searchEntry);
 
-    // 2. 生成对应站点的基础 requestConfig
+    // 2. 检查字符集兼容性并过滤站点
+    if (searchEntry.skipNonLatinCharacters && keywords) {
+      if (hasNonLatinCharacters(keywords)) {
+        console?.log(`[Site] ${this.name} skipped due to non-Latin characters in query:`, keywords);
+        result.status = EResultParseStatus.passParse;
+        return result;
+      }
+    }
+
+    // 3. 生成对应站点的基础 requestConfig
     let requestConfig: AxiosRequestConfig = toMerged(
       { url: "/", responseType: "document", params: {}, data: {} }, // 最基础的垫片，baseUrl 会在 request 方法中被补全，此处不用额外声明
       searchEntry.requestConfig || {}, // 使用默认配置覆盖垫片配置，如果是站点是 json 返回，应该在此处覆写 responseType，并准备基础参数
     );
 
-    // 3. 预检查 keywords 是否为高级搜索词，如果是，则查找对应的 searchEntry.advanceKeywordParams[*] 并改写 keywords
+    // 4. 预检查 keywords 是否为高级搜索词，如果是，则查找对应的 searchEntry.advanceKeywordParams[*] 并改写 keywords
     let advanceKeywordType: string | undefined;
     let advanceKeywordConfig: IAdvanceKeywordSearchConfig | false = false;
     if (keywords && searchEntry.advanceKeywordParams) {
@@ -209,12 +219,12 @@ export default class BittorrentSite {
       }
     }
 
-    // 4. 首先将搜索关键词根据 keywordsParam 放入请求配置中，注意如果是 advanceKeyword 已经被去除了前缀 `${advanceKeywordType}|`
+    // 5. 首先将搜索关键词根据 keywordsParam 放入请求配置中，注意如果是 advanceKeyword 已经被去除了前缀 `${advanceKeywordType}|`
     if (keywords) {
       set(requestConfig, searchEntry.keywordPath || "params.keywords", keywords || "");
     }
 
-    // 5. 如果是高级搜索词搜索，则在对应基础上改写 AxiosRequestConfig
+    // 6. 如果是高级搜索词搜索，则在对应基础上改写 AxiosRequestConfig
     if (advanceKeywordConfig) {
       if (advanceKeywordConfig.requestConfig) {
         requestConfig = toMerged(requestConfig, advanceKeywordConfig.requestConfig || {});
@@ -225,7 +235,7 @@ export default class BittorrentSite {
       }
     }
 
-    // 6. 如果有 requestConfigTransformer，则会在最后一步对请求配置进行处理
+    // 7. 如果有 requestConfigTransformer，则会在最后一步对请求配置进行处理
     if (typeof searchEntry.requestConfigTransformer === "function") {
       requestConfig = searchEntry.requestConfigTransformer({ keywords, searchEntry, requestConfig });
     }
@@ -237,7 +247,7 @@ export default class BittorrentSite {
 
     console?.log(`[Site] ${this.name} start search with requestConfig:`, requestConfig);
 
-    // 7. 请求页面并转化为document
+    // 8. 请求页面并转化为document
     try {
       const req = await this.request(requestConfig);
       result.data = await this.transformSearchPage(req.data, { keywords, searchEntry, requestConfig });

@@ -49,6 +49,7 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
+    skipNonLatinCharacters: true,
     keywordPath: "params.q",
     requestConfig: {
       url: "/api/torznab", // 返回的是一个 xml 文档

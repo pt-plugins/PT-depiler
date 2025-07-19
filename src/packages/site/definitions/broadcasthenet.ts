@@ -8,6 +8,7 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     ...SchemaMetadata.search,
+    skipNonLatinCharacters: true,
     keywordPath: "params.artistname", // 修复搜索参数
     requestConfig: {
       url: "/torrents.php",

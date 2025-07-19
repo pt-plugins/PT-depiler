@@ -183,6 +183,7 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     ...SchemaMetadata.search,
+    skipNonLatinCharacters: true,
     requestConfig: {
       url: "/torrents",
     },
