@@ -3,7 +3,7 @@
  */
 
 import { pick } from "es-toolkit";
-import type { AxiosError, AxiosInstance, AxiosResponse, AxiosStatic, AxiosRequestConfig } from "axios";
+import { AxiosError, AxiosInstance, AxiosResponse, AxiosStatic, AxiosRequestConfig } from "axios";
 
 const cloudflareBlocked5xxCodes = [
   521, // used by cloudflare to signal the original webserver is refusing the connection
@@ -67,6 +67,14 @@ function fixConfig(axiosInstance: AxiosInstance | AxiosStatic, config: AxiosRequ
   }
 }
 
+function removeCustomCloudflareCookie(response: AxiosResponse | undefined) {
+  if ((response?.config as any).cfCookie) {
+    // 如果请求中有 cf_clearance 的 set cookie detail，说明是重试请求，删除我们设置的 cf_clearance cookie
+    const cfCookie = (response!.config as any).cfCookie as chrome.cookies.SetDetails;
+    chrome.cookies.remove(pick(cfCookie, ["name", "url"]) as chrome.cookies.CookieDetails).catch();
+  }
+}
+
 export function setupRetryWhenCloudflareBlock(axios: AxiosInstance): AxiosRetryWhenCloudflareBlockInstance {
   const axiosRetryWhenCloudflareBlockInstance = axios as AxiosRetryWhenCloudflareBlockInstance;
 
@@ -79,16 +87,15 @@ export function setupRetryWhenCloudflareBlock(axios: AxiosInstance): AxiosRetryW
   // 请求完成后，自动删除 我们设置的 cf_clearance cookie （这不会影响具有 partitionKey 属性的原 cookie ）
   axiosRetryWhenCloudflareBlockInstance.interceptors.response.use(
     async (response) => {
-      if ((response.config as any).cfCookie) {
-        // 如果请求中有 cf_clearance 的 set cookie detail，说明是重试请求，删除我们设置的 cf_clearance cookie
-        const cfCookie = (response.config as any).cfCookie as chrome.cookies.SetDetails;
-        await chrome.cookies.remove(pick(cfCookie, ["name", "url"]) as chrome.cookies.CookieDetails);
-      }
+      removeCustomCloudflareCookie(response);
 
       return response;
     },
     async (error: AxiosError) => {
       const isCFBlocked = isCloudflareBlocked(error.response!);
+
+      // 无论此时是否被 Cloudflare 阻止，都需要删除我们设置的 cf_clearance cookie （如果有），以便后面根据需要再设置
+      removeCustomCloudflareCookie(error?.response);
 
       const { config } = error;
 
@@ -98,7 +105,7 @@ export function setupRetryWhenCloudflareBlock(axios: AxiosInstance): AxiosRetryW
       }
 
       // 如果请求参数中没有 isCfBlockedRetry 标记，说明是第一次被 Cloudflare 阻止的请求
-      if (isCFBlocked && (config as any).isCfBlockedRetry !== true) {
+      if (isCFBlocked && (config as any)?.isCfBlockedRetry !== true) {
         // 尝试获取到 cf_clearance
         const fullRequestUrl = axiosRetryWhenCloudflareBlockInstance.getUri(config);
         const parsedUrl = new URL(fullRequestUrl);
@@ -136,6 +143,7 @@ export function setupRetryWhenCloudflareBlock(axios: AxiosInstance): AxiosRetryW
           });
         }
       }
+
       return Promise.reject(error);
     },
   );
