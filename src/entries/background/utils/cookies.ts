@@ -1,4 +1,5 @@
 import { onMessage, sendMessage } from "@/messages.ts";
+import { buildCookieUrl } from "~/extends/axios/retryWhenCloudflareBlock.ts"; // FIXME
 
 onMessage("getCookiesByDomain", async ({ data: domain }) => {
   return await chrome.cookies.getAll({ domain });
@@ -7,13 +8,6 @@ onMessage("getCookiesByDomain", async ({ data: domain }) => {
 onMessage("getCookie", async ({ data: detail }) => {
   return await chrome.cookies.get(detail);
 });
-
-function buildUrl(secure: boolean, domain: string, path: string) {
-  if (domain.startsWith(".")) {
-    domain = domain.substring(1);
-  }
-  return `http${secure ? "s" : ""}://${domain}${path}`;
-}
 
 export async function setCookie(cookie: chrome.cookies.SetDetails): Promise<void> {
   let new_cookie = {} as chrome.cookies.SetDetails;
@@ -40,7 +34,7 @@ export async function setCookie(cookie: chrome.cookies.SetDetails): Promise<void
     }
   });
 
-  new_cookie.url = buildUrl(cookie.secure!, cookie.domain!, cookie.path!);
+  new_cookie.url = buildCookieUrl(cookie.secure!, cookie.domain!, cookie.path!);
 
   let allowSet = false;
   const now = new Date().getTime() / 1000;

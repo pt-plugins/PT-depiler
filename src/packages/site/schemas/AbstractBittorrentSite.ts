@@ -69,44 +69,6 @@ export default class BittorrentSite {
     return this.userConfig.downloadInterval ?? this.metadata.download?.interval ?? 0;
   }
 
-  protected get CFBlockCheckHttpStatusCodes(): number[] {
-    return [
-      403, // Forbidden
-      521, // used by cloudflare to signal the original webserver is refusing the connection
-      522, // used by cloudflare to signal the original webserver is not reachable at all (timeout)
-      523, // used by cloudflare to signal the original webserver is not reachable at all (Origin is unreachable)
-    ];
-  }
-
-  /**
-   * CF盾检查方法，True 表示被封锁
-   * @param res
-   */
-  protected CFBlockCheck(res: AxiosResponse): boolean {
-    const request = res.request as XMLHttpRequest;
-    try {
-      // 检查状态码
-      if (this.CFBlockCheckHttpStatusCodes.includes(res.status)) {
-        if (res.status !== 403) {
-          return true;
-        } // 403 以外的状态码，说明有 CF 错误
-
-        // 403 需进一步判断
-        const responseText =
-          request.responseType === "document" ? request.responseXML?.documentElement?.outerHTML : request.responseText;
-        if (typeof responseText === "undefined") {
-          return false; // 检查最终的Text，如果什么都没有, bypass
-        } else if (/Enable JavaScript and cookies to continue/.test(responseText)) {
-          return true; // 包含关键字，说明被封锁
-        }
-        return false;
-      }
-    } catch (e) {
-      console.error("[CFBlockCheck] An error occurred while checking CF block status:", e);
-    }
-    return false;
-  }
-
   /**
    * 登录检查方法，对于公开站点，该方法一定直接返回 True
    * @param raw
@@ -163,11 +125,6 @@ export default class BittorrentSite {
     } catch (e) {
       // 从 AxiosError 中获取 response
       req = (e as AxiosError).response!;
-    }
-
-    // 首先检查 CF 盾
-    if (this.CFBlockCheck(req!)) {
-      throw new CFBlockedError();
     }
 
     // 随后检查是否需要登录

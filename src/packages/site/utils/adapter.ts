@@ -13,11 +13,13 @@ import { get, set } from "es-toolkit/compat";
 
 import { sendMessage } from "@/messages.ts";
 import { setupReplaceUnsafeHeader } from "~/extends/axios/replaceUnsafeHeader.ts";
+import { setupRetryWhenCloudflareBlock } from "~/extends/axios/retryWhenCloudflareBlock.ts";
+
 import type { IExtensionStorageSchema } from "@/storage.ts";
 import type { IMetadataPiniaStorageSchema } from "@/shared/types/storages/metadata.ts";
 
 // 默认允许 pkg/site 中的 axios 请求替换 unsafeHeader
-export const axios = setupReplaceUnsafeHeader(axiosRaw);
+export const axios = setupRetryWhenCloudflareBlock(setupReplaceUnsafeHeader(axiosRaw));
 
 /**
  * 存储数据到 metadata.site[siteId].runtimeSettings[key] 中，
