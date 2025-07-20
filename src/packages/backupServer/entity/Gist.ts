@@ -19,7 +19,7 @@
 import axios, { AxiosRequestConfig } from "axios";
 import CryptoJS from "crypto-js";
 import AbstractBackupServer from "../AbstractBackupServer.ts";
-import { localSort } from "../utils.ts";
+import { localSort, decryptData, encryptData } from "../utils.ts";
 import {
   IBackupConfig,
   IBackupData,
@@ -127,7 +127,7 @@ export default class Gist extends AbstractBackupServer<GistConfig> {
       time: new Date().getTime(),
       ...(file.manifest ?? {}),
 
-      encryption: typeof this.encryptionKey === "string" && this.encryptionKey !== "",
+      encryption: true, // 为 Gist 开启默认加密
       fileName,
       files: {},
     } as IGistBackupFileManifest;
@@ -212,5 +212,23 @@ export default class Gist extends AbstractBackupServer<GistConfig> {
   // Gist 不支持删除历史记录！我们直接返回 false 表示删除失败即可！
   async deleteFile(path: string): Promise<boolean> {
     return false;
+  }
+
+  protected override encryptData(data: any): string {
+    const encryptKey = `${this.encryptionKey ?? ""}|${this.userConfig.gist_id}`;
+
+    return encryptData(data, encryptKey);
+  }
+
+  protected override decryptData<T = any>(data: string): T {
+    const decryptKeys = [`${this.encryptionKey ?? ""}|${this.userConfig.gist_id}`, this.encryptionKey];
+
+    for (const key of decryptKeys) {
+      try {
+        return decryptData(data, key) as T;
+      } catch (e) {}
+    }
+
+    throw new Error("Failed to decrypt data with provided keys.");
   }
 }
