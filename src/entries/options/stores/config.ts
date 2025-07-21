@@ -179,6 +179,7 @@ export const useConfigStore = defineStore("config", {
     searchEntity: {
       saveLastFilter: false,
       queueConcurrency: 1,
+      treatTTQueryAsImdbSearch: false,
     },
 
     mediaServerEntity: {

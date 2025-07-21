@@ -70,9 +70,7 @@ defineExpose({
         <template #append>
           <v-tooltip max-width="400" location="bottom">
             <template v-slot:activator="{ props }">
-              <v-btn-group size="small" variant="text" v-bind="props">
-                <v-btn icon="mdi-help-circle" color="info" />
-              </v-btn-group>
+              <v-icon color="info" icon="mdi-help-circle" v-bind="props" />
             </template>
             {{ t("SetBase.ui.tableMultiSortNote") }}
           </v-tooltip>

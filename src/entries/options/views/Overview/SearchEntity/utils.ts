@@ -94,8 +94,14 @@ export async function doSearchEntity(
       const startAt = (runtimeStore.search.searchPlan[solutionKey].startAt = Date.now());
       console.log(`search ${solutionKey} start at ${startAt}`);
       runtimeStore.search.searchPlan[solutionKey].status = EResultParseStatus.working;
+
+      let searchKeyword = runtimeStore.search.searchKey ?? "";
+      if (configStore.searchEntity.treatTTQueryAsImdbSearch && searchKeyword.match(/^tt\d{7,8}/)) {
+        searchKeyword = "imdb|" + searchKeyword;
+      }
+
       const { status: searchStatus, data: searchResult } = await sendMessage("getSiteSearchResult", {
-        keyword: runtimeStore.search.searchKey,
+        keyword: searchKeyword,
         siteId,
         searchEntry,
       });

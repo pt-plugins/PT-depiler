@@ -82,22 +82,12 @@ function advanceSearch(type?: string) {
       :placeholder="t('layout.header.searchTip')"
       class="ptd-search-input pl-2"
       hide-details
-      :items="searchKey ? [searchKey] : undefined"
       style="width: 300px"
       @keydown.enter="startSearchEntity"
     >
       <template #append>
         <!-- 搜索按键 -->
         <v-btn :disabled="runtimeStore.search.isSearching" icon="mdi-magnify" @click="startSearchEntity" />
-      </template>
-
-      <template #item="{ props, item }">
-        <v-list-item v-if="searchKey" @click="startSearchEntity" :title="`直接搜索 ”${searchKey}“`" />
-        <v-list-item
-          v-if="searchKey?.startsWith('tt')"
-          @click="advanceSearch('imdb')"
-          :title="`使用IMDb号搜索 ”${searchKey}“`"
-        />
       </template>
 
       <template #prepend-inner>

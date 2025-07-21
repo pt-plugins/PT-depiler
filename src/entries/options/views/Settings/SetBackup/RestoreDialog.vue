@@ -213,12 +213,12 @@ function goToPtppImport() {
       <v-divider />
       <v-card-text>
         <v-alert class="mb-3" type="info" variant="tonal">
-          <div class="d-flex align-center justify-space-between">
-            <span>需要导入 PT-Plugin-Plus 备份？</span>
+          <span>需要导入 PT-Plugin-Plus 备份？</span>
+          <template #append>
             <v-btn color="primary" size="small" variant="outlined" prepend-icon="mdi-import" @click="goToPtppImport">
               PT-Plugin-Plus 备份导入
             </v-btn>
-          </div>
+          </template>
         </v-alert>
         <v-window v-model="currentStep">
           <v-window-item value="file" eager>

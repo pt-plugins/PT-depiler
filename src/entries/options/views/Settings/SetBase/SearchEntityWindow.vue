@@ -33,6 +33,21 @@ async function clearLastFilter(v: boolean) {
         :label="t('route.Settings.SearchConfig.saveLastSearchFilter')"
         @update:model-value="(v) => clearLastFilter(v as boolean)"
       />
+      <v-switch
+        v-model="configStore.searchEntity.treatTTQueryAsImdbSearch"
+        color="success"
+        hide-details
+        :label="`是否将 tt\\d{7,8} 的搜索词直接视为 IMDb 搜索`"
+      >
+        <template #append>
+          <v-tooltip max-width="400" location="bottom">
+            <template v-slot:activator="{ props }">
+              <v-icon color="info" icon="mdi-help-circle" v-bind="props" />
+            </template>
+            关闭后，你需要使用 `imdb|tt12345678` 的格式来进行 IMDb 搜索。
+          </v-tooltip>
+        </template>
+      </v-switch>
     </v-col>
   </v-row>
 

@@ -174,6 +174,8 @@ export interface IConfigPiniaStorageSchema {
     saveLastFilter: boolean;
     // 搜索时的最大并发数
     queueConcurrency: number;
+    // 是否将 tt\d{7,8} 的搜索词视为 IMDb 搜索
+    treatTTQueryAsImdbSearch: boolean;
   };
 
   // 配置同样在 searchEntity 页面（偷懒下）
