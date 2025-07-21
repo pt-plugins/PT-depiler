@@ -17,6 +17,7 @@ export const siteMetadata: ISiteMetadata = {
       url: "/torrents.php",
       responseType: "document",
       params: {
+        exactartist: 1,
         action: "advanced", // BTN需要的参数
       },
     },
@@ -256,22 +257,8 @@ export default class BroadcastTheNet extends Gazelle {
 
       console.log(`[BroadcastTheNet] Found artist name from TVDB: ${artistName} for IMDB ID: ${imdbId}`);
 
-      // Create new search entry with artistname parameter
-      const imdbSearchEntry: ISearchEntryRequestConfig = {
-        ...searchEntry,
-        requestConfig: {
-          ...searchEntry.requestConfig,
-          params: {
-            ...searchEntry.requestConfig?.params,
-            artistname: artistName,
-            exactartist: 1,
-            action: "advanced",
-          },
-        },
-      };
-
-      // Perform search with artist name instead of IMDB ID
-      return await super.getSearchResult(undefined, imdbSearchEntry);
+      // Perform search with artist name using normal search (since keywordPath is already set to params.artistname)
+      return await super.getSearchResult(artistName, searchEntry);
     }
 
     // Fall back to normal search for non-IMDB keywords
