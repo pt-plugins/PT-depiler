@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { omit } from "es-toolkit";
+import { isEmpty } from "es-toolkit/compat";
 import { computed, ref, shallowRef } from "vue";
 import {
   definitionList,
@@ -140,6 +141,13 @@ function transferUserInfo(userInfo: IPtppUserInfo) {
 }
 
 async function doImport() {
+  if (isEmpty(metadataStore.sites)) {
+    if (!confirm("你似乎还没有添加任何站点，这可能导致导入异常，是否继续？")) {
+      runtimeStore.showSnakebar("导入操作已取消。", { color: "warning" });
+      return;
+    }
+  }
+
   isImporting.value = true;
   try {
     // 暂停后端刷新数据的任务
