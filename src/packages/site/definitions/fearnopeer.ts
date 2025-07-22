@@ -1,6 +1,6 @@
 import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
-import {parseSizeString, parseValidTimeString } from "../utils";
+import { parseSizeString, parseValidTimeString } from "../utils";
 
 const idTrans: string[] = ["User ID", "用户 ID", "用ID", "用户ID"];
 const seedingSizeTrans: string[] = ["Seeding Size", "做种体积", "做種體積"];
@@ -10,7 +10,8 @@ export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
   id: "fearnopeer",
   version: 1,
-  name: "FNP",
+  name: "FearNoPeer",
+  aka: ["FNP"],
   tags: ["综合"],
   timezoneOffset: "-0500",
   collaborator: ["hyuan280"],
@@ -176,26 +177,106 @@ export const siteMetadata: ISiteMetadata = {
       name: "Primary Language",
       key: "primaryLanguageNames",
       options: [
-        { name: "ab", value: "ab" }, { name: "af", value: "af" }, { name: "am", value: "am" }, { name: "ar", value: "ar" }, { name: "as", value: "as" },
-        { name: "az", value: "az" }, { name: "bg", value: "bg" }, { name: "bn", value: "bn" }, { name: "bo", value: "bo" }, { name: "bs", value: "bs" },
-        { name: "ca", value: "ca" }, { name: "cn", value: "cn" }, { name: "cr", value: "cr" }, { name: "cs", value: "cs" }, { name: "cy", value: "cy" },
-        { name: "da", value: "da" }, { name: "de", value: "de" }, { name: "dz", value: "dz" }, { name: "el", value: "el" }, { name: "en", value: "en" },
-        { name: "eo", value: "eo" }, { name: "es", value: "es" }, { name: "et", value: "et" }, { name: "eu", value: "eu" }, { name: "fa", value: "fa" },
-        { name: "ff", value: "ff" }, { name: "fi", value: "fi" }, { name: "fr", value: "fr" }, { name: "ga", value: "ga" }, { name: "gl", value: "gl" },
-        { name: "gu", value: "gu" }, { name: "he", value: "he" }, { name: "hi", value: "hi" }, { name: "hr", value: "hr" }, { name: "ht", value: "ht" },
-        { name: "hu", value: "hu" }, { name: "hy", value: "hy" }, { name: "id", value: "id" }, { name: "ig", value: "ig" }, { name: "is", value: "is" },
-        { name: "it", value: "it" }, { name: "iu", value: "iu" }, { name: "ja", value: "ja" }, { name: "ka", value: "ka" }, { name: "kk", value: "kk" },
-        { name: "kl", value: "kl" }, { name: "km", value: "km" }, { name: "kn", value: "kn" }, { name: "ko", value: "ko" }, { name: "ku", value: "ku" },
-        { name: "ky", value: "ky" }, { name: "la", value: "la" }, { name: "lt", value: "lt" }, { name: "lv", value: "lv" }, { name: "mi", value: "mi" },
-        { name: "mk", value: "mk" }, { name: "ml", value: "ml" }, { name: "mn", value: "mn" }, { name: "mo", value: "mo" }, { name: "mr", value: "mr" },
-        { name: "ms", value: "ms" }, { name: "mt", value: "mt" }, { name: "nb", value: "nb" }, { name: "ne", value: "ne" }, { name: "nl", value: "nl" },
-        { name: "no", value: "no" }, { name: "or", value: "or" }, { name: "pa", value: "pa" }, { name: "pl", value: "pl" }, { name: "ps", value: "ps" },
-        { name: "pt", value: "pt" }, { name: "ro", value: "ro" }, { name: "ru", value: "ru" }, { name: "rw", value: "rw" }, { name: "se", value: "se" },
-        { name: "sh", value: "sh" }, { name: "sk", value: "sk" }, { name: "sl", value: "sl" }, { name: "so", value: "so" }, { name: "sq", value: "sq" },
-        { name: "sr", value: "sr" }, { name: "st", value: "st" }, { name: "sv", value: "sv" }, { name: "sw", value: "sw" }, { name: "ta", value: "ta" },
-        { name: "te", value: "te" }, { name: "tg", value: "tg" }, { name: "th", value: "th" }, { name: "tl", value: "tl" }, { name: "tn", value: "tn" },
-        { name: "tr", value: "tr" }, { name: "uk", value: "uk" }, { name: "ur", value: "ur" }, { name: "vi", value: "vi" }, { name: "wo", value: "wo" },
-        { name: "xh", value: "xh" }, { name: "xx", value: "xx" }, { name: "yo", value: "yo" }, { name: "zh", value: "zh" }, { name: "zu", value: "zu" },
+        { name: "ab", value: "ab" },
+        { name: "af", value: "af" },
+        { name: "am", value: "am" },
+        { name: "ar", value: "ar" },
+        { name: "as", value: "as" },
+        { name: "az", value: "az" },
+        { name: "bg", value: "bg" },
+        { name: "bn", value: "bn" },
+        { name: "bo", value: "bo" },
+        { name: "bs", value: "bs" },
+        { name: "ca", value: "ca" },
+        { name: "cn", value: "cn" },
+        { name: "cr", value: "cr" },
+        { name: "cs", value: "cs" },
+        { name: "cy", value: "cy" },
+        { name: "da", value: "da" },
+        { name: "de", value: "de" },
+        { name: "dz", value: "dz" },
+        { name: "el", value: "el" },
+        { name: "en", value: "en" },
+        { name: "eo", value: "eo" },
+        { name: "es", value: "es" },
+        { name: "et", value: "et" },
+        { name: "eu", value: "eu" },
+        { name: "fa", value: "fa" },
+        { name: "ff", value: "ff" },
+        { name: "fi", value: "fi" },
+        { name: "fr", value: "fr" },
+        { name: "ga", value: "ga" },
+        { name: "gl", value: "gl" },
+        { name: "gu", value: "gu" },
+        { name: "he", value: "he" },
+        { name: "hi", value: "hi" },
+        { name: "hr", value: "hr" },
+        { name: "ht", value: "ht" },
+        { name: "hu", value: "hu" },
+        { name: "hy", value: "hy" },
+        { name: "id", value: "id" },
+        { name: "ig", value: "ig" },
+        { name: "is", value: "is" },
+        { name: "it", value: "it" },
+        { name: "iu", value: "iu" },
+        { name: "ja", value: "ja" },
+        { name: "ka", value: "ka" },
+        { name: "kk", value: "kk" },
+        { name: "kl", value: "kl" },
+        { name: "km", value: "km" },
+        { name: "kn", value: "kn" },
+        { name: "ko", value: "ko" },
+        { name: "ku", value: "ku" },
+        { name: "ky", value: "ky" },
+        { name: "la", value: "la" },
+        { name: "lt", value: "lt" },
+        { name: "lv", value: "lv" },
+        { name: "mi", value: "mi" },
+        { name: "mk", value: "mk" },
+        { name: "ml", value: "ml" },
+        { name: "mn", value: "mn" },
+        { name: "mo", value: "mo" },
+        { name: "mr", value: "mr" },
+        { name: "ms", value: "ms" },
+        { name: "mt", value: "mt" },
+        { name: "nb", value: "nb" },
+        { name: "ne", value: "ne" },
+        { name: "nl", value: "nl" },
+        { name: "no", value: "no" },
+        { name: "or", value: "or" },
+        { name: "pa", value: "pa" },
+        { name: "pl", value: "pl" },
+        { name: "ps", value: "ps" },
+        { name: "pt", value: "pt" },
+        { name: "ro", value: "ro" },
+        { name: "ru", value: "ru" },
+        { name: "rw", value: "rw" },
+        { name: "se", value: "se" },
+        { name: "sh", value: "sh" },
+        { name: "sk", value: "sk" },
+        { name: "sl", value: "sl" },
+        { name: "so", value: "so" },
+        { name: "sq", value: "sq" },
+        { name: "sr", value: "sr" },
+        { name: "st", value: "st" },
+        { name: "sv", value: "sv" },
+        { name: "sw", value: "sw" },
+        { name: "ta", value: "ta" },
+        { name: "te", value: "te" },
+        { name: "tg", value: "tg" },
+        { name: "th", value: "th" },
+        { name: "tl", value: "tl" },
+        { name: "tn", value: "tn" },
+        { name: "tr", value: "tr" },
+        { name: "uk", value: "uk" },
+        { name: "ur", value: "ur" },
+        { name: "vi", value: "vi" },
+        { name: "wo", value: "wo" },
+        { name: "xh", value: "xh" },
+        { name: "xx", value: "xx" },
+        { name: "yo", value: "yo" },
+        { name: "zh", value: "zh" },
+        { name: "zu", value: "zu" },
       ],
       cross: { mode: "brackets" },
     },
@@ -231,7 +312,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     selectors: {
       ...SchemaMetadata.search!.selectors,
-      rows: { selector: 'div.torrent-search--list__results > table:first > tbody > tr' },
+      rows: { selector: "div.torrent-search--list__results > table:first > tbody > tr" },
       id: {
         selector: ["a.torrent-search--list__name"],
         attr: "href",
@@ -242,11 +323,11 @@ export const siteMetadata: ISiteMetadata = {
       time: { selector: ["td.torrent-search--list__age > time"], attr: "title", filters: [{ name: "parseTime" }] },
       size: { selector: ["td.torrent-search--list__size > span"], filters: [{ name: "parseSize" }] },
       author: { selector: ["span.torrent-search--list__uploader"] },
-      category: { selector: ["td.torrent-search--list__format div.torrent-search--list__category img"], attr: "alt"},
+      category: { selector: ["td.torrent-search--list__format div.torrent-search--list__category img"], attr: "alt" },
       seeders: { selector: ["td.torrent-search--list__seeders > a > span"], filters: [{ name: "parseNumber" }] },
       leechers: { selector: ["td.torrent-search--list__leechers > a > span"], filters: [{ name: "parseNumber" }] },
       completed: { selector: ["td.torrent-search--list__completed > a > span"], filters: [{ name: "parseNumber" }] },
-      comments: { selector: ['i.torrent-icons__comments'], filters: [{ name: "parseNumber" }] },
+      comments: { selector: ["i.torrent-icons__comments"], filters: [{ name: "parseNumber" }] },
       status: {
         selector: ["span.torrent-icons > i.torrent-icons"],
         text: ETorrentStatus.unknown,
@@ -267,14 +348,12 @@ export const siteMetadata: ISiteMetadata = {
       tags: [
         {
           name: "Free",
-          selector:
-            "i.torrent-icons__featured, i.torrent-icons__freeleech[title*='100%']",
+          selector: "i.torrent-icons__featured, i.torrent-icons__freeleech[title*='100%']",
           color: "blue",
         },
         {
           name: "2xUp",
-          selector:
-            "i.torrent-icons__featured, i.torrent-icons__double-upload",
+          selector: "i.torrent-icons__featured, i.torrent-icons__double-upload",
           color: "lime",
         },
         {
@@ -350,7 +429,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["time.profile__registration"],
         filters: [
           (query: string) => {
-            query = query.split(':')[1].trim();
+            query = query.split(":")[1].trim();
             return parseValidTimeString(query, ["yyyy-MM-dd"]);
           },
         ],
@@ -369,17 +448,17 @@ export const siteMetadata: ISiteMetadata = {
           if (!element) return 0;
 
           // 查找所有包含总发布数信息的div元素
-          const divs = element.querySelectorAll('div.key-value__group');
+          const divs = element.querySelectorAll("div.key-value__group");
 
           // 提取所有div元素中的文本内容
           const allText = Array.from(divs)
-              .map((div: any) => div.textContent || div.innerText || "")
-              .join(" ");
+            .map((div: any) => div.textContent || div.innerText || "")
+            .join(" ");
 
           // 使用正则表达式匹配数字，并去除逗号
           const queryMatch = String(allText || "")
-              .replace(/,/g, "")
-              .match(/\d+/g);
+            .replace(/,/g, "")
+            .match(/\d+/g);
 
           if (!queryMatch) return 0;
 
@@ -503,5 +582,5 @@ export default class Fearnopeer extends Unit3D {
       true,
     );
     return this.getFieldData(document, this.metadata.userInfo?.selectors?.bonusPerHour!);
-  } 
+  }
 }
