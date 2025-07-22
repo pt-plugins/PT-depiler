@@ -1,5 +1,7 @@
-import type { ISiteMetadata } from "../types.ts";
+import type { ISiteMetadata, ISearchResult, ISearchEntryRequestConfig } from "../types.ts";
 import { SchemaMetadata } from "../schemas/Gazelle.ts";
+import Gazelle from "../schemas/Gazelle.ts";
+import { EResultParseStatus } from "../types.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -15,6 +17,11 @@ export const siteMetadata: ISiteMetadata = {
       responseType: "document",
       params: {
         action: "advanced", // BTN需要的参数
+      },
+    },
+    advanceKeywordParams: {
+      imdb: {
+        enabled: true,
       },
     },
     selectors: {
@@ -220,3 +227,88 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
+
+export default class BroadcastTheNet extends Gazelle {
+  /**
+   * Get artist name from site's IMDB search
+   * @param imdbId - IMDB ID (e.g., "tt3881914")
+   * @returns Promise<string | null> - Artist name or null if not found/failed
+   */
+  private async getArtistNameFromIMDB(imdbId: string): Promise<string | null> {
+    try {
+      // Search using site's torrents.php?imdb={imdb}
+      const response = await this.request({
+        url: `/torrents.php?imdb=${imdbId}`,
+        responseType: "document",
+      });
+
+      const document = response.data as Document;
+
+      // Check if redirected to series.php (successful search)
+      if (!response.request?.responseURL?.includes("series.php")) {
+        console.log(`[BroadcastTheNet] IMDB search for ${imdbId} did not redirect to series.php, no results found`);
+        return null;
+      }
+
+      // Extract artist name using selector "div.sidebar > .box> .head > strong"
+      const artistElement = document.querySelector("div.sidebar > .box > .head > strong");
+
+      if (!artistElement || !artistElement.textContent?.trim()) {
+        console.log(`[BroadcastTheNet] Artist name not found in series page for IMDB ID: ${imdbId}`);
+        return null;
+      }
+
+      const artistName = artistElement.textContent.trim();
+      console.log(`[BroadcastTheNet] Found artist name from site: ${artistName} for IMDB ID: ${imdbId}`);
+
+      return artistName;
+    } catch (error) {
+      console.log(`[BroadcastTheNet] IMDB search failed for IMDB ID: ${imdbId}. Error:`, error);
+      return null;
+    }
+  }
+
+  /**
+   * Override getSearchResult to add IMDB search functionality using advanceKeywordParams
+   */
+  public override async getSearchResult(
+    keywords?: string,
+    searchEntry: ISearchEntryRequestConfig = {},
+  ): Promise<ISearchResult> {
+    // Check if keywords start with "imdb|" (advance keyword format)
+    if (keywords?.startsWith("imdb|")) {
+      const imdbId = keywords.replace("imdb|", "");
+
+      // Try to get artist name from site's IMDB search
+      const artistName = await this.getArtistNameFromIMDB(imdbId);
+
+      if (!artistName) {
+        console.log(
+          `[BroadcastTheNet] IMDB search failed or returned empty artist name for IMDB ID: ${imdbId}, returning no results`,
+        );
+        return {
+          data: [],
+          status: EResultParseStatus.noResults,
+        };
+      }
+
+      // Add exactartist parameter for precise matching
+      const imdbSearchEntry: ISearchEntryRequestConfig = {
+        ...searchEntry,
+        requestConfig: {
+          ...searchEntry.requestConfig,
+          params: {
+            ...searchEntry.requestConfig?.params,
+            exactartist: 1,
+          },
+        },
+      };
+
+      // Perform search with artist name using normal search (since keywordPath is already set to params.artistname)
+      return await super.getSearchResult(artistName, imdbSearchEntry);
+    }
+
+    // Fall back to normal search for non-IMDB keywords
+    return await super.getSearchResult(keywords, searchEntry);
+  }
+}
