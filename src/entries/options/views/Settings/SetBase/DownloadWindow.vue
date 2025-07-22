@@ -18,7 +18,7 @@ async function clearLastDownloader(v: boolean) {
 
 <template>
   <v-row>
-    <v-col md="6">
+    <v-col md="10" lg="8">
       <v-switch
         v-model="configStore.download.saveDownloadHistory"
         color="success"
@@ -30,7 +30,7 @@ async function clearLastDownloader(v: boolean) {
   </v-row>
 
   <v-row>
-    <v-col md="6">
+    <v-col md="10" lg="8">
       <v-label>{{ t("SetBase.download.localDownloadTitle") }}</v-label>
       <v-select
         v-model="configStore.download.localDownloadMethod"
@@ -54,7 +54,7 @@ async function clearLastDownloader(v: boolean) {
   </v-row>
 
   <v-row>
-    <v-col md="6">
+    <v-col md="10" lg="8">
       <v-label>{{ t("SetBase.download.pushDownloadServerTitle") }}</v-label>
       <v-switch
         v-model="configStore.download.useQuickSendToClient"

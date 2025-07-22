@@ -1,23 +1,21 @@
 <script setup lang="ts">
-import { inject, onMounted, provide, useTemplateRef, ref, watch, shallowReactive } from "vue";
+import { inject, provide, useTemplateRef, ref, watch, shallowReactive, computed, withModifiers } from "vue";
 import { useDraggable } from "@vueuse/core";
-import { getSite as createSiteInstance, type ITorrent } from "@ptd/site";
+import { type ITorrent } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
-import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { currentView, pageType, siteInstance, updatePageType } from "./utils.ts";
+import { currentView, type IPtdData, pageType, updatePageType } from "./utils.ts";
 
 import SpeedDialBtn from "@/content-script/app/components/SpeedDialBtn.vue";
 import SentToDownloaderDialog from "@/options/components/SentToDownloaderDialog.vue";
 
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
-const metadataStore = useMetadataStore();
 
 const ptdIcon = chrome.runtime.getURL("icons/logo/64.png");
-const ptdData = inject<{ siteId?: string }>("ptd_data", {});
+const ptdData = inject<IPtdData>("ptd_data", {});
 
 const el = useTemplateRef<HTMLElement>("el");
 provide("app", el);
@@ -48,6 +46,11 @@ watch(
   (ready) => {
     if (ready) {
       openSpeedDial.value = configStore.contentScript?.defaultOpenSpeedDial ?? false;
+
+      if (openSpeedDial.value) {
+        updatePageType(ptdData).catch();
+      }
+
       let { x: storeX = -100, y: storeY = -100 } = configStore.contentScript?.position ?? {};
       let { clientWidth, clientHeight } = document.documentElement;
 
@@ -62,19 +65,6 @@ const remoteDownloadDialogData = shallowReactive({
   torrents: [] as ITorrent[],
 });
 provide("remoteDownloadDialogData", remoteDownloadDialogData);
-
-onMounted(async () => {
-  const siteId = ptdData.siteId;
-  if (siteId) {
-    const siteConfig = await metadataStore.getSiteUserConfig(siteId);
-    siteInstance.value = await createSiteInstance(siteId, siteConfig);
-    console.debug(`[PTD] mounted with site: ${siteId} successfully!`);
-  } else {
-    // TODO public site like douban, imdb, etc.
-  }
-
-  updatePageType();
-});
 
 const CUSTOM_DRAG_MIME = "text/json+ptd";
 
@@ -204,6 +194,18 @@ function onDrop(event: DragEvent) {
   isDragging.value = false; // 重置拖拽状态
 }
 
+const dropAction = computed(() => {
+  if (configStore.contentScript?.dragLinkOnSpeedDial ?? true) {
+    return {
+      drop: withModifiers((e) => onDrop(e as DragEvent), ["prevent"]),
+      dragover: withModifiers(() => (isDragging.value = true), ["prevent"]),
+      dragenter: () => withModifiers(() => (isDragging.value = true), ["prevent"]),
+      // dragleave 和 mouseleave 事件直接使用 vue 的普通注册方式，而不是用 对象方式（因为不会有任何副作用）
+    };
+  }
+  return {};
+});
+
 function openOptions() {
   sendMessage("openOptionsPage", "/");
 }
@@ -219,12 +221,10 @@ function openOptions() {
             color="amber"
             icon
             size="x-large"
-            @click="updatePageType"
-            @drop.prevent="onDrop"
-            @dragover.prevent="isDragging = true"
-            @dragenter.prevent="isDragging = true"
+            @click="updatePageType(ptdData)"
             @mouseleave.prevent="isDragging = false"
             @dragleave.prevent="isDragging = false"
+            v-on="dropAction"
           >
             <v-avatar :image="ptdIcon" rounded="0" :class="{ 'ptd-fab-loading': isDragging }" />
           </v-fab>

@@ -1,5 +1,10 @@
 import axios from "axios";
-import { IFetchSocialSiteInformationConfig, ISocialInformation, TSupportSocialSite } from "./types.ts";
+import {
+  IFetchSocialSiteInformationConfig,
+  ISocialInformation,
+  TSupportSocialSite,
+  TSupportSocialSitePageParserMatches,
+} from "./types.ts";
 
 export * from "./types.ts";
 
@@ -13,8 +18,9 @@ export const buildInPtGenApi = [
 interface socialEntity {
   parse: (query: string) => string;
   build: (id: string) => string;
-  fetchInformation: (id: string, config: IFetchSocialSiteInformationConfig) => Promise<ISocialInformation>;
+  pageParserMatches: TSupportSocialSitePageParserMatches;
   transformPtGen?: (data: any) => ISocialInformation;
+  fetchInformation: (id: string, config: IFetchSocialSiteInformationConfig) => Promise<ISocialInformation>;
 }
 
 export const socialContent = import.meta.glob<socialEntity>("./entity/*.ts", { eager: true });
@@ -25,8 +31,10 @@ export const socialEntityList = Object.keys(socialContent).map((value: string) =
 export type TSupportSocialSite$1 = (typeof socialEntityList)[number];
 
 const PtGenApiSupportSite: TSupportSocialSite$1[] = [] as const;
+
 export const socialBuildUrlMap = {} as Record<TSupportSocialSite$1, socialEntity["build"]>;
 export const socialParseUrlMap = {} as Record<TSupportSocialSite$1, socialEntity["parse"]>;
+export const socialPageParserMatchesMap = {} as Record<TSupportSocialSite$1, TSupportSocialSitePageParserMatches>;
 
 export function getSocialModule(site: TSupportSocialSite$1): socialEntity {
   return socialContent[`./entity/${site}.ts`];
@@ -34,8 +42,10 @@ export function getSocialModule(site: TSupportSocialSite$1): socialEntity {
 
 for (const socialEntity of socialEntityList) {
   const socialModule = getSocialModule(socialEntity);
+
   socialBuildUrlMap[socialEntity] = socialModule.build;
   socialParseUrlMap[socialEntity] = socialModule.parse;
+  socialPageParserMatchesMap[socialEntity] = socialModule.pageParserMatches;
 
   if (socialModule.transformPtGen) {
     PtGenApiSupportSite.push(socialEntity);

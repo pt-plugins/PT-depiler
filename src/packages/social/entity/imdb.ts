@@ -1,5 +1,12 @@
 import axios from "axios";
-import type { IFetchSocialSiteInformationConfig, IPtgenApiResponse, ISocialInformation } from "../types";
+import {
+  IFetchSocialSiteInformationConfig,
+  IPtgenApiResponse,
+  ISocialInformation,
+  ISocialSitePageInformation,
+} from "../types";
+
+const imdbUrlPattern = /^(?:https?:\/\/)?(?:www\.)?imdb\.com\/title\/(tt\d+)\/?/;
 
 export function build(id: string): string {
   return `https://www.imdb.com/title/${id}/`;
@@ -9,7 +16,7 @@ export function parse(query: string | number | undefined): string {
   if (typeof query !== "undefined") {
     query = String(query).trim();
     // Extract the IMDb ID from the URL.
-    const imdbUrlMatch = query.match(/(?:https?:\/\/)?(?:www\.)?imdb\.com\/title\/(tt\d+)\/?/);
+    const imdbUrlMatch = query.match(imdbUrlPattern);
     if (imdbUrlMatch) {
       return imdbUrlMatch[1] as string;
     }
@@ -26,6 +33,27 @@ export function parse(query: string | number | undefined): string {
 
   return query as unknown as string;
 }
+
+export const pageParserMatches = [
+  [
+    imdbUrlPattern,
+    (doc: Document): ISocialSitePageInformation => {
+      const titles = [] as string[];
+      try {
+        const page_json = JSON.parse(doc.querySelector('script[type="application/ld+json"]')?.textContent ?? "{}");
+        if (page_json && page_json.name) {
+          titles.push(page_json.name);
+        }
+      } catch (e) {}
+
+      return {
+        site: "imdb",
+        id: parse(doc.URL),
+        titles,
+      };
+    },
+  ],
+];
 
 interface IImdbPtGen extends IPtgenApiResponse {
   name: string;

@@ -42,7 +42,7 @@ onMounted(async () => {
 
 <template>
   <v-row>
-    <v-col md="6">
+    <v-col md="10" lg="8">
       <v-number-input
         v-model="configStore.userInfo.queueConcurrency"
         :max="100"
@@ -71,7 +71,7 @@ onMounted(async () => {
               hide-details
             />
             {{ t("userInfo.autoRefresh.hoursLabel") }}
-            <p class="font-weight-bold">{{ $t("userInfo.autoRefresh.unrefreshedSite") }}</p>
+            <p class="font-weight-bold">{{ t("userInfo.autoRefresh.unrefreshedSite") }}</p>
             {{ t("userInfo.autoRefresh.ofSites") }}
           </div>
           <div class="d-inline-flex align-center text-no-wrap">

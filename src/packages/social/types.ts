@@ -1,13 +1,24 @@
 export const supportSocialSite = ["imdb", "douban", "bangumi", "anidb"] as const;
 export type TSupportSocialSite = (typeof supportSocialSite)[number];
 
+export type TUrlPattern = string | RegExp;
+
+export interface ISocialSitePageInformation {
+  site: TSupportSocialSite;
+  id: string;
+  titles: string[];
+}
+
+export type TSupportSocialSitePageParser = (doc: Document) => ISocialSitePageInformation | ISocialSitePageInformation[];
+export type TSupportSocialSitePageParserMatches = Array<[TUrlPattern, TSupportSocialSitePageParser]>;
+
+export type TSupportSocialSiteUrlPattern = Record<TSupportSocialSite, TSupportSocialSitePageParserMatches>;
+
 export interface ISocialSiteMetadata {
   site: TSupportSocialSite;
 }
 
-export interface ISocialInformation {
-  site: TSupportSocialSite;
-  id: string;
+export interface ISocialInformation extends Omit<ISocialSitePageInformation, "titles"> {
   title: string;
   poster?: string; // 海报图
   ratingScore?: number; // 按10分满分的评分

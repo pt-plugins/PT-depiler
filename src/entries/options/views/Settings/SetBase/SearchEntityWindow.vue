@@ -16,7 +16,7 @@ async function clearLastFilter(v: boolean) {
 
 <template>
   <v-row>
-    <v-col md="6">
+    <v-col md="10" lg="8">
       <v-label>{{ t("route.Settings.SearchConfig.siteSearchConfig") }}</v-label>
       <v-number-input
         v-model="configStore.searchEntity.queueConcurrency"
@@ -52,7 +52,7 @@ async function clearLastFilter(v: boolean) {
   </v-row>
 
   <v-row>
-    <v-col md="6">
+    <v-col md="10" lg="8">
       <v-label>{{ t("route.Settings.SearchConfig.mediaServerSearchConfig") }}</v-label>
       <v-number-input
         v-model="configStore.mediaServerEntity.queueConcurrency"

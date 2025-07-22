@@ -25,11 +25,17 @@ export const useConfigStore = defineStore("config", {
 
     contentScript: {
       enabled: true,
+      enabledAtSocialSite: true,
+      allowExceptionSites: false,
+
       position: { x: 0, y: 0 },
+
+      applyTheme: false,
       defaultOpenSpeedDial: false,
       stackedButtons: false,
-      applyTheme: false,
-      allowExceptionSites: false,
+      dragLinkOnSpeedDial: true,
+
+      socialSiteSearchBy: "chosen",
     },
 
     tableBehavior: {

@@ -11,7 +11,7 @@ const configStore = useConfigStore();
 
 <template>
   <v-row>
-    <v-col md="6">
+    <v-col md="10" lg="8">
       <v-label>{{ t("socialConfig.basicConfig") }}</v-label>
       <v-number-input
         v-model="configStore.socialSiteInformation.cacheDay"
@@ -28,7 +28,7 @@ const configStore = useConfigStore();
   </v-row>
 
   <v-row>
-    <v-col md="6">
+    <v-col md="10" lg="8">
       <v-label>{{ t("socialConfig.ptgenConfig") }}</v-label>
       <v-switch
         v-model="configStore.socialSiteInformation.preferPtGen"
@@ -50,7 +50,7 @@ const configStore = useConfigStore();
   </v-row>
 
   <v-row>
-    <v-col md="6">
+    <v-col md="10" lg="8">
       <v-label>{{ t("socialConfig.mediaRatingConfig") }}</v-label>
       <v-text-field
         v-model="configStore.socialSiteInformation.socialSite!.anidb.client"

@@ -42,11 +42,17 @@ export interface IConfigPiniaStorageSchema {
 
   contentScript: {
     enabled: boolean; // 是否启用 contentScript
-    position: { x: number; y: number }; // 图标位置
+    enabledAtSocialSite: boolean; // 是否允许在社交站点  contentScript 中使用
+    allowExceptionSites: boolean; // 是否允许在 contentScript 中排除站点（即站点不显示侧边栏）
+
+    position: { x: number; y: number }; // 图标位置（运行时配置，用户不可以直接编辑）
+
+    applyTheme: boolean; // 是否响应主题样式
     defaultOpenSpeedDial: boolean; // 是否默认打开按钮
     stackedButtons: boolean; // 是否使用堆叠按钮
-    applyTheme: boolean; // 是否响应主题样式
-    allowExceptionSites: boolean; // 是否允许在 contentScript 中排除站点（即站点不显示侧边栏）
+    dragLinkOnSpeedDial: boolean; // 是否允许拖拽链接到 SpeedDial 上
+
+    socialSiteSearchBy: "id" | "title" | "chosen"; // 社交站点搜索方式，id: 使用 id 进行搜索，title: 使用主标题进行搜索，chosen: 使用用户选择的方式进行搜索
   };
 
   // 对 MyData 页面 v-data-table 展示的额外控制项

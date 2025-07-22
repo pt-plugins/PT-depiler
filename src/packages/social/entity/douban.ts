@@ -1,20 +1,44 @@
 import axios from "axios";
 import Sizzle from "sizzle";
-import type { IFetchSocialSiteInformationConfig, IPtgenApiResponse, ISocialInformation } from "../types";
+import {
+  IFetchSocialSiteInformationConfig,
+  IPtgenApiResponse,
+  ISocialInformation,
+  ISocialSitePageInformation,
+} from "../types";
 import { uniq } from "es-toolkit";
+import { commonParseFactory } from "@ptd/social/utils.ts";
+
+const doubanUrlPattern = /^(?:https?:\/\/)?(?:movie\.|www\.)?douban\.com\/subject\/(\d+)\/?/;
 
 export function build(id: string): string {
   return `https://movie.douban.com/subject/${id}/`;
 }
 
-export function parse(query: string): string {
-  const doubanUrlMatch = query.match(/(?:https?:\/\/)?(?:(?:movie|www)\.)?douban\.com\/(?:subject|movie)\/(\d+)\/?/);
-  if (doubanUrlMatch) {
-    return doubanUrlMatch[1] as string;
+export const parse = commonParseFactory([doubanUrlPattern]);
+
+function pageParser$1(doc: Document): ISocialSitePageInformation {
+  const chinese_title = (doc.querySelector("title")?.textContent ?? "").replace("(豆瓣)", "").trim();
+  const foreign_title = (doc.querySelector('span[property="v:itemreviewed"]')?.textContent ?? "")
+    .replace(chinese_title, "")
+    .trim();
+  const aka_anchor = Sizzle('#info span.pl:contains("又名")', doc);
+  let aka_title: string[] = [];
+  if (aka_anchor.length > 0) {
+    aka_title = (aka_anchor[0].nextSibling?.nodeValue ?? "")
+      .trim()
+      .split(" / ")
+      .sort((a, b) => a.localeCompare(b)); //首字(母)排序
   }
 
-  return query;
+  return {
+    site: "douban",
+    id: parse(doc.URL),
+    titles: uniq([chinese_title, foreign_title, ...aka_title]).filter(Boolean),
+  };
 }
+
+export const pageParserMatches = [[doubanUrlPattern, pageParser$1]];
 
 // 这里只列出了我们需要的部分
 interface IDoubanPtGen extends IPtgenApiResponse {
@@ -47,7 +71,6 @@ export function transformPtGen(data: IDoubanPtGen): ISocialInformation {
   };
 }
 
-// TODO 解析页面获取信息
 export async function fetchInformation(
   id: string,
   config: IFetchSocialSiteInformationConfig = {},
@@ -75,21 +98,7 @@ export async function fetchInformation(
       ),
     );
 
-    const chinese_title = (data.querySelector("title")?.textContent ?? "").replace("(豆瓣)", "").trim();
-    const foreign_title = (data.querySelector('span[property="v:itemreviewed"]')?.textContent ?? "")
-      .replace(chinese_title, "")
-      .trim();
-    const aka_anchor = Sizzle('#info span.pl:contains("又名")', data);
-    let aka_title: string[] = [];
-    if (aka_anchor.length > 0) {
-      aka_title = (aka_anchor[0].nextSibling?.nodeValue ?? "")
-        .trim()
-        .split(" / ")
-        .sort((a, b) => a.localeCompare(b)); //首字(母)排序
-    }
-    resDict.title = uniq([chinese_title, foreign_title, ...aka_title])
-      .filter(Boolean)
-      .join(" / ");
+    resDict.title = pageParser$1(data).titles.join(" / ");
 
     resDict.poster = (ld_json.image ?? "")
       .replace(/s(_ratio_poster|pic)/g, "l$1")

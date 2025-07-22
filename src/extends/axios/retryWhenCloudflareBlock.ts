@@ -62,9 +62,9 @@ function fixConfig(axiosInstance: AxiosInstance | AxiosStatic, config: AxiosRequ
 }
 
 function removeCustomCloudflareCookie(response: AxiosResponse | undefined) {
-  if ((response?.config as any).cfCookie) {
+  if ((response?.config as any)?.cfCookie) {
     // 如果请求中有 cf_clearance 的 set cookie detail，说明是重试请求，删除我们设置的 cf_clearance cookie
-    sendMessage("removeCookie", (response!.config as any).cfCookie).catch();
+    sendMessage("removeCookie", (response!.config as any)!.cfCookie).catch();
   }
 }
 

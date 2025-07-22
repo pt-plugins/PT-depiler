@@ -59,7 +59,7 @@ function randomEncryptionKey() {
 
 <template>
   <v-row>
-    <v-col md="6">
+    <v-col md="10" lg="8">
       <v-label class="my-2">{{ t("ptppSettings.basicConfig") }}</v-label>
       <v-alert class="mb-2" type="info" variant="tonal">
         {{ t("ptppSettings.saveKeyNotice") }}
@@ -99,7 +99,7 @@ function randomEncryptionKey() {
   </v-row>
 
   <v-row>
-    <v-col md="6">
+    <v-col md="10" lg="8">
       <v-label class="my-2">{{ t("ptppSettings.importConfigTitle") }}</v-label>
       <v-alert class="mb-2" type="warning" variant="tonal">
         <span class="font-weight-bold">
