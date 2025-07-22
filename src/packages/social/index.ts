@@ -18,7 +18,7 @@ export const buildInPtGenApi = [
 interface socialEntity {
   parse: (query: string) => string;
   build: (id: string) => string;
-  pageParserMatches: TSupportSocialSitePageParserMatches;
+  pageParserMatches?: TSupportSocialSitePageParserMatches;
   transformPtGen?: (data: any) => ISocialInformation;
   fetchInformation: (id: string, config: IFetchSocialSiteInformationConfig) => Promise<ISocialInformation>;
 }
@@ -45,7 +45,10 @@ for (const socialEntity of socialEntityList) {
 
   socialBuildUrlMap[socialEntity] = socialModule.build;
   socialParseUrlMap[socialEntity] = socialModule.parse;
-  socialPageParserMatchesMap[socialEntity] = socialModule.pageParserMatches;
+
+  if (socialModule.pageParserMatches) {
+    socialPageParserMatchesMap[socialEntity] = socialModule.pageParserMatches;
+  }
 
   if (socialModule.transformPtGen) {
     PtGenApiSupportSite.push(socialEntity);
