@@ -1,5 +1,5 @@
 import { type ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/NexusPHP";
+import { parseSectionedHitAndRunElement, SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -18,6 +18,27 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: ["csi0n", "zhuweitung", "hui-shao"],
 
   urls: ["uggcf://uqsnaf.bet/"],
+
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      hnrPreWarning: {
+        text: 0,
+        selector: ["#info_block a[href*='myhr.php']:last"],
+        elementProcess: (element: HTMLElement) => {
+          return parseSectionedHitAndRunElement(element)?.hnrPreWarning ?? 0;
+        },
+      },
+      hnrUnsatisfied: {
+        text: 0,
+        selector: ["#info_block a[href*='myhr.php']:last"],
+        elementProcess: (element: HTMLElement) => {
+          return parseSectionedHitAndRunElement(element)?.hnrUnsatisfied ?? 0;
+        },
+      },
+    },
+  },
 
   levelRequirements: [
     {

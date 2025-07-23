@@ -1,5 +1,5 @@
 import { set } from "es-toolkit/compat";
-import { type ISiteMetadata, ETorrentStatus } from "../types";
+import { ETorrentStatus, type ISiteMetadata } from "../types";
 import { GB, TB } from "../utils";
 import {
   CategoryInclbookmarked,
@@ -225,6 +225,28 @@ export const siteMetadata: ISiteMetadata = {
       ],
     },
   },
+
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      hnrPreWarning: {
+        text: 0,
+        selector: ["font.color_connectable:contains('H&R'):first"],
+        elementProcess: (e: HTMLElement) => {
+          const text = e.nextSibling?.textContent?.trim() || "";
+          const queryMatch = text.match(/\+(\d+)/);
+          return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
+        },
+      },
+      hnrUnsatisfied: {
+        text: 0,
+        selector: ["td.rowhead.nowrap:contains('H&R'):first + td"],
+        filters: [{ name: "split", args: ["/", 0] }, { name: "parseNumber" }],
+      },
+    },
+  },
+
   levelRequirements: [
     {
       id: 1,

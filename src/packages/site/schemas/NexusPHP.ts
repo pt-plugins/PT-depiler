@@ -81,6 +81,27 @@ const parseProgressElement = (element: HTMLElement) => {
   return { status: status, progress: progress };
 };
 
+/**
+ * 处理 NexusPHP 中 DiffInSection 的 HnR，例如 [xx区: 0/0/10 yy区: 0/0/10 ...]
+ * refs: https://github.com/xiaomlove/nexusphp/blob/php8/app/Repositories/HitAndRunRepository.php#L445
+ * @param element HTMLElement，由选择器匹配到，选择器通常是 "#info_block a[href*='myhr.php']:last"
+ */
+export const parseSectionedHitAndRunElement = (element: HTMLElement) => {
+  const textContent = element.textContent || "";
+  const preWarningCount = [...textContent.matchAll(/\s(\d+)\//g)]
+    .map((m) => parseInt(m[1] || "0", 10)) // m[1] 是捕获组
+    .filter(Number.isFinite)
+    .reduce((acc, val) => acc + val, 0);
+
+  const fontElements = element.querySelectorAll("font[color*='red']") ?? [];
+  const unsatisfiedCount = Array.from(fontElements)
+    .map((e) => parseInt(e.textContent?.trim() || "0", 10))
+    .filter(Number.isFinite)
+    .reduce((acc, val) => acc + val, 0);
+
+  return { hnrPreWarning: preWarningCount || 0, hnrUnsatisfied: unsatisfiedCount || 0 };
+};
+
 export const subTitleRemoveExtraElement =
   (removeSelectors: string[] = [], self: boolean = false) =>
   (element: HTMLElement) => {
