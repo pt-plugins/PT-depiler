@@ -213,6 +213,7 @@ export const SchemaMetadata: Pick<
         },
       },
       tags: [
+        { name: "H&R", selector: "img.hitandrun", color: "black" },
         { name: "Free", selector: "img.pro_free", color: "blue" },
         { name: "2xFree", selector: "img.pro_free2up", color: "green" },
         { name: "2xUp", selector: "img.pro_2up", color: "lime" },
