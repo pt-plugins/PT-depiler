@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { nanoid } from "nanoid";
-import { ref } from "vue";
+import { ref, computed, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { cloneDeep, isEqual } from "es-toolkit";
 import { find } from "es-toolkit/compat";
-import { computedAsync, refDebounced } from "@vueuse/core";
+import { refDebounced } from "@vueuse/core";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -41,22 +41,10 @@ const formValid = ref<boolean>(false);
 const siteWaitFilter = ref("");
 const siteFilter = refDebounced(siteWaitFilter, 500); // 延迟搜索过滤词的生成
 
-const addedSiteInfo = computedAsync(async () => {
-  const promises = metadataStore.getAddedSiteIds
-    .sort((a, b) => Number(metadataStore.sites[b].allowSearch) - Number(metadataStore.sites[a].allowSearch))
-    .map(async (siteId) => ({
-      siteId,
-      isDead: (await metadataStore.getSiteMergedMetadata(siteId, "isDead")) ?? false,
-      siteName: await metadataStore.getSiteName(siteId),
-      siteUrl: await metadataStore.getSiteUrl(siteId),
-    }));
+const addedSiteInfo = shallowRef<Array<{ siteId: string; isDead: boolean; siteName: string; siteUrl: string }>>([]);
 
-  const siteInfos = await Promise.all(promises);
-  return siteInfos.filter((site) => !site.isDead);
-}, []);
-
-const filteredSite = computedAsync(() => {
-  const filter = siteFilter.value.toLowerCase();
+const filteredSite = computed(() => {
+  const filter = (siteFilter.value ?? "").toLowerCase();
 
   return addedSiteInfo.value
     .filter((item) => {
@@ -67,7 +55,7 @@ const filteredSite = computedAsync(() => {
       return siteKey.includes(filter);
     })
     .map((item) => item.siteId);
-}, []);
+});
 
 function addSolution(addSolution: ISearchSolution) {
   // 基于 siteId 和 selectedCategories 判断是否已存在，如果存在则不添加
@@ -93,6 +81,20 @@ function saveSolutionState() {
 }
 
 function dialogEnter() {
+  // 生成站点列表
+  Promise.all(
+    metadataStore.getAddedSiteIds
+      .sort((a, b) => Number(metadataStore.sites[b].allowSearch) - Number(metadataStore.sites[a].allowSearch))
+      .map(async (siteId) => ({
+        siteId,
+        isDead: (await metadataStore.getSiteMergedMetadata(siteId, "isDead")) ?? false,
+        siteName: await metadataStore.getSiteName(siteId),
+        siteUrl: await metadataStore.getSiteUrl(siteId),
+      })),
+  ).then((siteInfos) => {
+    addedSiteInfo.value = siteInfos.filter((site) => !site.isDead);
+  });
+
   let storedSolution = metadataStore.solutions[solutionId.value!];
   if (!storedSolution) {
     storedSolution = initSolution();
@@ -150,7 +152,7 @@ function dialogLeave() {
                 <v-expansion-panels>
                   <v-expansion-panel
                     v-for="site in filteredSite"
-                    :id="site"
+                    :key="site"
                     :disabled="!!metadataStore.sites[site].isOffline"
                   >
                     <v-expansion-panel-title>
