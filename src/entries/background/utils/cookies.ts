@@ -35,7 +35,12 @@ onMessage("getCookie", async ({ data: detail }) => {
   return await chrome.cookies.get(detail);
 });
 
-export async function setCookie(cookie: chrome.cookies.SetDetails): Promise<void> {
+/**
+ * 设置cookie
+ * @param cookie cookie详细信息
+ * @param force 是否强制设置，为true时跳过过期检查直接设置
+ */
+export async function setCookie(cookie: chrome.cookies.SetDetails, force: boolean = false): Promise<void> {
   let new_cookie = {} as chrome.cookies.SetDetails;
 
   (
@@ -65,14 +70,19 @@ export async function setCookie(cookie: chrome.cookies.SetDetails): Promise<void
   let allowSet = false;
   const now = new Date().getTime() / 1000;
 
-  // 尝试获取当前站点已存在的Cookie
-  const exist_cookie = await chrome.cookies.get({ url: new_cookie.url, name: new_cookie.name! });
-  if (exist_cookie === null) {
-    // 如果当前站点没有这个Cookies，则允许设置
+  if (force) {
+    // 如果强制设置，直接允许
     allowSet = true;
-  } else if ((exist_cookie.expirationDate ?? 0) < now) {
-    // 如果站点存在这个Cookies，但已过期，允许设置
-    allowSet = true;
+  } else {
+    // 尝试获取当前站点已存在的Cookie
+    const exist_cookie = await chrome.cookies.get({ url: new_cookie.url, name: new_cookie.name! });
+    if (exist_cookie === null) {
+      // 如果当前站点没有这个Cookies，则允许设置
+      allowSet = true;
+    } else if ((exist_cookie.expirationDate ?? 0) < now) {
+      // 如果站点存在这个Cookies，但已过期，允许设置
+      allowSet = true;
+    }
   }
 
   if (allowSet) {
@@ -145,7 +155,8 @@ export async function checkAndExtendCookies(
             url: buildCookieUrl(cookie.secure, cookie.domain, cookie.path),
           };
 
-          await setCookie(cookieDetails);
+          // 使用force=true强制设置cookie，即使原cookie未过期
+          await setCookie(cookieDetails, true);
         }
       } catch (error) {
         // 静默处理单个cookie的错误，继续处理其他cookies
