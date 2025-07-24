@@ -211,6 +211,12 @@ export const useConfigStore = defineStore("config", {
         imdb: {},
       },
     },
+
+    autoExtendCookies: {
+      enabled: false,
+      triggerThreshold: 2,
+      extensionDuration: 3,
+    },
   }),
   getters: {
     uiTheme(): Exclude<supportThemeType, "auto"> {
