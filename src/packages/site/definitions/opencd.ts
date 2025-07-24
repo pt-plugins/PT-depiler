@@ -251,7 +251,7 @@ export const siteMetadata: ISiteMetadata = {
   detail: {
     // 该站详情页为 /plugin_details.php?id=数字
     urlPattern: ["/plugin_details.php"],
-      
+
     selectors: {
       id: {
         selector: ":self",
@@ -272,7 +272,19 @@ export const siteMetadata: ISiteMetadata = {
       },
       link: {
         selector: ['a[href*="download.php?id="][href*="&passkey="]'],
-        attr: "href"
+        attr: "href",
+      },
+    },
+  },
+
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      hnrUnsatisfied: {
+        text: 0,
+        selector: ["td.rowfollow > a[href*='torrents.php?option-torrents=8']"],
+        filters: [{ name: "parseNumber" }],
       },
     },
   },
