@@ -35,7 +35,11 @@ export function parseTimeToLive(ttl: string): number | string {
   // 处理原始字符串中的非标准Unit
   for (const [k, v] of Object.entries(nonStandDateUnitMap)) {
     for (const unit of v) {
-      ttlTemp = ttlTemp.replace(unit, k);
+      if (ttlTemp.includes(unit)) {
+        // 防止连续替换 (raw) second -> (second) seconds -> (sec) secondsonds
+        ttlTemp = ttlTemp.replace(unit, `${k} `);
+        break;
+      }
     }
   }
 

@@ -167,12 +167,10 @@ export const definedFilters: Record<string, TQueryFilterFn> = {
    * args: ["yyyy-MM-dd HH:mm:ss"] // optional, specify the time format
    * Returns: 1609488000000 (timestamp). If parsing fails, returns the original string or TTL result.
    */
-  parseTimeOrTTL: (query, args) => {
+  parseFuzzyTime: (query, args) => {
     const time = parseValidTimeString(query, args);
     return time === query ? parseTimeToLive(query) : time;
   },
-
-  // TODO parseFuzzyTime with wanasit/chrono
 
   // Social Site Parser
   extAnidbId: socialParseUrlMap.anidb,
