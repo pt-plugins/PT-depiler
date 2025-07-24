@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, shallowRef } from "vue";
+import { onMounted, shallowRef, watch } from "vue";
 import { NO_IMAGE, type TSiteID } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
@@ -20,14 +20,25 @@ const {
 
 const siteFavicon = shallowRef<string>(NO_IMAGE);
 
-onMounted(async () => {
+async function loadFavicon() {
   let favicon = await sendMessage("getSiteFavicon", { site: siteId, flush: flushOnPre });
   if (favicon === NO_IMAGE && flushOnNoImage) {
     favicon = await sendMessage("getSiteFavicon", { site: siteId, flush: true }); // 强制刷新
   }
 
   siteFavicon.value = favicon;
+}
+
+onMounted(() => {
+  loadFavicon();
 });
+
+watch(
+  () => siteId,
+  () => {
+    loadFavicon();
+  },
+);
 
 function doFlush() {
   if (!flushOnClick) return;
