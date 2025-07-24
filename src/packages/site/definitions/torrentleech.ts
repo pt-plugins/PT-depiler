@@ -274,6 +274,7 @@ export default class TorrentLeech extends PrivateSite {
     if (row.tags?.includes("FREELEECH")) {
       torrent.tags.push({ name: "Free", color: "blue" });
     }
+    torrent.tags.push({ name: "H&R", color: "black" });
 
     return torrent;
   }
