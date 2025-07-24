@@ -31,8 +31,28 @@ onMessage("cancelUserInfoQueue", () => {
 export async function getSiteUserInfoResult(siteId: string) {
   return (await flushQueue.add(async () => {
     logger({ msg: `getSiteUserInfoResult for ${siteId}` });
-    // 获取站点实例
-    const site = await getSiteInstance<"private">(siteId);
+
+    // 获取站点实例和配置信息
+    const [site, configStoreRaw] = await Promise.all([
+      getSiteInstance<"private">(siteId),
+      sendMessage("getExtStorage", "config") as Promise<IConfigPiniaStorageSchema>,
+    ]);
+
+    // 检查是否需要延长cookies
+    const autoExtendConfig = configStoreRaw?.autoExtendCookies;
+    if (autoExtendConfig?.enabled && site.url) {
+      try {
+        const domain = new URL(site.url).hostname;
+        await sendMessage("checkAndExtendCookies", { domain, config: autoExtendConfig });
+      } catch (error) {
+        // 静默处理错误，不影响用户信息获取流程
+        logger({
+          msg: `Failed to extend cookies for site ${siteId}`,
+          data: error,
+          level: "debug",
+        });
+      }
+    }
 
     // 获取历史信息
     const metadataStoreRaw = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;

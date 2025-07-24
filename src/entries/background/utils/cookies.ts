@@ -1,4 +1,24 @@
-import { onMessage } from "@/messages.ts";
+import { add, differenceInDays } from "date-fns";
+
+import { onMessage, sendMessage } from "@/messages.ts";
+
+/**
+ * 计算cookie的剩余有效期（以天为单位）
+ * @param expirationDate cookie的过期时间戳（秒）
+ * @returns 剩余天数，如果是session cookie则返回Infinity
+ */
+export function calculateRemainingDays(expirationDate?: number): number {
+  if (!expirationDate) {
+    // Session cookie，没有过期时间
+    return Infinity;
+  }
+
+  // 使用 date-fns 的 differenceInDays 函数计算剩余天数
+  const expirationDateMs = expirationDate * 1000; // 转换为毫秒
+  const remainingDays = differenceInDays(new Date(expirationDateMs), new Date());
+
+  return Math.max(0, remainingDays); // 确保不返回负数
+}
 
 export function buildCookieUrl(secure: boolean, domain: string, path: string) {
   if (domain.startsWith(".")) {
@@ -78,4 +98,74 @@ onMessage("removeCookie", async ({ data }) => {
   }
 
   return await chrome.cookies.remove(removeCookie);
+});
+
+/**
+ * 检查并延长指定域名的cookies
+ * @param domain 域名
+ * @param config 自动延长cookies配置
+ */
+export async function checkAndExtendCookies(
+  domain: string,
+  config: { enabled: boolean; triggerThreshold: number; extensionDuration: number },
+) {
+  try {
+    if (!config.enabled) {
+      return;
+    }
+
+    // 获取指定域名的所有cookies
+    const cookies = await chrome.cookies.getAll({ domain });
+
+    const thresholdDays = config.triggerThreshold * 7; // 转换为天数
+
+    for (const cookie of cookies) {
+      try {
+        const remainingDays = calculateRemainingDays(cookie.expirationDate);
+
+        // 跳过session cookies（没有过期时间）
+        if (remainingDays === Infinity) {
+          continue;
+        }
+
+        // 如果剩余时间少于阈值，则延长cookie
+        if (remainingDays < thresholdDays) {
+          // 使用 date-fns 的 add 函数来计算新的过期时间
+          const newExpirationDate = Math.floor(add(new Date(), { months: config.extensionDuration }).getTime() / 1000);
+
+          const cookieDetails: chrome.cookies.SetDetails = {
+            name: cookie.name,
+            value: cookie.value,
+            domain: cookie.domain,
+            path: cookie.path,
+            secure: cookie.secure,
+            httpOnly: cookie.httpOnly,
+            sameSite: cookie.sameSite,
+            expirationDate: newExpirationDate,
+            url: buildCookieUrl(cookie.secure, cookie.domain, cookie.path),
+          };
+
+          await setCookie(cookieDetails);
+        }
+      } catch (error) {
+        // 静默处理单个cookie的错误，继续处理其他cookies
+        sendMessage("logger", {
+          msg: `Failed to extend cookie ${cookie.name} for domain ${domain}`,
+          data: error,
+          level: "debug",
+        }).catch();
+      }
+    }
+  } catch (error) {
+    // 静默处理整体错误，不影响调用方
+    sendMessage("logger", {
+      msg: `Failed to check and extend cookies for domain ${domain}`,
+      data: error,
+      level: "debug",
+    }).catch();
+  }
+}
+
+onMessage("checkAndExtendCookies", async ({ data: { domain, config } }) => {
+  return await checkAndExtendCookies(domain, config);
 });
