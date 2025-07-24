@@ -36,7 +36,7 @@ export const siteMetadata: ISiteMetadata = {
       joinTime: {
         selector: ["time"],
         attr: "datetime",
-        filters: [{ name: "parseTTL" }],
+        filters: [{ name: "parseTimeOrTTL" }],
       },
     },
   },

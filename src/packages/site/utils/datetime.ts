@@ -25,18 +25,25 @@ export const nonStandDateUnitMap: Record<(typeof dateUnit)[number], string[]> = 
   seconds: ["秒", "second", "sec"],
 };
 
-export function parseTimeToLive(ttl: string): number {
+export function parseTimeToLive(ttl: string): number | string {
+  // A flag to check if we have successfully parsed any unit
+  let parsed = false;
+
+  // Deep copy of ttl to avoid side effects
+  let ttlTemp = ttl;
+
   // 处理原始字符串中的非标准Unit
   for (const [k, v] of Object.entries(nonStandDateUnitMap)) {
     for (const unit of v) {
-      ttl = ttl.replace(unit, k);
+      ttlTemp = ttlTemp.replace(unit, k);
     }
   }
 
   let nowDate = new Date();
   dateUnit.forEach((v) => {
-    const matched = ttl.match(new RegExp(`([.\\d]+) ?(${v}s?)`));
+    const matched = ttlTemp.match(new RegExp(`([.\\d]+) ?(${v}s?)`));
     if (matched) {
+      parsed = true;
       const amount = parseFloat(matched[1]);
       switch (v) {
         case "quarters":
@@ -55,7 +62,7 @@ export function parseTimeToLive(ttl: string): number {
     }
   });
 
-  return +nowDate;
+  return parsed ? +nowDate : ttl;
 }
 
 export function parseValidTimeString(query: string, formatString: string[] = []): number | string {

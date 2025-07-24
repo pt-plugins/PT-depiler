@@ -151,12 +151,26 @@ export const definedFilters: Record<string, TQueryFilterFn> = {
    *  - year, quarter, month, week, day, hour, minute, second.
    *  - 年, 月, 天, 时, 分, 秒.
    *  - yr, qtr, mo, wk, day, hr, min, sec.
-   * If the time string is not valid, the current timestamp will be returned.
+   * If the time string is not valid, the original string will be returned.
    *
    * input: "1 year 2 months 3 days 4 hours 5 minutes ago"
    * results: 1609488000000
    */
   parseTTL: parseTimeToLive,
+
+  /**
+   * Parses a string into a timestamp (milliseconds).
+   * Attempts to use the provided format (e.g. "yyyy-MM-dd HH:mm:ss");
+   * if parsing fails, falls back to TTL-style parsing (e.g. "1 year 2 months ago").
+   *
+   * Example input: "2021-01-01 12:00:00" or "1 year 2 months 3 days 4 hours 5 minutes ago"
+   * args: ["yyyy-MM-dd HH:mm:ss"] // optional, specify the time format
+   * Returns: 1609488000000 (timestamp). If parsing fails, returns the original string or TTL result.
+   */
+  parseTimeOrTTL: (query, args) => {
+    const time = parseValidTimeString(query, args);
+    return time === query ? parseTimeToLive(query) : time;
+  },
 
   // TODO parseFuzzyTime with wanasit/chrono
 
