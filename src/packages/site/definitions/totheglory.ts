@@ -2,7 +2,7 @@ import Sizzle from "sizzle";
 import { set } from "es-toolkit/compat";
 
 import type { ISiteMetadata } from "../types";
-import { extractContent, parseSizeString } from "../utils";
+import { buildCategoryOptions, extractContent, parseSizeString } from "../utils";
 
 const categoryMovieMap = [
   "电影DVDRip",
@@ -68,9 +68,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "分类（影视&音乐）",
       key: "cat_movie",
-      options: categoryMovieMap.map((cat) => {
-        return { name: cat, value: cat };
-      }),
+      options: buildCategoryOptions(categoryMovieMap),
       cross: { mode: "brackets" }, // 因为ttg的分类是合并到搜索字符串中的，所以这里先置为 brackets，然后在search.requestConfigTransformer 做修改
     },
     {

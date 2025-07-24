@@ -9,7 +9,7 @@ import {
 } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 import { omit, toMerged } from "es-toolkit";
-import { convertIsoDurationToSeconds } from "../utils";
+import { buildCategoryOptions, convertIsoDurationToSeconds } from "../utils";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
 
 export const siteMetadata: ISiteMetadata = {
@@ -45,55 +45,27 @@ export const siteMetadata: ISiteMetadata = {
       name: "Type",
       key: "types",
       keyPath: "data",
-      options: [
-        { name: "UHD 100", value: "UHD 100" },
-        { name: "UHD 66", value: "UHD 66" },
-        { name: "UHD 50", value: "UHD 50" },
-        { name: "UHD Remux", value: "UHD Remux" },
-        { name: "BD 50", value: "BD 50" },
-        { name: "BD 25", value: "BD 25" },
-        { name: "BD Remux", value: "BD Remux" },
-        { name: "2160p", value: "2160p" },
-        { name: "1080p", value: "1080p" },
-        { name: "1080i", value: "1080i" },
-        { name: "720p", value: "720p" },
-        { name: "576p", value: "576p" },
-        { name: "540p", value: "540p" },
-        { name: "DVD 9", value: "DVD 9" },
-        { name: "DVD 5", value: "DVD 5" },
-        { name: "DVD Remux", value: "DVD Remux" },
-        { name: "480p", value: "480p" },
-        { name: "Other", value: "Other" },
-      ],
+      options: buildCategoryOptions([
+        ["UHD 100", "UHD 66", "UHD 50", "UHD Remux"],
+        ["BD 50", "BD 25", "BD Remux"],
+        ["2160p", "1080p", "1080i", "720p", "576p", "540p"],
+        ["DVD 9", "DVD 5", "DVD Remux"],
+        ["480p", "Other"],
+      ]),
       cross: { mode: "comma" },
     },
     {
       name: "Source",
       key: "sources",
       keyPath: "data",
-      options: [
-        { name: "Blu-ray", value: "Blu-ray" },
-        { name: "HD-DVD", value: "HD-DVD" },
-        { name: "WEB", value: "WEB" },
-        { name: "HDTV", value: "HDTV" },
-        { name: "DVD", value: "DVD" },
-      ],
+      options: buildCategoryOptions(["Blu-ray", "HD-DVD", "WEB", "HDTV", "DVD"]),
       cross: { mode: "comma" },
     },
     {
       name: "ReleaseGroup",
       key: "groups",
       keyPath: "data",
-      options: [
-        { name: "FraMeSToR", value: "FraMeSToR" },
-        { name: "BHDStudio", value: "BHDStudio" },
-        { name: "BeyondHD", value: "BeyondHD" },
-        { name: "RPG", value: "RPG" },
-        { name: "iROBOT", value: "iROBOT" },
-        { name: "iFT", value: "iFT" },
-        { name: "ZR", value: "ZR" },
-        { name: "MKVULTRA", value: "MKVULTRA" },
-      ],
+      options: buildCategoryOptions(["FraMeSToR", "BHDStudio", "BeyondHD", "RPG", "iROBOT", "iFT", "ZR", "MKVULTRA"]),
       cross: { mode: "comma" },
     },
     {

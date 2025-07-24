@@ -31,8 +31,8 @@ import {
   parseSizeString,
   parseTimeWithZone,
   tryToNumber,
+  hasNonLatinCharacters,
 } from "../utils";
-import { hasNonLatinCharacters } from "../utils/character-detection";
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: -1,

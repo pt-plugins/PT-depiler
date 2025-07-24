@@ -1,8 +1,7 @@
 import { omit, toMerged } from "es-toolkit";
 import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type IUserInfo, NeedLoginError } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite";
-import { parseSizeString } from "../utils";
-
+import { buildCategoryOptions, parseSizeString } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   id: "happyfappy",
@@ -22,66 +21,31 @@ export const siteMetadata: ISiteMetadata = {
       name: "类别",
       key: "filter_cat",
       options: [
-            { name: "Fansite", value: "6" },
-            { name: "Asian", value: "11" },
-            { name: "Games", value: "13" },
-            { name: "Gay / Bi", value: "3" },
-            { name: "Interracial", value: "4" },
-            { name: "Lesbian", value: "5" },
-            { name: "Packs", value: "9" },
-            { name: "Pics", value: "10" },
-            { name: "Pron", value: "1" },
-            { name: "Retro", value: "8" },
-            { name: "Transexual", value: "12" },
-            { name: "VR", value: "7" }
+        { name: "Fansite", value: "6" },
+        { name: "Asian", value: "11" },
+        { name: "Games", value: "13" },
+        { name: "Gay / Bi", value: "3" },
+        { name: "Interracial", value: "4" },
+        { name: "Lesbian", value: "5" },
+        { name: "Packs", value: "9" },
+        { name: "Pics", value: "10" },
+        { name: "Pron", value: "1" },
+        { name: "Retro", value: "8" },
+        { name: "Transexual", value: "12" },
+        { name: "VR", value: "7" },
       ],
       cross: { mode: "appendQuote" },
     },
     {
       name: "标签和分辨率",
       key: "taglist",
-      options: [
-        { name: "1080p", value: "1080p" },
-        { name: "2160p", value: "2160p" },
-        { name: "720p", value: "720p" },
-        { name: "1on1", value: "1on1" },
-        { name: "anal", value: "anal" },
-        { name: "big.ass", value: "big.ass" },
-        { name: "big.dick", value: "big.dick" },
-        { name: "big.tits", value: "big.tits" },
-        { name: "blonde", value: "blonde" },
-        { name: "blowjob", value: "blowjob" },
-        { name: "brunette", value: "brunette" },
-        { name: "cowgirl", value: "cowgirl" },
-        { name: "creampie", value: "creampie" },
-        { name: "cum.in.mouth", value: "cum.in.mouth" },
-        { name: "cumshot", value: "cumshot" },
-        { name: "cunnilingus", value: "cunnilingus" },
-        { name: "deepthroat", value: "deepthroat" },
-        { name: "doggy.style", value: "doggy.style" },
-        { name: "face.fuck", value: "face.fuck" },
-        { name: "facial", value: "facial" },
-        { name: "fake.tits", value: "fake.tits" },
-        { name: "fingering", value: "fingering" },
-        { name: "handjob", value: "handjob" },
-        { name: "hardcore", value: "hardcore" },
-        { name: "invalid.tag", value: "invalid.tag" },
-        { name: "lesbian", value: "lesbian" },
-        { name: "masturbation", value: "masturbation" },
-        { name: "milf", value: "milf" },
-        { name: "missionary", value: "missionary" },
-        { name: "natural.tits", value: "natural.tits" },
-        { name: "pussy.fingering", value: "pussy.fingering" },
-        { name: "rimming", value: "rimming" },
-        { name: "shaved.pussy", value: "shaved.pussy" },
-        { name: "sideways", value: "sideways" },
-        { name: "small.tits", value: "small.tits" },
-        { name: "tattoo", value: "tattoo" },
-        { name: "teen", value: "teen" },
-        { name: "tit.fuck", value: "tit.fuck" },
-        { name: "toys", value: "toys" },
-        { name: "virtual.reality", value: "virtual.reality" },
-      ],
+      options: buildCategoryOptions([
+        ["1080p", "2160p", "720p", "1on1", "anal", "big.ass", "big.dick", "big.tits", "blonde", "blowjob", "brunette"],
+        ["cowgirl", "creampie", "cum.in.mouth", "cumshot", "cunnilingus", "deepthroat", "doggy.style", "face.fuck"],
+        ["facial", "fake.tits", "fingering", "handjob", "hardcore", "invalid.tag", "lesbian", "masturbation", "milf"],
+        ["missionary", "natural.tits", "pussy.fingering", "rimming", "shaved.pussy", "sideways", "small.tits"],
+        ["tattoo", "teen", "tit.fuck", "toys", "virtual.reality"],
+      ]),
       cross: { mode: "custom" },
       generateRequestConfig: (selectedOptions) => {
         // tag参数是taglist=tag1+tag2+...
@@ -100,11 +64,9 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "优惠",
       key: "free",
-      options: [
-        { name: "100% Freeleech", value: "filter_freeleech" },
-      ],
+      options: [{ name: "100% Freeleech", value: "filter_freeleech" }],
       cross: { mode: "append", key: "" },
-    }
+    },
   ],
 
   search: {
@@ -125,7 +87,7 @@ export const siteMetadata: ISiteMetadata = {
           }
           return config!;
         },
-      }
+      },
     },
     selectors: {
       rows: { selector: "tr.torrent" },
@@ -145,7 +107,7 @@ export const siteMetadata: ISiteMetadata = {
           // 提取所有a元素中的文本内容
           const allText = Array.from(a_elements)
             .map((a: any) => (a.textContent || a.innerText || "").trim())
-            .filter(text => text.length > 0)
+            .filter((text) => text.length > 0)
             .join(", ");
 
           return allText;
@@ -163,12 +125,14 @@ export const siteMetadata: ISiteMetadata = {
       category: {
         selector: ["td.cats_col > div"],
         attr: "title",
-        filters: [(query: string) => {
-          if (query.toLowerCase() === "vr") {
-            return "VR";
-          }
-          return query.toLowerCase().replace(/\b\w/g, (char: any) => char.toUpperCase());
-        }]
+        filters: [
+          (query: string) => {
+            if (query.toLowerCase() === "vr") {
+              return "VR";
+            }
+            return query.toLowerCase().replace(/\b\w/g, (char: any) => char.toUpperCase());
+          },
+        ],
       },
       status: {
         selector: ["a[href*='torrents.php?action=download'] span"],
@@ -218,22 +182,22 @@ export const siteMetadata: ISiteMetadata = {
       },
       uploaded: {
         selector: ["ul.stats.nobullet > li:nth-child(3)"],
-        filters: [(query: string) => parseSizeString(query.split(':')[1].trim().replace(/,/g, "") || "0")],
+        filters: [(query: string) => parseSizeString(query.split(":")[1].trim().replace(/,/g, "") || "0")],
       },
       downloaded: {
         selector: ["ul.stats.nobullet > li:nth-child(4)"],
-        filters: [(query: string) => parseSizeString(query.split(':')[1].trim().replace(/,/g, "") || "0")],
+        filters: [(query: string) => parseSizeString(query.split(":")[1].trim().replace(/,/g, "") || "0")],
       },
       levelName: {
         selector: ["div.sidebar"],
         elementProcess: (element: any) => {
           if (!element) return undefined;
-          const allUls = element.querySelectorAll('ul.stats.nobullet');
+          const allUls = element.querySelectorAll("ul.stats.nobullet");
 
           if (allUls.length >= 3) {
             const thirdUl = allUls[2];
-            const firstLi = thirdUl.querySelector('li:first-child');
-            const levelName = firstLi?.textContent?.split(':')[1].trim();
+            const firstLi = thirdUl.querySelector("li:first-child");
+            const levelName = firstLi?.textContent?.split(":")[1].trim();
 
             return levelName?.toLowerCase().replace(/\b\w/g, (char: any) => char.toUpperCase()) || undefined;
           }
@@ -242,7 +206,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       bonus: {
         selector: ["div[id='bonusdiv'] > h4"],
-        filters: [(query: string) => parseFloat(query.split(':')[1].trim().replace(/,/g, "") || "0")],
+        filters: [(query: string) => parseFloat(query.split(":")[1].trim().replace(/,/g, "") || "0")],
       },
       ratio: {
         selector: ["ul.stats.nobullet > li:nth-child(5) > span"],
@@ -265,14 +229,15 @@ export const siteMetadata: ISiteMetadata = {
           return parseInt(uploadedTitle);
         },
       },
-      bonusPerHour: { // 没找到显示的地方，通过log计算出来
+      bonusPerHour: {
+        // 没找到显示的地方，通过log计算出来
         selector: ["div[id='bonuslog']"],
         elementProcess: (element: any) => {
           if (!element) return 0;
 
           const firstLine = element.innerHTML.split("<br/>")[0].trim();
           const creditsMatch = firstLine?.match(/\|\s*[+-]?([\d.,]+)\s*credits\s*\|/);
-          const credits = parseFloat(creditsMatch?.[1].replace(/,/g, "") || "0")
+          const credits = parseFloat(creditsMatch?.[1].replace(/,/g, "") || "0");
           return credits / 24;
         },
       },
@@ -295,7 +260,7 @@ export const siteMetadata: ISiteMetadata = {
             if (tdElements.length >= 6) {
               const sixthTd = tdElements[5];
               const sizeText = sixthTd.textContent?.trim() || "";
-              sumSizes += parseSizeString(sizeText.replace(/,/g, ""))
+              sumSizes += parseSizeString(sizeText.replace(/,/g, ""));
             }
           });
 
@@ -311,7 +276,8 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 1,
       name: "Sex Worker",
-      privilege: "Class every new user starts with；can upload torrents；can create and vote in Requests；can access forums；can make bookmarks；can set forum signature (up to 128 characters)",
+      privilege:
+        "Class every new user starts with；can upload torrents；can create and vote in Requests；can access forums；can make bookmarks；can set forum signature (up to 128 characters)",
     },
     {
       id: 2,
@@ -319,7 +285,8 @@ export const siteMetadata: ISiteMetadata = {
       uploaded: "25GB",
       ratio: 1.15,
       interval: "P2W",
-      privilege: "can use the top 10 system；can use the notifications system；can create collages；can use upload templates；can add tags；can play slot machine；can set forum signature (up to 128 characters)；can set torrent footer",
+      privilege:
+        "can use the top 10 system；can use the notifications system；can create collages；can use upload templates；can add tags；can play slot machine；can set forum signature (up to 128 characters)；can set torrent footer",
     },
     {
       id: 3,
@@ -329,7 +296,8 @@ export const siteMetadata: ISiteMetadata = {
       uploads: 10,
       posts: 5,
       interval: "P4W",
-      privilege: "can create polls in the forum；can add multiple tags；can view site stats；can sent special gift；can set forum signature (up to 256 characters)",
+      privilege:
+        "can create polls in the forum；can add multiple tags；can view site stats；can sent special gift；can set forum signature (up to 256 characters)",
     },
     {
       id: 4,
@@ -338,7 +306,8 @@ export const siteMetadata: ISiteMetadata = {
       ratio: 2.5,
       uploads: 150,
       interval: "P16W",
-      privilege: "can use Advanced bbcode tags；can use avatar size 150x200；can set forum signature (up to 512 characters)",
+      privilege:
+        "can use Advanced bbcode tags；can use avatar size 150x200；can set forum signature (up to 512 characters)",
     },
     {
       id: 5,
@@ -348,7 +317,8 @@ export const siteMetadata: ISiteMetadata = {
       uploads: 500,
       posts: 100,
       interval: "P28W",
-      privilege: "can use Forum: Users Invite Forum；can make public upload templates.；upload, rank up and find out what unlocks.",
+      privilege:
+        "can use Forum: Users Invite Forum；can make public upload templates.；upload, rank up and find out what unlocks.",
     },
     {
       id: 6,
@@ -358,8 +328,8 @@ export const siteMetadata: ISiteMetadata = {
       uploads: 1000,
       interval: "P28W",
       privilege: "upload, rank up and find out what unlocks.",
-    }
-  ]
+    },
+  ],
 };
 
 export default class HappyFappy extends PrivateSite {
@@ -387,7 +357,7 @@ export default class HappyFappy extends PrivateSite {
 
       // 导入基本 Details 页面获取到的用户信息
       flushUserInfo = toMerged(flushUserInfo, await this.getUserInfoFromDetailsPage(id));
-      flushUserInfo.seedingSize = await this.getUserSeedingSize(id)
+      flushUserInfo.seedingSize = await this.getUserSeedingSize(id);
 
       // 如果前面没有获取到用户等级的id，则尝试通过定义的 levelRequirements 来获取
       if (this.metadata.levelRequirements && flushUserInfo.levelName && typeof flushUserInfo.levelId === "undefined") {
@@ -416,10 +386,7 @@ export default class HappyFappy extends PrivateSite {
       },
       true,
     );
-    return this.getFieldData(
-      indexDocument,
-      this.metadata.userInfo?.selectors?.id!,
-    );
+    return this.getFieldData(indexDocument, this.metadata.userInfo?.selectors?.id!);
   }
 
   protected async getUserInfoFromDetailsPage(id: number): Promise<Partial<IUserInfo>> {

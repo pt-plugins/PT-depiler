@@ -1,9 +1,25 @@
+// noinspection ES6PreferShortImport
+
 /**
- * Character detection utilities for site filtering
- *
- * This module provides functions to detect non-Latin characters in search queries
- * to enable intelligent site filtering based on character set compatibility.
+ * Helper functions for other utilities
  */
+
+import { type ISearchCategoryOptions } from "../types/search";
+
+/**
+ * Builds search category options from a given array of strings or string arrays.
+ * The name and value of each option will be the same as the string itself.
+ * @param options
+ */
+export function buildCategoryOptions(options: (string | string[])[]): ISearchCategoryOptions[] {
+  return options.flat(Infinity).map(
+    (option) =>
+      ({
+        name: option,
+        value: option,
+      }) as ISearchCategoryOptions,
+  );
+}
 
 /**
  * Detects if a search query contains non-Latin characters
