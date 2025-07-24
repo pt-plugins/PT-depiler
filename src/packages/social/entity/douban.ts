@@ -7,7 +7,8 @@ import {
   ISocialSitePageInformation,
 } from "../types";
 import { uniq } from "es-toolkit";
-import { commonParseFactory } from "@ptd/social/utils.ts";
+import { parse as parseImdb } from "./imdb.ts";
+import { commonParseFactory } from "../utils.ts";
 
 const doubanUrlPattern = /^(?:https?:\/\/)?(?:movie\.|www\.)?douban\.com\/subject\/(\d+)\/?/;
 
@@ -31,10 +32,34 @@ function pageParser$1(doc: Document): ISocialSitePageInformation {
       .sort((a, b) => a.localeCompare(b)); //首字(母)排序
   }
 
+  // 尝试获取外部 ID
+  const external_ids: Record<string, string> = {};
+
+  // 获取 IMDb ID
+  let imdb_id;
+
+  const imdb_link_another = doc.querySelector('#info a[href*="imdb.com/title/tt"]');
+  if (imdb_link_another) {
+    imdb_id = parseImdb(imdb_link_another.getAttribute("href")!);
+  } else {
+    const raw_imdb_another = Sizzle('#info span.pl:contains("IMDb:")', doc);
+    if (raw_imdb_another.length > 0) {
+      const imdb_link = raw_imdb_another[0].nextSibling?.nodeValue?.trim();
+      if (imdb_link) {
+        imdb_id = parseImdb(imdb_link);
+      }
+    }
+  }
+
+  if (imdb_id) {
+    external_ids.imdb = imdb_id;
+  }
+
   return {
     site: "douban",
     id: parse(doc.URL),
     titles: uniq([chinese_title, foreign_title, ...aka_title]).filter(Boolean),
+    external_ids,
   };
 }
 

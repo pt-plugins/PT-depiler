@@ -31,6 +31,18 @@ const ptdData = inject<IPtdData>("ptd_data", {});
                 <v-chip color="indigo">搜索ID</v-chip>
               </template>
             </v-list-item>
+            <template v-if="result.external_ids">
+              <v-list-item
+                v-for="(externalId, externalType) in result.external_ids"
+                :key="`${result.id}|${externalType}|${externalId}`"
+                :title="`${externalType}: ${externalId}`"
+                @click="() => doKeywordSearch(`${externalType}|${externalId}`)"
+              >
+                <template #append>
+                  <v-chip color="green">搜索外部ID</v-chip>
+                </template>
+              </v-list-item>
+            </template>
             <template v-for="title in result.titles" :key="`${result.id}|${title}`">
               <v-list-item :title="title" @click="() => doKeywordSearch(title)">
                 <template #append>
