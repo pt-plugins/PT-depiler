@@ -33,25 +33,14 @@ export async function getSiteUserInfoResult(siteId: string) {
     logger({ msg: `getSiteUserInfoResult for ${siteId}` });
 
     // 获取站点实例和配置信息
-    const [site, configStoreRaw] = await Promise.all([
-      getSiteInstance<"private">(siteId),
-      sendMessage("getExtStorage", "config") as Promise<IConfigPiniaStorageSchema>,
-    ]);
+    const site = await getSiteInstance<"private">(siteId);
 
-    // 检查是否需要延长cookies
-    const autoExtendConfig = configStoreRaw?.autoExtendCookies;
-    if (autoExtendConfig?.enabled && site.url) {
-      try {
-        const domain = new URL(site.url).hostname;
-        await sendMessage("checkAndExtendCookies", { domain, config: autoExtendConfig });
-      } catch (error) {
-        // 静默处理错误，不影响用户信息获取流程
-        logger({
-          msg: `Failed to extend cookies for site ${siteId}`,
-          data: error,
-          level: "debug",
-        });
-      }
+    // 尝试延长cookies
+    try {
+      await sendMessage("checkAndExtendCookies", site.url);
+    } catch (error) {
+      // 静默处理错误，不影响用户信息获取流程
+      logger({ msg: `Failed to extend cookies for site ${siteId}`, level: "debug" });
     }
 
     // 获取历史信息

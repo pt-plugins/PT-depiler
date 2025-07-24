@@ -76,6 +76,7 @@ interface ProtocolMap extends TMessageMap {
   setCookie(data: chrome.cookies.SetDetails): void;
   getCookie(data: chrome.cookies.CookieDetails): chrome.cookies.Cookie | null;
   removeCookie(data: chrome.cookies.CookieDetails | chrome.cookies.SetDetails): chrome.cookies.CookieDetails;
+  checkAndExtendCookies(url: string): void;
 
   // 1.6 chrome.notifications
   showNotification(data: { options: chrome.notifications.NotificationOptions; timeout?: number }): void;

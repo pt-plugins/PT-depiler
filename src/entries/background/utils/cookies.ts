@@ -1,5 +1,6 @@
 import { add, differenceInDays } from "date-fns";
 
+import { extStorage } from "@/storage.ts";
 import { onMessage, sendMessage } from "@/messages.ts";
 
 /**
@@ -112,20 +113,18 @@ onMessage("removeCookie", async ({ data }) => {
 
 /**
  * 检查并延长指定域名的cookies
- * @param domain 域名
- * @param config 自动延长cookies配置
+ * @param url 域名
  */
-export async function checkAndExtendCookies(
-  domain: string,
-  config: { enabled: boolean; triggerThreshold: number; extensionDuration: number },
-) {
+export async function checkAndExtendCookies(url: string) {
   try {
+    const config = (await extStorage.getItem("config"))?.autoExtendCookies ?? { enabled: false };
+
     if (!config.enabled) {
       return;
     }
 
-    // 获取指定域名的所有cookies
-    const cookies = await chrome.cookies.getAll({ domain });
+    // 获取指定URL下的所有cookies
+    const cookies = await chrome.cookies.getAll({ url });
 
     const thresholdDays = config.triggerThreshold * 7; // 转换为天数
 
@@ -160,23 +159,15 @@ export async function checkAndExtendCookies(
         }
       } catch (error) {
         // 静默处理单个cookie的错误，继续处理其他cookies
-        sendMessage("logger", {
-          msg: `Failed to extend cookie ${cookie.name} for domain ${domain}`,
-          data: error,
-          level: "debug",
-        }).catch();
+        sendMessage("logger", { msg: `Failed to extend cookie ${cookie.name} for url ${url}`, level: "debug" }).catch();
       }
     }
   } catch (error) {
     // 静默处理整体错误，不影响调用方
-    sendMessage("logger", {
-      msg: `Failed to check and extend cookies for domain ${domain}`,
-      data: error,
-      level: "debug",
-    }).catch();
+    sendMessage("logger", { msg: `Failed to check and extend cookies for url ${url}`, level: "debug" }).catch();
   }
 }
 
-onMessage("checkAndExtendCookies", async ({ data: { domain, config } }) => {
-  return await checkAndExtendCookies(domain, config);
+onMessage("checkAndExtendCookies", async ({ data: url }) => {
+  return await checkAndExtendCookies(url);
 });

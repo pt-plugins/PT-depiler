@@ -112,12 +112,7 @@ onMounted(async () => {
       <!-- 自动延长cookies -->
       <v-switch
         v-model="configStore.autoExtendCookies.enabled"
-        :label="
-          t('userInfo.autoExtendCookies.enabled', {
-            threshold: configStore.autoExtendCookies.triggerThreshold,
-            duration: configStore.autoExtendCookies.extensionDuration,
-          })
-        "
+        :label="t('userInfo.autoExtendCookies.enabled')"
         color="success"
         hide-details
       />
@@ -127,8 +122,8 @@ onMounted(async () => {
             {{ t("userInfo.autoExtendCookies.triggerThreshold") }}:
             <v-select
               v-model="configStore.autoExtendCookies.triggerThreshold"
-              :items="range(1, 11)"
-              :max="10"
+              :items="range(1, 4)"
+              :max="3"
               :min="1"
               class="mx-2"
               density="compact"
