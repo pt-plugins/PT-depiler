@@ -128,6 +128,7 @@ export const siteMetadata: ISiteMetadata = {
       progress: selectorSearchProgress,
       status: selectorSearchStatus,
       tags: [
+        { name: "H&R", selector: "*", color: "red" },
         { name: "禁转", selector: ".tag.tag-exclusive", color: "red" },
         { name: "官方", selector: ".tag.tag-tjupt", color: "light-blue" },
         { name: "驻站", selector: ".tag.tag-internal-team", color: "green" },
