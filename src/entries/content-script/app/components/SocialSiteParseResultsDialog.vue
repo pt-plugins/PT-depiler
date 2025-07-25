@@ -20,7 +20,7 @@ const ptdData = inject<IPtdData>("ptd_data", {});
           </template>
         </v-toolbar>
       </v-card-title>
-      <v-card-text class="overflow-y-hidden">
+      <v-card-text>
         <v-list density="compact">
           <template v-for="(result, index) in parseResults" :key="result.id">
             <v-list-item
