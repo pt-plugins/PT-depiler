@@ -50,7 +50,7 @@ const ptdData = inject<IPtdData>("ptd_data", {});
                 </template>
               </v-list-item>
             </template>
-            <v-divider v-if="index != parseResults.length - 1" inset></v-divider>
+            <v-divider v-if="index != parseResults.length - 1" inset />
           </template>
         </v-list>
       </v-card-text>

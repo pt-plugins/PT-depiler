@@ -7,6 +7,7 @@ import {
   IPtgenApiResponse,
   ISocialInformation,
   ISocialSitePageInformation,
+  TSupportSocialSitePageParserMatches,
 } from "../types";
 
 import { REPO_URL } from "~/helper.ts";
@@ -23,7 +24,7 @@ export function build(id: string): string {
 
 export const parse = commonParseFactory([bgmUrlPattern]);
 
-export const pageParserMatches = [
+export const pageParserMatches: TSupportSocialSitePageParserMatches = [
   [
     bgmUrlPattern,
     (doc: Document) => {
@@ -49,6 +50,35 @@ export const pageParserMatches = [
         id: parse(doc.URL),
         titles,
       } as ISocialSitePageInformation;
+    },
+  ],
+  [
+    /\/anime\/(browser|list\/.+?\/(wish|collect|do|on_hold|dropped)|tag\/)/,
+    (doc: Document): ISocialSitePageInformation[] => {
+      const parseShortUrl = commonParseFactory([/\/subject\/(\d+)\/?/]);
+
+      const retItems: ISocialSitePageInformation[] = [];
+      const items = doc.querySelectorAll("ul#browserItemList > li.item");
+      for (const item of items) {
+        const another = item.querySelector("h3 > a[href*='/subject/']");
+        if (another) {
+          const id = parseShortUrl(another.getAttribute("href")!);
+          const titles = [another.textContent?.trim() ?? ""];
+
+          const aka_anchor = item.querySelector("small.grey");
+          if (aka_anchor) {
+            titles.push(aka_anchor.textContent?.trim() ?? "");
+          }
+
+          retItems.push({
+            site: "bangumi",
+            id,
+            titles,
+          } as ISocialSitePageInformation);
+        }
+      }
+
+      return retItems;
     },
   ],
 ];

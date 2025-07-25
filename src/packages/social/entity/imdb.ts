@@ -4,6 +4,7 @@ import {
   IPtgenApiResponse,
   ISocialInformation,
   ISocialSitePageInformation,
+  TSupportSocialSitePageParserMatches,
 } from "../types";
 
 const imdbUrlPattern = /^(?:https?:\/\/)?(?:www\.)?imdb\.com\/title\/(tt\d+)\/?/;
@@ -34,7 +35,7 @@ export function parse(query: string | number | undefined): string {
   return query as unknown as string;
 }
 
-export const pageParserMatches = [
+export const pageParserMatches: TSupportSocialSitePageParserMatches = [
   [
     imdbUrlPattern,
     (doc: Document): ISocialSitePageInformation => {

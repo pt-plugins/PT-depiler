@@ -3,7 +3,12 @@ import Sizzle from "sizzle";
 import { uniq } from "es-toolkit";
 
 import { commonParseFactory } from "../utils";
-import { IFetchSocialSiteInformationConfig, ISocialInformation, ISocialSitePageInformation } from "../types";
+import {
+  IFetchSocialSiteInformationConfig,
+  ISocialInformation,
+  ISocialSitePageInformation,
+  TSupportSocialSitePageParserMatches,
+} from "../types";
 
 const anidbUrlPattern = /(?:https?:\/\/)?(?:www\.)?anidb\.net\/(?:a|anime\/)(\d+)/;
 
@@ -25,7 +30,7 @@ function pageParser$1(doc: Document): ISocialSitePageInformation {
   };
 }
 
-export const pageParserMatches = [[anidbUrlPattern, pageParser$1]];
+export const pageParserMatches: TSupportSocialSitePageParserMatches = [[anidbUrlPattern, pageParser$1]];
 
 export async function fetchInformation(
   id: string,

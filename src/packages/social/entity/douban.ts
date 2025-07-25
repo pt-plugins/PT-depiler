@@ -5,6 +5,7 @@ import {
   IPtgenApiResponse,
   ISocialInformation,
   ISocialSitePageInformation,
+  TSupportSocialSitePageParserMatches,
 } from "../types";
 import { uniq } from "es-toolkit";
 import { parse as parseImdb } from "./imdb.ts";
@@ -63,7 +64,7 @@ function pageParser$1(doc: Document): ISocialSitePageInformation {
   };
 }
 
-function pageParse$2Factory(urlPattern: string, rowSelector: string) {
+function pageParse$2Factory(urlPattern: string, rowSelector: string): TSupportSocialSitePageParserMatches[0] {
   return [
     urlPattern,
     (doc: Document) => {
@@ -87,7 +88,7 @@ function pageParse$2Factory(urlPattern: string, rowSelector: string) {
   ];
 }
 
-export const pageParserMatches = [
+export const pageParserMatches: TSupportSocialSitePageParserMatches = [
   [doubanUrlPattern, pageParser$1],
   // TOP 250
   pageParse$2Factory("movie.douban.com/top250", "ol.grid_view > li"),
