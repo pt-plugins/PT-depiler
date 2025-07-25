@@ -205,4 +205,10 @@ export interface IConfigPiniaStorageSchema {
   };
 
   socialSiteInformation: IFetchSocialSiteInformationConfig;
+
+  autoExtendCookies: {
+    enabled: boolean; // 功能开关，默认 false
+    triggerThreshold: number; // 触发阈值（周），默认 2
+    extensionDuration: number; // 延长时长（月），默认 3
+  };
 }

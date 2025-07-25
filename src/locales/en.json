@@ -599,7 +599,14 @@
       "nextFlushTime": "Next refresh time:"
     },
     "showDeadSite": "Show sites marked as dead (isDead) in the overview",
-    "showPassedSite": "Show sites marked as offline (isOffline) or not allowing user info query in the overview"
+    "showPassedSite": "Show sites marked as offline (isOffline) or not allowing user info query in the overview",
+    "autoExtendCookies": {
+      "enabled": "Enable auto-extend cookies period?",
+      "triggerThreshold": "Trigger threshold for extension",
+      "extensionDuration": "Extension duration",
+      "weeks": "weeks,",
+      "months": "months."
+    }
   },
   "ptppSettings": {
     "basicConfig": "Basic Configuration",

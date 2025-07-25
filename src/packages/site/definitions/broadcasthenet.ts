@@ -8,6 +8,19 @@ export const siteMetadata: ISiteMetadata = {
 
   version: 1,
 
+  id: "broadcasthenet",
+  name: "BroadcastTheNet",
+  aka: ["BTN"],
+  description: "BroadcastTheNet is a private tracker for TV shows.",
+  tags: ["电视剧"],
+  timezoneOffset: "+0000",
+  collaborator: ["Sunhelter"],
+
+  type: "private",
+  schema: "Gazelle",
+
+  urls: ["uggcf://oebnqpnfgur.arg/"],
+
   search: {
     ...SchemaMetadata.search,
     skipNonLatinCharacters: true,
@@ -48,20 +61,15 @@ export const siteMetadata: ISiteMetadata = {
           { name: "parseTTL" }, // 使用parseTTL转换相对时间为绝对时间
         ],
       },
+      tags: [
+        {
+          name: "H&R",
+          selector: "*",
+          color: "red",
+        },
+      ],
     },
   },
-  id: "broadcasthenet",
-  name: "BroadcastTheNet",
-  aka: ["BTN"],
-  description: "BroadcastTheNet is a private tracker for TV shows.",
-  tags: ["电视剧"],
-  timezoneOffset: "+0000",
-  collaborator: ["Sunhelter"],
-
-  type: "private",
-  schema: "Gazelle",
-
-  urls: ["uggcf://oebnqpnfgur.arg/"],
 
   userInfo: {
     ...SchemaMetadata.userInfo!,

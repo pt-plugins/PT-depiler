@@ -1,6 +1,6 @@
 import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
-import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
-import { buildCategoryOptions, parseSizeString, parseValidTimeString } from "../utils";
+import Unit3D, { SchemaMetadata } from "../schemas/Unit3D";
+import { parseSizeString, parseValidTimeString } from "../utils";
 
 const idTrans: string[] = ["User ID", "用户 ID", "用ID", "用户ID"];
 const seedingSizeTrans: string[] = ["Seeding Size", "做种体积", "做種體積"];
@@ -8,54 +8,72 @@ const RatioTrans: string[] = ["Ratio", "分享率", "比率"];
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
-  id: "fearnopeer",
+  id: "bitporn",
   version: 1,
-  name: "FearNoPeer",
-  aka: ["FNP"],
-  tags: ["综合"],
-  timezoneOffset: "-0500",
+  name: "BitPorn",
+  tags: ["成人"],
+  timezoneOffset: "+0200",
   collaborator: ["hyuan280"],
 
   type: "private",
   schema: "Unit3D",
 
-  urls: ["uggcf://srneabcrre.pbz/"],
+  urls: ["uggcf://ovgcbea.rh/"],
 
   category: [
     {
       name: "类别",
       key: "categoryIds",
       options: [
-        { name: "Movie", value: 1 },
-        { name: "TV", value: 2 },
-        { name: "Music", value: 3 },
-        { name: "Anime", value: 6 },
-        { name: "Games", value: 4 },
-        { name: "Apps", value: 5 },
-        { name: "Sport", value: 9 },
-        { name: "Assorted", value: 11 },
-      ],
-      cross: { mode: "brackets" },
-    },
-    {
-      name: "规格",
-      key: "typeIds",
-      options: [
-        { name: "Full Disc", value: 1 },
-        { name: "Remux", value: 2 },
-        { name: "Encode", value: 3 },
-        { name: "WEB-DL", value: 4 },
-        { name: "WEBRip", value: 5 },
-        { name: "HDTV", value: 6 },
-        { name: "SDTV", value: 18 },
-        { name: "FLAC", value: 7 },
-        { name: "MP3", value: 11 },
-        { name: "Mac", value: 12 },
-        { name: "Windows", value: 13 },
-        { name: "Console", value: 17 },
-        { name: "Books", value: 15 },
-        { name: "AudioBooks", value: 14 },
-        { name: "Misc", value: 16 },
+        { name: "Amateur", value: "4" },
+        { name: "Anal", value: "5" },
+        { name: "Asian", value: "6" },
+        { name: "BBW", value: "7" },
+        { name: "BDSM", value: "8" },
+        { name: "Big Ass", value: "9" },
+        { name: "Big Tits", value: "10" },
+        { name: "Black", value: "11" },
+        { name: "Cartoon", value: "12" },
+        { name: "Casting", value: "13" },
+        { name: "Classic", value: "14" },
+        { name: "Collection", value: "15" },
+        { name: "Creampie", value: "16" },
+        { name: "Cumshot", value: "17" },
+        { name: "Deepthroat", value: "18" },
+        { name: "Extreme", value: "19" },
+        { name: "Fansite", value: "20" },
+        { name: "Family", value: "21" },
+        { name: "Feature", value: "22" },
+        { name: "Fetish", value: "23" },
+        { name: "Fisting", value: "24" },
+        { name: "Gangbang", value: "25" },
+        { name: "Game", value: "26" },
+        { name: "Gay / Bi", value: "27" },
+        { name: "Hair", value: "28" },
+        { name: "Hardcore", value: "29" },
+        { name: "HiddenCam", value: "30" },
+        { name: "Homemade", value: "31" },
+        { name: "Interracial", value: "32" },
+        { name: "Lesbian", value: "33" },
+        { name: "Magyar", value: "34" },
+        { name: "Masturbation", value: "35" },
+        { name: "Mature", value: "36" },
+        { name: "Milf", value: "37" },
+        { name: "Old and Young", value: "38" },
+        { name: "Parody", value: "39" },
+        { name: "Pictures", value: "40" },
+        { name: "Pissing", value: "41" },
+        { name: "POV", value: "42" },
+        { name: "Pregnant", value: "43" },
+        { name: "Public", value: "44" },
+        { name: "Shemale", value: "45" },
+        { name: "Softcore", value: "46" },
+        { name: "Squirt", value: "47" },
+        { name: "Straight", value: "48" },
+        { name: "Teen", value: "49" },
+        { name: "Threesome", value: "50" },
+        { name: "VR", value: "51" },
+        { name: "Uncategorized", value: "52" },
       ],
       cross: { mode: "brackets" },
     },
@@ -63,51 +81,14 @@ export const siteMetadata: ISiteMetadata = {
       name: "分辨率",
       key: "resolutionIds",
       options: [
-        { name: "4320p", value: 1 },
-        { name: "2160p", value: 2 },
-        { name: "1080p", value: 3 },
-        { name: "1080i", value: 11 },
-        { name: "720p", value: 5 },
-        { name: "576p", value: 6 },
-        { name: "576i", value: 15 },
-        { name: "480p", value: 8 },
-        { name: "480i", value: 14 },
-        { name: "Other", value: 10 },
-      ],
-      cross: { mode: "brackets" },
-    },
-    {
-      name: "题材",
-      key: "genreIds",
-      options: [
-        { name: "Action", value: 28 },
-        { name: "Action & Adventure", value: 10759 },
-        { name: "Adventure", value: 12 },
-        { name: "Animation", value: 16 },
-        { name: "Comedy", value: 35 },
-        { name: "Crime", value: 80 },
-        { name: "Documentary", value: 99 },
-        { name: "Drama", value: 18 },
-        { name: "Family", value: 10751 },
-        { name: "Fantasy", value: 14 },
-        { name: "History", value: 36 },
-        { name: "Horror", value: 27 },
-        { name: "Kids", value: 10762 },
-        { name: "Music", value: 10402 },
-        { name: "Musical", value: 22 },
-        { name: "Mystery", value: 9648 },
-        { name: "News", value: 10763 },
-        { name: "Reality", value: 10764 },
-        { name: "Romance", value: 10749 },
-        { name: "Sci-Fi & Fantasy", value: 10765 },
-        { name: "Science Fiction", value: 878 },
-        { name: "Soap", value: 10766 },
-        { name: "Talk", value: 10767 },
-        { name: "Thriller", value: 53 },
-        { name: "TV Movie", value: 10770 },
-        { name: "War", value: 10752 },
-        { name: "War & Politics", value: 10768 },
-        { name: "Western", value: 37 },
+        { name: "Other", value: "11" },
+        { name: "SD", value: "12" },
+        { name: "720p", value: "17" },
+        { name: "1080p", value: "13" },
+        { name: "2048p (2K)", value: "14" },
+        { name: "2160p (4K)", value: "18" },
+        { name: "3160p (6K)", value: "15" },
+        { name: "4320p (8K)", value: "16" },
       ],
       cross: { mode: "brackets" },
     },
@@ -115,11 +96,11 @@ export const siteMetadata: ISiteMetadata = {
       name: "优惠",
       key: "free",
       options: [
-        { name: "0% Freeleech", value: 0 },
-        { name: "25% Freeleech", value: 25 },
-        { name: "50% Freeleech", value: 50 },
-        { name: "75% Freeleech", value: 75 },
-        { name: "100% Freeleech", value: 100 },
+        { name: "0% Freeleech", value: "0" },
+        { name: "25% Freeleech", value: "25" },
+        { name: "50% Freeleech", value: "50" },
+        { name: "75% Freeleech", value: "75" },
+        { name: "100% Freeleech", value: "100" },
         { name: "Double Upload", value: "doubleup" }, // 双倍上传
         { name: "Featured", value: "featured" }, // 精选
         { name: "Refundable", value: "refundable" }, //可退还的
@@ -172,20 +153,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "Incomplete", value: "incomplete" },
       ],
       cross: { mode: "append", key: "" },
-    },
-    {
-      name: "Primary Language",
-      key: "primaryLanguageNames",
-      options: buildCategoryOptions([
-        ["ab", "af", "am", "ar", "as", "az", "bg", "bn", "bo", "bs", "ca", "cn", "cr", "cs", "cy", "da", "de", "dz"],
-        ["el", "en", "eo", "es", "et", "eu", "fa", "ff", "fi", "fr", "ga", "gl", "gu", "he", "hi", "hr", "ht", "hu"],
-        ["hy", "id", "ig", "is", "it", "iu", "ja", "ka", "kk", "kl", "km", "kn", "ko", "ku", "ky", "la", "lt", "lv"],
-        ["mi", "mk", "ml", "mn", "mo", "mr", "ms", "mt", "nb", "ne", "nl", "no", "or", "pa", "pl", "ps", "pt", "ro"],
-        ["ru", "rw", "se", "sh", "sk", "sl", "so", "sq", "sr", "st", "sv", "sw", "ta", "te", "tg", "th", "tl", "tn"],
-        ["tr", "uk", "ur", "vi", "wo", "xh", "xx", "yo", "zh", "zu"],
-      ]),
-      cross: { mode: "brackets" },
-    },
+    }
   ],
   search: {
     ...SchemaMetadata.search,
@@ -196,26 +164,6 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     keywordPath: "params.name",
-    advanceKeywordParams: {
-      tmdb: {
-        requestConfigTransformer: ({ requestConfig: config }) => {
-          if (config?.params?.name) {
-            config.params.tmdbId = config.params.name;
-            delete config.params.name;
-          }
-          return config!;
-        },
-      },
-      imdb: {
-        requestConfigTransformer: ({ requestConfig: config }) => {
-          if (config?.params?.name) {
-            config.params.imdbId = config.params.name.replace("tt", "");
-            delete config.params.name;
-          }
-          return config!;
-        },
-      },
-    },
     selectors: {
       ...SchemaMetadata.search!.selectors,
       rows: { selector: "div.torrent-search--list__results > table:first > tbody > tr" },
@@ -225,6 +173,23 @@ export const siteMetadata: ISiteMetadata = {
         filters: [(query: string) => query.match(/\/torrents\/(\d+)/)![1]],
       },
       title: { selector: ["a.torrent-search--list__name"] },
+      subTitle: {
+        selector: ["td.torrent-search--list__overview div[style]"],
+        elementProcess: (element: any) => {
+          if (!element) return 0;
+
+          // 查找所有span元素
+          const spans = element.querySelectorAll("span[style]");
+
+          // 提取所有span元素中的文本内容
+          const allText = Array.from(spans)
+            .map((span: any) => (span.textContent || span.innerText || "").trim())
+            .filter(text => text.length > 0)
+            .join(", ");
+
+          return allText;
+        },
+      },
       url: { selector: ["a.torrent-search--list__name"], attr: "href" },
       time: { selector: ["td.torrent-search--list__age > time"], attr: "title", filters: [{ name: "parseTime" }] },
       size: { selector: ["td.torrent-search--list__size > span"], filters: [{ name: "parseSize" }] },
@@ -254,28 +219,33 @@ export const siteMetadata: ISiteMetadata = {
       tags: [
         {
           name: "Free",
-          selector: "i.torrent-icons__featured, i.torrent-icons__freeleech[title*='100%']",
+          selector: "span[title*='feature'], span[title*='100% Freeleech']",
           color: "blue",
         },
         {
           name: "2xUp",
-          selector: "i.torrent-icons__featured, i.torrent-icons__double-upload",
+          selector: "span[title*='feature'], i.fa-chevron-double-up",
           color: "lime",
         },
         {
           name: "75%",
-          selector: "i.torrent-icons__freeleech[title*='75%']",
+          selector: "span[title*='75% Freeleech']",
           color: "lime-darken-3",
         },
         {
           name: "50%",
-          selector: "i.torrent-icons__freeleech[title*='50%']",
+          selector: "span[title*='50% Freeleech']",
           color: "deep-orange-darken-1",
         },
         {
           name: "25%",
-          selector: "i.torrent-icons__freeleech[title*='25%']",
+          selector: "span[title*='25% Freeleech']",
           color: "blue",
+        },
+        {
+          name: "置顶",
+          selector: "i.fa-thumbtack",
+          color: "red"
         },
         {
           name: "可退款",
@@ -402,73 +372,72 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 1,
       name: "User",
-      privilege: "新用户默认等级；下载队列10个，可以发布种子",
+      privilege: "新用户默认等级；下载队列5个，可以发布种子",
     },
     {
       id: 2,
       name: "PowerUser",
       uploaded: "1TiB",
       interval: "P1M",
-      privilege: "下载队列20个，可以发布种子，可以寄出邀请",
+      privilege: "下载队列10个，可以发布种子，可以寄出邀请",
     },
     {
       id: 3,
       name: "SuperUser",
       uploaded: "5TiB",
       interval: "P2M",
-      privilege: "下载队列30个，直接发布种子，可以寄出邀请",
+      privilege: "下载队列20个，可以发布种子，可以寄出邀请",
     },
     {
       id: 4,
       name: "ExtremeUser",
       uploaded: "20TiB",
       interval: "P3M",
-      privilege: "下载队列40个，直接发布种子，可以寄出邀请",
+      privilege: "下载队列30个，直接发布种子，可以寄出邀请",
     },
     {
       id: 5,
       name: "InsaneUser",
       uploaded: "50TiB",
       interval: "P6M",
-      privilege: "下载队列50个，直接发布种子，可以寄出邀请",
+      privilege: "下载队列40个，直接发布种子，可以寄出邀请",
     },
     {
       id: 6,
-      name: "Seeder",
-      seedingSize: "5TiB",
-      interval: "P1M",
-      averageSeedingTime: "P30D",
-      privilege: "下载队列60个，直接发布种子，可以寄出邀请，可以无视H&R",
+      name: "Veteran",
+      uploaded: "100TiB",
+      interval: "P12M",
+      privilege: "下载队列50个，全局免费，直接发布种子，可以寄出邀请，可以无视H&R",
     },
     {
       id: 7,
-      name: "Curator",
-      seedingSize: "10TiB",
-      interval: "P2M",
-      averageSeedingTime: "P60D",
-      privilege: "下载队列60个，直接发布种子，可以寄出邀请，可以无视H&R",
+      name: "Seeder",
+      seedingSize: "5TiB",
+      interval: "P1M",
+      averageSeedingTime: "P1M",
+      privilege: "下载队列80个，直接发布种子，可以寄出邀请，可以无视H&R",
     },
     {
       id: 8,
-      name: "Veteran",
-      uploaded: "100TiB",
-      seedingSize: "5TiB",
-      averageSeedingTime: "P30D",
-      interval: "P12M",
-      privilege: "下载队列60个，直接发布种子，可以寄出邀请，可以无视H&R",
+      name: "Archivist",
+      seedingSize: "10TiB",
+      interval: "P3M",
+      averageSeedingTime: "P2M",
+      privilege: "下载队列无限，全局免费，直接发布种子，可以寄出邀请，可以无视H&R",
     },
     {
       id: 9,
-      name: "Archivist",
-      seedingSize: "20TiB",
-      interval: "P3M",
-      averageSeedingTime: "P90D",
-      privilege: "下载队列60个，直接发布种子，可以寄出邀请，可以无视H&R，双倍上传",
-    },
-  ],
+      name: "Wizard",
+      seedingSize: "500TiB",
+      ratio: 20,
+      interval: "P3Y",
+      averageSeedingTime: "P3M19DT12H",
+      privilege: "下载队列无限，全局免费，直接发布种子，可以寄出邀请，可以无视H&R，双倍上传",
+    }
+  ]
 };
 
-export default class Fearnopeer extends Unit3D {
+export default class BitPorn extends Unit3D {
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
     let userName = flushUserInfo?.name;
@@ -479,7 +448,7 @@ export default class Fearnopeer extends Unit3D {
     return flushUserInfo;
   }
 
-  protected async getBonusPerHourFromBonusTransactionsPage(userName: string): Promise<string> {
+  protected async getBonusPerHourFromBonusTransactionsPage(userName: string): Promise<number> {
     const { data: document } = await this.request<Document>(
       {
         url: `/users/${userName}/earnings`,

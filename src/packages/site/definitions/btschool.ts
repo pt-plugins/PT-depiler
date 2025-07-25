@@ -104,31 +104,13 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     process: [
-      {
-        requestConfig: { url: "/index.php", params: { _: Date.now() }, responseType: "document" }, // 有助于通过 CF
-        fields: ["id", "name"],
-      },
-      {
-        requestConfig: { url: "/userdetails.php", params: { _: Date.now() }, responseType: "document" },
-        assertion: { id: "params.id" },
-        fields: [
-          "messageCount",
-          "uploaded",
-          "trueUploaded",
-          "downloaded",
-          "trueDownloaded",
-          "levelName",
-          "bonus",
-          "seedingBonus",
-          "joinTime",
-          "seeding",
-          "seedingSize",
-        ],
-      },
-      {
-        requestConfig: { url: "/mybonus.php", params: { _: Date.now() }, responseType: "document" },
-        fields: ["bonusPerHour"],
-      },
+      ...SchemaMetadata.userInfo!.process!.map((item) => ({
+        ...item,
+        requestConfig: {
+          ...item.requestConfig,
+          params: { ...(item.requestConfig?.params || {}), _: Date.now() }, // 请求中增加一个 _ 参数，有助于通过 CF
+        },
+      })),
     ],
   },
 

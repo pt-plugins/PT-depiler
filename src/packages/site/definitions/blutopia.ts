@@ -36,7 +36,7 @@ export const siteMetadata: ISiteMetadata = {
       joinTime: {
         selector: ["time"],
         attr: "datetime",
-        filters: [{ name: "parseTTL" }],
+        filters: [{ name: "parseFuzzyTime" }],
       },
     },
   },
@@ -229,6 +229,14 @@ export const siteMetadata: ISiteMetadata = {
       comments: {
         selector: ["i.torrent-icons__comments"],
       },
+      tags: [
+        ...SchemaMetadata.search!.selectors!.tags!,
+        {
+          name: "H&R",
+          selector: "*",
+          color: "red",
+        },
+      ],
     },
   },
 };

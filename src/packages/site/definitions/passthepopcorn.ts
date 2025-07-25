@@ -1,6 +1,6 @@
 import Sizzle from "sizzle";
 import Gazelle, { SchemaMetadata } from "../schemas/Gazelle.ts";
-import { parseValidTimeString, parseSizeString } from "../utils";
+import { parseValidTimeString, parseSizeString, buildCategoryOptions } from "../utils";
 import type { ISiteMetadata, ITorrent, ISearchInput } from "../types";
 import { ETorrentStatus } from "../types";
 
@@ -36,50 +36,23 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "Source",
       key: "encoding",
-      options: [
-        { value: "AVI", name: "AVI" },
-        { value: "MPG", name: "MPG" },
-        { value: "MKV", name: "MKV" },
-        { value: "MP4", name: "MP4" },
-        { value: "VOB IFO", name: "VOB IFO" },
-        { value: "ISO", name: "ISO" },
-        { value: "m2ts", name: "m2ts" },
-      ],
+      options: buildCategoryOptions(["AVI", "MPG", "MKV", "MP4", "VOB IFO", "ISO", "m2ts"]),
     },
     {
       name: "Codec",
       key: "format",
-      options: [
-        { value: "XviD", name: "XviD" },
-        { value: "DivX", name: "DivX" },
-        { value: "H.264", name: "H.264" },
-        { value: "x264", name: "x264" },
-        { value: "H.265", name: "H.265" },
-        { value: "x265", name: "x265" },
-        { value: "DVD5", name: "DVD5" },
-        { value: "DVD9", name: "DVD9" },
-        { value: "BD25", name: "BD25" },
-        { value: "BD50", name: "BD50" },
-        { value: "BD66", name: "BD66" },
-        { value: "BD100", name: "BD100" },
-      ],
+      options: buildCategoryOptions([
+        ["XviD", "DivX", "H.264", "x264", "H.265", "x265"],
+        ["DVD5", "DVD9", "BD25", "BD50", "BD66", "BD100"],
+      ]),
     },
     {
       name: "Source",
       key: "media",
-      options: [
-        { value: "CAM", name: "CAM" },
-        { value: "TS", name: "TS" },
-        { value: "R5", name: "R5" },
-        { value: "DVD-Screener", name: "DVD-Screener" },
-        { value: "VHS", name: "VHS" },
-        { value: "WEB", name: "WEB" },
-        { value: "DVD", name: "DVD" },
-        { value: "TV", name: "TV" },
-        { value: "HDTV", name: "HDTV" },
-        { value: "HD-DVD", name: "HD-DVD" },
-        { value: "Blu-ray", name: "Blu-ray" },
-      ],
+      options: buildCategoryOptions([
+        ["CAM", "TS", "R5", "DVD-Screener", "VHS", "WEB"],
+        ["DVD", "TV", "HDTV", "HD-DVD", "Blu-ray"],
+      ]),
     },
     {
       name: "Resolution",
@@ -89,14 +62,7 @@ export const siteMetadata: ISiteMetadata = {
         { value: "anyhd", name: "Any HD" },
         { value: "anyhdplus", name: "Any HD+" },
         { value: "anyuhd", name: "Any UHD" },
-        { value: "NTSC", name: "NTSC" },
-        { value: "PAL", name: "PAL" },
-        { value: "480p", name: "480p" },
-        { value: "576p", name: "576p" },
-        { value: "720p", name: "720p" },
-        { value: "1080i", name: "1080i" },
-        { value: "1080p", name: "1080p" },
-        { value: "2160p", name: "2160p" },
+        ...buildCategoryOptions(["NTSC", "PAL", "480p", "576p", "720p", "1080i", "1080p", "2160p"]),
       ],
     },
     {

@@ -7,6 +7,7 @@ export interface ISocialSitePageInformation {
   site: TSupportSocialSite;
   id: string;
   titles: string[];
+  external_ids?: Partial<Record<TSupportSocialSite, string>>; // 外部 ID
 }
 
 export type TSupportSocialSitePageParser = (doc: Document) => ISocialSitePageInformation | ISocialSitePageInformation[];

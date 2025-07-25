@@ -596,7 +596,14 @@
       "nextFlushTime": "下一次刷新时间:"
     },
     "showDeadSite": "在概览中展示已被标记为死亡 （isDead） 的站点",
-    "showPassedSite": "在概览中展示已被标记为离线 （isOffline） 或不允许查询用户信息的站点"
+    "showPassedSite": "在概览中展示已被标记为离线 （isOffline） 或不允许查询用户信息的站点",
+    "autoExtendCookies": {
+      "enabled": "是否启用自动延长cookies周期？",
+      "triggerThreshold": "当cookies剩余有效期少于",
+      "extensionDuration": "自动延长其有效期",
+      "weeks": "周，",
+      "months": "个月。"
+    }
   },
   "ptppSettings": {
     "basicConfig": "基本配置",
