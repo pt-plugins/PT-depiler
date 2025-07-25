@@ -205,9 +205,25 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     getSearchSolution(state) {
-      return async (solutionId: TSolutionKey | "default" | "all"): Promise<ISearchSolutionMetadata> => {
+      return async (
+        solutionId: TSolutionKey | `site:${string}` | "default" | "all",
+      ): Promise<ISearchSolutionMetadata> => {
         if (solutionId === "all" || (solutionId === "default" && state.defaultSolutionId === "default")) {
           return await this.getDefaultAllSearchSolution();
+        } else if (solutionId.startsWith("site:")) {
+          const siteId = solutionId.replace("site:", "");
+          const searchEntries = await this.getSiteDefaultSearchSolution(siteId);
+          if (searchEntries) {
+            return {
+              name: "all",
+              id: "all",
+              sort: 0,
+              enabled: true,
+              isDefault: true,
+              createdAt: 0,
+              solutions: [{ id: "default", siteId, searchEntries }],
+            };
+          }
         } else if (solutionId === "default") {
           solutionId = state.defaultSolutionId;
         }
