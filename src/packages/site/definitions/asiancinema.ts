@@ -23,6 +23,20 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
+  search: {
+    ...SchemaMetadata.search,
+    selectors: {
+      ...SchemaMetadata.search?.selectors,
+      tags: [
+        {
+          name: "H&R",
+          selector: "*",
+          color: "red",
+        },
+      ],
+    },
+  },
+
   levelRequirements: [
     {
       id: 0,

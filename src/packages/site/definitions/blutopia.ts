@@ -229,6 +229,14 @@ export const siteMetadata: ISiteMetadata = {
       comments: {
         selector: ["i.torrent-icons__comments"],
       },
+      tags: [
+        ...SchemaMetadata.search!.selectors!.tags!,
+        {
+          name: "H&R",
+          selector: "*",
+          color: "red",
+        },
+      ],
     },
   },
 };

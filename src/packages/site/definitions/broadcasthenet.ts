@@ -61,6 +61,13 @@ export const siteMetadata: ISiteMetadata = {
           { name: "parseTTL" }, // 使用parseTTL转换相对时间为绝对时间
         ],
       },
+      tags: [
+        {
+          name: "H&R",
+          selector: "*",
+          color: "red",
+        },
+      ],
     },
   },
 

@@ -641,6 +641,8 @@ export default class BeyondHD extends PrivateSite {
       tags.push({ name: "中字" });
     }
 
+    tags.push({ name: "H&R", color: "red" });
+
     torrent.tags = tags;
     return torrent;
   }
