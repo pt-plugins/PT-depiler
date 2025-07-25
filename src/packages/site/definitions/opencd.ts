@@ -243,6 +243,7 @@ export const siteMetadata: ISiteMetadata = {
       status: selectorSearchStatus,
       tags: [
         ...SchemaMetadata.search!.selectors!.tags!,
+        { name: "H&R", selector: "*", color: "red" },
         { selector: "img[src*='pic/share_rule_1.gif']", name: "Excl.", color: "deep-orange-darken-1" }, // 禁转
       ],
     },
