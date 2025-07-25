@@ -53,7 +53,7 @@ export const pageParserMatches: TSupportSocialSitePageParserMatches = [
     },
   ],
   [
-    /\/anime\/(browser|list\/.+?\/(wish|collect|do|on_hold|dropped)|tag\/)/,
+    /^(?:https?:\/\/)?(?:bgm\.tv|bangumi\.tv|chii\.in)\/anime\/(browser|list\/.+?\/(wish|collect|do|on_hold|dropped)|tag\/)/,
     (doc: Document): ISocialSitePageInformation[] => {
       const parseShortUrl = commonParseFactory([/\/subject\/(\d+)\/?/]);
 
