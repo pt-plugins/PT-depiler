@@ -47,13 +47,13 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "totheglory",
   name: "ToTheGlory",
-  aka: ["TTG"],
+  aka: ["TTG", "套套哥", "听听歌"],
   description: "ToTheGlory（TTG）是一个综合性PT站点，以高清电影、电视剧、音乐、动漫资源为主。",
   tags: ["影视", "音乐", "游戏", "综合"],
   timezoneOffset: "+0800",
 
   type: "private",
-  schema: "AbstractPrivateSite",
+  schema: "TBSource",
 
   urls: ["https://totheglory.im/"],
   category: [
