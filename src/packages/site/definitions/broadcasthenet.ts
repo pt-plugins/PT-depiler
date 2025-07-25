@@ -62,11 +62,10 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
       tags: [
-        ...SchemaMetadata.search!.selectors!.tags!,
         {
           name: "H&R",
-          selector: ":self",
-          color: "black",
+          selector: "*",
+          color: "red",
         },
       ],
     },

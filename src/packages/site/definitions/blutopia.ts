@@ -233,8 +233,8 @@ export const siteMetadata: ISiteMetadata = {
         ...SchemaMetadata.search!.selectors!.tags!,
         {
           name: "H&R",
-          selector: ":self",
-          color: "black",
+          selector: "*",
+          color: "red",
         },
       ],
     },
