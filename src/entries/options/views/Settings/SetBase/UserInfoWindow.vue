@@ -45,7 +45,7 @@ onMounted(async () => {
     <v-col md="10" lg="8">
       <v-number-input
         v-model="configStore.userInfo.queueConcurrency"
-        :max="100"
+        :max="25"
         :min="1"
         :label="t('userInfo.queueConcurrency')"
       ></v-number-input>

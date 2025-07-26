@@ -20,7 +20,7 @@ async function clearLastFilter(v: boolean) {
       <v-label>{{ t("route.Settings.SearchConfig.siteSearchConfig") }}</v-label>
       <v-number-input
         v-model="configStore.searchEntity.queueConcurrency"
-        :max="100"
+        :max="25"
         :min="1"
         controlVariant="default"
         hide-details
@@ -56,7 +56,7 @@ async function clearLastFilter(v: boolean) {
       <v-label>{{ t("route.Settings.SearchConfig.mediaServerSearchConfig") }}</v-label>
       <v-number-input
         v-model="configStore.mediaServerEntity.queueConcurrency"
-        :max="100"
+        :max="25"
         :min="1"
         controlVariant="default"
         :label="t('route.Settings.SearchConfig.mediaQueueConcurrency')"
