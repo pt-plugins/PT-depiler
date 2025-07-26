@@ -86,6 +86,8 @@ export const siteMetadata: ISiteMetadata = {
           "bonus",
           "bonusPerHour",
           "joinTime",
+          "hnrUnsatisfied",
+          "hnrPreWarning",
         ],
       },
     ],
@@ -151,6 +153,26 @@ export const siteMetadata: ISiteMetadata = {
       joinTime: {
         selector: "dt:contains('Joined:') + dd > span",
         filters: [{ name: "parseFuzzyTime" }],
+      },
+      hnrUnsatisfied: {
+        selector: "ul.stats li:contains('H&Rs:')",
+        attr: "title",
+        filters: [
+          (query: string) => {
+            const numbers = query.match(/\d+/g);
+            return numbers && numbers.length >= 1 ? parseInt(numbers[0]) : 0;
+          },
+        ],
+      },
+      hnrPreWarning: {
+        selector: "ul.stats li:contains('H&Rs:')",
+        attr: "title",
+        filters: [
+          (query: string) => {
+            const numbers = query.match(/\d+/g);
+            return numbers && numbers.length >= 2 ? parseInt(numbers[1]) : 0;
+          },
+        ],
       },
     },
   },
