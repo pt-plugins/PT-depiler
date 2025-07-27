@@ -4,14 +4,15 @@ import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "animebytes",
-  name: "AB",
+  name: "AnimeBytes",
+  aka: ["AB"],
   description: "动漫",
   tags: ["动漫"],
   timezoneOffset: "+0000",
   collaborator: ["MewX", "sabersalv"],
 
   type: "private",
-  schema: "AbstractPrivateSite",
+  schema: "Gazelle",
 
   urls: ["uggcf://navzrolgrf.gi/"],
 
