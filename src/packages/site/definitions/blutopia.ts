@@ -85,6 +85,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 7,
       name: "BluSeeder",
+      groupType: "user",
       seedingSize: "5TiB",
       interval: "P1M",
       averageSeedingTime: "P30D",
