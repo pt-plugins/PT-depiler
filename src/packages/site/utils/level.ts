@@ -50,7 +50,6 @@ export function guessUserLevelGroupType(levelName: string): TLevelGroupType {
       "helper",
       "seeder",
       "transferrer",
-      "torrent",
       "assistant",
       "发布",
       "发种",
