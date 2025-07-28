@@ -98,7 +98,21 @@ export const siteMetadata: ISiteMetadata = {
           "seedingSize",
           "totalTraffic",
           "snatches",
+          "hnrUnsatisfied",
         ],
+      },
+      {
+        requestConfig: {
+          url: "/snatchlist.php",
+          params: {
+            type: "ajax",
+            sort: "seedtimeleft",
+            page: 1,
+          },
+          responseType: "document",
+        },
+        assertion: { id: "params.id" },
+        fields: ["hnrPreWarning"],
       },
     ],
     selectors: {
@@ -162,6 +176,28 @@ export const siteMetadata: ISiteMetadata = {
           });
 
           return totalSnatches;
+        },
+      },
+      hnrUnsatisfied: {
+        selector: "ul.nobullet > li:contains('HnRs:') > a",
+        filters: [{ name: "parseNumber" }],
+      },
+      hnrPreWarning: {
+        selector: ["table:has(tr.colhead_dark)"],
+        elementProcess: (element: HTMLElement) => {
+          // 循环所有 id 以 "snatch" 开头的 tr 元素
+          const rows = Array.from(element.querySelectorAll("tr[id^='snatch']")) as HTMLElement[];
+          let count = 0;
+
+          rows.forEach((row) => {
+            // 查找第5列的 td 元素
+            const fifthCell = row.querySelector("td:nth-child(5)") as HTMLElement;
+            if (fifthCell && fifthCell.textContent && !fifthCell.textContent.includes("Complete")) {
+              count++;
+            }
+          });
+
+          return count;
         },
       },
     },
