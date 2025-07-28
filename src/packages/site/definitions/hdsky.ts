@@ -237,6 +237,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P5W",
       downloaded: "200GB",
       ratio: 2.0,
+      bonus: 600000,
       privilege: "NFO文档；请求续种；查看其它用户的种子历史；删除自己上传的字幕",
     },
     {
@@ -245,6 +246,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P10W",
       downloaded: "500GB",
       ratio: 2.5,
+      bonus: 800000,
       privilege: "查看邀请区",
     },
     {
@@ -253,6 +255,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P15W",
       downloaded: "1TB",
       ratio: 3.0,
+      bonus: 1000000,
       privilege: "在做种/下载/发布的时候选择匿名模式",
     },
     {
@@ -261,6 +264,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P20W",
       downloaded: "2TB",
       ratio: 3.5,
+      bonus: 1500000,
       privilege: "查看普通日志",
     },
     {
@@ -269,6 +273,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P25W",
       downloaded: "4TB",
       ratio: 4.0,
+      bonus: 2000000,
       privilege: "封存账号后不会被删除；查看其它用户的评论、帖子历史",
     },
     {
@@ -277,6 +282,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P30W",
       downloaded: "6TB",
       ratio: 4.5,
+      bonus: 2500000,
       privilege: "更新过期的外部信息；查看Extreme User论坛",
     },
     {
@@ -285,6 +291,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P45W",
       downloaded: "8TB",
       ratio: 5.0,
+      bonus: 3500000,
       privilege: "永远保留账号",
     },
     {
@@ -293,6 +300,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P65W",
       downloaded: "10TB",
       ratio: 5.5,
+      bonus: 5000000,
       privilege: "直接发布种子；可以查看排行榜；在网站开放邀请期间发送邀请",
     },
   ],
