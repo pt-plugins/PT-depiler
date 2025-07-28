@@ -47,11 +47,6 @@ function startSearchEntity() {
     },
   });
 }
-
-function advanceSearch(type?: string) {
-  searchKey.value = (type ? type + "|" : "") + searchKey.value.replace(/^\w+\|/, ""); // 移除已有的搜索类型前缀
-  startSearchEntity();
-}
 </script>
 
 <template>
@@ -81,9 +76,12 @@ function advanceSearch(type?: string) {
       v-model="searchKey"
       :placeholder="t('layout.header.searchTip')"
       class="ptd-search-input pl-2"
+      clearable
+      enterkeyhint="search"
       hide-details
       style="width: 300px"
-      @keydown.enter="startSearchEntity"
+      type="search"
+      @keyup.enter="startSearchEntity"
     >
       <template #append>
         <!-- 搜索按键 -->
@@ -113,7 +111,7 @@ function advanceSearch(type?: string) {
               "
               :title="t('layout.header.searchPlan.default')"
               @click="() => (searchPlanKey = 'default')"
-            ></v-list-item>
+            />
             <v-divider />
             <v-list-item
               v-for="(item, index) in searchPlans"
@@ -138,8 +136,8 @@ function advanceSearch(type?: string) {
     <v-spacer v-if="display.smAndUp.value" />
 
     <template #append>
-      <!-- 处于大屏幕，完整显示所有btn -->
       <template v-if="!display.mdAndDown.value">
+        <!-- 处于大屏幕，完整显示所有btn -->
         <v-btn
           v-for="(append, index) in appendMenu"
           :key="index"
@@ -156,8 +154,8 @@ function advanceSearch(type?: string) {
         </v-btn>
       </template>
 
-      <!-- 处于小屏幕，只显示点，btn以menu列表形式展示 -->
       <template v-else>
+        <!-- 处于小屏幕，只显示点，btn以menu列表形式展示 -->
         <v-menu bottom left offset-y>
           <template #activator="{ props }">
             <v-btn v-bind="props" icon="mdi-dots-vertical" variant="text" />
