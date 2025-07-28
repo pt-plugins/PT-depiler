@@ -124,15 +124,19 @@ function startSearchEntity() {
 
               <v-menu :open-on-focus="false" activator="parent" open-on-hover submenu>
                 <v-list>
-                  <template v-for="(siteMetadata, site) in metadataStore.sites" :key="site">
+                  <template v-for="siteMetadata in metadataStore.getSortedAddedSites" :key="siteMetadata.id">
                     <v-list-item
                       v-if="siteMetadata.allowSearch ?? false"
-                      @click="() => (searchPlanKey = `site:${site}`)"
+                      @click="() => (searchPlanKey = `site:${siteMetadata.id}`)"
                     >
                       <template #prepend>
-                        <SiteFavicon :site-id="site" />
+                        <SiteFavicon :site-id="siteMetadata.id" />
                       </template>
-                      <SiteName :site-id="site" :class="['v-list-item-title', 'text-black', 'ml-2']" tag="span" />
+                      <SiteName
+                        :class="['v-list-item-title', 'text-black', 'ml-2']"
+                        :site-id="siteMetadata.id"
+                        tag="span"
+                      />
                     </v-list-item>
                   </template>
                 </v-list>

@@ -58,7 +58,15 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     getAddedSites(state) {
-      return Object.values(state.sites);
+      return Object.entries(state.sites).map(([siteId, metadata]) => {
+        return { ...metadata, id: siteId };
+      });
+    },
+
+    getSortedAddedSites(state): Array<ISiteUserConfig & { id: string }> {
+      return this.getAddedSites.sort((a, b) => {
+        return (b.sortIndex ?? 0) - (a.sortIndex ?? 0);
+      });
     },
 
     getSitesGroupData(state) {
