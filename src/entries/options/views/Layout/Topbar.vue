@@ -9,6 +9,8 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 import { REPO_URL } from "~/helper";
+import SiteFavicon from "@/options/components/SiteFavicon.vue";
+import SiteName from "@/options/components/SiteName.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -112,6 +114,30 @@ function startSearchEntity() {
               :title="t('layout.header.searchPlan.default')"
               @click="() => (searchPlanKey = 'default')"
             />
+            <v-list-item
+              v-if="configStore.searchEntity.allowSingleSiteSearch"
+              :title="t('layout.header.searchPlan.singleSite')"
+            >
+              <template v-slot:append>
+                <v-icon icon="mdi-menu-right" size="x-small"></v-icon>
+              </template>
+
+              <v-menu :open-on-focus="false" activator="parent" open-on-hover submenu>
+                <v-list>
+                  <template v-for="(siteMetadata, site) in metadataStore.sites" :key="site">
+                    <v-list-item
+                      v-if="siteMetadata.allowSearch ?? false"
+                      @click="() => (searchPlanKey = `site:${site}`)"
+                    >
+                      <template #prepend>
+                        <SiteFavicon :site-id="site" />
+                      </template>
+                      <SiteName :site-id="site" :class="['v-list-item-title', 'text-black', 'ml-2']" tag="span" />
+                    </v-list-item>
+                  </template>
+                </v-list>
+              </v-menu>
+            </v-list-item>
             <v-divider />
             <v-list-item
               v-for="(item, index) in searchPlans"

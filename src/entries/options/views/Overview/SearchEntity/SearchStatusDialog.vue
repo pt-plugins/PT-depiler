@@ -54,7 +54,11 @@ function getSearchSolution(planKey: string, entryName: string) {
                 <span v-if="searchPlan.searchEntry.name">
                   {{ searchPlan.searchEntry.name }}
                 </span>
-                <span v-else-if="runtimeStore.search.searchPlanKey === 'all'">
+                <span
+                  v-else-if="
+                    runtimeStore.search.searchPlanKey === 'all' || runtimeStore.search.searchPlanKey.startsWith('site:')
+                  "
+                >
                   {{ searchPlan.searchEntry.name ?? searchPlan.searchEntryName }}
                 </span>
                 <span v-else>

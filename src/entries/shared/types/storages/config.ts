@@ -182,6 +182,8 @@ export interface IConfigPiniaStorageSchema {
     queueConcurrency: number;
     // 是否将 tt\d{7,8} 的搜索词视为 IMDb 搜索
     treatTTQueryAsImdbSearch: boolean;
+    // 是否允许单站点搜索
+    allowSingleSiteSearch: boolean;
   };
 
   // 配置同样在 searchEntity 页面（偷懒下）

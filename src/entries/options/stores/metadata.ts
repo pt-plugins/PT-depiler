@@ -216,7 +216,7 @@ export const useMetadataStore = defineStore("metadata", {
           if (searchEntries) {
             return {
               name: "all",
-              id: "all",
+              id: solutionId,
               sort: 0,
               enabled: true,
               isDefault: true,

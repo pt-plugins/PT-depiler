@@ -35,10 +35,14 @@ function doFlush() {
     siteFavicon.value = favicon;
   });
 }
+
+const binds = {
+  click: flushOnClick ? doFlush : undefined,
+};
 </script>
 
 <template>
-  <v-img :height="size" :src="siteFavicon" :width="size" aspect-ratio="1/1" @click="doFlush" />
+  <v-img :height="size" :src="siteFavicon" :width="size" aspect-ratio="1/1" v-on="binds" />
 </template>
 
 <style scoped lang="scss"></style>

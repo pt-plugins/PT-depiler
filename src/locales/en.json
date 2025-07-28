@@ -54,6 +54,7 @@
       "navBarTip": "Click to show/hide the navigation bar",
       "searchPlan": {
         "all": "@:manifest.searchPlanAll",
+        "singleSite": "@:manifest.searchPlanSingleSite",
         "default": "@:manifest.searchPlanDefault"
       },
       "searchTip": "Input keyword, IMDb numbers to search",
@@ -66,6 +67,7 @@
     "extDesc": "PT Depiler",
     "extName": "PT Depiler",
     "searchPlanAll": "All Sites",
+    "searchPlanSingleSite": "Single Site",
     "searchPlanDefault": "Default",
     "omniboxSearch": "Search $2 in [ $1 ]"
   },
