@@ -1,4 +1,4 @@
-import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
+import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type ITorrent, type IUserInfo } from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
 import { buildCategoryOptions, parseSizeString, parseValidTimeString } from "../utils";
 
@@ -308,7 +308,7 @@ export const siteMetadata: ISiteMetadata = {
 
   list: [
     {
-      urlPattern: ["/torrents\[\^/\]"],
+      urlPattern: ["/torrents(?:/?$|\\?\[\^/\]*$)"],
     },
   ],
 
@@ -488,5 +488,15 @@ export default class Fearnopeer extends Unit3D {
       true,
     );
     return this.getFieldData(document, this.metadata.userInfo?.selectors?.bonusPerHour!);
+  }
+
+  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    const downloadLink = await super.getTorrentDownloadLink(torrent);
+    if (downloadLink && !downloadLink.includes("/download/")) {
+      const mockRequestConfig = torrent.url?.startsWith("http") ? { url: torrent.url } : { baseURL: this.url };
+      return this.fixLink(`/torrents/download/${torrent.id}`, mockRequestConfig);
+    }
+
+    return downloadLink;
   }
 }

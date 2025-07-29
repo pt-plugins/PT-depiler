@@ -1,5 +1,5 @@
 import { omit, toMerged } from "es-toolkit";
-import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type IUserInfo, NeedLoginError } from "../types";
+import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type IUserInfo, type ITorrent, NeedLoginError } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite";
 import { buildCategoryOptions, parseSizeString } from "../utils";
 
@@ -272,6 +272,28 @@ export const siteMetadata: ISiteMetadata = {
 
   // TODO userInfo 中的messageCount 等其他字段
 
+  list: [
+    {
+      urlPattern: ["/torrents\\.php(?!\\?id=\\d+$)"],
+    },
+  ],
+
+  detail: {
+    urlPattern: ["/torrents\\.php\\?id=\\d+"],
+    selectors: {
+      title: { selector: ["table.torrent_table tr[id] strong"] },
+      id: {
+        selector: ["a[href*='/torrents.php?action=download']"],
+        attr: "href",
+        filters: [(query: string) => query.match(/id=(\d+)/)![1]]
+      },
+      link: {
+        selector: ["a[href*='/torrents.php?action=download']"],
+        attr: "href",
+      },
+    },
+  },
+
   levelRequirements: [
     {
       id: 1,
@@ -413,5 +435,18 @@ export default class HappyFappy extends PrivateSite {
     });
 
     return this.getFieldData(userDetailDocument, this.metadata.userInfo?.selectors?.seedingSize!);
+  }
+
+  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    const downloadLink = await super.getTorrentDownloadLink(torrent);
+    if (downloadLink && !downloadLink.includes("action=download")) {
+      const { data: detailDocument } = await this.request<Document>({
+        url: downloadLink,
+        responseType: "document",
+      });
+      return this.getFieldData(detailDocument, this.metadata.search?.selectors?.link!);
+    }
+
+    return downloadLink;
   }
 }
