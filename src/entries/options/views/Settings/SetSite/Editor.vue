@@ -99,12 +99,13 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
         <v-label class="my-2">基本信息</v-label>
         <v-row>
           <v-col cols="12" md="4">
-            <v-text-field
+            <v-combobox
               v-model="siteName"
+              :items="[siteMetaData.name, ...(siteMetaData.aka ?? [])]"
               :label="t('SetSite.common.name')"
               :rules="[formValidateRules.require()]"
               hide-details
-            ></v-text-field>
+            ></v-combobox>
           </v-col>
           <v-col cols="12" md="4">
             <v-text-field v-model="siteMetaData.schema" :label="t('SetSite.common.type')" disabled hide-details />
