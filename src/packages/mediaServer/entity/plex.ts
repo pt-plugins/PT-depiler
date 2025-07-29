@@ -192,7 +192,7 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
           server: this.config.id!,
           // @ts-ignore
           name: item.parentTitle ? `${item.parentTitle} (${item.title})` : item.title,
-          url: `${this.webBaseUrl}/#!/server/${serverIdentity}/details?key=${item.key}`,
+          url: `${this.webBaseUrl}#!/server/${serverIdentity}/details?key=${item.key}`,
           type: item.type === "movie" ? "Movie" : item.type,
           description: item.summary,
           // @ts-ignore
