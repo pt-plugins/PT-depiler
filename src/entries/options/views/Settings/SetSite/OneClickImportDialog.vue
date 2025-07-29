@@ -42,7 +42,7 @@ const canAddSites = shallowRef<Record<TSiteID, ISiteMetadata>>({});
 
 const realCanAutoAddSiteId = computed(() =>
   Object.values(canAddSites.value)
-    .filter((x) => !x.userInputSettingMeta)
+    .filter((x) => !x.userInputSettingMeta && x.type === "private")
     .map((x) => x.id),
 );
 
@@ -93,20 +93,26 @@ async function doAutoImport() {
     importStatus.value.working = site;
 
     try {
+      let isThisSiteSuccess = false;
+
       // 拿到 siteMetadata, siteUserConfig
       const siteMetadata = canAddSites.value[site] as ISiteMetadata;
       const siteUserConfig = (await metadataStore.getSiteUserConfig(site, true)) as ISiteUserConfig;
 
-      let isThisSiteSuccess = false;
-
-      // 遍历所有设置的 urls
-      for (const siteUrl of siteMetadata.urls) {
-        siteUserConfig.url = siteUrl;
-        await metadataStore.addSite(site, siteUserConfig); // 临时将该设置存入 metadataStore
-        const { status: testStatus } = await sendMessage("getSiteSearchResult", { siteId: site });
-        if (testStatus === EResultParseStatus.success) {
-          isThisSiteSuccess = true; // 如果搜索成功，说明该站点可以自动添加
-          break;
+      // 对于 public 站点，不需要额外测试是否能够搜索
+      if (siteMetadata.type === "public") {
+        await metadataStore.addSite(site, siteUserConfig); // 直接将该站点设置存入 metadataStore
+        isThisSiteSuccess = true;
+      } else {
+        // 遍历所有 private site 预设的 urls ，找到用户实际使用的 url
+        for (const siteUrl of siteMetadata.urls) {
+          siteUserConfig.url = siteUrl;
+          await metadataStore.addSite(site, siteUserConfig); // 临时将该设置存入 metadataStore
+          const { status: testStatus } = await sendMessage("getSiteSearchResult", { siteId: site });
+          if (testStatus === EResultParseStatus.success) {
+            isThisSiteSuccess = true; // 如果搜索成功，说明该站点可以自动添加
+            break;
+          }
         }
       }
 
