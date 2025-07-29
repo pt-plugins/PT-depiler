@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { convertIsoDurationToDate, type IImplicitUserInfo, type ILevelRequirement, IUserInfo } from "@ptd/site";
-
-import { formatDate } from "@/options/utils.ts";
+import { type IImplicitUserInfo, type ILevelRequirement, IUserInfo } from "@ptd/site";
 
 import UserLevelsComponent from "./UserLevelsComponent.vue";
 
@@ -29,17 +27,7 @@ const { t } = useI18n();
 
   <span v-if="showNextLevelName && nextLevelUnMet.level">{{ nextLevelUnMet.level.name }}:&nbsp;</span>
 
-  <template v-if="nextLevelUnMet.level && nextLevelUnMet.interval">
-    <v-icon :title="t('levelRequirement.interval')" icon="mdi-calendar-check-outline" size="small" />
-    {{
-      formatDate(
-        convertIsoDurationToDate(nextLevelUnMet.level.interval!, userInfo.joinTime ?? currentTime),
-        "yyyy-MM-dd",
-      )
-    }}
-  </template>
-
-  <UserLevelsComponent :level-requirement="nextLevelUnMet" />
+  <UserLevelsComponent :level-requirement="nextLevelUnMet" :user-info="userInfo" />
 </template>
 
 <style scoped lang="scss"></style>
