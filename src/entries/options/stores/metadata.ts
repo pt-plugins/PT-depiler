@@ -196,43 +196,46 @@ export const useMetadataStore = defineStore("metadata", {
       };
     },
 
-    getDefaultAllSearchSolution(state) {
-      return async () => {
-        const solutions: ISearchSolution[] = [];
-
-        const addedSiteIds = Object.keys(state.sites);
-        for (const siteId of addedSiteIds) {
-          const searchEntries = await this.getSiteDefaultSearchSolution(siteId);
-          if (searchEntries) {
-            solutions.push({ id: "default", siteId, searchEntries });
-          }
-        }
-
-        return { name: "all", id: "all", sort: 0, enabled: true, isDefault: true, createdAt: 0, solutions };
-      };
-    },
-
     getSearchSolution(state) {
       return async (
         solutionId: TSolutionKey | `site:${string}` | "default" | "all",
       ): Promise<ISearchSolutionMetadata> => {
-        if (solutionId === "all" || (solutionId === "default" && state.defaultSolutionId === "default")) {
-          return await this.getDefaultAllSearchSolution();
-        } else if (solutionId.startsWith("site:")) {
-          const siteId = solutionId.replace("site:", "");
-          const searchEntries = await this.getSiteDefaultSearchSolution(siteId);
-          if (searchEntries) {
-            return {
-              name: "all",
-              id: solutionId,
-              sort: 0,
-              enabled: true,
-              isDefault: true,
-              createdAt: 0,
-              solutions: [{ id: "default", siteId, searchEntries }],
-            };
+        // 首先判断是否是约定的 "all"  "default"  "site:xxx,xxx" 站点搜索方案
+        if (
+          // 全部站点
+          solutionId === "all" ||
+          (solutionId === "default" && state.defaultSolutionId === "default") ||
+          // 特定站点
+          solutionId.startsWith("site:")
+        ) {
+          const solutions: ISearchSolution[] = [];
+
+          let addedSiteIds = Object.keys(state.sites);
+          if (solutionId.startsWith("site:")) {
+            addedSiteIds = solutionId
+              .slice(5) //  /^site:/
+              .split(",")
+              .map((id) => id.trim());
           }
+
+          for (const siteId of addedSiteIds) {
+            const searchEntries = await this.getSiteDefaultSearchSolution(siteId);
+            if (searchEntries) {
+              solutions.push({ id: "default", siteId, searchEntries });
+            }
+          }
+
+          return {
+            name: "all",
+            id: solutionId.startsWith("site:") ? (solutionId as `site:${string}`) : "all",
+            sort: 0,
+            enabled: true,
+            isDefault: true,
+            createdAt: 0,
+            solutions,
+          };
         } else if (solutionId === "default") {
+          // 如果 solutionId 是 "default"，则使用默认的搜索方案 ID
           solutionId = state.defaultSolutionId;
         }
 
