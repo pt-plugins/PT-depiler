@@ -195,7 +195,7 @@ function onDrop(event: DragEvent) {
 }
 
 const dropAction = computed(() => {
-  if (configStore.contentScript?.dragLinkOnSpeedDial ?? true) {
+  if (ptdData.siteId && (configStore.contentScript?.dragLinkOnSpeedDial ?? true)) {
     return {
       drop: withModifiers((e) => onDrop(e as DragEvent), ["prevent"]),
       dragover: withModifiers(() => (isDragging.value = true), ["prevent"]),
