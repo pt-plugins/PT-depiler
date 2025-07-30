@@ -224,6 +224,7 @@
       "showHnR": "Show H&R",
       "showSeedingBonus": "Show Seeding Bonus",
       "updateAtFormatAsAlive": "Display update At as Relative Time",
+      "showIntervalAsDate": "Display level requirement time as date format",
       "multiOpen": "Open in batch",
       "viewTimeline": "Timeline",
       "viewStatistic": "Data Chart",

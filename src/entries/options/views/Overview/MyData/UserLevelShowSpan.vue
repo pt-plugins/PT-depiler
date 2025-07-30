@@ -2,13 +2,32 @@
 import { useI18n } from "vue-i18n";
 import { IImplicitUserInfo, isoDuration, convertIsoDurationToDate } from "@ptd/site";
 import { formatNumber, formatSize, formatDate } from "@/options/utils";
+import { useConfigStore } from "@/options/stores/config";
 
 const { levelRequirement } = defineProps<{
   levelRequirement: IImplicitUserInfo;
 }>();
 
 const { t } = useI18n();
+const configStore = useConfigStore();
 const currentTime = +new Date();
+
+// Toggle function for double-click
+function toggleIntervalDisplay() {
+  configStore.myDataTableControl.showIntervalAsDate = !configStore.myDataTableControl.showIntervalAsDate;
+}
+
+// Get interval display text and title
+function getIntervalDisplay(interval: number | isoDuration) {
+  const showAsDate = configStore.myDataTableControl.showIntervalAsDate;
+  const durationText = formatDuration(interval);
+  const dateText = formatIntervalDate(interval);
+
+  return {
+    text: showAsDate ? dateText : durationText,
+    title: showAsDate ? durationText : dateText,
+  };
+}
 
 function formatDuration(duration: number | isoDuration) {
   if (typeof duration === "number") {
@@ -40,7 +59,12 @@ function formatIntervalDate(duration: number | isoDuration): string {
   <slot name="prepend"></slot>
   <template v-if="levelRequirement.interval">
     <v-icon :title="t('levelRequirement.interval')" icon="mdi-calendar-clock" size="small" />
-    <span :title="formatIntervalDate(levelRequirement.interval)">{{ formatDuration(levelRequirement.interval) }}</span
+    <span
+      :title="getIntervalDisplay(levelRequirement.interval).title"
+      @dblclick="toggleIntervalDisplay"
+      style="cursor: pointer; user-select: none"
+    >
+      {{ getIntervalDisplay(levelRequirement.interval).text }} </span
     >;
   </template>
   <template v-if="levelRequirement.uploaded">

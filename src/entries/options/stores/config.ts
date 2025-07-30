@@ -107,6 +107,7 @@ export const useConfigStore = defineStore("config", {
       //joinTimeWeekOnly: false,
       joinTimeFormat: "added",
       updateAtFormatAsAlive: false,
+      showIntervalAsDate: false,
     },
 
     userDataTimelineControl: {
