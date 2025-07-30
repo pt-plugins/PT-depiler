@@ -27,7 +27,7 @@ const { t } = useI18n();
 
   <span v-if="showNextLevelName && nextLevelUnMet.level">{{ nextLevelUnMet.level.name }}:&nbsp;</span>
 
-  <UserLevelsComponent :level-requirement="nextLevelUnMet" :user-info="userInfo" />
+  <UserLevelsComponent :level-requirement="nextLevelUnMet" />
 </template>
 
 <style scoped lang="scss"></style>
