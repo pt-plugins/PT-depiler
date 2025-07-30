@@ -1,13 +1,33 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { IImplicitUserInfo, isoDuration } from "@ptd/site";
-import { formatNumber, formatSize } from "@/options/utils.ts";
+import { IImplicitUserInfo, isoDuration, convertIsoDurationToDate } from "@ptd/site";
+import { formatNumber, formatSize, formatDate } from "@/options/utils";
+import { useConfigStore } from "@/options/stores/config";
 
 const { levelRequirement } = defineProps<{
   levelRequirement: IImplicitUserInfo;
 }>();
 
 const { t } = useI18n();
+const configStore = useConfigStore();
+const currentTime = +new Date();
+
+// Toggle function for double-click
+function toggleIntervalDisplay() {
+  configStore.myDataTableControl.showIntervalAsDate = !configStore.myDataTableControl.showIntervalAsDate;
+}
+
+// Get interval display text and title
+function getIntervalDisplay(interval: number | isoDuration) {
+  const showAsDate = configStore.myDataTableControl.showIntervalAsDate;
+  const durationText = formatDuration(interval);
+  const dateText = formatIntervalDate(interval);
+
+  return {
+    text: showAsDate ? dateText : durationText,
+    title: showAsDate ? durationText : dateText,
+  };
+}
 
 function formatDuration(duration: number | isoDuration) {
   if (typeof duration === "number") {
@@ -16,13 +36,36 @@ function formatDuration(duration: number | isoDuration) {
     return duration.substring(1);
   }
 }
+
+function formatIntervalDate(duration: number | isoDuration): string {
+  try {
+    if (typeof duration === "number") {
+      // 如果是数字（秒），直接基于当前时间计算
+      const targetDate = new Date(currentTime + duration * 1000);
+      const result = formatDate(targetDate, "yyyy-MM-dd");
+      return typeof result === "string" ? result : "";
+    } else {
+      // 如果是isoDuration字符串，基于当前时间计算
+      const result = formatDate(convertIsoDurationToDate(duration, currentTime), "yyyy-MM-dd");
+      return typeof result === "string" ? result : "";
+    }
+  } catch (e) {
+    return "";
+  }
+}
 </script>
 
 <template>
   <slot name="prepend"></slot>
   <template v-if="levelRequirement.interval">
     <v-icon :title="t('levelRequirement.interval')" icon="mdi-calendar-clock" size="small" />
-    {{ formatDuration(levelRequirement.interval) }};
+    <span
+      :title="getIntervalDisplay(levelRequirement.interval).title"
+      @dblclick="toggleIntervalDisplay"
+      style="cursor: pointer; user-select: none"
+    >
+      {{ getIntervalDisplay(levelRequirement.interval).text }} </span
+    >;
   </template>
   <template v-if="levelRequirement.uploaded">
     <v-icon :title="t('levelRequirement.uploaded')" color="green-darken-4" icon="mdi-chevron-up" size="small" />

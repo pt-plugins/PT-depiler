@@ -224,6 +224,7 @@
       "showHnR": "显示 H&R",
       "showSeedingBonus": "显示做种积分",
       "updateAtFormatAsAlive": "更新时间显示为相对时间",
+      "showIntervalAsDate": "等级要求时间显示为日期格式",
       "multiOpen": "批量打开",
       "viewTimeline": "时间轴",
       "viewStatistic": "数据图表",

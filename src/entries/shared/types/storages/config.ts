@@ -100,6 +100,8 @@ export interface IConfigPiniaStorageSchema {
 
     // 是否使用 time_alive(过去时间) 来展示，如果不使用，则使用 time_added(发生时间) 来展示，默认不使用
     updateAtFormatAsAlive: boolean;
+    // 是否将 interval 显示为日期格式而不是持续时间格式
+    showIntervalAsDate: boolean;
   };
 
   userDataTimelineControl: {
