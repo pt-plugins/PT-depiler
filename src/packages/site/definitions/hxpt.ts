@@ -37,7 +37,7 @@ export const siteMetadata: ISiteMetadata = {
       options: [
         { name: "禁转", value: 1 },
         { name: "首发", value: 2 },
-        { name: "官种", value: 3 },
+        { name: "官方", value: 3 },
         { name: "DIY", value: 4 },
         { name: "国语", value: 5 },
         { name: "中字", value: 6 },
@@ -49,7 +49,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "地理", value: 12 },
         { name: "化学", value: 13 },
         { name: "生物", value: 14 },
-        { name: "政治", value: 15 },
+        { name: "道法", value: 15 },
         { name: "音乐", value: 16 },
         { name: "美术", value: 17 },
         { name: "体育", value: 18 },
@@ -63,16 +63,16 @@ export const siteMetadata: ISiteMetadata = {
       name: "媒介",
       key: "medium",
       options: [
-        { name: "Blu-ray", value: 1 },
-        { name: "UHD Blu-ray", value: 2 },
-        { name: "Remux", value: 3 },
-        { name: "Encode", value: 4 },
-        { name: "WEB-DL", value: 5 },
-        { name: "HDTV", value: 6 },
-        { name: "DVD", value: 7 },
-        { name: "CD", value: 8 },
-        { name: "Track", value: 9 },
-        { name: "Other", value: 10 },
+        { name: "视频", value: 1 },
+        { name: "音频", value: 2 },
+        { name: "书籍", value: 3 },
+        { name: "文档", value: 4 },
+        { name: "笔记", value: 5 },
+        { name: "课件", value: 6 },
+        { name: "软件", value: 7 },
+        { name: "会议", value: 8 },
+        { name: "图片", value: 9 },
+        { name: "其它", value: 10 },
       ],
       cross: { mode: "append" },
     },
@@ -90,6 +90,17 @@ export const siteMetadata: ISiteMetadata = {
     CategorySpstate,
     CategoryInclbookmarked,
   ],
+
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      bonus: {
+        selector: ["td.rowhead:contains('火花') + td", "td.rowhead:contains('Karma'):contains('Points') + td"],
+        filters: [{ name: "parseNumber" }],
+      },
+    },
+  },
 
   levelRequirements: [
     {
