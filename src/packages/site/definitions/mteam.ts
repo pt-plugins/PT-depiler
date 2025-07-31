@@ -145,7 +145,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "mteam",
   name: "M-Team - TP",
-  aka: ["MTeam"],
+  aka: ["MTeam", "馒头"],
   description: "综合性网站，有分享率要求",
   tags: ["影视", "综合", "成人"],
   timezoneOffset: "+0800",
@@ -161,6 +161,7 @@ export const siteMetadata: ISiteMetadata = {
     "uggcf://kc.z-grnz.pp/",
     "uggcf://nc.z-grnz.pp/",
     "uggcf://arkg.z-grnz.pp/", // Next
+    "uggcf://bo.z-grnz.pp/",
   ],
   formerHosts: ["xp.m-team.io", "pt.m-team.cc", "tp.m-team.cc"],
 
