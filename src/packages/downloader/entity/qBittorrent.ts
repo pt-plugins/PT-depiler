@@ -328,6 +328,15 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
         advanceAddTorrentOptions.autoTMM = true; // 开启自动管理
         formData.append("category", options.savePath.replace(category_prefix, "")); // 分类名称
       } else {
+        // 检查是否为绝对路径
+        const isWindowsAbsolutePath = /^[A-Za-z]:[\\\/]/.test(options.savePath);
+        const isUnixAbsolutePath = options.savePath.startsWith("/");
+
+        if (isWindowsAbsolutePath || isUnixAbsolutePath) {
+          // 对于绝对路径，显式禁用自动管理模式，确保使用指定路径
+          advanceAddTorrentOptions.autoTMM = false;
+        }
+
         formData.append("savepath", options.savePath); // Download folder
       }
     }
