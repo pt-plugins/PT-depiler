@@ -22,6 +22,11 @@ import HistoryDataViewDialog from "./HistoryDataViewDialog.vue";
 import { cancelFlushSiteLastUserInfo, fixUserInfo, flushSiteLastUserInfo, formatRatio } from "./utils.ts";
 
 const { t } = useI18n();
+
+// Toggle function for double-click to switch number simplification
+function toggleNumberSimplification() {
+  configStore.myDataTableControl.simplifyNumbers = !configStore.myDataTableControl.simplifyNumbers;
+}
 const router = useRouter();
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
@@ -576,13 +581,19 @@ function viewStatistic() {
         >
           <v-row align="center" class="flex-nowrap" justify="end">
             <v-icon :title="t('levelRequirement.bonus')" color="green-darken-4" icon="mdi-currency-usd" size="small" />
-            <span class="text-no-wrap">{{
-              typeof item.bonus !== "undefined"
-                ? configStore.myDataTableControl.simplifyNumbers
-                  ? simplifyNumber(item.bonus)
-                  : formatNumber(item.bonus)
-                : "-"
-            }}</span>
+            <span
+              class="text-no-wrap"
+              :title="typeof item.bonus !== 'undefined' ? formatNumber(item.bonus) : '-'"
+              @dblclick="toggleNumberSimplification"
+              style="cursor: pointer; user-select: none"
+              >{{
+                typeof item.bonus !== "undefined"
+                  ? configStore.myDataTableControl.simplifyNumbers
+                    ? simplifyNumber(item.bonus)
+                    : formatNumber(item.bonus)
+                  : "-"
+              }}</span
+            >
           </v-row>
           <v-row align="center" class="flex-nowrap" justify="end">
             <v-icon
@@ -591,24 +602,36 @@ function viewStatistic() {
               icon="mdi-lightning-bolt-circle"
               size="small"
             />
-            <span class="text-no-wrap">{{
-              typeof item.seedingBonus !== "undefined"
-                ? configStore.myDataTableControl.simplifyNumbers
-                  ? simplifyNumber(item.seedingBonus)
-                  : formatNumber(item.seedingBonus)
-                : "-"
-            }}</span>
+            <span
+              class="text-no-wrap"
+              :title="typeof item.seedingBonus !== 'undefined' ? formatNumber(item.seedingBonus) : '-'"
+              @dblclick="toggleNumberSimplification"
+              style="cursor: pointer; user-select: none"
+              >{{
+                typeof item.seedingBonus !== "undefined"
+                  ? configStore.myDataTableControl.simplifyNumbers
+                    ? simplifyNumber(item.seedingBonus)
+                    : formatNumber(item.seedingBonus)
+                  : "-"
+              }}</span
+            >
           </v-row>
         </v-container>
         <template v-else>
           <v-icon :title="t('levelRequirement.bonus')" color="green-darken-4" icon="mdi-currency-usd" size="small" />
-          <span class="text-no-wrap">{{
-            typeof item.bonus !== "undefined"
-              ? configStore.myDataTableControl.simplifyNumbers
-                ? simplifyNumber(item.bonus)
-                : formatNumber(item.bonus)
-              : "-"
-          }}</span>
+          <span
+            class="text-no-wrap"
+            :title="typeof item.bonus !== 'undefined' ? formatNumber(item.bonus) : '-'"
+            @dblclick="toggleNumberSimplification"
+            style="cursor: pointer; user-select: none"
+            >{{
+              typeof item.bonus !== "undefined"
+                ? configStore.myDataTableControl.simplifyNumbers
+                  ? simplifyNumber(item.bonus)
+                  : formatNumber(item.bonus)
+                : "-"
+            }}</span
+          >
         </template>
       </template>
 
