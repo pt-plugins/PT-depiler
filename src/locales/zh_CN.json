@@ -324,7 +324,9 @@
         "start": "开始搜索队列",
         "pause": "暂停搜索队列",
         "cancel": "取消当前等待的搜索",
-        "retry": "重新搜索"
+        "retry": "重新搜索",
+        "retryFailed": "重新搜索失败的方案（如 @:resultParseStatus.unknownError , @:resultParseStatus.parseError , @:resultParseStatus.CFBlocked , @:resultParseStatus.needLogin ）",
+        "saveSnapshot": "保存搜索快照"
       },
       "filterLabel": "过滤搜索结果",
       "showSiteName": "显示站点名称",

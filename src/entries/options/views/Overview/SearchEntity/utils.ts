@@ -1,6 +1,6 @@
 import PQueue from "p-queue";
 import { computed, watch } from "vue";
-import { EResultParseStatus, type IAdvanceKeywordSearchConfig, type TSiteID, ITorrentTag } from "@ptd/site";
+import { EResultParseStatus, type IAdvanceKeywordSearchConfig, ITorrentTag, type TSiteID } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -51,6 +51,42 @@ searchQueue.on("active", () => {
 searchQueue.on("idle", () => {
   runtimeStore.search.isSearching = false;
   runtimeStore.search.endAt = Date.now();
+});
+
+interface ISearchPlanStatusMap {
+  success: number; // success, noResults
+  error: number; // unknownError, parseError, needLogin
+  queued: number; // waiting, working
+}
+
+export const defaultErrorSearchPlanStatus = [
+  EResultParseStatus.parseError,
+  EResultParseStatus.unknownError,
+  EResultParseStatus.CFBlocked,
+  EResultParseStatus.needLogin,
+];
+
+export const searchPlanStatus = computed<ISearchPlanStatusMap>(() => {
+  const statusMap: ISearchPlanStatusMap = { success: 0, error: 0, queued: 0 };
+  Object.values(runtimeStore.search.searchPlan ?? {}).forEach((plan) => {
+    switch (plan.status) {
+      case EResultParseStatus.success:
+      case EResultParseStatus.noResults:
+        statusMap.success++;
+        break;
+      case EResultParseStatus.unknownError:
+      case EResultParseStatus.parseError:
+      case EResultParseStatus.CFBlocked:
+      case EResultParseStatus.needLogin:
+        statusMap.error++;
+        break;
+      case EResultParseStatus.waiting:
+      case EResultParseStatus.working:
+        statusMap.queued++;
+        break;
+    }
+  });
+  return statusMap;
 });
 
 export async function raiseSearchPriority(solutionKey: TSearchSolutionKey) {
@@ -166,5 +202,19 @@ export async function doSearch(search: string, plan?: string, flush: boolean = t
     for (const [searchEntryName, searchEntry] of Object.entries(searchEntries)) {
       await doSearchEntity(siteId, searchEntryName, searchEntry);
     }
+  }
+}
+
+export async function retrySearch(retryStatus: EResultParseStatus[] = defaultErrorSearchPlanStatus) {
+  const shouldRetrySearchPlan = Object.values(runtimeStore.search.searchPlan).filter((plan) =>
+    retryStatus.includes(plan.status),
+  );
+  if (shouldRetrySearchPlan.length === 0) {
+    runtimeStore.showSnakebar("没有需要重试的搜索计划", { color: "info" });
+    return;
+  }
+  console.log("Retrying search plans: ", shouldRetrySearchPlan);
+  for (const plan of shouldRetrySearchPlan) {
+    await doSearchEntity(plan.siteId, plan.searchEntryName, plan.searchEntry, true);
   }
 }

@@ -20,7 +20,7 @@ import SearchStatusDialog from "./SearchStatusDialog.vue";
 import SaveSnapshotDialog from "./SaveSnapshotDialog.vue";
 import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
 
-import { doSearch, searchQueue, tableCustomFilter } from "./utils.ts"; // <-- 主要方法在这个文件中！！！
+import { doSearch, retrySearch, searchPlanStatus, searchQueue, tableCustomFilter } from "./utils.ts"; // <-- 主要方法在这个文件中！！！
 
 const { t } = useI18n();
 const route = useRoute();
@@ -152,6 +152,21 @@ function cancelSearchQueue() {
           {{ t("SearchEntity.index.alert.results", [runtimeStore.search.searchResult.length]) }}
           {{ t("SearchEntity.index.alert.duration", [(runtimeStore.searchCostTime / 1000).toFixed(1)]) }}
         </template>
+
+        <v-spacer />
+        <v-divider vertical class="mx-2" />
+
+        <div id="ptd-search-entity-status">
+          <template v-if="searchPlanStatus.success > 0">
+            <v-icon size="x-small" class="mr-1" icon="mdi-check" />{{ searchPlanStatus.success }}
+          </template>
+          <template v-if="searchPlanStatus.error > 0">
+            <v-icon class="mr-1" color="amber" icon="mdi-alert" size="x-small" />{{ searchPlanStatus.error }}
+          </template>
+          <template v-if="searchPlanStatus.queued > 0">
+            <v-icon size="x-small" color="blue-grey" class="mr-1" icon="mdi-clock" />{{ searchPlanStatus.queued }}
+          </template>
+        </div>
       </template>
     </v-alert-title>
   </v-alert>
@@ -159,40 +174,54 @@ function cancelSearchQueue() {
     <v-card-title>
       <v-row class="ma-0">
         <v-btn-group size="small" variant="text">
+          <!-- 启动/暂停 搜索队列 -->
           <v-btn
             v-show="isSearchingParsed"
+            :title="t('SearchEntity.index.action.start')"
             color="success"
             icon="mdi-play"
-            :title="t('SearchEntity.index.action.start')"
             @click="() => startSearchQueue()"
-          ></v-btn>
+          />
           <v-btn
             v-show="!isSearchingParsed"
+            :title="t('SearchEntity.index.action.pause')"
             color="success"
             icon="mdi-pause"
-            :title="t('SearchEntity.index.action.pause')"
             @click="() => pauseSearchQueue()"
-          ></v-btn>
+          />
 
+          <!-- 取消/重试 搜索队列 -->
           <v-btn
             v-show="runtimeStore.search.isSearching"
+            :title="t('SearchEntity.index.action.cancel')"
             color="red"
             icon="mdi-cancel"
-            :title="t('SearchEntity.index.action.cancel')"
             @click="cancelSearchQueue"
-          ></v-btn>
+          />
           <v-btn
             v-show="!runtimeStore.search.isSearching"
             :disabled="isSearchingParsed"
-            color="red"
-            icon="mdi-cached"
             :title="t('SearchEntity.index.action.retry')"
+            color="red"
+            icon="mdi-sync"
             @click="() => doSearch(null as unknown as string, null as unknown as string, true)"
-          ></v-btn>
+          />
+
+          <!-- 重试失败的搜索 -->
+          <v-btn
+            :disabled="searchPlanStatus.error === 0"
+            :title="t('SearchEntity.index.action.retryFailed')"
+            color="amber"
+            icon="mdi-sync-alert"
+            @click="() => retrySearch()"
+          />
+
+          <v-divider vertical class="mx-2" />
 
           <!-- 创建搜索快照 -->
           <v-btn
             :disabled="runtimeStore.search.isSearching || runtimeStore.search.searchResult.length === 0"
+            :title="t('SearchEntity.index.action.saveSnapshot')"
             color="cyan"
             icon="mdi-camera-plus"
             @click="showSaveSnapshotDialog = true"
@@ -369,6 +398,12 @@ function cancelSearchQueue() {
 #ptd-search-entity-table {
   :deep(td.v-data-table__td) {
     padding: 0 8px;
+  }
+}
+
+#ptd-search-entity-status {
+  i.v-icon + i.v-icon {
+    margin-left: 4px;
   }
 }
 </style>

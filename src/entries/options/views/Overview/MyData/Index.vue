@@ -475,13 +475,13 @@ function viewStatistic() {
             <span class="text-no-wrap">
               {{ typeof item.uploaded !== "undefined" ? formatSize(item.uploaded) : "-" }}
             </span>
-            <v-icon color="green-darken-4" icon="mdi-chevron-up" small></v-icon>
+            <v-icon color="green-darken-4" icon="mdi-chevron-up" size="small"></v-icon>
           </v-row>
           <v-row class="flex-nowrap" justify="end">
             <span class="text-no-wrap">
               {{ typeof item.downloaded !== "undefined" ? formatSize(item.downloaded) : "-" }}
             </span>
-            <v-icon color="red-darken-4" icon="mdi-chevron-down" small></v-icon>
+            <v-icon color="red-darken-4" icon="mdi-chevron-down" size="small"></v-icon>
           </v-row>
         </v-container>
       </template>
@@ -493,13 +493,13 @@ function viewStatistic() {
             <span class="text-no-wrap">
               {{ typeof item.trueUploaded !== "undefined" ? formatSize(item.trueUploaded) : "-" }}
             </span>
-            <v-icon color="green-darken-4" icon="mdi-chevron-up" small></v-icon>
+            <v-icon color="green-darken-4" icon="mdi-chevron-up" size="small"></v-icon>
           </v-row>
           <v-row class="flex-nowrap" justify="end">
             <span class="text-no-wrap">
               {{ typeof item.trueDownloaded !== "undefined" ? formatSize(item.trueDownloaded) : "-" }}
             </span>
-            <v-icon color="red-darken-4" icon="mdi-chevron-down" small></v-icon>
+            <v-icon color="red-darken-4" icon="mdi-chevron-down" size="small"></v-icon>
           </v-row>
         </v-container>
       </template>

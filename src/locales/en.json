@@ -324,7 +324,9 @@
         "start": "Start search queue",
         "pause": "Pause search queue",
         "cancel": "Cancel current waiting search",
-        "retry": "Retry Search"
+        "retry": "Retry Search",
+        "retryFailed": "Retry the failed search plans (such as @:resultParseStatus.unknownError, @:resultParseStatus.parseError, @:resultParseStatus.CFBlocked, @:resultParseStatus.needLogin)",
+        "saveSnapshot": "Save Search Snapshot"
       },
       "filterLabel": "Filter search results",
       "showSiteName": "Show Site Name",
