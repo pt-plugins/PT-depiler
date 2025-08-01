@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { IImplicitUserInfo, isoDuration, convertIsoDurationToDate } from "@ptd/site";
-import { formatNumber, formatSize, formatDate } from "@/options/utils";
+import { formatNumber, formatSize, formatDate, simplifyNumber } from "@/options/utils";
 import { useConfigStore } from "@/options/stores/config";
 
 const { levelRequirement } = defineProps<{
@@ -132,7 +132,9 @@ function formatIntervalDate(duration: number | isoDuration): string {
   <template v-if="levelRequirement.bonus">
     <v-icon :title="t('levelRequirement.bonus')" color="green-darken-4" icon="mdi-currency-usd" size="small" />
     {{
-      formatNumber(levelRequirement.bonus) +
+      (configStore.myDataTableControl.simplifyNumbers
+        ? simplifyNumber(levelRequirement.bonus)
+        : formatNumber(levelRequirement.bonus)) +
       (levelRequirement.bonusNeededInterval ? ` (${levelRequirement.bonusNeededInterval})` : "")
     }};
   </template>
@@ -145,7 +147,9 @@ function formatIntervalDate(duration: number | isoDuration): string {
       size="small"
     />
     {{
-      formatNumber(levelRequirement.seedingBonus) +
+      (configStore.myDataTableControl.simplifyNumbers
+        ? simplifyNumber(levelRequirement.seedingBonus)
+        : formatNumber(levelRequirement.seedingBonus)) +
       (levelRequirement.seedingBonusNeededInterval ? ` (${levelRequirement.seedingBonusNeededInterval})` : "")
     }};
   </template>
