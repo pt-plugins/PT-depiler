@@ -5,7 +5,7 @@ import type { ITimelineUserInfoField } from "@/options/views/Overview/MyData/Use
 
 export const supportTheme = ["auto", "light", "dark"] as const;
 export type supportThemeType = (typeof supportTheme)[number];
-type UiTableBehaviorKey = "SetSite" | "SearchEntity" | "MyData" | string;
+type UiTableBehaviorKey = "SetSite" | "SearchEntity" | "MyData" | "DownloadHistory" | string;
 interface UiTableBehaviorItem<T = string> {
   itemsPerPage?: number;
   columns?: T[];

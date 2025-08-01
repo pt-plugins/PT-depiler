@@ -5,6 +5,7 @@ import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 import { sendMessage } from "@/messages.ts";
 import { formatDate } from "@/options/utils.ts";
+import { useConfigStore } from "@/options/stores/config.ts";
 import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/types.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
@@ -25,6 +26,8 @@ import {
 } from "./utils.ts"; // <-- 主要方法
 
 const { t } = useI18n();
+const configStore = useConfigStore();
+
 const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
 
 const tableHeader = [
@@ -121,20 +124,22 @@ onMounted(() => {
       </v-row>
     </v-card-title>
     <v-card-text>
-      <v-data-table-virtual
+      <v-data-table
         v-model="tableSelected"
         :custom-filter="tableFilterFn"
         :filter-keys="['id'] /* 对每个item值只检索一次 */"
         :headers="tableHeader"
-        :height="'calc(100vh - 250px)'"
         :items="downloadHistoryList"
+        :items-per-page="configStore.tableBehavior.DownloadHistory.itemsPerPage"
+        :multi-sort="configStore.enableTableMultiSort"
         :search="tableFilterRef"
-        :sort-by="[{ key: 'id', order: 'desc' }]"
+        :sort-by="configStore.tableBehavior.DownloadHistory.sortBy"
         class="table-stripe table-header-no-wrap"
-        fixed-header
         hover
         item-value="id"
         show-select
+        @update:itemsPerPage="(v) => configStore.updateTableBehavior('DownloadHistory', 'itemsPerPage', v)"
+        @update:sortBy="(v) => configStore.updateTableBehavior('DownloadHistory', 'sortBy', v)"
       >
         <template #item.siteId="{ item }">
           <div class="d-flex flex-column align-center">
@@ -182,7 +187,7 @@ onMounted(() => {
             />
           </v-btn-group>
         </template>
-      </v-data-table-virtual>
+      </v-data-table>
     </v-card-text>
   </v-card>
 

@@ -422,6 +422,7 @@ function viewStatistic() {
       :headers="tableHeader"
       :items="tableData"
       :items-per-page="configStore.tableBehavior.MyData.itemsPerPage"
+      :multi-sort="configStore.enableTableMultiSort"
       :search="tableFilterRef"
       :sort-by="configStore.tableBehavior.MyData.sortBy"
       :style="tableStyle"
@@ -429,7 +430,6 @@ function viewStatistic() {
       hover
       item-selectable="selectable"
       item-value="site"
-      :multi-sort="configStore.enableTableMultiSort"
       show-select
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('MyData', 'itemsPerPage', v)"
       @update:sortBy="(v) => configStore.updateTableBehavior('MyData', 'sortBy', v)"
