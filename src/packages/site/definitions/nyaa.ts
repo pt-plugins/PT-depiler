@@ -101,17 +101,17 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       rows: { selector: "table.torrent-list > tbody > tr" },
       id: {
-        selector: ["a[href*='/view/']:not([href*='#']"],
+        selector: ["a[href*='/view/']:not([href*='#'])"],
         attr: "href",
         filters: [(query: string) => query.match(/\/view\/(\d+)/)![1]],
       },
-      title: { selector: ["a[href*='/view/']:not([href*='#']"] },
+      title: { selector: ["a[href*='/view/']:not([href*='#'])"] },
       subTitle: {
         // 详细的分类显示到副标题
         selector: ["img.category-icon"],
         attr: "alt",
       },
-      url: { selector: ["a[href*='/view/']:not([href*='#']"], attr: "href" },
+      url: { selector: ["a[href*='/view/']:not([href*='#'])"], attr: "href" },
       link: { selector: ["a[href*='/download/']"], attr: "href" },
       time: { selector: ["td[data-timestamp]"], attr: "data-timestamp", filters: [{ name: "parseNumber" }] },
       size: { selector: ["td:nth-child(4)"], filters: [{ name: "parseSize" }] },
