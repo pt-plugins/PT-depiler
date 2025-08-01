@@ -17,6 +17,7 @@ import { setupRetryWhenCloudflareBlock } from "~/extends/axios/retryWhenCloudfla
 
 export { isCloudflareBlocked } from "~/extends/axios/retryWhenCloudflareBlock.ts";
 
+import type { ISiteUserConfig } from "../types";
 import type { IExtensionStorageSchema } from "@/storage.ts";
 import type { IMetadataPiniaStorageSchema } from "@/shared/types/storages/metadata.ts";
 
@@ -26,19 +27,25 @@ export const axios = setupRetryWhenCloudflareBlock(setupReplaceUnsafeHeader(axio
 /**
  * 存储数据到 metadata.site[siteId].runtimeSettings[key] 中，
  * 这样对应站点实例可以使用 this.userConfig?.runtimeSettings?.[key] 或者 this.retrieveRuntimeSettings(key) 来获取
- * @param siteId
- * @param key
- * @param value
  */
-export async function store(siteId: string, key: string, value: any): Promise<void> {
+export async function store(
+  siteId: string,
+  key: string,
+  value: any,
+  field: keyof ISiteUserConfig = "runtimeSettings",
+): Promise<void> {
   const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
-  set(metadataStore, `sites.${siteId}.runtimeSettings.${key}`, value);
+  set(metadataStore, `sites.${siteId}.${field}.${key}`, value);
   await sendMessage("setExtStorage", { key: "metadata", value: metadataStore });
 }
 
-export async function retrieve<T extends any>(siteId: string, key: string): Promise<T | null> {
+export async function retrieve<T extends any>(
+  siteId: string,
+  key: string,
+  field: keyof ISiteUserConfig = "runtimeSettings",
+): Promise<T | null> {
   const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
-  return get(metadataStore, `sites.${siteId}.runtimeSettings.${key}`, null) as T | null;
+  return get(metadataStore, `sites.${siteId}.${field}.${key}`, null) as T | null;
 }
 
 export async function retrieveStore(store: keyof IExtensionStorageSchema, keyPath: string): Promise<any> {

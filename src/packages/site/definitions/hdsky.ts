@@ -1,4 +1,15 @@
-import { ETorrentStatus, type ISiteMetadata, type ITorrent } from "../types";
+import urlJoin from "url-join";
+import { omit } from "es-toolkit";
+
+import {
+  ETorrentStatus,
+  type ILevelRequirement,
+  type ISiteMetadata,
+  type ITorrent,
+  IUserInfo,
+  TLevelId,
+} from "../types";
+import { guessUserLevelId, store } from "../utils";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
@@ -6,7 +17,91 @@ import NexusPHP, {
   SchemaMetadata,
   subTitleRemoveExtraElement,
 } from "../schemas/NexusPHP.ts";
-import urlJoin from "url-join";
+
+// 2025年3月1日起加入的用户使用新的用户等级要求
+const newUserLevelRequirements: ILevelRequirement[] = [
+  {
+    id: 1,
+    name: "User",
+    privilege: `新用户的默认级别。`,
+  },
+  {
+    id: 2,
+    name: "Power User",
+    interval: "P5W",
+    downloaded: "200GB",
+    ratio: 2.0,
+    bonus: 600000,
+    privilege: "NFO文档；请求续种；查看其它用户的种子历史；删除自己上传的字幕",
+  },
+  {
+    id: 3,
+    name: "Elite User",
+    interval: "P10W",
+    downloaded: "500GB",
+    ratio: 2.5,
+    bonus: 800000,
+    privilege: "查看邀请区",
+  },
+  {
+    id: 4,
+    name: "Crazy User",
+    interval: "P15W",
+    downloaded: "1TB",
+    ratio: 3.0,
+    bonus: 1000000,
+    privilege: "在做种/下载/发布的时候选择匿名模式",
+  },
+  {
+    id: 5,
+    name: "Insane User",
+    interval: "P20W",
+    downloaded: "2TB",
+    ratio: 3.5,
+    bonus: 1500000,
+    privilege: "查看普通日志",
+  },
+  {
+    id: 6,
+    name: "Veteran User",
+    interval: "P25W",
+    downloaded: "4TB",
+    ratio: 4.0,
+    bonus: 2000000,
+    privilege: "封存账号后不会被删除；查看其它用户的评论、帖子历史",
+  },
+  {
+    id: 7,
+    name: "Extreme User",
+    interval: "P30W",
+    downloaded: "6TB",
+    ratio: 4.5,
+    bonus: 2500000,
+    privilege: "更新过期的外部信息；查看Extreme User论坛",
+  },
+  {
+    id: 8,
+    name: "Ultimate User",
+    interval: "P45W",
+    downloaded: "8TB",
+    ratio: 5.0,
+    bonus: 3500000,
+    privilege: "永远保留账号",
+  },
+  {
+    id: 9,
+    name: "Nexus Master",
+    interval: "P65W",
+    downloaded: "10TB",
+    ratio: 5.5,
+    bonus: 5000000,
+    privilege: "直接发布种子；可以查看排行榜；在网站开放邀请期间发送邀请",
+  },
+];
+
+const oldUserLevelRequirements = newUserLevelRequirements.map((level) => {
+  return omit(level, ["bonus"]);
+}) as ILevelRequirement[];
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -225,85 +320,7 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
-  levelRequirements: [
-    {
-      id: 1,
-      name: "User",
-      privilege: `新用户的默认级别。`,
-    },
-    {
-      id: 2,
-      name: "Power User",
-      interval: "P5W",
-      downloaded: "200GB",
-      ratio: 2.0,
-      bonus: 600000,
-      privilege: "NFO文档；请求续种；查看其它用户的种子历史；删除自己上传的字幕",
-    },
-    {
-      id: 3,
-      name: "Elite User",
-      interval: "P10W",
-      downloaded: "500GB",
-      ratio: 2.5,
-      bonus: 800000,
-      privilege: "查看邀请区",
-    },
-    {
-      id: 4,
-      name: "Crazy User",
-      interval: "P15W",
-      downloaded: "1TB",
-      ratio: 3.0,
-      bonus: 1000000,
-      privilege: "在做种/下载/发布的时候选择匿名模式",
-    },
-    {
-      id: 5,
-      name: "Insane User",
-      interval: "P20W",
-      downloaded: "2TB",
-      ratio: 3.5,
-      bonus: 1500000,
-      privilege: "查看普通日志",
-    },
-    {
-      id: 6,
-      name: "Veteran User",
-      interval: "P25W",
-      downloaded: "4TB",
-      ratio: 4.0,
-      bonus: 2000000,
-      privilege: "封存账号后不会被删除；查看其它用户的评论、帖子历史",
-    },
-    {
-      id: 7,
-      name: "Extreme User",
-      interval: "P30W",
-      downloaded: "6TB",
-      ratio: 4.5,
-      bonus: 2500000,
-      privilege: "更新过期的外部信息；查看Extreme User论坛",
-    },
-    {
-      id: 8,
-      name: "Ultimate User",
-      interval: "P45W",
-      downloaded: "8TB",
-      ratio: 5.0,
-      bonus: 3500000,
-      privilege: "永远保留账号",
-    },
-    {
-      id: 9,
-      name: "Nexus Master",
-      interval: "P65W",
-      downloaded: "10TB",
-      ratio: 5.5,
-      bonus: 5000000,
-      privilege: "直接发布种子；可以查看排行榜；在网站开放邀请期间发送邀请",
-    },
-  ],
+  levelRequirements: newUserLevelRequirements,
 };
 
 export default class Hdsky extends NexusPHP {
@@ -327,5 +344,25 @@ export default class Hdsky extends NexusPHP {
     }
 
     return super.getTorrentDownloadLink(torrent);
+  }
+
+  protected override guessUserLevelId(userInfo: IUserInfo): TLevelId {
+    // 优先使用新用户等级要求
+    let judgeLevelRequirements = newUserLevelRequirements;
+
+    if (this.userConfig.merge?.levelRequirements) {
+      // 如果用户配置中有自定义的等级要求，则使用自定义的等级要求
+      judgeLevelRequirements = this.userConfig.merge.levelRequirements;
+    } else {
+      if (userInfo.joinTime && userInfo.joinTime < 1740787200000) {
+        // 如果用户加入时间在 2025年3月1日之前，则使用旧的用户等级要求
+        judgeLevelRequirements = oldUserLevelRequirements;
+
+        // 将旧的用户等级要求存储到 metadataStore.sites.hdsky.merge.levelRequirements 中，以便于展示
+        store(this.metadata.id, "levelRequirements", judgeLevelRequirements, "merge").catch();
+      }
+    }
+
+    return guessUserLevelId(userInfo, judgeLevelRequirements);
   }
 }
