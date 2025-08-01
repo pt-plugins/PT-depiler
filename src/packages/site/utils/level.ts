@@ -309,7 +309,7 @@ export function getNextLevelUnMet(
 export function guessUserLevelId(userInfo: IUserInfo, levelRequirements: ILevelRequirement[]): TLevelId {
   // 首先尝试 levelName 的直接匹配，站点levelRequirements中配置的 name 一定要等于或包含 获取到的 levelName 中才会匹配成功
   let level = levelRequirements.find((level) => {
-    return includes(cleanLevelName(level.name), cleanLevelName(userInfo.levelName!));
+    return includes([level.name, ...(level.nameAka ?? [])].map(cleanLevelName), cleanLevelName(userInfo.levelName!));
   });
   if (level) {
     return level.id;
