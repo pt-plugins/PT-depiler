@@ -22,11 +22,6 @@ import HistoryDataViewDialog from "./HistoryDataViewDialog.vue";
 import { cancelFlushSiteLastUserInfo, fixUserInfo, flushSiteLastUserInfo, formatRatio } from "./utils.ts";
 
 const { t } = useI18n();
-
-// Toggle function for double-click to switch number simplification
-function toggleNumberSimplification() {
-  configStore.myDataTableControl.simplifyNumbers = !configStore.myDataTableControl.simplifyNumbers;
-}
 const router = useRouter();
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
@@ -178,6 +173,11 @@ function viewStatistic() {
       sites: tableSelected.value,
     },
   });
+}
+
+// Toggle function for double-click to switch number simplification
+function toggleNumberSimplification() {
+  configStore.myDataTableControl.simplifyBonusNumbers = !configStore.myDataTableControl.simplifyBonusNumbers;
 }
 </script>
 
@@ -588,7 +588,7 @@ function viewStatistic() {
               style="cursor: pointer; user-select: none"
               >{{
                 typeof item.bonus !== "undefined"
-                  ? configStore.myDataTableControl.simplifyNumbers
+                  ? configStore.myDataTableControl.simplifyBonusNumbers
                     ? simplifyNumber(item.bonus)
                     : formatNumber(item.bonus)
                   : "-"
@@ -609,7 +609,7 @@ function viewStatistic() {
               style="cursor: pointer; user-select: none"
               >{{
                 typeof item.seedingBonus !== "undefined"
-                  ? configStore.myDataTableControl.simplifyNumbers
+                  ? configStore.myDataTableControl.simplifyBonusNumbers
                     ? simplifyNumber(item.seedingBonus)
                     : formatNumber(item.seedingBonus)
                   : "-"
@@ -626,7 +626,7 @@ function viewStatistic() {
             style="cursor: pointer; user-select: none"
             >{{
               typeof item.bonus !== "undefined"
-                ? configStore.myDataTableControl.simplifyNumbers
+                ? configStore.myDataTableControl.simplifyBonusNumbers
                   ? simplifyNumber(item.bonus)
                   : formatNumber(item.bonus)
                 : "-"

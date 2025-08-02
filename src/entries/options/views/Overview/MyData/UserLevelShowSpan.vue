@@ -19,7 +19,7 @@ function toggleIntervalDisplay() {
 
 // Toggle function for double-click to switch number simplification
 function toggleNumberSimplification() {
-  configStore.myDataTableControl.simplifyNumbers = !configStore.myDataTableControl.simplifyNumbers;
+  configStore.myDataTableControl.simplifyBonusNumbers = !configStore.myDataTableControl.simplifyBonusNumbers;
 }
 
 // Get interval display text and title
@@ -141,7 +141,7 @@ function formatIntervalDate(duration: number | isoDuration): string {
       @dblclick="toggleNumberSimplification"
       style="cursor: pointer; user-select: none"
       >{{
-        (configStore.myDataTableControl.simplifyNumbers
+        (configStore.myDataTableControl.simplifyBonusNumbers
           ? simplifyNumber(levelRequirement.bonus)
           : formatNumber(levelRequirement.bonus)) +
         (levelRequirement.bonusNeededInterval ? ` (${levelRequirement.bonusNeededInterval})` : "")
@@ -161,7 +161,7 @@ function formatIntervalDate(duration: number | isoDuration): string {
       @dblclick="toggleNumberSimplification"
       style="cursor: pointer; user-select: none"
       >{{
-        (configStore.myDataTableControl.simplifyNumbers
+        (configStore.myDataTableControl.simplifyBonusNumbers
           ? simplifyNumber(levelRequirement.seedingBonus)
           : formatNumber(levelRequirement.seedingBonus)) +
         (levelRequirement.seedingBonusNeededInterval ? ` (${levelRequirement.seedingBonusNeededInterval})` : "")

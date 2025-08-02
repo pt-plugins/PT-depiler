@@ -112,7 +112,7 @@ export const useConfigStore = defineStore("config", {
       joinTimeFormat: "added",
       updateAtFormatAsAlive: false,
       showIntervalAsDate: false,
-      simplifyNumbers: false,
+      simplifyBonusNumbers: false,
     },
 
     userDataTimelineControl: {

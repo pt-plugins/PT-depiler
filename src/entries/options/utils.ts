@@ -1,5 +1,6 @@
 import { toRaw, isRef, isReactive, isProxy } from "vue";
-import { filesize, type FileSizeOptions } from "filesize";
+// Note: filesize library changed type name from FileSizeOptions to FilesizeOptions in v11.0+
+import { filesize, type FilesizeOptions } from "filesize";
 import {
   differenceInDays,
   differenceInHours,
@@ -40,7 +41,7 @@ export const formValidateRules: Record<string, (args?: any) => (v: any) => boole
   },
 };
 
-export const formatSize = (size: number | string, options?: FileSizeOptions) => {
+export const formatSize = (size: number | string, options?: FilesizeOptions) => {
   try {
     return filesize(size, { base: 2, ...(options ?? {}) });
   } catch (e) {
