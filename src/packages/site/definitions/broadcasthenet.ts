@@ -96,6 +96,7 @@ export const siteMetadata: ISiteMetadata = {
           "joinTime",
           "seeding",
           "seedingSize",
+          "seedingTime",
           "totalTraffic",
           "snatches",
           "hnrUnsatisfied",
@@ -200,6 +201,21 @@ export const siteMetadata: ISiteMetadata = {
           return count;
         },
       },
+      seedingTime: {
+        selector: "ul.nobullet > li:contains('Total Time Seeded:')",
+        filters: [
+          (query: string) => {
+            // 从 "Total Time Seeded: 21,238 Days" 中提取天数并转换为秒数
+            const match = query.match(/Total Time Seeded:\s*([\d,]+)\s*Days/i);
+            if (match) {
+              const days = parseInt(match[1].replace(/,/g, ""));
+              const seconds = days * 24 * 3600; // 转换为秒数
+              return seconds;
+            }
+            return 0;
+          },
+        ],
+      },
     },
   },
 
@@ -267,6 +283,7 @@ export const siteMetadata: ISiteMetadata = {
       bonus: 250000000,
       snatches: 35000,
       interval: "P2Y11M",
+      seedingTime: "P250000D",
       privilege: "Has access to the Overlord forum, Custom Title, Unlimited Invites, and more to come!",
     },
   ],
