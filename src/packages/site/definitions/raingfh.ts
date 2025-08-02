@@ -41,6 +41,17 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      bonus: {
+        selector: ["td.rowhead:contains('雨滴') + td"],
+        filters: [{ name: "parseNumber" }],
+      },
+    },
+  },
+
   levelRequirements: [
     {
       id: 1,

@@ -228,6 +228,10 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.userInfo!,
     selectors: {
       ...SchemaMetadata.userInfo!.selectors!,
+      bonus: {
+        selector: ["li.ratio-bar__points a:has( > i.fa-coins)"],
+        filters: [{ name: "parseNumber" }],
+      },
       uploads: {
         selector: ['div.container div.block div.text-center a[href*="/uploads"]'],
         filters: [{ name: "parseNumber" }],
