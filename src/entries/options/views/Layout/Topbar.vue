@@ -124,7 +124,7 @@ function startSearchEntity() {
 
               <v-menu
                 :open-on-focus="false"
-                :open-on-hover="!display.mobile.value"
+                open-on-hover
                 :open-on-click="display.mobile.value"
                 activator="parent"
                 submenu
