@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { IImplicitUserInfo, isoDuration, convertIsoDurationToDate } from "@ptd/site";
-import { formatNumber, formatSize, formatDate } from "@/options/utils";
+import { formatNumber, formatSize, formatDate, simplifyNumber } from "@/options/utils";
 import { useConfigStore } from "@/options/stores/config";
 
 const { levelRequirement } = defineProps<{
@@ -15,6 +15,11 @@ const currentTime = +new Date();
 // Toggle function for double-click
 function toggleIntervalDisplay() {
   configStore.myDataTableControl.showIntervalAsDate = !configStore.myDataTableControl.showIntervalAsDate;
+}
+
+// Toggle function for double-click to switch number simplification
+function toggleNumberSimplification() {
+  configStore.myDataTableControl.simplifyBonusNumbers = !configStore.myDataTableControl.simplifyBonusNumbers;
 }
 
 // Get interval display text and title
@@ -131,10 +136,17 @@ function formatIntervalDate(duration: number | isoDuration): string {
 
   <template v-if="levelRequirement.bonus">
     <v-icon :title="t('levelRequirement.bonus')" color="green-darken-4" icon="mdi-currency-usd" size="small" />
-    {{
-      formatNumber(levelRequirement.bonus) +
-      (levelRequirement.bonusNeededInterval ? ` (${levelRequirement.bonusNeededInterval})` : "")
-    }};
+    <span
+      :title="formatNumber(levelRequirement.bonus)"
+      @dblclick="toggleNumberSimplification"
+      style="cursor: pointer; user-select: none"
+      >{{
+        (configStore.myDataTableControl.simplifyBonusNumbers
+          ? simplifyNumber(levelRequirement.bonus)
+          : formatNumber(levelRequirement.bonus)) +
+        (levelRequirement.bonusNeededInterval ? ` (${levelRequirement.bonusNeededInterval})` : "")
+      }}</span
+    >;
   </template>
 
   <template v-if="levelRequirement.seedingBonus">
@@ -144,10 +156,17 @@ function formatIntervalDate(duration: number | isoDuration): string {
       icon="mdi-lightning-bolt-circle"
       size="small"
     />
-    {{
-      formatNumber(levelRequirement.seedingBonus) +
-      (levelRequirement.seedingBonusNeededInterval ? ` (${levelRequirement.seedingBonusNeededInterval})` : "")
-    }};
+    <span
+      :title="formatNumber(levelRequirement.seedingBonus)"
+      @dblclick="toggleNumberSimplification"
+      style="cursor: pointer; user-select: none"
+      >{{
+        (configStore.myDataTableControl.simplifyBonusNumbers
+          ? simplifyNumber(levelRequirement.seedingBonus)
+          : formatNumber(levelRequirement.seedingBonus)) +
+        (levelRequirement.seedingBonusNeededInterval ? ` (${levelRequirement.seedingBonusNeededInterval})` : "")
+      }}</span
+    >;
   </template>
 
   <template v-if="levelRequirement.bonusPerHour">

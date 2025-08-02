@@ -102,6 +102,8 @@ export interface IConfigPiniaStorageSchema {
     updateAtFormatAsAlive: boolean;
     // 是否将 interval 显示为日期格式而不是持续时间格式
     showIntervalAsDate: boolean;
+    // 是否简化数字显示（将大数字转换为带单位的简化形式）
+    simplifyBonusNumbers: boolean;
   };
 
   userDataTimelineControl: {
