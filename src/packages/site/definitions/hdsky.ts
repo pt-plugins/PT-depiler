@@ -4,8 +4,10 @@ import { omit } from "es-toolkit";
 import {
   ETorrentStatus,
   type ILevelRequirement,
+  type ISearchInput,
   type ISiteMetadata,
   type ITorrent,
+  type ITorrentTag,
   IUserInfo,
   TLevelId,
 } from "../types";
@@ -272,10 +274,10 @@ export const siteMetadata: ISiteMetadata = {
         text: "",
         selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
         elementProcess: (element) => {
-          const noTagSubTitle = subTitleRemoveExtraElement(["span.optiontag"])(element);
+          const noTagSubTitle = subTitleRemoveExtraElement(["span.optiontag"], true)(element);
 
           // 移除 [优惠剩余时间：17时50分] [ promotion will end in 23 hours 16 mins] [優惠剩餘時間：23時16分] 内容
-          return noTagSubTitle.replace(/\[(优惠剩余时间| promotion will end in | 優惠剩餘時間).*\]/g, "").trim();
+          return noTagSubTitle.replace(/\[(优惠剩余时间| ?promotion will end in |優惠剩餘時間).*\]/g, "").trim();
         },
       },
       link: {
@@ -344,6 +346,30 @@ export default class Hdsky extends NexusPHP {
     }
 
     return super.getTorrentDownloadLink(torrent);
+  }
+
+  protected override parseTorrentRowForTags(
+    torrent: Partial<ITorrent>,
+    row: Element | Document,
+    searchConfig: ISearchInput,
+  ): Partial<ITorrent> {
+    super.parseTorrentRowForTags(torrent, row, searchConfig);
+
+    const customTags = row.querySelectorAll("span.optiontag[style*='background-color'][style*='color']");
+    if (customTags.length > 0) {
+      const tags: ITorrentTag[] = torrent.tags || [];
+      customTags.forEach((element) => {
+        const tagName = (element as HTMLElement).textContent;
+        const tagColor = (element as HTMLElement).style.backgroundColor;
+        if (tagName && tagColor) {
+          tags.push({ name: tagName, color: tagColor });
+        }
+      });
+
+      torrent.tags = tags;
+    }
+
+    return torrent;
   }
 
   protected override guessUserLevelId(userInfo: IUserInfo): TLevelId {
