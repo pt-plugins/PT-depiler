@@ -122,7 +122,13 @@ function startSearchEntity() {
                 <v-icon icon="mdi-menu-right" size="x-small"></v-icon>
               </template>
 
-              <v-menu :open-on-focus="false" activator="parent" open-on-hover submenu>
+              <v-menu
+                :open-on-focus="false"
+                open-on-hover
+                :open-on-click="display.mobile.value"
+                activator="parent"
+                submenu
+              >
                 <v-list>
                   <template v-for="siteMetadata in metadataStore.getSortedAddedSites" :key="siteMetadata.id">
                     <v-list-item

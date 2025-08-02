@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import { computedAsync } from "@vueuse/core";
 import { isEmpty } from "es-toolkit/compat";
+import { useDisplay } from "vuetify";
 import {
   convertIsoDurationToDate,
   getNextLevelUnMet,
@@ -23,6 +24,7 @@ const { userInfo } = defineProps<{
 
 const currentTime = +new Date();
 
+const display = useDisplay();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 
@@ -74,6 +76,7 @@ const userLevelGroupIcon = computed(() => {
       content-class="bg-white pa-0"
       interactive
       location="end bottom"
+      :open-on-click="display.mobile.value"
     >
       <template v-slot:activator="{ props }">
         <span v-bind="props">
