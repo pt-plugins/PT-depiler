@@ -225,6 +225,7 @@
       "showSeedingBonus": "Show Seeding Bonus",
       "updateAtFormatAsAlive": "Display update At as Relative Time",
       "showIntervalAsDate": "Display level requirement time as date format",
+      "simplifyBonusNumbers": "Simplify Bonus Numbers",
       "multiOpen": "Open in batch",
       "viewTimeline": "Timeline",
       "viewStatistic": "Data Chart",
