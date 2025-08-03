@@ -1,7 +1,8 @@
 import { set } from "es-toolkit/compat";
+import Sizzle from "sizzle";
 
-import { ETorrentStatus, type IElementQuery, type ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, SchemaMetadata } from "../schemas/NexusPHP";
+import { ETorrentStatus, type IElementQuery, type ISiteMetadata, type IUserInfo } from "../types";
+import NexusPHP, { CategoryInclbookmarked, CategoryIncldead, SchemaMetadata } from "../schemas/NexusPHP";
 
 // TJUPT 中的 selector.search.progress 以及 selector.search.status 被其他站公用
 export const selectorSearchProgress: IElementQuery = {
@@ -316,3 +317,32 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
+
+export default class TJUPT extends NexusPHP {
+  protected override async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
+    const { data: classesResponse } = await this.request({
+      url: "/classes.php",
+      responseType: "document",
+    });
+
+    if (classesResponse) {
+      const uploadSpan = Sizzle("tr#9 li span:contains('≥1'):first", classesResponse as Document);
+      if (uploadSpan.length > 0) {
+        const text = uploadSpan[0].textContent?.trim();
+        if (text) {
+          // 查找包含 {x}/50 格式的文本
+          const match = text.match(/(\d+)\/50/);
+          if (match) {
+            flushUserInfo.uploads = parseInt(match[1]);
+          }
+        }
+      }
+    }
+
+    if (typeof flushUserInfo.uploads === "undefined") {
+      flushUserInfo.uploads = 0;
+    }
+
+    return flushUserInfo;
+  }
+}
