@@ -14,6 +14,38 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["综合"],
   timezoneOffset: "+0800",
 
+  userInfo: {
+    ...SchemaMetadata.userInfo,
+    selectors: {
+      ...SchemaMetadata.userInfo?.selectors,
+      levelName: {
+        selector: ["td.rowhead:contains('等级') + td > b"],
+        elementProcess: (element: HTMLElement) => {
+          return element.textContent?.trim() || "";
+        },
+      },
+      bonus: {
+        selector: ["td.rowhead:contains('象草') + td"],
+        filters: [
+          (query: string) => {
+            query = query.replace(/,/g, "");
+            return parseFloat(query) || 0;
+          },
+        ],
+      },
+      seedingBonus: {
+        selector: ["td.rowhead:contains('做种积分') + td"],
+        filters: [
+          (query: string) => {
+            query = query.replace(/,/g, "");
+            const match = query.match(/[\d.]+/);
+            return match ? parseFloat(match[0]) : 0;
+          },
+        ],
+      },
+    },
+  },
+
   type: "private",
   schema: "NexusPHP",
 
