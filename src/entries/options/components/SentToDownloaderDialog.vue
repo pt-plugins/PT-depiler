@@ -218,7 +218,7 @@ function dialogLeave() {
           <!-- 快速下载选项 -->
           <v-container v-if="quickSendToClient" class="pa-0">
             <v-list v-if="metadataStore.getEnabledDownloaders.length > 0">
-              <template v-for="downloader in metadataStore.getEnabledDownloaders" :key="downloader.id">
+              <template v-for="downloader in metadataStore.getSortedEnabledDownloaders" :key="downloader.id">
                 <v-list-item
                   v-for="path in ['', ...(downloader.suggestFolders ?? [])]"
                   :key="path"
@@ -249,7 +249,7 @@ function dialogLeave() {
               <v-autocomplete
                 v-model="selectedDownloader"
                 :filter-keys="['raw.name', 'raw.address', 'raw.username']"
-                :items="metadataStore.getEnabledDownloaders"
+                :items="metadataStore.getSortedEnabledDownloaders"
                 clearable
                 placeholder="选择下载器"
                 @update:model-value="restoreAddTorrentOptions"

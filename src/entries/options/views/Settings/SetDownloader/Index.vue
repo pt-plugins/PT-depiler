@@ -38,6 +38,7 @@ const downloaderMetadata = computedAsync(async () => {
 
 const fullTableHeader = [
   { title: t("SetDownloader.common.type"), key: "type", align: "center" },
+  { title: t("common.sortIndex"), key: "sortIndex", align: "end", width: "100" },
   { title: t("SetDownloader.common.name"), key: "name", align: "start" },
   { title: t("SetDownloader.common.address"), key: "address", align: "start" },
   { title: t("SetDownloader.common.username"), key: "username", align: "start" },

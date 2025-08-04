@@ -298,6 +298,12 @@ export const useMetadataStore = defineStore("metadata", {
       return Object.values(state.downloaders).filter((downloader) => downloader.enabled);
     },
 
+    getSortedEnabledDownloaders(state): Array<IDownloaderMetadata> {
+      return this.getEnabledDownloaders.sort((a, b) => {
+        return (b.sortIndex ?? 0) - (a.sortIndex ?? 0);
+      });
+    },
+
     getMediaServerIds(state) {
       return Object.keys(state.mediaServers);
     },

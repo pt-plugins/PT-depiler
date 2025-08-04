@@ -48,6 +48,8 @@ export interface IDownloaderMetadata extends DownloaderBaseConfig {
   suggestFolders?: string[];
   suggestTags?: string[];
 
+  sortIndex?: number; // 排序索引，默认值取 0
+
   [key: string]: any; // 其他配置项
 }
 
