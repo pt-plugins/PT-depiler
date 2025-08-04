@@ -69,8 +69,8 @@ importers:
         specifier: ^3.0.3
         version: 3.0.3(typescript@5.8.3)(vue@3.5.18(typescript@5.8.3))
       pinia-plugin-state-persistence:
-        specifier: ^1.10.2
-        version: 1.10.2(pinia@3.0.3(typescript@5.8.3)(vue@3.5.18(typescript@5.8.3)))
+        specifier: ^1.10.3
+        version: 1.10.3(pinia@3.0.3(typescript@5.8.3)(vue@3.5.18(typescript@5.8.3)))
       search-query-parser:
         specifier: ^1.6.0
         version: 1.6.0
@@ -2851,8 +2851,8 @@ packages:
     engines: {node: '>=0.10'}
     hasBin: true
 
-  pinia-plugin-state-persistence@1.10.2:
-    resolution: {integrity: sha512-mGjva6OaskNsO8O1mNP+J9DdyYtgvUkbJSVD+g2q2w9eXJ9wfhKwVKPvCv/P532RQopt1MVeLHmZcl7+cDI1OQ==}
+  pinia-plugin-state-persistence@1.10.3:
+    resolution: {integrity: sha512-enx8vvUnAi8a7YBKUAz4J/Fi4xAaoeyjNf0jZLHLKbAQwrvO2Yc2ckZbdsMGMA3urjzxLo1kcs9/2jNEh7aCAw==}
     peerDependencies:
       pinia: ^2.3.0 || ^3.0.0
 
@@ -6403,7 +6403,7 @@ snapshots:
 
   pidtree@0.6.0: {}
 
-  pinia-plugin-state-persistence@1.10.2(pinia@3.0.3(typescript@5.8.3)(vue@3.5.18(typescript@5.8.3))):
+  pinia-plugin-state-persistence@1.10.3(pinia@3.0.3(typescript@5.8.3)(vue@3.5.18(typescript@5.8.3))):
     dependencies:
       pinia: 3.0.3(typescript@5.8.3)(vue@3.5.18(typescript@5.8.3))
 
