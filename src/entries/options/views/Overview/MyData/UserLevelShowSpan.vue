@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { IImplicitUserInfo, isoDuration, convertIsoDurationToDate } from "@ptd/site";
+import { IImplicitUserInfo, isoDuration, convertIsoDurationToDate, convertSecondsToIsoDuration } from "@ptd/site";
 import { formatNumber, formatSize, formatDate, simplifyNumber } from "@/options/utils";
 import { useConfigStore } from "@/options/stores/config";
 
@@ -36,7 +36,9 @@ function getIntervalDisplay(interval: number | isoDuration) {
 
 function formatDuration(duration: number | isoDuration) {
   if (typeof duration === "number") {
-    return `${duration / 86400}D`;
+    // 如果是秒数，先转换为ISO duration格式再显示
+    const isoDurationStr = convertSecondsToIsoDuration(duration);
+    return isoDurationStr.substring(1);
   } else {
     return duration.substring(1);
   }

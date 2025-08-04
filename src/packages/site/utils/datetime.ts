@@ -135,3 +135,35 @@ export function convertIsoDurationToSeconds(duration: string): number {
     timeDelta.seconds
   );
 }
+
+/**
+ * 将秒数转换为ISO duration格式
+ * 主要用于将时间长度转换为标准的ISO 8601 duration格式
+ * 只包含日期部分（年、月、周、天），忽略时间部分（时、分、秒）
+ */
+export function convertSecondsToIsoDuration(seconds: number): isoDuration {
+  if (seconds <= 0) return "P0D";
+
+  const years = Math.floor(seconds / (365 * 24 * 3600));
+  const remainingAfterYears = seconds % (365 * 24 * 3600);
+
+  const months = Math.floor(remainingAfterYears / (30 * 24 * 3600));
+  const remainingAfterMonths = remainingAfterYears % (30 * 24 * 3600);
+
+  const weeks = Math.floor(remainingAfterMonths / (7 * 24 * 3600));
+  const remainingAfterWeeks = remainingAfterMonths % (7 * 24 * 3600);
+
+  const days = Math.floor(remainingAfterWeeks / (24 * 3600));
+
+  let duration = "P";
+
+  if (years > 0) duration += `${years}Y`;
+  if (months > 0) duration += `${months}M`;
+  if (weeks > 0) duration += `${weeks}W`;
+  if (days > 0) duration += `${days}D`;
+
+  // 如果所有值都为0，返回P0D
+  if (duration === "P") duration = "P0D";
+
+  return duration as isoDuration;
+}
