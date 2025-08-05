@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import process from "node:process";
 import path from "node:path";
+import { execSync } from "node:child_process";
 
 // Vite And it's plugins
 import { defineConfig } from "vite";
@@ -34,7 +35,8 @@ const permissions = [
   "unlimitedStorage",
 ];
 
-const base_version = `${pkg.version}.${git.count()}`;
+const commit_count = parseInt(execSync('git rev-list --count HEAD', { encoding: 'utf8' }).trim(), 10);
+const base_version = `${pkg.version}.${commit_count}`;
 const commit_version = `${base_version}+${git.short(__dirname)}`;
 
 // https://vitejs.dev/config/
@@ -215,7 +217,7 @@ export default defineConfig({
       short: git.short(__dirname),
       long: git.long(__dirname),
       date: +git.date(),
-      count: git.count(),
+      count: commit_count,
       branch: git.branch(__dirname),
     },
     __BUILD_TIME__: +Date.now(),
