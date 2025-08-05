@@ -19,27 +19,25 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       ...SchemaMetadata.userInfo?.selectors,
       levelName: {
-        selector: ["td.rowhead:contains('等级') + td > b"],
+        selector: [
+          "td.rowhead:contains('等级') + td > b",
+          "td.rowhead:contains('Class') + td > b",
+          "td.rowhead:contains('等級') + td > b",
+        ],
         elementProcess: (element: HTMLElement) => {
           return element.textContent?.trim() || "";
         },
       },
       bonus: {
-        selector: ["td.rowhead:contains('象草') + td"],
+        selector: [
+          "td.rowhead:contains('象草') + td",
+          "td.rowhead:contains('Karma Points') + td",
+          "td.rowhead:contains('魔力值') + td",
+        ],
         filters: [
           (query: string) => {
             query = query.replace(/,/g, "");
             return parseFloat(query) || 0;
-          },
-        ],
-      },
-      seedingBonus: {
-        selector: ["td.rowhead:contains('做种积分') + td"],
-        filters: [
-          (query: string) => {
-            query = query.replace(/,/g, "");
-            const match = query.match(/[\d.]+/);
-            return match ? parseFloat(match[0]) : 0;
           },
         ],
       },
