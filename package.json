@@ -101,7 +101,7 @@
     "vite-plugin-vue-devtools": "^7.7.7",
     "vite-plugin-vuetify": "^2.1.1",
     "vite-plugin-web-extension": "4.4.3",
-    "vue-tsc": "^2.2.10"
+    "vue-tsc": "^3.0.5"
   },
   "prettier": {
     "printWidth": 120,
