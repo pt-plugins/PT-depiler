@@ -8,6 +8,7 @@ export const siteMetadata: ISiteMetadata = {
 
   id: "u2",
   name: "U2",
+  aka: ["幼儿园"],
   tags: ["影视", "动漫"],
 
   schema: "NexusPHP",

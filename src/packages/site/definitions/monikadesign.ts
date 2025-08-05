@@ -6,6 +6,7 @@ export const siteMetadata: ISiteMetadata = {
   id: "monikadesign",
   version: 1,
   name: "Monikadesign",
+  aka: ["MDU", "莫妮卡"],
   tags: ["动漫"],
   timezoneOffset: "+0800",
   collaborator: ["Rhilip"],

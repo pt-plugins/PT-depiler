@@ -7,7 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "tlfbits",
   name: "TLFBits",
-  aka: ["TLF Bits", "The Last Fantasy"],
+  aka: ["TLF Bits", "The Last Fantasy", "TLF", "吐鲁番"],
   description: "水管虽小，坚持则大！宛如TLF，虽弱却奢华",
   tags: ["影视", "综合"],
   timezoneOffset: "+0800",

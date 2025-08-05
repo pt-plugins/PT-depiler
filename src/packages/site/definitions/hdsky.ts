@@ -122,6 +122,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "hdsky",
   name: "HDSky",
+  aka: ["HDS", "天空"],
   description: "高清发烧友后花园PT",
   tags: ["影视", "纪录片", "综合"],
 

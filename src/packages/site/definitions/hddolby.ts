@@ -8,6 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 2,
   id: "hddolby",
   name: "HD Dolby",
+  aka: ["高清杜比"],
   description: "高清杜比",
   tags: ["影视", "综合"],
   collaborator: ["iceyuamao0510", "tongyifan"],
