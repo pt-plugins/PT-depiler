@@ -22,6 +22,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "iptorrents",
   name: "IPTorrents",
+  aka: ["IPT"],
   description: "IPTorrents - #1 Private Tracker",
   tags: ["综合"],
   timezoneOffset: "+0000",

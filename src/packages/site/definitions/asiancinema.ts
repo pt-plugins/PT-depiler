@@ -7,6 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "asiancinema",
   name: "AsianCinema",
+  aka: ["ACM"],
   description: "综合",
   tags: ["综合"],
   timezoneOffset: "+0000",

@@ -7,6 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "hdupt",
   name: "HDU",
+  aka: ["好多油"],
   description: "这是一个尊重版权的私有资源PT分享站点HDU。高清有你，你有UPXIN",
   tags: ["影视", "综合"],
 

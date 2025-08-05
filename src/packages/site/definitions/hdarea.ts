@@ -12,7 +12,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "hdarea",
   name: "HDArea",
-  aka: ["高清视界"],
+  aka: ["高清视界", "好大"],
   tags: ["影视", "综合"],
   timezoneOffset: "+0800",
 
