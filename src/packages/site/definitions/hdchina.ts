@@ -5,6 +5,7 @@ export const siteMetadata: ISiteMetadata = {
   id: "hdchina",
 
   name: "HDChina",
+  aka: ["瓷器"],
   description: "高清影音人士分享乐园",
   tags: ["影视", "音乐", "纪录片", "综合"],
   timezoneOffset: "+0800",

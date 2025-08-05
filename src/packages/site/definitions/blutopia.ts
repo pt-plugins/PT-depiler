@@ -6,6 +6,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "blutopia",
   name: "Blutopia",
+  aka: ["BLU"],
   tags: ["影视", "综合"],
   timezoneOffset: "+0000",
   collaborator: ["bimzcy", "lengmianxia", "haowenwu"],

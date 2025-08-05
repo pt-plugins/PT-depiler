@@ -12,6 +12,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "keepfrds",
   name: "PT@KEEPFRDS",
+  aka: ["FRDS", "朋友"],
   description: "KEEP FRIENDS 专注于小而美的分享，给大家带来更多更优的视听体验。 Let us keep friends forever!",
   tags: ["影视", "综合"],
 

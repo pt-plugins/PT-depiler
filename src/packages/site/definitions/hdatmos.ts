@@ -4,6 +4,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "hdatmos",
   name: "HDATMOS",
+  aka: ["阿童木"],
   tags: ["影视", "综合"],
   collaborator: ["luoyefe", "zhuweitung"],
 

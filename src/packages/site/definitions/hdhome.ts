@@ -88,6 +88,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "hdhome",
   name: "HDHome",
+  aka: ["家园"],
   tags: ["影视", "综合"],
   collaborator: ["tongyifan", "yuanyiwei", "Rhilip"],
 

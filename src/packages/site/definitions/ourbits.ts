@@ -15,6 +15,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "ourbits",
   name: "OurBits",
+  aka: ["我堡", "OB"],
   description: "综合性网站，有分享率要求",
   tags: ["影视", "动漫", "纪录片", "综艺"],
   collaborator: ["Rhilip"],
