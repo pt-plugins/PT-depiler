@@ -1,4 +1,8 @@
-import type { ISearchInput, ISiteMetadata, ITorrent } from "../types";
+import Sizzle from "sizzle";
+import { mergeWith } from "es-toolkit";
+import type { ISearchInput, ISiteMetadata, ITorrent, IUserInfo } from "../types";
+import { EResultParseStatus } from "../types";
+import { parseSizeString, createDocument } from "../utils";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 
 const categoryOptions = [
@@ -265,6 +269,20 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class TorrentLeech extends PrivateSite {
+  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
+
+    // 导入用户做种信息
+    if (
+      flushUserInfo.status === EResultParseStatus.success &&
+      (typeof flushUserInfo.seeding === "undefined" || typeof flushUserInfo.seedingSize === "undefined")
+    ) {
+      flushUserInfo = (await this.parseUserInfoForSeedingStatus(flushUserInfo)) as IUserInfo;
+    }
+
+    return flushUserInfo;
+  }
+
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
     row: ITorrentLeechTorrent,
@@ -277,5 +295,40 @@ export default class TorrentLeech extends PrivateSite {
     torrent.tags.push({ name: "H&R", color: "red" });
 
     return torrent;
+  }
+
+  // 获取做种信息
+  protected async parseUserInfoForSeedingStatus(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
+    let seedStatus = { seeding: 0, seedingSize: 0 };
+
+    const userName = flushUserInfo.name as string;
+    const { data } = await this.request<string>({
+      url: `/profile/${userName}/seeding`,
+    });
+
+    if (data && data.includes("profile-seedingTable")) {
+      const userSeedingPage = createDocument(data);
+
+      // 直接获取所有大小列的元素
+      const sizeElements = Sizzle(
+        "table#profile-seedingTable > tbody > tr > td:nth-child(2)",
+        userSeedingPage as Document,
+      );
+
+      // 做种数量就是大小元素的数量
+      seedStatus.seeding = sizeElements.length;
+
+      // 累加所有大小
+      sizeElements.forEach((sizeElement) => {
+        const sizeText = sizeElement.textContent?.trim() || "0";
+        seedStatus.seedingSize += parseSizeString(sizeText);
+      });
+    }
+
+    flushUserInfo = mergeWith(flushUserInfo, seedStatus, (objValue, srcValue) => {
+      return typeof srcValue === "undefined" ? objValue : srcValue;
+    });
+
+    return flushUserInfo;
   }
 }
