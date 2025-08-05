@@ -124,6 +124,7 @@ export interface IConfigPiniaStorageSchema {
       boolean
     >;
     dateRange: number | "custom" | "all";
+    hidePerSitePrecentThreshold: number; // 0-100，百分比，隐藏掉低于该百分比的站点（不会隐藏当前指向的站点）
   };
 
   /**

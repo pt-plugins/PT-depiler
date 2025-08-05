@@ -221,6 +221,8 @@ const createPerSiteChartOptionsFn = (
 
           const hasData = params.some((x) => Number(x.data));
           const totalCount = params.reduce((acc, cur) => acc + (Number(cur.data) || 0), 0); // 算出总和
+          let thresholdSite = 0; // 低于阈值的站点数量
+
           if (hasData) {
             ret += '<table style="width: 100%;">';
             ret += `<tr class="font-weight-bold" style="border-bottom: 1pt solid black;"><td class="pr-3">总和</td><td class="pr-3 text-right">${formatDict[format](totalCount)}</td><td class="text-right">100%</td></tr>`;
@@ -234,15 +236,29 @@ const createPerSiteChartOptionsFn = (
               const site = data.seriesName;
               const siteName = allAddedSiteMetadata[site]?.siteName ?? site;
               const siteFavicon = allAddedSiteMetadata[site]?.faviconSrc ?? NO_IMAGE;
-              const precentValue = ((dataValue / totalCount) * 100).toFixed(2);
-              const colorStyle = lastHoveredSeriesIndex.value === data.seriesIndex ? `color: ${data.color};` : ""; // 是否高亮此行
+              const precentValue = (dataValue / totalCount) * 100;
+              const isHighlightSite = lastHoveredSeriesIndex.value === data.seriesIndex; // 是否高亮此行
 
-              ret += `<tr style='${colorStyle}'>
+              // 跳过低于阈值且没有高亮的站点
+              if (
+                !isHighlightSite &&
+                Math.abs(precentValue) < (configStore.userStatisticControl.hidePerSitePrecentThreshold ?? 0)
+              ) {
+                thresholdSite++;
+                continue;
+              }
+
+              ret += `<tr style='${isHighlightSite ? `color: ${data.color};` : ""}'>
 <td class="pr-3"><div class="d-inline-flex align-center"><img src="${siteFavicon}" class="mr-1" style="width:16px; height: 16px; " alt="${siteName}">${siteName}</div></td>
 <td class="pr-3 text-right">${formatDict[format](data.value)}</td>
-<td class="text-right">${precentValue}%</td>
+<td class="text-right">${precentValue.toFixed(2)}%</td>
 </tr>`;
             }
+
+            if (thresholdSite > 0) {
+              ret += `<tr><td colspan="3" class="text-right">（另有 ${thresholdSite} 个站点数据被隐藏 )</td></tr>`;
+            }
+
             ret += "</table>";
           } else {
             ret += `无数据`;
@@ -504,6 +520,26 @@ function saveControl() {
                 {{ t("UserDataStatistic.dateRange.all") }}
               </v-btn>
             </v-btn-toggle>
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col align-self="center">
+            <v-label>图表设置</v-label>
+          </v-col>
+          <v-col cols="12" sm="10">
+            <v-number-input
+              v-model="configStore.userStatisticControl.hidePerSitePrecentThreshold"
+              :max="100"
+              :min="0"
+              :precision="2"
+              :step="1"
+              suffix="%"
+              controlVariant="default"
+              hint="设置为0则不隐藏"
+              label="隐藏分站点图中图例百分比低于该值的详情"
+              persistent-hint
+            ></v-number-input>
           </v-col>
         </v-row>
 

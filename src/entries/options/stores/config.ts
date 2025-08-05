@@ -154,6 +154,7 @@ export const useConfigStore = defineStore("config", {
         perSiteKbonusIncr: true,
       },
       dateRange: 30,
+      hidePerSitePrecentThreshold: 1,
     },
 
     searchEntifyControl: {
