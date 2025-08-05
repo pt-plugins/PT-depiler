@@ -15,6 +15,8 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "filelist",
   name: "FileList",
+  aka: ["FL"],
+  description: "罗马尼亚最大的站点",
   tags: ["影视", "综合"],
   timezoneOffset: "+0000",
 

@@ -9,6 +9,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "uhdbits",
   name: "UHDBits",
+  aka: ["UHD"],
   tags: ["影视"],
   timezoneOffset: "+0000",
   collaborator: ["bimzcy", "enigamz", "haowenwu"],
@@ -124,7 +125,8 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "100GB",
       downloads: "20",
       ratio: 1.5,
-      privilege: "Ability to make New Requests; Enable Users online and Users on IRC on front page; Access to full Staff page.",
+      privilege:
+        "Ability to make New Requests; Enable Users online and Users on IRC on front page; Access to full Staff page.",
     },
     {
       id: 3,
