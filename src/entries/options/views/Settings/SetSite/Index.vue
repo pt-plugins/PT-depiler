@@ -34,8 +34,8 @@ const showOneClickImportDialog = ref<boolean>(false);
 const tableHeader = computed(() => {
   const baseHeaders = [
     // site favicon
-    { title: "", key: "userConfig.sortIndex", align: "center", width: 48 },
-    { title: t("SetSite.common.name"), key: "name", align: "left", width: 120, sortable: false },
+    { title: t("common.sortIndex"), key: "userConfig.sortIndex", align: "center", width: 48 },
+    { title: t("SetSite.common.name"), key: "name", align: "left", width: 120 },
     { title: t("SetSite.common.groups"), key: "groups", align: "left", minWidth: 120, sortable: false },
     { title: t("SetSite.common.url"), key: "url", align: "start", sortable: false },
     { title: t("SetSite.common.isOffline"), key: "userConfig.isOffline", align: "center", width: 180 },
@@ -73,7 +73,7 @@ const {
   parseOptions: {
     keywords: ["id", ...booleanUserConfigKeywords.map((x) => `userConfig.${x}`), "userConfig.groups"],
   },
-  titleFields: ["metadata.name", "metadata.urls", "userConfig.merge.name", "userConfig.url"],
+  titleFields: ["name", "metadata.urls", "userConfig.url"],
   format: {
     ...Object.fromEntries(booleanUserConfigKeywords.map((x) => [`userConfig.${x}`, "boolean"])),
   },
@@ -222,7 +222,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
       </template>
       <template #item.name="{ item }">
         <span>
-          {{ item.userConfig?.merge?.name ?? item.metadata?.name }}
+          {{ item.name }}
           <v-tooltip max-width="400" v-if="item.metadata.description" activator="parent">
             <span v-if="typeof item.metadata.description === 'string'">{{ item.metadata.description }}</span>
             <ul v-else>
