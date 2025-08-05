@@ -43,7 +43,7 @@
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",
     "@vueuse/components": "^13.5.0",
-    "@vueuse/core": "^13.5.0",
+    "@vueuse/core": "^13.6.0",
     "@webext-core/job-scheduler": "^1.0.0",
     "@webext-core/messaging": "^2.3.0",
     "@webext-core/storage": "^1.2.0",
