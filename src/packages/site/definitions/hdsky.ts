@@ -105,6 +105,17 @@ const oldUserLevelRequirements = newUserLevelRequirements.map((level) => {
   return omit(level, ["bonus"]);
 }) as ILevelRequirement[];
 
+const baseIdSelector =
+  __BROWSER__ === "firefox"
+    ? {
+        selector: 'a[href*="download.php"][href*="id="]',
+        attr: "href",
+      }
+    : {
+        selector: 'form[action*="download.php"]:first',
+        attr: "action",
+      };
+
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
 
@@ -258,13 +269,11 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       ...SchemaMetadata.search!.selectors!,
       id: {
-        selector: 'form[action*="download.php"]:first',
-        attr: "action",
+        ...baseIdSelector,
         filters: [{ name: "querystring", args: ["id"] }],
       },
       url: {
-        selector: 'form[action*="download.php"]:first',
-        attr: "action",
+        ...baseIdSelector,
         filters: [
           { name: "querystring", args: ["id"] },
           { name: "prepend", args: ["/details.php?id="] },
@@ -281,8 +290,7 @@ export const siteMetadata: ISiteMetadata = {
         },
       },
       link: {
-        selector: 'form[action*="download.php"]:first',
-        attr: "action",
+        ...baseIdSelector,
       },
       progress: {
         selector: ["div.progressseeding, div.progressfinished, div.progressdownloading, div.progressdownloaded"],
@@ -316,8 +324,7 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       ...(SchemaMetadata.detail?.selectors ?? {}),
       link: {
-        selector: 'form[action*="download.php"]:first',
-        attr: "action",
+        ...baseIdSelector,
       },
     },
   },
