@@ -4,6 +4,11 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  git-rev-sync:
+    hash: 3d9c4d584af1267020d909cdabbeb70f980a70f49789c9391c199648c693158e
+    path: patches/git-rev-sync.patch
+
 importers:
 
   .:
@@ -149,7 +154,7 @@ importers:
         version: 10.0.0
       git-rev-sync:
         specifier: ^3.0.2
-        version: 3.0.2
+        version: 3.0.2(patch_hash=3d9c4d584af1267020d909cdabbeb70f980a70f49789c9391c199648c693158e)
       husky:
         specifier: ^9.1.7
         version: 9.1.7
@@ -5729,7 +5734,7 @@ snapshots:
     dependencies:
       resolve-pkg-maps: 1.0.0
 
-  git-rev-sync@3.0.2:
+  git-rev-sync@3.0.2(patch_hash=3d9c4d584af1267020d909cdabbeb70f980a70f49789c9391c199648c693158e):
     dependencies:
       escape-string-regexp: 1.0.5
       graceful-fs: 4.1.15
