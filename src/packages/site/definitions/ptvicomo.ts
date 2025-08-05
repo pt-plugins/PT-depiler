@@ -24,9 +24,6 @@ export const siteMetadata: ISiteMetadata = {
           "td.rowhead:contains('Class') + td > b",
           "td.rowhead:contains('等級') + td > b",
         ],
-        elementProcess: (element: HTMLElement) => {
-          return element.textContent?.trim() || "";
-        },
       },
       bonus: {
         selector: [
@@ -34,12 +31,7 @@ export const siteMetadata: ISiteMetadata = {
           "td.rowhead:contains('Karma Points') + td",
           "td.rowhead:contains('魔力值') + td",
         ],
-        filters: [
-          (query: string) => {
-            query = query.replace(/,/g, "");
-            return parseFloat(query) || 0;
-          },
-        ],
+        filters: [{ name: "parseNumber" }],
       },
     },
   },
