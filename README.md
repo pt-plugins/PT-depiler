@@ -83,6 +83,10 @@ PT-Depiler 是一个开源项目，遵循 [MIT 许可证](http://opensource.org/
 
 Copyright (c) 2020-present [pt-plugins](https://github.com/pt-plugins)
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=pt-plugins/PT-depiler&type=Date)](https://www.star-history.com/#pt-plugins/PT-depiler&Date)
+
 --------------
 
 特别感谢以下所有为本项目做出贡献的人 😍！
