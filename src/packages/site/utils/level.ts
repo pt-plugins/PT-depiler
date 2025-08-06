@@ -164,10 +164,6 @@ export function levelRequirementUnMet(
 
     // 检查最小 ratio 限制
     if (minRequireRatio) {
-      if (baseRatio < minRequireRatio) {
-        unmetRequirement[ratioKey] = minRequireRatio;
-      }
-
       // 只有上传和ratio要求，没有下载要求的情况
       if (requiredUploaded > 0 && requiredDownloaded === 0) {
         // 计算满足ratio要求所允许的最大下载量
@@ -193,10 +189,6 @@ export function levelRequirementUnMet(
 
     // 检查最大 ratio 限制
     if (maxRequireRatio) {
-      if (baseRatio > maxRequireRatio) {
-        unmetRequirement[ratioKey] = maxRequireRatio;
-      }
-
       const neededDownload = baseUploaded / maxRequireRatio;
 
       if (baseDownloaded < neededDownload) {
