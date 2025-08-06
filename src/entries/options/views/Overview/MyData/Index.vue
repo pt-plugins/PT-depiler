@@ -678,7 +678,7 @@ function toggleNumberSimplification() {
 
       <!-- 操作 -->
       <template #item.action="{ item }">
-        <v-btn-group variant="text">
+        <v-btn-group class="table-action" density="compact" variant="plain">
           <v-btn
             :title="t('MyData.table.action.viewHistoryData')"
             color="blue"

@@ -80,8 +80,20 @@ const userLevelGroupIcon = computed(() => {
     >
       <template v-slot:activator="{ props }">
         <span v-bind="props">
-          <v-icon :icon="userLevelGroupIcon" size="16"></v-icon>
-          {{ levelName }}<br />
+          <v-icon :icon="userLevelGroupIcon" size="small"></v-icon>
+          {{ levelName }}
+          <v-icon
+            v-if="
+              configStore.myDataTableControl.showNextLevelInTable &&
+              userLevelGroupType === 'user' &&
+              isEmpty(nextLevelUnMet)
+            "
+            icon="mdi-check"
+            color="green"
+            size="small"
+            class="ml-1"
+          ></v-icon
+          ><br />
           <template
             v-if="
               configStore.myDataTableControl.showNextLevelInTable &&
@@ -169,7 +181,7 @@ const userLevelGroupIcon = computed(() => {
       </template>
     </v-tooltip>
     <span v-else>
-      <v-icon :icon="userLevelGroupIcon" size="16"></v-icon>
+      <v-icon :icon="userLevelGroupIcon" size="small"></v-icon>
       {{ levelName }}
     </span>
   </span>
