@@ -103,6 +103,7 @@ function startSearchEntity() {
             </v-btn>
           </template>
           <v-list>
+            <!-- 默认搜索方案 -->
             <v-list-item
               :subtitle="
                 '<' +
@@ -114,6 +115,16 @@ function startSearchEntity() {
               :title="t('layout.header.searchPlan.default')"
               @click="() => (searchPlanKey = 'default')"
             />
+
+            <!-- 全部站点搜索方案（仅当默认搜索不是全部站点时出现） -->
+            <template v-if="metadataStore.defaultSolutionId !== 'default'">
+              <v-list-item
+                :title="t('layout.header.searchPlan.all')"
+                @click="() => (searchPlanKey = 'all')"
+              ></v-list-item>
+            </template>
+
+            <!-- 单个站点搜索方案 -->
             <v-list-item
               v-if="configStore.searchEntity.allowSingleSiteSearch"
               :title="t('layout.header.searchPlan.singleSite')"
@@ -148,7 +159,10 @@ function startSearchEntity() {
                 </v-list>
               </v-menu>
             </v-list-item>
+
             <v-divider />
+
+            <!-- 用户自定义的搜索方案列表 -->
             <v-list-item
               v-for="(item, index) in searchPlans"
               :key="index"
@@ -157,13 +171,6 @@ function startSearchEntity() {
             >
               <v-list-item-title>{{ metadataStore.getSearchSolutionName(item.id) }}</v-list-item-title>
             </v-list-item>
-            <template v-if="metadataStore.defaultSolutionId !== 'default'">
-              <v-divider />
-              <v-list-item
-                :title="t('layout.header.searchPlan.all')"
-                @click="() => (searchPlanKey = 'all')"
-              ></v-list-item>
-            </template>
           </v-list>
         </v-menu>
       </template>
