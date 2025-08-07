@@ -123,6 +123,7 @@ export const useConfigStore = defineStore("config", {
         downloaded: true,
         seeding: true,
         seedingSize: true,
+        bonus: true,
         bonusPerHour: true,
         ratio: true,
       },

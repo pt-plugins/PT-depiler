@@ -3,7 +3,7 @@ import { differenceInDays } from "date-fns";
 import { EResultParseStatus, ISiteUserConfig, IUserInfo, TSiteID } from "@ptd/site";
 
 import { IStoredUserInfo } from "@/shared/types.ts";
-import { deepToRaw, formatSize } from "@/options/utils.ts";
+import { deepToRaw, formatSize, simplifyNumber } from "@/options/utils.ts";
 import { useResetableRef } from "@/options/directives/useResetableRef.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
@@ -29,6 +29,7 @@ export const CTimelineUserInfoField = [
   { name: "downloaded", format: (x: number) => formatSize(x) },
   { name: "seeding", format: (x: number) => x },
   { name: "seedingSize", format: (x: number) => formatSize(x) },
+  { name: "bonus", format: (x: number) => simplifyNumber(x, " ") },
   { name: "bonusPerHour", format: (x: number) => x.toFixed(2) },
   { name: "ratio", format: (x: number) => realFormatRatio(x) },
 ] as const;
@@ -84,6 +85,7 @@ export const timelineDataRef = useResetableRef<ITimelineData>(() => {
       seeding: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
       seedingSize: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
       ratio: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
+      bonus: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
       bonusPerHour: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
     },
     totalInfo: {
@@ -93,6 +95,7 @@ export const timelineDataRef = useResetableRef<ITimelineData>(() => {
       downloaded: 0,
       seeding: 0,
       seedingSize: 0,
+      bonus: 0,
       bonusPerHour: 0,
       ratio: -1,
     },
