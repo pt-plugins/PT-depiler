@@ -719,9 +719,4 @@ function toggleNumberSimplification() {
 .favicon-hover-bg:hover {
   background: rgba(0, 0, 0, 0.3);
 }
-/* 禁止 action 列出现滚动条，内容不换行 */
-.table-action {
-  overflow: visible !important;
-  white-space: nowrap;
-}
 </style>
