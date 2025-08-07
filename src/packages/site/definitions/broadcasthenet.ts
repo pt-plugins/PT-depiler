@@ -89,6 +89,7 @@ export const siteMetadata: ISiteMetadata = {
         assertion: { id: "params.id" },
         fields: [
           "uploaded",
+          "uploads",
           "downloaded",
           "ratio",
           "levelName",

@@ -49,7 +49,7 @@ const fullTableHeader = reactive([
   { title: t("levelRequirement.bonusPerHour"), key: "bonusPerHour", align: "end" },
   { title: t("MyData.table.joinTime"), key: "joinTime", align: "center" },
   { title: t("MyData.table.updateAt"), key: "updateAt", align: "center" },
-  { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false, props: { disabled: true } },
+  { title: t("common.action"), key: "action", align: "center", sortable: false, props: { disabled: true } },
 ] as (DataTableHeader & { props?: any })[]);
 
 const tableHeader = computed(() => {
@@ -678,7 +678,7 @@ function toggleNumberSimplification() {
 
       <!-- 操作 -->
       <template #item.action="{ item }">
-        <v-btn-group variant="text">
+        <v-btn-group class="table-action" density="compact" variant="plain">
           <v-btn
             :title="t('MyData.table.action.viewHistoryData')"
             color="blue"

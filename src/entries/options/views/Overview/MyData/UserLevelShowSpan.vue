@@ -4,8 +4,9 @@ import { IImplicitUserInfo, isoDuration, convertIsoDurationToDate, convertSecond
 import { formatNumber, formatSize, formatDate, simplifyNumber } from "@/options/utils";
 import { useConfigStore } from "@/options/stores/config";
 
-const { levelRequirement } = defineProps<{
+const { levelRequirement, hideRatioInTable = false } = defineProps<{
   levelRequirement: IImplicitUserInfo;
+  hideRatioInTable?: boolean;
 }>();
 
 const { t } = useI18n();
@@ -106,12 +107,12 @@ function formatIntervalDate(duration: number | isoDuration): string {
     {{ formatSize(levelRequirement.totalTraffic) }};
   </template>
 
-  <template v-if="levelRequirement.ratio">
+  <template v-if="levelRequirement.ratio && !hideRatioInTable">
     <v-icon :title="t('levelRequirement.ratio')" color="orange-darken-4" icon="mdi-scale-balance" size="small" />
     {{ levelRequirement.ratio }};
   </template>
 
-  <template v-if="levelRequirement.trueRatio">
+  <template v-if="levelRequirement.trueRatio && !hideRatioInTable">
     <v-icon :title="t('levelRequirement.trueRatio')" color="orange-darken-4" icon="mdi-scale" size="small" />
     {{ levelRequirement.trueRatio }};
   </template>
