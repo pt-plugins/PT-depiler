@@ -91,7 +91,7 @@ function pageParse$2Factory(urlPattern: string, rowSelector: string): TSupportSo
 export const pageParserMatches: TSupportSocialSitePageParserMatches = [
   [doubanUrlPattern, pageParser$1],
   // TOP 250
-  pageParse$2Factory("movie.douban.com/top250", "ol.grid_view > li"),
+  pageParse$2Factory("movie.douban.com/top250", "ol.grid_view > li div.info"),
   // 排行榜
   pageParse$2Factory("movie.douban.com/chart", "div.indent table div.pl2"),
   // 选电影、选剧集

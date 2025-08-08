@@ -1,0 +1,53 @@
+@import "vuetify";
+@import "tailwindcss" prefix(tw);
+
+@import "../shared/common.css";
+
+/* 在表头过滤器中不显示 v-combobox 的输入框 */
+.v-combobox.table-header-filter-clear {
+  .v-field__input {
+    margin-top: 4px;
+  }
+
+  input[size="1"][type="text"] {
+    display: none;
+  }
+
+  @media (max-width: 600px) {
+    .v-field {
+      flex: none;
+      grid-template-areas: "prepend-inner field clear append-inner";
+      grid-template-columns: min-content 0 min-content min-content;
+    }
+
+    .v-field__field {
+      display: none;
+    }
+  }
+}
+
+.table-switch-btn {
+  .v-selection-control {
+    justify-content: center;
+  }
+}
+
+/* 禁止 action 列出现滚动条，内容不换行 */
+.table-action {
+  overflow: visible !important;
+  white-space: nowrap;
+
+  /* 表格中 density-compact 的按钮组中添加间距 */
+
+  .v-btn-group--density-compact > button:not(:last-child) {
+    margin-right: 4px;
+  }
+}
+
+.list-item-none-spacer > .v-list-item__prepend > .v-icon ~ .v-list-item__spacer {
+  display: none;
+}
+
+.list-item-half-spacer > .v-list-item__prepend > .v-icon ~ .v-list-item__spacer {
+  width: 12px;
+}

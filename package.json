@@ -112,7 +112,7 @@
     "endOfLine": "lf"
   },
   "lint-staged": {
-    "*.{js,ts,json,vue,html}": [
+    "*.{js,ts,json,vue,html,css,scss}": [
       "prettier --write "
     ]
   }
