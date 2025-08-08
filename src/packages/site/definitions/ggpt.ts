@@ -78,7 +78,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P4W",
       downloaded: "50GB",
       ratio: 2,
-      seedingPoints: 40000,
+      seedingBonus: 40000,
       privilege:
         '可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种； 可以发送邀请； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
     },
@@ -88,7 +88,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P8W",
       downloaded: "100GB",
       ratio: 2.5,
-      seedingPoints: 80000,
+      seedingBonus: 80000,
       privilege: "没有新权限增加",
     },
     {
@@ -97,7 +97,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P15W",
       downloaded: "300GB",
       ratio: 3,
-      seedingPoints: 150000,
+      seedingBonus: 150000,
       privilege: "可以在做种/下载/发布的时候选择匿名模式。",
     },
     {
@@ -106,7 +106,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P25W",
       downloaded: "500GB",
       ratio: 3.5,
-      seedingPoints: 250000,
+      seedingBonus: 250000,
       privilege: "可以查看普通日志。",
     },
     {
@@ -115,7 +115,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P40W",
       downloaded: "1TB",
       ratio: 4,
-      seedingPoints: 400000,
+      seedingBonus: 400000,
       privilege: "可以查看其它用户的评论、帖子历史。",
     },
     {
@@ -124,7 +124,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P60W",
       downloaded: "2TB",
       ratio: 4.5,
-      seedingPoints: 600000,
+      seedingBonus: 600000,
       privilege: "可以更新过期的外部信息。游戏大仙(Extreme User)及以上用户会永远保留账号。",
     },
     {
@@ -133,7 +133,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P80W",
       downloaded: "5TB",
       ratio: 5,
-      seedingPoints: 800000,
+      seedingBonus: 800000,
       privilege: "这个等级会永远保留账号。",
     },
     {
@@ -142,7 +142,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P100W",
       downloaded: "10TB",
       ratio: 5.5,
-      seedingPoints: 1000000,
+      seedingBonus: 1000000,
       privilege: "这个等级会永远保留账号。",
     },
   ],
