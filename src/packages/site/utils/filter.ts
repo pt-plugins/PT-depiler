@@ -113,7 +113,7 @@ export const definedFilters: Record<string, TQueryFilterFn> = {
     const queryMatch = query
       .trim()
       .replace(/[\s,\n]/g, "")
-      .match(/([\d.]+)/);
+      .match(/(-?[\d.]+)/);
     return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0;
   },
 
