@@ -1,8 +1,3 @@
-@import "vuetify";
-@import "tailwindcss" prefix(tw);
-
-@import "../shared/common.css";
-
 /* 在表头过滤器中不显示 v-combobox 的输入框 */
 .v-combobox.table-header-filter-clear {
   .v-field__input {

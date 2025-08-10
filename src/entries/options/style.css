@@ -1,0 +1,5 @@
+@import "vuetify";
+@import "tailwindcss" prefix(tw);
+
+@import "../shared/common.scss";
+@import "./main.scss";
