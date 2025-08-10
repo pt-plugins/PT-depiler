@@ -34,17 +34,16 @@ const showOneClickImportDialog = ref<boolean>(false);
 const tableHeader = computed(() => {
   const baseHeaders = [
     // site favicon
-    { title: "", key: "userConfig.sortIndex", align: "center", width: 48 },
-    { title: t("SetSite.common.name"), key: "name", align: "left", width: 120, sortable: false },
-    { title: t("SetSite.common.groups"), key: "groups", align: "left", minWidth: 120, sortable: false },
+    { title: "", key: "userConfig.sortIndex", align: "center" },
+    { title: t("SetSite.common.name"), key: "name", align: "left", sortable: false },
+    { title: t("SetSite.common.groups"), key: "groups", align: "left", sortable: false },
     { title: t("SetSite.common.url"), key: "url", align: "start", sortable: false },
-    { title: t("SetSite.common.isOffline"), key: "userConfig.isOffline", align: "center", width: 180 },
-    { title: t("SetSite.common.allowSearch"), key: "userConfig.allowSearch", align: "center", width: 180 },
+    { title: t("SetSite.common.isOffline"), key: "userConfig.isOffline", align: "center" },
+    { title: t("SetSite.common.allowSearch"), key: "userConfig.allowSearch", align: "center" },
     {
       title: t("SetSite.common.allowQueryUserInfo"),
       key: "userConfig.allowQueryUserInfo",
       align: "center",
-      width: 180,
     },
   ];
   if (configStore.contentScript.enabled && configStore.contentScript.allowExceptionSites) {
@@ -52,7 +51,6 @@ const tableHeader = computed(() => {
       title: t("SetSite.common.allowContentScript"),
       key: "userConfig.allowContentScript",
       align: "center",
-      width: 180,
     });
   }
 

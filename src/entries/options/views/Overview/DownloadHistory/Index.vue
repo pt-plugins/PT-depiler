@@ -31,13 +31,13 @@ const configStore = useConfigStore();
 const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
 
 const tableHeader = [
-  { title: "№", key: "id", align: "center", width: 50 },
-  { title: t("DownloadHistory.table.site"), key: "siteId", align: "center", width: 90 },
-  { title: t("DownloadHistory.table.title"), key: "title", align: "start", minWidth: 600, maxWidth: "32vw" },
-  { title: t("DownloadHistory.table.downloader"), key: "downloaderId", minWidth: 200, align: "start" },
+  { title: "№", key: "id", align: "center" },
+  { title: t("DownloadHistory.table.site"), key: "siteId", align: "center" },
+  { title: t("DownloadHistory.table.title"), key: "title", align: "start", width: "50vw" },
+  { title: t("DownloadHistory.table.downloader"), key: "downloaderId", width: "11vw", align: "start" },
   { title: t("DownloadHistory.table.downloadAt"), key: "downloadAt", align: "center" },
   { title: t("DownloadHistory.table.status"), key: "downloadStatus" },
-  { title: t("common.action"), key: "action", align: "center", width: 90, minWidth: 90, sortable: false },
+  { title: t("common.action"), key: "action", align: "center", sortable: false },
 ] as DataTableHeader[];
 const tableSelected = ref<TTorrentDownloadKey[]>([]);
 
