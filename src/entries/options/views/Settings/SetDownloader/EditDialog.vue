@@ -18,7 +18,7 @@ const metadataStore = useMetadataStore();
 
 function dialogEnter() {
   if (clientId) {
-    clientConfig.value = { sortIndex: 0, advanceAddTorrentOptions: {}, ...metadataStore.downloaders[clientId] }; // 防止直接修改父组件的数据
+    clientConfig.value = { sortIndex: 100, advanceAddTorrentOptions: {}, ...metadataStore.downloaders[clientId] }; // 防止直接修改父组件的数据
   }
 }
 

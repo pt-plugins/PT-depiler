@@ -50,7 +50,7 @@ async function updateStoredDownloaderConfigByDefault(type: string) {
     enabled: true,
     id: nanoid(),
     advanceAddTorrentOptions: {},
-    sortIndex: 0,
+    sortIndex: 100,
   };
   console.log("storedDownloaderConfig", storedDownloaderConfig.value);
 }
