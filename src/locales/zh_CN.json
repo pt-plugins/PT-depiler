@@ -206,7 +206,6 @@
     "index": {
       "flushSelectSite": "刷新数据",
       "flushCancel": "取消刷新",
-      "tableFontSize": "表格字体大小",
       "joinTimeFormat": "入站时间显示",
       "joinTimeFormatOptions": {
         "alive": "相对时间",

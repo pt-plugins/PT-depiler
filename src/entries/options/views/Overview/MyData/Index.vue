@@ -58,15 +58,7 @@ const tableHeader = computed(() => {
   ) as DataTableHeader[];
 });
 
-// 表格字体大小样式计算属性
-const tableStyle = computed(() => {
-  return {
-    fontSize: `${configStore.myDataTableControl.tableFontSize}%`,
-  };
-});
-
 const tableNonBooleanControlKey = [
-  "tableFontSize",
   "joinTimeFormat",
   // Deprecated
   "joinTimeWeekOnly",
@@ -229,38 +221,6 @@ function toggleNumberSimplification() {
             <NavButton color="blue" icon="mdi-cog" :text="t('MyData.index.setting')" class="mr-1" v-bind="props" />
           </template>
           <v-list>
-            <!-- 表格字体大小控制 -->
-            <v-list-item>
-              <template v-slot:prepend>
-                <v-list-item-action start class="ml-2">
-                  <v-icon icon="mdi-format-font-size-increase" class="mr-2" />
-                  <v-btn
-                    class="text-subtitle-2 pa-0"
-                    variant="text"
-                    :title="t('common.dialog.reset')"
-                    @click.stop="configStore.myDataTableControl.tableFontSize = 100"
-                  >
-                    {{ t("MyData.index.tableFontSize") }}
-                  </v-btn>
-                </v-list-item-action>
-              </template>
-              <v-slider
-                v-model="configStore.myDataTableControl.tableFontSize"
-                :min="75"
-                :max="125"
-                :step="1"
-                density="compact"
-                hide-details
-                :ticks="[100]"
-                show-ticks="always"
-                @click.stop
-                @update:model-value="() => configStore.$save()"
-              >
-                <template #tick-label></template>
-                <template v-slot:thumb-label="{ modelValue }"> {{ modelValue }}% </template>
-              </v-slider>
-            </v-list-item>
-
             <!-- 入站时间显示 -->
             <v-list-item>
               <template v-slot:prepend>
@@ -430,7 +390,6 @@ function toggleNumberSimplification() {
       :multi-sort="configStore.enableTableMultiSort"
       :search="tableFilterRef"
       :sort-by="configStore.tableBehavior.MyData.sortBy"
-      :style="tableStyle"
       class="table-stripe table-header-no-wrap table-no-ext-padding"
       hover
       item-selectable="selectable"

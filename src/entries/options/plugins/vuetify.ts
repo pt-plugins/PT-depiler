@@ -14,4 +14,26 @@ export const vuetifyInstance = createVuetify({
     fallback: "en",
     messages: { zhHans, en },
   },
+  defaults: {
+    VDataTable: {
+      density: "compact",
+      class: "text-caption",
+    },
+    VDataTableVirtual: {
+      density: "compact",
+      class: "text-caption",
+    },
+    VTooltip: {
+      density: "compact",
+      class: "text-caption",
+    },
+    VList: {
+      density: "compact",
+      class: "text-caption",
+    },
+    VCard: {
+      density: "compact",
+      class: "text-caption",
+    },
+  },
 });
