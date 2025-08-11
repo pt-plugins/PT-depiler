@@ -331,9 +331,31 @@ export default class TJUPT extends NexusPHP {
         const text = uploadSpan[0].textContent?.trim();
         if (text) {
           // 查找包含 {x}/50 格式的文本
-          const match = text.match(/(\d+)\/50/);
-          if (match) {
-            flushUserInfo.uploads = parseInt(match[1]);
+          const matchUploads = text.match(/(\d+)\/50/);
+          if (matchUploads) {
+            flushUserInfo.uploads = parseInt(matchUploads[1]);
+          }
+        }
+      }
+
+      const downloadsSpan = Sizzle("tr#9 li span:contains('>200MiB'):first", classesResponse as Document);
+      if (downloadsSpan.length > 0) {
+        const text = downloadsSpan[0].textContent?.trim();
+        if (text) {
+          const matchDownloads = text.match(/(\d+)\/3000/);
+          if (matchDownloads) {
+            flushUserInfo.downloads = parseInt(matchDownloads[1]);
+          }
+        }
+      }
+
+      const seedingTimeSpan = Sizzle("tr#9 li span:contains('/300000'):first", classesResponse as Document);
+      if (seedingTimeSpan.length > 0) {
+        const text = seedingTimeSpan[0].textContent?.trim();
+        if (text) {
+          const matchSeedingTime = text.match(/([\d.]+)\/300000/);
+          if (matchSeedingTime) {
+            flushUserInfo.seedingTime = Math.floor(parseFloat(matchSeedingTime[1]) * 86400);
           }
         }
       }
@@ -341,6 +363,14 @@ export default class TJUPT extends NexusPHP {
 
     if (typeof flushUserInfo.uploads === "undefined") {
       flushUserInfo.uploads = 0;
+    }
+
+    if (typeof flushUserInfo.downloads === "undefined") {
+      flushUserInfo.downloads = 0;
+    }
+
+    if (typeof flushUserInfo.seedingTime === "undefined") {
+      flushUserInfo.seedingTime = 0;
     }
 
     return flushUserInfo;
