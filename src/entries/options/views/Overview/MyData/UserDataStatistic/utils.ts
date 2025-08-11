@@ -121,7 +121,5 @@ export async function loadFullData(): Promise<IUserDataStatistic> {
 export function setSubDate(days: number) {
   const today = new Date();
   const subDay = subDays(today, days);
-  const endDay = subDays(today, 1); // 不包含今天，使用昨天作为结束日期
-
-  return eachDayOfInterval({ start: subDay, end: endDay }).map((x) => formatDate(x, "yyyy-MM-dd"));
+  return eachDayOfInterval({ start: subDay, end: today }).map((x) => formatDate(x, "yyyy-MM-dd"));
 }
