@@ -9,7 +9,32 @@ import type { IConfigPiniaStorageSchema, supportThemeType } from "@/shared/types
 import { useMetadataStore } from "./metadata.ts";
 
 export const useConfigStore = defineStore("config", {
-  persistWebExt: true,
+  persistWebExt: {
+    afterRestore: (context) => {
+      // 清理已废弃的配置项
+      const state = context.store.$state as any;
+      let needsSave = false;
+
+      // 清理已废弃的配置项
+      if (state.myDataTableControl) {
+        // 清理已废弃的 tableFontSize 配置项
+        if ("tableFontSize" in state.myDataTableControl) {
+          delete state.myDataTableControl.tableFontSize;
+          needsSave = true;
+        }
+
+        // 清理已废弃的 joinTimeWeekOnly 配置项
+        if ("joinTimeWeekOnly" in state.myDataTableControl) {
+          delete state.myDataTableControl.joinTimeWeekOnly;
+          needsSave = true;
+        }
+      }
+
+      if (needsSave) {
+        context.store.$save();
+      }
+    },
+  },
   state: (): IConfigPiniaStorageSchema => ({
     lang: "zh_CN",
     theme: "light",

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { onMounted, ref, shallowRef } from "vue";
+import { onMounted, ref, shallowRef, computed } from "vue";
+import { useDisplay } from "vuetify";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 import { sendMessage } from "@/messages.ts";
@@ -27,18 +28,28 @@ import {
 
 const { t } = useI18n();
 const configStore = useConfigStore();
+const display = useDisplay();
 
 const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
 
-const tableHeader = [
-  { title: "№", key: "id", align: "center" },
-  { title: t("DownloadHistory.table.site"), key: "siteId", align: "center" },
-  { title: t("DownloadHistory.table.title"), key: "title", align: "start", width: "50%" },
-  { title: t("DownloadHistory.table.downloader"), key: "downloaderId", width: "11%", align: "start" },
-  { title: t("DownloadHistory.table.downloadAt"), key: "downloadAt", align: "center" },
-  { title: t("DownloadHistory.table.status"), key: "downloadStatus" },
-  { title: t("common.action"), key: "action", align: "center", sortable: false },
-] as DataTableHeader[];
+const tableHeader = computed(
+  () =>
+    [
+      { title: "№", key: "id", align: "center" },
+      { title: t("DownloadHistory.table.site"), key: "siteId", align: "center" },
+      {
+        title: t("DownloadHistory.table.title"),
+        key: "title",
+        align: "start",
+        width: "50%",
+        ...(display.smAndDown.value ? { minWidth: 600, maxWidth: "32vw" } : {}),
+      },
+      { title: t("DownloadHistory.table.downloader"), key: "downloaderId", width: "11%", align: "start" },
+      { title: t("DownloadHistory.table.downloadAt"), key: "downloadAt", align: "center" },
+      { title: t("DownloadHistory.table.status"), key: "downloadStatus" },
+      { title: t("common.action"), key: "action", align: "center", sortable: false },
+    ] as DataTableHeader[],
+);
 const tableSelected = ref<TTorrentDownloadKey[]>([]);
 
 const showAdvanceFilterDialog = ref<boolean>(false);

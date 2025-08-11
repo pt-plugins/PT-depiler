@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { useDisplay } from "vuetify";
 import type { TSiteID } from "@ptd/site";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
@@ -21,6 +22,7 @@ import NavButton from "@/options/components/NavButton.vue";
 import { allAddedSiteInfo, type ISiteTableItem } from "@/options/views/Settings/SetSite/utils.ts"; // <-- 数据来源
 
 const { t } = useI18n();
+const display = useDisplay();
 
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
@@ -36,7 +38,13 @@ const tableHeader = computed(() => {
     // site favicon
     { title: "", key: "userConfig.sortIndex", align: "center" },
     { title: t("SetSite.common.name"), key: "name", align: "left", sortable: false },
-    { title: t("SetSite.common.groups"), key: "groups", align: "left", sortable: false },
+    {
+      title: t("SetSite.common.groups"),
+      key: "groups",
+      align: "left",
+      sortable: false,
+      ...(display.smAndDown.value ? { minWidth: 120 } : {}),
+    },
     { title: t("SetSite.common.url"), key: "url", align: "start", sortable: false },
     { title: t("SetSite.common.isOffline"), key: "userConfig.isOffline", align: "center" },
     { title: t("SetSite.common.allowSearch"), key: "userConfig.allowSearch", align: "center" },
