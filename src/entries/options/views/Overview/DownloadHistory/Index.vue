@@ -33,8 +33,8 @@ const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
 const tableHeader = [
   { title: "№", key: "id", align: "center" },
   { title: t("DownloadHistory.table.site"), key: "siteId", align: "center" },
-  { title: t("DownloadHistory.table.title"), key: "title", align: "start", width: "50vw" },
-  { title: t("DownloadHistory.table.downloader"), key: "downloaderId", width: "11vw", align: "start" },
+  { title: t("DownloadHistory.table.title"), key: "title", align: "start", width: "50%" },
+  { title: t("DownloadHistory.table.downloader"), key: "downloaderId", width: "11%", align: "start" },
   { title: t("DownloadHistory.table.downloadAt"), key: "downloadAt", align: "center" },
   { title: t("DownloadHistory.table.status"), key: "downloadStatus" },
   { title: t("common.action"), key: "action", align: "center", sortable: false },

@@ -38,7 +38,7 @@ const fullTableHeader = [
     title: t("SearchEntity.index.table.title"),
     key: "title",
     align: "start",
-    width: "50vw",
+    width: "50%",
     props: { disabled: true },
   },
   { title: t("SearchEntity.index.table.category"), key: "category", align: "center" },
