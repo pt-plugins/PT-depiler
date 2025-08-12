@@ -206,7 +206,6 @@
     "index": {
       "flushSelectSite": "Flush selected",
       "flushCancel": "Flush canceled",
-      "tableFontSize": "Table Font Size",
       "joinTimeFormat": "Display join time",
       "joinTimeFormatOptions": {
         "alive": "Relative Time",

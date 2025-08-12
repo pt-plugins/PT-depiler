@@ -57,8 +57,6 @@ export interface IConfigPiniaStorageSchema {
 
   // 对 MyData 页面 v-data-table 展示的额外控制项
   myDataTableControl: {
-    // 表格字体大小控制 (百分比: 75-100)
-    tableFontSize: number;
     // 是否展示站点名称
     showSiteName: boolean;
     // 是否展示未读信息情况

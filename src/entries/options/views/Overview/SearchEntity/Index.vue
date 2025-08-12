@@ -2,6 +2,7 @@
 import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
+import { useDisplay } from "vuetify";
 import { EResultParseStatus, ETorrentStatus } from "@ptd/site";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
@@ -27,41 +28,43 @@ const route = useRoute();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
+const display = useDisplay();
 
 const showAdvanceFilterGenerateDialog = ref<boolean>(false);
 const showSearchStatusDialog = ref<boolean>(false);
 const showSaveSnapshotDialog = ref<boolean>(false);
 
-const fullTableHeader = [
-  { title: t("SearchEntity.index.table.site"), key: "site", align: "center", width: 90, props: { disabled: true } },
-  {
-    title: t("SearchEntity.index.table.title"),
-    key: "title",
-    align: "start",
-    minWidth: 600,
-    maxWidth: "32vw",
-    props: { disabled: true },
-  },
-  { title: t("SearchEntity.index.table.category"), key: "category", align: "center", width: 90 },
-  { title: t("SearchEntity.index.table.size"), key: "size", align: "end" },
-  { title: t("SearchEntity.index.table.seeders"), key: "seeders", align: "end", width: 90, minWidth: 90 },
-  { title: t("SearchEntity.index.table.leechers"), key: "leechers", align: "end", width: 90, minWidth: 90 },
-  { title: t("SearchEntity.index.table.completed"), key: "completed", align: "end", width: 90, minWidth: 90 },
-  { title: t("SearchEntity.index.table.comments"), key: "comments", align: "end", width: 90, minWidth: 90 },
-  { title: t("SearchEntity.index.table.time"), key: "time", align: "center" },
-  {
-    title: t("common.action"),
-    key: "action",
-    align: "center",
-    width: 125,
-    minWidth: 125,
-    sortable: false,
-    props: { disabled: true },
-  },
-] as (DataTableHeader & { props?: any })[];
+const fullTableHeader = computed(
+  () =>
+    [
+      { title: t("SearchEntity.index.table.site"), key: "site", align: "center", props: { disabled: true } },
+      {
+        title: t("SearchEntity.index.table.title"),
+        key: "title",
+        align: "start",
+        width: "50%",
+        ...(display.smAndDown.value ? { minWidth: 600, maxWidth: "32vw" } : {}),
+        props: { disabled: true },
+      },
+      { title: t("SearchEntity.index.table.category"), key: "category", align: "center" },
+      { title: t("SearchEntity.index.table.size"), key: "size", align: "end" },
+      { title: t("SearchEntity.index.table.seeders"), key: "seeders", align: "end" },
+      { title: t("SearchEntity.index.table.leechers"), key: "leechers", align: "end" },
+      { title: t("SearchEntity.index.table.completed"), key: "completed", align: "end" },
+      { title: t("SearchEntity.index.table.comments"), key: "comments", align: "end" },
+      { title: t("SearchEntity.index.table.time"), key: "time", align: "center" },
+      {
+        title: t("common.action"),
+        key: "action",
+        align: "center",
+        sortable: false,
+        props: { disabled: true },
+      },
+    ] as (DataTableHeader & { props?: any })[],
+);
 
 const tableHeader = computed(() => {
-  return fullTableHeader.filter(
+  return fullTableHeader.value.filter(
     (item) => item?.props?.disabled || configStore.tableBehavior.SearchEntity.columns!.includes(item.key!),
   ) as DataTableHeader[];
 });
