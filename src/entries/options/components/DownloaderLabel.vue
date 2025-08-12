@@ -26,34 +26,40 @@ const downloaderIcon = computed(() => {
 
 <template>
   <slot :config="downloaderConfig" :icon="downloaderIcon">
-    <v-container>
-      <v-row>
-        <div class="pa-0">
-          <template v-if="downloaderIcon.icon">
-            <v-icon v-bind="downloaderIcon"></v-icon>
-          </template>
+    <div class="downloader_label">
+      <div class="pa-0 downloader_icon">
+        <v-avatar v-bind="downloaderIcon"></v-avatar>
+      </div>
+      <div class="downloader_info align-self-center">
+        <span class="font-weight-bold">
+          <template v-if="downloader === 'local'">{{ t("downloaderLabel.localDownload") }}</template>
+          <template v-else-if="downloaderConfig">{{ downloaderConfig.name }}</template>
           <template v-else>
-            <v-avatar v-bind="downloaderIcon"></v-avatar>
+            <span class="text-decoration-line-through text-no-wrap">[{{ downloader }}]</span>
           </template>
-        </div>
-        <v-col class="pa-0 ml-2 align-self-center">
-          <span class="font-weight-bold">
-            <template v-if="downloader === 'local'">{{ t("downloaderLabel.localDownload") }}</template>
-            <template v-else-if="downloaderConfig">{{ downloaderConfig.name }}</template>
-            <template v-else>
-              <span class="text-decoration-line-through text-no-wrap">[{{ downloader }}]</span>
-            </template>
-          </span>
-          <template v-if="downloaderConfig">
-            <br />
-            <a :href="downloaderConfig.address" class="text-caption" target="_blank">
-              [{{ downloaderConfig.address }}]
-            </a>
-          </template>
-        </v-col>
-      </v-row>
-    </v-container>
+        </span>
+        <template v-if="downloaderConfig">
+          <br />
+          <a :href="downloaderConfig.address" class="text-caption" target="_blank">
+            [{{ downloaderConfig.address }}]
+          </a>
+        </template>
+      </div>
+    </div>
   </slot>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.downloader_label {
+  display: grid;
+  grid-column-gap: 4px;
+  grid-row-gap: 4px;
+
+  .downloader_icon {
+    grid-area: 1 / 1 / 2 / 2;
+  }
+  .downloader_info {
+    grid-area: 1 / 2 / 2 / 3;
+  }
+}
+</style>

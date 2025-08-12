@@ -36,7 +36,7 @@ const showOneClickImportDialog = ref<boolean>(false);
 const tableHeader = computed(() => {
   const baseHeaders = [
     // site favicon
-    { title: "", key: "userConfig.sortIndex", align: "center" },
+    { title: "№", key: "userConfig.sortIndex", align: "center" },
     { title: t("SetSite.common.name"), key: "name", align: "left", sortable: false },
     {
       title: t("SetSite.common.groups"),
@@ -224,7 +224,9 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
       @update:sortBy="(v) => configStore.updateTableBehavior('SetSite', 'sortBy', v)"
     >
       <template #item.userConfig.sortIndex="{ item }">
-        <SiteFavicon :site-id="item.id" />
+        <div class="d-flex">
+          <SiteFavicon :site-id="item.id" />
+        </div>
       </template>
       <template #item.name="{ item }">
         <span>
