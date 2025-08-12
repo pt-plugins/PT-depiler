@@ -34,14 +34,8 @@ export function parseTimeToLive(ttl: string): number | string {
 
   // 处理原始字符串中的非标准Unit
   for (const [k, v] of Object.entries(nonStandDateUnitMap)) {
-    for (const unit of v) {
-      // Use word boundary regex to avoid partial matches
-      const regex = new RegExp(`(\\d+)\\s*${unit.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "g");
-      if (regex.test(ttlTemp)) {
-        ttlTemp = ttlTemp.replace(regex, `$1 ${k}`);
-        break;
-      }
-    }
+    const regex = new RegExp(`(\\d+)\\s*(${v.join("|")})\\b`, "g");
+    ttlTemp = ttlTemp.replace(regex, `$1 ${k}`);
   }
 
   let nowDate = new Date();

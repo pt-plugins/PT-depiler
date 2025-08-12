@@ -39,6 +39,10 @@ export const siteMetadata: ISiteMetadata = {
         attr: "datetime",
         filters: [{ name: "parseFuzzyTime" }],
       },
+      bonusPerHour: {
+        selector: [".panelV2 dl.key-value dd:nth(2)"],
+        filters: [{ name: "parseNumber" }],
+      },
     },
   },
 
@@ -242,3 +246,25 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 };
+
+export default class Blutopia extends Unit3D {
+  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
+    if (flushUserInfo?.status === EResultParseStatus.success && flushUserInfo?.name) {
+      // 获取时魔
+      flushUserInfo.bonusPerHour = await this.getUserBonusPerHour(flushUserInfo.name);
+    }
+    return flushUserInfo;
+  }
+
+  protected async getUserBonusPerHour(name: string): Promise<number> {
+    const { data: document } = await this.request<Document>(
+      {
+        url: `/users/${name}/earnings`,
+        responseType: "document",
+      },
+      true,
+    );
+    return this.getFieldData(document, this.metadata.userInfo?.selectors?.bonusPerHour!);
+  }
+}
