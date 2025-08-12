@@ -15,14 +15,14 @@ export const dateUnit: Array<DurationUnit | "quarters"> = [
 ] as const;
 
 export const nonStandDateUnitMap: Record<(typeof dateUnit)[number], string[]> = {
-  years: ["年", "year", "yr"],
+  years: ["年", "year", "yr", "Y"],
   quarters: ["季度", "quarter", "qtr"],
-  months: ["月", "month", "mo"],
-  weeks: ["周", "week", "wk"],
-  days: ["天", "day"],
-  hours: ["时", "hour", "hr"],
-  minutes: ["分", "minute", "min"],
-  seconds: ["秒", "second", "sec"],
+  months: ["月", "month", "mo", "M"],
+  weeks: ["周", "week", "wk", "W"],
+  days: ["天", "day", "D"],
+  hours: ["时", "hour", "hr", "h"],
+  minutes: ["分", "minute", "min", "m"],
+  seconds: ["秒", "second", "sec", "s"],
 };
 
 export function parseTimeToLive(ttl: string): number | string {
@@ -35,9 +35,10 @@ export function parseTimeToLive(ttl: string): number | string {
   // 处理原始字符串中的非标准Unit
   for (const [k, v] of Object.entries(nonStandDateUnitMap)) {
     for (const unit of v) {
-      if (ttlTemp.includes(unit)) {
-        // 防止连续替换 (raw) second -> (second) seconds -> (sec) secondsonds
-        ttlTemp = ttlTemp.replace(unit, `${k} `);
+      // Use word boundary regex to avoid partial matches
+      const regex = new RegExp(`(\\d+)\\s*${unit.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "g");
+      if (regex.test(ttlTemp)) {
+        ttlTemp = ttlTemp.replace(regex, `$1 ${k}`);
         break;
       }
     }

@@ -266,7 +266,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       averageSeedingTime: {
         // table.table-condensed:first
         selector: [
-          ...averageSeedingTimeTrans.map((x) => `td:contains('${x}') + td`),
+          ...averageSeedingTimeTrans.map((x) => `td:contains('${x}') + td span.badge-user`),
           ...averageSeedingTimeTrans.map((x) => `dt:contains('${x}') + dd`),
         ],
         filters: [{ name: "parseTTL" }],
@@ -287,7 +287,8 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         selector: joinTimeTrans.map((x) => `div.content h4:contains('${x}')`),
         filters: [
           (query: string) => {
-            query = query.replace(RegExp(joinTimeTrans.join("|")), "").trim();
+            query = query.replace(RegExp(joinTimeTrans.join("|")), "");
+            query = query.replace(/^:+/g, "").trim();
             return parseValidTimeString(query, ["MMM dd yyyy, HH:mm:ss", "MMM dd yyyy"]);
           },
         ],
