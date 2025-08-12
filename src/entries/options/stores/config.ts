@@ -2,11 +2,17 @@
  * 所有和 ui 相关的选项均在本 store 管理
  */
 import { defineStore } from "pinia";
+import { has, unset } from "es-toolkit/compat";
 import { usePreferredDark } from "@vueuse/core";
 
 import type { IConfigPiniaStorageSchema, supportThemeType } from "@/shared/types.ts";
 
 import { useMetadataStore } from "./metadata.ts";
+
+const deprecatedConfigKeys = [
+  "myDataTableControl.tableFontSize", // v0.0.4.961 废弃
+  "myDataTableControl.joinTimeWeekOnly", // 已废弃，使用 joinTimeFormat 替代
+];
 
 export const useConfigStore = defineStore("config", {
   persistWebExt: {
@@ -16,16 +22,9 @@ export const useConfigStore = defineStore("config", {
       let needsSave = false;
 
       // 清理已废弃的配置项
-      if (state.myDataTableControl) {
-        // 清理已废弃的 tableFontSize 配置项
-        if ("tableFontSize" in state.myDataTableControl) {
-          delete state.myDataTableControl.tableFontSize;
-          needsSave = true;
-        }
-
-        // 清理已废弃的 joinTimeWeekOnly 配置项
-        if ("joinTimeWeekOnly" in state.myDataTableControl) {
-          delete state.myDataTableControl.joinTimeWeekOnly;
+      for (const key of deprecatedConfigKeys) {
+        if (has(state, key)) {
+          unset(state, key);
           needsSave = true;
         }
       }
