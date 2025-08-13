@@ -20,24 +20,37 @@ const ptdData = inject<IPtdData>("ptd_data", {});
 const el = useTemplateRef<HTMLElement>("el");
 provide("app", el);
 
+// 记录一下与右边界和下边界的距离
+const rightX = ref<number>(0);
+const bottomY = ref<number>(0);
+
 const openSpeedDial = ref<boolean>(false);
 const { x, y, style } = useDraggable(el, {
   preventDefault: true,
   initialValue: { x: -100, y: -100 }, // Default position off-screen
   onEnd: ({ x, y }) => {
     configStore.updateContentScriptPosition(x, y);
+    const { clientWidth, clientHeight } = document.documentElement;
+    rightX.value = clientWidth - x;
+    bottomY.value = clientHeight - y;
   },
 });
 
 // 监听窗口大小变化，更新位置
 window.addEventListener("resize", () => {
   const { clientWidth, clientHeight } = document.documentElement;
+
+  x.value = clientWidth - rightX.value; // 右侧吸附
   if (x.value > clientWidth - 50 || x.value < 0) {
     x.value = clientWidth - 100; // 确保不会超出右边界
   }
+  rightX.value = clientWidth - x.value;
+
+  y.value = clientHeight - bottomY.value; // 底部吸附
   if (y.value > clientHeight - 50 || y.value < 0) {
     y.value = clientHeight - 100; // 确保不会超出下边界
   }
+  bottomY.value = clientHeight - y.value;
 });
 
 // 从 configStore 中加载初始position配置（这里不需要判断 configStore.contextScript.enabled ）
@@ -56,6 +69,8 @@ watch(
 
       x.value = storeX <= 0 || storeX > clientWidth - 50 ? clientWidth - 100 : storeX; // Default to right side
       y.value = storeY <= 0 || storeY > clientHeight - 50 ? clientHeight - 100 : storeY; // Default to bottom
+      rightX.value = clientWidth - x.value;
+      bottomY.value = clientHeight - y.value;
     }
   },
 );
