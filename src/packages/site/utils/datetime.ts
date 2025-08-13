@@ -71,6 +71,13 @@ export function parseValidTimeString(query: string, formatString: string[] = [])
       return +time;
     }
   }
+
+  // 尝试使用原生 Date 构造函数，它能处理很多常见格式
+  let nativeDate = new Date(query);
+  if (isValid(nativeDate)) {
+    return +nativeDate;
+  }
+
   return query;
 }
 
