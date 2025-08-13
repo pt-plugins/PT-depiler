@@ -1,11 +1,18 @@
 import { omit, toMerged } from "es-toolkit";
-import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type IUserInfo, type ITorrent, NeedLoginError } from "../types";
+import {
+  ETorrentStatus,
+  EResultParseStatus,
+  type ISiteMetadata,
+  type IUserInfo,
+  type ITorrent,
+  NeedLoginError,
+} from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite";
 import { buildCategoryOptions, parseSizeString } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   id: "happyfappy",
-  version: 1,
+  version: 2,
   name: "HappyFappy",
   aka: ["HF"],
   tags: ["成人"],
@@ -166,7 +173,7 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    pickLast: ["id", "name", "joinTime"],
+    pickLast: ["id", "name"],
     selectors: {
       // "/user.php?id="
       name: { selector: ["a.username"] },
@@ -285,7 +292,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: ["a[href*='/torrents.php?action=download']"],
         attr: "href",
-        filters: [(query: string) => query.match(/id=(\d+)/)![1]]
+        filters: [(query: string) => query.match(/id=(\d+)/)![1]],
       },
       link: {
         selector: ["a[href*='/torrents.php?action=download']"],
