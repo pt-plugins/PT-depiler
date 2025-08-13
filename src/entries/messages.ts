@@ -127,7 +127,7 @@ interface ProtocolMap extends TMessageMap {
   setSiteLastUserInfo(userInfo: IUserInfo): void;
   cancelUserInfoQueue(): void;
   getSiteUserInfo(siteId: TSiteID): Record<string, IUserInfo>;
-  removeSiteUserInfo(data: { siteId: TSiteID; date: string }): void;
+  removeSiteUserInfo(data: { siteId: TSiteID; date: string[] }): void;
 
   // 2.5 社交信息 ( utils/socialInformation )
   getSocialInformation(data: { site: TSupportSocialSite$1; sid: string }): ISocialInformation;

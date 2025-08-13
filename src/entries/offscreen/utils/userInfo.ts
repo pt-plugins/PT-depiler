@@ -1,6 +1,6 @@
 import PQueue from "p-queue";
 import { format } from "date-fns";
-import { isEmpty } from "es-toolkit/compat";
+import { isEmpty, unset } from "es-toolkit/compat";
 import type { IUserInfo } from "@ptd/site";
 import { EResultParseStatus } from "@ptd/site";
 
@@ -127,6 +127,8 @@ onMessage("getSiteUserInfo", async ({ data: siteId }) => {
 
 onMessage("removeSiteUserInfo", async ({ data: { siteId, date } }) => {
   const userInfoStore = ((await sendMessage("getExtStorage", "userInfo")) ?? {}) as TUserInfoStorageSchema;
-  delete userInfoStore?.[siteId]?.[date];
+  for (const day of date) {
+    unset(userInfoStore, `${siteId}.${day}`);
+  }
   await sendMessage("setExtStorage", { key: "userInfo", value: userInfoStore! });
 });

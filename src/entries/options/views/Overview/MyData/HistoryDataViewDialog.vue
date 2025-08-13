@@ -37,6 +37,7 @@ const tableHeader = [
   { title: t("levelRequirement.bonus"), key: "bonus", align: "end", sortable: false },
   { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false },
 ] as DataTableHeader[];
+const tableSelected = ref<string[]>([]);
 
 function loadSiteHistoryData(siteId: TSiteID) {
   sendMessage("getSiteUserInfo", siteId).then((data) => {
@@ -50,9 +51,12 @@ function loadSiteHistoryData(siteId: TSiteID) {
   });
 }
 
-function deleteSiteUserInfo(date: string) {
+function deleteSiteUserInfo(date: string[]) {
   if (confirm(t("MyData.HistoryDataView.deleteConfirm"))) {
-    sendMessage("removeSiteUserInfo", { siteId: props.siteId!, date }).then(() => {
+    sendMessage("removeSiteUserInfo", {
+      siteId: props.siteId!,
+      date: date.filter((d) => d != currentDate), // 不允许移除当天的数据
+    }).then(() => {
       loadSiteHistoryData(props.siteId!);
     });
   }
@@ -65,7 +69,12 @@ function viewStoreData(data: IShowUserInfo) {
 }
 
 function exportSiteHistoryData() {
-  const exportedSolutionBlob = new Blob([JSON.stringify(siteHistoryData.value, null, 2)], { type: "application/json" });
+  let exportData = siteHistoryData.value;
+  if (tableSelected.value.length > 0) {
+    exportData = siteHistoryData.value.filter((item) => tableSelected.value.includes(item.date));
+  }
+
+  const exportedSolutionBlob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
   saveAs(exportedSolutionBlob, `site-history-data-${props.siteId}.json`); // FIXME filename
 }
 </script>
@@ -91,12 +100,16 @@ function exportSiteHistoryData() {
       <v-divider />
       <v-card-text>
         <v-data-table
+          v-model="tableSelected"
           :headers="tableHeader"
           :items="siteHistoryData"
           :sort-by="[{ key: 'date', order: 'desc' }]"
           class="table-stripe"
           hover
+          item-selectable="_selectable"
+          item-value="date"
           items-per-page="10"
+          show-select
         >
           <!-- -->
           <template #item.date="{ item }">
@@ -183,12 +196,19 @@ function exportSiteHistoryData() {
                 color="error"
                 icon="mdi-delete"
                 size="small"
-                @click="() => deleteSiteUserInfo(item.date)"
+                @click="() => deleteSiteUserInfo([item.date])"
               ></v-btn>
             </v-btn-group>
           </template>
 
           <template #footer.prepend>
+            <NavButton
+              :disabled="tableSelected.length <= 0"
+              color="error"
+              icon="mdi-delete"
+              :text="t('common.remove')"
+              @click="deleteSiteUserInfo(tableSelected)"
+            />
             <NavButton color="info" icon="mdi-export" text="导出" @click="exportSiteHistoryData" />
             <v-spacer />
           </template>
