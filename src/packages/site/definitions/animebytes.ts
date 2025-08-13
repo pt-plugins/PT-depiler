@@ -107,13 +107,8 @@ export const siteMetadata: ISiteMetadata = {
       name: { selector: "a.username:first" },
 
       messageCount: {
-        selector: ".alertbar.message a[href*='inbox.php']",
-        filters: [
-          (query: string) => {
-            const match = query.match(/(\d+)/);
-            return match && match.length >= 2 ? parseInt(match[1]) : 0;
-          },
-        ],
+        selector: ".alertbar.notice span.new_count",
+        filters: [{ name: "parseNumber" }],
       },
       uploads: {
         selector: "dt:contains('Torrents Uploaded:') + dd",
