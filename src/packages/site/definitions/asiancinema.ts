@@ -1,5 +1,5 @@
-import type { ISiteMetadata } from "../types";
-import { SchemaMetadata } from "@ptd/site/schemas/Unit3D.ts";
+import { EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
+import Unit3D, { SchemaMetadata } from "@ptd/site/schemas/Unit3D.ts";
 import { rot13 } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
@@ -21,6 +21,10 @@ export const siteMetadata: ISiteMetadata = {
   userInfo: {
     selectors: {
       ...SchemaMetadata.userInfo!.selectors,
+      bonusPerHour: {
+        selector: ["div.text-orange > h2 > strong"],
+        filters: [{ name: "parseNumber" }],
+      },
     },
   },
 
@@ -106,3 +110,25 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
+
+export default class AsianCinema extends Unit3D {
+  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
+    if (flushUserInfo?.status === EResultParseStatus.success && flushUserInfo?.name) {
+      // 获取时魔
+      flushUserInfo.bonusPerHour = await this.getUserBonusPerHour();
+    }
+    return flushUserInfo;
+  }
+
+  protected async getUserBonusPerHour(): Promise<number> {
+    const { data: document } = await this.request<Document>(
+      {
+        url: `/bonus`,
+        responseType: "document",
+      },
+      true,
+    );
+    return this.getFieldData(document, this.metadata.userInfo?.selectors?.bonusPerHour!);
+  }
+}

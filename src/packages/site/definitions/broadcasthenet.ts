@@ -94,6 +94,7 @@ export const siteMetadata: ISiteMetadata = {
           "ratio",
           "levelName",
           "bonus",
+          "bonusPerHour",
           "joinTime",
           "seeding",
           "seedingSize",
@@ -142,6 +143,10 @@ export const siteMetadata: ISiteMetadata = {
       bonus: {
         selector: "ul.nobullet > li:contains('Bonus Points:') > a",
         filters: [{ name: "parseNumber" }],
+      },
+      bonusPerHour: {
+        selector: "ul.nobullet > li:contains('Per Day:')",
+        filters: [{ name: "parseNumber" }, { name: "divide", args: [24] }],
       },
       ratio: undefined,
       joinTime: {
