@@ -316,7 +316,14 @@ onMounted(async () => {
     selectedDateRanges.value = allDateRanges.value;
   }
 
-  selectedSites.value = ((sites as string[]).length > 0 ? sites : allSites.value) as string[];
+  // 勾选站点，优先使用 route 参数，其次是上次保存的配置，最后是全部站点
+  if ((sites as string[]).length > 0) {
+    selectedSites.value = sites as string[];
+  } else if ((configStore.userStatisticControl.selectedSites ?? []).length > 0) {
+    selectedSites.value = configStore.userStatisticControl.selectedSites;
+  } else {
+    selectedSites.value = allSites.value;
+  }
 
   if (configStore.userName === "") {
     configStore.userName = configStore.getUserNames.perfName;
@@ -360,6 +367,7 @@ async function exportStatisticImg() {
 }
 
 function saveControl() {
+  configStore.userStatisticControl.selectedSites = selectedSites.value;
   configStore.$save();
   useRuntimeStore().showSnakebar("保存成功", { color: "success" });
 }
@@ -416,18 +424,16 @@ function saveControl() {
         </template>
       </v-col>
       <v-col>
-        <v-alert title="数据图表样式设置" type="info" class="mb-2">
-          <template #append>
-            <NavButton icon="mdi-arrow-left" size="small" color="grey" text="返回" @click="() => router.back()" />
-            <NavButton
-              color="grey"
-              icon="mdi-file-export-outline"
-              size="small"
-              text="导出图片"
-              @click="exportStatisticImg"
-            />
-          </template>
-        </v-alert>
+        <v-row class="flex-nowrap mb-0">
+          <v-col class="d-flex">
+            <NavButton color="grey" icon="mdi-arrow-left" text="返回" @click="() => router.back()" />
+            <v-spacer />
+            <NavButton color="info" icon="mdi-file-export-outline" text="导出图片" @click="exportStatisticImg" />
+            <NavButton color="green" icon="mdi-content-save" text="保存设置" @click="saveControl" />
+          </v-col>
+        </v-row>
+
+        <v-alert title="数据图表样式设置" type="info" class="mb-2"> </v-alert>
 
         <v-row>
           <v-col align-self="center">
@@ -544,13 +550,6 @@ function saveControl() {
         </v-row>
 
         <v-divider class="my-2" />
-
-        <v-row class="flex-nowrap">
-          <v-col class="d-flex">
-            <v-spacer />
-            <NavButton icon="mdi-content-save" text="保存样式设置" color="green" @click="saveControl" />
-          </v-col>
-        </v-row>
 
         <v-alert type="info" title="展示站点设置" class="mt-4 mb-2">
           <template #append>

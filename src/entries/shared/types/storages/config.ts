@@ -1,3 +1,4 @@
+import type { TSiteID } from "@ptd/site";
 import type { IFetchSocialSiteInformationConfig } from "@ptd/social";
 
 import type { TLangCode } from "@/options/plugins/i18n.ts";
@@ -123,6 +124,7 @@ export interface IConfigPiniaStorageSchema {
     >;
     dateRange: number | "custom" | "all";
     hidePerSitePrecentThreshold: number; // 0-100，百分比，隐藏掉低于该百分比的站点（不会隐藏当前指向的站点）
+    selectedSites: TSiteID[]; // 需要展示的站点
   };
 
   /**
