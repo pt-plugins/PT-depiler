@@ -93,15 +93,11 @@ const stageConfig = computed(() => {
 const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent); // FIXME 该判断移动到 utils.ts 中
 
 // 加载已保存的站点设置
-const loadSelectedSites = async () => {
-  try {
-    const result = await chrome.storage.local.get("userDataTimelineSelectedSites");
-    if (result.userDataTimelineSelectedSites && Array.isArray(result.userDataTimelineSelectedSites)) {
-      selectedSites.value = result.userDataTimelineSelectedSites;
-      resetTimelineDataWithControl();
-    }
-  } catch (error) {
-    console.error("加载站点设置失败:", error);
+const loadSelectedSites = () => {
+  const saved = control.selectedSites;
+  if (Array.isArray(saved) && saved.length > 0) {
+    selectedSites.value = saved;
+    resetTimelineDataWithControl();
   }
 };
 
@@ -227,17 +223,9 @@ function saveControl() {
 }
 
 function saveSelectedSites() {
-  // 保存到chrome.storage.local
-  chrome.storage.local
-    .set({ userDataTimelineSelectedSites: selectedSites.value })
-    .then(() => {
-      configStore.$save();
-      useRuntimeStore().showSnakebar("保存成功", { color: "success" });
-    })
-    .catch((error) => {
-      console.error("保存站点设置失败:", error);
-      useRuntimeStore().showSnakebar("保存失败", { color: "error" });
-    });
+  control.selectedSites = [...selectedSites.value];
+  configStore.$save();
+  useRuntimeStore().showSnakebar("保存成功", { color: "success" });
 }
 </script>
 

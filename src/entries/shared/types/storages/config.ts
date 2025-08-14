@@ -112,6 +112,7 @@ export interface IConfigPiniaStorageSchema {
     showPerSiteField: Record<"siteName" | "name" | "level" | "uid", boolean>; // 需要展示的站点数据
     dateFormat: "time_added" /*     yyyy-MM-dd */ | "time_alive" /* 过去时间 xxx ago */;
     faviconBlue: number;
+    selectedSites: string[]; //时间轴里默认选中的站点列表
   };
 
   userStatisticControl: {
