@@ -160,6 +160,7 @@ export const useConfigStore = defineStore("config", {
       showTimeline: true,
       dateFormat: "time_added",
       faviconBlue: 0,
+      selectedSites: [],
     },
 
     userStatisticControl: {
