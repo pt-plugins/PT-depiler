@@ -151,7 +151,7 @@ export const useConfigStore = defineStore("config", {
         ratio: true,
       },
       showPerSiteField: {
-        siteName: true,
+        siteName: false,
         name: true,
         level: true,
         uid: true,
@@ -159,7 +159,7 @@ export const useConfigStore = defineStore("config", {
       showTop: true,
       showTimeline: true,
       dateFormat: "time_added",
-      faviconBlue: 0,
+      faviconBlue: 3,
       selectedSites: [],
     },
 
@@ -193,7 +193,7 @@ export const useConfigStore = defineStore("config", {
     },
 
     userInfo: {
-      queueConcurrency: 1,
+      queueConcurrency: 5,
       autoReflush: {
         enabled: true,
         interval: 3, // hours
@@ -212,18 +212,18 @@ export const useConfigStore = defineStore("config", {
       allowDirectSendToClient: false,
       localDownloadMethod: "browser",
       ignoreSiteDownloadIntervalWhenLocalDownload: true,
-      useQuickSendToClient: false,
+      useQuickSendToClient: true,
     },
 
     searchEntity: {
-      saveLastFilter: false,
-      queueConcurrency: 1,
-      treatTTQueryAsImdbSearch: false,
+      saveLastFilter: true,
+      queueConcurrency: 8,
+      treatTTQueryAsImdbSearch: true,
       allowSingleSiteSearch: false,
     },
 
     mediaServerEntity: {
-      queueConcurrency: 1,
+      queueConcurrency: 5,
       searchLimit: 50,
       autoSearchWhenMount: true,
       autoSearchMoreWhenScroll: true,
