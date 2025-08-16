@@ -59,7 +59,7 @@ function formatDuration(duration: number | isoDuration) {
       return duration.substring(1);
     }
   } catch (e) {
-    console.error("Error formatting duration:", e);
+    console.error("Error formatting duration:", duration, e);
     return "";
   }
 }
@@ -79,7 +79,7 @@ function formatIntervalDate(duration: number | isoDuration): string {
       return typeof result === "string" ? result : "";
     }
   } catch (e) {
-    console.error("Error formatting interval date:", e);
+    console.error("Error formatting interval date:", duration, e);
     return "";
   }
 }
