@@ -540,25 +540,23 @@ function saveControl() {
               :min="0"
               :precision="2"
               :step="1"
-              suffix="%"
               controlVariant="default"
               hint="设置为0则不隐藏"
               label="隐藏分站点图中图例百分比低于该值的详情"
               persistent-hint
+              suffix="%"
             ></v-number-input>
           </v-col>
         </v-row>
 
-        <v-divider class="my-2" />
-
-        <v-alert type="info" title="展示站点设置" class="mt-4 mb-2">
+        <v-alert class="mt-4 mb-2" title="展示站点设置" type="info">
           <template #append>
             <CheckSwitchButton v-model="selectedSites" :all="allSites" color="grey" />
           </template>
         </v-alert>
 
         <v-row class="my-2">
-          <v-col v-for="siteId in allSites" :key="siteId" cols="6" sm="3" class="py-0">
+          <v-col v-for="siteId in allSites" :key="siteId" class="py-0" cols="6" sm="3">
             <v-checkbox
               v-model="selectedSites"
               :disabled="!availableSites.includes(siteId)"
