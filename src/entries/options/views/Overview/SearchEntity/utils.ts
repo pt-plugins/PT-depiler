@@ -144,15 +144,24 @@ export async function doSearchEntity(
       console.log(`success get search ${solutionKey} result, with code ${searchStatus}: `, searchResult);
       runtimeStore.search.searchPlan[solutionKey].status = searchStatus;
 
+      // 优化：批量处理搜索结果，减少响应式更新次数
+      const newItems: ISearchResultTorrent[] = [];
+      const existingIds = new Set(runtimeStore.search.searchResult.map((r) => r.uniqueId));
+
       for (const item of searchResult) {
         const itemUniqueId = `${item.site}-${item.id}`;
-        const isDuplicate = runtimeStore.search.searchResult.some((result) => result.uniqueId == itemUniqueId);
-        if (!isDuplicate) {
+        if (!existingIds.has(itemUniqueId)) {
           (item as ISearchResultTorrent).uniqueId = itemUniqueId;
           (item as ISearchResultTorrent).solutionId = searchEntryName;
           (item as ISearchResultTorrent).solutionKey = solutionKey;
-          runtimeStore.search.searchResult.push(item as ISearchResultTorrent);
+          newItems.push(item as ISearchResultTorrent);
+          existingIds.add(itemUniqueId);
         }
+      }
+
+      // 批量添加新项目，减少响应式更新
+      if (newItems.length > 0) {
+        runtimeStore.search.searchResult.push(...newItems);
       }
       runtimeStore.search.searchPlan[solutionKey].count = runtimeStore.search.searchResult.filter(
         (item) => item.solutionKey == solutionKey,
