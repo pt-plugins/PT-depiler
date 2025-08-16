@@ -37,6 +37,9 @@ watch(tableCustomFilter.tableFilterRef, (newValue) => {
   }
 });
 
+// 模块级别的 Set，用于跟踪已存在的搜索结果 ID，避免并发时的重复
+const globalExistingIds = new Set<string>();
+
 export const searchQueue = new PQueue({ concurrency: 1 }); // 默认设置为 1，避免并发搜索
 
 searchQueue.on("active", () => {
@@ -46,11 +49,16 @@ searchQueue.on("active", () => {
     searchQueue.concurrency = configStore.searchEntity.queueConcurrency;
     console.log("Search queue concurrency changed to: ", searchQueue.concurrency);
   }
+  // 队列开始活跃时，更新全局 Set
+  globalExistingIds.clear();
+  runtimeStore.search.searchResult.forEach((r) => globalExistingIds.add(r.uniqueId));
 });
 
 searchQueue.on("idle", () => {
   runtimeStore.search.isSearching = false;
   runtimeStore.search.endAt = Date.now();
+  // 队列空闲时，清空全局 Set
+  globalExistingIds.clear();
 });
 
 interface ISearchPlanStatusMap {
@@ -105,9 +113,12 @@ export async function doSearchEntity(
 
   // 对重新搜索的，清除对应搜索方法的搜索结果
   if (flush) {
+    const removedItems = runtimeStore.search.searchResult.filter((item) => item.solutionKey === solutionKey);
     runtimeStore.search.searchResult = runtimeStore.search.searchResult.filter(
       (item) => item.solutionKey != solutionKey,
     );
+    // 同步更新全局 Set，移除被删除项目的 uniqueId
+    removedItems.forEach((item) => globalExistingIds.delete(item.uniqueId));
     queuePriority -= 1; // 对重新搜索的，降低优先级
   }
 
@@ -146,16 +157,16 @@ export async function doSearchEntity(
 
       // 优化：批量处理搜索结果，减少响应式更新次数
       const newItems: ISearchResultTorrent[] = [];
-      const existingIds = new Set(runtimeStore.search.searchResult.map((r) => r.uniqueId));
 
       for (const item of searchResult) {
         const itemUniqueId = `${item.site}-${item.id}`;
-        if (!existingIds.has(itemUniqueId)) {
+        if (!globalExistingIds.has(itemUniqueId)) {
           (item as ISearchResultTorrent).uniqueId = itemUniqueId;
           (item as ISearchResultTorrent).solutionId = searchEntryName;
           (item as ISearchResultTorrent).solutionKey = solutionKey;
-          newItems.push(item as ISearchResultTorrent);
-          existingIds.add(itemUniqueId);
+          // 冻结对象，避免 Vue 创建响应式代理，提升性能
+          newItems.push(Object.freeze(item as ISearchResultTorrent));
+          globalExistingIds.add(itemUniqueId);
         }
       }
 
