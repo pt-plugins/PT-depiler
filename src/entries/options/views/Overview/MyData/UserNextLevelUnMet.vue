@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useI18n } from "vue-i18n";
 import { type IImplicitUserInfo, type ILevelRequirement, IUserInfo } from "@ptd/site";
 
 import UserLevelsComponent from "./UserLevelsComponent.vue";
@@ -15,10 +14,6 @@ const {
   showNextLevelName?: boolean;
   iconClass?: string;
 }>();
-
-const currentTime = +new Date();
-
-const { t } = useI18n();
 </script>
 
 <template>
@@ -27,7 +22,7 @@ const { t } = useI18n();
 
   <span v-if="showNextLevelName && nextLevelUnMet.level">{{ nextLevelUnMet.level.name }}:&nbsp;</span>
 
-  <UserLevelsComponent :level-requirement="nextLevelUnMet" :hide-ratio-in-table="true" />
+  <UserLevelsComponent :user-info="userInfo" :level-requirement="nextLevelUnMet" :hide-ratio-in-table="true" />
 </template>
 
 <style scoped lang="scss"></style>

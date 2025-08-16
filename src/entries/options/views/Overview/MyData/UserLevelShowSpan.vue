@@ -1,12 +1,25 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { IImplicitUserInfo, isoDuration, convertIsoDurationToDate, convertSecondsToIsoDuration } from "@ptd/site";
+import {
+  IImplicitUserInfo,
+  isoDuration,
+  convertIsoDurationToDate,
+  convertSecondsToIsoDuration,
+  type IUserInfo,
+} from "@ptd/site";
 import { formatNumber, formatSize, formatDate, simplifyNumber } from "@/options/utils";
 import { useConfigStore } from "@/options/stores/config";
 
-const { levelRequirement, hideRatioInTable = false } = defineProps<{
+const {
+  userInfo,
+  levelRequirement,
+  hideRatioInTable = false,
+  useJoinTimeAsRef = false,
+} = defineProps<{
+  userInfo: IUserInfo;
   levelRequirement: IImplicitUserInfo;
   hideRatioInTable?: boolean;
+  useJoinTimeAsRef?: boolean; // 在 formatIntervalDate 中是否使用 joinTime 作为参考时间，默认参考为 currentTime
 }>();
 
 const { t } = useI18n();
@@ -47,17 +60,20 @@ function formatDuration(duration: number | isoDuration) {
 
 function formatIntervalDate(duration: number | isoDuration): string {
   try {
+    // 展示剩余时间时，基于 current 计算；展现等级要求时，基于 joinTime 计算
+    const refTime = useJoinTimeAsRef ? (userInfo.joinTime ?? currentTime) : currentTime;
     if (typeof duration === "number") {
-      // 如果是数字（秒），直接基于当前时间计算
-      const targetDate = new Date(currentTime + duration * 1000);
+      // 如果是数字（秒）
+      const targetDate = new Date(refTime + duration * 1000);
       const result = formatDate(targetDate, "yyyy-MM-dd");
       return typeof result === "string" ? result : "";
     } else {
-      // 如果是isoDuration字符串，基于当前时间计算
-      const result = formatDate(convertIsoDurationToDate(duration, currentTime), "yyyy-MM-dd");
+      // 如果是isoDuration字符串
+      const result = formatDate(convertIsoDurationToDate(duration, refTime), "yyyy-MM-dd");
       return typeof result === "string" ? result : "";
     }
   } catch (e) {
+    console.error("Error formatting interval date:", e);
     return "";
   }
 }
