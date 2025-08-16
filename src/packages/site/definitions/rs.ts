@@ -14,6 +14,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
   urls: ["https://resource.xidian.edu.cn/"],
+  favicon: "./_default_nexusphp.png",
 
   category: [
     {
