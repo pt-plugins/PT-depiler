@@ -49,12 +49,18 @@ function getIntervalDisplay(interval: number | isoDuration) {
 }
 
 function formatDuration(duration: number | isoDuration) {
-  if (typeof duration === "number") {
-    // 如果是秒数，先转换为ISO duration格式再显示
-    const isoDurationStr = convertSecondsToIsoDuration(duration);
-    return isoDurationStr.substring(1);
-  } else {
-    return duration.substring(1);
+  try {
+    if (typeof duration === "number") {
+      // 如果是秒数，先转换为ISO duration格式再显示
+      const isoDurationStr = convertSecondsToIsoDuration(duration);
+      return isoDurationStr.substring(1);
+    } else {
+      if (duration === "P") return "0D"; // 修正：如果 duration 只有 P，返回 0D
+      return duration.substring(1);
+    }
+  } catch (e) {
+    console.error("Error formatting duration:", e);
+    return "";
   }
 }
 
