@@ -1,5 +1,5 @@
 import { intersection, toMerged } from "es-toolkit";
-import { formatDate } from "date-fns";
+import { formatDate, isValid } from "date-fns";
 import { getBackupServer, IBackupData, IBackupFileInfo } from "@ptd/backupServer";
 import { backupDataToJSZipBlob } from "@ptd/backupServer/utils.ts";
 import AbstractBackupServer from "@ptd/backupServer/AbstractBackupServer.ts";
@@ -13,12 +13,42 @@ import type {
   TBackupServerKey,
   IConfigPiniaStorageSchema,
   TUserInfoStorageSchema,
+  IStoredUserInfo,
 } from "@/shared/types.ts";
 
 import { logger } from "./logger.ts";
 import { ptdIndexDb } from "../adapter/indexdb.ts";
 
 export const storageKey = ["config", "metadata", "userInfo", "searchResultSnapshot"] as TExtensionStorageKey[];
+
+// 尝试修复坏数据
+function fixUserInfoForBackup(userInfo: Partial<IStoredUserInfo>): IStoredUserInfo {
+  const fixed = { ...userInfo } as IStoredUserInfo;
+
+  // 修复 ratio 和 trueRatio，如果是字符串则尝试转换为数字
+  if (typeof userInfo.ratio === "string") {
+    const ratioNum = parseFloat(userInfo.ratio);
+    if (!isNaN(ratioNum)) fixed.ratio = Math.round(ratioNum * 100) / 100;
+  }
+
+  if (typeof userInfo.trueRatio === "string") {
+    const trueRatioNum = parseFloat(userInfo.trueRatio);
+    if (!isNaN(trueRatioNum)) fixed.trueRatio = Math.round(trueRatioNum * 100) / 100;
+  }
+
+  // 修复 messageCount
+  fixed.messageCount ??= 0;
+
+  // 修复 joinTime
+  if (typeof userInfo.joinTime === "string") {
+    let joinTime = new Date(userInfo.joinTime);
+    if (isValid(joinTime)) {
+      fixed.joinTime = +joinTime;
+    }
+  }
+
+  return fixed;
+}
 
 export async function createBackupData(backupFields: TBackupFields[] = []): Promise<IBackupData> {
   const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
@@ -130,6 +160,18 @@ export async function restoreBackupData(
         if (field === "userInfo" && keepExistUserInfo) {
           const userInfoStore = ((await sendMessage("getExtStorage", "userInfo")) ?? {}) as TUserInfoStorageSchema;
           fieldData = toMerged(fieldData, userInfoStore);
+        }
+
+        // Fix userInfo data before saving
+        if (field === "userInfo") {
+          const fixedUserInfoData = {} as TUserInfoStorageSchema;
+          for (const [siteId, siteUserInfo] of Object.entries(fieldData as TUserInfoStorageSchema)) {
+            fixedUserInfoData[siteId] = {};
+            for (const [date, userInfo] of Object.entries(siteUserInfo)) {
+              fixedUserInfoData[siteId][date] = fixUserInfoForBackup(userInfo);
+            }
+          }
+          fieldData = fixedUserInfoData;
         }
 
         await sendMessage("setExtStorage", { key: field, value: fieldData });
