@@ -150,16 +150,13 @@ const userLevelGroupIcon = computed(() => {
                     </template>
 
                     <div>
-                      <span v-if="userLevel.interval">
-                        {{
-                          formatDate(
-                            convertIsoDurationToDate(userLevel.interval, userInfo.joinTime ?? currentTime),
-                            "yyyy-MM-dd",
-                          )
-                        }}
-                      </span>
-                      <span>&nbsp;({{ userLevel.name }}):&nbsp;</span>
-                      <UserLevelsComponent :level-requirement="userLevel" />
+                      <span>{{ userLevel.name }}:&nbsp;</span>
+                      <!-- 展示用户等级要求时， interval 向 date 的转换应该基于 joinTime 计算 -->
+                      <UserLevelsComponent
+                        :user-info="userInfo"
+                        :level-requirement="userLevel"
+                        :useJoinTimeAsRef="true"
+                      />
                     </div>
 
                     <div class="text-ellipsis text-truncate" :title="userLevel.privilege">
