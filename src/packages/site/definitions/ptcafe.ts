@@ -125,7 +125,6 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 1,
       name: "User 咖啡新人",
-      enName: "User",
       privilege: "新用户的默认级别。不能直接发布种子，需要在候选区发布。",
     },
     {
