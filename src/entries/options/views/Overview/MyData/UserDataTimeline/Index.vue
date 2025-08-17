@@ -456,7 +456,9 @@ function saveControl() {
                             text: [
                               control.showPerSiteField.name ? userInfo.name! : '',
                               control.showPerSiteField.level ? `<${userInfo.levelName!}>` : '',
-                              control.showPerSiteField.uid ? `<${userInfo.id!}>` : '',
+                              control.showPerSiteField.uid && userInfo.id && userInfo.id !== '0' && userInfo.id !== 0
+                                ? `<${userInfo.id}>`
+                                : '',
                             ]
                               .filter(Boolean)
                               .join(' '),

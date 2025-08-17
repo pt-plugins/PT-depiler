@@ -31,7 +31,7 @@ export const CTimelineUserInfoField = [
   { name: "seeding", format: (x: number) => x },
   { name: "seedingSize", format: (x: number) => formatSize(x) },
   { name: "bonus", format: (x: number) => simplifyNumber(x, " ") },
-  { name: "bonusPerHour", format: (x: number) => x.toFixed(2) },
+  { name: "bonusPerHour", format: (x: number) => simplifyNumber(x, " ") },
   { name: "ratio", format: (x: number) => realFormatRatio(x) },
 ] as const;
 
