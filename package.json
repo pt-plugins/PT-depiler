@@ -4,7 +4,7 @@
   "version": "0.0.4",
   "type": "module",
   "homepage": "https://github.com/pt-plugins/PT-depiler",
-  "packageManager": "pnpm@10.8.0",
+  "packageManager": "pnpm@10.14.0",
   "author": {
     "name": "Pt-Plugins",
     "url": "https://github.com/pt-plugins"
@@ -38,7 +38,7 @@
   },
   "engines": {
     "node": ">=23.7.0",
-    "pnpm": ">=9.11.0"
+    "pnpm": ">=10.14.0"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.11",

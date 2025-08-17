@@ -286,6 +286,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
       <template #item.userConfig.allowContentScript="{ item }">
         <v-switch
           v-model="item.userConfig.allowContentScript"
+          :disabled="item.metadata.isDead || item.userConfig.isOffline"
           class="table-switch-btn"
           color="success"
           hide-details
