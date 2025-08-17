@@ -254,8 +254,8 @@ export function levelRequirementUnMet(
 
     alternativeUnMet = alternativeUnMet.filter((x) => !isEmpty(x));
 
-    // 如果没有一个满足则返回 false
-    if (alternativeUnMet.length > 0) {
+    // 如果有至少一个满足则返回 false
+    if (alternativeUnMet.length == levelRequirement.alternative.length) {
       unmetRequirement.alternative = alternativeUnMet;
     }
   }
