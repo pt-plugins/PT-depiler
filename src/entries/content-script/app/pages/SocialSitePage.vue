@@ -30,7 +30,15 @@ async function handleSearch() {
             showSocialSiteParseResultsDialog.value = true;
             return;
           } else {
-            if (configStore.contentScript?.socialSiteSearchBy === "title") {
+            if (configStore.contentScript?.socialSiteSearchBy === "imdb") {
+              if (ptdData.socialSite === "imdb") {
+                return doKeywordSearch(`imdb|${parseResult.id}`);
+              } else if (parseResult?.external_ids?.imdb) {
+                return doKeywordSearch(`imdb|${parseResult.external_ids.imdb}`);
+              } else {
+                return doKeywordSearch(`${parseResult.titles[0]}`);
+              }
+            } else if (configStore.contentScript?.socialSiteSearchBy === "title") {
               return doKeywordSearch(`${parseResult.titles[0]}`);
             }
 

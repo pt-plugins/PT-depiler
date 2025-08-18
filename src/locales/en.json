@@ -382,6 +382,7 @@
       "socialSiteSearchBy": {
         "id": "Search by ID",
         "title": "Search by Main Title",
+        "imdb": "Search by IMDb Number",
         "chosen": "Let me choose"
       },
       "tableMultiSortNote": "Multi-column sorting: Click any table header field to start sorting, which will display the number \\\"1\\\" on the field. Click other fields sequentially to display \\\"2\\\", \\\"3\\\", indicating sorting priority. Click the same field again to toggle between ascending, descending, or cancel sorting. The sorting order is determined by these numbers, with smaller numbers having higher priority."
