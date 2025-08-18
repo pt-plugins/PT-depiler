@@ -30,7 +30,9 @@ async function handleSearch() {
             showSocialSiteParseResultsDialog.value = true;
             return;
           } else {
-            if (configStore.contentScript?.socialSiteSearchBy === "imdb") {
+            if (configStore.contentScript?.socialSiteSearchBy === "id") {
+              return doKeywordSearch(`${ptdData.socialSite!}|${parseResult.id}`);
+            } else if (configStore.contentScript?.socialSiteSearchBy === "imdb") {
               if (ptdData.socialSite === "imdb") {
                 return doKeywordSearch(`imdb|${parseResult.id}`);
               } else if (parseResult?.external_ids?.imdb) {
@@ -42,8 +44,8 @@ async function handleSearch() {
               return doKeywordSearch(`${parseResult.titles[0]}`);
             }
 
-            // 其他情况默认按 ID 搜索
-            return doKeywordSearch(`${ptdData.socialSite!}|${parseResult.id}`);
+            // 其他情况默认按 主标题 搜索
+            return doKeywordSearch(`${parseResult.titles[0]}`);
           }
         } else {
           runtimeStore.showSnakebar("未能解析出结果", { color: "error" });
