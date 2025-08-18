@@ -56,7 +56,7 @@ const perChartHeight = computed(() => 400);
 
 const allowEditName = ref<boolean>(false);
 
-const rawDataRef = ref<IUserDataStatistic>({ siteDateRange: {}, dailyUserInfo: {}, incrementalData: {} });
+const rawDataRef = shallowRef<IUserDataStatistic>({ siteDateRange: {}, dailyUserInfo: {}, incrementalData: {} });
 
 const allDateRanges = computed(() => Object.keys(rawDataRef.value.dailyUserInfo));
 const allSites = computed<string[]>(() => Object.keys(rawDataRef.value.siteDateRange));
@@ -185,10 +185,15 @@ const createPerSiteChartOptionsFn = (
         // 使用预计算的增量数据，大幅提升性能
         data = selectedDateRanges.value.map((date) => {
           const incrementalValue = rawDataRef.value.incrementalData[site]?.[date]?.[field];
-          return incrementalValue ?? 0;
+          // 修正：强制转换为数字，避免 NaN 或字符串
+          return isNumber(incrementalValue) ? incrementalValue : Number(incrementalValue) || 0;
         });
       } else {
-        data = selectedDateRanges.value.map((date) => selectedDataComputed.value[date]?.[site]?.[field] ?? 0);
+        data = selectedDateRanges.value.map((date) => {
+          const val = selectedDataComputed.value[date]?.[site]?.[field];
+          // 修正：强制转换为数字，避免 NaN 或字符串
+          return isNumber(val) ? val : Number(val) || 0;
+        });
       }
 
       return {
