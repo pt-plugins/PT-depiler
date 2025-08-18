@@ -36,8 +36,11 @@ function fixUserInfoForBackup(userInfo: Partial<IStoredUserInfo>): IStoredUserIn
     if (!isNaN(trueRatioNum)) fixed.trueRatio = Math.round(trueRatioNum * 100) / 100;
   }
 
-  // 修复 messageCount
-  fixed.messageCount ??= 0;
+  // 修复 seeding，如果是字符串则尝试转换为数字
+  if (typeof userInfo.seeding === "string") {
+    const seedingNum = parseInt(userInfo.seeding);
+    fixed.seeding = isNaN(seedingNum) ? 0 : seedingNum;
+  }
 
   // 修复 joinTime
   if (typeof userInfo.joinTime === "string") {
