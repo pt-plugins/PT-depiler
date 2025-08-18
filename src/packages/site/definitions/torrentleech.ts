@@ -4,6 +4,7 @@ import type { ISearchInput, ISiteMetadata, ITorrent, IUserInfo } from "../types"
 import { EResultParseStatus } from "../types";
 import { parseSizeString, createDocument } from "../utils";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
+import urlJoin from "url-join";
 
 const categoryOptions = [
   { value: 8, name: "Movies :: Cam" },
@@ -110,7 +111,7 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     requestConfig: {
-      url: "/torrents/browse/list",
+      url: "/torrents/browse/list/query",
       responseType: "json",
     },
     advanceKeywordParams: {
@@ -118,7 +119,7 @@ export const siteMetadata: ISiteMetadata = {
         requestConfigTransformer: ({ keywords, searchEntry, requestConfig }) => {
           if (keywords) {
             delete requestConfig!.params?.keywords; // 移除 AbstractBittorrentSite 自动添加的 keywords 参数
-            requestConfig!.url += `/facets/${encodeURIComponent("tags:" + keywords)}`;
+            requestConfig!.url = `/torrents/browse/list/imdbID/`;
           }
           return requestConfig!;
         },
@@ -126,13 +127,13 @@ export const siteMetadata: ISiteMetadata = {
     },
 
     requestConfigTransformer: ({ keywords, searchEntry, requestConfig }) => {
+      const baseUrl = requestConfig!.url || "";
       if (keywords) {
         delete requestConfig!.params?.keywords; // 移除 AbstractBittorrentSite 自动添加的 keywords 参数
 
         // remove dashes at the beginning of keywords as they exclude search strings (see Jackett/Jackett#3096)
         keywords = keywords.replace(/(^|\s)-/, "");
-
-        requestConfig!.url += `/query/${encodeURIComponent(keywords)}`;
+        requestConfig!.url = urlJoin(baseUrl, `${keywords}`);
       }
 
       return requestConfig!;
