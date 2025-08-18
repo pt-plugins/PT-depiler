@@ -53,7 +53,7 @@ export interface IConfigPiniaStorageSchema {
     stackedButtons: boolean; // 是否使用堆叠按钮
     dragLinkOnSpeedDial: boolean; // 是否允许拖拽链接到 SpeedDial 上
 
-    socialSiteSearchBy: "id" | "title" | "chosen"; // 社交站点搜索方式，id: 使用 id 进行搜索，title: 使用主标题进行搜索，chosen: 使用用户选择的方式进行搜索
+    socialSiteSearchBy: "id" | "title" | "imdb" | "chosen"; // 社交站点搜索方式，id: 使用 id 进行搜索，title: 使用主标题进行搜索，IMDb: 使用 IMDb 编号进行搜索，chosen: 使用用户选择的方式进行搜索
   };
 
   // 对 MyData 页面 v-data-table 展示的额外控制项

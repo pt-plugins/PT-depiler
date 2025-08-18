@@ -167,7 +167,7 @@ defineExpose({
             <v-select
               v-model="configStore.contentScript.socialSiteSearchBy"
               :disabled="!configStore.contentScript.enabledAtSocialSite"
-              :items="['id', 'title', 'chosen']"
+              :items="['id', 'title', 'imdb', 'chosen']"
               :item-title="(item) => t('SetBase.ui.socialSiteSearchBy.' + item)"
               :item-value="(item) => item"
               label="社交站点搜索方式"
