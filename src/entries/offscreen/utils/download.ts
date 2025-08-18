@@ -78,7 +78,8 @@ onMessage("downloadTorrentToLocalFile", async ({ data: { torrent, localDownloadM
   if (torrent.site) {
     // 生成站点，并检查站点下载间隔，如果触及到站点下载间隔，则将下载任务放入到 alarms 中等待
     const site = await getSiteInstance<"public">(torrent.site);
-    if (site.downloadInterval > 0) {
+
+    if (!configStoreRaw.download.ignoreSiteDownloadIntervalWhenLocalDownload && site.downloadInterval > 0) {
       if (new Date().getTime() - (lastSiteDownloadAt.get(torrent.site) ?? 0) < site.downloadInterval * 1000) {
         logger({ msg: `Site ${torrent.site} download interval not reached, waiting...` });
         sendMessage("reDownloadTorrentToLocalFile", { torrent, localDownloadMethod, downloadId }).catch();
