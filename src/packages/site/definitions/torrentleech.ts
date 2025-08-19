@@ -115,15 +115,7 @@ export const siteMetadata: ISiteMetadata = {
       responseType: "json",
     },
     advanceKeywordParams: {
-      imdb: {
-        requestConfigTransformer: ({ keywords, searchEntry, requestConfig }) => {
-          if (keywords) {
-            delete requestConfig!.params?.keywords; // 移除 AbstractBittorrentSite 自动添加的 keywords 参数
-            requestConfig!.url = `/torrents/browse/list/imdbID/`;
-          }
-          return requestConfig!;
-        },
-      },
+      imdb: { enabled: true },
     },
 
     requestConfigTransformer: ({ keywords, searchEntry, requestConfig }) => {
