@@ -219,6 +219,22 @@ export default class BittorrentSite {
       }
     }
 
+    // 4.5. 如果站点没有配置高级搜索词支持，但检测到高级搜索词格式的处理
+    if (keywords && !advanceKeywordConfig) {
+      // 只有IMDB搜索才fallback到普通关键词搜索
+      if (/^imdb\|/.test(keywords)) {
+        const match = keywords.match(/^imdb\|(.+)$/);
+        if (match && match[1]) {
+          keywords = match[1]; // 提取实际的搜索值作为普通关键词
+        }
+      }
+      // 其他高级搜索词格式（douban|, bangumi|, anidb|, tmdb|, tvdb|, mal|）直接跳过
+      else if (/^(douban|bangumi|anidb|tmdb|tvdb|mal)\|/.test(keywords)) {
+        result.status = EResultParseStatus.passParse;
+        return result;
+      }
+    }
+
     // 5. 首先将搜索关键词根据 keywordsParam 放入请求配置中，注意如果是 advanceKeyword 已经被去除了前缀 `${advanceKeywordType}|`
     if (keywords) {
       set(requestConfig, searchEntry.keywordPath || "params.keywords", keywords || "");
