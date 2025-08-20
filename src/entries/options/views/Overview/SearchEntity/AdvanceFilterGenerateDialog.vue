@@ -7,6 +7,7 @@
  */
 import { useI18n } from "vue-i18n";
 import { addDays, startOfDay } from "date-fns";
+import { ETorrentStatus } from "@ptd/site";
 
 import { formatDate, formatSize } from "@/options/utils.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
@@ -24,6 +25,15 @@ const configStore = useConfigStore();
 
 const { advanceFilterDictRef, stringifyFilterFn, resetAdvanceFilterDictFn, resetCountRef, toggleKeywordStateFn } =
   tableCustomFilter;
+
+// 种子状态选项
+const statusOptions = [
+  { value: ETorrentStatus.unknown, label: "未知", icon: "mdi-help-circle", color: "grey" },
+  { value: ETorrentStatus.downloading, label: "下载中", icon: "mdi-arrow-down", color: "info" },
+  { value: ETorrentStatus.seeding, label: "做种中", icon: "mdi-arrow-up", color: "success" },
+  { value: ETorrentStatus.inactive, label: "未活动", icon: "mdi-wifi-strength-off", color: "grey" },
+  { value: ETorrentStatus.completed, label: "已完成", icon: "mdi-check", color: "grey" },
+];
 
 function updateTableFilter() {
   emit("update:tableFilter", stringifyFilterFn());
@@ -120,6 +130,31 @@ function updateTableFilter() {
               </v-col>
             </v-row>
           </template>
+          <v-row><v-label>种子状态</v-label></v-row>
+          <v-row>
+            <v-col
+              v-for="status in statusOptions"
+              :key="`${resetCountRef}_${status.value}`"
+              class="pa-0"
+              cols="6"
+              md="3"
+              sm="4"
+            >
+              <v-checkbox
+                v-model="advanceFilterDictRef.status.required"
+                :value="status.value"
+                density="compact"
+                hide-details
+                indeterminate
+                @click.stop="() => toggleKeywordStateFn('status', status.value)"
+              >
+                <template #label>
+                  <v-icon :color="status.color" :icon="status.icon" size="small" class="mr-2" />
+                  <span>{{ status.label }}</span>
+                </template>
+              </v-checkbox>
+            </v-col>
+          </v-row>
           <v-row>
             <v-col cols="6">
               <v-row class="pr-4">

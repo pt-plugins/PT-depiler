@@ -1,6 +1,12 @@
 import PQueue from "p-queue";
 import { computed, watch } from "vue";
-import { EResultParseStatus, type IAdvanceKeywordSearchConfig, ITorrentTag, type TSiteID } from "@ptd/site";
+import {
+  EResultParseStatus,
+  type IAdvanceKeywordSearchConfig,
+  ITorrentTag,
+  type TSiteID,
+  ETorrentStatus,
+} from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -15,7 +21,7 @@ const metadataStore = useMetadataStore();
 
 export const tableCustomFilter = useTableCustomFilter({
   parseOptions: {
-    keywords: ["site", "tags"],
+    keywords: ["site", "tags", "status"],
     ranges: ["time", "size", "seeders", "leechers", "completed"],
   },
   titleFields: ["title", "subTitle"],
@@ -24,6 +30,44 @@ export const tableCustomFilter = useTableCustomFilter({
   format: {
     tags: {
       parse: (value: ITorrentTag) => (value ?? {}).name,
+    },
+    status: {
+      parse: (value: ETorrentStatus | undefined) => {
+        // 将枚举值转换为中文字符串
+        const normalizedValue = value ?? ETorrentStatus.unknown;
+        switch (normalizedValue) {
+          case ETorrentStatus.unknown:
+            return "未知";
+          case ETorrentStatus.downloading:
+            return "下载中";
+          case ETorrentStatus.seeding:
+            return "做种中";
+          case ETorrentStatus.inactive:
+            return "未活动";
+          case ETorrentStatus.completed:
+            return "已完成";
+          default:
+            return "未知";
+        }
+      },
+      build: (value: ETorrentStatus) => {
+        // 将枚举值转换为中文字符串用于显示
+        const normalizedValue = value ?? ETorrentStatus.unknown;
+        switch (normalizedValue) {
+          case ETorrentStatus.unknown:
+            return "未知";
+          case ETorrentStatus.downloading:
+            return "下载中";
+          case ETorrentStatus.seeding:
+            return "做种中";
+          case ETorrentStatus.inactive:
+            return "未活动";
+          case ETorrentStatus.completed:
+            return "已完成";
+          default:
+            return "未知";
+        }
+      },
     },
     time: "date",
     size: "size",
@@ -161,11 +205,16 @@ export async function doSearchEntity(
       for (const item of searchResult) {
         const itemUniqueId = `${item.site}-${item.id}`;
         if (!globalExistingIds.has(itemUniqueId)) {
-          (item as ISearchResultTorrent).uniqueId = itemUniqueId;
-          (item as ISearchResultTorrent).solutionId = searchEntryName;
-          (item as ISearchResultTorrent).solutionKey = solutionKey;
+          const searchResultItem = item as ISearchResultTorrent;
+          searchResultItem.uniqueId = itemUniqueId;
+          searchResultItem.solutionId = searchEntryName;
+          searchResultItem.solutionKey = solutionKey;
+          // 确保 status 字段有默认值，避免过滤器无法处理 undefined
+          if (typeof searchResultItem.status === "undefined") {
+            searchResultItem.status = ETorrentStatus.unknown;
+          }
           // 冻结对象，避免 Vue 创建响应式代理，提升性能
-          newItems.push(Object.freeze(item as ISearchResultTorrent));
+          newItems.push(Object.freeze(searchResultItem));
           globalExistingIds.add(itemUniqueId);
         }
       }
