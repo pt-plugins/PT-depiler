@@ -14,11 +14,11 @@ chrome.action.onClicked.addListener(async () => {
   await chrome.runtime.openOptionsPage();
 });
 
-chrome.runtime.onInstalled.addListener(async () => {
+chrome.runtime.onInstalled.addListener(() => {
   console.debug("[PTD] Installed!");
 
   // 修复存储中的坏数据
-  await fixAllStoredUserInfo();
+  fixAllStoredUserInfo().catch();
 });
 
 onMessage("ping", async ({ data }) => {

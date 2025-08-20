@@ -1,5 +1,5 @@
 import { isValid } from "date-fns";
-import { sendMessage } from "@/messages.ts";
+import { extStorage } from "@/storage.ts";
 import type { TUserInfoStorageSchema, IStoredUserInfo } from "@/shared/types.ts";
 
 // 修复用户信息中的坏数据
@@ -46,7 +46,7 @@ function fixStoredUserInfo(userInfo: Partial<IStoredUserInfo>): { fixed: IStored
 // 修复所有存储的用户信息数据
 export async function fixAllStoredUserInfo(): Promise<void> {
   try {
-    const userInfoStore = ((await sendMessage("getExtStorage", "userInfo")) ?? {}) as TUserInfoStorageSchema;
+    const userInfoStore = ((await extStorage.getItem("userInfo")) ?? {}) as TUserInfoStorageSchema;
 
     let hasChanges = false;
     const fixedUserInfoData = {} as TUserInfoStorageSchema;
@@ -67,7 +67,7 @@ export async function fixAllStoredUserInfo(): Promise<void> {
 
     // 只有当有变化时才更新存储
     if (hasChanges) {
-      await sendMessage("setExtStorage", { key: "userInfo", value: fixedUserInfoData });
+      await extStorage.setItem("userInfo", fixedUserInfoData);
       console.debug("[PTD] Fixed corrupted user info data");
     }
   } catch (error) {

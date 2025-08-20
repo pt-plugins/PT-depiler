@@ -13,7 +13,6 @@ import type {
   TBackupServerKey,
   IConfigPiniaStorageSchema,
   TUserInfoStorageSchema,
-  IStoredUserInfo,
 } from "@/shared/types.ts";
 
 import { logger } from "./logger.ts";
