@@ -1,4 +1,4 @@
-import { eachDayOfInterval, subDays, min as minDateFn, max as maxDateFn, format as formatDate } from "date-fns";
+import { subDays, format as formatDate, eachDayOfInterval } from "date-fns";
 import { EResultParseStatus, TSiteID } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
@@ -60,9 +60,13 @@ export async function loadFullData(): Promise<IUserDataStatistic> {
   const allDates = Array.from(allDatesSet);
 
   // 找出最小和最大日期，并生成最小到最大日期之间的所有日期
-  const minDate = minDateFn(allDates);
-  const maxDate = maxDateFn(allDates);
-  const datesInRange = eachDayOfInterval({ start: minDate, end: maxDate }).map((x) => formatDate(x, "yyyy-MM-dd"));
+  const sortedDates = allDates.sort();
+  const minDateStr = sortedDates[0];
+  const maxDateStr = sortedDates[sortedDates.length - 1];
+  const datesInRange = eachDayOfInterval({
+    start: new Date(minDateStr + "T00:00:00"),
+    end: new Date(maxDateStr + "T00:00:00"),
+  }).map((x) => formatDate(x, "yyyy-MM-dd"));
 
   const siteDateRange: IUserDataStatistic["siteDateRange"] = {};
   const dailyUserInfo: IUserDataStatistic["dailyUserInfo"] = Object.fromEntries(datesInRange.map((x) => [x, {}]));
@@ -73,11 +77,13 @@ export async function loadFullData(): Promise<IUserDataStatistic> {
   // 遍历每个站点
   for (const [siteId, perSiteUserInfoHistory] of Object.entries(rawData)) {
     const thisSiteDateRange = Object.keys(perSiteUserInfoHistory);
-    const thisSiteMinDate = minDateFn(thisSiteDateRange);
-    const thisSiteMaxDate = maxDateFn(thisSiteDateRange);
-    const thisSiteDateRangeInInterval = eachDayOfInterval({ start: thisSiteMinDate, end: thisSiteMaxDate }).map((x) =>
-      formatDate(x, "yyyy-MM-dd"),
-    );
+    const sortedSiteDates = thisSiteDateRange.sort();
+    const thisSiteMinDateStr = sortedSiteDates[0];
+    const thisSiteMaxDateStr = sortedSiteDates[sortedSiteDates.length - 1];
+    const thisSiteDateRangeInInterval = eachDayOfInterval({
+      start: new Date(thisSiteMinDateStr + "T00:00:00"),
+      end: new Date(thisSiteMaxDateStr + "T00:00:00"),
+    }).map((x) => formatDate(x, "yyyy-MM-dd"));
     siteDateRange[siteId] = [thisSiteDateRangeInInterval.at(0)!, thisSiteDateRangeInInterval.at(-1)!];
 
     // 初始化站点增量数据
@@ -120,6 +126,6 @@ export async function loadFullData(): Promise<IUserDataStatistic> {
 
 export function setSubDate(days: number) {
   const today = new Date();
-  const subDay = subDays(today, days);
+  const subDay = subDays(today, days - 1);
   return eachDayOfInterval({ start: subDay, end: today }).map((x) => formatDate(x, "yyyy-MM-dd"));
 }
