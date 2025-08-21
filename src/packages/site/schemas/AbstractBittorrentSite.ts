@@ -2,6 +2,7 @@ import Sizzle from "sizzle";
 import { get, isEmpty, set } from "es-toolkit/compat";
 import { chunk, pascalCase, pick, toMerged, union } from "es-toolkit";
 import { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
+import { supportSocialSite } from "@ptd/social";
 
 // noinspection ES6PreferShortImport
 import { axios, isCloudflareBlocked, retrieve, sleep, store } from "../utils/adapter";
@@ -200,20 +201,31 @@ export default class BittorrentSite {
     );
 
     // 4. 预检查 keywords 是否为高级搜索词，如果是，则查找对应的 searchEntry.advanceKeywordParams[*] 并改写 keywords
-    let advanceKeywordType: string | undefined;
     let advanceKeywordConfig: IAdvanceKeywordSearchConfig | false = false;
-    if (keywords && searchEntry.advanceKeywordParams) {
-      for (const [advanceField, advanceConfig] of Object.entries(searchEntry.advanceKeywordParams)) {
+    if (keywords) {
+      // 生成支持的高级搜索词前缀
+      const advanceKeywordFields = Object.keys(searchEntry.advanceKeywordParams ?? {});
+
+      for (const advanceField of union(advanceKeywordFields, supportSocialSite)) {
         if (keywords.startsWith(`${advanceField}|`)) {
+          // 先改写 keywords， 去除掉我们额外添加的 `${advanceField}|` 前缀
+          keywords = keywords?.replace(`${advanceField}|`, "");
+
+          // 检查是否有对应的高级搜索词配置
+          let advanceConfig = searchEntry?.advanceKeywordParams?.[advanceField];
+          if (typeof advanceConfig === "undefined") {
+            if (advanceField == "imdb") {
+              advanceConfig = { enabled: true }; // imdb 格式fallback到普通关键词搜索
+            }
+            advanceConfig = false; // 其他高级搜索词格式（douban|, bangumi|, anidb|, tmdb|, tvdb|, mal|）直接跳过
+          }
+
           // 检查是否跳过
           if (advanceConfig === false || advanceConfig.enabled === false) {
             result.status = EResultParseStatus.passParse;
             return result;
           }
 
-          // 改写 keywords 并缓存 transformer
-          keywords = keywords?.replace(`${advanceField}|`, "");
-          advanceKeywordType = advanceField;
           advanceKeywordConfig = advanceConfig;
           break;
         }
