@@ -42,19 +42,23 @@ export async function createFlushUserInfoJob() {
       for (const siteId of Object.keys(metadataStore.sites)) {
         flushPromises.push(
           new Promise(async (resolve, reject) => {
-            const siteConfig = await sendMessage("getSiteUserConfig", { siteId });
-            if (!siteConfig.isOffline && siteConfig.allowQueryUserInfo) {
-              // 检查当天的记录是否存在
-              const thisSiteUserInfo = await sendMessage("getSiteUserInfo", siteId);
-              if (typeof thisSiteUserInfo[curDateFormat] === "undefined") {
-                const userInfoResult = await sendMessage("getSiteUserInfoResult", siteId);
-                if (userInfoResult.status !== EResultParseStatus.success) {
-                  failFlushSites.push(siteId);
-                  reject(siteId); // 仅有刷新失败的时候才reject
+            try {
+              const siteConfig = await sendMessage("getSiteUserConfig", { siteId });
+              if (!siteConfig.isOffline && siteConfig.allowQueryUserInfo) {
+                // 检查当天的记录是否存在
+                const thisSiteUserInfo = await sendMessage("getSiteUserInfo", siteId);
+                if (typeof thisSiteUserInfo[curDateFormat] === "undefined") {
+                  const userInfoResult = await sendMessage("getSiteUserInfoResult", siteId);
+                  if (userInfoResult.status !== EResultParseStatus.success) {
+                    failFlushSites.push(siteId);
+                    reject(siteId); // 仅有刷新失败的时候才reject
+                  }
                 }
               }
+              resolve(siteId); // 其他状态（刷新成功、已有当天记录、不设置刷新）均视为resolve
+            } catch (e) {
+              reject(siteId); // 如果获取站点配置失败，则reject
             }
-            resolve(siteId); // 其他状态（刷新成功、已有当天记录、不设置刷新）均视为resolve
           }),
         );
       }

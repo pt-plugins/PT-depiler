@@ -1,5 +1,10 @@
-import { ETorrentStatus, type IElementQuery, type ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
+import { ETorrentStatus, type IElementQuery, type ITorrent, type ISiteMetadata } from "../types";
+import NexusPHP, {
+  CategoryInclbookmarked,
+  CategoryIncldead,
+  CategorySpstate,
+  SchemaMetadata,
+} from "../schemas/NexusPHP.ts";
 
 // OpenCD 中的部分选择器和处理方法被其他站公用
 export const selectorSearchProgress: IElementQuery = {
@@ -30,6 +35,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "opencd",
   name: "OpenCD",
+  aka: ["皇后"],
   description: "皇后，专一的音乐类PT站，是目前国内最大的无损音乐PT",
   tags: ["音乐"],
 
@@ -237,8 +243,50 @@ export const siteMetadata: ISiteMetadata = {
       status: selectorSearchStatus,
       tags: [
         ...SchemaMetadata.search!.selectors!.tags!,
+        { name: "H&R", selector: "*", color: "red" },
         { selector: "img[src*='pic/share_rule_1.gif']", name: "Excl.", color: "deep-orange-darken-1" }, // 禁转
       ],
+    },
+  },
+
+  detail: {
+    // 该站详情页为 /plugin_details.php?id=数字
+    urlPattern: ["/plugin_details.php"],
+
+    selectors: {
+      id: {
+        selector: ":self",
+        elementProcess: (element: Document) => {
+          // 从 URL 中获取 ID，例如 /plugin_details.php?id=179082
+          const url = element.URL;
+          const idMatch = url.match(/id=(\d+)/);
+          if (idMatch && idMatch.length >= 2) {
+            return idMatch[1];
+          }
+          return undefined;
+        },
+      },
+      title: {
+        // 音乐站title不适合作为搜索词
+        selector: 'td.rowtitle:contains("專輯名稱：") + td',
+        attr: "title",
+      },
+      link: {
+        selector: ['a[href*="download.php?id="][href*="&passkey="]'],
+        attr: "href",
+      },
+    },
+  },
+
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      hnrUnsatisfied: {
+        text: 0,
+        selector: ["td.rowfollow > a[href*='torrents.php?option-torrents=8']"],
+        filters: [{ name: "parseNumber" }],
+      },
     },
   },
 
@@ -315,10 +363,25 @@ export const siteMetadata: ISiteMetadata = {
       alternative: [{ downloaded: "3TB" }, { uploads: 600 }],
       privilege: "得到十个邀请名额。",
     },
-    {
-      id: 100,
-      name: "貴賓(VIP)",
-      groupType: "vip",
-    },
+    { id: 100, name: "貴賓(VIP)", groupType: "vip" },
+    { id: 101, name: "養老族", groupType: "vip" },
+    { id: 201, name: "保種員", groupType: "manager" },
+    { id: 202, name: "發布員", groupType: "manager" },
+    { id: 203, name: "工作人員", groupType: "manager" },
+    { id: 204, name: "管理员", groupType: "manager" },
+    { id: 205, name: "論壇版主", groupType: "manager" },
+    { id: 206, name: "總版主", groupType: "manager" },
+    { id: 207, name: "維護開发員", groupType: "manager" },
   ],
 };
+
+export default class OpenCD extends NexusPHP {
+  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    // 对 OpenCD 站点，种子详情页为 /plugin_details.php?id=123 的形式
+    if (torrent.link && torrent.link.includes("/plugin_details.php")) {
+      return torrent.link.replace(/plugin_details\.php\?id=(\d+)/, "download.php?id=$1").replace(/&hit=1/, ""); // hit=1 是为了统计下载次数
+    }
+
+    return super.getTorrentDownloadLink(torrent);
+  }
+}

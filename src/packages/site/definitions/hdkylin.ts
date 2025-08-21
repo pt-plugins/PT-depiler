@@ -8,6 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "hdkylin",
   name: "HDKylin",
+  aka: ["麒麟"],
   description: "与志同道合之人前行 分享更多值得珍藏的资源",
   tags: ["综合", "电影", "电视剧", "纪录片"],
   type: "private",

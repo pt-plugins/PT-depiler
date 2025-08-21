@@ -1,3 +1,4 @@
+import type { TSiteID } from "@ptd/site";
 import type { IFetchSocialSiteInformationConfig } from "@ptd/social";
 
 import type { TLangCode } from "@/options/plugins/i18n.ts";
@@ -5,7 +6,7 @@ import type { ITimelineUserInfoField } from "@/options/views/Overview/MyData/Use
 
 export const supportTheme = ["auto", "light", "dark"] as const;
 export type supportThemeType = (typeof supportTheme)[number];
-type UiTableBehaviorKey = "SetSite" | "SearchEntity" | "MyData" | string;
+type UiTableBehaviorKey = "SetSite" | "SearchEntity" | "MyData" | "DownloadHistory" | string;
 interface UiTableBehaviorItem<T = string> {
   itemsPerPage?: number;
   columns?: T[];
@@ -27,6 +28,7 @@ export interface IConfigPiniaStorageSchema {
   ignoreWrongPixelRatio: boolean;
 
   saveTableBehavior: boolean;
+  enableTableMultiSort: boolean; // 是否启用表格多列排序
 
   // 用于存储 v-data-table 表格的展示
   tableBehavior: Record<UiTableBehaviorKey, UiTableBehaviorItem>;
@@ -41,17 +43,21 @@ export interface IConfigPiniaStorageSchema {
 
   contentScript: {
     enabled: boolean; // 是否启用 contentScript
-    position: { x: number; y: number }; // 图标位置
+    enabledAtSocialSite: boolean; // 是否允许在社交站点  contentScript 中使用
+    allowExceptionSites: boolean; // 是否允许在 contentScript 中排除站点（即站点不显示侧边栏）
+
+    position: { x: number; y: number }; // 图标位置（运行时配置，用户不可以直接编辑）
+
+    applyTheme: boolean; // 是否响应主题样式
     defaultOpenSpeedDial: boolean; // 是否默认打开按钮
     stackedButtons: boolean; // 是否使用堆叠按钮
-    applyTheme: boolean; // 是否响应主题样式
-    allowExceptionSites: boolean; // 是否允许在 contentScript 中排除站点（即站点不显示侧边栏）
+    dragLinkOnSpeedDial: boolean; // 是否允许拖拽链接到 SpeedDial 上
+
+    socialSiteSearchBy: "id" | "title" | "imdb" | "chosen"; // 社交站点搜索方式，id: 使用 id 进行搜索，title: 使用主标题进行搜索，IMDb: 使用 IMDb 编号进行搜索，chosen: 使用用户选择的方式进行搜索
   };
 
   // 对 MyData 页面 v-data-table 展示的额外控制项
   myDataTableControl: {
-    // 表格字体大小控制 (百分比: 75-100)
-    tableFontSize: number;
     // 是否展示站点名称
     showSiteName: boolean;
     // 是否展示未读信息情况
@@ -93,6 +99,10 @@ export interface IConfigPiniaStorageSchema {
 
     // 是否使用 time_alive(过去时间) 来展示，如果不使用，则使用 time_added(发生时间) 来展示，默认不使用
     updateAtFormatAsAlive: boolean;
+    // 是否将 interval 显示为日期格式而不是持续时间格式
+    showIntervalAsDate: boolean;
+    // 是否简化数字显示（将大数字转换为带单位的简化形式）
+    simplifyBonusNumbers: boolean;
   };
 
   userDataTimelineControl: {
@@ -103,17 +113,19 @@ export interface IConfigPiniaStorageSchema {
     showPerSiteField: Record<"siteName" | "name" | "level" | "uid", boolean>; // 需要展示的站点数据
     dateFormat: "time_added" /*     yyyy-MM-dd */ | "time_alive" /* 过去时间 xxx ago */;
     faviconBlue: number;
+    selectedSites: TSiteID[]; // 需要展示的站点
   };
 
   userStatisticControl: {
     showChart: Record<
       | "totalSiteBase"
       | "totalSiteSeeding"
-      | `perSiteK${"uploaded" | "downloaded" | "seeding" | "seedingSize" | "bonus"}`
-      | `perSiteK${"uploaded" | "downloaded" | "seeding" | "seedingSize" | "bonus"}Incr`,
+      | `perSiteK${"uploaded" | "downloaded" | "seeding" | "seedingSize" | "bonus"}${"" | "Incr"}`,
       boolean
     >;
     dateRange: number | "custom" | "all";
+    hidePerSitePrecentThreshold: number; // 0-100，百分比，隐藏掉低于该百分比的站点（不会隐藏当前指向的站点）
+    selectedSites: TSiteID[]; // 需要展示的站点
   };
 
   /**
@@ -174,6 +186,10 @@ export interface IConfigPiniaStorageSchema {
     saveLastFilter: boolean;
     // 搜索时的最大并发数
     queueConcurrency: number;
+    // 是否将 tt\d{7,8} 的搜索词视为 IMDb 搜索
+    treatTTQueryAsImdbSearch: boolean;
+    // 是否允许单站点搜索
+    allowSingleSiteSearch: boolean;
   };
 
   // 配置同样在 searchEntity 页面（偷懒下）
@@ -197,4 +213,10 @@ export interface IConfigPiniaStorageSchema {
   };
 
   socialSiteInformation: IFetchSocialSiteInformationConfig;
+
+  autoExtendCookies: {
+    enabled: boolean; // 功能开关，默认 false
+    triggerThreshold: number; // 触发阈值（周），默认 2
+    extensionDuration: number; // 延长时长（月），默认 3
+  };
 }

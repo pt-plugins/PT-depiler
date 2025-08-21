@@ -13,28 +13,39 @@ import { get, set } from "es-toolkit/compat";
 
 import { sendMessage } from "@/messages.ts";
 import { setupReplaceUnsafeHeader } from "~/extends/axios/replaceUnsafeHeader.ts";
+import { setupRetryWhenCloudflareBlock } from "~/extends/axios/retryWhenCloudflareBlock.ts";
+
+export { isCloudflareBlocked } from "~/extends/axios/retryWhenCloudflareBlock.ts";
+
+import type { ISiteUserConfig } from "../types";
 import type { IExtensionStorageSchema } from "@/storage.ts";
 import type { IMetadataPiniaStorageSchema } from "@/shared/types/storages/metadata.ts";
 
 // 默认允许 pkg/site 中的 axios 请求替换 unsafeHeader
-export const axios = setupReplaceUnsafeHeader(axiosRaw.create());
+export const axios = setupRetryWhenCloudflareBlock(setupReplaceUnsafeHeader(axiosRaw));
 
 /**
  * 存储数据到 metadata.site[siteId].runtimeSettings[key] 中，
  * 这样对应站点实例可以使用 this.userConfig?.runtimeSettings?.[key] 或者 this.retrieveRuntimeSettings(key) 来获取
- * @param siteId
- * @param key
- * @param value
  */
-export async function store(siteId: string, key: string, value: any): Promise<void> {
+export async function store(
+  siteId: string,
+  key: string,
+  value: any,
+  field: keyof ISiteUserConfig = "runtimeSettings",
+): Promise<void> {
   const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
-  set(metadataStore, `sites.${siteId}.runtimeSettings.${key}`, value);
+  set(metadataStore, `sites.${siteId}.${field}.${key}`, value);
   await sendMessage("setExtStorage", { key: "metadata", value: metadataStore });
 }
 
-export async function retrieve<T extends any>(siteId: string, key: string): Promise<T | null> {
+export async function retrieve<T extends any>(
+  siteId: string,
+  key: string,
+  field: keyof ISiteUserConfig = "runtimeSettings",
+): Promise<T | null> {
   const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
-  return get(metadataStore, `sites.${siteId}.runtimeSettings.${key}`, null) as T | null;
+  return get(metadataStore, `sites.${siteId}.${field}.${key}`, null) as T | null;
 }
 
 export async function retrieveStore(store: keyof IExtensionStorageSchema, keyPath: string): Promise<any> {
@@ -47,4 +58,8 @@ export async function retrieveStore(store: keyof IExtensionStorageSchema, keyPat
  */
 export async function cookie(detail: chrome.cookies.CookieDetails): Promise<chrome.cookies.Cookie | null> {
   return await sendMessage("getCookie", detail);
+}
+
+export function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }

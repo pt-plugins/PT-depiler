@@ -9,6 +9,8 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 import { REPO_URL } from "~/helper";
+import SiteFavicon from "@/options/components/SiteFavicon.vue";
+import SiteName from "@/options/components/SiteName.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -22,6 +24,7 @@ const runtimeStore = useRuntimeStore();
 const appendMenu = computed<Array<{ title: string; icon: string; [str: string]: any }>>(() => [
   { title: t("layout.header.home"), icon: "mdi-home", href: REPO_URL },
   { title: t("layout.header.wiki"), icon: "mdi-help-circle", href: `${REPO_URL}/wiki` },
+  { title: "Ask AI", icon: "mdi-chat-question", href: `https://deepwiki.com/pt-plugins/PT-depiler` },
 ]);
 
 const searchKey = ref((route.query?.search as string) ?? "");
@@ -46,11 +49,6 @@ function startSearchEntity() {
       flush: 1,
     },
   });
-}
-
-function advanceSearch(type?: string) {
-  searchKey.value = (type ? type + "|" : "") + searchKey.value.replace(/^\w+\|/, ""); // 移除已有的搜索类型前缀
-  startSearchEntity();
 }
 </script>
 
@@ -81,23 +79,16 @@ function advanceSearch(type?: string) {
       v-model="searchKey"
       :placeholder="t('layout.header.searchTip')"
       class="ptd-search-input pl-2"
+      clearable
+      enterkeyhint="search"
       hide-details
-      :items="searchKey ? [searchKey] : undefined"
       style="width: 300px"
-      @keydown.enter="startSearchEntity"
+      type="search"
+      @keyup.enter="startSearchEntity"
     >
       <template #append>
         <!-- 搜索按键 -->
         <v-btn :disabled="runtimeStore.search.isSearching" icon="mdi-magnify" @click="startSearchEntity" />
-      </template>
-
-      <template #item="{ props, item }">
-        <v-list-item v-if="searchKey" @click="startSearchEntity" :title="`直接搜索 ”${searchKey}“`" />
-        <v-list-item
-          v-if="searchKey?.startsWith('tt')"
-          @click="advanceSearch('imdb')"
-          :title="`使用IMDb号搜索 ”${searchKey}“`"
-        />
       </template>
 
       <template #prepend-inner>
@@ -113,6 +104,7 @@ function advanceSearch(type?: string) {
             </v-btn>
           </template>
           <v-list>
+            <!-- 默认搜索方案 -->
             <v-list-item
               :subtitle="
                 '<' +
@@ -123,8 +115,55 @@ function advanceSearch(type?: string) {
               "
               :title="t('layout.header.searchPlan.default')"
               @click="() => (searchPlanKey = 'default')"
-            ></v-list-item>
+            />
+
+            <!-- 全部站点搜索方案（仅当默认搜索不是全部站点时出现） -->
+            <template v-if="metadataStore.defaultSolutionId !== 'default'">
+              <v-list-item
+                :title="t('layout.header.searchPlan.all')"
+                @click="() => (searchPlanKey = 'all')"
+              ></v-list-item>
+            </template>
+
+            <!-- 单个站点搜索方案 -->
+            <v-list-item
+              v-if="configStore.searchEntity.allowSingleSiteSearch"
+              :title="t('layout.header.searchPlan.singleSite')"
+            >
+              <template v-slot:append>
+                <v-icon icon="mdi-menu-right" size="x-small"></v-icon>
+              </template>
+
+              <v-menu
+                :open-on-focus="false"
+                open-on-hover
+                :open-on-click="display.mobile.value"
+                activator="parent"
+                submenu
+              >
+                <v-list>
+                  <template v-for="siteMetadata in metadataStore.getSortedAddedSites" :key="siteMetadata.id">
+                    <v-list-item
+                      v-if="siteMetadata.allowSearch ?? false"
+                      @click="() => (searchPlanKey = `site:${siteMetadata.id}`)"
+                    >
+                      <template #prepend>
+                        <SiteFavicon :site-id="siteMetadata.id" />
+                      </template>
+                      <SiteName
+                        :class="['v-list-item-title', 'text-black', 'ml-2']"
+                        :site-id="siteMetadata.id"
+                        tag="span"
+                      />
+                    </v-list-item>
+                  </template>
+                </v-list>
+              </v-menu>
+            </v-list-item>
+
             <v-divider />
+
+            <!-- 用户自定义的搜索方案列表 -->
             <v-list-item
               v-for="(item, index) in searchPlans"
               :key="index"
@@ -133,13 +172,6 @@ function advanceSearch(type?: string) {
             >
               <v-list-item-title>{{ metadataStore.getSearchSolutionName(item.id) }}</v-list-item-title>
             </v-list-item>
-            <template v-if="metadataStore.defaultSolutionId !== 'default'">
-              <v-divider />
-              <v-list-item
-                :title="t('layout.header.searchPlan.all')"
-                @click="() => (searchPlanKey = 'all')"
-              ></v-list-item>
-            </template>
           </v-list>
         </v-menu>
       </template>
@@ -148,8 +180,8 @@ function advanceSearch(type?: string) {
     <v-spacer v-if="display.smAndUp.value" />
 
     <template #append>
-      <!-- 处于大屏幕，完整显示所有btn -->
       <template v-if="!display.mdAndDown.value">
+        <!-- 处于大屏幕，完整显示所有btn -->
         <v-btn
           v-for="(append, index) in appendMenu"
           :key="index"
@@ -166,8 +198,8 @@ function advanceSearch(type?: string) {
         </v-btn>
       </template>
 
-      <!-- 处于小屏幕，只显示点，btn以menu列表形式展示 -->
       <template v-else>
+        <!-- 处于小屏幕，只显示点，btn以menu列表形式展示 -->
         <v-menu bottom left offset-y>
           <template #activator="{ props }">
             <v-btn v-bind="props" icon="mdi-dots-vertical" variant="text" />

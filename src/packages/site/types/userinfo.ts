@@ -64,6 +64,7 @@ export const MinNonUserLevelId = 100; // 最大等级ID
 export interface ILevelRequirement extends IImplicitUserInfo {
   id: TLevelId; // 等级序列，应该是一个递增的序列，不可重复，应当小于 MaxUserLevelId - 1
   name: TLevelName; // 需要与 IUserInfo中对应的 levelName 相同
+  nameAka?: TLevelName[]; // 该等级的别名，通常用在i18n环境中，name 和 nameAka[*] 的值会同步用来 判断 LevelId
   groupType?: TLevelGroupType; // 等级组别，不指定的话，默认为 user
   privilege?: string; // 获得的特权说明
 

@@ -1,27 +1,36 @@
-import type { IFetchSocialSiteInformationConfig, ISocialInformation } from "../types";
 import axios from "axios";
 import Sizzle from "sizzle";
 import { uniq } from "es-toolkit";
+
+import { commonParseFactory } from "../utils";
+import {
+  IFetchSocialSiteInformationConfig,
+  ISocialInformation,
+  ISocialSitePageInformation,
+  TSupportSocialSitePageParserMatches,
+} from "../types";
+
+const anidbUrlPattern = /(?:https?:\/\/)?(?:www\.)?anidb\.net\/(?:a|anime\/)(\d+)/;
 
 export function build(id: string): string {
   return `https://anidb.net/anime/${id}`;
 }
 
-const anidbRegexList = [
-  /(?:https?:\/\/)?(?:www\.)?anidb\.net\/anime\/(\d+)/,
-  /(?:https?:\/\/)?(?:www\.)?anidb\.net\/a(\d+)/,
-];
+export const parse = commonParseFactory([anidbUrlPattern]);
 
-export function parse(query: string): string {
-  for (const regExp of anidbRegexList) {
-    const match = query.match(regExp);
-    if (match) {
-      return match[1] as string;
-    }
-  }
-
-  return query;
+function pageParser$1(doc: Document): ISocialSitePageInformation {
+  return {
+    site: "anidb",
+    id: parse(doc.URL),
+    titles: uniq(
+      Sizzle("div.titles span[itemprop], label[itemprop]", doc)
+        .map((x) => x.textContent)
+        .filter(Boolean),
+    ) as string[],
+  };
 }
+
+export const pageParserMatches: TSupportSocialSitePageParserMatches = [[anidbUrlPattern, pageParser$1]];
 
 export async function fetchInformation(
   id: string,
@@ -71,11 +80,8 @@ export async function fetchInformation(
       }
     } else {
       const htmlReq = await axios.get(build(realId), { timeout: config.timeout ?? 10e3, responseType: "document" });
-      resDict.title = uniq(
-        Sizzle("div.titles span[itemprop], label[itemprop]", htmlReq.data)
-          .map((x) => x.textContent)
-          .filter(Boolean),
-      ).join(" / ");
+
+      resDict.title = pageParser$1(htmlReq.data).titles.join(" / ");
       resDict.poster = Sizzle("meta[property='og:image'][content]", htmlReq.data)?.[0]?.getAttribute("content") ?? "";
       resDict.ratingScore = parseFloat(Sizzle('span[itemprop="ratingValue"]', htmlReq.data)?.[0]?.textContent ?? "0");
       resDict.ratingCount = parseInt(

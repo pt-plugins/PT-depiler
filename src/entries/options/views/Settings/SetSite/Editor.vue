@@ -99,12 +99,13 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
         <v-label class="my-2">基本信息</v-label>
         <v-row>
           <v-col cols="12" md="4">
-            <v-text-field
+            <v-combobox
               v-model="siteName"
+              :items="[siteMetaData.name, ...(siteMetaData.aka ?? [])]"
               :label="t('SetSite.common.name')"
               :rules="[formValidateRules.require()]"
               hide-details
-            ></v-text-field>
+            ></v-combobox>
           </v-col>
           <v-col cols="12" md="4">
             <v-text-field v-model="siteMetaData.schema" :label="t('SetSite.common.type')" disabled hide-details />
@@ -175,9 +176,9 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
 
         <v-divider />
 
-        <v-label class="my-2">站点设置</v-label>
-
         <template v-if="siteMetaData.userInputSettingMeta && siteUserConfig.inputSetting">
+          <v-label class="my-2">站点设置</v-label>
+
           <v-text-field
             v-for="userInputMeta in siteMetaData.userInputSettingMeta"
             :key="userInputMeta.name"
@@ -190,7 +191,27 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
             validate-on="input"
           >
           </v-text-field>
+
+          <v-divider />
         </template>
+
+        <v-label class="my-2">其他设置</v-label>
+
+        <v-text-field
+          v-model="siteUserConfig.downloadLinkAppendix"
+          :label="`下载链接后缀`"
+          :hint="`该字段会被自动添加到该站点的下载链接后`"
+        >
+          <template #append>
+            <v-tooltip max-width="400" location="top">
+              <template #activator="{ props }">
+                <v-icon v-bind="props" class="mr-4" icon="mdi-information" color="info" />
+              </template>
+              如插件获得的链接为 https://example.com/download.php?id=1，此处设置为 &passkey=xxxx， 则最终下载链接为
+              https://example.com/download.php?id=1&passkey=xxxx
+            </v-tooltip>
+          </template>
+        </v-text-field>
 
         <v-slider
           v-model="siteUserConfig.timeout"

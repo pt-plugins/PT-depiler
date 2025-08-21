@@ -1,4 +1,5 @@
 // Error classes
+export class CFBlockedError extends Error {}
 export class NeedLoginError extends Error {}
 export class NoTorrentsError extends Error {}
 
@@ -19,6 +20,9 @@ export type TSiteFullUrl = `${"http" | "https"}://${TSiteHost}/`;
 export type TSiteFullUrlProtect = `${"uggc" | "uggcf"}://${TSiteHost}/`;
 export type TSiteUrl = TSiteFullUrl | TSiteFullUrlProtect;
 
+export type TUrlPattern = string | RegExp;
+export type TUrlPatterns = TUrlPattern[];
+
 /**
  * 解析状态
  */
@@ -29,6 +33,7 @@ export enum EResultParseStatus {
   success, // 搜索成功
   parseError, // 解析错误
   passParse, // 跳过解析
+  CFBlocked, // Cloudflare 封锁
   needLogin, // 需要登录
   noResults, // 等同于原先的 noTorrents 和 torrentTableIsEmpty ，这两个在结果上没有区别
 }

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { onMounted, ref, shallowRef } from "vue";
+import { onMounted, ref, shallowRef, computed } from "vue";
+import { useDisplay } from "vuetify";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 import { sendMessage } from "@/messages.ts";
 import { formatDate } from "@/options/utils.ts";
+import { useConfigStore } from "@/options/stores/config.ts";
 import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/types.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
@@ -25,17 +27,29 @@ import {
 } from "./utils.ts"; // <-- 主要方法
 
 const { t } = useI18n();
+const configStore = useConfigStore();
+const display = useDisplay();
+
 const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
 
-const tableHeader = [
-  { title: "№", key: "id", align: "center", width: 50 },
-  { title: t("DownloadHistory.table.site"), key: "siteId", align: "center", width: 90 },
-  { title: t("DownloadHistory.table.title"), key: "title", align: "start", minWidth: 600, maxWidth: "32vw" },
-  { title: t("DownloadHistory.table.downloader"), key: "downloaderId", minWidth: 200, align: "start" },
-  { title: t("DownloadHistory.table.downloadAt"), key: "downloadAt", align: "center" },
-  { title: t("DownloadHistory.table.status"), key: "downloadStatus" },
-  { title: t("common.action"), key: "action", align: "center", width: 90, minWidth: 90, sortable: false },
-] as DataTableHeader[];
+const tableHeader = computed(
+  () =>
+    [
+      { title: "№", key: "id", align: "center" },
+      { title: t("DownloadHistory.table.site"), key: "siteId", align: "center" },
+      {
+        title: t("DownloadHistory.table.title"),
+        key: "title",
+        align: "start",
+        width: "50%",
+        ...(display.smAndDown.value ? { minWidth: 600, maxWidth: "32vw" } : {}),
+      },
+      { title: t("DownloadHistory.table.downloader"), key: "downloaderId", width: "11%", align: "start" },
+      { title: t("DownloadHistory.table.downloadAt"), key: "downloadAt", align: "center" },
+      { title: t("DownloadHistory.table.status"), key: "downloadStatus" },
+      { title: t("common.action"), key: "action", align: "center", sortable: false },
+    ] as DataTableHeader[],
+);
 const tableSelected = ref<TTorrentDownloadKey[]>([]);
 
 const showAdvanceFilterDialog = ref<boolean>(false);
@@ -121,20 +135,22 @@ onMounted(() => {
       </v-row>
     </v-card-title>
     <v-card-text>
-      <v-data-table-virtual
+      <v-data-table
         v-model="tableSelected"
         :custom-filter="tableFilterFn"
         :filter-keys="['id'] /* 对每个item值只检索一次 */"
         :headers="tableHeader"
-        :height="'calc(100vh - 250px)'"
         :items="downloadHistoryList"
+        :items-per-page="configStore.tableBehavior.DownloadHistory.itemsPerPage"
+        :multi-sort="configStore.enableTableMultiSort"
         :search="tableFilterRef"
-        :sort-by="[{ key: 'id', order: 'desc' }]"
+        :sort-by="configStore.tableBehavior.DownloadHistory.sortBy"
         class="table-stripe table-header-no-wrap"
-        fixed-header
         hover
         item-value="id"
         show-select
+        @update:itemsPerPage="(v) => configStore.updateTableBehavior('DownloadHistory', 'itemsPerPage', v)"
+        @update:sortBy="(v) => configStore.updateTableBehavior('DownloadHistory', 'sortBy', v)"
       >
         <template #item.siteId="{ item }">
           <div class="d-flex flex-column align-center">
@@ -182,7 +198,7 @@ onMounted(() => {
             />
           </v-btn-group>
         </template>
-      </v-data-table-virtual>
+      </v-data-table>
     </v-card-text>
   </v-card>
 

@@ -3,5 +3,4 @@
  */
 
 /*noinspection CssUnknownTarget*/
-@import "@/shared/common.css";
-
+@import "../../shared/common.scss";

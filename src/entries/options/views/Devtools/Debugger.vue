@@ -20,8 +20,9 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import { sendMessage } from "@/messages.ts";
 
 import { setupReplaceUnsafeHeader } from "~/extends/axios/replaceUnsafeHeader.ts";
+import { setupRetryWhenCloudflareBlock } from "~/extends/axios/retryWhenCloudflareBlock.ts";
 
-setupReplaceUnsafeHeader(axios);
+setupRetryWhenCloudflareBlock(setupReplaceUnsafeHeader(axios));
 
 function enableLibrary() {
   (window as any).axios = axios;

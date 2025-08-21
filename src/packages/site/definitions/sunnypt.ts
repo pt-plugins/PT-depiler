@@ -105,7 +105,6 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 1,
       name: "User",
-      enName: "User",
       privilege: "新用户的默认级别。只能在每周六中午12点至每周日晚上11点59分发布种子。",
     },
     {

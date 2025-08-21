@@ -39,7 +39,7 @@ defineExpose({
 
 <template>
   <v-row>
-    <v-col md="6">
+    <v-col md="10" lg="8">
       <!-- 插件语言设置 -->
       <v-select v-model="configStore.lang" :label="t('SetBase.ui.changeLanguage')" :items="definedLangMetaData" />
 
@@ -60,11 +60,29 @@ defineExpose({
         hide-details
         label="记忆部分表格的 表头列展示、排序、分页 等信息"
       />
+
+      <v-switch
+        v-model="configStore.enableTableMultiSort"
+        color="success"
+        hide-details
+        label="启用部分表格的多列排序功能"
+      >
+        <template #append>
+          <v-tooltip max-width="400" location="bottom">
+            <template v-slot:activator="{ props }">
+              <v-icon color="info" icon="mdi-help-circle" v-bind="props" />
+            </template>
+            {{ t("SetBase.ui.tableMultiSortNote") }}
+          </v-tooltip>
+        </template>
+      </v-switch>
+
+      <v-divider />
     </v-col>
   </v-row>
 
   <v-row>
-    <v-col md="6">
+    <v-col md="10" lg="8">
       <div class="d-flex align-center">
         <v-label>内容脚本（站点侧边栏等）</v-label>
         <v-spacer />
@@ -72,16 +90,11 @@ defineExpose({
       </div>
 
       <template v-if="configStore.contentScript.enabled">
-        <v-alert type="warning" variant="tonal">
-          1. 目前内容脚本功能还在早期测试阶段，请在
-          <a href="https://github.com/pt-plugins/PT-depiler/issues/96" target="_blank">issue#96</a>
-          中查看进度，并通过创建 sub-issue 反馈问题。<br />
-          2. 启用或禁用相关功能后需要保存设置，并刷新站点页面才能生效。
-        </v-alert>
+        <v-alert type="warning" variant="tonal"> 启用或禁用相关功能后需要保存设置，并刷新站点页面才能生效。 </v-alert>
 
         <v-row dense>
-          <v-col cols="2" class="d-flex align-center justify-center">
-            <v-label>侧边栏基本</v-label>
+          <v-col cols="12" md="2" class="d-flex align-center justify-center">
+            <v-label>基本设置</v-label>
           </v-col>
           <v-col>
             <v-switch
@@ -90,6 +103,30 @@ defineExpose({
               hide-details
               label="允许设置不启用侧边栏的例外站点（启用后需在站点设置中对应关闭）"
             />
+
+            <v-switch
+              v-model="configStore.contentScript.enabledAtSocialSite"
+              color="success"
+              hide-details
+              label="在社交站点（如豆瓣、IMDb）启用侧边栏"
+            />
+
+            <v-divider />
+          </v-col>
+        </v-row>
+
+        <v-row dense>
+          <v-col cols="12" md="2" class="d-flex align-center justify-center">
+            <v-label>侧边栏样式</v-label>
+          </v-col>
+          <v-col>
+            <v-switch
+              v-model="configStore.contentScript.applyTheme"
+              color="success"
+              hide-details
+              :label="`响应插件设置中的 ` + t('SetBase.ui.displayMode.index')"
+            />
+
             <v-switch
               v-model="configStore.contentScript.defaultOpenSpeedDial"
               color="success"
@@ -102,20 +139,49 @@ defineExpose({
               hide-details
               label="使用大图标按键"
             />
+            <v-divider />
+          </v-col>
+        </v-row>
+
+        <v-row dense>
+          <v-col cols="12" md="2" class="d-flex align-center justify-center">
+            <v-label>侧边栏功能</v-label>
+          </v-col>
+          <v-col>
             <v-switch
-              v-model="configStore.contentScript.applyTheme"
+              v-model="configStore.contentScript.dragLinkOnSpeedDial"
               color="success"
               hide-details
-              :label="`响应插件设置中的 ` + t('SetBase.ui.displayMode.index')"
+              label="允许拖拽链接到侧边栏按钮"
+            >
+              <template #append>
+                <v-tooltip max-width="400" location="bottom">
+                  <template v-slot:activator="{ props }">
+                    <v-icon color="info" icon="mdi-help-circle" v-bind="props" />
+                  </template>
+                  拖拽时的下载链接不一定能被正确识别！
+                </v-tooltip>
+              </template>
+            </v-switch>
+
+            <v-select
+              v-model="configStore.contentScript.socialSiteSearchBy"
+              :disabled="!configStore.contentScript.enabledAtSocialSite"
+              :items="['id', 'title', 'imdb', 'chosen']"
+              :item-title="(item) => t('SetBase.ui.socialSiteSearchBy.' + item)"
+              :item-value="(item) => item"
+              label="社交站点搜索方式"
             />
           </v-col>
         </v-row>
       </template>
+
+      <v-divider />
     </v-col>
   </v-row>
 
   <v-row>
-    <v-col md="6">
+    <v-col md="10" lg="8">
       <v-label>右键菜单</v-label>
       <v-switch
         v-model="configStore.contextMenus.allowSelectionTextSearch"

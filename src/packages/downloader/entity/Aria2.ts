@@ -12,6 +12,7 @@ import {
   CTorrentState,
   TorrentClientStatus,
   AbstractBittorrentClient,
+  CAddTorrentResult,
 } from "../types";
 import { getRemoteTorrentFile } from "../utils";
 import urlJoin from "url-join";
@@ -225,10 +226,10 @@ export default class Aria2 extends AbstractBittorrentClient {
     };
   }
 
-  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
-    const addOption: any = {
-      pause: options.addAtPaused ?? false,
-    };
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<CAddTorrentResult> {
+    const addResult = { success: false } as CAddTorrentResult;
+
+    const addOption: any = { pause: options.addAtPaused ?? false };
 
     if (options.savePath) {
       addOption.dir = options.savePath;
@@ -267,10 +268,10 @@ export default class Aria2 extends AbstractBittorrentClient {
         } catch (e) {}
       }
 
-      return true;
-    } catch (e) {
-      return false;
-    }
+      addResult.success = true;
+    } catch (e) {}
+
+    return addResult;
   }
 
   async getAllTorrents(): Promise<CTorrent<rawTask>[]> {

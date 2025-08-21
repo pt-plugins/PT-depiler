@@ -7,6 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "hdtime",
   name: "HDTime",
+  aka: ["时间"],
   description: "HDTime, time to forever!",
   tags: ["影视", "综合"],
 

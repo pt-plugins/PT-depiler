@@ -95,5 +95,5 @@ export function mountApp(document: Document, data: any = {}) {
     }
   }
 
-  return { contentRoot, shadowRoot, appMountElement, app: app };
+  return { contentRoot, shadowRoot, appMountElement, app };
 }

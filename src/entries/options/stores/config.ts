@@ -2,20 +2,46 @@
  * 所有和 ui 相关的选项均在本 store 管理
  */
 import { defineStore } from "pinia";
+import { has, unset } from "es-toolkit/compat";
 import { usePreferredDark } from "@vueuse/core";
 
 import type { IConfigPiniaStorageSchema, supportThemeType } from "@/shared/types.ts";
 
 import { useMetadataStore } from "./metadata.ts";
 
+const deprecatedConfigKeys = [
+  "myDataTableControl.tableFontSize", // v0.0.4.961 废弃
+  "myDataTableControl.joinTimeWeekOnly", // 已废弃，使用 joinTimeFormat 替代
+];
+
 export const useConfigStore = defineStore("config", {
-  persistWebExt: true,
+  persistWebExt: {
+    afterRestore: (context) => {
+      // 清理已废弃的配置项
+      const state = context.store.$state as any;
+      let needsSave = false;
+
+      // 清理已废弃的配置项
+      for (const key of deprecatedConfigKeys) {
+        if (has(state, key)) {
+          unset(state, key);
+          needsSave = true;
+        }
+      }
+
+      if (needsSave) {
+        context.store.$save();
+      }
+    },
+  },
   state: (): IConfigPiniaStorageSchema => ({
     lang: "zh_CN",
     theme: "light",
     isNavBarOpen: true,
     ignoreWrongPixelRatio: false,
+
     saveTableBehavior: true,
+    enableTableMultiSort: false,
 
     contextMenus: {
       allowSelectionTextSearch: true,
@@ -23,11 +49,17 @@ export const useConfigStore = defineStore("config", {
 
     contentScript: {
       enabled: true,
+      enabledAtSocialSite: true,
+      allowExceptionSites: false,
+
       position: { x: 0, y: 0 },
+
+      applyTheme: false,
       defaultOpenSpeedDial: false,
       stackedButtons: false,
-      applyTheme: false,
-      allowExceptionSites: false,
+      dragLinkOnSpeedDial: true,
+
+      socialSiteSearchBy: "chosen",
     },
 
     tableBehavior: {
@@ -65,6 +97,10 @@ export const useConfigStore = defineStore("config", {
         ],
         sortBy: [{ key: "time", order: "desc" }],
       },
+      DownloadHistory: {
+        itemsPerPage: 10,
+        sortBy: [{ key: "id", order: "desc" }],
+      },
       SearchResultSnapshot: {
         itemsPerPage: 25,
         sortBy: [{ key: "createdAt", order: "desc" }],
@@ -85,7 +121,6 @@ export const useConfigStore = defineStore("config", {
     userName: "",
 
     myDataTableControl: {
-      tableFontSize: 100,
       showSiteName: true,
       showUnreadMessage: true,
       showUserName: true,
@@ -99,6 +134,8 @@ export const useConfigStore = defineStore("config", {
       //joinTimeWeekOnly: false,
       joinTimeFormat: "added",
       updateAtFormatAsAlive: false,
+      showIntervalAsDate: false,
+      simplifyBonusNumbers: false,
     },
 
     userDataTimelineControl: {
@@ -109,11 +146,12 @@ export const useConfigStore = defineStore("config", {
         downloaded: true,
         seeding: true,
         seedingSize: true,
+        bonus: true,
         bonusPerHour: true,
         ratio: true,
       },
       showPerSiteField: {
-        siteName: true,
+        siteName: false,
         name: true,
         level: true,
         uid: true,
@@ -121,7 +159,8 @@ export const useConfigStore = defineStore("config", {
       showTop: true,
       showTimeline: true,
       dateFormat: "time_added",
-      faviconBlue: 0,
+      faviconBlue: 3,
+      selectedSites: [],
     },
 
     userStatisticControl: {
@@ -140,6 +179,8 @@ export const useConfigStore = defineStore("config", {
         perSiteKbonusIncr: true,
       },
       dateRange: 30,
+      hidePerSitePrecentThreshold: 1,
+      selectedSites: [],
     },
 
     searchEntifyControl: {
@@ -152,7 +193,7 @@ export const useConfigStore = defineStore("config", {
     },
 
     userInfo: {
-      queueConcurrency: 1,
+      queueConcurrency: 5,
       autoReflush: {
         enabled: true,
         interval: 3, // hours
@@ -171,16 +212,18 @@ export const useConfigStore = defineStore("config", {
       allowDirectSendToClient: false,
       localDownloadMethod: "browser",
       ignoreSiteDownloadIntervalWhenLocalDownload: true,
-      useQuickSendToClient: false,
+      useQuickSendToClient: true,
     },
 
     searchEntity: {
-      saveLastFilter: false,
-      queueConcurrency: 1,
+      saveLastFilter: true,
+      queueConcurrency: 8,
+      treatTTQueryAsImdbSearch: true,
+      allowSingleSiteSearch: false,
     },
 
     mediaServerEntity: {
-      queueConcurrency: 1,
+      queueConcurrency: 5,
       searchLimit: 50,
       autoSearchWhenMount: true,
       autoSearchMoreWhenScroll: true,
@@ -201,6 +244,12 @@ export const useConfigStore = defineStore("config", {
         douban: {},
         imdb: {},
       },
+    },
+
+    autoExtendCookies: {
+      enabled: false,
+      triggerThreshold: 2,
+      extensionDuration: 3,
     },
   }),
   getters: {

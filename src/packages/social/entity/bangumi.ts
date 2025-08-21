@@ -1,6 +1,14 @@
 import axios from "axios";
 import { uniq } from "es-toolkit";
-import type { IFetchSocialSiteInformationConfig, IPtgenApiResponse, ISocialInformation } from "../types";
+
+import { commonParseFactory } from "../utils";
+import {
+  IFetchSocialSiteInformationConfig,
+  IPtgenApiResponse,
+  ISocialInformation,
+  ISocialSitePageInformation,
+  TSupportSocialSitePageParserMatches,
+} from "../types";
 
 import { REPO_URL } from "~/helper.ts";
 import { setupReplaceUnsafeHeader } from "~/extends/axios/replaceUnsafeHeader.ts";
@@ -8,17 +16,72 @@ import { name as EXT_NAME, version as EXT_VERSION } from "~/../package.json";
 
 setupReplaceUnsafeHeader(axios);
 
+const bgmUrlPattern = /^(?:https?:\/\/)?(?:bgm\.tv|bangumi\.tv|chii\.in)\/subject\/(\d+)\/?/;
+
 export function build(id: string): string {
   return `https://bgm.tv/subject/${id}`;
 }
 
-export function parse(query: string): string {
-  const bgmUrlMatch = query.match(/^(?:https?:\/\/)?(?:bgm\.tv|bangumi\.tv|chii\.in)\/subject\/(\d+)\/?/);
-  if (bgmUrlMatch) {
-    return bgmUrlMatch[1] as string;
-  }
-  return query;
-}
+export const parse = commonParseFactory([bgmUrlPattern]);
+
+export const pageParserMatches: TSupportSocialSitePageParserMatches = [
+  [
+    bgmUrlPattern,
+    (doc: Document) => {
+      const titles = [] as string[];
+
+      const mainTitle = doc.querySelector('h1.nameSingle a[property="v:itemreviewed"]');
+      if (mainTitle) {
+        titles.push(mainTitle.textContent?.trim() ?? "");
+      }
+      const infoBoxs = doc.querySelectorAll("#infobox li:has(> span.tip)");
+      infoBoxs.forEach((item) => {
+        const text = item.textContent?.trim() ?? "";
+        if (text.match(/^(?:别名|中文名|英文名|原名|其他译名):/)) {
+          const title = text.replace(/^(?:别名|中文名|英文名|原名|其他译名):/, "").trim();
+          if (title) {
+            titles.push(title);
+          }
+        }
+      });
+
+      return {
+        site: "bangumi",
+        id: parse(doc.URL),
+        titles,
+      } as ISocialSitePageInformation;
+    },
+  ],
+  [
+    /^(?:https?:\/\/)?(?:bgm\.tv|bangumi\.tv|chii\.in)\/anime\/(browser|list\/.+?\/(wish|collect|do|on_hold|dropped)|tag\/)/,
+    (doc: Document): ISocialSitePageInformation[] => {
+      const parseShortUrl = commonParseFactory([/\/subject\/(\d+)\/?/]);
+
+      const retItems: ISocialSitePageInformation[] = [];
+      const items = doc.querySelectorAll("ul#browserItemList > li.item");
+      for (const item of items) {
+        const another = item.querySelector("h3 > a[href*='/subject/']");
+        if (another) {
+          const id = parseShortUrl(another.getAttribute("href")!);
+          const titles = [another.textContent?.trim() ?? ""];
+
+          const aka_anchor = item.querySelector("small.grey");
+          if (aka_anchor) {
+            titles.push(aka_anchor.textContent?.trim() ?? "");
+          }
+
+          retItems.push({
+            site: "bangumi",
+            id,
+            titles,
+          } as ISocialSitePageInformation);
+        }
+      }
+
+      return retItems;
+    },
+  ],
+];
 
 interface IBangumiPtGen extends IPtgenApiResponse {
   cover: string;

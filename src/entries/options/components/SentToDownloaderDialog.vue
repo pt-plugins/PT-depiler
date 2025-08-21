@@ -83,6 +83,11 @@ async function sendToDownloader() {
   isSending.value = true;
   const promises = [];
 
+  const customReplace = {
+    savePath: undefined,
+    label: undefined,
+  } as Record<string, string | undefined>;
+
   for (const torrent of torrentItems) {
     const realAddTorrentOptions: Partial<CAddTorrentOptions> = { ...addTorrentOptions.value };
 
@@ -106,6 +111,18 @@ async function sendToDownloader() {
           for (const [replaceKey, value] of Object.entries(replaceMap)) {
             // @ts-ignore
             realAddTorrentOptions[key] = (realAddTorrentOptions[key]! as string).replace(`$${replaceKey}$`, value);
+          }
+
+          // 处理自定义输入
+          if ((realAddTorrentOptions[key] as string).includes("<...>")) {
+            // 如果之前已经输入过，则直接使用之前的输入
+            if (customReplace[key] == undefined) {
+              const userInput = prompt(`请输入替换 ${key} 中的 <...> 的内容：`, "");
+              customReplace[key] = userInput ? userInput.trim() : "";
+            }
+
+            // @ts-ignore
+            realAddTorrentOptions[key] = (realAddTorrentOptions[key] as string).replace("<...>", customReplace[key]!);
           }
         }
       }
@@ -218,7 +235,7 @@ function dialogLeave() {
           <!-- 快速下载选项 -->
           <v-container v-if="quickSendToClient" class="pa-0">
             <v-list v-if="metadataStore.getEnabledDownloaders.length > 0">
-              <template v-for="downloader in metadataStore.getEnabledDownloaders" :key="downloader.id">
+              <template v-for="downloader in metadataStore.getSortedEnabledDownloaders" :key="downloader.id">
                 <v-list-item
                   v-for="path in ['', ...(downloader.suggestFolders ?? [])]"
                   :key="path"
@@ -249,7 +266,7 @@ function dialogLeave() {
               <v-autocomplete
                 v-model="selectedDownloader"
                 :filter-keys="['raw.name', 'raw.address', 'raw.username']"
-                :items="metadataStore.getEnabledDownloaders"
+                :items="metadataStore.getSortedEnabledDownloaders"
                 clearable
                 placeholder="选择下载器"
                 @update:model-value="restoreAddTorrentOptions"

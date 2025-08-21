@@ -18,7 +18,7 @@ async function clearLastDownloader(v: boolean) {
 
 <template>
   <v-row>
-    <v-col md="6">
+    <v-col md="10" lg="8">
       <v-switch
         v-model="configStore.download.saveDownloadHistory"
         color="success"
@@ -30,18 +30,18 @@ async function clearLastDownloader(v: boolean) {
   </v-row>
 
   <v-row>
-    <v-col md="6">
+    <v-col md="10" lg="8">
       <v-label>{{ t("SetBase.download.localDownloadTitle") }}</v-label>
       <v-select
         v-model="configStore.download.localDownloadMethod"
         :label="t('SetBase.download.localDownloadMethod')"
         :items="
           LocalDownloadMethod.map((item) => ({
-            title: t(`SetBase.download.localDownloadMethod.${item}`),
+            title: t(`SetBase.download.localDownloadMethodOptions.${item}`),
             value: item,
           }))
         "
-        :hint="t(`SetBase.download.localDownloadMethod.${configStore.download.localDownloadMethod}Tip`)"
+        :hint="t(`SetBase.download.localDownloadMethodOptions.${configStore.download.localDownloadMethod}Tip`)"
         persistent-hint
       />
       <v-switch
@@ -54,7 +54,7 @@ async function clearLastDownloader(v: boolean) {
   </v-row>
 
   <v-row>
-    <v-col md="6">
+    <v-col md="10" lg="8">
       <v-label>{{ t("SetBase.download.pushDownloadServerTitle") }}</v-label>
       <v-switch
         v-model="configStore.download.useQuickSendToClient"

@@ -2,6 +2,7 @@
 import { computed } from "vue";
 import { computedAsync } from "@vueuse/core";
 import { isEmpty } from "es-toolkit/compat";
+import { useDisplay } from "vuetify";
 import {
   convertIsoDurationToDate,
   getNextLevelUnMet,
@@ -23,6 +24,7 @@ const { userInfo } = defineProps<{
 
 const currentTime = +new Date();
 
+const display = useDisplay();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 
@@ -74,11 +76,24 @@ const userLevelGroupIcon = computed(() => {
       content-class="bg-white pa-0"
       interactive
       location="end bottom"
+      :open-on-click="display.mobile.value"
     >
       <template v-slot:activator="{ props }">
         <span v-bind="props">
-          <v-icon :icon="userLevelGroupIcon" size="16"></v-icon>
-          {{ levelName }}<br />
+          <v-icon :icon="userLevelGroupIcon" size="small"></v-icon>
+          {{ levelName }}
+          <v-icon
+            v-if="
+              configStore.myDataTableControl.showNextLevelInTable &&
+              userLevelGroupType === 'user' &&
+              isEmpty(nextLevelUnMet)
+            "
+            icon="mdi-check"
+            color="green"
+            size="small"
+            class="ml-1"
+          ></v-icon
+          ><br />
           <template
             v-if="
               configStore.myDataTableControl.showNextLevelInTable &&
@@ -99,13 +114,7 @@ const userLevelGroupIcon = computed(() => {
       <template v-slot>
         <v-card class="border-sm overflow-y-auto" max-height="500" max-width="800">
           <v-card-text class="pa-2">
-            <v-list
-              class="pa-0 level_requirement_list"
-              density="compact"
-              :style="{
-                fontSize: `${(configStore.myDataTableControl.tableFontSize / 14) * 12}%`,
-              }"
-            >
+            <v-list class="pa-0 level_requirement_list" density="compact">
               <!-- 计算剩余升级情况 -->
               <template
                 v-if="
@@ -141,16 +150,13 @@ const userLevelGroupIcon = computed(() => {
                     </template>
 
                     <div>
-                      <span v-if="userLevel.interval">
-                        {{
-                          formatDate(
-                            convertIsoDurationToDate(userLevel.interval, userInfo.joinTime ?? currentTime),
-                            "yyyy-MM-dd",
-                          )
-                        }}
-                      </span>
-                      <span>&nbsp;({{ userLevel.name }}):&nbsp;</span>
-                      <UserLevelsComponent :level-requirement="userLevel" />
+                      <span>{{ userLevel.name }}:&nbsp;</span>
+                      <!-- 展示用户等级要求时， interval 向 date 的转换应该基于 joinTime 计算 -->
+                      <UserLevelsComponent
+                        :user-info="userInfo"
+                        :level-requirement="userLevel"
+                        :useJoinTimeAsRef="true"
+                      />
                     </div>
 
                     <div class="text-ellipsis text-truncate" :title="userLevel.privilege">
@@ -166,7 +172,7 @@ const userLevelGroupIcon = computed(() => {
       </template>
     </v-tooltip>
     <span v-else>
-      <v-icon :icon="userLevelGroupIcon" size="16"></v-icon>
+      <v-icon :icon="userLevelGroupIcon" size="small"></v-icon>
       {{ levelName }}
     </span>
   </span>

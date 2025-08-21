@@ -78,7 +78,8 @@ onMessage("downloadTorrentToLocalFile", async ({ data: { torrent, localDownloadM
   if (torrent.site) {
     // 生成站点，并检查站点下载间隔，如果触及到站点下载间隔，则将下载任务放入到 alarms 中等待
     const site = await getSiteInstance<"public">(torrent.site);
-    if (site.downloadInterval > 0) {
+
+    if (!configStoreRaw.download.ignoreSiteDownloadIntervalWhenLocalDownload && site.downloadInterval > 0) {
       if (new Date().getTime() - (lastSiteDownloadAt.get(torrent.site) ?? 0) < site.downloadInterval * 1000) {
         logger({ msg: `Site ${torrent.site} download interval not reached, waiting...` });
         sendMessage("reDownloadTorrentToLocalFile", { torrent, localDownloadMethod, downloadId }).catch();
@@ -215,18 +216,20 @@ onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId,
     }
 
     downloadStatus = await setDownloadStatus(downloadId, "downloading");
+    const loggerData = { torrent, downloaderId, downloadRequestConfig, addTorrentOptions } as Record<string, any>;
     try {
-      logger({ msg: "downloadTorrentToDownloader", data: { torrent, downloadRequestConfig, addTorrentOptions } });
-      const addStatus = await downloaderInstance.addTorrent(downloadRequestConfig.url!, addTorrentOptions);
-      if (!addStatus) {
-        logger({ msg: "Failed to add torrent to downloader", data: { torrent, downloaderId, addTorrentOptions } });
-        downloadStatus = await setDownloadStatus(downloadId, "failed");
-      } else {
-        logger({ msg: "Successfully added torrent to downloader", data: { torrent, downloaderId, addTorrentOptions } });
+      logger({ msg: "downloadTorrentToDownloader", data: loggerData });
+      const addTorrentResult = await downloaderInstance.addTorrent(downloadRequestConfig.url!, addTorrentOptions);
+      loggerData.addTorrentResult = addTorrentResult;
+      if (addTorrentResult?.success === true) {
+        logger({ msg: "Successfully added torrent to downloader", data: loggerData });
         downloadStatus = await setDownloadStatus(downloadId, "completed");
+      } else {
+        logger({ msg: "Failed to add torrent to downloader", data: loggerData });
+        downloadStatus = await setDownloadStatus(downloadId, "failed");
       }
     } catch (e) {
-      logger({ msg: "Error adding torrent to downloader", data: { torrent, downloaderId, addTorrentOptions } });
+      logger({ msg: "Error adding torrent to downloader", data: loggerData });
       downloadStatus = await setDownloadStatus(downloadId, "failed");
     }
   } else {

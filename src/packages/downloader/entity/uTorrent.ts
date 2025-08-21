@@ -9,6 +9,7 @@ import {
   TorrentClientConfig,
   TorrentClientMetaData,
   CTorrentState,
+  CAddTorrentResult,
 } from "../types";
 import urlJoin from "url-join";
 import axios from "axios";
@@ -186,7 +187,9 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
     ).data;
   }
 
-  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<CAddTorrentResult> {
+    const addResult = { success: false } as CAddTorrentResult;
+
     const _sid = await this.getSessionId();
 
     let formData: FormData | null = new FormData();
@@ -246,7 +249,8 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
       }
     }
 
-    return true;
+    addResult.success = true;
+    return addResult;
   }
 
   async getAllTorrents(): Promise<CTorrent[]> {

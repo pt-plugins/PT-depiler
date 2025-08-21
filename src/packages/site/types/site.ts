@@ -1,7 +1,7 @@
 // noinspection ES6PreferShortImport
 
 import type { AxiosRequestConfig } from "axios";
-import type { TSiteID, TSiteHost, TSiteUrl, TSiteFullUrl } from "./base";
+import { TSiteID, TSiteHost, TSiteUrl, TSiteFullUrl, TUrlPatterns } from "./base";
 import type { ITorrent } from "./torrent";
 import type { ILevelRequirement, IUserInfo } from "./userinfo";
 import type { IElementQuery, ISearchCategories, ISearchConfig, ISearchEntryRequestConfig } from "./search";
@@ -15,7 +15,7 @@ export type SiteSchema =
   | "Unit3D"
   | "Gazelle"
   | "GazelleJSONAPI"
-  | "AvistaZ"
+  | "AvistazNetwork"
   | string;
 
 type TUserInfoParseKey = keyof Omit<IUserInfo, "site" | "status" | "updateAt">;
@@ -53,7 +53,7 @@ export interface ISiteMetadata {
   name: string; // 站点名
 
   aka?: string[]; // 站点别名
-  description?: string; // 站点说明
+  description?: string | string[]; // 站点说明
   tags?: string[]; // 站点标签
   timezoneOffset?: timezoneOffset;
 
@@ -109,6 +109,13 @@ export interface ISiteMetadata {
   category?: ISearchCategories[];
 
   /**
+   * 站点请求延迟（该站点全局性质），单位为毫秒，默认为0
+   * 注意：此处的 requestDelay 应用于 AbstractBittorrentSite.request 方法中，
+   *      如果有设置 siteMetadata.{search, searchEntry[*], userInfo.process[*]}.requestDelay 则会叠加
+   */
+  requestDelay?: number;
+
+  /**
    * 站点搜索方法配置（主要用于插件 options 的适配）
    *
    * 由 AbstractBittorrentSite.transformSearchPage 方法进行转换，如果子类有覆写请按子类覆写逻辑理解
@@ -144,7 +151,7 @@ export interface ISiteMetadata {
      *
      * 匹配对象为 location.href ，依次匹配，任一匹配成功，则会被认为是种子列表页，
      */
-    urlPattern?: (string | RegExp)[];
+    urlPattern?: TUrlPatterns;
 
     mergeSearchSelectors?: boolean; // 是否合并 search.selectors 中的配置到此处的 selectors 中，默认为 true
 
@@ -177,7 +184,7 @@ export interface ISiteMetadata {
      * urlPattern 无法进行自动生成，需要显式声明（一般情况下 schema 中已有相关声明）
      * 其他表现和 list.urlPattern 相同。
      */
-    urlPattern?: (string | RegExp)[];
+    urlPattern?: TUrlPatterns;
 
     /**
      * 插件获取种子详情页时的配置，默认是在种子搜索时无法获取 link 的特殊站点使用，在使用时有垫片如下：
@@ -224,7 +231,42 @@ export interface ISiteMetadata {
   };
 
   /**
-   * 该配置项仅对 基于 PrivateSite 模板，且未改写 getUserInfoResult 的站点生效
+   * 认为用户未登录的断言设置
+   *
+   * 该配置项仅对 基于 PrivateSite 模板，且未改写 AbstractPrivateSite.loggedCheck 的站点生效
+   * 注意：
+   * 1. 每一项都可以单独设置为 false 来禁用该项检查，但不支持整体禁用，如果需要整体禁用，建议设置为 type: public 或 直接改写 loggedCheck 方法
+   */
+  noLoginAssert?: {
+    /**
+     * HTTP 状态码，表示未登录的状态码，未设置时默认 [401, 403, 502, 504]
+     * 如果站点响应的状态码在该数组中，则认为未登录
+     */
+    httpStatusCodes?: number[] | false;
+
+    /**
+     * 返回的 responseURL 中，哪些 URL 模式表示未登录，未设置时默认为 [/doLogin|login|verify|checkpoint|returnto/gi]
+     * 如果请求的 URL 匹配该数组中的任意一个，则认为未登录
+     */
+    urlPatterns?: TUrlPatterns | false;
+
+    /**
+     * 如果响应头中有 refresh: <time>[;,] url=<url> 字段，
+     * 且其中的 <url> 字段匹配该正则表达式，则认为未登录，未设置时默认为 noLoginAssert.urlPatterns 对应的内容
+     * 如果此时 noLoginAssert.urlPatterns 为 false，则该项也会被设置为 false
+     */
+    refreshHeaderPattern?: TUrlPatterns | false;
+
+    /**
+     * 是否严格检查响应内容，未设置时默认为 false
+     * 开启后会检查 responseText ，如果有下面情况，则判断为未登录：
+     * ①为空 ； ②过短（ < 800 ），且包含 login, auth_form, not authorized 等字段
+     */
+    checkResponseContent?: boolean;
+  };
+
+  /**
+   * 该配置项仅对 基于 PrivateSite 模板，且未改写 AbstractPrivateSite.getUserInfoResult 的站点生效
    */
   userInfo?: {
     /**
@@ -238,6 +280,7 @@ export interface ISiteMetadata {
      */
     process?: {
       requestConfig: AxiosRequestConfig; // { url: '/', params: {}, responseType: 'document' } 会作为基件
+
       /**
        * 请求参数替换断言
        * key为之前步骤获取到的用户信息字典，value为 requestConfig 中需要替换的键值位置：
@@ -261,6 +304,11 @@ export interface ISiteMetadata {
       ) => AxiosRequestConfig;
 
       /**
+       * 是否在 process 该步骤发送请求前延迟一段时间，单位为毫秒
+       */
+      requestDelay?: number;
+
+      /**
        * fields 和 selectors 共同控制着该步骤能够获取到的字段（如果该字段已经存在于前一步步骤或 pickLast 生成的 userInfo 中，则不会再次请求）
        * 实际，本步骤能获取的 fields 为 [...fields, ...Object.keys(selectors)]
        *
@@ -270,6 +318,11 @@ export interface ISiteMetadata {
       fields?: TUserInfoParseKey[];
       selectors?: { [userinfoKey in TUserInfoParseKey]?: IElementQuery }; // 用户信息相关选择器（仅限该步骤使用）
     }[];
+
+    /**
+     * 此处的 requestDelay 仅用于 process 中未定义时的回落，或部分 schemas 额外步骤中使用
+     */
+    requestDelay?: number;
 
     selectors?: { [userinfoKey in TUserInfoParseKey]?: IElementQuery }; // 用户信息相关选择器（全部步骤均可使用）
   };
@@ -319,7 +372,7 @@ export interface ISiteUserConfig {
    */
   allowQueryUserInfo?: boolean;
 
-  // 分类信息，默认为 ISiteMetadata.tags， 也允许用户自定义添加，相同的会被合并到一类中
+  // 分类信息，默认为 ISiteMetadata.tags，也允许用户自定义添加，相同的会被合并到一类中
   groups?: string[];
 
   // 请求超时时间，单位为毫秒，如果不设置默认为 30000ms
@@ -331,7 +384,11 @@ export interface ISiteUserConfig {
   // 上传速度限制，单位为 MB/s，0 或不填时不限速，用于推送种子文件到下载器的时候，传递上传速度限制
   uploadSpeedLimit?: number;
 
-  allowContentScript?: boolean; // 是否允许 content-script 访问该站点，默认为 true
+  // 是否允许 content-script 访问该站点，默认为 true
+  allowContentScript?: boolean;
+
+  // 种子下载链接后缀，默认为空字符串，如果站点需要在下载链接后添加一些参数，可以在此处设置
+  downloadLinkAppendix?: string;
 
   /**
    * 存储用户输入的配置项信息

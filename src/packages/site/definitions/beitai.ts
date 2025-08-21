@@ -5,6 +5,7 @@ export const siteMetadata: ISiteMetadata = {
   id: "beitai",
   name: "备胎",
   description: "找不到家时，接纳无家可归的人",
+  tags: ["影视"],
 
   collaborator: ["wyx1818", "tongyifan"],
 
@@ -17,6 +18,11 @@ export const siteMetadata: ISiteMetadata = {
   isDead: true,
 
   levelRequirements: [
+    {
+      id: 0,
+      name: "User",
+      privilege: "",
+    },
     {
       id: 1,
       name: "Power User",

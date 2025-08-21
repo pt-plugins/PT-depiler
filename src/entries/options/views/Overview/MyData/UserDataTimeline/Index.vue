@@ -29,6 +29,8 @@ import {
   icon,
   type ITimelineUserInfoField,
   type TKonvaConfig,
+  fixedLastUserInfo,
+  loadFullData,
 } from "./utils.ts";
 import { allAddedSiteMetadata, loadAllAddedSiteMetadata } from "../utils.ts";
 
@@ -193,18 +195,27 @@ onMounted(async () => {
   // 加载所有站点的元数据
   await loadAllAddedSiteMetadata(Object.keys(metadataStore.sites));
 
-  realAllSite.value = Object.values(metadataStore.lastUserInfo)
-    .map((x) => x.site)
-    .filter((x) => canThisSiteShow(x));
+  // 加载 fixedLastUserInfo
+  fixedLastUserInfo.value = await loadFullData();
 
-  // 从 route 中加载选择的站点，如果没有，则选择默认全部可以的站点（注意，这里我们不记住选择过的站点！！）
+  realAllSite.value = Object.keys(fixedLastUserInfo.value).filter((x) => canThisSiteShow(x));
+
   const { sites = [] } = route.query ?? {};
-  selectedSites.value = ((sites as string[]).length > 0 ? sites : realAllSite.value) as string[];
+
+  // 勾选站点，优先使用 route 参数，其次是上次保存的配置，最后是全部站点
+  if ((sites as string[]).length > 0) {
+    selectedSites.value = sites as string[];
+  } else if ((configStore.userDataTimelineControl.selectedSites ?? []).length > 0) {
+    selectedSites.value = configStore.userDataTimelineControl.selectedSites;
+  } else {
+    selectedSites.value = realAllSite.value;
+  }
 
   // 开始生成 timeline 的数据
   resetTimelineDataWithControl();
 
   isLoading.value = false;
+  console.log(fixedLastUserInfo);
 });
 
 function exportTimelineImg() {
@@ -219,6 +230,7 @@ function exportTimelineImg() {
 }
 
 function saveControl() {
+  configStore.userDataTimelineControl.selectedSites = selectedSites.value;
   configStore.$save();
   useRuntimeStore().showSnakebar("保存成功", { color: "success" });
 }
@@ -444,7 +456,9 @@ function saveControl() {
                             text: [
                               control.showPerSiteField.name ? userInfo.name! : '',
                               control.showPerSiteField.level ? `<${userInfo.levelName!}>` : '',
-                              control.showPerSiteField.uid ? `<${userInfo.id!}>` : '',
+                              control.showPerSiteField.uid && userInfo.id && userInfo.id !== '0' && userInfo.id !== 0
+                                ? `<${userInfo.id}>`
+                                : '',
                             ]
                               .filter(Boolean)
                               .join(' '),
@@ -477,18 +491,16 @@ function saveControl() {
         </vk-stage>
       </v-col>
       <v-col cols="12" sm>
-        <v-alert title="时间轴样式设置" type="info" class="mb-2">
-          <template #append>
-            <NavButton icon="mdi-arrow-left" size="small" color="grey" text="返回" @click="() => router.back()" />
-            <NavButton
-              color="grey"
-              icon="mdi-file-export-outline"
-              size="small"
-              text="导出图片"
-              @click="exportTimelineImg"
-            />
-          </template>
-        </v-alert>
+        <v-row class="flex-nowrap mb-0">
+          <v-col class="d-flex">
+            <NavButton color="grey" icon="mdi-arrow-left" text="返回" @click="() => router.back()" />
+            <v-spacer />
+            <NavButton color="info" icon="mdi-file-export-outline" text="导出图片" @click="exportTimelineImg" />
+            <NavButton color="green" icon="mdi-content-save" text="保存设置" @click="saveControl" />
+          </v-col>
+        </v-row>
+
+        <v-alert title="时间轴样式设置" type="info" class="mb-2"> </v-alert>
 
         <v-label class="my-2">用户名及标题</v-label>
 
@@ -608,16 +620,7 @@ function saveControl() {
           </v-col>
         </v-row>
 
-        <v-divider class="my-2" />
-
-        <v-row class="flex-nowrap">
-          <v-col class="d-flex">
-            <v-spacer />
-            <NavButton icon="mdi-content-save" text="保存样式设置" color="green" @click="saveControl" />
-          </v-col>
-        </v-row>
-
-        <v-alert type="info" title="展示站点设置" class="mt-4 mb-2">
+        <v-alert class="mt-4 mb-2" title="展示站点设置" type="info">
           <template #append>
             <CheckSwitchButton
               v-model="selectedSites"
@@ -629,7 +632,7 @@ function saveControl() {
         </v-alert>
 
         <v-row class="my-2">
-          <v-col v-for="(site, siteId) in metadataStore.lastUserInfo" :key="siteId" cols="6" sm="3" class="py-0">
+          <v-col v-for="(site, siteId) in fixedLastUserInfo" :key="siteId" class="py-0" cols="6" sm="3">
             <v-checkbox
               v-model="selectedSites"
               :disabled="!canThisSiteShow(siteId)"

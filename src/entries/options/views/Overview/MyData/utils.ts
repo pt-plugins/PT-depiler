@@ -4,15 +4,25 @@ import { definitionList, fixRatio, ISiteMetadata, IUserInfo, NO_IMAGE, TSiteID }
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { isValid } from "date-fns";
+import { deepToRaw } from "@/options/utils.ts";
 
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 
 // 对 siteUserInfoData 进行一些预处理（不涉及渲染格式）
 export function fixUserInfo<T extends IUserInfo = IUserInfo>(userInfo: Partial<T>): Required<T> {
+  userInfo = deepToRaw(userInfo);
   userInfo.ratio = fixRatio(userInfo);
   userInfo.trueRatio = fixRatio(userInfo, "trueRatio");
   userInfo.messageCount ??= 0;
+
+  if (typeof userInfo.joinTime !== "number") {
+    if (isValid(new Date(userInfo.joinTime!))) {
+      userInfo.joinTime = new Date(userInfo.joinTime!).getTime();
+    }
+  }
+
   return userInfo as Required<T>;
 }
 

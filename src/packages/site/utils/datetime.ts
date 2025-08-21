@@ -15,28 +15,34 @@ export const dateUnit: Array<DurationUnit | "quarters"> = [
 ] as const;
 
 export const nonStandDateUnitMap: Record<(typeof dateUnit)[number], string[]> = {
-  years: ["年", "year", "yr"],
+  years: ["年", "year", "yr", "Y"],
   quarters: ["季度", "quarter", "qtr"],
-  months: ["月", "month", "mo"],
-  weeks: ["周", "week", "wk"],
-  days: ["天", "day"],
-  hours: ["时", "hour", "hr"],
-  minutes: ["分", "minute", "min"],
-  seconds: ["秒", "second", "sec"],
+  months: ["月", "month", "mo", "M"],
+  weeks: ["周", "week", "wk", "W"],
+  days: ["天", "day", "D"],
+  hours: ["时", "hour", "hr", "h"],
+  minutes: ["分", "minute", "min", "m"],
+  seconds: ["秒", "second", "sec", "s"],
 };
 
-export function parseTimeToLive(ttl: string): number {
+export function parseTimeToLive(ttl: string): number | string {
+  // A flag to check if we have successfully parsed any unit
+  let parsed = false;
+
+  // Deep copy of ttl to avoid side effects
+  let ttlTemp = ttl;
+
   // 处理原始字符串中的非标准Unit
   for (const [k, v] of Object.entries(nonStandDateUnitMap)) {
-    for (const unit of v) {
-      ttl = ttl.replace(unit, k);
-    }
+    const regex = new RegExp(`(\\d+)\\s*(${v.join("|")})\\b`, "g");
+    ttlTemp = ttlTemp.replace(regex, `$1 ${k}`);
   }
 
   let nowDate = new Date();
   dateUnit.forEach((v) => {
-    const matched = ttl.match(new RegExp(`([.\\d]+) ?(${v}s?)`));
+    const matched = ttlTemp.match(new RegExp(`([.\\d]+) ?(${v}s?)`));
     if (matched) {
+      parsed = true;
       const amount = parseFloat(matched[1]);
       switch (v) {
         case "quarters":
@@ -55,7 +61,7 @@ export function parseTimeToLive(ttl: string): number {
     }
   });
 
-  return +nowDate;
+  return parsed ? +nowDate : ttl;
 }
 
 export function parseValidTimeString(query: string, formatString: string[] = []): number | string {
@@ -65,6 +71,13 @@ export function parseValidTimeString(query: string, formatString: string[] = [])
       return +time;
     }
   }
+
+  // 尝试使用原生 Date 构造函数，它能处理很多常见格式
+  let nativeDate = new Date(query);
+  if (isValid(nativeDate)) {
+    return +nativeDate;
+  }
+
   return query;
 }
 
@@ -123,4 +136,36 @@ export function convertIsoDurationToSeconds(duration: string): number {
     timeDelta.minutes * 60 +
     timeDelta.seconds
   );
+}
+
+/**
+ * 将秒数转换为ISO duration格式
+ * 主要用于将时间长度转换为标准的ISO 8601 duration格式
+ * 只包含日期部分（年、月、周、天），忽略时间部分（时、分、秒）
+ */
+export function convertSecondsToIsoDuration(seconds: number): isoDuration {
+  if (seconds <= 0) return "P0D";
+
+  const years = Math.floor(seconds / (365 * 24 * 3600));
+  const remainingAfterYears = seconds % (365 * 24 * 3600);
+
+  const months = Math.floor(remainingAfterYears / (30 * 24 * 3600));
+  const remainingAfterMonths = remainingAfterYears % (30 * 24 * 3600);
+
+  const weeks = Math.floor(remainingAfterMonths / (7 * 24 * 3600));
+  const remainingAfterWeeks = remainingAfterMonths % (7 * 24 * 3600);
+
+  const days = Math.floor(remainingAfterWeeks / (24 * 3600));
+
+  let duration = "P";
+
+  if (years > 0) duration += `${years}Y`;
+  if (months > 0) duration += `${months}M`;
+  if (weeks > 0) duration += `${weeks}W`;
+  if (days > 0) duration += `${days}D`;
+
+  // 如果所有值都为0，返回P0D
+  if (duration === "P") duration = "P0D";
+
+  return duration as isoDuration;
 }

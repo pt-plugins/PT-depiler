@@ -3,7 +3,8 @@ import { get, isEmpty, set } from "es-toolkit/compat";
 import { chunk, pascalCase, pick, toMerged, union } from "es-toolkit";
 import { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
 
-import { axios, retrieve, store } from "../utils/adapter.ts";
+// noinspection ES6PreferShortImport
+import { axios, isCloudflareBlocked, retrieve, sleep, store } from "../utils/adapter";
 import {
   EResultParseStatus,
   IElementQuery,
@@ -11,6 +12,7 @@ import {
   ISiteMetadata,
   ITorrent,
   NeedLoginError,
+  CFBlockedError,
   NoTorrentsError,
   IAdvanceKeywordSearchConfig,
   ISearchInput,
@@ -29,6 +31,7 @@ import {
   parseSizeString,
   parseTimeWithZone,
   tryToNumber,
+  hasNonLatinCharacters,
 } from "../utils";
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
@@ -75,6 +78,12 @@ export default class BittorrentSite {
     return true;
   }
 
+  protected async sleepAction(ms: number | undefined): Promise<void> {
+    if (ms && ms > 0) {
+      await sleep(ms);
+    }
+  }
+
   protected async storeRuntimeSettings<T extends any>(key: string, value: T): Promise<T> {
     this.userConfig.runtimeSettings ??= {}; // 确保 runtimeSettings 存在
     this.userConfig.runtimeSettings[key] = value; // 更新当前实例的 runtimeSettings
@@ -91,6 +100,9 @@ export default class BittorrentSite {
     axiosConfig.baseURL ??= this.url;
     axiosConfig.url ??= "/";
     axiosConfig.timeout ??= this.userConfig.timeout ?? 30e3;
+
+    // 如果站点有请求延迟，则等待一段时间
+    await this.sleepAction(this.metadata.requestDelay ?? 0);
 
     let req: AxiosResponse;
     try {
@@ -116,7 +128,11 @@ export default class BittorrentSite {
       req = (e as AxiosError).response!;
     }
 
-    // 首先检查是否需要登录
+    if (isCloudflareBlocked(req)) {
+      throw new CFBlockedError();
+    }
+
+    // 随后检查是否需要登录
     if (checkLogin && !this.loggedCheck(req!)) {
       throw new NeedLoginError();
     }
@@ -167,13 +183,22 @@ export default class BittorrentSite {
 
     console?.log(`[Site] ${this.name} start search with merged searchEntry:`, searchEntry);
 
-    // 2. 生成对应站点的基础 requestConfig
+    // 2. 检查字符集兼容性并过滤站点
+    if (searchEntry.skipNonLatinCharacters && keywords) {
+      if (hasNonLatinCharacters(keywords)) {
+        console?.log(`[Site] ${this.name} skipped due to non-Latin characters in query:`, keywords);
+        result.status = EResultParseStatus.passParse;
+        return result;
+      }
+    }
+
+    // 3. 生成对应站点的基础 requestConfig
     let requestConfig: AxiosRequestConfig = toMerged(
       { url: "/", responseType: "document", params: {}, data: {} }, // 最基础的垫片，baseUrl 会在 request 方法中被补全，此处不用额外声明
       searchEntry.requestConfig || {}, // 使用默认配置覆盖垫片配置，如果是站点是 json 返回，应该在此处覆写 responseType，并准备基础参数
     );
 
-    // 3. 预检查 keywords 是否为高级搜索词，如果是，则查找对应的 searchEntry.advanceKeywordParams[*] 并改写 keywords
+    // 4. 预检查 keywords 是否为高级搜索词，如果是，则查找对应的 searchEntry.advanceKeywordParams[*] 并改写 keywords
     let advanceKeywordType: string | undefined;
     let advanceKeywordConfig: IAdvanceKeywordSearchConfig | false = false;
     if (keywords && searchEntry.advanceKeywordParams) {
@@ -194,12 +219,12 @@ export default class BittorrentSite {
       }
     }
 
-    // 4. 首先将搜索关键词根据 keywordsParam 放入请求配置中，注意如果是 advanceKeyword 已经被去除了前缀 `${advanceKeywordType}|`
+    // 5. 首先将搜索关键词根据 keywordsParam 放入请求配置中，注意如果是 advanceKeyword 已经被去除了前缀 `${advanceKeywordType}|`
     if (keywords) {
       set(requestConfig, searchEntry.keywordPath || "params.keywords", keywords || "");
     }
 
-    // 5. 如果是高级搜索词搜索，则在对应基础上改写 AxiosRequestConfig
+    // 6. 如果是高级搜索词搜索，则在对应基础上改写 AxiosRequestConfig
     if (advanceKeywordConfig) {
       if (advanceKeywordConfig.requestConfig) {
         requestConfig = toMerged(requestConfig, advanceKeywordConfig.requestConfig || {});
@@ -210,14 +235,19 @@ export default class BittorrentSite {
       }
     }
 
-    // 6. 如果有 requestConfigTransformer，则会在最后一步对请求配置进行处理
+    // 7. 如果有 requestConfigTransformer，则会在最后一步对请求配置进行处理
     if (typeof searchEntry.requestConfigTransformer === "function") {
       requestConfig = searchEntry.requestConfigTransformer({ keywords, searchEntry, requestConfig });
     }
 
+    // 如果站点有搜索请求延迟，则等待一段时间
+    if ((searchEntry.requestDelay ?? 0) > 0) {
+      await sleep(searchEntry.requestDelay!);
+    }
+
     console?.log(`[Site] ${this.name} start search with requestConfig:`, requestConfig);
 
-    // 7. 请求页面并转化为document
+    // 8. 请求页面并转化为document
     try {
       const req = await this.request(requestConfig);
       result.data = await this.transformSearchPage(req.data, { keywords, searchEntry, requestConfig });
@@ -228,7 +258,9 @@ export default class BittorrentSite {
       }
       result.status = EResultParseStatus.parseError;
 
-      if (e instanceof NeedLoginError) {
+      if (e instanceof CFBlockedError) {
+        result.status = EResultParseStatus.CFBlocked;
+      } else if (e instanceof NeedLoginError) {
         result.status = EResultParseStatus.needLogin;
       } else if (e instanceof NoTorrentsError) {
         result.status = EResultParseStatus.noResults;
@@ -247,11 +279,10 @@ export default class BittorrentSite {
     let url = uri;
 
     if (uri.length > 0 && !uri.startsWith("magnet:")) {
-      const baseUrl = requestConfig.baseURL || this.url;
       if (uri.startsWith("//")) {
         // 当 传入的uri 以 /{2,} 开头时，被转换成类似 https?:///xxxx/xxxx 的形式，
         // 虽不符合url规范，但是浏览器容错高，所以不用担心 2333
-        const urlHelper = new URL(baseUrl);
+        const urlHelper = new URL(requestConfig.baseURL || this.url);
         url = `${urlHelper.protocol}:${uri}`;
       } else if (uri.slice(0, 4) !== "http") {
         // 基于请求地址，处理 ./xxx, xxxx, /xxxx 等相对路径
@@ -665,7 +696,12 @@ export default class BittorrentSite {
       const { data } = await this.request<any>(
         toMerged({ responseType: "document", url: torrent.url }, this.metadata.detail?.requestConfig ?? {}),
       );
-      return this.getFieldData(data, this.metadata.detail.selectors.link);
+      torrent.link = this.getFieldData(data, this.metadata.detail.selectors.link) as string;
+    }
+
+    if (this.userConfig.downloadLinkAppendix) {
+      // 如果用户配置了下载链接后缀，则在链接后追加
+      torrent.link = `${torrent.link}${this.userConfig.downloadLinkAppendix}`;
     }
 
     return torrent.link!;

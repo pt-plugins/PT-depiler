@@ -5,10 +5,11 @@ import {
   type IUserInfo,
   type ITorrent,
   type ITorrentTag,
+  NeedLoginError,
 } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 import { omit, toMerged } from "es-toolkit";
-import { convertIsoDurationToSeconds } from "../utils";
+import { buildCategoryOptions, convertIsoDurationToSeconds } from "../utils";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
 
 export const siteMetadata: ISiteMetadata = {
@@ -31,7 +32,7 @@ export const siteMetadata: ISiteMetadata = {
 
   category: [
     {
-      name: "分类",
+      name: "Category",
       key: "categories",
       keyPath: "data",
       options: [
@@ -41,68 +42,40 @@ export const siteMetadata: ISiteMetadata = {
       cross: false,
     },
     {
-      name: "类型",
+      name: "Type",
       key: "types",
       keyPath: "data",
-      options: [
-        { name: "UHD 100", value: "UHD 100" },
-        { name: "UHD 66", value: "UHD 66" },
-        { name: "UHD 50", value: "UHD 50" },
-        { name: "UHD Remux", value: "UHD Remux" },
-        { name: "BD 50", value: "BD 50" },
-        { name: "BD 25", value: "BD 25" },
-        { name: "BD Remux", value: "BD Remux" },
-        { name: "2160p", value: "2160p" },
-        { name: "1080p", value: "1080p" },
-        { name: "1080i", value: "1080i" },
-        { name: "720p", value: "720p" },
-        { name: "576p", value: "576p" },
-        { name: "540p", value: "540p" },
-        { name: "DVD 9", value: "DVD 9" },
-        { name: "DVD 5", value: "DVD 5" },
-        { name: "DVD Remux", value: "DVD Remux" },
-        { name: "480p", value: "480p" },
-        { name: "Other", value: "Other" },
-      ],
+      options: buildCategoryOptions([
+        ["UHD 100", "UHD 66", "UHD 50", "UHD Remux"],
+        ["BD 50", "BD 25", "BD Remux"],
+        ["2160p", "1080p", "1080i", "720p", "576p", "540p"],
+        ["DVD 9", "DVD 5", "DVD Remux"],
+        ["480p", "Other"],
+      ]),
       cross: { mode: "comma" },
     },
     {
-      name: "来源",
+      name: "Source",
       key: "sources",
       keyPath: "data",
-      options: [
-        { name: "Blu-ray", value: "Blu-ray" },
-        { name: "HD-DVD", value: "HD-DVD" },
-        { name: "WEB", value: "WEB" },
-        { name: "HDTV", value: "HDTV" },
-        { name: "DVD", value: "DVD" },
-      ],
+      options: buildCategoryOptions(["Blu-ray", "HD-DVD", "WEB", "HDTV", "DVD"]),
       cross: { mode: "comma" },
     },
     {
-      name: "发布组",
+      name: "ReleaseGroup",
       key: "groups",
       keyPath: "data",
-      options: [
-        { name: "FraMeSToR", value: "FraMeSToR" },
-        { name: "BHDStudio", value: "BHDStudio" },
-        { name: "BeyondHD", value: "BeyondHD" },
-        { name: "RPG", value: "RPG" },
-        { name: "iROBOT", value: "iROBOT" },
-        { name: "iFT", value: "iFT" },
-        { name: "ZR", value: "ZR" },
-        { name: "MKVULTRA", value: "MKVULTRA" },
-      ],
+      options: buildCategoryOptions(["FraMeSToR", "BHDStudio", "BeyondHD", "RPG", "iROBOT", "iFT", "ZR", "MKVULTRA"]),
       cross: { mode: "comma" },
     },
     {
-      name: "内部组",
+      name: "Internal",
       key: "types",
       keyPath: "data",
-      options: [{ name: "是", value: "1" }],
+      options: [{ name: "Yes", value: "1" }],
     },
     {
-      name: "促销",
+      name: "Discount",
       key: "discount",
       keyPath: "data",
       options: [
@@ -115,7 +88,7 @@ export const siteMetadata: ISiteMetadata = {
       cross: { mode: "append", key: "" },
     },
     {
-      name: "特色促销",
+      name: "SpecialDiscount",
       key: "specialDiscount",
       keyPath: "data",
       options: [
@@ -127,8 +100,8 @@ export const siteMetadata: ISiteMetadata = {
       cross: { mode: "append", key: "" },
     },
     {
-      name: "其他",
-      key: "extra",
+      name: "Special",
+      key: "special",
       keyPath: "data",
       options: [
         { name: "SD", value: "sd" },
@@ -140,14 +113,14 @@ export const siteMetadata: ISiteMetadata = {
       cross: { mode: "append", key: "" },
     },
     {
-      name: "断种/活种",
-      key: "incldead",
+      name: "Health",
+      key: "health",
       keyPath: "data",
       options: [
-        { name: "至少有1个做种者", value: "alive" },
-        { name: "少于3个做种者", value: "dying" },
-        { name: "无人做种", value: "dead" },
-        { name: "无人做种且在请求续种", value: "reseed" },
+        { name: "Alive", value: "alive" },
+        { name: "Dying", value: "dying" },
+        { name: "Dead", value: "dead" },
+        { name: "Reseed", value: "reseed" },
       ],
       cross: { mode: "append", key: "" },
     },
@@ -167,6 +140,7 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
+    skipNonLatinCharacters: true,
     keywordPath: "data.search",
     requestConfig: {
       url: "/api/torrents",
@@ -214,6 +188,47 @@ export const siteMetadata: ISiteMetadata = {
       category: { selector: "category" },
       // tags 交由 parseTorrentRowForTags 处理
       ext_imdb: { selector: "imdb_id" },
+    },
+  },
+
+  // 该站种子列表页并不提供种子下载直链，且无法拼接获得
+  list: [],
+
+  detail: {
+    urlPattern: ["/torrents/(.+)\\.(\\d+)"],
+    selectors: {
+      id: {
+        selector: ":self",
+        elementProcess: (element: Document) => {
+          // 尝试从页面 URL 中获取 ID，例如 /torrent/158672
+          const url = element.URL;
+          const urlIdMatch = url.match(/\/torrents\/(.+)\.(\d+)/);
+          if (urlIdMatch && urlIdMatch[2]) {
+            return urlIdMatch[2];
+          }
+
+          // 如果两种方式都找不到 ID，则返回 undefined
+          return undefined;
+        },
+      },
+      title: {
+        selector: ["tr:has(td:first-child:contains('Name')) > td:last-child"],
+        switchFilters: {
+          "tr:has(td:first-child:contains('Name')) > td:last-child": [
+            (element: string) => {
+              if (!element) {
+                return undefined;
+              }
+
+              return element;
+            },
+          ],
+        },
+      },
+      link: {
+        selector: ["a[href*='/download/']"],
+        attr: "href",
+      },
     },
   },
 
@@ -535,6 +550,10 @@ export default class BeyondHD extends PrivateSite {
       flushUserInfo.status = EResultParseStatus.success;
     } catch (e) {
       flushUserInfo.status = EResultParseStatus.parseError;
+
+      if (e instanceof NeedLoginError) {
+        flushUserInfo.status = EResultParseStatus.needLogin;
+      }
     }
 
     return flushUserInfo;
@@ -621,6 +640,8 @@ export default class BeyondHD extends PrivateSite {
     if (subtitleArray.some((subtitle) => languageRegex.test(subtitle))) {
       tags.push({ name: "中字" });
     }
+
+    tags.push({ name: "H&R", color: "red" });
 
     torrent.tags = tags;
     return torrent;

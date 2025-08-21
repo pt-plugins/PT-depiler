@@ -1,4 +1,4 @@
-import { EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
+import { EResultParseStatus, type ISiteMetadata, type ITorrent, type IUserInfo } from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
 
 export const siteMetadata: ISiteMetadata = {
@@ -6,6 +6,7 @@ export const siteMetadata: ISiteMetadata = {
   id: "monikadesign",
   version: 1,
   name: "Monikadesign",
+  aka: ["MDU", "莫妮卡"],
   tags: ["动漫"],
   timezoneOffset: "+0800",
   collaborator: ["Rhilip"],
@@ -220,7 +221,7 @@ export const siteMetadata: ISiteMetadata = {
 
   list: [
     {
-      urlPattern: ["/torrents\[\^/\]"],
+      urlPattern: ["/torrents(?:/?$|\\?\[\^/\]*$)"],
     },
   ],
 
@@ -228,11 +229,18 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.userInfo!,
     selectors: {
       ...SchemaMetadata.userInfo!.selectors!,
-
+      bonus: {
+        selector: ["li.ratio-bar__points a:has( > i.fa-coins)"],
+        filters: [{ name: "parseNumber" }],
+      },
+      uploads: {
+        selector: ['div.container div.block div.text-center a[href*="/uploads"]'],
+        filters: [{ name: "parseNumber" }],
+      },
       // "/users/$user.name$/bonus/transactions/create
       bonusPerHour: {
         selector: ["aside .panelV2 dd:nth-child(6)"],
-        filters: [(query: string) => parseFloat(query || "0")],
+        filters: [(query: string) => parseFloat(query.replace(/,/g, "") || "0")],
       },
     },
   },
@@ -283,6 +291,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 7,
       name: "Seeder",
+      groupType: "user",
       seedingSize: "3TiB",
       interval: "P1M",
       averageSeedingTime: "P30D",
@@ -319,5 +328,18 @@ export default class MonikaDesign extends Unit3D {
       true,
     );
     return this.getFieldData(document, this.metadata.userInfo?.selectors?.bonusPerHour!);
+  }
+
+  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    const downloadLink = await super.getTorrentDownloadLink(torrent);
+    if (downloadLink && !downloadLink.includes("/download/")) {
+      const { data: detailDocument } = await this.request<Document>({
+        url: downloadLink,
+        responseType: "document",
+      });
+      return this.getFieldData(detailDocument, this.metadata.search?.selectors?.link!);
+    }
+
+    return downloadLink;
   }
 }

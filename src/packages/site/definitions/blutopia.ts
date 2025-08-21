@@ -6,6 +6,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "blutopia",
   name: "Blutopia",
+  aka: ["BLU"],
   tags: ["影视", "综合"],
   timezoneOffset: "+0000",
   collaborator: ["bimzcy", "lengmianxia", "haowenwu"],
@@ -33,14 +34,14 @@ export const siteMetadata: ISiteMetadata = {
         selector: "div.panel__body a.user-tag__link",
         attr: "title",
       },
-      uploads: {
-        selector: ["li.top-nav__dropdown > a[href*='uploads']"],
-        filters: [{ name: "parseNumber" }],
-      },
       joinTime: {
         selector: ["time"],
         attr: "datetime",
-        filters: [{ name: "parseTTL" }],
+        filters: [{ name: "parseFuzzyTime" }],
+      },
+      bonusPerHour: {
+        selector: [".panelV2 dl.key-value dd:nth(2)"],
+        filters: [{ name: "parseNumber" }],
       },
     },
   },
@@ -89,6 +90,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 7,
       name: "BluSeeder",
+      groupType: "user",
       seedingSize: "5TiB",
       interval: "P1M",
       averageSeedingTime: "P30D",
@@ -187,6 +189,7 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     ...SchemaMetadata.search,
+    skipNonLatinCharacters: true,
     requestConfig: {
       url: "/torrents",
     },
@@ -232,6 +235,36 @@ export const siteMetadata: ISiteMetadata = {
       comments: {
         selector: ["i.torrent-icons__comments"],
       },
+      tags: [
+        ...SchemaMetadata.search!.selectors!.tags!,
+        {
+          name: "H&R",
+          selector: "*",
+          color: "red",
+        },
+      ],
     },
   },
 };
+
+export default class Blutopia extends Unit3D {
+  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
+    if (flushUserInfo?.status === EResultParseStatus.success && flushUserInfo?.name) {
+      // 获取时魔
+      flushUserInfo.bonusPerHour = await this.getUserBonusPerHour(flushUserInfo.name);
+    }
+    return flushUserInfo;
+  }
+
+  protected async getUserBonusPerHour(name: string): Promise<number> {
+    const { data: document } = await this.request<Document>(
+      {
+        url: `/users/${name}/earnings`,
+        responseType: "document",
+      },
+      true,
+    );
+    return this.getFieldData(document, this.metadata.userInfo?.selectors?.bonusPerHour!);
+  }
+}

@@ -37,6 +37,7 @@ const downloaderMetadata = computedAsync(async () => {
 }, {});
 
 const fullTableHeader = [
+  { title: "№", key: "sortIndex", align: "end", width: "100" },
   { title: t("SetDownloader.common.type"), key: "type", align: "center" },
   { title: t("SetDownloader.common.name"), key: "name", align: "start" },
   { title: t("SetDownloader.common.address"), key: "address", align: "start" },
@@ -175,7 +176,7 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
       class="table-stripe table-header-no-wrap"
       hover
       item-value="id"
-      multi-sort
+      :multi-sort="configStore.enableTableMultiSort"
       show-select
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('SetDownloader', 'itemsPerPage', v)"
       @update:sortBy="(v) => configStore.updateTableBehavior('SetDownloader', 'sortBy', v)"
@@ -240,7 +241,7 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
 
           <!-- 该下载服务器下载路径和标签选择 -->
           <v-btn
-            :title="t('SetDownloader.index.table.setPathAndTag')"
+            :title="t('SetDownloader.index.table.action.setPathAndTag')"
             color="amber"
             icon="mdi-folder-settings"
             size="small"

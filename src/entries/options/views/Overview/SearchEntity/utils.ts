@@ -1,6 +1,6 @@
 import PQueue from "p-queue";
 import { computed, watch } from "vue";
-import { EResultParseStatus, type IAdvanceKeywordSearchConfig, type TSiteID, ITorrentTag } from "@ptd/site";
+import { EResultParseStatus, type IAdvanceKeywordSearchConfig, ITorrentTag, type TSiteID } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -37,6 +37,9 @@ watch(tableCustomFilter.tableFilterRef, (newValue) => {
   }
 });
 
+// 模块级别的 Set，用于跟踪已存在的搜索结果 ID，避免并发时的重复
+const globalExistingIds = new Set<string>();
+
 export const searchQueue = new PQueue({ concurrency: 1 }); // 默认设置为 1，避免并发搜索
 
 searchQueue.on("active", () => {
@@ -46,11 +49,52 @@ searchQueue.on("active", () => {
     searchQueue.concurrency = configStore.searchEntity.queueConcurrency;
     console.log("Search queue concurrency changed to: ", searchQueue.concurrency);
   }
+  // 队列开始活跃时，更新全局 Set
+  globalExistingIds.clear();
+  runtimeStore.search.searchResult.forEach((r) => globalExistingIds.add(r.uniqueId));
 });
 
 searchQueue.on("idle", () => {
   runtimeStore.search.isSearching = false;
   runtimeStore.search.endAt = Date.now();
+  // 队列空闲时，清空全局 Set
+  globalExistingIds.clear();
+});
+
+interface ISearchPlanStatusMap {
+  success: number; // success, noResults
+  error: number; // unknownError, parseError, needLogin
+  queued: number; // waiting, working
+}
+
+export const defaultErrorSearchPlanStatus = [
+  EResultParseStatus.parseError,
+  EResultParseStatus.unknownError,
+  EResultParseStatus.CFBlocked,
+  EResultParseStatus.needLogin,
+];
+
+export const searchPlanStatus = computed<ISearchPlanStatusMap>(() => {
+  const statusMap: ISearchPlanStatusMap = { success: 0, error: 0, queued: 0 };
+  Object.values(runtimeStore.search.searchPlan ?? {}).forEach((plan) => {
+    switch (plan.status) {
+      case EResultParseStatus.success:
+      case EResultParseStatus.noResults:
+        statusMap.success++;
+        break;
+      case EResultParseStatus.unknownError:
+      case EResultParseStatus.parseError:
+      case EResultParseStatus.CFBlocked:
+      case EResultParseStatus.needLogin:
+        statusMap.error++;
+        break;
+      case EResultParseStatus.waiting:
+      case EResultParseStatus.working:
+        statusMap.queued++;
+        break;
+    }
+  });
+  return statusMap;
 });
 
 export async function raiseSearchPriority(solutionKey: TSearchSolutionKey) {
@@ -69,9 +113,12 @@ export async function doSearchEntity(
 
   // 对重新搜索的，清除对应搜索方法的搜索结果
   if (flush) {
+    const removedItems = runtimeStore.search.searchResult.filter((item) => item.solutionKey === solutionKey);
     runtimeStore.search.searchResult = runtimeStore.search.searchResult.filter(
       (item) => item.solutionKey != solutionKey,
     );
+    // 同步更新全局 Set，移除被删除项目的 uniqueId
+    removedItems.forEach((item) => globalExistingIds.delete(item.uniqueId));
     queuePriority -= 1; // 对重新搜索的，降低优先级
   }
 
@@ -94,23 +141,38 @@ export async function doSearchEntity(
       const startAt = (runtimeStore.search.searchPlan[solutionKey].startAt = Date.now());
       console.log(`search ${solutionKey} start at ${startAt}`);
       runtimeStore.search.searchPlan[solutionKey].status = EResultParseStatus.working;
+
+      let searchKeyword = runtimeStore.search.searchKey ?? "";
+      if (configStore.searchEntity.treatTTQueryAsImdbSearch && searchKeyword.match(/^tt\d{7,8}/)) {
+        searchKeyword = "imdb|" + searchKeyword;
+      }
+
       const { status: searchStatus, data: searchResult } = await sendMessage("getSiteSearchResult", {
-        keyword: runtimeStore.search.searchKey,
+        keyword: searchKeyword,
         siteId,
         searchEntry,
       });
       console.log(`success get search ${solutionKey} result, with code ${searchStatus}: `, searchResult);
       runtimeStore.search.searchPlan[solutionKey].status = searchStatus;
 
+      // 优化：批量处理搜索结果，减少响应式更新次数
+      const newItems: ISearchResultTorrent[] = [];
+
       for (const item of searchResult) {
         const itemUniqueId = `${item.site}-${item.id}`;
-        const isDuplicate = runtimeStore.search.searchResult.some((result) => result.uniqueId == itemUniqueId);
-        if (!isDuplicate) {
+        if (!globalExistingIds.has(itemUniqueId)) {
           (item as ISearchResultTorrent).uniqueId = itemUniqueId;
           (item as ISearchResultTorrent).solutionId = searchEntryName;
           (item as ISearchResultTorrent).solutionKey = solutionKey;
-          runtimeStore.search.searchResult.push(item as ISearchResultTorrent);
+          // 冻结对象，避免 Vue 创建响应式代理，提升性能
+          newItems.push(Object.freeze(item as ISearchResultTorrent));
+          globalExistingIds.add(itemUniqueId);
         }
+      }
+
+      // 批量添加新项目，减少响应式更新
+      if (newItems.length > 0) {
+        runtimeStore.search.searchResult.push(...newItems);
       }
       runtimeStore.search.searchPlan[solutionKey].count = runtimeStore.search.searchResult.filter(
         (item) => item.solutionKey == solutionKey,
@@ -160,5 +222,19 @@ export async function doSearch(search: string, plan?: string, flush: boolean = t
     for (const [searchEntryName, searchEntry] of Object.entries(searchEntries)) {
       await doSearchEntity(siteId, searchEntryName, searchEntry);
     }
+  }
+}
+
+export async function retrySearch(retryStatus: EResultParseStatus[] = defaultErrorSearchPlanStatus) {
+  const shouldRetrySearchPlan = Object.values(runtimeStore.search.searchPlan).filter((plan) =>
+    retryStatus.includes(plan.status),
+  );
+  if (shouldRetrySearchPlan.length === 0) {
+    runtimeStore.showSnakebar("没有需要重试的搜索计划", { color: "info" });
+    return;
+  }
+  console.log("Retrying search plans: ", shouldRetrySearchPlan);
+  for (const plan of shouldRetrySearchPlan) {
+    await doSearchEntity(plan.siteId, plan.searchEntryName, plan.searchEntry, true);
   }
 }

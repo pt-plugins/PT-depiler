@@ -25,7 +25,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P4W",
       downloaded: "100GB",
       ratio: 1.2,
-      seedingPoints: "80000",
+      seedingBonus: 80000,
       privilege: "",
     },
     {
@@ -34,7 +34,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P8W",
       downloaded: "200GB",
       ratio: 1.5,
-      seedingPoints: "160000",
+      seedingBonus: 160000,
       privilege: "Elite User及以上用户封存账号后不会被删除。",
     },
     {
@@ -43,7 +43,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P15W",
       downloaded: "350GB",
       ratio: 2,
-      seedingPoints: "320000",
+      seedingBonus: 320000,
       privilege: "得到1个邀请名额；",
     },
     {
@@ -52,7 +52,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P25W",
       downloaded: "500GB",
       ratio: 2.5,
-      seedingPoints: "600000",
+      seedingBonus: 600000,
       privilege: "得到1个邀请名额；可以查看普通日志。",
     },
     {
@@ -61,7 +61,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P40W",
       downloaded: "750GB",
       ratio: 3,
-      seedingPoints: "780000",
+      seedingBonus: 780000,
       privilege: "得到2个邀请名额；Veteran User及以上用户会永远保留账号。",
     },
     {
@@ -70,7 +70,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P60W",
       downloaded: "1TB",
       ratio: 4,
-      seedingPoints: "1100000",
+      seedingBonus: 1100000,
       privilege: "得到2个邀请名额；可以查看Extreme User论坛。",
     },
     {
@@ -79,7 +79,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P80W",
       downloaded: "1.5TB",
       ratio: 5,
-      seedingPoints: "1400000",
+      seedingBonus: 1400000,
       privilege: "得到2个邀请名额。",
     },
     {
@@ -88,7 +88,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P100W",
       downloaded: "3TB",
       ratio: 6,
-      seedingPoints: "1700000",
+      seedingBonus: 1700000,
       privilege: "得到5个邀请名额。",
     },
   ],

@@ -42,10 +42,10 @@ onMounted(async () => {
 
 <template>
   <v-row>
-    <v-col md="6">
+    <v-col md="10" lg="8">
       <v-number-input
         v-model="configStore.userInfo.queueConcurrency"
-        :max="100"
+        :max="25"
         :min="1"
         :label="t('userInfo.queueConcurrency')"
       ></v-number-input>
@@ -71,7 +71,7 @@ onMounted(async () => {
               hide-details
             />
             {{ t("userInfo.autoRefresh.hoursLabel") }}
-            <p class="font-weight-bold">{{ $t("userInfo.autoRefresh.unrefreshedSite") }}</p>
+            <p class="font-weight-bold">{{ t("userInfo.autoRefresh.unrefreshedSite") }}</p>
             {{ t("userInfo.autoRefresh.ofSites") }}
           </div>
           <div class="d-inline-flex align-center text-no-wrap">
@@ -105,6 +105,44 @@ onMounted(async () => {
               variant="text"
               @click="getNextFlushUserInfoAt"
             ></v-btn>
+          </div>
+        </v-alert>
+      </v-row>
+
+      <!-- 自动延长cookies -->
+      <v-switch
+        v-model="configStore.autoExtendCookies.enabled"
+        :label="t('userInfo.autoExtendCookies.enabled')"
+        color="success"
+        hide-details
+      />
+      <v-row v-if="configStore.autoExtendCookies.enabled" class="mt-1 ml-2 mb-2">
+        <v-alert type="info" variant="outlined">
+          <div class="d-inline-flex align-center text-no-wrap mb-2">
+            {{ t("userInfo.autoExtendCookies.triggerThreshold") }}:
+            <v-select
+              v-model="configStore.autoExtendCookies.triggerThreshold"
+              :items="range(1, 4)"
+              :max="3"
+              :min="1"
+              class="mx-2"
+              density="compact"
+              hide-details
+            />
+            {{ t("userInfo.autoExtendCookies.weeks") }}
+          </div>
+          <div class="d-inline-flex align-center text-no-wrap mb-2">
+            {{ t("userInfo.autoExtendCookies.extensionDuration") }}:
+            <v-select
+              v-model="configStore.autoExtendCookies.extensionDuration"
+              :items="range(1, 13)"
+              :max="12"
+              :min="1"
+              class="mx-2"
+              density="compact"
+              hide-details
+            />
+            {{ t("userInfo.autoExtendCookies.months") }}
           </div>
         </v-alert>
       </v-row>

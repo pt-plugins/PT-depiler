@@ -8,6 +8,7 @@ import {
   CTorrentFilterRules,
   CTorrentState,
   TorrentClientStatus,
+  CAddTorrentResult,
 } from "../types";
 import urlJoin from "url-join";
 import axios, { type AxiosResponse, isAxiosError } from "axios";
@@ -312,7 +313,9 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     }
   }
 
-  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<CAddTorrentResult> {
+    const addResult = { success: false } as CAddTorrentResult;
+
     const addTorrentOptions: Partial<TransmissionAddTorrentOptions> = {
       paused: options.addAtPaused ?? false,
     };
@@ -335,8 +338,13 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
       addTorrentOptions["download-dir"] = options.savePath;
     }
 
-    if (options.label && supportLabelAtAdd) {
-      addTorrentOptions.labels = [options.label];
+    let labels: string[] | undefined = undefined;
+    if (options.label) {
+      labels = options.label.split(",").map((label) => label.trim());
+    }
+
+    if (labels && supportLabelAtAdd) {
+      addTorrentOptions.labels = labels;
     }
 
     try {
@@ -345,11 +353,11 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
       const torrentId = data.arguments["torrent-added"].id;
 
       // Transmission 3.0 以上才支持label
-      if (!supportLabelAtAdd && options.label) {
+      if (!supportLabelAtAdd && labels) {
         try {
           await this.request("torrent-set", {
             ids: torrentId,
-            labels: [options.label],
+            labels: labels,
           });
         } catch (e) {}
       }
@@ -365,10 +373,13 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
         } catch (e) {}
       }
 
-      return data.result === "success";
-    } catch (e) {
-      return false;
-    }
+      addResult.success = data.result === "success";
+      if (!addResult.success) {
+        addResult.message = data;
+      }
+    } catch (e) {}
+
+    return addResult;
   }
 
   async getAllTorrents(): Promise<CTorrent[]> {

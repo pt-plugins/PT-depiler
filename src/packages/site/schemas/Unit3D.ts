@@ -3,7 +3,7 @@ import { omit, toMerged } from "es-toolkit";
 import { set } from "es-toolkit/compat";
 
 import PrivateSite from "./AbstractPrivateSite";
-import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
+import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type IUserInfo, NeedLoginError } from "../types";
 import { parseSizeString, parseValidTimeString } from "../utils";
 
 /**
@@ -11,8 +11,9 @@ import { parseSizeString, parseValidTimeString } from "../utils";
  * Source: https://github.com/HDInnovations/UNIT3D-Community-Edition/commit/cb1efe0868caf771b9917c090a79b28b4e183b74
  */
 const idTrans: string[] = ["User ID", "用户 ID", "用ID", "用户ID"];
-const seedingSizeTrans: string[] = ["Seeding Size", "做种体积", "做種體積"];
+const seedingSizeTrans: string[] = ["Seeding Size", "Seeding size", "做种体积", "做種體積"];
 const joinTimeTrans: string[] = ["Registration date", "注册日期", "註冊日期"];
+const averageSeedingTimeTrans: string[] = ["Average Seedtime", "Average seedtime", "平均做种时间", "平均做種時間"];
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: 0,
@@ -67,7 +68,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       time: { selector: ["time"], filters: [{ name: "parseTTL" }] },
       // /resources/views/torrent/results.blade.php#L402-L404
       size: {
-        selector: ['td:eq(7):contains("B")'],
+        selector: ['td>span.text-blue:contains("B")'],
       },
       // /resources/views/torrent/results.blade.php#L166-L184
       author: {
@@ -95,7 +96,6 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       },
       completed: {
         selector: ['a[href*="/history"] > span.text-orange'],
-        filters: [(query: string) => query.split(" ").slice(0, -1).join("")],
       },
 
       // /resources/views/torrent/results.blade.php#L213-L219
@@ -226,27 +226,27 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         ],
       },
       uploaded: {
-        selector: ["div.ratio-bar span:has( > i.fa-arrow-up)", "li.ratio-bar__uploaded a:has( > i.fa-arrow-up)"],
+        selector: ["span:has( > i.fa-arrow-up)", "li.ratio-bar__uploaded a:has( > i.fa-arrow-up)"],
         filters: [{ name: "parseSize" }],
       },
       downloaded: {
-        selector: ["div.ratio-bar span:has( > i.fa-arrow-down)", "li.ratio-bar__downloaded a:has( > i.fa-arrow-down)"],
+        selector: ["span:has( > i.fa-arrow-down)", "li.ratio-bar__downloaded a:has( > i.fa-arrow-down)"],
         filters: [{ name: "parseSize" }],
       },
       ratio: {
-        selector: ["div.ratio-bar span:has( > i.fa-sync-alt)", "li.ratio-bar__ratio a:has( > i.fa-sync-alt)"],
+        selector: ["span:has( > i.fa-sync-alt)", "li.ratio-bar__ratio a:has( > i.fa-sync-alt)"],
         filters: [{ name: "parseNumber" }],
       },
       bonus: {
-        selector: ["div.ratio-bar span:has( > i.fa-coins)", "li.ratio-bar__points a:has( > i.fa-coins)"],
+        selector: ["span:has( > i.fa-coins)", "li.ratio-bar__points a:has( > i.fa-coins)"],
         filters: [{ name: "parseNumber" }],
       },
       seeding: {
-        selector: ["div.ratio-bar span:has( > i.fa-upload)", "li.ratio-bar__seeding a:has( > i.fa-upload)"],
+        selector: ["span:has( > i.fa-upload)", "li.ratio-bar__seeding a:has( > i.fa-upload)"],
         filters: [{ name: "parseNumber" }],
       },
       leeching: {
-        selector: ["div.ratio-bar span:has( > i.fa-download)", "li.ratio-bar__leeching a:has( > i.fa-download)"],
+        selector: ["span:has( > i.fa-download)", "li.ratio-bar__leeching a:has( > i.fa-download)"],
         filters: [{ name: "parseNumber" }],
       },
 
@@ -257,8 +257,19 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       },
       seedingSize: {
         // table.table-condensed:first
-        selector: seedingSizeTrans.map((x) => `td:contains('${x}') + td`),
+        selector: [
+          ...seedingSizeTrans.map((x) => `td:contains('${x}') + td`),
+          ...seedingSizeTrans.map((x) => `dt:contains('${x}') + dd`),
+        ],
         filters: [(query: string) => parseSizeString(query.replace(/,/g, ""))],
+      },
+      averageSeedingTime: {
+        // table.table-condensed:first
+        selector: [
+          ...averageSeedingTimeTrans.map((x) => `td:contains('${x}') + td span.badge-user`),
+          ...averageSeedingTimeTrans.map((x) => `dt:contains('${x}') + dd`),
+        ],
+        filters: [{ name: "parseTTL" }],
       },
       levelName: {
         selector: "div.content span.badge-user",
@@ -268,11 +279,16 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         selector: ['a[href*="/mail/inbox"] .point'],
         elementProcess: () => 11, // 并不能直接知道还有多少个消息未读，所以置为11，会直接出线红点而不是具体数字
       },
+      uploads: {
+        selector: [".badge-user .fa-upload + span", "li:has(i.fas.fa-upload) a[href*='/uploads']"],
+        filters: [{ name: "parseNumber" }],
+      },
       joinTime: {
         selector: joinTimeTrans.map((x) => `div.content h4:contains('${x}')`),
         filters: [
           (query: string) => {
-            query = query.replace(RegExp(joinTimeTrans.join("|")), "").trim();
+            query = query.replace(RegExp(joinTimeTrans.join("|")), "");
+            query = query.replace(/^:+/g, "").trim();
             return parseValidTimeString(query, ["MMM dd yyyy, HH:mm:ss", "MMM dd yyyy"]);
           },
         ],
@@ -321,12 +337,18 @@ export default class Unit3D extends PrivateSite {
       flushUserInfo.status = EResultParseStatus.success;
     } catch (e) {
       flushUserInfo.status = EResultParseStatus.parseError;
+
+      if (e instanceof NeedLoginError) {
+        flushUserInfo.status = EResultParseStatus.needLogin;
+      }
     }
 
     return flushUserInfo;
   }
 
   protected async getUserNameFromSite(): Promise<string> {
+    await this.sleepAction(this.metadata.userInfo?.requestDelay);
+
     const { data: indexDocument } = await this.request<Document>(
       {
         url: "/",
@@ -342,6 +364,8 @@ export default class Unit3D extends PrivateSite {
   }
 
   protected async getUserInfoFromDetailsPage(userName: string): Promise<Partial<IUserInfo>> {
+    await this.sleepAction(this.metadata.userInfo?.requestDelay);
+
     const { data: userDetailDocument } = await this.request<Document>({
       url: urlJoin("/users", userName),
       responseType: "document",

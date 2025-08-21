@@ -210,6 +210,12 @@ export interface CAddTorrentOptions {
   advanceAddTorrentOptions?: Record<string, any>;
 }
 
+export interface CAddTorrentResult {
+  success: boolean; // 是否添加成功
+  message?: any; // 错误信息
+  id?: string; // 添加成功后返回的种子ID
+}
+
 /**
  * 客户端具体要实现的抽象方法
  */
@@ -299,7 +305,7 @@ export abstract class AbstractBittorrentClient<T extends DownloaderBaseConfig = 
   }
 
   // 添加种子
-  public abstract addTorrent(url: string, options: Partial<CAddTorrentOptions>): Promise<boolean>;
+  public abstract addTorrent(url: string, options: Partial<CAddTorrentOptions>): Promise<CAddTorrentResult>;
 
   // 暂停种子
   public abstract pauseTorrent(id: any): Promise<boolean>;

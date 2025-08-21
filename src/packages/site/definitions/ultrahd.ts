@@ -1,23 +1,27 @@
-/**
- * FIXME 由 resource/sites/ultrahd.net/config.json 自动转换而来
- */
-import { ISiteMetadata } from "@ptd/site";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+import {
+  type ISiteMetadata
+} from "../types";
+import {
+  CategoryInclbookmarked,
+  CategoryIncldead,
+  CategorySpstate,
+  SchemaMetadata,
+} from "../schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
+  
   version: 1,
-
   id: "ultrahd",
   name: "UltraHD",
-  description: "韩剧",
+  description: "专注韩语语种内容，包含韩影、韩剧、韩综、动漫以及纪录片",
   tags: ["电影", "电视剧", "综艺", "纪录片", "动漫"],
   timezoneOffset: "+0800",
 
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://ultrahd.net/"],
+  urls: ["uggcf://hygenuq.arg/"],
 
   category: [
     {
@@ -34,6 +38,84 @@ export const siteMetadata: ISiteMetadata = {
       ],
       cross: { mode: "append" },
     },
+    {
+      name: "媒介",
+      key: "medium",
+      options: [
+        { name: "UHD Blu-ray", value: 1 },
+        { name: "Blu-ray", value: 2 },
+        { name: "Remux", value: 3 },
+        { name: "UHDTV", value: 5 },
+        { name: "WEB-DL", value: 6 },
+        { name: "Encode", value: 7 },
+        { name: "IPTV", value: 8 },
+        { name: "DVB", value: 9 },
+        { name: "Other", value: 10 },
+        { name: "Blu-ray/DIY", value: 11 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "编码",
+      key: "codec",
+      options: [
+        { name: "H.265/HEVC", value: 1 },
+        { name: "H.264/AVC", value: 2 },
+        { name: "VP9", value: 3 },
+        { name: "VP10", value: 4 },
+        { name: "Other", value: 5 },
+        { name: "AV1", value: 6 },
+        { name: "MPEG-2", value: 7 },
+        { name: "ProRes", value: 8 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "音频编码",
+      key: "audiocodec",
+      options: [
+        { name: "TrueHD Atmos", value: 1 },
+        { name: "DTS-HDMA:X 7.1", value: 2 },
+        { name: "DTS-HDMA", value: 3 },
+        { name: "TrueHD", value: 4 },
+        { name: "AC3", value: 5 },
+        { name: "DTS:X", value: 6 },
+        { name: "DTS", value: 7 },
+        { name: "AAC", value: 8 },
+        { name: "Other", value: 9 },
+        { name: "LPCM", value: 10 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "分辨率",
+      key: "standard",
+      options: [
+        { name: "4K/2160P", value: 1 },
+        { name: "8K/4320P", value: 2 },
+        { name: "1080i", value: 5 },
+        { name: "1080P", value: 6 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "制作组",
+      key: "team",
+      options: [
+        { name: "UltraHD", value: 1 },
+        { name: "UltraTV", value: 3 },
+        { name: "AHD", value: 2 },
+        { name: "AHDBits", value: 14 },
+        { name: "AHDOST", value: 13 },
+        { name: "AHDTV", value: 15 },
+        { name: "AHDWEB", value: 4 },
+        { name: "AppleTor", value: 12 },
+        { name: "BeyondHD", value: 10 },
+        { name: "HThoreau", value: 5 },
+        { name: "Other", value: 11 },
+      ],
+      cross: { mode: "append" },
+    },
     CategoryIncldead,
     CategorySpstate,
     CategoryInclbookmarked,
@@ -42,57 +124,63 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
-      name: " Power User",
+      name: "User",
+      privilege:
+        '新用户的默认级别。只能在每周六中午12点至每周日晚上11点59分发布种子。',
+    },
+    {
+      id: 2,
+      name: "Power User",
       interval: "P5W",
       downloaded: "100GB",
       ratio: 3.0,
-      seedingPoints: 100000,
+      seedingBonus: 100000,
       privilege:
         '可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种； 可以发送邀请； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕',
     },
     {
-      id: 2,
+      id: 3,
       name: "Elite User",
       interval: "P10W",
       downloaded: "300GB",
       ratio: 3.5,
-      seedingPoints: 200000,
+      seedingBonus: 200000,
       privilege: "Elite User及以上用户封存账号后不会被删除",
     },
     {
-      id: 3,
+      id: 4,
       name: "Crazy User",
       interval: "P15W",
       downloaded: "500GB",
       ratio: 4.0,
-      seedingPoints: 400000,
+      seedingBonus: 400000,
       privilege: "可以在做种/下载/发布的时候选择匿名模式",
     },
     {
-      id: 4,
+      id: 5,
       name: "Insane User",
       interval: "P20W",
       downloaded: "1TB",
       ratio: 4.5,
-      seedingPoints: 600000,
+      seedingBonus: 600000,
       privilege: "可以查看普通日志",
     },
     {
-      id: 5,
+      id: 6,
       name: "Veteran User",
       interval: "P25W",
       downloaded: "2TB",
       ratio: 5.0,
-      seedingPoints: 800000,
+      seedingBonus: 800000,
       privilege: "可以查看其它用户的评论、帖子历史。Veteran User及以上用户会永远保留账号",
     },
     {
-      id: 6,
+      id: 7,
       name: "Extreme User",
       interval: "P30W",
       downloaded: "4TB",
       ratio: 5.5,
-      seedingPoints: 1000000,
+      seedingBonus: 1000000,
       privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。【可以开启特别区和查看特别区资源】。",
     },
     {
@@ -101,7 +189,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P35W",
       downloaded: "6TB",
       ratio: 6.0,
-      seedingPoints: 1200000,
+      seedingBonus: 1200000,
       privilege: "得到一个邀请名额",
     },
     {
@@ -110,7 +198,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P40W",
       downloaded: "8TB",
       ratio: 6.5,
-      seedingPoints: 1500000,
+      seedingBonus: 1500000,
       privilege: "得到两个邀请名额",
     },
   ],

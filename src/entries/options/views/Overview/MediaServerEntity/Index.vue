@@ -215,7 +215,7 @@ onMounted(async () => {
       </div>
     </div>
     <v-row v-else>
-      <v-col class="d-flex justify-center text-body-1"> No Items, use Search Input or Load More Button to Load </v-col>
+      <v-col class="d-flex justify-center text-body-1">{{ t("MediaServerEntity.noItems") }}</v-col>
     </v-row>
 
     <!-- TODO 点击加载更多 -->
@@ -227,7 +227,7 @@ onMounted(async () => {
             :loading="runtimeStore.mediaServerSearch.isSearching"
             @click="() => doSearch({ searchKey: search, loadMore: true })"
           >
-            Load More
+            {{ t("MediaServerEntity.loadMore") }}
           </v-btn>
         </v-col>
       </v-row>

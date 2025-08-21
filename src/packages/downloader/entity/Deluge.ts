@@ -11,6 +11,7 @@ import {
   CTorrentState,
   TorrentClientStatus,
   AbstractBittorrentClient,
+  CAddTorrentResult,
 } from "../types";
 import urlJoin from "url-join";
 import axios from "axios";
@@ -283,7 +284,9 @@ export default class Deluge extends AbstractBittorrentClient {
     return await this.request<number>("core.get_free_space");
   }
 
-  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<boolean> {
+  async addTorrent(url: string, options: Partial<CAddTorrentOptions> = {}): Promise<CAddTorrentResult> {
+    const addResult = { success: false } as CAddTorrentResult;
+
     const delugeOptions: any = {
       add_paused: options.addAtPaused ?? false,
     };
@@ -336,10 +339,14 @@ export default class Deluge extends AbstractBittorrentClient {
         } catch (e) {} // 即使失败了也没关系
       }
 
-      return result !== null;
-    } catch (e) {
-      return false;
-    }
+      addResult.success = result !== null;
+
+      if (!addResult.success) {
+        addResult.message = result;
+      }
+    } catch (e) {}
+
+    return addResult;
   }
 
   async getAllTorrents(): Promise<CTorrent<DelugeRawTorrent>[]> {

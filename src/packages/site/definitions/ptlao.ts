@@ -29,8 +29,9 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P4D",
       downloaded: "5GB",
       ratio: 0.1,
-      seedingPoints: 300,
-      privilege: "得到一个邀请名额 可以直接发布种子 可以查看NFO文档 可以查看用户列表 可以请求续种  可以发送邀请  可以查看排行榜 可以查看其它用户的种子历史(如果用户隐私等级未设置为强) 可以删除自己上传的字幕",
+      seedingBonus: 300,
+      privilege:
+        "得到一个邀请名额 可以直接发布种子 可以查看NFO文档 可以查看用户列表 可以请求续种  可以发送邀请  可以查看排行榜 可以查看其它用户的种子历史(如果用户隐私等级未设置为强) 可以删除自己上传的字幕",
     },
     {
       id: 3,
@@ -38,7 +39,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P4W",
       downloaded: "120GB",
       ratio: 1.25,
-      seedingPoints: 80000,
+      seedingBonus: 80000,
       privilege: "封存账号后不会被删除",
     },
     {

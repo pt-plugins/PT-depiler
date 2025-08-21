@@ -29,7 +29,7 @@ export async function createBackupData(backupFields: TBackupFields[] = []): Prom
   if (backupFields.includes("cookies")) {
     const cookies = {} as Required<IBackupData>["cookies"];
     for (const siteHost in metadataStore.siteHostMap) {
-      const siteHostCookies = await sendMessage("getCookiesByDomain", siteHost);
+      const siteHostCookies = await sendMessage("getAllCookies", { domain: siteHost });
       if (siteHostCookies.length > 0) {
         cookies[siteHost] = siteHostCookies;
       }

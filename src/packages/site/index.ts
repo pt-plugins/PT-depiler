@@ -60,6 +60,13 @@ export async function getDefinedSiteMetadata(definition: string): Promise<ISiteM
   return siteMetadata;
 }
 
+export function checkSiteMetadataAllow(siteMetadata: ISiteMetadata, key: keyof ISiteMetadata): boolean {
+  if (key === "search" || key === "userInfo") {
+    return !!(siteMetadata[key] && Object.keys(siteMetadata[key]).length > 0);
+  }
+  return !!siteMetadata[key];
+}
+
 export async function getSite<TYPE extends "private" | "public">(
   siteId: TSiteID,
   userConfig: ISiteUserConfig = {},
@@ -93,9 +100,9 @@ export async function getSite<TYPE extends "private" | "public">(
   }
 
   // 补全 userConfig 中可能缺失的内容
-  userConfig.allowSearch ??= Object.hasOwn(siteMetadata, "search");
-  userConfig.allowQueryUserInfo ??= Object.hasOwn(siteMetadata, "userInfo");
-  userConfig.showMessageCount ??= Object.hasOwn(siteMetadata, "userInfo");
+  userConfig.allowSearch ??= checkSiteMetadataAllow(siteMetadata, "search");
+  userConfig.allowQueryUserInfo ??= checkSiteMetadataAllow(siteMetadata, "userInfo");
+  userConfig.showMessageCount ??= checkSiteMetadataAllow(siteMetadata, "userInfo");
 
   // @ts-ignore
   return new SiteClass(siteMetadata, userConfig);

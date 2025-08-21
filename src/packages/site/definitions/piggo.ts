@@ -1,5 +1,5 @@
 import type { ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/NexusPHP";
+import { parseSectionedHitAndRunElement, SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -113,6 +113,37 @@ export const siteMetadata: ISiteMetadata = {
       cross: { mode: "brackets" },
     },
   ],
+
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      messageCount: {
+        text: 0,
+        selector: "div#messages1 > div.layui-layer-content",
+        filters: [
+          (query: string | number) => {
+            const queryMatch = String(query || "").match(/(\d+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
+          },
+        ],
+      },
+      hnrPreWarning: {
+        text: 0,
+        selector: ["#info_block a[href*='myhr.php']:last"],
+        elementProcess: (element: HTMLElement) => {
+          return parseSectionedHitAndRunElement(element)?.hnrPreWarning ?? 0;
+        },
+      },
+      hnrUnsatisfied: {
+        text: 0,
+        selector: ["#info_block a[href*='myhr.php']:last"],
+        elementProcess: (element: HTMLElement) => {
+          return parseSectionedHitAndRunElement(element)?.hnrUnsatisfied ?? 0;
+        },
+      },
+    },
+  },
 
   levelRequirements: [
     {

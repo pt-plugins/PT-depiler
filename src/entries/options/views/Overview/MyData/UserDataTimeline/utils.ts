@@ -1,11 +1,12 @@
-import { ref } from "vue";
+import { ref, shallowRef, computed } from "vue";
 import { differenceInDays } from "date-fns";
-import { EResultParseStatus, ISiteUserConfig, IUserInfo, TSiteID } from "@ptd/site";
+import { EResultParseStatus, type ISiteUserConfig, type IUserInfo, type TSiteID } from "@ptd/site";
 
-import { IStoredUserInfo } from "@/shared/types.ts";
-import { deepToRaw, formatSize } from "@/options/utils.ts";
+import { sendMessage } from "@/messages.ts";
+import { formatSize, simplifyNumber } from "@/options/utils.ts";
 import { useResetableRef } from "@/options/directives/useResetableRef.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import type { IStoredUserInfo, TUserInfoStorageSchema } from "@/shared/types.ts";
 
 import { allAddedSiteMetadata, fixUserInfo, realFormatRatio, TOptionSiteMetadatas } from "../utils.ts";
 
@@ -29,7 +30,8 @@ export const CTimelineUserInfoField = [
   { name: "downloaded", format: (x: number) => formatSize(x) },
   { name: "seeding", format: (x: number) => x },
   { name: "seedingSize", format: (x: number) => formatSize(x) },
-  { name: "bonusPerHour", format: (x: number) => x.toFixed(2) },
+  { name: "bonus", format: (x: number) => simplifyNumber(x, " ") },
+  { name: "bonusPerHour", format: (x: number) => simplifyNumber(x, " ") },
   { name: "ratio", format: (x: number) => realFormatRatio(x) },
 ] as const;
 
@@ -50,14 +52,16 @@ interface ITimelineData {
   } & Required<Pick<IUserInfo, ITimelineUserInfoField["name"] | "ratio">>;
 }
 
+export const fixedLastUserInfo = shallowRef<Record<TSiteID, IStoredUserInfo>>({});
+const fixedLastUserInfoComputed = computed(() => Object.values(fixedLastUserInfo.value));
+
+function isValidUserInfo(userInfo: IStoredUserInfo): boolean {
+  return !!(userInfo && userInfo.name && userInfo.joinTime && userInfo.status === EResultParseStatus.success);
+}
+
 export function canThisSiteShow(siteId: TSiteID) {
-  const siteUserInfo = metadataStore.lastUserInfo[siteId] as IStoredUserInfo;
-  if (
-    !siteUserInfo ||
-    !siteUserInfo.name ||
-    !siteUserInfo.joinTime ||
-    siteUserInfo.status !== EResultParseStatus.success
-  ) {
+  const siteUserInfo = fixedLastUserInfo.value[siteId] as IStoredUserInfo;
+  if (!isValidUserInfo(siteUserInfo)) {
     return false;
   }
 
@@ -65,6 +69,40 @@ export function canThisSiteShow(siteId: TSiteID) {
   const siteMetadata = (allAddedSiteMetadata[siteId] ?? {}) as TOptionSiteMetadatas[typeof siteId];
 
   return siteMetadata.hasUserInfo && siteUserConfig.allowQueryUserInfo;
+}
+
+export async function loadFullData(): Promise<Record<TSiteID, IStoredUserInfo>> {
+  const lastUserInfo: Record<TSiteID, IStoredUserInfo> = {};
+  const rawData = (await sendMessage("getExtStorage", "userInfo")) as TUserInfoStorageSchema;
+
+  for (const siteId in metadataStore.sites) {
+    const siteUserInfo = metadataStore.lastUserInfo[siteId] as IStoredUserInfo;
+    if (isValidUserInfo(siteUserInfo)) {
+      // 如果站点用户信息获取成功，则直接使用
+      lastUserInfo[siteId] = fixUserInfo(siteUserInfo);
+    } else {
+      // 如果站点用户信息获取失败，则尝试从存储中获取
+      const siteUserInfoHistory = { ...(rawData[siteId] ?? {}) };
+      if (siteUserInfoHistory) {
+        let maxDate = null;
+        for (const date in siteUserInfoHistory) {
+          const thisDaySiteUserInfo = siteUserInfoHistory[date] as IStoredUserInfo;
+          if (isValidUserInfo(thisDaySiteUserInfo) && (!maxDate || new Date(date) > new Date(maxDate))) {
+            maxDate = date;
+          }
+        }
+
+        if (maxDate) {
+          lastUserInfo[siteId] = {
+            ...fixUserInfo(siteUserInfoHistory[maxDate]),
+            site: siteId as TSiteID,
+          };
+        }
+      }
+    }
+  }
+
+  return lastUserInfo;
 }
 
 export const selectedSites = ref<TSiteID[]>([]); // 选择的站点
@@ -84,6 +122,7 @@ export const timelineDataRef = useResetableRef<ITimelineData>(() => {
       seeding: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
       seedingSize: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
       ratio: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
+      bonus: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
       bonusPerHour: { site: {} as IStoredUserInfo, maxValue: 0, subSite: {} as IStoredUserInfo, subValue: 0 },
     },
     totalInfo: {
@@ -93,15 +132,15 @@ export const timelineDataRef = useResetableRef<ITimelineData>(() => {
       downloaded: 0,
       seeding: 0,
       seedingSize: 0,
+      bonus: 0,
       bonusPerHour: 0,
       ratio: -1,
     },
   };
 
-  const lastUserInfo = deepToRaw(Object.values(metadataStore.lastUserInfo)) as IStoredUserInfo[]; // 获取所有站点的用户信息，并取消响应式
   const userNames: Record<string, number> = {};
   const addedSiteInfo: IStoredUserInfo[] = [];
-  for (let userInfo of lastUserInfo) {
+  for (let userInfo of fixedLastUserInfoComputed.value) {
     // 未勾选的站点不展示
     if (!selectedSites.value.includes(userInfo.site)) {
       continue;
@@ -112,7 +151,6 @@ export const timelineDataRef = useResetableRef<ITimelineData>(() => {
       continue;
     }
 
-    userInfo = fixUserInfo(userInfo); // 计算 ratio
     // 更新 result 信息， 这里其实并不需要判断 name & joinTime，但为了 ts 不报错。。。
     if (userInfo.name && userInfo.joinTime) {
       result.totalInfo.sites++;

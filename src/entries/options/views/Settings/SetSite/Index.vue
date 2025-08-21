@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { useDisplay } from "vuetify";
 import type { TSiteID } from "@ptd/site";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
@@ -21,6 +22,7 @@ import NavButton from "@/options/components/NavButton.vue";
 import { allAddedSiteInfo, type ISiteTableItem } from "@/options/views/Settings/SetSite/utils.ts"; // <-- 数据来源
 
 const { t } = useI18n();
+const display = useDisplay();
 
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
@@ -34,17 +36,22 @@ const showOneClickImportDialog = ref<boolean>(false);
 const tableHeader = computed(() => {
   const baseHeaders = [
     // site favicon
-    { title: "", key: "userConfig.sortIndex", align: "center", width: 48 },
-    { title: t("SetSite.common.name"), key: "name", align: "left", width: 120, sortable: false },
-    { title: t("SetSite.common.groups"), key: "groups", align: "left", minWidth: 120, sortable: false },
+    { title: "№", key: "userConfig.sortIndex", align: "center" },
+    { title: t("SetSite.common.name"), key: "name", align: "left", sortable: false },
+    {
+      title: t("SetSite.common.groups"),
+      key: "groups",
+      align: "left",
+      sortable: false,
+      ...(display.smAndDown.value ? { minWidth: 120 } : {}),
+    },
     { title: t("SetSite.common.url"), key: "url", align: "start", sortable: false },
-    { title: t("SetSite.common.isOffline"), key: "userConfig.isOffline", align: "center", width: 180 },
-    { title: t("SetSite.common.allowSearch"), key: "userConfig.allowSearch", align: "center", width: 180 },
+    { title: t("SetSite.common.isOffline"), key: "userConfig.isOffline", align: "center" },
+    { title: t("SetSite.common.allowSearch"), key: "userConfig.allowSearch", align: "center" },
     {
       title: t("SetSite.common.allowQueryUserInfo"),
       key: "userConfig.allowQueryUserInfo",
       align: "center",
-      width: 180,
     },
   ];
   if (configStore.contentScript.enabled && configStore.contentScript.allowExceptionSites) {
@@ -52,7 +59,6 @@ const tableHeader = computed(() => {
       title: t("SetSite.common.allowContentScript"),
       key: "userConfig.allowContentScript",
       align: "center",
-      width: 180,
     });
   }
 
@@ -211,17 +217,27 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
       :sort-by="configStore.tableBehavior.SetSite.sortBy"
       class="table-stripe table-header-no-wrap"
       item-value="id"
-      multi-sort
+      :multi-sort="configStore.enableTableMultiSort"
       hover
       show-select
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('SetSite', 'itemsPerPage', v)"
       @update:sortBy="(v) => configStore.updateTableBehavior('SetSite', 'sortBy', v)"
     >
       <template #item.userConfig.sortIndex="{ item }">
-        <SiteFavicon :site-id="item.id" />
+        <div class="d-flex">
+          <SiteFavicon :site-id="item.id" />
+        </div>
       </template>
       <template #item.name="{ item }">
-        {{ item.userConfig?.merge?.name ?? item.metadata?.name }}
+        <span>
+          {{ item.userConfig?.merge?.name ?? item.metadata?.name }}
+          <v-tooltip max-width="400" v-if="item.metadata.description" activator="parent">
+            <span v-if="typeof item.metadata.description === 'string'">{{ item.metadata.description }}</span>
+            <ul v-else>
+              <li v-for="(text, index) in item.metadata.description" :key="index">{{ text }}</li>
+            </ul>
+          </v-tooltip>
+        </span>
       </template>
       <template #item.groups="{ item }">
         {{ (item.userConfig.groups ?? []).join(", ") }}
@@ -270,6 +286,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
       <template #item.userConfig.allowContentScript="{ item }">
         <v-switch
           v-model="item.userConfig.allowContentScript"
+          :disabled="item.metadata.isDead || item.userConfig.isOffline"
           class="table-switch-btn"
           color="success"
           hide-details

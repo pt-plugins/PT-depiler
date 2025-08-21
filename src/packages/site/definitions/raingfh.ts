@@ -41,6 +41,17 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      bonus: {
+        selector: ["td.rowhead:contains('雨滴') + td"],
+        filters: [{ name: "parseNumber" }],
+      },
+    },
+  },
+
   levelRequirements: [
     {
       id: 1,
@@ -48,7 +59,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P4W",
       downloaded: "50GB",
       ratio: 1.05,
-      seedingPoints: 40000,
+      seedingBonus: 40000,
       privilege:
         '得到一个邀请名额；可以查看NFO文档；可以查看用户列表；可以请求续种； 可以发送邀请； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
     },
@@ -58,7 +69,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P8W",
       downloaded: "120GB",
       ratio: 1.55,
-      seedingPoints: 80000,
+      seedingBonus: 80000,
       privilege: "User及以上用户封存账号后不会被删除。",
     },
     {
@@ -67,7 +78,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P15W",
       downloaded: "300GB",
       ratio: 2.05,
-      seedingPoints: 15000,
+      seedingBonus: 15000,
       privilege: "得到两个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
     },
     {
@@ -76,7 +87,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P25W",
       downloaded: "500GB",
       ratio: 2.55,
-      seedingPoints: 25000,
+      seedingBonus: 25000,
       privilege: "可以查看普通日志。",
     },
     {
@@ -85,7 +96,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P40W",
       downloaded: "750GB",
       ratio: 3.05,
-      seedingPoints: 400000,
+      seedingBonus: 400000,
       privilege: "得到三个邀请名额；可以查看其它用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。",
     },
     {
@@ -94,7 +105,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P60W",
       downloaded: "1TB",
       ratio: 3.55,
-      seedingPoints: 600000,
+      seedingBonus: 600000,
       privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。",
     },
     {
@@ -103,7 +114,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P80W",
       downloaded: "1.5TB",
       ratio: 4.05,
-      seedingPoints: 800000,
+      seedingBonus: 800000,
       privilege: "得到五个邀请名额。",
     },
     {
@@ -112,7 +123,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P100W",
       downloaded: "3TB",
       ratio: 4.55,
-      seedingPoints: 1000000,
+      seedingBonus: 1000000,
       privilege: "得到十个邀请名额。",
     },
   ],

@@ -1,28 +1,60 @@
 import axios from "axios";
-import type { IFetchSocialSiteInformationConfig, IPtgenApiResponse, ISocialInformation } from "../types";
+import {
+  IFetchSocialSiteInformationConfig,
+  IPtgenApiResponse,
+  ISocialInformation,
+  ISocialSitePageInformation,
+  TSupportSocialSitePageParserMatches,
+} from "../types";
+
+const imdbUrlPattern = /^(?:https?:\/\/)?(?:www\.)?imdb\.com\/title\/(tt\d+)\/?/;
 
 export function build(id: string): string {
   return `https://www.imdb.com/title/${id}/`;
 }
 
-export function parse(query: string): string {
-  // Extract the IMDb ID from the URL.
-  const imdbUrlMatch = query.match(/(?:https?:\/\/)?(?:www\.)?imdb\.com\/title\/(tt\d+)\/?/);
-  if (imdbUrlMatch) {
-    return imdbUrlMatch[1] as string;
+export function parse(query: string | number | undefined): string {
+  if (typeof query !== "undefined") {
+    query = String(query).trim();
+    // Extract the IMDb ID from the URL.
+    const imdbUrlMatch = query.match(imdbUrlPattern);
+    if (imdbUrlMatch) {
+      return imdbUrlMatch[1] as string;
+    }
+
+    if (/tt(\d+)/.test(query)) {
+      return query;
+    }
+
+    // 如果是纯数字的字符串，则补齐并返回
+    if (/^\d+$/.test(query)) {
+      return "tt" + (query.length < 7 ? query.padStart(7, "0") : query);
+    }
   }
 
-  if (/tt(\d+)/.test(query)) {
-    return query;
-  }
-
-  // 如果是纯数字的字符串，则补齐并返回
-  if (/^\d+$/.test(query)) {
-    return "tt" + (query.length < 7 ? query.padStart(7, "0") : query);
-  }
-
-  return query;
+  return query as unknown as string;
 }
+
+export const pageParserMatches: TSupportSocialSitePageParserMatches = [
+  [
+    imdbUrlPattern,
+    (doc: Document): ISocialSitePageInformation => {
+      const titles = [] as string[];
+      try {
+        const page_json = JSON.parse(doc.querySelector('script[type="application/ld+json"]')?.textContent ?? "{}");
+        if (page_json && page_json.name) {
+          titles.push(page_json.name);
+        }
+      } catch (e) {}
+
+      return {
+        site: "imdb",
+        id: parse(doc.URL),
+        titles,
+      };
+    },
+  ],
+];
 
 interface IImdbPtGen extends IPtgenApiResponse {
   name: string;

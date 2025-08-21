@@ -7,6 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "chdbits",
   name: "CHDBits",
+  aka: ["彩虹岛", "CHD"],
   description: "彩虹岛",
   tags: ["影视", "综合"],
   collaborator: ["zxb0303"],

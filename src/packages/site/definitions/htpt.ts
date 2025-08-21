@@ -7,7 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "htpt",
   name: "海棠PT",
-  aka: ["海棠曲艺园"],
+  aka: ["海棠曲艺园", "海棠"],
   description: "主打曲艺、戏曲、相声、评书、小品、广播剧、有声小说等中国传统有声资源",
   tags: ["曲艺", "小品", "有声小说"],
   timezoneOffset: "+0800",

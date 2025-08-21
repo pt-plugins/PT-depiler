@@ -72,9 +72,11 @@ interface ProtocolMap extends TMessageMap {
   reDownloadTorrentToDownloader(data: Required<IDownloadTorrentToClientOption>): void;
 
   // 1.5 chrome.cookies
-  getCookiesByDomain(data: string): chrome.cookies.Cookie[];
+  getAllCookies(data: chrome.cookies.GetAllDetails): chrome.cookies.Cookie[];
   setCookie(data: chrome.cookies.SetDetails): void;
   getCookie(data: chrome.cookies.CookieDetails): chrome.cookies.Cookie | null;
+  removeCookie(data: chrome.cookies.CookieDetails | chrome.cookies.SetDetails): chrome.cookies.CookieDetails;
+  checkAndExtendCookies(url: string): void;
 
   // 1.6 chrome.notifications
   showNotification(data: { options: chrome.notifications.NotificationOptions; timeout?: number }): void;
@@ -125,7 +127,7 @@ interface ProtocolMap extends TMessageMap {
   setSiteLastUserInfo(userInfo: IUserInfo): void;
   cancelUserInfoQueue(): void;
   getSiteUserInfo(siteId: TSiteID): Record<string, IUserInfo>;
-  removeSiteUserInfo(data: { siteId: TSiteID; date: string }): void;
+  removeSiteUserInfo(data: { siteId: TSiteID; date: string[] }): void;
 
   // 2.5 社交信息 ( utils/socialInformation )
   getSocialInformation(data: { site: TSupportSocialSite$1; sid: string }): ISocialInformation;

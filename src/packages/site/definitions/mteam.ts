@@ -145,7 +145,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "mteam",
   name: "M-Team - TP",
-  aka: ["MTeam"],
+  aka: ["MTeam", "馒头"],
   description: "综合性网站，有分享率要求",
   tags: ["影视", "综合", "成人"],
   timezoneOffset: "+0800",
@@ -155,7 +155,14 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "mTorrent",
 
-  urls: ["uggcf://xc.z-grnz.pp/", "uggcf://mc.z-grnz.vb/", "uggcf://kc.z-grnz.pp/", "uggcf://nc.z-grnz.pp/"],
+  urls: [
+    "uggcf://xc.z-grnz.pp/",
+    "uggcf://mc.z-grnz.vb/",
+    "uggcf://kc.z-grnz.pp/",
+    "uggcf://nc.z-grnz.pp/",
+    "uggcf://arkg.z-grnz.pp/", // Next
+    "uggcf://bo.z-grnz.pp/",
+  ],
   formerHosts: ["xp.m-team.io", "pt.m-team.cc", "tp.m-team.cc"],
 
   category: [
@@ -388,9 +395,36 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   list: [
-    // next 域名下
+    // 2025.07.31: 原舊風格域名將移至 ob.
     {
-      urlPattern: [/\/\/next\..+\/browse/],
+      urlPattern: [/\/\/ob\..+\/browse/],
+      mergeSearchSelectors: false,
+      selectors: {
+        ...commonListSelectors,
+        rows: { selector: "tbody.bg-\\[\\#bccad6\\] > tr" },
+        subTitle: { selector: "a[href*='/detail/'] + br + div > span" },
+
+        time: {
+          selector: "td:nth-last-child(4) > span[title]",
+          elementProcess: (el: HTMLInputElement) => {
+            return el.getAttribute("title") || el.textContent;
+          },
+          filters: [{ name: "parseTime" }],
+        },
+        size: { selector: "td:nth-last-child(3)", filters: [{ name: "parseSize" }] },
+        seeders: { selector: 'span[aria-label="arrow-up"] + span' },
+        leechers: { selector: 'span[aria-label="arrow-down"] + span' },
+
+        comments: { selector: "td:nth-last-child(5)" },
+        category: { selector: "img[src*='/static/cate'][alt]", attr: "alt" },
+        ext_douban: { selector: "a[href^='https://movie.douban.com/subject/']", filters: [{ name: "extDoubanId" }] },
+        ext_imdb: { selector: "a[href^='https://www.imdb.com/title/']", filters: [{ name: "extImdbId" }] },
+      },
+    },
+
+    // 2025.07.31: 將於 20250801 將新風格(next域名)應用於主要域名(kp等等)
+    {
+      urlPattern: ["/browse"],
       mergeSearchSelectors: false,
       selectors: {
         ...commonListSelectors,
@@ -419,31 +453,6 @@ export const siteMetadata: ISiteMetadata = {
           selector: "a[href^='/mdb/title'][href*='imdb=']",
           filters: [{ name: "querystring", args: ["imdb"] }, { name: "extImdbId" }],
         },
-      },
-    },
-    {
-      urlPattern: ["/browse"],
-      mergeSearchSelectors: false,
-      selectors: {
-        ...commonListSelectors,
-        rows: { selector: "tbody.bg-\\[\\#bccad6\\] > tr" },
-        subTitle: { selector: "a[href*='/detail/'] + br + div > span" },
-
-        time: {
-          selector: "td:nth-last-child(4) > span[title]",
-          elementProcess: (el: HTMLInputElement) => {
-            return el.getAttribute("title") || el.textContent;
-          },
-          filters: [{ name: "parseTime" }],
-        },
-        size: { selector: "td:nth-last-child(3)", filters: [{ name: "parseSize" }] },
-        seeders: { selector: 'span[aria-label="arrow-up"] + span' },
-        leechers: { selector: 'span[aria-label="arrow-down"] + span' },
-
-        comments: { selector: "td:nth-last-child(5)" },
-        category: { selector: "img[src*='/static/cate'][alt]", attr: "alt" },
-        ext_douban: { selector: "a[href^='https://movie.douban.com/subject/']", filters: [{ name: "extDoubanId" }] },
-        ext_imdb: { selector: "a[href^='https://www.imdb.com/title/']", filters: [{ name: "extImdbId" }] },
       },
     },
   ],
