@@ -1,6 +1,12 @@
 import PQueue from "p-queue";
 import { computed, watch } from "vue";
-import { EResultParseStatus, type IAdvanceKeywordSearchConfig, ITorrentTag, type TSiteID } from "@ptd/site";
+import {
+  EResultParseStatus,
+  type IAdvanceKeywordSearchConfig,
+  ITorrentTag,
+  type TSiteID,
+  ETorrentStatus,
+} from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -15,7 +21,7 @@ const metadataStore = useMetadataStore();
 
 export const tableCustomFilter = useTableCustomFilter({
   parseOptions: {
-    keywords: ["site", "tags"],
+    keywords: ["site", "tags", "status"],
     ranges: ["time", "size", "seeders", "leechers", "completed"],
   },
   titleFields: ["title", "subTitle"],
@@ -161,11 +167,16 @@ export async function doSearchEntity(
       for (const item of searchResult) {
         const itemUniqueId = `${item.site}-${item.id}`;
         if (!globalExistingIds.has(itemUniqueId)) {
-          (item as ISearchResultTorrent).uniqueId = itemUniqueId;
-          (item as ISearchResultTorrent).solutionId = searchEntryName;
-          (item as ISearchResultTorrent).solutionKey = solutionKey;
+          const searchResultItem = item as ISearchResultTorrent;
+          searchResultItem.uniqueId = itemUniqueId;
+          searchResultItem.solutionId = searchEntryName;
+          searchResultItem.solutionKey = solutionKey;
+          // 确保 status 字段有默认值，避免过滤器无法处理 undefined
+          if (typeof searchResultItem.status === "undefined") {
+            searchResultItem.status = ETorrentStatus.unknown;
+          }
           // 冻结对象，避免 Vue 创建响应式代理，提升性能
-          newItems.push(Object.freeze(item as ISearchResultTorrent));
+          newItems.push(Object.freeze(searchResultItem));
           globalExistingIds.add(itemUniqueId);
         }
       }

@@ -196,6 +196,15 @@
       "status": "下载状态"
     }
   },
+  "torrent": {
+    "status": {
+      "unknown": "未知",
+      "downloading": "下载中",
+      "seeding": "做种中",
+      "inactive": "未活动",
+      "completed": "已完成"
+    }
+  },
   "MediaServerEntity": {
     "searchPlaceholder": "搜索词",
     "detail": "详情",

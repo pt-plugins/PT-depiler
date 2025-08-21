@@ -196,6 +196,15 @@
       "status": "Download Status"
     }
   },
+  "torrent": {
+    "status": {
+      "unknown": "Unknown",
+      "downloading": "Downloading",
+      "seeding": "Seeding",
+      "inactive": "Inactive",
+      "completed": "Completed"
+    }
+  },
   "MediaServerEntity": {
     "searchPlaceholder": "Search term",
     "detail": "Details",
