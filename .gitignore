@@ -207,14 +207,13 @@ out
 .cursorignore
 .claude/
 .clinerules
-.github/*instructions*
-GEMINI.md
 .kilocode/
 .kiro/
 .openhands/
 .windsurf/
-
-
+AGENTS.md
+GEMINI.md
+CLAUDE.md
 
 # docker
 docker-compose.yml
