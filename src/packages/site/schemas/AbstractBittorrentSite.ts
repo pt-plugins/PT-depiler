@@ -216,8 +216,9 @@ export default class BittorrentSite {
           if (typeof advanceConfig === "undefined") {
             if (advanceField == "imdb") {
               advanceConfig = { enabled: true }; // imdb 格式fallback到普通关键词搜索
+            } else {
+              advanceConfig = false; // 其他高级搜索词格式（douban|, bangumi|, anidb|, tmdb|, tvdb|, mal|）直接跳过
             }
-            advanceConfig = false; // 其他高级搜索词格式（douban|, bangumi|, anidb|, tmdb|, tvdb|, mal|）直接跳过
           }
 
           // 检查是否跳过
