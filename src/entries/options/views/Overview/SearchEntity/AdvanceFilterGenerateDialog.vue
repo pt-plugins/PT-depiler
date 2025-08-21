@@ -26,13 +26,13 @@ const configStore = useConfigStore();
 const { advanceFilterDictRef, stringifyFilterFn, resetAdvanceFilterDictFn, resetCountRef, toggleKeywordStateFn } =
   tableCustomFilter;
 
-// 种子状态选项
+// 种子状态选项 - 使用 i18n 支持
 const statusOptions = [
-  { value: ETorrentStatus.unknown, label: "未知", icon: "mdi-help-circle", color: "grey" },
-  { value: ETorrentStatus.downloading, label: "下载中", icon: "mdi-arrow-down", color: "info" },
-  { value: ETorrentStatus.seeding, label: "做种中", icon: "mdi-arrow-up", color: "success" },
-  { value: ETorrentStatus.inactive, label: "未活动", icon: "mdi-wifi-strength-off", color: "grey" },
-  { value: ETorrentStatus.completed, label: "已完成", icon: "mdi-check", color: "grey" },
+  { value: ETorrentStatus.unknown, label: t("torrent.status.unknown"), icon: "mdi-help-circle", color: "grey" },
+  { value: ETorrentStatus.downloading, label: t("torrent.status.downloading"), icon: "mdi-arrow-down", color: "info" },
+  { value: ETorrentStatus.seeding, label: t("torrent.status.seeding"), icon: "mdi-arrow-up", color: "success" },
+  { value: ETorrentStatus.inactive, label: t("torrent.status.inactive"), icon: "mdi-wifi-strength-off", color: "grey" },
+  { value: ETorrentStatus.completed, label: t("torrent.status.completed"), icon: "mdi-check", color: "grey" },
 ];
 
 function updateTableFilter() {

@@ -31,44 +31,6 @@ export const tableCustomFilter = useTableCustomFilter({
     tags: {
       parse: (value: ITorrentTag) => (value ?? {}).name,
     },
-    status: {
-      parse: (value: ETorrentStatus | undefined) => {
-        // 将枚举值转换为中文字符串
-        const normalizedValue = value ?? ETorrentStatus.unknown;
-        switch (normalizedValue) {
-          case ETorrentStatus.unknown:
-            return "未知";
-          case ETorrentStatus.downloading:
-            return "下载中";
-          case ETorrentStatus.seeding:
-            return "做种中";
-          case ETorrentStatus.inactive:
-            return "未活动";
-          case ETorrentStatus.completed:
-            return "已完成";
-          default:
-            return "未知";
-        }
-      },
-      build: (value: ETorrentStatus) => {
-        // 将枚举值转换为中文字符串用于显示
-        const normalizedValue = value ?? ETorrentStatus.unknown;
-        switch (normalizedValue) {
-          case ETorrentStatus.unknown:
-            return "未知";
-          case ETorrentStatus.downloading:
-            return "下载中";
-          case ETorrentStatus.seeding:
-            return "做种中";
-          case ETorrentStatus.inactive:
-            return "未活动";
-          case ETorrentStatus.completed:
-            return "已完成";
-          default:
-            return "未知";
-        }
-      },
-    },
     time: "date",
     size: "size",
   },
