@@ -22,6 +22,7 @@ import {
   ISearchEntryRequestConfig,
   IParsedTorrentListPage,
   TSchemaMetadataListSelectors,
+  ETorrentStatus,
 } from "../types";
 import {
   definedFilters,
@@ -530,7 +531,7 @@ export default class BittorrentSite {
     typeof torrent.completed != "undefined" && (torrent.completed = tryToNumber(torrent.completed));
     typeof torrent.comments != "undefined" && (torrent.comments = tryToNumber(torrent.comments));
     typeof torrent.category != "undefined" && (torrent.category = tryToNumber(torrent.category));
-    typeof torrent.status != "undefined" && (torrent.status = tryToNumber(torrent.status));
+    typeof torrent.status != "undefined" && (torrent.status = ETorrentStatus.unknown);
 
     // 仅当设置了时区偏移时，才进行转换
     if (this.metadata.timezoneOffset && typeof torrent.time !== "undefined") {

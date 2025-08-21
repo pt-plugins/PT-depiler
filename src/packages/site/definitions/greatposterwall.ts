@@ -221,19 +221,12 @@ export const siteMetadata: ISiteMetadata = {
         },
       },
       status: {
+        text: ETorrentStatus.unknown,
         selector: [".TorrentTitle"],
-        elementProcess: (element: HTMLElement) => {
-          if (element.classList.contains("TorrentSeeding")) {
-            // 做种中
-            return ETorrentStatus.seeding;
-          } else if (element.classList.contains("TorrentSnatched")) {
-            // 已完成 未做种
-            return ETorrentStatus.completed;
-          } else if (element.classList.contains("TorrentDownloading")) {
-            // 下载中
-            return ETorrentStatus.downloading;
-          }
-          return ETorrentStatus.unknown;
+        case: {
+          ".TorrentSeeding": ETorrentStatus.seeding, // 做种中
+          ".TorrentSnatched": ETorrentStatus.completed, // 已完成 未做种
+          ".TorrentDownloading": ETorrentStatus.downloading, // 下载中
         },
       },
 
@@ -604,7 +597,7 @@ export default class GreatPosterWall extends Gazelle {
       torrent.seeders = tryToNumber(this.getFieldData(row, { selector: ".TableTorrent-cellStat:nth-child(4)" }));
       torrent.leechers = tryToNumber(this.getFieldData(row, { selector: ".TableTorrent-cellStat:nth-child(5)" }));
       torrent.progress = this.getFieldData(row, this.metadata.search!.selectors!.progress!);
-      torrent.status = tryToNumber(this.getFieldData(row, this.metadata.search!.selectors!.status!));
+      torrent.status = this.getFieldData(row, this.metadata.search!.selectors!.status!);
 
       torrent = this.parseTorrentRowForTags(torrent, row, searchConfig) as ITorrent;
 
