@@ -268,6 +268,6 @@ chrome.tabs.onActivated.addListener((actionInfo: chrome.tabs.OnActivatedInfo) =>
     initContextMenus(tab).catch();
   });
   chrome.tabs.onUpdated.addListener((tabId: number, changeInfo: chrome.tabs.OnUpdatedInfo, tab: chrome.tabs.Tab) => {
-    initContextMenus(tab).catch();
+    initContextMenus(tab).catch((err) => console.error("Failed to initialize context menus:", err));
   });
 });
