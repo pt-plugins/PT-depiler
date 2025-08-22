@@ -104,8 +104,6 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
       },
     });
 
-    addContextMenu({ parentId: baseSearchMenusId, type: "separator" });
-
     // 特定搜索方案搜索
     const solutions = Object.values(metadataStore.solutions ?? {})
       .filter((x) => !!x.enabled) // 过滤掉未启用的搜索方案
@@ -201,6 +199,18 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
         contexts: ["link"],
       });
 
+      // 跳转到 options 页面实现高级推送
+      addContextMenu({
+        id: `${baseLinkDownloadPushMenuId}**Link-Push`,
+        parentId: baseLinkDownloadPushMenuId,
+        title: "高级推送",
+        contexts: ["link"],
+        onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
+          openOptionsPage({ path: "/link-push", query: { link: info.linkUrl! } });
+        },
+      });
+
+      // 为每个下载器创建子菜单
       for (const downloader of downloaders) {
         const downloaderPushSubMenuId = addContextMenu({
           id: `${baseLinkDownloadPushMenuId}**${downloader.id}`,
@@ -265,9 +275,9 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
 
 chrome.tabs.onActivated.addListener((actionInfo: chrome.tabs.OnActivatedInfo) => {
   chrome.tabs.get(actionInfo.tabId, (tab: chrome.tabs.Tab) => {
-    initContextMenus(tab).catch();
+    initContextMenus(tab).catch((err) => console.error("Failed to initialize context menus:", err));
   });
   chrome.tabs.onUpdated.addListener((tabId: number, changeInfo: chrome.tabs.OnUpdatedInfo, tab: chrome.tabs.Tab) => {
-    initContextMenus(tab).catch((err) => console.error("Failed to initialize context menus:", err));
+    initContextMenus(tab).catch((err) => console.error("Failed to initialize context menus on tabUpdated:", err));
   });
 });
