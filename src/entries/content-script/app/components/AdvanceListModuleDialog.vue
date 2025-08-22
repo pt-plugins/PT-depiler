@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, inject } from "vue";
 import { useWindowSize } from "@vueuse/core";
-import { ITorrent } from "@ptd/site";
+import { ETorrentStatus, ITorrent } from "@ptd/site";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 import { formatDate, formatSize } from "@/options/utils.ts";
@@ -69,6 +69,15 @@ function handleSelectSeeders() {
   selectedTorrentIds.value = torrentItems.filter((item) => item.seeders).map((x) => x.id);
 }
 
+function handleSelectNotSeeding() {
+  selectedTorrentIds.value = torrentItems
+    .filter(
+      (item) =>
+        item.status !== undefined && ![ETorrentStatus.seeding, ETorrentStatus.downloading].includes(item.status!),
+    )
+    .map((x) => x.id);
+}
+
 function enterDialog() {
   selectedTorrentIds.value = torrentItems.map((x) => x.id);
 }
@@ -87,6 +96,7 @@ function enterDialog() {
       </v-card-title>
       <v-card-text class="overflow-y-hidden">
         <NavButton icon="mdi-inbox-arrow-up" text="勾选上传行" color="light-blue" @click="handleSelectSeeders" />
+        <NavButton icon="mdi-download-off" text="勾选未下载过" color="light-blue" @click="handleSelectNotSeeding" />
         <v-data-table-virtual
           v-model="selectedTorrentIds"
           :headers="tableHeaders"
