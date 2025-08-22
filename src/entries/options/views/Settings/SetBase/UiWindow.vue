@@ -182,13 +182,20 @@ defineExpose({
 
   <v-row>
     <v-col md="10" lg="8">
-      <v-label>右键菜单</v-label>
-      <v-switch
-        v-model="configStore.contextMenus.allowSelectionTextSearch"
-        color="success"
-        hide-details
-        label="启用选中文字搜索"
-      />
+      <div class="d-flex align-center">
+        <v-label>右键菜单</v-label>
+        <v-spacer />
+        <v-switch v-model="configStore.contextMenus.enabled" color="success" hide-details label="启用" />
+      </div>
+
+      <template v-if="configStore.contextMenus.enabled">
+        <v-switch
+          v-model="configStore.contextMenus.allowSelectionTextSearch"
+          color="success"
+          hide-details
+          label="启用选中文字搜索"
+        />
+      </template>
     </v-col>
   </v-row>
 </template>
