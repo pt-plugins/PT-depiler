@@ -1,8 +1,12 @@
 import { nanoid } from "nanoid";
+import { format as dateFormat } from "date-fns";
+
+import { CAddTorrentOptions } from "@ptd/downloader";
 import { getHostFromUrl } from "@ptd/site/utils/html.ts"; // 这里不能使用 @ptd/site 的主入口，会导致 sw 无法加载
 
+import { IDownloaderMetadata } from "@/shared/types/storages/metadata.ts";
 import { extStorage } from "@/storage.ts";
-import { onMessage } from "@/messages.ts";
+import { onMessage, sendMessage } from "@/messages.ts";
 
 import { openOptionsPage } from "./base.ts";
 
@@ -54,11 +58,23 @@ function clearContextMenus() {
 
 onMessage("clearContextMenus", async () => clearContextMenus());
 
+function downloadLinkPush(link: string, downloader: IDownloaderMetadata, folder?: string) {
+  sendMessage("downloadTorrentToDownloader", {
+    torrent: { link }, // 组装一个最小的种子对象
+    downloaderId: downloader.id,
+    addTorrentOptions: {
+      addAtPaused: !(downloader?.feature?.DefaultAutoStart ?? true),
+      savePath: folder!,
+    } as CAddTorrentOptions,
+  }).catch();
+}
+
 async function initContextMenus(tab: chrome.tabs.Tab) {
   const configStore = (await extStorage.getItem("config"))! ?? {};
   const metadataStore = (await extStorage.getItem("metadata"))! ?? {};
   const tabHost = getHostFromUrl(tab.url || "https://example.com");
   const thisTabSiteId = metadataStore.siteHostMap?.[tabHost];
+  const thisTabSiteName = metadataStore.siteNameMap?.[thisTabSiteId];
 
   // 清除原来的菜单
   clearContextMenus();
@@ -156,8 +172,8 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
 
     if (thisTabSiteId) {
       addContextMenu({
-        id: `${contextMenusId}**Search-In-This-Site`,
-        parentId: contextMenusId,
+        id: `${baseSearchMenusId}**Search-In-This-Site`,
+        parentId: baseSearchMenusId,
         title: "仅搜索本站相关的种子", // FIXME i18n
         contexts: ["selection"],
         onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
@@ -167,6 +183,82 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
           });
         },
       });
+    }
+  }
+
+  // 创建下载链接菜单，所有页面可用
+  if (configStore.contextMenus?.allowLinkDownloadPush ?? true) {
+    // 查找是否有可用的下载服务器
+    const downloaders = Object.values(metadataStore.downloaders ?? {})
+      .filter((x) => !!x.enabled)
+      .sort((a, b) => (b.sortIndex ?? 100) - (a.sortIndex ?? 100));
+
+    if (downloaders.length > 0) {
+      // 创建基础菜单
+      const baseLinkDownloadPushMenuId = addContextMenu({
+        id: `${contextMenusId}**Link-Download-Push`,
+        title: `使用 ${chrome.i18n.getMessage("extName")} 下载链接`,
+        contexts: ["link"],
+      });
+
+      for (const downloader of downloaders) {
+        const downloaderPushSubMenuId = addContextMenu({
+          id: `${baseLinkDownloadPushMenuId}**${downloader.id}`,
+          parentId: baseLinkDownloadPushMenuId,
+          title: `推送到 ${downloader.name} -> ${downloader.address}`,
+          contexts: ["link"],
+          // 此处不用担心子目录问题，因为如果有子目录，此处的 onclick 不会被 chrome 触发
+          onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
+            downloadLinkPush(info.linkUrl!, downloader);
+          },
+        });
+
+        let suggestFolders = (downloader.suggestFolders ?? []).filter(
+          (f) =>
+            !f.includes("<...>") && // chrome 在 service worker 环境下，无法使用 window.prompt 进行输入的文件夹
+            !f.includes("$search:") && // 不存在search相关参数
+            !f.includes("$torrent.category$"), // 大概率也不可能存在和 torrent.category 相关的参数
+        );
+
+        // 如果没有当前站点，则不显示 $torrent.site$
+        if (thisTabSiteId) {
+          suggestFolders = suggestFolders.map((f) => f.replace("$torrent.site$", thisTabSiteId));
+        } else {
+          suggestFolders = suggestFolders.filter((f) => !f.includes("$torrent.site$"));
+        }
+
+        // 如果没有当前站点名称，则不显示 $torrent.siteName$
+        if (thisTabSiteName) {
+          suggestFolders = suggestFolders.map((f) => f.replace("$torrent.siteName$", thisTabSiteName));
+        } else {
+          suggestFolders = suggestFolders.filter((f) => !f.includes("$torrent.siteName$"));
+        }
+
+        // 替换 $date:YYYY$ 等日期变量
+        const nowDate = new Date();
+        suggestFolders = suggestFolders.map((f) =>
+          f
+            .replace("$date:YYYY$", dateFormat(nowDate, "yyyy") as string)
+            .replace("$date:MM", dateFormat(nowDate, "MM") as string)
+            .replace("$date:DD", dateFormat(nowDate, "dd") as string),
+        );
+
+        if (suggestFolders.length > 0) {
+          suggestFolders = ["", ...suggestFolders]; // 添加一个空字符串作为默认选项
+
+          for (let suggestFolder of suggestFolders) {
+            addContextMenu({
+              id: `${downloaderPushSubMenuId}**${suggestFolder}`,
+              parentId: downloaderPushSubMenuId,
+              title: `-> ${suggestFolder || "默认文件夹"}`, // 如果是空字符串，则显示为 "默认文件夹"
+              contexts: ["link"],
+              onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
+                downloadLinkPush(info.linkUrl!, downloader, suggestFolder);
+              },
+            });
+          }
+        }
+      }
     }
   }
 }

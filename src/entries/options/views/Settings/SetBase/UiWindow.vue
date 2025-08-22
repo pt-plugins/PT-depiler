@@ -195,6 +195,14 @@ defineExpose({
           hide-details
           label="启用选中文字搜索"
         />
+
+        <v-switch
+          v-model="configStore.contextMenus.allowLinkDownloadPush"
+          :disabled="metadataStore.getEnabledDownloaders.length === 0"
+          color="success"
+          hide-details
+          label="启用（下载）链接推送"
+        />
       </template>
     </v-col>
   </v-row>

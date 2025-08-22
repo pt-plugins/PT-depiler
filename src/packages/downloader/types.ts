@@ -168,7 +168,7 @@ export interface CAddTorrentOptions {
   /**
    * 是否本地下载
    */
-  localDownload: boolean;
+  localDownload?: boolean;
   localDownloadOption?: AxiosRequestConfig;
 
   /**
