@@ -8,6 +8,7 @@ function fixStoredUserInfo(userInfo: Partial<IStoredUserInfo>): { fixed: IStored
   let hasChanges = false;
 
   // 修复 ratio 和 trueRatio，如果是字符串则尝试转换为数字
+  // noinspection SuspiciousTypeOfGuard
   if (typeof userInfo.ratio === "string") {
     const ratioNum = parseFloat(userInfo.ratio);
     if (!isNaN(ratioNum)) {
@@ -16,6 +17,7 @@ function fixStoredUserInfo(userInfo: Partial<IStoredUserInfo>): { fixed: IStored
     }
   }
 
+  // noinspection SuspiciousTypeOfGuard
   if (typeof userInfo.trueRatio === "string") {
     const trueRatioNum = parseFloat(userInfo.trueRatio);
     if (!isNaN(trueRatioNum)) {
@@ -25,6 +27,7 @@ function fixStoredUserInfo(userInfo: Partial<IStoredUserInfo>): { fixed: IStored
   }
 
   // 修复 seeding，如果是字符串则尝试转换为数字
+  // noinspection SuspiciousTypeOfGuard
   if (typeof userInfo.seeding === "string") {
     const seedingNum = parseInt(userInfo.seeding);
     fixed.seeding = isNaN(seedingNum) ? 0 : seedingNum;
@@ -32,6 +35,7 @@ function fixStoredUserInfo(userInfo: Partial<IStoredUserInfo>): { fixed: IStored
   }
 
   // 修复 joinTime
+  // noinspection SuspiciousTypeOfGuard
   if (typeof userInfo.joinTime === "string") {
     let joinTime = new Date(userInfo.joinTime);
     if (isValid(joinTime)) {
