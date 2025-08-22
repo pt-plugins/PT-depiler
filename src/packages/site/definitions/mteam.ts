@@ -10,6 +10,7 @@ import {
   ITorrent,
   ITorrentTag,
   TSchemaMetadataListSelectors,
+  ETorrentStatus,
 } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 
@@ -619,6 +620,136 @@ export default class MTeam extends PrivateSite {
 
     torrent.tags = tags;
     return torrent;
+  }
+
+  /**
+   * 批量查询种子的下载历史和状态
+   * @param tids 种子ID数组
+   * @returns 查询历史的响应数据
+   */
+  public async queryTorrentHistory(tids: string[]): Promise<
+    IMTeamRawResp<{
+      historyMap: Record<
+        string,
+        {
+          id: string;
+          createdDate: string;
+          lastModifiedDate: string | null;
+          userid: string;
+          torrent: string;
+          uploaded: string;
+          download: string;
+          uploadedReal: string;
+          downloadedReal: string;
+          seedtime: string;
+          leechtime: string;
+          timesCompleted: string;
+          lastCompleteDate: string;
+          lastAction: string;
+          startDate: string;
+        }
+      >;
+      peerMap: Record<
+        string,
+        {
+          uid: string;
+          tid: string;
+          ip: string;
+          ipv6: string | null;
+          port: string;
+          agent: string;
+          peerId: string;
+          left: string;
+          uploaded: string;
+          downloaded: string;
+          lastAction: string;
+          createdDate: string;
+          flags: string;
+          boxLimit: boolean;
+        }
+      >;
+    }>
+  > {
+    const { data } = await this.request<IMTeamRawResp<any>>({
+      method: "POST",
+      url: "/api/tracker/queryHistory",
+      data: { tids },
+      headers: { "Content-Type": "application/json" },
+    });
+    return data;
+  }
+
+  /**
+   * 重写父类的transformSearchPage方法，在解析完所有种子后批量查询progress状态
+   */
+  public override async transformSearchPage(
+    doc: Document | object | any,
+    searchConfig: ISearchInput,
+  ): Promise<ITorrent[]> {
+    // 先获取基础的种子列表
+    const torrents = await super.transformSearchPage(doc, searchConfig);
+
+    if (torrents.length === 0) {
+      return torrents;
+    }
+
+    // 收集所有种子ID用于批量查询
+    const tids = torrents.map((torrent) => String(torrent.id)).filter(Boolean);
+
+    if (tids.length === 0) {
+      return torrents;
+    }
+
+    try {
+      // 批量查询种子的下载历史
+      const historyResp = await this.queryTorrentHistory(tids);
+
+      if (historyResp.code === "0" && historyResp.data) {
+        const { historyMap, peerMap } = historyResp.data;
+
+        // 为每个种子设置status，只在完成下载时设置progress=100
+        torrents.forEach((torrent) => {
+          const tid = String(torrent.id);
+          const history = historyMap[tid];
+          const peer = peerMap[tid];
+
+          if (history || peer) {
+            if (peer) {
+              // 如果在peerMap中存在，说明正在活跃（做种或下载）
+              const leftBytes = parseInt(peer.left || "0");
+              if (leftBytes === 0) {
+                // left为0表示完成下载，正在做种
+                torrent.progress = 100;
+                torrent.status = ETorrentStatus.seeding;
+              } else {
+                // left>0表示正在下载，不设置progress让前端UI适配
+                torrent.status = ETorrentStatus.downloading;
+              }
+            } else if (history) {
+              // 如果只在historyMap中存在但peerMap中不存在，说明曾经下载过但现在不活跃
+              const timesCompleted = parseInt(history.timesCompleted || "0");
+
+              if (timesCompleted > 0) {
+                // 完成过下载，但现在不做种
+                torrent.progress = 100;
+                torrent.status = ETorrentStatus.completed;
+              } else {
+                // 开始过下载但未完成，现在不活跃，不设置progress
+                torrent.status = ETorrentStatus.inactive;
+              }
+            }
+          } else {
+            // 如果在historyMap和peerMap中都不存在，说明从未下载过，不设置progress
+            torrent.status = ETorrentStatus.unknown;
+          }
+        });
+      }
+    } catch (error) {
+      // 如果查询历史失败，不影响基础的种子列表返回
+      console.warn(`[MTeam] Failed to query torrent history:`, error);
+    }
+
+    return torrents;
   }
 
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
