@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import { getHostFromUrl } from "@ptd/site/utils/html.ts";
+import { getHostFromUrl } from "@ptd/site/utils/html.ts"; // 这里不能使用 @ptd/site 的主入口，会导致 sw 无法加载
 
 import { extStorage } from "@/storage.ts";
 import { onMessage } from "@/messages.ts";
@@ -58,6 +58,7 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
   const configStore = (await extStorage.getItem("config"))! ?? {};
   const metadataStore = (await extStorage.getItem("metadata"))! ?? {};
   const tabHost = getHostFromUrl(tab.url || "https://example.com");
+  const thisTabSiteId = metadataStore.siteHostMap?.[tabHost];
 
   // 清除原来的菜单
   clearContextMenus();
@@ -68,28 +69,26 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
     return;
   }
 
-  const baseMenuContexts = [(configStore?.contextMenus?.allowSelectionTextSearch ?? true) ? "selection" : null].filter(
-    Boolean,
-  ) as chrome.contextMenus.CreateProperties["contexts"];
-
-  // 创建基础菜单
-  addContextMenu({
-    id: contextMenusId,
-    title: chrome.i18n.getMessage("extName"),
-    contexts: baseMenuContexts,
-  });
-
   // 创建关键字搜索菜单，所有页面可用
   if (configStore.contextMenus?.allowSelectionTextSearch ?? true) {
+    // 创建基础菜单
+    addContextMenu({
+      id: contextMenusId,
+      title: `使用 ${chrome.i18n.getMessage("extName")} 搜索 "%s" 相关的种子`,
+      contexts: ["selection"],
+    });
+
     // 基本关键词搜索
     addContextMenu({
       parentId: contextMenusId,
-      title: '搜索 "%s" 相关的种子',
+      title: "使用默认方案搜索",
       contexts: ["selection"],
       onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
         openOptionsPage({ path: "/search-entity", query: { search: info.selectionText, flush: 1 } });
       },
     });
+
+    addContextMenu({ parentId: contextMenusId, type: "separator" });
 
     // 特定搜索方案搜索
     const solutions = Object.values(metadataStore.solutions ?? {})
@@ -99,7 +98,7 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
       const solutionSearchSubMenuId = addContextMenu({
         id: `${contextMenusId}**Search-In-Solutions`,
         parentId: contextMenusId,
-        title: '以指定的方案中搜索 "%s"', // FIXME i18n
+        title: "以指定的方案中搜索", // FIXME i18n
         contexts: ["selection"],
       });
 
@@ -128,18 +127,16 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
       .filter((x) => !x.isOffline && !!x.allowSearch)
       .sort((a, b) => (b.sortIndex ?? 0) - (a.sortIndex ?? 0));
 
-    const thisSiteId = metadataStore.siteHostMap?.[tabHost];
-
     if (sites.length > 0) {
       const siteSearchSubMenuId = addContextMenu({
         id: `${contextMenusId}**Search-In-Site`,
         parentId: contextMenusId,
-        title: '在指定的站点进行搜索 "%s"', // FIXME i18n
+        title: "在指定的站点进行搜索", // FIXME i18n
         contexts: ["selection"],
       });
 
       for (const site of sites) {
-        if (site.id === thisSiteId) {
+        if (site.id === thisTabSiteId) {
           continue; // 如果是当前站点，则不再添加到子菜单中
         }
 
@@ -157,16 +154,16 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
       }
     }
 
-    if (thisSiteId) {
+    if (thisTabSiteId) {
       addContextMenu({
         id: `${contextMenusId}**Search-In-This-Site`,
         parentId: contextMenusId,
-        title: '仅搜索本站 "%s" 相关的种子', // FIXME i18n
+        title: "仅搜索本站相关的种子", // FIXME i18n
         contexts: ["selection"],
         onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
           openOptionsPage({
             path: "/search-entity",
-            query: { search: info.selectionText, site: thisSiteId, flush: 1 },
+            query: { search: info.selectionText, site: thisTabSiteId, flush: 1 },
           });
         },
       });
