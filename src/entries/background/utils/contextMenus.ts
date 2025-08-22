@@ -72,15 +72,15 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
   // 创建关键字搜索菜单，所有页面可用
   if (configStore.contextMenus?.allowSelectionTextSearch ?? true) {
     // 创建基础菜单
-    addContextMenu({
-      id: contextMenusId,
+    const baseSearchMenusId = addContextMenu({
+      id: `${contextMenusId}**Search`,
       title: `使用 ${chrome.i18n.getMessage("extName")} 搜索 "%s" 相关的种子`,
       contexts: ["selection"],
     });
 
     // 基本关键词搜索
     addContextMenu({
-      parentId: contextMenusId,
+      parentId: baseSearchMenusId,
       title: "使用默认方案搜索",
       contexts: ["selection"],
       onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
@@ -88,7 +88,7 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
       },
     });
 
-    addContextMenu({ parentId: contextMenusId, type: "separator" });
+    addContextMenu({ parentId: baseSearchMenusId, type: "separator" });
 
     // 特定搜索方案搜索
     const solutions = Object.values(metadataStore.solutions ?? {})
@@ -96,8 +96,8 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
       .sort((a, b) => b.sort - a.sort); // 按照 sort 降序排序
     if (solutions.length > 0) {
       const solutionSearchSubMenuId = addContextMenu({
-        id: `${contextMenusId}**Search-In-Solutions`,
-        parentId: contextMenusId,
+        id: `${baseSearchMenusId}**Search-In-Solutions`,
+        parentId: baseSearchMenusId,
         title: "以指定的方案中搜索", // FIXME i18n
         contexts: ["selection"],
       });
@@ -129,8 +129,8 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
 
     if (sites.length > 0) {
       const siteSearchSubMenuId = addContextMenu({
-        id: `${contextMenusId}**Search-In-Site`,
-        parentId: contextMenusId,
+        id: `${baseSearchMenusId}**Search-In-Site`,
+        parentId: baseSearchMenusId,
         title: "在指定的站点进行搜索", // FIXME i18n
         contexts: ["selection"],
       });
