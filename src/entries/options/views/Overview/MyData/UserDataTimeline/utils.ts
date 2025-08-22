@@ -49,6 +49,7 @@ interface ITimelineData {
   topInfo: Record<ITimelineUserInfoField["name"], IMaxInfo>;
   totalInfo: {
     sites: number;
+    deadSites: number;
   } & Required<Pick<IUserInfo, ITimelineUserInfoField["name"] | "ratio">>;
 }
 
@@ -68,7 +69,9 @@ export function canThisSiteShow(siteId: TSiteID) {
   const siteUserConfig = (metadataStore.sites[siteId] ?? {}) as ISiteUserConfig;
   const siteMetadata = (allAddedSiteMetadata[siteId] ?? {}) as TOptionSiteMetadatas[typeof siteId];
 
-  return siteMetadata.hasUserInfo && siteUserConfig.allowQueryUserInfo;
+  // 对于已死站点，只要有有效的用户信息就可以显示
+  // 对于活跃站点，需要检查是否有 userInfo 配置
+  return siteMetadata.hasUserInfo || isValidUserInfo(siteUserInfo);
 }
 
 export async function loadFullData(): Promise<Record<TSiteID, IStoredUserInfo>> {
@@ -127,6 +130,7 @@ export const timelineDataRef = useResetableRef<ITimelineData>(() => {
     },
     totalInfo: {
       sites: 0,
+      deadSites: 0,
       uploads: 0,
       uploaded: 0,
       downloaded: 0,
@@ -155,6 +159,11 @@ export const timelineDataRef = useResetableRef<ITimelineData>(() => {
     if (userInfo.name && userInfo.joinTime) {
       result.totalInfo.sites++;
       addedSiteInfo.push(userInfo); // 记录下所有能添加的站点
+
+      // 统计 dead 站点数量
+      if (allAddedSiteMetadata[userInfo.site]?.isDead) {
+        result.totalInfo.deadSites++;
+      }
 
       if (!userNames[userInfo.name]) {
         userNames[userInfo.name] = 0;

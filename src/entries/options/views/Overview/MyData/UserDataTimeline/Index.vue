@@ -70,6 +70,17 @@ const canvasLayer = useTemplateRef<KonvaNode>("canvasLayer");
 const realAllSite = shallowRef<string[]>([]);
 
 // 动态计算 canvas 的的各类属性
+// 动态计算 favicon 的样式配置，为 dead 站点添加视觉标识
+const getFaviconConfig = (siteId: string, baseConfig: any) => {
+  const isDead = allAddedSiteMetadata[siteId]?.isDead;
+  if (!isDead) return baseConfig;
+
+  return {
+    ...baseConfig,
+    filters: [...(baseConfig.filters || []), Konva.Filters.Grayscale],
+  };
+};
+
 const canvasWidth = 650; // 650px 是设计稿的宽度，下面各类宽高均根据设计稿进行调整，然后使用 scale 来控制缩放
 const nameInfoHeight = 70;
 const topAndTotalInfoHeight = computed<number>(() => 10 + (realShowField.value.length + 2) * 30);
@@ -120,7 +131,7 @@ const favicon = (config: TKonvaConfig) => {
   if (config.canvas) {
     const { width: canvasWidth = imageBaseSize, height: canvasHeight = imageBaseSize } = config.canvas;
     const canvas = new OffscreenCanvas(canvasWidth, canvasHeight);
-    const ctx = canvas.getContext("2d")!;
+    const ctx = canvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
 
     // 填充背景
     ctx.fillStyle = config.canvas.fillStyle ?? "#fff";
@@ -271,7 +282,7 @@ function saveControl() {
                 :config="
                   text({
                     y: 0,
-                    text: `${t('UserDataTimeline.total')}${t('UserDataTimeline.field.site')}: ${timelineData.totalInfo.sites}`,
+                    text: `${t('UserDataTimeline.total')}${t('UserDataTimeline.field.site')}: ${timelineData.totalInfo.sites}${timelineData.totalInfo.deadSites > 0 ? ` (🌇${timelineData.totalInfo.deadSites})` : ''}`,
                   })
                 "
               />
@@ -315,11 +326,14 @@ function saveControl() {
                             }
                           "
                           :config="
-                            favicon({
-                              site: timelineData.topInfo[key.name][type.siteKey].site,
-                              size: 20,
-                              canvas: { fillStyle: '#455A64' },
-                            })
+                            getFaviconConfig(
+                              timelineData.topInfo[key.name][type.siteKey].site,
+                              favicon({
+                                site: timelineData.topInfo[key.name][type.siteKey].site,
+                                size: 20,
+                                canvas: { fillStyle: '#455A64' },
+                              }),
+                            )
                           "
                         />
                         <vk-text
@@ -375,13 +389,16 @@ function saveControl() {
                           }
                         "
                         :config="
-                          favicon({
-                            site: userInfo.site,
-                            size: 38,
-                            x: stageConfig.width / 2 - 24,
-                            y: 0 - 24,
-                            canvas: { width: 48, height: 48 },
-                          })
+                          getFaviconConfig(
+                            userInfo.site,
+                            favicon({
+                              site: userInfo.site,
+                              size: 38,
+                              x: stageConfig.width / 2 - 24,
+                              y: 0 - 24,
+                              canvas: { width: 48, height: 48 },
+                            }),
+                          )
                         "
                       />
                     </vk-group>
@@ -398,7 +415,7 @@ function saveControl() {
                         :config="
                           text({
                             y: 0,
-                            text: allAddedSiteMetadata[userInfo.site].siteName,
+                            text: `${allAddedSiteMetadata[userInfo.site].siteName}${allAddedSiteMetadata[userInfo.site]?.isDead ? '🌇' : ''}`,
                             fontStyle: 'bold',
                           })
                         "
@@ -594,7 +611,7 @@ function saveControl() {
             </v-row>
             <v-label class="my-2">时间轴部分</v-label>
             <v-row class="pl-5">
-              <v-col v-for="(v, key) in control.showPerSiteField" class="pa-0" cols="6" sm="4">
+              <v-col v-for="(v, key) in control.showPerSiteField" :key="key" class="pa-0" cols="6" sm="4">
                 <v-switch
                   :key="key"
                   v-model="control.showPerSiteField[key]"
@@ -646,7 +663,10 @@ function saveControl() {
             >
               <template #label>
                 <SiteFavicon :site-id="siteId" :size="16" />
-                <SiteName :class="['ml-1']" :site-id="siteId" tag="p" />
+                <span class="ml-1">
+                  <SiteName :site-id="siteId" tag="span" />
+                  <span v-if="allAddedSiteMetadata[siteId]?.isDead">🌇</span>
+                </span>
               </template>
             </v-checkbox>
           </v-col>
