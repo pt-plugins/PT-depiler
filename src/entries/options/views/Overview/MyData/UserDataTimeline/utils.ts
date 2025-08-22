@@ -81,8 +81,8 @@ export async function loadFullData(): Promise<Record<TSiteID, IStoredUserInfo>> 
       // 如果站点用户信息获取成功，则直接使用
       lastUserInfo[siteId] = fixUserInfo(siteUserInfo);
     } else {
-      // 如果站点用户信息获取失败，则尝试从存储中获取
-      const siteUserInfoHistory = { ...(rawData[siteId] ?? {}) };
+      // 如果站点用户信息获取失败，则尝试从存储中获取最近一个成功的数据
+      const siteUserInfoHistory = rawData?.[siteId];
       if (siteUserInfoHistory) {
         let maxDate = null;
         for (const date in siteUserInfoHistory) {
