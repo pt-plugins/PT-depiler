@@ -666,6 +666,14 @@ function saveControl() {
                 <span class="ml-1">
                   <SiteName :site-id="siteId" tag="span" />
                   <span v-if="allAddedSiteMetadata[siteId]?.isDead">🌇</span>
+                  <v-icon
+                    v-if="allAddedSiteMetadata[siteId]?.isOffline && !allAddedSiteMetadata[siteId]?.isDead"
+                    color="blue-grey-darken-1"
+                    size="small"
+                    class="ml-1"
+                  >
+                    mdi-signal-off
+                  </v-icon>
                 </span>
               </template>
             </v-checkbox>
