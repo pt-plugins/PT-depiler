@@ -299,7 +299,8 @@ chrome.tabs.onActivated.addListener((actionInfo: chrome.tabs.OnActivatedInfo) =>
   chrome.tabs.get(actionInfo.tabId, (tab: chrome.tabs.Tab) => {
     initContextMenus(tab).catch((err) => console.error("Failed to initialize context menus:", err));
   });
-  chrome.tabs.onUpdated.addListener((tabId: number, changeInfo: chrome.tabs.OnUpdatedInfo, tab: chrome.tabs.Tab) => {
-    initContextMenus(tab).catch((err) => console.error("Failed to initialize context menus on tabUpdated:", err));
-  });
+});
+
+chrome.tabs.onUpdated.addListener((tabId: number, changeInfo: chrome.tabs.OnUpdatedInfo, tab: chrome.tabs.Tab) => {
+  initContextMenus(tab).catch((err) => console.error("Failed to initialize context menus on tabUpdated:", err));
 });
