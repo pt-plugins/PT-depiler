@@ -66,7 +66,28 @@ function downloadLinkPush(link: string, downloader: IDownloaderMetadata, folder?
       addAtPaused: !(downloader?.feature?.DefaultAutoStart ?? true),
       savePath: folder!,
     } as CAddTorrentOptions,
-  }).catch();
+  })
+    .then((result) => {
+      const messageName =
+        result.downloadStatus === "failed"
+          ? "notificationSendLinkToDownloaderFailure"
+          : "notificationSendLinkToDownloaderSuccess";
+
+      chrome.notifications.create({
+        type: "basic",
+        iconUrl: chrome.runtime.getURL("icons/logo/128.png"),
+        title: chrome.i18n.getMessage("extName"),
+        message: chrome.i18n.getMessage(messageName, [downloader.name]),
+      });
+    })
+    .catch(() => {
+      chrome.notifications.create({
+        type: "basic",
+        iconUrl: chrome.runtime.getURL("icons/logo/128.png"),
+        title: chrome.i18n.getMessage("extName"),
+        message: chrome.i18n.getMessage("notificationSendLinkToDownloaderFailure", [downloader.name]),
+      });
+    });
 }
 
 async function initContextMenus(tab: chrome.tabs.Tab) {

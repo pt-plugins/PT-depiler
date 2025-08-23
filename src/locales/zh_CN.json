@@ -78,7 +78,9 @@
     "contextMenuSendToDownloader": "使用 PT Depiler 下载链接",
     "contextMenuSendToDownloaderAdvanced": "高级推送",
     "contextMenuSendToDownloaderIn": "推送到 $1 -> $2",
-    "contextMenuSendToDownloaderDefaultFolder": "默认路径"
+    "contextMenuSendToDownloaderDefaultFolder": "默认路径",
+    "notificationSendLinkToDownloaderSuccess": "已成功将链接发送到下载器 [$1]",
+    "notificationSendLinkToDownloaderFailure": "将链接发送到下载器 [$1] 失败"
   },
   "route": {
     "About": {

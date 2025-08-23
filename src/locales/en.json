@@ -78,7 +78,9 @@
     "contextMenuSendToDownloader": "Using PT Depiler to Download link",
     "contextMenuSendToDownloaderAdvanced": "Advanced push",
     "contextMenuSendToDownloaderIn": "Push to $1 -> $2",
-    "contextMenuSendToDownloaderDefaultFolder": "Default path"
+    "contextMenuSendToDownloaderDefaultFolder": "Default path",
+    "notificationSendLinkToDownloaderSuccess": "Successfully sent the link to the downloader [$1]",
+    "notificationSendLinkToDownloaderFailure": "Failed to send the link to the downloader [$1]"
   },
   "route": {
     "About": {
