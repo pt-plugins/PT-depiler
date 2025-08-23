@@ -665,15 +665,20 @@ function saveControl() {
                 <SiteFavicon :site-id="siteId" :size="16" />
                 <span class="ml-1">
                   <SiteName :site-id="siteId" tag="span" />
-                  <span v-if="allAddedSiteMetadata[siteId]?.isDead">🌇</span>
+                  <v-icon
+                    v-if="allAddedSiteMetadata[siteId]?.isDead"
+                    icon="mdi-weather-sunset-down"
+                    color="deep-orange-darken-1"
+                    size="small"
+                    class="ml-1"
+                  ></v-icon>
                   <v-icon
                     v-if="allAddedSiteMetadata[siteId]?.isOffline && !allAddedSiteMetadata[siteId]?.isDead"
+                    icon="mdi-signal-off"
                     color="blue-grey-darken-1"
                     size="small"
                     class="ml-1"
-                  >
-                    mdi-signal-off
-                  </v-icon>
+                  ></v-icon>
                 </span>
               </template>
             </v-checkbox>
