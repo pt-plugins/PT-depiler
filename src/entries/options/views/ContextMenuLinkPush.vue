@@ -21,7 +21,13 @@ const showDialog = ref(false);
 const torrentItems = ref<ITorrent[]>([]);
 
 onMounted(() => {
-  const link = route.query.link as string;
+  const link = route?.query?.link;
+
+  if (!link || typeof link !== "string") {
+    runtimeStore.showSnakebar("无效的下载链接", { color: "error" });
+    onCancel();
+    return;
+  }
 
   const torrent = { link } as ITorrent;
 

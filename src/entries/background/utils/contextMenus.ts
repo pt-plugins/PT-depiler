@@ -73,8 +73,8 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
   const configStore = (await extStorage.getItem("config"))! ?? {};
   const metadataStore = (await extStorage.getItem("metadata"))! ?? {};
   const tabHost = getHostFromUrl(tab.url || "https://example.com");
-  const thisTabSiteId = metadataStore.siteHostMap?.[tabHost];
-  const thisTabSiteName = metadataStore.siteNameMap?.[thisTabSiteId];
+  const thisTabSiteId = metadataStore?.siteHostMap?.[tabHost];
+  const thisTabSiteName = metadataStore?.siteNameMap?.[thisTabSiteId];
 
   // 清除原来的菜单
   clearContextMenus();
@@ -90,14 +90,14 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
     // 创建基础菜单
     const baseSearchMenusId = addContextMenu({
       id: `${contextMenusId}**Search`,
-      title: `使用 ${chrome.i18n.getMessage("extName")} 搜索 "%s" 相关的种子`,
+      title: chrome.i18n.getMessage("contextMenuSearch"),
       contexts: ["selection"],
     });
 
     // 基本关键词搜索
     addContextMenu({
       parentId: baseSearchMenusId,
-      title: "使用默认方案搜索",
+      title: chrome.i18n.getMessage("contextMenuSearchInDefault"),
       contexts: ["selection"],
       onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
         openOptionsPage({ path: "/search-entity", query: { search: info.selectionText, flush: 1 } });
@@ -112,7 +112,7 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
       const solutionSearchSubMenuId = addContextMenu({
         id: `${baseSearchMenusId}**Search-In-Solutions`,
         parentId: baseSearchMenusId,
-        title: "以指定的方案中搜索", // FIXME i18n
+        title: chrome.i18n.getMessage("contextMenuSearchInSolution"),
         contexts: ["selection"],
       });
 
@@ -145,7 +145,7 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
       const siteSearchSubMenuId = addContextMenu({
         id: `${baseSearchMenusId}**Search-In-Site`,
         parentId: baseSearchMenusId,
-        title: "在指定的站点进行搜索", // FIXME i18n
+        title: chrome.i18n.getMessage("contextMenuSearchInSite"),
         contexts: ["selection"],
       });
 
@@ -154,12 +154,13 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
           continue; // 如果是当前站点，则不再添加到子菜单中
         }
 
-        const title = metadataStore.siteNameMap?.[site.id] || site.id;
+        // 如果用户没有预构建站点名称，则使用站点ID作为标题
+        const siteTitle = metadataStore.siteNameMap?.[site.id] || site.id;
 
         addContextMenu({
           id: `${siteSearchSubMenuId}**${site.id}`,
           parentId: siteSearchSubMenuId,
-          title,
+          title: siteTitle,
           contexts: ["selection"],
           onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
             openOptionsPage({ path: "/search-entity", query: { search: info.selectionText, site: site.id, flush: 1 } });
@@ -172,7 +173,7 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
       addContextMenu({
         id: `${baseSearchMenusId}**Search-In-This-Site`,
         parentId: baseSearchMenusId,
-        title: "仅搜索本站相关的种子", // FIXME i18n
+        title: chrome.i18n.getMessage("contextMenuSearchInThisSite"),
         contexts: ["selection"],
         onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
           openOptionsPage({
@@ -195,7 +196,7 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
       // 创建基础菜单
       const baseLinkDownloadPushMenuId = addContextMenu({
         id: `${contextMenusId}**Link-Download-Push`,
-        title: `使用 ${chrome.i18n.getMessage("extName")} 下载链接`,
+        title: chrome.i18n.getMessage("contextMenuSendToDownloader"),
         contexts: ["link"],
       });
 
@@ -203,7 +204,7 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
       addContextMenu({
         id: `${baseLinkDownloadPushMenuId}**Link-Push`,
         parentId: baseLinkDownloadPushMenuId,
-        title: "高级推送",
+        title: chrome.i18n.getMessage("contextMenuSendToDownloaderAdvanced"),
         contexts: ["link"],
         onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
           openOptionsPage({ path: "/link-push", query: { link: info.linkUrl! } });
@@ -215,7 +216,7 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
         const downloaderPushSubMenuId = addContextMenu({
           id: `${baseLinkDownloadPushMenuId}**${downloader.id}`,
           parentId: baseLinkDownloadPushMenuId,
-          title: `推送到 ${downloader.name} -> ${downloader.address}`,
+          title: chrome.i18n.getMessage("contextMenuSendToDownloaderIn", [downloader.name, downloader.address]),
           contexts: ["link"],
           // 此处不用担心子目录问题，因为如果有子目录，此处的 onclick 不会被 chrome 触发
           onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
@@ -248,9 +249,9 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
         const nowDate = new Date();
         suggestFolders = suggestFolders.map((f) =>
           f
-            .replace("$date:YYYY$", dateFormat(nowDate, "yyyy") as string)
-            .replace("$date:MM", dateFormat(nowDate, "MM") as string)
-            .replace("$date:DD", dateFormat(nowDate, "dd") as string),
+            .replace("$date:YYYY$", dateFormat(nowDate, "yyyy"))
+            .replace("$date:MM$", dateFormat(nowDate, "MM"))
+            .replace("$date:DD$", dateFormat(nowDate, "dd")),
         );
 
         if (suggestFolders.length > 0) {
@@ -260,7 +261,7 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
             addContextMenu({
               id: `${downloaderPushSubMenuId}**${suggestFolder}`,
               parentId: downloaderPushSubMenuId,
-              title: `-> ${suggestFolder || "默认文件夹"}`, // 如果是空字符串，则显示为 "默认文件夹"
+              title: `-> ${suggestFolder || chrome.i18n.getMessage("contextMenuSendToDownloaderDefaultFolder")}`, // 如果是空字符串，则显示为 "默认文件夹"
               contexts: ["link"],
               onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
                 downloadLinkPush(info.linkUrl!, downloader, suggestFolder);
