@@ -44,7 +44,9 @@ export const useConfigStore = defineStore("config", {
     enableTableMultiSort: false,
 
     contextMenus: {
+      enabled: true,
       allowSelectionTextSearch: true,
+      allowLinkDownloadPush: true,
     },
 
     contentScript: {

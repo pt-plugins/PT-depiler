@@ -1,5 +1,5 @@
 import { onMessage } from "@/messages.ts";
-import { fixAllStoredUserInfo } from "./utils/userInfoFixer.ts";
+import { fixAllStoredUserInfo } from "./utils/fixer.ts";
 
 import "./utils/base.ts";
 import "./utils/cookies.ts";

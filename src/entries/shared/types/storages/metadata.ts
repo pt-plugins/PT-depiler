@@ -122,4 +122,7 @@ export interface IMetadataPiniaStorageSchema {
 
   // 站点 host 映射表
   siteHostMap: Record<TSiteHost, TSiteKey>;
+
+  // 站点 ID 到站点名称的映射表
+  siteNameMap: Record<TSiteKey, string>;
 }

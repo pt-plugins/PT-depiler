@@ -69,7 +69,18 @@
     "searchPlanAll": "All Sites",
     "searchPlanSingleSite": "Single Site",
     "searchPlanDefault": "Default",
-    "omniboxSearch": "Search $2 in [ $1 ]"
+    "omniboxSearch": "Search $2 in [ $1 ]",
+    "contextMenuSearch": "Using PT Depiler to Search for \"%s\" related torrents",
+    "contextMenuSearchInDefault": "Search in the default plan",
+    "contextMenuSearchInSolution": "Search in the specified plan",
+    "contextMenuSearchInSite": "Search in the specified site",
+    "contextMenuSearchInThisSite": "Search in this site",
+    "contextMenuSendToDownloader": "Using PT Depiler to Download link",
+    "contextMenuSendToDownloaderAdvanced": "Advanced push",
+    "contextMenuSendToDownloaderIn": "Push to $1 -> $2",
+    "contextMenuSendToDownloaderDefaultFolder": "Default path",
+    "notificationSendLinkToDownloaderSuccess": "Successfully sent the link to the downloader [$1]",
+    "notificationSendLinkToDownloaderFailure": "Failed to send the link to the downloader [$1]"
   },
   "route": {
     "About": {

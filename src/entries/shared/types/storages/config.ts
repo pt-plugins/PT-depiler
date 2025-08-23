@@ -37,8 +37,9 @@ export interface IConfigPiniaStorageSchema {
   userName: string;
 
   contextMenus: {
-    // 是否启用选择内容时搜索
-    allowSelectionTextSearch: boolean;
+    enabled: boolean; // 是否启用右键菜单
+    allowSelectionTextSearch: boolean; // 是否启用选择内容时搜索
+    allowLinkDownloadPush: boolean; // 是否允许链接推送
   };
 
   contentScript: {

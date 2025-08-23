@@ -32,6 +32,7 @@ const permissions = [
   "declarativeNetRequest",
   "storage",
   "unlimitedStorage",
+  "notifications",
 ];
 
 // @ts-ignore

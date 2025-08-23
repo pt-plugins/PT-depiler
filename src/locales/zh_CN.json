@@ -69,7 +69,18 @@
     "searchPlanAll": "全部站点",
     "searchPlanSingleSite": "单个站点",
     "searchPlanDefault": "默认",
-    "omniboxSearch": "在 [ $1 ] 中搜索 $2"
+    "omniboxSearch": "在 [ $1 ] 中搜索 $2",
+    "contextMenuSearch": "使用 PT Depiler  搜索 \"%s\" 相关的种子",
+    "contextMenuSearchInDefault": "在默认方案中搜索",
+    "contextMenuSearchInSolution": "在指定方案中搜索",
+    "contextMenuSearchInSite": "在指定站点中搜索",
+    "contextMenuSearchInThisSite": "在本站点中搜索",
+    "contextMenuSendToDownloader": "使用 PT Depiler 下载链接",
+    "contextMenuSendToDownloaderAdvanced": "高级推送",
+    "contextMenuSendToDownloaderIn": "推送到 $1 -> $2",
+    "contextMenuSendToDownloaderDefaultFolder": "默认路径",
+    "notificationSendLinkToDownloaderSuccess": "已成功将链接发送到下载器 [$1]",
+    "notificationSendLinkToDownloaderFailure": "将链接发送到下载器 [$1] 失败"
   },
   "route": {
     "About": {
