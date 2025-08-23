@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { ref } from "vue";
-import { nanoid } from "nanoid";
+import { onMounted, ref, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
-import { computedAsync } from "@vueuse/core";
-import { cloneDeep, toMerged } from "es-toolkit";
-import { isEmpty, set } from "es-toolkit/compat";
-import type { IAdvancedSearchRequestConfig, ISearchCategories, TSelectSearchCategoryValue, TSiteID } from "@ptd/site";
+import type { ISearchCategories, TSiteID } from "@ptd/site";
 
-import { useMetadataStore } from "@/options/stores/metadata.ts";
-import type { ISearchSolution } from "@/shared/types.ts";
+import {
+  generateSiteSearchSolution,
+  getSiteMetaCategory,
+  isDefaultCategory,
+  radioDefault,
+  type TSelectCategory,
+} from "./utils.ts";
 
 const props = defineProps<{
   siteId: TSiteID;
@@ -17,21 +18,14 @@ const props = defineProps<{
 const emit = defineEmits(["update:solution"]);
 
 const { t } = useI18n();
-const metadataStore = useMetadataStore();
 
-const selectCategory = ref<Record<ISearchCategories["key"], TSelectSearchCategoryValue | symbol>>({});
-const siteMetaCategory = computedAsync(async () => {
-  return getSiteMetaCategory();
-}, []);
+const selectCategory = ref<TSelectCategory>({});
+const siteMetaCategory = shallowRef<ISearchCategories[]>([]);
 
-const radioDefault = Symbol("default");
-
-async function getSiteMetaCategory() {
-  const siteMetaCategory = await metadataStore.getSiteMergedMetadata(props.siteId, "category", []);
-  for (const category of siteMetaCategory!) {
+function resetSelectCategory() {
+  for (const category of siteMetaCategory.value) {
     selectCategory.value[category.key] = category.cross ? [] : radioDefault;
   }
-  return siteMetaCategory;
 }
 
 const showPanel = ref<any[]>([]);
@@ -53,77 +47,19 @@ function clickAllBtn(field: ISearchCategories, toggle: boolean) {
   selectCategory.value[field.key] = fieldSp;
 }
 
-function isDefaultCategory(field: TSelectSearchCategoryValue | symbol) {
-  return Array.isArray(field) ? field.length === 0 : field === radioDefault;
-}
-
 async function generateSolution() {
-  let id = nanoid(); // 通过这种panel生成的solution，其 entries 只有一个值，所以可以直接将id作为entries的id
-  const searchSolution: ISearchSolution = {
-    id,
-    siteId: props.siteId,
-    selectedCategories: {},
-    searchEntries: {},
-  };
+  const searchSolution = generateSiteSearchSolution(props.siteId, selectCategory.value!);
 
-  // 将selectCategory按照siteMetaCategory的顺序转换为searchEntries，并合并成一个规则，合并方法参照ISearchCategories的说明
-  let entriesConfig: IAdvancedSearchRequestConfig = {};
-  for (const category of siteMetaCategory.value!) {
-    const field = cloneDeep(selectCategory.value[category.key]);
-
-    // 跳过默认值（未设置）
-    if (isDefaultCategory(field)) {
-      continue;
-    }
-
-    searchSolution.selectedCategories![category.key] = field as TSelectSearchCategoryValue;
-
-    if (category.generateRequestConfig) {
-      entriesConfig = toMerged(entriesConfig, category.generateRequestConfig(field as TSelectSearchCategoryValue));
-    } else {
-      let fieldKey = category.key;
-      if (fieldKey === "#url") {
-        set(entriesConfig, "requestConfig.url", field);
-      } else {
-        const updatePath = `requestConfig.${category.keyPath ?? "params"}`;
-
-        if (category.cross) {
-          if (typeof category.cross.key != "undefined") {
-            fieldKey = category.cross.key as string;
-          }
-          if (category.cross.mode === "append") {
-            for (const option of field as (string | number)[]) {
-              set(entriesConfig, `${updatePath}.${fieldKey}${option}`, 1);
-            }
-          } else if (category.cross.mode === "appendQuote") {
-            const options = Object.fromEntries((field as (string | number)[]).map((option) => [option, 1]));
-            set(entriesConfig, `${updatePath}.${fieldKey}`, options);
-          } else if (category.cross.mode === "comma") {
-            set(entriesConfig, `${updatePath}.${fieldKey}`, (field as (string | number)[]).join(","));
-          } else {
-            // category.cross.mode === "brackets"
-            set(entriesConfig, `${updatePath}.${fieldKey}`, field);
-          }
-        } else {
-          set(entriesConfig, `${updatePath}.${fieldKey}`, field);
-        }
-      }
-    }
-  }
-
-  if (!isEmpty(entriesConfig)) {
-    searchSolution.searchEntries![id] = entriesConfig;
-  } else {
-    searchSolution.id = "default";
-    searchSolution.searchEntries = {};
-  }
-
-  console.log("generateSolution", searchSolution);
   emit("update:solution", searchSolution);
 
   // 重置本 expansion panel 的数据
-  await getSiteMetaCategory();
+  resetSelectCategory();
 }
+
+onMounted(async () => {
+  siteMetaCategory.value = await getSiteMetaCategory(props.siteId);
+  resetSelectCategory();
+});
 </script>
 
 <template>
@@ -212,7 +148,7 @@ async function generateSolution() {
       </v-col>
       <v-col align-self="center">
         <v-row justify="end">
-          <v-btn color="red" icon="mdi-cached" variant="text" @click="() => getSiteMetaCategory()" />
+          <v-btn color="red" icon="mdi-cached" variant="text" @click="() => resetSelectCategory()" />
         </v-row>
         <v-row justify="end">
           <v-btn color="blue" icon="mdi-arrow-right-bold" variant="text" @click="() => generateSolution()" />
