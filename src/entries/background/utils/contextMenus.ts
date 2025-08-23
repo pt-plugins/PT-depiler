@@ -91,8 +91,8 @@ function downloadLinkPush(link: string, downloader: IDownloaderMetadata, folder?
 }
 
 async function initContextMenus(tab: chrome.tabs.Tab) {
-  const configStore = (await extStorage.getItem("config")) ?? {};
-  const metadataStore = (await extStorage.getItem("metadata")) ?? {};
+  const configStore = (await extStorage.getItem("config"))! ?? {};
+  const metadataStore = (await extStorage.getItem("metadata"))! ?? {};
   const tabHost = getHostFromUrl(tab.url || "https://example.com");
   const thisTabSiteId = metadataStore?.siteHostMap?.[tabHost];
   const thisTabSiteName = metadataStore?.siteNameMap?.[thisTabSiteId];
