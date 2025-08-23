@@ -278,14 +278,28 @@ function saveControl() {
             <!-- 3. 绘制基础信息 -->
             <vk-group :config="{ x: 20, y: nameInfoHeight }">
               <!-- 3.1 左侧 totalInfo -->
-              <vk-text
-                :config="
-                  text({
-                    y: 0,
-                    text: `${t('UserDataTimeline.total')}${t('UserDataTimeline.field.site')}: ${timelineData.totalInfo.sites}${timelineData.totalInfo.deadSites > 0 ? ` (🌇${timelineData.totalInfo.deadSites})` : ''}`,
-                  })
-                "
-              />
+              <vk-group :config="{ x: 0, y: 0 }">
+                <vk-text
+                  :config="
+                    text({
+                      y: 0,
+                      text: `${t('UserDataTimeline.total')}${t('UserDataTimeline.field.site')}: ${timelineData.totalInfo.sites}`,
+                    })
+                  "
+                />
+                <vk-text
+                  v-if="timelineData.totalInfo.deadSites > 0"
+                  :config="
+                    text({
+                      x: 160,
+                      y: 0,
+                      text: `󰖛: ${timelineData.totalInfo.deadSites}`,
+                      fontFamily: 'Material Design Icons',
+                      fill: '#9E9E9E',
+                    })
+                  "
+                />
+              </vk-group>
               <vk-text
                 v-for="(key, index) in realShowField"
                 :key="key.name"
@@ -415,7 +429,11 @@ function saveControl() {
                         :config="
                           text({
                             y: 0,
-                            text: `${allAddedSiteMetadata[userInfo.site].siteName}${allAddedSiteMetadata[userInfo.site]?.isDead ? '🌇' : ''}`,
+                            text: `${allAddedSiteMetadata[userInfo.site]?.isDead ? '󰖛' : ''}${allAddedSiteMetadata[userInfo.site].siteName}`,
+                            fill: allAddedSiteMetadata[userInfo.site]?.isDead ? '#9E9E9E' : '#fff',
+                            fontFamily: allAddedSiteMetadata[userInfo.site]?.isDead
+                              ? 'Material Design Icons'
+                              : undefined,
                             fontStyle: 'bold',
                           })
                         "
@@ -668,7 +686,7 @@ function saveControl() {
                   <v-icon
                     v-if="allAddedSiteMetadata[siteId]?.isDead"
                     icon="mdi-weather-sunset-down"
-                    color="deep-orange-darken-1"
+                    color="blue-grey-darken-1"
                     size="small"
                     class="ml-1"
                   ></v-icon>
