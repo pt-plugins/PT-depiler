@@ -91,8 +91,10 @@ function downloadLinkPush(link: string, downloader: IDownloaderMetadata, folder?
 }
 
 async function initContextMenus(tab: chrome.tabs.Tab) {
+  // 这里不处理 https://github.com/pt-plugins/PT-depiler/pull/470#discussion_r2295102201 提到的情况，因为会导致后面的type错误
   const configStore = (await extStorage.getItem("config"))! ?? {};
   const metadataStore = (await extStorage.getItem("metadata"))! ?? {};
+
   const tabHost = getHostFromUrl(tab.url || "https://example.com");
   const thisTabSiteId = metadataStore?.siteHostMap?.[tabHost];
   const thisTabSiteName = metadataStore?.siteNameMap?.[thisTabSiteId];
@@ -302,5 +304,8 @@ chrome.tabs.onActivated.addListener((actionInfo: chrome.tabs.OnActivatedInfo) =>
 });
 
 chrome.tabs.onUpdated.addListener((tabId: number, changeInfo: chrome.tabs.OnUpdatedInfo, tab: chrome.tabs.Tab) => {
-  initContextMenus(tab).catch((err) => console.error("Failed to initialize context menus on tabUpdated:", err));
+  // 只在URL变化或loading完成时重建菜单
+  if (changeInfo.url || changeInfo.status === "complete") {
+    initContextMenus(tab).catch((err) => console.error("Failed to initialize context menus on tabUpdated:", err));
+  }
 });
