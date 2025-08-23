@@ -26,14 +26,15 @@ import { IStoredUserInfo } from "@/shared/types.ts";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-import { allAddedSiteMetadata, loadAllAddedSiteMetadata } from "@/options/views/Overview/MyData/utils.ts";
+import { useMetadataStore } from "@/options/stores/metadata";
+import { allAddedSiteMetadata, loadAllAddedSiteMetadata } from "@/options/views/Overview/MyData/utils";
 
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import SiteName from "@/options/components/SiteName.vue";
 import NavButton from "@/options/components/NavButton.vue";
 import CheckSwitchButton from "@/options/components/CheckSwitchButton.vue";
 
-import { type IUserDataStatistic, loadFullData, setSubDate } from "./utils.ts";
+import { type IUserDataStatistic, loadFullData, setSubDate } from "./utils";
 import { NO_IMAGE } from "@ptd/site";
 
 type EChartsLineChartOption = ComposeOption<
@@ -50,6 +51,7 @@ const { t } = useI18n();
 const route = useRoute();
 const router = useRouter();
 const configStore = useConfigStore();
+const metadataStore = useMetadataStore();
 const chartContainerRef = useTemplateRef<HTMLDivElement>("chartContainer");
 const { width: containerWidth } = useElementSize(chartContainerRef);
 const perChartHeight = computed(() => 400);
@@ -59,16 +61,25 @@ const allowEditName = ref<boolean>(false);
 const rawDataRef = shallowRef<IUserDataStatistic>({ siteDateRange: {}, dailyUserInfo: {}, incrementalData: {} });
 
 const allDateRanges = computed(() => Object.keys(rawDataRef.value.dailyUserInfo));
-const allSites = computed<string[]>(() => Object.keys(rawDataRef.value.siteDateRange));
+const allSites = computed<string[]>(() => {
+  // 只返回用户当前配置中的站点，过滤掉已删除的站点
+  const addedSiteIds = metadataStore.getAddedSiteIds;
+  return Object.keys(rawDataRef.value.siteDateRange).filter((siteId) => addedSiteIds.includes(siteId));
+});
 
 const selectedDateRanges = shallowRef<string[]>([]);
 const selectedDateRangeRawData = computed<IUserDataStatistic["dailyUserInfo"]>(() =>
   pick(rawDataRef.value.dailyUserInfo, selectedDateRanges.value),
 );
 
-const availableSites = computed(() =>
-  uniq(flatten(Object.values(mapValues(selectedDateRangeRawData.value, (x) => Object.keys(x))))),
-);
+const availableSites = computed(() => {
+  const allAvailableSites = uniq(
+    flatten(Object.values(mapValues(selectedDateRangeRawData.value, (x) => Object.keys(x)))),
+  );
+  // 只返回用户当前配置中的站点，过滤掉已删除的站点
+  const addedSiteIds = metadataStore.getAddedSiteIds;
+  return allAvailableSites.filter((siteId) => addedSiteIds.includes(siteId));
+});
 
 const selectedSites = ref<string[]>([]);
 const selectedDataComputed = computed<IUserDataStatistic["dailyUserInfo"]>(() =>
@@ -301,8 +312,11 @@ provide(THEME_KEY, echartsTheme);
 onMounted(async () => {
   rawDataRef.value = await loadFullData();
 
-  // 加载所有站点的元数据
-  await loadAllAddedSiteMetadata(Object.keys(rawDataRef.value.siteDateRange));
+  // 加载用户当前配置的站点元数据，而不是所有有数据的站点
+  const addedSiteIds = metadataStore.getAddedSiteIds;
+  const sitesWithData = Object.keys(rawDataRef.value.siteDateRange);
+  const validSitesToLoad = sitesWithData.filter((siteId) => addedSiteIds.includes(siteId));
+  await loadAllAddedSiteMetadata(validSitesToLoad);
 
   // 从路由中加载默认参数
   const { days = -1, sites = [] } = route.query ?? {};
