@@ -1,14 +1,10 @@
-import { useMetadataStore } from "@/options/stores/metadata.ts";
-import {
-  type IAdvancedSearchRequestConfig,
-  type ISearchCategories,
-  type TSelectSearchCategoryValue,
-  TSiteID,
-} from "@ptd/site";
-import type { ISearchSolution } from "@/shared/types/storages/metadata.ts";
 import { nanoid } from "nanoid";
 import { cloneDeep, toMerged } from "es-toolkit";
 import { isEmpty, set } from "es-toolkit/compat";
+import type { IAdvancedSearchRequestConfig, ISearchCategories, TSelectSearchCategoryValue, TSiteID } from "@ptd/site";
+
+import { useMetadataStore } from "@/options/stores/metadata.ts";
+import type { ISearchSolution } from "@/shared/types/storages/metadata.ts";
 
 const metadataStore = useMetadataStore();
 
@@ -91,4 +87,25 @@ export async function generateSiteSearchSolution(
   }
 
   return searchSolution;
+}
+
+function getCategory(siteMetaCategory: ISearchCategories[], key: string) {
+  return siteMetaCategory.find((x) => x.key === key) ?? { key, name: key, options: [] };
+}
+
+export function getCategoryName(siteMetaCategory: ISearchCategories[], key: string) {
+  return getCategory(siteMetaCategory, key)?.name ?? key;
+}
+
+export function getCategoryOptionName(
+  siteMetaCategory: ISearchCategories[],
+  key: string,
+  value: string | number | (string | number)[],
+) {
+  const options = getCategory(siteMetaCategory, key)?.options ?? [];
+  if (Array.isArray(value)) {
+    return value.map((v) => options.find((o) => o.value === v)?.name ?? v).join(", ");
+  } else {
+    return options.find((o) => o.value === value)?.name ?? value;
+  }
 }
