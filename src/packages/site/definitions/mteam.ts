@@ -627,7 +627,7 @@ export default class MTeam extends PrivateSite {
    * @param tids 种子ID数组
    * @returns 查询历史的响应数据
    */
-  public async queryTorrentHistory(tids: string[]): Promise<
+  private async queryTorrentHistory(tids: string[]): Promise<
     IMTeamRawResp<{
       historyMap: Record<
         string,
