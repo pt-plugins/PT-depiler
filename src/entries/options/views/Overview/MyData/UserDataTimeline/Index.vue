@@ -682,20 +682,20 @@ function saveControl() {
               <template #label>
                 <SiteFavicon :site-id="siteId" :size="16" />
                 <span class="ml-1">
-                  <SiteName :site-id="siteId" tag="span" />
+                  <SiteName :site-id="siteId" class="" tag="span" />
                   <v-icon
                     v-if="allAddedSiteMetadata[siteId]?.isDead"
-                    icon="mdi-weather-sunset-down"
-                    color="blue-grey-darken-1"
-                    size="small"
                     class="ml-1"
+                    color="blue-grey-darken-1"
+                    icon="mdi-weather-sunset-down"
+                    size="small"
                   ></v-icon>
                   <v-icon
                     v-if="allAddedSiteMetadata[siteId]?.isOffline && !allAddedSiteMetadata[siteId]?.isDead"
-                    icon="mdi-signal-off"
-                    color="blue-grey-darken-1"
-                    size="small"
                     class="ml-1"
+                    color="blue-grey-darken-1"
+                    icon="mdi-signal-off"
+                    size="small"
                   ></v-icon>
                 </span>
               </template>

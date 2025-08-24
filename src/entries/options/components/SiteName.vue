@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, reactive, ref, useAttrs } from "vue";
+import { reactive, ref, useAttrs, watch } from "vue";
 import { type TSiteID } from "@ptd/site";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -33,20 +33,28 @@ if (tagIs === "a") {
   });
 }
 
-onMounted(() => {
+function updateSiteName(siteId: TSiteID) {
   // 首先赋值为 siteId，防止空白
-  siteName.value = props.siteId;
+  siteName.value = siteId;
 
   // 优先从缓存中读取
-  if (metadataStore.siteNameMap?.[props.siteId]) {
-    siteName.value = metadataStore.siteNameMap[props.siteId];
+  if (metadataStore.siteNameMap?.[siteId]) {
+    siteName.value = metadataStore.siteNameMap[siteId];
   } else {
     // 如果缓存中没有/或者没有生成缓存，则按之前的逻辑读取
-    metadataStore.getSiteMergedMetadata(props.siteId, "name", props.siteId).then((name) => {
+    metadataStore.getSiteName(siteId).then((name) => {
       siteName.value = name;
     });
   }
-});
+}
+
+watch(
+  () => props.siteId,
+  (newSiteId) => {
+    updateSiteName(newSiteId);
+  },
+  { immediate: true },
+);
 </script>
 
 <template>
