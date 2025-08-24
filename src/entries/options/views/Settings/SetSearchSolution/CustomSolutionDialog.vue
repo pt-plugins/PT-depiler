@@ -70,6 +70,7 @@ function doSubmit() {
   try {
     const requestConfig = JSON.parse(searchSolutionEntryRequestConfig.value);
     if (searchSolution.value.searchEntries && searchSolution.value.id) {
+      searchSolution.value.searchEntries[searchSolution.value.id] ??= {}; // 防止 default 情况下无法赋值
       searchSolution.value.searchEntries[searchSolution.value.id].requestConfig = requestConfig;
     }
   } catch (e) {
