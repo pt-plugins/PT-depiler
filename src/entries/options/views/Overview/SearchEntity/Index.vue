@@ -42,8 +42,8 @@ const fullTableHeader = computed(
         title: t("SearchEntity.index.table.title"),
         key: "title",
         align: "start",
-        width: "50%",
-        ...(display.smAndDown.value ? { minWidth: 600, maxWidth: "32vw" } : {}),
+        minWidth: "30rem",
+        ...(display.smAndDown.value ? { maxWidth: "32vw" } : {}),
         props: { disabled: true },
       },
       { title: t("SearchEntity.index.table.category"), key: "category", align: "center" },
@@ -320,6 +320,8 @@ function cancelSearchQueue() {
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('SearchEntity', 'itemsPerPage', v)"
       @update:sortBy="(v) => configStore.updateTableBehavior('SearchEntity', 'sortBy', v)"
     >
+      <!-- 表格内容 -->
+
       <!-- 站点图标 -->
       <template #item.site="{ item }">
         <div class="d-flex flex-column align-center">

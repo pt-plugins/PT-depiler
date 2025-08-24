@@ -43,7 +43,7 @@ const tableHeader = computed(() => {
       key: "groups",
       align: "left",
       sortable: false,
-      ...(display.smAndDown.value ? { minWidth: 120 } : {}),
+      minWidth: "8rem",
     },
     { title: t("SetSite.common.url"), key: "url", align: "start", sortable: false },
     { title: t("SetSite.common.isOffline"), key: "userConfig.isOffline", align: "center" },
