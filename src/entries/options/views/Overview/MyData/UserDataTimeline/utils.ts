@@ -50,6 +50,7 @@ interface ITimelineData {
   totalInfo: {
     sites: number;
     deadSites: number;
+    offlineSites: number;
   } & Required<Pick<IUserInfo, ITimelineUserInfoField["name"] | "ratio">>;
 }
 
@@ -131,6 +132,7 @@ export const timelineDataRef = useResetableRef<ITimelineData>(() => {
     totalInfo: {
       sites: 0,
       deadSites: 0,
+      offlineSites: 0,
       uploads: 0,
       uploaded: 0,
       downloaded: 0,
@@ -163,6 +165,11 @@ export const timelineDataRef = useResetableRef<ITimelineData>(() => {
       // 统计 dead 站点数量
       if (allAddedSiteMetadata[userInfo.site]?.isDead) {
         result.totalInfo.deadSites++;
+      }
+
+      // 统计 offline 站点数量
+      if (allAddedSiteMetadata[userInfo.site]?.isOffline) {
+        result.totalInfo.offlineSites++;
       }
 
       if (!userNames[userInfo.name]) {
