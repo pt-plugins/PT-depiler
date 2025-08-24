@@ -1,7 +1,7 @@
 {
   "name": "pt-depiler",
   "private": true,
-  "version": "0.0.4",
+  "version": "0.0.5",
   "type": "module",
   "homepage": "https://github.com/pt-plugins/PT-depiler",
   "packageManager": "pnpm@10.14.0",
