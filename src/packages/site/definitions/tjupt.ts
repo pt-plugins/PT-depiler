@@ -172,12 +172,14 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
-      name: "无名小辈(User)",
+      name: "无名小辈",
+      nameAka: ["User"],
       privilege: `新用户的默认级别。`,
     },
     {
       id: 2,
-      name: "拜师学艺(Power User)",
+      name: "拜师学艺",
+      nameAka: ["Power User"],
       interval: "P4W",
       snatches: 20,
       seedingTime: "P30D",
@@ -188,7 +190,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 3,
-      name: "持剑下山(Elite User)",
+      name: "持剑下山",
+      nameAka: ["Elite User"],
       interval: "P8W",
       snatches: 60,
       seedingTime: "P120D",
@@ -199,7 +202,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 4,
-      name: "初入江湖(Crazy User)",
+      name: "初入江湖",
+      nameAka: ["Crazy User"],
       interval: "P16W",
       snatches: 150,
       seedingTime: "P450D",
@@ -211,9 +215,10 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 5,
-      name: "小有名气(Insane User)",
+      name: "小有名气",
+      nameAka: ["Insane User"],
       interval: "P28W",
-      downloads: "300",
+      snatches: 300,
       seedingTime: "P1500D",
       uploaded: "2000GB",
       uploads: 5,
@@ -223,9 +228,10 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 6,
-      name: "威震一方(Veteran User)",
+      name: "威震一方",
+      nameAka: ["Veteran User"],
       interval: "P48W",
-      downloads: "600",
+      snatches: 600,
       seedingTime: "P4200D",
       uploaded: "5000GB",
       uploads: 10,
@@ -235,9 +241,10 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 7,
-      name: "横扫群雄(Extreme User)",
+      name: "横扫群雄",
+      nameAka: ["Extreme User"],
       interval: "P72W",
-      downloads: "1000",
+      snatches: 1000,
       seedingTime: "P28000D",
       uploaded: "10000GB",
       uploads: 15,
@@ -247,9 +254,10 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 8,
-      name: "开宗立派(Ultimate User)",
+      name: "开宗立派",
+      nameAka: ["Ultimate User"],
       interval: "P100W",
-      downloads: "1800",
+      snatches: 1800,
       seedingTime: "P90000D",
       uploaded: "20000GB",
       uploads: 30,
@@ -259,9 +267,10 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 9,
-      name: "天下无敌(Nexus Master)",
+      name: "天下无敌",
+      nameAka: ["Nexus Master"],
       interval: "P132W",
-      downloads: "3000",
+      snatches: 3000,
       seedingTime: "P300000D",
       uploads: 50,
       uploaded: "50000GB",
@@ -338,13 +347,13 @@ export default class TJUPT extends NexusPHP {
         }
       }
 
-      const downloadsSpan = Sizzle("tr#9 li span:contains('>200MiB'):first", classesResponse as Document);
-      if (downloadsSpan.length > 0) {
-        const text = downloadsSpan[0].textContent?.trim();
+      const snatchesSpan = Sizzle("tr#9 li span:contains('>200MiB'):first", classesResponse as Document);
+      if (snatchesSpan.length > 0) {
+        const text = snatchesSpan[0].textContent?.trim();
         if (text) {
-          const matchDownloads = text.match(/(\d+)\/3000/);
-          if (matchDownloads) {
-            flushUserInfo.downloads = parseInt(matchDownloads[1]);
+          const matchSnatches = text.match(/(\d+)\/3000/);
+          if (matchSnatches) {
+            flushUserInfo.snatches = parseInt(matchSnatches[1]);
           }
         }
       }
@@ -365,8 +374,8 @@ export default class TJUPT extends NexusPHP {
       flushUserInfo.uploads = 0;
     }
 
-    if (typeof flushUserInfo.downloads === "undefined") {
-      flushUserInfo.downloads = 0;
+    if (typeof flushUserInfo.snatches === "undefined") {
+      flushUserInfo.snatches = 0;
     }
 
     if (typeof flushUserInfo.seedingTime === "undefined") {
