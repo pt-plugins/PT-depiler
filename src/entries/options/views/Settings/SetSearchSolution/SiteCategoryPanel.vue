@@ -11,13 +11,17 @@ import {
   type TSelectCategory,
 } from "./utils.ts";
 
-const props = defineProps<{
+import CustomSolutionDialog from "./CustomSolutionDialog.vue";
+import type { ISearchSolution } from "@/shared/types/storages/metadata.ts";
+
+const { siteId } = defineProps<{
   siteId: TSiteID;
 }>();
 
 const emit = defineEmits(["update:solution"]);
 
 const { t } = useI18n();
+const showCustomSolutionDialog = ref(false);
 
 const selectCategory = ref<TSelectCategory>({});
 const siteMetaCategory = shallowRef<ISearchCategories[]>([]);
@@ -47,17 +51,24 @@ function clickAllBtn(field: ISearchCategories, toggle: boolean) {
   selectCategory.value[field.key] = fieldSp;
 }
 
-async function generateSolution() {
-  const searchSolution = generateSiteSearchSolution(props.siteId, selectCategory.value!);
+async function showCustomSolutionDialogFn() {
+  showCustomSolutionDialog.value = true;
+}
 
+function saveGeneratedSolution(searchSolution: ISearchSolution) {
   emit("update:solution", searchSolution);
 
   // 重置本 expansion panel 的数据
   resetSelectCategory();
 }
 
+async function generateSolution() {
+  const searchSolution = await generateSiteSearchSolution(siteId, selectCategory.value!);
+  saveGeneratedSolution(searchSolution);
+}
+
 onMounted(async () => {
-  siteMetaCategory.value = await getSiteMetaCategory(props.siteId);
+  siteMetaCategory.value = await getSiteMetaCategory(siteId);
   resetSelectCategory();
 });
 </script>
@@ -151,11 +162,26 @@ onMounted(async () => {
           <v-btn color="red" icon="mdi-cached" variant="text" @click="() => resetSelectCategory()" />
         </v-row>
         <v-row justify="end">
+          <v-btn
+            color="indigo"
+            icon="mdi-pencil-plus"
+            variant="text"
+            @click="() => showCustomSolutionDialogFn()"
+          ></v-btn>
+        </v-row>
+        <v-row justify="end">
           <v-btn color="blue" icon="mdi-arrow-right-bold" variant="text" @click="() => generateSolution()" />
         </v-row>
       </v-col>
     </v-row>
   </v-container>
+
+  <CustomSolutionDialog
+    v-model="showCustomSolutionDialog"
+    :save-generated-solution="saveGeneratedSolution"
+    :select-category="selectCategory"
+    :site-id="siteId"
+  />
 </template>
 
 <style scoped lang="scss">
