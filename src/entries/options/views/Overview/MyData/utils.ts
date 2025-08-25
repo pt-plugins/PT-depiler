@@ -60,6 +60,14 @@ export function flushSiteLastUserInfo(sites: TSiteID[]) {
       })
       .finally(() => {
         runtimeStore.userInfo.flushPlan[site] = false;
+
+        // 检查是否所有站点都已完成刷新
+        const isAllCompleted = Object.values(runtimeStore.userInfo.flushPlan).every((v) => !v);
+        if (isAllCompleted) {
+          // 所有站点完成后，显示完成消息
+          // 注意：不再手动flush，让BatchUserInfoManager的5秒超时机制处理剩余数据
+          runtimeStore.showSnakebar(`用户信息刷新完成，数据将在5秒内自动保存`, { color: "success" });
+        }
       });
   }
 }

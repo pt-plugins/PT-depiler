@@ -13,6 +13,111 @@ import { getSiteInstance } from "./site.ts";
 const flushQueue = new PQueue({ concurrency: 1 }); // 默认设置为 1，避免并发搜索
 const setSiteLastUserInfoQueue = new PQueue({ concurrency: 1 }); // 专门用于 setSiteLastUserInfo 的队列
 
+// 批量更新管理器
+class BatchUserInfoManager {
+  private pendingUpdates: IUserInfo[] = [];
+  public batchSize: number = 5; // 默认批量大小，改为公共属性便于外部检查
+  private batchTimeout: NodeJS.Timeout | null = null;
+
+  updateBatchSize(size: number) {
+    this.batchSize = Math.min(size, 5); // 不超过5
+  }
+
+  addPendingUpdate(userInfo: IUserInfo) {
+    this.pendingUpdates.push(userInfo);
+    logger({ msg: `Added user info to batch: ${userInfo.site} (${this.pendingUpdates.length}/${this.batchSize})` });
+
+    // 检查是否达到批量大小
+    if (this.pendingUpdates.length >= this.batchSize) {
+      this.flushPendingUpdates();
+    } else {
+      // 设置2秒延迟批量写入
+      this.scheduleDelayedFlush();
+    }
+  }
+
+  private scheduleDelayedFlush() {
+    if (this.batchTimeout) {
+      clearTimeout(this.batchTimeout);
+    }
+
+    this.batchTimeout = setTimeout(() => {
+      this.flushPendingUpdates();
+    }, 5000);
+  }
+
+  async flushPendingUpdates() {
+    if (this.pendingUpdates.length === 0) return;
+
+    const updatesBatch = [...this.pendingUpdates];
+    this.pendingUpdates = [];
+
+    if (this.batchTimeout) {
+      clearTimeout(this.batchTimeout);
+      this.batchTimeout = null;
+    }
+
+    logger({ msg: `Batch flushing ${updatesBatch.length} user info updates` });
+
+    try {
+      await this.batchUpdateStorage(updatesBatch);
+      logger({ msg: `Successfully batch updated ${updatesBatch.length} user info records` });
+    } catch (error) {
+      logger({ msg: `Failed to batch update user info: ${error}`, level: "error" });
+      // 如果批量更新失败，回退到逐个更新
+      for (const userInfo of updatesBatch) {
+        try {
+          await setSiteLastUserInfo(userInfo);
+        } catch (e) {
+          logger({ msg: `Failed to update user info for ${userInfo.site}: ${e}`, level: "error" });
+        }
+      }
+    }
+  }
+
+  private async batchUpdateStorage(userInfoList: IUserInfo[]) {
+    if (userInfoList.length === 0) return;
+
+    // 批量更新 metadata 存储
+    const metadataStore = ((await sendMessage("getExtStorage", "metadata")) ?? {}) as IMetadataPiniaStorageSchema;
+    metadataStore.lastUserInfo ??= {};
+
+    // 批量更新 userInfo 存储
+    const userInfoStore = ((await sendMessage("getExtStorage", "userInfo")) ?? {}) as TUserInfoStorageSchema;
+
+    // 预处理成功的用户信息数据
+    const successfulUpdates = userInfoList.filter((userData) => userData.status === EResultParseStatus.success);
+
+    for (const userData of userInfoList) {
+      // 更新 metadata 中的最新用户信息
+      metadataStore.lastUserInfo[userData.site] = userData;
+    }
+
+    // 批量处理成功的用户信息历史记录
+    for (const userData of successfulUpdates) {
+      userInfoStore[userData.site] ??= {};
+      const dateTime = format(userData.updateAt, "yyyy-MM-dd");
+      userInfoStore[userData.site][dateTime] = userData;
+    }
+
+    // 批量写入存储
+    await Promise.all([
+      sendMessage("setExtStorage", { key: "metadata", value: metadataStore }),
+      sendMessage("setExtStorage", { key: "userInfo", value: userInfoStore }),
+    ]);
+  }
+
+  reset() {
+    this.pendingUpdates = [];
+    if (this.batchTimeout) {
+      clearTimeout(this.batchTimeout);
+      this.batchTimeout = null;
+    }
+  }
+}
+
+const batchManager = new BatchUserInfoManager();
+
 flushQueue.on("active", async () => {
   const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
   const queueConcurrency = configStoreRaw?.userInfo?.queueConcurrency ?? 1;
@@ -23,10 +128,20 @@ flushQueue.on("active", async () => {
       msg: `The concurrency of the user information refresh queue has been updated to ${flushQueue.concurrency}`,
     });
   }
+
+  // 批量大小等于队列并发数，但不超过5
+  const batchSize = Math.min(queueConcurrency, 5);
+  if (batchManager.batchSize !== batchSize) {
+    batchManager.updateBatchSize(batchSize);
+    logger({
+      msg: `Batch size updated to ${batchSize} (based on concurrency: ${queueConcurrency})`,
+    });
+  }
 });
 
 onMessage("cancelUserInfoQueue", () => {
   flushQueue.clear();
+  logger({ msg: "User info queue canceled" });
 });
 
 export async function getSiteUserInfoResult(siteId: string) {
@@ -75,7 +190,9 @@ export async function getSiteUserInfoResult(siteId: string) {
       }
     }
 
-    await setSiteLastUserInfo(userInfo);
+    // 使用批量管理器处理存储更新，而不是立即调用 setSiteLastUserInfo
+    batchManager.addPendingUpdate(userInfo);
+
     return userInfo!;
   }))!;
 }
@@ -89,8 +206,8 @@ export async function setSiteLastUserInfo(userData: IUserInfo) {
 
     // 存储用户信息到 metadata 中（ pinia/webExtPersistence 会自动同步该部分信息 ）
     const metadataStore = ((await sendMessage("getExtStorage", "metadata")) ?? {}) as IMetadataPiniaStorageSchema;
-    (metadataStore as IMetadataPiniaStorageSchema).lastUserInfo ??= {};
-    (metadataStore as IMetadataPiniaStorageSchema).lastUserInfo[site] = userData;
+    metadataStore.lastUserInfo ??= {};
+    metadataStore.lastUserInfo[site] = userData;
     await sendMessage("setExtStorage", { key: "metadata", value: metadataStore });
 
     // 存储用户信息到 userInfo 中（仅当获取成功时）
