@@ -29,6 +29,25 @@ export const useConfigStore = defineStore("config", {
         }
       }
 
+      // 清理基于 id 字段的 DownloadHistory 排序配置
+      if (state.tableBehavior?.DownloadHistory?.sortBy) {
+        const sortBy = state.tableBehavior.DownloadHistory.sortBy;
+        // 过滤掉基于 id 字段的排序项
+        const filteredSortBy = sortBy.filter((sort: any) => sort.key !== "id");
+
+        // 如果过滤后数组长度发生变化，说明移除了基于 id 的排序项
+        if (filteredSortBy.length !== sortBy.length) {
+          // 如果过滤后没有任何排序项，使用默认的 downloadAt 排序
+          if (filteredSortBy.length === 0) {
+            state.tableBehavior.DownloadHistory.sortBy = [{ key: "downloadAt", order: "desc" }];
+          } else {
+            // 否则保留其他有效的排序项
+            state.tableBehavior.DownloadHistory.sortBy = filteredSortBy;
+          }
+          needsSave = true;
+        }
+      }
+
       if (needsSave) {
         context.store.$save();
       }
@@ -101,7 +120,7 @@ export const useConfigStore = defineStore("config", {
       },
       DownloadHistory: {
         itemsPerPage: 10,
-        sortBy: [{ key: "id", order: "desc" }],
+        sortBy: [{ key: "downloadAt", order: "desc" }],
       },
       SearchResultSnapshot: {
         itemsPerPage: 25,
