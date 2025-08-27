@@ -3,6 +3,7 @@ import { format as dateFormat } from "date-fns";
 
 import { CAddTorrentOptions } from "@ptd/downloader";
 import { getHostFromUrl } from "@ptd/site/utils/html.ts"; // 这里不能使用 @ptd/site 的主入口，会导致 sw 无法加载
+import { type ITorrent } from "@ptd/site/types/torrent.ts";
 
 import { IDownloaderMetadata } from "@/shared/types/storages/metadata.ts";
 import { extStorage } from "@/storage.ts";
@@ -58,19 +59,36 @@ function clearContextMenus() {
 
 onMessage("clearContextMenus", async () => clearContextMenus());
 
-function downloadLinkPush(
+async function downloadLinkPush(
   link: string,
   downloader: IDownloaderMetadata,
   folder?: string,
   title?: string,
   url?: string,
 ) {
+  // 从链接中提取站点信息，与 ContextMenuLinkPush.vue 保持一致
+  const torrent: Partial<ITorrent> = {
+    link,
+    title,
+    url,
+  };
+
+  // 尝试从 link 中解出site
+  if (link.match(/https?:\/\/([^/]+)/)) {
+    const host = getHostFromUrl(link);
+    try {
+      const metadataStore = await extStorage.getItem("metadata");
+      if (metadataStore?.siteHostMap?.[host]) {
+        torrent.site = metadataStore.siteHostMap[host];
+      }
+    } catch (error) {
+      console.warn("[PTD] Failed to get metadata store for site detection:", error);
+    }
+  }
+
+  // 发送下载请求
   sendMessage("downloadTorrentToDownloader", {
-    torrent: {
-      link,
-      title,
-      url,
-    }, // 组装包含标题和URL的种子对象
+    torrent, // 组装包含标题、URL和站点信息的种子对象
     downloaderId: downloader.id,
     addTorrentOptions: {
       addAtPaused: !(downloader?.feature?.DefaultAutoStart ?? true),
