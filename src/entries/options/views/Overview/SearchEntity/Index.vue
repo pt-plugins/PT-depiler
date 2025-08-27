@@ -329,21 +329,6 @@ function cancelSearchQueue() {
       </v-row>
     </v-card-title>
 
-    <!-- 选中种子信息条 -->
-    <v-card-text v-show="selectedTorrentsInfo.count > 0" class="py-2">
-      <v-alert color="info" variant="tonal" density="compact" class="mb-0">
-        <div class="d-flex align-center">
-          <v-chip color="primary" size="small" variant="outlined">
-            <v-icon start icon="mdi-checkbox-marked-circle" />
-            {{ t("SearchEntity.index.selectedTorrents", [selectedTorrentsInfo.count]) }}
-            <v-divider vertical class="mx-2" />
-            <v-icon icon="mdi-harddisk" />
-            {{ formatSize(selectedTorrentsInfo.totalSize) }}
-          </v-chip>
-        </div>
-      </v-alert>
-    </v-card-text>
-
     <v-data-table
       id="ptd-search-entity-table"
       v-model="tableSelected"
@@ -362,6 +347,23 @@ function cancelSearchQueue() {
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('SearchEntity', 'itemsPerPage', v)"
       @update:sortBy="(v) => configStore.updateTableBehavior('SearchEntity', 'sortBy', v)"
     >
+      <!-- 选中种子信息条 -->
+      <template v-if="selectedTorrentsInfo.count > 0" #top>
+        <div class="pa-3">
+          <v-alert color="info" variant="tonal" density="compact" class="mb-0">
+            <div class="d-flex align-center">
+              <v-chip color="primary" size="small" variant="outlined">
+                <v-icon start icon="mdi-checkbox-marked-circle" />
+                {{ t("SearchEntity.index.selectedTorrents", [selectedTorrentsInfo.count]) }}
+                <v-divider vertical class="mx-2" />
+                <v-icon icon="mdi-harddisk" />
+                {{ formatSize(selectedTorrentsInfo.totalSize) }}
+              </v-chip>
+            </div>
+          </v-alert>
+        </div>
+      </template>
+
       <!-- 表格内容 -->
 
       <!-- 站点图标 -->
