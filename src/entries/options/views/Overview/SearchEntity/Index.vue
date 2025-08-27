@@ -73,18 +73,7 @@ const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
 
 const tableSelected = ref<Array<ISearchResultTorrent["uniqueId"]>>([]);
 
-// 缓存种子数据，避免重复遍历
-const torrentDataMap = computed(() => {
-  const map = new Map();
-  for (const torrent of runtimeStore.search.searchResult) {
-    map.set(torrent.uniqueId, {
-      size: torrent.size || 0,
-    });
-  }
-  return map;
-});
-
-// 优化：计算选中种子的信息（使用缓存Map和增量计算）
+// 计算选中种子的信息（简化版本，适用于中小规模数据）
 const selectedTorrentsInfo = computed(() => {
   const selectedIds = tableSelected.value;
   const count = selectedIds.length;
@@ -94,14 +83,13 @@ const selectedTorrentsInfo = computed(() => {
     return { count: 0, totalSize: 0 };
   }
 
-  // 增量计算：只计算选中项的大小，避免遍历全部数据
+  // 直接遍历搜索结果，计算选中项的总大小
   let totalSize = 0;
-  const torrentMap = torrentDataMap.value;
+  const selectedSet = new Set(selectedIds); // 使用Set优化查找
 
-  for (const id of selectedIds) {
-    const torrentData = torrentMap.get(id);
-    if (torrentData) {
-      totalSize += torrentData.size;
+  for (const torrent of runtimeStore.search.searchResult) {
+    if (selectedSet.has(torrent.uniqueId)) {
+      totalSize += torrent.size || 0;
     }
   }
 
