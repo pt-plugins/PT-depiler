@@ -73,6 +73,44 @@ const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
 
 const tableSelected = ref<Array<ISearchResultTorrent["uniqueId"]>>([]);
 
+// 缓存种子数据，避免重复遍历
+const torrentDataMap = computed(() => {
+  const map = new Map();
+  for (const torrent of runtimeStore.search.searchResult) {
+    map.set(torrent.uniqueId, {
+      size: torrent.size || 0,
+    });
+  }
+  return map;
+});
+
+// 优化：计算选中种子的信息（使用缓存Map和增量计算）
+const selectedTorrentsInfo = computed(() => {
+  const selectedIds = tableSelected.value;
+  const count = selectedIds.length;
+
+  // 如果没有选中任何项，直接返回
+  if (count === 0) {
+    return { count: 0, totalSize: 0 };
+  }
+
+  // 增量计算：只计算选中项的大小，避免遍历全部数据
+  let totalSize = 0;
+  const torrentMap = torrentDataMap.value;
+
+  for (const id of selectedIds) {
+    const torrentData = torrentMap.get(id);
+    if (torrentData) {
+      totalSize += torrentData.size;
+    }
+  }
+
+  return {
+    count,
+    totalSize,
+  };
+});
+
 watch(
   () => route.query,
   (newParams, oldParams) => {
@@ -302,6 +340,22 @@ function cancelSearchQueue() {
         />
       </v-row>
     </v-card-title>
+
+    <!-- 选中种子信息条 -->
+    <v-card-text v-show="selectedTorrentsInfo.count > 0" class="py-2">
+      <v-alert color="info" variant="tonal" density="compact" class="mb-0">
+        <div class="d-flex align-center">
+          <v-chip color="primary" size="small" variant="outlined">
+            <v-icon start icon="mdi-checkbox-marked-circle" />
+            {{ t("SearchEntity.index.selectedTorrents", [selectedTorrentsInfo.count]) }}
+            <v-divider vertical class="mx-2" />
+            <v-icon icon="mdi-harddisk" />
+            {{ formatSize(selectedTorrentsInfo.totalSize) }}
+          </v-chip>
+        </div>
+      </v-alert>
+    </v-card-text>
+
     <v-data-table
       id="ptd-search-entity-table"
       v-model="tableSelected"

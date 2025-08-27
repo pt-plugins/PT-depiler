@@ -350,6 +350,7 @@
         "saveSnapshot": "Save Search Snapshot"
       },
       "filterLabel": "Filter search results",
+      "selectedTorrents": "Selected {0} torrents",
       "showSiteName": "Show Site Name",
       "showTorrentTag": "Show Torrent Tags",
       "showTorrentSubtitle": "Show Torrent Subtitle",
