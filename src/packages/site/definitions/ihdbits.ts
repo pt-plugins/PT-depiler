@@ -2,7 +2,7 @@ import type { ISiteMetadata } from "../types";
 
 export const siteMetadata: ISiteMetadata = {
   version: 1,
-  id: "idbits",
+  id: "ihdbits",
   name: "iHDBits",
   description: "The Ultimate File Sharing Experience",
   collaborator: ["koal"],
