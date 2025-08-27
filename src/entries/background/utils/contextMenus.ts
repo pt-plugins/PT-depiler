@@ -58,9 +58,19 @@ function clearContextMenus() {
 
 onMessage("clearContextMenus", async () => clearContextMenus());
 
-function downloadLinkPush(link: string, downloader: IDownloaderMetadata, folder?: string) {
+function downloadLinkPush(
+  link: string,
+  downloader: IDownloaderMetadata,
+  folder?: string,
+  title?: string,
+  url?: string,
+) {
   sendMessage("downloadTorrentToDownloader", {
-    torrent: { link }, // 组装一个最小的种子对象
+    torrent: {
+      link,
+      title,
+      url,
+    }, // 组装包含标题和URL的种子对象
     downloaderId: downloader.id,
     addTorrentOptions: {
       addAtPaused: !(downloader?.feature?.DefaultAutoStart ?? true),
@@ -243,7 +253,7 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
           contexts: ["link"],
           // 此处不用担心子目录问题，因为如果有子目录，此处的 onclick 不会被 chrome 触发
           onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
-            downloadLinkPush(info.linkUrl!, downloader);
+            downloadLinkPush(info.linkUrl!, downloader, undefined, tab?.title, tab?.url);
           },
         });
 
@@ -287,7 +297,7 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
               title: `-> ${suggestFolder || chrome.i18n.getMessage("contextMenuSendToDownloaderDefaultFolder")}`, // 如果是空字符串，则显示为 "默认文件夹"
               contexts: ["link"],
               onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
-                downloadLinkPush(info.linkUrl!, downloader, suggestFolder);
+                downloadLinkPush(info.linkUrl!, downloader, suggestFolder, tab?.title, tab?.url);
               },
             });
           }
