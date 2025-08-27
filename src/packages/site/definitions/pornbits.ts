@@ -2,12 +2,13 @@ import type { ISiteMetadata } from "../types";
 
 export const siteMetadata: ISiteMetadata = {
   version: 1,
-  id: "pronbits",
+  id: "pornbits",
   name: "Pornbits",
   collaborator: ["ian"],
   tags: ["Adult"],
 
   type: "private",
+  schema: "AbstractPrivateSite",
 
   urls: ["https://pornbits.net/", "https://pornbits.org/"],
 
