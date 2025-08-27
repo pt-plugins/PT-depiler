@@ -117,10 +117,10 @@ export const simplifyNumber = (num: number | string, spacer: string = ""): strin
     if (absNum >= threshold) {
       const value = numValue / threshold;
       // 如果是整数，不显示小数点
-      return value % 1 === 0 ? value.toString() + spacer + suffix : value.toFixed(2) + spacer + suffix;
+      return value.toFixed(2) + spacer + suffix;
     }
   }
 
   // 小于1000的数字直接返回
-  return numValue.toString();
+  return numValue.toFixed(2);
 };
