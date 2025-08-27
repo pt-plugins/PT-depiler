@@ -1,5 +1,5 @@
 import PQueue from "p-queue";
-import { computed, watch } from "vue";
+import { computed, watch, markRaw } from "vue";
 import {
   EResultParseStatus,
   type IAdvanceKeywordSearchConfig,
@@ -176,7 +176,8 @@ export async function doSearchEntity(
             searchResultItem.status = ETorrentStatus.unknown;
           }
           // 冻结对象，避免 Vue 创建响应式代理，提升性能
-          newItems.push(Object.freeze(searchResultItem));
+          // 使用 markRaw 进一步优化性能，避免深度响应式
+          newItems.push(markRaw(Object.freeze(searchResultItem)));
           globalExistingIds.add(itemUniqueId);
         }
       }
