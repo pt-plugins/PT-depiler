@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref, shallowRef, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify";
@@ -71,7 +71,38 @@ const tableHeader = computed(() => {
 
 const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
 
-const tableSelected = ref<Array<ISearchResultTorrent["uniqueId"]>>([]);
+// 使用 shallowRef 优化：种子对象数组不需要深度响应式，提升性能
+const tableSelectedRaw = shallowRef<ISearchResultTorrent[]>([]);
+
+// 为兼容性保留原有的 ID 数组格式
+const tableSelected = computed({
+  get: () => tableSelectedRaw.value.map((item: ISearchResultTorrent) => item.uniqueId),
+  set: (ids: Array<ISearchResultTorrent["uniqueId"]>) => {
+    // 当通过 ID 设置时，需要找到对应的对象
+    tableSelectedRaw.value = runtimeStore.search.searchResult.filter((item: ISearchResultTorrent) =>
+      ids.includes(item.uniqueId),
+    );
+  },
+});
+
+// 优化后的选中种子信息计算：直接基于选中对象计算
+const selectedTorrentsInfo = computed(() => {
+  const selectedObjects = tableSelectedRaw.value;
+  const count = selectedObjects.length;
+
+  // 如果没有选中任何项，直接返回
+  if (count === 0) {
+    return { count: 0, totalSize: 0 };
+  }
+
+  // 直接计算选中对象的总大小，避免遍历查找
+  const totalSize = selectedObjects.reduce((sum, torrent) => sum + (torrent.size || 0), 0);
+
+  return {
+    count,
+    totalSize,
+  };
+});
 
 watch(
   () => route.query,
@@ -302,9 +333,10 @@ function cancelSearchQueue() {
         />
       </v-row>
     </v-card-title>
+
     <v-data-table
       id="ptd-search-entity-table"
-      v-model="tableSelected"
+      v-model="tableSelectedRaw"
       :custom-filter="tableFilterFn"
       :filter-keys="['uniqueId'] /* 对每个item值只检索一次 */"
       :headers="tableHeader"
@@ -317,9 +349,27 @@ function cancelSearchQueue() {
       item-value="uniqueId"
       :multi-sort="configStore.enableTableMultiSort"
       show-select
+      return-object
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('SearchEntity', 'itemsPerPage', v)"
       @update:sortBy="(v) => configStore.updateTableBehavior('SearchEntity', 'sortBy', v)"
     >
+      <!-- 选中种子信息条 -->
+      <template v-if="selectedTorrentsInfo.count > 0" #top>
+        <div class="pa-3">
+          <v-alert color="info" variant="tonal" density="compact" class="mb-0">
+            <div class="d-flex align-center">
+              <v-chip color="primary" size="small" variant="outlined">
+                <v-icon start icon="mdi-checkbox-marked-circle" />
+                {{ t("SearchEntity.index.selectedTorrents", [selectedTorrentsInfo.count]) }}
+                <v-divider vertical class="mx-2" />
+                <v-icon icon="mdi-harddisk" />
+                {{ formatSize(selectedTorrentsInfo.totalSize) }}
+              </v-chip>
+            </div>
+          </v-alert>
+        </div>
+      </template>
+
       <!-- 表格内容 -->
 
       <!-- 站点图标 -->
