@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref, shallowRef, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify";
@@ -71,27 +71,32 @@ const tableHeader = computed(() => {
 
 const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
 
-const tableSelected = ref<Array<ISearchResultTorrent["uniqueId"]>>([]);
+// 使用 shallowRef 优化：种子对象数组不需要深度响应式，提升性能
+const tableSelectedRaw = shallowRef<ISearchResultTorrent[]>([]);
 
-// 计算选中种子的信息（简化版本，适用于中小规模数据）
+// 为兼容性保留原有的 ID 数组格式
+const tableSelected = computed({
+  get: () => tableSelectedRaw.value.map((item: ISearchResultTorrent) => item.uniqueId),
+  set: (ids: Array<ISearchResultTorrent["uniqueId"]>) => {
+    // 当通过 ID 设置时，需要找到对应的对象
+    tableSelectedRaw.value = runtimeStore.search.searchResult.filter((item: ISearchResultTorrent) =>
+      ids.includes(item.uniqueId),
+    );
+  },
+});
+
+// 优化后的选中种子信息计算：直接基于选中对象计算
 const selectedTorrentsInfo = computed(() => {
-  const selectedIds = tableSelected.value;
-  const count = selectedIds.length;
+  const selectedObjects = tableSelectedRaw.value;
+  const count = selectedObjects.length;
 
   // 如果没有选中任何项，直接返回
   if (count === 0) {
     return { count: 0, totalSize: 0 };
   }
 
-  // 直接遍历搜索结果，计算选中项的总大小
-  let totalSize = 0;
-  const selectedSet = new Set(selectedIds); // 使用Set优化查找
-
-  for (const torrent of runtimeStore.search.searchResult) {
-    if (selectedSet.has(torrent.uniqueId)) {
-      totalSize += torrent.size || 0;
-    }
-  }
+  // 直接计算选中对象的总大小，避免遍历查找
+  const totalSize = selectedObjects.reduce((sum, torrent) => sum + (torrent.size || 0), 0);
 
   return {
     count,
@@ -331,7 +336,7 @@ function cancelSearchQueue() {
 
     <v-data-table
       id="ptd-search-entity-table"
-      v-model="tableSelected"
+      v-model="tableSelectedRaw"
       :custom-filter="tableFilterFn"
       :filter-keys="['uniqueId'] /* 对每个item值只检索一次 */"
       :headers="tableHeader"
@@ -344,6 +349,7 @@ function cancelSearchQueue() {
       item-value="uniqueId"
       :multi-sort="configStore.enableTableMultiSort"
       show-select
+      return-object
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('SearchEntity', 'itemsPerPage', v)"
       @update:sortBy="(v) => configStore.updateTableBehavior('SearchEntity', 'sortBy', v)"
     >
