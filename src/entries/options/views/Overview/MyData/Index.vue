@@ -594,8 +594,14 @@ function toggleNumberSimplification() {
       </template>
 
       <template #item.bonusPerHour="{ item }">
-        <span class="text-no-wrap">
-          {{ typeof item.bonusPerHour !== "undefined" ? formatNumber(item.bonusPerHour) : "-" }}
+        <span class="text-no-wrap" @dblclick="toggleNumberSimplification">
+          {{
+            typeof item.bonusPerHour !== "undefined"
+              ? configStore.myDataTableControl.simplifyBonusNumbers
+                ? simplifyNumber(item.bonusPerHour)
+                : formatNumber(item.bonusPerHour)
+              : "-"
+          }}
         </span>
       </template>
 

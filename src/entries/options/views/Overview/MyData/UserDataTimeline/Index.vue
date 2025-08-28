@@ -273,6 +273,19 @@ function saveControl() {
               <vk-text :config="icon({ x: 20, y: 20, text: '󰀉' /* account-circle */ })" />
               <!-- 2.2 用户名 -->
               <vk-text :config="text({ x: 65, y: 26, text: configStore.userName, fontSize: 26 })" />
+              <!-- 2.3 创建时间 -->
+              <vk-text
+                :config="
+                  text({
+                    y: 20,
+                    text: formatDate(timelineData.createAt),
+                    fontSize: 12,
+                    fill: '#9E9E9E',
+                    width: stageConfig.width - 20,
+                    align: 'right',
+                  })
+                "
+              />
             </vk-group>
 
             <!-- 3. 绘制基础信息 -->
