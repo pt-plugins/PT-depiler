@@ -425,7 +425,19 @@ export default class GreatPosterWall extends Gazelle {
           });
         }
 
-        seeding = Sizzle(this.metadata.search?.selectors?.rows?.selector!, TListDocument).length;
+        // 处理数组选择器
+        const rowSelector = this.metadata.search?.selectors?.rows?.selector!;
+        const selectors = ([] as string[]).concat(rowSelector);
+        let seedingElements: any[] = [];
+
+        for (const selector of selectors) {
+          seedingElements = Sizzle(selector, TListDocument);
+          if (seedingElements.length > 0) {
+            break;
+          }
+        }
+
+        seeding = seedingElements.length;
         const sizeEleList = Sizzle(".TableTorrent-rowTitle .TableTorrent-cellStatSize", TListDocument);
         sizeEleList.forEach((element) => {
           seedingSize += parseSizeString((element as HTMLElement).innerText!.trim());

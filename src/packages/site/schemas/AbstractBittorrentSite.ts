@@ -435,7 +435,18 @@ export default class BittorrentSite {
     let trs: any;
 
     if (doc instanceof Document) {
-      trs = Sizzle(rowsSelector.selector as string, doc);
+      // 支持数组选择器，类似于 getFieldData 的处理方式
+      const selectors = ([] as string[]).concat(rowsSelector.selector);
+      let foundRows: any[] = [];
+
+      for (const selector of selectors) {
+        foundRows = Sizzle(selector, doc);
+        if (foundRows.length > 0) {
+          break;
+        }
+      }
+
+      trs = foundRows;
       if (rowsSelector.filter) {
         trs = rowsSelector.filter(trs);
       } else {
@@ -459,8 +470,22 @@ export default class BittorrentSite {
         }
       }
     } else {
-      // 同样定义一个 :self 以防止对于JSON返回的情况下，所有items在顶层字典（实际是 Object[] ）下
-      trs = rowsSelector.selector === ":self" ? doc : get(doc, rowsSelector.selector as string);
+      // 对于 JSON 返回，处理数组选择器
+      const selectors = ([] as (string | ":self")[]).concat(rowsSelector.selector);
+      let foundRows: any[] = [];
+
+      for (const selector of selectors) {
+        if (selector === ":self") {
+          foundRows = doc;
+        } else {
+          foundRows = get(doc, selector);
+        }
+        if (foundRows && foundRows.length > 0) {
+          break;
+        }
+      }
+
+      trs = foundRows;
 
       if (rowsSelector.filter) {
         trs = rowsSelector.filter(trs);

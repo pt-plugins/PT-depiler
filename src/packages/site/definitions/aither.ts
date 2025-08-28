@@ -221,33 +221,6 @@ export const siteMetadata: ISiteMetadata = {
     },
     selectors: {
       ...SchemaMetadata.search!.selectors,
-      rows: { selector: "div.torrent-search--list__results > table:first > tbody > tr" },
-      id: {
-        selector: ["a.torrent-search--list__name"],
-        attr: "href",
-        filters: [(query: string) => query.match(/\/torrents\/(\d+)/)![1]],
-      },
-      title: {
-        selector: ["a.torrent-search--list__name"],
-      },
-      category: {
-        selector: ["span.torrent-search--list__type"],
-      },
-      size: {
-        selector: ["td.torrent-search--list__size"],
-      },
-      seeders: {
-        selector: ["td.torrent-search--list__seeders"],
-      },
-      leechers: {
-        selector: ["td.torrent-search--list__leechers"],
-      },
-      completed: {
-        selector: ["td.torrent-search--list__completed"],
-      },
-      comments: {
-        selector: ["i.torrent-icons__comments"],
-      },
       tags: [
         ...SchemaMetadata.search!.selectors!.tags!,
         {

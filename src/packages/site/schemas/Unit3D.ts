@@ -37,25 +37,30 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       },
     },
     selectors: {
-      rows: { selector: "div.table-responsive > table:first > tbody > tr" },
+      rows: {
+        selector: [
+          "div.torrent-search--list__results > table:first > tbody > tr", // 新版布局
+          "div.table-responsive table > tbody > tr", // 旧版布局
+        ],
+      },
 
       /**
        * 未发现 Unit3D 站点对于种子列表有太大改动，所以直接硬写选择器而不是和 NPHP 一样自动生成
        * based on: https://github.com/HDInnovations/UNIT3D-Community-Edition/blob/cb1efe0868caf771b9917c090a79b28b4e183b74
        */
       id: {
-        selector: ["a.view-torrent"],
+        selector: ["a.view-torrent", "a.torrent-search--list__name"],
         attr: "href",
         filters: [(query: string) => query.match(/\/torrents\/(\d+)/)![1]],
       },
       title: {
-        selector: ["a.view-torrent"],
+        selector: ["a.view-torrent", "a.torrent-search--list__name"],
       },
       subTitle: {
         text: "", // Unit3D 并不在种子列表页显示副标题，或者说他们就没有副标题的设计
       },
       url: {
-        selector: ["a.view-torrent"],
+        selector: ["a.view-torrent", "a.torrent-search--list__name"],
         attr: "href",
       },
       // /resources/views/torrent/results.blade.php#L367-L381
@@ -68,11 +73,11 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       time: { selector: ["time"], filters: [{ name: "parseTTL" }] },
       // /resources/views/torrent/results.blade.php#L402-L404
       size: {
-        selector: ['td>span.text-blue:contains("B")'],
+        selector: ['td>span.text-blue:contains("B")', "td.torrent-search--list__size"],
       },
       // /resources/views/torrent/results.blade.php#L166-L184
       author: {
-        selector: ["span:has( > i.fa-upload)"],
+        selector: ["span:has( > i.fa-upload)", "span.torrent-search--list__uploader"],
         filters: [
           (query: string) => query.replace(/ +\(/, " ("), // 防止可以看见匿名等级的用户中间有一堆空格。。。
         ],
@@ -82,25 +87,41 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         selector: [
           'a[href*="/categories/"] > div > img[data-original-title]',
           'a[href*="/categories/"] > div > i[data-original-title]',
+          "div.torrent-search--list__category img",
         ],
-        data: "originalTitle", // {{ $torrent->category->name }} {{ strtolower(trans('torrent.torrent')) }}
-        filters: [(query: string) => query.split(" ").slice(0, -1).join(" ")],
+        elementProcess: (element: any) => {
+          if (!element) return "";
+
+          // Handle Unit3D original format (data-original-title)
+          if (element.dataset && element.dataset.originalTitle) {
+            const title = element.dataset.originalTitle;
+            // {{ $torrent->category->name }} {{ strtolower(trans('torrent.torrent')) }}
+            return title.split(" ").slice(0, -1).join(" ");
+          }
+
+          // Handle Blutopia style (alt attribute)
+          if (element.getAttribute && element.getAttribute("alt")) {
+            return element.getAttribute("alt");
+          }
+
+          return "";
+        },
       },
 
       // /resources/views/torrent/results.blade.php#L405-L426
       seeders: {
-        selector: ['a[href*="/peers"] > span.text-green'],
+        selector: ['a[href*="/peers"] > span.text-green', "td.torrent-search--list__seeders"],
       },
       leechers: {
-        selector: ['a[href*="/peers"] > span.text-red'],
+        selector: ['a[href*="/peers"] > span.text-red', "td.torrent-search--list__leechers"],
       },
       completed: {
-        selector: ['a[href*="/history"] > span.text-orange'],
+        selector: ['a[href*="/history"] > span.text-orange', "td.torrent-search--list__completed"],
       },
 
       // /resources/views/torrent/results.blade.php#L213-L219
       comments: {
-        selector: ['a[href*="#comments"]'],
+        selector: ['a[href*="#comments"]', "i.torrent-icons__comments"],
       },
 
       status: {
