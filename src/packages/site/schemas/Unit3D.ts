@@ -125,20 +125,20 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       },
 
       status: {
+        selector: ["span.torrent-icons > i.torrent-icons"],
         text: ETorrentStatus.unknown,
         case: {
-          "button.btn.btn-success.btn-circle": ETorrentStatus.seeding, // 做种!
-          "button.btn.btn-warning.btn-circle": ETorrentStatus.downloading, // 吸血!
-          "button.btn.btn-info.btn-circle": ETorrentStatus.inactive, // 未完成!
-          "button.btn.btn-danger.btn-circle": ETorrentStatus.completed, // 撤种!
+          "i.fa-arrow-circle-up": ETorrentStatus.seeding, // 做种!
+          "i.fa-arrow-circle-down": ETorrentStatus.downloading, // 吸血!
+          "i.fa-do-not-enter": ETorrentStatus.inactive, // 未完成!
+          "i.fa-thumbs-down": ETorrentStatus.completed, // 撤种!
         },
       },
       progress: {
+        selector: ["span.torrent-icons > i.torrent-icons"],
         text: 0,
         case: {
-          "button.btn.btn-success.btn-circle": 100,
-          // 不清楚非做种情况下的进度信息，统一置为0
-          "button.btn.btn-warning.btn-circle, button.btn.btn-info.btn-circle, button.btn.btn-danger.btn-circle": 0,
+          "i.fa-arrow-circle-up, i.fa-thumbs-down": 100,
         },
       },
       tags: [

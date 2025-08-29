@@ -183,23 +183,6 @@ export const siteMetadata: ISiteMetadata = {
           return allText;
         },
       },
-      status: {
-        selector: ["span.torrent-icons > i.torrent-icons"],
-        text: ETorrentStatus.unknown,
-        case: {
-          "i.fa-arrow-circle-up": ETorrentStatus.seeding, // 做种!
-          "i.fa-arrow-circle-down": ETorrentStatus.downloading, // 吸血!
-          "i.fa-do-not-enter": ETorrentStatus.inactive, // 未完成!
-          "i.fa-thumbs-down": ETorrentStatus.completed, // 撤种!
-        },
-      },
-      progress: {
-        selector: ["span.torrent-icons > i.torrent-icons"],
-        text: 0,
-        case: {
-          "i.fa-arrow-circle-up, i.fa-thumbs-down": 100,
-        },
-      },
       tags: [
         {
           name: "Free",
