@@ -1,5 +1,5 @@
-import { EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
-import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
+import { type ISiteMetadata } from "../types";
+import { SchemaMetadata } from "../schemas/Unit3D.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
