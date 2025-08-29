@@ -209,7 +209,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 2,
-      name: "初窥门径(Power User)",
+      name: "Power User",
+      nameAka: ["初窥门径"],
       interval: "P4W",
       downloaded: "50GB",
       ratio: 2,
@@ -219,7 +220,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 3,
-      name: "略有小成(Elite User)",
+      name: "Elite User",
+      nameAka: ["略有小成"],
       interval: "P8W",
       downloaded: "120GB",
       ratio: 2.5,
@@ -227,7 +229,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 4,
-      name: "驾轻就熟(Crazy User)",
+      name: "Crazy User",
+      nameAka: ["驾轻就熟"],
       interval: "P15W",
       downloaded: "300GB",
       ratio: 3,
@@ -235,7 +238,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 5,
-      name: "渐入佳境(Insane User)",
+      name: "Insane User",
+      nameAka: ["渐入佳境"],
       interval: "P25W",
       downloaded: "500GB",
       ratio: 3.85,
@@ -243,7 +247,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 6,
-      name: "炉火纯青(Veteran User)",
+      name: "Veteran User",
+      nameAka: ["炉火纯青"],
       interval: "P40W",
       downloaded: "750GB",
       ratio: 5.95,
@@ -251,7 +256,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 7,
-      name: "登峰造极(Extreme User)",
+      name: "Extreme User",
+      nameAka: ["登峰造极"],
       interval: "P60W",
       downloaded: "1TB",
       ratio: 6.55,
@@ -259,7 +265,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 8,
-      name: "举世无双(Ultimate User)",
+      name: "Ultimate User",
+      nameAka: ["举世无双"],
       interval: "P80W",
       downloaded: "1.5TB",
       ratio: 7.05,
@@ -267,7 +274,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 9,
-      name: "超凡入圣(Nexus Master)",
+      name: "Nexus Master",
+      nameAka: ["超凡入圣"],
       interval: "P100W",
       downloaded: "3TB",
       ratio: 8.85,

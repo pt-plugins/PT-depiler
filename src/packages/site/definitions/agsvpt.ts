@@ -32,7 +32,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 1,
-      name: "Power User(北冰珍珠熊)",
+      name: "Power User",
+      nameAka: ["北冰珍珠熊"],
       downloaded: "50GB",
       ratio: 1.05,
       seedingBonus: 40000,
@@ -40,7 +41,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 2,
-      name: "Elite User(深渊蔚蓝熊)",
+      name: "Elite User",
+      nameAka: ["深渊蔚蓝熊"],
       interval: "P8W",
       downloaded: "120GB",
       ratio: 1.55,
@@ -48,7 +50,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 3,
-      name: "Crazy User(翡翠森林熊)",
+      name: "Crazy User",
+      nameAka: ["翡翠森林熊"],
       interval: "P12W",
       downloaded: "300GB",
       ratio: 2.05,
@@ -56,7 +59,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 4,
-      name: "Insane User(神秘紫晶熊)",
+      name: "Insane User",
+      nameAka: ["神秘紫晶熊"],
       interval: "P20W",
       downloaded: "500GB",
       ratio: 2.55,
@@ -65,7 +69,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 5,
-      name: "Veteran User(寒冰白金熊)",
+      name: "Veteran User",
+      nameAka: ["寒冰白金熊"],
       interval: "P28W",
       downloaded: "750GB",
       ratio: 4.05,
@@ -74,7 +79,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 6,
-      name: "Extreme User(皇家金辉熊)",
+      name: "Extreme User",
+      nameAka: ["皇家金辉熊"],
       interval: "P40W",
       downloaded: "1TB",
       ratio: 5.05,
@@ -82,7 +88,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 7,
-      name: "Ultimate User(永恒铂金熊)",
+      name: "Ultimate User",
+      nameAka: ["永恒铂金熊"],
       interval: "P52W",
       downloaded: "1.5TB",
       ratio: 6.05,
@@ -91,7 +98,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 8,
-      name: "Nexus Master(钻石之冠北极熊)",
+      name: "Nexus Master",
+      nameAka: ["钻石之冠北极熊"],
       interval: "P70W",
       downloaded: "3TB",
       ratio: 7.05,

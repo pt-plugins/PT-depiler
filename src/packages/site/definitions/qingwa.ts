@@ -14,19 +14,22 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
   {
     id: 0,
     groupType: "user",
-    name: "Peasant(青蛙卵)",
+    name: "Peasant",
+    nameAka: ["青蛙卵"],
     privilege: `因为分享率过低而被降级的用户。如果不在一定时间内提升分享率，账号会被禁用。`,
   },
   {
     id: 1,
     groupType: "user",
-    name: "User(蝌蚪)",
+    name: "User",
+    nameAka: ["蝌蚪"],
     privilege: `新用户的默认级别。`,
   },
   {
     id: 2,
     groupType: "user",
-    name: "Power User(幼蛙)",
+    name: "Power User",
+    nameAka: ["幼蛙"],
     interval: "P5W",
     privilege: `得到1个邀请名额；拥有网站基本权限，请自行探索。`,
     alternative: [
@@ -37,7 +40,8 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
   {
     id: 3,
     groupType: "user",
-    name: "Elite User(成蛙)",
+    name: "Elite User",
+    nameAka: ["成蛙"],
     interval: "P16W",
     privilege: `得到2个邀请名额；封存账号后不会被删除。`,
     alternative: [
@@ -48,7 +52,8 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
   {
     id: 4,
     groupType: "user",
-    name: "Crazy User(妙蛙种子)",
+    name: "Crazy User",
+    nameAka: ["妙蛙种子"],
     interval: "P25W",
     privilege: "得到3个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
     alternative: [
@@ -59,7 +64,8 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
   {
     id: 5,
     groupType: "user",
-    name: "Insane User(妙蛙草)",
+    name: "Insane User",
+    nameAka: ["妙蛙草"],
     interval: "P36W",
     privilege: "得到3个邀请名额；可以查看普通日志。",
     alternative: [
@@ -70,7 +76,8 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
   {
     id: 6,
     groupType: "user",
-    name: "Veteran User(妙蛙花)",
+    name: "Veteran User",
+    nameAka: ["妙蛙花"],
     interval: "P52W",
     privilege: "得到4个邀请名额；可以查看其它用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。",
     alternative: [
@@ -81,7 +88,8 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
   {
     id: 7,
     groupType: "user",
-    name: "Extreme User(mega妙蛙花)",
+    name: "Extreme User",
+    nameAka: ["mega妙蛙花"],
     interval: "P60W",
     privilege: "得到4个邀请名额；可以更新过期的外部信息。",
     alternative: [
@@ -92,7 +100,8 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
   {
     id: 8,
     groupType: "user",
-    name: "Ultimate User(极巨化妙蛙花)",
+    name: "Ultimate User",
+    nameAka: ["极巨化妙蛙花"],
     interval: "P100W",
     privilege: "得到5个邀请名额。",
     alternative: [
@@ -103,13 +112,15 @@ const levelRequirements: ISiteMetadata["levelRequirements"] = [
   {
     id: 99,
     groupType: "user",
-    name: "SVIP(闪光妙蛙花)",
+    name: "SVIP",
+    nameAka: ["闪光妙蛙花"],
     privilege: "网站元老用户，和VIP权限完全相同，免除自动降级，但计算下载量。",
   },
   {
     id: 100,
     groupType: "vip",
-    name: "VIP(贵宾)",
+    name: "VIP",
+    nameAka: ["贵宾"],
     privilege: "和SVIP权限完全相同，免除自动降级，且不计算下载量。",
   },
 ];

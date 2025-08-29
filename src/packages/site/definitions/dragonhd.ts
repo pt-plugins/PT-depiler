@@ -25,6 +25,11 @@ export const siteMetadata: ISiteMetadata = {
   // from https://github.com/pt-plugins/PT-Plugin-Plus/issues/30#issuecomment-1794597279
   levelRequirements: [
     {
+      id: 0,
+      name: "User",
+      privilege: "",
+    },
+    {
       id: 1,
       name: "Power User",
       interval: "P4W",

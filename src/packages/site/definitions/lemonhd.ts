@@ -31,11 +31,16 @@ export const siteMetadata: ISiteMetadata = {
       seedingSize: {
         selector: ["td.rowhead:contains('当前做种') + td"],
         filters: [{ name: "parseSize" }],
-      }
+      },
     },
   },
 
   levelRequirements: [
+    {
+      id: 0,
+      name: "User",
+      privilege: "",
+    },
     {
       id: 1,
       name: "Power User",
