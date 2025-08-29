@@ -141,16 +141,19 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 0,
-      name: "Peasant(婴儿)",
+      name: "Peasant",
+      nameAka: ["婴儿"],
     },
     {
       id: 1,
-      name: "User(幼儿园)",
+      name: "User",
+      nameAka: ["幼儿园"],
       privilege: "新用户的默认级别。",
     },
     {
       id: 2,
-      name: "Power User(小学)",
+      name: "Power User",
+      nameAka: ["小学"],
       interval: "P4W",
       downloaded: "512GB",
       ratio: 1.05,
@@ -158,7 +161,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 3,
-      name: " Elite User(初中)",
+      name: "Elite User",
+      nameAka: ["初中"],
       interval: "P8W",
       downloaded: "2048GB",
       ratio: 1.55,
@@ -166,7 +170,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 4,
-      name: "Crazy User(高中)",
+      name: "Crazy User",
+      nameAka: ["高中"],
       interval: "P15W",
       downloaded: "4096GB",
       ratio: 2.05,
@@ -174,7 +179,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 5,
-      name: "Insane User(专科)",
+      name: "Insane User",
+      nameAka: ["专科"],
       interval: "P25W",
       downloaded: "8192GB",
       ratio: 2.55,
@@ -182,7 +188,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 6,
-      name: "Veteran User(本科)",
+      name: "Veteran User",
+      nameAka: ["本科"],
       interval: "P52W",
       downloaded: "16384GB",
       ratio: 3.05,
@@ -190,7 +197,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 7,
-      name: "Extreme User(研究生)",
+      name: "Extreme User",
+      nameAka: ["研究生"],
       interval: "P80W",
       downloaded: "25000GB",
       ratio: 3.55,
@@ -198,7 +206,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 8,
-      name: "Ultimate User(博士生)",
+      name: "Ultimate User",
+      nameAka: ["博士生"],
       interval: "P104W",
       downloaded: "45000GB",
       ratio: 4.05,
@@ -206,7 +215,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 9,
-      name: "Nexus Master(博士后)",
+      name: "Nexus Master",
+      nameAka: ["博士后"],
       interval: "P130W",
       downloaded: "90000GB",
       ratio: 4.55,

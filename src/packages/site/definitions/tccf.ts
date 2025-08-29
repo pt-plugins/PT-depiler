@@ -73,18 +73,21 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 0,
-      name: "庶民(Peasant)",
+      name: "Peasant",
+      nameAka: ["庶民"],
       privilege:
         "被降级的用户, 他们有30天时间来提升分享率, 否则他们会被踢. 不能发表趣味盒内容; 不能申请友情链接; 不能上传字幕.",
     },
     {
       id: 1,
-      name: "列兵(User)",
+      name: "User",
+      nameAka: ["列兵"],
       privilege: "新用户的默认级别.",
     },
     {
       id: 2,
-      name: "士官(Power User)",
+      name: "Power User",
+      nameAka: ["士官"],
       interval: "P2W",
       downloaded: "64GB",
       ratio: 1.05,
@@ -92,7 +95,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 3,
-      name: "尉官(Elite User)",
+      name: "Elite User",
+      nameAka: ["尉官"],
       interval: "P6W",
       downloaded: "128GB",
       ratio: 1.55,
@@ -100,7 +104,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 4,
-      name: "少校(Crazy User)",
+      name: "Crazy User",
+      nameAka: ["少校"],
       interval: "P14W",
       downloaded: "256GB",
       ratio: 2.05,
@@ -108,7 +113,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 5,
-      name: "中校(Insane User)",
+      name: "Insane User",
+      nameAka: ["中校"],
       interval: "P26W",
       downloaded: "512GB",
       ratio: 2.55,
@@ -116,7 +122,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 6,
-      name: "上校(Veteran User)",
+      name: "Veteran User",
+      nameAka: ["上校"],
       interval: "P38W",
       downloaded: "1TB",
       ratio: 3.05,
@@ -124,7 +131,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 7,
-      name: "少将(Extreme User)",
+      name: "Extreme User",
+      nameAka: ["少将"],
       interval: "P54W",
       downloaded: "2TB",
       ratio: 3.55,
@@ -132,7 +140,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 8,
-      name: "中将(Ultimate User)",
+      name: "Ultimate User",
+      nameAka: ["中将"],
       interval: "P70W",
       downloaded: "4TB",
       ratio: 4.05,
@@ -140,7 +149,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 9,
-      name: "上将(Nexus Master)",
+      name: "Nexus Master",
+      nameAka: ["上将"],
       interval: "P88W",
       downloaded: "8TB",
       ratio: 4.55,
@@ -148,31 +158,36 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 100,
-      name: "贵宾(VIP)",
+      name: "VIP",
+      nameAka: ["贵宾"],
       groupType: "vip",
       privilege: "和 Nexus Master 拥有相同权限并被认为是精英成员。免除自动降级。可以查看用户列表",
     },
     {
       id: 101,
-      name: "其他",
+      name: "Other",
+      nameAka: ["其他"],
       groupType: "vip",
       privilege: "自定义等级",
     },
     {
       id: 200,
-      name: "养老族(Retiree)",
+      name: "Retiree",
+      nameAka: ["养老族"],
       groupType: "manager",
       privilege: "退休后的管理组成员。",
     },
     {
       id: 201,
-      name: "发布员(Uploader)",
+      name: "Uploader",
+      nameAka: ["发布员"],
       groupType: "manager",
       privilege: "专注的上传者, 免除自动降级; 可以编辑、删除和通过任何候选; 可以查看一般日志.",
     },
     {
       id: 202,
-      name: "总版主(Moderator)",
+      name: "Moderator",
+      nameAka: ["总版主"],
       groupType: "manager",
       privilege:
         "可以查看管理组信箱、举报信箱；管理趣味盒内容、投票内容；可以编辑或删除任何发布的种子；可以管理候选；" +
@@ -182,19 +197,22 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 203,
-      name: "管理员(Administrator)",
+      name: "Administrator",
+      nameAka: ["管理员"],
       groupType: "manager",
       privilege: "除了不能改变站点设定、管理捐赠外，可以做任何事。",
     },
     {
       id: 204,
-      name: "维护开发员(Sysop)",
+      name: "Sysop",
+      nameAka: ["维护开发员"],
       groupType: "manager",
       privilege: "网站开发/维护人员，可以改变站点设定，不能管理捐赠。",
     },
     {
       id: 205,
-      name: "主管(Staff Leader)",
+      name: "Staff Leader",
+      nameAka: ["主管"],
       groupType: "manager",
       privilege: "网站主管，可以做任何事。",
     },

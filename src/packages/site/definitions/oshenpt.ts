@@ -46,8 +46,15 @@ export const siteMetadata: ISiteMetadata = {
 
   levelRequirements: [
     {
+      id: 0,
+      name: "User",
+      nameAka: ["士兵"],
+      privilege: "",
+    },
+    {
       id: 1,
-      name: "Power User(班长)",
+      name: "Power User",
+      nameAka: ["班长"],
       interval: "P4W",
       downloaded: "50GB",
       ratio: 1.05,
@@ -57,7 +64,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 2,
-      name: "Elite User(排长)",
+      name: "Elite User",
+      nameAka: ["排长"],
       interval: "P8W",
       downloaded: "120GB",
       ratio: 1.55,
@@ -66,7 +74,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 3,
-      name: "Crazy User(连长)",
+      name: "Crazy User",
+      nameAka: ["连长"],
       interval: "P15W",
       downloaded: "300GB",
       ratio: 2.05,
@@ -75,7 +84,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 4,
-      name: "Insane User(营长)",
+      name: "Insane User",
+      nameAka: ["营长"],
       interval: "P25W",
       downloaded: "500GB",
       ratio: 2.55,
@@ -84,7 +94,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 5,
-      name: "Veteran User(团长)",
+      name: "Veteran User",
+      nameAka: ["团长"],
       interval: "P40W",
       downloaded: "750GB",
       ratio: 3.05,
@@ -93,7 +104,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 6,
-      name: "Extreme User(旅长)",
+      name: "Extreme User",
+      nameAka: ["旅长"],
       interval: "P60W",
       downloaded: "1024GB",
       ratio: 3.55,
@@ -102,7 +114,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 7,
-      name: "Ultimate User(师长)",
+      name: "Ultimate User",
+      nameAka: ["师长"],
       interval: "P80W",
       downloaded: "1536GB",
       ratio: 4.05,
@@ -111,7 +124,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 8,
-      name: "Nexus Master(军长)",
+      name: "Nexus Master",
+      nameAka: ["军长"],
       interval: "P100W",
       downloaded: "3072GB",
       ratio: 4.55,

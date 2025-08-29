@@ -151,18 +151,21 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
-      name: "Peasant(小菜鸡)",
+      name: "Peasant",
+      nameAka: ["小菜鸡"],
       privilege:
         "当以下情况时将被自动降至本级：1.如果你已经下载了超过64GB，你应该有大于0.5的分享率。2.如果你已经下载了超过256GB，你应该有大于0.6的分享率。3.如果你已经下载了超过512GB，你应该有大于0.7的分享率。4.如果你已经下载了超过768GB，你应该有大于0.8的分享率。5.如果你已经下载了超过1024GB，你应该有大于0.9的分享率。",
     },
     {
       id: 2,
-      name: "User(初窥门径)",
+      name: "User",
+      nameAka: ["初窥门径"],
       privilege: "新用户的默认级别",
     },
     {
       id: 3,
-      name: "Power User(小有所成)",
+      name: "Power User",
+      nameAka: ["小有所成"],
       interval: "P4W",
       downloaded: "256GB",
       ratio: 1.05,
@@ -170,7 +173,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 4,
-      name: "Elite User(懵懂求知)",
+      name: "Elite User",
+      nameAka: ["懵懂求知"],
       interval: "P8W",
       downloaded: "512GB",
       ratio: 1.55,
@@ -178,7 +182,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 5,
-      name: "Crazy User(小试牛刀)",
+      name: "Crazy User",
+      nameAka: ["小试牛刀"],
       interval: "P15W",
       downloaded: "1024GB",
       ratio: 2.05,
@@ -186,7 +191,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 6,
-      name: "Insane User(渐入佳境)",
+      name: "Insane User",
+      nameAka: ["渐入佳境"],
       interval: "P25W",
       downloaded: "2048GB",
       ratio: 2.55,
@@ -194,7 +200,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 7,
-      name: "Veteran User(游刃有余)",
+      name: "Veteran User",
+      nameAka: ["游刃有余"],
       interval: "P50W",
       downloaded: "3072GB",
       ratio: 3.05,
@@ -202,7 +209,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 8,
-      name: "Extreme User(登堂入室)",
+      name: "Extreme User",
+      nameAka: ["登堂入室"],
       interval: "P100W",
       downloaded: "4096GB",
       ratio: 3.55,
@@ -210,7 +218,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 9,
-      name: "Ultimate User(炉火纯青)",
+      name: "Ultimate User",
+      nameAka: ["炉火纯青"],
       interval: "P150W",
       downloaded: "6144GB",
       ratio: 4.05,
@@ -218,7 +227,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 10,
-      name: "Nexus Master(返璞归真)",
+      name: "Nexus Master",
+      nameAka: ["返璞归真"],
       interval: "P240W",
       downloaded: "8192GB",
       ratio: 4.55,

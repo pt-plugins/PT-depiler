@@ -293,12 +293,14 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
-      name: "採女-正八品(User)",
+      name: "User",
+      nameAka: ["採女-正八品"],
       privilege: `新用户的默认级别；可以查看NFO/LOG文档。`,
     },
     {
       id: 2,
-      name: "常在-正七品(Power User)",
+      name: "Power User",
+      nameAka: ["常在-正七品"],
       interval: "P5W",
       ratio: 1.5,
       alternative: [{ downloaded: "20GB" }, { uploads: 5 }],
@@ -307,7 +309,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 3,
-      name: "贵人-正六品(Elite User)",
+      name: "Elite User",
+      nameAka: ["贵人-正六品"],
       interval: "P10W",
       ratio: 2.0,
       alternative: [{ downloaded: "60GB" }, { uploads: 20 }],
@@ -316,7 +319,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 4,
-      name: "良媛-正五品(Crazy User)",
+      name: "Crazy User",
+      nameAka: ["良媛-正五品"],
       interval: "P15W",
       ratio: 2.5,
       alternative: [{ downloaded: "200GB" }, { uploads: 50 }],
@@ -324,7 +328,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 5,
-      name: "容华-正四品(Insane User)",
+      name: "Insane User",
+      nameAka: ["容华-正四品"],
       interval: "P20W",
       ratio: 3.0,
       alternative: [{ downloaded: "400GB" }, { uploads: 100 }],
@@ -332,7 +337,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 6,
-      name: "贵嫔-正三品(Veteran User)",
+      name: "Veteran User",
+      nameAka: ["贵嫔-正三品"],
       interval: "P25W",
       ratio: 3.5,
       alternative: [{ downloaded: "600GB" }, { uploads: 200 }],
@@ -341,7 +347,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 7,
-      name: "淑仪-正二品(Extreme User)",
+      name: "Extreme User",
+      nameAka: ["淑仪-正二品"],
       interval: "P25W",
       ratio: 4.0,
       alternative: [{ downloaded: "1TB" }, { uploads: 300 }],
@@ -349,7 +356,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 8,
-      name: "贵妃-正一品(Ultimate User)",
+      name: "Ultimate User",
+      nameAka: ["贵妃-正一品"],
       interval: "P30W",
       ratio: 4.5,
       alternative: [{ downloaded: "2TB" }, { uploads: 450 }],
@@ -357,7 +365,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 9,
-      name: "皇后(Nexus Master)",
+      name: "Nexus Master",
+      nameAka: ["皇后"],
       interval: "P30W",
       ratio: 5.0,
       alternative: [{ downloaded: "3TB" }, { uploads: 600 }],
