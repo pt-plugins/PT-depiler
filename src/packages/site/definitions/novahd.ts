@@ -59,6 +59,11 @@ export const siteMetadata: ISiteMetadata = {
 
   levelRequirements: [
     {
+      id: 0,
+      name: "User",
+      privilege: "",
+    },
+    {
       id: 1,
       name: "Power User",
       interval: "P4W",
