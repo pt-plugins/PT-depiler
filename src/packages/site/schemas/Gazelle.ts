@@ -206,17 +206,8 @@ export default class Gazelle extends PrivateSite {
     // 遍历数据行
     const torrents: ITorrent[] = [];
 
-    // 支持数组选择器，类似于 AbstractBittorrentSite 的处理方式
     const rowsSelector = searchEntry!.selectors!.rows;
-    const selectors = ([] as string[]).concat(rowsSelector.selector);
-    let trs: any[] = [];
-
-    for (const selector of selectors) {
-      trs = Sizzle(selector, doc);
-      if (trs.length > 0) {
-        break;
-      }
-    }
+    const trs = this.findElementsBySelectors(rowsSelector.selector, doc);
 
     for (const tr of trs) {
       // 对 url 和 link 结果做个检查，检查通过的再进入 parseRowToTorrent
