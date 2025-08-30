@@ -169,7 +169,16 @@ function cancelSearchQueue() {
             {{ t("SearchEntity.index.alert.paused") }}
           </template>
           <template v-else>
-            {{ t("SearchEntity.index.alert.searching") }}
+            <template v-if="runtimeStore.search.searchResult.length > 0">
+              {{ t("SearchEntity.index.alert.plan") }}
+              [{{ metadataStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) }}]，
+              {{ t("SearchEntity.index.alert.keyword") }}
+              [{{ runtimeStore.search.searchKey }}]，
+              {{ t("SearchEntity.index.alert.searchProgress", [runtimeStore.search.searchResult.length]) }}
+            </template>
+            <template v-else>
+              {{ t("SearchEntity.index.alert.searching") }}
+            </template>
           </template>
         </template>
         <template v-else>
