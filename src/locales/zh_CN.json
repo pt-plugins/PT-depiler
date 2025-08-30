@@ -335,6 +335,7 @@
         "statusButton": "搜索情况",
         "paused": "搜索暂停中…",
         "searching": "搜索中…",
+        "searchProgress": "已接收 {0} 条结果，搜索仍在进行……",
         "snapshot": "搜索快照",
         "plan": "搜索方案",
         "keyword": "关键词",

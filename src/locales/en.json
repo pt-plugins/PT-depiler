@@ -335,6 +335,7 @@
         "statusButton": "Search Status",
         "paused": "Search paused...",
         "searching": "Searching...",
+        "searchProgress": "Received {0} results, search is still in progress...",
         "snapshot": "Search Snapshot",
         "plan": "Search Plan",
         "keyword": "Keyword",
