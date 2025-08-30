@@ -55,6 +55,16 @@ export function getHostFromUrl(url: string): TSiteHost {
   try {
     const urlObj = new URL(url);
     host = urlObj.host;
+
+    // 标准化域名：去除常见的子域名前缀
+    const parts = host.split(".");
+    if (parts.length >= 3) {
+      // 只对常见的子域名前缀进行处理，避免误删重要的子域名
+      const commonSubdomains = ["www", "mobile"];
+      if (commonSubdomains.includes(parts[0].toLowerCase())) {
+        host = parts.slice(1).join(".");
+      }
+    }
   } catch (e) {}
 
   return host;
