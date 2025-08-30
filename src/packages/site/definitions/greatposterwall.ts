@@ -425,7 +425,10 @@ export default class GreatPosterWall extends Gazelle {
           });
         }
 
-        seeding = Sizzle(this.metadata.search?.selectors?.rows?.selector!, TListDocument).length;
+        const rowSelector = this.metadata.search?.selectors?.rows?.selector!;
+        const seedingElements = this.findElementsBySelectors(rowSelector, TListDocument);
+
+        seeding = seedingElements.length;
         const sizeEleList = Sizzle(".TableTorrent-rowTitle .TableTorrent-cellStatSize", TListDocument);
         sizeEleList.forEach((element) => {
           seedingSize += parseSizeString((element as HTMLElement).innerText!.trim());

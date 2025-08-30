@@ -107,7 +107,7 @@ export interface ISearchConfig extends IBaseSearchConfig {
      *  - merge  用于合并部分使用多行表示一个种子的情况，仅在返回为 Document 时生效
      */
     rows?: {
-      selector: string | ":self";
+      selector: string | ":self" | string[];
       filter?: <T>(rows: T) => T;
       merge?: number;
     };

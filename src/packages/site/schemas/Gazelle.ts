@@ -205,7 +205,9 @@ export default class Gazelle extends PrivateSite {
 
     // 遍历数据行
     const torrents: ITorrent[] = [];
-    const trs = Sizzle(searchEntry!.selectors!.rows.selector as string, doc);
+
+    const rowsSelector = searchEntry!.selectors!.rows;
+    const trs = this.findElementsBySelectors(rowsSelector.selector, doc);
 
     for (const tr of trs) {
       // 对 url 和 link 结果做个检查，检查通过的再进入 parseRowToTorrent

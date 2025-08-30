@@ -1,4 +1,4 @@
-import { EResultParseStatus, type ISiteMetadata, type ITorrent, type IUserInfo } from "../types";
+import { EResultParseStatus, ETorrentStatus, type ISiteMetadata, type ITorrent, type IUserInfo } from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
 
 export const siteMetadata: ISiteMetadata = {
@@ -208,6 +208,25 @@ export const siteMetadata: ISiteMetadata = {
       },
       completed: { selector: ['a[href*="/history"] > span.text-orange'] },
       comments: { text: "N/A" },
+      status: {
+        text: ETorrentStatus.unknown,
+        selector: ["button.btn.btn-circle"],
+        case: {
+          "button.btn.btn-success.btn-circle": ETorrentStatus.seeding, // 做种!
+          "button.btn.btn-warning.btn-circle": ETorrentStatus.downloading, // 吸血!
+          "button.btn.btn-info.btn-circle": ETorrentStatus.inactive, // 未完成!
+          "button.btn.btn-danger.btn-circle": ETorrentStatus.completed, // 撤种!
+        },
+      },
+      progress: {
+        text: 0,
+        selector: ["button.btn.btn-circle"],
+        case: {
+          "button.btn.btn-success.btn-circle": 100,
+          // 不清楚非做种情况下的进度信息，统一置为0
+          "button.btn.btn-warning.btn-circle, button.btn.btn-info.btn-circle, button.btn.btn-danger.btn-circle": 0,
+        },
+      },
       ext_bangumi: { selector: ['a[href*="bangumi.tv/subject"]'], attr: "href", filters: [{ name: "extBangumiId" }] },
       tags: [
         { selector: "span.torrent-listings-subtitle_tag", name: "中字" },
