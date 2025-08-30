@@ -1,4 +1,4 @@
-import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type ITorrent, type IUserInfo } from "../types";
+import { EResultParseStatus, type ISiteMetadata, type ITorrent, type IUserInfo } from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D";
 import { parseSizeString, parseValidTimeString } from "../utils";
 
@@ -153,7 +153,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "Incomplete", value: "incomplete" },
       ],
       cross: { mode: "append", key: "" },
-    }
+    },
   ],
   search: {
     ...SchemaMetadata.search,
@@ -166,13 +166,6 @@ export const siteMetadata: ISiteMetadata = {
     keywordPath: "params.name",
     selectors: {
       ...SchemaMetadata.search!.selectors,
-      rows: { selector: "div.torrent-search--list__results > table:first > tbody > tr" },
-      id: {
-        selector: ["a.torrent-search--list__name"],
-        attr: "href",
-        filters: [(query: string) => query.match(/\/torrents\/(\d+)/)![1]],
-      },
-      title: { selector: ["a.torrent-search--list__name"] },
       subTitle: {
         selector: ["td.torrent-search--list__overview div[style]"],
         elementProcess: (element: any) => {
@@ -184,36 +177,10 @@ export const siteMetadata: ISiteMetadata = {
           // 提取所有span元素中的文本内容
           const allText = Array.from(spans)
             .map((span: any) => (span.textContent || span.innerText || "").trim())
-            .filter(text => text.length > 0)
+            .filter((text) => text.length > 0)
             .join(", ");
 
           return allText;
-        },
-      },
-      url: { selector: ["a.torrent-search--list__name"], attr: "href" },
-      time: { selector: ["td.torrent-search--list__age > time"], attr: "title", filters: [{ name: "parseTime" }] },
-      size: { selector: ["td.torrent-search--list__size > span"], filters: [{ name: "parseSize" }] },
-      author: { selector: ["span.torrent-search--list__uploader"] },
-      category: { selector: ["td.torrent-search--list__format div.torrent-search--list__category img"], attr: "alt" },
-      seeders: { selector: ["td.torrent-search--list__seeders > a > span"], filters: [{ name: "parseNumber" }] },
-      leechers: { selector: ["td.torrent-search--list__leechers > a > span"], filters: [{ name: "parseNumber" }] },
-      completed: { selector: ["td.torrent-search--list__completed > a > span"], filters: [{ name: "parseNumber" }] },
-      comments: { selector: ["i.torrent-icons__comments"], filters: [{ name: "parseNumber" }] },
-      status: {
-        selector: ["span.torrent-icons > i.torrent-icons"],
-        text: ETorrentStatus.unknown,
-        case: {
-          "i.fa-arrow-circle-up": ETorrentStatus.seeding, // 做种!
-          "i.fa-arrow-circle-down": ETorrentStatus.downloading, // 吸血!
-          "i.fa-do-not-enter": ETorrentStatus.inactive, // 未完成!
-          "i.fa-thumbs-down": ETorrentStatus.completed, // 撤种!
-        },
-      },
-      progress: {
-        selector: ["span.torrent-icons > i.torrent-icons"],
-        text: 0,
-        case: {
-          "i.fa-arrow-circle-up, i.fa-thumbs-down": 100,
         },
       },
       tags: [
@@ -245,7 +212,7 @@ export const siteMetadata: ISiteMetadata = {
         {
           name: "置顶",
           selector: "i.fa-thumbtack",
-          color: "red"
+          color: "red",
         },
         {
           name: "可退款",
@@ -433,8 +400,8 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P3Y",
       averageSeedingTime: "P3M19DT12H",
       privilege: "下载队列无限，全局免费，直接发布种子，可以寄出邀请，可以无视H&R，双倍上传",
-    }
-  ]
+    },
+  ],
 };
 
 export default class BitPorn extends Unit3D {

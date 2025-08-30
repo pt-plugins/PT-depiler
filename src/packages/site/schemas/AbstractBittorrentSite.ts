@@ -421,6 +421,43 @@ export default class BittorrentSite {
   }
 
   /**
+   * 处理数组选择器，依次尝试每个选择器直到找到匹配的元素
+   * @param selectors 选择器或选择器数组
+   * @param context 查找上下文 (Document或JSON对象)
+   * @param options 可选配置
+   * @returns 找到的元素数组
+   * @protected
+   */
+  protected findElementsBySelectors(
+    selectors: string | string[] | ":self" | (string | ":self")[],
+    context: Document | object | any,
+    options: { isJson?: boolean } = {},
+  ): any[] {
+    const selectorArray = ([] as (string | ":self")[]).concat(selectors);
+    let foundElements: any[] = [];
+
+    for (const selector of selectorArray) {
+      if (options.isJson || !(context instanceof Document)) {
+        // JSON 数据处理
+        if (selector === ":self") {
+          foundElements = context;
+        } else {
+          foundElements = get(context, selector);
+        }
+      } else {
+        // Document 处理
+        foundElements = Sizzle(selector as string, context);
+      }
+
+      if (foundElements && foundElements.length > 0) {
+        break;
+      }
+    }
+
+    return foundElements || [];
+  }
+
+  /**
    * 如何解析 JSON 或者 Document，获得种子详情列表
    */
   public async transformSearchPage(doc: Document | object | any, searchConfig: ISearchInput): Promise<ITorrent[]> {
@@ -432,10 +469,10 @@ export default class BittorrentSite {
     const rowsSelector = searchEntry!.selectors.rows;
     const torrents: ITorrent[] = [];
 
-    let trs: any;
+    // 使用抽象方法处理数组选择器
+    let trs = this.findElementsBySelectors(rowsSelector.selector, doc, { isJson: !(doc instanceof Document) });
 
     if (doc instanceof Document) {
-      trs = Sizzle(rowsSelector.selector as string, doc);
       if (rowsSelector.filter) {
         trs = rowsSelector.filter(trs);
       } else {
@@ -459,9 +496,6 @@ export default class BittorrentSite {
         }
       }
     } else {
-      // 同样定义一个 :self 以防止对于JSON返回的情况下，所有items在顶层字典（实际是 Object[] ）下
-      trs = rowsSelector.selector === ":self" ? doc : get(doc, rowsSelector.selector as string);
-
       if (rowsSelector.filter) {
         trs = rowsSelector.filter(trs);
       }
