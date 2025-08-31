@@ -120,20 +120,18 @@ export const siteMetadata: ISiteMetadata = {
 
       status: {
         text: ETorrentStatus.unknown,
-        selector: ["td.torrent-listings-age:last span[data-original-title]"],
         case: {
           "span[data-original-title='Leeching']": ETorrentStatus.downloading,
           "span[data-original-title='Seeding']": ETorrentStatus.seeding,
           "span[data-original-title='Not Completed']": ETorrentStatus.inactive, // 未完成!
-          "span[data-original-title='Downloaded but Not Seeding']": ETorrentStatus.completed, // 完成!
+          // ETorrentStatus.completed 未提供
         },
       },
       // 站点似乎不提供 progress
       progress: {
         text: 0,
-        selector: ["td.torrent-listings-age:last span[data-original-title]"],
         case: {
-          "span[data-original-title='Seeding'], span[data-original-title='Downloaded but Not Seeding']": 100,
+          "span[data-original-title='Seeding']": 100,
           "span[data-original-title='Leeching'], span[data-original-title='Not Completed']": 0,
         },
       },

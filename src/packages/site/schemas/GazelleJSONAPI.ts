@@ -12,9 +12,6 @@ import {
   NeedLoginError,
 } from "../types";
 
-/**
- * @refs: https://github.com/WhatCD/Gazelle/blob/63b337026d49b5cf63ce4be20fdabdc880112fa3/sections/ajax/index.php#L16
- */
 type apiType =
   | "upload_section"
   | "preview"
@@ -57,18 +54,12 @@ type apiType =
   | "clear_user_notification"
   | "pushbullet_devices";
 
-/**
- * @refs: https://github.com/WhatCD/Gazelle/blob/63b337026d49b5cf63ce4be20fdabdc880112fa3/classes/util.php#L167-L187
- */
 export interface jsonResponse {
   status: "success" | "failure" | "error";
   response: any;
   error?: string;
 }
 
-/**
- * @refs: https://github.com/WhatCD/Gazelle/blob/63b337026d49b5cf63ce4be20fdabdc880112fa3/sections/ajax/info.php#L96-L115
- */
 export interface infoJsonResponse extends jsonResponse {
   response: {
     username: string;
@@ -92,9 +83,6 @@ export interface infoJsonResponse extends jsonResponse {
   };
 }
 
-/**
- * @refs: https://github.com/WhatCD/Gazelle/blob/63b337026d49b5cf63ce4be20fdabdc880112fa3/sections/ajax/browse.php
- */
 export interface baseBrowseResult {
   groupId: number;
   groupName: string;
@@ -152,9 +140,6 @@ export interface torrentBrowseResult extends baseBrowseResult, partTorrent {
   category: string;
 }
 
-/**
- * @refs: https://github.com/WhatCD/Gazelle/blob/63b337026d49b5cf63ce4be20fdabdc880112fa3/sections/ajax/browse.php
- */
 export interface browseJsonResponse extends jsonResponse {
   response: {
     currentPage: number;
@@ -195,9 +180,12 @@ export interface userJsonResponse extends jsonResponse {
       warned: boolean;
       enabled: boolean;
       passkey: string;
+      giftTokens: number;
+      meritTokens: number;
     };
     community: {
       posts: number;
+      groupVotes: number;
       torrentComments: number | null;
       artistComments: number | null;
       collageComments: number | null;
@@ -209,7 +197,7 @@ export interface userJsonResponse extends jsonResponse {
       requestsVoted: number | null;
       bountySpent: number | null;
       perfectFlacs: number | null;
-      uploaded: number | null;
+      uploaded: number | null; // 发布数量
       groups: number | null;
       seeding: number | null;
       leeching: number | null;
@@ -227,52 +215,21 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
     requestConfig: {
       url: "/ajax.php",
       responseType: "json",
-      params: {
-        action: "browse",
-      },
+      params: { action: "browse" },
     },
   },
   userInfo: {
     selectors: {
-      // "/ajax.php?action=index"
-      id: {
-        selector: ["response.id"],
-      },
-      name: {
-        selector: ["response.username"],
-      },
-      messageCount: {
-        selector: ["response.notifications.messages"],
-      },
-      uploaded: {
-        selector: ["response.userstats.uploaded"],
-      },
-      downloaded: {
-        selector: ["response.userstats.downloaded"],
-      },
-      ratio: {
-        selector: ["response.userstats.ratio"],
-      },
-      levelName: {
-        selector: ["response.userstats.class"],
-      },
-
-      // "/ajax.php?action=user&id=$user.id$"
-      joinTime: {
-        selector: ["response.stats.joinedDate"],
-        filters: [{ name: "parseTime" }],
-      },
-      seeding: {
-        selector: ["response.community.seeding"],
-      },
-      uploads: {
-        selector: ["response.ranks.uploads"],
-      },
-
-      // "/torrents.php?type=seeding&userid=$user.id$"
-      bonus: {
-        text: "N/A",
-      },
+      id: { selector: ["response.id"] },
+      name: { selector: ["response.username"] },
+      messageCount: { selector: ["response.notifications.messages"] },
+      uploaded: { selector: ["response.userstats.uploaded"] }, // 保留原始上传量
+      downloaded: { selector: ["response.userstats.downloaded"] },
+      ratio: { selector: ["response.userstats.ratio"] },
+      levelName: { selector: ["response.userstats.class"] },
+      joinTime: { selector: ["response.stats.joinedDate"], filters: [{ name: "parseTime" }] },
+      seeding: { selector: ["response.community.seeding"] },
+      bonus: { text: "N/A" },
     },
   },
 };
@@ -284,10 +241,7 @@ export default class GazelleJSONAPI extends PrivateSite {
     action: apiType,
     params: { [key: string]: any },
   ): Promise<AxiosResponse<T>> {
-    return await this.request<T>({
-      url: "/ajax.php",
-      params: { action, ...params },
-    });
+    return await this.request<T>({ url: "/ajax.php", params: { action, ...params } });
   }
 
   protected async requestApiInfo(): Promise<infoJsonResponse> {
@@ -298,19 +252,15 @@ export default class GazelleJSONAPI extends PrivateSite {
   protected async getAuthKey(): Promise<{ authkey: string; passkey: string }> {
     if (!this._authKey) {
       const apiInfo = await this.requestApiInfo();
-      this._authKey = {
-        authkey: apiInfo.response.authkey,
-        passkey: apiInfo.response.passkey,
-      };
+      this._authKey = { authkey: apiInfo.response.authkey, passkey: apiInfo.response.passkey };
     }
     return this._authKey;
   }
 
   protected async transformUnGroupTorrent(group: torrentBrowseResult): Promise<ITorrent> {
     const { authkey, passkey } = await this.getAuthKey();
-
     return {
-      site: this.metadata.id, // 补全种子的 site 属性
+      site: this.metadata.id,
       id: group.torrentId,
       title: group.groupName,
       url: `${this.url}torrents.php?id=${group.groupId}&torrentid=${group.torrentId}`,
@@ -328,17 +278,12 @@ export default class GazelleJSONAPI extends PrivateSite {
 
   protected async transformGroupTorrent(group: groupBrowseResult, torrent: groupTorrent): Promise<ITorrent> {
     const { authkey, passkey } = await this.getAuthKey();
-
     const tags: { name: string; color: string }[] = [];
-    if (torrent.isFreeleech || torrent.isPersonalFreeleech) {
-      tags.push({ name: "Free", color: "blue" });
-    }
-    if (torrent.isNeutralLeech) {
-      tags.push({ name: "Neutral", color: "cyan" });
-    }
+    if (torrent.isFreeleech || torrent.isPersonalFreeleech) tags.push({ name: "Free", color: "blue" });
+    if (torrent.isNeutralLeech) tags.push({ name: "Neutral", color: "cyan" });
 
     return {
-      site: this.metadata.id, // 补全种子的 site 属性
+      site: this.metadata.id,
       id: torrent.torrentId,
       title: `${group.artist} - ${group.groupName} [${group.groupYear}] [${group.releaseType}]`,
       subTitle:
@@ -366,23 +311,16 @@ export default class GazelleJSONAPI extends PrivateSite {
     searchConfig: ISearchInput,
   ): Promise<ITorrent[]> {
     const torrents: ITorrent[] = [];
-
     if (doc.status === "success") {
       const rows = doc.response.results;
       for (const group of rows) {
         if ("torrents" in group) {
-          // is groupBrowseResult
-          for (const rawTorrent of group.torrents) {
-            const torrent: ITorrent = await this.transformGroupTorrent(group, rawTorrent);
-            torrents.push(torrent);
-          }
+          for (const rawTorrent of group.torrents) torrents.push(await this.transformGroupTorrent(group, rawTorrent));
         } else {
-          const torrent: ITorrent = await this.transformUnGroupTorrent(group);
-          torrents.push(torrent);
+          torrents.push(await this.transformUnGroupTorrent(group));
         }
       }
     }
-
     return torrents;
   }
 
@@ -415,10 +353,7 @@ export default class GazelleJSONAPI extends PrivateSite {
       flushUserInfo.status = EResultParseStatus.success;
     } catch (error) {
       flushUserInfo.status = EResultParseStatus.parseError;
-
-      if (error instanceof NeedLoginError) {
-        flushUserInfo.status = EResultParseStatus.needLogin;
-      }
+      if (error instanceof NeedLoginError) flushUserInfo.status = EResultParseStatus.needLogin;
     }
 
     return flushUserInfo;
@@ -426,7 +361,6 @@ export default class GazelleJSONAPI extends PrivateSite {
 
   protected async getUserBaseInfo(): Promise<Partial<IUserInfo>> {
     const apiInfo = await this.requestApiInfo();
-
     return this.getFieldsData(apiInfo, this.metadata.userInfo!.selectors!, [
       "id",
       "name",
@@ -440,21 +374,21 @@ export default class GazelleJSONAPI extends PrivateSite {
 
   protected async getUserExtendInfo(userId: number): Promise<Partial<IUserInfo>> {
     await this.sleepAction(this.metadata.userInfo?.requestDelay);
+    const { data: apiUser } = await this.requestApi<userJsonResponse>("user", { id: userId });
 
-    const { data: apiUser } = await this.requestApi<userJsonResponse>("user", {
-      id: userId,
-    });
-
-    return this.getFieldsData(apiUser, this.metadata.userInfo!.selectors!, [
+    const baseData = this.getFieldsData(apiUser, this.metadata.userInfo!.selectors!, [
       "joinTime",
       "seeding",
-      "uploads",
     ] as (keyof Partial<IUserInfo>)[]) as Partial<IUserInfo>;
+
+    // 新增 uploads 字段
+    baseData.uploads = apiUser.response.community.uploaded ?? 0;
+
+    return baseData;
   }
 
   protected async getUserSeedingTorrents(userId?: number): Promise<Partial<IUserInfo>> {
     await this.sleepAction(this.metadata.userInfo?.requestDelay);
-
     const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
 
     const { data: seedPage } = await this.request<Document>({
