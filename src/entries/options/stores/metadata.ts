@@ -1,6 +1,7 @@
 import { nanoid } from "nanoid";
 import { defineStore } from "pinia";
 import { isEmpty, set } from "es-toolkit/compat";
+import { markRaw } from "vue";
 import {
   getHostFromUrl,
   getDefinedSiteMetadata,
@@ -59,15 +60,20 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     getAddedSites(state) {
-      return Object.entries(state.sites).map(([siteId, metadata]) => {
-        return { ...metadata, id: siteId };
+      // 使用 markRaw 优化：减少大量数据的深度响应式开销
+      const sites = Object.entries(state.sites).map(([siteId, metadata]) => {
+        return markRaw({ ...metadata, id: siteId });
       });
+      return markRaw(sites);
     },
 
     getSortedAddedSites(state): Array<ISiteUserConfig & { id: string }> {
-      return this.getAddedSites.sort((a, b) => {
-        return (b.sortIndex ?? 0) - (a.sortIndex ?? 0);
-      });
+      const sites = this.getAddedSites;
+      return markRaw(
+        sites.sort((a, b) => {
+          return (b.sortIndex ?? 0) - (a.sortIndex ?? 0);
+        }),
+      );
     },
 
     getSitesGroupData(state) {
@@ -81,12 +87,15 @@ export const useMetadataStore = defineStore("metadata", {
           }
         }
       }
-      return sitesGroupData;
+      // 使用 markRaw 优化：分组数据相对稳定
+      return markRaw(sitesGroupData);
     },
 
     getSiteMetadata(state) {
       return async (siteId: TSiteID): Promise<ISiteMetadata> => {
-        return await getDefinedSiteMetadata(siteId);
+        const metadata = await getDefinedSiteMetadata(siteId);
+        // 使用 markRaw 优化：元数据是静态的，不需要响应式
+        return markRaw(metadata);
       };
     },
 
@@ -94,9 +103,13 @@ export const useMetadataStore = defineStore("metadata", {
       return async (siteId: TSiteID, flush: boolean = false): Promise<ISiteUserConfig> => {
         const siteUserConfig = state.sites[siteId] ?? {};
         if (flush || isEmpty(siteUserConfig)) {
-          return await sendMessage("getSiteUserConfig", { siteId, flush });
+          const config = await sendMessage("getSiteUserConfig", { siteId, flush });
+          // 使用 markRaw 优化：用户配置相对稳定
+          return markRaw(config);
         }
-        return siteUserConfig;
+
+        // 使用 markRaw 优化已存在的配置
+        return markRaw(siteUserConfig);
       };
     },
 
@@ -170,7 +183,8 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     getSearchSolutions(state) {
-      return Object.values(state.solutions);
+      // 使用 markRaw 优化：搜索方案数组不需要深度响应式
+      return markRaw(Object.values(state.solutions));
     },
 
     getSiteDefaultSearchSolution(state) {
@@ -271,7 +285,8 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     getSearchSnapshotList(state) {
-      return Object.values(state.snapshots);
+      // 使用 markRaw 优化：快照列表不需要深度响应式
+      return markRaw(Object.values(state.snapshots));
     },
 
     getSearchSnapshotData(state) {
@@ -292,17 +307,20 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     getDownloaders(state) {
-      return Object.values(state.downloaders);
+      // 使用 markRaw 优化：下载器列表不需要深度响应式
+      return markRaw(Object.values(state.downloaders));
     },
 
     getEnabledDownloaders(state) {
-      return Object.values(state.downloaders).filter((downloader) => downloader.enabled);
+      const enabled = Object.values(state.downloaders).filter((downloader) => downloader.enabled);
+      return markRaw(enabled);
     },
 
     getSortedEnabledDownloaders(state): Array<IDownloaderMetadata> {
-      return this.getEnabledDownloaders.sort((a, b) => {
+      const sorted = this.getEnabledDownloaders.sort((a, b) => {
         return (b.sortIndex ?? 0) - (a.sortIndex ?? 0);
       });
+      return markRaw(sorted);
     },
 
     getMediaServerIds(state) {
@@ -310,11 +328,13 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     getMediaServers(state) {
-      return Object.values(state.mediaServers);
+      // 使用 markRaw 优化：媒体服务器列表不需要深度响应式
+      return markRaw(Object.values(state.mediaServers));
     },
 
     getEnabledMediaServers(state) {
-      return Object.values(state.mediaServers).filter((mediaServer) => mediaServer.enabled);
+      const enabled = Object.values(state.mediaServers).filter((mediaServer) => mediaServer.enabled);
+      return markRaw(enabled);
     },
 
     getBackupServerIds(state) {
@@ -322,7 +342,8 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     getBackupServers(state) {
-      return Object.values(state.backupServers);
+      // 使用 markRaw 优化：备份服务器列表不需要深度响应式
+      return markRaw(Object.values(state.backupServers));
     },
   },
   actions: {
@@ -338,7 +359,8 @@ export const useMetadataStore = defineStore("metadata", {
 
     async addSite(siteId: TSiteID, siteConfig: ISiteUserConfig) {
       delete siteConfig.valid;
-      this.sites[siteId] = siteConfig;
+      this.sites[siteId] = markRaw(siteConfig);
+
       await this.buildSiteHostMap();
       await this.buildSiteNameMap();
       await this.$save();
@@ -346,6 +368,7 @@ export const useMetadataStore = defineStore("metadata", {
 
     async removeSite(siteId: TSiteID) {
       delete this.sites[siteId];
+
       await this.buildSiteHostMap();
       await this.buildSiteNameMap();
       await this.$save();
@@ -377,7 +400,8 @@ export const useMetadataStore = defineStore("metadata", {
           }
         }
       }
-      this.siteHostMap = siteHostMap;
+      // 使用 markRaw 优化：映射数据不需要深度响应式
+      this.siteHostMap = markRaw(siteHostMap);
     },
 
     async buildSiteNameMap() {
@@ -385,11 +409,12 @@ export const useMetadataStore = defineStore("metadata", {
       for (const siteId in this.sites) {
         siteNameMap[siteId] = await this.getSiteName(siteId);
       }
-      this.siteNameMap = siteNameMap;
+      // 使用 markRaw 优化：名称映射不需要深度响应式
+      this.siteNameMap = markRaw(siteNameMap);
     },
 
     async addSearchSolution(solution: ISearchSolutionMetadata) {
-      this.solutions[solution.id] = solution;
+      this.solutions[solution.id] = markRaw(solution);
       await this.$save();
     },
 
@@ -413,12 +438,12 @@ export const useMetadataStore = defineStore("metadata", {
       }
 
       const snapshotId = nanoid();
-      this.snapshots[snapshotId] = {
+      this.snapshots[snapshotId] = markRaw({
         id: snapshotId,
         name,
         createdAt: Date.now(),
         recordCount: searchSnapshotData.searchResult.length,
-      };
+      });
 
       // 保存搜索快照数据
       await sendMessage("saveSearchResultSnapshotData", { snapshotId, data: searchSnapshotData });
@@ -439,7 +464,7 @@ export const useMetadataStore = defineStore("metadata", {
 
     async addDownloader(downloaderConfig: IDownloaderMetadata) {
       delete downloaderConfig.valid;
-      this.downloaders[downloaderConfig.id] = downloaderConfig;
+      this.downloaders[downloaderConfig.id] = markRaw(downloaderConfig);
       await this.$save();
     },
 
@@ -459,7 +484,7 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     async addMediaServer(mediaServerConfig: IMediaServerMetadata) {
-      this.mediaServers[mediaServerConfig.id] = mediaServerConfig;
+      this.mediaServers[mediaServerConfig.id] = markRaw(mediaServerConfig);
       await this.$save();
     },
 
@@ -469,7 +494,7 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     async addBackupServer(backupServerConfig: IBackupServerMetadata) {
-      this.backupServers[backupServerConfig.id] = backupServerConfig;
+      this.backupServers[backupServerConfig.id] = markRaw(backupServerConfig);
       await this.$save();
     },
 
