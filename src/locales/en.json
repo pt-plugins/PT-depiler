@@ -628,6 +628,7 @@
       "lastFlushTime": "Last refresh time:",
       "nextFlushTime": "Next refresh time:"
     },
+    "alwaysPickLastUserInfo": "",
     "showDeadSite": "Show sites marked as dead (isDead) in the overview",
     "showPassedSite": "Show sites marked as offline (isOffline) or not allowing user info query in the overview",
     "autoExtendCookies": {

@@ -43,12 +43,21 @@ onMounted(async () => {
 <template>
   <v-row>
     <v-col md="10" lg="8">
+      <v-label>用户数据刷新</v-label>
+
       <v-number-input
         v-model="configStore.userInfo.queueConcurrency"
         :max="25"
         :min="1"
         :label="t('userInfo.queueConcurrency')"
       ></v-number-input>
+
+      <v-switch
+        v-model="configStore.userInfo.alwaysPickLastUserInfo"
+        :label="t('userInfo.alwaysPickLastUserInfo')"
+        color="success"
+        hide-details
+      />
 
       <!-- 自动刷新 -->
       <v-switch
@@ -146,6 +155,8 @@ onMounted(async () => {
           </div>
         </v-alert>
       </v-row>
+
+      <v-label>用户信息展示</v-label>
 
       <v-switch
         v-model="configStore.userInfo.showDeadSiteInOverview"

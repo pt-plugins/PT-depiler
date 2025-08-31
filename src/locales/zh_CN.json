@@ -625,6 +625,7 @@
       "lastFlushTime": "最近一次刷新时间:",
       "nextFlushTime": "下一次刷新时间:"
     },
+    "alwaysPickLastUserInfo": "刷新用户数据时尽可能使用已有的历史信息",
     "showDeadSite": "在概览中展示已被标记为死亡 （isDead） 的站点",
     "showPassedSite": "在概览中展示已被标记为离线 （isOffline） 或不允许查询用户信息的站点",
     "autoExtendCookies": {

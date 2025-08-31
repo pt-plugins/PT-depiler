@@ -161,6 +161,7 @@ export interface IConfigPiniaStorageSchema {
         interval: number; // 每次重试的间隔（ 1-5 分钟 ）
       };
     };
+    alwaysPickLastUserInfo: boolean; // 在获取用户信息时，带入最新一次的 userInfo 作为初始值
     // 是否在概览中展示已被标记为死亡 （isDead） 的站点
     showDeadSiteInOverview: boolean;
     // 是否在概览中展示已被标记为离线 （isOffline） 或不允许查询用户信息 （ allowQueryUserInfo === false ） 的站点

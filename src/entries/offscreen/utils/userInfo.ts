@@ -46,8 +46,12 @@ export async function getSiteUserInfoResult(siteId: string) {
 
     // 获取历史信息
     const metadataStoreRaw = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
+    const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
     let lastUserInfo = metadataStoreRaw?.lastUserInfo?.[siteId as string] ?? {};
-    if ((lastUserInfo as IUserInfo).status !== EResultParseStatus.success) {
+    if (
+      !(configStoreRaw.userInfo.alwaysPickLastUserInfo ?? true) ||
+      (lastUserInfo as IUserInfo).status !== EResultParseStatus.success
+    ) {
       lastUserInfo = {} as IUserInfo;
     }
 

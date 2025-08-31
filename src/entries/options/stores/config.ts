@@ -223,6 +223,7 @@ export const useConfigStore = defineStore("config", {
           interval: 5, // minutes
         },
       },
+      alwaysPickLastUserInfo: true,
       showDeadSiteInOverview: false,
       showPassedSiteInOverview: false,
     },
