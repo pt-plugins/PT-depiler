@@ -273,6 +273,9 @@
     "HistoryDataView": {
       "title": "User History Data @ ",
       "deleteConfirm": "Confirm to delete this history data?",
+      "clearLastUserInfo": "Clear Cache",
+      "clearLastUserInfoConfirm": "Confirm to clear site user info cache? This will re-fetch all fields on next refresh.",
+      "clearLastUserInfoSuccess": "Site user info cache cleared, new data will be fetched on next refresh.",
       "action": {
         "viewRaw": "View Raw Data"
       }

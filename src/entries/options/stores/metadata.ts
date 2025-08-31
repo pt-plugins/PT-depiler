@@ -346,9 +346,22 @@ export const useMetadataStore = defineStore("metadata", {
 
     async removeSite(siteId: TSiteID) {
       delete this.sites[siteId];
+      // 同时清理站点的lastUserInfo缓存
+      if (this.lastUserInfo[siteId]) {
+        delete this.lastUserInfo[siteId];
+      }
       await this.buildSiteHostMap();
       await this.buildSiteNameMap();
       await this.$save();
+    },
+
+    async clearSiteLastUserInfo(siteId: TSiteID) {
+      if (this.lastUserInfo[siteId]) {
+        delete this.lastUserInfo[siteId];
+        await this.$save();
+        return true;
+      }
+      return false;
     },
 
     /**

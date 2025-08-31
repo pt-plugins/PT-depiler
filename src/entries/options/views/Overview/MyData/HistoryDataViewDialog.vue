@@ -8,6 +8,8 @@ import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 import { sendMessage } from "@/messages.ts";
 import { formatNumber, formatSize, formatDate } from "@/options/utils.ts";
 import { fixUserInfo, formatRatio } from "./utils.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { useRuntimeStore } from "@/options/stores/runtime";
 
 import SiteName from "@/options/components/SiteName.vue";
 import NavButton from "@/options/components/NavButton.vue";
@@ -17,6 +19,8 @@ const props = defineProps<{
   siteId: TSiteID | null;
 }>();
 const { t } = useI18n();
+const metadataStore = useMetadataStore();
+const runtimeStore = useRuntimeStore();
 
 const currentDate = formatDate(+new Date(), "yyyy-MM-dd");
 const jsonData = ref<any>({});
@@ -76,6 +80,17 @@ function exportSiteHistoryData() {
 
   const exportedSolutionBlob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
   saveAs(exportedSolutionBlob, `site-history-data-${props.siteId}.json`); // FIXME filename
+}
+
+async function clearSiteLastUserInfo() {
+  if (!props.siteId || !confirm(t("MyData.HistoryDataView.clearLastUserInfoConfirm"))) {
+    return;
+  }
+
+  const cleared = await metadataStore.clearSiteLastUserInfo(props.siteId);
+  if (cleared) {
+    runtimeStore.showSnakebar(t("MyData.HistoryDataView.clearLastUserInfoSuccess"), { color: "success" });
+  }
 }
 </script>
 
@@ -210,6 +225,15 @@ function exportSiteHistoryData() {
               @click="deleteSiteUserInfo(tableSelected)"
             />
             <NavButton color="info" icon="mdi-export" text="导出" @click="exportSiteHistoryData" />
+
+            <v-divider class="mx-2" vertical />
+
+            <NavButton
+              color="warning"
+              icon="mdi-cached"
+              :text="t('MyData.HistoryDataView.clearLastUserInfo')"
+              @click="clearSiteLastUserInfo"
+            />
             <v-spacer />
           </template>
         </v-data-table>

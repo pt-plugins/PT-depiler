@@ -273,6 +273,9 @@
     "HistoryDataView": {
       "title": "用户历史数据",
       "deleteConfirm": "确认删除这条历史数据吗？",
+      "clearLastUserInfo": "清除缓存",
+      "clearLastUserInfoConfirm": "确认清除站点用户信息缓存吗？这将在下次刷新时重新获取所有字段。",
+      "clearLastUserInfoSuccess": "站点用户信息缓存已清除，下次刷新将获取新数据。",
       "action": {
         "viewRaw": "查看原始数据"
       }
