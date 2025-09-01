@@ -94,9 +94,6 @@ export const siteMetadata: ISiteMetadata = {
       ],
       cross: { mode: "append" },
     },
-    CategoryIncldead,
-    CategorySpstate,
-    CategoryInclbookmarked,
   ],
 
   userInfo: {
