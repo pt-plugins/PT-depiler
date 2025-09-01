@@ -27,7 +27,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "MV/演唱会", value: 406 },
         { name: "Sports/体育", value: 407 },
         { name: "Music/音乐", value: 408 },
-        { name: "Othes/其他", value: 409 },
+        { name: "Others/其他", value: 409 },
       ],
     },
     {
