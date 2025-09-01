@@ -3,7 +3,7 @@ import { computed, ref, shallowRef, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify";
-import { EResultParseStatus, ETorrentStatus } from "@ptd/site";
+import { EResultParseStatus, ETorrentStatus, type TSiteID } from "@ptd/site";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -20,8 +20,17 @@ import ActionTd from "./ActionTd.vue";
 import SearchStatusDialog from "./SearchStatusDialog.vue";
 import SaveSnapshotDialog from "./SaveSnapshotDialog.vue";
 import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
+import SiteFilterSelector from "./SiteFilterSelector.vue";
 
-import { doSearch, retrySearch, searchPlanStatus, searchQueue, tableCustomFilter } from "./utils.ts"; // <-- 主要方法在这个文件中！！！
+import {
+  doSearch,
+  retrySearch,
+  searchPlanStatus,
+  searchQueue,
+  tableCustomFilter,
+  removeSiteFilterFromQuery,
+  addSiteFilterToQuery,
+} from "./utils"; // <-- 主要方法在这个文件中！！！
 
 const { t } = useI18n();
 const route = useRoute();
@@ -71,6 +80,33 @@ const tableHeader = computed(() => {
 
 const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
 
+// 站点筛选相关
+const selectedSiteId = ref<TSiteID | null>(null);
+
+// 获取搜索结果中的所有站点
+const availableSites = computed(() => {
+  const sites = new Set<TSiteID>();
+  runtimeStore.search.searchResult.forEach((item: ISearchResultTorrent) => {
+    sites.add(item.site);
+  });
+  return Array.from(sites).sort();
+});
+
+// 当选择站点时，更新过滤器输入
+function selectSite(siteId: TSiteID | null) {
+  selectedSiteId.value = siteId;
+
+  if (siteId === null) {
+    // 选择"全部站点"，移除站点筛选关键词
+    const currentFilter = tableWaitFilterRef.value || "";
+    tableWaitFilterRef.value = removeSiteFilterFromQuery(currentFilter);
+  } else {
+    // 选择特定站点，添加站点筛选关键词
+    const currentFilter = tableWaitFilterRef.value || "";
+    tableWaitFilterRef.value = addSiteFilterToQuery(currentFilter, siteId);
+  }
+}
+
 // 使用 shallowRef 优化：种子对象数组不需要深度响应式，提升性能
 const tableSelectedRaw = shallowRef<ISearchResultTorrent[]>([]);
 
@@ -117,6 +153,9 @@ watch(
         (newParams.search && newParams.search != oldParams?.search) ||
         (newParams.plan && newParams.plan != oldParams?.plan)
       ) {
+        // 在开始新搜索前重置UI状态
+        selectedSiteId.value = null;
+        // doSearch 会自动处理过滤器重置
         doSearch((newParams.search as string) ?? "", (newParams.plan as string) ?? "default", true);
       }
     }
@@ -247,7 +286,12 @@ function cancelSearchQueue() {
             :title="t('SearchEntity.index.action.retry')"
             color="red"
             icon="mdi-sync"
-            @click="() => doSearch(null as unknown as string, null as unknown as string, true)"
+            @click="
+              () => {
+                selectedSiteId = null;
+                doSearch('', '', true);
+              }
+            "
           />
 
           <!-- 重试失败的搜索 -->
@@ -342,6 +386,18 @@ function cancelSearchQueue() {
         />
       </v-row>
     </v-card-title>
+
+    <!-- 站点筛选器 -->
+    <v-card-text v-if="runtimeStore.search.searchResult.length > 0" class="pt-2 pb-0">
+      <div class="d-flex align-center mb-2">
+        <SiteFilterSelector
+          v-model="selectedSiteId"
+          :all-sites="availableSites"
+          :disabled="false"
+          @select-site="selectSite"
+        />
+      </div>
+    </v-card-text>
 
     <v-data-table
       id="ptd-search-entity-table"
@@ -452,7 +508,12 @@ function cancelSearchQueue() {
 
   <AdvanceFilterGenerateDialog
     v-model="showAdvanceFilterGenerateDialog"
-    @update:table-filter="(v) => (tableWaitFilterRef = v)"
+    @update:table-filter="
+      (v) => {
+        tableWaitFilterRef = v;
+        selectedSiteId = null;
+      }
+    "
   />
   <SearchStatusDialog v-model="showSearchStatusDialog"></SearchStatusDialog>
   <SaveSnapshotDialog v-model="showSaveSnapshotDialog"></SaveSnapshotDialog>

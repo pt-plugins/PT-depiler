@@ -359,6 +359,9 @@
       "socialInformationSearchOnNewTab": "Open Media Rating Search in a New Tab",
       "uploadAtFormatAsAlive": "Display Upload Time as Relative Time"
     },
+    "siteFilter": {
+      "all": "All"
+    },
     "AdvanceFilterGenerateDialog": {
       "date": {
         "day": "Today",

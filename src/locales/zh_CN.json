@@ -359,6 +359,9 @@
       "socialInformationSearchOnNewTab": "媒体评价信息搜索在新标签页中打开",
       "uploadAtFormatAsAlive": "上传时间显示为相对时间"
     },
+    "siteFilter": {
+      "all": "全部"
+    },
     "AdvanceFilterGenerateDialog": {
       "date": {
         "day": "本日",

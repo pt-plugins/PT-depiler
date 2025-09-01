@@ -15,6 +15,20 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
 import type { ISearchResultTorrent, TSearchSolutionKey } from "@/shared/types.ts";
 
+// 常量：站点过滤关键词的正则表达式
+export const SITE_FILTER_REGEX = /\s*site:\S+/g;
+
+// 工具函数：移除过滤器中的站点关键词
+export function removeSiteFilterFromQuery(query: string): string {
+  return query.replace(SITE_FILTER_REGEX, "").trim();
+}
+
+// 工具函数：添加站点过滤关键词
+export function addSiteFilterToQuery(query: string, siteId: TSiteID): string {
+  const cleanQuery = removeSiteFilterFromQuery(query);
+  return cleanQuery ? `${cleanQuery} site:${siteId}` : `site:${siteId}`;
+}
+
 const runtimeStore = useRuntimeStore();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
@@ -201,9 +215,12 @@ export async function doSearch(search: string, plan?: string, flush: boolean = t
   const searchKey = search ?? runtimeStore.search.searchKey ?? "";
   const searchPlanKey = plan ?? runtimeStore.search.searchPlanKey ?? "default";
 
-  // Reset search data
+  // Reset search data and filters
   if (flush) {
     runtimeStore.resetSearchData();
+    // 清除过滤器中的站点关键词，但保留其他过滤器
+    const currentFilter = tableCustomFilter.tableWaitFilterRef.value || "";
+    tableCustomFilter.tableWaitFilterRef.value = removeSiteFilterFromQuery(currentFilter);
   }
 
   console.log("Start search with: ", searchKey, searchPlanKey, flush);
