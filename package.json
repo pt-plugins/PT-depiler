@@ -42,8 +42,8 @@
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.12",
-    "@vueuse/components": "^13.7.0",
-    "@vueuse/core": "^13.7.0",
+    "@vueuse/components": "^13.9.0",
+    "@vueuse/core": "^13.9.0",
     "@webext-core/job-scheduler": "^1.0.0",
     "@webext-core/messaging": "^2.3.0",
     "@webext-core/storage": "^1.2.0",
@@ -71,9 +71,9 @@
     "vue": "^3.5.20",
     "vue-echarts": "^7.0.3",
     "vue-i18n": "^11.1.11",
-    "vue-konva": "^3.2.4",
+    "vue-konva": "^3.2.6",
     "vue-router": "^4.5.1",
-    "vuetify": "^3.9.5",
+    "vuetify": "^3.9.6",
     "webdav": "^5.8.0"
   },
   "devDependencies": {
@@ -84,7 +84,7 @@
     "@types/git-rev-sync": "^2.0.2",
     "@types/node": "^24.3.0",
     "@types/parse-torrent": "^5.8.7",
-    "@types/sizzle": "^2.3.9",
+    "@types/sizzle": "^2.3.10",
     "@vitejs/plugin-vue": "^5.2.4",
     "conventional-changelog": "^7.1.1",
     "conventional-changelog-angular": "^8.0.0",
