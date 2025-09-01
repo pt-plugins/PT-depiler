@@ -169,6 +169,9 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 1,
       name: "User",
+      interval: "P1W",
+      uploaded: "0.1GiB",
+      ratio: 0.1,
       privilege: "能够使用 RSS 订阅系统；具有论坛「茶话会」版块的阅读权限",
     },
     {
@@ -229,7 +232,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 8,
-      name: "Elite Torrent Master Plus",
+      name: "Elite TM +",
       interval: "P12W",
       uploaded: "600GiB",
       ratio: 1.05,

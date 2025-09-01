@@ -266,7 +266,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         selector: ["response.community.seeding"],
       },
       uploads: {
-        selector: ["response.ranks.uploads"],
+        selector: ["response.community.uploaded"],
       },
 
       // "/torrents.php?type=seeding&userid=$user.id$"
