@@ -92,10 +92,8 @@ const availableSites = computed(() => {
   return Array.from(sites).sort();
 });
 
-// 当选择站点时，更新过滤器输入
-function selectSite(siteId: TSiteID | null) {
-  selectedSiteId.value = siteId;
-
+// 监听站点选择变化，更新过滤器输入
+watch(selectedSiteId, (siteId) => {
   if (siteId === null) {
     // 选择"全部站点"，移除站点筛选关键词
     const currentFilter = tableWaitFilterRef.value || "";
@@ -105,7 +103,7 @@ function selectSite(siteId: TSiteID | null) {
     const currentFilter = tableWaitFilterRef.value || "";
     tableWaitFilterRef.value = addSiteFilterToQuery(currentFilter, siteId);
   }
-}
+});
 
 // 使用 shallowRef 优化：种子对象数组不需要深度响应式，提升性能
 const tableSelectedRaw = shallowRef<ISearchResultTorrent[]>([]);
@@ -390,12 +388,7 @@ function cancelSearchQueue() {
     <!-- 站点筛选器 -->
     <v-card-text v-if="runtimeStore.search.searchResult.length > 0" class="pt-2 pb-0">
       <div class="d-flex align-center mb-2">
-        <SiteFilterSelector
-          v-model="selectedSiteId"
-          :all-sites="availableSites"
-          :disabled="false"
-          @select-site="selectSite"
-        />
+        <SiteFilterSelector v-model="selectedSiteId" :all-sites="availableSites" />
       </div>
     </v-card-text>
 

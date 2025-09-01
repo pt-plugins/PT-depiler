@@ -8,43 +8,27 @@ import SiteFavicon from "@/options/components/SiteFavicon.vue";
 
 interface Props {
   allSites: TSiteID[];
-  modelValue: TSiteID | null;
-  disabled?: boolean;
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  disabled: false,
-  modelValue: null,
-});
+const { allSites } = defineProps<Props>();
 
-const emit = defineEmits<{
-  "update:modelValue": [value: TSiteID | null];
-  "select-site": [value: TSiteID | null];
-}>();
+const selectedSiteId = defineModel<TSiteID | null>("modelValue", { default: null });
 
 const { t } = useI18n();
 
 // 直接使用站点 ID 值，避免索引映射的竞态条件
 const chipGroupValue = computed({
   get: () => {
-    return props.modelValue || "__ALL__"; // 使用特殊值表示"全部"
+    return selectedSiteId.value || "__ALL__"; // 使用特殊值表示"全部"
   },
   set: (value: string) => {
-    const siteId = value === "__ALL__" ? null : (value as TSiteID);
-    emit("update:modelValue", siteId);
-    emit("select-site", siteId);
+    selectedSiteId.value = value === "__ALL__" ? null : (value as TSiteID);
   },
 });
 </script>
 
 <template>
-  <v-chip-group
-    v-model="chipGroupValue"
-    :disabled="disabled"
-    id="site-filter-chips"
-    mandatory
-    selected-class="text-primary"
-  >
+  <v-chip-group v-model="chipGroupValue" id="site-filter-chips" mandatory selected-class="text-primary">
     <!-- "全部"选项 -->
     <v-chip value="__ALL__" size="small" class="mr-1 mb-1">
       <v-icon start icon="mdi-web" />
