@@ -29,7 +29,6 @@ function clearSiteFilter() {
     <v-chip-group
       v-model="advanceFilterDictRef.site.required"
       id="site-filter-chips"
-      mandatory
       multiple
       filter
       color="primary"
