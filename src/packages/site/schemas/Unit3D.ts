@@ -234,6 +234,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
   },
 
   userInfo: {
+    pickLast: ["name"],
     selectors: {
       // '/'
       name: {
@@ -245,6 +246,11 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
             return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : "";
           },
         ],
+      },
+      // "/users/$user.name$"
+      id: {
+        selector: idTrans.map((x) => `td:contains('${x}') + td`),
+        filters: [(query: string) => parseInt(query || "0")],
       },
       uploaded: {
         selector: ["span:has( > i.fa-arrow-up)", "li.ratio-bar__uploaded a:has( > i.fa-arrow-up)"],
@@ -269,12 +275,6 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       leeching: {
         selector: ["span:has( > i.fa-download)", "li.ratio-bar__leeching a:has( > i.fa-download)"],
         filters: [{ name: "parseNumber" }],
-      },
-
-      // "/users/$user.name$"
-      id: {
-        selector: idTrans.map((x) => `td:contains('${x}') + td`),
-        filters: [(query: string) => parseInt(query || "0")],
       },
       seedingSize: {
         // table.table-condensed:first
