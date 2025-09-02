@@ -292,11 +292,11 @@ export const SchemaMetadata: Pick<
         attr: "href",
         filters: [{ name: "querystring", args: ["id"] }],
       },
+
+      // "page": "/userdetails.php?id=$user.id$",
       name: {
         selector: ["a[href*='userdetails.php'][class*='Name']:first", "a[href*='userdetails.php']:first"],
       },
-
-      // "page": "/userdetails.php?id=$user.id$",
       messageCount: {
         text: 0,
         selector: "td[style*='background: red'] a[href*='messages.php']",
@@ -471,12 +471,13 @@ export const SchemaMetadata: Pick<
     process: [
       {
         requestConfig: { url: "/index.php", responseType: "document" },
-        fields: ["id", "name"],
+        fields: ["id"],
       },
       {
         requestConfig: { url: "/userdetails.php", responseType: "document" },
         assertion: { id: "params.id" },
         fields: [
+          "name",
           "messageCount",
           "uploaded",
           "trueUploaded",
