@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import SiteName from "@/options/components/SiteName.vue";
@@ -9,9 +10,17 @@ const { t } = useI18n();
 
 const { advanceFilterDictRef, updateTableFilterValueFn } = tableCustomFilter;
 
+const selectedSite = ref<string>("");
+
 function clearSiteFilter() {
-  // 清除站点过滤器
+  selectedSite.value = ""; // 清除站点过滤器
   advanceFilterDictRef.value.site.required = [];
+  advanceFilterDictRef.value.site.exclude = [];
+  updateTableFilterValueFn();
+}
+
+function updateQuickSiteFilter() {
+  advanceFilterDictRef.value.site.required = [selectedSite.value];
   advanceFilterDictRef.value.site.exclude = [];
   updateTableFilterValueFn();
 }
@@ -27,12 +36,12 @@ function clearSiteFilter() {
       </v-chip>
     </div>
     <v-chip-group
-      v-model="advanceFilterDictRef.site.required"
+      v-model="selectedSite"
       id="site-filter-chips"
-      multiple
+      mandatory
       filter
       color="primary"
-      @click.stop="updateTableFilterValueFn"
+      @update:model-value="updateQuickSiteFilter"
     >
       <!-- 各站点选项 -->
       <v-chip
