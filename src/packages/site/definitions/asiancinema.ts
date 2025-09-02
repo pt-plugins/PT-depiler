@@ -1,5 +1,5 @@
 import { EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
-import Unit3D, { SchemaMetadata } from "@ptd/site/schemas/Unit3D.ts";
+import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
 import { rot13 } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {

@@ -1,6 +1,7 @@
-import type { ILevelRequirement, ISearchInput, ISiteMetadata, ITorrent, ITorrentTag } from "../types";
-import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 import type { AxiosRequestConfig } from "axios";
+
+import PrivateSite from "../schemas/AbstractPrivateSite.ts";
+import type { ILevelRequirement, ISearchInput, ISiteMetadata, ITorrent, ITorrentTag } from "../types";
 
 const levelRequirements: ILevelRequirement[] = [
   {

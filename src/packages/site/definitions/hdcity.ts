@@ -5,7 +5,7 @@ import NexusPHP, {
   CategorySpstate,
   SchemaMetadata,
 } from "../schemas/NexusPHP.ts";
-import { parseSizeString, parseValidTimeString } from "@ptd/site";
+import { parseSizeString, parseValidTimeString } from "../utils";
 
 const levelRequirements: (ILevelRequirement & { levelId?: number })[] = [
   {

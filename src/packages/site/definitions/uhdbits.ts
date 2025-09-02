@@ -1,6 +1,6 @@
 import Sizzle from "sizzle";
 import { parseSizeString } from "../utils";
-import type { ISiteMetadata, IUserInfo, ISearchInput, ITorrent } from "@ptd/site";
+import type { ISiteMetadata, IUserInfo, ISearchInput, ITorrent } from "../types";
 import GazelleJSONAPI, { SchemaMetadata } from "../schemas/GazelleJSONAPI";
 
 export const siteMetadata: ISiteMetadata = {

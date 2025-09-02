@@ -144,12 +144,8 @@ export async function doSearchEntity(
           searchResultItem.uniqueId = itemUniqueId;
           searchResultItem.solutionId = searchEntryName;
           searchResultItem.solutionKey = solutionKey;
-          // 确保 status 字段有默认值，避免过滤器无法处理 undefined
-          if (typeof searchResultItem.status === "undefined") {
-            searchResultItem.status = ETorrentStatus.unknown;
-          }
-          // 使用 markRaw 冻结对象，避免 Vue 创建响应式代理，提升性能
-          newItems.push(markRaw(searchResultItem));
+          searchResultItem.status ??= ETorrentStatus.unknown; // 确保 status 字段有默认值，避免过滤器无法处理 undefined
+          newItems.push(markRaw(searchResultItem)); // 使用 markRaw 冻结对象，避免 Vue 创建响应式代理，提升性能
           globalExistingIds.add(itemUniqueId);
         }
       }
@@ -158,10 +154,10 @@ export async function doSearchEntity(
       if (newItems.length > 0) {
         runtimeStore.search.searchResult.push(...newItems);
       }
-      runtimeStore.search.searchPlan[solutionKey].count = runtimeStore.search.searchResult.filter(
-        (item) => item.solutionKey == solutionKey,
-      ).length;
+
+      // 更新计数状态
       const endAt = Date.now();
+      runtimeStore.search.searchPlan[solutionKey].count = newItems.length;
       runtimeStore.search.searchPlan[solutionKey].endAt = endAt;
       runtimeStore.search.searchPlan[solutionKey].costTime = endAt - startAt;
       resetAdvanceFilterDictFn();

@@ -1,10 +1,11 @@
+import urlJoin from "url-join";
 import Sizzle from "sizzle";
 import { mergeWith } from "es-toolkit";
+
 import type { ISearchInput, ISiteMetadata, ITorrent, IUserInfo } from "../types";
 import { EResultParseStatus } from "../types";
 import { parseSizeString, createDocument } from "../utils";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
-import urlJoin from "url-join";
 
 const categoryOptions = [
   { value: 8, name: "Movies :: Cam" },

@@ -1,6 +1,6 @@
 import { ETorrentStatus, type ISiteMetadata } from "../types";
 import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
-import { parseValidTimeString } from "@ptd/site";
+import { parseValidTimeString } from "../utils";
 
 const hhLinkQuery = {
   selector: ['a[href*="download.php?id="]'],

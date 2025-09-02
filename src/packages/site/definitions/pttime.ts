@@ -1,6 +1,6 @@
 import { ISiteMetadata, IUserInfo } from "../types";
 import NexusPHP, { CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
-import { createDocument, parseSizeString } from "@ptd/site";
+import { createDocument, parseSizeString } from "../utils";
 import { mergeWith } from "es-toolkit";
 
 const baseLinkQuery = {

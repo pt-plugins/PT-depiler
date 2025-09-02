@@ -4,7 +4,7 @@ import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetada
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
 
-  version: 1,
+  version: 4,
   id: "zmpt",
   name: "织梦",
   aka: ["织梦PT"],

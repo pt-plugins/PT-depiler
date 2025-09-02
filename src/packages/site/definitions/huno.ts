@@ -1,6 +1,6 @@
 import { ETorrentStatus, type IAdvancedSearchRequestConfig, ISiteMetadata } from "../types";
-import { SchemaMetadata } from "@ptd/site/schemas/Unit3D.ts";
-import { rot13 } from "@ptd/site";
+import { SchemaMetadata } from "../schemas/Unit3D.ts";
+import { rot13 } from "../utils";
 import { set } from "es-toolkit/compat";
 
 const categoryMap: Record<number, string> = {

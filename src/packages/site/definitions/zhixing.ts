@@ -1,8 +1,8 @@
 import urlJoin from "url-join";
 
-import { EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
 import { createDocument } from "../utils";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
+import { EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
 
 export const siteMetadata: ISiteMetadata = {
   id: "zhixing",

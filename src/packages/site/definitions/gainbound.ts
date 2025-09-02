@@ -1,4 +1,4 @@
-import type { ISiteMetadata } from "../types";
+import { type ISiteMetadata } from "../types";
 
 export const siteMetadata: ISiteMetadata = {
   version: 1,
