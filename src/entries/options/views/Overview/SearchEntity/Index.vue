@@ -74,9 +74,6 @@ const tableHeader = computed(() => {
 
 const { tableFilterRef, tableWaitFilterRef, tableFilterFn, advanceFilterDictRef } = tableCustomFilter;
 
-// 获取搜索结果中的所有站点
-const availableSites = computed(() => advanceFilterDictRef.value.site?.all ?? []);
-
 // 使用 shallowRef 优化：种子对象数组不需要深度响应式，提升性能
 const tableSelectedRaw = shallowRef<ISearchResultTorrent[]>([]);
 
