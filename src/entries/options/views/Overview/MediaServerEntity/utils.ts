@@ -1,5 +1,5 @@
 import PQueue from "p-queue";
-import { ref } from "vue";
+import { markRaw, ref } from "vue";
 import { omit } from "es-toolkit";
 import { type IMediaServerSearchOptions } from "@ptd/mediaServer";
 
@@ -84,7 +84,7 @@ export async function doSearch(option: { searchKey?: string; loadMore?: boolean 
         // 根据 url 去重
         const isDuplicate = globalExistingIds.has(item.url);
         if (!isDuplicate) {
-          runtimeStore.mediaServerSearch.searchResult.push(Object.freeze(item));
+          runtimeStore.mediaServerSearch.searchResult.push(markRaw(item));
           globalExistingIds.add(item.url);
           // 如果本次有成功添加的，则认为可以加载更多
           runtimeStore.mediaServerSearch.searchStatus[mediaServerId].canLoadMore = true;
