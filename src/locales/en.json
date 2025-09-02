@@ -112,18 +112,7 @@
       "SetDownloader": "Download Server",
       "SetMediaServer": "Media Server",
       "SetSearchSolution": "Search Solution",
-      "SetSite": "Sites",
-      "SearchConfig": {
-        "siteSearchConfig": "Site Search Configuration",
-        "siteQueueConcurrency": "Request Queue Concurrency",
-        "saveLastSearchFilter": "Save last used search filter",
-        "mediaServerSearchConfig": "Media Server Search Configuration",
-        "mediaQueueConcurrency": "Request Queue Concurrency",
-        "mediaSearchLimit": "Number of search results per request",
-        "mediaSearchLimitMessage": "Please do not load too many search results at once. It's not optimized with virtual-scroll, which may cause the browser to freeze and affect the performance of the media server.",
-        "autoLoadInitialMediaWall": "Automatically load the initial media wall",
-        "autoLoadMoreMediaOnScroll": "Automatically load more media when scrolling to the bottom of the page"
-      }
+      "SetSite": "Sites"
     }
   },
   "checkSwitch": {
@@ -359,6 +348,9 @@
       "socialInformationSearchOnNewTab": "Open Media Rating Search in a New Tab",
       "uploadAtFormatAsAlive": "Display Upload Time as Relative Time"
     },
+    "siteFilter": {
+      "all": "All Site"
+    },
     "AdvanceFilterGenerateDialog": {
       "date": {
         "day": "Today",
@@ -408,6 +400,18 @@
         "chosen": "Let me choose"
       },
       "tableMultiSortNote": "Multi-column sorting: Click any table header field to start sorting, which will display the number \\\"1\\\" on the field. Click other fields sequentially to display \\\"2\\\", \\\"3\\\", indicating sorting priority. Click the same field again to toggle between ascending, descending, or cancel sorting. The sorting order is determined by these numbers, with smaller numbers having higher priority."
+    },
+    "searchEntity": {
+      "siteSearchConfig": "Site Search Configuration",
+      "siteQueueConcurrency": "Request Queue Concurrency",
+      "saveLastSearchFilter": "Save last used search filter",
+      "quickSiteFilter": "Quick Site Filter In Search Page",
+      "mediaServerSearchConfig": "Media Server Search Configuration",
+      "mediaQueueConcurrency": "Request Queue Concurrency",
+      "mediaSearchLimit": "Number of search results per request",
+      "mediaSearchLimitMessage": "Please do not load too many search results at once. It's not optimized with virtual-scroll, which may cause the browser to freeze and affect the performance of the media server.",
+      "autoLoadInitialMediaWall": "Automatically load the initial media wall",
+      "autoLoadMoreMediaOnScroll": "Automatically load more media when scrolling to the bottom of the page"
     },
     "download": {
       "localDownloadMethod": "Local Download Method",

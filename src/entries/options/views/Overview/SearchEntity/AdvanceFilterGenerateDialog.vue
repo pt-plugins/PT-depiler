@@ -11,7 +11,7 @@ import { ETorrentStatus } from "@ptd/site";
 
 import { formatDate, formatSize } from "@/options/utils.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-import { tableCustomFilter } from "@/options/views/Overview/SearchEntity/utils.ts";
+import { tableCustomFilter } from "@/options/views/Overview/SearchEntity/utils/filter.ts";
 import { setDateRangeByDatePicker, getThisDateUnitRange } from "@/options/directives/useAdvanceFilter.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
@@ -76,6 +76,7 @@ function updateTableFilter() {
               ></v-combobox>
             </v-col>
           </v-row>
+
           <v-row><v-label>站点</v-label></v-row>
           <v-row>
             <v-col
@@ -102,6 +103,7 @@ function updateTableFilter() {
               </v-checkbox>
             </v-col>
           </v-row>
+
           <template v-if="configStore.searchEntifyControl.showTorrentTag">
             <v-row><v-label>标签</v-label></v-row>
             <v-row>
