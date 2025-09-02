@@ -192,6 +192,8 @@ export interface IConfigPiniaStorageSchema {
     treatTTQueryAsImdbSearch: boolean;
     // 是否允许单站点搜索
     allowSingleSiteSearch: boolean;
+    // 是否启用快速站点过滤功能
+    quickSiteFilter: boolean;
   };
 
   // 配置同样在 searchEntity 页面（偷懒下）

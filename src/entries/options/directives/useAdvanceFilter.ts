@@ -1,7 +1,7 @@
 import { filesize } from "filesize";
 import { get } from "es-toolkit/compat";
 import { refDebounced } from "@vueuse/core";
-import { computed, type Ref, ref, unref } from "vue";
+import { computed, type Ref, ref, unref, watch } from "vue";
 import { flatten, flattenDeep, isEqual, uniq, uniqBy } from "es-toolkit";
 import { startOfDay, startOfMonth, startOfQuarter, startOfWeek, startOfYear } from "date-fns";
 import searchQueryParser, { type SearchParserOptions, SearchParserResult } from "search-query-parser";
@@ -166,6 +166,8 @@ interface TableCustomFilterOptions<ItemType> {
   initialSearchValue?: string;
   initialItems?: Ref<ItemType[]> | ItemType[];
   debouncedMs?: number;
+
+  watchItems?: boolean; // 是否监听 items 的变化（需要传入的为ref），动态更新 advanceFilterDictRef
 }
 
 export function useTableCustomFilter<ItemType extends Record<string, any>>(
@@ -178,6 +180,7 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
     initialSearchValue = "",
     initialItems = [],
     debouncedMs = 500,
+    watchItems = false,
   } = options;
 
   parseOptions.tokenize = true;
@@ -219,6 +222,10 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
   }
 
   resetAdvanceFilterDictFn();
+
+  if (watchItems) {
+    watch(initialItems, () => resetAdvanceFilterDictFn());
+  }
 
   function toggleKeywordStateFn<T = any>(field: string, value: T) {
     const state = advanceFilterDictRef.value[field].required!.includes(value);

@@ -11,7 +11,7 @@ import { ETorrentStatus } from "@ptd/site";
 
 import { formatDate, formatSize } from "@/options/utils.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-import { tableCustomFilter } from "@/options/views/Overview/SearchEntity/utils.ts";
+import { tableCustomFilter } from "@/options/views/Overview/SearchEntity/utils/filter.ts";
 import { setDateRangeByDatePicker, getThisDateUnitRange } from "@/options/directives/useAdvanceFilter.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
@@ -76,6 +76,34 @@ function updateTableFilter() {
               ></v-combobox>
             </v-col>
           </v-row>
+
+          <v-row><v-label>站点</v-label></v-row>
+          <v-row>
+            <v-col
+              v-for="site in advanceFilterDictRef.site.all"
+              :key="`${resetCountRef}_${site}`"
+              class="pa-0"
+              cols="6"
+              md="3"
+              sm="4"
+            >
+              <v-checkbox
+                v-model="advanceFilterDictRef.site.required"
+                :label="site"
+                :value="site"
+                density="compact"
+                hide-details
+                indeterminate
+                @click.stop="() => toggleKeywordStateFn('site', site)"
+              >
+                <template #label>
+                  <SiteFavicon :site-id="site" :size="16" class="mr-2" />
+                  <SiteName :class="['text-decoration-none', 'text-black']" :site-id="site" tag="span" />
+                </template>
+              </v-checkbox>
+            </v-col>
+          </v-row>
+
           <template v-if="configStore.searchEntifyControl.showTorrentTag">
             <v-row><v-label>标签</v-label></v-row>
             <v-row>

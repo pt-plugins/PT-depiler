@@ -112,18 +112,7 @@
       "SetDownloader": "下载器设置",
       "SetMediaServer": "媒体服务器设置",
       "SetSearchSolution": "搜索方案定义",
-      "SetSite": "站点设置",
-      "SearchConfig": {
-        "siteSearchConfig": "站点搜索配置",
-        "siteQueueConcurrency": "请求队列长度",
-        "saveLastSearchFilter": "保存上一次使用的搜索筛选词",
-        "mediaServerSearchConfig": "媒体服务器搜索配置",
-        "mediaQueueConcurrency": "请求队列长度",
-        "mediaSearchLimit": "单次搜索结果数量",
-        "mediaSearchLimitMessage": "请不要一次性加载过多的搜索结果，未作 virtual‑scroll 优化，可能会导致浏览器卡死，同时也会影响媒体服务器的性能",
-        "autoLoadInitialMediaWall": "自动加载首屏媒体墙",
-        "autoLoadMoreMediaOnScroll": "当滚动到页面底部时，自动加载新的媒体墙"
-      }
+      "SetSite": "站点设置"
     }
   },
   "checkSwitch": {
@@ -360,7 +349,7 @@
       "uploadAtFormatAsAlive": "上传时间显示为相对时间"
     },
     "siteFilter": {
-      "all": "全部"
+      "all": "全部站点"
     },
     "AdvanceFilterGenerateDialog": {
       "date": {
@@ -411,6 +400,18 @@
         "chosen": "让我选择"
       },
       "tableMultiSortNote": "多列排序使用方法：点击任意表头字段开始排序，字段上会显示数字“1”。再点击其他字段，依次显示“2”“3”，表示排序优先级。再次点击相同字段可切换升序、降序或取消排序。排序顺序由这些数字决定，数字越小优先级越高。"
+    },
+    "searchEntity": {
+      "siteSearchConfig": "站点搜索配置",
+      "siteQueueConcurrency": "请求队列长度",
+      "saveLastSearchFilter": "保存上一次使用的搜索筛选词",
+      "quickSiteFilter": "直接显示站点筛选栏",
+      "mediaServerSearchConfig": "媒体服务器搜索配置",
+      "mediaQueueConcurrency": "请求队列长度",
+      "mediaSearchLimit": "单次搜索结果数量",
+      "mediaSearchLimitMessage": "请不要一次性加载过多的搜索结果，未作 virtual‑scroll 优化，可能会导致浏览器卡死，同时也会影响媒体服务器的性能",
+      "autoLoadInitialMediaWall": "自动加载首屏媒体墙",
+      "autoLoadMoreMediaOnScroll": "当滚动到页面底部时，自动加载新的媒体墙"
     },
     "download": {
       "localDownloadMethod": "本地下载方式",
