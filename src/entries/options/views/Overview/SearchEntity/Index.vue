@@ -72,7 +72,7 @@ const tableHeader = computed(() => {
   ) as DataTableHeader[];
 });
 
-const { tableFilterRef, tableWaitFilterRef, tableFilterFn, advanceFilterDictRef } = tableCustomFilter;
+const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
 
 // 使用 shallowRef 优化：种子对象数组不需要深度响应式，提升性能
 const tableSelectedRaw = shallowRef<ISearchResultTorrent[]>([]);

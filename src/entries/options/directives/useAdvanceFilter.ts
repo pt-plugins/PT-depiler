@@ -163,11 +163,12 @@ interface TableCustomFilterOptions<ItemType> {
 
   format?: TFormat;
 
-  initialSearchValue?: string;
-  initialItems?: Ref<ItemType[]> | ItemType[];
-  debouncedMs?: number;
+  initialSearchValue?: string; // 用于生成 tableWaitFilterRef 的初始数据
+  initialItems?: Ref<ItemType[]> | ItemType[]; // 用于生成 advanceFilterDictRef 的初始数据
+  debouncedMs?: number; // 过滤器字符串更新的防抖时间，单位毫秒
 
   watchItems?: boolean; // 是否监听 items 的变化（需要传入的为ref），动态更新 advanceFilterDictRef
+  autoUpdateFilter?: boolean; // 是否在 advanceFilterDictRef 变化时自动更新过滤器字符串（需要传入的为ref）
 }
 
 export function useTableCustomFilter<ItemType extends Record<string, any>>(
@@ -181,6 +182,7 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
     initialItems = [],
     debouncedMs = 500,
     watchItems = false,
+    autoUpdateFilter = false,
   } = options;
 
   parseOptions.tokenize = true;
@@ -224,7 +226,7 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
   resetAdvanceFilterDictFn();
 
   if (watchItems) {
-    watch(initialItems, () => resetAdvanceFilterDictFn());
+    watch(initialItems, () => resetAdvanceFilterDictFn(), { deep: true });
   }
 
   function toggleKeywordStateFn<T = any>(field: string, value: T) {
@@ -309,6 +311,16 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
 
   function updateTableFilterValueFn() {
     tableWaitFilterRef.value = stringifyFilterFn();
+  }
+
+  if (autoUpdateFilter) {
+    watch(
+      advanceFilterDictRef,
+      () => {
+        updateTableFilterValueFn();
+      },
+      { deep: true },
+    );
   }
 
   return {
