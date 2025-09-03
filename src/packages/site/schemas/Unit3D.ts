@@ -297,7 +297,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       },
       messageCount: {
         text: 0,
-        selector: ['a[href*="/mail"] .point', "ul.top-nav__icon-bar circle"],
+        selector: ['a[href*="/mail"] .point, a[href*="/notifications"] .point, ul.top-nav__icon-bar circle'],
         elementProcess: () => 11, // 并不能直接知道还有多少个消息未读，所以置为11，会直接出线红点而不是具体数字
       },
       uploads: {
