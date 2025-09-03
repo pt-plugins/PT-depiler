@@ -137,8 +137,11 @@ export async function checkAndExtendCookies(url: string) {
           continue;
         }
 
-        // 如果剩余时间少于阈值，则延长cookie
-        if (remainingDays < thresholdDays) {
+        // 只延长指定名称的cookie
+        const shouldExtendCookie = cookie.name.startsWith("c_secure_") || cookie.name.startsWith("remember_web_");
+
+        // 如果剩余时间少于阈值，且是目标cookie，则延长cookie
+        if (remainingDays < thresholdDays && shouldExtendCookie) {
           // 使用 date-fns 的 add 函数来计算新的过期时间
           const newExpirationDate = Math.floor(add(new Date(), { months: config.extensionDuration }).getTime() / 1000);
 
