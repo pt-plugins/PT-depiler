@@ -402,8 +402,7 @@ function toggleNumberSimplification() {
         <div class="d-flex flex-column align-center">
           <v-badge
             :model-value="configStore.myDataTableControl.showUnreadMessage && (item.messageCount ?? 0) > 0"
-            :content="item.messageCount"
-            :max="10"
+            :content="(item.messageCount ?? 0) > 10 ? undefined : item.messageCount"
             color="error"
           >
             <div class="favicon-hover-wrapper favicon-hover-bg">
