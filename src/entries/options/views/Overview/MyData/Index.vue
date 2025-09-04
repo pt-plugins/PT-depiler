@@ -46,6 +46,7 @@ const fullTableHeader = reactive([
   { title: t("levelRequirement.seedingSize"), key: "seedingSize", align: "end" },
   { title: t("levelRequirement.bonus"), key: "bonus", align: "end" },
   { title: t("levelRequirement.bonusPerHour"), key: "bonusPerHour", align: "end" },
+  { title: t("MyData.table.invites"), key: "invites", align: "end" }, // 默认不显示
   { title: t("MyData.table.joinTime"), key: "joinTime", align: "center" },
   { title: t("MyData.table.updateAt"), key: "updateAt", align: "center" },
   { title: t("common.action"), key: "action", align: "center", sortable: false, props: { disabled: true } },
@@ -602,6 +603,10 @@ function toggleNumberSimplification() {
               : "-"
           }}
         </span>
+      </template>
+
+      <template #item.invites="{ item }">
+        <span class="text-no-wrap">{{ typeof item.invites !== "undefined" ? item.invites : "-" }}</span>
       </template>
 
       <!-- 入站时间 -->

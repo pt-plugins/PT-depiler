@@ -252,6 +252,7 @@
       "levelName": "等级",
       "userData": "数据量",
       "trueUserData": "真实数据量",
+      "invites": "邀请数",
       "joinTime": "入站时间",
       "updateAt": "更新时间",
       "action": {

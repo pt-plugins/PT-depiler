@@ -252,6 +252,7 @@
       "levelName": "Level",
       "userData": "Data",
       "trueUserData": "True Data",
+      "invites": "Invites",
       "joinTime": "Join Time",
       "updateAt": "Updated At",
       "action": {
