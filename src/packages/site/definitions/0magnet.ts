@@ -3,7 +3,7 @@
  * @JackettIssue https://github.com/Jackett/Jackett/issues/10738
  */
 
-import { type ISiteMetadata } from "../types";
+import { type ISearchInput, type ISiteMetadata } from "../types";
 import { extractContent } from "@ptd/site";
 
 export const siteMetadata: ISiteMetadata = {
@@ -41,6 +41,12 @@ export const siteMetadata: ISiteMetadata = {
     keywordPath: "params.q",
     requestConfig: {
       url: "/search",
+    },
+    requestConfigTransformer: (input: ISearchInput) => {
+      if (!input.keywords) {
+        input.requestConfig!.url = "/listing";
+      }
+      return input.requestConfig!;
     },
     selectors: {
       rows: { selector: "table.file-list > tbody > tr" },
