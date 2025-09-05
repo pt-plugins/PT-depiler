@@ -50,7 +50,17 @@ export async function updatePageType(ptdData: IPtdData = {}) {
         ]).filter(Boolean);
       }
 
-      if (listUrlPatterns.some((pattern) => new RegExp(pattern!, "i").test(url))) {
+      if (
+        listUrlPatterns.some((pattern) => {
+          if (pattern instanceof RegExp) {
+            return pattern.test(url);
+          } else if ((pattern as string).startsWith("!")) {
+            return !new RegExp((pattern as string)!.slice(1), "i").test(url);
+          } else {
+            return new RegExp(pattern as string, "i").test(url);
+          }
+        })
+      ) {
         pageType.value = "list";
       } else {
         // 如果不是 list 页面，再判断是否为 detail 页面

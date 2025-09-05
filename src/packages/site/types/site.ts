@@ -147,6 +147,7 @@ export interface ISiteMetadata {
      * 字段为 uniq([search.requestConfig.url, ...searchEntry[*].requestConfig.url])
      *
      * 如果 pattern 为 string，会使用 new RegExp(pattern, 'i') 生成 RegExp 对象，
+     *                        如果 pattern 以 ! 开头，则表示取反匹配，即 new RegExp(pattern.slice(1), 'i').test(url) 返回 false 则认为匹配成功
      * 如果 pattern 为 RegExp 对象，则直接使用该对象
      *
      * 匹配对象为 location.href ，依次匹配，任一匹配成功，则会被认为是种子列表页，
