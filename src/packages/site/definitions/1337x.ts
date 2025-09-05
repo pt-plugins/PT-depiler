@@ -177,6 +177,9 @@ export const siteMetadata: ISiteMetadata = {
         }
 
         const order = requestConfig!.params?.order as string | undefined;
+        if (order) {
+          delete requestConfig!.params.order;
+        }
 
         requestConfig!.url = urlJoin(
           searchPath,
