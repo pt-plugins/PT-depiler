@@ -1,8 +1,8 @@
 /**
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/asiancinema.yml
  */
-import { EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
+import { type ISiteMetadata } from "../types";
 import { rot13 } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
@@ -33,6 +33,25 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     ...SchemaMetadata.search,
+    keywordPath: "params.search",
+    requestConfig: {
+      url: "/torrents/filter",
+      responseType: "document",
+      params: {
+        view: "list", // 强制使用 种子列表 的形式返回
+      },
+    },
+    advanceKeywordParams: {
+      imdb: {
+        requestConfigTransformer: ({ requestConfig: config }) => {
+          if (config?.params?.search) {
+            config.params.imdb = config.params.search;
+            delete config.params.search;
+          }
+          return config!;
+        },
+      },
+    },
     selectors: {
       ...SchemaMetadata.search?.selectors,
       tags: [
@@ -115,16 +134,7 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class AsianCinema extends Unit3D {
-  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
-    if (flushUserInfo?.status === EResultParseStatus.success && flushUserInfo?.name) {
-      // 获取时魔
-      flushUserInfo.bonusPerHour = await this.getUserBonusPerHour();
-    }
-    return flushUserInfo;
-  }
-
-  protected async getUserBonusPerHour(): Promise<number> {
+  protected override async getUserBonusPerHour(): Promise<number> {
     const { data: document } = await this.request<Document>(
       {
         url: `/bonus`,

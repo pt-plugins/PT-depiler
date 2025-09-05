@@ -1,7 +1,7 @@
 /**
  * @JackettIssue https://github.com/Jackett/Jackett/issues/14816
  */
-import { EResultParseStatus, type ISiteMetadata, type ITorrent, type IUserInfo } from "../types";
+import { type ISiteMetadata, type ITorrent, type IUserInfo } from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D";
 import { parseSizeString, parseValidTimeString } from "../utils";
 
@@ -408,27 +408,6 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class BitPorn extends Unit3D {
-  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
-    let userName = flushUserInfo?.name;
-    if (flushUserInfo?.status === EResultParseStatus.success && userName) {
-      // 获取时魔
-      flushUserInfo.bonusPerHour = await this.getBonusPerHourFromBonusTransactionsPage(userName);
-    }
-    return flushUserInfo;
-  }
-
-  protected async getBonusPerHourFromBonusTransactionsPage(userName: string): Promise<number> {
-    const { data: document } = await this.request<Document>(
-      {
-        url: `/users/${userName}/earnings`,
-        responseType: "document",
-      },
-      true,
-    );
-    return this.getFieldData(document, this.metadata.userInfo?.selectors?.bonusPerHour!);
-  }
-
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
     const downloadLink = await super.getTorrentDownloadLink(torrent);
     if (downloadLink && !downloadLink.includes("/download/")) {

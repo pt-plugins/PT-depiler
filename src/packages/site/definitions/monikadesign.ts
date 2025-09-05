@@ -1,4 +1,4 @@
-import { EResultParseStatus, ETorrentStatus, type ISiteMetadata, type ITorrent, type IUserInfo } from "../types";
+import { ETorrentStatus, type ISiteMetadata, type ITorrent, type IUserInfo } from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
 
 export const siteMetadata: ISiteMetadata = {
@@ -168,23 +168,8 @@ export const siteMetadata: ISiteMetadata = {
   ],
   search: {
     ...SchemaMetadata.search,
-    requestConfig: {
-      url: "/torrents",
-      params: {
-        perPage: 100,
-      },
-    },
-    keywordPath: "params.name",
     advanceKeywordParams: {
-      imdb: {
-        requestConfigTransformer: ({ requestConfig: config }) => {
-          if (config?.params?.name) {
-            config.params.imdbId = config.params.name;
-            delete config.params.name;
-          }
-          return config!;
-        },
-      },
+      ...SchemaMetadata.search!.advanceKeywordParams,
       bangumi: {
         requestConfigTransformer: ({ requestConfig: config }) => {
           if (config?.params?.name) {
@@ -259,7 +244,7 @@ export const siteMetadata: ISiteMetadata = {
       // "/users/$user.name$/bonus/transactions/create
       bonusPerHour: {
         selector: ["aside .panelV2 dd:nth-child(6)"],
-        filters: [(query: string) => parseFloat(query.replace(/,/g, "") || "0")],
+        filters: [{ name: "parseNumber" }],
       },
     },
   },
@@ -328,17 +313,7 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class MonikaDesign extends Unit3D {
-  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
-    let userName = flushUserInfo?.name;
-    if (flushUserInfo?.status === EResultParseStatus.success && userName) {
-      // 获取时魔
-      flushUserInfo.bonusPerHour = await this.getBonusPerHourFromBonusTransactionsPage(userName);
-    }
-    return flushUserInfo;
-  }
-
-  protected async getBonusPerHourFromBonusTransactionsPage(userName: string): Promise<string> {
+  protected override async getUserBonusPerHour(userName: string): Promise<number> {
     const { data: document } = await this.request<Document>(
       {
         url: `/users/${userName}/bonus/transactions/create`,

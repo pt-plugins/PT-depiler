@@ -1,4 +1,4 @@
-import { EResultParseStatus, type ISiteMetadata, type ITorrent, type IUserInfo } from "../types";
+import { type ISiteMetadata, type ITorrent, type IUserInfo } from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
 import { buildCategoryOptions, parseSizeString, parseValidTimeString } from "../utils";
 
@@ -189,33 +189,6 @@ export const siteMetadata: ISiteMetadata = {
   ],
   search: {
     ...SchemaMetadata.search,
-    requestConfig: {
-      url: "/torrents",
-      params: {
-        perPage: 100,
-      },
-    },
-    keywordPath: "params.name",
-    advanceKeywordParams: {
-      tmdb: {
-        requestConfigTransformer: ({ requestConfig: config }) => {
-          if (config?.params?.name) {
-            config.params.tmdbId = config.params.name;
-            delete config.params.name;
-          }
-          return config!;
-        },
-      },
-      imdb: {
-        requestConfigTransformer: ({ requestConfig: config }) => {
-          if (config?.params?.name) {
-            config.params.imdbId = config.params.name.replace("tt", "");
-            delete config.params.name;
-          }
-          return config!;
-        },
-      },
-    },
     selectors: {
       ...SchemaMetadata.search!.selectors,
       tags: [
@@ -436,27 +409,6 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class Fearnopeer extends Unit3D {
-  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
-    let userName = flushUserInfo?.name;
-    if (flushUserInfo?.status === EResultParseStatus.success && userName) {
-      // 获取时魔
-      flushUserInfo.bonusPerHour = await this.getBonusPerHourFromBonusTransactionsPage(userName);
-    }
-    return flushUserInfo;
-  }
-
-  protected async getBonusPerHourFromBonusTransactionsPage(userName: string): Promise<string> {
-    const { data: document } = await this.request<Document>(
-      {
-        url: `/users/${userName}/earnings`,
-        responseType: "document",
-      },
-      true,
-    );
-    return this.getFieldData(document, this.metadata.userInfo?.selectors?.bonusPerHour!);
-  }
-
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
     const downloadLink = await super.getTorrentDownloadLink(torrent);
     if (downloadLink && !downloadLink.includes("/download/")) {
