@@ -4,7 +4,6 @@
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
 import { type ISiteMetadata } from "../types";
 import { rot13 } from "../utils";
-import { set } from "es-toolkit/compat";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -45,8 +44,10 @@ export const siteMetadata: ISiteMetadata = {
     advanceKeywordParams: {
       imdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
-          set(config!, "params.imdb", config!.params.search.replace("tt", ""));
-          delete config!.params.search;
+          if (config?.params?.search) {
+            config.params.imdb = config.params.search;
+            delete config.params.search;
+          }
           return config!;
         },
       },
