@@ -30,7 +30,7 @@ jobs:
 
       - name: vue-tsc check
         run: pnpm check
-        continue-on-error: true
+        continue-on-error: ${{ github.event_name == 'push' && true || false }}
 
       - name: Build Output
         run: |
