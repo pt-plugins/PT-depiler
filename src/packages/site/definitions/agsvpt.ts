@@ -1,3 +1,7 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/agsvpt.yml
+ * @JackettIssue https://github.com/Jackett/Jackett/issues/14946
+ */
 import { type ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/NexusPHP";
 
