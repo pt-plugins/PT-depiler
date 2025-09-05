@@ -1,3 +1,6 @@
+/**
+ * @JackettIssue https://github.com/Jackett/Jackett/issues/12903
+ */
 import { type ISiteMetadata } from "../types";
 
 export const siteMetadata: ISiteMetadata = {

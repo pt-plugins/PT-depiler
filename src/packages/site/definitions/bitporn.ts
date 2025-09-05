@@ -1,3 +1,6 @@
+/**
+ * @JackettIssue https://github.com/Jackett/Jackett/issues/14816
+ */
 import { EResultParseStatus, type ISiteMetadata, type ITorrent, type IUserInfo } from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D";
 import { parseSizeString, parseValidTimeString } from "../utils";

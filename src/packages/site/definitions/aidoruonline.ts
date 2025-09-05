@@ -1,3 +1,6 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/aidoruonline.yml
+ */
 import { omit, toMerged } from "es-toolkit";
 import {
   ETorrentStatus,
