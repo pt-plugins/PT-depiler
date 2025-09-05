@@ -2,6 +2,7 @@
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/asiancinema.yml
  */
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
+import { type ISiteMetadata } from "../types";
 import { rot13 } from "../utils";
 import { set } from "es-toolkit/compat";
 
