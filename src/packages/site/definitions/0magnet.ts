@@ -2,9 +2,8 @@
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/0magnet.yml
  * @JackettIssue https://github.com/Jackett/Jackett/issues/10738
  */
-
 import { type ISearchInput, type ISiteMetadata } from "../types";
-import { extractContent } from "@ptd/site";
+import { extractContent } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   version: 1,

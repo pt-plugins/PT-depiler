@@ -1,3 +1,7 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/audiences.yml
+ * @JackettIssue https://github.com/Jackett/Jackett/issues/13156
+ */
 import Sizzle from "sizzle";
 import { mergeWith } from "es-toolkit";
 import { ETorrentStatus, type ISiteMetadata, type IUserInfo } from "../types";

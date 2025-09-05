@@ -1,3 +1,6 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/asiancinema.yml
+ */
 import { EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
 import { rot13 } from "../utils";
