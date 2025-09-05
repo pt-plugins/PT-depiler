@@ -1,6 +1,5 @@
 import urlJoin from "url-join";
 import { omit, toMerged } from "es-toolkit";
-import { set } from "es-toolkit/compat";
 
 import PrivateSite from "./AbstractPrivateSite";
 import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type IUserInfo, NeedLoginError } from "../types";
@@ -19,19 +18,30 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: 0,
   timezoneOffset: "+0000",
   search: {
-    keywordPath: "params.search",
+    keywordPath: "params.name",
     requestConfig: {
-      url: "/torrents/filter",
+      url: "/torrents/",
       responseType: "document",
       params: {
-        view: "list", // 强制使用 种子列表 的形式返回
+        perPage: 100,
       },
     },
     advanceKeywordParams: {
       imdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
-          set(config!, "params.imdb", config!.params.search.replace("tt", ""));
-          delete config!.params.search;
+          if (config?.params?.name) {
+            config.params.imdbId = config.params.name;
+            delete config.params.name;
+          }
+          return config!;
+        },
+      },
+      tmdb: {
+        requestConfigTransformer: ({ requestConfig: config }) => {
+          if (config?.params?.name) {
+            config.params.tmdbId = config.params.name;
+            delete config.params.name;
+          }
           return config!;
         },
       },
@@ -253,27 +263,27 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [(query: string) => parseInt(query || "0")],
       },
       uploaded: {
-        selector: ["span:has( > i.fa-arrow-up)", "li.ratio-bar__uploaded a:has( > i.fa-arrow-up)"],
+        selector: ["li.ratio-bar__uploaded a:has( > i.fa-arrow-up)", "span:has( > i.fa-arrow-up)"],
         filters: [{ name: "parseSize" }],
       },
       downloaded: {
-        selector: ["span:has( > i.fa-arrow-down)", "li.ratio-bar__downloaded a:has( > i.fa-arrow-down)"],
+        selector: ["li.ratio-bar__downloaded a:has( > i.fa-arrow-down)", "span:has( > i.fa-arrow-down)"],
         filters: [{ name: "parseSize" }],
       },
       ratio: {
-        selector: ["span:has( > i.fa-sync-alt)", "li.ratio-bar__ratio a:has( > i.fa-sync-alt)"],
+        selector: ["li.ratio-bar__ratio a:has( > i.fa-sync-alt)", "span:has( > i.fa-sync-alt)"],
         filters: [{ name: "parseNumber" }],
       },
       bonus: {
-        selector: ["span:has( > i.fa-coins)", "li.ratio-bar__points a:has( > i.fa-coins)"],
+        selector: ["li.ratio-bar__points a:has( > i.fa-coins)", "span:has( > i.fa-coins)"],
         filters: [{ name: "parseNumber" }],
       },
       seeding: {
-        selector: ["span:has( > i.fa-upload)", "li.ratio-bar__seeding a:has( > i.fa-upload)"],
+        selector: ["li.ratio-bar__seeding a:has( > i.fa-upload)", "span:has( > i.fa-upload)"],
         filters: [{ name: "parseNumber" }],
       },
       leeching: {
-        selector: ["span:has( > i.fa-download)", "li.ratio-bar__leeching a:has( > i.fa-download)"],
+        selector: ["li.ratio-bar__leeching a:has( > i.fa-download)", "span:has( > i.fa-download)"],
         filters: [{ name: "parseNumber" }],
       },
       seedingSize: {
@@ -355,6 +365,8 @@ export default class Unit3D extends PrivateSite {
         flushUserInfo.levelId = this.guessUserLevelId(flushUserInfo as IUserInfo);
       }
 
+      flushUserInfo.bonusPerHour = await this.getUserBonusPerHour(userName);
+
       flushUserInfo.status = EResultParseStatus.success;
     } catch (e) {
       flushUserInfo.status = EResultParseStatus.parseError;
@@ -397,5 +409,16 @@ export default class Unit3D extends PrivateSite {
       this.metadata.userInfo?.selectors!,
       Object.keys(omit(this.metadata.userInfo?.selectors!, ["name"])),
     ) as Partial<IUserInfo>;
+  }
+
+  protected async getUserBonusPerHour(name: string): Promise<number> {
+    const { data: document } = await this.request<Document>(
+      {
+        url: `/users/${name}/earnings`,
+        responseType: "document",
+      },
+      true,
+    );
+    return this.getFieldData(document, this.metadata.userInfo?.selectors?.bonusPerHour!);
   }
 }

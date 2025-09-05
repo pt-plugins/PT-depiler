@@ -1,5 +1,5 @@
-import { EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
-import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
+import { type ISiteMetadata, type IUserInfo } from "../types";
+import { SchemaMetadata } from "../schemas/Unit3D.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -190,21 +190,6 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search,
     skipNonLatinCharacters: true,
-    requestConfig: {
-      url: "/torrents",
-    },
-    keywordPath: "params.name",
-    advanceKeywordParams: {
-      imdb: {
-        requestConfigTransformer: ({ requestConfig: config }) => {
-          if (config?.params?.name) {
-            config.params.imdbId = config.params.name;
-            delete config.params.name;
-          }
-          return config!;
-        },
-      },
-    },
     selectors: {
       ...SchemaMetadata.search!.selectors,
       tags: [
@@ -218,25 +203,3 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 };
-
-export default class Blutopia extends Unit3D {
-  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
-    if (flushUserInfo?.status === EResultParseStatus.success && flushUserInfo?.name) {
-      // 获取时魔
-      flushUserInfo.bonusPerHour = await this.getUserBonusPerHour(flushUserInfo.name);
-    }
-    return flushUserInfo;
-  }
-
-  protected async getUserBonusPerHour(name: string): Promise<number> {
-    const { data: document } = await this.request<Document>(
-      {
-        url: `/users/${name}/earnings`,
-        responseType: "document",
-      },
-      true,
-    );
-    return this.getFieldData(document, this.metadata.userInfo?.selectors?.bonusPerHour!);
-  }
-}

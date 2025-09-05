@@ -102,21 +102,6 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     ...SchemaMetadata.search,
-    requestConfig: {
-      url: "/torrents",
-    },
-    keywordPath: "params.name",
-    advanceKeywordParams: {
-      imdb: {
-        requestConfigTransformer: ({ requestConfig: config }) => {
-          if (config?.params?.name) {
-            config.params.imdbId = config.params.name;
-            delete config.params.name;
-          }
-          return config!;
-        },
-      },
-    },
     selectors: {
       ...SchemaMetadata.search!.selectors,
     },
