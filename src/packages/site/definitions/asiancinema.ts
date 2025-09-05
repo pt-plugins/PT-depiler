@@ -1,7 +1,7 @@
-import { type ISiteMetadata, type IUserInfo } from "../types";
+import { type ISiteMetadata } from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
 import { rot13 } from "../utils";
-import { set } from "es-toolkit/dist/compat/object/set";
+import { set } from "es-toolkit/compat";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
