@@ -50,16 +50,12 @@ export async function updatePageType(ptdData: IPtdData = {}) {
         ]).filter(Boolean);
       }
 
+      const excludeListUrlPatterns =
+        metadata.list?.flatMap((item) => item.excludeUrlPattern ?? []).filter(Boolean) ?? [];
+
       if (
-        listUrlPatterns.some((pattern) => {
-          if (pattern instanceof RegExp) {
-            return pattern.test(url);
-          } else if ((pattern as string).startsWith("!")) {
-            return !new RegExp((pattern as string)!.slice(1), "i").test(url);
-          } else {
-            return new RegExp(pattern as string, "i").test(url);
-          }
-        })
+        listUrlPatterns.some((pattern) => new RegExp(pattern!, "i").test(url)) &&
+        !excludeListUrlPatterns.some((pattern) => new RegExp(pattern!, "i").test(url))
       ) {
         pageType.value = "list";
       } else {
