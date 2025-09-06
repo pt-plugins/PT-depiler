@@ -1,5 +1,5 @@
-import { type ISiteMetadata, type ITorrent, type IUserInfo } from "../types";
-import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
+import { type ISiteMetadata } from "../types";
+import { SchemaMetadata } from "../schemas/Unit3D.ts";
 import { buildCategoryOptions, parseSizeString, parseValidTimeString } from "../utils";
 
 const idTrans: string[] = ["User ID", "用户 ID", "用ID", "用户ID"];
@@ -407,15 +407,3 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
-
-export default class Fearnopeer extends Unit3D {
-  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
-    const downloadLink = await super.getTorrentDownloadLink(torrent);
-    if (downloadLink && !downloadLink.includes("/download/")) {
-      const mockRequestConfig = torrent.url?.startsWith("http") ? { url: torrent.url } : { baseURL: this.url };
-      return this.fixLink(`/torrents/download/${torrent.id}`, mockRequestConfig);
-    }
-
-    return downloadLink;
-  }
-}

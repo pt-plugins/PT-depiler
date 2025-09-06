@@ -1,5 +1,6 @@
-import { ETorrentStatus, type ISiteMetadata, type ITorrent, type IUserInfo } from "../types";
+import { ETorrentStatus, type ISiteMetadata, type ITorrent } from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
+import AbstractBittorrentSite from "../schemas/AbstractBittorrentSite";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -325,7 +326,9 @@ export default class MonikaDesign extends Unit3D {
   }
 
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
-    const downloadLink = await super.getTorrentDownloadLink(torrent);
+    // Call the ancestor implementation from AbstractBittorrentSite directly
+    // to bypass Unit3D's override when necessary.
+    const downloadLink = await AbstractBittorrentSite.prototype.getTorrentDownloadLink.call(this, torrent);
     if (downloadLink && !downloadLink.includes("/download/")) {
       const { data: detailDocument } = await this.request<Document>({
         url: downloadLink,

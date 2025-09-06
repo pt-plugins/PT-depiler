@@ -2,7 +2,14 @@ import urlJoin from "url-join";
 import { omit, toMerged } from "es-toolkit";
 
 import PrivateSite from "./AbstractPrivateSite";
-import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type IUserInfo, NeedLoginError } from "../types";
+import {
+  ETorrentStatus,
+  EResultParseStatus,
+  type ISiteMetadata,
+  type IUserInfo,
+  NeedLoginError,
+  ITorrent,
+} from "../types";
 import { parseSizeString, parseValidTimeString } from "../utils";
 
 /**
@@ -420,5 +427,15 @@ export default class Unit3D extends PrivateSite {
       true,
     );
     return this.getFieldData(document, this.metadata.userInfo?.selectors?.bonusPerHour!);
+  }
+
+  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    const downloadLink = await super.getTorrentDownloadLink(torrent);
+    if (downloadLink && !downloadLink.includes("/download/") && downloadLink.includes("/torrents/")) {
+      const mockRequestConfig = torrent.url?.startsWith("http") ? { url: torrent.url } : { baseURL: this.url };
+      return this.fixLink(`/torrents/download/${torrent.id}`, mockRequestConfig);
+    }
+
+    return downloadLink;
   }
 }
