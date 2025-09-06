@@ -1,5 +1,5 @@
-import { EResultParseStatus, type ISiteMetadata, type ITorrent, type IUserInfo } from "../types";
-import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
+import { type ISiteMetadata } from "../types";
+import { SchemaMetadata } from "../schemas/Unit3D.ts";
 import { buildCategoryOptions, parseSizeString, parseValidTimeString } from "../utils";
 
 const idTrans: string[] = ["User ID", "用户 ID", "用ID", "用户ID"];
@@ -430,36 +430,3 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
-
-export default class Fearnopeer extends Unit3D {
-  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
-    let userName = flushUserInfo?.name;
-    if (flushUserInfo?.status === EResultParseStatus.success && userName) {
-      // 获取时魔
-      flushUserInfo.bonusPerHour = await this.getBonusPerHourFromBonusTransactionsPage(userName);
-    }
-    return flushUserInfo;
-  }
-
-  protected async getBonusPerHourFromBonusTransactionsPage(userName: string): Promise<string> {
-    const { data: document } = await this.request<Document>(
-      {
-        url: `/users/${userName}/earnings`,
-        responseType: "document",
-      },
-      true,
-    );
-    return this.getFieldData(document, this.metadata.userInfo?.selectors?.bonusPerHour!);
-  }
-
-  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
-    const downloadLink = await super.getTorrentDownloadLink(torrent);
-    if (downloadLink && !downloadLink.includes("/download/")) {
-      const mockRequestConfig = torrent.url?.startsWith("http") ? { url: torrent.url } : { baseURL: this.url };
-      return this.fixLink(`/torrents/download/${torrent.id}`, mockRequestConfig);
-    }
-
-    return downloadLink;
-  }
-}
