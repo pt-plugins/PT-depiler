@@ -21,7 +21,12 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: "td.title span.title a",
         attr: "href",
-        filters: [(q: string) => q.match(/(\d+)/)![0]],
+        filters: [
+          (q: string) => {
+            const match = q.match(/(\d+)/);
+            return match ? match[0] : null;
+          },
+        ],
       },
       title: { selector: "td.title span.title a" },
       url: { selector: "td.title span.title a", attr: "href" },
