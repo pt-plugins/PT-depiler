@@ -4,3 +4,9 @@
 
 /*noinspection CssUnknownTarget*/
 @import "../../shared/common.scss";
+
+#ptd-content-script-app {
+  all: initial;
+  box-sizing: border-box;
+  word-break: normal;
+}
