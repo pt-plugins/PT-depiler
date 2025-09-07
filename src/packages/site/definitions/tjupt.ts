@@ -125,7 +125,6 @@ export const siteMetadata: ISiteMetadata = {
     },
     selectors: {
       ...SchemaMetadata.search!.selectors,
-      ext_imdb: { selector: "a[href*='imdb.com/title/tt']", attr: "href", filters: [{ name: "extImdbId" }] },
       progress: selectorSearchProgress,
       status: selectorSearchStatus,
       tags: [

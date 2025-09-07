@@ -87,8 +87,6 @@ export const siteMetadata: ISiteMetadata = {
           { name: "prepend", args: ["/details.php?id="] },
         ],
       },
-      ext_imdb: { selector: "div.tar a[href*='imdb.com']", attr: "href", filters: [{ name: "extImdbId" }] },
-      ext_douban: { selector: "div.tar a[href*='douban.com']", attr: "href", filters: [{ name: "extDoubanId" }] },
       tags: [
         { name: "Free", selector: "font.promotion.free", color: "blue" },
         { name: "2xFree", selector: "font.promotion.twoupfree", color: "green" },

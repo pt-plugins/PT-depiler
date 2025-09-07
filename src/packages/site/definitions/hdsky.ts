@@ -314,9 +314,6 @@ export const siteMetadata: ISiteMetadata = {
           ".progressdownloaded": ETorrentStatus.inactive,
         },
       },
-
-      ext_douban: { selector: ["a[href*='douban.com']"], attr: "href", filters: [{ name: "extDoubanId" }] },
-      ext_imdb: { selector: ["a[href*='imdb.com']"], attr: "href", filters: [{ name: "extImdbId" }] },
     },
   },
 
