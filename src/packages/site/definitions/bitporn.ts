@@ -155,13 +155,6 @@ export const siteMetadata: ISiteMetadata = {
   ],
   search: {
     ...SchemaMetadata.search,
-    requestConfig: {
-      url: "/torrents",
-      params: {
-        perPage: 100,
-      },
-    },
-    keywordPath: "params.name",
     selectors: {
       ...SchemaMetadata.search!.selectors,
       subTitle: {
@@ -241,12 +234,6 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
-  list: [
-    {
-      urlPattern: ["/torrents(?:/?$|\\?\[\^/\]*$)"],
-    },
-  ],
-
   userInfo: {
     ...SchemaMetadata.userInfo!,
     selectors: {
@@ -276,10 +263,6 @@ export const siteMetadata: ISiteMetadata = {
 
           return totalReleases;
         },
-      },
-      levelName: {
-        selector: ["a.user-tag__link[title]"],
-        attr: "title",
       },
     },
   },

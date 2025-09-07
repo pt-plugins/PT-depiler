@@ -21,8 +21,8 @@ const seedingSizeTrans: string[] = ["Seeding Size", "Seeding size", "做种体�
 const joinTimeTrans: string[] = ["Registration date", "注册日期", "註冊日期"];
 const averageSeedingTimeTrans: string[] = ["Average Seedtime", "Average seedtime", "平均做种时间", "平均做種時間"];
 const invitesTrans: string[] = ["Invites", "邀请", "邀請"];
-const ratioTrans: string[] = ["Ratio", "分享率", "分享率"];
-const trueRatioTrans: string[] = ["Real Ratio", "真实分享率", "真實分享率"];
+const ratioTrans: string[] = ["Ratio", "分享率", "比率"];
+const trueRatioTrans: string[] = ["Real Ratio", "真实分享率", "真實比率"];
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: 0,
@@ -195,7 +195,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 
   list: [
     {
-      urlPattern: ["/torrents\[\^/\]"],
+      urlPattern: ["/torrents(?:/?$|\\?\[\^/\]*$)"],
     },
   ],
 
@@ -326,7 +326,10 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [{ name: "parseTTL" }],
       },
       levelName: {
-        selector: "div.content span.badge-user",
+        selector: ["div.content span.badge-user", "a.user-tag__link[title]"],
+        elementProcess: (el: HTMLInputElement) => {
+          return el.getAttribute("title") || el.textContent;
+        },
       },
       messageCount: {
         text: 0,

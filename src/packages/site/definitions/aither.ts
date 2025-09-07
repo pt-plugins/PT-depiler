@@ -1,4 +1,4 @@
-import { type ISiteMetadata, type IUserInfo } from "../types";
+import { type ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/Unit3D.ts";
 
 export const siteMetadata: ISiteMetadata = {
@@ -15,16 +15,6 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Unit3D",
 
   urls: ["uggcf://nvgure.pp/"],
-
-  userInfo: {
-    selectors: {
-      ...SchemaMetadata.userInfo!.selectors,
-      levelName: {
-        selector: "div.panel__body a.user-tag__link",
-        attr: "title",
-      },
-    },
-  },
 
   levelRequirements: [
     {

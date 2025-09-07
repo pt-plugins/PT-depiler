@@ -184,33 +184,6 @@ export const siteMetadata: ISiteMetadata = {
   ],
   search: {
     ...SchemaMetadata.search,
-    requestConfig: {
-      url: "/torrents",
-      params: {
-        perPage: 100,
-      },
-    },
-    keywordPath: "params.name",
-    advanceKeywordParams: {
-      tmdb: {
-        requestConfigTransformer: ({ requestConfig: config }) => {
-          if (config?.params?.name) {
-            config.params.tmdbId = config.params.name;
-            delete config.params.name;
-          }
-          return config!;
-        },
-      },
-      imdb: {
-        requestConfigTransformer: ({ requestConfig: config }) => {
-          if (config?.params?.name) {
-            config.params.imdbId = config.params.name.replace("tt", "");
-            delete config.params.name;
-          }
-          return config!;
-        },
-      },
-    },
     selectors: {
       ...SchemaMetadata.search!.selectors,
       tags: [
@@ -265,49 +238,6 @@ export const siteMetadata: ISiteMetadata = {
           color: "red",
         },
       ],
-    },
-  },
-
-  list: [
-    {
-      urlPattern: ["/torrents(?:/?$|\\?\[\^/\]*$)"],
-    },
-  ],
-
-  userInfo: {
-    ...SchemaMetadata.userInfo!,
-    selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
-      uploads: {
-        selector: ["h2:contains('Torrent Count') + dl"],
-        elementProcess: (element: any) => {
-          if (!element) return 0;
-
-          // 查找所有包含总发布数信息的div元素
-          const divs = element.querySelectorAll("div.key-value__group");
-
-          // 提取所有div元素中的文本内容
-          const allText = Array.from(divs)
-            .map((div: any) => div.textContent || div.innerText || "")
-            .join(" ");
-
-          // 使用正则表达式匹配数字，并去除逗号
-          const queryMatch = String(allText || "")
-            .replace(/,/g, "")
-            .match(/\d+/g);
-
-          if (!queryMatch) return 0;
-
-          // 根据匹配到的数字进行特定的加总处理
-          const totalReleases = parseInt(queryMatch[0]) + parseInt(queryMatch[1]);
-
-          return totalReleases;
-        },
-      },
-      levelName: {
-        selector: ["a.user-tag__link[title]"],
-        attr: "title",
-      },
     },
   },
 

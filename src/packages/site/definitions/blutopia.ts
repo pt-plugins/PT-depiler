@@ -17,16 +17,6 @@ export const siteMetadata: ISiteMetadata = {
   urls: ["uggcf://oyhgbcvn.pp/"],
   formerHosts: ["blutopia.xyz"],
 
-  userInfo: {
-    selectors: {
-      ...SchemaMetadata.userInfo!.selectors,
-      levelName: {
-        selector: "div.panel__body a.user-tag__link",
-        attr: "title",
-      },
-    },
-  },
-
   levelRequirements: [
     {
       id: 1,
