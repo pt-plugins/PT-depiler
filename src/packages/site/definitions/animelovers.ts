@@ -1,6 +1,6 @@
 import { type ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/Unit3D.ts";
-import { buildCategoryOptions, parseValidTimeString } from "../utils";
+import { buildCategoryOptions } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -182,64 +182,6 @@ export const siteMetadata: ISiteMetadata = {
       cross: { mode: "brackets" },
     },
   ],
-  search: {
-    ...SchemaMetadata.search,
-    selectors: {
-      ...SchemaMetadata.search!.selectors,
-      tags: [
-        {
-          name: "Free",
-          selector: "i.torrent-icons__featured, i.torrent-icons__freeleech[title*='100%']",
-          color: "blue",
-        },
-        {
-          name: "2xUp",
-          selector: "i.torrent-icons__featured, i.torrent-icons__double-upload",
-          color: "lime",
-        },
-        {
-          name: "75%",
-          selector: "i.torrent-icons__freeleech[title*='75%']",
-          color: "lime-darken-3",
-        },
-        {
-          name: "50%",
-          selector: "i.torrent-icons__freeleech[title*='50%']",
-          color: "deep-orange-darken-1",
-        },
-        {
-          name: "25%",
-          selector: "i.torrent-icons__freeleech[title*='25%']",
-          color: "blue",
-        },
-        {
-          name: "可退款",
-          selector: "i.fa-percentage",
-          color: "gray",
-        },
-        {
-          name: "内部组发布",
-          selector: "i.torrent-icons__internal",
-          color: "purple",
-        },
-        {
-          name: "个人发布",
-          selector: "i.torrent-icons__personal-release",
-          color: "purple",
-        },
-        {
-          name: "高速",
-          selector: "i.torrent-icons__highspeed",
-          color: "red",
-        },
-        {
-          name: "可升级的",
-          selector: "i.torrent-icons__torrent-trump",
-          color: "red",
-        },
-      ],
-    },
-  },
 
   // TODO userInfo 中的 averageSeedingTime, hnrUnsatisfied 等其他字段
 

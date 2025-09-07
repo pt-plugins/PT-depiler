@@ -165,29 +165,59 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         {
           name: "Free",
           selector:
-            "i.fa-star.text-gold, i.fa-globe.text-blue, i[title*='100% Free'], i[title*='Featured'], span[title*='100% Free'], i[data-original-title*='Featured']",
+            "i.fa-star.text-gold, i.fa-globe, i[title*='100%'], i.torrent-icons__featured, i[title*='Featured'], i[data-original-title*='Featured'], i[data-original-title*='Free']",
           color: "blue",
         },
         {
           name: "2xUp",
           selector:
-            "i.fa-gem.text-green, i[title*='Double Upload'], i[title*='Featured'], i[data-original-title*='Featured']",
+            "i.fa-gem.text-green, i.torrent-icons__double-upload, i.torrent-icons__featured, i[title*='Double Upload'], i[title*='Featured'], i[data-original-title*='Double Upload'], i[data-original-title*='Featured']",
           color: "lime",
         },
         {
           name: "75%",
-          selector: "i[title*='75% Free'], span[title*='75% Free']",
+          selector: "i[title*='75%']",
           color: "lime-darken-3",
         },
         {
           name: "50%",
-          selector: "i[title*='50% Free'], span[title*='50% Free']",
+          selector: "i[title*='50%']",
           color: "deep-orange-darken-1",
         },
         {
           name: "25%",
-          selector: "i[title*='25% Free'], span[title*='25% Free']",
+          selector: "i[title*='25%']",
           color: "blue",
+        },
+        {
+          name: "置顶",
+          selector: "i.fa-thumbtack",
+          color: "red",
+        },
+        {
+          name: "可退款",
+          selector: "i.fa-percentage, i[title*='Refundable']",
+          color: "gray",
+        },
+        {
+          name: "Internal",
+          selector: "i.torrent-icons__internal",
+          color: "purple",
+        },
+        {
+          name: "个人发布",
+          selector: "i.torrent-icons__personal-release",
+          color: "purple",
+        },
+        {
+          name: "Highspeed",
+          selector: "i.torrent-icons__highspeed",
+          color: "red",
+        },
+        {
+          name: "Trump",
+          selector: "i.torrent-icons__torrent-trump",
+          color: "red",
         },
       ],
     },
