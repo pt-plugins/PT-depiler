@@ -73,6 +73,7 @@ watch(
       bottomY.value = clientHeight - y.value;
     }
   },
+  { immediate: true },
 );
 
 const remoteDownloadDialogData = shallowReactive({

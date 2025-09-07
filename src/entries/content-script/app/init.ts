@@ -95,5 +95,18 @@ export function mountApp(document: Document, data: any = {}) {
     }
   }
 
+  // 防止某些网站动态修改 body，从而移除我们的 contentRoot，因此使用 MutationObserver 监听 body 的变化
+  // 一旦发现 contentRoot 被移除，则重新挂载应用
+  const mutationObserver = new MutationObserver((mutations) => {
+    if (!document.body.contains(contentRoot)) {
+      console.debug("[PTD] Content root removed from body, remounting app...");
+      app.unmount();
+      mutationObserver.disconnect();
+      mountApp(document, data);
+    }
+  });
+
+  mutationObserver.observe(document, { childList: true, subtree: true });
+
   return { contentRoot, shadowRoot, appMountElement, app };
 }
