@@ -81,7 +81,7 @@ export const siteMetadata: ISiteMetadata = {
         text: 0,
         selector: 'span[title*="Leechers"]',
         attr: "title",
-        filters: [(q: string) => q.match(/Leechers: (\d+)/)![1]],
+        filters: [(q: string) => q.match(/Leechers: (\d+)/)?.[1] ?? "0"],
       },
       category: { text: "Anime" },
     },
