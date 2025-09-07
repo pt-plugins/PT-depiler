@@ -37,24 +37,32 @@ const tableHeaders = computed(
 const selectedTorrentIds = ref<ITorrent["id"][]>([]);
 const selectedTorrents = computed(() => torrentItems.filter((x) => selectedTorrentIds.value.includes(x.id)));
 
-function handleLocalDownloadMulti() {
+const localDownloadMultiStatus = ref<boolean>(false);
+async function handleLocalDownloadMulti() {
+  localDownloadMultiStatus.value = true;
   for (const torrent of selectedTorrents.value) {
-    sendMessage("downloadTorrentToLocalFile", { torrent });
+    await sendMessage("downloadTorrentToLocalFile", { torrent });
   }
+  localDownloadMultiStatus.value = false;
 }
 
+const linkCopyMultiStatus = ref<boolean>(false);
 async function handleLinkCopyMulti() {
-  const downloadUrls = [];
-  for (const torrent of selectedTorrents.value) {
-    const downloadUrl = await sendMessage("getTorrentDownloadLink", torrent);
-    downloadUrls.push(downloadUrl);
-  }
+  linkCopyMultiStatus.value = true;
+  const downloadUrls = [] as string[];
 
   try {
+    for (const torrent of selectedTorrents.value) {
+      const downloadUrl = await sendMessage("getTorrentDownloadLink", torrent);
+      downloadUrls.push(downloadUrl);
+    }
+
     await navigator.clipboard.writeText(downloadUrls.join("\n").trim());
     runtimeStore.showSnakebar("下载链接已复制到剪贴板", { color: "success" });
   } catch (e) {
     runtimeStore.showSnakebar("复制下载链接失败", { color: "error" });
+  } finally {
+    linkCopyMultiStatus.value = false;
   }
 }
 
@@ -127,9 +135,21 @@ function enterDialog() {
       <v-divider />
       <v-card-actions>
         <v-spacer />
-        <NavButton icon="mdi-content-save-all" text="本地下载" color="light-blue" @click="handleLocalDownloadMulti" />
+        <NavButton
+          :loading="localDownloadMultiStatus"
+          color="light-blue"
+          icon="mdi-content-save-all"
+          text="本地下载"
+          @click="handleLocalDownloadMulti"
+        />
 
-        <NavButton color="light-blue" icon="mdi-content-copy" text="复制链接" @click="handleLinkCopyMulti" />
+        <NavButton
+          :loading="linkCopyMultiStatus"
+          color="light-blue"
+          icon="mdi-content-copy"
+          text="复制链接"
+          @click="handleLinkCopyMulti"
+        />
 
         <NavButton
           key="remote_download_multi"

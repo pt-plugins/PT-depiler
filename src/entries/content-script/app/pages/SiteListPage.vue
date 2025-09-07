@@ -33,29 +33,42 @@ async function parseListPage(showNoTorrentError = true) {
   return parsedResult!;
 }
 
+const localDownloadMultiStatus = ref<boolean>(false);
 function handleLocalDownloadMulti() {
-  parseListPage().then(({ torrents }) => {
-    for (const torrent of torrents) {
-      sendMessage("downloadTorrentToLocalFile", { torrent });
-    }
-  });
+  localDownloadMultiStatus.value = true;
+  parseListPage()
+    .then(({ torrents }) => {
+      for (const torrent of torrents) {
+        sendMessage("downloadTorrentToLocalFile", { torrent });
+      }
+    })
+    .finally(() => {
+      localDownloadMultiStatus.value = false;
+    });
 }
 
+const linkCopyMultiStatus = ref<boolean>(false);
 function handleLinkCopyMulti() {
-  parseListPage().then(async ({ torrents }) => {
-    const downloadUrls = [];
-    for (const torrent of torrents) {
-      const downloadUrl = await sendMessage("getTorrentDownloadLink", torrent);
-      downloadUrls.push(downloadUrl);
-    }
+  linkCopyMultiStatus.value = true;
+  parseListPage()
+    .then(async ({ torrents }) => {
+      const downloadUrls = [] as string[];
 
-    try {
-      await navigator.clipboard.writeText(downloadUrls.join("\n").trim());
-      runtimeStore.showSnakebar("下载链接已复制到剪贴板", { color: "success" });
-    } catch (e) {
-      runtimeStore.showSnakebar("复制下载链接失败", { color: "error" });
-    }
-  });
+      try {
+        for (const torrent of torrents) {
+          const downloadUrl = await sendMessage("getTorrentDownloadLink", torrent);
+          downloadUrls.push(downloadUrl);
+        }
+
+        await navigator.clipboard.writeText(downloadUrls.join("\n").trim());
+        runtimeStore.showSnakebar("下载链接已复制到剪贴板", { color: "success" });
+      } catch (e) {
+        runtimeStore.showSnakebar("复制下载链接失败", { color: "error" });
+      }
+    })
+    .finally(() => {
+      linkCopyMultiStatus.value = false;
+    });
 }
 
 const remoteDownloadDialogData = inject<{ show: boolean; torrents: ITorrent[] }>("remoteDownloadDialogData")!;
@@ -91,12 +104,20 @@ async function handleSearch() {
 <template>
   <SpeedDialBtn
     key="save"
+    :loading="localDownloadMultiStatus"
     color="light-blue"
     icon="mdi-content-save-all"
     title="本地下载"
     @click="handleLocalDownloadMulti"
   />
-  <SpeedDialBtn key="copy" color="light-blue" icon="mdi-content-copy" title="复制链接" @click="handleLinkCopyMulti" />
+  <SpeedDialBtn
+    key="copy"
+    :loading="linkCopyMultiStatus"
+    color="light-blue"
+    icon="mdi-content-copy"
+    title="复制链接"
+    @click="handleLinkCopyMulti"
+  />
   <SpeedDialBtn
     key="download"
     :disabled="metadataStore.getEnabledDownloaders.length === 0"
