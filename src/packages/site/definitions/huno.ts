@@ -136,19 +136,10 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
+    pickLast: ["name", "id"],
     selectors: {
       ...SchemaMetadata.userInfo!.selectors,
       // '/'
-      name: {
-        selector: ["ul.dropdown-menu a[href*='users']:first"],
-        attr: "href",
-        filters: [
-          (query: string) => {
-            const queryMatch = query.match(/users\/(\S+?)\.(\d+?)$/);
-            return queryMatch && queryMatch.length >= 3 ? queryMatch[1].trim() : "";
-          },
-        ],
-      },
       id: {
         selector: ["ul.dropdown-menu a[href*='users']:first"],
         attr: "href",

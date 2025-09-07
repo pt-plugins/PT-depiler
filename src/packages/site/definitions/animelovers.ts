@@ -1,10 +1,6 @@
 import { type ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/Unit3D.ts";
-import { buildCategoryOptions, parseSizeString, parseValidTimeString } from "../utils";
-
-const idTrans: string[] = ["User ID", "用户 ID", "用ID", "用户ID"];
-const seedingSizeTrans: string[] = ["Seeding Size", "做种体积", "做種體積"];
-const RatioTrans: string[] = ["Ratio", "分享率", "比率"];
+import { buildCategoryOptions, parseValidTimeString } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -282,38 +278,6 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.userInfo!,
     selectors: {
       ...SchemaMetadata.userInfo!.selectors!,
-
-      name: {
-        selector: ["a[href*='/users/'][href*='/general-settings']:first"],
-        attr: "href",
-        filters: [
-          (query: string) => {
-            const queryMatch = query.match(/users\/(.+)\/general-settings/);
-            return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : "";
-          },
-        ],
-      },
-      id: {
-        selector: idTrans.map((x) => `dt:contains('${x}') + dd`),
-        filters: [(query: string) => parseInt(query || "0")],
-      },
-      joinTime: {
-        selector: ["time.profile__registration"],
-        filters: [
-          (query: string) => {
-            query = query.split(":")[1].trim();
-            return parseValidTimeString(query, ["yyyy-MM-dd"]);
-          },
-        ],
-      },
-      ratio: {
-        selector: RatioTrans.map((x) => `dt:contains('${x}') + dd`),
-        filters: [(query) => parseFloat(query.replace(/,/g, "") || "0")],
-      },
-      trueRatio: {
-        selector: RatioTrans.map((x) => `dt:contains('Real ${x}') + dd`),
-        filters: [(query) => parseFloat(query.replace(/,/g, "") || "0")],
-      },
       uploads: {
         selector: ["h2:contains('Torrent Count') + dl"],
         elementProcess: (element: any) => {
@@ -343,21 +307,6 @@ export const siteMetadata: ISiteMetadata = {
       levelName: {
         selector: ["a.user-tag__link[title]"],
         attr: "title",
-      },
-      seedingSize: {
-        // table.table-condensed:first
-        selector: seedingSizeTrans.map((x) => `dt:contains('${x}') + dd`),
-        filters: [(query: string) => parseSizeString(query.replace(/,/g, ""))],
-      },
-      // "/users/$user.name$/earnings
-      bonusPerHour: {
-        selector: ["aside .panelV2 dl.key-value div:nth-child(3) dd"],
-        filters: [(query) => parseFloat(query.replace(/,/g, "") || "0")],
-      },
-      messageCount: {
-        text: 0,
-        selector: ['a[title*="收件箱"] svg', 'a[title*="Inbox"] svg'],
-        elementProcess: () => 11,
       },
     },
   },

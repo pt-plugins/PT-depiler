@@ -18,28 +18,9 @@ export const siteMetadata: ISiteMetadata = {
   userInfo: {
     selectors: {
       ...SchemaMetadata.userInfo!.selectors,
-      name: {
-        selector: ["a[href*='/users/']:first"],
-        attr: "href",
-        filters: [
-          (query: string) => {
-            const queryMatch = query.match(/users\/(.+)\//);
-            return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : "";
-          },
-        ],
-      },
       levelName: {
         selector: "div.panel__body a.user-tag__link",
         attr: "title",
-      },
-      seedingSize: {
-        selector: 'dt:has(abbr[title*="Seeding Size"]) + dd',
-        filters: [{ name: "parseSize" }],
-      },
-      joinTime: {
-        selector: ["time"],
-        attr: "datetime",
-        filters: [{ name: "parseTime" }],
       },
     },
   },

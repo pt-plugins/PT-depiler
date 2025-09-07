@@ -1,4 +1,4 @@
-import { type ISiteMetadata, type IUserInfo } from "../types";
+import { type ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/Unit3D.ts";
 
 export const siteMetadata: ISiteMetadata = {
@@ -20,28 +20,9 @@ export const siteMetadata: ISiteMetadata = {
   userInfo: {
     selectors: {
       ...SchemaMetadata.userInfo!.selectors,
-      name: {
-        selector: ["a[href*='/users/']:first"],
-        attr: "href",
-        filters: [
-          (query: string) => {
-            const queryMatch = query.match(/users\/(.+)\//);
-            return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : "";
-          },
-        ],
-      },
       levelName: {
         selector: "div.panel__body a.user-tag__link",
         attr: "title",
-      },
-      joinTime: {
-        selector: ["time"],
-        attr: "datetime",
-        filters: [{ name: "parseFuzzyTime" }],
-      },
-      bonusPerHour: {
-        selector: [".panelV2 dl.key-value dd:nth(2)"],
-        filters: [{ name: "parseNumber" }],
       },
     },
   },

@@ -20,6 +20,9 @@ const idTrans: string[] = ["User ID", "用户 ID", "用ID", "用户ID"];
 const seedingSizeTrans: string[] = ["Seeding Size", "Seeding size", "做种体积", "做種體積"];
 const joinTimeTrans: string[] = ["Registration date", "注册日期", "註冊日期"];
 const averageSeedingTimeTrans: string[] = ["Average Seedtime", "Average seedtime", "平均做种时间", "平均做種時間"];
+const invitesTrans: string[] = ["Invites", "邀请", "邀請"];
+const ratioTrans: string[] = ["Ratio", "分享率", "分享率"];
+const trueRatioTrans: string[] = ["Real Ratio", "真实分享率", "真實分享率"];
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: 0,
@@ -255,11 +258,12 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
     selectors: {
       // '/'
       name: {
-        selector: ["a[href*='/users/'][href*='/settings']:first"],
+        selector: ["a[href*='/users/'][href*='settings']:first"],
         attr: "href",
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/users\/(.+)\/settings/);
+            // match '/users/{name}' where {name} can be followed by a '/' or end of string
+            const queryMatch = query.match(/users\/([^\/]+)(?:\/|$)/);
             return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : "";
           },
         ],
@@ -278,7 +282,19 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [{ name: "parseSize" }],
       },
       ratio: {
-        selector: ["li.ratio-bar__ratio a:has( > i.fa-sync-alt)", "span:has( > i.fa-sync-alt)"],
+        selector: [
+          ...ratioTrans.map((x) => `td:contains('${x}') + td`),
+          ...ratioTrans.map((x) => `dt:contains('${x}') + dd`),
+          "li.ratio-bar__ratio a:has( > i.fa-sync-alt)",
+          "span:has( > i.fa-sync-alt)",
+        ],
+        filters: [{ name: "parseNumber" }],
+      },
+      trueRatio: {
+        selector: [
+          ...trueRatioTrans.map((x) => `td:contains('${x}') + td`),
+          ...trueRatioTrans.map((x) => `dt:contains('${x}') + dd`),
+        ],
         filters: [{ name: "parseNumber" }],
       },
       bonus: {
@@ -299,7 +315,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           ...seedingSizeTrans.map((x) => `td:contains('${x}') + td`),
           ...seedingSizeTrans.map((x) => `dt:contains('${x}') + dd`),
         ],
-        filters: [(query: string) => parseSizeString(query.replace(/,/g, ""))],
+        filters: [{ name: "parseSize" }],
       },
       averageSeedingTime: {
         // table.table-condensed:first
@@ -322,14 +338,26 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [{ name: "parseNumber" }],
       },
       joinTime: {
-        selector: joinTimeTrans.map((x) => `div.content h4:contains('${x}')`),
+        selector: ["time.profile__registration", ...joinTimeTrans.map((x) => `div.content h4:contains('${x}')`)],
         filters: [
           (query: string) => {
             query = query.replace(RegExp(joinTimeTrans.join("|")), "");
             query = query.replace(/^:+/g, "").trim();
-            return parseValidTimeString(query, ["MMM dd yyyy, HH:mm:ss", "MMM dd yyyy"]);
+            return parseValidTimeString(query, ["MMM dd yyyy, HH:mm:ss", "MMM dd yyyy", "yyyy-MM-dd"]);
           },
         ],
+      },
+      invites: {
+        selector: [
+          ...invitesTrans.map((x) => `td:contains('${x}'):last + td`),
+          ...invitesTrans.map((x) => `dt:contains('${x}'):last + dd`),
+        ],
+        filters: [{ name: "parseNumber" }],
+      },
+      // '/users/$user.name$/earnings'
+      bonusPerHour: {
+        selector: [".panelV2 dl.key-value dd:nth(2)"],
+        filters: [{ name: "parseNumber" }],
       },
     },
   },
