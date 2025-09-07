@@ -75,7 +75,7 @@ export const siteMetadata: ISiteMetadata = {
         text: 0,
         selector: 'span[title*="Seeders"]',
         attr: "title",
-        filters: [(q: string) => q.match(/Seeders: (\d+)/)![1]],
+        filters: [(q: string) => q.match(/Seeders: (\d+)/)?.[1] ?? "0"],
       },
       leechers: {
         text: 0,
