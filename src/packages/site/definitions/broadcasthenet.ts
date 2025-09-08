@@ -227,6 +227,11 @@ export const siteMetadata: ISiteMetadata = {
 
   levelRequirements: [
     {
+      id: 0,
+      name: "User",
+      privilege: "Default class for all new members.",
+    },
+    {
       id: 1,
       name: "Member",
       totalTraffic: "100GB",
@@ -241,7 +246,7 @@ export const siteMetadata: ISiteMetadata = {
       totalTraffic: "250GB",
       bonus: 250000,
       snatches: 250,
-      interval: "P4W",
+      interval: "P1M",
       privilege:
         "Has access to the Power User forum, Official and Unofficial Invites forums, Top 10 filters, and can access notifications.",
     },
@@ -251,7 +256,7 @@ export const siteMetadata: ISiteMetadata = {
       totalTraffic: "500GB",
       bonus: 500000,
       snatches: 500,
-      interval: "P2M3W",
+      interval: "P3M",
       privilege: "Has access to the Extreme User forum.",
     },
     {
@@ -260,7 +265,7 @@ export const siteMetadata: ISiteMetadata = {
       totalTraffic: "1TB",
       bonus: 850000,
       snatches: 1000,
-      interval: "P5M2W",
+      interval: "P6M",
       privilege:
         "Has access to the Elite forum and can set own Custom Title, and the ability to send invites purchased from the Lumens Store.",
     },
@@ -270,7 +275,7 @@ export const siteMetadata: ISiteMetadata = {
       totalTraffic: "2.5TB",
       bonus: 1500000,
       snatches: 1500,
-      interval: "P8M1W",
+      interval: "P9M",
       privilege: "Has access to the Guru forum.",
     },
     {
@@ -279,7 +284,7 @@ export const siteMetadata: ISiteMetadata = {
       totalTraffic: "7.5TB",
       bonus: 3000000,
       snatches: 3000,
-      interval: "P11M4W",
+      interval: "P1Y",
       privilege: "Has access to the Master forum.",
     },
     {
