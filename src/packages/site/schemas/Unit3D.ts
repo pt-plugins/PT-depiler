@@ -226,6 +226,36 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
   list: [
     {
       urlPattern: ["/torrents(?:/?$|\\?\[\^/\]*$)"],
+      excludeUrlPattern: ["/torrents?view=card", "/torrents?view=grouped", "/torrents/view=poster"],
+    },
+    {
+      urlPattern: ["/torrents/similar/"],
+      mergeSearchSelectors: false,
+      selectors: {
+        rows: {
+          selector: [
+            "table.similar-torrents__torrents > tbody > tr",
+            "table > tbody > tr:has(td a[href*='/torrents/download/'])",
+          ],
+        },
+        id: {
+          selector: ["a[href*='/torrents/']:not([href*='/download'])"],
+          attr: "href",
+          filters: [(query: string) => query.match(/\/torrents\/(\d+)/)![1]],
+        },
+        title: {
+          selector: ["a[href*='/torrents/']:not([href*='/download'])"],
+        },
+        url: {
+          selector: ["a[href*='/torrents/']:not([href*='/download'])"],
+          attr: "href",
+        },
+        link: {
+          selector: ["a[href*='/download/']", "a[href*='/download_check/']"],
+          attr: "href",
+          filters: [(query: string) => query.replace("/download_check/", "/download/")],
+        },
+      },
     },
   ],
 
