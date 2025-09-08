@@ -3,11 +3,6 @@
  */
 import { type ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/Unit3D";
-import { parseSizeString, parseValidTimeString } from "../utils";
-
-const idTrans: string[] = ["User ID", "用户 ID", "用ID", "用户ID"];
-const seedingSizeTrans: string[] = ["Seeding Size", "做种体积", "做種體積"];
-const RatioTrans: string[] = ["Ratio", "分享率", "比率"];
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -160,13 +155,6 @@ export const siteMetadata: ISiteMetadata = {
   ],
   search: {
     ...SchemaMetadata.search,
-    requestConfig: {
-      url: "/torrents",
-      params: {
-        perPage: 100,
-      },
-    },
-    keywordPath: "params.name",
     selectors: {
       ...SchemaMetadata.search!.selectors,
       subTitle: {
@@ -186,157 +174,8 @@ export const siteMetadata: ISiteMetadata = {
           return allText;
         },
       },
-      tags: [
-        {
-          name: "Free",
-          selector: "span[title*='feature'], span[title*='100% Freeleech'], i.fa-globe",
-          color: "blue",
-        },
-        {
-          name: "2xUp",
-          selector: "span[title*='feature'], i.fa-chevron-double-up",
-          color: "lime",
-        },
-        {
-          name: "75%",
-          selector: "span[title*='75% Freeleech']",
-          color: "lime-darken-3",
-        },
-        {
-          name: "50%",
-          selector: "span[title*='50% Freeleech']",
-          color: "deep-orange-darken-1",
-        },
-        {
-          name: "25%",
-          selector: "span[title*='25% Freeleech']",
-          color: "blue",
-        },
-        {
-          name: "置顶",
-          selector: "i.fa-thumbtack",
-          color: "red",
-        },
-        {
-          name: "可退款",
-          selector: "i.fa-percentage",
-          color: "gray",
-        },
-        {
-          name: "内部组发布",
-          selector: "i.torrent-icons__internal",
-          color: "purple",
-        },
-        {
-          name: "个人发布",
-          selector: "i.torrent-icons__personal-release",
-          color: "purple",
-        },
-        {
-          name: "高速",
-          selector: "i.torrent-icons__highspeed",
-          color: "red",
-        },
-        {
-          name: "可升级的",
-          selector: "i.torrent-icons__torrent-trump",
-          color: "red",
-        },
-      ],
     },
   },
-
-  list: [
-    {
-      urlPattern: ["/torrents(?:/?$|\\?\[\^/\]*$)"],
-    },
-  ],
-
-  userInfo: {
-    ...SchemaMetadata.userInfo!,
-    selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
-
-      name: {
-        selector: ["a[href*='/users/'][href*='/general-settings']:first"],
-        attr: "href",
-        filters: [
-          (query: string) => {
-            const queryMatch = query.match(/users\/(.+)\/general-settings/);
-            return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : "";
-          },
-        ],
-      },
-      id: {
-        selector: idTrans.map((x) => `dt:contains('${x}') + dd`),
-        filters: [(query: string) => parseInt(query || "0")],
-      },
-      joinTime: {
-        selector: ["time.profile__registration"],
-        filters: [
-          (query: string) => {
-            query = query.split(":")[1].trim();
-            return parseValidTimeString(query, ["yyyy-MM-dd"]);
-          },
-        ],
-      },
-      ratio: {
-        selector: RatioTrans.map((x) => `dt:contains('${x}') + dd`),
-        filters: [(query) => parseFloat(query.replace(/,/g, "") || "0")],
-      },
-      trueRatio: {
-        selector: RatioTrans.map((x) => `dt:contains('Real ${x}') + dd`),
-        filters: [(query) => parseFloat(query.replace(/,/g, "") || "0")],
-      },
-      uploads: {
-        selector: ["h2:contains('Torrent Count') + dl"],
-        elementProcess: (element: any) => {
-          if (!element) return 0;
-
-          // 查找所有包含总发布数信息的div元素
-          const divs = element.querySelectorAll("div.key-value__group");
-
-          // 提取所有div元素中的文本内容
-          const allText = Array.from(divs)
-            .map((div: any) => div.textContent || div.innerText || "")
-            .join(" ");
-
-          // 使用正则表达式匹配数字，并去除逗号
-          const queryMatch = String(allText || "")
-            .replace(/,/g, "")
-            .match(/\d+/g);
-
-          if (!queryMatch) return 0;
-
-          // 根据匹配到的数字进行特定的加总处理
-          const totalReleases = parseInt(queryMatch[0]) + parseInt(queryMatch[1]);
-
-          return totalReleases;
-        },
-      },
-      levelName: {
-        selector: ["a.user-tag__link[title]"],
-        attr: "title",
-      },
-      seedingSize: {
-        // table.table-condensed:first
-        selector: seedingSizeTrans.map((x) => `dt:contains('${x}') + dd`),
-        filters: [(query: string) => parseSizeString(query.replace(/,/g, ""))],
-      },
-      // "/users/$user.name$/earnings
-      bonusPerHour: {
-        selector: ["aside .panelV2 dl.key-value div:nth-child(3) dd"],
-        filters: [(query) => parseFloat(query.replace(/,/g, "") || "0")],
-      },
-      messageCount: {
-        text: 0,
-        selector: ['a[title*="收件箱"] svg', 'a[title*="Inbox"] svg'],
-        elementProcess: () => 11,
-      },
-    },
-  },
-
-  // TODO userInfo 中的 averageSeedingTime, hnrUnsatisfied 等其他字段
 
   levelRequirements: [
     {

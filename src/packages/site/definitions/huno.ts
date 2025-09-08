@@ -136,19 +136,10 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
+    pickLast: ["name", "id"],
     selectors: {
       ...SchemaMetadata.userInfo!.selectors,
       // '/'
-      name: {
-        selector: ["ul.dropdown-menu a[href*='users']:first"],
-        attr: "href",
-        filters: [
-          (query: string) => {
-            const queryMatch = query.match(/users\/(\S+?)\.(\d+?)$/);
-            return queryMatch && queryMatch.length >= 3 ? queryMatch[1].trim() : "";
-          },
-        ],
-      },
       id: {
         selector: ["ul.dropdown-menu a[href*='users']:first"],
         attr: "href",
@@ -179,10 +170,6 @@ export const siteMetadata: ISiteMetadata = {
         selector: [".user-info td span[data-original-title='Download Size']"],
         filters: [{ name: "parseSize" }],
       },
-      ratio: {
-        selector: [".user-info td:contains('Ratio') + td"],
-        filters: [{ name: "parseNumber" }],
-      },
       bonus: {
         selector: ["span.badge-extra > span"],
         filters: [{ name: "parseNumber" }],
@@ -198,15 +185,6 @@ export const siteMetadata: ISiteMetadata = {
       leeching: {
         selector: [".user-info td:contains('Active Leeches') + td"],
         filters: [{ name: "parseNumber" }],
-      },
-      seedingSize: {
-        selector: [".user-info td:contains('Seeding Size') + td"],
-        filters: [{ name: "parseSize" }],
-      },
-      messageCount: {
-        text: 0,
-        selector: ['a[href*="/mail/inbox"] .point'],
-        elementProcess: () => 11, // 并不能直接知道还有多少个消息未读，所以置为11，会直接出线红点而不是具体数字
       },
       hnrPreWarning: {
         // 考核中的 HR

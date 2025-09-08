@@ -20,6 +20,9 @@ const idTrans: string[] = ["User ID", "用户 ID", "用ID", "用户ID"];
 const seedingSizeTrans: string[] = ["Seeding Size", "Seeding size", "做种体积", "做種體積"];
 const joinTimeTrans: string[] = ["Registration date", "注册日期", "註冊日期"];
 const averageSeedingTimeTrans: string[] = ["Average Seedtime", "Average seedtime", "平均做种时间", "平均做種時間"];
+const invitesTrans: string[] = ["Invites", "邀请", "邀請"];
+const ratioTrans: string[] = ["Ratio", "分享率", "比率"];
+const trueRatioTrans: string[] = ["Real Ratio", "真实分享率", "真實比率"];
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: 0,
@@ -162,29 +165,59 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         {
           name: "Free",
           selector:
-            "i.fa-star.text-gold, i.fa-globe.text-blue, i[title*='100% Free'], i[title*='Featured'], span[title*='100% Free'], i[data-original-title*='Featured']",
+            "i.fa-star.text-gold, i.fa-globe, i[title*='100%'], i.torrent-icons__featured, i[title*='Featured'], i[data-original-title*='Featured'], i[data-original-title*='Free']",
           color: "blue",
         },
         {
           name: "2xUp",
           selector:
-            "i.fa-gem.text-green, i[title*='Double Upload'], i[title*='Featured'], i[data-original-title*='Featured']",
+            "i.fa-gem.text-green, i.torrent-icons__double-upload, i.torrent-icons__featured, i[title*='Double Upload'], i[title*='Featured'], i[data-original-title*='Double Upload'], i[data-original-title*='Featured']",
           color: "lime",
         },
         {
           name: "75%",
-          selector: "i[title*='75% Free'], span[title*='75% Free']",
+          selector: "i[title*='75%']",
           color: "lime-darken-3",
         },
         {
           name: "50%",
-          selector: "i[title*='50% Free'], span[title*='50% Free']",
+          selector: "i[title*='50%']",
           color: "deep-orange-darken-1",
         },
         {
           name: "25%",
-          selector: "i[title*='25% Free'], span[title*='25% Free']",
+          selector: "i[title*='25%']",
           color: "blue",
+        },
+        {
+          name: "置顶",
+          selector: "i.fa-thumbtack",
+          color: "red",
+        },
+        {
+          name: "可退款",
+          selector: "i.fa-percentage, i[title*='Refundable']",
+          color: "gray",
+        },
+        {
+          name: "Internal",
+          selector: "i.torrent-icons__internal",
+          color: "purple",
+        },
+        {
+          name: "个人发布",
+          selector: "i.torrent-icons__personal-release",
+          color: "purple",
+        },
+        {
+          name: "Highspeed",
+          selector: "i.torrent-icons__highspeed",
+          color: "red",
+        },
+        {
+          name: "Trump",
+          selector: "i.torrent-icons__torrent-trump",
+          color: "red",
         },
       ],
     },
@@ -192,7 +225,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 
   list: [
     {
-      urlPattern: ["/torrents\[\^/\]"],
+      urlPattern: ["/torrents(?:/?$|\\?\[\^/\]*$)"],
     },
   ],
 
@@ -255,11 +288,12 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
     selectors: {
       // '/'
       name: {
-        selector: ["a[href*='/users/'][href*='/settings']:first"],
+        selector: ["a[href*='/users/'][href*='settings']:first"],
         attr: "href",
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/users\/(.+)\/settings/);
+            // match '/users/{name}' where {name} can be followed by a '/' or end of string
+            const queryMatch = query.match(/users\/([^\/]+)(?:\/|$)/);
             return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : "";
           },
         ],
@@ -278,7 +312,19 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [{ name: "parseSize" }],
       },
       ratio: {
-        selector: ["li.ratio-bar__ratio a:has( > i.fa-sync-alt)", "span:has( > i.fa-sync-alt)"],
+        selector: [
+          ...ratioTrans.map((x) => `td:contains('${x}') + td`),
+          ...ratioTrans.map((x) => `dt:contains('${x}') + dd`),
+          "li.ratio-bar__ratio a:has( > i.fa-sync-alt)",
+          "span:has( > i.fa-sync-alt)",
+        ],
+        filters: [{ name: "parseNumber" }],
+      },
+      trueRatio: {
+        selector: [
+          ...trueRatioTrans.map((x) => `td:contains('${x}') + td`),
+          ...trueRatioTrans.map((x) => `dt:contains('${x}') + dd`),
+        ],
         filters: [{ name: "parseNumber" }],
       },
       bonus: {
@@ -299,7 +345,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           ...seedingSizeTrans.map((x) => `td:contains('${x}') + td`),
           ...seedingSizeTrans.map((x) => `dt:contains('${x}') + dd`),
         ],
-        filters: [(query: string) => parseSizeString(query.replace(/,/g, ""))],
+        filters: [{ name: "parseSize" }],
       },
       averageSeedingTime: {
         // table.table-condensed:first
@@ -310,7 +356,10 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [{ name: "parseTTL" }],
       },
       levelName: {
-        selector: "div.content span.badge-user",
+        selector: ["div.content span.badge-user", "a.user-tag__link[title]"],
+        elementProcess: (el: HTMLInputElement) => {
+          return el.getAttribute("title") || el.textContent;
+        },
       },
       messageCount: {
         text: 0,
@@ -322,14 +371,26 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [{ name: "parseNumber" }],
       },
       joinTime: {
-        selector: joinTimeTrans.map((x) => `div.content h4:contains('${x}')`),
+        selector: ["time.profile__registration", ...joinTimeTrans.map((x) => `div.content h4:contains('${x}')`)],
         filters: [
           (query: string) => {
             query = query.replace(RegExp(joinTimeTrans.join("|")), "");
             query = query.replace(/^:+/g, "").trim();
-            return parseValidTimeString(query, ["MMM dd yyyy, HH:mm:ss", "MMM dd yyyy"]);
+            return parseValidTimeString(query, ["MMM dd yyyy, HH:mm:ss", "MMM dd yyyy", "yyyy-MM-dd"]);
           },
         ],
+      },
+      invites: {
+        selector: [
+          ...invitesTrans.map((x) => `td:contains('${x}'):last + td`),
+          ...invitesTrans.map((x) => `dt:contains('${x}'):last + dd`),
+        ],
+        filters: [{ name: "parseNumber" }],
+      },
+      // '/users/$user.name$/earnings'
+      bonusPerHour: {
+        selector: [".panelV2 dl.key-value dd:nth(2)"],
+        filters: [{ name: "parseNumber" }],
       },
     },
   },

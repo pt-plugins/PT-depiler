@@ -224,12 +224,6 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
-  list: [
-    {
-      urlPattern: ["/torrents(?:/?$|\\?\[\^/\]*$)"],
-    },
-  ],
-
   userInfo: {
     ...SchemaMetadata.userInfo!,
     selectors: {
