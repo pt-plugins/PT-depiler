@@ -64,7 +64,7 @@
     "pinia-plugin-state-persistence": "^1.10.3",
     "search-query-parser": "^1.6.0",
     "sizzle": "^2.3.10",
-    "tailwindcss": "^4.1.12",
+    "tailwindcss": "^4.1.13",
     "url-join": "^5.0.0",
     "urlencode": "^2.0.0",
     "valid-filename": "^4.0.0",
