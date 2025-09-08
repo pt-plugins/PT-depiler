@@ -1,7 +1,7 @@
 import Sizzle from "sizzle";
 import { set } from "es-toolkit/compat";
 
-import type { ISiteMetadata } from "../types";
+import { type ISiteMetadata } from "../types";
 import { buildCategoryOptions, extractContent, parseSizeString } from "../utils";
 
 const categoryMovieMap = [

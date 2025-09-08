@@ -69,7 +69,18 @@
     "searchPlanAll": "全部站点",
     "searchPlanSingleSite": "单个站点",
     "searchPlanDefault": "默认",
-    "omniboxSearch": "在 [ $1 ] 中搜索 $2"
+    "omniboxSearch": "在 [ $1 ] 中搜索 $2",
+    "contextMenuSearch": "使用 PT Depiler  搜索 \"%s\" 相关的种子",
+    "contextMenuSearchInDefault": "在默认方案中搜索",
+    "contextMenuSearchInSolution": "在指定方案中搜索",
+    "contextMenuSearchInSite": "在指定站点中搜索",
+    "contextMenuSearchInThisSite": "在本站点中搜索",
+    "contextMenuSendToDownloader": "使用 PT Depiler 下载链接",
+    "contextMenuSendToDownloaderAdvanced": "高级推送",
+    "contextMenuSendToDownloaderIn": "推送到 $1 -> $2",
+    "contextMenuSendToDownloaderDefaultFolder": "默认路径",
+    "notificationSendLinkToDownloaderSuccess": "已成功将链接发送到下载器 [$1]",
+    "notificationSendLinkToDownloaderFailure": "将链接发送到下载器 [$1] 失败"
   },
   "route": {
     "About": {
@@ -101,18 +112,7 @@
       "SetDownloader": "下载器设置",
       "SetMediaServer": "媒体服务器设置",
       "SetSearchSolution": "搜索方案定义",
-      "SetSite": "站点设置",
-      "SearchConfig": {
-        "siteSearchConfig": "站点搜索配置",
-        "siteQueueConcurrency": "请求队列长度",
-        "saveLastSearchFilter": "保存上一次使用的搜索筛选词",
-        "mediaServerSearchConfig": "媒体服务器搜索配置",
-        "mediaQueueConcurrency": "请求队列长度",
-        "mediaSearchLimit": "单次搜索结果数量",
-        "mediaSearchLimitMessage": "请不要一次性加载过多的搜索结果，未作 virtual‑scroll 优化，可能会导致浏览器卡死，同时也会影响媒体服务器的性能",
-        "autoLoadInitialMediaWall": "自动加载首屏媒体墙",
-        "autoLoadMoreMediaOnScroll": "当滚动到页面底部时，自动加载新的媒体墙"
-      }
+      "SetSite": "站点设置"
     }
   },
   "checkSwitch": {
@@ -196,6 +196,15 @@
       "status": "下载状态"
     }
   },
+  "torrent": {
+    "status": {
+      "unknown": "未知",
+      "downloading": "下载中",
+      "seeding": "做种中",
+      "inactive": "未活动",
+      "completed": "已完成"
+    }
+  },
   "MediaServerEntity": {
     "searchPlaceholder": "搜索词",
     "detail": "详情",
@@ -243,6 +252,7 @@
       "levelName": "等级",
       "userData": "数据量",
       "trueUserData": "真实数据量",
+      "invites": "邀请数",
       "joinTime": "入站时间",
       "updateAt": "更新时间",
       "action": {
@@ -315,6 +325,7 @@
         "statusButton": "搜索情况",
         "paused": "搜索暂停中…",
         "searching": "搜索中…",
+        "searchProgress": "已接收 {0} 条结果，搜索仍在进行……",
         "snapshot": "搜索快照",
         "plan": "搜索方案",
         "keyword": "关键词",
@@ -330,12 +341,16 @@
         "saveSnapshot": "保存搜索快照"
       },
       "filterLabel": "过滤搜索结果",
+      "selectedTorrents": "已选择 {0} 个种子",
       "showSiteName": "显示站点名称",
       "showTorrentTag": "显示种子标签",
       "showTorrentSubtitle": "显示种子副标题",
       "showSocialInformation": "显示媒体评价信息",
       "socialInformationSearchOnNewTab": "媒体评价信息搜索在新标签页中打开",
       "uploadAtFormatAsAlive": "上传时间显示为相对时间"
+    },
+    "siteFilter": {
+      "all": "全部站点"
     },
     "AdvanceFilterGenerateDialog": {
       "date": {
@@ -386,6 +401,18 @@
         "chosen": "让我选择"
       },
       "tableMultiSortNote": "多列排序使用方法：点击任意表头字段开始排序，字段上会显示数字“1”。再点击其他字段，依次显示“2”“3”，表示排序优先级。再次点击相同字段可切换升序、降序或取消排序。排序顺序由这些数字决定，数字越小优先级越高。"
+    },
+    "searchEntity": {
+      "siteSearchConfig": "站点搜索配置",
+      "siteQueueConcurrency": "请求队列长度",
+      "saveLastSearchFilter": "保存上一次使用的搜索筛选词",
+      "quickSiteFilter": "直接显示站点筛选栏",
+      "mediaServerSearchConfig": "媒体服务器搜索配置",
+      "mediaQueueConcurrency": "请求队列长度",
+      "mediaSearchLimit": "单次搜索结果数量",
+      "mediaSearchLimitMessage": "请不要一次性加载过多的搜索结果，未作 virtual‑scroll 优化，可能会导致浏览器卡死，同时也会影响媒体服务器的性能",
+      "autoLoadInitialMediaWall": "自动加载首屏媒体墙",
+      "autoLoadMoreMediaOnScroll": "当滚动到页面底部时，自动加载新的媒体墙"
     },
     "download": {
       "localDownloadMethod": "本地下载方式",
@@ -486,7 +513,8 @@
           "searchPlan": "将被替换为当前搜索方案名称",
           "dateYear": "将被替换为当前年份",
           "dateMonth": "将被替换为当前月份",
-          "dateDay": "将被替换为当前日份"
+          "dateDay": "将被替换为当前日份",
+          "custom": "自定义的内容替换"
         }
       }
     }
@@ -602,6 +630,7 @@
       "lastFlushTime": "最近一次刷新时间:",
       "nextFlushTime": "下一次刷新时间:"
     },
+    "alwaysPickLastUserInfo": "刷新用户数据时尽可能使用已有的历史信息",
     "showDeadSite": "在概览中展示已被标记为死亡 （isDead） 的站点",
     "showPassedSite": "在概览中展示已被标记为离线 （isOffline） 或不允许查询用户信息的站点",
     "autoExtendCookies": {

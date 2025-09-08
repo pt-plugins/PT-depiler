@@ -21,11 +21,6 @@ export function mountApp(document: Document, data: any = {}) {
   // 创建一个全局的 div 并挂载到 body 中，作为 shadow DOM 的挂载点
   const contentRoot = document.createElement("div");
   contentRoot.id = "ptd-content-script";
-  contentRoot.style.all = "initial"; // 重置样式，避免影响页面样式
-
-  // 添加 vuetify html { ... } 的样式
-  contentRoot.style.boxSizing = "border-box";
-  contentRoot.style.wordBreak = "normal";
 
   const shadowRoot = contentRoot.attachShadow({ mode: "open" });
 
@@ -52,7 +47,7 @@ export function mountApp(document: Document, data: any = {}) {
         const fontFaceElement = document.createElement("style");
         fontFaceElement.id = "ptd-content-script-style-mdi-font-face";
         fontFaceElement.textContent = cssFontFaceText;
-        document.body.appendChild(fontFaceElement);
+        contentRoot.appendChild(fontFaceElement); // 挂载到 contentRoot 中，以便于全局使用
       }
 
       mdiCssElement.textContent = cssText.replace(/@font-face\s*{[^}]*}/g, ""); // 只保留其他样式部分
@@ -94,6 +89,19 @@ export function mountApp(document: Document, data: any = {}) {
       vuetifyTheme.remove(); // 移除页面中的 vuetify 主题样式
     }
   }
+
+  // 防止某些网站动态修改 body，从而移除我们的 contentRoot，因此使用 MutationObserver 监听 body 的变化
+  // 一旦发现 contentRoot 被移除，则重新挂载应用
+  const mutationObserver = new MutationObserver(() => {
+    if (!document.body.contains(contentRoot)) {
+      console.debug("[PTD] Content root removed from body, remounting app...");
+      app.unmount();
+      mutationObserver.disconnect();
+      mountApp(document, data);
+    }
+  });
+
+  mutationObserver.observe(document, { childList: true, subtree: true });
 
   return { contentRoot, shadowRoot, appMountElement, app };
 }

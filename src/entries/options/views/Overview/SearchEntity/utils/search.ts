@@ -1,41 +1,20 @@
 import PQueue from "p-queue";
-import { computed, watch } from "vue";
-import { EResultParseStatus, type IAdvanceKeywordSearchConfig, ITorrentTag, type TSiteID } from "@ptd/site";
+import { computed, markRaw } from "vue";
+import { EResultParseStatus, ETorrentStatus, type IAdvanceKeywordSearchConfig, type TSiteID } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
 import type { ISearchResultTorrent, TSearchSolutionKey } from "@/shared/types.ts";
+
+import { tableCustomFilter } from "./filter.ts";
 
 const runtimeStore = useRuntimeStore();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 
-export const tableCustomFilter = useTableCustomFilter({
-  parseOptions: {
-    keywords: ["site", "tags"],
-    ranges: ["time", "size", "seeders", "leechers", "completed"],
-  },
-  titleFields: ["title", "subTitle"],
-  initialSearchValue: metadataStore.lastSearchFilter,
-  initialItems: computed(() => runtimeStore.search.searchResult),
-  format: {
-    tags: {
-      parse: (value: ITorrentTag) => (value ?? {}).name,
-    },
-    time: "date",
-    size: "size",
-  },
-});
-
-watch(tableCustomFilter.tableFilterRef, (newValue) => {
-  if (configStore.searchEntity.saveLastFilter) {
-    // noinspection JSIgnoredPromiseFromCall
-    metadataStore.setLastSearchFilter(newValue);
-  }
-});
+const { advanceFilterDictRef, updateTableFilterValueFn, resetAdvanceFilterDictFn } = tableCustomFilter;
 
 // 模块级别的 Set，用于跟踪已存在的搜索结果 ID，避免并发时的重复
 const globalExistingIds = new Set<string>();
@@ -161,11 +140,12 @@ export async function doSearchEntity(
       for (const item of searchResult) {
         const itemUniqueId = `${item.site}-${item.id}`;
         if (!globalExistingIds.has(itemUniqueId)) {
-          (item as ISearchResultTorrent).uniqueId = itemUniqueId;
-          (item as ISearchResultTorrent).solutionId = searchEntryName;
-          (item as ISearchResultTorrent).solutionKey = solutionKey;
-          // 冻结对象，避免 Vue 创建响应式代理，提升性能
-          newItems.push(Object.freeze(item as ISearchResultTorrent));
+          const searchResultItem = item as ISearchResultTorrent;
+          searchResultItem.uniqueId = itemUniqueId;
+          searchResultItem.solutionId = searchEntryName;
+          searchResultItem.solutionKey = solutionKey;
+          searchResultItem.status ??= ETorrentStatus.unknown; // 确保 status 字段有默认值，避免过滤器无法处理 undefined
+          newItems.push(markRaw(searchResultItem)); // 使用 markRaw 冻结对象，避免 Vue 创建响应式代理，提升性能
           globalExistingIds.add(itemUniqueId);
         }
       }
@@ -174,12 +154,13 @@ export async function doSearchEntity(
       if (newItems.length > 0) {
         runtimeStore.search.searchResult.push(...newItems);
       }
-      runtimeStore.search.searchPlan[solutionKey].count = runtimeStore.search.searchResult.filter(
-        (item) => item.solutionKey == solutionKey,
-      ).length;
+
+      // 更新计数状态
       const endAt = Date.now();
+      runtimeStore.search.searchPlan[solutionKey].count = newItems.length;
       runtimeStore.search.searchPlan[solutionKey].endAt = endAt;
       runtimeStore.search.searchPlan[solutionKey].costTime = endAt - startAt;
+      resetAdvanceFilterDictFn();
     },
     { priority: queuePriority, id: solutionKey },
   );
@@ -189,9 +170,17 @@ export async function doSearch(search: string, plan?: string, flush: boolean = t
   const searchKey = search ?? runtimeStore.search.searchKey ?? "";
   const searchPlanKey = plan ?? runtimeStore.search.searchPlanKey ?? "default";
 
-  // Reset search data
   if (flush) {
     runtimeStore.resetSearchData();
+
+    try {
+      // 清除过滤器中的站点关键词，但保留其他过滤器
+      advanceFilterDictRef.value.site.required = [];
+      advanceFilterDictRef.value.site.exclude = [];
+      updateTableFilterValueFn();
+    } catch (e) {
+      console.error("Failed to reset table filter site field: ", e);
+    }
   }
 
   console.log("Start search with: ", searchKey, searchPlanKey, flush);

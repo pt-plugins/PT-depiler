@@ -35,14 +35,13 @@ const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
 const tableHeader = computed(
   () =>
     [
-      { title: "№", key: "id", align: "center" },
       { title: t("DownloadHistory.table.site"), key: "siteId", align: "center" },
       {
         title: t("DownloadHistory.table.title"),
         key: "title",
         align: "start",
-        width: "50%",
-        ...(display.smAndDown.value ? { minWidth: 600, maxWidth: "32vw" } : {}),
+        minWidth: "30rem",
+        ...(display.smAndDown.value ? { maxWidth: "32vw" } : {}),
       },
       { title: t("DownloadHistory.table.downloader"), key: "downloaderId", width: "11%", align: "start" },
       { title: t("DownloadHistory.table.downloadAt"), key: "downloadAt", align: "center" },

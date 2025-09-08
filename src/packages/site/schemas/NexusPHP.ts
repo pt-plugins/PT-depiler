@@ -233,6 +233,8 @@ export const SchemaMetadata: Pick<
           return time as number;
         },
       },
+      ext_douban: { selector: ["a[href*='douban.com']"], attr: "href", filters: [{ name: "extDoubanId" }] },
+      ext_imdb: { selector: ["a[href*='imdb.com']"], attr: "href", filters: [{ name: "extImdbId" }] },
       tags: [
         { name: "H&R", selector: "img.hitandrun", color: "black" },
         { name: "Free", selector: "img.pro_free", color: "blue" },
@@ -275,7 +277,15 @@ export const SchemaMetadata: Pick<
           ],
         },
       },
-      link: { selector: ['a[href*="download.php?id="]'], attr: "href" },
+      link: {
+        selector: [
+          'a[href*="download.php?id="][href*="&downhash="]',
+          'a[href*="download.php?id="][href*="&passkey="]',
+          // 如果上面两个都没拿到，则尝试使用nphp默认的下载链接selector
+          'a[href*="download.php?id="]',
+        ],
+        attr: "href",
+      },
     },
   },
 
@@ -292,11 +302,11 @@ export const SchemaMetadata: Pick<
         attr: "href",
         filters: [{ name: "querystring", args: ["id"] }],
       },
+
+      // "page": "/userdetails.php?id=$user.id$",
       name: {
         selector: ["a[href*='userdetails.php'][class*='Name']:first", "a[href*='userdetails.php']:first"],
       },
-
-      // "page": "/userdetails.php?id=$user.id$",
       messageCount: {
         text: 0,
         selector: "td[style*='background: red'] a[href*='messages.php']",
@@ -471,12 +481,13 @@ export const SchemaMetadata: Pick<
     process: [
       {
         requestConfig: { url: "/index.php", responseType: "document" },
-        fields: ["id", "name"],
+        fields: ["id"],
       },
       {
         requestConfig: { url: "/userdetails.php", responseType: "document" },
         assertion: { id: "params.id" },
         fields: [
+          "name",
           "messageCount",
           "uploaded",
           "trueUploaded",
@@ -566,9 +577,13 @@ export default class NexusPHP extends PrivateSite {
         }
       });
     }
+    let transformedData = await super.transformSearchPage(doc, { keywords, searchEntry, requestConfig });
+    if (requestConfig?.params?.search_area === 4) {
+      transformedData = transformedData.filter((item) => !item.ext_imdb || item.ext_imdb === keywords);
+    }
 
     // !!! 其他一些比较难处理的，我们把他 hack 到 parseWholeTorrentFromRow 中 !!!
-    return super.transformSearchPage(doc, { keywords, searchEntry, requestConfig });
+    return transformedData;
   }
 
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {

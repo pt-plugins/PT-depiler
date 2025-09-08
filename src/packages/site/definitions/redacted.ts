@@ -7,7 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "redacted",
   name: "Redacted",
-  aka: ["RED"],
+  aka: ["RED", "红"],
   description: "Redacted is a music-focused private tracker",
   tags: ["音乐"],
   timezoneOffset: "+0000",

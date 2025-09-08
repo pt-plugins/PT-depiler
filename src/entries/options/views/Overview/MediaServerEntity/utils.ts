@@ -1,5 +1,5 @@
 import PQueue from "p-queue";
-import { ref } from "vue";
+import { markRaw, ref } from "vue";
 import { omit } from "es-toolkit";
 import { type IMediaServerSearchOptions } from "@ptd/mediaServer";
 
@@ -19,6 +19,9 @@ export const searchMediaServerIds = ref<TMediaServerKey[]>(
 
 export const searchQueue = new PQueue({ concurrency: 1 }); // 默认设置为 1，避免并发搜索
 
+// 模块级别的 Set，用于跟踪已存在的搜索结果 ID，避免并发时的重复
+const globalExistingIds = new Set<string>();
+
 searchQueue.on("active", () => {
   runtimeStore.mediaServerSearch.isSearching = true;
   // 启动后，根据 configStore 的值，自动更新 searchQueue 的并发数
@@ -26,10 +29,17 @@ searchQueue.on("active", () => {
     searchQueue.concurrency = configStore.mediaServerEntity.queueConcurrency;
     sendMessage("logger", { msg: `Search queue concurrency changed to: ${searchQueue.concurrency}` }).catch();
   }
+
+  // 队列开始活跃时，更新全局 Set
+  globalExistingIds.clear();
+  runtimeStore.mediaServerSearch.searchResult.forEach((r) => globalExistingIds.add(r.url));
 });
 
 searchQueue.on("idle", () => {
   runtimeStore.mediaServerSearch.isSearching = false;
+
+  // 队列空闲时，清空全局 Set
+  globalExistingIds.clear();
 });
 
 export async function doSearch(option: { searchKey?: string; loadMore?: boolean } = {}) {
@@ -72,9 +82,10 @@ export async function doSearch(option: { searchKey?: string; loadMore?: boolean 
 
       for (const item of searchResult.items) {
         // 根据 url 去重
-        const isDuplicate = runtimeStore.mediaServerSearch.searchResult.some((result) => result.url == item.url);
+        const isDuplicate = globalExistingIds.has(item.url);
         if (!isDuplicate) {
-          runtimeStore.mediaServerSearch.searchResult.push(item);
+          runtimeStore.mediaServerSearch.searchResult.push(markRaw(item));
+          globalExistingIds.add(item.url);
           // 如果本次有成功添加的，则认为可以加载更多
           runtimeStore.mediaServerSearch.searchStatus[mediaServerId].canLoadMore = true;
         }

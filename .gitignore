@@ -200,5 +200,20 @@ out
 # pnpm
 .pnpm-store
 
+# AI-generated files
+.augment/
+.cursor/
+.cursorrules
+.cursorignore
+.claude/
+.clinerules
+.kilocode/
+.kiro/
+.openhands/
+.windsurf/
+AGENTS.md
+GEMINI.md
+CLAUDE.md
+
 # docker
 docker-compose.yml

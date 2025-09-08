@@ -369,12 +369,14 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
-      name: "临时演员(User)",
+      name: "User",
+      nameAka: ["临时演员"],
       privilege: `新用户的默认级别。`,
     },
     {
       id: 2,
-      name: "跑龙套(Power User)",
+      name: "Power User",
+      nameAka: ["跑龙套"],
       interval: "P5W",
       downloaded: "256GB",
       ratio: 2.0,
@@ -383,7 +385,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 3,
-      name: "配角(Elite User)",
+      name: "Elite User",
+      nameAka: ["配角"],
       interval: "P8W",
       downloaded: "386GB",
       ratio: 2.5,
@@ -392,7 +395,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 4,
-      name: "主演(Crazy User)",
+      name: "Crazy User",
+      nameAka: ["主演"],
       interval: "P12W",
       downloaded: "512GB",
       ratio: 3.0,
@@ -401,7 +405,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 5,
-      name: "领衔主演(Insane User)",
+      name: "Insane User",
+      nameAka: ["领衔主演"],
       interval: "P16W",
       downloaded: "768GB",
       ratio: 3.5,
@@ -410,7 +415,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 6,
-      name: "明星(Veteran User)",
+      name: "Veteran User",
+      nameAka: ["明星"],
       interval: "P20W",
       downloaded: "1TB",
       ratio: 4.0,
@@ -419,7 +425,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 7,
-      name: "国际大腕(Extreme User)",
+      name: "Extreme User",
+      nameAka: ["国际大腕"],
       interval: "P24W",
       downloaded: "2TB",
       ratio: 4.5,
@@ -428,7 +435,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 8,
-      name: "影帝(Ultimate User)",
+      name: "Ultimate User",
+      nameAka: ["影帝"],
       interval: "P30W",
       downloaded: "8TB",
       ratio: 5.0,
@@ -437,7 +445,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 9,
-      name: "终身影帝(Nexus Master)",
+      name: "Nexus Master",
+      nameAka: ["终身影帝"],
       interval: "P36W",
       downloaded: "10TB",
       ratio: 10,

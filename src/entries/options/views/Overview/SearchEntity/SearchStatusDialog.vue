@@ -9,7 +9,7 @@ import SiteName from "@/options/components/SiteName.vue";
 import SolutionDetail from "@/options/components/SolutionDetail.vue";
 import ResultParseStatus from "@/options/components/ResultParseStatus.vue";
 
-import { doSearchEntity, raiseSearchPriority } from "./utils.ts";
+import { doSearchEntity, raiseSearchPriority } from "./utils/search.ts";
 
 const showDialog = defineModel<boolean>();
 

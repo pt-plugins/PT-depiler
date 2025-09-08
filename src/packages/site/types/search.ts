@@ -92,7 +92,7 @@ export interface ISearchConfig extends IBaseSearchConfig {
    *  - douban|35131346
    *
    * 注意：1. 我们断言高级搜索词的内容是单一的，即不会出现多个高级搜索词{或,和}普通搜索词 同时出现的情况
-   *      2. 高级搜索词需要明确声明，如未声明则相当于搜索 普通搜索词
+   *      2. 高级搜索词如果是 imdb，如果此处未声明，则会视同 { enabled: true }， 其他则默认为 { enabled: false }
    */
   advanceKeywordParams?: Record<
     TAdvanceSearchKeyword,
@@ -107,7 +107,7 @@ export interface ISearchConfig extends IBaseSearchConfig {
      *  - merge  用于合并部分使用多行表示一个种子的情况，仅在返回为 Document 时生效
      */
     rows?: {
-      selector: string | ":self";
+      selector: string | ":self" | string[];
       filter?: <T>(rows: T) => T;
       merge?: number;
     };

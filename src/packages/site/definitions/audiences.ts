@@ -1,3 +1,7 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/audiences.yml
+ * @JackettIssue https://github.com/Jackett/Jackett/issues/13156
+ */
 import Sizzle from "sizzle";
 import { mergeWith } from "es-toolkit";
 import { ETorrentStatus, type ISiteMetadata, type IUserInfo } from "../types";
@@ -166,12 +170,14 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 0,
-      name: "小鬼当家(User)",
+      name: "User",
+      nameAka: ["小鬼当家"],
       privilege: "新用户的默认级别；可以请求续种。",
     },
     {
       id: 1,
-      name: "年轻气盛(Power User)",
+      name: "Power User",
+      nameAka: ["年轻气盛"],
       interval: "P5W",
       downloaded: "120GB",
       ratio: 2.0,
@@ -181,7 +187,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 2,
-      name: "江湖儿女(Elite User)",
+      name: "Elite User",
+      nameAka: ["江湖儿女"],
       interval: "P15W",
       downloaded: "240GB",
       ratio: 2.5,
@@ -190,7 +197,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 3,
-      name: "街头霸王(Crazy User)",
+      name: "Crazy User",
+      nameAka: ["街头霸王"],
       interval: "P24W",
       downloaded: "400GB",
       ratio: 3.0,
@@ -199,7 +207,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 4,
-      name: "步履不停(Insane User)",
+      name: "Insane User",
+      nameAka: ["步履不停"],
       interval: "P40W",
       downloaded: "600GB",
       ratio: 3.5,
@@ -208,7 +217,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 5,
-      name: "杰出公民(Veteran User)",
+      name: "Veteran User",
+      nameAka: ["杰出公民"],
       interval: "P60W",
       downloaded: "1024GB",
       ratio: 4.0,
@@ -217,7 +227,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 6,
-      name: "头号玩家(Extreme User)",
+      name: "Extreme User",
+      nameAka: ["头号玩家"],
       interval: "P80W",
       downloaded: "2048GB",
       ratio: 4.5,
@@ -226,7 +237,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 7,
-      name: "一代宗师(Ultimate User)",
+      name: "Ultimate User",
+      nameAka: ["一代宗师"],
       interval: "P100W",
       downloaded: "4096GB",
       ratio: 5.0,
@@ -235,7 +247,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 8,
-      name: "教父(Nexus Master)",
+      name: "Nexus Master",
+      nameAka: ["教父"],
       interval: "P112W",
       downloaded: "8192GB",
       ratio: 6.0,
@@ -244,7 +257,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 9,
-      name: "彩虹照耀(Rainbow)",
+      name: "Rainbow",
+      nameAka: ["彩虹照耀"],
       interval: "P128W",
       downloaded: "10240GB",
       ratio: 8.0,

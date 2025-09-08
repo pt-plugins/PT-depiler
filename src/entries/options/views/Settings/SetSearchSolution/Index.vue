@@ -38,7 +38,7 @@ const tableHeader = [
 const tableFilter = ref("");
 
 function addSearchSolution() {
-  showEditDialog.value = true;
+  editSearchSolution("");
 }
 
 function editSearchSolution(toEditSolutionId: TSolutionKey) {

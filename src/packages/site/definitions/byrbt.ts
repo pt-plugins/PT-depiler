@@ -1,3 +1,7 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/byrbt.yml
+ * @JackettIssue https://github.com/Jackett/Jackett/issues/12540
+ */
 import { ETorrentStatus, type ISiteMetadata } from "../types";
 import NexusPHP, {
   CategoryInclbookmarked,

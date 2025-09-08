@@ -1,5 +1,6 @@
-import { EResultParseStatus, type ISiteMetadata, type ITorrent, type IUserInfo } from "../types";
+import { ETorrentStatus, type ISiteMetadata, type ITorrent } from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
+import AbstractBittorrentSite from "../schemas/AbstractBittorrentSite";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -168,23 +169,8 @@ export const siteMetadata: ISiteMetadata = {
   ],
   search: {
     ...SchemaMetadata.search,
-    requestConfig: {
-      url: "/torrents",
-      params: {
-        perPage: 100,
-      },
-    },
-    keywordPath: "params.name",
     advanceKeywordParams: {
-      imdb: {
-        requestConfigTransformer: ({ requestConfig: config }) => {
-          if (config?.params?.name) {
-            config.params.imdbId = config.params.name;
-            delete config.params.name;
-          }
-          return config!;
-        },
-      },
+      ...SchemaMetadata.search!.advanceKeywordParams,
       bangumi: {
         requestConfigTransformer: ({ requestConfig: config }) => {
           if (config?.params?.name) {
@@ -208,6 +194,25 @@ export const siteMetadata: ISiteMetadata = {
       },
       completed: { selector: ['a[href*="/history"] > span.text-orange'] },
       comments: { text: "N/A" },
+      status: {
+        text: ETorrentStatus.unknown,
+        selector: ["button.btn.btn-circle"],
+        case: {
+          "button.btn.btn-success.btn-circle": ETorrentStatus.seeding, // 做种!
+          "button.btn.btn-warning.btn-circle": ETorrentStatus.downloading, // 吸血!
+          "button.btn.btn-info.btn-circle": ETorrentStatus.inactive, // 未完成!
+          "button.btn.btn-danger.btn-circle": ETorrentStatus.completed, // 撤种!
+        },
+      },
+      progress: {
+        text: 0,
+        selector: ["button.btn.btn-circle"],
+        case: {
+          "button.btn.btn-success.btn-circle": 100,
+          // 不清楚非做种情况下的进度信息，统一置为0
+          "button.btn.btn-warning.btn-circle, button.btn.btn-info.btn-circle, button.btn.btn-danger.btn-circle": 0,
+        },
+      },
       ext_bangumi: { selector: ['a[href*="bangumi.tv/subject"]'], attr: "href", filters: [{ name: "extBangumiId" }] },
       tags: [
         { selector: "span.torrent-listings-subtitle_tag", name: "中字" },
@@ -218,12 +223,6 @@ export const siteMetadata: ISiteMetadata = {
       ],
     },
   },
-
-  list: [
-    {
-      urlPattern: ["/torrents(?:/?$|\\?\[\^/\]*$)"],
-    },
-  ],
 
   userInfo: {
     ...SchemaMetadata.userInfo!,
@@ -240,7 +239,7 @@ export const siteMetadata: ISiteMetadata = {
       // "/users/$user.name$/bonus/transactions/create
       bonusPerHour: {
         selector: ["aside .panelV2 dd:nth-child(6)"],
-        filters: [(query: string) => parseFloat(query.replace(/,/g, "") || "0")],
+        filters: [{ name: "parseNumber" }],
       },
     },
   },
@@ -309,17 +308,7 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class MonikaDesign extends Unit3D {
-  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
-    let userName = flushUserInfo?.name;
-    if (flushUserInfo?.status === EResultParseStatus.success && userName) {
-      // 获取时魔
-      flushUserInfo.bonusPerHour = await this.getBonusPerHourFromBonusTransactionsPage(userName);
-    }
-    return flushUserInfo;
-  }
-
-  protected async getBonusPerHourFromBonusTransactionsPage(userName: string): Promise<string> {
+  protected override async getUserBonusPerHour(userName: string): Promise<number> {
     const { data: document } = await this.request<Document>(
       {
         url: `/users/${userName}/bonus/transactions/create`,
@@ -331,7 +320,9 @@ export default class MonikaDesign extends Unit3D {
   }
 
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
-    const downloadLink = await super.getTorrentDownloadLink(torrent);
+    // Call the ancestor implementation from AbstractBittorrentSite directly
+    // to bypass Unit3D's override when necessary.
+    const downloadLink = await AbstractBittorrentSite.prototype.getTorrentDownloadLink.call(this, torrent);
     if (downloadLink && !downloadLink.includes("/download/")) {
       const { data: detailDocument } = await this.request<Document>({
         url: downloadLink,

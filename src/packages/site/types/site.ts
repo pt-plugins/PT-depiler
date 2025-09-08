@@ -147,11 +147,20 @@ export interface ISiteMetadata {
      * 字段为 uniq([search.requestConfig.url, ...searchEntry[*].requestConfig.url])
      *
      * 如果 pattern 为 string，会使用 new RegExp(pattern, 'i') 生成 RegExp 对象，
+     *
      * 如果 pattern 为 RegExp 对象，则直接使用该对象
      *
      * 匹配对象为 location.href ，依次匹配，任一匹配成功，则会被认为是种子列表页，
      */
     urlPattern?: TUrlPatterns;
+
+    /**
+     * 由于侧边栏组件先判断是否是 list ，导致某些应该是详情页的页面被误认为是列表页，
+     * 该配置用于排除一些不应该被认为是种子列表页的页面
+     *
+     * 匹配方式和 urlPattern 相同
+     */
+    excludeUrlPattern?: TUrlPatterns;
 
     mergeSearchSelectors?: boolean; // 是否合并 search.selectors 中的配置到此处的 selectors 中，默认为 true
 

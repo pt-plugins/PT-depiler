@@ -46,8 +46,12 @@ export async function getSiteUserInfoResult(siteId: string) {
 
     // 获取历史信息
     const metadataStoreRaw = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
+    const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
     let lastUserInfo = metadataStoreRaw?.lastUserInfo?.[siteId as string] ?? {};
-    if ((lastUserInfo as IUserInfo).status !== EResultParseStatus.success) {
+    if (
+      !(configStoreRaw.userInfo.alwaysPickLastUserInfo ?? true) ||
+      (lastUserInfo as IUserInfo).status !== EResultParseStatus.success
+    ) {
       lastUserInfo = {} as IUserInfo;
     }
 
@@ -87,34 +91,20 @@ export async function setSiteLastUserInfo(userData: IUserInfo) {
     logger({ msg: `setSiteLastUserInfo for ${userData.site}`, data: userData });
     const site = userData.site;
 
-    // 并行获取两个存储区域的数据
-    const [metadataStore, userInfoStore] = await Promise.all([
-      sendMessage("getExtStorage", "metadata") as Promise<IMetadataPiniaStorageSchema>,
-      userData.status === EResultParseStatus.success
-        ? (sendMessage("getExtStorage", "userInfo") as Promise<TUserInfoStorageSchema>)
-        : Promise.resolve(null),
-    ]);
+    // 存储用户信息到 metadata 中（ pinia/webExtPersistence 会自动同步该部分信息 ）
+    const metadataStore = ((await sendMessage("getExtStorage", "metadata")) ?? {}) as IMetadataPiniaStorageSchema;
+    (metadataStore as IMetadataPiniaStorageSchema).lastUserInfo ??= {};
+    (metadataStore as IMetadataPiniaStorageSchema).lastUserInfo[site] = userData;
+    await sendMessage("setExtStorage", { key: "metadata", value: metadataStore });
 
-    // 准备 metadata 更新
-    const updatedMetadataStore = (metadataStore ?? {}) as IMetadataPiniaStorageSchema;
-    updatedMetadataStore.lastUserInfo ??= {};
-    updatedMetadataStore.lastUserInfo[site] = userData;
-
-    // 准备并行写入的操作数组
-    const writeOperations = [sendMessage("setExtStorage", { key: "metadata", value: updatedMetadataStore })];
-
-    // 如果需要更新 userInfo，准备第二个写入操作
-    if (userData.status === EResultParseStatus.success && userInfoStore) {
-      const updatedUserInfoStore = userInfoStore ?? ({} as TUserInfoStorageSchema);
-      updatedUserInfoStore[site] ??= {};
+    // 存储用户信息到 userInfo 中（仅当获取成功时）
+    if (userData.status === EResultParseStatus.success) {
+      const userInfoStore = ((await sendMessage("getExtStorage", "userInfo")) ?? {}) as TUserInfoStorageSchema;
+      userInfoStore[site] ??= {};
       const dateTime = format(userData.updateAt, "yyyy-MM-dd");
-      updatedUserInfoStore[site][dateTime] = userData;
-
-      writeOperations.push(sendMessage("setExtStorage", { key: "userInfo", value: updatedUserInfoStore }));
+      userInfoStore[site][dateTime] = userData;
+      await sendMessage("setExtStorage", { key: "userInfo", value: userInfoStore });
     }
-
-    // 并行执行所有写入操作
-    await Promise.all(writeOperations);
   });
 }
 

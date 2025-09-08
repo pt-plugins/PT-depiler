@@ -1,4 +1,4 @@
-import type { ISiteMetadata } from "../types";
+import { type ISiteMetadata } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 
 export const siteMetadata: ISiteMetadata = {

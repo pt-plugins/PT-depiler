@@ -50,6 +50,7 @@ export const useMetadataStore = defineStore("metadata", {
     lastUserInfoAutoFlushAt: 0,
 
     siteHostMap: {},
+    siteNameMap: {},
   }),
 
   getters: {
@@ -339,12 +340,14 @@ export const useMetadataStore = defineStore("metadata", {
       delete siteConfig.valid;
       this.sites[siteId] = siteConfig;
       await this.buildSiteHostMap();
+      await this.buildSiteNameMap();
       await this.$save();
     },
 
     async removeSite(siteId: TSiteID) {
       delete this.sites[siteId];
       await this.buildSiteHostMap();
+      await this.buildSiteNameMap();
       await this.$save();
     },
 
@@ -375,6 +378,14 @@ export const useMetadataStore = defineStore("metadata", {
         }
       }
       this.siteHostMap = siteHostMap;
+    },
+
+    async buildSiteNameMap() {
+      const siteNameMap: Record<TSiteID, string> = {};
+      for (const siteId in this.sites) {
+        siteNameMap[siteId] = await this.getSiteName(siteId);
+      }
+      this.siteNameMap = siteNameMap;
     },
 
     async addSearchSolution(solution: ISearchSolutionMetadata) {
@@ -438,7 +449,7 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     async setLastSearchFilter(filter: string) {
-      this.lastSearchFilter = filter;
+      this.lastSearchFilter = filter.replace(/\s*site:\S+/g, "").trim();
       await this.$save();
     },
 

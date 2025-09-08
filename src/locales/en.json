@@ -69,7 +69,18 @@
     "searchPlanAll": "All Sites",
     "searchPlanSingleSite": "Single Site",
     "searchPlanDefault": "Default",
-    "omniboxSearch": "Search $2 in [ $1 ]"
+    "omniboxSearch": "Search $2 in [ $1 ]",
+    "contextMenuSearch": "Using PT Depiler to Search for \"%s\" related torrents",
+    "contextMenuSearchInDefault": "Search in the default plan",
+    "contextMenuSearchInSolution": "Search in the specified plan",
+    "contextMenuSearchInSite": "Search in the specified site",
+    "contextMenuSearchInThisSite": "Search in this site",
+    "contextMenuSendToDownloader": "Using PT Depiler to Download link",
+    "contextMenuSendToDownloaderAdvanced": "Advanced push",
+    "contextMenuSendToDownloaderIn": "Push to $1 -> $2",
+    "contextMenuSendToDownloaderDefaultFolder": "Default path",
+    "notificationSendLinkToDownloaderSuccess": "Successfully sent the link to the downloader [$1]",
+    "notificationSendLinkToDownloaderFailure": "Failed to send the link to the downloader [$1]"
   },
   "route": {
     "About": {
@@ -101,18 +112,7 @@
       "SetDownloader": "Download Server",
       "SetMediaServer": "Media Server",
       "SetSearchSolution": "Search Solution",
-      "SetSite": "Sites",
-      "SearchConfig": {
-        "siteSearchConfig": "Site Search Configuration",
-        "siteQueueConcurrency": "Request Queue Concurrency",
-        "saveLastSearchFilter": "Save last used search filter",
-        "mediaServerSearchConfig": "Media Server Search Configuration",
-        "mediaQueueConcurrency": "Request Queue Concurrency",
-        "mediaSearchLimit": "Number of search results per request",
-        "mediaSearchLimitMessage": "Please do not load too many search results at once. It's not optimized with virtual-scroll, which may cause the browser to freeze and affect the performance of the media server.",
-        "autoLoadInitialMediaWall": "Automatically load the initial media wall",
-        "autoLoadMoreMediaOnScroll": "Automatically load more media when scrolling to the bottom of the page"
-      }
+      "SetSite": "Sites"
     }
   },
   "checkSwitch": {
@@ -196,6 +196,15 @@
       "status": "Download Status"
     }
   },
+  "torrent": {
+    "status": {
+      "unknown": "Unknown",
+      "downloading": "Downloading",
+      "seeding": "Seeding",
+      "inactive": "Inactive",
+      "completed": "Completed"
+    }
+  },
   "MediaServerEntity": {
     "searchPlaceholder": "Search term",
     "detail": "Details",
@@ -243,6 +252,7 @@
       "levelName": "Level",
       "userData": "Data",
       "trueUserData": "True Data",
+      "invites": "Invites",
       "joinTime": "Join Time",
       "updateAt": "Updated At",
       "action": {
@@ -315,6 +325,7 @@
         "statusButton": "Search Status",
         "paused": "Search paused...",
         "searching": "Searching...",
+        "searchProgress": "Received {0} results, search is still in progress...",
         "snapshot": "Search Snapshot",
         "plan": "Search Plan",
         "keyword": "Keyword",
@@ -330,12 +341,16 @@
         "saveSnapshot": "Save Search Snapshot"
       },
       "filterLabel": "Filter search results",
+      "selectedTorrents": "Selected {0} torrents",
       "showSiteName": "Show Site Name",
       "showTorrentTag": "Show Torrent Tags",
       "showTorrentSubtitle": "Show Torrent Subtitle",
       "showSocialInformation": "Show Media Rating Information",
       "socialInformationSearchOnNewTab": "Open Media Rating Search in a New Tab",
       "uploadAtFormatAsAlive": "Display Upload Time as Relative Time"
+    },
+    "siteFilter": {
+      "all": "All Site"
     },
     "AdvanceFilterGenerateDialog": {
       "date": {
@@ -386,6 +401,18 @@
         "chosen": "Let me choose"
       },
       "tableMultiSortNote": "Multi-column sorting: Click any table header field to start sorting, which will display the number \\\"1\\\" on the field. Click other fields sequentially to display \\\"2\\\", \\\"3\\\", indicating sorting priority. Click the same field again to toggle between ascending, descending, or cancel sorting. The sorting order is determined by these numbers, with smaller numbers having higher priority."
+    },
+    "searchEntity": {
+      "siteSearchConfig": "Site Search Configuration",
+      "siteQueueConcurrency": "Request Queue Concurrency",
+      "saveLastSearchFilter": "Save last used search filter",
+      "quickSiteFilter": "Quick Site Filter In Search Page",
+      "mediaServerSearchConfig": "Media Server Search Configuration",
+      "mediaQueueConcurrency": "Request Queue Concurrency",
+      "mediaSearchLimit": "Number of search results per request",
+      "mediaSearchLimitMessage": "Please do not load too many search results at once. It's not optimized with virtual-scroll, which may cause the browser to freeze and affect the performance of the media server.",
+      "autoLoadInitialMediaWall": "Automatically load the initial media wall",
+      "autoLoadMoreMediaOnScroll": "Automatically load more media when scrolling to the bottom of the page"
     },
     "download": {
       "localDownloadMethod": "Local Download Method",
@@ -486,7 +513,8 @@
           "searchPlan": "Search Plan Name",
           "dateYear": "current year",
           "dateMonth": "current month",
-          "dateDay": "current day"
+          "dateDay": "current day",
+          "custom": "Custom text"
         }
       }
     }
@@ -605,6 +633,7 @@
       "lastFlushTime": "Last refresh time:",
       "nextFlushTime": "Next refresh time:"
     },
+    "alwaysPickLastUserInfo": "",
     "showDeadSite": "Show sites marked as dead (isDead) in the overview",
     "showPassedSite": "Show sites marked as offline (isOffline) or not allowing user info query in the overview",
     "autoExtendCookies": {

@@ -265,6 +265,9 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       seeding: {
         selector: ["response.community.seeding"],
       },
+      uploads: {
+        selector: ["response.community.uploaded"],
+      },
 
       // "/torrents.php?type=seeding&userid=$user.id$"
       bonus: {
@@ -445,6 +448,7 @@ export default class GazelleJSONAPI extends PrivateSite {
     return this.getFieldsData(apiUser, this.metadata.userInfo!.selectors!, [
       "joinTime",
       "seeding",
+      "uploads",
     ] as (keyof Partial<IUserInfo>)[]) as Partial<IUserInfo>;
   }
 

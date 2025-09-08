@@ -1,5 +1,15 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/aidoruonline.yml
+ */
 import { omit, toMerged } from "es-toolkit";
-import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type IUserInfo, type ITorrent, NeedLoginError, ISearchEntryRequestConfig, ISearchResult, ISearchInput } from "../types";
+import {
+  ETorrentStatus,
+  EResultParseStatus,
+  type ISiteMetadata,
+  type IUserInfo,
+  type ITorrent,
+  NeedLoginError,
+} from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite";
 import { buildCategoryOptions, parseSizeString } from "../utils";
 import { parseValidTimeString } from "../utils/datetime.ts";
@@ -20,13 +30,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "类别",
       key: "pcat",
-      options: buildCategoryOptions([
-        "Show All",
-        "48G",
-        "Games",
-        "Stardust",
-        "Other",
-      ]),
+      options: buildCategoryOptions(["Show All", "48G", "Games", "Stardust", "Other"]),
     },
     {
       name: "规格",
@@ -64,7 +68,7 @@ export const siteMetadata: ISiteMetadata = {
         return { requestConfig: { params } };
       },
     },
-      {
+    {
       name: "搜索类型",
       key: "typ",
       options: [
@@ -124,7 +128,7 @@ export const siteMetadata: ISiteMetadata = {
       comments: { selector: ["a.comment-link"], filters: [{ name: "parseNumber" }] },
       category: {
         selector: ["a.category-link"],
-        filters: [(query: string) => query.split(':')[1].trim()],
+        filters: [(query: string) => query.split(":")[1].trim()],
       },
       tags: [
         {
@@ -158,8 +162,10 @@ export const siteMetadata: ISiteMetadata = {
         selector: ":self",
         elementProcess: (element: any) => {
           if (!element) return ETorrentStatus.unknown;
-          if (element.querySelector("td.ttable_seeding font[color='green']")
-              || element.querySelector("td.ttable_seeding font[color='black']")) {
+          if (
+            element.querySelector("td.ttable_seeding font[color='green']") ||
+            element.querySelector("td.ttable_seeding font[color='black']")
+          ) {
             return 100;
           }
           return ETorrentStatus.unknown;
@@ -194,7 +200,7 @@ export const siteMetadata: ISiteMetadata = {
       levelName: { selector: ["td.prof-lbl:contains('User Class:') + td"] },
       ratio: {
         selector: ["td.prof-lbl:contains('Ratio:') + td"],
-        filters: [(query: string) => query.trim() === "---" ? Infinity: parseFloat(query)],
+        filters: [(query: string) => (query.trim() === "---" ? Infinity : parseFloat(query))],
       },
       uploads: {
         selector: ["td.prof-lbl:contains('Uploads:') + td"],
@@ -250,7 +256,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: ["a[href*='download.php?id=']"],
         attr: "href",
-        filters: [(query: string) => query.match(/id=(\d+)/)![1]]
+        filters: [(query: string) => query.match(/id=(\d+)/)![1]],
       },
       link: {
         selector: ["a[href*='download.php?id=']"],
@@ -263,8 +269,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 1,
       name: "Member",
-      privilege:
-        "Can download, upload torrents；Ratio effects availability of new torrents",
+      privilege: "Can download, upload torrents；Ratio effects availability of new torrents",
     },
     {
       id: 2,
@@ -385,7 +390,10 @@ export default class AidoruOnline extends PrivateSite {
         const parser = new DOMParser();
         const userDetailDocument = parser.parseFromString(wrappedHTML, "text/html");
 
-        flushUserInfo.seedingSize += this.getFieldData(userDetailDocument, this.metadata.userInfo?.selectors?.seedingSize!);
+        flushUserInfo.seedingSize += this.getFieldData(
+          userDetailDocument,
+          this.metadata.userInfo?.selectors?.seedingSize!,
+        );
       }
     }
 

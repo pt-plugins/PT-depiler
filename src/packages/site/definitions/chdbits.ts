@@ -1,4 +1,7 @@
-import { type ISiteMetadata } from "../types";
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/chdbits.yml
+ */
+import { ETorrentStatus, type ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
@@ -143,6 +146,58 @@ export const siteMetadata: ISiteMetadata = {
       ],
     },
   ],
+
+  search: {
+    ...SchemaMetadata.search,
+    selectors: {
+      ...SchemaMetadata.search!.selectors,
+      progress: {
+        selector: ["td.rowfollow:last"],
+        elementProcess: (element: HTMLElement) => {
+          const text = element.textContent?.trim() || "";
+          // 如果是"--"表示未知
+          if (text === "--") {
+            return 0;
+          }
+          const percentMatch = text.match(/(\d+)%/);
+          return percentMatch ? parseInt(percentMatch[1]) : 0;
+        },
+      },
+      status: {
+        selector: ["td.rowfollow:last"],
+        elementProcess: (element: HTMLElement) => {
+          const text = element.textContent?.trim() || "";
+          const style = element.getAttribute("style");
+
+          // 如果是"--"表示未知状态
+          if (text === "--") {
+            return ETorrentStatus.unknown;
+          }
+
+          // 检查是否包含百分比
+          const percentMatch = text.match(/(\d+)%/);
+          if (!percentMatch) {
+            return ETorrentStatus.unknown;
+          }
+
+          const percentage = parseInt(percentMatch[1]);
+          if (style) {
+            if (percentage === 100) {
+              return ETorrentStatus.seeding;
+            } else {
+              return ETorrentStatus.downloading;
+            }
+          } else {
+            if (percentage === 100) {
+              return ETorrentStatus.completed;
+            } else {
+              return ETorrentStatus.inactive;
+            }
+          }
+        },
+      },
+    },
+  },
 
   levelRequirements: [
     {

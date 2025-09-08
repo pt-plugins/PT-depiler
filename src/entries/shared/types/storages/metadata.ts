@@ -14,6 +14,11 @@ import type { IBackupConfig } from "@ptd/backupServer";
 export interface ISearchSolution {
   id: string;
   siteId: TSiteKey;
+  /**
+   * 如何展示该站点搜索配置名称，
+   * 在 #457 之前使用 selectedCategories 自动生成，在 #457 之后改为可选的 name 字段，其中 name 优先级更高
+   */
+  name?: string; // 方案名称，默认为空
   selectedCategories?: Record<ISearchCategories["key"], TSelectSearchCategoryValue>;
   searchEntries: Record<string, ISearchEntryRequestConfig>;
 }
@@ -122,4 +127,7 @@ export interface IMetadataPiniaStorageSchema {
 
   // 站点 host 映射表
   siteHostMap: Record<TSiteHost, TSiteKey>;
+
+  // 站点 ID 到站点名称的映射表
+  siteNameMap: Record<TSiteKey, string>;
 }

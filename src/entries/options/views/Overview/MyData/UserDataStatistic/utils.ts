@@ -1,8 +1,9 @@
-import { eachDayOfInterval, subDays, min as minDateFn, max as maxDateFn, format as formatDate } from "date-fns";
+import { subDays, format as formatDate, eachDayOfInterval } from "date-fns";
 import { EResultParseStatus, TSiteID } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
 import { type IStoredUserInfo, TUserInfoStorageSchema } from "@/shared/types.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 export interface IUserDataStatistic {
   siteDateRange: Record<TSiteID, [string, string]>;
@@ -49,35 +50,61 @@ function calculateDailyIncremental(
 
 export async function loadFullData(): Promise<IUserDataStatistic> {
   const rawData = (await sendMessage("getExtStorage", "userInfo")) as TUserInfoStorageSchema;
+  const metadataStore = useMetadataStore();
+  const addedSiteIds = metadataStore.getAddedSiteIds;
 
-  // 提取所有日期并去重
+  // 提前过滤已删除的站点数据，避免后续不必要的计算
+  const filteredRawData: TUserInfoStorageSchema = Object.fromEntries(
+    Object.entries(rawData).filter(([siteId]) => addedSiteIds.includes(siteId as TSiteID)),
+  );
+
+  // 提取所有日期并去重（只处理有效站点的数据）
   const allDatesSet = new Set<string>();
-  for (const perSiteUserInfoHistory of Object.values(rawData)) {
+  for (const perSiteUserInfoHistory of Object.values(filteredRawData)) {
     for (const dateStr in perSiteUserInfoHistory) {
       allDatesSet.add(dateStr);
     }
   }
   const allDates = Array.from(allDatesSet);
 
+  // 如果没有有效的站点数据，返回空结果
+  if (allDates.length === 0) {
+    console.debug("[PTD] No valid site data found after filtering");
+    return {
+      dailyUserInfo: {},
+      siteDateRange: {},
+      incrementalData: {},
+    };
+  }
+
   // 找出最小和最大日期，并生成最小到最大日期之间的所有日期
-  const minDate = minDateFn(allDates);
-  const maxDate = maxDateFn(allDates);
-  const datesInRange = eachDayOfInterval({ start: minDate, end: maxDate }).map((x) => formatDate(x, "yyyy-MM-dd"));
+  const sortedDates = allDates.sort();
+  const minDateStr = sortedDates[0];
+  const maxDateStr = sortedDates[sortedDates.length - 1];
+  const datesInRange = eachDayOfInterval({
+    start: new Date(minDateStr + "T00:00:00"),
+    end: new Date(maxDateStr + "T00:00:00"),
+  }).map((x) => formatDate(x, "yyyy-MM-dd"));
 
   const siteDateRange: IUserDataStatistic["siteDateRange"] = {};
   const dailyUserInfo: IUserDataStatistic["dailyUserInfo"] = Object.fromEntries(datesInRange.map((x) => [x, {}]));
   const incrementalData: IUserDataStatistic["incrementalData"] = {};
 
+  console.debug(
+    `[PTD] Filtered out ${Object.keys(rawData).length - Object.keys(filteredRawData).length} deleted sites`,
+  );
   console.debug("[PTD] Found UserDataStatistic used date ranges:", datesInRange);
 
-  // 遍历每个站点
-  for (const [siteId, perSiteUserInfoHistory] of Object.entries(rawData)) {
+  // 遍历过滤后的站点数据
+  for (const [siteId, perSiteUserInfoHistory] of Object.entries(filteredRawData)) {
     const thisSiteDateRange = Object.keys(perSiteUserInfoHistory);
-    const thisSiteMinDate = minDateFn(thisSiteDateRange);
-    const thisSiteMaxDate = maxDateFn(thisSiteDateRange);
-    const thisSiteDateRangeInInterval = eachDayOfInterval({ start: thisSiteMinDate, end: thisSiteMaxDate }).map((x) =>
-      formatDate(x, "yyyy-MM-dd"),
-    );
+    const sortedSiteDates = thisSiteDateRange.sort();
+    const thisSiteMinDateStr = sortedSiteDates[0];
+    const thisSiteMaxDateStr = sortedSiteDates[sortedSiteDates.length - 1];
+    const thisSiteDateRangeInInterval = eachDayOfInterval({
+      start: new Date(thisSiteMinDateStr + "T00:00:00"),
+      end: new Date(thisSiteMaxDateStr + "T00:00:00"),
+    }).map((x) => formatDate(x, "yyyy-MM-dd"));
     siteDateRange[siteId] = [thisSiteDateRangeInInterval.at(0)!, thisSiteDateRangeInInterval.at(-1)!];
 
     // 初始化站点增量数据
@@ -120,6 +147,6 @@ export async function loadFullData(): Promise<IUserDataStatistic> {
 
 export function setSubDate(days: number) {
   const today = new Date();
-  const subDay = subDays(today, days);
+  const subDay = subDays(today, days - 1);
   return eachDayOfInterval({ start: subDay, end: today }).map((x) => formatDate(x, "yyyy-MM-dd"));
 }

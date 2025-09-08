@@ -1,4 +1,10 @@
 import Sizzle from "sizzle";
+import { toMerged, union } from "es-toolkit";
+import { isEmpty, set } from "es-toolkit/compat";
+import type { AxiosRequestConfig } from "axios";
+
+import { supportSocialSite } from "@ptd/social";
+
 import { buildCategoryOptions, parseSizeString, parseTimeWithZone, tryToNumber } from "../utils";
 import {
   EResultParseStatus,
@@ -14,9 +20,6 @@ import {
   NoTorrentsError,
 } from "../types";
 import Gazelle, { SchemaMetadata } from "../schemas/Gazelle.ts";
-import { toMerged } from "es-toolkit";
-import type { AxiosRequestConfig } from "axios";
-import { isEmpty, set } from "es-toolkit/compat";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -221,19 +224,12 @@ export const siteMetadata: ISiteMetadata = {
         },
       },
       status: {
+        text: ETorrentStatus.unknown,
         selector: [".TorrentTitle"],
-        elementProcess: (element: HTMLElement) => {
-          if (element.classList.contains("TorrentSeeding")) {
-            // 做种中
-            return ETorrentStatus.seeding;
-          } else if (element.classList.contains("TorrentSnatched")) {
-            // 已完成 未做种
-            return ETorrentStatus.completed;
-          } else if (element.classList.contains("TorrentDownloading")) {
-            // 下载中
-            return ETorrentStatus.downloading;
-          }
-          return ETorrentStatus.unknown;
+        case: {
+          ".TorrentSeeding": ETorrentStatus.seeding, // 做种中
+          ".TorrentSnatched": ETorrentStatus.completed, // 已完成 未做种
+          ".TorrentDownloading": ETorrentStatus.downloading, // 下载中
         },
       },
 
@@ -429,7 +425,10 @@ export default class GreatPosterWall extends Gazelle {
           });
         }
 
-        seeding = Sizzle(this.metadata.search?.selectors?.rows?.selector!, TListDocument).length;
+        const rowSelector = this.metadata.search?.selectors?.rows?.selector!;
+        const seedingElements = this.findElementsBySelectors(rowSelector, TListDocument);
+
+        seeding = seedingElements.length;
         const sizeEleList = Sizzle(".TableTorrent-rowTitle .TableTorrent-cellStatSize", TListDocument);
         sizeEleList.forEach((element) => {
           seedingSize += parseSizeString((element as HTMLElement).innerText!.trim());
@@ -482,19 +481,31 @@ export default class GreatPosterWall extends Gazelle {
     );
 
     // 3. 预检查 keywords 是否为高级搜索词，如果是，则查找对应的 searchEntry.advanceKeywordParams[*] 并改写 keywords
-    let advanceKeywordType: string | undefined;
     let advanceKeywordConfig: IAdvanceKeywordSearchConfig | false = false;
-    if (keywords && searchEntry.advanceKeywordParams) {
-      for (const [advanceField, advanceConfig] of Object.entries(searchEntry.advanceKeywordParams)) {
+    if (keywords) {
+      // 生成支持的高级搜索词前缀
+      const advanceKeywordFields = Object.keys(searchEntry.advanceKeywordParams ?? {});
+
+      for (const advanceField of union(advanceKeywordFields, supportSocialSite)) {
         if (keywords.startsWith(`${advanceField}|`)) {
+          // 先改写 keywords， 去除掉我们额外添加的 `${advanceField}|` 前缀
+          keywords = keywords?.replace(`${advanceField}|`, "");
+
+          // 检查是否有对应的高级搜索词配置
+          let advanceConfig = searchEntry?.advanceKeywordParams?.[advanceField];
+          if (typeof advanceConfig === "undefined") {
+            if (advanceField == "imdb") {
+              advanceConfig = { enabled: true }; // imdb 格式fallback到普通关键词搜索
+            }
+            advanceConfig = false; // 其他高级搜索词格式（douban|, bangumi|, anidb|, tmdb|, tvdb|, mal|）直接跳过
+          }
+
           // 检查是否跳过
           if (advanceConfig === false || advanceConfig.enabled === false) {
             result.status = EResultParseStatus.passParse;
             return result;
           }
-          // 改写 keywords 并缓存 transformer
-          keywords = keywords?.replace(`${advanceField}|`, "");
-          advanceKeywordType = advanceField;
+
           advanceKeywordConfig = advanceConfig;
           break;
         }
@@ -604,7 +615,7 @@ export default class GreatPosterWall extends Gazelle {
       torrent.seeders = tryToNumber(this.getFieldData(row, { selector: ".TableTorrent-cellStat:nth-child(4)" }));
       torrent.leechers = tryToNumber(this.getFieldData(row, { selector: ".TableTorrent-cellStat:nth-child(5)" }));
       torrent.progress = this.getFieldData(row, this.metadata.search!.selectors!.progress!);
-      torrent.status = tryToNumber(this.getFieldData(row, this.metadata.search!.selectors!.status!));
+      torrent.status = this.getFieldData(row, this.metadata.search!.selectors!.status!);
 
       torrent = this.parseTorrentRowForTags(torrent, row, searchConfig) as ITorrent;
 

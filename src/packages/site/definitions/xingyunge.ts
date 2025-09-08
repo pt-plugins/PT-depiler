@@ -17,8 +17,14 @@ export const siteMetadata: ISiteMetadata = {
 
   levelRequirements: [
     {
+      id: 0,
+      name: "User",
+      privilege: "",
+    },
+    {
       id: 1,
-      name: "大斗师(Power User)",
+      name: "Power User",
+      nameAka: ["大斗师"],
       interval: "P4W",
       downloaded: "50GB",
       ratio: 1.05,
@@ -28,7 +34,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 2,
-      name: "斗灵(Elite User)",
+      name: "Elite User",
+      nameAka: ["斗灵"],
       interval: "P8W",
       downloaded: "120GB",
       ratio: 1.55,
@@ -37,7 +44,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 3,
-      name: "斗王(Crazy User)",
+      name: "Crazy User",
+      nameAka: ["斗王"],
       interval: "P15W",
       downloaded: "300GB",
       ratio: 2.05,
@@ -46,7 +54,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 4,
-      name: "斗皇(Insane User)",
+      name: "Insane User",
+      nameAka: ["斗皇"],
       interval: "P25W",
       downloaded: "500GB",
       ratio: 2.55,
@@ -55,7 +64,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 5,
-      name: "斗宗(Veteran User)",
+      name: "Veteran User",
+      nameAka: ["斗宗"],
       interval: "P40W",
       downloaded: "750GB",
       ratio: 3.05,
@@ -64,7 +74,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 6,
-      name: "斗尊(Extreme User)",
+      name: "Extreme User",
+      nameAka: ["斗尊"],
       interval: "P60W",
       downloaded: "1TB",
       ratio: 3.55,
@@ -73,7 +84,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 7,
-      name: "斗圣(Ultimate User)",
+      name: "Ultimate User",
+      nameAka: ["斗圣"],
       interval: "P80W",
       downloaded: "1.5TB",
       ratio: 4.05,
@@ -82,7 +94,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 8,
-      name: "斗帝(Nexus Master)",
+      name: "Nexus Master",
+      nameAka: ["斗帝"],
       interval: "P100W",
       downloaded: "3TB",
       ratio: 4.55,

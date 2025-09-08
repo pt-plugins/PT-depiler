@@ -1,5 +1,5 @@
-import { EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
-import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
+import { type ISiteMetadata } from "../types";
+import { SchemaMetadata } from "../schemas/Unit3D.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -15,35 +15,6 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://funervfynaq.bet/"],
 
-  userInfo: {
-    selectors: {
-      ...SchemaMetadata.userInfo!.selectors,
-      name: {
-        selector: ["a[href*='/users/']:first"],
-        attr: "href",
-        filters: [
-          (query: string) => {
-            const queryMatch = query.match(/users\/(.+)\//);
-            return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : "";
-          },
-        ],
-      },
-      levelName: {
-        selector: "div.panel__body a.user-tag__link",
-        attr: "title",
-      },
-      seedingSize: { 
-        selector: 'dt:has(abbr[title*="Seeding Size"]) + dd', 
-        filters: [{ name: "parseSize" }],
-      },
-      joinTime: {
-        selector: ["time"],
-        attr: "datetime",
-        filters: [{ name: "parseTime" }],
-      },
-    }
-  },
-  
   levelRequirements: [
     {
       id: 1,
@@ -99,53 +70,4 @@ export const siteMetadata: ISiteMetadata = {
       averageSeedingTime: "P60D",
     },
   ],
-
-  search: {
-    ...SchemaMetadata.search,
-    requestConfig: {
-      url: "/torrents",
-    },
-    keywordPath: "params.name",
-    advanceKeywordParams: {
-      imdb: {
-        requestConfigTransformer: ({ requestConfig: config }) => {
-          if (config?.params?.name) {
-            config.params.imdbId = config.params.name;
-            delete config.params.name;
-          }
-          return config!;
-        },
-      },
-    },
-    selectors: {
-      ...SchemaMetadata.search!.selectors,
-      rows: { selector: "div.torrent-search--list__results > table:first > tbody > tr" },
-      id: {
-        selector: ["a.torrent-search--list__name"],
-        attr: "href",
-        filters: [(query: string) => query.match(/\/torrents\/(\d+)/)![1]],
-      },
-      title: {
-        selector: ["a.torrent-search--list__name"],
-      },
-      category: {
-        selector: ['span.torrent-search--list__type'],
-      },
-      size: {
-        selector: ['td.torrent-search--list__size'],
-      },
-      seeders: {
-        selector: ['td.torrent-search--list__seeders'],
-      },
-      leechers: {
-        selector: ['td.torrent-search--list__leechers'],
-      },
-      completed: {
-        selector: ['td.torrent-search--list__completed'],
-      },
-      comments: {
-        selector: ['i.torrent-icons__comments'],
-      },
-    },
-  },
 };

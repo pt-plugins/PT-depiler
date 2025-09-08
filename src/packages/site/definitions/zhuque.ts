@@ -1,15 +1,15 @@
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
+
 import {
   EResultParseStatus,
   type ISearchInput,
-  ISiteMetadata,
+  type ISiteMetadata,
   type ITorrent,
   type ITorrentTag,
   type IUserInfo,
 } from "../types";
-
-import PrivateSite from "@ptd/site/schemas/AbstractPrivateSite.ts";
-import type { AxiosRequestConfig, AxiosResponse } from "axios";
-import { retrieveStore } from "@ptd/site/utils/adapter.ts";
+import { retrieveStore } from "../utils/adapter.ts";
+import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 
 const categoryMap: Record<number, string> = {
   501: "电影",

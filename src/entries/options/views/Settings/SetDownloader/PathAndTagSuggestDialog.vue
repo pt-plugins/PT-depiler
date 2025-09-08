@@ -29,6 +29,7 @@ const pathReplaceMap: [string, string, string][] = [
   ["dateYear", "$date:YYYY$", "/volume1/$date:YYYY$/music -> /volume1/2019/music"],
   ["dateMonth", "$date:MM$", "/volume1/$date:MM$/music -> /volume1/10/music"],
   ["dateDay", "$date:DD$", "/volume1/$date:DD$/music -> /volume1/01/music"],
+  ["custom", "<...>", "/volume1/<...>/music -> prompt for input 'test' -> /volume1/test/music"],
 ];
 
 watch(

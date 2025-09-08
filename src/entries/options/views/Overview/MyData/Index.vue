@@ -46,6 +46,7 @@ const fullTableHeader = reactive([
   { title: t("levelRequirement.seedingSize"), key: "seedingSize", align: "end" },
   { title: t("levelRequirement.bonus"), key: "bonus", align: "end" },
   { title: t("levelRequirement.bonusPerHour"), key: "bonusPerHour", align: "end" },
+  { title: t("MyData.table.invites"), key: "invites", align: "end" }, // 默认不显示
   { title: t("MyData.table.joinTime"), key: "joinTime", align: "center" },
   { title: t("MyData.table.updateAt"), key: "updateAt", align: "center" },
   { title: t("common.action"), key: "action", align: "center", sortable: false, props: { disabled: true } },
@@ -402,8 +403,7 @@ function toggleNumberSimplification() {
         <div class="d-flex flex-column align-center">
           <v-badge
             :model-value="configStore.myDataTableControl.showUnreadMessage && (item.messageCount ?? 0) > 0"
-            :content="item.messageCount"
-            :max="10"
+            :content="(item.messageCount ?? 0) > 10 ? undefined : item.messageCount"
             color="error"
           >
             <div class="favicon-hover-wrapper favicon-hover-bg">
@@ -594,9 +594,19 @@ function toggleNumberSimplification() {
       </template>
 
       <template #item.bonusPerHour="{ item }">
-        <span class="text-no-wrap">
-          {{ typeof item.bonusPerHour !== "undefined" ? formatNumber(item.bonusPerHour) : "-" }}
+        <span class="text-no-wrap" @dblclick="toggleNumberSimplification">
+          {{
+            typeof item.bonusPerHour !== "undefined"
+              ? configStore.myDataTableControl.simplifyBonusNumbers
+                ? simplifyNumber(item.bonusPerHour)
+                : formatNumber(item.bonusPerHour)
+              : "-"
+          }}
         </span>
+      </template>
+
+      <template #item.invites="{ item }">
+        <span class="text-no-wrap">{{ typeof item.invites !== "undefined" ? item.invites : "-" }}</span>
       </template>
 
       <!-- 入站时间 -->

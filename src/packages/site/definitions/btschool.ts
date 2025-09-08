@@ -1,3 +1,7 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/btschool.yml
+ * @JackettIssue https://github.com/Jackett/Jackett/issues/5761
+ */
 import { ETorrentStatus, type ISiteMetadata } from "../types";
 import { parseSizeString, rot13 } from "../utils";
 import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
