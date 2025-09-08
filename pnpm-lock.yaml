@@ -83,8 +83,8 @@ importers:
         specifier: ^2.3.10
         version: 2.3.10
       tailwindcss:
-        specifier: ^4.1.12
-        version: 4.1.12
+        specifier: ^4.1.13
+        version: 4.1.13
       url-join:
         specifier: ^5.0.0
         version: 5.0.0
@@ -3483,6 +3483,9 @@ packages:
 
   tailwindcss@4.1.12:
     resolution: {integrity: sha512-DzFtxOi+7NsFf7DBtI3BJsynR+0Yp6etH+nRPTbpWnS2pZBaSksv/JGctNwSWzbFjp0vxSqknaUylseZqMDGrA==}
+
+  tailwindcss@4.1.13:
+    resolution: {integrity: sha512-i+zidfmTqtwquj4hMEwdjshYYgMbOrPzb9a0M3ZgNa0JMoZeFC6bxZvO8yr8ozS6ix2SDz0+mvryPeBs2TFE+w==}
 
   tapable@2.2.2:
     resolution: {integrity: sha512-Re10+NauLTMCudc7T5WLFLAwDhQ0JWdrMK+9B2M8zR5hRExKmsRDCBA7/aV/pNJFltmBFO5BAMlQFi/vq3nKOg==}
@@ -7246,6 +7249,8 @@ snapshots:
   supports-preserve-symlinks-flag@1.0.0: {}
 
   tailwindcss@4.1.12: {}
+
+  tailwindcss@4.1.13: {}
 
   tapable@2.2.2: {}
 
