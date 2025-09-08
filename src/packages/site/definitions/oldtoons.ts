@@ -15,21 +15,4 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Unit3D",
 
   urls: ["uggc://byqgbbaf.jbeyq/"],
-
-  userInfo: {
-    selectors: {
-      ...SchemaMetadata.userInfo!.selectors,
-    },
-  },
-
-  search: {
-    ...SchemaMetadata.search,
-    selectors: {
-      ...SchemaMetadata.search?.selectors,
-    },
-  },
-
-  levelRequirements: [],
 };
-
-export default class OldtoonsWorld extends Unit3D {}
