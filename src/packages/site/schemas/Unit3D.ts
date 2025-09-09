@@ -226,7 +226,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
   list: [
     {
       urlPattern: ["/torrents(?:/?$|\\?\[\^/\]*$)"],
-      excludeUrlPattern: ["/torrents?view=card", "/torrents?view=grouped", "/torrents/view=poster"],
+      excludeUrlPattern: ["/torrents?view=card", "/torrents?view=grouped", "/torrents?view=poster"],
     },
     {
       urlPattern: ["/torrents/similar/"],
