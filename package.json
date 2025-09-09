@@ -41,7 +41,6 @@
     "pnpm": ">=10.14.0"
   },
   "dependencies": {
-    "@tailwindcss/vite": "^4.1.12",
     "@vueuse/components": "^13.9.0",
     "@vueuse/core": "^13.9.0",
     "@webext-core/job-scheduler": "^1.0.0",
@@ -64,7 +63,6 @@
     "pinia-plugin-state-persistence": "^1.10.3",
     "search-query-parser": "^1.6.0",
     "sizzle": "^2.3.10",
-    "tailwindcss": "^4.1.13",
     "url-join": "^5.0.0",
     "urlencode": "^2.0.0",
     "valid-filename": "^4.0.0",
@@ -73,7 +71,7 @@
     "vue-i18n": "^11.1.12",
     "vue-konva": "^3.2.6",
     "vue-router": "^4.5.1",
-    "vuetify": "^3.9.6",
+    "vuetify": "^3.9.7",
     "webdav": "^5.8.0"
   },
   "devDependencies": {
