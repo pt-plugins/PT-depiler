@@ -9,7 +9,7 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: ["0X0000005"],
 
   type: "private",
-  schema: "UNIT3D",
+  schema: "Unit3D",
 
   urls: ["https://kimoji.club/"],
 
