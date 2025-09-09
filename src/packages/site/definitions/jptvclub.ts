@@ -11,6 +11,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "UNIT3D",
 
   urls: ["https://jptv.club/"],
+  favicon: "./_default_unit3d.ico",
 
   isDead: true,
 };

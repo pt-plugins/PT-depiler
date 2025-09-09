@@ -15,6 +15,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Unit3D",
 
   urls: ["uggcf://navzrybiref.pyho/"],
+  favicon: "./_default_unit3d.ico",
 
   category: [
     {
