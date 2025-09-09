@@ -43,7 +43,7 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: "div.torrents_small_info_data1 a[nohref]",
         attr: "onClick",
-        filters: [(q: string) => q.match(/details(\d+)/)![1]],
+        filters: [(q: string) => q.match(/details(\d+)/)?.[1]],
       },
       title: {
         selector: "div.torrents_small_info_data1 a[nohref]",
