@@ -1,5 +1,18 @@
 import type { ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/GazelleJSONAPI";
+
+// 自定义 filter 函数：处理 Secret Cinema 的数值字段
+const parseSecretCinemaNumber = (query: string | number) => {
+  if (typeof query === "number") {
+    return query;
+  }
+  const match = query.match(/[\d.]+/);
+  if (match) {
+    const value = parseFloat(match[0]);
+    return isNaN(value) ? 0 : value;
+  }
+  return 0;
+};
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
 
@@ -9,11 +22,12 @@ export const siteMetadata: ISiteMetadata = {
   aka: ["秘密影院", "Secret Cinema PW"],
   description: "专注于高质量电影资源的私人PT站点",
   tags: ["电影", "高清", "蓝光", "4K"],
+  favicon: "./secretcinema.ico",
 
   type: "private",
   schema: "GazelleJSONAPI",
 
-  urls: ["https://secretcinema.pw/"],
+  urls: ["https://secret-cinema.pw/"],
 
   search: {
     ...SchemaMetadata.search!,
@@ -92,6 +106,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 4,
       name: "Legend",
+      groupType: "vip",
       privilege: "Past staff member. Same perks as Cinephiles, plus a few more.",
     },
   ],
@@ -103,51 +118,15 @@ export const siteMetadata: ISiteMetadata = {
       // Secret Cinema 特有的用户信息字段覆盖
       bonus: {
         selector: ["response.userstats.bonus"],
-        filters: [
-          (query: string | number) => {
-            if (typeof query === "number") {
-              return query;
-            }
-            const match = query.match(/[\d.]+/);
-            if (match) {
-              const value = parseFloat(match[0]);
-              return isNaN(value) ? 0 : value;
-            }
-            return 0;
-          },
-        ],
+        filters: [parseSecretCinemaNumber],
       },
       seedingSize: {
         selector: ["response.userstats.seedingSize"],
-        filters: [
-          (query: string | number) => {
-            if (typeof query === "number") {
-              return query;
-            }
-            const match = query.match(/[\d.]+/);
-            if (match) {
-              const value = parseFloat(match[0]);
-              return isNaN(value) ? 0 : value;
-            }
-            return 0;
-          },
-        ],
+        filters: [parseSecretCinemaNumber],
       },
       leeching: {
         selector: ["response.userstats.leeching"],
-        filters: [
-          (query: string | number) => {
-            if (typeof query === "number") {
-              return query;
-            }
-            const match = query.match(/[\d.]+/);
-            if (match) {
-              const value = parseFloat(match[0]);
-              return isNaN(value) ? 0 : value;
-            }
-            return 0;
-          },
-        ],
+        filters: [parseSecretCinemaNumber],
       },
     },
   },
