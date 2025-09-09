@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify";
 import { useRoute, useRouter } from "vue-router";
@@ -27,8 +27,8 @@ const appendMenu = computed<Array<{ title: string; icon: string; [str: string]: 
   { title: "Ask AI", icon: "mdi-chat-question", href: `https://deepwiki.com/pt-plugins/PT-depiler` },
 ]);
 
-const searchKey = ref((route.query?.search as string) ?? "");
-const searchPlanKey = ref((route.query?.plan as string) ?? "default");
+const searchKey = ref<string>("");
+const searchPlanKey = ref<string>("default");
 
 const searchPlans = computed(() =>
   metadataStore.getSearchSolutions
@@ -50,6 +50,18 @@ function startSearchEntity() {
     },
   });
 }
+
+watch(
+  () => route.query,
+  (newQuery) => {
+    if (newQuery?.search && (newQuery.search as string) !== searchKey.value) {
+      searchKey.value = newQuery.search as string;
+    }
+    if (newQuery?.plan && (newQuery.plan as string) !== searchPlanKey.value) {
+      searchPlanKey.value = newQuery.plan as string;
+    }
+  },
+);
 </script>
 
 <template>

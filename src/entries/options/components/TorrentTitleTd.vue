@@ -62,7 +62,7 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
         <a
           :href="item.url"
           :title="item.title"
-          class="t_title text-decoration-none text-subtitle-1 text-truncate"
+          class="t_title text-decoration-none text-high-emphasis text-subtitle-1 text-truncate"
           rel="noopener noreferrer nofollow"
           target="_blank"
         >
