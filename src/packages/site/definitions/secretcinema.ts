@@ -4,7 +4,7 @@ export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
 
   version: 1,
-  id: "secret-cinema",
+  id: "secretcinema",
   name: "Secret Cinema",
   aka: ["秘密影院", "Secret Cinema PW"],
   description: "专注于高质量电影资源的私人PT站点",
@@ -13,7 +13,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "GazelleJSONAPI",
 
-  urls: ["https://secret-cinema.pw/"],
+  urls: ["https://secretcinema.pw/"],
 
   search: {
     ...SchemaMetadata.search!,
