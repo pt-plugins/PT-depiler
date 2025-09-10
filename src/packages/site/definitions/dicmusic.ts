@@ -140,31 +140,6 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
-  userInfo: {
-    pickLast: ["id", "name", "joinTime"],
-    ...SchemaMetadata.userInfo,
-    selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
-      // '/ajax.php?action=user&id=$userId$'
-      uploads: { selector: ["response.community.uploaded"] },
-      perfectFlacs: { selector: ["response.community.perfectFlacs"] },
-      uniqueGroups: { selector: ["response.community.groups"] },
-      // '/bonus.php'
-      bonus: {
-        selector: ["h3:contains('总积分: ')"],
-        filters: [
-          (text: string) => {
-            const match = text.match(/总积分:\s*([^\s<]+)/);
-            return match ? match[1] : "0";
-          },
-          { name: "parseNumber" },
-        ],
-      },
-      seedingSize: { selector: ["#bprates_overview tbody tr td:nth-child(2)"], filters: [{ name: "parseSize" }] },
-      bonusPerHour: { selector: ["#bprates_overview tbody tr td:nth-child(3)"], filters: [{ name: "parseNumber" }] },
-    },
-  },
-
   levelRequirements: [
     {
       id: 1,
@@ -338,35 +313,6 @@ export interface dicGroupTorrent extends groupTorrent {
 }
 
 export default class DICMusic extends GazelleJSONAPI {
-  protected override async getUserExtendInfo(userId: number): Promise<Partial<IUserInfo>> {
-    const { data: apiUser } = await this.requestApi<userJsonResponse>("user", {
-      id: userId,
-    });
-
-    return this.getFieldsData(apiUser, this.metadata.userInfo!.selectors!, [
-      "joinTime",
-      "seeding",
-      "uploads",
-      "uniqueGroups",
-      "perfectFlacs",
-    ] as (keyof IUserInfo)[]) as Partial<IUserInfo>;
-  }
-
-  // 该站点提供积分速率页，可直接获取seedingSize, bonus, bonusPerHour
-  protected override async getUserSeedingTorrents(userId: number): Promise<Partial<IUserInfo>> {
-    const { data: dataDocument } = await this.request<Document>({
-      url: "/bonus.php",
-      params: { action: "bprates", userid: userId },
-      responseType: "document",
-    });
-
-    return this.getFieldsData(dataDocument, this.metadata.userInfo!.selectors!, [
-      "bonus",
-      "bonusPerHour",
-      "seedingSize",
-    ] as (keyof IUserInfo)[]) as Partial<IUserInfo>;
-  }
-
   // 该站点提供禁转标签
   protected override async transformGroupTorrent(
     group: groupBrowseResult,

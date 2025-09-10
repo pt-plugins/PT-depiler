@@ -176,6 +176,10 @@ export interface userJsonResponse extends jsonResponse {
       downloaded: number;
       ratio: string;
       requiredRatio: number;
+      bonusPoints: number | null;
+      bonusPointsPerHour: number | null;
+      bonusSeedingPointsPerHour: number | null;
+      seedingSize: number | null;
     };
     ranks: {
       uploaded: number;
@@ -256,22 +260,35 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       levelName: {
         selector: ["response.userstats.class"],
       },
-
-      // "/ajax.php?action=user&id=$user.id$"
+      bonus: {
+        selector: ["response.userstats.bonusPoints"],
+      },
+      bonusPerHour: {
+        selector: ["response.userstats.bonusPointsPerHour", "response.userstats.seedingBonusPointsPerHour"],
+      },
+      seedingSize: {
+        selector: ["response.userstats.seedingSize"],
+      },
       joinTime: {
         selector: ["response.stats.joinedDate"],
         filters: [{ name: "parseTime" }],
       },
+
+      // "/ajax.php?action=user&id=$user.id$"
       seeding: {
         selector: ["response.community.seeding"],
       },
       uploads: {
         selector: ["response.community.uploaded"],
       },
-
-      // "/torrents.php?type=seeding&userid=$user.id$"
-      bonus: {
-        text: "N/A",
+      perfectFlacs: {
+        selector: ["response.community.perfectFlacs"],
+      },
+      groups: {
+        selector: ["response.community.groups"],
+      },
+      invited: {
+        selector: ["response.community.invited"],
       },
     },
   },
@@ -404,8 +421,17 @@ export default class GazelleJSONAPI extends PrivateSite {
         flushUserInfo = {
           ...flushUserInfo,
           ...(await this.getUserExtendInfo(flushUserInfo.id as number)),
-          ...(await this.getUserSeedingTorrents(flushUserInfo.id as number)),
         };
+
+        if (!flushUserInfo.seedingSize) {
+          flushUserInfo = {
+            ...flushUserInfo,
+            ...(await this.getUserSeedingTorrents(flushUserInfo.id as number)),
+          };
+        }
+
+        // 清理数据
+        flushUserInfo = this.cleanupUserInfo(flushUserInfo);
       }
 
       if (this.metadata.levelRequirements && flushUserInfo.levelName && typeof flushUserInfo.levelId === "undefined") {
@@ -435,6 +461,9 @@ export default class GazelleJSONAPI extends PrivateSite {
       "downloaded",
       "ratio",
       "levelName",
+      "bonus",
+      "bonusPerHour",
+      "seedingSize",
     ] as (keyof IUserInfo)[]) as Partial<IUserInfo>;
   }
 
@@ -449,7 +478,24 @@ export default class GazelleJSONAPI extends PrivateSite {
       "joinTime",
       "seeding",
       "uploads",
+      "perfectFlacs",
+      "groups",
+      "invited",
     ] as (keyof Partial<IUserInfo>)[]) as Partial<IUserInfo>;
+  }
+
+  protected cleanupUserInfo(flushUserInfo: IUserInfo): IUserInfo {
+    if (!flushUserInfo.bonus) {
+      flushUserInfo.bonus = "N/A";
+    }
+    if (!flushUserInfo.bonusPerHour) {
+      flushUserInfo.bonusPerHour = "N/A";
+    }
+    if (!flushUserInfo.perfectFlacs) {
+      delete flushUserInfo["perfectFlacs"];
+    }
+
+    return flushUserInfo;
   }
 
   protected async getUserSeedingTorrents(userId?: number): Promise<Partial<IUserInfo>> {
