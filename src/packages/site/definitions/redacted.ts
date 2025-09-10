@@ -1,5 +1,5 @@
-import { type ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/GazelleJSONAPI.ts";
+import { IUserInfo, type ISiteMetadata } from "../types";
+import GazelleJSONAPI, { jsonResponse, SchemaMetadata } from "../schemas/GazelleJSONAPI.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -18,6 +18,24 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://erqnpgrq.fu/"],
   formerHosts: ["erqnpgrq.pu"],
+
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      bonus: {
+        text: "N/A",
+      },
+      bonusPerHour: {
+        text: "N/A",
+      },
+      // /ajax.php?action=community_stats
+      seedingSize: {
+        selector: ["response.seedingSize"],
+        filters: [{ name: "parseSize" }],
+      },
+    },
+  },
 
   levelRequirements: [
     {
@@ -75,3 +93,24 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
+
+export interface communityStatsJsonResponse extends jsonResponse {
+  response: {
+    seedingsize?: string | null; // typically formatted like "418.36 GB"
+    [key: string]: any;
+  };
+}
+
+export default class Redacted extends GazelleJSONAPI {
+  protected override async getSeedingSize(userId?: number): Promise<Partial<IUserInfo>> {
+    await this.sleepAction(this.metadata.userInfo?.requestDelay);
+
+    const { data: apiUser } = await this.requestApi<communityStatsJsonResponse>("community_stats", {
+      userid: userId,
+    });
+
+    return this.getFieldsData(apiUser, this.metadata.userInfo!.selectors!, [
+      "seedingSize",
+    ] as (keyof Partial<IUserInfo>)[]) as Partial<IUserInfo>;
+  }
+}

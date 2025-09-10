@@ -267,7 +267,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         selector: ["response.userstats.bonusPointsPerHour", "response.userstats.seedingBonusPointsPerHour"],
       },
       seedingSize: {
-        selector: ["response.userstats.seedingSize"],
+        selector: ["response.userstats.seedingSize"], // GazellePW
       },
       joinTime: {
         selector: ["response.stats.joinedDate"],
@@ -426,7 +426,7 @@ export default class GazelleJSONAPI extends PrivateSite {
         if (!flushUserInfo.seedingSize) {
           flushUserInfo = {
             ...flushUserInfo,
-            ...(await this.getUserSeedingTorrents(flushUserInfo.id as number)),
+            ...(await this.getSeedingSize(flushUserInfo.id as number)),
           };
         }
 
@@ -498,7 +498,7 @@ export default class GazelleJSONAPI extends PrivateSite {
     return flushUserInfo;
   }
 
-  protected async getUserSeedingTorrents(userId?: number): Promise<Partial<IUserInfo>> {
+  protected async getSeedingSize(userId?: number): Promise<Partial<IUserInfo>> {
     await this.sleepAction(this.metadata.userInfo?.requestDelay);
 
     const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
@@ -512,10 +512,6 @@ export default class GazelleJSONAPI extends PrivateSite {
     rows.forEach((element) => {
       userSeedingTorrent.seedingSize! += parseSizeString((element as HTMLElement).innerText.trim());
     });
-
-    if (this.metadata.userInfo?.selectors?.bonus) {
-      userSeedingTorrent.bonus = this.getFieldData(seedPage, this.metadata.userInfo.selectors.bonus);
-    }
 
     return userSeedingTorrent;
   }

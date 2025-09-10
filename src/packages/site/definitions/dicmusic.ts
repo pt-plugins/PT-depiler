@@ -140,6 +140,26 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      // /bonus.php?action=bprates
+      bonusPerHour: {
+        selector: ["table#bprates_overview > tbody > tr > td:eq(1)"],
+        filters: [{ name: "parseNumber" }],
+      },
+      bonus: {
+        selector: ["div#content > div.header > h3"],
+        filters: [{ name: "parseNumber" }],
+      },
+      seedingSize: {
+        selector: ["table#bprates_overview > tbody > tr > td:eq(1)"],
+        filters: [{ name: "parseSize" }],
+      },
+    },
+  },
+
   levelRequirements: [
     {
       id: 1,
@@ -313,6 +333,20 @@ export interface dicGroupTorrent extends groupTorrent {
 }
 
 export default class DICMusic extends GazelleJSONAPI {
+  protected override async getSeedingSize(userId?: number): Promise<Partial<IUserInfo>> {
+    await this.sleepAction(this.metadata.userInfo?.requestDelay);
+
+    const { data: bonusPage } = await this.request<Document>({
+      url: "/bonus.php?action=bprates",
+      responseType: "document",
+    });
+    return this.getFieldsData(bonusPage, this.metadata.userInfo!.selectors!, [
+      "seedingSize",
+      "bonus",
+      "bonusPerHour",
+    ] as (keyof Partial<IUserInfo>)[]) as Partial<IUserInfo>;
+  }
+
   // 该站点提供禁转标签
   protected override async transformGroupTorrent(
     group: groupBrowseResult,
