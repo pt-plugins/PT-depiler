@@ -22,7 +22,6 @@ export const siteMetadata: ISiteMetadata = {
   aka: ["秘密影院", "Secret Cinema PW"],
   description: "专注于高质量电影资源的私人PT站点",
   tags: ["电影", "高清", "蓝光", "4K"],
-  favicon: "./secretcinema.ico",
 
   type: "private",
   schema: "GazelleJSONAPI",
