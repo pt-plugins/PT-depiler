@@ -7,217 +7,39 @@ import {
 import { parseTimeToLive } from "../utils";
 import { set } from "es-toolkit/compat";
 
-// 自定义解析函数：处理IPTorrents的用户统计信息
-const parseIPTorrentsStats = (query: string) => {
+// 解析IPTorrents用户统计信息
+const parseIPTorrentsStats = (query: string): number => {
   if (!query) return 0;
-
-  // 尝试解析各种格式的大小信息
-  const sizeMatch = query.match(/([\d.]+)\s*(GB|MB|TB|KB|B)/i);
-  if (sizeMatch) {
-    const value = parseFloat(sizeMatch[1]);
-    const unit = sizeMatch[2].toUpperCase();
-
-    switch (unit) {
-      case "TB":
-        return value * 1024 * 1024 * 1024 * 1024;
-      case "GB":
-        return value * 1024 * 1024 * 1024;
-      case "MB":
-        return value * 1024 * 1024;
-      case "KB":
-        return value * 1024;
-      case "B":
-        return value;
-      default:
-        return value;
-    }
-  }
-
-  // 如果只是数字，直接返回
-  const numberMatch = query.match(/[\d.]+/);
-  if (numberMatch) {
-    return parseFloat(numberMatch[0]);
-  }
-
-  return 0;
-};
-
-// 专门用于做种大小的解析函数
-const parseIPTorrentsSeedingSize = (query: string) => {
-  if (!query) return 0;
-
-  // 清理文本，移除多余的空格和换行
   const cleanQuery = query.trim().replace(/\s+/g, " ");
 
-  // 尝试解析各种格式的大小信息
-  const sizeMatch = cleanQuery.match(/([\d.]+)\s*(GB|MB|TB|KB|B)/i);
+  const sizeMatch = cleanQuery.match(/([\d.]+)\s*(TB|GB|MB|KB|B)/i);
   if (sizeMatch) {
     const value = parseFloat(sizeMatch[1]);
     const unit = sizeMatch[2].toUpperCase();
-
-    switch (unit) {
-      case "TB":
-        return value * 1024 * 1024 * 1024 * 1024;
-      case "GB":
-        return value * 1024 * 1024 * 1024;
-      case "MB":
-        return value * 1024 * 1024;
-      case "KB":
-        return value * 1024;
-      case "B":
-        return value;
-      default:
-        return value;
-    }
+    const multipliers: Record<string, number> = {
+      TB: 1024 ** 4,
+      GB: 1024 ** 3,
+      MB: 1024 ** 2,
+      KB: 1024,
+      B: 1,
+    };
+    return value * (multipliers[unit] || 1);
   }
 
-  // 尝试解析纯数字（可能是字节数）
   const numberMatch = cleanQuery.match(/[\d.]+/);
-  if (numberMatch) {
-    const num = parseFloat(numberMatch[0]);
-    // 如果数字很大，可能是字节数
-    if (num > 1000000) {
-      return num;
-    }
-    // 如果数字较小，可能是GB或MB
-    return num;
-  }
-
-  return 0;
+  return numberMatch ? parseFloat(numberMatch[0]) : 0;
 };
 
-// 更智能的做种大小解析函数
-const parseIPTorrentsSeedingSizeAdvanced = (query: string) => {
+// 解析邀请数量
+const parseIPTorrentsInvites = (query: string): number => {
   if (!query) return 0;
-
-  // 清理文本，移除多余的空格和换行
-  const cleanQuery = query.trim().replace(/\s+/g, " ");
-
-  // 尝试解析各种格式的大小信息
-  const sizeMatch = cleanQuery.match(/([\d.]+)\s*(GB|MB|TB|KB|B)/i);
-  if (sizeMatch) {
-    const value = parseFloat(sizeMatch[1]);
-    const unit = sizeMatch[2].toUpperCase();
-
-    switch (unit) {
-      case "TB":
-        return value * 1024 * 1024 * 1024 * 1024;
-      case "GB":
-        return value * 1024 * 1024 * 1024;
-      case "MB":
-        return value * 1024 * 1024;
-      case "KB":
-        return value * 1024;
-      case "B":
-        return value;
-      default:
-        return value;
-    }
-  }
-
-  // 尝试解析纯数字（可能是字节数）
-  const numberMatch = cleanQuery.match(/[\d.]+/);
-  if (numberMatch) {
-    const num = parseFloat(numberMatch[0]);
-    // 如果数字很大，可能是字节数
-    if (num > 1000000) {
-      return num;
-    }
-    // 如果数字较小，可能是GB或MB
-    return num;
-  }
-
-  return 0;
-};
-
-// 超级智能的做种大小解析函数
-const parseIPTorrentsSeedingSizeUltra = (query: string) => {
-  if (!query) return 0;
-
-  // 清理文本，移除多余的空格和换行
-  const cleanQuery = query.trim().replace(/\s+/g, " ");
-
-  // 尝试解析各种格式的大小信息
-  const sizeMatch = cleanQuery.match(/([\d.]+)\s*(GB|MB|TB|KB|B)/i);
-  if (sizeMatch) {
-    const value = parseFloat(sizeMatch[1]);
-    const unit = sizeMatch[2].toUpperCase();
-
-    switch (unit) {
-      case "TB":
-        return value * 1024 * 1024 * 1024 * 1024;
-      case "GB":
-        return value * 1024 * 1024 * 1024;
-      case "MB":
-        return value * 1024 * 1024;
-      case "KB":
-        return value * 1024;
-      case "B":
-        return value;
-      default:
-        return value;
-    }
-  }
-
-  // 尝试解析纯数字
-  const numberMatch = cleanQuery.match(/[\d.]+/);
-  if (numberMatch) {
-    const num = parseFloat(numberMatch[0]);
-
-    // 如果数字很大，可能是字节数
-    if (num > 1000000) {
-      return num;
-    }
-
-    // 如果数字较小（1-1000），很可能是GB单位
-    // 因为做种大小通常以GB为单位显示
-    if (num >= 1 && num <= 1000) {
-      return num * 1024 * 1024 * 1024; // 转换为字节
-    }
-
-    // 其他情况直接返回
-    return num;
-  }
-
-  return 0;
-};
-
-// 邀请数量解析函数
-const parseIPTorrentsInvites = (query: string) => {
-  if (!query) return 0;
-
-  // 清理文本
   const cleanQuery = query.trim();
 
-  // 匹配 "Available: 5" 格式
-  const availableMatch = cleanQuery.match(/Available:\s*(\d+)/i);
-  if (availableMatch) {
-    return parseInt(availableMatch[1], 10);
-  }
+  const availableMatch = cleanQuery.match(/Available:?\s*(\d+)/i);
+  if (availableMatch) return parseInt(availableMatch[1], 10);
 
-  // 备选：直接匹配数字
   const numberMatch = cleanQuery.match(/\d+/);
-  if (numberMatch) {
-    return parseInt(numberMatch[0], 10);
-  }
-
-  return 0;
-};
-
-// 做种大小计算函数
-const parseIPTorrentsSeedingSizeManual = (query: string) => {
-  // 简单的测试：在页面上显示调试信息
-  const debugDiv = document.createElement("div");
-  debugDiv.style.cssText =
-    "position:fixed;top:10px;left:10px;background:#ff6b6b;color:#fff;padding:10px;border-radius:5px;z-index:99999;font-size:14px;max-width:400px;";
-  debugDiv.innerHTML = "🔍 过滤器函数被调用了！";
-  document.body.appendChild(debugDiv);
-
-  // 3秒后移除调试框
-  setTimeout(() => debugDiv.remove(), 3000);
-
-  // 返回一个测试值
-  return 123456789;
+  return numberMatch ? parseInt(numberMatch[0], 10) : 0;
 };
 
 const categoryPart: Pick<ISearchCategories, "cross" | "generateRequestConfig"> = {
@@ -379,9 +201,7 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     keywordPath: "params.q",
-    requestConfig: {
-      url: "/t",
-    },
+    requestConfig: { url: "/t" },
     selectors: {
       rows: {
         selector: [
@@ -396,22 +216,15 @@ export const siteMetadata: ISiteMetadata = {
         attr: "href",
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/\/t\/(\d+)/);
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : "";
+            const match = query.match(/\/t\/(\d+)/);
+            return match ? parseInt(match[1]) : "";
           },
         ],
       },
       title: { selector: " > td.al > a" },
       subTitle: {
         selector: "div.sub",
-        filters: [
-          (query: string) => {
-            if (/ \| /.test(query)) {
-              return query.split(" | ")[0];
-            }
-            return "";
-          },
-        ],
+        filters: [(query: string) => (/ \| /.test(query) ? query.split(" | ")[0] : "")],
       },
       url: { selector: " > td.al > a", attr: "href" },
       link: { selector: 'a[href*="/download.php"]', attr: "href" },
@@ -419,8 +232,8 @@ export const siteMetadata: ISiteMetadata = {
         selector: "div.sub",
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/(?:\| )?([\d.]+ .+? ago)/);
-            return queryMatch && queryMatch.length >= 2 ? parseTimeToLive(queryMatch[1]) : "";
+            const match = query.match(/(?:\| )?([\d.]+ .+? ago)/);
+            return match ? parseTimeToLive(match[1]) : "";
           },
         ],
       },
@@ -432,11 +245,8 @@ export const siteMetadata: ISiteMetadata = {
         selector: "div.sub",
         filters: [
           (query: string) => {
-            if (query.includes(" by ")) {
-              const queryMatch = query.match(/by (.+)$/);
-              return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : "";
-            }
-            return "";
+            const match = query.match(/by (.+)$/);
+            return match ? match[1] : "";
           },
         ],
       },
@@ -453,11 +263,6 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["td:nth-last-child(3)", "td:contains('snatched')", "td.completed"],
         filters: [{ name: "parseNumber" }],
       },
-      /**
-       * 部分用戶可能开启 “Torrents - Show files count”，此时在 Size 和 Snatched (即 completed ) 中间会添加 文件数 列，
-       * 所以对于 seeders， leechers， completed 应该从后往前取，
-       * 而 size，comments 应该从前往后取
-       */
       comments: {
         selector: "> td:nth-child(5)",
         filters: [(q: string) => q.replace(/Go ?to ?comments/, "")],
@@ -481,8 +286,8 @@ export const siteMetadata: ISiteMetadata = {
             switchFilters: {
               "a[href*='/u/']:first": [
                 (query: string) => {
-                  const queryMatch = query.match(/u\/(.+)/);
-                  return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : "";
+                  const match = query.match(/u\/(.+)/);
+                  return match ? parseInt(match[1]) : "";
                 },
               ],
               "a[href*='userdetails.php']:first": [{ name: "querystring", args: ["id"] }],
@@ -498,9 +303,7 @@ export const siteMetadata: ISiteMetadata = {
             selector: ["td[style*='background: red'] a[href*='messages.php']"],
             filters: [{ name: "parseNumber" }],
           },
-          name: {
-            selector: "h1.c0",
-          },
+          name: { selector: "h1.c0" },
           uploaded: {
             selector: [
               "th:contains('Uploaded') + td",
@@ -527,9 +330,7 @@ export const siteMetadata: ISiteMetadata = {
             ],
             filters: [{ name: "parseNumber" }],
           },
-          levelName: {
-            selector: "th:contains('Class') + td",
-          },
+          levelName: { selector: "th:contains('Class') + td" },
           bonus: {
             selector: "a[href='/mybonus.php']",
             filters: [{ name: "parseNumber" }],
@@ -542,18 +343,12 @@ export const siteMetadata: ISiteMetadata = {
             selector: "th:contains('Seeding') + td",
             filters: [{ name: "parseNumber" }],
           },
-          seedingSize: {
-            selector: "body",
-            filters: [() => "N/A"],
-          },
+          seedingSize: { text: "N/A" },
           invites: {
             selector: [
-              // 🎯 精确匹配IPTorrents的"Available:"格式（基于实际HTML结构）
               "th:contains('Invites') + td",
               "tr:has(th:contains('Invites')) td",
               "td:contains('Available:')",
-
-              // 🔍 备选匹配格式
               "th:contains('Available') + td",
               "td:contains('Available')",
               "tr:contains('Available') td:last-child",
