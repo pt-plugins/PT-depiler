@@ -28,6 +28,8 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["https://secret-cinema.pw/"],
 
+  favicon: "./secretcinema.ico",
+
   search: {
     ...SchemaMetadata.search!,
     selectors: {
