@@ -7,6 +7,219 @@ import {
 import { parseTimeToLive } from "../utils";
 import { set } from "es-toolkit/compat";
 
+// 自定义解析函数：处理IPTorrents的用户统计信息
+const parseIPTorrentsStats = (query: string) => {
+  if (!query) return 0;
+
+  // 尝试解析各种格式的大小信息
+  const sizeMatch = query.match(/([\d.]+)\s*(GB|MB|TB|KB|B)/i);
+  if (sizeMatch) {
+    const value = parseFloat(sizeMatch[1]);
+    const unit = sizeMatch[2].toUpperCase();
+
+    switch (unit) {
+      case "TB":
+        return value * 1024 * 1024 * 1024 * 1024;
+      case "GB":
+        return value * 1024 * 1024 * 1024;
+      case "MB":
+        return value * 1024 * 1024;
+      case "KB":
+        return value * 1024;
+      case "B":
+        return value;
+      default:
+        return value;
+    }
+  }
+
+  // 如果只是数字，直接返回
+  const numberMatch = query.match(/[\d.]+/);
+  if (numberMatch) {
+    return parseFloat(numberMatch[0]);
+  }
+
+  return 0;
+};
+
+// 专门用于做种大小的解析函数
+const parseIPTorrentsSeedingSize = (query: string) => {
+  if (!query) return 0;
+
+  // 清理文本，移除多余的空格和换行
+  const cleanQuery = query.trim().replace(/\s+/g, " ");
+
+  // 尝试解析各种格式的大小信息
+  const sizeMatch = cleanQuery.match(/([\d.]+)\s*(GB|MB|TB|KB|B)/i);
+  if (sizeMatch) {
+    const value = parseFloat(sizeMatch[1]);
+    const unit = sizeMatch[2].toUpperCase();
+
+    switch (unit) {
+      case "TB":
+        return value * 1024 * 1024 * 1024 * 1024;
+      case "GB":
+        return value * 1024 * 1024 * 1024;
+      case "MB":
+        return value * 1024 * 1024;
+      case "KB":
+        return value * 1024;
+      case "B":
+        return value;
+      default:
+        return value;
+    }
+  }
+
+  // 尝试解析纯数字（可能是字节数）
+  const numberMatch = cleanQuery.match(/[\d.]+/);
+  if (numberMatch) {
+    const num = parseFloat(numberMatch[0]);
+    // 如果数字很大，可能是字节数
+    if (num > 1000000) {
+      return num;
+    }
+    // 如果数字较小，可能是GB或MB
+    return num;
+  }
+
+  return 0;
+};
+
+// 更智能的做种大小解析函数
+const parseIPTorrentsSeedingSizeAdvanced = (query: string) => {
+  if (!query) return 0;
+
+  // 清理文本，移除多余的空格和换行
+  const cleanQuery = query.trim().replace(/\s+/g, " ");
+
+  // 尝试解析各种格式的大小信息
+  const sizeMatch = cleanQuery.match(/([\d.]+)\s*(GB|MB|TB|KB|B)/i);
+  if (sizeMatch) {
+    const value = parseFloat(sizeMatch[1]);
+    const unit = sizeMatch[2].toUpperCase();
+
+    switch (unit) {
+      case "TB":
+        return value * 1024 * 1024 * 1024 * 1024;
+      case "GB":
+        return value * 1024 * 1024 * 1024;
+      case "MB":
+        return value * 1024 * 1024;
+      case "KB":
+        return value * 1024;
+      case "B":
+        return value;
+      default:
+        return value;
+    }
+  }
+
+  // 尝试解析纯数字（可能是字节数）
+  const numberMatch = cleanQuery.match(/[\d.]+/);
+  if (numberMatch) {
+    const num = parseFloat(numberMatch[0]);
+    // 如果数字很大，可能是字节数
+    if (num > 1000000) {
+      return num;
+    }
+    // 如果数字较小，可能是GB或MB
+    return num;
+  }
+
+  return 0;
+};
+
+// 超级智能的做种大小解析函数
+const parseIPTorrentsSeedingSizeUltra = (query: string) => {
+  if (!query) return 0;
+
+  // 清理文本，移除多余的空格和换行
+  const cleanQuery = query.trim().replace(/\s+/g, " ");
+
+  // 尝试解析各种格式的大小信息
+  const sizeMatch = cleanQuery.match(/([\d.]+)\s*(GB|MB|TB|KB|B)/i);
+  if (sizeMatch) {
+    const value = parseFloat(sizeMatch[1]);
+    const unit = sizeMatch[2].toUpperCase();
+
+    switch (unit) {
+      case "TB":
+        return value * 1024 * 1024 * 1024 * 1024;
+      case "GB":
+        return value * 1024 * 1024 * 1024;
+      case "MB":
+        return value * 1024 * 1024;
+      case "KB":
+        return value * 1024;
+      case "B":
+        return value;
+      default:
+        return value;
+    }
+  }
+
+  // 尝试解析纯数字
+  const numberMatch = cleanQuery.match(/[\d.]+/);
+  if (numberMatch) {
+    const num = parseFloat(numberMatch[0]);
+
+    // 如果数字很大，可能是字节数
+    if (num > 1000000) {
+      return num;
+    }
+
+    // 如果数字较小（1-1000），很可能是GB单位
+    // 因为做种大小通常以GB为单位显示
+    if (num >= 1 && num <= 1000) {
+      return num * 1024 * 1024 * 1024; // 转换为字节
+    }
+
+    // 其他情况直接返回
+    return num;
+  }
+
+  return 0;
+};
+
+// 邀请数量解析函数
+const parseIPTorrentsInvites = (query: string) => {
+  if (!query) return 0;
+
+  // 清理文本
+  const cleanQuery = query.trim();
+
+  // 匹配 "Available: 5" 格式
+  const availableMatch = cleanQuery.match(/Available:\s*(\d+)/i);
+  if (availableMatch) {
+    return parseInt(availableMatch[1], 10);
+  }
+
+  // 备选：直接匹配数字
+  const numberMatch = cleanQuery.match(/\d+/);
+  if (numberMatch) {
+    return parseInt(numberMatch[0], 10);
+  }
+
+  return 0;
+};
+
+// 做种大小计算函数
+const parseIPTorrentsSeedingSizeManual = (query: string) => {
+  // 简单的测试：在页面上显示调试信息
+  const debugDiv = document.createElement("div");
+  debugDiv.style.cssText =
+    "position:fixed;top:10px;left:10px;background:#ff6b6b;color:#fff;padding:10px;border-radius:5px;z-index:99999;font-size:14px;max-width:400px;";
+  debugDiv.innerHTML = "🔍 过滤器函数被调用了！";
+  document.body.appendChild(debugDiv);
+
+  // 3秒后移除调试框
+  setTimeout(() => debugDiv.remove(), 3000);
+
+  // 返回一个测试值
+  return 123456789;
+};
+
 const categoryPart: Pick<ISearchCategories, "cross" | "generateRequestConfig"> = {
   cross: { mode: "custom" },
   generateRequestConfig: (value: TSelectSearchCategoryValue): IAdvancedSearchRequestConfig => {
@@ -170,7 +383,14 @@ export const siteMetadata: ISiteMetadata = {
       url: "/t",
     },
     selectors: {
-      rows: { selector: "table#torrents > tbody > tr" },
+      rows: {
+        selector: [
+          "table#torrents > tbody > tr",
+          "table.torrents > tbody > tr",
+          "table > tbody > tr:has(td.al)",
+          "tr:has(td.al)",
+        ],
+      },
       id: {
         selector: " > td.al > a",
         attr: "href",
@@ -204,7 +424,10 @@ export const siteMetadata: ISiteMetadata = {
           },
         ],
       },
-      size: { selector: "> td:nth-child(6)" },
+      size: {
+        selector: ["> td:nth-child(6)", "td:contains('MB')", "td:contains('GB')", "td:contains('TB')"],
+        filters: [{ name: "parseSize" }],
+      },
       author: {
         selector: "div.sub",
         filters: [
@@ -217,10 +440,19 @@ export const siteMetadata: ISiteMetadata = {
           },
         ],
       },
-      category: { selector: "td:eq(0) img", attr: "alt" },
-      seeders: { selector: "td:nth-last-child(2)" },
-      leechers: { selector: "td:nth-last-child(1)" },
-      completed: { selector: "td:nth-last-child(3)" },
+      category: { selector: ["td:eq(0) img", "td:first-child img"], attr: "alt" },
+      seeders: {
+        selector: ["td:nth-last-child(2)", "td:contains('seeders')", "td.seeders"],
+        filters: [{ name: "parseNumber" }],
+      },
+      leechers: {
+        selector: ["td:nth-last-child(1)", "td:contains('leechers')", "td.leechers"],
+        filters: [{ name: "parseNumber" }],
+      },
+      completed: {
+        selector: ["td:nth-last-child(3)", "td:contains('snatched')", "td.completed"],
+        filters: [{ name: "parseNumber" }],
+      },
       /**
        * 部分用戶可能开启 “Torrents - Show files count”，此时在 Size 和 Snatched (即 completed ) 中间会添加 文件数 列，
        * 所以对于 seeders， leechers， completed 应该从后往前取，
@@ -270,15 +502,29 @@ export const siteMetadata: ISiteMetadata = {
             selector: "h1.c0",
           },
           uploaded: {
-            selector: "th:contains('Uploaded') + td",
-            filters: [{ name: "parseSize" }],
+            selector: [
+              "th:contains('Uploaded') + td",
+              "td:contains('Uploaded')",
+              "tr:contains('Uploaded') td:last-child",
+              "table tr:has(th:contains('Uploaded')) td:last-child",
+            ],
+            filters: [parseIPTorrentsStats],
           },
           downloaded: {
-            selector: "th:contains('Downloaded') + td",
-            filters: [{ name: "parseSize" }],
+            selector: [
+              "th:contains('Downloaded') + td",
+              "td:contains('Downloaded')",
+              "tr:contains('Downloaded') td:last-child",
+              "table tr:has(th:contains('Downloaded')) td:last-child",
+            ],
+            filters: [parseIPTorrentsStats],
           },
           ratio: {
-            selector: "th:contains('Share ratio') + td",
+            selector: [
+              "th:contains('Share ratio') + td",
+              "td:contains('Share ratio')",
+              "tr:contains('Share ratio') td:last-child",
+            ],
             filters: [{ name: "parseNumber" }],
           },
           levelName: {
@@ -297,7 +543,22 @@ export const siteMetadata: ISiteMetadata = {
             filters: [{ name: "parseNumber" }],
           },
           seedingSize: {
-            text: "N/A",
+            selector: "body",
+            filters: [() => "N/A"],
+          },
+          invites: {
+            selector: [
+              // 🎯 精确匹配IPTorrents的"Available:"格式（基于实际HTML结构）
+              "th:contains('Invites') + td",
+              "tr:has(th:contains('Invites')) td",
+              "td:contains('Available:')",
+
+              // 🔍 备选匹配格式
+              "th:contains('Available') + td",
+              "td:contains('Available')",
+              "tr:contains('Available') td:last-child",
+            ],
+            filters: [parseIPTorrentsInvites],
           },
         },
       },
