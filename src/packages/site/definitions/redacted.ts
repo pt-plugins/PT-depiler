@@ -31,7 +31,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       // /ajax.php?action=community_stats
       seedingSize: {
-        selector: ["response.seedingSize"],
+        selector: ["response.seedingsize"],
         filters: [{ name: "parseSize" }],
       },
     },
