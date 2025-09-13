@@ -7,6 +7,41 @@ import {
 import { parseTimeToLive } from "../utils";
 import { set } from "es-toolkit/compat";
 
+// 解析IPTorrents用户统计信息
+const parseIPTorrentsStats = (query: string): number => {
+  if (!query) return 0;
+  const cleanQuery = query.trim().replace(/\s+/g, " ");
+
+  const sizeMatch = cleanQuery.match(/([\d.]+)\s*(TB|GB|MB|KB|B)/i);
+  if (sizeMatch) {
+    const value = parseFloat(sizeMatch[1]);
+    const unit = sizeMatch[2].toUpperCase();
+    const multipliers: Record<string, number> = {
+      TB: 1024 ** 4,
+      GB: 1024 ** 3,
+      MB: 1024 ** 2,
+      KB: 1024,
+      B: 1,
+    };
+    return value * (multipliers[unit] || 1);
+  }
+
+  const numberMatch = cleanQuery.match(/[\d.]+/);
+  return numberMatch ? parseFloat(numberMatch[0]) : 0;
+};
+
+// 解析邀请数量
+const parseIPTorrentsInvites = (query: string): number => {
+  if (!query) return 0;
+  const cleanQuery = query.trim();
+
+  const availableMatch = cleanQuery.match(/Available:?\s*(\d+)/i);
+  if (availableMatch) return parseInt(availableMatch[1], 10);
+
+  const numberMatch = cleanQuery.match(/\d+/);
+  return numberMatch ? parseInt(numberMatch[0], 10) : 0;
+};
+
 const categoryPart: Pick<ISearchCategories, "cross" | "generateRequestConfig"> = {
   cross: { mode: "custom" },
   generateRequestConfig: (value: TSelectSearchCategoryValue): IAdvancedSearchRequestConfig => {
@@ -166,32 +201,30 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     keywordPath: "params.q",
-    requestConfig: {
-      url: "/t",
-    },
+    requestConfig: { url: "/t" },
     selectors: {
-      rows: { selector: "table#torrents > tbody > tr" },
+      rows: {
+        selector: [
+          "table#torrents > tbody > tr",
+          "table.torrents > tbody > tr",
+          "table > tbody > tr:has(td.al)",
+          "tr:has(td.al)",
+        ],
+      },
       id: {
         selector: " > td.al > a",
         attr: "href",
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/\/t\/(\d+)/);
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : "";
+            const match = query.match(/\/t\/(\d+)/);
+            return match ? parseInt(match[1]) : "";
           },
         ],
       },
       title: { selector: " > td.al > a" },
       subTitle: {
         selector: "div.sub",
-        filters: [
-          (query: string) => {
-            if (/ \| /.test(query)) {
-              return query.split(" | ")[0];
-            }
-            return "";
-          },
-        ],
+        filters: [(query: string) => (/ \| /.test(query) ? query.split(" | ")[0] : "")],
       },
       url: { selector: " > td.al > a", attr: "href" },
       link: { selector: 'a[href*="/download.php"]', attr: "href" },
@@ -199,33 +232,37 @@ export const siteMetadata: ISiteMetadata = {
         selector: "div.sub",
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/(?:\| )?([\d.]+ .+? ago)/);
-            return queryMatch && queryMatch.length >= 2 ? parseTimeToLive(queryMatch[1]) : "";
+            const match = query.match(/(?:\| )?([\d.]+ .+? ago)/);
+            return match ? parseTimeToLive(match[1]) : "";
           },
         ],
       },
-      size: { selector: "> td:nth-child(6)" },
+      size: {
+        selector: ["> td:nth-child(6)", "td:contains('MB')", "td:contains('GB')", "td:contains('TB')"],
+        filters: [{ name: "parseSize" }],
+      },
       author: {
         selector: "div.sub",
         filters: [
           (query: string) => {
-            if (query.includes(" by ")) {
-              const queryMatch = query.match(/by (.+)$/);
-              return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : "";
-            }
-            return "";
+            const match = query.match(/by (.+)$/);
+            return match ? match[1] : "";
           },
         ],
       },
-      category: { selector: "td:eq(0) img", attr: "alt" },
-      seeders: { selector: "td:nth-last-child(2)" },
-      leechers: { selector: "td:nth-last-child(1)" },
-      completed: { selector: "td:nth-last-child(3)" },
-      /**
-       * 部分用戶可能开启 “Torrents - Show files count”，此时在 Size 和 Snatched (即 completed ) 中间会添加 文件数 列，
-       * 所以对于 seeders， leechers， completed 应该从后往前取，
-       * 而 size，comments 应该从前往后取
-       */
+      category: { selector: ["td:eq(0) img", "td:first-child img"], attr: "alt" },
+      seeders: {
+        selector: ["td:nth-last-child(2)", "td:contains('seeders')", "td.seeders"],
+        filters: [{ name: "parseNumber" }],
+      },
+      leechers: {
+        selector: ["td:nth-last-child(1)", "td:contains('leechers')", "td.leechers"],
+        filters: [{ name: "parseNumber" }],
+      },
+      completed: {
+        selector: ["td:nth-last-child(3)", "td:contains('snatched')", "td.completed"],
+        filters: [{ name: "parseNumber" }],
+      },
       comments: {
         selector: "> td:nth-child(5)",
         filters: [(q: string) => q.replace(/Go ?to ?comments/, "")],
@@ -249,8 +286,8 @@ export const siteMetadata: ISiteMetadata = {
             switchFilters: {
               "a[href*='/u/']:first": [
                 (query: string) => {
-                  const queryMatch = query.match(/u\/(.+)/);
-                  return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : "";
+                  const match = query.match(/u\/(.+)/);
+                  return match ? parseInt(match[1]) : "";
                 },
               ],
               "a[href*='userdetails.php']:first": [{ name: "querystring", args: ["id"] }],
@@ -266,24 +303,34 @@ export const siteMetadata: ISiteMetadata = {
             selector: ["td[style*='background: red'] a[href*='messages.php']"],
             filters: [{ name: "parseNumber" }],
           },
-          name: {
-            selector: "h1.c0",
-          },
+          name: { selector: "h1.c0" },
           uploaded: {
-            selector: "th:contains('Uploaded') + td",
-            filters: [{ name: "parseSize" }],
+            selector: [
+              "th:contains('Uploaded') + td",
+              "td:contains('Uploaded')",
+              "tr:contains('Uploaded') td:last-child",
+              "table tr:has(th:contains('Uploaded')) td:last-child",
+            ],
+            filters: [parseIPTorrentsStats],
           },
           downloaded: {
-            selector: "th:contains('Downloaded') + td",
-            filters: [{ name: "parseSize" }],
+            selector: [
+              "th:contains('Downloaded') + td",
+              "td:contains('Downloaded')",
+              "tr:contains('Downloaded') td:last-child",
+              "table tr:has(th:contains('Downloaded')) td:last-child",
+            ],
+            filters: [parseIPTorrentsStats],
           },
           ratio: {
-            selector: "th:contains('Share ratio') + td",
+            selector: [
+              "th:contains('Share ratio') + td",
+              "td:contains('Share ratio')",
+              "tr:contains('Share ratio') td:last-child",
+            ],
             filters: [{ name: "parseNumber" }],
           },
-          levelName: {
-            selector: "th:contains('Class') + td",
-          },
+          levelName: { selector: "th:contains('Class') + td" },
           bonus: {
             selector: "a[href='/mybonus.php']",
             filters: [{ name: "parseNumber" }],
@@ -296,8 +343,17 @@ export const siteMetadata: ISiteMetadata = {
             selector: "th:contains('Seeding') + td",
             filters: [{ name: "parseNumber" }],
           },
-          seedingSize: {
-            text: "N/A",
+          seedingSize: { text: "N/A" },
+          invites: {
+            selector: [
+              "th:contains('Invites') + td",
+              "tr:has(th:contains('Invites')) td",
+              "td:contains('Available:')",
+              "th:contains('Available') + td",
+              "td:contains('Available')",
+              "tr:contains('Available') td:last-child",
+            ],
+            filters: [parseIPTorrentsInvites],
           },
         },
       },
