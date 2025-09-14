@@ -7,7 +7,7 @@ const categoryOptions = [
   { name: "TV Show", value: 2 },
   { name: "Movie", value: 1 },
   { name: "Anime", value: 6 },
-  { name: "Sports", value: 6 },
+  { name: "Sports", value: 8 },
   { name: "Music", value: 5 },
   { name: "Audiobook", value: 9 },
   { name: "E-Book", value: 7 },
