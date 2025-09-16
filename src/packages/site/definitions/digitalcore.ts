@@ -232,7 +232,7 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       id: { selector: "torrent[viewing-torrent]", attr: "viewing-torrent" },
       title: { selector: "div.ellipsis > span" },
-      link: { selector: "div[ng-hide*='vm.torrent'] > a:nth-child(2)", attr: "href" },
+      link: { selector: "div[ng-hide*='vm.torrent'] > a:nth-child(1)", attr: "href" },
     },
   },
 
