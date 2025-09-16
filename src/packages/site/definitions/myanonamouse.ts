@@ -224,7 +224,7 @@ export const siteMetadata: ISiteMetadata = {
         },
         {
           name: "H&R",
-          selector: "*",
+          selector: "id", // 一个一定会出现的字段，这里用于添加 HR tag
           color: "red",
         },
       ],
