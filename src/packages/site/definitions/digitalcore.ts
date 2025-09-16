@@ -86,7 +86,7 @@ export const siteMetadata: ISiteMetadata = {
   id: "digitalcore",
   version: 1,
   name: "DigitalCore.Club",
-  aka: ["DCC"],
+  aka: ["DC", "DCC"],
   description: "In a world of sharing, people make the difference.",
   tags: ["综合"],
   timezoneOffset: "+0200",
