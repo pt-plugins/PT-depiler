@@ -165,6 +165,43 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
+  detail: {
+    urlPattern: ["/details.php"],
+
+    selectors: {
+      title: {
+        selector: ["h1", "html > body > title"],
+        switchFilters: {
+          h1: [
+            (title: string) => {
+              // ^(.+?)   .+$
+              let titleMatch = title.match(/^(.+?) +.+$/);
+              if (titleMatch && titleMatch.length >= 2) {
+                return titleMatch[1].trim();
+              }
+              return title;
+            },
+          ],
+
+          "html > body > title": [
+            (title: string) => {
+              // {torrentName} :: HDBits
+              let titleMatch = title.match(/(.+) :: HDBits$/);
+              if (titleMatch && titleMatch.length >= 3) {
+                return titleMatch[1].trim();
+              }
+              return title;
+            },
+          ],
+        },
+      },
+      link: {
+        selector: ['a[href*="download.php"][href*="&passkey="]'],
+        attr: "href",
+      },
+    },
+  },
+
   userInfo: {
     pickLast: ["id", "name", "joinTime"],
     // From https://github.com/pt-plugins/PT-Plugin-Plus/blob/e8559fbcbfac9d6149de0f5484807917355c9844/resource/sites/hdbits.org/config.json#L167-L225
