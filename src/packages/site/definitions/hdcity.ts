@@ -7,6 +7,24 @@ import NexusPHP, {
 } from "../schemas/NexusPHP.ts";
 import { parseSizeString, parseValidTimeString } from "../utils";
 
+// 清理用户名中的 star 相关元素和文本
+const cleanUsername = (element: Element): string => {
+  const clone = element.cloneNode(true) as Element;
+  
+  // 移除包含 star 的元素
+  clone.querySelectorAll('i, span, div').forEach(el => {
+    if (el.textContent?.toLowerCase().includes('star')) {
+      el.remove();
+    }
+  });
+  
+  // 清理文本
+  let result = clone.textContent?.replace(/\b(starbig|star)\b/gi, '') || '';
+  result = result.replace(/\s+/g, ' ').replace(/^[\s\-_\.=]+|[\s\-_\.=]+$/g, '');
+  
+  return result || element.textContent?.trim() || '';
+};
+
 const levelRequirements: (ILevelRequirement & { levelId?: number })[] = [
   {
     id: 0,
@@ -37,7 +55,14 @@ const levelRequirements: (ILevelRequirement & { levelId?: number })[] = [
     ratio: 1.5,
     privilege: "可以在做种/下载/发布的时候选择匿名模式。",
   },
-  { id: 4, name: "力天使", interval: "P16W", uploaded: "1TB", ratio: 2.0, privilege: "可以查看普通日志。" },
+  {
+    id: 4,
+    name: "力天使",
+    interval: "P16W",
+    uploaded: "1TB",
+    ratio: 2.0,
+    privilege: "可以查看普通日志。",
+  },
   {
     id: 5,
     name: "主天使",
@@ -46,7 +71,14 @@ const levelRequirements: (ILevelRequirement & { levelId?: number })[] = [
     ratio: 2.5,
     privilege: "主天使及以上市民会永远保留账号。",
   },
-  { id: 6, name: "座天使", interval: "P36W", uploaded: "10TB", ratio: 2.6, privilege: "" },
+  {
+    id: 6,
+    name: "座天使",
+    interval: "P36W",
+    uploaded: "10TB",
+    ratio: 2.6,
+    privilege: "",
+  },
   {
     id: 7,
     name: "智天使",
@@ -62,6 +94,46 @@ const levelRequirements: (ILevelRequirement & { levelId?: number })[] = [
     uploaded: "40TB",
     ratio: 4.0,
     privilege: "最牛逼的市民，或特殊任务分配。",
+  },
+  {
+    id: 9,
+    name: "贵宾",
+    privilege: "管理员分配，捐助的市民，或自行以魅力值兑换获得。免除自动降级无视分享率。",
+  },
+  {
+    id: 10,
+    name: "隐天使",
+    privilege: "退休后的管理组成员。",
+  },
+  {
+    id: 11,
+    name: "射种天使",
+    privilege: "专注的发布者。工作组。可以查看匿名。",
+  },
+  {
+    id: 12,
+    name: "论坛版主",
+    privilege: "论坛管理者。可以制定在任版块的版规、管理主题和帖子。",
+  },
+  {
+    id: 13,
+    name: "总版主",
+    privilege: "可以查看管理组信箱、举报信箱；管理趣味盒内容、投票内容；可以编辑或删除任何发布的种子及字幕；可以管理候选；可以管理论坛帖子、用户评论；可以查看机密日志；可以管理日志中的代码、史册；可以查看用户的邀请记录；可以管理用户帐号的一般信息；可以将种子设为置顶或促销；可以查看用户IP或Email等机密信息。不能管理友情链接、最近消息；不能删除账号。",
+  },
+  {
+    id: 14,
+    name: "管理员",
+    privilege: "各种日常管理，可以做任何修改。",
+  },
+  {
+    id: 15,
+    name: "守护天使",
+    privilege: "网站开发/维护人员，可以做任何修改。",
+  },
+  {
+    id: 16,
+    name: "市长",
+    privilege: "灵魂。",
   },
 ];
 
@@ -235,7 +307,10 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
       size: { selector: ".mbottom .mbelement:nth-child(3)", filters: [{ name: "parseSize" }] },
-      author: { selector: ["div[style='minfo'] > span i, div[style='minfo'] > span font"] },
+      author: { 
+        selector: ["div[style='minfo'] > span"],
+        elementProcess: cleanUsername,
+      },
       seeders: {
         selector: ".mbottom a[href*='seeders']",
         filters: [
@@ -279,7 +354,8 @@ export const siteMetadata: ISiteMetadata = {
             ],
           },
           name: {
-            selector: ["center .text_alt span[style]"],
+            selector: [".text_alt span[style]"],
+            elementProcess: cleanUsername,
           },
           messageCount: {
             text: 0,
