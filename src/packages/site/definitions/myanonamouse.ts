@@ -1,6 +1,6 @@
 import { mergeWith } from "es-toolkit";
 
-import { EResultParseStatus, type ISearchInput, type ISiteMetadata, type ITorrent, type IUserInfo } from "../types";
+import { EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 
 const categoryOptions = [
@@ -102,18 +102,6 @@ const commonDocumentSelectors = {
   url: { selector: "a.torTitle", attr: "href" },
   link: { selector: "a.directDownload", attr: "href" },
 };
-
-interface IMyAnonamouseTorrent {
-  id: number;
-  title: string;
-  tags: string;
-  added: string;
-  catname: string;
-  fl_vip: number;
-  free: number;
-  size: number;
-  comments: number;
-}
 
 interface IMyAnonamouseLoadItem {
   count: number;
@@ -227,6 +215,17 @@ export const siteMetadata: ISiteMetadata = {
         {
           name: "Free",
           selector: "free",
+          color: "blue",
+        },
+        {
+          name: "VIP",
+          selector: "fl_vip",
+          color: "yellow",
+        },
+        {
+          name: "H&R",
+          selector: "id", // 一个一定会出现的字段，这里用于添加 HR tag
+          color: "red",
         },
       ],
     },
@@ -313,7 +312,6 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 1,
       name: "Mouse",
-      privilege: "None",
     },
     {
       id: 2,
@@ -355,23 +353,6 @@ export default class MyAnonamouse extends PrivateSite {
     }
 
     return flushUserInfo;
-  }
-
-  protected override parseTorrentRowForTags(
-    torrent: Partial<ITorrent>,
-    row: IMyAnonamouseTorrent,
-    searchConfig: ISearchInput,
-  ): Partial<ITorrent> {
-    torrent.tags ??= [];
-    if (row.fl_vip) {
-      torrent.tags.push({ name: "VIP", color: "yellow" });
-    }
-    if (row.free) {
-      torrent.tags.push({ name: "Free", color: "blue" });
-    }
-    torrent.tags.push({ name: "H&R", color: "red" });
-
-    return torrent;
   }
 
   protected async parseUserInfoForSeedingAndUploadStatus(
