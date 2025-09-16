@@ -217,7 +217,10 @@ export const siteMetadata: ISiteMetadata = {
             selector: ["td.heading:contains('Currently'):contains('seeding') + td"],
             filters: [{ name: "replace", args: ["-", ""] }, { name: "parseNumber" }],
           },
-          seedingSize: { selector: ["td.heading:contains('Seeding size') + td"], filters: [{ name: "parseSize" }] },
+          seedingSize: {
+            selector: ["td.rowhead:contains('Seeding size') + td"],
+            filters: [{ name: "parseSize" }],
+          },
         },
       },
     ],
