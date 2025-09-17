@@ -1,6 +1,6 @@
 import Sizzle from "sizzle";
 import Gazelle, { SchemaMetadata } from "../schemas/Gazelle.ts";
-import type { ISiteMetadata, ITorrent, ITorrentTag, ISearchInput } from "../types";
+import type { ISiteMetadata, ITorrent, ISearchInput } from "../types";
 import { definedFilters, buildCategoryOptions } from "../utils.ts";
 
 const extractSubTitle = (tags: string) => {
@@ -348,8 +348,6 @@ export default class Anthelion extends Gazelle {
    * 需要判断当前页面类型以选择对应的解析方式
    */
   public override async transformSearchPage(doc: Document | any, searchConfig: ISearchInput): Promise<ITorrent[]> {
-    const groupTitleEl = Sizzle(detailPageSelectors.title.selector, doc);
-
     // 根据特定元素是否存在判断是否跳转了详情页
     if (!(Sizzle(`${detailPageSelectors.title.selector} > span`, doc).length > 0)) {
       return super.transformSearchPage(doc, searchConfig);
