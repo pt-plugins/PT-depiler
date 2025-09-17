@@ -1,6 +1,6 @@
 import Sizzle from "sizzle";
 import Gazelle, { SchemaMetadata } from "../schemas/Gazelle.ts";
-import type { ISiteMetadata, ITorrent, ISearchInput } from "../types";
+import { ISiteMetadata, ITorrent, ISearchInput, ETorrentStatus } from "../types";
 import { definedFilters, buildCategoryOptions } from "../utils.ts";
 
 const extractSubTitle = (tags: string) => {
@@ -66,6 +66,23 @@ const detailPageSelectors = {
     selector: "+ tr.torrentdetails span.time",
     attr: "title",
     filters: [{ name: "parseTime", args: ["MMM d yyyy, HH:mm 'UTC'"] }],
+  },
+  progress: {
+    selector: "a[data-toggle-target*='torrent']",
+    filters: [(query: string) => (query.includes("Seeding") ? 100 : null)],
+  },
+  status: {
+    selector: "a[data-toggle-target*='torrent']",
+    filters: [
+      (query: string) => {
+        if (query.includes("Seeding")) {
+          return ETorrentStatus.seeding;
+        } else if (query.includes("Snatched")) {
+          return ETorrentStatus.inactive;
+        }
+        return ETorrentStatus.unknown;
+      },
+    ],
   },
 };
 
@@ -177,6 +194,23 @@ export const siteMetadata: ISiteMetadata = {
           selector: "strong:contains('Freeleech')",
         },
       ],
+      progress: {
+        selector: "div.torrent_info:first",
+        filters: [(query: string) => (query.includes("Seeding") ? 100 : 0)],
+      },
+      status: {
+        selector: "div.torrent_info:first",
+        filters: [
+          (query: string) => {
+            if (query.includes("Seeding")) {
+              return ETorrentStatus.seeding;
+            } else if (query.includes("Snatched")) {
+              return ETorrentStatus.inactive;
+            }
+            return ETorrentStatus.unknown;
+          },
+        ],
+      },
 
       ext_imdb: { selector: "a[href*='imdb.com/title/tt']", attr: "href", filters: [{ name: "extImdbId" }] },
     },
