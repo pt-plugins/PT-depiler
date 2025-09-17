@@ -337,7 +337,7 @@ export const siteMetadata: ISiteMetadata = {
       uploads: 50,
       alternative: [{ uploads: 500 }, { adoptions: 1000 }],
       bonus: 1000000,
-      privilege: "Can have a up to 3 personal collages; Can edit torrents; Receives periodic invites (max 2)",
+      privilege: "Can have a up to 3 personal collages; Can edit torrents",
     },
   ],
 };
@@ -360,13 +360,19 @@ export default class Anthelion extends Gazelle {
     const imdbId = this.getFieldData(doc, searchConfig.searchEntry!.selectors!.ext_imdb!);
 
     const trs = Sizzle(detailPageSelectors.rows.selector, doc);
-    searchConfig.searchEntry!.selectors = detailPageSelectors;
+    const patchedSearchConfig = {
+      ...searchConfig,
+      searchEntry: {
+        ...searchConfig.searchEntry!,
+        selectors: detailPageSelectors,
+      },
+    };
     for (const tr of trs) {
       try {
         const torrent = (await this.parseWholeTorrentFromRow(
           { title, ext_imdb: imdbId },
           tr,
-          searchConfig,
+          patchedSearchConfig,
         )) as ITorrent;
         torrents.push(torrent);
       } catch (e) {
