@@ -195,7 +195,7 @@ export const siteMetadata: ISiteMetadata = {
             selector: ".new-pm.warning",
             filters: [
               (query: string) => {
-                const match = query.match(/(\\d+)/);
+                const match = query.match(/(\d+)/);
                 return match && match.length > 1 ? parseInt(match[1]) : 0;
               },
             ],
