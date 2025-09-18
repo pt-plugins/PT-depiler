@@ -1,5 +1,5 @@
-import type { ISiteMetadata, ITorrent, ITorrentTag, ISearchInput } from "../types";
-import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
+import type { ISiteMetadata } from "../types";
+import { SchemaMetadata } from "../schemas/Unit3D.ts";
 
 const categoryOptions = [
   { name: "Movie", value: 1 },
