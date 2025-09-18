@@ -138,52 +138,6 @@ export const siteMetadata: ISiteMetadata = {
       ratio: 4.55,
       privilege: "得到十个邀请名额。",
     },
-    {
-      id: 10,
-      name: "Star",
-      privilege: "为网站捐款的主。",
-    },
-    {
-      id: 11,
-      name: "贵宾(VIP)",
-      privilege: "和Nexus Master拥有相同权限并被认为是精英成员。免除自动降级。",
-    },
-    {
-      id: 12,
-      name: "其它",
-      privilege: "自定义等级。",
-    },
-    {
-      id: 13,
-      name: "养老族(Retiree)",
-      privilege: "退休后的管理组成员。",
-    },
-    {
-      id: 14,
-      name: "发布员(Uploader)",
-      privilege: "专注的发布者。免除自动降级；可以查看匿名用户的真实身份。",
-    },
-    {
-      id: 15,
-      name: "总版主(Moderator)",
-      privilege:
-        "可以查看管理组信箱、举报信箱；管理趣味盒内容、投票内容；可以编辑或删除任何发布的种子；可以管理候选；可以管理论坛帖子、用户评论；可以查看机密日志；可以删除任何字幕；可以管理日志中的代码、史册；可以查看用户的邀请记录；可以管理用户帐号的一般信息。",
-    },
-    {
-      id: 16,
-      name: "管理员(Administrator)",
-      privilege: "除了不能改变站点设定、管理捐赠外，可以做任何事。",
-    },
-    {
-      id: 17,
-      name: "维护开发员(Sysop)",
-      privilege: "网站开发/维护人员，可以改变站点设定，不能管理捐赠。",
-    },
-    {
-      id: 18,
-      name: "主管(Staff Leader)",
-      privilege: "网站主管，可以做任何事。",
-    },
   ],
 
   search: {
@@ -241,6 +195,29 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.userInfo!,
     selectors: {
       ...SchemaMetadata.userInfo!.selectors!,
+      // ZRPT特有的等级解析配置
+      levelId: {
+        selector: ["td.rowhead:contains('等级') + td > img"],
+        attr: "src",
+        filters: [
+          (query: string) => {
+            const match = query.match(/\/class\/(\d+)\.gif/);
+            return match ? parseInt(match[1]) - 1 : 0;
+          },
+        ],
+      },
+      levelName: {
+        selector: ["td.rowhead:contains('等级') + td > img"],
+        attr: "title",
+        filters: [
+          (query: string) => {
+            if (query && query.includes(")")) {
+              return query.split(")")[1].trim();
+            }
+            return query || "";
+          },
+        ],
+      },
       // ZRPT特有的字段配置
       bonus: {
         selector: [
