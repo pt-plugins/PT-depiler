@@ -52,6 +52,7 @@ export interface IImplicitUserInfo {
   leeching?: number; // 下载数量需求
   snatches?: number; // 完成种子数需求
   posts?: number; // 发布帖子数需求
+  adoptions?: number; // 认领种子数要求
 
   hnrUnsatisfied?: number; // H&R 未满足的数量需求
   hnrPreWarning?: number; // H&R 预警
