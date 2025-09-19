@@ -13,8 +13,6 @@ export const siteMetadata: ISiteMetadata = {
   timezoneOffset: "+0800",
   favicon: "./dubhe.ico",
 
-  collaborator: ["PT-depiler"],
-
   type: "private",
   schema: "NexusPHP",
 
@@ -93,7 +91,7 @@ export const siteMetadata: ISiteMetadata = {
       invites: {
         selector: [
           "td.rowhead:contains('邀请') + td",
-          "td.rowhead:contains('邀請') + td", 
+          "td.rowhead:contains('邀請') + td",
           "td.rowhead:contains('Invites') + td",
           "td.rowhead:contains('Available') + td",
           "td:contains('邀请')",
@@ -108,9 +106,9 @@ export const siteMetadata: ISiteMetadata = {
               // 匹配 "Available: 5" 格式
               const availableMatch = query.match(/Available:\s*(\d+)/i);
               if (availableMatch) return parseInt(availableMatch[1], 10) || 0;
-              
+
               // 匹配纯数字
-              const num = parseInt(query.match(/\d+/)?.[0] || '0', 10);
+              const num = parseInt(query.match(/\d+/)?.[0] || "0", 10);
               return isNaN(num) ? 0 : num;
             } catch {
               return 0;
@@ -146,7 +144,8 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "50GB",
       ratio: 1.05,
       seedingBonus: 40000,
-      privilege: "得到一个邀请名额；可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种；可以发送邀请；可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为\"强\")；可以删除自己上传的字幕。",
+      privilege:
+        '得到一个邀请名额；可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种；可以发送邀请；可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")；可以删除自己上传的字幕。',
     },
     {
       id: 2,

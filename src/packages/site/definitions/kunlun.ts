@@ -12,8 +12,6 @@ export const siteMetadata: ISiteMetadata = {
   timezoneOffset: "+0800",
   favicon: "./_default_nexusphp.png",
 
-  collaborator: ["PT-depiler"],
-
   type: "private",
   schema: "NexusPHP",
 
