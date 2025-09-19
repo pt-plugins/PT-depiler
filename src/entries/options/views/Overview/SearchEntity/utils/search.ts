@@ -26,7 +26,7 @@ searchQueue.on("active", () => {
   // 启动后，根据 configStore 的值，自动更新 searchQueue 的并发数
   if (searchQueue.concurrency != configStore.searchEntity.queueConcurrency) {
     searchQueue.concurrency = configStore.searchEntity.queueConcurrency;
-    console.log("Search queue concurrency changed to: ", searchQueue.concurrency);
+    console.debug("Search queue concurrency changed to: ", searchQueue.concurrency);
   }
   // 队列开始活跃时，更新全局 Set
   globalExistingIds.clear();
