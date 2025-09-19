@@ -753,6 +753,14 @@ export default class MTeam extends PrivateSite {
   }
 
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    // fix: 如果 torrent 对象没有 id ，尝试从 link 中提取 (https://github.com/pt-plugins/PT-depiler/issues/600)
+    if (!torrent.id && torrent.link) {
+      const match = torrent.link.match(/\/detail\/(\d+)/);
+      if (match) {
+        torrent.id = match[1];
+      }
+    }
+
     const { data } = await this.request<IMTeamRawResp<string>>({
       method: "POST",
       url: "/api/torrent/genDlToken",
