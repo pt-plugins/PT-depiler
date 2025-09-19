@@ -2,7 +2,6 @@
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/hdtorrents.yml
  * @JackettIssue https://github.com/Jackett/Jackett/issues/16002
  */
-import { tryToNumber } from "../utils.ts";
 import type { ISiteMetadata } from "../types.ts";
 import { definedFilters } from "../utils.ts";
 import urlJoin from "url-join";
@@ -217,12 +216,12 @@ export const siteMetadata: ISiteMetadata = {
           },
           ratio: {
             selector: "td.header:contains('Ratio') + td",
-            filters: [tryToNumber],
+            filters: [{ name: "replace", args: [/,/g, ""] }, { name: "parseNumber" }],
           },
           levelName: { selector: "td.header:contains('Rank') + td" },
           bonus: {
             selector: "td.header:contains('Seed Bonus Points') + td",
-            filters: [tryToNumber],
+            filters: [{ name: "replace", args: [/,/g, ""] }, { name: "parseNumber" }],
           },
           joinTime: {
             selector: "td.header:contains('Joined on') + td",
