@@ -1,5 +1,6 @@
 import type { ISiteMetadata } from "../types";
 import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+import { userInfoWithInvitesInUserDetailsPage } from "./kunlun.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -17,7 +18,6 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["https://pt.ying.us.kg/"],
-  collaborator: ["PT-depiler"],
 
   category: [
     {
@@ -111,51 +111,7 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
-  userInfo: {
-    ...SchemaMetadata.userInfo!,
-    selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
-      // 邀请数量采集 - 参考昆仑站点的实现
-      invites: {
-        selector: [
-          "td.rowhead:contains('邀请') + td",
-          "td.rowhead:contains('Invites') + td",
-          "td.rowhead:contains('Available') + td",
-          "td:contains('邀请')",
-          "td:contains('Invites')",
-          "td:contains('Available')",
-        ],
-        filters: [
-          (query: string) => {
-            if (!query?.trim()) return 0;
-            try {
-              // 匹配 "Available: 5" 格式
-              const availableMatch = query.match(/Available:\s*(\d+)/i);
-              if (availableMatch) return parseInt(availableMatch[1], 10) || 0;
-
-              // 匹配纯数字
-              const num = parseInt(query.match(/\d+/)?.[0] || "0", 10);
-              return isNaN(num) ? 0 : num;
-            } catch {
-              return 0;
-            }
-          },
-        ],
-      },
-    },
-    process: [
-      ...SchemaMetadata.userInfo!.process!.map((item) => {
-        // 在用户详情页面添加 invites 字段
-        if (item.requestConfig.url === "/userdetails.php") {
-          return {
-            ...item,
-            fields: [...(item.fields || []), "invites"],
-          };
-        }
-        return item;
-      }),
-    ],
-  },
+  userInfo: userInfoWithInvitesInUserDetailsPage,
 
   levelRequirements: [
     {
