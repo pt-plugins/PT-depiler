@@ -103,26 +103,6 @@ const stageConfig = computed(() => {
   };
 });
 
-const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent); // FIXME 该判断移动到 utils.ts 中
-
-(Konva.Filters as any).tryNativeBlur = isSafari
-  ? Konva.Filters.Blur
-  : function (imageData: ImageData) {
-      // 创建一个和 imageData 一样大小的 OffscreenCanvas
-      const context = new OffscreenCanvas(imageData.width, imageData.height).getContext("2d")!;
-
-      // @ts-expect-error
-      const radius = Math.round((this as Konva.Node).blurRadius());
-      context.filter = `blur(${radius}px)`;
-
-      // @ts-expect-error
-      const image = (this as any).getImage() as HTMLImageElement;
-      context.drawImage(image, 0, 0, image.width, image.height, 0, 0, imageData.width, imageData.height);
-      const newImageData = context.getImageData(0, 0, imageData.width, imageData.height);
-
-      imageData.data.set(newImageData.data);
-    };
-
 // 绘制相关辅助函数
 const favicon = (config: TKonvaConfig) => {
   const imageBaseSize = config.size ?? 24;
@@ -152,8 +132,7 @@ const favicon = (config: TKonvaConfig) => {
 
   return image({
     image: imageElement,
-    filters: [(Konva.Filters as any).tryNativeBlur],
-    blurRadius: control.faviconBlue,
+    filters: [`blur(${control.faviconBlue}px)`],
     ...config,
   });
 };

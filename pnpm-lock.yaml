@@ -56,8 +56,8 @@ importers:
         specifier: ^3.10.1
         version: 3.10.1
       konva:
-        specifier: ^9.3.22
-        version: 9.3.22
+        specifier: ^10.0.2
+        version: 10.0.2
       nanoid:
         specifier: ^5.1.5
         version: 5.1.5
@@ -99,7 +99,7 @@ importers:
         version: 11.1.12(vue@3.5.21(typescript@5.8.3))
       vue-konva:
         specifier: ^3.2.6
-        version: 3.2.6(konva@9.3.22)(vue@3.5.21(typescript@5.8.3))
+        version: 3.2.6(konva@10.0.2)(vue@3.5.21(typescript@5.8.3))
       vue-router:
         specifier: ^4.5.1
         version: 4.5.1(vue@3.5.21(typescript@5.8.3))
@@ -2351,8 +2351,8 @@ packages:
   kolorist@1.8.0:
     resolution: {integrity: sha512-Y+60/zizpJ3HRH8DCss+q95yr6145JXZo46OTpFvDZWLfRCE4qChOyk1b26nMaNpfHHgxagk9dXT5OP0Tfe+dQ==}
 
-  konva@9.3.22:
-    resolution: {integrity: sha512-yQI5d1bmELlD/fowuyfOp9ff+oamg26WOCkyqUyc+nczD/lhRa3EvD2MZOoc4c1293TAubW9n34fSQLgSeEgSw==}
+  konva@10.0.2:
+    resolution: {integrity: sha512-NrZED6YG5BX5h3Xu8EZgLqhQ/+ZhxANYXmlIhMOfpBf+0ToExcdwE+Y46LyJOO/JR7FVeR3YTqon3eirnuo44A==}
 
   ky@1.8.1:
     resolution: {integrity: sha512-7Bp3TpsE+L+TARSnnDpk3xg8Idi8RwSLdj6CMbNWoOARIrGrbuLGusV0dYwbZOm4bB3jHNxSw8Wk/ByDqJEnDw==}
@@ -5844,7 +5844,7 @@ snapshots:
 
   kolorist@1.8.0: {}
 
-  konva@9.3.22: {}
+  konva@10.0.2: {}
 
   ky@1.8.1: {}
 
@@ -7043,9 +7043,9 @@ snapshots:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.21(typescript@5.8.3)
 
-  vue-konva@3.2.6(konva@9.3.22)(vue@3.5.21(typescript@5.8.3)):
+  vue-konva@3.2.6(konva@10.0.2)(vue@3.5.21(typescript@5.8.3)):
     dependencies:
-      konva: 9.3.22
+      konva: 10.0.2
       vue: 3.5.21(typescript@5.8.3)
 
   vue-router@4.5.1(vue@3.5.21(typescript@5.8.3)):
