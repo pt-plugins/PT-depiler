@@ -304,7 +304,7 @@ export default class SportsCult extends PrivateSite {
     const seedingSize = seedingTrs.reduce((size, tr) => {
       const sizeTd = Sizzle("td:eq(1)", tr);
       if (sizeTd.length < 1) return size;
-      return size + parseSizeString(sizeTd[0].textContent);
+      return size + parseSizeString(sizeTd[0].textContent || "");
     }, 0);
 
     flushUserInfo.seeding = seedingNum;
