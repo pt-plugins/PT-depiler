@@ -102,7 +102,7 @@ const favicon = (config: TKonvaConfig) => {
   let imageElement: HTMLImageElement | OffscreenCanvas = siteConfig.faviconElement;
 
   if (siteConfig.isDead) {
-    imageFilters.push(Konva.Filters.Grayscale);
+    imageFilters.push("grayscale(1)");
   }
 
   // 如果设置中传入了 canvas 这个自定义参数，我们为这个 favicon 生成一个带有背景的 canvas，然后在 canvas 上居中绘制 favicon
