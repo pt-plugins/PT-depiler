@@ -45,6 +45,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       title: {
         selector: "span[style='float:none;']", // BTN的种子标题选择器
+        attr: "title",
       },
       category: {
         selector: "a[href*='filter_cat'] img", // BTN的分类选择器
