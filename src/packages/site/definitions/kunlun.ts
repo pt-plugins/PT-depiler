@@ -94,22 +94,21 @@ export const siteMetadata: ISiteMetadata = {
       ...SchemaMetadata.userInfo!.selectors!,
       invites: {
         selector: [
-          "td.rowhead:contains('剩余邀请') + td",
-          "td.rowhead:contains('剩餘邀請') + td",
-          "td:contains('剩余邀请')",
-          "td:contains('剩餘邀請')",
+          "td.rowhead:contains('邀请') + td",
+          "td.rowhead:contains('Invites') + td",
+          "td.rowhead:contains('Available') + td",
+          "td:contains('邀请')",
+          "td:contains('邀請')",
+          "td:contains('Invites')",
+          "td:contains('Available')",
         ],
         filters: [
           (query: string) => {
             if (!query?.trim()) return 0;
             try {
-              // 匹配 "剩余邀请: 2" 格式
-              const remainingMatch = query.match(/剩余邀请[：:]\s*(\d+)/i);
-              if (remainingMatch) return parseInt(remainingMatch[1], 10) || 0;
-
-              // 匹配 "剩餘邀請: 2" 格式
-              const remainingTwMatch = query.match(/剩餘邀請[：:]\s*(\d+)/i);
-              if (remainingTwMatch) return parseInt(remainingTwMatch[1], 10) || 0;
+              // 匹配 "Available: 5" 格式
+              const availableMatch = query.match(/Available:\s*(\d+)/i);
+              if (availableMatch) return parseInt(availableMatch[1], 10) || 0;
 
               // 匹配纯数字
               const num = parseInt(query.match(/\d+/)?.[0] || "0", 10);
