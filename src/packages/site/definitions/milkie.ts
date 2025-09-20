@@ -103,6 +103,7 @@ export const siteMetadata: ISiteMetadata = {
           uploaded: { selector: "user.uploaded" },
           downloaded: { selector: "user.downloaded" },
           joinTime: { selector: "user.createdAt", filters: [{ name: "parseTime" }] },
+          levelName: { text: "Early bird" },
         },
       },
     ],
