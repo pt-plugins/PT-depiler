@@ -357,7 +357,7 @@ export default class Luminance extends PrivateSite {
       const trs = seedingPageDocument.querySelectorAll("tr.torrent");
       for (const tr of trs) {
         const sizeTd = tr.querySelector(`td:nth-child(${sizeIndex + 1})`);
-        const sizeText = sizeTd?.textContent.trim() || "";
+        const sizeText = sizeTd?.textContent?.trim() || "";
         seedingSize += parseSizeString(sizeText.replace(/,/g, ""));
       }
     }
