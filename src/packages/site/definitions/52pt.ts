@@ -2,8 +2,9 @@
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/52pt.yml
  * @JackettIssue https://github.com/Jackett/Jackett/issues/6763
  */
-import { type ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
+import type { ISiteMetadata } from "../types";
+import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+import { userInfoWithInvitesInUserDetailsPage } from "./kunlun";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -15,6 +16,7 @@ export const siteMetadata: ISiteMetadata = {
   description: "低调地在这个PT校园快乐成长 快乐分享",
   tags: ["高清", "电影", "电视剧"],
   timezoneOffset: "+0800",
+  favicon: "./52pt.ico",
 
   collaborator: ["StarGazerQQD", "zhuweitung"],
 
@@ -178,5 +180,57 @@ export const siteMetadata: ISiteMetadata = {
       ratio: 4.55,
       privilege: "得到十个邀请名额。",
     },
+    // VIP/管理组等级
+    {
+      id: 100,
+      name: "名誉校长",
+      nameAka: ["名誉校长", "名誉校长(VIP)", "VIP", "贵宾"],
+      groupType: "vip",
+      privilege: "VIP等级，享受特殊权限。",
+    },
+    {
+      id: 101,
+      name: "离退休",
+      nameAka: ["离退休", "离退休(Retiree)", "Retiree"],
+      groupType: "manager",
+      privilege: "离退休人员等级。",
+    },
+    {
+      id: 102,
+      name: "教员",
+      nameAka: ["教员", "教员(Uploader)", "Uploader"],
+      groupType: "manager",
+      privilege: "教员等级，负责内容上传。",
+    },
+    {
+      id: 103,
+      name: "教授",
+      nameAka: ["教授", "教授(Moderator)", "Moderator"],
+      groupType: "manager",
+      privilege: "教授等级，负责内容审核。",
+    },
+    {
+      id: 104,
+      name: "校长",
+      nameAka: ["校长", "校长(Administrator)", "Administrator"],
+      groupType: "manager",
+      privilege: "校长等级，最高管理权限。",
+    },
+    {
+      id: 105,
+      name: "校区维护",
+      nameAka: ["校区维护", "校区维护(Sysop)", "Sysop"],
+      groupType: "manager",
+      privilege: "校区维护等级，负责系统维护。",
+    },
+    {
+      id: 106,
+      name: "校区创始人",
+      nameAka: ["校区创始人", "校区创始人(Staff Leader)", "Staff Leader"],
+      groupType: "manager",
+      privilege: "校区创始人等级，最高权限。",
+    },
   ],
+
+  userInfo: userInfoWithInvitesInUserDetailsPage,
 };
