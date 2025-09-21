@@ -431,6 +431,7 @@ export const siteMetadata: ISiteMetadata = {
         ...commonListSelectors,
 
         rows: { selector: "div.app-content__inner table.w-full > tbody > tr" },
+        title: { selector: "a[href*='/detail/'] strong" },
         subTitle: { selector: "a[href*='/detail/'] + br + div > span:nth-last-child(1)" },
 
         time: {
@@ -549,6 +550,48 @@ interface IMTeamRawTorrent {
   resetBox: any;
 }
 
+interface IMTeamTorrentHistory {
+  historyMap: Record<
+    string,
+    {
+      id: string;
+      createdDate: string;
+      lastModifiedDate: string | null;
+      userid: string;
+      torrent: string;
+      uploaded: string;
+      download: string;
+      uploadedReal: string;
+      downloadedReal: string;
+      seedtime: string;
+      leechtime: string;
+      timesCompleted: string;
+      lastCompleteDate: string;
+      lastAction: string;
+      startDate: string;
+    }
+  >;
+  peerMap: Record<
+    string,
+    {
+      uid: string;
+      tid: string;
+      ip: string;
+      ipv6: string | null;
+      port: string;
+      agent: string;
+      peerId: string;
+      left: string;
+      uploaded: string;
+      downloaded: string;
+      lastAction: string;
+      createdDate: string;
+      flags: string;
+      boxLimit: boolean;
+    }
+  >;
+}
+
 interface IMTeamRawResp<D> {
   code: string;
   data: D;
@@ -627,49 +670,7 @@ export default class MTeam extends PrivateSite {
    * @param tids 种子ID数组
    * @returns 查询历史的响应数据
    */
-  private async queryTorrentHistory(tids: string[]): Promise<
-    IMTeamRawResp<{
-      historyMap: Record<
-        string,
-        {
-          id: string;
-          createdDate: string;
-          lastModifiedDate: string | null;
-          userid: string;
-          torrent: string;
-          uploaded: string;
-          download: string;
-          uploadedReal: string;
-          downloadedReal: string;
-          seedtime: string;
-          leechtime: string;
-          timesCompleted: string;
-          lastCompleteDate: string;
-          lastAction: string;
-          startDate: string;
-        }
-      >;
-      peerMap: Record<
-        string,
-        {
-          uid: string;
-          tid: string;
-          ip: string;
-          ipv6: string | null;
-          port: string;
-          agent: string;
-          peerId: string;
-          left: string;
-          uploaded: string;
-          downloaded: string;
-          lastAction: string;
-          createdDate: string;
-          flags: string;
-          boxLimit: boolean;
-        }
-      >;
-    }>
-  > {
+  private async queryTorrentHistory(tids: string[]): Promise<IMTeamRawResp<IMTeamTorrentHistory>> {
     const { data } = await this.request<IMTeamRawResp<any>>({
       method: "POST",
       url: "/api/tracker/queryHistory",
