@@ -16,7 +16,7 @@ export const siteMetadata: ISiteMetadata = {
   description: "低调地在这个PT校园快乐成长 快乐分享",
   tags: ["高清", "电影", "电视剧"],
   timezoneOffset: "+0800",
-  favicon: "52pt.ico",
+  favicon: "./52pt.ico",
 
   collaborator: ["StarGazerQQD", "zhuweitung"],
 
