@@ -77,17 +77,6 @@ const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
 // 使用 shallowRef 优化：种子对象数组不需要深度响应式，提升性能
 const tableSelectedRaw = shallowRef<ISearchResultTorrent[]>([]);
 
-// 为兼容性保留原有的 ID 数组格式
-const tableSelected = computed({
-  get: () => tableSelectedRaw.value.map((item: ISearchResultTorrent) => item.uniqueId),
-  set: (ids: Array<ISearchResultTorrent["uniqueId"]>) => {
-    // 当通过 ID 设置时，需要找到对应的对象
-    tableSelectedRaw.value = runtimeStore.search.searchResult.filter((item: ISearchResultTorrent) =>
-      ids.includes(item.uniqueId),
-    );
-  },
-});
-
 // 优化后的选中种子信息计算：直接基于选中对象计算
 const selectedTorrentsInfo = computed(() => {
   const selectedObjects = tableSelectedRaw.value;
@@ -120,6 +109,8 @@ watch(
         (newParams.search && newParams.search != oldParams?.search) ||
         (newParams.plan && newParams.plan != oldParams?.plan)
       ) {
+        // 清理已选择项 （ #622 ）
+        tableSelectedRaw.value = [];
         // doSearch 会自动处理过滤器重置
         doSearch((newParams.search as string) ?? "", (newParams.plan as string) ?? "default", true);
       }
@@ -277,7 +268,7 @@ function cancelSearchQueue() {
 
         <v-divider vertical class="mx-2" />
 
-        <ActionTd :torrent-ids="tableSelected" />
+        <ActionTd :torrent-items="tableSelectedRaw" />
 
         <v-divider vertical class="mx-2" />
 
@@ -347,9 +338,22 @@ function cancelSearchQueue() {
       </v-row>
     </v-card-title>
 
-    <!-- 站点筛选器 -->
     <v-card-text class="pt-2 pb-0">
+      <!-- 站点筛选器 -->
       <QuickSiteFilterSelector v-if="configStore.searchEntity.quickSiteFilter" class="mb-2" />
+
+      <!-- 选中种子信息条 -->
+      <v-alert v-if="selectedTorrentsInfo.count > 0" class="pa-3 mb-0" color="info" density="compact" variant="tonal">
+        <div class="d-flex align-center">
+          <v-chip color="primary" size="small" variant="outlined">
+            <v-icon icon="mdi-checkbox-marked-circle" start />
+            {{ t("SearchEntity.index.selectedTorrents", [selectedTorrentsInfo.count]) }}
+            <v-divider class="mx-2" vertical />
+            <v-icon icon="mdi-harddisk" />
+            {{ formatSize(selectedTorrentsInfo.totalSize) }}
+          </v-chip>
+        </div>
+      </v-alert>
 
       <v-data-table
         id="ptd-search-entity-table"
@@ -370,25 +374,6 @@ function cancelSearchQueue() {
         @update:itemsPerPage="(v) => configStore.updateTableBehavior('SearchEntity', 'itemsPerPage', v)"
         @update:sortBy="(v) => configStore.updateTableBehavior('SearchEntity', 'sortBy', v)"
       >
-        <!-- 选中种子信息条 -->
-        <template v-if="selectedTorrentsInfo.count > 0" #top>
-          <div class="pa-3">
-            <v-alert color="info" variant="tonal" density="compact" class="mb-0">
-              <div class="d-flex align-center">
-                <v-chip color="primary" size="small" variant="outlined">
-                  <v-icon start icon="mdi-checkbox-marked-circle" />
-                  {{ t("SearchEntity.index.selectedTorrents", [selectedTorrentsInfo.count]) }}
-                  <v-divider vertical class="mx-2" />
-                  <v-icon icon="mdi-harddisk" />
-                  {{ formatSize(selectedTorrentsInfo.totalSize) }}
-                </v-chip>
-              </div>
-            </v-alert>
-          </div>
-        </template>
-
-        <!-- 表格内容 -->
-
         <!-- 站点图标 -->
         <template #item.site="{ item }">
           <div class="d-flex flex-column align-center">
@@ -453,7 +438,7 @@ function cancelSearchQueue() {
 
         <!-- 其他操作 -->
         <template #item.action="{ item }">
-          <ActionTd :torrent-ids="[item.uniqueId]" density="compact" />
+          <ActionTd :torrent-items="item" density="compact" />
         </template>
       </v-data-table>
     </v-card-text>

@@ -5,28 +5,21 @@ import { sendMessage } from "@/messages.ts";
 
 import SentToDownloaderDialog from "@/options/components/SentToDownloaderDialog.vue";
 
-const props = withDefaults(
-  defineProps<{
-    torrentIds: string[];
-    density?: "compact" | "default";
-  }>(),
-  { density: "default" },
-);
+const { torrentItems, density = "default" } = defineProps<{
+  torrentItems: ISearchResultTorrent[];
+  density?: "compact" | "default";
+}>();
 
 const btnSize = computed(() => {
-  return props.density === "compact" ? "small" : "default";
+  return density === "compact" ? "small" : "default";
 });
 
 const runtimeStore = useRuntimeStore();
 
-const torrentItems = computed(() => {
-  return runtimeStore.search.searchResult.filter((x) => props.torrentIds.includes(x.uniqueId));
-});
-
 async function getTorrentDownloadLinks() {
   const downloadUrls = [];
 
-  for (const torrent of torrentItems.value) {
+  for (const torrent of torrentItems) {
     const downloadUrl = await sendMessage("getTorrentDownloadLink", torrent);
     sendMessage("logger", { msg: `torrent ${torrent} download link: ${downloadUrl}` }).catch();
     downloadUrls.push({ torrent, downloadUrl });
@@ -57,7 +50,7 @@ async function copyTorrentDownloadLink() {
 const localDlTorrentDownloadLinkBtnStatus = ref(false);
 async function localDlTorrentDownloadLink() {
   localDlTorrentDownloadLinkBtnStatus.value = true;
-  await Promise.allSettled(torrentItems.value.map((torrent) => sendMessage("downloadTorrentToLocalFile", { torrent })));
+  await Promise.allSettled(torrentItems.map((torrent) => sendMessage("downloadTorrentToLocalFile", { torrent })));
   localDlTorrentDownloadLinkBtnStatus.value = false;
 }
 
@@ -65,24 +58,20 @@ const showDownloadClientDialog = ref(false);
 function sendToDownloader() {
   showDownloadClientDialog.value = true;
 }
-
-function noop() {
-  // do nothing
-}
 </script>
 
 <template>
-  <v-btn-group :density="props.density" class="table-action" color="grey" variant="text">
+  <v-btn-group :density="density" class="table-action" color="grey" variant="text">
     <!-- 下载到服务器 -->
     <v-btn
-      :disabled="props.torrentIds.length == 0"
+      :disabled="torrentItems.length == 0"
       :size="btnSize"
       icon="mdi-cloud-download"
       @click="() => sendToDownloader()"
     />
     <!-- 复制下载链接 -->
     <v-btn
-      :disabled="props.torrentIds.length == 0"
+      :disabled="torrentItems.length == 0"
       :loading="copyTorrentDownloadLinkBtnStatus"
       :size="btnSize"
       icon="mdi-content-copy"
@@ -91,7 +80,7 @@ function noop() {
     />
     <!-- 下载种子文件到本地 -->
     <v-btn
-      :disabled="props.torrentIds.length == 0"
+      :disabled="torrentItems.length == 0"
       :loading="localDlTorrentDownloadLinkBtnStatus"
       :size="btnSize"
       icon="mdi-content-save"
