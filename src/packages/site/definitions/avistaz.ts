@@ -1,7 +1,6 @@
 /*
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/AvistaZ.cs
 */
-
 import {
   ISiteMetadata,
   ISearchInput,
