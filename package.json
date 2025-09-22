@@ -89,7 +89,7 @@
     "cross-env": "^10.0.0",
     "git-rev-sync": "^3.0.2",
     "husky": "^9.1.7",
-    "lint-staged": "^16.1.6",
+    "lint-staged": "^16.2.0",
     "prettier": "^3.6.2",
     "sass": "^1.92.1",
     "tsx": "^4.20.5",
