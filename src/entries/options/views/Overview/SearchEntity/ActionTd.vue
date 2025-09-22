@@ -2,6 +2,7 @@
 import { computed, ref } from "vue";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { sendMessage } from "@/messages.ts";
+import type { ISearchResultTorrent } from "@/shared/types.ts";
 
 import SentToDownloaderDialog from "@/options/components/SentToDownloaderDialog.vue";
 

@@ -92,10 +92,6 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.search!,
     selectors: {
       ...SchemaMetadata.search!.selectors!,
-
-      title: {
-        selector: ["a[href*='details.php?id='][title]:first"],
-      },
       subTitle: {
         selector: ["td.embedded > span:last"],
       },
