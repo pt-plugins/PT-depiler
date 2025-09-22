@@ -209,7 +209,7 @@ export const SchemaMetadata: Pick<
         selector: ":self",
         elementProcess: (element: Document) => {
           const url = element.URL;
-          const match = url.match(/\/detail\/(\d+)/);
+          const match = url.match(/\/torrent\/(\d+)/);
           return match ? match[1] : url;
         },
       },
@@ -217,7 +217,7 @@ export const SchemaMetadata: Pick<
       link: { selector: "a.btn.btn-xs.btn-primary", attr: "href" },
     },
   },
-  
+
   userInfo: {
     pickLast: ["name"],
     selectors: {

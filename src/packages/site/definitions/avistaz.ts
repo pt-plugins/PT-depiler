@@ -1,4 +1,4 @@
-import { 
+import {
   ISiteMetadata,
   ISearchInput,
   IAdvancedSearchRequestConfig,
@@ -153,13 +153,13 @@ export default class Avistaz extends AvistazNetwork {
 
   // 中配
   const audioArray = row.audio?.map((a: any) => a.language).filter((x: string) => x.trim() !== "") || [];
-  if (audioArray.some((audio) => /Chinese|Cantonese/i.test(audio))) {
+  if (audioArray.some((audio) => /\b(Chinese|Cantonese)\b/i.test(audio))) {
     tags.push({ name: "中配" });
   }
 
   // 字幕
   const subtitleArray = row.subtitle?.map((s: any) => s.language).filter((x: string) => x.trim() !== "") || [];
-  if (subtitleArray.some((subtitle) => /Chinese/i.test(subtitle))) {
+  if (subtitleArray.some((subtitle) => /\b(Chinese)\b/i.test(subtitle))) {
     tags.push({ name: "中字" });
   }
     extendTorrent.tags = tags;
