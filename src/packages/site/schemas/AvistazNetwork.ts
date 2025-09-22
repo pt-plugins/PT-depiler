@@ -1,3 +1,7 @@
+/*
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/Abstract/AvistazTracker.cs
+*/
+
 import { type AxiosRequestConfig, type AxiosResponse } from "axios";
 import urlJoin from "url-join";
 import Sizzle from "sizzle";

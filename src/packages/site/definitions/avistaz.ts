@@ -1,3 +1,7 @@
+/*
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/AvistaZ.cs
+*/
+
 import {
   ISiteMetadata,
   ISearchInput,
@@ -44,9 +48,6 @@ export const siteMetadata: ISiteMetadata = {
   schema: "AvistazNetwork",
 
   urls: ["uggcf://nivfgnm.gb/"],
-  formerHosts: [""],
-
-  collaborator: [""],
 
   category: [
     {
@@ -120,10 +121,6 @@ export const siteMetadata: ISiteMetadata = {
     { id: 203, name: "Moderator", groupType: "manager" },
     { id: 204, name: "Admin", groupType: "manager" },
     { id: 205, name: "Super Admin", groupType: "manager" },
-  ],
-
-  userInputSettingMeta: [
-    ...SchemaMetadata.userInputSettingMeta!,
   ],
 };
 
