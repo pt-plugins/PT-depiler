@@ -67,7 +67,7 @@ export const CategoryInclbookmarked: ISearchCategories = {
 };
 
 const baseTitleSelector = {
-  selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
+  selector: ["a[href*='details.php?id=']:has(b)", "a[href*='details.php?id=']"],
 };
 
 const parseProgressElement = (element: HTMLElement) => {
