@@ -3,6 +3,7 @@
  */
 import { type ISiteMetadata } from "../types";
 import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+import { userInfoWithInvitesInUserDetailsPage } from "./kunlun.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -69,6 +70,38 @@ export const siteMetadata: ISiteMetadata = {
   searchEntry: {
     area_normal: { name: "种子区", requestConfig: { url: "/torrents.php" } },
     area_special: { name: "9KG专区", enabled: false, requestConfig: { url: "/special.php" } },
+  },
+
+  userInfo: {
+    ...userInfoWithInvitesInUserDetailsPage,
+    selectors: {
+      ...userInfoWithInvitesInUserDetailsPage.selectors!,
+      levelId: {
+        selector: [
+          "td.rowhead:contains('等级') + td > img",
+          "td.rowhead:contains('等級') + td > img",
+          "td.rowhead:contains('Class') + td > img",
+        ],
+        attr: "src",
+        filters: [
+          (query: string) => {
+            const match = query.match(/\/class\/(\d+)\.gif/);
+            return match ? parseInt(match[1]) - 1 : 0;
+          },
+        ],
+      },
+    },
+    process: [
+      ...userInfoWithInvitesInUserDetailsPage.process!.map((item) => {
+        if (item.requestConfig.url === "/userdetails.php") {
+          return {
+            ...item,
+            fields: [...(item.fields || []), "levelId"],
+          };
+        }
+        return item;
+      }),
+    ],
   },
 
   levelRequirements: [
@@ -149,6 +182,71 @@ export const siteMetadata: ISiteMetadata = {
       ratio: 5.5,
       seedingBonus: 1000000,
       privilege: "这个等级会永远保留账号。",
+    },
+    // VIP/管理组等级
+    {
+      id: 100,
+      name: "入尘散仙",
+      nameAka: ["入尘散仙(VIP)", "VIP"],
+      groupType: "vip",
+      privilege: "和游戏帝(Nexus Master)拥有相同权限并被认为是精英成员。免除自动降级。",
+    },
+    {
+      id: 101,
+      name: "游戏帝",
+      nameAka: ["游戏帝(Nexus Master)", "Nexus Master"],
+      groupType: "vip",
+      privilege: "和入尘散仙(VIP)拥有相同权限并被认为是精英成员。免除自动降级。",
+    },
+    {
+      id: 102,
+      name: "其它",
+      nameAka: ["其它", "其它(Other)", "Other"],
+      groupType: "manager",
+      privilege: "自定义等级。",
+    },
+    {
+      id: 103,
+      name: "相忘于江湖",
+      nameAka: ["相忘于江湖", "相忘于江湖(Retiree)", "Retiree"],
+      groupType: "manager",
+      privilege: "退休后的管理组成员。",
+    },
+    {
+      id: 104,
+      name: "发布员",
+      nameAka: ["发布员", "发布员(Uploader)", "Uploader"],
+      groupType: "manager",
+      privilege: "专注的发布者。免除自动降级；可以查看匿名用户的真实身份。",
+    },
+    {
+      id: 105,
+      name: "总版主",
+      nameAka: ["总版主", "总版主(Moderator)", "Moderator"],
+      groupType: "manager",
+      privilege:
+        "可以查看管理组信箱、举报信箱；管理趣味盒内容、投票内容；可以编辑或删除任何发布的种子；可以管理候选；可以管理论坛帖子、用户评论；可以查看机密日志；可以删除任何字幕；可以管理日志中的代码、史册；可以查看用户的邀请记录；可以管理用户帐号的一般信息。不能管理友情链接、最近消息、论坛版块；不能将种子设为置顶或促销；不能查看用户IP或Email等机密信息；不能删除账号。",
+    },
+    {
+      id: 106,
+      name: "管理员",
+      nameAka: ["管理员", "管理员(Administrator)", "Administrator"],
+      groupType: "manager",
+      privilege: "除了不能改变站点设定、管理捐赠外，可以做任何事。",
+    },
+    {
+      id: 107,
+      name: "维护开发员",
+      nameAka: ["维护开发员", "维护开发员(Sysop)", "Sysop"],
+      groupType: "manager",
+      privilege: "网站开发/维护人员，可以改变站点设定，不能管理捐赠。",
+    },
+    {
+      id: 108,
+      name: "主管",
+      nameAka: ["主管", "主管(Staff Leader)", "Staff Leader"],
+      groupType: "manager",
+      privilege: "网站主管，可以做任何事。",
     },
   ],
 };

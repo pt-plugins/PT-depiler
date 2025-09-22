@@ -2,9 +2,10 @@
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/52pt.yml
  * @JackettIssue https://github.com/Jackett/Jackett/issues/6763
  */
-import type { ISiteMetadata } from "../types";
+import type { ISiteMetadata, IUserInfo } from "../types";
 import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 import { userInfoWithInvitesInUserDetailsPage } from "./kunlun";
+import NexusPHP from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -234,3 +235,53 @@ export const siteMetadata: ISiteMetadata = {
 
   userInfo: userInfoWithInvitesInUserDetailsPage,
 };
+
+export default class Site52PT extends NexusPHP {
+  // 重写等级匹配逻辑，使用严格匹配避免"校长"被"名誉校长"包含
+  protected override guessUserLevelId(userInfo: Partial<IUserInfo>): number {
+    if (!userInfo.levelName) return 0;
+
+    const cleanedUserLevelName = userInfo.levelName.replace(/[\s _]+/g, "").toLowerCase();
+
+    // 优先使用精确匹配，避免包含关系导致的错误匹配
+    const exactLevel = siteMetadata.levelRequirements?.find((level) => {
+      const levelNames = [level.name, ...(level.nameAka ?? [])];
+      return levelNames.some((name) => {
+        const cleanedLevelName = name.replace(/[\s _]+/g, "").toLowerCase();
+        // 使用精确匹配
+        return cleanedLevelName === cleanedUserLevelName;
+      });
+    });
+
+    if (exactLevel) {
+      return exactLevel.id;
+    }
+
+    // 如果精确匹配失败，尝试包含匹配（但排除可能冲突的等级）
+    const includeLevel = siteMetadata.levelRequirements?.find((level) => {
+      const levelNames = [level.name, ...(level.nameAka ?? [])];
+      return levelNames.some((name) => {
+        const cleanedLevelName = name.replace(/[\s _]+/g, "").toLowerCase();
+
+        // 特殊处理：如果用户等级是"校长"，避免匹配到"名誉校长"
+        if (cleanedUserLevelName === "校长" && cleanedLevelName.includes("名誉校长")) {
+          return false;
+        }
+
+        // 特殊处理：如果用户等级是"名誉校长"，避免匹配到"校长"
+        if (cleanedUserLevelName === "名誉校长" && cleanedLevelName === "校长") {
+          return false;
+        }
+
+        return cleanedLevelName.includes(cleanedUserLevelName);
+      });
+    });
+
+    if (includeLevel) {
+      return includeLevel.id;
+    }
+
+    // 如果都失败，回退到父类的匹配逻辑
+    return super.guessUserLevelId(userInfo as IUserInfo);
+  }
+}
