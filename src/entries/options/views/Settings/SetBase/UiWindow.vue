@@ -149,6 +149,13 @@ defineExpose({
           </v-col>
           <v-col>
             <v-switch
+              v-model="configStore.contentScript.doubleConfirmAction"
+              color="success"
+              hide-details
+              label="对种子列表页批量复制、本地下载等操作需要二步确认"
+            />
+
+            <v-switch
               v-model="configStore.contentScript.dragLinkOnSpeedDial"
               color="success"
               hide-details
