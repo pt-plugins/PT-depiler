@@ -80,6 +80,8 @@ export const useConfigStore = defineStore("config", {
       applyTheme: false,
       defaultOpenSpeedDial: false,
       stackedButtons: false,
+
+      doubleConfirmAction: true,
       dragLinkOnSpeedDial: true,
 
       socialSiteSearchBy: "chosen",
