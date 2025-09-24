@@ -127,7 +127,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         selector: ["div:contains('Stats') + div.box > ul.stats > li:contains('Ratio:') > span"],
         filters: [
           (query: string) => {
-            if (query === "∞") return Infinity;
+            if (query === "∞") return -1; // Infinity 不能通过 sendMessage 传递，会导致无返回，使用 -1 替代，前端会自动处理的
             const ratioStr = query.replace(/,/g, "");
             return definedFilters.parseNumber(ratioStr);
           },
