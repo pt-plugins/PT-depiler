@@ -52,7 +52,7 @@
     "echarts": "^5.6.0",
     "es-toolkit": "^1.39.10",
     "file-saver": "^2.0.5",
-    "filesize": "^11.0.2",
+    "filesize": "^11.0.13",
     "idb": "^8.0.3",
     "jszip": "^3.10.1",
     "konva": "^10.0.2",
@@ -71,7 +71,7 @@
     "vue-i18n": "^11.1.12",
     "vue-konva": "^3.2.6",
     "vue-router": "^4.5.1",
-    "vuetify": "^3.9.7",
+    "vuetify": "^3.10.3",
     "webdav": "^5.8.0"
   },
   "devDependencies": {
@@ -91,7 +91,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.0",
     "prettier": "^3.6.2",
-    "sass": "^1.92.1",
+    "sass": "^1.93.2",
     "tsx": "^4.20.5",
     "typescript": "~5.8.3",
     "vite": "^6.3.6",
@@ -99,7 +99,7 @@
     "vite-plugin-vue-devtools": "^8.0.2",
     "vite-plugin-vuetify": "^2.1.2",
     "vite-plugin-web-extension": "4.4.3",
-    "vue-tsc": "^3.0.7"
+    "vue-tsc": "^3.0.8"
   },
   "prettier": {
     "printWidth": 120,
