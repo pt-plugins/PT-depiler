@@ -72,7 +72,7 @@ const tableHeader = computed(() => {
   ) as DataTableHeader[];
 });
 
-const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
+const { tableFilterRef, tableWaitFilterRef, tableFilterFn, resetAdvanceFilterDictFn } = tableCustomFilter;
 
 // 使用 shallowRef 优化：种子对象数组不需要深度响应式，提升性能
 const tableSelectedRaw = shallowRef<ISearchResultTorrent[]>([]);
@@ -102,6 +102,10 @@ watch(
     if (newParams.snapshot) {
       metadataStore.getSearchSnapshotData(newParams.snapshot as string).then((data) => {
         data && (runtimeStore.search = { ...data, snapshot: newParams.snapshot as string });
+        // 如果启用了快速站点筛选，则重置一下筛选器，以防止快速站点筛选中无站点数据
+        if (configStore.searchEntity.quickSiteFilter) {
+          resetAdvanceFilterDictFn();
+        }
       });
     } else {
       if (
