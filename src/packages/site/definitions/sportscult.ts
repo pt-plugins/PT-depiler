@@ -160,7 +160,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     advanceKeywordParams: {
-      imdb: { enabled: false },
+      imdb: false,
     },
     selectors: {
       rows: {
