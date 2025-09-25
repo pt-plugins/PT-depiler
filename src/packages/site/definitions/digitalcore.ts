@@ -1,5 +1,5 @@
-import type { ISiteMetadata, IAdvancedSearchRequestConfig } from "../types";
-import { get, set } from "es-toolkit/compat";
+import type { ISiteMetadata } from "../types";
+import { get } from "es-toolkit/compat";
 import { GB } from "../utils";
 
 const commonDocumentSelectors = {
@@ -105,24 +105,11 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       name: "促销状态",
-      key: "free", // 并不是真实的 key
-      keyPath: "params",
+      key: "freeleech",
       options: [
-        { name: "免费", value: 1 }, // 不是真实 value，仅用于区分，在后续的 generateRequestConfig 处理
-        { name: "非免费", value: 2 },
+        { name: "免费", value: "true" },
+        { name: "非免费", value: "false" },
       ],
-      generateRequestConfig: (selectedOption) => {
-        const ret = { requestConfig: { params: {} } };
-        switch (selectedOption as number) {
-          case 1:
-            set(ret.requestConfig.params, "freeleech", true);
-            break;
-          case 2:
-            set(ret.requestConfig.params, "freeleech", false);
-            break;
-        }
-        return ret as IAdvancedSearchRequestConfig;
-      },
     },
   ],
 
