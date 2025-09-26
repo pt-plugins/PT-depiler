@@ -216,12 +216,12 @@ export const siteMetadata: ISiteMetadata = {
           },
           ratio: {
             selector: "td.header:contains('Ratio') + td",
-            filters: [{ name: "replace", args: [/,/g, ""] }, { name: "parseNumber" }],
+            filters: [{ name: "parseNumber" }],
           },
           levelName: { selector: "td.header:contains('Rank') + td" },
           bonus: {
             selector: "td.header:contains('Seed Bonus Points') + td",
-            filters: [{ name: "replace", args: [/,/g, ""] }, { name: "parseNumber" }],
+            filters: [{ name: "parseNumber" }],
           },
           joinTime: {
             selector: "td.header:contains('Joined on') + td",
@@ -240,6 +240,7 @@ export const siteMetadata: ISiteMetadata = {
         selectors: {
           bonusPerHour: {
             selector: "#BonusPointsHideShowTR .blockcontent center:eq(0) h1 font[color='blue']:eq(2)",
+            filters: [{ name: "parseNumber" }],
           },
         },
       },
