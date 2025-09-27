@@ -122,7 +122,7 @@ export const siteMetadata: ISiteMetadata = {
           ],
           "td:nth-child(5):not(:contains('day'))": [
             { name: "trim" },
-            { name: "parseTime", args: ["MMMM dd, yyyy, HH:mm:ss"] },
+            { name: "parseTime", args: ["MMMM dd, yyyy,\u00A0HH:mm:ss"] },
           ],
         },
       },
@@ -225,7 +225,7 @@ export const siteMetadata: ISiteMetadata = {
         selectors: {
           joinTime: {
             selector: "td.header:contains('Joined on') + td",
-            filters: [{ name: "trim" }, { name: "parseTime", args: ["MMMM dd, yyyy, HH:mm:ss"] }],
+            filters: [{ name: "trim" }, { name: "parseTime", args: ["MMMM dd, yyyy,\u00A0HH:mm:ss"] }],
           },
           // FIXME 暂未实现 uploads, seedingSize
         },
