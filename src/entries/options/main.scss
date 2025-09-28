@@ -1,3 +1,7 @@
+a:not(:hover) {
+  text-decoration: none;
+}
+
 /* 在表头过滤器中不显示 v-combobox 的输入框 */
 .v-combobox.table-header-filter-clear {
   .v-field__input {

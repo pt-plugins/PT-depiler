@@ -22,10 +22,13 @@ export const LocalDownloadMethod = [
 export type TLocalDownloadMethod = (typeof LocalDownloadMethod)[number];
 
 export interface IConfigPiniaStorageSchema {
+  version: string; // 插件版本，格式为 v0.0.5.1147+23f758f7 ，如果为空则表示第一次安装
   lang: TLangCode;
   theme: supportThemeType;
   isNavBarOpen: boolean;
+
   ignoreWrongPixelRatio: boolean;
+  showReleaseNoteOnVersionChange: boolean; // 是否在版本更新时展示更新日志
 
   saveTableBehavior: boolean;
   enableTableMultiSort: boolean; // 是否启用表格多列排序

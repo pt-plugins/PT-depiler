@@ -56,10 +56,13 @@ export const useConfigStore = defineStore("config", {
     },
   },
   state: (): IConfigPiniaStorageSchema => ({
+    version: "",
     lang: "zh_CN",
     theme: "light",
     isNavBarOpen: true,
+
     ignoreWrongPixelRatio: false,
+    showReleaseNoteOnVersionChange: true,
 
     saveTableBehavior: true,
     enableTableMultiSort: false,
