@@ -55,6 +55,13 @@ defineExpose({
       </v-select>
 
       <v-switch
+        v-model="configStore.showReleaseNoteOnVersionChange"
+        color="success"
+        hide-details
+        label="插件更新时显示更新日志窗口"
+      />
+
+      <v-switch
         v-model="configStore.saveTableBehavior"
         color="success"
         hide-details
