@@ -110,12 +110,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "类别",
       key: "category",
       options: Object.entries(categoryMap).map(([value, name]) => ({ name, value })),
-      cross: { mode: "custom" },
-      generateRequestConfig: (selectedOptions) => {
-        const params = {};
-        (selectedOptions as string[] | number[]).forEach((val) => set(params, `c${val}`, 1));
-        return { requestConfig: { params } };
-      },
+      cross: { mode: "append", key: "c" },
     },
     {
       name: "种子状态",
