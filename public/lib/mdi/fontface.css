@@ -1,11 +1,6 @@
 @font-face {
   font-family: "Material Design Icons (PTD)";
-  src: url("/lib/mdi/fonts/materialdesignicons-webfont.eot?v=7.4.47");
-  src:
-    url("/lib/mdi/fonts/materialdesignicons-webfont.eot?#iefix&v=7.4.47") format("embedded-opentype"),
-    url("/lib/mdi/fonts/materialdesignicons-webfont.woff2?v=7.4.47") format("woff2"),
-    url("/lib/mdi/fonts/materialdesignicons-webfont.woff?v=7.4.47") format("woff"),
-    url("/lib/mdi/fonts/materialdesignicons-webfont.ttf?v=7.4.47") format("truetype");
+  src: url("/lib/mdi/webfont.woff2?v=7.4.47") format("woff2");
   font-weight: normal;
   font-style: normal;
 }
