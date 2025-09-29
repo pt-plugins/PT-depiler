@@ -92,7 +92,7 @@
     "lint-staged": "^16.2.0",
     "prettier": "^3.6.2",
     "sass": "^1.93.2",
-    "tsx": "^4.20.5",
+    "tsx": "^4.20.6",
     "typescript": "~5.8.3",
     "vite": "^6.3.6",
     "vite-plugin-node-polyfills": "^0.24.0",
