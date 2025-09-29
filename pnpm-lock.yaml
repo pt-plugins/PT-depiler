@@ -71,8 +71,8 @@ importers:
         specifier: ^3.0.3
         version: 3.0.3(typescript@5.8.3)(vue@3.5.21(typescript@5.8.3))
       pinia-plugin-state-persistence:
-        specifier: ^1.10.3
-        version: 1.10.3(pinia@3.0.3(typescript@5.8.3)(vue@3.5.21(typescript@5.8.3)))
+        specifier: ^1.11.0
+        version: 1.11.0(pinia@3.0.3(typescript@5.8.3)(vue@3.5.21(typescript@5.8.3)))
       search-query-parser:
         specifier: ^1.6.0
         version: 1.6.0
@@ -1631,8 +1631,8 @@ packages:
     engines: {node: '>=0.10'}
     hasBin: true
 
-  detect-libc@2.1.0:
-    resolution: {integrity: sha512-vEtk+OcP7VBRtQZ1EJ3bdgzSfBjgnEalLTp5zjJrS+2Z1w2KZly4SBdac/WDU3hhsNAZ9E8SC96ME4Ey8MZ7cg==}
+  detect-libc@2.1.1:
+    resolution: {integrity: sha512-ecqj/sy1jcK1uWrwpR67UhYrIFQ+5WlGxth34WquCbamhFA6hkkwiu37o6J5xCHdo1oixJRfVRw+ywV+Hq/0Aw==}
     engines: {node: '>=8'}
 
   diffie-hellman@5.0.3:
@@ -2777,8 +2777,8 @@ packages:
     engines: {node: '>=0.10'}
     hasBin: true
 
-  pinia-plugin-state-persistence@1.10.3:
-    resolution: {integrity: sha512-enx8vvUnAi8a7YBKUAz4J/Fi4xAaoeyjNf0jZLHLKbAQwrvO2Yc2ckZbdsMGMA3urjzxLo1kcs9/2jNEh7aCAw==}
+  pinia-plugin-state-persistence@1.11.0:
+    resolution: {integrity: sha512-6yTgs96stHbSYSuucNXtKgrBz4HhCSp6X7RmSueliBZzmMfgfd9VELwqj0Z0O6Gf40rdG1/MoLfKgnn5PL3/Kw==}
     peerDependencies:
       pinia: ^2.3.0 || ^3.0.0
 
@@ -5118,7 +5118,7 @@ snapshots:
   detect-libc@1.0.3:
     optional: true
 
-  detect-libc@2.1.0:
+  detect-libc@2.1.1:
     optional: true
 
   diffie-hellman@5.0.3:
@@ -5891,7 +5891,7 @@ snapshots:
 
   lightningcss@1.30.1:
     dependencies:
-      detect-libc: 2.1.0
+      detect-libc: 2.1.1
     optionalDependencies:
       lightningcss-darwin-arm64: 1.30.1
       lightningcss-darwin-x64: 1.30.1
@@ -6278,7 +6278,7 @@ snapshots:
 
   pidtree@0.6.0: {}
 
-  pinia-plugin-state-persistence@1.10.3(pinia@3.0.3(typescript@5.8.3)(vue@3.5.21(typescript@5.8.3))):
+  pinia-plugin-state-persistence@1.11.0(pinia@3.0.3(typescript@5.8.3)(vue@3.5.21(typescript@5.8.3))):
     dependencies:
       pinia: 3.0.3(typescript@5.8.3)(vue@3.5.21(typescript@5.8.3))
 
