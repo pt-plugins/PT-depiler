@@ -20,7 +20,7 @@ export function mountApp(document: Document, data: any = {}) {
 
   // 创建一个全局的 div 并挂载到 body 中，作为 shadow DOM 的挂载点
   const contentRoot = document.createElement("div");
-  const shadowRoot = contentRoot.attachShadow({ mode: "open" });
+  const shadowRoot = contentRoot.attachShadow({ mode: "closed" });
 
   // 将 css 的样式添加到 shadow DOM 中
   const baseStyleElement = document.createElement("style");
