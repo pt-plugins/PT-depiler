@@ -31,17 +31,7 @@ export function mountApp(document: Document, data: any = {}) {
   // 使用 FontFace API方法 添加 mdi 的样式
   new FontFace(
     "Material Design Icons (PTD)",
-    [
-      ["eot", "embedded-opentype"],
-      ["woff2", "woff2"],
-      ["woff", "woff"],
-      ["ttf", "truetype"],
-    ]
-      .map(
-        (_) =>
-          `url("${chrome.runtime.getURL(`/lib/mdi/fonts/materialdesignicons-webfont.${_[0]}`)}") format("${_[1]}")`,
-      )
-      .join(", "),
+    `url("${chrome.runtime.getURL(`/lib/mdi/webfont.woff2`)}") format("woff2")`,
     {
       weight: "normal",
       style: "normal",
