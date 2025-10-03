@@ -251,6 +251,6 @@ export const image = (config: TKonvaConfig) => {
 export const icon = (config: TKonvaConfig) =>
   text({
     fontSize: 32,
-    fontFamily: "Material Design Icons",
+    fontFamily: "Material Design Icons For PTD",
     ...config,
   });
