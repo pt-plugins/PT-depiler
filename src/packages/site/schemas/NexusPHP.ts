@@ -252,6 +252,12 @@ export const SchemaMetadata: Pick<
     },
   },
 
+  list: [
+    {
+      urlPattern: ["/torrents.php", "/special.php"],
+    },
+  ],
+
   detail: {
     urlPattern: ["/details.php"],
 
