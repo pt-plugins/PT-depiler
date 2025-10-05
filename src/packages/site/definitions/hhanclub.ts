@@ -246,6 +246,15 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
+  list: [
+    {
+      urlPattern: ["/torrents.php"],
+    },
+    {
+      urlPattern: ["/special.php"],
+    },
+  ],
+
   levelRequirements: [
     {
       id: 0,
