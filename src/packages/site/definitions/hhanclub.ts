@@ -248,10 +248,7 @@ export const siteMetadata: ISiteMetadata = {
 
   list: [
     {
-      urlPattern: ["/torrents.php"],
-    },
-    {
-      urlPattern: ["/special.php"],
+      urlPattern: ["/torrents.php", "/special.php"],
     },
   ],
 
