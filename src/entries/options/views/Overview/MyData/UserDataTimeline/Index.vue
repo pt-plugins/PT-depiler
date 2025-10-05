@@ -292,7 +292,7 @@ function saveControl() {
                       x: 160,
                       y: 0,
                       text: `󰖛: ${timelineData.totalInfo.deadSites}`,
-                      fontFamily: 'Material Design Icons',
+                      fontFamily: 'Material Design Icons For PTD',
                       fill: '#9E9E9E',
                     })
                   "
@@ -424,7 +424,7 @@ function saveControl() {
                             text: `${allAddedSiteMetadata[userInfo.site]?.isDead ? '󰖛' : ''}${allAddedSiteMetadata[userInfo.site].siteName}`,
                             fill: allAddedSiteMetadata[userInfo.site]?.isDead ? '#9E9E9E' : '#fff',
                             fontFamily: allAddedSiteMetadata[userInfo.site]?.isDead
-                              ? 'Material Design Icons'
+                              ? 'Material Design Icons For PTD'
                               : undefined,
                             fontStyle: 'bold',
                           })
