@@ -253,7 +253,7 @@ function openOptions() {
       </v-speed-dial>
     </div>
 
-    <v-snackbar-queue v-model="runtimeStore.uiGlobalSnakebar" closable />
+    <v-snackbar-queue v-model="runtimeStore.uiGlobalSnakebar" closable :attach="true" />
 
     <SentToDownloaderDialog
       v-model="remoteDownloadDialogData.show"
