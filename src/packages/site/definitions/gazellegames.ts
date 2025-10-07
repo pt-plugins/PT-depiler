@@ -115,6 +115,9 @@ export const siteMetadata: ISiteMetadata = {
         order_way: "desc",
       },
     },
+    advanceKeywordParams: {
+      imdb: false,
+    },
     requestConfigTransformer: ({ requestConfig }) => {
       if (requestConfig?.params.searchstr) {
         // remove . as not used in titles
