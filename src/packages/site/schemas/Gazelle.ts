@@ -69,6 +69,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           "joinTime", // Gazelle 基础项
           "seeding",
           "seedingSize",
+          "uploads",
         ],
       },
     ],
@@ -148,6 +149,10 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           const query = (element.getAttribute("title") || element.innerText).trim();
           return parseValidTimeString(query, ["yyyy-MM-dd HH:mm:ss"]);
         },
+      },
+      uploads: {
+        selector: ["div:contains('Community') + ul.stats > li:contains('Uploaded')"],
+        filters: [{ name: "parseNumber" }],
       },
     },
   },

@@ -154,11 +154,11 @@ export const siteMetadata: ISiteMetadata = {
       rows: { selector: "table#torrent_table > tbody > tr[id]" },
       id: { selector: ":self", attr: "id" },
       title: {
-        selector: "div.name_left > a > b",
+        selector: ["div.name_left > a > b > font", "div.name_left > a > b"],
         elementProcess: (e: HTMLElement) => e.innerHTML.split("<br>")[0],
       },
       subTitle: {
-        selector: "div.name_left > a > b",
+        selector: ["div.name_left > a > b > font", "div.name_left > a > b"],
         elementProcess: (e: HTMLElement) => extractContent(e.innerHTML.split("<br>")[1] || ""),
       },
       url: { selector: "div.name_left > a", attr: "href" },

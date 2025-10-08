@@ -167,12 +167,21 @@ export const siteMetadata: ISiteMetadata = {
           },
         ],
       },
+      uploads: {
+        selector: genUserInfoSelector("community", "uploaded"),
+        filters: [{ name: "parseNumber" }],
+      },
     },
   },
 
   levelRequirements: [
     {
       id: 1,
+      name: "User",
+      privilege: "Can download/upload.",
+    },
+    {
+      id: 2,
       name: "Member",
       interval: "P1W",
       uploaded: "10GB",
@@ -182,7 +191,7 @@ export const siteMetadata: ISiteMetadata = {
         "Can use invites, notifications, set a forum signature, access the Top 10 and edit the Knowledge base.",
     },
     {
-      id: 2,
+      id: 3,
       name: "Power User",
       interval: "P2W",
       uploaded: "25GB",

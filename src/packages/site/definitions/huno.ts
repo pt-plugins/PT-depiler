@@ -135,6 +135,11 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
+  noLoginAssert: {
+    ...SchemaMetadata.noLoginAssert,
+    urlPatterns: [/doLogin|login|verify|checkpoint|returnto|twofactor/gi],
+  },
+
   userInfo: {
     pickLast: ["name", "id"],
     selectors: {

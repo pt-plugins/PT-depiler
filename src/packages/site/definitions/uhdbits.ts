@@ -195,7 +195,7 @@ export default class UHDBits extends GazelleJSONAPI {
     return TListDocument;
   }
 
-  protected override async getUserSeedingTorrents(userId: number): Promise<Partial<IUserInfo>> {
+  protected override async getSeedingSize(userId: number): Promise<Partial<IUserInfo>> {
     const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
     const pageInfo = { count: 0, current: 0 }; // 生成页面信息
 

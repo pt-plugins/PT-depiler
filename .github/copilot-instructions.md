@@ -45,7 +45,7 @@ PT-depiler is a browser extension (Manifest v3) for enhancing Private Tracker (P
 ### Vue 3 Composition API
 - Use `<script setup>` syntax consistently
 - Prefer `ref()`/`reactive()` over Options API
-- Vuetify 3 components with Tailwind CSS utility classes
+- Vuetify 3 components with CSS utility classes
 
 ## Build & Development
 
@@ -99,7 +99,7 @@ pnpm check                 # TypeScript type checking
 ## Key Dependencies
 - **Vue Ecosystem**: Vue 3, Vuetify 3, Vue Router, Pinia, Vue I18n
 - **Extension Framework**: `@webext-core/*` for cross-browser compatibility
-- **Build Tools**: Vite, TypeScript, Tailwind CSS
+- **Build Tools**: Vite, TypeScript
 - **Utilities**: axios, date-fns, es-toolkit, jszip, crypto-js
 
 This is a sophisticated multi-platform extension requiring careful attention to web extension APIs, cross-site scripting, and torrent ecosystem integrations.

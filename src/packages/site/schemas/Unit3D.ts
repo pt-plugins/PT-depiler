@@ -10,7 +10,7 @@ import {
   NeedLoginError,
   ITorrent,
 } from "../types";
-import { parseSizeString, parseValidTimeString } from "../utils";
+import { parseTimeToLive, parseValidTimeString } from "../utils";
 
 /**
  * Trans Array
@@ -90,7 +90,19 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [(query: string) => query.replace("/download_check/", "/download/")],
       },
       // /resources/views/torrent/results.blade.php#L399-L401
-      time: { selector: ["time"], filters: [{ name: "parseTTL" }] },
+      time: {
+        selector: ["time"],
+        elementProcess: (element: any) => {
+          if (!element) return undefined;
+          // 优先使用title属性
+          if (element.title) {
+            return parseValidTimeString(element.title);
+          } else {
+            const textContent = element.textContent || element.innerText || "";
+            return parseTimeToLive(textContent);
+          }
+        },
+      },
       // /resources/views/torrent/results.blade.php#L402-L404
       size: {
         selector: ['td>span.text-blue:contains("B")', "td.torrent-search--list__size"],
@@ -165,28 +177,28 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         {
           name: "Free",
           selector:
-            "i.fa-star.text-gold, i.fa-globe, i[title*='100%'], i.torrent-icons__featured, i[title*='Featured'], i[data-original-title*='Featured'], i[data-original-title*='Free']",
+            "i.fa-star.text-gold, i.fa-globe, i[title*='100%'], span[title*='100%'], i.torrent-icons__featured, i[title*='Featured'], span[title*='feature'], i[data-original-title*='Featured'], i[data-original-title*='Free']",
           color: "blue",
         },
         {
           name: "2xUp",
           selector:
-            "i.fa-gem.text-green, i.torrent-icons__double-upload, i.torrent-icons__featured, i[title*='Double Upload'], i[title*='Featured'], i[data-original-title*='Double Upload'], i[data-original-title*='Featured']",
+            "i.fa-gem.text-green, i.fa-chevron-double-up, i.torrent-icons__double-upload, i.torrent-icons__featured, i[title*='Double Upload'], i[title*='Featured'], span[title*='feature'], i[data-original-title*='Double Upload'], i[data-original-title*='Featured']",
           color: "lime",
         },
         {
           name: "75%",
-          selector: "i[title*='75%']",
+          selector: "i[title*='75%'], span[title*='75%']",
           color: "lime-darken-3",
         },
         {
           name: "50%",
-          selector: "i[title*='50%']",
+          selector: "i[title*='50%'], span[title*='50%']",
           color: "deep-orange-darken-1",
         },
         {
           name: "25%",
-          selector: "i[title*='25%']",
+          selector: "i[title*='25%'], span[title*='25%']",
           color: "blue",
         },
         {
@@ -226,6 +238,36 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
   list: [
     {
       urlPattern: ["/torrents(?:/?$|\\?\[\^/\]*$)"],
+      excludeUrlPattern: ["/torrents?view=card", "/torrents?view=grouped", "/torrents?view=poster"],
+    },
+    {
+      urlPattern: ["/torrents/similar/"],
+      mergeSearchSelectors: false,
+      selectors: {
+        rows: {
+          selector: [
+            "table.similar-torrents__torrents > tbody > tr",
+            "table > tbody > tr:has(td a[href*='/torrents/download/'])",
+          ],
+        },
+        id: {
+          selector: ["a[href*='/torrents/']:not([href*='/download'])"],
+          attr: "href",
+          filters: [(query: string) => query.match(/\/torrents\/(\d+)/)![1]],
+        },
+        title: {
+          selector: ["a[href*='/torrents/']:not([href*='/download'])"],
+        },
+        url: {
+          selector: ["a[href*='/torrents/']:not([href*='/download'])"],
+          attr: "href",
+        },
+        link: {
+          selector: ["a[href*='/download/']", "a[href*='/download_check/']"],
+          attr: "href",
+          filters: [(query: string) => query.replace("/download_check/", "/download/")],
+        },
+      },
     },
   ],
 

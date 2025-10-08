@@ -44,7 +44,7 @@ export const serverMetaData: IBackupMetadata<GoogleDriveConfig> = {
   requiredField: [
     { name: "client_id", key: "client_id", type: "string" },
     { name: "client_secret", key: "client_secret", type: "string" },
-    { name: "refresh_token", key: "refresh_token", type: "boolean" },
+    { name: "refresh_token", key: "refresh_token", type: "string" },
   ],
 };
 

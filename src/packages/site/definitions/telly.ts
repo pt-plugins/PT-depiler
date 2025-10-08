@@ -9,7 +9,7 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: ["bright"],
 
   type: "private",
-  schema: "UNIT3D",
+  schema: "Unit3D",
 
   urls: ["https://telly.wtf/"],
 

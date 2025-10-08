@@ -9,7 +9,7 @@ import { useElementSize } from "@vueuse/core";
 
 import { formatDate, formatTimeAgo } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { useConfigStore } from "@/options/stores/config.ts";
+import { defaultTimelineBackgroundColor, useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
@@ -70,17 +70,6 @@ const canvasLayer = useTemplateRef<KonvaNode>("canvasLayer");
 const realAllSite = shallowRef<string[]>([]);
 
 // 动态计算 canvas 的的各类属性
-// 动态计算 favicon 的样式配置，为 dead 站点添加视觉标识
-const getFaviconConfig = (siteId: string, baseConfig: any) => {
-  const isDead = allAddedSiteMetadata[siteId]?.isDead;
-  if (!isDead) return baseConfig;
-
-  return {
-    ...baseConfig,
-    filters: [...(baseConfig.filters || []), Konva.Filters.Grayscale],
-  };
-};
-
 const canvasWidth = 650; // 650px 是设计稿的宽度，下面各类宽高均根据设计稿进行调整，然后使用 scale 来控制缩放
 const nameInfoHeight = 70;
 const topAndTotalInfoHeight = computed<number>(() => 10 + (realShowField.value.length + 2) * 30);
@@ -103,30 +92,19 @@ const stageConfig = computed(() => {
   };
 });
 
-const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent); // FIXME 该判断移动到 utils.ts 中
-
-(Konva.Filters as any).tryNativeBlur = isSafari
-  ? Konva.Filters.Blur
-  : function (imageData: ImageData) {
-      // 创建一个和 imageData 一样大小的 OffscreenCanvas
-      const context = new OffscreenCanvas(imageData.width, imageData.height).getContext("2d")!;
-
-      // @ts-expect-error
-      const radius = Math.round((this as Konva.Node).blurRadius());
-      context.filter = `blur(${radius}px)`;
-
-      // @ts-expect-error
-      const image = (this as any).getImage() as HTMLImageElement;
-      context.drawImage(image, 0, 0, image.width, image.height, 0, 0, imageData.width, imageData.height);
-      const newImageData = context.getImageData(0, 0, imageData.width, imageData.height);
-
-      imageData.data.set(newImageData.data);
-    };
-
 // 绘制相关辅助函数
 const favicon = (config: TKonvaConfig) => {
   const imageBaseSize = config.size ?? 24;
-  let imageElement: HTMLImageElement | OffscreenCanvas = allAddedSiteMetadata[config.site].faviconElement;
+  const imageFilters: any[] = [`blur(${control.faviconBlue}px)`];
+
+  const siteConfig = allAddedSiteMetadata[config.site];
+
+  let imageElement: HTMLImageElement | OffscreenCanvas = siteConfig.faviconElement;
+
+  if (siteConfig.isDead) {
+    imageFilters.push("grayscale(1)");
+  }
+
   // 如果设置中传入了 canvas 这个自定义参数，我们为这个 favicon 生成一个带有背景的 canvas，然后在 canvas 上居中绘制 favicon
   if (config.canvas) {
     const { width: canvasWidth = imageBaseSize, height: canvasHeight = imageBaseSize } = config.canvas;
@@ -152,8 +130,7 @@ const favicon = (config: TKonvaConfig) => {
 
   return image({
     image: imageElement,
-    filters: [(Konva.Filters as any).tryNativeBlur],
-    blurRadius: control.faviconBlue,
+    filters: imageFilters,
     ...config,
   });
 };
@@ -226,7 +203,7 @@ onMounted(async () => {
   resetTimelineDataWithControl();
 
   isLoading.value = false;
-  console.log(fixedLastUserInfo);
+  console.debug(fixedLastUserInfo);
 });
 
 function exportTimelineImg() {
@@ -264,8 +241,16 @@ function saveControl() {
         <!-- 使用 konva 来绘制 UserDataTimeLine -->
         <vk-stage ref="canvasStage" :config="stageConfig">
           <vk-layer ref="canvasLayer">
-            <!-- 1. 添加背景颜色，颜色为 blue-grey-darken-2，填满整个画布 -->
-            <vk-rect :config="{ fill: '#455A64', x: 0, y: 0, width: stageConfig.width, height: stageConfig.height }" />
+            <!-- 1. 添加背景颜色，并填满整个画布 -->
+            <vk-rect
+              :config="{
+                fill: control.backgroundColor,
+                x: 0,
+                y: 0,
+                width: stageConfig.width,
+                height: stageConfig.height,
+              }"
+            />
 
             <!-- 2. 绘制顶端概况 -->
             <vk-group :config="{ x: 0, y: 0 }">
@@ -307,7 +292,7 @@ function saveControl() {
                       x: 160,
                       y: 0,
                       text: `󰖛: ${timelineData.totalInfo.deadSites}`,
-                      fontFamily: 'Material Design Icons',
+                      fontFamily: 'Material Design Icons For PTD',
                       fill: '#9E9E9E',
                     })
                   "
@@ -353,14 +338,11 @@ function saveControl() {
                             }
                           "
                           :config="
-                            getFaviconConfig(
-                              timelineData.topInfo[key.name][type.siteKey].site,
-                              favicon({
-                                site: timelineData.topInfo[key.name][type.siteKey].site,
-                                size: 20,
-                                canvas: { fillStyle: '#455A64' },
-                              }),
-                            )
+                            favicon({
+                              site: timelineData.topInfo[key.name][type.siteKey].site,
+                              size: 20,
+                              canvas: { fillStyle: control.backgroundColor },
+                            })
                           "
                         />
                         <vk-text
@@ -416,16 +398,13 @@ function saveControl() {
                           }
                         "
                         :config="
-                          getFaviconConfig(
-                            userInfo.site,
-                            favicon({
-                              site: userInfo.site,
-                              size: 38,
-                              x: stageConfig.width / 2 - 24,
-                              y: 0 - 24,
-                              canvas: { width: 48, height: 48 },
-                            }),
-                          )
+                          favicon({
+                            site: userInfo.site,
+                            size: 38,
+                            x: stageConfig.width / 2 - 24,
+                            y: 0 - 24,
+                            canvas: { width: 48, height: 48 },
+                          })
                         "
                       />
                     </vk-group>
@@ -445,7 +424,7 @@ function saveControl() {
                             text: `${allAddedSiteMetadata[userInfo.site]?.isDead ? '󰖛' : ''}${allAddedSiteMetadata[userInfo.site].siteName}`,
                             fill: allAddedSiteMetadata[userInfo.site]?.isDead ? '#9E9E9E' : '#fff',
                             fontFamily: allAddedSiteMetadata[userInfo.site]?.isDead
-                              ? 'Material Design Icons'
+                              ? 'Material Design Icons For PTD'
                               : undefined,
                             fontStyle: 'bold',
                           })
@@ -603,6 +582,22 @@ function saveControl() {
 
         <v-switch v-model="control.showTop" color="success" hide-details label="展示各类数据的冠军及亚军站点" />
         <v-switch v-model="control.showTimeline" color="success" hide-details label="展示各个站点信息（总开关）" />
+
+        <v-color-input
+          v-model="control.backgroundColor"
+          mode="hex"
+          color-pip
+          hide-actions
+          hide-details
+          label="自定义背景色"
+        >
+          <template #append-inner>
+            <v-icon
+              icon="mdi-backup-restore"
+              @click="control.backgroundColor = defaultTimelineBackgroundColor"
+            ></v-icon>
+          </template>
+        </v-color-input>
 
         <v-label class="my-2">站点展示组件</v-label>
 

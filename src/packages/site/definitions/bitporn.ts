@@ -158,12 +158,12 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       ...SchemaMetadata.search!.selectors,
       subTitle: {
-        selector: ["td.torrent-search--list__overview div[style]"],
+        selector: ["div.torrent-keywords-container"],
         elementProcess: (element: any) => {
           if (!element) return 0;
 
           // 查找所有span元素
-          const spans = element.querySelectorAll("span[style]");
+          const spans = element.querySelectorAll("a.torrent-keywords-badge");
 
           // 提取所有span元素中的文本内容
           const allText = Array.from(spans)

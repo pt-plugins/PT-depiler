@@ -8,9 +8,10 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["影视", "剧集", "动漫"],
 
   type: "private",
-  schema: "UNIT3D",
+  schema: "Unit3D",
 
   urls: ["https://jptv.club/"],
+  favicon: "./_default_unit3d.ico",
 
   isDead: true,
 };
