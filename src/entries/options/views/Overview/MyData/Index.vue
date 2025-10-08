@@ -149,6 +149,21 @@ async function multiOpen() {
   }
 }
 
+async function multiFlush() {
+  let flushSiteIds: TSiteID[] = tableSelected.value;
+  if (flushSiteIds.length === 0) {
+    if (confirm("刷新全部站点用户信息？（未选择任何站点时，默认刷新全部站点）")) {
+      flushSiteIds = tableData.value.map((item) => item.site);
+    }
+  }
+
+  if (flushSiteIds.length > 0) {
+    flushSiteLastUserInfo(flushSiteIds);
+  } else {
+    runtimeStore.showSnakebar("未选择任何站点，取消刷新", { color: "warning" });
+  }
+}
+
 function viewTimeline() {
   router.push({
     name: "UserDataTimeline",
@@ -189,11 +204,10 @@ function toggleNumberSimplification() {
 
         <NavButton
           v-else
-          :disabled="tableSelected.length === 0"
           :text="t('MyData.index.flushSelectSite')"
           color="green"
           icon="mdi-cached"
-          @click="() => flushSiteLastUserInfo(tableSelected)"
+          @click="multiFlush"
         />
 
         <NavButton

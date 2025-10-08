@@ -42,7 +42,7 @@ export function formatRatio(
   userInfo: Partial<IUserInfo>,
   ratioKey: "ratio" | "trueRatio" = "ratio",
 ): string | "∞" | "" {
-  let ratio = userInfo[ratioKey] ?? -1;
+  let ratio = Number((userInfo[ratioKey] as string | number | undefined) ?? -1);
   return realFormatRatio(ratio);
 }
 

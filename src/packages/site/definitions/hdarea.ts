@@ -127,6 +127,9 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.search!,
     selectors: {
       ...SchemaMetadata.search!.selectors!,
+      rows: {
+        selector: "table.torrents > tbody > tr:has(table.torrentname)",
+      },
       tags: [
         ...SchemaMetadata.search!.selectors!.tags!,
         { name: "首发", selector: "img.first_publish", color: "#3887D7" },

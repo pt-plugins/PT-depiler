@@ -149,7 +149,8 @@
     "snatches": "完成种子数",
     "posts": "发布帖子数",
     "hnrPreWarning": "H&R 预警的数量",
-    "hnrUnsatisfied": "H&R 未满足的数量"
+    "hnrUnsatisfied": "H&R 未满足的数量",
+    "adoptions": "认领数"
   },
   "resultParseStatus": {
     "unknownError": "未知错误！",

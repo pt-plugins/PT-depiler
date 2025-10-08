@@ -103,7 +103,7 @@ async function sendToDownloader() {
       "date:DD": formatDate(nowDate, "dd") as string,
     };
 
-    (["savePath", "label"] as (keyof typeof realAddTorrentOptions)[]).forEach((key) => {
+    for (const key of ["savePath", "label"] as (keyof typeof realAddTorrentOptions)[]) {
       if (realAddTorrentOptions[key]) {
         if (realAddTorrentOptions[key] === "") {
           delete realAddTorrentOptions[key];
@@ -116,9 +116,17 @@ async function sendToDownloader() {
           // 处理自定义输入
           if ((realAddTorrentOptions[key] as string).includes("<...>")) {
             // 如果之前已经输入过，则直接使用之前的输入
-            if (customReplace[key] == undefined) {
-              const userInput = prompt(`请输入替换 ${key} 中的 <...> 的内容：`, "");
-              customReplace[key] = userInput ? userInput.trim() : "";
+            if (typeof customReplace[key] !== "string") {
+              // 此处允许空字符 ""， 但不允许用户取消（即取消动态替换操作则认为取消推送任务）
+              const userInput = prompt(`请输入替换 ${key} 中的 <...> 的内容：`);
+              if (userInput !== null) {
+                customReplace[key] = userInput.trim();
+              } else {
+                // 用户取消输入，则跳过该任务
+                runtimeStore.showSnakebar(`因取消输入 ${key} 中的 <...> 的内容而停止推送`, { color: "warning" });
+                isSending.value = false;
+                return;
+              }
             }
 
             // @ts-ignore
@@ -126,7 +134,7 @@ async function sendToDownloader() {
           }
         }
       }
-    });
+    }
 
     promises.push(
       sendMessage("downloadTorrentToDownloader", {

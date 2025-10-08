@@ -11,6 +11,7 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import SocialSitePage from "./pages/SocialSitePage.vue";
 import SiteListPage from "./pages/SiteListPage.vue";
 import SiteDetailPage from "./pages/SiteDetailPage.vue";
+import { useConfigStore } from "@/options/stores/config.ts";
 
 export const siteInstance = shallowRef<BittorrentSite>();
 
@@ -67,6 +68,15 @@ export async function updatePageType(ptdData: IPtdData = {}) {
         }
       }
     }
+  }
+}
+
+export function wrapperConfirmFn(fn: () => any, message = "确定要执行此操作吗？") {
+  const configStore = useConfigStore();
+  const confirmStatus = configStore.contentScript.doubleConfirmAction ? confirm(message) : true;
+
+  if (confirmStatus) {
+    fn();
   }
 }
 

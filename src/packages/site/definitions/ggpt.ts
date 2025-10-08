@@ -150,5 +150,11 @@ export const siteMetadata: ISiteMetadata = {
       seedingBonus: 1000000,
       privilege: "这个等级会永远保留账号。",
     },
+    {
+      id: 9,
+      name: "养老族(Retiree)",
+      nameAka: ["养老，散仙"],
+      privilege: "散仙等级，享受养老待遇",
+    },
   ],
 };

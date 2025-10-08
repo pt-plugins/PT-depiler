@@ -14,6 +14,8 @@ const deprecatedConfigKeys = [
   "myDataTableControl.joinTimeWeekOnly", // 已废弃，使用 joinTimeFormat 替代
 ];
 
+export const defaultTimelineBackgroundColor = "#455A64";
+
 export const useConfigStore = defineStore("config", {
   persistWebExt: {
     afterRestore: (context) => {
@@ -54,10 +56,13 @@ export const useConfigStore = defineStore("config", {
     },
   },
   state: (): IConfigPiniaStorageSchema => ({
+    version: "",
     lang: "zh_CN",
     theme: "light",
     isNavBarOpen: true,
+
     ignoreWrongPixelRatio: false,
+    showReleaseNoteOnVersionChange: true,
 
     saveTableBehavior: true,
     enableTableMultiSort: false,
@@ -78,6 +83,8 @@ export const useConfigStore = defineStore("config", {
       applyTheme: false,
       defaultOpenSpeedDial: false,
       stackedButtons: false,
+
+      doubleConfirmAction: true,
       dragLinkOnSpeedDial: true,
 
       socialSiteSearchBy: "chosen",
@@ -179,6 +186,7 @@ export const useConfigStore = defineStore("config", {
       },
       showTop: true,
       showTimeline: true,
+      backgroundColor: defaultTimelineBackgroundColor,
       dateFormat: "time_added",
       faviconBlue: 3,
       selectedSites: [],

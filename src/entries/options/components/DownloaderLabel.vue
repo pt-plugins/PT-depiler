@@ -54,6 +54,7 @@ const downloaderIcon = computed(() => {
   display: grid;
   grid-column-gap: 4px;
   grid-row-gap: 4px;
+  justify-content: left;
 
   .downloader_icon {
     grid-area: 1 / 1 / 2 / 2;

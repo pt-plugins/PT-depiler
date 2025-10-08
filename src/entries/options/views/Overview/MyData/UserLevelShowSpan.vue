@@ -218,6 +218,11 @@ function formatIntervalDate(duration: number | isoDuration): string {
     <v-icon :title="t('levelRequirement.posts')" color="green darken-4" icon="mdi-note-plus" small />
     {{ formatNumber(levelRequirement.posts, { minimumFractionDigits: 0 }) }};
   </template>
+
+  <template v-if="levelRequirement.adoptions">
+    <v-icon :title="t('levelRequirement.adoptions')" color="green-darken-4" icon="mdi-hand-extended" small />
+    {{ formatNumber(levelRequirement.adoptions, { minimumFractionDigits: 0 }) }};
+  </template>
 </template>
 
 <style scoped lang="scss"></style>

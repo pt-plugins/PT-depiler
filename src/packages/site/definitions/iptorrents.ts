@@ -5,7 +5,57 @@ import {
   type TSelectSearchCategoryValue,
 } from "../types";
 import { parseTimeToLive } from "../utils";
+import { KB, MB, GB, TB } from "../utils/filesize";
 import { set } from "es-toolkit/compat";
+
+const SIZE_REGEX = /([\d.]+)\s*(GB|MB|TB|KB|B)/i;
+const AVAILABLE_REGEX = /Available:\s*(\d+)/i;
+
+const SIZE_MULTIPLIERS = { 'TB': TB, 'GB': GB, 'MB': MB, 'KB': KB, 'B': 1 } as const;
+
+const IPT_SELECTORS = {
+  ROWS: ["table#torrents > tbody > tr", "table.torrents > tbody > tr", "table > tbody > tr:has(td.al)", "tr:has(td.al)"],
+  SIZE: ["> td:nth-child(6)", "td:contains('MB')", "td:contains('GB')", "td:contains('TB')"],
+  SEEDERS: ["td:nth-last-child(2)", "td:contains('seeders')", "td.seeders"],
+  LEECHERS: ["td:nth-last-child(1)", "td:contains('leechers')", "td.leechers"],
+  COMPLETED: ["td:nth-last-child(3)", "td:contains('snatched')", "td.completed"],
+  CATEGORY: ["td:eq(0) img", "td:first-child img"]
+};
+
+const createTableFieldSelector = (fieldName: string): string[] => [
+  `th:contains('${fieldName}') + td`,
+  `td:contains('${fieldName}')`,
+  `tr:contains('${fieldName}') td:last-child`,
+  `table tr:has(th:contains('${fieldName}')) td:last-child`
+];
+
+const parseIPTorrentsStats = (query: string): number => {
+  if (!query?.trim()) return 0;
+  try {
+    const sizeMatch = query.match(SIZE_REGEX);
+    if (sizeMatch) {
+      const value = parseFloat(sizeMatch[1]);
+      const unit = sizeMatch[2].toUpperCase() as keyof typeof SIZE_MULTIPLIERS;
+      return isNaN(value) ? 0 : value * (SIZE_MULTIPLIERS[unit] || 1);
+    }
+    const num = parseFloat(query.match(/[\d.]+/)?.[0] || '0');
+    return isNaN(num) ? 0 : num;
+  } catch {
+    return 0;
+  }
+};
+
+const parseIPTorrentsInvites = (query: string): number => {
+  if (!query?.trim()) return 0;
+  try {
+    const availableMatch = query.match(AVAILABLE_REGEX);
+    if (availableMatch) return parseInt(availableMatch[1], 10) || 0;
+    const num = parseInt(query.match(/\d+/)?.[0] || '0', 10);
+    return isNaN(num) ? 0 : num;
+  } catch {
+    return 0;
+  }
+};
 
 const categoryPart: Pick<ISearchCategories, "cross" | "generateRequestConfig"> = {
   cross: { mode: "custom" },
@@ -166,11 +216,12 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     keywordPath: "params.q",
-    requestConfig: {
-      url: "/t",
-    },
+    requestConfig: { url: "/t" },
+    requestDelay: 1000,
     selectors: {
-      rows: { selector: "table#torrents > tbody > tr" },
+      rows: { 
+        selector: IPT_SELECTORS.ROWS
+      },
       id: {
         selector: " > td.al > a",
         attr: "href",
@@ -204,7 +255,10 @@ export const siteMetadata: ISiteMetadata = {
           },
         ],
       },
-      size: { selector: "> td:nth-child(6)" },
+      size: { 
+        selector: IPT_SELECTORS.SIZE,
+        filters: [{ name: "parseSize" }]
+      },
       author: {
         selector: "div.sub",
         filters: [
@@ -217,23 +271,27 @@ export const siteMetadata: ISiteMetadata = {
           },
         ],
       },
-      category: { selector: "td:eq(0) img", attr: "alt" },
-      seeders: { selector: "td:nth-last-child(2)" },
-      leechers: { selector: "td:nth-last-child(1)" },
-      completed: { selector: "td:nth-last-child(3)" },
-      /**
-       * 部分用戶可能开启 “Torrents - Show files count”，此时在 Size 和 Snatched (即 completed ) 中间会添加 文件数 列，
-       * 所以对于 seeders， leechers， completed 应该从后往前取，
-       * 而 size，comments 应该从前往后取
-       */
+      category: { selector: IPT_SELECTORS.CATEGORY, attr: "alt" },
+      seeders: { 
+        selector: IPT_SELECTORS.SEEDERS,
+        filters: [{ name: "parseNumber" }]
+      },
+      leechers: { 
+        selector: IPT_SELECTORS.LEECHERS,
+        filters: [{ name: "parseNumber" }]
+      },
+      completed: { 
+        selector: IPT_SELECTORS.COMPLETED,
+        filters: [{ name: "parseNumber" }]
+      },
       comments: {
         selector: "> td:nth-child(5)",
         filters: [(q: string) => q.replace(/Go ?to ?comments/, "")],
       },
       tags: [
         { name: "Free", selector: "span.free" },
-        { name: "Free", selector: "span.t_tag_free_leech" },
-      ],
+        { name: "Free", selector: "span.t_tag_free_leech" }
+      ]
     },
   },
 
@@ -270,16 +328,16 @@ export const siteMetadata: ISiteMetadata = {
             selector: "h1.c0",
           },
           uploaded: {
-            selector: "th:contains('Uploaded') + td",
-            filters: [{ name: "parseSize" }],
+            selector: createTableFieldSelector('Uploaded'),
+            filters: [parseIPTorrentsStats],
           },
           downloaded: {
-            selector: "th:contains('Downloaded') + td",
-            filters: [{ name: "parseSize" }],
+            selector: createTableFieldSelector('Downloaded'),
+            filters: [parseIPTorrentsStats],
           },
           ratio: {
-            selector: "th:contains('Share ratio') + td",
-            filters: [{ name: "parseNumber" }],
+            selector: createTableFieldSelector('Share ratio'),
+            filters: [{ name: "parseNumber" }]
           },
           levelName: {
             selector: "th:contains('Class') + td",
@@ -290,15 +348,39 @@ export const siteMetadata: ISiteMetadata = {
           },
           joinTime: {
             selector: "th:contains('Join date') + td",
-            filters: [(query: string) => query.split(" (")[0], { name: "parseTime" }],
+            filters: [(query: string) => query.split(" (")[0], { name: "parseTime" }]
           },
           seeding: {
             selector: "th:contains('Seeding') + td",
             filters: [{ name: "parseNumber" }],
           },
           seedingSize: {
-            text: "N/A",
+            selector: "body",
+            filters: [() => "N/A"]
           },
+          invites: {
+            selector: [
+              "th:contains('Invites') + td",
+              "tr:has(th:contains('Invites')) td",
+              "td:contains('Available:')",
+              "th:contains('Available') + td",
+              "td:contains('Available')",
+              "tr:contains('Available') td:last-child"
+            ],
+            filters: [parseIPTorrentsInvites]
+          },
+          warned: {
+            selector: createTableFieldSelector('Warned'),
+            filters: [{ name: "parseNumber" }],
+          },
+          disabled: {
+            selector: createTableFieldSelector('Disabled'),
+            filters: [{ name: "parseNumber" }],
+          },
+          lastSeen: {
+            selector: createTableFieldSelector('Last seen'),
+            filters: [{ name: "parseTime" }]
+          }
         },
       },
     ],
