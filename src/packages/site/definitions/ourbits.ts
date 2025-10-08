@@ -173,7 +173,7 @@ export const siteMetadata: ISiteMetadata = {
       subTitle: {
         text: "",
         selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
-        elementProcess: subTitleRemoveExtraElement(["a span.tag"]),
+        elementProcess: subTitleRemoveExtraElement(["a span.tag"], false),
       },
       ext_imdb: { selector: "label.imdb_rate", data: "imdbid", filters: [{ name: "extImdbId" }] },
       ext_douban: { selector: "label.douban_rate", data: "doubanid" },

@@ -168,7 +168,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
         // 处理类似以下 尾部中括号的情况
         // The Invisible Man 2020 Bluray 1080p x265 10bit 2Audios DDP 7.1 MNHD-FRDS[ ] [限时禁转]
-        elementProcess: subTitleRemoveExtraElement(["b"]),
+        elementProcess: subTitleRemoveExtraElement(["b"], false),
       },
       tags: [
         ...SchemaMetadata.search!.selectors!.tags!,
