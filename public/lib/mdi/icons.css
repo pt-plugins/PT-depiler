@@ -1,16 +1,8 @@
-/* MaterialDesignIcons.com */
-@font-face {
-  font-family: "Material Design Icons";
-  src: url("/lib/mdi/fonts/materialdesignicons-webfont.eot?v=7.4.47");
-  src: url("/lib/mdi/fonts/materialdesignicons-webfont.eot?#iefix&v=7.4.47") format("embedded-opentype"), url("/lib/mdi/fonts/materialdesignicons-webfont.woff2?v=7.4.47") format("woff2"), url("/lib/mdi/fonts/materialdesignicons-webfont.woff?v=7.4.47") format("woff"), url("/lib/mdi/fonts/materialdesignicons-webfont.ttf?v=7.4.47") format("truetype");
-  font-weight: normal;
-  font-style: normal;
-}
-
+/* Edit from MaterialDesignIcons.com */
 .mdi:before,
 .mdi-set {
   display: inline-block;
-  font: normal normal normal 24px/1 "Material Design Icons";
+  font: normal normal normal 24px/1 "Material Design Icons For PTD";
   font-size: inherit;
   text-rendering: auto;
   line-height: inherit;
@@ -29811,19 +29803,23 @@
   visibility: hidden;
 }
 
-.mdi-18px.mdi-set, .mdi-18px.mdi:before {
+.mdi-18px.mdi-set,
+.mdi-18px.mdi:before {
   font-size: 18px;
 }
 
-.mdi-24px.mdi-set, .mdi-24px.mdi:before {
+.mdi-24px.mdi-set,
+.mdi-24px.mdi:before {
   font-size: 24px;
 }
 
-.mdi-36px.mdi-set, .mdi-36px.mdi:before {
+.mdi-36px.mdi-set,
+.mdi-36px.mdi:before {
   font-size: 36px;
 }
 
-.mdi-48px.mdi-set, .mdi-48px.mdi:before {
+.mdi-48px.mdi-set,
+.mdi-48px.mdi:before {
   font-size: 48px;
 }
 

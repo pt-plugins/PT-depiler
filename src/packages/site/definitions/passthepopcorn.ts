@@ -34,7 +34,7 @@ export const siteMetadata: ISiteMetadata = {
       cross: { mode: "appendQuote" },
     },
     {
-      name: "Source",
+      name: "Container",
       key: "encoding",
       options: buildCategoryOptions(["AVI", "MPG", "MKV", "MP4", "VOB IFO", "ISO", "m2ts"]),
     },

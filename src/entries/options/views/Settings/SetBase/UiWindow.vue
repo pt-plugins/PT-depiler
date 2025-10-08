@@ -55,6 +55,13 @@ defineExpose({
       </v-select>
 
       <v-switch
+        v-model="configStore.showReleaseNoteOnVersionChange"
+        color="success"
+        hide-details
+        label="插件更新时显示更新日志窗口"
+      />
+
+      <v-switch
         v-model="configStore.saveTableBehavior"
         color="success"
         hide-details
@@ -148,6 +155,13 @@ defineExpose({
             <v-label>侧边栏功能</v-label>
           </v-col>
           <v-col>
+            <v-switch
+              v-model="configStore.contentScript.doubleConfirmAction"
+              color="success"
+              hide-details
+              label="对种子列表页批量复制、本地下载等操作需要二步确认"
+            />
+
             <v-switch
               v-model="configStore.contentScript.dragLinkOnSpeedDial"
               color="success"

@@ -5,7 +5,7 @@ import { type ITorrent } from "@ptd/site";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { doKeywordSearch, siteInstance } from "../utils.ts";
+import { doKeywordSearch, siteInstance, wrapperConfirmFn } from "../utils.ts";
 
 import AdvanceListModuleDialog from "@/content-script/app/components/AdvanceListModuleDialog.vue";
 import SpeedDialBtn from "@/content-script/app/components/SpeedDialBtn.vue";
@@ -108,7 +108,7 @@ async function handleSearch() {
     color="light-blue"
     icon="mdi-content-save-all"
     title="本地下载"
-    @click="handleLocalDownloadMulti"
+    @click="wrapperConfirmFn(handleLocalDownloadMulti)"
   />
   <SpeedDialBtn
     key="copy"
@@ -116,7 +116,7 @@ async function handleSearch() {
     color="light-blue"
     icon="mdi-content-copy"
     title="复制链接"
-    @click="handleLinkCopyMulti"
+    @click="wrapperConfirmFn(handleLinkCopyMulti)"
   />
   <SpeedDialBtn
     key="download"

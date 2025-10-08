@@ -149,7 +149,8 @@
     "snatches": "Completed Torrents",
     "posts": "Posted Threads",
     "hnrPreWarning": "PreWarning H&R Count",
-    "hnrUnsatisfied": "Unsatisfied H&R Count"
+    "hnrUnsatisfied": "Unsatisfied H&R Count",
+    "adoptions": "Adopted Torrents"
   },
   "resultParseStatus": {
     "unknownError": "Unknown Error!",
