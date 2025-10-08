@@ -115,7 +115,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       {
         requestConfig: { url: "/userdetails.php" },
-        assertion: { id: "id" },
+        assertion: { id: "params.id" },
         selectors: {
           uploaded: {
             selector: ["td.clx > .frames td.rowhead:contains('Uploaded') + td:first"],
