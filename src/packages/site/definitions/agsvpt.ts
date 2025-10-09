@@ -26,7 +26,7 @@ export const siteMetadata: ISiteMetadata = {
       subTitle: {
         selector: ["div.torrent_title_desc"],
         elementProcess: (element: HTMLDivElement) => {
-          const e = element.cloneNode(true);
+          const e = element.cloneNode(true) as HTMLDivElement;
           e.querySelectorAll("span").forEach((el) => el.remove());
           return extractContent(e.innerHTML).trim();
         },

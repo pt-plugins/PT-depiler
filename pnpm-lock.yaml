@@ -38,8 +38,8 @@ importers:
         specifier: ^4.1.0
         version: 4.1.0
       echarts:
-        specifier: ^5.6.0
-        version: 5.6.0
+        specifier: ^6.0.0
+        version: 6.0.0
       es-toolkit:
         specifier: ^1.40.0
         version: 1.40.0
@@ -92,8 +92,8 @@ importers:
         specifier: ^3.5.22
         version: 3.5.22(typescript@5.8.3)
       vue-echarts:
-        specifier: ^7.0.3
-        version: 7.0.3(@vue/runtime-core@3.5.22)(echarts@5.6.0)(vue@3.5.22(typescript@5.8.3))
+        specifier: ^8.0.0
+        version: 8.0.0(echarts@6.0.0)(vue@3.5.22(typescript@5.8.3))
       vue-i18n:
         specifier: ^11.1.12
         version: 11.1.12(vue@3.5.22(typescript@5.8.3))
@@ -1784,8 +1784,8 @@ packages:
     resolution: {integrity: sha512-KIN/nDJBQRcXw0MLVhZE9iQHmG68qAVIBg9CqmUYjmQIhgij9U5MFvrqkUL5FbtyyzZuOeOt0zdeRe4UY7ct+A==}
     engines: {node: '>= 0.4'}
 
-  echarts@5.6.0:
-    resolution: {integrity: sha512-oTbVTsXfKuEhxftHqL5xprgLoc0k7uScAwtryCgWF6hPYFLRwOUHiFmHGCBKP5NPFNkDVopOieyUqYGH8Fa3kA==}
+  echarts@6.0.0:
+    resolution: {integrity: sha512-Tte/grDQRiETQP4xz3iZWSvoHrkCQtwqd6hs+mifXcjrCuo2iKWbajFObuLJVBlDIJlOzgQPd1hsaKt/3+OMkQ==}
 
   electron-to-chromium@1.5.209:
     resolution: {integrity: sha512-Xoz0uMrim9ZETCQt8UgM5FxQF9+imA7PBpokoGcZloA1uw2LeHzTlip5cb5KOAsXZLjh/moN2vReN3ZjJmjI9A==}
@@ -3545,26 +3545,11 @@ packages:
   vscode-uri@3.1.0:
     resolution: {integrity: sha512-/BpdSx+yCQGnCvecbyXdxHDkuk55/G3xwnC0GqY4gmQ3j+A+g8kzzgB4Nk/SINjqn6+waqw3EgbVF2QKExkRxQ==}
 
-  vue-demi@0.13.11:
-    resolution: {integrity: sha512-IR8HoEEGM65YY3ZJYAjMlKygDQn25D5ajNFNoKh9RSDMQtlzCxtfQjdQgv9jjK+m3377SsJXY8ysq8kLCZL25A==}
-    engines: {node: '>=12'}
-    hasBin: true
+  vue-echarts@8.0.0:
+    resolution: {integrity: sha512-tf8KadYTOBukRVJBYChdust4UYTa85lh/d41EmQt3FwP+p65s+Pn9s23/9HKjWnRuTZa6FxL/JgGNFsHBfV5Eg==}
     peerDependencies:
-      '@vue/composition-api': ^1.0.0-rc.1
-      vue: ^3.0.0-0 || ^2.6.0
-    peerDependenciesMeta:
-      '@vue/composition-api':
-        optional: true
-
-  vue-echarts@7.0.3:
-    resolution: {integrity: sha512-/jSxNwOsw5+dYAUcwSfkLwKPuzTQ0Cepz1LxCOpj2QcHrrmUa/Ql0eQqMmc1rTPQVrh2JQ29n2dhq75ZcHvRDw==}
-    peerDependencies:
-      '@vue/runtime-core': ^3.0.0
-      echarts: ^5.5.1
-      vue: ^2.7.0 || ^3.1.1
-    peerDependenciesMeta:
-      '@vue/runtime-core':
-        optional: true
+      echarts: ^6.0.0
+      vue: ^3.3.0
 
   vue-i18n@11.1.12:
     resolution: {integrity: sha512-BnstPj3KLHLrsqbVU2UOrPmr0+Mv11bsUZG0PyCOzsawCivk8W00GMXHeVUWIDOgNaScCuZah47CZFE+Wnl8mw==}
@@ -3742,8 +3727,8 @@ packages:
   zip-dir@2.0.0:
     resolution: {integrity: sha512-uhlsJZWz26FLYXOD6WVuq+fIcZ3aBPGo/cFdiLlv3KNwpa52IF3ISV8fLhQLiqVu5No3VhlqlgthN6gehil1Dg==}
 
-  zrender@5.6.1:
-    resolution: {integrity: sha512-OFXkDJKcrlx5su2XbzJvj/34Q3m6PvyCZkVPHGYpcCJ52ek4U/ymZyfuV1nKE23AyBJ51E/6Yr0mhZ7xGTO4ag==}
+  zrender@6.0.0:
+    resolution: {integrity: sha512-41dFXEEXuJpNecuUQq6JlbybmnHaqqpGlbH1yxnA5V9MMP4SbohSVZsJIwz+zdjQXSSlR1Vc34EgH1zxyTDvhg==}
 
 snapshots:
 
@@ -5300,10 +5285,10 @@ snapshots:
       es-errors: 1.3.0
       gopd: 1.2.0
 
-  echarts@5.6.0:
+  echarts@6.0.0:
     dependencies:
       tslib: 2.3.0
-      zrender: 5.6.1
+      zrender: 6.0.0
 
   electron-to-chromium@1.5.209: {}
 
@@ -7149,19 +7134,10 @@ snapshots:
 
   vscode-uri@3.1.0: {}
 
-  vue-demi@0.13.11(vue@3.5.22(typescript@5.8.3)):
+  vue-echarts@8.0.0(echarts@6.0.0)(vue@3.5.22(typescript@5.8.3)):
     dependencies:
+      echarts: 6.0.0
       vue: 3.5.22(typescript@5.8.3)
-
-  vue-echarts@7.0.3(@vue/runtime-core@3.5.22)(echarts@5.6.0)(vue@3.5.22(typescript@5.8.3)):
-    dependencies:
-      echarts: 5.6.0
-      vue: 3.5.22(typescript@5.8.3)
-      vue-demi: 0.13.11(vue@3.5.22(typescript@5.8.3))
-    optionalDependencies:
-      '@vue/runtime-core': 3.5.22
-    transitivePeerDependencies:
-      - '@vue/composition-api'
 
   vue-i18n@11.1.12(vue@3.5.22(typescript@5.8.3)):
     dependencies:
@@ -7341,6 +7317,6 @@ snapshots:
       async: 3.2.6
       jszip: 3.10.1
 
-  zrender@5.6.1:
+  zrender@6.0.0:
     dependencies:
       tslib: 2.3.0
