@@ -108,7 +108,7 @@ export const parseSectionedHitAndRunElement = (element: HTMLElement) => {
 };
 
 export const subTitleRemoveExtraElement =
-  (removeSelectors: string[] = [], self: boolean = false) =>
+  (removeSelectors: string[] = [], self: boolean = true) =>
   (element: HTMLElement) => {
     const testSubTitle = element.parentElement!.innerHTML.split("<br>");
     if (testSubTitle && testSubTitle.length > 1) {

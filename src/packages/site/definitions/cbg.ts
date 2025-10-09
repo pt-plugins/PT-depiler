@@ -7,7 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "cbg",
   name: "藏宝阁",
-  aka: ["藏宝阁","cbg"],
+  aka: ["藏宝阁", "cbg"],
   tags: ["综合", "影视"],
   description: "开启藏宝阁，解锁你的光影世界，分享每一份热爱！",
   timezoneOffset: "+0800",
@@ -112,10 +112,6 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["td.rowhead:contains('魔力值') + td"],
         filters: [{ name: "parseNumber" }],
       },
-      bonusPerHour: {
-        selector: ['td[rowspan^="3"]'],
-        filters: [{ name: "parseNumber" }],
-      },
     },
   },
 
@@ -132,8 +128,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "50GB",
       ratio: 1.05,
       seedingBonus: 30000,
-      privilege:
-        '发布种子需要审核。',
+      privilege: "发布种子需要审核。",
     },
     {
       id: 2,

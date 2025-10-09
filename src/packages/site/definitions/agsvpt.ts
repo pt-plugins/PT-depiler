@@ -4,6 +4,7 @@
  */
 import { type ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/NexusPHP";
+import { extractContent } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -18,6 +19,20 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
   urls: ["uggcf://cg.ntficg.pa/", "uggcf://jjj.ntficg.pbz/", "uggcf://arj.ntficg.pa/"],
+  search: {
+    ...SchemaMetadata.search,
+    selectors: {
+      ...SchemaMetadata.search!.selectors,
+      subTitle: {
+        selector: ["div.torrent_title_desc"],
+        elementProcess: (element: HTMLDivElement) => {
+          const e = element.cloneNode(true);
+          e.querySelectorAll("span").forEach((el) => el.remove());
+          return extractContent(e.innerHTML).trim();
+        },
+      },
+    },
+  },
   userInfo: {
     ...SchemaMetadata.userInfo!,
     selectors: {
