@@ -587,9 +587,9 @@ function saveControl() {
 <style scoped lang="scss">
 .chart {
   height: 400px;
-}
 
-.chart + .chart {
-  margin-top: 10px;
+  + .chart {
+    margin-top: 10px;
+  }
 }
 </style>
