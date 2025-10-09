@@ -536,6 +536,12 @@
     },
     "delete": {
       "text": "Are you sure to delete these {0} @:SetSearchSolution.solution ?"
+    },
+    "spDialog": {
+      "noDefNotice": "This site does not define any search categories, please go to help!",
+      "notice": "It is not recommended to set it here, and it is recommended to configure your user CP in site or use search solution",
+      "selectAllNotice": "(Notice: In most cases, you don't need to select all search terms! )",
+      "title": "Set default search params for Site {name}"
     }
   },
   "SetSite": {
@@ -582,12 +588,6 @@
         "the offline site will no longer participate in the search and information acquisition;"
       ],
       "oneClickImport": "One-Click Import Sites"
-    },
-    "spDialog": {
-      "noDefNotice": "This site does not define any search categories, please go to help!",
-      "notice": "It is not recommended to set it here, and it is recommended to configure your user CP in site or use search solution",
-      "selectAllNotice": "(Notice: In most cases, you don't need to select all search terms! )",
-      "title": "Set default search params for Site {name}"
     },
     "oneClickImportDialog": {
       "title": "One-Click Import Sites",
