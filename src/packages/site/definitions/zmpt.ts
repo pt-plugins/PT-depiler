@@ -109,10 +109,6 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["td.rowhead:contains('电力值') + td"],
         filters: [{ name: "parseNumber" }],
       },
-      bonusPerHour: {
-        selector: ['td[rowspan^="3"]'],
-        filters: [{ name: "parseNumber" }],
-      },
     },
   },
 
