@@ -73,13 +73,7 @@ export default class WebDAV extends AbstractBackupServer<WebDAVConfig> {
 
   async addFile(fileName: string, file: IBackupData): Promise<boolean> {
     const fileBlob = await this.backupDataToJSZipBlob(file);
-    const fileBuffer = (await new Promise((resolve) => {
-      const fr = new FileReader();
-      fr.onload = function () {
-        resolve(this.result as ArrayBuffer);
-      };
-      fr.readAsArrayBuffer(fileBlob);
-    })) as ArrayBuffer;
+    const fileBuffer = await fileBlob.arrayBuffer();
 
     return await this.getServer().putFileContents(fileName, fileBuffer);
   }
