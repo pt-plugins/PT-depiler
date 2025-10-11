@@ -5,7 +5,8 @@
 /*noinspection CssUnknownTarget*/
 @import "../../shared/common.scss";
 
-#ptd-content-script-app {
+#ptd-content-script-app,
+.v-overlay-container {
   all: initial;
   box-sizing: border-box;
   word-break: normal;

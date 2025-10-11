@@ -105,7 +105,7 @@ onMounted(async () => {
                           {{ t("common.checkbox.all") }}
                         </p>
                         <p v-if="!checkBtnIndeterminate(category)" class="text-red-lighten-1">
-                          &nbsp;{{ t("setSite.spDialog.selectAllNotice") }}
+                          &nbsp;{{ t("SetSearchSolution.spDialog.selectAllNotice") }}
                         </p>
                       </template>
                     </v-checkbox>
@@ -154,7 +154,7 @@ onMounted(async () => {
           </v-expansion-panel>
         </v-expansion-panels>
         <div v-else>
-          {{ t("setSite.spDialog.noDefNotice") }}
+          {{ t("SetSearchSolution.spDialog.noDefNotice") }}
         </div>
       </v-col>
       <v-col align-self="center">

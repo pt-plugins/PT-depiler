@@ -536,6 +536,12 @@
     },
     "delete": {
       "text": "确认删除这 {0} 个 @:SetSearchSolution.solution 吗？"
+    },
+    "spDialog": {
+      "noDefNotice": "该站点未定义搜索模块，请到项目仓库提供帮助！",
+      "notice": "不推荐在此处进行设置，更建议在对应站点的个人设置中配置或使用插件提供的搜索方案功能！",
+      "selectAllNotice": "（注意：在大多数情况下，你并不需要全选所有搜索项！）",
+      "title": "配置站点默认搜索模式 - {name}"
     }
   },
   "SetSite": {
@@ -579,12 +585,6 @@
       },
       "settingNote": ["只有配置过的站点才会显示插件图标及相应的功能；", "已离线的站点不再参与搜索和信息获取；"],
       "oneClickImport": "一键导入站点"
-    },
-    "spDialog": {
-      "noDefNotice": "该站点未定义搜索模块，请到项目仓库提供帮助！",
-      "notice": "不推荐在此处进行设置，更建议在对应站点的个人设置中配置或使用插件提供的搜索方案功能！",
-      "selectAllNotice": "（注意：在大多数情况下，你并不需要全选所有搜索项！）",
-      "title": "配置站点默认搜索模式 - {name}"
     },
     "oneClickImportDialog": {
       "title": "一键导入站点",

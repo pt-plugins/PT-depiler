@@ -108,7 +108,7 @@ export const parseSectionedHitAndRunElement = (element: HTMLElement) => {
 };
 
 export const subTitleRemoveExtraElement =
-  (removeSelectors: string[] = [], self: boolean = false) =>
+  (removeSelectors: string[] = [], self: boolean = true) =>
   (element: HTMLElement) => {
     const testSubTitle = element.parentElement!.innerHTML.split("<br>");
     if (testSubTitle && testSubTitle.length > 1) {
@@ -251,6 +251,12 @@ export const SchemaMetadata: Pick<
       ],
     },
   },
+
+  list: [
+    {
+      urlPattern: ["/torrents.php", "/special.php"],
+    },
+  ],
 
   detail: {
     urlPattern: ["/details.php"],
@@ -712,7 +718,23 @@ export default class NexusPHP extends PrivateSite {
       customTags.forEach((element) => {
         const htmlElement = element as HTMLElement;
         const tagName = htmlElement.textContent;
-        const tagColor = htmlElement.style.backgroundColor;
+        let tagColor = htmlElement.style.backgroundColor;
+
+        // 处理渐变色 linear-gradient(45deg, rgb(248, 87, 86), rgb(249, 166, 95)) 的情况，取第一个非白色的 rgb 颜色作为标签颜色
+        if (tagColor === "" && htmlElement.style.backgroundImage?.startsWith("linear-gradient")) {
+          const gradientMatch = htmlElement.style.backgroundImage.match(/rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)/g);
+
+          if (gradientMatch && gradientMatch.length > 0) {
+            for (const rgb of gradientMatch) {
+              // 简单的过滤掉白色
+              if (rgb.trim() !== "rgb(255, 255, 255)") {
+                tagColor = rgb.trim();
+                break;
+              }
+            }
+          }
+        }
+
         if (tagName && tagColor) {
           tags.push({ name: tagName, color: tagColor });
         }

@@ -64,7 +64,7 @@ export const siteMetadata: ISiteMetadata = {
       subTitle: {
         text: "",
         selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
-        elementProcess: subTitleRemoveExtraElement(["span"]),
+        elementProcess: subTitleRemoveExtraElement(["span"], false),
       },
       url: {
         selector: "a[title][href*='details.php?id=']",
