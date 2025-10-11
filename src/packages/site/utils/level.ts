@@ -223,12 +223,13 @@ export function levelRequirementUnMet(
 
   // 额外计算 增加到达下一级魔力所需时间 （#7）
   for (const bonusKey of ["bonus", "seedingBonus"] as const) {
-    if (unmetRequirement[bonusKey] && levelRequirement[bonusKey] && userInfo.bonusPerHour > 0) {
+    const perHourValue = userInfo[`${bonusKey}PerHour`] ?? userInfo.bonusPerHour ?? 0; // issue#681
+    if (unmetRequirement[bonusKey] && levelRequirement[bonusKey] && perHourValue > 0) {
       // 如果未满足 bonus 条件，且获取到了 bonusPerHour
       const currentBonus = userInfo[bonusKey] ?? 0;
       const leftBonus = levelRequirement[bonusKey] - currentBonus; // Fixed by #676
       if (leftBonus > 0) {
-        const leftTime = leftBonus / userInfo.bonusPerHour;
+        const leftTime = leftBonus / parseFloat(perHourValue);
         unmetRequirement[`${bonusKey}NeededInterval`] = `${Math.floor(leftTime)}H`;
       }
     }
