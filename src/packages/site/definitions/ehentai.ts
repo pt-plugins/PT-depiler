@@ -29,7 +29,7 @@ export const siteMetadata: ISiteMetadata = {
       title: { selector: "a[href*='/gallerytorrents.php?gid=']" },
       url: { selector: "a[href*='/g/']", attr: "href" },
       link: { selector: "a[href*='/gallerytorrents.php?gid=']", attr: "href" },
-      time: { selector: "td:first-child", filters: [{ name: "parseTime" }] },
+      time: { selector: "td:first-child", filters: [{ name: "parseFuzzyTime" }] },
       size: { selector: "td:nth-child(4)", filters: [{ name: "parseSize" }] },
       seeders: { selector: "td:nth-child(5)" },
       leechers: { selector: "td:nth-child(6)" },
