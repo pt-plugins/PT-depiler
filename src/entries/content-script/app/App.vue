@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, provide, useTemplateRef, ref, watch, shallowReactive, computed, withModifiers } from "vue";
+import { inject, provide, useTemplateRef, ref, shallowReactive, computed, withModifiers } from "vue";
 import { useDraggable } from "@vueuse/core";
 import { type ITorrent } from "@ptd/site";
 
@@ -53,28 +53,22 @@ window.addEventListener("resize", () => {
   bottomY.value = clientHeight - y.value;
 });
 
-// 从 configStore 中加载初始position配置（这里不需要判断 configStore.contextScript.enabled ）
-watch(
-  () => configStore.$ready,
-  (ready) => {
-    if (ready) {
-      openSpeedDial.value = configStore.contentScript?.defaultOpenSpeedDial ?? false;
+// 由于App.vue是整个应用的根组件，此时 configStore 等 pinia store 可能还未初始化完成，所以需要监听 $onReady
+configStore.$onReady(() => {
+  openSpeedDial.value = configStore.contentScript?.defaultOpenSpeedDial ?? false;
 
-      if (openSpeedDial.value) {
-        updatePageType(ptdData).catch();
-      }
+  if (openSpeedDial.value) {
+    updatePageType(ptdData).catch();
+  }
 
-      let { x: storeX = -100, y: storeY = -100 } = configStore.contentScript?.position ?? {};
-      let { clientWidth, clientHeight } = document.documentElement;
+  let { x: storeX = -100, y: storeY = -100 } = configStore.contentScript?.position ?? {};
+  let { clientWidth, clientHeight } = document.documentElement;
 
-      x.value = storeX <= 0 || storeX > clientWidth - 50 ? clientWidth - 100 : storeX; // Default to right side
-      y.value = storeY <= 0 || storeY > clientHeight - 50 ? clientHeight - 100 : storeY; // Default to bottom
-      rightX.value = clientWidth - x.value;
-      bottomY.value = clientHeight - y.value;
-    }
-  },
-  { immediate: true },
-);
+  x.value = storeX <= 0 || storeX > clientWidth - 50 ? clientWidth - 100 : storeX; // Default to right side
+  y.value = storeY <= 0 || storeY > clientHeight - 50 ? clientHeight - 100 : storeY; // Default to bottom
+  rightX.value = clientWidth - x.value;
+  bottomY.value = clientHeight - y.value;
+});
 
 const remoteDownloadDialogData = shallowReactive({
   show: false,
