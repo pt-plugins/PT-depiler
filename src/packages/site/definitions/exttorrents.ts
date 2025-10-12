@@ -3,6 +3,7 @@ import { ITorrent, type ISiteMetadata } from "../types";
 import Sizzle from "sizzle";
 import CryptoJS from "crypto-js";
 import { set } from "es-toolkit/compat";
+import { parseTimeToLive, parseValidTimeString } from "../utils";
 
 const extCategories = [
   { uri: "/anime/", cat: 7, value: "Anime" },
@@ -67,6 +68,13 @@ const categoryMap = extCategories.reduce<Record<string, string>>((map, item) => 
 
 const categoryOptions = extCategories.map(({ cat, subCat, value }) => ({ name: value, value: `${cat}|${subCat}` }));
 
+const parseId = (uri: string) => {
+  const parts = uri.split("-");
+  const last = parts[parts.length - 1];
+  const id = last.replace("/", "");
+  return parseInt(id);
+};
+
 interface extGetMagnetResp {
   success: boolean;
   magnet?: string;
@@ -79,6 +87,7 @@ export const siteMetadata: ISiteMetadata = {
   name: "EXT Torrents",
   description: "EXT Torrents is a Public torrent site for MOVIES / TV / GENERAL",
   tags: ["综合"],
+  timezoneOffset: "+0800",
 
   type: "public",
 
@@ -106,6 +115,8 @@ export const siteMetadata: ISiteMetadata = {
       responseType: "document",
       params: {
         with_adult: 1,
+        sort: "age",
+        order: "desc",
       },
     },
     advanceKeywordParams: {
@@ -118,7 +129,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     requestConfigTransformer: ({ requestConfig }) => {
-      if (!(requestConfig?.params.cat || requestConfig?.params.imdb_id)) {
+      if (!(requestConfig?.params.cat || requestConfig?.params.imdb_id || requestConfig?.params.q)) {
         set(requestConfig!, "params.age", 0);
       }
       return requestConfig!;
@@ -133,19 +144,20 @@ export const siteMetadata: ISiteMetadata = {
       id: {
         selector: "td:nth-child(1) div a",
         attr: "href",
-        filters: [
-          (uri: string) => {
-            const parts = uri.split("-");
-            const last = parts[parts.length - 1];
-            const id = last.replace("/", "");
-            return parseInt(id);
-          },
-        ],
+        filters: [parseId],
       },
       title: { selector: "td:nth-child(1) div a" },
       url: { selector: "td:nth-child(1) div a", attr: "href" },
       size: { selector: "span:contains('Size') + span", filters: [{ name: "parseSize" }] },
-      time: { selector: "span:contains('Age') + span", filters: [{ name: "parseTTL" }] },
+      time: {
+        selector: "span:contains('Age') + span",
+        elementProcess: (el: Element) => {
+          if (el.textContent.match(/minute|hour/)) {
+            return parseTimeToLive(el.textContent);
+          }
+          return parseValidTimeString(el.getAttribute("title")!, ["dd MMMM yyyy"]);
+        },
+      },
       seeders: { selector: "span:contains('Seeds') + span" },
       leechers: { selector: "span:contains('Leechs') + span" },
       comments: { selector: "a.comments-torrents-btn" },
@@ -157,18 +169,21 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
+
+  detail: {
+    urlPattern: [/-\d+\//],
+    selectors: {
+      title: { selector: "h1.card-title:first" },
+      link: { text: "N/A" }, // 后续方法中会获取到正确链接
+    },
+  },
 };
 
 export default class ExtTorrents extends BittorrentSite {
-  private extractWindowVar(scriptEl: Element, varName: string): string | null {
-    const regex = new RegExp(`window\\.${varName}\\s*=\\s*['"]([^'"]+)['"]`);
-    const match = scriptEl.textContent?.match(regex);
-    return match ? match[1] : null;
-  }
-
-  private computeHMAC(torrentId: number, timestamp: number, token: string) {
-    const data = `${torrentId}|${timestamp}|${token}`;
-    return CryptoJS.SHA256(data).toString();
+  public override async transformDetailPage(doc: Document): Promise<ITorrent> {
+    const torrent = await super.transformDetailPage(doc);
+    torrent.id = parseId(torrent.url!);
+    return torrent;
   }
 
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
@@ -203,5 +218,16 @@ export default class ExtTorrents extends BittorrentSite {
       return getMagnetResp.data.magnet!;
     }
     return super.getTorrentDownloadLink(torrent);
+  }
+
+  private extractWindowVar(scriptEl: Element, varName: string): string | null {
+    const regex = new RegExp(`window\\.${varName}\\s*=\\s*['"]([^'"]+)['"]`);
+    const match = scriptEl.textContent?.match(regex);
+    return match ? match[1] : null;
+  }
+
+  private computeHMAC(torrentId: number, timestamp: number, token: string) {
+    const data = `${torrentId}|${timestamp}|${token}`;
+    return CryptoJS.SHA256(data).toString();
   }
 }
