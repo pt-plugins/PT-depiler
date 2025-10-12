@@ -103,7 +103,7 @@ export const siteMetadata: ISiteMetadata = {
         const categoryString = Array.isArray(value) ? value.join(",") : value;
         return {
           requestConfig: {
-            url: `/torrents/browse/list/categories/${categoryString}`,
+            url: `/torrents/browse/list/categories/${categoryString}/query`,
           },
         };
       },
