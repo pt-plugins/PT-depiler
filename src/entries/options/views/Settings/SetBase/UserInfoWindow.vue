@@ -68,8 +68,23 @@ onMounted(async () => {
       />
       <v-row v-if="configStore.userInfo.autoReflush.enabled" class="mt-1 ml-2 mb-2">
         <v-alert type="info" variant="outlined">
+          <div class="d-inline-flex align-center text-no-wrap mb-1">
+            • 每日最早刷新时间
+            <v-text-field
+              :model-value="configStore.userInfo.autoReflush.afterTime"
+              class="mx-2"
+              density="compact"
+              hide-details
+              readonly
+            >
+              <v-dialog activator="parent" width="auto">
+                <v-time-picker v-model="configStore.userInfo.autoReflush.afterTime" format="24hr"></v-time-picker>
+              </v-dialog>
+            </v-text-field>
+          </div>
+          <br />
           <div class="d-inline-flex align-center text-no-wrap">
-            {{ t("userInfo.autoRefresh.every") }}
+            • {{ t("userInfo.autoRefresh.every") }}
             <v-select
               v-model="configStore.userInfo.autoReflush.interval"
               :items="range(1, 24)"
@@ -83,8 +98,9 @@ onMounted(async () => {
             <p class="font-weight-bold">{{ t("userInfo.autoRefresh.unrefreshedSite") }}</p>
             {{ t("userInfo.autoRefresh.ofSites") }}
           </div>
+          <br />
           <div class="d-inline-flex align-center text-no-wrap">
-            {{ t("userInfo.autoRefresh.retryOnFail") }}
+            • {{ t("userInfo.autoRefresh.retryOnFail") }}
             <v-select
               v-model="configStore.userInfo.autoReflush.retry.max"
               :items="range(0, 6)"

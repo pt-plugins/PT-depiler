@@ -226,6 +226,7 @@ export const useConfigStore = defineStore("config", {
       autoReflush: {
         enabled: true,
         interval: 3, // hours
+        afterTime: "00:00",
         retry: {
           max: 3,
           interval: 5, // minutes

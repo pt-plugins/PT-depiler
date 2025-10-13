@@ -15,90 +15,118 @@ export enum EJobType {
 
 const jobs = defineJobScheduler();
 
-export async function createFlushUserInfoJob() {
-  await setupOffscreenDocument();
-  const configStore = (await extStorage.getItem("config"))!;
+function autoFlushUserInfo(retryIndex: number = 0) {
+  return async () => {
+    await setupOffscreenDocument();
 
-  // 获取自动刷新参数
-  const {
-    enabled = false,
-    interval = 1,
-    retry: { max: retryMax = 0, interval: retryInterval = 5 } = {},
-  } = configStore?.userInfo?.autoReflush ?? {};
+    const configStore = (await extStorage.getItem("config"))!;
 
-  function autoFlushUserInfo(retryIndex: number = 0) {
-    return async () => {
-      const curDate = new Date();
-      const curDateFormat = format(curDate, "yyyy-MM-dd");
-      sendMessage("logger", {
-        msg: `Auto-refreshing user information at ${curDateFormat}${retryIndex > 0 ? `(Retry #${retryIndex})` : ""}`,
-      }).catch();
+    // 获取自动刷新参数
+    const {
+      enabled = false,
+      interval = 1,
+      afterTime = "00:00",
+      retry: { max: retryMax = 0, interval: retryInterval = 5 } = {},
+    } = configStore?.userInfo?.autoReflush ?? {};
 
-      let metadataStore = (await extStorage.getItem("metadata"))!;
+    // 如果未启用自动刷新，则直接返回
+    if (!enabled) {
+      return;
+    }
 
-      // 遍历 metadataStore 中添加的站点
-      const flushPromises = [];
-      const failFlushSites: TSiteID[] = [];
-      for (const siteId of Object.keys(metadataStore.sites)) {
-        flushPromises.push(
-          new Promise(async (resolve, reject) => {
-            try {
-              const siteConfig = await sendMessage("getSiteUserConfig", { siteId });
-              if (!siteConfig.isOffline && siteConfig.allowQueryUserInfo) {
-                // 检查当天的记录是否存在
-                const thisSiteUserInfo = await sendMessage("getSiteUserInfo", siteId);
-                if (typeof thisSiteUserInfo[curDateFormat] === "undefined") {
-                  const userInfoResult = await sendMessage("getSiteUserInfoResult", siteId);
-                  if (userInfoResult.status !== EResultParseStatus.success) {
-                    failFlushSites.push(siteId);
-                    reject(siteId); // 仅有刷新失败的时候才reject
-                  }
+    const curDate = new Date();
+    let metadataStore = (await extStorage.getItem("metadata"))!;
+
+    // 如果不是重试，则主要检查是否满足刷新条件
+    if (retryInterval === 0) {
+      // 检查当前时间是否在允许的刷新时间之后
+      const [afterHour, afterMinute] = afterTime.split(":").map((v) => parseInt(v));
+      if (curDate.getHours() < afterHour || (curDate.getHours() === afterHour && curDate.getMinutes() < afterMinute)) {
+        sendMessage("logger", {
+          msg: `Auto-refreshing user information paused since current time is before the allowed refresh time.`,
+        }).catch();
+        return;
+      }
+
+      // 检查距离上次刷新时间是否超过了设定的间隔
+      metadataStore = (await extStorage.getItem("metadata"))!;
+      const nextFlushTime = metadataStore.lastUserInfoAutoFlushAt + interval * 60 * 60 * 1000; // interval in hours
+      if (curDate.getTime() < nextFlushTime) {
+        sendMessage("logger", {
+          msg: `Auto-refreshing user information paused since refresh interval not reached.`,
+        }).catch();
+        return;
+      }
+    }
+
+    const curDateFormat = format(curDate, "yyyy-MM-dd");
+    sendMessage("logger", {
+      msg: `Auto-refreshing user information at ${curDateFormat}${retryIndex > 0 ? `(Retry #${retryIndex})` : ""}`,
+    }).catch();
+
+    // 遍历 metadataStore 中添加的站点
+    metadataStore = (await extStorage.getItem("metadata"))!;
+    const flushPromises = [];
+    const failFlushSites: TSiteID[] = [];
+    for (const siteId of Object.keys(metadataStore.sites)) {
+      flushPromises.push(
+        new Promise(async (resolve, reject) => {
+          try {
+            const siteConfig = await sendMessage("getSiteUserConfig", { siteId });
+            if (!siteConfig.isOffline && siteConfig.allowQueryUserInfo) {
+              // 检查当天的记录是否存在
+              const thisSiteUserInfo = await sendMessage("getSiteUserInfo", siteId);
+              if (typeof thisSiteUserInfo[curDateFormat] === "undefined") {
+                const userInfoResult = await sendMessage("getSiteUserInfoResult", siteId);
+                if (userInfoResult.status !== EResultParseStatus.success) {
+                  failFlushSites.push(siteId);
+                  reject(siteId); // 仅有刷新失败的时候才reject
                 }
               }
-              resolve(siteId); // 其他状态（刷新成功、已有当天记录、不设置刷新）均视为resolve
-            } catch (e) {
-              reject(siteId); // 如果获取站点配置失败，则reject
             }
-          }),
-        );
-      }
+            resolve(siteId); // 其他状态（刷新成功、已有当天记录、不设置刷新）均视为resolve
+          } catch (e) {
+            reject(siteId); // 如果获取站点配置失败，则reject
+          }
+        }),
+      );
+    }
 
-      // 等待所有刷新操作完成
-      await Promise.allSettled(flushPromises);
+    // 等待所有刷新操作完成
+    await Promise.allSettled(flushPromises);
+    sendMessage("logger", {
+      msg: `Auto-refreshing user information finished, ${flushPromises.length} sites processed, ${failFlushSites.length} failed.`,
+      data: { failFlushSites },
+    }).catch();
+
+    // 将刷新时间存入 metadataStore
+    metadataStore = (await extStorage.getItem("metadata"))!;
+    metadataStore.lastUserInfoAutoFlushAt = curDate.getTime();
+    await extStorage.setItem("metadata", metadataStore);
+
+    // 如果本次有失败的刷新操作，则设置重试
+    if (failFlushSites.length > 0 && retryIndex < retryMax) {
       sendMessage("logger", {
-        msg: `Auto-refreshing user information finished, ${flushPromises.length} sites processed, ${failFlushSites.length} failed.`,
-        data: { failFlushSites },
+        msg: `Retrying auto-refresh for ${failFlushSites.length} failed sites in ${retryInterval} minutes (Retry #${retryIndex + 1})`,
       }).catch();
+      await jobs.scheduleJob({
+        id: EJobType.FlushUserInfo + "-Retry-" + retryIndex,
+        type: "once",
+        date: +curDate + retryInterval * 60 * 1000, // retryInterval in minutes
+        execute: autoFlushUserInfo(retryIndex + 1),
+      });
+    }
+  };
+}
 
-      // 将刷新时间存入 metadataStore
-      metadataStore = (await extStorage.getItem("metadata"))!;
-      metadataStore.lastUserInfoAutoFlushAt = curDate.getTime();
-      await extStorage.setItem("metadata", metadataStore);
-
-      // 如果本次有失败的刷新操作，则设置重试
-      if (failFlushSites.length > 0 && retryIndex < retryMax) {
-        sendMessage("logger", {
-          msg: `Retrying auto-refresh for ${failFlushSites.length} failed sites in ${retryInterval} minutes (Retry #${retryIndex + 1})`,
-        }).catch();
-        await jobs.scheduleJob({
-          id: EJobType.FlushUserInfo + "-Retry-" + retryIndex,
-          type: "once",
-          date: +curDate + retryInterval * 60 * 1000, // retryInterval in minutes
-          execute: autoFlushUserInfo(retryIndex + 1),
-        });
-      }
-    };
-  }
-
-  if (enabled) {
-    await jobs.scheduleJob({
-      id: EJobType.FlushUserInfo,
-      type: "interval",
-      duration: 1000 * 60 * 60 * interval, // interval in hours
-      immediate: true,
-      execute: autoFlushUserInfo(),
-    });
-  }
+export async function createFlushUserInfoJob() {
+  await jobs.scheduleJob({
+    id: EJobType.FlushUserInfo,
+    type: "interval",
+    duration: 1000 * 60 * 10, // check every 10 minutes
+    immediate: true,
+    execute: autoFlushUserInfo(),
+  });
 }
 
 export async function cleanupFlushUserInfoJob() {

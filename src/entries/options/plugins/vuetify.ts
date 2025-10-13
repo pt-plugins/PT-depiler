@@ -1,5 +1,6 @@
 import { createVuetify } from "vuetify";
 import { en, zhHans } from "vuetify/locale";
+
 import { VColorInput } from "vuetify/labs/VColorInput";
 
 import { type TLangCode } from "./i18n.ts";
