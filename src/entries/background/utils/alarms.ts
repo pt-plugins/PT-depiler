@@ -129,27 +129,6 @@ export async function createFlushUserInfoJob() {
   });
 }
 
-export async function cleanupFlushUserInfoJob() {
-  // @webext-core/job-scheduler 没有提供已添加的任务列表的 API，我们只能通过 chrome.alarms API 来获取
-  const allAlarms = await chrome.alarms.getAll();
-  for (const alarm of allAlarms) {
-    if (alarm.name.startsWith(EJobType.FlushUserInfo)) {
-      await jobs.removeJob(alarm.name);
-    }
-  }
-  sendMessage("logger", { msg: "All flush user info jobs have been cleaned up." }).catch();
-}
-
-onMessage("cleanupFlushUserInfoJob", async () => await cleanupFlushUserInfoJob());
-
-export async function setFlushUserInfoJob() {
-  await cleanupFlushUserInfoJob();
-  await createFlushUserInfoJob();
-  sendMessage("logger", { msg: `Flush user info job has been set successfully.` }).catch();
-}
-
-onMessage("setFlushUserInfoJob", async () => await setFlushUserInfoJob());
-
 // noinspection JSIgnoredPromiseFromCall
 createFlushUserInfoJob();
 
