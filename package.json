@@ -58,7 +58,7 @@
     "konva": "^10.0.2",
     "nanoid": "^5.1.6",
     "p-queue": "^9.0.0",
-    "parse-torrent": "^11.0.18",
+    "parse-torrent": "^11.0.19",
     "pinia": "^3.0.3",
     "pinia-plugin-state-persistence": "^1.11.0",
     "search-query-parser": "^1.6.0",
