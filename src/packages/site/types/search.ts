@@ -73,6 +73,18 @@ export interface IBaseSearchConfig {
    * @default false - 支持所有字符集
    */
   skipNonLatinCharacters?: boolean;
+
+  /**
+   * 是否跳过仅包含空白字符的搜索查询（如空格、制表符、换行符等）
+   * 如果设置为 true，当搜索查询仅包含空白字符时，该站点将被跳过，不会发送搜索请求。
+   * 这有助于避免向站点发送无效或无意义的搜索请求，提高搜索效率。
+   *
+   * 如果设置为 false 或未设置（默认），该站点将接受所有搜索查询，
+   * 包括仅包含空白字符的查询。
+   *
+   * @default false - 不跳过仅包含空白字符的查询
+   */
+  skipWhiteSpacePlaceholder?: boolean;
 }
 
 export interface IAdvanceKeywordSearchConfig extends IBaseSearchConfig {

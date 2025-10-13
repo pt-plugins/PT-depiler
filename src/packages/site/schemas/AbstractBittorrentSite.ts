@@ -185,13 +185,18 @@ export default class BittorrentSite {
 
     console?.log(`[Site] ${this.name} start search with merged searchEntry:`, searchEntry);
 
-    // 2. 检查字符集兼容性并过滤站点
-    if (searchEntry.skipNonLatinCharacters && keywords) {
-      if (hasNonLatinCharacters(keywords)) {
-        console?.log(`[Site] ${this.name} skipped due to non-Latin characters in query:`, keywords);
-        result.status = EResultParseStatus.passParse;
-        return result;
-      }
+    // 2.1 检查 keywords 是否为空
+    if (searchEntry.skipWhiteSpacePlaceholder === true && !keywords) {
+      console?.log(`[Site] ${this.name} skipped due to empty keywords`);
+      result.status = EResultParseStatus.passParse;
+      return result;
+    }
+
+    // 2.2 检查字符集兼容性并过滤站点
+    if (searchEntry.skipNonLatinCharacters === true && keywords && hasNonLatinCharacters(keywords)) {
+      console?.log(`[Site] ${this.name} skipped due to non-Latin characters in query:`, keywords);
+      result.status = EResultParseStatus.passParse;
+      return result;
     }
 
     // 3. 生成对应站点的基础 requestConfig
