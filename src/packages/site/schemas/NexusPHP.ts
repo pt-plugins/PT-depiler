@@ -516,7 +516,7 @@ export const SchemaMetadata: Pick<
       },
       {
         requestConfig: { url: "/mybonus.php", responseType: "document" },
-        fields: ["bonusPerHour"],
+        fields: ["bonusPerHour", "seedingBonusPerHour"],
       },
     ],
   },
