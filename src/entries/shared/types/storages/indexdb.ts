@@ -5,9 +5,10 @@
  */
 
 import type { DBSchema } from "idb";
+import type { AxiosRequestConfig } from "axios";
 import type { ISocialInformation } from "@ptd/social";
 import type { ITorrent, TSiteID as TSiteKey } from "@ptd/site";
-import type { CAddTorrentOptions } from "@ptd/downloader";
+import type { CAddTorrentOptions, CAddTorrentResult } from "@ptd/downloader";
 
 import type { TDownloaderKey } from "./metadata.ts";
 import type { ISearchResultTorrent } from "./runtime.ts";
@@ -25,6 +26,9 @@ export interface ITorrentDownloadMetadata extends Pick<ITorrent, "title" | "subT
   downloadStatus: TTorrentDownloadStatus; // 下载状态
   torrent: ISearchResultTorrent; // 种子信息
   addTorrentOptions: Partial<CAddTorrentOptions>;
+
+  downloadRequestConfig?: AxiosRequestConfig;
+  addTorrentResult?: CAddTorrentResult;
 }
 
 export interface IPtdDBSchemaV1 extends DBSchema {

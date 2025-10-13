@@ -80,6 +80,14 @@ async function confirmDeleteDownloadHistory(downloadHistoryId: TTorrentDownloadK
   return await sendMessage("deleteDownloadHistoryById", downloadHistoryId);
 }
 
+const showDownloadDetailDialog = ref<boolean>(false);
+const downloadDetail = ref<any>({});
+
+function viewDownloadDetail(history: ITorrentDownloadMetadata) {
+  downloadDetail.value = history;
+  showDownloadDetailDialog.value = true;
+}
+
 onMounted(() => {
   throttleLoadDownloadHistory();
 });
@@ -174,6 +182,7 @@ onMounted(() => {
           <v-chip
             :prepend-icon="downloadStatusMap[item.downloadStatus].icon"
             :color="downloadStatusMap[item.downloadStatus].color"
+            @click="() => viewDownloadDetail(item)"
           >
             {{ downloadStatusMap[item.downloadStatus].title }}
           </v-chip>
@@ -218,6 +227,14 @@ onMounted(() => {
     :confirm-delete="confirmDeleteDownloadHistory"
     @all-delete="() => throttleLoadDownloadHistory()"
   />
+
+  <v-dialog v-model="showDownloadDetailDialog" width="800">
+    <v-card>
+      <v-card-text>
+        <pre> {{ JSON.stringify(downloadDetail, null, 2) }}</pre>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style scoped lang="scss"></style>
