@@ -38,7 +38,7 @@ function autoFlushUserInfo(retryIndex: number = 0) {
     let metadataStore = (await extStorage.getItem("metadata"))!;
 
     // 如果不是重试，则主要检查是否满足刷新条件
-    if (retryInterval === 0) {
+    if (retryIndex === 0) {
       // 检查当前时间是否在允许的刷新时间之后
       const [afterHour, afterMinute] = afterTime.split(":").map((v) => parseInt(v));
       if (curDate.getHours() < afterHour || (curDate.getHours() === afterHour && curDate.getMinutes() < afterMinute)) {
