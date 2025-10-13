@@ -65,8 +65,8 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
       parse-torrent:
-        specifier: ^11.0.18
-        version: 11.0.18
+        specifier: ^11.0.19
+        version: 11.0.19
       pinia:
         specifier: ^3.0.3
         version: 3.0.3(typescript@5.9.3)(vue@3.5.22(typescript@5.9.3))
@@ -2823,8 +2823,8 @@ packages:
     resolution: {integrity: sha512-TXfryirbmq34y8QBwgqCVLi+8oA3oWx2eAnSn62ITyEhEYaWRlVZ2DvMM9eZbMs/RfxPu/PK/aBLyGj4IrqMHw==}
     engines: {node: '>=18'}
 
-  parse-torrent@11.0.18:
-    resolution: {integrity: sha512-C1igbmTrQQuKlspAfP1wcLaOPlvtu5qi4pMdPoCCfepHmxDOk8iArJ2J1yblLx11UefZJUaKEPSxIwMdG11SuA==}
+  parse-torrent@11.0.19:
+    resolution: {integrity: sha512-T0lEkDdFVQsy0YxHIKjzDHSgt/yl57f3INs5jl7OZqAm77XDF0FgRgrv3LCKgSqsTOrMwYaF0t2761WKdvhgig==}
     engines: {node: '>=12.20.0'}
     hasBin: true
 
@@ -6368,7 +6368,7 @@ snapshots:
 
   parse-ms@4.0.0: {}
 
-  parse-torrent@11.0.18:
+  parse-torrent@11.0.19:
     dependencies:
       bencode: 4.0.0
       cross-fetch-ponyfill: 1.0.3
