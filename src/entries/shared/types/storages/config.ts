@@ -161,6 +161,7 @@ export interface IConfigPiniaStorageSchema {
     // 自动刷新用户信息
     autoReflush: {
       enabled: boolean; // 是否开启自动刷新
+      afterTime: string; // '00:00'，每天的指定时间点之后才允许刷新（使用本地时区）
       interval: number; // 自动刷新间隔（ 1-12 小时 ）
       retry: {
         max: number; // 最大重试次数

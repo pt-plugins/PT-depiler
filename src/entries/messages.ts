@@ -66,8 +66,6 @@ interface ProtocolMap extends TMessageMap {
   removeDNRSessionRuleById(data: chrome.declarativeNetRequest.Rule["id"]): void;
 
   // 1.4 chrome.alarms
-  setFlushUserInfoJob(): void;
-  cleanupFlushUserInfoJob(): void;
   reDownloadTorrentToLocalFile(data: Required<IDownloadTorrentToLocalFile>): void;
   reDownloadTorrentToDownloader(data: Required<IDownloadTorrentToClientOption>): void;
 
