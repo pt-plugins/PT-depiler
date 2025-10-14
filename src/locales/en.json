@@ -625,9 +625,9 @@
     "enableAutoRefresh": "Enable background auto-refresh?",
     "autoRefresh": {
       "every": "Every",
-      "hoursLabel": "hours, auto-refresh today's",
+      "hoursLabel": "hours auto-refresh today's",
       "unrefreshedSite": "unrefreshed",
-      "ofSites": "sites",
+      "ofSites": "sites.",
       "retryOnFail": "If refresh fails, retry",
       "times": "times, with an interval of",
       "minutes": "minutes.",

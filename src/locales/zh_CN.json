@@ -622,7 +622,7 @@
     "enableAutoRefresh": "是否启用后台定时刷新？",
     "autoRefresh": {
       "every": "每隔",
-      "hoursLabel": "小时，自动刷新一次当天",
+      "hoursLabel": "小时自动刷新一次当天",
       "unrefreshedSite": "未刷新过",
       "ofSites": "的站点",
       "retryOnFail": "如果刷新失败，则重试",

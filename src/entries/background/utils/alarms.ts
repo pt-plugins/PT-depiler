@@ -35,9 +35,10 @@ function autoFlushUserInfo(retryIndex: number = 0) {
     }
 
     const curDate = new Date();
+    const curDateFormat = format(curDate, "yyyy-MM-dd");
     let metadataStore = (await extStorage.getItem("metadata"))!;
 
-    // 如果不是重试，则主要检查是否满足刷新条件
+    // 如果不是重试，则要检查是否满足刷新条件
     if (retryIndex === 0) {
       // 检查当前时间是否在允许的刷新时间之后
       const [afterHour, afterMinute] = afterTime.split(":").map((v) => parseInt(v));
@@ -48,60 +49,60 @@ function autoFlushUserInfo(retryIndex: number = 0) {
         return;
       }
 
-      // 检查距离上次刷新时间是否超过了设定的间隔
       metadataStore = (await extStorage.getItem("metadata"))!;
-      const nextFlushTime = metadataStore.lastUserInfoAutoFlushAt + interval * 60 * 60 * 1000; // interval in hours
-      if (curDate.getTime() < nextFlushTime) {
-        sendMessage("logger", {
-          msg: `Auto-refreshing user information paused since refresh interval not reached.`,
-        }).catch();
-        return;
+      const lastFlushDateFormat = format(metadataStore.lastUserInfoAutoFlushAt, "yyyy-MM-dd");
+
+      // 如果不是同一天，则不检查距离上次刷新时间是否超过了设定的间隔，这样能保证至少每天刷新一次（即启动浏览器后第一次检查）
+      if (curDateFormat !== lastFlushDateFormat) {
+        const nextFlushTime = metadataStore.lastUserInfoAutoFlushAt + interval * 60 * 60 * 1000; // interval in hours
+        // 否则确保距离上次刷新时间已经超过了设定的间隔
+        if (curDate.getTime() < nextFlushTime) {
+          sendMessage("logger", {
+            msg: `Auto-refreshing user information paused since refresh interval not reached.`,
+          }).catch();
+          return;
+        }
       }
     }
 
-    const curDateFormat = format(curDate, "yyyy-MM-dd");
     sendMessage("logger", {
       msg: `Auto-refreshing user information at ${curDateFormat}${retryIndex > 0 ? `(Retry #${retryIndex})` : ""}`,
     }).catch();
 
-    // 遍历 metadataStore 中添加的站点
-    metadataStore = (await extStorage.getItem("metadata"))!;
-    const flushPromises = [];
+    let processedSiteCount = 0;
     const failFlushSites: TSiteID[] = [];
-    for (const siteId of Object.keys(metadataStore.sites)) {
-      flushPromises.push(
-        new Promise(async (resolve, reject) => {
-          try {
-            const siteConfig = await sendMessage("getSiteUserConfig", { siteId });
-            if (!siteConfig.isOffline && siteConfig.allowQueryUserInfo) {
-              // 检查当天的记录是否存在
-              const thisSiteUserInfo = await sendMessage("getSiteUserInfo", siteId);
-              if (typeof thisSiteUserInfo[curDateFormat] === "undefined") {
-                const userInfoResult = await sendMessage("getSiteUserInfoResult", siteId);
-                if (userInfoResult.status !== EResultParseStatus.success) {
-                  failFlushSites.push(siteId);
-                  reject(siteId); // 仅有刷新失败的时候才reject
-                }
-              }
+
+    /**
+     * 由于是后台任务，所以我们不使用 promise 来并行处理，以确保 flushQueue 中永远只有一个任务在运行，
+     * 防止用户设置的并发数过大而被浏览器block
+     */
+    metadataStore = (await extStorage.getItem("metadata"))!; // 遍历 metadataStore 中添加的站点
+    for (const [siteId, siteConfig] of Object.entries(metadataStore.sites)) {
+      try {
+        if (!siteConfig.isOffline && siteConfig.allowQueryUserInfo) {
+          // 检查当天的记录是否存在
+          const thisSiteUserInfo = await sendMessage("getSiteUserInfo", siteId);
+          if (typeof thisSiteUserInfo[curDateFormat] === "undefined") {
+            const userInfoResult = await sendMessage("getSiteUserInfoResult", siteId);
+            if (userInfoResult.status !== EResultParseStatus.success) {
+              failFlushSites.push(siteId);
             }
-            resolve(siteId); // 其他状态（刷新成功、已有当天记录、不设置刷新）均视为resolve
-          } catch (e) {
-            reject(siteId); // 如果获取站点配置失败，则reject
           }
-        }),
-      );
+        }
+        processedSiteCount += 1;
+      } catch (e) {
+        failFlushSites.push(siteId);
+      }
     }
 
-    // 等待所有刷新操作完成
-    await Promise.allSettled(flushPromises);
     sendMessage("logger", {
-      msg: `Auto-refreshing user information finished, ${flushPromises.length} sites processed, ${failFlushSites.length} failed.`,
+      msg: `Auto-refreshing user information finished, ${processedSiteCount} sites processed, ${failFlushSites.length} failed.`,
       data: { failFlushSites },
     }).catch();
 
     // 将刷新时间存入 metadataStore
     metadataStore = (await extStorage.getItem("metadata"))!;
-    metadataStore.lastUserInfoAutoFlushAt = curDate.getTime();
+    metadataStore.lastUserInfoAutoFlushAt = new Date().getTime(); // 刷新时间应该是实际完成时间
     await extStorage.setItem("metadata", metadataStore);
 
     // 如果本次有失败的刷新操作，则设置重试

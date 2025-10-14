@@ -81,10 +81,7 @@ onMounted(async () => {
                 <v-time-picker v-model="configStore.userInfo.autoReflush.afterTime" format="24hr"></v-time-picker>
               </v-dialog>
             </v-text-field>
-          </div>
-          <br />
-          <div class="d-inline-flex align-center text-no-wrap">
-            • {{ t("userInfo.autoRefresh.every") }}
+            后，{{ t("userInfo.autoRefresh.every") }}
             <v-select
               v-model="configStore.userInfo.autoReflush.interval"
               :items="range(1, 24)"
@@ -143,7 +140,7 @@ onMounted(async () => {
       />
       <v-row v-if="configStore.autoExtendCookies.enabled" class="mt-1 ml-2 mb-2">
         <v-alert type="info" variant="outlined">
-          <div class="d-inline-flex align-center text-no-wrap mb-2">
+          <div class="d-inline-flex align-center text-no-wrap">
             {{ t("userInfo.autoExtendCookies.triggerThreshold") }}:
             <v-select
               v-model="configStore.autoExtendCookies.triggerThreshold"
@@ -155,8 +152,6 @@ onMounted(async () => {
               hide-details
             />
             {{ t("userInfo.autoExtendCookies.weeks") }}
-          </div>
-          <div class="d-inline-flex align-center text-no-wrap mb-2">
             {{ t("userInfo.autoExtendCookies.extensionDuration") }}:
             <v-select
               v-model="configStore.autoExtendCookies.extensionDuration"
