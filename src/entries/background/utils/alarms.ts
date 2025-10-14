@@ -78,20 +78,20 @@ function autoFlushUserInfo(retryIndex: number = 0) {
      */
     metadataStore = (await extStorage.getItem("metadata"))!; // 遍历 metadataStore 中添加的站点
     for (const [siteId, siteConfig] of Object.entries(metadataStore.sites)) {
-      try {
-        if (!siteConfig.isOffline && siteConfig.allowQueryUserInfo) {
+      if (!siteConfig.isOffline && siteConfig.allowQueryUserInfo) {
+        try {
           // 检查当天的记录是否存在
-          const thisSiteUserInfo = await sendMessage("getSiteUserInfo", siteId);
+          const thisSiteUserInfo = (await sendMessage("getSiteUserInfo", siteId)) ?? {};
           if (typeof thisSiteUserInfo[curDateFormat] === "undefined") {
             const userInfoResult = await sendMessage("getSiteUserInfoResult", siteId);
             if (userInfoResult.status !== EResultParseStatus.success) {
               failFlushSites.push(siteId);
             }
+            processedSiteCount += 1;
           }
+        } catch (e) {
+          failFlushSites.push(siteId);
         }
-        processedSiteCount += 1;
-      } catch (e) {
-        failFlushSites.push(siteId);
       }
     }
 
