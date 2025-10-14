@@ -119,18 +119,14 @@ function autoFlushUserInfo(retryIndex: number = 0) {
   };
 }
 
-export async function createFlushUserInfoJob() {
-  await jobs.scheduleJob({
-    id: EJobType.FlushUserInfo,
-    type: "interval",
-    duration: 1000 * 60 * 10, // check every 10 minutes
-    immediate: true,
-    execute: autoFlushUserInfo(),
-  });
-}
-
 // noinspection JSIgnoredPromiseFromCall
-createFlushUserInfoJob();
+jobs.scheduleJob({
+  id: EJobType.FlushUserInfo,
+  type: "interval",
+  duration: 1000 * 60 * 10, // check every 10 minutes
+  immediate: true,
+  execute: autoFlushUserInfo(),
+});
 
 function doReDownloadTorrentToDownloader(option: IDownloadTorrentToClientOption) {
   return async () => {
