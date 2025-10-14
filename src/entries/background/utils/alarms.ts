@@ -53,9 +53,9 @@ function autoFlushUserInfo(retryIndex: number = 0) {
       const lastFlushDateFormat = format(metadataStore.lastUserInfoAutoFlushAt, "yyyy-MM-dd");
 
       // 如果不是同一天，则不检查距离上次刷新时间是否超过了设定的间隔，这样能保证至少每天刷新一次（即启动浏览器后第一次检查）
-      if (curDateFormat !== lastFlushDateFormat) {
+      if (curDateFormat === lastFlushDateFormat) {
         const nextFlushTime = metadataStore.lastUserInfoAutoFlushAt + interval * 60 * 60 * 1000; // interval in hours
-        // 否则确保距离上次刷新时间已经超过了设定的间隔
+        // 确保距离上次刷新时间已经超过了设定的间隔
         if (curDate.getTime() < nextFlushTime) {
           sendMessage("logger", {
             msg: `Auto-refreshing user information paused since refresh interval not reached.`,
