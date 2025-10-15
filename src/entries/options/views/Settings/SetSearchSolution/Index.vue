@@ -140,11 +140,12 @@ async function copySearchSolution(solutionId: TSolutionKey) {
   copied.createdAt = Date.now();
   copied.isDefault = false;
   for (const solution1 of copied.solutions) {
-    if (solution1.id !== "default") {
+    const oldId = solution1.id;
+    if (oldId !== "default") {
       const newId = nanoid();
       solution1.id = newId;
-      solution1.searchEntries[newId] = solution1.searchEntries[solution1.id];
-      delete solution1.searchEntries[solution1.id];
+      solution1.searchEntries[newId] = solution1.searchEntries[oldId];
+      delete solution1.searchEntries[oldId];
     }
   }
 
