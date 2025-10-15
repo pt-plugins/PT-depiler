@@ -164,6 +164,7 @@ export const useConfigStore = defineStore("config", {
       updateAtFormatAsAlive: false,
       showIntervalAsDate: false,
       simplifyBonusNumbers: false,
+      showBonusNeededInterval: true,
     },
 
     userDataTimelineControl: {

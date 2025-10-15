@@ -235,6 +235,7 @@
       "updateAtFormatAsAlive": "更新时间显示为相对时间",
       "showIntervalAsDate": "等级要求时间显示为日期格式",
       "simplifyBonusNumbers": "简化积分数字显示",
+      "showBonusNeededInterval": "等级要求中展示积分预估时间",
       "multiOpen": "批量打开",
       "viewTimeline": "时间轴",
       "viewStatistic": "数据图表",

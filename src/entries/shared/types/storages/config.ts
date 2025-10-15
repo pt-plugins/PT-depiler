@@ -74,6 +74,7 @@ export interface IConfigPiniaStorageSchema {
     normalizeLevelName: boolean;
     // 是否展示升级情况及站点等级情况
     showLevelRequirement: boolean;
+
     /**
      * 是否只展示站点等级定义中 UserGroup = ‘user’ 字段的等级要求
      * 如果为 false，则展示所有等级要求
@@ -82,14 +83,17 @@ export interface IConfigPiniaStorageSchema {
      * 默认值： true
      */
     onlyShowUserLevelRequirement: boolean;
+
     // 在表格中展示升级情况的方式
     showNextLevelInTable: boolean;
     // 在站点登记信息中展示升级情况的方式（需要先设置 showLevelRequirement 为 true）
     showNextLevelInDialog: boolean;
+
     // 是否展示HnR
     showHnR: boolean;
     // 是否展示保种积分
     showSeedingBonus: boolean;
+
     // Deprecated 加入时间显示为周数，使用 joinTimeFormat
     // joinTimeWeekOnly: boolean;
 
@@ -99,7 +103,6 @@ export interface IConfigPiniaStorageSchema {
      * alive: 使用 time_alive(过去时间) 来展示
      * added: 使用 time_added(发生时间) 来展示（ yyyy-MM-dd ）
      * aliveWeek: 使用 time_alive(过去时间) 来展示，按计算出来的周数来展示
-     *
      */
     joinTimeFormat: "alive" | "added" | "aliveWeek";
 
@@ -109,6 +112,9 @@ export interface IConfigPiniaStorageSchema {
     showIntervalAsDate: boolean;
     // 是否简化数字显示（将大数字转换为带单位的简化形式）
     simplifyBonusNumbers: boolean;
+
+    // 是否展示距离下一等级积分的时间（小时）
+    showBonusNeededInterval: boolean;
   };
 
   userDataTimelineControl: {
