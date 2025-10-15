@@ -527,7 +527,8 @@
     "export": "Export",
     "table": {
       "enable": "Enabled ?",
-      "default": "Default ?"
+      "default": "Default ?",
+      "autoGenerate": "Auto Generate"
     },
     "edit": {
       "title": "Customize @:SetSearchSolution.solution",
