@@ -77,9 +77,9 @@ onMounted(async () => {
               hide-details
               readonly
             >
-              <v-dialog activator="parent" width="auto">
+              <v-menu :close-on-content-click="false" activator="parent" min-width="0">
                 <v-time-picker v-model="configStore.userInfo.autoReflush.afterTime" format="24hr"></v-time-picker>
-              </v-dialog>
+              </v-menu>
             </v-text-field>
             后，{{ t("userInfo.autoRefresh.every") }}
             <v-select
