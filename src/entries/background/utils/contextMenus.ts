@@ -214,7 +214,10 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
           title: siteTitle,
           contexts: ["selection"],
           onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
-            openOptionsPage({ path: "/search-entity", query: { search: info.selectionText, site: site.id, flush: 1 } });
+            openOptionsPage({
+              path: "/search-entity",
+              query: { search: info.selectionText, plan: `site:${site.id}`, flush: 1 },
+            });
           },
         });
       }
@@ -229,7 +232,7 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
         onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
           openOptionsPage({
             path: "/search-entity",
-            query: { search: info.selectionText, site: thisTabSiteId, flush: 1 },
+            query: { search: info.selectionText, plan: `site:${thisTabSiteId}`, flush: 1 },
           });
         },
       });
