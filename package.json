@@ -70,7 +70,7 @@
     "vue-echarts": "^8.0.1",
     "vue-i18n": "^11.1.12",
     "vue-konva": "^3.2.6",
-    "vue-router": "^4.5.1",
+    "vue-router": "^4.6.3",
     "vuetify": "^3.10.5",
     "webdav": "^5.8.0"
   },
