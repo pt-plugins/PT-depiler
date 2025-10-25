@@ -1,3 +1,7 @@
+/*
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/Abstract/AvistazTracker.cs
+*/
+
 import { type AxiosRequestConfig, type AxiosResponse } from "axios";
 import urlJoin from "url-join";
 import Sizzle from "sizzle";
@@ -81,6 +85,7 @@ export interface IAvzNetRawTorrent {
     imdb: string;
     tmdb: string;
     tvdb: string;
+    [key: string]: string;
   };
   images: string[];
   description: string;
@@ -200,7 +205,23 @@ export const SchemaMetadata: Pick<
       },
     },
   ],
-  
+
+  detail: {
+    urlPattern: ["/torrent/"],
+    selectors: {
+      id: {
+        selector: ":self",
+        elementProcess: (element: Document) => {
+          const url = element.URL;
+          const match = url.match(/\/torrent\/(\d+)/);
+          return match ? match[1] : url;
+        },
+      },
+      title: { selector: "table.table tr:contains('Title') td:nth-child(2)" },
+      link: { selector: "a.btn.btn-xs.btn-primary", attr: "href" },
+    },
+  },
+
   userInfo: {
     pickLast: ["name"],
     selectors: {
