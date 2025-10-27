@@ -25,12 +25,17 @@ export const siteMetadata: ISiteMetadata = {
 
   levelRequirements: [
     {
+      id: 0,
+      name: "User",
+      privilege: "",
+    },
+    {
       id: 1,
       name: "Power User",
       interval: "P4W",
       downloaded: "120GB",
       ratio: 2.0,
-      seedingPoints: 70000,
+      seedingBonus: 70000,
       privilege:
         '得到一个邀请名额；可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种； 可以发送邀请； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
     },
@@ -40,7 +45,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P8W",
       downloaded: "240GB",
       ratio: 2.5,
-      seedingPoints: 160000,
+      seedingBonus: 160000,
       privilege: "Elite User及以上用户封存账号后不会被删除。",
     },
     {
@@ -49,7 +54,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P15W",
       downloaded: "480GB",
       ratio: 3.0,
-      seedingPoints: 350000,
+      seedingBonus: 350000,
       privilege: "得到两个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
     },
     {
@@ -58,7 +63,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P25W",
       downloaded: "960GB",
       ratio: 3.5,
-      seedingPoints: 640000,
+      seedingBonus: 640000,
       privilege: "可以查看普通日志。",
     },
     {
@@ -67,7 +72,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P40W",
       downloaded: "1.92TB",
       ratio: 4,
-      seedingPoints: 1200000,
+      seedingBonus: 1200000,
       privilege: "得到三个邀请名额；可以查看其它用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。",
     },
     {
@@ -76,7 +81,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P60W",
       downloaded: "3.84TB",
       ratio: 4.5,
-      seedingPoints: 1500000,
+      seedingBonus: 1500000,
       privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。",
     },
     {
@@ -85,7 +90,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P80W",
       downloaded: "7.68TB",
       ratio: 5,
-      seedingPoints: 1800000,
+      seedingBonus: 1800000,
       privilege: "得到五个邀请名额。",
     },
     {
@@ -94,7 +99,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P100W",
       downloaded: "10TB",
       ratio: 6.0,
-      seedingPoints: 2000000,
+      seedingBonus: 2000000,
       privilege: "得到十个邀请名额。",
     },
   ],

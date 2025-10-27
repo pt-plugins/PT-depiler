@@ -11,7 +11,6 @@ import VueDevTools from "vite-plugin-vue-devtools";
 import webExtension from "vite-plugin-web-extension";
 
 // @ts-ignore
-import tailwindcss from "@tailwindcss/vite";
 import { vitePluginGenerateWebextLocales } from "./vite/plugin/generateWebextLocales.ts";
 
 import git from "git-rev-sync";
@@ -32,9 +31,12 @@ const permissions = [
   "declarativeNetRequest",
   "storage",
   "unlimitedStorage",
+  "notifications",
 ];
 
-const base_version = `${pkg.version}.${git.count()}`;
+// @ts-ignore
+const git_count = git.count("HEAD");
+const base_version = `${pkg.version}.${git_count}`;
 const commit_version = `${base_version}+${git.short(__dirname)}`;
 
 // https://vitejs.dev/config/
@@ -52,7 +54,6 @@ export default defineConfig({
         Buffer: true,
       },
     }),
-    tailwindcss(),
     VueDevTools({
       launchEditor: fs.existsSync(base_path("./.idea")) ? "webstorm" : "vscode",
     }),
@@ -215,7 +216,7 @@ export default defineConfig({
       short: git.short(__dirname),
       long: git.long(__dirname),
       date: +git.date(),
-      count: git.count(),
+      count: git_count,
       branch: git.branch(__dirname),
     },
     __BUILD_TIME__: +Date.now(),

@@ -19,8 +19,16 @@ export const siteMetadata: ISiteMetadata = {
 
   category: [
     {
-      name: "分类",
-      key: "cat",
+      name: "搜索入口",
+      key: "#url",
+      options: [
+        { value: "/torrents.php", name: "主分区" },
+        { value: "/special.php", name: "阅听分区" },
+      ],
+    },
+    {
+      name: "分类（主分区）",
+      key: "cat_normal",
       options: [
         { value: 409, name: "其它" },
         { value: 408, name: "音乐" },
@@ -31,10 +39,17 @@ export const siteMetadata: ISiteMetadata = {
         { value: 402, name: "电视剧" },
         { value: 401, name: "电影" },
         { value: 407, name: "教学" },
-        { value: 500, name: "电子书-阅听" },
-        { value: 499, name: "有声书-阅听" },
       ],
-      cross: { mode: "append" },
+      cross: { mode: "append", key: "cat" },
+    },
+    {
+      name: "分类（阅听分区）",
+      key: "cat_special",
+      options: [
+        { value: 500, name: "电子书" },
+        { value: 499, name: "有声书" },
+      ],
+      cross: { mode: "append", key: "cat" },
     },
     {
       name: "媒介",
@@ -123,6 +138,11 @@ export const siteMetadata: ISiteMetadata = {
       cross: { mode: "brackets" },
     },
   ],
+
+  searchEntry: {
+    area_normal: { name: "主分区", requestConfig: { url: "/torrents.php" } },
+    area_special: { name: "阅听分区", requestConfig: { url: "/special.php" }, enabled: false },
+  },
 
   levelRequirements: [
     {

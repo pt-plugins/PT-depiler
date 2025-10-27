@@ -4,6 +4,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "hdatmos",
   name: "HDATMOS",
+  aka: ["阿童木"],
   tags: ["影视", "综合"],
   collaborator: ["luoyefe", "zhuweitung"],
 
@@ -16,6 +17,11 @@ export const siteMetadata: ISiteMetadata = {
   isDead: true,
 
   levelRequirements: [
+    {
+      id: 0,
+      name: "User",
+      privilege: "",
+    },
     {
       id: 1,
       name: "Power User",

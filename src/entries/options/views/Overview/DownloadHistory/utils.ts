@@ -1,11 +1,12 @@
 import { throttle } from "es-toolkit";
-import { computed, ref, reactive } from "vue";
+import { computed, reactive, shallowRef } from "vue";
 import { sendMessage } from "@/messages.ts";
 import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
 
 import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/types.ts";
 
-export const downloadHistory = ref<Record<TTorrentDownloadKey, ITorrentDownloadMetadata>>({});
+// 使用 shallowRef 优化大量下载历史数据的性能
+export const downloadHistory = shallowRef<Record<TTorrentDownloadKey, ITorrentDownloadMetadata>>({});
 export const downloadHistoryList = computed(() => Object.values(downloadHistory.value));
 
 // 使用 setTimeout 监听下载状态变化

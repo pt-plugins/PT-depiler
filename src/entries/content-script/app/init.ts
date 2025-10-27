@@ -20,14 +20,7 @@ export function mountApp(document: Document, data: any = {}) {
 
   // 创建一个全局的 div 并挂载到 body 中，作为 shadow DOM 的挂载点
   const contentRoot = document.createElement("div");
-  contentRoot.id = "ptd-content-script";
-  contentRoot.style.all = "initial"; // 重置样式，避免影响页面样式
-
-  // 添加 vuetify html { ... } 的样式
-  contentRoot.style.boxSizing = "border-box";
-  contentRoot.style.wordBreak = "normal";
-
-  const shadowRoot = contentRoot.attachShadow({ mode: "open" });
+  const shadowRoot = contentRoot.attachShadow({ mode: "closed" });
 
   // 将 css 的样式添加到 shadow DOM 中
   const baseStyleElement = document.createElement("style");
@@ -35,27 +28,23 @@ export function mountApp(document: Document, data: any = {}) {
   baseStyleElement.textContent = (appCss + "\n" + vuetifyCss).replaceAll(":root", ":host");
   shadowRoot.appendChild(baseStyleElement);
 
-  // 添加 mdi 的样式，注意 @font-face 在 shadowDOM 中无法使用，因此需要将其单独处理
-  const mdiCssUrl = chrome.runtime.getURL("lib/mdi/materialdesignicons.css");
-  fetch(mdiCssUrl)
-    .then((res) => res.text())
-    .then((cssText) => {
-      const mdiCssElement = document.createElement("style");
+  // 使用 FontFace API方法 添加 mdi 的样式
+  new FontFace(
+    "Material Design Icons For PTD",
+    `url("${chrome.runtime.getURL("/lib/mdi/webfont.woff2")}") format("woff2")`,
+    {
+      weight: "normal",
+      style: "normal",
+      stretch: "normal",
+    },
+  )
+    .load()
+    .then((font) => {
+      document.fonts.add(font); // 将mdi字体添加到Document中
+      const mdiCssElement = document.createElement("link");
       mdiCssElement.id = "ptd-content-script-style-mdi";
-      // 将 @font-face 部分url中的字段使用 chrome.runtime.getURL 替换，并插入到 html -> body 中
-      const cssFontFaceText = cssText
-        .replaceAll(/url\("([^"]+)"\)/g, (match, p1) => {
-          return `url("${chrome.runtime.getURL(p1)}")`;
-        })
-        .match(/@font-face\s*{[^}]*}/g)?.[0];
-      if (cssFontFaceText) {
-        const fontFaceElement = document.createElement("style");
-        fontFaceElement.id = "ptd-content-script-style-mdi-font-face";
-        fontFaceElement.textContent = cssFontFaceText;
-        document.body.appendChild(fontFaceElement);
-      }
-
-      mdiCssElement.textContent = cssText.replace(/@font-face\s*{[^}]*}/g, ""); // 只保留其他样式部分
+      mdiCssElement.rel = "stylesheet";
+      mdiCssElement.href = chrome.runtime.getURL("lib/mdi/icons.css");
       shadowRoot.appendChild(mdiCssElement);
     });
 
@@ -94,6 +83,19 @@ export function mountApp(document: Document, data: any = {}) {
       vuetifyTheme.remove(); // 移除页面中的 vuetify 主题样式
     }
   }
+
+  // 防止某些网站动态修改 body，从而移除我们的 contentRoot，因此使用 MutationObserver 监听 body 的变化
+  // 一旦发现 contentRoot 被移除，则重新挂载应用
+  const mutationObserver = new MutationObserver(() => {
+    if (!document.body.contains(contentRoot)) {
+      console.debug("[PTD] Content root removed from body, remounting app...");
+      app.unmount();
+      mutationObserver.disconnect();
+      mountApp(document, data);
+    }
+  });
+
+  mutationObserver.observe(document, { childList: true, subtree: true });
 
   return { contentRoot, shadowRoot, appMountElement, app };
 }

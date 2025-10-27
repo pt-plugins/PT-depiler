@@ -1,5 +1,5 @@
-import { ISiteMetadata } from "@ptd/site";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+import type { ISiteMetadata } from "../types";
+import { SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -24,7 +24,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P4W",
       downloaded: "50GB",
       ratio: 1.05,
-      seedingPoints: 10000,
+      seedingBonus: 10000,
       privilege: "首次升级至此等级的用户将获得1个邀请名额",
     },
     {
@@ -33,7 +33,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P8W",
       downloaded: "120GB",
       ratio: 1.55,
-      seedingPoints: 80000,
+      seedingBonus: 80000,
     },
     {
       id: 3,
@@ -41,7 +41,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P15W",
       downloaded: "300GB",
       ratio: 1.95,
-      seedingPoints: 150000,
+      seedingBonus: 150000,
       privilege: "首次升级至此等级的用户将获得2个邀请名额",
     },
     {
@@ -50,7 +50,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P25W",
       downloaded: "500GB",
       ratio: 2.55,
-      seedingPoints: 250000,
+      seedingBonus: 250000,
     },
     {
       id: 5,
@@ -58,7 +58,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P80W",
       downloaded: "1.5TB",
       ratio: 4.05,
-      seedingPoints: 800000,
+      seedingBonus: 800000,
       privilege: "首次升级至此等级的用户将获得5个邀请名额",
     },
     {
@@ -67,7 +67,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P100W",
       downloaded: "3TB",
       ratio: 4.55,
-      seedingPoints: 1000000,
+      seedingBonus: 1000000,
       privilege: "首次升级至此等级的用户将获得10个邀请名额",
     },
   ],

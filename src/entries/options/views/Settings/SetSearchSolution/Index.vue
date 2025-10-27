@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, useTemplateRef } from "vue";
+import { ref, useTemplateRef, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { omit } from "es-toolkit";
+import { cloneDeep, omit } from "es-toolkit";
 import { saveAs } from "file-saver";
 import { nanoid } from "nanoid";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
@@ -28,7 +28,7 @@ const solutionId = ref<TSolutionKey>("");
 
 const tableSelected = ref<TSolutionKey[]>([]);
 const tableHeader = [
-  { title: t("common.sortIndex"), key: "sort", align: "center", width: 150 },
+  { title: "№", key: "sort", align: "center", width: 150 },
   { title: t("common.name"), key: "name", align: "start", width: 150 },
   { title: t("SetSearchSolution.solution"), key: "solution", align: "start", minWidth: 400, sortable: false },
   { title: t("SetSearchSolution.table.enable"), key: "enabled", align: "center", width: 120 },
@@ -38,7 +38,7 @@ const tableHeader = [
 const tableFilter = ref("");
 
 function addSearchSolution() {
-  showEditDialog.value = true;
+  editSearchSolution("");
 }
 
 function editSearchSolution(toEditSolutionId: TSolutionKey) {
@@ -127,6 +127,34 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
 
   metadataStore.$save();
 }
+
+const isAllSolutionDefault = computed(() => metadataStore.defaultSolutionId === "default");
+
+async function copySearchSolution(solutionId: TSolutionKey) {
+  const toCopy = await metadataStore.getSearchSolution(solutionId);
+  if (!toCopy) return;
+
+  const copied = cloneDeep(toCopy);
+  // 重置部分字段
+  copied.id = nanoid();
+  copied.createdAt = Date.now();
+  copied.isDefault = false;
+  for (const solution1 of copied.solutions) {
+    const oldId = solution1.id;
+    if (oldId !== "default") {
+      const newId = nanoid();
+      solution1.id = newId;
+      solution1.searchEntries[newId] = solution1.searchEntries[oldId];
+      delete solution1.searchEntries[oldId];
+    }
+  }
+
+  const newSearchSolutionName = prompt("请输入新搜索方案名称", `Copy of ${copied.name ?? copied.id}`);
+  if (newSearchSolutionName) {
+    copied.name = newSearchSolutionName;
+    await metadataStore.addSearchSolution(copied);
+  }
+}
 </script>
 
 <template>
@@ -209,6 +237,41 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
       show-select
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('SetSearchSolution', 'itemsPerPage', v)"
     >
+      <template #body.prepend>
+        <tr class="v-data-table__tr">
+          <td class="v-data-table__td" colspan="2"></td>
+          <td class="v-data-table__td">{{ t("layout.header.searchPlan.all") }}</td>
+          <td class="v-data-table__td">
+            <v-chip class="mb-1 mr-1 h-auto py-1" color="light-blue" label prepend-icon="mdi-refresh-auto" size="small">
+              {{ t("SetSearchSolution.table.autoGenerate") }}
+            </v-chip>
+          </td>
+          <td class="v-data-table__td v-data-table-column--align-center">
+            <v-switch class="table-switch-btn" disabled hide-details />
+          </td>
+          <td class="v-data-table__td v-data-table-column--align-center">
+            <v-switch
+              :model-value="isAllSolutionDefault"
+              class="table-switch-btn"
+              color="success"
+              hide-details
+              readonly
+            />
+          </td>
+          <td class="v-data-table__td">
+            <v-btn-group class="table-action" density="compact" variant="plain">
+              <v-btn
+                :title="t('SetSearchSolution.copy')"
+                color="success"
+                icon="mdi-content-copy"
+                size="small"
+                @click="copySearchSolution('default')"
+              />
+            </v-btn-group>
+          </td>
+        </tr>
+      </template>
+
       <template #item.solution="{ item }">
         <SolutionLabel :closable="false" :group-props="{ column: true }" :solutions="item.solutions" />
       </template>
@@ -236,6 +299,13 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
       <template #item.action="{ item }">
         <v-btn-group class="table-action" density="compact" variant="plain">
           <v-btn
+            :title="t('SetSearchSolution.copy')"
+            size="small"
+            color="success"
+            icon="mdi-content-copy"
+            @click="copySearchSolution(item.id)"
+          />
+          <v-btn
             :title="t('common.edit')"
             color="info"
             icon="mdi-pencil"
@@ -243,7 +313,7 @@ function setDefaultSearchSolution(toDefault: boolean, solutionId: TSolutionKey) 
             @click="() => editSearchSolution(item.id)"
           />
           <v-btn
-            :title="`导出`"
+            :title="t('SetSearchSolution.export')"
             size="small"
             color="info"
             icon="mdi-export"

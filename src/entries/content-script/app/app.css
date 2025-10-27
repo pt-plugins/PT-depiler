@@ -3,5 +3,11 @@
  */
 
 /*noinspection CssUnknownTarget*/
-@import "@/shared/common.css";
+@import "../../shared/common.scss";
 
+#ptd-content-script-app,
+.v-overlay-container {
+  all: initial;
+  box-sizing: border-box;
+  word-break: normal;
+}

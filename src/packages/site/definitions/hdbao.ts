@@ -1,4 +1,4 @@
-import type { ISiteMetadata } from "../types";
+import { type ISiteMetadata } from "../types";
 import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
@@ -37,6 +37,11 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   levelRequirements: [
+    {
+      id: 0,
+      name: "User",
+      privilege: "",
+    },
     {
       id: 1,
       name: "Power User",

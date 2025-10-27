@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { watch } from "vue";
+import { watch, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useLocale as useVuetifyLocal } from "vuetify";
 import { useDevicePixelRatio } from "@vueuse/core";
@@ -10,6 +10,7 @@ import { vuetifyLangMap } from "@/options/plugins/vuetify.ts";
 
 import Navigation from "./views/Layout/Navigation.vue";
 import Topbar from "./views/Layout/Topbar.vue";
+import ReleaseNoteDialog from "./views/Layout/ReleaseNoteDialog.vue";
 
 const { current: currentVuetifyLocal } = useVuetifyLocal();
 const { locale: currentVueI18nLocal, t } = useI18n({ useScope: "global" });
@@ -31,6 +32,15 @@ function setIgnoreWrongPixelRatio() {
   configStore.ignoreWrongPixelRatio = true;
   configStore.$save();
 }
+
+const showReleaseNoteDialog = ref<boolean>(false);
+
+// 由于App.vue是整个应用的根组件，此时 configStore 等 pinia store 可能还未初始化完成，所以需要监听 $onReady
+configStore.$onReady(() => {
+  if (configStore.showReleaseNoteOnVersionChange && configStore.version !== __EXT_VERSION__) {
+    showReleaseNoteDialog.value = true;
+  }
+});
 </script>
 
 <template>
@@ -59,6 +69,8 @@ function setIgnoreWrongPixelRatio() {
       </v-container>
     </v-main>
   </v-app>
+
+  <ReleaseNoteDialog v-model="showReleaseNoteDialog" />
 
   <v-snackbar-queue v-model="runtimeStore.uiGlobalSnakebar" closable />
 </template>

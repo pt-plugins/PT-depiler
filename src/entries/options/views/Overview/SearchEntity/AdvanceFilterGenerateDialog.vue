@@ -7,10 +7,11 @@
  */
 import { useI18n } from "vue-i18n";
 import { addDays, startOfDay } from "date-fns";
+import { ETorrentStatus } from "@ptd/site";
 
 import { formatDate, formatSize } from "@/options/utils.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
-import { tableCustomFilter } from "@/options/views/Overview/SearchEntity/utils.ts";
+import { tableCustomFilter } from "@/options/views/Overview/SearchEntity/utils/filter.ts";
 import { setDateRangeByDatePicker, getThisDateUnitRange } from "@/options/directives/useAdvanceFilter.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
@@ -24,6 +25,15 @@ const configStore = useConfigStore();
 
 const { advanceFilterDictRef, stringifyFilterFn, resetAdvanceFilterDictFn, resetCountRef, toggleKeywordStateFn } =
   tableCustomFilter;
+
+// 种子状态选项 - 使用 i18n 支持
+const statusOptions = [
+  { value: ETorrentStatus.unknown, label: t("torrent.status.unknown"), icon: "mdi-help-circle", color: "grey" },
+  { value: ETorrentStatus.downloading, label: t("torrent.status.downloading"), icon: "mdi-arrow-down", color: "info" },
+  { value: ETorrentStatus.seeding, label: t("torrent.status.seeding"), icon: "mdi-arrow-up", color: "success" },
+  { value: ETorrentStatus.inactive, label: t("torrent.status.inactive"), icon: "mdi-wifi-strength-off", color: "grey" },
+  { value: ETorrentStatus.completed, label: t("torrent.status.completed"), icon: "mdi-check", color: "grey" },
+];
 
 function updateTableFilter() {
   emit("update:tableFilter", stringifyFilterFn());
@@ -66,6 +76,7 @@ function updateTableFilter() {
               ></v-combobox>
             </v-col>
           </v-row>
+
           <v-row><v-label>站点</v-label></v-row>
           <v-row>
             <v-col
@@ -92,6 +103,7 @@ function updateTableFilter() {
               </v-checkbox>
             </v-col>
           </v-row>
+
           <template v-if="configStore.searchEntifyControl.showTorrentTag">
             <v-row><v-label>标签</v-label></v-row>
             <v-row>
@@ -120,6 +132,31 @@ function updateTableFilter() {
               </v-col>
             </v-row>
           </template>
+          <v-row><v-label>种子状态</v-label></v-row>
+          <v-row>
+            <v-col
+              v-for="status in statusOptions"
+              :key="`${resetCountRef}_${status.value}`"
+              class="pa-0"
+              cols="6"
+              md="3"
+              sm="4"
+            >
+              <v-checkbox
+                v-model="advanceFilterDictRef.status.required"
+                :value="status.value"
+                density="compact"
+                hide-details
+                indeterminate
+                @click.stop="() => toggleKeywordStateFn('status', status.value)"
+              >
+                <template #label>
+                  <v-icon :color="status.color" :icon="status.icon" size="small" class="mr-2" />
+                  <span>{{ status.label }}</span>
+                </template>
+              </v-checkbox>
+            </v-col>
+          </v-row>
           <v-row>
             <v-col cols="6">
               <v-row class="pr-4">

@@ -4,15 +4,25 @@ import { definitionList, fixRatio, ISiteMetadata, IUserInfo, NO_IMAGE, TSiteID }
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { isValid } from "date-fns";
+import { deepToRaw } from "@/options/utils.ts";
 
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 
 // 对 siteUserInfoData 进行一些预处理（不涉及渲染格式）
 export function fixUserInfo<T extends IUserInfo = IUserInfo>(userInfo: Partial<T>): Required<T> {
+  userInfo = deepToRaw(userInfo);
   userInfo.ratio = fixRatio(userInfo);
   userInfo.trueRatio = fixRatio(userInfo, "trueRatio");
   userInfo.messageCount ??= 0;
+
+  if (typeof userInfo.joinTime !== "number") {
+    if (isValid(new Date(userInfo.joinTime!))) {
+      userInfo.joinTime = new Date(userInfo.joinTime!).getTime();
+    }
+  }
+
   return userInfo as Required<T>;
 }
 
@@ -32,7 +42,7 @@ export function formatRatio(
   userInfo: Partial<IUserInfo>,
   ratioKey: "ratio" | "trueRatio" = "ratio",
 ): string | "∞" | "" {
-  let ratio = userInfo[ratioKey] ?? -1;
+  let ratio = Number((userInfo[ratioKey] as string | number | undefined) ?? -1);
   return realFormatRatio(ratio);
 }
 
@@ -67,6 +77,8 @@ export async function cancelFlushSiteLastUserInfo() {
 export interface ITimelineSiteMetadata extends Pick<ISiteMetadata, "id"> {
   siteName: string; // 解析后的站点名称
   hasUserInfo: boolean; // 是否有用户配置
+  isDead: boolean; // 是否为失效站点
+  isOffline: boolean; // 是否为离线站点
   faviconSrc: string;
   faviconElement: HTMLImageElement; // 站点的图片
 }
@@ -97,6 +109,8 @@ export async function loadAllAddedSiteMetadata(sites?: string[]): Promise<TOptio
             id: siteId,
             siteName: await metadataStore.getSiteName(siteId),
             hasUserInfo: Object.hasOwn(siteMetadata, "userInfo"),
+            isDead: siteMetadata.isDead ?? false,
+            isOffline: metadataStore.sites[siteId]?.isOffline ?? false,
             faviconSrc: siteFaviconUrl,
             faviconElement: siteFavicon,
           };

@@ -17,6 +17,7 @@ import {
 import { sendMessage } from "@/messages.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useConfigStore } from "@/options/stores/config.ts";
 import type { IPtppDumpUserInfo, IPtppUserInfo, TUserInfoStorageSchema } from "@/shared/types.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
@@ -29,6 +30,7 @@ const { ptppUserData } = defineProps<{
 }>();
 
 const { t } = useI18n();
+const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 
@@ -149,9 +151,15 @@ async function doImport() {
   }
 
   isImporting.value = true;
+
+  // 暂停后端刷新数据的任务
+  const autoReflushStatus = configStore.userInfo.autoReflush.enabled;
+
   try {
-    // 暂停后端刷新数据的任务
-    await sendMessage("cleanupFlushUserInfoJob", undefined);
+    if (autoReflushStatus) {
+      configStore.userInfo.autoReflush.enabled = false;
+      await configStore.$save();
+    }
 
     // 读出目前所有的 userInfo
     const userInfoStorage = ((await sendMessage("getExtStorage", "userInfo")) as TUserInfoStorageSchema) ?? {};
@@ -191,7 +199,10 @@ async function doImport() {
     console.error("导入失败", e);
     runtimeStore.showSnakebar("导入失败。", { color: "error" });
   } finally {
-    await sendMessage("setFlushUserInfoJob", undefined);
+    // 恢复自动刷新的状态
+    configStore.userInfo.autoReflush.enabled = autoReflushStatus;
+    await configStore.$save();
+
     isImporting.value = false;
   }
 }

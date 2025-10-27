@@ -2,6 +2,7 @@
 import { inject } from "vue";
 import type { ITorrent } from "@ptd/site";
 
+import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { doKeywordSearch, siteInstance } from "@/content-script/app/utils.ts";
@@ -28,6 +29,19 @@ async function parseDetailPage() {
 
 const remoteDownloadDialogData = inject<{ show: boolean; torrents: ITorrent[] }>("remoteDownloadDialogData")!;
 
+function handleLinkCopy() {
+  parseDetailPage().then(async (torrent) => {
+    const downloadUrl = await sendMessage("getTorrentDownloadLink", torrent);
+
+    try {
+      await navigator.clipboard.writeText(downloadUrl);
+      runtimeStore.showSnakebar("下载链接已复制到剪贴板", { color: "success" });
+    } catch (e) {
+      runtimeStore.showSnakebar("复制下载链接失败", { color: "error" });
+    }
+  });
+}
+
 function handleRemoteDownload() {
   parseDetailPage().then((torrent) => {
     remoteDownloadDialogData.torrents = [torrent];
@@ -43,6 +57,7 @@ function handleSearch() {
 </script>
 
 <template>
+  <SpeedDialBtn key="copy" color="light-blue" icon="mdi-content-copy" title="复制链接" @click="handleLinkCopy" />
   <SpeedDialBtn
     key="download"
     :disabled="metadataStore.getEnabledDownloaders.length === 0"

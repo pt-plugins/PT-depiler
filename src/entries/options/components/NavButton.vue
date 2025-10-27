@@ -3,9 +3,10 @@ import { useDisplay } from "vuetify/framework";
 
 const display = useDisplay();
 
-const props = defineProps<{
+const { disabled = false, ...props } = defineProps<{
   icon: string;
   text: string;
+  disabled?: boolean;
 }>();
 </script>
 
@@ -17,6 +18,7 @@ const props = defineProps<{
     :prepend-icon="display.smAndDown.value ? undefined : props.icon"
     :rounded="display.smAndDown.value ? 0 : 4 /* default rounded */"
     :size="display.smAndDown.value ? 'small' : 'default'"
+    :disabled="disabled"
     :title="props.text"
     :variant="display.smAndDown.value ? 'text' : 'elevated'"
   >

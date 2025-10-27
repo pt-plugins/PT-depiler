@@ -4,7 +4,7 @@ import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetada
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
 
-  version: 1,
+  version: 4,
   id: "zmpt",
   name: "织梦",
   aka: ["织梦PT"],
@@ -107,10 +107,6 @@ export const siteMetadata: ISiteMetadata = {
       ...SchemaMetadata.userInfo!.selectors!,
       bonus: {
         selector: ["td.rowhead:contains('电力值') + td"],
-        filters: [{ name: "parseNumber" }],
-      },
-      bonusPerHour: {
-        selector: ['td[rowspan^="3"]'],
         filters: [{ name: "parseNumber" }],
       },
     },

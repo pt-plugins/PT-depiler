@@ -1,4 +1,4 @@
-import type { ISiteMetadata } from "../types";
+import { type ISiteMetadata } from "../types";
 
 export const siteMetadata: ISiteMetadata = {
   version: 1,
@@ -16,6 +16,11 @@ export const siteMetadata: ISiteMetadata = {
   isDead: true,
 
   levelRequirements: [
+    {
+      id: 0,
+      name: "User",
+      privilege: "",
+    },
     {
       id: 1,
       name: "Power User",

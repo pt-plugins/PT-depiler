@@ -93,7 +93,7 @@ function dialogEnter() {
           </template>
         </v-toolbar>
       </v-card-title>
-      <v-card-title>
+      <v-card-text class="pa-1">
         <v-list>
           <v-list-item v-for="(value, key) in btnItem" :key="key">
             <v-btn
@@ -110,7 +110,7 @@ function dialogEnter() {
             </v-btn>
           </v-list-item>
         </v-list>
-      </v-card-title>
+      </v-card-text>
     </v-card>
   </v-dialog>
 

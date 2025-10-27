@@ -1,4 +1,10 @@
 import Sizzle from "sizzle";
+import { toMerged, union } from "es-toolkit";
+import { isEmpty, set } from "es-toolkit/compat";
+import type { AxiosRequestConfig } from "axios";
+
+import { supportSocialSite } from "@ptd/social";
+
 import { buildCategoryOptions, parseSizeString, parseTimeWithZone, tryToNumber } from "../utils";
 import {
   EResultParseStatus,
@@ -13,10 +19,7 @@ import {
   NeedLoginError,
   NoTorrentsError,
 } from "../types";
-import Gazelle, { SchemaMetadata } from "../schemas/Gazelle.ts";
-import { toMerged } from "es-toolkit";
-import type { AxiosRequestConfig } from "axios";
-import { isEmpty, set } from "es-toolkit/compat";
+import GazelleJSONAPI, { SchemaMetadata } from "../schemas/GazelleJSONAPI.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -33,7 +36,7 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: ["zhuweitung"],
 
   type: "private",
-  schema: "Gazelle",
+  schema: "GazelleJSONAPI",
 
   urls: ["uggcf://terngcbfgrejnyy.pbz/"],
 
@@ -221,19 +224,12 @@ export const siteMetadata: ISiteMetadata = {
         },
       },
       status: {
+        text: ETorrentStatus.unknown,
         selector: [".TorrentTitle"],
-        elementProcess: (element: HTMLElement) => {
-          if (element.classList.contains("TorrentSeeding")) {
-            // 做种中
-            return ETorrentStatus.seeding;
-          } else if (element.classList.contains("TorrentSnatched")) {
-            // 已完成 未做种
-            return ETorrentStatus.completed;
-          } else if (element.classList.contains("TorrentDownloading")) {
-            // 下载中
-            return ETorrentStatus.downloading;
-          }
-          return ETorrentStatus.unknown;
+        case: {
+          ".TorrentSeeding": ETorrentStatus.seeding, // 做种中
+          ".TorrentSnatched": ETorrentStatus.completed, // 已完成 未做种
+          ".TorrentDownloading": ETorrentStatus.downloading, // 下载中
         },
       },
 
@@ -248,77 +244,12 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.userInfo!,
     selectors: {
       ...SchemaMetadata.userInfo!.selectors!,
-      // "page": "/index.php",
-      id: {
-        selector: ["#header-username-value"],
-        attr: "href",
-        filters: [{ name: "querystring", args: ["id"] }],
-      },
-      name: {
-        selector: ["#header-username-value"],
-      },
-      // "page": "/user.php?id=$user.id$",
-      levelName: {
-        selector: "#class-value",
-        attr: "data-value",
-      },
-      uploaded: {
-        selector: "#uploaded-value",
-        attr: "data-value",
-      },
-      downloaded: {
-        selector: "#downloaded-value",
-        attr: "data-value",
-      },
-      bonus: {
-        selector: "#bp-value",
-        attr: "data-value",
-      },
-      bonusPerHour: {
-        selector: "#bp-value span[data-tooltip*='积分速率']",
-        attr: "data-tooltip",
-        filters: [
-          (query: string) => {
-            return query ? parseFloat(query.match(/积分速率: (\d+)/)?.[1] ?? "") : 0;
-          },
-        ],
-      },
-      joinTime: {
-        selector: "#join-date-value",
-        attr: "data-value",
-        filters: [{ name: "parseTime" }],
-      },
       trueDownloaded: {
-        selector: [".SidebarItemUserNextClass li:contains('下载量:')"],
-        filters: [
-          (query: string) => {
-            const queryMatch = query?.match(/下载量:[\s\n]*([\d.\s,ZEPTGMKiB]+) \//);
-            return queryMatch && queryMatch.length > 1 ? parseSizeString(queryMatch[1]) : 0;
-          },
-        ],
-      },
-      uploads: {
-        selector: "#upload-count-value",
-        attr: "data-value",
+        selector: ["#downloaded-value span[data-tooltip]"],
+        attr: "data-tooltip",
+        filters: [{ name: "split", args: [",", 1] }, { name: "parseSize" }],
       },
     },
-    process: [
-      ...SchemaMetadata.userInfo!.process!.filter((item) => item.requestConfig.url !== "/user.php"),
-      {
-        requestConfig: { url: "/user.php", responseType: "document" },
-        assertion: { id: "params.id" },
-        fields: [
-          "levelName",
-          "uploaded",
-          "downloaded",
-          "bonus",
-          "bonusPerHour",
-          "joinTime",
-          "trueDownloaded",
-          "uploads",
-        ],
-      },
-    ],
   },
 
   levelRequirements: [
@@ -392,57 +323,7 @@ export const siteMetadata: ISiteMetadata = {
   ],
 };
 
-export default class GreatPosterWall extends Gazelle {
-  private async getUserTorrentList(userId: number, page: number = 0, type: string = "seeding"): Promise<Document> {
-    const { data: TListDocument } = await this.request<Document>({
-      url: "/torrents.php",
-      params: { userid: userId, page, type },
-      responseType: "document",
-    });
-    return TListDocument;
-  }
-
-  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    const flushUserInfo = await super.getUserInfoResult(lastUserInfo);
-
-    if (flushUserInfo.id) {
-      let seeding = 0;
-      let seedingSize = 0;
-
-      const pageInfo = { count: 0, current: 0 }; // 生成页面信息
-      for (; pageInfo.current <= pageInfo.count; pageInfo.current++) {
-        const TListDocument = await this.getUserTorrentList(flushUserInfo.id as number, pageInfo.current);
-        // 更新最大页数
-        if (pageInfo.count === 0) {
-          pageInfo.count = this.getFieldData(TListDocument, {
-            selector: ["a[href*='torrents.php?page=']:contains('Last'):last"],
-            attr: "href",
-            filters: [
-              (query: string) => {
-                let pageId = "-1";
-                try {
-                  pageId = new URL(query).searchParams.get("page") ?? "-1";
-                } catch (e) {}
-                return parseInt(pageId);
-              },
-            ],
-          });
-        }
-
-        seeding = Sizzle(this.metadata.search?.selectors?.rows?.selector!, TListDocument).length;
-        const sizeEleList = Sizzle(".TableTorrent-rowTitle .TableTorrent-cellStatSize", TListDocument);
-        sizeEleList.forEach((element) => {
-          seedingSize += parseSizeString((element as HTMLElement).innerText!.trim());
-        });
-      }
-
-      // 更新做种信息
-      flushUserInfo.seeding = seeding;
-      flushUserInfo.seedingSize = seedingSize;
-    }
-    return flushUserInfo;
-  }
-
+export default class GreatPosterWall extends GazelleJSONAPI {
   public override async getSearchResult(
     keywords?: string,
     searchEntry: ISearchEntryRequestConfig = {},
@@ -482,19 +363,31 @@ export default class GreatPosterWall extends Gazelle {
     );
 
     // 3. 预检查 keywords 是否为高级搜索词，如果是，则查找对应的 searchEntry.advanceKeywordParams[*] 并改写 keywords
-    let advanceKeywordType: string | undefined;
     let advanceKeywordConfig: IAdvanceKeywordSearchConfig | false = false;
-    if (keywords && searchEntry.advanceKeywordParams) {
-      for (const [advanceField, advanceConfig] of Object.entries(searchEntry.advanceKeywordParams)) {
+    if (keywords) {
+      // 生成支持的高级搜索词前缀
+      const advanceKeywordFields = Object.keys(searchEntry.advanceKeywordParams ?? {});
+
+      for (const advanceField of union(advanceKeywordFields, supportSocialSite)) {
         if (keywords.startsWith(`${advanceField}|`)) {
+          // 先改写 keywords， 去除掉我们额外添加的 `${advanceField}|` 前缀
+          keywords = keywords?.replace(`${advanceField}|`, "");
+
+          // 检查是否有对应的高级搜索词配置
+          let advanceConfig = searchEntry?.advanceKeywordParams?.[advanceField];
+          if (typeof advanceConfig === "undefined") {
+            if (advanceField == "imdb") {
+              advanceConfig = { enabled: true }; // imdb 格式fallback到普通关键词搜索
+            }
+            advanceConfig = false; // 其他高级搜索词格式（douban|, bangumi|, anidb|, tmdb|, tvdb|, mal|）直接跳过
+          }
+
           // 检查是否跳过
           if (advanceConfig === false || advanceConfig.enabled === false) {
             result.status = EResultParseStatus.passParse;
             return result;
           }
-          // 改写 keywords 并缓存 transformer
-          keywords = keywords?.replace(`${advanceField}|`, "");
-          advanceKeywordType = advanceField;
+
           advanceKeywordConfig = advanceConfig;
           break;
         }
@@ -604,12 +497,34 @@ export default class GreatPosterWall extends Gazelle {
       torrent.seeders = tryToNumber(this.getFieldData(row, { selector: ".TableTorrent-cellStat:nth-child(4)" }));
       torrent.leechers = tryToNumber(this.getFieldData(row, { selector: ".TableTorrent-cellStat:nth-child(5)" }));
       torrent.progress = this.getFieldData(row, this.metadata.search!.selectors!.progress!);
-      torrent.status = tryToNumber(this.getFieldData(row, this.metadata.search!.selectors!.status!));
+      torrent.status = this.getFieldData(row, this.metadata.search!.selectors!.status!);
 
       torrent = this.parseTorrentRowForTags(torrent, row, searchConfig) as ITorrent;
 
       torrents.push(torrent);
     }
     return torrents;
+  }
+  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
+
+    if (!flushUserInfo.id) {
+      return flushUserInfo;
+    }
+    flushUserInfo.trueDownloaded = await this.getUserTrueDownloaded(flushUserInfo.id!);
+    return flushUserInfo;
+  }
+  private async getUserTrueDownloaded(userid: string | number): Promise<number> {
+    await this.sleepAction(this.metadata.userInfo?.requestDelay);
+
+    const { data: document } = await this.request<Document>(
+      {
+        url: `/user.php?id=${userid}`,
+        responseType: "document",
+      },
+      true,
+    );
+
+    return this.getFieldData(document, this.metadata.userInfo?.selectors?.trueDownloaded!) || 0;
   }
 }

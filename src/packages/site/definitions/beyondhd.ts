@@ -1,3 +1,6 @@
+import { omit, toMerged } from "es-toolkit";
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
+
 import {
   EResultParseStatus,
   type ISearchInput,
@@ -8,9 +11,7 @@ import {
   NeedLoginError,
 } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
-import { omit, toMerged } from "es-toolkit";
 import { buildCategoryOptions, convertIsoDurationToSeconds } from "../utils";
-import { AxiosRequestConfig, AxiosResponse } from "axios";
 
 export const siteMetadata: ISiteMetadata = {
   version: 1,

@@ -14,6 +14,28 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["综合"],
   timezoneOffset: "+0800",
 
+  userInfo: {
+    ...SchemaMetadata.userInfo,
+    selectors: {
+      ...SchemaMetadata.userInfo?.selectors,
+      levelName: {
+        selector: [
+          "td.rowhead:contains('等级') + td > b",
+          "td.rowhead:contains('Class') + td > b",
+          "td.rowhead:contains('等級') + td > b",
+        ],
+      },
+      bonus: {
+        selector: [
+          "td.rowhead:contains('象草') + td",
+          "td.rowhead:contains('Karma Points') + td",
+          "td.rowhead:contains('魔力值') + td",
+        ],
+        filters: [{ name: "parseNumber" }],
+      },
+    },
+  },
+
   type: "private",
   schema: "NexusPHP",
 
@@ -42,6 +64,11 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   levelRequirements: [
+    {
+      id: 0,
+      name: "User",
+      privilege: "",
+    },
     {
       id: 1,
       name: "Power User",

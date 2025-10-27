@@ -3,7 +3,7 @@ import { nanoid } from "nanoid";
 import { ref, computed, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { cloneDeep, isEqual } from "es-toolkit";
-import { find } from "es-toolkit/compat";
+import { find, isEmpty } from "es-toolkit/compat";
 import { refDebounced } from "@vueuse/core";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -58,10 +58,14 @@ const filteredSite = computed(() => {
 });
 
 function addSolution(addSolution: ISearchSolution) {
-  // 基于 siteId 和 selectedCategories 判断是否已存在，如果存在则不添加
+  // 基于 siteId 和 selectedCategories / name 判断是否已存在，如果存在则不添加
   if (
     find(solution.value.solutions, (item) => {
-      return item.siteId === addSolution.siteId && isEqual(item.selectedCategories, addSolution.selectedCategories);
+      return (
+        item.siteId === addSolution.siteId &&
+        ((!isEmpty(item.selectedCategories) && isEqual(item.selectedCategories, addSolution.selectedCategories)) ||
+          item.name === addSolution.name)
+      );
     })
   ) {
     runtimeStore.showSnakebar(t("SetSearchSolution.edit.cantAddByDuplicateNote"), { color: "error" });
@@ -72,7 +76,9 @@ function addSolution(addSolution: ISearchSolution) {
 }
 
 function removeSolution(removeSolution: ISearchSolution) {
-  solution.value.solutions = solution.value.solutions.filter((x) => x.id !== removeSolution.id);
+  solution.value.solutions = solution.value.solutions.filter(
+    (x) => !(x.id == removeSolution.id && x.siteId == removeSolution.siteId),
+  );
 }
 
 function saveSolutionState() {

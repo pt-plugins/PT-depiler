@@ -1,10 +1,16 @@
 import urlJoin from "url-join";
 import { omit, toMerged } from "es-toolkit";
-import { set } from "es-toolkit/compat";
 
 import PrivateSite from "./AbstractPrivateSite";
-import { ETorrentStatus, EResultParseStatus, type ISiteMetadata, type IUserInfo, NeedLoginError } from "../types";
-import { parseSizeString, parseValidTimeString } from "../utils";
+import {
+  ETorrentStatus,
+  EResultParseStatus,
+  type ISiteMetadata,
+  type IUserInfo,
+  NeedLoginError,
+  ITorrent,
+} from "../types";
+import { parseTimeToLive, parseValidTimeString } from "../utils";
 
 /**
  * Trans Array
@@ -14,48 +20,67 @@ const idTrans: string[] = ["User ID", "用户 ID", "用ID", "用户ID"];
 const seedingSizeTrans: string[] = ["Seeding Size", "Seeding size", "做种体积", "做種體積"];
 const joinTimeTrans: string[] = ["Registration date", "注册日期", "註冊日期"];
 const averageSeedingTimeTrans: string[] = ["Average Seedtime", "Average seedtime", "平均做种时间", "平均做種時間"];
+const invitesTrans: string[] = ["Invites", "邀请", "邀請"];
+const ratioTrans: string[] = ["Ratio", "分享率", "比率"];
+const trueRatioTrans: string[] = ["Real Ratio", "真实分享率", "真實比率"];
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: 0,
   timezoneOffset: "+0000",
   search: {
-    keywordPath: "params.search",
+    keywordPath: "params.name",
     requestConfig: {
-      url: "/torrents/filter",
+      url: "/torrents/",
       responseType: "document",
       params: {
-        view: "list", // 强制使用 种子列表 的形式返回
+        perPage: 100,
       },
     },
     advanceKeywordParams: {
       imdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
-          set(config!, "params.imdb", config!.params.search.replace("tt", ""));
-          delete config!.params.search;
+          if (config?.params?.name) {
+            config.params.imdbId = config.params.name;
+            delete config.params.name;
+          }
+          return config!;
+        },
+      },
+      tmdb: {
+        requestConfigTransformer: ({ requestConfig: config }) => {
+          if (config?.params?.name) {
+            config.params.tmdbId = config.params.name;
+            delete config.params.name;
+          }
           return config!;
         },
       },
     },
     selectors: {
-      rows: { selector: "div.table-responsive > table:first > tbody > tr" },
+      rows: {
+        selector: [
+          "div.torrent-search--list__results > table:first > tbody > tr", // 新版布局
+          "div.table-responsive table > tbody > tr", // 旧版布局
+        ],
+      },
 
       /**
        * 未发现 Unit3D 站点对于种子列表有太大改动，所以直接硬写选择器而不是和 NPHP 一样自动生成
        * based on: https://github.com/HDInnovations/UNIT3D-Community-Edition/blob/cb1efe0868caf771b9917c090a79b28b4e183b74
        */
       id: {
-        selector: ["a.view-torrent"],
+        selector: ["a.view-torrent", "a.torrent-search--list__name"],
         attr: "href",
         filters: [(query: string) => query.match(/\/torrents\/(\d+)/)![1]],
       },
       title: {
-        selector: ["a.view-torrent"],
+        selector: ["a.view-torrent", "a.torrent-search--list__name"],
       },
       subTitle: {
         text: "", // Unit3D 并不在种子列表页显示副标题，或者说他们就没有副标题的设计
       },
       url: {
-        selector: ["a.view-torrent"],
+        selector: ["a.view-torrent", "a.torrent-search--list__name"],
         attr: "href",
       },
       // /resources/views/torrent/results.blade.php#L367-L381
@@ -65,14 +90,26 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [(query: string) => query.replace("/download_check/", "/download/")],
       },
       // /resources/views/torrent/results.blade.php#L399-L401
-      time: { selector: ["time"], filters: [{ name: "parseTTL" }] },
+      time: {
+        selector: ["time"],
+        elementProcess: (element: any) => {
+          if (!element) return undefined;
+          // 优先使用title属性
+          if (element.title) {
+            return parseValidTimeString(element.title);
+          } else {
+            const textContent = element.textContent || element.innerText || "";
+            return parseTimeToLive(textContent);
+          }
+        },
+      },
       // /resources/views/torrent/results.blade.php#L402-L404
       size: {
-        selector: ['td>span.text-blue:contains("B")'],
+        selector: ['td>span.text-blue:contains("B")', "td.torrent-search--list__size"],
       },
       // /resources/views/torrent/results.blade.php#L166-L184
       author: {
-        selector: ["span:has( > i.fa-upload)"],
+        selector: ["span:has( > i.fa-upload)", "span.torrent-search--list__uploader"],
         filters: [
           (query: string) => query.replace(/ +\(/, " ("), // 防止可以看见匿名等级的用户中间有一堆空格。。。
         ],
@@ -82,71 +119,117 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         selector: [
           'a[href*="/categories/"] > div > img[data-original-title]',
           'a[href*="/categories/"] > div > i[data-original-title]',
+          "div.torrent-search--list__category img",
         ],
-        data: "originalTitle", // {{ $torrent->category->name }} {{ strtolower(trans('torrent.torrent')) }}
-        filters: [(query: string) => query.split(" ").slice(0, -1).join(" ")],
+        elementProcess: (element: any) => {
+          if (!element) return "";
+
+          // Handle Unit3D original format (data-original-title)
+          if (element.dataset && element.dataset.originalTitle) {
+            const title = element.dataset.originalTitle;
+            // {{ $torrent->category->name }} {{ strtolower(trans('torrent.torrent')) }}
+            return title.split(" ").slice(0, -1).join(" ");
+          }
+
+          // Handle Blutopia style (alt attribute)
+          if (element.getAttribute && element.getAttribute("alt")) {
+            return element.getAttribute("alt");
+          }
+
+          return "";
+        },
       },
 
       // /resources/views/torrent/results.blade.php#L405-L426
       seeders: {
-        selector: ['a[href*="/peers"] > span.text-green'],
+        selector: ['a[href*="/peers"] > span.text-green', "td.torrent-search--list__seeders"],
       },
       leechers: {
-        selector: ['a[href*="/peers"] > span.text-red'],
+        selector: ['a[href*="/peers"] > span.text-red', "td.torrent-search--list__leechers"],
       },
       completed: {
-        selector: ['a[href*="/history"] > span.text-orange'],
+        selector: ['a[href*="/history"] > span.text-orange', "td.torrent-search--list__completed"],
       },
 
       // /resources/views/torrent/results.blade.php#L213-L219
       comments: {
-        selector: ['a[href*="#comments"]'],
+        selector: ['a[href*="#comments"]', "i.torrent-icons__comments"],
       },
 
       status: {
+        selector: ["span.torrent-icons > i.torrent-icons"],
         text: ETorrentStatus.unknown,
         case: {
-          "button.btn.btn-success.btn-circle": ETorrentStatus.seeding, // 做种!
-          "button.btn.btn-warning.btn-circle": ETorrentStatus.downloading, // 吸血!
-          "button.btn.btn-info.btn-circle": ETorrentStatus.inactive, // 未完成!
-          "button.btn.btn-danger.btn-circle": ETorrentStatus.completed, // 撤种!
+          "i.fa-arrow-circle-up": ETorrentStatus.seeding, // 做种!
+          "i.fa-arrow-circle-down": ETorrentStatus.downloading, // 吸血!
+          "i.fa-do-not-enter": ETorrentStatus.inactive, // 未完成!
+          "i.fa-thumbs-down": ETorrentStatus.completed, // 撤种!
         },
       },
       progress: {
+        selector: ["span.torrent-icons > i.torrent-icons"],
         text: 0,
         case: {
-          "button.btn.btn-success.btn-circle": 100,
-          // 不清楚非做种情况下的进度信息，统一置为0
-          "button.btn.btn-warning.btn-circle, button.btn.btn-info.btn-circle, button.btn.btn-danger.btn-circle": 0,
+          "i.fa-arrow-circle-up, i.fa-thumbs-down": 100,
         },
       },
       tags: [
         {
           name: "Free",
           selector:
-            "i.fa-star.text-gold, i.fa-globe.text-blue, i[title*='100% Free'], i[title*='Featured'], span[title*='100% Free'], i[data-original-title*='Featured']",
+            "i.fa-star.text-gold, i.fa-globe, i[title*='100%'], span[title*='100%'], i.torrent-icons__featured, i[title*='Featured'], span[title*='feature'], i[data-original-title*='Featured'], i[data-original-title*='Free']",
           color: "blue",
         },
         {
           name: "2xUp",
           selector:
-            "i.fa-gem.text-green, i[title*='Double Upload'], i[title*='Featured'], i[data-original-title*='Featured']",
+            "i.fa-gem.text-green, i.fa-chevron-double-up, i.torrent-icons__double-upload, i.torrent-icons__featured, i[title*='Double Upload'], i[title*='Featured'], span[title*='feature'], i[data-original-title*='Double Upload'], i[data-original-title*='Featured']",
           color: "lime",
         },
         {
           name: "75%",
-          selector: "i[title*='75% Free'], span[title*='75% Free']",
+          selector: "i[title*='75%'], span[title*='75%']",
           color: "lime-darken-3",
         },
         {
           name: "50%",
-          selector: "i[title*='50% Free'], span[title*='50% Free']",
+          selector: "i[title*='50%'], span[title*='50%']",
           color: "deep-orange-darken-1",
         },
         {
           name: "25%",
-          selector: "i[title*='25% Free'], span[title*='25% Free']",
+          selector: "i[title*='25%'], span[title*='25%']",
           color: "blue",
+        },
+        {
+          name: "置顶",
+          selector: "i.fa-thumbtack",
+          color: "red",
+        },
+        {
+          name: "可退款",
+          selector: "i.fa-percentage, i[title*='Refundable']",
+          color: "gray",
+        },
+        {
+          name: "Internal",
+          selector: "i.torrent-icons__internal",
+          color: "purple",
+        },
+        {
+          name: "个人发布",
+          selector: "i.torrent-icons__personal-release",
+          color: "purple",
+        },
+        {
+          name: "Highspeed",
+          selector: "i.torrent-icons__highspeed",
+          color: "red",
+        },
+        {
+          name: "Trump",
+          selector: "i.torrent-icons__torrent-trump",
+          color: "red",
         },
       ],
     },
@@ -154,7 +237,37 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 
   list: [
     {
-      urlPattern: ["/torrents\[\^/\]"],
+      urlPattern: ["/torrents(?:/?$|\\?\[\^/\]*$)"],
+      excludeUrlPattern: ["/torrents?view=card", "/torrents?view=grouped", "/torrents?view=poster"],
+    },
+    {
+      urlPattern: ["/torrents/similar/"],
+      mergeSearchSelectors: false,
+      selectors: {
+        rows: {
+          selector: [
+            "table.similar-torrents__torrents > tbody > tr",
+            "table > tbody > tr:has(td a[href*='/torrents/download/'])",
+          ],
+        },
+        id: {
+          selector: ["a[href*='/torrents/']:not([href*='/download'])"],
+          attr: "href",
+          filters: [(query: string) => query.match(/\/torrents\/(\d+)/)![1]],
+        },
+        title: {
+          selector: ["a[href*='/torrents/']:not([href*='/download'])"],
+        },
+        url: {
+          selector: ["a[href*='/torrents/']:not([href*='/download'])"],
+          attr: "href",
+        },
+        link: {
+          selector: ["a[href*='/download/']", "a[href*='/download_check/']"],
+          attr: "href",
+          filters: [(query: string) => query.replace("/download_check/", "/download/")],
+        },
+      },
     },
   ],
 
@@ -213,47 +326,60 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
   },
 
   userInfo: {
+    pickLast: ["name"],
     selectors: {
       // '/'
       name: {
-        selector: ["a[href*='/users/'][href*='/settings']:first"],
+        selector: ["a[href*='/users/'][href*='settings']:first"],
         attr: "href",
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/users\/(.+)\/settings/);
+            // match '/users/{name}' where {name} can be followed by a '/' or end of string
+            const queryMatch = query.match(/users\/([^\/]+)(?:\/|$)/);
             return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : "";
           },
         ],
       },
-      uploaded: {
-        selector: ["span:has( > i.fa-arrow-up)", "li.ratio-bar__uploaded a:has( > i.fa-arrow-up)"],
-        filters: [{ name: "parseSize" }],
-      },
-      downloaded: {
-        selector: ["span:has( > i.fa-arrow-down)", "li.ratio-bar__downloaded a:has( > i.fa-arrow-down)"],
-        filters: [{ name: "parseSize" }],
-      },
-      ratio: {
-        selector: ["span:has( > i.fa-sync-alt)", "li.ratio-bar__ratio a:has( > i.fa-sync-alt)"],
-        filters: [{ name: "parseNumber" }],
-      },
-      bonus: {
-        selector: ["span:has( > i.fa-coins)", "li.ratio-bar__points a:has( > i.fa-coins)"],
-        filters: [{ name: "parseNumber" }],
-      },
-      seeding: {
-        selector: ["span:has( > i.fa-upload)", "li.ratio-bar__seeding a:has( > i.fa-upload)"],
-        filters: [{ name: "parseNumber" }],
-      },
-      leeching: {
-        selector: ["span:has( > i.fa-download)", "li.ratio-bar__leeching a:has( > i.fa-download)"],
-        filters: [{ name: "parseNumber" }],
-      },
-
       // "/users/$user.name$"
       id: {
         selector: idTrans.map((x) => `td:contains('${x}') + td`),
         filters: [(query: string) => parseInt(query || "0")],
+      },
+      uploaded: {
+        selector: ["li.ratio-bar__uploaded a:has( > i.fa-arrow-up)", "span:has( > i.fa-arrow-up)"],
+        filters: [{ name: "parseSize" }],
+      },
+      downloaded: {
+        selector: ["li.ratio-bar__downloaded a:has( > i.fa-arrow-down)", "span:has( > i.fa-arrow-down)"],
+        filters: [{ name: "parseSize" }],
+      },
+      ratio: {
+        selector: [
+          ...ratioTrans.map((x) => `td:contains('${x}') + td`),
+          ...ratioTrans.map((x) => `dt:contains('${x}') + dd`),
+          "li.ratio-bar__ratio a:has( > i.fa-sync-alt)",
+          "span:has( > i.fa-sync-alt)",
+        ],
+        filters: [{ name: "parseNumber" }],
+      },
+      trueRatio: {
+        selector: [
+          ...trueRatioTrans.map((x) => `td:contains('${x}') + td`),
+          ...trueRatioTrans.map((x) => `dt:contains('${x}') + dd`),
+        ],
+        filters: [{ name: "parseNumber" }],
+      },
+      bonus: {
+        selector: ["li.ratio-bar__points a:has( > i.fa-coins)", "span:has( > i.fa-coins)"],
+        filters: [{ name: "parseNumber" }],
+      },
+      seeding: {
+        selector: ["li.ratio-bar__seeding a:has( > i.fa-upload)", "span:has( > i.fa-upload)"],
+        filters: [{ name: "parseNumber" }],
+      },
+      leeching: {
+        selector: ["li.ratio-bar__leeching a:has( > i.fa-download)", "span:has( > i.fa-download)"],
+        filters: [{ name: "parseNumber" }],
       },
       seedingSize: {
         // table.table-condensed:first
@@ -261,22 +387,25 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           ...seedingSizeTrans.map((x) => `td:contains('${x}') + td`),
           ...seedingSizeTrans.map((x) => `dt:contains('${x}') + dd`),
         ],
-        filters: [(query: string) => parseSizeString(query.replace(/,/g, ""))],
+        filters: [{ name: "parseSize" }],
       },
       averageSeedingTime: {
         // table.table-condensed:first
         selector: [
-          ...averageSeedingTimeTrans.map((x) => `td:contains('${x}') + td`),
+          ...averageSeedingTimeTrans.map((x) => `td:contains('${x}') + td span.badge-user`),
           ...averageSeedingTimeTrans.map((x) => `dt:contains('${x}') + dd`),
         ],
         filters: [{ name: "parseTTL" }],
       },
       levelName: {
-        selector: "div.content span.badge-user",
+        selector: ["div.content span.badge-user", "a.user-tag__link[title]"],
+        elementProcess: (el: HTMLInputElement) => {
+          return el.getAttribute("title") || el.textContent;
+        },
       },
       messageCount: {
         text: 0,
-        selector: ['a[href*="/mail/inbox"] .point'],
+        selector: ['a[href*="/mail"] .point, a[href*="/notifications"] .point, ul.top-nav__icon-bar circle'],
         elementProcess: () => 11, // 并不能直接知道还有多少个消息未读，所以置为11，会直接出线红点而不是具体数字
       },
       uploads: {
@@ -284,13 +413,26 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [{ name: "parseNumber" }],
       },
       joinTime: {
-        selector: joinTimeTrans.map((x) => `div.content h4:contains('${x}')`),
+        selector: ["time.profile__registration", ...joinTimeTrans.map((x) => `div.content h4:contains('${x}')`)],
         filters: [
           (query: string) => {
-            query = query.replace(RegExp(joinTimeTrans.join("|")), "").trim();
-            return parseValidTimeString(query, ["MMM dd yyyy, HH:mm:ss", "MMM dd yyyy"]);
+            query = query.replace(RegExp(joinTimeTrans.join("|")), "");
+            query = query.replace(/^:+/g, "").trim();
+            return parseValidTimeString(query, ["MMM dd yyyy, HH:mm:ss", "MMM dd yyyy", "yyyy-MM-dd"]);
           },
         ],
+      },
+      invites: {
+        selector: [
+          ...invitesTrans.map((x) => `td:contains('${x}'):last + td`),
+          ...invitesTrans.map((x) => `dt:contains('${x}'):last + dd`),
+        ],
+        filters: [{ name: "parseNumber" }],
+      },
+      // '/users/$user.name$/earnings'
+      bonusPerHour: {
+        selector: [".panelV2 dl.key-value dd:nth(2)"],
+        filters: [{ name: "parseNumber" }],
       },
     },
   },
@@ -332,6 +474,8 @@ export default class Unit3D extends PrivateSite {
       if (this.metadata.levelRequirements && flushUserInfo.levelName && typeof flushUserInfo.levelId === "undefined") {
         flushUserInfo.levelId = this.guessUserLevelId(flushUserInfo as IUserInfo);
       }
+
+      flushUserInfo.bonusPerHour = await this.getUserBonusPerHour(userName);
 
       flushUserInfo.status = EResultParseStatus.success;
     } catch (e) {
@@ -375,5 +519,26 @@ export default class Unit3D extends PrivateSite {
       this.metadata.userInfo?.selectors!,
       Object.keys(omit(this.metadata.userInfo?.selectors!, ["name"])),
     ) as Partial<IUserInfo>;
+  }
+
+  protected async getUserBonusPerHour(name: string): Promise<number> {
+    const { data: document } = await this.request<Document>(
+      {
+        url: `/users/${name}/earnings`,
+        responseType: "document",
+      },
+      true,
+    );
+    return this.getFieldData(document, this.metadata.userInfo?.selectors?.bonusPerHour!);
+  }
+
+  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    const downloadLink = await super.getTorrentDownloadLink(torrent);
+    if (downloadLink && !downloadLink.includes("/download/") && downloadLink.includes("/torrents/")) {
+      const mockRequestConfig = torrent.url?.startsWith("http") ? { url: torrent.url } : { baseURL: this.url };
+      return this.fixLink(`/torrents/download/${torrent.id}`, mockRequestConfig);
+    }
+
+    return downloadLink;
   }
 }

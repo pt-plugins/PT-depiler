@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, provide, useTemplateRef, ref, watch, shallowReactive, computed, withModifiers } from "vue";
+import { inject, provide, useTemplateRef, ref, shallowReactive, computed, withModifiers } from "vue";
 import { useDraggable } from "@vueuse/core";
 import { type ITorrent } from "@ptd/site";
 
@@ -20,45 +20,55 @@ const ptdData = inject<IPtdData>("ptd_data", {});
 const el = useTemplateRef<HTMLElement>("el");
 provide("app", el);
 
+// 记录一下与右边界和下边界的距离
+const rightX = ref<number>(0);
+const bottomY = ref<number>(0);
+
 const openSpeedDial = ref<boolean>(false);
 const { x, y, style } = useDraggable(el, {
   preventDefault: true,
   initialValue: { x: -100, y: -100 }, // Default position off-screen
   onEnd: ({ x, y }) => {
     configStore.updateContentScriptPosition(x, y);
+    const { clientWidth, clientHeight } = document.documentElement;
+    rightX.value = clientWidth - x;
+    bottomY.value = clientHeight - y;
   },
 });
 
 // 监听窗口大小变化，更新位置
 window.addEventListener("resize", () => {
   const { clientWidth, clientHeight } = document.documentElement;
+
+  x.value = clientWidth - rightX.value; // 右侧吸附
   if (x.value > clientWidth - 50 || x.value < 0) {
     x.value = clientWidth - 100; // 确保不会超出右边界
   }
+  rightX.value = clientWidth - x.value;
+
+  y.value = clientHeight - bottomY.value; // 底部吸附
   if (y.value > clientHeight - 50 || y.value < 0) {
     y.value = clientHeight - 100; // 确保不会超出下边界
   }
+  bottomY.value = clientHeight - y.value;
 });
 
-// 从 configStore 中加载初始position配置（这里不需要判断 configStore.contextScript.enabled ）
-watch(
-  () => configStore.$ready,
-  (ready) => {
-    if (ready) {
-      openSpeedDial.value = configStore.contentScript?.defaultOpenSpeedDial ?? false;
+// 由于App.vue是整个应用的根组件，此时 configStore 等 pinia store 可能还未初始化完成，所以需要监听 $onReady
+configStore.$onReady(() => {
+  openSpeedDial.value = configStore.contentScript?.defaultOpenSpeedDial ?? false;
 
-      if (openSpeedDial.value) {
-        updatePageType(ptdData).catch();
-      }
+  if (openSpeedDial.value) {
+    updatePageType(ptdData).catch();
+  }
 
-      let { x: storeX = -100, y: storeY = -100 } = configStore.contentScript?.position ?? {};
-      let { clientWidth, clientHeight } = document.documentElement;
+  let { x: storeX = -100, y: storeY = -100 } = configStore.contentScript?.position ?? {};
+  let { clientWidth, clientHeight } = document.documentElement;
 
-      x.value = storeX <= 0 || storeX > clientWidth - 50 ? clientWidth - 100 : storeX; // Default to right side
-      y.value = storeY <= 0 || storeY > clientHeight - 50 ? clientHeight - 100 : storeY; // Default to bottom
-    }
-  },
-);
+  x.value = storeX <= 0 || storeX > clientWidth - 50 ? clientWidth - 100 : storeX; // Default to right side
+  y.value = storeY <= 0 || storeY > clientHeight - 50 ? clientHeight - 100 : storeY; // Default to bottom
+  rightX.value = clientWidth - x.value;
+  bottomY.value = clientHeight - y.value;
+});
 
 const remoteDownloadDialogData = shallowReactive({
   show: false,
@@ -195,7 +205,7 @@ function onDrop(event: DragEvent) {
 }
 
 const dropAction = computed(() => {
-  if (configStore.contentScript?.dragLinkOnSpeedDial ?? true) {
+  if (ptdData.siteId && (configStore.contentScript?.dragLinkOnSpeedDial ?? true)) {
     return {
       drop: withModifiers((e) => onDrop(e as DragEvent), ["prevent"]),
       dragover: withModifiers(() => (isDragging.value = true), ["prevent"]),
@@ -214,7 +224,7 @@ function openOptions() {
 <template>
   <v-theme-provider :theme="configStore.contentScript.applyTheme ? configStore.uiTheme : ''">
     <div ref="el" :style="style" style="position: fixed; z-index: 9999999">
-      <v-speed-dial v-model="openSpeedDial" :close-on-content-click="false">
+      <v-speed-dial v-model="openSpeedDial" :close-on-content-click="false" no-click-animation persistent>
         <template v-slot:activator="{ props: activatorProps }">
           <v-fab
             v-bind="activatorProps"

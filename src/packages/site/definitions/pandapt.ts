@@ -20,7 +20,15 @@ export const siteMetadata: ISiteMetadata = {
 
   category: [
     {
-      name: "分类",
+      name: "搜索入口",
+      key: "#url",
+      options: [
+        { name: "综合", value: "/torrents.php" },
+        { name: "有声书", value: "/special.php" },
+      ],
+    },
+    {
+      name: "分类（综合）",
       key: "cat",
       options: [
         { name: "电影/Movies", value: 401 },
@@ -122,6 +130,11 @@ export const siteMetadata: ISiteMetadata = {
     CategorySpstate,
     CategoryInclbookmarked,
   ],
+
+  searchEntry: {
+    area_normal: { name: "综合", requestConfig: { url: "/torrents.php" } },
+    area_special: { name: "有声书", enabled: false, requestConfig: { url: "/special.php" } },
+  },
 
   levelRequirements: [
     {

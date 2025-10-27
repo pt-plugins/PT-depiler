@@ -27,7 +27,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://pterclub.com/"],
+  urls: ["https://pterclub.com/", "https://pterclub.net/"],
   formerHosts: ["pter.club"],
 
   category: [
@@ -138,7 +138,13 @@ export const siteMetadata: ISiteMetadata = {
       ...SchemaMetadata.search!.selectors!,
 
       title: {
-        selector: ["a[href*='details.php?id='][title]:first", "a[href*='detailsgame.php?id='][title]:first"],
+        selector: [
+          "a[href*='details.php?id='][title]:first",
+          "a[href*='detailsgame.php?id='][title]:first",
+          // 当开了悬浮提示后，没有title属性 (#538)
+          'a[href^="details.php?id="]',
+          'a[href^="detailsgame.php?"]',
+        ],
       },
       subTitle: {
         selector: ["div > span:eq(0)"],

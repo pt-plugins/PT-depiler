@@ -7,6 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "nicept",
   name: "NicePT",
+  aka: ["老师"],
   description: "老师",
   tags: ["成人"],
   collaborator: ["zxb0303"],

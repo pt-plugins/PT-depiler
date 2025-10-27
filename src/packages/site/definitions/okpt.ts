@@ -235,12 +235,14 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 0,
-      name: " 健全人士(User)",
+      name: "User",
+      nameAka: ["健全人士"],
       privilege: "新用户的默认级别。可以购买邀请；可以发送邀请；可以上传字幕；可以发布种子至候选区。",
     },
     {
       id: 1,
-      name: "一级烧伤(Power User)",
+      name: "Power User",
+      nameAka: ["一级烧伤"],
       interval: "P4W",
       downloaded: "50GB",
       ratio: 2.0,
@@ -250,7 +252,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 2,
-      name: "二级烧伤(Elite User)",
+      name: "Elite User",
+      nameAka: ["二级烧伤"],
       interval: "P8W",
       downloaded: "100GB",
       ratio: 2.5,
@@ -259,7 +262,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 3,
-      name: "三级烧伤(Crazy User)",
+      name: "Crazy User",
+      nameAka: ["三级烧伤"],
       interval: "P15W",
       downloaded: "300GB",
       ratio: 3.0,
@@ -268,7 +272,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 4,
-      name: "四级烧伤(Insane User)",
+      name: "Insane User",
+      nameAka: ["四级烧伤"],
       interval: "P25W",
       downloaded: "500GB",
       ratio: 3.5,
@@ -277,7 +282,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 5,
-      name: "五级烧伤(Veteran User)",
+      name: "Veteran User",
+      nameAka: ["五级烧伤"],
       interval: "P40W",
       downloaded: "1TB",
       ratio: 4.0,
@@ -286,7 +292,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 6,
-      name: "六级烧伤(Extreme User)",
+      name: "Extreme User",
+      nameAka: ["六级烧伤"],
       interval: "P60W",
       downloaded: "2TB",
       ratio: 4.5,
@@ -295,7 +302,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 7,
-      name: "七级烧伤(Ultimate User)",
+      name: "Ultimate User",
+      nameAka: ["七级烧伤"],
       interval: "P80W",
       downloaded: "5TB",
       ratio: 5.0,
@@ -304,7 +312,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 8,
-      name: "终极烧伤(Nexus Master)",
+      name: "Nexus Master",
+      nameAka: ["终极烧伤"],
       interval: "P100W",
       downloaded: "10TB",
       ratio: 5.5,

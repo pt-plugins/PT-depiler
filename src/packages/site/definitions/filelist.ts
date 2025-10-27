@@ -1,8 +1,9 @@
-import { type ISearchInput, type ISiteMetadata, type ITorrent, type ITorrentTag } from "../types";
-import { SchemaMetadata } from "../schemas/NexusPHP.ts";
 import { set } from "es-toolkit/compat";
-import { parseSizeString, parseValidTimeString } from "@ptd/site";
-import PrivateSite from "@ptd/site/schemas/AbstractPrivateSite.ts";
+
+import PrivateSite from "../schemas/AbstractPrivateSite.ts";
+import { SchemaMetadata } from "../schemas/NexusPHP.ts";
+import { parseSizeString, parseValidTimeString } from "../utils";
+import { type ISearchInput, type ISiteMetadata, type ITorrent, type ITorrentTag } from "../types";
 
 const linkQuery = {
   selector: ['a[href*="download.php?id="]:has(> img)'],
@@ -15,6 +16,8 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "filelist",
   name: "FileList",
+  aka: ["FL"],
+  description: "罗马尼亚最大的站点",
   tags: ["影视", "综合"],
   timezoneOffset: "+0000",
 

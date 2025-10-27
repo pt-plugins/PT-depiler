@@ -43,12 +43,21 @@ onMounted(async () => {
 <template>
   <v-row>
     <v-col md="10" lg="8">
+      <v-label>用户数据刷新</v-label>
+
       <v-number-input
         v-model="configStore.userInfo.queueConcurrency"
-        :max="100"
+        :max="25"
         :min="1"
         :label="t('userInfo.queueConcurrency')"
       ></v-number-input>
+
+      <v-switch
+        v-model="configStore.userInfo.alwaysPickLastUserInfo"
+        :label="t('userInfo.alwaysPickLastUserInfo')"
+        color="success"
+        hide-details
+      />
 
       <!-- 自动刷新 -->
       <v-switch
@@ -59,8 +68,20 @@ onMounted(async () => {
       />
       <v-row v-if="configStore.userInfo.autoReflush.enabled" class="mt-1 ml-2 mb-2">
         <v-alert type="info" variant="outlined">
-          <div class="d-inline-flex align-center text-no-wrap">
-            {{ t("userInfo.autoRefresh.every") }}
+          <div class="d-inline-flex align-center text-no-wrap mb-1">
+            • 每日最早刷新时间
+            <v-text-field
+              :model-value="configStore.userInfo.autoReflush.afterTime"
+              class="mx-2"
+              density="compact"
+              hide-details
+              readonly
+            >
+              <v-menu :close-on-content-click="false" activator="parent" min-width="0">
+                <v-time-picker v-model="configStore.userInfo.autoReflush.afterTime" format="24hr"></v-time-picker>
+              </v-menu>
+            </v-text-field>
+            后，{{ t("userInfo.autoRefresh.every") }}
             <v-select
               v-model="configStore.userInfo.autoReflush.interval"
               :items="range(1, 24)"
@@ -74,8 +95,9 @@ onMounted(async () => {
             <p class="font-weight-bold">{{ t("userInfo.autoRefresh.unrefreshedSite") }}</p>
             {{ t("userInfo.autoRefresh.ofSites") }}
           </div>
+          <br />
           <div class="d-inline-flex align-center text-no-wrap">
-            {{ t("userInfo.autoRefresh.retryOnFail") }}
+            • {{ t("userInfo.autoRefresh.retryOnFail") }}
             <v-select
               v-model="configStore.userInfo.autoReflush.retry.max"
               :items="range(0, 6)"
@@ -118,7 +140,7 @@ onMounted(async () => {
       />
       <v-row v-if="configStore.autoExtendCookies.enabled" class="mt-1 ml-2 mb-2">
         <v-alert type="info" variant="outlined">
-          <div class="d-inline-flex align-center text-no-wrap mb-2">
+          <div class="d-inline-flex align-center text-no-wrap">
             {{ t("userInfo.autoExtendCookies.triggerThreshold") }}:
             <v-select
               v-model="configStore.autoExtendCookies.triggerThreshold"
@@ -130,8 +152,6 @@ onMounted(async () => {
               hide-details
             />
             {{ t("userInfo.autoExtendCookies.weeks") }}
-          </div>
-          <div class="d-inline-flex align-center text-no-wrap mb-2">
             {{ t("userInfo.autoExtendCookies.extensionDuration") }}:
             <v-select
               v-model="configStore.autoExtendCookies.extensionDuration"
@@ -146,6 +166,8 @@ onMounted(async () => {
           </div>
         </v-alert>
       </v-row>
+
+      <v-label>用户信息展示</v-label>
 
       <v-switch
         v-model="configStore.userInfo.showDeadSiteInOverview"

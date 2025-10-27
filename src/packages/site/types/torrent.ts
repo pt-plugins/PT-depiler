@@ -1,13 +1,13 @@
 import type { TAdvanceSearchKeyword } from "@ptd/site";
 import type { TSiteID } from "./base";
 
-// 种子当前状态
+// 种子当前状态 - 使用字符串字面量枚举支持 i18n
 export enum ETorrentStatus {
-  unknown, // 状态不明
-  downloading, // 正在下载
-  seeding, // 正在做种
-  inactive, // 未活动（曾经下载过，但未完成）
-  completed, // 已完成，未做种， 旧版值 255
+  unknown = "unknown", // 状态不明
+  downloading = "downloading", // 正在下载
+  seeding = "seeding", // 正在做种
+  inactive = "inactive", // 未活动（曾经下载过，但未完成）
+  completed = "completed", // 已完成，未做种， 旧版值 255
 }
 
 // 比较基础的种子 Tag

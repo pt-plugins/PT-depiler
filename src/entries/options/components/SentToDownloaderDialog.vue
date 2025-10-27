@@ -83,6 +83,11 @@ async function sendToDownloader() {
   isSending.value = true;
   const promises = [];
 
+  const customReplace = {
+    savePath: undefined,
+    label: undefined,
+  } as Record<string, string | undefined>;
+
   for (const torrent of torrentItems) {
     const realAddTorrentOptions: Partial<CAddTorrentOptions> = { ...addTorrentOptions.value };
 
@@ -98,7 +103,7 @@ async function sendToDownloader() {
       "date:DD": formatDate(nowDate, "dd") as string,
     };
 
-    (["savePath", "label"] as (keyof typeof realAddTorrentOptions)[]).forEach((key) => {
+    for (const key of ["savePath", "label"] as (keyof typeof realAddTorrentOptions)[]) {
       if (realAddTorrentOptions[key]) {
         if (realAddTorrentOptions[key] === "") {
           delete realAddTorrentOptions[key];
@@ -107,9 +112,29 @@ async function sendToDownloader() {
             // @ts-ignore
             realAddTorrentOptions[key] = (realAddTorrentOptions[key]! as string).replace(`$${replaceKey}$`, value);
           }
+
+          // 处理自定义输入
+          if ((realAddTorrentOptions[key] as string).includes("<...>")) {
+            // 如果之前已经输入过，则直接使用之前的输入
+            if (typeof customReplace[key] !== "string") {
+              // 此处允许空字符 ""， 但不允许用户取消（即取消动态替换操作则认为取消推送任务）
+              const userInput = prompt(`请输入替换 ${key} 中的 <...> 的内容：`);
+              if (userInput !== null) {
+                customReplace[key] = userInput.trim();
+              } else {
+                // 用户取消输入，则跳过该任务
+                runtimeStore.showSnakebar(`因取消输入 ${key} 中的 <...> 的内容而停止推送`, { color: "warning" });
+                isSending.value = false;
+                return;
+              }
+            }
+
+            // @ts-ignore
+            realAddTorrentOptions[key] = (realAddTorrentOptions[key] as string).replace("<...>", customReplace[key]!);
+          }
         }
       }
-    });
+    }
 
     promises.push(
       sendMessage("downloadTorrentToDownloader", {
@@ -218,7 +243,7 @@ function dialogLeave() {
           <!-- 快速下载选项 -->
           <v-container v-if="quickSendToClient" class="pa-0">
             <v-list v-if="metadataStore.getEnabledDownloaders.length > 0">
-              <template v-for="downloader in metadataStore.getEnabledDownloaders" :key="downloader.id">
+              <template v-for="downloader in metadataStore.getSortedEnabledDownloaders" :key="downloader.id">
                 <v-list-item
                   v-for="path in ['', ...(downloader.suggestFolders ?? [])]"
                   :key="path"
@@ -249,7 +274,7 @@ function dialogLeave() {
               <v-autocomplete
                 v-model="selectedDownloader"
                 :filter-keys="['raw.name', 'raw.address', 'raw.username']"
-                :items="metadataStore.getEnabledDownloaders"
+                :items="metadataStore.getSortedEnabledDownloaders"
                 clearable
                 placeholder="选择下载器"
                 @update:model-value="restoreAddTorrentOptions"

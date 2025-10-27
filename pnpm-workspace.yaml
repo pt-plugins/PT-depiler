@@ -1,0 +1,2 @@
+patchedDependencies:
+  git-rev-sync: patches/git-rev-sync.patch

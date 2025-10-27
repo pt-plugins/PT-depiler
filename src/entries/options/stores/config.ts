@@ -2,25 +2,75 @@
  * 所有和 ui 相关的选项均在本 store 管理
  */
 import { defineStore } from "pinia";
+import { has, unset } from "es-toolkit/compat";
 import { usePreferredDark } from "@vueuse/core";
 
 import type { IConfigPiniaStorageSchema, supportThemeType } from "@/shared/types.ts";
 
 import { useMetadataStore } from "./metadata.ts";
 
+const deprecatedConfigKeys = [
+  "myDataTableControl.tableFontSize", // v0.0.4.961 废弃
+  "myDataTableControl.joinTimeWeekOnly", // 已废弃，使用 joinTimeFormat 替代
+];
+
+export const defaultTimelineBackgroundColor = "#455A64";
+
 export const useConfigStore = defineStore("config", {
-  persistWebExt: true,
+  persistWebExt: {
+    afterRestore: (context) => {
+      // 清理已废弃的配置项
+      const state = context.store.$state as any;
+      let needsSave = false;
+
+      // 清理已废弃的配置项
+      for (const key of deprecatedConfigKeys) {
+        if (has(state, key)) {
+          unset(state, key);
+          needsSave = true;
+        }
+      }
+
+      // 清理基于 id 字段的 DownloadHistory 排序配置
+      if (state.tableBehavior?.DownloadHistory?.sortBy) {
+        const sortBy = state.tableBehavior.DownloadHistory.sortBy;
+        // 过滤掉基于 id 字段的排序项
+        const filteredSortBy = sortBy.filter((sort: any) => sort.key !== "id");
+
+        // 如果过滤后数组长度发生变化，说明移除了基于 id 的排序项
+        if (filteredSortBy.length !== sortBy.length) {
+          // 如果过滤后没有任何排序项，使用默认的 downloadAt 排序
+          if (filteredSortBy.length === 0) {
+            state.tableBehavior.DownloadHistory.sortBy = [{ key: "downloadAt", order: "desc" }];
+          } else {
+            // 否则保留其他有效的排序项
+            state.tableBehavior.DownloadHistory.sortBy = filteredSortBy;
+          }
+          needsSave = true;
+        }
+      }
+
+      if (needsSave) {
+        context.store.$save();
+      }
+    },
+  },
   state: (): IConfigPiniaStorageSchema => ({
+    version: "",
     lang: "zh_CN",
     theme: "light",
     isNavBarOpen: true,
+
     ignoreWrongPixelRatio: false,
+    showReleaseNoteOnVersionChange: true,
 
     saveTableBehavior: true,
     enableTableMultiSort: false,
 
     contextMenus: {
+      enabled: true,
       allowSelectionTextSearch: true,
+      allowLinkDownloadPush: true,
     },
 
     contentScript: {
@@ -33,6 +83,8 @@ export const useConfigStore = defineStore("config", {
       applyTheme: false,
       defaultOpenSpeedDial: false,
       stackedButtons: false,
+
+      doubleConfirmAction: true,
       dragLinkOnSpeedDial: true,
 
       socialSiteSearchBy: "chosen",
@@ -73,6 +125,10 @@ export const useConfigStore = defineStore("config", {
         ],
         sortBy: [{ key: "time", order: "desc" }],
       },
+      DownloadHistory: {
+        itemsPerPage: 10,
+        sortBy: [{ key: "downloadAt", order: "desc" }],
+      },
       SearchResultSnapshot: {
         itemsPerPage: 25,
         sortBy: [{ key: "createdAt", order: "desc" }],
@@ -93,7 +149,6 @@ export const useConfigStore = defineStore("config", {
     userName: "",
 
     myDataTableControl: {
-      tableFontSize: 100,
       showSiteName: true,
       showUnreadMessage: true,
       showUserName: true,
@@ -107,6 +162,9 @@ export const useConfigStore = defineStore("config", {
       //joinTimeWeekOnly: false,
       joinTimeFormat: "added",
       updateAtFormatAsAlive: false,
+      showIntervalAsDate: false,
+      simplifyBonusNumbers: false,
+      showBonusNeededInterval: true,
     },
 
     userDataTimelineControl: {
@@ -117,19 +175,22 @@ export const useConfigStore = defineStore("config", {
         downloaded: true,
         seeding: true,
         seedingSize: true,
+        bonus: true,
         bonusPerHour: true,
         ratio: true,
       },
       showPerSiteField: {
-        siteName: true,
+        siteName: false,
         name: true,
         level: true,
         uid: true,
       },
       showTop: true,
       showTimeline: true,
+      backgroundColor: defaultTimelineBackgroundColor,
       dateFormat: "time_added",
-      faviconBlue: 0,
+      faviconBlue: 3,
+      selectedSites: [],
     },
 
     userStatisticControl: {
@@ -148,6 +209,8 @@ export const useConfigStore = defineStore("config", {
         perSiteKbonusIncr: true,
       },
       dateRange: 30,
+      hidePerSitePrecentThreshold: 1,
+      selectedSites: [],
     },
 
     searchEntifyControl: {
@@ -160,15 +223,17 @@ export const useConfigStore = defineStore("config", {
     },
 
     userInfo: {
-      queueConcurrency: 1,
+      queueConcurrency: 5,
       autoReflush: {
         enabled: true,
         interval: 3, // hours
+        afterTime: "00:00",
         retry: {
           max: 3,
           interval: 5, // minutes
         },
       },
+      alwaysPickLastUserInfo: true,
       showDeadSiteInOverview: false,
       showPassedSiteInOverview: false,
     },
@@ -179,17 +244,19 @@ export const useConfigStore = defineStore("config", {
       allowDirectSendToClient: false,
       localDownloadMethod: "browser",
       ignoreSiteDownloadIntervalWhenLocalDownload: true,
-      useQuickSendToClient: false,
+      useQuickSendToClient: true,
     },
 
     searchEntity: {
-      saveLastFilter: false,
-      queueConcurrency: 1,
-      treatTTQueryAsImdbSearch: false,
+      saveLastFilter: true,
+      queueConcurrency: 8,
+      treatTTQueryAsImdbSearch: true,
+      allowSingleSiteSearch: false,
+      quickSiteFilter: true,
     },
 
     mediaServerEntity: {
-      queueConcurrency: 1,
+      queueConcurrency: 5,
       searchLimit: 50,
       autoSearchWhenMount: true,
       autoSearchMoreWhenScroll: true,

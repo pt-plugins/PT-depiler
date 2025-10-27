@@ -1,0 +1,46 @@
+diff --git a/README.md b/README.md
+index fe04fc7673df9074dc7a4021f384ae92a76cc446..846cca9ff33737d26a01aa494ee3fab15c964916 100644
+--- a/README.md
++++ b/README.md
+@@ -48,9 +48,9 @@ return the result of `git rev-parse HEAD`; optional `filePath` parameter can be
+ 
+ return the current branch; optional `filePath` parameter can be used to run the command against a repo outside the current working directory
+ 
+-#### `git.count()` &rarr; &lt;Number&gt;
++#### `git.count([branch])` &rarr; &lt;Number&gt;
+ 
+-return the count of commits across all branches; this method will fail if the `git` command is not found in `PATH`
++returns the count of commits across all branches; optional `branch` parameter can be used to limit the count to a specific branch; this method will fail if the `git` command is not found in `PATH`
+ 
+ #### `git.date()` &rarr; &lt;Date&gt;
+ 
+diff --git a/index.js b/index.js
+index e0d0eea776cd8b319e7470c5bd9f5f6a8533f908..e91b52e07691b2ad6e2028325d8ea2a33aa9f01a 100644
+--- a/index.js
++++ b/index.js
+@@ -168,8 +168,8 @@ function date() {
+   return new Date(_command('git', ['log', '--no-color', '-n', '1', '--pretty=format:"%ad"']));
+ }
+ 
+-function count() {
+-  return parseInt(_command('git', ['rev-list', '--all', '--count']), 10);
++function count(branch) {
++  return parseInt(_command('git', ['rev-list', '--count', branch || '--all']), 10);
+ }
+ 
+ function log() {
+diff --git a/tests/index.js b/tests/index.js
+index 21a2dcf445416fec8a7b77a267448ee440fda22d..2bea362df0180c7b50975a07da8b10b11274c7ef 100644
+--- a/tests/index.js
++++ b/tests/index.js
+@@ -19,6 +19,10 @@ result = git.count();
+ assert.notEqual(result, 0, 'count() returns a non-zero number');
+ assert.equal(Math.abs(result), result, 'count() returns a positive number');
+ 
++result = git.count('HEAD');
++assert.notEqual(result, 0, 'count() returns a non-zero number');
++assert.equal(Math.abs(result), result, 'count() returns a positive number');
++
+ result = git.date();
+ assert.equal(result instanceof Date, true, 'date() returns a date');
+ 

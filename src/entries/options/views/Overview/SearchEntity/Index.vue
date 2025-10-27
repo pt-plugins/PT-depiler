@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { computed, ref, shallowRef, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
+import { useDisplay } from "vuetify";
 import { EResultParseStatus, ETorrentStatus } from "@ptd/site";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
@@ -19,56 +20,81 @@ import ActionTd from "./ActionTd.vue";
 import SearchStatusDialog from "./SearchStatusDialog.vue";
 import SaveSnapshotDialog from "./SaveSnapshotDialog.vue";
 import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
+import QuickSiteFilterSelector from "./QuickSiteFilterSelector.vue";
 
-import { doSearch, searchQueue, tableCustomFilter } from "./utils.ts"; // <-- 主要方法在这个文件中！！！
+// 主要助手方法
+import { tableCustomFilter } from "./utils/filter";
+import { doSearch, retrySearch, searchPlanStatus, searchQueue } from "./utils/search";
 
 const { t } = useI18n();
 const route = useRoute();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
+const display = useDisplay();
 
 const showAdvanceFilterGenerateDialog = ref<boolean>(false);
 const showSearchStatusDialog = ref<boolean>(false);
 const showSaveSnapshotDialog = ref<boolean>(false);
 
-const fullTableHeader = [
-  { title: t("SearchEntity.index.table.site"), key: "site", align: "center", width: 90, props: { disabled: true } },
-  {
-    title: t("SearchEntity.index.table.title"),
-    key: "title",
-    align: "start",
-    minWidth: 600,
-    maxWidth: "32vw",
-    props: { disabled: true },
-  },
-  { title: t("SearchEntity.index.table.category"), key: "category", align: "center", width: 90 },
-  { title: t("SearchEntity.index.table.size"), key: "size", align: "end" },
-  { title: t("SearchEntity.index.table.seeders"), key: "seeders", align: "end", width: 90, minWidth: 90 },
-  { title: t("SearchEntity.index.table.leechers"), key: "leechers", align: "end", width: 90, minWidth: 90 },
-  { title: t("SearchEntity.index.table.completed"), key: "completed", align: "end", width: 90, minWidth: 90 },
-  { title: t("SearchEntity.index.table.comments"), key: "comments", align: "end", width: 90, minWidth: 90 },
-  { title: t("SearchEntity.index.table.time"), key: "time", align: "center" },
-  {
-    title: t("common.action"),
-    key: "action",
-    align: "center",
-    width: 125,
-    minWidth: 125,
-    sortable: false,
-    props: { disabled: true },
-  },
-] as (DataTableHeader & { props?: any })[];
+const fullTableHeader = computed(
+  () =>
+    [
+      { title: t("SearchEntity.index.table.site"), key: "site", align: "center", props: { disabled: true } },
+      {
+        title: t("SearchEntity.index.table.title"),
+        key: "title",
+        align: "start",
+        minWidth: "30rem",
+        ...(display.smAndDown.value ? { maxWidth: "32vw" } : {}),
+        props: { disabled: true },
+      },
+      { title: t("SearchEntity.index.table.category"), key: "category", align: "center" },
+      { title: t("SearchEntity.index.table.size"), key: "size", align: "end" },
+      { title: t("SearchEntity.index.table.seeders"), key: "seeders", align: "end" },
+      { title: t("SearchEntity.index.table.leechers"), key: "leechers", align: "end" },
+      { title: t("SearchEntity.index.table.completed"), key: "completed", align: "end" },
+      { title: t("SearchEntity.index.table.comments"), key: "comments", align: "end" },
+      { title: t("SearchEntity.index.table.time"), key: "time", align: "center" },
+      {
+        title: t("common.action"),
+        key: "action",
+        align: "center",
+        sortable: false,
+        props: { disabled: true },
+      },
+    ] as (DataTableHeader & { props?: any })[],
+);
 
 const tableHeader = computed(() => {
-  return fullTableHeader.filter(
+  return fullTableHeader.value.filter(
     (item) => item?.props?.disabled || configStore.tableBehavior.SearchEntity.columns!.includes(item.key!),
   ) as DataTableHeader[];
 });
 
-const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
+const { tableFilterRef, tableWaitFilterRef, tableFilterFn, resetAdvanceFilterDictFn } = tableCustomFilter;
 
-const tableSelected = ref<Array<ISearchResultTorrent["uniqueId"]>>([]);
+// 使用 shallowRef 优化：种子对象数组不需要深度响应式，提升性能
+const tableSelectedRaw = shallowRef<ISearchResultTorrent[]>([]);
+
+// 优化后的选中种子信息计算：直接基于选中对象计算
+const selectedTorrentsInfo = computed(() => {
+  const selectedObjects = tableSelectedRaw.value;
+  const count = selectedObjects.length;
+
+  // 如果没有选中任何项，直接返回
+  if (count === 0) {
+    return { count: 0, totalSize: 0 };
+  }
+
+  // 直接计算选中对象的总大小，避免遍历查找
+  const totalSize = selectedObjects.reduce((sum, torrent) => sum + (torrent.size || 0), 0);
+
+  return {
+    count,
+    totalSize,
+  };
+});
 
 watch(
   () => route.query,
@@ -76,6 +102,10 @@ watch(
     if (newParams.snapshot) {
       metadataStore.getSearchSnapshotData(newParams.snapshot as string).then((data) => {
         data && (runtimeStore.search = { ...data, snapshot: newParams.snapshot as string });
+        // 如果启用了快速站点筛选，则重置一下筛选器，以防止快速站点筛选中无站点数据
+        if (configStore.searchEntity.quickSiteFilter) {
+          resetAdvanceFilterDictFn();
+        }
       });
     } else {
       if (
@@ -83,6 +113,9 @@ watch(
         (newParams.search && newParams.search != oldParams?.search) ||
         (newParams.plan && newParams.plan != oldParams?.plan)
       ) {
+        // 清理已选择项 （ #622 ）
+        tableSelectedRaw.value = [];
+        // doSearch 会自动处理过滤器重置
         doSearch((newParams.search as string) ?? "", (newParams.plan as string) ?? "default", true);
       }
     }
@@ -135,7 +168,16 @@ function cancelSearchQueue() {
             {{ t("SearchEntity.index.alert.paused") }}
           </template>
           <template v-else>
-            {{ t("SearchEntity.index.alert.searching") }}
+            <template v-if="runtimeStore.search.searchResult.length > 0">
+              {{ t("SearchEntity.index.alert.plan") }}
+              [{{ metadataStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) }}]，
+              {{ t("SearchEntity.index.alert.keyword") }}
+              [{{ runtimeStore.search.searchKey }}]，
+              {{ t("SearchEntity.index.alert.searchProgress", [runtimeStore.search.searchResult.length]) }}
+            </template>
+            <template v-else>
+              {{ t("SearchEntity.index.alert.searching") }}
+            </template>
           </template>
         </template>
         <template v-else>
@@ -152,6 +194,21 @@ function cancelSearchQueue() {
           {{ t("SearchEntity.index.alert.results", [runtimeStore.search.searchResult.length]) }}
           {{ t("SearchEntity.index.alert.duration", [(runtimeStore.searchCostTime / 1000).toFixed(1)]) }}
         </template>
+
+        <v-spacer />
+        <v-divider vertical class="mx-2" />
+
+        <div id="ptd-search-entity-status">
+          <template v-if="searchPlanStatus.success > 0">
+            <v-icon size="x-small" class="mr-1" icon="mdi-check" />{{ searchPlanStatus.success }}
+          </template>
+          <template v-if="searchPlanStatus.error > 0">
+            <v-icon class="mr-1" color="amber" icon="mdi-alert" size="x-small" />{{ searchPlanStatus.error }}
+          </template>
+          <template v-if="searchPlanStatus.queued > 0">
+            <v-icon size="x-small" color="blue-grey" class="mr-1" icon="mdi-clock" />{{ searchPlanStatus.queued }}
+          </template>
+        </div>
       </template>
     </v-alert-title>
   </v-alert>
@@ -159,40 +216,54 @@ function cancelSearchQueue() {
     <v-card-title>
       <v-row class="ma-0">
         <v-btn-group size="small" variant="text">
+          <!-- 启动/暂停 搜索队列 -->
           <v-btn
             v-show="isSearchingParsed"
+            :title="t('SearchEntity.index.action.start')"
             color="success"
             icon="mdi-play"
-            :title="t('SearchEntity.index.action.start')"
             @click="() => startSearchQueue()"
-          ></v-btn>
+          />
           <v-btn
             v-show="!isSearchingParsed"
+            :title="t('SearchEntity.index.action.pause')"
             color="success"
             icon="mdi-pause"
-            :title="t('SearchEntity.index.action.pause')"
             @click="() => pauseSearchQueue()"
-          ></v-btn>
+          />
 
+          <!-- 取消/重试 搜索队列 -->
           <v-btn
             v-show="runtimeStore.search.isSearching"
+            :title="t('SearchEntity.index.action.cancel')"
             color="red"
             icon="mdi-cancel"
-            :title="t('SearchEntity.index.action.cancel')"
             @click="cancelSearchQueue"
-          ></v-btn>
+          />
           <v-btn
             v-show="!runtimeStore.search.isSearching"
             :disabled="isSearchingParsed"
-            color="red"
-            icon="mdi-cached"
             :title="t('SearchEntity.index.action.retry')"
+            color="red"
+            icon="mdi-sync"
             @click="() => doSearch(null as unknown as string, null as unknown as string, true)"
-          ></v-btn>
+          />
+
+          <!-- 重试失败的搜索 -->
+          <v-btn
+            :disabled="searchPlanStatus.error === 0"
+            :title="t('SearchEntity.index.action.retryFailed')"
+            color="amber"
+            icon="mdi-sync-alert"
+            @click="() => retrySearch()"
+          />
+
+          <v-divider vertical class="mx-2" />
 
           <!-- 创建搜索快照 -->
           <v-btn
             :disabled="runtimeStore.search.isSearching || runtimeStore.search.searchResult.length === 0"
+            :title="t('SearchEntity.index.action.saveSnapshot')"
             color="cyan"
             icon="mdi-camera-plus"
             @click="showSaveSnapshotDialog = true"
@@ -201,7 +272,7 @@ function cancelSearchQueue() {
 
         <v-divider vertical class="mx-2" />
 
-        <ActionTd :torrent-ids="tableSelected" />
+        <ActionTd :torrent-items="tableSelectedRaw" />
 
         <v-divider vertical class="mx-2" />
 
@@ -270,91 +341,111 @@ function cancelSearchQueue() {
         />
       </v-row>
     </v-card-title>
-    <v-data-table
-      id="ptd-search-entity-table"
-      v-model="tableSelected"
-      :custom-filter="tableFilterFn"
-      :filter-keys="['uniqueId'] /* 对每个item值只检索一次 */"
-      :headers="tableHeader"
-      :items="runtimeStore.search.searchResult"
-      :items-per-page="configStore.tableBehavior.SearchEntity.itemsPerPage"
-      :search="tableFilterRef"
-      :sort-by="configStore.tableBehavior.SearchEntity.sortBy"
-      class="search-entity-table table-stripe table-header-no-wrap"
-      hover
-      item-value="uniqueId"
-      :multi-sort="configStore.enableTableMultiSort"
-      show-select
-      @update:itemsPerPage="(v) => configStore.updateTableBehavior('SearchEntity', 'itemsPerPage', v)"
-      @update:sortBy="(v) => configStore.updateTableBehavior('SearchEntity', 'sortBy', v)"
-    >
-      <!-- 站点图标 -->
-      <template #item.site="{ item }">
-        <div class="d-flex flex-column align-center">
-          <SiteFavicon :site-id="item.site" :size="configStore.searchEntifyControl.showSiteName ? 18 : 24" />
-          <SiteName v-if="configStore.searchEntifyControl.showSiteName" :site-id="item.site" />
+
+    <v-card-text class="pt-2 pb-0">
+      <!-- 站点筛选器 -->
+      <QuickSiteFilterSelector v-if="configStore.searchEntity.quickSiteFilter" class="mb-2" />
+
+      <!-- 选中种子信息条 -->
+      <v-alert v-if="selectedTorrentsInfo.count > 0" class="pa-3 mb-0" color="info" density="compact" variant="tonal">
+        <div class="d-flex align-center">
+          <v-chip color="primary" size="small" variant="outlined">
+            <v-icon icon="mdi-checkbox-marked-circle" start />
+            {{ t("SearchEntity.index.selectedTorrents", [selectedTorrentsInfo.count]) }}
+            <v-divider class="mx-2" vertical />
+            <v-icon icon="mdi-harddisk" />
+            {{ formatSize(selectedTorrentsInfo.totalSize) }}
+          </v-chip>
         </div>
-      </template>
+      </v-alert>
 
-      <!-- 主标题，副标题，优惠及标签 -->
-      <template #item.title="{ item }">
-        <TorrentTitleTd :item="item" />
-      </template>
+      <v-data-table
+        id="ptd-search-entity-table"
+        v-model="tableSelectedRaw"
+        :custom-filter="tableFilterFn"
+        :filter-keys="['uniqueId'] /* 对每个item值只检索一次 */"
+        :headers="tableHeader"
+        :items="runtimeStore.search.searchResult"
+        :items-per-page="configStore.tableBehavior.SearchEntity.itemsPerPage"
+        :search="tableFilterRef"
+        :sort-by="configStore.tableBehavior.SearchEntity.sortBy"
+        class="search-entity-table table-stripe table-header-no-wrap"
+        hover
+        item-value="uniqueId"
+        :multi-sort="configStore.enableTableMultiSort"
+        show-select
+        return-object
+        @update:itemsPerPage="(v) => configStore.updateTableBehavior('SearchEntity', 'itemsPerPage', v)"
+        @update:sortBy="(v) => configStore.updateTableBehavior('SearchEntity', 'sortBy', v)"
+      >
+        <!-- 站点图标 -->
+        <template #item.site="{ item }">
+          <div class="d-flex flex-column align-center">
+            <SiteFavicon :site-id="item.site" :size="configStore.searchEntifyControl.showSiteName ? 18 : 24" />
+            <SiteName v-if="configStore.searchEntifyControl.showSiteName" :site-id="item.site" />
+          </div>
+        </template>
 
-      <!-- 种子大小，下载情况 -->
-      <template #item.size="{ item }">
-        <v-container no-gutters>
-          <v-row>
-            <v-col class="pa-0">
-              <span class="t_size text-no-wrap">{{ formatSize(item.size ?? 0) }}</span>
-            </v-col>
-          </v-row>
-          <v-row v-if="item.status && (item.status as ETorrentStatus) !== ETorrentStatus.unknown">
-            <v-col class="pa-0">
-              <TorrentProcessTd :torrent="item"></TorrentProcessTd>
-            </v-col>
-          </v-row>
-        </v-container>
-      </template>
+        <!-- 主标题，副标题，优惠及标签 -->
+        <template #item.title="{ item }">
+          <TorrentTitleTd :item="item" />
+        </template>
 
-      <!-- 上传人数 -->
-      <template #item.seeders="{ item }">
-        <span class="t_seeders text-no-wrap">{{ item.seeders }}</span>
-      </template>
+        <!-- 种子大小，下载情况 -->
+        <template #item.size="{ item }">
+          <v-container no-gutters>
+            <v-row>
+              <v-col class="pa-0">
+                <span class="t_size text-no-wrap">{{ formatSize(item.size ?? 0) }}</span>
+              </v-col>
+            </v-row>
+            <v-row v-if="item.status && (item.status as ETorrentStatus) !== ETorrentStatus.unknown">
+              <v-col class="pa-0">
+                <TorrentProcessTd :torrent="item"></TorrentProcessTd>
+              </v-col>
+            </v-row>
+          </v-container>
+        </template>
 
-      <!-- 下载人数 -->
-      <template #item.leechers="{ item }">
-        <span class="t_leechers text-no-wrap">{{ item.leechers }}</span>
-      </template>
+        <!-- 上传人数 -->
+        <template #item.seeders="{ item }">
+          <span class="t_seeders text-no-wrap">{{ item.seeders }}</span>
+        </template>
 
-      <!-- 完成人数 -->
-      <template #item.completed="{ item }">
-        <span class="t_completed text-no-wrap">{{ item.completed }}</span>
-      </template>
+        <!-- 下载人数 -->
+        <template #item.leechers="{ item }">
+          <span class="t_leechers text-no-wrap">{{ item.leechers }}</span>
+        </template>
 
-      <!-- 评论人数 -->
-      <template #item.comments="{ item }">
-        <span class="t_comments text-no-wrap">{{ item.comments }}</span>
-      </template>
+        <!-- 完成人数 -->
+        <template #item.completed="{ item }">
+          <span class="t_completed text-no-wrap">{{ item.completed }}</span>
+        </template>
 
-      <!-- 发布日期 -->
-      <template #item.time="{ item }">
-        <span class="t_time text-no-wrap" :title="item.time ? (formatDate(item.time) as string) : '-'">
-          {{
-            item.time
-              ? configStore.searchEntifyControl.uploadAtFormatAsAlive
-                ? formatTimeAgo(item.time)
-                : formatDate(item.time)
-              : "-"
-          }}
-        </span>
-      </template>
+        <!-- 评论人数 -->
+        <template #item.comments="{ item }">
+          <span class="t_comments text-no-wrap">{{ item.comments }}</span>
+        </template>
 
-      <!-- 其他操作 -->
-      <template #item.action="{ item }">
-        <ActionTd :torrent-ids="[item.uniqueId]" density="compact" />
-      </template>
-    </v-data-table>
+        <!-- 发布日期 -->
+        <template #item.time="{ item }">
+          <span class="t_time text-no-wrap" :title="item.time ? (formatDate(item.time) as string) : '-'">
+            {{
+              item.time
+                ? configStore.searchEntifyControl.uploadAtFormatAsAlive
+                  ? formatTimeAgo(item.time)
+                  : formatDate(item.time)
+                : "-"
+            }}
+          </span>
+        </template>
+
+        <!-- 其他操作 -->
+        <template #item.action="{ item }">
+          <ActionTd :torrent-items="[item]" density="compact" />
+        </template>
+      </v-data-table>
+    </v-card-text>
   </v-card>
 
   <AdvanceFilterGenerateDialog
@@ -369,6 +460,12 @@ function cancelSearchQueue() {
 #ptd-search-entity-table {
   :deep(td.v-data-table__td) {
     padding: 0 8px;
+  }
+}
+
+#ptd-search-entity-status {
+  i.v-icon + i.v-icon {
+    margin-left: 4px;
   }
 }
 </style>

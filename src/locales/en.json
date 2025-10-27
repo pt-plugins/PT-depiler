@@ -54,6 +54,7 @@
       "navBarTip": "Click to show/hide the navigation bar",
       "searchPlan": {
         "all": "@:manifest.searchPlanAll",
+        "singleSite": "@:manifest.searchPlanSingleSite",
         "default": "@:manifest.searchPlanDefault"
       },
       "searchTip": "Input keyword, IMDb numbers to search",
@@ -66,8 +67,20 @@
     "extDesc": "PT Depiler",
     "extName": "PT Depiler",
     "searchPlanAll": "All Sites",
+    "searchPlanSingleSite": "Single Site",
     "searchPlanDefault": "Default",
-    "omniboxSearch": "Search $2 in [ $1 ]"
+    "omniboxSearch": "Search $2 in [ $1 ]",
+    "contextMenuSearch": "Using PT Depiler to Search for \"%s\" related torrents",
+    "contextMenuSearchInDefault": "Search in the default plan",
+    "contextMenuSearchInSolution": "Search in the specified plan",
+    "contextMenuSearchInSite": "Search in the specified site",
+    "contextMenuSearchInThisSite": "Search in this site",
+    "contextMenuSendToDownloader": "Using PT Depiler to Download link",
+    "contextMenuSendToDownloaderAdvanced": "Advanced push",
+    "contextMenuSendToDownloaderIn": "Push to $1 -> $2",
+    "contextMenuSendToDownloaderDefaultFolder": "Default path",
+    "notificationSendLinkToDownloaderSuccess": "Successfully sent the link to the downloader [$1]",
+    "notificationSendLinkToDownloaderFailure": "Failed to send the link to the downloader [$1]"
   },
   "route": {
     "About": {
@@ -99,18 +112,7 @@
       "SetDownloader": "Download Server",
       "SetMediaServer": "Media Server",
       "SetSearchSolution": "Search Solution",
-      "SetSite": "Sites",
-      "SearchConfig": {
-        "siteSearchConfig": "Site Search Configuration",
-        "siteQueueConcurrency": "Request Queue Concurrency",
-        "saveLastSearchFilter": "Save last used search filter",
-        "mediaServerSearchConfig": "Media Server Search Configuration",
-        "mediaQueueConcurrency": "Request Queue Concurrency",
-        "mediaSearchLimit": "Number of search results per request",
-        "mediaSearchLimitMessage": "Please do not load too many search results at once. It's not optimized with virtual-scroll, which may cause the browser to freeze and affect the performance of the media server.",
-        "autoLoadInitialMediaWall": "Automatically load the initial media wall",
-        "autoLoadMoreMediaOnScroll": "Automatically load more media when scrolling to the bottom of the page"
-      }
+      "SetSite": "Sites"
     }
   },
   "checkSwitch": {
@@ -139,7 +141,7 @@
     "seedingSize": "Seeding Size",
     "seedingTime": "Seeding Time",
     "averageSeedingTime": "Average Seeding Time",
-    "bonus": "Karma Points",
+    "bonus": "Bonus",
     "seedingBonus": "Seed Points",
     "bonusPerHour": "Bonus Gained Per Hour",
     "uploads": "Uploaded Torrents",
@@ -147,7 +149,8 @@
     "snatches": "Completed Torrents",
     "posts": "Posted Threads",
     "hnrPreWarning": "PreWarning H&R Count",
-    "hnrUnsatisfied": "Unsatisfied H&R Count"
+    "hnrUnsatisfied": "Unsatisfied H&R Count",
+    "adoptions": "Adopted Torrents"
   },
   "resultParseStatus": {
     "unknownError": "Unknown Error!",
@@ -194,6 +197,15 @@
       "status": "Download Status"
     }
   },
+  "torrent": {
+    "status": {
+      "unknown": "Unknown",
+      "downloading": "Downloading",
+      "seeding": "Seeding",
+      "inactive": "Inactive",
+      "completed": "Completed"
+    }
+  },
   "MediaServerEntity": {
     "searchPlaceholder": "Search term",
     "detail": "Details",
@@ -204,7 +216,6 @@
     "index": {
       "flushSelectSite": "Flush selected",
       "flushCancel": "Flush canceled",
-      "tableFontSize": "Table Font Size",
       "joinTimeFormat": "Display join time",
       "joinTimeFormatOptions": {
         "alive": "Relative Time",
@@ -222,6 +233,9 @@
       "showHnR": "Show H&R",
       "showSeedingBonus": "Show Seeding Bonus",
       "updateAtFormatAsAlive": "Display update At as Relative Time",
+      "showIntervalAsDate": "Display level requirement time as date format",
+      "simplifyBonusNumbers": "Simplify Bonus Numbers",
+      "showBonusNeededInterval": "Show estimated bonus time in level requirements",
       "multiOpen": "Open in batch",
       "viewTimeline": "Timeline",
       "viewStatistic": "Data Chart",
@@ -240,6 +254,7 @@
       "levelName": "Level",
       "userData": "Data",
       "trueUserData": "True Data",
+      "invites": "Invites",
       "joinTime": "Join Time",
       "updateAt": "Updated At",
       "action": {
@@ -285,6 +300,7 @@
       "downloaded": "DL Size",
       "seeding": "Seeding",
       "seedingSize": "SD Size",
+      "bonus": "Bonus",
       "bonusPerHour": "Bonus/H",
       "ratio": "Ratio",
       "siteName": "Site Name",
@@ -311,6 +327,7 @@
         "statusButton": "Search Status",
         "paused": "Search paused...",
         "searching": "Searching...",
+        "searchProgress": "Received {0} results, search is still in progress...",
         "snapshot": "Search Snapshot",
         "plan": "Search Plan",
         "keyword": "Keyword",
@@ -321,15 +338,21 @@
         "start": "Start search queue",
         "pause": "Pause search queue",
         "cancel": "Cancel current waiting search",
-        "retry": "Retry Search"
+        "retry": "Retry Search",
+        "retryFailed": "Retry the failed search plans (such as @:resultParseStatus.unknownError, @:resultParseStatus.parseError, @:resultParseStatus.CFBlocked, @:resultParseStatus.needLogin)",
+        "saveSnapshot": "Save Search Snapshot"
       },
       "filterLabel": "Filter search results",
+      "selectedTorrents": "Selected {0} torrents",
       "showSiteName": "Show Site Name",
       "showTorrentTag": "Show Torrent Tags",
       "showTorrentSubtitle": "Show Torrent Subtitle",
       "showSocialInformation": "Show Media Rating Information",
       "socialInformationSearchOnNewTab": "Open Media Rating Search in a New Tab",
       "uploadAtFormatAsAlive": "Display Upload Time as Relative Time"
+    },
+    "siteFilter": {
+      "all": "All Site"
     },
     "AdvanceFilterGenerateDialog": {
       "date": {
@@ -376,9 +399,22 @@
       "socialSiteSearchBy": {
         "id": "Search by ID",
         "title": "Search by Main Title",
+        "imdb": "Search by IMDb Number",
         "chosen": "Let me choose"
       },
       "tableMultiSortNote": "Multi-column sorting: Click any table header field to start sorting, which will display the number \\\"1\\\" on the field. Click other fields sequentially to display \\\"2\\\", \\\"3\\\", indicating sorting priority. Click the same field again to toggle between ascending, descending, or cancel sorting. The sorting order is determined by these numbers, with smaller numbers having higher priority."
+    },
+    "searchEntity": {
+      "siteSearchConfig": "Site Search Configuration",
+      "siteQueueConcurrency": "Request Queue Concurrency",
+      "saveLastSearchFilter": "Save last used search filter",
+      "quickSiteFilter": "Quick Site Filter In Search Page",
+      "mediaServerSearchConfig": "Media Server Search Configuration",
+      "mediaQueueConcurrency": "Request Queue Concurrency",
+      "mediaSearchLimit": "Number of search results per request",
+      "mediaSearchLimitMessage": "Please do not load too many search results at once. It's not optimized with virtual-scroll, which may cause the browser to freeze and affect the performance of the media server.",
+      "autoLoadInitialMediaWall": "Automatically load the initial media wall",
+      "autoLoadMoreMediaOnScroll": "Automatically load more media when scrolling to the bottom of the page"
     },
     "download": {
       "localDownloadMethod": "Local Download Method",
@@ -479,7 +515,8 @@
           "searchPlan": "Search Plan Name",
           "dateYear": "current year",
           "dateMonth": "current month",
-          "dateDay": "current day"
+          "dateDay": "current day",
+          "custom": "Custom text"
         }
       }
     }
@@ -490,7 +527,8 @@
     "export": "Export",
     "table": {
       "enable": "Enabled ?",
-      "default": "Default ?"
+      "default": "Default ?",
+      "autoGenerate": "Auto Generate"
     },
     "edit": {
       "title": "Customize @:SetSearchSolution.solution",
@@ -500,6 +538,12 @@
     },
     "delete": {
       "text": "Are you sure to delete these {0} @:SetSearchSolution.solution ?"
+    },
+    "spDialog": {
+      "noDefNotice": "This site does not define any search categories, please go to help!",
+      "notice": "It is not recommended to set it here, and it is recommended to configure your user CP in site or use search solution",
+      "selectAllNotice": "(Notice: In most cases, you don't need to select all search terms! )",
+      "title": "Set default search params for Site {name}"
     }
   },
   "SetSite": {
@@ -547,12 +591,6 @@
       ],
       "oneClickImport": "One-Click Import Sites"
     },
-    "spDialog": {
-      "noDefNotice": "This site does not define any search categories, please go to help!",
-      "notice": "It is not recommended to set it here, and it is recommended to configure your user CP in site or use search solution",
-      "selectAllNotice": "(Notice: In most cases, you don't need to select all search terms! )",
-      "title": "Set default search params for Site {name}"
-    },
     "oneClickImportDialog": {
       "title": "One-Click Import Sites",
       "alert1": "This operation will attempt to import the sites you select with default configurations. Please ensure you have logged into these sites in your browser. The import process cannot be interrupted, please wait patiently.",
@@ -589,15 +627,16 @@
     "enableAutoRefresh": "Enable background auto-refresh?",
     "autoRefresh": {
       "every": "Every",
-      "hoursLabel": "hours, auto-refresh today's",
+      "hoursLabel": "hours auto-refresh today's",
       "unrefreshedSite": "unrefreshed",
-      "ofSites": "sites",
+      "ofSites": "sites.",
       "retryOnFail": "If refresh fails, retry",
       "times": "times, with an interval of",
       "minutes": "minutes.",
       "lastFlushTime": "Last refresh time:",
-      "nextFlushTime": "Next refresh time:"
+      "nextFlushTime": "Next refresh check time:"
     },
+    "alwaysPickLastUserInfo": "",
     "showDeadSite": "Show sites marked as dead (isDead) in the overview",
     "showPassedSite": "Show sites marked as offline (isOffline) or not allowing user info query in the overview",
     "autoExtendCookies": {

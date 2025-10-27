@@ -26,6 +26,8 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["uggcf://fcevatfhaqnl.arg/"],
+  formerHosts: ["hdcmct.org"],
+
   category: [
     {
       name: "类型",

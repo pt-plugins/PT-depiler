@@ -1,3 +1,7 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/byrbt.yml
+ * @JackettIssue https://github.com/Jackett/Jackett/issues/12540
+ */
 import { ETorrentStatus, type ISiteMetadata } from "../types";
 import NexusPHP, {
   CategoryInclbookmarked,
@@ -60,7 +64,7 @@ export const siteMetadata: ISiteMetadata = {
       subTitle: {
         text: "",
         selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
-        elementProcess: subTitleRemoveExtraElement(["span"]),
+        elementProcess: subTitleRemoveExtraElement(["span"], false),
       },
       url: {
         selector: "a[title][href*='details.php?id=']",

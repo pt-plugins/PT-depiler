@@ -45,6 +45,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       title: {
         selector: "span[style='float:none;']", // BTN的种子标题选择器
+        attr: "title",
       },
       category: {
         selector: "a[href*='filter_cat'] img", // BTN的分类选择器
@@ -89,16 +90,33 @@ export const siteMetadata: ISiteMetadata = {
         assertion: { id: "params.id" },
         fields: [
           "uploaded",
+          "uploads",
           "downloaded",
           "ratio",
           "levelName",
           "bonus",
+          "bonusPerHour",
           "joinTime",
           "seeding",
           "seedingSize",
+          "seedingTime",
           "totalTraffic",
           "snatches",
+          "hnrUnsatisfied",
         ],
+      },
+      {
+        requestConfig: {
+          url: "/snatchlist.php",
+          params: {
+            type: "ajax",
+            sort: "seedtimeleft",
+            page: 1,
+          },
+          responseType: "document",
+        },
+        assertion: { id: "params.id" },
+        fields: ["hnrPreWarning"],
       },
     ],
     selectors: {
@@ -126,6 +144,10 @@ export const siteMetadata: ISiteMetadata = {
       bonus: {
         selector: "ul.nobullet > li:contains('Bonus Points:') > a",
         filters: [{ name: "parseNumber" }],
+      },
+      bonusPerHour: {
+        selector: "ul.nobullet > li:contains('Per Day:')",
+        filters: [{ name: "parseNumber" }, { name: "divide", args: [24] }],
       },
       ratio: undefined,
       joinTime: {
@@ -164,6 +186,43 @@ export const siteMetadata: ISiteMetadata = {
           return totalSnatches;
         },
       },
+      hnrUnsatisfied: {
+        selector: "ul.nobullet > li:contains('HnRs:') > a",
+        filters: [{ name: "parseNumber" }],
+      },
+      hnrPreWarning: {
+        selector: ["table:has(tr.colhead_dark)"],
+        elementProcess: (element: HTMLElement) => {
+          // 循环所有 id 以 "snatch" 开头的 tr 元素
+          const rows = Array.from(element.querySelectorAll("tr[id^='snatch']")) as HTMLElement[];
+          let count = 0;
+
+          rows.forEach((row) => {
+            // 查找第5列的 td 元素
+            const fifthCell = row.querySelector("td:nth-child(5)") as HTMLElement;
+            if (fifthCell && fifthCell.textContent && !fifthCell.textContent.includes("Complete")) {
+              count++;
+            }
+          });
+
+          return count;
+        },
+      },
+      seedingTime: {
+        selector: "ul.nobullet > li:contains('Total Time Seeded:')",
+        filters: [
+          (query: string) => {
+            // 从 "Total Time Seeded: 21,238 Days" 中提取天数并转换为秒数
+            const match = query.match(/Total Time Seeded:\s*([\d,]+)\s*Days/i);
+            if (match) {
+              const days = parseInt(match[1].replace(/,/g, ""));
+              const seconds = days * 24 * 3600; // 转换为秒数
+              return seconds;
+            }
+            return 0;
+          },
+        ],
+      },
     },
   },
 
@@ -183,7 +242,7 @@ export const siteMetadata: ISiteMetadata = {
       totalTraffic: "250GB",
       bonus: 250000,
       snatches: 250,
-      interval: "P4W",
+      interval: "P1M",
       privilege:
         "Has access to the Power User forum, Official and Unofficial Invites forums, Top 10 filters, and can access notifications.",
     },
@@ -193,7 +252,7 @@ export const siteMetadata: ISiteMetadata = {
       totalTraffic: "500GB",
       bonus: 500000,
       snatches: 500,
-      interval: "P2M3W",
+      interval: "P3M",
       privilege: "Has access to the Extreme User forum.",
     },
     {
@@ -202,7 +261,7 @@ export const siteMetadata: ISiteMetadata = {
       totalTraffic: "1TB",
       bonus: 850000,
       snatches: 1000,
-      interval: "P5M2W",
+      interval: "P6M",
       privilege:
         "Has access to the Elite forum and can set own Custom Title, and the ability to send invites purchased from the Lumens Store.",
     },
@@ -212,7 +271,7 @@ export const siteMetadata: ISiteMetadata = {
       totalTraffic: "2.5TB",
       bonus: 1500000,
       snatches: 1500,
-      interval: "P8M1W",
+      interval: "P9M",
       privilege: "Has access to the Guru forum.",
     },
     {
@@ -221,7 +280,7 @@ export const siteMetadata: ISiteMetadata = {
       totalTraffic: "7.5TB",
       bonus: 3000000,
       snatches: 3000,
-      interval: "P11M4W",
+      interval: "P1Y",
       privilege: "Has access to the Master forum.",
     },
     {
@@ -229,9 +288,12 @@ export const siteMetadata: ISiteMetadata = {
       name: "Overlord",
       totalTraffic: "100TB",
       bonus: 250000000,
-      snatches: 35000,
-      interval: "P2Y11M",
-      privilege: "Has access to the Overlord forum, Custom Title, Unlimited Invites, and more to come!",
+      snatches: 3000,
+      uploads: 500,
+      interval: "P3Y",
+      seedingTime: "P250000D",
+      privilege:
+        "Has access to the Overlord forum, Custom Title, Unlimited Invites, and immunity from Inactivity Pruning.",
     },
   ],
 };

@@ -67,7 +67,12 @@ export const CategoryInclbookmarked: ISearchCategories = {
 };
 
 const baseTitleSelector = {
-  selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
+  selector: [
+    "a[href^='details.php?id='][title]:has(b)",
+    "a[href*='details.php?id='][href*='hit']",
+    "a[href*='hit'][title]",
+    "a[href*='hit']:has(b)",
+  ],
 };
 
 const parseProgressElement = (element: HTMLElement) => {
@@ -103,7 +108,7 @@ export const parseSectionedHitAndRunElement = (element: HTMLElement) => {
 };
 
 export const subTitleRemoveExtraElement =
-  (removeSelectors: string[] = [], self: boolean = false) =>
+  (removeSelectors: string[] = [], self: boolean = true) =>
   (element: HTMLElement) => {
     const testSubTitle = element.parentElement!.innerHTML.split("<br>");
     if (testSubTitle && testSubTitle.length > 1) {
@@ -233,6 +238,8 @@ export const SchemaMetadata: Pick<
           return time as number;
         },
       },
+      ext_douban: { selector: ["a[href*='douban.com']"], attr: "href", filters: [{ name: "extDoubanId" }] },
+      ext_imdb: { selector: ["a[href*='imdb.com']"], attr: "href", filters: [{ name: "extImdbId" }] },
       tags: [
         { name: "H&R", selector: "img.hitandrun", color: "black" },
         { name: "Free", selector: "img.pro_free", color: "blue" },
@@ -244,6 +251,12 @@ export const SchemaMetadata: Pick<
       ],
     },
   },
+
+  list: [
+    {
+      urlPattern: ["/torrents.php", "/special.php"],
+    },
+  ],
 
   detail: {
     urlPattern: ["/details.php"],
@@ -275,16 +288,24 @@ export const SchemaMetadata: Pick<
           ],
         },
       },
-      link: { selector: ['a[href*="download.php?id="]'], attr: "href" },
+      link: {
+        selector: [
+          'a[href*="download.php?id="][href*="&downhash="]',
+          'a[href*="download.php?id="][href*="&passkey="]',
+          // 如果上面两个都没拿到，则尝试使用nphp默认的下载链接selector
+          'a[href*="download.php?id="]',
+        ],
+        attr: "href",
+      },
     },
   },
 
   userInfo: {
     /**
-     * 我们认为NPHP站的 id, joinTime 的情况永远不变（实质上对于所有站点都应该是这样的）
+     * 我们认为NPHP站的 id 的情况永远不变（实质上对于所有站点都应该是这样的）
      * 部分 NPHP 站点允许修改 name，所以 name 不能视为不变 ！！！
      */
-    pickLast: ["id", "joinTime"],
+    pickLast: ["id"],
     selectors: {
       // "page": "/index.php",
       id: {
@@ -292,11 +313,11 @@ export const SchemaMetadata: Pick<
         attr: "href",
         filters: [{ name: "querystring", args: ["id"] }],
       },
+
+      // "page": "/userdetails.php?id=$user.id$",
       name: {
         selector: ["a[href*='userdetails.php'][class*='Name']:first", "a[href*='userdetails.php']:first"],
       },
-
-      // "page": "/userdetails.php?id=$user.id$",
       messageCount: {
         text: 0,
         selector: "td[style*='background: red'] a[href*='messages.php']",
@@ -380,14 +401,15 @@ export const SchemaMetadata: Pick<
           "td.rowhead:contains('魔力') + td",
           "td.rowhead:contains('Karma'):contains('Points') + td",
           "td.rowhead:contains('麦粒') + td",
+          "td.rowhead:contains('星焱') + td",
           "td.rowhead:contains('魔力值') + td",
           "td.rowfollow:contains('魔力值')",
         ],
         filters: [
           (query: string) => {
             query = query.replace(/,/g, "");
-            if (/(魅力值|沙粒|魔力值).+?([\d.]+)/.test(query)) {
-              query = query.match(/(魅力值|沙粒|魔力值).+?([\d.]+)/)![2];
+            if (/(魅力值|沙粒|星焱|魔力值).+?([\d.]+)/.test(query)) {
+              query = query.match(/(魅力值|星焱|沙粒|魔力值).+?([\d.]+)/)![2];
               return parseFloat(query);
             } else if (/[\d.]+/.test(query)) {
               return parseFloat(query.match(/[\d.]+/)![0]);
@@ -471,12 +493,13 @@ export const SchemaMetadata: Pick<
     process: [
       {
         requestConfig: { url: "/index.php", responseType: "document" },
-        fields: ["id", "name"],
+        fields: ["id"],
       },
       {
         requestConfig: { url: "/userdetails.php", responseType: "document" },
         assertion: { id: "params.id" },
         fields: [
+          "name",
           "messageCount",
           "uploaded",
           "trueUploaded",
@@ -494,7 +517,7 @@ export const SchemaMetadata: Pick<
       },
       {
         requestConfig: { url: "/mybonus.php", responseType: "document" },
-        fields: ["bonusPerHour"],
+        fields: ["bonusPerHour", "seedingBonusPerHour"],
       },
     ],
   },
@@ -566,9 +589,13 @@ export default class NexusPHP extends PrivateSite {
         }
       });
     }
+    let transformedData = await super.transformSearchPage(doc, { keywords, searchEntry, requestConfig });
+    if (requestConfig?.params?.search_area === 4) {
+      transformedData = transformedData.filter((item) => !item.ext_imdb || item.ext_imdb === keywords);
+    }
 
     // !!! 其他一些比较难处理的，我们把他 hack 到 parseWholeTorrentFromRow 中 !!!
-    return super.transformSearchPage(doc, { keywords, searchEntry, requestConfig });
+    return transformedData;
   }
 
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
@@ -692,7 +719,23 @@ export default class NexusPHP extends PrivateSite {
       customTags.forEach((element) => {
         const htmlElement = element as HTMLElement;
         const tagName = htmlElement.textContent;
-        const tagColor = htmlElement.style.backgroundColor;
+        let tagColor = htmlElement.style.backgroundColor;
+
+        // 处理渐变色 linear-gradient(45deg, rgb(248, 87, 86), rgb(249, 166, 95)) 的情况，取第一个非白色的 rgb 颜色作为标签颜色
+        if (tagColor === "" && htmlElement.style.backgroundImage?.startsWith("linear-gradient")) {
+          const gradientMatch = htmlElement.style.backgroundImage.match(/rgb\(\s*\d+\s*,\s*\d+\s*,\s*\d+\s*\)/g);
+
+          if (gradientMatch && gradientMatch.length > 0) {
+            for (const rgb of gradientMatch) {
+              // 简单的过滤掉白色
+              if (rgb.trim() !== "rgb(255, 255, 255)") {
+                tagColor = rgb.trim();
+                break;
+              }
+            }
+          }
+        }
+
         if (tagName && tagColor) {
           tags.push({ name: tagName, color: tagColor });
         }

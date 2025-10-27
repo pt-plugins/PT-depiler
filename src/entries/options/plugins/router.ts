@@ -177,6 +177,13 @@ export const routes: RouteRecordRaw[] = [
     component: () => import("../views/Overview/MyData/UserDataStatistic/Index.vue"),
   },
 
+  {
+    path: "/link-push",
+    name: "ContextMenuLinkPush",
+    meta: { isMainMenu: false },
+    component: () => import("../views/ContextMenuLinkPush.vue"),
+  },
+
   { path: "/:pathMatch(.*)*", name: "NotFound", redirect: "/" },
 ];
 

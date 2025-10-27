@@ -1,6 +1,6 @@
 import Sizzle from "sizzle";
 import { parseSizeString } from "../utils";
-import type { ISiteMetadata, IUserInfo, ISearchInput, ITorrent } from "@ptd/site";
+import type { ISiteMetadata, IUserInfo, ISearchInput, ITorrent } from "../types";
 import GazelleJSONAPI, { SchemaMetadata } from "../schemas/GazelleJSONAPI";
 
 export const siteMetadata: ISiteMetadata = {
@@ -9,6 +9,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "uhdbits",
   name: "UHDBits",
+  aka: ["UHD"],
   tags: ["影视"],
   timezoneOffset: "+0000",
   collaborator: ["bimzcy", "enigamz", "haowenwu"],
@@ -122,16 +123,17 @@ export const siteMetadata: ISiteMetadata = {
       name: "Power",
       interval: "P4W",
       downloaded: "100GB",
-      downloads: "20",
+      snatches: 20,
       ratio: 1.5,
-      privilege: "Ability to make New Requests; Enable Users online and Users on IRC on front page; Access to full Staff page.",
+      privilege:
+        "Ability to make New Requests; Enable Users online and Users on IRC on front page; Access to full Staff page.",
     },
     {
       id: 3,
       name: "Extreme",
       interval: "P8W",
       downloaded: "300GB",
-      downloads: "60",
+      snatches: 60,
       ratio: 2,
       privilege: "Access to the Invite Forum.",
     },
@@ -140,7 +142,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "Elite",
       interval: "P16W",
       downloaded: "900GB",
-      downloads: "180",
+      snatches: 180,
       ratio: 2.5,
     },
     {
@@ -148,7 +150,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "Guru",
       interval: "P32W",
       downloaded: "2700GB",
-      downloads: "540",
+      snatches: 540,
       ratio: 3,
     },
     {
@@ -156,7 +158,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "Master",
       interval: "P64W",
       downloaded: "8100GB",
-      downloads: "1620",
+      snatches: 1620,
       ratio: 3.5,
     },
   ],
@@ -193,7 +195,7 @@ export default class UHDBits extends GazelleJSONAPI {
     return TListDocument;
   }
 
-  protected override async getUserSeedingTorrents(userId: number): Promise<Partial<IUserInfo>> {
+  protected override async getSeedingSize(userId: number): Promise<Partial<IUserInfo>> {
     const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
     const pageInfo = { count: 0, current: 0 }; // 生成页面信息
 

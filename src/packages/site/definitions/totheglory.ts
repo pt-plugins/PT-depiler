@@ -1,7 +1,7 @@
 import Sizzle from "sizzle";
 import { set } from "es-toolkit/compat";
 
-import type { ISiteMetadata } from "../types";
+import { type ISiteMetadata } from "../types";
 import { buildCategoryOptions, extractContent, parseSizeString } from "../utils";
 
 const categoryMovieMap = [
@@ -47,13 +47,13 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "totheglory",
   name: "ToTheGlory",
-  aka: ["TTG"],
+  aka: ["TTG", "套套哥", "听听歌"],
   description: "ToTheGlory（TTG）是一个综合性PT站点，以高清电影、电视剧、音乐、动漫资源为主。",
   tags: ["影视", "音乐", "游戏", "综合"],
   timezoneOffset: "+0800",
 
   type: "private",
-  schema: "AbstractPrivateSite",
+  schema: "TBSource",
 
   urls: ["https://totheglory.im/"],
   category: [
@@ -154,11 +154,11 @@ export const siteMetadata: ISiteMetadata = {
       rows: { selector: "table#torrent_table > tbody > tr[id]" },
       id: { selector: ":self", attr: "id" },
       title: {
-        selector: "div.name_left > a > b",
+        selector: ["div.name_left > a > b > font", "div.name_left > a > b"],
         elementProcess: (e: HTMLElement) => e.innerHTML.split("<br>")[0],
       },
       subTitle: {
-        selector: "div.name_left > a > b",
+        selector: ["div.name_left > a > b > font", "div.name_left > a > b"],
         elementProcess: (e: HTMLElement) => extractContent(e.innerHTML.split("<br>")[1] || ""),
       },
       url: { selector: "div.name_left > a", attr: "href" },

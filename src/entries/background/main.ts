@@ -1,4 +1,5 @@
 import { onMessage } from "@/messages.ts";
+import { fixAllStoredUserInfo } from "./utils/fixer.ts";
 
 import "./utils/base.ts";
 import "./utils/cookies.ts";
@@ -15,6 +16,9 @@ chrome.action.onClicked.addListener(async () => {
 
 chrome.runtime.onInstalled.addListener(() => {
   console.debug("[PTD] Installed!");
+
+  // 修复存储中的坏数据
+  fixAllStoredUserInfo().catch();
 });
 
 onMessage("ping", async ({ data }) => {

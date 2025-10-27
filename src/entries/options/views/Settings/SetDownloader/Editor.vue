@@ -39,7 +39,7 @@ async function checkConnect() {
     <v-form v-if="clientConfig" v-model="formValid" fast-fail>
       <v-container class="pa-0">
         <v-row>
-          <v-col cols="12" md="4">
+          <v-col cols="12" md="2">
             <v-text-field v-model="clientConfig.type" :label="t('SetDownloader.common.type')" disabled />
           </v-col>
           <v-col cols="12" md="4">
@@ -56,6 +56,15 @@ async function checkConnect() {
               v-model="clientConfig.id"
               :label="t('SetDownloader.common.uid') + t('SetDownloader.editor.uidPlaceholder')"
               disabled
+            />
+          </v-col>
+          <v-col cols="12" md="2">
+            <v-text-field
+              v-model="clientConfig.sortIndex"
+              :label="t('common.sortIndex')"
+              :rules="[formValidateRules.require()]"
+              hide-details
+              type="number"
             />
           </v-col>
         </v-row>

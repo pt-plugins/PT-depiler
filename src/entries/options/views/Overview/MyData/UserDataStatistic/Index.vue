@@ -56,7 +56,7 @@ const perChartHeight = computed(() => 400);
 
 const allowEditName = ref<boolean>(false);
 
-const rawDataRef = ref<IUserDataStatistic>({ siteDateRange: {}, dailyUserInfo: {}, incrementalData: {} });
+const rawDataRef = shallowRef<IUserDataStatistic>({ siteDateRange: {}, dailyUserInfo: {}, incrementalData: {} });
 
 const allDateRanges = computed(() => Object.keys(rawDataRef.value.dailyUserInfo));
 const allSites = computed<string[]>(() => Object.keys(rawDataRef.value.siteDateRange));
@@ -185,10 +185,15 @@ const createPerSiteChartOptionsFn = (
         // 使用预计算的增量数据，大幅提升性能
         data = selectedDateRanges.value.map((date) => {
           const incrementalValue = rawDataRef.value.incrementalData[site]?.[date]?.[field];
-          return incrementalValue ?? 0;
+          // 修正：强制转换为数字，避免 NaN 或字符串
+          return isNumber(incrementalValue) ? incrementalValue : Number(incrementalValue) || 0;
         });
       } else {
-        data = selectedDateRanges.value.map((date) => selectedDataComputed.value[date]?.[site]?.[field] ?? 0);
+        data = selectedDateRanges.value.map((date) => {
+          const val = selectedDataComputed.value[date]?.[site]?.[field];
+          // 修正：强制转换为数字，避免 NaN 或字符串
+          return isNumber(val) ? val : Number(val) || 0;
+        });
       }
 
       return {
@@ -221,6 +226,8 @@ const createPerSiteChartOptionsFn = (
 
           const hasData = params.some((x) => Number(x.data));
           const totalCount = params.reduce((acc, cur) => acc + (Number(cur.data) || 0), 0); // 算出总和
+          let thresholdSite = 0; // 低于阈值的站点数量
+
           if (hasData) {
             ret += '<table style="width: 100%;">';
             ret += `<tr class="font-weight-bold" style="border-bottom: 1pt solid black;"><td class="pr-3">总和</td><td class="pr-3 text-right">${formatDict[format](totalCount)}</td><td class="text-right">100%</td></tr>`;
@@ -234,15 +241,29 @@ const createPerSiteChartOptionsFn = (
               const site = data.seriesName;
               const siteName = allAddedSiteMetadata[site]?.siteName ?? site;
               const siteFavicon = allAddedSiteMetadata[site]?.faviconSrc ?? NO_IMAGE;
-              const precentValue = ((dataValue / totalCount) * 100).toFixed(2);
-              const colorStyle = lastHoveredSeriesIndex.value === data.seriesIndex ? `color: ${data.color};` : ""; // 是否高亮此行
+              const precentValue = (dataValue / totalCount) * 100;
+              const isHighlightSite = lastHoveredSeriesIndex.value === data.seriesIndex; // 是否高亮此行
 
-              ret += `<tr style='${colorStyle}'>
+              // 跳过低于阈值且没有高亮的站点
+              if (
+                !isHighlightSite &&
+                Math.abs(precentValue) < (configStore.userStatisticControl.hidePerSitePrecentThreshold ?? 0)
+              ) {
+                thresholdSite++;
+                continue;
+              }
+
+              ret += `<tr style='${isHighlightSite ? `color: ${data.color};` : ""}'>
 <td class="pr-3"><div class="d-inline-flex align-center"><img src="${siteFavicon}" class="mr-1" style="width:16px; height: 16px; " alt="${siteName}">${siteName}</div></td>
 <td class="pr-3 text-right">${formatDict[format](data.value)}</td>
-<td class="text-right">${precentValue}%</td>
+<td class="text-right">${precentValue.toFixed(2)}%</td>
 </tr>`;
             }
+
+            if (thresholdSite > 0) {
+              ret += `<tr><td colspan="3" class="text-right">（另有 ${thresholdSite} 个站点数据被隐藏 )</td></tr>`;
+            }
+
             ret += "</table>";
           } else {
             ret += `无数据`;
@@ -300,7 +321,14 @@ onMounted(async () => {
     selectedDateRanges.value = allDateRanges.value;
   }
 
-  selectedSites.value = ((sites as string[]).length > 0 ? sites : allSites.value) as string[];
+  // 勾选站点，优先使用 route 参数，其次是上次保存的配置，最后是全部站点
+  if ((sites as string[]).length > 0) {
+    selectedSites.value = sites as string[];
+  } else if ((configStore.userStatisticControl.selectedSites ?? []).length > 0) {
+    selectedSites.value = configStore.userStatisticControl.selectedSites;
+  } else {
+    selectedSites.value = allSites.value;
+  }
 
   if (configStore.userName === "") {
     configStore.userName = configStore.getUserNames.perfName;
@@ -344,6 +372,7 @@ async function exportStatisticImg() {
 }
 
 function saveControl() {
+  configStore.userStatisticControl.selectedSites = selectedSites.value;
   configStore.$save();
   useRuntimeStore().showSnakebar("保存成功", { color: "success" });
 }
@@ -400,18 +429,16 @@ function saveControl() {
         </template>
       </v-col>
       <v-col>
-        <v-alert title="数据图表样式设置" type="info" class="mb-2">
-          <template #append>
-            <NavButton icon="mdi-arrow-left" size="small" color="grey" text="返回" @click="() => router.back()" />
-            <NavButton
-              color="grey"
-              icon="mdi-file-export-outline"
-              size="small"
-              text="导出图片"
-              @click="exportStatisticImg"
-            />
-          </template>
-        </v-alert>
+        <v-row class="flex-nowrap mb-0">
+          <v-col class="d-flex">
+            <NavButton color="grey" icon="mdi-arrow-left" text="返回" @click="() => router.back()" />
+            <v-spacer />
+            <NavButton color="info" icon="mdi-file-export-outline" text="导出图片" @click="exportStatisticImg" />
+            <NavButton color="green" icon="mdi-content-save" text="保存设置" @click="saveControl" />
+          </v-col>
+        </v-row>
+
+        <v-alert title="数据图表样式设置" type="info" class="mb-2"> </v-alert>
 
         <v-row>
           <v-col align-self="center">
@@ -507,23 +534,34 @@ function saveControl() {
           </v-col>
         </v-row>
 
-        <v-divider class="my-2" />
-
-        <v-row class="flex-nowrap">
-          <v-col class="d-flex">
-            <v-spacer />
-            <NavButton icon="mdi-content-save" text="保存样式设置" color="green" @click="saveControl" />
+        <v-row>
+          <v-col align-self="center">
+            <v-label>图表设置</v-label>
+          </v-col>
+          <v-col cols="12" sm="10">
+            <v-number-input
+              v-model="configStore.userStatisticControl.hidePerSitePrecentThreshold"
+              :max="100"
+              :min="0"
+              :precision="2"
+              :step="1"
+              controlVariant="default"
+              hint="设置为0则不隐藏"
+              label="隐藏分站点图中图例百分比低于该值的详情"
+              persistent-hint
+              suffix="%"
+            ></v-number-input>
           </v-col>
         </v-row>
 
-        <v-alert type="info" title="展示站点设置" class="mt-4 mb-2">
+        <v-alert class="mt-4 mb-2" title="展示站点设置" type="info">
           <template #append>
             <CheckSwitchButton v-model="selectedSites" :all="allSites" color="grey" />
           </template>
         </v-alert>
 
         <v-row class="my-2">
-          <v-col v-for="siteId in allSites" :key="siteId" cols="6" sm="3" class="py-0">
+          <v-col v-for="siteId in allSites" :key="siteId" class="py-0" cols="6" sm="3">
             <v-checkbox
               v-model="selectedSites"
               :disabled="!availableSites.includes(siteId)"
@@ -549,9 +587,9 @@ function saveControl() {
 <style scoped lang="scss">
 .chart {
   height: 400px;
-}
 
-.chart + .chart {
-  margin-top: 10px;
+  + .chart {
+    margin-top: 10px;
+  }
 }
 </style>

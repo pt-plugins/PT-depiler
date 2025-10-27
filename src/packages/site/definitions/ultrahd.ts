@@ -1,16 +1,9 @@
-import {
-  type ISiteMetadata
-} from "../types";
-import {
-  CategoryInclbookmarked,
-  CategoryIncldead,
-  CategorySpstate,
-  SchemaMetadata,
-} from "../schemas/NexusPHP.ts";
+import { type ISiteMetadata } from "../types";
+import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
-  
+
   version: 1,
   id: "ultrahd",
   name: "UltraHD",
@@ -125,8 +118,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 1,
       name: "User",
-      privilege:
-        '新用户的默认级别。只能在每周六中午12点至每周日晚上11点59分发布种子。',
+      privilege: "新用户的默认级别。只能在每周六中午12点至每周日晚上11点59分发布种子。",
     },
     {
       id: 2,

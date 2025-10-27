@@ -50,6 +50,7 @@ export const useMetadataStore = defineStore("metadata", {
     lastUserInfoAutoFlushAt: 0,
 
     siteHostMap: {},
+    siteNameMap: {},
   }),
 
   getters: {
@@ -58,7 +59,15 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     getAddedSites(state) {
-      return Object.values(state.sites);
+      return Object.entries(state.sites).map(([siteId, metadata]) => {
+        return { ...metadata, id: siteId };
+      });
+    },
+
+    getSortedAddedSites(state): Array<ISiteUserConfig & { id: string }> {
+      return this.getAddedSites.sort((a, b) => {
+        return (b.sortIndex ?? 0) - (a.sortIndex ?? 0);
+      });
     },
 
     getSitesGroupData(state) {
@@ -188,27 +197,46 @@ export const useMetadataStore = defineStore("metadata", {
       };
     },
 
-    getDefaultAllSearchSolution(state) {
-      return async () => {
-        const solutions: ISearchSolution[] = [];
-
-        const addedSiteIds = Object.keys(state.sites);
-        for (const siteId of addedSiteIds) {
-          const searchEntries = await this.getSiteDefaultSearchSolution(siteId);
-          if (searchEntries) {
-            solutions.push({ id: "default", siteId, searchEntries });
-          }
-        }
-
-        return { name: "all", id: "all", sort: 0, enabled: true, isDefault: true, createdAt: 0, solutions };
-      };
-    },
-
     getSearchSolution(state) {
-      return async (solutionId: TSolutionKey | "default" | "all"): Promise<ISearchSolutionMetadata> => {
-        if (solutionId === "all" || (solutionId === "default" && state.defaultSolutionId === "default")) {
-          return await this.getDefaultAllSearchSolution();
+      return async (
+        solutionId: TSolutionKey | `site:${string}` | "default" | "all",
+      ): Promise<ISearchSolutionMetadata> => {
+        // 首先判断是否是约定的 "all"  "default"  "site:xxx,xxx" 站点搜索方案
+        if (
+          // 全部站点
+          solutionId === "all" ||
+          (solutionId === "default" && state.defaultSolutionId === "default") ||
+          // 特定站点
+          solutionId.startsWith("site:")
+        ) {
+          const solutions: ISearchSolution[] = [];
+
+          let addedSiteIds = Object.keys(state.sites);
+          if (solutionId.startsWith("site:")) {
+            addedSiteIds = solutionId
+              .slice(5) //  /^site:/
+              .split(",")
+              .map((id) => id.trim());
+          }
+
+          for (const siteId of addedSiteIds) {
+            const searchEntries = await this.getSiteDefaultSearchSolution(siteId);
+            if (searchEntries) {
+              solutions.push({ id: "default", siteId, searchEntries });
+            }
+          }
+
+          return {
+            name: "all",
+            id: solutionId.startsWith("site:") ? (solutionId as `site:${string}`) : "all",
+            sort: 0,
+            enabled: true,
+            isDefault: true,
+            createdAt: 0,
+            solutions,
+          };
         } else if (solutionId === "default") {
+          // 如果 solutionId 是 "default"，则使用默认的搜索方案 ID
           solutionId = state.defaultSolutionId;
         }
 
@@ -271,6 +299,12 @@ export const useMetadataStore = defineStore("metadata", {
       return Object.values(state.downloaders).filter((downloader) => downloader.enabled);
     },
 
+    getSortedEnabledDownloaders(state): Array<IDownloaderMetadata> {
+      return this.getEnabledDownloaders.sort((a, b) => {
+        return (b.sortIndex ?? 0) - (a.sortIndex ?? 0);
+      });
+    },
+
     getMediaServerIds(state) {
       return Object.keys(state.mediaServers);
     },
@@ -306,12 +340,14 @@ export const useMetadataStore = defineStore("metadata", {
       delete siteConfig.valid;
       this.sites[siteId] = siteConfig;
       await this.buildSiteHostMap();
+      await this.buildSiteNameMap();
       await this.$save();
     },
 
     async removeSite(siteId: TSiteID) {
       delete this.sites[siteId];
       await this.buildSiteHostMap();
+      await this.buildSiteNameMap();
       await this.$save();
     },
 
@@ -342,6 +378,14 @@ export const useMetadataStore = defineStore("metadata", {
         }
       }
       this.siteHostMap = siteHostMap;
+    },
+
+    async buildSiteNameMap() {
+      const siteNameMap: Record<TSiteID, string> = {};
+      for (const siteId in this.sites) {
+        siteNameMap[siteId] = await this.getSiteName(siteId);
+      }
+      this.siteNameMap = siteNameMap;
     },
 
     async addSearchSolution(solution: ISearchSolutionMetadata) {
@@ -405,7 +449,7 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     async setLastSearchFilter(filter: string) {
-      this.lastSearchFilter = filter;
+      this.lastSearchFilter = filter.replace(/\s*site:\S+/g, "").trim();
       await this.$save();
     },
 

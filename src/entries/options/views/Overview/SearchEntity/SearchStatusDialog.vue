@@ -9,7 +9,7 @@ import SiteName from "@/options/components/SiteName.vue";
 import SolutionDetail from "@/options/components/SolutionDetail.vue";
 import ResultParseStatus from "@/options/components/ResultParseStatus.vue";
 
-import { doSearchEntity, raiseSearchPriority } from "./utils.ts";
+import { doSearchEntity, raiseSearchPriority } from "./utils/search.ts";
 
 const showDialog = defineModel<boolean>();
 
@@ -54,7 +54,11 @@ function getSearchSolution(planKey: string, entryName: string) {
                 <span v-if="searchPlan.searchEntry.name">
                   {{ searchPlan.searchEntry.name }}
                 </span>
-                <span v-else-if="runtimeStore.search.searchPlanKey === 'all'">
+                <span
+                  v-else-if="
+                    runtimeStore.search.searchPlanKey === 'all' || runtimeStore.search.searchPlanKey.startsWith('site:')
+                  "
+                >
                   {{ searchPlan.searchEntry.name ?? searchPlan.searchEntryName }}
                 </span>
                 <span v-else>

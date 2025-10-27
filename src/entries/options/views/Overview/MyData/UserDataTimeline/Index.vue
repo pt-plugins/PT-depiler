@@ -9,7 +9,7 @@ import { useElementSize } from "@vueuse/core";
 
 import { formatDate, formatTimeAgo } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { useConfigStore } from "@/options/stores/config.ts";
+import { defaultTimelineBackgroundColor, useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
@@ -29,6 +29,8 @@ import {
   icon,
   type ITimelineUserInfoField,
   type TKonvaConfig,
+  fixedLastUserInfo,
+  loadFullData,
 } from "./utils.ts";
 import { allAddedSiteMetadata, loadAllAddedSiteMetadata } from "../utils.ts";
 
@@ -90,35 +92,24 @@ const stageConfig = computed(() => {
   };
 });
 
-const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent); // FIXME 该判断移动到 utils.ts 中
-
-(Konva.Filters as any).tryNativeBlur = isSafari
-  ? Konva.Filters.Blur
-  : function (imageData: ImageData) {
-      // 创建一个和 imageData 一样大小的 OffscreenCanvas
-      const context = new OffscreenCanvas(imageData.width, imageData.height).getContext("2d")!;
-
-      // @ts-expect-error
-      const radius = Math.round((this as Konva.Node).blurRadius());
-      context.filter = `blur(${radius}px)`;
-
-      // @ts-expect-error
-      const image = (this as any).getImage() as HTMLImageElement;
-      context.drawImage(image, 0, 0, image.width, image.height, 0, 0, imageData.width, imageData.height);
-      const newImageData = context.getImageData(0, 0, imageData.width, imageData.height);
-
-      imageData.data.set(newImageData.data);
-    };
-
 // 绘制相关辅助函数
 const favicon = (config: TKonvaConfig) => {
   const imageBaseSize = config.size ?? 24;
-  let imageElement: HTMLImageElement | OffscreenCanvas = allAddedSiteMetadata[config.site].faviconElement;
+  const imageFilters: any[] = [`blur(${control.faviconBlue}px)`];
+
+  const siteConfig = allAddedSiteMetadata[config.site];
+
+  let imageElement: HTMLImageElement | OffscreenCanvas = siteConfig.faviconElement;
+
+  if (siteConfig.isDead) {
+    imageFilters.push("grayscale(1)");
+  }
+
   // 如果设置中传入了 canvas 这个自定义参数，我们为这个 favicon 生成一个带有背景的 canvas，然后在 canvas 上居中绘制 favicon
   if (config.canvas) {
     const { width: canvasWidth = imageBaseSize, height: canvasHeight = imageBaseSize } = config.canvas;
     const canvas = new OffscreenCanvas(canvasWidth, canvasHeight);
-    const ctx = canvas.getContext("2d")!;
+    const ctx = canvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
 
     // 填充背景
     ctx.fillStyle = config.canvas.fillStyle ?? "#fff";
@@ -139,8 +130,7 @@ const favicon = (config: TKonvaConfig) => {
 
   return image({
     image: imageElement,
-    filters: [(Konva.Filters as any).tryNativeBlur],
-    blurRadius: control.faviconBlue,
+    filters: imageFilters,
     ...config,
   });
 };
@@ -193,18 +183,27 @@ onMounted(async () => {
   // 加载所有站点的元数据
   await loadAllAddedSiteMetadata(Object.keys(metadataStore.sites));
 
-  realAllSite.value = Object.values(metadataStore.lastUserInfo)
-    .map((x) => x.site)
-    .filter((x) => canThisSiteShow(x));
+  // 加载 fixedLastUserInfo
+  fixedLastUserInfo.value = await loadFullData();
 
-  // 从 route 中加载选择的站点，如果没有，则选择默认全部可以的站点（注意，这里我们不记住选择过的站点！！）
+  realAllSite.value = Object.keys(fixedLastUserInfo.value).filter((x) => canThisSiteShow(x));
+
   const { sites = [] } = route.query ?? {};
-  selectedSites.value = ((sites as string[]).length > 0 ? sites : realAllSite.value) as string[];
+
+  // 勾选站点，优先使用 route 参数，其次是上次保存的配置，最后是全部站点
+  if ((sites as string[]).length > 0) {
+    selectedSites.value = sites as string[];
+  } else if ((configStore.userDataTimelineControl.selectedSites ?? []).length > 0) {
+    selectedSites.value = configStore.userDataTimelineControl.selectedSites;
+  } else {
+    selectedSites.value = realAllSite.value;
+  }
 
   // 开始生成 timeline 的数据
   resetTimelineDataWithControl();
 
   isLoading.value = false;
+  console.debug(fixedLastUserInfo);
 });
 
 function exportTimelineImg() {
@@ -219,6 +218,7 @@ function exportTimelineImg() {
 }
 
 function saveControl() {
+  configStore.userDataTimelineControl.selectedSites = selectedSites.value;
   configStore.$save();
   useRuntimeStore().showSnakebar("保存成功", { color: "success" });
 }
@@ -241,8 +241,16 @@ function saveControl() {
         <!-- 使用 konva 来绘制 UserDataTimeLine -->
         <vk-stage ref="canvasStage" :config="stageConfig">
           <vk-layer ref="canvasLayer">
-            <!-- 1. 添加背景颜色，颜色为 blue-grey-darken-2，填满整个画布 -->
-            <vk-rect :config="{ fill: '#455A64', x: 0, y: 0, width: stageConfig.width, height: stageConfig.height }" />
+            <!-- 1. 添加背景颜色，并填满整个画布 -->
+            <vk-rect
+              :config="{
+                fill: control.backgroundColor,
+                x: 0,
+                y: 0,
+                width: stageConfig.width,
+                height: stageConfig.height,
+              }"
+            />
 
             <!-- 2. 绘制顶端概况 -->
             <vk-group :config="{ x: 0, y: 0 }">
@@ -250,19 +258,46 @@ function saveControl() {
               <vk-text :config="icon({ x: 20, y: 20, text: '󰀉' /* account-circle */ })" />
               <!-- 2.2 用户名 -->
               <vk-text :config="text({ x: 65, y: 26, text: configStore.userName, fontSize: 26 })" />
+              <!-- 2.3 创建时间 -->
+              <vk-text
+                :config="
+                  text({
+                    y: 20,
+                    text: formatDate(timelineData.createAt),
+                    fontSize: 12,
+                    fill: '#9E9E9E',
+                    width: stageConfig.width - 20,
+                    align: 'right',
+                  })
+                "
+              />
             </vk-group>
 
             <!-- 3. 绘制基础信息 -->
             <vk-group :config="{ x: 20, y: nameInfoHeight }">
               <!-- 3.1 左侧 totalInfo -->
-              <vk-text
-                :config="
-                  text({
-                    y: 0,
-                    text: `${t('UserDataTimeline.total')}${t('UserDataTimeline.field.site')}: ${timelineData.totalInfo.sites}`,
-                  })
-                "
-              />
+              <vk-group :config="{ x: 0, y: 0 }">
+                <vk-text
+                  :config="
+                    text({
+                      y: 0,
+                      text: `${t('UserDataTimeline.total')}${t('UserDataTimeline.field.site')}: ${timelineData.totalInfo.sites}`,
+                    })
+                  "
+                />
+                <vk-text
+                  v-if="timelineData.totalInfo.deadSites > 0"
+                  :config="
+                    text({
+                      x: 160,
+                      y: 0,
+                      text: `󰖛: ${timelineData.totalInfo.deadSites}`,
+                      fontFamily: 'Material Design Icons For PTD',
+                      fill: '#9E9E9E',
+                    })
+                  "
+                />
+              </vk-group>
               <vk-text
                 v-for="(key, index) in realShowField"
                 :key="key.name"
@@ -306,7 +341,7 @@ function saveControl() {
                             favicon({
                               site: timelineData.topInfo[key.name][type.siteKey].site,
                               size: 20,
-                              canvas: { fillStyle: '#455A64' },
+                              canvas: { fillStyle: control.backgroundColor },
                             })
                           "
                         />
@@ -386,7 +421,11 @@ function saveControl() {
                         :config="
                           text({
                             y: 0,
-                            text: allAddedSiteMetadata[userInfo.site].siteName,
+                            text: `${allAddedSiteMetadata[userInfo.site]?.isDead ? '󰖛' : ''}${allAddedSiteMetadata[userInfo.site].siteName}`,
+                            fill: allAddedSiteMetadata[userInfo.site]?.isDead ? '#9E9E9E' : '#fff',
+                            fontFamily: allAddedSiteMetadata[userInfo.site]?.isDead
+                              ? 'Material Design Icons For PTD'
+                              : undefined,
                             fontStyle: 'bold',
                           })
                         "
@@ -444,7 +483,9 @@ function saveControl() {
                             text: [
                               control.showPerSiteField.name ? userInfo.name! : '',
                               control.showPerSiteField.level ? `<${userInfo.levelName!}>` : '',
-                              control.showPerSiteField.uid ? `<${userInfo.id!}>` : '',
+                              control.showPerSiteField.uid && userInfo.id && userInfo.id !== '0' && userInfo.id !== 0
+                                ? `<${userInfo.id}>`
+                                : '',
                             ]
                               .filter(Boolean)
                               .join(' '),
@@ -477,18 +518,16 @@ function saveControl() {
         </vk-stage>
       </v-col>
       <v-col cols="12" sm>
-        <v-alert title="时间轴样式设置" type="info" class="mb-2">
-          <template #append>
-            <NavButton icon="mdi-arrow-left" size="small" color="grey" text="返回" @click="() => router.back()" />
-            <NavButton
-              color="grey"
-              icon="mdi-file-export-outline"
-              size="small"
-              text="导出图片"
-              @click="exportTimelineImg"
-            />
-          </template>
-        </v-alert>
+        <v-row class="flex-nowrap mb-0">
+          <v-col class="d-flex">
+            <NavButton color="grey" icon="mdi-arrow-left" text="返回" @click="() => router.back()" />
+            <v-spacer />
+            <NavButton color="info" icon="mdi-file-export-outline" text="导出图片" @click="exportTimelineImg" />
+            <NavButton color="green" icon="mdi-content-save" text="保存设置" @click="saveControl" />
+          </v-col>
+        </v-row>
+
+        <v-alert title="时间轴样式设置" type="info" class="mb-2"> </v-alert>
 
         <v-label class="my-2">用户名及标题</v-label>
 
@@ -544,6 +583,22 @@ function saveControl() {
         <v-switch v-model="control.showTop" color="success" hide-details label="展示各类数据的冠军及亚军站点" />
         <v-switch v-model="control.showTimeline" color="success" hide-details label="展示各个站点信息（总开关）" />
 
+        <v-color-input
+          v-model="control.backgroundColor"
+          mode="hex"
+          color-pip
+          hide-actions
+          hide-details
+          label="自定义背景色"
+        >
+          <template #append-inner>
+            <v-icon
+              icon="mdi-backup-restore"
+              @click="control.backgroundColor = defaultTimelineBackgroundColor"
+            ></v-icon>
+          </template>
+        </v-color-input>
+
         <v-label class="my-2">站点展示组件</v-label>
 
         <v-row>
@@ -582,7 +637,7 @@ function saveControl() {
             </v-row>
             <v-label class="my-2">时间轴部分</v-label>
             <v-row class="pl-5">
-              <v-col v-for="(v, key) in control.showPerSiteField" class="pa-0" cols="6" sm="4">
+              <v-col v-for="(v, key) in control.showPerSiteField" :key="key" class="pa-0" cols="6" sm="4">
                 <v-switch
                   :key="key"
                   v-model="control.showPerSiteField[key]"
@@ -608,16 +663,7 @@ function saveControl() {
           </v-col>
         </v-row>
 
-        <v-divider class="my-2" />
-
-        <v-row class="flex-nowrap">
-          <v-col class="d-flex">
-            <v-spacer />
-            <NavButton icon="mdi-content-save" text="保存样式设置" color="green" @click="saveControl" />
-          </v-col>
-        </v-row>
-
-        <v-alert type="info" title="展示站点设置" class="mt-4 mb-2">
+        <v-alert class="mt-4 mb-2" title="展示站点设置" type="info">
           <template #append>
             <CheckSwitchButton
               v-model="selectedSites"
@@ -629,7 +675,7 @@ function saveControl() {
         </v-alert>
 
         <v-row class="my-2">
-          <v-col v-for="(site, siteId) in metadataStore.lastUserInfo" :key="siteId" cols="6" sm="3" class="py-0">
+          <v-col v-for="(site, siteId) in fixedLastUserInfo" :key="siteId" class="py-0" cols="6" sm="3">
             <v-checkbox
               v-model="selectedSites"
               :disabled="!canThisSiteShow(siteId)"
@@ -643,7 +689,23 @@ function saveControl() {
             >
               <template #label>
                 <SiteFavicon :site-id="siteId" :size="16" />
-                <SiteName :class="['ml-1']" :site-id="siteId" tag="p" />
+                <span class="ml-1">
+                  <SiteName :site-id="siteId" class="" tag="span" />
+                  <v-icon
+                    v-if="allAddedSiteMetadata[siteId]?.isDead"
+                    class="ml-1"
+                    color="blue-grey-darken-1"
+                    icon="mdi-weather-sunset-down"
+                    size="small"
+                  ></v-icon>
+                  <v-icon
+                    v-if="allAddedSiteMetadata[siteId]?.isOffline && !allAddedSiteMetadata[siteId]?.isDead"
+                    class="ml-1"
+                    color="blue-grey-darken-1"
+                    icon="mdi-signal-off"
+                    size="small"
+                  ></v-icon>
+                </span>
               </template>
             </v-checkbox>
           </v-col>

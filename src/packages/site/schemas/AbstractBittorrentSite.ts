@@ -2,6 +2,7 @@ import Sizzle from "sizzle";
 import { get, isEmpty, set } from "es-toolkit/compat";
 import { chunk, pascalCase, pick, toMerged, union } from "es-toolkit";
 import { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
+import { supportSocialSite } from "@ptd/social";
 
 // noinspection ES6PreferShortImport
 import { axios, isCloudflareBlocked, retrieve, sleep, store } from "../utils/adapter";
@@ -22,6 +23,7 @@ import {
   ISearchEntryRequestConfig,
   IParsedTorrentListPage,
   TSchemaMetadataListSelectors,
+  ETorrentStatus,
 } from "../types";
 import {
   definedFilters,
@@ -183,13 +185,18 @@ export default class BittorrentSite {
 
     console?.log(`[Site] ${this.name} start search with merged searchEntry:`, searchEntry);
 
-    // 2. 检查字符集兼容性并过滤站点
-    if (searchEntry.skipNonLatinCharacters && keywords) {
-      if (hasNonLatinCharacters(keywords)) {
-        console?.log(`[Site] ${this.name} skipped due to non-Latin characters in query:`, keywords);
-        result.status = EResultParseStatus.passParse;
-        return result;
-      }
+    // 2.1 检查 keywords 是否为空
+    if (searchEntry.skipWhiteSpacePlaceholder === true && !keywords) {
+      console?.log(`[Site] ${this.name} skipped due to empty keywords`);
+      result.status = EResultParseStatus.passParse;
+      return result;
+    }
+
+    // 2.2 检查字符集兼容性并过滤站点
+    if (searchEntry.skipNonLatinCharacters === true && keywords && hasNonLatinCharacters(keywords)) {
+      console?.log(`[Site] ${this.name} skipped due to non-Latin characters in query:`, keywords);
+      result.status = EResultParseStatus.passParse;
+      return result;
     }
 
     // 3. 生成对应站点的基础 requestConfig
@@ -199,20 +206,32 @@ export default class BittorrentSite {
     );
 
     // 4. 预检查 keywords 是否为高级搜索词，如果是，则查找对应的 searchEntry.advanceKeywordParams[*] 并改写 keywords
-    let advanceKeywordType: string | undefined;
     let advanceKeywordConfig: IAdvanceKeywordSearchConfig | false = false;
-    if (keywords && searchEntry.advanceKeywordParams) {
-      for (const [advanceField, advanceConfig] of Object.entries(searchEntry.advanceKeywordParams)) {
+    if (keywords) {
+      // 生成支持的高级搜索词前缀
+      const advanceKeywordFields = Object.keys(searchEntry.advanceKeywordParams ?? {});
+
+      for (const advanceField of union(advanceKeywordFields, supportSocialSite)) {
         if (keywords.startsWith(`${advanceField}|`)) {
+          // 先改写 keywords， 去除掉我们额外添加的 `${advanceField}|` 前缀
+          keywords = keywords?.replace(`${advanceField}|`, "");
+
+          // 检查是否有对应的高级搜索词配置
+          let advanceConfig = searchEntry?.advanceKeywordParams?.[advanceField];
+          if (typeof advanceConfig === "undefined") {
+            if (advanceField == "imdb") {
+              advanceConfig = { enabled: true }; // imdb 格式fallback到普通关键词搜索
+            } else {
+              advanceConfig = false; // 其他高级搜索词格式（douban|, bangumi|, anidb|, tmdb|, tvdb|, mal|）直接跳过
+            }
+          }
+
           // 检查是否跳过
           if (advanceConfig === false || advanceConfig.enabled === false) {
             result.status = EResultParseStatus.passParse;
             return result;
           }
 
-          // 改写 keywords 并缓存 transformer
-          keywords = keywords?.replace(`${advanceField}|`, "");
-          advanceKeywordType = advanceField;
           advanceKeywordConfig = advanceConfig;
           break;
         }
@@ -407,6 +426,43 @@ export default class BittorrentSite {
   }
 
   /**
+   * 处理数组选择器，依次尝试每个选择器直到找到匹配的元素
+   * @param selectors 选择器或选择器数组
+   * @param context 查找上下文 (Document或JSON对象)
+   * @param options 可选配置
+   * @returns 找到的元素数组
+   * @protected
+   */
+  protected findElementsBySelectors(
+    selectors: string | string[] | ":self" | (string | ":self")[],
+    context: Document | object | any,
+    options: { isJson?: boolean } = {},
+  ): any[] {
+    const selectorArray = ([] as (string | ":self")[]).concat(selectors);
+    let foundElements: any[] = [];
+
+    for (const selector of selectorArray) {
+      if (options.isJson || !(context instanceof Document)) {
+        // JSON 数据处理
+        if (selector === ":self") {
+          foundElements = context;
+        } else {
+          foundElements = get(context, selector);
+        }
+      } else {
+        // Document 处理
+        foundElements = Sizzle(selector as string, context);
+      }
+
+      if (foundElements && foundElements.length > 0) {
+        break;
+      }
+    }
+
+    return foundElements || [];
+  }
+
+  /**
    * 如何解析 JSON 或者 Document，获得种子详情列表
    */
   public async transformSearchPage(doc: Document | object | any, searchConfig: ISearchInput): Promise<ITorrent[]> {
@@ -418,10 +474,10 @@ export default class BittorrentSite {
     const rowsSelector = searchEntry!.selectors.rows;
     const torrents: ITorrent[] = [];
 
-    let trs: any;
+    // 使用抽象方法处理数组选择器
+    let trs = this.findElementsBySelectors(rowsSelector.selector, doc, { isJson: !(doc instanceof Document) });
 
     if (doc instanceof Document) {
-      trs = Sizzle(rowsSelector.selector as string, doc);
       if (rowsSelector.filter) {
         trs = rowsSelector.filter(trs);
       } else {
@@ -445,9 +501,6 @@ export default class BittorrentSite {
         }
       }
     } else {
-      // 同样定义一个 :self 以防止对于JSON返回的情况下，所有items在顶层字典（实际是 Object[] ）下
-      trs = rowsSelector.selector === ":self" ? doc : get(doc, rowsSelector.selector as string);
-
       if (rowsSelector.filter) {
         trs = rowsSelector.filter(trs);
       }
@@ -530,7 +583,7 @@ export default class BittorrentSite {
     typeof torrent.completed != "undefined" && (torrent.completed = tryToNumber(torrent.completed));
     typeof torrent.comments != "undefined" && (torrent.comments = tryToNumber(torrent.comments));
     typeof torrent.category != "undefined" && (torrent.category = tryToNumber(torrent.category));
-    typeof torrent.status != "undefined" && (torrent.status = tryToNumber(torrent.status));
+    typeof torrent.status == "undefined" && (torrent.status = ETorrentStatus.unknown);
 
     // 仅当设置了时区偏移时，才进行转换
     if (this.metadata.timezoneOffset && typeof torrent.time !== "undefined") {

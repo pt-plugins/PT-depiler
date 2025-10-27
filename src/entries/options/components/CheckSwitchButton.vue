@@ -22,9 +22,9 @@ function updateSelected(value: T[]) {
 
 <template>
   <NavButton
+    :text="t('checkSwitch.all')"
     icon="mdi-checkbox-marked"
     size="small"
-    :text="t('checkSwitch.all')"
     v-bind="$attrs"
     @click="() => updateSelected(all)"
   />

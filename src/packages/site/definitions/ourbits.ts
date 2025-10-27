@@ -15,6 +15,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "ourbits",
   name: "OurBits",
+  aka: ["我堡", "OB"],
   description: "综合性网站，有分享率要求",
   tags: ["影视", "动漫", "纪录片", "综艺"],
   collaborator: ["Rhilip"],
@@ -172,7 +173,7 @@ export const siteMetadata: ISiteMetadata = {
       subTitle: {
         text: "",
         selector: ["a[href*='hit'][title]", "a[href*='hit']:has(b)"],
-        elementProcess: subTitleRemoveExtraElement(["a span.tag"]),
+        elementProcess: subTitleRemoveExtraElement(["a span.tag"], false),
       },
       ext_imdb: { selector: "label.imdb_rate", data: "imdbid", filters: [{ name: "extImdbId" }] },
       ext_douban: { selector: "label.douban_rate", data: "doubanid" },

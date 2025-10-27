@@ -1,7 +1,8 @@
 import { set } from "es-toolkit/compat";
+import Sizzle from "sizzle";
 
-import { ETorrentStatus, type IElementQuery, type ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, SchemaMetadata } from "../schemas/NexusPHP";
+import { ETorrentStatus, type IElementQuery, type ISiteMetadata, type IUserInfo } from "../types";
+import NexusPHP, { CategoryInclbookmarked, CategoryIncldead, SchemaMetadata } from "../schemas/NexusPHP";
 
 // TJUPT 中的 selector.search.progress 以及 selector.search.status 被其他站公用
 export const selectorSearchProgress: IElementQuery = {
@@ -46,7 +47,7 @@ export const siteMetadata: ISiteMetadata = {
   aka: ["北洋园"],
   schema: "NexusPHP",
   type: "private",
-  urls: ["uggcf://gwhcg.bet/"],
+  urls: ["uggcf://gwhcg.bet/", "uggcf://jjj.gwhcg.bet/"],
   description:
     "TJUPT是天津市首个、全国前列的校园Private Tracker，建立于2010年，" +
     "由天津大学信网协会和天外天共同开发的，旨在为大家建立一个更好的资源共享环境，提高资源水准。",
@@ -124,7 +125,6 @@ export const siteMetadata: ISiteMetadata = {
     },
     selectors: {
       ...SchemaMetadata.search!.selectors,
-      ext_imdb: { selector: "a[href*='imdb.com/title/tt']", attr: "href", filters: [{ name: "extImdbId" }] },
       progress: selectorSearchProgress,
       status: selectorSearchStatus,
       tags: [
@@ -171,12 +171,14 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
-      name: "无名小辈(User)",
+      name: "无名小辈",
+      nameAka: ["User"],
       privilege: `新用户的默认级别。`,
     },
     {
       id: 2,
-      name: "拜师学艺(Power User)",
+      name: "拜师学艺",
+      nameAka: ["Power User"],
       interval: "P4W",
       snatches: 20,
       seedingTime: "P30D",
@@ -187,7 +189,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 3,
-      name: "持剑下山(Elite User)",
+      name: "持剑下山",
+      nameAka: ["Elite User"],
       interval: "P8W",
       snatches: 60,
       seedingTime: "P120D",
@@ -198,7 +201,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 4,
-      name: "初入江湖(Crazy User)",
+      name: "初入江湖",
+      nameAka: ["Crazy User"],
       interval: "P16W",
       snatches: 150,
       seedingTime: "P450D",
@@ -210,9 +214,10 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 5,
-      name: "小有名气(Insane User)",
+      name: "小有名气",
+      nameAka: ["Insane User"],
       interval: "P28W",
-      downloads: "300",
+      snatches: 300,
       seedingTime: "P1500D",
       uploaded: "2000GB",
       uploads: 5,
@@ -222,9 +227,10 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 6,
-      name: "威震一方(Veteran User)",
+      name: "威震一方",
+      nameAka: ["Veteran User"],
       interval: "P48W",
-      downloads: "600",
+      snatches: 600,
       seedingTime: "P4200D",
       uploaded: "5000GB",
       uploads: 10,
@@ -234,9 +240,10 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 7,
-      name: "横扫群雄(Extreme User)",
+      name: "横扫群雄",
+      nameAka: ["Extreme User"],
       interval: "P72W",
-      downloads: "1000",
+      snatches: 1000,
       seedingTime: "P28000D",
       uploaded: "10000GB",
       uploads: 15,
@@ -246,9 +253,10 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 8,
-      name: "开宗立派(Ultimate User)",
+      name: "开宗立派",
+      nameAka: ["Ultimate User"],
       interval: "P100W",
-      downloads: "1800",
+      snatches: 1800,
       seedingTime: "P90000D",
       uploaded: "20000GB",
       uploads: 30,
@@ -258,9 +266,10 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 9,
-      name: "天下无敌(Nexus Master)",
+      name: "天下无敌",
+      nameAka: ["Nexus Master"],
       interval: "P132W",
-      downloads: "3000",
+      snatches: 3000,
       seedingTime: "P300000D",
       uploads: 50,
       uploaded: "50000GB",
@@ -316,3 +325,62 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
+
+export default class TJUPT extends NexusPHP {
+  protected override async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
+    const { data: classesResponse } = await this.request({
+      url: "/classes.php",
+      responseType: "document",
+    });
+
+    if (classesResponse) {
+      const uploadSpan = Sizzle("tr#9 li span:contains('≥1'):first", classesResponse as Document);
+      if (uploadSpan.length > 0) {
+        const text = uploadSpan[0].textContent?.trim();
+        if (text) {
+          // 查找包含 {x}/50 格式的文本
+          const matchUploads = text.match(/(\d+)\/50/);
+          if (matchUploads) {
+            flushUserInfo.uploads = parseInt(matchUploads[1]);
+          }
+        }
+      }
+
+      const snatchesSpan = Sizzle("tr#9 li span:contains('>200MiB'):first", classesResponse as Document);
+      if (snatchesSpan.length > 0) {
+        const text = snatchesSpan[0].textContent?.trim();
+        if (text) {
+          const matchSnatches = text.match(/(\d+)\/3000/);
+          if (matchSnatches) {
+            flushUserInfo.snatches = parseInt(matchSnatches[1]);
+          }
+        }
+      }
+
+      const seedingTimeSpan = Sizzle("tr#9 li span:contains('/300000'):first", classesResponse as Document);
+      if (seedingTimeSpan.length > 0) {
+        const text = seedingTimeSpan[0].textContent?.trim();
+        if (text) {
+          const matchSeedingTime = text.match(/([\d.]+)\/300000/);
+          if (matchSeedingTime) {
+            flushUserInfo.seedingTime = Math.floor(parseFloat(matchSeedingTime[1]) * 86400);
+          }
+        }
+      }
+    }
+
+    if (typeof flushUserInfo.uploads === "undefined") {
+      flushUserInfo.uploads = 0;
+    }
+
+    if (typeof flushUserInfo.snatches === "undefined") {
+      flushUserInfo.snatches = 0;
+    }
+
+    if (typeof flushUserInfo.seedingTime === "undefined") {
+      flushUserInfo.seedingTime = 0;
+    }
+
+    return flushUserInfo;
+  }
+}

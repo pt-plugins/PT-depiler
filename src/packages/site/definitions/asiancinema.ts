@@ -1,5 +1,8 @@
-import type { ISiteMetadata } from "../types";
-import { SchemaMetadata } from "@ptd/site/schemas/Unit3D.ts";
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/asiancinema.yml
+ */
+import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
+import { type ISiteMetadata } from "../types";
 import { rot13 } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
@@ -7,6 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "asiancinema",
   name: "AsianCinema",
+  aka: ["ACM"],
   description: "综合",
   tags: ["综合"],
   timezoneOffset: "+0000",
@@ -20,11 +24,34 @@ export const siteMetadata: ISiteMetadata = {
   userInfo: {
     selectors: {
       ...SchemaMetadata.userInfo!.selectors,
+      bonusPerHour: {
+        selector: ["div.text-orange > h2 > strong"],
+        filters: [{ name: "parseNumber" }],
+      },
     },
   },
 
   search: {
     ...SchemaMetadata.search,
+    keywordPath: "params.search",
+    requestConfig: {
+      url: "/torrents/filter",
+      responseType: "document",
+      params: {
+        view: "list", // 强制使用 种子列表 的形式返回
+      },
+    },
+    advanceKeywordParams: {
+      imdb: {
+        requestConfigTransformer: ({ requestConfig: config }) => {
+          if (config?.params?.search) {
+            config.params.imdb = config.params.search;
+            delete config.params.search;
+          }
+          return config!;
+        },
+      },
+    },
     selectors: {
       ...SchemaMetadata.search?.selectors,
       tags: [
@@ -105,3 +132,16 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
+
+export default class AsianCinema extends Unit3D {
+  protected override async getUserBonusPerHour(): Promise<number> {
+    const { data: document } = await this.request<Document>(
+      {
+        url: `/bonus`,
+        responseType: "document",
+      },
+      true,
+    );
+    return this.getFieldData(document, this.metadata.userInfo?.selectors?.bonusPerHour!);
+  }
+}

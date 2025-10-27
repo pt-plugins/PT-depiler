@@ -1,12 +1,12 @@
 // noinspection ES6PreferShortImport
 
 import { intersection } from "es-toolkit";
-import { set, isEmpty, includes } from "es-toolkit/compat";
+import { includes, isEmpty, set } from "es-toolkit/compat";
 import { intervalToDuration } from "date-fns";
 
 import type { IImplicitUserInfo, ILevelRequirement, IUserInfo, TLevelGroupType, TLevelId } from "../types";
 import { parseSizeString } from "./filesize";
-import { type isoDuration, convertIsoDurationToDate } from "./datetime";
+import { convertIsoDurationToDate, type isoDuration } from "./datetime";
 
 export const MinVipLevelId = 100;
 export const MinManagerLevelId = 200;
@@ -43,34 +43,16 @@ export function guessUserLevelGroupType(levelName: string): TLevelGroupType {
   let userLevel = levelName.toLowerCase();
   let specialNames: Record<"manager" | "vip", string[]> = {
     manager: [
-      "retiree",
-      "养老",
-      "退休",
-      "uploader",
-      "helper",
-      "seeder",
-      "transferrer",
-      "torrent",
-      "assistant",
-      "发布",
-      "发种",
-      "保种",
-      "上传",
-      "助手",
-      "助理",
-      "转载",
-      "种子",
-      "moderator",
-      "forum",
-      "版主",
-      "admin",
-      "管理",
-      "sys",
-      "coder",
-      "开发",
-      "staff",
-      "主管",
-    ],
+      ["retiree", "养老", "退休"],
+      ["uploader", "发布", "发种", "上传", "种子"],
+      ["helper", "assistant", "助手", "助理"],
+      ["seeder", "保种"],
+      ["transferrer", "转载"],
+      ["forum", "版主"],
+      ["moderator", "admin", "管理"],
+      ["sys", "coder", "开发"],
+      ["staff", "主管"],
+    ].flat(),
     vip: ["vip", "贵宾", "honor", "荣誉"],
   };
   let res = "user";
@@ -240,13 +222,14 @@ export function levelRequirementUnMet(
   }
 
   // 额外计算 增加到达下一级魔力所需时间 （#7）
-  for (const bonusKey of ["bonus", "seedingBonus"]) {
-    if (unmetRequirement[bonusKey] && userInfo.bonusPerHour > 0) {
+  for (const bonusKey of ["bonus", "seedingBonus"] as const) {
+    const perHourValue = userInfo[`${bonusKey}PerHour`] ?? userInfo.bonusPerHour ?? 0; // issue#681
+    if (unmetRequirement[bonusKey] && levelRequirement[bonusKey] && perHourValue > 0) {
       // 如果未满足 bonus 条件，且获取到了 bonusPerHour
       const currentBonus = userInfo[bonusKey] ?? 0;
-      const leftBonus = unmetRequirement[bonusKey] - currentBonus;
+      const leftBonus = levelRequirement[bonusKey] - currentBonus; // Fixed by #676
       if (leftBonus > 0) {
-        const leftTime = leftBonus / userInfo.bonusPerHour;
+        const leftTime = leftBonus / parseFloat(perHourValue);
         unmetRequirement[`${bonusKey}NeededInterval`] = `${Math.floor(leftTime)}H`;
       }
     }
@@ -272,8 +255,8 @@ export function levelRequirementUnMet(
 
     alternativeUnMet = alternativeUnMet.filter((x) => !isEmpty(x));
 
-    // 如果没有一个满足则返回 false
-    if (alternativeUnMet.length > 0) {
+    // 如果有至少一个满足则返回 false
+    if (alternativeUnMet.length == levelRequirement.alternative.length) {
       unmetRequirement.alternative = alternativeUnMet;
     }
   }
@@ -310,7 +293,10 @@ export function getNextLevelUnMet(
 export function guessUserLevelId(userInfo: IUserInfo, levelRequirements: ILevelRequirement[]): TLevelId {
   // 首先尝试 levelName 的直接匹配，站点levelRequirements中配置的 name 一定要等于或包含 获取到的 levelName 中才会匹配成功
   let level = levelRequirements.find((level) => {
-    return includes(cleanLevelName(level.name), cleanLevelName(userInfo.levelName!));
+    const cleanedUserLevelName = cleanLevelName(userInfo.levelName!);
+    return [level.name, ...(level.nameAka ?? [])]
+      .map(cleanLevelName)
+      .some((name) => name.includes(cleanedUserLevelName));
   });
   if (level) {
     return level.id;

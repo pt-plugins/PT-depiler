@@ -39,6 +39,7 @@ export interface IImplicitUserInfo {
   bonus?: number; // 魔力值/积分需求
   seedingBonus?: number; // 做种积分需求
   bonusPerHour?: number; // 魔力值/积分每小时需求
+  seedingBonusPerHour?: number; // 做种积分每小时需求（如果未获取到该字段，在计算剩余小时时会回落到 bonusPerHour ）
 
   /**
    * bonusNeededInterval 和 seedingBonusNeededInterval 是一个由 levelRequirementUnMet 计算得到的结果，
@@ -52,6 +53,7 @@ export interface IImplicitUserInfo {
   leeching?: number; // 下载数量需求
   snatches?: number; // 完成种子数需求
   posts?: number; // 发布帖子数需求
+  adoptions?: number; // 认领种子数要求
 
   hnrUnsatisfied?: number; // H&R 未满足的数量需求
   hnrPreWarning?: number; // H&R 预警
@@ -64,6 +66,7 @@ export const MinNonUserLevelId = 100; // 最大等级ID
 export interface ILevelRequirement extends IImplicitUserInfo {
   id: TLevelId; // 等级序列，应该是一个递增的序列，不可重复，应当小于 MaxUserLevelId - 1
   name: TLevelName; // 需要与 IUserInfo中对应的 levelName 相同
+  nameAka?: TLevelName[]; // 该等级的别名，通常用在i18n环境中，name 和 nameAka[*] 的值会同步用来 判断 LevelId
   groupType?: TLevelGroupType; // 等级组别，不指定的话，默认为 user
   privilege?: string; // 获得的特权说明
 

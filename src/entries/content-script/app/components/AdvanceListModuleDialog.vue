@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, inject } from "vue";
 import { useWindowSize } from "@vueuse/core";
-import { ITorrent } from "@ptd/site";
+import { ETorrentStatus, ITorrent } from "@ptd/site";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 import { formatDate, formatSize } from "@/options/utils.ts";
@@ -25,7 +25,7 @@ const tableHeaders = computed(
   () =>
     [
       { title: "分类", key: "category", align: "center", maxWidth: 60 },
-      { title: "标题", key: "title", align: "start", minWidth: 400 },
+      { title: "标题", key: "title", align: "start", maxWidth: 400 },
       { title: "大小", key: "size", align: "end", minWidth: 60 },
       { title: "上传", key: "seeders", align: "end", minWidth: 40 },
       { title: "下载", key: "leechers", align: "end", minWidth: 40 },
@@ -36,25 +36,38 @@ const tableHeaders = computed(
 
 const selectedTorrentIds = ref<ITorrent["id"][]>([]);
 const selectedTorrents = computed(() => torrentItems.filter((x) => selectedTorrentIds.value.includes(x.id)));
+const hasSelectedTorrent = computed(() => selectedTorrentIds.value.length > 0);
+const selectedTorrentsCount = computed(() => selectedTorrentIds.value.length);
+const selectedTorrentsSize = computed(() =>
+  selectedTorrents.value.reduce((acc, torrent) => acc + (torrent.size ?? 0), 0),
+);
 
-function handleLocalDownloadMulti() {
+const localDownloadMultiStatus = ref<boolean>(false);
+async function handleLocalDownloadMulti() {
+  localDownloadMultiStatus.value = true;
   for (const torrent of selectedTorrents.value) {
-    sendMessage("downloadTorrentToLocalFile", { torrent });
+    await sendMessage("downloadTorrentToLocalFile", { torrent });
   }
+  localDownloadMultiStatus.value = false;
 }
 
+const linkCopyMultiStatus = ref<boolean>(false);
 async function handleLinkCopyMulti() {
-  const downloadUrls = [];
-  for (const torrent of selectedTorrents.value) {
-    const downloadUrl = await sendMessage("getTorrentDownloadLink", torrent);
-    downloadUrls.push(downloadUrl);
-  }
+  linkCopyMultiStatus.value = true;
+  const downloadUrls = [] as string[];
 
   try {
+    for (const torrent of selectedTorrents.value) {
+      const downloadUrl = await sendMessage("getTorrentDownloadLink", torrent);
+      downloadUrls.push(downloadUrl);
+    }
+
     await navigator.clipboard.writeText(downloadUrls.join("\n").trim());
     runtimeStore.showSnakebar("下载链接已复制到剪贴板", { color: "success" });
   } catch (e) {
     runtimeStore.showSnakebar("复制下载链接失败", { color: "error" });
+  } finally {
+    linkCopyMultiStatus.value = false;
   }
 }
 
@@ -67,6 +80,15 @@ function handleRemoteDownloadMulti() {
 
 function handleSelectSeeders() {
   selectedTorrentIds.value = torrentItems.filter((item) => item.seeders).map((x) => x.id);
+}
+
+function handleSelectNotSeeding() {
+  selectedTorrentIds.value = torrentItems
+    .filter(
+      (item) =>
+        item.status !== undefined && ![ETorrentStatus.seeding, ETorrentStatus.downloading].includes(item.status!),
+    )
+    .map((x) => x.id);
 }
 
 function enterDialog() {
@@ -87,6 +109,7 @@ function enterDialog() {
       </v-card-title>
       <v-card-text class="overflow-y-hidden">
         <NavButton icon="mdi-inbox-arrow-up" text="勾选上传行" color="light-blue" @click="handleSelectSeeders" />
+        <NavButton icon="mdi-download-off" text="勾选未下载过" color="light-blue" @click="handleSelectNotSeeding" />
         <v-data-table-virtual
           v-model="selectedTorrentIds"
           :headers="tableHeaders"
@@ -117,11 +140,30 @@ function enterDialog() {
       <v-divider />
       <v-card-actions>
         <v-spacer />
-        <NavButton icon="mdi-content-save-all" text="本地下载" color="light-blue" @click="handleLocalDownloadMulti" />
-
-        <NavButton color="light-blue" icon="mdi-content-copy" text="复制链接" @click="handleLinkCopyMulti" />
+        <span v-show="hasSelectedTorrent"
+          >已选中：{{ selectedTorrentsCount }} 个种子，总大小：{{ formatSize(selectedTorrentsSize) }}</span
+        >
 
         <NavButton
+          :disabled="!hasSelectedTorrent"
+          :loading="localDownloadMultiStatus"
+          color="light-blue"
+          icon="mdi-content-save-all"
+          text="本地下载"
+          @click="handleLocalDownloadMulti"
+        />
+
+        <NavButton
+          :disabled="!hasSelectedTorrent"
+          :loading="linkCopyMultiStatus"
+          color="light-blue"
+          icon="mdi-content-copy"
+          text="复制链接"
+          @click="handleLinkCopyMulti"
+        />
+
+        <NavButton
+          :disabled="!hasSelectedTorrent"
           key="remote_download_multi"
           color="light-blue"
           icon="mdi-tray-arrow-down"

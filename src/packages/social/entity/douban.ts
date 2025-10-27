@@ -5,6 +5,7 @@ import {
   IPtgenApiResponse,
   ISocialInformation,
   ISocialSitePageInformation,
+  TSupportSocialSitePageParserMatches,
 } from "../types";
 import { uniq } from "es-toolkit";
 import { parse as parseImdb } from "./imdb.ts";
@@ -63,7 +64,57 @@ function pageParser$1(doc: Document): ISocialSitePageInformation {
   };
 }
 
-export const pageParserMatches = [[doubanUrlPattern, pageParser$1]];
+function pageParse$2Factory(urlPattern: string, rowSelector: string): TSupportSocialSitePageParserMatches[0] {
+  return [
+    urlPattern,
+    (doc: Document) => {
+      const retItems: ISocialSitePageInformation[] = [];
+      const items = Sizzle(rowSelector, doc);
+      for (const item of items) {
+        const titleElement = item.querySelector("a[href*='/subject/']");
+        if (titleElement) {
+          const id = parse(titleElement?.getAttribute("href") ?? "");
+          const title = (titleElement as HTMLAnchorElement)?.innerText?.trim() ?? "";
+          const titles = title
+            .replace(/(\([^)]*?)\/([^)]*\))/g, "$1---$2") // 防止 `哈利波特1：神秘的魔法石(港 / 台)`  被错误拆分
+            .split("/")
+            .map((x) => x.trim().replace(/---/g, "/"));
+
+          retItems.push({ site: "douban", id, titles });
+        }
+      }
+      return retItems;
+    },
+  ];
+}
+
+export const pageParserMatches: TSupportSocialSitePageParserMatches = [
+  [doubanUrlPattern, pageParser$1],
+  // TOP 250
+  pageParse$2Factory("movie.douban.com/top250", "ol.grid_view > li div.info"),
+  // 排行榜
+  pageParse$2Factory("movie.douban.com/chart", "div.indent table div.pl2"),
+  // 选电影、选剧集
+  [
+    /movie\.douban\.com\/(explore|tv)/,
+    (doc: Document) => {
+      const retItems: ISocialSitePageInformation[] = [];
+
+      const items = Sizzle("ul.subject-list-list > li", doc);
+      for (const item of items) {
+        const another = item.querySelector("a[href*='doubanapp/dispatch?uri=']");
+        if (another) {
+          const id = another.getAttribute("href")!.replace(/^.+\?uri=\/(movie|tv)\//, "");
+          const title = item.querySelector("span.drc-subject-info-title-text")?.textContent?.trim() ?? "";
+
+          retItems.push({ site: "douban", id, titles: [title] });
+        }
+      }
+
+      return retItems;
+    },
+  ],
+];
 
 // 这里只列出了我们需要的部分
 interface IDoubanPtGen extends IPtgenApiResponse {

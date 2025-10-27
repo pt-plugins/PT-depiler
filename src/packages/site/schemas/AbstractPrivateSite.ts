@@ -1,6 +1,6 @@
 // 所有PT站点的基类
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
-import { difference, intersection, pascalCase, pick, toMerged, uniq } from "es-toolkit";
+import { intersection, pascalCase, pick, toMerged, uniq } from "es-toolkit";
 import { get, has, set } from "es-toolkit/compat";
 
 import BittorrentSite from "./AbstractBittorrentSite";
@@ -122,7 +122,7 @@ export default class PrivateSite extends BittorrentSite {
         const processFields = uniq([
           ...(thisUserInfoProcess.fields ?? []),
           ...Object.keys(thisUserInfoProcess.selectors ?? {}),
-        ]);
+        ]) as string[];
         // 检查相关元素是否均已有
         const existField = intersection(processFields, Object.keys(flushUserInfo));
         if (existField.length === processFields.length) {
@@ -163,7 +163,7 @@ export default class PrivateSite extends BittorrentSite {
 
         const { data: dataDocument } = await this.request<any>(requestConfig);
 
-        for (const key of difference(processFields, Object.keys(flushUserInfo)) as string[]) {
+        for (const key of processFields) {
           const dynamicParseFuncKey = `parseUserInfoFor${pascalCase(key)}` as keyof this;
           if (dynamicParseFuncKey in this && typeof this[dynamicParseFuncKey] === "function") {
             flushUserInfo = await this[dynamicParseFuncKey](flushUserInfo, dataDocument, requestConfig);

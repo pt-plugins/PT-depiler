@@ -323,23 +323,29 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     const clientVersion = await this.getClientVersion();
     let supportLabelAtAdd = parseInt(clientVersion.match(/RPC (\d+)/)?.[1] || "0", 10) >= 17;
 
-    if (options.localDownload) {
+    // 处理链接
+    if (url.startsWith("magnet:") || !options.localDownload) {
+      addTorrentOptions.filename = url;
+    } else {
       const torrent = await getRemoteTorrentFile({
         url,
         ...(options.localDownloadOption || {}),
       });
 
       addTorrentOptions.metainfo = torrent.metadata.base64();
-    } else {
-      addTorrentOptions.filename = url;
     }
 
     if (options.savePath) {
       addTorrentOptions["download-dir"] = options.savePath;
     }
 
-    if (options.label && supportLabelAtAdd) {
-      addTorrentOptions.labels = [options.label];
+    let labels: string[] | undefined = undefined;
+    if (options.label) {
+      labels = options.label.split(",").map((label) => label.trim());
+    }
+
+    if (labels && supportLabelAtAdd) {
+      addTorrentOptions.labels = labels;
     }
 
     try {
@@ -348,11 +354,11 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
       const torrentId = data.arguments["torrent-added"].id;
 
       // Transmission 3.0 以上才支持label
-      if (!supportLabelAtAdd && options.label) {
+      if (!supportLabelAtAdd && labels) {
         try {
           await this.request("torrent-set", {
             ids: torrentId,
-            labels: [options.label],
+            labels: labels,
           });
         } catch (e) {}
       }

@@ -10,7 +10,7 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
-import { formatDate, formatNumber, formatSize, formatTimeAgo } from "@/options/utils.ts";
+import { formatDate, formatNumber, formatSize, formatTimeAgo, simplifyNumber } from "@/options/utils.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
@@ -32,11 +32,10 @@ const fullTableHeader = reactive([
     title: t("MyData.table.site"),
     key: "siteUserConfig.sortIndex",
     align: "center",
-    width: 90,
     props: { disabled: true },
   },
-  { title: t("MyData.table.username"), key: "name", align: "center", width: 90 },
-  { title: t("MyData.table.levelName"), key: "levelName", align: "start", width: 90 },
+  { title: t("MyData.table.username"), key: "name", align: "center" },
+  { title: t("MyData.table.levelName"), key: "levelName", align: "start", width: "15%" },
   // NOTE: 这里将key设为 uploaded, trueUploaded 而不是虚拟的 userData，可以让 v-data-table 使用 uploaded 的进行排序
   { title: t("MyData.table.userData"), key: "uploaded", align: "end" },
   { title: t("MyData.table.trueUserData"), key: "trueUploaded", align: "end" }, // 默认不显示
@@ -47,9 +46,10 @@ const fullTableHeader = reactive([
   { title: t("levelRequirement.seedingSize"), key: "seedingSize", align: "end" },
   { title: t("levelRequirement.bonus"), key: "bonus", align: "end" },
   { title: t("levelRequirement.bonusPerHour"), key: "bonusPerHour", align: "end" },
+  { title: t("MyData.table.invites"), key: "invites", align: "end" }, // 默认不显示
   { title: t("MyData.table.joinTime"), key: "joinTime", align: "center" },
   { title: t("MyData.table.updateAt"), key: "updateAt", align: "center" },
-  { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false, props: { disabled: true } },
+  { title: t("common.action"), key: "action", align: "center", sortable: false, props: { disabled: true } },
 ] as (DataTableHeader & { props?: any })[]);
 
 const tableHeader = computed(() => {
@@ -58,15 +58,7 @@ const tableHeader = computed(() => {
   ) as DataTableHeader[];
 });
 
-// 表格字体大小样式计算属性
-const tableStyle = computed(() => {
-  return {
-    fontSize: `${configStore.myDataTableControl.tableFontSize}%`,
-  };
-});
-
 const tableNonBooleanControlKey = [
-  "tableFontSize",
   "joinTimeFormat",
   // Deprecated
   "joinTimeWeekOnly",
@@ -157,6 +149,21 @@ async function multiOpen() {
   }
 }
 
+async function multiFlush() {
+  let flushSiteIds: TSiteID[] = tableSelected.value;
+  if (flushSiteIds.length === 0) {
+    if (confirm("刷新全部站点用户信息？（未选择任何站点时，默认刷新全部站点）")) {
+      flushSiteIds = tableData.value.map((item) => item.site);
+    }
+  }
+
+  if (flushSiteIds.length > 0) {
+    flushSiteLastUserInfo(flushSiteIds);
+  } else {
+    runtimeStore.showSnakebar("未选择任何站点，取消刷新", { color: "warning" });
+  }
+}
+
 function viewTimeline() {
   router.push({
     name: "UserDataTimeline",
@@ -173,6 +180,11 @@ function viewStatistic() {
       sites: tableSelected.value,
     },
   });
+}
+
+// Toggle function for double-click to switch number simplification
+function toggleNumberSimplification() {
+  configStore.myDataTableControl.simplifyBonusNumbers = !configStore.myDataTableControl.simplifyBonusNumbers;
 }
 </script>
 
@@ -192,11 +204,10 @@ function viewStatistic() {
 
         <NavButton
           v-else
-          :disabled="tableSelected.length === 0"
           :text="t('MyData.index.flushSelectSite')"
           color="green"
           icon="mdi-cached"
-          @click="() => flushSiteLastUserInfo(tableSelected)"
+          @click="multiFlush"
         />
 
         <NavButton
@@ -224,38 +235,6 @@ function viewStatistic() {
             <NavButton color="blue" icon="mdi-cog" :text="t('MyData.index.setting')" class="mr-1" v-bind="props" />
           </template>
           <v-list>
-            <!-- 表格字体大小控制 -->
-            <v-list-item>
-              <template v-slot:prepend>
-                <v-list-item-action start class="ml-2">
-                  <v-icon icon="mdi-format-font-size-increase" class="mr-2" />
-                  <v-btn
-                    class="text-subtitle-2 pa-0"
-                    variant="text"
-                    :title="t('common.dialog.reset')"
-                    @click.stop="configStore.myDataTableControl.tableFontSize = 100"
-                  >
-                    {{ t("MyData.index.tableFontSize") }}
-                  </v-btn>
-                </v-list-item-action>
-              </template>
-              <v-slider
-                v-model="configStore.myDataTableControl.tableFontSize"
-                :min="75"
-                :max="125"
-                :step="1"
-                density="compact"
-                hide-details
-                :ticks="[100]"
-                show-ticks="always"
-                @click.stop
-                @update:model-value="() => configStore.$save()"
-              >
-                <template #tick-label></template>
-                <template v-slot:thumb-label="{ modelValue }"> {{ modelValue }}% </template>
-              </v-slider>
-            </v-list-item>
-
             <!-- 入站时间显示 -->
             <v-list-item>
               <template v-slot:prepend>
@@ -422,14 +401,13 @@ function viewStatistic() {
       :headers="tableHeader"
       :items="tableData"
       :items-per-page="configStore.tableBehavior.MyData.itemsPerPage"
+      :multi-sort="configStore.enableTableMultiSort"
       :search="tableFilterRef"
       :sort-by="configStore.tableBehavior.MyData.sortBy"
-      :style="tableStyle"
       class="table-stripe table-header-no-wrap table-no-ext-padding"
       hover
       item-selectable="selectable"
       item-value="site"
-      :multi-sort="configStore.enableTableMultiSort"
       show-select
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('MyData', 'itemsPerPage', v)"
       @update:sortBy="(v) => configStore.updateTableBehavior('MyData', 'sortBy', v)"
@@ -439,8 +417,7 @@ function viewStatistic() {
         <div class="d-flex flex-column align-center">
           <v-badge
             :model-value="configStore.myDataTableControl.showUnreadMessage && (item.messageCount ?? 0) > 0"
-            :content="item.messageCount"
-            :max="10"
+            :content="(item.messageCount ?? 0) > 10 ? undefined : item.messageCount"
             color="error"
           >
             <div class="favicon-hover-wrapper favicon-hover-bg">
@@ -475,13 +452,13 @@ function viewStatistic() {
             <span class="text-no-wrap">
               {{ typeof item.uploaded !== "undefined" ? formatSize(item.uploaded) : "-" }}
             </span>
-            <v-icon color="green-darken-4" icon="mdi-chevron-up" small></v-icon>
+            <v-icon color="green-darken-4" icon="mdi-chevron-up" size="small"></v-icon>
           </v-row>
           <v-row class="flex-nowrap" justify="end">
             <span class="text-no-wrap">
               {{ typeof item.downloaded !== "undefined" ? formatSize(item.downloaded) : "-" }}
             </span>
-            <v-icon color="red-darken-4" icon="mdi-chevron-down" small></v-icon>
+            <v-icon color="red-darken-4" icon="mdi-chevron-down" size="small"></v-icon>
           </v-row>
         </v-container>
       </template>
@@ -493,13 +470,13 @@ function viewStatistic() {
             <span class="text-no-wrap">
               {{ typeof item.trueUploaded !== "undefined" ? formatSize(item.trueUploaded) : "-" }}
             </span>
-            <v-icon color="green-darken-4" icon="mdi-chevron-up" small></v-icon>
+            <v-icon color="green-darken-4" icon="mdi-chevron-up" size="small"></v-icon>
           </v-row>
           <v-row class="flex-nowrap" justify="end">
             <span class="text-no-wrap">
               {{ typeof item.trueDownloaded !== "undefined" ? formatSize(item.trueDownloaded) : "-" }}
             </span>
-            <v-icon color="red-darken-4" icon="mdi-chevron-down" small></v-icon>
+            <v-icon color="red-darken-4" icon="mdi-chevron-down" size="small"></v-icon>
           </v-row>
         </v-container>
       </template>
@@ -576,9 +553,19 @@ function viewStatistic() {
         >
           <v-row align="center" class="flex-nowrap" justify="end">
             <v-icon :title="t('levelRequirement.bonus')" color="green-darken-4" icon="mdi-currency-usd" size="small" />
-            <span class="text-no-wrap">
-              {{ typeof item.bonus !== "undefined" ? formatNumber(item.bonus) : "-" }}
-            </span>
+            <span
+              class="text-no-wrap"
+              :title="typeof item.bonus !== 'undefined' ? formatNumber(item.bonus) : '-'"
+              @dblclick="toggleNumberSimplification"
+              style="cursor: pointer; user-select: none"
+              >{{
+                typeof item.bonus !== "undefined"
+                  ? configStore.myDataTableControl.simplifyBonusNumbers
+                    ? simplifyNumber(item.bonus)
+                    : formatNumber(item.bonus)
+                  : "-"
+              }}</span
+            >
           </v-row>
           <v-row align="center" class="flex-nowrap" justify="end">
             <v-icon
@@ -587,23 +574,53 @@ function viewStatistic() {
               icon="mdi-lightning-bolt-circle"
               size="small"
             />
-            <span class="text-no-wrap">
-              {{ formatNumber(item.seedingBonus) }}
-            </span>
+            <span
+              class="text-no-wrap"
+              :title="typeof item.seedingBonus !== 'undefined' ? formatNumber(item.seedingBonus) : '-'"
+              @dblclick="toggleNumberSimplification"
+              style="cursor: pointer; user-select: none"
+              >{{
+                typeof item.seedingBonus !== "undefined"
+                  ? configStore.myDataTableControl.simplifyBonusNumbers
+                    ? simplifyNumber(item.seedingBonus)
+                    : formatNumber(item.seedingBonus)
+                  : "-"
+              }}</span
+            >
           </v-row>
         </v-container>
         <template v-else>
           <v-icon :title="t('levelRequirement.bonus')" color="green-darken-4" icon="mdi-currency-usd" size="small" />
-          <span class="text-no-wrap">
-            {{ typeof item.bonus !== "undefined" ? formatNumber(item.bonus) : "-" }}
-          </span>
+          <span
+            class="text-no-wrap"
+            :title="typeof item.bonus !== 'undefined' ? formatNumber(item.bonus) : '-'"
+            @dblclick="toggleNumberSimplification"
+            style="cursor: pointer; user-select: none"
+            >{{
+              typeof item.bonus !== "undefined"
+                ? configStore.myDataTableControl.simplifyBonusNumbers
+                  ? simplifyNumber(item.bonus)
+                  : formatNumber(item.bonus)
+                : "-"
+            }}</span
+          >
         </template>
       </template>
 
       <template #item.bonusPerHour="{ item }">
-        <span class="text-no-wrap">
-          {{ typeof item.bonusPerHour !== "undefined" ? formatNumber(item.bonusPerHour) : "-" }}
+        <span class="text-no-wrap" @dblclick="toggleNumberSimplification">
+          {{
+            typeof item.bonusPerHour !== "undefined"
+              ? configStore.myDataTableControl.simplifyBonusNumbers
+                ? simplifyNumber(item.bonusPerHour)
+                : formatNumber(item.bonusPerHour)
+              : "-"
+          }}
         </span>
+      </template>
+
+      <template #item.invites="{ item }">
+        <span class="text-no-wrap">{{ typeof item.invites !== "undefined" ? item.invites : "-" }}</span>
       </template>
 
       <!-- 入站时间 -->
@@ -643,7 +660,7 @@ function viewStatistic() {
 
       <!-- 操作 -->
       <template #item.action="{ item }">
-        <v-btn-group variant="text">
+        <v-btn-group class="table-action" density="compact" variant="plain">
           <v-btn
             :title="t('MyData.table.action.viewHistoryData')"
             color="blue"

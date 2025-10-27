@@ -7,6 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "hdtime",
   name: "HDTime",
+  aka: ["时间"],
   description: "HDTime, time to forever!",
   tags: ["影视", "综合"],
 
@@ -42,11 +43,13 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 1,
       name: "User",
+      nameAka: ["未烧"],
       privilege: `新用户的默认级别。`,
     },
     {
       id: 2,
-      name: "感冒(Power User)",
+      name: "Power User",
+      nameAka: ["感冒"],
       interval: "P4W",
       downloaded: "50GB",
       ratio: 1.05,
@@ -57,7 +60,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 3,
-      name: "发热(Elite User)",
+      name: "Elite User",
+      nameAka: ["发热"],
       interval: "P8W",
       downloaded: "150GB",
       ratio: 1.55,
@@ -66,7 +70,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 4,
-      name: "低烧(Crazy User)",
+      name: "Crazy User",
+      nameAka: ["低烧"],
       interval: "P15W",
       downloaded: "500GB",
       ratio: 2.05,
@@ -75,7 +80,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 5,
-      name: "中烧(Insane User)",
+      name: "Insane User",
+      nameAka: ["中烧"],
       interval: "P25W",
       downloaded: "750GB",
       ratio: 2.55,
@@ -84,7 +90,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 6,
-      name: "高烧(Veteran User)",
+      name: "Veteran User",
+      nameAka: ["高烧"],
       interval: "P40W",
       downloaded: "1.5TB",
       ratio: 3.05,
@@ -94,7 +101,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 7,
-      name: "烧糊涂(Extreme User)",
+      name: "Extreme User",
+      nameAka: ["烧糊涂"],
       interval: "P60W",
       downloaded: "3TB",
       ratio: 3.55,
@@ -103,7 +111,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 8,
-      name: "走火入魔(Ultimate User)",
+      name: "Ultimate User",
+      nameAka: ["走火入魔"],
       interval: "P80W",
       downloaded: "5TB",
       ratio: 4.05,
@@ -112,7 +121,8 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 9,
-      name: "骨灰(HDtime Master)",
+      name: "HDtime Master",
+      nameAka: ["骨灰"],
       interval: "P100W",
       downloaded: "10TB",
       ratio: 4.55,

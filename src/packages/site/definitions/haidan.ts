@@ -1,5 +1,6 @@
 import { type ISiteMetadata } from "../types";
 import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
+import { userInfoWithInvitesInUserDetailsPage } from "./kunlun.ts";
 
 const linkQuery = {
   selector: ['a[href*="download.php?id="]'],
@@ -113,15 +114,28 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    ...SchemaMetadata.userInfo!,
+    ...userInfoWithInvitesInUserDetailsPage,
     selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
+      ...userInfoWithInvitesInUserDetailsPage.selectors,
+      levelId: {
+        selector: ["td.rowhead:contains('等级') + td > img"],
+        attr: "src",
+        filters: [
+          (query: string) => {
+            const match = query.match(/\/class\/(\d+)\.gif/);
+            return match ? parseInt(match[1]) - 1 : 0;
+          },
+        ],
+      },
       levelName: {
         selector: ["td.rowhead:contains('等级') + td > img"],
         attr: "title",
         filters: [
           (query: string) => {
-            return query.split(")")[1];
+            if (query && query.includes(")")) {
+              return query.split(")")[1].trim();
+            }
+            return query || "";
           },
         ],
       },
@@ -215,5 +229,6 @@ export const siteMetadata: ISiteMetadata = {
       seedingBonus: 10000,
       privilege: "允许匿名，拥有发布主题推荐权限，并拥有低于该等级以下权限",
     },
+    // VIP以上等级通过系统智能识别机制自动处理，不在此处配置详细权限信息
   ],
 };

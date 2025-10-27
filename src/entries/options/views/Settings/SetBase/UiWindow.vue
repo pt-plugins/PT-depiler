@@ -55,6 +55,13 @@ defineExpose({
       </v-select>
 
       <v-switch
+        v-model="configStore.showReleaseNoteOnVersionChange"
+        color="success"
+        hide-details
+        label="插件更新时显示更新日志窗口"
+      />
+
+      <v-switch
         v-model="configStore.saveTableBehavior"
         color="success"
         hide-details
@@ -149,6 +156,13 @@ defineExpose({
           </v-col>
           <v-col>
             <v-switch
+              v-model="configStore.contentScript.doubleConfirmAction"
+              color="success"
+              hide-details
+              label="对种子列表页批量复制、本地下载等操作需要二步确认"
+            />
+
+            <v-switch
               v-model="configStore.contentScript.dragLinkOnSpeedDial"
               color="success"
               hide-details
@@ -167,7 +181,7 @@ defineExpose({
             <v-select
               v-model="configStore.contentScript.socialSiteSearchBy"
               :disabled="!configStore.contentScript.enabledAtSocialSite"
-              :items="['id', 'title', 'chosen']"
+              :items="['id', 'title', 'imdb', 'chosen']"
               :item-title="(item) => t('SetBase.ui.socialSiteSearchBy.' + item)"
               :item-value="(item) => item"
               label="社交站点搜索方式"
@@ -182,13 +196,28 @@ defineExpose({
 
   <v-row>
     <v-col md="10" lg="8">
-      <v-label>右键菜单</v-label>
-      <v-switch
-        v-model="configStore.contextMenus.allowSelectionTextSearch"
-        color="success"
-        hide-details
-        label="启用选中文字搜索"
-      />
+      <div class="d-flex align-center">
+        <v-label>右键菜单</v-label>
+        <v-spacer />
+        <v-switch v-model="configStore.contextMenus.enabled" color="success" hide-details label="启用" />
+      </div>
+
+      <template v-if="configStore.contextMenus.enabled">
+        <v-switch
+          v-model="configStore.contextMenus.allowSelectionTextSearch"
+          color="success"
+          hide-details
+          label="启用选中文字搜索"
+        />
+
+        <v-switch
+          v-model="configStore.contextMenus.allowLinkDownloadPush"
+          :disabled="metadataStore.getEnabledDownloaders.length === 0"
+          color="success"
+          hide-details
+          label="启用（下载）链接推送"
+        />
+      </template>
     </v-col>
   </v-row>
 </template>

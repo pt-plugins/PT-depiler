@@ -1,4 +1,5 @@
 import { toRaw, isRef, isReactive, isProxy } from "vue";
+// Note: filesize library changed type name from FileSizeOptions to FilesizeOptions in v11.0+
 import { filesize, type FilesizeOptions } from "filesize";
 import {
   differenceInDays,
@@ -42,7 +43,7 @@ export const formValidateRules: Record<string, (args?: any) => (v: any) => boole
 
 export const formatSize = (size: number | string, options?: FilesizeOptions) => {
   try {
-    return filesize(size, { base: 2, ...(options ?? {}) });
+    return filesize(size, { base: 2, round: 2, pad: true, ...(options ?? {}) });
   } catch (e) {
     return size;
   }
@@ -92,3 +93,34 @@ export const formatTimeAgo = (sourceDate: Date | number | string, weekOnly: bool
 
 export const formatNumber = (num: number, options: Intl.NumberFormatOptions = {}) =>
   Number(num).toLocaleString("en-US", { maximumFractionDigits: 2, minimumFractionDigits: 2, ...options });
+
+// 定义单位和对应的阈值
+const simplifyNumberUnits = [
+  { threshold: 1000000000000, suffix: "T" },
+  { threshold: 1000000000, suffix: "B" },
+  { threshold: 1000000, suffix: "M" },
+  { threshold: 1000, suffix: "K" },
+];
+
+// 数字简化函数，将大数字转换为带单位的简化形式（用于bonus相关数字）
+export const simplifyNumber = (num: number | string, spacer: string = ""): string => {
+  const numValue = typeof num === "string" ? parseFloat(num) : num;
+
+  if (isNaN(numValue)) {
+    return "-";
+  }
+
+  const absNum = Math.abs(numValue);
+
+  // 找到合适的单位
+  for (const { threshold, suffix } of simplifyNumberUnits) {
+    if (absNum >= threshold) {
+      const value = numValue / threshold;
+      // 如果是整数，不显示小数点
+      return value.toFixed(2) + spacer + suffix;
+    }
+  }
+
+  // 小于1000的数字直接返回
+  return numValue.toFixed(2);
+};
