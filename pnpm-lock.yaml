@@ -104,8 +104,8 @@ importers:
         specifier: ^4.6.3
         version: 4.6.3(vue@3.5.22(typescript@5.9.3))
       vuetify:
-        specifier: ^3.10.5
-        version: 3.10.5(typescript@5.9.3)(vite-plugin-vuetify@2.1.2)(vue@3.5.22(typescript@5.9.3))
+        specifier: ^3.10.7
+        version: 3.10.7(typescript@5.9.3)(vite-plugin-vuetify@2.1.2)(vue@3.5.22(typescript@5.9.3))
       webdav:
         specifier: ^5.8.0
         version: 5.8.0
@@ -178,7 +178,7 @@ importers:
         version: 8.0.3(vite@6.3.6(@types/node@24.9.0)(jiti@2.5.1)(lightningcss@1.30.1)(sass@1.93.2)(tsx@4.20.6)(yaml@2.8.0))(vue@3.5.22(typescript@5.9.3))
       vite-plugin-vuetify:
         specifier: ^2.1.2
-        version: 2.1.2(vite@6.3.6(@types/node@24.9.0)(jiti@2.5.1)(lightningcss@1.30.1)(sass@1.93.2)(tsx@4.20.6)(yaml@2.8.0))(vue@3.5.22(typescript@5.9.3))(vuetify@3.10.5)
+        version: 2.1.2(vite@6.3.6(@types/node@24.9.0)(jiti@2.5.1)(lightningcss@1.30.1)(sass@1.93.2)(tsx@4.20.6)(yaml@2.8.0))(vue@3.5.22(typescript@5.9.3))(vuetify@3.10.7)
       vite-plugin-web-extension:
         specifier: 4.4.3
         version: 4.4.3(@types/node@24.9.0)(jiti@2.5.1)(lightningcss@1.30.1)(sass@1.93.2)(tsx@4.20.6)
@@ -681,8 +681,8 @@ packages:
     peerDependencies:
       eslint: ^6.0.0 || ^7.0.0 || >=8.0.0
 
-  '@eslint-community/regexpp@4.12.1':
-    resolution: {integrity: sha512-CCZCDJuduB9OUkFkY2IgppNZMi2lBQgD2qzwXkEia16cge2pijY/aXi96CJMquDMn3nJdlPV1A5KrJEXwfLNzQ==}
+  '@eslint-community/regexpp@4.12.2':
+    resolution: {integrity: sha512-EriSTlt5OC9/7SXkRSCAhfSxxoSUgBm33OH+IkwbdpgoqsSsUg7y3uh+IICI/Qg4BBWr3U2i39RpmycbxMq4ew==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
 
   '@eslint/config-array@0.19.2':
@@ -3524,8 +3524,8 @@ packages:
       typescript:
         optional: true
 
-  vuetify@3.10.5:
-    resolution: {integrity: sha512-3h1onfjcj04B+LJ0cXvGrOOe6C3652JAlyUAuGKgQXwhP9Oe1hAfdM6+svXR5Dt1xC39lQEGqJdacZtwisUEoQ==}
+  vuetify@3.10.7:
+    resolution: {integrity: sha512-I7eyv5hkJbaWpUT97aDtf17VQXIEnGfEWyNRD/6nqVfYIbVAUNVUiXCtoPnuSH/mxpA3Z/duxOr/94KPn2Rf8g==}
     peerDependencies:
       typescript: '>=4.7'
       vite-plugin-vuetify: '>=2.1.0'
@@ -4056,7 +4056,7 @@ snapshots:
       eslint: 9.21.0(jiti@2.5.1)
       eslint-visitor-keys: 3.4.3
 
-  '@eslint-community/regexpp@4.12.1': {}
+  '@eslint-community/regexpp@4.12.2': {}
 
   '@eslint/config-array@0.19.2':
     dependencies:
@@ -4619,11 +4619,11 @@ snapshots:
 
   '@vue/shared@3.5.22': {}
 
-  '@vuetify/loader-shared@2.1.1(vue@3.5.22(typescript@5.9.3))(vuetify@3.10.5)':
+  '@vuetify/loader-shared@2.1.1(vue@3.5.22(typescript@5.9.3))(vuetify@3.10.7)':
     dependencies:
       upath: 2.0.1
       vue: 3.5.22(typescript@5.9.3)
-      vuetify: 3.10.5(typescript@5.9.3)(vite-plugin-vuetify@2.1.2)(vue@3.5.22(typescript@5.9.3))
+      vuetify: 3.10.7(typescript@5.9.3)(vite-plugin-vuetify@2.1.2)(vue@3.5.22(typescript@5.9.3))
 
   '@vueuse/components@13.9.0(vue@3.5.22(typescript@5.9.3))':
     dependencies:
@@ -5354,7 +5354,7 @@ snapshots:
   eslint@9.21.0(jiti@2.5.1):
     dependencies:
       '@eslint-community/eslint-utils': 4.9.0(eslint@9.21.0(jiti@2.5.1))
-      '@eslint-community/regexpp': 4.12.1
+      '@eslint-community/regexpp': 4.12.2
       '@eslint/config-array': 0.19.2
       '@eslint/core': 0.12.0
       '@eslint/eslintrc': 3.3.1
@@ -6953,14 +6953,14 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  vite-plugin-vuetify@2.1.2(vite@6.3.6(@types/node@24.9.0)(jiti@2.5.1)(lightningcss@1.30.1)(sass@1.93.2)(tsx@4.20.6)(yaml@2.8.0))(vue@3.5.22(typescript@5.9.3))(vuetify@3.10.5):
+  vite-plugin-vuetify@2.1.2(vite@6.3.6(@types/node@24.9.0)(jiti@2.5.1)(lightningcss@1.30.1)(sass@1.93.2)(tsx@4.20.6)(yaml@2.8.0))(vue@3.5.22(typescript@5.9.3))(vuetify@3.10.7):
     dependencies:
-      '@vuetify/loader-shared': 2.1.1(vue@3.5.22(typescript@5.9.3))(vuetify@3.10.5)
+      '@vuetify/loader-shared': 2.1.1(vue@3.5.22(typescript@5.9.3))(vuetify@3.10.7)
       debug: 4.4.1
       upath: 2.0.1
       vite: 6.3.6(@types/node@24.9.0)(jiti@2.5.1)(lightningcss@1.30.1)(sass@1.93.2)(tsx@4.20.6)(yaml@2.8.0)
       vue: 3.5.22(typescript@5.9.3)
-      vuetify: 3.10.5(typescript@5.9.3)(vite-plugin-vuetify@2.1.2)(vue@3.5.22(typescript@5.9.3))
+      vuetify: 3.10.7(typescript@5.9.3)(vite-plugin-vuetify@2.1.2)(vue@3.5.22(typescript@5.9.3))
     transitivePeerDependencies:
       - supports-color
 
@@ -7053,12 +7053,12 @@ snapshots:
     optionalDependencies:
       typescript: 5.9.3
 
-  vuetify@3.10.5(typescript@5.9.3)(vite-plugin-vuetify@2.1.2)(vue@3.5.22(typescript@5.9.3)):
+  vuetify@3.10.7(typescript@5.9.3)(vite-plugin-vuetify@2.1.2)(vue@3.5.22(typescript@5.9.3)):
     dependencies:
       vue: 3.5.22(typescript@5.9.3)
     optionalDependencies:
       typescript: 5.9.3
-      vite-plugin-vuetify: 2.1.2(vite@6.3.6(@types/node@24.9.0)(jiti@2.5.1)(lightningcss@1.30.1)(sass@1.93.2)(tsx@4.20.6)(yaml@2.8.0))(vue@3.5.22(typescript@5.9.3))(vuetify@3.10.5)
+      vite-plugin-vuetify: 2.1.2(vite@6.3.6(@types/node@24.9.0)(jiti@2.5.1)(lightningcss@1.30.1)(sass@1.93.2)(tsx@4.20.6)(yaml@2.8.0))(vue@3.5.22(typescript@5.9.3))(vuetify@3.10.7)
 
   walk-up-path@4.0.0: {}
 
