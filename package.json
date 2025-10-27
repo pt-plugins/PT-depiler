@@ -70,7 +70,7 @@
     "vue-echarts": "^8.0.1",
     "vue-i18n": "^11.1.12",
     "vue-konva": "^3.2.6",
-    "vue-router": "^4.5.1",
+    "vue-router": "^4.6.3",
     "vuetify": "^3.10.5",
     "webdav": "^5.8.0"
   },
@@ -80,7 +80,7 @@
     "@types/crypto-js": "^4.2.2",
     "@types/file-saver": "^2.0.7",
     "@types/git-rev-sync": "^2.0.2",
-    "@types/node": "^24.7.2",
+    "@types/node": "^24.9.0",
     "@types/parse-torrent": "^5.8.7",
     "@types/sizzle": "^2.3.10",
     "@vitejs/plugin-vue": "^5.2.4",
@@ -96,7 +96,7 @@
     "typescript": "~5.9.3",
     "vite": "^6.3.6",
     "vite-plugin-node-polyfills": "^0.24.0",
-    "vite-plugin-vue-devtools": "^8.0.2",
+    "vite-plugin-vue-devtools": "^8.0.3",
     "vite-plugin-vuetify": "^2.1.2",
     "vite-plugin-web-extension": "4.4.3",
     "vue-tsc": "^3.1.1"

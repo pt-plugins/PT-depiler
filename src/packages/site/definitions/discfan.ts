@@ -87,7 +87,8 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "120GB",
       ratio: 1.55,
       seedingBonus: 80000,
-      privilege: "首次升级获得2个永久邀请名额。允许在魔力值中心购买邀请。允许查看邀请。",
+      privilege:
+        "首次升级获得2个永久邀请名额。允许在魔力值中心购买邀请。允许查看邀请。筑基(Elite User)及以上等级用户在封存账号后不会被删除帐号。",
     },
     {
       id: 4,
@@ -117,7 +118,8 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "750GB",
       ratio: 3.05,
       seedingBonus: 400000,
-      privilege: "首次升级获得6个永久邀请名额。可以查看他人的评论和帖子历史记录。",
+      privilege:
+        "首次升级获得6个永久邀请名额。可以查看他人的评论和帖子历史记录。化神(Veteran User)及以上等级用户会永远保留帐号。",
     },
     {
       id: 7,
