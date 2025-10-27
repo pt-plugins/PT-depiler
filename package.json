@@ -50,7 +50,7 @@
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
     "echarts": "^6.0.0",
-    "es-toolkit": "^1.40.0",
+    "es-toolkit": "^1.41.0",
     "file-saver": "^2.0.5",
     "filesize": "^11.0.13",
     "idb": "^8.0.3",
