@@ -1,7 +1,4 @@
-import urlJoin from "url-join";
-import Sizzle from "sizzle";
-import { mergeWith } from "es-toolkit";
-
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import type { ISearchInput, ISiteMetadata, ITorrent, IUserInfo } from "../types";
 import { EResultParseStatus } from "../types";
 import { parseSizeString, createDocument } from "../utils";
@@ -23,7 +20,47 @@ export const siteMetadata: ISiteMetadata = {
     "https://pussytorrents.org/",
   ],
 
-      // FIXME 暂未实现torrent相关search, list, detail等
+  search: {
+    requestConfig: {
+      url: "/torrents/browse",
+    },
+    requestConfigTransformer: ({ keywords, searchEntry, requestConfig }) => {
+      const baseUrl = requestConfig!.url || "";
+      if (keywords) {
+        delete requestConfig!.params?.keywords;
+        keywords = keywords.replace(/(^|\s)-/, "");
+        requestConfig!.url = baseUrl + "?query=" + keywords;
+      }
+      return requestConfig!;
+    },
+    selectors: {
+      rows: {
+        selector: 'table#torrenttable > tbody > tr:has(a[href^="/download/"])',
+      },
+      id: {
+        selector: 'a[href^="/torrent/"]',
+        attr: "href",
+        filters: [{ name: "parseNumber" }],
+      },
+      title: { selector: 'a[href^="/torrent/"]' },
+      url: { selector: 'a[href^="/torrent/"]', attr: "href" },
+      link: { selector: 'a[href^="/download/"]', attr: "href" },
+      time: {
+        selector: "span.subnote",
+        filters: [(query: string) => query.replace("Added on ", "")],
+      },
+      size: { selector: "td:nth-last-child(5)" },
+      author: { selector: "td:nth-last-child(1)" },
+      category: { text: "ALL" },
+      seeders: { selector: "td:nth-last-child(3)" },
+      leechers: { selector: "td:nth-last-child(2)" },
+      completed: {
+        selector: "td:nth-last-child(4)",
+        filters: [{ name: "parseNumber" }],
+      },
+      comments: { selector: 'a[href*="#comments"]' },
+    },
+  },
 
   userInfo: {
     pickLast: ["id", "name"],
@@ -52,8 +89,7 @@ export const siteMetadata: ISiteMetadata = {
             filters: [{ name: "parseTime", args: ["EEEE do MMMM yyyy" /* 'Saturday 6th May 2017' */] }],
           },
         },
-      },
-      // FIXME 暂未实现seeding, seedingSize, uploads
+      },// FIXME 暂未实现seeding/seedingSize
     ],
   },
   // FIXME 暂未实现levelRequirements
