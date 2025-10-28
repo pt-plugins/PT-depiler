@@ -622,6 +622,7 @@ export default class MTeam extends PrivateSite {
     axiosConfig.headers = {
       ...(axiosConfig.headers ?? {}),
       "x-api-key": this.userConfig.inputSetting!.token ?? "", // FIXME 是否允许我们设置一个空字符？
+      "origin": this.url,   // MTeam site requires Origin header for CORS validation (added 2025-10-28)
     };
 
     return super.request<T>(axiosConfig, checkLogin);
