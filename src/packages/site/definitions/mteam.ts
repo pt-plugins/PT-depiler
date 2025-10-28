@@ -622,6 +622,7 @@ export default class MTeam extends PrivateSite {
     axiosConfig.headers = {
       ...(axiosConfig.headers ?? {}),
       "x-api-key": this.userConfig.inputSetting!.token ?? "", // FIXME 是否允许我们设置一个空字符？
+      "origin": this.url,   // 251028 站点增加cors认证
     };
 
     return super.request<T>(axiosConfig, checkLogin);
