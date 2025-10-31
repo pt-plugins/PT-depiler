@@ -224,7 +224,7 @@ function openOptions() {
 <template>
   <v-theme-provider :theme="configStore.contentScript.applyTheme ? configStore.uiTheme : ''">
     <div ref="el" :style="style" style="position: fixed; z-index: 9999999">
-      <v-speed-dial v-model="openSpeedDial" :close-on-content-click="false" no-click-animation persistent>
+      <v-speed-dial v-model="openSpeedDial" :close-on-content-click="false" disable-initial-focus no-click-animation persistent>
         <template v-slot:activator="{ props: activatorProps }">
           <v-fab
             v-bind="activatorProps"

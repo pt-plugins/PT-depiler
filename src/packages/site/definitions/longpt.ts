@@ -1,4 +1,4 @@
-import { ETorrentStatus, type ISiteMetadata } from "../types";
+import type { ISiteMetadata } from "../types";
 import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
@@ -36,7 +36,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       name: "媒介",
-      key: "source",
+      key: "medium",
       options: [
         { name: "Blu-ray", value: 1 },
         { name: "HD DVD", value: 2 },
@@ -106,86 +106,11 @@ export const siteMetadata: ISiteMetadata = {
       ],
       cross: { mode: "append" },
     },
-    {
-      name: "标签",
-      key: "tag_id",
-      options: [
-        { name: "禁转", value: 1 },
-        { name: "首发", value: 2 },
-        { name: "官方", value: 3 },
-        { name: "DIY", value: 4 },
-        { name: "国语", value: 5 },
-        { name: "中字", value: 6 },
-        { name: "HDR", value: 7 },
-        { name: "完结", value: 8 },
-        { name: "英字", value: 9 },
-        { name: "杜比", value: 10 },
-      ],
-      cross: false, // tag_id 没试出来能不能多选，就先不允许 cross 了
-    },
     CategoryIncldead,
     CategorySpstate,
     CategoryInclbookmarked,
-    {
-      name: "审核状态",
-      key: "approval_status",
-      options: [
-        { name: "全部", value: "" },
-        { name: "未审", value: 0 },
-        { name: "通过", value: 1 },
-        { name: "拒绝", value: 2 },
-      ],
-      cross: false,
-    },
   ],
-  search: {
-    ...SchemaMetadata.search!,
-    selectors: {
-      ...SchemaMetadata.search!.selectors,
-      rows: { selector: "div.torrent-table-sub-info" },
-      subTitle: { selector: ".torrent-info-text-small_name" },
-      time: { selector: ".torrent-info-text-added", ...SchemaMetadata.search!.selectors!.time! },
-      size: { selector: ".torrent-info-text-size", filters: [{ name: "parseSize" }] },
-      author: { selector: ".torrent-info-text-author" },
-      seeders: { selector: ".torrent-info-text-seeders" },
-      leechers: { selector: ".torrent-info-text-leechers" },
-      completed: { selector: ".torrent-info-text-finished" },
-      comments: { selector: ".torrent-info-text-comments" },
-      // FIXME progress 和 status 未作验证
 
-      status: {
-        selector: ["div[title*='leeching']", "div[title*='seeding']", "div[title*='inactivity']"],
-        attr: "title",
-        filters: [
-          (title: string) => {
-            if (title.includes("leeching")) return ETorrentStatus.downloading;
-            if (title.includes("seeding")) return ETorrentStatus.seeding;
-            if (title.includes("inactivity")) {
-              return title.includes("100%") ? ETorrentStatus.completed : ETorrentStatus.inactive;
-            }
-            return ETorrentStatus.unknown;
-          },
-        ],
-      },
-      progress: {
-        selector: ["div[title*='leeching']", "div[title*='seeding']", "div[title*='inactivity']"],
-        attr: "title",
-        filters: [{ name: "parseNumber" }],
-      },
-
-      // Douban 和 imdb 虽然站点有展示评分，但无法获取到对应的id
-    },
-  },
-  userInfo: {
-    ...SchemaMetadata.userInfo!,
-    selectors: {
-      ...SchemaMetadata.userInfo!.selectors,
-      bonus: {
-        selector: ["td.rowhead:contains('魔力') + td"],
-        filters: [{ name: "parseNumber" }],
-      },
-    },
-  },
   levelRequirements: [
     {
       id: 0,
