@@ -8,7 +8,7 @@
             2. 此时，ISiteMetadata 中定义的 favicon 字段配置项不起作用，强制刷新缓存不起作用（本地硬配置优先）
  *   2. localforage 中已有的 base64 缓存（根据站点的 host 值）
  *   3. ISiteMetadata 中定义的 favicon 字段
- *   4. 请求网站首页，并从返回的html中解析所需要的 favicion 字段
+ *   4. 请求网站首页，并从返回的html中解析所需要的 favicon 字段
  *   5. 使用 NO_IMAGE 替代
  *
  * special thanks to: https://github.com/spro/get-website-favicon/tree/master/lib/origin

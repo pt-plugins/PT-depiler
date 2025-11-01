@@ -14,7 +14,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Unit3D",
 
   urls: ["uggcf://wcgi4.hf/"],
-
+  favicon: "./_default_unit3d.ico",
   category: [
     {
       name: "类别",
