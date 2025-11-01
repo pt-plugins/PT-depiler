@@ -14,7 +14,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Unit3D",
 
-  urls: ["uggcf://errysyvk.klm/"],
+  urls: ["uggcf://errysyvk.pp/", "uggcf://errysyvk.klm/"],
 
   category: [
     {
