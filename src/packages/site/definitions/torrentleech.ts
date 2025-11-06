@@ -195,45 +195,15 @@ export const siteMetadata: ISiteMetadata = {
     process: [
       {
         requestConfig: { url: "/", responseType: "document" },
-        selectors: {
-          // id: { selector: "span.centerTopBar span[onclick*='/profile/'][onclick*='view']" },
-          name: { selector: "span.centerTopBar span[onclick*='/profile/'][onclick*='view']" },
-          uploaded: { selector: "span.centerTopBar div[title^='Uploaded'] span", filters: [{ name: "parseSize" }] },
-          downloaded: { selector: "span.centerTopBar div[title^='Downloaded'] span", filters: [{ name: "parseSize" }] },
-          bonus: { selector: "span.centerTopBar span.total-TL-points", filters: [{ name: "parseNumber" }] },
-          messageCount: {
-            text: "0",
-            selector: "span.div-menu-item[onclick*='/notifications'] div.notificatinTooltip span.tooltip-title",
-            filters: [{ name: "parseNumber" }],
-          },
-        },
+        fields: ["name", "uploaded", "downloaded", "bonus", "messageCount"],
       },
       {
         requestConfig: { url: "/profile/$name$", responseType: "document" },
-        assertion: { name: "url" }, // 替换之前获取的用户名
-        selectors: {
-          id: {
-            selector: "div.has-support-msg script",
-            filters: [(text: string) => text.match(/var userLogUserID = '(\\d+)';/)?.[1] ?? ""],
-          },
-          levelName: { selector: "div.profile-details div.label-user-class" },
-          joinTime: {
-            selector: "table.profileViewTable td:contains('Registration date') + td",
-            filters: [{ name: "parseTime", args: ["EEEE do MMMM yyyy" /* 'Saturday 6th May 2017' */] }],
-          },
-        },
-      },
-      {
-        // uploads - 第一步：GET请求初始化页面
-        requestConfig: { 
-          url: "/profile/$name$/uploads",
-          responseType: "document"
-        },
         assertion: { name: "url" },
-        fields: [],
+        fields: ["id", "levelName", "joinTime"],
       },
       {
-        // uploads - 第二步：POST请求获取数据
+        // uploads - 直接通过POST请求获取上传种子数据
         requestConfig: {
           url: "/user/account/uploadedtorrents",
           method: "POST",
@@ -241,9 +211,7 @@ export const siteMetadata: ISiteMetadata = {
           headers: {
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
             "X-Requested-With": "XMLHttpRequest",
-            "Accept": "application/json, text/javascript, */*; q=0.01",
-            "Origin": "https://www.torrentleech.cc",
-            "Referer": "https://www.torrentleech.cc/user/account/uploadedtorrents"
+            "Accept": "application/json, text/javascript, */*; q=0.01"
           },
           data: {
             sEcho: 1,
