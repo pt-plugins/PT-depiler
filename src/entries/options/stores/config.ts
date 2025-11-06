@@ -83,6 +83,7 @@ export const useConfigStore = defineStore("config", {
       applyTheme: false,
       defaultOpenSpeedDial: false,
       stackedButtons: false,
+      fadeEnterStyle: false,
 
       doubleConfirmAction: true,
       dragLinkOnSpeedDial: true,

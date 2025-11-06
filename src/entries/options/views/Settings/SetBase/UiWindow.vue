@@ -146,6 +146,12 @@ defineExpose({
               hide-details
               label="使用大图标按键"
             />
+            <v-switch
+              v-model="configStore.contentScript.fadeEnterStyle"
+              color="success"
+              hide-details
+              label="启用淡入效果（即默认半透明，当鼠标移入时显示）"
+            />
             <v-divider />
           </v-col>
         </v-row>

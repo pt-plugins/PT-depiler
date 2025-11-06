@@ -55,6 +55,7 @@ export interface IConfigPiniaStorageSchema {
     applyTheme: boolean; // 是否响应主题样式
     defaultOpenSpeedDial: boolean; // 是否默认打开按钮
     stackedButtons: boolean; // 是否使用堆叠按钮
+    fadeEnterStyle: boolean; // 是否启用淡入效果（即默认半透明，当鼠标移入时不透明）
 
     doubleConfirmAction: boolean; // 进行批量操作时，是否需要二步确认（避免误操作）
     dragLinkOnSpeedDial: boolean; // 是否允许拖拽链接到 SpeedDial 上
