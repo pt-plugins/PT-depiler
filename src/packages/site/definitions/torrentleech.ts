@@ -1,266 +1,500 @@
-import requests
-from typing import List, Dict, Any
-import time
-import logging
+import urlJoin from "url-join";
+import Sizzle from "sizzle";
+import { mergeWith } from "es-toolkit";
 
-logger = logging.getLogger(__name__)
+import type { ISearchInput, ISiteMetadata, ITorrent, IUserInfo } from "../types";
+import { EResultParseStatus } from "../types";
+import { parseSizeString, createDocument } from "../utils";
+import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 
-class TorrentLeechAPI:
-    def __init__(self, username: str, password: str):
-        self.base_url = "https://www.torrentleech.org"
-        self.session = requests.Session()
-        self.username = username
-        self.password = password
-        self.user_id = None
-        self.is_logged_in = False
-        
-        # 设置请求头以模拟浏览器行为
-        self.session.headers.update({
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8',
-            'Accept-Language': 'en-US,en;q=0.9',
-            'Accept-Encoding': 'gzip, deflate, br',
-            'DNT': '1',
-            'Connection': 'keep-alive',
-            'Upgrade-Insecure-Requests': '1',
-            'Sec-Fetch-Dest': 'document',
-            'Sec-Fetch-Mode': 'navigate',
-            'Sec-Fetch-Site': 'same-origin',
-        })
+const categoryOptions = [
+  { value: 8, name: "Movies :: Cam" },
+  { value: 9, name: "Movies :: TS/TC" },
+  { value: 11, name: "Movies :: DVDRip/DVDScreener" },
+  { value: 37, name: "Movies :: WEBRip" },
+  { value: 43, name: "Movies :: HDRip" },
+  { value: 14, name: "Movies :: BlurayRip" },
+  { value: 12, name: "Movies :: DVD-R" },
+  { value: 13, name: "Movies :: Bluray" },
+  { value: 47, name: "Movies :: 4K" },
+  { value: 15, name: "Movies :: Boxsets" },
+  { value: 29, name: "Movies :: Documentaries" },
+  { value: 26, name: "TV :: Episodes" },
+  { value: 32, name: "TV :: Episodes HD" },
+  { value: 27, name: "TV :: Boxsets" },
+  { value: 17, name: "Games :: PC" },
+  { value: 42, name: "Games :: Mac" },
+  { value: 18, name: "Games :: XBOX" },
+  { value: 19, name: "Games :: XBOX360" },
+  { value: 40, name: "Games :: XBOXONE" },
+  { value: 20, name: "Games :: PS2" },
+  { value: 21, name: "Games :: PS3" },
+  { value: 39, name: "Games :: PS4" },
+  { value: 22, name: "Games :: PSP" },
+  { value: 28, name: "Games :: Wii" },
+  { value: 30, name: "Games :: Nintendo DS" },
+  { value: 48, name: "Games :: Nintendo Switch" },
+  { value: 23, name: "Apps :: PC-ISO" },
+  { value: 24, name: "Apps :: Mac" },
+  { value: 25, name: "Apps :: Mobile" },
+  { value: 33, name: "Apps :: 0-day" },
+  { value: 38, name: "Education" },
+  { value: 34, name: "Animation :: Anime" },
+  { value: 35, name: "Animation :: Cartoons" },
+  { value: 45, name: "Books :: EBooks" },
+  { value: 46, name: "Books :: Comics" },
+  { value: 31, name: "Music :: Audio" },
+  { value: 16, name: "Music :: Music videos" },
+  { value: 36, name: "Foreign :: Movies" },
+  { value: 44, name: "Foreign :: TV Series" },
+];
 
-    def login(self) -> bool:
-        """登录到 TorrentLeech"""
-        try:
-            # 首先获取登录页面以获取必要的cookies和token
-            login_page_url = f"{self.base_url}/user/account/login"
-            response = self.session.get(login_page_url)
-            response.raise_for_status()
+interface ITorrentLeechTorrent {
+  fid: string;
+  filename: string;
+  name: string;
+  addedTimestamp: string;
+  categoryID: number;
+  size: number;
+  completed: number;
+  seeders: number;
+  leechers: number;
+  numComments: number;
+  tags: string;
+  new: boolean;
+  imdbID: string;
+  rating: number;
+  genres: string;
+  tvmazeID: string;
+  igdbID: string;
+  animeID: string;
+  download_multiplier: number;
+  commentsDisabled: number;
+}
 
-            # 准备登录数据
-            login_data = {
-                'username': self.username,
-                'password': self.password,
-                'remember_me': 'on',
-                'login': 'submit'
-            }
+interface IUploadsResponse {
+  aaData: any[][];
+  iTotalRecords: number;
+  iTotalDisplayRecords: number;
+  sEcho: number;
+}
 
-            # 发送登录请求
-            response = self.session.post(login_page_url, data=login_data, allow_redirects=True)
-            response.raise_for_status()
+export const siteMetadata: ISiteMetadata = {
+  id: "torrentleech",
+  version: 1,
+  name: "TorrentLeech",
+  aka: ["TL"],
+  description: "TorrentLeech (TL) is a Private Torrent Tracker for 0DAY / GENERAL. not here _ not scene",
+  tags: ["综合"],
+  timezoneOffset: "+0000",
 
-            # 检查登录是否成功
-            if any('auth' in cookie.name.lower() for cookie in self.session.cookies):
-                self.is_logged_in = True
-                logger.info("登录成功")
-                
-                # 获取用户ID
-                self._get_user_id()
-                return True
-            else:
-                logger.error("登录失败：未找到认证cookie")
-                return False
+  type: "private",
+  schema: "AbstractPrivateSite",
 
-        except Exception as e:
-            logger.error(f"登录过程中出错: {e}")
-            return False
+  urls: [
+    "https://www.torrentleech.org/",
+    "https://www.torrentleech.cc/",
+    "https://www.torrentleech.me/",
+    "https://www.tleechreload.org/",
+    "https://www.tlgetin.cc/",
+  ],
 
-    def _get_user_id(self) -> bool:
-        """获取用户ID"""
-        try:
-            # 访问用户资料页面
-            profile_url = f"{self.base_url}/user/profile"
-            response = self.session.get(profile_url)
-            response.raise_for_status()
-            
-            # 从响应中查找用户ID
-            # 这里需要根据实际页面结构来解析用户ID
-            # 暂时设置为None，在获取上传时使用其他方式
-            self.user_id = None
-            return True
-            
-        except Exception as e:
-            logger.error(f"获取用户ID失败: {e}")
-            return False
+  category: [
+    {
+      name: "Category",
+      key: "category",
+      options: categoryOptions,
+      cross: { mode: "custom" },
+      generateRequestConfig(value) {
+        // format: /torrents/browse/list/categories/<category1>,<category2>,.../query/<query>
+        const categoryString = Array.isArray(value) ? value.join(",") : value;
+        return {
+          requestConfig: {
+            url: `/torrents/browse/list/categories/${categoryString}/query`,
+          },
+        };
+      },
+    },
+  ],
 
-    def get_uploads(self, start: int = 0, length: int = 50) -> List[Dict[str, Any]]:
-        """获取用户上传的种子列表
-        
-        Args:
-            start: 起始位置
-            length: 返回数量
-            
-        Returns:
-            种子列表
-        """
-        if not self.is_logged_in:
-            if not self.login():
-                return []
+  search: {
+    requestConfig: {
+      url: "/torrents/browse/list/query",
+      responseType: "json",
+    },
+    advanceKeywordParams: {
+      imdb: { enabled: true },
+    },
 
-        try:
-            # 使用实际的API端点
-            api_url = f"{self.base_url}/user/account/uploadedtorrents"
-            
-            # 准备请求数据
-            data = {
-                'sEcho': '1',
-                'iColumns': '6',
-                'sColumns': 'categoryID,name,size,completed,seeders,leechers',
-                'iDisplayStart': str(start),
-                'iDisplayLength': str(length),
-                'mDataProp_0': '0',
-                'sSearch_0': '',
-                'bRegex_0': 'false',
-                'bSearchable_0': 'true',
-                'bSortable_0': 'false',
-                'mDataProp_1': '1',
-                'sSearch_1': '',
-                'bRegex_1': 'false',
-                'bSearchable_1': 'true',
-                'bSortable_1': 'false',
-                'mDataProp_2': '2',
-                'sSearch_2': '',
-                'bRegex_2': 'false',
-                'bSearchable_2': 'true',
-                'bSortable_2': 'true',
-                'mDataProp_3': '3',
-                'sSearch_3': '',
-                'bRegex_3': 'false',
-                'bSearchable_3': 'true',
-                'bSortable_3': 'true',
-                'mDataProp_4': '4',
-                'sSearch_4': '',
-                'bRegex_4': 'false',
-                'bSearchable_4': 'true',
-                'bSortable_4': 'true',
-                'mDataProp_5': '5',
-                'sSearch_5': '',
-                'bRegex_5': 'false',
-                'bSearchable_5': 'true',
-                'bSortable_5': 'true',
-                'sSearch': '',
-                'bRegex': 'false',
-                'iSortCol_0': '0',
-                'sSortDir_0': 'asc',
-                'iSortingCols': '1',
-                'userID': '1713978'  # 这个需要动态获取
-            }
+    requestConfigTransformer: ({ keywords, searchEntry, requestConfig }) => {
+      const baseUrl = requestConfig!.url || "";
+      if (keywords) {
+        delete requestConfig!.params?.keywords; // 移除 AbstractBittorrentSite 自动添加的 keywords 参数
 
-            # 设置API请求的特定头信息
-            headers = {
-                'Accept': 'application/json, text/javascript, */*; q=0.01',
-                'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-                'X-Requested-With': 'XMLHttpRequest',
-                'Origin': self.base_url,
-                'Referer': f'{self.base_url}/user/profile',
-                'Sec-Fetch-Dest': 'empty',
-                'Sec-Fetch-Mode': 'cors',
-                'Sec-Fetch-Site': 'same-origin',
-            }
+        // remove dashes at the beginning of keywords as they exclude search strings (see Jackett/Jackett#3096)
+        keywords = keywords.replace(/(^|\s)-/, "");
+        requestConfig!.url = urlJoin(baseUrl, `${keywords}`);
+      }
 
-            # 发送请求
-            response = self.session.post(api_url, data=data, headers=headers)
-            response.raise_for_status()
+      return requestConfig!;
+    },
+    selectors: {
+      rows: { selector: "torrentList" },
+      id: { selector: "fid" },
+      title: { selector: "name" },
+      url: { selector: "fid", filters: [{ name: "prepend", args: ["/torrent/"] }] },
+      link: {
+        selector: ":self",
+        filters: [(row: ITorrentLeechTorrent) => "/download/" + row.fid + "/" + row.filename],
+      },
+      time: { selector: "addedTimestamp", filters: [{ name: "parseTime" }] },
+      size: { selector: "size" },
+      author: { selector: "uploader" },
+      seeders: { selector: "seeders" },
+      leechers: { selector: "leechers" },
+      completed: { selector: "numComments" },
+      category: {
+        selector: "categoryID",
+        filters: [(categoryId: number) => categoryOptions.find((cat) => cat.value == categoryId)?.name ?? "Unknown"],
+      },
 
-            # 解析响应
-            result = response.json()
-            
-            if result.get('aaData'):
-                return self._parse_uploads_data(result['aaData'])
-            else:
-                logger.warning("没有找到上传数据")
-                return []
+      ext_imdb: { selector: "imdbID" },
+    },
+  },
 
-        except Exception as e:
-            logger.error(f"获取上传列表失败: {e}")
-            return []
+  list: [
+    {
+      urlPattern: ["/torrents/browse"],
+      mergeSearchSelectors: false,
+      selectors: {
+        rows: { selector: "table.torrents tr.torrent" },
+        id: { selector: ":self", data: "tid" },
+        category: { selector: "a.category[data-ccid]", data: "ccid" },
+        title: {
+          selector: "div.name",
+          elementProcess: (el) => {
+            el?.querySelectorAll("span")?.forEach((span: HTMLSpanElement) => span?.remove()); // 移除 span 标签
+            return el?.textContent?.trim() ?? "";
+          },
+        },
+        url: { selector: "div.name a", attr: "href" },
+        link: { selector: "a.download", attr: "href" },
+        seeders: { selector: "td.td-seeders" },
+        leechers: { selector: "td.td-leechers" },
+        completed: { selector: "td.td-snatched" },
+        size: { selector: "td.td-size", filters: [{ name: "parseSize" }] },
+        time: { selector: "td.td-uploaded-time", filters: [{ name: "parseTime", args: ["yyyy-MM-ddHH:mm:ss"] }] },
+      },
+    },
+  ],
 
-    def _parse_uploads_data(self, data: List[List]) -> List[Dict[str, Any]]:
-        """解析上传数据
-        
-        Args:
-            data: 原始数据列表
-            
-        Returns:
-            解析后的种子列表
-        """
-        uploads = []
-        
-        for item in data:
-            try:
-                # 根据观察到的数据结构解析
-                # 这里需要根据实际的HTML结构来调整
-                upload = {
-                    'category': item[0] if len(item) > 0 else '',
-                    'name': item[1] if len(item) > 1 else '',
-                    'size': item[2] if len(item) > 2 else '',
-                    'completed': item[3] if len(item) > 3 else '',
-                    'seeders': item[4] if len(item) > 4 else '',
-                    'leechers': item[5] if len(item) > 5 else '',
-                }
-                uploads.append(upload)
-            except Exception as e:
-                logger.warning(f"解析种子数据失败: {e}")
-                continue
-                
-        return uploads
+  detail: {
+    urlPattern: ["/torrent/\\d+"],
+    selectors: {
+      id: { selector: 'input[name="torrentID"]', attr: "value" },
+      title: { selector: ["#torrentnameid", "#torrentName"] },
+      link: { selector: "#detailsDownloadButton", attr: "href" },
+    },
+  },
 
-    def get_all_uploads(self) -> List[Dict[str, Any]]:
-        """获取所有上传的种子（分页获取）"""
-        all_uploads = []
-        start = 0
-        page_size = 50
-        
-        while True:
-            logger.info(f"获取上传种子，起始位置: {start}")
-            uploads = self.get_uploads(start, page_size)
-            
-            if not uploads:
-                break
-                
-            all_uploads.extend(uploads)
-            
-            # 如果返回的数量少于请求的数量，说明已经到达最后一页
-            if len(uploads) < page_size:
-                break
-                
-            start += page_size
-            time.sleep(1)  # 避免请求过于频繁
-            
-        return all_uploads
+  userInfo: {
+    pickLast: ["id", "name"],
+    process: [
+      {
+        requestConfig: { url: "/", responseType: "document" },
+        selectors: {
+          // id: { selector: "span.centerTopBar span[onclick*='/profile/'][onclick*='view']" },
+          name: { selector: "span.centerTopBar span[onclick*='/profile/'][onclick*='view']" },
+          uploaded: { selector: "span.centerTopBar div[title^='Uploaded'] span", filters: [{ name: "parseSize" }] },
+          downloaded: { selector: "span.centerTopBar div[title^='Downloaded'] span", filters: [{ name: "parseSize" }] },
+          bonus: { selector: "span.centerTopBar span.total-TL-points", filters: [{ name: "parseNumber" }] },
+          messageCount: {
+            text: "0",
+            selector: "span.div-menu-item[onclick*='/notifications'] div.notificatinTooltip span.tooltip-title",
+            filters: [{ name: "parseNumber" }],
+          },
+        },
+      },
+      {
+        requestConfig: { url: "/profile/$name$", responseType: "document" },
+        assertion: { name: "url" }, // 替换之前获取的用户名
+        selectors: {
+          id: {
+            selector: "div.has-support-msg script",
+            filters: [(text: string) => text.match(/var userLogUserID = '(\d+)';/)?.[1] ?? ""],
+          },
+          levelName: { selector: "div.profile-details div.label-user-class" },
+          joinTime: {
+            selector: "table.profileViewTable td:contains('Registration date') + td",
+            filters: [{ name: "parseTime", args: ["EEEE do MMMM yyyy" /* 'Saturday 6th May 2017' */] }],
+          },
+        },
+      },
+      // 新增：获取用户上传的种子数量
+      {
+        requestConfig: { 
+          url: "/user/account/uploadedtorrents", 
+          method: "POST",
+          responseType: "json",
+          data: {
+            sEcho: "1",
+            iColumns: "6",
+            sColumns: "categoryID,name,size,completed,seeders,leechers",
+            iDisplayStart: "0",
+            iDisplayLength: "10", // 只获取少量数据用于统计数量
+            mDataProp_0: "0",
+            sSearch_0: "",
+            bRegex_0: "false",
+            bSearchable_0: "true",
+            bSortable_0: "false",
+            mDataProp_1: "1",
+            sSearch_1: "",
+            bRegex_1: "false",
+            bSearchable_1: "true",
+            bSortable_1: "false",
+            mDataProp_2: "2",
+            sSearch_2: "",
+            bRegex_2: "false",
+            bSearchable_2: "true",
+            bSortable_2: "true",
+            mDataProp_3: "3",
+            sSearch_3: "",
+            bRegex_3: "false",
+            bSearchable_3: "true",
+            bSortable_3: "true",
+            mDataProp_4: "4",
+            sSearch_4: "",
+            bRegex_4: "false",
+            bSearchable_4: "true",
+            bSortable_4: "true",
+            mDataProp_5: "5",
+            sSearch_5: "",
+            bRegex_5: "false",
+            bSearchable_5: "true",
+            bSortable_5: "true",
+            sSearch: "",
+            bRegex: "false",
+            iSortCol_0: "0",
+            sSortDir_0: "asc",
+            iSortingCols: "1",
+            userID: "$id$" // 使用动态获取的用户ID
+          },
+          headers: {
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "X-Requested-With": "XMLHttpRequest"
+          }
+        },
+        assertion: { id: "valid" }, // 确保有用户ID
+        selectors: {
+          uploads: {
+            selector: ":self",
+            filters: [
+              (response: IUploadsResponse) => response.iTotalRecords || 0
+            ]
+          }
+        },
+      },
+    ],
+  },
+  levelRequirements: [
+    {
+      id: 0,
+      name: "User",
+      privilege: "",
+    },
+    {
+      id: 1,
+      name: "Power User",
+      interval: "P2W",
+      uploaded: "200GB",
+      ratio: 1.1,
+      privilege: "Increased Points: 3%, Minimum Seeding Time: 8 days",
+    },
+    {
+      id: 2,
+      name: "Super User",
+      interval: "P12W",
+      uploaded: "1TB",
+      ratio: 2.0,
+      privilege: "Increased Points: 5%, Minimum Seeding Time: 7 days",
+    },
+    {
+      id: 3,
+      name: "Extreme User",
+      interval: "P24W",
+      uploaded: "10TB",
+      ratio: 5.0,
+      privilege: "Increased Points: 6%, Minimum Seeding Time: 6 days",
+    },
+    {
+      id: 4,
+      name: "TL GOD",
+      interval: "P52W",
+      uploaded: "50TB",
+      ratio: 8.0,
+      privilege: "Increased Points: 8%, Minimum Seeding Time: 4 days",
+    },
+  ],
+};
 
-    def close(self):
-        """关闭会话"""
-        self.session.close()
+export default class TorrentLeech extends PrivateSite {
+  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
 
+    // 导入用户做种信息
+    if (
+      flushUserInfo.status === EResultParseStatus.success &&
+      (typeof flushUserInfo.seeding === "undefined" || typeof flushUserInfo.seedingSize === "undefined")
+    ) {
+      flushUserInfo = (await this.parseUserInfoForSeedingStatus(flushUserInfo)) as IUserInfo;
+    }
 
-# 使用示例
-def main():
-    # 设置日志
-    logging.basicConfig(level=logging.INFO)
+    // 获取用户上传的详细信息（如果需要更多信息）
+    if (
+      flushUserInfo.status === EResultParseStatus.success &&
+      flushUserInfo.id &&
+      (typeof flushUserInfo.uploads === "undefined" || typeof flushUserInfo.uploads === "number")
+    ) {
+      flushUserInfo = await this.parseUserInfoForUploads(flushUserInfo);
+    }
+
+    return flushUserInfo;
+  }
+
+  protected override parseTorrentRowForTags(
+    torrent: Partial<ITorrent>,
+    row: ITorrentLeechTorrent,
+    searchConfig: ISearchInput,
+  ): Partial<ITorrent> {
+    torrent.tags ??= [];
+    if (row.tags?.includes("FREELEECH")) {
+      torrent.tags.push({ name: "Free", color: "blue" });
+    }
+    torrent.tags.push({ name: "H&R", color: "red" });
+
+    return torrent;
+  }
+
+  // 获取做种信息
+  protected async parseUserInfoForSeedingStatus(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
+    let seedStatus = { seeding: 0, seedingSize: 0 };
+
+    const userName = flushUserInfo.name as string;
+    const { data } = await this.request<string>({
+      url: `/profile/${userName}/seeding`,
+    });
+
+    if (data && data.includes("profile-seedingTable")) {
+      const userSeedingPage = createDocument(data);
+
+      // 直接获取所有大小列的元素
+      const sizeElements = Sizzle(
+        "table#profile-seedingTable > tbody > tr > td:nth-child(2)",
+        userSeedingPage as Document,
+      );
+
+      // 做种数量就是大小元素的数量
+      seedStatus.seeding = sizeElements.length;
+
+      // 累加所有大小
+      sizeElements.forEach((sizeElement) => {
+        const sizeText = sizeElement.textContent?.trim() || "0";
+        seedStatus.seedingSize += parseSizeString(sizeText);
+      });
+    }
+
+    flushUserInfo = mergeWith(flushUserInfo, seedStatus, (objValue, srcValue) => {
+      return typeof srcValue === "undefined" ? objValue : srcValue;
+    });
+
+    return flushUserInfo;
+  }
+
+  // 新增：获取用户上传的详细信息
+  protected async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
+    const userId = flushUserInfo.id as string;
     
-    # 初始化API
-    tl = TorrentLeechAPI("your_username", "your_password")
-    
-    try:
-        # 登录
-        if tl.login():
-            print("登录成功！")
-            
-            # 获取上传的种子
-            print("获取上传种子...")
-            uploads = tl.get_all_uploads()
-            
-            print(f"共找到 {len(uploads)} 个上传种子:")
-            for i, upload in enumerate(uploads, 1):
-                print(f"{i}. {upload.get('name', 'N/A')} - 大小: {upload.get('size', 'N/A')} - 完成: {upload.get('completed', 'N/A')}")
-        else:
-            print("登录失败！")
-            
-    except Exception as e:
-        print(f"发生错误: {e}")
-    finally:
-        tl.close()
+    if (!userId) {
+      return flushUserInfo;
+    }
 
+    try {
+      // 获取完整的上传列表数据
+      const { data } = await this.request<IUploadsResponse>({
+        url: "/user/account/uploadedtorrents",
+        method: "POST",
+        data: {
+          sEcho: "1",
+          iColumns: "6",
+          sColumns: "categoryID,name,size,completed,seeders,leechers",
+          iDisplayStart: "0",
+          iDisplayLength: "100", // 获取更多数据用于详细分析
+          mDataProp_0: "0",
+          sSearch_0: "",
+          bRegex_0: "false",
+          bSearchable_0: "true",
+          bSortable_0: "false",
+          mDataProp_1: "1",
+          sSearch_1: "",
+          bRegex_1: "false",
+          bSearchable_1: "true",
+          bSortable_1: "false",
+          mDataProp_2: "2",
+          sSearch_2: "",
+          bRegex_2: "false",
+          bSearchable_2: "true",
+          bSortable_2: "true",
+          mDataProp_3: "3",
+          sSearch_3: "",
+          bRegex_3: "false",
+          bSearchable_3: "true",
+          bSortable_3: "true",
+          mDataProp_4: "4",
+          sSearch_4: "",
+          bRegex_4: "false",
+          bSearchable_4: "true",
+          bSortable_4: "true",
+          mDataProp_5: "5",
+          sSearch_5: "",
+          bRegex_5: "false",
+          bSearchable_5: "true",
+          bSortable_5: "true",
+          sSearch: "",
+          bRegex: "false",
+          iSortCol_0: "0",
+          sSortDir_0: "asc",
+          iSortingCols: "1",
+          userID: userId
+        },
+        headers: {
+          "Accept": "application/json, text/javascript, */*; q=0.01",
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+          "X-Requested-With": "XMLHttpRequest"
+        }
+      });
 
-if __name__ == "__main__":
-    main()
+      if (data && data.aaData) {
+        const uploadsData = {
+          uploads: data.iTotalRecords || 0,
+          uploadsList: data.aaData.map((item: any[]) => ({
+            category: item[0] || "",
+            name: item[1] || "",
+            size: item[2] || "",
+            completed: item[3] || "",
+            seeders: item[4] || "",
+            leechers: item[5] || ""
+          }))
+        };
+
+        flushUserInfo = mergeWith(flushUserInfo, uploadsData, (objValue, srcValue) => {
+          return typeof srcValue === "undefined" ? objValue : srcValue;
+        });
+      }
+    } catch (error) {
+      console.warn("获取用户上传详情失败:", error);
+    }
+
+    return flushUserInfo;
+  }
+}
