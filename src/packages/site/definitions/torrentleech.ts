@@ -106,7 +106,6 @@ export const siteMetadata: ISiteMetadata = {
       options: categoryOptions,
       cross: { mode: "custom" },
       generateRequestConfig(value) {
-        // format: /torrents/browse/list/categories/<category1>,<category2>,.../query/<query>
         const categoryString = Array.isArray(value) ? value.join(",") : value;
         return {
           requestConfig: {
@@ -129,9 +128,8 @@ export const siteMetadata: ISiteMetadata = {
     requestConfigTransformer: ({ keywords, searchEntry, requestConfig }) => {
       const baseUrl = requestConfig!.url || "";
       if (keywords) {
-        delete requestConfig!.params?.keywords; // 移除 AbstractBittorrentSite 自动添加的 keywords 参数
+        delete requestConfig!.params?.keywords;
 
-        // remove dashes at the beginning of keywords as they exclude search strings (see Jackett/Jackett#3096)
         keywords = keywords.replace(/(^|\s)-/, "");
         requestConfig!.url = urlJoin(baseUrl, `${keywords}`);
       }
@@ -173,7 +171,7 @@ export const siteMetadata: ISiteMetadata = {
         title: {
           selector: "div.name",
           elementProcess: (el) => {
-            el?.querySelectorAll("span")?.forEach((span: HTMLSpanElement) => span?.remove()); // 移除 span 标签
+            el?.querySelectorAll("span")?.forEach((span: HTMLSpanElement) => span?.remove());
             return el?.textContent?.trim() ?? "";
           },
         },
@@ -203,7 +201,6 @@ export const siteMetadata: ISiteMetadata = {
       {
         requestConfig: { url: "/", responseType: "document" },
         selectors: {
-          // id: { selector: "span.centerTopBar span[onclick*='/profile/'][onclick*='view']" },
           name: { selector: "span.centerTopBar span[onclick*='/profile/'][onclick*='view']" },
           uploaded: { selector: "span.centerTopBar div[title^='Uploaded'] span", filters: [{ name: "parseSize" }] },
           downloaded: { selector: "span.centerTopBar div[title^='Downloaded'] span", filters: [{ name: "parseSize" }] },
@@ -217,7 +214,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       {
         requestConfig: { url: "/profile/$name$", responseType: "document" },
-        assertion: { name: "url" }, // 替换之前获取的用户名
+        assertion: { name: "url" },
         selectors: {
           id: {
             selector: "div.has-support-msg script",
@@ -226,11 +223,10 @@ export const siteMetadata: ISiteMetadata = {
           levelName: { selector: "div.profile-details div.label-user-class" },
           joinTime: {
             selector: "table.profileViewTable td:contains('Registration date') + td",
-            filters: [{ name: "parseTime", args: ["EEEE do MMMM yyyy" /* 'Saturday 6th May 2017' */] }],
+            filters: [{ name: "parseTime", args: ["EEEE do MMMM yyyy"] }],
           },
         },
       },
-      // 新增：获取用户上传的种子数量
       {
         requestConfig: { 
           url: "/user/account/uploadedtorrents", 
@@ -277,7 +273,7 @@ export const siteMetadata: ISiteMetadata = {
             iSortCol_0: "0",
             sSortDir_0: "asc",
             iSortingCols: "1",
-            userID: "$id$" // 使用动态获取的用户ID
+            userID: "$id$"
           },
           headers: {
             "Accept": "application/json, text/javascript, */*; q=0.01",
@@ -285,7 +281,7 @@ export const siteMetadata: ISiteMetadata = {
             "X-Requested-With": "XMLHttpRequest"
           }
         },
-        assertion: { id: "valid" }, // 确保有用户ID
+        assertion: { id: "valid" },
         selectors: {
           uploads: {
             selector: ":self",
@@ -342,7 +338,6 @@ export default class TorrentLeech extends PrivateSite {
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
 
-    // 导入用户做种信息
     if (
       flushUserInfo.status === EResultParseStatus.success &&
       (typeof flushUserInfo.seeding === "undefined" || typeof flushUserInfo.seedingSize === "undefined")
@@ -350,7 +345,6 @@ export default class TorrentLeech extends PrivateSite {
       flushUserInfo = await this.parseUserInfoForSeedingStatus(flushUserInfo);
     }
 
-    // 获取用户上传的详细信息（如果需要更多信息）
     if (
       flushUserInfo.status === EResultParseStatus.success &&
       flushUserInfo.id &&
@@ -376,7 +370,6 @@ export default class TorrentLeech extends PrivateSite {
     return torrent;
   }
 
-  // 获取做种信息
   protected async parseUserInfoForSeedingStatus(flushUserInfo: Partial<IUserInfo>): Promise<IUserInfo> {
     let seedStatus = { seeding: 0, seedingSize: 0 };
 
@@ -388,16 +381,13 @@ export default class TorrentLeech extends PrivateSite {
     if (data && data.includes("profile-seedingTable")) {
       const userSeedingPage = createDocument(data);
 
-      // 直接获取所有大小列的元素
       const sizeElements = Sizzle(
         "table#profile-seedingTable > tbody > tr > td:nth-child(2)",
         userSeedingPage as Document,
       );
 
-      // 做种数量就是大小元素的数量
       seedStatus.seeding = sizeElements.length;
 
-      // 累加所有大小
       sizeElements.forEach((sizeElement) => {
         const sizeText = sizeElement.textContent?.trim() || "0";
         seedStatus.seedingSize += parseSizeString(sizeText);
@@ -409,7 +399,6 @@ export default class TorrentLeech extends PrivateSite {
     }) as IUserInfo;
   }
 
-  // 新增：获取用户上传的详细信息
   protected async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<IUserInfo> {
     const userId = flushUserInfo.id as string;
     
@@ -418,7 +407,6 @@ export default class TorrentLeech extends PrivateSite {
     }
 
     try {
-      // 获取完整的上传列表数据
       const { data } = await this.request<IUploadsResponse>({
         url: "/user/account/uploadedtorrents",
         method: "POST",
@@ -490,7 +478,7 @@ export default class TorrentLeech extends PrivateSite {
         }) as IUserInfo;
       }
     } catch (error) {
-      console.warn("获取用户上传详情失败:", error);
+      // 静默处理错误，不影响主要功能
     }
 
     return flushUserInfo as IUserInfo;
