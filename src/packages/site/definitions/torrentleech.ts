@@ -241,7 +241,7 @@ export const siteMetadata: ISiteMetadata = {
             iColumns: "6",
             sColumns: "categoryID,name,size,completed,seeders,leechers",
             iDisplayStart: "0",
-            iDisplayLength: "10", // 只获取少量数据用于统计数量
+            iDisplayLength: "50",
             mDataProp_0: "0",
             sSearch_0: "",
             bRegex_0: "false",
@@ -347,7 +347,7 @@ export default class TorrentLeech extends PrivateSite {
       flushUserInfo.status === EResultParseStatus.success &&
       (typeof flushUserInfo.seeding === "undefined" || typeof flushUserInfo.seedingSize === "undefined")
     ) {
-      flushUserInfo = (await this.parseUserInfoForSeedingStatus(flushUserInfo)) as IUserInfo;
+      flushUserInfo = await this.parseUserInfoForSeedingStatus(flushUserInfo);
     }
 
     // 获取用户上传的详细信息（如果需要更多信息）
@@ -377,7 +377,7 @@ export default class TorrentLeech extends PrivateSite {
   }
 
   // 获取做种信息
-  protected async parseUserInfoForSeedingStatus(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
+  protected async parseUserInfoForSeedingStatus(flushUserInfo: Partial<IUserInfo>): Promise<IUserInfo> {
     let seedStatus = { seeding: 0, seedingSize: 0 };
 
     const userName = flushUserInfo.name as string;
@@ -404,19 +404,17 @@ export default class TorrentLeech extends PrivateSite {
       });
     }
 
-    flushUserInfo = mergeWith(flushUserInfo, seedStatus, (objValue, srcValue) => {
+    return mergeWith(flushUserInfo, seedStatus, (objValue, srcValue) => {
       return typeof srcValue === "undefined" ? objValue : srcValue;
-    });
-
-    return flushUserInfo;
+    }) as IUserInfo;
   }
 
   // 新增：获取用户上传的详细信息
-  protected async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
+  protected async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<IUserInfo> {
     const userId = flushUserInfo.id as string;
     
     if (!userId) {
-      return flushUserInfo;
+      return flushUserInfo as IUserInfo;
     }
 
     try {
@@ -429,7 +427,7 @@ export default class TorrentLeech extends PrivateSite {
           iColumns: "6",
           sColumns: "categoryID,name,size,completed,seeders,leechers",
           iDisplayStart: "0",
-          iDisplayLength: "100", // 获取更多数据用于详细分析
+          iDisplayLength: "50",
           mDataProp_0: "0",
           sSearch_0: "",
           bRegex_0: "false",
@@ -487,14 +485,14 @@ export default class TorrentLeech extends PrivateSite {
           }))
         };
 
-        flushUserInfo = mergeWith(flushUserInfo, uploadsData, (objValue, srcValue) => {
+        return mergeWith(flushUserInfo, uploadsData, (objValue, srcValue) => {
           return typeof srcValue === "undefined" ? objValue : srcValue;
-        });
+        }) as IUserInfo;
       }
     } catch (error) {
       console.warn("获取用户上传详情失败:", error);
     }
 
-    return flushUserInfo;
+    return flushUserInfo as IUserInfo;
   }
 }
