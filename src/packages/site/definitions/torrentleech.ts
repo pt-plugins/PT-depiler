@@ -195,21 +195,45 @@ export const siteMetadata: ISiteMetadata = {
     process: [
       {
         requestConfig: { url: "/", responseType: "document" },
-        fields: ["name", "uploaded", "downloaded", "bonus", "messageCount"],
+        selectors: {
+          // id: { selector: "span.centerTopBar span[onclick*='/profile/'][onclick*='view']" },
+          name: { selector: "span.centerTopBar span[onclick*='/profile/'][onclick*='view']" },
+          uploaded: { selector: "span.centerTopBar div[title^='Uploaded'] span", filters: [{ name: "parseSize" }] },
+          downloaded: { selector: "span.centerTopBar div[title^='Downloaded'] span", filters: [{ name: "parseSize" }] },
+          bonus: { selector: "span.centerTopBar span.total-TL-points", filters: [{ name: "parseNumber" }] },
+          messageCount: {
+            text: "0",
+            selector: "span.div-menu-item[onclick*='/notifications'] div.notificatinTooltip span.tooltip-title",
+            filters: [{ name: "parseNumber" }],
+          },
+        },
       },
       {
         requestConfig: { url: "/profile/$name$", responseType: "document" },
-        assertion: { name: "url" },
-        fields: ["id", "levelName", "joinTime"],
+        assertion: { name: "url" }, // 替换之前获取的用户名
+        selectors: {
+          id: {
+            selector: "div.has-support-msg script",
+            filters: [(text: string) => text.match(/var userLogUserID = '(\\d+)';/)?.[1] ?? ""],
+          },
+          levelName: { selector: "div.profile-details div.label-user-class" },
+          joinTime: {
+            selector: "table.profileViewTable td:contains('Registration date') + td",
+            filters: [{ name: "parseTime", args: ["EEEE do MMMM yyyy" /* 'Saturday 6th May 2017' */] }],
+          },
+        },
       },
       {
-        // seeding, seedingSize - 获取做种信息
-        requestConfig: { url: "/profile/$name$/seeding", responseType: "document" },
+        // uploads - 第一步：GET请求初始化页面
+        requestConfig: { 
+          url: "/profile/$name$/uploads",
+          responseType: "document"
+        },
         assertion: { name: "url" },
-        fields: ["seeding", "seedingSize"],
+        fields: [],
       },
       {
-        // uploads - 获取上传种子信息
+        // uploads - 第二步：POST请求获取数据
         requestConfig: {
           url: "/user/account/uploadedtorrents",
           method: "POST",
@@ -275,26 +299,6 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseTime", args: ["EEEE do MMMM yyyy" /* 'Saturday 6th May 2017' */] }],
       },
       
-      // 做种信息
-      seeding: {
-        selector: "table#profile-seedingTable > tbody > tr",
-        filters: [
-          (rows: any) => Array.isArray(rows) ? rows.length : 0
-        ]
-      },
-      seedingSize: {
-        selector: "table#profile-seedingTable > tbody > tr > td:nth-child(2)",
-        filters: [
-          (sizeElements: any) => {
-            if (!Array.isArray(sizeElements)) return 0;
-            return sizeElements.reduce((total: number, sizeElement: any) => {
-              const sizeText = sizeElement.textContent?.trim() || "0";
-              return total + parseSizeString(sizeText);
-            }, 0);
-          }
-        ]
-      },
-      
       // 上传种子数量
       uploads: {
         selector: "iTotalRecords",
@@ -346,6 +350,20 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class TorrentLeech extends PrivateSite {
+  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
+
+    // 导入用户做种信息
+    if (
+      flushUserInfo.status === EResultParseStatus.success &&
+      (typeof flushUserInfo.seeding === "undefined" || typeof flushUserInfo.seedingSize === "undefined")
+    ) {
+      flushUserInfo = (await this.parseUserInfoForSeedingStatus(flushUserInfo)) as IUserInfo;
+    }
+
+    return flushUserInfo;
+  }
+
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
     row: ITorrentLeechTorrent,
@@ -358,5 +376,40 @@ export default class TorrentLeech extends PrivateSite {
     torrent.tags.push({ name: "H&R", color: "red" });
 
     return torrent;
+  }
+
+  // 获取做种信息
+  protected async parseUserInfoForSeedingStatus(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
+    let seedStatus = { seeding: 0, seedingSize: 0 };
+
+    const userName = flushUserInfo.name as string;
+    const { data } = await this.request<string>({
+      url: `/profile/${userName}/seeding`,
+    });
+
+    if (data && data.includes("profile-seedingTable")) {
+      const userSeedingPage = createDocument(data);
+
+      // 直接获取所有大小列的元素
+      const sizeElements = Sizzle(
+        "table#profile-seedingTable > tbody > tr > td:nth-child(2)",
+        userSeedingPage as Document,
+      );
+
+      // 做种数量就是大小元素的数量
+      seedStatus.seeding = sizeElements.length;
+
+      // 累加所有大小
+      sizeElements.forEach((sizeElement) => {
+        const sizeText = sizeElement.textContent?.trim() || "0";
+        seedStatus.seedingSize += parseSizeString(sizeText);
+      });
+    }
+
+    flushUserInfo = mergeWith(flushUserInfo, seedStatus, (objValue, srcValue) => {
+      return typeof srcValue === "undefined" ? objValue : srcValue;
+    });
+
+    return flushUserInfo;
   }
 }
