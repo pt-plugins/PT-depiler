@@ -202,7 +202,107 @@ export const siteMetadata: ISiteMetadata = {
         assertion: { name: "url" },
         fields: ["id", "levelName", "joinTime"],
       },
+      {
+        // seeding, seedingSize - 获取做种信息
+        requestConfig: { url: "/profile/$name$/seeding", responseType: "document" },
+        assertion: { name: "url" },
+        fields: ["seeding", "seedingSize"],
+      },
+      {
+        // uploads - 获取上传种子信息
+        requestConfig: {
+          url: "/user/account/uploadedtorrents",
+          method: "POST",
+          responseType: "json",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "X-Requested-With": "XMLHttpRequest",
+            "Accept": "application/json, text/javascript, */*; q=0.01"
+          },
+          data: {
+            sEcho: 1,
+            iColumns: 6,
+            sColumns: "categoryID,name,size,completed,seeders,leechers",
+            iDisplayStart: 0,
+            iDisplayLength: 50,
+            mDataProp_0: 0,
+            sSearch_0: "", bRegex_0: false, bSearchable_0: true,
+            mDataProp_1: 1,
+            sSearch_1: "", bRegex_1: false, bSearchable_1: true,
+            mDataProp_2: 2,
+            sSearch_2: "", bRegex_2: false, bSearchable_2: true,
+            mDataProp_3: 3,
+            sSearch_3: "", bRegex_3: false, bSearchable_3: true,
+            mDataProp_4: 4,
+            sSearch_4: "", bRegex_4: false, bSearchable_4: true,
+            mDataProp_5: 5,
+            sSearch_5: "", bRegex_5: false, bSearchable_5: true,
+            sSearch: "", bRegex: false,
+            iSortCol_0: 0, sSortDir_0: "asc", iSortingCols: 1,
+            userID: "PLACEHOLDER"
+          }
+        },
+        requestConfigTransformer: (config: any, lastUserInfo: any) => {
+          if (lastUserInfo && lastUserInfo.id) {
+            config.data.userID = lastUserInfo.id;
+          }
+          return config;
+        },
+        assertion: { id: "userID" },
+        fields: ["uploads"],
+      },
     ],
+    selectors: {
+      // 基本信息
+      name: { selector: "span.centerTopBar span[onclick*='/profile/'][onclick*='view']" },
+      uploaded: { selector: "span.centerTopBar div[title^='Uploaded'] span", filters: [{ name: "parseSize" }] },
+      downloaded: { selector: "span.centerTopBar div[title^='Downloaded'] span", filters: [{ name: "parseSize" }] },
+      bonus: { selector: "span.centerTopBar span.total-TL-points", filters: [{ name: "parseNumber" }] },
+      messageCount: {
+        text: "0",
+        selector: "span.div-menu-item[onclick*='/notifications'] div.notificatinTooltip span.tooltip-title",
+        filters: [{ name: "parseNumber" }],
+      },
+      
+      // 个人资料页面
+      id: {
+        selector: "div.has-support-msg script",
+        filters: [(text: string) => text.match(/var userLogUserID = '(\\d+)';/)?.[1] ?? ""],
+      },
+      levelName: { selector: "div.profile-details div.label-user-class" },
+      joinTime: {
+        selector: "table.profileViewTable td:contains('Registration date') + td",
+        filters: [{ name: "parseTime", args: ["EEEE do MMMM yyyy" /* 'Saturday 6th May 2017' */] }],
+      },
+      
+      // 做种信息
+      seeding: {
+        selector: "table#profile-seedingTable > tbody > tr",
+        filters: [
+          (rows: any) => Array.isArray(rows) ? rows.length : 0
+        ]
+      },
+      seedingSize: {
+        selector: "table#profile-seedingTable > tbody > tr > td:nth-child(2)",
+        filters: [
+          (sizeElements: any) => {
+            if (!Array.isArray(sizeElements)) return 0;
+            return sizeElements.reduce((total: number, sizeElement: any) => {
+              const sizeText = sizeElement.textContent?.trim() || "0";
+              return total + parseSizeString(sizeText);
+            }, 0);
+          }
+        ]
+      },
+      
+      // 上传种子数量
+      uploads: {
+        selector: "iTotalRecords",
+        filters: [
+          (totalRecords: number) => totalRecords
+        ]
+      },
+    },
   },
   levelRequirements: [
     {
@@ -246,22 +346,6 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class TorrentLeech extends PrivateSite {
-  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
-
-    // 导入用户做种信息和上传信息
-    if (
-      flushUserInfo.status === EResultParseStatus.success &&
-      (typeof flushUserInfo.seeding === "undefined" || 
-       typeof flushUserInfo.seedingSize === "undefined" ||
-       typeof flushUserInfo.uploads === "undefined")
-    ) {
-      flushUserInfo = (await this.parseUserInfoForExtendedStatus(flushUserInfo)) as IUserInfo;
-    }
-
-    return flushUserInfo;
-  }
-
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
     row: ITorrentLeechTorrent,
@@ -274,87 +358,5 @@ export default class TorrentLeech extends PrivateSite {
     torrent.tags.push({ name: "H&R", color: "red" });
 
     return torrent;
-  }
-
-  // 获取做种信息和上传信息
-  protected async parseUserInfoForExtendedStatus(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
-    let extendedStatus = { seeding: 0, seedingSize: 0, uploads: 0 };
-
-    const userName = flushUserInfo.name as string;
-    const userId = flushUserInfo.id as string;
-
-    // 获取做种信息
-    const { data: seedingData } = await this.request<string>({
-      url: `/profile/${userName}/seeding`,
-    });
-
-    if (seedingData && seedingData.includes("profile-seedingTable")) {
-      const userSeedingPage = createDocument(seedingData);
-
-      // 直接获取所有大小列的元素
-      const sizeElements = Sizzle(
-        "table#profile-seedingTable > tbody > tr > td:nth-child(2)",
-        userSeedingPage as Document,
-      );
-
-      // 做种数量就是大小元素的数量
-      extendedStatus.seeding = sizeElements.length;
-
-      // 累加所有大小
-      sizeElements.forEach((sizeElement) => {
-        const sizeText = sizeElement.textContent?.trim() || "0";
-        extendedStatus.seedingSize += parseSizeString(sizeText);
-      });
-    }
-
-    // 获取上传信息
-    if (userId) {
-      try {
-        const { data: uploadsData } = await this.request<any>({
-          url: "/user/account/uploadedtorrents",
-          method: "POST",
-          responseType: "json",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "X-Requested-With": "XMLHttpRequest",
-            "Accept": "application/json, text/javascript, */*; q=0.01"
-          },
-          data: {
-            sEcho: 1,
-            iColumns: 6,
-            sColumns: "categoryID,name,size,completed,seeders,leechers",
-            iDisplayStart: 0,
-            iDisplayLength: 50,
-            mDataProp_0: 0,
-            sSearch_0: "", bRegex_0: false, bSearchable_0: true,
-            mDataProp_1: 1,
-            sSearch_1: "", bRegex_1: false, bSearchable_1: true,
-            mDataProp_2: 2,
-            sSearch_2: "", bRegex_2: false, bSearchable_2: true,
-            mDataProp_3: 3,
-            sSearch_3: "", bRegex_3: false, bSearchable_3: true,
-            mDataProp_4: 4,
-            sSearch_4: "", bRegex_4: false, bSearchable_4: true,
-            mDataProp_5: 5,
-            sSearch_5: "", bRegex_5: false, bSearchable_5: true,
-            sSearch: "", bRegex: false,
-            iSortCol_0: 0, sSortDir_0: "asc", iSortingCols: 1,
-            userID: userId
-          }
-        });
-
-        if (uploadsData && typeof uploadsData.iTotalRecords === 'number') {
-          extendedStatus.uploads = uploadsData.iTotalRecords;
-        }
-      } catch (error) {
-        console.log('Failed to get uploads count:', error);
-      }
-    }
-
-    flushUserInfo = mergeWith(flushUserInfo, extendedStatus, (objValue, srcValue) => {
-      return typeof srcValue === "undefined" ? objValue : srcValue;
-    });
-
-    return flushUserInfo;
   }
 }
