@@ -14,20 +14,20 @@ const levelRequirements: ILevelRequirement[] = [
     id: 1,
     name: "小卒",
     ratio: 0.5,
-    privilege: "无",
+    privilege: "注册后默认等级，待系统更新后会自动升级到level2",
   },
   {
     id: 2,
     name: "教谕",
     ratio: 0.6,
-    privilege: "无",
+    privilege: "可查看站点统计",
   },
   {
     id: 3,
     name: "登仕郎",
     downloaded: "100GB",
     ratio: 1,
-    privilege: "无",
+    privilege: "新注册用户系统定时更新后的默认等级；可查看种子TOP10排行",
   },
   {
     id: 4,
@@ -35,7 +35,7 @@ const levelRequirements: ILevelRequirement[] = [
     interval: "P4W",
     downloaded: "200GB",
     ratio: 2,
-    privilege: "无",
+    privilege: "可查看种子TOP250信息；可查看用户TOP10信息",
   },
   {
     id: 5,
@@ -43,7 +43,7 @@ const levelRequirements: ILevelRequirement[] = [
     interval: "P8W",
     downloaded: "400GB",
     ratio: 3,
-    privilege: "无",
+    privilege: "可查看用户TOP250信息，可匿名发帖",
   },
   {
     id: 6,
@@ -51,7 +51,7 @@ const levelRequirements: ILevelRequirement[] = [
     interval: "P12W",
     downloaded: "500GB",
     ratio: 4,
-    privilege: "无",
+    privilege: "可设定免候选发布种子",
   },
   {
     id: 7,
@@ -59,7 +59,7 @@ const levelRequirements: ILevelRequirement[] = [
     interval: "P16W",
     downloaded: "800GB",
     ratio: 5,
-    privilege: "无",
+    privilege: "发帖可禁止评论",
   },
   {
     id: 8,
@@ -75,7 +75,7 @@ const levelRequirements: ILevelRequirement[] = [
     interval: "P24W",
     downloaded: "2TB",
     ratio: 7,
-    privilege: "无",
+    privilege: "此等级及以上用户，账号将永久保留",
   },
   {
     id: 10,
