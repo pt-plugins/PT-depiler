@@ -239,6 +239,9 @@ export const siteMetadata: ISiteMetadata = {
         requestConfigTransformer: (config: any, lastUserInfo: any) => {
           if (lastUserInfo && lastUserInfo.id) {
             config.data.userID = lastUserInfo.id;
+          } else {
+            // 如果没有获取到用户ID，跳过这个请求
+            return null;
           }
           return config;
         },
