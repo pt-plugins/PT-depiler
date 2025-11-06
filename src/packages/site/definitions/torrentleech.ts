@@ -223,8 +223,92 @@ export const siteMetadata: ISiteMetadata = {
           },
         },
       },
-      // FIXME 暂未实现 seeding, seedingSize, uploads （需要参照 uhdbits 构造翻页）
+      {
+        // uploads - 第一步：GET请求初始化页面
+        requestConfig: { 
+          url: "/profile/$name$/uploads",
+          responseType: "document"
+        },
+        assertion: { name: "url" },
+        fields: [],
+      },
+      {
+        // uploads - 第二步：POST请求获取数据
+        requestConfig: {
+          url: "/user/account/uploadedtorrents",
+          method: "POST",
+          responseType: "json",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "X-Requested-With": "XMLHttpRequest",
+            "Accept": "application/json, text/javascript, */*; q=0.01",
+            "Origin": "https://www.torrentleech.cc",
+            "Referer": "https://www.torrentleech.cc/user/account/uploadedtorrents"
+          },
+          data: {
+            sEcho: 1,
+            iColumns: 6,
+            sColumns: "categoryID,name,size,completed,seeders,leechers",
+            iDisplayStart: 0,
+            iDisplayLength: 50,
+            mDataProp_0: 0,
+            sSearch_0: "", bRegex_0: false, bSearchable_0: true,
+            mDataProp_1: 1,
+            sSearch_1: "", bRegex_1: false, bSearchable_1: true,
+            mDataProp_2: 2,
+            sSearch_2: "", bRegex_2: false, bSearchable_2: true,
+            mDataProp_3: 3,
+            sSearch_3: "", bRegex_3: false, bSearchable_3: true,
+            mDataProp_4: 4,
+            sSearch_4: "", bRegex_4: false, bSearchable_4: true,
+            mDataProp_5: 5,
+            sSearch_5: "", bRegex_5: false, bSearchable_5: true,
+            sSearch: "", bRegex: false,
+            iSortCol_0: 0, sSortDir_0: "asc", iSortingCols: 1,
+            userID: "PLACEHOLDER"
+          }
+        },
+        requestConfigTransformer: (config: any, lastUserInfo: any) => {
+          if (lastUserInfo && lastUserInfo.id) {
+            config.data.userID = lastUserInfo.id;
+          }
+          return config;
+        },
+        assertion: { id: "userID" },
+        fields: ["uploads"],
+      },
     ],
+    selectors: {
+      // 基本信息
+      name: { selector: "span.centerTopBar span[onclick*='/profile/'][onclick*='view']" },
+      uploaded: { selector: "span.centerTopBar div[title^='Uploaded'] span", filters: [{ name: "parseSize" }] },
+      downloaded: { selector: "span.centerTopBar div[title^='Downloaded'] span", filters: [{ name: "parseSize" }] },
+      bonus: { selector: "span.centerTopBar span.total-TL-points", filters: [{ name: "parseNumber" }] },
+      messageCount: {
+        text: "0",
+        selector: "span.div-menu-item[onclick*='/notifications'] div.notificatinTooltip span.tooltip-title",
+        filters: [{ name: "parseNumber" }],
+      },
+      
+      // 个人资料页面
+      id: {
+        selector: "div.has-support-msg script",
+        filters: [(text: string) => text.match(/var userLogUserID = '(\\d+)';/)?.[1] ?? ""],
+      },
+      levelName: { selector: "div.profile-details div.label-user-class" },
+      joinTime: {
+        selector: "table.profileViewTable td:contains('Registration date') + td",
+        filters: [{ name: "parseTime", args: ["EEEE do MMMM yyyy" /* 'Saturday 6th May 2017' */] }],
+      },
+      
+      // 上传种子数量
+      uploads: {
+        selector: "iTotalRecords",
+        filters: [
+          (totalRecords: number) => totalRecords
+        ]
+      },
+    },
   },
   levelRequirements: [
     {
