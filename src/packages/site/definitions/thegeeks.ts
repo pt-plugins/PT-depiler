@@ -4,7 +4,6 @@
  */
 import type { ISiteMetadata } from "../types.ts";
 import { definedFilters } from "../utils.ts";
-import { set } from "es-toolkit/compat";
 
 const categoryMap: Record<number, string> = {
   212: "AudioBook : Fiction",
