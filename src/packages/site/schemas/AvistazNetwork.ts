@@ -29,25 +29,10 @@ interface AuthFailResp {
 type AvzNetAuthResp = AuthSuccessResp | AuthFailResp;
 
 const commonListSelectors: TSchemaMetadataListSelectors = {
-  id: {
-    selector: "div.mb-1 a[href*='/torrent/']",
-    attr: "href",
-    filters: [
-      (href: string) => {
-        const torrentIdMatch = href.match(/\/torrent\/(\d+)/);
-        if (torrentIdMatch && torrentIdMatch[1]) {
-          return torrentIdMatch[1];
-        }
-        return undefined;
-      },
-    ],
-  },
-  title: { selector: "div.mb-1 a[href*='/torrent/']" },
   subTitle: { text: "" },
-  url: { selector: "div.mb-1 a[href*='/torrent/']", attr: "href" },
   comments: { text: "N/A" },
-  category: { selector: ".category-icon[data-original-title]", attr: "data-original-title" }, //category过于动态，抓取失败
-};
+  category: { selector: "i[data-original-title]", attr: "data-original-title" }, 
+}
 
 export interface IAvzNetRawTorrent {
   id: number;
@@ -81,6 +66,7 @@ export interface IAvzNetRawTorrent {
     imdb: string;
     tmdb: string;
     tvdb: string;
+    [key: string]: any;
   };
   images: string[];
   description: string;
@@ -107,22 +93,28 @@ export const SchemaMetadata: Pick<
     advanceKeywordParams: {
       imdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
-          set(config!, "params.imdb", config!.params.search.replace("tt", ""));
-          delete config!.params.search;
+          if (config?.params?.search) {
+            config.params.imdb = config.params.search;
+            delete config.params.search;
+          }
           return config!;
         },
       },
       tvdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
-          set(config!, "params.tvdb", config!.params.search);
-          delete config!.params.search;
+          if (config?.params?.search) {
+            config.params.tvdb = config.params.search;
+            delete config.params.search;
+          }
           return config!;
         },
       },
       tmdb: {
         requestConfigTransformer: ({ requestConfig: config }) => {
-          set(config!, "params.tmdb", config!.params.search);
-          delete config!.params.search;
+          if (config?.params?.search) {
+            config.params.tmdb = config.params.search;
+            delete config.params.search;
+          }
           return config!;
         },
       },
@@ -167,20 +159,30 @@ export const SchemaMetadata: Pick<
       mergeSearchSelectors: false,
       selectors: {
         ...commonListSelectors,
-        rows: { selector: "#content-area > div.card.mt-2 > div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
+        rows: { selector: "#content-area > div.block > div > table:nth-child(3) > tbody > tr" },
 
-        link: { selector: "div.align-top a[href*='/download/torrent/']", attr: "href" },
+        id: {
+          selector: "div.torrent-file a[href*='/torrent/']",
+          attr: "href",
+          filters: [
+            (href: string) => {
+              const torrentIdMatch = href.match(/\/torrent\/(\d+)/);
+              if (torrentIdMatch && torrentIdMatch[1]) {
+               return torrentIdMatch[1];
+              }
+              return undefined;
+            },
+          ],
+        },
+        title: { selector: "div.torrent-file a[href*='/torrent/']" },
+        url: { selector: "div.torrent-file a[href*='/torrent/']", attr: "href" },
+        link: { selector: "td:nth-child(3) a[href*='/download/torrent/']", attr: "href" },
         // time显示为1 minute/1 hour，放弃获取
-        size: { selector: "td:nth-child(5)", filters: [{ name: "parseSize" }] },
+        size: { selector: "td:nth-child(6)", filters: [{ name: "parseSize" }] },
 
-        seeders: { selector: "td:nth-child(6)" },
-        leechers: { selector: "td:nth-child(7)" },
-        completed: { selector: "td:nth-child(8)" },
-
-        // ext_imdb: {
-        //   selector: "a[href^='/imdb/title'][href*='imdb=']",
-        //   filters: [{ name: "querystring", args: ["imdb"] }, { name: "extImdbId" }],
-        // },
+        seeders: { selector: "td:nth-child(7)" },
+        leechers: { selector: "td:nth-child(8)" },
+        completed: { selector: "td:nth-child(9)" },
       },
     },
     // 下载历史页和HR页
@@ -201,6 +203,18 @@ export const SchemaMetadata: Pick<
     },
   ],
   
+  detail: {
+    urlPattern:["/torrent/"],
+    selectors: {
+      id:{ 
+        selector:":self",
+        elementProcess:t=>{const e=t.URL,r=e.match(/\/detail\/(\d+)/); return r?r[1]:e}
+      },
+      title: { selector:"table.table tr:contains('Title') td:nth-child(2)" },
+      link: { selector: "a.btn-primary[href$='.torrent']", attr: "href" },
+    }
+  },
+
   userInfo: {
     pickLast: ["name"],
     selectors: {

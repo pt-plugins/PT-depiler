@@ -117,6 +117,58 @@ export const siteMetadata: ISiteMetadata = {
     area_adult: { name: "成人", enabled: false },
   },
 
+  list: [
+    // 种子列表页
+    {
+      urlPattern: ["/torrents"],
+      mergeSearchSelectors: false,
+      selectors: {
+        rows: { selector: "#content-area > div.card.mt-2 > div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
+
+        id: {
+          selector: "div.mb-1 a[href*='/torrent/']",
+          attr: "href",
+          filters: [
+            (href: string) => {
+              const torrentIdMatch = href.match(/\/torrent\/(\d+)/);
+              if (torrentIdMatch && torrentIdMatch[1]) {
+               return torrentIdMatch[1];
+              }
+              return undefined;
+            },
+          ],
+        },
+        title: { selector: "div.mb-1 a[href*='/torrent/']" },
+        category: { selector: ".category-icon[data-original-title]", attr: "data-original-title" },
+        url: { selector: "div.mb-1 a[href*='/torrent/']", attr: "href" },
+        link: { selector: "div.align-top a[href*='/download/torrent/']", attr: "href" },
+        // time显示为1 minute/1 hour，放弃获取
+        size: { selector: "td:nth-child(5)", filters: [{ name: "parseSize" }] },
+
+        seeders: { selector: "td:nth-child(6)" },
+        leechers: { selector: "td:nth-child(7)" },
+        completed: { selector: "td:nth-child(8)" },
+      },
+    },
+  ],
+
+  detail: {
+    urlPattern:["/torrent/"],
+    selectors: {
+      ...SchemaMetadata.detail!.selectors!,
+      title: { 
+        selector: "table.table tr:contains('Title') td:nth-child(2)",
+        elementProcess: (element) => {
+          const text = element.textContent.trim();
+          // 匹配 [xxxx-xxxx] 格式
+          const match = text.match(/\[([^\]]+)\]/);
+          // 如果匹配到就返回括号内的内容,否则返回原文本
+          return match ? match[1] : text;
+        }
+      }
+    }
+  },
+
   levelRequirements: [
     {
       id: 1,
