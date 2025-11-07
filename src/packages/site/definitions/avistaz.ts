@@ -97,15 +97,6 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
-  search: {
-    ...SchemaMetadata.search!,
-    advanceKeywordParams: {
-      imdb: { enabled: true },
-      tvdb: { enabled: true },
-      tmdb: { enabled: true },
-    },
-  },
-
   levelRequirements: [
     {
       id: 1,
