@@ -295,6 +295,11 @@ export const siteMetadata: ISiteMetadata = {
       },
     ],
   },
+
+  noLoginAssert: {
+    matchSelectors: ["div.login-container form[name='login-form']"],
+  },
+
   levelRequirements: [
     {
       id: 0,
