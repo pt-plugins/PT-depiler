@@ -308,6 +308,11 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
+  
+  noLoginAssert: {
+    matchSelectors: ["div#loginContainer"],
+  },
+
 };
 
 export default class PussyTorrents extends PrivateSite {
