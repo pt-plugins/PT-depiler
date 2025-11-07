@@ -410,6 +410,7 @@
       "siteSearchConfig": "Site Search Configuration",
       "siteQueueConcurrency": "Request Queue Concurrency",
       "saveLastSearchFilter": "Save last used search filter",
+      "forceImdbIdMatchFilter": "When searching by IMDb, filter out results whose IMDb ID returned by the site does not match",
       "quickSiteFilter": "Quick Site Filter In Search Page",
       "mediaServerSearchConfig": "Media Server Search Configuration",
       "mediaQueueConcurrency": "Request Queue Concurrency",

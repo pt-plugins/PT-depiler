@@ -249,10 +249,13 @@ export const useConfigStore = defineStore("config", {
     },
 
     searchEntity: {
-      saveLastFilter: true,
       queueConcurrency: 8,
-      treatTTQueryAsImdbSearch: true,
+
       allowSingleSiteSearch: false,
+      treatTTQueryAsImdbSearch: true,
+
+      saveLastFilter: true,
+      forceImdbIdMatchFilter: true,
       quickSiteFilter: true,
     },
 

@@ -599,16 +599,9 @@ export default class NexusPHP extends PrivateSite {
         }
       });
     }
-    let transformedData = await super.transformSearchPage(doc, { keywords, searchEntry, requestConfig });
-    if (keywords && requestConfig?.params?.search_area === 4) {
-      const imdbKeywords = definedFilters.extImdbId(keywords!);
-      transformedData = transformedData.filter(
-        (item) => !item.ext_imdb || definedFilters.extImdbId(item.ext_imdb) === imdbKeywords,
-      );
-    }
 
     // !!! 其他一些比较难处理的，我们把他 hack 到 parseWholeTorrentFromRow 中 !!!
-    return transformedData;
+    return await super.transformSearchPage(doc, { keywords, searchEntry, requestConfig });
   }
 
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {

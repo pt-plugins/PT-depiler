@@ -198,14 +198,18 @@ export interface IConfigPiniaStorageSchema {
   };
 
   searchEntity: {
-    // 是否保存上一次使用的筛选词
-    saveLastFilter: boolean;
     // 搜索时的最大并发数
     queueConcurrency: number;
-    // 是否将 tt\d{7,8} 的搜索词视为 IMDb 搜索
-    treatTTQueryAsImdbSearch: boolean;
+
     // 是否允许单站点搜索
     allowSingleSiteSearch: boolean;
+    // 是否将 tt\d{7,8} 的搜索词视为 IMDb 搜索
+    treatTTQueryAsImdbSearch: boolean;
+
+    // 是否保存上一次使用的筛选词
+    saveLastFilter: boolean;
+    // 当搜索词为 imdb 时，且站点搜索结果返回 imdbId 时，滤去 imdb 不匹配的结果
+    forceImdbIdMatchFilter: boolean;
     // 是否启用快速站点过滤功能
     quickSiteFilter: boolean;
   };
