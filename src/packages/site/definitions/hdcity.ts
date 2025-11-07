@@ -426,6 +426,14 @@ export const siteMetadata: ISiteMetadata = {
               },
             ],
           },
+          lastAccessAt: {
+            selector: [".text:contains('最近动向')", ".text:contains('Last Action')"],
+            filters: [
+              (query: string) => {
+                return parseValidTimeString(query.match(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/)![1]);
+              },
+            ],
+          },
           invites: {
             selector: [
               ".text:contains('邀请')",

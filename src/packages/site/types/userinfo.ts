@@ -84,6 +84,8 @@ export interface IUserInfo extends Omit<IImplicitUserInfo, "interval"> {
   levelName?: TLevelName; // 等级名称
   joinTime?: number; // 入站时间
 
+  lastAccessAt?: number; // 最近访问时间
+
   messageCount?: number; // 消息数量
   invites?: number; // 邀请数量
   avatar?: string; // 头像

@@ -169,6 +169,13 @@ export const siteMetadata: ISiteMetadata = {
               { name: "parseTime", args: ["yyyy-MM-dd HH:mm"] },
             ],
           },
+          lastAccessAt: {
+            selector: "#pbbs > li:contains('最后访问')",
+            filters: [
+              (query: string) => query.replace("最后访问", "").trim(),
+              { name: "parseTime", args: ["yyyy-MM-dd HH:mm"] },
+            ],
+          },
         },
       },
     ],

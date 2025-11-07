@@ -256,6 +256,8 @@
       "trueUserData": "True Data",
       "invites": "Invites",
       "joinTime": "Join Time",
+      "lastAccessAt": "Last Access At",
+      "lastAccessDurationNote": "Not Access for {0} days",
       "updateAt": "Updated At",
       "action": {
         "viewHistoryData": "View History Data",

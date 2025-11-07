@@ -148,6 +148,10 @@ export const siteMetadata: ISiteMetadata = {
             selector: ["p:contains('当前保种容量：')"],
             filters: [{ name: "parseSize" }],
           },
+          lastAccessAt: {
+            selector: ["p:contains('上次IPv6访问时间：')", "p:contains('上次访问时间：')"],
+            filters: [{ name: "split", args: ["：", 1] }, { name: "parseTime" }],
+          },
         },
       },
     ],

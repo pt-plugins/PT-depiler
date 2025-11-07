@@ -226,12 +226,20 @@ export const siteMetadata: ISiteMetadata = {
             selector: "table.profileViewTable td:contains('Registration date') + td",
             filters: [{ name: "parseTime", args: ["EEEE do MMMM yyyy" /* 'Saturday 6th May 2017' */] }],
           },
+          lastAccessAt: {
+            selector: "table.profileViewTable td:contains('Last visit') + td",
+            filters: [
+              // Friday 7th November 2025 12:04:58 PM (38 seconds ago)
+              { name: "split", args: [" (", 0] },
+              { name: "parseTime", args: ["EEEE do MMMM yyyy hh:mm:ss a"] },
+            ],
+          },
         },
       },
       // 获取用户上传的种子数量
       {
-        requestConfig: { 
-          url: "/user/account/uploadedtorrents", 
+        requestConfig: {
+          url: "/user/account/uploadedtorrents",
           method: "POST",
           responseType: "json",
           data: {
@@ -275,22 +283,20 @@ export const siteMetadata: ISiteMetadata = {
             iSortCol_0: "0",
             sSortDir_0: "asc",
             iSortingCols: "1",
-            userID: "$id$" // 使用动态获取的用户ID
+            userID: "$id$", // 使用动态获取的用户ID
           },
           headers: {
-            "Accept": "application/json, text/javascript, */*; q=0.01",
+            Accept: "application/json, text/javascript, */*; q=0.01",
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-            "X-Requested-With": "XMLHttpRequest"
-          }
+            "X-Requested-With": "XMLHttpRequest",
+          },
         },
         assertion: { id: "valid" }, // 确保有用户ID
         selectors: {
           uploads: {
             selector: ":self",
-            filters: [
-              (response: IUploadsResponse) => response.iTotalRecords || 0
-            ]
-          }
+            filters: [(response: IUploadsResponse) => response.iTotalRecords || 0],
+          },
         },
       },
     ],
@@ -415,7 +421,7 @@ export default class TorrentLeech extends PrivateSite {
   // 获取用户上传的详细信息
   protected async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<IUserInfo> {
     const userId = flushUserInfo.id as string;
-    
+
     if (!userId) {
       return flushUserInfo as IUserInfo;
     }
@@ -466,13 +472,13 @@ export default class TorrentLeech extends PrivateSite {
           iSortCol_0: "0",
           sSortDir_0: "asc",
           iSortingCols: "1",
-          userID: userId
+          userID: userId,
         },
         headers: {
-          "Accept": "application/json, text/javascript, */*; q=0.01",
+          Accept: "application/json, text/javascript, */*; q=0.01",
           "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-          "X-Requested-With": "XMLHttpRequest"
-        }
+          "X-Requested-With": "XMLHttpRequest",
+        },
       });
 
       if (data && data.aaData) {
@@ -484,8 +490,8 @@ export default class TorrentLeech extends PrivateSite {
             size: item[2] || "",
             completed: item[3] || "",
             seeders: item[4] || "",
-            leechers: item[5] || ""
-          }))
+            leechers: item[5] || "",
+          })),
         };
 
         return mergeWith(flushUserInfo, uploadsData, (objValue, srcValue) => {

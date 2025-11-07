@@ -11,22 +11,27 @@ import { set } from "es-toolkit/compat";
 const SIZE_REGEX = /([\d.]+)\s*(GB|MB|TB|KB|B)/i;
 const AVAILABLE_REGEX = /Available:\s*(\d+)/i;
 
-const SIZE_MULTIPLIERS = { 'TB': TB, 'GB': GB, 'MB': MB, 'KB': KB, 'B': 1 } as const;
+const SIZE_MULTIPLIERS = { TB: TB, GB: GB, MB: MB, KB: KB, B: 1 } as const;
 
 const IPT_SELECTORS = {
-  ROWS: ["table#torrents > tbody > tr", "table.torrents > tbody > tr", "table > tbody > tr:has(td.al)", "tr:has(td.al)"],
+  ROWS: [
+    "table#torrents > tbody > tr",
+    "table.torrents > tbody > tr",
+    "table > tbody > tr:has(td.al)",
+    "tr:has(td.al)",
+  ],
   SIZE: ["> td:nth-child(6)", "td:contains('MB')", "td:contains('GB')", "td:contains('TB')"],
   SEEDERS: ["td:nth-last-child(2)", "td:contains('seeders')", "td.seeders"],
   LEECHERS: ["td:nth-last-child(1)", "td:contains('leechers')", "td.leechers"],
   COMPLETED: ["td:nth-last-child(3)", "td:contains('snatched')", "td.completed"],
-  CATEGORY: ["td:eq(0) img", "td:first-child img"]
+  CATEGORY: ["td:eq(0) img", "td:first-child img"],
 };
 
 const createTableFieldSelector = (fieldName: string): string[] => [
   `th:contains('${fieldName}') + td`,
   `td:contains('${fieldName}')`,
   `tr:contains('${fieldName}') td:last-child`,
-  `table tr:has(th:contains('${fieldName}')) td:last-child`
+  `table tr:has(th:contains('${fieldName}')) td:last-child`,
 ];
 
 const parseIPTorrentsStats = (query: string): number => {
@@ -38,7 +43,7 @@ const parseIPTorrentsStats = (query: string): number => {
       const unit = sizeMatch[2].toUpperCase() as keyof typeof SIZE_MULTIPLIERS;
       return isNaN(value) ? 0 : value * (SIZE_MULTIPLIERS[unit] || 1);
     }
-    const num = parseFloat(query.match(/[\d.]+/)?.[0] || '0');
+    const num = parseFloat(query.match(/[\d.]+/)?.[0] || "0");
     return isNaN(num) ? 0 : num;
   } catch {
     return 0;
@@ -50,7 +55,7 @@ const parseIPTorrentsInvites = (query: string): number => {
   try {
     const availableMatch = query.match(AVAILABLE_REGEX);
     if (availableMatch) return parseInt(availableMatch[1], 10) || 0;
-    const num = parseInt(query.match(/\d+/)?.[0] || '0', 10);
+    const num = parseInt(query.match(/\d+/)?.[0] || "0", 10);
     return isNaN(num) ? 0 : num;
   } catch {
     return 0;
@@ -219,8 +224,8 @@ export const siteMetadata: ISiteMetadata = {
     requestConfig: { url: "/t" },
     requestDelay: 1000,
     selectors: {
-      rows: { 
-        selector: IPT_SELECTORS.ROWS
+      rows: {
+        selector: IPT_SELECTORS.ROWS,
       },
       id: {
         selector: " > td.al > a",
@@ -255,9 +260,9 @@ export const siteMetadata: ISiteMetadata = {
           },
         ],
       },
-      size: { 
+      size: {
         selector: IPT_SELECTORS.SIZE,
-        filters: [{ name: "parseSize" }]
+        filters: [{ name: "parseSize" }],
       },
       author: {
         selector: "div.sub",
@@ -272,17 +277,17 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
       category: { selector: IPT_SELECTORS.CATEGORY, attr: "alt" },
-      seeders: { 
+      seeders: {
         selector: IPT_SELECTORS.SEEDERS,
-        filters: [{ name: "parseNumber" }]
+        filters: [{ name: "parseNumber" }],
       },
-      leechers: { 
+      leechers: {
         selector: IPT_SELECTORS.LEECHERS,
-        filters: [{ name: "parseNumber" }]
+        filters: [{ name: "parseNumber" }],
       },
-      completed: { 
+      completed: {
         selector: IPT_SELECTORS.COMPLETED,
-        filters: [{ name: "parseNumber" }]
+        filters: [{ name: "parseNumber" }],
       },
       comments: {
         selector: "> td:nth-child(5)",
@@ -290,8 +295,8 @@ export const siteMetadata: ISiteMetadata = {
       },
       tags: [
         { name: "Free", selector: "span.free" },
-        { name: "Free", selector: "span.t_tag_free_leech" }
-      ]
+        { name: "Free", selector: "span.t_tag_free_leech" },
+      ],
     },
   },
 
@@ -328,16 +333,16 @@ export const siteMetadata: ISiteMetadata = {
             selector: "h1.c0",
           },
           uploaded: {
-            selector: createTableFieldSelector('Uploaded'),
+            selector: createTableFieldSelector("Uploaded"),
             filters: [parseIPTorrentsStats],
           },
           downloaded: {
-            selector: createTableFieldSelector('Downloaded'),
+            selector: createTableFieldSelector("Downloaded"),
             filters: [parseIPTorrentsStats],
           },
           ratio: {
-            selector: createTableFieldSelector('Share ratio'),
-            filters: [{ name: "parseNumber" }]
+            selector: createTableFieldSelector("Share ratio"),
+            filters: [{ name: "parseNumber" }],
           },
           levelName: {
             selector: "th:contains('Class') + td",
@@ -348,7 +353,11 @@ export const siteMetadata: ISiteMetadata = {
           },
           joinTime: {
             selector: "th:contains('Join date') + td",
-            filters: [(query: string) => query.split(" (")[0], { name: "parseTime" }]
+            filters: [(query: string) => query.split(" (")[0], { name: "parseTime" }],
+          },
+          lastAccessAt: {
+            selector: "th:contains('Last seen') + td",
+            filters: [(query: string) => query.split(" (")[0], { name: "parseTime" }],
           },
           seeding: {
             selector: "th:contains('Seeding') + td",
@@ -356,7 +365,7 @@ export const siteMetadata: ISiteMetadata = {
           },
           seedingSize: {
             selector: "body",
-            filters: [() => "N/A"]
+            filters: [() => "N/A"],
           },
           invites: {
             selector: [
@@ -365,22 +374,22 @@ export const siteMetadata: ISiteMetadata = {
               "td:contains('Available:')",
               "th:contains('Available') + td",
               "td:contains('Available')",
-              "tr:contains('Available') td:last-child"
+              "tr:contains('Available') td:last-child",
             ],
-            filters: [parseIPTorrentsInvites]
+            filters: [parseIPTorrentsInvites],
           },
           warned: {
-            selector: createTableFieldSelector('Warned'),
+            selector: createTableFieldSelector("Warned"),
             filters: [{ name: "parseNumber" }],
           },
           disabled: {
-            selector: createTableFieldSelector('Disabled'),
+            selector: createTableFieldSelector("Disabled"),
             filters: [{ name: "parseNumber" }],
           },
           lastSeen: {
-            selector: createTableFieldSelector('Last seen'),
-            filters: [{ name: "parseTime" }]
-          }
+            selector: createTableFieldSelector("Last seen"),
+            filters: [{ name: "parseTime" }],
+          },
         },
       },
     ],

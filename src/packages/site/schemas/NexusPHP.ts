@@ -482,6 +482,15 @@ export const SchemaMetadata: Pick<
         filters: [{ name: "parseNumber" }],
       },
 
+      lastAccessAt: {
+        selector: [
+          "td.rowhead:contains('最近动向') + td",
+          "td.rowhead:contains('最近動向') + td",
+          "td.rowhead:contains('Last Action') + td",
+        ],
+        filters: [{ name: "split", args: ["(", 0] }, { name: "parseTime" }],
+      },
+
       /**
        * 如果指定 seeding 和 seedingSize，则会尝试从 "/userdetails.php?id=$user.id$" 页面获取，
        * 否则将使用方法 parseUserInfoForSeedingStatus 进行获取
@@ -513,6 +522,7 @@ export const SchemaMetadata: Pick<
           "seedingSize",
           "hnrUnsatisfied",
           "hnrPreWarning",
+          "lastAccessAt",
         ],
       },
       {

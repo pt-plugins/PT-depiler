@@ -2,6 +2,7 @@
 import { computed, onMounted, reactive, ref, shallowRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
+import { differenceInDays } from "date-fns";
 import { isUndefined } from "es-toolkit/compat";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 import { EResultParseStatus, type ISiteUserConfig, IUserInfo, TSiteID } from "@ptd/site";
@@ -27,6 +28,8 @@ const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 
+const currentDate = new Date();
+
 const fullTableHeader = reactive([
   {
     title: t("MyData.table.site"),
@@ -48,6 +51,7 @@ const fullTableHeader = reactive([
   { title: t("levelRequirement.bonusPerHour"), key: "bonusPerHour", align: "end" },
   { title: t("MyData.table.invites"), key: "invites", align: "end" }, // 默认不显示
   { title: t("MyData.table.joinTime"), key: "joinTime", align: "center" },
+  { title: t("MyData.table.lastAccessAt"), key: "lastAccessAt", align: "center" }, // 默认不显示
   { title: t("MyData.table.updateAt"), key: "updateAt", align: "center" },
   { title: t("common.action"), key: "action", align: "center", sortable: false, props: { disabled: true } },
 ] as (DataTableHeader & { props?: any })[]);
@@ -120,6 +124,12 @@ async function updateTableData() {
       siteUserConfig,
       // 对 isDead 或者 isOffline 的站点不允许选择（ https://github.com/pt-plugins/PT-depiler/pull/140 ）
       selectable: !(siteMeta.isDead || siteUserConfig.isOffline),
+
+      // 预先计算 多少天未访问站点，以防止在 template 中反复计算
+      lastAccessDuration:
+        typeof siteUserInfoData.lastAccessAt === "number"
+          ? differenceInDays(currentDate, siteUserInfoData.lastAccessAt)
+          : 0,
     });
   }
 
@@ -337,7 +347,7 @@ function toggleNumberSimplification() {
                   :title="t('MyData.index.filter.todayNotUpdated')"
                   @click.stop="
                     () => {
-                      advanceFilterDictRef.updateAt.value = ['', formatDate(new Date(), 'yyyyMMdd')];
+                      advanceFilterDictRef.updateAt.value = ['', formatDate(currentDate, 'yyyyMMdd')];
                       updateTableFilterValueFn();
                     }
                   "
@@ -635,6 +645,22 @@ function toggleNumberSimplification() {
                   : formatDate(item.joinTime, "yyyy-MM-dd")
               : "-"
           }}
+        </span>
+      </template>
+
+      <!-- 最近访问时间 -->
+      <template #item.lastAccessAt="{ item }">
+        <span class="text-no-wrap" :title="item.lastAccessAt ? (formatDate(item.lastAccessAt) as string) : '-'">
+          <template v-if="typeof item.lastAccessAt !== 'undefined'">
+            {{ formatDate(item.lastAccessAt) }}
+            <v-icon
+              v-if="item.lastAccessDuration >= 5"
+              icon="mdi-alert"
+              :color="item.lastAccessDuration >= 15 ? 'red' : 'amber'"
+              :title="t('MyData.table.lastAccessDurationNote', [item.lastAccessDuration])"
+            />
+          </template>
+          <template v-else>-</template>
         </span>
       </template>
 

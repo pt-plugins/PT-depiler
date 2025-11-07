@@ -256,6 +256,8 @@
       "trueUserData": "真实数据量",
       "invites": "邀请数",
       "joinTime": "入站时间",
+      "lastAccessAt": "最近访问时间",
+      "lastAccessDurationNote": "已经 {0} 天未访问了",
       "updateAt": "更新时间",
       "action": {
         "viewHistoryData": "查看历史数据",
