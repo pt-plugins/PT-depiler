@@ -153,7 +153,7 @@ const totalSiteSeedingInfoChartOptions = computed(() => {
       formatter: createTotalInfoTooltipFormatter(["size", "int"]),
     },
     legend: { data: ["做种量", "做种数"], bottom: 10, orient: "horizontal" },
-    grid: { left: "3%", right: "4%", bottom: "10%", containLabel: true },
+    grid: { left: "3%", right: "4%", bottom: "10%", outerBoundsMode: "same", outerBoundsContain: "axisLabel" },
     xAxis: { type: "category", boundaryGap: false, data: selectedDateRanges.value }, // 时间轴
     yAxis: [
       { type: "value", name: "做种量", position: "left", axisLabel: { formatter: formatSize } },
@@ -279,7 +279,7 @@ const createPerSiteChartOptionsFn = (
         type: "scroll",
         formatter: (site) => allAddedSiteMetadata[site].siteName ?? site,
       },
-      grid: { left: "3%", right: "4%", bottom: "10%", containLabel: true },
+      grid: { left: "3%", right: "4%", bottom: "10%", outerBoundsMode: "same", outerBoundsContain: "axisLabel" },
       xAxis: { type: "category", boundaryGap: true, data: selectedDateRanges.value }, // 所有柱状图都使用 boundaryGap: true
       yAxis: [{ type: "value", name: "数据", axisLabel: { formatter: formatDict[format] } }],
       series,
