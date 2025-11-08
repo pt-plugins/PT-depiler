@@ -220,14 +220,18 @@ export const siteMetadata: ISiteMetadata = {
     {
       urlPattern: ["/torrents.php"],
       excludeUrlPattern: [/\/torrents\.php\?(?:.*&)?(id|torrentid)=\d+/, /searchstr=(?:tt)?\d+/],
-      mergeSearchSelectors: false,
       selectors: {
-        ...SchemaMetadata.search!.selectors!,
         time: {
           selector: "span.time",
-          filters: [{ name: "parseTTL" }],
+          filters: [
+            { name: "parseTTL" },
+            (ts: number) => {
+              const offsetMinutes = new Date().getTimezoneOffset();
+              const offsetMs = offsetMinutes * 60 * 1000;
+              return ts + offsetMs;
+            },
+          ],
         },
-        link: linkSelector,
       },
     },
   ],
