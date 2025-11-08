@@ -260,7 +260,7 @@ export const siteMetadata: ISiteMetadata = {
       ratio: 7.0,
       bonus: 2200000,
       privilege:
-        "首次升级赠送邀请1枚，可以更新过期的外部信息；可以查看Extreme User论坛。Extreme User及以上等级用户封存账号（在控制面板）后不会被删除帐号。",
+        "首次升级赠送邀请1枚，可以更新过期的外部信息；可以查看Extreme User论坛。Extreme User及以上等级用户封存账号（在控制面板）后不会被删除账号。",
     },
     {
       id: 8,
