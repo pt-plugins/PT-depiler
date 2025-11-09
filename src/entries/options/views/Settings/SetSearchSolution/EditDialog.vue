@@ -64,7 +64,7 @@ function addSolution(addSolution: ISearchSolution) {
       return (
         item.siteId === addSolution.siteId &&
         ((!isEmpty(item.selectedCategories) && isEqual(item.selectedCategories, addSolution.selectedCategories)) ||
-          item.name === addSolution.name)
+          (typeof item.name !== "undefined" && item.name === addSolution.name))
       );
     })
   ) {
