@@ -177,8 +177,8 @@ export const siteMetadata: ISiteMetadata = {
       title: { selector: "name" },
       // 该站点类似于Unit3D，不提供或者说没有subTitle
       url: { selector: "url" },
-      // 不设置 RSSKEY时，该站点不提供下载链接，以url替代
-      link: { selector: ["download_url", "url"] },
+      // 不设置 RSSKEY时，推断下载连接
+      link: { selector: ["download_url", "url"], filters: [{ name: "replace", args: ["torrents", "download"] }] },
       time: { selector: "created_at", filters: [{ name: "parseTime" }] },
       size: { selector: "size" },
       author: { text: "N/A", selector: "uploaded_by" },
@@ -450,7 +450,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "rsskey",
       label: "RSS Key",
-      hint: "Your personal RSS key (RID) if you wish for results to include the uploaded_by and download_url fields",
+      hint: "Your personal RSS key (RID) if you wish get download_url without cookies",
       required: false,
     },
   ],
