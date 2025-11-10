@@ -632,14 +632,17 @@ export default class BeyondHD extends PrivateSite {
 
     // TODO: 增加更多中文化tag，与NPHP体验一致
     const languageRegex = /(Chinese|Cantonese)(\s*\(.*\))?/i;
-
-    const audioArray = row.audios.split(", ").filter((item) => item.trim() !== "");
-    if (audioArray.some((audio) => languageRegex.test(audio))) {
-      tags.push({ name: "中配" });
+    if (row.audios) {
+      const audioArray = row.audios.split(", ").filter((item) => item.trim() !== "");
+      if (audioArray.some((audio) => languageRegex.test(audio))) {
+        tags.push({ name: "中配" });
+      }
     }
-    const subtitleArray = row.subtitles.split(", ").filter((item) => item.trim() !== "");
-    if (subtitleArray.some((subtitle) => languageRegex.test(subtitle))) {
-      tags.push({ name: "中字" });
+    if (row.subtitles) {
+      const subtitleArray = row.subtitles.split(", ").filter((item) => item.trim() !== "");
+      if (subtitleArray.some((subtitle) => languageRegex.test(subtitle))) {
+        tags.push({ name: "中字" });
+      }
     }
 
     tags.push({ name: "H&R", color: "red" });
