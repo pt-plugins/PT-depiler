@@ -8,7 +8,7 @@
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { addDays, startOfDay } from "date-fns";
-import { ETorrentStatus, preDefinedTorrentTagNameSet } from "@ptd/site";
+import { ETorrentStatus, type ITorrentTag, preDefinedTorrentTagNameSet } from "@ptd/site";
 
 import { formatDate, formatSize } from "@/options/utils.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
@@ -37,7 +37,7 @@ const statusOptions = [
 ];
 
 const torrentTags = computed(() =>
-  advanceFilterDictRef.value.tags.all.toSorted((a, b) => {
+  advanceFilterDictRef.value.tags.all.toSorted((a: ITorrentTag, b: ITorrentTag) => {
     const aIndex = preDefinedTorrentTagNameSet.findIndex((ntt) => ntt === a.name);
     const bIndex = preDefinedTorrentTagNameSet.findIndex((ntt) => ntt === b.name);
     return (aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex) - (bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex);
