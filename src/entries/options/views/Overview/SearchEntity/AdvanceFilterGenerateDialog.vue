@@ -5,9 +5,10 @@
  * 如果需要忽略，目前只能重置过滤词。
  * refs: https://github.com/vuetifyjs/vuetify/blob/0ca7e93ad011b358591da646fdbd6ebe83625d25/packages/vuetify/src/components/VCheckbox/VCheckboxBtn.tsx#L49-L53
  */
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { addDays, startOfDay } from "date-fns";
-import { ETorrentStatus } from "@ptd/site";
+import { ETorrentStatus, preDefinedTorrentTagNameSet } from "@ptd/site";
 
 import { formatDate, formatSize } from "@/options/utils.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
@@ -34,6 +35,14 @@ const statusOptions = [
   { value: ETorrentStatus.inactive, label: t("torrent.status.inactive"), icon: "mdi-wifi-strength-off", color: "grey" },
   { value: ETorrentStatus.completed, label: t("torrent.status.completed"), icon: "mdi-check", color: "grey" },
 ];
+
+const torrentTags = computed(() =>
+  advanceFilterDictRef.value.tags.all.toSorted((a, b) => {
+    const aIndex = preDefinedTorrentTagNameSet.findIndex((ntt) => ntt === a.name);
+    const bIndex = preDefinedTorrentTagNameSet.findIndex((ntt) => ntt === b.name);
+    return (aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex) - (bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex);
+  }),
+);
 
 function updateTableFilter() {
   emit("update:tableFilter", stringifyFilterFn());
@@ -108,7 +117,7 @@ function updateTableFilter() {
             <v-row><v-label>标签</v-label></v-row>
             <v-row>
               <v-col
-                v-for="tag in advanceFilterDictRef.tags.all"
+                v-for="tag in torrentTags"
                 :key="`${resetCountRef}_${tag.name}`"
                 class="pa-0"
                 cols="4"
@@ -124,7 +133,14 @@ function updateTableFilter() {
                   @click.stop="() => toggleKeywordStateFn('tags', tag.name)"
                 >
                   <template #label>
-                    <v-chip :color="tag.color" class="mr-1" label size="small" variant="tonal">
+                    <v-chip
+                      :color="tag.color"
+                      :prepend-icon="preDefinedTorrentTagNameSet.includes(tag.name) ? 'mdi-pin mdi-rotate-45' : ''"
+                      class="mr-1"
+                      label
+                      size="small"
+                      variant="tonal"
+                    >
                       {{ tag.name }}
                     </v-chip>
                   </template>

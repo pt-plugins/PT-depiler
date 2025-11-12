@@ -1,28 +1,12 @@
+import { uniqBy } from "es-toolkit";
 import { getMediaServer } from "@ptd/mediaServer";
+import { normalizedTorrentTagMap, preDefinedTorrentTagNameSet } from "@ptd/site";
 
 import { onMessage, sendMessage } from "@/messages.ts";
 import type { IMetadataPiniaStorageSchema, TSearchResultSnapshotStorageSchema } from "@/shared/types.ts";
 
 import { logger } from "./logger.ts";
 import { getSiteInstance } from "./site.ts";
-import { type TBaseTorrentTagName } from "@ptd/site";
-
-const torrentTagColorMap: Record<TBaseTorrentTagName, string> = {
-  "NL.": "deep-purple",
-  Free: "blue",
-  "2xFree": "green",
-  "2xUp": "lime",
-  "2x50%": "light-green",
-  "25%": "purple",
-  "30%": "indigo",
-  "35%": "indigo-darken-3",
-  "50%": "orange",
-  "70%": "blue-grey",
-  "75%": "lime-darken-3",
-  VIP: "orange-darken-2",
-  "H&R": "red",
-  "Excl.": "deep-orange-darken-1",
-};
 
 onMessage("getSiteSearchResult", async ({ data: { siteId, keyword = "", searchEntry = {} } }) => {
   logger({
@@ -34,15 +18,28 @@ onMessage("getSiteSearchResult", async ({ data: { siteId, keyword = "", searchEn
   let searchResult = await site.getSearchResult(keyword, searchEntry);
 
   if (searchResult.data.length > 0) {
-    // 将 tags 中的基础 tag 名称转换为对应的颜色
-    searchResult.data.forEach((item) => {
+    searchResult.data = searchResult.data.map((item) => {
       if (item.tags) {
-        item.tags.forEach((tag) => {
-          if (torrentTagColorMap[tag.name]) {
-            tag.color = torrentTagColorMap[tag.name];
-          }
+        item.tags = uniqBy(
+          // 尽可能将 tags 转换预定义的部分，去重并排序
+          item.tags.map((tag) => {
+            for (const normalizedTorrentTag of normalizedTorrentTagMap) {
+              if (normalizedTorrentTag.from.test(tag.name)) {
+                return normalizedTorrentTag.to;
+              }
+            }
+            return tag;
+          }),
+          (tag) => tag.name,
+        ).toSorted((a, b) => {
+          const aIndex = preDefinedTorrentTagNameSet.findIndex((ntt) => ntt === a.name);
+          const bIndex = preDefinedTorrentTagNameSet.findIndex((ntt) => ntt === b.name);
+          return (
+            (aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex) - (bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex)
+          );
         });
       }
+      return item;
     });
   }
 
