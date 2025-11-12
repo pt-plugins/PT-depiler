@@ -39,6 +39,7 @@ export interface IImplicitUserInfo {
   bonus?: number; // 魔力值/积分需求
   seedingBonus?: number; // 做种积分需求
   bonusPerHour?: number; // 魔力值/积分每小时需求
+  seedingBonusPerHour?: number; // 做种积分每小时需求（如果未获取到该字段，在计算剩余小时时会回落到 bonusPerHour ）
 
   /**
    * bonusNeededInterval 和 seedingBonusNeededInterval 是一个由 levelRequirementUnMet 计算得到的结果，
@@ -82,6 +83,8 @@ export interface IUserInfo extends Omit<IImplicitUserInfo, "interval"> {
   levelId?: TLevelId; // 等级ID
   levelName?: TLevelName; // 等级名称
   joinTime?: number; // 入站时间
+
+  lastAccessAt?: number; // 最近访问时间
 
   messageCount?: number; // 消息数量
   invites?: number; // 邀请数量

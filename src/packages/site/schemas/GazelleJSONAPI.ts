@@ -290,6 +290,10 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       invited: {
         selector: ["response.community.invited"],
       },
+      lastAccessAt: {
+        selector: ["response.stats.lastAccess"],
+        filters: [{ name: "parseTime" }],
+      },
     },
   },
 };
@@ -481,6 +485,7 @@ export default class GazelleJSONAPI extends PrivateSite {
       "perfectFlacs",
       "groups",
       "invited",
+      "lastAccessAt",
     ] as (keyof Partial<IUserInfo>)[]) as Partial<IUserInfo>;
   }
 

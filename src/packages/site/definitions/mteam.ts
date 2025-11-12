@@ -180,6 +180,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "類別（综合）",
       key: "categories_normal",
       keyPath: "data",
+      notes: "请先设置分类入口为“综合”！请勿与 成人 区类别同时选择！",
       options: siteCategory.filter((item) => item.type === "normal"),
       cross: { mode: "brackets", key: "categories" },
     },
@@ -187,6 +188,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "類別（成人）",
       key: "categories_adult",
       keyPath: "data",
+      notes: "请先设置分类入口为“成人”！请勿与 综合 区类别同时选择！",
       options: siteCategory.filter((item) => item.type === "adult"),
       cross: { mode: "brackets", key: "categories" },
     },
@@ -370,6 +372,7 @@ export const siteMetadata: ISiteMetadata = {
           },
           levelId: { selector: "data.role", filters: [{ name: "parseNumber" }] },
           bonus: { selector: "data.memberCount.bonus", filters: [{ name: "parseNumber" }] },
+          lastAccessAt: { selector: "data.memberStatus.lastBrowse", filters: [{ name: "parseTime" }] },
         },
       },
       {
@@ -622,6 +625,7 @@ export default class MTeam extends PrivateSite {
     axiosConfig.headers = {
       ...(axiosConfig.headers ?? {}),
       "x-api-key": this.userConfig.inputSetting!.token ?? "", // FIXME 是否允许我们设置一个空字符？
+      origin: this.url, // MTeam site requires Origin header for CORS validation (added 2025-10-28)
     };
 
     return super.request<T>(axiosConfig, checkLogin);

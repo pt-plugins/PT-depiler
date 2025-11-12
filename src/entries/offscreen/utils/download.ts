@@ -202,6 +202,7 @@ onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId,
       await site.getTorrentDownloadRequestConfig(torrent as ITorrent),
     );
   }
+  await patchDownloadHistory(downloadId, { downloadRequestConfig }).catch(); // 存储下载请求配置，方便后续调试
 
   const downloaderConfig = await getDownloaderConfig(downloaderId);
   if (downloaderConfig.id && downloaderConfig.enabled) {
@@ -223,19 +224,21 @@ onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId,
       loggerData.addTorrentResult = addTorrentResult;
       if (addTorrentResult?.success === true) {
         logger({ msg: "Successfully added torrent to downloader", data: loggerData });
-        downloadStatus = await setDownloadStatus(downloadId, "completed");
+        downloadStatus = "completed";
       } else {
         logger({ msg: "Failed to add torrent to downloader", data: loggerData });
-        downloadStatus = await setDownloadStatus(downloadId, "failed");
+        downloadStatus = "failed";
       }
+      patchDownloadHistory(downloadId, { addTorrentResult }).catch(); // 存储添加种子结果，方便后续调试
     } catch (e) {
       logger({ msg: "Error adding torrent to downloader", data: loggerData });
-      downloadStatus = await setDownloadStatus(downloadId, "failed");
+      downloadStatus = "failed";
     }
   } else {
-    downloadStatus = await setDownloadStatus(downloadId, "failed");
+    downloadStatus = "failed";
   }
 
+  await setDownloadStatus(downloadId, downloadStatus);
   return { downloadId: downloadId, downloadStatus } as IDownloadTorrentResult;
 });
 

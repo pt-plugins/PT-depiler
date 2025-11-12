@@ -267,6 +267,12 @@ export interface ISiteMetadata {
     refreshHeaderPattern?: TUrlPatterns | false;
 
     /**
+     * 判断下面 matchSelectors 是否存在，如果存在则判断为未登录
+     * 对 Document 的返回 使用 Sizzle().length > 0 进行判断，对其他情况如 json 返回使用 es-toolkit/compact 的 has 方法进行判断
+     */
+    matchSelectors?: string[];
+
+    /**
      * 是否严格检查响应内容，未设置时默认为 false
      * 开启后会检查 responseText ，如果有下面情况，则判断为未登录：
      * ①为空 ； ②过短（ < 800 ），且包含 login, auth_form, not authorized 等字段

@@ -83,6 +83,7 @@ export const useConfigStore = defineStore("config", {
       applyTheme: false,
       defaultOpenSpeedDial: false,
       stackedButtons: false,
+      fadeEnterStyle: false,
 
       doubleConfirmAction: true,
       dragLinkOnSpeedDial: true,
@@ -164,6 +165,7 @@ export const useConfigStore = defineStore("config", {
       updateAtFormatAsAlive: false,
       showIntervalAsDate: false,
       simplifyBonusNumbers: false,
+      showBonusNeededInterval: true,
     },
 
     userDataTimelineControl: {
@@ -226,6 +228,7 @@ export const useConfigStore = defineStore("config", {
       autoReflush: {
         enabled: true,
         interval: 3, // hours
+        afterTime: "00:00",
         retry: {
           max: 3,
           interval: 5, // minutes
@@ -246,10 +249,13 @@ export const useConfigStore = defineStore("config", {
     },
 
     searchEntity: {
-      saveLastFilter: true,
       queueConcurrency: 8,
-      treatTTQueryAsImdbSearch: true,
+
       allowSingleSiteSearch: false,
+      treatTTQueryAsImdbSearch: true,
+
+      saveLastFilter: true,
+      forceImdbIdMatchFilter: true,
       quickSiteFilter: true,
     },
 

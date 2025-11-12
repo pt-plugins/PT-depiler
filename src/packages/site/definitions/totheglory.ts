@@ -248,6 +248,10 @@ export const siteMetadata: ISiteMetadata = {
             selector: ["td.rowhead:contains('注册日期') + td", "td.rowhead:contains('註冊日期') + td"],
             filters: [{ name: "parseTime" }],
           },
+          lastAccessAt: {
+            selector: ["td.rowhead:contains('上次访问') + td", "td.rowhead:contains('Last seen') + td"],
+            filters: [{ name: "parseTime" }],
+          },
           seeding: {
             text: 0,
             selector: "div#ka2",

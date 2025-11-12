@@ -34,7 +34,7 @@ export function parseTimeToLive(ttl: string): number | string {
 
   // 处理原始字符串中的非标准Unit
   for (const [k, v] of Object.entries(nonStandDateUnitMap)) {
-    const regex = new RegExp(`(\\d+)\\s*(${v.join("|")})\\b`, "g");
+    const regex = new RegExp(`(\\d+)\\s*(${v.join("|")})`, "g");
     ttlTemp = ttlTemp.replace(regex, `$1 ${k}`);
   }
 

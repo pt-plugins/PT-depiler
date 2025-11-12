@@ -1,6 +1,12 @@
 import PQueue from "p-queue";
 import { computed, markRaw } from "vue";
-import { EResultParseStatus, ETorrentStatus, type IAdvanceKeywordSearchConfig, type TSiteID } from "@ptd/site";
+import {
+  definedFilters,
+  EResultParseStatus,
+  ETorrentStatus,
+  type IAdvanceKeywordSearchConfig,
+  type TSiteID,
+} from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -126,6 +132,11 @@ export async function doSearchEntity(
         searchKeyword = "imdb|" + searchKeyword;
       }
 
+      let imdbSearchKeywords;
+      if (searchKeyword.startsWith("imdb|")) {
+        imdbSearchKeywords = definedFilters.extImdbId(searchKeyword.replace("imdb|", ""));
+      }
+
       const { status: searchStatus, data: searchResult } = await sendMessage("getSiteSearchResult", {
         keyword: searchKeyword,
         siteId,
@@ -145,6 +156,13 @@ export async function doSearchEntity(
           searchResultItem.solutionId = searchEntryName;
           searchResultItem.solutionKey = solutionKey;
           searchResultItem.status ??= ETorrentStatus.unknown; // 确保 status 字段有默认值，避免过滤器无法处理 undefined
+
+          if (imdbSearchKeywords && configStore.searchEntity.forceImdbIdMatchFilter && searchResultItem.ext_imdb) {
+            if (definedFilters.extImdbId(searchResultItem.ext_imdb) !== imdbSearchKeywords) {
+              continue;
+            }
+          }
+
           newItems.push(markRaw(searchResultItem)); // 使用 markRaw 冻结对象，避免 Vue 创建响应式代理，提升性能
           globalExistingIds.add(itemUniqueId);
         }

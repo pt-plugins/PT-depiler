@@ -17,7 +17,7 @@ import NexusPHP, {
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
 
-  version: 2,
+  version: 3,
   id: "pter",
   name: "PTer",
   aka: ["PTerClub", "猫站"],
@@ -27,8 +27,8 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://pterclub.com/", "https://pterclub.net/"],
-  formerHosts: ["pter.club"],
+  urls: ["https://pterclub.net/"],
+  formerHosts: ["pter.club", "pterclub.com"],
 
   category: [
     {

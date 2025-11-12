@@ -323,15 +323,16 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     const clientVersion = await this.getClientVersion();
     let supportLabelAtAdd = parseInt(clientVersion.match(/RPC (\d+)/)?.[1] || "0", 10) >= 17;
 
-    if (options.localDownload) {
+    // 处理链接
+    if (url.startsWith("magnet:") || !options.localDownload) {
+      addTorrentOptions.filename = url;
+    } else {
       const torrent = await getRemoteTorrentFile({
         url,
         ...(options.localDownloadOption || {}),
       });
 
       addTorrentOptions.metainfo = torrent.metadata.base64();
-    } else {
-      addTorrentOptions.filename = url;
     }
 
     if (options.savePath) {

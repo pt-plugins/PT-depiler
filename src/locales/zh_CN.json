@@ -235,6 +235,7 @@
       "updateAtFormatAsAlive": "更新时间显示为相对时间",
       "showIntervalAsDate": "等级要求时间显示为日期格式",
       "simplifyBonusNumbers": "简化积分数字显示",
+      "showBonusNeededInterval": "等级要求中展示积分预估时间",
       "multiOpen": "批量打开",
       "viewTimeline": "时间轴",
       "viewStatistic": "数据图表",
@@ -255,6 +256,8 @@
       "trueUserData": "真实数据量",
       "invites": "邀请数",
       "joinTime": "入站时间",
+      "lastAccessAt": "最近访问时间",
+      "lastAccessDurationNote": "已经 {0} 天未访问了",
       "updateAt": "更新时间",
       "action": {
         "viewHistoryData": "查看历史数据",
@@ -407,6 +410,7 @@
       "siteSearchConfig": "站点搜索配置",
       "siteQueueConcurrency": "请求队列长度",
       "saveLastSearchFilter": "保存上一次使用的搜索筛选词",
+      "forceImdbIdMatchFilter": "使用 IMDb 搜索时，在搜索结果中滤去站点返回的IMDb号不匹配的结果",
       "quickSiteFilter": "直接显示站点筛选栏",
       "mediaServerSearchConfig": "媒体服务器搜索配置",
       "mediaQueueConcurrency": "请求队列长度",
@@ -522,11 +526,13 @@
   },
   "SetSearchSolution": {
     "solution": "搜索方案",
+    "copy": "基于此搜索方案复制",
     "import": "导入",
     "export": "导出",
     "table": {
       "enable": "启用？",
-      "default": "默认？"
+      "default": "默认？",
+      "autoGenerate": "自动生成"
     },
     "edit": {
       "title": "自定义 @:SetSearchSolution.solution",
@@ -622,14 +628,14 @@
     "enableAutoRefresh": "是否启用后台定时刷新？",
     "autoRefresh": {
       "every": "每隔",
-      "hoursLabel": "小时，自动刷新一次当天",
+      "hoursLabel": "小时自动刷新一次当天",
       "unrefreshedSite": "未刷新过",
       "ofSites": "的站点",
       "retryOnFail": "如果刷新失败，则重试",
       "times": "次，每次间隔",
       "minutes": "分钟。",
       "lastFlushTime": "最近一次刷新时间:",
-      "nextFlushTime": "下一次刷新时间:"
+      "nextFlushTime": "下一次检查时间:"
     },
     "alwaysPickLastUserInfo": "刷新用户数据时尽可能使用已有的历史信息",
     "showDeadSite": "在概览中展示已被标记为死亡 （isDead） 的站点",

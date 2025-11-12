@@ -72,6 +72,13 @@ interface ITorrentLeechTorrent {
   commentsDisabled: number;
 }
 
+interface IUploadsResponse {
+  aaData: any[][];
+  iTotalRecords: number;
+  iTotalDisplayRecords: number;
+  sEcho: number;
+}
+
 export const siteMetadata: ISiteMetadata = {
   id: "torrentleech",
   version: 1,
@@ -99,11 +106,10 @@ export const siteMetadata: ISiteMetadata = {
       options: categoryOptions,
       cross: { mode: "custom" },
       generateRequestConfig(value) {
-        // format: /torrents/browse/list/categories/<category1>,<category2>,.../query/<query>
         const categoryString = Array.isArray(value) ? value.join(",") : value;
         return {
           requestConfig: {
-            url: `/torrents/browse/list/categories/${categoryString}`,
+            url: `/torrents/browse/list/categories/${categoryString}/query`,
           },
         };
       },
@@ -196,7 +202,6 @@ export const siteMetadata: ISiteMetadata = {
       {
         requestConfig: { url: "/", responseType: "document" },
         selectors: {
-          // id: { selector: "span.centerTopBar span[onclick*='/profile/'][onclick*='view']" },
           name: { selector: "span.centerTopBar span[onclick*='/profile/'][onclick*='view']" },
           uploaded: { selector: "span.centerTopBar div[title^='Uploaded'] span", filters: [{ name: "parseSize" }] },
           downloaded: { selector: "span.centerTopBar div[title^='Downloaded'] span", filters: [{ name: "parseSize" }] },
@@ -214,18 +219,93 @@ export const siteMetadata: ISiteMetadata = {
         selectors: {
           id: {
             selector: "div.has-support-msg script",
-            filters: [(text: string) => text.match(/var userLogUserID = '(\\d+)';/)?.[1] ?? ""],
+            filters: [(text: string) => text.match(/var userLogUserID = '(\d+)';/)?.[1] ?? ""],
           },
           levelName: { selector: "div.profile-details div.label-user-class" },
           joinTime: {
             selector: "table.profileViewTable td:contains('Registration date') + td",
             filters: [{ name: "parseTime", args: ["EEEE do MMMM yyyy" /* 'Saturday 6th May 2017' */] }],
           },
+          lastAccessAt: {
+            selector: "table.profileViewTable td:contains('Last visit') + td",
+            filters: [
+              // Friday 7th November 2025 12:04:58 PM (38 seconds ago)
+              { name: "split", args: [" (", 0] },
+              { name: "parseTime", args: ["EEEE do MMMM yyyy hh:mm:ss a"] },
+            ],
+          },
         },
       },
-      // FIXME 暂未实现 seeding, seedingSize, uploads （需要参照 uhdbits 构造翻页）
+      // 获取用户上传的种子数量
+      {
+        requestConfig: {
+          url: "/user/account/uploadedtorrents",
+          method: "POST",
+          responseType: "json",
+          data: {
+            sEcho: "1",
+            iColumns: "6",
+            sColumns: "categoryID,name,size,completed,seeders,leechers",
+            iDisplayStart: "0",
+            iDisplayLength: "50",
+            mDataProp_0: "0",
+            sSearch_0: "",
+            bRegex_0: "false",
+            bSearchable_0: "true",
+            bSortable_0: "false",
+            mDataProp_1: "1",
+            sSearch_1: "",
+            bRegex_1: "false",
+            bSearchable_1: "true",
+            bSortable_1: "false",
+            mDataProp_2: "2",
+            sSearch_2: "",
+            bRegex_2: "false",
+            bSearchable_2: "true",
+            bSortable_2: "true",
+            mDataProp_3: "3",
+            sSearch_3: "",
+            bRegex_3: "false",
+            bSearchable_3: "true",
+            bSortable_3: "true",
+            mDataProp_4: "4",
+            sSearch_4: "",
+            bRegex_4: "false",
+            bSearchable_4: "true",
+            bSortable_4: "true",
+            mDataProp_5: "5",
+            sSearch_5: "",
+            bRegex_5: "false",
+            bSearchable_5: "true",
+            bSortable_5: "true",
+            sSearch: "",
+            bRegex: "false",
+            iSortCol_0: "0",
+            sSortDir_0: "asc",
+            iSortingCols: "1",
+            userID: "$id$", // 使用动态获取的用户ID
+          },
+          headers: {
+            Accept: "application/json, text/javascript, */*; q=0.01",
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "X-Requested-With": "XMLHttpRequest",
+          },
+        },
+        assertion: { id: "valid" }, // 确保有用户ID
+        selectors: {
+          uploads: {
+            selector: ":self",
+            filters: [(response: IUploadsResponse) => response.iTotalRecords || 0],
+          },
+        },
+      },
     ],
   },
+
+  noLoginAssert: {
+    matchSelectors: ["div.login-container form[name='login-form']"],
+  },
+
   levelRequirements: [
     {
       id: 0,
@@ -276,7 +356,16 @@ export default class TorrentLeech extends PrivateSite {
       flushUserInfo.status === EResultParseStatus.success &&
       (typeof flushUserInfo.seeding === "undefined" || typeof flushUserInfo.seedingSize === "undefined")
     ) {
-      flushUserInfo = (await this.parseUserInfoForSeedingStatus(flushUserInfo)) as IUserInfo;
+      flushUserInfo = await this.parseUserInfoForSeedingStatus(flushUserInfo);
+    }
+
+    // 获取用户上传的详细信息（如果需要更多信息）
+    if (
+      flushUserInfo.status === EResultParseStatus.success &&
+      flushUserInfo.id &&
+      (typeof flushUserInfo.uploads === "undefined" || typeof flushUserInfo.uploads === "number")
+    ) {
+      flushUserInfo = await this.parseUserInfoForUploads(flushUserInfo);
     }
 
     return flushUserInfo;
@@ -297,7 +386,7 @@ export default class TorrentLeech extends PrivateSite {
   }
 
   // 获取做种信息
-  protected async parseUserInfoForSeedingStatus(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
+  protected async parseUserInfoForSeedingStatus(flushUserInfo: Partial<IUserInfo>): Promise<IUserInfo> {
     let seedStatus = { seeding: 0, seedingSize: 0 };
 
     const userName = flushUserInfo.name as string;
@@ -324,10 +413,95 @@ export default class TorrentLeech extends PrivateSite {
       });
     }
 
-    flushUserInfo = mergeWith(flushUserInfo, seedStatus, (objValue, srcValue) => {
+    return mergeWith(flushUserInfo, seedStatus, (objValue, srcValue) => {
       return typeof srcValue === "undefined" ? objValue : srcValue;
-    });
+    }) as IUserInfo;
+  }
 
-    return flushUserInfo;
+  // 获取用户上传的详细信息
+  protected async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<IUserInfo> {
+    const userId = flushUserInfo.id as string;
+
+    if (!userId) {
+      return flushUserInfo as IUserInfo;
+    }
+
+    try {
+      // 获取完整的上传列表数据
+      const { data } = await this.request<IUploadsResponse>({
+        url: "/user/account/uploadedtorrents",
+        method: "POST",
+        data: {
+          sEcho: "1",
+          iColumns: "6",
+          sColumns: "categoryID,name,size,completed,seeders,leechers",
+          iDisplayStart: "0",
+          iDisplayLength: "50",
+          mDataProp_0: "0",
+          sSearch_0: "",
+          bRegex_0: "false",
+          bSearchable_0: "true",
+          bSortable_0: "false",
+          mDataProp_1: "1",
+          sSearch_1: "",
+          bRegex_1: "false",
+          bSearchable_1: "true",
+          bSortable_1: "false",
+          mDataProp_2: "2",
+          sSearch_2: "",
+          bRegex_2: "false",
+          bSearchable_2: "true",
+          bSortable_2: "true",
+          mDataProp_3: "3",
+          sSearch_3: "",
+          bRegex_3: "false",
+          bSearchable_3: "true",
+          bSortable_3: "true",
+          mDataProp_4: "4",
+          sSearch_4: "",
+          bRegex_4: "false",
+          bSearchable_4: "true",
+          bSortable_4: "true",
+          mDataProp_5: "5",
+          sSearch_5: "",
+          bRegex_5: "false",
+          bSearchable_5: "true",
+          bSortable_5: "true",
+          sSearch: "",
+          bRegex: "false",
+          iSortCol_0: "0",
+          sSortDir_0: "asc",
+          iSortingCols: "1",
+          userID: userId,
+        },
+        headers: {
+          Accept: "application/json, text/javascript, */*; q=0.01",
+          "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+          "X-Requested-With": "XMLHttpRequest",
+        },
+      });
+
+      if (data && data.aaData) {
+        const uploadsData = {
+          uploads: data.iTotalRecords || 0,
+          uploadsList: data.aaData.map((item: any[]) => ({
+            category: item[0] || "",
+            name: item[1] || "",
+            size: item[2] || "",
+            completed: item[3] || "",
+            seeders: item[4] || "",
+            leechers: item[5] || "",
+          })),
+        };
+
+        return mergeWith(flushUserInfo, uploadsData, (objValue, srcValue) => {
+          return typeof srcValue === "undefined" ? objValue : srcValue;
+        }) as IUserInfo;
+      }
+    } catch (error) {
+      // 静默处理错误，不影响主要功能
+    }
+
+    return flushUserInfo as IUserInfo;
   }
 }

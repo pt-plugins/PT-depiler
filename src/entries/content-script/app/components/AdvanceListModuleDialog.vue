@@ -36,6 +36,11 @@ const tableHeaders = computed(
 
 const selectedTorrentIds = ref<ITorrent["id"][]>([]);
 const selectedTorrents = computed(() => torrentItems.filter((x) => selectedTorrentIds.value.includes(x.id)));
+const hasSelectedTorrent = computed(() => selectedTorrentIds.value.length > 0);
+const selectedTorrentsCount = computed(() => selectedTorrentIds.value.length);
+const selectedTorrentsSize = computed(() =>
+  selectedTorrents.value.reduce((acc, torrent) => acc + (torrent.size ?? 0), 0),
+);
 
 const localDownloadMultiStatus = ref<boolean>(false);
 async function handleLocalDownloadMulti() {
@@ -135,7 +140,12 @@ function enterDialog() {
       <v-divider />
       <v-card-actions>
         <v-spacer />
+        <span v-show="hasSelectedTorrent"
+          >已选中：{{ selectedTorrentsCount }} 个种子，总大小：{{ formatSize(selectedTorrentsSize) }}</span
+        >
+
         <NavButton
+          :disabled="!hasSelectedTorrent"
           :loading="localDownloadMultiStatus"
           color="light-blue"
           icon="mdi-content-save-all"
@@ -144,6 +154,7 @@ function enterDialog() {
         />
 
         <NavButton
+          :disabled="!hasSelectedTorrent"
           :loading="linkCopyMultiStatus"
           color="light-blue"
           icon="mdi-content-copy"
@@ -152,6 +163,7 @@ function enterDialog() {
         />
 
         <NavButton
+          :disabled="!hasSelectedTorrent"
           key="remote_download_multi"
           color="light-blue"
           icon="mdi-tray-arrow-down"

@@ -76,6 +76,13 @@ async function clearLastFilter(v: boolean) {
           />
 
           <v-switch
+            v-model="configStore.searchEntity.forceImdbIdMatchFilter"
+            :label="t('SetBase.searchEntity.forceImdbIdMatchFilter')"
+            color="success"
+            hide-details
+          />
+
+          <v-switch
             v-model="configStore.searchEntity.quickSiteFilter"
             :label="t('SetBase.searchEntity.quickSiteFilter')"
             color="success"

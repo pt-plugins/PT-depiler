@@ -41,6 +41,12 @@ async function initSiteData(siteId: TSiteID, flush = false) {
     { inputSetting: {}, url: siteMetaData.value.urls[0] },
     await metadataStore.getSiteUserConfig(siteId, flush),
   );
+
+  // fix: customSiteUrl not show in Editor (#726)
+  if (!siteMetaData.value.urls.includes(siteUserConfig.value.url) ) {
+    customSiteUrl.value = siteUserConfig.value.url;
+  }
+
   updateFormValid(siteMetaData.value.isDead ? true : isFormValid.value);
 }
 

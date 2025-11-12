@@ -187,6 +187,10 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
+  noLoginAssert: {
+    matchSelectors: ["script:contains('take2fa.php?returnto=')"],
+  },
+
   levelRequirements: [
     {
       id: 1,

@@ -78,9 +78,10 @@ declare module "pinia" {
   }
 
   export interface PiniaCustomProperties {
-    $save(): Promise<void>;
-
     readonly $ready: Ref<boolean>;
+
+    $save(): Promise<void>;
+    $onReady(callback?: () => void): Promise<void>;
   }
 }
 
@@ -107,7 +108,7 @@ export function piniaWebExtPersistencePlugin(context: PiniaPluginContext) {
   const $ready = ref(false);
 
   beforeRestore?.(context);
-  restore(key, {
+  let restorePromise = restore(key, {
     initialValue: store.$state,
     storage: storageArea,
     writeDefaults: writeDefaultState,
@@ -117,6 +118,14 @@ export function piniaWebExtPersistencePlugin(context: PiniaPluginContext) {
     $ready.value = true;
     afterRestore?.(context);
   });
+
+  const $onReady = async (callback?: () => void) => {
+    const promise = restorePromise || Promise.resolve();
+    if (callback) {
+      promise.then(callback);
+    }
+    return promise;
+  };
 
   function onChanged(changes: Record<string, chrome.storage.StorageChange>, areaName: string) {
     if (areaName === storageArea && Object.hasOwn(changes, key)) {
@@ -149,5 +158,5 @@ export function piniaWebExtPersistencePlugin(context: PiniaPluginContext) {
     store.$dispose();
   };
 
-  return { $dispose, $save, $ready };
+  return { $dispose, $save, $ready, $onReady };
 }

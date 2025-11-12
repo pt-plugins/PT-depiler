@@ -38,11 +38,26 @@ const btnProp = computed(() => {
 
   return btnProps;
 });
+
+const shouldFadeEnter = computed<boolean>(
+  () =>
+    !configStore.contentScript.stackedButtons && // 大图标时的 hover 透明性由 btnProps.variant 属性控制
+    configStore.contentScript.fadeEnterStyle,
+);
 </script>
 
 <template>
   <Transition v-bind="transition">
-    <v-btn ref="btn" v-bind="btnProp" :color="color" :title="title" :text="btnProp.stacked ? title : undefined" />
+    <v-btn
+      ref="btn"
+      v-bind="btnProp"
+      :class="{
+        'ptd-fade-enter': shouldFadeEnter,
+      }"
+      :color="color"
+      :title="title"
+      :text="btnProp.stacked ? title : undefined"
+    />
   </Transition>
 </template>
 

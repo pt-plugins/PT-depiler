@@ -401,14 +401,15 @@ export const SchemaMetadata: Pick<
           "td.rowhead:contains('魔力') + td",
           "td.rowhead:contains('Karma'):contains('Points') + td",
           "td.rowhead:contains('麦粒') + td",
+          "td.rowhead:contains('星焱') + td",
           "td.rowhead:contains('魔力值') + td",
           "td.rowfollow:contains('魔力值')",
         ],
         filters: [
           (query: string) => {
             query = query.replace(/,/g, "");
-            if (/(魅力值|沙粒|魔力值).+?([\d.]+)/.test(query)) {
-              query = query.match(/(魅力值|沙粒|魔力值).+?([\d.]+)/)![2];
+            if (/(魅力值|沙粒|星焱|魔力值).+?([\d.]+)/.test(query)) {
+              query = query.match(/(魅力值|星焱|沙粒|魔力值).+?([\d.]+)/)![2];
               return parseFloat(query);
             } else if (/[\d.]+/.test(query)) {
               return parseFloat(query.match(/[\d.]+/)![0]);
@@ -481,6 +482,15 @@ export const SchemaMetadata: Pick<
         filters: [{ name: "parseNumber" }],
       },
 
+      lastAccessAt: {
+        selector: [
+          "td.rowhead:contains('最近动向') + td",
+          "td.rowhead:contains('最近動向') + td",
+          "td.rowhead:contains('Last Action') + td",
+        ],
+        filters: [{ name: "split", args: ["(", 0] }, { name: "parseTime" }],
+      },
+
       /**
        * 如果指定 seeding 和 seedingSize，则会尝试从 "/userdetails.php?id=$user.id$" 页面获取，
        * 否则将使用方法 parseUserInfoForSeedingStatus 进行获取
@@ -512,11 +522,12 @@ export const SchemaMetadata: Pick<
           "seedingSize",
           "hnrUnsatisfied",
           "hnrPreWarning",
+          "lastAccessAt",
         ],
       },
       {
         requestConfig: { url: "/mybonus.php", responseType: "document" },
-        fields: ["bonusPerHour"],
+        fields: ["bonusPerHour", "seedingBonusPerHour"],
       },
     ],
   },
@@ -588,13 +599,9 @@ export default class NexusPHP extends PrivateSite {
         }
       });
     }
-    let transformedData = await super.transformSearchPage(doc, { keywords, searchEntry, requestConfig });
-    if (requestConfig?.params?.search_area === 4) {
-      transformedData = transformedData.filter((item) => !item.ext_imdb || item.ext_imdb === keywords);
-    }
 
     // !!! 其他一些比较难处理的，我们把他 hack 到 parseWholeTorrentFromRow 中 !!!
-    return transformedData;
+    return await super.transformSearchPage(doc, { keywords, searchEntry, requestConfig });
   }
 
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {

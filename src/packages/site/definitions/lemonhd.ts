@@ -32,6 +32,14 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["td.rowhead:contains('当前做种') + td"],
         filters: [{ name: "parseSize" }],
       },
+      bonusPerHour: {
+        selector: [
+          "div:contains('你当前每小时能获取'):first",
+          "div:contains('You are currently getting'):first",
+          "div:contains('你當前每小時能獲取'):first",
+        ],
+        filters: [{ name: "parseNumber" }],
+      },
     },
   },
 

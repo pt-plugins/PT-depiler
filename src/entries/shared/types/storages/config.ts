@@ -55,6 +55,7 @@ export interface IConfigPiniaStorageSchema {
     applyTheme: boolean; // 是否响应主题样式
     defaultOpenSpeedDial: boolean; // 是否默认打开按钮
     stackedButtons: boolean; // 是否使用堆叠按钮
+    fadeEnterStyle: boolean; // 是否启用淡入效果（即默认半透明，当鼠标移入时不透明）
 
     doubleConfirmAction: boolean; // 进行批量操作时，是否需要二步确认（避免误操作）
     dragLinkOnSpeedDial: boolean; // 是否允许拖拽链接到 SpeedDial 上
@@ -74,6 +75,7 @@ export interface IConfigPiniaStorageSchema {
     normalizeLevelName: boolean;
     // 是否展示升级情况及站点等级情况
     showLevelRequirement: boolean;
+
     /**
      * 是否只展示站点等级定义中 UserGroup = ‘user’ 字段的等级要求
      * 如果为 false，则展示所有等级要求
@@ -82,14 +84,17 @@ export interface IConfigPiniaStorageSchema {
      * 默认值： true
      */
     onlyShowUserLevelRequirement: boolean;
+
     // 在表格中展示升级情况的方式
     showNextLevelInTable: boolean;
     // 在站点登记信息中展示升级情况的方式（需要先设置 showLevelRequirement 为 true）
     showNextLevelInDialog: boolean;
+
     // 是否展示HnR
     showHnR: boolean;
     // 是否展示保种积分
     showSeedingBonus: boolean;
+
     // Deprecated 加入时间显示为周数，使用 joinTimeFormat
     // joinTimeWeekOnly: boolean;
 
@@ -99,7 +104,6 @@ export interface IConfigPiniaStorageSchema {
      * alive: 使用 time_alive(过去时间) 来展示
      * added: 使用 time_added(发生时间) 来展示（ yyyy-MM-dd ）
      * aliveWeek: 使用 time_alive(过去时间) 来展示，按计算出来的周数来展示
-     *
      */
     joinTimeFormat: "alive" | "added" | "aliveWeek";
 
@@ -109,6 +113,9 @@ export interface IConfigPiniaStorageSchema {
     showIntervalAsDate: boolean;
     // 是否简化数字显示（将大数字转换为带单位的简化形式）
     simplifyBonusNumbers: boolean;
+
+    // 是否展示距离下一等级积分的时间（小时）
+    showBonusNeededInterval: boolean;
   };
 
   userDataTimelineControl: {
@@ -161,6 +168,7 @@ export interface IConfigPiniaStorageSchema {
     // 自动刷新用户信息
     autoReflush: {
       enabled: boolean; // 是否开启自动刷新
+      afterTime: string; // '00:00'，每天的指定时间点之后才允许刷新（使用本地时区）
       interval: number; // 自动刷新间隔（ 1-12 小时 ）
       retry: {
         max: number; // 最大重试次数
@@ -190,14 +198,18 @@ export interface IConfigPiniaStorageSchema {
   };
 
   searchEntity: {
-    // 是否保存上一次使用的筛选词
-    saveLastFilter: boolean;
     // 搜索时的最大并发数
     queueConcurrency: number;
-    // 是否将 tt\d{7,8} 的搜索词视为 IMDb 搜索
-    treatTTQueryAsImdbSearch: boolean;
+
     // 是否允许单站点搜索
     allowSingleSiteSearch: boolean;
+    // 是否将 tt\d{7,8} 的搜索词视为 IMDb 搜索
+    treatTTQueryAsImdbSearch: boolean;
+
+    // 是否保存上一次使用的筛选词
+    saveLastFilter: boolean;
+    // 当搜索词为 imdb 时，且站点搜索结果返回 imdbId 时，滤去 imdb 不匹配的结果
+    forceImdbIdMatchFilter: boolean;
     // 是否启用快速站点过滤功能
     quickSiteFilter: boolean;
   };
