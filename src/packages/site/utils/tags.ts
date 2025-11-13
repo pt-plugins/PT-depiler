@@ -1,4 +1,8 @@
-import { tag } from "git-rev-sync";
+import type { ITorrentTag } from "@ptd/site";
+
+interface IPreDefinedTorrentTag extends ITorrentTag {
+  aka?: Array<string | RegExp>;
+}
 
 /**
  * 由于部分站点可能有动态标签情况，此处预定义一些比较基础的标签重新映射名称和颜色，以避免相同性质标签过多重复
@@ -6,7 +10,7 @@ import { tag } from "git-rev-sync";
  *
  * color 请从 https://vuetifyjs.com/en/styles/colors/#material-colors 页面查找
  */
-export const preDefinedTorrentTagMap: Array<{ name: string; color: string; aka?: Array<string | RegExp> }> = [
+export const preDefinedTorrentTagMap: IPreDefinedTorrentTag[] = [
   // 优惠类
   { name: "NL.", color: "deep-purple", aka: [] }, // 中性种子（0xUP & 0xDL）
   { name: "Free", color: "blue", aka: [] }, // 免费下载
@@ -53,12 +57,12 @@ export type TPreDefinedTorrentTagName = (typeof preDefinedTorrentTagMap)[number]
 export const preDefinedTorrentTagNameSet: Array<string> = preDefinedTorrentTagMap.map((item) => item.name);
 
 // 构建一个中间态的转换 Map
-export const normalizedTorrentTagMap: Array<{ from: RegExp; to: { name: string; color: string } }> =
-  preDefinedTorrentTagMap.flatMap((tagMap) => {
+export const normalizedTorrentTagMap: Array<{ from: RegExp; to: ITorrentTag }> = preDefinedTorrentTagMap.flatMap(
+  (tagMap) => {
     const to = { name: tagMap.name, color: tagMap.color };
     const fromRaw = [tagMap.name, ...(tagMap.aka ?? [])];
 
-    const retNormalized: Array<{ from: RegExp; to: { name: string; color: string } }> = [];
+    const retNormalized: Array<{ from: RegExp; to: ITorrentTag }> = [];
 
     // 将字符串类型的 from 转换为正则表达式
     retNormalized.push({
@@ -74,4 +78,13 @@ export const normalizedTorrentTagMap: Array<{ from: RegExp; to: { name: string; 
       });
 
     return retNormalized;
+  },
+);
+
+export function sortTorrentTags(tags: ITorrentTag[]) {
+  return tags.toSorted((a, b) => {
+    const aIndex = preDefinedTorrentTagNameSet.findIndex((ntt) => ntt === a.name);
+    const bIndex = preDefinedTorrentTagNameSet.findIndex((ntt) => ntt === b.name);
+    return (aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex) - (bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex);
   });
+}

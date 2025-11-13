@@ -1,6 +1,6 @@
 import { uniqBy } from "es-toolkit";
 import { getMediaServer } from "@ptd/mediaServer";
-import { normalizedTorrentTagMap, preDefinedTorrentTagNameSet } from "@ptd/site";
+import { normalizedTorrentTagMap, sortTorrentTags } from "@ptd/site";
 
 import { onMessage, sendMessage } from "@/messages.ts";
 import type { IMetadataPiniaStorageSchema, TSearchResultSnapshotStorageSchema } from "@/shared/types.ts";
@@ -20,24 +20,20 @@ onMessage("getSiteSearchResult", async ({ data: { siteId, keyword = "", searchEn
   if (searchResult.data.length > 0) {
     searchResult.data = searchResult.data.map((item) => {
       if (item.tags) {
-        item.tags = uniqBy(
-          // 尽可能将 tags 转换预定义的部分，去重并排序
-          item.tags.map((tag) => {
-            for (const normalizedTorrentTag of normalizedTorrentTagMap) {
-              if (normalizedTorrentTag.from.test(tag.name)) {
-                return normalizedTorrentTag.to;
+        // 尽可能将 tags 转换预定义的部分，去重并排序
+        item.tags = sortTorrentTags(
+          uniqBy(
+            item.tags.map((tag) => {
+              for (const normalizedTorrentTag of normalizedTorrentTagMap) {
+                if (normalizedTorrentTag.from.test(tag.name)) {
+                  return normalizedTorrentTag.to;
+                }
               }
-            }
-            return tag;
-          }),
-          (tag) => tag.name,
-        ).toSorted((a, b) => {
-          const aIndex = preDefinedTorrentTagNameSet.findIndex((ntt) => ntt === a.name);
-          const bIndex = preDefinedTorrentTagNameSet.findIndex((ntt) => ntt === b.name);
-          return (
-            (aIndex === -1 ? Number.MAX_SAFE_INTEGER : aIndex) - (bIndex === -1 ? Number.MAX_SAFE_INTEGER : bIndex)
-          );
-        });
+              return tag;
+            }),
+            (tag) => tag.name,
+          ),
+        );
       }
       return item;
     });
