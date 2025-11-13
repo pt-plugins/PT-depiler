@@ -719,7 +719,8 @@ export default class NexusPHP extends PrivateSite {
   ): Partial<ITorrent> {
     super.parseTorrentRowForTags(torrent, row, searchConfig);
 
-    const customTags = row.querySelectorAll("span[style*='background-color'][style*='color'][title]");
+    // 新版 NPHP 支持自定义的tag
+    const customTags = row.querySelectorAll("table.torrentname span[style*='background-color'][style*='color'][title]");
     if (customTags.length > 0) {
       const tags: ITorrentTag[] = torrent.tags || [];
       customTags.forEach((element) => {

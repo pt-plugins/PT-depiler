@@ -3,8 +3,9 @@
 import type { AxiosRequestConfig } from "axios";
 import type { TSupportSocialSite$1 } from "@ptd/social";
 import type { EResultParseStatus } from "./base";
-import type { ITorrent, TBaseTorrentTagName } from "./torrent";
+import type { ITorrent } from "./torrent";
 import type { TQueryFilter } from "../utils/filter";
+import type { TPreDefinedTorrentTagName } from "../utils/tags";
 
 export type TAdvanceSearchKeyword = TSupportSocialSite$1 | string;
 
@@ -133,7 +134,7 @@ export interface ISearchConfig extends IBaseSearchConfig {
      * 对于种子的 tags 属性，如果对应 selector 存在，则认为对应tag存在
      */
     tags?: {
-      name: TBaseTorrentTagName;
+      name: string | TPreDefinedTorrentTagName;
       selector: string;
       color?: string;
     }[];
