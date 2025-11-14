@@ -34,6 +34,7 @@
     "build:watch": "vite build --watch --mode development --minify false",
     "action:upload_telegram": "tsx vite/sendToTgChannel.ts",
     "release:changelog": "conventional-changelog -p angular && git add CHANGELOG.md",
+    "wiki:generate": "tsx scripts/generate-wiki.ts",
     "prepare": "husky"
   },
   "engines": {

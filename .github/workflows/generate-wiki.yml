@@ -1,0 +1,49 @@
+name: Generate Wiki Documentation
+
+on:
+  push:
+    branches: ["master"]
+    paths:
+      - "src/packages/site/definitions/**"
+      - "src/packages/downloader/entity/**"
+      - "src/packages/backupServer/entity/**"
+      - "scripts/generate-wiki.ts"
+      - ".github/workflows/generate-wiki.yml"
+  workflow_dispatch:
+
+jobs:
+  generate-wiki:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ">=23.7.0"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Generate Wiki
+        run: pnpm wiki:generate
+
+      - name: Check for changes
+        id: verify_diff
+        run: |
+          git diff --quiet wiki/ || echo "changed=true" >> $GITHUB_OUTPUT
+
+      - name: Commit wiki changes
+        if: steps.verify_diff.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add wiki/
+          git commit -m "docs: auto-update wiki documentation"
+          git push
