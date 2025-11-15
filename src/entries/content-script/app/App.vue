@@ -249,7 +249,7 @@ function openOptions() {
             @dragleave.prevent="isDragging = false"
             v-on="dropAction"
           >
-            <v-avatar :image="ptdIcon" rounded="0" :class="{ 'ptd-fab-loading': isDragging }" />
+            <v-avatar :class="{ 'ptd-fab-loading': isDragging }" :image="ptdIcon" color="transparent" rounded="0" />
           </v-fab>
         </template>
 
