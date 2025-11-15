@@ -238,8 +238,30 @@ export const SchemaMetadata: Pick<
           return time as number;
         },
       },
-      ext_douban: { selector: ["a[href*='douban.com']"], attr: "href", filters: [{ name: "extDoubanId" }] },
-      ext_imdb: { selector: ["a[href*='imdb.com']"], attr: "href", filters: [{ name: "extImdbId" }] },
+      ext_douban: {
+        selector: ["span[data-doubanid]", "a[href*='douban.com']"],
+        elementProcess: (element: HTMLAnchorElement | HTMLSpanElement) => {
+          if (element.tagName.toLowerCase() === "span") {
+            return element.dataset.doubanid || "";
+          } else if (element.tagName.toLowerCase() === "a") {
+            return (element as HTMLAnchorElement).getAttribute("href") || "";
+          }
+          return "";
+        },
+        filters: [{ name: "extDoubanId" }],
+      },
+      ext_imdb: {
+        selector: ["span[data-imdbid]", "a[href*='imdb.com']"],
+        elementProcess: (element: HTMLAnchorElement | HTMLSpanElement) => {
+          if (element.tagName.toLowerCase() === "span") {
+            return element.dataset.imdbid || "";
+          } else if (element.tagName.toLowerCase() === "a") {
+            return (element as HTMLAnchorElement).getAttribute("href") || "";
+          }
+          return "";
+        },
+        filters: [{ name: "extImdbId" }],
+      },
       tags: [
         { name: "H&R", selector: "img.hitandrun", color: "black" },
         { name: "Free", selector: "img.pro_free", color: "blue" },
