@@ -1,5 +1,10 @@
 import { ETorrentStatus, type ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+import NexusPHP, {
+  CategoryInclbookmarked,
+  CategoryIncldead,
+  CategorySpstate,
+  SchemaMetadata,
+} from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -303,3 +308,9 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
+
+export default class CSPT extends NexusPHP {
+  protected override get customTagsLocaterSelector() {
+    return "div.torrent-title";
+  }
+}

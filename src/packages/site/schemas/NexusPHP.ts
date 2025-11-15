@@ -568,6 +568,10 @@ export default class NexusPHP extends PrivateSite {
     } as Record<keyof ITorrent, string[]>;
   }
 
+  protected get customTagsLocaterSelector(): string {
+    return "table.torrentname";
+  }
+
   public override async transformSearchPage(
     doc: Document | object | any,
     searchConfig: ISearchInput,
@@ -742,7 +746,9 @@ export default class NexusPHP extends PrivateSite {
     super.parseTorrentRowForTags(torrent, row, searchConfig);
 
     // 新版 NPHP 支持自定义的tag
-    const customTags = row.querySelectorAll("table.torrentname span[style*='background-color'][style*='color'][title]");
+    const customTags = row.querySelectorAll(
+      `${this.customTagsLocaterSelector} span[style*='background-color'][style*='color'][title]`,
+    );
     if (customTags.length > 0) {
       const tags: ITorrentTag[] = torrent.tags || [];
       customTags.forEach((element) => {
