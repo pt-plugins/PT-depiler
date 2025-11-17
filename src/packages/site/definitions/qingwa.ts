@@ -339,6 +339,7 @@ export const siteMetadata: ISiteMetadata = {
   aka: ["青蛙PT"],
   description: "慈善性质的非盈利的资源分享网站。",
   tags: ["综合", "影视", "动漫", "儿童区", "纪录片"],
+  type: "private",
 
   urls: [
     "uggcf://jjj.dvatjncg.pbz/",
