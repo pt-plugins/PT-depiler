@@ -96,7 +96,7 @@
     "typescript": "~5.9.3",
     "vite": "^6.4.1",
     "vite-plugin-node-polyfills": "^0.24.0",
-    "vite-plugin-vue-devtools": "^8.0.3",
+    "vite-plugin-vue-devtools": "^8.0.4",
     "vite-plugin-vuetify": "^2.1.2",
     "vite-plugin-web-extension": "4.4.3",
     "vue-tsc": "^3.1.3"
