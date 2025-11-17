@@ -248,6 +248,14 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["aside .panelV2 dd:nth-child(6)"],
         filters: [{ name: "parseNumber" }],
       },
+      lastAccessAt: {
+        selector: ["div.block td:contains('上次登录时间') +td"],
+        filters: [
+          (query: string) => {
+            return +new Date(query.split("(")[0]);
+          },
+        ],
+      },
     },
   },
 
