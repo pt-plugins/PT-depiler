@@ -326,7 +326,7 @@
       },
       "alert": {
         "enterKeyword": "请输入搜索关键词开始搜索",
-        "statusButton": "搜索情况",
+        "searchStatus": "搜索情况",
         "paused": "搜索暂停中…",
         "searching": "搜索中…",
         "searchProgress": "已接收 {0} 条结果，搜索仍在进行……",

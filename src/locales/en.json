@@ -326,7 +326,7 @@
       },
       "alert": {
         "enterKeyword": "Please enter keywords to start searching",
-        "statusButton": "Search Status",
+        "searchStatus": "Search Status",
         "paused": "Search paused...",
         "searching": "Searching...",
         "searchProgress": "Received {0} results, search is still in progress...",
