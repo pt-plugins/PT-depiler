@@ -2,7 +2,8 @@
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/AudioBookBay.cs
  */
 import Sizzle from "sizzle";
-import type { ISiteMetadata } from "../types";
+import type { ISearchInput, ISiteMetadata, ITorrent } from "../types";
+import BittorrentSite from "../schemas/AbstractBittorrentSite";
 import { definedFilters } from "../utils";
 
 const titleSelector = { selector: "div.postTitle" };
@@ -177,6 +178,33 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 };
+
+export default class AudioBookBay extends BittorrentSite {
+  // 参考 Jackett 配置，一页包含种子过少所以一次请求两页
+  public override async transformSearchPage(
+    doc: Document | object | any,
+    searchConfig: ISearchInput,
+  ): Promise<ITorrent[]> {
+    const torrents = await super.transformSearchPage(doc, searchConfig);
+    if (Sizzle("a[href^='/page/2/']:first-of-type", doc).length < 1) {
+      return torrents;
+    }
+
+    try {
+      const nextPageDoc = await this.request<Document>({
+        url: `/page/2/`,
+        params: searchConfig.requestConfig!.params!,
+        responseType: "document",
+      });
+      const nextPageTorrents = await super.transformSearchPage(nextPageDoc.data, searchConfig);
+      torrents.push(...nextPageTorrents);
+    } catch (e) {
+      console.debug(`[PTD] site '${this.name}' transformSearchPage Error:`, e, torrents);
+    }
+
+    return torrents;
+  }
+}
 
 function infoHashToPublicMagnet(infoHash: string, title: string, trackers: string[]): string | null {
   if (!infoHash.trim() || !title.trim()) {
