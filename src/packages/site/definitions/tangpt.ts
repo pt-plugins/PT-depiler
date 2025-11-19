@@ -17,7 +17,6 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["uggcf://jjj.gnatcg.gbc/"],
-  favicon: "./_default_nexusphp.png",
 
   category: [
     {
@@ -276,4 +275,5 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "网站主管，可以做任何事。",
     },
   ],
+
 };
