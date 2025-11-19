@@ -93,6 +93,9 @@ const {
     ranges: ["updateAt", "messageCount"],
   },
   titleFields: ["site", "name", "siteUserConfig.merge.name"],
+  format: {
+    status: "number",
+  },
 });
 
 const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
