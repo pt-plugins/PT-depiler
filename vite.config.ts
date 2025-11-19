@@ -112,6 +112,7 @@ export default defineConfig({
         content_scripts: [
           {
             matches: ["*://*/*"],
+            exclude_matches: ["*://*/*.xml", "*://*/*.xml?*"],
             js: ["src/entries/content-script/index.ts"],
           },
         ],

@@ -128,7 +128,12 @@ export function checkKeywordValue(
   // @ts-ignore
 ): boolean | undefined {
   const itemValue = get(rawItem, keyword); // true    filter[keyword] = ['1']
-  if (filter[keyword] && typeof itemValue !== "undefined") {
+  if (filter[keyword]) {
+    // 如果原始数据中没有该 keyword 字段，则直接返回 false
+    if (typeof itemValue == "undefined") {
+      return false;
+    }
+
     const valueFormat = getValueFormat(keyword as string, format);
     if (Array.isArray(itemValue)) {
       const parsedItemValue = itemValue.map((v: any) => valueFormat.parse(v)) as string[];

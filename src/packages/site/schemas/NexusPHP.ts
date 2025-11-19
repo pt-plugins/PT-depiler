@@ -238,8 +238,30 @@ export const SchemaMetadata: Pick<
           return time as number;
         },
       },
-      ext_douban: { selector: ["a[href*='douban.com']"], attr: "href", filters: [{ name: "extDoubanId" }] },
-      ext_imdb: { selector: ["a[href*='imdb.com']"], attr: "href", filters: [{ name: "extImdbId" }] },
+      ext_douban: {
+        selector: ["span[data-doubanid]", "a[href*='douban.com']"],
+        elementProcess: (element: HTMLAnchorElement | HTMLSpanElement) => {
+          if (element.tagName.toLowerCase() === "span") {
+            return element.dataset.doubanid || "";
+          } else if (element.tagName.toLowerCase() === "a") {
+            return (element as HTMLAnchorElement).getAttribute("href") || "";
+          }
+          return "";
+        },
+        filters: [{ name: "extDoubanId" }],
+      },
+      ext_imdb: {
+        selector: ["span[data-imdbid]", "a[href*='imdb.com']"],
+        elementProcess: (element: HTMLAnchorElement | HTMLSpanElement) => {
+          if (element.tagName.toLowerCase() === "span") {
+            return element.dataset.imdbid || "";
+          } else if (element.tagName.toLowerCase() === "a") {
+            return (element as HTMLAnchorElement).getAttribute("href") || "";
+          }
+          return "";
+        },
+        filters: [{ name: "extImdbId" }],
+      },
       tags: [
         { name: "H&R", selector: "img.hitandrun", color: "black" },
         { name: "Free", selector: "img.pro_free", color: "blue" },
@@ -546,6 +568,10 @@ export default class NexusPHP extends PrivateSite {
     } as Record<keyof ITorrent, string[]>;
   }
 
+  protected get customTagsLocaterSelector(): string {
+    return "table.torrentname";
+  }
+
   public override async transformSearchPage(
     doc: Document | object | any,
     searchConfig: ISearchInput,
@@ -720,7 +746,9 @@ export default class NexusPHP extends PrivateSite {
     super.parseTorrentRowForTags(torrent, row, searchConfig);
 
     // 新版 NPHP 支持自定义的tag
-    const customTags = row.querySelectorAll("table.torrentname span[style*='background-color'][style*='color'][title]");
+    const customTags = row.querySelectorAll(
+      `${this.customTagsLocaterSelector} span[style*='background-color'][style*='color'][title]`,
+    );
     if (customTags.length > 0) {
       const tags: ITorrentTag[] = torrent.tags || [];
       customTags.forEach((element) => {

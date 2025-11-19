@@ -31,17 +31,18 @@ import { isDebug } from "~/helper.ts";
 
 type TMessageMap = Record<string, (data: any) => any>;
 
-export interface IDownloadTorrentToLocalFile {
+interface IDownloadTorrentOption {
   torrent: Partial<ITorrent>;
-  localDownloadMethod?: TLocalDownloadMethod;
   downloadId?: TTorrentDownloadKey;
 }
 
-export interface IDownloadTorrentToClientOption {
-  torrent: Partial<ITorrent>;
+export interface IDownloadTorrentToLocalFile extends IDownloadTorrentOption {
+  localDownloadMethod?: TLocalDownloadMethod;
+}
+
+export interface IDownloadTorrentToClientOption extends IDownloadTorrentOption {
   downloaderId: string;
   addTorrentOptions: CAddTorrentOptions;
-  downloadId?: TTorrentDownloadKey;
 }
 
 export interface IDownloadTorrentResult {

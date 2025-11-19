@@ -193,6 +193,7 @@ export const SchemaMetadata: Pick<
         ...commonListSelectors,
         rows: { selector: "div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
 
+        title: { selector: 'div.mb-1 a[title]', attr: 'title' },
         link: { selector: "div.float-right a[href*='/download/torrent/']", attr: "href" },
         size: { selector: "span.text-yellow[data-original-title='File Size']", filters: [{ "name": "parseSize" }] },
 
