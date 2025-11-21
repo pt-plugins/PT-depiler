@@ -118,7 +118,7 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   list: [
-    ...(SchemaMetadata.list ?? []),
+    ...(SchemaMetadata.list && SchemaMetadata.list.length > 1 ? [SchemaMetadata.list[1]] : []),
     // 种子列表页
     {
       urlPattern: ["/torrents"],
@@ -269,3 +269,4 @@ export default class Exoticaz extends AvistazNetwork {
   }
 
 }
+
