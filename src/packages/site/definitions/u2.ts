@@ -142,7 +142,7 @@ export const siteMetadata: ISiteMetadata = {
       {
         requestConfig: { url: "/userdetails.php", responseType: "document" },
         assertion: { id: "params.id" },
-        fields: ["name", "levelName", "uploaded", "downloaded", "bonus", "messageCount", "joinTime"],
+        fields: ["name", "levelName", "uploaded", "downloaded", "bonus", "messageCount", "joinTime", "lastAccessAt"],
       },
       {
         requestConfig: { url: "/mprecent.php", responseType: "document" },
