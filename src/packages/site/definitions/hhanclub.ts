@@ -257,15 +257,6 @@ export const siteMetadata: ISiteMetadata = {
         ],
         filters: [{ name: "parseNumber" }],
       },
-      lastAccessAt: {
-        selector: ["span:contains('最近动向') + span"],
-        filters: [
-          (query: string) => {
-            query = query.split(" (")[0];
-            return parseValidTimeString(query);
-          },
-        ],
-      },
     },
   },
 

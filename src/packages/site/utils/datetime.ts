@@ -65,20 +65,22 @@ export function parseTimeToLive(ttl: string): number | string {
 }
 
 export function parseValidTimeString(query: string, formatString: string[] = []): number | string {
+  let raw = query.trim();
+
   for (const f of [...formatString, "yyyy-MM-dd'T'HH:mm:ssXXX", "yyyy-MM-dd HH:mm:ss", "yyyy-MM-dd HH:mm:ss.SSS"]) {
-    let time = parse(query, f, new Date());
+    let time = parse(raw, f, new Date());
     if (isValid(time)) {
       return +time;
     }
   }
 
   // 尝试使用原生 Date 构造函数，它能处理很多常见格式
-  let nativeDate = new Date(query);
+  let nativeDate = new Date(raw);
   if (isValid(nativeDate)) {
     return +nativeDate;
   }
 
-  return query;
+  return raw;
 }
 
 export function parseTimeWithZone(time: number | string, timezoneOffset: timezoneOffset = "+0000"): number {
