@@ -227,11 +227,8 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
       lastAccessAt: {
-        selector: "#outer tr:contains('最近动向') > td:eq(2)",
-        filters: [
-          (query: string) => query.trim().split("(")[0].trim(),
-          { name: "parseTime", args: ["yyyy-MM-dd HH:mm:ss"] },
-        ],
+        selector: ".last_seen span",
+        filters: [(query: HTMLSpanElement) => query?.title, { name: "parseTime", args: ["yyyy-MM-dd HH:mm:ss"] }],
       },
     },
     process: [
