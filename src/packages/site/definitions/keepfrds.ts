@@ -226,13 +226,6 @@ export const siteMetadata: ISiteMetadata = {
           },
         ],
       },
-      lastAccessAt: {
-        selector: "#outer tr:contains('最近动向') > td:eq(2)",
-        filters: [
-          (query: string) => query.trim().split("(")[0].trim(),
-          { name: "parseTime", args: ["yyyy-MM-dd HH:mm:ss"] },
-        ],
-      },
     },
     process: [
       {
@@ -257,6 +250,7 @@ export const siteMetadata: ISiteMetadata = {
           "hnrUnsatisfied",
           "hnrPreWarning",
           "bonusPerHour", // 使用我们自定义的 selector 和 filter
+          "lastAccessAt",
         ],
       },
     ],
