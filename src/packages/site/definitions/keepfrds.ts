@@ -227,7 +227,7 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
       lastAccessAt: {
-        selector: "#outer tr:contains('最近动向') > td:eq(1)",
+        selector: "#outer tr:contains('最近动向') > td:eq(2)",
         filters: [
           (query: string) => query.trim().split("(")[0].trim(),
           { name: "parseTime", args: ["yyyy-MM-dd HH:mm:ss"] },
