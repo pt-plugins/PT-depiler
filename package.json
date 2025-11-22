@@ -76,7 +76,7 @@
   },
   "devDependencies": {
     "@intlify/unplugin-vue-i18n": "^11.0.1",
-    "@types/chrome": "^0.1.27",
+    "@types/chrome": "^0.1.29",
     "@types/crypto-js": "^4.2.2",
     "@types/file-saver": "^2.0.7",
     "@types/git-rev-sync": "^2.0.2",
