@@ -31,8 +31,8 @@ type AvzNetAuthResp = AuthSuccessResp | AuthFailResp;
 const commonListSelectors: TSchemaMetadataListSelectors = {
   subTitle: { text: "" },
   comments: { text: "N/A" },
-  category: { selector: "i[data-original-title]", attr: "data-original-title" }, 
-}
+  category: { selector: "i[data-original-title]", attr: "data-original-title" },
+};
 
 export interface IAvzNetRawTorrent {
   id: number;
@@ -168,7 +168,7 @@ export const SchemaMetadata: Pick<
             (href: string) => {
               const torrentIdMatch = href.match(/\/torrent\/(\d+)/);
               if (torrentIdMatch && torrentIdMatch[1]) {
-               return torrentIdMatch[1];
+                return torrentIdMatch[1];
               }
               return undefined;
             },
@@ -193,9 +193,9 @@ export const SchemaMetadata: Pick<
         ...commonListSelectors,
         rows: { selector: "div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
 
-        title: { selector: 'div.mb-1 a[title]', attr: 'title' },
+        title: { selector: "div.mb-1 a[title]", attr: "title" },
         link: { selector: "div.float-right a[href*='/download/torrent/']", attr: "href" },
-        size: { selector: "span.text-yellow[data-original-title='File Size']", filters: [{ "name": "parseSize" }] },
+        size: { selector: "span.text-yellow[data-original-title='File Size']", filters: [{ name: "parseSize" }] },
 
         seeders: { selector: "span.text-green.mr-2[data-original-title='Seeders']" },
         leechers: { selector: "span.text-red.mr-2[data-original-title='Leechers']" },
@@ -203,17 +203,21 @@ export const SchemaMetadata: Pick<
       },
     },
   ],
-  
+
   detail: {
-    urlPattern:["/torrent/"],
+    urlPattern: ["/torrent/"],
     selectors: {
-      id:{ 
-        selector:":self",
-        elementProcess:t=>{const e=t.URL,r=e.match(/\/detail\/(\d+)/); return r?r[1]:e}
+      id: {
+        selector: ":self",
+        elementProcess: (t) => {
+          const e = t.URL,
+            r = e.match(/\/detail\/(\d+)/);
+          return r ? r[1] : e;
+        },
       },
-      title: { selector:"table.table tr:contains('Title') td:nth-child(2)" },
+      title: { selector: "table.table tr:contains('Title') td:nth-child(2)" },
       link: { selector: "a.btn-primary[href$='.torrent']", attr: "href" },
-    }
+    },
   },
 
   userInfo: {

@@ -52,7 +52,7 @@ const userInfoTransferMap = {
   totalTraffic: { key: "totalTraffic", format: parsePtppSize },
   // seedingList?: string[]; // 做种列表
   seedingPoints: "seedingBonus",
-  averageSeedtime: "averageSeedtime",
+  averageSeedtime: "averageSeedingTime",
   // totalSeedtime?: number; // 总保种时间
   bonusPage: false,
   unsatisfiedsPage: false,
