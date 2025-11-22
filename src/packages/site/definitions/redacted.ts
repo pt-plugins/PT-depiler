@@ -19,6 +19,44 @@ export const siteMetadata: ISiteMetadata = {
   urls: ["uggcf://erqnpgrq.fu/"],
   formerHosts: ["erqnpgrq.pu"],
 
+  category: [
+    {
+      name: "类别",
+      key: "filter_cat",
+      options: [
+        { name: "Music", value: 0 },
+        { name: "Applications", value: 1 },
+        { name: "E-Books", value: 2 },
+        { name: "Audiobooks", value: 3 },
+        { name: "E-Learning Videos", value: 4 },
+        { name: "Comedy", value: 5 },
+        { name: "Comics", value: 6 },
+      ],
+      cross: { mode: "appendQuote" },
+    },
+    {
+      name: "发行类别",
+      key: "releasetype",
+      options: [
+        { name: "Album", value: 1 },
+        { name: "Soundtrack", value: 3 },
+        { name: "EP", value: 5 },
+        { name: "Anthology", value: 6 },
+        { name: "Compilation", value: 7 },
+        { name: "Single", value: 9 },
+        { name: "Live album", value: 11 },
+        { name: "Remix", value: 13 },
+        { name: "Bootleg", value: 14 },
+        { name: "Interview", value: 15 },
+        { name: "Mixtape", value: 16 },
+        { name: "Demo", value: 17 },
+        { name: "Concert Recording", value: 18 },
+        { name: "DJ Mix", value: 19 },
+        { name: "Unknown", value: 21 },
+      ],
+    },
+  ],
+
   userInfo: {
     ...SchemaMetadata.userInfo!,
     selectors: {
