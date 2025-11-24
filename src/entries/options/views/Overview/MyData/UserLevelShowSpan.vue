@@ -165,9 +165,9 @@ function formatBonus(bonusKey: "bonus" | "seedingBonus") {
     {{ formatDuration(levelRequirement.seedingTime) }};
   </template>
 
-  <template v-if="levelRequirement.averageSeedtime">
-    <v-icon :title="t('levelRequirement.averageSeedtime')" color="blue-darken-4" icon="mdi-timer" size="small" />
-    {{ formatDuration(levelRequirement.averageSeedtime) }};
+  <template v-if="levelRequirement.averageSeedingTime">
+    <v-icon :title="t('levelRequirement.averageSeedingTime')" color="blue-darken-4" icon="mdi-timer" size="small" />
+    {{ formatDuration(levelRequirement.averageSeedingTime) }};
   </template>
 
   <template v-if="levelRequirement.bonus">

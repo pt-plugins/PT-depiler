@@ -120,7 +120,7 @@ export const siteMetadata: ISiteMetadata = {
       ...SchemaMetadata.userInfo!.selectors!,
       messageCount: {
         text: 0,
-        selector: "div#messages1 > div.layui-layer-content",
+        selector: "div.message-alert > a[href*='messages.php']",
         filters: [
           (query: string | number) => {
             const queryMatch = String(query || "").match(/(\d+)/);

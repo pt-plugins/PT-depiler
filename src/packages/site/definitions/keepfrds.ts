@@ -199,7 +199,7 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
       seeding: {
-        selector: ["a:has(img[alt='Torrents seeding'])"],
+        selector: ["a[href='/torrents.php?option-torrents=3']"],
         filters: [{ name: "parseNumber" }],
       },
       seedingSize: {
