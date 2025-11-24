@@ -96,6 +96,42 @@ export function doKeywordSearch(keywords: string) {
   }
 }
 
+export async function copyTextToClipboard(text: string): Promise<boolean> {
+  if (typeof text !== "string" || text.length === 0) {
+    return false;
+  }
+
+  try {
+    if (navigator?.clipboard?.writeText) {
+      await navigator.clipboard.writeText(text);
+      return true;
+    }
+  } catch (err) {
+    // ignore and fallback
+  }
+
+  if (typeof document === "undefined") {
+    return false;
+  }
+
+  try {
+    const textarea = document.createElement("textarea");
+    textarea.value = text;
+    textarea.setAttribute("readonly", "true");
+    textarea.style.position = "fixed";
+    textarea.style.top = "-9999px";
+    textarea.style.left = "-9999px";
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    const successful = document.execCommand("copy");
+    document.body.removeChild(textarea);
+    return successful;
+  } catch (err) {
+    return false;
+  }
+}
+
 /**
  * 使用 动态组件 的方式来为 content-script 实现一个简单的路由系统
  *

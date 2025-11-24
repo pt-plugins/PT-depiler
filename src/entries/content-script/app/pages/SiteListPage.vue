@@ -5,7 +5,7 @@ import { type ITorrent } from "@ptd/site";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { doKeywordSearch, siteInstance, wrapperConfirmFn } from "../utils.ts";
+import { copyTextToClipboard, doKeywordSearch, siteInstance, wrapperConfirmFn } from "../utils.ts";
 
 import AdvanceListModuleDialog from "@/content-script/app/components/AdvanceListModuleDialog.vue";
 import SpeedDialBtn from "@/content-script/app/components/SpeedDialBtn.vue";
@@ -60,8 +60,10 @@ function handleLinkCopyMulti() {
           downloadUrls.push(downloadUrl);
         }
 
-        await navigator.clipboard.writeText(downloadUrls.join("\n").trim());
-        runtimeStore.showSnakebar("下载链接已复制到剪贴板", { color: "success" });
+        const copied = await copyTextToClipboard(downloadUrls.join("\n").trim());
+        runtimeStore.showSnakebar(copied ? "下载链接已复制到剪贴板" : "复制下载链接失败", {
+          color: copied ? "success" : "error",
+        });
       } catch (e) {
         runtimeStore.showSnakebar("复制下载链接失败", { color: "error" });
       }
