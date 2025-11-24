@@ -177,6 +177,14 @@ export const siteMetadata: ISiteMetadata = {
             selector: "a[href*='torrent_user.php?pop=8']:first",
             filters: [{ name: "parseNumber" }],
           },
+          lastAccessAt: {
+            selector: [
+              "td.nowrap:contains('最近访问') + td",
+              "td.nowrap:contains('最近訪問') + td",
+              "td.nowrap:contains('Last Access') + td",
+            ],
+            filters: [{ name: "split", args: ["(", 0] }, { name: "parseTime" }],
+          },
         },
       },
       {

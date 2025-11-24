@@ -473,7 +473,14 @@ export const siteMetadata: ISiteMetadata = {
           return match ? match[1] : url;
         },
       },
-      title: { selector: "h2.title > span.align-middle" },
+      title: {
+        selector: ["h2 > span.align-middle", "title"],
+        filters: [
+          // 当回落到 title 中替换掉两侧的无关内容
+          { name: "replace", args: ['M-Team - TP :: 種子詳情 "', ""] },
+          { name: "replace", args: ['" - Powered by mTorrent', ""] },
+        ],
+      },
       link: { text: "" },
     },
   },

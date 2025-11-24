@@ -196,6 +196,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           },
         ],
       },
+      posts: { selector: "ul.stats > li:contains('Forum Posts:')", filters: [{ name: "parseNumber" }] },
     },
   },
 

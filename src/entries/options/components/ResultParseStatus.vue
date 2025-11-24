@@ -10,18 +10,34 @@ const { t } = useI18n();
 </script>
 
 <template>
-  <template v-if="status === EResultParseStatus.unknownError">{{ t("resultParseStatus.unknownError") }}</template>
-  <template v-else-if="status === EResultParseStatus.waiting">{{ t("resultParseStatus.waiting") }}</template>
-  <template v-else-if="status === EResultParseStatus.working">{{ t("resultParseStatus.working") }}</template>
-  <template v-else-if="status === EResultParseStatus.success">{{ t("resultParseStatus.success") }}</template>
-  <template v-else-if="status === EResultParseStatus.parseError">{{ t("resultParseStatus.parseError") }}</template>
-  <template v-else-if="status === EResultParseStatus.passParse">{{ t("resultParseStatus.passParse") }}</template>
-  <template v-else-if="status === EResultParseStatus.CFBlocked">
-    <span :title="t('resultParseStatus.CFBlockedNotes')">{{ t("resultParseStatus.CFBlocked") }}</span>
-  </template>
-  <template v-else-if="status === EResultParseStatus.needLogin">{{ t("resultParseStatus.needLogin") }}</template>
-  <template v-else-if="status === EResultParseStatus.noResults">{{ t("resultParseStatus.noResults") }}</template>
-  <template v-else>{{ t("resultParseStatus.unknown") }}</template>
+  <span v-if="status === EResultParseStatus.unknownError" class="text-red">
+    {{ t("resultParseStatus.unknownError") }}
+  </span>
+  <span v-else-if="status === EResultParseStatus.waiting" class="text-indigo">
+    {{ t("resultParseStatus.waiting") }}
+  </span>
+  <span v-else-if="status === EResultParseStatus.working" class="text-indigo">
+    {{ t("resultParseStatus.working") }}
+  </span>
+  <span v-else-if="status === EResultParseStatus.success" class="text-green">
+    {{ t("resultParseStatus.success") }}
+  </span>
+  <span v-else-if="status === EResultParseStatus.parseError" class="text-red">
+    {{ t("resultParseStatus.parseError") }}
+  </span>
+  <span v-else-if="status === EResultParseStatus.passParse" class="text-blue-grey">
+    {{ t("resultParseStatus.passParse") }}
+  </span>
+  <span v-else-if="status === EResultParseStatus.CFBlocked" :title="t('resultParseStatus.CFBlockedNotes')">
+    {{ t("resultParseStatus.CFBlocked") }}
+  </span>
+  <span v-else-if="status === EResultParseStatus.needLogin" class="text-red">
+    {{ t("resultParseStatus.needLogin") }}
+  </span>
+  <span v-else-if="status === EResultParseStatus.noResults" class="text-red">
+    {{ t("resultParseStatus.noResults") }}
+  </span>
+  <span v-else class="text-blue-grey">{{ t("resultParseStatus.unknown") }}</span>
 </template>
 
 <style scoped lang="scss"></style>
