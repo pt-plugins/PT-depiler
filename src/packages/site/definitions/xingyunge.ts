@@ -13,7 +13,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["uggcf://cg.kvatlhatrcg.bet/", "uggcf://cg.kvatlhatrcg.bet/"],
+  urls: ["uggcf://cg.kvatlhatrcg.bet/", "uggcf://cg.kvatlhatrcg.pa/"],
 
   levelRequirements: [
     {
