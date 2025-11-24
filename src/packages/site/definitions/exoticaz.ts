@@ -118,7 +118,6 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   list: [
-    ...(SchemaMetadata.list && SchemaMetadata.list.length > 1 ? [SchemaMetadata.list[1]] : []),
     // 种子列表页
     {
       urlPattern: ["/torrents"],
@@ -151,6 +150,7 @@ export const siteMetadata: ISiteMetadata = {
         completed: { selector: "td:nth-child(8)" },
       },
     },
+    listHistoryPageMetadata,
   ],
 
   detail: {
@@ -232,7 +232,6 @@ export interface IExoRawTorrent extends IAvzNetRawTorrent {
 }
 
 export default class Exoticaz extends AvistazNetwork {
-
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
     row: IExoRawTorrent,
@@ -246,7 +245,7 @@ export default class Exoticaz extends AvistazNetwork {
     const performersStr = performersNames.join(" / ");
     const tagsObject = row.tags;
     const tagsNames = tagsObject ? Object.values(tagsObject) : [];
-    const tagsStr = tagsNames.map(name => `#${name}`).join(" ");
+    const tagsStr = tagsNames.map((name) => `#${name}`).join(" ");
     const subTitle = [performersStr, tagsStr].filter(Boolean).join(" | ");
     extendTorrent.subTitle = subTitle;
 
@@ -267,6 +266,4 @@ export default class Exoticaz extends AvistazNetwork {
     
     return extendTorrent;
   }
-
 }
-
