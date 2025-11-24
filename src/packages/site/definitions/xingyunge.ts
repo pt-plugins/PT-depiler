@@ -13,7 +13,8 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://pt.xingyungept.org/", "https://xingyunge.top/"],
+  urls: ["uggcf://cg.kvatlhatrcg.bet/", "uggcf://cg.kvatlhatrcg.pa/"],
+  formerHosts: ["xingyunge.top"],
 
   levelRequirements: [
     {
