@@ -53,7 +53,7 @@ const categoryMapNormal: Record<number, string> = {
 const categoryMap = { ...categoryMapNormal, ...categoryMapXXX };
 
 export const siteMetadata: ISiteMetadata = {
-  version: 1,
+  version: 2,
   id: "speedapp",
   name: "SpeedApp",
   description: "SpeedApp is a ROMANIAN Private Torrent Tracker for MOVIES / TV / GENERAL",
@@ -285,9 +285,9 @@ export const siteMetadata: ISiteMetadata = {
     },
     selectors: {
       rows: { selector: "div.row.mr-0.ml-0.py-3" },
-      title: { selector: ["a:not([class])[href^='/browse/']"] },
-      url: { selector: ["a:not([class])[href^='/browse/']"], attr: "href" },
-      link: { selector: "a.btn.btn-success", attr: "href" },
+      title: { selector: "div:nth-child(2) > a[href^='/browse/']:first-child" },
+      url: { selector: "div:nth-child(2) > a[href^='/browse/']:first-child", attr: "href" },
+      link: { selector: "a.btn[href^='/torrents/']", attr: "href" },
       category: {
         selector: "a[href^='/browse?categories']",
         attr: "href",
@@ -295,8 +295,8 @@ export const siteMetadata: ISiteMetadata = {
       },
       size: { selector: "> div:nth-child(4)", filters: [{ name: "parseSize" }] },
       comments: { selector: "a[href$='#comments_content']", filters: [{ name: "parseNumber" }] },
-      seeders: { selector: "span:contains('seeders')", filters: [{ name: "parseNumber" }] },
-      leechers: { selector: "span:contains('leechers')", filters: [{ name: "parseNumber" }] },
+      seeders: { selector: "span.text-success", filters: [{ name: "parseNumber" }] },
+      leechers: { selector: "span.text-danger", filters: [{ name: "parseNumber" }] },
       completed: { selector: "> div:nth-child(3)", filters: [{ name: "parseNumber" }] },
       time: { selector: "> div:nth-child(2)", attr: "title", filters: [{ name: "parseTime" }] },
       tags: [
