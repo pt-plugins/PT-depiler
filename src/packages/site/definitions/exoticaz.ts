@@ -1,11 +1,9 @@
-import { 
-  ISiteMetadata,
-  ISearchInput,
-  IAdvancedSearchRequestConfig,
-  ITorrent,
-  ITorrentTag,
-} from "../types";
-import AvistazNetwork, { SchemaMetadata, IAvzNetRawTorrent } from "../schemas/AvistazNetwork.ts";
+import { ISiteMetadata, ISearchInput, IAdvancedSearchRequestConfig, ITorrent, ITorrentTag } from "../types";
+import AvistazNetwork, {
+  SchemaMetadata,
+  IAvzNetRawTorrent,
+  listHistoryPageMetadata,
+} from "../schemas/AvistazNetwork.ts";
 
 const categoryMap: Record<number, string> = {
   1: "Video Clips",
@@ -34,7 +32,7 @@ const discountMap: Record<number, string> = {
   1: "Free-Download",
   2: "Half-Download",
   3: "Double Upload",
-}
+};
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -123,7 +121,9 @@ export const siteMetadata: ISiteMetadata = {
       urlPattern: ["/torrents"],
       mergeSearchSelectors: false,
       selectors: {
-        rows: { selector: "#content-area > div.card.mt-2 > div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
+        rows: {
+          selector: "#content-area > div.card.mt-2 > div.card-body.p-2 > div.table-responsive > table > tbody > tr",
+        },
 
         id: {
           selector: "div.mb-1 a[href*='/torrent/']",
@@ -132,7 +132,7 @@ export const siteMetadata: ISiteMetadata = {
             (href: string) => {
               const torrentIdMatch = href.match(/\/torrent\/(\d+)/);
               if (torrentIdMatch && torrentIdMatch[1]) {
-               return torrentIdMatch[1];
+                return torrentIdMatch[1];
               }
               return undefined;
             },
@@ -154,10 +154,10 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   detail: {
-    urlPattern:["/torrent/"],
+    urlPattern: ["/torrent/"],
     selectors: {
       ...SchemaMetadata.detail!.selectors!,
-      title: { 
+      title: {
         selector: "table.table tr:contains('Title') td:nth-child(2)",
         elementProcess: (element) => {
           const text = element.textContent.trim();
@@ -165,9 +165,9 @@ export const siteMetadata: ISiteMetadata = {
           const match = text.match(/\[([^\]]+)\]/);
           // 如果匹配到就返回括号内的内容,否则返回原文本
           return match ? match[1] : text;
-        }
-      }
-    }
+        },
+      },
+    },
   },
 
   levelRequirements: [
@@ -211,9 +211,7 @@ export const siteMetadata: ISiteMetadata = {
     { id: 205, name: "Super Admin", groupType: "manager" },
   ],
 
-  userInputSettingMeta: [
-    ...SchemaMetadata.userInputSettingMeta!,
-  ],
+  userInputSettingMeta: [...SchemaMetadata.userInputSettingMeta!],
 };
 
 export interface IExoRawTorrent extends IAvzNetRawTorrent {
@@ -263,7 +261,7 @@ export default class Exoticaz extends AvistazNetwork {
       }
     }
     extendTorrent.tags = tags;
-    
+
     return extendTorrent;
   }
 }
