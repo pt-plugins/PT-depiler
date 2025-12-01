@@ -11,7 +11,7 @@ import {
   NeedLoginError,
 } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
-import { buildCategoryOptions, convertIsoDurationToSeconds } from "../utils";
+import { buildCategoryOptionsFromList, convertIsoDurationToSeconds } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   version: 2,
@@ -46,7 +46,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "Type",
       key: "types",
       keyPath: "data",
-      options: buildCategoryOptions([
+      options: buildCategoryOptionsFromList([
         ["UHD 100", "UHD 66", "UHD 50", "UHD Remux"],
         ["BD 50", "BD 25", "BD Remux"],
         ["2160p", "1080p", "1080i", "720p", "576p", "540p"],
@@ -59,14 +59,23 @@ export const siteMetadata: ISiteMetadata = {
       name: "Source",
       key: "sources",
       keyPath: "data",
-      options: buildCategoryOptions(["Blu-ray", "HD-DVD", "WEB", "HDTV", "DVD"]),
+      options: buildCategoryOptionsFromList(["Blu-ray", "HD-DVD", "WEB", "HDTV", "DVD"]),
       cross: { mode: "comma" },
     },
     {
       name: "ReleaseGroup",
       key: "groups",
       keyPath: "data",
-      options: buildCategoryOptions(["FraMeSToR", "BHDStudio", "BeyondHD", "RPG", "iROBOT", "iFT", "ZR", "MKVULTRA"]),
+      options: buildCategoryOptionsFromList([
+        "FraMeSToR",
+        "BHDStudio",
+        "BeyondHD",
+        "RPG",
+        "iROBOT",
+        "iFT",
+        "ZR",
+        "MKVULTRA",
+      ]),
       cross: { mode: "comma" },
     },
     {

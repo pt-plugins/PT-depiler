@@ -90,13 +90,6 @@ export interface ISiteMetadata {
   readonly formerHosts?: TSiteHost[]; // 站点过去曾经使用过的，但现在已不再使用的域名
 
   /**
-   * 该站点已经！完全！死亡！没有任何恢复的可能性
-   * - 对临时性的站点关闭，更建议用户使用 userConfig.isOffline 属性
-   * - 对于已经死亡的站点，插件：①不会在添加时显示该站点；②已添加的获取搜索结果、个人信息功能全部停止
-   */
-  isDead?: true;
-
-  /**
    * 站点图标，具体处理过程见 `../utils/favicon.ts` 的说明
    * 此处填写格式如下：
    *  - 站点 favicon.ico 的完整url，例如 https://xxxx.site/favicon.ico   （从 `http` 开始写）
@@ -105,6 +98,15 @@ export interface ISiteMetadata {
    *  - `data:image/` 开头的Base64字符串 （不会有人这么做吧，一定过不了 Code Review 的）
    */
   favicon?: `${TSiteFullUrl}${string}` | `data:image/${string}` | `./${string}.${"png" | "ico" | "svg" | string}`;
+
+  /**
+   * 该站点已经！完全！死亡！没有任何恢复的可能性
+   * - 对临时性的站点关闭，更建议用户使用 userConfig.isOffline 属性
+   * - 对于已经死亡的站点，插件：①不会在添加时显示该站点；②已添加的获取搜索结果、个人信息功能全部停止
+   *
+   * 对已经标记死亡的站点，建议注释或删除之后的所有配置项
+   */
+  isDead?: true;
 
   category?: ISearchCategories[];
 
@@ -344,7 +346,6 @@ export interface ISiteMetadata {
 
   /**
    * 站点用户等级定义
-   * 对设置了 isDead: true 的站点请注释或删除该项
    */
   levelRequirements?: ILevelRequirement[];
 

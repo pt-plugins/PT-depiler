@@ -1,6 +1,6 @@
 import { type ISiteMetadata } from "../types.ts";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
-import { buildCategoryOptions } from "../utils";
+import { buildCategoryOptionsFromList } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -165,11 +165,12 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "Primary Language",
       key: "primaryLanguageNames",
-      options: buildCategoryOptions([["cn", "en", "es", "fr", "it", "ja", "ko", "ms", "ru", "tl", "tr", "xx", "zh"]]),
+      options: buildCategoryOptionsFromList([
+        ["cn", "en", "es", "fr", "it", "ja", "ko", "ms", "ru", "tl", "tr", "xx", "zh"],
+      ]),
       cross: { mode: "brackets" },
     },
   ],
-
 };
 
 export default class JPTV4us extends Unit3D {
@@ -189,4 +190,4 @@ export default class JPTV4us extends Unit3D {
       this.metadata.userInfo?.selectors?.name!,
     );
   }
-};
+}

@@ -2,7 +2,7 @@ import { ISiteMetadata, ITorrent, ISearchInput, ETorrentStatus } from "../types"
 import Sizzle from "sizzle";
 import Gazelle from "../schemas/Gazelle.ts";
 import { SchemaMetadata } from "../schemas/Gazelle.ts";
-import { createDocument, parseValidTimeString, buildCategoryOptions } from "../utils.ts";
+import { createDocument, parseValidTimeString, buildCategoryOptionsFromList } from "../utils.ts";
 
 const nblTimezoneOffset = -11;
 
@@ -34,7 +34,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "Tags",
       key: "taglist",
-      options: buildCategoryOptions([
+      options: buildCategoryOptionsFromList([
         ["1080p", "2160p", "4k", "720p", "h264", "h265", "hdr", "dovi", "atmos"],
         ["action", "adventure", "comedy", "crime", "drama", "episode", "family", "fantasy"],
         ["history", "horror", "music", "mystery", "sci.fi", "thriller", "children"],

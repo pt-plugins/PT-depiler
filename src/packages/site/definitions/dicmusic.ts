@@ -1,4 +1,4 @@
-import { buildCategoryOptions } from "../utils";
+import { buildCategoryOptionsFromList } from "../utils";
 import { type IUserInfo, type ITorrent, type ISiteMetadata } from "../types";
 import GazelleJSONAPI, {
   SchemaMetadata,
@@ -38,7 +38,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "编码",
       key: "encoding",
-      options: buildCategoryOptions([
+      options: buildCategoryOptionsFromList([
         "192",
         "APS (VBR)",
         "V2 (VBR)",
@@ -54,13 +54,23 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "格式",
       key: "format",
-      options: buildCategoryOptions(["FLAC", "WAV", "DSD", "MP3", "AAC", "DTS", "Lossless", "24bit Lossless", "Other"]),
+      options: buildCategoryOptionsFromList([
+        "FLAC",
+        "WAV",
+        "DSD",
+        "MP3",
+        "AAC",
+        "DTS",
+        "Lossless",
+        "24bit Lossless",
+        "Other",
+      ]),
       cross: false,
     },
     {
       name: "媒介",
       key: "media",
-      options: buildCategoryOptions([
+      options: buildCategoryOptionsFromList([
         "CD",
         "DVD",
         "Vinyl",

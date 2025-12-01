@@ -1,6 +1,6 @@
 import { type ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/Luminance";
-import { buildCategoryOptions } from "../utils";
+import { buildCategoryOptionsFromList } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -39,7 +39,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "标签和分辨率",
       key: "taglist",
-      options: buildCategoryOptions([
+      options: buildCategoryOptionsFromList([
         ["1080p", "2160p", "720p", "1on1", "anal", "big.ass", "big.dick", "big.tits", "blonde", "blowjob", "brunette"],
         ["cowgirl", "creampie", "cum.in.mouth", "cumshot", "cunnilingus", "deepthroat", "doggy.style", "face.fuck"],
         ["facial", "fake.tits", "fingering", "handjob", "hardcore", "invalid.tag", "lesbian", "masturbation", "milf"],
