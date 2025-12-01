@@ -87,7 +87,14 @@ export async function setCookie(cookie: chrome.cookies.SetDetails, force: boolea
   }
 
   if (allowSet) {
-    await chrome.cookies.set(new_cookie);
+    try {
+      await chrome.cookies.set(new_cookie);
+    } catch (error) {
+      sendMessage("logger", {
+        msg: `Failed to set cookie ${cookie.name} for url ${new_cookie.url}`,
+        level: "error",
+      }).catch();
+    }
   }
 }
 
