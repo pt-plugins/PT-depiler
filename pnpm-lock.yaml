@@ -62,8 +62,8 @@ importers:
         specifier: ^5.1.6
         version: 5.1.6
       p-queue:
-        specifier: ^9.0.0
-        version: 9.0.0
+        specifier: ^9.0.1
+        version: 9.0.1
       parse-torrent:
         specifier: ^11.0.19
         version: 11.0.19
@@ -541,8 +541,8 @@ packages:
     resolution: {integrity: sha512-yfkgDw1KR66rkT5A8ci4irzDysN7FRpq3ttJolR88OqQikAWqwA8j5VZyas+vjyBNFIJ7MfybJ9plMILI2UrCw==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
-  '@eslint/eslintrc@3.3.1':
-    resolution: {integrity: sha512-gtF186CXhIl1p4pJNGZw8Yc6RlshoePRvE0X91oPGb3vZ8pM3qOS9W9NGPat9LziaBV7XrJWGylNQXkGcnM3IQ==}
+  '@eslint/eslintrc@3.3.3':
+    resolution: {integrity: sha512-Kr+LPIUVKz2qkx1HAMH8q1q6azbqBAsXJUxBl/ODDuVPX45Z9DfwB8tPjTi6nNZ8BuM3nbJxC5zCAg5elnBUTQ==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
 
   '@eslint/js@9.21.0':
@@ -2587,8 +2587,8 @@ packages:
     resolution: {integrity: sha512-LaNjtRWUBY++zB5nE/NwcaoMylSPk+S+ZHNB1TzdbMJMny6dynpAGt7X/tl/QYq3TIeE6nxHppbo2LGymrG5Pw==}
     engines: {node: '>=10'}
 
-  p-queue@9.0.0:
-    resolution: {integrity: sha512-KO1RyxstL9g1mK76530TExamZC/S2Glm080Nx8PE5sTd7nlduDQsAfEl4uXX+qZjLiwvDauvzXavufy3+rJ9zQ==}
+  p-queue@9.0.1:
+    resolution: {integrity: sha512-RhBdVhSwJb7Ocn3e8ULk4NMwBEuOxe+1zcgphUy9c2e5aR/xbEsdVXxHJ3lynw6Qiqu7OINEyHlZkiblEpaq7w==}
     engines: {node: '>=20'}
 
   p-timeout@7.0.1:
@@ -3809,7 +3809,7 @@ snapshots:
     dependencies:
       '@types/json-schema': 7.0.15
 
-  '@eslint/eslintrc@3.3.1':
+  '@eslint/eslintrc@3.3.3':
     dependencies:
       ajv: 6.12.6
       debug: 4.4.3
@@ -5058,7 +5058,7 @@ snapshots:
       '@eslint-community/regexpp': 4.12.2
       '@eslint/config-array': 0.19.2
       '@eslint/core': 0.12.0
-      '@eslint/eslintrc': 3.3.1
+      '@eslint/eslintrc': 3.3.3
       '@eslint/js': 9.21.0
       '@eslint/plugin-kit': 0.2.8
       '@humanfs/node': 0.16.7
@@ -5928,7 +5928,7 @@ snapshots:
     dependencies:
       p-limit: 3.1.0
 
-  p-queue@9.0.0:
+  p-queue@9.0.1:
     dependencies:
       eventemitter3: 5.0.1
       p-timeout: 7.0.1
