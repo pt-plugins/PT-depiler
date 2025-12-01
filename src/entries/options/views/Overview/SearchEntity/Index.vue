@@ -46,7 +46,9 @@ const fullTableHeader = computed(
         key: "title",
         align: "start",
         minWidth: "30rem",
-        ...(display.smAndDown.value ? { maxWidth: "32vw" } : {}),
+        ...(configStore.searchEntifyControl.limitTorrentTitleTdWidth || display.smAndDown.value
+          ? { maxWidth: "32vw" }
+          : {}),
         props: { disabled: true },
       },
       { title: t("SearchEntity.index.table.category"), key: "category", align: "center" },

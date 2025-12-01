@@ -351,7 +351,8 @@
       "showTorrentSubtitle": "Show Torrent Subtitle",
       "showSocialInformation": "Show Media Rating Information",
       "socialInformationSearchOnNewTab": "Open Media Rating Search in a New Tab",
-      "uploadAtFormatAsAlive": "Display Upload Time as Relative Time"
+      "uploadAtFormatAsAlive": "Display Upload Time as Relative Time",
+      "limitTorrentTitleTdWidth": "Limit torrent title column width"
     },
     "siteFilter": {
       "all": "All Site"
