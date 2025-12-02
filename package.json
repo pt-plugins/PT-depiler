@@ -71,7 +71,7 @@
     "vue-i18n": "^11.2.1",
     "vue-konva": "^3.2.6",
     "vue-router": "^4.6.3",
-    "vuetify": "^3.10.11",
+    "vuetify": "^3.11.0",
     "webdav": "^5.8.0"
   },
   "devDependencies": {
