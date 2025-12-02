@@ -41,7 +41,7 @@
     "pnpm": ">=10.14.0"
   },
   "dependencies": {
-    "@vueuse/components": "^14.0.0",
+    "@vueuse/components": "^14.1.0",
     "@vueuse/core": "^14.0.0",
     "@webext-core/job-scheduler": "^1.0.0",
     "@webext-core/messaging": "^2.3.0",
