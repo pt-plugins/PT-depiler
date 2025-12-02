@@ -57,7 +57,7 @@
     "jszip": "^3.10.1",
     "konva": "^10.0.12",
     "nanoid": "^5.1.6",
-    "p-queue": "^9.0.0",
+    "p-queue": "^9.0.1",
     "parse-torrent": "^11.0.19",
     "pinia": "^3.0.4",
     "pinia-plugin-state-persistence": "^1.11.0",
