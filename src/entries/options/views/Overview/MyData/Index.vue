@@ -557,13 +557,7 @@ function toggleNumberSimplification() {
 
       <!-- 魔力/积分 -->
       <template #item.bonus="{ item }">
-        <v-container
-          v-if="
-            configStore.myDataTableControl.showSeedingBonus &&
-            item.seedingBonus !== '' &&
-            !isUndefined(item.seedingBonus)
-          "
-        >
+        <v-container>
           <v-row align="center" class="flex-nowrap" justify="end">
             <v-icon :title="t('levelRequirement.bonus')" color="green-darken-4" icon="mdi-currency-usd" size="small" />
             <span
@@ -580,7 +574,16 @@ function toggleNumberSimplification() {
               }}</span
             >
           </v-row>
-          <v-row align="center" class="flex-nowrap" justify="end">
+          <v-row
+            v-if="
+              configStore.myDataTableControl.showSeedingBonus &&
+              item.seedingBonus !== '' &&
+              !isUndefined(item.seedingBonus)
+            "
+            align="center"
+            class="flex-nowrap"
+            justify="end"
+          >
             <v-icon
               :title="t('levelRequirement.seedingBonus')"
               color="green-darken-4"
@@ -602,22 +605,6 @@ function toggleNumberSimplification() {
             >
           </v-row>
         </v-container>
-        <template v-else>
-          <v-icon :title="t('levelRequirement.bonus')" color="green-darken-4" icon="mdi-currency-usd" size="small" />
-          <span
-            class="text-no-wrap"
-            :title="typeof item.bonus !== 'undefined' ? formatNumber(item.bonus) : '-'"
-            @dblclick="toggleNumberSimplification"
-            style="cursor: pointer; user-select: none"
-            >{{
-              typeof item.bonus !== "undefined"
-                ? configStore.myDataTableControl.simplifyBonusNumbers
-                  ? simplifyNumber(item.bonus)
-                  : formatNumber(item.bonus)
-                : "-"
-            }}</span
-          >
-        </template>
       </template>
 
       <template #item.bonusPerHour="{ item }">
