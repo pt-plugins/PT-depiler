@@ -1,6 +1,6 @@
 import { type ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/Unit3D.ts";
-import { buildCategoryOptions } from "../utils";
+import { buildCategoryOptionsFromList } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -172,7 +172,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "Primary Language",
       key: "primaryLanguageNames",
-      options: buildCategoryOptions([
+      options: buildCategoryOptionsFromList([
         ["ab", "af", "am", "ar", "as", "az", "bg", "bn", "bo", "bs", "ca", "cn", "cr", "cs", "cy", "da", "de", "dz"],
         ["el", "en", "eo", "es", "et", "eu", "fa", "ff", "fi", "fr", "ga", "gl", "gu", "he", "hi", "hr", "ht", "hu"],
         ["hy", "id", "ig", "is", "it", "iu", "ja", "ka", "kk", "kl", "km", "kn", "ko", "ku", "ky", "la", "lt", "lv"],

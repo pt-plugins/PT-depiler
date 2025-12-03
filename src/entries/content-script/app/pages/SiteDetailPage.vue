@@ -5,7 +5,7 @@ import type { ITorrent } from "@ptd/site";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { doKeywordSearch, siteInstance } from "@/content-script/app/utils.ts";
+import { copyTextToClipboard, doKeywordSearch, siteInstance } from "@/content-script/app/utils.ts";
 
 import SpeedDialBtn from "@/content-script/app/components/SpeedDialBtn.vue";
 
@@ -33,12 +33,10 @@ function handleLinkCopy() {
   parseDetailPage().then(async (torrent) => {
     const downloadUrl = await sendMessage("getTorrentDownloadLink", torrent);
 
-    try {
-      await navigator.clipboard.writeText(downloadUrl);
-      runtimeStore.showSnakebar("下载链接已复制到剪贴板", { color: "success" });
-    } catch (e) {
-      runtimeStore.showSnakebar("复制下载链接失败", { color: "error" });
-    }
+    const copied = await copyTextToClipboard(downloadUrl);
+    runtimeStore.showSnakebar(copied ? "下载链接已复制到剪贴板" : "复制下载链接失败", {
+      color: copied ? "success" : "error",
+    });
   });
 }
 

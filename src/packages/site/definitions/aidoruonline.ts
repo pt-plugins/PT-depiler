@@ -11,7 +11,7 @@ import {
   NeedLoginError,
 } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite";
-import { buildCategoryOptions, parseSizeString } from "../utils";
+import { buildCategoryOptionsFromList, parseSizeString } from "../utils";
 import { parseValidTimeString } from "../utils/datetime.ts";
 
 export const siteMetadata: ISiteMetadata = {
@@ -30,7 +30,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "类别",
       key: "pcat",
-      options: buildCategoryOptions(["Show All", "48G", "Games", "Stardust", "Other"]),
+      options: buildCategoryOptionsFromList(["Show All", "48G", "Games", "Stardust", "Other"]),
     },
     {
       name: "规格",

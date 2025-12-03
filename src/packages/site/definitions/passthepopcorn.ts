@@ -1,6 +1,6 @@
 import Sizzle from "sizzle";
 import Gazelle, { SchemaMetadata } from "../schemas/Gazelle.ts";
-import { parseValidTimeString, parseSizeString, buildCategoryOptions } from "../utils";
+import { parseValidTimeString, parseSizeString, buildCategoryOptionsFromList } from "../utils";
 import type { ISiteMetadata, ITorrent, ISearchInput } from "../types";
 import { ETorrentStatus } from "../types";
 
@@ -36,12 +36,12 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "Container",
       key: "encoding",
-      options: buildCategoryOptions(["AVI", "MPG", "MKV", "MP4", "VOB IFO", "ISO", "m2ts"]),
+      options: buildCategoryOptionsFromList(["AVI", "MPG", "MKV", "MP4", "VOB IFO", "ISO", "m2ts"]),
     },
     {
       name: "Codec",
       key: "format",
-      options: buildCategoryOptions([
+      options: buildCategoryOptionsFromList([
         ["XviD", "DivX", "H.264", "x264", "H.265", "x265"],
         ["DVD5", "DVD9", "BD25", "BD50", "BD66", "BD100"],
       ]),
@@ -49,7 +49,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "Source",
       key: "media",
-      options: buildCategoryOptions([
+      options: buildCategoryOptionsFromList([
         ["CAM", "TS", "R5", "DVD-Screener", "VHS", "WEB"],
         ["DVD", "TV", "HDTV", "HD-DVD", "Blu-ray"],
       ]),
@@ -62,7 +62,7 @@ export const siteMetadata: ISiteMetadata = {
         { value: "anyhd", name: "Any HD" },
         { value: "anyhdplus", name: "Any HD+" },
         { value: "anyuhd", name: "Any UHD" },
-        ...buildCategoryOptions(["NTSC", "PAL", "480p", "576p", "720p", "1080i", "1080p", "2160p"]),
+        ...buildCategoryOptionsFromList(["NTSC", "PAL", "480p", "576p", "720p", "1080i", "1080p", "2160p"]),
       ],
     },
     {

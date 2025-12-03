@@ -9,9 +9,12 @@ import { type ISearchCategoryOptions } from "../types/search";
 /**
  * Builds search category options from a given array of strings or string arrays.
  * The name and value of each option will be the same as the string itself.
+ *
+ * For Example: [ "Anime", ["Audio", "Literature"] ] => [ { name: "Anime", value: "Anime" }, { name: "Audio", value: "Audio" }, { name: "Literature", value: "Literature" } ]
+ *
  * @param options
  */
-export function buildCategoryOptions(options: (string | string[])[]): ISearchCategoryOptions[] {
+export function buildCategoryOptionsFromList(options: (string | string[])[]): ISearchCategoryOptions[] {
   return options.flat(Infinity).map(
     (option) =>
       ({
@@ -19,6 +22,19 @@ export function buildCategoryOptions(options: (string | string[])[]): ISearchCat
         value: option,
       }) as ISearchCategoryOptions,
   );
+}
+
+/**
+ * Builds search category options from a given dictionary object.
+ * The name of each option will be the value from the dictionary,
+ * and the value of each option will be the corresponding key.
+ *
+ * For Example: { "1": "Anime", "2": "Audio" } => [ { name: "Anime", value: "1" }, { name: "Audio", value: "2" } ]
+ *
+ * @param dict
+ */
+export function buildCategoryOptionsFromDict(dict: Record<string | number, string>): ISearchCategoryOptions[] {
+  return Object.entries(dict).map(([key, value]) => ({ name: value, value: key }) as ISearchCategoryOptions);
 }
 
 /**

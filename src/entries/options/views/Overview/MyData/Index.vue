@@ -11,7 +11,7 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
-import { formatDate, formatNumber, formatSize, formatTimeAgo, simplifyNumber } from "@/options/utils.ts";
+import { formatDate, formatSize, formatTimeAgo } from "@/options/utils.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
@@ -19,6 +19,7 @@ import ResultParseStatus from "@/options/components/ResultParseStatus.vue";
 import NavButton from "@/options/components/NavButton.vue";
 import UserLevelRequirementsTd from "./UserLevelRequirementsTd.vue";
 import HistoryDataViewDialog from "./HistoryDataViewDialog.vue";
+import BonusFormatSpan from "./BonusFormatSpan.vue";
 
 import { cancelFlushSiteLastUserInfo, fixUserInfo, flushSiteLastUserInfo, formatRatio } from "./utils.ts";
 
@@ -193,11 +194,6 @@ function viewStatistic() {
       sites: tableSelected.value,
     },
   });
-}
-
-// Toggle function for double-click to switch number simplification
-function toggleNumberSimplification() {
-  configStore.myDataTableControl.simplifyBonusNumbers = !configStore.myDataTableControl.simplifyBonusNumbers;
 }
 </script>
 
@@ -557,79 +553,34 @@ function toggleNumberSimplification() {
 
       <!-- 魔力/积分 -->
       <template #item.bonus="{ item }">
-        <v-container
-          v-if="
-            configStore.myDataTableControl.showSeedingBonus &&
-            item.seedingBonus !== '' &&
-            !isUndefined(item.seedingBonus)
-          "
-        >
+        <v-container>
           <v-row align="center" class="flex-nowrap" justify="end">
             <v-icon :title="t('levelRequirement.bonus')" color="green-darken-4" icon="mdi-currency-usd" size="small" />
-            <span
-              class="text-no-wrap"
-              :title="typeof item.bonus !== 'undefined' ? formatNumber(item.bonus) : '-'"
-              @dblclick="toggleNumberSimplification"
-              style="cursor: pointer; user-select: none"
-              >{{
-                typeof item.bonus !== "undefined"
-                  ? configStore.myDataTableControl.simplifyBonusNumbers
-                    ? simplifyNumber(item.bonus)
-                    : formatNumber(item.bonus)
-                  : "-"
-              }}</span
-            >
+            <BonusFormatSpan :num="item.bonus" />
           </v-row>
-          <v-row align="center" class="flex-nowrap" justify="end">
+          <v-row
+            v-if="
+              configStore.myDataTableControl.showSeedingBonus &&
+              item.seedingBonus !== '' &&
+              !isUndefined(item.seedingBonus)
+            "
+            align="center"
+            class="flex-nowrap"
+            justify="end"
+          >
             <v-icon
               :title="t('levelRequirement.seedingBonus')"
               color="green-darken-4"
               icon="mdi-lightning-bolt-circle"
               size="small"
             />
-            <span
-              class="text-no-wrap"
-              :title="typeof item.seedingBonus !== 'undefined' ? formatNumber(item.seedingBonus) : '-'"
-              @dblclick="toggleNumberSimplification"
-              style="cursor: pointer; user-select: none"
-              >{{
-                typeof item.seedingBonus !== "undefined"
-                  ? configStore.myDataTableControl.simplifyBonusNumbers
-                    ? simplifyNumber(item.seedingBonus)
-                    : formatNumber(item.seedingBonus)
-                  : "-"
-              }}</span
-            >
+            <BonusFormatSpan :num="item.seedingBonus" />
           </v-row>
         </v-container>
-        <template v-else>
-          <v-icon :title="t('levelRequirement.bonus')" color="green-darken-4" icon="mdi-currency-usd" size="small" />
-          <span
-            class="text-no-wrap"
-            :title="typeof item.bonus !== 'undefined' ? formatNumber(item.bonus) : '-'"
-            @dblclick="toggleNumberSimplification"
-            style="cursor: pointer; user-select: none"
-            >{{
-              typeof item.bonus !== "undefined"
-                ? configStore.myDataTableControl.simplifyBonusNumbers
-                  ? simplifyNumber(item.bonus)
-                  : formatNumber(item.bonus)
-                : "-"
-            }}</span
-          >
-        </template>
       </template>
 
       <template #item.bonusPerHour="{ item }">
-        <span class="text-no-wrap" @dblclick="toggleNumberSimplification">
-          {{
-            typeof item.bonusPerHour !== "undefined"
-              ? configStore.myDataTableControl.simplifyBonusNumbers
-                ? simplifyNumber(item.bonusPerHour)
-                : formatNumber(item.bonusPerHour)
-              : "-"
-          }}
-        </span>
+        <BonusFormatSpan :num="item.bonusPerHour" />
       </template>
 
       <template #item.invites="{ item }">

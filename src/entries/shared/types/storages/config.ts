@@ -160,6 +160,8 @@ export interface IConfigPiniaStorageSchema {
     socialInformationSearchOnNewTab: boolean;
     // 是否使用 time_alive(过去时间) 来展示，如果不使用，则使用 time_added(发生时间) 来展示，默认不使用
     uploadAtFormatAsAlive: boolean;
+    // 是否限制种子标题列的最大宽度，防止过长导致表格布局混乱
+    limitTorrentTitleTdWidth: boolean;
   };
 
   userInfo: {

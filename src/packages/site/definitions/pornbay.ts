@@ -1,6 +1,6 @@
 import { type ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/Luminance";
-import { buildCategoryOptions } from "../utils";
+import { buildCategoryOptionsFromList } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,

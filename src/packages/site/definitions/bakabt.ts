@@ -3,7 +3,7 @@
  */
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 import type { ISiteMetadata, ISearchInput, ITorrent } from "../types.ts";
-import { definedFilters } from "../utils.ts";
+import { definedFilters, buildCategoryOptionsFromDict } from "../utils.ts";
 
 const categoryMap: Record<number, string> = {
   1: "Anime Series",
@@ -35,7 +35,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "类别",
       key: "category",
-      options: Object.entries(categoryMap).map(([value, name]) => ({ name, value })),
+      options: buildCategoryOptionsFromDict(categoryMap),
       cross: { mode: "append", key: "c" },
     },
     {

@@ -41,7 +41,7 @@
     "pnpm": ">=10.14.0"
   },
   "dependencies": {
-    "@vueuse/components": "^14.0.0",
+    "@vueuse/components": "^14.1.0",
     "@vueuse/core": "^14.0.0",
     "@webext-core/job-scheduler": "^1.0.0",
     "@webext-core/messaging": "^2.3.0",
@@ -57,7 +57,7 @@
     "jszip": "^3.10.1",
     "konva": "^10.0.12",
     "nanoid": "^5.1.6",
-    "p-queue": "^9.0.0",
+    "p-queue": "^9.0.1",
     "parse-torrent": "^11.0.19",
     "pinia": "^3.0.4",
     "pinia-plugin-state-persistence": "^1.11.0",
@@ -66,12 +66,12 @@
     "url-join": "^5.0.0",
     "urlencode": "^2.0.0",
     "valid-filename": "^4.0.0",
-    "vue": "^3.5.24",
+    "vue": "^3.5.25",
     "vue-echarts": "^8.0.1",
     "vue-i18n": "^11.2.1",
     "vue-konva": "^3.2.6",
     "vue-router": "^4.6.3",
-    "vuetify": "^3.10.11",
+    "vuetify": "^3.11.0",
     "webdav": "^5.8.0"
   },
   "devDependencies": {
@@ -91,7 +91,7 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.2.6",
     "prettier": "^3.6.2",
-    "sass": "^1.94.0",
+    "sass": "^1.94.2",
     "tsx": "^4.20.6",
     "typescript": "~5.9.3",
     "vite": "^6.4.1",
@@ -99,7 +99,7 @@
     "vite-plugin-vue-devtools": "^8.0.4",
     "vite-plugin-vuetify": "^2.1.2",
     "vite-plugin-web-extension": "4.4.3",
-    "vue-tsc": "^3.1.4"
+    "vue-tsc": "^3.1.5"
   },
   "prettier": {
     "printWidth": 120,

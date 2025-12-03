@@ -5,7 +5,7 @@ import type { AxiosRequestConfig } from "axios";
 
 import { supportSocialSite } from "@ptd/social";
 
-import { buildCategoryOptions, parseSizeString, parseTimeWithZone, tryToNumber } from "../utils";
+import { buildCategoryOptionsFromList, parseSizeString, parseTimeWithZone, tryToNumber } from "../utils";
 import {
   EResultParseStatus,
   ETorrentStatus,
@@ -64,7 +64,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "语言",
       key: "language",
-      options: buildCategoryOptions([
+      options: buildCategoryOptionsFromList([
         ["英语", "日语", "韩语", "阿拉伯语", "巴西葡萄牙语", "保加利亚语", "克罗地亚语", "捷克语", "丹麦语", "荷兰语"],
         ["爱沙尼亚语", "芬兰语", "法语", "德语", "希腊语", "希伯来语", "印地语", "匈牙利语", "冰岛语", "印度尼西亚语"],
         ["意大利语", "拉脱维亚语", "立陶宛语", "挪威语", "波斯语", "波兰语", "葡萄牙语", "罗马尼亚语", "俄语"],
@@ -76,7 +76,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "字幕",
       key: "subtitles",
-      options: buildCategoryOptions([
+      options: buildCategoryOptionsFromList([
         ["简体", "繁体", "英语", "日语", "韩语", "阿拉伯语", "巴西葡萄牙语", "保加利亚语", "克罗地亚语", "捷克语"],
         ["丹麦语", "荷兰语", "爱沙尼亚语", "芬兰语", "法语", "德语", "希腊语", "希伯来语", "印地语", "匈牙利语"],
         ["冰岛语", "印度尼西亚语", "意大利语", "拉脱维亚语", "立陶宛语", "挪威语", "波斯语", "波兰语", "葡萄牙语"],
@@ -88,7 +88,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "国家和地区",
       key: "region",
-      options: buildCategoryOptions([
+      options: buildCategoryOptionsFromList([
         ["阿富汗", "奥兰群岛", "阿尔巴尼亚", "阿尔及利亚", "美属萨摩亚", "安道尔", "安哥拉", "安圭拉"],
         ["安提瓜和巴布达", "阿根廷", "亚美尼亚", "阿鲁巴", "澳大利亚", "奥地利", "阿塞拜疆", "孟加拉", "巴林"],
         ["巴哈马", "巴巴多斯", "白俄罗斯", "比利时", "伯利兹", "贝宁", "百慕大", "不丹", "玻利维亚"],
@@ -141,32 +141,42 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "片源",
       key: "source",
-      options: buildCategoryOptions(["VHS", "DVD", "HD-DVD", "TV", "HDTV", "WEB", "Blu-ray", "Other"]),
+      options: buildCategoryOptionsFromList(["VHS", "DVD", "HD-DVD", "TV", "HDTV", "WEB", "Blu-ray", "Other"]),
     },
     {
       name: "编码",
       key: "codec",
-      options: buildCategoryOptions(["DivX", "XviD", "x264", "H.264", "x265", "H.265", "Other"]),
+      options: buildCategoryOptionsFromList(["DivX", "XviD", "x264", "H.264", "x265", "H.265", "Other"]),
     },
     {
       name: "容器",
       key: "container",
-      options: buildCategoryOptions(["AVI", "MPG", "MP4", "MKV", "VOB IFO", "ISO", "m2ts", "Other"]),
+      options: buildCategoryOptionsFromList(["AVI", "MPG", "MP4", "MKV", "VOB IFO", "ISO", "m2ts", "Other"]),
     },
     {
       name: "分辨率",
       key: "resolution",
-      options: buildCategoryOptions(["NTSC", "PAL", "480p", "576p", "720p", "1080i", "1080p", "2160p", "Other"]),
+      options: buildCategoryOptionsFromList([
+        "NTSC",
+        "PAL",
+        "480p",
+        "576p",
+        "720p",
+        "1080i",
+        "1080p",
+        "2160p",
+        "Other",
+      ]),
     },
     {
       name: "处理",
       key: "processing",
-      options: buildCategoryOptions(["Encode", "Remux", "DIY", "Untouched"]),
+      options: buildCategoryOptionsFromList(["Encode", "Remux", "DIY", "Untouched"]),
     },
     {
       name: "标签",
       key: "taglist",
-      options: buildCategoryOptions([
+      options: buildCategoryOptionsFromList([
         ["动作", "成人", "冒险", "动画", "艺术", "亚洲", "传记", "喜剧", "犯罪", "邪典", "纪录片", "剧情", "实验"],
         ["家庭", "奇幻", "黑色电影", "历史", "恐怖", "lgbt", "武侠", "音乐", "音乐剧", "悬疑", "演出", "政治", "爱情"],
         ["科幻", "短片", "默片", "体育", "惊悚", "video.art", "战争", "西部"],

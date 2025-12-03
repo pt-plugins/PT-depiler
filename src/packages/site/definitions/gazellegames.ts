@@ -1,6 +1,6 @@
 import type { ISiteMetadata, ISearchInput, ITorrent, IUserInfo } from "../types.ts";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
-import { parseValidTimeString, extractContent, buildCategoryOptions } from "../utils.ts";
+import { parseValidTimeString, extractContent, buildCategoryOptionsFromList } from "../utils.ts";
 import urlJoin from "url-join";
 import GazelleJSONAPI from "../schemas/GazelleJSONAPI.ts";
 import { SchemaMetadata, jsonResponse, infoJsonResponse, userJsonResponse } from "../schemas/GazelleJSONAPI.ts";
@@ -90,7 +90,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "评级",
       key: "rating",
-      options: buildCategoryOptions(["3+", "7+", "12+", "16+", "18+", "N/A"]),
+      options: buildCategoryOptionsFromList(["3+", "7+", "12+", "16+", "18+", "N/A"]),
     },
     {
       name: "促销方案",

@@ -221,6 +221,7 @@ export const useConfigStore = defineStore("config", {
       showSocialInformation: true,
       socialInformationSearchOnNewTab: true,
       uploadAtFormatAsAlive: false,
+      limitTorrentTitleTdWidth: false,
     },
 
     userInfo: {

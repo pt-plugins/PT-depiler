@@ -120,13 +120,16 @@ export const siteMetadata: ISiteMetadata = {
       ...SchemaMetadata.userInfo!.selectors!,
       messageCount: {
         text: 0,
-        selector: "div.message-alert > a[href*='messages.php']",
-        filters: [
-          (query: string | number) => {
-            const queryMatch = String(query || "").match(/(\d+)/);
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
-          },
-        ],
+        selector: "div.message-alerts-container",
+        elementProcess: (e: HTMLElement) => {
+          let total = 0;
+          const alertDivs = e.querySelectorAll("div.message-alert");
+          for (const div of alertDivs) {
+            const numberMatch = div.textContent?.match(/(\d+)/);
+            total += numberMatch && numberMatch.length >= 2 ? parseInt(numberMatch[1], 10) : 0;
+          }
+          return total;
+        },
       },
       hnrPreWarning: {
         text: 0,

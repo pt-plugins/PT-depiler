@@ -1,7 +1,7 @@
 import Sizzle from "sizzle";
 import Gazelle, { SchemaMetadata } from "../schemas/Gazelle.ts";
 import { ISiteMetadata, ITorrent, ISearchInput, ETorrentStatus } from "../types";
-import { definedFilters, buildCategoryOptions } from "../utils.ts";
+import { definedFilters, buildCategoryOptionsFromList } from "../utils.ts";
 
 const extractSubTitle = (tags: string) => {
   const tagParts = tags.split(" / ");
@@ -109,22 +109,32 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "Container",
       key: "container",
-      options: buildCategoryOptions(["AVI", "MPG", "MKV", "MP4", "VOB IFO", "ISO", "m2ts", "Other"]),
+      options: buildCategoryOptionsFromList(["AVI", "MPG", "MKV", "MP4", "VOB IFO", "ISO", "m2ts", "Other"]),
     },
     {
       name: "Codec",
       key: "codec",
-      options: buildCategoryOptions(["MPEG1", "MPEG2", "Xvid", "DivX", "H264", "H265", "VC-1"]),
+      options: buildCategoryOptionsFromList(["MPEG1", "MPEG2", "Xvid", "DivX", "H264", "H265", "VC-1"]),
     },
     {
       name: "Source",
       key: "media",
-      options: buildCategoryOptions(["Blu-ray", "DVD", "WEB", "LaserDisc", "HD-DVD", "HDTV", "TV", "VHS", "Unknown"]),
+      options: buildCategoryOptionsFromList([
+        "Blu-ray",
+        "DVD",
+        "WEB",
+        "LaserDisc",
+        "HD-DVD",
+        "HDTV",
+        "TV",
+        "VHS",
+        "Unknown",
+      ]),
     },
     {
       name: "Resolution",
       key: "resolution",
-      options: buildCategoryOptions(["SD", "720p", "1080i", "1080p", "2160p"]),
+      options: buildCategoryOptionsFromList(["SD", "720p", "1080i", "1080p", "2160p"]),
     },
     {
       name: "Leech Status",

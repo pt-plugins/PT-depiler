@@ -351,7 +351,8 @@
       "showTorrentSubtitle": "显示种子副标题",
       "showSocialInformation": "显示媒体评价信息",
       "socialInformationSearchOnNewTab": "媒体评价信息搜索在新标签页中打开",
-      "uploadAtFormatAsAlive": "上传时间显示为相对时间"
+      "uploadAtFormatAsAlive": "上传时间显示为相对时间",
+      "limitTorrentTitleTdWidth": "限制种子标题宽度"
     },
     "siteFilter": {
       "all": "全部站点"
