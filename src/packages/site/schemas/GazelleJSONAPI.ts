@@ -2,7 +2,7 @@ import Sizzle from "sizzle";
 import type { AxiosResponse } from "axios";
 
 import PrivateSite from "./AbstractPrivateSite";
-import { parseSizeString, parseTimeWithZone } from "../utils";
+import { parseSizeString, parseTimeWithZone, extractContent } from "../utils";
 import {
   EResultParseStatus,
   type IUserInfo,
@@ -330,10 +330,19 @@ export default class GazelleJSONAPI extends PrivateSite {
   protected async transformUnGroupTorrent(group: torrentBrowseResult): Promise<ITorrent> {
     const { authkey, passkey } = await this.getAuthKey();
 
+    const tags: { name: string; color: string }[] = [];
+    if (group.isFreeleech || group.isPersonalFreeleech) {
+      tags.push({ name: "Free", color: "blue" });
+    }
+    if (group.isNeutralLeech) {
+      tags.push({ name: "Neutral", color: "cyan" });
+    }
+
     return {
       site: this.metadata.id, // 补全种子的 site 属性
       id: group.torrentId,
-      title: group.groupName,
+      title: extractContent(group.groupName),
+      subTitle: group.tags.join(", "),
       url: `${this.url}torrents.php?id=${group.groupId}&torrentid=${group.torrentId}`,
       link: `${this.url}torrents.php?action=download&id=${group.torrentId}&authkey=${authkey}&torrent_pass=${passkey}`,
       time: parseTimeWithZone(group.groupTime, this.metadata.timezoneOffset),
@@ -342,7 +351,7 @@ export default class GazelleJSONAPI extends PrivateSite {
       seeders: group.seeders,
       leechers: group.leechers,
       completed: group.snatches,
-      tags: group.tags.map((tag) => ({ name: tag })),
+      tags,
       category: group.category,
     } as ITorrent;
   }
@@ -361,13 +370,13 @@ export default class GazelleJSONAPI extends PrivateSite {
     return {
       site: this.metadata.id, // 补全种子的 site 属性
       id: torrent.torrentId,
-      title: `${group.artist} - ${group.groupName} [${group.groupYear}] [${group.releaseType}]`,
+      title: `${group.artist} - ${extractContent(group.groupName)} [${group.groupYear}] [${group.releaseType}]`,
       subTitle:
         `${torrent.format} / ${torrent.encoding} / ${torrent.media}` +
         (torrent.hasLog ? ` / Log(${torrent.logScore})` : "") +
         (torrent.hasCue ? " / Cue" : "") +
         (torrent.remastered ? ` / ${torrent.remasterYear}` : "") +
-        (torrent.remasterTitle ? ` / ${torrent.remasterTitle}` : "") +
+        (torrent.remasterTitle ? ` / ${extractContent(torrent.remasterTitle)}` : "") +
         (torrent.scene ? " / Scene" : ""),
       url: `${this.url}torrents.php?id=${group.groupId}&torrentid=${torrent.torrentId}`,
       link: `${this.url}torrents.php?action=download&id=${torrent.torrentId}&authkey=${authkey}&torrent_pass=${passkey}`,
