@@ -5,6 +5,20 @@ import PrivateSite from "./AbstractPrivateSite";
 import { parseValidTimeString, parseSizeString } from "../utils";
 import { ETorrentStatus, type ISiteMetadata, type ITorrent, type ISearchInput } from "../types";
 
+const commonTagKeywords = ["Freeleech", "Neutral", "Seeding", "Snatched", "Reported"];
+
+export const extractSubTitle = (tags: string, tagKeywords?: string[]) => {
+  const tagParts = tags.split(" / ");
+  if (tagParts.length < 1) return "";
+
+  const filteredParts: string[] = [];
+  // 只保留种子自身属性
+  tagParts.forEach((tag) => {
+    if (!(tagKeywords || commonTagKeywords).some((keyword) => tag.includes(keyword))) filteredParts.push(tag);
+  });
+  return filteredParts.join(" / ");
+};
+
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: 0,
   search: {
