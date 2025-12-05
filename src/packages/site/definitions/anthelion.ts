@@ -1,19 +1,7 @@
 import Sizzle from "sizzle";
-import Gazelle, { SchemaMetadata } from "../schemas/Gazelle.ts";
+import Gazelle, { SchemaMetadata, extractSubTitle } from "../schemas/Gazelle.ts";
 import { ISiteMetadata, ITorrent, ISearchInput, ETorrentStatus } from "../types";
 import { definedFilters, buildCategoryOptionsFromList } from "../utils.ts";
-
-const extractSubTitle = (tags: string) => {
-  const tagParts = tags.split(" / ");
-  if (tagParts.length < 1) return "";
-
-  const filteredParts: string[] = [];
-  // 只保留种子自身属性
-  tagParts.forEach((tag) => {
-    if (!tagKeywords.some((keyword) => tag.includes(keyword))) filteredParts.push(tag);
-  });
-  return filteredParts.join(" / ");
-};
 
 const tagKeywords = ["Freeleech", "Neutral", "Seeding", "Snatched", "Pollen", "Reported"];
 
@@ -176,7 +164,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       subTitle: {
         selector: "div.torrent_info:first",
-        filters: [extractSubTitle],
+        filters: [(tags: string) => extractSubTitle(tags, tagKeywords)],
       },
       category: {
         text: "Other",
