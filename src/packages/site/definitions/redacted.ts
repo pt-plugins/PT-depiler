@@ -1,5 +1,11 @@
-import { IUserInfo, type ISiteMetadata } from "../types";
-import GazelleJSONAPI, { jsonResponse, SchemaMetadata } from "../schemas/GazelleJSONAPI.ts";
+import { ITorrent, IUserInfo, type ISiteMetadata } from "../types";
+import GazelleJSONAPI, {
+  jsonResponse,
+  SchemaMetadata,
+  torrentBrowseResult,
+  groupBrowseResult,
+  groupTorrent,
+} from "../schemas/GazelleJSONAPI.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -139,7 +145,31 @@ export interface communityStatsJsonResponse extends jsonResponse {
   };
 }
 
+interface redTorrentBrowseResult extends torrentBrowseResult {
+  isFreeload: boolean;
+}
+
+interface redTorrent extends groupTorrent {
+  isFreeload: boolean;
+}
+
 export default class Redacted extends GazelleJSONAPI {
+  protected override async transformUnGroupTorrent(group: redTorrentBrowseResult): Promise<ITorrent> {
+    const tor = await super.transformUnGroupTorrent(group);
+    if (group.isFreeload) {
+      tor.tags?.push({ name: "Freeload", color: "red" });
+    }
+    return tor;
+  }
+
+  protected override async transformGroupTorrent(group: groupBrowseResult, torrent: redTorrent): Promise<ITorrent> {
+    const tor = await super.transformGroupTorrent(group, torrent);
+    if (torrent.isFreeload) {
+      tor.tags?.push({ name: "Freeload", color: "red" });
+    }
+    return tor;
+  }
+
   protected override async getSeedingSize(userId?: number): Promise<Partial<IUserInfo>> {
     await this.sleepAction(this.metadata.userInfo?.requestDelay);
 
