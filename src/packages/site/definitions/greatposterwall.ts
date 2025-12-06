@@ -1,30 +1,73 @@
-import Sizzle from "sizzle";
-import { toMerged, union } from "es-toolkit";
-import { isEmpty, set } from "es-toolkit/compat";
-import type { AxiosRequestConfig } from "axios";
+import { buildCategoryOptionsFromList, parseTimeWithZone, extractContent } from "../utils";
+import { ISiteMetadata, ITorrent, ITorrentTag, IUserInfo } from "../types";
+import GazelleJSONAPI, { groupBrowseResult, groupTorrent, SchemaMetadata } from "../schemas/GazelleJSONAPI.ts";
 
-import { supportSocialSite } from "@ptd/social";
+interface gpwBrowseResult extends groupBrowseResult {
+  groupSubName: string;
+  imdbId: string;
+}
 
-import { buildCategoryOptionsFromList, parseSizeString, parseTimeWithZone, tryToNumber } from "../utils";
-import {
-  EResultParseStatus,
-  ETorrentStatus,
-  IAdvanceKeywordSearchConfig,
-  ISearchEntryRequestConfig,
-  ISearchInput,
-  ISearchResult,
-  ISiteMetadata,
-  ITorrent,
-  IUserInfo,
-  NeedLoginError,
-  NoTorrentsError,
-} from "../types";
-import GazelleJSONAPI, { SchemaMetadata } from "../schemas/GazelleJSONAPI.ts";
+interface gpwTorrent extends groupTorrent {
+  jinzhuan: boolean;
+  freeType: string;
+  remasterCustomTitle: string;
+  resolution: string;
+  source: string;
+  codec: string;
+  container: string;
+  processing: string;
+  chineseDubbed: string;
+}
+
+const freeTypeMap: Record<string, ITorrentTag> = {
+  "11": { name: "75%" },
+  "12": { name: "50%" },
+  "13": { name: "25%" },
+  "1": { name: "Free" },
+  "2": { name: "Neutral", color: "cyan" },
+};
+
+// https://github.com/Mosasauroidea/GazellePW/raw/86c4bedf727691b5a97af42a4864869d18446449/src/locales/zh-Hans/zh-Hans.yaml
+const attrMap: Record<string, ITorrentTag> = {
+  "10_bit": { name: "10-bit", color: "orange" },
+  "2_disc_set": { name: "双碟套装", color: "cyan" },
+  "2_in_1": { name: "二合一", color: "cyan" },
+  "2d_3d_edition": { name: "2D/3D版", color: "cyan" },
+  "3d_anaglyph": { name: "红蓝3D", color: "cyan" },
+  "3d_full_sbs": { name: "全宽3D", color: "cyan" },
+  "3d_half_ou": { name: "半高3D", color: "cyan" },
+  "3d_half_sbs": { name: "半宽3D", color: "cyan" },
+  "4k_remaster": { name: "4K重制版", color: "blue" },
+  "4k_restoration": { name: "4K修复版", color: "blue" },
+  collections: { name: "珍藏集", color: "purple" },
+  director_s_cut: { name: "导演剪辑版", color: "purple" },
+  dolby_atmos: { name: "杜比全景声", color: "orange" },
+  dolby_vision: { name: "杜比视界", color: "orange" },
+  dts_x: { name: "DTS:X", color: "orange" },
+  dual_audio: { name: "双音轨", color: "purple" },
+  editions: { name: "版本", color: "cyan" },
+  english_dub: { name: "英语配音", color: "purple" },
+  extended_edition: { name: "加长版", color: "purple" },
+  extras: { name: "额外内容", color: "purple" },
+  features: { name: "特点", color: "cyan" },
+  hdr10: { name: "HDR10", color: "orange" },
+  hdr10plus: { name: "HDR10+", color: "orange" },
+  masters_of_cinema: { name: "电影大师", color: "purple" },
+  remaster: { name: "重制版", color: "blue" },
+  remux: { name: "Remux", color: "blue" },
+  rifftrax: { name: "RiffTrax", color: "purple" },
+  the_criterion_collection: { name: "标准收藏", color: "purple" },
+  theatrical_cut: { name: "影院版", color: "purple" },
+  uncut: { name: "未删减版", color: "purple" },
+  unrated: { name: "未分级版", color: "purple" },
+  warner_archive_collection: { name: "华纳档案馆", color: "purple" },
+  with_commentary: { name: "评论音轨", color: "purple" },
+};
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
 
-  version: 1,
+  version: 2,
   id: "greatposterwall",
   name: "GreatPosterWall",
   aka: ["海豹", "GPW"],
@@ -185,71 +228,6 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
-  search: {
-    ...SchemaMetadata.search!,
-    requestConfig: {
-      url: "/torrents.php",
-      responseType: "document",
-      params: { searchsubmit: 1, action: "basic" },
-    },
-    advanceKeywordParams: {
-      imdb: { enabled: true },
-    },
-    selectors: {
-      ...SchemaMetadata.search!.selectors!,
-      rows: { selector: "#torrent_table .TableTorrent-rowTitle" },
-      title: { selector: "a[href*='torrents.php?id=']", attr: "data-tooltip" },
-      link: {
-        selector: "a[href*='torrents.php?action=download']:first",
-        attr: "href",
-      },
-      time: {
-        selector: ".TableTorrent-cellStatTime span[data-tooltip]",
-        attr: "data-tooltip",
-        filters: [
-          (query: string) => {
-            return query ? new Date(query).getTime() : null;
-          },
-        ],
-      },
-      size: { selector: ".TableTorrent-cellStatSize" },
-      completed: { selector: ".TableTorrent-cellStatSnatches" },
-      seeders: { selector: ".TableTorrent-cellStatSeeders" },
-      leechers: { selector: ".TableTorrent-cellStatLeechers" },
-
-      progress: {
-        selector: [".TorrentTitle"],
-        elementProcess: (element: HTMLElement) => {
-          if (element.classList.contains("TorrentSeeding")) {
-            // 做种中
-            return 100;
-          } else if (element.classList.contains("TorrentSnatched")) {
-            // 无法实现获取 已完成 未做种 进度
-            return 100;
-          } else if (element.classList.contains("TorrentDownloading")) {
-            // 无法实现获取 下载中 进度
-            return 0;
-          }
-          return 0;
-        },
-      },
-      status: {
-        text: ETorrentStatus.unknown,
-        selector: [".TorrentTitle"],
-        case: {
-          ".TorrentSeeding": ETorrentStatus.seeding, // 做种中
-          ".TorrentSnatched": ETorrentStatus.completed, // 已完成 未做种
-          ".TorrentDownloading": ETorrentStatus.downloading, // 下载中
-        },
-      },
-
-      tags: [
-        { selector: ".TorrentTitle-item.tl_free", name: "Free", color: "#05f" },
-        { selector: ".TorrentTitle-item.two_fourth_off", name: "50%", color: "#8d4b44" },
-      ],
-    },
-  },
-
   userInfo: {
     ...SchemaMetadata.userInfo!,
     selectors: {
@@ -334,187 +312,52 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class GreatPosterWall extends GazelleJSONAPI {
-  public override async getSearchResult(
-    keywords?: string,
-    searchEntry: ISearchEntryRequestConfig = {},
-  ): Promise<ISearchResult> {
-    const result: ISearchResult = {
-      data: [],
-      status: EResultParseStatus.unknownError,
-    };
+  protected override async transformGroupTorrent(group: gpwBrowseResult, torrent: gpwTorrent): Promise<ITorrent> {
+    const { authkey, passkey } = await this.getAuthKey();
 
-    // 0. 检查该站点是否允许搜索
-    if (!this.allowSearch) {
-      result.status = EResultParseStatus.passParse;
-      return result;
+    const tags: ITorrentTag[] = [];
+    if (torrent.isPersonalFreeleech) {
+      tags.push({ name: "Free", color: "blue" });
+    } else if (freeTypeMap[torrent.freeType]) {
+      tags.push(freeTypeMap[torrent.freeType]);
     }
 
-    // 1. 形成搜索入口，默认情况下需要合并 this.config.search
-    // 如果传入了 id，说明需要首先与 metadata.searchEntry 中对应id的搜索配置的合并
-    if (searchEntry.id) {
-      searchEntry = toMerged(this.metadata.searchEntry?.[searchEntry.id] ?? {}, searchEntry)!;
-    }
-
-    // 继续检查 searchEntry， 如果为空，或者没有显示设置 merge 为 false，则进一步在 this.metadata.search 的基础上进行合并
-    if (isEmpty(searchEntry) || searchEntry.merge !== false) {
-      searchEntry = toMerged(this.metadata.search!, searchEntry)!;
-    }
-
-    // 检查该搜索入口是否设置为禁用
-    if (searchEntry.enabled === false) {
-      result.status = EResultParseStatus.passParse;
-      return result;
-    }
-
-    // 2. 生成对应站点的基础 requestConfig
-    let requestConfig: AxiosRequestConfig = toMerged(
-      { url: "/", responseType: "document", params: {}, data: {} },
-      searchEntry.requestConfig || {},
-    );
-
-    // 3. 预检查 keywords 是否为高级搜索词，如果是，则查找对应的 searchEntry.advanceKeywordParams[*] 并改写 keywords
-    let advanceKeywordConfig: IAdvanceKeywordSearchConfig | false = false;
-    if (keywords) {
-      // 生成支持的高级搜索词前缀
-      const advanceKeywordFields = Object.keys(searchEntry.advanceKeywordParams ?? {});
-
-      for (const advanceField of union(advanceKeywordFields, supportSocialSite)) {
-        if (keywords.startsWith(`${advanceField}|`)) {
-          // 先改写 keywords， 去除掉我们额外添加的 `${advanceField}|` 前缀
-          keywords = keywords?.replace(`${advanceField}|`, "");
-
-          // 检查是否有对应的高级搜索词配置
-          let advanceConfig = searchEntry?.advanceKeywordParams?.[advanceField];
-          if (typeof advanceConfig === "undefined") {
-            if (advanceField == "imdb") {
-              advanceConfig = { enabled: true }; // imdb 格式fallback到普通关键词搜索
-            }
-            advanceConfig = false; // 其他高级搜索词格式（douban|, bangumi|, anidb|, tmdb|, tvdb|, mal|）直接跳过
-          }
-
-          // 检查是否跳过
-          if (advanceConfig === false || advanceConfig.enabled === false) {
-            result.status = EResultParseStatus.passParse;
-            return result;
-          }
-
-          advanceKeywordConfig = advanceConfig;
-          break;
-        }
+    const attrs = torrent.remasterTitle.split("/").map((s) => s.trim());
+    attrs.forEach((a) => {
+      if (attrMap[a]) {
+        tags.push(attrMap[a]);
       }
+    });
+
+    if (torrent.jinzhuan) {
+      tags.push({ name: "禁转", color: "deep-orange-darken-1" });
     }
 
-    if (!advanceKeywordConfig) {
-      // 非高级搜索 走默认搜索实现
-      return super.getSearchResult(keywords, searchEntry);
-    }
+    const trTitle = [extractContent(group.groupSubName), extractContent(group.groupName)].join(" / ");
 
-    if (keywords) {
-      set(requestConfig, searchEntry.keywordPath || "params.keywords", keywords || "");
-    }
-
-    try {
-      const response = await this.request(requestConfig);
-      result.data = await this.transformGroupPage(response.data, { keywords, searchEntry, requestConfig });
-      result.status = EResultParseStatus.success;
-    } catch (e) {
-      if (import.meta.env.DEV) {
-        console.error(e);
-      }
-      result.status = EResultParseStatus.parseError;
-
-      if (e instanceof NeedLoginError) {
-        result.status = EResultParseStatus.needLogin;
-      } else if (e instanceof NoTorrentsError) {
-        result.status = EResultParseStatus.noResults;
-      }
-    }
-    return result;
+    return {
+      site: this.metadata.id, // 补全种子的 site 属性
+      id: torrent.torrentId,
+      title: `${trTitle} [${group.groupYear}] [${group.releaseType}]`,
+      subTitle:
+        `${torrent.resolution} / ${torrent.codec} / ${torrent.source} / ${torrent.container}` +
+        (torrent.remasterYear ? ` / ${torrent.remasterYear}` : "") +
+        (torrent.remasterCustomTitle ? ` / ${extractContent(torrent.remasterCustomTitle)}` : "") +
+        (torrent.scene ? " / Scene" : ""),
+      url: `${this.url}torrents.php?id=${group.groupId}&torrentid=${torrent.torrentId}`,
+      link: `${this.url}torrents.php?action=download&id=${torrent.torrentId}&authkey=${authkey}&torrent_pass=${passkey}`,
+      time: parseTimeWithZone(torrent.time, this.metadata.timezoneOffset),
+      size: torrent.size,
+      author: "",
+      seeders: torrent.seeders,
+      leechers: torrent.leechers,
+      completed: torrent.snatches,
+      category: group.releaseType || "",
+      tags,
+      ext_imdb: group.imdbId,
+    } as ITorrent;
   }
 
-  public async transformGroupPage(doc: Document | object | any, searchConfig: ISearchInput): Promise<ITorrent[]> {
-    const { searchEntry, requestConfig } = searchConfig;
-
-    // 获取媒体基本信息
-    let subTitle = Sizzle(".MovieInfo-subTitle", doc)[0].textContent;
-    let year = Sizzle(".MovieInfo-year", doc)[0].textContent!.match(/(\d+)/)?.[1];
-    const titlePrefix = subTitle + " " + year;
-
-    // 获取种子行
-    let rows = Sizzle("#torrent_details .TableTorrent-rowTitle", doc);
-    if (rows.length === 0) {
-      throw new NoTorrentsError();
-    }
-    const torrents: ITorrent[] = [];
-    const titleSelectors = [
-      ".resolution",
-      ".processing",
-      ".codec",
-      ".source",
-      ".remaster_dolby_atmos",
-      ".remaster_dolby_vision",
-      ".remaster_hdr10",
-      ".tl_chi",
-      ".tl_cn_dub",
-      ".tl_se_sub",
-      ".is-releaseGroup",
-    ];
-
-    for (const row of rows) {
-      let torrent = {} as ITorrent;
-
-      torrent.site ??= this.metadata.id;
-      torrent.id = row.getAttribute("id")?.match(/torrent(\d+)/)?.[1]!;
-
-      let titleEle = Sizzle(".TorrentTitle", row)[0];
-      let title = titlePrefix;
-      for (const selector of titleSelectors) {
-        title = (title +
-          " " +
-          this.getFieldData(titleEle, {
-            selector: selector,
-            elementProcess: (element: HTMLElement) => {
-              if (element.classList.contains("remaster_dolby_atmos")) {
-                return "Atoms";
-              } else if (element.classList.contains("remaster_dolby_vision")) {
-                return "Dolby Vision";
-              } else if (element.classList.contains("remaster_hdr10")) {
-                return "HDR10";
-              }
-              return element.textContent!.trim();
-            },
-          })) as string;
-      }
-      torrent.title = title;
-
-      torrent.url = this.getFieldData(row, { selector: "a[href*='torrents.php?torrentid=']", attr: "href" });
-      torrent.link = this.getFieldData(row, this.metadata.search!.selectors!.link!);
-      torrent.url && (torrent.url = this.fixLink(torrent.url as string, requestConfig!));
-      torrent.link && (torrent.link = this.fixLink(torrent.link as string, requestConfig!));
-
-      let detailRow = Sizzle("#torrent_detail_" + torrent.id, doc)[0];
-      torrent.time = this.getFieldData(detailRow, {
-        ...this.metadata.search!.selectors!.time!,
-        selector: ".TorrentDetail-uploaderInfo span[data-tooltip]",
-      });
-      // 仅当设置了时区偏移时，才进行转换
-      if (this.metadata.timezoneOffset) {
-        torrent.time = parseTimeWithZone(torrent.time as unknown as string, this.metadata.timezoneOffset);
-      }
-
-      torrent.size = parseSizeString(this.getFieldData(row, this.metadata.search!.selectors!.size!));
-      torrent.completed = tryToNumber(this.getFieldData(row, { selector: ".TableTorrent-cellStat:nth-child(3)" }));
-      torrent.seeders = tryToNumber(this.getFieldData(row, { selector: ".TableTorrent-cellStat:nth-child(4)" }));
-      torrent.leechers = tryToNumber(this.getFieldData(row, { selector: ".TableTorrent-cellStat:nth-child(5)" }));
-      torrent.progress = this.getFieldData(row, this.metadata.search!.selectors!.progress!);
-      torrent.status = this.getFieldData(row, this.metadata.search!.selectors!.status!);
-
-      torrent = this.parseTorrentRowForTags(torrent, row, searchConfig) as ITorrent;
-
-      torrents.push(torrent);
-    }
-    return torrents;
-  }
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
 
@@ -524,6 +367,7 @@ export default class GreatPosterWall extends GazelleJSONAPI {
     flushUserInfo.trueDownloaded = await this.getUserTrueDownloaded(flushUserInfo.id!);
     return flushUserInfo;
   }
+
   private async getUserTrueDownloaded(userid: string | number): Promise<number> {
     await this.sleepAction(this.metadata.userInfo?.requestDelay);
 
