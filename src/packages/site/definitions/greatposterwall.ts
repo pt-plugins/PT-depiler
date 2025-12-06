@@ -20,10 +20,10 @@ interface gpwTorrent extends groupTorrent {
 }
 
 const freeTypeMap: Record<string, ITorrentTag> = {
-  "11": { name: "-25%", color: "orange" },
-  "12": { name: "-50%", color: "orange" },
-  "13": { name: "-75%", color: "orange" },
-  "1": { name: "Free", color: "blue" },
+  "11": { name: "75%" },
+  "12": { name: "50%" },
+  "13": { name: "25%" },
+  "1": { name: "Free" },
   "2": { name: "Neutral", color: "cyan" },
 };
 
