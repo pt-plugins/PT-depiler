@@ -1,5 +1,5 @@
 import { type ISiteMetadata } from "../types.ts";
-import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
+import { SchemaMetadata } from "../schemas/Unit3D.ts";
 import { buildCategoryOptionsFromList } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
@@ -172,22 +172,3 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
-
-export default class JPTV4us extends Unit3D {
-  protected override async getUserNameFromSite(): Promise<string> {
-    await this.sleepAction(this.metadata.userInfo?.requestDelay);
-
-    const { data: indexDocument } = await this.request<Document>(
-      {
-        url: "/torrents",
-        responseType: "document",
-      },
-      true,
-    );
-    return this.getFieldData(
-      indexDocument,
-      // eslint-disable-next-line @typescript-eslint/no-non-null-asserted-optional-chain
-      this.metadata.userInfo?.selectors?.name!,
-    );
-  }
-}
