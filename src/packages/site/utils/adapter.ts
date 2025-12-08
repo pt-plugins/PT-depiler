@@ -16,6 +16,7 @@ import { setupReplaceUnsafeHeader } from "~/extends/axios/replaceUnsafeHeader.ts
 import { setupRetryWhenCloudflareBlock } from "~/extends/axios/retryWhenCloudflareBlock.ts";
 
 export { isCloudflareBlocked } from "~/extends/axios/retryWhenCloudflareBlock.ts";
+export { sleep } from "~/helper.ts";
 
 import type { ISiteUserConfig } from "../types";
 import type { IExtensionStorageSchema } from "@/storage.ts";
@@ -58,8 +59,4 @@ export async function retrieveStore(store: keyof IExtensionStorageSchema, keyPat
  */
 export async function cookie(detail: chrome.cookies.CookieDetails): Promise<chrome.cookies.Cookie | null> {
   return await sendMessage("getCookie", detail);
-}
-
-export function sleep(ms: number) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
 }
