@@ -43,7 +43,7 @@ async function initSiteData(siteId: TSiteID, flush = false) {
   );
 
   // fix: customSiteUrl not show in Editor (#726)
-  if (!siteMetaData.value.urls.includes(siteUserConfig.value.url) ) {
+  if (!siteMetaData.value.urls.includes(siteUserConfig.value.url)) {
     customSiteUrl.value = siteUserConfig.value.url;
   }
 
@@ -239,8 +239,8 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
         <v-slider
           v-model="siteUserConfig.downloadInterval"
           :min="0"
-          :max="1800"
-          :step="30"
+          :max="(siteUserConfig.downloadInterval ?? 0) < 600 ? 600 : 1200"
+          :step="(siteUserConfig.downloadInterval ?? 0) <= 60 ? 1 : 10"
           hint="影响该站点的下载间隔时间（为了安全考虑，插件不会严格遵守该设置，实际间隔总是会略大于等于设置的间隔）"
           label="下载间隔"
           persistent-hint

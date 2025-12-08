@@ -5,31 +5,10 @@
  */
 
 import type { DBSchema } from "idb";
-import type { AxiosRequestConfig } from "axios";
 import type { ISocialInformation } from "@ptd/social";
-import type { ITorrent, TSiteID as TSiteKey } from "@ptd/site";
-import type { CAddTorrentOptions, CAddTorrentResult } from "@ptd/downloader";
+import type { TSiteID as TSiteKey } from "@ptd/site";
 
-import type { TDownloaderKey } from "./metadata.ts";
-import type { ISearchResultTorrent } from "./runtime.ts";
-
-export type TTorrentDownloadKey = number;
-
-export type TTorrentDownloadStatus = "pending" | "downloading" | "completed" | "failed";
-
-export interface ITorrentDownloadMetadata extends Pick<ITorrent, "title" | "subTitle" | "url" | "link"> {
-  id?: TTorrentDownloadKey; // 每个下载任务生成的唯一id
-  siteId: TSiteKey; // 站点id
-  torrentId: ITorrent["id"]; // 种子id
-  downloaderId: TDownloaderKey | "local"; // 下载器id，注意 local 是一个特殊的关键词，表示本地下载
-  downloadAt: number; // 下载时间
-  downloadStatus: TTorrentDownloadStatus; // 下载状态
-  torrent: ISearchResultTorrent; // 种子信息
-  addTorrentOptions: Partial<CAddTorrentOptions>;
-
-  downloadRequestConfig?: AxiosRequestConfig;
-  addTorrentResult?: CAddTorrentResult;
-}
+import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "../common/download.ts";
 
 export interface IPtdDBSchemaV1 extends DBSchema {
   social_information: {

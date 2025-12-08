@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid";
 import { format as dateFormat } from "date-fns";
 
-import { CAddTorrentOptions } from "@ptd/downloader";
+import { type CAddTorrentOptions } from "@ptd/downloader";
 import { getHostFromUrl } from "@ptd/site/utils/html.ts"; // 这里不能使用 @ptd/site 的主入口，会导致 sw 无法加载
 import { type ITorrent } from "@ptd/site/types/torrent.ts";
 
@@ -87,7 +87,7 @@ async function downloadLinkPush(
   }
 
   // 发送下载请求
-  sendMessage("downloadTorrentToDownloader", {
+  sendMessage("downloadTorrent", {
     torrent, // 组装包含标题、URL和站点信息的种子对象
     downloaderId: downloader.id,
     addTorrentOptions: {

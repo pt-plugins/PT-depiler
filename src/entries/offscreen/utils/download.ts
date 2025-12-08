@@ -1,24 +1,33 @@
 import axios, { type AxiosRequestConfig } from "axios";
 import { stringify } from "urlencode";
+import { toMerged } from "es-toolkit";
 import { isEmpty } from "es-toolkit/compat";
-import { type CAddTorrentOptions, getDownloader, getRemoteTorrentFile } from "@ptd/downloader";
+
+import { getDownloader, getRemoteTorrentFile, type CAddTorrentOptions } from "@ptd/downloader";
 import type { ITorrent } from "@ptd/site";
 
-import { IDownloadTorrentResult, onMessage, sendMessage } from "@/messages.ts";
-import {
+import { onMessage, sendMessage } from "@/messages.ts";
+import type {
   IConfigPiniaStorageSchema,
-  ISearchResultTorrent,
   ITorrentDownloadMetadata,
   TTorrentDownloadKey,
   IDownloaderMetadata,
   IMetadataPiniaStorageSchema,
   TTorrentDownloadStatus,
+  IDownloadTorrentOption,
+  IDownloadTorrentResult,
+  AugmentedRequired,
 } from "@/shared/types.ts";
 
-import { getSiteInstance } from "./site.ts";
 import { logger } from "./logger.ts";
+import { getSiteInstance } from "./site.ts";
 import { ptdIndexDb } from "../adapter/indexdb.ts";
-import { toMerged } from "es-toolkit";
+
+type TLocalDownloadOption = AugmentedRequired<IDownloadTorrentOption, "downloadId" | "localDownloadMethod">;
+type TRemoteDownloadOption = AugmentedRequired<
+  IDownloadTorrentOption,
+  "downloadId" | "downloaderId" | "addTorrentOptions"
+>;
 
 export async function getDownloaderConfig(downloaderId: string) {
   const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
@@ -34,12 +43,10 @@ export async function getTorrentDownloadLink(torrent: ITorrent) {
 
 onMessage("getTorrentDownloadLink", async ({ data: torrent }) => await getTorrentDownloadLink(torrent));
 
-function buildDownloadHistory(
-  torrent: Partial<ITorrent>,
-  downloaderId: string = "local",
-  addTorrentOptions: CAddTorrentOptions = {} as CAddTorrentOptions,
-): ITorrentDownloadMetadata {
+function buildDownloadHistory(downloadOption: IDownloadTorrentOption): ITorrentDownloadMetadata {
+  const { torrent = {}, downloaderId = "local" } = downloadOption;
   return {
+    ...downloadOption,
     siteId: torrent.site ?? "unknown",
     torrentId: torrent.id ?? "unknown",
     downloaderId,
@@ -49,50 +56,103 @@ function buildDownloadHistory(
     link: torrent.link,
     downloadAt: +Date.now(),
     downloadStatus: "pending",
-    addTorrentOptions,
-    torrent: torrent as ISearchResultTorrent,
-  };
+  } as ITorrentDownloadMetadata;
 }
 
 const lastSiteDownloadAt = new Map<string, number>();
 
 async function isAllowedSaveDownloadHistory(): Promise<boolean> {
   const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
-  return configStoreRaw.download.saveDownloadHistory ?? true;
+  return configStoreRaw?.download?.saveDownloadHistory ?? true;
 }
 
-onMessage("downloadTorrentToLocalFile", async ({ data: { torrent, localDownloadMethod, downloadId } }) => {
+async function downloadTorrent(downloadOption: IDownloadTorrentOption) {
   const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
 
-  // 设置默认的本地下载方法
-  localDownloadMethod ??= configStoreRaw?.download?.localDownloadMethod ?? "web";
+  // 0. 解析传来的下载参数
+  const { torrent, downloaderId = "local", addTorrentOptions = {} as CAddTorrentOptions } = downloadOption;
+  const isDownloadToLocalFile: boolean = downloaderId === "local"; // 如果前端没有传入下载器的id，则认为下载为本地文件
 
-  // 设置下载记录情况
-  if (typeof downloadId === "undefined") {
-    const downloadHistory = buildDownloadHistory(torrent);
-    downloadId = await setDownloadHistory(downloadHistory);
+  // 1. 生成下载历史
+  let downloadId = downloadOption.downloadId!;
+  if (typeof downloadOption.downloadId === "undefined") {
+    const downloadHistory = buildDownloadHistory(downloadOption);
+    downloadOption.downloadId = downloadId = await setDownloadHistory(downloadHistory);
   }
-  let downloadStatus = await setDownloadStatus(downloadId, "pending");
+  logger({ msg: `generate download torrent task #${downloadOption.downloadId}`, data: downloadOption });
+  let downloadStatus = await setDownloadStatus(downloadId!, "pending");
 
+  // 2. 构建下载链接的请求配置
   let downloadRequestConfig: AxiosRequestConfig = { url: torrent.link, method: "GET", timeout: 30e3 };
+  let siteInstance: Awaited<ReturnType<typeof getSiteInstance<"public">>> | null = null;
+
   if (torrent.site) {
     // 生成站点，并检查站点下载间隔，如果触及到站点下载间隔，则将下载任务放入到 alarms 中等待
-    const site = await getSiteInstance<"public">(torrent.site);
+    siteInstance = await getSiteInstance<"public">(torrent.site);
 
-    if (!configStoreRaw.download.ignoreSiteDownloadIntervalWhenLocalDownload && site.downloadInterval > 0) {
-      if (new Date().getTime() - (lastSiteDownloadAt.get(torrent.site) ?? 0) < site.downloadInterval * 1000) {
+    if (
+      siteInstance.downloadInterval > 0 &&
+      // 允许本地下载时忽略站点设置中的下载间隔
+      !(isDownloadToLocalFile && configStoreRaw?.download?.ignoreSiteDownloadIntervalWhenLocalDownload)
+    ) {
+      const leftInterval =
+        siteInstance.downloadInterval * 1000 - (new Date().getTime() - (lastSiteDownloadAt.get(torrent.site) ?? 0));
+
+      if (leftInterval > 0) {
         logger({ msg: `Site ${torrent.site} download interval not reached, waiting...` });
-        sendMessage("reDownloadTorrentToLocalFile", { torrent, localDownloadMethod, downloadId }).catch();
-        return { downloadId, downloadStatus: await setDownloadStatus(downloadId, "pending") } as IDownloadTorrentResult;
+        sendMessage("reDownloadTorrent", { ...downloadOption, downloadId, leftInterval }).catch();
+        return {
+          downloadId,
+          downloadStatus: await setDownloadStatus(downloadId, "pending"),
+        } as IDownloadTorrentResult;
       }
+
+      lastSiteDownloadAt.set(torrent.site, new Date().getTime());
     }
 
-    lastSiteDownloadAt.set(torrent.site, new Date().getTime());
+    // 添加站点配置的上传速度限制
+    if (!isDownloadToLocalFile && (siteInstance.userConfig?.uploadSpeedLimit ?? 0) > 0) {
+      addTorrentOptions.uploadSpeedLimit = siteInstance.userConfig.uploadSpeedLimit;
+    }
+
     downloadRequestConfig = toMerged(
       downloadRequestConfig,
-      await site.getTorrentDownloadRequestConfig(torrent as ITorrent),
+      await siteInstance.getTorrentDownloadRequestConfig(torrent as ITorrent),
     );
   }
+  await patchDownloadHistory(downloadId!, { downloadRequestConfig }).catch(); // 存储下载请求配置，方便后续调试
+
+  try {
+    downloadStatus = await setDownloadStatus(downloadId, "downloading");
+    if (isDownloadToLocalFile) {
+      // 本地下载
+      downloadOption.localDownloadMethod ??= configStoreRaw?.download?.localDownloadMethod ?? "web";
+      downloadStatus = await downloadTorrentToLocalFile(downloadOption as TLocalDownloadOption, downloadRequestConfig);
+    } else {
+      // 远程推送
+      addTorrentOptions.localDownload ??= true; // 默认开启本地中转选项（如果传递进来的没有 localDownload 值的话）
+      if (!(configStoreRaw?.download?.allowDirectSendToClient ?? false)) {
+        addTorrentOptions.localDownload = true; // 如果不允许直接发送到下载器，则将本地中转选项强行设置为 true
+      }
+      downloadOption.addTorrentOptions = addTorrentOptions;
+      downloadStatus = await downloadTorrentToRemote(downloadOption as TRemoteDownloadOption, downloadRequestConfig);
+    }
+  } catch (e) {
+    downloadStatus = "failed";
+  }
+
+  await setDownloadStatus(downloadId, downloadStatus);
+  return { downloadId, downloadStatus } as IDownloadTorrentResult;
+}
+
+onMessage("downloadTorrent", async ({ data: downloadOption }) => await downloadTorrent(downloadOption));
+
+async function downloadTorrentToLocalFile(
+  downloadOption: TLocalDownloadOption,
+  downloadRequestConfig: AxiosRequestConfig,
+): Promise<TTorrentDownloadStatus> {
+  let { torrent, localDownloadMethod = "web", downloadId } = downloadOption;
+  let downloadStatus: TTorrentDownloadStatus = "downloading";
 
   const downloadUri = axios.getUri(downloadRequestConfig); // 组装 baseURL, url, params
   const {
@@ -106,8 +166,7 @@ onMessage("downloadTorrentToLocalFile", async ({ data: { torrent, localDownloadM
     if (downloadMethod.toUpperCase() === "GET" && isEmpty(downloadHeaders)) {
       logger({ msg: `Download torrent file with web method: ${downloadUri}` });
       window.open(downloadUri, "_blank");
-      downloadStatus = await setDownloadStatus(downloadId, "completed");
-      return { downloadId, downloadStatus };
+      return await setDownloadStatus(downloadId, "completed");
     } else {
       localDownloadMethod = "extension"; // 如果是不能直接使用 window.open 方法的情况，直接使用 extension 方法
     }
@@ -133,8 +192,7 @@ onMessage("downloadTorrentToLocalFile", async ({ data: { torrent, localDownloadM
 
       logger({ msg: `Download torrent file with browser method: ${downloadUri}`, data: downloadOptions });
       await sendMessage("downloadFile", downloadOptions);
-      downloadStatus = await setDownloadStatus(downloadId, "completed");
-      return { downloadId, downloadStatus };
+      return await setDownloadStatus(downloadId, "completed");
     } catch (e) {
       localDownloadMethod = "extension"; // 如果下载失败，直接使用 extension 方法（怎么可能？）
     }
@@ -163,46 +221,15 @@ onMessage("downloadTorrentToLocalFile", async ({ data: { torrent, localDownloadM
     }
   }
 
-  return { downloadId, downloadStatus };
-});
+  return downloadStatus;
+}
 
-onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId, addTorrentOptions, downloadId } }) => {
-  const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
-
-  logger({ msg: "downloadTorrentToDownloader", data: { torrent, downloaderId, addTorrentOptions } });
-
-  addTorrentOptions.localDownload ??= true; // 默认开启本地中转选项（如果传递进来的没有 localDownload 值的话）
-  if (!(configStoreRaw?.download?.allowDirectSendToClient ?? false)) {
-    addTorrentOptions.localDownload = true; // 如果不允许直接发送到下载器，则将本地中转选项强行设置为 true
-  }
-
-  if (typeof downloadId === "undefined") {
-    const downloadHistory = buildDownloadHistory(torrent, downloaderId, addTorrentOptions);
-    downloadId = await setDownloadHistory(downloadHistory);
-  }
-  let downloadStatus = await setDownloadStatus(downloadId, "pending");
-
-  let downloadRequestConfig: AxiosRequestConfig = { url: torrent.link, method: "GET", timeout: 30e3 };
-  let site: Awaited<ReturnType<typeof getSiteInstance<"public">>> | null = null;
-
-  if (torrent.site) {
-    // 生成站点，并检查站点下载间隔，如果触及到站点下载间隔，则将下载任务放入到 alarms 中等待
-    site = await getSiteInstance<"public">(torrent.site);
-    if (site.downloadInterval > 0) {
-      if (new Date().getTime() - (lastSiteDownloadAt.get(torrent.site) ?? 0) < site.downloadInterval * 1000) {
-        logger({ msg: `Site ${torrent.site} download interval not reached, waiting...` });
-        sendMessage("reDownloadTorrentToDownloader", { torrent, downloaderId, addTorrentOptions, downloadId }).catch();
-        return { downloadId, downloadStatus: await setDownloadStatus(downloadId, "pending") } as IDownloadTorrentResult;
-      }
-    }
-
-    lastSiteDownloadAt.set(torrent.site, new Date().getTime());
-    downloadRequestConfig = toMerged(
-      downloadRequestConfig,
-      await site.getTorrentDownloadRequestConfig(torrent as ITorrent),
-    );
-  }
-  await patchDownloadHistory(downloadId, { downloadRequestConfig }).catch(); // 存储下载请求配置，方便后续调试
+async function downloadTorrentToRemote(
+  downloadOption: TRemoteDownloadOption,
+  downloadRequestConfig: AxiosRequestConfig,
+): Promise<TTorrentDownloadStatus> {
+  const { torrent, downloaderId, addTorrentOptions, downloadId } = downloadOption;
+  let downloadStatus: TTorrentDownloadStatus = "failed"; // 远程推送默认失败状态
 
   const downloaderConfig = await getDownloaderConfig(downloaderId);
   if (downloaderConfig.id && downloaderConfig.enabled) {
@@ -211,12 +238,6 @@ onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId,
       addTorrentOptions.localDownloadOption = downloadRequestConfig;
     }
 
-    // 添加站点配置的上传速度限制
-    if (site?.userConfig?.uploadSpeedLimit && site.userConfig.uploadSpeedLimit > 0) {
-      addTorrentOptions.uploadSpeedLimit = site.userConfig.uploadSpeedLimit;
-    }
-
-    downloadStatus = await setDownloadStatus(downloadId, "downloading");
     const loggerData = { torrent, downloaderId, downloadRequestConfig, addTorrentOptions } as Record<string, any>;
     try {
       logger({ msg: "downloadTorrentToDownloader", data: loggerData });
@@ -227,20 +248,15 @@ onMessage("downloadTorrentToDownloader", async ({ data: { torrent, downloaderId,
         downloadStatus = "completed";
       } else {
         logger({ msg: "Failed to add torrent to downloader", data: loggerData });
-        downloadStatus = "failed";
       }
       patchDownloadHistory(downloadId, { addTorrentResult }).catch(); // 存储添加种子结果，方便后续调试
     } catch (e) {
       logger({ msg: "Error adding torrent to downloader", data: loggerData });
-      downloadStatus = "failed";
     }
-  } else {
-    downloadStatus = "failed";
   }
 
-  await setDownloadStatus(downloadId, downloadStatus);
-  return { downloadId: downloadId, downloadStatus } as IDownloadTorrentResult;
-});
+  return downloadStatus;
+}
 
 export async function getDownloadHistory() {
   return await (await ptdIndexDb).getAll("download_history");
