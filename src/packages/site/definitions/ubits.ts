@@ -183,6 +183,20 @@ export const siteMetadata: ISiteMetadata = {
   ],
   search: {
     ...SchemaMetadata.search,
+    selectors: {
+      ...SchemaMetadata.search!.selectors,
+      subTitle: {
+        selector: ["td.embedded:first"],
+        elementProcess: (element: HTMLElement) => {
+          const br1 = element.querySelector("br");
+          const nextNode = br1?.nextSibling;
+          if (nextNode && nextNode.nodeType === Node.TEXT_NODE) {
+            return nextNode.textContent?.trim() || "";
+          }
+          return "";
+        },
+      },
+    },
   },
   levelRequirements: [
     {
