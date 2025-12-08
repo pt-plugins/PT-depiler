@@ -39,7 +39,7 @@ function handleLocalDownloadMulti() {
   parseListPage()
     .then(({ torrents }) => {
       for (const torrent of torrents) {
-        sendMessage("downloadTorrentToLocalFile", { torrent });
+        sendMessage("downloadTorrent", { torrent, downloaderId: "local" });
       }
     })
     .finally(() => {

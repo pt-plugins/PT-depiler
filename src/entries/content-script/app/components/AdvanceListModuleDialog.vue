@@ -46,7 +46,7 @@ const localDownloadMultiStatus = ref<boolean>(false);
 async function handleLocalDownloadMulti() {
   localDownloadMultiStatus.value = true;
   for (const torrent of selectedTorrents.value) {
-    await sendMessage("downloadTorrentToLocalFile", { torrent });
+    await sendMessage("downloadTorrent", { torrent, downloaderId: "local" });
   }
   localDownloadMultiStatus.value = false;
 }

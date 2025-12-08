@@ -1,3 +1,6 @@
+/**
+ * 此文件用于描述 sessionStorage['__ptd_runtime_store'] 中字段格式
+ */
 import type { VNodeProps } from "vue";
 import type { VSnackbar } from "vuetify/components";
 import type { EResultParseStatus, ITorrent, TSiteID } from "@ptd/site";

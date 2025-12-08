@@ -3,14 +3,15 @@ import { defineJobScheduler } from "@webext-core/job-scheduler";
 import { EResultParseStatus, type TSiteID } from "@ptd/site/types/base.ts";
 
 import { extStorage } from "@/storage.ts";
-import { IDownloadTorrentToClientOption, IDownloadTorrentToLocalFile, onMessage, sendMessage } from "@/messages.ts";
+import { onMessage, sendMessage } from "@/messages.ts";
+import { IDownloadTorrentOption } from "@/shared/types.ts";
 
 import { setupOffscreenDocument } from "./offscreen.ts";
+import { sleep } from "~/helper.ts";
 
 export enum EJobType {
   FlushUserInfo = "flushUserInfo",
-  ReDownloadTorrentToDownloader = "reDownloadTorrentToDownloader",
-  ReDownloadTorrentToLocalFile = "reDownloadTorrentToLocalFile",
+  ReDownloadTorrent = "reDownloadTorrent",
 }
 
 const jobs = defineJobScheduler();
@@ -129,43 +130,31 @@ jobs.scheduleJob({
   execute: autoFlushUserInfo(),
 });
 
-function doReDownloadTorrentToDownloader(option: IDownloadTorrentToClientOption) {
+function doReDownloadTorrent(downloadOption: IDownloadTorrentOption) {
   return async () => {
     await setupOffscreenDocument();
     // 按照相同的方式重新下载种子到下载器
-    await sendMessage("downloadTorrentToDownloader", option);
+    await sendMessage("downloadTorrent", downloadOption);
   };
 }
 
-onMessage("reDownloadTorrentToDownloader", async ({ data }) => {
-  jobs
-    .scheduleJob({
-      id: EJobType.ReDownloadTorrentToDownloader + "-" + data.downloadId!,
-      type: "once",
-      date: Date.now() + 1000 * 30, // 0.5 minute later
-      execute: doReDownloadTorrentToDownloader(data),
-    })
-    .catch(() => {
-      sendMessage("setDownloadHistoryStatus", { downloadId: data.downloadId!, status: "failed" }).catch();
+onMessage("reDownloadTorrent", async ({ data }) => {
+  // 如果需要等待的时间小于 30s，那么直接在 service worker 中等待
+  if (data.leftInterval < 30 * 1000) {
+    await sleep(data.leftInterval);
+    doReDownloadTorrent(data)().catch(() => {
+      sendMessage("setDownloadHistoryStatus", { downloadId: data.downloadId, status: "failed" }).catch();
     });
-});
-
-function doReDownloadTorrentToLocalFile(option: IDownloadTorrentToLocalFile) {
-  return async () => {
-    await setupOffscreenDocument();
-    await sendMessage("downloadTorrentToLocalFile", option);
-  };
-}
-
-onMessage("reDownloadTorrentToLocalFile", async ({ data }) => {
-  jobs
-    .scheduleJob({
-      id: EJobType.ReDownloadTorrentToLocalFile + "-" + data.downloadId!,
-      type: "once",
-      date: Date.now() + 1000 * 30, // 0.5 minute later
-      execute: doReDownloadTorrentToLocalFile(data),
-    })
-    .catch(() => {
-      sendMessage("setDownloadHistoryStatus", { downloadId: data.downloadId!, status: "failed" }).catch();
-    });
+  } else {
+    jobs
+      .scheduleJob({
+        id: EJobType.ReDownloadTorrent + "-" + data.downloadId,
+        type: "once",
+        date: Date.now() + 1000 * 30, // 0.5 minute later
+        execute: doReDownloadTorrent(data),
+      })
+      .catch(() => {
+        sendMessage("setDownloadHistoryStatus", { downloadId: data.downloadId, status: "failed" }).catch();
+      });
+  }
 });

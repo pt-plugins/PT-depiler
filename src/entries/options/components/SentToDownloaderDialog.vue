@@ -137,7 +137,7 @@ async function sendToDownloader() {
     }
 
     promises.push(
-      sendMessage("downloadTorrentToDownloader", {
+      sendMessage("downloadTorrent", {
         torrent,
         downloaderId: selectedDownloader.value?.id!,
         addTorrentOptions: realAddTorrentOptions as CAddTorrentOptions,

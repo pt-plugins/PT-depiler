@@ -7,7 +7,6 @@ import type {
   IUserInfo,
   TSiteID,
 } from "@ptd/site";
-import type { CAddTorrentOptions } from "@ptd/downloader";
 import type { ISocialInformation, TSupportSocialSite$1 } from "@ptd/social";
 import type { IMediaServerId, IMediaServerSearchOptions, IMediaServerSearchResult } from "@ptd/mediaServer";
 import type { getFaviconMetadata } from "@ptd/site";
@@ -22,33 +21,16 @@ import {
   IDownloaderMetadata,
   ISearchData,
   TSearchSnapshotKey,
-  TLocalDownloadMethod,
   TBackupFields,
   TTorrentDownloadStatus,
+  IDownloadTorrentOption,
+  IDownloadTorrentResult,
+  AugmentedRequired,
 } from "@/shared/types.ts";
 
 import { isDebug } from "~/helper.ts";
 
 type TMessageMap = Record<string, (data: any) => any>;
-
-interface IDownloadTorrentOption {
-  torrent: Partial<ITorrent>;
-  downloadId?: TTorrentDownloadKey;
-}
-
-export interface IDownloadTorrentToLocalFile extends IDownloadTorrentOption {
-  localDownloadMethod?: TLocalDownloadMethod;
-}
-
-export interface IDownloadTorrentToClientOption extends IDownloadTorrentOption {
-  downloaderId: string;
-  addTorrentOptions: CAddTorrentOptions;
-}
-
-export interface IDownloadTorrentResult {
-  downloadId: TTorrentDownloadKey;
-  downloadStatus: TTorrentDownloadStatus;
-}
 
 interface ProtocolMap extends TMessageMap {
   // 1. 与 chrome 相关的功能，需要在 service worker 中注册，主要供 offscreen, options 使用
@@ -67,8 +49,7 @@ interface ProtocolMap extends TMessageMap {
   removeDNRSessionRuleById(data: chrome.declarativeNetRequest.Rule["id"]): void;
 
   // 1.4 chrome.alarms
-  reDownloadTorrentToLocalFile(data: Required<IDownloadTorrentToLocalFile>): void;
-  reDownloadTorrentToDownloader(data: Required<IDownloadTorrentToClientOption>): void;
+  reDownloadTorrent(data: AugmentedRequired<IDownloadTorrentOption, "downloadId" | "leftInterval">): void;
 
   // 1.5 chrome.cookies
   getAllCookies(data: chrome.cookies.GetAllDetails): chrome.cookies.Cookie[];
@@ -113,8 +94,9 @@ interface ProtocolMap extends TMessageMap {
   // 2.3 下载器、下载历史 ( utils/download )
   getDownloaderConfig(downloaderId: string): IDownloaderMetadata;
   getTorrentDownloadLink(torrent: ITorrent): string;
-  downloadTorrentToLocalFile(data: IDownloadTorrentToLocalFile): IDownloadTorrentResult;
-  downloadTorrentToDownloader(data: IDownloadTorrentToClientOption): IDownloadTorrentResult;
+
+  downloadTorrent(data: IDownloadTorrentOption): IDownloadTorrentResult;
+
   getDownloadHistory(): ITorrentDownloadMetadata[];
   getDownloadHistoryById(downloadId: TTorrentDownloadKey): ITorrentDownloadMetadata;
   setDownloadHistoryStatus(data: { downloadId: TTorrentDownloadKey; status: TTorrentDownloadStatus }): void;

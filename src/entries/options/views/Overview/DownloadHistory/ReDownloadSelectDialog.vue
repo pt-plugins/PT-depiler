@@ -55,10 +55,10 @@ function reDownload(reDownloadType: TReDownloadType) {
       if (history) {
         const historyTorrent = history.torrent;
         if (reDownloadType === "local" || history.downloaderId === "local") {
-          promises.push(sendMessage("downloadTorrentToLocalFile", { torrent: historyTorrent }));
+          promises.push(sendMessage("downloadTorrent", { torrent: historyTorrent, downloaderId: "local" }));
         } else {
           promises.push(
-            sendMessage("downloadTorrentToDownloader", {
+            sendMessage("downloadTorrent", {
               torrent: historyTorrent,
               downloaderId: history.downloaderId,
               addTorrentOptions: (history.addTorrentOptions ?? {}) as CAddTorrentOptions,

@@ -3,15 +3,17 @@ import { reactive, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { useElementSize } from "@vueuse/core";
+
 import { socialBuildUrlMap } from "@ptd/social";
+import type { ITorrent } from "@ptd/site";
 import type { ISocialInformation, TSupportSocialSite } from "@ptd/social/types.ts";
 
-import type { ISearchResultTorrent } from "@/shared/types.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { sendMessage } from "@/messages.ts";
 
-const { item } = defineProps<{
-  item: ISearchResultTorrent;
+const { item, showSocial = true } = defineProps<{
+  item: Partial<ITorrent>;
+  showSocial?: boolean;
 }>();
 
 const { t } = useI18n();
@@ -72,7 +74,7 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
 
       <!-- 种子的媒体信息 -->
       <div ref="social" class="ml-2">
-        <template v-if="configStore.searchEntifyControl.showSocialInformation">
+        <template v-if="showSocial && configStore.searchEntifyControl.showSocialInformation">
           <template v-for="(meta, key) in socialBuildUrlMap" :key="key">
             <v-menu v-if="item[`ext_${key}`]" open-on-hover>
               <template v-slot:activator="{ props }">
