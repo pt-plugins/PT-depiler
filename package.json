@@ -99,7 +99,7 @@
     "vite-plugin-vue-devtools": "^8.0.4",
     "vite-plugin-vuetify": "^2.1.2",
     "vite-plugin-web-extension": "4.4.3",
-    "vue-tsc": "^3.1.5"
+    "vue-tsc": "^3.1.7"
   },
   "prettier": {
     "printWidth": 120,
