@@ -20,7 +20,7 @@ import ActionTd from "./ActionTd.vue";
 import SearchStatusDialog from "./SearchStatusDialog.vue";
 import SaveSnapshotDialog from "./SaveSnapshotDialog.vue";
 import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
-import QuickSiteFilterSelector from "./QuickSiteFilterSelector.vue";
+import QuickFilterNotice from "./QuickFilterNotice.vue";
 
 // 主要助手方法
 import { tableCustomFilter } from "./utils/filter";
@@ -348,21 +348,8 @@ function cancelSearchQueue() {
     </v-card-title>
 
     <v-card-text class="pt-2 pb-0">
-      <!-- 站点筛选器 -->
-      <QuickSiteFilterSelector v-if="configStore.searchEntity.quickSiteFilter" class="mb-2" />
-
-      <!-- 选中种子信息条 -->
-      <v-alert v-if="selectedTorrentsInfo.count > 0" class="pa-3 mb-0" color="info" density="compact" variant="tonal">
-        <div class="d-flex align-center">
-          <v-chip color="primary" size="small" variant="outlined">
-            <v-icon icon="mdi-checkbox-marked-circle" start />
-            {{ t("SearchEntity.index.selectedTorrents", [selectedTorrentsInfo.count]) }}
-            <v-divider class="mx-2" vertical />
-            <v-icon icon="mdi-harddisk" />
-            {{ formatSize(selectedTorrentsInfo.totalSize) }}
-          </v-chip>
-        </div>
-      </v-alert>
+      <!-- 站点筛选器、已选种子等提示信息 -->
+      <QuickFilterNotice :selected-torrents-info="selectedTorrentsInfo" />
 
       <v-data-table
         id="ptd-search-entity-table"
