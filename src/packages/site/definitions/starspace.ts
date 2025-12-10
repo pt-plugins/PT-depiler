@@ -17,7 +17,7 @@ const levelMap: Record<string, string> = {
 };
 
 export const siteMetadata: ISiteMetadata = {
-  version: 1,
+  version: 2,
   id: "starspace",
   name: "星空",
   aka: ["StarSpace", "影"],
@@ -43,6 +43,8 @@ export const siteMetadata: ISiteMetadata = {
       ],
     },
   ],
+
+  officialGroupPattern: [/Ying(WEB|DIY|TV|MV|MUSIC)?$/i],
 
   search: {
     keywordPath: "params.search",
