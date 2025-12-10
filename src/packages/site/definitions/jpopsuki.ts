@@ -16,6 +16,7 @@ const userInfoMap: Record<"en" | "ja", Record<boxName | keyof IUserInfo, string>
     bonus: "Bonus Points:",
     levelName: "Class:",
     joinTime: "Joined:",
+    lastAccessAt: "Last Seen:",
   },
   ja: {
     stats: "統計情報",
@@ -25,6 +26,7 @@ const userInfoMap: Record<"en" | "ja", Record<boxName | keyof IUserInfo, string>
     seeding: "シード中",
     bonus: "ボーナスポイント",
     levelName: "階級:",
+    lastAccessAt: "最後にアクセスした時:",
   },
 };
 
@@ -64,7 +66,7 @@ function genUserInfoSelector(boxName: boxName, field: keyof IUserInfo): string[]
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
-  version: 1,
+  version: 2,
   id: "jpopsuki",
   name: "JPopSuki",
   description: "JPopSuki是一个专注于日本音乐的音乐PT站点",
@@ -157,6 +159,11 @@ export const siteMetadata: ISiteMetadata = {
         selector: genUserInfoSelector("stats", "joinTime").map((x) => `${x} > span`),
         attr: "title",
         filters: [{ name: "parseTime", args: ["MMM dd yyyy, HH:mm"] }],
+      },
+      lastAccessAt: {
+        selector: genUserInfoSelector("stats", "lastAccessAt").map((x) => `${x} > span`),
+        attr: "title",
+        filters: [{ name: "parseTime", args: ["MMMM dd yyyy, HH:mm"] }],
       },
       messageCount: {
         selector: ["#alerts > .alertbar > a[href='notice.php']", "div.alertbar > a[href*='inbox.php']"],
