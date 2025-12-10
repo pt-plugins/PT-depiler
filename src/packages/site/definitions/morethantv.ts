@@ -25,7 +25,7 @@ const categories: ISearchCategoryOptions[] = [
 
 export const siteMetadata: ISiteMetadata = {
   id: "morethantv",
-  version: 1,
+  version: 2,
   name: "MoreThanTV",
   aka: ["MTV"],
   description: "MoreThanTV is a Private Torrent Tracker for TV / MOVIES",
@@ -185,6 +185,11 @@ export const siteMetadata: ISiteMetadata = {
           },
           joinTime: {
             selector: "ul.stats > li:contains('Joined:') > span",
+            attr: "title",
+            filters: [{ name: "parseTime", args: ["MMMM dd yyyy, HH:mm"] }],
+          },
+          lastAccessAt: {
+            selector: "ul.stats > li:contains('Last Seen:') > span",
             attr: "title",
             filters: [{ name: "parseTime", args: ["MMMM dd yyyy, HH:mm"] }],
           },
