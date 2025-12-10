@@ -67,6 +67,8 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
+  officialGroupPattern: [/Play(HD|SD|WEB|TV)$/i],
+
   search: {
     keywordPath: "params.search",
     requestConfig: {

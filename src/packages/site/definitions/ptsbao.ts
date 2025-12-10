@@ -226,6 +226,8 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
+  officialGroupPattern: [/-(FFans|sBao|FHDMV|OPS)/i],
+
   levelRequirements: [
     {
       id: 1,

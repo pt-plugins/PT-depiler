@@ -349,6 +349,8 @@ export const siteMetadata: ISiteMetadata = {
   ],
   collaborator: ["Eason Wong"],
 
+  officialGroupPattern: [/(FROG|FROGE|FROGWeb)$/i],
+
   levelRequirements,
   category,
   userInfo,

@@ -155,6 +155,8 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
+  officialGroupPattern: [/-putao/i],
+
   search: {
     ...SchemaMetadata.search,
     selectors: {

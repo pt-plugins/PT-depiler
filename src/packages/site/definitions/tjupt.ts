@@ -112,6 +112,8 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
+  officialGroupPattern: [/TJUPT$/],
+
   search: {
     ...SchemaMetadata.search,
     advanceKeywordParams: {

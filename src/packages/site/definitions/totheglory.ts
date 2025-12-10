@@ -106,6 +106,8 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
+  officialGroupPattern: [/-(WiKi|DoA|.*TTG|NGB|ARiN)/i],
+
   search: {
     keywordPath: "params.search_field",
     requestConfig: {

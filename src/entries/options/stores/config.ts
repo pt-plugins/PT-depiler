@@ -257,6 +257,8 @@ export const useConfigStore = defineStore("config", {
 
       saveLastFilter: true,
       forceImdbIdMatchFilter: true,
+      autoDetectOfficialGroupFromTitle: false,
+
       quickSiteFilter: true,
     },
 

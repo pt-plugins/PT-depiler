@@ -157,6 +157,8 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
+  officialGroupPattern: [/(-Ao|-.*OurBits|-FLTTH|-IloveTV|OurTV|-IloveHD|OurPad|-MGs)$/i],
+
   search: {
     ...SchemaMetadata.search,
     advanceKeywordParams: {

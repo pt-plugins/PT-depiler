@@ -159,6 +159,8 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
+  officialGroupPattern: [/-DBTV|-QHstudIo|Dream$|.*@dream/i],
+
   search: {
     ...SchemaMetadata.search!,
     selectors: {

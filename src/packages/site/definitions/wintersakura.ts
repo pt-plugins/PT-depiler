@@ -121,6 +121,8 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
+  officialGroupPattern: ["SakuraWEB", "SakuraSUB", "WScode"],
+
   levelRequirements: [
     {
       id: 0,

@@ -132,6 +132,8 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
+  officialGroupPattern: [/-(Pter|.*Pter)/i],
+
   search: {
     ...SchemaMetadata.search!,
     selectors: {

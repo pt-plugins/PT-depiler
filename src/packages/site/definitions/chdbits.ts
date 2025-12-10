@@ -147,6 +147,8 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
+  officialGroupPattern: [/-(CHD|.*@CHDBits)|@CHDWEB/i],
+
   search: {
     ...SchemaMetadata.search,
     selectors: {

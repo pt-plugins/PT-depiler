@@ -121,6 +121,8 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
+  officialGroupPattern: [/CafeWEB|CafeTV|DIY@PTCafe/i],
+
   levelRequirements: [
     {
       id: 1,

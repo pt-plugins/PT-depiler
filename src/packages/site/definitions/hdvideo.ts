@@ -16,6 +16,8 @@ export const siteMetadata: ISiteMetadata = {
 
   formerHosts: ["hdvideo.one"],
 
+  officialGroupPattern: [/(-HDVWEB|-HDVMV)/i],
+
   levelRequirements: [
     {
       id: 0,

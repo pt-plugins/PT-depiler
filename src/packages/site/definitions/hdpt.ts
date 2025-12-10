@@ -16,6 +16,8 @@ export const siteMetadata: ISiteMetadata = {
 
   isDead: true,
 
+  officialGroupPattern: ["hdptweb"],
+
   levelRequirements: [
     {
       id: 0,

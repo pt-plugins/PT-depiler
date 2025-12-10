@@ -101,6 +101,8 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
+  officialGroupPattern: ["ZmWeb", "ZmPT"],
+
   userInfo: {
     ...SchemaMetadata.userInfo!,
     selectors: {

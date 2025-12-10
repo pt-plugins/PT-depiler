@@ -14,7 +14,7 @@ import {
   type ISiteMetadata,
   type IUserInfo,
   type TLevelId,
-  type TUrlPatterns,
+  type TPatterns,
 } from "../types";
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
@@ -39,11 +39,11 @@ export default class PrivateSite extends BittorrentSite {
     );
   }
 
-  protected get noLoginCheckUrlPatterns(): TUrlPatterns | false {
+  protected get noLoginCheckUrlPatterns(): TPatterns | false {
     return this.metadata.noLoginAssert?.urlPatterns ?? [/doLogin|login|verify|checkpoint|returnto/gi];
   }
 
-  protected get noLoginCheckRefreshHeaderPattern(): TUrlPatterns | false {
+  protected get noLoginCheckRefreshHeaderPattern(): TPatterns | false {
     return this.metadata.noLoginAssert?.refreshHeaderPattern ?? this.noLoginCheckUrlPatterns;
   }
 

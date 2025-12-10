@@ -30,6 +30,8 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://uunapyho.gbc/"],
 
+  officialGroupPattern: [/HHWEB/i],
+
   category: [
     {
       name: "类型",

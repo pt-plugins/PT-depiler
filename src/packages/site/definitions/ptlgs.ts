@@ -94,6 +94,8 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
+  officialGroupPattern: [/(-PTLGS|.*@PTLGS)/i],
+
   userInfo: {
     ...SchemaMetadata.userInfo!,
     selectors: {

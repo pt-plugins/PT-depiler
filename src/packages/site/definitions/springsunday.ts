@@ -218,6 +218,9 @@ export const siteMetadata: ISiteMetadata = {
       cross: false,
     },
   ],
+
+  officialGroupPattern: [/-(CMCT|cmctv)/i],
+
   search: {
     ...SchemaMetadata.search,
     selectors: {

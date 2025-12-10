@@ -1,7 +1,7 @@
 // noinspection ES6PreferShortImport
 
 import type { AxiosRequestConfig } from "axios";
-import { TSiteID, TSiteHost, TSiteUrl, TSiteFullUrl, TUrlPatterns } from "./base";
+import { TSiteID, TSiteHost, TSiteUrl, TSiteFullUrl, TPatterns } from "./base";
 import type { ITorrent } from "./torrent";
 import type { ILevelRequirement, IUserInfo } from "./userinfo";
 import type { IElementQuery, ISearchCategories, ISearchConfig, ISearchEntryRequestConfig } from "./search";
@@ -118,6 +118,12 @@ export interface ISiteMetadata {
   requestDelay?: number;
 
   /**
+   * 如果定义了 officialGroupPattern ，且如果搜索的种子标题中有匹配
+   * 当用户开启对应功能时，会自动添加 `官方` 的标签
+   */
+  officialGroupPattern?: TPatterns;
+
+  /**
    * 站点搜索方法配置（主要用于插件 options 的适配）
    *
    * 由 AbstractBittorrentSite.transformSearchPage 方法进行转换，如果子类有覆写请按子类覆写逻辑理解
@@ -154,7 +160,7 @@ export interface ISiteMetadata {
      *
      * 匹配对象为 location.href ，依次匹配，任一匹配成功，则会被认为是种子列表页，
      */
-    urlPattern?: TUrlPatterns;
+    urlPattern?: TPatterns;
 
     /**
      * 由于侧边栏组件先判断是否是 list ，导致某些应该是详情页的页面被误认为是列表页，
@@ -162,7 +168,7 @@ export interface ISiteMetadata {
      *
      * 匹配方式和 urlPattern 相同
      */
-    excludeUrlPattern?: TUrlPatterns;
+    excludeUrlPattern?: TPatterns;
 
     mergeSearchSelectors?: boolean; // 是否合并 search.selectors 中的配置到此处的 selectors 中，默认为 true
 
@@ -195,7 +201,7 @@ export interface ISiteMetadata {
      * urlPattern 无法进行自动生成，需要显式声明（一般情况下 schema 中已有相关声明）
      * 其他表现和 list.urlPattern 相同。
      */
-    urlPattern?: TUrlPatterns;
+    urlPattern?: TPatterns;
 
     /**
      * 插件获取种子详情页时的配置，默认是在种子搜索时无法获取 link 的特殊站点使用，在使用时有垫片如下：
@@ -259,14 +265,14 @@ export interface ISiteMetadata {
      * 返回的 responseURL 中，哪些 URL 模式表示未登录，未设置时默认为 [/doLogin|login|verify|checkpoint|returnto/gi]
      * 如果请求的 URL 匹配该数组中的任意一个，则认为未登录
      */
-    urlPatterns?: TUrlPatterns | false;
+    urlPatterns?: TPatterns | false;
 
     /**
      * 如果响应头中有 refresh: <time>[;,] url=<url> 字段，
      * 且其中的 <url> 字段匹配该正则表达式，则认为未登录，未设置时默认为 noLoginAssert.urlPatterns 对应的内容
      * 如果此时 noLoginAssert.urlPatterns 为 false，则该项也会被设置为 false
      */
-    refreshHeaderPattern?: TUrlPatterns | false;
+    refreshHeaderPattern?: TPatterns | false;
 
     /**
      * 判断下面 matchSelectors 是否存在，如果存在则判断为未登录

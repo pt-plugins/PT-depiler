@@ -227,6 +227,8 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
+  officialGroupPattern: [/OK(WEB|Web)?$/i],
+
   searchEntry: {
     area_torrents: { name: "综合影音", requestConfig: { url: "/torrents.php" } },
     area_special: { name: "音乐写真", requestConfig: { url: "/special.php" } },

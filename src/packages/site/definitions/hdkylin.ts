@@ -16,6 +16,8 @@ export const siteMetadata: ISiteMetadata = {
   urls: ["https://www.hdkyl.in/", "https://na.hdkylin.com/", "https://cf.hdkylin.com/"],
   favicon: "https://www.hdkyl.in/favicon.ico",
 
+  officialGroupPattern: [/-HDK(WEB|TV|MV|Game|DIY|ylin)/i],
+
   levelRequirements: [
     {
       id: 1,

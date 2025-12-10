@@ -286,6 +286,8 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
+  officialGroupPattern: [/-(.*mteam|mpad|tnp|BMDru|MWEB)/i],
+
   search: {
     keywordPath: "data.keyword",
     requestConfig: {

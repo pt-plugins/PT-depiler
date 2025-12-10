@@ -314,6 +314,8 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
+  officialGroupPattern: [/(-hdh|.*@HDHome)/i],
+
   search: {
     ...SchemaMetadata.search,
     selectors: {

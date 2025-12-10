@@ -112,6 +112,8 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
+  officialGroupPattern: [/CarPT/i],
+
   levelRequirements: [
     {
       id: 0,

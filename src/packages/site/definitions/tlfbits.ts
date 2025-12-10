@@ -39,6 +39,8 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
+  officialGroupPattern: [/-tlf/i],
+
   search: {
     ...SchemaMetadata.search,
     selectors: {

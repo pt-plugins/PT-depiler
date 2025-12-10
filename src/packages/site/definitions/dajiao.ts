@@ -13,4 +13,6 @@ export const siteMetadata: ISiteMetadata = {
   urls: ["https://dajiao.cyou/"],
 
   isDead: true,
+
+  officialGroupPattern: [/DJWEB|DJTV/i],
 };

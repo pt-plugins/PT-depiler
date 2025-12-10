@@ -181,6 +181,9 @@ export const siteMetadata: ISiteMetadata = {
       cross: false,
     },
   ],
+
+  officialGroupPattern: [/@UBits|-UBits|-UBWEB/i],
+
   search: {
     ...SchemaMetadata.search,
     selectors: {

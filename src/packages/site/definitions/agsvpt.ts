@@ -16,9 +16,14 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["综合", "短剧", "影视"],
   timezoneOffset: "+0800",
   collaborator: ["0X0000005"],
+
   type: "private",
   schema: "NexusPHP",
+
   urls: ["uggcf://cg.ntficg.pa/", "uggcf://jjj.ntficg.pbz/", "uggcf://arj.ntficg.pa/"],
+
+  officialGroupPattern: [/AGSV(PT|E|WEB|REMUX|Rip|TV|DIY|MUS)?$/i],
+
   search: {
     ...SchemaMetadata.search,
     selectors: {

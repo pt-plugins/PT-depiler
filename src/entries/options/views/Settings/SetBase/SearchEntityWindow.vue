@@ -83,6 +83,13 @@ async function clearLastFilter(v: boolean) {
           />
 
           <v-switch
+            v-model="configStore.searchEntity.autoDetectOfficialGroupFromTitle"
+            :label="t('SetBase.searchEntity.autoDetectOfficialGroupFromTitle')"
+            color="success"
+            hide-details
+          />
+
+          <v-switch
             v-model="configStore.searchEntity.quickSiteFilter"
             :label="t('SetBase.searchEntity.quickSiteFilter')"
             color="success"

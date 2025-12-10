@@ -17,4 +17,6 @@ export const siteMetadata: ISiteMetadata = {
   formerHosts: ["leaguehd.com"],
 
   isDead: true,
+
+  officialGroupPattern: [/(-LHD|League(WEB|CD|NF|HD|TV|MV))$/i],
 };

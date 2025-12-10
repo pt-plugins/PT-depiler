@@ -19,16 +19,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
   urls: ["https://13city.org/", "https://www.13city.org/"],
   formerHosts: ["13city.online"],
-  userInfo: {
-    ...SchemaMetadata.userInfo!,
-    selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
-      bonus: {
-        selector: ["td.rowhead:contains('啤酒瓶') + td, td.rowhead:contains('Karma Points') + td"],
-        filters: [{ name: "parseNumber" }],
-      },
-    },
-  },
+
   category: [
     {
       name: "分类",
@@ -151,6 +142,19 @@ export const siteMetadata: ISiteMetadata = {
     CategorySpstate,
     CategoryInclbookmarked,
   ],
+
+  officialGroupPattern: [/-(13City|.*13City)/i],
+
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      bonus: {
+        selector: ["td.rowhead:contains('啤酒瓶') + td, td.rowhead:contains('Karma Points') + td"],
+        filters: [{ name: "parseNumber" }],
+      },
+    },
+  },
 
   levelRequirements: [
     {

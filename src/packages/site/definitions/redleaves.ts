@@ -135,6 +135,8 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
+  officialGroupPattern: [/(RLWEB|RLeaves|RLTV|-R²)$/i],
+
   searchEntry: {
     area_all: { name: "全部", requestConfig: { url: "/search.php" } },
     area_torrents: { name: "影视", requestConfig: { url: "/torrents.php" }, enabled: false },

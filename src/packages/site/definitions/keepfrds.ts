@@ -160,6 +160,8 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
+  officialGroupPattern: [/-FRDS|@FRDS/i],
+
   search: {
     ...SchemaMetadata.search,
     selectors: {

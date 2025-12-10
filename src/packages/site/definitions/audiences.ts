@@ -88,6 +88,8 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
+  officialGroupPattern: [/(-Audies|.*@Audies|-ADE|-ADWeb|.*@ADWeb)/i],
+
   search: {
     ...SchemaMetadata.search!,
     selectors: {

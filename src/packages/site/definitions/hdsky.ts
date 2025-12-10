@@ -265,6 +265,8 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
+  officialGroupPattern: [/-(hds|.*@HDSky)/i],
+
   search: {
     ...SchemaMetadata.search!,
     selectors: {

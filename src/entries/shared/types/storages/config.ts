@@ -206,6 +206,9 @@ export interface IConfigPiniaStorageSchema {
     saveLastFilter: boolean;
     // 当搜索词为 imdb 时，且站点搜索结果返回 imdbId 时，滤去 imdb 不匹配的结果
     forceImdbIdMatchFilter: boolean;
+
+    autoDetectOfficialGroupFromTitle: boolean;
+
     // 是否启用快速站点过滤功能
     quickSiteFilter: boolean;
   };

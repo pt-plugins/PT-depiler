@@ -50,6 +50,9 @@ export const siteMetadata: ISiteMetadata = {
     CategorySpstate,
     CategoryInclbookmarked,
   ],
+
+  officialGroupPattern: [/-nytv/i],
+
   search: {
     ...SchemaMetadata.search,
     selectors: {

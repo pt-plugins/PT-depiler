@@ -19,6 +19,8 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://uqsnaf.bet/"],
 
+  officialGroupPattern: [/HDFans/i],
+
   userInfo: {
     ...SchemaMetadata.userInfo!,
     selectors: {

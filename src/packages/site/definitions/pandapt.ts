@@ -131,6 +131,8 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
+  officialGroupPattern: ["AilMWeb", "-PANDA", "@Panda"],
+
   searchEntry: {
     area_normal: { name: "综合", requestConfig: { url: "/torrents.php" } },
     area_special: { name: "有声书", enabled: false, requestConfig: { url: "/special.php" } },

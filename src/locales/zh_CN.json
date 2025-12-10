@@ -412,6 +412,7 @@
       "siteQueueConcurrency": "请求队列长度",
       "saveLastSearchFilter": "保存上一次使用的搜索筛选词",
       "forceImdbIdMatchFilter": "使用 IMDb 搜索时，在搜索结果中滤去站点返回的IMDb号不匹配的结果",
+      "autoDetectOfficialGroupFromTitle": "自动识别种子标题中的官方组信息，并形成标签",
       "quickSiteFilter": "直接显示站点筛选栏",
       "mediaServerSearchConfig": "媒体服务器搜索配置",
       "mediaQueueConcurrency": "请求队列长度",

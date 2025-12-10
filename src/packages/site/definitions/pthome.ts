@@ -116,6 +116,8 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
+  officialGroupPattern: [/(-pthome|-pth|.*@pth)/i],
+
   levelRequirements: [
     {
       id: 1,

@@ -114,6 +114,8 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
+  officialGroupPattern: [/PigoHD|PigoWeb|PiGoNF/i],
+
   userInfo: {
     ...SchemaMetadata.userInfo!,
     selectors: {
