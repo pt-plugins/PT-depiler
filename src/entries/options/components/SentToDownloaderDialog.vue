@@ -83,24 +83,27 @@ async function sendToDownloader() {
   isSending.value = true;
   const promises = [];
 
-  const customReplace = {
-    savePath: undefined,
-    label: undefined,
-  } as Record<string, string | undefined>;
+  const nowDate = new Date();
+  const baseReplaceMap = {
+    "search:keyword": runtimeStore.search.searchKey,
+    "search:plan": metadataStore.getSearchSolutionName(runtimeStore.search.searchPlanKey),
+    "date:YYYY": formatDate(nowDate, "yyyy") as string,
+    "date:MM": formatDate(nowDate, "MM") as string,
+    "date:DD": formatDate(nowDate, "dd") as string,
+  };
+
+  const customReplace = { savePath: undefined, label: undefined } as Record<string, string | undefined>;
 
   for (const torrent of torrentItems) {
     const realAddTorrentOptions: Partial<CAddTorrentOptions> = { ...addTorrentOptions.value };
 
-    const nowDate = new Date();
     const replaceMap: Record<string, string> = {
+      "torrent.title": torrent.title ?? "",
+      "torrent.subTitle": torrent.subTitle ?? "",
       "torrent.site": torrent.site,
       "torrent.siteName": await metadataStore.getSiteName(torrent.site),
       "torrent.category": (torrent.category as string) ?? "",
-      "search:keyword": runtimeStore.search.searchKey,
-      "search:plan": metadataStore.getSearchSolutionName(runtimeStore.search.searchPlanKey),
-      "date:YYYY": formatDate(nowDate, "yyyy") as string,
-      "date:MM": formatDate(nowDate, "MM") as string,
-      "date:DD": formatDate(nowDate, "dd") as string,
+      ...baseReplaceMap,
     };
 
     for (const key of ["savePath", "label"] as (keyof typeof realAddTorrentOptions)[]) {

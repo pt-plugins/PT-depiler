@@ -514,6 +514,8 @@
           "example": "Example"
         },
         "replaceNote": {
+          "torrentTitle": "The title of torrent",
+          "torrentSubTitle": "The subtitle of torrent",
           "torrentSite": "The Site ID of torrent",
           "torrentSiteName": "The Site name of torrent",
           "searchKeyword": "Search Keywords",

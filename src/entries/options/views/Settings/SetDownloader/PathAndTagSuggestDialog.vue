@@ -22,6 +22,8 @@ const expansionPanelOpen = ref<string>("note");
 
 const pathReplaceMap: [string, string, string][] = [
   // [key (for i18n), value, example]
+  ["torrentTitle", "$torrent.title$", "/volume1/$torrent.title$ -> /volume1/TorrentTitle"],
+  ["torrentSubTitle", "$torrent.subTitle$", "/volume1/$torrent.subTitle$ -> /volume1/TorrentSubTitle"],
   ["torrentSite", "$torrent.site$", "/volume1/$torrent.site$/music -> /volume1/opencd/music"],
   ["torrentSiteName", "$torrent.siteName$", "/volume1/$torrent.siteName$/music -> /volume1/OpenCD/music"],
   ["searchKeyword", "$search:keyword$", "/volume1/$search:keyword$/music -> /volume1/keyword/music"],
@@ -153,16 +155,18 @@ function saveClientConfig() {
                   </div>
                 </template>
                 <template #details>
-                  <v-chip
-                    v-for="pathReplace in pathReplaceMap"
-                    :key="pathReplace[1]"
-                    :title="pathReplace[2]"
-                    class="mr-1"
-                    size="small"
-                    @click="() => (suggestFolderInput += '/' + pathReplace[1])"
-                  >
-                    {{ pathReplace[1] }}
-                  </v-chip>
+                  <v-chip-group>
+                    <v-chip
+                      v-for="pathReplace in pathReplaceMap"
+                      :key="pathReplace[1]"
+                      :title="pathReplace[2]"
+                      class="mr-1"
+                      size="small"
+                      @click="() => (suggestFolderInput += '/' + pathReplace[1])"
+                    >
+                      {{ pathReplace[1] }}
+                    </v-chip>
+                  </v-chip-group>
                 </template>
               </v-textarea>
             </v-expansion-panel-text>
@@ -176,7 +180,7 @@ function saveClientConfig() {
               </v-chip>
             </v-expansion-panel-title>
             <v-expansion-panel-text>
-              <v-textarea v-model="suggestTagInput" :label="t('SetDownloader.PathAndTag.tags.addInputLabel')" clearable>
+              <v-textarea v-model="suggestTagInput" :label="t('SetDownloader.PathAndTag.tags.addInputLabel')">
                 <template #append>
                   <div class="d-flex flex-column">
                     <v-btn
@@ -191,16 +195,18 @@ function saveClientConfig() {
                   </div>
                 </template>
                 <template #details>
-                  <v-chip
-                    v-for="pathReplace in pathReplaceMap"
-                    :key="pathReplace[1]"
-                    :title="pathReplace[2]"
-                    class="mr-1"
-                    size="small"
-                    @click="() => (suggestTagInput += pathReplace[1])"
-                  >
-                    {{ pathReplace[1] }}
-                  </v-chip>
+                  <v-chip-group>
+                    <v-chip
+                      v-for="pathReplace in pathReplaceMap"
+                      :key="pathReplace[1]"
+                      :title="pathReplace[2]"
+                      class="mr-1"
+                      size="small"
+                      @click="() => (suggestTagInput += pathReplace[1])"
+                    >
+                      {{ pathReplace[1] }}
+                    </v-chip>
+                  </v-chip-group>
                 </template>
               </v-textarea>
             </v-expansion-panel-text>

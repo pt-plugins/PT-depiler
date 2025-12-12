@@ -22,7 +22,6 @@ import NavButton from "@/options/components/NavButton.vue";
 import { allAddedSiteInfo, type ISiteTableItem } from "@/options/views/Settings/SetSite/utils.ts"; // <-- 数据来源
 
 const { t } = useI18n();
-const display = useDisplay();
 
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();

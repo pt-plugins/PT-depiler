@@ -514,13 +514,15 @@
           "example": "示例"
         },
         "replaceNote": {
-          "torrentSite": "将被替换为当前站点id",
-          "torrentSiteName": "将被替换为当前站点名称；",
-          "searchKeyword": "将被替换为当前搜索关键字",
-          "searchPlan": "将被替换为当前搜索方案名称",
-          "dateYear": "将被替换为当前年份",
-          "dateMonth": "将被替换为当前月份",
-          "dateDay": "将被替换为当前日份",
+          "torrentTitle": "该种子的标题",
+          "torrentSubTitle": "该种子的副标题",
+          "torrentSite": "该种子的站点id",
+          "torrentSiteName": "该种子的站点名称",
+          "searchKeyword": "当前搜索关键字",
+          "searchPlan": "当前搜索方案名称",
+          "dateYear": "当前年份",
+          "dateMonth": "当前月份",
+          "dateDay": "当前日份",
           "custom": "自定义的内容替换"
         }
       }
