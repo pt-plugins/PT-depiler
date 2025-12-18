@@ -41,6 +41,25 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
   search: {},
 };
 
+const defaultTorrentSelectorKey = [
+  "id",
+  "title",
+  "subTitle",
+  "url",
+  "link",
+  "time",
+  "size",
+  "author",
+  "seeders",
+  "leechers",
+  "completed",
+  "comments",
+  "category",
+  "tags",
+  "progress",
+  "status",
+];
+
 // 适用于公网BT站点，同时也作为 所有站点方法 的基类
 export default class BittorrentSite {
   public readonly metadata: ISiteMetadata; // 实际过程中使用的配置文件
@@ -531,24 +550,6 @@ export default class BittorrentSite {
 
     // FIXME 对于每个 searchEntry，其需要获取的 torrentKey 应该都是一样的，但是目前会导致在每个loop中都重复生成相同的 key，不过没太大关系
     const definedTorrentSelectorKey = Object.keys(searchEntry!.selectors!).filter((key) => key !== "rows");
-    const defaultTorrentSelectorKey = [
-      "id",
-      "title",
-      "subTitle",
-      "url",
-      "link",
-      "time",
-      "size",
-      "author",
-      "seeders",
-      "leechers",
-      "completed",
-      "comments",
-      "category",
-      "tags",
-      "progress",
-      "status",
-    ];
 
     /**
      * 对种子文件的任意非rows属性进行处理，例如 "id" 属性：
