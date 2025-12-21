@@ -300,7 +300,7 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseTime", args: ["MMM d yyyy, HH:mm 'UTC'"] }],
       },
       seedingSize: { selector: "li:contains('Seeding Size: ') span", filters: [{ name: "parseSize" }] },
-      bonus: { selector: "a[href*='store.php']", filters: [{ name: "replace", args: [",", ""] }] },
+      bonus: { selector: "a[href*='store.php']", filters: [{ name: "replace", args: [/,/g, ""] }] },
       seeding: { selector: "#search_results", filters: [{ name: "parseNumber" }] },
     },
   },
