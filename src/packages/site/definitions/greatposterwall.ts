@@ -333,7 +333,7 @@ export default class GreatPosterWall extends GazelleJSONAPI {
       tags.push({ name: "禁转", color: "deep-orange-darken-1" });
     }
 
-    const trTitle = [extractContent(group.groupSubName), extractContent(group.groupName)].join(" / ");
+    const trTitle = [extractContent(group.groupSubName), extractContent(group.groupName)].filter(Boolean).join(" / ");
 
     return {
       site: this.metadata.id, // 补全种子的 site 属性
