@@ -103,28 +103,25 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [{ name: "parseTime" }],
       },
       uploaded: {
-        selector: ["div:contains('Stats') + div.box > ul.stats > li:contains('Uploaded:')"],
+        selector: ["div:contains('Stats') li:contains('Uploaded:')"],
         filters: [(query: string) => parseSizeString(query.split(":")[1].trim().replace(/,/g, "") || "0")],
       },
       downloaded: {
-        selector: ["div:contains('Stats') + div.box > ul.stats > li:contains('Downloaded:')"],
+        selector: ["div:contains('Stats') li:contains('Downloaded:')"],
         filters: [(query: string) => parseSizeString(query.split(":")[1].trim().replace(/,/g, "") || "0")],
       },
       levelName: {
-        selector: ["span.rank", "div:contains('Personal') + div.box > ul.stats > li:contains('Class:')"],
+        selector: ["span.rank", "div:contains('Personal') li:contains('Class:')"],
         switchFilters: {
-          "div:contains('Personal') + div.box > ul.stats > li:contains('Class:')": [
-            { name: "trim" },
-            { name: "split", args: [":", 1] },
-          ],
+          "div:contains('Personal') li:contains('Class:')": [{ name: "trim" }, { name: "split", args: [":", 1] }],
         },
       },
       bonus: {
-        selector: ["div[id='bonusdiv'] > h4"],
+        selector: ["div[id='bonusdiv'] > h4", "h4:contains('Credits:')"],
         filters: [(query: string) => parseFloat(query.split(":")[1].trim().replace(/,/g, "") || "0")],
       },
       ratio: {
-        selector: ["div:contains('Stats') + div.box > ul.stats > li:contains('Ratio:') > span"],
+        selector: ["div:contains('Stats') li:contains('Ratio:') > span"],
         filters: [
           (query: string) => {
             if (query === "∞") return -1; // Infinity 不能通过 sendMessage 传递，会导致无返回，使用 -1 替代，前端会自动处理的
@@ -134,7 +131,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         ],
       },
       uploads: {
-        selector: ["div:contains('Community') + div.box > ul.stats > li:contains('Uploaded')"],
+        selector: ["div:contains('Community') li:contains('Uploaded:')"],
         filters: [{ name: "parseNumber" }],
       },
       bonusPerHour: {
@@ -150,15 +147,12 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         },
       },
       seeding: {
-        selector: [
-          "a[id='nav_seeding'] span[id='nav_seeding_r']",
-          "div:contains('Community') + div.box > ul.stats > li:contains('Seeding')",
-        ],
+        selector: ["a[id='nav_seeding'] span[id='nav_seeding_r']", "div:contains('Community') li:contains('Seeding:')"],
         switchFilters: {
           "a[id='nav_seeding'] span[id='nav_seeding_r']": [
             (query: string) => parseInt(query.trim().replace(/,/g, "") || "0"),
           ],
-          "div:contains('Community') + div.box > ul.stats > li:contains('Seeding')": [
+          "div:contains('Community') li:contains('Seeding:')": [
             { name: "split", args: ["(", 0] },
             { name: "parseNumber" },
           ],
