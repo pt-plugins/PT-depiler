@@ -1,19 +1,13 @@
-/**
- * @JackettIssue https://github.com/Jackett/Jackett/issues/10738
- */
 import type { ISiteMetadata } from "../types";
-
-/**
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
   CategorySpstate,
   SchemaMetadata,
 } from "../schemas/NexusPHP";
-*/
 
 export const siteMetadata: ISiteMetadata = {
-  // ...SchemaMetadata,
+  ...SchemaMetadata,
   version: 1,
 
   id: "ilolicon",
@@ -28,12 +22,8 @@ export const siteMetadata: ISiteMetadata = {
 
   collaborator: ["haowenwu", "anonymous"],
 
-  urls: ["uggcf://funer.vybyvpba.pbz/"],
+  urls: ["uggcf://zhn.kybyv.pp/"],
 
-  // https://github.com/Jackett/Jackett/issues/15230#issuecomment-3497847810
-  isDead: true,
-
-  /**
   category: [
     {
       name: "搜索入口",
@@ -397,10 +387,8 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "网站主管，可以做任何事。",
     },
   ],
-    */
 };
 
-/**
 export default class ilolicon extends NexusPHP {
   protected override async requestUserSeedingPage(userId: number, type: string = "seeding"): Promise<string | null> {
     const { data } = await this.request<string>({
@@ -410,4 +398,3 @@ export default class ilolicon extends NexusPHP {
     return data || null;
   }
 }
-*/
