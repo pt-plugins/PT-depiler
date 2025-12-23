@@ -5,6 +5,7 @@ import NexusPHP, {
   CategorySpstate,
   SchemaMetadata,
 } from "../schemas/NexusPHP";
+import { rot13 } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -23,6 +24,7 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: ["haowenwu", "anonymous"],
 
   urls: ["uggcf://zhn.kybyv.pp/"],
+  formerHosts: [rot13("funer.vybyvpba.pbz")],
 
   category: [
     {
