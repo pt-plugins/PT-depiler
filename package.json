@@ -66,7 +66,7 @@
     "url-join": "^5.0.0",
     "urlencode": "^2.0.0",
     "valid-filename": "^4.0.0",
-    "vue": "^3.5.25",
+    "vue": "^3.5.26",
     "vue-echarts": "^8.0.1",
     "vue-i18n": "^11.2.2",
     "vue-konva": "^3.2.6",
