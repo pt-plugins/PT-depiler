@@ -112,6 +112,7 @@ export async function doSearchEntity(
     searchEntryName,
     searchEntry,
     status: EResultParseStatus.waiting,
+    statusMsg: undefined,
     queuePriority,
     count: 0,
   };
@@ -137,13 +138,21 @@ export async function doSearchEntity(
         imdbSearchKeywords = definedFilters.extImdbId(searchKeyword.replace("imdb|", ""));
       }
 
-      const { status: searchStatus, data: searchResult } = await sendMessage("getSiteSearchResult", {
+      const {
+        status: searchStatus,
+        statusMsg: searchStatusMsg,
+        data: searchResult,
+      } = await sendMessage("getSiteSearchResult", {
         keyword: searchKeyword,
         siteId,
         searchEntry,
       });
-      console.log(`success get search ${solutionKey} result, with code ${searchStatus}: `, searchResult);
+      console.log(
+        `success get search ${solutionKey} result, with code ${searchStatus}: ${searchStatusMsg ?? ""}`,
+        searchResult,
+      );
       runtimeStore.search.searchPlan[solutionKey].status = searchStatus;
+      searchStatusMsg && (runtimeStore.search.searchPlan[solutionKey].statusMsg = searchStatusMsg);
 
       // 优化：批量处理搜索结果，减少响应式更新次数
       const newItems: ISearchResultTorrent[] = [];

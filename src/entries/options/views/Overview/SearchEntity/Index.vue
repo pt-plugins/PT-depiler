@@ -148,6 +148,8 @@ function cancelSearchQueue() {
     if (runtimeStore.search.searchPlan[key]!.status === EResultParseStatus.waiting) {
       // @ts-ignore
       runtimeStore.search.searchPlan[key]!.status = EResultParseStatus.passParse;
+      // @ts-ignore
+      runtimeStore.search.searchPlan[key]!.statusMsg = "i18n.userCancel";
     }
   }
 

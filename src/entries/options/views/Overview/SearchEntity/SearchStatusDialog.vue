@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useI18n } from "vue-i18n";
 import { EResultParseStatus } from "@ptd/site";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -13,6 +14,7 @@ import { doSearchEntity, raiseSearchPriority } from "./utils/search.ts";
 
 const showDialog = defineModel<boolean>();
 
+const { t } = useI18n();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 
@@ -27,7 +29,12 @@ function getSearchSolution(planKey: string, entryName: string) {
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title>
-            方案 [{{ metadataStore.getSearchSolutionName(runtimeStore.search.searchPlanKey) }}] 搜索状态 <br />
+            {{
+              t("SearchEntity.SearchStatusDialog.title", [
+                metadataStore.getSearchSolutionName(runtimeStore.search.searchPlanKey),
+              ])
+            }}
+            <br />
             <p class="text-caption"><{{ runtimeStore.search.searchPlanKey }}></p>
           </v-toolbar-title>
 
@@ -76,7 +83,22 @@ function getSearchSolution(planKey: string, entryName: string) {
                 <template v-if="searchPlan.status === EResultParseStatus.success">
                   <br />
                   <span class="text-end">
-                    共找到 {{ searchPlan.count }} 条结果，用时 {{ (searchPlan.costTime ?? 0) / 1000 }}s
+                    {{
+                      t("SearchEntity.SearchStatusDialog.successMsg", [
+                        searchPlan.count,
+                        (searchPlan.costTime ?? 0) / 1000,
+                      ])
+                    }}
+                  </span>
+                </template>
+                <template v-else-if="searchPlan.statusMsg">
+                  <br />
+                  <span class="text-end">
+                    {{
+                      searchPlan.statusMsg.startsWith("i18n.")
+                        ? t("SearchEntity.SearchStatusDialog.statusMsg" + searchPlan.statusMsg.replace("i18n.", "."))
+                        : searchPlan.statusMsg
+                    }}
                   </span>
                 </template>
               </span>

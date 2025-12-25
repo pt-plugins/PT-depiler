@@ -181,6 +181,7 @@ export default class BittorrentSite {
     // 0. 检查该站点是否允许搜索
     if (!this.allowSearch) {
       result.status = EResultParseStatus.passParse;
+      result.statusMsg = "i18n.siteNotEnabled";
       return result;
     }
 
@@ -199,6 +200,7 @@ export default class BittorrentSite {
     // 检查该搜索入口是否设置为禁用
     if (searchEntry.enabled === false) {
       result.status = EResultParseStatus.passParse;
+      result.statusMsg = "i18n.searchEntityNotEnabled";
       return result;
     }
 
@@ -208,6 +210,7 @@ export default class BittorrentSite {
     if (searchEntry.skipWhiteSpacePlaceholder === true && !keywords) {
       console?.log(`[Site] ${this.name} skipped due to empty keywords`);
       result.status = EResultParseStatus.passParse;
+      result.statusMsg = "i18n.noEmptyKeywords";
       return result;
     }
 
@@ -215,6 +218,7 @@ export default class BittorrentSite {
     if (searchEntry.skipNonLatinCharacters === true && keywords && hasNonLatinCharacters(keywords)) {
       console?.log(`[Site] ${this.name} skipped due to non-Latin characters in query:`, keywords);
       result.status = EResultParseStatus.passParse;
+      result.statusMsg = "i18n.noNonLatin";
       return result;
     }
 
@@ -248,6 +252,7 @@ export default class BittorrentSite {
           // 检查是否跳过
           if (advanceConfig === false || advanceConfig.enabled === false) {
             result.status = EResultParseStatus.passParse;
+            result.statusMsg = "i18n.noAdvanceParams";
             return result;
           }
 

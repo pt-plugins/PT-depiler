@@ -290,5 +290,6 @@ export interface IElementQuery {
 
 export interface ISearchResult {
   status: EResultParseStatus;
+  statusMsg?: string;
   data: ITorrent[];
 }

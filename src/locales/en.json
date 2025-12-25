@@ -368,6 +368,18 @@
         "year": "Year",
         "custom": "Custom"
       }
+    },
+    "SearchStatusDialog": {
+      "title": "Search Status of [{0}]",
+      "successMsg": "Find {0} results in {0}s",
+      "statusMsg": {
+        "userCancel": "You Cancel this search",
+        "siteNotEnabled": "The site not enabled",
+        "searchEntityNotEnabled": "The search entry not enabled",
+        "noEmptyKeywords": "Empty keywords not supported",
+        "noNonLatin": "Non-Latin characters not supported",
+        "noAdvanceParams": "Advance parameter not supported"
+      }
     }
   },
   "SearchResultSnapshot": {

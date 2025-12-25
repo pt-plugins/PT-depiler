@@ -368,6 +368,18 @@
         "year": "本年",
         "custom": "自定义"
       }
+    },
+    "SearchStatusDialog": {
+      "title": "方案 [{0}] 搜索状态",
+      "successMsg": "共找到 {0} 条结果，用时 {0}s",
+      "statusMsg": {
+        "userCancel": "用户取消该搜索请求",
+        "siteNotEnabled": "该站点未启用",
+        "searchEntityNotEnabled": "该搜索入口未启用",
+        "noEmptyKeywords": "不支持空关键词",
+        "noNonLatin": "不支持非拉丁字符",
+        "noAdvanceParams": "不支持高级搜索参数"
+      }
     }
   },
   "SearchResultSnapshot": {

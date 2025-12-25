@@ -21,6 +21,7 @@ export interface ISearchPlanStatus {
   searchEntryName: string;
   searchEntry: Record<string, any>;
   status: EResultParseStatus;
+  statusMsg?: string;
   queueAt?: number;
   queuePriority?: number;
   startAt?: number;
