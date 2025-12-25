@@ -290,6 +290,11 @@ export interface IElementQuery {
 
 export interface ISearchResult {
   status: EResultParseStatus;
-  statusMsg?: string;
+  /**
+   * 额外的状态信息
+   * 如果字段以 i18n.{string} 开头，则
+   *  - 在搜索状态窗口中会对应替换为 SearchEntity.SearchStatusDialog.statusMsg.{string} 对应的i18n字段
+   */
+  statusMsg?: `i18n.${string}` | string;
   data: ITorrent[];
 }

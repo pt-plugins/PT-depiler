@@ -3,7 +3,7 @@
  */
 import type { VNodeProps } from "vue";
 import type { VSnackbar } from "vuetify/components";
-import type { EResultParseStatus, ITorrent, TSiteID } from "@ptd/site";
+import type { ISearchResult, ITorrent, TSiteID } from "@ptd/site";
 import type { IMediaServerItem, IMediaServerSearchResult } from "@ptd/mediaServer";
 
 import type { TMediaServerKey, TSearchSnapshotKey, TSolutionKey } from "./metadata.ts";
@@ -16,12 +16,10 @@ export interface ISearchResultTorrent extends ITorrent {
   solutionKey: TSearchSolutionKey; // 对应搜索方案的key，由 `${site}-${solutionId}` 组成
 }
 
-export interface ISearchPlanStatus {
+export interface ISearchPlanStatus extends Pick<ISearchResult, "status" | "statusMsg"> {
   siteId: TSiteID;
   searchEntryName: string;
   searchEntry: Record<string, any>;
-  status: EResultParseStatus;
-  statusMsg?: string;
   queueAt?: number;
   queuePriority?: number;
   startAt?: number;
