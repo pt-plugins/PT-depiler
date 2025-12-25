@@ -160,7 +160,7 @@
     "working": "正在获取中...",
     "success": "获取成功！",
     "parseError": "解析错误！",
-    "passParse": "未启用！",
+    "passParse": "跳过！",
     "CFBlocked": "CloudFlare 错误！",
     "CFBlockedNotes": "CloudFlare 返回的错误，可能是因为站点启用了 CloudFlare 的安全防护，导致无法获取数据。可以先尝试手动访问一次站点，以通过 CF 验证。如果不起作用，请等待站点自行恢复。",
     "needLogin": "需要登录！",

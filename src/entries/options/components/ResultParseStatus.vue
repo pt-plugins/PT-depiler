@@ -25,7 +25,7 @@ const { t } = useI18n();
   <span v-else-if="status === EResultParseStatus.parseError" class="text-red">
     {{ t("resultParseStatus.parseError") }}
   </span>
-  <span v-else-if="status === EResultParseStatus.passParse" class="text-blue-grey">
+  <span v-else-if="status === EResultParseStatus.passParse" class="text-yellow-darken-2">
     {{ t("resultParseStatus.passParse") }}
   </span>
   <span v-else-if="status === EResultParseStatus.CFBlocked" :title="t('resultParseStatus.CFBlockedNotes')">
