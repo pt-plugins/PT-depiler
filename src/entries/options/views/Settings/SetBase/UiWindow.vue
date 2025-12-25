@@ -217,6 +217,13 @@ defineExpose({
         />
 
         <v-switch
+          v-model="configStore.contextMenus.allowSocialLinkSearch"
+          color="success"
+          hide-details
+          label="启用社交链接（ douban, imdb ）搜索"
+        />
+
+        <v-switch
           v-model="configStore.contextMenus.allowLinkDownloadPush"
           :disabled="metadataStore.getEnabledDownloaders.length === 0"
           color="success"

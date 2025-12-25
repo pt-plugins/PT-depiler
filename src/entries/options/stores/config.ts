@@ -70,6 +70,7 @@ export const useConfigStore = defineStore("config", {
     contextMenus: {
       enabled: true,
       allowSelectionTextSearch: true,
+      allowSocialLinkSearch: true,
       allowLinkDownloadPush: true,
     },
 
