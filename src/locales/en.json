@@ -71,6 +71,8 @@
     "searchPlanDefault": "Default",
     "omniboxSearch": "Search $2 in [ $1 ]",
     "contextMenuSearch": "Using PT Depiler to Search for \"%s\" related torrents",
+    "contextMenuSearchWithDouban": "Using PT Depiler to Search This Douban ID",
+    "contextMenuSearchWithIMDb": "Using PT Depiler to Search This IMDb ID",
     "contextMenuSearchInDefault": "Search in the default plan",
     "contextMenuSearchInSolution": "Search in the specified plan",
     "contextMenuSearchInSite": "Search in the specified site",

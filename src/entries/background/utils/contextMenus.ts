@@ -118,6 +118,124 @@ async function downloadLinkPush(
     });
 }
 
+interface ICreateSearchMenuOption {
+  thisTabSiteId?: string;
+  extraCreateMenuProperties?: chrome.contextMenus.CreateProperties;
+  selectionTextFilterFn?: (value?: chrome.contextMenus.OnClickData) => string;
+}
+
+async function createSearchMenu(baseMenuId: string, options: ICreateSearchMenuOption = {}) {
+  const metadataStore = (await extStorage.getItem("metadata"))! ?? {};
+
+  const {
+    thisTabSiteId = null,
+    selectionTextFilterFn = (a) => a?.selectionText ?? "",
+    extraCreateMenuProperties = {},
+  } = options;
+
+  // 基本关键词搜索
+  addContextMenu({
+    parentId: baseMenuId,
+    title: chrome.i18n.getMessage("contextMenuSearchInDefault"),
+    contexts: ["selection"],
+    ...extraCreateMenuProperties,
+    onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
+      openOptionsPage({
+        path: "/search-entity",
+        query: { search: selectionTextFilterFn(info), flush: 1 },
+      });
+    },
+  });
+
+  // 特定搜索方案搜索
+  const solutions = Object.values(metadataStore.solutions ?? {})
+    .filter((x) => !!x.enabled) // 过滤掉未启用的搜索方案
+    .sort((a, b) => b.sort - a.sort); // 按照 sort 降序排序
+  if (solutions.length > 0) {
+    const solutionSearchSubMenuId = addContextMenu({
+      id: `${baseMenuId}**Search-In-Solutions`,
+      parentId: baseMenuId,
+      title: chrome.i18n.getMessage("contextMenuSearchInSolution"),
+      contexts: ["selection"],
+      ...extraCreateMenuProperties,
+    });
+
+    for (const solution of solutions) {
+      addContextMenu({
+        id: `${solutionSearchSubMenuId}**${solution.id}`,
+        parentId: solutionSearchSubMenuId,
+        title: solution.name,
+        contexts: ["selection"],
+        ...extraCreateMenuProperties,
+        onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
+          openOptionsPage({
+            path: "/search-entity",
+            query: { search: selectionTextFilterFn(info), plan: solution.id, flush: 1 },
+          });
+        },
+      });
+    }
+  }
+
+  // 特定站点搜索
+  const sites = Object.entries(metadataStore.sites ?? {})
+    .map(([siteId, site]) => ({
+      id: siteId,
+      ...site,
+    }))
+    .filter((x) => !x.isOffline && !!x.allowSearch)
+    .sort((a, b) => (b.sortIndex ?? 0) - (a.sortIndex ?? 0));
+
+  if (sites.length > 0) {
+    const siteSearchSubMenuId = addContextMenu({
+      id: `${baseMenuId}**Search-In-Site`,
+      parentId: baseMenuId,
+      title: chrome.i18n.getMessage("contextMenuSearchInSite"),
+      contexts: ["selection"],
+      ...extraCreateMenuProperties,
+    });
+
+    for (const site of sites) {
+      if (site.id === thisTabSiteId) {
+        continue; // 如果是当前站点，则不再添加到子菜单中
+      }
+
+      // 如果用户没有预构建站点名称，则使用站点ID作为标题
+      const siteTitle = metadataStore.siteNameMap?.[site.id] || site.id;
+
+      addContextMenu({
+        id: `${siteSearchSubMenuId}**${site.id}`,
+        parentId: siteSearchSubMenuId,
+        title: siteTitle,
+        contexts: ["selection"],
+        ...extraCreateMenuProperties,
+        onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
+          openOptionsPage({
+            path: "/search-entity",
+            query: { search: selectionTextFilterFn(info), plan: `site:${site.id}`, flush: 1 },
+          });
+        },
+      });
+    }
+  }
+
+  if (thisTabSiteId) {
+    addContextMenu({
+      id: `${baseMenuId}**Search-In-This-Site`,
+      parentId: baseMenuId,
+      title: chrome.i18n.getMessage("contextMenuSearchInThisSite"),
+      contexts: ["selection"],
+      ...extraCreateMenuProperties,
+      onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
+        openOptionsPage({
+          path: "/search-entity",
+          query: { search: info.selectionText, plan: `site:${thisTabSiteId}`, flush: 1 },
+        });
+      },
+    });
+  }
+}
+
 async function initContextMenus(tab: chrome.tabs.Tab) {
   // 这里不处理 https://github.com/pt-plugins/PT-depiler/pull/470#discussion_r2295102201 提到的情况，因为会导致后面的type错误
   const configStore = (await extStorage.getItem("config"))! ?? {};
@@ -144,99 +262,55 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
       title: chrome.i18n.getMessage("contextMenuSearch"),
       contexts: ["selection"],
     });
+    await createSearchMenu(baseSearchMenusId);
+  }
 
-    // 基本关键词搜索
-    addContextMenu({
-      parentId: baseSearchMenusId,
-      title: chrome.i18n.getMessage("contextMenuSearchInDefault"),
-      contexts: ["selection"],
-      onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
-        openOptionsPage({ path: "/search-entity", query: { search: info.selectionText, flush: 1 } });
+  // 创建社交链接搜索菜，所有页面可用
+  if (configStore.contextMenus?.allowSocialLinkSearch ?? true) {
+    // 豆瓣链接
+    const donbanMenuId = addContextMenu({
+      id: `${contextMenusId}**SearchByDoubanLink`,
+      title: chrome.i18n.getMessage("contextMenuSearchWithDouban"),
+      contexts: ["link"],
+      targetUrlPatterns: ["*://movie.douban.com/subject/*"],
+    });
+    await createSearchMenu(donbanMenuId, {
+      extraCreateMenuProperties: {
+        contexts: ["link"],
+        targetUrlPatterns: ["*://movie.douban.com/subject/*"],
+      },
+      selectionTextFilterFn: (info) => {
+        const failSearchText = info?.selectionText ?? "";
+        if (info?.linkUrl) {
+          const link = info.linkUrl.match(/subject\/(\d+)/);
+          return link ? `douban|${link[1]}` : failSearchText;
+        }
+        return failSearchText;
       },
     });
 
-    // 特定搜索方案搜索
-    const solutions = Object.values(metadataStore.solutions ?? {})
-      .filter((x) => !!x.enabled) // 过滤掉未启用的搜索方案
-      .sort((a, b) => b.sort - a.sort); // 按照 sort 降序排序
-    if (solutions.length > 0) {
-      const solutionSearchSubMenuId = addContextMenu({
-        id: `${baseSearchMenusId}**Search-In-Solutions`,
-        parentId: baseSearchMenusId,
-        title: chrome.i18n.getMessage("contextMenuSearchInSolution"),
-        contexts: ["selection"],
-      });
+    // IMDb 链接
+    const imdbMenuId = addContextMenu({
+      id: `${contextMenusId}**SearchByIMDbLink`,
+      title: chrome.i18n.getMessage("contextMenuSearchWithIMDb"),
+      contexts: ["link"],
+      targetUrlPatterns: ["*://www.imdb.com/title/tt*"],
+    });
 
-      for (const solution of solutions) {
-        addContextMenu({
-          id: `${solutionSearchSubMenuId}**${solution.id}`,
-          parentId: solutionSearchSubMenuId,
-          title: solution.name,
-          contexts: ["selection"],
-          onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
-            openOptionsPage({
-              path: "/search-entity",
-              query: { search: info.selectionText, plan: solution.id, flush: 1 },
-            });
-          },
-        });
-      }
-    }
-
-    // 特定站点搜索
-    const sites = Object.entries(metadataStore.sites ?? {})
-      .map(([siteId, site]) => ({
-        id: siteId,
-        ...site,
-      }))
-      .filter((x) => !x.isOffline && !!x.allowSearch)
-      .sort((a, b) => (b.sortIndex ?? 0) - (a.sortIndex ?? 0));
-
-    if (sites.length > 0) {
-      const siteSearchSubMenuId = addContextMenu({
-        id: `${baseSearchMenusId}**Search-In-Site`,
-        parentId: baseSearchMenusId,
-        title: chrome.i18n.getMessage("contextMenuSearchInSite"),
-        contexts: ["selection"],
-      });
-
-      for (const site of sites) {
-        if (site.id === thisTabSiteId) {
-          continue; // 如果是当前站点，则不再添加到子菜单中
+    await createSearchMenu(imdbMenuId, {
+      extraCreateMenuProperties: {
+        contexts: ["link"],
+        targetUrlPatterns: ["*://www.imdb.com/title/tt*"],
+      },
+      selectionTextFilterFn: (info) => {
+        const failSearchText = info?.selectionText ?? "";
+        if (info?.linkUrl) {
+          const link = info.linkUrl.match(/(tt\d+)/);
+          return link ? `imdb|${link[1]}` : failSearchText;
         }
-
-        // 如果用户没有预构建站点名称，则使用站点ID作为标题
-        const siteTitle = metadataStore.siteNameMap?.[site.id] || site.id;
-
-        addContextMenu({
-          id: `${siteSearchSubMenuId}**${site.id}`,
-          parentId: siteSearchSubMenuId,
-          title: siteTitle,
-          contexts: ["selection"],
-          onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
-            openOptionsPage({
-              path: "/search-entity",
-              query: { search: info.selectionText, plan: `site:${site.id}`, flush: 1 },
-            });
-          },
-        });
-      }
-    }
-
-    if (thisTabSiteId) {
-      addContextMenu({
-        id: `${baseSearchMenusId}**Search-In-This-Site`,
-        parentId: baseSearchMenusId,
-        title: chrome.i18n.getMessage("contextMenuSearchInThisSite"),
-        contexts: ["selection"],
-        onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
-          openOptionsPage({
-            path: "/search-entity",
-            query: { search: info.selectionText, plan: `site:${thisTabSiteId}`, flush: 1 },
-          });
-        },
-      });
-    }
+        return failSearchText;
+      },
+    });
   }
 
   // 创建下载链接菜单，所有页面可用
