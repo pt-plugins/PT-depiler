@@ -1,5 +1,6 @@
 import { type ISiteMetadata, ETorrentStatus } from "../types";
 import { SchemaMetadata } from "../schemas/Luminance";
+import { buildCategoryOptionsFromDict, buildCategoryOptionsFromList } from "../utils";
 
 const categoryMap: Record<number, string> = {
   1: "Applications",
@@ -33,7 +34,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "类别",
       key: "filter_cat",
-      options: Object.entries(categoryMap).map(([value, name]) => ({ name, value })),
+      options: buildCategoryOptionsFromDict(categoryMap),
       cross: { mode: "appendQuote" },
     },
     {

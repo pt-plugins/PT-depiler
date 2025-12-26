@@ -1,5 +1,6 @@
 import type { ISiteMetadata, ISearchEntryRequestConfig, ISearchResult } from "../types.ts";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
+import { buildCategoryOptionsFromDict } from "../utils.ts";
 
 const categoryMapXXX: Record<number, string> = {
   15: "XXX Movies",
@@ -72,13 +73,13 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "Categories",
       key: "categories_normal",
-      options: Object.entries(categoryMapNormal).map(([value, name]) => ({ name, value })),
+      options: buildCategoryOptionsFromDict(categoryMapNormal),
       cross: { key: "categories", mode: "brackets" },
     },
     {
       name: "Categories (Adult)",
       key: "categories_xxx",
-      options: Object.entries(categoryMapXXX).map(([value, name]) => ({ name, value })),
+      options: buildCategoryOptionsFromDict(categoryMapXXX),
       cross: { mode: "custom" },
       generateRequestConfig: (selectedOptions) => {
         const params: Record<string, any> = { categories: [] };

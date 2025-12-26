@@ -1,7 +1,4 @@
-import { mergeWith } from "es-toolkit";
-
-import { EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
-import PrivateSite from "../schemas/AbstractPrivateSite.ts";
+import { type ISiteMetadata } from "../types";
 
 const categoryOptions = [
   { name: "AudioBooks - Action/Adventure", value: 39 },
@@ -116,6 +113,7 @@ interface INotifs {
   waiting_tickets: number;
   requests: number;
   topics: number;
+  unseededUploads: number;
 }
 
 type IMyAnonamouseLoadResp = {
@@ -133,6 +131,12 @@ type IMyAnonamouseLoadResp = {
 } & {
   notifs: INotifs;
 };
+
+// 做种中种子的所有类型
+const seedingKeys = ["seedUnsat", "seedHnr", "sSat", "upAct"] as const;
+
+// 已上传种子的所有类型
+const uploadKeys = ["upAct", "upInact"] as const;
 
 export const siteMetadata: ISiteMetadata = {
   id: "myanonamouse",
@@ -201,8 +205,8 @@ export const siteMetadata: ISiteMetadata = {
       id: { selector: "id" },
       title: { selector: "title" },
       subTitle: { selector: "tags" },
-      url: { selector: "id", filters: [(id: number) => `/t/${id}`] },
-      link: { selector: "id", filters: [(id: number) => `/tor/download.php?tid=${id}`] },
+      url: { selector: "id", filters: [{ name: "prepend", args: ["/t/"] }] },
+      link: { selector: "id", filters: [{ name: "prepend", args: ["/tor/download.php?tid="] }] },
       time: { selector: "added" },
       size: { selector: "size" },
       author: { selector: "owner_name" },
@@ -264,7 +268,7 @@ export const siteMetadata: ISiteMetadata = {
     process: [
       {
         requestConfig: {
-          url: "/jsonLoad.php",
+          url: "/jsonLoad.php?snatch_summary&notif",
           responseType: "json",
         },
         selectors: {
@@ -272,9 +276,42 @@ export const siteMetadata: ISiteMetadata = {
           name: { selector: "username" },
           ratio: { selector: "ratio" },
           bonus: { selector: "seedbonus" },
-          uploaded: { selector: "uploaded" },
-          downloaded: { selector: "downloaded" },
+          uploaded: { selector: "uploaded_bytes" },
+          downloaded: { selector: "downloaded_bytes" },
           levelName: { selector: "classname" },
+          seeding: {
+            selector: ":self",
+            filters: [
+              (loadResp: IMyAnonamouseLoadResp) => {
+                return seedingKeys.map((key) => loadResp[key].count).reduce((sum, count) => sum + count, 0);
+              },
+            ],
+          },
+          seedingSize: {
+            selector: ":self",
+            filters: [
+              (loadResp: IMyAnonamouseLoadResp) => {
+                return seedingKeys.map((key) => loadResp[key].size ?? 0).reduce((sum, size) => sum + size, 0);
+              },
+            ],
+          },
+          uploads: {
+            selector: ":self",
+            filters: [
+              (loadResp: IMyAnonamouseLoadResp) => {
+                return uploadKeys.map((key) => loadResp[key].count).reduce((sum, count) => sum + count, 0);
+              },
+            ],
+          },
+          messageCount: {
+            selector: "notifs",
+            filters: [
+              (notifs: INotifs) => {
+                return Object.values(notifs).reduce((sum, val) => sum + val, 0);
+              },
+            ],
+          },
+          lastAccessAt: { selector: "update", filters: [(query: number) => query * 1000] },
         },
       },
       {
@@ -287,12 +324,15 @@ export const siteMetadata: ISiteMetadata = {
           },
           trueDownloaded: {
             selector: "td.rowhead:contains('Real Downloaded') + td",
+            filters: [{ name: "parseSize" }],
           },
           trueUploaded: {
             selector: "td.rowhead:contains('Real Uploaded') + td",
+            filters: [{ name: "parseSize" }],
           },
           trueRatio: {
             selector: "td.rowhead:contains('Real share ratio') + td",
+            filters: [{ name: "parseNumber" }],
           },
           bonusPerHour: {
             selector: "td.rowhead:contains('Points earning') + td",
@@ -334,58 +374,3 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
-
-export default class MyAnonamouse extends PrivateSite {
-  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
-
-    // 导入用户上传和做种信息
-    if (
-      flushUserInfo.status === EResultParseStatus.success &&
-      (typeof flushUserInfo.seeding === "undefined" || typeof flushUserInfo.seedingSize === "undefined")
-    ) {
-      flushUserInfo = (await this.parseUserInfoForSeedingAndUploadStatus(flushUserInfo)) as IUserInfo;
-    }
-
-    // 获取用户通知数
-    if (flushUserInfo.status === EResultParseStatus.success && typeof flushUserInfo.messageCount === "undefined") {
-      flushUserInfo.messageCount = await this.getMessageCount();
-    }
-
-    return flushUserInfo;
-  }
-
-  protected async parseUserInfoForSeedingAndUploadStatus(
-    flushUserInfo: Partial<IUserInfo>,
-  ): Promise<Partial<IUserInfo>> {
-    const upSeedStatus = { seeding: 0, seedingSize: 0, uploads: 0 };
-
-    // 做种中种子的所有类型
-    const seedingKeys = ["seedUnsat", "seedHnr", "sSat", "upAct"] as const;
-
-    // 已上传种子的所有类型
-    const uploadKeys = ["upAct", "upInact"] as const;
-
-    const { data: loadResp } = await this.request<Omit<IMyAnonamouseLoadResp, "notifs">>({
-      url: "/jsonLoad.php?snatch_summary",
-    });
-
-    upSeedStatus.seeding = seedingKeys.map((key) => loadResp[key].count).reduce((sum, count) => sum + count, 0);
-    upSeedStatus.seedingSize = seedingKeys.map((key) => loadResp[key].size ?? 0).reduce((sum, size) => sum + size, 0);
-    upSeedStatus.uploads = uploadKeys.map((key) => loadResp[key].count).reduce((sum, count) => sum + count, 0);
-
-    flushUserInfo = mergeWith(flushUserInfo, upSeedStatus, (objValue, srcValue) => {
-      return typeof srcValue === "undefined" ? objValue : srcValue;
-    });
-
-    return flushUserInfo;
-  }
-
-  protected async getMessageCount(): Promise<number> {
-    const { data: loadResp } = await this.request<Pick<IMyAnonamouseLoadResp, "notifs">>({
-      url: "/jsonLoad.php?notif",
-    });
-
-    return Object.values(loadResp.notifs).reduce((sum, val) => sum + val, 0);
-  }
-}

@@ -1,6 +1,11 @@
 import type { ISiteMetadata, ISearchInput, ITorrent, IUserInfo } from "../types.ts";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
-import { parseValidTimeString, extractContent, buildCategoryOptionsFromList } from "../utils.ts";
+import {
+  parseValidTimeString,
+  extractContent,
+  buildCategoryOptionsFromList,
+  buildCategoryOptionsFromDict,
+} from "../utils.ts";
 import urlJoin from "url-join";
 import GazelleJSONAPI from "../schemas/GazelleJSONAPI.ts";
 import { SchemaMetadata, jsonResponse, infoJsonResponse, userJsonResponse } from "../schemas/GazelleJSONAPI.ts";
@@ -84,7 +89,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "类别",
       key: "filter_cat",
-      options: Object.entries(categoryMap).map(([value, name]) => ({ name, value })),
+      options: buildCategoryOptionsFromDict(categoryMap),
       cross: { mode: "appendQuote" },
     },
     {
