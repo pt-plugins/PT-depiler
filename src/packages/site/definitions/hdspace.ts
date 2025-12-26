@@ -3,6 +3,7 @@
  */
 import type { ISiteMetadata } from "../types.ts";
 import { set } from "es-toolkit/compat";
+import { buildCategoryOptionsFromDict } from "../utils.ts";
 
 const categoryMap: Record<number, string> = {
   15: "Movie / Blu-ray",
@@ -53,7 +54,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "类别",
       key: "category",
-      options: Object.entries(categoryMap).map(([value, name]) => ({ name, value })),
+      options: buildCategoryOptionsFromDict(categoryMap),
       cross: { mode: "custom" },
       generateRequestConfig: (selectedOptions) => {
         const params = { category: "" };

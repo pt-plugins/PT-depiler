@@ -84,6 +84,10 @@ export const siteMetadata: ISiteMetadata = {
   levelRequirements: [
     {
       id: 1,
+      name: "User",
+    },
+    {
+      id: 2,
       name: "Member",
       interval: "P1W",
       uploaded: "10GB",
@@ -91,7 +95,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "",
     },
     {
-      id: 2,
+      id: 3,
       name: "Power User",
       interval: "P2W",
       uploads: 5,
@@ -100,7 +104,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "Invites forums; Immunity from inactivity disabling",
     },
     {
-      id: 3,
+      id: 4,
       name: "Elite",
       interval: "P4W",
       uploads: 50,
@@ -109,7 +113,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "",
     },
     {
-      id: 4,
+      id: 5,
       name: "Torrent Master",
       interval: "P8W",
       uploads: 500,
@@ -118,7 +122,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "Unlimited invites",
     },
     {
-      id: 5,
+      id: 6,
       name: "Power TM",
       interval: "P8W",
       uniqueGroups: 500,
@@ -127,7 +131,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "",
     },
     {
-      id: 6,
+      id: 7,
       name: "Elite TM",
       interval: "P8W",
       perfectFlacs: 500,

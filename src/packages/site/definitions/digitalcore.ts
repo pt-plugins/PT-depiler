@@ -1,6 +1,6 @@
 import type { ISiteMetadata } from "../types";
 import { get } from "es-toolkit/compat";
-import { GB } from "../utils";
+import { buildCategoryOptionsFromDict, GB } from "../utils";
 
 const commonDocumentSelectors = {
   rows: { selector: "torrents-table[torrents] > table > tbody > tr" },
@@ -100,7 +100,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "类别",
       key: "categories",
-      options: Object.entries(categoryMap).map(([value, name]) => ({ name, value })),
+      options: buildCategoryOptionsFromDict(categoryMap),
       cross: { mode: "brackets" },
     },
     {

@@ -4,7 +4,7 @@
  */
 import type { ISiteMetadata, IUserInfo } from "../types.ts";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
-import { parseSizeString } from "../utils.ts";
+import { parseSizeString, buildCategoryOptionsFromDict } from "../utils.ts";
 import Sizzle from "sizzle";
 
 const categoryMap: Record<number, string> = {
@@ -125,7 +125,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "类别",
       key: "category",
-      options: Object.entries(categoryMap).map(([value, name]) => ({ name, value })),
+      options: buildCategoryOptionsFromDict(categoryMap),
     },
     {
       name: "种子状态",
