@@ -1,5 +1,5 @@
-import { type ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/GazelleJSONAPI.ts";
+import type { ISiteMetadata, IUserInfo } from "../types";
+import GazelleJSONAPI, { SchemaMetadata } from "../schemas/GazelleJSONAPI.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -57,6 +57,18 @@ export const siteMetadata: ISiteMetadata = {
       ],
     },
   ],
+
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      // /bonus.php?action=bprates
+      seedingSize: {
+        selector: ["table > tbody > tr > td:eq(1)"],
+        filters: [{ name: "parseSize" }],
+      },
+    },
+  },
 
   levelRequirements: [
     {
@@ -133,3 +145,17 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
+
+export default class Orpheus extends GazelleJSONAPI {
+  protected override async getSeedingSize(userId?: number): Promise<Partial<IUserInfo>> {
+    await this.sleepAction(this.metadata.userInfo?.requestDelay);
+
+    const { data: bonusPage } = await this.request<Document>({
+      url: "/bonus.php?action=bprates",
+      responseType: "document",
+    });
+    return this.getFieldsData(bonusPage, this.metadata.userInfo!.selectors!, [
+      "seedingSize",
+    ] as (keyof Partial<IUserInfo>)[]) as Partial<IUserInfo>;
+  }
+}
