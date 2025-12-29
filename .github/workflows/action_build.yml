@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: ${{ github.event_name == 'push' && '0' || '1' }} # 根据事件类型动态设置 fetch-depth
+          fetch-depth: ${{ (github.event_name == 'push' || github.event_name == 'workflow_call') && '0' || '1' }} # 根据事件类型动态设置 fetch-depth
 
       - uses: pnpm/action-setup@v4
 
