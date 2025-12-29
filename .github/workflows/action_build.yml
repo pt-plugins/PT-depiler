@@ -1,5 +1,3 @@
-# 这是一个临时性用来构建测试包的action
-
 name: Build Action Release
 
 on:
@@ -16,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: ${{ (github.event_name == 'push' || github.event_name == 'workflow_call') && '0' || '1' }} # 根据事件类型动态设置 fetch-depth
+          fetch-depth: ${{ github.event_name == 'pull_request' && '1' || '0' }} # 根据事件类型动态设置 fetch-depth
 
       - uses: pnpm/action-setup@v4
 
@@ -31,7 +29,7 @@ jobs:
 
       - name: vue-tsc check
         run: pnpm check
-        continue-on-error: ${{ github.event_name == 'push' && true || false }}
+        continue-on-error: ${{ github.event_name == 'pull_request' && false || true }}
 
       - name: Build Output
         run: |
