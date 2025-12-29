@@ -32,6 +32,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           pattern: build-zip-*
+          merge-multiple: true
 
       # 下载用于 firefox 商店提交的源代码
       # 由于 workflow_dispatch 和 schedule 触发的工作流其 GITHUB_SHA 永远为最新提交的 SHA，此处可以直接固定死下载最新的源代码
@@ -54,4 +55,4 @@ jobs:
           EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
           EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
           EDGE_SKIP_SUBMIT_REVIEW: ${{ secrets.EDGE_SKIP_SUBMIT_REVIEW }}
-        run: publish-extension --chrome-zip extension-chrome.zip --firefox-zip extension-firefox.zip --firefox-sources-zip source.zip --edge-zip extension-chrome.zip
+        run: pnpm exec publish-extension --chrome-zip extension-chrome.zip --firefox-zip extension-firefox.zip --firefox-sources-zip source.zip --edge-zip extension-chrome.zip
