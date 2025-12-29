@@ -16,6 +16,8 @@ jobs:
     steps:
       # 构建发布所需的环境
       - uses: pnpm/action-setup@v4
+        with:
+          version: "^10.21.0"
 
       - name: Setup Node
         uses: actions/setup-node@v4
