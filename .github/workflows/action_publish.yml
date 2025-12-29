@@ -23,9 +23,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ">=23.7.0"
-          cache: "pnpm"
 
-      - run: pnpm init -y
+      - run: pnpm init
       - run: pnpm i -D publish-browser-extension
 
       # 下载 action_build.yml 构造出来的 extension-chrome.zip, extension-firefox.zip 两个文件
