@@ -1,0 +1,56 @@
+name: Build Publish Release
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 20 1,15 * *'
+
+jobs:
+  build:
+    uses: ./.github/workflows/action_build.yml
+
+  publish:
+    runs-on: ubuntu-latest
+    needs: build
+
+    steps:
+      # 构建发布所需的环境
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ">=23.7.0"
+          cache: "pnpm"
+
+      - uses: pnpm/action-setup@v4
+
+      - run: pnpm init -y
+      - run: pnpm i -D publish-browser-extension
+
+      # 下载 action_build.yml 构造出来的 extension-chrome.zip, extension-firefox.zip 两个文件
+      - name: Download Chrome Built Artifact
+        uses: actions/download-artifact@v4
+        with:
+          pattern: build-zip-*
+
+      # 下载用于 firefox 商店提交的源代码
+      # 由于 workflow_dispatch 和 schedule 触发的工作流其 GITHUB_SHA 永远为最新提交的 SHA，此处可以直接固定死下载最新的源代码
+      - run: wget https://github.com/pt-plugins/PT-depiler/archive/refs/heads/master.zip -O source.zip
+
+      # 提交至 Store
+      - name: Publish to Store
+        env:
+          CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
+          CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
+          CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
+          CHROME_PUBLISH_TARGET: ${{ secrets.CHROME_PUBLISH_TARGET }}
+          CHROME_SKIP_SUBMIT_REVIEW: ${{ secrets.CHROME_SKIP_SUBMIT_REVIEW }}
+          FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
+          FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
+          FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
+          FIREFOX_CHANNEL: ${{ secrets.FIREFOX_CHANNEL }}
+          EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
+          EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
+          EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
+          EDGE_SKIP_SUBMIT_REVIEW: ${{ secrets.EDGE_SKIP_SUBMIT_REVIEW }}
+        run: publish-extension --chrome-zip extension-chrome.zip --firefox-zip extension-firefox.zip --firefox-sources-zip source.zip --edge-zip extension-chrome.zip
