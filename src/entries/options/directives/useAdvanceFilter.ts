@@ -130,6 +130,7 @@ export function checkKeywordValue(
   rawItem: TRawItem,
   keyword: string,
   format: TFormat = {},
+  exclude = false,
   // @ts-ignore
 ): boolean | undefined {
   const itemValue = get(rawItem, keyword); // true    filter[keyword] = ['1']
@@ -141,8 +142,10 @@ export function checkKeywordValue(
 
     const valueFormat = getValueFormat(keyword as string, format);
     if (Array.isArray(itemValue)) {
-      const parsedItemValue = itemValue.map((v: any) => valueFormat.parse(v)) as string[];
-      return filter[keyword].every((keyword: string) => parsedItemValue.includes(keyword));
+      const parsedSet = new Set(itemValue.map((v: any) => valueFormat.parse(v)) as string[]);
+      const filterVals = filter[keyword] as string[];
+      // 如果是正向关键词则要求全部包含，如果是排除关键词则要求有任意一个包含
+      return exclude ? filterVals.some((k) => parsedSet.has(k)) : filterVals.every((k) => parsedSet.has(k));
     } else {
       return filter[keyword].includes(valueFormat.parse(itemValue) as string);
     }
@@ -287,7 +290,7 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
 
       if (parseOptions.keywords) {
         for (const keyword of parseOptions.keywords) {
-          if (checkKeywordValue(exclude, rawItem, keyword, format) === true) return false;
+          if (checkKeywordValue(exclude, rawItem, keyword, format, true) === true) return false;
         }
       }
 
