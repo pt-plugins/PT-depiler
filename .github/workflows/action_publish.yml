@@ -39,7 +39,8 @@ jobs:
       - run: wget https://github.com/pt-plugins/PT-depiler/archive/refs/heads/master.zip -O source.zip
 
       # 提交至 Store
-      - name: Publish to Store
+      - name: Publish to Chrome Web Store
+        continue-on-error: true
         env:
           CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
           CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
@@ -47,12 +48,22 @@ jobs:
           CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
           CHROME_PUBLISH_TARGET: ${{ secrets.CHROME_PUBLISH_TARGET }}
           CHROME_SKIP_SUBMIT_REVIEW: ${{ secrets.CHROME_SKIP_SUBMIT_REVIEW }}
+        run: pnpm exec publish-extension --chrome-zip extension-chrome.zip
+
+      - name: Publish to Firefox Add-ons
+        continue-on-error: true
+        env:
           FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
           FIREFOX_JWT_ISSUER: ${{ secrets.FIREFOX_JWT_ISSUER }}
           FIREFOX_JWT_SECRET: ${{ secrets.FIREFOX_JWT_SECRET }}
           FIREFOX_CHANNEL: ${{ secrets.FIREFOX_CHANNEL }}
+        run: pnpm exec publish-extension --firefox-zip extension-firefox.zip --firefox-sources-zip source.zip
+
+      - name: Publish to Microsoft Edge Add-ons
+        continue-on-error: true
+        env:
           EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
           EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
           EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
           EDGE_SKIP_SUBMIT_REVIEW: ${{ secrets.EDGE_SKIP_SUBMIT_REVIEW }}
-        run: pnpm exec publish-extension --chrome-zip extension-chrome.zip --firefox-zip extension-firefox.zip --firefox-sources-zip source.zip --edge-zip extension-chrome.zip
+        run: pnpm exec publish-extension --edge-zip extension-chrome.zip
