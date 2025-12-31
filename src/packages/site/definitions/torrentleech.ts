@@ -218,7 +218,7 @@ export const siteMetadata: ISiteMetadata = {
         assertion: { name: "url" }, // 替换之前获取的用户名
         selectors: {
           id: {
-            selector: "div.has-support-msg script",
+            selector: "script:contains('userLogUserID')",
             filters: [(text: string) => text.match(/var userLogUserID = '(\d+)';/)?.[1] ?? ""],
           },
           levelName: { selector: "div.profile-details div.label-user-class" },
