@@ -14,7 +14,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Luminance",
 
   urls: ["uggcf://jjj.rzcbeavhz.ef/", "uggcf://jjj.rzcbeavhz.fk/"],
-  formerHosts: ["https://www.empornium.is"],
+  formerHosts: ["www.empornium.is"],
 
   category: [
     {
