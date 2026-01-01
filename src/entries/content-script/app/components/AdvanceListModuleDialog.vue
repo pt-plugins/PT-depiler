@@ -7,6 +7,9 @@ import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 import { formatDate, formatSize } from "@/options/utils.ts";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
+
+import type { IRemoteDownloadDialogData } from "../types.ts";
 
 import NavButton from "@/options/components/NavButton.vue";
 import TorrentTitleTd from "@/options/components/TorrentTitleTd.vue";
@@ -20,6 +23,7 @@ const { torrentItems } = defineProps<{
 }>();
 
 const runtimeStore = useRuntimeStore();
+const metadataStore = useMetadataStore();
 
 const tableHeaders = computed(
   () =>
@@ -71,9 +75,9 @@ async function handleLinkCopyMulti() {
   }
 }
 
-const remoteDownloadDialogData = inject<{ show: boolean; torrents: ITorrent[] }>("remoteDownloadDialogData")!;
+const remoteDownloadDialogData = inject<IRemoteDownloadDialogData>("remoteDownloadDialogData")!;
 
-function handleRemoteDownloadMulti() {
+function handleRemoteDownloadMulti(isDefaultSend = false) {
   remoteDownloadDialogData.torrents = selectedTorrents.value;
   remoteDownloadDialogData.show = true;
 }
@@ -168,7 +172,17 @@ function enterDialog() {
           color="light-blue"
           icon="mdi-tray-arrow-down"
           text="推送到..."
-          @click="handleRemoteDownloadMulti"
+          @click="() => handleRemoteDownloadMulti()"
+        />
+
+        <NavButton
+          v-if="metadataStore.defaultDownloader?.id"
+          key="remote_download_multi_default"
+          :disabled="!hasSelectedTorrent"
+          color="light-blue"
+          icon="mdi-download"
+          text="推送到默认下载器"
+          @click="() => handleRemoteDownloadMulti(true)"
         />
       </v-card-actions>
     </v-card>

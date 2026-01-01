@@ -5,10 +5,12 @@ import { type ITorrent } from "@ptd/site";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+
+import type { IRemoteDownloadDialogData } from "../types.ts";
 import { copyTextToClipboard, doKeywordSearch, siteInstance, wrapperConfirmFn } from "../utils.ts";
 
-import AdvanceListModuleDialog from "@/content-script/app/components/AdvanceListModuleDialog.vue";
-import SpeedDialBtn from "@/content-script/app/components/SpeedDialBtn.vue";
+import AdvanceListModuleDialog from "../components/AdvanceListModuleDialog.vue";
+import SpeedDialBtn from "../components/SpeedDialBtn.vue";
 
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
@@ -73,16 +75,14 @@ function handleLinkCopyMulti() {
     });
 }
 
-const remoteDownloadDialogData = inject<{ show: boolean; torrents: ITorrent[]; isDefaultSend: boolean }>(
-  "remoteDownloadDialogData",
-)!;
+const remoteDownloadDialogData = inject<IRemoteDownloadDialogData>("remoteDownloadDialogData")!;
 
 function handleRemoteDownloadMulti(isDefaultSend = false) {
   parseListPage().then(({ torrents }) => {
     if (torrents.length > 0) {
       remoteDownloadDialogData.torrents = torrents;
-      remoteDownloadDialogData.show = true;
       remoteDownloadDialogData.isDefaultSend = isDefaultSend;
+      remoteDownloadDialogData.show = true;
     }
   });
 }
