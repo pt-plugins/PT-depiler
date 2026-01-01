@@ -7,6 +7,7 @@ import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
+
 import type { TDownloaderKey } from "@/shared/types.ts";
 import { getDownloaderIcon, getDownloaderMetaData, type TorrentClientMetaData } from "@ptd/downloader";
 import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
@@ -14,6 +15,8 @@ import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
 import AddDialog from "./AddDialog.vue";
 import EditDialog from "./EditDialog.vue";
 import PathAndTagSuggestDialog from "./PathAndTagSuggestDialog.vue";
+import DefaultDownloaderEditDialog from "./DefaultDownloaderEditDialog.vue";
+
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";
 
@@ -23,6 +26,7 @@ const configStore = useConfigStore();
 
 const showAddDialog = ref<boolean>(false);
 const showEditDialog = ref<boolean>(false);
+const showDefaultDownloaderEditDialog = ref<boolean>(false);
 const showPathAndTagSuggestDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 
@@ -86,7 +90,7 @@ function editDownloaderPathAndTag(downloaderId: TDownloaderKey) {
 
 const toDeleteIds = ref<TDownloaderKey[]>([]);
 function deleteDownloader(downloaderId: TDownloaderKey[]) {
-  toDeleteIds.value = downloaderId;
+  toDeleteIds.value = downloaderId.filter((i) => i !== metadataStore.defaultDownloader?.id); // 默认下载器不允许删除（防止多选时选中）
   showDeleteDialog.value = true;
 }
 
@@ -108,6 +112,16 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
           color="error"
           icon="mdi-minus"
           @click="deleteDownloader(tableSelected)"
+        />
+
+        <v-divider class="mx-2" inset vertical />
+
+        <NavButton
+          :disabled="metadataStore.getDownloaders.length == 0"
+          :text="t('SetDownloader.index.editDefaultDownloaderBtn')"
+          color="indigo"
+          icon="mdi-auto-download"
+          @click="showDefaultDownloaderEditDialog = true"
         />
 
         <v-spacer />
@@ -185,10 +199,16 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
         <v-avatar :image="getDownloaderIcon(item.type)" :alt="item.type" />
       </template>
 
-      <template #item.id="{ item }">
-        <v-row class="ma-0" align="center">
-          <code>{{ item.id }}</code>
-        </v-row>
+      <template #item.name="{ item }">
+        <v-icon
+          v-if="item.id == metadataStore.defaultDownloader?.id"
+          icon="mdi-pin mdi-rotate-45"
+          color="indigo"
+          class="mr-1"
+        />
+        <span class="font-weight-bold" :class="{ 'text-indigo': item.id == metadataStore.defaultDownloader?.id }">
+          {{ item.name }}
+        </span>
       </template>
 
       <template #item.address="{ item }">
@@ -206,6 +226,7 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
       <template #item.enabled="{ item }">
         <v-switch
           v-model="item.enabled"
+          :readonly="item.id == metadataStore.defaultDownloader?.id /* 默认下载器不允许禁用 */"
           class="table-switch-btn"
           color="success"
           hide-details
@@ -250,6 +271,7 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
 
           <v-btn
             :title="t('common.remove')"
+            :disabled="item.id == metadataStore.defaultDownloader?.id /* 默认下载器不允许删除 */"
             color="error"
             icon="mdi-delete"
             size="small"
@@ -262,6 +284,7 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
 
   <AddDialog v-model="showAddDialog" />
   <EditDialog v-model="showEditDialog" :client-id="toEditDownloaderId!" />
+  <DefaultDownloaderEditDialog v-model="showDefaultDownloaderEditDialog" />
   <PathAndTagSuggestDialog v-model="showPathAndTagSuggestDialog" :client-id="toEditDownloaderId!" />
   <DeleteDialog v-model="showDeleteDialog" :to-delete-ids="toDeleteIds" :confirm-delete="confirmDeleteDownloader" />
 </template>

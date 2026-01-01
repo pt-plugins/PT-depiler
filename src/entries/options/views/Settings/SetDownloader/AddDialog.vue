@@ -57,6 +57,12 @@ async function updateStoredDownloaderConfigByDefault(type: string) {
 
 async function saveStoredDownloaderConfig() {
   await metadataStore.addDownloader(storedDownloaderConfig.value as IDownloaderMetadata);
+
+  // 如果只有一个下载器，则将这个下载器设为默认下载器
+  if (metadataStore.getDownloaders.length === 1) {
+    metadataStore.defaultDownloader = { id: storedDownloaderConfig.value.id!, folder: "", tags: "" };
+  }
+
   showDialog.value = false;
 }
 </script>

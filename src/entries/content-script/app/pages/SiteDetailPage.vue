@@ -27,7 +27,9 @@ async function parseDetailPage() {
   return parsedResult!;
 }
 
-const remoteDownloadDialogData = inject<{ show: boolean; torrents: ITorrent[] }>("remoteDownloadDialogData")!;
+const remoteDownloadDialogData = inject<{ show: boolean; torrents: ITorrent[]; isDefaultSend: boolean }>(
+  "remoteDownloadDialogData",
+)!;
 
 function handleLinkCopy() {
   parseDetailPage().then(async (torrent) => {
@@ -40,10 +42,11 @@ function handleLinkCopy() {
   });
 }
 
-function handleRemoteDownload() {
+function handleRemoteDownload(isDefaultSend = false) {
   parseDetailPage().then((torrent) => {
     remoteDownloadDialogData.torrents = [torrent];
     remoteDownloadDialogData.show = true;
+    remoteDownloadDialogData.isDefaultSend = isDefaultSend;
   });
 }
 
@@ -62,7 +65,15 @@ function handleSearch() {
     color="light-blue"
     icon="mdi-tray-arrow-down"
     title="推送到..."
-    @click="handleRemoteDownload"
+    @click="() => handleRemoteDownload()"
+  />
+  <SpeedDialBtn
+    key="download"
+    :disabled="metadataStore.getEnabledDownloaders.length === 0"
+    color="light-blue"
+    icon="mdi-download"
+    title="推送到默认下载器"
+    @click="handleRemoteDownload(true)"
   />
   <SpeedDialBtn key="search" color="indigo" icon="mdi-home-search" title="快捷搜索" @click="handleSearch" />
 </template>

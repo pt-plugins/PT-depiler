@@ -486,7 +486,8 @@
       "uidPlaceholder": " (Generate automatically)"
     },
     "index": {
-      "changeDefaultDownloader": "Change Default Downloader Successful!",
+      "editDefaultDownloaderBtn": "Edit Default Downloader",
+      "changeDefaultDownloader": "Default downloader updated successfully. If necessary, please further configure the download path and tags.",
       "emptyNotice": "Before using the download service, you need to add at least one download server.",
       "remove": {
         "multi": "Are you sure to delete these {count} download servers?",
@@ -495,6 +496,7 @@
       "table": {
         "enabled": "Enabled ?",
         "autodl": "Auto DL ?",
+        "default": "Default ?",
         "action": {
           "setPathAndTag": "Set Suggest Download Path and Tags",
           "deleteDownloader": "Delete this downloader server",

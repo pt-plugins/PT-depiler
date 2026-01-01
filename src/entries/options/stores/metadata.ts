@@ -43,6 +43,7 @@ export const useMetadataStore = defineStore("metadata", {
     backupServers: {},
 
     defaultSolutionId: "default",
+    defaultDownloader: {},
 
     lastSearchFilter: "",
     lastUserInfo: {},

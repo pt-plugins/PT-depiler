@@ -73,13 +73,16 @@ function handleLinkCopyMulti() {
     });
 }
 
-const remoteDownloadDialogData = inject<{ show: boolean; torrents: ITorrent[] }>("remoteDownloadDialogData")!;
+const remoteDownloadDialogData = inject<{ show: boolean; torrents: ITorrent[]; isDefaultSend: boolean }>(
+  "remoteDownloadDialogData",
+)!;
 
-function handleRemoteDownloadMulti() {
+function handleRemoteDownloadMulti(isDefaultSend = false) {
   parseListPage().then(({ torrents }) => {
     if (torrents.length > 0) {
       remoteDownloadDialogData.torrents = torrents;
       remoteDownloadDialogData.show = true;
+      remoteDownloadDialogData.isDefaultSend = isDefaultSend;
     }
   });
 }
@@ -126,7 +129,15 @@ async function handleSearch() {
     color="light-blue"
     icon="mdi-tray-arrow-down"
     title="推送到..."
-    @click="handleRemoteDownloadMulti"
+    @click="() => handleRemoteDownloadMulti()"
+  />
+  <SpeedDialBtn
+    key="download"
+    :disabled="metadataStore.getEnabledDownloaders.length === 0"
+    color="light-blue"
+    icon="mdi-download"
+    title="推送到默认下载器"
+    @click="() => handleRemoteDownloadMulti(true)"
   />
 
   <SpeedDialBtn

@@ -10,7 +10,7 @@ import { getHostFromUrl, ITorrent } from "@ptd/site";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
-import SentToDownloaderDialog from "@/options/components/SentToDownloaderDialog.vue";
+import SentToDownloaderDialog from "@/options/components/SentToDownloaderDialog/Index.vue";
 
 const route = useRoute();
 const router = useRouter();

@@ -9,7 +9,7 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { currentView, type IPtdData, pageType, updatePageType } from "./utils.ts";
 
 import SpeedDialBtn from "@/content-script/app/components/SpeedDialBtn.vue";
-import SentToDownloaderDialog from "@/options/components/SentToDownloaderDialog.vue";
+import SentToDownloaderDialog from "@/options/components/SentToDownloaderDialog/Index.vue";
 
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
@@ -73,6 +73,7 @@ configStore.$onReady(() => {
 const remoteDownloadDialogData = shallowReactive({
   show: false,
   torrents: [] as ITorrent[],
+  isDefaultSend: false,
 });
 provide("remoteDownloadDialogData", remoteDownloadDialogData);
 
@@ -266,6 +267,7 @@ function openOptions() {
       v-model="remoteDownloadDialogData.show"
       :content-class="['bg-white']"
       :torrent-items="remoteDownloadDialogData.torrents"
+      :is-default-send="remoteDownloadDialogData.isDefaultSend"
     />
   </v-theme-provider>
 </template>

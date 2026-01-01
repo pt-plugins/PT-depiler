@@ -182,14 +182,16 @@ export interface IConfigPiniaStorageSchema {
   download: {
     // 是否保存下载记录
     saveDownloadHistory: boolean;
-    // 是否保存上一次使用的下载器
-    saveLastDownloader: boolean;
-    // 是否允许直接将链接（而不是种子文件）发送到客户端
-    allowDirectSendToClient: boolean;
+
     // 当使用本地方法下载时，如何下载种子
     localDownloadMethod: TLocalDownloadMethod;
     // 当使用本地方法下载时，是否忽略站点的下载间隔设置；
     ignoreSiteDownloadIntervalWhenLocalDownload: boolean;
+
+    // 是否保存上一次使用的下载器
+    saveLastDownloader: boolean;
+    // 是否允许直接将链接（而不是种子文件）发送到客户端
+    allowDirectSendToClient: boolean;
     // 是否使用快速发送到客户端功能（展平 下载器和下载目录 ）
     useQuickSendToClient: boolean;
   };
