@@ -62,7 +62,7 @@ function handleSearch() {
     key="download"
     :disabled="metadataStore.getEnabledDownloaders.length === 0"
     color="light-blue"
-    icon="mdi-tray-arrow-down"
+    icon="mdi-cloud-download"
     title="推送到..."
     @click="() => handleRemoteDownload()"
   />

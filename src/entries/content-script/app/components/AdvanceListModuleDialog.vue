@@ -170,7 +170,7 @@ function enterDialog() {
           :disabled="!hasSelectedTorrent"
           key="remote_download_multi"
           color="light-blue"
-          icon="mdi-tray-arrow-down"
+          icon="mdi-cloud-download"
           text="推送到..."
           @click="() => handleRemoteDownloadMulti()"
         />
