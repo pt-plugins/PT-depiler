@@ -79,6 +79,7 @@ const remoteDownloadDialogData = inject<IRemoteDownloadDialogData>("remoteDownlo
 
 function handleRemoteDownloadMulti(isDefaultSend = false) {
   remoteDownloadDialogData.torrents = selectedTorrents.value;
+  remoteDownloadDialogData.isDefaultSend = isDefaultSend;
   remoteDownloadDialogData.show = true;
 }
 

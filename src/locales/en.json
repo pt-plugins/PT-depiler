@@ -496,7 +496,7 @@
       "table": {
         "enabled": "Enabled ?",
         "autodl": "Auto DL ?",
-        "default": "Default ?",
+
         "action": {
           "setPathAndTag": "Set Suggest Download Path and Tags",
           "deleteDownloader": "Delete this downloader server",

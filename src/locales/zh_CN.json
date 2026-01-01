@@ -495,7 +495,7 @@
       },
       "table": {
         "enabled": "启用？",
-        "default": "默认？",
+
         "autodl": "自动下载？",
         "action": {
           "setPathAndTag": "设置预设的下载路径和标签",
