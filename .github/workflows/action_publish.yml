@@ -12,6 +12,8 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     needs: build
+    permissions:
+      contents: write
 
     steps:
       # 构建发布所需的环境
@@ -34,12 +36,19 @@ jobs:
           pattern: build-zip-*
           merge-multiple: true
 
-      # 下载用于 firefox 商店提交的源代码
-      # 由于 workflow_dispatch 和 schedule 触发的工作流其 GITHUB_SHA 永远为最新提交的 SHA，此处可以直接固定死下载最新的源代码
-      - run: wget https://github.com/pt-plugins/PT-depiler/archive/refs/heads/master.zip -O source.zip
+      # 发布 GitHub Release
+      - id: github_release
+        uses: ncipollo/release-action@v1
+        with:
+          name: v${{ needs.build.outputs.version }}
+          tag: v${{ needs.build.outputs.version }}
+          skipIfReleaseExists: true
+          generateReleaseNotes: true
+          artifacts: 'extension-chrome.zip,extension-firefox.zip'
 
       # 提交至 Store
       - name: Publish to Chrome Web Store
+        if: ${{ steps.github_release.outputs.id != '' }}
         continue-on-error: true
         env:
           CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
@@ -50,7 +59,12 @@ jobs:
           CHROME_SKIP_SUBMIT_REVIEW: ${{ secrets.CHROME_SKIP_SUBMIT_REVIEW }}
         run: pnpm exec publish-extension --chrome-zip extension-chrome.zip
 
+      ## 下载用于 firefox 商店提交的源代码
+      ## 由于 workflow_dispatch 和 schedule 触发的工作流其 GITHUB_SHA 永远为最新提交的 SHA，此处可以直接固定死下载最新的源代码
+      - run: wget https://github.com/pt-plugins/PT-depiler/archive/refs/heads/master.zip -O source.zip
+
       - name: Publish to Firefox Add-ons
+        if: ${{ steps.github_release.outputs.id != '' }}
         continue-on-error: true
         env:
           FIREFOX_EXTENSION_ID: ${{ secrets.FIREFOX_EXTENSION_ID }}
@@ -60,6 +74,7 @@ jobs:
         run: pnpm exec publish-extension --firefox-zip extension-firefox.zip --firefox-sources-zip source.zip
 
       - name: Publish to Microsoft Edge Add-ons
+        if: ${{ steps.github_release.outputs.id != '' }}
         continue-on-error: true
         env:
           EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
