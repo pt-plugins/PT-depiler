@@ -1,8 +1,9 @@
 import { type ISiteMetadata, ETorrentStatus } from "../types";
 import { SchemaMetadata } from "../schemas/Luminance";
-import { buildCategoryOptionsFromDict, buildCategoryOptionsFromList } from "../utils";
+import { buildCategoryOptionsFromDict } from "../utils";
 
 const categoryMap: Record<number, string> = {
+  17: "3D Printing",
   1: "Applications",
   8: "Audio",
   7: "Game Development",
@@ -63,7 +64,6 @@ export const siteMetadata: ISiteMetadata = {
           },
         ],
       },
-      time: { selector: ["td:nth-child(6) > span"], attr: "title", filters: [{ name: "parseTime" }] },
       size: { selector: ["td:nth-child(7)"], filters: [{ name: "parseSize" }] },
       author: undefined,
       seeders: { selector: ["td:nth-child(9)"], filters: [{ name: "parseNumber" }] },

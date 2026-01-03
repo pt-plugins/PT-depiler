@@ -1,4 +1,5 @@
 import { ISearchCategoryOptions, type ISiteMetadata } from "../types";
+import { SchemaMetadata } from "../schemas/Luminance";
 
 const categories: ISearchCategoryOptions[] = [
   // Torznab Movie Categories
@@ -24,12 +25,13 @@ const categories: ISearchCategoryOptions[] = [
 ];
 
 export const siteMetadata: ISiteMetadata = {
+  ...SchemaMetadata,
   id: "morethantv",
   version: 2,
   name: "MoreThanTV",
   aka: ["MTV"],
   description: "MoreThanTV is a Private Torrent Tracker for TV / MOVIES",
-  tags: ["电视剧", "剧集"],
+  tags: ["电视剧", "剧集", "电影"],
 
   collaborator: ["luckiestone", "Rhilip"],
 
@@ -117,87 +119,20 @@ export const siteMetadata: ISiteMetadata = {
       urlPattern: ["/torrents/browse"],
       mergeSearchSelectors: false,
       selectors: {
-        rows: { selector: "table#torrent_table tr.torrent" },
+        ...SchemaMetadata.search!.selectors!,
         id: {
           selector: "a.overlay_torrent[href]",
           attr: "href",
           filters: [{ name: "querystring", args: ["torrentid"] }],
         },
-        title: { selector: "a.overlay_torrent[href]" },
-        url: { selector: "a.overlay_torrent[href]", attr: "href" },
-        link: { selector: "a[href^='/torrents.php'][href*='action=download']", attr: "href" },
         seeders: { selector: "td:nth-child(7)" },
         leechers: { selector: "td:nth-child(8)" },
         completed: { selector: "td:nth-child(6)" },
         size: { selector: "td:nth-child(5)", filters: [{ name: "parseSize" }] },
-        time: {
-          selector: "span.time[title]",
-          attr: "title", // Jul 03 2025, 21:04
-          filters: [{ name: "parseTime", args: ["MMM dd yyyy, HH:mm"] }],
-        },
         keywords: { selector: "input#searchtext", elementProcess: (el) => el?.value ?? "" },
       },
     },
   ],
-
-  userInfo: {
-    pickLast: ["id", "joinTime"],
-    process: [
-      {
-        requestConfig: { url: "/index.php" },
-        selectors: {
-          id: {
-            selector: "a.username[href*='user.php']:first",
-            attr: "href",
-            filters: [{ name: "querystring", args: ["id"] }],
-          },
-          name: { selector: "a.username[href*='user.php']:first" },
-          messageCount: {
-            selector: ["div.alert-bar > a[href*='inbox.php']", "div.alertbar > a[href*='inbox.php']"],
-            filters: [{ name: "parseNumber" }],
-          },
-        },
-      },
-      {
-        requestConfig: { url: "/user.php" },
-        assertion: { id: "params.id" },
-        selectors: {
-          uploaded: { selector: "ul.stats > li:contains('Uploaded')", filters: [{ name: "parseSize" }] },
-          downloaded: { selector: "ul.stats > li:contains('Downloaded')", filters: [{ name: "parseSize" }] },
-          ratio: { selector: "ul.stats > li:contains('Ratio:')", filters: [{ name: "parseNumber" }] },
-          seeding: { selector: "ul.stats > li:contains('Seeding:')", filters: [{ name: "parseNumber" }] },
-          seedingSize: { selector: "ul.stats > li:contains('Seeding Size:')", filters: [{ name: "parseSize" }] },
-          levelName: { selector: "ul.stats > li:contains('Class:') a" },
-          bonus: { selector: "#stats_credits", filters: [{ name: "parseNumber" }] },
-          bonusPerHour: {
-            selector: "ul.stats > li:contains('Seeding:')",
-            filters: [
-              (query: string) => {
-                let ret = 0;
-                const queryMatch = query.replace(/,/g, "").match(/Seeding:.+?(\d+)/);
-                if (queryMatch && queryMatch.length >= 2) {
-                  const rawPerHour = parseFloat(queryMatch[1]);
-                  ret = rawPerHour >= 300 ? 100 : Math.round((Math.sqrt(rawPerHour * 0.4 + 1) - 1) * 10);
-                }
-                return ret;
-              },
-            ],
-          },
-          joinTime: {
-            selector: "ul.stats > li:contains('Joined:') > span",
-            attr: "title",
-            filters: [{ name: "parseTime", args: ["MMMM dd yyyy, HH:mm"] }],
-          },
-          lastAccessAt: {
-            selector: "ul.stats > li:contains('Last Seen:') > span",
-            attr: "title",
-            filters: [{ name: "parseTime", args: ["MMMM dd yyyy, HH:mm"] }],
-          },
-          posts: { selector: "ul.stats > li:contains('Forum Posts:')", filters: [{ name: "parseNumber" }] },
-        },
-      },
-    ],
-  },
 
   levelRequirements: [
     {
