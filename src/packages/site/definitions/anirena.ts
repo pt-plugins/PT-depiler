@@ -12,7 +12,7 @@ export const siteMetadata: ISiteMetadata = {
 
   type: "public",
   urls: ["https://www.anirena.com/"],
-  formerHosts: ["anirena.com"],
+  legacyUrls: ["https://anirena.com/"],
 
   category: [
     {

@@ -29,8 +29,8 @@ export const siteMetadata: ISiteMetadata = {
   type: "public",
 
   urls: ["https://www.tokyotosho.info/", "https://tokyo-tosho.net/"],
-  formerHosts: [
-    "tokyotosho.se", // redirect to www.tokyotosho.info
+  legacyUrls: [
+    "https://tokyotosho.se/", // redirect to www.tokyotosho.info
   ],
 
   category: [

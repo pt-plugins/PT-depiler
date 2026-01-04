@@ -14,7 +14,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["https://lemonhd.org/"],
-  formerHosts: ["leaguehd.com"],
+  legacyUrls: ["https://leaguehd.com/"],
 
   isDead: true,
 

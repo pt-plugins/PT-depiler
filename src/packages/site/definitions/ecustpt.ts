@@ -12,7 +12,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["https://pt.ecust.pp.ua/"],
-  formerHosts: ["public.ecustpt.eu.org", "ecustpt.eu.org"],
+  legacyUrls: ["https://public.ecustpt.eu.org/", "https://ecustpt.eu.org/"],
 
   isDead: true,
 };

@@ -13,8 +13,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["https://hdvideo.top/"],
-
-  formerHosts: ["hdvideo.one"],
+  legacyUrls: ["https://hdvideo.one/"],
 
   officialGroupPattern: [/(-HDVWEB|-HDVMV)/i],
 

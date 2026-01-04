@@ -39,7 +39,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Luminance",
 
   urls: ["https://www.morethantv.me/"],
-  formerHosts: ["www.morethan.tv"],
+  legacyUrls: ["https://www.morethan.tv/"],
 
   category: [
     {

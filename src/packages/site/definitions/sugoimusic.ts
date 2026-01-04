@@ -18,7 +18,6 @@ export const siteMetadata: ISiteMetadata = {
   schema: "GazelleJSONAPI",
 
   urls: ["https://sugoimusic.me/"],
-  formerHosts: [],
 
   levelRequirements: [
     {

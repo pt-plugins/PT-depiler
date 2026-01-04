@@ -18,7 +18,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["https://www.dragonhd.xyz/"],
-  formerHosts: ["dragonhd.xyz"],
+  legacyUrls: ["https://dragonhd.xyz/"],
 
   category: [CategoryIncldead, CategorySpstate, CategoryInclbookmarked],
 

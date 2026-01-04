@@ -73,7 +73,7 @@ export interface ISiteMetadata {
   schema?: SiteSchema;
 
   /**
-   * 完整的网站地址，
+   * 网站地址
    *
    * 1. 列表中第一个网址会作为默认的使用地址
    * 2. 如果网站支持 `https` ，请优先考虑填写 `https` 的地址
@@ -83,11 +83,14 @@ export interface ISiteMetadata {
   urls: TSiteUrl[];
 
   /**
-   * host 和 formerHosts 不支持填写 加密后的网站域名，不会自动进行 rot13 解码，如果需要请填写类似
-   *  host: rot13('xxxxx')
+   * 站点过去曾经使用过的，但现在已不再使用的网址
+   * 支持 rot13 格式，以防止在配置时泄露
+   *
+   * 请注意：
+   * 1. 如果一个站点更换域名，请不要直接删除 urls 中的定义，而是应该将旧域名放入 legacyUrls 中
+   * 2. 如果一个站点曾经在 ptpp 中定义过，如果该域名未在 urls 中出现过，则 *必须* 将其放入 legacyUrls 中
    */
-  host?: TSiteHost; // 站点域名，如果不存在，则从url中获取
-  readonly formerHosts?: TSiteHost[]; // 站点过去曾经使用过的，但现在已不再使用的域名
+  legacyUrls?: TSiteUrl[];
 
   /**
    * 站点图标，具体处理过程见 `../utils/favicon.ts` 的说明

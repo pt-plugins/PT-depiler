@@ -18,7 +18,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
   urls: ["https://13city.org/", "https://www.13city.org/"],
-  formerHosts: ["13city.online"],
+  legacyUrls: ["https://13city.online/"],
 
   category: [
     {

@@ -29,7 +29,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Luminance",
 
   urls: ["https://cgpeers.to/"],
-  formerHosts: ["www.cgpeers.com"],
+  legacyUrls: ["https://www.cgpeers.com/"],
 
   category: [
     {

@@ -29,7 +29,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "AbstractPrivateSite",
 
   urls: ["uggcf://fgne-fcnpr.arg/"],
-  formerHosts: ["shadowflow.org"],
+  legacyUrls: ["https://shadowflow.org/"],
 
   collaborator: ["yiyule", "milangree", "hui-shao", "Rhilip"],
 

@@ -66,7 +66,7 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://fcrrqncc.vb/"],
 
-  formerHosts: ["icetorrent.org", "scenefz.me", "u-torrents.ro", "myxz.eu"],
+  legacyUrls: ["https://icetorrent.org/", "https://scenefz.me/", "https://u-torrents.ro/", "https://myxz.eu/"],
 
   // 这里除了 categories 其它均为自定义 key，需要在自定义站点方法中统一处理
   category: [

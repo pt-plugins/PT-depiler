@@ -16,7 +16,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["uggcf://qvfpsna.arg/"],
-  formerHosts: ["pt.gztown.net"],
+  legacyUrls: ["https://pt.gztown.net/"],
 
   category: [
     {

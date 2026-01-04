@@ -3,7 +3,6 @@
  */
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
 import { type ISiteMetadata } from "../types";
-import { rot13 } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -19,7 +18,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Unit3D",
 
   urls: ["uggcf://rvtn.zbv/"],
-  formerHosts: [rot13("nfvnapvarzn.zr")],
+  legacyUrls: ["uggcf://nfvnapvarzn.zr/"],
 
   userInfo: {
     selectors: {

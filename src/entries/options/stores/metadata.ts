@@ -370,10 +370,10 @@ export const useMetadataStore = defineStore("metadata", {
             siteHostMap[getHostFromUrl(url)] = siteId;
           }
         }
-        const formerHosts = (await this.getSiteMergedMetadata(siteId, "formerHosts", []))!;
-        if (formerHosts.length > 0) {
-          for (const host of formerHosts) {
-            siteHostMap[host] = siteId;
+        const legacyUrls = (await this.getSiteMergedMetadata(siteId, "legacyUrls", []))!;
+        if (legacyUrls.length > 0) {
+          for (const url of legacyUrls) {
+            siteHostMap[getHostFromUrl(url)] = siteId;
           }
         }
       }

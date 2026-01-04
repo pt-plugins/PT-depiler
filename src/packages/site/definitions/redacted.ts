@@ -23,7 +23,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "GazelleJSONAPI",
 
   urls: ["uggcf://erqnpgrq.fu/"],
-  formerHosts: ["erqnpgrq.pu"],
+  legacyUrls: ["uggcf://erqnpgrq.pu/"],
 
   category: [
     {

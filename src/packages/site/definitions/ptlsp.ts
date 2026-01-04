@@ -13,7 +13,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["https://www.ptlsp.com/"],
-  host: "ptlsp.com",
+  legacyUrls: ["https://ptlsp.com/"],
 
   // refs: https://github.com/pt-plugins/PT-Plugin-Plus/commit/ef7a885c052a9dc23286fb54e33dbef3dd9431ed
   isDead: true,

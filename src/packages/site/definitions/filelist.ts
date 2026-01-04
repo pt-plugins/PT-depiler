@@ -27,7 +27,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "FileList",
 
   urls: ["uggcf://svyryvfg.vb/"],
-  formerHosts: ["flro.org"],
+  legacyUrls: ["https://flro.org/"],
 
   category: [
     {

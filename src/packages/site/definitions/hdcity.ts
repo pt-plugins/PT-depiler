@@ -159,7 +159,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["uggcf://uqpvgl.pvgl/", "uggcf://uqpvgl.yravgre.bet/", "uggcf://uqpvgl.jbex/"],
-  formerHosts: ["hdcity.top"],
+  legacyUrls: ["https://hdcity.top/"],
 
   category: [
     {
