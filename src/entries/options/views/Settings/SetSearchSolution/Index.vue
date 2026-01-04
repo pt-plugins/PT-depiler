@@ -237,6 +237,7 @@ async function copySearchSolution(solutionId: TSolutionKey) {
       show-select
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('SetSearchSolution', 'itemsPerPage', v)"
     >
+      <!-- 这里预设一个固定的默认搜索方案 -->
       <template #body.prepend>
         <tr class="v-data-table__tr">
           <td class="v-data-table__td" colspan="2"></td>

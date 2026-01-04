@@ -1,13 +1,14 @@
 <script setup lang="ts">
 import { inject } from "vue";
-import type { ITorrent } from "@ptd/site";
 
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { copyTextToClipboard, doKeywordSearch, siteInstance } from "@/content-script/app/utils.ts";
 
-import SpeedDialBtn from "@/content-script/app/components/SpeedDialBtn.vue";
+import type { IRemoteDownloadDialogData } from "../types.ts";
+import { copyTextToClipboard, doKeywordSearch, siteInstance } from "../utils.ts";
+
+import SpeedDialBtn from "../components/SpeedDialBtn.vue";
 
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
@@ -27,7 +28,7 @@ async function parseDetailPage() {
   return parsedResult!;
 }
 
-const remoteDownloadDialogData = inject<{ show: boolean; torrents: ITorrent[] }>("remoteDownloadDialogData")!;
+const remoteDownloadDialogData = inject<IRemoteDownloadDialogData>("remoteDownloadDialogData")!;
 
 function handleLinkCopy() {
   parseDetailPage().then(async (torrent) => {
@@ -40,9 +41,10 @@ function handleLinkCopy() {
   });
 }
 
-function handleRemoteDownload() {
+function handleRemoteDownload(isDefaultSend = false) {
   parseDetailPage().then((torrent) => {
     remoteDownloadDialogData.torrents = [torrent];
+    remoteDownloadDialogData.isDefaultSend = isDefaultSend;
     remoteDownloadDialogData.show = true;
   });
 }
@@ -60,9 +62,18 @@ function handleSearch() {
     key="download"
     :disabled="metadataStore.getEnabledDownloaders.length === 0"
     color="light-blue"
-    icon="mdi-tray-arrow-down"
+    icon="mdi-cloud-download"
     title="推送到..."
-    @click="handleRemoteDownload"
+    @click="() => handleRemoteDownload()"
+  />
+  <SpeedDialBtn
+    key="download_default"
+    v-if="metadataStore.defaultDownloader?.id"
+    :disabled="metadataStore.getEnabledDownloaders.length === 0"
+    color="light-blue"
+    icon="mdi-download"
+    title="推送到默认下载器"
+    @click="handleRemoteDownload(true)"
   />
   <SpeedDialBtn key="search" color="indigo" icon="mdi-home-search" title="快捷搜索" @click="handleSearch" />
 </template>
