@@ -15,7 +15,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Unit3D",
 
   urls: ["uggcf://oyhgbcvn.pp/"],
-  formerHosts: ["blutopia.xyz"],
+  legacyUrls: ["https://blutopia.xyz/"],
 
   levelRequirements: [
     {

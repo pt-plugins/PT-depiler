@@ -9,7 +9,7 @@ export const siteMetadata: ISiteMetadata = {
 
   type: "public",
   urls: ["https://torrents-csv.com/"],
-  formerHosts: ["torrents-csv.ml"],
+  legacyUrls: ["https://torrents-csv.ml/"],
 
   search: {
     keywordPath: "params.q",

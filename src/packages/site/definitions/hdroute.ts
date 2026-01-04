@@ -36,7 +36,7 @@ export const siteMetadata: ISiteMetadata = {
   timezoneOffset: "+0800",
   type: "private",
   schema: "AbstractPrivateSite", // 虽然导出了自定义类，但保持 schema 字段规范
-  urls: ["uggc://uqebhgr.bet/"], // ROT13编码: https://hdrouteo.bet/
+  urls: ["uggc://uqebhgr.bet/"],
 
   // HDRoute 搜索配置
   search: {

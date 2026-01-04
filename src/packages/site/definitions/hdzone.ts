@@ -11,7 +11,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["https://hdfun.me/"],
-  formerHosts: ["hdzone.me"],
+  legacyUrls: ["https://hdzone.me/"],
 
   favicon: "./_default_nexusphp.png",
 

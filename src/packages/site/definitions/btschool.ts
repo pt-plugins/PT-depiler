@@ -22,7 +22,8 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["uggcf://cg.ogfpubby.pyho/"],
-  formerHosts: [rot13("cg.ogfpubby.arg")],
+  legacyUrls: ["uggcf://cg.ogfpubby.arg/"],
+
   favicon: "./btschool.ico",
 
   category: [

@@ -1,6 +1,5 @@
 import { ETorrentStatus, type IAdvancedSearchRequestConfig, ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/Unit3D.ts";
-import { rot13 } from "../utils";
 import { set } from "es-toolkit/compat";
 
 const categoryMap: Record<number, string> = {
@@ -43,7 +42,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Unit3D",
 
   urls: ["uggcf://unjxr.hab/"],
-  formerHosts: [rot13("unjxr.habm")],
+  legacyUrls: ["uggcf://unjxr.habm/"],
 
   collaborator: ["fzlins", "hui-shao"],
 

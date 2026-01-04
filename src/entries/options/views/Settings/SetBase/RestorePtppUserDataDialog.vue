@@ -224,17 +224,11 @@ async function entryDialog() {
       }
     }
 
-    // 站点定义中的 host
-    const host = await metadataStore.getSiteMergedMetadata(siteId, "host", "");
-    if (host) {
-      siteHostMap[host] = siteId;
-    }
-
-    // 站点定义中的 formerHosts
-    const formerHosts = (await metadataStore.getSiteMergedMetadata(siteId, "formerHosts", []))!;
-    if (formerHosts.length > 0) {
-      for (const host of formerHosts) {
-        siteHostMap[host] = siteId;
+    // 站点定义中的 legacyUrls
+    const legacyUrls = (await metadataStore.getSiteMergedMetadata(siteId, "legacyUrls", []))!;
+    if (legacyUrls.length > 0) {
+      for (const url of legacyUrls) {
+        siteHostMap[getHostFromUrl(url)] = siteId;
       }
     }
   }

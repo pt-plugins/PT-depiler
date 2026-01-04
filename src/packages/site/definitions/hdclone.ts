@@ -10,7 +10,8 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://pt.hdclone.org/"],
+  urls: ["uggcf://cg.uqpybar.gbc/"],
+  legacyUrls: ["https://pt.hdclone.org/"],
 
   category: [
     {

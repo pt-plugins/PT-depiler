@@ -23,7 +23,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "GazelleJSONAPI",
 
   urls: ["uggcf://qvpzhfvp.pbz/"],
-  formerHosts: ["https://dicmusic.club"],
+  legacyUrls: ["https://dicmusic.club/"],
 
   category: [
     {

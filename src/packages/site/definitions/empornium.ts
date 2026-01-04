@@ -13,7 +13,8 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Luminance",
 
-  urls: ["uggcf://jjj.rzcbeavhz.vf/", "uggcf://jjj.rzcbeavhz.fk/"],
+  urls: ["uggcf://jjj.rzcbeavhz.ef/", "uggcf://jjj.rzcbeavhz.fk/"],
+  legacyUrls: ["https://www.empornium.is/"],
 
   category: [
     {

@@ -48,7 +48,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       },
       url: { selector: ["a[href*='torrents.php?id=']"], attr: "href" },
       link: { selector: ["a[href*='torrents.php?action=download']"], attr: "href" },
-      time: { selector: ["td:nth-child(5) > span"], attr: "title", filters: [{ name: "parseTime" }] },
+      time: { selector: ["span.time[title]"], attr: "title", filters: [{ name: "parseTime" }] },
       size: { selector: ["td:nth-child(6)"], filters: [{ name: "parseSize" }] },
       author: { selector: ["td:nth-child(10) > a"] },
       seeders: { selector: ["td:nth-child(8)"], filters: [{ name: "parseNumber" }] },
@@ -98,22 +98,27 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [{ name: "querystring", args: ["id"] }],
       },
       joinTime: {
-        selector: ["li:contains('Joined:') > span.time"],
+        selector: ["ul.stats > li:contains('Joined:') > span.time"],
+        attr: "title",
+        filters: [{ name: "parseTime" }],
+      },
+      lastAccessAt: {
+        selector: ["ul.stats > li:contains('Last Seen:') > span"],
         attr: "title",
         filters: [{ name: "parseTime" }],
       },
       uploaded: {
-        selector: ["div:contains('Stats') li:contains('Uploaded:')"],
+        selector: ["ul.stats > li:contains('Uploaded:')"],
         filters: [(query: string) => parseSizeString(query.split(":")[1].trim().replace(/,/g, "") || "0")],
       },
       downloaded: {
-        selector: ["div:contains('Stats') li:contains('Downloaded:')"],
+        selector: ["ul.stats > li:contains('Downloaded:')"],
         filters: [(query: string) => parseSizeString(query.split(":")[1].trim().replace(/,/g, "") || "0")],
       },
       levelName: {
-        selector: ["span.rank", "div:contains('Personal') li:contains('Class:')"],
+        selector: ["span.rank", "ul.stats > li:contains('Class:')"],
         switchFilters: {
-          "div:contains('Personal') li:contains('Class:')": [{ name: "trim" }, { name: "split", args: [":", 1] }],
+          "ul.stats > li:contains('Class:')": [{ name: "trim" }, { name: "split", args: [":", 1] }],
         },
       },
       bonus: {
@@ -121,7 +126,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         filters: [(query: string) => parseFloat(query.split(":")[1].trim().replace(/,/g, "") || "0")],
       },
       ratio: {
-        selector: ["div:contains('Stats') li:contains('Ratio:') > span"],
+        selector: ["ul.stats > li:contains('Ratio:') > span"],
         filters: [
           (query: string) => {
             if (query === "∞") return -1; // Infinity 不能通过 sendMessage 传递，会导致无返回，使用 -1 替代，前端会自动处理的
@@ -131,8 +136,8 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         ],
       },
       uploads: {
-        selector: ["div:contains('Community') li:contains('Uploaded:')"],
-        filters: [{ name: "parseNumber" }],
+        selector: ["ul.stats > li[title]:contains('Uploaded:')"],
+        filters: [{ name: "split", args: ["[", 0] }, { name: "parseNumber" }],
       },
       bonusPerHour: {
         // 没找到显示的地方，通过log计算出来
@@ -147,48 +152,21 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         },
       },
       seeding: {
-        selector: ["a[id='nav_seeding'] span[id='nav_seeding_r']", "div:contains('Community') li:contains('Seeding:')"],
+        selector: ["a[id='nav_seeding'] span[id='nav_seeding_r']", "ul.stats > li:contains('Seeding:')"],
         switchFilters: {
           "a[id='nav_seeding'] span[id='nav_seeding_r']": [
             (query: string) => parseInt(query.trim().replace(/,/g, "") || "0"),
           ],
-          "div:contains('Community') li:contains('Seeding:')": [
-            { name: "split", args: ["(", 0] },
-            { name: "parseNumber" },
-          ],
+          "ul.stats > li:contains('Seeding:')": [{ name: "split", args: ["(", 0] }, { name: "parseNumber" }],
         },
       },
       messageCount: {
-        selector: [
-          "a[href*='messages.php']",
-          "a[href*='inbox.php']",
-          "a[href*='pm.php']",
-          ".new-message",
-          ".message-notification",
-          "span:contains('new messages')",
-          "span:contains('new message')",
-          "div:contains('You have')",
-        ],
-        filters: [
-          (query: string) => {
-            if (!query?.trim()) return 0;
-            try {
-              // 匹配 "You have 3 new messages" 格式
-              const newMessagesMatch = query.match(/You have (\d+) new messages?/i);
-              if (newMessagesMatch) return parseInt(newMessagesMatch[1], 10) || 0;
-
-              // 匹配 "3 new messages" 格式
-              const messagesMatch = query.match(/(\d+) new messages?/i);
-              if (messagesMatch) return parseInt(messagesMatch[1], 10) || 0;
-
-              // 匹配纯数字
-              const num = parseInt(query.match(/\d+/)?.[0] || "0", 10);
-              return isNaN(num) ? 0 : num;
-            } catch {
-              return 0;
-            }
-          },
-        ],
+        selector: ":self",
+        elementProcess: (doc: Document) => {
+          // https://github.com/Empornium/Luminance/blob/23b568c157a58f36305cf447a3617bf2e4a2ca2e/application/Templates/snippets/header_bottom.html.twig#L93
+          const messageEls = Sizzle("a[onmousedown*='inbox'], a[onmousedown*='staffpm']", doc);
+          return messageEls.reduce((sum, el) => sum + definedFilters.parseNumber(el.textContent), 0);
+        },
       },
       posts: { selector: "ul.stats > li:contains('Forum Posts:')", filters: [{ name: "parseNumber" }] },
     },
@@ -256,7 +234,7 @@ export default class Luminance extends PrivateSite {
 
       if (flushUserInfo.seeding) {
         // 对有 Seeding Size 行的站点直接解析对应元素
-        const seedingList = Sizzle("ul.stats.nobullet > li:contains('Seeding Size:')", userDetailDocument);
+        const seedingList = Sizzle("ul.stats > li:contains('Seeding Size:')", userDetailDocument);
         if (seedingList.length > 0) {
           flushUserInfo.seedingSize = definedFilters.parseSize(seedingList[0].textContent);
         } else {

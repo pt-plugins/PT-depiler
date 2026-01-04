@@ -51,10 +51,12 @@ export async function getDefinedSiteMetadata(definition: string): Promise<ISiteM
 
   // 解密url加密过的站点
   siteMetadata.urls = siteMetadata.urls!.map(restoreSecureLink);
+  if (siteMetadata.legacyUrls?.length) {
+    siteMetadata.legacyUrls = siteMetadata.legacyUrls.map(restoreSecureLink);
+  }
 
   // 补全一些可以缺失字段
   siteMetadata.tags ??= [];
-  siteMetadata.host ??= getHostFromUrl(siteMetadata.urls[0]);
   siteMetadata.timezoneOffset ??= siteMetadata.schema === "NexusPHP" ? "+0800" : "+0000";
 
   return siteMetadata;

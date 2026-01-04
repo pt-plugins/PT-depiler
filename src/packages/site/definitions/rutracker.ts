@@ -49,7 +49,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "AbstractPrivateSite",
 
   urls: ["https://rutracker.org/", "https://rutracker.net/"],
-  formerHosts: ["rutracker.nl"],
+  legacyUrls: ["https://rutracker.nl/"],
 
   search: {
     requestConfig: {

@@ -53,7 +53,6 @@ export const siteMetadata: ISiteMetadata = {
   schema: "FSM",
 
   urls: ["uggcf://sfz.anzr/"],
-  formerHosts: [],
 
   category: [
     {

@@ -375,7 +375,7 @@ export const SchemaMetadata: Pick<
           (query: string) => {
             const queryMatch = query
               .replace(/,/g, "")
-              .match(/(实际上传量|實際上傳量|Actual Uploaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+              .match(/((?:实际|真实)上传量|(?:實際|真實)上傳量|(?:Real|Actual) Uploaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
             return queryMatch && queryMatch.length === 3 ? parseSizeString(queryMatch[2]) : 0;
           },
         ],
@@ -405,7 +405,7 @@ export const SchemaMetadata: Pick<
           (query: string) => {
             const queryMatch = query
               .replace(/,/g, "")
-              .match(/(实际下载量|實際下載量|Actual Downloaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+              .match(/((?:实际|真实)下载量|(?:實際|真實)下載量|(?:Real|Actual) Downloaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
             return queryMatch && queryMatch.length === 3 ? parseSizeString(queryMatch[2]) : 0;
           },
         ],

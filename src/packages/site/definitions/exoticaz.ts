@@ -49,7 +49,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "AvistazNetwork",
 
   urls: ["uggcf://rkbgvpnm.gb/"],
-  formerHosts: ["https://torrents.yourexotic.com/"],
+  legacyUrls: ["https://torrents.yourexotic.com/"],
 
   collaborator: [""],
 

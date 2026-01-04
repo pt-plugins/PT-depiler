@@ -18,7 +18,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["uggcf://jjj.uvgcg.pbz/"],
-  formerHosts: ["pt.ghtt.net"],
+  legacyUrls: ["https://pt.ghtt.net/"],
 
   category: [
     {

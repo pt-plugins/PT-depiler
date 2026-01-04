@@ -1,10 +1,4 @@
-import { 
-  ISiteMetadata,
-  ISearchInput,
-  IAdvancedSearchRequestConfig,
-  ITorrent,
-  ITorrentTag,
-} from "../types";
+import { ISiteMetadata, ISearchInput, IAdvancedSearchRequestConfig, ITorrent, ITorrentTag } from "../types";
 import AvistazNetwork, { SchemaMetadata, IAvzNetRawTorrent } from "../schemas/AvistazNetwork.ts";
 
 const categoryMap: Record<number, string> = {
@@ -33,7 +27,7 @@ const discountMap: Record<number, string> = {
   1: "Free-Download",
   2: "Half-Download",
   3: "Double Upload",
-}
+};
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -50,7 +44,6 @@ export const siteMetadata: ISiteMetadata = {
   schema: "AvistazNetwork",
 
   urls: ["uggcf://nivfgnm.gb/"],
-  formerHosts: [""],
 
   collaborator: ["zdm9981"],
 
@@ -93,7 +86,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "Dead Torrents", value: "dead" },
         { name: "Big Torrents (10GB+)", value: "big" },
         { name: "Huge Torrents (99GB+)", value: "huge" },
-      ]
+      ],
     },
   ],
 
@@ -138,9 +131,7 @@ export const siteMetadata: ISiteMetadata = {
     { id: 205, name: "Super Admin", groupType: "manager" },
   ],
 
-  userInputSettingMeta: [
-    ...SchemaMetadata.userInputSettingMeta!,
-  ],
+  userInputSettingMeta: [...SchemaMetadata.userInputSettingMeta!],
 };
 
 export interface IAvzRawTorrent extends IAvzNetRawTorrent {
@@ -153,7 +144,6 @@ export interface IAvzRawTorrent extends IAvzNetRawTorrent {
 }
 
 export default class Avistaz extends AvistazNetwork {
-
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
     row: IAvzRawTorrent,
@@ -162,25 +152,24 @@ export default class Avistaz extends AvistazNetwork {
     const tags: ITorrentTag[] = [];
     const extendTorrent = super.parseTorrentRowForTags(torrent, row, searchConfig);
 
-  // 完结
-  if (row.movie_tv?.tv_complete) {
-    tags.push({ name: "完结" });
-  }
+    // 完结
+    if (row.movie_tv?.tv_complete) {
+      tags.push({ name: "完结" });
+    }
 
-  // 中配
-  const audioArray = row.audio?.map((a: any) => a.language).filter((x: string) => x.trim() !== "") || [];
-  if (audioArray.some((audio) => /Chinese|Cantonese/i.test(audio))) {
-    tags.push({ name: "中配" });
-  }
+    // 中配
+    const audioArray = row.audio?.map((a: any) => a.language).filter((x: string) => x.trim() !== "") || [];
+    if (audioArray.some((audio) => /Chinese|Cantonese/i.test(audio))) {
+      tags.push({ name: "中配" });
+    }
 
-  // 字幕
-  const subtitleArray = row.subtitle?.map((s: any) => s.language).filter((x: string) => x.trim() !== "") || [];
-  if (subtitleArray.some((subtitle) => /Chinese/i.test(subtitle))) {
-    tags.push({ name: "中字" });
-  }
+    // 字幕
+    const subtitleArray = row.subtitle?.map((s: any) => s.language).filter((x: string) => x.trim() !== "") || [];
+    if (subtitleArray.some((subtitle) => /Chinese/i.test(subtitle))) {
+      tags.push({ name: "中字" });
+    }
     extendTorrent.tags = tags;
 
     return extendTorrent;
   }
-
 }

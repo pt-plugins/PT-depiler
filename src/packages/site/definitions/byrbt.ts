@@ -26,7 +26,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["https://byr.pt/"],
-  formerHosts: ["bt.byr.cn"],
+  legacyUrls: ["https://bt.byr.cn/"],
 
   category: [
     {

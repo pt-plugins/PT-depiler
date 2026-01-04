@@ -164,7 +164,7 @@ export const siteMetadata: ISiteMetadata = {
     "uggcf://arkg.z-grnz.pp/", // Next
     "uggcf://bo.z-grnz.pp/",
   ],
-  formerHosts: ["xp.m-team.io", "pt.m-team.cc", "tp.m-team.cc"],
+  legacyUrls: ["https://xp.m-team.io/", "https://pt.m-team.cc/", "https://tp.m-team.cc/"],
 
   category: [
     {

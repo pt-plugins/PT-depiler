@@ -12,7 +12,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["https://www.cnscg.club/"],
-  formerHosts: ["www.hdscg.cc"],
+  legacyUrls: ["https://www.hdscg.cc/"],
 
   favicon: "./_default_nexusphp.png", // 实在找不到favicon了
 

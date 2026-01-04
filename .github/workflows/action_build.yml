@@ -6,10 +6,15 @@ on:
   pull_request:
     branches: ["master"]
   workflow_call:
+    outputs:
+      version:
+        value: ${{ jobs.build.outputs.version }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.zip_chrome.outputs.extensionVersion }}
 
     steps:
       - uses: actions/checkout@v4
