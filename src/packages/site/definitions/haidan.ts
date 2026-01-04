@@ -1,6 +1,9 @@
 import { type ISiteMetadata } from "../types";
 import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
 import { userInfoWithInvitesInUserDetailsPage } from "./kunlun.ts";
+import { parseSizeString, sizePattern } from "../utils/filesize";
+import Sizzle from "sizzle";
+import { createDocument } from "../utils/html";
 
 const linkQuery = {
   selector: ['a[href*="download.php?id="]'],
@@ -30,7 +33,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["uggcf://jjj.unvqna.ivqrb/"],
+  urls: ["https://www.haidan.video/"],
 
   category: [
     {
@@ -143,12 +146,184 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["td.rowhead:contains('等级积分') + td"],
         filters: [
           (query: string) => {
-            query = query.replace(/[,\s]/g, "");
+            query = query.replace(/[\s,]/g, "");
             return parseFloat(query.split("[")[0]);
           },
         ],
       },
+      // 从 ajax 页面获取做种信息（这些选择器仅用于 userdetails.php 页面，实际上会在 process 步骤中从 getusertorrentlistajax.php 获取）
+      seeding: {
+        selector: [":self"],
+        filters: [
+          (query: any) => {
+            // 这个选择器实际上不会被用到，因为会在 process 步骤中从 ajax 页面获取
+            return 0;
+          },
+        ],
+      },
+      seedingSize: {
+        selector: [":self"],
+        elementProcess: (element: HTMLElement) => {
+          // 这个选择器实际上不会被用到，因为会在 process 步骤中从 ajax 页面获取
+          return 0;
+        },
+      },
     },
+    process: [
+      // 第一步：获取用户ID
+      {
+        requestConfig: { url: "/index.php", responseType: "document" },
+        fields: ["id"],
+      },
+      // 第二步：获取用户详细信息（但不包含seeding和seedingSize）
+      {
+        requestConfig: { url: "/userdetails.php", responseType: "document" },
+        assertion: { id: "params.id" },
+        fields: [
+          "name",
+          "messageCount",
+          "uploaded",
+          "trueUploaded",
+          "downloaded",
+          "trueDownloaded",
+          "levelName",
+          "bonus",
+          "seedingBonus",
+          "joinTime",
+          "hnrUnsatisfied",
+          "hnrPreWarning",
+          // 注意：这里不包含 seeding 和 seedingSize
+        ],
+      },
+      // 第三步：获取做种信息（使用文本响应类型，因为返回的是 HTML 片段）
+      {
+        requestConfig: {
+          url: "/getusertorrentlistajax.php",
+          params: { type: "seeding" },
+          responseType: "text", // 使用文本响应，因为返回的是 HTML 片段
+        },
+        assertion: { id: "params.userid" },
+        fields: ["seeding", "seedingSize"],
+        // 使用自定义选择器，直接从文本响应中解析
+        selectors: {
+          seeding: {
+            selector: [":self"], // :self 会返回整个响应对象（字符串）
+            filters: [
+              (query: any) => {
+                // 当 responseType 为 "text" 时，query 就是响应字符串
+                const text = typeof query === "string" ? query : String(query || "");
+                // 从文本中创建 Document，然后解析表格并去重统计行数
+                if (!text || !text.includes("<table")) {
+                  return 0;
+                }
+                const doc = createDocument(text);
+                const trAnothers = Sizzle("tr:not(:first-child)", doc);
+                if (trAnothers.length === 0) {
+                  return 0;
+                }
+
+                // 使用 Set 存储已处理的种子ID，用于去重
+                const processedTorrentIds = new Set<string>();
+
+                trAnothers.forEach((trAnother) => {
+                  // 尝试从行中提取种子ID（从 details.php?id=XXX 链接中）
+                  const linkElement = Sizzle("a[href*='details.php?id=']", trAnother)[0] as HTMLAnchorElement;
+                  let torrentId: string | null = null;
+                  if (linkElement && linkElement.href) {
+                    const idMatch = linkElement.href.match(/details\.php\?id=(\d+)/);
+                    if (idMatch && idMatch[1]) {
+                      torrentId = idMatch[1];
+                    }
+                  }
+
+                  // 如果没有找到ID，使用行的innerHTML作为唯一标识（备用方案）
+                  if (!torrentId) {
+                    torrentId = (trAnother as HTMLElement).innerHTML.trim();
+                  }
+
+                  // 标记为已处理（Set会自动去重）
+                  processedTorrentIds.add(torrentId);
+                });
+
+                // 返回去重后的数量
+                return processedTorrentIds.size;
+              },
+            ],
+          },
+          seedingSize: {
+            selector: [":self"],
+            filters: [
+              (query: any) => {
+                // 当 responseType 为 "text" 时，query 就是响应字符串
+                const text = typeof query === "string" ? query : String(query || "");
+                // 从文本中创建 Document，然后解析表格
+                if (!text || !text.includes("<table")) {
+                  return 0;
+                }
+                const doc = createDocument(text);
+                const trAnothers = Sizzle("tr:not(:first-child)", doc);
+                if (trAnothers.length === 0) {
+                  return 0;
+                }
+
+                // 根据自动判断应该用 td:eq(?)
+                let sizeIndex = 2;
+                const tdAnothers = Sizzle("> td", trAnothers[0]);
+                for (let i = 0; i < tdAnothers.length; i++) {
+                  const tdText = (tdAnothers[i] as HTMLElement).innerText.trim();
+                  if (sizePattern.test(tdText)) {
+                    sizeIndex = i;
+                    break;
+                  }
+                }
+
+                // 使用 Set 存储已处理的种子ID，用于去重
+                const processedTorrentIds = new Set<string>();
+                let totalSize = 0;
+
+                trAnothers.forEach((trAnother) => {
+                  // 尝试从行中提取种子ID（从 details.php?id=XXX 链接中）
+                  const linkElement = Sizzle("a[href*='details.php?id=']", trAnother)[0] as HTMLAnchorElement;
+                  let torrentId: string | null = null;
+                  if (linkElement && linkElement.href) {
+                    const idMatch = linkElement.href.match(/details\.php\?id=(\d+)/);
+                    if (idMatch && idMatch[1]) {
+                      torrentId = idMatch[1];
+                    }
+                  }
+
+                  // 如果没有找到ID，使用行的innerHTML作为唯一标识（备用方案）
+                  if (!torrentId) {
+                    torrentId = (trAnother as HTMLElement).innerHTML.trim();
+                  }
+
+                  // 如果这个种子ID已经处理过，跳过（去重）
+                  if (processedTorrentIds.has(torrentId)) {
+                    return;
+                  }
+
+                  // 标记为已处理
+                  processedTorrentIds.add(torrentId);
+
+                  // 累加大小
+                  const sizeSelector = Sizzle(`td:eq(${sizeIndex})`, trAnother)[0] as HTMLElement;
+                  if (sizeSelector) {
+                    totalSize += parseSizeString(sizeSelector.innerText.trim());
+                  }
+                });
+
+                return totalSize;
+              },
+            ],
+          },
+        },
+      },
+      // 第四步：获取魔力值相关信息
+      {
+        requestConfig: { url: "/mybonus.php", responseType: "document" },
+        fields: ["bonusPerHour", "seedingBonusPerHour"],
+      },
+    ],
   },
 
   levelRequirements: [
