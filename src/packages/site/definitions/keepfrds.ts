@@ -178,6 +178,18 @@ export const siteMetadata: ISiteMetadata = {
       ],
     },
   },
+
+  detail: {
+    ...SchemaMetadata.detail,
+    selectors: {
+      ...SchemaMetadata.detail!.selectors,
+      link: {
+        selector: "input#download_link",
+        attr: "value",
+      },
+    },
+  },
+
   userInfo: {
     ...SchemaMetadata.userInfo,
     selectors: {
