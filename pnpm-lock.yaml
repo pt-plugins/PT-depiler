@@ -98,8 +98,8 @@ importers:
         specifier: ^11.2.8
         version: 11.2.8(vue@3.5.26(typescript@5.9.3))
       vue-konva:
-        specifier: ^3.2.6
-        version: 3.2.6(konva@10.0.12)(vue@3.5.26(typescript@5.9.3))
+        specifier: ^3.3.0
+        version: 3.3.0(konva@10.0.12)(vue@3.5.26(typescript@5.9.3))
       vue-router:
         specifier: ^4.6.4
         version: 4.6.4(vue@3.5.26(typescript@5.9.3))
@@ -3657,8 +3657,8 @@ packages:
     peerDependencies:
       vue: ^3.0.0
 
-  vue-konva@3.2.6:
-    resolution: {integrity: sha512-QtiM/BYHs4gyRqhg6w0lHYGONb936qD5PeGpSFFnFzTLcOaHXd3EAas2PafrWbcILdHAUNm+0j7+djJw6g6XCw==}
+  vue-konva@3.3.0:
+    resolution: {integrity: sha512-z7yB4VSyYaBAfRRlNCaxINp3+h0lpy+C9wm+FeQ0rBZylGRBMbNOOQbURjNdsS/uo3togcWz8jrM+0TVTDUTeQ==}
     engines: {node: '>= 4.0.0', npm: '>= 3.0.0'}
     peerDependencies:
       konva: '>7'
@@ -7277,7 +7277,7 @@ snapshots:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.26(typescript@5.9.3)
 
-  vue-konva@3.2.6(konva@10.0.12)(vue@3.5.26(typescript@5.9.3)):
+  vue-konva@3.3.0(konva@10.0.12)(vue@3.5.26(typescript@5.9.3)):
     dependencies:
       konva: 10.0.12
       vue: 3.5.26(typescript@5.9.3)
