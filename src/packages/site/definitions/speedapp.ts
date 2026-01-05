@@ -71,23 +71,26 @@ export const siteMetadata: ISiteMetadata = {
   // 这里除了 categories 其它均为自定义 key，需要在自定义站点方法中统一处理
   category: [
     {
+      name: "搜索入口",
+      key: "#url",
+      options: [
+        { name: "综合", value: "/browse" },
+        { name: "成人", value: "/adult" },
+      ],
+    },
+    {
       name: "Categories",
       key: "categories_normal",
+      notes: "请先设置分类入口为“综合”！请勿与 成人 区类别同时选择！",
       options: buildCategoryOptionsFromDict(categoryMapNormal),
       cross: { key: "categories", mode: "brackets" },
     },
     {
       name: "Categories (Adult)",
       key: "categories_xxx",
+      notes: "请先设置分类入口为“成人”！请勿与 综合 区类别同时选择！",
       options: buildCategoryOptionsFromDict(categoryMapXXX),
-      cross: { mode: "custom" },
-      generateRequestConfig: (selectedOptions) => {
-        const params: Record<string, any> = { categories: [] };
-        (selectedOptions as number[]).forEach((value) => {
-          params.categories.push(value);
-        });
-        return { requestConfig: { url: "/adult", params } };
-      },
+      cross: { key: "categories", mode: "brackets" },
     },
     {
       name: "Resolution",
@@ -290,7 +293,7 @@ export const siteMetadata: ISiteMetadata = {
       url: { selector: "div:nth-child(2) > a[href^='/browse/']:first-child", attr: "href" },
       link: { selector: "a.btn[href^='/torrents/']", attr: "href" },
       category: {
-        selector: "a[href^='/browse?categories']",
+        selector: "a[href*='?categories']",
         attr: "href",
         filters: [{ name: "split", args: ["=", 1] }, (catID: number) => categoryMap[catID]],
       },
@@ -316,6 +319,11 @@ export const siteMetadata: ISiteMetadata = {
         },
       ],
     },
+  },
+
+  searchEntry: {
+    area_normal: { name: "综合", requestConfig: { url: "/browse" } },
+    area_adult: { name: "成人", enabled: false, requestConfig: { url: "/adult" } },
   },
 
   list: [

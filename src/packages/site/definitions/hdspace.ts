@@ -40,7 +40,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "hdspace",
   name: "HD-Space",
-  aka: ["HDS"],
+  aka: ["HD-S"],
   description: "HD-Space (HDS) is a Private Torrent Tracker for HD MOVIES / TV",
   tags: ["影视"],
   timezoneOffset: "+0000",
