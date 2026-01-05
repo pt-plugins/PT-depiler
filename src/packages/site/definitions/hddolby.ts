@@ -1,6 +1,7 @@
 import { type ISiteMetadata } from "../types";
 import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
 import { allCustomTags, allTagSelectors, selectorSearchProgress, selectorSearchStatus } from "./hdhome.ts";
+import { set } from "es-toolkit/compat";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -163,6 +164,15 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     ...SchemaMetadata.search!,
+    advanceKeywordParams: {
+      imdb: false, // 该站点不支持 imdb
+      tmdb: {
+        requestConfigTransformer: ({ requestConfig: config }) => {
+          set(config!, "params.search_area", 4); // params "&search_area=4"
+          return config!;
+        },
+      },
+    },
     selectors: {
       ...SchemaMetadata.search!.selectors!,
       subTitle: {
