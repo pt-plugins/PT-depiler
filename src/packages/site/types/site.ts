@@ -173,7 +173,11 @@ export interface ISiteMetadata {
      */
     excludeUrlPattern?: TPatterns;
 
-    mergeSearchSelectors?: boolean; // 是否合并 search.selectors 中的配置到此处的 selectors 中，默认为 true
+    /**
+     * 是否合并 search.selectors 中的配置到此处的 selectors 中，默认为 true
+     * 对使用 API 请求的站点，此处要显式声明为 false
+     */
+    mergeSearchSelectors?: boolean;
 
     /**
      * 对于种子列表页的解析配置，默认会使用 search.requestConfig.selectors 中的配置作为垫片
