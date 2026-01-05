@@ -68,10 +68,10 @@
     "valid-filename": "^4.0.0",
     "vue": "^3.5.26",
     "vue-echarts": "^8.0.1",
-    "vue-i18n": "^11.2.7",
-    "vue-konva": "^3.2.6",
+    "vue-i18n": "^11.2.8",
+    "vue-konva": "^3.3.0",
     "vue-router": "^4.6.4",
-    "vuetify": "^3.11.5",
+    "vuetify": "^3.11.6",
     "webdav": "^5.8.0"
   },
   "devDependencies": {
