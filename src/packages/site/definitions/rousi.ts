@@ -60,9 +60,6 @@ export const siteMetadata: ISiteMetadata = {
       cross: false,
     },
   ],
-  search: {
-    ...SchemaMetadata.search,
-  },
   searchEntry: {
     area_torrents: { name: "综合", requestConfig: { url: "/torrents.php" } },
     area_special: { name: "9kg", enabled: false, requestConfig: { url: "/special.php" } },
