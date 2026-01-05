@@ -64,10 +64,21 @@ export const siteMetadata: ISiteMetadata = {
       selectors: {
         keywords: { selector: "input[placeholder*='搜索种子']" },
         rows: { selector: 'div.border > a[href^="/torrent/"]' },
-        id: { selector: ":self", attr: "href", filters: [{ name: "replace", args: ["/torrents/", ""] }] },
+        id: { selector: ":self", attr: "href", filters: [{ name: "replace", args: ["/torrent/", ""] }] },
         title: { selector: "span.truncate[title]", attr: "title" },
+        subTitle: { selector: "span.text-muted-foreground.truncate" },
         url: { selector: ":self", attr: "href" },
         // link 由 getTorrentDownloadLink 方法构造
+        time: {
+          selector: "div:nth-child(6)[title]",
+          attr: "title",
+          filters: [{ name: "parseTime", args: ["yyyy/MM/dd HH:mm:ss"] }],
+        },
+        size: { selector: "div:nth-child(4)", filters: [{ name: "parseSize" }] },
+        seeders: { selector: "div:nth-child(5)", filters: [{ name: "split", args: ["/", 0] }] },
+        leechers: { selector: "div:nth-child(5)", filters: [{ name: "split", args: ["/", 1] }] },
+        completed: { selector: "div:nth-child(5)", filters: [{ name: "split", args: ["/", 2] }] },
+        category: { selector: "div:nth-child(3)" },
       },
     },
   ],
@@ -145,13 +156,14 @@ export default class RousiPro extends PrivateSite {
 
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
     // fix: 如果 torrent 对象没有 id ，尝试从 link 中提取 (https://github.com/pt-plugins/PT-depiler/issues/600)
-    if (!torrent.id && torrent.link) {
-      const match = torrent.link.match(/\/torrent\/([0-9a-z-]+)\/?/);
+    if (!torrent.id && torrent.url) {
+      const match = torrent.url.match(/\/torrent\/([0-9a-z-]+)\/?/);
       if (match) {
         torrent.id = match[1];
       }
     }
 
+    // /api/torrent/:uuid/download/:passkey
     return `${this.url}api/torrent/${torrent.id}/download/${this.userPasskey}`;
   }
 }
