@@ -286,7 +286,7 @@ function cancelSearchQueue() {
         <v-menu>
           <template v-slot:activator="{ props }">
             <v-btn-group size="small" variant="text">
-              <v-btn :title= "t('SearchEntity.index.action.displayPreferences')"color="blue" icon="mdi-cog" v-bind="props" />
+              <v-btn :title="t('SearchEntity.index.action.displayPreferences')" color="blue" icon="mdi-cog" v-bind="props" />
             </v-btn-group>
           </template>
           <v-list>
