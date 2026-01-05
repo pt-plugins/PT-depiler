@@ -306,7 +306,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
 
           <!-- 默认站点搜索入口编辑（只有配置了 siteMetadata.searchEntry 的站点才支持该设置） -->
           <v-btn
-            :title="('SetSite.index.table.searchEntries')"
+            :title="t('SetSite.index.table.searchEntries')"
             :disabled="item.metadata.isDead || !item.metadata.searchEntry"
             class="v-btn--icon"
             size="small"
