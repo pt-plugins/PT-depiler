@@ -314,7 +314,8 @@ export const SchemaMetadata: Pick<
         selector: [
           'a[href*="download.php?id="][href*="&downhash="]',
           'a[href*="download.php?id="][href*="&passkey="]',
-          // 如果上面两个都没拿到，则尝试使用nphp默认的下载链接selector
+          'a[href*="download.php?downhash="]',
+          // 如果上面三个都没拿到，则尝试使用nphp默认的下载链接selector
           'a[href*="download.php?id="]',
         ],
         attr: "href",

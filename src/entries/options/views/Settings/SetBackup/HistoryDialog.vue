@@ -89,7 +89,7 @@ async function dialogLeave() {
             {{ metadataStore.backupServers[backupServerId].name ?? backupServerId }} 的历史备份
           </v-toolbar-title>
           <template #append>
-            <v-btn icon="mdi-close" @click="showDialog = false" />
+            <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>
         </v-toolbar>
       </v-card-title>
@@ -125,7 +125,13 @@ async function dialogLeave() {
 
           <template #item.action="{ item }">
             <v-btn-group class="table-action" density="compact" variant="plain">
-              <v-btn color="blue" icon="mdi-cloud-download" size="small" @click="restoreBackup(item.path)" />
+              <v-btn
+                title="恢复备份"
+                color="blue"
+                icon="mdi-cloud-download"
+                size="small"
+                @click="restoreBackup(item.path)"
+              />
 
               <v-btn
                 :title="t('common.remove')"

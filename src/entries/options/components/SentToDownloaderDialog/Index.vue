@@ -165,7 +165,7 @@ function dialogLeave() {
         <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title> 为 {{ torrentItems.length }} 个种子选择下载器 </v-toolbar-title>
           <template #append>
-            <v-btn icon="mdi-close" @click="showDialog = false" />
+            <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>
         </v-toolbar>
       </v-card-title>
@@ -297,7 +297,7 @@ function dialogLeave() {
       </v-card-text>
       <v-divider />
       <v-card-actions>
-        <v-btn icon="mdi-cards" @click="quickSendToClient = !quickSendToClient" />
+        <v-btn title="更多选项" icon="mdi-cards" @click="quickSendToClient = !quickSendToClient" />
 
         <v-spacer />
         <v-btn

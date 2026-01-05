@@ -30,7 +30,8 @@
       "title": {
         "confirmAction": "确认操作"
       },
-      "deleteText": "确认删除这 {0} 条记录吗？"
+      "deleteText": "确认删除这 {0} 条记录吗？",
+      "close": "关闭"
     },
     "edit": "编辑",
     "language": "语言",
@@ -59,7 +60,8 @@
       },
       "searchTip": "输入种子关键字、IMDb编号进行搜索",
       "wiki": "帮助",
-      "wrongPixelRatioNotice": "检测到您的页面展示可能受到缩放影响，建议您将当前页面缩放调整为100%，以保障您的浏览体验～"
+      "wrongPixelRatioNotice": "检测到您的页面展示可能受到缩放影响，建议您将当前页面缩放调整为100%，以保障您的浏览体验～",
+      "expand": "展开更多"
     },
     "init": "请耐心等待页面加载....."
   },
@@ -166,6 +168,11 @@
     "needLogin": "需要登录！",
     "noResults": "无结果！",
     "unknown": "未知状态！"
+  },
+  "Logger": {
+    "action": {
+      "details": "详细信息"
+    }
   },
   "SpecialThank": {
     "contributor": "协作者",
@@ -344,7 +351,8 @@
         "cancel": "取消当前等待的搜索",
         "retry": "重新搜索",
         "retryFailed": "重新搜索失败的方案（如 @:resultParseStatus.unknownError , @:resultParseStatus.parseError , @:resultParseStatus.CFBlocked , @:resultParseStatus.needLogin ）",
-        "saveSnapshot": "保存搜索快照"
+        "saveSnapshot": "保存搜索快照",
+        "displayPreferences": "搜索结果展示偏好"
       },
       "filterLabel": "过滤搜索结果",
       "selectedTorrents": "已选择 {0} 个种子",
@@ -379,7 +387,9 @@
         "noEmptyKeywords": "不支持空关键词",
         "noNonLatin": "不支持非拉丁字符",
         "noAdvanceParams": "不支持高级搜索参数"
-      }
+      },
+      "moveUp": "在队列中上移",
+      "searchAgain": "重新搜索"
     }
   },
   "SearchResultSnapshot": {
@@ -498,6 +508,7 @@
 
         "autodl": "自动下载？",
         "action": {
+          "status": "状态",
           "setPathAndTag": "设置预设的下载路径和标签",
           "deleteDownloader": "删除该下载服务器",
           "setDefault": "设置为默认下载服务器"
@@ -512,14 +523,16 @@
         "addTitle": "已添加的@:SetDownloader.PathAndTag.downloadPath.title@:SetDownloader.PathAndTag.supportDragNote",
         "addInputLabel": "添加@:SetDownloader.PathAndTag.downloadPath.title",
         "autoImport": "一键导入下载器中已有的@:SetDownloader.PathAndTag.downloadPath.title",
-        "autoImportFail": "@:SetDownloader.PathAndTag.downloadPath.autoImport 失败，请手动添加。"
+        "autoImportFail": "@:SetDownloader.PathAndTag.downloadPath.autoImport 失败，请手动添加。",
+        "clear": "清空@:SetDownloader.PathAndTag.downloadPath.title"
       },
       "tags": {
         "title": "标签",
         "addTitle": "已添加的@:SetDownloader.PathAndTag.tags.title@:SetDownloader.PathAndTag.supportDragNote",
         "addInputLabel": "添加@:SetDownloader.PathAndTag.tags.title",
         "autoImport": "一键导入下载器中已有的@:SetDownloader.PathAndTag.tags.title",
-        "autoImportFail": "@:SetDownloader.PathAndTag.tags.autoImport 失败，请手动添加。"
+        "autoImportFail": "@:SetDownloader.PathAndTag.tags.autoImport 失败，请手动添加。",
+        "clear": "清空@:SetDownloader.PathAndTag.tags.title"
       },
       "note": {
         "title": "说明",
@@ -567,7 +580,12 @@
       "noDefNotice": "该站点未定义搜索模块，请到项目仓库提供帮助！",
       "notice": "不推荐在此处进行设置，更建议在对应站点的个人设置中配置或使用插件提供的搜索方案功能！",
       "selectAllNotice": "（注意：在大多数情况下，你并不需要全选所有搜索项！）",
-      "title": "配置站点默认搜索模式 - {name}"
+      "title": "配置站点默认搜索模式 - {name}",
+      "action": {
+        "resetSelected": "重置此@:SetSearchSolution.title",
+        "addCustom": "添加并保存自定义@:SetSearchSolution.title",
+        "saveSelected": "保存此@:SetSearchSolution.title"
+      }
     }
   },
   "SetSite": {
@@ -586,7 +604,8 @@
       "type": "类型",
       "url": "网站链接",
       "groups": "站点分类",
-      "allowContentScript": "加载侧边栏"
+      "allowContentScript": "加载侧边栏",
+      "open": "打开"
     },
     "delete": {
       "text": "确认删除这 {0} 个站点吗？"
@@ -607,6 +626,7 @@
     "index": {
       "flushFaviconFinish": "所选站点的图标已成功刷新！",
       "table": {
+        "searchEntries": "搜索入口",
         "flushFavicon": "刷新站点图标"
       },
       "settingNote": ["只有配置过的站点才会显示插件图标及相应的功能；", "已离线的站点不再参与搜索和信息获取；"],
@@ -634,7 +654,11 @@
       "backupFields": "备份内容",
       "lastBackupAt": "最近一次备份时间",
       "notBackup": "未备份",
-      "enabled": "启用"
+      "enabled": "启用",
+      "action": {
+        "backupNow": "立即备份",
+        "viewHistoryBackup": "查看历史备份"
+      }
     },
     "localExport": "本地导出",
     "localImport": "本地导入",
@@ -655,7 +679,8 @@
       "times": "次，每次间隔",
       "minutes": "分钟。",
       "lastFlushTime": "最近一次刷新时间:",
-      "nextFlushTime": "下一次检查时间:"
+      "nextFlushTime": "下一次检查时间:",
+      "getNextFlushTime": "获取下一次检查时间"
     },
     "alwaysPickLastUserInfo": "刷新用户数据时尽可能使用已有的历史信息",
     "showDeadSite": "在概览中展示已被标记为死亡 （isDead） 的站点",

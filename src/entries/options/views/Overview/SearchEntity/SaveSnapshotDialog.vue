@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { formatDate } from "@/options/utils.ts";
+
+const { t } = useI18n();
 
 const showDialog = defineModel<boolean>();
 
@@ -34,7 +37,7 @@ function saveSearchSnapshotData() {
         <v-toolbar color="cyan-darken-2">
           <v-toolbar-title>保存搜索快照</v-toolbar-title>
           <template #append>
-            <v-btn icon="mdi-close" @click="showDialog = false" />
+            <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>
         </v-toolbar>
         <v-spacer />

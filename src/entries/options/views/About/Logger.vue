@@ -58,6 +58,7 @@ onMounted(() => {
     <template #item.action="{ item }">
       <v-btn-group class="table-action" density="compact" variant="plain">
         <v-btn
+          :title="t('Logger.action.details')"
           :disabled="typeof item.data === 'undefined'"
           color="info"
           size="small"

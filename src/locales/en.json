@@ -30,7 +30,8 @@
       "title": {
         "confirmAction": "Confirm Action"
       },
-      "deleteText": "Are you sure to delete these {0} item?"
+      "deleteText": "Are you sure to delete these {0} item?",
+      "close": "Close"
     },
     "edit": "Edit",
     "language": "Language",
@@ -59,7 +60,8 @@
       },
       "searchTip": "Input keyword, IMDb numbers to search",
       "wiki": "Wiki",
-      "wrongPixelRatioNotice": "Your page display may be affected by zooming. It is recommended to zoom at 100% to ensure your browsing experience~"
+      "wrongPixelRatioNotice": "Your page display may be affected by zooming. It is recommended to zoom at 100% to ensure your browsing experience~",
+      "expand": "Expand More"
     },
     "init": "Please wait patiently for the page to load....."
   },
@@ -166,6 +168,11 @@
     "needLogin": "Login Required!",
     "noResults": "No Results!",
     "unknown": "Unknown Status!"
+  },
+  "Logger": {
+    "action": {
+      "details": "Details"
+    }
   },
   "SpecialThank": {
     "contributor": "Contributors",
@@ -344,7 +351,8 @@
         "cancel": "Cancel current waiting search",
         "retry": "Retry Search",
         "retryFailed": "Retry the failed search plans (such as @:resultParseStatus.unknownError, @:resultParseStatus.parseError, @:resultParseStatus.CFBlocked, @:resultParseStatus.needLogin)",
-        "saveSnapshot": "Save Search Snapshot"
+        "saveSnapshot": "Save Search Snapshot",
+        "displayPreferences": "Search Results Display Preferences"
       },
       "filterLabel": "Filter search results",
       "selectedTorrents": "Selected {0} torrents",
@@ -379,7 +387,9 @@
         "noEmptyKeywords": "Empty keywords not supported",
         "noNonLatin": "Non-Latin characters not supported",
         "noAdvanceParams": "Advance parameter not supported"
-      }
+      },
+      "moveUp": "Move Up in the Queue",
+      "searchAgain": "Search Again"
     }
   },
   "SearchResultSnapshot": {
@@ -498,6 +508,7 @@
         "autodl": "Auto DL ?",
 
         "action": {
+          "status": "Status",
           "setPathAndTag": "Set Suggest Download Path and Tags",
           "deleteDownloader": "Delete this downloader server",
           "setDefault": "Set this downloader server as Default Downloader."
@@ -512,14 +523,16 @@
         "addTitle": "Added @:SetDownloader.PathAndTag.downloadPath.title @:SetDownloader.PathAndTag.supportDragNote",
         "addInputLabel": "Added @:SetDownloader.PathAndTag.downloadPath.title",
         "autoImport": "One-click to import of existing @:SetDownloader.PathAndTag.downloadPath.title from the downloader",
-        "autoImportFail": "@:SetDownloader.PathAndTag.downloadPath.autoImport failed, please add manually."
+        "autoImportFail": "@:SetDownloader.PathAndTag.downloadPath.autoImport failed, please add manually.",
+        "clear": "Clear @:SetDownloader.PathAndTag.downloadPath.title"
       },
       "tags": {
         "title": "Tags",
         "addTitle": "Added @:SetDownloader.PathAndTag.tags.title @:SetDownloader.PathAndTag.supportDragNote",
         "addInputLabel": "Added @:SetDownloader.PathAndTag.tags.title",
         "autoImport": "One-click to import of existing @:SetDownloader.PathAndTag.tags.title from the downloader",
-        "autoImportFail": "@:SetDownloader.PathAndTag.tags.autoImport failed, please add manually."
+        "autoImportFail": "@:SetDownloader.PathAndTag.tags.autoImport failed, please add manually.",
+        "clear": "Clear @:SetDownloader.PathAndTag.tags.title"
       },
       "note": {
         "title": "Note",
@@ -566,7 +579,12 @@
       "noDefNotice": "This site does not define any search categories, please go to help!",
       "notice": "It is not recommended to set it here, and it is recommended to configure your user CP in site or use search solution",
       "selectAllNotice": "(Notice: In most cases, you don't need to select all search terms! )",
-      "title": "Set default search params for Site {name}"
+      "title": "Set default search params for Site {name}",
+      "action": {
+        "resetSelected": "Reset this @:SetSearchSolution.title",
+        "addCustom": "Add a custom @:SetSearchSolution.title and save it",
+        "saveSelected": "Save this @:SetSearchSolution.title"
+      }
     }
   },
   "SetSite": {
@@ -585,7 +603,8 @@
       "type": "Type",
       "url": "URL",
       "groups": "Site Groups",
-      "allowContentScript": "Load Content Script"
+      "allowContentScript": "Load Content Script",
+      "open": "Open"
     },
     "delete": {
       "text": "Are you sure to delete these {0} Site?"
@@ -606,6 +625,7 @@
     "index": {
       "flushFaviconFinish": "The selected site favicon has been refreshed successfully!",
       "table": {
+        "searchEntries": "Search Entries",
         "flushFavicon": "Refresh Site Favicon"
       },
       "settingNote": [
@@ -636,7 +656,11 @@
       "backupFields": "Backup Content",
       "lastBackupAt": "Last Backup Time",
       "notBackup": "Not Backed Up",
-      "enabled": "Enabled"
+      "enabled": "Enabled",
+      "action": {
+        "backupNow": "Backup Now",
+        "viewHistoryBackup": "View History Backups"
+      }
     },
     "localExport": "Local Export",
     "localImport": "Local Import",
@@ -657,7 +681,8 @@
       "times": "times, with an interval of",
       "minutes": "minutes.",
       "lastFlushTime": "Last refresh time:",
-      "nextFlushTime": "Next refresh check time:"
+      "nextFlushTime": "Next refresh check time:",
+      "getNextFlushTime": "Get Next Refresh Check Time"
     },
     "alwaysPickLastUserInfo": "",
     "showDeadSite": "Show sites marked as dead (isDead) in the overview",

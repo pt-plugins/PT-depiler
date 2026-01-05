@@ -3,7 +3,7 @@ import Gazelle, { SchemaMetadata, extractSubTitle } from "../schemas/Gazelle.ts"
 import { ISiteMetadata, ITorrent, ISearchInput, ETorrentStatus } from "../types";
 import { definedFilters, buildCategoryOptionsFromList } from "../utils.ts";
 
-const tagKeywords = ["Freeleech", "Neutral", "Seeding", "Snatched", "Pollen", "Reported"];
+const tagKeywords = ["Freeleech", "Neutral", "Seeding", "Snatched", "Internal", "Pollen", "Reported"];
 
 const antCategories = [
   { name: "Feature Film", class: "featurefilm", value: 1 },
@@ -190,6 +190,10 @@ export const siteMetadata: ISiteMetadata = {
         {
           name: "Free",
           selector: "strong:contains('Freeleech')",
+        },
+        {
+          name: "Internal",
+          selector: "strong:contains('Internal')",
         },
       ],
       progress: {

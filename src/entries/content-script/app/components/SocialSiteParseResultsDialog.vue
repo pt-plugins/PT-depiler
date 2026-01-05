@@ -2,6 +2,9 @@
 import { ISocialSitePageInformation } from "@ptd/social";
 import { doKeywordSearch, type IPtdData } from "../utils.ts";
 import { inject } from "vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const showDialog = defineModel<boolean>();
 const { parseResults } = defineProps<{ parseResults: ISocialSitePageInformation[] }>();
@@ -16,7 +19,7 @@ const ptdData = inject<IPtdData>("ptd_data", {});
         <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title> 快速搜索 </v-toolbar-title>
           <template #append>
-            <v-btn icon="mdi-close" @click="showDialog = false" />
+            <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>
         </v-toolbar>
       </v-card-title>

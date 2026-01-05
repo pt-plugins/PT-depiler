@@ -120,6 +120,7 @@ onMounted(async () => {
             {{ t("userInfo.autoRefresh.nextFlushTime") }}
             {{ nextFlushUserInfoAt != 0 ? formatDate(nextFlushUserInfoAt) : "-" }}
             <v-btn
+              :title="t('userInfo.autoRefresh.getNextFlushTime')"
               class="ml-1"
               density="compact"
               icon="mdi-refresh"
