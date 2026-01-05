@@ -228,8 +228,7 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
 
       <template #item.action="{ item }">
         <v-btn-group class="table-action" density="compact" variant="plain">
-          <!-- TODO 查看该下载服务器现状 -->
-          <v-btn :disabled="true" icon="mdi-information-outline" size="small" />
+          <v-btn :disabled="true" :title="t('SetDownloader.index.table.action.status')" icon="mdi-information-outline" size="small" />
 
           <v-btn
             :title="t('common.edit')"
