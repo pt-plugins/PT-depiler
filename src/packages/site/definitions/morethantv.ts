@@ -50,6 +50,8 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
+  officialGroupPattern: [/-(TEPES|E\.N\.D|SMURF|hallowed|WDYM|PiRAMiDHEAD|VaLTiEL)/i],
+
   search: {
     skipNonLatinCharacters: true,
     keywordPath: "params.q",
