@@ -232,6 +232,8 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
+  officialGroupPattern: ["OpenCD", "LLM", "TSxD", "KHQ"],
+
   search: {
     ...SchemaMetadata.search,
     advanceKeywordParams: {

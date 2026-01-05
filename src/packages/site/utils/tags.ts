@@ -14,7 +14,6 @@ export const preDefinedTorrentTagMap: IPreDefinedTorrentTag[] = [
   // 优惠类
   { name: "NL.", color: "deep-purple", aka: ["Neutral"] }, // 中性种子（0xUP & 0xDL）
   { name: "Freeload", color: "red", aka: [] }, // Freeload
-  { name: "Free", color: "blue", aka: [] }, // 免费下载
   { name: "2xFree", color: "green", aka: [] }, // 免费下载 + 2x 上传
   { name: "2xUp", color: "lime", aka: [] }, // 2x 上传
   { name: "2x50%", color: "light-green", aka: [] }, // 2x 上传 + 50% 下载
@@ -24,9 +23,11 @@ export const preDefinedTorrentTagMap: IPreDefinedTorrentTag[] = [
   { name: "50%", color: "orange", aka: [] }, // 50% 下载
   { name: "70%", color: "blue-grey", aka: [] }, // 70% 下载
   { name: "75%", color: "lime-darken-3", aka: [] }, // 75% 下载
+  { name: "Free", color: "blue", aka: [] }, // 免费下载
+  { name: "可退款", color: "gray", aka: ["Refund"] }, // 定期退还下载量
 
   // 站点属性类
-  { name: "官方", color: "blue-darken-2", aka: ["官组", "官种"] },
+  { name: "官方", color: "blue-darken-2", aka: ["官组", "官种", "Internal"] },
   { name: "Hot", color: "yellow-lighten-1", aka: ["热门", "熱門"] },
   { name: "H&R", color: "red", aka: ["HnR"] }, // 需要 H&R
   { name: "Excl.", color: "deep-orange-darken-1", aka: ["独家", "限转", "禁转"] }, // 禁止转载
