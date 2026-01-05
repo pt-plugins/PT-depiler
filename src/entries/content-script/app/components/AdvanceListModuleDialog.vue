@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, inject } from "vue";
+import { useI18n } from "vue-i18n";
 import { useWindowSize } from "@vueuse/core";
 import { ETorrentStatus, ITorrent } from "@ptd/site";
 import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
@@ -10,6 +11,8 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 import NavButton from "@/options/components/NavButton.vue";
 import TorrentTitleTd from "@/options/components/TorrentTitleTd.vue";
+
+const { t } = useI18n();
 
 const showDialog = defineModel<boolean>();
 

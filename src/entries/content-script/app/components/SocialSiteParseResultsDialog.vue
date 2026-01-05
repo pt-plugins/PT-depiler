@@ -2,6 +2,9 @@
 import { ISocialSitePageInformation } from "@ptd/social";
 import { doKeywordSearch, type IPtdData } from "../utils.ts";
 import { inject } from "vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const showDialog = defineModel<boolean>();
 const { parseResults } = defineProps<{ parseResults: ISocialSitePageInformation[] }>();

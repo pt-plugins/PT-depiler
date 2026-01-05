@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, shallowRef } from "vue";
+import { useI18n } from "vue-i18n";
 import type { CAddTorrentOptions } from "@ptd/downloader";
 
 import { sendMessage } from "@/messages.ts";
@@ -7,6 +8,8 @@ import { useResetableRef } from "@/options/directives/useResetableRef.ts";
 import type { ITorrentDownloadMetadata } from "@/shared/types.ts";
 
 import SentToDownloaderDialog from "@/options/components/SentToDownloaderDialog.vue";
+
+const { t } = useI18n();
 
 const showDialog = defineModel<boolean>();
 const emit = defineEmits<{
