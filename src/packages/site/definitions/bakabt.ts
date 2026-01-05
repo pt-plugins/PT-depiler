@@ -41,10 +41,14 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "成人内容",
       key: "hentai",
+      notes: "请先在站点设置中启用 Browse -> Show adult content",
       options: [
         { name: "显示", value: 1 },
         { name: "不显示", value: 0 },
       ],
+      generateRequestConfig: (selectedOption) => ({
+        requestConfig: { params: { hentai: selectedOption, reorder: 1 } },
+      }),
     },
   ],
 
@@ -55,7 +59,6 @@ export const siteMetadata: ISiteMetadata = {
       responseType: "document",
       params: {
         only: 0,
-        reorder: 1,
         incomplete: 1,
         lossless: 1,
         hd: 1,
