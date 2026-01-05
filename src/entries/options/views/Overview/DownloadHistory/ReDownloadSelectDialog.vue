@@ -89,7 +89,7 @@ function dialogEnter() {
         <v-toolbar color="primary">
           <v-toolbar-title>重新下载 {{ torrentItems.length }} 条记录</v-toolbar-title>
           <template #append>
-            <v-btn icon="mdi-close" @click="showDialog = false" />
+            <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>
         </v-toolbar>
       </v-card-title>

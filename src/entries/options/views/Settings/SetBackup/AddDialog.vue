@@ -66,6 +66,7 @@ function resetDialog() {
           <v-toolbar-title> 添加备份服务器 </v-toolbar-title>
           <v-spacer />
           <v-btn
+            :title="t('layout.header.wiki')"
             :href="`${REPO_URL}/wiki/config-backup-server`"
             color="success"
             icon="mdi-help-circle"

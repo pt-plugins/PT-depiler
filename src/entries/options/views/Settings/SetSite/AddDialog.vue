@@ -55,6 +55,7 @@ async function saveSite() {
           <v-toolbar-title>{{ t("SetSite.add.title") }}</v-toolbar-title>
           <v-spacer />
           <v-btn
+            :title="t('layout.header.wiki')"
             :href="`${REPO_URL}/wiki/config-site`"
             color="success"
             icon="mdi-help-circle"

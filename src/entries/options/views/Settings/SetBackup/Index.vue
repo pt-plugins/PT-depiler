@@ -157,14 +157,19 @@ async function confirmDeleteBackupServer(id: TBackupServerKey) {
       <template #item.action="{ item }">
         <v-btn-group class="table-action" density="compact" variant="plain">
           <v-btn
+            :title="t('SetBackup.table.action.backupNow')"
             :loading="doBackupStatus[item.id]"
             color="green"
             icon="mdi-cloud-upload"
             size="small"
             @click="doBackup(item.id)"
           />
-
-          <v-btn icon="mdi-view-list" size="small" @click="showHistory(item.id)" />
+          <v-btn
+            :title="t('SetBackup.table.action.viewHistoryBackup')"
+            icon="mdi-view-list"
+            size="small"
+            @click="showHistory(item.id)"
+          />
 
           <v-btn
             :title="t('common.edit')"

@@ -69,6 +69,7 @@ async function saveStoredDownloaderConfig() {
           <v-toolbar-title>{{ t("SetDownloader.add.title") }}</v-toolbar-title>
           <v-spacer />
           <v-btn
+            :title="t('layout.header.wiki')"
             :href="`${REPO_URL}/wiki/config-download-client`"
             color="success"
             icon="mdi-help-circle"

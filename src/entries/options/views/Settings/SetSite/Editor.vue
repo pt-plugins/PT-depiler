@@ -159,6 +159,7 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
                 {{ url }}
                 <v-spacer />
                 <v-btn
+                  :title="t('SetSite.common.open')"
                   :href="url"
                   color="info"
                   icon="mdi-arrow-top-right-bold-box-outline"

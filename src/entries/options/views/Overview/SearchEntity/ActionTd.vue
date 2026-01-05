@@ -70,6 +70,7 @@ function sendToDownloader() {
       :disabled="torrentItems.length == 0"
       :size="btnSize"
       icon="mdi-cloud-download"
+      title="下载到服务器"
       @click="() => sendToDownloader()"
     />
     <!-- 复制下载链接 -->

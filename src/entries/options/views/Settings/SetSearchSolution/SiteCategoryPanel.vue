@@ -159,10 +159,17 @@ onMounted(async () => {
       </v-col>
       <v-col align-self="center">
         <v-row justify="end">
-          <v-btn color="red" icon="mdi-cached" variant="text" @click="() => resetSelectCategory()" />
+          <v-btn
+            :title="t('SetSearchSolution.spDialog.action.resetSelected')"
+            color="red"
+            icon="mdi-cached"
+            variant="text"
+            @click="() => resetSelectCategory()"
+          />
         </v-row>
         <v-row justify="end">
           <v-btn
+            :title="t('SetSearchSolution.spDialog.action.addCustom')"
             color="indigo"
             icon="mdi-pencil-plus"
             variant="text"
@@ -170,7 +177,13 @@ onMounted(async () => {
           ></v-btn>
         </v-row>
         <v-row justify="end">
-          <v-btn color="blue" icon="mdi-arrow-right-bold" variant="text" @click="() => generateSolution()" />
+          <v-btn
+            :title="t('SetSearchSolution.spDialog.action.saveSelected')"
+            color="blue"
+            icon="mdi-arrow-right-bold"
+            variant="text"
+            @click="() => generateSolution()"
+          />
         </v-row>
       </v-col>
     </v-row>

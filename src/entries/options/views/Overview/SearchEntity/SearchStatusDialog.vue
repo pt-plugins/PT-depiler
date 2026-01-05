@@ -39,7 +39,7 @@ function getSearchSolution(planKey: string, entryName: string) {
           </v-toolbar-title>
 
           <template #append>
-            <v-btn icon="mdi-close" @click="showDialog = false" />
+            <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>
         </v-toolbar>
       </v-card-title>
@@ -107,6 +107,7 @@ function getSearchSolution(planKey: string, entryName: string) {
                 <!-- 上移队列 -->
                 <v-btn
                   v-if="searchPlan.status === EResultParseStatus.waiting"
+                  :title="t('SearchEntity.SearchStatusDialog.moveUp')"
                   color="warning"
                   icon="mdi-arrow-collapse-up"
                   @click="() => raiseSearchPriority(solutionKey)"
@@ -115,6 +116,7 @@ function getSearchSolution(planKey: string, entryName: string) {
                 <!-- 重新搜索 -->
                 <v-btn
                   v-else
+                  :title="t('SearchEntity.SearchStatusDialog.searchAgain')"
                   :loading="searchPlan.status === EResultParseStatus.working"
                   color="red"
                   icon="mdi-cached"

@@ -191,6 +191,7 @@ onMounted(() => {
         <template #item.action="{ item }">
           <v-btn-group class="table-action" density="compact" variant="plain">
             <v-btn
+              :title="t('DownloadHistory.reDownload')"
               color="primary"
               icon="mdi-tray-arrow-down"
               size="small"

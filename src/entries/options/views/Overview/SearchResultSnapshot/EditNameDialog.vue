@@ -35,7 +35,7 @@ function dialogEnter() {
         <v-toolbar color="cyan-darken-2">
           <v-toolbar-title>搜索快照重命名</v-toolbar-title>
           <template #append>
-            <v-btn icon="mdi-close" @click="showDialog = false" />
+            <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>
         </v-toolbar>
       </v-card-title>
