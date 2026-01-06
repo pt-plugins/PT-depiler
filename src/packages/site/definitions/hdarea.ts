@@ -125,6 +125,18 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     ...SchemaMetadata.search!,
+    requestConfig: {
+      ...SchemaMetadata.search!.requestConfig,
+      params: {
+        ...SchemaMetadata.search!.requestConfig!.params,
+        search_area: 0,
+        search_mode: 0,
+      },
+    },
+    advanceKeywordParams: {
+      imdb: {},
+      douban: {},
+    },
     selectors: {
       ...SchemaMetadata.search!.selectors!,
       rows: {
