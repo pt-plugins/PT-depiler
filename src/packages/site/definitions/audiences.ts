@@ -12,6 +12,7 @@ import NexusPHP, {
   SchemaMetadata,
 } from "../schemas/NexusPHP.ts";
 import { createDocument, parseSizeString, rot13, tryToNumber } from "../utils";
+import { set } from "es-toolkit/compat";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -92,6 +93,15 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     ...SchemaMetadata.search!,
+    advanceKeywordParams: {
+      ...SchemaMetadata.search?.advanceKeywordParams!,
+      douban: {
+        requestConfigTransformer: ({ requestConfig: config }) => {
+          set(config!, "params.search_area", 5); // params "&search_area=4"
+          return config!;
+        },
+      },
+    },
     selectors: {
       ...SchemaMetadata.search!.selectors!,
       subTitle: {
