@@ -557,6 +557,7 @@
   },
   "SetSearchSolution": {
     "solution": "Search Solution",
+    "copy": "Duplicate",
     "import": "Import",
     "export": "Export",
     "table": {
@@ -579,9 +580,9 @@
       "selectAllNotice": "(Notice: In most cases, you don't need to select all search terms! )",
       "title": "Set default search params for Site {name}",
       "action": {
-        "resetSelected": "Reset this @:SetSearchSolution.title",
-        "addCustom": "Add a custom @:SetSearchSolution.title and save it",
-        "saveSelected": "Save this @:SetSearchSolution.title"
+        "reset": "Reset this @:SetSearchSolution.solution",
+        "create": "Create a custom @:SetSearchSolution.solution based on this",
+        "add": "Add this @:SetSearchSolution.solution"
       }
     }
   },

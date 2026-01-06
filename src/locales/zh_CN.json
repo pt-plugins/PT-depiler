@@ -557,7 +557,7 @@
   },
   "SetSearchSolution": {
     "solution": "搜索方案",
-    "copy": "基于此搜索方案复制",
+    "copy": "创建副本",
     "import": "导入",
     "export": "导出",
     "table": {
@@ -580,9 +580,9 @@
       "selectAllNotice": "（注意：在大多数情况下，你并不需要全选所有搜索项！）",
       "title": "配置站点默认搜索模式 - {name}",
       "action": {
-        "resetSelected": "重置此@:SetSearchSolution.title",
-        "addCustom": "添加并保存自定义@:SetSearchSolution.title",
-        "saveSelected": "保存此@:SetSearchSolution.title"
+        "reset": "重置此@:SetSearchSolution.solution",
+        "create": "基于此创建自定义@:SetSearchSolution.solution",
+        "add": "添加此@:SetSearchSolution.solution"
       }
     }
   },
