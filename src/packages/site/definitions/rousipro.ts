@@ -2,6 +2,8 @@ import { ISiteMetadata, ITorrent } from "@ptd/site";
 import PrivateSite from "@ptd/site/schemas/AbstractPrivateSite.ts";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 
+const torrentIdRegex = /\/torrent\/([0-9a-z-]+)\/?/;
+
 export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "rousipro",
@@ -90,7 +92,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: ":self",
         elementProcess: (element: Document) => {
           const url = element.URL;
-          const match = url.match(/\/torrent\/([0-9a-z-]+)\/?/);
+          const match = url.match(torrentIdRegex);
           return match ? match[1] : url;
         },
       },
@@ -155,9 +157,15 @@ export default class RousiPro extends PrivateSite {
   }
 
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
-    // fix: 如果 torrent 对象没有 id ，尝试从 link 中提取 (https://github.com/pt-plugins/PT-depiler/issues/600)
-    if (!torrent.id && torrent.url) {
-      const match = torrent.url.match(/\/torrent\/([0-9a-z-]+)\/?/);
+    // fix: 如果 torrent 对象没有 id ，则依次尝试从 url, link 中提取
+    if (!torrent.id && (torrent.url || torrent.link)) {
+      let match;
+      if (torrent.url?.includes("/torrent/")) {
+        match = torrent.url.match(torrentIdRegex);
+      } else if (torrent.link?.includes("/torrent/")) {
+        match = torrent.link.match(torrentIdRegex);
+      }
+
       if (match) {
         torrent.id = match[1];
       }
