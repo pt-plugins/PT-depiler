@@ -125,6 +125,18 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     ...SchemaMetadata.search!,
+    requestConfig: {
+      ...SchemaMetadata.search!.requestConfig,
+      params: {
+        ...SchemaMetadata.search!.requestConfig!.params,
+        search_area: 0,
+        search_mode: 0,
+      },
+    },
+    advanceKeywordParams: {
+      imdb: {},
+      douban: {},
+    },
     selectors: {
       ...SchemaMetadata.search!.selectors!,
       rows: {
@@ -135,6 +147,20 @@ export const siteMetadata: ISiteMetadata = {
         { name: "首发", selector: "img.first_publish", color: "#3887D7" },
         { name: "禁转", selector: "img.transfer_forbidden", color: "#5E14DA" },
       ],
+    },
+  },
+
+  detail: {
+    ...SchemaMetadata.detail,
+    selectors: {
+      ...SchemaMetadata.detail!.selectors,
+      link: {
+        selector: `td:contains("下载链接") + td`,
+        elementProcess: (element: HTMLElement) => {
+          const textNode = element?.childNodes[0];
+          return textNode?.textContent?.trim() ?? "";
+        },
+      },
     },
   },
 
