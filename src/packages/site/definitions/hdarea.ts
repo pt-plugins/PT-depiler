@@ -138,6 +138,20 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
+  detail: {
+    ...SchemaMetadata.detail,
+    selectors: {
+      ...SchemaMetadata.detail!.selectors,
+      link: {
+        selector: `td:contains("下载链接") + td`,
+        elementProcess: (element: HTMLElement) => {
+          const textNode = element?.childNodes[0];
+          return textNode?.textContent?.trim() ?? "";
+        },
+      },
+    },
+  },
+
   levelRequirements: [
     {
       id: 0,
