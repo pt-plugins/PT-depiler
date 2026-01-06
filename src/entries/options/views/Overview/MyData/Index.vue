@@ -166,9 +166,8 @@ async function multiOpen() {
 async function multiFlush() {
   let flushSiteIds: TSiteID[] = tableSelected.value;
   if (flushSiteIds.length === 0) {
-    if (confirm("刷新全部站点用户信息？（未选择任何站点时，默认刷新全部站点）")) {
-      flushSiteIds = tableData.value.map((item) => item.site);
-    }
+    flushSiteIds = tableData.value.map((item) => item.site);
+    runtimeStore.showSnakebar("未选择任何站点，默认刷新全部站点", { color: "info" });
   }
 
   if (flushSiteIds.length > 0) {
