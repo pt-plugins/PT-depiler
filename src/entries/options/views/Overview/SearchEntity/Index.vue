@@ -428,12 +428,9 @@ function cancelSearchQueue() {
     </v-card-text>
   </v-card>
 
-  <AdvanceFilterGenerateDialog
-    v-model="showAdvanceFilterGenerateDialog"
-    @update:table-filter="(v) => (tableWaitFilterRef = v)"
-  />
-  <SearchStatusDialog v-model="showSearchStatusDialog"></SearchStatusDialog>
-  <SaveSnapshotDialog v-model="showSaveSnapshotDialog"></SaveSnapshotDialog>
+  <AdvanceFilterGenerateDialog v-model="showAdvanceFilterGenerateDialog" />
+  <SearchStatusDialog v-model="showSearchStatusDialog" />
+  <SaveSnapshotDialog v-model="showSaveSnapshotDialog" />
 </template>
 
 <style scoped lang="scss">

@@ -19,13 +19,18 @@ import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 
 const showDialog = defineModel<boolean>();
-const emit = defineEmits(["update:tableFilter"]);
 
 const { t } = useI18n();
 const configStore = useConfigStore();
 
-const { advanceFilterDictRef, stringifyFilterFn, resetAdvanceFilterDictFn, resetCountRef, toggleKeywordStateFn } =
-  tableCustomFilter;
+const {
+  tableWaitFilterRef,
+  advanceFilterDictRef,
+  stringifyFilterFn,
+  resetAdvanceFilterDictFn,
+  resetCountRef,
+  toggleKeywordStateFn,
+} = tableCustomFilter;
 
 // 种子状态选项 - 使用 i18n 支持
 const statusOptions = [
@@ -39,7 +44,7 @@ const statusOptions = [
 const torrentTags = computed(() => sortTorrentTags(advanceFilterDictRef.value.tags.all));
 
 function updateTableFilter() {
-  emit("update:tableFilter", stringifyFilterFn());
+  tableWaitFilterRef.value = stringifyFilterFn();
   showDialog.value = false;
 }
 </script>

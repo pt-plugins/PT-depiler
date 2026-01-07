@@ -12,15 +12,19 @@ import { setDateRangeByDatePicker, getThisDateUnitRange } from "@/options/direct
 
 const showDialog = defineModel<boolean>();
 
-const emit = defineEmits(["update:tableFilter"]);
-
 const { t } = useI18n();
 
-const { advanceFilterDictRef, stringifyFilterFn, resetCountRef, resetAdvanceFilterDictFn, toggleKeywordStateFn } =
-  tableCustomFilter;
+const {
+  tableWaitFilterRef,
+  advanceFilterDictRef,
+  stringifyFilterFn,
+  resetCountRef,
+  resetAdvanceFilterDictFn,
+  toggleKeywordStateFn,
+} = tableCustomFilter;
 
 function updateTableFilter() {
-  emit("update:tableFilter", stringifyFilterFn());
+  tableWaitFilterRef.value = stringifyFilterFn();
   showDialog.value = false;
 }
 </script>
