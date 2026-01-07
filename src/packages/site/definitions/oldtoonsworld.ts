@@ -222,6 +222,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 9,
       name: "VIP",
+      groupType: "vip",
       privilege: "无限下载槽 直接发布种子 站免 双倍上传 免疫HR 发送邀请",
     },
   ],

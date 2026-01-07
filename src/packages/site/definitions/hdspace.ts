@@ -279,18 +279,21 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 6,
       name: "VIP",
+      groupType: "vip",
       nameAka: ["V.I.P."],
       privilege: "Same access like HD Astronaut, immune to automatic demotion, automated HnR warnings and ratio watch.",
     },
     {
       id: 7,
       name: "Uploader",
+      groupType: "manager",
       uploads: 20,
       privilege: "Access to HD Spacer and HD Astronaut extras. May upload and download any torrents.",
     },
     {
       id: 8,
       name: "Elite Uploader",
+      groupType: "manager",
       uploaded: "20TB",
       ratio: 7,
       uploads: 100,

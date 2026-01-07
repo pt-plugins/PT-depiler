@@ -448,6 +448,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 8,
       name: "VIP",
+      groupType: "vip",
       privilege: "Same privileges as Elite User, immune to automated HnR warnings.",
     },
   ],

@@ -286,6 +286,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 4,
       name: "VIP",
+      groupType: "vip",
       privilege:
         "Fancy star, No ratio requirements (as long as you are vip) + Access to: Online Users, Tracker info, Live TV, Requests, Top 10, and Users",
     },
