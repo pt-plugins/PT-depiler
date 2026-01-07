@@ -1,17 +1,19 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify/framework";
 
 import { useConfigStore } from "@/options/stores/config.ts";
 import { formatSize } from "@/options/utils.ts";
+import type { ISearchResultTorrent } from "@/shared/types/storages/runtime.ts";
+
 import { tableCustomFilter } from "./utils/filter.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 
-const { selectedTorrentsInfo } = defineProps<{
-  selectedTorrentsInfo: { count: number; totalSize: number };
+const { selectedTorrents } = defineProps<{
+  selectedTorrents: ISearchResultTorrent[];
 }>();
 
 const { t } = useI18n();
@@ -21,6 +23,25 @@ const display = useDisplay();
 const { advanceFilterDictRef, updateTableFilterValueFn } = tableCustomFilter;
 
 const selectedSite = ref<string>("");
+
+// 优化后的选中种子信息计算：直接基于选中对象计算
+const selectedTorrentsInfo = computed(() => {
+  const selectedObjects = selectedTorrents;
+  const count = selectedObjects.length;
+
+  // 如果没有选中任何项，直接返回
+  if (count === 0) {
+    return { count: 0, totalSize: 0 };
+  }
+
+  // 直接计算选中对象的总大小，避免遍历查找
+  const totalSize = selectedObjects.reduce((sum, torrent) => sum + (torrent.size || 0), 0);
+
+  return {
+    count,
+    totalSize,
+  };
+});
 
 function clearSiteFilter() {
   selectedSite.value = ""; // 清除站点过滤器

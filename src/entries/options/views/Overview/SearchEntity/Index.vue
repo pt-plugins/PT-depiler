@@ -79,25 +79,6 @@ const { tableFilterRef, tableWaitFilterRef, tableFilterFn, resetAdvanceFilterDic
 // 使用 shallowRef 优化：种子对象数组不需要深度响应式，提升性能
 const tableSelectedRaw = shallowRef<ISearchResultTorrent[]>([]);
 
-// 优化后的选中种子信息计算：直接基于选中对象计算
-const selectedTorrentsInfo = computed(() => {
-  const selectedObjects = tableSelectedRaw.value;
-  const count = selectedObjects.length;
-
-  // 如果没有选中任何项，直接返回
-  if (count === 0) {
-    return { count: 0, totalSize: 0 };
-  }
-
-  // 直接计算选中对象的总大小，避免遍历查找
-  const totalSize = selectedObjects.reduce((sum, torrent) => sum + (torrent.size || 0), 0);
-
-  return {
-    count,
-    totalSize,
-  };
-});
-
 watch(
   () => route.query,
   (newParams, oldParams) => {
@@ -286,7 +267,12 @@ function cancelSearchQueue() {
         <v-menu>
           <template v-slot:activator="{ props }">
             <v-btn-group size="small" variant="text">
-              <v-btn :title="t('SearchEntity.index.action.displayPreferences')" color="blue" icon="mdi-cog" v-bind="props" />
+              <v-btn
+                :title="t('SearchEntity.index.action.displayPreferences')"
+                color="blue"
+                icon="mdi-cog"
+                v-bind="props"
+              />
             </v-btn-group>
           </template>
           <v-list>
@@ -351,7 +337,7 @@ function cancelSearchQueue() {
 
     <v-card-text class="pt-2 pb-0">
       <!-- 站点筛选器、已选种子等提示信息 -->
-      <QuickFilterNotice :selected-torrents-info="selectedTorrentsInfo" />
+      <QuickFilterNotice :selected-torrents="tableSelectedRaw" />
 
       <v-data-table
         id="ptd-search-entity-table"
