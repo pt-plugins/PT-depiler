@@ -1,10 +1,18 @@
 /**
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/AlphaRatio.cs
  */
-import type { ISiteMetadata, ITorrent, IUserInfo } from "../types";
+import type { ISiteMetadata, ITorrent, IUserInfo, TSearchRequestConfigTransformer } from "../types";
 import GazelleJSONAPI, { SchemaMetadata, torrentBrowseResult } from "../schemas/GazelleJSONAPI";
 import { set, unset } from "es-toolkit/compat";
 import { toMerged } from "es-toolkit";
+
+const requestConfigTransformer: TSearchRequestConfigTransformer = ({ keywords, requestConfig }) => {
+  if (keywords) {
+    unset(requestConfig!, SchemaMetadata.search!.keywordPath!);
+    set(requestConfig!, "params.taglist", keywords);
+  }
+  return requestConfig!;
+};
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -67,13 +75,10 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.search!,
     advanceKeywordParams: {
       imdb: {
-        requestConfigTransformer: ({ keywords, requestConfig }) => {
-          if (keywords) {
-            unset(requestConfig!, SchemaMetadata.search!.keywordPath!);
-            set(requestConfig!, "params.taglist", keywords);
-          }
-          return requestConfig!;
-        },
+        requestConfigTransformer,
+      },
+      tvmaze: {
+        requestConfigTransformer,
       },
     },
   },
@@ -206,15 +211,22 @@ export const siteMetadata: ISiteMetadata = {
   ],
 };
 
+const imdbRe = /tt\d+/;
+const tvmazeRe = /^(?:tvmaze\.)?(\d+)$/;
+
 export default class AlphaRatio extends GazelleJSONAPI {
   protected override async transformUnGroupTorrent(group: torrentBrowseResult): Promise<ITorrent> {
     const torrent = await super.transformUnGroupTorrent(group);
     torrent.tags?.push({ name: "H&R" });
 
-    const imdbRe = /tt\d+/;
     const imdbId = group.tags.find((tag) => imdbRe.test(tag))?.match(imdbRe)?.[0];
     if (imdbId) {
       torrent.ext_imdb = imdbId;
+    }
+
+    const tvmazeId = group.tags.find((tag) => tvmazeRe.test(tag))?.match(tvmazeRe)?.[1];
+    if (tvmazeId) {
+      torrent.ext_tvmaze = tvmazeId;
     }
 
     return torrent;
