@@ -19,6 +19,13 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["https://sugoimusic.me/"],
 
+  search: {
+    ...SchemaMetadata.search!,
+    advanceKeywordParams: {
+      imdb: false,
+    },
+  },
+
   levelRequirements: [
     {
       id: 1,

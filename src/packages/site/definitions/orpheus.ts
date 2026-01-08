@@ -58,6 +58,13 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
+  search: {
+    ...SchemaMetadata.search!,
+    advanceKeywordParams: {
+      imdb: false,
+    },
+  },
+
   userInfo: {
     ...SchemaMetadata.userInfo!,
     selectors: {
