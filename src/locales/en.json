@@ -619,7 +619,7 @@
       "tagTip": "Press Enter to add a tag after typing. (Only the first 4 will be displayed on the list page)",
       "timezone": "Timezone",
       "uploadSpeedLimit": "Upload Speed",
-      "uploadSpeedLimitHint": "Set upload speed limit (MB/s) when pushing torrents to downloader, 0 or empty means unlimited"
+      "uploadSpeedLimitHint": "Set upload speed limit (MiB/s) when pushing torrents to downloader, 0 or empty means unlimited"
     },
     "index": {
       "flushFaviconFinish": "The selected site favicon has been refreshed successfully!",
