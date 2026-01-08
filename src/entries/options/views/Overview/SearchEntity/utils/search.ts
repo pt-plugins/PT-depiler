@@ -16,7 +16,6 @@ import type { ISearchResultTorrent, TSearchSolutionKey } from "@/shared/types.ts
 
 import { tableCustomFilter } from "./filter.ts";
 
-
 const runtimeStore = useRuntimeStore();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();

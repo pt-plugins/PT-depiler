@@ -127,7 +127,7 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
           <template #prepend-inner>
             <v-menu min-width="100">
               <template v-slot:activator="{ props }">
-                <v-icon icon="mdi-filter" v-bind="props" variant="plain" @click:clear="buildFilterDictFn('')" />
+                <v-icon icon="mdi-filter" v-bind="props" variant="plain" @click="buildFilterDictFn('')" />
               </template>
               <v-list class="pa-0">
                 <v-list-item v-for="(transKey, filterKey) in booleanField">
