@@ -195,7 +195,7 @@ function enterDialog() {
                       hide-header
                       multiple="range"
                       show-adjacent-months
-                      @update:model-value="(v) => (advanceFilterDictRef.time.value = setDateRangeByDatePicker(v))"
+                      @update:model-value="(v) => (advanceFilterDictRef.time = setDateRangeByDatePicker(v))"
                     ></v-date-picker>
                   </v-menu>
                 </v-chip>

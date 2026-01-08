@@ -345,7 +345,7 @@ function viewStatistic() {
                   :title="t('MyData.index.filter.todayNotUpdated')"
                   @click.stop="
                     () => {
-                      advanceFilterDictRef.updateAt.value = ['', formatDate(currentDate, 'yyyyMMdd')];
+                      advanceFilterDictRef.updateAt = ['', formatDate(currentDate, 'yyyyMMdd')];
                       updateTableFilterValueFn();
                     }
                   "
@@ -369,7 +369,7 @@ function viewStatistic() {
                   :title="t('MyData.index.filter.unreadMessage')"
                   @click.stop="
                     () => {
-                      advanceFilterDictRef.messageCount.value = [1, ' '];
+                      advanceFilterDictRef.messageCount = [1, ' '];
                       updateTableFilterValueFn();
                     }
                   "
