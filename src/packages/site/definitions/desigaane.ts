@@ -18,6 +18,13 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["https://desigaane.rocks/"],
 
+  search: {
+    ...SchemaMetadata.search!,
+    advanceKeywordParams: {
+      imdb: false,
+    },
+  },
+
   levelRequirements: [
     {
       id: 1,

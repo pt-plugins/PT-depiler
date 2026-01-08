@@ -15,8 +15,9 @@ import GazelleJSONAPI, {
   browseJsonResponse,
 } from "../schemas/GazelleJSONAPI";
 import BittorrentSite from "../schemas/AbstractBittorrentSite";
+import { unset, set } from "es-toolkit/compat";
 
-const movieCats = ["SD", "720p", "1080p", "4k", "DVD-R", "BDMV"];
+const movieCats = ["SD", "720p", "1080p", "2160p", "4k", "DVD-R", "BDMV"];
 const musicCats = ["CD", "DVD", "WEB", "Vinyl"];
 
 const mediaCategorySets = {
@@ -57,6 +58,21 @@ export const siteMetadata: ISiteMetadata = {
       options: buildCategoryOptionsFromList([movieCats, musicCats]),
     },
   ],
+
+  search: {
+    ...SchemaMetadata.search!,
+    advanceKeywordParams: {
+      imdb: {
+        requestConfigTransformer: ({ keywords, requestConfig }) => {
+          if (keywords) {
+            unset(requestConfig!, SchemaMetadata.search!.keywordPath!);
+            set(requestConfig!, "params.cataloguenumber", keywords);
+          }
+          return requestConfig!;
+        },
+      },
+    },
+  },
 
   list: [
     {
