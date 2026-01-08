@@ -181,7 +181,7 @@ function enterDialog() {
                   size="x-small"
                   class="mr-1"
                   @click="
-                    () => (advanceFilterDictRef.time = getThisDateUnitRange(dateUnit, advanceFilterDictRef.time.range))
+                    () => (advanceFilterDictRef.time = getThisDateUnitRange(dateUnit, advanceItemPropsRef.time.range))
                   "
                 >
                   {{ t(`SearchEntity.AdvanceFilterGenerateDialog.date.${dateUnit}`) }}
