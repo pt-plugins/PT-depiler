@@ -311,6 +311,8 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
 
       if ((value[0] && value[0] !== range[0]) || (value[1] && value[1] !== range[1])) {
         filters[key] = { from: valueFormat.build(value[0]), to: valueFormat.build(value[1]) };
+      } else {
+        advanceFilterDictRef.value[key] = [valueFormat.build(range[0]), valueFormat.build(range[1])];
       }
     });
 
