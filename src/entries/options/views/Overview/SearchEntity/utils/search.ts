@@ -20,7 +20,8 @@ const runtimeStore = useRuntimeStore();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 
-const { advanceFilterDictRef, updateTableFilterValueFn, resetAdvanceFilterDictFn } = tableCustomFilter;
+const { advanceFilterDictRef, buildAdvanceItemPropsFn, updateTableFilterValueFn, advanceItemPropsRef } =
+  tableCustomFilter;
 
 // 模块级别的 Set，用于跟踪已存在的搜索结果 ID，避免并发时的重复
 const globalExistingIds = new Set<string>();
@@ -42,8 +43,9 @@ searchQueue.on("active", () => {
 searchQueue.on("idle", () => {
   runtimeStore.search.isSearching = false;
   runtimeStore.search.endAt = Date.now();
-  // 队列空闲时，清空全局 Set
-  globalExistingIds.clear();
+
+  globalExistingIds.clear(); // 队列空闲时，清空全局 Set
+  buildAdvanceItemPropsFn(); // 队列空闲时，构建高级筛选词
 });
 
 interface ISearchPlanStatusMap {
@@ -187,7 +189,12 @@ export async function doSearchEntity(
       runtimeStore.search.searchPlan[solutionKey].count = newItems.length;
       runtimeStore.search.searchPlan[solutionKey].endAt = endAt;
       runtimeStore.search.searchPlan[solutionKey].costTime = endAt - startAt;
-      resetAdvanceFilterDictFn();
+
+      // 直接向 advanceItemPropsRef.site 添加 siteId，而不是重新构造全部字典，以便于站点快速选择器更新
+      const sites = advanceItemPropsRef.value.site;
+      if (Array.isArray(sites) && !sites.includes(siteId)) {
+        sites.push(siteId);
+      }
     },
     { priority: queuePriority, id: solutionKey },
   );
@@ -202,8 +209,8 @@ export async function doSearch(search: string, plan?: string, flush: boolean = t
 
     try {
       // 清除过滤器中的站点关键词，但保留其他过滤器
-      advanceFilterDictRef.value.site.required = [];
-      advanceFilterDictRef.value.site.exclude = [];
+      advanceItemPropsRef.value.site = [];
+      advanceFilterDictRef.value.site = { required: [], exclude: [] };
       updateTableFilterValueFn();
     } catch (e) {
       console.error("Failed to reset table filter site field: ", e);

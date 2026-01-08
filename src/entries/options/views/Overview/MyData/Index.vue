@@ -86,7 +86,7 @@ const {
   tableFilterFn,
   advanceFilterDictRef,
   updateTableFilterValueFn,
-  resetAdvanceFilterDictFn,
+  buildFilterDictFn,
   toggleKeywordStateFn,
 } = useTableCustomFilter<IUserInfoItem>({
   parseOptions: {
@@ -329,7 +329,7 @@ function viewStatistic() {
           :label="t('common.search')"
           max-width="500"
           single-line
-          @click:clear="resetAdvanceFilterDictFn"
+          @click:clear="buildFilterDictFn('')"
         >
           <template #prepend-inner>
             <v-menu min-width="100">
@@ -345,7 +345,7 @@ function viewStatistic() {
                   :title="t('MyData.index.filter.todayNotUpdated')"
                   @click.stop="
                     () => {
-                      advanceFilterDictRef.updateAt.value = ['', formatDate(currentDate, 'yyyyMMdd')];
+                      advanceFilterDictRef.updateAt = ['', formatDate(currentDate, 'yyyyMMdd')];
                       updateTableFilterValueFn();
                     }
                   "
@@ -369,7 +369,7 @@ function viewStatistic() {
                   :title="t('MyData.index.filter.unreadMessage')"
                   @click.stop="
                     () => {
-                      advanceFilterDictRef.messageCount.value = [1, ' '];
+                      advanceFilterDictRef.messageCount = [1, ' '];
                       updateTableFilterValueFn();
                     }
                   "
