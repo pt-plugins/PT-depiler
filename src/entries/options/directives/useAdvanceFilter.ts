@@ -308,7 +308,7 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
       const valueFormat = getValueFormat(key, format);
       const range = (advanceItemPropsRef.value[key] as unknown as IRangedField).range;
       const value = (advanceFilterDictRef.value[key] as unknown as [number, number]).map(valueFormat.parse);
-      console.log(range, value);
+
       if ((value[0] && value[0] !== range[0]) || (value[1] && value[1] !== range[1])) {
         filters[key] = { from: valueFormat.build(value[0]), to: valueFormat.build(value[1]) };
       }

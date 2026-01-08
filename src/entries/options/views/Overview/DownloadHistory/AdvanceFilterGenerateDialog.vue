@@ -131,7 +131,7 @@ function enterDialog() {
                     () =>
                       (advanceFilterDictRef.downloadAt = getThisDateUnitRange(
                         dateUnit,
-                        advanceFilterDictRef.downloadAt.range,
+                        advanceItemPropsRef.downloadAt.range,
                       ))
                   "
                 >

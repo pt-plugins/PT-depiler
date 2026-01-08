@@ -15,7 +15,7 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import type { ISearchResultTorrent, TSearchSolutionKey } from "@/shared/types.ts";
 
 import { tableCustomFilter } from "./filter.ts";
-import { push } from "echarts/types/src/component/dataZoom/history";
+
 
 const runtimeStore = useRuntimeStore();
 const configStore = useConfigStore();
@@ -192,8 +192,9 @@ export async function doSearchEntity(
       runtimeStore.search.searchPlan[solutionKey].costTime = endAt - startAt;
 
       // 直接向 advanceItemPropsRef.site 添加 siteId，而不是重新构造全部字典，以便于站点快速选择器更新
-      if (!(advanceItemPropsRef.value.site as string[])?.includes(siteId)) {
-        (advanceItemPropsRef.value.site as string[]).push(siteId);
+      const sites = advanceItemPropsRef.value.site;
+      if (Array.isArray(sites) && !sites.includes(siteId)) {
+        sites.push(siteId);
       }
     },
     { priority: queuePriority, id: solutionKey },
