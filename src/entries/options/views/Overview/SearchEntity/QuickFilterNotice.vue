@@ -20,7 +20,7 @@ const { t } = useI18n();
 const configStore = useConfigStore();
 const display = useDisplay();
 
-const { advanceFilterDictRef, updateTableFilterValueFn } = tableCustomFilter;
+const { advanceFilterDictRef, advanceItemPropsRef, updateTableFilterValueFn } = tableCustomFilter;
 
 const selectedSite = ref<string>("");
 
@@ -75,18 +75,19 @@ function updateQuickSiteFilter() {
 
         <!-- 分站点选项 -->
         <v-chip-group
-          v-model="selectedSite"
           id="site-filter-chips"
-          mandatory
-          filter
-          color="primary"
-          variant="outlined"
+          v-model="selectedSite"
           :mobile="false"
+          color="primary"
+          filter
+          mandatory
+          show-arrows="always"
+          variant="outlined"
           @update:model-value="updateQuickSiteFilter"
         >
           <!-- 各站点选项 -->
           <v-chip
-            v-for="siteId in advanceFilterDictRef.site.all"
+            v-for="siteId in advanceItemPropsRef.site"
             :key="siteId"
             :value="siteId"
             size="small"

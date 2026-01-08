@@ -1,10 +1,10 @@
 import { filesize } from "filesize";
 import { get } from "es-toolkit/compat";
 import { refDebounced } from "@vueuse/core";
-import { computed, type Ref, ref, unref, watch } from "vue";
+import { computed, type Ref, ref, unref, watch, isRef } from "vue";
 import { flatten, flattenDeep, isEqual, uniq, uniqBy } from "es-toolkit";
 import { startOfDay, startOfMonth, startOfQuarter, startOfWeek, startOfYear } from "date-fns";
-import searchQueryParser, { type SearchParserOptions, SearchParserResult } from "search-query-parser";
+import searchQueryParser, { type SearchParserOptions, SearchParserResult as TFilter } from "search-query-parser";
 
 import { parseSizeString, parseValidTimeString } from "@ptd/site";
 import { formatDate } from "@/options/utils.ts";
@@ -16,14 +16,9 @@ export interface ITextValue {
   exclude: string[];
 }
 
-export interface IKeywordValue<T> extends ITextValue {
-  all: T[];
-}
-
-export interface IRangedValue {
+export interface IRangedField {
   range: [number, number];
   ticks: number[];
-  value: [number, number];
 }
 
 interface IValueFormat {
@@ -89,11 +84,6 @@ function getValueFormat(key: string, format: TFormat = {}): Required<IValueForma
   return valueFormatFn as Required<IValueFormat>;
 }
 
-export function generateRange(data: (number | undefined)[]): [number, number] {
-  const numData = data.filter((x) => !isNaN(x as unknown as number)) as number[];
-  return [Math.min(...numData), Math.max(...numData)];
-}
-
 export function getThisDateUnitRange(
   dateType: "day" | "week" | "month" | "quarter" | "year",
   range: [number, number],
@@ -112,9 +102,13 @@ export function getThisDateUnitRange(
   return [Math.max(minDate, start.getTime()), Math.min(maxDate, now.getTime())];
 }
 
-export function generateRangeField(data: (number | undefined)[]): IRangedValue {
-  const range = generateRange(data);
-  return { range, ticks: Array.from(new Set(data)) as number[], value: range };
+export function generateRangeField(data: (number | undefined)[]): IRangedField {
+  const numData = data.filter((x) => !isNaN(x as unknown as number)) as number[];
+
+  return {
+    range: [Math.min(...numData), Math.max(...numData)],
+    ticks: Array.from(new Set(data)) as number[],
+  };
 }
 
 export function setDateRangeByDatePicker(value: unknown[]): [number, number] {
@@ -122,7 +116,6 @@ export function setDateRangeByDatePicker(value: unknown[]): [number, number] {
   return [dateRange[0].getTime(), dateRange[dateRange.length - 1].getTime()];
 }
 
-type TFilter = SearchParserResult & { [key: string]: any[] };
 type TRawItem = { [key: string]: any };
 
 export function checkKeywordValue(
@@ -198,58 +191,160 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
     autoUpdateFilter = false,
   } = options;
 
+  // 给 parseOptions 设置一些固定的值，以控制 searchQueryParser.parse 的结果
   parseOptions.tokenize = true;
   parseOptions.offsets = false;
   parseOptions.alwaysArray = true;
 
+  /**
+   * 用作 VInput 的 v-model ，接收用户的直接输入
+   */
   const tableWaitFilterRef = ref(initialSearchValue);
+
+  /**
+   * 用作 VDataTable 的 props.search，
+   * 由于 VDataTable 过滤操作较重，而 用户直接输入的更新操作触发频繁
+   * 通过延迟实际使用的搜索过滤词生成来避免不必要的卡顿
+   */
   const tableFilterRef = refDebounced(tableWaitFilterRef, debouncedMs); // 延迟搜索过滤词的生成
 
-  // @ts-ignore
-  const tableParsedFilterRef = computed<TFilter>(() => searchQueryParser.parse(tableFilterRef.value, parseOptions));
+  /**
+   * 用作 VDataTable 内部比较方法 tableFilterFn
+   * 通过 computed 来缓存 实际使用的判断字典
+   */
+  const tableParsedFilterRef = computed<TFilter>(
+    () => searchQueryParser.parse(tableFilterRef.value, parseOptions) as TFilter,
+  );
 
-  const advanceFilterDictRef = ref<Record<string, any>>({});
+  /**
+   * 用来表示 initialItems 中 parseOptions.{keywords, ranges} 可选值的字典，结构如下
+   * {
+   *   `${keyword}`: string[],
+   *   `${ranges}`: { range: [min, max], ticks: [x1, x2, x3, ...] }
+   * }
+   */
+  const advanceItemPropsRef = ref<Record<string, any>>({});
 
-  const resetAdvanceFilterDictCountRef = ref<number>(0);
+  function buildAdvanceItemPropsFn() {
+    const unRefedItems = unref(initialItems);
 
-  function resetAdvanceFilterDictFn() {
-    resetAdvanceFilterDictCountRef.value++; // 更新重置计数，防止因为 :key 的问题导致 vue 无法重置 v-checkbox
-    advanceFilterDictRef.value.text = { required: [], exclude: [] };
     parseOptions.keywords?.forEach((keyword) => {
       const valueFormat = getValueFormat(keyword, format);
 
-      advanceFilterDictRef.value[keyword] = {
-        all: uniqBy(
-          flatten(
-            unref(initialItems)
-              .map((item) => item[keyword])
-              .filter(Boolean),
-          ),
-          (x) => valueFormat.parse(x),
-        ),
-        required: [],
-        exclude: [],
-      };
+      advanceItemPropsRef.value[keyword] = uniqBy(
+        flatten(unRefedItems.map((item) => item[keyword]).filter(Boolean)),
+        (x) => valueFormat.parse(x),
+      );
     });
     parseOptions.ranges?.forEach((keyword) => {
-      advanceFilterDictRef.value[keyword] = generateRangeField(unref(initialItems).map((item) => item[keyword]));
+      advanceItemPropsRef.value[keyword] = generateRangeField(unRefedItems.map((item) => item[keyword]));
     });
   }
 
-  resetAdvanceFilterDictFn();
+  // 方法调用时主动构建一次
+  buildAdvanceItemPropsFn();
 
-  if (watchItems) {
-    watch(initialItems, () => resetAdvanceFilterDictFn(), { deep: true });
+  // 如果设置了主动观察，且传入的 initialItems 可以被观察，则使用 watch 来自动构建
+  if (watchItems && isRef(initialItems)) {
+    watch(initialItems, () => buildAdvanceItemPropsFn(), { deep: true });
   }
 
-  function toggleKeywordStateFn<T = any>(field: string, value: T) {
-    const state = advanceFilterDictRef.value[field].required!.includes(value);
+  /**
+   * 一个中间态字典，用于缓存在高级筛选窗口中勾选的项目
+   * {
+   *   text: { required: string[], exclude: string[] },
+   *   `${keyword}`: { required: string[], exclude: string[] },
+   *   `${ranges}`: [number, number]
+   * }
+   */
+  const advanceFilterDictRef = ref<Record<string, any>>({});
+
+  // 从 string 中构建 advanceFilterDictRef
+  function buildFilterDictFn(text: string = "") {
+    const { keywords = [], ranges = [] } = parseOptions;
+    const parsedFilter = searchQueryParser.parse(text, parseOptions) as TFilter;
+
+    ["text", ...keywords].forEach((key) => {
+      const valueFormat = getValueFormat(key, format);
+      let required: unknown[] = [];
+      let exclude: unknown[] = [];
+
+      if (parsedFilter[key]?.length) {
+        required = uniq(flattenDeep(parsedFilter[key].map((v: any) => valueFormat.parse(v))));
+      }
+      if (parsedFilter.exclude?.[key]?.length) {
+        exclude = uniq(flattenDeep(parsedFilter.exclude[key].map((v: any) => valueFormat.parse(v))));
+      }
+
+      advanceFilterDictRef.value[key] = { required, exclude };
+    });
+
+    ranges.forEach((key) => {
+      const valueFormat = getValueFormat(key, format);
+      const valueRange = (advanceItemPropsRef.value[key] as unknown as IRangedField).range;
+
+      advanceFilterDictRef.value[key] = [
+        parsedFilter[key]?.from ? valueFormat.parse(parsedFilter[key].from) : valueRange[0],
+        parsedFilter[key]?.to ? valueFormat.parse(parsedFilter[key].to) : valueRange[1],
+      ];
+    });
+  }
+
+  // 方法调用时主动构建一次
+  buildFilterDictFn(initialSearchValue);
+
+  function stringifyFilterDictFn() {
+    const { keywords = [], ranges = [] } = parseOptions;
+    const filters: any = { exclude: {} };
+
+    ["text", ...keywords].forEach((key) => {
+      const valueFormat = getValueFormat(key, format);
+      const { required, exclude } = advanceFilterDictRef.value[key] as unknown as ITextValue;
+      if (required?.length > 0) filters[key] = uniq(flattenDeep(required.map((v) => valueFormat.build(v))));
+      if (exclude?.length > 0) filters.exclude[key] = uniq(flattenDeep(exclude.map((v) => valueFormat.build(v))));
+    });
+
+    ranges.forEach((key) => {
+      const valueFormat = getValueFormat(key, format);
+      const range = (advanceItemPropsRef.value[key] as unknown as IRangedField).range;
+      const value = (advanceFilterDictRef.value[key] as unknown as [number, number]).map(valueFormat.parse);
+      console.log(range, value);
+      if ((value[0] && value[0] !== range[0]) || (value[1] && value[1] !== range[1])) {
+        filters[key] = { from: valueFormat.build(value[0]), to: valueFormat.build(value[1]) };
+      }
+    });
+
+    return searchQueryParser.stringify(filters, parseOptions);
+  }
+
+  function updateTableFilterValueFn() {
+    tableWaitFilterRef.value = stringifyFilterDictFn();
+  }
+
+  if (autoUpdateFilter) {
+    watch(
+      advanceFilterDictRef,
+      () => {
+        updateTableFilterValueFn();
+      },
+      { deep: true },
+    );
+  }
+
+  const reBuildFilterCountRef = ref<number>(0);
+  function reBuildAdvanceFilter(updateItemPros: boolean = false) {
+    reBuildFilterCountRef.value++; // 更新计数，防止因为 :key 的问题导致 vue 无法重置 v-checkbox 状态
+    if (updateItemPros) buildAdvanceItemPropsFn();
+    buildFilterDictFn(""); // 使用空字符串构建
+  }
+
+  function toggleKeywordStateFn(field: string, value: string) {
+    const keywordState = advanceFilterDictRef.value[field] as ITextValue;
+    const state = keywordState.required!.includes(value);
     if (state) {
-      advanceFilterDictRef.value[field].exclude!.push(value);
+      keywordState.exclude!.push(value);
     } else {
-      advanceFilterDictRef.value[field].exclude! = advanceFilterDictRef.value[field].exclude!.filter(
-        (x: T) => !isEqual(x, value),
-      );
+      keywordState.exclude! = keywordState.exclude!.filter((x: string) => !isEqual(x, value));
     }
   }
 
@@ -300,52 +395,19 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
     return true;
   }
 
-  function stringifyFilterFn() {
-    const { keywords = [], ranges = [] } = parseOptions;
-    const filters: any = { exclude: {} };
-
-    ["text", ...keywords].forEach((key) => {
-      const valueFormat = getValueFormat(key, format);
-      const { required, exclude } = advanceFilterDictRef.value[key] as unknown as ITextValue;
-      if (required?.length > 0) filters[key] = uniq(flattenDeep(required.map((v) => valueFormat.build(v))));
-      if (exclude?.length > 0) filters.exclude[key] = uniq(flattenDeep(exclude.map((v) => valueFormat.build(v))));
-    });
-
-    ranges.forEach((key) => {
-      const valueFormat = getValueFormat(key, format);
-      const { range, value } = advanceFilterDictRef.value[key] as unknown as IRangedValue;
-      if (value[0] !== range[0] || value[1] !== range[1]) {
-        filters[key] = { from: valueFormat.build(value[0]), to: valueFormat.build(value[1]) };
-      }
-    });
-
-    return searchQueryParser.stringify(filters, parseOptions);
-  }
-
-  function updateTableFilterValueFn() {
-    tableWaitFilterRef.value = stringifyFilterFn();
-  }
-
-  if (autoUpdateFilter) {
-    watch(
-      advanceFilterDictRef,
-      () => {
-        updateTableFilterValueFn();
-      },
-      { deep: true },
-    );
-  }
-
   return {
     tableWaitFilterRef,
     tableFilterRef,
     tableParsedFilterRef,
+    advanceItemPropsRef,
+    buildAdvanceItemPropsFn,
     advanceFilterDictRef,
-    resetCountRef: resetAdvanceFilterDictCountRef,
-    resetAdvanceFilterDictFn,
-    toggleKeywordStateFn,
+    buildFilterDictFn,
+    stringifyFilterDictFn,
     tableFilterFn,
-    stringifyFilterFn,
+    reBuildFilterCountRef,
+    reBuildAdvanceFilter,
     updateTableFilterValueFn,
+    toggleKeywordStateFn,
   };
 }

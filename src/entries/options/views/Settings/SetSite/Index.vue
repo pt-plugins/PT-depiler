@@ -72,7 +72,7 @@ const {
   tableFilterFn,
   advanceFilterDictRef,
   toggleKeywordStateFn,
-  resetAdvanceFilterDictFn,
+  buildFilterDictFn,
   updateTableFilterValueFn,
 } = useTableCustomFilter<ISiteTableItem>({
   parseOptions: {
@@ -157,12 +157,12 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
           label="Search"
           max-width="500"
           single-line
-          @click:clear="resetAdvanceFilterDictFn"
+          @click:clear="buildFilterDictFn('')"
         >
           <template #prepend-inner>
             <v-menu min-width="100">
               <template v-slot:activator="{ props }">
-                <v-icon icon="mdi-filter" v-bind="props" variant="plain" @click="resetAdvanceFilterDictFn" />
+                <v-icon icon="mdi-filter" v-bind="props" variant="plain" @click="buildFilterDictFn('')" />
               </template>
               <v-list class="pa-0">
                 <v-list-item v-for="keyword in booleanUserConfigKeywords" :key="keyword">

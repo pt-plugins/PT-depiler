@@ -24,12 +24,12 @@ const { t } = useI18n();
 const configStore = useConfigStore();
 
 const {
-  tableWaitFilterRef,
+  advanceItemPropsRef,
   advanceFilterDictRef,
-  stringifyFilterFn,
-  resetAdvanceFilterDictFn,
-  resetCountRef,
+  reBuildFilterCountRef,
   toggleKeywordStateFn,
+  reBuildAdvanceFilter,
+  updateTableFilterValueFn,
 } = tableCustomFilter;
 
 // 种子状态选项 - 使用 i18n 支持
@@ -41,16 +41,20 @@ const statusOptions = [
   { value: ETorrentStatus.completed, label: t("torrent.status.completed"), icon: "mdi-check", color: "grey" },
 ];
 
-const torrentTags = computed(() => sortTorrentTags(advanceFilterDictRef.value.tags.all));
+const torrentTags = computed(() => sortTorrentTags(advanceItemPropsRef.value.tags));
 
 function updateTableFilter() {
-  tableWaitFilterRef.value = stringifyFilterFn();
+  updateTableFilterValueFn();
   showDialog.value = false;
+}
+
+function enterDialog() {
+  reBuildAdvanceFilter();
 }
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" max-width="800" scrollable @after-enter="resetAdvanceFilterDictFn">
+  <v-dialog v-model="showDialog" max-width="800" scrollable @after-enter="enterDialog">
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
@@ -66,13 +70,7 @@ function updateTableFilter() {
           <v-row><v-label>关键词</v-label> </v-row>
           <v-row>
             <v-col cols="12" md="6">
-              <v-combobox
-                v-model="advanceFilterDictRef.text.required"
-                chips
-                hide-details
-                label="必要项"
-                multiple
-              ></v-combobox>
+              <v-combobox v-model="advanceFilterDictRef.text.required" chips hide-details label="必要项" multiple />
             </v-col>
             <v-col cols="12" md="6">
               <v-combobox
@@ -88,8 +86,8 @@ function updateTableFilter() {
           <v-row><v-label>站点</v-label></v-row>
           <v-row>
             <v-col
-              v-for="site in advanceFilterDictRef.site.all"
-              :key="`${resetCountRef}_${site}`"
+              v-for="site in advanceItemPropsRef.site"
+              :key="`${reBuildFilterCountRef}_${site}`"
               class="pa-0"
               cols="6"
               md="3"
@@ -117,7 +115,7 @@ function updateTableFilter() {
             <v-row>
               <v-col
                 v-for="tag in torrentTags"
-                :key="`${resetCountRef}_${tag.name}`"
+                :key="`${reBuildFilterCountRef}_${tag.name}`"
                 class="pa-0"
                 cols="4"
                 md="2"
@@ -151,7 +149,7 @@ function updateTableFilter() {
           <v-row>
             <v-col
               v-for="status in statusOptions"
-              :key="`${resetCountRef}_${status.value}`"
+              :key="`${reBuildFilterCountRef}_${status.value}`"
               class="pa-0"
               cols="6"
               md="3"
@@ -183,11 +181,7 @@ function updateTableFilter() {
                   size="x-small"
                   class="mr-1"
                   @click="
-                    () =>
-                      (advanceFilterDictRef.time.value = getThisDateUnitRange(
-                        dateUnit,
-                        advanceFilterDictRef.time.range,
-                      ))
+                    () => (advanceFilterDictRef.time = getThisDateUnitRange(dateUnit, advanceFilterDictRef.time.range))
                   "
                 >
                   {{ t(`SearchEntity.AdvanceFilterGenerateDialog.date.${dateUnit}`) }}
@@ -196,8 +190,8 @@ function updateTableFilter() {
                   {{ t("SearchEntity.AdvanceFilterGenerateDialog.date.custom") }}
                   <v-menu activator="parent" location="top" :close-on-content-click="false">
                     <v-date-picker
-                      :max="addDays(new Date(advanceFilterDictRef.time.range[1]), 1)"
-                      :min="startOfDay(new Date(advanceFilterDictRef.time.range[0]))"
+                      :max="addDays(new Date(advanceItemPropsRef.time.range[1]), 1)"
+                      :min="startOfDay(new Date(advanceItemPropsRef.time.range[0]))"
                       hide-header
                       multiple="range"
                       show-adjacent-months
@@ -208,12 +202,12 @@ function updateTableFilter() {
               </v-row>
               <v-row>
                 <v-range-slider
-                  v-model="advanceFilterDictRef.time.value"
-                  :max="advanceFilterDictRef.time.range[1]"
-                  :min="advanceFilterDictRef.time.range[0]"
+                  v-model="advanceFilterDictRef.time"
+                  :max="advanceItemPropsRef.time.range[1]"
+                  :min="advanceItemPropsRef.time.range[0]"
                   :step="60 * 1000"
                   :thumb-label="true"
-                  :ticks="advanceFilterDictRef.time.ticks"
+                  :ticks="advanceItemPropsRef.time.ticks"
                   class="px-6"
                   hide-details
                   show-ticks="always"
@@ -230,12 +224,12 @@ function updateTableFilter() {
               <v-row><v-label>种子大小</v-label></v-row>
               <v-row>
                 <v-range-slider
-                  v-model="advanceFilterDictRef.size.value"
-                  :max="advanceFilterDictRef.size.range[1]"
-                  :min="advanceFilterDictRef.size.range[0]"
+                  v-model="advanceFilterDictRef.size"
+                  :max="advanceItemPropsRef.size.range[1]"
+                  :min="advanceItemPropsRef.size.range[0]"
                   :step="1024 ** 3"
                   :thumb-label="true"
-                  :ticks="advanceFilterDictRef.size.ticks"
+                  :ticks="advanceItemPropsRef.size.ticks"
                   class="px-6"
                   hide-details
                   show-ticks="always"
@@ -254,11 +248,11 @@ function updateTableFilter() {
               <v-row><v-label>上传人数</v-label></v-row>
               <v-row>
                 <v-range-slider
-                  v-model="advanceFilterDictRef.seeders.value"
-                  :max="advanceFilterDictRef.seeders.range[1]"
-                  :min="advanceFilterDictRef.seeders.range[0]"
+                  v-model="advanceFilterDictRef.seeders"
+                  :max="advanceItemPropsRef.seeders.range[1]"
+                  :min="advanceItemPropsRef.seeders.range[0]"
                   :thumb-label="true"
-                  :ticks="advanceFilterDictRef.seeders.ticks"
+                  :ticks="advanceItemPropsRef.seeders.ticks"
                   class="px-6"
                   hide-details
                   show-ticks="always"
@@ -273,11 +267,11 @@ function updateTableFilter() {
               <v-row><v-label>下载人数</v-label></v-row>
               <v-row>
                 <v-range-slider
-                  v-model="advanceFilterDictRef.leechers.value"
-                  :max="advanceFilterDictRef.leechers.range[1]"
-                  :min="advanceFilterDictRef.leechers.range[0]"
+                  v-model="advanceFilterDictRef.leechers"
+                  :max="advanceItemPropsRef.leechers.range[1]"
+                  :min="advanceItemPropsRef.leechers.range[0]"
                   :thumb-label="true"
-                  :ticks="advanceFilterDictRef.leechers.ticks"
+                  :ticks="advanceItemPropsRef.leechers.ticks"
                   class="px-6"
                   hide-details
                   show-ticks="always"
@@ -292,11 +286,11 @@ function updateTableFilter() {
               <v-row><v-label>完成人数</v-label></v-row>
               <v-row>
                 <v-range-slider
-                  v-model="advanceFilterDictRef.completed.value"
-                  :max="advanceFilterDictRef.completed.range[1]"
-                  :min="advanceFilterDictRef.completed.range[0]"
+                  v-model="advanceFilterDictRef.completed"
+                  :max="advanceItemPropsRef.completed.range[1]"
+                  :min="advanceItemPropsRef.completed.range[0]"
                   :thumb-label="true"
-                  :ticks="advanceFilterDictRef.completed.ticks"
+                  :ticks="advanceItemPropsRef.completed.ticks"
                   class="px-6"
                   hide-details
                   show-ticks="always"
@@ -312,7 +306,7 @@ function updateTableFilter() {
       </v-card-text>
       <v-divider />
       <v-card-actions>
-        <v-btn variant="text" @click="resetAdvanceFilterDictFn">重置搜索词</v-btn>
+        <v-btn variant="text" @click="() => reBuildAdvanceFilter(true)">重置搜索词</v-btn>
         <v-spacer />
         <v-btn color="error" variant="text" @click="showDialog = false">取消</v-btn>
         <v-btn color="primary" variant="text" @click="updateTableFilter">生成</v-btn>

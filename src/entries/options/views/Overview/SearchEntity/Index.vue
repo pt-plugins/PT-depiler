@@ -15,12 +15,13 @@ import type { ISearchResultTorrent } from "@/shared/types.ts";
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon.vue";
 import TorrentTitleTd from "@/options/components/TorrentTitleTd.vue";
-import TorrentProcessTd from "./TorrentProcessTd.vue";
+
 import ActionTd from "./ActionTd.vue";
+import TorrentProcessTd from "./TorrentProcessTd.vue";
+import QuickFilterNotice from "./QuickFilterNotice.vue";
 import SearchStatusDialog from "./SearchStatusDialog.vue";
 import SaveSnapshotDialog from "./SaveSnapshotDialog.vue";
 import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
-import QuickFilterNotice from "./QuickFilterNotice.vue";
 
 // 主要助手方法
 import { tableCustomFilter } from "./utils/filter";
@@ -74,7 +75,8 @@ const tableHeader = computed(() => {
   ) as DataTableHeader[];
 });
 
-const { tableFilterRef, tableWaitFilterRef, tableFilterFn, resetAdvanceFilterDictFn } = tableCustomFilter;
+const { tableFilterRef, tableWaitFilterRef, tableFilterFn, buildAdvanceItemPropsFn, buildFilterDictFn } =
+  tableCustomFilter;
 
 // 使用 shallowRef 优化：种子对象数组不需要深度响应式，提升性能
 const tableSelectedRaw = shallowRef<ISearchResultTorrent[]>([]);
@@ -87,7 +89,7 @@ watch(
         data && (runtimeStore.search = { ...data, snapshot: newParams.snapshot as string });
         // 如果启用了快速站点筛选，则重置一下筛选器，以防止快速站点筛选中无站点数据
         if (configStore.searchEntity.quickSiteFilter) {
-          resetAdvanceFilterDictFn();
+          buildAdvanceItemPropsFn();
         }
       });
     } else {
@@ -331,6 +333,7 @@ function cancelSearchQueue() {
           prepend-inner-icon="mdi-filter"
           single-line
           @click:prepend-inner="showAdvanceFilterGenerateDialog = true"
+          @update:model-value="(val) => buildFilterDictFn(val)"
         />
       </v-row>
     </v-card-title>
