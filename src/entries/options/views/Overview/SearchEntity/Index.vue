@@ -323,7 +323,6 @@ function cancelSearchQueue() {
         <v-spacer />
         <v-text-field
           v-model="tableWaitFilterRef"
-          :disabled="runtimeStore.search.searchResult.length === 0"
           append-icon="mdi-magnify"
           clearable
           density="compact"

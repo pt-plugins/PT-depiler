@@ -312,7 +312,8 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
       if ((value[0] && value[0] !== range[0]) || (value[1] && value[1] !== range[1])) {
         filters[key] = { from: valueFormat.build(value[0]), to: valueFormat.build(value[1]) };
       } else {
-        advanceFilterDictRef.value[key] = [valueFormat.build(range[0]), valueFormat.build(range[1])];
+        // 重写 advanceFilterDictRef 中对应 range 的范围，以免当 advanceItemPropsRef 对应范围变动时生成额外的 filter
+        advanceFilterDictRef.value[key] = [range[0], range[1]];
       }
     });
 
