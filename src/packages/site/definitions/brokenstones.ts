@@ -179,6 +179,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 6,
       name: "VIP",
+      groupType: "vip",
       privilege: "Custom title & Unlimited Invites",
     },
   ],
