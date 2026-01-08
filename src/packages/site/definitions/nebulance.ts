@@ -124,7 +124,11 @@ export const siteMetadata: ISiteMetadata = {
         },
       ],
 
-      // tvmazeId: { selector: "a[href*='showid=']", attr: "href", filters: [{ name: "querystring", args: ["showid"] }] },
+      ext_tvmaze: {
+        selector: "a[href*='showid=']",
+        attr: "href",
+        filters: [{ name: "querystring", args: ["showid"] }],
+      },
     },
   },
 
@@ -348,7 +352,13 @@ export default class Nebulance extends Gazelle {
         if (cat) currentCategory = cat;
 
         const torrent = (await this.parseWholeTorrentFromRow(
-          { title, time, tags: [{ name: "H&R", color: "red" }], category: currentCategory },
+          {
+            title,
+            time,
+            tags: [{ name: "H&R", color: "red" }],
+            category: currentCategory,
+            ext_tvmaze: searchConfig.requestConfig.params.showid,
+          },
           tr,
           patchedSearchConfig,
         )) as ITorrent;

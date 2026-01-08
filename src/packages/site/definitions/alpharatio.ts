@@ -1,14 +1,25 @@
 /**
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/AlphaRatio.cs
  */
-import type { ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/GazelleJSONAPI";
+import type { ISiteMetadata, ITorrent, IUserInfo, TSearchRequestConfigTransformer } from "../types";
+import GazelleJSONAPI, { SchemaMetadata, torrentBrowseResult } from "../schemas/GazelleJSONAPI";
+import { set, unset } from "es-toolkit/compat";
+import { toMerged } from "es-toolkit";
+
+const requestConfigTransformer: TSearchRequestConfigTransformer = ({ keywords, requestConfig }) => {
+  if (keywords) {
+    unset(requestConfig!, SchemaMetadata.search!.keywordPath!);
+    set(requestConfig!, "params.taglist", keywords);
+  }
+  return requestConfig!;
+};
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
   version: 1,
   id: "alpharatio",
   name: "AlphaRatio",
+  aka: ["AR"],
   description: "AlphaRatio (AR) is a Private Torrent Tracker for 0DAY / GENERAL",
   tags: ["综合", "0day"],
   timezoneOffset: "+0000",
@@ -63,7 +74,183 @@ export const siteMetadata: ISiteMetadata = {
   search: {
     ...SchemaMetadata.search!,
     advanceKeywordParams: {
-      imdb: false,
+      imdb: {
+        requestConfigTransformer,
+      },
+      tvmaze: {
+        requestConfigTransformer,
+      },
     },
   },
+
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      donation: { selector: "li:contains('Donated:')", filters: [{ name: "parseNumber" }] },
+      seedingBonus: { selector: "li:contains('SeedBonus:')", filters: [{ name: "parseNumber" }] },
+    },
+  },
+
+  levelRequirements: [
+    {
+      id: 1,
+      name: "Mortal",
+    },
+    {
+      id: 2,
+      name: "Philosopher",
+      interval: "P4W",
+      uploaded: "80GB",
+      seedingBonus: 60000,
+      // 普通用户无法查看 H&R 信息
+      // hnrUnsatisfied: 0,
+      privilege: "Mortal privileges plus can invite users, upload torrents, and submit requests.",
+    },
+    {
+      id: 3,
+      name: "Gladiator",
+      interval: "P8W",
+      uploaded: "260GB",
+      seedingBonus: 120000,
+      // hnrUnsatisfied: 0,
+      privilege: "Philosopher privileges plus can use bookmarks and view top ten user/torrent stats.",
+    },
+    {
+      id: 4,
+      name: "Giant",
+      interval: "P12W",
+      uploaded: "600GB",
+      seedingBonus: 360000,
+      // hnrUnsatisfied: 0,
+      privilege: "Gladiator privileges plus can create polls in the forum.",
+    },
+    {
+      id: 5,
+      name: "Centaur",
+      interval: "P18W",
+      uploaded: "1.6TB",
+      seedingBonus: 720000,
+      // hnrUnsatisfied: 0,
+      privilege: "Giant privileges.",
+    },
+    {
+      id: 6,
+      name: "Sphinx",
+      interval: "P26W",
+      uploaded: "3.2TB",
+      seedingBonus: 1440000,
+      // hnrUnsatisfied: 0,
+      privilege: "Centaur privileges plus access to the Invite Forum.",
+    },
+    {
+      id: 7,
+      name: "Harpy",
+      interval: "P38W",
+      uploaded: "6TB",
+      seedingBonus: 1920000,
+      // hnrUnsatisfied: 0,
+      privilege: "Sphinx privileges.",
+    },
+    {
+      id: 8,
+      name: "Satyr",
+      interval: "P60W",
+      uploaded: "12TB",
+      seedingBonus: 2400000,
+      // hnrUnsatisfied: 0,
+      privilege: "Harpy privileges plus exemption from hit and runs and can see other users' active torrents.",
+    },
+    {
+      id: 9,
+      name: "Adonis",
+      interval: "P60W",
+      uploaded: "12TB",
+      seedingBonus: 2000000,
+      // hnrUnsatisfied: 0,
+      donation: 50,
+      privilege: "Harpy privileges plus exemption from hit and runs and can see other users' active torrents.",
+    },
+    {
+      id: 10,
+      name: "Cyclops",
+      interval: "P90W",
+      uploaded: "18TB",
+      seedingBonus: 4800000,
+      // hnrUnsatisfied: 0,
+      privilege: "Satyr privileges.",
+    },
+    {
+      id: 11,
+      name: "Chimera",
+      interval: "P90W",
+      uploaded: "18TB",
+      seedingBonus: 4000000,
+      // hnrUnsatisfied: 0,
+      donation: 200,
+      privilege: "Satyr privileges.",
+    },
+    {
+      id: 12,
+      name: "Deity",
+      groupType: "vip",
+      privilege:
+        "Given by Staff at their discretion. Same as Satyr privileges plus can send invites even when invites are closed.",
+    },
+    {
+      id: 13,
+      name: "Spartan",
+      groupType: "vip",
+      interval: "P120W",
+      uploaded: "10TB",
+      seedingBonus: 6200000,
+      // hnrUnsatisfied: 0,
+      donation: 400,
+      privilege: "Same as Deity privileges.",
+    },
+  ],
 };
+
+const imdbRe = /tt\d+/;
+const tvmazeRe = /^(?:tvmaze\.)?(\d+)$/;
+
+export default class AlphaRatio extends GazelleJSONAPI {
+  protected override async transformUnGroupTorrent(group: torrentBrowseResult): Promise<ITorrent> {
+    const torrent = await super.transformUnGroupTorrent(group);
+    torrent.tags?.push({ name: "H&R" });
+
+    const imdbId = group.tags.find((tag) => imdbRe.test(tag))?.match(imdbRe)?.[0];
+    if (imdbId) {
+      torrent.ext_imdb = imdbId;
+    }
+
+    const tvmazeId = group.tags.find((tag) => tvmazeRe.test(tag))?.match(tvmazeRe)?.[1];
+    if (tvmazeId) {
+      torrent.ext_tvmaze = tvmazeId;
+    }
+
+    return torrent;
+  }
+
+  protected override async getUserExtendInfo(userId: number): Promise<Partial<IUserInfo>> {
+    const flushUserInfo = await super.getUserExtendInfo(userId);
+
+    await this.sleepAction(this.metadata.userInfo?.requestDelay);
+
+    const { data: userPage } = await this.request<Document>({
+      url: "/user.php",
+      params: {
+        id: userId,
+      },
+      responseType: "document",
+    });
+
+    return toMerged(
+      flushUserInfo,
+      this.getFieldsData(userPage, this.metadata.userInfo!.selectors!, [
+        "donation",
+        "seedingBonus",
+      ] as (keyof Partial<IUserInfo>)[]) as Partial<IUserInfo>,
+    );
+  }
+}

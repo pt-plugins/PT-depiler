@@ -63,7 +63,7 @@ const {
   tableFilterFn,
   advanceFilterDictRef,
   updateTableFilterValueFn,
-  resetAdvanceFilterDictFn,
+  buildFilterDictFn,
   toggleKeywordStateFn,
 } = useTableCustomFilter({
   parseOptions: {
@@ -75,6 +75,7 @@ const {
     "feature.DefaultAutoStart": "boolean",
   },
   initialItems: metadataStore.getDownloaders,
+  watchItems: true,
 });
 
 const toEditDownloaderId = ref<TDownloaderKey | null>(null);
@@ -135,12 +136,12 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
           label="Search"
           max-width="500"
           single-line
-          @click:clear="resetAdvanceFilterDictFn"
+          @click:clear="buildFilterDictFn('')"
         >
           <template #prepend-inner>
             <v-menu min-width="100">
               <template v-slot:activator="{ props }">
-                <v-icon icon="mdi-filter" v-bind="props" variant="plain" @click:clear="resetAdvanceFilterDictFn" />
+                <v-icon icon="mdi-filter" v-bind="props" variant="plain" />
               </template>
               <v-list class="pa-0">
                 <v-list-item v-for="(transKey, filterKey) in booleanField">

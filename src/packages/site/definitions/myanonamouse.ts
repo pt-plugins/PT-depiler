@@ -370,6 +370,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 4,
       name: "VIP",
+      groupType: "vip",
       privilege: "Receive 4 requests per month; Can have 150 unsatisfied torrents at maximum",
     },
   ],

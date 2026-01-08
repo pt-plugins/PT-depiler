@@ -158,6 +158,7 @@ export const siteMetadata: ISiteMetadata = {
       },
 
       ext_imdb: { selector: "imdbID" },
+      ext_tvmaze: { selector: "tvmazeID" },
     },
   },
 

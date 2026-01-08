@@ -217,10 +217,7 @@ onMounted(() => {
     @re-download-complete="() => throttleLoadDownloadHistory()"
   />
 
-  <AdvanceFilterGenerateDialog
-    v-model="showAdvanceFilterDialog"
-    @update:table-filter="(v) => (tableWaitFilterRef = v)"
-  />
+  <AdvanceFilterGenerateDialog v-model="showAdvanceFilterDialog" />
 
   <DeleteDialog
     v-model="showDeleteDialog"

@@ -9,6 +9,18 @@ import type { ITorrentDownloadMetadata, TTorrentDownloadKey } from "@/shared/typ
 export const downloadHistory = shallowRef<Record<TTorrentDownloadKey, ITorrentDownloadMetadata>>({});
 export const downloadHistoryList = computed(() => Object.values(downloadHistory.value));
 
+export const tableCustomFilter = useTableCustomFilter({
+  parseOptions: {
+    keywords: ["siteId", "downloaderId", "downloadStatus"],
+    ranges: ["downloadAt"],
+  },
+  titleFields: ["title", "subTitle"],
+  initialItems: downloadHistoryList,
+  format: {
+    downloadAt: "date",
+  },
+});
+
 // 使用 setTimeout 监听下载状态变化
 const watchingMap = reactive<Record<TTorrentDownloadKey, number>>({});
 function watchDownloadHistory(downloadHistoryId: TTorrentDownloadKey) {
@@ -38,22 +50,11 @@ function loadDownloadHistory() {
         watchDownloadHistory(item.id!);
       }
     });
+    tableCustomFilter.buildAdvanceItemPropsFn();
   });
 }
 
 export const throttleLoadDownloadHistory = throttle(loadDownloadHistory, 1e3);
-
-export const tableCustomFilter = useTableCustomFilter({
-  parseOptions: {
-    keywords: ["siteId", "downloaderId", "downloadStatus"],
-    ranges: ["downloadAt"],
-  },
-  titleFields: ["title", "subTitle"],
-  initialItems: downloadHistoryList,
-  format: {
-    downloadAt: "date",
-  },
-});
 
 export const downloadStatusMap: Record<
   ITorrentDownloadMetadata["downloadStatus"],

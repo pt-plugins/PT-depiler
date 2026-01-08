@@ -160,7 +160,7 @@ onMounted(async () => {
       <v-col align-self="center">
         <v-row justify="end">
           <v-btn
-            :title="t('SetSearchSolution.spDialog.action.resetSelected')"
+            :title="t('SetSearchSolution.spDialog.action.reset')"
             color="red"
             icon="mdi-cached"
             variant="text"
@@ -169,7 +169,7 @@ onMounted(async () => {
         </v-row>
         <v-row justify="end">
           <v-btn
-            :title="t('SetSearchSolution.spDialog.action.addCustom')"
+            :title="t('SetSearchSolution.spDialog.action.create')"
             color="indigo"
             icon="mdi-pencil-plus"
             variant="text"
@@ -178,7 +178,7 @@ onMounted(async () => {
         </v-row>
         <v-row justify="end">
           <v-btn
-            :title="t('SetSearchSolution.spDialog.action.saveSelected')"
+            :title="t('SetSearchSolution.spDialog.action.add')"
             color="blue"
             icon="mdi-arrow-right-bold"
             variant="text"

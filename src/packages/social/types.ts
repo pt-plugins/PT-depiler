@@ -1,4 +1,4 @@
-export const supportSocialSite = ["imdb", "douban", "bangumi", "anidb"] as const;
+export const supportSocialSite = ["imdb", "douban", "bangumi", "anidb", "tvmaze"] as const;
 export type TSupportSocialSite = (typeof supportSocialSite)[number];
 
 export type TUrlPattern = string | RegExp;

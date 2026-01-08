@@ -188,7 +188,7 @@ export interface CAddTorrentOptions {
   label?: string;
 
   /**
-   * 上传速度限制，单位为 MB/s，0 或不填时不限速
+   * 上传速度限制，单位为 MiB/s，0 或不填时不限速
    *
    * 支持的下载器:
    * - qBittorrent ✅

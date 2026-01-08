@@ -1,6 +1,14 @@
-import type { ISiteMetadata, ISearchEntryRequestConfig, ISearchResult } from "../types.ts";
+import type { ISiteMetadata, ISearchEntryRequestConfig, ISearchResult, ITorrent } from "../types.ts";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 import { buildCategoryOptionsFromDict } from "../utils.ts";
+
+const bonusTrans: string[] = ["Bonus points", "奖励积分"];
+const seedingTrans: string[] = ["Currently seeding torrents", "目前正在播种种子"];
+const joinTimeTrans: string[] = ["Signup date", "注册日期"];
+const averageSeedingTimeTrans: string[] = ["Average seed time", "平均种子时间"];
+const uploadedTrans: string[] = ["Uploaded", "已上传"];
+const downloadedTrans: string[] = ["Downloaded", "已下载"];
+const ratioTrans: string[] = ["Ratio", "分享率", "比率"];
 
 const categoryMapXXX: Record<number, string> = {
   15: "XXX Movies",
@@ -302,7 +310,15 @@ export const siteMetadata: ISiteMetadata = {
       seeders: { selector: "span.text-success", filters: [{ name: "parseNumber" }] },
       leechers: { selector: "span.text-danger", filters: [{ name: "parseNumber" }] },
       completed: { selector: "> div:nth-child(3)", filters: [{ name: "parseNumber" }] },
-      time: { selector: "> div:nth-child(2)", attr: "title", filters: [{ name: "parseTime" }] },
+      time: {
+        selector: "> div:nth-child(2)",
+        attr: "title",
+        filters: [
+          { name: "replace", args: [/日/g, " "] },
+          { name: "replace", args: [/[年月]/g, "-"] },
+          { name: "parseTime" },
+        ],
+      },
       tags: [
         {
           name: "Free",
@@ -331,7 +347,15 @@ export const siteMetadata: ISiteMetadata = {
       urlPattern: [/\/(browse|internal|adult)(\?.*)?$/],
       mergeSearchSelectors: true,
       selectors: {
-        time: { selector: "> div:nth-child(2)", data: "originalTitle", filters: [{ name: "parseTime" }] },
+        time: {
+          selector: "> div:nth-child(2)",
+          data: "originalTitle",
+          filters: [
+            { name: "replace", args: [/日/g, " "] },
+            { name: "replace", args: [/[年月]/g, "-"] },
+            { name: "parseTime" },
+          ],
+        },
       },
     },
   ],
@@ -355,22 +379,42 @@ export const siteMetadata: ISiteMetadata = {
         selectors: {
           name: { selector: "#kt_quick_user_toggle > span.text-dark-50" },
           messageCount: { selector: "#notifications-oc-toggle > div.btn > .label-danger" },
-          uploaded: { selector: "dt:contains('Uploaded') + dd", filters: [{ name: "parseSize" }] },
-          downloaded: { selector: "dt:contains('Downloaded') + dd", filters: [{ name: "parseSize" }] },
+          // 上传权限需要申请
+          uploads: {
+            text: 0,
+          },
+          uploaded: {
+            selector: uploadedTrans.map((x) => `dt:contains('${x}') + dd`),
+            filters: [{ name: "parseSize" }],
+          },
+          downloaded: {
+            selector: downloadedTrans.map((x) => `dt:contains('${x}') + dd`),
+            filters: [{ name: "parseSize" }],
+          },
           ratio: {
-            selector: "dt:contains('Ratio') + dd",
+            selector: ratioTrans.map((x) => `dt:contains('${x}') + dd`),
             filters: [{ name: "replace", args: [/[,|\s]/g, ""] }, { name: "parseNumber" }],
           },
           levelName: {
             selector: "div.card-body.pt-4 >div.align-items-center div.text-muted",
             filters: [{ name: "trim" }],
           },
-          joinTime: { selector: "dt:contains('Signup date') + dd", filters: [{ name: "parseTime" }] },
+          joinTime: {
+            selector: joinTimeTrans.map((x) => `dt:contains('${x}') + dd`),
+            filters: [
+              { name: "replace", args: [/日/g, " "] },
+              { name: "replace", args: [/[年月]/g, "-"] },
+              { name: "parseTime" },
+            ],
+          },
           seedingSize: {
-            selector: "dt:contains('Bonus points') + dd > b:nth-of-type(2)",
+            selector: bonusTrans.map((x) => `dt:contains('${x}') + dd > b:nth-of-type(2)`),
             filters: [{ name: "replace", args: [/[,|\s]/g, ""] }, { name: "parseSize" }],
           },
-          bonusPerHour: { selector: "dt:contains('Bonus points') + dd > b:eq(0)", filters: [{ name: "parseNumber" }] },
+          bonusPerHour: {
+            selector: bonusTrans.map((x) => `dt:contains('${x}') + dd > b:eq(0)`),
+            filters: [{ name: "parseNumber" }],
+          },
         },
       },
       {
@@ -380,12 +424,16 @@ export const siteMetadata: ISiteMetadata = {
         },
         selectors: {
           bonus: {
-            selector: "a[href='/shop'][title='Bonus points']",
+            selector: bonusTrans.map((x) => `a[href='/shop'][title='${x}']`),
             filters: [{ name: "replace", args: [/[,|\s]/g, ""] }, { name: "parseNumber" }],
           },
           seeding: {
-            selector: "a[href='/snatch/seeding'][title='Currently seeding torrents']",
+            selector: seedingTrans.map((x) => `a[href='/snatch/seeding'][title='${x}']`),
             filters: [{ name: "parseNumber" }],
+          },
+          averageSeedingTime: {
+            selector: averageSeedingTimeTrans.map((x) => `a[href='/snatch/seeding'][title='${x}']`),
+            filters: [{ name: "parseTTL" }],
           },
         },
       },
@@ -448,6 +496,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 8,
       name: "VIP",
+      groupType: "vip",
       privilege: "Same privileges as Elite User, immune to automated HnR warnings.",
     },
   ],
@@ -482,5 +531,18 @@ export default class SpeedApp extends PrivateSite {
     }
 
     return super.getSearchResult(keywords, searchEntry);
+  }
+
+  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    const downloadLink = await super.getTorrentDownloadLink(torrent);
+    if (downloadLink && !downloadLink.includes("/torrents/")) {
+      const { data: detailDocument } = await this.request<Document>({
+        url: downloadLink,
+        responseType: "document",
+      });
+      return this.getFieldData(detailDocument, this.metadata.search?.selectors?.link!);
+    }
+
+    return downloadLink;
   }
 }
