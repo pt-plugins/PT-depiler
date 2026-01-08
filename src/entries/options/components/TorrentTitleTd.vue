@@ -110,8 +110,11 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
                       >
                         {{ socialInformation[key]?.title.split(" / ")[0] }}
                       </h3>
-                      <p class="text-caption">
-                        {{ socialInformation[key]?.ratingScore }} from {{ socialInformation[key]?.ratingCount }} votes
+                      <p v-if="socialInformation[key]?.ratingScore" class="text-caption">
+                        {{ socialInformation[key].ratingScore }}
+                        <span v-if="socialInformation[key]?.ratingCount">
+                          from {{ socialInformation[key].ratingCount }} votes
+                        </span>
                       </p>
                     </template>
                     <template v-else>

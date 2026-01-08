@@ -177,6 +177,7 @@ export const definedFilters: Record<string, TQueryFilterFn> = {
   extBangumiId: socialParseUrlMap.bangumi,
   extDoubanId: socialParseUrlMap.douban,
   extImdbId: socialParseUrlMap.imdb,
+  extTvmazeId: socialParseUrlMap.tvmaze,
 
   /**
    * Print the query to the console.
