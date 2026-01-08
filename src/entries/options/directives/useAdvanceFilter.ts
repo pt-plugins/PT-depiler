@@ -335,9 +335,9 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
   }
 
   const reBuildFilterCountRef = ref<number>(0);
-  function reBuildAdvanceFilter(updateItemPros: boolean = false) {
+  function reBuildAdvanceFilter(updateItemProps: boolean = false) {
     reBuildFilterCountRef.value++; // 更新计数，防止因为 :key 的问题导致 vue 无法重置 v-checkbox 状态
-    if (updateItemPros) buildAdvanceItemPropsFn();
+    if (updateItemProps) buildAdvanceItemPropsFn();
     buildFilterDictFn(""); // 使用空字符串构建
   }
 
