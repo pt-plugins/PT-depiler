@@ -13,7 +13,7 @@ import { formatDate, formatSize, formatTimeAgo } from "@/options/utils.ts";
 import type { ISearchResultTorrent } from "@/shared/types.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
-import SiteFavicon from "@/options/components/SiteFavicon.vue";
+import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 import TorrentTitleTd from "@/options/components/TorrentTitleTd.vue";
 
 import ActionTd from "./ActionTd.vue";

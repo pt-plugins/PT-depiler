@@ -10,7 +10,7 @@ import type { ISearchResultTorrent } from "@/shared/types/storages/runtime.ts";
 import { tableCustomFilter } from "./utils/filter.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
-import SiteFavicon from "@/options/components/SiteFavicon.vue";
+import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 
 const { selectedTorrents } = defineProps<{
   selectedTorrents: ISearchResultTorrent[];

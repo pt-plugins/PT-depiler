@@ -6,7 +6,7 @@ import { formatDate } from "@/options/utils.ts";
 import { tableCustomFilter } from "@/options/views/Overview/DownloadHistory/utils.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
-import SiteFavicon from "@/options/components/SiteFavicon.vue";
+import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 import DownloaderLabel from "@/options/components/DownloaderLabel.vue";
 import { setDateRangeByDatePicker, getThisDateUnitRange } from "@/options/directives/useAdvanceFilter.ts";
 

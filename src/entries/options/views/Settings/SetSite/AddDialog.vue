@@ -6,7 +6,7 @@ import { ISiteMetadata, type ISiteUserConfig, type TSiteID } from "@ptd/site";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { getCanAddedSiteMetadata } from "./utils.ts";
 
-import SiteFavicon from "@/options/components/SiteFavicon.vue";
+import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 import Editor from "./Editor.vue";
 
 import { REPO_URL } from "~/helper.ts";

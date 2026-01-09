@@ -2,7 +2,7 @@
 import { onMounted, shallowRef } from "vue";
 import { NO_IMAGE, type TSiteID } from "@ptd/site";
 
-import { sendMessage } from "@/messages.ts";
+import { getSiteFavicon } from "./utils.ts";
 
 const {
   siteId,
@@ -21,9 +21,9 @@ const {
 const siteFavicon = shallowRef<string>(NO_IMAGE);
 
 onMounted(async () => {
-  let favicon = await sendMessage("getSiteFavicon", { site: siteId, flush: flushOnPre });
+  let favicon = await getSiteFavicon(siteId, flushOnPre);
   if (favicon === NO_IMAGE && flushOnNoImage) {
-    favicon = await sendMessage("getSiteFavicon", { site: siteId, flush: true }); // 强制刷新
+    favicon = await getSiteFavicon(siteId, true); // 强制刷新
   }
 
   siteFavicon.value = favicon;
@@ -31,7 +31,7 @@ onMounted(async () => {
 
 function doFlush() {
   if (!flushOnClick) return;
-  sendMessage("getSiteFavicon", { site: siteId, flush: true }).then((favicon) => {
+  getSiteFavicon(siteId, true).then((favicon) => {
     siteFavicon.value = favicon;
   });
 }

@@ -16,7 +16,7 @@ import { tableCustomFilter } from "@/options/views/Overview/SearchEntity/utils/f
 import { setDateRangeByDatePicker, getThisDateUnitRange } from "@/options/directives/useAdvanceFilter.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
-import SiteFavicon from "@/options/components/SiteFavicon.vue";
+import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 
 const showDialog = defineModel<boolean>();
 

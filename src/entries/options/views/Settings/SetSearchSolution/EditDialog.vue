@@ -14,7 +14,7 @@ import type { ISearchSolution, ISearchSolutionMetadata, TSolutionKey } from "@/s
 import SolutionLabel from "./SolutionLabel.vue";
 import SiteCategoryPanel from "./SiteCategoryPanel.vue";
 import SiteName from "@/options/components/SiteName.vue";
-import SiteFavicon from "@/options/components/SiteFavicon.vue";
+import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 
 const showDialog = defineModel<boolean>();
 const solutionId = defineModel<TSolutionKey>("solutionId");
