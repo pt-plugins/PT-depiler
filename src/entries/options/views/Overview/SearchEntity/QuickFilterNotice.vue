@@ -64,7 +64,8 @@ function updateQuickSiteFilter() {
       <template v-if="configStore.searchEntity.quickSiteFilter">
         <!-- "全部"选项 -->
         <v-chip
-          class="limit_width"
+          class="chip_limit_width"
+          :class="{ chip_content_hidden_fix: display.smAndDown.value }"
           size="small"
           @click.stop="clearSiteFilter"
           variant="outlined"
@@ -81,6 +82,7 @@ function updateQuickSiteFilter() {
           color="primary"
           filter
           mandatory
+          scroll-to-active
           show-arrows="always"
           variant="outlined"
           @update:model-value="updateQuickSiteFilter"
@@ -103,7 +105,7 @@ function updateQuickSiteFilter() {
 
       <!-- 选中种子信息条 -->
       <v-divider vertical inset class="mx-2" />
-      <v-chip class="my-2 limit_width" color="primary" size="small" variant="outlined">
+      <v-chip class="my-2 chip_limit_width" color="primary" size="small" variant="outlined">
         <v-icon icon="mdi-checkbox-marked-circle" start />
         {{
           display.smAndDown.value
@@ -118,8 +120,20 @@ function updateQuickSiteFilter() {
   </v-alert>
 </template>
 
-<style>
-.limit_width {
+<style lang="scss" scoped>
+.chip_limit_width {
   min-width: fit-content;
+}
+
+/**
+ * 在smAndDown环境下，全部站点的 chip 中 文字内容被隐藏，但是由于使用了 prepend-icon 来设置图标，所以此处通过 hack css 的方法
+ * 将 chip 整体变为圆形，并移除 icon 两侧的margin来居中
+ */
+.chip_content_hidden_fix {
+  padding: 0 5px !important; // 0 10px -> 0 5px
+
+  :deep(i.v-icon) {
+    margin: 0; // 0 4px -> 0
+  }
 }
 </style>
