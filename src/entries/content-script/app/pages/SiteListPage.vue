@@ -5,10 +5,12 @@ import { type ITorrent } from "@ptd/site";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+
+import type { IRemoteDownloadDialogData } from "../types.ts";
 import { copyTextToClipboard, doKeywordSearch, siteInstance, wrapperConfirmFn } from "../utils.ts";
 
-import AdvanceListModuleDialog from "@/content-script/app/components/AdvanceListModuleDialog.vue";
-import SpeedDialBtn from "@/content-script/app/components/SpeedDialBtn.vue";
+import AdvanceListModuleDialog from "../components/AdvanceListModuleDialog.vue";
+import SpeedDialBtn from "../components/SpeedDialBtn.vue";
 
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
@@ -73,12 +75,13 @@ function handleLinkCopyMulti() {
     });
 }
 
-const remoteDownloadDialogData = inject<{ show: boolean; torrents: ITorrent[] }>("remoteDownloadDialogData")!;
+const remoteDownloadDialogData = inject<IRemoteDownloadDialogData>("remoteDownloadDialogData")!;
 
-function handleRemoteDownloadMulti() {
+function handleRemoteDownloadMulti(isDefaultSend = false) {
   parseListPage().then(({ torrents }) => {
     if (torrents.length > 0) {
       remoteDownloadDialogData.torrents = torrents;
+      remoteDownloadDialogData.isDefaultSend = isDefaultSend;
       remoteDownloadDialogData.show = true;
     }
   });
@@ -124,9 +127,18 @@ async function handleSearch() {
     key="download"
     :disabled="metadataStore.getEnabledDownloaders.length === 0"
     color="light-blue"
-    icon="mdi-tray-arrow-down"
+    icon="mdi-cloud-download"
     title="推送到..."
-    @click="handleRemoteDownloadMulti"
+    @click="() => handleRemoteDownloadMulti()"
+  />
+  <SpeedDialBtn
+    key="download_default"
+    v-if="metadataStore.defaultDownloader?.id"
+    :disabled="metadataStore.getEnabledDownloaders.length === 0"
+    color="light-blue"
+    icon="mdi-download"
+    title="推送到默认下载器"
+    @click="() => handleRemoteDownloadMulti(true)"
   />
 
   <SpeedDialBtn

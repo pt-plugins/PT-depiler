@@ -219,12 +219,7 @@ watch(
         <!-- 处于小屏幕，只显示点，btn以menu列表形式展示 -->
         <v-menu bottom left offset-y>
           <template #activator="{ props }">
-            <v-btn
-              :title="t('layout.header.expand')"
-              v-bind="props"
-              icon="mdi-dots-vertical"
-              variant="text"
-            />
+            <v-btn :title="t('layout.header.expand')" v-bind="props" icon="mdi-dots-vertical" variant="text" />
           </template>
 
           <v-list>

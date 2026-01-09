@@ -6,10 +6,12 @@ import { type ITorrent } from "@ptd/site";
 import { sendMessage } from "@/messages.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+
+import type { IRemoteDownloadDialogData } from "./types.ts";
 import { currentView, type IPtdData, pageType, updatePageType } from "./utils.ts";
 
-import SpeedDialBtn from "@/content-script/app/components/SpeedDialBtn.vue";
-import SentToDownloaderDialog from "@/options/components/SentToDownloaderDialog.vue";
+import SpeedDialBtn from "./components/SpeedDialBtn.vue";
+import SentToDownloaderDialog from "@/options/components/SentToDownloaderDialog/Index.vue";
 
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
@@ -70,9 +72,10 @@ configStore.$onReady(() => {
   bottomY.value = clientHeight - y.value;
 });
 
-const remoteDownloadDialogData = shallowReactive({
+const remoteDownloadDialogData = shallowReactive<IRemoteDownloadDialogData>({
   show: false,
   torrents: [] as ITorrent[],
+  isDefaultSend: false,
 });
 provide("remoteDownloadDialogData", remoteDownloadDialogData);
 
@@ -266,6 +269,7 @@ function openOptions() {
       v-model="remoteDownloadDialogData.show"
       :content-class="['bg-white']"
       :torrent-items="remoteDownloadDialogData.torrents"
+      :is-default-send="remoteDownloadDialogData.isDefaultSend"
     />
   </v-theme-provider>
 </template>

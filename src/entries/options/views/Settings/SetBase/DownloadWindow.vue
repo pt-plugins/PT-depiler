@@ -21,10 +21,10 @@ async function clearLastDownloader(v: boolean) {
     <v-col md="10" lg="8">
       <v-switch
         v-model="configStore.download.saveDownloadHistory"
+        :label="t('SetBase.download.saveDownloadHistory')"
         color="success"
         false-icon="mdi-alert-octagon"
         hide-details
-        :label="t('SetBase.download.saveDownloadHistory')"
       />
     </v-col>
   </v-row>

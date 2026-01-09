@@ -53,7 +53,7 @@ export const formatDate = (date: Date | number | string, format: string = "yyyy-
   try {
     return dateFormat(date, format);
   } catch (e) {
-    return date;
+    return date as string;
   }
 };
 

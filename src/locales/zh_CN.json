@@ -496,7 +496,8 @@
       "uidPlaceholder": "（自动生成）"
     },
     "index": {
-      "changeDefaultDownloader": "更新默认下载服务器成功！",
+      "editDefaultDownloaderBtn": "默认下载服务器设置",
+      "changeDefaultDownloader": "更新默认下载服务器成功！如有必要请进一步设置下载地址和标签。",
       "emptyNotice": "在使用推送服务之前，您至少需要添加一个下载服务器。",
       "remove": {
         "multi": "你确定删除这{count}个下载服务器吗？",
@@ -504,6 +505,7 @@
       },
       "table": {
         "enabled": "启用？",
+
         "autodl": "自动下载？",
         "action": {
           "status": "状态",

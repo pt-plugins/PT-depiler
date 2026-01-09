@@ -98,7 +98,7 @@ async function confirmDeleteBackupServer(id: TBackupServerKey) {
           @click="deleteBackupServer(tableSelected)"
         />
 
-        <v-divider vertical class="mx-2" />
+        <v-divider class="mx-2" inset vertical />
 
         <NavButton
           :loading="doBackupStatus[localBackup]"
