@@ -20,7 +20,7 @@ export const tableCustomFilter = useTableCustomFilter({
   initialItems: computed(() => runtimeStore.search.searchResult),
   format: {
     tags: {
-      parse: (value: ITorrentTag) => (value ?? {}).name,
+      parse: (value: ITorrentTag | string) => ((value ?? {}) as ITorrentTag).name ?? value,
     },
     time: "date",
     size: "size",
