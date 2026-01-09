@@ -1,5 +1,5 @@
 import BittorrentSite from "../schemas/AbstractBittorrentSite";
-import { ITorrent, type ISiteMetadata } from "../types";
+import { ISearchInput, ITorrent, type ISiteMetadata } from "../types";
 import Sizzle from "sizzle";
 import CryptoJS from "crypto-js";
 import { set } from "es-toolkit/compat";
@@ -92,6 +92,7 @@ const parseId = (uri: string) => {
 
 interface extGetMagnetResp {
   success: boolean;
+  url?: string;
   magnet?: string;
   error?: string;
 }
@@ -163,14 +164,6 @@ export const siteMetadata: ISiteMetadata = {
       },
       title: { selector: "td:nth-child(1) div a" },
       url: { selector: "td:nth-child(1) div a", attr: "href" },
-      link: {
-        selector: "a.search-magnet-btn",
-        elementProcess: (el: HTMLElement) => {
-          const infoHash = el.dataset.hash;
-          const title = encodeURIComponent(el.dataset.name || "");
-          return `magnet:?xt=urn:btih:${infoHash}&dn=${title}`;
-        },
-      },
       size: { selector: "span:contains('Size') + span", filters: [{ name: "parseSize" }] },
       time: {
         selector: "span:contains('Age') + span",
@@ -202,26 +195,74 @@ export const siteMetadata: ISiteMetadata = {
   },
 };
 
+const injectScriptSelector = "script:not([defer])[src]:last + script";
+
 export default class ExtTorrents extends BittorrentSite {
+  public override async transformSearchPage(
+    doc: Document | object | any,
+    searchConfig: ISearchInput,
+  ): Promise<ITorrent[]> {
+    const torrents = await super.transformSearchPage(doc, searchConfig);
+
+    const injectScriptEl = Sizzle(injectScriptSelector, doc)[0];
+    const pageToken = this.extractWindowVar(injectScriptEl, "searchPageToken");
+    const csrfToken = this.extractWindowVar(injectScriptEl, "csrfToken");
+
+    return torrents.map((torrent) => ({
+      ...torrent,
+      link: `${pageToken}|${csrfToken}`, // 后续方法中会获取到正确链接
+    }));
+  }
+
   public override async transformDetailPage(doc: Document): Promise<ITorrent> {
     const torrent = await super.transformDetailPage(doc);
     torrent.id = parseId(torrent.url!);
 
-    const injectScriptSelector = "script:not([defer])[src]:last + script";
+    const pageToken = this.extractWindowVar(Sizzle(injectScriptSelector, doc)[0], "pageToken")!;
+    const csrfToken = this.extractWindowVar(Sizzle(`${injectScriptSelector} + script`, doc)[0], "csrfToken")!;
+    torrent.link = (await this.getTorrentMagnet({ id: torrent.id as number, pageToken, csrfToken })) ?? "";
 
-    const pageToken = this.extractWindowVar(Sizzle(injectScriptSelector, doc)[0], "pageToken");
-    const csrfToken = this.extractWindowVar(Sizzle(`${injectScriptSelector} + script`, doc)[0], "csrfToken");
+    return torrent;
+  }
 
+  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    if (torrent.link?.startsWith("magnet:?xt=urn:btih:")) {
+      return torrent.link;
+    }
+
+    if (torrent.link) {
+      const tokens = torrent.link.split("|");
+      if (tokens.length > 1) {
+        const [pageToken, csrfToken] = tokens;
+        const magnet =
+          (await this.getTorrentMagnet({ id: torrent.id as number, pageToken, csrfToken, isSearch: true })) ?? "";
+        return magnet;
+      }
+    }
+    return super.getTorrentDownloadLink(torrent);
+  }
+
+  private async getTorrentMagnet({
+    id,
+    pageToken,
+    csrfToken,
+    isSearch,
+  }: {
+    id: number;
+    pageToken: string;
+    csrfToken: string;
+    isSearch?: boolean;
+  }): Promise<string | null> {
     const timestamp = Math.floor(Date.now() / 1000);
-    const hmacToken = this.computeHMAC(torrent.id as number, timestamp, pageToken!);
+    const hmacToken = this.computeHMAC(id, timestamp, pageToken);
 
     const getMagnetResp = await this.request<extGetMagnetResp>({
-      url: "/ajax/getTorrentMagnet.php",
+      url: `${isSearch ? "/ajax/getSearchMagnet.php" : "/ajax/getTorrentMagnet.php"}`,
       method: "POST",
       headers: { "Content-Type": "application/x-www-form-urlencoded" },
       responseType: "json",
       data: {
-        torrent_id: torrent.id,
+        torrent_id: id,
         action: "get_magnet",
         timestamp,
         hmac: hmacToken,
@@ -230,10 +271,9 @@ export default class ExtTorrents extends BittorrentSite {
     });
 
     if (getMagnetResp.data.success) {
-      torrent.link = getMagnetResp.data.magnet!;
+      return isSearch ? getMagnetResp.data.url! : getMagnetResp.data.magnet!;
     }
-
-    return torrent;
+    return null;
   }
 
   private extractWindowVar(scriptEl: Element, varName: string): string | null {
