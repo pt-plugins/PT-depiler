@@ -18,8 +18,17 @@ export const siteMetadata: ISiteMetadata = {
 
   category: [
     {
-      name: "类别",
-      key: "cat",
+      name: "搜索入口",
+      key: "#url",
+      options: [
+        { name: "全局搜索", value: "/search.php" },
+        { name: "大众区", value: "/torrents.php" },
+        { name: "儿童专区", value: "/special.php" },
+      ],
+    },
+    {
+      name: "全局搜索",
+      key: "cat_search",
       options: [
         { value: 912, name: "有声-大众" },
         { value: 408, name: "音乐-大众" },
@@ -31,6 +40,36 @@ export const siteMetadata: ISiteMetadata = {
         { value: 405, name: "动漫-大众" },
         { value: 404, name: "纪录片-大众" },
         { value: 401, name: "电影-大众" },
+        { value: 907, name: "纪录片-儿童" },
+        { value: 910, name: "读书绘本-儿童" },
+        { value: 911, name: "音乐-儿童" },
+        { value: 905, name: "有声读物-儿童" },
+        { value: 909, name: "儿童电影-儿童" },
+        { value: 908, name: "儿童剧集-儿童" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "大众区",
+      key: "cat_torrents",
+      options: [
+        { value: 912, name: "有声-大众" },
+        { value: 408, name: "音乐-大众" },
+        { value: 409, name: "其他-大众" },
+        { value: 407, name: "体育-大众" },
+        { value: 406, name: "MV-大众" },
+        { value: 403, name: "综艺-大众" },
+        { value: 402, name: "电视剧-大众" },
+        { value: 405, name: "动漫-大众" },
+        { value: 404, name: "纪录片-大众" },
+        { value: 401, name: "电影-大众" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "儿童专区",
+      key: "cat_special",
+      options: [
         { value: 907, name: "纪录片-儿童" },
         { value: 910, name: "读书绘本-儿童" },
         { value: 911, name: "音乐-儿童" },
