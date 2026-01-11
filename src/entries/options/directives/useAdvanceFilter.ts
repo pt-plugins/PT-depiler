@@ -281,11 +281,10 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
 
     ranges.forEach((key) => {
       const valueFormat = getValueFormat(key, format);
-      const valueRange = (advanceItemPropsRef.value[key] as unknown as IRangedField).range;
 
       advanceFilterDictRef.value[key] = [
-        parsedFilter[key]?.from ? valueFormat.parse(parsedFilter[key].from) : valueRange[0],
-        parsedFilter[key]?.to ? valueFormat.parse(parsedFilter[key].to) : valueRange[1],
+        parsedFilter[key]?.from ? valueFormat.parse(parsedFilter[key].from) : -Infinity,
+        parsedFilter[key]?.to ? valueFormat.parse(parsedFilter[key].to) : Infinity,
       ];
     });
   }
@@ -309,11 +308,11 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
       const range = (advanceItemPropsRef.value[key] as unknown as IRangedField).range;
       const value = (advanceFilterDictRef.value[key] as unknown as [number, number]).map(valueFormat.parse);
 
-      if ((value[0] && value[0] !== range[0]) || (value[1] && value[1] !== range[1])) {
-        filters[key] = { from: valueFormat.build(value[0]), to: valueFormat.build(value[1]) };
-      } else {
-        // 重写 advanceFilterDictRef 中对应 range 的范围，以免当 advanceItemPropsRef 对应范围变动时生成额外的 filter
-        advanceFilterDictRef.value[key] = [range[0], range[1]];
+      if ((value[0] && value[0] !== -Infinity) || (value[1] && value[1] !== Infinity)) {
+        filters[key] = {
+          from: valueFormat.build(Math.max(range[0], value[0], -Infinity)),
+          to: valueFormat.build(Math.min(range[1], value[1], Infinity)),
+        };
       }
     });
 
