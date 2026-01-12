@@ -1,6 +1,8 @@
-import type { ISiteMetadata } from "../types";
+import type { ISiteMetadata, ITorrent } from "../types";
 import { get } from "es-toolkit/compat";
 import { buildCategoryOptionsFromDict, GB } from "../utils";
+import PrivateSite from "../schemas/AbstractPrivateSite";
+import { AxiosRequestConfig } from "axios";
 
 const commonDocumentSelectors = {
   rows: { selector: "torrents-table[torrents] > table > tbody > tr" },
@@ -82,6 +84,11 @@ interface IDigitalCoreBonusLogRespItem {
 
 type IDigitalCoreBonusLogResp = IDigitalCoreBonusLogRespItem[];
 
+const statusRequestConfig: AxiosRequestConfig = {
+  url: "/api/v1/status",
+  responseType: "json",
+};
+
 export const siteMetadata: ISiteMetadata = {
   id: "digitalcore",
   version: 1,
@@ -139,7 +146,6 @@ export const siteMetadata: ISiteMetadata = {
       title: { selector: "name" },
       subTitle: { selector: "tagline" },
       url: { selector: "id", filters: [(id: number) => `/torrent/${id}/`] },
-      link: { selector: "id", filters: [(id: number) => `/api/v1/torrents/download/${id}`] },
       time: { selector: "added" },
       size: { selector: "size" },
       seeders: { selector: "seeders" },
@@ -227,10 +233,7 @@ export const siteMetadata: ISiteMetadata = {
     pickLast: ["id", "name", "joinTime"],
     process: [
       {
-        requestConfig: {
-          url: "/api/v1/status",
-          responseType: "json",
-        },
+        requestConfig: statusRequestConfig,
         selectors: {
           id: { selector: "user.id" },
           name: { selector: "user.username" },
@@ -340,6 +343,25 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 70,
       name: levelIdMap[70], // VIP
+      groupType: "vip",
     },
   ],
 };
+
+export default class DigitalCore extends PrivateSite {
+  private _passKey?: string;
+
+  private async getPassKey(): Promise<string> {
+    if (!this._passKey) {
+      const { data: statResp } = await this.request<{ user: { passkey: string } }>(statusRequestConfig);
+      this._passKey = statResp.user.passkey;
+    }
+    return this._passKey;
+  }
+
+  protected async parseTorrentRowForLink(torrent: Partial<ITorrent>, row: { id: number }): Promise<Partial<ITorrent>> {
+    const passkey = await this.getPassKey();
+    torrent.link = `/api/v1/torrents/download/${row.id}/${passkey}`;
+    return torrent;
+  }
+}

@@ -137,7 +137,7 @@ export default class Milkie extends PrivateSite {
     return super.request<T>(axiosConfig, checkLogin);
   }
 
-  protected parseTorrentRowForLink(torrent: Partial<ITorrent>, row: object | any): Partial<ITorrent> {
+  protected parseTorrentRowForLink(torrent: Partial<ITorrent>, row: { id: number }): Partial<ITorrent> {
     torrent.link = `/api/v1/torrents/${row.id}/torrent?key=${encodeURIComponent(this.userConfig.inputSetting!.token)}`;
     return torrent;
   }
