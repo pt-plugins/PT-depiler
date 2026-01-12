@@ -167,11 +167,7 @@ watch(
                       <template #prepend>
                         <SiteFavicon :site-id="siteMetadata.id" />
                       </template>
-                      <SiteName
-                        :class="['v-list-item-title', 'text-black', 'ml-2']"
-                        :site-id="siteMetadata.id"
-                        tag="span"
-                      />
+                      <SiteName :class="['v-list-item-title', 'ml-2']" :site-id="siteMetadata.id" tag="span" />
                     </v-list-item>
                   </template>
                 </v-list>

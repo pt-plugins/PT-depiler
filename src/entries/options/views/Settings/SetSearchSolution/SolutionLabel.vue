@@ -29,7 +29,7 @@ function removeSolution(solution: ISearchSolution) {
           <v-icon v-if="closable" class="mr-1" icon="$delete" @click="() => removeSolution(solution)" />
         </template>
 
-        <SiteName :class="['text-black']" :site-id="solution.siteId" tag="span" />&nbsp;->&nbsp;
+        <SiteName class="" :site-id="solution.siteId" tag="span" />&nbsp;->&nbsp;
         <SolutionDetail :solution="solution" />
       </v-chip>
     </v-chip-group>

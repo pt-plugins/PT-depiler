@@ -88,7 +88,7 @@ function enterDialog() {
               >
                 <template #label>
                   <SiteFavicon :site-id="site" :size="16" class="mr-2" />
-                  <SiteName :class="['text-decoration-none', 'text-black']" :site-id="site" tag="span" />
+                  <SiteName :class="['text-decoration-none']" :site-id="site" tag="span" />
                 </template>
               </v-checkbox>
             </v-col>
