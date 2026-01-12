@@ -1,4 +1,4 @@
-import type { ISiteMetadata } from "../types";
+import type { ISiteMetadata, ITorrent } from "../types";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
 import PrivateSite from "../schemas/AbstractPrivateSite";
 
@@ -50,6 +50,7 @@ export const siteMetadata: ISiteMetadata = {
       rows: { selector: "torrents" },
       id: { selector: "id" },
       title: { selector: "releaseName" },
+      url: { selector: "id", filters: [{ name: "prepend", args: ["/browse/"] }] },
       category: { selector: "category", filters: [(catId: number) => categoryMap[catId]] },
       time: {
         selector: "createdAt",
@@ -134,5 +135,10 @@ export default class Milkie extends PrivateSite {
     };
 
     return super.request<T>(axiosConfig, checkLogin);
+  }
+
+  protected parseTorrentRowForLink(torrent: Partial<ITorrent>, row: object | any): Partial<ITorrent> {
+    torrent.link = `/api/v1/torrents/${row.id}/torrent?key=${encodeURIComponent(this.userConfig.inputSetting!.token)}`;
+    return torrent;
   }
 }
