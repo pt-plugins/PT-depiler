@@ -106,7 +106,7 @@ export function generateRangeField(data: (number | undefined)[]): IRangedField {
   const numData = data.filter((x) => !isNaN(x as unknown as number)) as number[];
 
   return {
-    range: [Math.min(...numData), Math.max(...numData)],
+    range: numData.length > 0 ? [Math.min(...numData), Math.max(...numData)] : [-Infinity, Infinity],
     ticks: Array.from(new Set(data)) as number[],
   };
 }
