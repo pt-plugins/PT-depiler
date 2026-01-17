@@ -337,7 +337,11 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     }
 
     if (options.addAtPaused) {
+      // 同时发送新旧两个参数，让 qBittorrent 自动选择识别
+      // qBittorrent < 5.1.0 使用 'paused' 参数
       formData.append("paused", options.addAtPaused ? "true" : "false");
+      // qBittorrent 5.1.0+ 使用 'stopped' 参数
+      formData.append("stopped", options.addAtPaused ? "true" : "false");
     }
 
     if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
@@ -360,6 +364,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     addResult.success = res.data === "Ok.";
     if (!addResult.success) {
       addResult.message = res.data;
+      return addResult;
     }
 
     return addResult;
