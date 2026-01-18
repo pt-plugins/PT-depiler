@@ -5,9 +5,9 @@ import { type CAddTorrentOptions } from "@ptd/downloader";
 import { getHostFromUrl } from "@ptd/site/utils/html.ts"; // 这里不能使用 @ptd/site 的主入口，会导致 sw 无法加载
 import { type ITorrent } from "@ptd/site/types/torrent.ts";
 
-import { IDownloaderMetadata } from "@/shared/types/storages/metadata.ts";
 import { extStorage } from "@/storage.ts";
 import { onMessage, sendMessage } from "@/messages.ts";
+import { type IDownloaderMetadata } from "@/shared/types/storages/metadata.ts";
 
 import { openOptionsPage } from "./base.ts";
 

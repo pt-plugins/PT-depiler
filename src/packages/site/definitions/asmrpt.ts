@@ -1,8 +1,8 @@
 import { type ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/NexusPHP.ts";
+// import { SchemaMetadata } from "../schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  //...SchemaMetadata,
 
   version: 1,
   id: "asmrpt",
@@ -15,7 +15,13 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["https://www.asmrpt.org/"],
+  favicon: "./asmrpt.png",
 
+  // refs: - https://t.me/ptasmr/329
+  //       - https://web.archive.org/web/20260118143525/https://storage.xmyun.org/saygoodbye/
+  isDead: true,
+
+  /*
   levelRequirements: [
     {
       id: 0,
@@ -88,4 +94,6 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到十个邀请名额。",
     },
   ],
+
+   */
 };
