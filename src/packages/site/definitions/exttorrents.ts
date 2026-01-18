@@ -3,7 +3,7 @@ import { ISearchInput, ITorrent, type ISiteMetadata } from "../types";
 import Sizzle from "sizzle";
 import CryptoJS from "crypto-js";
 import { set } from "es-toolkit/compat";
-import { parseTimeToLive, parseValidTimeString } from "../utils";
+import { parseTimeToLiveToDate, parseValidTimeString } from "../utils";
 
 const extCategories = [
   { uri: "/anime/", cat: 7, value: "Anime" },
@@ -169,7 +169,7 @@ export const siteMetadata: ISiteMetadata = {
         selector: "span:contains('Age') + span",
         elementProcess: (el: Element) => {
           if (el.textContent.match(/minute|hour/)) {
-            return parseTimeToLive(el.textContent);
+            return parseTimeToLiveToDate(el.textContent);
           }
           return parseValidTimeString(el.getAttribute("title")!, ["dd MMMM yyyy"]);
         },

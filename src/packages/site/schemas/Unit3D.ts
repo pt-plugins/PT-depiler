@@ -10,7 +10,7 @@ import {
   NeedLoginError,
   ITorrent,
 } from "../types";
-import { parseTimeToLive, parseValidTimeString } from "../utils";
+import { parseTimeToLiveToDate, parseValidTimeString } from "../utils";
 
 /**
  * Trans Array
@@ -99,7 +99,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
             return parseValidTimeString(element.title);
           } else {
             const textContent = element.textContent || element.innerText || "";
-            return parseTimeToLive(textContent);
+            return parseTimeToLiveToDate(textContent);
           }
         },
       },
@@ -395,7 +395,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           ...averageSeedingTimeTrans.map((x) => `td:contains('${x}') + td span.badge-user`),
           ...averageSeedingTimeTrans.map((x) => `dt:contains('${x}') + dd`),
         ],
-        filters: [{ name: "parseTTL" }],
+        filters: [{ name: "parseDuration" }],
       },
       levelName: {
         selector: ["div.content span.badge-user", "a.user-tag__link[title]"],

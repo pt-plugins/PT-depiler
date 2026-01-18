@@ -18,7 +18,7 @@ import {
   definedFilters,
   extractContent,
   parseSizeString,
-  parseTimeToLive,
+  parseTimeToLiveToDate,
   parseValidTimeString,
   sizePattern,
 } from "../utils";
@@ -230,7 +230,7 @@ export const SchemaMetadata: Pick<
             }
 
             if (time.match(/\d+[分时天月年]/g)) {
-              time = parseTimeToLive(time);
+              time = parseTimeToLiveToDate(time);
             } else {
               time = parseValidTimeString(time);
             }

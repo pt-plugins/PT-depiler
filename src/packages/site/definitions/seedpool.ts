@@ -82,7 +82,7 @@ export const siteMetadata: ISiteMetadata = {
       ratio: 1.5,
       seedingSize: "1TiB",
       interval: "P6M",
-      privilege: "无限下载槽 发起求种 应求求种 免疫HR 站免 发送邀请",
+      privilege: "访问邀请区 无限下载槽 发起求种 应求求种 免疫HR 站免 发送邀请",
     },
     {
       id: 5,
@@ -90,7 +90,7 @@ export const siteMetadata: ISiteMetadata = {
       ratio: 3,
       seedingSize: "5TiB",
       interval: "P9M",
-      privilege: "无限下载槽 发起求种 应求求种 免疫HR 站免 发送邀请",
+      privilege: "访问邀请区 无限下载槽 发起求种 应求求种 免疫HR 站免 发送邀请",
     },
     {
       id: 6,
@@ -107,6 +107,12 @@ export const siteMetadata: ISiteMetadata = {
       seedingSize: "100TiB",
       interval: "P12M",
       privilege: "上传种子 访问邀请区 双倍计算上传量 无限下载槽 发起求种 应求求种 免疫HR 站免 发送邀请",
+    },
+    {
+      id: 8,
+      name: "ProPool",
+      groupType: "vip",
+      privilege: "双倍计算上传量 无限下载槽 发起求种 应求求种 免疫HR 站免 发送邀请",
     },
   ],
 
