@@ -433,7 +433,7 @@ export const siteMetadata: ISiteMetadata = {
           },
           averageSeedingTime: {
             selector: averageSeedingTimeTrans.map((x) => `a[href='/snatch/seeding'][title='${x}']`),
-            filters: [{ name: "parseTTL" }],
+            filters: [{ name: "parseDuration" }],
           },
         },
       },

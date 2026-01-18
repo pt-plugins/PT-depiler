@@ -4,7 +4,7 @@ import {
   type ISiteMetadata,
   type TSelectSearchCategoryValue,
 } from "../types";
-import { parseTimeToLive } from "../utils";
+import { parseTimeToLiveToDate } from "../utils";
 import { KB, MB, GB, TB } from "../utils/filesize";
 import { set } from "es-toolkit/compat";
 
@@ -256,7 +256,7 @@ export const siteMetadata: ISiteMetadata = {
         filters: [
           (query: string) => {
             const queryMatch = query.match(/(?:\| )?([\d.]+ .+? ago)/);
-            return queryMatch && queryMatch.length >= 2 ? parseTimeToLive(queryMatch[1]) : "";
+            return queryMatch && queryMatch.length >= 2 ? parseTimeToLiveToDate(queryMatch[1]) : "";
           },
         ],
       },

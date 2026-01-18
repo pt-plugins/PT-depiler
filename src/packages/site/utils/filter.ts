@@ -1,6 +1,6 @@
 // noinspection ES6PreferShortImport
 
-import { parseTimeToLive, parseValidTimeString } from "./datetime.ts";
+import { parseTimeToLiveToDate, parseTimeToLiveToSeconds, parseValidTimeString } from "./datetime.ts";
 import { parseSizeString } from "./filesize.ts";
 import { socialParseUrlMap } from "@ptd/social/index.ts";
 
@@ -156,7 +156,21 @@ export const definedFilters: Record<string, TQueryFilterFn> = {
    * input: "1 year 2 months 3 days 4 hours 5 minutes ago"
    * results: 1609488000000
    */
-  parseTTL: parseTimeToLive,
+  parseTTL: parseTimeToLiveToDate,
+
+  /**
+   * Extracts a duration value (seconds) from a string.
+   * The time string should be in the format of "1年2月3天4时5分前" or "1 year 3 months ago".
+   * all valid time units are:
+   *  - year, quarter, month, week, day, hour, minute, second.
+   *  - 年, 月, 天, 时, 分, 秒.
+   *  - yr, qtr, mo, wk, day, hr, min, sec.
+   * If the time string is not valid, the original string will be returned.
+   *
+   * input: "1 year 2 months 3 days 4 hours 5 minutes"
+   * results: 36993900
+   */
+  parseDuration: parseTimeToLiveToSeconds,
 
   /**
    * Parses a string into a timestamp (milliseconds).
@@ -169,7 +183,7 @@ export const definedFilters: Record<string, TQueryFilterFn> = {
    */
   parseFuzzyTime: (query, args) => {
     const time = parseValidTimeString(query, args);
-    return time === query ? parseTimeToLive(query) : time;
+    return time === query ? parseTimeToLiveToDate(query) : time;
   },
 
   // Social Site Parser
