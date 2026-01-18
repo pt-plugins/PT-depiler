@@ -7,7 +7,7 @@ import {
   type ITorrent,
   NeedLoginError,
 } from "../types";
-import PrivateSite from "../schemas/AbstractPrivateSite";
+import { GazelleBase } from "./Gazelle";
 import { parseSizeString, definedFilters } from "../utils";
 import Sizzle from "sizzle";
 
@@ -142,12 +142,12 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       bonusPerHour: {
         // 没找到显示的地方，通过log计算出来
         selector: ["div[id='bonuslog']"],
-        elementProcess: (element: any) => {
+        elementProcess: (element: HTMLElement) => {
           if (!element) return 0;
 
-          const firstLine = element.innerHTML.split("<br/>")[0].trim();
+          const firstLine = element.innerHTML.split("<br/>").find((log) => log.includes("hrs"));
           const creditsMatch = firstLine?.match(/\|\s*[+-]?([\d.,]+)\s*credits\s*\|/);
-          const credits = parseFloat(creditsMatch?.[1].replace(/,/g, "") || "0");
+          const credits = creditsMatch ? parseFloat(creditsMatch?.[1].replace(/,/g, "")) : 0;
           return credits / 24;
         },
       },
@@ -195,7 +195,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
   },
 };
 
-export default class Luminance extends PrivateSite {
+export default class Luminance extends GazelleBase {
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let flushUserInfo: IUserInfo = {
       status: EResultParseStatus.unknownError,
@@ -239,7 +239,7 @@ export default class Luminance extends PrivateSite {
           flushUserInfo.seedingSize = definedFilters.parseSize(seedingList[0].textContent);
         } else {
           // 否则则尝试解析做种列表计算获取
-          flushUserInfo.seedingSize = await this.getUserSeedingSize(id, flushUserInfo.seeding);
+          flushUserInfo = toMerged(flushUserInfo, await this.getSeedingSize(id));
         }
       }
 
@@ -281,61 +281,6 @@ export default class Luminance extends PrivateSite {
       this.metadata.userInfo?.selectors!,
       Object.keys(omit(this.metadata.userInfo?.selectors!, ["id"])),
     ) as Partial<IUserInfo>;
-  }
-
-  protected async getUserSeedingSize(id: number, seedingNum: number): Promise<number> {
-    await this.sleepAction(this.metadata.userInfo?.requestDelay);
-
-    const { data: userSettingDocument } = await this.request<Document>({
-      url: "/user.php",
-      params: {
-        action: "edit",
-        userid: id,
-      },
-      responseType: "document",
-    });
-
-    const selectedOption = Sizzle("select[id='torrentsperpage'] > option[selected]", userSettingDocument)[0];
-    const torPerPageRaw = selectedOption?.getAttribute("value");
-    const torPerPage = Number(torPerPageRaw);
-    if (!Number.isFinite(torPerPage) || torPerPage <= 0) return 0;
-
-    const pageNum = Math.ceil(seedingNum / torPerPage);
-    let seedingSize = 0;
-    let sizeIndex = 0;
-
-    for (let i = 0; i < pageNum; i++) {
-      await this.sleepAction(this.metadata.userInfo?.requestDelay);
-
-      const { data: seedingPageDocument } = await this.request<Document>({
-        url: "/torrents.php",
-        params: {
-          type: "seeding",
-          page: i + 1,
-          userid: id,
-        },
-        responseType: "document",
-      });
-
-      if (sizeIndex === 0) {
-        const targetTd = Sizzle("tr.colhead > td > a:contains('Size')", seedingPageDocument)[0]?.parentNode;
-        if (targetTd && targetTd.parentNode) {
-          const allTds = Array.from(targetTd.parentNode.children);
-          sizeIndex = allTds.indexOf(targetTd as Element);
-        } else {
-          return seedingSize;
-        }
-      }
-
-      const trs = seedingPageDocument.querySelectorAll("tr.torrent");
-      for (const tr of trs) {
-        const sizeTd = tr.querySelector(`td:nth-child(${sizeIndex + 1})`);
-        const sizeText = sizeTd?.textContent?.trim() || "";
-        seedingSize += parseSizeString(sizeText.replace(/,/g, ""));
-      }
-    }
-
-    return seedingSize;
   }
 
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {

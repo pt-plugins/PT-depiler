@@ -154,7 +154,7 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class Orpheus extends GazelleJSONAPI {
-  protected override async getSeedingSize(userId?: number): Promise<Partial<IUserInfo>> {
+  protected override async getSeedingSize(userId: number, sizeIndex: number = 0): Promise<Partial<IUserInfo>> {
     await this.sleepAction(this.metadata.userInfo?.requestDelay);
 
     const { data: bonusPage } = await this.request<Document>({

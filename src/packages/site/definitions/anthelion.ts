@@ -261,13 +261,7 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
       {
-        requestConfig: {
-          url: "/torrents.php",
-          responseType: "document",
-          params: {
-            type: "seeding",
-          },
-        },
+        requestConfig: { url: "/ajax.php", params: { action: "community_stats" }, responseType: "json" },
         assertion: { id: "params.userid" },
         fields: ["seeding"],
       },
@@ -305,7 +299,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       seedingSize: { selector: "li:contains('Seeding Size: ') span", filters: [{ name: "parseSize" }] },
       bonus: { selector: "a[href*='store.php']", filters: [{ name: "replace", args: [/,/g, ""] }] },
-      seeding: { selector: "#search_results", filters: [{ name: "parseNumber" }] },
+      seeding: { selector: "response.seeding", filters: [{ name: "parseNumber" }] },
     },
   },
 

@@ -1,8 +1,7 @@
-import Sizzle from "sizzle";
 import type { AxiosResponse } from "axios";
 
-import PrivateSite from "./AbstractPrivateSite";
-import { parseSizeString, parseTimeWithZone, extractContent } from "../utils";
+import { GazelleBase } from "./Gazelle";
+import { parseTimeWithZone, extractContent } from "../utils";
 import {
   EResultParseStatus,
   type IUserInfo,
@@ -298,7 +297,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
   },
 };
 
-export default class GazelleJSONAPI extends PrivateSite {
+export default class GazelleJSONAPI extends GazelleBase {
   private _authKey?: { authkey: string; passkey: string };
 
   protected async requestApi<T extends jsonResponse>(
@@ -510,23 +509,5 @@ export default class GazelleJSONAPI extends PrivateSite {
     }
 
     return flushUserInfo;
-  }
-
-  protected async getSeedingSize(userId?: number): Promise<Partial<IUserInfo>> {
-    await this.sleepAction(this.metadata.userInfo?.requestDelay);
-
-    const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
-
-    const { data: seedPage } = await this.request<Document>({
-      url: "/torrents.php",
-      params: { type: "seeding", userid: userId },
-      responseType: "document",
-    });
-    const rows = Sizzle("tr.torrent_row > td.nobr", seedPage);
-    rows.forEach((element) => {
-      userSeedingTorrent.seedingSize! += parseSizeString((element as HTMLElement).innerText.trim());
-    });
-
-    return userSeedingTorrent;
   }
 }

@@ -209,10 +209,10 @@ export default class SecretCinema extends GazelleJSONAPI {
     return super.transformSearchPage(doc, searchConfig);
   }
 
-  protected override async getSeedingSize(userId?: number): Promise<Partial<IUserInfo>> {
-    await this.sleepAction(this.metadata.userInfo?.requestDelay);
+  protected override async getSeedingSize(userId: number, sizeIndex: number = 0): Promise<Partial<IUserInfo>> {
+    const userSeedingTorrent = await super.getSeedingSize(userId, sizeIndex);
 
-    const userSeedingTorrent: Partial<IUserInfo> = { seedingBonus: 0, percentile: 0, seedingSize: 0 };
+    await this.sleepAction(this.metadata.userInfo?.requestDelay);
 
     const { data: userPage } = await this.request<Document>({
       url: "/user.php",
@@ -225,16 +225,6 @@ export default class SecretCinema extends GazelleJSONAPI {
     userSeedingTorrent.percentile! = definedFilters.parseNumber(
       Sizzle("li:contains('Overall rank: ')", userPage)[0].textContent,
     );
-
-    const { data: seedPage } = await this.request<Document>({
-      url: "/torrents.php",
-      params: { type: "seeding", userid: userId },
-      responseType: "document",
-    });
-    const rows = Sizzle("tr.torrent_row > td.nobr", seedPage);
-    rows.forEach((element) => {
-      userSeedingTorrent.seedingSize! += parseSizeString((element as HTMLElement).innerText.trim());
-    });
 
     return userSeedingTorrent;
   }

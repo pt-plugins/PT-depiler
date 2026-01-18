@@ -3,7 +3,7 @@ import { toMerged } from "es-toolkit";
 
 import PrivateSite from "./AbstractPrivateSite";
 import { parseValidTimeString, parseSizeString } from "../utils";
-import { ETorrentStatus, type ISiteMetadata, type ITorrent, type ISearchInput } from "../types";
+import { ETorrentStatus, type ISiteMetadata, type ITorrent, type ISearchInput, type IUserInfo } from "../types";
 
 const commonTagKeywords = ["Freeleech", "Neutral", "Seeding", "Snatched", "Reported"];
 
@@ -172,7 +172,69 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
   },
 };
 
-export default class Gazelle extends PrivateSite {
+export class GazelleBase extends PrivateSite {
+  // Gazelle 通用做种量获取方法，用于先前方法没获取到 seedingSize 的情况
+  protected async getSeedingSize(userId: number, sizeIndex: number = 0): Promise<Partial<IUserInfo>> {
+    const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
+    const pageInfo = { count: 1, current: 1 }; // 生成页面信息
+    for (; pageInfo.current <= pageInfo.count; pageInfo.current++) {
+      await this.sleepAction(this.metadata.userInfo?.requestDelay);
+      const TListDocument = await this.getUserTorrentList(userId, pageInfo.current);
+      // 更新最大页数
+      if (pageInfo.current === 1) {
+        pageInfo.count = this.getFieldData(TListDocument, {
+          // https://github.com/WhatCD/Gazelle/blob/63b337026d49b5cf63ce4be20fdabdc880112fa3/classes/format.class.php#L296
+          selector: ["a[href*='torrents.php?page=']:contains('Last'):first"],
+          attr: "href",
+          filters: [{ name: "querystring", args: ["page"] }, (query: string) => (query ? parseInt(query) : -1)],
+        });
+      }
+
+      if (sizeIndex === 0) {
+        const targetTd: Element = this.getFieldData(TListDocument, {
+          selector: [
+            "tr.colhead > td > a:contains('Size')",
+            "tr.colhead > td > a[href*='Size']",
+            "tr.colhead > td > a[href*='size']", // OPS
+            "tr.colhead > td > a[href*='s4']", // JPS
+          ],
+          elementProcess: (el: Element) => el.parentNode,
+        });
+        if (targetTd && targetTd.parentNode) {
+          const allTds = Array.from(targetTd.parentNode.children);
+          sizeIndex = allTds.indexOf(targetTd as Element);
+        } else {
+          return userSeedingTorrent;
+        }
+      }
+
+      const torrentAnothers = Sizzle("tr.torrent", TListDocument);
+      torrentAnothers.forEach((element) => {
+        const sizeAnother = Sizzle(`td:nth-child(${sizeIndex + 1})`, element);
+        if (sizeAnother && sizeAnother.length >= 0) {
+          userSeedingTorrent.seedingSize! += parseSizeString(
+            (sizeAnother[0] as HTMLElement).innerText.trim().replace(/,/g, ""),
+          );
+        }
+      });
+    }
+
+    return userSeedingTorrent;
+  }
+
+  // 起始页面为 1
+  // https://github.com/WhatCD/Gazelle/blob/63b337026d49b5cf63ce4be20fdabdc880112fa3/sections/torrents/user.php#L29-L35
+  protected async getUserTorrentList(userId: number, page: number = 1, type: string = "seeding"): Promise<Document> {
+    const { data: TListDocument } = await this.request<Document>({
+      url: "/torrents.php",
+      params: { userid: userId, page, type },
+      responseType: "document",
+    });
+    return TListDocument;
+  }
+}
+
+export default class Gazelle extends GazelleBase {
   protected guessSearchFieldIndexConfig(): Record<string, string[]> {
     return {
       time: ["a[href*='order_by=time']"], // 发布时间
@@ -247,5 +309,13 @@ export default class Gazelle extends PrivateSite {
     }
 
     return torrents;
+  }
+
+  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
+    if (flushUserInfo.id && !flushUserInfo.seedingSize) {
+      flushUserInfo = toMerged(flushUserInfo, await this.getSeedingSize(flushUserInfo.id as number));
+    }
+    return flushUserInfo;
   }
 }

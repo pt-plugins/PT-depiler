@@ -1,5 +1,4 @@
 import Sizzle from "sizzle";
-import { parseSizeString } from "../utils";
 import { ISiteMetadata, ITorrent, IUserInfo, ISearchInput, IParsedTorrentListPage } from "../types";
 import Gazelle, { SchemaMetadata } from "../schemas/Gazelle.ts";
 
@@ -69,6 +68,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 2,
   id: "jpopsuki",
   name: "JPopSuki",
+  aka: ["JPS", "JPOP"],
   description: "JPopSuki是一个专注于日本音乐的音乐PT站点",
   tags: ["音乐", "日韩"],
   timezoneOffset: "+0000",
@@ -129,6 +129,10 @@ export const siteMetadata: ISiteMetadata = {
     { urlPattern: [preTorrentListPageRegex], selectors: preTorrentListPageSelectors },
     { urlPattern: ["torrents.php"], mergeSearchSelectors: true },
   ],
+
+  noLoginAssert: {
+    matchSelectors: ["a[href='login.php']"],
+  },
 
   userInfo: {
     ...SchemaMetadata.userInfo!,
@@ -303,55 +307,5 @@ export default class Jpopsuki extends Gazelle {
 
     // 其他情况仍交给 super.transformListPage 处理
     return super.transformListPage(doc);
-  }
-
-  private async getUserTorrentList(userId: number, page: number = 0, type: string = "seeding"): Promise<Document> {
-    const { data: TListDocument } = await this.request<Document>({
-      url: "/torrents.php",
-      params: { userid: userId, page, type },
-      responseType: "document",
-    });
-    return TListDocument;
-  }
-
-  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    const flushUserInfo = await super.getUserInfoResult(lastUserInfo);
-
-    if (flushUserInfo.id) {
-      let seedingSize = 0;
-
-      const pageInfo = { count: 0, current: 0 }; // 生成页面信息
-      for (; pageInfo.current <= pageInfo.count; pageInfo.current++) {
-        const TListDocument = await this.getUserTorrentList(flushUserInfo.id as number, pageInfo.current);
-        // 更新最大页数
-        if (pageInfo.count === 0) {
-          pageInfo.count = this.getFieldData(TListDocument, {
-            selector: ["a[href*='torrents.php?page=']:contains('Last'):last"],
-            attr: "href",
-            filters: [
-              (query: string) => {
-                let pageId = "-1";
-                try {
-                  pageId = new URL(query).searchParams.get("page") ?? "-1";
-                } catch (e) {}
-                return parseInt(pageId);
-              },
-            ],
-          });
-        }
-
-        const torrentAnothers = Sizzle("tr.torrent", TListDocument);
-        torrentAnothers.forEach((element) => {
-          const sizeAnother = Sizzle("td:eq(5)", element);
-          if (sizeAnother && sizeAnother.length >= 0) {
-            seedingSize += parseSizeString((sizeAnother[0] as HTMLElement).innerText.trim());
-          }
-        });
-      }
-
-      // 更新做种信息
-      flushUserInfo.seedingSize = seedingSize;
-    }
-    return flushUserInfo;
   }
 }
