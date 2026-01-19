@@ -52,7 +52,6 @@ export const siteMetadata: ISiteMetadata = {
     },
     selectors: {
       ...SchemaMetadata.search!.selectors,
-      rows: { selector: "table#torrent_table > tbody > tr:has(a[href*='action=download'])" },
       category: {
         selector: "td.cats_col > div[title] > a",
         attr: "href",
@@ -64,11 +63,7 @@ export const siteMetadata: ISiteMetadata = {
           },
         ],
       },
-      size: { selector: ["td:nth-child(7)"], filters: [{ name: "parseSize" }] },
-      author: undefined,
-      seeders: { selector: ["td:nth-child(9)"], filters: [{ name: "parseNumber" }] },
-      leechers: { selector: ["td:nth-child(10)"], filters: [{ name: "parseNumber" }] },
-      completed: { selector: ["td:nth-child(8)"], filters: [{ name: "parseNumber" }] },
+      author: { text: "N/A" },
       status: {
         selector: ["a[href*='torrents.php?action=download'] > i"],
         text: ETorrentStatus.unknown,
@@ -104,9 +99,9 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.userInfo!,
     selectors: {
       ...SchemaMetadata.userInfo!.selectors,
-      name: { selector: ["a.username-link"] },
+      name: { selector: ["a#userDropdownTrigger"] },
       id: {
-        selector: ["a.username-link"],
+        selector: ["a[href^='/user.php?id=']"],
         attr: "href",
         filters: [{ name: "querystring", args: ["id"] }],
       },

@@ -5,6 +5,7 @@ import {
   type ISiteMetadata,
   type IUserInfo,
   type ITorrent,
+  type ISearchInput,
   NeedLoginError,
 } from "../types";
 import { GazelleBase } from "./Gazelle";
@@ -23,7 +24,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
     },
     keywordPath: "params.title",
     selectors: {
-      rows: { selector: "tr.torrent" },
+      rows: { selector: "table#torrent_table:last tr:gt(0)" },
       id: {
         selector: ["a[href*='torrents.php?id=']"],
         attr: "href",
@@ -49,12 +50,6 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       url: { selector: ["a[href*='torrents.php?id=']"], attr: "href" },
       link: { selector: ["a[href*='torrents.php?action=download']"], attr: "href" },
       time: { selector: ["span.time[title]"], attr: "title", filters: [{ name: "parseTime" }] },
-      size: { selector: ["td:nth-child(6)"], filters: [{ name: "parseSize" }] },
-      author: { selector: ["td:nth-child(10) > a"] },
-      seeders: { selector: ["td:nth-child(8)"], filters: [{ name: "parseNumber" }] },
-      leechers: { selector: ["td:nth-child(9)"], filters: [{ name: "parseNumber" }] },
-      completed: { selector: ["td:nth-child(7)"], filters: [{ name: "parseNumber" }] },
-      comments: { selector: ["td:nth-child(4)"], filters: [{ name: "parseNumber" }] },
       // category: {},
       status: {
         selector: ["a[href*='torrents.php?action=download'] span"],
@@ -118,7 +113,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       levelName: {
         selector: ["span.rank", "ul.stats > li:contains('Class:')"],
         switchFilters: {
-          "ul.stats > li:contains('Class:')": [{ name: "trim" }, { name: "split", args: [":", 1] }],
+          "ul.stats > li:contains('Class:')": [{ name: "split", args: [":", 1] }],
         },
       },
       bonus: {
@@ -196,6 +191,67 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 };
 
 export default class Luminance extends GazelleBase {
+  protected guessSearchFieldIndexConfig(): Record<string, string[]> {
+    return {
+      size: ["td:has(a[href*='order_by=size'])", "td:contains('Size')"], // 大小
+      seeders: ["td:has(a[href*='order_by=seeders'])"], // 种子数
+      leechers: ["td:has(a[href*='order_by=leechers'])"], // 下载数
+      completed: ["td:has(a[href*='order_by=snatched'])"], // 完成数
+      comments: ["td:contains('Comm')", "td:has(i.fa-comment)"], // 评论数
+      author: ["td:contains('Uploader')"], // 上传者
+    } as Record<keyof ITorrent, string[]>;
+  }
+
+  public override async transformSearchPage(
+    doc: Document | object | any,
+    searchConfig: ISearchInput,
+  ): Promise<ITorrent[]> {
+    const { keywords, searchEntry, requestConfig } = searchConfig;
+
+    // 返回是 Document 的情况才自动生成选择器
+    if (doc instanceof Document) {
+      // 如果配置文件没有传入 search 的选择器，则我们自己生成
+      const legacyTableSelector = "table#torrent_table:last";
+
+      // 生成 rows的
+      if (!searchEntry!.selectors?.rows) {
+        searchEntry!.selectors!.rows = {
+          selector: `${legacyTableSelector} tr:gt(0)`,
+        };
+      }
+
+      // 对于 Luminance，一般来说，表的第一行应该是标题行，即 ` > tr:nth-child(1)`
+      const headSelector = `${legacyTableSelector} tr:first > td`;
+      const headAnother = Sizzle(headSelector, doc) as HTMLElement[];
+      headAnother.forEach((element, elementIndex) => {
+        // 比较好处理的一些元素，都是可以直接获取的
+        let updateSelectorField;
+        for (const [dectField, dectSelector] of Object.entries(this.guessSearchFieldIndexConfig())) {
+          for (const dectFieldElement of dectSelector) {
+            if (Sizzle.matchesSelector(element, dectFieldElement)) {
+              updateSelectorField = dectField;
+              break;
+            }
+          }
+        }
+
+        if (updateSelectorField) {
+          // @ts-ignore
+          searchEntry.selectors[updateSelectorField] = toMerged(
+            {
+              selector: [`> td:eq(${elementIndex})`],
+            },
+            // @ts-ignore
+            searchEntry.selectors[updateSelectorField] || {},
+          );
+        }
+      });
+    }
+
+    // !!! 其他一些比较难处理的，我们把他 hack 到 parseWholeTorrentFromRow 中 !!!
+    return await super.transformSearchPage(doc, { keywords, searchEntry, requestConfig });
+  }
+
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let flushUserInfo: IUserInfo = {
       status: EResultParseStatus.unknownError,

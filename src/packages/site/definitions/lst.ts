@@ -103,10 +103,7 @@ export const siteMetadata: ISiteMetadata = {
     skipNonLatinCharacters: true,
     selectors: {
       ...SchemaMetadata.search!.selectors,
-      category: {
-        selector: "span.torrent-search--list__uploader > div:nth-child(1)",
-        filters: [{ name: "trim" }],
-      },
+      category: { selector: "span.torrent-search--list__uploader > div:nth-child(1)" },
       tags: [
         {
           name: "Free",

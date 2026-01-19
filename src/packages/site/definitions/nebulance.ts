@@ -90,14 +90,6 @@ export const siteMetadata: ISiteMetadata = {
           return "Other";
         },
       },
-      time: {
-        selector: "span.time[title]",
-        attr: "title",
-        filters: [{ name: "parseTime", args: ["MMM d yyyy, HH:mm"] }],
-      },
-      seeders: { selector: "> td:nth-child(6)" },
-      leechers: { selector: "> td:nth-child(7)" },
-      completed: { selector: "> td:nth-child(5)" },
       progress: {
         selector: ".Seeding",
         filters: [(query: any) => (query ? 100 : 0)],
@@ -136,6 +128,19 @@ export const siteMetadata: ISiteMetadata = {
     {
       urlPattern: ["/torrents.php"],
       excludeUrlPattern: [/\/torrents\.php\?(?:.*&)?(id|torrentid|showid)=\d+/],
+      selectors: {
+        time: {
+          selector: "span.time",
+          filters: [
+            { name: "parseTTL" },
+            (ts: number) => {
+              const offsetMinutes = new Date().getTimezoneOffset();
+              const offsetMs = offsetMinutes * 60 * 1000;
+              return ts + offsetMs + nblTimezoneOffset * 3600000;
+            },
+          ],
+        },
+      },
     },
   ],
 
@@ -184,10 +189,6 @@ export const siteMetadata: ISiteMetadata = {
         selector: "li:contains('Joined') > span.time",
         attr: "title",
         filters: [{ name: "parseTime", args: ["MMM d yyyy, HH:mm"] }],
-      },
-      messageCount: {
-        selector: "div.alertbar a[href*='inbox.php']",
-        filters: [{ name: "parseNumber" }],
       },
       levelName: {
         ...SchemaMetadata!.userInfo!.selectors!.levelName!,

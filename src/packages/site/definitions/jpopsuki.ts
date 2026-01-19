@@ -169,15 +169,6 @@ export const siteMetadata: ISiteMetadata = {
         attr: "title",
         filters: [{ name: "parseTime", args: ["MMMM dd yyyy, HH:mm"] }],
       },
-      messageCount: {
-        selector: ["#alerts > .alertbar > a[href='notice.php']", "div.alertbar > a[href*='inbox.php']"],
-        filters: [
-          (query: string) => {
-            const queryMatch = query.match(/(\d+)/);
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
-          },
-        ],
-      },
       uploads: {
         selector: genUserInfoSelector("community", "uploaded"),
         filters: [{ name: "parseNumber" }],
