@@ -276,6 +276,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 4,
       name: "VIP",
+      groupType: "vip",
       privilege:
         "This class always has a minimum ratio equal to 2, regardless of the downloads made, and is exempt from hit&run rules. They can set their own Custom Title.",
     },

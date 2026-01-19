@@ -7,7 +7,7 @@ import { ETorrentStatus, type ISiteMetadata, type ITorrent, type ISearchInput, t
 
 const commonTagKeywords = ["Freeleech", "Neutral", "Seeding", "Snatched", "Reported"];
 
-export const extractSubTitle = (tags: string, tagKeywords?: string[]) => {
+export function extractSubTitle(tags: string, tagKeywords?: string[]): string {
   const tagParts = tags.split(" / ");
   if (tagParts.length < 1) return "";
 
@@ -17,7 +17,21 @@ export const extractSubTitle = (tags: string, tagKeywords?: string[]) => {
     if (!(tagKeywords || commonTagKeywords).some((keyword) => tag.includes(keyword))) filteredParts.push(tag);
   });
   return filteredParts.join(" / ");
-};
+}
+
+function genStatBoxSelector(section: string | string[], itemSel: string | string[], suffixSel?: string): string[] {
+  const sections = Array.isArray(section) ? section : [section];
+  const itemSels = Array.isArray(itemSel) ? itemSel : [itemSel];
+  return sections.flatMap((s) =>
+    itemSels.map(
+      (iSel) => `div:contains('${s}') + ul.stats > li:contains('${iSel}')${suffixSel ? ` ${suffixSel}` : ""}`,
+    ),
+  );
+}
+
+const statsBoxName = ["Stats", "Statistics"];
+const personalBoxName = ["Personal"];
+const communityBoxName = ["Community"];
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: 0,
@@ -37,33 +51,36 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       },
       title: { selector: "a[href*='torrents.php?id=']" },
       url: { selector: "a[href*='torrents.php?id=']", attr: "href" },
-      link: {
-        selector: "a[href*='torrents.php?action=download'][title='Download']:first",
-        attr: "href",
-      },
+      link: { selector: "a[href*='torrents.php?action=download']:first", attr: "href" },
       // TODO category: {}
       time: {
+        text: 0,
         elementProcess: (element: HTMLElement) => {
-          const AccurateTimeAnother = element.querySelector("span[title], time[title]");
-          if (AccurateTimeAnother) {
-            return AccurateTimeAnother.getAttribute("title")! + ":00";
-          } else if (element.getAttribute("title")) {
-            return element.getAttribute("title")! + ":00";
-          } else {
-            return element.innerText.trim() + ":00";
-          }
+          let time: number | string = 0;
+          try {
+            const AccurateTimeAnother = element.querySelector("span[title], time[title]");
+            if (AccurateTimeAnother) {
+              time = AccurateTimeAnother.getAttribute("title")!;
+            } else if (element.getAttribute("title")) {
+              time = element.getAttribute("title")!;
+            } else {
+              time = element.innerText.trim();
+            }
+            time = parseValidTimeString(time);
+          } catch (e) {}
+          return time;
         },
       },
-
       progress: { text: 0 },
       status: { text: ETorrentStatus.unknown },
     },
   },
   userInfo: {
+    pickLast: ["id"],
     process: [
       {
         requestConfig: { url: "/index.php", responseType: "document" },
-        fields: ["id", "name", "messageCount"],
+        fields: ["id"],
       },
       {
         requestConfig: {
@@ -75,6 +92,8 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         },
         assertion: { id: "params.id" },
         fields: [
+          "name",
+          "messageCount",
           "uploaded",
           "downloaded",
           "ratio",
@@ -98,74 +117,67 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         selector: ["a.username[href*='user.php']:first"],
       },
       messageCount: {
-        selector: ["div.alert-bar > a[href*='inbox.php']", "div.alertbar > a[href*='inbox.php']"],
-        filters: [
-          (query: string) => {
-            const queryMatch = query.match(/(\d+)/);
-            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
-          },
-        ],
-      },
+        selector: ":self",
+        elementProcess: (doc: Document) => {
+          const notifRegex = /have (\d+|a) new/;
+          let messages = 0;
 
-      // "page": "/user.php?id=$user.id$",
-      uploaded: {
-        selector: "div:contains('Stats') + ul.stats > li:contains('Uploaded')",
-        filters: [
-          (query: string) => {
-            const queryMatch = query.replace(/,/g, "").match(/Upload.+?([\d.]+ ?[ZEPTGMK]?i?B)/);
-            return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0;
-          },
-        ],
-      },
-      downloaded: {
-        selector: "div:contains('Stats') + ul.stats > li:contains('Downloaded')",
-        filters: [
-          (query: string) => {
-            const queryMatch = query.replace(/,/g, "").match(/Download.+?([\d.]+ ?[ZEPTGMK]?i?B)/);
-            return queryMatch && queryMatch.length >= 2 ? parseSizeString(queryMatch[1]) : 0;
-          },
-        ],
-      },
-      ratio: {
-        selector: "div:contains('Stats') + ul.stats > li:contains('Ratio:')",
-        filters: [
-          (query: string) => {
-            const queryMatch = query.replace(/,/g, "").match(/Ratio.+?([\d.]+)/);
-            return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0;
-          },
-        ],
-      },
-      levelName: {
-        selector: "div:contains('Personal') + ul.stats > li:contains('Class:')",
-        filters: [
-          (query: string) => {
-            const queryMatch = query.match(/Class:.+?(.+)/);
-            return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : "";
-          },
-        ],
-      },
-      bonus: {
-        selector: [
-          "div:contains('Stats') + ul.stats > li:contains('Bonus Points:')",
-          "div:contains('Stats') + ul.stats > li:contains('SeedBonus:')",
-        ],
-        filters: [
-          (query: string) => {
-            query = query.replace(/,/g, "");
-            const queryMatch = query.match(/Bonus Points.+?([\d.]+)/) || query.match(/SeedBonus.+?([\d.]+)/);
-            return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0;
-          },
-        ],
-      },
-      joinTime: {
-        selector: ["div:contains('Stats') + ul.stats > li:contains('Joined:') > span"],
-        elementProcess: (element: HTMLElement) => {
-          const query = (element.getAttribute("title") || element.innerText).trim();
-          return parseValidTimeString(query, ["yyyy-MM-dd HH:mm:ss"]);
+          const pargeMessage = (el: Element) => {
+            const match = el.textContent.match(notifRegex);
+            messages += match ? (match[1] === "a" ? 1 : parseInt(match[1])) : 0;
+          };
+
+          // 1. Traditional
+          const alert = doc.querySelector("div#alert");
+          if (alert) {
+            const alerts = alert.querySelectorAll("a[href*='inbox.php'], a[href*='staffpm.php']");
+            alerts.forEach(pargeMessage);
+          }
+
+          // 2. Pop-Up
+          if (!alert || !messages) {
+            const notifSpans = doc.querySelectorAll(
+              ".noty-notification[data-noty-url*='inbox.php'], .noty-notification[data-noty-url*='staffpm.php']",
+            );
+            notifSpans.forEach(pargeMessage);
+          }
+
+          return messages;
         },
       },
+      // "page": "/user.php?id=$user.id$",
+      uploaded: {
+        selector: genStatBoxSelector(statsBoxName, "Uploaded"),
+        filters: [{ name: "parseSize" }],
+      },
+      downloaded: {
+        selector: genStatBoxSelector(statsBoxName, "Downloaded"),
+        filters: [{ name: "parseSize" }],
+      },
+      ratio: {
+        selector: genStatBoxSelector(statsBoxName, "Ratio:"),
+        filters: [{ name: "parseNumber" }],
+      },
+      levelName: {
+        selector: genStatBoxSelector(personalBoxName, "Class:"),
+        filters: [{ name: "split", args: [":", 1] }],
+      },
+      bonus: {
+        selector: genStatBoxSelector(statsBoxName, "Bonus Points:"),
+        filters: [{ name: "parseNumber" }],
+      },
+      joinTime: {
+        selector: genStatBoxSelector(statsBoxName, "Joined:", "> span"),
+        attr: "title",
+        filters: [{ name: "parseTime" }],
+      },
+      lastAccessAt: {
+        selector: genStatBoxSelector(statsBoxName, ["Last seen", "Last Seen"], "> span"),
+        attr: "title",
+        filters: [{ name: "parseTime" }],
+      },
       uploads: {
-        selector: ["div:contains('Community') + ul.stats > li:contains('Uploaded')"],
+        selector: genStatBoxSelector(communityBoxName, "Uploaded"),
         filters: [{ name: "parseNumber" }],
       },
     },
