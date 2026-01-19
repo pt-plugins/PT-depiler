@@ -3,6 +3,17 @@ import { add, sub, parse, isValid, format, type DurationUnit } from "date-fns";
 export type timezoneOffset = `${"UTC" | ""}${"-" | "+"}${number}`;
 export type isoDuration = `P${string}`;
 
+enum DateUnitDuration {
+  Second = 1,
+  Minute = 60 * Second,
+  Hour = 60 * Minute,
+  Day = 24 * Hour,
+  Week = 7 * Day,
+  Month = 30 * Day,
+  Quarter = 3 * Month,
+  Year = 365 * Day,
+}
+
 export const dateUnit: Array<DurationUnit | "quarters"> = [
   "years",
   "quarters",
@@ -25,7 +36,18 @@ export const nonStandDateUnitMap: Record<(typeof dateUnit)[number], string[]> = 
   seconds: ["秒", "second", "sec", "s"],
 };
 
-export function parseTimeToLive(ttl: string): number | string {
+const dateUnitToSecondsMap: Record<(typeof dateUnit)[number], number> = {
+  years: DateUnitDuration.Year,
+  quarters: DateUnitDuration.Quarter,
+  months: DateUnitDuration.Month,
+  weeks: DateUnitDuration.Week,
+  days: DateUnitDuration.Day,
+  hours: DateUnitDuration.Hour,
+  minutes: DateUnitDuration.Minute,
+  seconds: DateUnitDuration.Second,
+};
+
+function _parseTimeToLiveToSeconds(ttl: string): number | string {
   // A flag to check if we have successfully parsed any unit
   let parsed = false;
 
@@ -34,34 +56,31 @@ export function parseTimeToLive(ttl: string): number | string {
 
   // 处理原始字符串中的非标准Unit
   for (const [k, v] of Object.entries(nonStandDateUnitMap)) {
-    const regex = new RegExp(`(\\d+)\\s*(${v.join("|")})`, "g");
+    const regex = new RegExp(`(\\d+)\\s*(${v.join("|")})(?=\\s|$)`, "g");
     ttlTemp = ttlTemp.replace(regex, `$1 ${k}`);
   }
 
-  let nowDate = new Date();
+  let seconds = 0;
   dateUnit.forEach((v) => {
     const matched = ttlTemp.match(new RegExp(`([.\\d]+) ?(${v}s?)`));
     if (matched) {
       parsed = true;
       const amount = parseFloat(matched[1]);
-      switch (v) {
-        case "quarters":
-          nowDate = sub(nowDate, { months: amount * 3 });
-          break;
-        case "years":
-        case "months":
-        case "weeks":
-        case "days":
-        case "hours":
-        case "minutes":
-        case "seconds":
-          nowDate = sub(nowDate, { [v]: amount });
-          break;
-      }
+      seconds += amount * dateUnitToSecondsMap[v];
     }
   });
 
-  return parsed ? +nowDate : ttl;
+  return parsed ? seconds : ttl;
+}
+
+export function parseTimeToLiveToSeconds(ttl: string): number | string {
+  return _parseTimeToLiveToSeconds(ttl);
+}
+
+export function parseTimeToLiveToDate(ttl: string): number | string {
+  const parsedTTL = _parseTimeToLiveToSeconds(ttl);
+  if (typeof parsedTTL === "string") return parsedTTL;
+  return +sub(new Date(), { seconds: parsedTTL });
 }
 
 export function parseValidTimeString(query: string, formatString: string[] = []): number | string {
@@ -117,7 +136,7 @@ export function convertIsoDurationToSeconds(duration: string): number {
   const match = duration.toUpperCase().match(regex);
   if (!match) return 0;
   const [, years, months, weeks, days, hours, minutes, seconds] = match;
-  const timeDelta = {
+  const timeDelta: Record<DurationUnit, number> = {
     years: years ? parseInt(years, 10) : 0,
     months: months ? parseInt(months, 10) : 0,
     weeks: weeks ? parseInt(weeks, 10) : 0,
@@ -127,15 +146,9 @@ export function convertIsoDurationToSeconds(duration: string): number {
     seconds: seconds ? parseInt(seconds, 10) : 0,
   };
 
-  return (
-    timeDelta.years * 365 * 24 * 3600 +
-    timeDelta.months * 30 * 24 * 3600 +
-    timeDelta.weeks * 7 * 24 * 3600 +
-    timeDelta.days * 24 * 3600 +
-    timeDelta.hours * 3600 +
-    timeDelta.minutes * 60 +
-    timeDelta.seconds
-  );
+  return (Object.keys(timeDelta) as DurationUnit[]).reduce((sum, k) => {
+    return sum + timeDelta[k] * dateUnitToSecondsMap[k];
+  }, 0);
 }
 
 /**
