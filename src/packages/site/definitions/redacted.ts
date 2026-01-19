@@ -181,7 +181,7 @@ export default class Redacted extends GazelleJSONAPI {
     return tor;
   }
 
-  protected override async getSeedingSize(userId?: number): Promise<Partial<IUserInfo>> {
+  protected override async getSeedingSize(userId: number, sizeIndex: number = 0): Promise<Partial<IUserInfo>> {
     await this.sleepAction(this.metadata.userInfo?.requestDelay);
 
     const { data: apiUser } = await this.requestApi<communityStatsJsonResponse>("community_stats", {

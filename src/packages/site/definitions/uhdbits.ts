@@ -1,6 +1,6 @@
 import Sizzle from "sizzle";
-import { parseSizeString } from "../utils";
-import type { ISiteMetadata, IUserInfo, ISearchInput, ITorrent } from "../types";
+import type { ISiteMetadata, ISearchInput, ITorrent } from "../types";
+import BittorrentSite from "../schemas/AbstractBittorrentSite";
 import GazelleJSONAPI, { SchemaMetadata } from "../schemas/GazelleJSONAPI";
 
 export const siteMetadata: ISiteMetadata = {
@@ -165,71 +165,8 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class UHDBits extends GazelleJSONAPI {
-  /**
-   * 使用 AbstractBittorrentSite 的解析方法，但是 TS 不允许调用 super.super
-   * 同时， transformSearchPage 在基类中属于 protected 属性，
-   * （意味着我们不能使用 BittorrentSite.prototype.transformSearchPage 方法调用
-   * 所以我们得直接从基类方法中简化抄.....
-   */
+  // 使用 AbstractBittorrentSite 的解析方法 (HTML)
   public override async transformSearchPage(doc: Document, searchConfig: ISearchInput): Promise<ITorrent[]> {
-    const torrents: ITorrent[] = [];
-
-    const trs = Sizzle(this.metadata.search!.selectors!.rows!.selector as string, doc);
-    for (const tr of trs) {
-      try {
-        torrents.push((await this.parseWholeTorrentFromRow({}, tr, searchConfig)) as ITorrent);
-      } catch (e) {
-        console.warn(`Failed to parse torrent from row:`, e, tr);
-      }
-    }
-
-    return torrents;
-  }
-
-  private async getUserTorrentList(userId: number, page: number = 0, type: string = "seeding"): Promise<Document> {
-    const { data: TListDocument } = await this.request<Document>({
-      url: "/torrents.php",
-      params: { userid: userId, page, type },
-      responseType: "document",
-    });
-    return TListDocument;
-  }
-
-  protected override async getSeedingSize(userId: number): Promise<Partial<IUserInfo>> {
-    const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
-    const pageInfo = { count: 0, current: 0 }; // 生成页面信息
-
-    for (; pageInfo.current <= pageInfo.count; pageInfo.current++) {
-      const TListDocument = await this.getUserTorrentList(userId, pageInfo.current);
-      // 更新最大页数
-      if (pageInfo.count === 0) {
-        pageInfo.count = this.getFieldData(TListDocument, {
-          selector: ["a[href*='torrents.php?page=']:contains('Last'):last"],
-          attr: "href",
-          filters: [
-            (query: string) => {
-              let pageId = "-1";
-              try {
-                pageId = new URL(query).searchParams.get("page") ?? "-1";
-              } catch (e) {}
-              return parseInt(pageId);
-            },
-          ],
-        });
-      }
-
-      // 更新做种情况
-      if (!userSeedingTorrent.bonus && this.metadata.userInfo?.selectors?.bonus) {
-        userSeedingTorrent.bonus = this.getFieldData(TListDocument, this.metadata.userInfo.selectors.bonus);
-      }
-
-      // 解析当前页信息， 并合并至顶层字典中
-      const sizeAnothers = Sizzle("td.number_column.nobr", TListDocument);
-      sizeAnothers.forEach((element) => {
-        userSeedingTorrent.seedingSize! += parseSizeString((element as HTMLElement).innerText.trim());
-      });
-    }
-
-    return userSeedingTorrent;
+    return BittorrentSite.prototype.transformSearchPage.call(this, doc, searchConfig);
   }
 }
