@@ -121,4 +121,38 @@ onMessage("removeSiteUserInfo", async ({ data: { siteId, date } }) => {
     unset(userInfoStore, `${siteId}.${day}`);
   }
   await sendMessage("setExtStorage", { key: "userInfo", value: userInfoStore! });
+  
+  // 检查删除的数据是否是 metadata.lastUserInfo 中对应的日期
+  // 如果是，需要清除或更新 metadata.lastUserInfo，避免显示已删除的数据
+  const metadataStore = ((await sendMessage("getExtStorage", "metadata")) ?? {}) as IMetadataPiniaStorageSchema;
+  const lastUserInfo = metadataStore.lastUserInfo?.[siteId];
+  if (lastUserInfo) {
+    const lastUserInfoDate = format(lastUserInfo.updateAt, "yyyy-MM-dd");
+    // 如果删除的日期包含了最后一次成功数据的日期，需要清除 metadata 中的缓存
+    if (date.includes(lastUserInfoDate)) {
+      // 尝试从剩余的历史记录中找到最新的成功数据
+      const siteUserInfoHistory = userInfoStore[siteId] ?? {};
+      let maxDate = null;
+      let maxDateUserInfo = null;
+      for (const historyDate in siteUserInfoHistory) {
+        const historyUserInfo = siteUserInfoHistory[historyDate];
+        if (
+          historyUserInfo.status === EResultParseStatus.success &&
+          (!maxDate || new Date(historyDate) > new Date(maxDate))
+        ) {
+          maxDate = historyDate;
+          maxDateUserInfo = historyUserInfo;
+        }
+      }
+      
+      // 如果有新的最新数据，更新 metadata；否则清除
+      metadataStore.lastUserInfo ??= {};
+      if (maxDateUserInfo) {
+        metadataStore.lastUserInfo[siteId] = maxDateUserInfo;
+      } else {
+        delete metadataStore.lastUserInfo[siteId];
+      }
+      await sendMessage("setExtStorage", { key: "metadata", value: metadataStore });
+    }
+  }
 });
