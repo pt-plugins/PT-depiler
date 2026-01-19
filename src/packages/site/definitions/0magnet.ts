@@ -48,7 +48,7 @@ export const siteMetadata: ISiteMetadata = {
       return input.requestConfig!;
     },
     selectors: {
-      rows: { selector: "table.file-list > tbody > tr" },
+      rows: { selector: "table.file-list > tbody > tr:has(td)" },
       id: { selector: "a", attr: "href" },
       title: {
         selector: "a",
