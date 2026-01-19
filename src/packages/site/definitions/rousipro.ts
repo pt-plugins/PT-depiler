@@ -1,4 +1,4 @@
-import { ISiteMetadata, ITorrent } from "@ptd/site";
+import { ISearchInput, ISiteMetadata, ITorrent, ITorrentTag, TPreDefinedTorrentTagName } from "@ptd/site";
 import PrivateSite from "@ptd/site/schemas/AbstractPrivateSite.ts";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 
@@ -135,6 +135,24 @@ export const siteMetadata: ISiteMetadata = {
   ],
 };
 
+interface IRawSearchDatium {
+  id: number;
+  promotion?: {
+    type: 1 | 2 | 3 | 4 | 5 | 6 | 7; // 促销类型（1=普通, 2=免费, 3=2X, 4=2X免费, 5=50%, 6=2X50%, 7=30%）
+    is_active: boolean; // 是否激活
+  };
+}
+
+const promotionTypeMap: Record<Required<IRawSearchDatium>["promotion"]["type"], TPreDefinedTorrentTagName> = {
+  1: "",
+  2: "Free",
+  3: "2xUp",
+  4: "2xFree",
+  5: "50%",
+  6: "2x50%",
+  7: "30%",
+};
+
 export default class RousiPro extends PrivateSite {
   get userPasskey(): string {
     return this.userConfig.inputSetting!.passkey ?? "";
@@ -154,6 +172,25 @@ export default class RousiPro extends PrivateSite {
     };
 
     return super.request<T>(axiosConfig, checkLogin);
+  }
+
+  protected override parseTorrentRowForTags(
+    torrent: Partial<ITorrent>,
+    row: IRawSearchDatium,
+    searchConfig: ISearchInput,
+  ): Partial<ITorrent> {
+    torrent = super.parseTorrentRowForTags(torrent, row, searchConfig);
+
+    // 将种子优惠标签加入 tags 中
+    if (row.promotion?.is_active) {
+      let tagName = promotionTypeMap[row.promotion.type] ?? "";
+      if (tagName) {
+        torrent.tags = torrent.tags || [];
+        torrent.tags.push({ name: tagName } as ITorrentTag);
+      }
+    }
+
+    return torrent;
   }
 
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
