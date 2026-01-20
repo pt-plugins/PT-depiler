@@ -1,5 +1,5 @@
 import Sizzle from "sizzle";
-import { ISiteMetadata, ITorrent, IUserInfo, ISearchInput, IParsedTorrentListPage } from "../types";
+import { ISiteMetadata, ITorrent, IUserInfo, IParsedTorrentListPage, ISearchInput } from "../types";
 import Gazelle, { SchemaMetadata } from "../schemas/Gazelle.ts";
 
 type boxName = "stats" | "community" | "personal";
@@ -105,11 +105,6 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       ...SchemaMetadata.search!.selectors!,
       // Apr 01 2025, 15:12
-      time: { selector: "> td:eq(5)", attr: "title", filters: [{ name: "parseTime", args: ["MMM dd yyyy, HH:mm"] }] },
-      size: { selector: "> td:eq(6)" },
-      completed: { selector: "> td:eq(7)" },
-      seeders: { selector: "> td:eq(8)" },
-      leechers: { selector: "> td:eq(9)" },
       comments: {
         text: 0,
         selector: 'a[href*="#comments"][title="View Comments"]',
@@ -209,65 +204,18 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class Jpopsuki extends Gazelle {
-  public override async transformSearchPage(doc: Document, searchConfig: ISearchInput): Promise<ITorrent[]> {
-    const torrents: ITorrent[] = [];
+  protected override guessSearchFieldIndexConfig(): Record<string, string[]> {
+    return {
+      time: ["a[href*='order_by=s3']"], // 发布时间
+      size: ["a[href*='order_by=s4']"], // 大小
+      seeders: ["a[href*='order_by=s6']"], // 种子数
+      leechers: ["a[href*='order_by=s7']"], // 下载数
+      completed: ["a[href*='order_by=s5']"], // 完成数
+    } as Record<keyof ITorrent, string[]>;
+  }
 
-    const rows = Sizzle("table.torrent_table:last > tbody > tr:gt(0)", doc) as HTMLElement[];
-
-    let albumAttr: Partial<ITorrent> = {};
-    for (let i = 0; i < rows.length; i++) {
-      const tr = rows[i] as HTMLTableRowElement;
-
-      const titleAnother = Sizzle("a[href*='torrents.php?id=']:first", tr);
-      if (titleAnother.length === 0) {
-        continue;
-      }
-
-      // 检查 tr 的类型
-      let torrent = {} as ITorrent;
-      if (tr.classList.contains("group_redline")) {
-        // 专辑行，获取title信息
-        albumAttr = this.getFieldsData(tr, this.metadata.search!.selectors!, ["comments", "category"]);
-
-        // 移除掉其他无关元素后的作为专辑标题
-        const albumRow = Sizzle("> td:eq(3)", tr)[0].cloneNode(true) as HTMLElement;
-        Sizzle(">span, div.tags, a[title='View Comments']", albumRow).forEach((e) => e.remove());
-        albumAttr.title = albumRow.innerText.trim();
-        continue;
-      } else if (tr.classList.contains("group_torrent_redline")) {
-        // 专辑对应的不同格式行
-        // 补全前面的单元格，使后续的 selector 能正常生效
-        tr.insertCell(0);
-        tr.insertCell(0);
-        tr.insertCell(0);
-
-        torrent = { ...albumAttr, ...torrent } as ITorrent; // 传入专辑信息，并将格式信息作为 subTitle
-        torrent.subTitle = this.getFieldData(tr, {
-          selector: '> td:eq(3) > a[href*="torrents.php?id="]',
-        });
-      } else if (tr.classList.contains("torrent_redline") || tr.classList.contains("torrent")) {
-        // 单种行
-        const cloneTitleAnother = titleAnother[0].parentElement!.cloneNode(true) as HTMLElement;
-        Sizzle(">span, div.tags, a[title='View Comments']", cloneTitleAnother).forEach((e) => e.remove());
-        torrent.title = cloneTitleAnother.innerText.trim();
-      } else {
-        continue;
-      }
-
-      if (torrent.title) {
-        torrent.title = torrent.title
-          .replace(/\t+/g, " ")
-          .replace(/\(\d*\)$/, "")
-          .trim();
-      }
-
-      try {
-        torrents.push((await this.parseWholeTorrentFromRow(torrent, tr, searchConfig!)) as ITorrent);
-      } catch (e) {
-        console.warn(`Failed to parse torrent from row:`, e, tr);
-      }
-    }
-    return torrents;
+  protected override getTorrentGroupInfo(group: HTMLTableRowElement, searchConfig: ISearchInput): Partial<ITorrent> {
+    return this.getFieldsData(group, searchConfig.searchEntry!.selectors!, ["title", "comments", "category"]);
   }
 
   public override async transformListPage(doc: Document): Promise<IParsedTorrentListPage> {

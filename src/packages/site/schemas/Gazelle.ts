@@ -2,19 +2,19 @@ import Sizzle from "sizzle";
 import { toMerged } from "es-toolkit";
 
 import PrivateSite from "./AbstractPrivateSite";
-import { parseValidTimeString, parseSizeString } from "../utils";
+import { parseValidTimeString, parseSizeString, parseTimeToLiveToDate } from "../utils";
 import { ETorrentStatus, type ISiteMetadata, type ITorrent, type ISearchInput, type IUserInfo } from "../types";
 
-const commonTagKeywords = ["Freeleech", "Neutral", "Seeding", "Snatched", "Reported"];
+const commonTagKeywords = ["Freeleech", "Neutral", "Seeding", "Snatched", "Reported", "Trumpable"];
 
-export function extractSubTitle(tags: string, tagKeywords?: string[]): string {
+export function extractTags(tags: string, tagKeywords?: string[]): string {
   const tagParts = tags.split(" / ");
   if (tagParts.length < 1) return "";
 
   const filteredParts: string[] = [];
   // 只保留种子自身属性
   tagParts.forEach((tag) => {
-    if (!(tagKeywords || commonTagKeywords).some((keyword) => tag.includes(keyword))) filteredParts.push(tag);
+    if (!(tagKeywords || commonTagKeywords).some((keyword) => tag.includes(keyword))) filteredParts.push(tag.trim());
   });
   return filteredParts.join(" / ");
 }
@@ -29,9 +29,13 @@ function genStatBoxSelector(section: string | string[], itemSel: string | string
   );
 }
 
-const statsBoxName = ["Stats", "Statistics"];
-const personalBoxName = ["Personal"];
-const communityBoxName = ["Community"];
+type boxName = "stats" | "community" | "personal";
+
+const BoxName: Record<boxName, string[]> = {
+  stats: ["Stats", "Statistics"],
+  personal: ["Personal"],
+  community: ["Community"],
+} as const;
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: 0,
@@ -43,13 +47,57 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       params: { searchsubmit: 1 },
     },
     selectors: {
+      // time, seeders, leechers 等无法直接根据固定选择器选中的元素由 schema 自动处理
       rows: { selector: "table.torrent_table:last tr:gt(0)" },
       id: {
         selector: "a[href*='torrents.php?id=']",
         attr: "href",
         filters: [{ name: "querystring", args: ["torrentid", "id"] }],
       },
-      title: { selector: "a[href*='torrents.php?id=']" },
+      title: {
+        selector: ":self",
+        elementProcess: (row: HTMLElement) => {
+          // 匹配信息格
+          const cell = row.querySelector("td:has(a[href*='torrents.php?id=']):has(div.tags)");
+          const clone = cell!.cloneNode(true) as HTMLElement;
+
+          // 对于 Gazelle，一般第一个种子页链接对应的 <a> 会包含标题
+          const torrentLink = clone.querySelector("a[href*='torrents.php?id=']");
+          if (!torrentLink) return "";
+          const title = torrentLink.textContent;
+
+          // 移除标题行及之前的元素，只保留后面的属性文本
+          let node = torrentLink.previousSibling;
+          while (node) {
+            const prev = node.previousSibling;
+            node.remove();
+            node = prev;
+          }
+          torrentLink.remove();
+
+          let prop = "";
+          // [WEB] [2026] [2026.01.01] [WEB / FLAC / Freeleech!]
+          const matches = [...clone.textContent.trim().matchAll(/\[([^\]]+)\]/g)];
+          if (matches.length > 0) {
+            prop = matches.map((m) => `[${extractTags(m[1])}]`).join(" ");
+          }
+
+          // 获取艺术家信息
+          const artistEls = Sizzle("a[href*='artist.php']", row);
+          const artists = artistEls
+            .map((el) => el.textContent)
+            .filter(Boolean)
+            .join(" & ");
+
+          return [artists && `${artists} -`, title, prop].filter(Boolean).join(" ");
+        },
+      },
+      subTitle: {
+        selector: ["div.tags", "a[href*='torrents.php?id=']"],
+        switchFilters: {
+          "a[href*='torrents.php?id=']": [(query: string) => extractTags(query)],
+        },
+      },
       url: { selector: "a[href*='torrents.php?id=']", attr: "href" },
       link: { selector: "a[href*='torrents.php?action=download']:first", attr: "href" },
       // TODO category: {}
@@ -60,19 +108,24 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           try {
             const AccurateTimeAnother = element.querySelector("span[title], time[title]");
             if (AccurateTimeAnother) {
-              time = AccurateTimeAnother.getAttribute("title")!;
+              time = parseValidTimeString(AccurateTimeAnother.getAttribute("title")!);
             } else if (element.getAttribute("title")) {
-              time = element.getAttribute("title")!;
+              time = parseValidTimeString(element.getAttribute("title")!);
             } else {
+              // 2 mins ago or Just now
               time = element.innerText.trim();
+              if (time.toLowerCase().includes("just now")) {
+                time = "0 seconds";
+              }
+              time = parseTimeToLiveToDate(time);
             }
-            time = parseValidTimeString(time);
           } catch (e) {}
           return time;
         },
       },
       progress: { text: 0 },
       status: { text: ETorrentStatus.unknown },
+      tags: [{ selector: "strong:contains('Freeleech!')", name: "Free", color: "blue" }],
     },
   },
   userInfo: {
@@ -100,6 +153,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           "levelName",
           "bonus",
           "joinTime", // Gazelle 基础项
+          "lastAccessAt",
           "seeding",
           "seedingSize",
           "uploads",
@@ -147,37 +201,37 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       },
       // "page": "/user.php?id=$user.id$",
       uploaded: {
-        selector: genStatBoxSelector(statsBoxName, "Uploaded"),
+        selector: genStatBoxSelector(BoxName.stats, "Uploaded"),
         filters: [{ name: "parseSize" }],
       },
       downloaded: {
-        selector: genStatBoxSelector(statsBoxName, "Downloaded"),
+        selector: genStatBoxSelector(BoxName.stats, "Downloaded"),
         filters: [{ name: "parseSize" }],
       },
       ratio: {
-        selector: genStatBoxSelector(statsBoxName, "Ratio:"),
+        selector: genStatBoxSelector(BoxName.stats, "Ratio:"),
         filters: [{ name: "parseNumber" }],
       },
       levelName: {
-        selector: genStatBoxSelector(personalBoxName, "Class:"),
+        selector: genStatBoxSelector(BoxName.personal, "Class:"),
         filters: [{ name: "split", args: [":", 1] }],
       },
       bonus: {
-        selector: genStatBoxSelector(statsBoxName, "Bonus Points:"),
+        selector: genStatBoxSelector(BoxName.stats, "Bonus Points:"),
         filters: [{ name: "parseNumber" }],
       },
       joinTime: {
-        selector: genStatBoxSelector(statsBoxName, "Joined:", "> span"),
+        selector: genStatBoxSelector(BoxName.stats, "Joined:", "> span"),
         attr: "title",
         filters: [{ name: "parseTime" }],
       },
       lastAccessAt: {
-        selector: genStatBoxSelector(statsBoxName, ["Last seen", "Last Seen"], "> span"),
+        selector: genStatBoxSelector(BoxName.stats, ["Last seen", "Last Seen"], "> span"),
         attr: "title",
         filters: [{ name: "parseTime" }],
       },
       uploads: {
-        selector: genStatBoxSelector(communityBoxName, "Uploaded"),
+        selector: genStatBoxSelector(BoxName.community, "Uploaded"),
         filters: [{ name: "parseNumber" }],
       },
     },
@@ -247,6 +301,14 @@ export class GazelleBase extends PrivateSite {
 }
 
 export default class Gazelle extends GazelleBase {
+  protected get torrentClasses() {
+    return {
+      group: ["group", "group_redline"], // 种子组行
+      unGroupTorrent: ["torrent", "torrent_redline"], // 单种行
+      groupTorrent: ["groupid_"], // 组内种子行（使用种子组 ID 选择）
+    };
+  }
+
   protected guessSearchFieldIndexConfig(): Record<string, string[]> {
     return {
       time: ["a[href*='order_by=time']"], // 发布时间
@@ -291,7 +353,7 @@ export default class Gazelle extends GazelleBase {
             selector: [`> td:eq(${elementIndex})`],
           },
           // @ts-ignore
-          searchEntry.selectors[updateSelectorField] || {},
+          searchEntry.selectors[updateSelectorField] ?? {},
         );
       }
     });
@@ -300,27 +362,149 @@ export default class Gazelle extends GazelleBase {
     const torrents: ITorrent[] = [];
 
     const rowsSelector = searchEntry!.selectors!.rows;
-    const trs = this.findElementsBySelectors(rowsSelector.selector, doc);
+    const trs = this.findElementsBySelectors(rowsSelector.selector, doc) as HTMLTableRowElement[];
 
-    for (const tr of trs) {
-      // 对 url 和 link 结果做个检查，检查通过的再进入 parseRowToTorrent
-      const url = this.getFieldData(tr, searchEntry!.selectors!.url!);
-      const link = this.getFieldData(tr, searchEntry!.selectors!.link!);
-      if (url && link) {
-        try {
-          const torrent = (await this.parseWholeTorrentFromRow({ url, link }, tr, {
-            keywords,
-            searchEntry,
-            requestConfig,
-          })) as ITorrent;
-          torrents.push(torrent);
-        } catch (e) {
-          console.warn(`Failed to parse torrent from row:`, e, tr);
-        }
+    const trSeq = trs.values();
+    for (const tr of trSeq) {
+      /**
+       * 种子组信息行 + 组内种子行，按顺序排列
+       * <tr class="group">...</tr>
+       * <tr class="group_torrent groupid_${id}">...</tr>
+       */
+      if (this.torrentClasses.group.some((className) => tr.classList.contains(className))) {
+        // 先尝试获取种子组 ID
+        const id = this.getFieldData(tr, {
+          selector: "a[href*='torrents.php?id=']",
+          attr: "href",
+          filters: [{ name: "querystring", args: ["id"] }],
+        });
+        if (!id) continue;
+
+        const groupRows = this.findElementsBySelectors(
+          this.torrentClasses.groupTorrent.map((className) => `tr.${className}${id}`),
+          doc,
+        );
+
+        // 取出此组内的所有种子
+        const groupTorrents = await this.transformGroupTorrents(tr, take(trSeq, groupRows.length), {
+          keywords,
+          searchEntry,
+          requestConfig,
+        });
+        torrents.push(...groupTorrents);
+        continue;
+      }
+
+      /**
+       * 单种行
+       * <tr class="torrent">...</tr>
+       */
+      if (this.torrentClasses.unGroupTorrent.some((className) => tr.classList.contains(className))) {
+        // 对 link 结果做个检查，检查通过的再进入 parseRowToTorrent
+        const link = this.getFieldData(tr, searchEntry!.selectors!.link!);
+        if (!link) continue;
+
+        const torrent = await this.transformUnGroupTorrent(tr, { keywords, searchEntry, requestConfig });
+        if (torrent) torrents.push(torrent);
+      }
+
+      // 其它没匹配到的 tr 可能包括站点自定义的非种子行，或者使用了别的自定义 class
+      // 对于第二种情况，需要适配者将对应 class 添加到 torrentClasses 中，或者在站点定义中覆盖相关方法
+    }
+
+    return torrents;
+  }
+
+  /**
+   * 从种子组行获取种子组信息（标题等）
+   * @param group
+   * @param searchConfig
+   * @returns 获取到的种子组信息
+   */
+  protected getTorrentGroupInfo(group: HTMLTableRowElement, searchConfig: ISearchInput): Partial<ITorrent> {
+    // WhatCD/Gazelle 中可以从种子组行中获取到 title 和 category 信息 (.cats_col > .cats_music)
+    // 对于 Gazelle-fork 站点，如有其它信息需要获取可以自行覆盖方法
+    return this.getFieldsData(group, searchConfig.searchEntry!.selectors!, ["title", "category"]);
+  }
+
+  protected async transformGroupTorrents(
+    group: HTMLTableRowElement,
+    torrentEls: HTMLTableRowElement[],
+    searchConfig: ISearchInput,
+  ): Promise<ITorrent[]> {
+    // 获取组信息
+    const partTorrent = this.getTorrentGroupInfo(group, searchConfig);
+
+    // 种子组的种子只保证与组信息列对齐，而有些 Gazelle 会在组内添加 td[rowspan] 影响对齐行为，因此需要考虑有 rowspan 的情况
+    const rowSpan = Array.from(group.querySelectorAll("td[rowspan]")).reduce((acc, td) => {
+      const span = parseInt(td.getAttribute("rowspan") || "1", 10);
+      return acc + (span > 1 ? 1 : 0);
+    }, 0);
+
+    const torrents: ITorrent[] = [];
+    for (const groupTorrentEl of torrentEls) {
+      // 对 link 结果做个检查，检查通过的再进入 parseRowToTorrent
+      const link = this.getFieldData(groupTorrentEl, searchConfig.searchEntry!.selectors!.link!);
+      if (!link) continue;
+
+      // 处理 colspan 的情况
+      let padding = rowSpan;
+      const colSpanTd = groupTorrentEl.querySelector("td[colspan]");
+      if (colSpanTd) {
+        const colSpan = colSpanTd.getAttribute("colspan");
+        padding += colSpan ? Math.max(0, parseInt(colSpan, 10) - 1) : 0;
+      }
+
+      for (let i = 0; i < padding; i++) {
+        // 补全前面的单元格，使后续的 selector 能正常生效
+        groupTorrentEl.insertCell(0);
+      }
+
+      try {
+        const torrent = (await this.parseWholeTorrentFromRow(
+          { ...partTorrent, link },
+          groupTorrentEl,
+          searchConfig,
+        )) as ITorrent;
+        torrents.push(torrent);
+      } catch (e) {
+        console.warn(`Failed to parse torrent from row:`, e, groupTorrentEl);
       }
     }
 
     return torrents;
+  }
+
+  protected async transformUnGroupTorrent(
+    torrentEl: HTMLTableRowElement,
+    searchConfig: ISearchInput,
+  ): Promise<ITorrent | null> {
+    // 获取组信息
+    const partTorrent = this.getTorrentGroupInfo(torrentEl, searchConfig);
+
+    // 处理 colspan 的情况
+    const tdColSpan = parseInt(
+      this.getFieldData(torrentEl, {
+        selector: "td[colspan]:first",
+        attr: "colspan",
+      }),
+      10,
+    );
+    if (tdColSpan) {
+      for (let i = 1; i < tdColSpan; i++) {
+        // 补全前面的单元格，使后续的 selector 能正常生效
+        torrentEl.insertCell(0);
+      }
+    }
+
+    console.log(searchConfig.searchEntry!.selectors!.time!);
+    try {
+      const torrent = (await this.parseWholeTorrentFromRow({ ...partTorrent }, torrentEl, searchConfig)) as ITorrent;
+      return torrent;
+    } catch (e) {
+      console.warn(`Failed to parse torrent from row:`, e, torrentEl);
+    }
+    return null;
   }
 
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
@@ -330,4 +514,15 @@ export default class Gazelle extends GazelleBase {
     }
     return flushUserInfo;
   }
+}
+
+// Iterator.prototype.take() 的兼容方法
+function take<T>(it: IteratorObject<T>, n: number): T[] {
+  const result = [];
+  while (n-- > 0) {
+    const { value, done } = it.next();
+    if (done) break;
+    result.push(value);
+  }
+  return result;
 }
