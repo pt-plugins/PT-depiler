@@ -148,15 +148,36 @@ export const siteMetadata: ISiteMetadata = {
         selectors: {
           uploaded: {
             selector: "#psts li:contains('上传量')",
-            filters: [{ name: "parseSize" }],
+            filters: [
+              (query: string) => {
+                const queryMatch = query.replace(/[\s,]/g, "").match(/上传量.+\/\s*([\d.]+[ZEPTGMK]?i?B)/i);
+                return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : query;
+              },
+              { name: "parseSize" },
+            ],
           },
           downloaded: {
             selector: "#psts li:contains('下载量')",
-            filters: [{ name: "parseSize" }],
+            filters: [
+              (query: string) => {
+                const queryMatch = query.replace(/[\s,]/g, "").match(/下载量.+\/\s*([\d.]+[ZEPTGMK]?i?B)/i);
+                return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : query;
+              },
+              { name: "parseSize" },
+            ],
           },
           levelName: {
             selector: "a[href='home.php?mod=spacecp&ac=usergroup']",
             filters: [(query: string) => query.replace("用户组: ", "").trim()],
+          },
+          ratio: {
+            selector: "ul.bbda",
+            filters: [
+              (query: string) => {
+                const queryMatch = query.match(/分享率\s*([\d.]+)/);
+                return queryMatch && queryMatch.length >= 2 ? parseFloat(queryMatch[1]) : 0;
+              },
+            ],
           },
           bonus: {
             selector: "#ratio",
