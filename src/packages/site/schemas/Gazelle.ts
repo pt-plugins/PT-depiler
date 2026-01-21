@@ -29,6 +29,50 @@ function genStatBoxSelector(section: string | string[], itemSel: string | string
   );
 }
 
+export function genTitleElementProcess(tdSelector: string, extractTagsFunc: (tags: string) => string) {
+  return (row: HTMLElement): string => {
+    // 匹配信息格
+    const cell = row.querySelector(tdSelector);
+    const clone = cell!.cloneNode(true) as HTMLElement;
+
+    // 对于 Gazelle，一般第一个种子页链接对应的 <a> 会包含标题
+    const torrentLink = clone.querySelector("a[href*='torrents.php?id=']");
+    if (!torrentLink) return "";
+    const title = torrentLink.textContent;
+
+    // 移除标题行及之前的元素，只保留后面的属性文本
+    let node = torrentLink.previousSibling;
+    while (node) {
+      const prev = node.previousSibling;
+      node.remove();
+      node = prev;
+    }
+    torrentLink.remove();
+
+    let prop = "";
+    // [WEB] [2026] [2026.01.01] [WEB / FLAC / Freeleech!]
+    const matches = [...clone.textContent.trim().matchAll(/\[([^\]]+)\]/g)];
+    if (matches.length > 0) {
+      prop = matches
+        .map((m) => {
+          const tags = extractTagsFunc(m[1]);
+          return tags ? `[${tags}]` : "";
+        })
+        .filter(Boolean)
+        .join(" ");
+    }
+
+    // 获取艺术家信息
+    const artistEls = Sizzle("a[href*='artist.php']", row);
+    const artists = artistEls
+      .map((el) => el.textContent)
+      .filter(Boolean)
+      .join(" & ");
+
+    return [artists && `${artists} -`, title, prop].filter(Boolean).join(" ");
+  };
+}
+
 type boxName = "stats" | "community" | "personal";
 
 const BoxName: Record<boxName, string[]> = {
@@ -47,7 +91,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       params: { searchsubmit: 1 },
     },
     selectors: {
-      // time, seeders, leechers 等无法直接根据固定选择器选中的元素由 schema 自动处理
+      // seeders, leechers 等信息由 transformSearchPage 根据搜索结果自动生成
       rows: { selector: "table.torrent_table:last tr:gt(0)" },
       id: {
         selector: "a[href*='torrents.php?id=']",
@@ -56,46 +100,15 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       },
       title: {
         selector: ":self",
-        elementProcess: (row: HTMLElement) => {
-          // 匹配信息格
-          const cell = row.querySelector("td:has(a[href*='torrents.php?id=']):has(div.tags)");
-          const clone = cell!.cloneNode(true) as HTMLElement;
-
-          // 对于 Gazelle，一般第一个种子页链接对应的 <a> 会包含标题
-          const torrentLink = clone.querySelector("a[href*='torrents.php?id=']");
-          if (!torrentLink) return "";
-          const title = torrentLink.textContent;
-
-          // 移除标题行及之前的元素，只保留后面的属性文本
-          let node = torrentLink.previousSibling;
-          while (node) {
-            const prev = node.previousSibling;
-            node.remove();
-            node = prev;
-          }
-          torrentLink.remove();
-
-          let prop = "";
-          // [WEB] [2026] [2026.01.01] [WEB / FLAC / Freeleech!]
-          const matches = [...clone.textContent.trim().matchAll(/\[([^\]]+)\]/g)];
-          if (matches.length > 0) {
-            prop = matches.map((m) => `[${extractTags(m[1])}]`).join(" ");
-          }
-
-          // 获取艺术家信息
-          const artistEls = Sizzle("a[href*='artist.php']", row);
-          const artists = artistEls
-            .map((el) => el.textContent)
-            .filter(Boolean)
-            .join(" & ");
-
-          return [artists && `${artists} -`, title, prop].filter(Boolean).join(" ");
-        },
+        elementProcess: genTitleElementProcess("td:has(a[href*='torrents.php?id=']):has(.tags)", extractTags),
       },
       subTitle: {
-        selector: ["div.tags", "a[href*='torrents.php?id=']"],
+        selector: [".tags", "> td:has(a[href*='torrents.php']) a[href]:not(span a):last"],
         switchFilters: {
-          "a[href*='torrents.php?id=']": [(query: string) => extractTags(query)],
+          // 对应单种行，直接返回 tags
+          ".tags": [],
+          // 对应组内种子，提取并返回种子属性
+          "> td:has(a[href*='torrents.php']) a[href]:not(span a):last": [extractTags],
         },
       },
       url: { selector: "a[href*='torrents.php?id=']", attr: "href" },
@@ -128,6 +141,15 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       tags: [{ selector: "strong:contains('Freeleech!')", name: "Free", color: "blue" }],
     },
   },
+
+  list: [
+    {
+      urlPattern: ["/torrents.php"],
+      excludeUrlPattern: [/\/torrents\.php\?(?:.*&)?(id|torrentid)=\d+/],
+    },
+    // TODO /torrents.php?id=
+  ],
+
   userInfo: {
     pickLast: ["id"],
     process: [
@@ -367,7 +389,7 @@ export default class Gazelle extends GazelleBase {
     const trSeq = trs.values();
     for (const tr of trSeq) {
       /**
-       * 种子组信息行 + 组内种子行，按顺序排列
+       * 种子组信息行 + 组内种子行，顺序排列
        * <tr class="group">...</tr>
        * <tr class="group_torrent groupid_${id}">...</tr>
        */
@@ -409,7 +431,7 @@ export default class Gazelle extends GazelleBase {
       }
 
       // 其它没匹配到的 tr 可能包括站点自定义的非种子行，或者使用了别的自定义 class
-      // 对于第二种情况，需要适配者将对应 class 添加到 torrentClasses 中，或者在站点定义中覆盖相关方法
+      // 对于第二种情况，需要将对应 class 添加到 torrentClasses 中，或者在站点定义中覆盖相关方法
     }
 
     return torrents;
@@ -423,7 +445,7 @@ export default class Gazelle extends GazelleBase {
    */
   protected getTorrentGroupInfo(group: HTMLTableRowElement, searchConfig: ISearchInput): Partial<ITorrent> {
     // WhatCD/Gazelle 中可以从种子组行中获取到 title 和 category 信息 (.cats_col > .cats_music)
-    // 对于 Gazelle-fork 站点，如有其它信息需要获取可以自行覆盖方法
+    // 对于 Gazelle-fork，如有其它信息需要获取可以自行覆盖方法
     return this.getFieldsData(group, searchConfig.searchEntry!.selectors!, ["title", "category"]);
   }
 
@@ -497,7 +519,6 @@ export default class Gazelle extends GazelleBase {
       }
     }
 
-    console.log(searchConfig.searchEntry!.selectors!.time!);
     try {
       const torrent = (await this.parseWholeTorrentFromRow({ ...partTorrent }, torrentEl, searchConfig)) as ITorrent;
       return torrent;

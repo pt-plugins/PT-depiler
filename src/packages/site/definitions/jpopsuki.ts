@@ -109,7 +109,7 @@ export const siteMetadata: ISiteMetadata = {
         text: 0,
         selector: 'a[href*="#comments"][title="View Comments"]',
       },
-      category: { selector: "> td:eq(1) > a" },
+      category: { selector: "a[href*='filter_cat']" },
 
       link: {
         selector: "a[href*='torrents.php?action=download'][title='Download']",
