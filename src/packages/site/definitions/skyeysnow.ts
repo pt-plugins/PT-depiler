@@ -166,6 +166,26 @@ export const siteMetadata: ISiteMetadata = {
               { name: "parseSize" },
             ],
           },
+          trueUploaded: {
+            selector: '#psts li:contains("实际上传")',
+            filters: [
+              (query: string) => {
+                const queryMatch = query.replace(/[\s,]/g, "").match(/实际上传.+?([\d.]+[ZEPTGMK]?i?B)/i);
+                return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : query;
+              },
+              { name: "parseSize" },
+            ],
+          },
+          trueDownloaded: {
+            selector: '#psts li:contains("实际下载")',
+            filters: [
+              (query: string) => {
+                const queryMatch = query.replace(/[\s,]/g, "").match(/实际下载.+\/\s*([\d.]+[ZEPTGMK]?i?B)/i);
+                return queryMatch && queryMatch.length >= 2 ? queryMatch[1] : query;
+              },
+              { name: "parseSize" },
+            ],
+          },
           levelName: {
             selector: "a[href='home.php?mod=spacecp&ac=usergroup']",
             filters: [(query: string) => query.replace("用户组: ", "").trim()],
