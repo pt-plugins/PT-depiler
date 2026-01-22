@@ -158,12 +158,16 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.userInfo!,
     selectors: {
       ...SchemaMetadata.userInfo!.selectors!,
+      joinTime: {
+        ...SchemaMetadata.userInfo!.selectors!.joinTime!,
+        selector: "span.profile-hero__meta-item:contains('Registration date')",
+      },
       seedingSize: {
-        selector: "span.sidebar-stat__label:contains('Seeding size') ~ span",
+        selector: "div.profile-mini-stat__label:contains('Seeding size') + div",
         filters: [{ name: "parseSize" }],
       },
       averageSeedingTime: {
-        selector: "span.sidebar-stat__label:contains('Average seedtime') ~ span",
+        selector: "div.profile-mini-stat__label:contains('Average seedtime') + div",
         filters: [{ name: "parseDuration" }],
       },
     },

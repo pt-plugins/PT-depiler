@@ -8,6 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   name: "FearNoPeer",
   aka: ["FNP"],
+  description: "FearNoPear is a Private Torrent Tracker for MOVIES / TV / GENERAL",
   tags: ["综合"],
   timezoneOffset: "-0500",
   collaborator: ["hyuan280"],
@@ -183,6 +184,17 @@ export const siteMetadata: ISiteMetadata = {
       cross: { mode: "brackets" },
     },
   ],
+
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      joinTime: {
+        ...SchemaMetadata.userInfo!.selectors!.joinTime!,
+        selector: "span.profile-hero__meta-item:contains('Registration date')",
+      },
+    },
+  },
 
   levelRequirements: [
     {
