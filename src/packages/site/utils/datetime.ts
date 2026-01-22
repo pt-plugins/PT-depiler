@@ -56,7 +56,9 @@ function _parseTimeToLiveToSeconds(ttl: string): number | string {
 
   // 处理原始字符串中的非标准Unit
   for (const [k, v] of Object.entries(nonStandDateUnitMap)) {
-    const regex = new RegExp(`(\\d+)\\s*(${v.join("|")})(?=\\s|$)`, "g");
+    // 若单位为单字符，为避免误匹配，追加一个先行断言
+    const unitConvArr = v.map((str) => (/^[A-Za-z]$/.test(str) ? `${str}(?=\\s|$)` : str));
+    const regex = new RegExp(`(\\d+)\\s*(${unitConvArr.join("|")})`, "g");
     ttlTemp = ttlTemp.replace(regex, `$1 ${k}`);
   }
 

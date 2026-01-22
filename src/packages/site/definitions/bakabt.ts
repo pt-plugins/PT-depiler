@@ -72,11 +72,10 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       rows: {
         selector: ".torrents tr.torrent, .torrents tr.torrent_alt",
-        filter: (rows: any): any => {
+        filter: (rows: HTMLElement[] | null): HTMLElement[] | null => {
           if (!Array.isArray(rows)) return rows;
           return rows.filter((row) => {
-            const rowEl = row as HTMLElement;
-            if (rowEl.classList.contains("torrent_alt") && rowEl.textContent === "Alternative versions: ") {
+            if (row.classList.contains("torrent_alt") && row.textContent === "Alternative versions: ") {
               return false;
             }
             return true;

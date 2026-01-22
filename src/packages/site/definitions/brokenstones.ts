@@ -1,6 +1,6 @@
 import { ISearchInput, ISiteMetadata, ITorrent } from "../types.ts";
 import GazelleJSONAPI, { SchemaMetadata } from "../schemas/GazelleJSONAPI.ts";
-import { SchemaMetadata as GazelleSchemaMetadata, extractSubTitle } from "../schemas/Gazelle.ts";
+import { SchemaMetadata as GazelleSchemaMetadata, extractTags } from "../schemas/Gazelle.ts";
 import BittorrentSite from "../schemas/AbstractBittorrentSite.ts";
 
 const brksCategories = [
@@ -74,7 +74,7 @@ export const siteMetadata: ISiteMetadata = {
       ...GazelleSchemaMetadata.search!.selectors!,
       subTitle: {
         selector: "div.torrent_info:first",
-        filters: [extractSubTitle],
+        filters: [extractTags],
       },
       category: {
         text: "Other",

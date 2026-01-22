@@ -121,7 +121,7 @@ export interface ISearchConfig extends IBaseSearchConfig {
      */
     rows?: {
       selector: string | ":self" | string[];
-      filter?: <T>(rows: T) => T;
+      filter?: (rows: any) => any;
       merge?: number;
     };
   } & {

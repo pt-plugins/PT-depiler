@@ -1,9 +1,9 @@
 import Sizzle from "sizzle";
-import Gazelle, { SchemaMetadata, extractSubTitle } from "../schemas/Gazelle.ts";
+import Gazelle, { SchemaMetadata, extractTags } from "../schemas/Gazelle.ts";
 import { ISiteMetadata, ITorrent, ISearchInput, ETorrentStatus } from "../types";
 import { definedFilters, buildCategoryOptionsFromList } from "../utils.ts";
 
-const tagKeywords = ["Freeleech", "Neutral", "Seeding", "Snatched", "Internal", "Pollen", "Reported"];
+const tagKeywords = ["Freeleech", "Neutral", "Seeding", "Snatched", "Internal", "Pollen", "Reported", "Trumpable"];
 
 const antCategories = [
   { name: "Feature Film", class: "featurefilm", value: 1 },
@@ -39,14 +39,16 @@ const commonDocumentSelectors = {
       },
     ],
   },
-  size: { selector: "> td.number_column.nobr" },
 };
 
 const detailPageSelectors = {
   ...commonDocumentSelectors,
   rows: { selector: "table.torrent_table > tbody > tr.torrent_row" },
   title: { selector: "div.header > h2", filters: [{ name: "split", args: ["by", 0] }] },
-  subTitle: { selector: "a[data-toggle-target*='torrent']", filters: [extractSubTitle] },
+  subTitle: {
+    selector: "a[data-toggle-target*='torrent']",
+    filters: [(query: string) => extractTags(query, tagKeywords)],
+  },
   completed: { selector: "td.number_column:nth-child(3)" },
   seeders: { selector: "td.number_column:nth-child(4)" },
   leechers: { selector: "td.number_column:nth-child(5)" },
@@ -55,6 +57,7 @@ const detailPageSelectors = {
     attr: "title",
     filters: [{ name: "parseTime", args: ["MMM d yyyy, HH:mm 'UTC'"] }],
   },
+  size: { selector: "> td.number_column.nobr" },
   progress: {
     selector: "a[data-toggle-target*='torrent']",
     filters: [(query: string) => (query.includes("Seeding") ? 100 : null)],
@@ -154,18 +157,6 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       ...SchemaMetadata.search!.selectors!,
       ...commonDocumentSelectors,
-      title: {
-        selector: "div.group_info:has(> a[href*='torrents.php?id='])",
-        elementProcess: (element: HTMLElement) => {
-          const cloneElement = element.cloneNode(true) as HTMLElement;
-          Sizzle("> :not(a[href*='torrents.php?id='])", cloneElement).forEach((e) => e.remove());
-          return cloneElement.innerText.trim();
-        },
-      },
-      subTitle: {
-        selector: "div.torrent_info:first",
-        filters: [(tags: string) => extractSubTitle(tags, tagKeywords)],
-      },
       category: {
         text: "Other",
         selector: "div[class^='tooltip cats_']",
@@ -183,9 +174,6 @@ export const siteMetadata: ISiteMetadata = {
         attr: "title",
         filters: [{ name: "parseTime", args: ["MMM d yyyy, HH:mm 'UTC'"] }],
       },
-      seeders: { selector: "> td:nth-child(6)" },
-      leechers: { selector: "> td:nth-child(8)" },
-      completed: { selector: "> td:nth-child(7)" },
       tags: [
         {
           name: "Free",
