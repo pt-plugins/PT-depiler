@@ -444,8 +444,11 @@ export default class Gazelle extends GazelleBase {
    * @returns 获取到的种子组信息
    */
   protected getTorrentGroupInfo(group: HTMLTableRowElement, searchConfig: ISearchInput): Partial<ITorrent> {
-    // WhatCD/Gazelle 中可以从种子组行中获取到 title 和 category 信息 (.cats_col > .cats_music)
-    // 对于 Gazelle-fork，如有其它信息需要获取可以自行覆盖方法
+    /**
+     * WhatCD/Gazelle 中可以从种子组行中获取到 title 和 category 信息 (.cats_col > .cats_music)
+     * https://github.com/WhatCD/Gazelle/blob/63b337026d49b5cf63ce4be20fdabdc880112fa3/sections/torrents/browse.php#L565
+     * 对于 Gazelle-fork，如有其它信息需要获取可以自行覆盖方法
+     */
     return this.getFieldsData(group, searchConfig.searchEntry!.selectors!, ["title", "category"]);
   }
 
@@ -457,7 +460,14 @@ export default class Gazelle extends GazelleBase {
     // 获取组信息
     const partTorrent = this.getTorrentGroupInfo(group, searchConfig);
 
-    // 种子组的种子只保证与组信息列对齐，而有些 Gazelle 会在组内添加 td[rowspan] 影响对齐行为，因此需要考虑有 rowspan 的情况
+    /**
+     * 适配添加了 rowspan 的情况 (Gazelle-fork)
+     * <tr class="group">
+     *   <td class="poster_wraper" rowspan="2">
+     *   ...
+     * </tr>
+     * <tr class="group_torrent groupid_${id}">...</tr>
+     */
     const rowSpan = Array.from(group.querySelectorAll("td[rowspan]")).reduce((acc, td) => {
       const span = parseInt(td.getAttribute("rowspan") || "1", 10);
       return acc + (span > 1 ? 1 : 0);
@@ -470,6 +480,7 @@ export default class Gazelle extends GazelleBase {
       if (!link) continue;
 
       // 处理 colspan 的情况
+      // https://github.com/WhatCD/Gazelle/blob/63b337026d49b5cf63ce4be20fdabdc880112fa3/sections/torrents/browse.php#L644
       let padding = rowSpan;
       const colSpanTd = groupTorrentEl.querySelector("td[colspan]");
       if (colSpanTd) {
@@ -501,10 +512,7 @@ export default class Gazelle extends GazelleBase {
     torrentEl: HTMLTableRowElement,
     searchConfig: ISearchInput,
   ): Promise<ITorrent | null> {
-    // 获取组信息
-    const partTorrent = this.getTorrentGroupInfo(torrentEl, searchConfig);
-
-    // 处理 colspan 的情况
+    // 处理 colspan 的情况 (Gazelle-fork)
     const tdColSpan = parseInt(
       this.getFieldData(torrentEl, {
         selector: "td[colspan]:first",
@@ -520,7 +528,7 @@ export default class Gazelle extends GazelleBase {
     }
 
     try {
-      const torrent = (await this.parseWholeTorrentFromRow({ ...partTorrent }, torrentEl, searchConfig)) as ITorrent;
+      const torrent = (await this.parseWholeTorrentFromRow({}, torrentEl, searchConfig)) as ITorrent;
       return torrent;
     } catch (e) {
       console.warn(`Failed to parse torrent from row:`, e, torrentEl);
@@ -537,7 +545,6 @@ export default class Gazelle extends GazelleBase {
   }
 }
 
-// Iterator.prototype.take() 的兼容方法
 function take<T>(it: IteratorObject<T>, n: number): T[] {
   const result = [];
   while (n-- > 0) {
