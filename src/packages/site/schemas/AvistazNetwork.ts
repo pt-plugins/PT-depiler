@@ -203,7 +203,7 @@ export const SchemaMetadata: Pick<
   },
 
   list: [listTorrentPageMetadata, listHistoryPageMetadata],
-  
+
   detail: {
     urlPattern: ["/torrent/"],
     selectors: {

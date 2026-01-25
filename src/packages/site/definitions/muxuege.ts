@@ -148,8 +148,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P15W",
       downloaded: "300GB",
       ratio: 2.05,
-      privilege:
-        '得到两个邀请名额；可以在做种/下载/发布的时候选择匿名模式。',
+      privilege: "得到两个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
     },
     {
       id: 6,

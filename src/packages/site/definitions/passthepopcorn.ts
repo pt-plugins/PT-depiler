@@ -18,6 +18,63 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Gazelle",
   urls: ["https://passthepopcorn.me/"],
 
+  levelRequirements: [
+    {
+      id: 1,
+      name: "Member",
+      interval: "P1W",
+      ratio: 0.8,
+      uploaded: "40GB",
+      privilege: "create requests",
+    },
+    {
+      id: 2,
+      name: "Power User",
+      interval: "P4W",
+      ratio: 1.05,
+      uploaded: "80GB",
+      uploads: 1,
+      privilege: "Power Users have access to the Power User and Invite forums. They are immune to inactivity pruning.",
+    },
+    {
+      id: 3,
+      name: "Elite",
+      interval: "P10W",
+      ratio: 1.05,
+      uploaded: "500GB",
+      uploads: 50,
+      privilege: "Can access the Elite forums. They may purchase invites from the bonus store.",
+    },
+    {
+      id: 4,
+      name: "Torrent Master",
+      interval: "P16W",
+      ratio: 1.05,
+      uploaded: "1TB",
+      uploads: 200,
+      privilege: "Can access the Torrent Master forums. They also receive 2 invites a month. (Limited at 4 invites)",
+    },
+    {
+      id: 5,
+      name: "Torrent King",
+      interval: "P24W",
+      ratio: 1.05,
+      uploaded: "5TB",
+      uploads: 500,
+      privilege:
+        "create personal collections to feature on their profiles. double posting in the forum. unlimited search and log results.",
+    },
+    {
+      id: 6,
+      name: "Custom Class",
+      interval: "P36W",
+      ratio: 1.05,
+      uploaded: "10TB",
+      uploads: 1000,
+      privilege: "Choosing their own class title (subject to staff approval).",
+    },
+  ],
+
   // 搜索分类
   category: [
     {

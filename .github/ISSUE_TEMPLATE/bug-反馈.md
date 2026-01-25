@@ -1,10 +1,9 @@
 ---
 name: Bug 反馈
 about: 发起一个Bug反馈
-title: ''
+title: ""
 labels: bug
-assignees: ''
-
+assignees: ""
 ---
 
 <!--
@@ -15,8 +14,6 @@ assignees: ''
 - PT 助手版本：
 - 问题描述：
 
-
 - 相关截图：
-
 
 - 重现步骤：

@@ -90,23 +90,24 @@ export const siteMetadata: ISiteMetadata = {
     },
     CategoryIncldead,
     CategorySpstate,
-    CategoryInclbookmarked
+    CategoryInclbookmarked,
   ],
 
   levelRequirements: [
     {
       id: 0,
       name: "User",
-      privilege: "新用户的默认级别。"
+      privilege: "新用户的默认级别。",
     },
     {
       id: 1,
       name: "Power User",
-      privilege: '得到一个邀请名额；可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种； 可以发送邀请； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
+      privilege:
+        '得到一个邀请名额；可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种； 可以发送邀请； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
       interval: "P2W",
       downloaded: "50GB",
       ratio: 1.05,
-      seedingBonus: 80000
+      seedingBonus: 80000,
     },
     {
       id: 2,
@@ -115,7 +116,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P3W",
       downloaded: "120GB",
       ratio: 1.55,
-      seedingBonus: 150000
+      seedingBonus: 150000,
     },
     {
       id: 3,
@@ -124,7 +125,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P4W",
       downloaded: "300GB",
       ratio: 2.05,
-      seedingBonus: 300000
+      seedingBonus: 300000,
     },
     {
       id: 4,
@@ -133,7 +134,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P5W",
       downloaded: "500GB",
       ratio: 2.55,
-      seedingBonus: 500000
+      seedingBonus: 500000,
     },
     {
       id: 5,
@@ -142,7 +143,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P6W",
       downloaded: "750GB",
       ratio: 3.05,
-      seedingBonus: 1000000
+      seedingBonus: 1000000,
     },
     {
       id: 6,
@@ -151,7 +152,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P7W",
       downloaded: "1024GB",
       ratio: 3.55,
-      seedingBonus: 2000000
+      seedingBonus: 2000000,
     },
     {
       id: 7,
@@ -160,7 +161,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P8W",
       downloaded: "1536GB",
       ratio: 4.05,
-      seedingBonus: 5000000
+      seedingBonus: 5000000,
     },
     {
       id: 8,
@@ -169,7 +170,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P9W",
       downloaded: "3072GB",
       ratio: 4.55,
-      seedingBonus: 10000000
+      seedingBonus: 10000000,
     },
   ],
 };

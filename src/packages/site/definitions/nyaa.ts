@@ -1,10 +1,9 @@
-
 import { type ISiteMetadata, type ITorrent } from "../types";
 import BittorrentSite from "../schemas/AbstractBittorrentSite";
 import { rot13 } from "../utils";
 
-const WORK_SAFE_URL = rot13("uggcf://alnn.fv/")
-const NON_WORK_SAFE_URL = rot13("uggcf://fhxrorv.alnn.fv/")
+const WORK_SAFE_URL = rot13("uggcf://alnn.fv/");
+const NON_WORK_SAFE_URL = rot13("uggcf://fhxrorv.alnn.fv/");
 
 export const siteMetadata: ISiteMetadata = {
   id: "nyaa",
@@ -165,7 +164,6 @@ export const siteMetadata: ISiteMetadata = {
       link: { selector: ["a[href*='/download/']"], attr: "href" },
     },
   },
-
 };
 
 export default class Nyaa extends BittorrentSite {
@@ -178,4 +176,4 @@ export default class Nyaa extends BittorrentSite {
 
     return downloadLink;
   }
-};
+}

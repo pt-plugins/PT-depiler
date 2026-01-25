@@ -3,7 +3,7 @@ name: Build Publish Release
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 20 1,15 * *'
+    - cron: "0 20 1,15 * *"
 
 jobs:
   build:
@@ -44,7 +44,7 @@ jobs:
           tag: v${{ needs.build.outputs.version }}
           skipIfReleaseExists: true
           generateReleaseNotes: true
-          artifacts: 'extension-chrome.zip,extension-firefox.zip'
+          artifacts: "extension-chrome.zip,extension-firefox.zip"
 
       # 提交至 Store
       - name: Publish to Chrome Web Store

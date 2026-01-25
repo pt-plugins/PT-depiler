@@ -35,10 +35,10 @@ PT-depiler 是在原 [PT-Plugin-Plus](https://github.com/pt-plugins/PT-Plugin-Pl
 
 在各主流浏览器的扩展商店中均已上架 PT-Depiler，您可以直接前往对应的扩展商店搜索 "PT-Depiler" 进行安装，或点击表格状态列的徽标图片直接跳转到对应的扩展商店页面进行安装。
 
-|          浏览器           | 状态                                                                                                                                                                                                                                                                                                                                |
-|:----------------------:|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-|    Chrome Web Store    | [![Google Chrome](https://img.shields.io/chrome-web-store/v/iloddidemhbedaopmipajgclofjocogb.svg?label=Google%20Chrome)](https://chromewebstore.google.com/detail/pt-depiler/iloddidemhbedaopmipajgclofjocogb)                                                                                                                    | 
-|    Firefox Add-ons     | [![Mozilla Firefox](https://img.shields.io/amo/v/pt-depiler.svg?label=Mozilla%20Firefox)](https://addons.mozilla.org/zh-CN/firefox/addon/pt-depiler/)                                                                                                                                                                             | 
+|         浏览器         | 状态                                                                                                                                                                                                                                                                                                                              |
+| :--------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+|    Chrome Web Store    | [![Google Chrome](https://img.shields.io/chrome-web-store/v/iloddidemhbedaopmipajgclofjocogb.svg?label=Google%20Chrome)](https://chromewebstore.google.com/detail/pt-depiler/iloddidemhbedaopmipajgclofjocogb)                                                                                                                    |
+|    Firefox Add-ons     | [![Mozilla Firefox](https://img.shields.io/amo/v/pt-depiler.svg?label=Mozilla%20Firefox)](https://addons.mozilla.org/zh-CN/firefox/addon/pt-depiler/)                                                                                                                                                                             |
 | Microsoft Edge Add-ons | [![Microsoft Edge](https://img.shields.io/badge/dynamic/json?label=Edge%20Addons&prefix=v&query=%24.version&url=https%3A%2F%2Fmicrosoftedge.microsoft.com%2FAddons%2Fgetproductdetailsbycrxid%2Fkbijhmckhndmeckonoikakdfdlbnlkde)](https://microsoftedge.microsoft.com/addons/detail/pt-depiler/kbijhmckhndmeckonoikakdfdlbnlkde) |
 
 #### 2. 从 Github Action 或者 Release 中获取并安装
@@ -90,7 +90,7 @@ Copyright (c) 2020-present [pt-plugins](https://github.com/pt-plugins)
 
 [![Star History Chart](https://api.star-history.com/svg?repos=pt-plugins/PT-depiler&type=Date)](https://www.star-history.com/#pt-plugins/PT-depiler&Date)
 
---------------
+---
 
 特别感谢以下所有为本项目做出贡献的人 😍！
 

@@ -122,7 +122,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     CategoryIncldead,
     CategorySpstate,
-    CategoryInclbookmarked
+    CategoryInclbookmarked,
   ],
 
   searchEntry: {
@@ -134,15 +134,16 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 0,
       name: "Lv0",
-      privilege: "新用户的默认级别；可以发送邀请；可以查看排行榜；Lv0级别用户可以发布种子。"
+      privilege: "新用户的默认级别；可以发送邀请；可以查看排行榜；Lv0级别用户可以发布种子。",
     },
     {
       id: 1,
       name: "Lv1",
-      privilege: '得到一个邀请名额；可以查看NFO文档；可以查看用户列表；可以请求续种；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
+      privilege:
+        '得到一个邀请名额；可以查看NFO文档；可以查看用户列表；可以请求续种；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
       interval: "P4W",
       downloaded: "50GB",
-      ratio: 1.05
+      ratio: 1.05,
     },
     {
       id: 2,
@@ -150,7 +151,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到两个邀请名额。",
       interval: "P7W",
       downloaded: "120GB",
-      ratio: 1.55
+      ratio: 1.55,
     },
     {
       id: 3,
@@ -158,7 +159,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到三个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
       interval: "P18W",
       downloaded: "300GB",
-      ratio: 2.05
+      ratio: 2.05,
     },
     {
       id: 4,
@@ -166,7 +167,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "Lv4及以上用户封存账号后不会被删除。可以查看普通日志。得到四个邀请名额",
       interval: "P15W",
       downloaded: "500GB",
-      ratio: 2.55
+      ratio: 2.55,
     },
     {
       id: 5,
@@ -174,7 +175,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到五个邀请名额；可以查看其它用户的评论、帖子历史。Lv5及以上用户会永远保留账号。",
       interval: "P20W",
       downloaded: "750GB",
-      ratio: 3.05
+      ratio: 3.05,
     },
     {
       id: 6,
@@ -182,7 +183,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以更新过期的外部信息；得到六个邀请名额；可以查看Lv6论坛。",
       interval: "P30W",
       downloaded: "1024GB",
-      ratio: 3.55
+      ratio: 3.55,
     },
     {
       id: 7,
@@ -190,7 +191,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到七个邀请名额。",
       interval: "P40W",
       downloaded: "1536GB",
-      ratio: 4.05
+      ratio: 4.05,
     },
     {
       id: 8,
@@ -198,7 +199,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到十个邀请名额。",
       interval: "P50W",
       downloaded: "3072GB",
-      ratio: 4.55
+      ratio: 4.55,
     },
   ],
 };
