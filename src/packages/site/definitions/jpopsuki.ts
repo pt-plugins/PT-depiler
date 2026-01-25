@@ -65,7 +65,7 @@ function genUserInfoSelector(boxName: boxName, field: keyof IUserInfo): string[]
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
-  version: 2,
+  version: 3,
   id: "jpopsuki",
   name: "JPopSuki",
   aka: ["JPS", "JPOP"],
@@ -96,9 +96,17 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
-  // FIXME 使用 disablegrouping: 1 参数，可以避免专辑行和单种行的分组
   search: {
     ...SchemaMetadata.search!,
+    keywordPath: "params.torrentname",
+    requestConfig: {
+      url: "/ajax.php",
+      params: {
+        section: "torrents",
+        action: "advanced",
+        disablegrouping: 1,
+      },
+    },
     advanceKeywordParams: {
       imdb: false,
     },
@@ -246,5 +254,18 @@ export default class Jpopsuki extends Gazelle {
 
     // 其他情况仍交给 super.transformListPage 处理
     return super.transformListPage(doc);
+  }
+
+  protected override async getUserTorrentList(
+    userId: number,
+    page: number = 1,
+    type: string = "seeding",
+  ): Promise<Document> {
+    const { data: TListDocument } = await this.request<Document>({
+      url: "/ajax.php",
+      params: { section: "torrents", userid: userId, page, type },
+      responseType: "document",
+    });
+    return TListDocument;
   }
 }
