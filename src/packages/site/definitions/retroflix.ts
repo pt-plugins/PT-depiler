@@ -145,7 +145,7 @@ export const siteMetadata: ISiteMetadata = {
         elementProcess: (el: HTMLElement) => {
           let time: number | string = 0;
           try {
-            time = el.getAttribute("title") ?? el.getAttribute("data-original-title") ?? 0;
+            time = el.getAttribute("title") || el.dataset.originalTitle || 0;
             if (time) {
               time = parseValidTimeString(time as string);
             }
@@ -158,6 +158,18 @@ export const siteMetadata: ISiteMetadata = {
       seeders: { selector: "div.row > div:nth-child(5)" },
       leechers: { selector: "div.row > div:nth-child(6)" },
       author: { selector: "div.row > div:nth-child(7)" },
+    },
+  },
+
+  list: [{ urlPattern: ["/browse"], excludeUrlPattern: ["/browse/t/"] }],
+
+  detail: {
+    urlPattern: ["/browse/t/"],
+    selectors: {
+      ...SchemaMetadata.detail!.selectors!,
+      title: {
+        selector: "table h3",
+      },
     },
   },
 
