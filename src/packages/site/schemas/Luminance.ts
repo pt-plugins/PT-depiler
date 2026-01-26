@@ -252,6 +252,11 @@ export default class Luminance extends GazelleBase {
     return await super.transformSearchPage(doc, { keywords, searchEntry, requestConfig });
   }
 
+  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    // 种子链接格式是 torrent.php?id=123
+    return this.getTorrentDownloadLinkFactory("id")(torrent);
+  }
+
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let flushUserInfo: IUserInfo = {
       status: EResultParseStatus.unknownError,
@@ -337,18 +342,5 @@ export default class Luminance extends GazelleBase {
       this.metadata.userInfo?.selectors!,
       Object.keys(omit(this.metadata.userInfo?.selectors!, ["id"])),
     ) as Partial<IUserInfo>;
-  }
-
-  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
-    const downloadLink = await super.getTorrentDownloadLink(torrent);
-    if (downloadLink && !downloadLink.includes("action=download")) {
-      const { data: detailDocument } = await this.request<Document>({
-        url: downloadLink,
-        responseType: "document",
-      });
-      return this.getFieldData(detailDocument, this.metadata.search?.selectors?.link!);
-    }
-
-    return downloadLink;
   }
 }

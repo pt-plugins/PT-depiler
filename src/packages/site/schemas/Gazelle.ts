@@ -320,6 +320,27 @@ export class GazelleBase extends PrivateSite {
     });
     return TListDocument;
   }
+
+  protected getTorrentDownloadLinkFactory(torrentIdParam: string): (torrent: ITorrent) => Promise<string> {
+    return async (torrent: ITorrent): Promise<string> => {
+      const raw = await super.getTorrentDownloadLink(torrent);
+      const url = URL.parse(raw);
+      if (!url) return raw;
+
+      const params = url.searchParams;
+      if (params.get("action") === "download") return raw; // 已经是下载链接
+
+      // 对 Gazelle 站点，如果前端拖拽功能发来的种子链接是 torrent.php?${torrentIdParam}=123 的形式，
+      const torrentId = params.get(torrentIdParam);
+      if (!torrentId) return raw;
+
+      const downloadURL = new URL(url.pathname, this.url);
+      downloadURL.searchParams.set("action", "download");
+      downloadURL.searchParams.set("id", torrentId);
+
+      return downloadURL.toString();
+    };
+  }
 }
 
 export default class Gazelle extends GazelleBase {
@@ -534,6 +555,11 @@ export default class Gazelle extends GazelleBase {
       console.warn(`Failed to parse torrent from row:`, e, torrentEl);
     }
     return null;
+  }
+
+  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    // 种子链接格式是 torrent.php?torrentid=123
+    return this.getTorrentDownloadLinkFactory("torrentid")(torrent);
   }
 
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
