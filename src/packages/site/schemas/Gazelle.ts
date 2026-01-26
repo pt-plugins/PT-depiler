@@ -438,26 +438,19 @@ export default class Gazelle extends GazelleBase {
     const trs = this.findElementsBySelectors(rowsSelector.selector, doc) as HTMLTableRowElement[];
 
     const trSeq = trs.values();
+    const groupClasses = [...this.torrentClasses.group, ...this.torrentClasses.unGroupTorrent];
     for (const tr of trSeq) {
       /**
        * 种子组信息行 + 组内种子行，顺序排列
        * <tr class="group">...</tr>
        * <tr class="group_torrent groupid_${id}">...</tr>
        */
-      if (this.torrentClasses.group.some((className) => tr.classList.contains(className))) {
-        // 先尝试获取种子组 ID
-        const id = this.getFieldData(tr, {
-          selector: "a[href*='torrents.php?id=']",
-          attr: "href",
-          filters: [{ name: "querystring", args: ["id"] }],
-        });
-        if (!id) continue;
-
+      if (
+        this.torrentClasses.group.some((className) => tr.classList.contains(className)) &&
+        !groupClasses.some((className) => tr.nextElementSibling?.classList.contains(className)) // 空组
+      ) {
         // 取出此组内的所有种子
-        const groupTorrentEls = takeElUntilClass(trSeq, [
-          ...this.torrentClasses.group,
-          ...this.torrentClasses.unGroupTorrent,
-        ]);
+        const groupTorrentEls = takeElUntilClass(trSeq, groupClasses);
 
         const groupTorrents = await this.transformGroupTorrents(tr, groupTorrentEls, {
           keywords,
