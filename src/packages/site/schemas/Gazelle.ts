@@ -373,11 +373,10 @@ export class GazelleBase extends PrivateSite {
 }
 
 export default class Gazelle extends GazelleBase {
-  protected get torrentClasses() {
+  protected get torrentClasses(): Record<"group" | "unGroupTorrent", string[]> {
     return {
       group: ["group", "group_redline"], // 种子组行
       unGroupTorrent: ["torrent", "torrent_redline"], // 单种行
-      groupTorrent: ["groupid_"], // 组内种子行（使用种子组 ID 选择）
     };
   }
 
