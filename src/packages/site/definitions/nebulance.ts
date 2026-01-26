@@ -371,4 +371,9 @@ export default class Nebulance extends Gazelle {
 
     return torrents;
   }
+
+  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    // 种子链接格式是 torrent.php?id=123（无种子组）
+    return this.getTorrentDownloadLinkFactory("id")(torrent);
+  }
 }

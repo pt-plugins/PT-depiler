@@ -415,6 +415,11 @@ export default class GazelleJSONAPI extends GazelleBase {
     return torrents;
   }
 
+  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    // 种子链接格式是 torrent.php?torrentid=123
+    return this.getTorrentDownloadLinkFactory("torrentid")(torrent);
+  }
+
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let flushUserInfo: IUserInfo = {
       status: EResultParseStatus.unknownError,
