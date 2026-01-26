@@ -26,6 +26,7 @@ const torrentYearMap = [
   [2023, 617776],
   [2024, 621061],
   [2025, 623102],
+  [2026, 625197],
 ];
 
 export const siteMetadata: ISiteMetadata = {
@@ -33,6 +34,8 @@ export const siteMetadata: ISiteMetadata = {
   id: "btetree",
   name: "BT.etree",
   description: "BT.etree is a Public Tracker dedicated to Bootleg FLAC MUSIC",
+  tags: ["音乐"],
+  timezoneOffset: "-0500",
 
   type: "public",
   urls: ["https://bt.etree.org/"],
@@ -46,7 +49,7 @@ export const siteMetadata: ISiteMetadata = {
       imdb: false,
     },
     selectors: {
-      rows: { selector: 'table[bgcolor="#CCCCCC"] tbody tr:gt(1)' }, // 不要第一行
+      rows: { selector: 'table[bgcolor="#CCCCCC"] tbody tr:gt(0)' }, // 不要第一行
       id: {
         selector: "td:nth-child(2) a.details_link",
         attr: "href",

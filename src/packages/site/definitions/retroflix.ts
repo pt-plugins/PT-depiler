@@ -178,9 +178,19 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       ...SchemaMetadata.userInfo!.selectors!,
       seedingBonus: undefined,
+      joinTime: {
+        ...SchemaMetadata.userInfo!.selectors!.joinTime!,
+        filters: [
+          { name: "split", args: ["(", 0] },
+          { name: "parseTime", args: ["dd-MM-yyyy HH:mm:ss"] },
+        ],
+      },
       lastAccessAt: {
-        ...SchemaMetadata.userInfo!.selectors!.lastAccessAt!,
         selector: "td.rowhead:contains('Last'):contains('seen') + td",
+        filters: [
+          { name: "split", args: ["(", 0] },
+          { name: "parseTime", args: ["dd-MM-yyyy HH:mm:ss"] },
+        ],
       },
       averageSeedingTime: { selector: "td.rowhead:contains('Seed avg.') + td", filters: [{ name: "parseDuration" }] },
       hnrUnsatisfied: {
