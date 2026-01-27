@@ -367,9 +367,14 @@ export default class BittorrentSite {
     let query: any = String(elementQuery.text ?? "");
 
     if (elementQuery.selector) {
+      const initQuery = query; // 保存初始值以便后续对比
       let usedSelector: string | undefined;
+
       const selectors = ([] as string[]).concat(elementQuery.selector);
       for (usedSelector of selectors) {
+        // 在每次循环结束前，重置 query
+        query = initQuery;
+
         if (element instanceof Node) {
           // 这里我们预定义一个特殊的 Css Selector，即不进行子元素选择
           const another = (
@@ -407,11 +412,17 @@ export default class BittorrentSite {
         if (typeof query === "string") {
           query = query.trim();
         }
-        if (query !== "") {
+
+        /**
+         * 如果此时 query 不为空且与初始值不同，说明有变化，即找到了对应的选择器并获取到了需要的结果，跳出循环。
+         * 如果全部循环走完都没有变化，则此时 query 仍然是初始值，不会影响到最终结果
+         */
+        if (query !== "" && query !== initQuery) {
           break;
         }
 
-        usedSelector = undefined; // 在每次循环结束后，重置 usedSelector
+        // 在每次循环结束后，重置 usedSelector
+        usedSelector = undefined;
       }
 
       if (selectors.length > 0 && elementQuery.switchFilters?.[usedSelector!]) {
