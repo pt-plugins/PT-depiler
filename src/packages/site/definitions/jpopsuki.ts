@@ -1,6 +1,6 @@
 import Sizzle from "sizzle";
 import { ISiteMetadata, ITorrent, IUserInfo, IParsedTorrentListPage, ISearchInput } from "../types";
-import Gazelle, { SchemaMetadata } from "../schemas/Gazelle.ts";
+import Gazelle, { SchemaMetadata, GazelleUtils } from "../schemas/Gazelle.ts";
 
 type boxName = "stats" | "community" | "personal";
 
@@ -112,6 +112,13 @@ export const siteMetadata: ISiteMetadata = {
     },
     selectors: {
       ...SchemaMetadata.search!.selectors!,
+      title: {
+        ...SchemaMetadata.search!.selectors!.title!,
+        // 有时候不显示 tags...
+        elementProcess: GazelleUtils.genTitleElementProcess({
+          tdSelector: "td:has(a[href*='torrents.php?id='][title])",
+        }),
+      },
       // Apr 01 2025, 15:12
       comments: {
         text: 0,

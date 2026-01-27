@@ -1,9 +1,10 @@
 import Sizzle from "sizzle";
-import Gazelle, { SchemaMetadata, extractTags } from "../schemas/Gazelle.ts";
+import Gazelle, { SchemaMetadata, GazelleUtils } from "../schemas/Gazelle.ts";
 import { ISiteMetadata, ITorrent, ISearchInput, ETorrentStatus } from "../types";
 import { definedFilters, buildCategoryOptionsFromList } from "../utils.ts";
 
 const tagKeywords = ["Freeleech", "Neutral", "Seeding", "Snatched", "Internal", "Pollen", "Reported", "Trumpable"];
+const extractTags = (tags: string) => GazelleUtils.extractTags(tags, tagKeywords);
 
 const antCategories = [
   { name: "Feature Film", class: "featurefilm", value: 1 },
@@ -47,7 +48,7 @@ const detailPageSelectors = {
   title: { selector: "div.header > h2", filters: [{ name: "split", args: ["by", 0] }] },
   subTitle: {
     selector: "a[data-toggle-target*='torrent']",
-    filters: [(query: string) => extractTags(query, tagKeywords)],
+    filters: [extractTags],
   },
   completed: { selector: "td.number_column:nth-child(3)" },
   seeders: { selector: "td.number_column:nth-child(4)" },
@@ -157,6 +158,19 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       ...SchemaMetadata.search!.selectors!,
       ...commonDocumentSelectors,
+      title: {
+        ...SchemaMetadata.search!.selectors!.title!,
+        elementProcess: GazelleUtils.genTitleElementProcess({ extractTagsFunc: extractTags }),
+      },
+      subTitle: {
+        selector: [".tags", "> td:has(a[href*='torrents.php']) a:not(span a):last"],
+        switchFilters: {
+          // 对应单种行，直接返回 tags
+          ".tags": [],
+          // 对应组内种子，提取并返回种子属性
+          "> td:has(a[href*='torrents.php']) a:not(span a):last": [extractTags],
+        },
+      },
       category: {
         text: "Other",
         selector: "div[class^='tooltip cats_']",
