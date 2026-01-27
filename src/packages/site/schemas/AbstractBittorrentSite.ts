@@ -364,12 +364,16 @@ export default class BittorrentSite {
   }
 
   protected getFieldData(element: Element | object, elementQuery: IElementQuery): any {
-    let query: any = String(elementQuery.text ?? "");
+    let query: any = undefined;
 
     if (elementQuery.selector) {
       let usedSelector: string | undefined;
+
       const selectors = ([] as string[]).concat(elementQuery.selector);
       for (usedSelector of selectors) {
+        // 在每次循环开始前，重置 query 为 undefined
+        query = undefined;
+
         if (element instanceof Node) {
           // 这里我们预定义一个特殊的 Css Selector，即不进行子元素选择
           const another = (
@@ -398,28 +402,32 @@ export default class BittorrentSite {
           query = usedSelector === ":self" ? element : get(element, usedSelector)!;
         }
 
-        // noinspection SuspiciousTypeOfGuard
-        if (typeof query === "undefined") {
-          query = "";
+        if (typeof query !== "undefined") {
+          break; // 说明该选择器找到了对应元素，跳出循环
         }
 
-        // noinspection SuspiciousTypeOfGuard
+        // 在每次循环结束后，重置 usedSelector
+        usedSelector = undefined;
+      }
+
+      // 根据 usedSelector 来判断是否找到了对应元素，找到了则应用 filters
+      if (typeof usedSelector !== "undefined") {
+        // 此时 query 一定不为 undefined
         if (typeof query === "string") {
           query = query.trim();
         }
-        if (query !== "") {
-          break;
+
+        // 应用 filters
+        if (selectors.length > 0 && elementQuery.switchFilters?.[usedSelector!]) {
+          query = this.runQueryFilters(query, elementQuery.switchFilters[usedSelector!]);
+        } else if (elementQuery.filters && elementQuery.filters?.length > 0) {
+          query = this.runQueryFilters(query, elementQuery.filters);
         }
-
-        usedSelector = undefined; // 在每次循环结束后，重置 usedSelector
-      }
-
-      if (selectors.length > 0 && elementQuery.switchFilters?.[usedSelector!]) {
-        query = this.runQueryFilters(query, elementQuery.switchFilters[usedSelector!]);
-      } else if (elementQuery.filters && elementQuery.filters?.length > 0) {
-        query = this.runQueryFilters(query, elementQuery.filters);
       }
     }
+
+    // 此时如果 query 仍为 undefined 应该回落到 elementQuery.text ?? ""
+    query ??= String(elementQuery.text ?? "");
 
     // noinspection SuspiciousTypeOfGuard
     if (typeof query === "string") {
