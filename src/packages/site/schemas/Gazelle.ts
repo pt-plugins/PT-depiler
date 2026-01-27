@@ -3,7 +3,14 @@ import { toMerged } from "es-toolkit";
 
 import PrivateSite from "./AbstractPrivateSite";
 import { parseValidTimeString, parseSizeString, parseTimeToLiveToDate } from "../utils";
-import { ETorrentStatus, type ISiteMetadata, type ITorrent, type ISearchInput, type IUserInfo } from "../types";
+import {
+  ETorrentStatus,
+  NoTorrentsError,
+  type ISiteMetadata,
+  type ITorrent,
+  type ISearchInput,
+  type IUserInfo,
+} from "../types";
 
 /**
  * Gazelle 常用工具函数
@@ -42,7 +49,7 @@ export const GazelleUtils = {
     extractTagsFunc?: (tags: string) => string;
   } = {}) {
     const defaultTdSelctor = "td:has(a[href*='torrents.php?id=']):has(.tags)";
-    const extractTags = extractTagsFunc ? extractTagsFunc : this.extractTags;
+    const extractTags = extractTagsFunc ?? this.extractTags;
     return (row: HTMLElement): string => {
       // 匹配信息格
       const cell = row.querySelector(tdSelector || defaultTdSelctor);
@@ -88,15 +95,83 @@ export const GazelleUtils = {
   },
 };
 
-function genStatBoxSelector(section: string | string[], itemSel: string | string[], suffixSel?: string): string[] {
-  const sections = Array.isArray(section) ? section : [section];
-  const itemSels = Array.isArray(itemSel) ? itemSel : [itemSel];
-  return sections.flatMap((s) =>
-    itemSels.map(
-      (iSel) => `div:contains('${s}') + ul.stats > li:contains('${iSel}')${suffixSel ? ` ${suffixSel}` : ""}`,
-    ),
-  );
-}
+const baseRowSelector = { selector: "table.torrent_table tr:gt(0)" };
+const baseTimeSelector = {
+  text: 0,
+  elementProcess: (element: HTMLElement) => {
+    let time: number | string = 0;
+    try {
+      const AccurateTimeAnother = element.querySelector("span[title], time[title]");
+      if (AccurateTimeAnother) {
+        time = parseValidTimeString(AccurateTimeAnother.getAttribute("title")!);
+      } else if (element.getAttribute("title")) {
+        time = parseValidTimeString(element.getAttribute("title")!);
+      } else {
+        // 2 mins ago or Just now
+        time = element.innerText.trim();
+        if (time.toLowerCase().includes("just now")) {
+          time = "0 seconds";
+        }
+        time = parseTimeToLiveToDate(time);
+      }
+    } catch (e) {}
+    return time;
+  },
+};
+
+const detailAttr = "isDetailPage";
+
+type TList = Required<ISiteMetadata>["list"][number];
+
+export const commonPagesList: TList = {
+  urlPattern: [/\/torrents\.php(?!.*(?:\bid=|torrentid=))/, "/collages\\.php\\?id=\\d+", "/artist\\.php\\?id=\\d+"],
+};
+
+export const detailPageList: TList = {
+  urlPattern: [/\/torrents\.php\?(?:.*&)?(\bid|torrentid)=\d+/],
+  selectors: {
+    // 从整个页面获取种子组信息
+    keywords: { selector: ["span[dir='ltr']"] },
+    title: { selector: ["div > h2"] },
+
+    rows: {
+      ...baseRowSelector,
+      // 向第一个 row 添加属性，用于表示匹配到了详情页
+      filter: (rows: HTMLElement[] | null): HTMLElement[] | null => {
+        if (Array.isArray(rows) && rows.length > 0) {
+          rows[0].dataset[detailAttr] = "1";
+        }
+        return rows;
+      },
+    },
+    time: {
+      ...baseTimeSelector,
+      selector: "+tr span.time", // 在下一个 tr 里（tr.torrentdetails)
+    },
+  },
+};
+
+export const top10PageList: TList = {
+  urlPattern: ["/top10\\.php"],
+  excludeUrlPattern: [/\/top10\.php\?type=(?!torrents\b).*/], // 只解析种子 Top 10
+  selectors: {
+    rows: {
+      ...baseRowSelector,
+      /**
+       * 不同站点的 Top 10 种子行可能使用不同的 class，但基本上都是单种行样式
+       * 为了保证这些行都能被搜索方法解析，统一替换为单种行的 class
+       */
+      filter: (rows: HTMLElement[] | null): HTMLElement[] | null => {
+        if (Array.isArray(rows)) {
+          rows.forEach((row) => {
+            row.className = "torrent";
+          });
+        }
+        return rows;
+      },
+    },
+  },
+};
 
 type boxName = "stats" | "community" | "personal";
 
@@ -105,6 +180,16 @@ const BoxName: Record<boxName, string[]> = {
   personal: ["Personal"],
   community: ["Community"],
 } as const;
+
+function genStatBoxSelector(section: string | string[], itemSel: string | string[], suffixSel?: string): string[] {
+  const sections = ([] as string[]).concat(section);
+  const itemSels = ([] as string[]).concat(itemSel);
+  return sections.flatMap((s) =>
+    itemSels.map(
+      (iSel) => `div:contains('${s}') + ul.stats > li:contains('${iSel}')${suffixSel ? ` ${suffixSel}` : ""}`,
+    ),
+  );
+}
 
 /**
  * Gazelle 模板默认配置，对于大多数GZ站点都通用
@@ -121,9 +206,10 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
     },
     selectors: {
       // seeders, leechers 等信息由 transformSearchPage 根据搜索结果自动生成
-      rows: { selector: "table.torrent_table tr:gt(0)" },
+      rows: baseRowSelector,
       id: {
-        selector: "a[href*='torrents.php?id=']",
+        // 优先从下载链接获取 id，可以确保获取到的是种子 id 而不是种子组 id
+        selector: ["a[href*='torrents.php?action=download']:first", "a[href*='torrents.php?id=']"],
         attr: "href",
         filters: [{ name: "querystring", args: ["torrentid", "id"] }],
       },
@@ -132,39 +218,21 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         elementProcess: GazelleUtils.genTitleElementProcess(),
       },
       subTitle: {
-        selector: [".tags", "> td:has(a[href*='torrents.php']) a[href]:not(span a):last"],
+        selector: [".tags", "> td:has(a[href*='torrents.php']) a:not(span a):last"],
         switchFilters: {
           // 对应单种行，直接返回 tags
           ".tags": [],
           // 对应组内种子，提取并返回种子属性
-          "> td:has(a[href*='torrents.php']) a[href]:not(span a):last": [GazelleUtils.extractTags],
+          "> td:has(a[href*='torrents.php']) a:not(span a):last": [GazelleUtils.extractTags],
         },
       },
-      url: { selector: "a[href*='torrents.php?id=']", attr: "href" },
+      url: {
+        selector: ["a[href*='torrents.php?id=']", "a[href*='torrents.php?torrentid=']"],
+        attr: "href",
+      },
       link: { selector: "a[href*='torrents.php?action=download']:first", attr: "href" },
       // TODO category: {}
-      time: {
-        text: 0,
-        elementProcess: (element: HTMLElement) => {
-          let time: number | string = 0;
-          try {
-            const AccurateTimeAnother = element.querySelector("span[title], time[title]");
-            if (AccurateTimeAnother) {
-              time = parseValidTimeString(AccurateTimeAnother.getAttribute("title")!);
-            } else if (element.getAttribute("title")) {
-              time = parseValidTimeString(element.getAttribute("title")!);
-            } else {
-              // 2 mins ago or Just now
-              time = element.innerText.trim();
-              if (time.toLowerCase().includes("just now")) {
-                time = "0 seconds";
-              }
-              time = parseTimeToLiveToDate(time);
-            }
-          } catch (e) {}
-          return time;
-        },
-      },
+      time: baseTimeSelector,
       progress: { text: 0 },
       status: { text: ETorrentStatus.unknown },
       tags: [{ selector: "strong:contains('Freeleech!')", name: "Free", color: "blue" }],
@@ -173,10 +241,14 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 
   list: [
     {
-      urlPattern: ["/torrents.php"],
-      excludeUrlPattern: [/\/torrents\.php\?(?:.*&)?(id|torrentid)=\d+/],
+      ...commonPagesList,
     },
-    // TODO /torrents.php?id=
+    {
+      ...detailPageList,
+    },
+    {
+      ...top10PageList,
+    },
   ],
 
   userInfo: {
@@ -390,7 +462,7 @@ export default class Gazelle extends GazelleBase {
     } as Record<keyof ITorrent, string[]>;
   }
 
-  public override async transformSearchPage(doc: Document | any, searchConfig: ISearchInput): Promise<ITorrent[]> {
+  public override async transformSearchPage(doc: Document, searchConfig: ISearchInput): Promise<ITorrent[]> {
     const { keywords, searchEntry, requestConfig } = searchConfig;
     // 如果配置文件没有传入 search 的选择器，则我们自己生成
     const legacyTableSelector = "table.torrent_table:last";
@@ -431,11 +503,29 @@ export default class Gazelle extends GazelleBase {
       }
     });
 
+    const rowsSelector = searchEntry!.selectors!.rows;
+    let trs = this.findElementsBySelectors(rowsSelector.selector, doc) as HTMLTableRowElement[];
+    if (rowsSelector.filter) {
+      trs = rowsSelector.filter(trs);
+    }
+
+    // 如果没有搜索到种子，则抛出 NoTorrentsError
+    if (trs.length === 0) {
+      throw new NoTorrentsError();
+    }
+
+    // 如果是详情页，直接返回当前种子组的种子
+    // 这个属性由 detailPageList.rows.filter 负责添加
+    if (trs[0].dataset[detailAttr] === "1") {
+      return this.transformGroupTorrents(doc.documentElement, trs, {
+        keywords,
+        searchEntry,
+        requestConfig,
+      });
+    }
+
     // 遍历数据行
     const torrents: ITorrent[] = [];
-
-    const rowsSelector = searchEntry!.selectors!.rows;
-    const trs = this.findElementsBySelectors(rowsSelector.selector, doc) as HTMLTableRowElement[];
 
     const trSeq = trs.values();
     const groupClasses = [...this.torrentClasses.group, ...this.torrentClasses.unGroupTorrent];
@@ -466,10 +556,6 @@ export default class Gazelle extends GazelleBase {
        * <tr class="torrent">...</tr>
        */
       if (this.torrentClasses.unGroupTorrent.some((className) => tr.classList.contains(className))) {
-        // 对 link 结果做个检查，检查通过的再进入 parseRowToTorrent
-        const link = this.getFieldData(tr, searchEntry!.selectors!.link!);
-        if (!link) continue;
-
         const torrent = await this.transformUnGroupTorrent(tr, { keywords, searchEntry, requestConfig });
         if (torrent) torrents.push(torrent);
       }
@@ -512,10 +598,13 @@ export default class Gazelle extends GazelleBase {
      * </tr>
      * <tr class="group_torrent groupid_${id}">...</tr>
      */
-    const rowSpan = Array.from(group.querySelectorAll("td[rowspan]")).reduce((acc, td) => {
-      const span = parseInt(td.getAttribute("rowspan") || "1", 10);
-      return acc + (span > 1 ? 1 : 0);
-    }, 0);
+    let rowSpan = 0;
+    if (group instanceof HTMLTableRowElement) {
+      rowSpan = Array.from(group.querySelectorAll<HTMLTableCellElement>("td[rowspan]")).reduce(
+        (acc, td) => acc + (td.rowSpan > 1 ? 1 : 0),
+        0,
+      );
+    }
 
     const torrents: ITorrent[] = [];
     for (const groupTorrentEl of torrentEls) {
@@ -526,10 +615,9 @@ export default class Gazelle extends GazelleBase {
       // 处理 colspan 的情况
       // https://github.com/WhatCD/Gazelle/blob/63b337026d49b5cf63ce4be20fdabdc880112fa3/sections/torrents/browse.php#L644
       let padding = rowSpan;
-      const colSpanTd = groupTorrentEl.querySelector("td[colspan]");
+      const colSpanTd = groupTorrentEl.querySelector<HTMLTableCellElement>("td[colspan]");
       if (colSpanTd) {
-        const colSpan = colSpanTd.getAttribute("colspan");
-        padding += colSpan ? Math.max(0, parseInt(colSpan, 10) - 1) : 0;
+        padding += Math.max(0, colSpanTd.colSpan - 1);
       }
 
       for (let i = 0; i < padding; i++) {
@@ -545,7 +633,7 @@ export default class Gazelle extends GazelleBase {
         )) as ITorrent;
         torrents.push(torrent);
       } catch (e) {
-        console.warn(`Failed to parse torrent from row:`, e, groupTorrentEl);
+        console.debug(`[PTD] site '${this.name}' parseWholeTorrentFromRow Error:`, e, groupTorrentEl);
       }
     }
 
@@ -556,26 +644,24 @@ export default class Gazelle extends GazelleBase {
     torrentEl: HTMLTableRowElement,
     searchConfig: ISearchInput,
   ): Promise<ITorrent | null> {
+    // 对 link 结果做个检查，检查通过的再进入 parseRowToTorrent
+    const link = this.getFieldData(torrentEl, searchConfig!.searchEntry!.selectors!.link!);
+    if (!link) return null;
+
     // 处理 colspan 的情况 (Gazelle-fork)
-    const tdColSpan = parseInt(
-      this.getFieldData(torrentEl, {
-        selector: "td[colspan]:first",
-        attr: "colspan",
-      }),
-      10,
-    );
-    if (tdColSpan) {
-      for (let i = 1; i < tdColSpan; i++) {
+    const colSpanTd = torrentEl.querySelector<HTMLTableCellElement>("td[colspan]");
+    if (colSpanTd) {
+      for (let i = 0; i < colSpanTd.colSpan - 1; i++) {
         // 补全前面的单元格，使后续的 selector 能正常生效
         torrentEl.insertCell(0);
       }
     }
 
     try {
-      const torrent = (await this.parseWholeTorrentFromRow({}, torrentEl, searchConfig)) as ITorrent;
+      const torrent = (await this.parseWholeTorrentFromRow({ link }, torrentEl, searchConfig)) as ITorrent;
       return torrent;
     } catch (e) {
-      console.warn(`Failed to parse torrent from row:`, e, torrentEl);
+      console.debug(`[PTD] site '${this.name}' parseWholeTorrentFromRow Error:`, e, torrentEl);
     }
     return null;
   }

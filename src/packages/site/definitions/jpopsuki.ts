@@ -1,6 +1,11 @@
-import Sizzle from "sizzle";
-import { ISiteMetadata, ITorrent, IUserInfo, IParsedTorrentListPage, ISearchInput } from "../types";
-import Gazelle, { SchemaMetadata, GazelleUtils } from "../schemas/Gazelle.ts";
+import { ISiteMetadata, ITorrent, IUserInfo, ISearchInput } from "../types";
+import Gazelle, {
+  SchemaMetadata,
+  GazelleUtils,
+  commonPagesList,
+  detailPageList,
+  top10PageList,
+} from "../schemas/Gazelle.ts";
 
 type boxName = "stats" | "community" | "personal";
 
@@ -27,33 +32,6 @@ const userInfoMap: Record<"en" | "ja", Record<boxName | keyof IUserInfo, string>
     levelName: "階級:",
     lastAccessAt: "最後にアクセスした時:",
   },
-};
-
-const preTorrentListPageRegex = /torrents?.php.*[?&]id=/;
-const preTorrentListPageSelectors = {
-  rows: { selector: "tr.group_torrent" },
-  id: {
-    selector: "a[href*='torrents.php?action=download&id='][title='Download']",
-    attr: "href",
-    filters: [{ name: "querystring", args: ["id"] }],
-  },
-  title: {
-    selector: ":self",
-    elementProcess: (el: HTMLElement) => {
-      const bodyElement = el.closest("body");
-      if (bodyElement) {
-        const titleElement = bodyElement.querySelector("h2");
-        return titleElement ? titleElement.textContent?.trim() || "" : "";
-      }
-      return "";
-    },
-  },
-  subTitle: { selector: ["a[onclick]"], filters: [{ name: "replace", args: ["»", ""] }, { name: "trim" }] },
-  link: { selector: ["a[href*='torrents.php?action=download'][title='Download']"], attr: "href" },
-  size: { selector: ["td:nth-child(2)"], filters: [{ name: "parseSize" }] },
-  seeders: { selector: ["td:nth-child(4)"], filters: [{ name: "parseNumber" }] },
-  leechers: { selector: ["td:nth-child(5)"], filters: [{ name: "parseNumber" }] },
-  completed: { selector: ["td:nth-child(3)"], filters: [{ name: "parseNumber" }] },
 };
 
 function genUserInfoSelector(boxName: boxName, field: keyof IUserInfo): string[] {
@@ -136,8 +114,58 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   list: [
-    { urlPattern: [preTorrentListPageRegex], selectors: preTorrentListPageSelectors },
-    { urlPattern: ["torrents.php"], mergeSearchSelectors: true },
+    {
+      ...commonPagesList,
+    },
+    {
+      ...detailPageList,
+      selectors: {
+        ...detailPageList.selectors,
+        // 从整个页面获取
+        keywords: {
+          selector: "div > h2",
+          // [Album] Ayumi Hamasaki - Rock'n'Roll Circus [2010.04.14]
+          elementProcess: (el: HTMLElement) => {
+            const clone = el.cloneNode(true) as HTMLElement;
+            clone.querySelectorAll("a[href*='artist.php']").forEach((e) => e.remove());
+            const query = clone.innerText ?? clone.textContent;
+            const endBracket = query.indexOf("]");
+            const dash = query.indexOf("-", endBracket);
+            return query.slice(dash + 1).trim();
+          },
+        },
+        title: {
+          selector: "div > h2",
+          filters: [(query: string) => query.slice(query.indexOf("]") + 1)],
+        },
+        category: {
+          selector: "div > h2",
+          // 第一个 [...] 对应分类
+          filters: [(query: string) => query.match(/\[([^\]]+)\]/)?.[1] || ""],
+        },
+
+        time: {
+          // <span title="15 years, 8 months, 1 week ago">May 12 2010, 19:08</span>
+          selector: "+tr span[title]",
+          filters: [{ name: "parseTime" }],
+        },
+      },
+    },
+    // Top 10
+    {
+      ...top10PageList,
+      selectors: {
+        ...top10PageList.selectors,
+        rows: {
+          ...top10PageList.selectors!.rows,
+          selector: "table.border tr:gt(0)",
+        },
+        size: { selector: ">td:eq(3)", filters: [{ name: "parseSize" }] },
+        completed: { selector: ">td:eq(4)", filters: [{ name: "parseNumber" }] },
+        seeders: { selector: ">td:eq(5)", filters: [{ name: "parseNumber" }] },
+        leechers: { selector: ">td:eq(6)", filters: [{ name: "parseNumber" }] },
+      },
+    },
   ],
 
   noLoginAssert: {
@@ -220,47 +248,18 @@ export const siteMetadata: ISiteMetadata = {
 
 export default class Jpopsuki extends Gazelle {
   protected override guessSearchFieldIndexConfig(): Record<string, string[]> {
+    const base = super.guessSearchFieldIndexConfig();
     return {
-      time: ["a[href*='order_by=s3']"], // 发布时间
-      size: ["a[href*='order_by=s4']"], // 大小
-      seeders: ["a[href*='order_by=s6']"], // 种子数
-      leechers: ["a[href*='order_by=s7']"], // 下载数
-      completed: ["a[href*='order_by=s5']"], // 完成数
+      time: ["a[href*='order_by=s3']", ...base.time], // 发布时间
+      size: ["a[href*='order_by=s4']", "strong:contains('サイズ')", ...base.size], // 大小
+      seeders: ["a[href*='order_by=s6']", ...base.seeders], // 做种数
+      leechers: ["a[href*='order_by=s7']", ...base.leechers], // 下载数
+      completed: ["a[href*='order_by=s5']", ...base.completed], // 完成数
     } as Record<keyof ITorrent, string[]>;
   }
 
   protected override getTorrentGroupInfo(group: HTMLTableRowElement, searchConfig: ISearchInput): Partial<ITorrent> {
     return this.getFieldsData(group, searchConfig.searchEntry!.selectors!, ["title", "comments", "category"]);
-  }
-
-  public override async transformListPage(doc: Document): Promise<IParsedTorrentListPage> {
-    const parsedListPageUrl = doc.URL || location.href; // 获取当前页面的 URL
-
-    // 单个种子的特殊页面处理
-    if (preTorrentListPageRegex.test(parsedListPageUrl)) {
-      const retData = { keywords: "", torrents: [] } as IParsedTorrentListPage;
-      const searchConfig = {
-        searchEntry: { selectors: preTorrentListPageSelectors },
-        requestConfig: { url: parsedListPageUrl },
-      };
-
-      const trs = Sizzle(preTorrentListPageSelectors.rows.selector, doc);
-
-      for (const tr of trs) {
-        try {
-          const torrent = (await this.parseWholeTorrentFromRow({}, tr, searchConfig)) as ITorrent;
-          torrent.url ??= parsedListPageUrl;
-          retData.torrents.push(torrent);
-        } catch (e) {
-          console.debug(`[PTD] site '${this.name}' parseWholeTorrentFromRow Error:`, e, tr);
-        }
-      }
-
-      return retData;
-    }
-
-    // 其他情况仍交给 super.transformListPage 处理
-    return super.transformListPage(doc);
   }
 
   protected override async getUserTorrentList(
