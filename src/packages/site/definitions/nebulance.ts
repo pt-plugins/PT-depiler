@@ -1,10 +1,15 @@
 import { ISiteMetadata, ITorrent, ISearchInput, ETorrentStatus } from "../types";
 import Sizzle from "sizzle";
-import Gazelle from "../schemas/Gazelle.ts";
-import { SchemaMetadata } from "../schemas/Gazelle.ts";
+import Gazelle, { SchemaMetadata, top10PageList } from "../schemas/Gazelle.ts";
 import { createDocument, parseValidTimeString, buildCategoryOptionsFromList } from "../utils.ts";
 
 const nblTimezoneOffset = -11;
+const showPageRegex = /\/torrents\.php\?(?:.*&)?showid=\d+/;
+
+function createOverlayDocument(overlayScriptEl: Element): Document {
+  const overlayDocRawStr = overlayScriptEl.textContent.match(/"(.*)"/s)![1];
+  return createDocument(JSON.parse(`"${overlayDocRawStr}"`));
+}
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -126,10 +131,10 @@ export const siteMetadata: ISiteMetadata = {
 
   list: [
     {
-      urlPattern: ["/torrents.php"],
-      excludeUrlPattern: [/\/torrents\.php\?(?:.*&)?(id|torrentid|showid)=\d+/],
+      urlPattern: [/\/torrents\.php(?!.*(?:\bid=|torrentid=|showid=))/],
       selectors: {
         time: {
+          text: 0,
           selector: "span.time",
           filters: [
             { name: "parseTTL" },
@@ -142,12 +147,33 @@ export const siteMetadata: ISiteMetadata = {
         },
       },
     },
+    {
+      urlPattern: [showPageRegex],
+      selectors: {
+        keywords: { selector: "div#showinfobox span.size4" },
+      },
+    },
+    {
+      ...top10PageList,
+      selectors: {
+        ...top10PageList.selectors!,
+        title: {
+          selector: "> td > script",
+          elementProcess: (el: HTMLElement) => {
+            const overlayDoc = createOverlayDocument(el);
+            const lastTd = Sizzle("td:last", overlayDoc)[0];
+            return lastTd.textContent.trim();
+          },
+        },
+        size: {}, // from innerText
+      },
+    },
   ],
 
   detail: {
     urlPattern: ["/torrents\\.php\\?id=\\d+"],
     selectors: {
-      title: { selector: ["a[title='View raw mediainfo']"], filters: [{ name: "split", args: [" ", 0] }] },
+      title: { selector: ["div:has(.mediainfo) > a:first"], filters: [{ name: "split", args: [" ", 0] }] },
       link: { selector: ["a:contains('Download')"], attr: "href" },
     },
   },
@@ -293,6 +319,7 @@ export const siteMetadata: ISiteMetadata = {
 
 const groupPageSelectors = {
   rows: { selector: "table.torrent_table tr.torrent" },
+  subTitle: { selector: "a.codecs[href*='torrents.php?id=']" },
   size: { selector: "> td:nth-child(2)", filters: [{ name: "parseSize" }] },
   url: { selector: "a[href*='torrents.php?id=']", attr: "href" },
   link: { selector: "a[href*='torrents.php?action=download']", attr: "href" },
@@ -319,8 +346,8 @@ export default class Nebulance extends Gazelle {
    * 需要判断当前页面类型以选择对应的解析方式
    */
   public override async transformSearchPage(doc: Document | any, searchConfig: ISearchInput): Promise<ITorrent[]> {
-    // 根据搜索参数判断是否跳转了详情页
-    if (!searchConfig.requestConfig?.params?.showid) {
+    const parsedListPageUrl = doc.URL || location.href;
+    if (!showPageRegex.test(parsedListPageUrl)) {
       return super.transformSearchPage(doc, searchConfig);
     }
 
@@ -335,13 +362,17 @@ export default class Nebulance extends Gazelle {
       },
     };
 
+    const tvMazeId = this.getFieldData(doc, {
+      selector: "a[href*='www.tvmaze.com/shows/']",
+      attr: "href",
+      filters: [{ name: "extTvmazeId" }],
+    });
     let currentCategory = "";
 
     for (const tr of trs) {
       try {
         const overlayScriptEl = Sizzle("div.tagssh > script", tr)[0];
-        const overlayDocRawStr = overlayScriptEl.textContent.match(/"(.*)"/s)![1];
-        const overlayDoc = createDocument(JSON.parse(`"${overlayDocRawStr}"`));
+        const overlayDoc = createOverlayDocument(overlayScriptEl);
         const title = Sizzle("table.overlay tr:nth-child(3) > td", overlayDoc)[0].textContent;
 
         const rightTd = Sizzle("td.rightOverlay", overlayDoc)[0];
@@ -358,7 +389,7 @@ export default class Nebulance extends Gazelle {
             time,
             tags: [{ name: "H&R", color: "red" }],
             category: currentCategory,
-            ext_tvmaze: searchConfig.requestConfig.params.showid,
+            ext_tvmaze: tvMazeId,
           },
           tr,
           patchedSearchConfig,
