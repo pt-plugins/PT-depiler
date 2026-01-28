@@ -5,6 +5,7 @@ import GazelleJSONAPI, { groupBrowseResult, groupTorrent, SchemaMetadata } from 
 interface gpwBrowseResult extends groupBrowseResult {
   groupSubName: string;
   imdbId: string;
+  doubanId: string;
 }
 
 interface gpwTorrent extends groupTorrent {
@@ -355,6 +356,7 @@ export default class GreatPosterWall extends GazelleJSONAPI {
       category: group.releaseType || "",
       tags,
       ext_imdb: group.imdbId,
+      ext_douban: group.doubanId !== "0" ? group.doubanId : null,
     } as ITorrent;
   }
 
