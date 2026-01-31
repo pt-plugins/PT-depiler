@@ -262,18 +262,21 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
   // 从 string 中构建 advanceFilterDictRef
   function buildFilterDictFn(text: string = "") {
     const { keywords = [], ranges = [] } = parseOptions;
-    const parsedFilter = searchQueryParser.parse(text, parseOptions) as TFilter;
+    const parsedFilter = searchQueryParser.parse(text ?? "", parseOptions) as TFilter;
 
     ["text", ...keywords].forEach((key) => {
       const valueFormat = getValueFormat(key, format);
       let required: unknown[] = [];
       let exclude: unknown[] = [];
 
-      if (parsedFilter[key]?.length) {
-        required = uniq(flattenDeep(parsedFilter[key].map((v: any) => valueFormat.parse(v))));
+      const thisRequired = parsedFilter[key];
+      if (Array.isArray(thisRequired) && thisRequired.length > 0) {
+        required = uniq(flattenDeep(thisRequired.map((v: any) => valueFormat.parse(v))));
       }
-      if (parsedFilter.exclude?.[key]?.length) {
-        exclude = uniq(flattenDeep(parsedFilter.exclude[key].map((v: any) => valueFormat.parse(v))));
+
+      const thisExclude = parsedFilter.exclude?.[key];
+      if (Array.isArray(thisExclude) && thisExclude.length > 0) {
+        exclude = uniq(flattenDeep(thisExclude.map((v: any) => valueFormat.parse(v))));
       }
 
       advanceFilterDictRef.value[key] = { required, exclude };
