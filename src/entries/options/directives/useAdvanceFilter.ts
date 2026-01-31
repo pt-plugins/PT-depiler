@@ -271,7 +271,7 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
 
       const thisRequired = parsedFilter[key];
       if (Array.isArray(thisRequired) && thisRequired.length > 0) {
-        required = uniq(flattenDeep(parsedFilter[key].map((v: any) => valueFormat.parse(v))));
+        required = uniq(flattenDeep(thisRequired.map((v: any) => valueFormat.parse(v))));
       }
 
       const thisExclude = parsedFilter.exclude?.[key];
