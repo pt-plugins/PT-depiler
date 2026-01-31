@@ -70,6 +70,12 @@ export function levelRequirementUnMet(
   levelRequirement: ILevelRequirement | IImplicitUserInfo,
 ): Partial<Omit<ILevelRequirement, "id" | "name" | "groupType" | "privilege">> {
   const unmetRequirement: Partial<Omit<ILevelRequirement, "id" | "name" | "groupType" | "privilege">> = {};
+
+  // 如果未定义站点等级要求，直接返回
+  if (!levelRequirement) {
+    return unmetRequirement;
+  }
+
   const currentTime = +new Date();
   const levelRequirementKeys: (keyof ILevelRequirement)[] = Object.keys(levelRequirement);
 
