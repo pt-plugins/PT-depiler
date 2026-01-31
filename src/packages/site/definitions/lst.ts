@@ -158,6 +158,10 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.userInfo!,
     selectors: {
       ...SchemaMetadata.userInfo!.selectors!,
+      uploads: {
+        selector: "div.profile-mini-stat__label:contains('Total uploads') + div",
+        filters: [{ name: "parseNumber" }],
+      },
       joinTime: {
         ...SchemaMetadata.userInfo!.selectors!.joinTime!,
         selector: "span.profile-hero__meta-item:contains('Registration date')",

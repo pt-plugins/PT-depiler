@@ -185,17 +185,6 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
-  userInfo: {
-    ...SchemaMetadata.userInfo!,
-    selectors: {
-      ...SchemaMetadata.userInfo!.selectors!,
-      joinTime: {
-        ...SchemaMetadata.userInfo!.selectors!.joinTime!,
-        selector: "span.profile-hero__meta-item:contains('Registration date')",
-      },
-    },
-  },
-
   levelRequirements: [
     {
       id: 1,

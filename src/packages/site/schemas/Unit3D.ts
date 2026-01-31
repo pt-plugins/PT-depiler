@@ -294,7 +294,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
             }
           }
 
-          // 如果还是没有，那么我们尽力了，返回underfined
+          // 如果还是没有，那么我们尽力了，返回undefined
           return undefined;
         },
       },
@@ -411,8 +411,20 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         elementProcess: () => 11, // 并不能直接知道还有多少个消息未读，所以置为11，会直接出线红点而不是具体数字
       },
       uploads: {
-        selector: [".badge-user .fa-upload + span", "li:has(i.fas.fa-upload) a[href*='/uploads']"],
-        filters: [{ name: "parseNumber" }],
+        selector: ["dl.key-value:has(a[href*='/uploads'])", ".badge-user .fa-upload + span"],
+        elementProcess: (el: Element) => {
+          if (!el.matches("dl.key-value:has(a[href*='/uploads'])")) {
+            return undefined;
+          }
+          let count = 0;
+          el.querySelectorAll("dt:has(a[href*='/uploads']) + dd").forEach((e) => {
+            count += Number(e.textContent.trim());
+          });
+          return count;
+        },
+        switchFilters: {
+          ".badge-user .fa-upload + span": [{ name: "parseNumber" }],
+        },
       },
       joinTime: {
         selector: ["time.profile__registration", ...joinTimeTrans.map((x) => `div.content h4:contains('${x}')`)],
