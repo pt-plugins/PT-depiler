@@ -88,6 +88,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     advanceKeywordParams: {
+      imdb: false,
       // 支持站点的高级搜索
       terms: {
         requestConfigTransformer: ({ requestConfig: config }) => {
