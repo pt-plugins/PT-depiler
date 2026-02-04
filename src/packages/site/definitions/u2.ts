@@ -1,6 +1,6 @@
 import { ETorrentStatus, type ISiteMetadata } from "../types";
 import { CategoryInclbookmarked, CategoryIncldead, SchemaMetadata } from "../schemas/NexusPHP";
-
+import { set } from "es-toolkit/compat";
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
 
@@ -60,6 +60,16 @@ export const siteMetadata: ISiteMetadata = {
   ],
   search: {
     ...SchemaMetadata.search,
+    advanceKeywordParams: {
+      imdb: false,
+      douban: false,
+      anidb: {
+        requestConfigTransformer: ({ requestConfig: config }) => {
+          set(config!, "params.search_area", 4); // params "&search_area=4"
+          return config!;
+        },
+      },
+    },
     selectors: {
       ...SchemaMetadata.search!.selectors,
       title: {
