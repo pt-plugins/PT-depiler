@@ -46,7 +46,7 @@
     "@webext-core/job-scheduler": "^1.0.0",
     "@webext-core/messaging": "^2.3.0",
     "@webext-core/storage": "^1.2.0",
-    "axios": "^1.13.2",
+    "axios": "^1.13.4",
     "crypto-js": "^4.2.0",
     "date-fns": "^4.1.0",
     "echarts": "^6.0.0",
