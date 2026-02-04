@@ -19,7 +19,7 @@ import CheckSwitchButton from "@/options/components/CheckSwitchButton.vue";
 
 import {
   canThisSiteShow,
-  timelineDataRef,
+  timelineDataRef as timelineData,
   selectedSites,
   topSiteRenderAttr,
   CTimelineUserInfoField,
@@ -44,12 +44,11 @@ const metadataStore = useMetadataStore();
 const control = configStore.userDataTimelineControl;
 
 const isLoading = ref<boolean>(false);
-const { ref: timelineData, reset: resetTimelineData } = timelineDataRef;
 const allowEdit = reactive({ name: false, title: false }); // 是否允许编辑用户名、时间轴标题
 
 function resetTimelineDataWithControl() {
   // 开始生成 timeline 的数据
-  resetTimelineData();
+  timelineData.reset();
 
   // 将 control 中的 name 和 timelineTitle 覆盖掉自动生成的
   if (configStore.userName == "") {

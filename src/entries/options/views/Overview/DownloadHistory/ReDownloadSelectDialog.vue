@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { ref, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
+import { refManualReset } from "@vueuse/core";
 import type { CAddTorrentOptions } from "@ptd/downloader";
 
 import { sendMessage } from "@/messages.ts";
-import { useResetableRef } from "@/options/directives/useResetableRef.ts";
 import type { ITorrentDownloadMetadata } from "@/shared/types.ts";
 
 import SentToDownloaderDialog from "@/options/components/SentToDownloaderDialog/Index.vue";
@@ -22,7 +22,7 @@ const { torrentItems } = defineProps<{
 
 type TReDownloadType = "old" | "local" | "downloader";
 
-const { ref: isReDownloading, reset: resetIsReDownloading } = useResetableRef<Record<TReDownloadType, boolean>>(() => ({
+const isReDownloading = refManualReset<Record<TReDownloadType, boolean>>(() => ({
   old: false,
   local: false,
   downloader: false,
@@ -78,7 +78,7 @@ function reDownload(reDownloadType: TReDownloadType) {
 }
 
 function dialogEnter() {
-  resetIsReDownloading();
+  isReDownloading.reset();
 
   // 如果传入的种子列表中有 magnet 链接，则禁用本地下载按钮
   disableLocalDownload.value = torrentItems.some((t) => t?.torrent?.link?.startsWith("magnet:"));
