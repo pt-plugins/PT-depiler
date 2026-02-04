@@ -1,4 +1,11 @@
-import type { ISiteMetadata, ISearchInput, ITorrent, IUserInfo } from "../types.ts";
+import type {
+  ISiteMetadata,
+  ISearchInput,
+  ITorrent,
+  IUserInfo,
+  ISearchEntryRequestConfig,
+  ISearchResult,
+} from "../types.ts";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
 import {
   parseValidTimeString,
@@ -86,6 +93,15 @@ export const siteMetadata: ISiteMetadata = {
   urls: ["uggcf://tnmryyrtnzrf.arg/"],
 
   category: [
+    {
+      name: "使用组名搜索",
+      key: "use_groupname",
+      notes: "可以获得更精确的搜索结果",
+      options: [
+        { name: "不使用", value: 0 },
+        { name: "使用", value: 1 },
+      ],
+    },
     {
       name: "类别",
       key: "filter_cat",
@@ -197,6 +213,22 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class GazelleGames extends GazelleJSONAPI {
+  public override async getSearchResult(
+    keywords?: string,
+    searchEntry: ISearchEntryRequestConfig = {},
+  ): Promise<ISearchResult> {
+    const params = searchEntry?.requestConfig?.params;
+
+    if (params && "use_groupname" in params) {
+      if (params.use_groupname) {
+        searchEntry.keywordPath = "params.groupname";
+      }
+      delete params.use_groupname;
+    }
+
+    return super.getSearchResult(keywords, searchEntry);
+  }
+
   public override async request<T>(
     axiosConfig: AxiosRequestConfig,
     checkLogin: boolean = true,
@@ -228,7 +260,7 @@ export default class GazelleGames extends GazelleJSONAPI {
     return apiInfo;
   }
 
-  protected transformGroupTorrents(authkey: string, passkey: string, rows: groupResult[]): ITorrent[] {
+  private transformGGnTorrents(authkey: string, passkey: string, rows: groupResult[]): ITorrent[] {
     const results: ITorrent[] = [];
     for (const group of rows) {
       if (!group.Torrents) continue;
@@ -306,7 +338,7 @@ export default class GazelleGames extends GazelleJSONAPI {
     if (doc.status === "success") {
       const { authkey, passkey } = await this.getAuthKey();
       const rows = Object.values(doc.response);
-      const torrents = this.transformGroupTorrents(authkey, passkey, rows);
+      const torrents = this.transformGGnTorrents(authkey, passkey, rows);
       return torrents;
     }
     return [];

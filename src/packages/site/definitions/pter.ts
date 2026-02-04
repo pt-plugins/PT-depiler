@@ -231,12 +231,10 @@ export const siteMetadata: ISiteMetadata = {
         // TODO,
         rows: {
           selector: ".rowfollow",
-          filter: <T>(rows: T): T => {
+          filter: (rows: HTMLElement[] | null): HTMLElement[] | null => {
             // 只保留游戏种子
             if (Array.isArray(rows)) {
-              return Array.from(rows).filter(
-                (row) => !!(row as HTMLElement).querySelector("a[title='点击查看此种子详细资料']"),
-              ) as unknown as T;
+              return Array.from(rows).filter((row) => !!row.querySelector("a[title='点击查看此种子详细资料']"));
             }
             return rows;
           },
@@ -277,7 +275,8 @@ export const siteMetadata: ISiteMetadata = {
           selector: "div > span + span + span + span",
         },
         time: {
-          selector: "div[id^='ktorrent'] > #hidefl ~ span",
+          text: 0,
+          selector: ["div[id^='ktorrent'] > #hidefl ~ span[title]", "div[id^='ktorrent'] > span > span[title]"],
           attr: "title",
         },
       },
