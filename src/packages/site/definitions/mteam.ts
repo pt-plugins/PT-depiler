@@ -648,6 +648,19 @@ export default class MTeam extends PrivateSite {
     return super.fixLink(uri, { ...requestConfig, baseURL: this.url }); // 将 baseURL 重新指向回 web 页面
   }
 
+  private mapDiscountToTag(discount?: string | null): ITorrentTag | undefined {
+    switch (discount) {
+      case "FREE":
+        return { name: "Free", color: "blue" };
+      case "PERCENT_70":
+        return { name: "30%", color: "indigo" };
+      case "PERCENT_50":
+        return { name: "50%", color: "orange" };
+      default:
+        return undefined;
+    }
+  }
+
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
     row: IMTeamRawTorrent,
@@ -655,23 +668,10 @@ export default class MTeam extends PrivateSite {
   ): Partial<ITorrent> {
     const tags: ITorrentTag[] = [];
 
-    const mapDiscountToTag = (discount?: string | null): ITorrentTag | undefined => {
-      switch (discount) {
-        case "FREE":
-          return { name: "Free", color: "blue" };
-        case "PERCENT_70":
-          return { name: "30%", color: "indigo" };
-        case "PERCENT_50":
-          return { name: "50%", color: "orange" };
-        default:
-          return undefined;
-      }
-    };
-
     // 优先处理全站促销规则
     if (row.status?.promotionRule) {
       const globalDiscount = row.status.promotionRule.discount ?? "NORMAL";
-      const tag = mapDiscountToTag(globalDiscount);
+      const tag = this.mapDiscountToTag(globalDiscount);
       if (tag) tags.push(tag);
     } else {
       // 处理 成人区限时free
@@ -680,7 +680,7 @@ export default class MTeam extends PrivateSite {
       } else {
         // 其他促销状态 从 status.discount 中获取
         const discount = row.status?.discount ?? "NORMAL";
-        const tag = mapDiscountToTag(discount);
+        const tag = this.mapDiscountToTag(discount);
         if (tag) tags.push(tag);
       }
     }
