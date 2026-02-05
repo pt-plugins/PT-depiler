@@ -22,7 +22,7 @@ export const GazelleUtils = {
    * @param tagKeywords
    * @returns filtered tags
    */
-  extractTags(tags: string, tagKeywords?: string[]): string {
+  extractTags(tags: string, tagKeywords: string[] = []): string {
     const commonTagKeywords = ["Freeleech", "Neutral", "Seeding", "Snatched", "Reported", "Trumpable"];
     const tagParts = tags.split(" / ");
     if (tagParts.length < 1) return "";
@@ -30,7 +30,8 @@ export const GazelleUtils = {
     const filteredParts: string[] = [];
     // 只保留种子自身属性
     tagParts.forEach((tag) => {
-      if (!(tagKeywords || commonTagKeywords).some((keyword) => tag.includes(keyword))) filteredParts.push(tag.trim());
+      if (![...tagKeywords, ...commonTagKeywords].some((keyword) => tag.toLowerCase().includes(keyword.toLowerCase())))
+        filteredParts.push(tag.trim());
     });
     return filteredParts.join(" / ");
   },
@@ -42,17 +43,16 @@ export const GazelleUtils = {
    * @returns elementProcess
    */
   genTitleElementProcess({
-    tdSelector,
+    tdSelector = "td:has(a[href*='torrents.php?id=']):has(.tags)",
     extractTagsFunc,
   }: {
     tdSelector?: string;
     extractTagsFunc?: (tags: string) => string;
   } = {}) {
-    const defaultTdSelctor = "td:has(a[href*='torrents.php?id=']):has(.tags)";
     const extractTags = extractTagsFunc ?? this.extractTags;
     return (row: HTMLElement): string => {
       // 匹配信息格
-      const cell = row.querySelector(tdSelector || defaultTdSelctor);
+      const cell = row.querySelector(tdSelector);
       const clone = cell!.cloneNode(true) as HTMLElement;
 
       // 对于 Gazelle，一般第一个种子页链接对应的 <a> 会包含标题
@@ -86,7 +86,7 @@ export const GazelleUtils = {
       // 获取艺术家信息
       const artistEls = Array.from(row.querySelectorAll("a[href*='artist.php']"));
       const artists = artistEls
-        .map((el) => el.textContent)
+        .map((el) => el.textContent.trim())
         .filter(Boolean)
         .join(" & ");
 
@@ -299,7 +299,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           const notifRegex = /have (\d+|a) new/;
           let messages = 0;
 
-          const pargeMessage = (el: Element) => {
+          const parseMessage = (el: Element) => {
             const match = el.textContent.match(notifRegex);
             messages += match ? (match[1] === "a" ? 1 : parseInt(match[1])) : 0;
           };
@@ -308,7 +308,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           const alert = doc.querySelector("#alerts");
           if (alert) {
             const alerts = alert.querySelectorAll("a[href*='inbox.php'], a[href*='staffpm.php']");
-            alerts.forEach(pargeMessage);
+            alerts.forEach(parseMessage);
           }
 
           // 2. Pop-Up
@@ -316,7 +316,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
             const notifSpans = doc.querySelectorAll(
               ".noty-notification[data-noty-url*='inbox.php'], .noty-notification[data-noty-url*='staffpm.php']",
             );
-            notifSpans.forEach(pargeMessage);
+            notifSpans.forEach(parseMessage);
           }
 
           return messages;

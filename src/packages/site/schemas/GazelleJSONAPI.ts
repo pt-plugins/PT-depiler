@@ -268,12 +268,12 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       seedingSize: {
         selector: ["response.userstats.seedingSize"], // GazellePW
       },
+
+      // "/ajax.php?action=user&id=$user.id$"
       joinTime: {
         selector: ["response.stats.joinedDate"],
         filters: [{ name: "parseTime" }],
       },
-
-      // "/ajax.php?action=user&id=$user.id$"
       seeding: {
         selector: ["response.community.seeding"],
       },

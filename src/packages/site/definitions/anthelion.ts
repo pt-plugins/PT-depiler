@@ -2,7 +2,7 @@ import Gazelle, { SchemaMetadata, GazelleUtils, commonPagesList, detailPageList 
 import { ISiteMetadata, ITorrent, ISearchInput, ETorrentStatus } from "../types.ts";
 import { buildCategoryOptionsFromList } from "../utils.ts";
 
-const tagKeywords = ["Freeleech", "Neutral", "Seeding", "Snatched", "Internal", "Pollen", "Reported", "Trumpable"];
+const tagKeywords = ["Internal", "Pollen"];
 const extractTags = (tags: string) => GazelleUtils.extractTags(tags, tagKeywords);
 
 const antCategories = [
