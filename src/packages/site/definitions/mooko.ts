@@ -74,7 +74,6 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       ...SchemaMetadata.search!.selectors!,
       rows: { selector: "#torrent_table .Table-row" },
-      //title: { selector: "a[href*='torrents.php?id=']", attr: "data-tooltip" },
       title: {
         ...SchemaMetadata.search!.selectors!.title!,
         elementProcess: (el: HTMLElement) => {
@@ -194,11 +193,6 @@ export const siteMetadata: ISiteMetadata = {
       joinTime: { selector: "#join-date-value", data: "value", filters: [{ name: "parseTime" }] },
       lastAccessAt: { selector: "#last-access-date-value", data: "value", filters: [{ name: "parseTime" }] },
       uploads: { selector: "#upload-count-value", data: "value" },
-      trueDownloaded: {
-        selector: ["#downloaded-value span[data-tooltip]"],
-        attr: "data-tooltip",
-        filters: [{ name: "split", args: [",", 1] }, { name: "parseSize" }],
-      },
     },
   },
 
