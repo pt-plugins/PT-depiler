@@ -8,7 +8,9 @@ import {
   type ISiteMetadata,
   type IUserInfo,
   NeedLoginError,
-  ITorrent,
+  type ITorrent,
+  type ISearchInput,
+  type ITorrentTag,
 } from "../types";
 import { parseTimeToLiveToDate, parseValidTimeString } from "../utils";
 
@@ -177,7 +179,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         {
           name: "Free",
           selector:
-            "i.fa-star.text-gold, i.fa-globe, i[title*='100%'], span[title*='100%'], i.torrent-icons__featured, i[title*='Featured'], span[title*='feature'], i[data-original-title*='Featured'], i[data-original-title*='Free']",
+            "i.fa-star.text-gold, i.fa-globe, i.torrent-icons__freeleech.fa-star, i.torrent-icons__freeleech.fa-calendar-star, i[title*='100%'], span[title*='100%'], i.torrent-icons__featured, i[title*='Featured'], span[title*='feature'], i[data-original-title*='Featured'], i[data-original-title*='Free']",
           color: "blue",
         },
         {
@@ -453,6 +455,44 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 };
 
 export default class Unit3D extends PrivateSite {
+  // 可能会出现匹配到多个优惠 tag 的情况（比如站免），二次处理以只保留最高优惠类型 tag
+  protected override parseTorrentRowForTags(
+    torrent: Partial<ITorrent>,
+    row: Element | Document | object,
+    searchConfig: ISearchInput,
+  ): Partial<ITorrent> {
+    const torrents = super.parseTorrentRowForTags(torrent, row, searchConfig);
+
+    const discountType: Record<string, number> = {
+      Free: 100,
+      "75%": 75,
+      "50%": 50,
+      "25%": 25,
+    };
+
+    if (Array.isArray(torrents.tags)) {
+      let maxDiscountTag: ITorrentTag | undefined;
+      let maxValue = -1;
+
+      for (const tag of torrents.tags) {
+        const value = discountType[tag.name];
+        if (value !== undefined && value > maxValue) {
+          maxValue = value;
+          maxDiscountTag = tag;
+        }
+      }
+
+      if (maxDiscountTag) {
+        torrents.tags = torrents.tags.filter((tag) => {
+          const isDiscount = tag.name in discountType;
+          return !isDiscount || tag.name === maxDiscountTag.name;
+        });
+      }
+    }
+
+    return torrents;
+  }
+
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     let flushUserInfo: IUserInfo = {
       status: EResultParseStatus.unknownError,
