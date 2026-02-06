@@ -3,7 +3,7 @@ import { buildCategoryOptionsFromList } from "../utils";
 import { siteMetadata as GPWSiteMetadata, attrMap } from "./greatposterwall";
 import Gazelle, { GazelleUtils, SchemaMetadata, commonPagesList, detailPageList } from "../schemas/Gazelle";
 
-const tagKeywords = ["HR", "可替代", "已报告"];
+const tagKeywords = ["HR", "可替代", "已报告", "FREE", "xUP"];
 const extractTags = (tags: string) => GazelleUtils.extractTags(tags, tagKeywords);
 
 const detailPageSelectors = {
@@ -251,7 +251,7 @@ export default class MooKo extends Gazelle {
       }
     }
 
-    partTorrent.tags = partTorrent.tags?.concat(remasterTags);
+    partTorrent.tags = (partTorrent.tags || []).concat(remasterTags);
     return partTorrent;
   }
 }
