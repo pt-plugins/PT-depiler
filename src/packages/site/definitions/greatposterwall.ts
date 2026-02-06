@@ -29,7 +29,7 @@ const freeTypeMap: Record<string, ITorrentTag> = {
 };
 
 // https://github.com/Mosasauroidea/GazellePW/raw/86c4bedf727691b5a97af42a4864869d18446449/src/locales/zh-Hans/zh-Hans.yaml
-const attrMap: Record<string, ITorrentTag> = {
+export const attrMap: Record<string, ITorrentTag> = {
   "10_bit": { name: "10-bit", color: "orange" },
   "2_disc_set": { name: "双碟套装", color: "cyan" },
   "2_in_1": { name: "二合一", color: "cyan" },
