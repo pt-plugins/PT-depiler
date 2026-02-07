@@ -28,7 +28,8 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["uggcf://uunapyho.gbc/"],
+  urls: ["uggcf://uunapyho.arg/"],
+  legacyUrls: ["uggcf://uunapyho.gbc/"],
 
   officialGroupPattern: [/HHWEB/i],
 
