@@ -158,7 +158,17 @@ export const siteMetadata: ISiteMetadata = {
       },
 
       ext_imdb: { selector: "imdbID" },
-      ext_tvmaze: { selector: "tvmazeID" },
+      ext_tvmaze: {
+        selector: "tvmazeID",
+        filters: [
+          (query: string) => {
+            // Example: "e1234567" "s12345"
+            // 只保留能直接用于 social 模块的 season id
+            if (query.charAt(0) === "e") return null;
+            return query.slice(1);
+          },
+        ],
+      },
     },
   },
 
