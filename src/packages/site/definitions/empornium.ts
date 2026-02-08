@@ -1,4 +1,4 @@
-import { type ISiteMetadata } from "../types";
+import { type ISiteMetadata, ETorrentStatus } from "../types";
 import { SchemaMetadata } from "../schemas/Luminance";
 import { buildCategoryOptionsFromDict } from "../utils";
 
@@ -110,6 +110,15 @@ export const siteMetadata: ISiteMetadata = {
             return categoryMap[Number(match[1])];
           },
         ],
+      },
+      status: {
+        selector: ["a[href*='torrents.php?action=download'] .icon_stack > i:first-child"],
+        text: ETorrentStatus.unknown,
+        case: {
+          "i.torrent_icons.seeding": ETorrentStatus.seeding, // 做种!
+          "i.torrent_icons.leeching": ETorrentStatus.downloading, // 吸血!
+          "i.icon_torrent_disk.grabbed": ETorrentStatus.inactive, // 未完成!
+        },
       },
     },
   },
