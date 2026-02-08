@@ -87,10 +87,9 @@ export const siteMetadata: ISiteMetadata = {
       subTitle: { selector: "span.tags" },
       url: { selector: ".peers a", attr: "href" },
       category: {
+        text: "stub", // torrent_alt 行没有类别信息，会在后续方法处理
         selector: "span.torrent_icon",
         attr: "title",
-        // torrent_alt 行没有类别信息，会在后续方法处理
-        filters: [(query: string) => query || "stub"],
       },
       time: {
         selector: ":self",
