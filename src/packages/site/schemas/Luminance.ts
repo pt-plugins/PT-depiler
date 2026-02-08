@@ -70,12 +70,13 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       tags: [
         {
           name: "Free",
-          selector: "img[src*='freedownload.gif']",
+          selector:
+            "span.icon[title*='Freeleech'], img[alt='Freeleech'], img[src*='freedownload.gif'], i.unlimited_leech",
           color: "blue",
         },
         {
           name: "2xUp",
-          selector: "img[src*='doubleseed.gif']",
+          selector: "span.icon[title*='DoubleSeed'], img[alt='DoubleSeed'], img[src*='doubleseed.gif']",
           color: "lime",
         },
       ],

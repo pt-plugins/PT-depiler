@@ -80,18 +80,6 @@ export const siteMetadata: ISiteMetadata = {
           "i.seeding-torrent": 100,
         },
       },
-      tags: [
-        {
-          name: "Free",
-          selector: "i.unlimited_leech",
-          color: "blue",
-        },
-        {
-          name: "2xUp",
-          selector: "span.icon[title*='DoubleSeed']",
-          color: "lime",
-        },
-      ],
     },
   },
 

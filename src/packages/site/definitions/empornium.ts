@@ -1,6 +1,56 @@
 import { type ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/Luminance";
-import { buildCategoryOptionsFromList } from "../utils";
+import { buildCategoryOptionsFromDict } from "../utils";
+
+const categoryMap: Record<number, string> = {
+  1: "Amateur",
+  2: "Anal",
+  5: "Asian",
+  6: "BBW",
+  30: "BDSM",
+  36: "Big Ass",
+  8: "Big Tits",
+  7: "Black",
+  9: "Classic",
+  37: "Creampie",
+  10: "Cumshot",
+  11: "DVD-R",
+  12: "Fetish",
+  14: "Gang Bang / Orgy",
+  39: "Gay / Bi",
+  56: "Hairy",
+  35: "Hardcore",
+  44: "HD Porn",
+  3: "Hentai / 3D",
+  25: "Homemade",
+  43: "Interracial",
+  16: "Latina",
+  23: "Lesbian",
+  52: "Lingerie",
+  27: "Magazines",
+  53: "Manga / Comic",
+  18: "Masturbation",
+  26: "Mature",
+  40: "Megapack",
+  41: "Natural Tits",
+  17: "Oral",
+  29: "Other",
+  47: "Parody",
+  24: "Paysite",
+  21: "Pictures / Images",
+  50: "Piss",
+  55: "Porn Music Videos",
+  46: "Pregnant / Preggo",
+  51: "Scat/Puke",
+  22: "Siterip",
+  20: "Softcore",
+  49: "Squirt",
+  34: "Straight",
+  19: "Teen",
+  15: "Transsexual",
+  45: "Voyeur",
+  13: "XXX Games / Apps",
+};
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -8,67 +58,21 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   name: "Empornium",
   aka: ["EMP"],
+  description: "Empornium (EMP) is a Private Torrent Tracker for 3X.",
   tags: ["成人", "XXX"],
+  timezoneOffset: "-1100",
 
   type: "private",
   schema: "Luminance",
 
-  urls: ["uggcf://jjj.rzcbeavhz.ef/", "uggcf://jjj.rzcbeavhz.fk/"],
-  legacyUrls: ["https://www.empornium.is/"],
+  urls: ["uggcf://jjj.rzcbeavhz.fk/"],
+  legacyUrls: ["https://www.empornium.is/", "https://www.empornium.me/"],
 
   category: [
     {
       name: "类别",
       key: "filter_cat",
-      options: [
-        { name: "Amateur", value: "1" },
-        { name: "Anal", value: "2" },
-        { name: "Asian", value: "5" },
-        { name: "BBW", value: "6" },
-        { name: "BDSM", value: "30" },
-        { name: "Big Ass", value: "36" },
-        { name: "Big Tits", value: "8" },
-        { name: "Black", value: "7" },
-        { name: "Classic", value: "9" },
-        { name: "Creampie", value: "37" },
-        { name: "Cumshot", value: "10" },
-        { name: "DVD-R", value: "11" },
-        { name: "Fetish", value: "12" },
-        { name: "Gang Bang / Orgy", value: "14" },
-        { name: "Gay / Bi", value: "39" },
-        { name: "Hairy", value: "56" },
-        { name: "Hardcore", value: "35" },
-        { name: "HD porn", value: "44" },
-        { name: "Hentai / 3D", value: "3" },
-        { name: "Homemade", value: "25" },
-        { name: "Interracial", value: "43" },
-        { name: "Latina", value: "16" },
-        { name: "Lesbian", value: "23" },
-        { name: "Lingerie", value: "52" },
-        { name: "Magazines", value: "27" },
-        { name: "Manga / Comic", value: "53" },
-        { name: "Masturbation", value: "18" },
-        { name: "Mature", value: "26" },
-        { name: "Megapack", value: "40" },
-        { name: "Natural Tits", value: "41" },
-        { name: "Oral", value: "17" },
-        { name: "Other", value: "29" },
-        { name: "Parody", value: "47" },
-        { name: "Paysite", value: "24" },
-        { name: "Pictures / Images", value: "21" },
-        { name: "Piss", value: "50" },
-        { name: "Porn Music Videos", value: "55" },
-        { name: "Pregnant / Preggo", value: "46" },
-        { name: "Scat/Puke", value: "51" },
-        { name: "Siterip", value: "22" },
-        { name: "Softcore", value: "20" },
-        { name: "Squirt", value: "49" },
-        { name: "Straight", value: "34" },
-        { name: "Teen", value: "19" },
-        { name: "Transgender", value: "15" },
-        { name: "Voyeur", value: "45" },
-        { name: "XXX Games / Applications", value: "13" },
-      ],
+      options: buildCategoryOptionsFromDict(categoryMap),
       cross: { mode: "appendQuote" },
     },
     {
@@ -81,12 +85,6 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     ...SchemaMetadata!.search!,
-    requestConfig: {
-      ...SchemaMetadata!.search!.requestConfig!,
-      params: {
-        perPage: 100,
-      },
-    },
     advanceKeywordParams: {
       imdb: false,
       // 支持站点的高级搜索
@@ -103,16 +101,16 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       ...SchemaMetadata!.search!.selectors!,
       category: {
-        selector: ["td.cats_col > div"],
-        attr: "title",
+        selector: "td.cats_col > div[title] > a",
+        attr: "href",
+        filters: [
+          (query: string) => {
+            const match = query.match(/filter_cat\[(\d+)\]=/) || "";
+            if (!match) return "";
+            return categoryMap[Number(match[1])];
+          },
+        ],
       },
-      tags: [
-        {
-          name: "Free",
-          selector: "i.unlimited_leech",
-          color: "blue",
-        },
-      ],
     },
   },
 
