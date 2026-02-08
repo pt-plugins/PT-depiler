@@ -415,7 +415,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       uploads: {
         selector: ["dl.key-value:has(a[href*='/uploads'])", ".badge-user .fa-upload + span"],
         elementProcess: (el: Element) => {
-          if (!el.matches("dl.key-value:has(a[href*='/uploads'])")) {
+          if (!el.querySelector("a[href*='/uploads']")) {
             return undefined;
           }
           let count = 0;
