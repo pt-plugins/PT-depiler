@@ -285,6 +285,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 5,
       name: "Power Torrent Master",
+      nameAka: ["Power TM"],
       interval: "P12W",
       uploads: 250,
       trueDownloaded: "2TB",
@@ -294,6 +295,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 6,
       name: "Elite Torrent Master",
+      nameAka: ["Elite TM"],
       interval: "P16W",
       uploads: 500,
       trueDownloaded: "5TB",
