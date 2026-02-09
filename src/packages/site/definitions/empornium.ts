@@ -149,6 +149,15 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       id: 4,
+      name: "Better Perv",
+      interval: "P5Y",
+      uploaded: "25TB",
+      ratio: 1.05,
+      privilege:
+        "can see staff list on Staff page; can send invites (if you have any); can create an additional personal collage (3 total); can set forum signature (up to 512 characters)",
+    },
+    {
+      id: 5,
       name: "Great Perv",
       interval: "P8W",
       uploaded: "100GB",
@@ -158,7 +167,7 @@ export const siteMetadata: ISiteMetadata = {
         "can see staff list on Staff page;  can access the Invite forum;  can send invites (if you have any);  can create an additional personal collage (3 total);  can set forum signature (up to 512 characters)",
     },
     {
-      id: 5,
+      id: 6,
       name: "Sextreme Perv",
       interval: "P13W",
       uploaded: "1TB",
@@ -168,7 +177,7 @@ export const siteMetadata: ISiteMetadata = {
         "can see staff list on Staff page; can create 2 additional personal collages (5 total); can set forum signature (up to 1024 characters)",
     },
     {
-      id: 6,
+      id: 7,
       name: "Smut Peddler",
       interval: "P26W",
       uploaded: "10TB",
