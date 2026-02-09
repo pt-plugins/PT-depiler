@@ -194,8 +194,10 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
 
     let formData: FormData | null = new FormData();
     const params: { [key: string]: any } = {
-      download_dir: 0,
+      // 注意： uTorrent 对参数顺序有要求，必须要按照下面顺序，否则会报 invalid request 错误
       token: _sid,
+      action: "", // 空白占位，后面会覆写的
+      download_dir: 0,
       path: options.savePath ? options.savePath : "",
     };
 
@@ -218,7 +220,7 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
       formData.append("torrent_file", torrent.metadata.blob(), torrent.name);
     }
 
-    await axios.post(this.address, formData, {
+    await axios.post<{ build: number }>(this.address, formData, {
       params: params,
       auth: {
         username: this.config.username,
