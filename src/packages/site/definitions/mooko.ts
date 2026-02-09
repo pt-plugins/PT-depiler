@@ -203,7 +203,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "note",
       label: "点我（不需要填）",
-      hint: "需要将 搜索结果显示 改为 列表视图 才能正常使用搜索功能！如果需要搜索剧集，需要启用 剧集 搜索入口！",
+      hint: "需要将『搜索结果显示』改为『列表视图』才能正常使用搜索功能！如果需要搜索剧集，需要启用『剧集』搜索入口！",
       required: false,
     },
   ],

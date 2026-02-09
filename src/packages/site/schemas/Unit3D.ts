@@ -11,6 +11,7 @@ import {
   type ITorrent,
   type ISearchInput,
   type ITorrentTag,
+  type ISearchCategories,
 } from "../types";
 import { parseTimeToLiveToDate, parseValidTimeString } from "../utils";
 
@@ -25,6 +26,33 @@ const averageSeedingTimeTrans: string[] = ["Average Seedtime", "Average seedtime
 const invitesTrans: string[] = ["Invites", "邀请", "邀請"];
 const ratioTrans: string[] = ["Ratio", "分享率", "比率"];
 const trueRatioTrans: string[] = ["Real Ratio", "真实分享率", "真實比率"];
+
+export const CategoryFree: ISearchCategories = {
+  name: "Buff",
+  key: "free",
+  options: [
+    { name: "0% Freeleech", value: 0 },
+    { name: "25% Free", value: 25 },
+    { name: "50% Free", value: 50 },
+    { name: "75% Free", value: 75 },
+    { name: "100% Free", value: 100 },
+    { name: "双倍上传", value: "doubleup" },
+    { name: "精选", value: "featured" },
+    { name: "Refundable", value: "refundable" },
+  ],
+  cross: { mode: "custom" },
+  generateRequestConfig: (selectedOptions) => {
+    const params: Record<string, any> = { free: [] };
+    (selectedOptions as Array<number | string>).forEach((value) => {
+      if (value === "doubleup" || value === "featured" || value === "refundable") {
+        params[value] = 1;
+      } else {
+        params.free.push(value);
+      }
+    });
+    return { requestConfig: { params } };
+  },
+};
 
 export const SchemaMetadata: Partial<ISiteMetadata> = {
   version: 0,

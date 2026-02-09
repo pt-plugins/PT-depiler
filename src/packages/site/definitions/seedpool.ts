@@ -1,22 +1,23 @@
 import { type ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/Unit3D.ts";
+import { CategoryFree, SchemaMetadata } from "../schemas/Unit3D.ts";
+import { buildCategoryOptionsFromDict } from "../utils.ts";
 
 const seedingSizeTrans: string[] = ["Seedpool"];
 
-const categoryOptions = [
-  { name: "TV Show", value: 2 },
-  { name: "Movie", value: 1 },
-  { name: "Anime", value: 6 },
-  { name: "Sports", value: 8 },
-  { name: "Music", value: 5 },
-  { name: "Audiobook", value: 9 },
-  { name: "E-Book", value: 7 },
-  { name: "Hobby", value: 12 },
-  { name: "Software", value: 16 },
-  { name: "Game", value: 3 },
-  { name: "Music Production", value: 21 },
-  { name: "Other", value: 11 },
-];
+const categoryMap: Record<number, string> = {
+  2: "TV Show",
+  1: "Movie",
+  6: "Anime",
+  8: "Sports",
+  5: "Music",
+  9: "Audiobook",
+  7: "E-Book",
+  12: "Hobby",
+  16: "Software",
+  3: "Game",
+  21: "Music Production",
+  11: "Other",
+};
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -120,7 +121,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "类别",
       key: "categoryIds",
-      options: categoryOptions,
+      options: buildCategoryOptionsFromDict(categoryMap),
       cross: { mode: "brackets" },
     },
     {
@@ -181,32 +182,7 @@ export const siteMetadata: ISiteMetadata = {
       ],
       cross: { mode: "brackets" },
     },
-    {
-      name: "Buff",
-      key: "free",
-      options: [
-        { name: "0% Freeleech", value: 0 },
-        { name: "25% Free", value: 25 },
-        { name: "50% Free", value: 50 },
-        { name: "75% Free", value: 75 },
-        { name: "100% Free", value: 100 },
-        { name: "双倍上传", value: "doubleup" },
-        { name: "精选", value: "featured" },
-        { name: "Refundable", value: "refundable" },
-      ],
-      cross: { mode: "custom" },
-      generateRequestConfig: (selectedOptions) => {
-        const params: Record<string, any> = { free: [] };
-        (selectedOptions as Array<number | string>).forEach((value) => {
-          if (value === "doubleup" || value === "featured" || value === "refundable") {
-            params[value] = 1;
-          } else {
-            params.free.push(value);
-          }
-        });
-        return { requestConfig: { params } };
-      },
-    },
+    CategoryFree,
   ],
 
   search: {
@@ -217,7 +193,7 @@ export const siteMetadata: ISiteMetadata = {
       category: {
         selector: ":self",
         data: "categoryId",
-        filters: [(catID: number) => categoryOptions.find((cat) => cat.value == catID)?.name ?? ""],
+        filters: [(query: string) => categoryMap[Number(query)]],
       },
       tags: [
         ...SchemaMetadata.search!.selectors!.tags!,

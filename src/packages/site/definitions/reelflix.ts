@@ -1,5 +1,5 @@
-import type { ISiteMetadata, ITorrent, ITorrentTag, ISearchInput } from "../types";
-import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
+import type { ISiteMetadata } from "../types";
+import { CategoryFree, SchemaMetadata } from "../schemas/Unit3D.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -47,32 +47,7 @@ export const siteMetadata: ISiteMetadata = {
       ],
       cross: { mode: "brackets" },
     },
-    {
-      name: "Buff",
-      key: "free",
-      options: [
-        { name: "0% Freeleech", value: 0 },
-        { name: "25% Free", value: 25 },
-        { name: "50% Free", value: 50 },
-        { name: "75% Free", value: 75 },
-        { name: "100% Free", value: 100 },
-        { name: "双倍上传", value: "doubleup" },
-        { name: "精选", value: "featured" },
-        { name: "Refundable", value: "refundable" },
-      ],
-      cross: { mode: "custom" },
-      generateRequestConfig: (selectedOptions) => {
-        const params: Record<string, any> = { free: [] };
-        (selectedOptions as Array<number | string>).forEach((value) => {
-          if (value === "doubleup" || value === "featured" || value === "refundable") {
-            params[value] = 1;
-          } else {
-            params.free.push(value);
-          }
-        });
-        return { requestConfig: { params } };
-      },
-    },
+    CategoryFree,
   ],
 
   levelRequirements: [

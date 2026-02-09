@@ -1,5 +1,5 @@
 import { type ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/Unit3D.ts";
+import { CategoryFree, SchemaMetadata } from "../schemas/Unit3D.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -73,8 +73,7 @@ export const siteMetadata: ISiteMetadata = {
       cross: { mode: "brackets" },
     },
     {
-      name: "Buff",
-      key: "free",
+      ...CategoryFree,
       options: [
         // 25% - 75% 没有实际使用
         { name: "Normal", value: 0 },
@@ -83,18 +82,6 @@ export const siteMetadata: ISiteMetadata = {
         { name: "精选", value: "featured" },
         { name: "Refundable", value: "refundable" },
       ],
-      cross: { mode: "custom" },
-      generateRequestConfig: (selectedOptions) => {
-        const params: Record<string, any> = { free: [] };
-        (selectedOptions as Array<number | string>).forEach((value) => {
-          if (value === "doubleup" || value === "featured" || value === "refundable") {
-            params[value] = 1;
-          } else {
-            params.free.push(value);
-          }
-        });
-        return { requestConfig: { params } };
-      },
     },
   ],
 
