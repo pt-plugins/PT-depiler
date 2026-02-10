@@ -3,7 +3,7 @@ import { CategoryFree, SchemaMetadata } from "../schemas/Unit3D.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
-  version: 1,
+  version: 2,
   id: "lst",
   name: "LST",
   description: "Something cool",
@@ -90,46 +90,62 @@ export const siteMetadata: ISiteMetadata = {
     skipNonLatinCharacters: true,
     selectors: {
       ...SchemaMetadata.search!.selectors,
-      category: { selector: "span.torrent-search--list__uploader > div:nth-child(1)" },
+      rows: { selector: ".torrent-results__list > .torrent-search-row" },
+      id: {
+        selector: ".torrent-search-row__name > a",
+        attr: "href",
+        filters: [(query: string) => query.match(/\/torrents\/(\d+)/)?.[1] || query, { name: "parseNumber" }],
+      },
+      title: { selector: ".torrent-search-row__name > a" },
+      url: { selector: ".torrent-search-row__name > a", attr: "href" },
+      size: { selector: ".torrent-search-row__stat--size", attr: "title", filters: [{ name: "parseNumber" }] },
+      author: { ...SchemaMetadata.search!.selectors!.author!, selector: ".torrent-search-row__uploader" },
+      category: { selector: ".torrent-search-row__category", attr: "title" },
+      seeders: { selector: ".torrent-search-row__stat--seeders" },
+      leechers: { selector: ".torrent-search-row__stat--leechers" },
+      completed: { selector: ".torrent-search-row__stat--completed" },
+      comments: { selector: ".torrent-badges__item--comments .torrent-badges__count" },
+
       tags: [
         {
           name: "Free",
-          selector: "div[title*='100%'], i.torrent-icons__featured",
+          selector: "span[title*='100%'], span.torrent-badges__item--freeleech span.torrent-badges__item--featured",
           color: "blue",
         },
         {
           name: "2xUp",
-          selector: "i.fa-chevron-double-up, i.torrent-icons__double-upload, i.torrent-icons__featured",
+          selector:
+            "i.fa-chevron-double-up, span.torrent-badges__item--double-upload, span.torrent-badges__item--featured",
           color: "lime",
         },
         {
           name: "置顶",
-          selector: "i.fa-thumbtack",
+          selector: "span.torrent-badges__item--sticky",
           color: "red",
         },
         {
           name: "可退款",
-          selector: "i.fa-percentage, i[title*='Refundable']",
+          selector: "span.torrent-badges__item--refundable",
           color: "gray",
         },
         {
           name: "Internal",
-          selector: "i.torrent-icons__internal",
+          selector: "span.torrent-badges__item--internal",
           color: "purple",
         },
         {
           name: "个人发布",
-          selector: "i.torrent-icons__personal-release",
+          selector: "span.torrent-badges__item--personal",
           color: "purple",
         },
         {
           name: "Highspeed",
-          selector: "i.torrent-icons__highspeed",
+          selector: "span.torrent-badges__item--highspeed",
           color: "red",
         },
         {
           name: "Trump",
-          selector: "i.fa-skull.torrent-icons__bumped",
+          selector: "span.torrent-badges__item--trump",
           color: "red",
         },
         {
