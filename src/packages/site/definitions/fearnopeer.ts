@@ -1,6 +1,17 @@
 import { type ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/Unit3D.ts";
-import { buildCategoryOptionsFromList } from "../utils";
+import { buildCategoryOptionsFromDict, buildCategoryOptionsFromList } from "../utils";
+
+const categoryMap: Record<number, string> = {
+  1: "Movie",
+  2: "TV",
+  3: "Music",
+  6: "Anime",
+  4: "Games",
+  5: "Apps",
+  9: "Sport",
+  11: "Assorted",
+};
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -22,16 +33,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "类别",
       key: "categoryIds",
-      options: [
-        { name: "Movie", value: 1 },
-        { name: "TV", value: 2 },
-        { name: "Music", value: 3 },
-        { name: "Anime", value: 6 },
-        { name: "Games", value: 4 },
-        { name: "Apps", value: 5 },
-        { name: "Sport", value: 9 },
-        { name: "Assorted", value: 11 },
-      ],
+      options: buildCategoryOptionsFromDict(categoryMap),
       cross: { mode: "brackets" },
     },
     {
@@ -184,6 +186,18 @@ export const siteMetadata: ISiteMetadata = {
       cross: { mode: "brackets" },
     },
   ],
+
+  search: {
+    ...SchemaMetadata.search,
+    selectors: {
+      ...SchemaMetadata.search!.selectors,
+      category: {
+        selector: ":self",
+        data: "categoryId",
+        filters: [(query: string) => categoryMap[Number(query)]],
+      },
+    },
+  },
 
   userInfo: {
     ...SchemaMetadata.userInfo!,

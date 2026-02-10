@@ -1,10 +1,11 @@
 import type { ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/Unit3D.ts";
+import { CategoryFree, SchemaMetadata } from "../schemas/Unit3D.ts";
+import { buildCategoryOptionsFromDict } from "../utils.ts";
 
-const categoryOptions = [
-  { name: "Movie", value: 1 },
-  { name: "TV Show", value: 2 },
-];
+const categoryMap: Record<number, string> = {
+  1: "Movie",
+  2: "TV Show",
+};
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -25,7 +26,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "类别",
       key: "categoryIds",
-      options: categoryOptions,
+      options: buildCategoryOptionsFromDict(categoryMap),
       cross: { mode: "brackets" },
     },
     {
@@ -59,32 +60,7 @@ export const siteMetadata: ISiteMetadata = {
       ],
       cross: { mode: "brackets" },
     },
-    {
-      name: "Buff",
-      key: "free",
-      options: [
-        { name: "0% Freeleech", value: 0 },
-        { name: "25% Free", value: 25 },
-        { name: "50% Free", value: 50 },
-        { name: "75% Free", value: 75 },
-        { name: "100% Free", value: 100 },
-        { name: "双倍上传", value: "doubleup" },
-        { name: "精选", value: "featured" },
-        { name: "Refundable", value: "refundable" },
-      ],
-      cross: { mode: "custom" },
-      generateRequestConfig: (selectedOptions) => {
-        const params: Record<string, any> = { free: [] };
-        (selectedOptions as Array<number | string>).forEach((value) => {
-          if (value === "doubleup" || value === "featured" || value === "refundable") {
-            params[value] = 1;
-          } else {
-            params.free.push(value);
-          }
-        });
-        return { requestConfig: { params } };
-      },
-    },
+    CategoryFree,
   ],
 
   search: {
@@ -95,7 +71,7 @@ export const siteMetadata: ISiteMetadata = {
       category: {
         selector: ":self",
         data: "categoryId",
-        filters: [(catID: number) => categoryOptions.find((cat) => cat.value == catID)?.name ?? ""],
+        filters: [(query: string) => categoryMap[Number(query)]],
       },
       tags: [
         ...SchemaMetadata.search!.selectors!.tags!,
