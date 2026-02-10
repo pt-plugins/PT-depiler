@@ -54,40 +54,65 @@ const STATE_QUEUED = 64;
  * torrent list, its a huge tuple
  */
 type TorrentData = [
-  string, // HASH (string)
-  number, // STATUS* (integer)
-  string, // NAME (string)
-  number, // SIZE (integer in bytes)
-  number, // PERCENT PROGRESS (integer in per mils)
-  number, // DOWNLOADED (integer in bytes)
-  number, // UPLOADED (integer in bytes)
-  number, // RATIO (integer in per mils)
-  number, // UPLOAD SPEED (integer in bytes per second)
-  number, // DOWNLOAD SPEED (integer in bytes per second)
-  number, // ETA (integer in seconds)
-  string, // LABEL (string)
-  number, // PEERS CONNECTED (integer)
-  number, // PEERS IN SWARM (integer)
-  number, // SEEDS CONNECTED (integer)
-  number, // SEEDS IN SWARM (integer)
-  number, // AVAILABILITY (integer in 1/65536ths)
-  number, // TORRENT QUEUE ORDER (integer)
-  number, // REMAINING (integer in bytes)
-  string,
-  string,
-  string,
-  string,
-  number,
-  number,
-  string,
-  string,
-  number,
-  string,
-  boolean,
+  HASH: string, // HASH (string)
+  STATUS: number, // STATUS* (integer)
+  NAME: string, // NAME (string)
+  SIZE: number, // SIZE (integer in bytes)
+  PROGRESS: number, // PERCENT PROGRESS (integer in per mils)
+  DOWNLOADED: number, // DOWNLOADED (integer in bytes)
+  UPLOADED: number, // UPLOADED (integer in bytes)
+  RATIO: number, // RATIO (integer in per mils)
+  UPSPEED: number, // UPLOAD SPEED (integer in bytes per second)
+  DOWNSPEED: number, // DOWNLOAD SPEED (integer in bytes per second)
+  ETA: number, // ETA (integer in seconds)
+  LABEL: string, // LABEL (string)
+  PEERS_CONNECTED: number, // PEERS CONNECTED (integer)
+  PEERS_SWARM: number, // PEERS IN SWARM (integer)
+  SEEDS_CONNECTED: number, // SEEDS CONNECTED (integer)
+  SEEDS_SWARM: number, // SEEDS IN SWARM (integer)
+  AVAILABILITY: number, // AVAILABILITY (integer in 1/65536ths)
+  QUEUE_POSITION: number, // TORRENT QUEUE ORDER (integer)
+  REMAINING: number, // REMAINING (integer in bytes)
+  DOWNLOAD_URL: string,
+  RSS_FEED_URL: string,
+  STATUS_MESSAGE: string,
+  STREAM_ID: string,
+  DATE_ADDED: number,
+  DATE_COMPLETED: number,
+  APP_UPDATE_URL: string,
+  SAVE_PATH: string,
+  UNKNOWN: number,
+  UNKNOWN: string,
+  UNKNOWN: boolean,
 ];
 
 interface BaseUtorrentResponse {
   build: number;
+}
+
+interface VersionResponse extends BaseUtorrentResponse {
+  name: string;
+  version: {
+    device_id: string; // client
+    engine_version: number; // 47178  == 'build'
+    features: {
+      device_pairing: {
+        jsonp: number;
+        supported_types: number[];
+      };
+      remote: number;
+      settings_set: number;
+    };
+    major_version: number; // 3
+    minor_version: number; // 6
+    name: string; // uTorrent
+    peer_id: string; // UT360S
+    product_code: string; // client
+    tiny_version: number; // 0
+    ui_version: number; // 47178
+    user_agent: string; // uTorrent/360S(47178)(client)
+    version_date: string;
+  };
 }
 
 interface TorrentListResponse extends BaseUtorrentResponse {
@@ -158,11 +183,21 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
   }
 
   protected async getClientVersionFromRemote(): Promise<string> {
-    return ""; // TODO
+    let version = "";
+    try {
+      // 对 ut > 3.x 可以直接使用 action=getversion 的接口获取版本信息
+      const { version: versionResp } = await this.request<VersionResponse>("getversion");
+      version = `${versionResp.major_version}.${versionResp.minor_version}.${versionResp.tiny_version}(${versionResp.engine_version})`;
+    } catch (e) {
+      const { build } = await this.request("getsettings"); // 这里其实用任意的 action 都可以
+      version = `2.x(${build})`; // 对ut 2.x 只能通过 build 字段来判断版本，无法区分 2.x 的具体小版本
+    }
+
+    return version;
   }
 
   // 除"登录"和"添加种子"外的所有接口方法都走该方法
-  async request<T extends object>(
+  async request<T extends BaseUtorrentResponse>(
     action: string,
     params: {
       [key: string]: any;
@@ -220,7 +255,7 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
       formData.append("torrent_file", torrent.metadata.blob(), torrent.name);
     }
 
-    await axios.post<{ build: number }>(this.address, formData, {
+    await axios.post<BaseUtorrentResponse>(this.address, formData, {
       params: params,
       auth: {
         username: this.config.username,
