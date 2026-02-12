@@ -13,6 +13,7 @@ export const siteMetadata: ISiteMetadata = {
   description: "大象自中虚，中虚真不渝！",
   tags: ["综合"],
   timezoneOffset: "+0800",
+  isDead: true,
 
   userInfo: {
     ...SchemaMetadata.userInfo,
