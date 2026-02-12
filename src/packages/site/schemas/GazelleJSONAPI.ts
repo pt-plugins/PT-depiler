@@ -366,10 +366,11 @@ export default class GazelleJSONAPI extends GazelleBase {
       tags.push({ name: "Neutral", color: "cyan" });
     }
 
+    const artistField = group.artist ? `${group.artist} - ` : "";
     return {
       site: this.metadata.id, // 补全种子的 site 属性
       id: torrent.torrentId,
-      title: `${group.artist} - ${extractContent(group.groupName)} [${group.groupYear}] [${group.releaseType}]`,
+      title: `${artistField}${extractContent(group.groupName)} [${group.groupYear}] [${group.releaseType}]`,
       subTitle:
         `${torrent.format} / ${torrent.encoding} / ${torrent.media}` +
         (torrent.hasLog ? ` / Log(${torrent.logScore})` : "") +

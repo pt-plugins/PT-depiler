@@ -174,10 +174,11 @@ export default class SecretCinema extends GazelleJSONAPI {
   protected override async transformGroupTorrent(group: groupBrowseResult, torrent: groupTorrent): Promise<ITorrent> {
     const { authkey, passkey } = await this.getAuthKey();
 
+    const artistField = group.artist ? `${group.artist} - ` : "";
     return {
       site: this.metadata.id, // 补全种子的 site 属性
       id: torrent.torrentId,
-      title: `${group.artist} - ${extractContent(group.groupName)} [${group.groupYear}]`,
+      title: `${artistField}${extractContent(group.groupName)} [${group.groupYear}]`,
       subTitle:
         `${torrent.media}` +
         (torrent.hasLog ? " / Log" : "") +
