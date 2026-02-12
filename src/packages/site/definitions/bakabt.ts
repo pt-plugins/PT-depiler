@@ -46,9 +46,6 @@ export const siteMetadata: ISiteMetadata = {
         { name: "显示", value: 1 },
         { name: "不显示", value: 0 },
       ],
-      generateRequestConfig: (selectedOption) => ({
-        requestConfig: { params: { hentai: selectedOption, reorder: 1 } },
-      }),
     },
   ],
 
@@ -64,6 +61,7 @@ export const siteMetadata: ISiteMetadata = {
         hd: 1,
         multiaudio: 1,
         bonus: 1,
+        reorder: 1,
       },
     },
     advanceKeywordParams: {
