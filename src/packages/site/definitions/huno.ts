@@ -163,7 +163,7 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseTime", args: ["MMM dd yyyy"] }],
       },
       uploads: {
-        selector: [".user-info td span[data-original-title='Total Uploads']"],
+        selector: [".user-info td:contains('Total Uploads') + td"],
         filters: [{ name: "parseNumber" }],
       },
       uploaded: {
