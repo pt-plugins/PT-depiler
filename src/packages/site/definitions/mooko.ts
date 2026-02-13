@@ -42,14 +42,6 @@ export const siteMetadata: ISiteMetadata = {
 
   category: [
     {
-      name: "搜索入口",
-      key: "#url",
-      options: [
-        { name: "电影", value: "/torrents.php" },
-        { name: "剧集", value: "/series.php" },
-      ],
-    },
-    {
       name: "发行类别",
       key: "releasetype",
       options: [
@@ -145,11 +137,6 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
-  searchEntry: {
-    area_movies: { name: "电影", requestConfig: { url: "/torrents.php" } },
-    area_series: { name: "剧集", enabled: false, requestConfig: { url: "/series.php" } },
-  },
-
   list: [
     {
       ...commonPagesList,
@@ -203,7 +190,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "note",
       label: "点我（不需要填）",
-      hint: "需要将『搜索结果显示』改为『列表视图』才能正常使用搜索功能！如果需要搜索剧集，需要启用『剧集』搜索入口！",
+      hint: "需要将『搜索结果显示』改为『列表视图』才能正常使用搜索功能！",
       required: false,
     },
   ],
