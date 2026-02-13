@@ -87,12 +87,13 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.userInfo!,
     selectors: {
       ...SchemaMetadata.userInfo!.selectors,
-      name: { selector: ["a#userDropdownTrigger"] },
+      name: { selector: ["span.user_name"], filters: [{ name: "split", args: ["(", 0] }] },
       id: {
         selector: ["a[href^='/user.php?id=']"],
         attr: "href",
         filters: [{ name: "querystring", args: ["id"] }],
       },
+      messageCount: { selector: "a#userDropdownTrigger .user-notification-badge", filters: [{ name: "parseNumber" }] },
     },
   },
 
