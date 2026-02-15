@@ -202,7 +202,6 @@ onMounted(async () => {
   resetTimelineDataWithControl();
 
   isLoading.value = false;
-  console.debug(fixedLastUserInfo);
 });
 
 function exportTimelineImg() {
