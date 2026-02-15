@@ -24,7 +24,6 @@ export const siteMetadata: ISiteMetadata = {
   name: "nekoBT",
   description: "nekoBT is a Public Torrent Tracker for ANIME",
   tags: ["动漫"],
-  timezoneOffset: "+0800", // uses local timezone
 
   type: "public",
 
@@ -198,19 +197,19 @@ export default class NekoBT extends BittorrentSite {
     row: Element | { level: number },
     searchConfig: ISearchConfig,
   ): Partial<ITorrent> {
-    const { tags } = super.parseTorrentRowForTags(torrent, row, searchConfig);
+    const partTorrent = super.parseTorrentRowForTags(torrent, row, searchConfig);
     if (row instanceof Element) {
-      return { ...torrent, tags };
+      return partTorrent;
     }
 
     const tag = subLevelTags[row.level];
-    torrent.tags = tag ? [tag, ...torrent.tags!] : torrent.tags;
-    return torrent;
+    partTorrent.tags = tag ? [tag, ...partTorrent.tags!] : partTorrent.tags;
+    return partTorrent;
   }
 
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
     const downloadLink = await super.getTorrentDownloadLink(torrent);
-    if (downloadLink && !downloadLink.includes("/download/") && !downloadLink.startsWith("magnet:?xt=")) {
+    if (downloadLink && !(downloadLink.includes("/download/") || downloadLink.startsWith("magnet:?xt="))) {
       const mockRequestConfig = torrent.url?.startsWith("http") ? { url: torrent.url } : { baseURL: this.url };
       return this.fixLink(`/api/v1/torrents/${torrent.id}/download`, mockRequestConfig);
     }
