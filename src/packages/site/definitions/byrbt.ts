@@ -103,6 +103,14 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.userInfo!,
     selectors: {
       ...SchemaMetadata.userInfo!.selectors!,
+      id: {
+        selector: ["a[href*='userdetails.php']:first"],
+        attr: "href",
+        filters: [{ name: "querystring", args: ["id"] }],
+      },
+      name: {
+        selector: ["a[href*='userdetails.php']:first"],
+      },
       messageCount: {
         text: 0,
         selector: "#msg-bar a[href*='messages.php'] strong",
