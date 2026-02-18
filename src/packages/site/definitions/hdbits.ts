@@ -258,6 +258,10 @@ export const siteMetadata: ISiteMetadata = {
             selector: ["td.rowhead:contains('Seeding size') + td"],
             filters: [{ name: "parseSize" }],
           },
+          uploads: {
+            selector: ["td.heading:contains('Uploaded'):contains('torrents') + td"],
+            filters: [{ name: "replace", args: ["-", ""] }, { name: "parseNumber" }],
+          },
         },
       },
     ],

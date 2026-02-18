@@ -264,7 +264,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       uploads: {
         selector: [".button-right .bhd-block:nth-child(1) .class-highlight"],
-        filters: [(text) => text.match(/\d+/)?.[0] ?? ""],
+        filters: [(text) => text.replace(/,/g, "").match(/\d+/)?.[0] ?? ""],
       },
       leeching: {
         selector: [".button-right .bhd-block:nth-child(2) .bhd-tidbit-icon"],
