@@ -257,17 +257,20 @@ export default class PassThePopcorn extends Gazelle {
       const completed = parseFloat(torrent.Snatched);
 
       const colorType = torrent.ColorType;
-      let status = ETorrentStatus.unknown,
-        progress = 0;
-      if (colorType === "seeding" || colorType === "snatched") {
-        progress = 100;
-        if (colorType === "seeding") {
+      let status = ETorrentStatus.unknown;
+      let progress = 0;
+      switch (colorType) {
+        case "seeding":
           status = ETorrentStatus.seeding;
-        } else {
+          progress = 100;
+          break;
+        case "snatched":
           status = ETorrentStatus.completed;
-        }
-      } else if (colorType === "downloaded") {
-        status = ETorrentStatus.inactive;
+          progress = 100;
+          break;
+        case "downloaded":
+          status = ETorrentStatus.inactive;
+          break;
       }
 
       return {
