@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, shallowRef } from "vue";
+import { ref, shallowRef, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { saveAs } from "file-saver";
 import { EResultParseStatus, type IUserInfo, type TSiteID } from "@ptd/site";
@@ -8,6 +8,7 @@ import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 import { sendMessage } from "@/messages.ts";
 import { formatNumber, formatSize, formatDate } from "@/options/utils.ts";
 import { fixUserInfo, formatRatio } from "./utils.ts";
+import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import NavButton from "@/options/components/NavButton.vue";
@@ -17,12 +18,42 @@ const props = defineProps<{
   siteId: TSiteID | null;
 }>();
 const { t } = useI18n();
+const metadataStore = useMetadataStore();
 
 const currentDate = formatDate(+new Date(), "yyyy-MM-dd");
 const jsonData = ref<any>({});
 
 interface IShowUserInfo extends IUserInfo {
   date: string;
+}
+
+// 获取站点是否离线
+const isSiteOffline = computed(() => {
+  if (!props.siteId) return false;
+  return metadataStore.sites[props.siteId]?.isOffline ?? false;
+});
+
+// 判断数据是否是错误的（站点关闭后通常都是0）
+function isDataErroneous(userInfo: IShowUserInfo): boolean {
+  // 检查关键字段是否都是0或未定义
+  const uploaded = userInfo.uploaded ?? 0;
+  const downloaded = userInfo.downloaded ?? 0;
+  const seeding = userInfo.seeding ?? 0;
+  const seedingSize = userInfo.seedingSize ?? 0;
+  const bonus = userInfo.bonus ?? 0;
+  
+  // 如果所有关键数据都是0，认为是错误数据
+  return uploaded === 0 && downloaded === 0 && seeding === 0 && seedingSize === 0 && bonus === 0;
+}
+
+// 判断是否可以删除当天的数据
+function canDeleteTodayData(item: IShowUserInfo): boolean {
+  // 如果站点已离线且数据是错误的，允许删除
+  if (isSiteOffline.value && item.date === currentDate && isDataErroneous(item)) {
+    return true;
+  }
+  // 其他情况：不是当天数据，或者不是成功状态，或者不是当天
+  return item.date !== currentDate || item.status !== EResultParseStatus.success;
 }
 
 const siteHistoryData = shallowRef<IShowUserInfo[]>([]);
@@ -53,9 +84,22 @@ function loadSiteHistoryData(siteId: TSiteID) {
 
 function deleteSiteUserInfo(date: string[]) {
   if (confirm(t("MyData.HistoryDataView.deleteConfirm"))) {
+    // 过滤掉当天数据，但如果站点已离线且当天数据是错误的，允许删除
+    const filteredDates = date.filter((d) => {
+      if (d === currentDate) {
+        // 如果是当天数据，检查是否可以删除
+        const todayItem = siteHistoryData.value.find((item) => item.date === d);
+        if (todayItem && canDeleteTodayData(todayItem)) {
+          return true; // 允许删除
+        }
+        return false; // 不允许删除
+      }
+      return true; // 非当天数据可以删除
+    });
+    
     sendMessage("removeSiteUserInfo", {
       siteId: props.siteId!,
-      date: date.filter((d) => d != currentDate), // 不允许移除当天的数据
+      date: filteredDates,
     }).then(() => {
       loadSiteHistoryData(props.siteId!);
     });
@@ -191,7 +235,7 @@ function exportSiteHistoryData() {
 
               <!-- 删除 -->
               <v-btn
-                :disabled="item.status == EResultParseStatus.success && item.date == currentDate"
+                :disabled="!canDeleteTodayData(item)"
                 :title="t('common.remove')"
                 color="error"
                 icon="mdi-delete"
