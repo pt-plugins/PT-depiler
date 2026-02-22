@@ -2,10 +2,10 @@
  * FIXME 由 resource/sites/ptvicomo.net/config.json 自动转换而来
  */
 import { type ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+// import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  //...SchemaMetadata,
   version: 1,
 
   id: "ptvicomo",
@@ -15,6 +15,14 @@ export const siteMetadata: ISiteMetadata = {
   timezoneOffset: "+0800",
   isDead: true,
 
+  type: "private",
+  schema: "NexusPHP",
+
+  collaborator: ["AllenPu"],
+
+  urls: ["https://ptvicomo.net/"],
+
+  /*
   userInfo: {
     ...SchemaMetadata.userInfo,
     selectors: {
@@ -36,14 +44,9 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
+   */
 
-  type: "private",
-  schema: "NexusPHP",
-
-  collaborator: ["AllenPu"],
-
-  urls: ["https://ptvicomo.net/"],
-
+  /*
   category: [
     {
       name: "分类",
@@ -63,6 +66,7 @@ export const siteMetadata: ISiteMetadata = {
     CategorySpstate,
     CategoryInclbookmarked,
   ],
+    */
 
   levelRequirements: [
     {

@@ -6,8 +6,8 @@ import {
   type ITorrent,
   type ITorrentTag,
 } from "../types";
-import PrivateSite from "../schemas/AbstractPrivateSite.ts";
-import type { AxiosRequestConfig, AxiosResponse } from "axios";
+// import PrivateSite from "../schemas/AbstractPrivateSite.ts";
+// import type { AxiosRequestConfig, AxiosResponse } from "axios";
 
 const levelRequirements: (ILevelRequirement & { levelId?: number })[] = [
   {
@@ -244,6 +244,8 @@ interface IFsmRawResp<T> {
 /**
  * FSM 站点类，交互通过 API 进行
  */
+
+/*
 export default class Fsm extends PrivateSite {
   // 使用api.域名
   get apiBaseUrl(): string {
@@ -335,3 +337,4 @@ export default class Fsm extends PrivateSite {
     return `${this.apiBaseUrl}Torrents/download?tid=${torrent.id}&passkey=${this.userConfig.inputSetting!.passkey}&source=direct`;
   }
 }
+*/
