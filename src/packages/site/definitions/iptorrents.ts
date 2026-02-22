@@ -394,4 +394,30 @@ export const siteMetadata: ISiteMetadata = {
       },
     ],
   },
+
+  levelRequirements: [
+    {
+      id: 0,
+      name: "Peasant",
+    },
+    {
+      id: 1,
+      name: "User",
+    },
+    {
+      id: 2,
+      name: "Power User",
+      interval: "P4W",
+      uploaded: "50GB",
+      downloaded: "5GB", // 官网未列出
+      ratio: 1.05,
+      privilege: "Are able to make requests for torrents, view the Top 10, and apply for Uploader status.",
+    },
+    {
+      id: 3,
+      name: "VIP",
+      groupType: "vip",
+      privilege: "Immune from H&R.",
+    },
+  ],
 };
