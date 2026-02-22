@@ -7,7 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "pthome",
   name: "PTHome",
-  aka: ["PT之家"],
+  aka: ["PT之家", "铂金家"],
   description: "分享至美 高清之家",
   tags: ["影视", "综合"],
   collaborator: ["waldens", "zxb0303"],

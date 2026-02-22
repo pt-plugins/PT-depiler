@@ -6,7 +6,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "longpt",
   name: "LongPT",
-  aka: ["LongPT"],
+  aka: ["LongPT", "龙PT"],
   description: "长长久久，平平安安！",
   tags: ["综合", "影视", "动漫", "有声书"],
   timezoneOffset: "+0800",

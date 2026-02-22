@@ -16,7 +16,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "springsunday",
   name: "SpringSunday",
-  aka: ["CMCT", "SSD"],
+  aka: ["CMCT", "SSD", "春天"],
   description: "Classic Movie Compression Team",
   tags: ["影视", "音乐", "综合"],
 

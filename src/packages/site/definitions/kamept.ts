@@ -8,6 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "kamept",
   name: "KamePT",
+  aka: ["龟站"],
   schema: "NexusPHP",
   type: "private",
   urls: ["https://kamept.com/"],

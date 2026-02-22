@@ -7,6 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "ptskit",
   name: "PTSkit",
+  aka: ["拾刻"],
   description: "短的是时间 长的是热爱",
   tags: ["短剧", "成人"],
   timezoneOffset: "+0800",

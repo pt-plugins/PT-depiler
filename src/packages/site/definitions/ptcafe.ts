@@ -7,7 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "ptcafe",
   name: "咖啡",
-  aka: ["咖啡PT"],
+  aka: ["PTCafe", "咖啡PT"],
   description: "热爱生活·享受咖啡",
   timezoneOffset: "+0800",
   favicon: "./ptcafe.ico",

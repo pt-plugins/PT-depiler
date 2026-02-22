@@ -7,6 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "siqi",
   name: "思齐",
+  aka: ["SiQi"],
   tags: ["图书"],
   description: "见贤思齐！",
 

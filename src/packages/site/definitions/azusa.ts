@@ -11,7 +11,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "azusa",
   name: "梓喵",
-  aka: ["azusa"],
+  aka: ["Azusa"],
   description: [
     "主打二次元（非视频类）相关内容，包括漫画、轻小说、GalGame、同人、CG以及二次元音乐",
     "2025.7.12应站点公告要求取消用户信息获取",

@@ -7,6 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "novahd",
   name: "NovaHD",
+  aka: ["星云"],
   tags: ["综合"],
 
   type: "private",

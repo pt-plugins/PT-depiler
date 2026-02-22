@@ -7,7 +7,7 @@ export const siteMetadata: ISiteMetadata = {
 
   id: "xingtan",
   name: "杏坛",
-  aka: ["杏林"],
+  aka: ["杏林", "XingTan"],
   description: "杏坛 - 积少成多，聚沙成塔。",
   tags: ["医学", "电子书", "学术"],
   timezoneOffset: "+0800",

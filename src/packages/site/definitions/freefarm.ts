@@ -7,7 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "freefarm",
   name: "自由农场",
-  aka: ["FreeFarm"],
+  aka: ["FreeFarm", "Farmm"],
   description: "自由农场",
   tags: ["电视剧", "韩剧", "日剧"],
   timezoneOffset: "+0800",

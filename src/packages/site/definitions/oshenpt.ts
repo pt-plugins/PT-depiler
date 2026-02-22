@@ -10,6 +10,7 @@ export const siteMetadata: ISiteMetadata = {
 
   id: "oshenpt",
   name: "OshenPT",
+  aka: ["奥申"],
   description: "我为人人，人人为我，只为分享不为盈利",
   tags: ["综合", "音乐"],
   timezoneOffset: "+0800",

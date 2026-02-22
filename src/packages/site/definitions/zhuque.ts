@@ -64,7 +64,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "zhuque",
   name: "朱雀",
-  aka: ["zhuque"],
+  aka: ["Zhuque"],
   description: "新架构的影视站点",
   tags: ["影视", "综合"],
   timezoneOffset: "+0800",

@@ -19,7 +19,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "hhanclub",
   name: "憨憨",
-  aka: ["憨憨"],
+  aka: ["HHanClub"],
   tags: ["电影", "电视剧"],
   timezoneOffset: "+0800",
 

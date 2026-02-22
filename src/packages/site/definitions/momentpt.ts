@@ -12,6 +12,7 @@ export const siteMetadata: ISiteMetadata = {
 
   id: "momentpt",
   name: "MomentPT",
+  aka: ["瞬间"],
   description: "Moment 是摄影爱好者的净土。只有影像与心灵的对话，故本站禁止发布影视资源，望谅解",
   tags: ["摄影", "图片", "艺术"],
   timezoneOffset: "+0800",
@@ -27,9 +28,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       name: "搜索入口",
       key: "#url",
-      options: [
-        { name: "种子区", value: "/torrents.php" },
-      ],
+      options: [{ name: "种子区", value: "/torrents.php" }],
     },
     {
       name: "分类",
@@ -132,7 +131,8 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "50GB",
       ratio: 1.05,
       seedingBonus: 40000,
-      privilege: "必须注册至少4周，并且下载至少50G，分享率大于1.05。得到一个邀请名额；可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种；可以发送邀请；可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为\"强\")；可以删除自己上传的字幕。",
+      privilege:
+        '必须注册至少4周，并且下载至少50G，分享率大于1.05。得到一个邀请名额；可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种；可以发送邀请；可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")；可以删除自己上传的字幕。',
     },
     {
       id: 2,
@@ -150,7 +150,8 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "300GB",
       ratio: 2.05,
       seedingBonus: 150000,
-      privilege: "必须注册至少15周，并且下载至少300G，分享率大于2.05。得到两个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
+      privilege:
+        "必须注册至少15周，并且下载至少300G，分享率大于2.05。得到两个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
     },
     {
       id: 4,
@@ -168,7 +169,8 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "750GB",
       ratio: 3.05,
       seedingBonus: 400000,
-      privilege: "必须注册至少40周，并且下载至少750G，分享率大于3.05。得到三个邀请名额；可以查看其它用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。",
+      privilege:
+        "必须注册至少40周，并且下载至少750G，分享率大于3.05。得到三个邀请名额；可以查看其它用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。",
     },
     {
       id: 6,
@@ -177,7 +179,8 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "1TB",
       ratio: 3.55,
       seedingBonus: 600000,
-      privilege: "必须注册至少60周，并且下载至少1TB，分享率大于3.55。可以更新过期的外部信息；可以查看Extreme User论坛。",
+      privilege:
+        "必须注册至少60周，并且下载至少1TB，分享率大于3.55。可以更新过期的外部信息；可以查看Extreme User论坛。",
     },
     {
       id: 7,

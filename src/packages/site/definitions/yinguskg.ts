@@ -8,7 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "yinguskg",
   name: "樱花",
-  aka: ["YingUSKG", "ying.us.kg"],
+  aka: ["YingUSKG", "ying.us.kg", "Ying"],
   description: "YingUSKG PT站点",
   tags: ["综合", "影视"],
   timezoneOffset: "+0800",

@@ -16,7 +16,7 @@ export const siteMetadata: ISiteMetadata = {
   id: "milkie",
   version: 1,
   name: "Milkie",
-  aka: ["ME"],
+  aka: ["ME", "奶昔"],
   description: "Milkie.cc (ME) is Private Torrent Tracker for 0DAY / GENERAL",
   tags: ["综合"],
   timezoneOffset: "+0200",

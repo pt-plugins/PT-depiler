@@ -7,6 +7,7 @@ export const siteMetadata: ISiteMetadata = {
 
   id: "cyanbug",
   name: "CyanBug",
+  aka: ["大青虫"],
   description: "大青虫们在此聚集",
   tags: ["综合", "影视"],
   timezoneOffset: "+0800",

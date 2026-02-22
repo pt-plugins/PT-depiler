@@ -61,7 +61,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "sjtu",
   name: "葡萄",
-  aka: ["PuTao"],
+  aka: ["PuTao", "SJTU"],
   description: "Free Share, Join us",
   tags: ["教育网", "影视", "综合"],
 

@@ -7,6 +7,7 @@ export const siteMetadata: ISiteMetadata = {
 
   id: "lemonhd",
   name: "LemonHD",
+  aka: ["柠檬不酸"],
   description: "柠檬不酸",
   tags: ["综合"],
   timezoneOffset: "+0800",

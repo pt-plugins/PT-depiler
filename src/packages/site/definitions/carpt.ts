@@ -11,7 +11,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "carpt",
   name: "CarPT",
-  aka: ["车PT"],
+  aka: ["车PT", "车站"],
   description: "=链接@分享=",
   timezoneOffset: "+0800",
 

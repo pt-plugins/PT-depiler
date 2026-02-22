@@ -10,6 +10,7 @@ export const siteMetadata: ISiteMetadata = {
 
   id: "kufei",
   name: "库非",
+  aka: ["Kufei"],
   description: "库非资源下载分享",
   tags: ["影视", "综合"],
   timezoneOffset: "+0800",

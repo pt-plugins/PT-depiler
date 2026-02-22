@@ -7,7 +7,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "sunnypt",
   name: "Sunny",
-  aka: ["SunnyPT"],
+  aka: ["SunnyPT", "阳光"],
   description: "The Ultimate File Sharing Experience",
   tags: ["影视", "综合"],
   timezoneOffset: "+0800",

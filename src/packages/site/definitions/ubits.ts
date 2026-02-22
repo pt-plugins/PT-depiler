@@ -9,7 +9,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "ubits",
   name: "UBits",
-  aka: ["UB"],
+  aka: ["UB", "U堡"],
   description: "原盘爱好者集散地",
   tags: ["影视"],
 
