@@ -6,6 +6,7 @@ import PrivateSite from "./AbstractPrivateSite";
 import {
   EResultParseStatus,
   ETorrentStatus,
+  type IElementQuery,
   type ISearchCategories,
   type ISearchInput,
   type ISiteMetadata,
@@ -22,11 +23,6 @@ import {
   parseValidTimeString,
   sizePattern,
 } from "../utils";
-
-const baseLinkQuery = {
-  selector: ['a[href*="download.php?id="]:has(> img[alt="download"])'],
-  attr: "href",
-};
 
 export const CategoryIncldead: ISearchCategories = {
   name: "显示断种/活种？",
@@ -66,7 +62,18 @@ export const CategoryInclbookmarked: ISearchCategories = {
   cross: false,
 };
 
-const baseTitleSelector = {
+export const baseUserIdSelector: string[] = [
+  /**
+   * 优先使用 #info_block 中的链接，因为部分站点可能会在其他位置放置一个指向其他用户详情页的链接，导致获取到其他用户的 id 和 name
+   * refs: https://github.com/xiaomlove/nexusphp/blob/3dae3aec8d8340d48f9bf544479aa4dac4456cb6/include/functions.php#L2706-L2710
+   */
+  "#info_block a[href*='userdetails.php'][href*='id=']:first",
+  // 原PTPP使用的选择器
+  "a[href*='userdetails.php'][class*='Name']:first",
+  "a[href*='userdetails.php']:first",
+];
+
+export const baseTitleQuery: IElementQuery = {
   selector: [
     "a[href^='details.php?id='][title]:has(b)",
     "a[href*='details.php?id='][href*='hit']",
@@ -74,6 +81,11 @@ const baseTitleSelector = {
     "a[href*='hit']:has(b)",
   ],
 };
+
+export const baseLinkQuery: IElementQuery = {
+  selector: ['a[href*="download.php?id="]:has(> img[alt="download"])'],
+  attr: "href",
+} as const;
 
 const parseProgressElement = (element: HTMLElement) => {
   const progressElement = element.parentElement?.querySelector("div");
@@ -166,19 +178,19 @@ export const SchemaMetadata: Pick<
         filters: [{ name: "querystring", args: ["id"] }],
       },
       title: {
-        ...baseTitleSelector,
+        ...baseTitleQuery,
         text: "",
         elementProcess: (element) => {
           return (element.getAttribute("title") || element.textContent || "").trim();
         },
       },
       subTitle: {
-        ...baseTitleSelector,
+        ...baseTitleQuery,
         text: "",
         elementProcess: subTitleRemoveExtraElement(["a, span, img"], true),
       },
       progress: {
-        ...baseTitleSelector,
+        ...baseTitleQuery,
         elementProcess: (element) => {
           const parsedProgress = parseProgressElement(element);
           if (!parsedProgress) return "0";
@@ -186,7 +198,7 @@ export const SchemaMetadata: Pick<
         },
       },
       status: {
-        ...baseTitleSelector,
+        ...baseTitleQuery,
         text: ETorrentStatus.unknown,
         elementProcess: (element) => {
           const parsedProgress = parseProgressElement(element);
@@ -332,14 +344,14 @@ export const SchemaMetadata: Pick<
     selectors: {
       // "page": "/index.php",
       id: {
-        selector: ["a[href*='userdetails.php'][class*='Name']:first", "a[href*='userdetails.php']:first"],
+        selector: baseUserIdSelector,
         attr: "href",
         filters: [{ name: "querystring", args: ["id"] }],
       },
 
       // "page": "/userdetails.php?id=$user.id$",
       name: {
-        selector: ["a[href*='userdetails.php'][class*='Name']:first", "a[href*='userdetails.php']:first"],
+        selector: baseUserIdSelector,
       },
       messageCount: {
         text: 0,
