@@ -22,6 +22,7 @@ import HistoryDataViewDialog from "./HistoryDataViewDialog.vue";
 import BonusFormatSpan from "./BonusFormatSpan.vue";
 
 import { cancelFlushSiteLastUserInfo, fixUserInfo, flushSiteLastUserInfo, formatRatio } from "./utils.ts";
+import { sendMessage } from "@/messages.ts";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -78,6 +79,30 @@ const filteredTableBooleanControlKeys = computed(() => {
 
 interface IUserInfoItem extends IUserInfo {
   siteUserConfig: ISiteUserConfig;
+  // 当获取失败时，用于存储历史数据的更新时间
+  historyUpdateAt?: number;
+  // 用于排序的优先级：错误或空数据应该置顶显示
+  sortPriority?: number;
+}
+
+// 检查用户数据是否为空（即使状态是成功，但关键字段为空）
+function isEmptyUserInfo(userInfo: Partial<IUserInfo>): boolean {
+  // 检查关键字段是否为空
+  const hasValidBonus = userInfo.bonus !== undefined && userInfo.bonus !== "" && userInfo.bonus !== 0;
+  const hasValidLevelName = userInfo.levelName !== undefined && userInfo.levelName !== "";
+  // joinTime 可能是 number（时间戳）或 string（空字符串），需要兼容处理
+  // 注意：虽然类型定义是 number，但实际数据中可能有空字符串的情况
+  const joinTimeValue: number | string | undefined = userInfo.joinTime as number | string | undefined;
+  const hasValidJoinTime =
+    joinTimeValue !== undefined &&
+    joinTimeValue !== 0 &&
+    joinTimeValue !== "" &&
+    (typeof joinTimeValue === "number" || (typeof joinTimeValue === "string" && joinTimeValue.trim() !== ""));
+  const hasValidTraffic = (userInfo.uploaded !== undefined && userInfo.uploaded > 0) ||
+    (userInfo.downloaded !== undefined && userInfo.downloaded > 0);
+
+  // 如果所有关键字段都为空，则认为是空数据
+  return !hasValidBonus && !hasValidLevelName && !hasValidJoinTime && !hasValidTraffic;
 }
 
 const {
@@ -102,6 +127,38 @@ const {
 const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
 const tableData = shallowRef<IUserInfoItem[]>([]);
 
+// 计算排序字段：始终将 sortPriority 作为第一排序条件
+const computedSortBy = computed(() => {
+  const userSortBy = configStore.tableBehavior.MyData.sortBy;
+  const sortByArray = Array.isArray(userSortBy) ? [...userSortBy] : userSortBy ? [userSortBy] : [];
+  
+  // 检查第一个排序字段是否是 sortPriority
+  const firstSort = sortByArray[0];
+  if (firstSort && typeof firstSort === 'object' && firstSort.key === 'sortPriority') {
+    return sortByArray;
+  }
+  
+  // 如果不是，将 sortPriority 添加到最前面
+  return [{ key: 'sortPriority', order: 'asc' as const }, ...sortByArray];
+});
+
+// 处理用户排序更新，确保 sortPriority 始终在最前面
+function handleSortByUpdate(v: any) {
+  const sortByArray = Array.isArray(v) ? [...v] : v ? [v] : [];
+  
+  // 移除可能存在的 sortPriority
+  const filteredSortBy = sortByArray.filter((item: any) => {
+    if (typeof item === 'string') {
+      return item !== 'sortPriority';
+    }
+    return item.key !== 'sortPriority';
+  });
+  
+  // 将 sortPriority 添加到最前面
+  const newSortBy = [{ key: 'sortPriority', order: 'asc' as const }, ...filteredSortBy];
+  configStore.updateTableBehavior('MyData', 'sortBy', newSortBy);
+}
+
 async function updateTableData() {
   const allPrivateSiteUserInfoData = [];
 
@@ -121,11 +178,70 @@ async function updateTableData() {
       continue;
     }
 
-    const siteUserInfoData = metadataStore.lastUserInfo[siteId] ?? {};
+    let siteUserInfoData = metadataStore.lastUserInfo[siteId] ?? {};
+    const currentStatus = siteUserInfoData.status;
+    const currentUpdateAt = siteUserInfoData.updateAt;
+    const isCurrentEmpty = isEmptyUserInfo(siteUserInfoData);
+
+    // 如果当前获取失败或当前数据为空，尝试从历史记录中查找最后一次非空的数据
+    let historyUpdateAt: number | undefined;
+    let hasHistoryValidData = false; // 标记是否有历史非空数据
+    if (currentStatus !== EResultParseStatus.success || isCurrentEmpty) {
+      try {
+        const historyData = (await sendMessage("getSiteUserInfo", siteId)) as Record<string, IUserInfo>;
+        if (historyData) {
+          // 查找最后一次成功且非空的数据
+          let lastValidDate: string | null = null;
+          let lastValidData: IUserInfo | null = null;
+          for (const [date, item] of Object.entries(historyData)) {
+            if (
+              item.status === EResultParseStatus.success &&
+              !isEmptyUserInfo(item) &&
+              (!lastValidDate || new Date(date) > new Date(lastValidDate))
+            ) {
+              lastValidDate = date;
+              lastValidData = item;
+            }
+          }
+
+          // 如果找到历史非空数据，说明当前空数据是异常情况，应该提醒用户
+          if (lastValidData) {
+            hasHistoryValidData = true;
+            // 记录历史数据的更新时间用于显示
+            if (lastValidData.updateAt) {
+              historyUpdateAt = typeof lastValidData.updateAt === "number" ? lastValidData.updateAt : new Date(lastValidData.updateAt).getTime();
+            }
+
+            // 使用历史非空数据填充
+            // 如果当前数据为空但状态是成功，改为错误状态以提醒用户（因为有历史非空数据，说明应该能获取到数据）
+            const shouldShowError = isCurrentEmpty && currentStatus === EResultParseStatus.success;
+            siteUserInfoData = {
+              ...lastValidData,
+              status: shouldShowError ? EResultParseStatus.parseError : siteUserInfoData.status, // 如果是空数据且有历史非空数据，则显示错误状态
+              updateAt: currentUpdateAt, // 保留当前更新时间
+            };
+          } else {
+            // 没有找到历史非空数据，说明可能站点本身就没有这些数据，不应该显示为错误
+            // 保持当前状态和数据
+          }
+        }
+      } catch (error) {
+        // 获取历史数据失败，继续使用当前数据
+      }
+    }
+
+    // 计算排序优先级：只有报错状态或有历史非空数据但当前为空时，才置顶显示
+    // 优先级越小越靠前：0 = 错误状态或有历史非空数据但当前为空，1 = 正常数据
+    const finalStatus = siteUserInfoData.status;
+    // 只有当是错误状态（包括因为有历史非空数据而标记为错误），才置顶显示
+    const sortPriority = finalStatus !== EResultParseStatus.success ? 0 : 1;
+
     allPrivateSiteUserInfoData.push({
       ...fixUserInfo(siteUserInfoData),
       site: siteId,
       siteUserConfig,
+      historyUpdateAt, // 存储历史数据的更新时间
+      sortPriority, // 排序优先级
       // 对 isDead 或者 isOffline 的站点不允许选择（ https://github.com/pt-plugins/PT-depiler/pull/140 ）
       selectable: !(siteMeta.isDead || siteUserConfig.isOffline),
 
@@ -136,6 +252,16 @@ async function updateTableData() {
           : 0,
     });
   }
+
+  // 对数据进行排序：报错和空数据的站点置顶显示
+  allPrivateSiteUserInfoData.sort((a, b) => {
+    // 先按优先级排序（0 在前，1 在后）
+    if (a.sortPriority !== b.sortPriority) {
+      return (a.sortPriority ?? 1) - (b.sortPriority ?? 1);
+    }
+    // 如果优先级相同，保持原有顺序（可以通过站点ID或其他字段排序）
+    return 0;
+  });
 
   tableData.value = allPrivateSiteUserInfoData;
 }
@@ -411,14 +537,14 @@ function viewStatistic() {
       :items-per-page="configStore.tableBehavior.MyData.itemsPerPage"
       :multi-sort="configStore.enableTableMultiSort"
       :search="tableFilterRef"
-      :sort-by="configStore.tableBehavior.MyData.sortBy"
+      :sort-by="computedSortBy"
       class="table-stripe table-header-no-wrap table-no-ext-padding"
       hover
       item-selectable="selectable"
       item-value="site"
       show-select
       @update:itemsPerPage="(v) => configStore.updateTableBehavior('MyData', 'itemsPerPage', v)"
-      @update:sortBy="(v) => configStore.updateTableBehavior('MyData', 'sortBy', v)"
+      @update:sortBy="handleSortByUpdate"
     >
       <!-- 站点信息 -->
       <template #item.siteUserConfig.sortIndex="{ item }">
@@ -428,7 +554,10 @@ function viewStatistic() {
             :content="(item.messageCount ?? 0) > 10 ? undefined : item.messageCount"
             color="error"
           >
-            <div class="favicon-hover-wrapper favicon-hover-bg">
+            <div
+              class="favicon-hover-wrapper favicon-hover-bg"
+              :class="{ 'error-blink': item.status !== EResultParseStatus.success }"
+            >
               <SiteFavicon
                 :site-id="item.site"
                 :size="configStore.myDataTableControl.showSiteName ? 18 : 24"
@@ -620,7 +749,34 @@ function viewStatistic() {
       <!-- 更新时间 -->
       <template #item.updateAt="{ item }">
         <template v-if="item.status === EResultParseStatus.success">
-          <span class="text-wrap" :title="item.updateAt ? (formatDate(item.updateAt) as string) : '-'">
+          <v-container v-if="item.historyUpdateAt" class="py-0">
+            <v-row class="flex-nowrap my-0" justify="center">
+              <span class="text-wrap" :title="item.updateAt ? (formatDate(item.updateAt) as string) : '-'">
+                {{
+                  item.updateAt
+                    ? configStore.myDataTableControl.updateAtFormatAsAlive
+                      ? formatTimeAgo(item.updateAt)
+                      : formatDate(item.updateAt)
+                    : "-"
+                }}
+              </span>
+            </v-row>
+            <v-row class="flex-nowrap my-0" justify="center">
+              <span
+                class="text-caption text-wrap text-grey"
+                :title="item.historyUpdateAt ? (formatDate(item.historyUpdateAt) as string) : '-'"
+              >
+                {{
+                  item.historyUpdateAt
+                    ? configStore.myDataTableControl.updateAtFormatAsAlive
+                      ? formatTimeAgo(item.historyUpdateAt)
+                      : formatDate(item.historyUpdateAt)
+                    : "-"
+                }}
+              </span>
+            </v-row>
+          </v-container>
+          <span v-else class="text-wrap" :title="item.updateAt ? (formatDate(item.updateAt) as string) : '-'">
             {{
               item.updateAt
                 ? configStore.myDataTableControl.updateAtFormatAsAlive
@@ -631,9 +787,27 @@ function viewStatistic() {
           </span>
         </template>
         <template v-else>
-          <v-chip label>
-            <ResultParseStatus :status="item.status" />
-          </v-chip>
+          <v-container class="py-0">
+            <v-row class="flex-nowrap my-0" justify="center">
+              <v-chip density="compact" label size="small" class="error-blink-chip">
+                <ResultParseStatus :status="item.status" />
+              </v-chip>
+            </v-row>
+            <v-row v-if="item.historyUpdateAt" class="flex-nowrap my-0" justify="center">
+              <span
+                class="text-caption text-wrap"
+                :title="item.historyUpdateAt ? (formatDate(item.historyUpdateAt) as string) : '-'"
+              >
+                {{
+                  item.historyUpdateAt
+                    ? configStore.myDataTableControl.updateAtFormatAsAlive
+                      ? formatTimeAgo(item.historyUpdateAt)
+                      : formatDate(item.historyUpdateAt)
+                    : "-"
+                }}
+              </span>
+            </v-row>
+          </v-container>
         </template>
       </template>
 
@@ -679,5 +853,37 @@ function viewStatistic() {
 
 .favicon-hover-bg:hover {
   background: rgba(0, 0, 0, 0.3);
+}
+
+.error-blink {
+  animation: errorBlink 1.5s infinite;
+  border-radius: 50%;
+  padding: 4px;
+}
+
+.error-blink-chip {
+  animation: errorBlinkChip 1.5s infinite;
+}
+
+@keyframes errorBlink {
+  0%,
+  100% {
+    background-color: rgba(244, 67, 54, 0);
+  }
+  50% {
+    background-color: rgba(244, 67, 54, 0.4);
+  }
+}
+
+@keyframes errorBlinkChip {
+  0%,
+  100% {
+    background-color: rgba(244, 67, 54, 0.2);
+    border-color: rgba(244, 67, 54, 0.3);
+  }
+  50% {
+    background-color: rgba(244, 67, 54, 0.6);
+    border-color: rgba(244, 67, 54, 0.8);
+  }
 }
 </style>
