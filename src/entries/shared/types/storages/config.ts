@@ -183,6 +183,9 @@ export interface IConfigPiniaStorageSchema {
     // 是否保存下载记录
     saveDownloadHistory: boolean;
 
+    // 在下载器页面，进入时自动获取下载器状态（如果下载器支持获取状态的话）
+    startupAutoFetchDownloaderStatus: boolean;
+
     // 当使用本地方法下载时，如何下载种子
     localDownloadMethod: TLocalDownloadMethod;
     // 当使用本地方法下载时，是否忽略站点的下载间隔设置；

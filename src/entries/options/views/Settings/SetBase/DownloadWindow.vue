@@ -26,6 +26,12 @@ async function clearLastDownloader(v: boolean) {
         false-icon="mdi-alert-octagon"
         hide-details
       />
+      <v-switch
+        v-model="configStore.download.startupAutoFetchDownloaderStatus"
+        :label="t('SetBase.download.startupAutoFetchDownloaderStatus')"
+        color="success"
+        hide-details
+      />
     </v-col>
   </v-row>
 

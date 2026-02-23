@@ -6,11 +6,12 @@ import type {
   ITorrent,
   IUserInfo,
   TSiteID,
+  getFaviconMetadata,
 } from "@ptd/site";
 import type { ISocialInformation, TSupportSocialSite$1 } from "@ptd/social";
 import type { IMediaServerId, IMediaServerSearchOptions, IMediaServerSearchResult } from "@ptd/mediaServer";
-import type { getFaviconMetadata } from "@ptd/site";
 import type { IBackupData, IBackupFileInfo } from "@ptd/backupServer";
+import type { TorrentClientStatus } from "@ptd/downloader";
 
 import type { TExtensionStorageKey, IExtensionStorageSchema } from "@/storage.ts";
 import {
@@ -93,6 +94,8 @@ interface ProtocolMap extends TMessageMap {
 
   // 2.3 下载器、下载历史 ( utils/download )
   getDownloaderConfig(downloaderId: string): IDownloaderMetadata;
+  getDownloaderVersion(downloaderId: string): string;
+  getDownloaderStatus(downloaderId: string): TorrentClientStatus;
   getTorrentDownloadLink(torrent: ITorrent): string;
 
   downloadTorrent(data: IDownloadTorrentOption): IDownloadTorrentResult;

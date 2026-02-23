@@ -3,7 +3,12 @@ import { stringify } from "urlencode";
 import { toMerged } from "es-toolkit";
 import { isEmpty } from "es-toolkit/compat";
 
-import { getDownloader, getRemoteTorrentFile, type CAddTorrentOptions } from "@ptd/downloader";
+import {
+  getDownloader,
+  getRemoteTorrentFile,
+  type CAddTorrentOptions,
+  type TorrentClientStatus,
+} from "@ptd/downloader";
 import type { ITorrent } from "@ptd/site";
 
 import { onMessage, sendMessage } from "@/messages.ts";
@@ -35,6 +40,30 @@ export async function getDownloaderConfig(downloaderId: string) {
 }
 
 onMessage("getDownloaderConfig", async ({ data: downloaderId }) => await getDownloaderConfig(downloaderId));
+
+onMessage("getDownloaderVersion", async ({ data: downloaderId }) => {
+  let downloaderVersion = "unknown";
+
+  const downloaderConfig = await getDownloaderConfig(downloaderId);
+  if (downloaderConfig.id) {
+    const downloaderInstance = await getDownloader(downloaderConfig);
+    downloaderVersion = await downloaderInstance.getClientVersion();
+  }
+
+  return downloaderVersion;
+});
+
+onMessage("getDownloaderStatus", async ({ data: downloaderId }) => {
+  let downloaderStatus: TorrentClientStatus = { dlSpeed: 0, upSpeed: 0, dlData: 0, upData: 0 };
+
+  const downloaderConfig = await getDownloaderConfig(downloaderId);
+  if (downloaderConfig.id) {
+    const downloaderInstance = await getDownloader(downloaderConfig);
+    downloaderStatus = await downloaderInstance.getClientStatus();
+  }
+
+  return downloaderStatus;
+});
 
 export async function getTorrentDownloadLink(torrent: ITorrent) {
   const site = await getSiteInstance<"public">(torrent.site);

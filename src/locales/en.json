@@ -456,6 +456,7 @@
         "extensionTip": "The extension downloads the torrent in the background and proxies it to @:SetBase.download.localDownloadMethodOptions.browser for downloading"
       },
       "saveDownloadHistory": "Save download history (Please do not disable this function unless necessary)",
+      "startupAutoFetchDownloaderStatus": "Automatically load the downloader status when entering the downloader settings page",
       "localDownloadTitle": "Local Download",
       "localDownloadIgnoreInterval": "Ignore site download interval limit for local downloads",
       "pushDownloadServerTitle": "Push to Download Server",
@@ -479,7 +480,8 @@
       "name": "Server Name",
       "type": "Type",
       "uid": "Server Id",
-      "username": "Username"
+      "username": "Username",
+      "status": "Status"
     },
     "delete": {
       "text": "Are you sure to delete these {0} Download Servers?"
@@ -555,6 +557,9 @@
           "custom": "Custom text"
         }
       }
+    },
+    "ClientStatusSpan": {
+      "flushInterval": "Flush Interval (s)"
     }
   },
   "SetSearchSolution": {

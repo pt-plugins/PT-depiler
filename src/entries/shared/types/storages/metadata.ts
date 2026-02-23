@@ -54,6 +54,7 @@ export interface IDownloaderMetadata extends DownloaderBaseConfig {
   suggestTags?: string[];
 
   sortIndex?: number; // 排序索引，默认值取 100
+  autoFlushStatus?: number; // 自动刷新状态，0: 关闭，其他数值表示刷新间隔的秒数
 
   [key: string]: any; // 其他配置项
 }

@@ -456,6 +456,7 @@
         "extensionTip": "插件后台下载种子，并中转到 @:SetBase.download.localDownloadMethodOptions.browser 进行下载"
       },
       "saveDownloadHistory": "是否保存下载历史（如非必要请勿关闭此功能）",
+      "startupAutoFetchDownloaderStatus": "进入下载器设置页面时自动加载下载器状态",
       "localDownloadTitle": "本地下载",
       "localDownloadIgnoreInterval": "本地下载时忽略站点下载间隔限制",
       "pushDownloadServerTitle": "下载服务器推送",
@@ -479,7 +480,8 @@
       "name": "服务器名称",
       "type": "类型",
       "uid": "服务器ID",
-      "username": "用户名"
+      "username": "用户名",
+      "status": "服务器状态"
     },
     "delete": {
       "text": "确认删除这 {0} 个下载服务器吗？"
@@ -555,6 +557,9 @@
           "custom": "自定义的内容替换"
         }
       }
+    },
+    "ClientStatusSpan": {
+      "flushInterval": "刷新间隔 (s)"
     }
   },
   "SetSearchSolution": {
