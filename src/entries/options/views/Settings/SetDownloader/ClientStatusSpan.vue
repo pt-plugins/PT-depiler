@@ -66,8 +66,8 @@ function formatSizeStatus(v: number | undefined): string {
 }
 
 onMounted(async () => {
+  refreshIntervalSeconds.value = client.autoFlushStatus ?? 0;
   if (configStore.download.startupAutoFetchDownloaderStatus) {
-    refreshIntervalSeconds.value = client.autoFlushStatus ?? 0;
     if (refreshIntervalSeconds.value > 0) {
       flushClientStatus();
     }
