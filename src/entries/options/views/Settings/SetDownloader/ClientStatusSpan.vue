@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { onMounted, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { refManualReset } from "@vueuse/core";
 
@@ -25,8 +25,8 @@ const clientStatus = refManualReset<TorrentClientStatus>(() => ({
   dlData: 0,
 }));
 
-const inFlushed = ref<number>(0);
-const flushInterval = ref<number>(0);
+const refreshTimerId = ref<number>(0);
+const refreshIntervalSeconds = ref<number>(0);
 
 async function doFlushClientStatus() {
   const status = (await sendMessage("getDownloaderStatus", client.id)) as TorrentClientStatus | null;
@@ -35,21 +35,21 @@ async function doFlushClientStatus() {
   }
 
   // 如果开启自动刷新，重置并安排下一次刷新
-  if (flushInterval.value > 0) {
-    if (inFlushed.value > 0) {
-      clearTimeout(inFlushed.value);
+  if (refreshIntervalSeconds.value > 0) {
+    if (refreshTimerId.value > 0) {
+      clearTimeout(refreshTimerId.value);
     }
-    inFlushed.value = setTimeout(doFlushClientStatus, flushInterval.value * 1e3) as unknown as number;
+    refreshTimerId.value = setTimeout(doFlushClientStatus, refreshIntervalSeconds.value * 1e3) as unknown as number;
   } else {
-    inFlushed.value = 0;
+    refreshTimerId.value = 0;
   }
 }
 
 function flushClientStatus() {
-  // 手动触发：取消已有定时器并立即刷新一次
-  if (inFlushed.value > 0) {
-    clearTimeout(inFlushed.value);
-    inFlushed.value = 0;
+  // 如果当前已经有定时器了，说明正在刷新中或者者设置了自动刷新，这时候点击按钮应该取消自动刷新而不是立即刷新一次
+  if (refreshTimerId.value > 0) {
+    clearTimeout(refreshTimerId.value);
+    refreshTimerId.value = 0;
   } else {
     doFlushClientStatus();
   }
@@ -57,7 +57,7 @@ function flushClientStatus() {
 
 function saveFlushInterval() {
   const metadataStore = useMetadataStore();
-  metadataStore.downloaders[client.id].autoFlushStatus = flushInterval.value;
+  metadataStore.downloaders[client.id].autoFlushStatus = refreshIntervalSeconds.value;
   metadataStore.$save();
 }
 
@@ -67,10 +67,16 @@ function formatSizeStatus(v: number | undefined): string {
 
 onMounted(async () => {
   if (configStore.download.startupAutoFetchDownloaderStatus) {
-    flushInterval.value = client.autoFlushStatus ?? 0;
-    if (flushInterval.value > 0) {
+    refreshIntervalSeconds.value = client.autoFlushStatus ?? 0;
+    if (refreshIntervalSeconds.value > 0) {
       flushClientStatus();
     }
+  }
+});
+
+onUnmounted(() => {
+  if (refreshTimerId.value > 0) {
+    clearTimeout(refreshTimerId.value);
   }
 });
 </script>
@@ -98,7 +104,7 @@ onMounted(async () => {
         <template v-slot:activator="{ props }">
           <v-btn
             v-bind="props"
-            :icon="inFlushed > 0 ? 'mdi-sync mdi-spin' : 'mdi-play-outline'"
+            :icon="refreshTimerId > 0 ? 'mdi-sync mdi-spin' : 'mdi-play-outline'"
             variant="plain"
             @click="flushClientStatus"
           />
@@ -106,7 +112,7 @@ onMounted(async () => {
 
         <v-card>
           <v-number-input
-            v-model="flushInterval"
+            v-model="refreshIntervalSeconds"
             width="150px"
             controlVariant="stacked"
             :label="t('SetDownloader.ClientStatusSpan.flushInterval')"
