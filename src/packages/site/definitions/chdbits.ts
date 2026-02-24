@@ -200,7 +200,20 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
-
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      hnrPreWarning: {
+        text: 0,
+        selector: ["#info_block a[href*='hnr.php']"],
+        elementProcess: (e: HTMLElement) => {
+          const text = e.nextSibling?.textContent?.trim();
+          return text ? parseInt(text) : 0;
+        },
+      },
+    },
+  },
   levelRequirements: [
     {
       id: 1,
