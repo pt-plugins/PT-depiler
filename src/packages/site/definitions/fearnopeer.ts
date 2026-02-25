@@ -211,6 +211,10 @@ export const siteMetadata: ISiteMetadata = {
         ...SchemaMetadata.userInfo!.selectors!.joinTime!,
         selector: "span.profile-hero-2026__meta-item:contains('Registration date')",
       },
+      lastAccessAt: {
+        selector: "span.profile-hero-2026__meta-item:contains('Last login') > strong",
+        filters: [{ name: "parseTTL" }],
+      },
       invites: {
         selector: "span.profile-hero-2026__info-label:contains('Invites') + span",
         filters: [{ name: "parseNumber" }],

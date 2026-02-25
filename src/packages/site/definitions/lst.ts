@@ -169,6 +169,10 @@ export const siteMetadata: ISiteMetadata = {
         ...SchemaMetadata.userInfo!.selectors!.joinTime!,
         selector: "span.profile-hero__meta-item:contains('Registration date')",
       },
+      lastAccessAt: {
+        selector: "span.profile-hero__meta-item:contains('Last login')",
+        filters: [{ name: "split", args: [":", 1] }, { name: "trim" }, { name: "parseTTL" }],
+      },
       seedingSize: {
         selector: "div.profile-mini-stat__label:contains('Seeding size') + div",
         filters: [{ name: "parseSize" }],

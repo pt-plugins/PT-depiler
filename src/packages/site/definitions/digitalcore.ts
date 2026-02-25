@@ -255,7 +255,8 @@ export const siteMetadata: ISiteMetadata = {
         },
         assertion: { id: "url" },
         selectors: {
-          joinTime: { selector: "added" },
+          joinTime: { selector: "added", filters: [{ name: "parseTime" }] },
+          lastAccessAt: { selector: "last_access", filters: [{ name: "parseTime" }] },
           downloaded: { selector: "downloaded" },
           trueDownloaded: { selector: "downloaded_real" },
           uploaded: { selector: "uploaded" },

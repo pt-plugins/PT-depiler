@@ -9,6 +9,7 @@ const averageSeedingTimeTrans: string[] = ["Average seed time", "平均种子时
 const uploadedTrans: string[] = ["Uploaded", "已上传"];
 const downloadedTrans: string[] = ["Downloaded", "已下载"];
 const ratioTrans: string[] = ["Ratio", "分享率", "比率"];
+const lastAccessAtTrans: string[] = ["Last access", "上次访问"];
 
 const categoryMapXXX: Record<number, string> = {
   15: "XXX Movies",
@@ -401,11 +402,11 @@ export const siteMetadata: ISiteMetadata = {
           },
           joinTime: {
             selector: joinTimeTrans.map((x) => `dt:contains('${x}') + dd`),
-            filters: [
-              { name: "replace", args: [/日/g, " "] },
-              { name: "replace", args: [/[年月]/g, "-"] },
-              { name: "parseTime" },
-            ],
+            filters: [{ name: "parseTime", args: ["yyyy年M月d日 HH:mm:ss"] }],
+          },
+          lastAccessAt: {
+            selector: lastAccessAtTrans.map((x) => `dt:contains('${x}') + dd`),
+            filters: [{ name: "parseTime", args: ["yyyy年M月d日 HH:mm:ss"] }],
           },
           seedingSize: {
             selector: bonusTrans.map((x) => `dt:contains('${x}') + dd > b:nth-of-type(2)`),
@@ -433,7 +434,15 @@ export const siteMetadata: ISiteMetadata = {
           },
           averageSeedingTime: {
             selector: averageSeedingTimeTrans.map((x) => `a[href='/snatch/seeding'][title='${x}']`),
-            filters: [{ name: "parseDuration" }],
+            filters: [{ name: "replace", args: ["个", ""] }, { name: "parseDuration" }],
+          },
+          hnrUnsatisfied: {
+            selector: "a[href='/snatch/need-seed']",
+            filters: [{ name: "parseNumber" }],
+          },
+          hnrPreWarning: {
+            selector: "a[href='/snatch/hit-and-run']",
+            filters: [{ name: "parseNumber" }],
           },
         },
       },
@@ -444,10 +453,12 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 1,
       name: "Peasant",
+      nameAka: ["农民"],
     },
     {
       id: 2,
       name: "User",
+      nameAka: ["用户"],
       interval: "P30D",
       uploaded: "25GB",
       ratio: 1.05,
@@ -456,6 +467,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 3,
       name: "Power User",
+      // nameAka: ["超级用户"],
       interval: "P90D",
       uploaded: "200GB",
       ratio: 2,
@@ -464,6 +476,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 4,
       name: "Elite User",
+      nameAka: ["精英用户"],
       interval: "P180D",
       uploaded: "1TB",
       ratio: 3,
@@ -472,6 +485,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 5,
       name: "Xtreme User",
+      nameAka: ["极端用户"],
       interval: "P12M",
       uploaded: "5TB",
       ratio: 4,
@@ -480,6 +494,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 6,
       name: "Super User",
+      // nameAka: ["超级用户"],
       interval: "P2Y",
       uploaded: "20TB",
       ratio: 5,
@@ -488,6 +503,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 7,
       name: "Legend User",
+      nameAka: ["传奇用户"],
       interval: "P6Y",
       uploaded: "100TB",
       ratio: 6,
@@ -496,6 +512,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 8,
       name: "VIP",
+      nameAka: ["贵宾"],
       groupType: "vip",
       privilege: "Same privileges as Elite User, immune to automated HnR warnings.",
     },

@@ -207,6 +207,15 @@ export const siteMetadata: ISiteMetadata = {
               },
             ],
           },
+          lastAccessAt: {
+            selector: ["td:contains('Last'):contains('seen') + td"],
+            filters: [
+              (query: string) => {
+                query = query.split(" (")[0];
+                return parseValidTimeString(query);
+              },
+            ],
+          },
           seeding: {
             selector: ["td:contains('Seed'):contains('bonus') + td > div:first"],
             filters: [

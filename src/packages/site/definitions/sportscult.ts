@@ -252,6 +252,10 @@ export const siteMetadata: ISiteMetadata = {
             selector: "td.header:contains('Joined on') + td",
             filters: [{ name: "parseTime", args: ["dd/MM/yyyy HH:mm:ss"] }],
           },
+          lastAccessAt: {
+            selector: "td.header:contains('Last access') + td",
+            filters: [{ name: "parseTime", args: ["dd/MM/yyyy HH:mm:ss"] }],
+          },
           // FIXME 暂未实现 uploads
         },
       },

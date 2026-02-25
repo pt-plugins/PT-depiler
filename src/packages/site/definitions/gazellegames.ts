@@ -360,6 +360,7 @@ export default class GazelleGames extends GazelleJSONAPI {
       "bonusPerHour",
       "seedingSize",
       "seedingBonus",
+      "lastAccessAt",
     ] as (keyof Partial<IUserInfo>)[]) as Partial<IUserInfo>;
   }
 }

@@ -82,6 +82,10 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
               { name: "parseTime" },
             ],
           },
+          lastAccessAt: {
+            selector: ".embedded td:contains('Last seen') + td:first",
+            filters: [{ name: "split", args: ["(", 0] }, { name: "trim" }, { name: "parseTime" }],
+          },
           messageCount: {
             selector: "a[href='message.php?action=viewmailbox'] + b",
             filters: [{ name: "parseNumber" }],

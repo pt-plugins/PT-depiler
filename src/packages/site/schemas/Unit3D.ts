@@ -26,6 +26,7 @@ const averageSeedingTimeTrans: string[] = ["Average Seedtime", "Average seedtime
 const invitesTrans: string[] = ["Invites", "邀请", "邀請"];
 const ratioTrans: string[] = ["Ratio", "分享率", "比率"];
 const trueRatioTrans: string[] = ["Real Ratio", "真实分享率", "真實比率"];
+const lastAccessAtTrans: string[] = ["Last login", "Last Login", "上次登录时间", "上次登入"];
 
 export const CategoryFree: ISearchCategories = {
   name: "Buff",
@@ -466,6 +467,16 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
             return parseValidTimeString(query, ["MMM dd yyyy, HH:mm:ss", "MMM dd yyyy", "yyyy-MM-dd"]);
           },
         ],
+      },
+      lastAccessAt: {
+        selector: [
+          ...lastAccessAtTrans.map((x) => `dt:contains('${x}') + dd time`),
+          ...lastAccessAtTrans.map((x) => `td:contains('${x}') + td`),
+        ],
+        elementProcess: (el: Element) => {
+          const dateStr = el.getAttribute("title") ?? el.getAttribute("datetime");
+          return parseValidTimeString(dateStr || el.textContent.split("(")[0]);
+        },
       },
       invites: {
         selector: [

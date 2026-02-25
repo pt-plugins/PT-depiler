@@ -227,6 +227,10 @@ export const siteMetadata: ISiteMetadata = {
             selector: "td.header:contains('Joined on') + td",
             filters: [{ name: "parseTime", args: ["dd/MM/yyyy HH:mm:ss"] }],
           },
+          lastAccessAt: {
+            selector: "td.header:contains('Last access') + td",
+            filters: [{ name: "parseTime", args: ["dd/MM/yyyy HH:mm:ss"] }],
+          },
           seeding: { selector: "td.nav[title='Active-Torrents'] > a[href*='#actives'] > span" },
           seedingSize: {
             selector: "td.header:contains('Total Size of torrents') + td",
