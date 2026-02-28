@@ -79,13 +79,16 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["span.tooltip"],
       },
       progress: {
-        selector: ["td[class*='seedhlc_'], td[class*='leechhlc_']"],
+        text: 0,
+        selector: ["td[class*='seedhlc_'], td[class*='leechhlc_'], td[class*='snatchhlc_']"],
         elementProcess: (element: HTMLElement) => {
           switch (true) {
             case /seedhlc_/.test(element.className):
               return 100;
             case /leechhlc_/.test(element.className):
               return parseFloat((element.innerText.match(/[\d.]+%/)! || ["0"])[0]);
+            case /snatchhlc_finish/.test(element.className):
+              return 100;
             default:
               return 0;
           }
@@ -93,12 +96,13 @@ export const siteMetadata: ISiteMetadata = {
       },
       status: {
         text: ETorrentStatus.unknown,
-        selector: ":self",
+        selector: ["td[class*='seedhlc_'], td[class*='leechhlc_'], td[class*='snatchhlc_']"],
         case: {
-          "td[class*='seedhlc_ever']": ETorrentStatus.completed,
           ".seedhlc_current": ETorrentStatus.seeding,
-          ".leechhlc_inactive": ETorrentStatus.inactive,
           ".leechhlc_current": ETorrentStatus.downloading,
+          ".leechhlc_inactive": ETorrentStatus.inactive,
+          "td[class*='seedhlc_ever']": ETorrentStatus.completed,
+          ".snatchhlc_finish": ETorrentStatus.completed,
         },
       },
       leechers: {
