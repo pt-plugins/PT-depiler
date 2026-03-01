@@ -52,8 +52,8 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
 </script>
 
 <template>
-  <v-container ref="container" class="t_main">
-    <v-row>
+  <v-container ref="container" class="t_main pa-0">
+    <v-row gap="0">
       <!-- 种子主标题信息 -->
       <span
         :style="{
@@ -73,7 +73,7 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
       </span>
 
       <!-- 种子的媒体信息 -->
-      <div ref="social" class="ml-2">
+      <div ref="social">
         <template v-if="showSocial && configStore.searchEntifyControl.showSocialInformation">
           <template v-for="(meta, key) in socialBuildUrlMap" :key="key">
             <v-menu v-if="item[`ext_${key}`]" open-on-hover>
@@ -153,7 +153,10 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
         </template>
       </div>
     </v-row>
-    <v-row v-if="configStore.searchEntifyControl.showTorrentTag || configStore.searchEntifyControl.showTorrentSubtitle">
+    <v-row
+      v-if="configStore.searchEntifyControl.showTorrentTag || configStore.searchEntifyControl.showTorrentSubtitle"
+      gap="0"
+    >
       <!-- 种子标签信息 -->
       <div ref="tags">
         <template v-if="configStore.searchEntifyControl.showTorrentTag && item.tags && item.tags.length > 0">

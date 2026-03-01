@@ -128,14 +128,14 @@ function exportSiteHistoryData() {
 
           <!-- 上传、下载 -->
           <template #item.uploaded="{ item }">
-            <v-container>
-              <v-row class="flex-nowrap justify-end">
+            <v-container class="pa-0">
+              <v-row class="flex-nowrap justify-end" gap="0">
                 <span class="text-no-wrap">
                   {{ typeof item.uploaded !== "undefined" ? formatSize(item.uploaded) : "-" }}
                 </span>
                 <v-icon color="green-darken-4" icon="mdi-chevron-up" small></v-icon>
               </v-row>
-              <v-row class="flex-nowrap justify-end">
+              <v-row class="flex-nowrap justify-end" gap="0">
                 <span class="text-no-wrap">
                   {{ typeof item.downloaded !== "undefined" ? formatSize(item.downloaded) : "-" }}
                 </span>
@@ -168,11 +168,11 @@ function exportSiteHistoryData() {
 
           <!-- 魔力/积分 -->
           <template #item.bonus="{ item }">
-            <v-container>
-              <v-row class="align-center justify-end">
+            <v-container class="pa-0">
+              <v-row class="align-center justify-end" gap="0">
                 <span class="text-no-wrap">{{ item.bonus ? formatNumber(item.bonus) : "-" }}</span>
               </v-row>
-              <v-row class="align-center justify-end">
+              <v-row class="align-center justify-end" gap="0">
                 <span class="text-no-wrap">{{ item.seedingBonus ? formatNumber(item.seedingBonus) : "-" }}</span>
               </v-row>
             </v-container>

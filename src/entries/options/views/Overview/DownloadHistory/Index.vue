@@ -97,7 +97,7 @@ onMounted(() => {
   <v-alert :title="t('route.Overview.DownloadHistory')" type="info" />
   <v-card>
     <v-card-title>
-      <v-row class="ma-0">
+      <v-row class="ma-0" gap="0">
         <!-- 按钮组 -->
         <NavButton
           color="green"
