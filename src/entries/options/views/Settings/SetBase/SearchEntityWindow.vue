@@ -29,7 +29,7 @@ async function clearLastFilter(v: boolean) {
         hide-details
       />
 
-      <v-row dense>
+      <v-row density="compact">
         <v-col cols="12" md="2" class="d-flex align-center justify-center">
           <v-label>搜索方案</v-label>
         </v-col>
@@ -62,7 +62,7 @@ async function clearLastFilter(v: boolean) {
         </v-col>
       </v-row>
 
-      <v-row dense>
+      <v-row density="compact">
         <v-col cols="12" md="2" class="d-flex align-center justify-center">
           <v-label>结果筛选</v-label>
         </v-col>

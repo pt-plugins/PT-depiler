@@ -380,7 +380,7 @@ function saveControl() {
 
 <template>
   <v-card>
-    <v-row class="pa-2" justify="start">
+    <v-row class="pa-2 justify-start">
       <v-col ref="chartContainer" id="chartContainer" style="max-width: 800px">
         <!-- 总上传、总下载、总积分 -->
         <v-chart
@@ -441,7 +441,7 @@ function saveControl() {
         <v-alert title="数据图表样式设置" type="info" class="mb-2"> </v-alert>
 
         <v-row>
-          <v-col align-self="center">
+          <v-col class="align-self-center">
             <v-label>用户名</v-label>
           </v-col>
           <v-col cols="12" sm="10">
@@ -466,7 +466,7 @@ function saveControl() {
         </v-row>
 
         <v-row>
-          <v-col align-self="center">
+          <v-col class="align-self-center">
             <v-label>展示图表</v-label>
           </v-col>
           <v-col cols="12" sm="10">
@@ -489,7 +489,7 @@ function saveControl() {
         </v-row>
 
         <v-row>
-          <v-col align-self="center">
+          <v-col class="align-self-center">
             <v-label>时间段</v-label>
           </v-col>
           <v-col cols="12" sm="10">
@@ -535,7 +535,7 @@ function saveControl() {
         </v-row>
 
         <v-row>
-          <v-col align-self="center">
+          <v-col class="align-self-center">
             <v-label>图表设置</v-label>
           </v-col>
           <v-col cols="12" sm="10">

@@ -456,13 +456,13 @@ function viewStatistic() {
       <!-- 上传、下载 -->
       <template #item.uploaded="{ item }">
         <v-container>
-          <v-row class="flex-nowrap" justify="end">
+          <v-row class="flex-nowrap justify-end">
             <span class="text-no-wrap">
               {{ typeof item.uploaded !== "undefined" ? formatSize(item.uploaded) : "-" }}
             </span>
             <v-icon color="green-darken-4" icon="mdi-chevron-up" size="small"></v-icon>
           </v-row>
-          <v-row class="flex-nowrap" justify="end">
+          <v-row class="flex-nowrap justify-end">
             <span class="text-no-wrap">
               {{ typeof item.downloaded !== "undefined" ? formatSize(item.downloaded) : "-" }}
             </span>
@@ -474,13 +474,13 @@ function viewStatistic() {
       <!-- 真实上传、下载 -->
       <template #item.trueUploaded="{ item }">
         <v-container>
-          <v-row class="flex-nowrap" justify="end">
+          <v-row class="flex-nowrap justify-end">
             <span class="text-no-wrap">
               {{ typeof item.trueUploaded !== "undefined" ? formatSize(item.trueUploaded) : "-" }}
             </span>
             <v-icon color="green-darken-4" icon="mdi-chevron-up" size="small"></v-icon>
           </v-row>
-          <v-row class="flex-nowrap" justify="end">
+          <v-row class="flex-nowrap justify-end">
             <span class="text-no-wrap">
               {{ typeof item.trueDownloaded !== "undefined" ? formatSize(item.trueDownloaded) : "-" }}
             </span>
@@ -507,10 +507,10 @@ function viewStatistic() {
       <!-- 做种数， H&R 情况  -->
       <template #item.seeding="{ item }">
         <v-container class="py-0">
-          <v-row align="center" class="flex-nowrap my-0" justify="end">
+          <v-row class="flex-nowrap my-0 align-center justify-end">
             <span class="text-no-wrap">{{ item.seeding ?? "-" }}</span>
           </v-row>
-          <v-row v-if="configStore.myDataTableControl.showHnR" align="center" class="flex-nowrap my-0" justify="end">
+          <v-row v-if="configStore.myDataTableControl.showHnR" class="flex-nowrap my-0 align-center justify-end">
             <span
               v-if="typeof item.hnrPreWarning !== 'undefined' && item.hnrPreWarning > 0"
               class="d-inline-flex align-center ml-2"
@@ -553,7 +553,7 @@ function viewStatistic() {
       <!-- 魔力/积分 -->
       <template #item.bonus="{ item }">
         <v-container>
-          <v-row align="center" class="flex-nowrap" justify="end">
+          <v-row class="flex-nowrap align-center justify-end">
             <v-icon :title="t('levelRequirement.bonus')" color="green-darken-4" icon="mdi-currency-usd" size="small" />
             <BonusFormatSpan :num="item.bonus" />
           </v-row>
@@ -563,9 +563,7 @@ function viewStatistic() {
               item.seedingBonus !== '' &&
               !isUndefined(item.seedingBonus)
             "
-            align="center"
-            class="flex-nowrap"
-            justify="end"
+            class="flex-nowrap align-center justify-end"
           >
             <v-icon
               :title="t('levelRequirement.seedingBonus')"

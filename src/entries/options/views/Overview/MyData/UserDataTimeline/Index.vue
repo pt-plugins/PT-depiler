@@ -226,7 +226,7 @@ function saveControl() {
 
 <template>
   <v-card>
-    <v-row class="pa-2" justify="start">
+    <v-row class="pa-2 justify-start">
       <v-col
         ref="canvasContainer"
         :style="{
@@ -619,7 +619,7 @@ function saveControl() {
         </v-row>
 
         <v-row>
-          <v-col class="ml-2" align-self="center">
+          <v-col class="ml-2 align-self-center">
             <v-label>展示内容</v-label>
           </v-col>
           <v-col cols="12" sm="10">
@@ -652,7 +652,7 @@ function saveControl() {
         </v-row>
 
         <v-row>
-          <v-col class="ml-2" align-self="center">
+          <v-col class="ml-2 align-self-center">
             <v-label>时间显示方式</v-label>
           </v-col>
           <v-col cols="12" sm="10">
