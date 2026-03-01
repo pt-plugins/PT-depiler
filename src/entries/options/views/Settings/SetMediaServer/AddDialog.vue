@@ -94,10 +94,10 @@ async function saveStoredMediaServerConfig() {
               @update:model-value="(e) => updateStoredMediaServerConfigByDefault(e)"
             >
               <template #selection="{ item }">
-                <v-list-item :prepend-avatar="getMediaServerIcon(item.raw.type)" :title="item.raw.type" />
+                <v-list-item :prepend-avatar="getMediaServerIcon(item.type)" :title="item.type" />
               </template>
               <template #item="{ props, item }">
-                <v-list-item v-bind="props" :prepend-avatar="getMediaServerIcon(item.raw.type)" :title="item.raw.type">
+                <v-list-item v-bind="props" :prepend-avatar="getMediaServerIcon(item.type)" :title="item.type">
                 </v-list-item>
               </template>
             </v-autocomplete>

@@ -78,14 +78,14 @@ function enterDialog() {
             item-value="id"
             @update:model-value="(e) => updateDefaultDownloaderInput(e)"
           >
-            <template #selection="{ item: { raw: downloader } }">
+            <template #selection="{ item: downloader }">
               <v-list-item
                 :prepend-avatar="getDownloaderIcon(downloader.type)"
                 :subtitle="downloader.address"
                 :title="downloader.name"
               />
             </template>
-            <template #item="{ props, item: { raw: downloader } }">
+            <template #item="{ props, item: downloader }">
               <v-list-item
                 v-bind="props"
                 :prepend-avatar="getDownloaderIcon(downloader.type)"

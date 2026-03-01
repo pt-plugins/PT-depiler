@@ -95,10 +95,10 @@ function resetDialog() {
               @update:model-value="(e) => updateStoredDownloaderConfigByDefault(e)"
             >
               <template #selection="{ item }">
-                <v-list-item :prepend-avatar="getBackupServerIcon(item.raw.type)" :title="item.raw.type" />
+                <v-list-item :prepend-avatar="getBackupServerIcon(item.type)" :title="item.type" />
               </template>
               <template #item="{ props, item }">
-                <v-list-item v-bind="props" :prepend-avatar="getBackupServerIcon(item.raw.type)" :title="item.raw.type">
+                <v-list-item v-bind="props" :prepend-avatar="getBackupServerIcon(item.type)" :title="item.type">
                 </v-list-item>
               </template>
             </v-autocomplete>

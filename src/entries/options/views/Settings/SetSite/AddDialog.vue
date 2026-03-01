@@ -81,56 +81,55 @@ async function saveSite() {
               item-value="id"
               persistent-hint
             >
-              <template #selection="{ item }">
+              <template #selection="{ item: site }">
                 <v-list-item>
                   <template #prepend>
-                    <SiteFavicon :site-id="item.raw.id" class="mr-2" flush-on-no-image />
+                    <SiteFavicon :site-id="site.id" class="mr-2" flush-on-no-image />
                   </template>
-                  <v-list-item-title :class="{ 'text-decoration-line-through': item.raw.isDead }">
-                    {{ item.raw.name ?? "" }}
+                  <v-list-item-title :class="{ 'text-decoration-line-through': site.isDead }">
+                    {{ site.name ?? "" }}
                   </v-list-item-title>
                 </v-list-item>
               </template>
-              <template #item="{ props, item }">
+              <template #item="{ props, item: site }">
                 <v-list-item v-bind="props">
                   <template #prepend>
-                    <SiteFavicon :site-id="item.raw.id" class="mr-2" />
+                    <SiteFavicon :site-id="site.id" class="mr-2" />
                   </template>
 
                   <template #title>
                     <v-list-item-title class="mb-1">
-                      <b :class="{ 'text-decoration-line-through': item.raw.isDead }">{{ item.raw.name ?? "" }}</b>
+                      <b :class="{ 'text-decoration-line-through': site.isDead }">{{ site.name ?? "" }}</b>
                       <!-- 站点类型 -->
                       <v-chip
-                        :color="item.raw.type === 'private' ? 'primary' : 'secondary'"
+                        :color="site.type === 'private' ? 'primary' : 'secondary'"
                         class="ml-2"
                         label
                         size="x-small"
                       >
                         {{
-                          item.raw.schema ??
-                          (item.raw.type === "private" ? "AbstractPrivateSite" : "AbstractBittorrentSite")
+                          site.schema ?? (site.type === "private" ? "AbstractPrivateSite" : "AbstractBittorrentSite")
                         }}
                       </v-chip>
                       <v-chip class="ml-2" color="green" label size="x-small">
-                        {{ item.raw.version ? "v" + item.raw.version : "" }}
+                        {{ site.version ? "v" + site.version : "" }}
                       </v-chip>
                     </v-list-item-title>
                   </template>
 
                   <template #subtitle>
                     <v-list-item-subtitle
-                      :title="item.raw.description ?? ''"
+                      :title="site.description ?? ''"
                       class="text-decoration-none text-ellipsis"
                       style="max-width: 500px"
                     >
-                      {{ item.raw.description ?? "" }}
+                      {{ site.description ?? "" }}
                     </v-list-item-subtitle>
                   </template>
 
                   <template #append>
                     <v-list-item-action>
-                      {{ item.raw.tags?.join(", ") ?? "" }}
+                      {{ site.tags?.join(", ") ?? "" }}
                     </v-list-item-action>
                   </template>
                 </v-list-item>

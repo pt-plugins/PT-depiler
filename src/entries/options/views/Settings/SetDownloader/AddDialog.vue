@@ -105,10 +105,10 @@ async function saveStoredDownloaderConfig() {
               @update:model-value="(e) => updateStoredDownloaderConfigByDefault(e)"
             >
               <template #selection="{ item }">
-                <v-list-item :prepend-avatar="getDownloaderIcon(item.raw.type)" :title="item.raw.type" />
+                <v-list-item :prepend-avatar="getDownloaderIcon(item.type)" :title="item.type" />
               </template>
               <template #item="{ props, item }">
-                <v-list-item v-bind="props" :prepend-avatar="getDownloaderIcon(item.raw.type)" :title="item.raw.type">
+                <v-list-item v-bind="props" :prepend-avatar="getDownloaderIcon(item.type)" :title="item.type">
                 </v-list-item>
               </template>
             </v-autocomplete>

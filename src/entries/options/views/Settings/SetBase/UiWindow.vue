@@ -46,11 +46,11 @@ defineExpose({
       <!-- 明亮模式设置 -->
       <v-select v-model="configStore.theme" :label="t('SetBase.ui.displayMode.index')" :items="supportTheme">
         <template #selection="{ item }">
-          {{ t("SetBase.ui.displayMode." + item.raw) }}
+          {{ t("SetBase.ui.displayMode." + item) }}
         </template>
 
         <template #item="{ props, item }">
-          <v-list-item v-bind="props" :title="t('SetBase.ui.displayMode.' + item.raw)" />
+          <v-list-item v-bind="props" :title="t('SetBase.ui.displayMode.' + item)" />
         </template>
       </v-select>
 
