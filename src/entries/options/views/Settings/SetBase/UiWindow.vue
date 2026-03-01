@@ -49,7 +49,7 @@ defineExpose({
           {{ t("SetBase.ui.displayMode." + item.raw) }}
         </template>
 
-        <template #item="{ item, props }">
+        <template #item="{ props, item }">
           <v-list-item v-bind="props" :title="t('SetBase.ui.displayMode.' + item.raw)" />
         </template>
       </v-select>
