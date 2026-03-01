@@ -431,6 +431,11 @@ export const SchemaMetadata: Pick<
         ],
         attr: "title",
       },
+      isDonor: {
+        text: false,
+        selector: ["img[alt='Donor']"],
+        elementProcess: () => true,
+      },
       bonus: {
         selector: [
           "td.rowhead:contains('魔力') + td",
@@ -558,6 +563,8 @@ export const SchemaMetadata: Pick<
           "hnrUnsatisfied",
           "hnrPreWarning",
           "lastAccessAt",
+          "isDonor",
+          "isKept",
         ],
       },
       {

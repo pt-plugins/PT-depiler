@@ -253,7 +253,7 @@ export interface IElementQuery {
    * 特殊值：
    * - N/A 表示源站并没有提供该信息
    */
-  text?: string | number | "N/A";
+  text?: string | number | boolean | "N/A";
 
   /**
    * 如果selector为 string[]， 则会依次尝试并找到第一个成功获取到有效信息的

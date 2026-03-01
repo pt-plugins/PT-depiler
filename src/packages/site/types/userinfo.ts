@@ -90,6 +90,7 @@ export interface IUserInfo extends Omit<IImplicitUserInfo, "interval"> {
 
   id?: number | string; // 用户ID
   name?: string; // 用户名
+  isDonor?: boolean; // 是否是捐赠者
   levelId?: TLevelId; // 等级ID
   levelName?: TLevelName; // 等级名称
   joinTime?: number; // 入站时间

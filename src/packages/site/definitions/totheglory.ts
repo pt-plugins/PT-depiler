@@ -242,6 +242,11 @@ export const siteMetadata: ISiteMetadata = {
           levelName: {
             selector: ["td.rowhead:contains('等级') + td", "td.rowhead:contains('等級') + td"],
           },
+          isDonor: {
+            text: false,
+            selector: ["img[alt='Donor']"],
+            elementProcess: () => true,
+          },
           bonus: {
             selector: ["td.rowhead:contains('积分') + td", "td.rowhead:contains('積分') + td"],
             filters: [{ name: "parseNumber" }],
