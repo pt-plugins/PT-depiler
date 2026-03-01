@@ -1,10 +1,14 @@
-import Sizzle from "sizzle";
-import type { ISiteMetadata, ISearchInput, ITorrent } from "../types";
-import BittorrentSite from "../schemas/AbstractBittorrentSite";
-import GazelleJSONAPI, { SchemaMetadata } from "../schemas/GazelleJSONAPI";
+// import Sizzle from "sizzle";
+import type {
+  ISiteMetadata,
+  // ISearchInput,
+  // ITorrent,
+} from "../types";
+// import BittorrentSite from "../schemas/AbstractBittorrentSite";
+// import GazelleJSONAPI, { SchemaMetadata } from "../schemas/GazelleJSONAPI";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  // ...SchemaMetadata,
 
   version: 1,
   id: "uhdbits",
@@ -19,6 +23,10 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["https://uhdbits.org/"],
 
+  // refs: https://t.me/Ptfxq/950
+  isDead: true,
+
+  /*
   category: [
     {
       name: "Category",
@@ -105,6 +113,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
+  */
 
   levelRequirements: [
     {
@@ -164,9 +173,11 @@ export const siteMetadata: ISiteMetadata = {
   ],
 };
 
+/*
 export default class UHDBits extends GazelleJSONAPI {
   // 使用 AbstractBittorrentSite 的解析方法 (HTML)
   public override async transformSearchPage(doc: Document, searchConfig: ISearchInput): Promise<ITorrent[]> {
     return BittorrentSite.prototype.transformSearchPage.call(this, doc, searchConfig);
   }
 }
+*/
