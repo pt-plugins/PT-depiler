@@ -412,7 +412,7 @@ export const siteMetadata: ISiteMetadata = {
 export default class Pter extends NexusPHP {
   public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
     const flushUserInfo = await super.getUserInfoResult(lastUserInfo);
-    if (flushUserInfo.isDonor && typeof flushUserInfo.bonusPerHour === "number") {
+    if (flushUserInfo.isDonor === true && typeof flushUserInfo.bonusPerHour === "number") {
       flushUserInfo.bonusPerHour *= 2;
     }
     return flushUserInfo;

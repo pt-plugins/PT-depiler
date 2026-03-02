@@ -564,7 +564,6 @@ export const SchemaMetadata: Pick<
           "hnrPreWarning",
           "lastAccessAt",
           "isDonor",
-          "isKept",
         ],
       },
       {
