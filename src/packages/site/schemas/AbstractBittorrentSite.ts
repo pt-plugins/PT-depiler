@@ -427,7 +427,7 @@ export default class BittorrentSite {
     }
 
     // 此时如果 query 仍为 undefined 应该回落到 elementQuery.text ?? ""
-    query ??= String(elementQuery.text ?? "");
+    query ??= elementQuery.text ?? ""; // 不强制转为字符串，保持原有类型，方便后续处理
 
     // noinspection SuspiciousTypeOfGuard
     if (typeof query === "string") {
@@ -436,6 +436,8 @@ export default class BittorrentSite {
         // 尽可能的将返回值转成数字类型
         query = isNaN(parseInt(query)) ? 0 : parseInt(query);
       }
+    } else if (typeof query === "number") {
+      query = isNaN(query) ? 0 : Math.trunc(query); // 这里还是保持取整数，不改变原来的逻辑
     }
 
     return query;
