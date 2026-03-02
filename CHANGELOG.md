@@ -1,3 +1,6 @@
+> [!NOTE]
+> This file only contains change records up to and including version 0.0.5. For all update logs after version 0.0.5, please refer to the project's Release page.
+
 ## [0.0.5](https://github.com/pt-plugins/PT-depiler/compare/0.0.4...0.0.5) (2025-08-24)
 
 

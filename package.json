@@ -84,8 +84,6 @@
     "@types/parse-torrent": "^5.8.8",
     "@types/sizzle": "^2.3.10",
     "@vitejs/plugin-vue": "^5.2.4",
-    "conventional-changelog": "^7.1.1",
-    "conventional-changelog-angular": "^8.1.0",
     "cross-env": "^10.1.0",
     "git-rev-sync": "^3.0.2",
     "husky": "^9.1.7",
