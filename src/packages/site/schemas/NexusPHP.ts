@@ -695,7 +695,12 @@ export default class NexusPHP extends PrivateSite {
     let seedStatus = { seeding: 0, seedingSize: 0 };
     if (userSeedingRequestString && userSeedingRequestString?.includes("<table")) {
       const userSeedingDocument = createDocument(userSeedingRequestString);
-      const divSeeding = Sizzle("div > div:contains(' | ')", userSeedingDocument);
+      /**
+       * #1060 HUDBT 等站点可能存在 seeding table 中也有 "xx | xx" 的文本，但并非我们需要的做种和做种大小信息
+       * 所以需要找到和 table 平级的 div 中包含 " | " 的文本，才认为是我们需要的做种和做种大小信息
+       * https://github.com/xiaomlove/nexusphp/blob/09b785902f5da87de7fa45dd5409eee37f78bc89/public/getusertorrentlistajax.php#L357-L358
+       */
+      const divSeeding = Sizzle("div:has( ~ table) > div:contains(' | ')", userSeedingDocument);
       if (divSeeding.length > 0 && divSeeding[0].textContent) {
         const seedingText = divSeeding[0].textContent.split("|");
         seedStatus.seeding = definedFilters.parseNumber(seedingText[0]);
@@ -744,7 +749,7 @@ export default class NexusPHP extends PrivateSite {
     } else if (userUploadsRequestString && userUploadsRequestString?.includes("<table")) {
       // 未匹配到关键字，则从表格中解析
       const userUploadsDocument = createDocument(userUploadsRequestString);
-      const divSeeding = Sizzle("div > div:contains(' | ')", userUploadsDocument);
+      const divSeeding = Sizzle("div:has( ~ table) > div:contains(' | ')", userUploadsDocument);
       if (divSeeding.length > 0 && divSeeding[0].textContent) {
         const seedingText = divSeeding[0].textContent.split("|");
         flushUserInfo.uploads = definedFilters.parseNumber(seedingText[0]);
