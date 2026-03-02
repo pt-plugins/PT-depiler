@@ -129,7 +129,7 @@ export function piniaWebExtPersistencePlugin(context: PiniaPluginContext) {
 
   function onChanged(changes: Record<string, chrome.storage.StorageChange>, areaName: string) {
     if (areaName === storageArea && Object.hasOwn(changes, key)) {
-      store.$patch(changes[key].newValue);
+      store.$patch(changes[key].newValue as Parameters<typeof store.$patch>[0]);
     }
   }
 
