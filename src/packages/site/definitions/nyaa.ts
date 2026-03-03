@@ -120,7 +120,11 @@ export const siteMetadata: ISiteMetadata = {
       seeders: { selector: ["td:nth-child(6)"], filters: [{ name: "parseNumber" }] },
       leechers: { selector: ["td:nth-child(7)"], filters: [{ name: "parseNumber" }] },
       completed: { selector: ["td:nth-child(8)"], filters: [{ name: "parseNumber" }] },
-      comments: { selector: ["i.fa-comments-o"], filters: [{ name: "parseNumber" }] },
+      comments: {
+        // 评论数在评论链接文本里，图标元素本身没有数字
+        selector: ["a[href*='/view/'][href*='#comments']", "a[href*='/view/'][href*='#com-']"],
+        filters: [{ name: "parseNumber" }],
+      },
       category: {
         // 简洁显示分类的大类 Anime - AMV => Anime
         selector: ["img.category-icon"],
