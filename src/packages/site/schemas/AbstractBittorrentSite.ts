@@ -437,7 +437,7 @@ export default class BittorrentSite {
         query = isNaN(parseInt(query)) ? 0 : parseInt(query);
       }
     } else if (typeof query === "number") {
-      query = isNaN(query) ? 0 : Math.trunc(query); // 这里还是保持取整数，不改变原来的逻辑
+      query = isNaN(query) ? 0 : query;
     }
 
     return query;
