@@ -46,6 +46,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       seedingSize: {
         selector: [
+          "a[href*='/active?seeding=include']",
           ...seedingSizeTrans.map((x) => `td:contains('${x}') + td`),
           ...seedingSizeTrans.map((x) => `dt:contains('${x}') + dd`),
         ],
