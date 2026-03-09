@@ -87,7 +87,10 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.userInfo!,
     selectors: {
       ...SchemaMetadata.userInfo!.selectors,
-      name: { selector: ["span.user_name"], filters: [{ name: "split", args: ["(", 0] }] },
+      name: {
+        selector: ["a#userDropdownTrigger", "span.user_name"],
+        switchFilters: { "span.user_name": [{ name: "split", args: ["\n", 0] }] },
+      },
       id: {
         selector: ["a[href^='/user.php?id=']"],
         attr: "href",
