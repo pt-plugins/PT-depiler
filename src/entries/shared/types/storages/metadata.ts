@@ -2,6 +2,7 @@ import type {
   ISearchCategories,
   ISearchEntryRequestConfig,
   ISiteUserConfig,
+  ITorrent,
   IUserInfo,
   TSiteHost,
   TSiteID as TSiteKey,
@@ -91,6 +92,25 @@ export interface IBackupServerMetadata extends IBackupConfig {
   lastBackupAt?: number; // 上次备份时间
 }
 
+export type TCollectionId = string;
+export const DEFAULT_COLLECTION_ID = "default"; // 默认收藏夹 ID
+
+/** 唯一标识一个种子：site:id */
+export type TTorrentCollectionKey = string;
+
+export function buildTorrentCollectionKey(torrent: Pick<ITorrent, "site" | "id">): TTorrentCollectionKey {
+  return `${torrent.site}:${torrent.id}`;
+}
+
+export interface ICollectionFolder {
+  id: TCollectionId;
+  name: string;
+  color?: string; // 标签颜色
+  sortIndex?: number; // 排序索引
+  isDefault?: boolean; // 是否是默认收藏夹（不可删除）
+  torrentIds: TTorrentCollectionKey[]; // 收藏的种子唯一键列表
+}
+
 export interface IMetadataPiniaStorageSchema {
   // 站点配置(用户配置)
   sites: Record<TSiteKey, ISiteUserConfig>;
@@ -112,6 +132,9 @@ export interface IMetadataPiniaStorageSchema {
 
   // 备份服务器配置
   backupServers: Record<TBackupServerKey, IBackupServerMetadata>;
+
+  // 收藏夹配置（含收藏夹中的种子ID列表）
+  collections: Record<TCollectionId, ICollectionFolder>;
 
   // 默认搜索方案
   defaultSolutionId: TSolutionKey | "default";

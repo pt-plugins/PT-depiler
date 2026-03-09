@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { ref } from "vue";
 import { inject } from "vue";
 
 import { sendMessage } from "@/messages.ts";
@@ -9,6 +10,10 @@ import type { IRemoteDownloadDialogData } from "../types.ts";
 import { copyTextToClipboard, doKeywordSearch, siteInstance } from "../utils.ts";
 
 import SpeedDialBtn from "../components/SpeedDialBtn.vue";
+import CollectionAddDialog from "@/options/components/CollectionAddDialog.vue";
+
+import type { ITorrent } from "@ptd/site";
+import { buildTorrentCollectionKey, DEFAULT_COLLECTION_ID } from "@/shared/types.ts";
 
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
@@ -54,6 +59,32 @@ function handleSearch() {
     doKeywordSearch(torrent.title || "");
   });
 }
+
+// ===================== 收藏功能 =====================
+const showCollectionDialog = ref(false);
+const collectionDialogTorrent = ref<ITorrent | null>(null);
+
+async function handleCollect() {
+  const torrent = await parseDetailPage().catch(() => null);
+  if (!torrent) return;
+
+  const hasCustom = metadataStore.getCustomCollections().length > 0;
+  const key = buildTorrentCollectionKey(torrent);
+  const collected = metadataStore.isTorrentCollected(key);
+
+  if (!hasCustom) {
+    if (collected) {
+      await metadataStore.updateTorrentCollections(torrent, []);
+      runtimeStore.showSnakebar("已从收藏中移除", { color: "info" });
+    } else {
+      await metadataStore.addTorrentToCollections(torrent, [DEFAULT_COLLECTION_ID]);
+      runtimeStore.showSnakebar("已添加到默认收藏夹", { color: "success" });
+    }
+  } else {
+    collectionDialogTorrent.value = torrent;
+    showCollectionDialog.value = true;
+  }
+}
 </script>
 
 <template>
@@ -76,6 +107,9 @@ function handleSearch() {
     @click="handleRemoteDownload(true)"
   />
   <SpeedDialBtn key="search" color="indigo" icon="mdi-home-search" title="快捷搜索" @click="handleSearch" />
+  <SpeedDialBtn key="collect" color="amber" icon="mdi-bookmark-plus" title="收藏种子" @click="handleCollect" />
+
+  <CollectionAddDialog v-model="showCollectionDialog" :torrent="collectionDialogTorrent" />
 </template>
 
 <style scoped lang="scss"></style>

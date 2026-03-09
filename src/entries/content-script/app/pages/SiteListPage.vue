@@ -11,6 +11,9 @@ import { copyTextToClipboard, doKeywordSearch, siteInstance, wrapperConfirmFn } 
 
 import AdvanceListModuleDialog from "../components/AdvanceListModuleDialog.vue";
 import SpeedDialBtn from "../components/SpeedDialBtn.vue";
+import CollectionAddDialog from "@/options/components/CollectionAddDialog.vue";
+
+import { DEFAULT_COLLECTION_ID, buildTorrentCollectionKey } from "@/shared/types.ts";
 
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
@@ -104,6 +107,44 @@ async function handleSearch() {
 
   doKeywordSearch(keywords);
 }
+
+// ===================== 收藏功能 =====================
+const showCollectionDialog = ref(false);
+// 当页面只有一个种子时，直接用该种子作为收藏对象；
+// 当页面有多个种子时，使用 collectionBatchTorrents 批量添加。
+const collectionDialogTorrent = ref<ITorrent | null>(null);
+const collectionBatchTorrents = shallowRef<ITorrent[]>([]);
+
+async function handleCollectAll() {
+  const { torrents } = await parseListPage().catch(() => ({ torrents: [] as ITorrent[] }));
+  if (torrents.length === 0) return;
+
+  const hasCustom = metadataStore.getCustomCollections().length > 0;
+
+  if (!hasCustom) {
+    // 直接批量添加到默认收藏夹
+    for (const torrent of torrents) {
+      await metadataStore.addTorrentToCollections(torrent, [DEFAULT_COLLECTION_ID]);
+    }
+    runtimeStore.showSnakebar(`已将 ${torrents.length} 个种子添加到默认收藏夹`, { color: "success" });
+  } else {
+    // 若只有一个种子，用单种子对话框；多个种子时用第一个代理（仅选择收藏夹）
+    collectionBatchTorrents.value = torrents;
+    collectionDialogTorrent.value = torrents[0] ?? null;
+    showCollectionDialog.value = true;
+  }
+}
+
+async function onCollectionSaved() {
+  // 批量模式：将所有解析到的种子同步到与第一个种子相同的收藏夹
+  const key0 = collectionDialogTorrent.value ? buildTorrentCollectionKey(collectionDialogTorrent.value) : null;
+  if (!key0 || collectionBatchTorrents.value.length <= 1) return;
+
+  const selectedIds = metadataStore.getTorrentCollectionIds(key0);
+  for (const torrent of collectionBatchTorrents.value.slice(1)) {
+    await metadataStore.updateTorrentCollections(torrent, selectedIds);
+  }
+}
 </script>
 
 <template>
@@ -149,8 +190,16 @@ async function handleSearch() {
     @click="handleAdvanceListModule"
   />
   <SpeedDialBtn key="search" color="indigo" icon="mdi-home-search" title="快捷搜索" @click="handleSearch" />
+  <SpeedDialBtn
+    key="collect"
+    color="amber"
+    icon="mdi-bookmark-multiple-outline"
+    title="收藏当前页种子"
+    @click="wrapperConfirmFn(handleCollectAll)"
+  />
 
   <AdvanceListModuleDialog v-model="showAdvanceListModuleDialog" :torrent-items="parsedTorrents" />
+  <CollectionAddDialog v-model="showCollectionDialog" :torrent="collectionDialogTorrent" @saved="onCollectionSaved" />
 </template>
 
 <style scoped lang="scss"></style>

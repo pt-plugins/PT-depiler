@@ -508,7 +508,6 @@
       "table": {
         "enabled": "Enabled ?",
         "autodl": "Auto DL ?",
-
         "action": {
           "status": "Status",
           "setPathAndTag": "Set Suggest Download Path and Tags",
@@ -731,5 +730,33 @@
     "anidbClientMessages": "Please apply for a Client ID at https://anidb.net/perl-bin/animedb.pl?show=client and fill it in the format `Name/Version`.",
     "bangumiApiKey": "Bangumi API Key",
     "bangumiApiMessages": "You can generate an Access Token at https://next.bgm.tv/demo/access-token"
+  },
+  "MyCollection": {
+    "folderPanel": {
+      "title": "Collections",
+      "add": "New Collection",
+      "torrentCount": "{0} torrents"
+    },
+    "table": {
+      "site": "Site",
+      "title": "Title",
+      "size": "Size",
+      "time": "Published"
+    },
+    "filterPlaceholder": "Filter torrents",
+    "action": {
+      "remove": "Remove (from all collections)",
+      "removeSelected": "Remove Selected"
+    },
+    "editDialog": {
+      "titleAdd": "New Collection",
+      "titleEdit": "Edit Collection",
+      "name": "Collection Name",
+      "nameRequired": "Please enter a collection name",
+      "color": "Label Color"
+    },
+    "selectDialog": {
+      "title": "Select Collection"
+    }
   }
 }
