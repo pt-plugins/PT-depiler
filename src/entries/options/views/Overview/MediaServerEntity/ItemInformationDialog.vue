@@ -61,7 +61,7 @@ function secondsToISO8601(seconds: number) {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title> 媒体详情 </v-toolbar-title>
+          <v-toolbar-title>{{ t("MediaServerEntity.ItemInformationDialog.title") }}</v-toolbar-title>
           <template #append>
             <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>
@@ -86,7 +86,7 @@ function secondsToISO8601(seconds: number) {
             </a>
             <p class="text-caption">{{ item.description ?? "" }}</p>
             <div v-if="item.tags && item.tags.length > 0" class="info-label">
-              <v-label class="pr-3">类型：</v-label>
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.type") }}</v-label>
               <v-chip-group show-arrows>
                 <v-chip
                   v-for="tag in item.tags ?? []"
@@ -105,19 +105,19 @@ function secondsToISO8601(seconds: number) {
               </v-chip-group>
             </div>
             <div v-if="item.duration" class="info-label">
-              <v-label class="pr-3">时长：</v-label>
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.duration") }}</v-label>
               <v-chip base-color="green" class="mr-1" label prepend-icon="mdi-clock-time-four" size="small">
                 {{ secondsToISO8601(item.duration ?? 0) }}
               </v-chip>
             </div>
             <div v-if="item.size" class="info-label">
-              <v-label class="pr-3">大小：</v-label>
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.size") }}</v-label>
               <v-chip base-color="deep-purple" class="mr-1" label prepend-icon="mdi-harddisk" size="small">
                 {{ formatSize(item.size ?? 0) }}
               </v-chip>
             </div>
             <div v-if="item.streams && item.streams.length > 0" class="info-label">
-              <v-label class="pr-3">媒体信息：</v-label>
+              <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.mediaInfo") }}</v-label>
               <v-chip-group show-arrows>
                 <v-chip v-if="item.format" base-color="blue" label prepend-icon="mdi-aspect-ratio" size="small">
                   {{ item.format?.toUpperCase() }}
@@ -170,7 +170,7 @@ function secondsToISO8601(seconds: number) {
                 rel="noopener noreferrer nofollow"
                 target="_blank"
               >
-                访问
+                {{ t('common.visit') }}
               </v-btn>
             </div>
           </v-col>

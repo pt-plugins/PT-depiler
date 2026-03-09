@@ -209,7 +209,7 @@ function exportSiteHistoryData() {
               :text="t('common.remove')"
               @click="deleteSiteUserInfo(tableSelected)"
             />
-            <NavButton color="info" icon="mdi-export" text="导出" @click="exportSiteHistoryData" />
+            <NavButton color="info" icon="mdi-export" :text="t('common.export')" @click="exportSiteHistoryData" />
             <v-spacer />
           </template>
         </v-data-table>

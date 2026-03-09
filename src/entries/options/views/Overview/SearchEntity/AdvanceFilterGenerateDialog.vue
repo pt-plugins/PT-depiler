@@ -58,7 +58,7 @@ function enterDialog() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title> 生成高级过滤词 </v-toolbar-title>
+          <v-toolbar-title>{{ t("SearchEntity.AdvanceFilterGenerateDialog.title") }}</v-toolbar-title>
           <template #append>
             <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>
@@ -67,23 +67,23 @@ function enterDialog() {
       <v-divider />
       <v-card-text>
         <v-container>
-          <v-row><v-label>关键词</v-label> </v-row>
+          <v-row><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.keywords") }}</v-label> </v-row>
           <v-row>
             <v-col cols="12" md="6">
-              <v-combobox v-model="advanceFilterDictRef.text.required" chips hide-details label="必要项" multiple />
+              <v-combobox v-model="advanceFilterDictRef.text.required" chips hide-details :label="t('SearchEntity.AdvanceFilterGenerateDialog.required')" multiple />
             </v-col>
             <v-col cols="12" md="6">
               <v-combobox
                 v-model="advanceFilterDictRef.text.exclude"
                 chips
                 hide-details
-                label="排除项"
+                :label="t('SearchEntity.AdvanceFilterGenerateDialog.exclude')"
                 multiple
               ></v-combobox>
             </v-col>
           </v-row>
 
-          <v-row><v-label>站点</v-label></v-row>
+          <v-row><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.site") }}</v-label></v-row>
           <v-row>
             <v-col
               v-for="site in advanceItemPropsRef.site"
@@ -111,7 +111,7 @@ function enterDialog() {
           </v-row>
 
           <template v-if="configStore.searchEntifyControl.showTorrentTag">
-            <v-row><v-label>标签</v-label></v-row>
+            <v-row><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.tags") }}</v-label></v-row>
             <v-row>
               <v-col
                 v-for="tag in torrentTags"
@@ -145,7 +145,7 @@ function enterDialog() {
               </v-col>
             </v-row>
           </template>
-          <v-row><v-label>种子状态</v-label></v-row>
+          <v-row><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.status") }}</v-label></v-row>
           <v-row>
             <v-col
               v-for="status in statusOptions"
@@ -173,7 +173,7 @@ function enterDialog() {
           <v-row>
             <v-col cols="6">
               <v-row class="pr-4">
-                <v-label>日期</v-label>
+                <v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.date") }}</v-label>
                 <v-spacer />
                 <v-chip
                   v-for="dateUnit in ['day', 'week', 'month', 'quarter', 'year'] as const"
@@ -221,7 +221,7 @@ function enterDialog() {
               </v-row>
             </v-col>
             <v-col cols="6">
-              <v-row><v-label>种子大小</v-label></v-row>
+              <v-row><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.size") }}</v-label></v-row>
               <v-row>
                 <v-range-slider
                   v-model="advanceFilterDictRef.size"
@@ -245,7 +245,7 @@ function enterDialog() {
           </v-row>
           <v-row>
             <v-col cols="4">
-              <v-row><v-label>上传人数</v-label></v-row>
+              <v-row><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.seeders") }}</v-label></v-row>
               <v-row>
                 <v-range-slider
                   v-model="advanceFilterDictRef.seeders"
@@ -264,7 +264,7 @@ function enterDialog() {
               </v-row>
             </v-col>
             <v-col cols="4">
-              <v-row><v-label>下载人数</v-label></v-row>
+              <v-row><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.leechers") }}</v-label></v-row>
               <v-row>
                 <v-range-slider
                   v-model="advanceFilterDictRef.leechers"
@@ -283,7 +283,7 @@ function enterDialog() {
               </v-row>
             </v-col>
             <v-col cols="4">
-              <v-row><v-label>完成人数</v-label></v-row>
+              <v-row><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.completed") }}</v-label></v-row>
               <v-row>
                 <v-range-slider
                   v-model="advanceFilterDictRef.completed"
@@ -306,10 +306,10 @@ function enterDialog() {
       </v-card-text>
       <v-divider />
       <v-card-actions>
-        <v-btn variant="text" @click="() => reBuildAdvanceFilter(true)">重置搜索词</v-btn>
+        <v-btn variant="text" @click="() => reBuildAdvanceFilter(true)">{{ t("SearchEntity.AdvanceFilterGenerateDialog.reset") }}</v-btn>
         <v-spacer />
-        <v-btn color="error" variant="text" @click="showDialog = false">取消</v-btn>
-        <v-btn color="primary" variant="text" @click="updateTableFilter">生成</v-btn>
+        <v-btn color="error" variant="text" @click="showDialog = false">{{ t("common.dialog.cancel") }}</v-btn>
+        <v-btn color="primary" variant="text" @click="updateTableFilter">{{ t("SearchEntity.AdvanceFilterGenerateDialog.generate") }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

@@ -167,13 +167,13 @@ async function multiFlush() {
   let flushSiteIds: TSiteID[] = tableSelected.value;
   if (flushSiteIds.length === 0) {
     flushSiteIds = tableData.value.map((item) => item.site);
-    runtimeStore.showSnakebar("未选择任何站点，默认刷新全部站点", { color: "info" });
+    runtimeStore.showSnakebar(t("MyData.index.noSiteSelectedRefreshAll"), { color: "info" });
   }
 
   if (flushSiteIds.length > 0) {
     flushSiteLastUserInfo(flushSiteIds);
   } else {
-    runtimeStore.showSnakebar("未选择任何站点，取消刷新", { color: "warning" });
+    runtimeStore.showSnakebar(t("MyData.index.noSiteSelectedCancelRefresh"), { color: "warning" });
   }
 }
 
