@@ -122,10 +122,8 @@ async function handleCollectAll() {
   const hasCustom = metadataStore.getCustomCollections().length > 0;
 
   if (!hasCustom) {
-    // 直接批量添加到默认收藏夹
-    for (const torrent of torrents) {
-      await metadataStore.addTorrentToCollections(torrent, [DEFAULT_COLLECTION_ID]);
-    }
+    // 直接批量添加到默认收藏夹（一次 IO）
+    await metadataStore.addTorrentsToCollections(torrents, [DEFAULT_COLLECTION_ID]);
     runtimeStore.showSnakebar(`已将 ${torrents.length} 个种子添加到默认收藏夹`, { color: "success" });
   } else {
     // 若只有一个种子，用单种子对话框；多个种子时用第一个代理（仅选择收藏夹）
@@ -141,9 +139,10 @@ async function onCollectionSaved() {
   if (!key0 || collectionBatchTorrents.value.length <= 1) return;
 
   const selectedIds = metadataStore.getTorrentCollectionIds(key0);
-  for (const torrent of collectionBatchTorrents.value.slice(1)) {
-    await metadataStore.updateTorrentCollections(torrent, selectedIds);
-  }
+  if (selectedIds.length === 0) return; // 用户未选择任何收藏夹，无需同步
+
+  // 将剩余种子批量加入相同的收藏夹
+  await metadataStore.addTorrentsToCollections(collectionBatchTorrents.value.slice(1), selectedIds);
 }
 </script>
 

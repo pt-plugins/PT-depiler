@@ -583,6 +583,26 @@ export const useMetadataStore = defineStore("metadata", {
       await this.$save();
     },
 
+    /** 批量将多个种子加入指定收藏夹（一次性读写 extStorage，避免多次 IO） */
+    async addTorrentsToCollections(torrents: ITorrent[], collectionIds: TCollectionId[]) {
+      if (torrents.length === 0 || collectionIds.length === 0) return;
+
+      const stored = (await extStorage.getItem("collectionTorrents")) ?? {};
+
+      for (const torrent of torrents) {
+        const key = buildTorrentCollectionKey(torrent);
+        stored[key] = torrent;
+        for (const cid of collectionIds) {
+          if (this.collections[cid] && !this.collections[cid].torrentIds.includes(key)) {
+            this.collections[cid].torrentIds.push(key);
+          }
+        }
+      }
+
+      await extStorage.setItem("collectionTorrents", stored);
+      await this.$save();
+    },
+
     /** 从指定收藏夹中移除种子（不删除全局种子数据） */
     async removeTorrentFromCollection(torrentKey: TTorrentCollectionKey, collectionId: TCollectionId) {
       if (!this.collections[collectionId]) return;
