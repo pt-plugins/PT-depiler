@@ -163,7 +163,7 @@ async function copySearchSolution(solutionId: TSolutionKey) {
   </v-alert>
   <v-card>
     <v-card-title>
-      <v-row class="ma-0">
+      <v-row class="ma-0" gap="0">
         <NavButton :text="t('common.btn.add')" color="success" icon="mdi-plus" @click="addSearchSolution" />
 
         <NavButton

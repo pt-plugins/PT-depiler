@@ -70,7 +70,7 @@ function secondsToISO8601(seconds: number) {
       <v-divider />
 
       <v-card-text>
-        <v-row align="center">
+        <v-row class="align-center">
           <v-col cols="8" offset="2" offset-sm="0" sm="4">
             <v-img :src="item.poster" :title="item.name" />
           </v-col>

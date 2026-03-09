@@ -51,7 +51,7 @@ async function confirmDeleteMediaServer(mediaServerId: TMediaServerKey) {
   <v-alert :title="t('route.Settings.SetMediaServer')" type="info" />
   <v-card class="set-media-server">
     <v-card-title>
-      <v-row class="ma-0">
+      <v-row class="ma-0" gap="0">
         <NavButton :text="t('common.btn.add')" color="success" icon="mdi-plus" @click="showAddDialog = true" />
         <NavButton
           :disabled="tableSelected.length === 0"

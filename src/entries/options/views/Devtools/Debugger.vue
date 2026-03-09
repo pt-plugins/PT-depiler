@@ -186,7 +186,7 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
           </td>
           <td>
             <v-container>
-              <v-row dense>
+              <v-row density="compact">
                 <v-col class="d-flex align-center">
                   <v-btn @click="enableLibrary" class="mr-3">启用</v-btn>
                   在console中启用 <code>sendMessage, axios, Sizzle, es-toolkit ( as _ ）, datefns</code> 等方法
@@ -201,7 +201,7 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
           </td>
           <td>
             <v-container>
-              <v-row dense>
+              <v-row density="compact">
                 <v-col cols="4">
                   <v-autocomplete v-model="selectedSite" :items="definitionList" hide-details label="site" />
                 </v-col>
@@ -224,7 +224,7 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
           </td>
           <td>
             <v-container>
-              <v-row dense>
+              <v-row density="compact">
                 <v-col cols="4">
                   <v-autocomplete
                     v-model="simpleServer[serverType].selected"
@@ -267,7 +267,7 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
           </td>
           <td>
             <v-container>
-              <v-row dense>
+              <v-row density="compact">
                 <v-col cols="4">
                   <v-autocomplete
                     v-model="selectedPiniaStore"

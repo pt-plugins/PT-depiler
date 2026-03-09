@@ -46,11 +46,11 @@ defineExpose({
       <!-- 明亮模式设置 -->
       <v-select v-model="configStore.theme" :label="t('SetBase.ui.displayMode.index')" :items="supportTheme">
         <template #selection="{ item }">
-          {{ t("SetBase.ui.displayMode." + item.raw) }}
+          {{ t("SetBase.ui.displayMode." + item) }}
         </template>
 
-        <template #item="{ item, props }">
-          <v-list-item v-bind="props" :title="t('SetBase.ui.displayMode.' + item.raw)" />
+        <template #item="{ props, item }">
+          <v-list-item v-bind="props" :title="t('SetBase.ui.displayMode.' + item)" />
         </template>
       </v-select>
 
@@ -99,7 +99,7 @@ defineExpose({
       <template v-if="configStore.contentScript.enabled">
         <v-alert type="warning" variant="tonal"> 启用或禁用相关功能后需要保存设置，并刷新站点页面才能生效。 </v-alert>
 
-        <v-row dense>
+        <v-row density="compact">
           <v-col cols="12" md="2" class="d-flex align-center justify-center">
             <v-label>基本设置</v-label>
           </v-col>
@@ -122,7 +122,7 @@ defineExpose({
           </v-col>
         </v-row>
 
-        <v-row dense>
+        <v-row density="compact">
           <v-col cols="12" md="2" class="d-flex align-center justify-center">
             <v-label>侧边栏样式</v-label>
           </v-col>
@@ -156,7 +156,7 @@ defineExpose({
           </v-col>
         </v-row>
 
-        <v-row dense>
+        <v-row density="compact">
           <v-col cols="12" md="2" class="d-flex align-center justify-center">
             <v-label>侧边栏功能</v-label>
           </v-col>

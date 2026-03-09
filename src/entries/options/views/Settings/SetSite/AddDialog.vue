@@ -81,7 +81,7 @@ async function saveSite() {
               item-value="id"
               persistent-hint
             >
-              <template #selection="{ item: { raw: site } }">
+              <template #selection="{ item: site }">
                 <v-list-item>
                   <template #prepend>
                     <SiteFavicon :site-id="site.id" class="mr-2" flush-on-no-image />
@@ -91,7 +91,7 @@ async function saveSite() {
                   </v-list-item-title>
                 </v-list-item>
               </template>
-              <template #item="{ props, item: { raw: site } }">
+              <template #item="{ props, item: site }">
                 <v-list-item v-bind="props">
                   <template #prepend>
                     <SiteFavicon :site-id="site.id" class="mr-2" />
