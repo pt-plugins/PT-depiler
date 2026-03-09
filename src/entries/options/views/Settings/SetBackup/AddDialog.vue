@@ -63,7 +63,7 @@ function resetDialog() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title> 添加备份服务器 </v-toolbar-title>
+          <v-toolbar-title>{{ t("SetBackup.AddDialog.title") }}</v-toolbar-title>
           <v-spacer />
           <v-btn
             :title="t('layout.header.wiki')"

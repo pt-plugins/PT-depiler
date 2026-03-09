@@ -61,7 +61,7 @@ function loadLocalBackupFile() {
       console.error(err);
       restoreData.value = undefined;
       isDecryptKeyValid.value = false;
-      runtimeStore.showSnakebar(`加载失败: ${err}`, { color: "error" });
+      runtimeStore.showSnakebar(t("SetBackup.RestoreDialog.loadFailure", { error: err }), { color: "error" });
     });
 }
 
@@ -79,7 +79,7 @@ function loadRemoteBackupFile() {
         buildBackupOptions();
       })
       .catch((err) => {
-        runtimeStore.showSnakebar(`加载失败: ${err}`, { color: "error" });
+        runtimeStore.showSnakebar(t("SetBackup.RestoreDialog.loadFailure", { error: err }), { color: "error" });
         console.error(err);
         isDecryptKeyValid.value = false;
       })
@@ -131,20 +131,20 @@ function doRestore() {
 
   // 检查 version 字段
   if (!restoreData.value?.manifest?.version) {
-    runtimeStore.showSnakebar("备份数据缺少版本信息，无法恢复", { color: "error" });
+    runtimeStore.showSnakebar(t("SetBackup.RestoreDialog.missingVersion"), { color: "error" });
     isDoingRestore.value = false;
     return;
   }
 
   let warnRestore = compareVersion(restoreData.value.manifest.version, __EXT_VERSION__) == 1;
-  if (!warnRestore || confirm("备份数据版本高于当前扩展版本，恢复可能会导致数据不兼容或丢失，是否继续？")) {
+  if (!warnRestore || confirm(t("SetBackup.RestoreDialog.versionWarning"))) {
     sendMessage("restoreBackupData", { restoreData: restoreData.value!, restoreOptions: restoreOptions.value })
       .then(() => {
-        runtimeStore.showSnakebar("恢复成功", { color: "success" });
+        runtimeStore.showSnakebar(t("SetBackup.RestoreDialog.success"), { color: "success" });
         showDialog.value = false;
       })
       .catch((err) => {
-        runtimeStore.showSnakebar(`恢复失败: ${err}`, { color: "error" });
+        runtimeStore.showSnakebar(t("SetBackup.RestoreDialog.failure", { error: err }), { color: "error" });
         console.error(err);
       })
       .finally(() => {
@@ -207,16 +207,16 @@ function goToPtppImport() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title> 从备份文件中恢复 </v-toolbar-title>
+          <v-toolbar-title>{{ t("SetBackup.RestoreDialog.title") }}</v-toolbar-title>
         </v-toolbar>
       </v-card-title>
       <v-divider />
       <v-card-text>
         <v-alert class="mb-3" type="info" variant="tonal">
-          <span>需要导入 PT-Plugin-Plus 备份？</span>
+          <span>{{ t("SetBackup.RestoreDialog.ptppPrompt") }}</span>
           <template #append>
             <v-btn color="primary" size="small" variant="outlined" prepend-icon="mdi-import" @click="goToPtppImport">
-              PT-Plugin-Plus 备份导入
+              {{ t("SetBackup.RestoreDialog.ptppImport") }}
             </v-btn>
           </template>
         </v-alert>
@@ -225,8 +225,8 @@ function goToPtppImport() {
             <v-file-input
               v-model="backupFile"
               accept="application/zip"
-              label="选择备份文件"
-              placeholder="选择备份文件"
+              :label="t('SetBackup.RestoreDialog.selectFile')"
+              :placeholder="t('SetBackup.RestoreDialog.selectFile')"
               show-size
               @update:model-value="loadLocalBackupFile"
             />
@@ -234,7 +234,7 @@ function goToPtppImport() {
               v-model="decryptKey"
               :append-icon="showDecryptKey ? 'mdi-eye' : 'mdi-eye-off'"
               :type="showDecryptKey ? 'text' : 'password'"
-              label="解密密钥"
+              :label="t('SetBackup.RestoreDialog.decryptKey')"
               @click:append="showDecryptKey = !showDecryptKey"
             />
             <v-btn
@@ -243,7 +243,7 @@ function goToPtppImport() {
               prepend-icon="mdi-cached"
               block
               color="warning"
-              text="重试"
+              :text="t('SetBackup.RestoreDialog.retry')"
               @click="loadLocalBackupFile"
             />
           </v-window-item>
@@ -252,7 +252,7 @@ function goToPtppImport() {
               v-model="decryptKey"
               :append-icon="showDecryptKey ? 'mdi-eye' : 'mdi-eye-off'"
               :type="showDecryptKey ? 'text' : 'password'"
-              label="解密密钥"
+              :label="t('SetBackup.RestoreDialog.decryptKey')"
               @click:append="showDecryptKey = !showDecryptKey"
             />
             <v-btn
@@ -261,12 +261,12 @@ function goToPtppImport() {
               prepend-icon="mdi-cached"
               block
               color="warning"
-              text="重试"
+              :text="t('SetBackup.RestoreDialog.retry')"
               @click="loadRemoteBackupFile"
             />
           </v-window-item>
           <v-window-item value="restore">
-            <v-label>恢复选项</v-label>
+            <v-label>{{ t("SetBackup.RestoreDialog.restoreOptions") }}</v-label>
             <v-row no-gutters>
               <v-col v-for="backupField in BackupFields" :key="backupField" cols="12" md="4">
                 <v-switch
@@ -282,7 +282,7 @@ function goToPtppImport() {
 
             <v-number-input
               v-model="restoreOptions.expandCookieMinutes"
-              label="尝试延长Cookies期限（单位：分钟）"
+              :label="t('SetBackup.RestoreDialog.expandCookieMinutes')"
               :disabled="!restoreOptions.fields?.includes('cookies')"
               persistent-hint
               :min="0"
@@ -301,7 +301,7 @@ function goToPtppImport() {
               </template>
             </v-number-input>
 
-            <v-switch v-model="restoreOptions.keepExistUserInfo" color="success" label="保留本地已获取过的用户信息" />
+            <v-switch v-model="restoreOptions.keepExistUserInfo" color="success" :label="t('SetBackup.RestoreDialog.keepExistUserInfo')" />
           </v-window-item>
         </v-window>
       </v-card-text>
