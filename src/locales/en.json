@@ -46,7 +46,14 @@
     "version": "Version",
     "howToUse": "How To Use",
     "import": "Import",
-    "export": "Export"
+    "export": "Export",
+    "saveSuccess": "Saved successfully",
+    "advancedSettings": "Advanced Settings",
+    "back": "Back",
+    "exportImage": "Export Image",
+    "saveSettings": "Save Settings",
+    "enable": "Enable",
+    "basicInfo": "Basic Information"
   },
   "layout": {
     "header": {
@@ -63,7 +70,15 @@
       "wrongPixelRatioNotice": "Your page display may be affected by zooming. It is recommended to zoom at 100% to ensure your browsing experience~",
       "expand": "Expand More"
     },
-    "init": "Please wait patiently for the page to load....."
+    "init": "Please wait patiently for the page to load.....",
+    "releaseNote": {
+      "title": "Welcome to {extName}",
+      "currentVersion": " (current version)",
+      "changelog": "Changelog",
+      "wiki": "Wiki Help",
+      "faq": "FAQ",
+      "startUsing": "Get Started"
+    }
   },
   "manifest": {
     "extDesc": "PT Depiler",
@@ -204,6 +219,22 @@
       "downloader": "Downloader",
       "downloadAt": "Download Time",
       "status": "Download Status"
+    },
+    "AdvanceFilterGenerateDialog": {
+      "title": "Generate Advanced Filter",
+      "keywords": "Keywords",
+      "required": "Required",
+      "exclude": "Exclude",
+      "site": "Site",
+      "downloader": "Downloader",
+      "date": "Date",
+      "reset": "Reset Filter",
+      "generate": "Generate"
+    },
+    "ReDownloadSelectDialog": {
+      "title": "Re-download {0} records",
+      "oldMethod": "Retry with original method",
+      "selectDownloader": "Select Downloader"
     }
   },
   "torrent": {
@@ -219,7 +250,14 @@
     "searchPlaceholder": "Search term",
     "detail": "Details",
     "loadMore": "Load More",
-    "noItems": "No Items, use Search Input or Load More Button to Load"
+    "noItems": "No Items, use Search Input or Load More Button to Load",
+    "ItemInformationDialog": {
+      "title": "Media Details",
+      "type": "Type: ",
+      "duration": "Duration: ",
+      "size": "Size: ",
+      "mediaInfo": "Media Info: "
+    }
   },
   "MyData": {
     "index": {
@@ -255,7 +293,9 @@
         "todayNotUpdated": "Not updated today",
         "lastUpdateError": "Last update error",
         "unreadMessage": "Unread messages"
-      }
+      },
+      "noSiteSelectedRefreshAll": "No site selected, refreshing all sites by default",
+      "noSiteSelectedCancelRefresh": "No site selected, refresh cancelled"
     },
     "table": {
       "site": "Site",
@@ -279,6 +319,9 @@
       "action": {
         "viewRaw": "View Raw Data"
       }
+    },
+    "UserLevelRequirementsTd": {
+      "levelList": "User Level List"
     }
   },
   "UserDataStatistic": {
@@ -294,7 +337,23 @@
       "perSiteKseedingSize": "Seeding Size by Site",
       "perSiteKseedingSizeIncr": "Seeding Size Increment by Site",
       "perSiteKbonus": "Bonus Points by Site",
-      "perSiteKbonusIncr": "Bonus Increment by Site"
+      "perSiteKbonusIncr": "Bonus Increment by Site",
+      "uploadLabel": "Upload",
+      "downloadLabel": "Download",
+      "dataLabel": "Data",
+      "seedingSizeLabel": "Seeding Size",
+      "seedingLabel": "Seeding",
+      "totalLabel": "Total",
+      "hiddenSites": "(And {count} more sites hidden)",
+      "noData": "No Data",
+      "chartStyleSettings": "Chart Style Settings",
+      "displaySiteSettings": "Display Site Settings",
+      "username": "Username",
+      "displayChart": "Display Chart",
+      "dateRange": "Date Range",
+      "chartSettings": "Chart Settings",
+      "hideLowPercentHint": "Set to 0 to not hide",
+      "hideLowPercentLabel": "Hide details for sites with legend percentage below this value"
     },
     "dateRange": {
       "custom": "Custom",
@@ -318,7 +377,27 @@
       "name": "Username",
       "level": "User Level",
       "uid": "User ID"
-    }
+    },
+    "controls": {
+      "usernameAndTitle": "Username & Title",
+      "username": "Username",
+      "timelineTitle": "Timeline Title",
+      "components": "Components",
+      "showTopSites": "Show champion and runner-up sites for each data type",
+      "showTimeline": "Show individual site information (master switch)",
+      "customBgColor": "Custom Background Color",
+      "siteDisplay": "Site Display Component",
+      "faviconBlur": "Site Favicon Blur",
+      "displayContent": "Display Content",
+      "statsSection": "Statistics Section",
+      "timelineSection": "Timeline Section",
+      "timeDisplay": "Time Display Method",
+      "timeAdded": "Event Time",
+      "timeAlive": "Time Elapsed",
+      "styleSettings": "Timeline Style Settings",
+      "displaySiteSettings": "Display Site Settings"
+    },
+    "ptAge": "PT Age: ≈ {years} years"
   },
   "SearchEntity": {
     "index": {
@@ -368,14 +447,20 @@
       "all": "All Site"
     },
     "AdvanceFilterGenerateDialog": {
-      "date": {
-        "day": "Today",
-        "week": "Week",
-        "month": "Month",
-        "quarter": "Quarter",
-        "year": "Year",
-        "custom": "Custom"
-      }
+      "date": "Date",
+      "title": "Generate Advanced Filter",
+      "keywords": "Keywords",
+      "required": "Required",
+      "exclude": "Exclude",
+      "site": "Site",
+      "tags": "Tags",
+      "status": "Torrent Status",
+      "size": "Torrent Size",
+      "seeders": "Seeders",
+      "leechers": "Leechers",
+      "completed": "Completed",
+      "reset": "Reset Filter",
+      "generate": "Generate"
     },
     "SearchStatusDialog": {
       "title": "Search Status of [{0}]",
@@ -390,6 +475,17 @@
       },
       "moveUp": "Move Up in the Queue",
       "searchAgain": "Search Again"
+    },
+    "ActionTd": {
+      "sendToDefault": "Send to Default Downloader",
+      "sendToDownloader": "Send to Downloader",
+      "copyLink": "Copy Download Link",
+      "localDownload": "Download Torrent File Locally",
+      "copyLinkSuccess": "Download link copied to clipboard",
+      "copyLinkFailed": "Failed to copy download link"
+    },
+    "SaveSnapshotDialog": {
+      "snapshotName": "Snapshot Name"
     }
   },
   "SearchResultSnapshot": {
@@ -404,6 +500,10 @@
         "view": "View",
         "editTitle": "Edit Title"
       }
+    },
+    "EditNameDialog": {
+      "title": "Rename Search Snapshot",
+      "snapshotName": "Snapshot Name"
     }
   },
   "SetBase": {
@@ -429,7 +529,29 @@
         "imdb": "Search by IMDb Number",
         "chosen": "Let me choose"
       },
-      "tableMultiSortNote": "Multi-column sorting: Click any table header field to start sorting, which will display the number \\\"1\\\" on the field. Click other fields sequentially to display \\\"2\\\", \\\"3\\\", indicating sorting priority. Click the same field again to toggle between ascending, descending, or cancel sorting. The sorting order is determined by these numbers, with smaller numbers having higher priority."
+      "tableMultiSortNote": "Multi-column sorting: Click any table header field to start sorting, which will display the number \\\"1\\\" on the field. Click other fields sequentially to display \\\"2\\\", \\\"3\\\", indicating sorting priority. Click the same field again to toggle between ascending, descending, or cancel sorting. The sorting order is determined by these numbers, with smaller numbers having higher priority.",
+      "showReleaseNote": "Show changelog window when plugin updates",
+      "saveTableBehavior": "Remember table header columns, sorting, pagination, etc.",
+      "enableTableMultiSort": "Enable multi-column sorting for some tables",
+      "contentScript": "Content Script (Site Sidebar, etc.)",
+      "contentScriptWarning": "After enabling or disabling related features, save settings and refresh the site page for changes to take effect.",
+      "basicSettings": "Basic Settings",
+      "allowExceptionSites": "Allow setting exception sites without sidebar (enable in site settings)",
+      "enableOnSocialSite": "Enable sidebar on social sites (e.g. Douban, IMDb)",
+      "sidebarStyle": "Sidebar Style",
+      "expandByDefault": "Expand sidebar button by default",
+      "useLargeIcon": "Use large icon buttons",
+      "enableFadeEffect": "Enable fade-in effect (semi-transparent by default, shows on hover)",
+      "sidebarFunctions": "Sidebar Functions",
+      "confirmTwoStep": "Require two-step confirmation for batch copy, local download, etc. on torrent list pages",
+      "allowDragLink": "Allow dragging links to the sidebar button",
+      "dragNote": "Dragged download links may not always be correctly recognized!",
+      "socialSiteSearchLabel": "Social site search method",
+      "contextMenu": "Context Menu",
+      "contextMenuTextSearch": "Enable selected text search",
+      "contextMenuSocialSearch": "Enable social link (douban, imdb) search",
+      "contextMenuLinkPush": "Enable (download) link push",
+      "respondDisplayMode": "Respond to plugin setting "
     },
     "searchEntity": {
       "siteSearchConfig": "Site Search Configuration",
@@ -443,7 +565,12 @@
       "mediaSearchLimit": "Number of search results per request",
       "mediaSearchLimitMessage": "Please do not load too many search results at once. It's not optimized with virtual-scroll, which may cause the browser to freeze and affect the performance of the media server.",
       "autoLoadInitialMediaWall": "Automatically load the initial media wall",
-      "autoLoadMoreMediaOnScroll": "Automatically load more media when scrolling to the bottom of the page"
+      "autoLoadMoreMediaOnScroll": "Automatically load more media when scrolling to the bottom of the page",
+      "allowSingleSiteSearch": "Allow single-site search",
+      "treatTTQueryAsImdbSearch": "Treat tt\\d{7,8} search terms directly as IMDb search",
+      "imdbTip": "When disabled, you need to use the `imdb|tt12345678` format for IMDb searches.",
+      "filterLabel": "Result Filter",
+      "searchPlanLabel": "Search Plan"
     },
     "download": {
       "localDownloadMethod": "Local Download Method",
@@ -461,7 +588,15 @@
       "localDownloadIgnoreInterval": "Ignore site download interval limit for local downloads",
       "pushDownloadServerTitle": "Push to Download Server",
       "saveLastDownloader": "Save the last used download server settings",
-      "allowDirectSendToClient": "Allow sending links directly (instead of torrent files) to the download server (Do not enable unless necessary)"
+      "allowDirectSendToClient": "Allow sending links directly (instead of torrent files) to the download server (Do not enable unless necessary)",
+      "useQuickSendToClient": "Use quick push by default",
+      "quickSendToClientNote": "When quick push is enabled, the plugin will perform the following default actions when pushing download tasks:<br />1. Flatten the downloader and download directory options for direct click-to-push.<br />2. When hovering over an option, the label list will temporarily open; clicking will additionally add label information.<br />3. All use local relay mode to push torrents, and basic settings like 'auto-start download' and downloader-specific configs are determined by downloader and site settings."
+    },
+    "saveSuccess": "Saved successfully",
+    "userInfo": {
+      "userDataRefresh": "User Data Refresh",
+      "afterTime": "Earliest daily refresh time",
+      "userInfoDisplay": "User Info Display"
     }
   },
   "SetDownloader": {
@@ -508,13 +643,13 @@
       "table": {
         "enabled": "Enabled ?",
         "autodl": "Auto DL ?",
-
         "action": {
           "status": "Status",
           "setPathAndTag": "Set Suggest Download Path and Tags",
           "deleteDownloader": "Delete this downloader server",
           "setDefault": "Set this downloader server as Default Downloader."
-        }
+        },
+        "downloaderCategory": "Downloader Category"
       }
     },
     "PathAndTag": {
@@ -591,7 +726,15 @@
         "create": "Create a custom @:SetSearchSolution.solution based on this",
         "add": "Add this @:SetSearchSolution.solution"
       }
-    }
+    },
+    "CustomSolutionDialog": {
+      "title": "Custom Search Plan [{site}]",
+      "solutionName": "Plan Name",
+      "requestConfig": "Request Config",
+      "requestConfigHint": "Please configure request parameters in JSON format",
+      "requestConfigJsonError": "Must be valid JSON format"
+    },
+    "newSolutionNamePrompt": "Please enter the new search plan name"
   },
   "SetSite": {
     "add": {
@@ -652,7 +795,25 @@
         "success": "Added successfully",
         "failed": "Failed to add",
         "selected": "Selected"
-      }
+      },
+      "importComplete": "One-click import complete, successfully added {count} sites"
+    },
+    "SiteCategoryPanel": {
+      "siteDefault": "Site Default"
+    },
+    "AddDialog": {
+      "showDeadSite": "Show dead sites"
+    },
+    "Editor": {
+      "siteSettings": "Site Settings",
+      "otherSettings": "Other Settings",
+      "downloadLinkSuffix": "Download Link Suffix",
+      "downloadLinkSuffixHint": "This field will be automatically appended to the site's download links",
+      "downloadLinkSuffixExample": "E.g. if the plugin gets https://example.com/download.php?id=1 and you set &passkey=xxxx, the final download link will be https://example.com/download.php?id=1&passkey=xxxx",
+      "requestTimeout": "Request Timeout",
+      "requestTimeoutHint": "Affects the timeout for site requests (torrent search, user info retrieval)",
+      "downloadInterval": "Download Interval",
+      "downloadIntervalHint": "Affects the download interval for this site (for safety, the plugin will not strictly follow this setting; the actual interval is always slightly greater than or equal to the set interval)"
     }
   },
   "SetBackup": {
@@ -673,6 +834,44 @@
     "snackbar": {
       "success": "Backup successful",
       "failure": "Backup failed"
+    },
+    "AddDialog": {
+      "title": "Add Backup Server"
+    },
+    "Editor": {
+      "basicInfo": "Basic Information",
+      "serverConfig": "Server Configuration",
+      "backupConfig": "Backup Configuration"
+    },
+    "HistoryDialog": {
+      "title": "Backup History for {name}",
+      "restore": "Restore Backup",
+      "deleteSuccess": "Deleted backup history [{name}] successfully",
+      "deleteFailure": "Failed to delete backup history [{name}]",
+      "table": {
+        "filename": "Backup Filename",
+        "size": "Backup Size",
+        "time": "Backup Time"
+      }
+    },
+    "LocalExportConfirmDialog": {
+      "title": "Select content to export locally"
+    },
+    "RestoreDialog": {
+      "title": "Restore from Backup File",
+      "ptppPrompt": "Need to import PT-Plugin-Plus backup?",
+      "ptppImport": "PT-Plugin-Plus Backup Import",
+      "selectFile": "Select Backup File",
+      "decryptKey": "Decryption Key",
+      "retry": "Retry",
+      "restoreOptions": "Restore Options",
+      "expandCookieMinutes": "Try to extend Cookies expiry (minutes)",
+      "keepExistUserInfo": "Keep locally fetched user information",
+      "missingVersion": "Backup data is missing version info, cannot restore",
+      "versionWarning": "Backup data version is higher than the current extension version. Restoring may cause data incompatibility or loss. Continue?",
+      "success": "Restored successfully",
+      "failure": "Restore failed: {error}",
+      "loadFailure": "Load failed: {error}"
     }
   },
   "userInfo": {
@@ -715,7 +914,19 @@
     "importStep2": "In the site settings of {repoName}, add the sites that need to be restored. (If a site is not added, its corresponding user history data will be ignored).",
     "importStep3": "In PT-Plugin-Plus, disable the backup encryption feature and export the local backup file. It should be a zip file named <code>PT-Plugin-Plus-Backup-yyyy-MM-DD_hh-mm-ss.zip</code>.",
     "importStep4": "Upload the zip package or the extracted <code>userdatas.json</code> file to the input box below.",
-    "selectBackupFile": "Select PTPP Backup File"
+    "selectBackupFile": "Select PTPP Backup File",
+    "RestorePtppUserDataDialog": {
+      "title": "Restore PT-Plugin-Plus User History Data",
+      "pendingImportData": "Data to Import",
+      "notSupported": "This site is not supported",
+      "selected": "Selected",
+      "noSiteWarning": "You don't seem to have added any sites, which may cause import issues. Continue?",
+      "importCancelled": "Import operation cancelled.",
+      "importSuccess": "Import successful. The window will close automatically in 5s. Please refresh the page.",
+      "importFailure": "Import failed.",
+      "overwriteExisting": "Overwrite existing data",
+      "recordCount": "{0} records"
+    }
   },
   "socialConfig": {
     "basicConfig": "Basic Configuration",
@@ -731,5 +942,95 @@
     "anidbClientMessages": "Please apply for a Client ID at https://anidb.net/perl-bin/animedb.pl?show=client and fill it in the format `Name/Version`.",
     "bangumiApiKey": "Bangumi API Key",
     "bangumiApiMessages": "You can generate an Access Token at https://next.bgm.tv/demo/access-token"
+  },
+  "contentScript": {
+    "openPTD": "Open PTD",
+    "noTorrentParsed": "No torrents found on this page",
+    "cannotParseDetailLink": "Cannot parse torrent link on this page",
+    "parseResultEmpty": "Failed to parse results",
+    "parsePageFailed": "Page parsing failed",
+    "copyLinkSuccess": "Download link copied to clipboard",
+    "copyLinkFailed": "Failed to copy download link",
+    "copyLink": "Copy Link",
+    "pushTo": "Push to...",
+    "pushToDefault": "Push to Default Downloader",
+    "quickSearch": "Quick Search",
+    "advanceList": "Advanced List",
+    "AdvanceListModuleDialog": {
+      "title": "Customize batch actions for {0} torrents",
+      "selectSeeders": "Select seeding rows",
+      "selectNotSeeding": "Select not downloaded",
+      "selectedInfo": "Selected: {0} torrents, Total size: {1}"
+    },
+    "SocialSiteParseResultsDialog": {
+      "title": "Quick Search",
+      "searchId": "Search ID",
+      "searchExternalId": "Search External ID",
+      "searchTitle": "Search Title"
+    }
+  },
+  "SentToDownloaderDialog": {
+    "title": "Select downloader for {0} torrents",
+    "isSending": "Sending torrents to downloader {name} [{address}], please wait...",
+    "selectDownloaderFirst": "Please select a downloader first",
+    "noDownloader": "No downloaders available. Please add a downloader in settings.",
+    "selectDownloader": "Select Downloader",
+    "savePath": "Save Path",
+    "savePathHint": "Leave empty to use the downloader's default path",
+    "label": "Torrent Label",
+    "labelHint": "(If supported by the downloader)",
+    "localRelay": "Local Relay",
+    "pauseOnAdd": "Pause on add by default",
+    "moreOptions": "More Options"
+  },
+  "ContextMenuLinkPush": {
+    "invalidLink": "Invalid download link",
+    "keywordWarning": "When pushing links via right-click, some keyword features for download paths or labels may not work correctly!"
+  },
+  "SetMediaServer": {
+    "add": {
+      "title": "Add Media Server"
+    },
+    "Editor": {
+      "authInfo": "Authentication Info"
+    }
+  },
+  "Debugger": {
+    "title": "Debug Page!!!!",
+    "consoleOutput": "All output is in the console panel!!!",
+    "enableLibrary": "Enable Dev Library",
+    "libraryList": "Enable sendMessage, axios, Sizzle, es-toolkit (as _), datefns in console",
+    "debugBuiltinSite": "Debug Built-in Site",
+    "mergeUserConfig": "Merge User Config",
+    "outputSiteDefinition": "Output Site Definition",
+    "outputUserConfig": "Output User Config",
+    "outputSiteInstance": "Output Site Instance",
+    "outputFavicon": "Output Favicon",
+    "debug": "Debug {serverType}",
+    "addServerFirst": "Please add a server on the Set{serverType} page first",
+    "outputConfig": "Output User Config",
+    "outputInstance": "Output {serverType} Instance",
+    "debugPinia": "Debug Pinia",
+    "outputPinia": "Output Pinia Info",
+    "pluginReset": "Plugin Reset",
+    "dangerWarning": "EXTREMELY DANGEROUS!!!!",
+    "reset": "Reset",
+    "confirmReset": "Are you sure you want to reset?",
+    "resetSuccess": "Reset successful",
+    "selectSite": "Select Site",
+    "siteAll": "All",
+    "resetItems": {
+      "resetSystemSettings": "Reset System Settings",
+      "resetSystemSettingsDesc": "Reset all system settings (including language, theme, table display, image style, etc.) to defaults",
+      "clearUserConfig": "Clear User Config",
+      "clearUserConfigDesc": "Clear all user configs (including sites, downloaders, search plans, snapshot metadata, latest user info)",
+      "clearSiteData": "Clear Site Data",
+      "clearSiteDataDesc": "Clear user-fetched site data (including user info history and latest user info)",
+      "clearDownloadHistory": "Clear Download History",
+      "clearFaviconCache": "Clear Site Favicon Cache",
+      "clearMediaCache": "Clear media summary cache from Douban, IMDb, etc.",
+      "clearSearchSnapshot": "Clear Search Snapshots",
+      "clearSearchSnapshotDesc": "Clear all search snapshot data"
+    }
   }
 }
