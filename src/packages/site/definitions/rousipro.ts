@@ -14,7 +14,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Rousi",
 
   urls: ["uggcf://ebhfv.ceb/"],
-  favicon: "./rousi.ico", // 目前没有单独的图标，先用和 rousi 一样的
+  favicon: "./rousipro.ico",
 
   category: [
     {
