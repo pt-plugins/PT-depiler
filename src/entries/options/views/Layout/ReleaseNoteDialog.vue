@@ -49,7 +49,7 @@ function dialogLeave() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title> 欢迎使用 {{ t("manifest.extName") }} </v-toolbar-title>
+          <v-toolbar-title>{{ t("layout.releaseNote.title", { extName: t("manifest.extName") }) }}</v-toolbar-title>
         </v-toolbar>
       </v-card-title>
 
@@ -60,7 +60,7 @@ function dialogLeave() {
               <v-img inline src="/icons/logo/128.png" width="128"></v-img>
               <br />
               <div class="d-inline-flex">
-                <span class="text-body-1 text--secondary">{{ currentVersion.fullVersion }}（当前版本）</span>&nbsp;
+                <span class="text-body-1 text--secondary">{{ currentVersion.fullVersion }}{{ t("layout.releaseNote.currentVersion") }}</span>&nbsp;
               </div>
             </v-col>
           </v-row>
@@ -68,12 +68,12 @@ function dialogLeave() {
             <v-col>
               <div class="text-body-1">
                 <a :href="`${REPO_URL}/compare/${storeBuildHash}...${currentVersion.buildHash}`" target="_blank">
-                  更新日志
+                  {{ t("layout.releaseNote.changelog") }}
                 </a>
                 <v-divider vertical class="mx-2" />
-                <a :href="`${REPO_URL}/releases`" target="_blank">Wiki 帮助</a>
+                <a :href="`${REPO_URL}/releases`" target="_blank">{{ t("layout.releaseNote.wiki") }}</a>
                 <v-divider vertical class="mx-2" />
-                <a :href="`${REPO_URL}/discussions/316`" target="_blank">常见问题</a>
+                <a :href="`${REPO_URL}/discussions/316`" target="_blank">{{ t("layout.releaseNote.faq") }}</a>
               </div>
             </v-col>
           </v-row>
@@ -81,7 +81,7 @@ function dialogLeave() {
       </v-card-text>
 
       <v-card-actions>
-        <v-btn block variant="elevated" color="green" @click="showDialog = false">开始使用</v-btn>
+        <v-btn block variant="elevated" color="green" @click="showDialog = false">{{ t("layout.releaseNote.startUsing") }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

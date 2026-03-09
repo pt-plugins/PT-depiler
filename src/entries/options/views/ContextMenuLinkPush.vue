@@ -4,6 +4,7 @@
  */
 
 import { onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { getHostFromUrl, ITorrent } from "@ptd/site";
 
@@ -16,6 +17,7 @@ const route = useRoute();
 const router = useRouter();
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
+const { t } = useI18n();
 
 const showDialog = ref(false);
 const torrentItems = ref<ITorrent[]>([]);
@@ -24,7 +26,7 @@ onMounted(() => {
   const link = route?.query?.link;
 
   if (!link || typeof link !== "string") {
-    runtimeStore.showSnakebar("无效的下载链接", { color: "error" });
+    runtimeStore.showSnakebar(t("ContextMenuLinkPush.invalidLink"), { color: "error" });
     onCancel();
     return;
   }
@@ -40,7 +42,7 @@ onMounted(() => {
   }
 
   torrentItems.value = [torrent];
-  runtimeStore.showSnakebar("右键推送链接时，部分 下载路径或标签的 关键字功能可能无法正常工作！", { color: "warning" });
+  runtimeStore.showSnakebar(t("ContextMenuLinkPush.keywordWarning"), { color: "warning" });
   showDialog.value = true;
 });
 

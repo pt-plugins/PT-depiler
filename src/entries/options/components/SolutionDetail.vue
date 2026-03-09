@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { onMounted, shallowRef } from "vue";
+import { useI18n } from "vue-i18n";
 import { isEmpty } from "es-toolkit/compat";
 import type { ISearchCategories } from "@ptd/site";
 
@@ -16,6 +17,7 @@ const props = defineProps<{
 }>();
 
 const siteMetaCategory = shallowRef<ISearchCategories[]>([]);
+const { t } = useI18n();
 
 onMounted(async () => {
   siteMetaCategory.value = await getSiteMetaCategory(props.solution.siteId);
@@ -25,7 +27,7 @@ onMounted(async () => {
 <template>
   <div v-if="solution" class="text-wrap">
     <template v-if="solution.name">{{ solution.name }}</template>
-    <template v-else-if="isEmpty(solution.selectedCategories)">默认</template>
+    <template v-else-if="isEmpty(solution.selectedCategories)">{{ t('common.default') }}</template>
     <template v-else>
       <span
         v-for="(value, category) in solution.selectedCategories"
