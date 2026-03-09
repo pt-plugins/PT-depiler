@@ -263,6 +263,7 @@ export const siteMetadata: ISiteMetadata = {
       time: { selector: ":self", data: "torDate", filters: [{ name: "parseTime", args: ["dd_MM_yyyy"] }] },
       title: { selector: "td a[href*='/viewtopic.php?t=']" },
       url: { selector: "td a[href*='/viewtopic.php?t=']", attr: "href" },
+      id: { selector: "td a[href*='/dl.php?id=']", attr: "href", filters: [{ name: "querystring", args: ["id"] }] },
       link: { selector: "td a[href*='/dl.php?id=']", attr: "href" },
       category: {
         selector: "td a[href*='/tracker.php?f=']",
