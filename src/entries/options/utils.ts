@@ -76,13 +76,13 @@ export const formatTimeAgo = (sourceDate: Date | number | string, weekOnly: bool
 
   let result;
   if (years > 0) {
-    result = `${years}${i18n.t("common.time.year")}${months}${i18n.t("common.time.month")}`;
+    result = `${years} ${i18n.t("common.time.year")} ${months} ${i18n.t("common.time.month")}`;
   } else if (months > 0) {
-    result = `${months}${i18n.t("common.time.month")}${days}${i18n.t("common.time.day")}`;
+    result = `${months} ${i18n.t("common.time.month")} ${days} ${i18n.t("common.time.day")}`;
   } else if (days > 0) {
-    result = `${days}${i18n.t("common.time.day")}${hours}${i18n.t("common.time.hour")}`;
+    result = `${days} ${i18n.t("common.time.day")} ${hours} ${i18n.t("common.time.hour")}`;
   } else if (hours > 0) {
-    result = `${hours}${i18n.t("common.time.hour")}${mins}${i18n.t("common.time.minute")}`;
+    result = `${hours} ${i18n.t("common.time.hour")} ${mins} ${i18n.t("common.time.minute")}`;
   } else if (mins > 0) {
     result = `${mins}${i18n.t("common.time.minute")}`;
   } else {

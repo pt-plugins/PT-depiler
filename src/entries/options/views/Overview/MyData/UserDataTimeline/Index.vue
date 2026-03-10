@@ -212,7 +212,13 @@ function exportTimelineImg() {
     mimeType: "image/png",
     pixelRatio: 3,
     callback: (dataUrl: string) => {
-      saveAs(dataUrl, t("UserDataTimeline.exportFilename", { name: configStore.userName, date: formatDate(timelineData.value.createAt) }) + ".png");
+      saveAs(
+        dataUrl,
+        t("UserDataTimeline.exportFilename", {
+          name: configStore.userName,
+          date: formatDate(timelineData.value.createAt),
+        }) + ".png",
+      );
     },
   });
 }
@@ -312,7 +318,7 @@ function saveControl() {
                 :config="
                   text({
                     y: 30 * (realShowField.length + 1),
-                    text: t("UserDataTimeline.ptAge", { years: timelineData.joinTimeInfo.years }),
+                    text: t('UserDataTimeline.ptAge', { years: timelineData.joinTimeInfo.years }),
                   })
                 "
               />
@@ -522,7 +528,12 @@ function saveControl() {
           <v-col class="d-flex">
             <NavButton color="grey" icon="mdi-arrow-left" :text="t('common.back')" @click="() => router.back()" />
             <v-spacer />
-            <NavButton color="info" icon="mdi-file-export-outline" :text="t('common.exportImage')" @click="exportTimelineImg" />
+            <NavButton
+              color="info"
+              icon="mdi-file-export-outline"
+              :text="t('common.exportImage')"
+              @click="exportTimelineImg"
+            />
             <NavButton color="green" icon="mdi-content-save" :text="t('common.saveSettings')" @click="saveControl" />
           </v-col>
         </v-row>
@@ -580,8 +591,18 @@ function saveControl() {
 
         <v-label class="my-2">{{ t("UserDataTimeline.controls.components") }}</v-label>
 
-        <v-switch v-model="control.showTop" color="success" hide-details :label="t('UserDataTimeline.controls.showTopSites')" />
-        <v-switch v-model="control.showTimeline" color="success" hide-details :label="t('UserDataTimeline.controls.showTimeline')" />
+        <v-switch
+          v-model="control.showTop"
+          color="success"
+          hide-details
+          :label="t('UserDataTimeline.controls.showTopSites')"
+        />
+        <v-switch
+          v-model="control.showTimeline"
+          color="success"
+          hide-details
+          :label="t('UserDataTimeline.controls.showTimeline')"
+        />
 
         <v-color-input
           v-model="control.backgroundColor"
