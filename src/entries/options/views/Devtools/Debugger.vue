@@ -312,7 +312,7 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
                     >
                       <template v-slot:prepend>
                         <v-list-item-action class="mr-2">
-                          <v-btn color="red" @click="() => resetFnWrapper(item.resetFn)">{{ t("Debugger.reset") }}</v-btn>
+                          <v-btn color="red" @click="() => resetFnWrapper(item.resetFn)">{{ t("common.dialog.reset") }}</v-btn>
                         </v-list-item-action>
                       </template>
                       <template v-slot:append>

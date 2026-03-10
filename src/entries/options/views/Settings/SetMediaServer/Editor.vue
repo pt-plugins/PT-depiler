@@ -37,7 +37,7 @@ async function checkConnect() {
       <v-container class="pa-0">
         <v-row>
           <v-col cols="12" md="4">
-            <v-text-field v-model="clientConfig.type" :label="t('SetDownloader.common.type')" disabled />
+            <v-text-field v-model="clientConfig.type" :label="t('common.type')" disabled />
           </v-col>
           <v-col cols="12" md="4">
             <v-text-field

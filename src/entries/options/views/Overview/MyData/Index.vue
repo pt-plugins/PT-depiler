@@ -33,12 +33,12 @@ const currentDate = new Date();
 
 const fullTableHeader = reactive([
   {
-    title: t("MyData.table.site"),
+    title: t("common.site"),
     key: "siteUserConfig.sortIndex",
     align: "center",
     props: { disabled: true },
   },
-  { title: t("MyData.table.username"), key: "name", align: "center" },
+  { title: t("common.username"), key: "name", align: "center" },
   { title: t("MyData.table.levelName"), key: "levelName", align: "start", width: "15%" },
   // NOTE: 这里将key设为 uploaded, trueUploaded 而不是虚拟的 userData，可以让 v-data-table 使用 uploaded 的进行排序
   { title: t("MyData.table.userData"), key: "uploaded", align: "end" },

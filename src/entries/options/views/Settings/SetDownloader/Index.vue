@@ -43,10 +43,10 @@ const downloaderMetadata = computedAsync(async () => {
 
 const fullTableHeader = [
   { title: "№", key: "sortIndex", align: "end", width: "100" },
-  { title: t("SetDownloader.common.type"), key: "type", align: "center" },
+  { title: t("common.type"), key: "type", align: "center" },
   { title: t("SetDownloader.common.name"), key: "name", align: "start" },
   { title: t("SetDownloader.common.address"), key: "address", align: "start" },
-  { title: t("SetDownloader.common.username"), key: "username", align: "start" },
+  { title: t("common.username"), key: "username", align: "start" },
   { title: t("SetDownloader.common.status"), key: "status", align: "end", sortable: false },
   { title: t("SetDownloader.index.table.enabled"), key: "enabled", align: "center" },
   { title: t("SetDownloader.index.table.autodl"), key: "feature.DefaultAutoStart", align: "center" },

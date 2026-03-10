@@ -58,7 +58,7 @@ function enterDialog() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title>{{ t("SearchEntity.AdvanceFilterGenerateDialog.title") }}</v-toolbar-title>
+          <v-toolbar-title>{{ t("common.AdvanceFilterGenerateDialog.title") }}</v-toolbar-title>
           <template #append>
             <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>
@@ -67,23 +67,23 @@ function enterDialog() {
       <v-divider />
       <v-card-text>
         <v-container>
-          <v-row><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.keywords") }}</v-label> </v-row>
+          <v-row><v-label>{{ t("common.AdvanceFilterGenerateDialog.keywords") }}</v-label> </v-row>
           <v-row>
             <v-col cols="12" md="6">
-              <v-combobox v-model="advanceFilterDictRef.text.required" chips hide-details :label="t('SearchEntity.AdvanceFilterGenerateDialog.required')" multiple />
+              <v-combobox v-model="advanceFilterDictRef.text.required" chips hide-details :label="t('common.AdvanceFilterGenerateDialog.required')" multiple />
             </v-col>
             <v-col cols="12" md="6">
               <v-combobox
                 v-model="advanceFilterDictRef.text.exclude"
                 chips
                 hide-details
-                :label="t('SearchEntity.AdvanceFilterGenerateDialog.exclude')"
+                :label="t('common.AdvanceFilterGenerateDialog.exclude')"
                 multiple
               ></v-combobox>
             </v-col>
           </v-row>
 
-          <v-row><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.site") }}</v-label></v-row>
+          <v-row><v-label>{{ t("common.AdvanceFilterGenerateDialog.site") }}</v-label></v-row>
           <v-row>
             <v-col
               v-for="site in advanceItemPropsRef.site"
@@ -173,7 +173,7 @@ function enterDialog() {
           <v-row>
             <v-col cols="6">
               <v-row class="pr-4">
-                <v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.date") }}</v-label>
+                <v-label>{{ t("common.AdvanceFilterGenerateDialog.date") }}</v-label>
                 <v-spacer />
                 <v-chip
                   v-for="dateUnit in ['day', 'week', 'month', 'quarter', 'year'] as const"
@@ -184,10 +184,10 @@ function enterDialog() {
                     () => (advanceFilterDictRef.time = getThisDateUnitRange(dateUnit, advanceItemPropsRef.time.range))
                   "
                 >
-                  {{ t(`SearchEntity.AdvanceFilterGenerateDialog.date.${dateUnit}`) }}
+                  {{ t(`common.AdvanceFilterGenerateDialog.dateUnit.${dateUnit}`) }}
                 </v-chip>
                 <v-chip size="x-small">
-                  {{ t("SearchEntity.AdvanceFilterGenerateDialog.date.custom") }}
+                  {{ t("common.AdvanceFilterGenerateDialog.dateUnit.custom") }}
                   <v-menu activator="parent" location="top" :close-on-content-click="false">
                     <v-date-picker
                       :max="addDays(new Date(advanceItemPropsRef.time.range[1]), 1)"
@@ -306,10 +306,10 @@ function enterDialog() {
       </v-card-text>
       <v-divider />
       <v-card-actions>
-        <v-btn variant="text" @click="() => reBuildAdvanceFilter(true)">{{ t("SearchEntity.AdvanceFilterGenerateDialog.reset") }}</v-btn>
+        <v-btn variant="text" @click="() => reBuildAdvanceFilter(true)">{{ t("common.AdvanceFilterGenerateDialog.reset") }}</v-btn>
         <v-spacer />
         <v-btn color="error" variant="text" @click="showDialog = false">{{ t("common.dialog.cancel") }}</v-btn>
-        <v-btn color="primary" variant="text" @click="updateTableFilter">{{ t("SearchEntity.AdvanceFilterGenerateDialog.generate") }}</v-btn>
+        <v-btn color="primary" variant="text" @click="updateTableFilter">{{ t("common.AdvanceFilterGenerateDialog.generate") }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

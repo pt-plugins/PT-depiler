@@ -226,7 +226,7 @@ function exportTimelineImg() {
 function saveControl() {
   configStore.userDataTimelineControl.selectedSites = selectedSites.value;
   configStore.$save();
-  useRuntimeStore().showSnakebar(t("SetBase.saveSuccess"), { color: "success" });
+  useRuntimeStore().showSnakebar(t("common.saveSuccess"), { color: "success" });
 }
 </script>
 
@@ -550,7 +550,7 @@ function saveControl() {
               append-inner-icon="mdi-history"
               :items="Object.keys(configStore.getUserNames.names)"
               hide-details
-              :label="t('UserDataTimeline.controls.username')"
+              :label="t('common.username')"
               @click:append-inner="() => (configStore.userName = configStore.getUserNames.perfName)"
             >
               <template #prepend>

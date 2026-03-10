@@ -38,7 +38,7 @@ function enterDialog() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title>{{ t("DownloadHistory.AdvanceFilterGenerateDialog.title") }}</v-toolbar-title>
+          <v-toolbar-title>{{ t("common.AdvanceFilterGenerateDialog.title") }}</v-toolbar-title>
           <template #append>
             <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>
@@ -47,14 +47,14 @@ function enterDialog() {
       <v-divider />
       <v-card-text class="overflow-y-auto">
         <v-container>
-          <v-row><v-label>{{ t("DownloadHistory.AdvanceFilterGenerateDialog.keywords") }}</v-label> </v-row>
+          <v-row><v-label>{{ t("common.AdvanceFilterGenerateDialog.keywords") }}</v-label> </v-row>
           <v-row>
             <v-col>
               <v-combobox
                 v-model="advanceFilterDictRef.text.required"
                 chips
                 hide-details
-              :label="t('DownloadHistory.AdvanceFilterGenerateDialog.required')"
+              :label="t('common.AdvanceFilterGenerateDialog.required')"
                 multiple
               ></v-combobox>
             </v-col>
@@ -63,12 +63,12 @@ function enterDialog() {
                 v-model="advanceFilterDictRef.text.exclude"
                 chips
                 hide-details
-              :label="t('DownloadHistory.AdvanceFilterGenerateDialog.exclude')"
+              :label="t('common.AdvanceFilterGenerateDialog.exclude')"
                 multiple
               ></v-combobox>
             </v-col>
           </v-row>
-          <v-row><v-label>{{ t("DownloadHistory.AdvanceFilterGenerateDialog.site") }}</v-label></v-row>
+          <v-row><v-label>{{ t("common.AdvanceFilterGenerateDialog.site") }}</v-label></v-row>
           <v-row>
             <v-col
               v-for="site in advanceItemPropsRef.siteId"
@@ -120,7 +120,7 @@ function enterDialog() {
           <v-row>
             <v-col cols="12">
               <v-row class="pr-4">
-                <v-label>{{ t("DownloadHistory.AdvanceFilterGenerateDialog.date") }}</v-label>
+                <v-label>{{ t("common.AdvanceFilterGenerateDialog.date") }}</v-label>
                 <v-spacer />
                 <v-chip
                   v-for="dateUnit in ['day', 'week', 'month', 'quarter', 'year'] as const"
@@ -135,10 +135,10 @@ function enterDialog() {
                       ))
                   "
                 >
-                  {{ t(`SearchEntity.AdvanceFilterGenerateDialog.date.${dateUnit}`) }}
+                  {{ t(`common.AdvanceFilterGenerateDialog.dateUnit.${dateUnit}`) }}
                 </v-chip>
                 <v-chip size="x-small">
-                  {{ t("SearchEntity.AdvanceFilterGenerateDialog.date.custom") }}
+                  {{ t("common.AdvanceFilterGenerateDialog.dateUnit.custom") }}
                   <v-menu activator="parent" location="top" :close-on-content-click="false">
                     <v-date-picker
                       :max="addDays(new Date(advanceItemPropsRef.downloadAt.range[1]), 1)"
@@ -176,10 +176,10 @@ function enterDialog() {
       </v-card-text>
       <v-divider />
       <v-card-actions>
-        <v-btn variant="text" @click="() => reBuildAdvanceFilter(true)">{{ t("DownloadHistory.AdvanceFilterGenerateDialog.reset") }}</v-btn>
+        <v-btn variant="text" @click="() => reBuildAdvanceFilter(true)">{{ t("common.AdvanceFilterGenerateDialog.reset") }}</v-btn>
         <v-spacer />
         <v-btn color="error" variant="text" @click="showDialog = false">{{ t("common.dialog.cancel") }}</v-btn>
-        <v-btn color="primary" variant="text" @click="updateTableFilter">{{ t("DownloadHistory.AdvanceFilterGenerateDialog.generate") }}</v-btn>
+        <v-btn color="primary" variant="text" @click="updateTableFilter">{{ t("common.AdvanceFilterGenerateDialog.generate") }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

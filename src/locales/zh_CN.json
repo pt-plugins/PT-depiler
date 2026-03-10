@@ -5,7 +5,9 @@
       "add": "增加"
     },
     "checkbox": {
-      "all": "全选"
+      "all": "全选",
+      "none": "全不选",
+      "invert": "反选"
     },
     "default": "默认",
     "date": "日期",
@@ -54,7 +56,28 @@
     "saveSettings": "保存设置",
     "enable": "启用",
     "basicInfo": "基本信息",
-    "count": "数量"
+    "count": "数量",
+    "site": "站点",
+    "type": "类型",
+    "username": "用户名",
+    "AdvanceFilterGenerateDialog": {
+      "title": "生成高级过滤词",
+      "keywords": "关键词",
+      "required": "必要项",
+      "exclude": "排除项",
+      "site": "@:common.site",
+      "date": "日期",
+      "dateUnit": {
+        "day": "今日",
+        "week": "本周",
+        "month": "本月",
+        "quarter": "本季度",
+        "year": "今年",
+        "custom": "自定义"
+      },
+      "reset": "重置搜索词",
+      "generate": "生成"
+    }
   },
   "layout": {
     "header": {
@@ -135,11 +158,6 @@
       "SetSite": "站点设置"
     }
   },
-  "checkSwitch": {
-    "all": "全选",
-    "none": "全不选",
-    "invert": "反选"
-  },
   "connectCheck": {
     "default": "检查连接性",
     "error": "连接失败！请检查填写的信息或者你的远程服务器。",
@@ -215,22 +233,13 @@
     "reDownload": "重新下载",
     "filterPlaceholder": "过滤下载记录",
     "table": {
-      "site": "站点",
       "title": "种子",
       "downloader": "下载服务器",
       "downloadAt": "下载时间",
       "status": "下载状态"
     },
     "AdvanceFilterGenerateDialog": {
-      "title": "生成高级过滤词",
-      "keywords": "关键词",
-      "required": "必要项",
-      "exclude": "排除项",
-      "site": "站点",
-      "downloader": "下载器",
-      "date": "日期",
-      "reset": "重置搜索词",
-      "generate": "生成"
+      "downloader": "下载器"
     },
     "ReDownloadSelectDialog": {
       "title": "重新下载 {0} 条记录",
@@ -299,8 +308,6 @@
       "noSiteSelectedCancelRefresh": "未选择任何站点，取消刷新"
     },
     "table": {
-      "site": "站点",
-      "username": "用户名",
       "levelName": "等级",
       "userData": "数据量",
       "trueUserData": "真实数据量",
@@ -349,7 +356,6 @@
       "noData": "无数据",
       "chartStyleSettings": "数据图表样式设置",
       "displaySiteSettings": "展示站点设置",
-      "username": "用户名",
       "displayChart": "展示图表",
       "dateRange": "时间段",
       "chartSettings": "图表设置",
@@ -376,13 +382,12 @@
       "bonusPerHour": "时魔值",
       "ratio": "分享率",
       "siteName": "站点名称",
-      "name": "用户名",
+      "name": "@:common.username",
       "level": "用户等级",
       "uid": "用户ID"
     },
     "controls": {
       "usernameAndTitle": "用户名及标题",
-      "username": "用户名",
       "timelineTitle": "时间轴标题",
       "components": "组件",
       "showTopSites": "展示各类数据的冠军及亚军站点",
@@ -405,7 +410,6 @@
   "SearchEntity": {
     "index": {
       "table": {
-        "site": "站点",
         "title": "标题",
         "category": "分类",
         "size": "大小",
@@ -450,20 +454,12 @@
       "all": "全部站点"
     },
     "AdvanceFilterGenerateDialog": {
-      "date": "日期",
-      "title": "生成高级过滤词",
-      "keywords": "关键词",
-      "required": "必要项",
-      "exclude": "排除项",
-      "site": "站点",
       "tags": "标签",
       "status": "种子状态",
       "size": "种子大小",
       "seeders": "上传人数",
       "leechers": "下载人数",
-      "completed": "完成人数",
-      "reset": "重置搜索词",
-      "generate": "生成"
+      "completed": "完成人数"
     },
     "SearchStatusDialog": {
       "title": "方案 [{0}] 搜索状态",
@@ -512,7 +508,7 @@
   "SetBase": {
     "tab": {
       "ui": "界面UI",
-      "search-entity": "搜索",
+      "search-entity": "@:common.search",
       "download": "下载",
       "user-info": "用户信息",
       "backup": "备份恢复",
@@ -595,7 +591,6 @@
       "useQuickSendToClient": "默认使用快速推送",
       "quickSendToClientNote": "启用快速推送后，插件会在推送下载任务时，做以下默认操作：<br />1. 展平 下载器和下载目录 选项供直接点击推送。<br />2. 鼠标移到选项时，则会暂开标签列表，点击时会额外添加标签信息。<br />3. 均采用本地中转模式推送种子，且 `是否自动开始下载` 等基本设置项和下载器专有配置项值由下载器设置和站点设置决定。"
     },
-    "saveSuccess": "保存成功",
     "userInfo": {
       "userDataRefresh": "用户数据刷新",
       "afterTime": "每日最早刷新时间",
@@ -616,9 +611,7 @@
     "common": {
       "address": "服务器地址",
       "name": "服务器名称",
-      "type": "类型",
       "uid": "服务器ID",
-      "username": "用户名",
       "status": "服务器状态"
     },
     "delete": {
@@ -703,8 +696,6 @@
   "SetSearchSolution": {
     "solution": "搜索方案",
     "copy": "创建副本",
-    "import": "导入",
-    "export": "导出",
     "table": {
       "enable": "启用？",
       "default": "默认？",
@@ -752,7 +743,6 @@
       "name": "站点名称",
       "showMessageCount": "信息提醒",
       "tags": "标签",
-      "type": "类型",
       "url": "网站链接",
       "groups": "站点分类",
       "allowContentScript": "加载侧边栏",
@@ -821,12 +811,9 @@
   },
   "SetBackup": {
     "table": {
-      "type": "类型",
-      "name": "名称",
       "backupFields": "备份内容",
       "lastBackupAt": "最近一次备份时间",
       "notBackup": "未备份",
-      "enabled": "启用",
       "action": {
         "backupNow": "立即备份",
         "viewHistoryBackup": "查看历史备份"
@@ -842,7 +829,6 @@
       "title": "添加备份服务器"
     },
     "Editor": {
-      "basicInfo": "基本信息",
       "serverConfig": "服务器配置",
       "backupConfig": "备份配置"
     },
@@ -1017,7 +1003,6 @@
     "outputPinia": "输出Pinia信息",
     "pluginReset": "插件重置",
     "dangerWarning": "极其危险！！！！",
-    "reset": "重置",
     "confirmReset": "确定要重置吗？",
     "resetSuccess": "重置成功",
     "selectSite": "选择站点",

@@ -374,8 +374,7 @@ async function exportStatisticImg() {
 function saveControl() {
   configStore.userStatisticControl.selectedSites = selectedSites.value;
   configStore.$save();
-  useRuntimeStore().showSnakebar(t("SetBase.saveSuccess"), { color: "success" });
-}
+  useRuntimeStore().showSnakebar(t("common.saveSuccess"), { color: "success" });}
 </script>
 
 <template>
@@ -442,7 +441,7 @@ function saveControl() {
 
         <v-row>
           <v-col align-self="center">
-            <v-label>{{ t("UserDataStatistic.chart.username") }}</v-label>
+            <v-label>{{ t("common.username") }}</v-label>
           </v-col>
           <v-col cols="12" sm="10">
             <v-combobox
@@ -451,7 +450,7 @@ function saveControl() {
               append-inner-icon="mdi-history"
               :items="Object.keys(configStore.getUserNames.names)"
               hide-details
-              :label="t('UserDataStatistic.chart.username')"
+              :label="t('common.username')"
               @click:append-inner="() => (configStore.userName = configStore.getUserNames.perfName)"
             >
               <template #prepend>

@@ -28,7 +28,7 @@ interface IShowUserInfo extends IUserInfo {
 const siteHistoryData = shallowRef<IShowUserInfo[]>([]);
 const tableHeader = [
   { title: t("common.date"), key: "date", align: "center" },
-  { title: t("MyData.table.username"), key: "name", align: "center", sortable: false },
+  { title: t("common.username"), key: "name", align: "center", sortable: false },
   { title: t("MyData.table.levelName"), key: "levelName", align: "start", sortable: false },
   { title: t("MyData.table.userData"), key: "uploaded", align: "end", sortable: false },
   { title: t("levelRequirement.ratio"), key: "ratio", align: "end", sortable: false },

@@ -114,7 +114,7 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
             ></v-combobox>
           </v-col>
           <v-col cols="12" md="4">
-            <v-text-field v-model="siteMetaData.schema" :label="t('SetSite.common.type')" disabled hide-details />
+            <v-text-field v-model="siteMetaData.schema" :label="t('common.type')" disabled hide-details />
           </v-col>
           <v-col cols="12" md="4">
             <v-text-field

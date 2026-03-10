@@ -188,14 +188,14 @@ async function copySearchSolution(solutionId: TSolutionKey) {
         <NavButton
           color="info"
           icon="mdi-import"
-          :text="t('SetSearchSolution.import')"
+          :text="t('common.import')"
           @click="() => importFileInputRef?.click()"
         />
         <NavButton
           :disabled="tableSelected.length === 0"
           color="info"
           icon="mdi-export"
-          :text="t('SetSearchSolution.export')"
+          :text="t('common.export')"
           @click="() => exportSearchSolutions(tableSelected)"
         />
 
@@ -314,7 +314,7 @@ async function copySearchSolution(solutionId: TSolutionKey) {
             @click="() => editSearchSolution(item.id)"
           />
           <v-btn
-            :title="t('SetSearchSolution.export')"
+            :title="t('common.export')"
             size="small"
             color="info"
             icon="mdi-export"

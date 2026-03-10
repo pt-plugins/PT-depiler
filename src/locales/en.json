@@ -5,7 +5,9 @@
       "add": "Add"
     },
     "checkbox": {
-      "all": "ALL"
+      "all": "ALL",
+      "none": "Select None",
+      "invert": "Invert Selection"
     },
     "default": "default",
     "date": "Date",
@@ -54,7 +56,28 @@
     "saveSettings": "Save Settings",
     "enable": "Enable",
     "basicInfo": "Basic Information",
-    "count": "Count"
+    "count": "Count",
+    "site": "Site",
+    "type": "Type",
+    "username": "Username",
+    "AdvanceFilterGenerateDialog": {
+      "title": "Generate Advanced Filter",
+      "keywords": "Keywords",
+      "required": "Required",
+      "exclude": "Exclude",
+      "site": "@:common.site",
+      "date": "Date",
+      "dateUnit": {
+        "day": "Today",
+        "week": "This Week",
+        "month": "This Month",
+        "quarter": "This Quarter",
+        "year": "This Year",
+        "custom": "Custom"
+      },
+      "reset": "Reset Filter",
+      "generate": "Generate"
+    }
   },
   "layout": {
     "header": {
@@ -135,11 +158,6 @@
       "SetSite": "Sites"
     }
   },
-  "checkSwitch": {
-    "all": "Select All",
-    "none": "Select None",
-    "invert": "Invert Selection"
-  },
   "connectCheck": {
     "default": "Check Connect",
     "error": "Connect Failed! Check Form Input or Remote Server",
@@ -215,22 +233,13 @@
     "reDownload": "Re-download",
     "filterPlaceholder": "Filter download history",
     "table": {
-      "site": "Site",
       "title": "Torrent",
       "downloader": "Downloader",
       "downloadAt": "Download Time",
       "status": "Download Status"
     },
     "AdvanceFilterGenerateDialog": {
-      "title": "Generate Advanced Filter",
-      "keywords": "Keywords",
-      "required": "Required",
-      "exclude": "Exclude",
-      "site": "Site",
-      "downloader": "Downloader",
-      "date": "Date",
-      "reset": "Reset Filter",
-      "generate": "Generate"
+      "downloader": "Downloader"
     },
     "ReDownloadSelectDialog": {
       "title": "Re-download {0} records",
@@ -299,8 +308,6 @@
       "noSiteSelectedCancelRefresh": "No site selected, refresh cancelled"
     },
     "table": {
-      "site": "Site",
-      "username": "Username",
       "levelName": "Level",
       "userData": "Data",
       "trueUserData": "True Data",
@@ -349,7 +356,6 @@
       "noData": "No Data",
       "chartStyleSettings": "Chart Style Settings",
       "displaySiteSettings": "Display Site Settings",
-      "username": "Username",
       "displayChart": "Display Chart",
       "dateRange": "Date Range",
       "chartSettings": "Chart Settings",
@@ -376,13 +382,12 @@
       "bonusPerHour": "Bonus/H",
       "ratio": "Ratio",
       "siteName": "Site Name",
-      "name": "Username",
+      "name": "@:common.username",
       "level": "User Level",
       "uid": "User ID"
     },
     "controls": {
       "usernameAndTitle": "Username & Title",
-      "username": "Username",
       "timelineTitle": "Timeline Title",
       "components": "Components",
       "showTopSites": "Show champion and runner-up sites for each data type",
@@ -405,7 +410,6 @@
   "SearchEntity": {
     "index": {
       "table": {
-        "site": "Site",
         "title": "Title",
         "category": "Category",
         "size": "Size",
@@ -450,20 +454,12 @@
       "all": "All Site"
     },
     "AdvanceFilterGenerateDialog": {
-      "date": "Date",
-      "title": "Generate Advanced Filter",
-      "keywords": "Keywords",
-      "required": "Required",
-      "exclude": "Exclude",
-      "site": "Site",
       "tags": "Tags",
       "status": "Torrent Status",
       "size": "Torrent Size",
       "seeders": "Seeders",
       "leechers": "Leechers",
-      "completed": "Completed",
-      "reset": "Reset Filter",
-      "generate": "Generate"
+      "completed": "Completed"
     },
     "SearchStatusDialog": {
       "title": "Search Status of [{0}]",
@@ -512,7 +508,7 @@
   "SetBase": {
     "tab": {
       "ui": "Option UI",
-      "search-entity": "Search",
+      "search-entity": "@:common.search",
       "download": "Download",
       "user-info": "UserInfo",
       "backup": "Backup & Restore",
@@ -595,7 +591,6 @@
       "useQuickSendToClient": "Use quick push by default",
       "quickSendToClientNote": "When quick push is enabled, the plugin will perform the following default actions when pushing download tasks:<br />1. Flatten the downloader and download directory options for direct click-to-push.<br />2. When hovering over an option, the label list will temporarily open; clicking will additionally add label information.<br />3. All use local relay mode to push torrents, and basic settings like 'auto-start download' and downloader-specific configs are determined by downloader and site settings."
     },
-    "saveSuccess": "Saved successfully",
     "userInfo": {
       "userDataRefresh": "User Data Refresh",
       "afterTime": "Earliest daily refresh time",
@@ -616,9 +611,7 @@
     "common": {
       "address": "Server Address",
       "name": "Server Name",
-      "type": "Type",
       "uid": "Server Id",
-      "username": "Username",
       "status": "Status"
     },
     "delete": {
@@ -703,8 +696,6 @@
   "SetSearchSolution": {
     "solution": "Search Solution",
     "copy": "Duplicate",
-    "import": "Import",
-    "export": "Export",
     "table": {
       "enable": "Enabled ?",
       "default": "Default ?",
@@ -752,7 +743,6 @@
       "name": "Site Name",
       "showMessageCount": "Show Notice",
       "tags": "Tags",
-      "type": "Type",
       "url": "URL",
       "groups": "Site Groups",
       "allowContentScript": "Load Content Script",
@@ -821,12 +811,9 @@
   },
   "SetBackup": {
     "table": {
-      "type": "Type",
-      "name": "Name",
       "backupFields": "Backup Content",
       "lastBackupAt": "Last Backup Time",
       "notBackup": "Not Backed Up",
-      "enabled": "Enabled",
       "action": {
         "backupNow": "Backup Now",
         "viewHistoryBackup": "View History Backups"
@@ -842,7 +829,6 @@
       "title": "Add Backup Server"
     },
     "Editor": {
-      "basicInfo": "Basic Information",
       "serverConfig": "Server Configuration",
       "backupConfig": "Backup Configuration"
     },
@@ -1017,7 +1003,6 @@
     "outputPinia": "Output Pinia Info",
     "pluginReset": "Plugin Reset",
     "dangerWarning": "EXTREMELY DANGEROUS!!!!",
-    "reset": "Reset",
     "confirmReset": "Are you sure you want to reset?",
     "resetSuccess": "Reset successful",
     "selectSite": "Select Site",
