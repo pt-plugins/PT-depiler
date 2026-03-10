@@ -53,7 +53,8 @@
     "exportImage": "Export Image",
     "saveSettings": "Save Settings",
     "enable": "Enable",
-    "basicInfo": "Basic Information"
+    "basicInfo": "Basic Information",
+    "count": "Count"
   },
   "layout": {
     "header": {
@@ -353,7 +354,8 @@
       "dateRange": "Date Range",
       "chartSettings": "Chart Settings",
       "hideLowPercentHint": "Set to 0 to not hide",
-      "hideLowPercentLabel": "Hide details for sites with legend percentage below this value"
+      "hideLowPercentLabel": "Hide details for sites with legend percentage below this value",
+      "exportFilename": "{name}'s Data Chart ({date})"
     },
     "dateRange": {
       "custom": "Custom",
@@ -397,7 +399,8 @@
       "styleSettings": "Timeline Style Settings",
       "displaySiteSettings": "Display Site Settings"
     },
-    "ptAge": "PT Age: ≈ {years} years"
+    "ptAge": "PT Age: ≈ {years} years",
+    "exportFilename": "{name}'s Timeline ({date})"
   },
   "SearchEntity": {
     "index": {

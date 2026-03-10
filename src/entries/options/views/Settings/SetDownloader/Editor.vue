@@ -125,7 +125,7 @@ async function checkConnect() {
         <v-row v-if="clientMeta.advanceAddTorrentOptions">
           <v-col>
             <v-expansion-panels>
-              <v-expansion-panel title="高级设置">
+              <v-expansion-panel :title="t('common.advancedSettings')">
                 <v-expansion-panel-text>
                   <v-switch
                     v-for="opt in clientMeta.advanceAddTorrentOptions"

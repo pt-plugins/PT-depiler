@@ -58,21 +58,21 @@ defineExpose({
         v-model="configStore.showReleaseNoteOnVersionChange"
         color="success"
         hide-details
-        label="插件更新时显示更新日志窗口"
+        :label="t('SetBase.ui.showReleaseNote')"
       />
 
       <v-switch
         v-model="configStore.saveTableBehavior"
         color="success"
         hide-details
-        label="记忆部分表格的 表头列展示、排序、分页 等信息"
+        :label="t('SetBase.ui.saveTableBehavior')"
       />
 
       <v-switch
         v-model="configStore.enableTableMultiSort"
         color="success"
         hide-details
-        label="启用部分表格的多列排序功能"
+        :label="t('SetBase.ui.enableTableMultiSort')"
       >
         <template #append>
           <v-tooltip max-width="400" location="bottom">
@@ -91,31 +91,31 @@ defineExpose({
   <v-row>
     <v-col md="10" lg="8">
       <div class="d-flex align-center">
-        <v-label>内容脚本（站点侧边栏等）</v-label>
+        <v-label>{{ t("SetBase.ui.contentScript") }}</v-label>
         <v-spacer />
-        <v-switch v-model="configStore.contentScript.enabled" color="success" hide-details label="启用" />
+        <v-switch v-model="configStore.contentScript.enabled" color="success" hide-details :label="t('common.enable')" />
       </div>
 
       <template v-if="configStore.contentScript.enabled">
-        <v-alert type="warning" variant="tonal"> 启用或禁用相关功能后需要保存设置，并刷新站点页面才能生效。 </v-alert>
+        <v-alert type="warning" variant="tonal"> {{ t("SetBase.ui.contentScriptWarning") }} </v-alert>
 
         <v-row dense>
           <v-col cols="12" md="2" class="d-flex align-center justify-center">
-            <v-label>基本设置</v-label>
+            <v-label>{{ t("SetBase.ui.basicSettings") }}</v-label>
           </v-col>
           <v-col>
             <v-switch
               v-model="configStore.contentScript.allowExceptionSites"
               color="success"
               hide-details
-              label="允许设置不启用侧边栏的例外站点（启用后需在站点设置中对应关闭）"
+              :label="t('SetBase.ui.allowExceptionSites')"
             />
 
             <v-switch
               v-model="configStore.contentScript.enabledAtSocialSite"
               color="success"
               hide-details
-              label="在社交站点（如豆瓣、IMDb）启用侧边栏"
+              :label="t('SetBase.ui.enableOnSocialSite')"
             />
 
             <v-divider />
@@ -124,33 +124,33 @@ defineExpose({
 
         <v-row dense>
           <v-col cols="12" md="2" class="d-flex align-center justify-center">
-            <v-label>侧边栏样式</v-label>
+            <v-label>{{ t("SetBase.ui.sidebarStyle") }}</v-label>
           </v-col>
           <v-col>
             <v-switch
               v-model="configStore.contentScript.applyTheme"
               color="success"
               hide-details
-              :label="`响应插件设置中的 ` + t('SetBase.ui.displayMode.index')"
+              :label="`${t('SetBase.ui.respondDisplayMode')}` + t('SetBase.ui.displayMode.index')"
             />
 
             <v-switch
               v-model="configStore.contentScript.defaultOpenSpeedDial"
               color="success"
               hide-details
-              label="默认展开侧边栏按钮"
+              :label="t('SetBase.ui.expandByDefault')"
             />
             <v-switch
               v-model="configStore.contentScript.stackedButtons"
               color="success"
               hide-details
-              label="使用大图标按键"
+              :label="t('SetBase.ui.useLargeIcon')"
             />
             <v-switch
               v-model="configStore.contentScript.fadeEnterStyle"
               color="success"
               hide-details
-              label="启用淡入效果（即默认半透明，当鼠标移入时显示）"
+              :label="t('SetBase.ui.enableFadeEffect')"
             />
             <v-divider />
           </v-col>
@@ -158,28 +158,28 @@ defineExpose({
 
         <v-row dense>
           <v-col cols="12" md="2" class="d-flex align-center justify-center">
-            <v-label>侧边栏功能</v-label>
+            <v-label>{{ t("SetBase.ui.sidebarFunctions") }}</v-label>
           </v-col>
           <v-col>
             <v-switch
               v-model="configStore.contentScript.doubleConfirmAction"
               color="success"
               hide-details
-              label="对种子列表页批量复制、本地下载等操作需要二步确认"
+              :label="t('SetBase.ui.confirmTwoStep')"
             />
 
             <v-switch
               v-model="configStore.contentScript.dragLinkOnSpeedDial"
               color="success"
               hide-details
-              label="允许拖拽链接到侧边栏按钮"
+              :label="t('SetBase.ui.allowDragLink')"
             >
               <template #append>
                 <v-tooltip max-width="400" location="bottom">
                   <template v-slot:activator="{ props }">
                     <v-icon color="info" icon="mdi-help-circle" v-bind="props" />
                   </template>
-                  拖拽时的下载链接不一定能被正确识别！
+                  {{ t("SetBase.ui.dragNote") }}
                 </v-tooltip>
               </template>
             </v-switch>
@@ -190,7 +190,7 @@ defineExpose({
               :items="['id', 'title', 'imdb', 'chosen']"
               :item-title="(item) => t('SetBase.ui.socialSiteSearchBy.' + item)"
               :item-value="(item) => item"
-              label="社交站点搜索方式"
+              :label="t('SetBase.ui.socialSiteSearchLabel')"
             />
           </v-col>
         </v-row>
@@ -203,9 +203,9 @@ defineExpose({
   <v-row>
     <v-col md="10" lg="8">
       <div class="d-flex align-center">
-        <v-label>右键菜单</v-label>
+        <v-label>{{ t("SetBase.ui.contextMenu") }}</v-label>
         <v-spacer />
-        <v-switch v-model="configStore.contextMenus.enabled" color="success" hide-details label="启用" />
+        <v-switch v-model="configStore.contextMenus.enabled" color="success" hide-details :label="t('common.enable')" />
       </div>
 
       <template v-if="configStore.contextMenus.enabled">
@@ -213,14 +213,14 @@ defineExpose({
           v-model="configStore.contextMenus.allowSelectionTextSearch"
           color="success"
           hide-details
-          label="启用选中文字搜索"
+          :label="t('SetBase.ui.contextMenuTextSearch')"
         />
 
         <v-switch
           v-model="configStore.contextMenus.allowSocialLinkSearch"
           color="success"
           hide-details
-          label="启用社交链接（ douban, imdb ）搜索"
+          :label="t('SetBase.ui.contextMenuSocialSearch')"
         />
 
         <v-switch
@@ -228,7 +228,7 @@ defineExpose({
           :disabled="metadataStore.getEnabledDownloaders.length === 0"
           color="success"
           hide-details
-          label="启用（下载）链接推送"
+          :label="t('SetBase.ui.contextMenuLinkPush')"
         />
       </template>
     </v-col>

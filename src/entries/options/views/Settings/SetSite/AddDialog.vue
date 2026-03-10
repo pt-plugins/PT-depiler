@@ -151,7 +151,7 @@ async function saveSite() {
           color="success"
           density="compact"
           hide-details
-          label="展示已死亡站点"
+          :label="t('SetSite.AddDialog.showDeadSite')"
         />
         <v-spacer />
         <v-btn color="error" prepend-icon="mdi-close-circle" variant="text" @click="showDialog = false">

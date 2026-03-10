@@ -66,15 +66,9 @@ async function clearLastDownloader(v: boolean) {
         v-model="configStore.download.useQuickSendToClient"
         color="success"
         hide-details
-        label="默认使用快速推送"
+        :label="t('SetBase.download.useQuickSendToClient')"
       />
-      <v-alert type="info" variant="tonal">
-        启用快速推送后，插件会在推送下载任务时，做以下默认操作：<br />
-        1. 展平 下载器和下载目录 选项供直接点击推送。<br />
-        2. 鼠标移到选项时，则会暂开标签列表，点击时会额外添加标签信息。<br />
-        3. 均采用本地中转模式推送种子，且 `是否自动开始下载`
-        等基本设置项和下载器专有配置项值由下载器设置和站点设置决定。<br />
-      </v-alert>
+      <v-alert type="info" variant="tonal" v-html="t('SetBase.download.quickSendToClientNote')" />
 
       <v-switch
         v-model="configStore.download.saveLastDownloader"

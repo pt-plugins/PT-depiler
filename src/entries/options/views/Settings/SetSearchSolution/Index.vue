@@ -149,7 +149,7 @@ async function copySearchSolution(solutionId: TSolutionKey) {
     }
   }
 
-  const newSearchSolutionName = prompt("请输入新搜索方案名称", `Copy of ${copied.name ?? copied.id}`);
+  const newSearchSolutionName = prompt(t("SetSearchSolution.newSolutionNamePrompt"), `Copy of ${copied.name ?? copied.id}`);
   if (newSearchSolutionName) {
     copied.name = newSearchSolutionName;
     await metadataStore.addSearchSolution(copied);

@@ -43,7 +43,7 @@ onMounted(async () => {
 <template>
   <v-row>
     <v-col md="10" lg="8">
-      <v-label>用户数据刷新</v-label>
+      <v-label>{{ t("SetBase.userInfo.userDataRefresh") }}</v-label>
 
       <v-number-input
         v-model="configStore.userInfo.queueConcurrency"
@@ -69,7 +69,7 @@ onMounted(async () => {
       <v-row v-if="configStore.userInfo.autoReflush.enabled" class="mt-1 ml-2 mb-2">
         <v-alert type="info" variant="outlined">
           <div class="d-inline-flex align-center text-no-wrap mb-1">
-            • 每日最早刷新时间
+            • {{ t("SetBase.userInfo.afterTime") }}
             <v-text-field
               :model-value="configStore.userInfo.autoReflush.afterTime"
               class="mx-2"
@@ -168,7 +168,7 @@ onMounted(async () => {
         </v-alert>
       </v-row>
 
-      <v-label>用户信息展示</v-label>
+      <v-label>{{ t("SetBase.userInfo.userInfoDisplay") }}</v-label>
 
       <v-switch
         v-model="configStore.userInfo.showDeadSiteInOverview"

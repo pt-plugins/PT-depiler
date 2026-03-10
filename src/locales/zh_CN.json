@@ -53,7 +53,8 @@
     "exportImage": "导出图片",
     "saveSettings": "保存设置",
     "enable": "启用",
-    "basicInfo": "基本信息"
+    "basicInfo": "基本信息",
+    "count": "数量"
   },
   "layout": {
     "header": {
@@ -353,7 +354,8 @@
       "dateRange": "时间段",
       "chartSettings": "图表设置",
       "hideLowPercentHint": "设置为0则不隐藏",
-      "hideLowPercentLabel": "隐藏分站点图中图例百分比低于该值的详情"
+      "hideLowPercentLabel": "隐藏分站点图中图例百分比低于该值的详情",
+      "exportFilename": "{name}的数据图表（{date}）"
     },
     "dateRange": {
       "custom": "自定义",
@@ -397,7 +399,8 @@
       "styleSettings": "时间轴样式设置",
       "displaySiteSettings": "展示站点设置"
     },
-    "ptAge": "P龄: ≈ {years} 年"
+    "ptAge": "P龄: ≈ {years} 年",
+    "exportFilename": "{name}的时间轴（{date}）"
   },
   "SearchEntity": {
     "index": {
