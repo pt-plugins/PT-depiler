@@ -2,7 +2,6 @@ import { ISiteMetadata, ISearchInput, IAdvancedSearchRequestConfig, ITorrent, IT
 import AvistazNetwork, {
   SchemaMetadata,
   IAvzNetRawTorrent,
-  listHistoryPageMetadata,
 } from "../schemas/AvistazNetwork.ts";
 
 const categoryMap: Record<number, string> = {
@@ -150,7 +149,40 @@ export const siteMetadata: ISiteMetadata = {
         completed: { selector: "td:nth-child(8)" },
       },
     },
-    listHistoryPageMetadata,
+    // 下载历史页和HR页
+    {
+      urlPattern: ["/profile/(.)/history"],
+      mergeSearchSelectors: false,
+      selectors: {
+        subTitle: { text: "" },
+        comments: { text: "N/A" },
+        rows: { selector: "div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
+
+        id: {
+          selector: "div.mb-1 a[href*='/torrent/']",
+          attr: "href",
+          filters: [
+            (href: string) => {
+              const torrentIdMatch = href.match(/\/torrent\/(\d+)/);
+              if (torrentIdMatch && torrentIdMatch[1]) {
+                return torrentIdMatch[1];
+              }
+              return undefined;
+            },
+          ],
+        },
+        title: { selector: "div.mb-1 a[href*='/torrent/']", attr: "title" },
+        // Bootstrap tooltip 初始化后会将 title 移至 data-original-title
+        category: { selector: "i.category-icon", attr: "data-original-title" },
+        url: { selector: "div.mb-1 a[href*='/torrent/']", attr: "href" },
+        link: { selector: "div.float-right a[href*='/download/torrent/']", attr: "href" },
+        // 通过 div.d-block 父上下文限定范围，避免与行内其他同色 span 冲突，同时不依赖 title 属性
+        size: { selector: "div.d-block span.text-yellow", filters: [{ name: "parseSize" }] },
+        seeders: { selector: "div.d-block span.text-green.mr-2" },
+        leechers: { selector: "div.d-block span.text-red.mr-2" },
+        completed: { selector: "div.d-block span.text-blue.mr-2" },
+      },
+    },
   ],
 
   detail: {
