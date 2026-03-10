@@ -256,11 +256,24 @@ export const siteMetadata: ISiteMetadata = {
           },
           seedingSize: {
             selector: ["td.rowhead:contains('Seeding size') + td"],
-            filters: [{ name: "parseSize" }],
+            filters: [
+              (query: string) => {
+                return query.includes("(") ? query.split("(")[0] : query;
+              },
+              { name: "parseSize" },
+            ],
           },
           uploads: {
             selector: ["td.heading:contains('Uploaded'):contains('torrents') + td"],
             filters: [{ name: "replace", args: ["-", ""] }, { name: "parseNumber" }],
+          },
+          bonusPerHour: {
+            selector: ["td.heading:contains('Bonus per hour') + td"],
+            filters: [{ name: "parseNumber" }],
+          },
+          lastAccessAt: {
+            selector: ["td.rowhead:contains('seen') + td"],
+            filters: [{ name: "replace", args: ["\\s*\\(.*\\)", ""] }, { name: "parseTime" }],
           },
         },
       },
