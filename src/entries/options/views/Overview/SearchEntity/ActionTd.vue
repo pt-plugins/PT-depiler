@@ -3,10 +3,12 @@ import { computed, ref } from "vue";
 
 import { sendMessage } from "@/messages.ts";
 import type { ISearchResultTorrent } from "@/shared/types.ts";
+import { buildTorrentCollectionKey, DEFAULT_COLLECTION_ID } from "@/shared/types.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 import SentToDownloaderDialog from "@/options/components/SentToDownloaderDialog/Index.vue";
+import CollectionAddDialog from "@/options/components/CollectionAddDialog.vue";
 
 const { torrentItems, density = "default" } = defineProps<{
   torrentItems: ISearchResultTorrent[];
@@ -67,6 +69,37 @@ function sendToDownloader(defaultDownload = false) {
   isDefaultSend.value = defaultDownload;
   showDownloadClientDialog.value = true;
 }
+
+// ===================== 收藏功能 =====================
+// 仅当 torrentItems 只有一个种子时才显示收藏按钮（单行操作）
+const singleTorrent = computed(() => (torrentItems.length === 1 ? torrentItems[0] : null));
+
+const isCollected = computed(() => {
+  if (!singleTorrent.value) return false;
+  return metadataStore.isTorrentCollected(buildTorrentCollectionKey(singleTorrent.value));
+});
+
+const showCollectionDialog = ref(false);
+const collectionDialogTorrent = ref<ISearchResultTorrent | null>(null);
+
+async function handleCollect() {
+  if (!singleTorrent.value) return;
+  const hasCustom = metadataStore.getCustomCollections().length > 0;
+  if (!hasCustom) {
+    // 直接添加/移除 默认收藏夹
+    if (isCollected.value) {
+      await metadataStore.updateTorrentCollections(singleTorrent.value, []);
+      runtimeStore.showSnakebar("已从收藏中移除", { color: "info" });
+    } else {
+      await metadataStore.addTorrentToCollections(singleTorrent.value, [DEFAULT_COLLECTION_ID]);
+      runtimeStore.showSnakebar("已添加到默认收藏夹", { color: "success" });
+    }
+  } else {
+    // 显示收藏夹选择对话框
+    collectionDialogTorrent.value = singleTorrent.value;
+    showCollectionDialog.value = true;
+  }
+}
 </script>
 
 <template>
@@ -106,6 +139,15 @@ function sendToDownloader(defaultDownload = false) {
       title="下载种子文件到本地"
       @click="() => localDlTorrentDownloadLink()"
     />
+    <!-- 收藏 -->
+    <v-btn
+      v-if="singleTorrent"
+      :color="isCollected ? 'amber' : 'grey'"
+      :icon="isCollected ? 'mdi-bookmark' : 'mdi-bookmark-outline'"
+      :size="btnSize"
+      :title="isCollected ? '已收藏（点击管理收藏夹）' : '收藏种子'"
+      @click="handleCollect"
+    />
   </v-btn-group>
 
   <!-- 在点击发送到远程服务器时，弹出选择下载器及其他自定义选项 -->
@@ -114,6 +156,9 @@ function sendToDownloader(defaultDownload = false) {
     :torrent-items="torrentItems"
     :is-default-send="isDefaultSend"
   />
+
+  <!-- 收藏夹选择对话框 -->
+  <CollectionAddDialog v-model="showCollectionDialog" :torrent="collectionDialogTorrent" />
 </template>
 
 <style scoped lang="scss"></style>

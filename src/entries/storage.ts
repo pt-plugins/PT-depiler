@@ -5,6 +5,7 @@ import {
   IMetadataPiniaStorageSchema,
   TUserInfoStorageSchema,
   TSearchResultSnapshotStorageSchema,
+  TCollectionTorrentsStorageSchema,
 } from "@/shared/types.ts";
 
 export interface IExtensionStorageSchema {
@@ -15,6 +16,7 @@ export interface IExtensionStorageSchema {
 
   userInfo: TUserInfoStorageSchema; // 用于存储用户信息
   searchResultSnapshot: TSearchResultSnapshotStorageSchema; // 用于存储搜索结果快照
+  collectionTorrents: TCollectionTorrentsStorageSchema; // 用于存储收藏夹种子信息
 }
 
 export type TExtensionStorageKey = keyof IExtensionStorageSchema;

@@ -77,6 +77,12 @@ export const routes: RouteRecordRaw[] = [
         meta: { icon: "mdi-history" },
         component: () => import("../views/Overview/DownloadHistory/Index.vue"),
       },
+      {
+        path: "/my-collection",
+        name: "MyCollection",
+        meta: { icon: "mdi-bookmark-multiple" },
+        component: () => import("../views/Overview/MyCollection/Index.vue"),
+      },
     ],
   },
   {

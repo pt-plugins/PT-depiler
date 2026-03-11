@@ -8,28 +8,35 @@ import {
   type ISearchEntryRequestConfig,
   type ISiteMetadata,
   type ISiteUserConfig,
+  type ITorrent,
   type TSiteHost,
   type TSiteID,
 } from "@ptd/site";
 
 import {
   IBackupServerMetadata,
+  ICollectionFolder,
   IDownloaderMetadata,
   IMediaServerMetadata,
   IMetadataPiniaStorageSchema,
   ISearchSolution,
+  TCollectionId,
   TDownloaderKey,
   TMediaServerKey,
   TSearchSnapshotKey,
   TSolutionKey,
   ISearchSolutionMetadata,
+  TTorrentCollectionKey,
+  DEFAULT_COLLECTION_ID,
+  buildTorrentCollectionKey,
 } from "@/shared/types.ts";
+import { extStorage } from "@/storage.ts";
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 type TSimplePatchFieldKey = keyof Pick<
   IMetadataPiniaStorageSchema,
-  "sites" | "solutions" | "snapshots" | "downloaders" | "mediaServers" | "backupServers"
+  "sites" | "solutions" | "snapshots" | "downloaders" | "mediaServers" | "backupServers" | "collections"
 >;
 
 export const useMetadataStore = defineStore("metadata", {
@@ -41,6 +48,17 @@ export const useMetadataStore = defineStore("metadata", {
     downloaders: {},
     mediaServers: {},
     backupServers: {},
+
+    collections: {
+      [DEFAULT_COLLECTION_ID]: {
+        id: DEFAULT_COLLECTION_ID,
+        name: "默认收藏夹",
+        color: "primary",
+        sortIndex: 0,
+        isDefault: true,
+        torrentIds: [],
+      },
+    },
 
     defaultSolutionId: "default",
     defaultDownloader: {},
@@ -325,6 +343,21 @@ export const useMetadataStore = defineStore("metadata", {
     getBackupServers(state) {
       return Object.values(state.backupServers);
     },
+
+    getCollectionIds(state) {
+      return Object.keys(state.collections);
+    },
+
+    getCollections(state) {
+      return Object.values(state.collections);
+    },
+
+    /** 检查种子是否已收藏（在任意收藏夹中） */
+    isTorrentCollected(state) {
+      return (torrentKey: TTorrentCollectionKey): boolean => {
+        return Object.values(state.collections).some((c) => c.torrentIds.includes(torrentKey));
+      };
+    },
   },
   actions: {
     async simplePatch<
@@ -477,6 +510,168 @@ export const useMetadataStore = defineStore("metadata", {
     async removeBackupServer(backupServerId: string) {
       delete this.backupServers[backupServerId];
       await this.$save();
+    },
+
+    // ==================== 收藏夹相关 ====================
+
+    /** 获取所有收藏夹，按 sortIndex 排序 */
+    getSortedCollections(): ICollectionFolder[] {
+      return Object.values(this.collections).sort((a, b) => {
+        // 默认收藏夹排在最前面
+        if (a.id === DEFAULT_COLLECTION_ID) return -1;
+        if (b.id === DEFAULT_COLLECTION_ID) return 1;
+        return (a.sortIndex ?? 0) - (b.sortIndex ?? 0);
+      });
+    },
+
+    /** 返回自定义收藏夹（排除默认收藏夹），按 sortIndex 排序 */
+    getCustomCollections(): ICollectionFolder[] {
+      return Object.values(this.collections)
+        .filter((c) => !c.isDefault)
+        .sort((a, b) => (a.sortIndex ?? 0) - (b.sortIndex ?? 0));
+    },
+
+    /** 添加自定义收藏夹 */
+    async addCollection(collectionConfig: Omit<ICollectionFolder, "id" | "torrentIds">) {
+      const id = nanoid();
+      this.collections[id] = { ...collectionConfig, id, torrentIds: [] };
+      await this.$save();
+      return id;
+    },
+
+    /** 编辑收藏夹属性（名称、颜色、排序等，不影响 torrentIds） */
+    async editCollection(id: TCollectionId, patch: Partial<Omit<ICollectionFolder, "id" | "torrentIds">>) {
+      if (!this.collections[id]) return;
+      Object.assign(this.collections[id], patch);
+      await this.$save();
+    },
+
+    /**
+     * 删除自定义收藏夹（不删除种子数据）。
+     * 注意：默认收藏夹不可删除。
+     */
+    async removeCollection(id: TCollectionId) {
+      if (!this.collections[id] || this.collections[id].isDefault) return;
+      delete this.collections[id];
+      await this.$save();
+    },
+
+    /** 获取种子所在的收藏夹 ID 列表 */
+    getTorrentCollectionIds(torrentKey: TTorrentCollectionKey): TCollectionId[] {
+      return Object.values(this.collections)
+        .filter((c) => c.torrentIds.includes(torrentKey))
+        .map((c) => c.id);
+    },
+
+    /** 将种子加入指定收藏夹，并在 extStorage 中存储种子数据 */
+    async addTorrentToCollections(torrent: ITorrent, collectionIds: TCollectionId[]) {
+      const key = buildTorrentCollectionKey(torrent);
+
+      // 保存种子数据
+      const stored = (await extStorage.getItem("collectionTorrents")) ?? {};
+      if (!stored[key]) {
+        stored[key] = torrent;
+        await extStorage.setItem("collectionTorrents", stored);
+      }
+
+      // 更新收藏夹中的种子列表
+      for (const cid of collectionIds) {
+        if (this.collections[cid] && !this.collections[cid].torrentIds.includes(key)) {
+          this.collections[cid].torrentIds.push(key);
+        }
+      }
+      await this.$save();
+    },
+
+    /** 批量将多个种子加入指定收藏夹（一次性读写 extStorage，避免多次 IO） */
+    async addTorrentsToCollections(torrents: ITorrent[], collectionIds: TCollectionId[]) {
+      if (torrents.length === 0 || collectionIds.length === 0) return;
+
+      const stored = (await extStorage.getItem("collectionTorrents")) ?? {};
+
+      for (const torrent of torrents) {
+        const key = buildTorrentCollectionKey(torrent);
+        stored[key] = torrent;
+        for (const cid of collectionIds) {
+          if (this.collections[cid] && !this.collections[cid].torrentIds.includes(key)) {
+            this.collections[cid].torrentIds.push(key);
+          }
+        }
+      }
+
+      await extStorage.setItem("collectionTorrents", stored);
+      await this.$save();
+    },
+
+    /** 从指定收藏夹中移除种子（不删除全局种子数据） */
+    async removeTorrentFromCollection(torrentKey: TTorrentCollectionKey, collectionId: TCollectionId) {
+      if (!this.collections[collectionId]) return;
+      this.collections[collectionId].torrentIds = this.collections[collectionId].torrentIds.filter(
+        (k) => k !== torrentKey,
+      );
+      await this.$save();
+    },
+
+    /** 从所有收藏夹中删除种子，并从 extStorage 中删除种子数据 */
+    async removeTorrentFromAllCollections(torrentKey: TTorrentCollectionKey) {
+      for (const cid in this.collections) {
+        this.collections[cid].torrentIds = this.collections[cid].torrentIds.filter((k) => k !== torrentKey);
+      }
+
+      // 从 extStorage 中删除种子数据
+      const stored = (await extStorage.getItem("collectionTorrents")) ?? {};
+      if (stored[torrentKey]) {
+        delete stored[torrentKey];
+        await extStorage.setItem("collectionTorrents", stored);
+      }
+
+      await this.$save();
+    },
+
+    /** 更新种子所在的收藏夹集合（先清理再添加） */
+    async updateTorrentCollections(torrent: ITorrent, newCollectionIds: TCollectionId[]) {
+      const key = buildTorrentCollectionKey(torrent);
+
+      // 从所有收藏夹中移除该种子
+      for (const cid in this.collections) {
+        this.collections[cid].torrentIds = this.collections[cid].torrentIds.filter((k) => k !== key);
+      }
+
+      if (newCollectionIds.length > 0) {
+        // 保存种子数据
+        const stored = (await extStorage.getItem("collectionTorrents")) ?? {};
+        stored[key] = torrent;
+        await extStorage.setItem("collectionTorrents", stored);
+
+        // 将种子加入选中的收藏夹
+        for (const cid of newCollectionIds) {
+          if (this.collections[cid]) {
+            this.collections[cid].torrentIds.push(key);
+          }
+        }
+      } else {
+        // 如果没有选中任何收藏夹，则删除全局种子数据
+        const stored = (await extStorage.getItem("collectionTorrents")) ?? {};
+        if (stored[key]) {
+          delete stored[key];
+          await extStorage.setItem("collectionTorrents", stored);
+        }
+      }
+
+      await this.$save();
+    },
+
+    /** 获取收藏夹中的种子数据 */
+    async getCollectionTorrents(collectionId: TCollectionId): Promise<ITorrent[]> {
+      const folder = this.collections[collectionId];
+      if (!folder || folder.torrentIds.length === 0) return [];
+      const stored = (await extStorage.getItem("collectionTorrents")) ?? {};
+      return folder.torrentIds.map((k) => stored[k]).filter(Boolean) as ITorrent[];
+    },
+
+    /** 获取所有收藏种子数据 */
+    async getAllCollectionTorrents(): Promise<Record<TTorrentCollectionKey, ITorrent>> {
+      return (await extStorage.getItem("collectionTorrents")) ?? {};
     },
   },
 });

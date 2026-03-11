@@ -507,7 +507,6 @@
       },
       "table": {
         "enabled": "启用？",
-
         "autodl": "自动下载？",
         "action": {
           "status": "状态",
@@ -728,5 +727,33 @@
     "anidbClientMessages": "请在 https://anidb.net/perl-bin/animedb.pl?show=client 中申请 Client ID， 并按照 `Name/Version` 的格式填写",
     "bangumiApiKey": "Bangumi API Key",
     "bangumiApiMessages": "你可以在 https://next.bgm.tv/demo/access-token 生成一个 Access Token"
+  },
+  "MyCollection": {
+    "folderPanel": {
+      "title": "收藏夹",
+      "add": "新建收藏夹",
+      "torrentCount": "{0} 个种子"
+    },
+    "table": {
+      "site": "站点",
+      "title": "标题",
+      "size": "大小",
+      "time": "发布时间"
+    },
+    "filterPlaceholder": "过滤收藏种子",
+    "action": {
+      "remove": "取消收藏（从所有收藏夹中删除）",
+      "removeSelected": "取消收藏"
+    },
+    "editDialog": {
+      "titleAdd": "新建收藏夹",
+      "titleEdit": "编辑收藏夹",
+      "name": "收藏夹名称",
+      "nameRequired": "请输入收藏夹名称",
+      "color": "标签颜色"
+    },
+    "selectDialog": {
+      "title": "选择收藏夹"
+    }
   }
 }
