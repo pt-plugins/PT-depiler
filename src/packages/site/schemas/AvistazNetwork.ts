@@ -107,19 +107,32 @@ export const listTorrentPageMetadata = {
 
 // 下载历史页和HR页
 export const listHistoryPageMetadata = {
-  urlPattern: ["/profile/(.)/history"],
+  urlPattern: ["/profile/(.+)/history"],
   mergeSearchSelectors: false,
   selectors: {
     ...commonListSelectors,
-    rows: { selector: "div.card-body.p-2 > div.table-responsive > table > tbody > tr" },
+    rows: { selector: "div.block > div.table-responsive > table > tbody > tr" },
 
-    title: { selector: "div.mb-1 a[title]", attr: "title" },
-    link: { selector: "div.float-right a[href*='/download/torrent/']", attr: "href" },
-    size: { selector: "span.text-yellow[data-original-title='File Size']", filters: [{ name: "parseSize" }] },
-
-    seeders: { selector: "span.text-green.mr-2[data-original-title='Seeders']" },
-    leechers: { selector: "span.text-red.mr-2[data-original-title='Leechers']" },
-    completed: { selector: "span.text-blue.mr-2[data-original-title='Completed']" },
+    id: {
+      selector: "a.torrent-filename",
+      attr: "href",
+      filters: [
+        (href: string) => {
+          const match = href.match(/\/torrent\/(\d+)/);
+          return match ? match[1] : undefined;
+        },
+      ],
+    },
+    // Bootstrap tooltip 初始化后将 title 移至 data-original-title
+    title: { selector: "a.torrent-filename", attr: "data-original-title" },
+    category: { selector: "td:first-child i", attr: "data-original-title" },
+    url: { selector: "a.torrent-filename", attr: "href" },
+    link: { selector: "a.torrent-download-icon", attr: "href" },
+    // 行内存在同色的 span.badge-extra（上传量/下载量/Credited Download），用 FA 图标类唯一区分
+    size: { selector: "span.badge-extra.fa-database", filters: [{ name: "parseSize" }] },
+    seeders: { selector: "span.badge-extra.fa-arrow-up" },
+    leechers: { selector: "span.badge-extra.fa-arrow-down" },
+    completed: { selector: "span.badge-extra.fa-check" },
   },
 };
 
@@ -203,7 +216,7 @@ export const SchemaMetadata: Pick<
   },
 
   list: [listTorrentPageMetadata, listHistoryPageMetadata],
-  
+
   detail: {
     urlPattern: ["/torrent/"],
     selectors: {
