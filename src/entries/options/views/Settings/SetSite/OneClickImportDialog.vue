@@ -131,7 +131,7 @@ async function doAutoImport() {
   importStatus.value.isWorking = false;
   importStatus.value.toWork = [];
 
-  runtimeStore.showSnakebar(`一键导入完成，成功添加 ${importStatus.value.success.length} 个站点`, { color: "success" });
+  runtimeStore.showSnakebar(t("SetSite.oneClickImportDialog.importComplete", { count: importStatus.value.success.length }), { color: "success" });
 }
 
 async function dialogEnter() {

@@ -40,7 +40,7 @@ async function checkConnect() {
       <v-container class="pa-0">
         <v-row>
           <v-col cols="12" md="2">
-            <v-text-field v-model="clientConfig.type" :label="t('SetDownloader.common.type')" disabled />
+            <v-text-field v-model="clientConfig.type" :label="t('common.type')" disabled />
           </v-col>
           <v-col cols="12" md="4">
             <v-text-field
@@ -80,7 +80,7 @@ async function checkConnect() {
           <v-text-field
             v-if="typeof clientConfig.username !== 'undefined'"
             v-model="clientConfig.username"
-            :label="t('SetDownloader.common.username')"
+            :label="t('common.username')"
           />
         </v-row>
         <v-row>
@@ -125,7 +125,7 @@ async function checkConnect() {
         <v-row v-if="clientMeta.advanceAddTorrentOptions">
           <v-col>
             <v-expansion-panels>
-              <v-expansion-panel title="高级设置">
+              <v-expansion-panel :title="t('common.advancedSettings')">
                 <v-expansion-panel-text>
                   <v-switch
                     v-for="opt in clientMeta.advanceAddTorrentOptions"

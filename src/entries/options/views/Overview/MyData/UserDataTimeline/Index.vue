@@ -212,7 +212,13 @@ function exportTimelineImg() {
     mimeType: "image/png",
     pixelRatio: 3,
     callback: (dataUrl: string) => {
-      saveAs(dataUrl, `${configStore.userName}的时间轴（${formatDate(timelineData.value.createAt)}）.png`);
+      saveAs(
+        dataUrl,
+        t("UserDataTimeline.exportFilename", {
+          name: configStore.userName,
+          date: formatDate(timelineData.value.createAt),
+        }) + ".png",
+      );
     },
   });
 }
@@ -220,7 +226,7 @@ function exportTimelineImg() {
 function saveControl() {
   configStore.userDataTimelineControl.selectedSites = selectedSites.value;
   configStore.$save();
-  useRuntimeStore().showSnakebar("保存成功", { color: "success" });
+  useRuntimeStore().showSnakebar(t("common.saveSuccess"), { color: "success" });
 }
 </script>
 
@@ -312,7 +318,7 @@ function saveControl() {
                 :config="
                   text({
                     y: 30 * (realShowField.length + 1),
-                    text: `． ．P龄: ≈ ${timelineData.joinTimeInfo.years} 年`,
+                    text: t('UserDataTimeline.ptAge', { years: timelineData.joinTimeInfo.years }),
                   })
                 "
               />
@@ -520,16 +526,21 @@ function saveControl() {
       <v-col cols="12" sm>
         <v-row class="flex-nowrap mb-0">
           <v-col class="d-flex">
-            <NavButton color="grey" icon="mdi-arrow-left" text="返回" @click="() => router.back()" />
+            <NavButton color="grey" icon="mdi-arrow-left" :text="t('common.back')" @click="() => router.back()" />
             <v-spacer />
-            <NavButton color="info" icon="mdi-file-export-outline" text="导出图片" @click="exportTimelineImg" />
-            <NavButton color="green" icon="mdi-content-save" text="保存设置" @click="saveControl" />
+            <NavButton
+              color="info"
+              icon="mdi-file-export-outline"
+              :text="t('common.exportImage')"
+              @click="exportTimelineImg"
+            />
+            <NavButton color="green" icon="mdi-content-save" :text="t('common.saveSettings')" @click="saveControl" />
           </v-col>
         </v-row>
 
-        <v-alert title="时间轴样式设置" type="info" class="mb-2"> </v-alert>
+        <v-alert :title="t('UserDataTimeline.controls.styleSettings')" type="info" class="mb-2"> </v-alert>
 
-        <v-label class="my-2">用户名及标题</v-label>
+        <v-label class="my-2">{{ t("UserDataTimeline.controls.usernameAndTitle") }}</v-label>
 
         <v-row>
           <v-col cols="12" sm>
@@ -539,7 +550,7 @@ function saveControl() {
               append-inner-icon="mdi-history"
               :items="Object.keys(configStore.getUserNames.names)"
               hide-details
-              label="用户名"
+              :label="t('common.username')"
               @click:append-inner="() => (configStore.userName = configStore.getUserNames.perfName)"
             >
               <template #prepend>
@@ -558,7 +569,7 @@ function saveControl() {
               :readonly="!allowEdit.title"
               append-inner-icon="mdi-history"
               hide-details
-              label="时间轴标题"
+              :label="t('UserDataTimeline.controls.timelineTitle')"
               @update:model-value="(v: string) => (control.title = v)"
               @click:append-inner="
                 () => {
@@ -578,10 +589,20 @@ function saveControl() {
           </v-col>
         </v-row>
 
-        <v-label class="my-2">组件</v-label>
+        <v-label class="my-2">{{ t("UserDataTimeline.controls.components") }}</v-label>
 
-        <v-switch v-model="control.showTop" color="success" hide-details label="展示各类数据的冠军及亚军站点" />
-        <v-switch v-model="control.showTimeline" color="success" hide-details label="展示各个站点信息（总开关）" />
+        <v-switch
+          v-model="control.showTop"
+          color="success"
+          hide-details
+          :label="t('UserDataTimeline.controls.showTopSites')"
+        />
+        <v-switch
+          v-model="control.showTimeline"
+          color="success"
+          hide-details
+          :label="t('UserDataTimeline.controls.showTimeline')"
+        />
 
         <v-color-input
           v-model="control.backgroundColor"
@@ -589,7 +610,7 @@ function saveControl() {
           color-pip
           hide-actions
           hide-details
-          label="自定义背景色"
+          :label="t('UserDataTimeline.controls.customBgColor')"
         >
           <template #append-inner>
             <v-icon
@@ -599,7 +620,7 @@ function saveControl() {
           </template>
         </v-color-input>
 
-        <v-label class="my-2">站点展示组件</v-label>
+        <v-label class="my-2">{{ t("UserDataTimeline.controls.siteDisplay") }}</v-label>
 
         <v-row>
           <v-col cols="10">
@@ -611,7 +632,7 @@ function saveControl() {
               :thumb-color="control.faviconBlue > 4 ? 'red' : ''"
               class="pr-5"
               hide-details
-              label="站点Favicon模糊度"
+              :label="t('UserDataTimeline.controls.faviconBlur')"
               thumb-label
               @update:model-value="updateBlue"
             />
@@ -620,10 +641,10 @@ function saveControl() {
 
         <v-row>
           <v-col class="ml-2" align-self="center">
-            <v-label>展示内容</v-label>
+            <v-label>{{ t("UserDataTimeline.controls.displayContent") }}</v-label>
           </v-col>
           <v-col cols="12" sm="10">
-            <v-label class="my-2">统计部分</v-label>
+            <v-label class="my-2">{{ t("UserDataTimeline.controls.statsSection") }}</v-label>
             <v-row class="pl-5">
               <v-col v-for="(v, key) in control.showField" class="pa-0" cols="6" sm="4" :key="key">
                 <v-switch
@@ -635,7 +656,7 @@ function saveControl() {
                 />
               </v-col>
             </v-row>
-            <v-label class="my-2">时间轴部分</v-label>
+            <v-label class="my-2">{{ t("UserDataTimeline.controls.timelineSection") }}</v-label>
             <v-row class="pl-5">
               <v-col v-for="(v, key) in control.showPerSiteField" :key="key" class="pa-0" cols="6" sm="4">
                 <v-switch
@@ -653,17 +674,17 @@ function saveControl() {
 
         <v-row>
           <v-col class="ml-2" align-self="center">
-            <v-label>时间显示方式</v-label>
+            <v-label>{{ t("UserDataTimeline.controls.timeDisplay") }}</v-label>
           </v-col>
           <v-col cols="12" sm="10">
             <v-radio-group inline hide-details v-model="control.dateFormat">
-              <v-radio label="发生时间" value="time_added"></v-radio>
-              <v-radio label="过去时间" value="time_alive"></v-radio>
+              <v-radio :label="t('UserDataTimeline.controls.timeAdded')" value="time_added"></v-radio>
+              <v-radio :label="t('UserDataTimeline.controls.timeAlive')" value="time_alive"></v-radio>
             </v-radio-group>
           </v-col>
         </v-row>
 
-        <v-alert class="mt-4 mb-2" title="展示站点设置" type="info">
+        <v-alert class="mt-4 mb-2" :title="t('UserDataTimeline.controls.displaySiteSettings')" type="info">
           <template #append>
             <CheckSwitchButton
               v-model="selectedSites"

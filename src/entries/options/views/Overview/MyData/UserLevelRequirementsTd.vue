@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 import { isEmpty } from "es-toolkit/compat";
 import { useDisplay } from "vuetify";
@@ -16,6 +17,7 @@ const { userInfo } = defineProps<{
 }>();
 
 const display = useDisplay();
+const { t } = useI18n();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 
@@ -134,7 +136,7 @@ const userLevelGroupIcon = computed(() => {
                 </v-list-item>
               </template>
 
-              <v-list-subheader v-if="userLevelRequirements.length > 0"> 用户等级列表 </v-list-subheader>
+              <v-list-subheader v-if="userLevelRequirements.length > 0">{{ t("MyData.UserLevelRequirementsTd.levelList") }}</v-list-subheader>
 
               <!-- 展示站点用户等级 -->
               <template v-for="userLevel in userLevelRequirements" :key="userLevel.id">

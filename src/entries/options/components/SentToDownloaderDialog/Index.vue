@@ -69,7 +69,7 @@ watch(selectedDownloader, (value) => {
 
 async function sendToDownloader() {
   if (!selectedDownloader.value?.id) {
-    runtimeStore.showSnakebar("请先选择下载器", { color: "error" });
+    runtimeStore.showSnakebar(t("SentToDownloaderDialog.selectDownloaderFirst"), { color: "error" });
     return;
   }
 
@@ -163,7 +163,7 @@ function dialogLeave() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title> 为 {{ torrentItems.length }} 个种子选择下载器 </v-toolbar-title>
+          <v-toolbar-title>{{ t("SentToDownloaderDialog.title", [torrentItems.length]) }}</v-toolbar-title>
           <template #append>
             <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>
@@ -172,7 +172,7 @@ function dialogLeave() {
 
       <v-card-text>
         <v-alert v-if="isSending" type="info" variant="tonal">
-          正在向下载器 {{ selectedDownloader?.name }} [{{ selectedDownloader?.address }}] 发送种子，请稍候...
+          {{ t("SentToDownloaderDialog.isSending", { name: selectedDownloader?.name, address: selectedDownloader?.address }) }}
         </v-alert>
 
         <v-form v-else>
@@ -201,7 +201,7 @@ function dialogLeave() {
                 </v-list-item>
               </template>
             </v-list>
-            <v-alert v-else type="warning" variant="tonal"> 没有可用的下载器，请先在设置中添加下载器。 </v-alert>
+            <v-alert v-else type="warning" variant="tonal"> {{ t("SentToDownloaderDialog.noDownloader") }} </v-alert>
           </v-container>
 
           <!-- 普通下载选项 -->
@@ -212,7 +212,7 @@ function dialogLeave() {
                 :filter-keys="['raw.name', 'raw.address', 'raw.username']"
                 :items="metadataStore.getSortedEnabledDownloaders"
                 clearable
-                placeholder="选择下载器"
+                :placeholder="t('SentToDownloaderDialog.selectDownloader')"
                 @update:model-value="restoreAddTorrentOptions"
               >
                 <template #selection="{ item: { raw: downloader } }">
@@ -239,8 +239,8 @@ function dialogLeave() {
                 <v-combobox
                   v-model="addTorrentOptions.savePath"
                   :items="suggestFolders"
-                  hint="不设置则为该下载服务器的默认路径"
-                  label="保存路径"
+                  :hint="t('SentToDownloaderDialog.savePathHint')"
+                  :label="t('SentToDownloaderDialog.savePath')"
                   persistent-hint
                 >
                 </v-combobox>
@@ -249,8 +249,8 @@ function dialogLeave() {
                 <v-combobox
                   v-model="addTorrentOptions.label"
                   :items="suggestTags"
-                  hint="（如果该下载服务器支持）"
-                  label="种子标签"
+                  :hint="t('SentToDownloaderDialog.labelHint')"
+                  :label="t('SentToDownloaderDialog.label')"
                   persistent-hint
                 ></v-combobox>
               </v-col>
@@ -264,11 +264,11 @@ function dialogLeave() {
                   color="success"
                   :disabled="!configStore.download.allowDirectSendToClient"
                   hide-details
-                  label="本地中转"
+                  :label="t('SentToDownloaderDialog.localRelay')"
                 />
               </v-col>
               <v-col>
-                <v-switch v-model="addTorrentOptions.addAtPaused" color="success" hide-details label="添加时默认暂停" />
+                <v-switch v-model="addTorrentOptions.addAtPaused" color="success" hide-details :label="t('SentToDownloaderDialog.pauseOnAdd')" />
               </v-col>
             </v-row>
             <v-row>
@@ -276,7 +276,7 @@ function dialogLeave() {
                 <v-expansion-panels
                   :disabled="!((selectedDownloaderMetadata?.advanceAddTorrentOptions ?? []).length > 0)"
                 >
-                  <v-expansion-panel title="高级设置">
+                  <v-expansion-panel :title="t('common.advancedSettings')">
                     <v-expansion-panel-text>
                       <v-switch
                         v-for="opt in selectedDownloaderMetadata.advanceAddTorrentOptions"
@@ -297,7 +297,7 @@ function dialogLeave() {
       </v-card-text>
       <v-divider />
       <v-card-actions>
-        <v-btn title="更多选项" icon="mdi-cards" @click="quickSendToClient = !quickSendToClient" />
+        <v-btn :title="t('SentToDownloaderDialog.moreOptions')" icon="mdi-cards" @click="quickSendToClient = !quickSendToClient" />
 
         <v-spacer />
         <v-btn

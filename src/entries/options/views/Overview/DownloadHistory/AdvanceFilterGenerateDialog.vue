@@ -38,7 +38,7 @@ function enterDialog() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title> 生成高级过滤词 </v-toolbar-title>
+          <v-toolbar-title>{{ t("common.AdvanceFilterGenerateDialog.title") }}</v-toolbar-title>
           <template #append>
             <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>
@@ -47,14 +47,14 @@ function enterDialog() {
       <v-divider />
       <v-card-text class="overflow-y-auto">
         <v-container>
-          <v-row><v-label>关键词</v-label> </v-row>
+          <v-row><v-label>{{ t("common.AdvanceFilterGenerateDialog.keywords") }}</v-label> </v-row>
           <v-row>
             <v-col>
               <v-combobox
                 v-model="advanceFilterDictRef.text.required"
                 chips
                 hide-details
-                label="必要项"
+              :label="t('common.AdvanceFilterGenerateDialog.required')"
                 multiple
               ></v-combobox>
             </v-col>
@@ -63,12 +63,12 @@ function enterDialog() {
                 v-model="advanceFilterDictRef.text.exclude"
                 chips
                 hide-details
-                label="排除项"
+              :label="t('common.AdvanceFilterGenerateDialog.exclude')"
                 multiple
               ></v-combobox>
             </v-col>
           </v-row>
-          <v-row><v-label>站点</v-label></v-row>
+          <v-row><v-label>{{ t("common.AdvanceFilterGenerateDialog.site") }}</v-label></v-row>
           <v-row>
             <v-col
               v-for="site in advanceItemPropsRef.siteId"
@@ -93,7 +93,7 @@ function enterDialog() {
               </v-checkbox>
             </v-col>
           </v-row>
-          <v-row><v-label>下载器</v-label></v-row>
+          <v-row><v-label>{{ t("DownloadHistory.AdvanceFilterGenerateDialog.downloader") }}</v-label></v-row>
           <v-row>
             <v-col
               v-for="downloader in advanceItemPropsRef.downloaderId"
@@ -120,7 +120,7 @@ function enterDialog() {
           <v-row>
             <v-col cols="12">
               <v-row class="pr-4">
-                <v-label>日期</v-label>
+                <v-label>{{ t("common.AdvanceFilterGenerateDialog.date") }}</v-label>
                 <v-spacer />
                 <v-chip
                   v-for="dateUnit in ['day', 'week', 'month', 'quarter', 'year'] as const"
@@ -135,10 +135,10 @@ function enterDialog() {
                       ))
                   "
                 >
-                  {{ t(`SearchEntity.AdvanceFilterGenerateDialog.date.${dateUnit}`) }}
+                  {{ t(`common.AdvanceFilterGenerateDialog.dateUnit.${dateUnit}`) }}
                 </v-chip>
                 <v-chip size="x-small">
-                  {{ t("SearchEntity.AdvanceFilterGenerateDialog.date.custom") }}
+                  {{ t("common.AdvanceFilterGenerateDialog.dateUnit.custom") }}
                   <v-menu activator="parent" location="top" :close-on-content-click="false">
                     <v-date-picker
                       :max="addDays(new Date(advanceItemPropsRef.downloadAt.range[1]), 1)"
@@ -176,10 +176,10 @@ function enterDialog() {
       </v-card-text>
       <v-divider />
       <v-card-actions>
-        <v-btn variant="text" @click="() => reBuildAdvanceFilter(true)">重置搜索词</v-btn>
+        <v-btn variant="text" @click="() => reBuildAdvanceFilter(true)">{{ t("common.AdvanceFilterGenerateDialog.reset") }}</v-btn>
         <v-spacer />
-        <v-btn color="error" variant="text" @click="showDialog = false">取消</v-btn>
-        <v-btn color="primary" variant="text" @click="updateTableFilter">生成</v-btn>
+        <v-btn color="error" variant="text" @click="showDialog = false">{{ t("common.dialog.cancel") }}</v-btn>
+        <v-btn color="primary" variant="text" @click="updateTableFilter">{{ t("common.AdvanceFilterGenerateDialog.generate") }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

@@ -22,7 +22,7 @@ const showEditDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 
 const fullTableHeader = [
-  { title: t("SetDownloader.common.type"), key: "type", align: "center" },
+  { title: t("common.type"), key: "type", align: "center" },
   { title: t("SetDownloader.common.name"), key: "name", align: "start" },
   { title: t("SetDownloader.common.address"), key: "address", align: "start" },
   { title: t("SetDownloader.index.table.enabled"), key: "enabled", align: "center" },

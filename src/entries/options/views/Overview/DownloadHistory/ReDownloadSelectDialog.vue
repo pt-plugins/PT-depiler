@@ -33,9 +33,9 @@ const showSentToDownloaderDialog = ref<boolean>(false);
 const downloadTorrentsRef = shallowRef<ITorrentDownloadMetadata["torrent"][]>([]);
 
 const btnItem: Record<TReDownloadType, { icon: string; color: string; title: string }> = {
-  old: { icon: "mdi-reload", color: "indigo", title: "按原下载方式重试" },
-  local: { icon: "mdi-content-save", color: "orange", title: "本地下载" },
-  downloader: { icon: "mdi-cloud-download", color: "cyan", title: "选择下载服务器" },
+  old: { icon: "mdi-reload", color: "indigo", title: t("DownloadHistory.ReDownloadSelectDialog.oldMethod") },
+  local: { icon: "mdi-content-save", color: "orange", title: t("downloaderLabel.localDownload") },
+  downloader: { icon: "mdi-cloud-download", color: "cyan", title: t("DownloadHistory.ReDownloadSelectDialog.selectDownloader") },
 };
 
 function submitDownloadFinish(reDownloadType: TReDownloadType) {
@@ -90,7 +90,7 @@ function dialogEnter() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="primary">
-          <v-toolbar-title>重新下载 {{ torrentItems.length }} 条记录</v-toolbar-title>
+          <v-toolbar-title>{{ t("DownloadHistory.ReDownloadSelectDialog.title", [torrentItems.length]) }}</v-toolbar-title>
           <template #append>
             <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>

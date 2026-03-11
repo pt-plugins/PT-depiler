@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { inject, shallowRef, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { ISocialSitePageInformation, socialPageParserMatchesMap } from "@ptd/social";
 
 import { useConfigStore } from "@/options/stores/config.ts";
@@ -11,6 +12,7 @@ import SocialSiteParseResultsDialog from "@/content-script/app/components/Social
 
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
+const { t } = useI18n();
 const ptdData = inject<IPtdData>("ptd_data", {});
 const socialSiteParseResults = shallowRef<ISocialSitePageInformation[]>([]);
 const showSocialSiteParseResultsDialog = ref<boolean>(false);
@@ -48,20 +50,20 @@ async function handleSearch() {
             return doKeywordSearch(`${parseResult.titles[0]}`);
           }
         } else {
-          runtimeStore.showSnakebar("未能解析出结果", { color: "error" });
+          runtimeStore.showSnakebar(t("contentScript.parseResultEmpty"), { color: "error" });
         }
       }
     }
   } catch (e) {
     console.error("页面解析失败", e);
-    runtimeStore.showSnakebar("页面解析失败", { color: "error" });
+    runtimeStore.showSnakebar(t("contentScript.parsePageFailed"), { color: "error" });
     return;
   }
 }
 </script>
 
 <template>
-  <SpeedDialBtn key="search" color="indigo" icon="mdi-home-search" title="快捷搜索" @click="handleSearch" />
+  <SpeedDialBtn key="search" color="indigo" icon="mdi-home-search" :title="t('contentScript.quickSearch')" @click="handleSearch" />
   <SocialSiteParseResultsDialog v-model="showSocialSiteParseResultsDialog" :parse-results="socialSiteParseResults" />
 </template>
 

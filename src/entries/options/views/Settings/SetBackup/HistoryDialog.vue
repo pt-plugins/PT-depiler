@@ -26,10 +26,10 @@ const isLoading = ref<boolean>(false);
 const backupHistory = shallowRef<IBackupFileInfo[]>([]);
 
 const tableHeaders = [
-  { title: "备份文件名", key: "filename", align: "start" },
-  { title: "备份大小", key: "size", align: "end" },
-  { title: "备份时间", key: "time", align: "start" },
-  { title: "操作", key: "action", sortable: false },
+  { title: t("SetBackup.HistoryDialog.table.filename"), key: "filename", align: "start" },
+  { title: t("SetBackup.HistoryDialog.table.size"), key: "size", align: "end" },
+  { title: t("SetBackup.HistoryDialog.table.time"), key: "time", align: "start" },
+  { title: t("common.action"), key: "action", sortable: false },
 ] as DataTableHeader[];
 const tableSelected = ref<string[]>([]);
 
@@ -51,9 +51,9 @@ async function confirmDeleteBackupHistory(toDeleteId: string) {
   const toDeleteName = backupHistory.value.find((item) => item.path === toDeleteId)?.filename ?? toDeleteId;
   const deleteStatus = await sendMessage("deleteBackupHistory", { path: toDeleteId, backupServerId });
   if (!deleteStatus) {
-    runtimeStore.showSnakebar(`删除备份历史 [${toDeleteName}] 失败`, { color: "error" });
+    runtimeStore.showSnakebar(t("SetBackup.HistoryDialog.deleteFailure", { name: toDeleteName }), { color: "error" });
   } else {
-    runtimeStore.showSnakebar(`删除备份历史 [${toDeleteName}] 成功`, { color: "success" });
+    runtimeStore.showSnakebar(t("SetBackup.HistoryDialog.deleteSuccess", { name: toDeleteName }), { color: "success" });
     backupHistory.value = backupHistory.value.filter((item) => item.path !== toDeleteId);
   }
 }
@@ -86,7 +86,7 @@ async function dialogLeave() {
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title>
-            {{ metadataStore.backupServers[backupServerId].name ?? backupServerId }} 的历史备份
+            {{ t("SetBackup.HistoryDialog.title", { name: metadataStore.backupServers[backupServerId].name ?? backupServerId }) }}
           </v-toolbar-title>
           <template #append>
             <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
@@ -126,7 +126,7 @@ async function dialogLeave() {
           <template #item.action="{ item }">
             <v-btn-group class="table-action" density="compact" variant="plain">
               <v-btn
-                title="恢复备份"
+              :title="t('SetBackup.HistoryDialog.restore')"
                 color="blue"
                 icon="mdi-cloud-download"
                 size="small"

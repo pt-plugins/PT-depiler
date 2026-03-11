@@ -24,7 +24,7 @@ function dialogEnter() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title> 请选择本地需要导出的内容 </v-toolbar-title>
+          <v-toolbar-title>{{ t("SetBackup.LocalExportConfirmDialog.title") }}</v-toolbar-title>
         </v-toolbar>
       </v-card-title>
       <v-divider />
@@ -41,7 +41,7 @@ function dialogEnter() {
         <v-btn color="error" prepend-icon="mdi-close-circle" variant="text" @click="showDialog = false">
           {{ t("common.dialog.cancel") }}
         </v-btn>
-        <v-btn color="success" prepend-icon="mdi-export" variant="text" @click="() => doLocalExport()">导出</v-btn>
+        <v-btn color="success" prepend-icon="mdi-export" variant="text" @click="() => doLocalExport()">{{ t('common.export') }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

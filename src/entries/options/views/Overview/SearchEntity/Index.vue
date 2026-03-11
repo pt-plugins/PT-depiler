@@ -41,7 +41,7 @@ const showSaveSnapshotDialog = ref<boolean>(false);
 const fullTableHeader = computed(
   () =>
     [
-      { title: t("SearchEntity.index.table.site"), key: "site", align: "center", props: { disabled: true } },
+      { title: t("common.site"), key: "site", align: "center", props: { disabled: true } },
       {
         title: t("SearchEntity.index.table.title"),
         key: "title",

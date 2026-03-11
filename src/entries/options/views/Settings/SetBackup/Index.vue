@@ -30,11 +30,11 @@ const showRestoreDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 
 const fullTableHeader = [
-  { title: t("SetBackup.table.type"), key: "type", align: "center" },
-  { title: t("SetBackup.table.name"), key: "name", align: "start" },
+  { title: t("common.type"), key: "type", align: "center" },
+  { title: t("common.name"), key: "name", align: "start" },
   { title: t("SetBackup.table.backupFields"), key: "backupFields", align: "start", sortable: false },
   { title: t("SetBackup.table.lastBackupAt"), key: "lastBackupAt", align: "end" },
-  { title: t("SetBackup.table.enabled"), key: "enabled", align: "center" },
+  { title: t("common.enable"), key: "enabled", align: "center" },
   { title: t("common.action"), key: "action", sortable: false },
 ] as DataTableHeader[];
 const tableSelected = ref<TBackupServerKey[]>([]);

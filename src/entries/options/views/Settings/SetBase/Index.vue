@@ -33,7 +33,7 @@ const activeTab = computed({
 async function save() {
   await setTabRef.value?.beforeSave?.(); // 如果对应的 tab 有 afterSave 方法，则调用
   await configStore.$save();
-  runtimeStore.showSnakebar("保存成功", { color: "success" });
+  runtimeStore.showSnakebar(t("common.saveSuccess"), { color: "success" });
   await setTabRef.value?.afterSave?.(); // 如果对应的 tab 有 afterSave 方法，则调用
 }
 </script>

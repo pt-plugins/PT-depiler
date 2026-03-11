@@ -36,10 +36,10 @@ async function checkConnect() {
   <v-card class="mb-5">
     <v-form v-if="clientConfig" v-model="formValid" fast-fail>
       <v-container class="pa-0">
-        <v-label class="my-2">基本信息</v-label>
+        <v-label class="my-2">{{ t("common.basicInfo") }}</v-label>
         <v-row>
           <v-col cols="12" md="4">
-            <v-text-field v-model="clientConfig.type" :label="t('SetDownloader.common.type')" disabled hide-details />
+            <v-text-field v-model="clientConfig.type" :label="t('common.type')" disabled hide-details />
           </v-col>
           <v-col cols="12" md="4">
             <v-text-field
@@ -61,7 +61,7 @@ async function checkConnect() {
           </v-col>
         </v-row>
 
-        <v-label class="my-2">服务器配置</v-label>
+        <v-label class="my-2">{{ t("SetBackup.Editor.serverConfig") }}</v-label>
 
         <v-row no-gutters>
           <v-col v-for="metaField in clientMeta.requiredField" :key="metaField.key" class="my-1" cols="12">
@@ -90,7 +90,7 @@ async function checkConnect() {
           </v-col>
         </v-row>
 
-        <v-label class="my-2">备份配置</v-label>
+        <v-label class="my-2">{{ t("SetBackup.Editor.backupConfig") }}</v-label>
 
         <v-row no-gutters>
           <v-col v-for="backupField in BackupFields" :key="backupField" cols="12" md="4">

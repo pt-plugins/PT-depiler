@@ -37,7 +37,7 @@ async function checkConnect() {
       <v-container class="pa-0">
         <v-row>
           <v-col cols="12" md="4">
-            <v-text-field v-model="clientConfig.type" :label="t('SetDownloader.common.type')" disabled />
+            <v-text-field v-model="clientConfig.type" :label="t('common.type')" disabled />
           </v-col>
           <v-col cols="12" md="4">
             <v-text-field
@@ -66,7 +66,7 @@ async function checkConnect() {
         </v-row>
 
         <v-row>
-          <v-col class="py-0"><v-label>认证信息</v-label></v-col>
+          <v-col class="py-0"><v-label>{{ t("SetMediaServer.Editor.authInfo") }}</v-label></v-col>
           <v-col v-for="(auth_field, index) in clientMeta!.auth_field" :key="index" cols="12">
             <template v-if="typeof auth_field === 'string'">
               <v-text-field

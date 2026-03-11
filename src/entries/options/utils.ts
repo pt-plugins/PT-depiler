@@ -57,15 +57,22 @@ export const formatDate = (date: Date | number | string, format: string = "yyyy-
   }
 };
 
-export const formatTimeAgo = (sourceDate: Date | number | string, weekOnly: boolean = false): string => {
+interface formatTimeAgoOptions {
+  weekOnly?: boolean; // 是否只显示周数（即小于一周的显示为“不到一周”）
+  spacer?: string; // 年月日等单位之间的分隔符，默认为一个空格
+}
+
+export const formatTimeAgo = (sourceDate: Date | number | string, options: formatTimeAgoOptions = {}): string => {
   const nowDate = new Date();
+
+  const { weekOnly = false, spacer = " " } = options;
 
   if (weekOnly) {
     const weeks = differenceInWeeks(nowDate, sourceDate);
     if (weeks < 1) {
       return i18n.t("common.time.lessThanAWeek");
     }
-    return `${weeks}${i18n.t("common.time.week")}` + i18n.t("common.time.ago");
+    return `${weeks}${spacer}${i18n.t("common.time.week")}` + i18n.t("common.time.ago");
   }
 
   const years = differenceInYears(nowDate, sourceDate);
@@ -76,17 +83,17 @@ export const formatTimeAgo = (sourceDate: Date | number | string, weekOnly: bool
 
   let result;
   if (years > 0) {
-    result = `${years}${i18n.t("common.time.year")}${months}${i18n.t("common.time.month")}`;
+    result = `${years}${spacer}${i18n.t("common.time.year")}${spacer}${months}${spacer}${i18n.t("common.time.month")}`;
   } else if (months > 0) {
-    result = `${months}${i18n.t("common.time.month")}${days}${i18n.t("common.time.day")}`;
+    result = `${months}${spacer}${i18n.t("common.time.month")}${spacer}${days}${spacer}${i18n.t("common.time.day")}`;
   } else if (days > 0) {
-    result = `${days}${i18n.t("common.time.day")}${hours}${i18n.t("common.time.hour")}`;
+    result = `${days}${spacer}${i18n.t("common.time.day")}${spacer}${hours}${spacer}${i18n.t("common.time.hour")}`;
   } else if (hours > 0) {
-    result = `${hours}${i18n.t("common.time.hour")}${mins}${i18n.t("common.time.minute")}`;
+    result = `${hours}${spacer}${i18n.t("common.time.hour")}${spacer}${mins}${spacer}${i18n.t("common.time.minute")}`;
   } else if (mins > 0) {
-    result = `${mins}${i18n.t("common.time.minute")}`;
+    result = `${mins}${spacer}${i18n.t("common.time.minute")}`;
   } else {
-    result = `< 1${i18n.t("common.time.minute")}`;
+    result = `< 1${spacer}${i18n.t("common.time.minute")}`;
   }
   return result + i18n.t("common.time.ago");
 };

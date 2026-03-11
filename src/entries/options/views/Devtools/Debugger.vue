@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import * as estoolkit from "es-toolkit";
 import * as datefns from "date-fns";
 import axios from "axios";
@@ -24,6 +25,8 @@ import { setupRetryWhenCloudflareBlock } from "~/extends/axios/retryWhenCloudfla
 
 setupRetryWhenCloudflareBlock(setupReplaceUnsafeHeader(axios));
 
+const { t } = useI18n();
+
 function enableLibrary() {
   (window as any).axios = axios;
   (window as any).Sizzle = Sizzle;
@@ -37,7 +40,7 @@ const selectedSite = ref<TSiteID>("");
 const useCustomerConfig = ref<boolean>(true);
 
 const clearSiteTarget = ref<TSiteID>("all");
-const siteSelectItems = [{ title: "全部", value: "all" }, ...definitionList.map((x) => ({ title: x, value: x }))];
+const siteSelectItems = computed(() => [{ title: t("Debugger.siteAll"), value: "all" }, ...definitionList.map((x) => ({ title: x, value: x }))]);
 
 const piniaStoreContent = import.meta.glob<Record<string, Function>>("@/options/stores/*.ts");
 const piniaStoreName: Array<{ title: string; value: string }> = Object.keys(piniaStoreContent).map((x) => ({
@@ -89,15 +92,16 @@ const log = async (v: any) => {
 };
 
 interface resetItem {
+  id?: string;
   title: string;
   subTitle?: string;
   resetFn: () => Promise<void>;
 }
 
-const resetItems: resetItem[] = [
+const resetItems = computed<resetItem[]>(() => [
   {
-    title: "重置系统设置",
-    subTitle: "重置所有系统设置（包括但不限于语言、主题、表格展示、图片样式等常规设置）为默认值",
+    title: t("Debugger.resetItems.resetSystemSettings"),
+    subTitle: t("Debugger.resetItems.resetSystemSettingsDesc"),
     resetFn: async () => {
       const configStore = useConfigStore();
       configStore.$reset();
@@ -105,8 +109,8 @@ const resetItems: resetItem[] = [
     },
   },
   {
-    title: "清空用户配置",
-    subTitle: "清空所有用户配置（包括但不限于站点、下载器、搜索方案及默认值、搜索快照元数据、最近一次用户信息）",
+    title: t("Debugger.resetItems.clearUserConfig"),
+    subTitle: t("Debugger.resetItems.clearUserConfigDesc"),
     resetFn: async () => {
       const metadataStore = useMetadataStore();
       metadataStore.$reset();
@@ -114,8 +118,9 @@ const resetItems: resetItem[] = [
     },
   },
   {
-    title: "清空站点数据",
-    subTitle: "清空用户获取的站点数据（包括用户信息历史记录和最近一次用户信息）",
+    id: "clearSiteData",
+    title: t("Debugger.resetItems.clearSiteData"),
+    subTitle: t("Debugger.resetItems.clearSiteDataDesc"),
     resetFn: async () => {
       const metadataStore = useMetadataStore();
       if (clearSiteTarget.value === "all") {
@@ -135,26 +140,26 @@ const resetItems: resetItem[] = [
     },
   },
   {
-    title: "清空历史下载记录",
+    title: t("Debugger.resetItems.clearDownloadHistory"),
     resetFn: async () => {
       await sendMessage("clearDownloadHistory", undefined);
     },
   },
   {
-    title: "清空站点 Favicon 缓存",
+    title: t("Debugger.resetItems.clearFaviconCache"),
     resetFn: async () => {
       await sendMessage("clearSiteFaviconCache", undefined);
     },
   },
   {
-    title: "清空来自豆瓣、IMDb等信息站点的媒体简介缓存",
+    title: t("Debugger.resetItems.clearMediaCache"),
     resetFn: async () => {
       await sendMessage("clearSocialInformationCache", undefined);
     },
   },
   {
-    title: "清空搜索快照",
-    subTitle: "清空所有搜索快照数据",
+    title: t("Debugger.resetItems.clearSearchSnapshot"),
+    subTitle: t("Debugger.resetItems.clearSearchSnapshotDesc"),
     resetFn: async () => {
       const metadataStore = useMetadataStore();
       metadataStore.snapshots = {};
@@ -162,34 +167,34 @@ const resetItems: resetItem[] = [
       await sendMessage("setExtStorage", { key: "searchResultSnapshot", value: {} });
     },
   },
-];
+]);
 
 async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
-  if (confirm("确定要重置吗？")) {
+  if (confirm(t("Debugger.confirmReset"))) {
     await resetFn();
-    alert("重置成功");
+    alert(t("Debugger.resetSuccess"));
   }
 }
 </script>
 
 <template>
   <v-alert type="warning" style="margin-bottom: 10px">
-    <v-alert-title> 调试页面！！！！ </v-alert-title>
-    所有输出均在console面板！！！
+    <v-alert-title> {{ t("Debugger.title") }} </v-alert-title>
+    {{ t("Debugger.consoleOutput") }}
   </v-alert>
   <v-card class="mb-2">
     <v-table>
       <tbody>
         <tr>
           <td>
-            <div class="d-flex justify-center align-center text-body-2">启用开发库</div>
+            <div class="d-flex justify-center align-center text-body-2">{{ t("Debugger.enableLibrary") }}</div>
           </td>
           <td>
             <v-container>
               <v-row dense>
                 <v-col class="d-flex align-center">
-                  <v-btn @click="enableLibrary" class="mr-3">启用</v-btn>
-                  在console中启用 <code>sendMessage, axios, Sizzle, es-toolkit ( as _ ）, datefns</code> 等方法
+                  <v-btn @click="enableLibrary" class="mr-3">{{ t("common.enable") }}</v-btn>
+                  {{ t("Debugger.libraryList") }}
                 </v-col>
               </v-row>
             </v-container>
@@ -197,7 +202,7 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
         </tr>
         <tr>
           <td>
-            <div class="d-flex justify-center align-center text-body-2">调试内置站点</div>
+            <div class="d-flex justify-center align-center text-body-2">{{ t("Debugger.debugBuiltinSite") }}</div>
           </td>
           <td>
             <v-container>
@@ -206,13 +211,13 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
                   <v-autocomplete v-model="selectedSite" :items="definitionList" hide-details label="site" />
                 </v-col>
                 <v-col cols="2">
-                  <v-checkbox v-model="useCustomerConfig" hide-details label="合并用户配置" />
+                  <v-checkbox v-model="useCustomerConfig" hide-details :label="t('Debugger.mergeUserConfig')" />
                 </v-col>
                 <v-col class="d-flex align-center">
-                  <v-btn :disabled="!selectedSite" class="mr-2" @click="log(getSiteMetadata())"> 输出站点定义 </v-btn>
-                  <v-btn :disabled="!selectedSite" class="mr-2" @click="log(getSiteConfig())"> 输出用户配置信息 </v-btn>
-                  <v-btn :disabled="!selectedSite" class="mr-2" @click="log(getSiteInstance())"> 输出站点实例 </v-btn>
-                  <v-btn :disabled="!selectedSite" class="mr-2" @click="log(getSiteFavicon())"> 输出Favicon </v-btn>
+                  <v-btn :disabled="!selectedSite" class="mr-2" @click="log(getSiteMetadata())"> {{ t("Debugger.outputSiteDefinition") }} </v-btn>
+                  <v-btn :disabled="!selectedSite" class="mr-2" @click="log(getSiteConfig())"> {{ t("Debugger.outputUserConfig") }} </v-btn>
+                  <v-btn :disabled="!selectedSite" class="mr-2" @click="log(getSiteInstance())"> {{ t("Debugger.outputSiteInstance") }} </v-btn>
+                  <v-btn :disabled="!selectedSite" class="mr-2" @click="log(getSiteFavicon())"> {{ t("Debugger.outputFavicon") }} </v-btn>
                 </v-col>
               </v-row>
             </v-container>
@@ -220,7 +225,7 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
         </tr>
         <tr v-for="(server, serverType) in simpleServer" :key="serverType">
           <td>
-            <div class="d-flex justify-center align-center text-body-2">调试{{ serverType }}</div>
+            <div class="d-flex justify-center align-center text-body-2">{{ t("Debugger.debug", { serverType }) }}</div>
           </td>
           <td>
             <v-container>
@@ -232,7 +237,7 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
                     item-title="name"
                     item-value="id"
                     :label="serverType"
-                    :messages="`请先在 Set${serverType} 页面添加服务器`"
+                    :messages="t('Debugger.addServerFirst', { serverType })"
                   />
                 </v-col>
                 <v-col class="d-flex align-center">
@@ -244,7 +249,7 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
                       log(metadataStore[server.piniaKey][server.selected])
                     "
                   >
-                    输出用户配置信息
+                    {{ t("Debugger.outputConfig") }}
                   </v-btn>
                   <v-btn
                     :disabled="!server.selected"
@@ -254,7 +259,7 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
                       log(server.getFn(metadataStore[server.piniaKey][server.selected]))
                     "
                   >
-                    输出 {{ serverType }} 实例
+                    {{ t("Debugger.outputInstance", { serverType }) }}
                   </v-btn>
                 </v-col>
               </v-row>
@@ -263,7 +268,7 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
         </tr>
         <tr>
           <td>
-            <div class="d-flex justify-center align-center text-body-2">调试Pinia</div>
+            <div class="d-flex justify-center align-center text-body-2">{{ t("Debugger.debugPinia") }}</div>
           </td>
           <td>
             <v-container>
@@ -278,7 +283,7 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
                 </v-col>
                 <v-col class="d-flex align-center">
                   <v-btn class="mr-2" :disabled="!selectedPiniaStore" @click="log(getPiniaStore(selectedPiniaStore))">
-                    输出Pinia信息
+                    {{ t("Debugger.outputPinia") }}
                   </v-btn>
                 </v-col>
               </v-row>
@@ -287,13 +292,13 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
         </tr>
         <tr>
           <td>
-            <div class="d-flex justify-center align-center text-body-2">插件重置</div>
+            <div class="d-flex justify-center align-center text-body-2">{{ t("Debugger.pluginReset") }}</div>
           </td>
           <td>
             <v-container>
               <v-row no-gutters>
                 <v-col cols="12">
-                  <v-alert type="warning" variant="tonal">极其危险！！！！</v-alert>
+                  <v-alert type="warning" variant="tonal">{{ t("Debugger.dangerWarning") }}</v-alert>
                 </v-col>
                 <v-col md="10">
                   <v-list>
@@ -307,15 +312,15 @@ async function resetFnWrapper(resetFn: resetItem["resetFn"]) {
                     >
                       <template v-slot:prepend>
                         <v-list-item-action class="mr-2">
-                          <v-btn color="red" @click="() => resetFnWrapper(item.resetFn)">重置</v-btn>
+                          <v-btn color="red" @click="() => resetFnWrapper(item.resetFn)">{{ t("common.dialog.reset") }}</v-btn>
                         </v-list-item-action>
                       </template>
                       <template v-slot:append>
                         <v-select
-                          v-if="item.title === '清空站点数据'"
+                          v-if="item.id === 'clearSiteData'"
                           v-model="clearSiteTarget"
                           :items="siteSelectItems"
-                          label="选择站点"
+                          :label="t('Debugger.selectSite')"
                           hide-details
                           density="compact"
                           style="min-width: 150px; margin-left: 12px"

@@ -31,20 +31,20 @@ async function clearLastFilter(v: boolean) {
 
       <v-row dense>
         <v-col cols="12" md="2" class="d-flex align-center justify-center">
-          <v-label>搜索方案</v-label>
+          <v-label>{{ t("SetBase.searchEntity.searchPlanLabel") }}</v-label>
         </v-col>
         <v-col>
           <v-switch
             v-model="configStore.searchEntity.allowSingleSiteSearch"
             :disabled="isEmpty(metadataStore.sites)"
-            :label="`是否允许单一站点搜索`"
+            :label="t('SetBase.searchEntity.allowSingleSiteSearch')"
             color="success"
             hide-details
           />
 
           <v-switch
             v-model="configStore.searchEntity.treatTTQueryAsImdbSearch"
-            :label="`是否将 tt\\d{7,8} 的搜索词直接视为 IMDb 搜索`"
+            :label="t('SetBase.searchEntity.treatTTQueryAsImdbSearch')"
             color="success"
             hide-details
           >
@@ -53,7 +53,7 @@ async function clearLastFilter(v: boolean) {
                 <template v-slot:activator="{ props }">
                   <v-icon color="info" icon="mdi-help-circle" v-bind="props" />
                 </template>
-                关闭后，你需要使用 `imdb|tt12345678` 的格式来进行 IMDb 搜索。
+                {{ t("SetBase.searchEntity.imdbTip") }}
               </v-tooltip>
             </template>
           </v-switch>
@@ -64,7 +64,7 @@ async function clearLastFilter(v: boolean) {
 
       <v-row dense>
         <v-col cols="12" md="2" class="d-flex align-center justify-center">
-          <v-label>结果筛选</v-label>
+          <v-label>{{ t("SetBase.searchEntity.filterLabel") }}</v-label>
         </v-col>
         <v-col>
           <v-switch

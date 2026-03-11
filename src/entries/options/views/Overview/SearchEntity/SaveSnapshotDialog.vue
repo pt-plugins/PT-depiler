@@ -35,7 +35,7 @@ function saveSearchSnapshotData() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="cyan-darken-2">
-          <v-toolbar-title>保存搜索快照</v-toolbar-title>
+          <v-toolbar-title>{{ t("SearchEntity.index.action.saveSnapshot") }}</v-toolbar-title>
           <template #append>
             <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>
@@ -44,11 +44,11 @@ function saveSearchSnapshotData() {
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <v-text-field v-model="snapshotName" dense hide-details label="快照名称" outlined></v-text-field>
+        <v-text-field v-model="snapshotName" dense hide-details :label="t('SearchEntity.SaveSnapshotDialog.snapshotName')" outlined></v-text-field>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
-        <v-btn color="primary" @click="saveSearchSnapshotData">保存</v-btn>
+        <v-btn color="primary" @click="saveSearchSnapshotData">{{ t("common.save") }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

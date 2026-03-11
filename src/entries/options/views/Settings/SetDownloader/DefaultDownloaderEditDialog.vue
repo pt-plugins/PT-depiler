@@ -70,7 +70,7 @@ function enterDialog() {
       <v-divider />
       <v-card-text>
         <v-form>
-          <v-label class="ml-1 mb-1">默认下载服务器</v-label>
+          <v-label class="ml-1 mb-1">{{ t("SetDownloader.index.editDefaultDownloaderBtn") }}</v-label>
           <v-autocomplete
             v-model="defaultDownloaderConfig.id"
             :items="metadataStore.getEnabledDownloaders"
@@ -97,8 +97,8 @@ function enterDialog() {
           </v-autocomplete>
 
           <!-- 如果用户已经在对应下载器的预设了下载路径和标签，则加载对应的列表 -->
-          <v-combobox v-model="defaultDownloaderConfig.folder" :items="suggests.folder" :label="`默认下载路径`" />
-          <v-combobox v-model="defaultDownloaderConfig.tags" :items="suggests.tags" :label="`默认下载标签`" />
+          <v-combobox v-model="defaultDownloaderConfig.folder" :items="suggests.folder" :label="t('SetDownloader.PathAndTag.downloadPath.title')" />
+          <v-combobox v-model="defaultDownloaderConfig.tags" :items="suggests.tags" :label="t('SetDownloader.PathAndTag.tags.title')" />
         </v-form>
       </v-card-text>
       <v-divider />

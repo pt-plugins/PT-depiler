@@ -116,24 +116,42 @@ const totalSiteBaseInfoChartOptions = computed(() => {
   return {
     title: {
       text: `[${configStore.userName}] ${t("UserDataStatistic.chart.totalSiteBase")}`,
-      subtext: `上传: ${formatSize(uploaded.at(-1)!)}, 下载: ${formatSize(downloaded.at(-1)!)}, 积分: ${(bonus.at(-1) ?? 0).toFixed(2)}`,
+      subtext: `${t("UserDataStatistic.chart.uploadLabel")}: ${formatSize(uploaded.at(-1)!)}, ${t("UserDataStatistic.chart.downloadLabel")}: ${formatSize(downloaded.at(-1)!)}, ${t("levelRequirement.bonus")}: ${(bonus.at(-1) ?? 0).toFixed(2)}`,
       left: "center", // 设置标题居中
     },
     tooltip: {
       trigger: "axis",
       formatter: createTotalInfoTooltipFormatter(["size", "size", "number"]),
     },
-    legend: { data: ["上传", "下载", "积分"], bottom: 10, orient: "horizontal" },
+    legend: {
+      data: [
+        t("UserDataStatistic.chart.uploadLabel"),
+        t("UserDataStatistic.chart.downloadLabel"),
+        t("levelRequirement.bonus"),
+      ],
+      bottom: 10,
+      orient: "horizontal",
+    },
     grid: { left: "3%", right: "4%", bottom: "10%", containLabel: true },
     xAxis: { type: "category", boundaryGap: false, data: selectedDateRanges.value }, // 时间轴
     yAxis: [
-      { type: "value", name: "数据", position: "left", axisLabel: { formatter: formatSize } },
-      { type: "value", name: "积分", position: "right", axisLabel: { formatter: (value) => value.toFixed(0) } },
+      {
+        type: "value",
+        name: t("UserDataStatistic.chart.dataLabel"),
+        position: "left",
+        axisLabel: { formatter: formatSize },
+      },
+      {
+        type: "value",
+        name: t("levelRequirement.bonus"),
+        position: "right",
+        axisLabel: { formatter: (value) => value.toFixed(0) },
+      },
     ],
     series: [
-      { name: "上传", type: "line", smooth: true, data: uploaded, yAxisIndex: 0 },
-      { name: "下载", type: "line", smooth: true, data: downloaded, yAxisIndex: 0 },
-      { name: "积分", type: "line", smooth: true, data: bonus, yAxisIndex: 1 },
+      { name: t("UserDataStatistic.chart.uploadLabel"), type: "line", smooth: true, data: uploaded, yAxisIndex: 0 },
+      { name: t("UserDataStatistic.chart.downloadLabel"), type: "line", smooth: true, data: downloaded, yAxisIndex: 0 },
+      { name: t("levelRequirement.bonus"), type: "line", smooth: true, data: bonus, yAxisIndex: 1 },
     ],
   } as EChartsLineChartOption;
 });
@@ -145,23 +163,43 @@ const totalSiteSeedingInfoChartOptions = computed(() => {
   return {
     title: {
       text: `[${configStore.userName}] ${t("UserDataStatistic.chart.totalSiteSeeding")}`,
-      subtext: `做种量: ${formatSize(seedingSize.at(-1)!)}, 数量: ${(seeding.at(-1) ?? 0).toFixed(2)}`,
+      subtext: `${t("UserDataStatistic.chart.seedingSizeLabel")}: ${formatSize(seedingSize.at(-1)!)}, ${t("common.count")}: ${(seeding.at(-1) ?? 0).toFixed(2)}`,
       left: "center", // 设置标题居中
     },
     tooltip: {
       trigger: "axis",
       formatter: createTotalInfoTooltipFormatter(["size", "int"]),
     },
-    legend: { data: ["做种量", "做种数"], bottom: 10, orient: "horizontal" },
+    legend: {
+      data: [t("UserDataStatistic.chart.seedingSizeLabel"), t("UserDataStatistic.chart.seedingLabel")],
+      bottom: 10,
+      orient: "horizontal",
+    },
     grid: { left: "3%", right: "4%", bottom: "10%", outerBoundsMode: "same", outerBoundsContain: "axisLabel" },
     xAxis: { type: "category", boundaryGap: false, data: selectedDateRanges.value }, // 时间轴
     yAxis: [
-      { type: "value", name: "做种量", position: "left", axisLabel: { formatter: formatSize } },
-      { type: "value", name: "做种数", position: "right", axisLabel: { formatter: (value) => value.toFixed(0) } },
+      {
+        type: "value",
+        name: t("UserDataStatistic.chart.seedingSizeLabel"),
+        position: "left",
+        axisLabel: { formatter: formatSize },
+      },
+      {
+        type: "value",
+        name: t("UserDataStatistic.chart.seedingLabel"),
+        position: "right",
+        axisLabel: { formatter: (value) => value.toFixed(0) },
+      },
     ],
     series: [
-      { name: "做种量", type: "line", smooth: true, data: seedingSize, yAxisIndex: 0 },
-      { name: "做种数", type: "line", smooth: true, data: seeding, yAxisIndex: 1 },
+      {
+        name: t("UserDataStatistic.chart.seedingSizeLabel"),
+        type: "line",
+        smooth: true,
+        data: seedingSize,
+        yAxisIndex: 0,
+      },
+      { name: t("UserDataStatistic.chart.seedingLabel"), type: "line", smooth: true, data: seeding, yAxisIndex: 1 },
     ],
   } as EChartsLineChartOption;
 });
@@ -230,7 +268,7 @@ const createPerSiteChartOptionsFn = (
 
           if (hasData) {
             ret += '<table style="width: 100%;">';
-            ret += `<tr class="font-weight-bold" style="border-bottom: 1pt solid black;"><td class="pr-3">总和</td><td class="pr-3 text-right">${formatDict[format](totalCount)}</td><td class="text-right">100%</td></tr>`;
+            ret += `<tr class="font-weight-bold" style="border-bottom: 1pt solid black;"><td class="pr-3">${t("UserDataStatistic.chart.totalLabel")}</td><td class="pr-3 text-right">${formatDict[format](totalCount)}</td><td class="text-right">100%</td></tr>`;
 
             const sortedParams = params.sort((a, b) => b.data - a.data);
 
@@ -261,12 +299,12 @@ const createPerSiteChartOptionsFn = (
             }
 
             if (thresholdSite > 0) {
-              ret += `<tr><td colspan="3" class="text-right">（另有 ${thresholdSite} 个站点数据被隐藏 )</td></tr>`;
+              ret += `<tr><td colspan="3" class="text-right">${t("UserDataStatistic.chart.hiddenSites", { count: thresholdSite })}</td></tr>`;
             }
 
             ret += "</table>";
           } else {
-            ret += `无数据`;
+            ret += `${t("UserDataStatistic.chart.noData")}`;
           }
 
           return ret;
@@ -281,7 +319,9 @@ const createPerSiteChartOptionsFn = (
       },
       grid: { left: "3%", right: "4%", bottom: "10%", outerBoundsMode: "same", outerBoundsContain: "axisLabel" },
       xAxis: { type: "category", boundaryGap: true, data: selectedDateRanges.value }, // 所有柱状图都使用 boundaryGap: true
-      yAxis: [{ type: "value", name: "数据", axisLabel: { formatter: formatDict[format] } }],
+      yAxis: [
+        { type: "value", name: t("UserDataStatistic.chart.dataLabel"), axisLabel: { formatter: formatDict[format] } },
+      ],
       series,
     } as EChartsBarChartOption;
   });
@@ -367,14 +407,17 @@ async function exportStatisticImg() {
 
   // 导出图片
   mainCanvas.toBlob((blob) => {
-    saveAs(blob!, `${configStore.userName}的数据图表（${createdAt}）.png`);
+    saveAs(
+      blob!,
+      t("UserDataStatistic.chart.exportFilename", { name: configStore.userName, date: createdAt }) + ".png",
+    );
   });
 }
 
 function saveControl() {
   configStore.userStatisticControl.selectedSites = selectedSites.value;
   configStore.$save();
-  useRuntimeStore().showSnakebar("保存成功", { color: "success" });
+  useRuntimeStore().showSnakebar(t("common.saveSuccess"), { color: "success" });
 }
 </script>
 
@@ -431,18 +474,23 @@ function saveControl() {
       <v-col>
         <v-row class="flex-nowrap mb-0">
           <v-col class="d-flex">
-            <NavButton color="grey" icon="mdi-arrow-left" text="返回" @click="() => router.back()" />
+            <NavButton color="grey" icon="mdi-arrow-left" :text="t('common.back')" @click="() => router.back()" />
             <v-spacer />
-            <NavButton color="info" icon="mdi-file-export-outline" text="导出图片" @click="exportStatisticImg" />
-            <NavButton color="green" icon="mdi-content-save" text="保存设置" @click="saveControl" />
+            <NavButton
+              color="info"
+              icon="mdi-file-export-outline"
+              :text="t('common.exportImage')"
+              @click="exportStatisticImg"
+            />
+            <NavButton color="green" icon="mdi-content-save" :text="t('common.saveSettings')" @click="saveControl" />
           </v-col>
         </v-row>
 
-        <v-alert title="数据图表样式设置" type="info" class="mb-2"> </v-alert>
+        <v-alert :title="t('UserDataStatistic.chart.chartStyleSettings')" type="info" class="mb-2"> </v-alert>
 
         <v-row>
           <v-col align-self="center">
-            <v-label>用户名</v-label>
+            <v-label>{{ t("common.username") }}</v-label>
           </v-col>
           <v-col cols="12" sm="10">
             <v-combobox
@@ -451,7 +499,7 @@ function saveControl() {
               append-inner-icon="mdi-history"
               :items="Object.keys(configStore.getUserNames.names)"
               hide-details
-              label="用户名"
+              :label="t('common.username')"
               @click:append-inner="() => (configStore.userName = configStore.getUserNames.perfName)"
             >
               <template #prepend>
@@ -467,7 +515,7 @@ function saveControl() {
 
         <v-row>
           <v-col align-self="center">
-            <v-label>展示图表</v-label>
+            <v-label>{{ t("UserDataStatistic.chart.displayChart") }}</v-label>
           </v-col>
           <v-col cols="12" sm="10">
             <v-row>
@@ -490,7 +538,7 @@ function saveControl() {
 
         <v-row>
           <v-col align-self="center">
-            <v-label>时间段</v-label>
+            <v-label>{{ t("UserDataStatistic.chart.dateRange") }}</v-label>
           </v-col>
           <v-col cols="12" sm="10">
             <v-btn-toggle
@@ -536,7 +584,7 @@ function saveControl() {
 
         <v-row>
           <v-col align-self="center">
-            <v-label>图表设置</v-label>
+            <v-label>{{ t("UserDataStatistic.chart.chartSettings") }}</v-label>
           </v-col>
           <v-col cols="12" sm="10">
             <v-number-input
@@ -546,15 +594,15 @@ function saveControl() {
               :precision="2"
               :step="1"
               controlVariant="default"
-              hint="设置为0则不隐藏"
-              label="隐藏分站点图中图例百分比低于该值的详情"
+              :hint="t('UserDataStatistic.chart.hideLowPercentHint')"
+              :label="t('UserDataStatistic.chart.hideLowPercentLabel')"
               persistent-hint
               suffix="%"
             ></v-number-input>
           </v-col>
         </v-row>
 
-        <v-alert class="mt-4 mb-2" title="展示站点设置" type="info">
+        <v-alert class="mt-4 mb-2" :title="t('UserDataStatistic.chart.displaySiteSettings')" type="info">
           <template #append>
             <CheckSwitchButton v-model="selectedSites" :all="allSites" color="grey" />
           </template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { inject, provide, useTemplateRef, ref, shallowReactive, computed, withModifiers } from "vue";
+import { useI18n } from "vue-i18n";
 import { useDraggable } from "@vueuse/core";
 import { type ITorrent } from "@ptd/site";
 
@@ -15,6 +16,7 @@ import SentToDownloaderDialog from "@/options/components/SentToDownloaderDialog/
 
 const configStore = useConfigStore();
 const runtimeStore = useRuntimeStore();
+const { t } = useI18n();
 
 const ptdIcon = chrome.runtime.getURL("icons/logo/64.png");
 const ptdData = inject<IPtdData>("ptd_data", {});
@@ -259,7 +261,7 @@ function openOptions() {
         <!-- 这里根据 pageType 来决定显示哪些按钮 -->
         <component :is="currentView" :key="pageType" />
 
-        <SpeedDialBtn key="home" color="amber" icon="mdi-home" title="打开PTD" @click="openOptions" />
+        <SpeedDialBtn key="home" color="amber" icon="mdi-home" :title="t('contentScript.openPTD')" @click="openOptions" />
       </v-speed-dial>
     </div>
 

@@ -35,7 +35,7 @@ const { tableFilterRef, tableWaitFilterRef, tableFilterFn } = tableCustomFilter;
 const tableHeader = computed(
   () =>
     [
-      { title: t("DownloadHistory.table.site"), key: "siteId", align: "center" },
+      { title: t("common.site"), key: "siteId", align: "center" },
       {
         title: t("DownloadHistory.table.title"),
         key: "title",

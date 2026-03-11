@@ -69,7 +69,7 @@ async function saveStoredMediaServerConfig() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title>添加媒体服务器</v-toolbar-title>
+          <v-toolbar-title>{{ t("SetMediaServer.add.title") }}</v-toolbar-title>
           <template #append>
             <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>

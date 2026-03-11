@@ -17,7 +17,7 @@ const ptdData = inject<IPtdData>("ptd_data", {});
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title> 快速搜索 </v-toolbar-title>
+          <v-toolbar-title>{{ t("contentScript.SocialSiteParseResultsDialog.title") }}</v-toolbar-title>
           <template #append>
             <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>
@@ -31,7 +31,7 @@ const ptdData = inject<IPtdData>("ptd_data", {});
               @click="() => doKeywordSearch(`${ptdData.socialSite!}|${result.id}`)"
             >
               <template #append>
-                <v-chip color="indigo">搜索ID</v-chip>
+                <v-chip color="indigo">{{ t("contentScript.SocialSiteParseResultsDialog.searchId") }}</v-chip>
               </template>
             </v-list-item>
             <template v-if="result.external_ids">
@@ -42,14 +42,14 @@ const ptdData = inject<IPtdData>("ptd_data", {});
                 @click="() => doKeywordSearch(`${externalType}|${externalId}`)"
               >
                 <template #append>
-                  <v-chip color="green">搜索外部ID</v-chip>
+                  <v-chip color="green">{{ t("contentScript.SocialSiteParseResultsDialog.searchExternalId") }}</v-chip>
                 </template>
               </v-list-item>
             </template>
             <template v-for="title in result.titles" :key="`${result.id}|${title}`">
               <v-list-item :title="title" @click="() => doKeywordSearch(title)">
                 <template #append>
-                  <v-chip color="blue-grey">搜索标题</v-chip>
+                  <v-chip color="blue-grey">{{ t("contentScript.SocialSiteParseResultsDialog.searchTitle") }}</v-chip>
                 </template>
               </v-list-item>
             </template>

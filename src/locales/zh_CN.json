@@ -5,7 +5,9 @@
       "add": "增加"
     },
     "checkbox": {
-      "all": "全选"
+      "all": "全选",
+      "none": "全不选",
+      "invert": "反选"
     },
     "default": "默认",
     "date": "日期",
@@ -46,7 +48,36 @@
     "version": "版本",
     "howToUse": "如何使用？",
     "import": "导入",
-    "export": "导出"
+    "export": "导出",
+    "saveSuccess": "保存成功",
+    "advancedSettings": "高级设置",
+    "back": "返回",
+    "exportImage": "导出图片",
+    "saveSettings": "保存设置",
+    "enable": "启用",
+    "basicInfo": "基本信息",
+    "count": "数量",
+    "site": "站点",
+    "type": "类型",
+    "username": "用户名",
+    "AdvanceFilterGenerateDialog": {
+      "title": "生成高级过滤词",
+      "keywords": "关键词",
+      "required": "必要项",
+      "exclude": "排除项",
+      "site": "@:common.site",
+      "date": "日期",
+      "dateUnit": {
+        "day": "今日",
+        "week": "本周",
+        "month": "本月",
+        "quarter": "本季度",
+        "year": "今年",
+        "custom": "自定义"
+      },
+      "reset": "重置搜索词",
+      "generate": "生成"
+    }
   },
   "layout": {
     "header": {
@@ -63,7 +94,15 @@
       "wrongPixelRatioNotice": "检测到您的页面展示可能受到缩放影响，建议您将当前页面缩放调整为100%，以保障您的浏览体验～",
       "expand": "展开更多"
     },
-    "init": "请耐心等待页面加载....."
+    "init": "请耐心等待页面加载.....",
+    "releaseNote": {
+      "title": "欢迎使用 {extName}",
+      "currentVersion": "（当前版本）",
+      "changelog": "更新日志",
+      "wiki": "Wiki 帮助",
+      "faq": "常见问题",
+      "startUsing": "开始使用"
+    }
   },
   "manifest": {
     "extDesc": "PT Depiler",
@@ -118,11 +157,6 @@
       "SetSearchSolution": "搜索方案定义",
       "SetSite": "站点设置"
     }
-  },
-  "checkSwitch": {
-    "all": "全选",
-    "none": "全不选",
-    "invert": "反选"
   },
   "connectCheck": {
     "default": "检查连接性",
@@ -199,11 +233,18 @@
     "reDownload": "重新下载",
     "filterPlaceholder": "过滤下载记录",
     "table": {
-      "site": "站点",
       "title": "种子",
       "downloader": "下载服务器",
       "downloadAt": "下载时间",
       "status": "下载状态"
+    },
+    "AdvanceFilterGenerateDialog": {
+      "downloader": "下载器"
+    },
+    "ReDownloadSelectDialog": {
+      "title": "重新下载 {0} 条记录",
+      "oldMethod": "按原下载方式重试",
+      "selectDownloader": "选择下载服务器"
     }
   },
   "torrent": {
@@ -219,7 +260,14 @@
     "searchPlaceholder": "搜索词",
     "detail": "详情",
     "loadMore": "加载更多",
-    "noItems": "暂无内容，请使用搜索框或点击加载更多按钮"
+    "noItems": "暂无内容，请使用搜索框或点击加载更多按钮",
+    "ItemInformationDialog": {
+      "title": "媒体详情",
+      "type": "类型：",
+      "duration": "时长：",
+      "size": "大小：",
+      "mediaInfo": "媒体信息："
+    }
   },
   "MyData": {
     "index": {
@@ -255,11 +303,11 @@
         "todayNotUpdated": "今日未更新",
         "lastUpdateError": "最后更新状态异常",
         "unreadMessage": "未读信息"
-      }
+      },
+      "noSiteSelectedRefreshAll": "未选择任何站点，默认刷新全部站点",
+      "noSiteSelectedCancelRefresh": "未选择任何站点，取消刷新"
     },
     "table": {
-      "site": "站点",
-      "username": "用户名",
       "levelName": "等级",
       "userData": "数据量",
       "trueUserData": "真实数据量",
@@ -279,6 +327,9 @@
       "action": {
         "viewRaw": "查看原始数据"
       }
+    },
+    "UserLevelRequirementsTd": {
+      "levelList": "用户等级列表"
     }
   },
   "UserDataStatistic": {
@@ -294,7 +345,23 @@
       "perSiteKseedingSize": "分站点做种量",
       "perSiteKseedingSizeIncr": "分站点做种量增量",
       "perSiteKbonus": "分站点魔力",
-      "perSiteKbonusIncr": "分站点魔力增量"
+      "perSiteKbonusIncr": "分站点魔力增量",
+      "uploadLabel": "上传",
+      "downloadLabel": "下载",
+      "dataLabel": "数据",
+      "seedingSizeLabel": "做种量",
+      "seedingLabel": "做种数",
+      "totalLabel": "总和",
+      "hiddenSites": "（另有 {count} 个站点数据被隐藏 )",
+      "noData": "无数据",
+      "chartStyleSettings": "数据图表样式设置",
+      "displaySiteSettings": "展示站点设置",
+      "displayChart": "展示图表",
+      "dateRange": "时间段",
+      "chartSettings": "图表设置",
+      "hideLowPercentHint": "设置为0则不隐藏",
+      "hideLowPercentLabel": "隐藏分站点图中图例百分比低于该值的详情",
+      "exportFilename": "{name}的数据图表（{date}）"
     },
     "dateRange": {
       "custom": "自定义",
@@ -315,15 +382,34 @@
       "bonusPerHour": "时魔值",
       "ratio": "分享率",
       "siteName": "站点名称",
-      "name": "用户名",
+      "name": "@:common.username",
       "level": "用户等级",
       "uid": "用户ID"
-    }
+    },
+    "controls": {
+      "usernameAndTitle": "用户名及标题",
+      "timelineTitle": "时间轴标题",
+      "components": "组件",
+      "showTopSites": "展示各类数据的冠军及亚军站点",
+      "showTimeline": "展示各个站点信息（总开关）",
+      "customBgColor": "自定义背景色",
+      "siteDisplay": "站点展示组件",
+      "faviconBlur": "站点Favicon模糊度",
+      "displayContent": "展示内容",
+      "statsSection": "统计部分",
+      "timelineSection": "时间轴部分",
+      "timeDisplay": "时间显示方式",
+      "timeAdded": "发生时间",
+      "timeAlive": "过去时间",
+      "styleSettings": "时间轴样式设置",
+      "displaySiteSettings": "展示站点设置"
+    },
+    "ptAge": "P龄: ≈ {years} 年",
+    "exportFilename": "{name}的时间轴（{date}）"
   },
   "SearchEntity": {
     "index": {
       "table": {
-        "site": "站点",
         "title": "标题",
         "category": "分类",
         "size": "大小",
@@ -368,14 +454,12 @@
       "all": "全部站点"
     },
     "AdvanceFilterGenerateDialog": {
-      "date": {
-        "day": "本日",
-        "week": "本周",
-        "month": "本月",
-        "quarter": "本季度",
-        "year": "本年",
-        "custom": "自定义"
-      }
+      "tags": "标签",
+      "status": "种子状态",
+      "size": "种子大小",
+      "seeders": "上传人数",
+      "leechers": "下载人数",
+      "completed": "完成人数"
     },
     "SearchStatusDialog": {
       "title": "方案 [{0}] 搜索状态",
@@ -390,6 +474,17 @@
       },
       "moveUp": "在队列中上移",
       "searchAgain": "重新搜索"
+    },
+    "ActionTd": {
+      "sendToDefault": "发送到默认下载器",
+      "sendToDownloader": "发送到下载器",
+      "copyLink": "复制下载链接",
+      "localDownload": "下载种子文件到本地",
+      "copyLinkSuccess": "下载链接已复制到剪贴板",
+      "copyLinkFailed": "复制下载链接失败"
+    },
+    "SaveSnapshotDialog": {
+      "snapshotName": "快照名称"
     }
   },
   "SearchResultSnapshot": {
@@ -404,12 +499,16 @@
         "view": "查看",
         "editTitle": "编辑标题"
       }
+    },
+    "EditNameDialog": {
+      "title": "搜索快照重命名",
+      "snapshotName": "快照名称"
     }
   },
   "SetBase": {
     "tab": {
       "ui": "界面UI",
-      "search-entity": "搜索",
+      "search-entity": "@:common.search",
       "download": "下载",
       "user-info": "用户信息",
       "backup": "备份恢复",
@@ -429,7 +528,29 @@
         "imdb": "按 IMDb 编号 搜索",
         "chosen": "让我选择"
       },
-      "tableMultiSortNote": "多列排序使用方法：点击任意表头字段开始排序，字段上会显示数字“1”。再点击其他字段，依次显示“2”“3”，表示排序优先级。再次点击相同字段可切换升序、降序或取消排序。排序顺序由这些数字决定，数字越小优先级越高。"
+      "tableMultiSortNote": "多列排序使用方法：点击任意表头字段开始排序，字段上会显示数字“1”。再点击其他字段，依次显示“2”“3”，表示排序优先级。再次点击相同字段可切换升序、降序或取消排序。排序顺序由这些数字决定，数字越小优先级越高。",
+      "showReleaseNote": "插件更新时显示更新日志窗口",
+      "saveTableBehavior": "记忆部分表格的 表头列展示、排序、分页 等信息",
+      "enableTableMultiSort": "启用部分表格的多列排序功能",
+      "contentScript": "内容脚本（站点侧边栏等）",
+      "contentScriptWarning": "启用或禁用相关功能后需要保存设置，并刷新站点页面才能生效。",
+      "basicSettings": "基本设置",
+      "allowExceptionSites": "允许设置不启用侧边栏的例外站点（启用后需在站点设置中对应关闭）",
+      "enableOnSocialSite": "在社交站点（如豆瓣、IMDb）启用侧边栏",
+      "sidebarStyle": "侧边栏样式",
+      "expandByDefault": "默认展开侧边栏按钮",
+      "useLargeIcon": "使用大图标按键",
+      "enableFadeEffect": "启用淡入效果（即默认半透明，当鼠标移入时显示）",
+      "sidebarFunctions": "侧边栏功能",
+      "confirmTwoStep": "对种子列表页批量复制、本地下载等操作需要二步确认",
+      "allowDragLink": "允许拖拽链接到侧边栏按钮",
+      "dragNote": "拖拽时的下载链接不一定能被正确识别！",
+      "socialSiteSearchLabel": "社交站点搜索方式",
+      "contextMenu": "右键菜单",
+      "contextMenuTextSearch": "启用选中文字搜索",
+      "contextMenuSocialSearch": "启用社交链接（ douban, imdb ）搜索",
+      "contextMenuLinkPush": "启用（下载）链接推送",
+      "respondDisplayMode": "响应插件设置中的 "
     },
     "searchEntity": {
       "siteSearchConfig": "站点搜索配置",
@@ -443,7 +564,12 @@
       "mediaSearchLimit": "单次搜索结果数量",
       "mediaSearchLimitMessage": "请不要一次性加载过多的搜索结果，未作 virtual‑scroll 优化，可能会导致浏览器卡死，同时也会影响媒体服务器的性能",
       "autoLoadInitialMediaWall": "自动加载首屏媒体墙",
-      "autoLoadMoreMediaOnScroll": "当滚动到页面底部时，自动加载新的媒体墙"
+      "autoLoadMoreMediaOnScroll": "当滚动到页面底部时，自动加载新的媒体墙",
+      "allowSingleSiteSearch": "是否允许单一站点搜索",
+      "treatTTQueryAsImdbSearch": "是否将 tt\\d{7,8} 的搜索词直接视为 IMDb 搜索",
+      "imdbTip": "关闭后，你需要使用 `imdb|tt12345678` 的格式来进行 IMDb 搜索。",
+      "filterLabel": "结果筛选",
+      "searchPlanLabel": "搜索方案"
     },
     "download": {
       "localDownloadMethod": "本地下载方式",
@@ -461,7 +587,14 @@
       "localDownloadIgnoreInterval": "本地下载时忽略站点下载间隔限制",
       "pushDownloadServerTitle": "下载服务器推送",
       "saveLastDownloader": "保存上一次使用的下载服务器设置",
-      "allowDirectSendToClient": "是否允许直接将链接（而不是种子文件）发送到下载服务器（如非必要请勿启用）"
+      "allowDirectSendToClient": "是否允许直接将链接（而不是种子文件）发送到下载服务器（如非必要请勿启用）",
+      "useQuickSendToClient": "默认使用快速推送",
+      "quickSendToClientNote": "启用快速推送后，插件会在推送下载任务时，做以下默认操作：<br />1. 展平 下载器和下载目录 选项供直接点击推送。<br />2. 鼠标移到选项时，则会暂开标签列表，点击时会额外添加标签信息。<br />3. 均采用本地中转模式推送种子，且 `是否自动开始下载` 等基本设置项和下载器专有配置项值由下载器设置和站点设置决定。"
+    },
+    "userInfo": {
+      "userDataRefresh": "用户数据刷新",
+      "afterTime": "每日最早刷新时间",
+      "userInfoDisplay": "用户信息展示"
     }
   },
   "SetDownloader": {
@@ -478,9 +611,7 @@
     "common": {
       "address": "服务器地址",
       "name": "服务器名称",
-      "type": "类型",
       "uid": "服务器ID",
-      "username": "用户名",
       "status": "服务器状态"
     },
     "delete": {
@@ -507,14 +638,14 @@
       },
       "table": {
         "enabled": "启用？",
-
         "autodl": "自动下载？",
         "action": {
           "status": "状态",
           "setPathAndTag": "设置预设的下载路径和标签",
           "deleteDownloader": "删除该下载服务器",
           "setDefault": "设置为默认下载服务器"
-        }
+        },
+        "downloaderCategory": "下载器分类"
       }
     },
     "PathAndTag": {
@@ -565,8 +696,6 @@
   "SetSearchSolution": {
     "solution": "搜索方案",
     "copy": "创建副本",
-    "import": "导入",
-    "export": "导出",
     "table": {
       "enable": "启用？",
       "default": "默认？",
@@ -591,7 +720,15 @@
         "create": "基于此创建自定义@:SetSearchSolution.solution",
         "add": "添加此@:SetSearchSolution.solution"
       }
-    }
+    },
+    "CustomSolutionDialog": {
+      "title": "自定义搜索方案",
+      "solutionName": "方案名称",
+      "requestConfig": "请求配置",
+      "requestConfigHint": "请按JSON格式配置请求参数",
+      "requestConfigJsonError": "必须是合法的JSON格式"
+    },
+    "newSolutionNamePrompt": "请输入新搜索方案名称"
   },
   "SetSite": {
     "add": {
@@ -606,7 +743,6 @@
       "name": "站点名称",
       "showMessageCount": "信息提醒",
       "tags": "标签",
-      "type": "类型",
       "url": "网站链接",
       "groups": "站点分类",
       "allowContentScript": "加载侧边栏",
@@ -649,17 +785,32 @@
         "success": "已添加成功",
         "failed": "添加失败",
         "selected": "已选择"
-      }
+      },
+      "importComplete": "一键导入完成，成功添加 {count} 个站点"
+    },
+    "SiteCategoryPanel": {
+      "siteDefault": "站点默认"
+    },
+    "AddDialog": {
+      "showDeadSite": "展示已死亡站点"
+    },
+    "Editor": {
+      "siteSettings": "站点设置",
+      "otherSettings": "其他设置",
+      "downloadLinkSuffix": "下载链接后缀",
+      "downloadLinkSuffixHint": "该字段会被自动添加到该站点的下载链接后",
+      "downloadLinkSuffixExample": "如插件获得的链接为 https://example.com/download.php?id=1，此处设置为 &passkey=xxxx， 则最终下载链接为 https://example.com/download.php?id=1&passkey=xxxx",
+      "requestTimeout": "请求超时",
+      "requestTimeoutHint": "影响该站点请求（种子搜索、用户信息获取）的超时等待时间",
+      "downloadInterval": "下载间隔",
+      "downloadIntervalHint": "影响该站点的下载间隔时间（为了安全考虑，插件不会严格遵守该设置，实际间隔总是会略大于等于设置的间隔）"
     }
   },
   "SetBackup": {
     "table": {
-      "type": "类型",
-      "name": "名称",
       "backupFields": "备份内容",
       "lastBackupAt": "最近一次备份时间",
       "notBackup": "未备份",
-      "enabled": "启用",
       "action": {
         "backupNow": "立即备份",
         "viewHistoryBackup": "查看历史备份"
@@ -670,6 +821,43 @@
     "snackbar": {
       "success": "备份成功",
       "failure": "备份失败"
+    },
+    "AddDialog": {
+      "title": "添加备份服务器"
+    },
+    "Editor": {
+      "serverConfig": "服务器配置",
+      "backupConfig": "备份配置"
+    },
+    "HistoryDialog": {
+      "title": "{name} 的历史备份",
+      "restore": "恢复备份",
+      "deleteSuccess": "删除备份历史 [{name}] 成功",
+      "deleteFailure": "删除备份历史 [{name}] 失败",
+      "table": {
+        "filename": "备份文件名",
+        "size": "备份大小",
+        "time": "备份时间"
+      }
+    },
+    "LocalExportConfirmDialog": {
+      "title": "请选择本地需要导出的内容"
+    },
+    "RestoreDialog": {
+      "title": "从备份文件中恢复",
+      "ptppPrompt": "需要导入 PT-Plugin-Plus 备份？",
+      "ptppImport": "PT-Plugin-Plus 备份导入",
+      "selectFile": "选择备份文件",
+      "decryptKey": "解密密钥",
+      "retry": "重试",
+      "restoreOptions": "恢复选项",
+      "expandCookieMinutes": "尝试延长Cookies期限（单位：分钟）",
+      "keepExistUserInfo": "保留本地已获取过的用户信息",
+      "missingVersion": "备份数据缺少版本信息，无法恢复",
+      "versionWarning": "备份数据版本高于当前扩展版本，恢复可能会导致数据不兼容或丢失，是否继续？",
+      "success": "恢复成功",
+      "failure": "恢复失败: {error}",
+      "loadFailure": "加载失败: {error}"
     }
   },
   "userInfo": {
@@ -712,7 +900,19 @@
     "importStep2": "在 {repoName} 的站点设置中添加需要恢复的站点。（如果没有添加站点，对应的用户历史数据会被忽略）",
     "importStep3": "在 PT-Plugin-Plus 中，关闭备份加密功能，并导出本地备份文件。其应该是一个名为 <code>PT-Plugin-Plus-Backup-yyyy-MM-DD_hh-mm-ss.zip</code> 的 zip 压缩文件。",
     "importStep4": "将压缩包或者从压缩包中解压出的 <code>userdatas.json</code> 文件，上传到下面的输入框中。",
-    "selectBackupFile": "选择 PTPP 备份文件"
+    "selectBackupFile": "选择 PTPP 备份文件",
+    "RestorePtppUserDataDialog": {
+      "title": "恢复 PT-Plugin-Plus 的用户历史数据信息",
+      "pendingImportData": "待导入数据",
+      "notSupported": "该站点暂不支持",
+      "selected": "已选择",
+      "noSiteWarning": "你似乎还没有添加任何站点，这可能导致导入异常，是否继续？",
+      "importCancelled": "导入操作已取消。",
+      "importSuccess": "导入成功，窗口将在 5s 后自动关闭，请刷新页面。",
+      "importFailure": "导入失败。",
+      "overwriteExisting": "是否覆盖已有数据",
+      "recordCount": "{0}条"
+    }
   },
   "socialConfig": {
     "basicConfig": "基本配置",
@@ -728,5 +928,94 @@
     "anidbClientMessages": "请在 https://anidb.net/perl-bin/animedb.pl?show=client 中申请 Client ID， 并按照 `Name/Version` 的格式填写",
     "bangumiApiKey": "Bangumi API Key",
     "bangumiApiMessages": "你可以在 https://next.bgm.tv/demo/access-token 生成一个 Access Token"
+  },
+  "contentScript": {
+    "openPTD": "打开PTD",
+    "noTorrentParsed": "未解析到当前页面种子",
+    "cannotParseDetailLink": "无法解析当前页面种子链接",
+    "parseResultEmpty": "未能解析出结果",
+    "parsePageFailed": "页面解析失败",
+    "copyLinkSuccess": "下载链接已复制到剪贴板",
+    "copyLinkFailed": "复制下载链接失败",
+    "copyLink": "复制链接",
+    "pushTo": "推送到...",
+    "pushToDefault": "推送到默认下载器",
+    "quickSearch": "快捷搜索",
+    "advanceList": "高级列表",
+    "AdvanceListModuleDialog": {
+      "title": "为 {0} 个种子自定义批量操作行为",
+      "selectSeeders": "勾选上传行",
+      "selectNotSeeding": "勾选未下载过",
+      "selectedInfo": "已选中：{0} 个种子，总大小：{1}"
+    },
+    "SocialSiteParseResultsDialog": {
+      "title": "快速搜索",
+      "searchId": "搜索ID",
+      "searchExternalId": "搜索外部ID",
+      "searchTitle": "搜索标题"
+    }
+  },
+  "SentToDownloaderDialog": {
+    "title": "为 {0} 个种子选择下载器",
+    "isSending": "正在向下载器 {name} [{address}] 发送种子，请稍候...",
+    "selectDownloaderFirst": "请先选择下载器",
+    "noDownloader": "没有可用的下载器，请先在设置中添加下载器。",
+    "selectDownloader": "选择下载器",
+    "savePath": "保存路径",
+    "savePathHint": "不设置则为该下载服务器的默认路径",
+    "label": "种子标签",
+    "labelHint": "（如果该下载服务器支持）",
+    "localRelay": "本地中转",
+    "pauseOnAdd": "添加时默认暂停",
+    "moreOptions": "更多选项"
+  },
+  "ContextMenuLinkPush": {
+    "invalidLink": "无效的下载链接",
+    "keywordWarning": "右键推送链接时，部分 下载路径或标签的 关键字功能可能无法正常工作！"
+  },
+  "SetMediaServer": {
+    "add": {
+      "title": "添加媒体服务器"
+    },
+    "Editor": {
+      "authInfo": "认证信息"
+    }
+  },
+  "Debugger": {
+    "title": "调试页面！！！！",
+    "consoleOutput": "所有输出均在console面板！！！",
+    "enableLibrary": "启用开发库",
+    "libraryList": "在console中启用 sendMessage, axios, Sizzle, es-toolkit ( as _ ）, datefns 等方法",
+    "debugBuiltinSite": "调试内置站点",
+    "mergeUserConfig": "合并用户配置",
+    "outputSiteDefinition": "输出站点定义",
+    "outputUserConfig": "输出用户配置信息",
+    "outputSiteInstance": "输出站点实例",
+    "outputFavicon": "输出Favicon",
+    "debug": "调试{serverType}",
+    "addServerFirst": "请先在 Set{serverType} 页面添加服务器",
+    "outputConfig": "输出用户配置信息",
+    "outputInstance": "输出 {serverType} 实例",
+    "debugPinia": "调试Pinia",
+    "outputPinia": "输出Pinia信息",
+    "pluginReset": "插件重置",
+    "dangerWarning": "极其危险！！！！",
+    "confirmReset": "确定要重置吗？",
+    "resetSuccess": "重置成功",
+    "selectSite": "选择站点",
+    "siteAll": "全部",
+    "resetItems": {
+      "resetSystemSettings": "重置系统设置",
+      "resetSystemSettingsDesc": "重置所有系统设置（包括但不限于语言、主题、表格展示、图片样式等常规设置）为默认值",
+      "clearUserConfig": "清空用户配置",
+      "clearUserConfigDesc": "清空所有用户配置（包括但不限于站点、下载器、搜索方案及默认值、搜索快照元数据、最近一次用户信息）",
+      "clearSiteData": "清空站点数据",
+      "clearSiteDataDesc": "清空用户获取的站点数据（包括用户信息历史记录和最近一次用户信息）",
+      "clearDownloadHistory": "清空历史下载记录",
+      "clearFaviconCache": "清空站点 Favicon 缓存",
+      "clearMediaCache": "清空来自豆瓣、IMDb等信息站点的媒体简介缓存",
+      "clearSearchSnapshot": "清空搜索快照",
+      "clearSearchSnapshotDesc": "清空所有搜索快照数据"
+    }
   }
 }

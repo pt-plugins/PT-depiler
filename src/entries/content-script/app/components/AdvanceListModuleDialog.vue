@@ -31,13 +31,13 @@ const metadataStore = useMetadataStore();
 const tableHeaders = computed(
   () =>
     [
-      { title: "分类", key: "category", align: "center", maxWidth: 60 },
-      { title: "标题", key: "title", align: "start", maxWidth: 400 },
-      { title: "大小", key: "size", align: "end", minWidth: 60 },
-      { title: "上传", key: "seeders", align: "end", minWidth: 40 },
-      { title: "下载", key: "leechers", align: "end", minWidth: 40 },
-      { title: "完成", key: "completed", align: "end", minWidth: 40 },
-      { title: "发布于(≈)", key: "time", align: "center", minWidth: 80 },
+      { title: t("SearchEntity.index.table.category"), key: "category", align: "center", maxWidth: 60 },
+      { title: t("SearchEntity.index.table.title"), key: "title", align: "start", maxWidth: 400 },
+      { title: t("SearchEntity.index.table.size"), key: "size", align: "end", minWidth: 60 },
+      { title: t("SearchEntity.index.table.seeders"), key: "seeders", align: "end", minWidth: 40 },
+      { title: t("SearchEntity.index.table.leechers"), key: "leechers", align: "end", minWidth: 40 },
+      { title: t("SearchEntity.index.table.completed"), key: "completed", align: "end", minWidth: 40 },
+      { title: t("SearchEntity.index.table.time"), key: "time", align: "center", minWidth: 80 },
     ] as DataTableHeader[],
 );
 
@@ -70,9 +70,9 @@ async function handleLinkCopyMulti() {
     }
 
     await navigator.clipboard.writeText(downloadUrls.join("\n").trim());
-    runtimeStore.showSnakebar("下载链接已复制到剪贴板", { color: "success" });
+    runtimeStore.showSnakebar(t("contentScript.copyLinkSuccess"), { color: "success" });
   } catch (e) {
-    runtimeStore.showSnakebar("复制下载链接失败", { color: "error" });
+    runtimeStore.showSnakebar(t("contentScript.copyLinkFailed"), { color: "error" });
   } finally {
     linkCopyMultiStatus.value = false;
   }
@@ -109,15 +109,15 @@ function enterDialog() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title> 为 {{ torrentItems.length }} 个种子自定义批量操作行为 </v-toolbar-title>
+          <v-toolbar-title>{{ t("contentScript.AdvanceListModuleDialog.title", [torrentItems.length]) }}</v-toolbar-title>
           <template #append>
             <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>
         </v-toolbar>
       </v-card-title>
       <v-card-text class="overflow-y-hidden">
-        <NavButton icon="mdi-inbox-arrow-up" text="勾选上传行" color="light-blue" @click="handleSelectSeeders" />
-        <NavButton icon="mdi-download-off" text="勾选未下载过" color="light-blue" @click="handleSelectNotSeeding" />
+        <NavButton icon="mdi-inbox-arrow-up" :text="t('contentScript.AdvanceListModuleDialog.selectSeeders')" color="light-blue" @click="handleSelectSeeders" />
+        <NavButton icon="mdi-download-off" :text="t('contentScript.AdvanceListModuleDialog.selectNotSeeding')" color="light-blue" @click="handleSelectNotSeeding" />
         <v-data-table-virtual
           v-model="selectedTorrentIds"
           :headers="tableHeaders"
@@ -148,16 +148,14 @@ function enterDialog() {
       <v-divider />
       <v-card-actions>
         <v-spacer />
-        <span v-show="hasSelectedTorrent"
-          >已选中：{{ selectedTorrentsCount }} 个种子，总大小：{{ formatSize(selectedTorrentsSize) }}</span
-        >
+        <span v-show="hasSelectedTorrent">{{ t("contentScript.AdvanceListModuleDialog.selectedInfo", [selectedTorrentsCount, formatSize(selectedTorrentsSize)]) }}</span>
 
         <NavButton
           :disabled="!hasSelectedTorrent"
           :loading="localDownloadMultiStatus"
           color="light-blue"
           icon="mdi-content-save-all"
-          text="本地下载"
+          :text="t('downloaderLabel.localDownload')"
           @click="handleLocalDownloadMulti"
         />
 
@@ -166,7 +164,7 @@ function enterDialog() {
           :loading="linkCopyMultiStatus"
           color="light-blue"
           icon="mdi-content-copy"
-          text="复制链接"
+          :text="t('contentScript.copyLink')"
           @click="handleLinkCopyMulti"
         />
 
@@ -175,7 +173,7 @@ function enterDialog() {
           key="remote_download_multi"
           color="light-blue"
           icon="mdi-cloud-download"
-          text="推送到..."
+          :text="t('contentScript.pushTo')"
           @click="() => handleRemoteDownloadMulti()"
         />
 
@@ -185,7 +183,7 @@ function enterDialog() {
           :disabled="!hasSelectedTorrent"
           color="light-blue"
           icon="mdi-download"
-          text="推送到默认下载器"
+          :text="t('contentScript.pushToDefault')"
           @click="() => handleRemoteDownloadMulti(true)"
         />
       </v-card-actions>

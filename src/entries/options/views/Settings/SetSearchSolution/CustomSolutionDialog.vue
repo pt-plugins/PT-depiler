@@ -91,7 +91,10 @@ function doSubmit() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="primary">
-          <v-toolbar-title> 自定义搜索方案 [<SiteName :site-id="siteId" tag="span" class="" />] </v-toolbar-title>
+          <v-toolbar-title>
+            {{ t("SetSearchSolution.CustomSolutionDialog.title") }}
+            [ <SiteName :site-id="siteId" tag="span" class="" /> ]
+          </v-toolbar-title>
           <template #append>
             <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>
@@ -99,13 +102,20 @@ function doSubmit() {
       </v-card-title>
       <v-card-text>
         <v-form v-model="formValid" fast-fail validate-on="eager input">
-          <v-text-field v-model="searchSolution.name" :rules="[formValidateRules.require()]" label="方案名称" />
+          <v-text-field
+            v-model="searchSolution.name"
+            :rules="[formValidateRules.require()]"
+            :label="t('SetSearchSolution.CustomSolutionDialog.solutionName')"
+          />
 
           <v-textarea
-            label="请求配置"
+            :label="t('SetSearchSolution.CustomSolutionDialog.requestConfig')"
             v-model="searchSolutionEntryRequestConfig"
-            hint="请按JSON格式配置请求参数"
-            :rules="[formValidateRules.require(), (v) => isJSON(v) || '必须是合法的JSON格式']"
+            :hint="t('SetSearchSolution.CustomSolutionDialog.requestConfigHint')"
+            :rules="[
+              formValidateRules.require(),
+              (v) => isJSON(v) || t('SetSearchSolution.CustomSolutionDialog.requestConfigJsonError'),
+            ]"
             persistent-hint
             auto-grow
           />
