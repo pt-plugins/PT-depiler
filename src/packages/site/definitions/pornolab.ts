@@ -226,6 +226,7 @@ export const siteMetadata: ISiteMetadata = {
           levelName: { selector: "td#role" },
           joinTime: { selector: "td#user_regdate > span", filters: [{ name: "parseTime" }] },
           lastAccessAt: { selector: "td#user_lastvisit > span", filters: [{ name: "parseTime" }] },
+          ratio: { selector: "td#u_ratio > b", filters: [{ name: "parseNumber" }] },
           downloaded: { selector: "td#u_down_total > span", filters: [{ name: "parseSize" }] },
           uploaded: { selector: "td#u_up_total > span", filters: [{ name: "parseSize" }] },
           seeding: { text: 0, selector: "div.seed:contains('Сидер')", filters: [{ name: "parseNumber" }] },
