@@ -123,12 +123,30 @@ const totalSiteBaseInfoChartOptions = computed(() => {
       trigger: "axis",
       formatter: createTotalInfoTooltipFormatter(["size", "size", "number"]),
     },
-    legend: { data: [t("UserDataStatistic.chart.uploadLabel"), t("UserDataStatistic.chart.downloadLabel"), t("levelRequirement.bonus")], bottom: 10, orient: "horizontal" },
+    legend: {
+      data: [
+        t("UserDataStatistic.chart.uploadLabel"),
+        t("UserDataStatistic.chart.downloadLabel"),
+        t("levelRequirement.bonus"),
+      ],
+      bottom: 10,
+      orient: "horizontal",
+    },
     grid: { left: "3%", right: "4%", bottom: "10%", containLabel: true },
     xAxis: { type: "category", boundaryGap: false, data: selectedDateRanges.value }, // 时间轴
     yAxis: [
-      { type: "value", name: t("UserDataStatistic.chart.dataLabel"), position: "left", axisLabel: { formatter: formatSize } },
-      { type: "value", name: t("levelRequirement.bonus"), position: "right", axisLabel: { formatter: (value) => value.toFixed(0) } },
+      {
+        type: "value",
+        name: t("UserDataStatistic.chart.dataLabel"),
+        position: "left",
+        axisLabel: { formatter: formatSize },
+      },
+      {
+        type: "value",
+        name: t("levelRequirement.bonus"),
+        position: "right",
+        axisLabel: { formatter: (value) => value.toFixed(0) },
+      },
     ],
     series: [
       { name: t("UserDataStatistic.chart.uploadLabel"), type: "line", smooth: true, data: uploaded, yAxisIndex: 0 },
@@ -152,15 +170,35 @@ const totalSiteSeedingInfoChartOptions = computed(() => {
       trigger: "axis",
       formatter: createTotalInfoTooltipFormatter(["size", "int"]),
     },
-    legend: { data: [t("UserDataStatistic.chart.seedingSizeLabel"), t("UserDataStatistic.chart.seedingLabel")], bottom: 10, orient: "horizontal" },
+    legend: {
+      data: [t("UserDataStatistic.chart.seedingSizeLabel"), t("UserDataStatistic.chart.seedingLabel")],
+      bottom: 10,
+      orient: "horizontal",
+    },
     grid: { left: "3%", right: "4%", bottom: "10%", outerBoundsMode: "same", outerBoundsContain: "axisLabel" },
     xAxis: { type: "category", boundaryGap: false, data: selectedDateRanges.value }, // 时间轴
     yAxis: [
-      { type: "value", name: t("UserDataStatistic.chart.seedingSizeLabel"), position: "left", axisLabel: { formatter: formatSize } },
-      { type: "value", name: t("UserDataStatistic.chart.seedingLabel"), position: "right", axisLabel: { formatter: (value) => value.toFixed(0) } },
+      {
+        type: "value",
+        name: t("UserDataStatistic.chart.seedingSizeLabel"),
+        position: "left",
+        axisLabel: { formatter: formatSize },
+      },
+      {
+        type: "value",
+        name: t("UserDataStatistic.chart.seedingLabel"),
+        position: "right",
+        axisLabel: { formatter: (value) => value.toFixed(0) },
+      },
     ],
     series: [
-      { name: t("UserDataStatistic.chart.seedingSizeLabel"), type: "line", smooth: true, data: seedingSize, yAxisIndex: 0 },
+      {
+        name: t("UserDataStatistic.chart.seedingSizeLabel"),
+        type: "line",
+        smooth: true,
+        data: seedingSize,
+        yAxisIndex: 0,
+      },
       { name: t("UserDataStatistic.chart.seedingLabel"), type: "line", smooth: true, data: seeding, yAxisIndex: 1 },
     ],
   } as EChartsLineChartOption;
@@ -281,7 +319,9 @@ const createPerSiteChartOptionsFn = (
       },
       grid: { left: "3%", right: "4%", bottom: "10%", outerBoundsMode: "same", outerBoundsContain: "axisLabel" },
       xAxis: { type: "category", boundaryGap: true, data: selectedDateRanges.value }, // 所有柱状图都使用 boundaryGap: true
-      yAxis: [{ type: "value", name: t("UserDataStatistic.chart.dataLabel"), axisLabel: { formatter: formatDict[format] } }],
+      yAxis: [
+        { type: "value", name: t("UserDataStatistic.chart.dataLabel"), axisLabel: { formatter: formatDict[format] } },
+      ],
       series,
     } as EChartsBarChartOption;
   });
@@ -367,14 +407,18 @@ async function exportStatisticImg() {
 
   // 导出图片
   mainCanvas.toBlob((blob) => {
-    saveAs(blob!, t("UserDataStatistic.chart.exportFilename", { name: configStore.userName, date: createdAt }) + ".png");
+    saveAs(
+      blob!,
+      t("UserDataStatistic.chart.exportFilename", { name: configStore.userName, date: createdAt }) + ".png",
+    );
   });
 }
 
 function saveControl() {
   configStore.userStatisticControl.selectedSites = selectedSites.value;
   configStore.$save();
-  useRuntimeStore().showSnakebar(t("common.saveSuccess"), { color: "success" });}
+  useRuntimeStore().showSnakebar(t("common.saveSuccess"), { color: "success" });
+}
 </script>
 
 <template>
@@ -432,7 +476,12 @@ function saveControl() {
           <v-col class="d-flex">
             <NavButton color="grey" icon="mdi-arrow-left" :text="t('common.back')" @click="() => router.back()" />
             <v-spacer />
-            <NavButton color="info" icon="mdi-file-export-outline" :text="t('common.exportImage')" @click="exportStatisticImg" />
+            <NavButton
+              color="info"
+              icon="mdi-file-export-outline"
+              :text="t('common.exportImage')"
+              @click="exportStatisticImg"
+            />
             <NavButton color="green" icon="mdi-content-save" :text="t('common.saveSettings')" @click="saveControl" />
           </v-col>
         </v-row>

@@ -722,7 +722,7 @@
       }
     },
     "CustomSolutionDialog": {
-      "title": "Custom Search Plan [{site}]",
+      "title": "Custom Search Plan",
       "solutionName": "Plan Name",
       "requestConfig": "Request Config",
       "requestConfigHint": "Please configure request parameters in JSON format",

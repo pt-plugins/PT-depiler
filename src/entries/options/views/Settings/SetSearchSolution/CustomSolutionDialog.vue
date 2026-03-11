@@ -91,7 +91,10 @@ function doSubmit() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="primary">
-          <v-toolbar-title> {{ t("SetSearchSolution.CustomSolutionDialog.title", { site: siteId }) }} </v-toolbar-title>
+          <v-toolbar-title>
+            {{ t("SetSearchSolution.CustomSolutionDialog.title") }}
+            [ <SiteName :site-id="siteId" tag="span" class="" /> ]
+          </v-toolbar-title>
           <template #append>
             <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>
@@ -99,13 +102,20 @@ function doSubmit() {
       </v-card-title>
       <v-card-text>
         <v-form v-model="formValid" fast-fail validate-on="eager input">
-          <v-text-field v-model="searchSolution.name" :rules="[formValidateRules.require()]" :label="t('SetSearchSolution.CustomSolutionDialog.solutionName')" />
+          <v-text-field
+            v-model="searchSolution.name"
+            :rules="[formValidateRules.require()]"
+            :label="t('SetSearchSolution.CustomSolutionDialog.solutionName')"
+          />
 
           <v-textarea
             :label="t('SetSearchSolution.CustomSolutionDialog.requestConfig')"
             v-model="searchSolutionEntryRequestConfig"
             :hint="t('SetSearchSolution.CustomSolutionDialog.requestConfigHint')"
-            :rules="[formValidateRules.require(), (v) => isJSON(v) || t('SetSearchSolution.CustomSolutionDialog.requestConfigJsonError')]"
+            :rules="[
+              formValidateRules.require(),
+              (v) => isJSON(v) || t('SetSearchSolution.CustomSolutionDialog.requestConfigJsonError'),
+            ]"
             persistent-hint
             auto-grow
           />

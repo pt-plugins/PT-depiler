@@ -722,7 +722,7 @@
       }
     },
     "CustomSolutionDialog": {
-      "title": "自定义搜索方案 [{site}]",
+      "title": "自定义搜索方案",
       "solutionName": "方案名称",
       "requestConfig": "请求配置",
       "requestConfigHint": "请按JSON格式配置请求参数",
@@ -770,10 +770,7 @@
         "searchEntries": "搜索入口",
         "flushFavicon": "刷新站点图标"
       },
-      "settingNote": [
-        "只有配置过的站点才会显示插件图标及相应的功能；",
-        "已离线的站点不再参与搜索和信息获取；"
-      ],
+      "settingNote": ["只有配置过的站点才会显示插件图标及相应的功能；", "已离线的站点不再参与搜索和信息获取；"],
       "oneClickImport": "一键导入站点"
     },
     "oneClickImportDialog": {
