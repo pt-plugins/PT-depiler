@@ -107,7 +107,7 @@ export const listTorrentPageMetadata = {
 
 // 下载历史页和HR页
 export const listHistoryPageMetadata = {
-  urlPattern: ["/profile/(.)/history"],
+  urlPattern: ["/profile/(.+)/history"],
   mergeSearchSelectors: false,
   selectors: {
     ...commonListSelectors,
@@ -216,7 +216,7 @@ export const SchemaMetadata: Pick<
   },
 
   list: [listTorrentPageMetadata, listHistoryPageMetadata],
-  
+
   detail: {
     urlPattern: ["/torrent/"],
     selectors: {

@@ -151,7 +151,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     // 下载历史页和HR页
     {
-      urlPattern: ["/profile/(.)/history"],
+      urlPattern: ["/profile/(.+)/history"],
       mergeSearchSelectors: false,
       selectors: {
         subTitle: { text: "" },
