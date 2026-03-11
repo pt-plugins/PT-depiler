@@ -592,7 +592,7 @@ function viewStatistic() {
           {{
             typeof item.joinTime !== "undefined"
               ? configStore.myDataTableControl.joinTimeFormat === "aliveWeek"
-                ? formatTimeAgo(item.joinTime, true)
+                ? formatTimeAgo(item.joinTime, { weekOnly: true })
                 : configStore.myDataTableControl.joinTimeFormat === "alive"
                   ? formatTimeAgo(item.joinTime)
                   : formatDate(item.joinTime, "yyyy-MM-dd")
