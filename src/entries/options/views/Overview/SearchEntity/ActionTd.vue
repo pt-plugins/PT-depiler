@@ -8,6 +8,7 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 import SentToDownloaderDialog from "@/options/components/SentToDownloaderDialog/Index.vue";
+import KeepUploadDialog from "./KeepUploadDialog.vue";
 
 const { torrentItems, density = "default" } = defineProps<{
   torrentItems: ISearchResultTorrent[];
@@ -69,6 +70,12 @@ function sendToDownloader(defaultDownload = false) {
   isDefaultSend.value = defaultDownload;
   showDownloadClientDialog.value = true;
 }
+
+const showKeepUploadDialog = ref(false);
+
+function openKeepUploadDialog() {
+  showKeepUploadDialog.value = true;
+}
 </script>
 
 <template>
@@ -108,6 +115,14 @@ function sendToDownloader(defaultDownload = false) {
       :title="t('SearchEntity.ActionTd.localDownload')"
       @click="() => localDlTorrentDownloadLink()"
     />
+    <!-- 辅种检测 -->
+    <v-btn
+      :disabled="torrentItems.length < 2"
+      :size="btnSize"
+      icon="mdi-merge"
+      :title="t('SearchEntity.KeepUploadDialog.keepUpload')"
+      @click="openKeepUploadDialog"
+    />
   </v-btn-group>
 
   <!-- 在点击发送到远程服务器时，弹出选择下载器及其他自定义选项 -->
@@ -116,6 +131,9 @@ function sendToDownloader(defaultDownload = false) {
     :torrent-items="torrentItems"
     :is-default-send="isDefaultSend"
   />
+
+  <!-- 辅种检测对话框 -->
+  <KeepUploadDialog v-model="showKeepUploadDialog" :torrent-items="torrentItems" />
 </template>
 
 <style scoped lang="scss"></style>

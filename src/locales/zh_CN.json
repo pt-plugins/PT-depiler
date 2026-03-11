@@ -231,6 +231,7 @@
   "DownloadHistory": {
     "refresh": "刷新下载记录列表",
     "reDownload": "重新下载",
+    "searchTorrent": "全站搜索此种子",
     "filterPlaceholder": "过滤下载记录",
     "table": {
       "title": "种子",
@@ -245,6 +246,53 @@
       "title": "重新下载 {0} 条记录",
       "oldMethod": "按原下载方式重试",
       "selectDownloader": "选择下载服务器"
+    }
+  },
+  "KeepUploadTask": {
+    "title": "辅种任务",
+    "savePath": "保存路径：",
+    "defaultPath": "默认路径",
+    "torrentCount": "种子数：",
+    "clearConfirm": "确认清空所有辅种任务吗？",
+    "emptyNotice": "暂无辅种任务，请在搜索结果页面选择种子后点击辅种检测按钮",
+    "clearAll": "清空全部",
+    "deleteConfirm": "确认删除该辅种任务吗？",
+    "deleteSelectedConfirm": "确认删除选中的 {count} 个辅种任务吗？",
+    "deleteSuccess": "删除成功",
+    "deleteError": "删除失败",
+    "clearSuccess": "清空成功",
+    "clearError": "清空失败",
+    "sendSuccess": "发送成功",
+    "sendError": "发送失败",
+    "sendSingleSuccess": "发送成功",
+    "sendSingleError": "发送失败",
+    "sendConfirm": "确认发送 {count} 个种子到下载器？",
+    "sendBaseTorrent": "发送基准种子",
+    "sendOtherTorrents": "发送其他种子",
+    "sendAllTorrents": "发送所有种子",
+    "setAsBaseTorrent": "设为基准种子",
+    "setBaseSuccess": "已设为基准种子",
+    "setBaseError": "设置失败",
+    "seeders": "上传：",
+    "leechers": "下载：",
+    "copyLinks": "复制下载链接",
+    "copySuccess": "已复制 {count} 个下载链接",
+    "copyError": "复制失败",
+    "editSavePath": "修改保存路径",
+    "updateSuccess": "更新成功",
+    "updateError": "更新失败",
+    "table": {
+      "site": "站点",
+      "title": "标题",
+      "size": "大小",
+      "count": "种子数",
+      "time": "创建时间"
+    },
+    "warning": {
+      "title": "警告：",
+      "item1": "辅种前请确认下载服务器已关闭类似于「自动开始下载」的选项（如果有）。",
+      "item2": "助手仅对种子文件做简单验证，不保证辅种成功，请自行斟酌是否要使用辅种功能！",
+      "item3": "如出现因辅种失败造成的爆仓，由用户自行负责！"
     }
   },
   "torrent": {
@@ -485,6 +533,33 @@
     },
     "SaveSnapshotDialog": {
       "snapshotName": "快照名称"
+    },
+    "KeepUploadDialog": {
+      "title": "辅种检测",
+      "keepUpload": "辅种检测",
+      "baseTorrent": "基准种子",
+      "otherTorrent": "其他种子",
+      "size": "大小：",
+      "fileCount": "文件数：",
+      "addToKeepUpload": "添加到辅种列表",
+      "addToKeepUploadConfirm": "确认将该种子添加到辅种列表？",
+      "redownload": "重新下载种子信息",
+      "removeFromKeepUpload": "从列表中移除",
+      "setSavePath": "设置保存路径",
+      "create": "创建任务",
+      "createSuccess": "辅种任务创建成功",
+      "createError": "辅种任务创建失败",
+      "noVerifiedItem": "没有验证通过的种子",
+      "status": {
+        "label": "状态：",
+        "downloading": "正在下载种子信息...",
+        "waiting": "等待验证...",
+        "downloaded": "种子信息已下载",
+        "success": "验证通过",
+        "failed": "验证失败",
+        "downloadFailed": "下载种子失败",
+        "missingFiles": "缺少文件"
+      }
     }
   },
   "SearchResultSnapshot": {
