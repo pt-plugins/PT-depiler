@@ -354,6 +354,16 @@ export interface ISiteMetadata {
      */
     requestDelay?: number;
 
+    /**
+     * donorConfig 配置捐赠者（黄星）的特殊权限
+     * - isAccountKept 捐赠者是否免疫账户不活跃封禁
+     * - bonusPerHourMultiplier 捐赠者的时魔倍数，如果能直接使用 selector 选出正确的时魔，此系数应设为 1
+     */
+    donorConfig?: {
+      isAccountKept?: boolean;
+      bonusPerHourMultiplier?: number;
+    };
+
     selectors?: { [userinfoKey in TUserInfoParseKey]?: IElementQuery }; // 用户信息相关选择器（全部步骤均可使用）
   };
 

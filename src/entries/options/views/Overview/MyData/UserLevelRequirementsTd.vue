@@ -25,6 +25,10 @@ const userLevelRequirements = computedAsync(() => {
   return metadataStore.getSiteMergedMetadata(userInfo.site, "levelRequirements", []);
 }, []);
 
+const userInfoMetadata = computedAsync(() => {
+  return metadataStore.getSiteMergedMetadata(userInfo.site, "userInfo");
+}, undefined);
+
 const matchedLevelRequirements = computed(() => {
   return userLevelRequirements.value?.find((r) => r.id === userInfo.levelId);
 });
@@ -49,6 +53,10 @@ const userLevelGroupType = computed(() => {
   return guessUserLevelGroupType(userInfo.levelName ?? "user");
 });
 
+const isDonorAccountKept = computed(() => {
+  return userInfo.isDonor === true && userInfoMetadata.value?.donorConfig?.isAccountKept === true;
+});
+
 const currentUserLevelColor = computed(() => {
   switch (userLevelGroupType.value) {
     case "vip":
@@ -56,7 +64,7 @@ const currentUserLevelColor = computed(() => {
     case "manager":
       return "indigo";
     case "user": {
-      if (matchedLevelRequirements.value?.isKept) return "light-blue"; // 保号用户
+      if (matchedLevelRequirements.value?.isKept || isDonorAccountKept.value) return "light-blue"; // 保号用户
       return "";
     }
     default:
@@ -136,7 +144,9 @@ const userLevelGroupIcon = computed(() => {
                 </v-list-item>
               </template>
 
-              <v-list-subheader v-if="userLevelRequirements.length > 0">{{ t("MyData.UserLevelRequirementsTd.levelList") }}</v-list-subheader>
+              <v-list-subheader v-if="userLevelRequirements.length > 0">{{
+                t("MyData.UserLevelRequirementsTd.levelList")
+              }}</v-list-subheader>
 
               <!-- 展示站点用户等级 -->
               <template v-for="userLevel in userLevelRequirements" :key="userLevel.id">
