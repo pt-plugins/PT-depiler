@@ -72,6 +72,30 @@ export async function getTorrentDownloadLink(torrent: ITorrent) {
 
 onMessage("getTorrentDownloadLink", async ({ data: torrent }) => await getTorrentDownloadLink(torrent));
 
+export async function getTorrentInfoForVerification(torrent: ITorrent) {
+  const downloadUrl = await getTorrentDownloadLink(torrent);
+  const siteInstance = await getSiteInstance<"public">(torrent.site);
+
+  const downloadRequestConfig = await siteInstance.getTorrentDownloadRequestConfig(torrent);
+  downloadRequestConfig.url = downloadUrl;
+  downloadRequestConfig.responseType = "arraybuffer";
+
+  const parsedTorrent = await getRemoteTorrentFile(downloadRequestConfig);
+
+  // 返回可序列化的种子信息
+  return {
+    infoHash: (parsedTorrent as unknown as { infoHash: string }).infoHash ?? "",
+    name: parsedTorrent.info.name ?? "unknown",
+    length: parsedTorrent.info.length ?? 0,
+    files: (parsedTorrent.info.files || []).map((f) => ({
+      path: f.path,
+      length: f.length,
+    })),
+  };
+}
+
+onMessage("getTorrentInfoForVerification", async ({ data: torrent }) => await getTorrentInfoForVerification(torrent));
+
 function buildDownloadHistory(downloadOption: IDownloadTorrentOption): ITorrentDownloadMetadata {
   const { torrent = {}, downloaderId = "local" } = downloadOption;
   return {

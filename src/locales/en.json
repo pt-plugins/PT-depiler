@@ -231,6 +231,7 @@
   "DownloadHistory": {
     "refresh": "Refresh download history list",
     "reDownload": "Re-download",
+    "searchTorrent": "Search this torrent across all sites",
     "filterPlaceholder": "Filter download history",
     "table": {
       "title": "Torrent",
@@ -245,6 +246,53 @@
       "title": "Re-download {0} records",
       "oldMethod": "Retry with original method",
       "selectDownloader": "Select Downloader"
+    }
+  },
+  "KeepUploadTask": {
+    "title": "Reseed Tasks",
+    "savePath": "Save Path: ",
+    "defaultPath": "Default Path",
+    "torrentCount": "Torrents: ",
+    "clearConfirm": "Confirm clearing all reseed tasks?",
+    "emptyNotice": "No reseed tasks yet. Select torrents from search results and click reseed check button.",
+    "clearAll": "Clear All",
+    "deleteConfirm": "Confirm deleting this reseed task?",
+    "deleteSelectedConfirm": "Confirm deleting {count} selected reseed tasks?",
+    "deleteSuccess": "Deleted successfully",
+    "deleteError": "Delete failed",
+    "clearSuccess": "Cleared successfully",
+    "clearError": "Clear failed",
+    "sendSuccess": "Sent successfully",
+    "sendError": "Send failed",
+    "sendSingleSuccess": "Sent",
+    "sendSingleError": "Failed to send",
+    "sendConfirm": "Confirm sending {count} torrents to downloader?",
+    "sendBaseTorrent": "Send base torrent",
+    "sendOtherTorrents": "Send other torrents",
+    "sendAllTorrents": "Send all torrents",
+    "setAsBaseTorrent": "Set as base torrent",
+    "setBaseSuccess": "Set as base torrent successfully",
+    "setBaseError": "Failed to set as base torrent",
+    "seeders": "Seeders: ",
+    "leechers": "Leechers: ",
+    "copyLinks": "Copy download links",
+    "copySuccess": "Copied {count} download links",
+    "copyError": "Copy failed",
+    "editSavePath": "Edit save path",
+    "updateSuccess": "Updated successfully",
+    "updateError": "Update failed",
+    "table": {
+      "site": "Site",
+      "title": "Title",
+      "size": "Size",
+      "count": "Count",
+      "time": "Created At"
+    },
+    "warning": {
+      "title": "Warning:",
+      "item1": "Please confirm that the download client has disabled 'auto start download' option before reseeding.",
+      "item2": "The assistant only performs simple verification on torrent files, reseeding success is not guaranteed!",
+      "item3": "Users are responsible for any issues caused by failed reseeding!"
     }
   },
   "torrent": {
@@ -485,6 +533,33 @@
     },
     "SaveSnapshotDialog": {
       "snapshotName": "Snapshot Name"
+    },
+    "KeepUploadDialog": {
+      "title": "Reseed Verification",
+      "keepUpload": "Reseed Check",
+      "baseTorrent": "Base Torrent",
+      "otherTorrent": "Other Torrents",
+      "size": "Size: ",
+      "fileCount": "Files: ",
+      "addToKeepUpload": "Add to reseed list",
+      "addToKeepUploadConfirm": "Confirm adding this torrent to reseed list?",
+      "redownload": "Re-download torrent info",
+      "removeFromKeepUpload": "Remove from list",
+      "setSavePath": "Set save path",
+      "create": "Create Task",
+      "createSuccess": "Reseed task created successfully",
+      "createError": "Failed to create reseed task",
+      "noVerifiedItem": "No verified torrents",
+      "status": {
+        "label": "Status: ",
+        "downloading": "Downloading torrent info...",
+        "waiting": "Waiting for verification...",
+        "downloaded": "Torrent info downloaded",
+        "success": "Verification passed",
+        "failed": "Verification failed",
+        "downloadFailed": "Failed to download torrent",
+        "missingFiles": "Missing files"
+      }
     }
   },
   "SearchResultSnapshot": {
