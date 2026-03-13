@@ -1,5 +1,5 @@
 import { type ISiteMetadata } from "../types";
-import { CategoryFree, SchemaMetadata } from "../schemas/Unit3D.ts";
+import { CategoryFree, SchemaMetadata, userInfoTrans } from "../schemas/Unit3D.ts";
 import { buildCategoryOptionsFromDict } from "../utils.ts";
 
 const categoryMap: Record<number, string> = {
@@ -22,6 +22,117 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Unit3D",
 
   urls: ["uggcf://nvgure.pp/"],
+
+  category: [
+    {
+      name: "类别",
+      key: "categoryIds",
+      options: buildCategoryOptionsFromDict(categoryMap),
+      cross: { mode: "brackets" },
+    },
+    {
+      name: "规格",
+      key: "typeIds",
+      options: [
+        { name: "Full Disc", value: 1 },
+        { name: "Remux", value: 2 },
+        { name: "Encode", value: 3 },
+        { name: "WEB-DL", value: 4 },
+        { name: "WEBRip", value: 5 },
+        { name: "HDTV", value: 6 },
+        { name: "Other", value: 7 },
+        { name: "Movie Pack", value: 10 },
+        { name: "Music - General", value: 20 },
+        { name: "Blues", value: 29 },
+        { name: "Classical", value: 30 },
+        { name: "Electronic", value: 31 },
+        { name: "Hip-Hop / Rap", value: 32 },
+        { name: "Jazz &amp; Funk", value: 33 },
+        { name: "Latin", value: 34 },
+        { name: "Pop", value: 35 },
+        { name: "Rock", value: 36 },
+        { name: "Test", value: 16 },
+      ],
+      cross: { mode: "brackets" },
+    },
+    {
+      name: "分辨率",
+      key: "resolutionIds",
+      options: [
+        { name: "4320p", value: 1 },
+        { name: "2160p", value: 2 },
+        { name: "1080p", value: 3 },
+        { name: "1080i", value: 4 },
+        { name: "720p", value: 5 },
+        { name: "576p", value: 6 },
+        { name: "576i", value: 7 },
+        { name: "480p", value: 8 },
+        { name: "480i", value: 9 },
+        { name: "Other", value: 10 },
+      ],
+      cross: { mode: "brackets" },
+    },
+    CategoryFree,
+  ],
+
+  search: {
+    ...SchemaMetadata.search,
+    skipNonLatinCharacters: true,
+    selectors: {
+      ...SchemaMetadata.search!.selectors,
+      category: {
+        selector: ":self",
+        data: "categoryId",
+        filters: [(query: string) => categoryMap[Number(query)]],
+      },
+      tags: [
+        ...SchemaMetadata.search!.selectors!.tags!,
+        {
+          name: "H&R",
+          selector: "*",
+          color: "red",
+        },
+      ],
+    },
+  },
+
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      id: {
+        ...SchemaMetadata.userInfo!.selectors!.id,
+        selector: userInfoTrans.id.map((x) => `span[title='${x}'] + span`),
+      },
+      seedingSize: {
+        ...SchemaMetadata.userInfo!.selectors!.seedingSize,
+        selector: userInfoTrans.seedingSize.map((x) => `span[title='${x}'] + span`),
+      },
+      joinTime: {
+        ...SchemaMetadata.userInfo!.selectors!.joinTime,
+        selector: userInfoTrans.joinTime.map((x) => `span[title='${x}'] + span`),
+      },
+      averageSeedingTime: {
+        ...SchemaMetadata.userInfo!.selectors!.averageSeedingTime,
+        selector: userInfoTrans.averageSeedingTime.map((x) => `span[title='${x}'] + span`),
+      },
+      lastAccessAt: {
+        selector: userInfoTrans.lastAccessAt.map((x) => `span[title='${x}'] + span`),
+        filters: [{ name: "parseTTL" }],
+      },
+      invites: {
+        ...SchemaMetadata.userInfo!.selectors!.invites,
+        selector: ".ratio-bar__invites",
+      },
+      ratio: {
+        selector: "li.ratio-bar__ratio a:has( > i.fa-sync-alt)",
+        filters: [{ name: "parseNumber" }],
+      },
+      uploads: {
+        selector: ".user-profile-card__meta-item  a[href*='/uploads']",
+      },
+    },
+  },
 
   levelRequirements: [
     {
@@ -97,77 +208,4 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "自动通过候选 访问邀请区 免疫HR 不计算下载量 50下载槽 发送邀请",
     },
   ],
-
-  category: [
-    {
-      name: "类别",
-      key: "categoryIds",
-      options: buildCategoryOptionsFromDict(categoryMap),
-      cross: { mode: "brackets" },
-    },
-    {
-      name: "规格",
-      key: "typeIds",
-      options: [
-        { name: "Full Disc", value: 1 },
-        { name: "Remux", value: 2 },
-        { name: "Encode", value: 3 },
-        { name: "WEB-DL", value: 4 },
-        { name: "WEBRip", value: 5 },
-        { name: "HDTV", value: 6 },
-        { name: "Other", value: 7 },
-        { name: "Movie Pack", value: 10 },
-        { name: "Music - General", value: 20 },
-        { name: "Blues", value: 29 },
-        { name: "Classical", value: 30 },
-        { name: "Electronic", value: 31 },
-        { name: "Hip-Hop / Rap", value: 32 },
-        { name: "Jazz &amp; Funk", value: 33 },
-        { name: "Latin", value: 34 },
-        { name: "Pop", value: 35 },
-        { name: "Rock", value: 36 },
-        { name: "Test", value: 16 },
-      ],
-      cross: { mode: "brackets" },
-    },
-    {
-      name: "分辨率",
-      key: "resolutionIds",
-      options: [
-        { name: "4320p", value: 1 },
-        { name: "2160p", value: 2 },
-        { name: "1080p", value: 3 },
-        { name: "1080i", value: 4 },
-        { name: "720p", value: 5 },
-        { name: "576p", value: 6 },
-        { name: "576i", value: 7 },
-        { name: "480p", value: 8 },
-        { name: "480i", value: 9 },
-        { name: "Other", value: 10 },
-      ],
-      cross: { mode: "brackets" },
-    },
-    CategoryFree,
-  ],
-
-  search: {
-    ...SchemaMetadata.search,
-    skipNonLatinCharacters: true,
-    selectors: {
-      ...SchemaMetadata.search!.selectors,
-      category: {
-        selector: ":self",
-        data: "categoryId",
-        filters: [(query: string) => categoryMap[Number(query)]],
-      },
-      tags: [
-        ...SchemaMetadata.search!.selectors!.tags!,
-        {
-          name: "H&R",
-          selector: "*",
-          color: "red",
-        },
-      ],
-    },
-  },
 };
