@@ -15,18 +15,30 @@ import {
 } from "../types";
 import { parseTimeToLiveToDate, parseValidTimeString } from "../utils";
 
+type TUserInfoTransKey =
+  | "id"
+  | "seedingSize"
+  | "joinTime"
+  | "averageSeedingTime"
+  | "invites"
+  | "ratio"
+  | "trueRatio"
+  | "lastAccessAt";
+
 /**
- * Trans Array
+ * Trans Map
  * Source: https://github.com/HDInnovations/UNIT3D-Community-Edition/commit/cb1efe0868caf771b9917c090a79b28b4e183b74
  */
-const idTrans: string[] = ["User ID", "用户 ID", "用ID", "用户ID"];
-const seedingSizeTrans: string[] = ["Seeding Size", "Seeding size", "做种体积", "做種體積"];
-const joinTimeTrans: string[] = ["Registration date", "注册日期", "註冊日期"];
-const averageSeedingTimeTrans: string[] = ["Average Seedtime", "Average seedtime", "平均做种时间", "平均做種時間"];
-const invitesTrans: string[] = ["Invites", "邀请", "邀請"];
-const ratioTrans: string[] = ["Ratio", "分享率", "比率"];
-const trueRatioTrans: string[] = ["Real Ratio", "真实分享率", "真實比率"];
-const lastAccessAtTrans: string[] = ["Last login", "Last Login", "上次登录时间", "上次登入"];
+export const userInfoTrans: Record<TUserInfoTransKey, string[]> = {
+  id: ["User ID", "用户 ID", "用ID", "用户ID"],
+  seedingSize: ["Seeding Size", "Seeding size", "做种体积", "做種體積"],
+  joinTime: ["Registration date", "注册日期", "註冊日期"],
+  averageSeedingTime: ["Average Seedtime", "Average seedtime", "平均做种时间", "平均做種時間"],
+  invites: ["Invites", "邀请", "邀請"],
+  ratio: ["Ratio", "分享率", "比率"],
+  trueRatio: ["Real Ratio", "真实分享率", "真實比率"],
+  lastAccessAt: ["Last login", "Last Login", "上次登录时间", "上次登入"],
+};
 
 export const CategoryFree: ISearchCategories = {
   name: "Buff",
@@ -374,7 +386,10 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       },
       // "/users/$user.name$"
       id: {
-        selector: idTrans.map((x) => `td:contains('${x}') + td`),
+        selector: [
+          ...userInfoTrans.id.map((x) => `dt:contains('${x}') + dd`),
+          ...userInfoTrans.id.map((x) => `td:contains('${x}') + td`),
+        ],
         filters: [(query: string) => parseInt(query || "0")],
       },
       uploaded: {
@@ -387,8 +402,8 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       },
       ratio: {
         selector: [
-          ...ratioTrans.map((x) => `td:contains('${x}') + td`),
-          ...ratioTrans.map((x) => `dt:contains('${x}') + dd`),
+          ...userInfoTrans.ratio.map((x) => `dt:contains('${x}') + dd`),
+          ...userInfoTrans.ratio.map((x) => `td:contains('${x}') + td`),
           "li.ratio-bar__ratio a:has( > i.fa-sync-alt)",
           "span:has( > i.fa-sync-alt)",
         ],
@@ -396,8 +411,8 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       },
       trueRatio: {
         selector: [
-          ...trueRatioTrans.map((x) => `td:contains('${x}') + td`),
-          ...trueRatioTrans.map((x) => `dt:contains('${x}') + dd`),
+          ...userInfoTrans.trueRatio.map((x) => `dt:contains('${x}') + dd`),
+          ...userInfoTrans.trueRatio.map((x) => `td:contains('${x}') + td`),
         ],
         filters: [{ name: "parseNumber" }],
       },
@@ -416,16 +431,16 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       seedingSize: {
         // table.table-condensed:first
         selector: [
-          ...seedingSizeTrans.map((x) => `td:contains('${x}') + td`),
-          ...seedingSizeTrans.map((x) => `dt:contains('${x}') + dd`),
+          ...userInfoTrans.seedingSize.map((x) => `dt:contains('${x}') + dd`),
+          ...userInfoTrans.seedingSize.map((x) => `td:contains('${x}') + td`),
         ],
         filters: [{ name: "parseSize" }],
       },
       averageSeedingTime: {
         // table.table-condensed:first
         selector: [
-          ...averageSeedingTimeTrans.map((x) => `td:contains('${x}') + td span.badge-user`),
-          ...averageSeedingTimeTrans.map((x) => `dt:contains('${x}') + dd`),
+          ...userInfoTrans.averageSeedingTime.map((x) => `dt:contains('${x}') + dd`),
+          ...userInfoTrans.averageSeedingTime.map((x) => `td:contains('${x}') + dd span.badge-user`),
         ],
         filters: [{ name: "parseDuration" }],
       },
@@ -459,10 +474,13 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
         },
       },
       joinTime: {
-        selector: ["time.profile__registration", ...joinTimeTrans.map((x) => `div.content h4:contains('${x}')`)],
+        selector: [
+          "time.profile__registration",
+          ...userInfoTrans.joinTime.map((x) => `div.content h4:contains('${x}')`),
+        ],
         filters: [
           (query: string) => {
-            query = query.replace(RegExp(joinTimeTrans.join("|")), "");
+            query = query.replace(RegExp(userInfoTrans.joinTime.join("|")), "");
             query = query.replace(/^:+/g, "").trim();
             return parseValidTimeString(query, ["MMM dd yyyy, HH:mm:ss", "MMM dd yyyy", "yyyy-MM-dd"]);
           },
@@ -470,8 +488,8 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       },
       lastAccessAt: {
         selector: [
-          ...lastAccessAtTrans.map((x) => `dt:contains('${x}') + dd time`),
-          ...lastAccessAtTrans.map((x) => `td:contains('${x}') + td`),
+          ...userInfoTrans.lastAccessAt.map((x) => `dt:contains('${x}') + dd time`),
+          ...userInfoTrans.lastAccessAt.map((x) => `td:contains('${x}') + td`),
         ],
         elementProcess: (el: Element) => {
           const dateStr = el.getAttribute("title") ?? el.getAttribute("datetime");
@@ -480,8 +498,8 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
       },
       invites: {
         selector: [
-          ...invitesTrans.map((x) => `td:contains('${x}'):last + td`),
-          ...invitesTrans.map((x) => `dt:contains('${x}'):last + dd`),
+          ...userInfoTrans.invites.map((x) => `dt:contains('${x}'):last + dd`),
+          ...userInfoTrans.invites.map((x) => `td:contains('${x}'):last + td`),
         ],
         filters: [{ name: "parseNumber" }],
       },
