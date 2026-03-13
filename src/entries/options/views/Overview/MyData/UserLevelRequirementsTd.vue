@@ -54,7 +54,7 @@ const userLevelGroupType = computed(() => {
 });
 
 const isDonorAccountKept = computed(() => {
-  return userInfo.isDonor === true && userInfoMetadata.value?.donorConfig?.isAccoutKept === true;
+  return userInfo.isDonor === true && userInfoMetadata.value?.donorConfig?.isAccountKept === true;
 });
 
 const currentUserLevelColor = computed(() => {

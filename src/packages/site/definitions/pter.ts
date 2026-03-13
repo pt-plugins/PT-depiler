@@ -311,7 +311,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     donorConfig: {
       ...SchemaMetadata.userInfo?.donorConfig,
-      isAccoutKept: true,
+      isAccountKept: true,
     },
   },
 

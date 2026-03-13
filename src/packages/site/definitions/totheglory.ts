@@ -301,7 +301,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     ],
     donorConfig: {
-      isAccoutKept: true,
+      isAccountKept: true,
       bonusPerHourMultiplier: 1,
     },
   },

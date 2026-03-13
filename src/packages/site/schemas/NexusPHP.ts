@@ -573,11 +573,11 @@ export const SchemaMetadata: Pick<
     ],
     /**
      * donorConfig 配置捐赠者（黄星）的特殊权限
-     * - isAccoutKept: false（NexusPHP 默认黄星不免疫不活跃）
+     * - isAccountKept: false（NexusPHP 默认黄星不免疫不活跃）
      * - bonusPerHourMultiplier: 2（NexusPHP 默认时魔 2 倍） 站点配置中，如果能直接使用 selector 选出正确的时魔，则此系数应设为 1
      */
     donorConfig: {
-      isAccoutKept: false,
+      isAccountKept: false,
       bonusPerHourMultiplier: 2,
     },
   },
