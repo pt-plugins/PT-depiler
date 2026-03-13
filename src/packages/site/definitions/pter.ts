@@ -309,6 +309,10 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["div[style*='background: red'] a[href*='messages.php']"],
       },
     },
+    donorConfig: {
+      ...SchemaMetadata.userInfo?.donorConfig,
+      isAccoutKept: true,
+    },
   },
 
   levelRequirements: [
@@ -410,14 +414,6 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class Pter extends NexusPHP {
-  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    const flushUserInfo = await super.getUserInfoResult(lastUserInfo);
-    if (flushUserInfo.isDonor === true && typeof flushUserInfo.bonusPerHour === "number") {
-      flushUserInfo.bonusPerHour *= 2;
-    }
-    return flushUserInfo;
-  }
-
   protected override async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
     flushUserInfo.uploads = 0;
     if (flushUserInfo.name) {

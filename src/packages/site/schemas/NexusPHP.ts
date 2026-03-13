@@ -571,6 +571,15 @@ export const SchemaMetadata: Pick<
         fields: ["bonusPerHour", "seedingBonusPerHour"],
       },
     ],
+    /**
+     * donorConfig 配置捐赠者（黄星）的特殊权限
+     * - isAccoutKept: false（NexusPHP 默认黄星不免疫不活跃）
+     * - bonusPerHourMultiplier: 2（NexusPHP 默认时魔 2 倍） 站点配置中，如果能直接使用 selector 选出正确的时魔，则此系数应设为 1
+     */
+    donorConfig: {
+      isAccoutKept: false,
+      bonusPerHourMultiplier: 2,
+    },
   },
 };
 
@@ -665,6 +674,15 @@ export default class NexusPHP extends PrivateSite {
     if (flushUserInfo.status === EResultParseStatus.success && typeof flushUserInfo.uploads === "undefined") {
       await this.sleepAction(this.metadata.userInfo?.requestDelay);
       flushUserInfo = (await this.parseUserInfoForUploads(flushUserInfo)) as IUserInfo;
+    }
+
+    // 处理捐赠者的特殊配置
+    if (flushUserInfo.status === EResultParseStatus.success) {
+      const donorConfig = this.metadata.userInfo?.donorConfig;
+      if (flushUserInfo.isDonor === true && typeof flushUserInfo.bonusPerHour === "number") {
+        const bonusPerHourMultiplier = donorConfig?.bonusPerHourMultiplier ?? 1;
+        flushUserInfo.bonusPerHour *= bonusPerHourMultiplier;
+      }
     }
 
     return flushUserInfo;
