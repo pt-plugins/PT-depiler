@@ -78,6 +78,7 @@ const filteredTableBooleanControlKeys = computed(() => {
 
 interface IUserInfoItem extends IUserInfo {
   siteUserConfig: ISiteUserConfig;
+  siteName: string;
 }
 
 const {
@@ -93,7 +94,7 @@ const {
     keywords: ["site", "status", "siteUserConfig.groups"],
     ranges: ["updateAt", "messageCount"],
   },
-  titleFields: ["site", "name", "siteUserConfig.merge.name"],
+  titleFields: ["site", "siteName", "name"],
   format: {
     status: "number",
   },
@@ -107,6 +108,16 @@ async function updateTableData() {
 
   for (const [siteId, siteUserConfig] of Object.entries(metadataStore.sites)) {
     const siteMeta = await metadataStore.getSiteMetadata(siteId);
+    const siteName = Array.from(
+      new Set(
+        [
+          siteMeta.name,
+          ...(siteMeta.aka ?? []),
+          metadataStore.siteNameMap?.[siteId],
+          siteUserConfig.merge?.name,
+        ].filter(Boolean),
+      ),
+    ).join(" ");
 
     if (
       // 只显示私有站点的用户信息
@@ -126,6 +137,7 @@ async function updateTableData() {
       ...fixUserInfo(siteUserInfoData),
       site: siteId,
       siteUserConfig,
+      siteName,
       // 对 isDead 或者 isOffline 的站点不允许选择（ https://github.com/pt-plugins/PT-depiler/pull/140 ）
       selectable: !(siteMeta.isDead || siteUserConfig.isOffline),
 
