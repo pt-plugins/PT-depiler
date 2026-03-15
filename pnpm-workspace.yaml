@@ -1,2 +1,8 @@
+# Allow native build scripts for these packages (required by Vite 8/rolldown dependencies)
+onlyBuiltDependencies:
+  - '@parcel/watcher'
+  - esbuild
+  - spawn-sync
+
 patchedDependencies:
   git-rev-sync: patches/git-rev-sync.patch
