@@ -117,7 +117,7 @@ async function updateTableData() {
           siteUserConfig.merge?.name,
         ].filter(Boolean),
       ),
-    ).join(" ");
+    ).join("|$|");
 
     if (
       // 只显示私有站点的用户信息
