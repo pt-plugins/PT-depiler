@@ -283,7 +283,7 @@ export const siteMetadata: ISiteMetadata = {
             if (!Array.isArray(aaData)) {
               return 0;
             }
-            return aaData.filter((data: any) => data[7] === 1).length;
+            return aaData.filter((data: any) => data[7] === 1 && data[8] === "Yes").length;
           }
         ]
       },
@@ -293,7 +293,7 @@ export const siteMetadata: ISiteMetadata = {
           (aaData: any) => {
             if (!Array.isArray(aaData)) return 0;
             return aaData.reduce((total: number, data: any) => {
-              return data[7] === 1 && data[1] ? total + parseSizeString(data[1]) : total;
+              return data[7] === 1 && data[8] === "Yes" && data[1] ? total + parseSizeString(data[1]) : total;
             }, 0);
           }
         ]
