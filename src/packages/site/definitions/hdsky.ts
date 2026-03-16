@@ -345,7 +345,7 @@ export default class Hdsky extends NexusPHP {
      */
     if (torrent.link) {
       const hasPasskey = /&passkey=/.test(torrent.link);
-      if (!hasPasskey) {
+      if (hasPasskey) {
         return torrent.link;
       }
 
