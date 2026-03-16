@@ -336,7 +336,19 @@ export const siteMetadata: ISiteMetadata = {
 
 export default class Hdsky extends NexusPHP {
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    /**
+     * HDSky 的下载链接有两种格式，分别为：
+     *   - /download.php?id=<tid>&passkey=<passkey>&sign=<sign>
+     *   - /download.php?id=<tid>&t=<timestamp>&sign=<sign>
+     * 其中第一种格式的链接是永久有效的，而第二种格式的链接是有时间限制的，通常有效期为10分钟（具体不明）。
+     * 因此，在获取下载链接时，优先使用第一种格式的链接，如果不存在或过期，则使用第二种格式的链接。
+     */
     if (torrent.link) {
+      const hasPasskey = /&passkey=/.test(torrent.link);
+      if (hasPasskey) {
+        return torrent.link;
+      }
+
       const linkCreatedTime = this.runQueryFilters(torrent.link, [{ name: "querystring", args: ["t"] }]) as string;
 
       const currentTimestamp = Date.now() / 1000;
