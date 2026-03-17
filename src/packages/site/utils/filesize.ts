@@ -1,4 +1,4 @@
-export const sizePattern = /^(\d*\.?\d+)(.*[^ZEPTGMK])?([ZEPTGMK](B|iB))s?$/i;
+export const sizePattern = /^(\d*\.?\d+)([\s\-_]{0,3})([ZEPTGMK](B|iB))s?$/i;
 
 export type TSizeUnit = `${"" | "K" | "M" | "G" | "T" | "P" | "E" | "Z"}${"i" | ""}B`;
 export type TSize = `${number}${" " | ""}${TSizeUnit}`;
