@@ -14,12 +14,7 @@ const AVAILABLE_REGEX = /Available:\s*(\d+)/i;
 const SIZE_MULTIPLIERS = { TB: TB, GB: GB, MB: MB, KB: KB, B: 1 } as const;
 
 const IPT_SELECTORS = {
-  ROWS: [
-    "table#torrents > tbody > tr",
-    "table.torrents > tbody > tr",
-    "table > tbody > tr:has(td.al)",
-    "tr:has(td.al)",
-  ],
+  ROWS: ["table#torrents > tbody > tr:has(td.al)"],
   SIZE: ["> td:nth-child(6)", "td:contains('MB')", "td:contains('GB')", "td:contains('TB')"],
   SEEDERS: ["td:nth-last-child(2)", "td:contains('seeders')", "td.seeders"],
   LEECHERS: ["td:nth-last-child(1)", "td:contains('leechers')", "td.leechers"],
@@ -293,10 +288,50 @@ export const siteMetadata: ISiteMetadata = {
         selector: "> td:nth-child(5)",
         filters: [(q: string) => q.replace(/Go ?to ?comments/, "")],
       },
-      tags: [
-        { name: "Free", selector: "span.free" },
-        { name: "Free", selector: "span.t_tag_free_leech" },
-      ],
+      tags: [{ name: "Free", selector: "span.free, span.t_tag_free_leech" }],
+    },
+  },
+
+  list: [
+    {
+      urlPattern: ["/t"],
+      excludeUrlPattern: ["/t/\\d+", "/torrent\\.php\\?id=\\d+"],
+      selectors: {
+        title: {
+          selector: " > td.al > a",
+          elementProcess: (el: HTMLElement) => {
+            el.querySelectorAll("div.tTip").forEach((e) => e.remove());
+            return el.innerText || el.textContent;
+          },
+        },
+      },
+    },
+    {
+      urlPattern: ["/indexipt\\.php"],
+      selectors: {
+        size: {
+          selector: "div.ar.c3",
+          filters: [{ name: "split", args: ["|", 0] }, { name: "trim" }, { name: "parseSize" }],
+        },
+        time: {
+          selector: "span.elapsedDate",
+          attr: "title",
+          filters: [{ name: "parseTime", args: ["EEEE, MMMM d, yyyy 'at' h:mmaa"] }],
+        },
+        seeders: { selector: "> td:nth-child(5)" },
+        leechers: { selector: "> td:nth-child(6)" },
+        completed: { selector: "> td:nth-child(7)" },
+        comments: { selector: "> td:nth-child(8)" },
+        // TODO category 需要映射类型编号
+      },
+    },
+  ],
+
+  detail: {
+    urlPattern: ["/t/\\d+", "/torrent\\.php\\?id=\\d+"],
+    selectors: {
+      title: { selector: "div.dBox > h2" },
+      link: { selector: "div.info a[href*='download.php']", attr: "href" },
     },
   },
 
