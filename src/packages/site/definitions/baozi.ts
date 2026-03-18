@@ -1,5 +1,11 @@
-import type { ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+import type { ISiteMetadata, IUserInfo } from "../types";
+import NexusPHP, {
+  CategoryInclbookmarked,
+  CategoryIncldead,
+  CategorySpstate,
+  SchemaMetadata,
+} from "../schemas/NexusPHP";
+import { createDocument } from "@ptd/site";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -107,7 +113,12 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseNumber" }],
       },
     },
+    donorConfig: {
+      ...SchemaMetadata.userInfo!.donorConfig,
+      bonusPerHourMultiplier: 1, // selector 已能正确选中加倍后的时魔
+    },
   },
+
   levelRequirements: [
     {
       id: 1,
@@ -234,3 +245,38 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
+
+export default class BaoZi extends NexusPHP {
+  protected override async parseUserInfoForSeedingStatus(
+    flushUserInfo: Partial<IUserInfo>,
+  ): Promise<Partial<IUserInfo>> {
+    const userId = flushUserInfo.id as number;
+    const userSeedingRequestString = await this.requestUserSeedingPage(userId);
+
+    if (userSeedingRequestString && /<b>\d+<\/b>\s{0,3}(条记录|records|條記錄)/.test(userSeedingRequestString)) {
+      const userSeedingDocument = createDocument(userSeedingRequestString);
+
+      flushUserInfo.seeding = this.getFieldData(userSeedingDocument, {
+        selector: "b:eq(0)",
+        filters: [(x) => parseInt(x)],
+      });
+      flushUserInfo.seedingSize = this.getFieldData(userSeedingDocument, {
+        selector: "b:eq(0)",
+        filters: [
+          (el: Element) => {
+            const parentDiv = el.closest("div");
+            if (!parentDiv) return "0";
+            const text = parentDiv.textContent.split("|")[1] || "";
+            const match = text.match(/([\d.]+\s*B)/i);
+            return match ? match[1] : "0";
+          },
+          { name: "parseSize" },
+        ],
+      });
+    } else {
+      return super.parseUserInfoForSeedingStatus(flushUserInfo); // 回落到默认的处理
+    }
+
+    return flushUserInfo;
+  }
+}
