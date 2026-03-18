@@ -433,7 +433,7 @@ export const SchemaMetadata: Pick<
       },
       isDonor: {
         text: false,
-        selector: ["img[alt='Donor']"],
+        selector: ["h1:has(img[src^='pic/flag']) img[alt='Donor']"],
         elementProcess: () => true,
       },
       bonus: {
