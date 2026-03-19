@@ -5,7 +5,7 @@ import NexusPHP, {
   CategorySpstate,
   SchemaMetadata,
 } from "../schemas/NexusPHP";
-import { createDocument } from "@ptd/site";
+import { createDocument, parseSizeString } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -253,29 +253,26 @@ export default class BaoZi extends NexusPHP {
     const userId = flushUserInfo.id as number;
     const userSeedingRequestString = await this.requestUserSeedingPage(userId);
 
-    if (userSeedingRequestString && /<b>\d+<\/b>\s{0,3}(条记录|records|條記錄)/.test(userSeedingRequestString)) {
-      const userSeedingDocument = createDocument(userSeedingRequestString);
-
-      flushUserInfo.seeding = this.getFieldData(userSeedingDocument, {
-        selector: "b:eq(0)",
-        filters: [(x) => parseInt(x)],
-      });
-      flushUserInfo.seedingSize = this.getFieldData(userSeedingDocument, {
-        selector: "b:eq(0)",
-        filters: [
-          (el: Element) => {
-            const parentDiv = el.closest("div");
-            if (!parentDiv) return "0";
-            const text = parentDiv.textContent.split("|")[1] || "";
-            const match = text.match(/([\d.]+\s*B)/i);
-            return match ? match[1] : "0";
-          },
-          { name: "parseSize" },
-        ],
-      });
-    } else {
+    if (!userSeedingRequestString || !/<b>\d+<\/b>\s{0,3}(条记录|records|條記錄)/.test(userSeedingRequestString)) {
       return super.parseUserInfoForSeedingStatus(flushUserInfo); // 回落到默认的处理
     }
+
+    const userSeedingDocument = createDocument(userSeedingRequestString);
+
+    flushUserInfo.seeding = this.getFieldData(userSeedingDocument, {
+      selector: "b:eq(0)",
+      filters: [(x) => parseInt(x)],
+    });
+    flushUserInfo.seedingSize = this.getFieldData(userSeedingDocument, {
+      selector: "b:eq(0)",
+      elementProcess: (el: Element) => {
+        const summaryText = el.closest("div")?.textContent ?? "";
+        const candidateText = (summaryText.split("|")[1] ?? summaryText).replace(/,/g, "");
+        const numberStartIndex = candidateText.search(/[\d.]/);
+        const sizeText = numberStartIndex >= 0 ? candidateText.slice(numberStartIndex).trim() : "";
+        return sizeText ? parseSizeString(sizeText) : 0;
+      },
+    });
 
     return flushUserInfo;
   }
