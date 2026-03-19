@@ -1,8 +1,8 @@
 import type { ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+//import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  //...SchemaMetadata,
   version: 1,
 
   id: "lemonhd",
@@ -19,6 +19,10 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://yrzbauq.pyho/"],
 
+  // Dead at 2026-03-13, refs https://t.me/ilovelemonjuice/14888
+  isDead: true,
+
+  /*
   userInfo: {
     ...SchemaMetadata.userInfo!,
     selectors: {
@@ -43,6 +47,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
+   */
 
   levelRequirements: [
     {
