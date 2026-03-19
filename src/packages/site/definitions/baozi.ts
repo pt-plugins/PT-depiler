@@ -1,5 +1,11 @@
-import type { ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+import type { ISiteMetadata, IUserInfo } from "../types";
+import NexusPHP, {
+  CategoryInclbookmarked,
+  CategoryIncldead,
+  CategorySpstate,
+  SchemaMetadata,
+} from "../schemas/NexusPHP";
+import { createDocument, parseSizeString } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -100,14 +106,27 @@ export const siteMetadata: ISiteMetadata = {
 
   userInfo: {
     ...SchemaMetadata.userInfo!,
+    pickLast: [], // clear id cache
     selectors: {
       ...SchemaMetadata.userInfo!.selectors!,
+      // "page": "/index.php",
+      id: {
+        selector: "#welcome_text > span.nowrap > a[href*='userdetails.php']",
+        attr: "href",
+        filters: [{ name: "querystring", args: ["id"] }],
+      },
+      // "page": "/userdetails.php?id=$user.id$",
       bonus: {
         selector: ["td.rowhead:contains('魔力值') + td", "td.rowhead:contains('Karma'):contains('Points') + td"],
         filters: [{ name: "parseNumber" }],
       },
     },
+    donorConfig: {
+      ...SchemaMetadata.userInfo!.donorConfig,
+      bonusPerHourMultiplier: 1, // selector 已能正确选中加倍后的时魔
+    },
   },
+
   levelRequirements: [
     {
       id: 1,
@@ -234,3 +253,36 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
+
+export default class BaoZi extends NexusPHP {
+  protected override async parseUserInfoForSeedingStatus(
+    flushUserInfo: Partial<IUserInfo>,
+  ): Promise<Partial<IUserInfo>> {
+    const userId = flushUserInfo.id as number;
+    const userSeedingRequestString = await this.requestUserSeedingPage(userId);
+
+    if (!userSeedingRequestString || !/<b>\d+<\/b>\s{0,3}(条记录|records|條記錄)/.test(userSeedingRequestString)) {
+      return super.parseUserInfoForSeedingStatus(flushUserInfo); // 回落到默认的处理
+    }
+
+    const userSeedingDocument = createDocument(userSeedingRequestString);
+
+    flushUserInfo.seeding = this.getFieldData(userSeedingDocument, {
+      selector: "b:eq(0)",
+      filters: [(x) => parseInt(x)],
+    });
+    flushUserInfo.seedingSize =
+      this.getFieldData(userSeedingDocument, {
+        selector: "b:eq(0)",
+        elementProcess: (el: Element) => {
+          const summaryText = el.closest("div")?.textContent ?? "";
+          const candidateText = (summaryText.split("|")[1] ?? summaryText).replace(/,/g, "");
+          const numberStartIndex = candidateText.search(/[\d.]/);
+          const sizeText = numberStartIndex >= 0 ? candidateText.slice(numberStartIndex).trim() : "";
+          return sizeText ? parseSizeString(sizeText) : 0;
+        },
+      }) ?? 0;
+
+    return flushUserInfo;
+  }
+}
