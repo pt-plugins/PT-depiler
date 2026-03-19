@@ -1,6 +1,5 @@
 import type { ISiteMetadata, IUserInfo } from "../types";
 import NexusPHP, {
-  baseUserIdSelector,
   CategoryInclbookmarked,
   CategoryIncldead,
   CategorySpstate,
@@ -272,16 +271,17 @@ export default class BaoZi extends NexusPHP {
       selector: "b:eq(0)",
       filters: [(x) => parseInt(x)],
     });
-    flushUserInfo.seedingSize = this.getFieldData(userSeedingDocument, {
-      selector: "b:eq(0)",
-      elementProcess: (el: Element) => {
-        const summaryText = el.closest("div")?.textContent ?? "";
-        const candidateText = (summaryText.split("|")[1] ?? summaryText).replace(/,/g, "");
-        const numberStartIndex = candidateText.search(/[\d.]/);
-        const sizeText = numberStartIndex >= 0 ? candidateText.slice(numberStartIndex).trim() : "";
-        return sizeText ? parseSizeString(sizeText) : 0;
-      },
-    });
+    flushUserInfo.seedingSize =
+      this.getFieldData(userSeedingDocument, {
+        selector: "b:eq(0)",
+        elementProcess: (el: Element) => {
+          const summaryText = el.closest("div")?.textContent ?? "";
+          const candidateText = (summaryText.split("|")[1] ?? summaryText).replace(/,/g, "");
+          const numberStartIndex = candidateText.search(/[\d.]/);
+          const sizeText = numberStartIndex >= 0 ? candidateText.slice(numberStartIndex).trim() : "";
+          return sizeText ? parseSizeString(sizeText) : 0;
+        },
+      }) ?? 0;
 
     return flushUserInfo;
   }
