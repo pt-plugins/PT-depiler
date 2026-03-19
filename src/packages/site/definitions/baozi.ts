@@ -1,5 +1,6 @@
 import type { ISiteMetadata, IUserInfo } from "../types";
 import NexusPHP, {
+  baseUserIdSelector,
   CategoryInclbookmarked,
   CategoryIncldead,
   CategorySpstate,
@@ -106,8 +107,16 @@ export const siteMetadata: ISiteMetadata = {
 
   userInfo: {
     ...SchemaMetadata.userInfo!,
+    pickLast: [], // clear id cache
     selectors: {
       ...SchemaMetadata.userInfo!.selectors!,
+      // "page": "/index.php",
+      id: {
+        selector: "#welcome_text > span.nowrap > a[href*='userdetails.php']",
+        attr: "href",
+        filters: [{ name: "querystring", args: ["id"] }],
+      },
+      // "page": "/userdetails.php?id=$user.id$",
       bonus: {
         selector: ["td.rowhead:contains('魔力值') + td", "td.rowhead:contains('Karma'):contains('Points') + td"],
         filters: [{ name: "parseNumber" }],
