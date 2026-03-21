@@ -76,6 +76,7 @@ export const siteMetadata: ISiteMetadata = {
         title: { selector: "a.mat-caption", attr: "title" },
         url: { selector: "a.mat-caption", attr: "href" },
         link: { selector: "a.mat-icon-button", attr: "href" },
+        time: { selector: "span.date", attr: "title", filters: [{ name: "parseTime" }] },
         size: { selector: "div.size > span" },
         completed: { selector: "div.nos > span:nth-child(1)" },
         seeders: { selector: "div.nos > span:nth-child(2)" },
@@ -137,8 +138,8 @@ export default class Milkie extends PrivateSite {
     return super.request<T>(axiosConfig, checkLogin);
   }
 
-  protected parseTorrentRowForLink(torrent: Partial<ITorrent>, row: { id: number }): Partial<ITorrent> {
-    torrent.link = `/api/v1/torrents/${row.id}/torrent?key=${encodeURIComponent(this.userConfig.inputSetting!.token)}`;
+  protected parseTorrentRowForLink(torrent: Partial<ITorrent>): Partial<ITorrent> {
+    torrent.link = `/api/v1/torrents/${torrent.id}/torrent?key=${encodeURIComponent(this.userConfig.inputSetting!.token)}`;
     return torrent;
   }
 }
