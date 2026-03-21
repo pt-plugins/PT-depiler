@@ -199,6 +199,7 @@ export const siteMetadata: ISiteMetadata = {
       uploaded: "3000GB",
       uploads: 500,
       posts: 25,
+      isKept: true,
       privilege:
         "Engineer Restricted forum; FREE Invites (Send a staff PM for us to credit your account); Immune from inactivity disablement",
     },
