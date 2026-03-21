@@ -169,17 +169,3 @@ export default class PrivateHD extends AvistazNetwork {
     return extendTorrent;
   }
 }
-import { type ISiteMetadata } from "../types";
-import Avistaz, { siteMetadata as avistazMetadata } from "./avistaz";
-
-export const siteMetadata: ISiteMetadata = {
-  ...avistazMetadata,
-  id: "privatehd",
-  name: "PrivateHD",
-  aka: ["PHD"],
-  description: "PrivateHD is a Private Torrent Tracker of AvistaZ Network",
-  tags: ["电影", "高清"],
-  urls: ["uggcf://cevingruq.gb/"],
-};
-
-export default Avistaz;
