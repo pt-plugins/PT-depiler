@@ -221,6 +221,78 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
+
+  levelRequirements: [
+    {
+      id: 1,
+      name: "User",
+      privilege: "Upload torrents. Download torrents",
+    },
+    {
+      id: 2,
+      name: "Member",
+      interval: "P1W",
+      uploaded: "40GB",
+      ratio: 1.05,
+      privilege: "Create requests. Hide username from peerlists. Download a .zip file of snatches on their profile",
+    },
+    {
+      id: 3,
+      name: "Power User",
+      nameAka: ["PU"],
+      interval: "P4W",
+      uploaded: "80GB",
+      ratio: 1.05,
+      uploads: 1,
+      isKept: true,
+      privilege:
+        "Immunity to inactivity pruning. Access to PU forums. Access to invite forums. Freeleech access in advanced search. Can send bonus points to other users. Can edit movie group information. Access to on-site notifications. Access to the IRC announce channels. Create collections and edit existing ones",
+    },
+    {
+      id: 4,
+      name: "Elite",
+      interval: "P10W",
+      uploaded: "500GB",
+      ratio: 1.05,
+      uploads: 50,
+      isKept: true,
+      privilege: "Access to Elite forums. Can purchase invites from the bonus point store",
+    },
+    {
+      id: 5,
+      name: "Torrent Master",
+      nameAka: ["TM"],
+      interval: "P16W",
+      uploaded: "1TB",
+      ratio: 1.05,
+      uploads: 200,
+      isKept: true,
+      privilege: "Access to TM forums. Receive 2 invites per month",
+    },
+    {
+      id: 6,
+      name: "Torrent King",
+      nameAka: ["TK"],
+      interval: "P24W",
+      uploaded: "5TB",
+      ratio: 1.05,
+      uploads: 500,
+      isKept: true,
+      privilege:
+        "Can create personal collections to feature on their profile. Granted ability to double post in forums. Unlimited search and log results. Immunity from ratio-based demotion",
+    },
+    {
+      id: 7,
+      name: "Custom Class",
+      nameAka: ["CC"],
+      interval: "P36W",
+      uploaded: "10TB",
+      ratio: 1.05,
+      uploads: 1000,
+      isKept: true,
+      privilege: "Can chose their own class title. Immunity from ratio-based demotion",
+    },
+  ],
 };
 
 export default class PassThePopcorn extends Gazelle {
