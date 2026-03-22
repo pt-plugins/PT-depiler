@@ -148,20 +148,18 @@ export default class PrivateHD extends AvistazNetwork {
     row: IPrivateHDRawTorrent,
     searchConfig: ISearchInput,
   ): Partial<ITorrent> {
-    const tags: ITorrentTag[] = [];
     const extendTorrent = super.parseTorrentRowForTags(torrent, row, searchConfig);
+    const tags: ITorrentTag[] = extendTorrent.tags || [];
 
     if (row.movie_tv?.tv_complete) {
       tags.push({ name: "完结" });
     }
 
-    const audioArray = row.audio?.map((a: any) => a.language).filter((x: string) => x.trim() !== "") || [];
-    if (audioArray.some((audio) => /Chinese|Cantonese/i.test(audio))) {
+    if (row.audio?.some((a: any) => /Chinese|Cantonese/i.test(a.language))) {
       tags.push({ name: "中配" });
     }
 
-    const subtitleArray = row.subtitle?.map((s: any) => s.language).filter((x: string) => x.trim() !== "") || [];
-    if (subtitleArray.some((subtitle) => /Chinese/i.test(subtitle))) {
+    if (row.subtitle?.some((s: any) => /Chinese/i.test(s.language))) {
       tags.push({ name: "中字" });
     }
     extendTorrent.tags = tags;
