@@ -641,7 +641,7 @@
       "autoLoadInitialMediaWall": "自动加载首屏媒体墙",
       "autoLoadMoreMediaOnScroll": "当滚动到页面底部时，自动加载新的媒体墙",
       "allowSingleSiteSearch": "是否允许单一站点搜索",
-      "treatTTQueryAsImdbSearch": "是否将 tt\\d{7,8} 的搜索词直接视为 IMDb 搜索",
+      "treatTTQueryAsImdbSearch": "是否将 tt\\d\\{7,8\\} 的搜索词直接视为 IMDb 搜索",
       "imdbTip": "关闭后，你需要使用 `imdb|tt12345678` 的格式来进行 IMDb 搜索。",
       "filterLabel": "结果筛选",
       "searchPlanLabel": "搜索方案"

@@ -641,7 +641,7 @@
       "autoLoadInitialMediaWall": "Automatically load the initial media wall",
       "autoLoadMoreMediaOnScroll": "Automatically load more media when scrolling to the bottom of the page",
       "allowSingleSiteSearch": "Allow single-site search",
-      "treatTTQueryAsImdbSearch": "Treat tt\\d{7,8} search terms directly as IMDb search",
+      "treatTTQueryAsImdbSearch": "Treat tt\\d\\{7,8\\} search terms directly as IMDb search",
       "imdbTip": "When disabled, you need to use the `imdb|tt12345678` format for IMDb searches.",
       "filterLabel": "Result Filter",
       "searchPlanLabel": "Search Plan"
