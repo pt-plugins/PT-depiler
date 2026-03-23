@@ -414,10 +414,3 @@ chrome.tabs.onActivated.addListener((actionInfo: chrome.tabs.OnActivatedInfo) =>
     initContextMenus(tab).catch((err) => console.error("Failed to initialize context menus:", err));
   });
 });
-
-chrome.tabs.onUpdated.addListener((tabId: number, changeInfo: chrome.tabs.OnUpdatedInfo, tab: chrome.tabs.Tab) => {
-  // 只在URL变化或loading完成时重建菜单
-  if (changeInfo.url || changeInfo.status === "complete") {
-    initContextMenus(tab).catch((err) => console.error("Failed to initialize context menus on tabUpdated:", err));
-  }
-});
