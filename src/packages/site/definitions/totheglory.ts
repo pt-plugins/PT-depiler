@@ -199,7 +199,7 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       id: { selector: "a[tid]", attr: "tid" },
       title: { selector: "h1" },
-      link: { selector: 'img[alt="Bittorent"] + a[href^="/dl/"]', attr: "href" },
+      link: { selector: 'td > a[href*="/dl/"][onclick*="copyToClip"]', attr: "href" },
     },
   },
 
