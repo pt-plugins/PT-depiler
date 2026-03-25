@@ -3,7 +3,7 @@ import axios from "axios";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useLocalStorage } from "@vueuse/core";
-import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
+import type { DataTableHeader } from "vuetify";
 
 import { dependencies, devDependencies } from "~/../package.json";
 import { REPO_URL } from "~/helper.ts";

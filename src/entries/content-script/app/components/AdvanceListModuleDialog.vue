@@ -3,7 +3,7 @@ import { ref, computed, inject } from "vue";
 import { useI18n } from "vue-i18n";
 import { useWindowSize } from "@vueuse/core";
 import { ETorrentStatus, ITorrent } from "@ptd/site";
-import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
+import type { DataTableHeader } from "vuetify";
 
 import { formatDate, formatSize } from "@/options/utils.ts";
 import { sendMessage } from "@/messages.ts";
@@ -109,15 +109,27 @@ function enterDialog() {
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title>{{ t("contentScript.AdvanceListModuleDialog.title", [torrentItems.length]) }}</v-toolbar-title>
+          <v-toolbar-title>{{
+            t("contentScript.AdvanceListModuleDialog.title", [torrentItems.length])
+          }}</v-toolbar-title>
           <template #append>
             <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
           </template>
         </v-toolbar>
       </v-card-title>
       <v-card-text class="overflow-y-hidden">
-        <NavButton icon="mdi-inbox-arrow-up" :text="t('contentScript.AdvanceListModuleDialog.selectSeeders')" color="light-blue" @click="handleSelectSeeders" />
-        <NavButton icon="mdi-download-off" :text="t('contentScript.AdvanceListModuleDialog.selectNotSeeding')" color="light-blue" @click="handleSelectNotSeeding" />
+        <NavButton
+          icon="mdi-inbox-arrow-up"
+          :text="t('contentScript.AdvanceListModuleDialog.selectSeeders')"
+          color="light-blue"
+          @click="handleSelectSeeders"
+        />
+        <NavButton
+          icon="mdi-download-off"
+          :text="t('contentScript.AdvanceListModuleDialog.selectNotSeeding')"
+          color="light-blue"
+          @click="handleSelectNotSeeding"
+        />
         <v-data-table-virtual
           v-model="selectedTorrentIds"
           :headers="tableHeaders"
@@ -148,7 +160,12 @@ function enterDialog() {
       <v-divider />
       <v-card-actions>
         <v-spacer />
-        <span v-show="hasSelectedTorrent">{{ t("contentScript.AdvanceListModuleDialog.selectedInfo", [selectedTorrentsCount, formatSize(selectedTorrentsSize)]) }}</span>
+        <span v-show="hasSelectedTorrent">{{
+          t("contentScript.AdvanceListModuleDialog.selectedInfo", [
+            selectedTorrentsCount,
+            formatSize(selectedTorrentsSize),
+          ])
+        }}</span>
 
         <NavButton
           :disabled="!hasSelectedTorrent"

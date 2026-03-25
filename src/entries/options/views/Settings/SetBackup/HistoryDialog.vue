@@ -2,7 +2,7 @@
 import { useI18n } from "vue-i18n";
 import { ref, shallowRef } from "vue";
 import { IBackupFileInfo } from "@ptd/backupServer";
-import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
+import type { DataTableHeader } from "vuetify";
 
 import { sendMessage } from "@/messages.ts";
 import { formatDate, formatSize } from "@/options/utils.ts";
@@ -86,7 +86,11 @@ async function dialogLeave() {
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title>
-            {{ t("SetBackup.HistoryDialog.title", { name: metadataStore.backupServers[backupServerId].name ?? backupServerId }) }}
+            {{
+              t("SetBackup.HistoryDialog.title", {
+                name: metadataStore.backupServers[backupServerId].name ?? backupServerId,
+              })
+            }}
           </v-toolbar-title>
           <template #append>
             <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />
@@ -126,7 +130,7 @@ async function dialogLeave() {
           <template #item.action="{ item }">
             <v-btn-group class="table-action" density="compact" variant="plain">
               <v-btn
-              :title="t('SetBackup.HistoryDialog.restore')"
+                :title="t('SetBackup.HistoryDialog.restore')"
                 color="blue"
                 icon="mdi-cloud-download"
                 size="small"

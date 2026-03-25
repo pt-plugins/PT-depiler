@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onMounted, shallowRef, ref } from "vue";
 import { useI18n } from "vue-i18n";
-import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
+import type { DataTableHeader } from "vuetify";
 
 import { sendMessage } from "@/messages.ts";
 import { ILoggerItem } from "@/shared/types.ts";

@@ -3,7 +3,7 @@ import { computed, ref } from "vue";
 import { computedAsync } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import { countBy } from "es-toolkit";
-import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
+import type { DataTableHeader } from "vuetify";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
@@ -161,7 +161,9 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
 
                 <v-divider />
 
-                <v-list-item-subtitle class="ma-2">{{ t("SetDownloader.index.table.downloaderCategory") }}</v-list-item-subtitle>
+                <v-list-item-subtitle class="ma-2">{{
+                  t("SetDownloader.index.table.downloaderCategory")
+                }}</v-list-item-subtitle>
                 <v-list-item v-for="(count, type) in downloaderTypeCount" :key="type" :value="type">
                   <v-checkbox
                     v-model="advanceFilterDictRef.type.required"
