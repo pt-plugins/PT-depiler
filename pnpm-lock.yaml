@@ -113,6 +113,9 @@ importers:
       '@intlify/unplugin-vue-i18n':
         specifier: ^11.0.7
         version: 11.0.7(@vue/compiler-dom@3.5.30)(eslint@9.21.0(jiti@2.5.1))(rollup@4.52.5)(typescript@5.9.3)(vue-i18n@11.2.8(vue@3.5.30(typescript@5.9.3)))(vue@3.5.30(typescript@5.9.3))
+      '@rolldown/plugin-node-polyfills':
+        specifier: ^1.0.3
+        version: 1.0.3
       '@types/chrome':
         specifier: ^0.1.37
         version: 0.1.37
@@ -1172,6 +1175,9 @@ packages:
     engines: {node: ^20.19.0 || >=22.12.0}
     cpu: [x64]
     os: [win32]
+
+  '@rolldown/plugin-node-polyfills@1.0.3':
+    resolution: {integrity: sha512-V7iWE6UI+InppK51NfuHlaCpep7Rzv4w92pZif6BtRP3ULDHfQjU6HNyIS41Plrx1tqzcANcAsnjDS6ye+1kFQ==}
 
   '@rolldown/pluginutils@1.0.0-rc.2':
     resolution: {integrity: sha512-izyXV/v+cHiRfozX62W9htOAvwMo4/bXKDrQ+vom1L1qRuexPock/7VZDAhnpHCLNejd3NJ6hiab+tO0D44Rgw==}
@@ -4709,6 +4715,8 @@ snapshots:
 
   '@rolldown/binding-win32-x64-msvc@1.0.0-rc.9':
     optional: true
+
+  '@rolldown/plugin-node-polyfills@1.0.3': {}
 
   '@rolldown/pluginutils@1.0.0-rc.2': {}
 
