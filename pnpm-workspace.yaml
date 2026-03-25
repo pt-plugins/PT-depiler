@@ -1,2 +1,5 @@
 patchedDependencies:
   git-rev-sync: patches/git-rev-sync.patch
+
+overrides:
+  "git-rev-sync>shelljs": "0.10.0"
