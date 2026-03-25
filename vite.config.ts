@@ -4,7 +4,7 @@ import path from "node:path";
 
 // Vite And it's plugins
 import { defineConfig } from "vite";
-import { nodePolyfills } from "vite-plugin-node-polyfills";
+import nodePolyfills from "@rolldown/plugin-node-polyfills";
 import vue from "@vitejs/plugin-vue";
 import vuetify from "vite-plugin-vuetify";
 import VueDevTools from "vite-plugin-vue-devtools";
@@ -48,12 +48,7 @@ export default defineConfig({
   },
   plugins: [
     vitePluginGenerateWebextLocales(),
-    nodePolyfills({
-      include: ["buffer", "path"],
-      globals: {
-        Buffer: true,
-      },
-    }),
+    { ...nodePolyfills(), enforce: "pre" as const },
     VueDevTools({
       launchEditor: fs.existsSync(base_path("./.idea")) ? "webstorm" : "vscode",
     }),
@@ -150,8 +145,14 @@ export default defineConfig({
       },
       additionalInputs: target == "chrome" ? ["src/entries/offscreen/offscreen.html"] : undefined,
       watchFilePaths: ["package.json"],
+      scriptViteConfig: {
+        // @ts-ignore: @rolldown/plugin-node-polyfills is rolldown-typed but compatible with Vite 6 sub-builds
+        plugins: [{ ...nodePolyfills(), enforce: "pre" }],
+      },
       htmlViteConfig: {
         plugins: [
+          // @ts-ignore: @rolldown/plugin-node-polyfills is rolldown-typed but compatible with Vite 6 sub-builds
+          { ...nodePolyfills(), enforce: "pre" },
           {
             name: "sort-asserts",
             config(config) {
