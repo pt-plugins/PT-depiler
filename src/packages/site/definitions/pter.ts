@@ -13,7 +13,7 @@ import NexusPHP, {
   CategorySpstate,
   SchemaMetadata,
 } from "../schemas/NexusPHP.ts";
-import { parseSizeString } from "@ptd/site";
+import { parseSizeString } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
