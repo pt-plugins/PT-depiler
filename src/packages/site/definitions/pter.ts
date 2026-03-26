@@ -13,6 +13,7 @@ import NexusPHP, {
   CategorySpstate,
   SchemaMetadata,
 } from "../schemas/NexusPHP.ts";
+import { parseSizeString } from "@ptd/site";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -292,6 +293,28 @@ export const siteMetadata: ISiteMetadata = {
           "td.rowhead:contains('猫粮') + td, td.rowhead:contains('Karma Points') + td, td.rowhead:contains('貓糧') + td",
         ],
         filters: [{ name: "parseNumber" }],
+      },
+      trueUploaded: {
+        ...SchemaMetadata.userInfo!.selectors!.trueUploaded,
+        filters: [
+          (query: string) => {
+            const queryMatch = query
+              .replace(/,/g, "")
+              .match(/((?:实际|真实)上传|(?:實際|真實)上傳|(?:Real|Actual) Uploaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+            return queryMatch && queryMatch.length === 3 ? parseSizeString(queryMatch[2]) : 0;
+          },
+        ],
+      },
+      trueDownloaded: {
+        ...SchemaMetadata.userInfo!.selectors!.trueDownloaded,
+        filters: [
+          (query: string) => {
+            const queryMatch = query
+              .replace(/,/g, "")
+              .match(/((?:实际|真实)下载|(?:實際|真實)下載|(?:Real|Actual) Downloaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+            return queryMatch && queryMatch.length === 3 ? parseSizeString(queryMatch[2]) : 0;
+          },
+        ],
       },
       // 从顶端用户栏获取做种数，这样就可以避免对 /getusertorrentlist.php 页面的请求
       seeding: {
