@@ -332,6 +332,20 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["div[style*='background: red'] a[href*='messages.php']"],
       },
     },
+    process: [
+      ...SchemaMetadata.userInfo!.process!.map((item) => ({
+        ...item,
+        requestConfig: {
+          ...item.requestConfig,
+          headers: {
+            ...(item.requestConfig?.headers || {}),
+            "Cache-Control": "no-cache, no-store, must-revalidate",
+            Pragma: "no-cache",
+            Expires: "0",
+          },
+        },
+      })),
+    ],
     donorConfig: {
       ...SchemaMetadata.userInfo?.donorConfig,
       isAccountKept: true,
