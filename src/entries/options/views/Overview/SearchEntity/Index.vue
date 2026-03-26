@@ -2,9 +2,8 @@
 import { computed, ref, shallowRef, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { useDisplay } from "vuetify";
+import { useDisplay, type DataTableHeader } from "vuetify";
 import { EResultParseStatus, ETorrentStatus } from "@ptd/site";
-import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";

@@ -5,7 +5,7 @@
     "strict": true,
     "jsx": "preserve",
     "importHelpers": true,
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowJs": true,
     "skipLibCheck": true,
     "esModuleInterop": true,
@@ -24,11 +24,10 @@
     "resolveJsonModule": true,
     "types": ["node", "chrome"],
     "lib": ["ESNext", "DOM", "DOM.Iterable"],
-    "baseUrl": ".",
     "paths": {
-      "~/*": ["src/*"],
-      "@/*": ["src/entries/*"],
-      "@ptd/*": ["src/packages/*"]
+      "~/*": ["./src/*"],
+      "@/*": ["./src/entries/*"],
+      "@ptd/*": ["./src/packages/*"]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],

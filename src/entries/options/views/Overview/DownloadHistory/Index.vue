@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
 import { onMounted, ref, shallowRef, computed } from "vue";
-import { useDisplay } from "vuetify";
-import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
+import { useDisplay, type DataTableHeader } from "vuetify";
 
 import { sendMessage } from "@/messages.ts";
 import { formatDate } from "@/options/utils.ts";

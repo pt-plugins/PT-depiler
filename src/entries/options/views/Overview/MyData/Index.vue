@@ -4,8 +4,8 @@ import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { differenceInDays } from "date-fns";
 import { isUndefined } from "es-toolkit/compat";
-import type { DataTableHeader } from "vuetify/lib/components/VDataTable/types";
-import { EResultParseStatus, type ISiteUserConfig, IUserInfo, TSiteID } from "@ptd/site";
+import type { DataTableHeader } from "vuetify";
+import { EResultParseStatus, type ISiteUserConfig, type IUserInfo, type TSiteID } from "@ptd/site";
 
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -31,6 +31,8 @@ const metadataStore = useMetadataStore();
 
 const currentDate = new Date();
 
+type TExtendDataTableHeader = DataTableHeader & { props?: any };
+
 const fullTableHeader = reactive([
   {
     title: t("common.site"),
@@ -55,11 +57,12 @@ const fullTableHeader = reactive([
   { title: t("MyData.table.lastAccessAt"), key: "lastAccessAt", align: "center" }, // 默认不显示
   { title: t("MyData.table.updateAt"), key: "updateAt", align: "center" },
   { title: t("common.action"), key: "action", align: "center", sortable: false, props: { disabled: true } },
-] as (DataTableHeader & { props?: any })[]);
+] as TExtendDataTableHeader[]);
 
 const tableHeader = computed(() => {
   return fullTableHeader.filter(
-    (item) => item?.props?.disabled || configStore.tableBehavior.MyData.columns!.includes(item.key!),
+    (item: TExtendDataTableHeader) =>
+      item?.props?.disabled || configStore.tableBehavior.MyData.columns!.includes(item.key!),
   ) as DataTableHeader[];
 });
 
