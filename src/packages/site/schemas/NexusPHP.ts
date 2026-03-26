@@ -364,6 +364,7 @@ export const SchemaMetadata: Pick<
         ],
       },
       uploaded: {
+        text: 0,
         selector: [
           "td.rowhead:contains('传输') + td",
           "td.rowhead:contains('傳送') + td",
@@ -378,6 +379,7 @@ export const SchemaMetadata: Pick<
         ],
       },
       trueUploaded: {
+        text: 0,
         selector: [
           "td.rowhead:contains('传输') + td",
           "td.rowhead:contains('傳送') + td",
@@ -394,6 +396,7 @@ export const SchemaMetadata: Pick<
         ],
       },
       downloaded: {
+        text: 0,
         selector: [
           "td.rowhead:contains('传输') + td",
           "td.rowhead:contains('傳送') + td",
@@ -408,6 +411,7 @@ export const SchemaMetadata: Pick<
         ],
       },
       trueDownloaded: {
+        text: 0,
         selector: [
           "td.rowhead:contains('传输') + td",
           "td.rowhead:contains('傳送') + td",
