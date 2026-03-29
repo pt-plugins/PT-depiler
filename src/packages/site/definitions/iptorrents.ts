@@ -5,13 +5,7 @@ import {
   type TSelectSearchCategoryValue,
 } from "../types";
 import { parseTimeToLiveToDate } from "../utils";
-import { KB, MB, GB, TB } from "../utils/filesize";
 import { set } from "es-toolkit/compat";
-
-const SIZE_REGEX = /([\d.]+)\s*(GB|MB|TB|KB|B)/i;
-const AVAILABLE_REGEX = /Available:\s*(\d+)/i;
-
-const SIZE_MULTIPLIERS = { TB: TB, GB: GB, MB: MB, KB: KB, B: 1 } as const;
 
 const IPT_SELECTORS = {
   ROWS: ["table#torrents > tbody > tr:has(td.al)"],
@@ -20,41 +14,6 @@ const IPT_SELECTORS = {
   LEECHERS: ["td:nth-last-child(1)", "td:contains('leechers')", "td.leechers"],
   COMPLETED: ["td:nth-last-child(3)", "td:contains('snatched')", "td.completed"],
   CATEGORY: ["td:eq(0) img", "td:first-child img"],
-};
-
-const createTableFieldSelector = (fieldName: string): string[] => [
-  `th:contains('${fieldName}') + td`,
-  `td:contains('${fieldName}')`,
-  `tr:contains('${fieldName}') td:last-child`,
-  `table tr:has(th:contains('${fieldName}')) td:last-child`,
-];
-
-const parseIPTorrentsStats = (query: string): number => {
-  if (!query?.trim()) return 0;
-  try {
-    const sizeMatch = query.match(SIZE_REGEX);
-    if (sizeMatch) {
-      const value = parseFloat(sizeMatch[1]);
-      const unit = sizeMatch[2].toUpperCase() as keyof typeof SIZE_MULTIPLIERS;
-      return isNaN(value) ? 0 : value * (SIZE_MULTIPLIERS[unit] || 1);
-    }
-    const num = parseFloat(query.match(/[\d.]+/)?.[0] || "0");
-    return isNaN(num) ? 0 : num;
-  } catch {
-    return 0;
-  }
-};
-
-const parseIPTorrentsInvites = (query: string): number => {
-  if (!query?.trim()) return 0;
-  try {
-    const availableMatch = query.match(AVAILABLE_REGEX);
-    if (availableMatch) return parseInt(availableMatch[1], 10) || 0;
-    const num = parseInt(query.match(/\d+/)?.[0] || "0", 10);
-    return isNaN(num) ? 0 : num;
-  } catch {
-    return 0;
-  }
 };
 
 const categoryPart: Pick<ISearchCategories, "cross" | "generateRequestConfig"> = {
@@ -361,69 +320,53 @@ export const siteMetadata: ISiteMetadata = {
         assertion: { id: "params.u" },
         selectors: {
           messageCount: {
+            text: 0,
             selector: ["td[style*='background: red'] a[href*='messages.php']"],
             filters: [{ name: "parseNumber" }],
           },
-          name: {
-            selector: "h1.c0",
-          },
+          name: { selector: "h1.up-username" },
           uploaded: {
-            selector: createTableFieldSelector("Uploaded"),
-            filters: [parseIPTorrentsStats],
+            selector: "div[style*='up-stat-up'] ~ div.up-stat-sub",
+            filters: [{ name: "parseNumber" }], // 1234567890 B
           },
           downloaded: {
-            selector: createTableFieldSelector("Downloaded"),
-            filters: [parseIPTorrentsStats],
-          },
-          ratio: {
-            selector: createTableFieldSelector("Share ratio"),
+            selector: "div[style*='up-stat-down'] ~ div.up-stat-sub",
             filters: [{ name: "parseNumber" }],
           },
-          levelName: {
-            selector: "th:contains('Class') + td",
+          ratio: {
+            selector: "div.up-stat-value:has(svg.up-ratio-icon) > span",
+            filters: [{ name: "parseNumber" }],
           },
+          levelName: { selector: "span.up-class-badge" },
           bonus: {
             selector: "a[href='/mybonus.php']",
             filters: [{ name: "parseNumber" }],
           },
           joinTime: {
-            selector: "th:contains('Join date') + td",
-            filters: [(query: string) => query.split(" (")[0], { name: "parseTime" }],
+            selector: "span.up-field-label:contains('Join Date') + span span.elapsedDate",
+            attr: "title",
+            filters: [{ name: "parseTime", args: ["EEEE, MMMM d, yyyy 'at' h:mmaa"] }],
           },
           lastAccessAt: {
-            selector: "th:contains('Last seen') + td",
-            filters: [(query: string) => query.split(" (")[0], { name: "parseTime" }],
+            selector: "span.up-field-label:contains('Last Seen') + span span.elapsedDate",
+            attr: "title",
+            filters: [{ name: "parseTime", args: ["EEEE, MMMM d, yyyy 'at' h:mmaa"] }],
           },
           seeding: {
-            selector: "th:contains('Seeding') + td",
+            selector: "span.up-field-label:contains('Seeding') + span a[href^='/peers']",
             filters: [{ name: "parseNumber" }],
           },
-          seedingSize: {
-            selector: "body",
-            filters: [() => "N/A"],
-          },
+          uploads: { selector: "span a[href^='/t?u=']" },
+          seedingSize: { text: "N/A" },
           invites: {
-            selector: [
-              "th:contains('Invites') + td",
-              "tr:has(th:contains('Invites')) td",
-              "td:contains('Available:')",
-              "th:contains('Available') + td",
-              "td:contains('Available')",
-              "tr:contains('Available') td:last-child",
-            ],
-            filters: [parseIPTorrentsInvites],
-          },
-          warned: {
-            selector: createTableFieldSelector("Warned"),
+            text: 0,
+            selector: ["a.tTipWrap[href='/invite.php'] > b"],
             filters: [{ name: "parseNumber" }],
           },
-          disabled: {
-            selector: createTableFieldSelector("Disabled"),
-            filters: [{ name: "parseNumber" }],
-          },
-          lastSeen: {
-            selector: createTableFieldSelector("Last seen"),
-            filters: [{ name: "parseTime" }],
+          isDonor: {
+            text: false,
+            selector: "h1.up-username > img[alt='Donor']",
+            elementProcess: () => true,
           },
         },
       },
