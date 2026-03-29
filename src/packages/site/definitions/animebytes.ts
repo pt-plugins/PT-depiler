@@ -5,6 +5,7 @@
 import type { ISearchInput, ISiteMetadata, ITorrent } from "../types";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
 import Gazelle, { GazelleUtils, SchemaMetadata, detailPageList } from "../schemas/Gazelle";
+import BittorrentSite from "../schemas/AbstractBittorrentSite";
 import { extractContent, parseValidTimeString } from "../utils";
 import { parse } from "@ptd/social/entity/anidb";
 
@@ -589,6 +590,11 @@ export default class AnimeBytes extends Gazelle {
       }
     }
     return torrents;
+  }
+
+  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    // 下载种子必须提供 passkey, 导致并不能很好的支持详情页链接拖拽，故直接使用默认方法
+    return BittorrentSite.prototype.getTorrentDownloadLink.call(this, torrent);
   }
 
   protected override getTorrentGroupInfo(group: HTMLElement, searchConfig: ISearchInput): Partial<ITorrent> {
