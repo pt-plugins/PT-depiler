@@ -124,8 +124,8 @@ export const siteMetadata: ISiteMetadata = {
   id: "animebytes",
   name: "AnimeBytes",
   aka: ["AB"],
-  description: "动漫",
-  tags: ["动漫"],
+  description: "AnimeBytes is a Private site. Powered by Tentacles",
+  tags: ["动漫", "音乐", "游戏"],
   timezoneOffset: "+0000",
   collaborator: ["MewX", "sabersalv"],
 
