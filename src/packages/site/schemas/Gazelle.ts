@@ -27,7 +27,7 @@ export const GazelleUtils = {
     const tagParts = tags.split(delimiter);
     if (tagParts.length < 1) return "";
 
-    return this.filterTags(tagParts, tagKeywords).join(delimiter);
+    return GazelleUtils.filterTags(tagParts, tagKeywords).join(delimiter);
   },
 
   /**
@@ -60,7 +60,7 @@ export const GazelleUtils = {
     tdSelector?: string;
     extractTagsFunc?: (tags: string) => string;
   } = {}) {
-    const extractTags = extractTagsFunc ?? this.extractTags;
+    const extractTags = extractTagsFunc ?? GazelleUtils.extractTags;
     return (row: HTMLElement): string => {
       // 匹配信息格
       const cell = row.querySelector(tdSelector);
