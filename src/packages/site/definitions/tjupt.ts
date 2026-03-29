@@ -127,6 +127,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     selectors: {
       ...SchemaMetadata.search!.selectors,
+      rows: { selector: "table.torrents:last > tbody > tr:gt(0):not(:last)" },
       progress: selectorSearchProgress,
       status: selectorSearchStatus,
       tags: [
