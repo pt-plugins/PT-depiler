@@ -20,20 +20,31 @@ export const GazelleUtils = {
    * 提取种子属性并过滤
    * @param tags
    * @param tagKeywords
+   * @param delimiter
    * @returns filtered tags
    */
   extractTags(tags: string, tagKeywords: string[] = [], delimiter: string = " / "): string {
-    const commonTagKeywords = ["Freeleech", "Neutral", "Seeding", "Snatched", "Reported", "Trumpable"];
     const tagParts = tags.split(delimiter);
     if (tagParts.length < 1) return "";
 
+    return this.filterTags(tagParts, tagKeywords).join(delimiter);
+  },
+
+  /**
+   * 过滤种子属性
+   * @param tagParts
+   * @param tagKeywords
+   * @returns filtered tags
+   */
+  filterTags(tagParts: string[], tagKeywords: string[] = []): string[] {
+    const commonTagKeywords = ["Freeleech", "Neutral", "Seeding", "Snatched", "Reported", "Trumpable"];
     const filteredParts: string[] = [];
     // 只保留种子自身属性
     tagParts.forEach((tag) => {
       if (![...tagKeywords, ...commonTagKeywords].some((keyword) => tag.toLowerCase().includes(keyword.toLowerCase())))
         filteredParts.push(tag.trim());
     });
-    return filteredParts.join(delimiter);
+    return filteredParts;
   },
 
   /**
@@ -542,12 +553,12 @@ export default class Gazelle extends GazelleBase {
       ) {
         // 取出此组内的所有种子
         const groupTorrentEls = getElUntilClass(trs, i, groupClasses);
+        i += groupTorrentEls.length - 1;
         const groupTorrents = await this.transformGroupTorrents(tr, groupTorrentEls, {
           keywords,
           searchEntry,
           requestConfig,
         });
-        i += groupTorrents.length - 1;
         torrents.push(...groupTorrents);
         continue;
       }

@@ -4,17 +4,78 @@
  */
 import type { ISearchInput, ISiteMetadata, ITorrent } from "../types";
 import { AxiosRequestConfig, AxiosResponse } from "axios";
-import Gazelle, {
-  GazelleUtils,
-  SchemaMetadata,
-  commonPagesList,
-  detailPageList,
-  top10PageList,
-} from "../schemas/Gazelle";
+import Gazelle, { GazelleUtils, SchemaMetadata, detailPageList } from "../schemas/Gazelle";
 import { extractContent, parseValidTimeString } from "../utils";
 import { parse } from "@ptd/social/entity/anidb";
 
 const tagKeywords = ["Episode", "Season"];
+
+const commonListSelectors = {
+  link: { selector: "a[href^='/torrent/'][title='Download torrent']", attr: "href" },
+  url: { selector: "a[href^='torrents'][class]", attr: "href" },
+  tags: [
+    {
+      name: "Free",
+      selector: "img[alt='Freeleech!']",
+      color: "blue",
+    },
+  ],
+};
+
+const commonSubTitleSelector = genSubTitleSelector("a[href*='torrents'][class]", (part: string) =>
+  part.replaceAll("»", "").trim(),
+);
+
+const withEpisodeFilter = (rows: HTMLElement[] | null): HTMLElement[] | null => {
+  if (Array.isArray(rows) && rows.length > 0) {
+    return processEditionEpisodes(rows);
+  }
+  return rows;
+};
+
+function genSubTitleSelector(propsSel: string, tagFilter?: (part: string) => string) {
+  const delimiters = ["|", "/"];
+  return {
+    selector: ":self",
+    elementProcess: (el: HTMLElement) => {
+      const episode = el.dataset.episode;
+      const propsEl = el.querySelector<HTMLElement>(propsSel);
+      if (!propsEl) return "";
+
+      const rawText = propsEl.innerText || propsEl.textContent || "";
+
+      const activeDelimiter = delimiters.find((d) => rawText.includes(d)) || "|";
+
+      const parts = rawText
+        .split(activeDelimiter)
+        .map(tagFilter || ((t) => t.trim()))
+        .filter(Boolean);
+
+      const props = GazelleUtils.filterTags(parts, tagKeywords).join(` ${activeDelimiter} `);
+
+      const episodePrefix = episode ? `Episode ${episode} ${activeDelimiter} ` : "";
+      return `${episodePrefix}${props}`;
+    },
+  };
+}
+
+function processEditionEpisodes(rows: HTMLElement[]): HTMLElement[] {
+  let currentEpisode = "";
+
+  for (const row of rows) {
+    if (row.classList.contains("edition_info")) {
+      const rawText = row.querySelector("td > strong")?.textContent || "";
+      const match = rawText.match(/Episode\s*(\d+)/i);
+      currentEpisode = match ? match[1].trim() : "";
+      continue;
+    }
+
+    if (currentEpisode) {
+      row.dataset.episode = currentEpisode;
+    }
+  }
+  return rows;
+}
 
 interface IAnimeBytesJSONResponse {
   Results: number;
@@ -69,9 +130,62 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: ["MewX", "sabersalv"],
 
   type: "private",
-  schema: "Gazelle",
+  schema: "Gazelle", // Tentacles
 
   urls: ["uggcf://navzrolgrf.gi/"],
+
+  category: [
+    {
+      name: "搜索入口",
+      key: "search_type",
+      options: [
+        { name: "动漫", value: "anime" },
+        { name: "音乐", value: "music" },
+      ],
+      generateRequestConfig: (selectedOptions) => {
+        return { requestConfig: { params: { type: selectedOptions.toString() } } };
+      },
+    },
+    {
+      name: "Categories (Anime)",
+      key: "categories_anime",
+      notes: "请先设置分类入口为“动漫”！",
+      options: [
+        { name: "TV Series", value: "tv_series" },
+        { name: "TV Special", value: "tv_special" },
+        { name: "OVA", value: "ova" },
+        { name: "ONA", value: "ona" },
+        { name: "DVD Special", value: "dvd_special" },
+        { name: "BD Special", value: "bd_special" },
+        { name: "Movie", value: "movie" },
+      ],
+      cross: { key: "anime", mode: "appendQuote" },
+    },
+    {
+      name: "Categories (Game)",
+      key: "categories_game",
+      notes: "请先设置分类入口为“动漫”！",
+      options: [
+        { name: "Game", value: "game" },
+        { name: "Game Visual Novel", value: "visual_novel" },
+      ],
+      cross: { key: "gamec", mode: "appendQuote" },
+    },
+    {
+      name: "Categories (Printed Media)",
+      key: "categories_printed",
+      notes: "请先设置分类入口为“动漫”！",
+      options: [
+        { name: "Manga", value: "manga" },
+        { name: "Oneshot", value: "oneshot" },
+        { name: "Anthology", value: "anthology" },
+        { name: "Manhwa", value: "manhwa" },
+        { name: "Light Novel", value: "light_novel" },
+        { name: "Artbook", value: "artbook" },
+      ],
+      cross: { key: "printedtype", mode: "appendQuote" },
+    },
+  ],
 
   search: {
     ...SchemaMetadata.search!,
@@ -100,7 +214,7 @@ export const siteMetadata: ISiteMetadata = {
 
   list: [
     {
-      urlPattern: [/\/torrents\.php(?!.*(?:\bid=|torrentid=))/],
+      urlPattern: [/\/torrents2?\.php(?!.*(?:\bid=|torrentid=))/],
       mergeSearchSelectors: false,
       selectors: {
         ...SchemaMetadata.search!.selectors!,
@@ -109,6 +223,7 @@ export const siteMetadata: ISiteMetadata = {
           filter: (boxes: HTMLElement[] | null): HTMLElement[] | null => {
             if (Array.isArray(boxes) && boxes.length > 0) {
               const rows: HTMLElement[] = [];
+              // 使用信息卡片作为信息行
               for (const box of boxes) {
                 const groupCard = box.querySelector<HTMLElement>("div.group_main");
                 if (!groupCard) continue;
@@ -124,22 +239,11 @@ export const siteMetadata: ISiteMetadata = {
                 }
 
                 const torrentRows = Array.from(box.querySelectorAll<HTMLElement>("table.torrent_group > tbody > tr"));
-                let currentEpisode = "";
-                for (const torrent of torrentRows) {
-                  if (torrent.classList.contains("edition_info")) {
-                    const rawText = torrent.querySelector("td > strong")?.textContent || "";
-                    const match = rawText.match(/Episode\s*(\d+)/i);
-                    currentEpisode = match ? match[1] : "";
-                    continue;
-                  }
-
-                  if (currentEpisode) {
-                    torrent.dataset.episode = currentEpisode;
-                  }
-
+                const torrentWithEpisode = processEditionEpisodes(torrentRows).map((torrent) => {
                   torrent.className = "group_torrent";
-                }
-                rows.push(groupCard, ...torrentRows);
+                  return torrent;
+                });
+                rows.push(groupCard, ...torrentWithEpisode);
               }
               return rows;
             }
@@ -150,18 +254,9 @@ export const siteMetadata: ISiteMetadata = {
         category: { selector: ":self", data: "cat" },
         ext_anidb: { selector: ":self", data: "anidb" },
         id: { selector: ":self", attr: "id", filters: [{ name: "parseNumber" }] },
-        url: { selector: "td.torrent_properties > a[href^='torrents.php']", attr: "href" },
+        url: { selector: "td.torrent_properties > a[href^='torrents']", attr: "href" },
         link: { selector: "span.download_link > a[href^='/torrent/']", attr: "href" },
-        subTitle: {
-          selector: ":self",
-          elementProcess: (el: HTMLElement) => {
-            const episode = el.dataset.episode;
-            const propsEl = el.querySelector<HTMLElement>("a[href^='torrents.php?id']");
-            if (!propsEl) return "";
-            const props = GazelleUtils.extractTags(propsEl.innerText || propsEl.textContent, tagKeywords, " | ");
-            return `${episode ? `Episode ${episode} |` : ""} ${props}`;
-          },
-        },
+        subTitle: genSubTitleSelector("a[href^='torrents']"),
         time: { text: 0 }, // 没有时间信息
         size: { selector: "td.torrent_size > span", filters: [{ name: "parseSize" }] },
         completed: { selector: "td.torrent_snatched > span" },
@@ -176,13 +271,74 @@ export const siteMetadata: ISiteMetadata = {
         ],
       },
     },
+    {
+      ...detailPageList,
+      urlPattern: [/\/torrents2?\.php\?(?:.*&)?(\bid|torrentid)=\d+/],
+      mergeSearchSelectors: false,
+      selectors: {
+        ...SchemaMetadata.search!.selectors!,
+        ...commonListSelectors,
+        keywords: { selector: ["div.thin > h2 > a[href^='/series.php']", "div.thin > h2"] },
+        title: { selector: "div.thin > h2" },
+
+        rows: {
+          ...detailPageList.selectors!.rows!,
+          filter: (rows: HTMLElement[] | null): HTMLElement[] | null => {
+            const modfiedRows = detailPageList.selectors!.rows!.filter!(rows);
+            return withEpisodeFilter(modfiedRows);
+          },
+        },
+        subTitle: genSubTitleSelector("a[href^='/torrents']", (part: string) => part.replaceAll("»", "").trim()),
+        time: {
+          selector: "+tr span[style][class][title]:first",
+          filters: [{ name: "parseTime", args: ["MMM dd yyyy, HH:mm 'UTC'"] }],
+        },
+      },
+    },
+    {
+      urlPattern: ["/collage\\.php\\?id=\\d+"],
+      mergeSearchSelectors: false,
+      selectors: {
+        ...SchemaMetadata.search!.selectors!,
+        ...commonListSelectors,
+        title: { selector: "td > strong:has(a[title='View Torrent'])" },
+
+        rows: {
+          ...SchemaMetadata.search!.selectors!.rows!,
+          filter: withEpisodeFilter,
+        },
+        subTitle: commonSubTitleSelector,
+      },
+    },
+    {
+      urlPattern: ["/series\\.php\\?id=\\d+", "/artist\\.php\\?id=\\d+"],
+      selectors: {
+        ...SchemaMetadata.search!.selectors!,
+        ...commonListSelectors,
+        rows: {
+          ...SchemaMetadata.search!.selectors!.rows!,
+          filter: withEpisodeFilter,
+        },
+        title: { selector: "td > h3" },
+        subTitle: commonSubTitleSelector,
+      },
+    },
+    // Leaderboards (Top 10) 基本数据不全，不再实现
   ],
 
   userInfo: {
+    pickLast: ["id", "name", "joinTime"],
     process: [
       {
         requestConfig: { url: "/", responseType: "document" },
-        fields: ["id", "name"],
+        selectors: {
+          id: {
+            selector: "#stats_menu > a:first",
+            attr: "href",
+            filters: [{ name: "querystring", args: ["userid"] }],
+          },
+          name: { selector: "a.username:first" },
+        },
       },
       {
         requestConfig: {
@@ -190,102 +346,85 @@ export const siteMetadata: ISiteMetadata = {
           responseType: "document",
         },
         assertion: { id: "params.id" },
-        fields: [
-          "messageCount",
-          "uploads",
-          "uploaded",
-          "downloaded",
-          "ratio",
-          "seeding",
-          "seedingSize",
-          "levelName",
-          "bonus",
-          "bonusPerHour",
-          "joinTime",
-          "hnrUnsatisfied",
-          "hnrPreWarning",
-        ],
+        selectors: {
+          messageCount: {
+            selector: ".alertbar.notice span.new_count",
+            filters: [{ name: "parseNumber" }],
+          },
+          uploads: {
+            selector: "dt:contains('Torrents Uploaded:') + dd",
+            filters: [{ name: "parseNumber" }],
+          },
+          uploaded: {
+            selector: "dt:contains('Uploaded:') + dd > span",
+            attr: "title",
+            filters: [{ name: "parseNumber" }],
+          },
+          downloaded: {
+            selector: "dt:contains('Downloaded:') + dd > span",
+            attr: "title",
+            filters: [{ name: "parseNumber" }],
+          },
+          ratio: {
+            selector: "dt:contains('Ratio:') + dd > span",
+            filters: [{ name: "parseNumber" }],
+          },
+          seeding: {
+            selector: "dt:contains('Seeding:') + dd",
+            filters: [{ name: "parseNumber" }],
+          },
+          seedingSize: {
+            selector: "dt:contains('Total seed size:') + dd > span",
+            attr: "title",
+            filters: [{ name: "parseNumber" }],
+          },
+          levelName: {
+            selector: "dt:contains('Class:') + dd",
+          },
+          bonus: {
+            selector: "#yen_count > a",
+            filters: [{ name: "parseNumber" }],
+          },
+          bonusPerHour: {
+            selector: "dt:contains('Yen per day:') + dd",
+            filters: [
+              (query: string) => query.replace(/,/g, "").match(/[\d.]+/),
+              (query: string[]) => (query ? parseFloat(query[0]) / 24 : 0),
+            ],
+          },
+          joinTime: {
+            selector: "dt:contains('Joined:') + dd > span",
+            attr: "title",
+            filters: [{ name: "parseTime", args: ["MMM dd yyyy, HH:mm 'UTC'"] }],
+          },
+          lastAccessAt: {
+            selector: "dt:contains('Last Seen') + dd >span",
+            attr: "title",
+            filters: [{ name: "parseTime", args: ["MMM dd yyyy, HH:mm 'UTC'"] }],
+          },
+          hnrUnsatisfied: {
+            selector: "ul.stats li:contains('H&Rs:')",
+            attr: "title",
+            filters: [
+              (query: string) => {
+                const numbers = query.match(/\d+/g);
+                return numbers && numbers.length >= 1 ? parseInt(numbers[0]) : 0;
+              },
+            ],
+          },
+          hnrPreWarning: {
+            selector: "ul.stats li:contains('H&Rs:')",
+            attr: "title",
+            filters: [
+              (query: string) => {
+                const numbers = query.match(/\d+/g);
+                return numbers && numbers.length >= 2 ? parseInt(numbers[1]) : 0;
+              },
+            ],
+          },
+        },
       },
     ],
-    pickLast: ["id", "name", "joinTime"],
-    selectors: {
-      id: {
-        selector: "#stats_menu > a:first",
-        attr: "href",
-        filters: [{ name: "querystring", args: ["userid"] }],
-      },
-      name: { selector: "a.username:first" },
-
-      messageCount: {
-        selector: ".alertbar.notice span.new_count",
-        filters: [{ name: "parseNumber" }],
-      },
-      uploads: {
-        selector: "dt:contains('Torrents Uploaded:') + dd",
-        filters: [{ name: "parseNumber" }],
-      },
-      uploaded: {
-        selector: "dt:contains('Uploaded:') + dd > span",
-        attr: "title",
-        filters: [{ name: "parseNumber" }],
-      },
-      downloaded: {
-        selector: "dt:contains('Downloaded:') + dd > span",
-        attr: "title",
-        filters: [{ name: "parseNumber" }],
-      },
-      ratio: {
-        selector: "dt:contains('Ratio:') + dd > span",
-        filters: [{ name: "parseNumber" }],
-      },
-      seeding: {
-        selector: "dt:contains('Seeding:') + dd",
-        filters: [{ name: "parseNumber" }],
-      },
-      seedingSize: {
-        selector: "dt:contains('Total seed size:') + dd > span",
-        attr: "title",
-        filters: [{ name: "parseNumber" }],
-      },
-      levelName: {
-        selector: "dt:contains('Class:') + dd",
-      },
-      bonus: {
-        selector: "#yen_count > a",
-        filters: [{ name: "parseNumber" }],
-      },
-      bonusPerHour: {
-        selector: "dt:contains('Yen per day:') + dd",
-        filters: [
-          (query: string) => query.replace(/,/g, "").match(/[\d.]+/),
-          (query: string[]) => (query ? parseFloat(query[0]) / 24 : 0),
-        ],
-      },
-      joinTime: {
-        selector: "dt:contains('Joined:') + dd > span",
-        filters: [{ name: "parseFuzzyTime" }],
-      },
-      hnrUnsatisfied: {
-        selector: "ul.stats li:contains('H&Rs:')",
-        attr: "title",
-        filters: [
-          (query: string) => {
-            const numbers = query.match(/\d+/g);
-            return numbers && numbers.length >= 1 ? parseInt(numbers[0]) : 0;
-          },
-        ],
-      },
-      hnrPreWarning: {
-        selector: "ul.stats li:contains('H&Rs:')",
-        attr: "title",
-        filters: [
-          (query: string) => {
-            const numbers = query.match(/\d+/g);
-            return numbers && numbers.length >= 2 ? parseInt(numbers[1]) : 0;
-          },
-        ],
-      },
-    },
   },
 
   levelRequirements: [
@@ -431,7 +570,7 @@ export default class AnimeBytes extends Gazelle {
             site: this.metadata.id, // 补全种子的 site 属性
             id: torrent.ID,
             title,
-            subTitle: `${torrent.EditionData.EditionTitle ? `${torrent.EditionData.EditionTitle} ${delimiter.trim()}` : ""} ${GazelleUtils.extractTags(torrent.Property, tagKeywords, delimiter)}`,
+            subTitle: `${torrent.EditionData.EditionTitle ? `${extractContent(torrent.EditionData.EditionTitle).trim()} ${delimiter.trim()}` : ""} ${GazelleUtils.extractTags(torrent.Property, tagKeywords, delimiter)}`,
             url: `${this.url}${torrentPage}?id=${group.ID}&torrentid=${torrent.ID}`,
             link: torrent.Link,
             time: parseValidTimeString(torrent.UploadTime) as number,
