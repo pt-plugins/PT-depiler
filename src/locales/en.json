@@ -698,7 +698,8 @@
     "info": {
       "title": "About Native Bridge",
       "description": "The native bridge allows the PT-Depiler CLI tool to communicate with this extension. It requires the CLI tool to be installed separately on your computer.",
-      "cliRequired": "The external CLI tool must be installed for this feature to work. Native bridge is not available on mobile platforms.",
+      "cliRequired": "The external CLI tool must be installed for this feature to work. Native bridge is not available on mobile platforms. See {0} for installation instructions.",
+      "cliLink": "ptd-cli",
       "setupCommand": "Run the following command to register this extension with the CLI tool:",
       "setupHint": "After running the command, restart the browser or click Test Connection."
     }

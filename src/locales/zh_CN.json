@@ -698,7 +698,8 @@
     "info": {
       "title": "关于原生通信桥",
       "description": "原生通信桥允许 PT-Depiler CLI 工具与本扩展进行通信。需要在电脑上单独安装 CLI 工具。",
-      "cliRequired": "此功能需要安装外部 CLI 工具。移动平台上不可用。",
+      "cliRequired": "此功能需要安装外部 CLI 工具。移动平台上不可用。安装说明请参考 {0}。",
+      "cliLink": "ptd-cli",
       "setupCommand": "运行以下命令将此扩展注册到 CLI 工具：",
       "setupHint": "运行命令后，重启浏览器或点击测试连接。"
     }

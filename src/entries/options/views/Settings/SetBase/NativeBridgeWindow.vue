@@ -223,7 +223,11 @@ onMounted(() => {
       <v-alert type="info" variant="tonal">
         {{ t("SetNativeBridge.info.description") }}
         <br /><br />
-        <span class="font-weight-bold">{{ t("SetNativeBridge.info.cliRequired") }}</span>
+        <i18n-t keypath="SetNativeBridge.info.cliRequired" tag="span" class="font-weight-bold">
+          <a href="https://github.com/LeiShi1313/ptd-cli" target="_blank" rel="noopener">
+            {{ t("SetNativeBridge.info.cliLink") }}
+          </a>
+        </i18n-t>
       </v-alert>
     </v-col>
   </v-row>
