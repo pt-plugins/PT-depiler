@@ -587,7 +587,8 @@
       "download": "下载",
       "user-info": "用户信息",
       "backup": "备份恢复",
-      "social-information": "媒体评分"
+      "social-information": "媒体评分",
+      "native-bridge": "原生通信桥"
     },
     "ui": {
       "changeLanguage": "切换语言",
@@ -670,6 +671,34 @@
       "userDataRefresh": "用户数据刷新",
       "afterTime": "每日最早刷新时间",
       "userInfoDisplay": "用户信息展示"
+    }
+  },
+  "SetNativeBridge": {
+    "permission": {
+      "title": "权限",
+      "granted": "已授权",
+      "notGranted": "未授权",
+      "grant": "授予权限",
+      "revoke": "撤销权限",
+      "grantFailed": "权限请求被拒绝"
+    },
+    "bridge": {
+      "title": "通信桥控制",
+      "enabled": "启用原生通信桥",
+      "testConnection": "测试连接",
+      "status": {
+        "no-permission": "未授权",
+        "disabled": "已禁用",
+        "connecting": "连接中...",
+        "connected": "已连接",
+        "retrying": "重试中...",
+        "error": "错误"
+      }
+    },
+    "info": {
+      "title": "关于原生通信桥",
+      "description": "原生通信桥允许 PT-Depiler CLI 工具与本扩展进行通信。需要在电脑上单独安装 CLI 工具。",
+      "cliRequired": "此功能需要安装外部 CLI 工具。移动平台上不可用。"
     }
   },
   "SetDownloader": {

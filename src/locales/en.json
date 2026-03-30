@@ -587,7 +587,8 @@
       "download": "Download",
       "user-info": "UserInfo",
       "backup": "Backup & Restore",
-      "social-information": "Social Rating"
+      "social-information": "Social Rating",
+      "native-bridge": "Native Bridge"
     },
     "ui": {
       "changeLanguage": "Switch Language",
@@ -670,6 +671,34 @@
       "userDataRefresh": "User Data Refresh",
       "afterTime": "Earliest daily refresh time",
       "userInfoDisplay": "User Info Display"
+    }
+  },
+  "SetNativeBridge": {
+    "permission": {
+      "title": "Permission",
+      "granted": "Permission Granted",
+      "notGranted": "Permission Not Granted",
+      "grant": "Grant Permission",
+      "revoke": "Revoke Permission",
+      "grantFailed": "Permission request was denied"
+    },
+    "bridge": {
+      "title": "Bridge Control",
+      "enabled": "Enable Native Bridge",
+      "testConnection": "Test Connection",
+      "status": {
+        "no-permission": "No Permission",
+        "disabled": "Disabled",
+        "connecting": "Connecting...",
+        "connected": "Connected",
+        "retrying": "Retrying...",
+        "error": "Error"
+      }
+    },
+    "info": {
+      "title": "About Native Bridge",
+      "description": "The native bridge allows the PT-Depiler CLI tool to communicate with this extension. It requires the CLI tool to be installed separately on your computer.",
+      "cliRequired": "The external CLI tool must be installed for this feature to work. Native bridge is not available on mobile platforms."
     }
   },
   "SetDownloader": {
