@@ -30,8 +30,9 @@ const clientMeta = computedAsync<IBackupMetadata<any>>(
 const formValid = ref<boolean>(false);
 
 async function checkConnect() {
-  if (formValid.value && clientConfig.value) {
-    const client = await getBackupServer(clientConfig.value!);
+  const clientType = clientConfig.value?.type;
+  if (formValid.value && clientConfig.value && clientType) {
+    const client = await getBackupServer(clientConfig.value);
     return await client.ping();
   }
   return false;
