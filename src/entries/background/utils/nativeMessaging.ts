@@ -149,7 +149,9 @@ function connect() {
     return;
   }
 
-  // Send hello handshake
+  // Send hello handshake — mark connected after successful send.
+  // The native host does not send an ack, so a successful postMessage
+  // is our best signal. If the host is absent, onDisconnect fires.
   getOrCreateInstanceId().then((instanceId) => {
     if (!port) return;
     port.postMessage({
@@ -160,17 +162,13 @@ function connect() {
       version: __EXT_VERSION__,
       capabilities: ["bridge-v1"],
     });
+    state = "connected";
+    reconnectAttempt = 0;
   });
 
   port.onMessage.addListener(async (msg: any) => {
     if (msg?.type !== "request" || !msg.id || !msg.method) {
       return;
-    }
-
-    // Mark as connected on first valid message exchange
-    if (state === "connecting") {
-      state = "connected";
-      reconnectAttempt = 0;
     }
 
     const { id, method, params } = msg;
