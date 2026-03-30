@@ -337,26 +337,34 @@ export const useMetadataStore = defineStore("metadata", {
       await this.$save();
     },
 
-    async addSite(siteId: TSiteID, siteConfig: ISiteUserConfig) {
+    async addSite(siteId: TSiteID, siteConfig: ISiteUserConfig, options?: { reBuildMap?: boolean }) {
+      const { reBuildMap = true } = options ?? {};
+
       delete siteConfig.valid;
       this.sites[siteId] = siteConfig;
-      await this.buildSiteHostMap();
-      await this.buildSiteNameMap();
+
+      if (reBuildMap) {
+        await this.buildSiteMapCache(false);
+      }
+
       await this.$save();
     },
 
-    async removeSite(siteId: TSiteID) {
+    async removeSite(siteId: TSiteID, options?: { reBuildMap?: boolean }) {
+      const { reBuildMap = true } = options ?? {};
+
       delete this.sites[siteId];
-      await this.buildSiteHostMap();
-      await this.buildSiteNameMap();
+
+      if (reBuildMap) {
+        await this.buildSiteMapCache(false);
+      }
+
       await this.$save();
     },
 
     /**
      * 在添加、编辑站点时调用，重新生成 host 对站点的映射，
      * 便于 content-script 等其他地方通过 (await extStorage.getItem('metadata')).siteHostMap[host] 获取站点 ID
-     *
-     * Note: 对于在本commit之前就安装了插件的站点，需要重新编辑站点配置一次才能生成该映射
      */
     async buildSiteHostMap() {
       const siteHostMap: Record<TSiteHost, TSiteID> = {};
@@ -387,6 +395,15 @@ export const useMetadataStore = defineStore("metadata", {
         siteNameMap[siteId] = await this.getSiteName(siteId);
       }
       this.siteNameMap = siteNameMap;
+    },
+
+    async buildSiteMapCache(save: boolean = false) {
+      await this.buildSiteNameMap();
+      await this.buildSiteHostMap();
+
+      if (save) {
+        await this.$save();
+      }
     },
 
     async addSearchSolution(solution: ISearchSolutionMetadata) {

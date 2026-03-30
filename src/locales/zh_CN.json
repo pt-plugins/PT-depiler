@@ -846,7 +846,8 @@
         "flushFavicon": "刷新站点图标"
       },
       "settingNote": ["只有配置过的站点才会显示插件图标及相应的功能；", "已离线的站点不再参与搜索和信息获取；"],
-      "oneClickImport": "一键导入站点"
+      "oneClickImport": "一键导入站点",
+      "reBuildMap": "重建站点映射"
     },
     "oneClickImportDialog": {
       "title": "一键导入站点",
@@ -862,6 +863,12 @@
         "selected": "已选择"
       },
       "importComplete": "一键导入完成，成功添加 {count} 个站点"
+    },
+    "ReBuildMapDialog": {
+      "title": "重建站点映射关系缓存",
+      "rebuildSiteHostMap": "重建站点域名关系缓存",
+      "rebuildSiteNameMap": "重建站点名称关系缓存",
+      "doRebuildBtn": "重建"
     },
     "SiteCategoryPanel": {
       "siteDefault": "站点默认"

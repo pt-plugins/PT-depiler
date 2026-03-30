@@ -849,7 +849,8 @@
         "Only the configured site will display the plugin icon and the corresponding function;",
         "the offline site will no longer participate in the search and information acquisition;"
       ],
-      "oneClickImport": "One-Click Import Sites"
+      "oneClickImport": "One-Click Import Sites",
+      "reBuildMap": "Rebuild Site Cache"
     },
     "oneClickImportDialog": {
       "title": "One-Click Import Sites",
@@ -865,6 +866,12 @@
         "selected": "Selected"
       },
       "importComplete": "One-click import complete, successfully added {count} sites"
+    },
+    "ReBuildMapDialog": {
+      "title": "Rebuild Site Mapping Cache",
+      "rebuildSiteHostMap": "Rebuild site host mapping cache",
+      "rebuildSiteNameMap": "Rebuild site name mapping cache",
+      "doRebuildBtn": "Rebuild"
     },
     "SiteCategoryPanel": {
       "siteDefault": "Site Default"

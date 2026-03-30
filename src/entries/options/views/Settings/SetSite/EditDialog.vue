@@ -20,9 +20,8 @@ const isFormValid = ref<boolean>(false);
 const storedSiteUserConfig = ref<ISiteUserConfig & { valid?: boolean }>({ valid: false });
 provide("storedSiteUserConfig", storedSiteUserConfig);
 
-function patchSite() {
-  metadataStore.addSite(props.siteId, storedSiteUserConfig.value);
-  metadataStore.$save();
+async function patchSite() {
+  await metadataStore.addSite(props.siteId, storedSiteUserConfig.value);
   showDialog.value = false;
 }
 
