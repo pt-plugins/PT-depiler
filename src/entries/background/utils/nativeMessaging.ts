@@ -213,11 +213,6 @@ function connect() {
     lastError = errMsg || "Connection lost";
     scheduleReconnect();
   });
-
-  // Mark as connected after successful port creation (handshake is async)
-  // The state will be confirmed on first message exchange
-  state = "connected";
-  reconnectAttempt = 0;
 }
 
 async function init() {
