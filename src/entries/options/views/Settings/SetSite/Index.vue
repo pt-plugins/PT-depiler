@@ -18,7 +18,8 @@ import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";
 
-import { allAddedSiteInfo, type ISiteTableItem } from "@/options/views/Settings/SetSite/utils.ts"; // <-- 数据来源
+import { allAddedSiteInfo, type ISiteTableItem } from "@/options/views/Settings/SetSite/utils.ts";
+import RebuildMapDialog from "@/options/views/Settings/SetSite/RebuildMapDialog.vue"; // <-- 数据来源
 
 const { t } = useI18n();
 
@@ -30,6 +31,7 @@ const showAddDialog = ref<boolean>(false);
 const showEditDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 const showOneClickImportDialog = ref<boolean>(false);
+const showRebuildMapDialog = ref<boolean>(false);
 
 const tableHeader = computed(() => {
   const baseHeaders = [
@@ -144,6 +146,13 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
           color="indigo"
           icon="mdi-face-recognition"
           @click="() => flushSiteFavicon(tableSelected)"
+        />
+
+        <NavButton
+          :text="t('SetSite.index.reBuildMap')"
+          color="indigo"
+          icon="mdi-wrench"
+          @click="showRebuildMapDialog = true"
         />
 
         <v-spacer />
@@ -343,6 +352,7 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
   <DeleteDialog v-model="showDeleteDialog" :to-delete-ids="toDeleteIds" :confirm-delete="confirmDeleteSite" />
   <EditDialog v-model="showEditDialog" :site-id="toEditId!" />
   <OneClickImportDialog v-model="showOneClickImportDialog" />
+  <RebuildMapDialog v-model="showRebuildMapDialog" />
 </template>
 
 <style scoped lang="scss"></style>

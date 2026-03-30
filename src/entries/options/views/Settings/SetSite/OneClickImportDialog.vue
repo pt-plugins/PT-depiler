@@ -84,7 +84,7 @@ async function doAutoImport() {
   importStatus.value.isWorking = true;
   importStatus.value.failed = [];
 
-  // 遍历所有需要添加的站点
+  // 遍历所有需要添加的站点，在遍历过程中我们不更新 siteHostMap 和 siteNameMap
   for (const site of importStatus.value.toWork) {
     if (importStatus.value.success.includes(site)) {
       continue; // 如果已经添加成功，则跳过
@@ -101,13 +101,15 @@ async function doAutoImport() {
 
       // 对于 public 站点，不需要额外测试是否能够搜索
       if (siteMetadata.type === "public") {
-        await metadataStore.addSite(site, siteUserConfig); // 直接将该站点设置存入 metadataStore
+        // 直接将该站点设置存入 metadataStore
+        await metadataStore.addSite(site, siteUserConfig, { reBuildMap: false }); // 抑制 site{Name, Host}Map 更新
         isThisSiteSuccess = true;
       } else {
         // 遍历所有 private site 预设的 urls ，找到用户实际使用的 url
         for (const siteUrl of siteMetadata.urls) {
           siteUserConfig.url = siteUrl;
-          await metadataStore.addSite(site, siteUserConfig); // 临时将该设置存入 metadataStore
+          // 临时将该设置存入 metadataStore
+          await metadataStore.addSite(site, siteUserConfig, { reBuildMap: false });
           const { status: testStatus } = await sendMessage("getSiteSearchResult", { siteId: site });
           if (testStatus === EResultParseStatus.success) {
             isThisSiteSuccess = true; // 如果搜索成功，说明该站点可以自动添加
@@ -120,7 +122,8 @@ async function doAutoImport() {
         importStatus.value.success.push(site);
       } else {
         importStatus.value.failed.push(site);
-        await metadataStore.removeSite(site); // 如果搜索失败，说明该站点不能自动添加，移除在 metadataStore 中临时添加的配置项
+        // 如果搜索失败，说明该站点不能自动添加，移除在 metadataStore 中临时添加的配置项
+        await metadataStore.removeSite(site, { reBuildMap: false });
       }
     } catch (e) {
       importStatus.value.failed.push(site);
@@ -131,7 +134,16 @@ async function doAutoImport() {
   importStatus.value.isWorking = false;
   importStatus.value.toWork = [];
 
-  runtimeStore.showSnakebar(t("SetSite.oneClickImportDialog.importComplete", { count: importStatus.value.success.length }), { color: "success" });
+  /**
+   * 这里引入一个 magic call，用来触发 metadataStore 重构 siteHostMap 和 siteNameMap，
+   * 因为在添加站点时我们设置了 { reBuildMap: false} 来加速，所以需要手动触发一次重构，来保证后续功能正常运行
+   */
+  await metadataStore.removeSite("NEVER|EXIST|SITE");
+
+  runtimeStore.showSnakebar(
+    t("SetSite.oneClickImportDialog.importComplete", { count: importStatus.value.success.length }),
+    { color: "success" },
+  );
 }
 
 async function dialogEnter() {
