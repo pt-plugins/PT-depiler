@@ -41,7 +41,7 @@ function editClientConfig() {
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <Editor v-model="clientConfig" />
+        <Editor v-if="clientConfig" v-model="clientConfig" />
       </v-card-text>
       <v-divider />
       <v-card-actions>
