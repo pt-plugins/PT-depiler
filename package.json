@@ -52,7 +52,7 @@
     "echarts": "^6.0.0",
     "es-toolkit": "^1.45.1",
     "file-saver": "^2.0.5",
-    "filesize": "^11.0.14",
+    "filesize": "^11.0.15",
     "idb": "^8.0.3",
     "jszip": "^3.10.1",
     "konva": "^10.2.3",
