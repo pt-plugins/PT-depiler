@@ -45,6 +45,11 @@ export default class WebDAV extends AbstractBackupServer<WebDAVConfig> {
     return this.server;
   }
 
+  private normalizeRemotePath(path: string): string {
+    // Keep exactly one leading slash so '/foo.zip' and 'foo.zip' behave consistently.
+    return `/${path}`.replace(/\/+/g, "/");
+  }
+
   async ping(): Promise<boolean> {
     try {
       await this.getServer().getDirectoryContents("/");
@@ -79,14 +84,14 @@ export default class WebDAV extends AbstractBackupServer<WebDAVConfig> {
   }
 
   async getFile(path: string): Promise<IBackupData> {
-    const fileBuffer = await this.getServer().getFileContents(`/${path}`);
+    const fileBuffer = await this.getServer().getFileContents(this.normalizeRemotePath(path));
     const data = new Blob([fileBuffer as ArrayBuffer]);
 
     return await this.jsZipBlobToBackupData(data);
   }
 
   async deleteFile(path: string): Promise<boolean> {
-    await this.getServer().deleteFile(`/${path}`);
+    await this.getServer().deleteFile(this.normalizeRemotePath(path));
     return true;
   }
 }

@@ -17,14 +17,20 @@ const emits = defineEmits<{
 }>();
 
 const clientMeta = computedAsync<IBackupMetadata<any>>(
-  async () => await getBackupServerMetaData(clientConfig.value!.type),
-  {} as IBackupMetadata<any>,
+  async () => {
+    const clientType = clientConfig.value?.type;
+    if (!clientType) {
+      return { requiredField: [] } as IBackupMetadata<any>;
+    }
+    return await getBackupServerMetaData(clientType);
+  },
+  { requiredField: [] } as IBackupMetadata<any>,
 );
 
 const formValid = ref<boolean>(false);
 
 async function checkConnect() {
-  if (formValid) {
+  if (formValid.value && clientConfig.value) {
     const client = await getBackupServer(clientConfig.value!);
     return await client.ping();
   }
