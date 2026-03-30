@@ -14,12 +14,13 @@ import AddDialog from "./AddDialog.vue";
 import EditDialog from "./EditDialog.vue";
 import EditSearchEntryList from "./EditSearchEntryList.vue";
 import OneClickImportDialog from "./OneClickImportDialog.vue";
+import RebuildMapDialog from "./RebuildMapDialog.vue";
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";
 
-import { allAddedSiteInfo, type ISiteTableItem } from "@/options/views/Settings/SetSite/utils.ts";
-import RebuildMapDialog from "@/options/views/Settings/SetSite/RebuildMapDialog.vue"; // <-- 数据来源
+// 数据来源
+import { allAddedSiteInfo, type ISiteTableItem } from "./utils.ts";
 
 const { t } = useI18n();
 
