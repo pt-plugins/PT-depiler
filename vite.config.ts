@@ -29,6 +29,7 @@ const permissions = [
   "cookies",
   "downloads",
   "declarativeNetRequest",
+  "nativeMessaging",
   "storage",
   "unlimitedStorage",
   "notifications",
