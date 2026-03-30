@@ -12,6 +12,11 @@ import { parse } from "@ptd/social/entity/anidb";
 const tagKeywords = ["Episode", "Season"];
 
 const commonListSelectors = {
+  id: {
+    selector: "a[href^='/torrent/'][title='Download torrent']",
+    attr: "href",
+    filters: [(query: string) => query.match(/\/torrent\/(\d+)/)?.[1]],
+  },
   link: { selector: "a[href^='/torrent/'][title='Download torrent']", attr: "href" },
   url: {
     selector: ["a[href^='torrents'][class]", "a[href*='torrents.php?id=']", "a[href*='torrents2.php?id=']"],
