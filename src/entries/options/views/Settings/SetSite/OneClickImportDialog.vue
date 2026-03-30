@@ -134,11 +134,8 @@ async function doAutoImport() {
   importStatus.value.isWorking = false;
   importStatus.value.toWork = [];
 
-  /**
-   * 这里引入一个 magic call，用来触发 metadataStore 重构 siteHostMap 和 siteNameMap，
-   * 因为在添加站点时我们设置了 { reBuildMap: false} 来加速，所以需要手动触发一次重构，来保证后续功能正常运行
-   */
-  await metadataStore.removeSite("NEVER|EXIST|SITE");
+  // 所有导入完成，重构 site{Host, Name}Map
+  await metadataStore.buildSiteMapCache(true);
 
   runtimeStore.showSnakebar(
     t("SetSite.oneClickImportDialog.importComplete", { count: importStatus.value.success.length }),

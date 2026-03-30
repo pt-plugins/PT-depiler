@@ -344,8 +344,7 @@ export const useMetadataStore = defineStore("metadata", {
       this.sites[siteId] = siteConfig;
 
       if (reBuildMap) {
-        await this.buildSiteHostMap();
-        await this.buildSiteNameMap();
+        await this.buildSiteMapCache(false);
       }
 
       await this.$save();
@@ -357,8 +356,7 @@ export const useMetadataStore = defineStore("metadata", {
       delete this.sites[siteId];
 
       if (reBuildMap) {
-        await this.buildSiteHostMap();
-        await this.buildSiteNameMap();
+        await this.buildSiteMapCache(false);
       }
 
       await this.$save();
@@ -397,6 +395,15 @@ export const useMetadataStore = defineStore("metadata", {
         siteNameMap[siteId] = await this.getSiteName(siteId);
       }
       this.siteNameMap = siteNameMap;
+    },
+
+    async buildSiteMapCache(save: boolean = false) {
+      await this.buildSiteNameMap();
+      await this.buildSiteHostMap();
+
+      if (save) {
+        await this.$save();
+      }
     },
 
     async addSearchSolution(solution: ISearchSolutionMetadata) {
