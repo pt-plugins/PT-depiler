@@ -20,20 +20,31 @@ export const GazelleUtils = {
    * 提取种子属性并过滤
    * @param tags
    * @param tagKeywords
+   * @param delimiter
    * @returns filtered tags
    */
-  extractTags(tags: string, tagKeywords: string[] = []): string {
-    const commonTagKeywords = ["Freeleech", "Neutral", "Seeding", "Snatched", "Reported", "Trumpable"];
-    const tagParts = tags.split(" / ");
+  extractTags(tags: string, tagKeywords: string[] = [], delimiter: string = " / "): string {
+    const tagParts = tags.split(delimiter);
     if (tagParts.length < 1) return "";
 
+    return GazelleUtils.filterTags(tagParts, tagKeywords).join(delimiter);
+  },
+
+  /**
+   * 过滤种子属性
+   * @param tagParts
+   * @param tagKeywords
+   * @returns filtered tags
+   */
+  filterTags(tagParts: string[], tagKeywords: string[] = []): string[] {
+    const commonTagKeywords = ["Freeleech", "Neutral", "Seeding", "Snatched", "Reported", "Trumpable"];
     const filteredParts: string[] = [];
     // 只保留种子自身属性
     tagParts.forEach((tag) => {
       if (![...tagKeywords, ...commonTagKeywords].some((keyword) => tag.toLowerCase().includes(keyword.toLowerCase())))
         filteredParts.push(tag.trim());
     });
-    return filteredParts.join(" / ");
+    return filteredParts;
   },
 
   /**
@@ -49,7 +60,7 @@ export const GazelleUtils = {
     tdSelector?: string;
     extractTagsFunc?: (tags: string) => string;
   } = {}) {
-    const extractTags = extractTagsFunc ?? this.extractTags;
+    const extractTags = extractTagsFunc ?? GazelleUtils.extractTags;
     return (row: HTMLElement): string => {
       // 匹配信息格
       const cell = row.querySelector(tdSelector);
@@ -526,10 +537,11 @@ export default class Gazelle extends GazelleBase {
 
     // 遍历数据行
     const torrents: ITorrent[] = [];
-
-    const trSeq = trs.values();
     const groupClasses = [...this.torrentClasses.group, ...this.torrentClasses.unGroupTorrent];
-    for (const tr of trSeq) {
+    for (let i = 0; i < trs.length; i++) {
+      const tr = trs[i];
+      const nextTr = trs[i + 1];
+
       /**
        * 种子组信息行 + 组内种子行，顺序排列
        * <tr class="group">...</tr>
@@ -537,11 +549,11 @@ export default class Gazelle extends GazelleBase {
        */
       if (
         this.torrentClasses.group.some((className) => tr.classList.contains(className)) &&
-        !groupClasses.some((className) => tr.nextElementSibling?.classList.contains(className)) // 空组
+        !(nextTr && groupClasses.some((className) => nextTr.classList.contains(className))) // 空组
       ) {
         // 取出此组内的所有种子
-        const groupTorrentEls = takeElUntilClass(trSeq, groupClasses);
-
+        const groupTorrentEls = getElUntilClass(trs, i, groupClasses);
+        i += groupTorrentEls.length - 1;
         const groupTorrents = await this.transformGroupTorrents(tr, groupTorrentEls, {
           keywords,
           searchEntry,
@@ -680,11 +692,15 @@ export default class Gazelle extends GazelleBase {
   }
 }
 
-function takeElUntilClass<T extends Element>(elSeq: IteratorObject<T>, classNames: string[]): T[] {
+function getElUntilClass<T extends Element>(allEl: T[], currentIndex: number, classNames: string[]): T[] {
   const result: T[] = [];
-  for (const el of elSeq) {
+
+  for (let i = currentIndex; i < allEl.length; i++) {
+    const el = allEl[i];
     result.push(el);
-    if (classNames.some((className) => el.nextElementSibling?.classList.contains(className))) {
+
+    const nextEl = allEl[i + 1];
+    if (nextEl && classNames.some((className) => nextEl.classList.contains(className))) {
       break;
     }
   }
