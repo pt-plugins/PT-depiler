@@ -30,6 +30,10 @@ const activeTab = computed({
   },
 });
 
+const showSaveButton = computed(() => {
+  return route.meta?.usesGlobalSave !== false;
+});
+
 async function save() {
   await setTabRef.value?.beforeSave?.(); // 如果对应的 tab 有 afterSave 方法，则调用
   await configStore.$save();
@@ -53,8 +57,8 @@ async function save() {
             <component :is="Component" ref="setTabRef" />
           </router-view>
         </v-card-text>
-        <v-divider />
-        <v-card-actions>
+        <v-divider v-if="showSaveButton" />
+        <v-card-actions v-if="showSaveButton">
           <v-row class="ml-2 my-1">
             <v-btn color="green" prepend-icon="mdi-check-circle-outline" variant="elevated" @click="save">
               {{ t("common.save") }}

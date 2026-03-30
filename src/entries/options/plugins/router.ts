@@ -38,6 +38,12 @@ export const setBaseChildren: RouteRecordRaw[] = [
     meta: { icon: "mdi-multimedia" },
     component: () => import("../views/Settings/SetBase/SocialInformationWindow.vue"),
   },
+  {
+    path: "native-bridge",
+    name: "SetBaseNativeBridge",
+    meta: { icon: "mdi-connection", usesGlobalSave: false },
+    component: () => import("../views/Settings/SetBase/NativeBridgeWindow.vue"),
+  },
 ] as const;
 
 export const routes: RouteRecordRaw[] = [
