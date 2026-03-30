@@ -15,9 +15,15 @@ const categoryMap: Record<number, string> = {
   9: "Web Development",
 };
 
+const linkSelector = { selector: "a[href*='torrent/download/']", attr: "href" };
+const idSelector = {
+  ...linkSelector,
+  filters: [{ name: "split", args: ["/", 3] }, { name: "split", args: ["?", 0] }, { name: "parseNumber" }],
+};
+
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
-  version: 1,
+  version: 2,
   id: "cgpeers",
   name: "CGPeers",
   aka: ["CGP"],
@@ -26,7 +32,7 @@ export const siteMetadata: ISiteMetadata = {
   timezoneOffset: "+0000",
 
   type: "private",
-  schema: "Luminance",
+  schema: "Luminance", // CGPeers
 
   urls: ["https://cgpeers.to/"],
   legacyUrls: ["https://www.cgpeers.com/"],
@@ -47,11 +53,19 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     ...SchemaMetadata.search,
+    requestConfig: {
+      ...SchemaMetadata.search!.requestConfig!,
+      url: "/torrent/browse",
+    },
     advanceKeywordParams: {
       imdb: false,
     },
     selectors: {
       ...SchemaMetadata.search!.selectors,
+      id: idSelector,
+      title: { selector: "span + a[href*='torrent/']" },
+      url: { selector: "span + a[href*='torrent/']", attr: "href" },
+      link: linkSelector,
       category: {
         selector: "td.cats_col > div[title] > a",
         attr: "href",
@@ -85,18 +99,48 @@ export const siteMetadata: ISiteMetadata = {
 
   userInfo: {
     ...SchemaMetadata.userInfo!,
+    process: [
+      {
+        requestConfig: { url: "/", responseType: "document" },
+        fields: ["id"],
+      },
+      {
+        requestConfig: { url: "/user/$id$", responseType: "document" },
+        assertion: { id: "url" },
+        fields: [
+          "name",
+          "joinTime",
+          "lastAccessAt",
+          "uploaded",
+          "downloaded",
+          "levelName",
+          "bonus",
+          "ratio",
+          "uploads",
+          "bonusPerHour",
+          "seeding",
+          "seedingSize",
+          "messageCount",
+          "posts",
+        ],
+      },
+    ],
     selectors: {
       ...SchemaMetadata.userInfo!.selectors,
+      id: {
+        selector: ["div.user-dropdown-section a[href^='/user/']"],
+        attr: "href",
+        filters: [{ name: "split", args: ["/", 2] }],
+      },
       name: {
         selector: ["a#userDropdownTrigger", "span.user_name"],
         switchFilters: { "span.user_name": [{ name: "split", args: ["\n", 0] }] },
       },
-      id: {
-        selector: ["a[href^='/user.php?id=']"],
-        attr: "href",
-        filters: [{ name: "querystring", args: ["id"] }],
+      messageCount: {
+        text: 0,
+        selector: "a#userDropdownTrigger .user-notification-badge",
+        filters: [{ name: "parseNumber" }],
       },
-      messageCount: { selector: "a#userDropdownTrigger .user-notification-badge", filters: [{ name: "parseNumber" }] },
     },
   },
 
@@ -104,7 +148,9 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.detail!,
     selectors: {
       ...SchemaMetadata.detail!.selectors,
-      title: { selector: "table.cgp-tb-torrent-details div.torrent-name-details > span:first-child" },
+      title: { selector: "div.page-header h2" },
+      id: idSelector,
+      link: linkSelector,
     },
   },
 

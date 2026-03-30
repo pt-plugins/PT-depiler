@@ -1,13 +1,5 @@
-import { omit, toMerged } from "es-toolkit";
-import {
-  ETorrentStatus,
-  EResultParseStatus,
-  type ISiteMetadata,
-  type IUserInfo,
-  type ITorrent,
-  type ISearchInput,
-  NeedLoginError,
-} from "../types";
+import { toMerged } from "es-toolkit";
+import { ETorrentStatus, type ISiteMetadata, type IUserInfo, type ITorrent, type ISearchInput } from "../types";
 import { GazelleBase } from "./Gazelle";
 import { parseSizeString, definedFilters } from "../utils";
 import Sizzle from "sizzle";
@@ -85,14 +77,46 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
 
   userInfo: {
     pickLast: ["id"],
+    process: [
+      {
+        requestConfig: { url: "/", responseType: "document" },
+        fields: ["id"],
+      },
+      {
+        requestConfig: {
+          url: "/user.php",
+          params: {
+            /* id: flushUserInfo.id */
+          },
+          responseType: "document",
+        },
+        assertion: { id: "params.id" },
+        fields: [
+          "name",
+          "joinTime",
+          "lastAccessAt",
+          "uploaded",
+          "downloaded",
+          "levelName",
+          "bonus",
+          "ratio",
+          "uploads",
+          "bonusPerHour",
+          "seeding",
+          "seedingSize",
+          "messageCount",
+          "posts",
+        ],
+      },
+    ],
     selectors: {
       // "/user.php?id="
-      name: { selector: ["a.username"] },
       id: {
         selector: ["a.username"],
         attr: "href",
         filters: [{ name: "querystring", args: ["id"] }],
       },
+      name: { selector: ["a.username"] },
       joinTime: {
         selector: ["ul.stats > li:contains('Joined:') > span.time"],
         attr: "title",
@@ -156,6 +180,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           "ul.stats > li:contains('Seeding:')": [{ name: "split", args: ["(", 0] }, { name: "parseNumber" }],
         },
       },
+      seedingSize: { selector: "ul.stats > li:contains('Seeding Size:')", filters: [{ name: "parseSize" }] },
       messageCount: {
         selector: ":self",
         elementProcess: (doc: Document) => {
@@ -177,7 +202,7 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
   detail: {
     urlPattern: ["/torrents\\.php\\?id=\\d+"],
     selectors: {
-      title: { selector: ["table.torrent_table tr[id] strong"] },
+      title: { selector: ["#content > .details > h2", "table.torrent_table tr[id] strong"] },
       id: {
         selector: ["a[href*='/torrents.php?action=download']"],
         attr: "href",
@@ -258,90 +283,22 @@ export default class Luminance extends GazelleBase {
     return this.getTorrentDownloadLinkFactory("id")(torrent);
   }
 
-  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
-    let flushUserInfo: IUserInfo = {
-      status: EResultParseStatus.unknownError,
-      updateAt: +new Date(),
-      site: this.metadata.id,
-    };
+  protected async parseUserInfoForSeedingSize(
+    flushUserInfo: Partial<IUserInfo>,
+    dataDocument: Document,
+  ): Promise<Partial<IUserInfo>> {
+    // 对有 Seeding Size 行的站点直接解析对应元素
+    let seedingSize =
+      this.metadata.userInfo?.selectors?.seedingSize &&
+      this.getFieldData(dataDocument, this.metadata.userInfo.selectors.seedingSize); // 在 elementQuery 内进行大小解析
 
-    if (!this.allowQueryUserInfo) {
-      flushUserInfo.status = EResultParseStatus.passParse;
-      return flushUserInfo;
-    }
+    flushUserInfo.seedingSize = seedingSize;
 
-    // 如果定义了 process，则按照 AbstractPrivateSite 的方式处理
-    if (Array.isArray(this.metadata.userInfo?.process)) {
-      return await super.getUserInfoResult(lastUserInfo);
-    }
-
-    // 否则直接使用 Luminance 的方式获取用户信息
-    try {
-      let id: number;
-      if (lastUserInfo !== null && lastUserInfo.id) {
-        id = lastUserInfo.id as number;
-      } else {
-        // 如果没有 id 信息，则访问一次 主页
-        id = await this.getUserIdFromSite();
-      }
-      flushUserInfo.id = id;
-
-      const { data: userDetailDocument } = await this.request<Document>({
-        url: `/user.php?id=${id}`,
-        responseType: "document",
-      });
-
-      // 导入基本 Details 页面获取到的用户信息
-      flushUserInfo = toMerged(flushUserInfo, await this.getUserInfoFromDetailsPage(userDetailDocument));
-
-      if (flushUserInfo.seeding) {
-        // 对有 Seeding Size 行的站点直接解析对应元素
-        const seedingList = Sizzle("ul.stats > li:contains('Seeding Size:')", userDetailDocument);
-        if (seedingList.length > 0) {
-          flushUserInfo.seedingSize = definedFilters.parseSize(seedingList[0].textContent);
-        } else {
-          // 否则则尝试解析做种列表计算获取
-          flushUserInfo = toMerged(flushUserInfo, await this.getSeedingSize(id));
-        }
-      }
-
-      // 如果前面没有获取到用户等级的id，则尝试通过定义的 levelRequirements 来获取
-      if (this.metadata.levelRequirements && flushUserInfo.levelName && typeof flushUserInfo.levelId === "undefined") {
-        flushUserInfo.levelId = this.guessUserLevelId(flushUserInfo as IUserInfo);
-      }
-
-      flushUserInfo.status = EResultParseStatus.success;
-    } catch (e) {
-      flushUserInfo.status = EResultParseStatus.parseError;
-
-      if (e instanceof NeedLoginError) {
-        flushUserInfo.status = EResultParseStatus.needLogin;
-      }
+    if (!seedingSize) {
+      // 否则则尝试解析做种列表计算获取
+      flushUserInfo = toMerged(flushUserInfo, await this.getSeedingSize(flushUserInfo.id as number));
     }
 
     return flushUserInfo;
-  }
-
-  protected async getUserIdFromSite(): Promise<number> {
-    await this.sleepAction(this.metadata.userInfo?.requestDelay);
-
-    const { data: indexDocument } = await this.request<Document>(
-      {
-        url: "/",
-        responseType: "document",
-      },
-      true,
-    );
-    return this.getFieldData(indexDocument, this.metadata.userInfo?.selectors?.id!);
-  }
-
-  protected async getUserInfoFromDetailsPage(userDetailDocument: Document): Promise<Partial<IUserInfo>> {
-    await this.sleepAction(this.metadata.userInfo?.requestDelay);
-
-    return this.getFieldsData(
-      userDetailDocument,
-      this.metadata.userInfo?.selectors!,
-      Object.keys(omit(this.metadata.userInfo?.selectors!, ["id"])),
-    ) as Partial<IUserInfo>;
   }
 }
