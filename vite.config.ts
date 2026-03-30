@@ -29,11 +29,12 @@ const permissions = [
   "cookies",
   "downloads",
   "declarativeNetRequest",
-  "nativeMessaging",
   "storage",
   "unlimitedStorage",
   "notifications",
 ];
+
+const optionalPermissions = ["nativeMessaging"];
 
 // @ts-ignore
 const git_count = git.count("HEAD");
@@ -120,7 +121,9 @@ export default defineConfig({
 
         // 在 Chrome 中需要多注册一个 offscreen 权限
         "{{chrome}}.permissions": [...permissions, "offscreen"],
+        "{{chrome}}.optional_permissions": optionalPermissions,
         "{{firefox}}.permissions": permissions,
+        "{{firefox}}.optional_permissions": optionalPermissions,
         host_permissions: ["*://*/*"],
 
         "{{firefox}}.browser_specific_settings": {
