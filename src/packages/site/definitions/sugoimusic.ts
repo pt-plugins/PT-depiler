@@ -1,8 +1,8 @@
 import { type ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/GazelleJSONAPI.ts";
+// import { SchemaMetadata } from "../schemas/GazelleJSONAPI.ts";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  // ...SchemaMetadata,
 
   version: 1,
   id: "sugoimusic",
@@ -19,12 +19,17 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["https://sugoimusic.me/"],
 
+  // Official recruitment on JPS is closed + extensive downtime
+  isDead: true,
+
+  /*
   search: {
     ...SchemaMetadata.search!,
     advanceKeywordParams: {
       imdb: false,
     },
   },
+  */
 
   levelRequirements: [
     {

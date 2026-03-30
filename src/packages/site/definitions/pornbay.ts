@@ -1,8 +1,8 @@
 import { type ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/Luminance";
+// import { SchemaMetadata } from "../schemas/Luminance";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  // ...SchemaMetadata,
   id: "pornbay",
   version: 1,
   name: "Pornbay",
@@ -14,6 +14,10 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://cbeaonl.bet/"],
 
+  // Extensive downtime
+  isDead: true,
+
+  /*
   category: [
     {
       name: "类别",
@@ -97,6 +101,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
+  */
 
   levelRequirements: [
     {
