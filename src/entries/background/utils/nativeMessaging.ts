@@ -54,8 +54,10 @@ let reconnectAttempt = 0;
 
 async function getOrCreateInstanceId(): Promise<string> {
   const stored = await chrome.storage.local.get(INSTANCE_ID_KEY);
-  if (stored[INSTANCE_ID_KEY]) {
-    return stored[INSTANCE_ID_KEY];
+  const storedInstanceId = stored[INSTANCE_ID_KEY];
+
+  if (typeof storedInstanceId === "string" && storedInstanceId.length > 0) {
+    return storedInstanceId;
   }
   const id = crypto.randomUUID();
   await chrome.storage.local.set({ [INSTANCE_ID_KEY]: id });
