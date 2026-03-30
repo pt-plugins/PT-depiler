@@ -75,10 +75,26 @@ async function toggleEnabled(newValue: boolean) {
   }
 }
 
+async function waitForSettledState(maxMs = 5000, intervalMs = 500) {
+  const transientStates: BridgeState[] = ["connecting", "retrying"];
+  const start = Date.now();
+  while (Date.now() - start < maxMs) {
+    await new Promise((r) => setTimeout(r, intervalMs));
+    await refreshStatus();
+    if (!transientStates.includes(status.value.state)) {
+      return;
+    }
+  }
+}
+
 async function testConnection() {
   testLoading.value = true;
   try {
     status.value = await sendMessage("nativeBridgeReconnect", undefined);
+    // Poll until state settles (connected/error) or timeout
+    if (status.value.state === "connecting") {
+      await waitForSettledState();
+    }
   } catch (e: any) {
     console.debug("[PTD] Reconnect failed:", e);
   } finally {

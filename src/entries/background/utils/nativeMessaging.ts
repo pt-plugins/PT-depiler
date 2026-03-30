@@ -6,6 +6,7 @@ const INSTANCE_ID_KEY = "ptd_native_instance_id";
 const ENABLED_KEY = "ptd_native_bridge_enabled";
 const RECONNECT_BASE_MS = 1000;
 const RECONNECT_MAX_MS = 30000;
+const MAX_RECONNECT_ATTEMPTS = 10;
 
 /** Errors that indicate the native host is not installed — no point retrying. */
 const FATAL_ERRORS = [
@@ -113,9 +114,19 @@ function disconnect(intentional: boolean) {
 function scheduleReconnect() {
   clearReconnectTimer();
   reconnectAttempt++;
+
+  if (reconnectAttempt > MAX_RECONNECT_ATTEMPTS) {
+    state = "error";
+    lastError = `Gave up after ${MAX_RECONNECT_ATTEMPTS} reconnect attempts`;
+    console.debug("[PTD] Native bridge exceeded max reconnect attempts, giving up.");
+    return;
+  }
+
   const delay = Math.min(RECONNECT_BASE_MS * 2 ** reconnectAttempt, RECONNECT_MAX_MS);
   state = "retrying";
-  console.debug(`[PTD] Native bridge reconnecting in ${delay}ms (attempt ${reconnectAttempt})...`);
+  console.debug(
+    `[PTD] Native bridge reconnecting in ${delay}ms (attempt ${reconnectAttempt}/${MAX_RECONNECT_ATTEMPTS})...`,
+  );
   reconnectTimer = setTimeout(connect, delay);
 }
 
