@@ -198,7 +198,7 @@ const categoryMap: Record<number, string> = {
 };
 
 export const siteMetadata: ISiteMetadata = {
-  version: 1,
+  version: 2,
   id: "audionews",
   name: "AudioNews",
   aka: ["AN"],
@@ -259,7 +259,7 @@ export const siteMetadata: ISiteMetadata = {
       imdb: false,
     },
     selectors: {
-      rows: { selector: "table.forumline > tbody > tr:has(a[href*='/dl.php?id='])" },
+      rows: { selector: "table.tracker-table > tbody > tr.tracker-row:has(a[href*='/dl.php?id='])" },
       time: { selector: ":self", data: "torDate", filters: [{ name: "parseTime", args: ["dd_MM_yyyy"] }] },
       title: { selector: "td a[href*='/viewtopic.php?t=']" },
       url: { selector: "td a[href*='/viewtopic.php?t=']", attr: "href" },
@@ -304,11 +304,11 @@ export const siteMetadata: ISiteMetadata = {
         requestConfig: { url: "/profile.php", params: { mode: "viewprofile" }, responseType: "document" },
         assertion: { id: "params.u" },
         selectors: {
-          name: { selector: "h4#username > span" },
+          name: { selector: "#username" },
           levelName: { selector: "b#rank-name" },
-          joinTime: { selector: "td#user_regdate > span", filters: [{ name: "parseTime" }] },
-          lastAccessAt: { selector: "td#user_lastvisit > span", filters: [{ name: "parseTime" }] },
-          ratio: { selector: "tr#bt_user_ratio > td b", filters: [{ name: "parseNumber" }] },
+          joinTime: { selector: "#user_regdate", filters: [{ name: "parseTime" }] },
+          lastAccessAt: { selector: "#user_lastvisit", filters: [{ name: "parseTime" }] },
+          ratio: { selector: "#bt_user_ratio > b", filters: [{ name: "parseNumber" }] },
           downloaded: { selector: "td#u_down_total > span", filters: [{ name: "parseSize" }] },
           uploaded: { selector: "td#u_up_total > span", filters: [{ name: "parseSize" }] },
           seeding: {
