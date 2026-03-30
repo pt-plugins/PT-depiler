@@ -1,10 +1,13 @@
 <script setup lang="ts">
-import { onMounted, ref, shallowRef } from "vue";
+import { computed, onMounted, ref, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { sendMessage } from "@/messages.ts";
 
 const { t } = useI18n();
+
+const extensionId = chrome.runtime.id;
+const setupCommand = computed(() => `ptd install --browser chrome --extension-id ${extensionId}`);
 
 type BridgeState = "no-permission" | "disabled" | "connecting" | "connected" | "retrying" | "error";
 
@@ -193,6 +196,20 @@ onMounted(() => {
 
         <v-alert v-if="status.lastError" type="error" variant="tonal" density="compact" class="mt-3">
           {{ status.lastError }}
+        </v-alert>
+
+        <v-alert
+          v-if="
+            status.permissionGranted && status.enabled && status.state !== 'connected' && status.state !== 'connecting'
+          "
+          type="warning"
+          variant="tonal"
+          density="compact"
+          class="mt-3"
+        >
+          {{ t("SetNativeBridge.info.setupCommand") }}
+          <code class="d-block my-2 pa-2 bg-surface rounded">{{ setupCommand }}</code>
+          {{ t("SetNativeBridge.info.setupHint") }}
         </v-alert>
       </v-card>
 
