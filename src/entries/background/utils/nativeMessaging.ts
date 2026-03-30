@@ -278,6 +278,10 @@ onMessage("nativeBridgeGetStatus", async () => {
 onMessage("nativeBridgeSetEnabled", async ({ data }) => {
   await chrome.storage.local.set({ [ENABLED_KEY]: data });
   await init();
+  // Brief wait for the async hello handshake to complete
+  if (state === "connecting") {
+    await new Promise((r) => setTimeout(r, 200));
+  }
   return getStatus();
 });
 
