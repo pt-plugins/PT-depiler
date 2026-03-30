@@ -145,6 +145,29 @@ interface ProtocolMap extends TMessageMap {
   updateKeepUploadTask(task: IKeepUploadTask): void;
   deleteKeepUploadTask(taskId: TKeepUploadTaskKey): void;
   clearKeepUploadTasks(): void;
+
+  // 2.8 Native messaging bridge control
+  nativeBridgeGetStatus(): {
+    permissionGranted: boolean;
+    enabled: boolean;
+    state: "no-permission" | "disabled" | "connecting" | "connected" | "retrying" | "error";
+    connected: boolean;
+    lastError?: string;
+  };
+  nativeBridgeSetEnabled(data: boolean): {
+    permissionGranted: boolean;
+    enabled: boolean;
+    state: "no-permission" | "disabled" | "connecting" | "connected" | "retrying" | "error";
+    connected: boolean;
+    lastError?: string;
+  };
+  nativeBridgeReconnect(): {
+    permissionGranted: boolean;
+    enabled: boolean;
+    state: "no-permission" | "disabled" | "connecting" | "connected" | "retrying" | "error";
+    connected: boolean;
+    lastError?: string;
+  };
 }
 
 // 全局消息处理函数映射
