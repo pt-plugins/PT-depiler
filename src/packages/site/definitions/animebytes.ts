@@ -469,7 +469,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 1,
       name: "User",
-      interval: "P1D",
+      interval: "P1W",
       uploaded: "10.5GB",
       ratio: 0.5,
       privilege: "发送邀请",
@@ -477,7 +477,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 2,
       name: "Power User",
-      interval: "P2D",
+      interval: "P2W",
       uploads: 10,
       uploaded: "25GB",
       ratio: 0.7,
