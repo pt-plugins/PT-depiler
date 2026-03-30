@@ -144,13 +144,16 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       ...SchemaMetadata.userInfo!.selectors,
       // '/'
+      name: {
+        selector: ["div.ds-user-stats > div > h3"],
+        filters: [{ name: "trim" }],
+      },
       id: {
-        selector: ["ul.dropdown-menu a[href*='users']:first"],
-        attr: "href",
+        selector: ["span.deep-space-user-card__user-id"],
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/users\/(\S+?)\.(\d+?)$/);
-            return queryMatch && queryMatch.length >= 3 ? queryMatch[2].trim() : "";
+            const queryMatch = query.match(/\d+/);
+            return queryMatch ? parseInt(queryMatch[0], 10) : 0;
           },
         ],
       },
