@@ -145,6 +145,10 @@ const levelRequirements: (ILevelRequirement & { levelId?: string })[] = [
   },
 ];
 
+function extractTorrentIdFromUrl(url: string): string | undefined {
+  return url.match(/(?:\/detail\/|#\/torrent\/)(\d+)/)?.[1];
+}
+
 export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "mteam",
@@ -161,6 +165,7 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://xc.z-grnz.pp/", "uggcf://mc.z-grnz.vb/", "uggcf://bo.z-grnz.pp/"],
   legacyUrls: [
+    "https://h5.m-team.cc/",
     "https://xp.m-team.io/",
     "https://pt.m-team.cc/",
     "https://tp.m-team.cc/",
@@ -468,14 +473,12 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   detail: {
-    urlPattern: ["/detail/"],
+    urlPattern: ["/detail/", "#/torrent/\\d+"],
     selectors: {
       id: {
         selector: ":self",
         elementProcess: (element: Document) => {
-          const url = element.URL;
-          const match = url.match(/\/detail\/(\d+)/);
-          return match ? match[1] : url;
+          return extractTorrentIdFromUrl(element.URL) ?? element.URL;
         },
       },
       title: {
@@ -617,9 +620,35 @@ interface IMTeamRawResp<D> {
  * M-Team 站点类，交互通过 API 进行
  */
 export default class MTeam extends PrivateSite {
+  get normalizedSiteUrl(): string {
+    try {
+      const siteUrl = new URL(this.url);
+      siteUrl.hash = "";
+      siteUrl.search = "";
+      siteUrl.pathname = "/";
+      return siteUrl.toString();
+    } catch (error) {
+      return this.url;
+    }
+  }
+
   // 2024-06-18 統一切換為 api.域名 (其他可用域名請自行查看接口)
   get apiBaseUrl(): string {
-    return this.url.replace(/(.+?)\./, "https://api.");
+    try {
+      const apiUrl = new URL(this.normalizedSiteUrl);
+      const hostParts = apiUrl.hostname.split(".");
+      if (hostParts.length > 0) {
+        hostParts[0] = "api";
+      }
+      apiUrl.hostname = hostParts.join(".");
+      return apiUrl.toString();
+    } catch (error) {
+      return this.normalizedSiteUrl.replace(/(.+?)\./, "https://api.");
+    }
+  }
+
+  private buildConfiguredDetailUrl(torrentId: string | number): string {
+    return new URL(`/detail/${torrentId}`, this.normalizedSiteUrl).toString();
   }
 
   public override async request<T>(
@@ -637,7 +666,7 @@ export default class MTeam extends PrivateSite {
     axiosConfig.headers = {
       ...(axiosConfig.headers ?? {}),
       "x-api-key": this.userConfig.inputSetting!.token ?? "", // FIXME 是否允许我们设置一个空字符？
-      origin: this.url, // MTeam site requires Origin header for CORS validation (added 2025-10-28)
+      origin: this.normalizedSiteUrl, // MTeam site requires Origin header for CORS validation (added 2025-10-28)
     };
 
     return super.request<T>(axiosConfig, checkLogin);
@@ -648,7 +677,20 @@ export default class MTeam extends PrivateSite {
   }
 
   protected override fixLink(uri: string, requestConfig: AxiosRequestConfig): string {
-    return super.fixLink(uri, { ...requestConfig, baseURL: this.url }); // 将 baseURL 重新指向回 web 页面
+    return super.fixLink(uri, { ...requestConfig, baseURL: this.normalizedSiteUrl }); // 将 baseURL 重新指向回 web 页面
+  }
+
+  public override async transformDetailPage(doc: Document): Promise<ITorrent> {
+    const torrent = await super.transformDetailPage(doc);
+    const torrentId = torrent.id || extractTorrentIdFromUrl(doc.URL);
+
+    if (torrentId) {
+      torrent.id = String(torrentId);
+      torrent.url = this.buildConfiguredDetailUrl(torrent.id);
+      torrent.link ||= torrent.url;
+    }
+
+    return torrent;
   }
 
   private mapDiscountToTag(discount?: string | null): ITorrentTag | undefined {
@@ -786,12 +828,19 @@ export default class MTeam extends PrivateSite {
   }
 
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
-    // fix: 如果 torrent 对象没有 id ，尝试从 link 中提取 (https://github.com/pt-plugins/PT-depiler/issues/600)
-    if (!torrent.id && torrent.link) {
-      const match = torrent.link.match(/\/detail\/(\d+)/);
-      if (match) {
-        torrent.id = match[1];
+    // fix: 如果 torrent 对象没有 id ，尝试从详情页 URL 中提取
+    if (!torrent.id) {
+      const torrentId = [torrent.link, torrent.url]
+        .map((candidate) => (candidate ? extractTorrentIdFromUrl(candidate) : undefined))
+        .find(Boolean);
+
+      if (torrentId) {
+        torrent.id = torrentId;
       }
+    }
+
+    if (!torrent.id) {
+      throw new Error("Unable to resolve M-Team torrent ID");
     }
 
     const { data } = await this.request<IMTeamRawResp<string>>({
