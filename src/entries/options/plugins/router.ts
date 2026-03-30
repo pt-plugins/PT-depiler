@@ -94,6 +94,7 @@ export const routes: RouteRecordRaw[] = [
   {
     path: "/settings",
     name: "Settings",
+    redirect: "/set-base",
     meta: { isMainMenu: true },
     children: [
       {
