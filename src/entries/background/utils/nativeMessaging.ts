@@ -1,8 +1,9 @@
-import { sendMessage } from "@/messages.ts";
+import { onMessage, sendMessage } from "@/messages.ts";
 import { setupOffscreenDocument } from "./offscreen.ts";
 
 const NATIVE_HOST_NAME = "com.ptd.native";
 const INSTANCE_ID_KEY = "ptd_native_instance_id";
+const ENABLED_KEY = "ptd_native_bridge_enabled";
 const RECONNECT_BASE_MS = 1000;
 const RECONNECT_MAX_MS = 30000;
 
@@ -10,7 +11,6 @@ const RECONNECT_MAX_MS = 30000;
 const FATAL_ERRORS = [
   "Specified native messaging host not found.",
   "Access to the specified native messaging host is forbidden.",
-  "Native messaging host has exited.",
 ];
 
 /** Methods the bridge will proxy to sendMessage(). Everything else is rejected. */
@@ -50,7 +50,19 @@ const ALLOWED_METHODS = new Set([
   "clearKeepUploadTasks",
 ]);
 
+// ── Module-scoped state ──────────────────────────────────────────────
+type BridgeState = "no-permission" | "disabled" | "connecting" | "connected" | "retrying" | "error";
+
+let port: chrome.runtime.Port | null = null;
+let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 let reconnectAttempt = 0;
+let permissionGranted = false;
+let enabled = true;
+let state: BridgeState = "no-permission";
+let lastError: string | undefined;
+let intentionalDisconnect = false;
+
+// ── Helpers ──────────────────────────────────────────────────────────
 
 async function getOrCreateInstanceId(): Promise<string> {
   const stored = await chrome.storage.local.get(INSTANCE_ID_KEY);
@@ -64,31 +76,79 @@ async function getOrCreateInstanceId(): Promise<string> {
   return id;
 }
 
+function getStatus() {
+  return {
+    permissionGranted,
+    enabled,
+    state,
+    connected: state === "connected",
+    lastError,
+  };
+}
+
+function clearReconnectTimer() {
+  if (reconnectTimer !== null) {
+    clearTimeout(reconnectTimer);
+    reconnectTimer = null;
+  }
+}
+
+// ── Lifecycle ────────────────────────────────────────────────────────
+
+function disconnect(intentional: boolean) {
+  intentionalDisconnect = intentional;
+  clearReconnectTimer();
+  reconnectAttempt = 0;
+
+  if (port) {
+    try {
+      port.disconnect();
+    } catch {
+      // Already disconnected — ignore
+    }
+    port = null;
+  }
+}
+
+function scheduleReconnect() {
+  clearReconnectTimer();
+  reconnectAttempt++;
+  const delay = Math.min(RECONNECT_BASE_MS * 2 ** reconnectAttempt, RECONNECT_MAX_MS);
+  state = "retrying";
+  console.debug(`[PTD] Native bridge reconnecting in ${delay}ms (attempt ${reconnectAttempt})...`);
+  reconnectTimer = setTimeout(connect, delay);
+}
+
 function connect() {
-  let port: chrome.runtime.Port;
-  try {
-    port = chrome.runtime.connectNative(NATIVE_HOST_NAME);
-  } catch {
-    // Native host not installed — silently skip
-    console.debug("[PTD] Native messaging host not available, CLI bridge disabled.");
+  if (!permissionGranted || !enabled) {
     return;
   }
 
-  let disconnected = false;
-  reconnectAttempt = 0;
+  clearReconnectTimer();
+  state = "connecting";
+  lastError = undefined;
+  intentionalDisconnect = false;
+
+  try {
+    port = chrome.runtime.connectNative(NATIVE_HOST_NAME);
+  } catch (e: any) {
+    state = "error";
+    lastError = e?.message ?? String(e);
+    console.debug("[PTD] Native messaging host not available:", lastError);
+    return;
+  }
 
   // Send hello handshake
   getOrCreateInstanceId().then((instanceId) => {
-    if (disconnected) return;
-    const hello = {
+    if (!port) return;
+    port.postMessage({
       type: "hello",
       instanceId,
       browser: __BROWSER__,
       extensionId: chrome.runtime.id,
       version: __EXT_VERSION__,
       capabilities: ["bridge-v1"],
-    };
-    port.postMessage(hello);
+    });
   });
 
   port.onMessage.addListener(async (msg: any) => {
@@ -96,10 +156,16 @@ function connect() {
       return;
     }
 
+    // Mark as connected on first valid message exchange
+    if (state === "connecting") {
+      state = "connected";
+      reconnectAttempt = 0;
+    }
+
     const { id, method, params } = msg;
 
     if (!ALLOWED_METHODS.has(method)) {
-      port.postMessage({
+      port!.postMessage({
         type: "response",
         id,
         error: { code: "METHOD_NOT_ALLOWED", message: `Method '${method}' is not allowed` },
@@ -110,9 +176,9 @@ function connect() {
     try {
       await setupOffscreenDocument();
       const result = await sendMessage(method as any, params);
-      port.postMessage({ type: "response", id, result });
+      port?.postMessage({ type: "response", id, result });
     } catch (e: any) {
-      port.postMessage({
+      port?.postMessage({
         type: "response",
         id,
         error: { code: "EXTENSION_ERROR", message: e?.message ?? String(e) },
@@ -121,30 +187,111 @@ function connect() {
   });
 
   port.onDisconnect.addListener(() => {
-    disconnected = true;
     const err = chrome.runtime.lastError;
-    if (err) {
-      console.debug("[PTD] Native messaging disconnected:", err.message);
-    }
-
     const errMsg = err?.message ?? "";
 
-    // Don't retry if the host is not installed or access is denied —
-    // retrying just floods the console with errors. The user needs to
-    // install the native host and restart the browser.
-    if (FATAL_ERRORS.some((e) => errMsg.includes(e))) {
-      console.debug(
-        "[PTD] Native host not available, CLI bridge disabled. Install the host and restart the browser to enable.",
-      );
+    port = null;
+
+    if (intentionalDisconnect) {
+      // Intentional disconnect — don't retry
       return;
     }
 
-    // Reconnect with bounded exponential backoff for transient errors
-    // (e.g. host process crashed, browser restarted the service worker)
-    reconnectAttempt++;
-    const delay = Math.min(RECONNECT_BASE_MS * 2 ** reconnectAttempt, RECONNECT_MAX_MS);
-    setTimeout(connect, delay);
+    if (err) {
+      console.debug("[PTD] Native messaging disconnected:", errMsg);
+    }
+
+    // Fatal errors — no retry
+    if (FATAL_ERRORS.some((e) => errMsg.includes(e))) {
+      state = "error";
+      lastError = errMsg;
+      console.debug("[PTD] Native host not available, CLI bridge disabled.");
+      return;
+    }
+
+    // Recoverable (e.g. host exited) — retry with backoff
+    lastError = errMsg || "Connection lost";
+    scheduleReconnect();
   });
+
+  // Mark as connected after successful port creation (handshake is async)
+  // The state will be confirmed on first message exchange
+  state = "connected";
+  reconnectAttempt = 0;
 }
 
-connect();
+async function init() {
+  // Refresh permission state
+  try {
+    permissionGranted = await chrome.permissions.contains({ permissions: ["nativeMessaging"] });
+  } catch {
+    permissionGranted = false;
+  }
+
+  // Refresh enabled flag
+  const stored = await chrome.storage.local.get(ENABLED_KEY);
+  enabled = stored[ENABLED_KEY] !== false; // default true
+
+  // Reconcile desired state
+  if (!permissionGranted) {
+    disconnect(true);
+    state = "no-permission";
+    lastError = undefined;
+    return;
+  }
+
+  if (!enabled) {
+    disconnect(true);
+    state = "disabled";
+    lastError = undefined;
+    return;
+  }
+
+  // Permission granted and enabled — connect
+  connect();
+}
+
+// ── Runtime permission listeners ─────────────────────────────────────
+
+chrome.permissions.onAdded?.addListener((permissions) => {
+  if (permissions.permissions?.includes("nativeMessaging")) {
+    init();
+  }
+});
+
+chrome.permissions.onRemoved?.addListener((permissions) => {
+  if (permissions.permissions?.includes("nativeMessaging")) {
+    init();
+  }
+});
+
+// ── Message handlers ─────────────────────────────────────────────────
+
+onMessage("nativeBridgeGetStatus", async () => {
+  return getStatus();
+});
+
+onMessage("nativeBridgeSetEnabled", async ({ data }) => {
+  await chrome.storage.local.set({ [ENABLED_KEY]: data });
+  await init();
+  return getStatus();
+});
+
+onMessage("nativeBridgeReconnect", async () => {
+  if (!permissionGranted) {
+    lastError = "Permission not granted — cannot reconnect";
+    return getStatus();
+  }
+  if (!enabled) {
+    lastError = "Bridge is disabled — cannot reconnect";
+    return getStatus();
+  }
+
+  disconnect(true);
+  connect();
+  return getStatus();
+});
+
+// ── Startup ──────────────────────────────────────────────────────────
+
+init();
