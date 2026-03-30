@@ -13,7 +13,10 @@ const tagKeywords = ["Episode", "Season"];
 
 const commonListSelectors = {
   link: { selector: "a[href^='/torrent/'][title='Download torrent']", attr: "href" },
-  url: { selector: "a[href^='torrents'][class]", attr: "href" },
+  url: {
+    selector: ["a[href^='torrents'][class]", "a[href*='torrents.php?id=']", "a[href*='torrents2.php?id=']"],
+    attr: "href",
+  },
   tags: [
     {
       name: "Free",
@@ -313,6 +316,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       urlPattern: ["/series\\.php\\?id=\\d+", "/artist\\.php\\?id=\\d+"],
+      mergeSearchSelectors: false,
       selectors: {
         ...SchemaMetadata.search!.selectors!,
         ...commonListSelectors,
@@ -322,6 +326,27 @@ export const siteMetadata: ISiteMetadata = {
         },
         title: { selector: "td > h3" },
         subTitle: commonSubTitleSelector,
+      },
+    },
+    {
+      urlPattern: ["/alltorrents\\.php"],
+      mergeSearchSelectors: false,
+      selectors: {
+        ...SchemaMetadata.search!.selectors!,
+        ...commonListSelectors,
+        time: { text: 0 },
+        category: { selector: "img[src^='/static/common/caticons/']", attr: "title" },
+        title: {
+          selector: "td:has(a[href^='/torrent/'][title='Download torrent'])",
+          elementProcess: (el: HTMLElement) => {
+            // 在 elementProcess 阶段处理，如在 filter 中处理会受预处理步骤影响
+            return (el.innerText || el.textContent).split("\n")[0]?.replaceAll("[DL]", "");
+          },
+        },
+        subTitle: genSubTitleSelector(
+          "td:has(a[href^='/torrent/'][title='Download torrent'])",
+          (part: string) => (part.includes("[DL]") ? "" : part.trim()), // 删除标题行（带下载链接）
+        ),
       },
     },
     // Leaderboards (Top 10) 基本数据不全，不再实现
@@ -541,6 +566,13 @@ export default class AnimeBytes extends Gazelle {
     return {
       ...super.torrentClasses,
       group: ["group_main", ...super.torrentClasses.group],
+    };
+  }
+
+  protected override guessSearchFieldIndexConfig(): Record<string, string[]> {
+    return {
+      ...super.guessSearchFieldIndexConfig(),
+      time: [], // 均未提供上传时间
     };
   }
 
