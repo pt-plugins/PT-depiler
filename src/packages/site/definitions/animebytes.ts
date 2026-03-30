@@ -111,7 +111,7 @@ interface IAnimeBytesTorrentGroup {
 interface IAnimeBytesTorrent {
   ID: number;
   EditionData: {
-    CatelogNumber: string;
+    CatalogNumber: string;
     ReleaseDate: string;
     EditionTitle: string;
   };
