@@ -47,7 +47,7 @@ export default class WebDAV extends AbstractBackupServer<WebDAVConfig> {
 
   private normalizeRemotePath(path: string): string {
     // Keep exactly one leading slash so '/foo.zip' and 'foo.zip' behave consistently.
-    return `/${path}`.replace(/\/+/g, "/");
+    return `/${path}`.replace(/^\/+/, "/");
   }
 
   async ping(): Promise<boolean> {
