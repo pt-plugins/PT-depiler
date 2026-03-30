@@ -1,6 +1,6 @@
 // This file is the entry point for the content script
 
-import { definitionList, getDefinedSiteMetadata, getHostFromUrl } from "@ptd/site";
+import { getHostFromUrl } from "@ptd/site";
 import { socialPageParserMatchesMap } from "@ptd/social";
 
 import { sendMessage } from "@/messages.ts";
@@ -8,41 +8,6 @@ import type { IMetadataPiniaStorageSchema } from "@/shared/types/storages/metada
 import type { IConfigPiniaStorageSchema } from "@/shared/types/storages/config.ts";
 
 import { mountApp } from "./app/init.ts";
-
-async function resolveSiteIdByHost(host: string, metadataStore: IMetadataPiniaStorageSchema) {
-  if (metadataStore.siteHostMap[host]) {
-    return metadataStore.siteHostMap[host];
-  }
-
-  const candidateSiteIds = Array.from(new Set([...Object.keys(metadataStore.sites ?? {}), ...definitionList]));
-
-  for (const siteId of candidateSiteIds) {
-    const candidateUrls = new Set<string>();
-    const siteConfig = metadataStore.sites?.[siteId];
-
-    if (siteConfig?.url) {
-      candidateUrls.add(siteConfig.url);
-    }
-
-    try {
-      const siteMetadata = await getDefinedSiteMetadata(siteId);
-      for (const url of siteMetadata.urls ?? []) {
-        candidateUrls.add(url);
-      }
-      for (const url of siteMetadata.legacyUrls ?? []) {
-        candidateUrls.add(url);
-      }
-    } catch (error) {
-      console.debug(`[PTD] Failed to load site metadata for host resolution: ${siteId}`, error);
-    }
-
-    for (const candidateUrl of candidateUrls) {
-      if (getHostFromUrl(candidateUrl) === host) {
-        return siteId;
-      }
-    }
-  }
-}
 
 sendMessage("getExtStorage", "config").then(async (data) => {
   const configStore = data as IConfigPiniaStorageSchema;
@@ -65,14 +30,10 @@ sendMessage("getExtStorage", "config").then(async (data) => {
 
       const host = getHostFromUrl(window.location.href); // 获取当前页面的 host
 
-      const siteId = await resolveSiteIdByHost(host, metadataStore);
-
-      if (siteId) {
-        if (!metadataStore.siteHostMap[host]) {
-          metadataStore.siteHostMap[host] = siteId;
-          sendMessage("setExtStorage", { key: "metadata", value: metadataStore }).catch();
-        }
+      if (metadataStore.siteHostMap[host]) {
         // 如果当前页面的 host 在 metadataStore 中有对应的 siteId，加载 app
+        const siteId = metadataStore.siteHostMap[host];
+
         if (
           configStore?.contentScript?.allowExceptionSites === true &&
           metadataStore.sites[siteId]?.allowContentScript === false
