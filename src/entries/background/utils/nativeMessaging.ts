@@ -20,6 +20,7 @@ const ALLOWED_METHODS = new Set([
   "getExtStorage",
   "getLogger",
   // Site config
+  "getSiteList",
   "getSiteUserConfig",
   "getSiteFavicon",
   "clearSiteFaviconCache",
@@ -27,6 +28,7 @@ const ALLOWED_METHODS = new Set([
   "getSiteSearchResult",
   "getMediaServerSearchResult",
   // Download and downloader
+  "getDownloaderList",
   "getDownloaderConfig",
   "getDownloaderVersion",
   "getDownloaderStatus",

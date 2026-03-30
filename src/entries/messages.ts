@@ -146,7 +146,11 @@ interface ProtocolMap extends TMessageMap {
   deleteKeepUploadTask(taskId: TKeepUploadTaskKey): void;
   clearKeepUploadTasks(): void;
 
-  // 2.8 Native messaging bridge control
+  // 2.8 Lightweight list queries (for CLI discovery)
+  getSiteList(): Array<{ id: string; name: string; url: string; offline: boolean }>;
+  getDownloaderList(): Array<{ id: string; name: string; type: string; enabled: boolean; address: string }>;
+
+  // 2.9 Native messaging bridge control
   nativeBridgeGetStatus(): {
     permissionGranted: boolean;
     enabled: boolean;
