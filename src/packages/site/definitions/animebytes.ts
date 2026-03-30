@@ -379,6 +379,7 @@ export const siteMetadata: ISiteMetadata = {
         assertion: { id: "params.id" },
         selectors: {
           messageCount: {
+            text: 0,
             selector: ".alertbar.notice span.new_count",
             filters: [{ name: "parseNumber" }],
           },
@@ -397,7 +398,8 @@ export const siteMetadata: ISiteMetadata = {
             filters: [{ name: "parseNumber" }],
           },
           ratio: {
-            selector: "dt:contains('Ratio:') + dd > span",
+            text: -1,
+            selector: ["dt:contains('Ratio:') + dd > span"],
             filters: [{ name: "parseNumber" }],
           },
           seeding: {
