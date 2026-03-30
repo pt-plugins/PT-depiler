@@ -7,7 +7,12 @@ import { sendMessage } from "@/messages.ts";
 const { t } = useI18n();
 
 const extensionId = chrome.runtime.id;
-const setupCommand = computed(() => `ptd install --browser chrome --extension-id ${extensionId}`);
+const setupCommand = computed(() => {
+  if (__BROWSER__ === "firefox") {
+    return "ptd install --browser firefox";
+  }
+  return `ptd install --browser chrome --extension-id ${extensionId}`;
+});
 
 type BridgeState = "no-permission" | "disabled" | "connecting" | "connected" | "retrying" | "error";
 
