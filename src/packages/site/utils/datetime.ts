@@ -28,11 +28,11 @@ export const dateUnit: Array<DurationUnit | "quarters"> = [
 export const nonStandDateUnitMap: Record<(typeof dateUnit)[number], string[]> = {
   years: ["年", "year", "yr", "Y"],
   quarters: ["季度", "quarter", "qtr"],
-  months: ["月", "month", "mo", "M"],
+  months: ["個月", "月", "month", "mo", "M"],
   weeks: ["周", "week", "wk", "W"],
   days: ["天", "day", "D"],
-  hours: ["时", "hour", "hr", "h"],
-  minutes: ["分", "minute", "min", "m"],
+  hours: ["小時", "时", "hour", "hr", "h"],
+  minutes: ["分鐘", "分", "minute", "min", "m"],
   seconds: ["秒", "second", "sec", "s"],
 };
 
