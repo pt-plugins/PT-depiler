@@ -99,49 +99,70 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
-    // todo
     ...SchemaMetadata.search,
     skipNonLatinCharacters: true,
     selectors: {
       ...SchemaMetadata.search!.selectors,
 
-      rows: { selector: "#torrent-list-table > tbody > tr" },
-      category: { text: "All", selector: ["td.torrent-listings-format i[data-original-title]"], data: "originalTitle" },
-      size: { selector: "td.torrent-listings-size", filters: [{ name: "parseSize" }] },
-      time: { selector: "td.torrent-listings-age:first", filters: [{ name: "parseTTL" }] },
-      seeders: { selector: "td.torrent-listings-seeders a", filters: [{ name: "parseNumber" }] },
-      leechers: { selector: "td.torrent-listings-leechers a", filters: [{ name: "parseNumber" }] },
-      completed: { selector: "td.torrent-listings-completed a", filters: [{ name: "parseNumber" }] },
+      rows: { selector: "table.deep-space-similar-table > tbody > tr" },
+      id: {
+        selector: ["div.ds-macro-row__name-content > div.ds-macro-row__name-title > a[href*='torrents']"],
+        attr: "href",
+        filters: [(query: string) => query.match(/\/torrents\/(\d+)/)![1]],
+      },
+      title: {
+        selector: ["div.ds-macro-row__name-content > div.ds-macro-row__name-title"],
+      },
+      subTitle: {
+        selector: ["div.ds-macro-row__name-content > div.ds-macro-row__name-specs"],
+      },
+      url: {
+        selector: ["div.ds-macro-row__name-content > div.ds-macro-row__name-title > a[href*='torrents']"],
+        attr: "href",
+      },
+      category: { text: "All", selector: ["span[title='Release Type']"] },
+      size: { selector: "a[title='Download']", filters: [{ name: "parseSize" }] },
+      time: { selector: "div[class^='tw-text-white']", filters: [{ name: "parseTTL" }] },
+      seeders: {
+        selector: ["a[href*='peers'][title*='seeders']", "a[href*='peers'][title*='Seeding']"],
+        filters: [{ name: "parseNumber" }],
+      },
+      leechers: {
+        selector: ["a[href*='peers'][title*='leechers']", "a[href*='peers'][title*='Leeching']"],
+        filters: [{ name: "parseNumber" }],
+      },
+      completed: { selector: "a[href*='snatched'][title*='completed']", filters: [{ name: "parseNumber" }] },
+      comments: { text: 0 }, // not provided
 
       status: {
         text: ETorrentStatus.unknown,
-        selector: ["td.torrent-listings-age:last span[data-original-title]"],
+        selector: ["div.ds-macro-row__name-content[style*='font-variant-numeric']"],
         case: {
-          "span[data-original-title='Leeching']": ETorrentStatus.downloading,
-          "span[data-original-title='Seeding']": ETorrentStatus.seeding,
-          "span[data-original-title='Not Completed']": ETorrentStatus.inactive, // 未完成!
-          "span[data-original-title='Downloaded but Not Seeding']": ETorrentStatus.completed, // 完成!
+          // "span[data-original-title='Leeching']": ETorrentStatus.downloading, //todo
+          "a[href*='peers'][title*='Seeding'][style*='--ds-success']": ETorrentStatus.seeding,
+          // "span[data-original-title='Not Completed']": ETorrentStatus.inactive, // 未完成!
+          // "span[data-original-title='Downloaded but Not Seeding']": ETorrentStatus.completed, // 完成!
         },
       },
       // 站点似乎不提供 progress
       progress: {
         text: 0,
-        selector: ["td.torrent-listings-age:last span[data-original-title]"],
+        selector: ["div.ds-macro-row__name-content[style*='font-variant-numeric']"],
         case: {
-          "span[data-original-title='Seeding'], span[data-original-title='Downloaded but Not Seeding']": 100,
-          "span[data-original-title='Leeching'], span[data-original-title='Not Completed']": 0,
+          "a[href*='peers'][title*='Seeding'][style*='--ds-success']": 100,
+          "a[href*='peers'][title*='seeders'][style*='inherit']": 0,
         },
       },
 
-      tags: [
-        { name: "Free", selector: "i.far.fa-gift", color: "#c149ab" },
-        { name: "Pack", selector: "i.far.fa-folder-heart", color: "#e3747a" },
-        { name: "Plex", selector: "i.far.fa-play", color: "#f39c12" },
-        { name: "Internal", selector: "i.far.fa-bolt", color: "#b793f0" },
-        { name: "Worthy", selector: "i.far.fa-medal", color: "#00c07f" },
-        { name: "Sticky", selector: "i.far.fa-thumbtack", color: "#d32f2f" },
-        { name: "H&R", selector: "*", color: "red" },
-      ],
+      // tags: [ // todo
+      //   { name: "Free", selector: "i.far.fa-gift", color: "#c149ab" },
+      //   { name: "Pack", selector: "i.far.fa-folder-heart", color: "#e3747a" },
+      //   { name: "Plex", selector: "i.far.fa-play", color: "#f39c12" },
+      //   { name: "Internal", selector: "i.far.fa-bolt", color: "#b793f0" },
+      //   { name: "Worthy", selector: "i.far.fa-medal", color: "#00c07f" },
+      //   { name: "Sticky", selector: "i.far.fa-thumbtack", color: "#d32f2f" },
+      //   { name: "H&R", selector: "*", color: "red" },
+      // ],
     },
   },
 
