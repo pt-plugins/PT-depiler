@@ -40,6 +40,7 @@ import {
   AugmentedRequired,
   IKeepUploadTask,
   TKeepUploadTaskKey,
+  BridgeStatus,
 } from "@/shared/types.ts";
 
 import { isDebug } from "~/helper.ts";
@@ -148,30 +149,12 @@ interface ProtocolMap extends TMessageMap {
 
   // 2.8 Lightweight list queries (for CLI discovery)
   getSiteList(): Array<{ id: string; name: string; url: string; offline: boolean }>;
-  getDownloaderList(): Array<{ id: string; name: string; type: string; enabled: boolean; address: string }>;
+  getDownloaderList(): Array<{ id: string; name: string; type: string; enabled: boolean }>;
 
   // 2.9 Native messaging bridge control
-  nativeBridgeGetStatus(): {
-    permissionGranted: boolean;
-    enabled: boolean;
-    state: "no-permission" | "disabled" | "connecting" | "connected" | "retrying" | "error";
-    connected: boolean;
-    lastError?: string;
-  };
-  nativeBridgeSetEnabled(data: boolean): {
-    permissionGranted: boolean;
-    enabled: boolean;
-    state: "no-permission" | "disabled" | "connecting" | "connected" | "retrying" | "error";
-    connected: boolean;
-    lastError?: string;
-  };
-  nativeBridgeReconnect(): {
-    permissionGranted: boolean;
-    enabled: boolean;
-    state: "no-permission" | "disabled" | "connecting" | "connected" | "retrying" | "error";
-    connected: boolean;
-    lastError?: string;
-  };
+  nativeBridgeGetStatus(): BridgeStatus;
+  nativeBridgeSetEnabled(data: boolean): BridgeStatus;
+  nativeBridgeReconnect(): BridgeStatus;
 }
 
 // 全局消息处理函数映射

@@ -57,12 +57,18 @@ onMessage("getSiteList", async () => {
   const metadata = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
   const sites = metadata?.sites ?? {};
   const nameMap = metadata?.siteNameMap ?? {};
-  return Object.entries(sites).map(([id, config]) => ({
-    id,
-    name: nameMap[id] ?? "",
-    url: config.url ?? "",
-    offline: config.isOffline ?? false,
-  }));
+  return Promise.all(
+    Object.entries(sites).map(async ([id, config]) => {
+      const siteMetaData = await getDefinedSiteMetadata(id as TSiteID);
+      const isDead = siteMetaData.isDead ?? false;
+      return {
+        id,
+        name: nameMap[id] ?? config.merge?.name ?? id,
+        url: config.url ?? "",
+        offline: (isDead || config.isOffline) ?? false,
+      };
+    }),
+  );
 });
 
 export async function getSiteInstance<TYPE extends "private" | "public">(

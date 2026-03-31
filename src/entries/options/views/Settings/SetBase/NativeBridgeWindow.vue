@@ -3,26 +3,27 @@ import { computed, onMounted, ref, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { sendMessage } from "@/messages.ts";
+import type { BridgeState, BridgeStatus } from "@/shared/types.ts";
 
 const { t } = useI18n();
 
 const extensionId = chrome.runtime.id;
+
+function detectBrowserFamily(): string {
+  if (__BROWSER__ === "firefox") return "firefox";
+  const ua = navigator.userAgent;
+  if (ua.includes("Edg/")) return "edge";
+  if (ua.includes("Chromium/")) return "chromium";
+  return "chrome";
+}
+
+const browserFamily = detectBrowserFamily();
 const setupCommand = computed(() => {
-  if (__BROWSER__ === "firefox") {
+  if (browserFamily === "firefox") {
     return "ptd install --browser firefox";
   }
-  return `ptd install --browser chrome --extension-id ${extensionId}`;
+  return `ptd install --browser ${browserFamily} --extension-id ${extensionId}`;
 });
-
-type BridgeState = "no-permission" | "disabled" | "connecting" | "connected" | "retrying" | "error";
-
-interface BridgeStatus {
-  permissionGranted: boolean;
-  enabled: boolean;
-  state: BridgeState;
-  connected: boolean;
-  lastError?: string;
-}
 
 const status = shallowRef<BridgeStatus>({
   permissionGranted: false,
@@ -48,7 +49,6 @@ async function grantPermission() {
   try {
     const granted = await chrome.permissions.request({ permissions: ["nativeMessaging"] });
     if (granted) {
-      // Permission granted — refresh status (onAdded listener in background will call init())
       await refreshStatus();
     } else {
       console.debug("[PTD]", t("SetNativeBridge.permission.grantFailed"));
@@ -99,7 +99,6 @@ async function testConnection() {
   testLoading.value = true;
   try {
     status.value = await sendMessage("nativeBridgeReconnect", undefined);
-    // Poll until state settles (connected/error) or timeout
     if (status.value.state === "connecting") {
       await waitForSettledState();
     }

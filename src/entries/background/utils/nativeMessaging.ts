@@ -1,5 +1,6 @@
 import { onMessage, sendMessage } from "@/messages.ts";
 import { setupOffscreenDocument } from "./offscreen.ts";
+import type { BridgeState, BridgeStatus } from "@/shared/types.ts";
 
 const NATIVE_HOST_NAME = "com.ptd.native";
 const INSTANCE_ID_KEY = "ptd_native_instance_id";
@@ -16,9 +17,6 @@ const FATAL_ERRORS = [
 
 /** Methods the bridge will proxy to sendMessage(). Everything else is rejected. */
 const ALLOWED_METHODS = new Set([
-  // Storage and logging (read-only)
-  "getExtStorage",
-  "getLogger",
   // Site config
   "getSiteList",
   "getSiteUserConfig",
@@ -54,12 +52,10 @@ const ALLOWED_METHODS = new Set([
 ]);
 
 // ── Module-scoped state ──────────────────────────────────────────────
-type BridgeState = "no-permission" | "disabled" | "connecting" | "connected" | "retrying" | "error";
 
 let port: chrome.runtime.Port | null = null;
 let reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 let reconnectAttempt = 0;
-let permissionGranted = false;
 let enabled = true;
 let state: BridgeState = "no-permission";
 let lastError: string | undefined;
@@ -79,12 +75,21 @@ async function getOrCreateInstanceId(): Promise<string> {
   return id;
 }
 
-function getStatus() {
+async function checkPermission(): Promise<boolean> {
+  try {
+    return await chrome.permissions.contains({ permissions: ["nativeMessaging"] });
+  } catch {
+    return false;
+  }
+}
+
+async function getStatus(): Promise<BridgeStatus> {
+  const permissionGranted = await checkPermission();
   return {
     permissionGranted,
     enabled,
     state,
-    connected: state === "connected",
+    connected: port !== null && state === "connected",
     lastError,
   };
 }
@@ -133,7 +138,7 @@ function scheduleReconnect() {
 }
 
 function connect() {
-  if (!permissionGranted || !enabled) {
+  if (!enabled) {
     return;
   }
 
@@ -142,8 +147,10 @@ function connect() {
   lastError = undefined;
   intentionalDisconnect = false;
 
+  let currentPort: chrome.runtime.Port;
   try {
-    port = chrome.runtime.connectNative(NATIVE_HOST_NAME);
+    currentPort = chrome.runtime.connectNative(NATIVE_HOST_NAME);
+    port = currentPort;
   } catch (e: any) {
     state = "error";
     lastError = e?.message ?? String(e);
@@ -154,21 +161,42 @@ function connect() {
   // Send hello handshake — mark connected after successful send.
   // The native host does not send an ack, so a successful postMessage
   // is our best signal. If the host is absent, onDisconnect fires.
-  getOrCreateInstanceId().then((instanceId) => {
-    if (!port) return;
-    port.postMessage({
-      type: "hello",
-      instanceId,
-      browser: __BROWSER__,
-      extensionId: chrome.runtime.id,
-      version: __EXT_VERSION__,
-      capabilities: ["bridge-v1"],
-    });
-    state = "connected";
-    reconnectAttempt = 0;
-  });
+  getOrCreateInstanceId()
+    .then((instanceId) => {
+      if (port !== currentPort) return;
 
-  port.onMessage.addListener(async (msg: any) => {
+      try {
+        currentPort.postMessage({
+          type: "hello",
+          instanceId,
+          browser: __BROWSER__,
+          extensionId: chrome.runtime.id,
+          version: __EXT_VERSION__,
+          capabilities: ["bridge-v1"],
+        });
+      } catch (e: any) {
+        state = "error";
+        lastError = e?.message ?? String(e);
+        console.debug("[PTD] Failed to send native hello message:", lastError);
+        return;
+      }
+
+      state = "connected";
+      reconnectAttempt = 0;
+    })
+    .catch((e: any) => {
+      if (port !== currentPort) return;
+      state = "error";
+      lastError = e?.message ?? String(e);
+      console.debug("[PTD] Failed to get or create native instance id:", lastError);
+      try {
+        currentPort.disconnect();
+      } catch {
+        // ignore
+      }
+    });
+
+  currentPort.onMessage.addListener(async (msg: any) => {
     if (msg?.type !== "request" || !msg.id || !msg.method) {
       return;
     }
@@ -176,7 +204,7 @@ function connect() {
     const { id, method, params } = msg;
 
     if (!ALLOWED_METHODS.has(method)) {
-      port!.postMessage({
+      currentPort.postMessage({
         type: "response",
         id,
         error: { code: "METHOD_NOT_ALLOWED", message: `Method '${method}' is not allowed` },
@@ -187,24 +215,30 @@ function connect() {
     try {
       await setupOffscreenDocument();
       const result = await sendMessage(method as any, params);
-      port?.postMessage({ type: "response", id, result });
+      if (port === currentPort) {
+        currentPort.postMessage({ type: "response", id, result });
+      }
     } catch (e: any) {
-      port?.postMessage({
-        type: "response",
-        id,
-        error: { code: "EXTENSION_ERROR", message: e?.message ?? String(e) },
-      });
+      if (port === currentPort) {
+        currentPort.postMessage({
+          type: "response",
+          id,
+          error: { code: "EXTENSION_ERROR", message: e?.message ?? String(e) },
+        });
+      }
     }
   });
 
-  port.onDisconnect.addListener(() => {
+  currentPort.onDisconnect.addListener(() => {
     const err = chrome.runtime.lastError;
     const errMsg = err?.message ?? "";
+
+    // Stale port — a new connection has already replaced this one
+    if (port !== currentPort) return;
 
     port = null;
 
     if (intentionalDisconnect) {
-      // Intentional disconnect — don't retry
       return;
     }
 
@@ -212,7 +246,6 @@ function connect() {
       console.debug("[PTD] Native messaging disconnected:", errMsg);
     }
 
-    // Fatal errors — no retry
     if (FATAL_ERRORS.some((e) => errMsg.includes(e))) {
       state = "error";
       lastError = errMsg;
@@ -220,25 +253,18 @@ function connect() {
       return;
     }
 
-    // Recoverable (e.g. host exited) — retry with backoff
     lastError = errMsg || "Connection lost";
     scheduleReconnect();
   });
 }
 
 async function init() {
-  // Refresh permission state
-  try {
-    permissionGranted = await chrome.permissions.contains({ permissions: ["nativeMessaging"] });
-  } catch {
-    permissionGranted = false;
-  }
+  const permissionGranted = await checkPermission();
 
   // Refresh enabled flag
   const stored = await chrome.storage.local.get(ENABLED_KEY);
   enabled = stored[ENABLED_KEY] !== false; // default true
 
-  // Reconcile desired state
   if (!permissionGranted) {
     disconnect(true);
     state = "no-permission";
@@ -253,7 +279,6 @@ async function init() {
     return;
   }
 
-  // Permission granted and enabled — connect
   connect();
 }
 
@@ -278,9 +303,11 @@ onMessage("nativeBridgeGetStatus", async () => {
 });
 
 onMessage("nativeBridgeSetEnabled", async ({ data }) => {
+  if (typeof data !== "boolean") {
+    return getStatus();
+  }
   await chrome.storage.local.set({ [ENABLED_KEY]: data });
   await init();
-  // Brief wait for the async hello handshake to complete
   if (state === "connecting") {
     await new Promise((r) => setTimeout(r, 200));
   }
@@ -288,6 +315,7 @@ onMessage("nativeBridgeSetEnabled", async ({ data }) => {
 });
 
 onMessage("nativeBridgeReconnect", async () => {
+  const permissionGranted = await checkPermission();
   if (!permissionGranted) {
     lastError = "Permission not granted — cannot reconnect";
     return getStatus();
