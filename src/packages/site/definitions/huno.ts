@@ -1,6 +1,7 @@
 import { ETorrentStatus, type IAdvancedSearchRequestConfig, ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/Unit3D.ts";
+import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
 import { set } from "es-toolkit/compat";
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
 
 const categoryMap: Record<number, string> = {
   1: "Movie",
@@ -31,7 +32,7 @@ const resolutionMap: Record<number, string> = {
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
 
-  version: 1,
+  version: 2,
   id: "huno",
   name: "HUNO",
   description: "HAWKE-UNO IS A HAWKE-ONE SERVICE POWERED BY UNIT3D.",
@@ -45,6 +46,15 @@ export const siteMetadata: ISiteMetadata = {
   legacyUrls: ["uggcf://unjxr.habm/"],
 
   collaborator: ["fzlins", "hui-shao"],
+
+  userInputSettingMeta: [
+    {
+      name: "token",
+      label: "Token",
+      hint: "在 /users/用户名/hub/settings/security 获取 API Token 并填入此处",
+      required: true,
+    },
+  ],
 
   category: [
     {
@@ -89,6 +99,7 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   search: {
+    // todo
     ...SchemaMetadata.search,
     skipNonLatinCharacters: true,
     selectors: {
@@ -143,11 +154,29 @@ export const siteMetadata: ISiteMetadata = {
     pickLast: ["name", "id"],
     selectors: {
       ...SchemaMetadata.userInfo!.selectors,
-      // '/'
-      name: {
-        selector: ["div.ds-user-stats > div > h3"],
-        filters: [{ name: "trim" }],
+      // page '/api/profile'
+      name: { selector: "data.username" },
+      levelName: { selector: "data.group" },
+      joinTime: {
+        selector: "data.member_since",
+        filters: [{ name: "parseTime" }],
       },
+      uploaded: { selector: "data.uploaded" },
+      downloaded: { selector: "data.downloaded" },
+      bonus: { selector: "data.hunos" },
+      seeding: { selector: "data.active_seeds" },
+      leeching: { selector: "data.active_leeches" },
+      hnrUnsatisfied: { selector: "data.hit_and_runs" },
+      // hnrPreWarning: { // todo, not provided by site?
+      //   // 考核中的 HR
+      //   selector: ["div[view='unsatisfieds'] tbody"],
+      //   elementProcess: (element: Element) => {
+      //     const length = element.querySelectorAll("tr.userFiltered[hr='0'][immune='0']").length;
+      //     return length > 0 ? length : 0;
+      //   },
+      // },
+
+      // page '/'
       id: {
         selector: ["span.deep-space-user-card__user-id"],
         filters: [
@@ -157,90 +186,60 @@ export const siteMetadata: ISiteMetadata = {
           },
         ],
       },
-      // "/users/$user.name$.$user.id$"
-      levelName: {
-        selector: "span[data-original-title='Tier'] span",
-      },
-      joinTime: {
-        selector: [".user-info td:contains('Registration date') + td"],
-        filters: [{ name: "parseTime", args: ["MMM dd yyyy"] }],
-      },
       uploads: {
-        selector: [".user-info td:contains('Total Uploads') + td"],
-        filters: [{ name: "parseNumber" }],
+        selector: ["div.ds-user-stats span[title*='Uploads']"],
+        filters: [{ name: "split", args: ["/", 0] }, { name: "trim" }, { name: "parseNumber" }],
       },
-      uploaded: {
-        selector: [".user-info td span[data-original-title='Upload Size']"],
+      seedingSize: {
+        selector: ["div.ds-user-stats span[title*='Seeding Size']"],
         filters: [{ name: "parseSize" }],
       },
-      downloaded: {
-        selector: [".user-info td span[data-original-title='Download Size']"],
-        filters: [{ name: "parseSize" }],
+      messageCount: {
+        text: 0,
+        selector: ["div.ds-user-stats a[href*='/hub/messages'] > span.ds-count"],
+        elementProcess: (element: Element) => {
+          const icon = element.querySelector("i");
+          if (!icon) {
+            return 0;
+          }
+
+          const squareClass = Array.from(icon.classList).find((cls) => /^fa-square-\d+$/.test(cls));
+          if (!squareClass) {
+            return 11;
+          }
+
+          return parseInt(squareClass.replace("fa-square-", ""), 10) || 11;
+        },
       },
-      bonus: {
-        selector: ["span.badge-extra > span"],
-        filters: [{ name: "parseNumber" }],
-      },
+
+      // page '/users/$name$/hub/hunos'
       bonusPerHour: {
-        selector: ["tfoot strong"],
+        selector: ["table.deep-space-similar-table > tfoot td.tw-font-bold[style*=color]"],
         filters: [{ name: "parseNumber" }],
-      },
-      seeding: {
-        selector: [".user-info td:contains('Active Seeds') + td"],
-        filters: [{ name: "parseNumber" }],
-      },
-      leeching: {
-        selector: [".user-info td:contains('Active Leeches') + td"],
-        filters: [{ name: "parseNumber" }],
-      },
-      hnrPreWarning: {
-        // 考核中的 HR
-        selector: ["div[view='unsatisfieds'] tbody"],
-        elementProcess: (element: Element) => {
-          const length = element.querySelectorAll("tr.userFiltered[hr='0'][immune='0']").length;
-          return length > 0 ? length : 0;
-        },
-      },
-      hnrUnsatisfied: {
-        // 已被扣分的 HR
-        selector: ["span[data-original-title='HnRs']"],
-        elementProcess: (element: Element) => {
-          const text = element.lastChild?.textContent?.trim() ?? "";
-          const match = text.match(/\d+/);
-          return match ? parseInt(match[0], 10) : 0;
-        },
       },
     },
     process: [
       {
-        requestConfig: { url: "/", responseType: "document" },
-        fields: ["id", "name"],
-      },
-      {
-        requestConfig: { url: "/users/$name$.$id$", responseType: "document" },
-        assertion: { name: "url", id: "url" },
+        requestConfig: { url: "/api/profile", method: "GET", responseType: "json" },
         fields: [
+          "name",
           "levelName",
           "joinTime",
-          "uploads",
           "uploaded",
           "downloaded",
-          "ratio",
           "bonus",
           "seeding",
           "leeching",
-          "seedingSize",
-          "messageCount",
           "hnrUnsatisfied",
         ],
       },
       {
-        requestConfig: { url: "/users/$name$/unsatisfieds", responseType: "document" },
-        assertion: { name: "url" },
-        fields: ["hnrPreWarning"],
+        requestConfig: { url: "/", method: "GET", responseType: "document" },
+        fields: ["id", "uploads", "seedingSize", "messageCount"],
       },
       {
-        requestConfig: { url: "/bonus", responseType: "document" },
+        requestConfig: { url: "/users/$name$/hub/hunos", responseType: "document" },
+        assertion: { name: "url" },
         fields: ["bonusPerHour"],
       },
     ],
@@ -280,3 +279,19 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
+
+export default class Huno extends Unit3D {
+  public override async request<T>(
+    axiosConfig: AxiosRequestConfig,
+    checkLogin: boolean = true,
+  ): Promise<AxiosResponse<T>> {
+    // add token to headers
+    axiosConfig.headers = {
+      ...(axiosConfig.headers ?? {}),
+      "X-Api-Token": this.userConfig.inputSetting!.token ?? "",
+      origin: this.url,
+    };
+
+    return super.request<T>(axiosConfig, checkLogin);
+  }
+}
