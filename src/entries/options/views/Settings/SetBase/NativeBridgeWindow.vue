@@ -224,7 +224,7 @@ onMounted(() => {
         {{ t("SetNativeBridge.info.description") }}
         <br /><br />
         <i18n-t keypath="SetNativeBridge.info.cliRequired" tag="span" class="font-weight-bold">
-          <a href="https://github.com/LeiShi1313/ptd-cli" target="_blank" rel="noopener">
+          <a href="https://github.com/pt-plugins/ptd-cli" target="_blank" rel="noopener">
             {{ t("SetNativeBridge.info.cliLink") }}
           </a>
         </i18n-t>
