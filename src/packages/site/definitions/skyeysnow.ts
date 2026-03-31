@@ -124,6 +124,29 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
+
+  list: [
+    {
+      urlPattern: [/\/forum\.php\?mod=torrents/],
+    },
+  ],
+
+  detail: {
+    urlPattern: [/\/forum\.php\?mod=viewthread/],
+    selectors: {
+      title: { selector: ["span#thread_subject"] },
+      id: {
+        selector: ['div.pi a[href*="download.php?id="]'],
+        attr: "href",
+        filters: [{ name: "querystring", args: ["id"] }],
+      },
+      link: {
+        selector: ['div.pi a[href*="download.php?id="][href*="&passkey="]', 'div.pi a[href*="download.php?id="]'],
+        attr: "href",
+      },
+    },
+  },
+
   userInfo: {
     pickLast: ["id", "name"],
     process: [
