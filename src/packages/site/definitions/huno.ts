@@ -1,6 +1,7 @@
 import { ETorrentStatus, type IAdvancedSearchRequestConfig, ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/Unit3D.ts";
+import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
 import { set } from "es-toolkit/compat";
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
 
 const categoryMap: Record<number, string> = {
   1: "Movie",
@@ -31,7 +32,7 @@ const resolutionMap: Record<number, string> = {
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
 
-  version: 1,
+  version: 2,
   id: "huno",
   name: "HUNO",
   description: "HAWKE-UNO IS A HAWKE-ONE SERVICE POWERED BY UNIT3D.",
@@ -45,6 +46,15 @@ export const siteMetadata: ISiteMetadata = {
   legacyUrls: ["uggcf://unjxr.habm/"],
 
   collaborator: ["fzlins", "hui-shao"],
+
+  userInputSettingMeta: [
+    {
+      name: "token",
+      label: "Token",
+      hint: "在 /users/用户名/hub/settings/security 获取 API Token 并填入此处",
+      required: true,
+    },
+  ],
 
   category: [
     {
@@ -94,43 +104,65 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       ...SchemaMetadata.search!.selectors,
 
-      rows: { selector: "#torrent-list-table > tbody > tr" },
-      category: { text: "All", selector: ["td.torrent-listings-format i[data-original-title]"], data: "originalTitle" },
-      size: { selector: "td.torrent-listings-size", filters: [{ name: "parseSize" }] },
-      time: { selector: "td.torrent-listings-age:first", filters: [{ name: "parseTTL" }] },
-      seeders: { selector: "td.torrent-listings-seeders a", filters: [{ name: "parseNumber" }] },
-      leechers: { selector: "td.torrent-listings-leechers a", filters: [{ name: "parseNumber" }] },
-      completed: { selector: "td.torrent-listings-completed a", filters: [{ name: "parseNumber" }] },
+      rows: { selector: "table.deep-space-similar-table > tbody > tr" },
+      id: {
+        selector: ["div.ds-macro-row__name-content > div.ds-macro-row__name-title > a[href*='torrents']"],
+        attr: "href",
+        filters: [(query: string) => query.match(/\/torrents\/(\d+)/)![1]],
+      },
+      title: {
+        selector: ["div.ds-macro-row__name-content > div.ds-macro-row__name-title"],
+      },
+      subTitle: {
+        selector: ["div.ds-macro-row__name-content > div.ds-macro-row__name-specs"],
+      },
+      url: {
+        selector: ["div.ds-macro-row__name-content > div.ds-macro-row__name-title > a[href*='torrents']"],
+        attr: "href",
+      },
+      category: { text: "All", selector: ["span[title='Release Type']"] },
+      size: { selector: "a[title='Download']", filters: [{ name: "parseSize" }] },
+      time: { selector: "div[class^='tw-text-white']", filters: [{ name: "parseTTL" }] },
+      seeders: {
+        selector: ["a[href*='peers'][title*='seeders']", "a[href*='peers'][title*='Seeding']"],
+        filters: [{ name: "parseNumber" }],
+      },
+      leechers: {
+        selector: ["a[href*='peers'][title*='leechers']", "a[href*='peers'][title*='Leeching']"],
+        filters: [{ name: "parseNumber" }],
+      },
+      completed: { selector: "a[href*='snatched'][title*='completed']", filters: [{ name: "parseNumber" }] },
+      comments: { text: 0 }, // not provided
 
       status: {
         text: ETorrentStatus.unknown,
-        selector: ["td.torrent-listings-age:last span[data-original-title]"],
+        selector: ["div.ds-macro-row__name-content[style*='font-variant-numeric']"],
         case: {
-          "span[data-original-title='Leeching']": ETorrentStatus.downloading,
-          "span[data-original-title='Seeding']": ETorrentStatus.seeding,
-          "span[data-original-title='Not Completed']": ETorrentStatus.inactive, // 未完成!
-          "span[data-original-title='Downloaded but Not Seeding']": ETorrentStatus.completed, // 完成!
+          // "span[data-original-title='Leeching']": ETorrentStatus.downloading, //todo
+          "a[href*='peers'][title*='Seeding'][style*='--ds-success']": ETorrentStatus.seeding,
+          // "span[data-original-title='Not Completed']": ETorrentStatus.inactive, // 未完成!
+          // "span[data-original-title='Downloaded but Not Seeding']": ETorrentStatus.completed, // 完成!
         },
       },
       // 站点似乎不提供 progress
       progress: {
         text: 0,
-        selector: ["td.torrent-listings-age:last span[data-original-title]"],
+        selector: ["div.ds-macro-row__name-content[style*='font-variant-numeric']"],
         case: {
-          "span[data-original-title='Seeding'], span[data-original-title='Downloaded but Not Seeding']": 100,
-          "span[data-original-title='Leeching'], span[data-original-title='Not Completed']": 0,
+          "a[href*='peers'][title*='Seeding'][style*='--ds-success']": 100,
+          "a[href*='peers'][title*='seeders'][style*='inherit']": 0,
         },
       },
 
-      tags: [
-        { name: "Free", selector: "i.far.fa-gift", color: "#c149ab" },
-        { name: "Pack", selector: "i.far.fa-folder-heart", color: "#e3747a" },
-        { name: "Plex", selector: "i.far.fa-play", color: "#f39c12" },
-        { name: "Internal", selector: "i.far.fa-bolt", color: "#b793f0" },
-        { name: "Worthy", selector: "i.far.fa-medal", color: "#00c07f" },
-        { name: "Sticky", selector: "i.far.fa-thumbtack", color: "#d32f2f" },
-        { name: "H&R", selector: "*", color: "red" },
-      ],
+      // tags: [ // todo
+      //   { name: "Free", selector: "i.far.fa-gift", color: "#c149ab" },
+      //   { name: "Pack", selector: "i.far.fa-folder-heart", color: "#e3747a" },
+      //   { name: "Plex", selector: "i.far.fa-play", color: "#f39c12" },
+      //   { name: "Internal", selector: "i.far.fa-bolt", color: "#b793f0" },
+      //   { name: "Worthy", selector: "i.far.fa-medal", color: "#00c07f" },
+      //   { name: "Sticky", selector: "i.far.fa-thumbtack", color: "#d32f2f" },
+      //   { name: "H&R", selector: "*", color: "red" },
+      // ],
     },
   },
 
@@ -143,101 +175,92 @@ export const siteMetadata: ISiteMetadata = {
     pickLast: ["name", "id"],
     selectors: {
       ...SchemaMetadata.userInfo!.selectors,
-      // '/'
+      // page '/api/profile'
+      name: { selector: "data.username" },
+      levelName: { selector: "data.group" },
+      joinTime: {
+        selector: "data.member_since",
+        filters: [{ name: "parseTime" }],
+      },
+      uploaded: { selector: "data.uploaded" },
+      downloaded: { selector: "data.downloaded" },
+      bonus: { selector: "data.hunos" },
+      seeding: { selector: "data.active_seeds" },
+      leeching: { selector: "data.active_leeches" },
+      hnrUnsatisfied: { selector: "data.hit_and_runs" },
+      // hnrPreWarning: { // todo, not provided by site?
+      //   // 考核中的 HR
+      //   selector: ["div[view='unsatisfieds'] tbody"],
+      //   elementProcess: (element: Element) => {
+      //     const length = element.querySelectorAll("tr.userFiltered[hr='0'][immune='0']").length;
+      //     return length > 0 ? length : 0;
+      //   },
+      // },
+
+      // page '/'
       id: {
-        selector: ["ul.dropdown-menu a[href*='users']:first"],
-        attr: "href",
+        selector: ["span.deep-space-user-card__user-id"],
         filters: [
           (query: string) => {
-            const queryMatch = query.match(/users\/(\S+?)\.(\d+?)$/);
-            return queryMatch && queryMatch.length >= 3 ? queryMatch[2].trim() : "";
+            const queryMatch = query.match(/\d+/);
+            return queryMatch ? parseInt(queryMatch[0], 10) : 0;
           },
         ],
       },
-      // "/users/$user.name$.$user.id$"
-      levelName: {
-        selector: "span[data-original-title='Tier'] span",
-      },
-      joinTime: {
-        selector: [".user-info td:contains('Registration date') + td"],
-        filters: [{ name: "parseTime", args: ["MMM dd yyyy"] }],
-      },
       uploads: {
-        selector: [".user-info td:contains('Total Uploads') + td"],
-        filters: [{ name: "parseNumber" }],
+        selector: ["div.ds-user-stats span[title*='Uploads']"],
+        filters: [{ name: "split", args: ["/", 0] }, { name: "trim" }, { name: "parseNumber" }],
       },
-      uploaded: {
-        selector: [".user-info td span[data-original-title='Upload Size']"],
+      seedingSize: {
+        selector: ["div.ds-user-stats span[title*='Seeding Size']"],
         filters: [{ name: "parseSize" }],
       },
-      downloaded: {
-        selector: [".user-info td span[data-original-title='Download Size']"],
-        filters: [{ name: "parseSize" }],
+      messageCount: {
+        text: 0,
+        selector: ["div.ds-user-stats a[href*='/hub/messages'] > span.ds-count"],
+        elementProcess: (element: Element) => {
+          const icon = element.querySelector("i");
+          if (!icon) {
+            return 0;
+          }
+
+          const squareClass = Array.from(icon.classList).find((cls) => /^fa-square-\d+$/.test(cls));
+          if (!squareClass) {
+            return 11;
+          }
+
+          return parseInt(squareClass.replace("fa-square-", ""), 10) || 11;
+        },
       },
-      bonus: {
-        selector: ["span.badge-extra > span"],
-        filters: [{ name: "parseNumber" }],
-      },
+
+      // page '/users/$name$/hub/hunos'
       bonusPerHour: {
-        selector: ["tfoot strong"],
+        selector: ["table.deep-space-similar-table > tfoot td.tw-font-bold[style*=color]"],
         filters: [{ name: "parseNumber" }],
-      },
-      seeding: {
-        selector: [".user-info td:contains('Active Seeds') + td"],
-        filters: [{ name: "parseNumber" }],
-      },
-      leeching: {
-        selector: [".user-info td:contains('Active Leeches') + td"],
-        filters: [{ name: "parseNumber" }],
-      },
-      hnrPreWarning: {
-        // 考核中的 HR
-        selector: ["div[view='unsatisfieds'] tbody"],
-        elementProcess: (element: Element) => {
-          const length = element.querySelectorAll("tr.userFiltered[hr='0'][immune='0']").length;
-          return length > 0 ? length : 0;
-        },
-      },
-      hnrUnsatisfied: {
-        // 已被扣分的 HR
-        selector: ["span[data-original-title='HnRs']"],
-        elementProcess: (element: Element) => {
-          const text = element.lastChild?.textContent?.trim() ?? "";
-          const match = text.match(/\d+/);
-          return match ? parseInt(match[0], 10) : 0;
-        },
       },
     },
     process: [
       {
-        requestConfig: { url: "/", responseType: "document" },
-        fields: ["id", "name"],
-      },
-      {
-        requestConfig: { url: "/users/$name$.$id$", responseType: "document" },
-        assertion: { name: "url", id: "url" },
+        requestConfig: { url: "/api/profile", method: "GET", responseType: "json" },
         fields: [
+          "name",
           "levelName",
           "joinTime",
-          "uploads",
           "uploaded",
           "downloaded",
-          "ratio",
           "bonus",
           "seeding",
           "leeching",
-          "seedingSize",
-          "messageCount",
           "hnrUnsatisfied",
         ],
       },
       {
-        requestConfig: { url: "/users/$name$/unsatisfieds", responseType: "document" },
-        assertion: { name: "url" },
-        fields: ["hnrPreWarning"],
+        requestConfig: { url: "/", method: "GET", responseType: "document" },
+        fields: ["id", "uploads", "seedingSize", "messageCount"],
       },
       {
-        requestConfig: { url: "/bonus", responseType: "document" },
+        requestConfig: { url: "/users/$name$/hub/hunos", responseType: "document" },
+        assertion: { name: "url" },
         fields: ["bonusPerHour"],
       },
     ],
@@ -277,3 +300,19 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
+
+export default class Huno extends Unit3D {
+  public override async request<T>(
+    axiosConfig: AxiosRequestConfig,
+    checkLogin: boolean = true,
+  ): Promise<AxiosResponse<T>> {
+    // add token to headers
+    axiosConfig.headers = {
+      ...(axiosConfig.headers ?? {}),
+      "X-Api-Token": this.userConfig.inputSetting!.token ?? "",
+      origin: this.url,
+    };
+
+    return super.request<T>(axiosConfig, checkLogin);
+  }
+}
