@@ -49,6 +49,7 @@ onMessage("getDownloaderList", async () => {
     name: config.name ?? "",
     type: config.type ?? "",
     enabled: config.enabled ?? false,
+    address: config.address ?? "",
   }));
 });
 

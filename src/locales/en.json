@@ -701,7 +701,8 @@
       "cliRequired": "The external CLI tool must be installed for this feature to work. Native bridge is not available on mobile platforms. See {0} for installation instructions.",
       "cliLink": "ptd-cli",
       "setupCommand": "Run the following command to register this extension with the CLI tool:",
-      "setupHint": "After running the command, restart the browser or click Test Connection."
+      "setupHint": "After running the command, restart the browser or click Test Connection.",
+      "privacy": "When enabled, the native bridge allows the locally installed CLI tool to access extension data including site configuration, search results, download history, user info, and downloader status. All communication is local (between browser and local process) — no data is sent to remote servers. You can disable this feature or revoke the permission at any time."
     }
   },
   "SetDownloader": {

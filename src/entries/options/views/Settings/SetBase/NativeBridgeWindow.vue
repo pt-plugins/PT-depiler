@@ -228,6 +228,9 @@ onMounted(() => {
           </a>
         </i18n-t>
       </v-alert>
+      <v-alert type="warning" variant="tonal" class="mt-2">
+        {{ t("SetNativeBridge.info.privacy") }}
+      </v-alert>
     </v-col>
   </v-row>
 </template>
