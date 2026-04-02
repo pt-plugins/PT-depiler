@@ -25,7 +25,7 @@ onMessage("getSiteSearchResult", async ({ data: { siteId, keyword = "", searchEn
 
   if (searchResult.data.length > 0) {
     let autoDetectOfficialGroupFromTitlePattern: TPatterns | undefined;
-    if (configStorage.searchEntity.autoDetectOfficialGroupFromTitle && site.metadata.officialGroupPattern?.length) {
+    if (configStorage?.searchEntity?.autoDetectOfficialGroupFromTitle && site.metadata.officialGroupPattern?.length) {
       autoDetectOfficialGroupFromTitlePattern = site.metadata.officialGroupPattern;
     }
 

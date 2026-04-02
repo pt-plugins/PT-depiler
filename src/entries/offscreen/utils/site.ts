@@ -53,6 +53,24 @@ export async function getSiteUserConfig(siteId: TSiteID, flush = false) {
 
 onMessage("getSiteUserConfig", async ({ data: { siteId, flush } }) => await getSiteUserConfig(siteId, flush));
 
+onMessage("getSiteList", async () => {
+  const metadata = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
+  const sites = metadata?.sites ?? {};
+  const nameMap = metadata?.siteNameMap ?? {};
+  return Promise.all(
+    Object.entries(sites).map(async ([id, config]) => {
+      const siteMetaData = await getDefinedSiteMetadata(id as TSiteID);
+      const isDead = siteMetaData.isDead ?? false;
+      return {
+        id,
+        name: nameMap[id] ?? config.merge?.name ?? id,
+        url: config.url ?? "",
+        offline: (isDead || config.isOffline) ?? false,
+      };
+    }),
+  );
+});
+
 export async function getSiteInstance<TYPE extends "private" | "public">(
   siteId: TSiteID,
   options: { mergeUserConfig?: boolean } = {},

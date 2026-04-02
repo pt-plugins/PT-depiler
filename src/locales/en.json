@@ -587,7 +587,8 @@
       "download": "Download",
       "user-info": "UserInfo",
       "backup": "Backup & Restore",
-      "social-information": "Social Rating"
+      "social-information": "Social Rating",
+      "native-bridge": "Native Bridge"
     },
     "ui": {
       "changeLanguage": "Switch Language",
@@ -670,6 +671,38 @@
       "userDataRefresh": "User Data Refresh",
       "afterTime": "Earliest daily refresh time",
       "userInfoDisplay": "User Info Display"
+    }
+  },
+  "SetNativeBridge": {
+    "permission": {
+      "title": "Permission",
+      "granted": "Permission Granted",
+      "notGranted": "Permission Not Granted",
+      "grant": "Grant Permission",
+      "revoke": "Revoke Permission",
+      "grantFailed": "Permission request was denied"
+    },
+    "bridge": {
+      "title": "Bridge Control",
+      "enabled": "Enable Native Bridge",
+      "testConnection": "Test Connection",
+      "status": {
+        "no-permission": "No Permission",
+        "disabled": "Disabled",
+        "connecting": "Connecting...",
+        "connected": "Connected",
+        "retrying": "Retrying...",
+        "error": "Error"
+      }
+    },
+    "info": {
+      "title": "About Native Bridge",
+      "description": "The native bridge allows the PT-Depiler CLI tool to communicate with this extension. It requires the CLI tool to be installed separately on your computer.",
+      "cliRequired": "The external CLI tool must be installed for this feature to work. Native bridge is not available on mobile platforms. See {0} for installation instructions.",
+      "cliLink": "ptd-cli",
+      "setupCommand": "Run the following command to register this extension with the CLI tool:",
+      "setupHint": "After running the command, restart the browser or click Test Connection.",
+      "privacy": "When enabled, the native bridge allows the locally installed CLI tool to access extension data including site configuration, search results, download history, user info, and downloader status. All communication is local (between browser and local process) — no data is sent to remote servers. You can disable this feature or revoke the permission at any time."
     }
   },
   "SetDownloader": {
