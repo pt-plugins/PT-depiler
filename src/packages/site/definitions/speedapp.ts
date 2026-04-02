@@ -1,4 +1,11 @@
-import type { ISiteMetadata, ISearchEntryRequestConfig, ISearchResult, ITorrent } from "../types.ts";
+import type {
+  ISiteMetadata,
+  ISearchEntryRequestConfig,
+  ISearchResult,
+  ITorrent,
+  IUserInfo,
+  TLevelId,
+} from "../types.ts";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 import { buildCategoryOptionsFromDict } from "../utils.ts";
 
@@ -467,7 +474,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 3,
       name: "Power User",
-      // nameAka: ["超级用户"],
+      nameAka: ["超级用户"],
       interval: "P90D",
       uploaded: "200GB",
       ratio: 2,
@@ -494,7 +501,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 6,
       name: "Super User",
-      // nameAka: ["超级用户"],
+      nameAka: ["超级用户"],
       interval: "P2Y",
       uploaded: "20TB",
       ratio: 5,
@@ -520,6 +527,19 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class SpeedApp extends PrivateSite {
+  protected override guessUserLevelId(userInfo: IUserInfo): TLevelId {
+    if (userInfo.levelName === "超级用户" && typeof userInfo.uploaded === "number") {
+      // 区分 SpeedApp 中同名中文级别的特征，Super User (20TB) vs Power User (200GB)
+      const uploadedTB = userInfo.uploaded / (1024 * 1024 * 1024 * 1024);
+      if (uploadedTB >= 20) {
+        return 6; // Super User
+      } else {
+        return 3; // Power User
+      }
+    }
+    return super.guessUserLevelId(userInfo);
+  }
+
   /**
    * SpeedApp 搜索方法
    * 适配 SpeedApp 高级搜索多个分类共用 tags 参数的情况
