@@ -298,20 +298,35 @@ export function getNextLevelUnMet(
 
 export function guessUserLevelId(userInfo: IUserInfo, levelRequirements: ILevelRequirement[]): TLevelId {
   // 首先尝试 levelName 的直接匹配，站点levelRequirements中配置的 name 一定要等于或包含 获取到的 levelName 中才会匹配成功
-  let level = levelRequirements.find((level) => {
+  let matchedLevels = levelRequirements.filter((level) => {
     const cleanedUserLevelName = cleanLevelName(userInfo.levelName!);
     return [level.name, ...(level.nameAka ?? [])]
       .map(cleanLevelName)
       .some((name) => name.includes(cleanedUserLevelName));
   });
-  if (level) {
-    return level.id;
+
+  if (matchedLevels.length > 0) {
+    if (matchedLevels.length === 1) {
+      return matchedLevels[0].id;
+    }
+
+    // 如果有多个级别的名称匹配（例如某站点 Power User 和 Super User 都叫「超级用户」）
+    // 优先返回各项数据指标都满足要求的那一个级别（可能因站点降级保护机制导致数据不达标，若全不达标则返回包含该名称的最高级别）
+    let metLevel = matchedLevels
+      .slice()
+      .reverse()
+      .find((level) => isLevelRequirementMet(userInfo, level));
+    if (metLevel) {
+      return metLevel.id;
+    }
+
+    return matchedLevels[matchedLevels.length - 1].id;
   }
 
   // 再尝试判断 groupType
   let groupType = guessUserLevelGroupType(userInfo.levelName!);
   if (groupType !== "user") {
-    level = levelRequirements.find((level) => level.groupType === groupType);
+    let level = levelRequirements.find((level) => level.groupType === groupType);
     if (level) {
       return level.id;
     } else {

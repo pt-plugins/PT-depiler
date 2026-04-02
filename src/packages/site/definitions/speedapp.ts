@@ -467,7 +467,7 @@ export const siteMetadata: ISiteMetadata = {
     {
       id: 3,
       name: "Power User",
-      // nameAka: ["超级用户"],
+      nameAka: ["超级用户"],
       interval: "P90D",
       uploaded: "200GB",
       ratio: 2,
