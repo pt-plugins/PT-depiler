@@ -8,7 +8,8 @@ import { useResetableRef } from "@/options/directives/useResetableRef.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import type { IStoredUserInfo, TUserInfoStorageSchema } from "@/shared/types.ts";
 
-import { allAddedSiteMetadata, fixUserInfo, realFormatRatio, TOptionSiteMetadatas } from "../utils.ts";
+import { fixUserInfo, realFormatRatio } from "../utils/format.ts";
+import { allAddedSiteMetadata, TOptionSiteMetadatas } from "../utils/siteMetadata.ts";
 
 const metadataStore = useMetadataStore();
 

@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref, shallowRef, watch } from "vue";
+import { computed, onMounted, reactive, ref } from "vue";
+import { watchDebounced } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
-import { differenceInDays } from "date-fns";
 import { isUndefined } from "es-toolkit/compat";
 import type { DataTableHeader } from "vuetify";
 import { EResultParseStatus, type ISiteUserConfig, type IUserInfo, type TSiteID } from "@ptd/site";
@@ -21,7 +21,8 @@ import UserLevelRequirementsTd from "./UserLevelRequirementsTd.vue";
 import HistoryDataViewDialog from "./HistoryDataViewDialog.vue";
 import BonusFormatSpan from "./BonusFormatSpan.vue";
 
-import { cancelFlushSiteLastUserInfo, fixUserInfo, flushSiteLastUserInfo, formatRatio } from "./utils.ts";
+import { formatRatio } from "./utils/format.ts";
+import { tableData, initTableData, cancelFlushSiteLastUserInfo, flushSiteLastUserInfo } from "./utils/lastUserData.ts";
 
 const { t } = useI18n();
 const router = useRouter();
@@ -104,62 +105,20 @@ const {
 });
 
 const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
-const tableData = shallowRef<IUserInfoItem[]>([]);
 
-async function updateTableData() {
-  const allPrivateSiteUserInfoData = [];
+// 挂载时加载表格数据
+onMounted(() => initTableData());
 
-  for (const [siteId, siteUserConfig] of Object.entries(metadataStore.sites)) {
-    const siteMeta = await metadataStore.getSiteMetadata(siteId);
-    const siteName = Array.from(
-      new Set(
-        [
-          siteMeta.name,
-          ...(siteMeta.aka ?? []),
-          metadataStore.siteNameMap?.[siteId],
-          siteUserConfig.merge?.name,
-        ].filter(Boolean),
-      ),
-    ).join("|$|");
-
-    if (
-      // 只显示私有站点的用户信息
-      siteMeta.type === "public" ||
-      // 根据配置决定是否显示已死亡站点的用户信息
-      (!configStore.userInfo.showDeadSiteInOverview && siteMeta.isDead === true) ||
-      // 根据配置决定是否显示设置了离线模式或不允许查询用户信息的站点
-      (!siteMeta.isDead &&
-        !configStore.userInfo.showPassedSiteInOverview &&
-        (siteUserConfig.isOffline === true || siteUserConfig.allowQueryUserInfo === false))
-    ) {
-      continue;
+// 监听用户信息变化（ offscreen 直接定时刷新的情况 ）
+watchDebounced(
+  () => metadataStore.lastUserInfo,
+  () => {
+    // 此时前端并没有进行刷新，强制更新
+    if (!Object.values(runtimeStore.userInfo.flushPlan).some((isFlushing) => isFlushing)) {
+      initTableData();
     }
-
-    const siteUserInfoData = metadataStore.lastUserInfo[siteId] ?? {};
-    allPrivateSiteUserInfoData.push({
-      ...fixUserInfo(siteUserInfoData),
-      site: siteId,
-      siteUserConfig,
-      siteName,
-      // 对 isDead 或者 isOffline 的站点不允许选择（ https://github.com/pt-plugins/PT-depiler/pull/140 ）
-      selectable: !(siteMeta.isDead || siteUserConfig.isOffline),
-
-      // 预先计算 多少天未访问站点，以防止在 template 中反复计算
-      lastAccessDuration:
-        typeof siteUserInfoData.lastAccessAt === "number"
-          ? differenceInDays(currentDate, siteUserInfoData.lastAccessAt)
-          : 0,
-    });
-  }
-
-  tableData.value = allPrivateSiteUserInfoData;
-}
-
-onMounted(() => updateTableData()); // 挂载时加载表格数据
-watch(
-  () => metadataStore.lastUserInfo, // 监听用户信息变化
-  () => updateTableData(),
-  { deep: true },
+  },
+  { debounce: 5e3, deep: true },
 );
 
 const showHistoryDataViewDialog = ref<boolean>(false);

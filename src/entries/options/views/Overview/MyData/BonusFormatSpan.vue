@@ -3,7 +3,7 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import { formatNumber, simplifyNumber } from "@/options/utils.ts";
 
 const { num: numberItem } = defineProps<{
-  num: number;
+  num: number | undefined;
 }>();
 
 const configStore = useConfigStore();

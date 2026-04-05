@@ -7,7 +7,7 @@ import type { DataTableHeader } from "vuetify";
 
 import { sendMessage } from "@/messages.ts";
 import { formatNumber, formatSize, formatDate } from "@/options/utils.ts";
-import { fixUserInfo, formatRatio } from "./utils.ts";
+import { fixUserInfo, formatRatio } from "./utils/format.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import NavButton from "@/options/components/NavButton.vue";

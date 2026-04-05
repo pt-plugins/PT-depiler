@@ -32,7 +32,7 @@ import {
   fixedLastUserInfo,
   loadFullData,
 } from "./utils.ts";
-import { allAddedSiteMetadata, loadAllAddedSiteMetadata } from "../utils.ts";
+import { allAddedSiteMetadata, loadAllAddedSiteMetadata } from "../utils/siteMetadata.ts";
 
 const ext_version = __EXT_VERSION__;
 
