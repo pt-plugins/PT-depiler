@@ -122,9 +122,12 @@ export const siteMetadata: ISiteMetadata = {
           seedingTime: { selector: "data.seeding_time" },
 
           bonus: { selector: "data.karma" },
-          seedingBonus: { selector: "data.credits" },
-          bonusPerHour: { selector: "data.seeding_karma_per_hour" },
-          seedingBonusPerHour: { selector: "data.seeding_points_per_hour" },
+        },
+      },
+      {
+        requestConfig: { url: "/api/v1/seeding-reward" },
+        selectors: {
+          bonusPerHour: { selector: "data.total_reward" },
         },
       },
     ],
