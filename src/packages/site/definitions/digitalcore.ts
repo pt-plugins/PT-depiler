@@ -2,7 +2,7 @@ import type { ISiteMetadata } from "../types";
 import { get } from "es-toolkit/compat";
 import { buildCategoryOptionsFromDict } from "../utils";
 import Rartracker from "../schemas/Rartracker";
-import { SchemaMetadata, statusRequestConfig } from "../schemas/Rartracker";
+import { SchemaMetadata } from "../schemas/Rartracker";
 
 const commonDocumentSelectors = {
   rows: { selector: "torrents-table[torrents] > table > tbody > tr" },
@@ -156,7 +156,7 @@ export const siteMetadata: ISiteMetadata = {
       selectors: {
         time: { selector: "td:nth-child(6)", filters: [{ name: "parseTime" }] },
         size: { selector: "td:nth-child(7)", filters: [{ name: "parseSize" }] },
-        completed: { selector: "td:nth-child(8)", filters: [{ name: "parseSize" }] },
+        completed: { selector: "td:nth-child(8)", filters: [{ name: "parseNumber" }] },
         seeders: { selector: "td:nth-child(9)" },
         leechers: { selector: "td:nth-child(10)" },
         ...commonDocumentSelectors,
