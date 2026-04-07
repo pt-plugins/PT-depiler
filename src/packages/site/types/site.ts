@@ -11,11 +11,14 @@ import type PrivateSite from "../schemas/AbstractPrivateSite.ts";
 export type SiteSchema =
   | "AbstractBittorrentSite"
   | "AbstractPrivateSite"
-  | "NexusPHP"
-  | "Unit3D"
+  | "AvistazNetwork"
   | "Gazelle"
   | "GazelleJSONAPI"
-  | "AvistazNetwork"
+  | "Luminance"
+  | "NexusPHP"
+  | "Rartracker"
+  | "TCG"
+  | "Unit3D"
   | string;
 
 type TUserInfoParseKey = keyof Omit<IUserInfo, "site" | "status" | "updateAt">;
