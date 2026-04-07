@@ -92,7 +92,7 @@
     "sass": "^1.99.0",
     "tsx": "^4.21.0",
     "typescript": "~6.0.2",
-    "vite": "^6.4.1",
+    "vite": "^6.4.2",
     "vite-plugin-node-polyfills": "^0.26.0",
     "vite-plugin-vue-devtools": "^8.1.1",
     "vite-plugin-vuetify": "^2.1.3",
