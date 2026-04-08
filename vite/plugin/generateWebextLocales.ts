@@ -28,7 +28,7 @@ export function vitePluginGenerateWebextLocales() {
           }
 
           // 生成 messages.json 文件内容
-          const messages = {};
+          const messages: Record<string, any> = {};
           for (const [key, value] of Object.entries(manifest)) {
             messages[key] = {
               message: value,
