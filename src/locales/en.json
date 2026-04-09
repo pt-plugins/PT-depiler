@@ -1139,7 +1139,6 @@
   "MyClient": {
     "refresh": "Refresh",
     "deleteSelected": "Delete Selected",
-    "deleteSelectedWithData": "Delete Selected (with data)",
     "searchPlaceholder": "Search by name, hash, label, or path",
     "emptyNotice": "No torrents found. Please add a downloader or click Refresh.",
     "table": {
@@ -1167,7 +1166,6 @@
       "pause": "Pause",
       "resume": "Resume",
       "delete": "Delete",
-      "deleteWithData": "Delete (with data)",
       "pauseSuccess": "Paused successfully",
       "pauseError": "Failed to pause",
       "resumeSuccess": "Resumed successfully",
@@ -1185,6 +1183,9 @@
       "suspendedTip": "This client has been suspended due to 3 consecutive failures. Click the alert icon to resume."
     },
     "pauseSelected": "Pause selected",
-    "resumeSelected": "Resume selected"
+    "resumeSelected": "Resume selected",
+    "dialog": {
+      "removeData": "Also remove data"
+    }
   }
 }

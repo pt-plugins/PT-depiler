@@ -1139,7 +1139,6 @@
   "MyClient": {
     "refresh": "刷新",
     "deleteSelected": "删除所选",
-    "deleteSelectedWithData": "删除所选(含数据)",
     "searchPlaceholder": "搜索种子名称、Hash、标签、路径",
     "emptyNotice": "当前没有种子，请先添加下载器或刷新",
     "table": {
@@ -1167,7 +1166,6 @@
       "pause": "暂停",
       "resume": "继续",
       "delete": "删除",
-      "deleteWithData": "删除(含数据)",
       "pauseSuccess": "暂停成功",
       "pauseError": "暂停失败",
       "resumeSuccess": "继续成功",
@@ -1185,6 +1183,9 @@
       "suspendedTip": "该下载器已因连续失败 3 次而被暂停。点击感叹号图标可恢复。"
     },
     "pauseSelected": "暂停所选",
-    "resumeSelected": "继续所选"
+    "resumeSelected": "继续所选",
+    "dialog": {
+      "removeData": "同时删除数据"
+    }
   }
 }

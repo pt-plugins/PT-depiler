@@ -41,6 +41,8 @@ async function dialogEnter() {
         {{ t("common.dialog.deleteText", [toDeleteIds!.length]) }}
       </v-card-text>
 
+      <slot name="extra" />
+
       <v-card-actions>
         <v-spacer />
         <v-btn color="info" prepend-icon="mdi-close-circle" variant="text" @click="showDialog = false">

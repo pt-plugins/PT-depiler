@@ -11,7 +11,7 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 
 import NavButton from "@/options/components/NavButton.vue";
-import DeleteDialog from "@/options/components/DeleteDialog.vue";
+import DeleteDialog from "./DeleteDialog.vue";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
@@ -29,7 +29,6 @@ const selectedDownloaderIds = ref<string[]>([]);
 
 // delete dialog
 const showDeleteDialog = ref(false);
-const deleteWithData = ref(false);
 const toDeleteTorrents = ref<CTorrent[]>([]);
 
 // ── auto-refresh ───────────────────────────────────────────────────────────
@@ -271,25 +270,24 @@ async function resumeSelected() {
   await Promise.allSettled(affectedIds.map(loadSingleDownloader));
 }
 
-function openDeleteDialog(torrentList: CTorrent[], withData = false) {
+function openDeleteDialog(torrentList: CTorrent[]) {
   toDeleteTorrents.value = torrentList;
-  deleteWithData.value = withData;
   showDeleteDialog.value = true;
 }
 
-function openDeleteSelected(withData = false) {
+function openDeleteSelected() {
   const selected = torrents.value.filter((t) => tableSelected.value.includes(torrentKey(t)));
-  openDeleteDialog(selected, withData);
+  openDeleteDialog(selected);
 }
 
 // Called per-item by DeleteDialog
-async function confirmDeleteTorrent(torrentKey_: string): Promise<void> {
+async function confirmDeleteTorrent(torrentKey_: string, removeData: boolean): Promise<void> {
   const torrent = toDeleteTorrents.value.find((t) => torrentKey(t) === torrentKey_);
   if (!torrent) return;
   await sendMessage("deleteClientTorrent", {
     downloaderId: torrent.clientId,
     id: torrent.id,
-    removeData: deleteWithData.value,
+    removeData,
   });
 }
 
@@ -408,15 +406,7 @@ function torrentKey(torrent: CTorrent) {
           color="error"
           icon="mdi-delete"
           :text="t('MyClient.deleteSelected')"
-          @click="openDeleteSelected(false)"
-        />
-
-        <NavButton
-          :disabled="tableSelected.length === 0"
-          color="error"
-          icon="mdi-delete-forever"
-          :text="t('MyClient.deleteSelectedWithData')"
-          @click="openDeleteSelected(true)"
+          @click="openDeleteSelected()"
         />
 
         <v-spacer />
@@ -555,14 +545,7 @@ function torrentKey(torrent: CTorrent) {
               color="error"
               icon="mdi-delete"
               size="small"
-              @click="openDeleteDialog([item], false)"
-            />
-            <v-btn
-              :title="t('MyClient.action.deleteWithData')"
-              color="error"
-              icon="mdi-delete-forever"
-              size="small"
-              @click="openDeleteDialog([item], true)"
+              @click="openDeleteDialog([item])"
             />
           </v-btn-group>
         </template>
