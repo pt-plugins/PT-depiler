@@ -4,12 +4,10 @@ import { useI18n } from "vue-i18n";
 
 import BaseDeleteDialog from "@/options/components/DeleteDialog.vue";
 
-type TDeleteId = any;
-
 const showDialog = defineModel<boolean>();
 const props = defineProps<{
-  toDeleteIds: TDeleteId[];
-  confirmDelete: (toDeleteId: TDeleteId, removeData: boolean) => Promise<void> | void;
+  toDeleteIds: string[];
+  confirmDelete: (toDeleteId: string, removeData: boolean) => Promise<void> | void;
 }>();
 const emits = defineEmits<{
   (e: "allDelete"): void;
@@ -23,7 +21,7 @@ watch(showDialog, (val) => {
   if (val) removeData.value = false;
 });
 
-function wrappedConfirmDelete(id: TDeleteId) {
+function wrappedConfirmDelete(id: string) {
   return props.confirmDelete(id, removeData.value);
 }
 </script>
