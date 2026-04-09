@@ -246,10 +246,11 @@ async function pauseSelected() {
       (t.state === CTorrentState.downloading || t.state === CTorrentState.seeding),
   );
   if (targets.length === 0) return;
-  await Promise.allSettled(
+  const results = await Promise.allSettled(
     targets.map((t) => sendMessage("pauseClientTorrent", { downloaderId: t.clientId, id: t.id })),
   );
-  runtimeStore.showSnakebar(t("MyClient.action.pauseSelectedSuccess", { count: targets.length }), { color: "success" });
+  const succeeded = results.filter((r) => r.status === "fulfilled").length;
+  runtimeStore.showSnakebar(t("MyClient.action.pauseSelectedSuccess", { count: succeeded }), { color: "success" });
   const affectedIds = [...new Set(targets.map((t) => t.clientId))];
   await Promise.allSettled(affectedIds.map(loadSingleDownloader));
 }
@@ -261,10 +262,11 @@ async function resumeSelected() {
       (t.state === CTorrentState.paused || t.state === CTorrentState.error),
   );
   if (targets.length === 0) return;
-  await Promise.allSettled(
+  const results = await Promise.allSettled(
     targets.map((t) => sendMessage("resumeClientTorrent", { downloaderId: t.clientId, id: t.id })),
   );
-  runtimeStore.showSnakebar(t("MyClient.action.resumeSelectedSuccess", { count: targets.length }), { color: "success" });
+  const succeeded = results.filter((r) => r.status === "fulfilled").length;
+  runtimeStore.showSnakebar(t("MyClient.action.resumeSelectedSuccess", { count: succeeded }), { color: "success" });
   const affectedIds = [...new Set(targets.map((t) => t.clientId))];
   await Promise.allSettled(affectedIds.map(loadSingleDownloader));
 }
@@ -400,6 +402,11 @@ function torrentKey(torrent: CTorrent) {
         />
 
         <v-divider vertical class="mx-2" />
+
+        <NavButton
+          :disabled="tableSelected.length === 0"
+          color="error"
+          icon="mdi-delete"
           :text="t('MyClient.deleteSelected')"
           @click="openDeleteSelected(false)"
         />
