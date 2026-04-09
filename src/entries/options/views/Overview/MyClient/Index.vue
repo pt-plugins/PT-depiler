@@ -126,13 +126,13 @@ function openDeleteDialog(torrentList: CTorrent[], withData = false) {
 }
 
 function openDeleteSelected(withData = false) {
-  const selected = torrents.value.filter((t) => tableSelected.value.includes(String(t.id) + t.clientId));
+  const selected = torrents.value.filter((t) => tableSelected.value.includes(torrentKey(t)));
   openDeleteDialog(selected, withData);
 }
 
 // Called per-item by DeleteDialog
-async function confirmDeleteTorrent(torrentKey: string): Promise<void> {
-  const torrent = toDeleteTorrents.value.find((t) => String(t.id) + t.clientId === torrentKey);
+async function confirmDeleteTorrent(torrentKey_: string): Promise<void> {
+  const torrent = toDeleteTorrents.value.find((t) => torrentKey(t) === torrentKey_);
   if (!torrent) return;
   await sendMessage("deleteClientTorrent", {
     downloaderId: torrent.clientId,
@@ -148,6 +148,10 @@ function clientName(clientId: string) {
 function clientIcon(clientId: string) {
   const type = metadataStore.downloaders[clientId]?.type;
   return type ? getDownloaderIcon(type) : undefined;
+}
+
+function torrentKey(torrent: CTorrent) {
+  return String(torrent.id) + torrent.clientId;
 }
 </script>
 
@@ -218,12 +222,12 @@ function clientIcon(clientId: string) {
         :items-per-page="configStore.tableBehavior['MyClient']?.itemsPerPage ?? 25"
         :multi-sort="configStore.enableTableMultiSort"
         :sort-by="configStore.tableBehavior['MyClient']?.sortBy"
-        :item-value="(item: CTorrent) => String(item.id) + item.clientId"
+        :item-value="(item: CTorrent) => torrentKey(item)"
         class="table-stripe table-header-no-wrap"
         hover
         show-select
-        @update:itemsPerPage="(v) => configStore.updateTableBehavior('MyClient' as any, 'itemsPerPage', v)"
-        @update:sortBy="(v) => configStore.updateTableBehavior('MyClient' as any, 'sortBy', v)"
+        @update:itemsPerPage="(v) => configStore.updateTableBehavior('MyClient', 'itemsPerPage', v)"
+        @update:sortBy="(v) => configStore.updateTableBehavior('MyClient', 'sortBy', v)"
       >
         <!-- client column -->
         <template #item.clientId="{ item }">
@@ -281,7 +285,7 @@ function clientIcon(clientId: string) {
 
         <!-- upload speed -->
         <template #item.uploadSpeed="{ item }">
-          <span class="text-no-wrap text-green-darken-2" v-if="item.uploadSpeed > 0">
+          <span v-if="item.uploadSpeed > 0" class="text-no-wrap text-green-darken-2">
             {{ formatSize(item.uploadSpeed) }}/s
           </span>
           <span v-else class="text-grey">-</span>
@@ -289,7 +293,7 @@ function clientIcon(clientId: string) {
 
         <!-- download speed -->
         <template #item.downloadSpeed="{ item }">
-          <span class="text-no-wrap text-blue-darken-2" v-if="item.downloadSpeed > 0">
+          <span v-if="item.downloadSpeed > 0" class="text-no-wrap text-blue-darken-2">
             {{ formatSize(item.downloadSpeed) }}/s
           </span>
           <span v-else class="text-grey">-</span>
@@ -351,7 +355,7 @@ function clientIcon(clientId: string) {
 
   <DeleteDialog
     v-model="showDeleteDialog"
-    :to-delete-ids="toDeleteTorrents.map((t) => String(t.id) + t.clientId)"
+    :to-delete-ids="toDeleteTorrents.map((t) => torrentKey(t))"
     :confirm-delete="confirmDeleteTorrent"
     @all-delete="loadTorrents"
   />
