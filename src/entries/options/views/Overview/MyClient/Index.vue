@@ -33,14 +33,18 @@ const deleteWithData = ref(false);
 const toDeleteTorrents = ref<CTorrent[]>([]);
 
 // ── auto-refresh ───────────────────────────────────────────────────────────
-/** Global refresh interval in seconds (0 = off). Not persisted intentionally. */
+/**
+ * Global refresh interval in seconds (0 = off).
+ * Not persisted: auto-refresh should not silently start on page reload,
+ * which could cause unexpected network traffic or overwhelm downloaders.
+ */
 const globalRefreshInterval = ref(0);
 
 /** Whether auto-refresh is currently running */
 const autoRefreshRunning = ref(false);
 
 /** Per-downloader setTimeout IDs */
-const refreshTimers = new Map<string, number>();
+const refreshTimers = new Map<string, ReturnType<typeof window.setTimeout>>();
 
 /** Per-downloader consecutive failure counts */
 const failCounts = new Map<string, number>();
@@ -111,7 +115,7 @@ async function loadSingleDownloader(id: string): Promise<void> {
     const next = prev + 1;
     failCounts.set(id, next);
     if (next >= 3) {
-      suspendedDownloaders.value = new Set([...suspendedDownloaders.value, id]);
+      suspendedDownloaders.value.add(id);
       clearDownloaderTimer(id);
       runtimeStore.showSnakebar(
         t("MyClient.autoRefresh.clientSuspended", { name: clientName(id) }),
@@ -136,10 +140,10 @@ function scheduleDownloaderRefresh(id: string) {
   if (globalRefreshInterval.value <= 0) return;
 
   clearDownloaderTimer(id);
-  const tid = setTimeout(async () => {
+  const tid = window.setTimeout(async () => {
     await loadSingleDownloader(id);
     scheduleDownloaderRefresh(id);
-  }, globalRefreshInterval.value * 1000) as unknown as number;
+  }, globalRefreshInterval.value * 1000);
   refreshTimers.set(id, tid);
 }
 
@@ -201,7 +205,7 @@ function toggleAutoRefresh() {
 
 /** Resume a specific suspended downloader. */
 function resumeDownloaderRefresh(id: string) {
-  suspendedDownloaders.value = new Set([...suspendedDownloaders.value].filter((x) => x !== id));
+  suspendedDownloaders.value.delete(id);
   failCounts.set(id, 0);
   if (autoRefreshRunning.value) {
     scheduleDownloaderRefresh(id);
