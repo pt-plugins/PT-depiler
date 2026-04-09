@@ -1135,5 +1135,43 @@
       "clearSearchSnapshot": "Clear Search Snapshots",
       "clearSearchSnapshotDesc": "Clear all search snapshot data"
     }
+  },
+  "MyClient": {
+    "refresh": "Refresh",
+    "deleteSelected": "Delete Selected",
+    "deleteSelectedWithData": "Delete Selected (with data)",
+    "searchPlaceholder": "Search by name, hash, label, or path",
+    "emptyNotice": "No torrents found. Please add a downloader or click Refresh.",
+    "table": {
+      "client": "Client",
+      "name": "Torrent Name",
+      "size": "Size",
+      "progress": "Progress",
+      "status": "Status",
+      "ratio": "Ratio",
+      "upSpeed": "Upload Speed",
+      "dlSpeed": "Download Speed",
+      "savePath": "Save Path",
+      "addedAt": "Added At"
+    },
+    "state": {
+      "downloading": "Downloading",
+      "seeding": "Seeding",
+      "paused": "Paused",
+      "queued": "Queued",
+      "checking": "Checking",
+      "error": "Error",
+      "unknown": "Unknown"
+    },
+    "action": {
+      "pause": "Pause",
+      "resume": "Resume",
+      "delete": "Delete",
+      "deleteWithData": "Delete (with data)",
+      "pauseSuccess": "Paused successfully",
+      "pauseError": "Failed to pause",
+      "resumeSuccess": "Resumed successfully",
+      "resumeError": "Failed to resume"
+    }
   }
 }

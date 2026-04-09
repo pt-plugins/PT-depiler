@@ -108,6 +108,34 @@ export async function getTorrentInfoForVerification(torrent: ITorrent) {
 
 onMessage("getTorrentInfoForVerification", async ({ data: torrent }) => await getTorrentInfoForVerification(torrent));
 
+onMessage("getClientTorrents", async ({ data: downloaderId }) => {
+  const downloaderConfig = await getDownloaderConfig(downloaderId);
+  if (!downloaderConfig.id) return [];
+  const downloaderInstance = await getDownloader(downloaderConfig);
+  return await downloaderInstance.getAllTorrents();
+});
+
+onMessage("deleteClientTorrent", async ({ data: { downloaderId, id, removeData } }) => {
+  const downloaderConfig = await getDownloaderConfig(downloaderId);
+  if (!downloaderConfig.id) return false;
+  const downloaderInstance = await getDownloader(downloaderConfig);
+  return await downloaderInstance.removeTorrent(id, removeData ?? false);
+});
+
+onMessage("pauseClientTorrent", async ({ data: { downloaderId, id } }) => {
+  const downloaderConfig = await getDownloaderConfig(downloaderId);
+  if (!downloaderConfig.id) return false;
+  const downloaderInstance = await getDownloader(downloaderConfig);
+  return await downloaderInstance.pauseTorrent(id);
+});
+
+onMessage("resumeClientTorrent", async ({ data: { downloaderId, id } }) => {
+  const downloaderConfig = await getDownloaderConfig(downloaderId);
+  if (!downloaderConfig.id) return false;
+  const downloaderInstance = await getDownloader(downloaderConfig);
+  return await downloaderInstance.resumeTorrent(id);
+});
+
 function buildDownloadHistory(downloadOption: IDownloadTorrentOption): ITorrentDownloadMetadata {
   const { torrent = {}, downloaderId = "local" } = downloadOption;
   return {

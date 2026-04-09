@@ -878,7 +878,10 @@
         "searchEntries": "搜索入口",
         "flushFavicon": "刷新站点图标"
       },
-      "settingNote": ["只有配置过的站点才会显示插件图标及相应的功能；", "已离线的站点不再参与搜索和信息获取；"],
+      "settingNote": [
+        "只有配置过的站点才会显示插件图标及相应的功能；",
+        "已离线的站点不再参与搜索和信息获取；"
+      ],
       "oneClickImport": "一键导入站点",
       "reBuildMap": "重建站点映射"
     },
@@ -1131,6 +1134,44 @@
       "clearMediaCache": "清空来自豆瓣、IMDb等信息站点的媒体简介缓存",
       "clearSearchSnapshot": "清空搜索快照",
       "clearSearchSnapshotDesc": "清空所有搜索快照数据"
+    }
+  },
+  "MyClient": {
+    "refresh": "刷新",
+    "deleteSelected": "删除所选",
+    "deleteSelectedWithData": "删除所选(含数据)",
+    "searchPlaceholder": "搜索种子名称、Hash、标签、路径",
+    "emptyNotice": "当前没有种子，请先添加下载器或刷新",
+    "table": {
+      "client": "下载器",
+      "name": "种子名称",
+      "size": "大小",
+      "progress": "进度",
+      "status": "状态",
+      "ratio": "分享率",
+      "upSpeed": "上传速度",
+      "dlSpeed": "下载速度",
+      "savePath": "保存路径",
+      "addedAt": "添加时间"
+    },
+    "state": {
+      "downloading": "下载中",
+      "seeding": "做种中",
+      "paused": "已暂停",
+      "queued": "排队中",
+      "checking": "检查中",
+      "error": "错误",
+      "unknown": "未知"
+    },
+    "action": {
+      "pause": "暂停",
+      "resume": "继续",
+      "delete": "删除",
+      "deleteWithData": "删除(含数据)",
+      "pauseSuccess": "暂停成功",
+      "pauseError": "暂停失败",
+      "resumeSuccess": "继续成功",
+      "resumeError": "继续失败"
     }
   }
 }
