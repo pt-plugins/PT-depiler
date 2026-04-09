@@ -239,6 +239,36 @@ async function resumeTorrent(torrent: CTorrent) {
   }
 }
 
+async function pauseSelected() {
+  const targets = torrents.value.filter(
+    (t) =>
+      tableSelected.value.includes(torrentKey(t)) &&
+      (t.state === CTorrentState.downloading || t.state === CTorrentState.seeding),
+  );
+  if (targets.length === 0) return;
+  await Promise.allSettled(
+    targets.map((t) => sendMessage("pauseClientTorrent", { downloaderId: t.clientId, id: t.id })),
+  );
+  runtimeStore.showSnakebar(t("MyClient.action.pauseSelectedSuccess", { count: targets.length }), { color: "success" });
+  const affectedIds = [...new Set(targets.map((t) => t.clientId))];
+  await Promise.allSettled(affectedIds.map(loadSingleDownloader));
+}
+
+async function resumeSelected() {
+  const targets = torrents.value.filter(
+    (t) =>
+      tableSelected.value.includes(torrentKey(t)) &&
+      (t.state === CTorrentState.paused || t.state === CTorrentState.error),
+  );
+  if (targets.length === 0) return;
+  await Promise.allSettled(
+    targets.map((t) => sendMessage("resumeClientTorrent", { downloaderId: t.clientId, id: t.id })),
+  );
+  runtimeStore.showSnakebar(t("MyClient.action.resumeSelectedSuccess", { count: targets.length }), { color: "success" });
+  const affectedIds = [...new Set(targets.map((t) => t.clientId))];
+  await Promise.allSettled(affectedIds.map(loadSingleDownloader));
+}
+
 function openDeleteDialog(torrentList: CTorrent[], withData = false) {
   toDeleteTorrents.value = torrentList;
   deleteWithData.value = withData;
@@ -355,8 +385,21 @@ function torrentKey(torrent: CTorrent) {
 
         <NavButton
           :disabled="tableSelected.length === 0"
-          color="error"
-          icon="mdi-delete"
+          color="warning"
+          icon="mdi-pause"
+          :text="t('MyClient.pauseSelected')"
+          @click="pauseSelected"
+        />
+
+        <NavButton
+          :disabled="tableSelected.length === 0"
+          color="success"
+          icon="mdi-play"
+          :text="t('MyClient.resumeSelected')"
+          @click="resumeSelected"
+        />
+
+        <v-divider vertical class="mx-2" />
           :text="t('MyClient.deleteSelected')"
           @click="openDeleteSelected(false)"
         />

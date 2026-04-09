@@ -1171,7 +1171,9 @@
       "pauseSuccess": "Paused successfully",
       "pauseError": "Failed to pause",
       "resumeSuccess": "Resumed successfully",
-      "resumeError": "Failed to resume"
+      "resumeError": "Failed to resume",
+      "pauseSelectedSuccess": "Paused {count} torrent(s)",
+      "resumeSelectedSuccess": "Resumed {count} torrent(s)"
     },
     "autoRefresh": {
       "btnTitle": "Auto-Refresh",
@@ -1181,6 +1183,8 @@
       "stop": "Stop auto-refresh",
       "clientSuspended": "{name} failed 3 times in a row. Auto-refresh suspended. Click the chip to resume.",
       "suspendedTip": "This client has been suspended due to 3 consecutive failures. Click the alert icon to resume."
-    }
+    },
+    "pauseSelected": "Pause selected",
+    "resumeSelected": "Resume selected"
   }
 }

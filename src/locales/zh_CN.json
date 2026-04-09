@@ -1171,7 +1171,9 @@
       "pauseSuccess": "暂停成功",
       "pauseError": "暂停失败",
       "resumeSuccess": "继续成功",
-      "resumeError": "继续失败"
+      "resumeError": "继续失败",
+      "pauseSelectedSuccess": "已暂停 {count} 个种子",
+      "resumeSelectedSuccess": "已继续 {count} 个种子"
     },
     "autoRefresh": {
       "btnTitle": "自动刷新",
@@ -1181,6 +1183,8 @@
       "stop": "停止自动刷新",
       "clientSuspended": "{name} 刷新失败 3 次，已暂停自动刷新。点击下载器标签可恢复。",
       "suspendedTip": "该下载器已因连续失败 3 次而被暂停。点击感叹号图标可恢复。"
-    }
+    },
+    "pauseSelected": "暂停所选",
+    "resumeSelected": "继续所选"
   }
 }
