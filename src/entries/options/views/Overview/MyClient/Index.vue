@@ -21,7 +21,7 @@ const configStore = useConfigStore();
 // ── state ──────────────────────────────────────────────────────────────────
 const loading = ref(false);
 const torrents = ref<CTorrent[]>([]);
-const tableSelected = ref<string[]>([]);
+const tableSelected = ref<CTorrent[]>([]);
 const searchText = ref("");
 
 // which downloader chips are selected (empty = all)
@@ -55,9 +55,7 @@ const suspendedDownloaders = ref(new Set<string>());
 const enabledDownloaders = computed(() => metadataStore.getEnabledDownloaders);
 
 const activeDownloaderIds = computed(() =>
-  selectedDownloaderIds.value.length > 0
-    ? selectedDownloaderIds.value
-    : enabledDownloaders.value.map((d) => d.id),
+  selectedDownloaderIds.value.length > 0 ? selectedDownloaderIds.value : enabledDownloaders.value.map((d) => d.id),
 );
 
 const filteredTorrents = computed(() => {
@@ -116,10 +114,10 @@ async function loadSingleDownloader(id: string): Promise<void> {
     if (next >= 3) {
       suspendedDownloaders.value.add(id);
       clearDownloaderTimer(id);
-      runtimeStore.showSnakebar(
-        t("MyClient.autoRefresh.clientSuspended", { name: clientName(id) }),
-        { color: "error", timeout: 8000 },
-      );
+      runtimeStore.showSnakebar(t("MyClient.autoRefresh.clientSuspended", { name: clientName(id) }), {
+        color: "error",
+        timeout: 8000,
+      });
     }
   }
 }
@@ -218,66 +216,31 @@ onUnmounted(() => {
 });
 
 // ── actions ───────────────────────────────────────────────────────────────
-async function pauseTorrent(torrent: CTorrent) {
-  try {
-    await sendMessage("pauseClientTorrent", { downloaderId: torrent.clientId, id: torrent.id });
-    runtimeStore.showSnakebar(t("MyClient.action.pauseSuccess"), { color: "success" });
-    await loadSingleDownloader(torrent.clientId);
-  } catch {
-    runtimeStore.showSnakebar(t("MyClient.action.pauseError"), { color: "error" });
-  }
-}
-
-async function resumeTorrent(torrent: CTorrent) {
-  try {
-    await sendMessage("resumeClientTorrent", { downloaderId: torrent.clientId, id: torrent.id });
-    runtimeStore.showSnakebar(t("MyClient.action.resumeSuccess"), { color: "success" });
-    await loadSingleDownloader(torrent.clientId);
-  } catch {
-    runtimeStore.showSnakebar(t("MyClient.action.resumeError"), { color: "error" });
-  }
-}
-
-async function pauseSelected() {
-  const targets = torrents.value.filter(
-    (t) =>
-      tableSelected.value.includes(torrentKey(t)) &&
-      (t.state === CTorrentState.downloading || t.state === CTorrentState.seeding),
-  );
-  if (targets.length === 0) return;
+async function pauseTorrents(torrents: CTorrent[]) {
+  if (torrents.length === 0) return;
   const results = await Promise.allSettled(
-    targets.map((t) => sendMessage("pauseClientTorrent", { downloaderId: t.clientId, id: t.id })),
+    torrents.map((t) => sendMessage("pauseClientTorrent", { downloaderId: t.clientId, id: t.id })),
   );
   const succeeded = results.filter((r) => r.status === "fulfilled").length;
   runtimeStore.showSnakebar(t("MyClient.action.pauseSelectedSuccess", { count: succeeded }), { color: "success" });
-  const affectedIds = [...new Set(targets.map((t) => t.clientId))];
+  const affectedIds = [...new Set(torrents.map((t) => t.clientId))];
   await Promise.allSettled(affectedIds.map(loadSingleDownloader));
 }
 
-async function resumeSelected() {
-  const targets = torrents.value.filter(
-    (t) =>
-      tableSelected.value.includes(torrentKey(t)) &&
-      (t.state === CTorrentState.paused || t.state === CTorrentState.error),
-  );
-  if (targets.length === 0) return;
+async function resumeTorrents(torrents: CTorrent[]) {
+  if (torrents.length === 0) return;
   const results = await Promise.allSettled(
-    targets.map((t) => sendMessage("resumeClientTorrent", { downloaderId: t.clientId, id: t.id })),
+    torrents.map((t) => sendMessage("resumeClientTorrent", { downloaderId: t.clientId, id: t.id })),
   );
   const succeeded = results.filter((r) => r.status === "fulfilled").length;
   runtimeStore.showSnakebar(t("MyClient.action.resumeSelectedSuccess", { count: succeeded }), { color: "success" });
-  const affectedIds = [...new Set(targets.map((t) => t.clientId))];
+  const affectedIds = [...new Set(torrents.map((t) => t.clientId))];
   await Promise.allSettled(affectedIds.map(loadSingleDownloader));
 }
 
 function openDeleteDialog(torrentList: CTorrent[]) {
   toDeleteTorrents.value = torrentList;
   showDeleteDialog.value = true;
-}
-
-function openDeleteSelected() {
-  const selected = torrents.value.filter((t) => tableSelected.value.includes(torrentKey(t)));
-  openDeleteDialog(selected);
 }
 
 // Called per-item by DeleteDialog
@@ -311,32 +274,31 @@ function torrentKey(torrent: CTorrent) {
   <v-card>
     <v-card-title>
       <v-row class="ma-0" align="center">
-        <!-- downloader filter chips -->
-        <v-chip-group v-model="selectedDownloaderIds" multiple class="mr-2" column>
-          <v-chip
-            v-for="d in enabledDownloaders"
-            :key="d.id"
-            :value="d.id"
-            filter
-            variant="outlined"
-            size="small"
-            :color="suspendedDownloaders.has(d.id) ? 'error' : undefined"
-          >
-            <v-avatar :image="clientIcon(d.id)" start size="18" />
-            {{ d.name }}
-            <v-tooltip v-if="suspendedDownloaders.has(d.id)" activator="parent" location="bottom">
-              {{ t("MyClient.autoRefresh.suspendedTip") }}
-            </v-tooltip>
-            <v-icon
-              v-if="suspendedDownloaders.has(d.id)"
-              end
-              icon="mdi-alert-circle"
-              color="error"
-              size="x-small"
-              @click.stop="resumeDownloaderRefresh(d.id)"
-            />
-          </v-chip>
-        </v-chip-group>
+        <NavButton
+          :disabled="tableSelected.length === 0"
+          color="error"
+          icon="mdi-delete"
+          :text="t('MyClient.deleteSelected')"
+          @click="() => openDeleteDialog(tableSelected)"
+        />
+
+        <v-divider vertical class="mx-2" />
+
+        <NavButton
+          :disabled="tableSelected.length === 0"
+          color="success"
+          icon="mdi-play"
+          :text="t('MyClient.resumeSelected')"
+          @click="() => resumeTorrents(tableSelected)"
+        />
+
+        <NavButton
+          :disabled="tableSelected.length === 0"
+          color="warning"
+          icon="mdi-pause"
+          :text="t('MyClient.pauseSelected')"
+          @click="() => pauseTorrents(tableSelected)"
+        />
 
         <v-divider vertical class="mx-2" />
 
@@ -383,31 +345,32 @@ function torrentKey(torrent: CTorrent) {
 
         <v-divider vertical class="mx-2" />
 
-        <NavButton
-          :disabled="tableSelected.length === 0"
-          color="warning"
-          icon="mdi-pause"
-          :text="t('MyClient.pauseSelected')"
-          @click="pauseSelected"
-        />
-
-        <NavButton
-          :disabled="tableSelected.length === 0"
-          color="success"
-          icon="mdi-play"
-          :text="t('MyClient.resumeSelected')"
-          @click="resumeSelected"
-        />
-
-        <v-divider vertical class="mx-2" />
-
-        <NavButton
-          :disabled="tableSelected.length === 0"
-          color="error"
-          icon="mdi-delete"
-          :text="t('MyClient.deleteSelected')"
-          @click="openDeleteSelected()"
-        />
+        <!-- downloader filter chips -->
+        <v-chip-group v-model="selectedDownloaderIds" multiple class="mr-2" column>
+          <v-chip
+            v-for="d in enabledDownloaders"
+            :key="d.id"
+            :value="d.id"
+            filter
+            variant="outlined"
+            size="small"
+            :color="suspendedDownloaders.has(d.id) ? 'error' : undefined"
+          >
+            <v-avatar :image="clientIcon(d.id)" start size="18" />
+            {{ d.name }}
+            <v-tooltip v-if="suspendedDownloaders.has(d.id)" activator="parent" location="bottom">
+              {{ t("MyClient.autoRefresh.suspendedTip") }}
+            </v-tooltip>
+            <v-icon
+              v-if="suspendedDownloaders.has(d.id)"
+              end
+              icon="mdi-alert-circle"
+              color="error"
+              size="x-small"
+              @click.stop="resumeDownloaderRefresh(d.id)"
+            />
+          </v-chip>
+        </v-chip-group>
 
         <v-spacer />
 
@@ -433,7 +396,7 @@ function torrentKey(torrent: CTorrent) {
         :items-per-page="configStore.tableBehavior['MyClient']?.itemsPerPage ?? 25"
         :multi-sort="configStore.enableTableMultiSort"
         :sort-by="configStore.tableBehavior['MyClient']?.sortBy"
-        :item-value="(item: CTorrent) => torrentKey(item)"
+        return-object
         class="table-stripe table-header-no-wrap"
         hover
         show-select
@@ -483,7 +446,7 @@ function torrentKey(torrent: CTorrent) {
             size="small"
             label
           >
-            {{ t(stateDisplay[item.state]?.label ?? 'MyClient.state.unknown') }}
+            {{ t(stateDisplay[item.state]?.label ?? "MyClient.state.unknown") }}
           </v-chip>
         </template>
 
@@ -529,7 +492,7 @@ function torrentKey(torrent: CTorrent) {
               color="warning"
               icon="mdi-pause"
               size="small"
-              @click="pauseTorrent(item)"
+              @click="() => pauseTorrents([item])"
             />
             <v-btn
               v-else-if="item.state === CTorrentState.paused || item.state === CTorrentState.error"
@@ -537,7 +500,7 @@ function torrentKey(torrent: CTorrent) {
               color="success"
               icon="mdi-play"
               size="small"
-              @click="resumeTorrent(item)"
+              @click="() => resumeTorrents([item])"
             />
 
             <v-btn
@@ -545,7 +508,7 @@ function torrentKey(torrent: CTorrent) {
               color="error"
               icon="mdi-delete"
               size="small"
-              @click="openDeleteDialog([item])"
+              @click="() => openDeleteDialog([item])"
             />
           </v-btn-group>
         </template>
@@ -566,4 +529,3 @@ function torrentKey(torrent: CTorrent) {
 </template>
 
 <style scoped lang="scss"></style>
-
