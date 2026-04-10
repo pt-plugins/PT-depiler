@@ -444,29 +444,29 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
 
   // 注意方法虽然支持一次对多个种子进行操作，但仍建议每次均只操作一个种子
   async pauseTorrent(hashes: string | string[] | "all"): Promise<boolean> {
-    const params = {
+    const data = {
       hashes: hashes === "all" ? "all" : normalizePieces(hashes),
     };
-    await this.request("/torrents/pause", { params });
+    await this.request("/torrents/pause", { method: "post", data });
     return true;
   }
 
   // 注意方法虽然支持一次对多个种子进行操作，但仍建议每次均只操作一个种子
   async removeTorrent(hashes: string | string[] | "all", removeData: boolean = false): Promise<boolean> {
-    const params = {
+    const data = {
       hashes: hashes === "all" ? "all" : normalizePieces(hashes),
-      removeData,
+      deleteFiles: removeData,
     };
-    await this.request("/torrents/delete", { params });
+    await this.request("/torrents/delete", { method: "post", data });
     return true;
   }
 
   // 注意方法虽然支持一次对多个种子进行操作，但仍建议每次均只操作一个种子
   async resumeTorrent(hashes: string | string[] | "all"): Promise<any> {
-    const params = {
+    const data = {
       hashes: hashes === "all" ? "all" : normalizePieces(hashes),
     };
-    await this.request("/torrents/resume", { params });
+    await this.request("/torrents/resume", { method: "post", data });
     return true;
   }
 
