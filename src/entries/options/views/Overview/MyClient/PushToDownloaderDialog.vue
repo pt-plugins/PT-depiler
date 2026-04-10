@@ -49,14 +49,12 @@ async function submit() {
     }
   } else {
     for (const file of torrentFiles.value) {
-      const arrayBuffer = await file.arrayBuffer();
-      const bytes = new Uint8Array(arrayBuffer);
-      let binary = "";
-      for (let i = 0; i < bytes.byteLength; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      const base64 = btoa(binary);
-      const dataUri = `data:application/x-bittorrent;base64,${base64}`;
+      const dataUri = await new Promise<string>((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
       torrentItems.push({
         link: dataUri,
         title: file.name.replace(/\.torrent$/i, ""),
