@@ -47,7 +47,7 @@ const globalRefreshInterval = ref(0);
 const autoRefreshRunning = ref(false);
 
 /** Per-downloader setTimeout IDs */
-const refreshTimers = new Map<string, ReturnType<typeof window.setTimeout>>();
+const refreshTimers = new Map<string, number>();
 
 /** Per-downloader consecutive failure counts */
 const failCounts = new Map<string, number>();
@@ -86,7 +86,7 @@ const tableHeader = computed(
       { title: t("MyClient.table.ratio"), key: "ratio", align: "end", width: "80" },
       { title: t("MyClient.table.upSpeed"), key: "uploadSpeed", align: "end", width: "100" },
       { title: t("MyClient.table.dlSpeed"), key: "downloadSpeed", align: "end", width: "100" },
-      { title: t("MyClient.table.savePath"), key: "savePath", align: "start" },
+      // { title: t("MyClient.table.savePath"), key: "savePath", align: "start" },
       { title: t("MyClient.table.addedAt"), key: "dateAdded", align: "center", width: "160" },
       { title: t("common.action"), key: "action", align: "center", sortable: false, width: "120" },
     ] as DataTableHeader[],
@@ -213,7 +213,11 @@ function resumeDownloaderRefresh(id: string) {
   }
 }
 
-onMounted(loadTorrents);
+onMounted(() => {
+  if (configStore.download.initDownloaderTorrentOnEnter) {
+    loadTorrents();
+  }
+});
 
 onUnmounted(() => {
   stopAllTimers();

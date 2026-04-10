@@ -33,16 +33,14 @@ function wrappedConfirmDelete(id: string) {
     :confirm-delete="wrappedConfirmDelete"
     @all-delete="emits('allDelete')"
   >
-    <template #extra>
-      <v-card-text class="pt-0">
-        <v-checkbox
-          v-model="removeData"
-          :label="t('MyClient.dialog.removeData')"
-          color="error"
-          density="compact"
-          hide-details
-        />
-      </v-card-text>
+    <template #append-text>
+      <v-checkbox
+        v-model="removeData"
+        :label="t('MyClient.dialog.removeData')"
+        color="error"
+        density="compact"
+        hide-details
+      />
     </template>
   </BaseDeleteDialog>
 </template>

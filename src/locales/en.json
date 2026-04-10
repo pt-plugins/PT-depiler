@@ -659,6 +659,7 @@
       },
       "saveDownloadHistory": "Save download history (Please do not disable this function unless necessary)",
       "startupAutoFetchDownloaderStatus": "Automatically load the downloader status when entering the downloader settings page",
+      "initDownloaderTorrentOnEnter": "Automatically load torrents from the downloader when entering the My Downloader page",
       "localDownloadTitle": "Local Download",
       "localDownloadIgnoreInterval": "Ignore site download interval limit for local downloads",
       "pushDownloadServerTitle": "Push to Download Server",
@@ -1138,7 +1139,7 @@
   },
   "MyClient": {
     "refresh": "Refresh",
-    "deleteSelected": "Delete Selected",
+    "deleteSelected": "Delete",
     "searchPlaceholder": "Search by name, hash, label, or path",
     "emptyNotice": "No torrents found. Please add a downloader or click Refresh.",
     "table": {
@@ -1182,8 +1183,8 @@
       "clientSuspended": "{name} failed 3 times in a row. Auto-refresh suspended. Click the chip to resume.",
       "suspendedTip": "This client has been suspended due to 3 consecutive failures. Click the alert icon to resume."
     },
-    "pauseSelected": "Pause selected",
-    "resumeSelected": "Resume selected",
+    "pauseSelected": "Pause",
+    "resumeSelected": "Resume",
     "dialog": {
       "removeData": "Also remove data"
     },

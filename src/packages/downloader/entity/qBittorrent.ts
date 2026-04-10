@@ -257,6 +257,13 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
       await this.ping();
     }
 
+    if (config.method?.toLowerCase() === "post") {
+      config.headers = {
+        ...(config.headers ?? {}),
+        "content-type": "application/x-www-form-urlencoded",
+      };
+    }
+
     return await axios.request<T>({
       baseURL: this.config.address,
       url: urlJoin("/api/v2", path),

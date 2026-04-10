@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { type ITorrent, getHostFromUrl } from "@ptd/site";
@@ -20,13 +20,11 @@ const torrentFiles = ref<File[]>([]);
 const showSentToDownloaderDialog = ref(false);
 const pendingTorrentItems = ref<ITorrent[]>([]);
 
-watch(showDialog, (val) => {
-  if (val) {
-    inputMode.value = "url";
-    urlInput.value = "";
-    torrentFiles.value = [];
-  }
-});
+function cleanStatus() {
+  inputMode.value = "url";
+  urlInput.value = "";
+  torrentFiles.value = [];
+}
 
 async function submit() {
   const torrentItems: ITorrent[] = [];
@@ -73,7 +71,7 @@ async function submit() {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" max-width="560" scrollable>
+  <v-dialog v-model="showDialog" max-width="560" scrollable @after-enter="cleanStatus">
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
@@ -136,7 +134,11 @@ async function submit() {
     </v-card>
   </v-dialog>
 
-  <SentToDownloaderDialog v-model="showSentToDownloaderDialog" :torrent-items="pendingTorrentItems" />
+  <SentToDownloaderDialog
+    v-model="showSentToDownloaderDialog"
+    :torrent-items="pendingTorrentItems"
+    @done="() => (showDialog = false)"
+  />
 </template>
 
 <style scoped lang="scss"></style>
