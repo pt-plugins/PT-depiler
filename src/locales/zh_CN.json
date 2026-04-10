@@ -1186,6 +1186,16 @@
     "resumeSelected": "继续所选",
     "dialog": {
       "removeData": "同时删除数据"
+    },
+    "pushToDownloader": {
+      "navBtn": "推送到下载器",
+      "title": "推送到下载器",
+      "modeUrl": "链接 / 磁力",
+      "modeFile": "种子文件",
+      "urlInputLabel": "下载链接 / 磁力链接",
+      "urlInputHint": "每行一个链接或磁力链接",
+      "fileInputLabel": "种子文件",
+      "fileInputHint": "选择一个或多个 .torrent 文件进行推送"
     }
   }
 }

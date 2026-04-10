@@ -12,6 +12,7 @@ import { useConfigStore } from "@/options/stores/config.ts";
 
 import NavButton from "@/options/components/NavButton.vue";
 import DeleteDialog from "./DeleteDialog.vue";
+import PushToDownloaderDialog from "./PushToDownloaderDialog.vue";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
@@ -30,6 +31,9 @@ const selectedDownloaderIds = ref<string[]>([]);
 // delete dialog
 const showDeleteDialog = ref(false);
 const toDeleteTorrents = ref<CTorrent[]>([]);
+
+// push to downloader dialog
+const showPushToDownloaderDialog = ref(false);
 
 // ── auto-refresh ───────────────────────────────────────────────────────────
 /**
@@ -274,6 +278,15 @@ function torrentKey(torrent: CTorrent) {
   <v-card>
     <v-card-title>
       <v-row class="ma-0" align="center">
+        <NavButton
+          color="primary"
+          icon="mdi-cloud-upload"
+          :text="t('MyClient.pushToDownloader.navBtn')"
+          @click="showPushToDownloaderDialog = true"
+        />
+
+        <v-divider vertical class="mx-2" />
+
         <NavButton
           :disabled="tableSelected.length === 0"
           color="error"
@@ -526,6 +539,8 @@ function torrentKey(torrent: CTorrent) {
     :confirm-delete="confirmDeleteTorrent"
     @all-delete="loadTorrents"
   />
+
+  <PushToDownloaderDialog v-model="showPushToDownloaderDialog" />
 </template>
 
 <style scoped lang="scss"></style>

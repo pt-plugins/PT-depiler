@@ -1186,6 +1186,16 @@
     "resumeSelected": "Resume selected",
     "dialog": {
       "removeData": "Also remove data"
+    },
+    "pushToDownloader": {
+      "navBtn": "Push to Downloader",
+      "title": "Push to Downloader",
+      "modeUrl": "Link / Magnet",
+      "modeFile": "Torrent File",
+      "urlInputLabel": "URLs / Magnet Links",
+      "urlInputHint": "One URL or magnet link per line",
+      "fileInputLabel": "Torrent Files",
+      "fileInputHint": "Select one or more .torrent files to push"
     }
   }
 }
