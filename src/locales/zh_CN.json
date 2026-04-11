@@ -880,10 +880,7 @@
         "searchEntries": "搜索入口",
         "flushFavicon": "刷新站点图标"
       },
-      "settingNote": [
-        "只有配置过的站点才会显示插件图标及相应的功能；",
-        "已离线的站点不再参与搜索和信息获取；"
-      ],
+      "settingNote": ["只有配置过的站点才会显示插件图标及相应的功能；", "已离线的站点不再参与搜索和信息获取；"],
       "oneClickImport": "一键导入站点",
       "reBuildMap": "重建站点映射"
     },
@@ -1142,7 +1139,6 @@
     "refresh": "刷新",
     "deleteSelected": "删除",
     "searchPlaceholder": "搜索种子名称、Hash、标签、路径",
-    "emptyNotice": "当前没有种子，请先添加下载器或刷新",
     "table": {
       "client": "下载器",
       "name": "种子名称",

@@ -658,7 +658,7 @@
         "extensionTip": "The extension downloads the torrent in the background and proxies it to @:SetBase.download.localDownloadMethodOptions.browser for downloading"
       },
       "saveDownloadHistory": "Save download history (Please do not disable this function unless necessary)",
-      "myClientTitle": "My Downloader",
+      "MyClientTitle": "My Downloader",
       "startupAutoFetchDownloaderStatus": "Automatically load the downloader status when entering the downloader settings page",
       "initDownloaderTorrentOnEnter": "Automatically load torrents from the downloader when entering the My Downloader page",
       "localDownloadTitle": "Local Download",
@@ -1142,7 +1142,6 @@
     "refresh": "Refresh",
     "deleteSelected": "Delete",
     "searchPlaceholder": "Search by name, hash, label, or path",
-    "emptyNotice": "No torrents found. Please add a downloader or click Refresh.",
     "table": {
       "client": "Client",
       "name": "Torrent Name",

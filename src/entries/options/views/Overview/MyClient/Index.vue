@@ -10,7 +10,6 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 
-import NavButton from "@/options/components/NavButton.vue";
 import DeleteDialog from "./DeleteDialog.vue";
 import PushToDownloaderDialog from "./PushToDownloaderDialog.vue";
 import TorrentStateTd from "./TorrentStateTd.vue";
@@ -84,32 +83,38 @@ const filteredTorrents = computed(() => {
   );
 });
 
-const myClientTableBehavior = computed(() => configStore.tableBehavior["MyClient"] as { itemsPerPage: number; columns: string[]; sortBy?: any[] });
-
 // ── table headers ─────────────────────────────────────────────────────────
 const fullTableHeader = computed(
   () =>
     [
       { title: t("MyClient.table.client"), key: "clientId", align: "center", width: "120", props: { disabled: true } },
-      { title: t("MyClient.table.name"), key: "name", align: "start", minWidth: "20rem" },
+      { title: t("MyClient.table.name"), key: "name", align: "start", minWidth: "20rem", props: { disabled: true } },
       { title: t("MyClient.table.size"), key: "totalSize", align: "end", width: "110" },
       { title: t("MyClient.table.progress"), key: "progress", align: "end", width: "90" },
       { title: t("MyClient.table.status"), key: "state", align: "center", width: "110" },
-      { title: t("MyClient.table.ratio"), key: "ratio", align: "end", width: "80" },
       { title: t("MyClient.table.upSpeed"), key: "uploadSpeed", align: "end", width: "100" },
       { title: t("MyClient.table.dlSpeed"), key: "downloadSpeed", align: "end", width: "100" },
-      { title: t("MyClient.table.totalUploaded"), key: "totalUploaded", align: "end", width: "120" },
-      { title: t("MyClient.table.totalDownloaded"), key: "totalDownloaded", align: "end", width: "140" },
+      { title: t("MyClient.table.totalUploaded"), key: "totalUploaded", align: "end", width: "100" },
+      { title: t("MyClient.table.totalDownloaded"), key: "totalDownloaded", align: "end", width: "100" },
+      { title: t("MyClient.table.ratio"), key: "ratio", align: "end", width: "60" },
       { title: t("MyClient.table.savePath"), key: "savePath", align: "start" },
       { title: t("MyClient.table.addedAt"), key: "dateAdded", align: "center", width: "160" },
-      { title: t("common.action"), key: "action", align: "center", sortable: false, width: "120", props: { disabled: true } },
+      {
+        title: t("common.action"),
+        key: "action",
+        align: "center",
+        sortable: false,
+        width: "120",
+        props: { disabled: true },
+      },
     ] as (DataTableHeader & { props?: any })[],
 );
 
-const tableHeader = computed(() =>
-  fullTableHeader.value.filter(
-    (item) => item?.props?.disabled || myClientTableBehavior.value?.columns?.includes(item.key as string),
-  ) as DataTableHeader[],
+const tableHeader = computed(
+  () =>
+    fullTableHeader.value.filter(
+      (item) => item?.props?.disabled || (configStore.tableBehavior["MyClient"] as any)?.columns?.includes(item.key),
+    ) as DataTableHeader[],
 );
 
 // ── per-downloader helpers ────────────────────────────────────────────────
@@ -291,44 +296,46 @@ function torrentKey(torrent: CTorrent) {
   <v-card>
     <v-card-title>
       <v-row class="ma-0" align="center">
-        <NavButton
+        <v-btn
+          :title="t('MyClient.pushToDownloader.navBtn')"
           color="primary"
           icon="mdi-cloud-upload"
-          :text="t('MyClient.pushToDownloader.navBtn')"
+          variant="text"
           @click="showPushToDownloaderDialog = true"
         />
 
         <v-divider vertical class="mx-2" />
 
-        <NavButton
+        <v-btn
           :disabled="tableSelected.length === 0"
+          :title="t('MyClient.resumeSelected')"
+          color="success"
+          icon="mdi-play"
+          variant="text"
+          @click="() => resumeTorrents(tableSelected)"
+        />
+
+        <v-btn
+          :disabled="tableSelected.length === 0"
+          :title="t('MyClient.pauseSelected')"
+          color="warning"
+          icon="mdi-pause"
+          variant="text"
+          @click="() => pauseTorrents(tableSelected)"
+        />
+
+        <v-btn
+          :disabled="tableSelected.length === 0"
+          :title="t('MyClient.deleteSelected')"
           color="error"
           icon="mdi-delete"
-          :text="t('MyClient.deleteSelected')"
+          variant="text"
           @click="() => openDeleteDialog(tableSelected)"
         />
 
         <v-divider vertical class="mx-2" />
 
-        <NavButton
-          :disabled="tableSelected.length === 0"
-          color="success"
-          icon="mdi-play"
-          :text="t('MyClient.resumeSelected')"
-          @click="() => resumeTorrents(tableSelected)"
-        />
-
-        <NavButton
-          :disabled="tableSelected.length === 0"
-          color="warning"
-          icon="mdi-pause"
-          :text="t('MyClient.pauseSelected')"
-          @click="() => pauseTorrents(tableSelected)"
-        />
-
-        <v-divider vertical class="mx-2" />
-
-        <NavButton color="green" icon="mdi-cached" :text="t('MyClient.refresh')" @click="loadTorrents" />
+        <v-btn :title="t('MyClient.refresh')" color="green" icon="mdi-cached" variant="text" @click="loadTorrents" />
 
         <!-- auto-refresh controls -->
         <v-menu :close-on-content-click="false" location="bottom">
@@ -371,6 +378,34 @@ function torrentKey(torrent: CTorrent) {
 
         <v-divider vertical class="mx-2" />
 
+        <!-- column selector -->
+        <v-combobox
+          v-model="(configStore.tableBehavior['MyClient'] as any).columns"
+          :items="fullTableHeader"
+          :return-object="false"
+          chips
+          class="table-header-filter-clear ml-1"
+          density="compact"
+          hide-details
+          item-value="key"
+          max-width="200"
+          multiple
+          prepend-inner-icon="mdi-filter-cog"
+          :title="t('MyClient.columnSelector')"
+          @update:model-value="(v) => configStore.updateTableBehavior('MyClient', 'columns', v)"
+        >
+          <template #chip="{ item, index }">
+            <v-chip v-if="index === 0">
+              <span>{{ item.title }}</span>
+            </v-chip>
+            <span v-if="index === 1" class="grey--text caption">
+              (+{{ (configStore.tableBehavior["MyClient"] as any).columns!.length - 1 }})
+            </span>
+          </template>
+        </v-combobox>
+
+        <v-divider vertical class="mx-2" />
+
         <!-- downloader filter chips -->
         <v-chip-group v-model="selectedDownloaderIds" multiple class="mr-2" column>
           <v-chip
@@ -400,32 +435,6 @@ function torrentKey(torrent: CTorrent) {
 
         <v-spacer />
 
-        <!-- column selector -->
-        <v-combobox
-          v-model="myClientTableBehavior.columns"
-          :items="fullTableHeader"
-          :return-object="false"
-          chips
-          class="table-header-filter-clear ml-1"
-          density="compact"
-          hide-details
-          item-value="key"
-          max-width="200"
-          multiple
-          prepend-inner-icon="mdi-filter-cog"
-          :title="t('MyClient.columnSelector')"
-          @update:model-value="(v) => configStore.updateTableBehavior('MyClient', 'columns', v)"
-        >
-          <template #chip="{ item, index }">
-            <v-chip v-if="index === 0">
-              <span>{{ item.title }}</span>
-            </v-chip>
-            <span v-if="index === 1" class="text-grey text-caption">
-              (+{{ myClientTableBehavior.columns!.length - 1 }})
-            </span>
-          </template>
-        </v-combobox>
-
         <v-text-field
           v-model="searchText"
           append-icon="mdi-magnify"
@@ -444,10 +453,10 @@ function torrentKey(torrent: CTorrent) {
         v-model="tableSelected"
         :headers="tableHeader"
         :items="filteredTorrents"
-        :items-per-page="myClientTableBehavior.itemsPerPage ?? 25"
+        :items-per-page="configStore.tableBehavior['MyClient']?.itemsPerPage ?? 25"
         :loading="loading"
         :multi-sort="configStore.enableTableMultiSort"
-        :sort-by="myClientTableBehavior.sortBy"
+        :sort-by="configStore.tableBehavior['MyClient']?.sortBy"
         class="table-stripe table-header-no-wrap"
         hover
         return-object
@@ -559,25 +568,21 @@ function torrentKey(torrent: CTorrent) {
             />
 
             <v-btn
-              :title="t('MyClient.action.delete')"
-              color="error"
-              icon="mdi-delete"
-              size="small"
-              @click="() => openDeleteDialog([item])"
-            />
-
-            <v-btn
               :title="t('MyClient.action.viewRaw')"
               color="grey"
               icon="mdi-code-json"
               size="small"
               @click="() => openRawDialog(item)"
             />
-          </v-btn-group>
-        </template>
 
-        <template #no-data>
-          <v-alert type="info" variant="tonal">{{ t("MyClient.emptyNotice") }}</v-alert>
+            <v-btn
+              :title="t('MyClient.action.delete')"
+              color="error"
+              icon="mdi-delete"
+              size="small"
+              @click="() => openDeleteDialog([item])"
+            />
+          </v-btn-group>
         </template>
       </v-data-table>
     </v-card-text>
