@@ -84,6 +84,8 @@ const filteredTorrents = computed(() => {
   );
 });
 
+const myClientTableBehavior = computed(() => configStore.tableBehavior["MyClient"] as { itemsPerPage: number; columns: string[]; sortBy?: any[] });
+
 // ── table headers ─────────────────────────────────────────────────────────
 const fullTableHeader = computed(
   () =>
@@ -106,7 +108,7 @@ const fullTableHeader = computed(
 
 const tableHeader = computed(() =>
   fullTableHeader.value.filter(
-    (item) => item?.props?.disabled || (configStore.tableBehavior["MyClient"] as any)?.columns?.includes(item.key),
+    (item) => item?.props?.disabled || myClientTableBehavior.value?.columns?.includes(item.key as string),
   ) as DataTableHeader[],
 );
 
@@ -400,7 +402,7 @@ function torrentKey(torrent: CTorrent) {
 
         <!-- column selector -->
         <v-combobox
-          v-model="(configStore.tableBehavior['MyClient'] as any).columns"
+          v-model="myClientTableBehavior.columns"
           :items="fullTableHeader"
           :return-object="false"
           chips
@@ -418,8 +420,8 @@ function torrentKey(torrent: CTorrent) {
             <v-chip v-if="index === 0">
               <span>{{ item.title }}</span>
             </v-chip>
-            <span v-if="index === 1" class="grey--text caption">
-              (+{{ (configStore.tableBehavior['MyClient'] as any).columns!.length - 1 }})
+            <span v-if="index === 1" class="text-grey text-caption">
+              (+{{ myClientTableBehavior.columns!.length - 1 }})
             </span>
           </template>
         </v-combobox>
@@ -442,10 +444,10 @@ function torrentKey(torrent: CTorrent) {
         v-model="tableSelected"
         :headers="tableHeader"
         :items="filteredTorrents"
-        :items-per-page="configStore.tableBehavior['MyClient']?.itemsPerPage ?? 25"
+        :items-per-page="myClientTableBehavior.itemsPerPage ?? 25"
         :loading="loading"
         :multi-sort="configStore.enableTableMultiSort"
-        :sort-by="configStore.tableBehavior['MyClient']?.sortBy"
+        :sort-by="myClientTableBehavior.sortBy"
         class="table-stripe table-header-no-wrap"
         hover
         return-object
@@ -602,10 +604,15 @@ function torrentKey(torrent: CTorrent) {
         </v-toolbar>
       </v-card-title>
       <v-card-text class="pa-2">
-        <pre class="text-body-2" style="white-space: pre-wrap; word-break: break-all;">{{ rawTorrent ? JSON.stringify(rawTorrent, null, 2) : "" }}</pre>
+        <pre class="text-body-2 raw-json-pre">{{ rawTorrent ? JSON.stringify(rawTorrent, null, 2) : "" }}</pre>
       </v-card-text>
     </v-card>
   </v-dialog>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.raw-json-pre {
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+</style>
