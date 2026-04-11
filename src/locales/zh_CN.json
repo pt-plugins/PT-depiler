@@ -880,7 +880,10 @@
         "searchEntries": "搜索入口",
         "flushFavicon": "刷新站点图标"
       },
-      "settingNote": ["只有配置过的站点才会显示插件图标及相应的功能；", "已离线的站点不再参与搜索和信息获取；"],
+      "settingNote": [
+        "只有配置过的站点才会显示插件图标及相应的功能；",
+        "已离线的站点不再参与搜索和信息获取；"
+      ],
       "oneClickImport": "一键导入站点",
       "reBuildMap": "重建站点映射"
     },
@@ -1181,7 +1184,8 @@
       "start": "开始自动刷新",
       "stop": "停止自动刷新",
       "clientSuspended": "{name} 刷新失败 3 次，已暂停自动刷新。点击下载器标签可恢复。",
-      "suspendedTip": "该下载器已因连续失败 3 次而被暂停。点击感叹号图标可恢复。"
+      "suspendedTip": "该下载器已因连续失败 3 次而被暂停。点击感叹号图标可恢复。",
+      "downloaderFilter": "下载器筛选"
     },
     "pauseSelected": "暂停",
     "resumeSelected": "开始",

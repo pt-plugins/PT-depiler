@@ -1184,7 +1184,8 @@
       "start": "Start auto-refresh",
       "stop": "Stop auto-refresh",
       "clientSuspended": "{name} failed 3 times in a row. Auto-refresh suspended. Click the chip to resume.",
-      "suspendedTip": "This client has been suspended due to 3 consecutive failures. Click the alert icon to resume."
+      "suspendedTip": "This client has been suspended due to 3 consecutive failures. Click the alert icon to resume.",
+      "downloaderFilter": "Downloader Filter"
     },
     "pauseSelected": "Pause",
     "resumeSelected": "Resume",
