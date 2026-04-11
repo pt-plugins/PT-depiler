@@ -1202,6 +1202,12 @@
       "fileInputLabel": "种子文件",
       "fileInputHint": "选择一个或多个 .torrent 文件进行推送"
     },
-    "columnSelector": "自定义列"
+    "columnSelector": "自定义列",
+    "clientStatusDialog": {
+      "title": "下载器状态",
+      "openBtn": "全部下载器状态",
+      "torrentCount": "{count} 个种子",
+      "openClient": "打开下载器"
+    }
   }
 }

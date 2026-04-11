@@ -1202,6 +1202,12 @@
       "fileInputLabel": "Torrent Files",
       "fileInputHint": "Select one or more .torrent files to push"
     },
-    "columnSelector": "Columns"
+    "columnSelector": "Columns",
+    "clientStatusDialog": {
+      "title": "Downloader Status",
+      "openBtn": "All Downloaders Status",
+      "torrentCount": "{count} torrent(s)",
+      "openClient": "Open Downloader"
+    }
   }
 }

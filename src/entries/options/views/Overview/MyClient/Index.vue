@@ -13,7 +13,7 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import DeleteDialog from "./DeleteDialog.vue";
 import PushToDownloaderDialog from "./PushToDownloaderDialog.vue";
 import TorrentStateTd from "./TorrentStateTd.vue";
-import ClientStatusSpan from "@/options/views/Settings/SetDownloader/ClientStatusSpan.vue";
+import ClientStatusDialog from "./ClientStatusDialog.vue";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
@@ -44,6 +44,12 @@ function openRawDialog(item: CTorrent) {
   rawTorrent.value = item;
   showRawDialog.value = true;
 }
+
+// client status dialog
+const showClientStatusDialog = ref(false);
+
+const totalUpSpeed = computed(() => torrents.value.reduce((acc, t) => acc + (t.uploadSpeed ?? 0), 0));
+const totalDlSpeed = computed(() => torrents.value.reduce((acc, t) => acc + (t.downloadSpeed ?? 0), 0));
 
 // ── auto-refresh ───────────────────────────────────────────────────────────
 /**
@@ -292,7 +298,23 @@ function torrentKey(torrent: CTorrent) {
 </script>
 
 <template>
-  <v-alert :title="t('route.Overview.MyClient')" type="info" />
+  <v-alert :title="t('route.Overview.MyClient')" type="info">
+    <template #append>
+      <v-btn
+        :title="t('MyClient.clientStatusDialog.openBtn')"
+        variant="text"
+        class="text-caption"
+        @click="showClientStatusDialog = true"
+      >
+        <v-icon icon="mdi-database-outline" size="small" class="mr-1" />
+        {{ torrents.length }}
+        <v-icon icon="mdi-chevron-up" color="green-darken-4" size="small" class="ml-2" />
+        {{ formatSize(totalUpSpeed) }}/s
+        <v-icon icon="mdi-chevron-down" color="red-darken-4" size="small" class="ml-1" />
+        {{ formatSize(totalDlSpeed) }}/s
+      </v-btn>
+    </template>
+  </v-alert>
 
   <v-card>
     <v-card-title>
@@ -450,18 +472,6 @@ function torrentKey(torrent: CTorrent) {
     </v-card-title>
 
     <v-card-text>
-      <!-- downloader server status -->
-      <div v-if="enabledDownloaders.length > 0" class="d-flex flex-wrap align-center ga-2 pb-2">
-        <template v-for="(d, idx) in enabledDownloaders" :key="d.id">
-          <div class="d-flex align-center ga-1">
-            <v-avatar :image="clientIcon(d.id)" size="18" />
-            <span class="text-caption font-weight-medium text-no-wrap">{{ d.name }}</span>
-            <ClientStatusSpan :client="d" />
-          </div>
-          <v-divider v-if="idx < enabledDownloaders.length - 1" vertical class="mx-1" />
-        </template>
-      </div>
-      <v-divider v-if="enabledDownloaders.length > 0" class="mb-2" />
       <v-data-table
         v-model="tableSelected"
         :headers="tableHeader"
@@ -609,6 +619,8 @@ function torrentKey(torrent: CTorrent) {
   />
 
   <PushToDownloaderDialog v-model="showPushToDownloaderDialog" />
+
+  <ClientStatusDialog v-model="showClientStatusDialog" :torrents="torrents" />
 
   <!-- Raw JSON dialog -->
   <v-dialog v-model="showRawDialog" max-width="800" scrollable>
