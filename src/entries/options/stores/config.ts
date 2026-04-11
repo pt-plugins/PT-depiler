@@ -141,6 +141,7 @@ export const useConfigStore = defineStore("config", {
       },
       MyClient: {
         itemsPerPage: 25,
+        columns: ["clientId", "name", "totalSize", "progress", "state", "ratio", "uploadSpeed", "downloadSpeed", "dateAdded", "action"],
         sortBy: [{ key: "dateAdded", order: "desc" }],
       },
       SetSearchSolution: {

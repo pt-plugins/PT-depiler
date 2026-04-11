@@ -880,7 +880,10 @@
         "searchEntries": "搜索入口",
         "flushFavicon": "刷新站点图标"
       },
-      "settingNote": ["只有配置过的站点才会显示插件图标及相应的功能；", "已离线的站点不再参与搜索和信息获取；"],
+      "settingNote": [
+        "只有配置过的站点才会显示插件图标及相应的功能；",
+        "已离线的站点不再参与搜索和信息获取；"
+      ],
       "oneClickImport": "一键导入站点",
       "reBuildMap": "重建站点映射"
     },
@@ -1150,7 +1153,9 @@
       "upSpeed": "上传速度",
       "dlSpeed": "下载速度",
       "savePath": "保存路径",
-      "addedAt": "添加时间"
+      "addedAt": "添加时间",
+      "totalUploaded": "总上传量",
+      "totalDownloaded": "总下载量"
     },
     "state": {
       "downloading": "下载中",
@@ -1170,7 +1175,8 @@
       "resumeSuccess": "开始成功",
       "resumeError": "开始失败",
       "pauseSelectedSuccess": "已暂停 {count} 个种子",
-      "resumeSelectedSuccess": "已开始 {count} 个种子"
+      "resumeSelectedSuccess": "已开始 {count} 个种子",
+      "viewRaw": "查看原始数据"
     },
     "autoRefresh": {
       "btnTitle": "自动刷新",
@@ -1195,6 +1201,7 @@
       "urlInputHint": "每行一个链接或磁力链接",
       "fileInputLabel": "种子文件",
       "fileInputHint": "选择一个或多个 .torrent 文件进行推送"
-    }
+    },
+    "columnSelector": "自定义列"
   }
 }

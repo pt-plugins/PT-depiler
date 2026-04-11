@@ -36,6 +36,15 @@ const toDeleteTorrents = ref<CTorrent[]>([]);
 // push to downloader dialog
 const showPushToDownloaderDialog = ref(false);
 
+// raw JSON dialog
+const showRawDialog = ref(false);
+const rawTorrent = ref<CTorrent | null>(null);
+
+function openRawDialog(item: CTorrent) {
+  rawTorrent.value = item;
+  showRawDialog.value = true;
+}
+
 // ── auto-refresh ───────────────────────────────────────────────────────────
 /**
  * Global refresh interval in seconds (0 = off).
@@ -76,10 +85,10 @@ const filteredTorrents = computed(() => {
 });
 
 // ── table headers ─────────────────────────────────────────────────────────
-const tableHeader = computed(
+const fullTableHeader = computed(
   () =>
     [
-      { title: t("MyClient.table.client"), key: "clientId", align: "center", width: "120" },
+      { title: t("MyClient.table.client"), key: "clientId", align: "center", width: "120", props: { disabled: true } },
       { title: t("MyClient.table.name"), key: "name", align: "start", minWidth: "20rem" },
       { title: t("MyClient.table.size"), key: "totalSize", align: "end", width: "110" },
       { title: t("MyClient.table.progress"), key: "progress", align: "end", width: "90" },
@@ -87,10 +96,18 @@ const tableHeader = computed(
       { title: t("MyClient.table.ratio"), key: "ratio", align: "end", width: "80" },
       { title: t("MyClient.table.upSpeed"), key: "uploadSpeed", align: "end", width: "100" },
       { title: t("MyClient.table.dlSpeed"), key: "downloadSpeed", align: "end", width: "100" },
-      // { title: t("MyClient.table.savePath"), key: "savePath", align: "start" },
+      { title: t("MyClient.table.totalUploaded"), key: "totalUploaded", align: "end", width: "120" },
+      { title: t("MyClient.table.totalDownloaded"), key: "totalDownloaded", align: "end", width: "140" },
+      { title: t("MyClient.table.savePath"), key: "savePath", align: "start" },
       { title: t("MyClient.table.addedAt"), key: "dateAdded", align: "center", width: "160" },
-      { title: t("common.action"), key: "action", align: "center", sortable: false, width: "120" },
-    ] as DataTableHeader[],
+      { title: t("common.action"), key: "action", align: "center", sortable: false, width: "120", props: { disabled: true } },
+    ] as (DataTableHeader & { props?: any })[],
+);
+
+const tableHeader = computed(() =>
+  fullTableHeader.value.filter(
+    (item) => item?.props?.disabled || (configStore.tableBehavior["MyClient"] as any)?.columns?.includes(item.key),
+  ) as DataTableHeader[],
 );
 
 // ── per-downloader helpers ────────────────────────────────────────────────
@@ -381,6 +398,32 @@ function torrentKey(torrent: CTorrent) {
 
         <v-spacer />
 
+        <!-- column selector -->
+        <v-combobox
+          v-model="(configStore.tableBehavior['MyClient'] as any).columns"
+          :items="fullTableHeader"
+          :return-object="false"
+          chips
+          class="table-header-filter-clear ml-1"
+          density="compact"
+          hide-details
+          item-value="key"
+          max-width="200"
+          multiple
+          prepend-inner-icon="mdi-filter-cog"
+          :title="t('MyClient.columnSelector')"
+          @update:model-value="(v) => configStore.updateTableBehavior('MyClient', 'columns', v)"
+        >
+          <template #chip="{ item, index }">
+            <v-chip v-if="index === 0">
+              <span>{{ item.title }}</span>
+            </v-chip>
+            <span v-if="index === 1" class="grey--text caption">
+              (+{{ (configStore.tableBehavior['MyClient'] as any).columns!.length - 1 }})
+            </span>
+          </template>
+        </v-combobox>
+
         <v-text-field
           v-model="searchText"
           append-icon="mdi-magnify"
@@ -473,6 +516,16 @@ function torrentKey(torrent: CTorrent) {
           <span v-else class="text-grey">-</span>
         </template>
 
+        <!-- total uploaded -->
+        <template #item.totalUploaded="{ item }">
+          <span class="text-no-wrap text-green-darken-2">{{ formatSize(item.totalUploaded) }}</span>
+        </template>
+
+        <!-- total downloaded -->
+        <template #item.totalDownloaded="{ item }">
+          <span class="text-no-wrap text-blue-darken-2">{{ formatSize(item.totalDownloaded) }}</span>
+        </template>
+
         <!-- save path -->
         <template #item.savePath="{ item }">
           <span class="text-caption text-no-wrap">{{ item.savePath }}</span>
@@ -510,6 +563,14 @@ function torrentKey(torrent: CTorrent) {
               size="small"
               @click="() => openDeleteDialog([item])"
             />
+
+            <v-btn
+              :title="t('MyClient.action.viewRaw')"
+              color="grey"
+              icon="mdi-code-json"
+              size="small"
+              @click="() => openRawDialog(item)"
+            />
           </v-btn-group>
         </template>
 
@@ -528,6 +589,23 @@ function torrentKey(torrent: CTorrent) {
   />
 
   <PushToDownloaderDialog v-model="showPushToDownloaderDialog" />
+
+  <!-- Raw JSON dialog -->
+  <v-dialog v-model="showRawDialog" max-width="800" scrollable>
+    <v-card>
+      <v-card-title class="pa-0">
+        <v-toolbar color="blue-grey-darken-2">
+          <v-toolbar-title>{{ t("MyClient.action.viewRaw") }}</v-toolbar-title>
+          <template #append>
+            <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showRawDialog = false" />
+          </template>
+        </v-toolbar>
+      </v-card-title>
+      <v-card-text class="pa-2">
+        <pre class="text-body-2" style="white-space: pre-wrap; word-break: break-all;">{{ rawTorrent ? JSON.stringify(rawTorrent, null, 2) : "" }}</pre>
+      </v-card-text>
+    </v-card>
+  </v-dialog>
 </template>
 
 <style scoped lang="scss"></style>

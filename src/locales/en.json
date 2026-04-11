@@ -1153,7 +1153,9 @@
       "upSpeed": "Upload Speed",
       "dlSpeed": "Download Speed",
       "savePath": "Save Path",
-      "addedAt": "Added At"
+      "addedAt": "Added At",
+      "totalUploaded": "Total Upload",
+      "totalDownloaded": "Total Download"
     },
     "state": {
       "downloading": "Downloading",
@@ -1173,7 +1175,8 @@
       "resumeSuccess": "Resumed successfully",
       "resumeError": "Failed to resume",
       "pauseSelectedSuccess": "Paused {count} torrent(s)",
-      "resumeSelectedSuccess": "Resumed {count} torrent(s)"
+      "resumeSelectedSuccess": "Resumed {count} torrent(s)",
+      "viewRaw": "View Raw"
     },
     "autoRefresh": {
       "btnTitle": "Auto-Refresh",
@@ -1198,6 +1201,7 @@
       "urlInputHint": "One URL or magnet link per line",
       "fileInputLabel": "Torrent Files",
       "fileInputHint": "Select one or more .torrent files to push"
-    }
+    },
+    "columnSelector": "Columns"
   }
 }
