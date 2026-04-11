@@ -15,21 +15,34 @@ import PushToDownloaderDialog from "./PushToDownloaderDialog.vue";
 import TorrentStateTd from "./TorrentStateTd.vue";
 import ClientStatusDialog from "./ClientStatusDialog.vue";
 
-import { torrents } from "./utils.ts";
+import {
+  torrents,
+  autoRefreshRunning,
+  globalRefreshInterval,
+  useClientRefresh,
+} from "./utils.ts";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 const configStore = useConfigStore();
 
+const {
+  activeDownloaderIds,
+  loadSingleDownloader,
+  scheduleDownloaderRefresh,
+  stopAllTimers,
+  resetRefreshState,
+  startAutoRefresh,
+  stopAutoRefresh,
+  toggleAutoRefresh,
+} = useClientRefresh();
+
 // ── state ──────────────────────────────────────────────────────────────────
 const loading = ref(false);
 
 const tableSelected = ref<CTorrent[]>([]);
 const searchText = ref("");
-
-// which downloader chips are selected (empty = all)
-const selectedDownloaderIds = ref<string[]>([]);
 
 // delete dialog
 const showDeleteDialog = ref(false);
@@ -53,37 +66,13 @@ const showClientStatusDialog = ref(false);
 const totalUpSpeed = computed(() => torrents.value.reduce((acc, t) => acc + (t.uploadSpeed ?? 0), 0));
 const totalDlSpeed = computed(() => torrents.value.reduce((acc, t) => acc + (t.downloadSpeed ?? 0), 0));
 
-// ── auto-refresh ───────────────────────────────────────────────────────────
-/**
- * Global refresh interval in seconds (0 = off).
- * Not persisted: auto-refresh should not silently start on page reload,
- * which could cause unexpected network traffic or overwhelm downloaders.
- */
-const globalRefreshInterval = ref(0);
-
-/** Whether auto-refresh is currently running */
-const autoRefreshRunning = ref(false);
-
-/** Per-downloader setTimeout IDs */
-const refreshTimers = new Map<string, number>();
-
-/** Per-downloader consecutive failure counts */
-const failCounts = new Map<string, number>();
-
-/** Downloaders whose auto-refresh has been suspended due to ≥3 consecutive failures */
-const suspendedDownloaders = ref(new Set<string>());
-
 // ── computed ───────────────────────────────────────────────────────────────
-const enabledDownloaders = computed(() => metadataStore.getEnabledDownloaders);
-
-const activeDownloaderIds = computed(() =>
-  selectedDownloaderIds.value.length > 0 ? selectedDownloaderIds.value : enabledDownloaders.value.map((d) => d.id),
-);
-
 const filteredTorrents = computed(() => {
-  if (!searchText.value) return torrents.value;
+  const active = activeDownloaderIds.value;
+  const base = torrents.value.filter((t) => active.includes(t.clientId));
+  if (!searchText.value) return base;
   const q = searchText.value.toLowerCase();
-  return torrents.value.filter(
+  return base.filter(
     (t) =>
       t.name.toLowerCase().includes(q) ||
       t.infoHash.toLowerCase().includes(q) ||
@@ -126,66 +115,12 @@ const tableHeader = computed(
     ) as DataTableHeader[],
 );
 
-// ── per-downloader helpers ────────────────────────────────────────────────
-/** Fetch torrents for a single downloader and merge into `torrents`. */
-async function loadSingleDownloader(id: string): Promise<void> {
-  try {
-    const result = await sendMessage("getClientTorrents", id);
-    // Replace only the entries belonging to this client
-    torrents.value = [...torrents.value.filter((t) => t.clientId !== id), ...result];
-    failCounts.set(id, 0);
-  } catch {
-    const prev = failCounts.get(id) ?? 0;
-    const next = prev + 1;
-    failCounts.set(id, next);
-    if (next >= 3) {
-      suspendedDownloaders.value.add(id);
-      clearDownloaderTimer(id);
-      runtimeStore.showSnakebar(t("MyClient.autoRefresh.clientSuspended", { name: clientName(id) }), {
-        color: "error",
-        timeout: 8000,
-      });
-    }
-  }
-}
-
-function clearDownloaderTimer(id: string) {
-  const tid = refreshTimers.get(id);
-  if (tid) {
-    clearTimeout(tid);
-    refreshTimers.delete(id);
-  }
-}
-
-/** Schedule the next auto-refresh tick for a downloader. */
-function scheduleDownloaderRefresh(id: string) {
-  if (!autoRefreshRunning.value) return;
-  if (suspendedDownloaders.value.has(id)) return;
-  if (globalRefreshInterval.value <= 0) return;
-
-  clearDownloaderTimer(id);
-  const tid = window.setTimeout(async () => {
-    await loadSingleDownloader(id);
-    scheduleDownloaderRefresh(id);
-  }, globalRefreshInterval.value * 1000);
-  refreshTimers.set(id, tid);
-}
-
-function stopAllTimers() {
-  for (const id of refreshTimers.keys()) {
-    clearDownloaderTimer(id);
-  }
-  autoRefreshRunning.value = false;
-}
-
 // ── data loading ──────────────────────────────────────────────────────────
 /** Manual full refresh: fetch all active downloaders, reset error state. */
 async function loadTorrents() {
   loading.value = true;
   tableSelected.value = [];
-  // Reset failure state for all previously suspended downloaders
-  suspendedDownloaders.value = new Set();
-  failCounts.clear();
+  resetRefreshState();
   try {
     const results = await Promise.allSettled(
       activeDownloaderIds.value.map((id) => sendMessage("getClientTorrents", id)),
@@ -193,46 +128,11 @@ async function loadTorrents() {
     torrents.value = results.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
   } finally {
     loading.value = false;
-    // Restart per-downloader timers if auto-refresh is running
     if (autoRefreshRunning.value) {
       for (const id of activeDownloaderIds.value) {
         scheduleDownloaderRefresh(id);
       }
     }
-  }
-}
-
-/** Start auto-refresh for all active downloaders. */
-function startAutoRefresh() {
-  if (globalRefreshInterval.value <= 0) return;
-  autoRefreshRunning.value = true;
-  for (const id of activeDownloaderIds.value) {
-    scheduleDownloaderRefresh(id);
-  }
-}
-
-/** Stop all auto-refresh timers and clear suspended state. */
-function stopAutoRefresh() {
-  stopAllTimers();
-  suspendedDownloaders.value = new Set();
-  failCounts.clear();
-}
-
-/** Toggle auto-refresh on/off. */
-function toggleAutoRefresh() {
-  if (autoRefreshRunning.value) {
-    stopAutoRefresh();
-  } else {
-    startAutoRefresh();
-  }
-}
-
-/** Resume a specific suspended downloader. */
-function resumeDownloaderRefresh(id: string) {
-  suspendedDownloaders.value.delete(id);
-  failCounts.set(id, 0);
-  if (autoRefreshRunning.value) {
-    scheduleDownloaderRefresh(id);
   }
 }
 
@@ -594,12 +494,7 @@ function torrentKey(torrent: CTorrent) {
 
   <PushToDownloaderDialog v-model="showPushToDownloaderDialog" />
 
-  <ClientStatusDialog
-    v-model="showClientStatusDialog"
-    v-model:selected-downloader-ids="selectedDownloaderIds"
-    :suspended-downloaders="suspendedDownloaders"
-    @resume-downloader="resumeDownloaderRefresh"
-  />
+  <ClientStatusDialog v-model="showClientStatusDialog" />
 
   <!-- Raw JSON dialog -->
   <v-dialog v-model="showRawDialog" max-width="800" scrollable>

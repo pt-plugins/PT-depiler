@@ -1,33 +1,36 @@
 <script setup lang="ts">
-import { computed, ref, watch } from "vue";
+import { ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { getDownloaderIcon, type TorrentClientStatus } from "@ptd/downloader";
 import { sendMessage } from "@/messages.ts";
 import { formatSize } from "@/options/utils.ts";
-import { useMetadataStore } from "@/options/stores/metadata.ts";
 
-import { torrents } from "./utils.ts";
+import { torrents, selectedDownloaderIds, suspendedDownloaders, useClientRefresh } from "./utils.ts";
 
 const showDialog = defineModel<boolean>();
-const selectedDownloaderIds = defineModel<string[]>("selectedDownloaderIds", { default: () => [] });
-
-const props = defineProps<{
-  suspendedDownloaders: Set<string>;
-}>();
-
-const emit = defineEmits<{
-  (e: "resume-downloader", id: string): void;
-}>();
 
 const { t } = useI18n();
-const metadataStore = useMetadataStore();
-
-const enabledDownloaders = computed(() => metadataStore.getEnabledDownloaders);
+const { enabledDownloaders, resumeDownloaderRefresh } = useClientRefresh();
 
 const clientStatuses = ref<Record<string, TorrentClientStatus>>({});
 const clientVersions = ref<Record<string, string>>({});
 const clientLoading = ref<Record<string, boolean>>({});
+
+/** Returns true when the downloader's torrents are included in the current filter. */
+function isDownloaderActive(id: string) {
+  return selectedDownloaderIds.value.length === 0 || selectedDownloaderIds.value.includes(id);
+}
+
+/** Toggle a downloader in/out of the torrent filter. */
+function toggleDownloaderFilter(id: string) {
+  const idx = selectedDownloaderIds.value.indexOf(id);
+  if (idx >= 0) {
+    selectedDownloaderIds.value.splice(idx, 1);
+  } else {
+    selectedDownloaderIds.value.push(id);
+  }
+}
 
 function torrentCountFor(id: string) {
   return torrents.value.filter((t) => t.clientId === id).length;
@@ -75,7 +78,14 @@ watch(showDialog, (v) => {
       <v-divider />
       <v-card-text>
         <v-list>
-          <v-list-item v-for="d in enabledDownloaders" :key="d.id">
+          <v-list-item
+            v-for="d in enabledDownloaders"
+            :key="d.id"
+            :active="isDownloaderActive(d.id)"
+            color="primary"
+            rounded
+            @click="toggleDownloaderFilter(d.id)"
+          >
             <template #prepend>
               <v-avatar :image="getDownloaderIcon(d.type)" size="32" class="mr-2" />
             </template>
@@ -85,6 +95,17 @@ watch(showDialog, (v) => {
               <span v-if="clientVersions[d.id]" class="ml-2 text-caption text-grey">
                 {{ clientVersions[d.id] }}
               </span>
+              <v-icon
+                v-if="suspendedDownloaders.has(d.id)"
+                icon="mdi-alert-circle"
+                color="error"
+                size="x-small"
+                class="ml-1"
+              >
+                <v-tooltip activator="parent" location="bottom">
+                  {{ t("MyClient.autoRefresh.suspendedTip") }}
+                </v-tooltip>
+              </v-icon>
             </v-list-item-title>
             <v-list-item-subtitle>
               <a
@@ -92,6 +113,7 @@ watch(showDialog, (v) => {
                 class="text-primary text-decoration-underline text-caption"
                 rel="noopener noreferrer nofollow"
                 target="_blank"
+                @click.stop
               >
                 {{ d.address }}
               </a>
@@ -122,6 +144,15 @@ watch(showDialog, (v) => {
                   </div>
                 </div>
               </template>
+              <v-btn
+                v-if="suspendedDownloaders.has(d.id)"
+                :title="t('MyClient.autoRefresh.resumeDownloader')"
+                icon="mdi-refresh"
+                color="error"
+                size="small"
+                variant="text"
+                @click.stop="resumeDownloaderRefresh(d.id)"
+              />
               <v-divider vertical class="mx-2" />
               <v-btn
                 :href="d.address"
@@ -131,39 +162,11 @@ watch(showDialog, (v) => {
                 size="small"
                 target="_blank"
                 variant="text"
+                @click.stop
               />
             </template>
           </v-list-item>
         </v-list>
-
-        <!-- downloader filter chips -->
-        <v-divider class="my-2" />
-        <div class="text-caption text-grey px-2 pb-1">{{ t("MyClient.autoRefresh.downloaderFilter") }}</div>
-        <v-chip-group v-model="selectedDownloaderIds" multiple class="px-2" column>
-          <v-chip
-            v-for="d in enabledDownloaders"
-            :key="d.id"
-            :value="d.id"
-            filter
-            variant="outlined"
-            size="small"
-            :color="props.suspendedDownloaders.has(d.id) ? 'error' : undefined"
-          >
-            <v-avatar :image="getDownloaderIcon(d.type)" start size="18" />
-            {{ d.name }}
-            <v-tooltip v-if="props.suspendedDownloaders.has(d.id)" activator="parent" location="bottom">
-              {{ t("MyClient.autoRefresh.suspendedTip") }}
-            </v-tooltip>
-            <v-icon
-              v-if="props.suspendedDownloaders.has(d.id)"
-              end
-              icon="mdi-alert-circle"
-              color="error"
-              size="x-small"
-              @click.stop="emit('resume-downloader', d.id)"
-            />
-          </v-chip>
-        </v-chip-group>
       </v-card-text>
     </v-card>
   </v-dialog>

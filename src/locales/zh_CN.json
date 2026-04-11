@@ -1185,6 +1185,7 @@
       "stop": "停止自动刷新",
       "clientSuspended": "{name} 刷新失败 3 次，已暂停自动刷新。点击下载器标签可恢复。",
       "suspendedTip": "该下载器已因连续失败 3 次而被暂停。点击感叹号图标可恢复。",
+      "resumeDownloader": "恢复该下载器的自动刷新",
       "downloaderFilter": "下载器筛选"
     },
     "pauseSelected": "暂停",
