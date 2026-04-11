@@ -50,3 +50,9 @@ a:not(:hover) {
 .list-item-half-spacer > .v-list-item__prepend > .v-icon ~ .v-list-item__spacer {
   width: 12px;
 }
+
+.status-btn {
+  i.v-icon + i.v-icon {
+    margin-left: 4px;
+  }
+}

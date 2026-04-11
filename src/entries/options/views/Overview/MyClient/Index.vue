@@ -15,6 +15,8 @@ import PushToDownloaderDialog from "./PushToDownloaderDialog.vue";
 import TorrentStateTd from "./TorrentStateTd.vue";
 import ClientStatusDialog from "./ClientStatusDialog.vue";
 
+import { torrents } from "./utils.ts";
+
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
@@ -22,7 +24,7 @@ const configStore = useConfigStore();
 
 // ── state ──────────────────────────────────────────────────────────────────
 const loading = ref(false);
-const torrents = ref<CTorrent[]>([]);
+
 const tableSelected = ref<CTorrent[]>([]);
 const searchText = ref("");
 
@@ -302,15 +304,16 @@ function torrentKey(torrent: CTorrent) {
     <template #append>
       <v-btn
         :title="t('MyClient.clientStatusDialog.openBtn')"
-        variant="text"
-        class="text-caption"
+        class="mr-2 status-btn"
+        color="primary"
+        size="small"
         @click="showClientStatusDialog = true"
       >
-        <v-icon icon="mdi-database-outline" size="small" class="mr-1" />
+        <v-icon class="mr-1" icon="mdi-database-outline" size="x-small" />
         {{ torrents.length }}
-        <v-icon icon="mdi-chevron-up" color="green-darken-4" size="small" class="ml-2" />
+        <v-icon class="mr-1" color="green-darken-4" icon="mdi-chevron-up" size="x-small" />
         {{ formatSize(totalUpSpeed) }}/s
-        <v-icon icon="mdi-chevron-down" color="red-darken-4" size="small" class="ml-1" />
+        <v-icon class="mr-1" color="red-darken-4" icon="mdi-chevron-down" size="x-small" />
         {{ formatSize(totalDlSpeed) }}/s
       </v-btn>
     </template>

@@ -181,21 +181,20 @@ function cancelSearchQueue() {
         <v-spacer />
 
         <v-btn
-          id="ptd-search-entity-status"
           :title="t('SearchEntity.index.alert.searchStatus')"
-          class="mr-2"
+          class="mr-2 status-btn"
           color="primary"
           size="small"
           @click="showSearchStatusDialog = true"
         >
           <template v-if="searchPlanStatus.success > 0">
-            <v-icon size="x-small" class="mr-1" icon="mdi-check" />{{ searchPlanStatus.success }}
+            <v-icon class="mr-1" icon="mdi-check" size="x-small" />{{ searchPlanStatus.success }}
           </template>
           <template v-if="searchPlanStatus.error > 0">
             <v-icon class="mr-1" color="amber" icon="mdi-alert" size="x-small" />{{ searchPlanStatus.error }}
           </template>
           <template v-if="searchPlanStatus.queued > 0">
-            <v-icon size="x-small" color="blue-grey" class="mr-1" icon="mdi-clock" />{{ searchPlanStatus.queued }}
+            <v-icon class="mr-1" color="blue-grey" icon="mdi-clock" size="x-small" />{{ searchPlanStatus.queued }}
           </template>
         </v-btn>
       </template>
@@ -438,12 +437,6 @@ function cancelSearchQueue() {
 #ptd-search-entity-table {
   :deep(td.v-data-table__td) {
     padding: 0 8px;
-  }
-}
-
-#ptd-search-entity-status {
-  i.v-icon + i.v-icon {
-    margin-left: 4px;
   }
 }
 </style>

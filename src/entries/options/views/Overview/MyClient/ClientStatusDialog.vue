@@ -2,15 +2,12 @@
 import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
-import type { CTorrent, TorrentClientStatus } from "@ptd/downloader";
-import { getDownloaderIcon } from "@ptd/downloader";
+import { getDownloaderIcon, type TorrentClientStatus } from "@ptd/downloader";
 import { sendMessage } from "@/messages.ts";
 import { formatSize } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
-const props = defineProps<{
-  torrents: CTorrent[];
-}>();
+import { torrents } from "./utils.ts";
 
 const showDialog = defineModel<boolean>();
 
@@ -24,7 +21,7 @@ const clientVersions = ref<Record<string, string>>({});
 const clientLoading = ref<Record<string, boolean>>({});
 
 function torrentCountFor(id: string) {
-  return props.torrents.filter((t) => t.clientId === id).length;
+  return torrents.value.filter((t) => t.clientId === id).length;
 }
 
 function formatSizeOrDash(v: number | undefined): string {
@@ -74,7 +71,12 @@ watch(showDialog, (v) => {
               <v-avatar :image="getDownloaderIcon(d.type)" size="32" class="mr-2" />
             </template>
 
-            <v-list-item-title class="font-weight-bold">{{ d.name }}</v-list-item-title>
+            <v-list-item-title class="font-weight-bold">
+              {{ d.name }}
+              <span v-if="clientVersions[d.id]" class="ml-2 text-caption text-grey">
+                {{ clientVersions[d.id] }}
+              </span>
+            </v-list-item-title>
             <v-list-item-subtitle>
               <a
                 :href="d.address"
@@ -84,9 +86,6 @@ watch(showDialog, (v) => {
               >
                 {{ d.address }}
               </a>
-              <span v-if="clientVersions[d.id]" class="ml-2 text-caption text-grey">
-                {{ clientVersions[d.id] }}
-              </span>
             </v-list-item-subtitle>
 
             <template #append>
@@ -96,15 +95,17 @@ watch(showDialog, (v) => {
                   <div class="d-flex align-center justify-end ga-1">
                     <v-icon color="green-darken-4" icon="mdi-chevron-up" size="small" />
                     <span class="text-no-wrap">
-                      {{ formatSizeOrDash(clientStatuses[d.id]?.upSpeed) }}/s
-                      ({{ formatSizeOrDash(clientStatuses[d.id]?.upData) }})
+                      {{ formatSizeOrDash(clientStatuses[d.id]?.upSpeed) }}/s ({{
+                        formatSizeOrDash(clientStatuses[d.id]?.upData)
+                      }})
                     </span>
                   </div>
                   <div class="d-flex align-center justify-end ga-1">
                     <v-icon color="red-darken-4" icon="mdi-chevron-down" size="small" />
                     <span class="text-no-wrap">
-                      {{ formatSizeOrDash(clientStatuses[d.id]?.dlSpeed) }}/s
-                      ({{ formatSizeOrDash(clientStatuses[d.id]?.dlData) }})
+                      {{ formatSizeOrDash(clientStatuses[d.id]?.dlSpeed) }}/s ({{
+                        formatSizeOrDash(clientStatuses[d.id]?.dlData)
+                      }})
                     </span>
                   </div>
                   <div class="text-grey">
