@@ -31,7 +31,7 @@ async function clearLastDownloader(v: boolean) {
 
   <v-row>
     <v-col md="10" lg="8">
-      <v-label>{{ t("SetBase.download.localDownloadTitle") }}</v-label>
+      <v-label>{{ t("SetBase.download.myClientTitle") }}</v-label>
       <v-switch
         v-model="configStore.download.startupAutoFetchDownloaderStatus"
         :label="t('SetBase.download.startupAutoFetchDownloaderStatus')"

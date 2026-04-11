@@ -13,6 +13,7 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import NavButton from "@/options/components/NavButton.vue";
 import DeleteDialog from "./DeleteDialog.vue";
 import PushToDownloaderDialog from "./PushToDownloaderDialog.vue";
+import TorrentStateTd from "./TorrentStateTd.vue";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
@@ -91,17 +92,6 @@ const tableHeader = computed(
       { title: t("common.action"), key: "action", align: "center", sortable: false, width: "120" },
     ] as DataTableHeader[],
 );
-
-// ── state chip display map ────────────────────────────────────────────────
-const stateDisplay: Record<CTorrentState, { color: string; icon: string; label: string }> = {
-  [CTorrentState.downloading]: { color: "blue", icon: "mdi-download", label: "MyClient.state.downloading" },
-  [CTorrentState.seeding]: { color: "green", icon: "mdi-upload", label: "MyClient.state.seeding" },
-  [CTorrentState.paused]: { color: "grey", icon: "mdi-pause", label: "MyClient.state.paused" },
-  [CTorrentState.queued]: { color: "orange", icon: "mdi-clock-outline", label: "MyClient.state.queued" },
-  [CTorrentState.checking]: { color: "cyan", icon: "mdi-refresh", label: "MyClient.state.checking" },
-  [CTorrentState.error]: { color: "red", icon: "mdi-alert-circle", label: "MyClient.state.error" },
-  [CTorrentState.unknown]: { color: "grey", icon: "mdi-help-circle", label: "MyClient.state.unknown" },
-};
 
 // ── per-downloader helpers ────────────────────────────────────────────────
 /** Fetch torrents for a single downloader and merge into `torrents`. */
@@ -409,13 +399,13 @@ function torrentKey(torrent: CTorrent) {
         v-model="tableSelected"
         :headers="tableHeader"
         :items="filteredTorrents"
-        :loading="loading"
         :items-per-page="configStore.tableBehavior['MyClient']?.itemsPerPage ?? 25"
+        :loading="loading"
         :multi-sort="configStore.enableTableMultiSort"
         :sort-by="configStore.tableBehavior['MyClient']?.sortBy"
-        return-object
         class="table-stripe table-header-no-wrap"
         hover
+        return-object
         show-select
         @update:itemsPerPage="(v) => configStore.updateTableBehavior('MyClient', 'itemsPerPage', v)"
         @update:sortBy="(v) => configStore.updateTableBehavior('MyClient', 'sortBy', v)"
@@ -457,14 +447,7 @@ function torrentKey(torrent: CTorrent) {
 
         <!-- state column -->
         <template #item.state="{ item }">
-          <v-chip
-            :color="stateDisplay[item.state]?.color ?? 'grey'"
-            :prepend-icon="stateDisplay[item.state]?.icon"
-            size="small"
-            label
-          >
-            {{ t(stateDisplay[item.state]?.label ?? "MyClient.state.unknown") }}
-          </v-chip>
+          <TorrentStateTd :item="item" />
         </template>
 
         <!-- ratio column -->
