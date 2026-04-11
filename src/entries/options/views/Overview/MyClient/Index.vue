@@ -13,6 +13,7 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import DeleteDialog from "./DeleteDialog.vue";
 import PushToDownloaderDialog from "./PushToDownloaderDialog.vue";
 import TorrentStateTd from "./TorrentStateTd.vue";
+import ClientStatusSpan from "@/options/views/Settings/SetDownloader/ClientStatusSpan.vue";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
@@ -449,6 +450,18 @@ function torrentKey(torrent: CTorrent) {
     </v-card-title>
 
     <v-card-text>
+      <!-- downloader server status -->
+      <div v-if="enabledDownloaders.length > 0" class="d-flex flex-wrap align-center ga-2 pb-2">
+        <template v-for="(d, idx) in enabledDownloaders" :key="d.id">
+          <div class="d-flex align-center ga-1">
+            <v-avatar :image="clientIcon(d.id)" size="18" />
+            <span class="text-caption font-weight-medium text-no-wrap">{{ d.name }}</span>
+            <ClientStatusSpan :client="d" />
+          </div>
+          <v-divider v-if="idx < enabledDownloaders.length - 1" vertical class="mx-1" />
+        </template>
+      </div>
+      <v-divider v-if="enabledDownloaders.length > 0" class="mb-2" />
       <v-data-table
         v-model="tableSelected"
         :headers="tableHeader"
