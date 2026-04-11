@@ -399,35 +399,6 @@ function torrentKey(torrent: CTorrent) {
                 {{ autoRefreshRunning ? t("MyClient.autoRefresh.stop") : t("MyClient.autoRefresh.start") }}
               </v-btn>
             </v-card-actions>
-
-            <!-- downloader filter chips -->
-            <v-divider class="my-1" />
-            <v-card-subtitle class="pa-1">{{ t("MyClient.autoRefresh.downloaderFilter") }}</v-card-subtitle>
-            <v-chip-group v-model="selectedDownloaderIds" multiple class="px-1" column>
-              <v-chip
-                v-for="d in enabledDownloaders"
-                :key="d.id"
-                :value="d.id"
-                filter
-                variant="outlined"
-                size="small"
-                :color="suspendedDownloaders.has(d.id) ? 'error' : undefined"
-              >
-                <v-avatar :image="clientIcon(d.id)" start size="18" />
-                {{ d.name }}
-                <v-tooltip v-if="suspendedDownloaders.has(d.id)" activator="parent" location="bottom">
-                  {{ t("MyClient.autoRefresh.suspendedTip") }}
-                </v-tooltip>
-                <v-icon
-                  v-if="suspendedDownloaders.has(d.id)"
-                  end
-                  icon="mdi-alert-circle"
-                  color="error"
-                  size="x-small"
-                  @click.stop="resumeDownloaderRefresh(d.id)"
-                />
-              </v-chip>
-            </v-chip-group>
           </v-card>
         </v-menu>
 
@@ -623,7 +594,12 @@ function torrentKey(torrent: CTorrent) {
 
   <PushToDownloaderDialog v-model="showPushToDownloaderDialog" />
 
-  <ClientStatusDialog v-model="showClientStatusDialog" :torrents="torrents" />
+  <ClientStatusDialog
+    v-model="showClientStatusDialog"
+    v-model:selected-downloader-ids="selectedDownloaderIds"
+    :suspended-downloaders="suspendedDownloaders"
+    @resume-downloader="resumeDownloaderRefresh"
+  />
 
   <!-- Raw JSON dialog -->
   <v-dialog v-model="showRawDialog" max-width="800" scrollable>

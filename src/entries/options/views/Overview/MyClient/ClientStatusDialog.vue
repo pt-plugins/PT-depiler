@@ -10,6 +10,15 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { torrents } from "./utils.ts";
 
 const showDialog = defineModel<boolean>();
+const selectedDownloaderIds = defineModel<string[]>("selectedDownloaderIds", { default: () => [] });
+
+const props = defineProps<{
+  suspendedDownloaders: Set<string>;
+}>();
+
+const emit = defineEmits<{
+  (e: "resume-downloader", id: string): void;
+}>();
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
@@ -126,6 +135,35 @@ watch(showDialog, (v) => {
             </template>
           </v-list-item>
         </v-list>
+
+        <!-- downloader filter chips -->
+        <v-divider class="my-2" />
+        <div class="text-caption text-grey px-2 pb-1">{{ t("MyClient.autoRefresh.downloaderFilter") }}</div>
+        <v-chip-group v-model="selectedDownloaderIds" multiple class="px-2" column>
+          <v-chip
+            v-for="d in enabledDownloaders"
+            :key="d.id"
+            :value="d.id"
+            filter
+            variant="outlined"
+            size="small"
+            :color="props.suspendedDownloaders.has(d.id) ? 'error' : undefined"
+          >
+            <v-avatar :image="getDownloaderIcon(d.type)" start size="18" />
+            {{ d.name }}
+            <v-tooltip v-if="props.suspendedDownloaders.has(d.id)" activator="parent" location="bottom">
+              {{ t("MyClient.autoRefresh.suspendedTip") }}
+            </v-tooltip>
+            <v-icon
+              v-if="props.suspendedDownloaders.has(d.id)"
+              end
+              icon="mdi-alert-circle"
+              color="error"
+              size="x-small"
+              @click.stop="emit('resume-downloader', d.id)"
+            />
+          </v-chip>
+        </v-chip-group>
       </v-card-text>
     </v-card>
   </v-dialog>
