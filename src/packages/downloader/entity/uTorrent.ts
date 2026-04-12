@@ -5,11 +5,13 @@
 import {
   AbstractBittorrentClient,
   CAddTorrentOptions,
+  CustomPathDescription,
   CTorrent,
   TorrentClientConfig,
   TorrentClientMetaData,
   CTorrentState,
   CAddTorrentResult,
+  CTorrentTracker,
 } from "../types";
 import urlJoin from "url-join";
 import axios from "axios";
@@ -367,5 +369,9 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
     const action = removeData ? "removedatatorrent" : "removetorrent";
     await this.request<BaseUtorrentResponse>(action, { hash: id });
     return true;
+  }
+
+  async getTorrentTrackers(_torrent: string | CTorrent): Promise<CTorrentTracker[]> {
+    return [];
   }
 }

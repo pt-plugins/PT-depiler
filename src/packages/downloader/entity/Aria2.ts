@@ -13,6 +13,7 @@ import {
   TorrentClientStatus,
   AbstractBittorrentClient,
   CAddTorrentResult,
+  CTorrentTracker,
 } from "../types";
 import { getRemoteTorrentFile } from "../utils";
 import urlJoin from "url-join";
@@ -322,6 +323,10 @@ export default class Aria2 extends AbstractBittorrentClient {
   async resumeTorrent(id: any): Promise<boolean> {
     await this.methodSend<string>("aria2.unpause", [id]);
     return true;
+  }
+
+  async getTorrentTrackers(_torrent: string | CTorrent): Promise<CTorrentTracker[]> {
+    return [];
   }
 
   private parseRawTorrent(rawTask: rawTask): CTorrent<rawTask> {

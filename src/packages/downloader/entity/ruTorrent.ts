@@ -12,6 +12,7 @@ import {
   CTorrentState,
   TorrentClientStatus,
   CAddTorrentResult,
+  CTorrentTracker,
 } from "../types";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { getRemoteTorrentFile } from "../utils";
@@ -344,5 +345,9 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
     });
     await this.requestHttpRpc(postData);
     return true;
+  }
+
+  async getTorrentTrackers(_torrent: string | CTorrent): Promise<CTorrentTracker[]> {
+    return [];
   }
 }

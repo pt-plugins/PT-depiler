@@ -9,6 +9,7 @@ import {
   CTorrentState,
   TorrentClientStatus,
   CAddTorrentResult,
+  CTorrentTracker,
 } from "../types";
 import urlJoin from "url-join";
 import axios, { type AxiosResponse, isAxiosError } from "axios";
@@ -463,6 +464,35 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     };
     await this.request("torrent-start", args);
     return true;
+  }
+
+  async getTorrentTrackers(torrent: string | CTorrent): Promise<CTorrentTracker[]> {
+    const id = typeof torrent === "string" ? torrent : torrent.id;
+    const {
+      data: { arguments: args },
+    } = await this.request<
+      TransmissionBaseResponse<{
+        torrents: Array<{
+          trackerStats: Array<{
+            announce: string;
+            seederCount: number;
+            leecherCount: number;
+            downloadCount: number;
+            lastAnnounceResult: string;
+            lastAnnounceSucceeded: boolean;
+          }>;
+        }>;
+      }>
+    >("torrent-get", { ids: [id], fields: ["trackerStats"] });
+
+    return (args.torrents[0]?.trackerStats ?? []).map((t) => ({
+      url: t.announce,
+      status: t.lastAnnounceSucceeded ? 2 : 4,
+      seeds: t.seederCount,
+      peers: t.leecherCount,
+      downloaded: t.downloadCount,
+      message: t.lastAnnounceResult,
+    }));
   }
 
   async request<T>(method: TransmissionRequestMethod, args: any = {}): Promise<AxiosResponse<T>> {

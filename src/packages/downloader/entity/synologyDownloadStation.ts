@@ -13,6 +13,7 @@ import {
   CTorrentState,
   TorrentClientStatus,
   CAddTorrentResult,
+  CTorrentTracker,
 } from "../types";
 import urlJoin from "url-join";
 import axios, { AxiosRequestConfig } from "axios";
@@ -729,5 +730,9 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
         force_complete: false,
       })
     ).success;
+  }
+
+  async getTorrentTrackers(_torrent: string | CTorrent): Promise<CTorrentTracker[]> {
+    return [];
   }
 }
