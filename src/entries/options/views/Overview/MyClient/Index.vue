@@ -56,13 +56,15 @@ function openRawDialog(item: CTorrent) {
 // client status dialog
 const showClientStatusDialog = ref(false);
 
-const totalUpSpeed = computed(() => torrents.value.reduce((acc, t) => acc + (t.uploadSpeed ?? 0), 0));
-const totalDlSpeed = computed(() => torrents.value.reduce((acc, t) => acc + (t.downloadSpeed ?? 0), 0));
+const totalUpSpeed = computed(() => allTorrents.value.reduce((acc, t) => acc + (t.uploadSpeed ?? 0), 0));
+const totalDlSpeed = computed(() => allTorrents.value.reduce((acc, t) => acc + (t.downloadSpeed ?? 0), 0));
 
 // ── computed ───────────────────────────────────────────────────────────────
+const allTorrents = computed(() => Object.values(torrents.value).flat());
+
 const filteredTorrents = computed(() => {
   const active = activeDownloaderIds.value;
-  const base = torrents.value.filter((t) => active.includes(t.clientId));
+  const base = active.flatMap((id) => torrents.value[id] ?? []);
   if (!searchText.value) return base;
   const q = searchText.value.toLowerCase();
   return base.filter(
@@ -118,7 +120,13 @@ async function loadTorrents() {
     const results = await Promise.allSettled(
       activeDownloaderIds.value.map((id) => sendMessage("getClientTorrents", id)),
     );
-    torrents.value = results.flatMap((r) => (r.status === "fulfilled" ? r.value : []));
+    const newTorrents: Record<string, CTorrent[]> = {};
+    results.forEach((r, i) => {
+      if (r.status === "fulfilled") {
+        newTorrents[activeDownloaderIds.value[i]] = r.value;
+      }
+    });
+    torrents.value = newTorrents;
   } finally {
     loading.value = false;
     if (autoRefreshRunning.value) {
@@ -203,7 +211,7 @@ function torrentKey(torrent: CTorrent) {
         @click="showClientStatusDialog = true"
       >
         <v-icon class="mr-1" icon="mdi-database-outline" size="x-small" />
-        {{ torrents.length }}
+        {{ allTorrents.length }}
         <v-icon class="mr-1" color="green-darken-4" icon="mdi-chevron-up" size="x-small" />
         {{ formatSize(totalUpSpeed) }}/s
         <v-icon class="mr-1" color="red-darken-4" icon="mdi-chevron-down" size="x-small" />

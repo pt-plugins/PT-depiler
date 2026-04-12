@@ -8,8 +8,8 @@ import { useI18n } from "vue-i18n";
 
 // ── module-level shared state ─────────────────────────────────────────────
 
-/** Loaded torrent list, shared between Index.vue and ClientStatusDialog.vue. */
-export const torrents = ref<CTorrent[]>([]);
+/** Loaded torrent map keyed by clientId, shared between Index.vue and ClientStatusDialog.vue. */
+export const torrents = ref<Record<string, CTorrent[]>>({});
 
 /** Which downloader IDs are selected in the torrent filter (empty = all). */
 export const selectedDownloaderIds = ref<string[]>([]);
@@ -57,7 +57,7 @@ export function useClientRefresh() {
   async function loadSingleDownloader(id: string): Promise<void> {
     try {
       const result = await sendMessage("getClientTorrents", id);
-      torrents.value = [...torrents.value.filter((t) => t.clientId !== id), ...result];
+      torrents.value = { ...torrents.value, [id]: result };
       failCounts.set(id, 0);
     } catch {
       const prev = failCounts.get(id) ?? 0;

@@ -33,7 +33,7 @@ function toggleDownloaderFilter(id: string) {
 }
 
 function torrentCountFor(id: string) {
-  return torrents.value.filter((t) => t.clientId === id).length;
+  return (torrents.value[id] ?? []).length;
 }
 
 function formatSizeOrDash(v: number | undefined): string {
