@@ -11,7 +11,6 @@ import {
   TorrentClientMetaData,
   CTorrentState,
   CAddTorrentResult,
-  CTorrentTracker,
 } from "../types";
 import urlJoin from "url-join";
 import axios from "axios";
@@ -371,7 +370,7 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
     return true;
   }
 
-  async getTorrentTrackers(_torrent: string | CTorrent): Promise<CTorrentTracker[]> {
+  async getTorrentTrackers(_torrent: string | CTorrent): Promise<string[]> {
     return [];
   }
 }

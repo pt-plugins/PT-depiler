@@ -14,7 +14,6 @@ import {
   CTorrentState,
   TorrentClientStatus,
   CAddTorrentResult,
-  CTorrentTracker,
 } from "../types";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import urlJoin from "url-join";
@@ -497,26 +496,9 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     return data;
   }
 
-  async getTorrentTrackers(torrent: string | CTorrent): Promise<CTorrentTracker[]> {
+  async getTorrentTrackers(torrent: string | CTorrent): Promise<string[]> {
     const hash = typeof torrent === "string" ? torrent : (torrent.infoHash || (torrent.id as string));
-    const { data } = await this.request<
-      Array<{
-        url: string;
-        status: number;
-        num_seeds: number;
-        num_leeches: number;
-        num_downloaded: number;
-        msg: string;
-      }>
-    >("/torrents/trackers", { params: { hash } });
-
-    return data.map((t) => ({
-      url: t.url,
-      status: t.status,
-      seeds: t.num_seeds,
-      peers: t.num_leeches,
-      downloaded: t.num_downloaded,
-      message: t.msg,
-    }));
+    const { data } = await this.request<Array<{ url: string }>>("/torrents/trackers", { params: { hash } });
+    return data.map((t) => t.url);
   }
 }

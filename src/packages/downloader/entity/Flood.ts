@@ -17,7 +17,6 @@ import {
   CTorrentState,
   TorrentClientStatus,
   CAddTorrentResult,
-  CTorrentTracker,
 } from "../types";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import urlJoin from "url-join";
@@ -518,7 +517,7 @@ export default class Flood extends AbstractBittorrentClient {
     return true;
   }
 
-  async getTorrentTrackers(_torrent: string | CTorrent): Promise<CTorrentTracker[]> {
+  async getTorrentTrackers(_torrent: string | CTorrent): Promise<string[]> {
     return [];
   }
 }

@@ -9,7 +9,6 @@ import {
   CTorrentState,
   TorrentClientStatus,
   CAddTorrentResult,
-  CTorrentTracker,
 } from "../types";
 import urlJoin from "url-join";
 import axios, { type AxiosResponse, isAxiosError } from "axios";
@@ -466,33 +465,17 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     return true;
   }
 
-  async getTorrentTrackers(torrent: string | CTorrent): Promise<CTorrentTracker[]> {
+  async getTorrentTrackers(torrent: string | CTorrent): Promise<string[]> {
     const id = typeof torrent === "string" ? torrent : torrent.id;
     const {
       data: { arguments: args },
     } = await this.request<
       TransmissionBaseResponse<{
-        torrents: Array<{
-          trackerStats: Array<{
-            announce: string;
-            seederCount: number;
-            leecherCount: number;
-            downloadCount: number;
-            lastAnnounceResult: string;
-            lastAnnounceSucceeded: boolean;
-          }>;
-        }>;
+        torrents: Array<{ trackerStats: Array<{ announce: string }> }>;
       }>
     >("torrent-get", { ids: [id], fields: ["trackerStats"] });
 
-    return (args.torrents[0]?.trackerStats ?? []).map((t) => ({
-      url: t.announce,
-      status: t.lastAnnounceSucceeded ? 2 : 4,
-      seeds: t.seederCount,
-      peers: t.leecherCount,
-      downloaded: t.downloadCount,
-      message: t.lastAnnounceResult,
-    }));
+    return (args.torrents[0]?.trackerStats ?? []).map((t) => t.announce);
   }
 
   async request<T>(method: TransmissionRequestMethod, args: any = {}): Promise<AxiosResponse<T>> {

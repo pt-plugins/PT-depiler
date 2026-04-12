@@ -216,15 +216,6 @@ export interface CAddTorrentResult {
   id?: string; // 添加成功后返回的种子ID
 }
 
-export interface CTorrentTracker {
-  url: string; // Tracker announce URL
-  status: number; // Status code (client-specific; -1 if unavailable)
-  seeds?: number; // Seeder count (-1 if unavailable)
-  peers?: number; // Leecher/peer count (-1 if unavailable)
-  downloaded?: number; // Downloaded count (-1 if unavailable)
-  message?: string; // Status message from tracker
-}
-
 /**
  * 客户端具体要实现的抽象方法
  */
@@ -326,5 +317,5 @@ export abstract class AbstractBittorrentClient<T extends DownloaderBaseConfig = 
   public abstract removeTorrent(id: any, removeData?: boolean): Promise<boolean>;
 
   // 获取种子的 Tracker 列表
-  public abstract getTorrentTrackers(torrent: string | CTorrent): Promise<CTorrentTracker[]>;
+  public abstract getTorrentTrackers(torrent: string | CTorrent): Promise<string[]>;
 }

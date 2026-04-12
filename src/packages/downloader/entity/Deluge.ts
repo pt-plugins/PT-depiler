@@ -12,7 +12,6 @@ import {
   TorrentClientStatus,
   AbstractBittorrentClient,
   CAddTorrentResult,
-  CTorrentTracker,
 } from "../types";
 import urlJoin from "url-join";
 import axios from "axios";
@@ -422,26 +421,17 @@ export default class Deluge extends AbstractBittorrentClient {
     }
   }
 
-  async getTorrentTrackers(torrent: string | CTorrent): Promise<CTorrentTracker[]> {
+  async getTorrentTrackers(torrent: string | CTorrent): Promise<string[]> {
     const hash = typeof torrent === "string" ? torrent : (torrent.infoHash || (torrent.id as string));
-    const result = await this.request<
-      Record<
-        string,
-        {
-          trackers: Array<{ url: string; tier: number }>;
-          tracker_status: string;
-        }
-      >
-    >("core.get_torrents_status", [{ hash }, ["trackers", "tracker_status"]]);
+    const result = await this.request<Record<string, { trackers: Array<{ url: string; tier: number }> }>>(
+      "core.get_torrents_status",
+      [{ hash }, ["trackers"]],
+    );
 
     const torrentData = Object.values(result)[0];
     if (!torrentData) return [];
 
-    return torrentData.trackers.map((t) => ({
-      url: t.url,
-      status: -1,
-      message: torrentData.tracker_status || undefined,
-    }));
+    return torrentData.trackers.map((t) => t.url);
   }
 
   private async login(): Promise<boolean> {
