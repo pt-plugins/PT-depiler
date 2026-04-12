@@ -798,9 +798,6 @@
           "custom": "Custom text"
         }
       }
-    },
-    "ClientStatusSpan": {
-      "flushInterval": "Flush Interval (s)"
     }
   },
   "SetSearchSolution": {
