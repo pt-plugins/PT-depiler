@@ -64,6 +64,14 @@ interface rawTorrent {
    * Byte count of all the non-corrupt data you've ever downloaded for this torrent. If you deleted the files and downloaded a second time, this will be 2*totalSize.
    */
   downloadedEver: number;
+
+  trackers: Array<{
+    announce: string;
+    id: string;
+    scrape: string;
+    sitename: string;
+    tier: number;
+  }>;
 }
 
 interface TransmissionBaseResponse<T = any> {
@@ -234,6 +242,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     "totalSize",
     "leftUntilDone",
     "labels",
+    "trackers",
   ];
 
   // 实例真实使用的rpc地址
@@ -465,17 +474,21 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     return true;
   }
 
-  async getTorrentTrackers(torrent: string | CTorrent): Promise<string[]> {
-    const id = typeof torrent === "string" ? torrent : torrent.id;
-    const {
-      data: { arguments: args },
-    } = await this.request<
-      TransmissionBaseResponse<{
-        torrents: Array<{ trackerStats: Array<{ announce: string }> }>;
-      }>
-    >("torrent-get", { ids: [id], fields: ["trackerStats"] });
+  async getTorrentTrackers(torrent: CTorrent): Promise<string[]> {
+    let trackers: rawTorrent["trackers"];
+    if (Array.isArray(torrent.raw.trackers)) {
+      trackers = torrent.raw.trackers;
+    } else {
+      const {
+        data: { arguments: args },
+      } = await this.request<TransmissionTorrentGetResponse>("torrent-get", {
+        ids: [torrent.id],
+        fields: ["trackers"],
+      });
+      trackers = args.torrents[0]?.trackers;
+    }
 
-    return (args.torrents[0]?.trackerStats ?? []).map((t) => t.announce);
+    return (trackers ?? []).map((t) => t.announce);
   }
 
   async request<T>(method: TransmissionRequestMethod, args: any = {}): Promise<AxiosResponse<T>> {

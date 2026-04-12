@@ -496,8 +496,28 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     return data;
   }
 
-  async getTorrentTrackers(torrent: string | CTorrent): Promise<string[]> {
-    const hash = typeof torrent === "string" ? torrent : (torrent.infoHash || (torrent.id as string));
+  async getTorrentTrackers(torrent: CTorrent): Promise<string[]> {
+    // 首先尝试从 torrent.magnet_uri 中解析出 tracker 列表
+    if (typeof torrent === "object" && typeof torrent?.raw?.magnet_uri === "string") {
+      const queryString = torrent.raw.magnet_uri.split("?")[1] || "";
+      const params = new URLSearchParams(queryString);
+
+      // 获取所有 tr 并解码 URL 编码内容
+      const trackers: string[] = [];
+      params.getAll("tr").forEach((tr) => {
+        try {
+          // 解码 URL 编码内容
+          trackers.push(decodeURIComponent(tr));
+        } catch (e) {
+          trackers.push(tr); // 解码失败保留原值
+        }
+      });
+
+      return trackers;
+    }
+
+    // 不然，则从客户端直接请求获取
+    const hash = torrent.infoHash || (torrent.id as string);
     const { data } = await this.request<Array<{ url: string }>>("/torrents/trackers", { params: { hash } });
     return data.map((t) => t.url);
   }
