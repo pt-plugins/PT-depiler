@@ -13,6 +13,10 @@ const cloudflareBlocked5xxCodes = [
 ];
 
 export function isCloudflareBlocked(response: AxiosResponse): boolean {
+  if (!response) {
+    return false;
+  }
+
   try {
     // https://developers.cloudflare.com/cloudflare-challenges/challenge-types/challenge-pages/detect-response/#detect-a-challenge-page-response
     if (response.headers?.["cf-mitigated"] === "challenge") {

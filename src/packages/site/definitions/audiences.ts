@@ -4,7 +4,7 @@
  */
 import Sizzle from "sizzle";
 import { mergeWith } from "es-toolkit";
-import { ETorrentStatus, type ISiteMetadata, type IUserInfo } from "../types";
+import { ETorrentStatus, type IElementQuery, type ISiteMetadata, type IUserInfo } from "../types";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
@@ -13,6 +13,11 @@ import NexusPHP, {
 } from "../schemas/NexusPHP.ts";
 import { createDocument, parseSizeString, rot13, tryToNumber } from "../utils";
 import { set } from "es-toolkit/compat";
+
+const AudiencesBaseLinkQuery: IElementQuery = {
+  selector: ["a[href*='download.php?id=']:has(i.fa-download)"],
+  attr: "href",
+} as const;
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -104,36 +109,68 @@ export const siteMetadata: ISiteMetadata = {
     },
     selectors: {
       ...SchemaMetadata.search!.selectors!,
+      rows: {
+        selector: ["table.torrents-table > tbody > tr[data-torrent-id]"],
+      },
+      link: AudiencesBaseLinkQuery, // 种子下载链接
+      url: {
+        ...AudiencesBaseLinkQuery,
+        filters: [
+          { name: "querystring", args: ["id"] },
+          { name: "prepend", args: ["/details.php?id="] },
+        ],
+      }, // 种子页面链接
+      id: {
+        ...AudiencesBaseLinkQuery,
+        filters: [{ name: "querystring", args: ["id"] }],
+      },
       subTitle: {
-        selector: ["td.embedded > span:last"],
+        selector: ["td.embedded:first > span:last"],
+      },
+      author: {
+        selector: ["td.torrent-uploader-col"], // 发布者
+      },
+      comments: {
+        text: 0,
+        selector: ["> td a[href*='comment']"], // 评论数
+        filters: [{ name: "parseNumber" }],
+      },
+      completed: {
+        text: 0,
+        selector: ["> td:nth-of-type(8)"], // 完成数
+        filters: [{ name: "parseNumber" }],
+      },
+      leechers: {
+        text: 0,
+        selector: ["> td:nth-of-type(7)"], // 下载数
+        filters: [{ name: "parseNumber" }],
+      },
+      seeders: {
+        text: 0,
+        selector: ["> td:nth-of-type(6)"], // 种子数
+        filters: [{ name: "parseNumber" }],
+      },
+      size: {
+        text: 0,
+        selector: ["> td:nth-of-type(5)"], // 大小
+        filters: [{ name: "parseSize" }],
+      },
+      time: {
+        ...SchemaMetadata.search!.selectors!.time!, // 继承 elementProcess 方法
+        selector: ["> td:nth-of-type(4)"], // 限定范围
       },
       progress: {
-        selector: ['div[class^="torrents-progress"][style*="width"]:first'],
-        elementProcess: (element: HTMLElement) => {
-          const elementStyle = element.getAttribute("style") || "";
-          const widthMatch = elementStyle.match(/width:([ \d.-]+)%/);
-          const progress = widthMatch && widthMatch.length >= 2 ? parseFloat(widthMatch[1]) : 0;
-          return progress < 0 ? 0 : progress;
-        },
+        selector: ["td.torrent-progress-cell span.torrent-progress-value"],
+        filters: [{ name: "replace", args: ["%", ""] }, { name: "parseNumber" }],
       },
       status: {
-        selector: ['div[class^="torrents-progress"][style*="width"]:first'],
-        elementProcess: (element: HTMLElement) => {
-          if (element.classList.contains("torrents-progress2")) {
-            const widthMatch = (element.getAttribute("style") || "").match(/width:([ \d.-]+)%/);
-            const progress = widthMatch && widthMatch.length >= 2 ? parseFloat(widthMatch[1]) : 0;
-            return progress < 0
-              ? ETorrentStatus.unknown
-              : progress >= 100
-                ? ETorrentStatus.completed
-                : ETorrentStatus.inactive;
-          } else if (element.classList.contains("torrents-progress")) {
-            const widthMatch = (element.getAttribute("style") || "").match(/width:([ \d.]+)%/);
-            const progress = widthMatch && widthMatch.length >= 2 ? parseFloat(widthMatch[1]) : 0;
-            return progress >= 100 ? ETorrentStatus.seeding : ETorrentStatus.downloading;
-          } else {
-            return ETorrentStatus.unknown;
-          }
+        text: ETorrentStatus.unknown,
+        selector: ["td.torrent-progress-cell > span.torrent-progress-badge"],
+        case: {
+          ".torrent-progress-badge--seeding": ETorrentStatus.seeding,
+          ".torrent-progress-badge--completed": ETorrentStatus.completed,
+          ".torrent-progress-badge--incomplete": ETorrentStatus.inactive,
+          ".torrent-progress-badge--downloading": ETorrentStatus.downloading,
         },
       },
       tags: [
