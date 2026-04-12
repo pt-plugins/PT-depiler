@@ -15,12 +15,7 @@ import PushToDownloaderDialog from "./PushToDownloaderDialog.vue";
 import TorrentStateTd from "./TorrentStateTd.vue";
 import ClientStatusDialog from "./ClientStatusDialog.vue";
 
-import {
-  torrents,
-  autoRefreshRunning,
-  globalRefreshInterval,
-  useClientRefresh,
-} from "./utils.ts";
+import { torrents, autoRefreshRunning, globalRefreshInterval, useClientRefresh } from "./utils.ts";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
@@ -33,8 +28,6 @@ const {
   scheduleDownloaderRefresh,
   stopAllTimers,
   resetRefreshState,
-  startAutoRefresh,
-  stopAutoRefresh,
   toggleAutoRefresh,
 } = useClientRefresh();
 
@@ -354,7 +347,7 @@ function torrentKey(torrent: CTorrent) {
         :loading="loading"
         :multi-sort="configStore.enableTableMultiSort"
         :sort-by="configStore.tableBehavior['MyClient']?.sortBy"
-        class="table-stripe table-header-no-wrap"
+        class="table-stripe table-header-no-wrap table-td-p4"
         hover
         return-object
         show-select
@@ -401,13 +394,6 @@ function torrentKey(torrent: CTorrent) {
           <TorrentStateTd :item="item" />
         </template>
 
-        <!-- ratio column -->
-        <template #item.ratio="{ item }">
-          <span :class="item.ratio >= 1 ? 'text-green' : 'text-red'">
-            {{ item.ratio.toFixed(2) }}
-          </span>
-        </template>
-
         <!-- upload speed -->
         <template #item.uploadSpeed="{ item }">
           <span v-if="item.uploadSpeed > 0" class="text-no-wrap text-green-darken-2">
@@ -432,6 +418,13 @@ function torrentKey(torrent: CTorrent) {
         <!-- total downloaded -->
         <template #item.totalDownloaded="{ item }">
           <span class="text-no-wrap text-blue-darken-2">{{ formatSize(item.totalDownloaded) }}</span>
+        </template>
+
+        <!-- ratio column -->
+        <template #item.ratio="{ item }">
+          <span :class="item.ratio >= 1 ? 'text-green' : 'text-red'">
+            {{ item.ratio.toFixed(2) }}
+          </span>
         </template>
 
         <!-- save path -->
@@ -515,6 +508,10 @@ function torrentKey(torrent: CTorrent) {
 </template>
 
 <style scoped lang="scss">
+.table-td-p4 :deep(.v-data-table__td) {
+  padding: 0 4px;
+}
+
 .raw-json-pre {
   white-space: pre-wrap;
   word-break: break-all;
