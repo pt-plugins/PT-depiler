@@ -43,15 +43,20 @@ function formatSizeOrDash(v: number | undefined): string {
 async function fetchStatusFor(id: string) {
   clientLoading.value[id] = true;
   try {
-    const [status, version] = await Promise.all([
-      (sendMessage("getDownloaderStatus", id) as Promise<TorrentClientStatus | null>).catch(() => null),
-      (sendMessage("getDownloaderVersion", id) as Promise<string>).catch(() => "—"),
-    ]);
+    // client version 只获取一次即可
+    if (typeof clientVersions.value[id] === "undefined") {
+      clientVersions.value[id] = (await sendMessage("getDownloaderVersion", id)) ?? "—";
+    }
+
+    const status = await sendMessage("getDownloaderStatus", id);
     if (status) clientStatuses.value[id] = status;
-    clientVersions.value[id] = version ?? "—";
   } finally {
     clientLoading.value[id] = false;
   }
+}
+
+function suspendedDownloader(id: string) {
+  suspendedDownloaders.value.add(id);
 }
 
 async function fetchAll() {
@@ -144,6 +149,8 @@ watch(showDialog, (v) => {
                   </div>
                 </div>
               </template>
+
+              <v-divider vertical class="mx-2" />
               <v-btn
                 v-if="suspendedDownloaders.has(d.id)"
                 :title="t('MyClient.autoRefresh.resumeDownloader')"
@@ -153,7 +160,15 @@ watch(showDialog, (v) => {
                 variant="text"
                 @click.stop="resumeDownloaderRefresh(d.id)"
               />
-              <v-divider vertical class="mx-2" />
+              <v-btn
+                v-else
+                :title="t('MyClient.autoRefresh.stopDownloader')"
+                color="amber"
+                size="small"
+                icon="mdi-stop"
+                variant="text"
+                @click.stop="() => suspendedDownloader(d.id)"
+              />
               <v-btn
                 :href="d.address"
                 :title="t('MyClient.clientStatusDialog.openClient')"
