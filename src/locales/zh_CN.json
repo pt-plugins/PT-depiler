@@ -914,7 +914,7 @@
       "otherSettings": "其他设置",
       "downloadLinkSuffix": "下载链接后缀",
       "downloadLinkSuffixHint": "该字段会被自动添加到该站点的下载链接后",
-      "downloadLinkSuffixExample": "如插件获得的链接为 https://example.com/download.php?id=1，此处设置为 &passkey=xxxx， 则最终下载链接为 https://example.com/download.php?id=1&passkey=xxxx",
+      "downloadLinkSuffixExample": "如插件获得的链接为 https://example.com/download.php?id=1，此处设置为 &passkey=xxxx， 则最终下载链接为 https://example.com/download.php?id=1&passkey=xxxx. 通常无须填写，仅在无法获得 passkey 时可手动添加",
       "requestTimeout": "请求超时",
       "requestTimeoutHint": "影响该站点请求（种子搜索、用户信息获取）的超时等待时间",
       "downloadInterval": "下载间隔",
