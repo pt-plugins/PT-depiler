@@ -917,7 +917,7 @@
       "otherSettings": "Other Settings",
       "downloadLinkSuffix": "Download Link Suffix",
       "downloadLinkSuffixHint": "This field will be automatically appended to the site's download links",
-      "downloadLinkSuffixExample": "E.g. if the plugin gets https://example.com/download.php?id=1 and you set &passkey=xxxx, the final download link will be https://example.com/download.php?id=1&passkey=xxxx",
+      "downloadLinkSuffixExample": "E.g. if the plugin gets https://example.com/download.php?id=1 and you set &passkey=xxxx, the final download link will be https://example.com/download.php?id=1&passkey=xxxx. Leave this empty by default, and only fill in the passkey if the correct download link cannot be obtained.",
       "requestTimeout": "Request Timeout",
       "requestTimeoutHint": "Affects the timeout for site requests (torrent search, user info retrieval)",
       "downloadInterval": "Download Interval",
