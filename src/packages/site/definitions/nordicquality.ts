@@ -6,7 +6,6 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "nordicquality",
   name: "NordicQuality",
-  aka: ["NQ"],
   tags: ["北欧"],
   timezoneOffset: "+0000",
 

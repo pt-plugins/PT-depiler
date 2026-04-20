@@ -1,10 +1,5 @@
 import { type ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/Unit3D.ts";
-
-// 葡萄牙语标签映射
-const ptBrTrans = {
-  seedingSize: ["Tamanho em seeding", "Seeding Size", "Seeding size"],
-};
+import { SchemaMetadata, userInfoTrans } from "../schemas/Unit3D.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -26,8 +21,9 @@ export const siteMetadata: ISiteMetadata = {
       seedingSize: {
         ...SchemaMetadata.userInfo!.selectors!.seedingSize,
         selector: [
-          ...ptBrTrans.seedingSize.map((x) => `dt:contains('${x}') + dd`),
-          ...ptBrTrans.seedingSize.map((x) => `td:contains('${x}') + td`),
+          // 追加葡萄牙语标签，同时继承 Unit3D 已有的英文/中文标签
+          ...["Tamanho em seeding", ...userInfoTrans.seedingSize].map((x) => `dt:contains('${x}') + dd`),
+          ...["Tamanho em seeding", ...userInfoTrans.seedingSize].map((x) => `td:contains('${x}') + td`),
         ],
       },
     },
