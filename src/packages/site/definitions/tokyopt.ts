@@ -1,8 +1,8 @@
 import type { ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+//import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  //...SchemaMetadata,
 
   version: 1,
   id: "tokyopt",
@@ -14,6 +14,10 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://jjj.gbxlbcg.klm/"],
 
+  // dead at 2026-02-24 ( from savept.icu
+  isDead: true,
+
+  /*
   category: [
     {
       name: "分类",
@@ -116,6 +120,8 @@ export const siteMetadata: ISiteMetadata = {
     CategorySpstate,
     CategoryInclbookmarked,
   ],
+
+   */
 
   levelRequirements: [
     {
