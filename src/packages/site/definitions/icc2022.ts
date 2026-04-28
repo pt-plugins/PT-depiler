@@ -1,11 +1,11 @@
 /**
- * FIXME 由 resource/sites/www.icc2022.com/config.json 自动转换而来
+ * 由 resource/sites/www.icc2022.com/config.json 自动转换而来
  */
 import { type ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+// import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  // ...SchemaMetadata,
   version: 1,
 
   id: "icc2022",
@@ -21,6 +21,7 @@ export const siteMetadata: ISiteMetadata = {
 
   isDead: true,
 
+  /*
   category: [
     {
       name: "分类",
@@ -42,6 +43,7 @@ export const siteMetadata: ISiteMetadata = {
     CategorySpstate,
     CategoryInclbookmarked,
   ],
+   */
 
   levelRequirements: [
     {

@@ -1,5 +1,5 @@
 /**
- * FIXME 由 resource/sites/ptvicomo.net/config.json 自动转换而来
+ * 由 resource/sites/ptvicomo.net/config.json 自动转换而来
  */
 import { type ISiteMetadata } from "../types";
 // import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";

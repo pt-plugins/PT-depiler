@@ -2,10 +2,10 @@
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/cdfile.yml
  */
 import { type ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+// import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  // ...SchemaMetadata,
   version: 1,
   id: "cdfile",
   name: "CD File",
@@ -16,6 +16,11 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["https://pt.cdfile.org/"],
 
+  // refs: https://web.archive.org/web/20260428150553/https://pt.cdfile.org/
+  // CD File PT站 我们已经关闭停止运营，后续不再开放
+  isDead: true,
+
+  /*
   category: [
     {
       name: "分类",
@@ -37,6 +42,8 @@ export const siteMetadata: ISiteMetadata = {
     CategorySpstate,
     CategoryInclbookmarked,
   ],
+
+   */
 
   levelRequirements: [
     {

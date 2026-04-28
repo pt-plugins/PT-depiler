@@ -1,10 +1,10 @@
 import {
-  ETorrentStatus,
+  // ETorrentStatus,
   type ILevelRequirement,
-  type ISearchInput,
+  // type ISearchInput,
   type ISiteMetadata,
-  type ITorrent,
-  type ITorrentTag,
+  // type ITorrent,
+  // type ITorrentTag,
 } from "../types";
 // import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 // import type { AxiosRequestConfig, AxiosResponse } from "axios";
@@ -54,6 +54,7 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://sfz.anzr/"],
 
+  /*
   category: [
     {
       name: "搜索入口",
@@ -193,6 +194,8 @@ export const siteMetadata: ISiteMetadata = {
       },
     ],
   },
+
+   */
   levelRequirements,
 
   /*
