@@ -87,46 +87,6 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
-  levelRequirements: [
-    {
-      id: 1,
-      name: "Leech",
-      privilege: "Can download 1 torrent a day. Limited to download torrents uploaded 1 week ago. Cannot upload.",
-    },
-    {
-      id: 2,
-      name: "Newbie",
-      privilege: "Can download 5 torrents a day. Cannot upload. Cannot use RSS.",
-    },
-    {
-      id: 3,
-      name: "Member",
-      alternative: [{ ratio: 1 }, { interval: "P1W" }],
-      privilege: "Can download 100 torrents a day. Can upload. Can use RSS (must enable it in My Account settings).",
-    },
-    {
-      id: 100,
-      name: "V.I.P.",
-      groupType: "vip",
-      privilege: "Can download 200 torrents a day. Can upload.",
-    },
-    {
-      id: 200,
-      name: "Uploader",
-      groupType: "manager",
-      privilege: "Can upload.",
-    },
-    {
-      id: 201,
-      name: "Editor",
-      groupType: "manager",
-      privilege: "Can upload.",
-    },
-    { id: 203, name: "Moderator", groupType: "manager" },
-    { id: 204, name: "Admin", groupType: "manager" },
-    { id: 205, name: "Super Admin", groupType: "manager" },
-  ],
-
   userInputSettingMeta: [...SchemaMetadata.userInputSettingMeta!],
 };
 
