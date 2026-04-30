@@ -248,7 +248,7 @@ export const siteMetadata: ISiteMetadata = {
         attr: "href",
       },
       subTitle: {
-        selector: ["div.torrent-smalldescr:first > span"],
+        selector: ["div.torrent-smalldescr:first > span:not(.torrent-icon-fast)"],
       },
 
       progress: {
