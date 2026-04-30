@@ -154,12 +154,12 @@ export default class CinemaZ extends AvistazNetwork {
     }
 
     // 中配
-    if (row.audio?.some((a: any) => /Chinese|Cantonese/i.test(a.language))) {
+    if (row.audio?.some((a) => /Chinese|Cantonese/i.test(a.language))) {
       tags.push({ name: "中配" });
     }
 
     // 中字
-    if (row.subtitle?.some((s: any) => /Chinese/i.test(s.language))) {
+    if (row.subtitle?.some((s) => /Chinese/i.test(s.language))) {
       tags.push({ name: "中字" });
     }
 
