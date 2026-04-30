@@ -329,6 +329,11 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["tbody tr.nowrap:first td:last"],
         filters: [{ name: "parseNumber" }],
       },
+      // issue #1205
+      seedingBonusPerHour: {
+        selector: ["tbody tr.nowrap:first > td:nth-child(9)"],
+        filters: [{ name: "parseNumber" }],
+      },
       messageCount: {
         ...SchemaMetadata.userInfo!.selectors!.messageCount,
         selector: ["a[href*='messages.php'] > b[style*='background: darkorange']"],
