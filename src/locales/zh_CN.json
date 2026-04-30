@@ -658,7 +658,9 @@
         "extensionTip": "插件后台下载种子，并中转到 @:SetBase.download.localDownloadMethodOptions.browser 进行下载"
       },
       "saveDownloadHistory": "是否保存下载历史（如非必要请勿关闭此功能）",
+      "myClientTitle": "我的下载器页面设置",
       "startupAutoFetchDownloaderStatus": "进入下载器设置页面时自动加载下载器状态",
+      "initDownloaderTorrentOnEnter": "进入 我的下载器 页面时，自动加载下载器中的种子信息",
       "localDownloadTitle": "本地下载",
       "localDownloadIgnoreInterval": "本地下载时忽略站点下载间隔限制",
       "pushDownloadServerTitle": "下载服务器推送",
@@ -796,9 +798,6 @@
           "custom": "自定义的内容替换"
         }
       }
-    },
-    "ClientStatusSpan": {
-      "flushInterval": "刷新间隔 (s)"
     }
   },
   "SetSearchSolution": {
@@ -1131,6 +1130,79 @@
       "clearMediaCache": "清空来自豆瓣、IMDb等信息站点的媒体简介缓存",
       "clearSearchSnapshot": "清空搜索快照",
       "clearSearchSnapshotDesc": "清空所有搜索快照数据"
+    }
+  },
+  "MyClient": {
+    "refresh": "刷新",
+    "deleteSelected": "删除",
+    "searchPlaceholder": "搜索种子名称、Hash、标签、路径",
+    "table": {
+      "client": "下载器",
+      "name": "种子名称",
+      "size": "大小",
+      "progress": "进度",
+      "status": "状态",
+      "ratio": "分享率",
+      "upSpeed": "上传速度",
+      "dlSpeed": "下载速度",
+      "savePath": "保存路径",
+      "addedAt": "添加时间",
+      "totalUploaded": "总上传量",
+      "totalDownloaded": "总下载量"
+    },
+    "state": {
+      "downloading": "下载中",
+      "seeding": "做种中",
+      "paused": "已暂停",
+      "queued": "排队中",
+      "checking": "检查中",
+      "error": "错误",
+      "unknown": "未知"
+    },
+    "action": {
+      "pause": "暂停",
+      "resume": "开始",
+      "delete": "删除",
+      "pauseSuccess": "暂停成功",
+      "pauseError": "暂停失败",
+      "resumeSuccess": "开始成功",
+      "resumeError": "开始失败",
+      "pauseSelectedSuccess": "已暂停 {count} 个种子",
+      "resumeSelectedSuccess": "已开始 {count} 个种子",
+      "viewRaw": "查看原始数据"
+    },
+    "autoRefresh": {
+      "btnTitle": "自动刷新",
+      "intervalLabel": "刷新间隔",
+      "intervalUnit": "秒（0 表示关闭）",
+      "start": "开始自动刷新",
+      "stop": "停止自动刷新",
+      "clientSuspended": "{name} 刷新失败 3 次，已暂停自动刷新。点击下载器标签可恢复。",
+      "suspendedTip": "该下载器已因连续失败 3 次而被暂停。点击感叹号图标可恢复。",
+      "resumeDownloader": "恢复该下载器的自动刷新",
+      "downloaderFilter": "下载器筛选"
+    },
+    "pauseSelected": "暂停",
+    "resumeSelected": "开始",
+    "dialog": {
+      "removeData": "同时删除数据"
+    },
+    "pushToDownloader": {
+      "navBtn": "推送到下载器",
+      "title": "推送到下载器",
+      "modeUrl": "链接 / 磁力",
+      "modeFile": "种子文件",
+      "urlInputLabel": "下载链接 / 磁力链接",
+      "urlInputHint": "每行一个链接或磁力链接",
+      "fileInputLabel": "种子文件",
+      "fileInputHint": "选择一个或多个 .torrent 文件进行推送"
+    },
+    "columnSelector": "自定义列",
+    "clientStatusDialog": {
+      "title": "下载器状态",
+      "openBtn": "全部下载器状态",
+      "torrentCount": "{count} 个种子",
+      "openClient": "打开下载器"
     }
   }
 }

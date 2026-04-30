@@ -730,4 +730,8 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
       })
     ).success;
   }
+
+  async getTorrentTrackers(_torrent: string | CTorrent): Promise<string[]> {
+    return [];
+  }
 }

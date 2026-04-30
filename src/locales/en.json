@@ -658,7 +658,9 @@
         "extensionTip": "The extension downloads the torrent in the background and proxies it to @:SetBase.download.localDownloadMethodOptions.browser for downloading"
       },
       "saveDownloadHistory": "Save download history (Please do not disable this function unless necessary)",
+      "MyClientTitle": "My Downloader",
       "startupAutoFetchDownloaderStatus": "Automatically load the downloader status when entering the downloader settings page",
+      "initDownloaderTorrentOnEnter": "Automatically load torrents from the downloader when entering the My Downloader page",
       "localDownloadTitle": "Local Download",
       "localDownloadIgnoreInterval": "Ignore site download interval limit for local downloads",
       "pushDownloadServerTitle": "Push to Download Server",
@@ -796,9 +798,6 @@
           "custom": "Custom text"
         }
       }
-    },
-    "ClientStatusSpan": {
-      "flushInterval": "Flush Interval (s)"
     }
   },
   "SetSearchSolution": {
@@ -1134,6 +1133,79 @@
       "clearMediaCache": "Clear media summary cache from Douban, IMDb, etc.",
       "clearSearchSnapshot": "Clear Search Snapshots",
       "clearSearchSnapshotDesc": "Clear all search snapshot data"
+    }
+  },
+  "MyClient": {
+    "refresh": "Refresh",
+    "deleteSelected": "Delete",
+    "searchPlaceholder": "Search by name, hash, label, or path",
+    "table": {
+      "client": "Client",
+      "name": "Torrent Name",
+      "size": "Size",
+      "progress": "Progress",
+      "status": "Status",
+      "ratio": "Ratio",
+      "upSpeed": "Upload Speed",
+      "dlSpeed": "Download Speed",
+      "savePath": "Save Path",
+      "addedAt": "Added At",
+      "totalUploaded": "Total Upload",
+      "totalDownloaded": "Total Download"
+    },
+    "state": {
+      "downloading": "Downloading",
+      "seeding": "Seeding",
+      "paused": "Paused",
+      "queued": "Queued",
+      "checking": "Checking",
+      "error": "Error",
+      "unknown": "Unknown"
+    },
+    "action": {
+      "pause": "Pause",
+      "resume": "Resume",
+      "delete": "Delete",
+      "pauseSuccess": "Paused successfully",
+      "pauseError": "Failed to pause",
+      "resumeSuccess": "Resumed successfully",
+      "resumeError": "Failed to resume",
+      "pauseSelectedSuccess": "Paused {count} torrent(s)",
+      "resumeSelectedSuccess": "Resumed {count} torrent(s)",
+      "viewRaw": "View Raw"
+    },
+    "autoRefresh": {
+      "btnTitle": "Auto-Refresh",
+      "intervalLabel": "Refresh interval",
+      "intervalUnit": "seconds (0 = off)",
+      "start": "Start auto-refresh",
+      "stop": "Stop auto-refresh",
+      "clientSuspended": "{name} failed 3 times in a row. Auto-refresh suspended. Click the chip to resume.",
+      "suspendedTip": "This client has been suspended due to 3 consecutive failures. Click the alert icon to resume.",
+      "resumeDownloader": "Resume auto-refresh for this downloader",
+      "downloaderFilter": "Downloader Filter"
+    },
+    "pauseSelected": "Pause",
+    "resumeSelected": "Resume",
+    "dialog": {
+      "removeData": "Also remove data"
+    },
+    "pushToDownloader": {
+      "navBtn": "Push to Downloader",
+      "title": "Push to Downloader",
+      "modeUrl": "Link / Magnet",
+      "modeFile": "Torrent File",
+      "urlInputLabel": "URLs / Magnet Links",
+      "urlInputHint": "One URL or magnet link per line",
+      "fileInputLabel": "Torrent Files",
+      "fileInputHint": "Select one or more .torrent files to push"
+    },
+    "columnSelector": "Columns",
+    "clientStatusDialog": {
+      "title": "Downloader Status",
+      "openBtn": "All Downloaders Status",
+      "torrentCount": "{count} torrent(s)",
+      "openClient": "Open Downloader"
     }
   }
 }

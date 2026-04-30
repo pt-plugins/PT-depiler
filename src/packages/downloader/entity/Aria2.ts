@@ -324,6 +324,10 @@ export default class Aria2 extends AbstractBittorrentClient {
     return true;
   }
 
+  async getTorrentTrackers(_torrent: CTorrent): Promise<string[]> {
+    return [];
+  }
+
   private parseRawTorrent(rawTask: rawTask): CTorrent<rawTask> {
     const progress = rawTask.completedLength / rawTask.totalLength || 0;
     let state = CTorrentState.unknown;

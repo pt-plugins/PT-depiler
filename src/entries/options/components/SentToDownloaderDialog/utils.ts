@@ -54,11 +54,14 @@ export function sendTorrentToDownloader(
       const replaceMap: Record<string, string> = {
         "torrent.title": torrent.title ?? "",
         "torrent.subTitle": torrent.subTitle ?? "",
-        "torrent.site": torrent.site,
-        "torrent.siteName": await metadataStore.getSiteName(torrent.site),
         "torrent.category": (torrent.category as string) ?? "",
         ...baseReplaceMap,
       };
+
+      if (torrent.site) {
+        replaceMap["torrent.site"] = torrent.site;
+        replaceMap["torrent.siteName"] = await metadataStore.getSiteName(torrent.site);
+      }
 
       for (const key of ["savePath", "label"] as (keyof typeof realAddTorrentOptions)[]) {
         if (realAddTorrentOptions[key]) {

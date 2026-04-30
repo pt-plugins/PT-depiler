@@ -5,6 +5,7 @@
 import {
   AbstractBittorrentClient,
   CAddTorrentOptions,
+  CustomPathDescription,
   CTorrent,
   TorrentClientConfig,
   TorrentClientMetaData,
@@ -367,5 +368,9 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
     const action = removeData ? "removedatatorrent" : "removetorrent";
     await this.request<BaseUtorrentResponse>(action, { hash: id });
     return true;
+  }
+
+  async getTorrentTrackers(_torrent: string | CTorrent): Promise<string[]> {
+    return [];
   }
 }
