@@ -87,6 +87,37 @@ export const baseLinkQuery: IElementQuery = {
   attr: "href",
 } as const;
 
+export function createUserBonusSelectorFn(bonusKeys: string[]): IElementQuery {
+  const bonusRegExp = new RegExp(`(${bonusKeys.join("|")}).+?([\\d.]+)`);
+  return {
+    selector: [
+      ...bonusKeys.map(
+        (bonusKey) =>
+          "td.rowhead" +
+          // 防止 &nbsp; 影响
+          bonusKey
+            .split(" ")
+            .map((x) => `:contains('${x}')`)
+            .join("") +
+          ` + td`,
+      ),
+      ...bonusKeys.map((bonusKey) => `td.rowfollow:contains('${bonusKey}')`),
+    ],
+    filters: [
+      (query: string) => {
+        query = query.replace(/,/g, "");
+        if (bonusRegExp.test(query)) {
+          query = query.match(bonusRegExp)![2];
+          return parseFloat(query);
+        } else if (/[\d.]+/.test(query)) {
+          return parseFloat(query.match(/[\d.]+/)![0]);
+        }
+        return query;
+      },
+    ],
+  };
+}
+
 const parseProgressElement = (element: HTMLElement) => {
   const progressElement = element.parentElement?.querySelector("div");
   if (!progressElement) return null;
@@ -440,51 +471,35 @@ export const SchemaMetadata: Pick<
         selector: ["h1:has(img[src^='pic/flag']) img[alt='Donor']"],
         elementProcess: () => true,
       },
-      bonus: {
-        selector: [
-          "td.rowhead:contains('魔力') + td",
-          "td.rowhead:contains('Karma'):contains('Points') + td",
-          "td.rowhead:contains('麦粒') + td",
-          "td.rowhead:contains('星焱') + td",
-          "td.rowhead:contains('魔力值') + td",
-          "td.rowfollow:contains('魔力值')",
-        ],
-        filters: [
-          (query: string) => {
-            query = query.replace(/,/g, "");
-            if (/(魅力值|沙粒|星焱|魔力值).+?([\d.]+)/.test(query)) {
-              query = query.match(/(魅力值|星焱|沙粒|魔力值).+?([\d.]+)/)![2];
-              return parseFloat(query);
-            } else if (/[\d.]+/.test(query)) {
-              return parseFloat(query.match(/[\d.]+/)![0]);
-            }
-            return query;
-          },
-        ],
-      },
-      seedingBonus: {
-        selector: [
-          "td.rowhead:contains('做种积分') + td",
-          "td.rowhead:contains('Seeding Points') + td",
-          "td.rowhead:contains('做種積分') + td",
-          "td.rowhead:contains('保种积分') + td",
-          "td.rowfollow:contains('做种积分')",
-          "td.rowfollow:contains('Seeding Points')",
-          "td.rowfollow:contains('做種積分')",
-        ],
-        filters: [
-          (query: string) => {
-            query = query.replace(/,/g, "");
-            if (/(做种积分|做種積分|Seeding Points).*?([\d.]+)/.test(query)) {
-              query = query.match(/(做种积分|做種積分|Seeding Points).*?([\d.]+)/)![2];
-              return parseFloat(query);
-            } else if (/[\d.]+/.test(query)) {
-              return parseFloat(query.match(/[\d.]+/)![0]);
-            }
-            return query;
-          },
-        ],
-      },
+      bonus: createUserBonusSelectorFn([
+        // 官方语言包
+        // refs: https://github.com/search?q=repo%3Axiaomlove%2Fnexusphp+row_karma_points+path%3A%2F%5Elang%5C%2F%2F&type=code
+        "魔力值",
+        "Karma Points",
+        // "Karma Poeng",
+        // "Punti Karma",
+        // "Pontos de Karma",
+        // "Karma body",
+        // "Karma Punten",
+        // "Punkty Karmy",
+        // "Karma Punkte",
+        // "Karma Pisteet",
+        // "Очки Кармы",
+        // "Puncte Karma",
+        // "Πόντοι Κάρμα",
+        // "Karma Poäng",
+        // "カルマポイント",
+
+        // 特殊站点适配（此处仅保留因历史原因遗留的适配，其他请在站点配置中覆写）
+        // "麦粒", // nwsuaf6 ( dead )
+        "星焱", // tmpt
+        "魅力值",
+        "沙粒",
+
+        // 回落 fallback
+        "魔力",
+      ]),
+      seedingBonus: createUserBonusSelectorFn(["做种积分", "Seeding Points", "做種積分", "保种积分"]),
       joinTime: {
         selector: ["td.rowhead:contains('加入日期') + td", "td.rowhead:contains('Join'):contains('date') + td"],
         filters: [

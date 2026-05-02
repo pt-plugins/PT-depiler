@@ -1,8 +1,8 @@
 import type { ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
+// import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  // ...SchemaMetadata,
 
   version: 1,
   id: "redleaves",
@@ -22,6 +22,7 @@ export const siteMetadata: ISiteMetadata = {
   // refs: https://t.me/Ptfxq/896
   isDead: true,
 
+  /*
   category: [
     {
       name: "搜索入口",
@@ -135,7 +136,7 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
-  officialGroupPattern: [/(RLWEB|RLeaves|RLTV|-R²)$/i],
+
 
   searchEntry: {
     area_all: { name: "全部", requestConfig: { url: "/search.php" } },
@@ -156,6 +157,9 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
+   */
+
+  officialGroupPattern: [/(RLWEB|RLeaves|RLTV|-R²)$/i],
 
   levelRequirements: [
     {

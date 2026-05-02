@@ -2,7 +2,13 @@
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/crabpt.yml
  */
 import { type ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
+import {
+  CategoryInclbookmarked,
+  CategoryIncldead,
+  CategorySpstate,
+  createUserBonusSelectorFn,
+  SchemaMetadata,
+} from "../schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -158,6 +164,14 @@ export const siteMetadata: ISiteMetadata = {
     CategorySpstate,
     CategoryInclbookmarked,
   ],
+
+  userInfo: {
+    ...SchemaMetadata.userInfo,
+    selectors: {
+      ...SchemaMetadata.userInfo?.selectors!,
+      bonus: createUserBonusSelectorFn(["蟹币值", "魔力值", "Karma Points", "魔力"]),
+    },
+  },
 
   levelRequirements: [
     {

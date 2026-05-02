@@ -215,6 +215,7 @@ out
 AGENTS.md
 GEMINI.md
 CLAUDE.md
+.playwright-mcp/
 
 # docker
 docker-compose.yml

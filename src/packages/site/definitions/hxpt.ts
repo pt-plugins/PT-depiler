@@ -100,6 +100,11 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseNumber" }],
       },
     },
+    process: SchemaMetadata.userInfo!.process!.map((item) =>
+      item.requestConfig?.url === "/mybonus.php"
+        ? { ...item, requestConfig: { ...item.requestConfig, url: "/mybonusmine.php" } }
+        : item,
+    ),
   },
 
   levelRequirements: [

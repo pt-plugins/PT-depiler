@@ -1,8 +1,10 @@
-import { type ISiteMetadata, ETorrentStatus, type ISearchInput, type ITorrent, type ITorrentTag } from "../types";
-import { buildCategoryOptionsFromList } from "../utils";
-import { siteMetadata as GPWSiteMetadata, attrMap } from "./greatposterwall";
-import Gazelle, { GazelleUtils, SchemaMetadata, commonPagesList, detailPageList } from "../schemas/Gazelle";
+import { type ISiteMetadata } from "../types";
+// import { type ISiteMetadata, ETorrentStatus, type ISearchInput, type ITorrent, type ITorrentTag } from "../types";
+// import { buildCategoryOptionsFromList } from "../utils";
+// import { siteMetadata as GPWSiteMetadata, attrMap } from "./greatposterwall";
+// import Gazelle, { GazelleUtils, SchemaMetadata, commonPagesList, detailPageList } from "../schemas/Gazelle";
 
+/*
 const tagKeywords = ["HR", "可替代", "已报告", "FREE", "xUP"];
 const extractTags = (tags: string) => GazelleUtils.extractTags(tags, tagKeywords);
 
@@ -24,9 +26,10 @@ const detailPageSelectors = {
     filters: [{ name: "parseTime", args: ["yy-MM-dd HH:mm:ss"] }],
   },
 };
+*/
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  // ...SchemaMetadata,
 
   version: 2,
   id: "mooko",
@@ -40,6 +43,10 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://zbbxb.bet/"],
 
+  // refs: https://web.archive.org/web/20260428145624/https://mooko.org/
+  isDead: true,
+
+  /*
   category: [
     {
       name: "发行类别",
@@ -194,8 +201,11 @@ export const siteMetadata: ISiteMetadata = {
       required: false,
     },
   ],
+
+   */
 };
 
+/*
 export default class MooKo extends Gazelle {
   protected override get torrentClasses(): Record<"group" | "unGroupTorrent", string[]> {
     return {
@@ -242,3 +252,4 @@ export default class MooKo extends Gazelle {
     return partTorrent;
   }
 }
+*/

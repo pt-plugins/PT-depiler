@@ -248,7 +248,7 @@ export const siteMetadata: ISiteMetadata = {
         attr: "href",
       },
       subTitle: {
-        selector: ["div.torrent-smalldescr:first > span"],
+        selector: ["div.torrent-smalldescr:first > span:not(.torrent-icon-fast)"],
       },
 
       progress: {
@@ -327,6 +327,11 @@ export const siteMetadata: ISiteMetadata = {
       },
       bonusPerHour: {
         selector: ["tbody tr.nowrap:first td:last"],
+        filters: [{ name: "parseNumber" }],
+      },
+      // issue #1205
+      seedingBonusPerHour: {
+        selector: ["tbody tr.nowrap:first > td:nth-child(9)"],
         filters: [{ name: "parseNumber" }],
       },
       messageCount: {
