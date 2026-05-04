@@ -59,8 +59,8 @@ importers:
         specifier: ^3.10.1
         version: 3.10.1
       konva:
-        specifier: ^10.2.5
-        version: 10.2.5
+        specifier: ^10.3.0
+        version: 10.3.0
       nanoid:
         specifier: ^5.1.9
         version: 5.1.9
@@ -102,7 +102,7 @@ importers:
         version: 11.4.0(vue@3.5.33(typescript@6.0.3))
       vue-konva:
         specifier: ^3.4.0
-        version: 3.4.0(konva@10.2.5)(vue@3.5.33(typescript@6.0.3))
+        version: 3.4.0(konva@10.3.0)(vue@3.5.33(typescript@6.0.3))
       vue-router:
         specifier: ^5.0.4
         version: 5.0.4(@vue/compiler-sfc@3.5.33)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.33(typescript@6.0.3)))(vue@3.5.33(typescript@6.0.3))
@@ -2412,8 +2412,8 @@ packages:
   kolorist@1.8.0:
     resolution: {integrity: sha512-Y+60/zizpJ3HRH8DCss+q95yr6145JXZo46OTpFvDZWLfRCE4qChOyk1b26nMaNpfHHgxagk9dXT5OP0Tfe+dQ==}
 
-  konva@10.2.5:
-    resolution: {integrity: sha512-WwBoe/EBhFcv+seL1Wnp3OAOwOFjCY4nCCgpLRrzUzw1IX4lKf/lYhj2Z3qo9P9q2fA3h+OdGDlimSNqZJaY5A==}
+  konva@10.3.0:
+    resolution: {integrity: sha512-gt19K2gzY4lHbnkvsku7eSmB+A9PTS2jG4F9coBMsdjM1UKfJNxJbDbXVpeCW1wjEGRwBD3nBamcHnqJhAeKlg==}
 
   ky@1.14.3:
     resolution: {integrity: sha512-9zy9lkjac+TR1c2tG+mkNSVlyOpInnWdSMiue4F+kq8TwJSgv6o8jhLRg8Ho6SnZ9wOYUq/yozts9qQCfk7bIw==}
@@ -3387,6 +3387,7 @@ packages:
 
   uuid@8.3.2:
     resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
   valid-filename@4.0.0:
@@ -5834,7 +5835,7 @@ snapshots:
 
   kolorist@1.8.0: {}
 
-  konva@10.2.5: {}
+  konva@10.3.0: {}
 
   ky@1.14.3: {}
 
@@ -7003,9 +7004,9 @@ snapshots:
       '@vue/devtools-api': 6.6.4
       vue: 3.5.33(typescript@6.0.3)
 
-  vue-konva@3.4.0(konva@10.2.5)(vue@3.5.33(typescript@6.0.3)):
+  vue-konva@3.4.0(konva@10.3.0)(vue@3.5.33(typescript@6.0.3)):
     dependencies:
-      konva: 10.2.5
+      konva: 10.3.0
       vue: 3.5.33(typescript@6.0.3)
 
   vue-router@5.0.4(@vue/compiler-sfc@3.5.33)(pinia@3.0.4(typescript@6.0.3)(vue@3.5.33(typescript@6.0.3)))(vue@3.5.33(typescript@6.0.3)):
