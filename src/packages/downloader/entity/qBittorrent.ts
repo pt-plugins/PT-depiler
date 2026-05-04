@@ -356,15 +356,38 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
       }
     }
 
-    const res = await this.request<"Ok." | "Fails.">("/torrents/add", {
+    // qBittorrent < v5.2.0 returns "Ok." or "Fails." as plain text;
+    // qBittorrent >= v5.2.0 returns a JSON object with counts and IDs.
+    interface QBittorrentAddTorrentResponse {
+      added_torrent_ids?: string[];
+      failure_count?: number;
+      pending_count?: number;
+      success_count?: number;
+    }
+
+    const res = await this.request<"Ok." | "Fails." | QBittorrentAddTorrentResponse>("/torrents/add", {
       method: "post",
       data: formData,
     });
 
-    addResult.success = res.data === "Ok.";
-    if (!addResult.success) {
-      addResult.message = res.data;
-      return addResult;
+    if (typeof res.data === "object" && res.data !== null) {
+      // qBittorrent >= v5.2.0 JSON response
+      const jsonData = res.data as QBittorrentAddTorrentResponse;
+      addResult.success = (jsonData.success_count ?? 0) > 0 && (jsonData.failure_count ?? 0) === 0;
+      if (addResult.success && jsonData.added_torrent_ids?.length) {
+        addResult.id = jsonData.added_torrent_ids[0];
+      }
+      if (!addResult.success) {
+        addResult.message = JSON.stringify(res.data);
+        return addResult;
+      }
+    } else {
+      // qBittorrent < v5.2.0 plain text response
+      addResult.success = res.data === "Ok.";
+      if (!addResult.success) {
+        addResult.message = res.data;
+        return addResult;
+      }
     }
 
     return addResult;
