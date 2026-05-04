@@ -1,6 +1,7 @@
-import { type AxiosRequestConfig, type AxiosResponse } from "axios";
+import { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
 import urlJoin from "url-join";
 import Sizzle from "sizzle";
+import { axios, isCloudflareBlocked } from "../utils/adapter";
 
 import PrivateSite from "./AbstractPrivateSite";
 
@@ -13,6 +14,9 @@ import {
   type ITorrent,
   type ITorrentTag,
   type ISearchInput,
+  CFBlockedError,
+  NeedLoginError,
+  NoTorrentsError,
 } from "../types";
 import { parseSizeString } from "../utils";
 
@@ -403,6 +407,8 @@ export default class AvistazNetwork extends PrivateSite {
     axiosConfig: AxiosRequestConfig,
     checkLogin: boolean = true,
   ): Promise<AxiosResponse<T>> {
+    const isTorrentSearchApi = axiosConfig.url?.startsWith("/api/v1/jackett/torrents");
+
     if (axiosConfig.url === "/api/v1/jackett/auth") {
       axiosConfig.method = "POST";
       axiosConfig.data = {
@@ -425,7 +431,42 @@ export default class AvistazNetwork extends PrivateSite {
       };
     }
 
-    return super.request<T>(axiosConfig, checkLogin);
+    if (!isTorrentSearchApi) {
+      return super.request<T>(axiosConfig, checkLogin);
+    }
+
+    axiosConfig.baseURL ??= this.url;
+    axiosConfig.timeout ??= this.userConfig.timeout ?? 30e3;
+    await this.sleepAction(this.metadata.requestDelay ?? 0);
+
+    let req: AxiosResponse<T>;
+    try {
+      req = await axios.request<T>(axiosConfig);
+    } catch (error) {
+      const response = (error as AxiosError<T>).response;
+      if (!response) {
+        throw error;
+      }
+
+      req = response;
+    }
+
+    if (isCloudflareBlocked(req)) {
+      throw new CFBlockedError();
+    }
+
+    if (checkLogin && !this.loggedCheck(req)) {
+      throw new NeedLoginError();
+    }
+
+    if (req.status >= 400) {
+      if ([400, 404, 422].includes(req.status)) {
+        throw new NoTorrentsError();
+      }
+      throw Error(`Network Error: ${req.status} ${req.statusText || ""}`.trim());
+    }
+
+    return req;
   }
 
   // 使用 retrieveRuntimeSettings 作为中间存储，存储 `token` 以及 `expiry` 降低授权频率
