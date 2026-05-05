@@ -1,5 +1,6 @@
 <script lang="ts" setup>
 import { computed, ref, watch } from "vue";
+import { computedAsync } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify";
 import { useRoute, useRouter } from "vue-router";
@@ -39,6 +40,18 @@ const searchPlans = computed(() =>
       name: x.name,
     })),
 );
+
+// 过滤掉已死亡/离线/不允许搜索的站点，供单一站点搜索方案使用
+const singleSiteSearchItems = computedAsync(async () => {
+  const sites = metadataStore.getSortedAddedSites.filter((site) => (site.allowSearch ?? false) && !site.isOffline);
+  const results = await Promise.all(
+    sites.map(async (site) => {
+      const siteMetadata = await metadataStore.getSiteMetadata(site.id);
+      return siteMetadata.isDead ? null : site;
+    }),
+  );
+  return results.filter((site) => site !== null);
+}, []);
 
 function startSearchEntity() {
   router.push({
@@ -159,11 +172,8 @@ watch(
                 submenu
               >
                 <v-list>
-                  <template v-for="siteMetadata in metadataStore.getSortedAddedSites" :key="siteMetadata.id">
-                    <v-list-item
-                      v-if="siteMetadata.allowSearch ?? false"
-                      @click="() => (searchPlanKey = `site:${siteMetadata.id}`)"
-                    >
+                  <template v-for="siteMetadata in singleSiteSearchItems" :key="siteMetadata.id">
+                    <v-list-item @click="() => (searchPlanKey = `site:${siteMetadata.id}`)">
                       <template #prepend>
                         <SiteFavicon :site-id="siteMetadata.id" />
                       </template>
