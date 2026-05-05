@@ -396,7 +396,12 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
         addResult.id = jsonData.added_torrent_ids[0];
       }
       if (!addResult.success) {
-        addResult.message = JSON.stringify(res.data);
+        addResult.message = {
+          success_count: jsonData.success_count ?? 0,
+          failure_count: jsonData.failure_count ?? 0,
+          pending_count: jsonData.pending_count ?? 0,
+          added_torrent_ids: jsonData.added_torrent_ids ?? [],
+        } as CAddTorrentResult["message"];
         return addResult;
       }
     } else {
