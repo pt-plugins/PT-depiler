@@ -201,6 +201,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
   isLogin: boolean | null = null;
   private syncData: rawSyncMaindata = { rid: 0 };
   private lastSyncTimestamp: number = 0;
+  private webApiVersion: string | null = null;
 
   constructor(options: Partial<TorrentClientConfig> = {}) {
     super({ ...clientConfig, ...options });
@@ -219,7 +220,24 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
   protected async getClientVersionFromRemote(): Promise<string> {
     const { data: version } = await this.request<string>("/app/version");
     const { data: webApiVersion } = await this.request<string>("/app/webapiVersion");
+    this.webApiVersion = webApiVersion;
     return `${version} (${webApiVersion})`;
+  }
+
+  // Returns true when the connected qBittorrent WebAPI version is at least major.minor.
+  // qBittorrent 5.0.0 ships WebAPI 2.11.0 which renamed pause→stop and resume→start.
+  private async isApiVersionAtLeast(major: number, minor: number): Promise<boolean> {
+    if (this.webApiVersion === null) {
+      const { data: webApiVersion } = await this.request<string>("/app/webapiVersion");
+      this.webApiVersion = webApiVersion;
+    }
+    const parts = this.webApiVersion.split(".");
+    const remoteMajor = parseInt(parts[0] ?? "0", 10);
+    const remoteMinor = parseInt(parts[1] ?? "0", 10);
+    if (isNaN(remoteMajor) || isNaN(remoteMinor)) {
+      return false;
+    }
+    return remoteMajor > major || (remoteMajor === major && remoteMinor >= minor);
   }
 
   override async getClientStatus(): Promise<TorrentClientStatus> {
@@ -470,7 +488,9 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     const params = {
       hashes: hashes === "all" ? "all" : normalizePieces(hashes),
     };
-    await this.request("/torrents/pause", { params });
+    // qBittorrent 5.0+ (WebAPI 2.11.0+) renamed /torrents/pause to /torrents/stop
+    const endpoint = (await this.isApiVersionAtLeast(2, 11)) ? "/torrents/stop" : "/torrents/pause";
+    await this.request(endpoint, { params });
     return true;
   }
 
@@ -489,7 +509,9 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     const params = {
       hashes: hashes === "all" ? "all" : normalizePieces(hashes),
     };
-    await this.request("/torrents/resume", { params });
+    // qBittorrent 5.0+ (WebAPI 2.11.0+) renamed /torrents/resume to /torrents/start
+    const endpoint = (await this.isApiVersionAtLeast(2, 11)) ? "/torrents/start" : "/torrents/resume";
+    await this.request(endpoint, { params });
     return true;
   }
 
