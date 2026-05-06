@@ -37,6 +37,12 @@ const commonListSelectors: TSchemaMetadataListSelectors = {
   category: { selector: "i[data-original-title]", attr: "data-original-title" },
 };
 
+export const avzNetDiscountMap: Record<number, string> = {
+  1: "Free-Download",
+  2: "Half-Download",
+  3: "Double Upload",
+};
+
 export interface IAvzNetRawTorrent {
   id: number;
   file_name: string;

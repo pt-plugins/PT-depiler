@@ -1,6 +1,7 @@
 import { ISiteMetadata, ISearchInput, IAdvancedSearchRequestConfig, ITorrent, ITorrentTag } from "../types";
 import AvistazNetwork, {
   SchemaMetadata,
+  avzNetDiscountMap,
   IAvzNetRawTorrent,
 } from "../schemas/AvistazNetwork.ts";
 
@@ -25,12 +26,6 @@ const resolutionMap: Record<number, string> = {
   7: "4320p",
   8: "VR 180°",
   9: "VR 360°",
-};
-
-const discountMap: Record<number, string> = {
-  1: "Free-Download",
-  2: "Half-Download",
-  3: "Double Upload",
 };
 
 export const siteMetadata: ISiteMetadata = {
@@ -81,7 +76,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "促销",
       key: "discount",
       keyPath: "params",
-      options: Object.entries(discountMap).map(([value, name]) => ({ name, value: Number(value) })),
+      options: Object.entries(avzNetDiscountMap).map(([value, name]) => ({ name, value: Number(value) })),
       cross: { mode: "appendQuote" },
     },
     {
@@ -268,6 +263,7 @@ export default class Exoticaz extends AvistazNetwork {
     searchConfig: ISearchInput,
   ): Partial<ITorrent> {
     const extendTorrent = super.parseTorrentRowForTags(torrent, row, searchConfig);
+    const tags: ITorrentTag[] = extendTorrent.tags || [];
 
     // 处理副标题相关逻辑
     const performersObject = row.performers;
@@ -279,7 +275,6 @@ export default class Exoticaz extends AvistazNetwork {
     const subTitle = [performersStr, tagsStr].filter(Boolean).join(" | ");
     extendTorrent.subTitle = subTitle;
 
-    const tags: ITorrentTag[] = [];
     const statusTags: Record<string, { name: string }> = {
       asian: { name: "亚洲" },
       softcore: { name: "擦边" },
