@@ -553,18 +553,8 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
       const queryString = torrent.raw.magnet_uri.split("?")[1] || "";
       const params = new URLSearchParams(queryString);
 
-      // 获取所有 tr 并解码 URL 编码内容
-      const trackers: string[] = [];
-      params.getAll("tr").forEach((tr) => {
-        try {
-          // 解码 URL 编码内容
-          trackers.push(decodeURIComponent(tr));
-        } catch (e) {
-          trackers.push(tr); // 解码失败保留原值
-        }
-      });
-
-      return trackers;
+      // URLSearchParams 已经会对参数值进行解码，这里直接返回即可，避免二次解码导致 tracker URL 被破坏
+      return params.getAll("tr");
     }
 
     // 不然，则从客户端直接请求获取
