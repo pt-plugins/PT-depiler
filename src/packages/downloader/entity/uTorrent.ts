@@ -5,7 +5,6 @@
 import {
   AbstractBittorrentClient,
   CAddTorrentOptions,
-  CustomPathDescription,
   CTorrent,
   TorrentClientConfig,
   TorrentClientMetaData,

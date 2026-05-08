@@ -11,7 +11,7 @@ import { torrents, selectedDownloaderIds, suspendedDownloaders, useClientRefresh
 const showDialog = defineModel<boolean>();
 
 const { t } = useI18n();
-const { enabledDownloaders, resumeDownloaderRefresh } = useClientRefresh();
+const { enabledDownloaders, resumeDownloaderRefresh, clearDownloaderTimer } = useClientRefresh();
 
 const clientStatuses = ref<Record<string, TorrentClientStatus>>({});
 const clientVersions = ref<Record<string, string>>({});
@@ -57,6 +57,7 @@ async function fetchStatusFor(id: string) {
 
 function suspendedDownloader(id: string) {
   suspendedDownloaders.value.add(id);
+  clearDownloaderTimer(id);
 }
 
 async function fetchAll() {

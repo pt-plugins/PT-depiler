@@ -1,5 +1,5 @@
 import { ISiteMetadata, ISearchInput, IAdvancedSearchRequestConfig, ITorrent, ITorrentTag } from "../types";
-import AvistazNetwork, { SchemaMetadata, IAvzNetRawTorrent } from "../schemas/AvistazNetwork.ts";
+import AvistazNetwork, { SchemaMetadata, avzNetDiscountMap, IAvzNetRawTorrent } from "../schemas/AvistazNetwork.ts";
 
 const categoryMap: Record<number, string> = {
   0: "All",
@@ -21,12 +21,6 @@ const tvTypeMap: Record<number, string> = {
   1: "Single Episode",
   2: "Full Season",
   3: "Complete",
-};
-
-const discountMap: Record<number, string> = {
-  1: "Free-Download",
-  2: "Half-Download",
-  3: "Double Upload",
 };
 
 export const siteMetadata: ISiteMetadata = {
@@ -73,7 +67,7 @@ export const siteMetadata: ISiteMetadata = {
       name: "促销",
       key: "discount",
       keyPath: "params",
-      options: Object.entries(discountMap).map(([value, name]) => ({ name, value: Number(value) })),
+      options: Object.entries(avzNetDiscountMap).map(([value, name]) => ({ name, value: Number(value) })),
       cross: { mode: "appendQuote" },
     },
     {
@@ -149,8 +143,8 @@ export default class Avistaz extends AvistazNetwork {
     row: IAvzRawTorrent,
     searchConfig: ISearchInput,
   ): Partial<ITorrent> {
-    const tags: ITorrentTag[] = [];
     const extendTorrent = super.parseTorrentRowForTags(torrent, row, searchConfig);
+    const tags: ITorrentTag[] = extendTorrent.tags || [];
 
     // 完结
     if (row.movie_tv?.tv_complete) {

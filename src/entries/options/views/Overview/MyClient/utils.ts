@@ -48,7 +48,7 @@ export function useClientRefresh() {
 
   function clearDownloaderTimer(id: string) {
     const tid = refreshTimers.get(id);
-    if (tid) {
+    if (tid !== undefined) {
       clearTimeout(tid);
       refreshTimers.delete(id);
     }

@@ -43,7 +43,7 @@ export async function getRemoteTorrentFile(options: AxiosRequestConfig = {}): Pr
    * 但响应头值不是 application/x-bittorrent 或 application/octet-stream，
    * 则我们认为非正常的种子：
    */
-  if (req.headers["content-type"] && !/octet-stream|x-bittorrent/gi.test(req.headers["content-type"])) {
+  if (req.headers["content-type"] && !/octet-stream|x-bittorrent/gi.test(<string>req.headers["content-type"])) {
     throw new Error("Invalid Torrent From Server");
   }
 

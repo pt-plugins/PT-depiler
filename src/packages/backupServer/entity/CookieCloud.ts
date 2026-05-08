@@ -186,7 +186,7 @@ export default class CookieCloud extends AbstractBackupServer<CookieCloudConfig>
       retFile.manifest.files = fileMap;
 
       // 尝试从响应头中解出 CookieCloud 的备份大小
-      retFile.manifest.size = parseInt(fileResp.headers?.["content-length"] ?? "0") || "N/A";
+      retFile.manifest.size = parseInt(<string>fileResp.headers?.["content-length"] ?? "0") || "N/A";
 
       return retFile;
     }

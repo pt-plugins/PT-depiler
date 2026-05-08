@@ -153,7 +153,7 @@ async function pauseTorrents(torrents: CTorrent[]) {
   const results = await Promise.allSettled(
     torrents.map((t) => sendMessage("pauseClientTorrent", { downloaderId: t.clientId, id: t.id })),
   );
-  const succeeded = results.filter((r) => r.status === "fulfilled").length;
+  const succeeded = results.filter((r) => r.status === "fulfilled" && Boolean(r.value)).length;
   runtimeStore.showSnakebar(t("MyClient.action.pauseSelectedSuccess", { count: succeeded }), { color: "success" });
   const affectedIds = [...new Set(torrents.map((t) => t.clientId))];
   await Promise.allSettled(affectedIds.map(loadSingleDownloader));
@@ -164,7 +164,7 @@ async function resumeTorrents(torrents: CTorrent[]) {
   const results = await Promise.allSettled(
     torrents.map((t) => sendMessage("resumeClientTorrent", { downloaderId: t.clientId, id: t.id })),
   );
-  const succeeded = results.filter((r) => r.status === "fulfilled").length;
+  const succeeded = results.filter((r) => r.status === "fulfilled" && Boolean(r.value)).length;
   runtimeStore.showSnakebar(t("MyClient.action.resumeSelectedSuccess", { count: succeeded }), { color: "success" });
   const affectedIds = [...new Set(torrents.map((t) => t.clientId))];
   await Promise.allSettled(affectedIds.map(loadSingleDownloader));
@@ -196,7 +196,7 @@ function clientIcon(clientId: string) {
 }
 
 function torrentKey(torrent: CTorrent) {
-  return String(torrent.id) + torrent.clientId;
+  return `${torrent.clientId}:${String(torrent.id)}`;
 }
 </script>
 
