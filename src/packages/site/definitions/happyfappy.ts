@@ -14,8 +14,11 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Luminance",
 
-  urls: ["uggcf://uncclsnccl.arg/"],
-  legacyUrls: ["uggcf://jjj.uncclsnccl.bet/"],
+  urls: ["uggcf://jjj.uncclsnccl.arg/"],
+  legacyUrls: [
+    "uggcf://uncclsnccl.arg/", // -> always 301 to www.
+    "uggcf://jjj.uncclsnccl.bet/",
+  ],
 
   category: [
     {
