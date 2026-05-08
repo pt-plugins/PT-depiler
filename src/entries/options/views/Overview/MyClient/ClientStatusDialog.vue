@@ -6,7 +6,13 @@ import { getDownloaderIcon, type TorrentClientStatus } from "@ptd/downloader";
 import { sendMessage } from "@/messages.ts";
 import { formatSize } from "@/options/utils.ts";
 
-import { torrents, selectedDownloaderIds, suspendedDownloaders, useClientRefresh } from "./utils.ts";
+import {
+  torrents,
+  selectedDownloaderIds,
+  suspendedDownloaders,
+  useClientRefresh,
+  autoRefreshRunning,
+} from "./utils.ts";
 
 const showDialog = defineModel<boolean>();
 
@@ -164,6 +170,7 @@ watch(showDialog, (v) => {
               <v-btn
                 v-else
                 :title="t('MyClient.autoRefresh.stopDownloader')"
+                :disabled="!autoRefreshRunning"
                 color="amber"
                 size="small"
                 icon="mdi-stop"
