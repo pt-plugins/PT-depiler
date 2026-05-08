@@ -40,10 +40,28 @@ export async function getDownloaderConfig(downloaderId: string) {
   return metadataStore?.downloaders?.[downloaderId] ?? ({} as IDownloaderMetadata);
 }
 
-export async function getDownloaderInstance(downloaderId: string) {
+type DownloaderInstance = Awaited<ReturnType<typeof getDownloader>>;
+
+const downloaderInstanceCache = new Map<string, { configKey: string; instance: DownloaderInstance }>();
+
+function getDownloaderConfigKey(config: IDownloaderMetadata): string {
+  const { id, type, address, username, password, timeout } = config;
+  return JSON.stringify({ id, type, address, username, password, timeout });
+}
+
+export async function getDownloaderInstance(downloaderId: string): Promise<DownloaderInstance | null> {
   const downloaderConfig = await getDownloaderConfig(downloaderId);
-  if (!downloaderConfig.id) return false;
-  return await getDownloader(downloaderConfig);
+  if (!downloaderConfig.id) return null;
+
+  const configKey = getDownloaderConfigKey(downloaderConfig);
+  const cached = downloaderInstanceCache.get(downloaderId);
+  if (cached && cached.configKey === configKey) {
+    return cached.instance;
+  }
+
+  const instance = await getDownloader(downloaderConfig);
+  downloaderInstanceCache.set(downloaderId, { configKey, instance });
+  return instance;
 }
 
 onMessage("getDownloaderConfig", async ({ data: downloaderId }) => await getDownloaderConfig(downloaderId));
@@ -341,7 +359,8 @@ async function downloadTorrentToRemote(
 
   const downloaderConfig = await getDownloaderConfig(downloaderId);
   if (downloaderConfig.id && downloaderConfig.enabled) {
-    const downloaderInstance = await getDownloader(downloaderConfig);
+    const downloaderInstance = await getDownloaderInstance(downloaderId);
+    if (!downloaderInstance) return downloadStatus;
     if (addTorrentOptions.localDownload) {
       addTorrentOptions.localDownloadOption = downloadRequestConfig;
     }
