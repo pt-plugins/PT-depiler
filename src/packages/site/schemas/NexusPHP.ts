@@ -150,6 +150,20 @@ export const parseSectionedHitAndRunElement = (element: HTMLElement) => {
   return { hnrPreWarning: preWarningCount || 0, hnrUnsatisfied: unsatisfiedCount || 0 };
 };
 
+/**
+ * Create an element processor to extract a cleaned subtitle string from a torrent title element.
+ *
+ * This factory returns a function which, given an HTMLElement that belongs to a title row,
+ * will inspect its parent's innerHTML, split on "<br>", and take the last fragment as the
+ * subtitle HTML. It then removes any nodes matching `removeSelectors` from that fragment
+ * before returning the cleaned text content. If no subtitle fragment is found, it returns
+ * an empty string.
+ *
+ * @param removeSelectors - Array of CSS selectors to remove from the subtitle fragment. Defaults to [].
+ *                          Each selector will be used with querySelectorAll on a temporary container.
+ * @param self - When true (default) remove the matched element itself; when false remove its parent element instead.
+ * @returns A function that accepts the matched title element and returns the cleaned subtitle string.
+ */
 export const subTitleRemoveExtraElement =
   (removeSelectors: string[] = [], self: boolean = true) =>
   (element: HTMLElement) => {

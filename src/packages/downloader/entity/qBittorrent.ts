@@ -168,6 +168,14 @@ interface QbittorrentTorrentFilterRules extends CTorrentFilterRules {
   reverse?: boolean | TrueFalseStr;
 }
 
+// refs: https://github.com/qbittorrent/qBittorrent/pull/23202/changes
+interface QBittorrentAddTorrentResponse {
+  added_torrent_ids?: string[];
+  failure_count?: number;
+  pending_count?: number;
+  success_count?: number;
+}
+
 interface rawSyncMaindata {
   rid: number;
   full_update?: boolean;
@@ -376,13 +384,6 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
 
     // qBittorrent < v5.2.0 returns "Ok." or "Fails." as plain text;
     // qBittorrent >= v5.2.0 returns a JSON object with counts and IDs.
-    interface QBittorrentAddTorrentResponse {
-      added_torrent_ids?: string[];
-      failure_count?: number;
-      pending_count?: number;
-      success_count?: number;
-    }
-
     const res = await this.request<"Ok." | "Fails." | QBittorrentAddTorrentResponse>("/torrents/add", {
       method: "post",
       data: formData,
