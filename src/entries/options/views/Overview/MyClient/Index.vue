@@ -117,16 +117,7 @@ async function loadTorrents() {
   tableSelected.value = [];
   resetRefreshState();
   try {
-    const results = await Promise.allSettled(
-      activeDownloaderIds.value.map((id) => sendMessage("getClientTorrents", id)),
-    );
-    const newTorrents: Record<string, CTorrent[]> = {};
-    results.forEach((r, i) => {
-      if (r.status === "fulfilled") {
-        newTorrents[activeDownloaderIds.value[i]] = r.value;
-      }
-    });
-    torrents.value = newTorrents;
+    await Promise.allSettled(activeDownloaderIds.value.map((id) => loadSingleDownloader(id)));
   } finally {
     loading.value = false;
     if (autoRefreshRunning.value) {
