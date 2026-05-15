@@ -500,7 +500,7 @@ function torrentKey(torrent: CTorrent) {
         </v-toolbar>
       </v-card-title>
       <v-card-text class="pa-2">
-        <pre class="text-body-2 raw-json-pre">{{ rawTorrent ? JSON.stringify(rawTorrent, null, 2) : "" }}</pre>
+        <pre class="text-body-2">{{ rawTorrent ? JSON.stringify(rawTorrent, null, 2) : "" }}</pre>
       </v-card-text>
     </v-card>
   </v-dialog>
@@ -509,10 +509,5 @@ function torrentKey(torrent: CTorrent) {
 <style scoped lang="scss">
 .table-td-p4 :deep(.v-data-table__td) {
   padding: 0 4px;
-}
-
-.raw-json-pre {
-  white-space: pre-wrap;
-  word-break: break-all;
 }
 </style>
