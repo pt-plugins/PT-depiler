@@ -37,9 +37,13 @@ async function dialogEnter() {
         {{ t("common.dialog.title.confirmAction") }}
       </v-card-title>
 
-      <v-card-text>
+      <v-card-text class="text-body-1">
         {{ t("common.dialog.deleteText", [toDeleteIds!.length]) }}
+
+        <slot name="append-text" />
       </v-card-text>
+
+      <v-divider />
 
       <v-card-actions>
         <v-spacer />

@@ -19,7 +19,6 @@ import DefaultDownloaderEditDialog from "./DefaultDownloaderEditDialog.vue";
 
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";
-import ClientStatusSpan from "@/options/views/Settings/SetDownloader/ClientStatusSpan.vue";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
@@ -47,7 +46,6 @@ const fullTableHeader = [
   { title: t("SetDownloader.common.name"), key: "name", align: "start" },
   { title: t("SetDownloader.common.address"), key: "address", align: "start" },
   { title: t("common.username"), key: "username", align: "start" },
-  { title: t("SetDownloader.common.status"), key: "status", align: "end", sortable: false },
   { title: t("SetDownloader.index.table.enabled"), key: "enabled", align: "center" },
   { title: t("SetDownloader.index.table.autodl"), key: "feature.DefaultAutoStart", align: "center" },
   { title: t("common.action"), key: "action", sortable: false },
@@ -161,9 +159,9 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
 
                 <v-divider />
 
-                <v-list-item-subtitle class="ma-2">{{
-                  t("SetDownloader.index.table.downloaderCategory")
-                }}</v-list-item-subtitle>
+                <v-list-item-subtitle class="ma-2">
+                  {{ t("SetDownloader.index.table.downloaderCategory") }}
+                </v-list-item-subtitle>
                 <v-list-item v-for="(count, type) in downloaderTypeCount" :key="type" :value="type">
                   <v-checkbox
                     v-model="advanceFilterDictRef.type.required"
@@ -226,10 +224,6 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
           {{ item.address }}
           <v-icon icon="mdi-open-in-new" size="x-small"></v-icon>
         </a>
-      </template>
-
-      <template #item.status="{ item }">
-        <ClientStatusSpan :client="item" />
       </template>
 
       <template #item.enabled="{ item }">

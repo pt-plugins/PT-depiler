@@ -516,4 +516,8 @@ export default class Flood extends AbstractBittorrentClient {
 
     return true;
   }
+
+  async getTorrentTrackers(_torrent: CTorrent): Promise<string[]> {
+    return [];
+  }
 }

@@ -345,4 +345,8 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
     await this.requestHttpRpc(postData);
     return true;
   }
+
+  async getTorrentTrackers(_torrent: string | CTorrent): Promise<string[]> {
+    return [];
+  }
 }

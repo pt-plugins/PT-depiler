@@ -139,6 +139,22 @@ export const useConfigStore = defineStore("config", {
         itemsPerPage: 10,
         sortBy: [{ key: "enabled", order: "desc" }],
       },
+      MyClient: {
+        itemsPerPage: 25,
+        columns: [
+          "clientId",
+          "name",
+          "totalSize",
+          "progress",
+          "state",
+          "ratio",
+          "uploadSpeed",
+          "downloadSpeed",
+          "dateAdded",
+          "action",
+        ],
+        sortBy: [{ key: "dateAdded", order: "desc" }],
+      },
       SetSearchSolution: {
         itemsPerPage: 10,
       },
@@ -243,7 +259,7 @@ export const useConfigStore = defineStore("config", {
 
     download: {
       saveDownloadHistory: true,
-      startupAutoFetchDownloaderStatus: false,
+      initDownloaderTorrentOnEnter: false,
       saveLastDownloader: false,
       allowDirectSendToClient: false,
       localDownloadMethod: "browser",

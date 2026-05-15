@@ -315,4 +315,7 @@ export abstract class AbstractBittorrentClient<T extends DownloaderBaseConfig = 
 
   // 删除种子
   public abstract removeTorrent(id: any, removeData?: boolean): Promise<boolean>;
+
+  // 获取种子的 Tracker 列表
+  public abstract getTorrentTrackers(torrent: CTorrent): Promise<string[]>;
 }

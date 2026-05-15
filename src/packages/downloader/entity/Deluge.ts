@@ -217,6 +217,7 @@ interface DelugeRawTorrent {
   download_payload_rate: number;
   total_uploaded: number;
   total_done: number;
+  trackers?: Array<{ url: string; tier: number }>;
 }
 
 interface DelugeTorrentFilterRules extends CTorrentFilterRules {
@@ -242,6 +243,7 @@ export default class Deluge extends AbstractBittorrentClient {
     "label",
     "state",
     "total_size",
+    "trackers",
   ];
 
   constructor(options: Partial<DownloaderBaseConfig>) {
@@ -419,6 +421,26 @@ export default class Deluge extends AbstractBittorrentClient {
     } catch (e) {
       return false;
     }
+  }
+
+  async getTorrentTrackers(torrent: CTorrent): Promise<string[]> {
+    let rawTrackers: Array<{ url: string; tier: number }>;
+    if (typeof torrent === "object" && Array.isArray(torrent.raw?.trackers)) {
+      rawTrackers = torrent.raw.trackers;
+    } else {
+      const hash = torrent.infoHash || (torrent.id as string);
+      const result = await this.request<Record<string, Required<DelugeRawTorrent>>>("core.get_torrents_status", [
+        { hash },
+        ["trackers"],
+      ]);
+
+      const torrentData = Object.values(result)[0];
+      rawTrackers = torrentData?.trackers;
+    }
+
+    if (!rawTrackers) return [];
+
+    return rawTrackers.map((t) => t.url);
   }
 
   private async login(): Promise<boolean> {

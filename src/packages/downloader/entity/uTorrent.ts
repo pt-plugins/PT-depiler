@@ -368,4 +368,8 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
     await this.request<BaseUtorrentResponse>(action, { hash: id });
     return true;
   }
+
+  async getTorrentTrackers(_torrent: string | CTorrent): Promise<string[]> {
+    return [];
+  }
 }
