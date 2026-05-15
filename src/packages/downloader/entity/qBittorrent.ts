@@ -218,7 +218,8 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
   async ping(): Promise<boolean> {
     try {
       const pong = await this.login();
-      this.isLogin = pong.data === "Ok.";
+      // qbittorrent 5.2.0+ returns 204 No Content with empty body, older versions return 200 OK with "Ok." body
+      this.isLogin = pong.data === "Ok." || pong.status === 204;
       return this.isLogin;
     } catch (e) {
       return false;

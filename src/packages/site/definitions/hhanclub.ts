@@ -231,6 +231,16 @@ export const siteMetadata: ISiteMetadata = {
           },
         ],
       },
+      messageCount: {
+        text: 0,
+        selector: "div.relative:has(div#display-message-alert) a.flex[href*='messages.php']",
+        filters: [
+          (query: string | number) => {
+            const queryMatch = String(query || "").match(/(\d+)/); // query 有时会直接传入 0
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
+          },
+        ],
+      },
       bonus: {
         selector: ["span:contains('憨豆') + div"],
         filters: [{ name: "parseNumber" }],
