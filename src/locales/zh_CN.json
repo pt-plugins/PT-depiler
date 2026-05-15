@@ -659,7 +659,6 @@
       },
       "saveDownloadHistory": "是否保存下载历史（如非必要请勿关闭此功能）",
       "myClientTitle": "我的下载器页面设置",
-      "startupAutoFetchDownloaderStatus": "进入下载器设置页面时自动加载下载器状态",
       "initDownloaderTorrentOnEnter": "进入 我的下载器 页面时，自动加载下载器中的种子信息",
       "localDownloadTitle": "本地下载",
       "localDownloadIgnoreInterval": "本地下载时忽略站点下载间隔限制",

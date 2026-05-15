@@ -659,7 +659,6 @@
       },
       "saveDownloadHistory": "Save download history (Please do not disable this function unless necessary)",
       "MyClientTitle": "My Downloader",
-      "startupAutoFetchDownloaderStatus": "Automatically load the downloader status when entering the downloader settings page",
       "initDownloaderTorrentOnEnter": "Automatically load torrents from the downloader when entering the My Downloader page",
       "localDownloadTitle": "Local Download",
       "localDownloadIgnoreInterval": "Ignore site download interval limit for local downloads",

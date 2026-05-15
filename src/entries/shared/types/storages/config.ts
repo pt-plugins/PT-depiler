@@ -188,8 +188,6 @@ export interface IConfigPiniaStorageSchema {
     // 当使用本地方法下载时，是否忽略站点的下载间隔设置；
     ignoreSiteDownloadIntervalWhenLocalDownload: boolean;
 
-    // 在下载器页面，进入时自动获取下载器状态（如果下载器支持获取状态的话）
-    startupAutoFetchDownloaderStatus: boolean;
     // 在我的下载器页面，进入时即刷新下载器
     initDownloaderTorrentOnEnter: boolean;
 

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { getDownloaderIcon, type TorrentClientStatus } from "@ptd/downloader";
@@ -70,13 +70,13 @@ async function fetchAll() {
   await Promise.allSettled(enabledDownloaders.value.map((d) => fetchStatusFor(d.id)));
 }
 
-watch(showDialog, (v) => {
-  if (v) fetchAll();
-});
+function onEnter() {
+  fetchAll();
+}
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" max-width="800" scrollable>
+  <v-dialog v-model="showDialog" max-width="800" scrollable @afterEnter="onEnter()">
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">

@@ -159,9 +159,9 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
 
                 <v-divider />
 
-                <v-list-item-subtitle class="ma-2">{{
-                  t("SetDownloader.index.table.downloaderCategory")
-                }}</v-list-item-subtitle>
+                <v-list-item-subtitle class="ma-2">
+                  {{ t("SetDownloader.index.table.downloaderCategory") }}
+                </v-list-item-subtitle>
                 <v-list-item v-for="(count, type) in downloaderTypeCount" :key="type" :value="type">
                   <v-checkbox
                     v-model="advanceFilterDictRef.type.required"
