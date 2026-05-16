@@ -150,8 +150,8 @@ importers:
         specifier: ^9.1.7
         version: 9.1.7
       lint-staged:
-        specifier: ^17.0.2
-        version: 17.0.2
+        specifier: ^17.0.3
+        version: 17.0.3
       prettier:
         specifier: ^3.8.3
         version: 3.8.3
@@ -2528,8 +2528,8 @@ packages:
   linkedom@0.14.26:
     resolution: {integrity: sha512-mK6TrydfFA7phrnp+1j57ycBwFI5bGSW6YXlw9acHoqF+mP/y+FooEYYyniOt5Ot57FSKB3iwmnuQ1UUyNLm5A==}
 
-  lint-staged@17.0.2:
-    resolution: {integrity: sha512-Rbr6rdmbCn1fIDHBZpn0madg0hEkdlh+QwajnL3Qq0ZUq/icAJfLGj9BVBajAXi7657ZzKQ7kobGP9S5XOHYRw==}
+  lint-staged@17.0.3:
+    resolution: {integrity: sha512-wnvMRhzC3GNpjixxleiG+pAW09dHTUgBCjMS7XouAg5E7wKUc8YdfogpF7zIgvXKDbH+452O6+XpnKm6V67rPw==}
     engines: {node: '>=22.22.1'}
     hasBin: true
 
@@ -5982,7 +5982,7 @@ snapshots:
       htmlparser2: 8.0.2
       uhyphen: 0.2.0
 
-  lint-staged@17.0.2:
+  lint-staged@17.0.3:
     dependencies:
       listr2: 10.2.1
       picomatch: 4.0.4
