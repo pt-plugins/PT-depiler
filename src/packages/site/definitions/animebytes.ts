@@ -305,12 +305,18 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     {
-      urlPattern: ["/collage\\.php\\?id=\\d+"],
+      urlPattern: [
+        "/collage\\.php.*?[&?]id=\\d+",
+        "/company\\.php.*?[&?]id=\\d+",
+        "/seiyuu\\.php.*?[&?]id=\\d+",
+        "/characters\\.php.*?[&?]id=\\d+",
+      ],
       mergeSearchSelectors: false,
       selectors: {
         ...SchemaMetadata.search!.selectors!,
         ...commonListSelectors,
         title: { selector: "td > strong:has(a[title='View Torrent'])" },
+        category: { selector: "img[src^='/static/common/caticons/']", attr: "title" },
 
         rows: {
           ...SchemaMetadata.search!.selectors!.rows!,
@@ -320,7 +326,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     {
-      urlPattern: ["/series\\.php\\?id=\\d+", "/artist\\.php\\?id=\\d+"],
+      urlPattern: ["/series\\.php.*?[&?]id=\\d+", "/artist\\.php.*?[&?]id=\\d+"],
       mergeSearchSelectors: false,
       selectors: {
         ...SchemaMetadata.search!.selectors!,
