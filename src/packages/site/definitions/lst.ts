@@ -1,5 +1,8 @@
 import { type ISiteMetadata } from "../types";
-import { CategoryFree, SchemaMetadata } from "../schemas/Unit3D.ts";
+import { CategoryFree, SchemaMetadata, userInfoTrans } from "../schemas/Unit3D.ts";
+
+const uploadsTrans = ["Total uploads", "总发布", "總發佈"];
+const bonusPerHourTrans = ["Points per hour", "每小时点数", "每小時魔力"];
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -161,25 +164,35 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.userInfo!,
     selectors: {
       ...SchemaMetadata.userInfo!.selectors!,
+      id: {
+        ...SchemaMetadata.userInfo!.selectors!.id!,
+        selector: "span.profile-hero__account-item > i.fa-hashtag ~ span.profile-hero__account-value",
+      },
       uploads: {
-        selector: "div.profile-mini-stat__label:contains('Total uploads') + div",
+        selector: [...uploadsTrans.map((x) => `div.profile-mini-stat__label:contains('${x}') + div`)],
         filters: [{ name: "parseNumber" }],
       },
       joinTime: {
         ...SchemaMetadata.userInfo!.selectors!.joinTime!,
-        selector: "span.profile-hero__meta-item:contains('Registration date')",
+        selector: [...userInfoTrans.joinTime.map((x) => `span.profile-hero__meta-item:contains('${x}')`)],
       },
       lastAccessAt: {
-        selector: "span.profile-hero__meta-item:contains('Last login')",
+        selector: [...userInfoTrans.lastAccessAt.map((x) => `span.profile-hero__meta-item:contains('${x}')`)],
         filters: [{ name: "split", args: [":", 1] }, { name: "trim" }, { name: "parseTTL" }],
       },
       seedingSize: {
-        selector: "div.profile-mini-stat__label:contains('Seeding size') + div",
+        selector: [...userInfoTrans.seedingSize.map((x) => `div.profile-mini-stat__label:contains('${x}') + div`)],
         filters: [{ name: "parseSize" }],
       },
       averageSeedingTime: {
-        selector: "div.profile-mini-stat__label:contains('Average seedtime') + div",
+        selector: [
+          ...userInfoTrans.averageSeedingTime.map((x) => `div.profile-mini-stat__label:contains('${x}') + div`),
+        ],
         filters: [{ name: "parseDuration" }],
+      },
+      bonusPerHour: {
+        selector: [...bonusPerHourTrans.map((x) => `span.sidebar-stat__label:contains('${x}') + span`)],
+        filters: [{ name: "parseNumber" }],
       },
     },
   },
