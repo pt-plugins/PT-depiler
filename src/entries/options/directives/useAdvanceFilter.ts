@@ -39,6 +39,20 @@ function escapeRegExp(value: string) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
+/**
+ * If `value` is a regex literal (e.g. `/pattern/i`), returns the compiled RegExp.
+ * Otherwise returns null so callers fall back to exact matching.
+ */
+function tryParseRegex(value: string): RegExp | null {
+  const match = /^\/(.+)\/([gimsuy]*)$/.exec(value);
+  if (!match) return null;
+  try {
+    return new RegExp(match[1], match[2] || undefined);
+  } catch {
+    return null;
+  }
+}
+
 function getLogicOperator(value: string): TLogicOperator | undefined {
   const normalizedValue = value.trim().toLowerCase();
   if (logicKeywordMap.or.some((item) => item.toLowerCase() === normalizedValue)) return "or";
@@ -252,13 +266,24 @@ export function checkKeywordValue(
 
     const valueFormat = getValueFormat(keyword as string, format);
     if (Array.isArray(itemValue)) {
-      const parsedSet = new Set(itemValue.map((v: any) => valueFormat.parse(v)) as string[]);
+      const parsedItems = itemValue.map((v: any) => String(valueFormat.parse(v)));
+      const parsedSet = new Set(parsedItems);
       const filterVals = filter[keyword] as string[];
+      // When a filter value is a /regex/ literal, test it against all item values;
+      // otherwise fall back to exact Set membership.
+      const matchesFn = (k: string) => {
+        const regex = tryParseRegex(k);
+        return regex ? parsedItems.some((item) => regex.test(item)) : parsedSet.has(k);
+      };
       // For inclusion filters use the requested logic operator; exclusion filters only need one match.
-      if (exclude || operator === "or") return filterVals.some((k) => parsedSet.has(k));
-      return filterVals.every((k) => parsedSet.has(k));
+      if (exclude || operator === "or") return filterVals.some(matchesFn);
+      return filterVals.every(matchesFn);
     } else {
-      return filter[keyword].includes(valueFormat.parse(itemValue) as string);
+      const parsedValue = String(valueFormat.parse(itemValue));
+      return (filter[keyword] as string[]).some((k) => {
+        const regex = tryParseRegex(k);
+        return regex ? regex.test(parsedValue) : parsedValue === k;
+      });
     }
   }
 
