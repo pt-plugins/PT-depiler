@@ -67,10 +67,18 @@ function enterDialog() {
       <v-divider />
       <v-card-text>
         <v-container>
-          <v-row><v-label>{{ t("common.AdvanceFilterGenerateDialog.keywords") }}</v-label> </v-row>
+          <v-row
+            ><v-label>{{ t("common.AdvanceFilterGenerateDialog.keywords") }}</v-label>
+          </v-row>
           <v-row>
             <v-col cols="12" md="6">
-              <v-combobox v-model="advanceFilterDictRef.text.required" chips hide-details :label="t('common.AdvanceFilterGenerateDialog.required')" multiple />
+              <v-combobox
+                v-model="advanceFilterDictRef.text.required"
+                chips
+                hide-details
+                :label="t('common.AdvanceFilterGenerateDialog.required')"
+                multiple
+              />
             </v-col>
             <v-col cols="12" md="6">
               <v-combobox
@@ -83,7 +91,9 @@ function enterDialog() {
             </v-col>
           </v-row>
 
-          <v-row><v-label>{{ t("common.AdvanceFilterGenerateDialog.site") }}</v-label></v-row>
+          <v-row
+            ><v-label>{{ t("common.AdvanceFilterGenerateDialog.site") }}</v-label></v-row
+          >
           <v-row>
             <v-col
               v-for="site in advanceItemPropsRef.site"
@@ -152,7 +162,9 @@ function enterDialog() {
               </v-col>
             </v-row>
           </template>
-          <v-row><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.status") }}</v-label></v-row>
+          <v-row
+            ><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.status") }}</v-label></v-row
+          >
           <v-row>
             <v-col
               v-for="status in statusOptions"
@@ -228,7 +240,9 @@ function enterDialog() {
               </v-row>
             </v-col>
             <v-col cols="6">
-              <v-row><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.size") }}</v-label></v-row>
+              <v-row
+                ><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.size") }}</v-label></v-row
+              >
               <v-row>
                 <v-range-slider
                   v-model="advanceFilterDictRef.size"
@@ -252,7 +266,9 @@ function enterDialog() {
           </v-row>
           <v-row>
             <v-col cols="4">
-              <v-row><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.seeders") }}</v-label></v-row>
+              <v-row
+                ><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.seeders") }}</v-label></v-row
+              >
               <v-row>
                 <v-range-slider
                   v-model="advanceFilterDictRef.seeders"
@@ -271,7 +287,9 @@ function enterDialog() {
               </v-row>
             </v-col>
             <v-col cols="4">
-              <v-row><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.leechers") }}</v-label></v-row>
+              <v-row
+                ><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.leechers") }}</v-label></v-row
+              >
               <v-row>
                 <v-range-slider
                   v-model="advanceFilterDictRef.leechers"
@@ -290,7 +308,9 @@ function enterDialog() {
               </v-row>
             </v-col>
             <v-col cols="4">
-              <v-row><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.completed") }}</v-label></v-row>
+              <v-row
+                ><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.completed") }}</v-label></v-row
+              >
               <v-row>
                 <v-range-slider
                   v-model="advanceFilterDictRef.completed"
@@ -313,10 +333,14 @@ function enterDialog() {
       </v-card-text>
       <v-divider />
       <v-card-actions>
-        <v-btn variant="text" @click="() => reBuildAdvanceFilter(true)">{{ t("common.AdvanceFilterGenerateDialog.reset") }}</v-btn>
+        <v-btn variant="text" @click="() => reBuildAdvanceFilter(true)">{{
+          t("common.AdvanceFilterGenerateDialog.reset")
+        }}</v-btn>
         <v-spacer />
         <v-btn color="error" variant="text" @click="showDialog = false">{{ t("common.dialog.cancel") }}</v-btn>
-        <v-btn color="primary" variant="text" @click="updateTableFilter">{{ t("common.AdvanceFilterGenerateDialog.generate") }}</v-btn>
+        <v-btn color="primary" variant="text" @click="updateTableFilter">{{
+          t("common.AdvanceFilterGenerateDialog.generate")
+        }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

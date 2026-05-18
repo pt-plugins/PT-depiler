@@ -415,7 +415,8 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
       const builtRequired = uniq(flattenDeep(required.map((v) => valueFormat.build(v))));
 
       if (builtRequired.length > 0) {
-        if (operator === "or" && builtRequired.length > 1) logicFilters.push(stringifyLogicFilter(key, required, operator, format, parseOptions));
+        if (operator === "or" && builtRequired.length > 1)
+          logicFilters.push(stringifyLogicFilter(key, required, operator, format, parseOptions));
         else filters[key] = builtRequired;
       }
 
