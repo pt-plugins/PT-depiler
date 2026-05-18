@@ -94,6 +94,15 @@ function collectHunoApiFields(value: unknown, path: string = ""): Array<{ path: 
   return [{ path, value: String(value) }];
 }
 
+function isHunoTruthyFreeValue(value: string): boolean {
+  const normalizedValue = value.trim().toLowerCase();
+  if (!normalizedValue || ["false", "0", "no", "none", "null", "undefined", "n/a"].includes(normalizedValue)) {
+    return false;
+  }
+
+  return /^(true|1|yes|free|freeleech|100|100\.0|100%)$/.test(normalizedValue) || /100%\s*free|freeleech/.test(normalizedValue);
+}
+
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
 
@@ -502,26 +511,11 @@ export default class Huno extends Unit3D {
       addTag({ name: "粤语" });
     }
 
-    const freeFieldText = rowFields
+    const isFree = rowFields
       .filter(({ path }) => /free|freeleech|discount|promo|promotion/i.test(path))
-      .map(({ path, value }) => `${path}:${value}`)
-      .join(" ");
-    if (
-      /\b(free|freeleech|free_leech|100%|100\.0|1)\b/i.test(freeFieldText) ||
-      /freeleech|100%\s*free|free download/i.test(rowText)
-    ) {
+      .some(({ value }) => isHunoTruthyFreeValue(value));
+    if (isFree) {
       addTag({ name: "Free" });
-    }
-
-    const hnrFieldText = rowFields
-      .filter(({ path }) => /h[\W_]*n[\W_]*r|hit[\W_]*and[\W_]*run|hitrun|hit_and_run/i.test(path))
-      .map(({ path, value }) => `${path}:${value}`)
-      .join(" ");
-    if (
-      /\b(h&r|hnr|hit[\W_]*and[\W_]*run|hitrun|hit_and_run)\b/i.test(rowText) ||
-      /\b(true|1|yes|required|enabled)\b/i.test(hnrFieldText)
-    ) {
-      addTag({ name: "H&R" });
     }
 
     extendTorrent.tags = tags;
