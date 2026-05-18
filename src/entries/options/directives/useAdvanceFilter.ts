@@ -97,9 +97,12 @@ function parseTableFilterQuery(text: string, parseOptions: SearchParserOptions):
     alwaysArray: true,
   }) as TFilter;
   const textValues = Array.isArray(plainTextFilter.text) ? plainTextFilter.text : [];
-  const textLogic = textValues
-    .map((value) => getLogicOperator(String(value)))
-    .find((value): value is TLogicOperator => Boolean(value));
+  const textLogicValues = uniq(
+    textValues
+      .map((value) => getLogicOperator(String(value)))
+      .filter((value): value is TLogicOperator => Boolean(value)),
+  );
+  const textLogic = textLogicValues.length > 1 ? "and" : textLogicValues[0];
   if (textLogic) logicMap.text = textLogic;
 
   const normalizedTextValues = removeLogicKeywords(textValues);
@@ -242,7 +245,7 @@ export function checkKeywordValue(
 ): boolean | undefined {
   const itemValue = get(rawItem, keyword); // true    filter[keyword] = ['1']
   if (filter[keyword]) {
-    // Return false immediately when the raw item does not provide this keyword field.
+    // Return false if the raw item does not have this keyword field defined.
     if (typeof itemValue == "undefined") {
       return false;
     }
@@ -251,7 +254,7 @@ export function checkKeywordValue(
     if (Array.isArray(itemValue)) {
       const parsedSet = new Set(itemValue.map((v: any) => valueFormat.parse(v)) as string[]);
       const filterVals = filter[keyword] as string[];
-      // 如果是正向关键词则按照逻辑运算判断，如果是排除关键词则要求有任意一个包含
+      // For inclusion filters use the requested logic operator; exclusion filters only need one match.
       if (exclude || operator === "or") return filterVals.some((k) => parsedSet.has(k));
       return filterVals.every((k) => parsedSet.has(k));
     } else {
@@ -488,7 +491,7 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
     const { text, exclude } = tableParsedFilterRef.value as TTableFilter;
     const logicMap = (tableParsedFilterRef.value as TTableFilter).logicOperators ?? {};
 
-    const normalizedItemTitle = flatten(titleFields.map((key) => getFormattedItemValues(rawItem, key, format)))
+    const normalizedSearchableText = flatten(titleFields.map((key) => getFormattedItemValues(rawItem, key, format)))
       .filter(Boolean)
       .join("|$|")
       .toLowerCase();
@@ -497,8 +500,8 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
       const includeText = (Array.isArray(text) ? text : [text]).map((x) => x.toLowerCase());
       const textMatch =
         logicMap.text === "or"
-          ? includeText.some((keyword: string) => normalizedItemTitle.includes(keyword))
-          : includeText.every((keyword: string) => normalizedItemTitle.includes(keyword));
+          ? includeText.some((keyword: string) => normalizedSearchableText.includes(keyword))
+          : includeText.every((keyword: string) => normalizedSearchableText.includes(keyword));
       if (!textMatch) return false;
     }
 
@@ -520,7 +523,7 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
 
       if (exText) {
         const excludesText = (Array.isArray(exText) ? exText : [exText]).map((x) => x.toLowerCase());
-        if (excludesText.some((keyword: string) => normalizedItemTitle.includes(keyword))) return false;
+        if (excludesText.some((keyword: string) => normalizedSearchableText.includes(keyword))) return false;
       }
 
       if (parseOptions.keywords) {
