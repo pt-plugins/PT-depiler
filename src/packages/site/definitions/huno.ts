@@ -76,6 +76,24 @@ function getHunoApiTagText(row: object, paths: string[]): string {
     .join(" ");
 }
 
+function collectHunoApiFields(value: unknown, path: string = ""): Array<{ path: string; value: string }> {
+  if (value === undefined || value === null) {
+    return [];
+  }
+
+  if (Array.isArray(value)) {
+    return value.flatMap((item, index) => collectHunoApiFields(item, `${path}.${index}`));
+  }
+
+  if (typeof value === "object") {
+    return Object.entries(value as Record<string, unknown>).flatMap(([key, child]) =>
+      collectHunoApiFields(child, path ? `${path}.${key}` : key),
+    );
+  }
+
+  return [{ path, value: String(value) }];
+}
+
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
 
@@ -390,6 +408,8 @@ export default class Huno extends Unit3D {
     };
 
     const titleText = getHunoApiTagText(row, ["name", "attributes.name"]);
+    const rowFields = collectHunoApiFields(row);
+    const rowText = rowFields.map(({ path, value }) => `${path}:${value}`).join(" ");
     const releaseTagText = getHunoApiTagText(row, [
       "release_tag",
       "release_tag.name",
@@ -427,13 +447,31 @@ export default class Huno extends Unit3D {
       "attributes.subtitle_languages",
     ]);
 
-    const combinedText = [titleText, releaseTagText, mediaLanguageText, audioText, subtitleText].join(" ");
+    const subtitleFieldText = rowFields
+      .filter(({ path }) => /sub(title)?|caption/i.test(path))
+      .map(({ value }) => value)
+      .join(" ");
+    const audioFieldText = rowFields
+      .filter(({ path }) => /audio|dub|language|media_language/i.test(path))
+      .map(({ value }) => value)
+      .join(" ");
+    const combinedText = [
+      titleText,
+      releaseTagText,
+      mediaLanguageText,
+      audioText,
+      subtitleText,
+      subtitleFieldText,
+      audioFieldText,
+    ].join(" ");
     const chineseLanguageRegex = /Chinese|Mandarin|Cantonese|中文|中字|简体|繁体|国语|国配|粤语|粤配/i;
 
     if (
       chineseLanguageRegex.test(subtitleText) ||
+      chineseLanguageRegex.test(subtitleFieldText) ||
       /中字|中文|简体|繁体|CHS|CHT|CHN|Chinese\s*Sub/i.test(titleText) ||
-      (/SUBBED/i.test(releaseTagText) && chineseLanguageRegex.test(combinedText))
+      (/SUBBED/i.test(releaseTagText) && chineseLanguageRegex.test(rowText)) ||
+      (/sub(title)?|caption/i.test(rowText) && chineseLanguageRegex.test(rowText))
     ) {
       addTag({ name: "中字" });
     }
@@ -443,6 +481,24 @@ export default class Huno extends Unit3D {
     }
 
     if (/Cantonese|粤语|粤配/i.test([mediaLanguageText, audioText, titleText].join(" "))) {
+      addTag({ name: "粤语" });
+    }
+
+    if (
+      /Chinese|Mandarin|Cantonese|中文|中字|简体|繁体/i.test(subtitleFieldText) ||
+      (/SUBBED/i.test(releaseTagText) && /Chinese|Mandarin|Cantonese|中文|中字|简体|繁体/i.test(rowText))
+    ) {
+      addTag({ name: "中字" });
+    }
+
+    if (
+      /Mandarin|Chinese|国语|国配|普通话|中配/i.test(audioFieldText) ||
+      (/DUBBED/i.test(releaseTagText) && /Mandarin|Chinese|国语|国配|普通话|中配/i.test(rowText))
+    ) {
+      addTag({ name: "国语" });
+    }
+
+    if (/Cantonese|粤语|粤配/i.test(audioFieldText)) {
       addTag({ name: "粤语" });
     }
 
