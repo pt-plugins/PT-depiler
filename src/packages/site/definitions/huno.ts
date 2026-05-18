@@ -1,6 +1,6 @@
 import { ETorrentStatus, type IAdvancedSearchRequestConfig, ISiteMetadata } from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
-import { set } from "es-toolkit/compat";
+import { get, set } from "es-toolkit/compat";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 
 const categoryMap: Record<number, string> = {
@@ -28,6 +28,32 @@ const resolutionMap: Record<number, string> = {
   9: "480i",
   10: "Other",
 };
+
+function getHunoApiValue(row: object, paths: string[], fallback: unknown = ""): unknown {
+  for (const path of paths) {
+    const value = get(row, path);
+    if (value !== undefined && value !== null && value !== "") {
+      return value;
+    }
+  }
+
+  return fallback;
+}
+
+function getHunoApiSubTitle(row: object): string {
+  const values = [
+    getHunoApiValue(row, ["release_year", "attributes.release_year"]),
+    getHunoApiValue(row, ["resolution.name", "resolution", "attributes.resolution.name", "attributes.resolution"]),
+    getHunoApiValue(row, ["type.name", "type", "attributes.type.name", "attributes.type"]),
+    getHunoApiValue(row, ["video_codec.name", "video_codec", "attributes.video_codec.name", "attributes.video_codec"]),
+    getHunoApiValue(row, ["source_type.name", "source_type", "attributes.source_type.name", "attributes.source_type"]),
+  ];
+
+  return values
+    .filter((value) => typeof value === "string" || typeof value === "number")
+    .map(String)
+    .join(" / ");
+}
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -66,7 +92,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       name: "编码",
-      key: "type",
+      key: "types",
       keyPath: "params",
       options: Object.entries(typeMap).map(([value, name]) => ({ name, value: Number(value) })),
       cross: { mode: "brackets" },
@@ -100,38 +126,64 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     ...SchemaMetadata.search,
+    keywordPath: "params.name",
+    requestConfig: {
+      url: "/api/torrents/filter",
+      responseType: "json",
+      params: {
+        perPage: 100,
+      },
+    },
+    advanceKeywordParams: {
+      imdb: {
+        requestConfigTransformer: ({ requestConfig: config }) => {
+          if (config?.params?.name) {
+            config.params.imdbId = config.params.name;
+            delete config.params.name;
+          }
+          return config!;
+        },
+      },
+    },
     skipNonLatinCharacters: true,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
-
-      rows: { selector: "table.deep-space-similar-table > tbody > tr" },
+      rows: { selector: ["data.data", "data", "torrents.data", "torrents"] },
       id: {
-        selector: ["div.ds-macro-row__name-content > div.ds-macro-row__name-title > a[href*='torrents']"],
-        attr: "href",
-        filters: [(query: string) => query.match(/\/torrents\/(\d+)/)![1]],
+        selector: ["id", "attributes.id"],
       },
       title: {
-        selector: ["div.ds-macro-row__name-content > div.ds-macro-row__name-title"],
+        selector: ["name", "attributes.name"],
       },
       subTitle: {
-        selector: ["div.ds-macro-row__name-content > div.ds-macro-row__name-specs"],
+        selector: ":self",
+        filters: [getHunoApiSubTitle],
       },
       url: {
-        selector: ["div.ds-macro-row__name-content > div.ds-macro-row__name-title > a[href*='torrents']"],
-        attr: "href",
+        selector: ":self",
+        filters: [(row: object) => `/torrents/${getHunoApiValue(row, ["id", "attributes.id"])}`],
       },
-      category: { text: "All", selector: ["span[title='Release Type']"] },
-      size: { selector: "a[title='Download']", filters: [{ name: "parseSize" }] },
-      time: { selector: "div[class^='tw-text-white']", filters: [{ name: "parseTTL" }] },
+      link: {
+        selector: ["download_link", "attributes.download_link"],
+      },
+      category: {
+        selector: ":self",
+        filters: [
+          (row: object) =>
+            getHunoApiValue(row, ["category.name", "attributes.category.name"], "All"),
+        ],
+      },
+      size: { selector: ["size", "attributes.size"] },
+      time: { selector: ["created_at", "attributes.created_at", "bumped_at", "attributes.bumped_at"] },
+      author: {
+        selector: ["uploader.username", "uploader.name", "attributes.uploader.username", "attributes.uploader.name"],
+      },
       seeders: {
-        selector: ["a[href*='peers'][title*='seeders']", "a[href*='peers'][title*='Seeding']"],
-        filters: [{ name: "parseNumber" }],
+        selector: ["seeders", "attributes.seeders"],
       },
       leechers: {
-        selector: ["a[href*='peers'][title*='leechers']", "a[href*='peers'][title*='Leeching']"],
-        filters: [{ name: "parseNumber" }],
+        selector: ["leechers", "attributes.leechers"],
       },
-      completed: { selector: "a[href*='snatched'][title*='completed']", filters: [{ name: "parseNumber" }] },
+      completed: { selector: ["times_completed", "attributes.times_completed", "completed", "attributes.completed"] },
       comments: { text: 0 }, // not provided
 
       status: {
