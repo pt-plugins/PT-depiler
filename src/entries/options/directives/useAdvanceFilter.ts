@@ -14,6 +14,7 @@ type TAdvanceFilterFormat = "date" | "size" | "number" | "boolean";
 export interface ITextValue {
   required: string[];
   exclude: string[];
+  operator: TLogicOperator;
 }
 
 export interface IRangedField {
@@ -24,6 +25,109 @@ export interface IRangedField {
 interface IValueFormat {
   parse?: (value: any) => any;
   build?: (value: any) => string;
+}
+
+type TLogicOperator = "and" | "or";
+type TTableFilter = TFilter & { __logic?: Partial<Record<string, TLogicOperator>> };
+
+const logicKeywordMap = {
+  and: ["且", "and"],
+  or: ["或", "或者", "or"],
+} as const;
+
+function escapeRegExp(value: string) {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function getLogicOperator(value: string): TLogicOperator | undefined {
+  const normalizedValue = value.trim().toLowerCase();
+  if (logicKeywordMap.or.some((item) => item.toLowerCase() === normalizedValue)) return "or";
+  if (logicKeywordMap.and.some((item) => item.toLowerCase() === normalizedValue)) return "and";
+  return undefined;
+}
+
+function removeLogicKeywords(values: unknown[] = []) {
+  return values.filter((value) => !getLogicOperator(String(value)));
+}
+
+function getKeywordLogicOperator(text: string, keyword: string): TLogicOperator | undefined {
+  const keywordMatcher = new RegExp(
+    `(^|\\s)${escapeRegExp(keyword)}:(?:"(?:[^"\\\\]|\\\\.)*"|'(?:[^'\\\\]|\\\\.)*'|\\S+)`,
+    "giu",
+  );
+
+  const matches = [...text.matchAll(keywordMatcher)];
+  if (matches.length < 2) return;
+
+  let logicOperator: TLogicOperator | undefined;
+  for (let index = 1; index < matches.length; index++) {
+    const prevMatch = matches[index - 1];
+    const currentMatch = matches[index];
+
+    const betweenText = text.slice((prevMatch.index ?? 0) + prevMatch[0].length, currentMatch.index);
+    const betweenLogic = getLogicOperator(betweenText.trim());
+    if (!betweenLogic) continue;
+    if (logicOperator && logicOperator !== betweenLogic) return "and";
+    logicOperator = betweenLogic;
+  }
+
+  return logicOperator;
+}
+
+function stripFieldClauses(text: string, parseOptions: SearchParserOptions) {
+  const fieldNames = [...(parseOptions.keywords ?? []), ...(parseOptions.ranges ?? [])];
+
+  return fieldNames.reduce((result, fieldName) => {
+    const fieldMatcher = new RegExp(
+      `(^|\\s)${escapeRegExp(fieldName)}:(?:"(?:[^"\\\\]|\\\\.)*"|'(?:[^'\\\\]|\\\\.)*'|\\S+)`,
+      "giu",
+    );
+    return result.replace(fieldMatcher, " ");
+  }, text);
+}
+
+function parseTableFilterQuery(text: string, parseOptions: SearchParserOptions): TTableFilter {
+  const parsedFilter = searchQueryParser.parse(text ?? "", parseOptions) as TTableFilter;
+  const logicMap: Partial<Record<string, TLogicOperator>> = {};
+
+  const plainTextFilter = searchQueryParser.parse(stripFieldClauses(text ?? "", parseOptions), {
+    tokenize: true,
+    offsets: false,
+    alwaysArray: true,
+  }) as TFilter;
+  const textValues = Array.isArray(plainTextFilter.text) ? plainTextFilter.text : [];
+  const textLogic = textValues
+    .map((value) => getLogicOperator(String(value)))
+    .find((value): value is TLogicOperator => Boolean(value));
+  if (textLogic) logicMap.text = textLogic;
+
+  const normalizedTextValues = removeLogicKeywords(textValues);
+  if (normalizedTextValues.length > 0) parsedFilter.text = normalizedTextValues as string[];
+  else delete parsedFilter.text;
+
+  parseOptions.keywords?.forEach((keyword) => {
+    const logicOperator = getKeywordLogicOperator(text, keyword);
+    if (logicOperator) logicMap[keyword] = logicOperator;
+  });
+
+  if (Object.keys(logicMap).length > 0) parsedFilter.__logic = logicMap;
+
+  return parsedFilter;
+}
+
+function stringifyLogicFilter(
+  field: string,
+  values: unknown[],
+  operator: TLogicOperator,
+  format: TFormat,
+  parseOptions: SearchParserOptions,
+) {
+  const valueFormat = getValueFormat(field, format);
+  const tokens = uniq(flattenDeep(values.map((value) => valueFormat.build(value)))).map((value) =>
+    searchQueryParser.stringify(field === "text" ? { text: [value] } : { [field]: [value] }, parseOptions),
+  );
+
+  return tokens.join(operator === "or" ? " 或 " : " 且 ");
 }
 
 export const dateFilterFormat = [
@@ -124,6 +228,7 @@ export function checkKeywordValue(
   keyword: string,
   format: TFormat = {},
   exclude = false,
+  operator: TLogicOperator = "and",
   // @ts-ignore
 ): boolean | undefined {
   const itemValue = get(rawItem, keyword); // true    filter[keyword] = ['1']
@@ -137,8 +242,12 @@ export function checkKeywordValue(
     if (Array.isArray(itemValue)) {
       const parsedSet = new Set(itemValue.map((v: any) => valueFormat.parse(v)) as string[]);
       const filterVals = filter[keyword] as string[];
-      // 如果是正向关键词则要求全部包含，如果是排除关键词则要求有任意一个包含
-      return exclude ? filterVals.some((k) => parsedSet.has(k)) : filterVals.every((k) => parsedSet.has(k));
+      // 如果是正向关键词则按照逻辑运算判断，如果是排除关键词则要求有任意一个包含
+      return exclude
+        ? filterVals.some((k) => parsedSet.has(k))
+        : operator === "or"
+          ? filterVals.some((k) => parsedSet.has(k))
+          : filterVals.every((k) => parsedSet.has(k));
     } else {
       return filter[keyword].includes(valueFormat.parse(itemValue) as string);
     }
@@ -213,7 +322,7 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
    * 通过 computed 来缓存 实际使用的判断字典
    */
   const tableParsedFilterRef = computed<TFilter>(
-    () => searchQueryParser.parse(tableFilterRef.value, parseOptions) as TFilter,
+    () => parseTableFilterQuery(tableFilterRef.value, parseOptions) as TFilter,
   );
 
   /**
@@ -262,7 +371,7 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
   // 从 string 中构建 advanceFilterDictRef
   function buildFilterDictFn(text: string = "") {
     const { keywords = [], ranges = [] } = parseOptions;
-    const parsedFilter = searchQueryParser.parse(text ?? "", parseOptions) as TFilter;
+    const parsedFilter = parseTableFilterQuery(text ?? "", parseOptions);
 
     ["text", ...keywords].forEach((key) => {
       const valueFormat = getValueFormat(key, format);
@@ -279,7 +388,7 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
         exclude = uniq(flattenDeep(thisExclude.map((v: any) => valueFormat.parse(v))));
       }
 
-      advanceFilterDictRef.value[key] = { required, exclude };
+      advanceFilterDictRef.value[key] = { required, exclude, operator: parsedFilter.__logic?.[key] ?? "and" };
     });
 
     ranges.forEach((key) => {
@@ -298,13 +407,22 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
   function stringifyFilterDictFn() {
     const { keywords = [], ranges = [] } = parseOptions;
     const filters: any = { exclude: {} };
+    const logicFilters: string[] = [];
 
     ["text", ...keywords].forEach((key) => {
       const valueFormat = getValueFormat(key, format);
-      const { required, exclude } = advanceFilterDictRef.value[key] as unknown as ITextValue;
-      if (required?.length > 0) filters[key] = uniq(flattenDeep(required.map((v) => valueFormat.build(v))));
+      const { required, exclude, operator } = advanceFilterDictRef.value[key] as unknown as ITextValue;
+      const builtRequired = uniq(flattenDeep(required.map((v) => valueFormat.build(v))));
+
+      if (builtRequired.length > 0) {
+        if (operator === "or" && builtRequired.length > 1) logicFilters.push(stringifyLogicFilter(key, required, operator, format, parseOptions));
+        else filters[key] = builtRequired;
+      }
+
       if (exclude?.length > 0) filters.exclude[key] = uniq(flattenDeep(exclude.map((v) => valueFormat.build(v))));
     });
+
+    if (Object.keys(filters.exclude).length === 0) delete filters.exclude;
 
     ranges.forEach((key) => {
       const valueFormat = getValueFormat(key, format);
@@ -319,7 +437,7 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
       }
     });
 
-    return searchQueryParser.stringify(filters, parseOptions);
+    return [searchQueryParser.stringify(filters, parseOptions), ...logicFilters].filter(Boolean).join(" ").trim();
   }
 
   function updateTableFilterValueFn() {
@@ -356,21 +474,32 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
   function tableFilterFn(value: any, query: string, item: any): boolean {
     const rawItem = item.raw as ItemType;
 
-    const { text, exclude } = tableParsedFilterRef.value;
+    const { text, exclude } = tableParsedFilterRef.value as TTableFilter;
+    const logicMap = (tableParsedFilterRef.value as TTableFilter).__logic ?? {};
 
-    const itemTitle = flattenDeep(titleFields.map((key) => get(rawItem, key)))
+    const normalizedItemTitle = flattenDeep(
+      titleFields.map((key) => {
+        const valueFormat = getValueFormat(key, format);
+        return flattenDeep([get(rawItem, key)]).map((entry) => valueFormat.parse(entry));
+      }),
+    )
       .filter(Boolean)
       .join("|$|")
       .toLowerCase();
 
     if (text) {
       const includeText = (Array.isArray(text) ? text : [text]).map((x) => x.toLowerCase());
-      if (!includeText.every((keyword: string) => itemTitle.includes(keyword))) return false;
+      const textMatch =
+        logicMap.text === "or"
+          ? includeText.some((keyword: string) => normalizedItemTitle.includes(keyword))
+          : includeText.every((keyword: string) => normalizedItemTitle.includes(keyword));
+      if (!textMatch) return false;
     }
 
     if (parseOptions.keywords) {
       for (const keyword of parseOptions.keywords) {
-        if (checkKeywordValue(tableParsedFilterRef.value, rawItem, keyword, format) === false) return false;
+        if (checkKeywordValue(tableParsedFilterRef.value, rawItem, keyword, format, false, logicMap[keyword]) === false)
+          return false;
       }
     }
 
@@ -385,7 +514,7 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
 
       if (exText) {
         const excludesText = (Array.isArray(exText) ? exText : [exText]).map((x) => x.toLowerCase());
-        if (excludesText.some((keyword: string) => itemTitle.includes(keyword))) return false;
+        if (excludesText.some((keyword: string) => normalizedItemTitle.includes(keyword))) return false;
       }
 
       if (parseOptions.keywords) {

@@ -111,7 +111,14 @@ function enterDialog() {
           </v-row>
 
           <template v-if="configStore.searchEntifyControl.showTorrentTag">
-            <v-row><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.tags") }}</v-label></v-row>
+            <v-row align="center">
+              <v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.tags") }}</v-label>
+              <v-spacer />
+              <v-btn-toggle v-model="advanceFilterDictRef.tags.operator" color="primary" density="compact" mandatory>
+                <v-btn size="x-small" value="and">{{ t("SearchEntity.AdvanceFilterGenerateDialog.logic.and") }}</v-btn>
+                <v-btn size="x-small" value="or">{{ t("SearchEntity.AdvanceFilterGenerateDialog.logic.or") }}</v-btn>
+              </v-btn-toggle>
+            </v-row>
             <v-row>
               <v-col
                 v-for="tag in torrentTags"

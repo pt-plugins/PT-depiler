@@ -503,6 +503,10 @@
     },
     "AdvanceFilterGenerateDialog": {
       "tags": "标签",
+      "logic": {
+        "and": "且",
+        "or": "或"
+      },
       "status": "种子状态",
       "size": "种子大小",
       "seeders": "上传人数",

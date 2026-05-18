@@ -503,6 +503,10 @@
     },
     "AdvanceFilterGenerateDialog": {
       "tags": "Tags",
+      "logic": {
+        "and": "AND",
+        "or": "OR"
+      },
       "status": "Torrent Status",
       "size": "Torrent Size",
       "seeders": "Seeders",
