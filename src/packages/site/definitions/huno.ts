@@ -502,6 +502,28 @@ export default class Huno extends Unit3D {
       addTag({ name: "粤语" });
     }
 
+    const freeFieldText = rowFields
+      .filter(({ path }) => /free|freeleech|discount|promo|promotion/i.test(path))
+      .map(({ path, value }) => `${path}:${value}`)
+      .join(" ");
+    if (
+      /\b(free|freeleech|free_leech|100%|100\.0|1)\b/i.test(freeFieldText) ||
+      /freeleech|100%\s*free|free download/i.test(rowText)
+    ) {
+      addTag({ name: "Free" });
+    }
+
+    const hnrFieldText = rowFields
+      .filter(({ path }) => /h[\W_]*n[\W_]*r|hit[\W_]*and[\W_]*run|hitrun|hit_and_run/i.test(path))
+      .map(({ path, value }) => `${path}:${value}`)
+      .join(" ");
+    if (
+      /\b(h&r|hnr|hit[\W_]*and[\W_]*run|hitrun|hit_and_run)\b/i.test(rowText) ||
+      /\b(true|1|yes|required|enabled)\b/i.test(hnrFieldText)
+    ) {
+      addTag({ name: "H&R" });
+    }
+
     extendTorrent.tags = tags;
     return extendTorrent;
   }
