@@ -1,4 +1,11 @@
-import { ETorrentStatus, type IAdvancedSearchRequestConfig, ISiteMetadata } from "../types";
+import {
+  ETorrentStatus,
+  type IAdvancedSearchRequestConfig,
+  type ISearchInput,
+  type ISiteMetadata,
+  type ITorrent,
+  type ITorrentTag,
+} from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
 import { get, set } from "es-toolkit/compat";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
@@ -53,6 +60,20 @@ function getHunoApiSubTitle(row: object): string {
     .filter((value) => typeof value === "string" || typeof value === "number")
     .map(String)
     .join(" / ");
+}
+
+function getHunoApiTagText(row: object, paths: string[]): string {
+  const values = paths.map((path) => get(row, path)).filter((value) => value !== undefined && value !== null);
+
+  return values
+    .flatMap((value) => {
+      if (Array.isArray(value)) {
+        return value.map((item) => (typeof item === "object" ? JSON.stringify(item) : String(item)));
+      }
+
+      return typeof value === "object" ? JSON.stringify(value) : String(value);
+    })
+    .join(" ");
 }
 
 export const siteMetadata: ISiteMetadata = {
@@ -354,6 +375,81 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class Huno extends Unit3D {
+  protected override parseTorrentRowForTags(
+    torrent: Partial<ITorrent>,
+    row: object,
+    searchConfig: ISearchInput,
+  ): Partial<ITorrent> {
+    const extendTorrent = super.parseTorrentRowForTags(torrent, row, searchConfig);
+    const tags: ITorrentTag[] = extendTorrent.tags || [];
+
+    const addTag = (tag: ITorrentTag) => {
+      if (!tags.some((existsTag) => existsTag.name === tag.name)) {
+        tags.push(tag);
+      }
+    };
+
+    const titleText = getHunoApiTagText(row, ["name", "attributes.name"]);
+    const releaseTagText = getHunoApiTagText(row, [
+      "release_tag",
+      "release_tag.name",
+      "release_tag.abbreviation",
+      "attributes.release_tag",
+      "attributes.release_tag.name",
+      "attributes.release_tag.abbreviation",
+    ]);
+    const mediaLanguageText = getHunoApiTagText(row, [
+      "media_language",
+      "media_language.name",
+      "media_language.abbreviation",
+      "attributes.media_language",
+      "attributes.media_language.name",
+      "attributes.media_language.abbreviation",
+    ]);
+    const audioText = getHunoApiTagText(row, [
+      "audio",
+      "audios",
+      "audio_language",
+      "audio_languages",
+      "attributes.audio",
+      "attributes.audios",
+      "attributes.audio_language",
+      "attributes.audio_languages",
+    ]);
+    const subtitleText = getHunoApiTagText(row, [
+      "subtitle",
+      "subtitles",
+      "subtitle_language",
+      "subtitle_languages",
+      "attributes.subtitle",
+      "attributes.subtitles",
+      "attributes.subtitle_language",
+      "attributes.subtitle_languages",
+    ]);
+
+    const combinedText = [titleText, releaseTagText, mediaLanguageText, audioText, subtitleText].join(" ");
+    const chineseLanguageRegex = /Chinese|Mandarin|Cantonese|中文|中字|简体|繁体|国语|国配|粤语|粤配/i;
+
+    if (
+      chineseLanguageRegex.test(subtitleText) ||
+      /中字|中文|简体|繁体|CHS|CHT|CHN|Chinese\s*Sub/i.test(titleText) ||
+      (/SUBBED/i.test(releaseTagText) && chineseLanguageRegex.test(combinedText))
+    ) {
+      addTag({ name: "中字" });
+    }
+
+    if (/Mandarin|Chinese|国语|国配|普通话|中配/i.test([mediaLanguageText, audioText, titleText].join(" "))) {
+      addTag({ name: "国语" });
+    }
+
+    if (/Cantonese|粤语|粤配/i.test([mediaLanguageText, audioText, titleText].join(" "))) {
+      addTag({ name: "粤语" });
+    }
+
+    extendTorrent.tags = tags;
+    return extendTorrent;
+  }
+
   public override async request<T>(
     axiosConfig: AxiosRequestConfig,
     checkLogin: boolean = true,
