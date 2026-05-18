@@ -123,11 +123,12 @@ function stringifyLogicFilter(
   parseOptions: SearchParserOptions,
 ) {
   const valueFormat = getValueFormat(field, format);
+  const logicSeparator = ` ${logicKeywordMap[operator][0]} `;
   const tokens = uniq(flattenDeep(values.map((value) => valueFormat.build(value)))).map((value) =>
     searchQueryParser.stringify(field === "text" ? { text: [value] } : { [field]: [value] }, parseOptions),
   );
 
-  return tokens.join(operator === "or" ? " 或 " : " 且 ");
+  return tokens.join(logicSeparator);
 }
 
 export const dateFilterFormat = [
@@ -243,11 +244,8 @@ export function checkKeywordValue(
       const parsedSet = new Set(itemValue.map((v: any) => valueFormat.parse(v)) as string[]);
       const filterVals = filter[keyword] as string[];
       // 如果是正向关键词则按照逻辑运算判断，如果是排除关键词则要求有任意一个包含
-      return exclude
-        ? filterVals.some((k) => parsedSet.has(k))
-        : operator === "or"
-          ? filterVals.some((k) => parsedSet.has(k))
-          : filterVals.every((k) => parsedSet.has(k));
+      if (exclude || operator === "or") return filterVals.some((k) => parsedSet.has(k));
+      return filterVals.every((k) => parsedSet.has(k));
     } else {
       return filter[keyword].includes(valueFormat.parse(itemValue) as string);
     }
@@ -415,6 +413,7 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
       const builtRequired = uniq(flattenDeep(required.map((v) => valueFormat.build(v))));
 
       if (builtRequired.length > 0) {
+        // 单个值时默认输出与 OR 语义等价，仅在多值 OR 时才需要手动拼接逻辑操作符。
         if (operator === "or" && builtRequired.length > 1)
           logicFilters.push(stringifyLogicFilter(key, required, operator, format, parseOptions));
         else filters[key] = builtRequired;
