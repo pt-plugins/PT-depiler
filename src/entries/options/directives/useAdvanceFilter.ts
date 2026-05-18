@@ -135,7 +135,9 @@ function stringifyLogicFilter(
 
 function getFormattedItemValues(rawItem: TRawItem, key: string, format: TFormat = {}) {
   const valueFormat = getValueFormat(key, format);
-  return flattenDeep([get(rawItem, key)]).map((entry) => valueFormat.parse(entry)).filter(Boolean);
+  return flattenDeep([get(rawItem, key)])
+    .map((entry) => valueFormat.parse(entry))
+    .filter(Boolean);
 }
 
 export const dateFilterFormat = [
