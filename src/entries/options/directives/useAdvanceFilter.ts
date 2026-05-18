@@ -28,7 +28,7 @@ interface IValueFormat {
 }
 
 type TLogicOperator = "and" | "or";
-type TTableFilter = TFilter & { __logic?: Partial<Record<string, TLogicOperator>> };
+type TTableFilter = TFilter & { logicOperators?: Partial<Record<string, TLogicOperator>> };
 
 const logicKeywordMap = {
   and: ["且", "and"],
@@ -46,7 +46,7 @@ function getLogicOperator(value: string): TLogicOperator | undefined {
   return undefined;
 }
 
-function removeLogicKeywords(values: unknown[] = []) {
+function removeLogicKeywords(values: string[] = []) {
   return values.filter((value) => !getLogicOperator(String(value)));
 }
 
@@ -67,6 +67,7 @@ function getKeywordLogicOperator(text: string, keyword: string): TLogicOperator 
     const betweenText = text.slice((prevMatch.index ?? 0) + prevMatch[0].length, currentMatch.index);
     const betweenLogic = getLogicOperator(betweenText.trim());
     if (!betweenLogic) continue;
+    // Fall back to AND when conflicting operators are mixed for the same field.
     if (logicOperator && logicOperator !== betweenLogic) return "and";
     logicOperator = betweenLogic;
   }
@@ -110,7 +111,7 @@ function parseTableFilterQuery(text: string, parseOptions: SearchParserOptions):
     if (logicOperator) logicMap[keyword] = logicOperator;
   });
 
-  if (Object.keys(logicMap).length > 0) parsedFilter.__logic = logicMap;
+  if (Object.keys(logicMap).length > 0) parsedFilter.logicOperators = logicMap;
 
   return parsedFilter;
 }
@@ -124,11 +125,17 @@ function stringifyLogicFilter(
 ) {
   const valueFormat = getValueFormat(field, format);
   const logicSeparator = ` ${logicKeywordMap[operator][0]} `;
-  const tokens = uniq(flattenDeep(values.map((value) => valueFormat.build(value)))).map((value) =>
+  const builtValues = uniq(flattenDeep(values.map((value) => valueFormat.build(value))));
+  const tokens = builtValues.map((value) =>
     searchQueryParser.stringify(field === "text" ? { text: [value] } : { [field]: [value] }, parseOptions),
   );
 
   return tokens.join(logicSeparator);
+}
+
+function getFormattedItemValues(rawItem: TRawItem, key: string, format: TFormat = {}) {
+  const valueFormat = getValueFormat(key, format);
+  return flattenDeep([get(rawItem, key)]).map((entry) => valueFormat.parse(entry)).filter(Boolean);
 }
 
 export const dateFilterFormat = [
@@ -224,17 +231,16 @@ export function setDateRangeByDatePicker(value: unknown[]): [number, number] {
 type TRawItem = { [key: string]: any };
 
 export function checkKeywordValue(
-  filter: TFilter,
+  filter: TFilter & Record<string, any>,
   rawItem: TRawItem,
   keyword: string,
   format: TFormat = {},
   exclude = false,
   operator: TLogicOperator = "and",
-  // @ts-ignore
 ): boolean | undefined {
   const itemValue = get(rawItem, keyword); // true    filter[keyword] = ['1']
   if (filter[keyword]) {
-    // 如果原始数据中没有该 keyword 字段，则直接返回 false
+    // Return false immediately when the raw item does not provide this keyword field.
     if (typeof itemValue == "undefined") {
       return false;
     }
@@ -250,14 +256,15 @@ export function checkKeywordValue(
       return filter[keyword].includes(valueFormat.parse(itemValue) as string);
     }
   }
+
+  return undefined;
 }
 
 export function checkRangeValue(
-  filter: TFilter,
+  filter: TFilter & Record<string, any>,
   rawItem: TRawItem,
   keyword: string,
   format: TFormat = {},
-  // @ts-ignore
 ): boolean | undefined {
   const itemValue = get(rawItem, keyword);
   if (filter[keyword] && typeof itemValue !== "undefined") {
@@ -268,6 +275,8 @@ export function checkRangeValue(
 
     return Boolean(from && value >= from && to && value <= to);
   }
+
+  return undefined;
 }
 
 interface TableCustomFilterOptions<ItemType> {
@@ -386,7 +395,7 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
         exclude = uniq(flattenDeep(thisExclude.map((v: any) => valueFormat.parse(v))));
       }
 
-      advanceFilterDictRef.value[key] = { required, exclude, operator: parsedFilter.__logic?.[key] ?? "and" };
+      advanceFilterDictRef.value[key] = { required, exclude, operator: parsedFilter.logicOperators?.[key] ?? "and" };
     });
 
     ranges.forEach((key) => {
@@ -413,7 +422,7 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
       const builtRequired = uniq(flattenDeep(required.map((v) => valueFormat.build(v))));
 
       if (builtRequired.length > 0) {
-        // 单个值时默认输出与 OR 语义等价，仅在多值 OR 时才需要手动拼接逻辑操作符。
+        // A single value already matches OR semantics, so only multi-value OR needs explicit operators.
         if (operator === "or" && builtRequired.length > 1)
           logicFilters.push(stringifyLogicFilter(key, required, operator, format, parseOptions));
         else filters[key] = builtRequired;
@@ -475,14 +484,9 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
     const rawItem = item.raw as ItemType;
 
     const { text, exclude } = tableParsedFilterRef.value as TTableFilter;
-    const logicMap = (tableParsedFilterRef.value as TTableFilter).__logic ?? {};
+    const logicMap = (tableParsedFilterRef.value as TTableFilter).logicOperators ?? {};
 
-    const normalizedItemTitle = flattenDeep(
-      titleFields.map((key) => {
-        const valueFormat = getValueFormat(key, format);
-        return flattenDeep([get(rawItem, key)]).map((entry) => valueFormat.parse(entry));
-      }),
-    )
+    const normalizedItemTitle = flatten(titleFields.map((key) => getFormattedItemValues(rawItem, key, format)))
       .filter(Boolean)
       .join("|$|")
       .toLowerCase();
