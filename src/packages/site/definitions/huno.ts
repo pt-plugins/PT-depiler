@@ -39,7 +39,7 @@ const resolutionMap: Record<number, string> = {
 function getHunoApiValue(row: object, paths: string[], fallback: unknown = ""): unknown {
   for (const path of paths) {
     const value = get(row, path);
-    if (value !== undefined && value !== null && value !== "") {
+    if (value && typeof value !== "object") {
       return value;
     }
   }
@@ -57,7 +57,7 @@ function getHunoApiSubTitle(row: object): string {
   ];
 
   return values
-    .filter((value) => typeof value === "string" || typeof value === "number")
+    .filter(Boolean)
     .map(String)
     .join(" / ");
 }
