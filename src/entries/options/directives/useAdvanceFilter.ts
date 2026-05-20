@@ -64,6 +64,46 @@ const advanceFilterFormat: Record<TAdvanceFilterFormat, IValueFormat> = {
 
 type TFormat = Record<string, TAdvanceFilterFormat | IValueFormat>;
 
+const queryEscapeMap: Record<string, string> = {
+  "\\": "\\u005c",
+  " ": "\\u0020",
+  ",": "\\u002c",
+  ":": "\\u003a",
+};
+const queryUnEscapeMap = Object.fromEntries(Object.entries(queryEscapeMap).map(([key, value]) => [value.toLowerCase(), key]));
+const escapedQueryValueRegex = /\\u(?:005c|0020|002c|003a)/gi;
+const queryReservedCharsRegex = /[\\ ,:]/g;
+const regexLiteralPattern = /^\/((?:\\.|[^\\/])*)\/([gimsuy]*)$/;
+
+function escapeQueryValue(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+  return value.replace(queryReservedCharsRegex, (char) => queryEscapeMap[char]);
+}
+
+function unEscapeQueryValue(value: unknown): unknown {
+  if (typeof value !== "string") return value;
+  return value.replace(escapedQueryValueRegex, (escapedToken) => queryUnEscapeMap[escapedToken.toLowerCase()] ?? escapedToken);
+}
+
+function toRegexIfValid(value: unknown): RegExp | null {
+  if (typeof value !== "string") return null;
+  const matched = regexLiteralPattern.exec(unEscapeQueryValue(value) as string);
+  if (!matched) return null;
+
+  const [, pattern, flags] = matched;
+  try {
+    return new RegExp(pattern, flags);
+  } catch {
+    return null;
+  }
+}
+
+function matchFilterValue(itemValue: string, rawFilterValue: unknown): boolean {
+  const filterValue = unEscapeQueryValue(rawFilterValue) as string;
+  const regex = toRegexIfValid(filterValue);
+  return regex ? regex.test(itemValue) : itemValue === filterValue;
+}
+
 const getRaw = (x: any) => x;
 function getValueFormat(key: string, format: TFormat = {}): Required<IValueFormat> {
   let valueFormatFn: IValueFormat = {};
@@ -135,12 +175,15 @@ export function checkKeywordValue(
 
     const valueFormat = getValueFormat(keyword as string, format);
     if (Array.isArray(itemValue)) {
-      const parsedSet = new Set(itemValue.map((v: any) => valueFormat.parse(v)) as string[]);
+      const parsedValues = itemValue.map((v: any) => valueFormat.parse(v) as string);
       const filterVals = filter[keyword] as string[];
       // 如果是正向关键词则要求全部包含，如果是排除关键词则要求有任意一个包含
-      return exclude ? filterVals.some((k) => parsedSet.has(k)) : filterVals.every((k) => parsedSet.has(k));
+      return exclude
+        ? filterVals.some((k) => parsedValues.some((v) => matchFilterValue(v, k)))
+        : filterVals.every((k) => parsedValues.some((v) => matchFilterValue(v, k)));
     } else {
-      return filter[keyword].includes(valueFormat.parse(itemValue) as string);
+      const itemParsedValue = valueFormat.parse(itemValue) as string;
+      return filter[keyword].some((k: string) => matchFilterValue(itemParsedValue, k));
     }
   }
 }
@@ -271,12 +314,12 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
 
       const thisRequired = parsedFilter[key];
       if (Array.isArray(thisRequired) && thisRequired.length > 0) {
-        required = uniq(flattenDeep(thisRequired.map((v: any) => valueFormat.parse(v))));
+        required = uniq(flattenDeep(thisRequired.map((v: any) => valueFormat.parse(unEscapeQueryValue(v)))));
       }
 
       const thisExclude = parsedFilter.exclude?.[key];
       if (Array.isArray(thisExclude) && thisExclude.length > 0) {
-        exclude = uniq(flattenDeep(thisExclude.map((v: any) => valueFormat.parse(v))));
+        exclude = uniq(flattenDeep(thisExclude.map((v: any) => valueFormat.parse(unEscapeQueryValue(v)))));
       }
 
       advanceFilterDictRef.value[key] = { required, exclude };
@@ -302,8 +345,12 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
     ["text", ...keywords].forEach((key) => {
       const valueFormat = getValueFormat(key, format);
       const { required, exclude } = advanceFilterDictRef.value[key] as unknown as ITextValue;
-      if (required?.length > 0) filters[key] = uniq(flattenDeep(required.map((v) => valueFormat.build(v))));
-      if (exclude?.length > 0) filters.exclude[key] = uniq(flattenDeep(exclude.map((v) => valueFormat.build(v))));
+      if (required?.length > 0) {
+        filters[key] = uniq(flattenDeep(required.map((v) => escapeQueryValue(valueFormat.build(v)))));
+      }
+      if (exclude?.length > 0) {
+        filters.exclude[key] = uniq(flattenDeep(exclude.map((v) => escapeQueryValue(valueFormat.build(v)))));
+      }
     });
 
     ranges.forEach((key) => {
@@ -361,11 +408,20 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
     const itemTitle = flattenDeep(titleFields.map((key) => get(rawItem, key)))
       .filter(Boolean)
       .join("|$|")
-      .toLowerCase();
+      .toString();
+    const itemTitleLowerCase = itemTitle.toLowerCase();
 
     if (text) {
-      const includeText = (Array.isArray(text) ? text : [text]).map((x) => x.toLowerCase());
-      if (!includeText.every((keyword: string) => itemTitle.includes(keyword))) return false;
+      const includeText = Array.isArray(text) ? text : [text];
+      if (
+        !includeText.every((keyword: string) => {
+          const unEscapedKeyword = unEscapeQueryValue(keyword) as string;
+          const regex = toRegexIfValid(unEscapedKeyword);
+          return regex ? regex.test(itemTitle) : itemTitleLowerCase.includes(unEscapedKeyword.toLowerCase());
+        })
+      ) {
+        return false;
+      }
     }
 
     if (parseOptions.keywords) {
@@ -384,8 +440,16 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
       const { text: exText } = exclude;
 
       if (exText) {
-        const excludesText = (Array.isArray(exText) ? exText : [exText]).map((x) => x.toLowerCase());
-        if (excludesText.some((keyword: string) => itemTitle.includes(keyword))) return false;
+        const excludesText = Array.isArray(exText) ? exText : [exText];
+        if (
+          excludesText.some((keyword: string) => {
+            const unEscapedKeyword = unEscapeQueryValue(keyword) as string;
+            const regex = toRegexIfValid(unEscapedKeyword);
+            return regex ? regex.test(itemTitle) : itemTitleLowerCase.includes(unEscapedKeyword.toLowerCase());
+          })
+        ) {
+          return false;
+        }
       }
 
       if (parseOptions.keywords) {
