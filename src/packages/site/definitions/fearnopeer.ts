@@ -1,8 +1,7 @@
 import { type ISiteMetadata } from "../types";
-// import { SchemaMetadata } from "../schemas/Unit3D.ts";
-// import { buildCategoryOptionsFromDict, buildCategoryOptionsFromList } from "../utils";
+import { SchemaMetadata } from "../schemas/Unit3D.ts";
+import { buildCategoryOptionsFromDict, buildCategoryOptionsFromList } from "../utils";
 
-/*
 const categoryMap: Record<number, string> = {
   1: "Movie",
   2: "TV",
@@ -13,10 +12,9 @@ const categoryMap: Record<number, string> = {
   9: "Sport",
   11: "Assorted",
 };
-*/
 
 export const siteMetadata: ISiteMetadata = {
-  // ...SchemaMetadata,
+  ...SchemaMetadata,
   id: "fearnopeer",
   version: 1,
   name: "FearNoPeer",
@@ -31,10 +29,6 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://srneabcrre.pbz/"],
 
-  // refs: https://web.archive.org/web/20260511185534/https://old.reddit.com/r/trackers/comments/1tac6ry/fearnopeer_is_shutting_down/
-  isDead: true,
-
-  /*
   category: [
     {
       name: "类别",
@@ -227,7 +221,6 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
-  */
 
   levelRequirements: [
     {
