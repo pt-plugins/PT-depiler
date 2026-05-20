@@ -70,10 +70,15 @@ const queryEscapeMap: Record<string, string> = {
   ",": "\\u002c",
   ":": "\\u003a",
 };
-const queryUnEscapeMap = Object.fromEntries(Object.entries(queryEscapeMap).map(([key, value]) => [value.toLowerCase(), key]));
-const escapedQueryValueRegex = /\\u(?:005c|0020|002c|003a)/gi;
+const queryUnEscapeMap = Object.fromEntries(
+  Object.entries(queryEscapeMap).map(([key, value]) => [value.toLowerCase(), key]),
+);
+const escapedQueryTokens = Object.values(queryEscapeMap).map((value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+const escapedQueryValueRegex = new RegExp(`(?:${escapedQueryTokens.join("|")})`, "gi");
 const queryReservedCharsRegex = /[\\ ,:]/g;
+// /pattern/[gimsuy]
 const regexLiteralPattern = /^\/((?:\\.|[^\\/])*)\/([gimsuy]*)$/;
+const regexCache = new Map<string, RegExp | null>();
 
 function escapeQueryValue(value: unknown): unknown {
   if (typeof value !== "string") return value;
@@ -82,24 +87,46 @@ function escapeQueryValue(value: unknown): unknown {
 
 function unEscapeQueryValue(value: unknown): unknown {
   if (typeof value !== "string") return value;
-  return value.replace(escapedQueryValueRegex, (escapedToken) => queryUnEscapeMap[escapedToken.toLowerCase()] ?? escapedToken);
+  return value.replace(
+    escapedQueryValueRegex,
+    (escapedToken) => queryUnEscapeMap[escapedToken.toLowerCase()] ?? escapedToken,
+  );
 }
 
+function normalizeFilterValue(value: unknown): string | undefined {
+  if (typeof value !== "string") return undefined;
+  return unEscapeQueryValue(value) as string;
+}
+
+/** 仅解析 /pattern/[gimsuy] 结构，失败时返回 null */
 function toRegexIfValid(value: unknown): RegExp | null {
-  if (typeof value !== "string") return null;
-  const matched = regexLiteralPattern.exec(unEscapeQueryValue(value) as string);
-  if (!matched) return null;
+  const normalizedValue = normalizeFilterValue(value);
+  if (typeof normalizedValue !== "string") return null;
+
+  if (regexCache.has(normalizedValue)) {
+    return regexCache.get(normalizedValue) ?? null;
+  }
+
+  const matched = regexLiteralPattern.exec(normalizedValue);
+  if (!matched) {
+    regexCache.set(normalizedValue, null);
+    return null;
+  }
 
   const [, pattern, flags] = matched;
   try {
-    return new RegExp(pattern, flags);
+    const regex = new RegExp(pattern, flags);
+    regexCache.set(normalizedValue, regex);
+    return regex;
   } catch {
+    regexCache.set(normalizedValue, null);
     return null;
   }
 }
 
 function matchFilterValue(itemValue: string, rawFilterValue: unknown): boolean {
-  const filterValue = unEscapeQueryValue(rawFilterValue) as string;
+  const filterValue = normalizeFilterValue(rawFilterValue);
+  if (typeof filterValue !== "string") return false;
   const regex = toRegexIfValid(filterValue);
   return regex ? regex.test(itemValue) : itemValue === filterValue;
 }
@@ -415,9 +442,10 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
       const includeText = Array.isArray(text) ? text : [text];
       if (
         !includeText.every((keyword: string) => {
-          const unEscapedKeyword = unEscapeQueryValue(keyword) as string;
-          const regex = toRegexIfValid(unEscapedKeyword);
-          return regex ? regex.test(itemTitle) : itemTitleLowerCase.includes(unEscapedKeyword.toLowerCase());
+          const normalizedKeyword = normalizeFilterValue(keyword);
+          if (typeof normalizedKeyword !== "string") return false;
+          const regex = toRegexIfValid(normalizedKeyword);
+          return regex ? regex.test(itemTitle) : itemTitleLowerCase.includes(normalizedKeyword.toLowerCase());
         })
       ) {
         return false;
@@ -443,9 +471,10 @@ export function useTableCustomFilter<ItemType extends Record<string, any>>(
         const excludesText = Array.isArray(exText) ? exText : [exText];
         if (
           excludesText.some((keyword: string) => {
-            const unEscapedKeyword = unEscapeQueryValue(keyword) as string;
-            const regex = toRegexIfValid(unEscapedKeyword);
-            return regex ? regex.test(itemTitle) : itemTitleLowerCase.includes(unEscapedKeyword.toLowerCase());
+            const normalizedKeyword = normalizeFilterValue(keyword);
+            if (typeof normalizedKeyword !== "string") return false;
+            const regex = toRegexIfValid(normalizedKeyword);
+            return regex ? regex.test(itemTitle) : itemTitleLowerCase.includes(normalizedKeyword.toLowerCase());
           })
         ) {
           return false;
