@@ -1,6 +1,13 @@
-import { ETorrentStatus, type IAdvancedSearchRequestConfig, ISiteMetadata } from "../types";
+import {
+  ETorrentStatus,
+  type IAdvancedSearchRequestConfig,
+  type ISearchInput,
+  type ISiteMetadata,
+  type ITorrent,
+  type ITorrentTag,
+} from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
-import { set } from "es-toolkit/compat";
+import { get, set } from "es-toolkit/compat";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 
 const categoryMap: Record<number, string> = {
@@ -28,6 +35,73 @@ const resolutionMap: Record<number, string> = {
   9: "480i",
   10: "Other",
 };
+
+function getHunoApiValue(row: object, paths: string[], fallback: unknown = ""): unknown {
+  for (const path of paths) {
+    const value = get(row, path);
+    if (value && typeof value !== "object") {
+      return value;
+    }
+  }
+
+  return fallback;
+}
+
+function getHunoApiSubTitle(row: object): string {
+  const values = [
+    getHunoApiValue(row, ["release_year", "attributes.release_year"]),
+    getHunoApiValue(row, ["resolution.name", "resolution", "attributes.resolution.name", "attributes.resolution"]),
+    getHunoApiValue(row, ["type.name", "type", "attributes.type.name", "attributes.type"]),
+    getHunoApiValue(row, ["video_codec.name", "video_codec", "attributes.video_codec.name", "attributes.video_codec"]),
+    getHunoApiValue(row, ["source_type.name", "source_type", "attributes.source_type.name", "attributes.source_type"]),
+  ];
+
+  return values
+    .filter(Boolean)
+    .map(String)
+    .join(" / ");
+}
+
+function getHunoApiTagText(row: object, paths: string[]): string {
+  const values = paths.map((path) => get(row, path)).filter((value) => value !== undefined && value !== null);
+
+  return values
+    .flatMap((value) => {
+      if (Array.isArray(value)) {
+        return value.map((item) => (typeof item === "object" ? JSON.stringify(item) : String(item)));
+      }
+
+      return typeof value === "object" ? JSON.stringify(value) : String(value);
+    })
+    .join(" ");
+}
+
+function collectHunoApiFields(value: unknown, path: string = ""): Array<{ path: string; value: string }> {
+  if (value === undefined || value === null) {
+    return [];
+  }
+
+  if (Array.isArray(value)) {
+    return value.flatMap((item, index) => collectHunoApiFields(item, `${path}.${index}`));
+  }
+
+  if (typeof value === "object") {
+    return Object.entries(value as Record<string, unknown>).flatMap(([key, child]) =>
+      collectHunoApiFields(child, path ? `${path}.${key}` : key),
+    );
+  }
+
+  return [{ path, value: String(value) }];
+}
+
+function isHunoTruthyFreeValue(value: string): boolean {
+  const normalizedValue = value.trim().toLowerCase();
+  if (!normalizedValue || ["false", "0", "no", "none", "null", "undefined", "n/a"].includes(normalizedValue)) {
+    return false;
+  }
+
+  return /^(true|1|yes|free|freeleech|100|100\.0|100%)$/.test(normalizedValue) || /100%\s*free|freeleech/.test(normalizedValue);
+}
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -66,7 +140,7 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       name: "编码",
-      key: "type",
+      key: "types",
       keyPath: "params",
       options: Object.entries(typeMap).map(([value, name]) => ({ name, value: Number(value) })),
       cross: { mode: "brackets" },
@@ -100,38 +174,64 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     ...SchemaMetadata.search,
+    keywordPath: "params.name",
+    requestConfig: {
+      url: "/api/torrents/filter",
+      responseType: "json",
+      params: {
+        perPage: 100,
+      },
+    },
+    advanceKeywordParams: {
+      imdb: {
+        requestConfigTransformer: ({ requestConfig: config }) => {
+          if (config?.params?.name) {
+            config.params.imdbId = config.params.name;
+            delete config.params.name;
+          }
+          return config!;
+        },
+      },
+    },
     skipNonLatinCharacters: true,
     selectors: {
-      ...SchemaMetadata.search!.selectors,
-
-      rows: { selector: "table.deep-space-similar-table > tbody > tr" },
+      rows: { selector: ["data.data", "data", "torrents.data", "torrents"] },
       id: {
-        selector: ["div.ds-macro-row__name-content > div.ds-macro-row__name-title > a[href*='torrents']"],
-        attr: "href",
-        filters: [(query: string) => query.match(/\/torrents\/(\d+)/)![1]],
+        selector: ["id", "attributes.id"],
       },
       title: {
-        selector: ["div.ds-macro-row__name-content > div.ds-macro-row__name-title"],
+        selector: ["name", "attributes.name"],
       },
       subTitle: {
-        selector: ["div.ds-macro-row__name-content > div.ds-macro-row__name-specs"],
+        selector: ":self",
+        filters: [getHunoApiSubTitle],
       },
       url: {
-        selector: ["div.ds-macro-row__name-content > div.ds-macro-row__name-title > a[href*='torrents']"],
-        attr: "href",
+        selector: ":self",
+        filters: [(row: object) => `/torrents/${getHunoApiValue(row, ["id", "attributes.id"])}`],
       },
-      category: { text: "All", selector: ["span[title='Release Type']"] },
-      size: { selector: "a[title='Download']", filters: [{ name: "parseSize" }] },
-      time: { selector: "div[class^='tw-text-white']", filters: [{ name: "parseTTL" }] },
+      link: {
+        selector: ["download_link", "attributes.download_link"],
+      },
+      category: {
+        selector: ":self",
+        filters: [
+          (row: object) =>
+            getHunoApiValue(row, ["category.name", "attributes.category.name"], "All"),
+        ],
+      },
+      size: { selector: ["size", "attributes.size"] },
+      time: { selector: ["created_at", "attributes.created_at", "bumped_at", "attributes.bumped_at"] },
+      author: {
+        selector: ["uploader.username", "uploader.name", "attributes.uploader.username", "attributes.uploader.name"],
+      },
       seeders: {
-        selector: ["a[href*='peers'][title*='seeders']", "a[href*='peers'][title*='Seeding']"],
-        filters: [{ name: "parseNumber" }],
+        selector: ["seeders", "attributes.seeders"],
       },
       leechers: {
-        selector: ["a[href*='peers'][title*='leechers']", "a[href*='peers'][title*='Leeching']"],
-        filters: [{ name: "parseNumber" }],
+        selector: ["leechers", "attributes.leechers"],
       },
-      completed: { selector: "a[href*='snatched'][title*='completed']", filters: [{ name: "parseNumber" }] },
+      completed: { selector: ["times_completed", "attributes.times_completed", "completed", "attributes.completed"] },
       comments: { text: 0 }, // not provided
 
       status: {
@@ -302,6 +402,126 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class Huno extends Unit3D {
+  protected override parseTorrentRowForTags(
+    torrent: Partial<ITorrent>,
+    row: object,
+    searchConfig: ISearchInput,
+  ): Partial<ITorrent> {
+    const extendTorrent = super.parseTorrentRowForTags(torrent, row, searchConfig);
+    const tags: ITorrentTag[] = extendTorrent.tags || [];
+
+    const addTag = (tag: ITorrentTag) => {
+      if (!tags.some((existsTag) => existsTag.name === tag.name)) {
+        tags.push(tag);
+      }
+    };
+
+    const titleText = getHunoApiTagText(row, ["name", "attributes.name"]);
+    const rowFields = collectHunoApiFields(row);
+    const rowText = rowFields.map(({ path, value }) => `${path}:${value}`).join(" ");
+    const releaseTagText = getHunoApiTagText(row, [
+      "release_tag",
+      "release_tag.name",
+      "release_tag.abbreviation",
+      "attributes.release_tag",
+      "attributes.release_tag.name",
+      "attributes.release_tag.abbreviation",
+    ]);
+    const mediaLanguageText = getHunoApiTagText(row, [
+      "media_language",
+      "media_language.name",
+      "media_language.abbreviation",
+      "attributes.media_language",
+      "attributes.media_language.name",
+      "attributes.media_language.abbreviation",
+    ]);
+    const audioText = getHunoApiTagText(row, [
+      "audio",
+      "audios",
+      "audio_language",
+      "audio_languages",
+      "attributes.audio",
+      "attributes.audios",
+      "attributes.audio_language",
+      "attributes.audio_languages",
+    ]);
+    const subtitleText = getHunoApiTagText(row, [
+      "subtitle",
+      "subtitles",
+      "subtitle_language",
+      "subtitle_languages",
+      "attributes.subtitle",
+      "attributes.subtitles",
+      "attributes.subtitle_language",
+      "attributes.subtitle_languages",
+    ]);
+
+    const subtitleFieldText = rowFields
+      .filter(({ path }) => /sub(title)?|caption/i.test(path))
+      .map(({ value }) => value)
+      .join(" ");
+    const audioFieldText = rowFields
+      .filter(({ path }) => /audio|dub|language|media_language/i.test(path))
+      .map(({ value }) => value)
+      .join(" ");
+    const combinedText = [
+      titleText,
+      releaseTagText,
+      mediaLanguageText,
+      audioText,
+      subtitleText,
+      subtitleFieldText,
+      audioFieldText,
+    ].join(" ");
+    const chineseLanguageRegex = /Chinese|Mandarin|Cantonese|中文|中字|简体|繁体|国语|国配|粤语|粤配/i;
+
+    if (
+      chineseLanguageRegex.test(subtitleText) ||
+      chineseLanguageRegex.test(subtitleFieldText) ||
+      /中字|中文|简体|繁体|CHS|CHT|CHN|Chinese\s*Sub/i.test(titleText) ||
+      (/SUBBED/i.test(releaseTagText) && chineseLanguageRegex.test(rowText)) ||
+      (/sub(title)?|caption/i.test(rowText) && chineseLanguageRegex.test(rowText))
+    ) {
+      addTag({ name: "中字" });
+    }
+
+    if (/Mandarin|Chinese|国语|国配|普通话|中配/i.test([mediaLanguageText, audioText, titleText].join(" "))) {
+      addTag({ name: "国语" });
+    }
+
+    if (/Cantonese|粤语|粤配/i.test([mediaLanguageText, audioText, titleText].join(" "))) {
+      addTag({ name: "粤语" });
+    }
+
+    if (
+      /Chinese|Mandarin|Cantonese|中文|中字|简体|繁体/i.test(subtitleFieldText) ||
+      (/SUBBED/i.test(releaseTagText) && /Chinese|Mandarin|Cantonese|中文|中字|简体|繁体/i.test(rowText))
+    ) {
+      addTag({ name: "中字" });
+    }
+
+    if (
+      /Mandarin|Chinese|国语|国配|普通话|中配/i.test(audioFieldText) ||
+      (/DUBBED/i.test(releaseTagText) && /Mandarin|Chinese|国语|国配|普通话|中配/i.test(rowText))
+    ) {
+      addTag({ name: "国语" });
+    }
+
+    if (/Cantonese|粤语|粤配/i.test(audioFieldText)) {
+      addTag({ name: "粤语" });
+    }
+
+    const isFree = rowFields
+      .filter(({ path }) => /free|freeleech|discount|promo|promotion/i.test(path))
+      .some(({ value }) => isHunoTruthyFreeValue(value));
+    if (isFree) {
+      addTag({ name: "Free" });
+    }
+
+    extendTorrent.tags = tags;
+    return extendTorrent;
+  }
+
   public override async request<T>(
     axiosConfig: AxiosRequestConfig,
     checkLogin: boolean = true,
