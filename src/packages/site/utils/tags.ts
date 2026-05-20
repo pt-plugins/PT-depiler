@@ -41,7 +41,7 @@ export const preDefinedTorrentTagMap: IPreDefinedTorrentTag[] = [
   { name: "国语", color: "cyan-darken-2", aka: ["国配", "普通话", "中配", /国语$/] },
   { name: "粤语", color: "teal-darken-1", aka: ["粤配"] },
 
-  { name: "4K", color: "teal-darken-3", aka: ["4p", "2160p"] },
+  { name: "4K", color: "teal-darken-3", aka: ["4p", "2160p", /4 ?[Kk]/] },
   { name: "1080p", color: "teal-darken-1", aka: [] },
 
   { name: "WEB-DL", color: "green-darken-2", aka: ["WEB DL", /WEB\.?DL/] },

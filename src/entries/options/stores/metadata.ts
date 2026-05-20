@@ -467,7 +467,7 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     async setLastSearchFilter(filter: string) {
-      this.lastSearchFilter = filter.replace(/\s*site:\S+/g, "").trim();
+      this.lastSearchFilter = (filter ?? "").replace(/\s*site:\S+/g, "").trim();
       await this.$save();
     },
 
