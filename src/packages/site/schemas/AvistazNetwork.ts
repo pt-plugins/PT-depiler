@@ -15,7 +15,6 @@ import {
   type ITorrentTag,
   type ISearchInput,
   CFBlockedError,
-  NeedLoginError,
   NoTorrentsError,
 } from "../types";
 import { parseSizeString } from "../utils";
@@ -30,6 +29,24 @@ interface AuthFailResp {
 }
 
 type AvzNetAuthResp = AuthSuccessResp | AuthFailResp;
+
+function isAuthSuccessResp(data: unknown): data is AuthSuccessResp {
+  return (
+    !!data &&
+    typeof data === "object" &&
+    "token" in data &&
+    typeof data.token === "string" &&
+    data.token.trim().length > 0 &&
+    "expiry" in data &&
+    typeof data.expiry === "number" &&
+    Number.isFinite(data.expiry) &&
+    data.expiry > 0
+  );
+}
+
+function isAuthFailResp(data: unknown): data is AuthFailResp {
+  return !!data && typeof data === "object" && "message" in data && typeof data.message === "string";
+}
 
 const commonListSelectors: TSchemaMetadataListSelectors = {
   subTitle: { text: "" },
@@ -413,9 +430,10 @@ export default class AvistazNetwork extends PrivateSite {
     axiosConfig: AxiosRequestConfig,
     checkLogin: boolean = true,
   ): Promise<AxiosResponse<T>> {
+    const isAuthApi = axiosConfig.url === "/api/v1/jackett/auth";
     const isTorrentSearchApi = axiosConfig.url?.startsWith("/api/v1/jackett/torrents");
 
-    if (axiosConfig.url === "/api/v1/jackett/auth") {
+    if (isAuthApi) {
       axiosConfig.method = "POST";
       axiosConfig.data = {
         ...axiosConfig.data,
@@ -428,7 +446,7 @@ export default class AvistazNetwork extends PrivateSite {
         "Content-Type": "application/x-www-form-urlencoded",
       };
     }
-    if (axiosConfig.url?.startsWith("/api/v1/jackett/torrents")) {
+    if (isTorrentSearchApi) {
       axiosConfig.method = "GET";
       const token = await this.getAuthToken();
       axiosConfig.headers = {
@@ -437,7 +455,7 @@ export default class AvistazNetwork extends PrivateSite {
       };
     }
 
-    if (!isTorrentSearchApi) {
+    if (!isAuthApi && !isTorrentSearchApi) {
       return super.request<T>(axiosConfig, checkLogin);
     }
 
@@ -445,30 +463,46 @@ export default class AvistazNetwork extends PrivateSite {
     axiosConfig.timeout ??= this.userConfig.timeout ?? 30e3;
     await this.sleepAction(this.metadata.requestDelay ?? 0);
 
-    let req: AxiosResponse<T>;
-    try {
-      req = await axios.request<T>(axiosConfig);
-    } catch (error) {
-      const response = (error as AxiosError<T>).response;
-      if (!response) {
-        throw error;
-      }
+    const requestApi = async (): Promise<AxiosResponse<T>> => {
+      try {
+        return await axios.request<T>(axiosConfig);
+      } catch (error) {
+        const response = (error as AxiosError<T>).response;
+        if (!response) {
+          throw error;
+        }
 
-      req = response;
-    }
+        return response;
+      }
+    };
+
+    let req = await requestApi();
 
     if (isCloudflareBlocked(req)) {
       throw new CFBlockedError();
     }
 
-    if (checkLogin && !this.loggedCheck(req)) {
-      throw new NeedLoginError();
+    // Jackett API auth is token based; do not reuse webpage login assertions here.
+    if (isTorrentSearchApi && [401, 403].includes(req.status)) {
+      await this.storeRuntimeSettings("authToken", "");
+      await this.storeRuntimeSettings("authExpiry", 0);
+      axiosConfig.headers = {
+        ...(axiosConfig.headers ?? {}),
+        Authorization: `Bearer ${await this.getAuthToken()}`,
+      };
+
+      req = await requestApi();
+
+      if (isCloudflareBlocked(req)) {
+        throw new CFBlockedError();
+      }
     }
 
     if (req.status >= 400) {
-      if ([400, 404, 422].includes(req.status)) {
+      if (isTorrentSearchApi && [400, 404, 422].includes(req.status)) {
         throw new NoTorrentsError();
       }
+
       throw Error(`Network Error: ${req.status} ${req.statusText || ""}`.trim());
     }
 
@@ -483,9 +517,15 @@ export default class AvistazNetwork extends PrivateSite {
     const storedAuthToken = await this.retrieveRuntimeSettings<string>("authToken");
     const storedAuthExpiry = await this.retrieveRuntimeSettings<number>("authExpiry");
 
-    if (storedAuthToken && storedAuthExpiry && storedAuthExpiry > currentTime) {
+    if (
+      typeof storedAuthToken === "string" &&
+      storedAuthToken.trim().length > 0 &&
+      typeof storedAuthExpiry === "number" &&
+      Number.isFinite(storedAuthExpiry) &&
+      storedAuthExpiry > currentTime
+    ) {
       console.log("Found valid token in runtimeSettings. Returning existing token.");
-      return storedAuthToken;
+      return storedAuthToken.trim();
     }
 
     // 2. 如果过期或不存在，发起新的授权请求
@@ -497,28 +537,29 @@ export default class AvistazNetwork extends PrivateSite {
       });
 
       // 使用类型守卫判断响应类型
-      if ("token" in apiAuth && typeof apiAuth.token === "string") {
+      if (isAuthSuccessResp(apiAuth)) {
         // 检查 token 属性是否存在且为字符串
 
         // 3. 计算新的过期时间并存储
         const newAuthExpiry = currentTime + apiAuth.expiry; // expiry 已经是 number 类型，直接相加
-        await this.storeRuntimeSettings("authToken", apiAuth.token);
+        const authToken = apiAuth.token.trim();
+        await this.storeRuntimeSettings("authToken", authToken);
         await this.storeRuntimeSettings("authExpiry", newAuthExpiry);
 
         console.log("Successfully obtained and stored new token.");
-        return apiAuth.token;
-      } else if ("message" in apiAuth && typeof apiAuth.message === "string") {
+        return authToken;
+      } else if (isAuthFailResp(apiAuth)) {
         // 检查 message 属性是否存在且为字符串
-        console.error(`Failed to get new token: ${apiAuth.message}`);
+        const message = apiAuth.message.trim() || "Authorization failed";
+        console.error(`Failed to get new token: ${message}`);
+        throw new Error(`AvistaZ authorization failed: ${message}`);
       } else {
         console.error("Failed to get new token: Unexpected response format or missing required properties.");
+        throw new Error("AvistaZ authorization failed: Unexpected response format or missing required properties.");
       }
     } catch (error) {
-      throw new Error(`Error during authorization request`);
+      throw new Error(`Error during authorization request: ${(error as Error).message}`);
     }
-
-    // 如果所有尝试都失败，则返回空字符串
-    return "";
   }
 
   protected override parseTorrentRowForTags(
