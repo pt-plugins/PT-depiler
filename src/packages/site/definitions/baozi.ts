@@ -115,6 +115,9 @@ export const siteMetadata: ISiteMetadata = {
         attr: "href",
         filters: [{ name: "querystring", args: ["id"] }],
       },
+      name: {
+        selector: "#welcome_text > span.nowrap > a[href*='userdetails.php']",
+      },
       // "page": "/userdetails.php?id=$user.id$",
       bonus: {
         selector: ["td.rowhead:contains('魔力值') + td", "td.rowhead:contains('Karma'):contains('Points') + td"],
