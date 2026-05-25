@@ -75,7 +75,7 @@ function getCellByColumnIndex(row: Element, columnIndex: number): Element | unde
 }
 
 function sumCurrentSeedingTableSize(table: Element): number {
-  const sizeColumnIndex = getHeaderColumnIndex(table, "Size") ?? 9;
+  const sizeColumnIndex = getHeaderColumnIndex(table, "Size") ?? 10;
 
   return Array.from(table.querySelectorAll("tr"))
     .filter((row) => row.querySelector("a[href^='details.php?id=']"))
