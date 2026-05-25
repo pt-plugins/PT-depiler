@@ -8,8 +8,6 @@ const categoryOptions = [
   { value: 3, name: "Literature" },
 ];
 
-const unsupportedBonusFields = ["seedingBonus", "seedingBonusPerHour"] as const;
-
 function parseKgDate(query: string): number | string {
   const normalized = query
     .replace(/\u00a0/g, " ")
@@ -90,10 +88,10 @@ function parseUploadedTorrentCount(query: string): number {
     .replace(/\u00a0/g, " ")
     .replace(/\s+/g, " ")
     .trim();
-  const match =
-    normalized.match(/\((\d+)\s*(?:uploads?|torrents?)?\)/i) ??
-    normalized.match(/(?:uploads?|torrents?)\D+(\d+)/i) ??
-    normalized.match(/(\d+)\s*(?:uploads?|torrents?)/i);
+  const parenthesizedCount = normalized.match(/\((\d+)\s*(?:uploads?|torrents?)?\)/i);
+  const labelledCount =
+    normalized.match(/(?:uploads?|torrents?)\D+(\d+)/i) ?? normalized.match(/(\d+)\s*(?:uploads?|torrents?)/i);
+  const match = parenthesizedCount ?? labelledCount;
 
   return match ? parseInt(match[1], 10) : 0;
 }
@@ -298,12 +296,6 @@ export default class KaraGarga extends PrivateSite {
 
     userInfoRecord.bonus = "N/A";
     userInfoRecord.bonusPerHour = "N/A";
-
-    for (const key of unsupportedBonusFields) {
-      if (typeof userInfo[key] !== "number" || !Number.isFinite(userInfo[key])) {
-        delete userInfo[key];
-      }
-    }
 
     return userInfo;
   }

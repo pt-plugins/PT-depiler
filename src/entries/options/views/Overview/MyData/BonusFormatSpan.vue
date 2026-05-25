@@ -3,20 +3,20 @@ import { computed } from "vue";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { formatNumber, simplifyNumber } from "@/options/utils.ts";
 
-const props = defineProps<{
+const { num } = defineProps<{
   num: number | string | undefined;
 }>();
 
 const configStore = useConfigStore();
 
 const normalizedValue = computed<{ type: "number"; value: number } | { type: "text"; value: string }>(() => {
-  if (typeof props.num === "number" && Number.isFinite(props.num)) {
-    return { type: "number", value: props.num };
+  if (typeof num === "number" && Number.isFinite(num)) {
+    return { type: "number", value: num };
   }
 
   return {
     type: "text",
-    value: typeof props.num === "string" ? props.num : typeof props.num === "undefined" ? "-" : "N/A",
+    value: typeof num === "string" ? num : typeof num === "undefined" ? "-" : "N/A",
   };
 });
 
@@ -32,8 +32,9 @@ const displayText = computed(() =>
     : normalizedValue.value.value,
 );
 
-// Toggle function for double-click to switch number simplification
 function toggleNumberSimplification() {
+  if (normalizedValue.value.type !== "number") return;
+
   configStore.myDataTableControl.simplifyBonusNumbers = !configStore.myDataTableControl.simplifyBonusNumbers;
 }
 </script>
@@ -43,7 +44,7 @@ function toggleNumberSimplification() {
     class="text-no-wrap"
     :title="titleText"
     @dblclick="toggleNumberSimplification"
-    style="cursor: pointer; user-select: none"
+    :style="{ cursor: normalizedValue.type === 'number' ? 'pointer' : 'default', userSelect: 'none' }"
   >
     {{ displayText }}
   </span>
