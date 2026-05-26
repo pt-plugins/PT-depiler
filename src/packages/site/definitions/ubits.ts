@@ -1,7 +1,7 @@
 import { set } from "es-toolkit/compat";
 import type { IAdvancedSearchRequestConfig, ISiteMetadata, TSelectSearchCategoryValue } from "../types";
 import { GB, TB } from "../utils";
-import { CategoryIncldead, CategorySpstate, CategoryInclbookmarked, SchemaMetadata } from "../schemas/NexusPHP";
+import { CategoryIncldead, CategorySpstate, CategoryInclbookmarked, SchemaMetadata, createUserBonusSelectorFn } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -210,6 +210,16 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
+
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      bonus: createUserBonusSelectorFn(["U币", "UBits Coin", "魔力值"]),
+      seedingBonus: createUserBonusSelectorFn(["做种积分", "Seed points", "做種積分", "保种积分"]),
+    },
+  },
+
   levelRequirements: [
     {
       id: 0,
