@@ -6,7 +6,7 @@ export const siteMetadata: ISiteMetadata = {
 
   version: 1,
   id: "musopia",
-  name: "乌托邦",
+  name: "音乐乌托邦",
   description: "汇聚每一个人的影响力，让音乐流行起来吧！",
   tags: ["音乐"],
   timezoneOffset: "+0800",
@@ -18,7 +18,7 @@ export const siteMetadata: ISiteMetadata = {
 
   favicon: "./_default_nexusphp.png",
 
-  urls: ["uggcf://jjj.zhfbcvn.ivc/"],
+  urls: ["uggcf://jjj.zhfbcvn.ivc/", "uggcf://cg.kmg.zr/"],
 
   category: [
     {
