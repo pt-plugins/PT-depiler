@@ -16,7 +16,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["uggc://cg.pql.fxva/"],
+  urls: ["uggcf://cg.pql.fxva/"],
 
   category: [
     {
@@ -33,7 +33,7 @@ export const siteMetadata: ISiteMetadata = {
         { value: 406, name: "Music Videos" },
         { value: 407, name: "体育" },
         { value: 408, name: "HQ Audio" },
-        { value: 409, name: "音乐" }
+        { value: 409, name: "音乐" },
       ],
       cross: { mode: "append" },
     },
