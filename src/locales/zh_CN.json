@@ -394,6 +394,8 @@
       "perSiteKseedingSizeIncr": "分站点做种量增量",
       "perSiteKbonus": "分站点魔力",
       "perSiteKbonusIncr": "分站点魔力增量",
+      "perSiteKseedingBonus": "分站点做种积分",
+      "perSiteKseedingBonusIncr": "分站点做种积分增量",
       "uploadLabel": "上传",
       "downloadLabel": "下载",
       "dataLabel": "数据",

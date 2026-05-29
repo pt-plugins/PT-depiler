@@ -13,7 +13,14 @@ export interface IUserDataStatistic {
 }
 
 // 数值字段列表
-const numericFields: (keyof IStoredUserInfo)[] = ["uploaded", "downloaded", "seeding", "seedingSize", "bonus"];
+const numericFields: (keyof IStoredUserInfo)[] = [
+  "uploaded",
+  "downloaded",
+  "seeding",
+  "seedingSize",
+  "bonus",
+  "seedingBonus",
+];
 
 // 新增：计算单日增量数据的函数
 function calculateDailyIncremental(

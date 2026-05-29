@@ -225,6 +225,8 @@ export const useConfigStore = defineStore("config", {
         perSiteKseedingSizeIncr: true,
         perSiteKbonus: true,
         perSiteKbonusIncr: true,
+        perSiteKseedingBonus: false,
+        perSiteKseedingBonusIncr: false,
       },
       dateRange: 30,
       hidePerSitePrecentThreshold: 1,

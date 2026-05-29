@@ -394,6 +394,8 @@
       "perSiteKseedingSizeIncr": "Seeding Size Increment by Site",
       "perSiteKbonus": "Bonus Points by Site",
       "perSiteKbonusIncr": "Bonus Increment by Site",
+      "perSiteKseedingBonus": "Seeding Bonus Points by Site",
+      "perSiteKseedingBonusIncr": "Seeding Bonus Increment by Site",
       "uploadLabel": "Upload",
       "downloadLabel": "Download",
       "dataLabel": "Data",

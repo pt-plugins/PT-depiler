@@ -333,6 +333,7 @@ const perSiteChartField: [keyof IStoredUserInfo, keyof typeof formatDict][] = [
   ["seeding", "int"],
   ["seedingSize", "size"],
   ["bonus", "number"],
+  ["seedingBonus", "number"],
 ] as const;
 
 // echarts 主题

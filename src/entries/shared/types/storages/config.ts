@@ -129,7 +129,7 @@ export interface IConfigPiniaStorageSchema {
     showChart: Record<
       | "totalSiteBase"
       | "totalSiteSeeding"
-      | `perSiteK${"uploaded" | "downloaded" | "seeding" | "seedingSize" | "bonus"}${"" | "Incr"}`,
+      | `perSiteK${"uploaded" | "downloaded" | "seeding" | "seedingSize" | "bonus" | "seedingBonus"}${"" | "Incr"}`,
       boolean
     >;
     dateRange: number | "custom" | "all";
