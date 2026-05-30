@@ -71,7 +71,7 @@ async function loadRecommendations(flush = false) {
     return;
   }
 
-  if (!flush && recommendationItems.value.length > 0) {
+  if (!flush && recommendationItems.value.length > 0 && !recommendationError.value) {
     return;
   }
 
@@ -82,7 +82,9 @@ async function loadRecommendations(flush = false) {
     recommendationItems.value = await sendMessage("getSocialRecommendations", { flush });
   } catch (error) {
     console.error("Failed to load social recommendations", error);
-    recommendationError.value = t("layout.header.hotRecommendations.loadFailed");
+    if (recommendationItems.value.length === 0) {
+      recommendationError.value = t("layout.header.hotRecommendations.loadFailed");
+    }
   } finally {
     isLoadingRecommendations.value = false;
   }
@@ -182,7 +184,7 @@ watch(isRecommendationMenuOpen, (isOpen) => {
               </div>
             </v-card-text>
 
-            <v-card-text v-else-if="recommendationError" class="py-4">
+            <v-card-text v-else-if="recommendationError && recommendationItems.length === 0" class="py-4">
               <div class="text-error">{{ recommendationError }}</div>
             </v-card-text>
 
