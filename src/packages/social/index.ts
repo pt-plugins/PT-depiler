@@ -7,6 +7,7 @@ import {
 } from "./types.ts";
 
 export * from "./types.ts";
+export * from "./recommendations.ts";
 
 // From https://github.com/ourbits/PtGen#usage
 export const buildInPtGenApi = [
