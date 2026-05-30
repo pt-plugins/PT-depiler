@@ -331,6 +331,11 @@ const userInfo: ISiteMetadata["userInfo"] = toMerged(schemaUserInfo, {
       selector: ["h1:contains('每小时获得的合计蝌蚪') + div > table tr:last td:last"],
       filters: [{ name: "parseNumber" }],
     },
+    seedingBonusPerHour: {
+      // #outer > table > tbody > tr:nth-child(2) > td > div > table > tbody > tr:nth-child(2) > td:nth-child(17)
+      selector: ["h1:contains('每小时获得的合计蝌蚪') + div > table tr:last td:nth-child(17)"],
+      filters: [{ name: "parseNumber" }],
+    },
   },
 });
 
