@@ -14,6 +14,11 @@ export interface ISocialRecommendationItem {
   sourceUrl: string;
 }
 
+export interface ISocialRecommendationsResult {
+  items: ISocialRecommendationItem[];
+  hasFailedSources: boolean;
+}
+
 interface ISocialRecommendationSource {
   site: ISocialRecommendationItem["site"];
   category: TSocialRecommendationCategory;
@@ -105,13 +110,9 @@ async function fetchRecommendationSource(source: ISocialRecommendationSource): P
 
 export async function getSocialRecommendations(
   options: IGetSocialRecommendationsOptions = {},
-): Promise<ISocialRecommendationItem[]> {
-  if (
-    !options.flush &&
-    recommendationCache &&
-    recommendationCache.createAt > Date.now() - RECOMMENDATION_CACHE_TTL
-  ) {
-    return recommendationCache.items;
+): Promise<ISocialRecommendationsResult> {
+  if (!options.flush && recommendationCache && recommendationCache.createAt > Date.now() - RECOMMENDATION_CACHE_TTL) {
+    return { items: recommendationCache.items, hasFailedSources: false };
   }
 
   const settledResults = await Promise.allSettled(
@@ -135,5 +136,5 @@ export async function getSocialRecommendations(
     };
   }
 
-  return items;
+  return { items, hasFailedSources: hasRejectedSource };
 }

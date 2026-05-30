@@ -8,7 +8,7 @@ import type {
   TSiteID,
   getFaviconMetadata,
 } from "@ptd/site";
-import type { ISocialInformation, ISocialRecommendationItem, TSupportSocialSite$1 } from "@ptd/social";
+import type { ISocialInformation, ISocialRecommendationsResult, TSupportSocialSite$1 } from "@ptd/social";
 import type { IMediaServerId, IMediaServerSearchOptions, IMediaServerSearchResult } from "@ptd/mediaServer";
 import type { IBackupData, IBackupFileInfo } from "@ptd/backupServer";
 import type { CTorrent, TorrentClientStatus } from "@ptd/downloader";
@@ -135,7 +135,7 @@ interface ProtocolMap extends TMessageMap {
 
   // 2.5 社交信息 ( utils/socialInformation )
   getSocialInformation(data: { site: TSupportSocialSite$1; sid: string }): ISocialInformation;
-  getSocialRecommendations(data?: { flush?: boolean }): ISocialRecommendationItem[];
+  getSocialRecommendations(data?: { flush?: boolean }): ISocialRecommendationsResult;
   clearSocialInformationCache(): void;
 
   // 2.6 备份/恢复 ( utils/backup )

@@ -79,7 +79,13 @@ async function loadRecommendations(flush = false) {
   recommendationError.value = "";
 
   try {
-    recommendationItems.value = await sendMessage("getSocialRecommendations", { flush });
+    const result = await sendMessage("getSocialRecommendations", { flush });
+    if (!result.hasFailedSources || recommendationItems.value.length === 0) {
+      recommendationItems.value = result.items;
+    }
+    if (result.hasFailedSources && recommendationItems.value.length === 0) {
+      recommendationError.value = t("layout.header.hotRecommendations.loadFailed");
+    }
   } catch (error) {
     console.error("Failed to load social recommendations", error);
     if (recommendationItems.value.length === 0) {
