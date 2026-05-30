@@ -117,19 +117,23 @@ export async function getSocialRecommendations(
   const settledResults = await Promise.allSettled(
     recommendationSources.map((source) => fetchRecommendationSource(source)),
   );
+  let hasRejectedSource = false;
   const items = settledResults.flatMap((result) => {
     if (result.status === "fulfilled") {
       return result.value;
     }
 
+    hasRejectedSource = true;
     console.warn("Failed to fetch social recommendations", result.reason);
     return [];
   });
 
-  recommendationCache = {
-    createAt: Date.now(),
-    items,
-  };
+  if (!hasRejectedSource) {
+    recommendationCache = {
+      createAt: Date.now(),
+      items,
+    };
+  }
 
   return items;
 }
