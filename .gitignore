@@ -202,6 +202,7 @@ out
 .pnpm-store
 
 # AI-generated files
+.superpowers/
 .augment/
 .cursor/
 .cursorrules
