@@ -2,7 +2,7 @@ import Sizzle from "sizzle";
 import Gazelle, { SchemaMetadata } from "../schemas/Gazelle.ts";
 import { parseValidTimeString, parseSizeString, buildCategoryOptionsFromList } from "../utils";
 import type { ISiteMetadata, ITorrent, ISearchInput } from "../types";
-import { ETorrentStatus } from "../types";
+import { ETorrentStatus, NoTorrentsError } from "../types";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -387,14 +387,20 @@ export default class PassThePopcorn extends Gazelle {
       }
     }
 
-    if (pageData) {
+    if (Array.isArray(pageData?.Movies)) {
       const authKey = pageData.AuthKey;
       const torrentPass = pageData.TorrentPass;
-      pageData.Movies.map((movie: any) => {
+      pageData.Movies.forEach((movie: any) => {
         const torrent = this.parsePageData(movie, authKey, torrentPass) as ITorrent;
-        torrents.push(torrent);
+        if (torrent.id && torrent.title && torrent.link) {
+          torrents.push(torrent);
+        }
       });
     }
+    if (torrents.length === 0) {
+      throw new NoTorrentsError();
+    }
+
     return torrents;
   }
 }
