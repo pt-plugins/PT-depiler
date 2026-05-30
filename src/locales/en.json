@@ -99,6 +99,7 @@
         "loading": "Loading hot recommendations...",
         "empty": "No hot recommendations",
         "loadFailed": "Failed to load hot recommendations. Please try again later.",
+        "noRating": "No rating",
         "category": {
           "movie": "Movies",
           "tv": "TV",

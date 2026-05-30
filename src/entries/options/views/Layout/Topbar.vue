@@ -166,7 +166,7 @@ watch(isRecommendationMenuOpen, (isOpen) => {
             />
           </template>
 
-          <v-card min-width="320" max-width="420">
+          <v-card min-width="820" max-width="960">
             <v-card-title class="d-flex align-center py-2">
               <v-icon icon="mdi-fire" class="mr-2" />
               <span class="text-subtitle-1">{{ t("layout.header.hotRecommendations.title") }}</span>
@@ -198,25 +198,48 @@ watch(isRecommendationMenuOpen, (isOpen) => {
               {{ t("layout.header.hotRecommendations.empty") }}
             </v-card-text>
 
-            <v-list v-else density="compact" class="py-0">
-              <template v-for="group in groupedRecommendationItems" :key="group.category">
-                <v-list-subheader v-if="group.items.length > 0">
-                  {{ t(`layout.header.hotRecommendations.category.${group.category}`) }}
-                </v-list-subheader>
+            <v-card-text v-else class="pa-3">
+              <v-row dense>
+                <v-col v-for="group in groupedRecommendationItems" :key="group.category" cols="4">
+                  <div class="text-subtitle-2 mb-2">
+                    {{ t(`layout.header.hotRecommendations.category.${group.category}`) }}
+                  </div>
 
-                <v-list-item
-                  v-for="item in group.items"
-                  :key="`${item.category}:${item.site}:${item.id}`"
-                  :title="item.title"
-                  :subtitle="item.site === 'douban' ? 'Douban' : 'Bangumi'"
-                  @click="() => searchRecommendation(item)"
-                >
-                  <template #prepend>
-                    <v-icon :icon="item.category === 'anime' ? 'mdi-television-classic' : 'mdi-movie-open'" />
-                  </template>
-                </v-list-item>
-              </template>
-            </v-list>
+                  <v-list density="compact" class="pa-0 rounded border">
+                    <v-list-item
+                      v-for="item in group.items"
+                      :key="`${item.category}:${item.site}:${item.id}`"
+                      class="hot-recommendation-item px-2"
+                      @click="() => searchRecommendation(item)"
+                    >
+                      <template #prepend>
+                        <v-img
+                          :src="item.poster || '/icons/movie_placeholder.png'"
+                          class="hot-recommendation-poster mr-2"
+                          cover
+                        />
+                      </template>
+
+                      <v-list-item-title class="text-body-2 text-truncate">
+                        {{ item.title }}
+                      </v-list-item-title>
+
+                      <v-list-item-subtitle class="d-flex align-center">
+                        <v-icon icon="mdi-star" color="amber-darken-2" size="x-small" class="mr-1" />
+                        <span class="mr-1">{{ item.site === "douban" ? "Douban" : "Bangumi" }}</span>
+                        <span>
+                          {{
+                            item.ratingScore
+                              ? item.ratingScore.toFixed(1)
+                              : t("layout.header.hotRecommendations.noRating")
+                          }}
+                        </span>
+                      </v-list-item-subtitle>
+                    </v-list-item>
+                  </v-list>
+                </v-col>
+              </v-row>
+            </v-card-text>
           </v-card>
         </v-menu>
 
@@ -366,5 +389,15 @@ watch(isRecommendationMenuOpen, (isOpen) => {
 
 .ptd-search-input:deep(.v-input__append) {
   padding-top: 4px;
+}
+
+.hot-recommendation-item {
+  min-height: 72px;
+}
+
+.hot-recommendation-poster {
+  width: 42px;
+  height: 56px;
+  border-radius: 4px;
 }
 </style>

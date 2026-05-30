@@ -12,6 +12,9 @@ export interface ISocialRecommendationItem {
   title: string;
   titles: string[];
   sourceUrl: string;
+  poster?: string;
+  ratingScore?: number;
+  ratingCount?: number;
 }
 
 export interface ISocialRecommendationsResult {
@@ -33,9 +36,9 @@ export interface IGetSocialRecommendationsOptions {
 const RECOMMENDATION_CACHE_TTL = 6 * 60 * 60 * 1000;
 
 const recommendationSources: ISocialRecommendationSource[] = [
-  { site: "douban", category: "movie", url: "https://movie.douban.com/chart", limit: 12 },
-  { site: "douban", category: "tv", url: "https://movie.douban.com/tv", limit: 12 },
-  { site: "bangumi", category: "anime", url: "https://bgm.tv/anime/browser", limit: 12 },
+  { site: "douban", category: "movie", url: "https://movie.douban.com/chart", limit: 5 },
+  { site: "douban", category: "tv", url: "https://movie.douban.com/tv", limit: 5 },
+  { site: "bangumi", category: "anime", url: "https://bgm.tv/anime/browser", limit: 5 },
 ];
 
 let recommendationCache:
