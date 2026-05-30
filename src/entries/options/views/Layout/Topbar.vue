@@ -37,11 +37,12 @@ const recommendationError = ref("");
 const recommendationItems = ref<ISocialRecommendationItem[]>([]);
 
 const recommendationCategories: TSocialRecommendationCategory[] = ["movie", "tv", "anime"];
+const recommendationCategoryLimit = 5;
 
 const groupedRecommendationItems = computed(() =>
   recommendationCategories.map((category) => ({
     category,
-    items: recommendationItems.value.filter((item) => item.category === category),
+    items: recommendationItems.value.filter((item) => item.category === category).slice(0, recommendationCategoryLimit),
   })),
 );
 
@@ -206,6 +207,12 @@ watch(isRecommendationMenuOpen, (isOpen) => {
                   </div>
 
                   <v-list density="compact" class="pa-0 rounded border">
+                    <v-list-item v-if="group.items.length === 0" class="hot-recommendation-empty-item px-2">
+                      <v-list-item-title class="text-body-2 text-medium-emphasis">
+                        {{ t("layout.header.hotRecommendations.empty") }}
+                      </v-list-item-title>
+                    </v-list-item>
+
                     <v-list-item
                       v-for="item in group.items"
                       :key="`${item.category}:${item.site}:${item.id}`"
@@ -392,6 +399,10 @@ watch(isRecommendationMenuOpen, (isOpen) => {
 }
 
 .hot-recommendation-item {
+  min-height: 72px;
+}
+
+.hot-recommendation-empty-item {
   min-height: 72px;
 }
 

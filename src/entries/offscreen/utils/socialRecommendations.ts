@@ -10,9 +10,9 @@ async function enrichRecommendation(item: ISocialRecommendationItem): Promise<IS
     const socialInformation = await getSocialInformation(item.site, item.id);
     return {
       ...item,
-      poster: socialInformation?.poster,
-      ratingScore: socialInformation?.ratingScore,
-      ratingCount: socialInformation?.ratingCount,
+      poster: socialInformation?.poster || item.poster,
+      ratingScore: socialInformation?.ratingScore || item.ratingScore,
+      ratingCount: socialInformation?.ratingCount || item.ratingCount,
     };
   } catch (error) {
     console.warn("Failed to enrich social recommendation", item, error);

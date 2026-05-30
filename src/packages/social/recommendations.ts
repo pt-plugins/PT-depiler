@@ -27,6 +27,7 @@ interface ISocialRecommendationSource {
   category: TSocialRecommendationCategory;
   url: string;
   limit: number;
+  kind?: "page" | "doubanSearchSubjects";
 }
 
 export interface IGetSocialRecommendationsOptions {
@@ -36,9 +37,27 @@ export interface IGetSocialRecommendationsOptions {
 const RECOMMENDATION_CACHE_TTL = 6 * 60 * 60 * 1000;
 
 const recommendationSources: ISocialRecommendationSource[] = [
-  { site: "douban", category: "movie", url: "https://movie.douban.com/chart", limit: 5 },
-  { site: "douban", category: "tv", url: "https://movie.douban.com/tv", limit: 5 },
-  { site: "bangumi", category: "anime", url: "https://bgm.tv/anime/browser", limit: 5 },
+  {
+    site: "douban",
+    category: "movie",
+    url: "https://movie.douban.com/j/search_subjects?type=movie&tag=%E7%83%AD%E9%97%A8&sort=recommend&page_limit=5&page_start=0",
+    limit: 5,
+    kind: "doubanSearchSubjects",
+  },
+  {
+    site: "douban",
+    category: "tv",
+    url: "https://movie.douban.com/j/search_subjects?type=tv&tag=%E7%83%AD%E9%97%A8&sort=recommend&page_limit=5&page_start=0",
+    limit: 5,
+    kind: "doubanSearchSubjects",
+  },
+  {
+    site: "douban",
+    category: "anime",
+    url: "https://movie.douban.com/j/search_subjects?type=movie&tag=%E5%8A%A8%E7%94%BB&sort=recommend&page_limit=5&page_start=0",
+    limit: 5,
+    kind: "doubanSearchSubjects",
+  },
 ];
 
 let recommendationCache:
@@ -56,7 +75,7 @@ function normalizeParsedItems(
   const existingIds = new Set<string>();
 
   return parsedItems
-    .map((item) => {
+    .map((item): ISocialRecommendationItem | undefined => {
       const titles = item.titles.map((title) => title.trim()).filter(Boolean);
       const title = titles[0];
 
@@ -83,7 +102,62 @@ function normalizeParsedItems(
     .slice(0, source.limit);
 }
 
+interface IDoubanSearchSubjectsResponse {
+  subjects?: Array<{
+    id?: string;
+    title?: string;
+    url?: string;
+    cover?: string;
+    rate?: string;
+  }>;
+}
+
+function normalizeDoubanSearchSubjects(
+  data: IDoubanSearchSubjectsResponse,
+  source: ISocialRecommendationSource,
+): ISocialRecommendationItem[] {
+  const existingIds = new Set<string>();
+
+  return (data.subjects ?? [])
+    .map((item): ISocialRecommendationItem | undefined => {
+      const id = item.id?.trim();
+      const title = item.title?.trim();
+
+      if (!id || !title) {
+        return undefined;
+      }
+
+      const uniqueId = `${source.category}:${source.site}:${id}`;
+      if (existingIds.has(uniqueId)) {
+        return undefined;
+      }
+      existingIds.add(uniqueId);
+
+      return {
+        id,
+        site: source.site,
+        category: source.category,
+        title,
+        titles: [title],
+        sourceUrl: item.url ?? source.url,
+        poster: item.cover,
+        ratingScore: Number(item.rate || 0),
+      } satisfies ISocialRecommendationItem;
+    })
+    .filter((item): item is ISocialRecommendationItem => !!item)
+    .slice(0, source.limit);
+}
+
 async function fetchRecommendationSource(source: ISocialRecommendationSource): Promise<ISocialRecommendationItem[]> {
+  if (source.kind === "doubanSearchSubjects") {
+    const { data } = await axios.get<IDoubanSearchSubjectsResponse>(source.url, {
+      responseType: "json",
+      timeout: 10e3,
+    });
+
+    return normalizeDoubanSearchSubjects(data, source);
+  }
+
   const parserEntry = socialPageParserMatchesMap[source.site]?.find(([pattern]) => {
     if (typeof pattern === "string") {
       return source.url.includes(pattern);
