@@ -120,12 +120,15 @@ export async function getSocialRecommendations(
   );
   let hasRejectedSource = false;
   const items = settledResults.flatMap((result) => {
-    if (result.status === "fulfilled") {
+    if (result.status === "fulfilled" && result.value.length > 0) {
       return result.value;
     }
 
     hasRejectedSource = true;
-    console.warn("Failed to fetch social recommendations", result.reason);
+    console.warn(
+      "Failed to fetch social recommendations",
+      result.status === "rejected" ? result.reason : "empty result",
+    );
     return [];
   });
 
