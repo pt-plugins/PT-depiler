@@ -105,6 +105,16 @@ export const SchemaMetadata: Partial<ISiteMetadata> = {
           "div.torrent-search--list__results > table:first > tbody > tr", // 新版布局
           "div.table-responsive table > tbody > tr", // 旧版布局
         ],
+        filter: (rows: HTMLElement[] | null): HTMLElement[] | null => {
+          if (!Array.isArray(rows)) return rows;
+
+          return rows.filter((row) =>
+            Array.from(row.querySelectorAll<HTMLAnchorElement>("a[href*='/torrents/']")).some((link) => {
+              const href = link.getAttribute("href") || "";
+              return /\/torrents\/\d+/.test(href) && !href.includes("/download");
+            }),
+          );
+        },
       },
 
       /**
