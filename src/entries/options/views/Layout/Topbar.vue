@@ -3,7 +3,9 @@ import { computed, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify";
 import { useRoute, useRouter } from "vue-router";
+import type { ISocialRecommendationItem, TSocialRecommendationCategory } from "@ptd/social";
 
+import { sendMessage } from "@/messages.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -29,6 +31,19 @@ const appendMenu = computed<Array<{ title: string; icon: string; [str: string]: 
 
 const searchKey = ref<string>("");
 const searchPlanKey = ref<string>("default");
+const isRecommendationMenuOpen = ref(false);
+const isLoadingRecommendations = ref(false);
+const recommendationError = ref("");
+const recommendationItems = ref<ISocialRecommendationItem[]>([]);
+
+const recommendationCategories: TSocialRecommendationCategory[] = ["movie", "tv", "anime"];
+
+const groupedRecommendationItems = computed(() =>
+  recommendationCategories.map((category) => ({
+    category,
+    items: recommendationItems.value.filter((item) => item.category === category),
+  })),
+);
 
 const searchPlans = computed(() =>
   metadataStore.getSearchSolutions
@@ -51,6 +66,34 @@ function startSearchEntity() {
   });
 }
 
+async function loadRecommendations(flush = false) {
+  if (isLoadingRecommendations.value) {
+    return;
+  }
+
+  if (!flush && recommendationItems.value.length > 0) {
+    return;
+  }
+
+  isLoadingRecommendations.value = true;
+  recommendationError.value = "";
+
+  try {
+    recommendationItems.value = await sendMessage("getSocialRecommendations", { flush });
+  } catch (error) {
+    console.error("Failed to load social recommendations", error);
+    recommendationError.value = t("layout.header.hotRecommendations.loadFailed");
+  } finally {
+    isLoadingRecommendations.value = false;
+  }
+}
+
+function searchRecommendation(item: ISocialRecommendationItem) {
+  searchKey.value = item.title;
+  isRecommendationMenuOpen.value = false;
+  startSearchEntity();
+}
+
 watch(
   () => route.query,
   (newQuery) => {
@@ -62,6 +105,12 @@ watch(
     }
   },
 );
+
+watch(isRecommendationMenuOpen, (isOpen) => {
+  if (isOpen) {
+    loadRecommendations();
+  }
+});
 </script>
 
 <template>
@@ -99,6 +148,70 @@ watch(
       @keyup.enter="startSearchEntity"
     >
       <template #append>
+        <v-menu v-model="isRecommendationMenuOpen" :close-on-content-click="false" location="bottom end">
+          <template #activator="{ props }">
+            <v-btn
+              v-bind="props"
+              :disabled="runtimeStore.search.isSearching"
+              icon="mdi-fire"
+              :title="t('layout.header.hotRecommendations.title')"
+            />
+          </template>
+
+          <v-card min-width="320" max-width="420">
+            <v-card-title class="d-flex align-center py-2">
+              <v-icon icon="mdi-fire" class="mr-2" />
+              <span class="text-subtitle-1">{{ t("layout.header.hotRecommendations.title") }}</span>
+              <v-spacer />
+              <v-btn
+                :loading="isLoadingRecommendations"
+                icon="mdi-refresh"
+                size="small"
+                variant="text"
+                :title="t('layout.header.hotRecommendations.refresh')"
+                @click="() => loadRecommendations(true)"
+              />
+            </v-card-title>
+
+            <v-divider />
+
+            <v-card-text v-if="isLoadingRecommendations && recommendationItems.length === 0" class="py-4">
+              <div class="d-flex align-center text-medium-emphasis">
+                <v-progress-circular indeterminate size="18" width="2" class="mr-2" />
+                {{ t("layout.header.hotRecommendations.loading") }}
+              </div>
+            </v-card-text>
+
+            <v-card-text v-else-if="recommendationError" class="py-4">
+              <div class="text-error">{{ recommendationError }}</div>
+            </v-card-text>
+
+            <v-card-text v-else-if="recommendationItems.length === 0" class="py-4 text-medium-emphasis">
+              {{ t("layout.header.hotRecommendations.empty") }}
+            </v-card-text>
+
+            <v-list v-else density="compact" class="py-0">
+              <template v-for="group in groupedRecommendationItems" :key="group.category">
+                <v-list-subheader v-if="group.items.length > 0">
+                  {{ t(`layout.header.hotRecommendations.category.${group.category}`) }}
+                </v-list-subheader>
+
+                <v-list-item
+                  v-for="item in group.items"
+                  :key="`${item.category}:${item.site}:${item.id}`"
+                  :title="item.title"
+                  :subtitle="item.site === 'douban' ? 'Douban' : 'Bangumi'"
+                  @click="() => searchRecommendation(item)"
+                >
+                  <template #prepend>
+                    <v-icon :icon="item.category === 'anime' ? 'mdi-television-classic' : 'mdi-movie-open'" />
+                  </template>
+                </v-list-item>
+              </template>
+            </v-list>
+          </v-card>
+        </v-menu>
+
         <!-- 搜索按键 -->
         <v-btn
           :disabled="runtimeStore.search.isSearching"
