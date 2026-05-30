@@ -1,7 +1,8 @@
-import type { ISiteMetadata, ISearchResult, ISearchEntryRequestConfig } from "../types.ts";
+import type { ISiteMetadata, ISearchResult, ISearchEntryRequestConfig, ITorrent } from "../types.ts";
 import { SchemaMetadata } from "../schemas/Gazelle.ts";
 import Gazelle from "../schemas/Gazelle.ts";
-import { EResultParseStatus } from "../types.ts";
+import { EResultParseStatus, ETorrentStatus } from "../types.ts";
+import { parseSizeString } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -300,86 +301,116 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class BroadcastTheNet extends Gazelle {
-  /**
-   * Get artist name from site's IMDB search
-   * @param imdbId - IMDB ID (e.g., "tt3881914")
-   * @returns Promise<string | null> - Artist name or null if not found/failed
-   */
-  private async getArtistNameFromIMDB(imdbId: string): Promise<string | null> {
+  private async getSeriesPageFromIMDB(imdbId: string): Promise<{ document: Document; pageUrl: string } | null> {
     try {
-      // Search using site's torrents.php?imdb={imdb}
       const response = await this.request({
         url: `/torrents.php?imdb=${imdbId}`,
         responseType: "document",
       });
-
       const document = response.data as Document;
+      const pageUrl = response.request?.responseURL || document.URL || "";
 
-      // Check if redirected to series.php (successful search)
-      if (!response.request?.responseURL?.includes("series.php")) {
+      if (!pageUrl.includes("series.php")) {
         console.log(`[BroadcastTheNet] IMDB search for ${imdbId} did not redirect to series.php, no results found`);
         return null;
       }
 
-      // Extract artist name using selector "div.sidebar > .box> .head > strong"
-      const artistElement = document.querySelector("div.sidebar > .box > .head > strong");
-
-      if (!artistElement || !artistElement.textContent?.trim()) {
-        console.log(`[BroadcastTheNet] Artist name not found in series page for IMDB ID: ${imdbId}`);
-        return null;
-      }
-
-      const artistName = artistElement.textContent.trim();
-      console.log(`[BroadcastTheNet] Found artist name from site: ${artistName} for IMDB ID: ${imdbId}`);
-
-      return artistName;
+      return { document, pageUrl };
     } catch (error) {
       console.log(`[BroadcastTheNet] IMDB search failed for IMDB ID: ${imdbId}. Error:`, error);
       return null;
     }
   }
 
-  /**
-   * Override getSearchResult to add IMDB search functionality using advanceKeywordParams
-   */
+  private parseSeriesPageTorrents(document: Document, pageUrl: string): ITorrent[] {
+    const seriesTitle =
+      document.querySelector("div.sidebar > .box > .head > strong")?.textContent?.trim() ||
+      document.querySelector("h2")?.textContent?.trim() ||
+      "";
+    const torrents: ITorrent[] = [];
+    let currentSeason = "";
+    let currentYear = "";
+
+    const normalizeText = (text: string | null | undefined): string => (text || "").replace(/\s+/g, " ").trim();
+    const resolveUrl = (href: string | null | undefined): string | undefined => {
+      if (!href) return undefined;
+
+      return new URL(href, pageUrl || "https://broadcasthe.net/series.php").toString();
+    };
+    const parseNumberCell = (cell: Element | undefined): number | undefined => {
+      const value = Number.parseInt(normalizeText(cell?.textContent).replace(/,/g, ""), 10);
+      return Number.isNaN(value) ? undefined : value;
+    };
+
+    document.querySelectorAll("table.torrent_table tr").forEach((row) => {
+      if (row.classList.contains("colhead_dark")) {
+        currentSeason = normalizeText(row.querySelector("strong")?.textContent);
+        currentYear = "";
+        return;
+      }
+
+      if (!row.classList.contains("group_torrent")) return;
+
+      const detailLink = row.querySelector<HTMLAnchorElement>("a[href*='torrents.php?id='][href*='torrentid=']");
+      const downloadLink = row.querySelector<HTMLAnchorElement>("a[href*='torrents.php?action=download']");
+      if (!detailLink || !downloadLink) return;
+
+      const seasonLink = row.querySelector<HTMLAnchorElement>("a.season");
+      const year = normalizeText(row.querySelector(".year")?.textContent);
+      if (seasonLink) currentSeason = normalizeText(seasonLink.textContent);
+      if (year) currentYear = year;
+
+      const cells = Array.from(row.children);
+      const size = normalizeText(cells.at(-4)?.textContent);
+      const subTitle = normalizeText(detailLink.textContent);
+      const title = [seriesTitle, currentYear, currentSeason, subTitle].filter(Boolean).join(" ");
+      const url = resolveUrl(detailLink.getAttribute("href"));
+      const link = resolveUrl(downloadLink.getAttribute("href"));
+
+      if (!url || !link) return;
+
+      torrents.push({
+        site: this.metadata.id,
+        id: new URL(link).searchParams.get("id") || new URL(url).searchParams.get("torrentid") || url,
+        title,
+        subTitle,
+        url,
+        link,
+        size: size ? parseSizeString(size) : undefined,
+        completed: parseNumberCell(cells.at(-3)),
+        seeders: parseNumberCell(cells.at(-2)),
+        leechers: parseNumberCell(cells.at(-1)),
+        progress: 0,
+        status: ETorrentStatus.unknown,
+        tags: [{ name: "H&R", color: "red" }],
+      });
+    });
+
+    return torrents;
+  }
+
   public override async getSearchResult(
     keywords?: string,
     searchEntry: ISearchEntryRequestConfig = {},
   ): Promise<ISearchResult> {
-    // Check if keywords start with "imdb|" (advance keyword format)
     if (keywords?.startsWith("imdb|")) {
       const imdbId = keywords.replace("imdb|", "");
-
-      // Try to get artist name from site's IMDB search
-      const artistName = await this.getArtistNameFromIMDB(imdbId);
-
-      if (!artistName) {
-        console.log(
-          `[BroadcastTheNet] IMDB search failed or returned empty artist name for IMDB ID: ${imdbId}, returning no results`,
-        );
+      const seriesPage = await this.getSeriesPageFromIMDB(imdbId);
+      if (!seriesPage) {
         return {
           data: [],
           status: EResultParseStatus.noResults,
         };
       }
 
-      // Add exactartist parameter for precise matching
-      const imdbSearchEntry: ISearchEntryRequestConfig = {
-        ...searchEntry,
-        requestConfig: {
-          ...searchEntry.requestConfig,
-          params: {
-            ...searchEntry.requestConfig?.params,
-            exactartist: 1,
-          },
-        },
-      };
+      const torrents = this.parseSeriesPageTorrents(seriesPage.document, seriesPage.pageUrl);
 
-      // Perform search with artist name using normal search (since keywordPath is already set to params.artistname)
-      return await super.getSearchResult(artistName, imdbSearchEntry);
+      return {
+        data: torrents,
+        status: torrents.length > 0 ? EResultParseStatus.success : EResultParseStatus.noResults,
+      };
     }
 
-    // Fall back to normal search for non-IMDB keywords
     return await super.getSearchResult(keywords, searchEntry);
   }
 }
