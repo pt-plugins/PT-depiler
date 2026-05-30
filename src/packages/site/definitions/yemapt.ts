@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig } from "axios";
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
 
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 import type { ILevelRequirement, ISearchInput, ISiteMetadata, ITorrent, ITorrentTag } from "../types";
@@ -104,13 +104,43 @@ interface IFetchUserPointAccResp {
   hourPoint: number;
 }
 
+const promotionOptions = [
+  { name: "无", value: "none" },
+  { name: "50%", value: "half" },
+  { name: "Free", value: "free" },
+];
+
+const uploadPromotionOptions = [
+  { name: "无", value: "none" },
+  { name: "1.5xUp", value: "one_half" },
+  { name: "2xUp", value: "double_upload" },
+];
+
+const sorterFields = {
+  id: "ID",
+  fileSize: "大小",
+  leechNum: "下载数",
+  seedNum: "做种数",
+  completedNum: "完成数",
+  listingTime: "发布时间",
+  uploadPromotionEndTime: "上传促销结束时间",
+  downloadPromotionEndTime: "下载促销结束时间",
+};
+
+const sorterOrders = {
+  descend: "降序",
+  ascend: "升序",
+};
+
 export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "yemapt",
   name: "YemaPT",
-  description: "YemaPT 是一个由全新技术架构构建而来的综合类资源PT站点。（因站点限制，单次最多返回40个搜索结果。）",
+  description:
+    "YemaPT 是一个由全新技术架构构建而来的综合类资源PT站点。有分享率和登录要求，可访问 wiki.yemapt.org 查看。",
   tags: ["综合"],
   collaborator: ["Rhilip"],
+  timezoneOffset: "+0800",
 
   type: "private",
   schema: "YemaPT",
@@ -150,6 +180,35 @@ export const siteMetadata: ISiteMetadata = {
       ],
       cross: false,
     },
+    {
+      name: "下载促销",
+      key: "downloadPromotionType",
+      keyPath: "data",
+      options: promotionOptions,
+      cross: false,
+    },
+    {
+      name: "上传促销",
+      key: "uploadPromotionType",
+      keyPath: "data",
+      options: uploadPromotionOptions,
+      cross: false,
+    },
+    {
+      name: "排序",
+      key: "sorter",
+      options: Object.entries(sorterFields).flatMap(([field, fieldName]) =>
+        Object.entries(sorterOrders).map(([order, orderName]) => ({
+          name: `${fieldName} ${orderName}`,
+          value: `${field}:${order}`,
+        })),
+      ),
+      cross: false,
+      generateRequestConfig: (selectedCategories) => {
+        const [field, order] = String(selectedCategories).split(":");
+        return { requestConfig: { data: { sorter: { field, order } } } };
+      },
+    },
   ],
 
   search: {
@@ -160,7 +219,7 @@ export const siteMetadata: ISiteMetadata = {
       responseType: "json",
       data: {
         pageParam: { current: 1, pageSize: 40, total: 1000 },
-        sorter: { order: "descend", field: "gmtCreate" },
+        sorter: { order: "descend", field: "listingTime" },
       },
     },
     selectors: {
@@ -181,6 +240,44 @@ export const siteMetadata: ISiteMetadata = {
       // tags 交由 parseTorrentRowForTags 处理
       ext_douban: { text: "", selector: "douban" },
       ext_imdb: { text: "", selector: "imdb", filters: [{ name: "extImdbId" }] },
+    },
+  },
+
+  list: [
+    {
+      urlPattern: ["/#/openTorrent/list"],
+      mergeSearchSelectors: false,
+      selectors: {
+        rows: { selector: "tr[data-row-key]" },
+        id: { selector: ":self", attr: "data-row-key" },
+        title: { selector: [".torrent-title", "a[href*='#/torrent/detail/']", "a[href*='/#/torrent/detail/']"] },
+        subTitle: { selector: ".short-desc" },
+        url: {
+          selector: ":self",
+          attr: "data-row-key",
+          filters: [{ name: "prepend", args: ["/#/torrent/detail/"] }],
+        },
+        link: {
+          selector: ":self",
+          attr: "data-row-key",
+          filters: [{ name: "prepend", args: ["/api/torrent/download?id="] }],
+        },
+        size: { selector: ".file-size", filters: [{ name: "parseSize" }] },
+      },
+    },
+  ],
+
+  detail: {
+    urlPattern: ["/#/torrent/detail/\\d+/?"],
+    selectors: {
+      id: {
+        selector: ":self",
+        elementProcess: (element: Document) => {
+          return element.URL.match(/\/#\/torrent\/detail\/(\d+)\/?/)?.[1] ?? element.URL;
+        },
+      },
+      title: { selector: ".torrent-title" },
+      link: { text: "" },
     },
   },
 
@@ -242,21 +339,37 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   levelRequirements,
+
+  userInputSettingMeta: [
+    {
+      name: "token",
+      label: "API Auth Key",
+      hint: "在个人面板 - 详情 - 安全设定中获取 API Auth Key 并填入此处",
+      required: true,
+    },
+  ],
 };
 
 const YemaTagsEnum: Record<string, ITorrentTag> = {
   "1": { name: "禁转" },
   "2": { name: "首发" },
-  "3": { name: "官方" },
-  "4": { name: "自制" },
+  "3": { name: "官组" },
+  "4": { name: "DIY" },
   "5": { name: "国语" },
   "6": { name: "中字" },
   "7": { name: "粤语" },
   "8": { name: "英字" },
   "9": { name: "HDR10" },
   "10": { name: "杜比视界" },
-  "11": { name: "分集" }, // 动漫/综艺/剧集类使用
-  "12": { name: "完结" }, // 动漫/综艺/剧集类使用
+  "11": { name: "连载中" },
+  "12": { name: "完结" },
+  "13": { name: "多国字幕" },
+  "14": { name: "HDR10+" },
+  "15": { name: "杜比全景声(Atmos)" },
+  "16": { name: "DTS-X" },
+  "17": { name: "5.1/7.1声道" },
+  "18": { name: "完结全集" },
+  "19": { name: "SP/剧场版/OVA" },
 } as const;
 
 // docs: https://wiki.yemapt.org/developer/constants
@@ -266,9 +379,62 @@ interface IYemaRawTorrent {
   tagList: (keyof typeof YemaTagsEnum)[];
 }
 
+interface IYemaApiResp<D> {
+  success?: boolean;
+  showType?: number;
+  errorMessage?: string;
+  data?: D;
+  [key: string]: unknown;
+}
+
 export default class YemaPT extends PrivateSite {
+  public override async request<T>(
+    axiosConfig: AxiosRequestConfig,
+    checkLogin: boolean = true,
+  ): Promise<AxiosResponse<T>> {
+    axiosConfig.headers = {
+      ...(axiosConfig.headers ?? {}),
+      Authorization: this.userConfig.inputSetting!.token ?? "",
+    };
+
+    const response = await super.request<T>(axiosConfig, false);
+    const responseData = response.data as IYemaApiResp<unknown> | undefined;
+
+    if (checkLogin && responseData && typeof responseData === "object" && responseData.success === false) {
+      throw new Error(responseData.errorMessage || "YemaPT API request failed");
+    }
+
+    return response;
+  }
+
   protected override fixLink(uri: string, requestConfig: AxiosRequestConfig): string {
     return super.fixLink(uri, { ...requestConfig, baseURL: this.url }); // 将 baseURL 重新指向回 web 页面
+  }
+
+  public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    const { data } = await this.request<IYemaApiResp<string | { key?: string; token?: string }>>({
+      url: "/api/torrent/generateDownloadKey",
+      method: "GET",
+      responseType: "json",
+      params: { id: torrent.id },
+    });
+
+    const rawKey = data?.data;
+    const downloadKey = typeof rawKey === "string" ? rawKey : (rawKey?.key ?? rawKey?.token);
+
+    if (!downloadKey) {
+      throw new Error(`Failed to generate YemaPT download key for torrent ${torrent.id}`);
+    }
+
+    return new URL(`/api/torrent/download1?token=${encodeURIComponent(downloadKey)}`, this.url).toString();
+  }
+
+  public override async getTorrentDownloadRequestConfig(torrent: ITorrent): Promise<AxiosRequestConfig> {
+    return {
+      url: await this.getTorrentDownloadLink(torrent),
+      method: "GET",
+      timeout: this.userConfig.timeout ?? 30e3,
+    };
   }
 
   protected override parseTorrentRowForTags(
