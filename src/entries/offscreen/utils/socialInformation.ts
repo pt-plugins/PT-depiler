@@ -7,14 +7,29 @@ import type { IConfigPiniaStorageSchema } from "@/shared/types.ts";
 import { ptdIndexDb } from "../adapter/indexdb.ts";
 import { logger } from "../utils/logger.ts";
 
-export async function getSocialInformation(site: TSupportSocialSite$1, sid: string): Promise<ISocialInformation> {
+interface IGetSocialInformationOptions {
+  force?: boolean;
+  requireSummary?: boolean;
+  requireMetadata?: boolean;
+}
+
+export async function getSocialInformation(
+  site: TSupportSocialSite$1,
+  sid: string,
+  options: IGetSocialInformationOptions = {},
+): Promise<ISocialInformation> {
   const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
   const socialInformationConfig = configStoreRaw.socialSiteInformation ?? {};
 
   const key = `${site}:${sid}`;
   let stored = await (await ptdIndexDb).get("social_information", key);
 
-  if (!stored || stored.createAt < Date.now() - 86400000 * (socialInformationConfig.cacheDay ?? 3)) {
+  const isExpired = stored && stored.createAt < Date.now() - 86400000 * (socialInformationConfig.cacheDay ?? 3);
+  const isMissingRequiredSummary = options.requireSummary && stored && !stored.summary;
+  const isMissingRequiredMetadata =
+    options.requireMetadata && stored && (!stored.releaseYear || !stored.region || !stored.genres?.length);
+
+  if (options.force || !stored || isExpired || isMissingRequiredSummary || isMissingRequiredMetadata) {
     stored = await getSocialSiteInformation(site, sid, socialInformationConfig);
     if (stored && (stored.title !== "" || stored.poster !== "")) {
       await setSocialInformation(site, sid, stored);

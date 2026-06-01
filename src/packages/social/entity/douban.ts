@@ -128,6 +128,10 @@ interface IDoubanPtGen extends IPtgenApiResponse {
   summary?: string;
   descr?: string;
   description?: string;
+  introduction?: string;
+  year?: string;
+  region?: string[];
+  genre?: string[];
 }
 
 export function transformPtGen(data: IDoubanPtGen): ISocialInformation {
@@ -144,7 +148,10 @@ export function transformPtGen(data: IDoubanPtGen): ISocialInformation {
     id: data.sid,
     title: titles.join(" / "),
     poster: data.poster ?? "",
-    summary: data.summary ?? data.descr ?? data.description ?? "",
+    summary: data.summary ?? data.descr ?? data.description ?? data.introduction ?? "",
+    releaseYear: data.year ?? "",
+    region: data.region?.[0] ?? "",
+    genres: data.genre ?? [],
     ratingScore: Number(data.douban_rating_average ?? 0),
     ratingCount: Number(data.douban_votes ?? 0),
     createAt: +Date.now(),

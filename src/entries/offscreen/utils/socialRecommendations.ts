@@ -1,4 +1,5 @@
 import axios from "axios";
+import PQueue from "p-queue";
 import { getSocialRecommendations } from "@ptd/social";
 import type { ISocialRecommendationItem } from "@ptd/social";
 
@@ -6,19 +7,87 @@ import { onMessage } from "@/messages.ts";
 import { logger } from "./logger.ts";
 import { getSocialInformation } from "./socialInformation.ts";
 
+type TRecommendationEnrichmentMode = "all" | "none" | "visible";
+
+interface IGetSocialRecommendationsMessageOptions {
+  flush?: boolean;
+  enrichment?: TRecommendationEnrichmentMode;
+}
+
 interface IPosterDiagnostic {
   item: string;
   sources: string[];
+  cacheHit?: boolean;
+  durationMs?: number;
   candidates: Array<{
     url: string;
     status?: number;
     contentType?: string;
     byteLength?: number;
+    durationMs?: number;
     error?: string;
   }>;
 }
 
-const posterDiagnostics: IPosterDiagnostic[] = [];
+interface IRecommendationItemPerformanceDiagnostic {
+  item: string;
+  title: string;
+  category: ISocialRecommendationItem["category"];
+  skipped?: boolean;
+  totalMs?: number;
+  socialInformationMs?: number;
+  socialInformationNeeded?: boolean;
+  socialInformationHit?: boolean;
+  posterMs?: number;
+  posterCandidateCount?: number;
+  posterCacheHit?: boolean;
+  posterHit?: boolean;
+}
+
+interface IRecommendationPerformanceDiagnostics {
+  enrichment: TRecommendationEnrichmentMode;
+  flush: boolean;
+  count: number;
+  visibleCount: number;
+  enrichedCount: number;
+  sourceMs: number;
+  enrichmentMs: number;
+  totalMs: number;
+  concurrency: number;
+  posterCacheSize: number;
+  items: IRecommendationItemPerformanceDiagnostic[];
+}
+
+interface IEnrichRecommendationResult {
+  item: ISocialRecommendationItem;
+  itemPerformanceDiagnostic: IRecommendationItemPerformanceDiagnostic;
+  posterDiagnostic?: IPosterDiagnostic;
+}
+
+interface IEnrichRecommendationsResult {
+  items: ISocialRecommendationItem[];
+  itemPerformanceDiagnostics: IRecommendationItemPerformanceDiagnostic[];
+  posterDiagnostics: IPosterDiagnostic[];
+}
+
+const RECOMMENDATION_ENRICHMENT_CONCURRENCY = 8;
+const VISIBLE_RECOMMENDATION_CATEGORY_LIMIT = 5;
+const POSTER_CANDIDATE_LIMIT = 8;
+const VISIBLE_POSTER_CANDIDATE_LIMIT = 2;
+const POSTER_CACHE_LIMIT = 100;
+const POSTER_FETCH_TIMEOUT = 3e3;
+const VISIBLE_POSTER_FETCH_TIMEOUT = 800;
+const posterDataUrlCache = new Map<string, string>();
+
+function setPosterDataUrlCache(key: string, poster: string) {
+  if (posterDataUrlCache.size >= POSTER_CACHE_LIMIT) {
+    const oldestKey = posterDataUrlCache.keys().next().value;
+    if (oldestKey) {
+      posterDataUrlCache.delete(oldestKey);
+    }
+  }
+  posterDataUrlCache.set(key, poster);
+}
 
 function getDoubanPosterRatioCandidates(poster: string): string[] {
   return [
@@ -41,12 +110,27 @@ function getPosterCandidates(...posters: Array<string | undefined>): string[] {
     );
   });
 
-  return Array.from(new Set(candidates));
+  return Array.from(new Set(candidates)).slice(0, POSTER_CANDIDATE_LIMIT);
+}
+
+function getPosterFetchOptions(enrichment: TRecommendationEnrichmentMode) {
+  return enrichment === "visible"
+    ? {
+        candidateLimit: VISIBLE_POSTER_CANDIDATE_LIMIT,
+        timeout: VISIBLE_POSTER_FETCH_TIMEOUT,
+      }
+    : {
+        candidateLimit: POSTER_CANDIDATE_LIMIT,
+        timeout: POSTER_FETCH_TIMEOUT,
+      };
 }
 
 async function getSocialInformationSafely(item: ISocialRecommendationItem) {
   try {
-    return await getSocialInformation(item.site, item.id);
+    return await getSocialInformation(item.site, item.id, {
+      requireMetadata: !item.releaseYear || !item.region || !item.genres?.length,
+      requireSummary: !item.summary,
+    });
   } catch (error) {
     console.warn("Failed to enrich social recommendation", item, error);
     return undefined;
@@ -106,19 +190,50 @@ function getErrorMessage(error: unknown): string {
 
 async function fetchPosterDataUrl(
   item: ISocialRecommendationItem,
+  enrichment: TRecommendationEnrichmentMode,
   ...posters: Array<string | undefined>
 ): Promise<{ poster?: string; diagnostic: IPosterDiagnostic }> {
+  const startedAt = performance.now();
+  const posterFetchOptions = getPosterFetchOptions(enrichment);
   const diagnostic: IPosterDiagnostic = {
     item: `${item.category}:${item.site}:${item.id}`,
     sources: posters.filter((poster): poster is string => !!poster),
     candidates: [],
   };
+  const dataUrlPoster = posters.find((poster): poster is string => !!poster?.startsWith("data:image/"));
 
-  for (const candidate of getPosterCandidates(...posters)) {
+  if (dataUrlPoster) {
+    return {
+      poster: dataUrlPoster,
+      diagnostic: {
+        ...diagnostic,
+        cacheHit: true,
+        durationMs: Math.round(performance.now() - startedAt),
+      },
+    };
+  }
+
+  const candidates = getPosterCandidates(...posters).slice(0, posterFetchOptions.candidateLimit);
+  const cacheKey = candidates.join("\n");
+  const cachedPoster = posterDataUrlCache.get(cacheKey);
+
+  if (cachedPoster) {
+    return {
+      poster: cachedPoster,
+      diagnostic: {
+        ...diagnostic,
+        cacheHit: true,
+        durationMs: Math.round(performance.now() - startedAt),
+      },
+    };
+  }
+
+  for (const candidate of candidates) {
+    const candidateStartedAt = performance.now();
     try {
       const response = await axios.get<ArrayBuffer>(candidate, {
         responseType: "arraybuffer",
-        timeout: 8e3,
+        timeout: posterFetchOptions.timeout,
       });
       const contentType = response.headers["content-type"];
       const normalizedContentType = typeof contentType === "string" ? contentType.split(";")[0] : undefined;
@@ -128,50 +243,244 @@ async function fetchPosterDataUrl(
         status: response.status,
         contentType: normalizedContentType,
         byteLength: response.data.byteLength,
+        durationMs: Math.round(performance.now() - candidateStartedAt),
       });
 
       if (inferredContentType && response.data.byteLength > 1024) {
+        const poster = `data:${inferredContentType};base64,${arrayBufferToBase64(response.data)}`;
+        setPosterDataUrlCache(cacheKey, poster);
         return {
-          poster: `data:${inferredContentType};base64,${arrayBufferToBase64(response.data)}`,
-          diagnostic,
+          poster,
+          diagnostic: {
+            ...diagnostic,
+            durationMs: Math.round(performance.now() - startedAt),
+          },
         };
       }
     } catch (error) {
-      diagnostic.candidates.push({ url: candidate, error: getErrorMessage(error) });
+      diagnostic.candidates.push({
+        url: candidate,
+        durationMs: Math.round(performance.now() - candidateStartedAt),
+        error: getErrorMessage(error),
+      });
       console.warn("Failed to fetch recommendation poster", candidate, error);
     }
   }
 
-  return { diagnostic };
+  return {
+    diagnostic: {
+      ...diagnostic,
+      durationMs: Math.round(performance.now() - startedAt),
+    },
+  };
 }
 
-async function enrichRecommendation(item: ISocialRecommendationItem): Promise<ISocialRecommendationItem> {
-  const socialInformation = await getSocialInformationSafely(item);
-  const posterResult = await fetchPosterDataUrl(item, item.poster, socialInformation?.poster);
-  posterDiagnostics.push(posterResult.diagnostic);
+async function enrichRecommendation(
+  item: ISocialRecommendationItem,
+  enrichment: TRecommendationEnrichmentMode,
+): Promise<IEnrichRecommendationResult> {
+  const startedAt = performance.now();
+  const needsSocialInformation =
+    !item.poster || !item.summary || !item.releaseYear || !item.region || !item.genres?.length || !item.ratingScore;
+  const socialInformationStartedAt = performance.now();
+  const socialInformation = needsSocialInformation ? await getSocialInformationSafely(item) : undefined;
+  const socialInformationMs = Math.round(performance.now() - socialInformationStartedAt);
+  const posterStartedAt = performance.now();
+  const posterResult = await fetchPosterDataUrl(item, enrichment, item.poster, socialInformation?.poster);
+  const posterMs = Math.round(performance.now() - posterStartedAt);
+  const itemPerformanceDiagnostic: IRecommendationItemPerformanceDiagnostic = {
+    item: getRecommendationItemKey(item),
+    title: item.title,
+    category: item.category,
+    totalMs: Math.round(performance.now() - startedAt),
+    socialInformationMs,
+    socialInformationNeeded: needsSocialInformation,
+    socialInformationHit: !!socialInformation,
+    posterMs,
+    posterCandidateCount: posterResult.diagnostic.candidates.length,
+    posterCacheHit: posterResult.diagnostic.cacheHit,
+    posterHit: !!posterResult.poster,
+  };
 
   return {
-    ...item,
-    poster: posterResult.poster,
-    summary: socialInformation?.summary || item.summary,
-    ratingScore: socialInformation?.ratingScore || item.ratingScore,
-    ratingCount: socialInformation?.ratingCount || item.ratingCount,
+    item: {
+      ...item,
+      poster: posterResult.poster,
+      summary: socialInformation?.summary || item.summary,
+      releaseYear: socialInformation?.releaseYear || item.releaseYear,
+      region: socialInformation?.region || item.region,
+      genres: socialInformation?.genres?.length ? socialInformation.genres : item.genres,
+      ratingScore: socialInformation?.ratingScore || item.ratingScore,
+      ratingCount: socialInformation?.ratingCount || item.ratingCount,
+    },
+    itemPerformanceDiagnostic,
+    posterDiagnostic: posterResult.diagnostic,
+  };
+}
+
+function getRecommendationItemKey(item: ISocialRecommendationItem) {
+  return `${item.category}:${item.site}:${item.id}`;
+}
+
+function getVisibleRecommendationItemKeys(items: ISocialRecommendationItem[]) {
+  const categoryCounts = new Map<ISocialRecommendationItem["category"], number>();
+  const visibleItemKeys = new Set<string>();
+
+  for (const item of items) {
+    const categoryCount = categoryCounts.get(item.category) ?? 0;
+    categoryCounts.set(item.category, categoryCount + 1);
+
+    if (categoryCount < VISIBLE_RECOMMENDATION_CATEGORY_LIMIT) {
+      visibleItemKeys.add(getRecommendationItemKey(item));
+    }
+  }
+
+  return visibleItemKeys;
+}
+
+function shouldEnrichRecommendation(
+  item: ISocialRecommendationItem,
+  enrichment: TRecommendationEnrichmentMode,
+  visibleItemKeys: Set<string>,
+) {
+  return enrichment !== "visible" || visibleItemKeys.has(getRecommendationItemKey(item));
+}
+
+async function enrichRecommendations(
+  items: ISocialRecommendationItem[],
+  enrichment: TRecommendationEnrichmentMode,
+): Promise<IEnrichRecommendationsResult> {
+  const visibleItemKeys = getVisibleRecommendationItemKeys(items);
+  const enrichmentQueue = new PQueue({ concurrency: RECOMMENDATION_ENRICHMENT_CONCURRENCY });
+  const results = await Promise.all(
+    items.map((item) => {
+      if (!shouldEnrichRecommendation(item, enrichment, visibleItemKeys)) {
+        return {
+          item,
+          itemPerformanceDiagnostic: {
+            item: getRecommendationItemKey(item),
+            title: item.title,
+            category: item.category,
+            skipped: true,
+          },
+          posterDiagnostic: undefined,
+        } satisfies IEnrichRecommendationResult;
+      }
+
+      return enrichmentQueue.add(() => enrichRecommendation(item, enrichment)) as Promise<IEnrichRecommendationResult>;
+    }),
+  );
+
+  return {
+    items: results.map((result) => result.item),
+    itemPerformanceDiagnostics: results.map((result) => result.itemPerformanceDiagnostic),
+    posterDiagnostics: results.flatMap((result) => (result.posterDiagnostic ? [result.posterDiagnostic] : [])),
   };
 }
 
 onMessage("getSocialRecommendations", async ({ data }) => {
-  const result = await getSocialRecommendations(data ?? {});
-  posterDiagnostics.length = 0;
-  const items = await Promise.all(result.items.map((item) => enrichRecommendation(item)));
+  const requestStartedAt = performance.now();
+  const options = (data ?? {}) as IGetSocialRecommendationsMessageOptions;
+  const sourceStartedAt = performance.now();
+  const result = await getSocialRecommendations(options);
+  const sourceMs = Math.round(performance.now() - sourceStartedAt);
+
+  if (options.enrichment === "none") {
+    const performanceDiagnostics: IRecommendationPerformanceDiagnostics = {
+      enrichment: "none",
+      flush: options.flush ?? false,
+      count: result.items.length,
+      visibleCount: 0,
+      enrichedCount: 0,
+      sourceMs,
+      enrichmentMs: 0,
+      totalMs: Math.round(performance.now() - requestStartedAt),
+      concurrency: RECOMMENDATION_ENRICHMENT_CONCURRENCY,
+      posterCacheSize: posterDataUrlCache.size,
+      items: [],
+    };
+    logger({
+      msg: "getSocialRecommendations",
+      data: {
+        count: result.items.length,
+        flush: options.flush ?? false,
+        hasFailedSources: result.hasFailedSources,
+        enrichment: "none",
+        performanceDiagnostics,
+      },
+    });
+    return { ...result, performanceDiagnostics, posterDiagnostics: [] };
+  }
+
+  const enrichment = options.enrichment ?? "all";
+  const enrichmentStartedAt = performance.now();
+  const enrichmentResult = await enrichRecommendations(result.items, enrichment);
+  const enrichmentMs = Math.round(performance.now() - enrichmentStartedAt);
+  const enrichedCount = enrichmentResult.itemPerformanceDiagnostics.filter((item) => !item.skipped).length;
+  const performanceDiagnostics: IRecommendationPerformanceDiagnostics = {
+    enrichment,
+    flush: options.flush ?? false,
+    count: enrichmentResult.items.length,
+    visibleCount: enrichment === "visible" ? enrichedCount : enrichmentResult.items.length,
+    enrichedCount,
+    sourceMs,
+    enrichmentMs,
+    totalMs: Math.round(performance.now() - requestStartedAt),
+    concurrency: RECOMMENDATION_ENRICHMENT_CONCURRENCY,
+    posterCacheSize: posterDataUrlCache.size,
+    items: enrichmentResult.itemPerformanceDiagnostics,
+  };
 
   logger({
     msg: "getSocialRecommendations",
     data: {
-      count: items.length,
-      flush: data?.flush ?? false,
+      count: enrichmentResult.items.length,
+      flush: options.flush ?? false,
       hasFailedSources: result.hasFailedSources,
-      posterDiagnostics: [...posterDiagnostics],
+      enrichment,
+      performanceDiagnostics,
+      posterDiagnostics: enrichmentResult.posterDiagnostics,
     },
   });
-  return { ...result, items, posterDiagnostics: [...posterDiagnostics] };
+  return {
+    ...result,
+    items: enrichmentResult.items,
+    performanceDiagnostics,
+    posterDiagnostics: enrichmentResult.posterDiagnostics,
+  };
+});
+
+onMessage("getSocialRecommendationItem", async ({ data }) => {
+  const requestStartedAt = performance.now();
+  const enrichment = data.enrichment ?? "all";
+  const result = await enrichRecommendation(data.item, enrichment);
+  const performanceDiagnostics: IRecommendationPerformanceDiagnostics = {
+    enrichment,
+    flush: false,
+    count: 1,
+    visibleCount: enrichment === "visible" ? 1 : 0,
+    enrichedCount: 1,
+    sourceMs: 0,
+    enrichmentMs: Math.round(performance.now() - requestStartedAt),
+    totalMs: Math.round(performance.now() - requestStartedAt),
+    concurrency: 1,
+    posterCacheSize: posterDataUrlCache.size,
+    items: [result.itemPerformanceDiagnostic],
+  };
+
+  logger({
+    msg: "getSocialRecommendationItem",
+    data: {
+      item: getRecommendationItemKey(result.item),
+      enrichment,
+      performanceDiagnostics,
+      posterDiagnostics: result.posterDiagnostic ? [result.posterDiagnostic] : [],
+    },
+  });
+
+  return {
+    item: result.item,
+    performanceDiagnostics,
+    posterDiagnostics: result.posterDiagnostic ? [result.posterDiagnostic] : [],
+  };
 });

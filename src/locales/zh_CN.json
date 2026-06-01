@@ -104,6 +104,7 @@
         "category": {
           "movie": "电影",
           "tv": "电视剧",
+          "variety": "综艺",
           "anime": "动画"
         }
       }

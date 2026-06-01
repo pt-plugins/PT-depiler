@@ -104,6 +104,7 @@
         "category": {
           "movie": "Movies",
           "tv": "TV",
+          "variety": "Variety",
           "anime": "Anime"
         }
       }

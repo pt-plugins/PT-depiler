@@ -1,8 +1,9 @@
 import axios from "axios";
+import PQueue from "p-queue";
 
 import type { ISocialSitePageInformation, TSupportSocialSite } from "./types.ts";
 
-export type TSocialRecommendationCategory = "movie" | "tv" | "anime";
+export type TSocialRecommendationCategory = "movie" | "tv" | "variety" | "anime";
 
 export interface ISocialRecommendationItem {
   id: string;
@@ -13,6 +14,9 @@ export interface ISocialRecommendationItem {
   sourceUrl: string;
   poster?: string;
   summary?: string;
+  releaseYear?: string;
+  region?: string;
+  genres?: string[];
   ratingScore?: number;
   ratingCount?: number;
 }
@@ -27,7 +31,8 @@ interface ISocialRecommendationSource {
   category: TSocialRecommendationCategory;
   url: string;
   limit: number;
-  kind?: "page" | "doubanSearchSubjects";
+  kind?: "page" | "doubanSearchSubjects" | "doubanSubjectCollection";
+  referer?: string;
 }
 
 export interface IGetSocialRecommendationsOptions {
@@ -36,7 +41,8 @@ export interface IGetSocialRecommendationsOptions {
 
 const RECOMMENDATION_CACHE_TTL = 6 * 60 * 60 * 1000;
 const RECOMMENDATION_CATEGORY_LIMIT = 10;
-const recommendationCategories: TSocialRecommendationCategory[] = ["movie", "tv", "anime"];
+const RECOMMENDATION_SOURCE_CONCURRENCY = 6;
+const recommendationCategories: TSocialRecommendationCategory[] = ["movie", "tv", "variety", "anime"];
 
 const recommendationSources: ISocialRecommendationSource[] = [
   {
@@ -56,16 +62,26 @@ const recommendationSources: ISocialRecommendationSource[] = [
   {
     site: "douban",
     category: "tv",
-    url: "https://movie.douban.com/j/search_subjects?type=tv&tag=%E5%9B%BD%E4%BA%A7%E5%89%A7&sort=time&page_limit=10&page_start=0",
+    url: "https://m.douban.com/rexxar/api/v2/subject_collection/tv_domestic/items?items_only=1&start=0&count=10",
     limit: 10,
-    kind: "doubanSearchSubjects",
+    kind: "doubanSubjectCollection",
+    referer: "https://m.douban.com/subject_collection/tv_domestic",
   },
   {
     site: "douban",
     category: "tv",
-    url: "https://movie.douban.com/j/search_subjects?type=tv&tag=%E7%83%AD%E9%97%A8&sort=time&page_limit=10&page_start=0",
+    url: "https://m.douban.com/rexxar/api/v2/subject_collection/tv_american/items?items_only=1&start=0&count=10",
     limit: 10,
-    kind: "doubanSearchSubjects",
+    kind: "doubanSubjectCollection",
+    referer: "https://m.douban.com/subject_collection/tv_american",
+  },
+  {
+    site: "douban",
+    category: "variety",
+    url: "https://m.douban.com/rexxar/api/v2/subject_collection/tv_variety_show/items?items_only=1&start=0&count=10",
+    limit: 10,
+    kind: "doubanSubjectCollection",
+    referer: "https://m.douban.com/subject_collection/tv_variety_show",
   },
   {
     site: "douban",
@@ -135,26 +151,26 @@ interface IDoubanSearchSubjectsResponse {
   }>;
 }
 
-interface IDoubanSubjectAbstractResponse {
-  r?: 0 | "error";
-  subject?: {
+interface IDoubanSubjectCollectionResponse {
+  subject_collection_items?: Array<{
+    id?: string;
     title?: string;
-    rate?: string;
-    directors?: string[];
-    actors?: string[];
-    duration?: string;
-    region?: string;
-    types?: string[];
-    release_year?: string;
-  };
+    card_subtitle?: string;
+    comment?: string;
+    year?: string;
+    pic?: {
+      large?: string;
+      normal?: string;
+    };
+    rating?: {
+      value?: number;
+      count?: number;
+    };
+  }>;
 }
 
 function normalizeDoubanImageUrl(url?: string): string | undefined {
   return url?.replace(/img\d(.doubanio.com)/, "img1$1");
-}
-
-function normalizeText(text: string): string {
-  return text.replace(/\s+/g, " ").trim();
 }
 
 export function mergeRecommendationSourceItems(
@@ -189,36 +205,32 @@ export function mergeRecommendationSourceItems(
   return mergedItems;
 }
 
-function buildDoubanSubjectSummary(subject?: IDoubanSubjectAbstractResponse["subject"]): string | undefined {
-  if (!subject) {
-    return undefined;
-  }
-
-  const metadataParts = [
-    subject.release_year,
-    subject.region,
-    subject.types?.filter(Boolean).join("/"),
-    subject.duration,
-  ].filter(Boolean);
-  const peopleParts = [
-    subject.directors?.length ? `导演：${subject.directors.slice(0, 2).join("、")}` : "",
-    subject.actors?.length ? `主演：${subject.actors.slice(0, 3).join("、")}` : "",
-  ].filter(Boolean);
-  const summary = [...metadataParts, ...peopleParts].join(" · ");
-
-  return summary ? normalizeText(summary) : undefined;
+export async function mapRecommendationItemsWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  task: (item: T) => Promise<R>,
+): Promise<R[]> {
+  const queue = new PQueue({ concurrency });
+  return Promise.all(items.map((item) => queue.add(() => task(item)) as Promise<R>));
 }
 
-async function fetchDoubanSubjectSummary(id: string): Promise<string | undefined> {
-  const { data } = await axios.get<IDoubanSubjectAbstractResponse>(
-    `https://movie.douban.com/j/subject_abstract?subject_id=${id}`,
-    {
-      responseType: "json",
-      timeout: 10e3,
-    },
+async function settleRecommendationItemsWithConcurrency<T, R>(
+  items: T[],
+  concurrency: number,
+  task: (item: T) => Promise<R>,
+): Promise<PromiseSettledResult<R>[]> {
+  const queue = new PQueue({ concurrency });
+  return Promise.all(
+    items.map(
+      (item) =>
+        queue
+          .add(() => task(item))
+          .then(
+            (value) => ({ status: "fulfilled", value }) as PromiseFulfilledResult<R>,
+            (reason) => ({ status: "rejected", reason }) as PromiseRejectedResult,
+          ) as Promise<PromiseSettledResult<R>>,
+    ),
   );
-
-  return data.r === 0 ? buildDoubanSubjectSummary(data.subject) : undefined;
 }
 
 function normalizeDoubanSearchSubjects(
@@ -257,6 +269,64 @@ function normalizeDoubanSearchSubjects(
     .slice(0, source.limit);
 }
 
+function parseDoubanCardSubtitle(cardSubtitle?: string) {
+  const parts = cardSubtitle
+    ?.split("/")
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  return {
+    releaseYear: parts?.[0],
+    region: parts?.[1],
+    genres: parts?.[2]?.split(/\s+/).filter(Boolean),
+  };
+}
+
+function normalizeDoubanSubjectCollection(
+  data: IDoubanSubjectCollectionResponse,
+  source: ISocialRecommendationSource,
+): ISocialRecommendationItem[] {
+  const existingIds = new Set<string>();
+
+  return (data.subject_collection_items ?? [])
+    .map((item): ISocialRecommendationItem | undefined => {
+      const id = item.id?.trim();
+      const title = item.title?.trim();
+
+      if (!id || !title) {
+        return undefined;
+      }
+
+      const uniqueId = `${source.category}:${source.site}:${id}`;
+      if (existingIds.has(uniqueId)) {
+        return undefined;
+      }
+      existingIds.add(uniqueId);
+
+      const cardSubtitleMetadata = parseDoubanCardSubtitle(item.card_subtitle);
+      const ratingScore = Number(item.rating?.value || 0);
+      const ratingCount = Number(item.rating?.count || 0);
+
+      return {
+        id,
+        site: source.site,
+        category: source.category,
+        title,
+        titles: [title],
+        sourceUrl: source.referer ?? source.url,
+        poster: normalizeDoubanImageUrl(item.pic?.large ?? item.pic?.normal),
+        summary: item.comment?.trim(),
+        releaseYear: item.year?.trim() || cardSubtitleMetadata.releaseYear,
+        region: cardSubtitleMetadata.region,
+        genres: cardSubtitleMetadata.genres,
+        ratingScore,
+        ratingCount,
+      } satisfies ISocialRecommendationItem;
+    })
+    .filter((item): item is ISocialRecommendationItem => !!item)
+    .slice(0, source.limit);
+}
+
 async function fetchRecommendationSource(source: ISocialRecommendationSource): Promise<ISocialRecommendationItem[]> {
   if (source.kind === "doubanSearchSubjects") {
     const { data } = await axios.get<IDoubanSearchSubjectsResponse>(source.url, {
@@ -264,13 +334,17 @@ async function fetchRecommendationSource(source: ISocialRecommendationSource): P
       timeout: 10e3,
     });
 
-    const items = normalizeDoubanSearchSubjects(data, source);
-    return Promise.all(
-      items.map(async (item) => ({
-        ...item,
-        summary: await fetchDoubanSubjectSummary(item.id).catch(() => undefined),
-      })),
-    );
+    return normalizeDoubanSearchSubjects(data, source);
+  }
+
+  if (source.kind === "doubanSubjectCollection") {
+    const { data } = await axios.get<IDoubanSubjectCollectionResponse>(source.url, {
+      headers: source.referer ? { Referer: source.referer } : undefined,
+      responseType: "json",
+      timeout: 10e3,
+    });
+
+    return normalizeDoubanSubjectCollection(data, source);
   }
 
   const { socialPageParserMatchesMap } = await import("./index.ts");
@@ -308,8 +382,10 @@ export async function getSocialRecommendations(
     return { items: recommendationCache.items, hasFailedSources: false };
   }
 
-  const settledResults = await Promise.allSettled(
-    recommendationSources.map((source) => fetchRecommendationSource(source)),
+  const settledResults = await settleRecommendationItemsWithConcurrency(
+    recommendationSources,
+    RECOMMENDATION_SOURCE_CONCURRENCY,
+    fetchRecommendationSource,
   );
   let hasRejectedSource = false;
   const sourceItemGroups = settledResults.flatMap((result) => {
@@ -333,7 +409,7 @@ export async function getSocialRecommendations(
     ),
   );
 
-  if (!hasRejectedSource) {
+  if (items.length > 0) {
     recommendationCache = {
       createAt: Date.now(),
       items,
