@@ -1,7 +1,6 @@
 import axios from "axios";
 
 import type { ISocialSitePageInformation, TSupportSocialSite } from "./types.ts";
-import { socialPageParserMatchesMap } from "./index.ts";
 
 export type TSocialRecommendationCategory = "movie" | "tv" | "anime";
 
@@ -36,27 +35,50 @@ export interface IGetSocialRecommendationsOptions {
 }
 
 const RECOMMENDATION_CACHE_TTL = 6 * 60 * 60 * 1000;
+const RECOMMENDATION_CATEGORY_LIMIT = 10;
+const recommendationCategories: TSocialRecommendationCategory[] = ["movie", "tv", "anime"];
 
 const recommendationSources: ISocialRecommendationSource[] = [
   {
     site: "douban",
     category: "movie",
-    url: "https://movie.douban.com/j/search_subjects?type=movie&tag=%E7%83%AD%E9%97%A8&sort=time&page_limit=5&page_start=0",
-    limit: 5,
+    url: "https://movie.douban.com/j/search_subjects?type=movie&tag=%E5%8D%8E%E8%AF%AD&sort=time&page_limit=10&page_start=0",
+    limit: 10,
+    kind: "doubanSearchSubjects",
+  },
+  {
+    site: "douban",
+    category: "movie",
+    url: "https://movie.douban.com/j/search_subjects?type=movie&tag=%E7%83%AD%E9%97%A8&sort=time&page_limit=10&page_start=0",
+    limit: 10,
     kind: "doubanSearchSubjects",
   },
   {
     site: "douban",
     category: "tv",
-    url: "https://movie.douban.com/j/search_subjects?type=tv&tag=%E7%83%AD%E9%97%A8&sort=time&page_limit=5&page_start=0",
-    limit: 5,
+    url: "https://movie.douban.com/j/search_subjects?type=tv&tag=%E5%9B%BD%E4%BA%A7%E5%89%A7&sort=time&page_limit=10&page_start=0",
+    limit: 10,
+    kind: "doubanSearchSubjects",
+  },
+  {
+    site: "douban",
+    category: "tv",
+    url: "https://movie.douban.com/j/search_subjects?type=tv&tag=%E7%83%AD%E9%97%A8&sort=time&page_limit=10&page_start=0",
+    limit: 10,
     kind: "doubanSearchSubjects",
   },
   {
     site: "douban",
     category: "anime",
-    url: "https://movie.douban.com/j/search_subjects?type=tv&tag=%E6%97%A5%E6%9C%AC%E5%8A%A8%E7%94%BB&sort=time&page_limit=5&page_start=0",
-    limit: 5,
+    url: "https://movie.douban.com/j/search_subjects?type=movie&tag=%E5%8A%A8%E7%94%BB&sort=time&page_limit=10&page_start=0",
+    limit: 10,
+    kind: "doubanSearchSubjects",
+  },
+  {
+    site: "douban",
+    category: "anime",
+    url: "https://movie.douban.com/j/search_subjects?type=tv&tag=%E6%97%A5%E6%9C%AC%E5%8A%A8%E7%94%BB&sort=time&page_limit=10&page_start=0",
+    limit: 10,
     kind: "doubanSearchSubjects",
   },
 ];
@@ -133,6 +155,38 @@ function normalizeDoubanImageUrl(url?: string): string | undefined {
 
 function normalizeText(text: string): string {
   return text.replace(/\s+/g, " ").trim();
+}
+
+export function mergeRecommendationSourceItems(
+  sourceItemGroups: ISocialRecommendationItem[][],
+  limit: number,
+): ISocialRecommendationItem[] {
+  const mergedItems: ISocialRecommendationItem[] = [];
+  const existingIds = new Set<string>();
+  const maxGroupLength = Math.max(0, ...sourceItemGroups.map((items) => items.length));
+
+  for (let itemIndex = 0; itemIndex < maxGroupLength && mergedItems.length < limit; itemIndex++) {
+    for (const items of sourceItemGroups) {
+      const item = items[itemIndex];
+      if (!item) {
+        continue;
+      }
+
+      const uniqueId = `${item.category}:${item.site}:${item.id}`;
+      if (existingIds.has(uniqueId)) {
+        continue;
+      }
+
+      existingIds.add(uniqueId);
+      mergedItems.push(item);
+
+      if (mergedItems.length >= limit) {
+        break;
+      }
+    }
+  }
+
+  return mergedItems;
 }
 
 function buildDoubanSubjectSummary(subject?: IDoubanSubjectAbstractResponse["subject"]): string | undefined {
@@ -219,6 +273,7 @@ async function fetchRecommendationSource(source: ISocialRecommendationSource): P
     );
   }
 
+  const { socialPageParserMatchesMap } = await import("./index.ts");
   const parserEntry = socialPageParserMatchesMap[source.site]?.find(([pattern]) => {
     if (typeof pattern === "string") {
       return source.url.includes(pattern);
@@ -257,9 +312,9 @@ export async function getSocialRecommendations(
     recommendationSources.map((source) => fetchRecommendationSource(source)),
   );
   let hasRejectedSource = false;
-  const items = settledResults.flatMap((result) => {
+  const sourceItemGroups = settledResults.flatMap((result) => {
     if (result.status === "fulfilled" && result.value.length > 0) {
-      return result.value;
+      return [result.value];
     }
 
     hasRejectedSource = true;
@@ -269,6 +324,14 @@ export async function getSocialRecommendations(
     );
     return [];
   });
+  const items = recommendationCategories.flatMap((category) =>
+    mergeRecommendationSourceItems(
+      sourceItemGroups
+        .map((items) => items.filter((item) => item.category === category))
+        .filter((items) => items.length > 0),
+      RECOMMENDATION_CATEGORY_LIMIT,
+    ),
+  );
 
   if (!hasRejectedSource) {
     recommendationCache = {

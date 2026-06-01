@@ -37,7 +37,7 @@ const recommendationError = ref("");
 const recommendationItems = ref<ISocialRecommendationItem[]>([]);
 
 const recommendationCategories: TSocialRecommendationCategory[] = ["movie", "tv", "anime"];
-const recommendationCategoryLimit = 5;
+const recommendationCategoryLimit = 10;
 
 const groupedRecommendationItems = computed(() =>
   recommendationCategories.map((category) => ({
@@ -209,7 +209,7 @@ watch(isRecommendationMenuOpen, (isOpen) => {
                     {{ t(`layout.header.hotRecommendations.category.${group.category}`) }}
                   </div>
 
-                  <v-list density="compact" class="pa-0 rounded border">
+                  <v-list density="compact" class="hot-recommendation-list pa-0 rounded border">
                     <v-list-item v-if="group.items.length === 0" class="hot-recommendation-empty-item px-2">
                       <v-list-item-title class="text-body-2 text-medium-emphasis">
                         {{ t("layout.header.hotRecommendations.empty") }}
@@ -408,6 +408,11 @@ watch(isRecommendationMenuOpen, (isOpen) => {
 
 .hot-recommendation-item {
   min-height: 78px;
+}
+
+.hot-recommendation-list {
+  max-height: 390px;
+  overflow-y: auto;
 }
 
 .hot-recommendation-empty-item {
