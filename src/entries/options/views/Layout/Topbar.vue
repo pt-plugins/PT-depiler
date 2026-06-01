@@ -81,6 +81,9 @@ async function loadRecommendations(flush = false) {
 
   try {
     const result = await sendMessage("getSocialRecommendations", { flush });
+    if (result.posterDiagnostics?.length) {
+      console.info("[PTD] hot recommendation poster diagnostics", result.posterDiagnostics);
+    }
     if (!result.hasFailedSources || recommendationItems.value.length === 0) {
       recommendationItems.value = result.items;
     }
@@ -224,23 +227,28 @@ watch(isRecommendationMenuOpen, (isOpen) => {
                           :src="item.poster || '/icons/movie_placeholder.png'"
                           class="hot-recommendation-poster mr-2"
                           cover
-                        />
+                          referrerpolicy="no-referrer"
+                        >
+                          <template #error>
+                            <v-img src="/icons/movie_placeholder.png" class="hot-recommendation-poster" cover />
+                          </template>
+                        </v-img>
                       </template>
 
-                      <v-list-item-title class="text-body-2 text-truncate">
-                        {{ item.title }}
-                      </v-list-item-title>
-
-                      <v-list-item-subtitle class="d-flex align-center">
-                        <v-icon icon="mdi-star" color="amber-darken-2" size="x-small" class="mr-1" />
-                        <span class="mr-1">{{ item.site === "douban" ? "Douban" : "Bangumi" }}</span>
-                        <span>
+                      <v-list-item-title class="hot-recommendation-title-row text-body-2">
+                        <span class="hot-recommendation-title text-truncate">{{ item.title }}</span>
+                        <span class="hot-recommendation-rating">
+                          <v-icon icon="mdi-star" color="amber-darken-2" size="x-small" class="mr-1" />
                           {{
                             item.ratingScore
                               ? item.ratingScore.toFixed(1)
                               : t("layout.header.hotRecommendations.noRating")
                           }}
                         </span>
+                      </v-list-item-title>
+
+                      <v-list-item-subtitle class="hot-recommendation-summary">
+                        {{ item.summary || t("layout.header.hotRecommendations.noSummary") }}
                       </v-list-item-subtitle>
                     </v-list-item>
                   </v-list>
@@ -399,16 +407,45 @@ watch(isRecommendationMenuOpen, (isOpen) => {
 }
 
 .hot-recommendation-item {
-  min-height: 72px;
+  min-height: 78px;
 }
 
 .hot-recommendation-empty-item {
-  min-height: 72px;
+  min-height: 78px;
 }
 
 .hot-recommendation-poster {
   width: 42px;
   height: 56px;
   border-radius: 4px;
+}
+
+.hot-recommendation-title-row {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  gap: 8px;
+}
+
+.hot-recommendation-title {
+  min-width: 0;
+  flex: 1;
+}
+
+.hot-recommendation-rating {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  color: rgba(var(--v-theme-on-surface), 0.64);
+  font-size: 0.75rem;
+}
+
+.hot-recommendation-summary {
+  display: -webkit-box;
+  overflow: hidden;
+  white-space: normal;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-height: 1.25;
 }
 </style>

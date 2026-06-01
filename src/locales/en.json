@@ -100,6 +100,7 @@
         "empty": "No hot recommendations",
         "loadFailed": "Failed to load hot recommendations. Please try again later.",
         "noRating": "No rating",
+        "noSummary": "No summary",
         "category": {
           "movie": "Movies",
           "tv": "TV",

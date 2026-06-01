@@ -135,7 +135,9 @@ interface ProtocolMap extends TMessageMap {
 
   // 2.5 社交信息 ( utils/socialInformation )
   getSocialInformation(data: { site: TSupportSocialSite$1; sid: string }): ISocialInformation;
-  getSocialRecommendations(data?: { flush?: boolean }): ISocialRecommendationsResult;
+  getSocialRecommendations(data?: { flush?: boolean }): ISocialRecommendationsResult & {
+    posterDiagnostics?: Array<Record<string, any>>;
+  };
   clearSocialInformationCache(): void;
 
   // 2.6 备份/恢复 ( utils/backup )

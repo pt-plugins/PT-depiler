@@ -100,6 +100,7 @@
         "empty": "暂无热门推荐",
         "loadFailed": "热门推荐加载失败，请稍后重试",
         "noRating": "暂无评分",
+        "noSummary": "暂无简介",
         "category": {
           "movie": "电影",
           "tv": "电视剧",

@@ -13,6 +13,7 @@ export interface ISocialRecommendationItem {
   titles: string[];
   sourceUrl: string;
   poster?: string;
+  summary?: string;
   ratingScore?: number;
   ratingCount?: number;
 }
@@ -40,21 +41,21 @@ const recommendationSources: ISocialRecommendationSource[] = [
   {
     site: "douban",
     category: "movie",
-    url: "https://movie.douban.com/j/search_subjects?type=movie&tag=%E7%83%AD%E9%97%A8&sort=recommend&page_limit=5&page_start=0",
+    url: "https://movie.douban.com/j/search_subjects?type=movie&tag=%E7%83%AD%E9%97%A8&sort=time&page_limit=5&page_start=0",
     limit: 5,
     kind: "doubanSearchSubjects",
   },
   {
     site: "douban",
     category: "tv",
-    url: "https://movie.douban.com/j/search_subjects?type=tv&tag=%E7%83%AD%E9%97%A8&sort=recommend&page_limit=5&page_start=0",
+    url: "https://movie.douban.com/j/search_subjects?type=tv&tag=%E7%83%AD%E9%97%A8&sort=time&page_limit=5&page_start=0",
     limit: 5,
     kind: "doubanSearchSubjects",
   },
   {
     site: "douban",
     category: "anime",
-    url: "https://movie.douban.com/j/search_subjects?type=movie&tag=%E5%8A%A8%E7%94%BB&sort=recommend&page_limit=5&page_start=0",
+    url: "https://movie.douban.com/j/search_subjects?type=tv&tag=%E6%97%A5%E6%9C%AC%E5%8A%A8%E7%94%BB&sort=time&page_limit=5&page_start=0",
     limit: 5,
     kind: "doubanSearchSubjects",
   },
@@ -112,6 +113,60 @@ interface IDoubanSearchSubjectsResponse {
   }>;
 }
 
+interface IDoubanSubjectAbstractResponse {
+  r?: 0 | "error";
+  subject?: {
+    title?: string;
+    rate?: string;
+    directors?: string[];
+    actors?: string[];
+    duration?: string;
+    region?: string;
+    types?: string[];
+    release_year?: string;
+  };
+}
+
+function normalizeDoubanImageUrl(url?: string): string | undefined {
+  return url?.replace(/img\d(.doubanio.com)/, "img1$1");
+}
+
+function normalizeText(text: string): string {
+  return text.replace(/\s+/g, " ").trim();
+}
+
+function buildDoubanSubjectSummary(subject?: IDoubanSubjectAbstractResponse["subject"]): string | undefined {
+  if (!subject) {
+    return undefined;
+  }
+
+  const metadataParts = [
+    subject.release_year,
+    subject.region,
+    subject.types?.filter(Boolean).join("/"),
+    subject.duration,
+  ].filter(Boolean);
+  const peopleParts = [
+    subject.directors?.length ? `导演：${subject.directors.slice(0, 2).join("、")}` : "",
+    subject.actors?.length ? `主演：${subject.actors.slice(0, 3).join("、")}` : "",
+  ].filter(Boolean);
+  const summary = [...metadataParts, ...peopleParts].join(" · ");
+
+  return summary ? normalizeText(summary) : undefined;
+}
+
+async function fetchDoubanSubjectSummary(id: string): Promise<string | undefined> {
+  const { data } = await axios.get<IDoubanSubjectAbstractResponse>(
+    `https://movie.douban.com/j/subject_abstract?subject_id=${id}`,
+    {
+      responseType: "json",
+      timeout: 10e3,
+    },
+  );
+
+  return data.r === 0 ? buildDoubanSubjectSummary(data.subject) : undefined;
+}
+
 function normalizeDoubanSearchSubjects(
   data: IDoubanSearchSubjectsResponse,
   source: ISocialRecommendationSource,
@@ -140,7 +195,7 @@ function normalizeDoubanSearchSubjects(
         title,
         titles: [title],
         sourceUrl: item.url ?? source.url,
-        poster: item.cover,
+        poster: normalizeDoubanImageUrl(item.cover),
         ratingScore: Number(item.rate || 0),
       } satisfies ISocialRecommendationItem;
     })
@@ -155,7 +210,13 @@ async function fetchRecommendationSource(source: ISocialRecommendationSource): P
       timeout: 10e3,
     });
 
-    return normalizeDoubanSearchSubjects(data, source);
+    const items = normalizeDoubanSearchSubjects(data, source);
+    return Promise.all(
+      items.map(async (item) => ({
+        ...item,
+        summary: await fetchDoubanSubjectSummary(item.id).catch(() => undefined),
+      })),
+    );
   }
 
   const parserEntry = socialPageParserMatchesMap[source.site]?.find(([pattern]) => {

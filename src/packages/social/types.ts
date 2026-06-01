@@ -22,6 +22,7 @@ export interface ISocialSiteMetadata {
 export interface ISocialInformation extends Omit<ISocialSitePageInformation, "titles"> {
   title: string;
   poster?: string; // 海报图
+  summary?: string; // 简介
   ratingScore?: number; // 按10分满分的评分
   ratingCount?: number; // 评分人数
   createAt: number; // 创建时间
