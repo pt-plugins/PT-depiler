@@ -144,12 +144,10 @@ interface ProtocolMap extends TMessageMap {
     flush?: boolean;
     enrichment?: "all" | "none" | "visible";
   }): ISocialRecommendationsResult & {
-    performanceDiagnostics?: Record<string, any>;
     posterDiagnostics?: Array<Record<string, any>>;
   };
   getSocialRecommendationItem(data: { item: ISocialRecommendationItem; enrichment?: "all" | "visible" }): {
     item: ISocialRecommendationItem;
-    performanceDiagnostics?: Record<string, any>;
     posterDiagnostics?: Array<Record<string, any>>;
   };
   clearSocialInformationCache(): void;

@@ -205,6 +205,15 @@ export function mergeRecommendationSourceItems(
   return mergedItems;
 }
 
+export function canCacheRecommendationItems(
+  items: readonly Pick<ISocialRecommendationItem, "category">[],
+  hasRejectedSource: boolean,
+) {
+  return (
+    !hasRejectedSource && recommendationCategories.every((category) => items.some((item) => item.category === category))
+  );
+}
+
 export async function mapRecommendationItemsWithConcurrency<T, R>(
   items: T[],
   concurrency: number,
@@ -378,7 +387,12 @@ async function fetchRecommendationSource(source: ISocialRecommendationSource): P
 export async function getSocialRecommendations(
   options: IGetSocialRecommendationsOptions = {},
 ): Promise<ISocialRecommendationsResult> {
-  if (!options.flush && recommendationCache && recommendationCache.createAt > Date.now() - RECOMMENDATION_CACHE_TTL) {
+  if (
+    !options.flush &&
+    recommendationCache &&
+    recommendationCache.createAt > Date.now() - RECOMMENDATION_CACHE_TTL &&
+    canCacheRecommendationItems(recommendationCache.items, false)
+  ) {
     return { items: recommendationCache.items, hasFailedSources: false };
   }
 
@@ -409,7 +423,7 @@ export async function getSocialRecommendations(
     ),
   );
 
-  if (items.length > 0) {
+  if (canCacheRecommendationItems(items, hasRejectedSource)) {
     recommendationCache = {
       createAt: Date.now(),
       items,

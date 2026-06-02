@@ -96,6 +96,13 @@ async function clearLastFilter(v: boolean) {
             hide-details
           />
 
+          <v-switch
+            v-model="configStore.searchEntity.showHotRecommendations"
+            :label="t('SetBase.searchEntity.showHotRecommendations')"
+            color="success"
+            hide-details
+          />
+
           <v-divider />
         </v-col>
       </v-row>

@@ -18,55 +18,46 @@ interface IPosterDiagnostic {
   item: string;
   sources: string[];
   cacheHit?: boolean;
-  durationMs?: number;
   candidates: Array<{
     url: string;
     status?: number;
     contentType?: string;
     byteLength?: number;
-    durationMs?: number;
     error?: string;
   }>;
 }
 
-interface IRecommendationItemPerformanceDiagnostic {
+interface IRecommendationItemDiagnostic {
   item: string;
   title: string;
   category: ISocialRecommendationItem["category"];
   skipped?: boolean;
-  totalMs?: number;
-  socialInformationMs?: number;
   socialInformationNeeded?: boolean;
   socialInformationHit?: boolean;
-  posterMs?: number;
   posterCandidateCount?: number;
   posterCacheHit?: boolean;
   posterHit?: boolean;
 }
 
-interface IRecommendationPerformanceDiagnostics {
+interface IRecommendationDiagnostics {
   enrichment: TRecommendationEnrichmentMode;
   flush: boolean;
   count: number;
   visibleCount: number;
   enrichedCount: number;
-  sourceMs: number;
-  enrichmentMs: number;
-  totalMs: number;
-  concurrency: number;
   posterCacheSize: number;
-  items: IRecommendationItemPerformanceDiagnostic[];
+  items: IRecommendationItemDiagnostic[];
 }
 
 interface IEnrichRecommendationResult {
   item: ISocialRecommendationItem;
-  itemPerformanceDiagnostic: IRecommendationItemPerformanceDiagnostic;
+  itemDiagnostic: IRecommendationItemDiagnostic;
   posterDiagnostic?: IPosterDiagnostic;
 }
 
 interface IEnrichRecommendationsResult {
   items: ISocialRecommendationItem[];
-  itemPerformanceDiagnostics: IRecommendationItemPerformanceDiagnostic[];
+  itemDiagnostics: IRecommendationItemDiagnostic[];
   posterDiagnostics: IPosterDiagnostic[];
 }
 
@@ -137,49 +128,6 @@ async function getSocialInformationSafely(item: ISocialRecommendationItem) {
   }
 }
 
-function arrayBufferToBase64(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
-  const chunkSize = 0x8000;
-  let binary = "";
-
-  for (let index = 0; index < bytes.length; index += chunkSize) {
-    binary += String.fromCharCode(...bytes.subarray(index, index + chunkSize));
-  }
-
-  return btoa(binary);
-}
-
-function inferImageContentType(buffer: ArrayBuffer, contentType?: string): string | undefined {
-  if (contentType?.startsWith("image/")) {
-    return contentType;
-  }
-
-  const bytes = new Uint8Array(buffer);
-  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
-    return "image/jpeg";
-  }
-  if (
-    bytes[0] === 0x89 &&
-    bytes[1] === 0x50 &&
-    bytes[2] === 0x4e &&
-    bytes[3] === 0x47 &&
-    bytes[4] === 0x0d &&
-    bytes[5] === 0x0a &&
-    bytes[6] === 0x1a &&
-    bytes[7] === 0x0a
-  ) {
-    return "image/png";
-  }
-  if (bytes[0] === 0x47 && bytes[1] === 0x49 && bytes[2] === 0x46) {
-    return "image/gif";
-  }
-  if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46) {
-    return "image/webp";
-  }
-
-  return undefined;
-}
-
 function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
     return [error.response?.status, error.message].filter(Boolean).join(" ");
@@ -188,12 +136,26 @@ function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
+function transformBlob(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.addEventListener("loadend", () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+      } else {
+        reject(new Error("Error when parse recommendation poster Blob"));
+      }
+    });
+
+    reader.readAsDataURL(blob);
+  });
+}
+
 async function fetchPosterDataUrl(
   item: ISocialRecommendationItem,
   enrichment: TRecommendationEnrichmentMode,
   ...posters: Array<string | undefined>
 ): Promise<{ poster?: string; diagnostic: IPosterDiagnostic }> {
-  const startedAt = performance.now();
   const posterFetchOptions = getPosterFetchOptions(enrichment);
   const diagnostic: IPosterDiagnostic = {
     item: `${item.category}:${item.site}:${item.id}`,
@@ -208,7 +170,6 @@ async function fetchPosterDataUrl(
       diagnostic: {
         ...diagnostic,
         cacheHit: true,
-        durationMs: Math.round(performance.now() - startedAt),
       },
     };
   }
@@ -223,44 +184,37 @@ async function fetchPosterDataUrl(
       diagnostic: {
         ...diagnostic,
         cacheHit: true,
-        durationMs: Math.round(performance.now() - startedAt),
       },
     };
   }
 
   for (const candidate of candidates) {
-    const candidateStartedAt = performance.now();
     try {
-      const response = await axios.get<ArrayBuffer>(candidate, {
-        responseType: "arraybuffer",
+      const response = await axios.get<Blob>(candidate, {
+        responseType: "blob",
         timeout: posterFetchOptions.timeout,
       });
       const contentType = response.headers["content-type"];
-      const normalizedContentType = typeof contentType === "string" ? contentType.split(";")[0] : undefined;
-      const inferredContentType = inferImageContentType(response.data, normalizedContentType);
+      const normalizedContentType =
+        typeof contentType === "string" ? contentType.split(";")[0] : response.data.type || undefined;
       diagnostic.candidates.push({
         url: candidate,
         status: response.status,
         contentType: normalizedContentType,
-        byteLength: response.data.byteLength,
-        durationMs: Math.round(performance.now() - candidateStartedAt),
+        byteLength: response.data.size,
       });
 
-      if (inferredContentType && response.data.byteLength > 1024) {
-        const poster = `data:${inferredContentType};base64,${arrayBufferToBase64(response.data)}`;
+      if (normalizedContentType?.startsWith("image/") && response.data.size > 1024) {
+        const poster = await transformBlob(response.data);
         setPosterDataUrlCache(cacheKey, poster);
         return {
           poster,
-          diagnostic: {
-            ...diagnostic,
-            durationMs: Math.round(performance.now() - startedAt),
-          },
+          diagnostic,
         };
       }
     } catch (error) {
       diagnostic.candidates.push({
         url: candidate,
-        durationMs: Math.round(performance.now() - candidateStartedAt),
         error: getErrorMessage(error),
       });
       console.warn("Failed to fetch recommendation poster", candidate, error);
@@ -268,10 +222,7 @@ async function fetchPosterDataUrl(
   }
 
   return {
-    diagnostic: {
-      ...diagnostic,
-      durationMs: Math.round(performance.now() - startedAt),
-    },
+    diagnostic,
   };
 }
 
@@ -279,24 +230,16 @@ async function enrichRecommendation(
   item: ISocialRecommendationItem,
   enrichment: TRecommendationEnrichmentMode,
 ): Promise<IEnrichRecommendationResult> {
-  const startedAt = performance.now();
   const needsSocialInformation =
     !item.poster || !item.summary || !item.releaseYear || !item.region || !item.genres?.length || !item.ratingScore;
-  const socialInformationStartedAt = performance.now();
   const socialInformation = needsSocialInformation ? await getSocialInformationSafely(item) : undefined;
-  const socialInformationMs = Math.round(performance.now() - socialInformationStartedAt);
-  const posterStartedAt = performance.now();
   const posterResult = await fetchPosterDataUrl(item, enrichment, item.poster, socialInformation?.poster);
-  const posterMs = Math.round(performance.now() - posterStartedAt);
-  const itemPerformanceDiagnostic: IRecommendationItemPerformanceDiagnostic = {
+  const itemDiagnostic: IRecommendationItemDiagnostic = {
     item: getRecommendationItemKey(item),
     title: item.title,
     category: item.category,
-    totalMs: Math.round(performance.now() - startedAt),
-    socialInformationMs,
     socialInformationNeeded: needsSocialInformation,
     socialInformationHit: !!socialInformation,
-    posterMs,
     posterCandidateCount: posterResult.diagnostic.candidates.length,
     posterCacheHit: posterResult.diagnostic.cacheHit,
     posterHit: !!posterResult.poster,
@@ -313,7 +256,7 @@ async function enrichRecommendation(
       ratingScore: socialInformation?.ratingScore || item.ratingScore,
       ratingCount: socialInformation?.ratingCount || item.ratingCount,
     },
-    itemPerformanceDiagnostic,
+    itemDiagnostic,
     posterDiagnostic: posterResult.diagnostic,
   };
 }
@@ -357,7 +300,7 @@ async function enrichRecommendations(
       if (!shouldEnrichRecommendation(item, enrichment, visibleItemKeys)) {
         return {
           item,
-          itemPerformanceDiagnostic: {
+          itemDiagnostic: {
             item: getRecommendationItemKey(item),
             title: item.title,
             category: item.category,
@@ -373,29 +316,22 @@ async function enrichRecommendations(
 
   return {
     items: results.map((result) => result.item),
-    itemPerformanceDiagnostics: results.map((result) => result.itemPerformanceDiagnostic),
+    itemDiagnostics: results.map((result) => result.itemDiagnostic),
     posterDiagnostics: results.flatMap((result) => (result.posterDiagnostic ? [result.posterDiagnostic] : [])),
   };
 }
 
 onMessage("getSocialRecommendations", async ({ data }) => {
-  const requestStartedAt = performance.now();
   const options = (data ?? {}) as IGetSocialRecommendationsMessageOptions;
-  const sourceStartedAt = performance.now();
   const result = await getSocialRecommendations(options);
-  const sourceMs = Math.round(performance.now() - sourceStartedAt);
 
   if (options.enrichment === "none") {
-    const performanceDiagnostics: IRecommendationPerformanceDiagnostics = {
+    const recommendationDiagnostics: IRecommendationDiagnostics = {
       enrichment: "none",
       flush: options.flush ?? false,
       count: result.items.length,
       visibleCount: 0,
       enrichedCount: 0,
-      sourceMs,
-      enrichmentMs: 0,
-      totalMs: Math.round(performance.now() - requestStartedAt),
-      concurrency: RECOMMENDATION_ENRICHMENT_CONCURRENCY,
       posterCacheSize: posterDataUrlCache.size,
       items: [],
     };
@@ -406,29 +342,23 @@ onMessage("getSocialRecommendations", async ({ data }) => {
         flush: options.flush ?? false,
         hasFailedSources: result.hasFailedSources,
         enrichment: "none",
-        performanceDiagnostics,
+        recommendationDiagnostics,
       },
     });
-    return { ...result, performanceDiagnostics, posterDiagnostics: [] };
+    return { ...result, posterDiagnostics: [] };
   }
 
   const enrichment = options.enrichment ?? "all";
-  const enrichmentStartedAt = performance.now();
   const enrichmentResult = await enrichRecommendations(result.items, enrichment);
-  const enrichmentMs = Math.round(performance.now() - enrichmentStartedAt);
-  const enrichedCount = enrichmentResult.itemPerformanceDiagnostics.filter((item) => !item.skipped).length;
-  const performanceDiagnostics: IRecommendationPerformanceDiagnostics = {
+  const enrichedCount = enrichmentResult.itemDiagnostics.filter((item) => !item.skipped).length;
+  const recommendationDiagnostics: IRecommendationDiagnostics = {
     enrichment,
     flush: options.flush ?? false,
     count: enrichmentResult.items.length,
     visibleCount: enrichment === "visible" ? enrichedCount : enrichmentResult.items.length,
     enrichedCount,
-    sourceMs,
-    enrichmentMs,
-    totalMs: Math.round(performance.now() - requestStartedAt),
-    concurrency: RECOMMENDATION_ENRICHMENT_CONCURRENCY,
     posterCacheSize: posterDataUrlCache.size,
-    items: enrichmentResult.itemPerformanceDiagnostics,
+    items: enrichmentResult.itemDiagnostics,
   };
 
   logger({
@@ -438,34 +368,28 @@ onMessage("getSocialRecommendations", async ({ data }) => {
       flush: options.flush ?? false,
       hasFailedSources: result.hasFailedSources,
       enrichment,
-      performanceDiagnostics,
+      recommendationDiagnostics,
       posterDiagnostics: enrichmentResult.posterDiagnostics,
     },
   });
   return {
     ...result,
     items: enrichmentResult.items,
-    performanceDiagnostics,
     posterDiagnostics: enrichmentResult.posterDiagnostics,
   };
 });
 
 onMessage("getSocialRecommendationItem", async ({ data }) => {
-  const requestStartedAt = performance.now();
   const enrichment = data.enrichment ?? "all";
   const result = await enrichRecommendation(data.item, enrichment);
-  const performanceDiagnostics: IRecommendationPerformanceDiagnostics = {
+  const recommendationDiagnostics: IRecommendationDiagnostics = {
     enrichment,
     flush: false,
     count: 1,
     visibleCount: enrichment === "visible" ? 1 : 0,
     enrichedCount: 1,
-    sourceMs: 0,
-    enrichmentMs: Math.round(performance.now() - requestStartedAt),
-    totalMs: Math.round(performance.now() - requestStartedAt),
-    concurrency: 1,
     posterCacheSize: posterDataUrlCache.size,
-    items: [result.itemPerformanceDiagnostic],
+    items: [result.itemDiagnostic],
   };
 
   logger({
@@ -473,14 +397,13 @@ onMessage("getSocialRecommendationItem", async ({ data }) => {
     data: {
       item: getRecommendationItemKey(result.item),
       enrichment,
-      performanceDiagnostics,
+      recommendationDiagnostics,
       posterDiagnostics: result.posterDiagnostic ? [result.posterDiagnostic] : [],
     },
   });
 
   return {
     item: result.item,
-    performanceDiagnostics,
     posterDiagnostics: result.posterDiagnostic ? [result.posterDiagnostic] : [],
   };
 });
