@@ -203,6 +203,7 @@ out
 
 # AI-generated files
 .superpowers/
+docs/superpowers/
 .augment/
 .cursor/
 .cursorrules
