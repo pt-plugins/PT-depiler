@@ -205,22 +205,10 @@ export function mergeRecommendationSourceItems(
   return mergedItems;
 }
 
-export function canCacheRecommendationItems(
-  items: readonly Pick<ISocialRecommendationItem, "category">[],
-  hasRejectedSource: boolean,
-) {
-  return (
-    !hasRejectedSource && recommendationCategories.every((category) => items.some((item) => item.category === category))
-  );
-}
-
-export async function mapRecommendationItemsWithConcurrency<T, R>(
-  items: T[],
-  concurrency: number,
-  task: (item: T) => Promise<R>,
-): Promise<R[]> {
-  const queue = new PQueue({ concurrency });
-  return Promise.all(items.map((item) => queue.add(() => task(item)) as Promise<R>));
+export function canCacheRecommendationItems(items: readonly Pick<ISocialRecommendationItem, "category">[]) {
+  // 只要四个分类都有结果即可缓存；单个冗余源失败（hasFailedSources）不应阻止缓存，
+  // 否则任一源持续失败都会导致每次都全量重抓所有源。
+  return recommendationCategories.every((category) => items.some((item) => item.category === category));
 }
 
 async function settleRecommendationItemsWithConcurrency<T, R>(
@@ -391,7 +379,7 @@ export async function getSocialRecommendations(
     !options.flush &&
     recommendationCache &&
     recommendationCache.createAt > Date.now() - RECOMMENDATION_CACHE_TTL &&
-    canCacheRecommendationItems(recommendationCache.items, false)
+    canCacheRecommendationItems(recommendationCache.items)
   ) {
     return { items: recommendationCache.items, hasFailedSources: false };
   }
@@ -423,7 +411,7 @@ export async function getSocialRecommendations(
     ),
   );
 
-  if (canCacheRecommendationItems(items, hasRejectedSource)) {
+  if (canCacheRecommendationItems(items)) {
     recommendationCache = {
       createAt: Date.now(),
       items,

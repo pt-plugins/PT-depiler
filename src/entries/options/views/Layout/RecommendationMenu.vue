@@ -119,12 +119,6 @@ function updateRecommendationItem(enrichedItem: ISocialRecommendationItem) {
   );
 }
 
-function logRecommendationDiagnostics(result: { posterDiagnostics?: Array<Record<string, any>> }) {
-  if (result.posterDiagnostics?.length) {
-    console.info("[PTD] hot recommendation poster diagnostics", result.posterDiagnostics);
-  }
-}
-
 async function enrichRecommendationItems(
   requestId: number,
   items: ISocialRecommendationItem[],
@@ -143,7 +137,6 @@ async function enrichRecommendationItems(
           if (requestId !== recommendationRequestId || !isRecommendationMenuOpen.value) {
             return;
           }
-          logRecommendationDiagnostics(result);
           updateRecommendationItem(result.item);
         } catch (error) {
           console.error("Failed to enrich social recommendation item", item, error);
