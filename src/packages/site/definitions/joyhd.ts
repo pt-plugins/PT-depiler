@@ -1,8 +1,8 @@
 import { type ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
+// import { CategoryInclbookmarked, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  // ...SchemaMetadata,
 
   version: 1,
   id: "joyhd",
@@ -17,6 +17,9 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["https://www.joyhd.net/"],
 
+  isDead: true,
+
+  /*
   category: [
     {
       name: "类别",
@@ -51,6 +54,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
+   */
 
   levelRequirements: [
     {
