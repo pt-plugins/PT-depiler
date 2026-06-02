@@ -92,7 +92,22 @@
       "searchTip": "Input keyword, IMDb numbers to search",
       "wiki": "Wiki",
       "wrongPixelRatioNotice": "Your page display may be affected by zooming. It is recommended to zoom at 100% to ensure your browsing experience~",
-      "expand": "Expand More"
+      "expand": "Expand More",
+      "hotRecommendations": {
+        "title": "Hot Recommendations",
+        "refresh": "Refresh hot recommendations",
+        "loading": "Loading hot recommendations...",
+        "empty": "No hot recommendations",
+        "loadFailed": "Failed to load hot recommendations. Please try again later.",
+        "noRating": "No rating",
+        "noSummary": "No summary",
+        "category": {
+          "movie": "Movies",
+          "tv": "TV",
+          "variety": "Variety",
+          "anime": "Anime"
+        }
+      }
     },
     "init": "Please wait patiently for the page to load.....",
     "releaseNote": {
