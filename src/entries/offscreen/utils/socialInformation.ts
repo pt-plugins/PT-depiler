@@ -7,15 +7,44 @@ import type { IConfigPiniaStorageSchema } from "@/shared/types.ts";
 import { ptdIndexDb } from "../adapter/indexdb.ts";
 import { logger } from "../utils/logger.ts";
 
-export async function getSocialInformation(site: TSupportSocialSite$1, sid: string): Promise<ISocialInformation> {
+interface IGetSocialInformationOptions {
+  force?: boolean;
+  requireSummary?: boolean;
+  requireMetadata?: boolean;
+}
+
+// 记录本次会话中已经因缺失字段联网重取过的 key，避免对源本身就不提供
+// 简介/元数据的条目在每次调用时反复联网（绕过 cacheDay TTL）。
+const enrichmentAttemptedKeys = new Set<string>();
+
+export async function getSocialInformation(
+  site: TSupportSocialSite$1,
+  sid: string,
+  options: IGetSocialInformationOptions = {},
+): Promise<ISocialInformation> {
   const configStoreRaw = (await sendMessage("getExtStorage", "config")) as IConfigPiniaStorageSchema;
   const socialInformationConfig = configStoreRaw.socialSiteInformation ?? {};
 
   const key = `${site}:${sid}`;
   let stored = await (await ptdIndexDb).get("social_information", key);
 
-  if (!stored || stored.createAt < Date.now() - 86400000 * (socialInformationConfig.cacheDay ?? 3)) {
+  const isExpired = stored && stored.createAt < Date.now() - 86400000 * (socialInformationConfig.cacheDay ?? 3);
+  // 仅在本会话尚未因缺失字段重取过该 key 时才允许补取，避免源本身无数据时反复联网。
+  const canRetryForMissingFields = !enrichmentAttemptedKeys.has(key);
+  const isMissingRequiredSummary = canRetryForMissingFields && options.requireSummary && stored && !stored.summary;
+  const isMissingRequiredMetadata =
+    canRetryForMissingFields &&
+    options.requireMetadata &&
+    stored &&
+    (!stored.releaseYear || !stored.region || !stored.genres?.length);
+
+  const shouldMarkEnrichmentAttempted = isMissingRequiredSummary || isMissingRequiredMetadata;
+
+  if (options.force || !stored || isExpired || shouldMarkEnrichmentAttempted) {
     stored = await getSocialSiteInformation(site, sid, socialInformationConfig);
+    if (shouldMarkEnrichmentAttempted) {
+      enrichmentAttemptedKeys.add(key);
+    }
     if (stored && (stored.title !== "" || stored.poster !== "")) {
       await setSocialInformation(site, sid, stored);
     }

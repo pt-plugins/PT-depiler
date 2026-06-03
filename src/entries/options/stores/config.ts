@@ -280,6 +280,7 @@ export const useConfigStore = defineStore("config", {
       autoDetectOfficialGroupFromTitle: false,
 
       quickSiteFilter: true,
+      showHotRecommendations: true,
     },
 
     mediaServerEntity: {

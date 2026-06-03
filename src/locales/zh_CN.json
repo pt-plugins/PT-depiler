@@ -92,7 +92,22 @@
       "searchTip": "输入种子关键字、IMDb编号进行搜索",
       "wiki": "帮助",
       "wrongPixelRatioNotice": "检测到您的页面展示可能受到缩放影响，建议您将当前页面缩放调整为100%，以保障您的浏览体验～",
-      "expand": "展开更多"
+      "expand": "展开更多",
+      "hotRecommendations": {
+        "title": "热门推荐",
+        "refresh": "刷新热门推荐",
+        "loading": "正在加载热门推荐...",
+        "empty": "暂无热门推荐",
+        "loadFailed": "热门推荐加载失败，请稍后重试",
+        "noRating": "暂无评分",
+        "noSummary": "暂无简介",
+        "category": {
+          "movie": "电影",
+          "tv": "电视剧",
+          "variety": "综艺",
+          "anime": "动画"
+        }
+      }
     },
     "init": "请耐心等待页面加载.....",
     "releaseNote": {
@@ -637,6 +652,7 @@
       "forceImdbIdMatchFilter": "使用 IMDb 搜索时，在搜索结果中滤去站点返回的IMDb号不匹配的结果",
       "autoDetectOfficialGroupFromTitle": "自动识别种子标题中的官方组信息，并形成标签",
       "quickSiteFilter": "直接显示站点筛选栏",
+      "showHotRecommendations": "在搜索框中显示热门推荐按钮",
       "mediaServerSearchConfig": "媒体服务器搜索配置",
       "mediaQueueConcurrency": "请求队列长度",
       "mediaSearchLimit": "单次搜索结果数量",

@@ -11,6 +11,7 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { REPO_URL } from "~/helper";
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 import SiteName from "@/options/components/SiteName.vue";
+import RecommendationMenu from "./RecommendationMenu.vue";
 
 const route = useRoute();
 const router = useRouter();
@@ -49,6 +50,11 @@ function startSearchEntity() {
       flush: 1,
     },
   });
+}
+
+function searchRecommendation(title: string) {
+  searchKey.value = title;
+  startSearchEntity();
 }
 
 watch(
@@ -105,6 +111,14 @@ watch(
           icon="mdi-magnify"
           :title="t('common.search')"
           @click="startSearchEntity"
+        />
+      </template>
+
+      <template #append-inner>
+        <RecommendationMenu
+          v-if="configStore.searchEntity.showHotRecommendations"
+          :disabled="runtimeStore.search.isSearching"
+          @search="searchRecommendation"
         />
       </template>
 
