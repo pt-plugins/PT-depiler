@@ -115,7 +115,11 @@ watch(
       </template>
 
       <template #append-inner>
-        <RecommendationMenu :disabled="runtimeStore.search.isSearching" @search="searchRecommendation" />
+        <RecommendationMenu
+          v-if="configStore.searchEntity.showHotRecommendations"
+          :disabled="runtimeStore.search.isSearching"
+          @search="searchRecommendation"
+        />
       </template>
 
       <template #prepend-inner>

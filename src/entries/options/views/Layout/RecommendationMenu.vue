@@ -5,9 +5,8 @@ import { useI18n } from "vue-i18n";
 import type { ISocialRecommendationItem, TSocialRecommendationCategory } from "@ptd/social";
 
 import { sendMessage } from "@/messages.ts";
-import { useConfigStore } from "@/options/stores/config.ts";
 
-defineProps<{
+const { disabled } = defineProps<{
   disabled?: boolean;
 }>();
 
@@ -16,7 +15,6 @@ const emit = defineEmits<{
 }>();
 
 const { t } = useI18n();
-const configStore = useConfigStore();
 
 const isRecommendationMenuOpen = ref(false);
 const isLoadingRecommendations = ref(false);
@@ -35,7 +33,6 @@ const groupedRecommendationItems = computed(() =>
     items: recommendationItems.value.filter((item) => item.category === category).slice(0, recommendationCategoryLimit),
   })),
 );
-const isHotRecommendationVisible = computed(() => configStore.searchEntity.showHotRecommendations !== false);
 
 async function loadRecommendations(flush = false) {
   if (isLoadingRecommendations.value) {
@@ -174,7 +171,6 @@ watch(isRecommendationMenuOpen, (isOpen) => {
 
 <template>
   <v-menu
-    v-if="isHotRecommendationVisible"
     v-model="isRecommendationMenuOpen"
     :close-on-content-click="false"
     location="bottom end"

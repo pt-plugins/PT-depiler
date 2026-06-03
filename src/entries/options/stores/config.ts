@@ -50,18 +50,6 @@ export const useConfigStore = defineStore("config", {
         }
       }
 
-      state.searchEntity ??= {};
-      const legacyShowHotRecommendations = state.searchEntifyControl?.showHotRecommendations;
-      if (typeof state.searchEntity.showHotRecommendations !== "boolean") {
-        state.searchEntity.showHotRecommendations =
-          typeof legacyShowHotRecommendations === "boolean" ? legacyShowHotRecommendations : true;
-        needsSave = true;
-      }
-      if (has(state, "searchEntifyControl.showHotRecommendations")) {
-        unset(state, "searchEntifyControl.showHotRecommendations");
-        needsSave = true;
-      }
-
       if (needsSave) {
         context.store.$save();
       }

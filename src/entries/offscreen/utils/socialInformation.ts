@@ -38,11 +38,13 @@ export async function getSocialInformation(
     stored &&
     (!stored.releaseYear || !stored.region || !stored.genres?.length);
 
-  if (options.force || !stored || isExpired || isMissingRequiredSummary || isMissingRequiredMetadata) {
-    if (isMissingRequiredSummary || isMissingRequiredMetadata) {
+  const shouldMarkEnrichmentAttempted = isMissingRequiredSummary || isMissingRequiredMetadata;
+
+  if (options.force || !stored || isExpired || shouldMarkEnrichmentAttempted) {
+    stored = await getSocialSiteInformation(site, sid, socialInformationConfig);
+    if (shouldMarkEnrichmentAttempted) {
       enrichmentAttemptedKeys.add(key);
     }
-    stored = await getSocialSiteInformation(site, sid, socialInformationConfig);
     if (stored && (stored.title !== "" || stored.poster !== "")) {
       await setSocialInformation(site, sid, stored);
     }

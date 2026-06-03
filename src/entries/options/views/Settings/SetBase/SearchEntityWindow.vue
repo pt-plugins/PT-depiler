@@ -58,6 +58,13 @@ async function clearLastFilter(v: boolean) {
             </template>
           </v-switch>
 
+          <v-switch
+            v-model="configStore.searchEntity.showHotRecommendations"
+            :label="t('SetBase.searchEntity.showHotRecommendations')"
+            color="success"
+            hide-details
+          />
+
           <v-divider />
         </v-col>
       </v-row>
@@ -92,13 +99,6 @@ async function clearLastFilter(v: boolean) {
           <v-switch
             v-model="configStore.searchEntity.quickSiteFilter"
             :label="t('SetBase.searchEntity.quickSiteFilter')"
-            color="success"
-            hide-details
-          />
-
-          <v-switch
-            v-model="configStore.searchEntity.showHotRecommendations"
-            :label="t('SetBase.searchEntity.showHotRecommendations')"
             color="success"
             hide-details
           />

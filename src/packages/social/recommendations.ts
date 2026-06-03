@@ -170,7 +170,7 @@ interface IDoubanSubjectCollectionResponse {
 }
 
 function normalizeDoubanImageUrl(url?: string): string | undefined {
-  return url?.replace(/img\d(.doubanio.com)/, "img1$1");
+  return url?.replace(/img\d(?=\.doubanio\.com)/, "img1");
 }
 
 export function mergeRecommendationSourceItems(
