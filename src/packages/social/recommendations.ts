@@ -77,11 +77,32 @@ const recommendationSources: ISocialRecommendationSource[] = [
   },
   {
     site: "douban",
+    category: "tv",
+    url: "https://movie.douban.com/j/search_subjects?type=tv&tag=%E7%83%AD%E9%97%A8&sort=time&page_limit=10&page_start=0",
+    limit: 10,
+    kind: "doubanSearchSubjects",
+  },
+  {
+    site: "douban",
+    category: "tv",
+    url: "https://movie.douban.com/j/search_subjects?type=tv&tag=%E7%BE%8E%E5%89%A7&sort=time&page_limit=10&page_start=0",
+    limit: 10,
+    kind: "doubanSearchSubjects",
+  },
+  {
+    site: "douban",
     category: "variety",
     url: "https://m.douban.com/rexxar/api/v2/subject_collection/tv_variety_show/items?items_only=1&start=0&count=10",
     limit: 10,
     kind: "doubanSubjectCollection",
     referer: "https://m.douban.com/subject_collection/tv_variety_show",
+  },
+  {
+    site: "douban",
+    category: "variety",
+    url: "https://movie.douban.com/j/search_subjects?type=tv&tag=%E7%BB%BC%E8%89%BA&sort=time&page_limit=10&page_start=0",
+    limit: 10,
+    kind: "doubanSearchSubjects",
   },
   {
     site: "douban",
