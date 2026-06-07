@@ -183,6 +183,8 @@ export interface IConfigPiniaStorageSchema {
     // 是否保存下载记录
     saveDownloadHistory: boolean;
 
+    allowDownloaderFilterForSite: boolean; // 是否启用站点过滤器，启用后可在下载器设置中配置每个下载器可使用的站点
+
     // 当使用本地方法下载时，如何下载种子
     localDownloadMethod: TLocalDownloadMethod;
     // 当使用本地方法下载时，是否忽略站点的下载间隔设置；

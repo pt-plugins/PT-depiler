@@ -93,7 +93,12 @@ defineExpose({
       <div class="d-flex align-center">
         <v-label>{{ t("SetBase.ui.contentScript") }}</v-label>
         <v-spacer />
-        <v-switch v-model="configStore.contentScript.enabled" color="success" hide-details :label="t('common.enable')" />
+        <v-switch
+          v-model="configStore.contentScript.enabled"
+          color="success"
+          hide-details
+          :label="t('common.enable')"
+        />
       </div>
 
       <template v-if="configStore.contentScript.enabled">

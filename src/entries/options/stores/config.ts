@@ -261,6 +261,7 @@ export const useConfigStore = defineStore("config", {
 
     download: {
       saveDownloadHistory: true,
+      allowDownloaderFilterForSite: false,
       initDownloaderTorrentOnEnter: false,
       saveLastDownloader: false,
       allowDirectSendToClient: false,

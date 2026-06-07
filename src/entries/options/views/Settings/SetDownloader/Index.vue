@@ -15,6 +15,7 @@ import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
 import AddDialog from "./AddDialog.vue";
 import EditDialog from "./EditDialog.vue";
 import PathAndTagSuggestDialog from "./PathAndTagSuggestDialog.vue";
+import SiteFilterDialog from "./SiteFilterDialog.vue";
 import DefaultDownloaderEditDialog from "./DefaultDownloaderEditDialog.vue";
 
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
@@ -27,6 +28,7 @@ const configStore = useConfigStore();
 const showAddDialog = ref<boolean>(false);
 const showEditDialog = ref<boolean>(false);
 const showDefaultDownloaderEditDialog = ref<boolean>(false);
+const showSiteFilterDialog = ref<boolean>(false);
 const showPathAndTagSuggestDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 
@@ -87,6 +89,11 @@ function editDownloader(downloaderId: TDownloaderKey) {
 function editDownloaderPathAndTag(downloaderId: TDownloaderKey) {
   toEditDownloaderId.value = downloaderId;
   showPathAndTagSuggestDialog.value = true;
+}
+
+function editDownloaderSiteFilter(downloaderId: TDownloaderKey) {
+  toEditDownloaderId.value = downloaderId;
+  showSiteFilterDialog.value = true;
 }
 
 const toDeleteIds = ref<TDownloaderKey[]>([]);
@@ -276,6 +283,17 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
             @click="editDownloaderPathAndTag(item.id)"
           ></v-btn>
 
+          <!-- 该下载服务器站点过滤设置 -->
+          <v-btn
+            v-if="configStore.download.allowDownloaderFilterForSite"
+            :disabled="!item.enabled"
+            :title="t('SetDownloader.index.table.action.setSiteFilter')"
+            color="cyan"
+            icon="mdi-filter-variant"
+            size="small"
+            @click="editDownloaderSiteFilter(item.id)"
+          ></v-btn>
+
           <v-btn
             :title="t('common.remove')"
             :disabled="item.id == metadataStore.defaultDownloader?.id /* 默认下载器不允许删除 */"
@@ -292,6 +310,7 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
   <AddDialog v-model="showAddDialog" />
   <EditDialog v-model="showEditDialog" :client-id="toEditDownloaderId!" />
   <DefaultDownloaderEditDialog v-model="showDefaultDownloaderEditDialog" />
+  <SiteFilterDialog v-model="showSiteFilterDialog" :client-id="toEditDownloaderId!" />
   <PathAndTagSuggestDialog v-model="showPathAndTagSuggestDialog" :client-id="toEditDownloaderId!" />
   <DeleteDialog v-model="showDeleteDialog" :to-delete-ids="toDeleteIds" :confirm-delete="confirmDeleteDownloader" />
 </template>
