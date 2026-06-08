@@ -39,7 +39,7 @@ const detailPageSelectors = {
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
-  version: 1,
+  version: 2,
   id: "anthelion",
   name: "Anthelion",
   aka: ["ANT"],
@@ -216,6 +216,7 @@ export const siteMetadata: ISiteMetadata = {
           "adoptions",
           "ratio",
           "joinTime",
+          "lastAccessAt",
           "seedingSize",
           "bonus",
           "levelName",
