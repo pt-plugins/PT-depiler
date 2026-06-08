@@ -323,7 +323,6 @@ export const useMetadataStore = defineStore("metadata", {
           return (b.sortIndex ?? 0) - (a.sortIndex ?? 0);
         });
       };
-    }
     },
 
     getMediaServerIds(state) {
