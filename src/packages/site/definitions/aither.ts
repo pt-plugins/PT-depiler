@@ -8,6 +8,11 @@ const categoryMap: Record<number, string> = {
   2: "TV",
 };
 
+// Aither 资料页改版后采用 user-profile-card 布局，标签文本位于 .user-profile-card__meta-item-title，
+// 对应的值位于相邻的 .user-profile-card__meta-item-value
+const profileCardValue = (keys: string[]): string[] =>
+  keys.map((x) => `span.user-profile-card__meta-item-title:contains('${x}') + span.user-profile-card__meta-item-value`);
+
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
   version: 1,
@@ -102,22 +107,22 @@ export const siteMetadata: ISiteMetadata = {
       ...SchemaMetadata.userInfo!.selectors!,
       id: {
         ...SchemaMetadata.userInfo!.selectors!.id,
-        selector: userInfoTrans.id.map((x) => `span[title='${x}'] + span`),
+        selector: profileCardValue(userInfoTrans.id),
       },
       seedingSize: {
         ...SchemaMetadata.userInfo!.selectors!.seedingSize,
-        selector: userInfoTrans.seedingSize.map((x) => `span[title='${x}'] + span`),
+        selector: profileCardValue(userInfoTrans.seedingSize),
       },
       joinTime: {
         ...SchemaMetadata.userInfo!.selectors!.joinTime,
-        selector: userInfoTrans.joinTime.map((x) => `span[title='${x}'] + span`),
+        selector: userInfoTrans.joinTime.map((x) => `span[title='${x}'] span`),
       },
       averageSeedingTime: {
         ...SchemaMetadata.userInfo!.selectors!.averageSeedingTime,
-        selector: userInfoTrans.averageSeedingTime.map((x) => `span[title='${x}'] + span`),
+        selector: profileCardValue(userInfoTrans.averageSeedingTime),
       },
       lastAccessAt: {
-        selector: userInfoTrans.lastAccessAt.map((x) => `span[title='${x}'] + span`),
+        selector: profileCardValue(userInfoTrans.lastAccessAt),
         filters: [{ name: "parseTTL" }],
       },
       invites: {
@@ -129,7 +134,12 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseNumber" }],
       },
       uploads: {
-        selector: ".user-profile-card__meta-item  a[href*='/uploads']",
+        selector: ".user-profile-card__meta-item a[href*='/uploads']",
+        elementProcess: (el: Element) => {
+          const text = el.textContent || "";
+          const matched = text.match(/\((\d+)\)/) ?? text.match(/\d+/);
+          return matched ? parseInt(matched[matched.length - 1]) : undefined;
+        },
       },
     },
   },
