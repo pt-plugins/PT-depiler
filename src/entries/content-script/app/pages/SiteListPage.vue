@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { inject, ref, shallowRef } from "vue";
+import { computed, inject, ref, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { type ITorrent } from "@ptd/site";
 
@@ -8,7 +8,7 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 import type { IRemoteDownloadDialogData } from "../types.ts";
-import { copyTextToClipboard, doKeywordSearch, siteInstance, wrapperConfirmFn } from "../utils.ts";
+import { copyTextToClipboard, doKeywordSearch, siteInstance, wrapperConfirmFn, type IPtdData } from "../utils.ts";
 
 import AdvanceListModuleDialog from "../components/AdvanceListModuleDialog.vue";
 import SpeedDialBtn from "../components/SpeedDialBtn.vue";
@@ -16,6 +16,11 @@ import SpeedDialBtn from "../components/SpeedDialBtn.vue";
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 const { t } = useI18n();
+
+const ptdData = inject<IPtdData>("ptd_data", {});
+const enabledDownloadersBySite = computed(() => {
+  return metadataStore.getEnabledDownloadersBySite(ptdData.siteId ?? "");
+});
 
 async function parseListPage(showNoTorrentError = true) {
   // 使用克隆的文档，避免污染原始文档
@@ -127,7 +132,7 @@ async function handleSearch() {
   />
   <SpeedDialBtn
     key="download"
-    :disabled="metadataStore.getEnabledDownloaders.length === 0"
+    :disabled="enabledDownloadersBySite.length === 0"
     color="light-blue"
     icon="mdi-cloud-download"
     :title="t('contentScript.pushTo')"
@@ -136,7 +141,7 @@ async function handleSearch() {
   <SpeedDialBtn
     key="download_default"
     v-if="metadataStore.defaultDownloader?.id"
-    :disabled="metadataStore.getEnabledDownloaders.length === 0"
+    :disabled="enabledDownloadersBySite.length === 0"
     color="light-blue"
     icon="mdi-download"
     :title="t('contentScript.pushToDefault')"
@@ -150,7 +155,13 @@ async function handleSearch() {
     :title="t('contentScript.advanceList')"
     @click="handleAdvanceListModule"
   />
-  <SpeedDialBtn key="search" color="indigo" icon="mdi-home-search" :title="t('contentScript.quickSearch')" @click="handleSearch" />
+  <SpeedDialBtn
+    key="search"
+    color="indigo"
+    icon="mdi-home-search"
+    :title="t('contentScript.quickSearch')"
+    @click="handleSearch"
+  />
 
   <AdvanceListModuleDialog v-model="showAdvanceListModuleDialog" :torrent-items="parsedTorrents" />
 </template>

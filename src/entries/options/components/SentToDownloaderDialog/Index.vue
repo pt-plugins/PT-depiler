@@ -48,6 +48,18 @@ const addTorrentOptions = ref<Required<Omit<CAddTorrentOptions, "localDownloadOp
 const suggestFolders = computed(() => selectedDownloader.value?.suggestFolders ?? []);
 const suggestTags = computed(() => selectedDownloader.value?.suggestTags ?? []);
 
+const currentSiteIds = computed(() => [...new Set(torrentItems.map((t) => t.site).filter(Boolean))]);
+const enabledDownloadersBySite = computed(() => {
+  const ids = currentSiteIds.value;
+  if (ids.length === 0) return metadataStore.getEnabledDownloaders;
+  const sets = ids.map((id) => new Set(metadataStore.getEnabledDownloadersBySite(id).map((d) => d.id)));
+  const intersection = sets.reduce((acc, s) => new Set([...acc].filter((x) => s.has(x))));
+  return metadataStore.getEnabledDownloaders.filter((d) => intersection.has(d.id));
+});
+const sortedEnabledDownloadersBySite = computed(() =>
+  [...enabledDownloadersBySite.value].sort((a, b) => (b.sortIndex ?? 0) - (a.sortIndex ?? 0)),
+);
+
 const downloaderTitle = (downloader: IDownloaderMetadata) => `${downloader.name} [${downloader.address}]`;
 const getDownloaderIcon = (x: string) => chrome.runtime.getURL(getDownloaderIconRaw(x));
 
@@ -132,8 +144,8 @@ function dialogEnter() {
       const lastDownloaderId = metadataStore.lastDownloader?.id;
       selectedDownloader.value = lastDownloaderId // 如果有上次选择的下载器，则直接使用
         ? metadataStore.downloaders[lastDownloaderId]
-        : metadataStore.getEnabledDownloaders.length === 1 // 如果只有一个启用的下载器，则直接使用
-          ? metadataStore.getEnabledDownloaders[0]
+        : sortedEnabledDownloadersBySite.value.length === 1 // 如果只有一个启用的下载器，则直接使用
+          ? sortedEnabledDownloadersBySite.value[0]
           : null;
 
       // 将上一次的下载器选项通过 toMerged 合并到当前选项中，而不是直接覆盖
@@ -172,14 +184,19 @@ function dialogLeave() {
 
       <v-card-text>
         <v-alert v-if="isSending" type="info" variant="tonal">
-          {{ t("SentToDownloaderDialog.isSending", { name: selectedDownloader?.name, address: selectedDownloader?.address }) }}
+          {{
+            t("SentToDownloaderDialog.isSending", {
+              name: selectedDownloader?.name,
+              address: selectedDownloader?.address,
+            })
+          }}
         </v-alert>
 
         <v-form v-else>
           <!-- 快速下载选项 -->
           <v-container v-if="quickSendToClient" class="pa-0">
-            <v-list v-if="metadataStore.getEnabledDownloaders.length > 0">
-              <template v-for="downloader in metadataStore.getSortedEnabledDownloaders" :key="downloader.id">
+            <v-list v-if="sortedEnabledDownloadersBySite.length > 0">
+              <template v-for="downloader in sortedEnabledDownloadersBySite" :key="downloader.id">
                 <v-list-item
                   v-for="path in ['', ...(downloader.suggestFolders ?? [])]"
                   :key="path"
@@ -201,7 +218,13 @@ function dialogLeave() {
                 </v-list-item>
               </template>
             </v-list>
-            <v-alert v-else type="warning" variant="tonal"> {{ t("SentToDownloaderDialog.noDownloader") }} </v-alert>
+            <v-alert v-else type="warning" variant="tonal">
+              {{
+                currentSiteIds.length > 0 && configStore.download.allowDownloaderFilterForSite
+                  ? t("SentToDownloaderDialog.noDownloaderForSite")
+                  : t("SentToDownloaderDialog.noDownloader")
+              }}
+            </v-alert>
           </v-container>
 
           <!-- 普通下载选项 -->
@@ -210,7 +233,7 @@ function dialogLeave() {
               <v-autocomplete
                 v-model="selectedDownloader"
                 :filter-keys="['raw.name', 'raw.address', 'raw.username']"
-                :items="metadataStore.getSortedEnabledDownloaders"
+                :items="sortedEnabledDownloadersBySite"
                 clearable
                 :placeholder="t('SentToDownloaderDialog.selectDownloader')"
                 @update:model-value="restoreAddTorrentOptions"
@@ -268,7 +291,12 @@ function dialogLeave() {
                 />
               </v-col>
               <v-col>
-                <v-switch v-model="addTorrentOptions.addAtPaused" color="success" hide-details :label="t('SentToDownloaderDialog.pauseOnAdd')" />
+                <v-switch
+                  v-model="addTorrentOptions.addAtPaused"
+                  color="success"
+                  hide-details
+                  :label="t('SentToDownloaderDialog.pauseOnAdd')"
+                />
               </v-col>
             </v-row>
             <v-row>
@@ -297,7 +325,11 @@ function dialogLeave() {
       </v-card-text>
       <v-divider />
       <v-card-actions>
-        <v-btn :title="t('SentToDownloaderDialog.moreOptions')" icon="mdi-cards" @click="quickSendToClient = !quickSendToClient" />
+        <v-btn
+          :title="t('SentToDownloaderDialog.moreOptions')"
+          icon="mdi-cards"
+          @click="quickSendToClient = !quickSendToClient"
+        />
 
         <v-spacer />
         <v-btn
