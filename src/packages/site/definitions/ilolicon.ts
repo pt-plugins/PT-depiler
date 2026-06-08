@@ -8,7 +8,7 @@ import NexusPHP, {
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
-  version: 1,
+  version: 2,
 
   id: "ilolicon",
   name: "ilolicon",
@@ -242,6 +242,7 @@ export const siteMetadata: ISiteMetadata = {
           "seedingSize",
           "hnrUnsatisfied",
           "hnrPreWarning",
+          "lastAccessAt",
         ],
       },
       {
