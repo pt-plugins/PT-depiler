@@ -319,10 +319,11 @@ export const useMetadataStore = defineStore("metadata", {
 
     getSortedEnabledDownloadersBySite(state) {
       return (siteId: string): IDownloaderMetadata[] => {
-        return this.getEnabledDownloadersBySite(siteId).sort((a, b) => {
+        return [...this.getEnabledDownloadersBySite(siteId)].sort((a, b) => {
           return (b.sortIndex ?? 0) - (a.sortIndex ?? 0);
         });
       };
+    }
     },
 
     getMediaServerIds(state) {
