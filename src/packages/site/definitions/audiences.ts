@@ -11,11 +11,16 @@ import NexusPHP, {
   CategorySpstate,
   SchemaMetadata,
 } from "../schemas/NexusPHP.ts";
-import { createDocument, parseSizeString, rot13, tryToNumber } from "../utils";
+import { createDocument, parseSizeString, parseValidTimeString, rot13, tryToNumber } from "../utils";
 import { set } from "es-toolkit/compat";
 
 const AudiencesBaseLinkQuery: IElementQuery = {
-  selector: ["a[href*='download.php?id=']:has(i.fa-download)"],
+  selector: [
+    "a.torrent-row-action-link--download[href*='download.php?id=']",
+    "a[href*='download.php?id=']:has(i.fa-download)",
+    "a[href*='download.php?id='][title*='下载']",
+    "a[href*='download.php?id='][title*='Download']",
+  ],
   attr: "href",
 } as const;
 
@@ -205,9 +210,146 @@ export const siteMetadata: ISiteMetadata = {
     ...SchemaMetadata.userInfo!,
     selectors: {
       ...SchemaMetadata.userInfo!.selectors!,
-      bonus: {
-        selector: ["td.rowhead:contains('爆米花') + td, td.rowhead:contains('Karma Points') + td"],
+      messageCount: {
+        text: 0,
+        selector: [
+          ".site-userbar__compact-tool--has-unread .site-userbar__compact-tool-badge--unread",
+          "td[style*='background: red'] a[href*='messages.php']",
+        ],
         filters: [{ name: "parseNumber" }],
+      },
+      uploaded: {
+        text: 0,
+        selector: [
+          ".site-userbar__compact-metric--uploaded",
+          ...([] as string[]).concat(SchemaMetadata.userInfo!.selectors!.uploaded!.selector!),
+        ],
+        filters: [
+          (query: string) => {
+            query = query.replace(/,/g, "");
+            const queryMatch = query.match(/(上[传傳]量|Uploaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+            return parseSizeString(queryMatch?.[2] ?? query);
+          },
+        ],
+      },
+      downloaded: {
+        text: 0,
+        selector: [
+          ".site-userbar__compact-metric--downloaded",
+          ...([] as string[]).concat(SchemaMetadata.userInfo!.selectors!.downloaded!.selector!),
+        ],
+        filters: [
+          (query: string) => {
+            query = query.replace(/,/g, "");
+            const queryMatch = query.match(/(下[载載]量|Downloaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+            return parseSizeString(queryMatch?.[2] ?? query);
+          },
+        ],
+      },
+      ratio: {
+        text: 0,
+        selector: [".site-userbar__compact-metric--ratio"],
+        filters: [{ name: "parseNumber" }],
+      },
+      levelName: {
+        selector: ["td.embedded:has(a[href*='userdetails.php'][href*='id='])"],
+        elementProcess: (element) => {
+          const text = element.textContent?.replace(/\s+/g, "") ?? "";
+          return (
+            text
+              .match(
+                /(NexusMaster|UltimateUser|ExtremeUser|VeteranUser|InsaneUser|CrazyUser|EliteUser|PowerUser|Rainbow|User)(?:加入日期|Join|$)/,
+              )?.[1]
+              ?.replace(/([a-z])([A-Z])/g, "$1 $2") ?? ""
+          );
+        },
+      },
+      bonus: {
+        selector: [
+          ".site-userbar__compact-metric--bonus",
+          "td.rowhead:contains('爆米花') + td",
+          "td.rowhead:contains('Karma Points') + td",
+        ],
+        filters: [{ name: "parseNumber" }],
+      },
+      bonusPerHour: {
+        selector: [
+          ".mybonus-side__rate",
+          ...([] as string[]).concat(SchemaMetadata.userInfo!.selectors!.bonusPerHour!.selector!),
+        ],
+        filters: [
+          (query: string) => {
+            const queryMatch = query.match(
+              /(?:你当前每小时能获取|你當前每小時能獲取|You are currently getting)\s*([\d.,]+)/,
+            );
+            return tryToNumber(queryMatch?.[1] ?? query);
+          },
+        ],
+      },
+      seedingBonus: {
+        selector: [
+          ".site-userbar__compact-metric--seeding-bonus",
+          ...([] as string[]).concat(SchemaMetadata.userInfo!.selectors!.seedingBonus!.selector!),
+        ],
+        filters: [{ name: "parseNumber" }],
+      },
+      joinTime: {
+        selector: [
+          ...([] as string[]).concat(SchemaMetadata.userInfo!.selectors!.joinTime!.selector!),
+          "td:contains('加入日期：')",
+          "div:contains('加入日期：')",
+        ],
+        filters: [
+          (query: string) => {
+            const queryMatch = query.match(/加入日期[：:]\s*([^(]+?)(?:\s*\(|最近[动動]向|$)/);
+            query = queryMatch?.[1] ?? query.split(" (")[0];
+            return parseValidTimeString(query);
+          },
+        ],
+      },
+      lastAccessAt: {
+        selector: [
+          ...([] as string[]).concat(SchemaMetadata.userInfo!.selectors!.lastAccessAt!.selector!),
+          "td:contains('最近动向：')",
+          "td:contains('最近動向：')",
+          "div:contains('最近动向：')",
+          "div:contains('最近動向：')",
+        ],
+        filters: [
+          (query: string) => {
+            const queryMatch = query.match(/最近[动動]向[：:]\s*([^(]+?)(?:\s*\(|$)/);
+            query = queryMatch?.[1] ?? query.split("(")[0];
+            return parseValidTimeString(query);
+          },
+        ],
+      },
+      seeding: {
+        selector: [".site-userbar__compact-metric-inline-link--seeding"],
+        filters: [{ name: "parseNumber" }],
+      },
+      leeching: {
+        selector: [".site-userbar__compact-metric-inline-link--leeching"],
+        filters: [{ name: "parseNumber" }],
+      },
+      hnrPreWarning: {
+        text: 0,
+        selector: [".site-userbar__compact-metric--hr", "#info_block a[href*='myhr.php']:last"],
+        filters: [
+          (query: string | number) => {
+            const queryMatch = String(query || "").match(/\d+/);
+            return queryMatch && queryMatch.length >= 1 ? parseInt(queryMatch[0]) : 0;
+          },
+        ],
+      },
+      hnrUnsatisfied: {
+        text: 0,
+        selector: [".site-userbar__compact-metric--hr", "#info_block a[href*='myhr.php']:last"],
+        filters: [
+          (query: string | number) => {
+            const queryMatch = String(query || "").match(/\d+\s*\/\s*(\d+)/);
+            return queryMatch && queryMatch.length >= 2 ? parseInt(queryMatch[1]) : 0;
+          },
+        ],
       },
     },
   },
@@ -334,9 +476,13 @@ export default class Audiences extends NexusPHP {
   protected override async parseUserInfoForSeedingStatus(
     flushUserInfo: Partial<IUserInfo>,
   ): Promise<Partial<IUserInfo>> {
-    let seedStatus = { seeding: 0, seedingSize: 0 };
+    let seedStatus: Partial<IUserInfo> = {};
 
     const userId = flushUserInfo.id as number;
+    if (!userId) {
+      return flushUserInfo;
+    }
+
     const data = await this.requestUserSeedingPage(userId, "seeding");
 
     if (data && data?.includes("<table")) {
