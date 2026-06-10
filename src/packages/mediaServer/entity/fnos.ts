@@ -343,45 +343,16 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
     }
 
     try {
-      const response = await this.request<ArrayBuffer>(`/Items/${item.Id}/Images/Primary`, {
+      const response = await this.request<Blob>(`/Items/${item.Id}/Images/Primary`, {
         params: { tag: primaryTag },
-        responseType: "arraybuffer",
+        responseType: "blob",
       });
-      const contentType = response.headers["content-type"];
-      const mimeType = this.detectImageMimeType(
-        response.data,
-        typeof contentType === "string" ? contentType : undefined,
-      );
-      const posterUrl = URL.createObjectURL(new Blob([response.data], { type: mimeType }));
+      const posterUrl = URL.createObjectURL(response.data);
       this.setPosterCache(cacheKey, posterUrl);
       return posterUrl;
     } catch (e) {
       return "";
     }
-  }
-
-  private detectImageMimeType(data: ArrayBuffer, fallback?: string): string {
-    const bytes = new Uint8Array(data);
-    if (bytes[0] === 0xff && bytes[1] === 0xd8) {
-      return "image/jpeg";
-    }
-    if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) {
-      return "image/png";
-    }
-    if (
-      bytes[0] === 0x52 &&
-      bytes[1] === 0x49 &&
-      bytes[2] === 0x46 &&
-      bytes[3] === 0x46 &&
-      bytes[8] === 0x57 &&
-      bytes[9] === 0x45 &&
-      bytes[10] === 0x42 &&
-      bytes[11] === 0x50
-    ) {
-      return "image/webp";
-    }
-
-    return fallback?.split(";")[0] || "application/octet-stream";
   }
 
   private setPosterCache(cacheKey: string, posterUrl: string) {
