@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { isEmpty } from "es-toolkit/compat";
 
@@ -14,6 +15,16 @@ async function clearLastFilter(v: boolean) {
     await metadataStore.setLastSearchFilter("");
   }
 }
+
+const hiddenTagNamesText = computed({
+  get: () => configStore.searchEntifyControl.hiddenTagNames.join("\n"),
+  set: (val: string) => {
+    configStore.searchEntifyControl.hiddenTagNames = val
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  },
+});
 </script>
 
 <template>
@@ -90,13 +101,6 @@ async function clearLastFilter(v: boolean) {
           />
 
           <v-switch
-            v-model="configStore.searchEntity.autoDetectOfficialGroupFromTitle"
-            :label="t('SetBase.searchEntity.autoDetectOfficialGroupFromTitle')"
-            color="success"
-            hide-details
-          />
-
-          <v-switch
             v-model="configStore.searchEntity.quickSiteFilter"
             :label="t('SetBase.searchEntity.quickSiteFilter')"
             color="success"
@@ -104,6 +108,39 @@ async function clearLastFilter(v: boolean) {
           />
 
           <v-divider />
+        </v-col>
+      </v-row>
+
+      <v-row dense>
+        <v-col cols="12" md="2" class="d-flex align-center justify-center">
+          <v-label>{{ t("SetBase.searchEntity.tagLabel") }}</v-label>
+        </v-col>
+        <v-col>
+          <v-switch
+            v-model="configStore.searchEntity.autoDetectOfficialGroupFromTitle"
+            :label="t('SetBase.searchEntity.autoDetectOfficialGroupFromTitle')"
+            color="success"
+            hide-details
+          />
+
+          <v-number-input
+            v-model="configStore.searchEntifyControl.maxTagCountBeforeGroup"
+            :label="t('SetBase.searchEntity.maxTagCountBeforeGroup')"
+            :min="0"
+            :max="50"
+            controlVariant="default"
+            hide-details
+          />
+
+          <v-textarea
+            v-model="hiddenTagNamesText"
+            :label="t('SetBase.searchEntity.hiddenTagNames')"
+            :messages="t('SetBase.searchEntity.hiddenTagNamesMessage')"
+            class="mt-2"
+            auto-grow
+            clearable
+            rows="5"
+          />
         </v-col>
       </v-row>
     </v-col>

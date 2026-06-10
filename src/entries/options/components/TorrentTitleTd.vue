@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, useTemplateRef } from "vue";
+import { reactive, ref, computed, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { useElementSize } from "@vueuse/core";
@@ -30,6 +30,36 @@ interface ISocialInformationData extends ISocialInformation {
 
 // @ts-ignore
 const socialInformation = reactive<Record<TSupportSocialSite | string, ISocialInformationData>>({});
+
+const tagsExpanded = ref(false);
+
+const visibleTags = computed(() => {
+  const tags = item.tags;
+  if (!tags || !tags.length) return [];
+  const hiddenNames = configStore.searchEntifyControl.hiddenTagNames || [];
+  return tags.filter((tag) => !hiddenNames.includes(tag.name));
+});
+
+const maxTagCount = computed(() => configStore.searchEntifyControl.maxTagCountBeforeGroup || 0);
+
+const displayedTags = computed(() => {
+  if (!maxTagCount.value || maxTagCount.value >= visibleTags.value.length || tagsExpanded.value) {
+    return visibleTags.value;
+  }
+  return visibleTags.value.slice(0, maxTagCount.value);
+});
+
+const hasMoreTags = computed(
+  () => maxTagCount.value > 0 && visibleTags.value.length > maxTagCount.value && !tagsExpanded.value,
+);
+
+const hiddenTagCount = computed(() => visibleTags.value.length - maxTagCount.value);
+
+function tempHideTag(name: string) {
+  if (!configStore.searchEntifyControl.hiddenTagNames.includes(name)) {
+    configStore.searchEntifyControl.hiddenTagNames = [...configStore.searchEntifyControl.hiddenTagNames, name];
+  }
+}
 
 function loadSocialInformation(site: TSupportSocialSite) {
   if (item[`ext_${site}`] && !socialInformation[site]) {
@@ -157,8 +187,30 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
       <!-- 种子标签信息 -->
       <div ref="tags">
         <template v-if="configStore.searchEntifyControl.showTorrentTag && item.tags && item.tags.length > 0">
-          <v-chip v-for="tag in item.tags" :color="tag.color" class="mr-1" label size="x-small">
-            {{ tag.name }}
+          <v-hover v-for="tag in displayedTags" :key="tag.name" v-slot:default="{ isHovering, props }">
+            <v-chip
+              v-bind="props"
+              :color="tag.color"
+              :closable="isHovering as unknown as boolean"
+              class="mr-1"
+              label
+              size="x-small"
+              @click:close="tempHideTag(tag.name)"
+            >
+              {{ tag.name }}
+            </v-chip>
+          </v-hover>
+          <v-chip
+            v-if="hasMoreTags"
+            class="mr-1"
+            label
+            size="x-small"
+            color="primary"
+            variant="tonal"
+            prepend-icon="mdi-arrow-expand-right"
+            @click="tagsExpanded = true"
+          >
+            {{ hiddenTagCount }}
           </v-chip>
         </template>
       </div>

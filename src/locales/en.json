@@ -273,8 +273,10 @@
     },
     "AdvanceFilterGenerateDialog": {
       "completed": "Completed",
+      "hideHiddenTags": "hide hidden tags",
       "leechers": "Leechers",
       "seeders": "Seeders",
+      "showHiddenTags": "show hidden tags",
       "size": "Torrent Size",
       "status": "Torrent Status",
       "tags": "Tags"
@@ -486,7 +488,10 @@
       "autoLoadMoreMediaOnScroll": "Automatically load more media when scrolling to the bottom of the page",
       "filterLabel": "Result Filter",
       "forceImdbIdMatchFilter": "When searching by IMDb, filter out results whose IMDb ID returned by the site does not match",
+      "hiddenTagNames": "Hidden tags (one per line)",
+      "hiddenTagNamesMessage": "Closing tags on the search page is temporary. Save here to make it permanent.",
       "imdbTip": "When disabled, you need to use the `imdb|tt12345678` format for IMDb searches.",
+      "maxTagCountBeforeGroup": "Max tags shown before grouping (0 = unlimited)",
       "mediaQueueConcurrency": "Request Queue Concurrency",
       "mediaSearchLimit": "Number of search results per request",
       "mediaSearchLimitMessage": "Please do not load too many search results at once. It's not optimized with virtual-scroll, which may cause the browser to freeze and affect the performance of the media server.",
@@ -497,6 +502,7 @@
       "showHotRecommendations": "Show hot recommendations button in the search box",
       "siteQueueConcurrency": "Request Queue Concurrency",
       "siteSearchConfig": "Site Search Configuration",
+      "tagLabel": "Tags Filter",
       "treatTTQueryAsImdbSearch": "Treat tt\\d\\{7,8\\} search terms directly as IMDb search"
     },
     "tab": {

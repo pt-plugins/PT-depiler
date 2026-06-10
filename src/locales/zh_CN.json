@@ -273,8 +273,10 @@
     },
     "AdvanceFilterGenerateDialog": {
       "completed": "完成人数",
+      "hideHiddenTags": "隐藏隐藏标签",
       "leechers": "下载人数",
       "seeders": "上传人数",
+      "showHiddenTags": "展示隐藏标签",
       "size": "种子大小",
       "status": "种子状态",
       "tags": "标签"
@@ -486,7 +488,10 @@
       "autoLoadMoreMediaOnScroll": "当滚动到页面底部时，自动加载新的媒体墙",
       "filterLabel": "结果筛选",
       "forceImdbIdMatchFilter": "使用 IMDb 搜索时，在搜索结果中滤去站点返回的IMDb号不匹配的结果",
+      "hiddenTagNames": "隐藏标签（每行一个）",
+      "hiddenTagNamesMessage": "在搜索页面手动关闭的为临时关闭，需要在本页面保存后才为永久保存。",
       "imdbTip": "关闭后，你需要使用 `imdb|tt12345678` 的格式来进行 IMDb 搜索。",
+      "maxTagCountBeforeGroup": "标签分组显示上限（0表示不限制）",
       "mediaQueueConcurrency": "请求队列长度",
       "mediaSearchLimit": "单次搜索结果数量",
       "mediaSearchLimitMessage": "请不要一次性加载过多的搜索结果，未作 virtual‑scroll 优化，可能会导致浏览器卡死，同时也会影响媒体服务器的性能",
@@ -497,6 +502,7 @@
       "showHotRecommendations": "在搜索框中显示热门推荐按钮",
       "siteQueueConcurrency": "请求队列长度",
       "siteSearchConfig": "站点搜索配置",
+      "tagLabel": "标签筛选",
       "treatTTQueryAsImdbSearch": "是否将 tt\\d\\{7,8\\} 的搜索词直接视为 IMDb 搜索"
     },
     "tab": {
