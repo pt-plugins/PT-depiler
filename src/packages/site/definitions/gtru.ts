@@ -4,22 +4,13 @@ import PrivateSite from "../schemas/AbstractPrivateSite";
 
 export const siteMetadata: ISiteMetadata = {
   id: "gtru",
-  version: 1,
+  version: 2,
   name: "GayTorrent.ru",
   tags: ["成人"],
   type: "private",
   timezoneOffset: "+0800",
   urls: ["uggcf://jjj.tnlgbe.erag/"],
   legacyUrls: ["https://www.gaytorrent.ru/"],
-
-  userInputSettingMeta: [
-    {
-      name: "passkey",
-      label: "Passkey",
-      hint: "用于搜索结果下载种子，可在 userdetails 页面的 Announce Url 中找到",
-      required: false,
-    },
-  ],
 
   category: [
     {
@@ -109,56 +100,35 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     requestConfig: {
-      url: "/browse.php",
+      url: "/search.php",
       params: { incldead: 1, search: "" },
     },
     keywordPath: "params.search",
     selectors: {
       rows: {
-        selector: "table.browse_result tr:has(div.browsedesc)",
+        selector: "div.dc-search-grid article.dc-grid-card",
       },
       id: {
-        selector: "div.browsedesc > a[href*='details.php']",
+        selector: "a.dc-grid-card-title",
         attr: "href",
-        filters: [(q: string) => q.match(/id=([a-f0-9]+)/)?.[1] ?? q],
+        filters: [(q: string) => q.match(/id=([\w-]+)/)?.[1] ?? q],
       },
-      title: { selector: "div.browsedesc > a[href*='details.php'] b" },
-      url: { selector: "div.browsedesc > a[href*='details.php']", attr: "href" },
-      link: { selector: "a.index[href*='download.php/']", attr: "href" },
+      title: { selector: "a.dc-grid-card-title", attr: "title" },
+      url: { selector: "a.dc-grid-card-title", attr: "href" },
       time: {
-        selector: "div.tadded",
-        elementProcess: (element: HTMLElement) => {
-          const parts: string[] = [];
-          element.childNodes.forEach((node) => {
-            if (node.nodeType === 3) {
-              const text = node.textContent?.trim();
-              if (text) parts.push(text);
-            }
-          });
-          return parts.length >= 2 ? `${parts[0]} ${parts[1]}` : parts[0] || "";
-        },
-        filters: [{ name: "parseTime", args: ["yyyy-MM-dd HH:mm:ss"] }],
+        selector: "span.dc-grid-card-age",
+        attr: "title",
+        filters: [
+          (q: string) => q.replace(/^[^:]*:\s*/, "").trim(),
+          { name: "parseTime", args: ["yyyy-MM-dd HH:mm:ss"] },
+        ],
       },
-      size: { selector: "div.tsize", filters: [{ name: "parseSize" }] },
-      completed: { selector: "div.tsnatch", filters: [{ name: "parseNumber" }] },
-      seeders: {
-        selector: "td:has(div.tsnatch) + td",
-        elementProcess: (element: HTMLElement) => {
-          const text = element.textContent || "";
-          const match = text.match(/(\d+)\s*\/\s*\d+/);
-          return match ? parseInt(match[1]) : 0;
-        },
-      },
-      leechers: {
-        selector: "td:has(div.tsnatch) + td",
-        elementProcess: (element: HTMLElement) => {
-          const text = element.textContent || "";
-          const match = text.match(/\d+\s*\/\s*(\d+)/);
-          return match ? parseInt(match[1]) : 0;
-        },
-      },
-      category: { selector: "img.browsemaincatpic", attr: "alt" },
-      comments: { selector: "div.tcomments", filters: [{ name: "parseNumber" }] },
+      size: { selector: "span.dc-grid-card-size", filters: [{ name: "parseSize" }] },
+      completed: { selector: "span.dc-grid-card-snat", filters: [{ name: "parseNumber" }] },
+      seeders: { selector: "span.dc-grid-card-seeders", filters: [{ name: "parseNumber" }] },
+      leechers: { selector: "span.dc-grid-card-leechers", filters: [{ name: "parseNumber" }] },
+      category: { selector: "span.dc-grid-main-cat", attr: "title" },
+      comments: { selector: "span.dc-grid-card-comments", filters: [{ name: "parseNumber" }] },
     },
   },
 
@@ -172,55 +142,43 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   detail: {
-    urlPattern: ["/details\\.php\\?id=[a-f0-9]+"],
+    urlPattern: ["/details\\.php\\?id=[\\w-]+"],
     selectors: {
       link: { selector: "a[href^='download.php/']", attr: "href" },
     },
   },
 
   userInfo: {
-    pickLast: ["id"],
-
     process: [
       {
-        requestConfig: { url: "/" },
+        requestConfig: { url: "/userdetails.php" },
         selectors: {
-          id: {
-            selector: "ul.navbar-right a[href*='userdetails.php?id=']",
-            attr: "href",
-            filters: [{ name: "querystring", args: ["id"] }],
-          },
           seeding: {
-            selector: "span#activeseed",
+            selector: "#activeseed",
             filters: [{ name: "parseNumber" }],
           },
           bonus: {
-            selector: "span#bonus",
+            selector: ".ud-stat-row:contains('Total Seed Bonus') .ud-stat-value",
             filters: [{ name: "parseNumber" }],
           },
-        },
-      },
-      {
-        requestConfig: { url: "/userdetails.php" },
-        assertion: { id: "params.id" },
-        selectors: {
           name: {
-            selector: "div[align='center'] font[color='white'][size='+1'] b",
+            selector: ".ud-profile-name",
+            elementProcess: (element: HTMLElement) => (element.textContent || "").replace(/\s+/g, " ").trim(),
           },
           uploaded: {
-            selector: "td:contains('Uploaded') + td",
+            selector: ".ud-stat-row:contains('Uploaded') .ud-stat-value",
             filters: [(q: string) => q.split(/\s*\[/)[0].trim(), { name: "parseSize" }],
           },
           downloaded: {
-            selector: "td:contains('Downloaded') + td",
+            selector: ".ud-stat-row:contains('Downloaded') .ud-stat-value",
             filters: [(q: string) => q.split(/\s*\[/)[0].trim(), { name: "parseSize" }],
           },
           ratio: {
-            selector: "td:contains('Share ratio') + td td:first",
+            selector: ".ud-stat-row:contains('Share ratio') .ud-stat-value",
             filters: [{ name: "parseNumber" }],
           },
           levelName: {
-            selector: "td:contains('Class') + td img",
+            selector: ".ud-profile-meta img[src*='/classes/']",
             attr: "src",
             filters: [
               (q: string) => {
@@ -239,35 +197,37 @@ export const siteMetadata: ISiteMetadata = {
             ],
           },
           joinTime: {
-            selector: "td:contains('Join\u00a0date') + td",
+            selector: ".ud-profile-meta span:has(i.fa-calendar-o)",
             filters: [
               (q: string) => q.replace(/\s*\(.*\)\s*$/, "").trim(),
               { name: "parseTime", args: ["yyyy-MM-dd HH:mm:ss"] },
             ],
           },
           lastAccessAt: {
-            selector: "td:contains('Last\u00a0seen') + td",
+            selector: ".ud-profile-meta span:has(i.fa-clock-o)",
             filters: [
               (q: string) => q.replace(/\s*\(.*\)\s*$/, "").trim(),
               { name: "parseTime", args: ["yyyy-MM-dd HH:mm:ss"] },
             ],
           },
           uploads: {
-            selector: "div#UploadedTorrents table.table",
+            selector: "#uploaded table.dc-torrent-table",
             elementProcess: (element: HTMLElement) => {
-              const rows = element.querySelectorAll("tr:has(td)");
-              return rows.length;
+              return element.querySelectorAll("tbody tr").length;
             },
           },
           seedingSize: {
-            selector: "div#SeedingTorrents table.table",
+            selector: "#seeding table.dc-torrent-table",
             elementProcess: (element: HTMLElement) => {
               let total = 0;
-              const rows = element.querySelectorAll("tr:has(td)");
+              const rows = element.querySelectorAll("tbody tr");
               rows.forEach((row) => {
                 const sizeTd = row.querySelectorAll("td")[2];
                 if (sizeTd) {
-                  const text = (sizeTd.textContent || "").replace(/\s+/g, " ").trim();
+                  const text = (sizeTd.textContent || "")
+                    .replace(/\s+/g, " ")
+                    .replace(/([\d.]+)\s*([KMGTP]?i?B)/i, "$1 $2")
+                    .trim();
                   total += parseSizeString(text);
                 }
               });
@@ -296,11 +256,7 @@ export const siteMetadata: ISiteMetadata = {
 
 export default class Gtru extends PrivateSite {
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
-    const passkey = this.userConfig.inputSetting?.passkey ?? "";
-    if (!passkey) {
-      return "passkey未配置，请在站点设置中填写以启用下载";
-    }
     const name = encodeURIComponent((torrent.title || torrent.id || "") + ".torrent");
-    return `${this.url}download.php?id=${torrent.id}&rss=1&n=${name}&k=${passkey}`;
+    return `${this.url}download.php?id=${torrent.id}&rss=1&n=${name}`;
   }
 }
