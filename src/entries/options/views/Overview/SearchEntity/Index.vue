@@ -137,6 +137,25 @@ function cancelSearchQueue() {
 
   runtimeStore.search.isSearching = false;
 }
+
+const tableNonBooleanControlKey = ["maxTagCountBeforeGroup", "hiddenTagNames"];
+
+// 过滤出表格控制中非布尔类型的键
+const filteredTableBooleanControlKeys = computed(() => {
+  return Object.keys(configStore.searchEntifyControl).filter(
+    (key) => tableNonBooleanControlKey.indexOf(key) === -1,
+  ) as (keyof typeof configStore.searchEntifyControl)[];
+});
+
+const hiddenTagNamesText = computed({
+  get: () => configStore.searchEntifyControl.hiddenTagNames.join("\n"),
+  set: (val: string) => {
+    configStore.searchEntifyControl.hiddenTagNames = val
+      .split("\n")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  },
+});
 </script>
 
 <template>
@@ -264,7 +283,7 @@ function cancelSearchQueue() {
 
         <v-divider vertical class="mx-2" />
 
-        <v-menu>
+        <v-menu :close-on-content-click="false">
           <template v-slot:activator="{ props }">
             <v-btn-group size="small" variant="text">
               <v-btn
@@ -276,12 +295,12 @@ function cancelSearchQueue() {
             </v-btn-group>
           </template>
           <v-list>
-            <v-list-item v-for="(item, index) in configStore.searchEntifyControl" :key="index" :value="index">
+            <v-list-item v-for="item in filteredTableBooleanControlKeys" :key="item" :value="item">
               <template v-slot:prepend>
                 <v-list-item-action start class="ml-2">
                   <v-switch
-                    v-model="configStore.searchEntifyControl[index]"
-                    :label="`&nbsp;${t('SearchEntity.index.' + index)}`"
+                    v-model="configStore.searchEntifyControl[item]"
+                    :label="`&nbsp;${t('SearchEntity.index.' + item)}`"
                     color="success"
                     density="compact"
                     hide-details
@@ -290,6 +309,15 @@ function cancelSearchQueue() {
                   />
                 </v-list-item-action>
               </template>
+            </v-list-item>
+            <v-list-item v-if="configStore.searchEntifyControl.showTorrentTag" class="mt-2">
+              <v-textarea
+                v-model="hiddenTagNamesText"
+                :label="t('SetBase.searchEntity.hiddenTagNames')"
+                hide-details
+                clearable
+                rows="5"
+              />
             </v-list-item>
           </v-list>
         </v-menu>
