@@ -104,6 +104,7 @@ export const siteMetadata: ISiteMetadata = {
           "totalTraffic",
           "snatches",
           "hnrUnsatisfied",
+          "lastAccessAt",
         ],
       },
       {
@@ -154,6 +155,11 @@ export const siteMetadata: ISiteMetadata = {
       joinTime: {
         selector: "ul.nobullet > li:contains('Joined:') > span",
         filters: [{ name: "parseTTL" }],
+      },
+      lastAccessAt: {
+        selector: "ul.nobullet > li:contains('Last Seen:') > span",
+        attr: "title",
+        filters: [{ name: "parseTime", args: ["MMM d yyyy, HH:mm"] }],
       },
       seeding: {
         selector: "ul.nobullet > li:contains('Seeding:')",
