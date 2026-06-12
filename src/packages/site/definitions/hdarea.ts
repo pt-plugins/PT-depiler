@@ -165,6 +165,18 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+    },
+    process: SchemaMetadata.userInfo!.process!.map((item) =>
+      item.requestConfig?.url === "/mybonus.php"
+        ? { ...item, fields: [...(item.fields ?? []), "seedingSize"] }
+        : item,
+    ),
+  },
+
   levelRequirements: [
     {
       id: 0,
@@ -238,49 +250,37 @@ export const siteMetadata: ISiteMetadata = {
 
 export default class HDArea extends NexusPHP {
   // HDArea 的 getusertorrentlistajax.php 使用 data-count 属性记录总数
+  private async getDataCountFromSeedingPage(userId: number, type?: string): Promise<number | null> {
+    const page = await this.requestUserSeedingPage(userId, type);
+    if (!page) return null;
+    const match = page.match(/data-count=['"](\d+)['"]/);
+    return match ? parseInt(match[1], 10) : null;
+  }
+
+  protected async parseUserInfoForSeedingSize(
+    flushUserInfo: Partial<IUserInfo>,
+    dataDocument: Document,
+  ): Promise<Partial<IUserInfo>> {
+    const bodyText = dataDocument.documentElement?.innerHTML ?? "";
+    const sizeMatch = bodyText.match(/做种总积\s*<b>([\d.]+)\s*([ZEPTGMK]?i?B)/);
+    if (sizeMatch) {
+      flushUserInfo.seedingSize = parseSizeString(`${sizeMatch[1]} ${sizeMatch[2]}`);
+    }
+    return flushUserInfo;
+  }
+
   protected override async parseUserInfoForSeedingStatus(
     flushUserInfo: Partial<IUserInfo>,
   ): Promise<Partial<IUserInfo>> {
-    const userId = flushUserInfo.id as number;
-
-    let seedStatus: Partial<IUserInfo> = { seeding: 0, seedingSize: 0 };
-
-    // 做种数从 getusertorrentlistajax 的 data-count 获取
-    const seedingPage = await this.requestUserSeedingPage(userId);
-    if (!seedingPage) return { ...flushUserInfo, ...seedStatus };
-
-    const countMatch = seedingPage.match(/data-count=['"](\d+)['"]/);
-    if (countMatch) {
-      seedStatus.seeding = parseInt(countMatch[1], 10);
-    }
-
-    // 做种量从 mybonus.php 的"做种总积"获取
-    const mybonusPage = await this.request<string>({ url: "/mybonus.php" });
-    const bonusBody = mybonusPage?.data;
-    if (bonusBody) {
-      const sizeMatch = bonusBody.match(/做种总积\s*<b>([\d.]+)\s*([ZEPTGMK]?i?B)/);
-      if (sizeMatch) {
-        seedStatus.seedingSize = parseSizeString(`${sizeMatch[1]} ${sizeMatch[2]}`);
-      }
-    }
-
-    return { ...flushUserInfo, ...seedStatus };
+    const count = await this.getDataCountFromSeedingPage(flushUserInfo.id as number);
+    return { ...flushUserInfo, seeding: count ?? 0 };
   }
 
   protected override async parseUserInfoForUploads(
     flushUserInfo: Partial<IUserInfo>,
   ): Promise<Partial<IUserInfo>> {
     const userId = flushUserInfo.id as number;
-    const data = await this.requestUserSeedingPage(userId, "uploaded");
-
-    flushUserInfo.uploads = 0;
-    if (data) {
-      const countMatch = data.match(/data-count=['"](\d+)['"]/);
-      if (countMatch) {
-        flushUserInfo.uploads = parseInt(countMatch[1], 10);
-      }
-    }
-
+    flushUserInfo.uploads = (await this.getDataCountFromSeedingPage(userId, "uploaded")) ?? 0;
     return flushUserInfo;
   }
 
