@@ -1,10 +1,11 @@
-import type { ISearchInput, ISiteMetadata, ITorrent, ITorrentTag } from "../types";
+import type { ISearchInput, ISiteMetadata, ITorrent, ITorrentTag, IUserInfo } from "../types";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
   CategorySpstate,
   SchemaMetadata,
 } from "../schemas/NexusPHP.ts";
+import { parseSizeString } from "../utils/filesize";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -236,6 +237,53 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class HDArea extends NexusPHP {
+  // HDArea 的 getusertorrentlistajax.php 使用 data-count 属性记录总数
+  protected override async parseUserInfoForSeedingStatus(
+    flushUserInfo: Partial<IUserInfo>,
+  ): Promise<Partial<IUserInfo>> {
+    const userId = flushUserInfo.id as number;
+
+    let seedStatus: Partial<IUserInfo> = { seeding: 0, seedingSize: 0 };
+
+    // 做种数从 getusertorrentlistajax 的 data-count 获取
+    const seedingPage = await this.requestUserSeedingPage(userId);
+    if (!seedingPage) return { ...flushUserInfo, ...seedStatus };
+
+    const countMatch = seedingPage.match(/data-count=['"](\d+)['"]/);
+    if (countMatch) {
+      seedStatus.seeding = parseInt(countMatch[1], 10);
+    }
+
+    // 做种量从 mybonus.php 的"做种总积"获取
+    const mybonusPage = await this.request<string>({ url: "/mybonus.php" });
+    const bonusBody = mybonusPage?.data;
+    if (bonusBody) {
+      const sizeMatch = bonusBody.match(/做种总积\s*<b>([\d.]+)\s*([ZEPTGMK]?i?B)/);
+      if (sizeMatch) {
+        seedStatus.seedingSize = parseSizeString(`${sizeMatch[1]} ${sizeMatch[2]}`);
+      }
+    }
+
+    return { ...flushUserInfo, ...seedStatus };
+  }
+
+  protected override async parseUserInfoForUploads(
+    flushUserInfo: Partial<IUserInfo>,
+  ): Promise<Partial<IUserInfo>> {
+    const userId = flushUserInfo.id as number;
+    const data = await this.requestUserSeedingPage(userId, "uploaded");
+
+    flushUserInfo.uploads = 0;
+    if (data) {
+      const countMatch = data.match(/data-count=['"](\d+)['"]/);
+      if (countMatch) {
+        flushUserInfo.uploads = parseInt(countMatch[1], 10);
+      }
+    }
+
+    return flushUserInfo;
+  }
+
   // 获取种子标签
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
