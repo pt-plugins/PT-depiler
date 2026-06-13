@@ -1,10 +1,11 @@
-import type { ISearchInput, ISiteMetadata, ITorrent, ITorrentTag } from "../types";
+import type { ISearchInput, ISiteMetadata, ITorrent, ITorrentTag, IUserInfo } from "../types";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
   CategorySpstate,
   SchemaMetadata,
 } from "../schemas/NexusPHP.ts";
+import { parseSizeString } from "../utils/filesize";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -164,6 +165,18 @@ export const siteMetadata: ISiteMetadata = {
     },
   },
 
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+    },
+    process: SchemaMetadata.userInfo!.process!.map((item) =>
+      item.requestConfig?.url === "/mybonus.php"
+        ? { ...item, fields: [...(item.fields ?? []), "seedingSize"] }
+        : item,
+    ),
+  },
+
   levelRequirements: [
     {
       id: 0,
@@ -236,6 +249,41 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class HDArea extends NexusPHP {
+  // HDArea 的 getusertorrentlistajax.php 使用 data-count 属性记录总数
+  private async getDataCountFromSeedingPage(userId: number, type?: string): Promise<number | null> {
+    const page = await this.requestUserSeedingPage(userId, type);
+    if (!page) return null;
+    const match = page.match(/data-count=['"](\d+)['"]/);
+    return match ? parseInt(match[1], 10) : null;
+  }
+
+  protected async parseUserInfoForSeedingSize(
+    flushUserInfo: Partial<IUserInfo>,
+    dataDocument: Document,
+  ): Promise<Partial<IUserInfo>> {
+    const bodyText = dataDocument.documentElement?.innerHTML ?? "";
+    const sizeMatch = bodyText.match(/做种总积\s*<b>([\d.]+)\s*([ZEPTGMK]?i?B)/);
+    if (sizeMatch) {
+      flushUserInfo.seedingSize = parseSizeString(`${sizeMatch[1]} ${sizeMatch[2]}`);
+    }
+    return flushUserInfo;
+  }
+
+  protected override async parseUserInfoForSeedingStatus(
+    flushUserInfo: Partial<IUserInfo>,
+  ): Promise<Partial<IUserInfo>> {
+    const count = await this.getDataCountFromSeedingPage(flushUserInfo.id as number);
+    return { ...flushUserInfo, seeding: count ?? 0 };
+  }
+
+  protected override async parseUserInfoForUploads(
+    flushUserInfo: Partial<IUserInfo>,
+  ): Promise<Partial<IUserInfo>> {
+    const userId = flushUserInfo.id as number;
+    flushUserInfo.uploads = (await this.getDataCountFromSeedingPage(userId, "uploaded")) ?? 0;
+    return flushUserInfo;
+  }
+
   // 获取种子标签
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
