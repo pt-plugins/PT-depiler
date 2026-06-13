@@ -85,12 +85,14 @@ export const siteMetadata: ISiteMetadata = {
 
       status: {
         // 似乎只有一个 已完成 能够了解，下载进度等不能明确
-        selector: ['img[src="pic/finished.png"]'],
+        selector: ['img[src="pic/finished.png"]', 'img[src="pic/seeding.png"]'],
         attr: "src",
         filters: [
           (query: string) => {
             if (query === "pic/finished.png") {
               return ETorrentStatus.completed;
+            } else if (query === "pic/seeding.png") {
+              return ETorrentStatus.seeding;
             }
             return ETorrentStatus.unknown;
           },
