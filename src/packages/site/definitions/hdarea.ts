@@ -143,6 +143,24 @@ export const siteMetadata: ISiteMetadata = {
       rows: {
         selector: "table.torrents > tbody > tr:has(table.torrentname)",
       },
+      subTitle: {
+        text: "",
+        selector: [
+          "a[href^='details.php?id='][title]:has(b)",
+          "a[href*='details.php?id='][href*='hit']",
+          "a[href*='hit'][title]",
+          "a[href*='hit']:has(b)",
+        ],
+        // HDArea places the subtitle in a sibling div of the title div,
+        // rather than after a <br> tag, so we look at the next sibling element.
+        elementProcess: (element: HTMLElement) => {
+          const titleDiv = element.closest("td > div");
+          if (titleDiv?.nextElementSibling?.tagName === "DIV") {
+            return (titleDiv.nextElementSibling as HTMLElement).textContent?.trim() ?? "";
+          }
+          return "";
+        },
+      },
       tags: [
         ...SchemaMetadata.search!.selectors!.tags!,
         { name: "首发", selector: "img.first_publish", color: "#3887D7" },
@@ -171,9 +189,7 @@ export const siteMetadata: ISiteMetadata = {
       ...SchemaMetadata.userInfo!.selectors!,
     },
     process: SchemaMetadata.userInfo!.process!.map((item) =>
-      item.requestConfig?.url === "/mybonus.php"
-        ? { ...item, fields: [...(item.fields ?? []), "seedingSize"] }
-        : item,
+      item.requestConfig?.url === "/mybonus.php" ? { ...item, fields: [...(item.fields ?? []), "seedingSize"] } : item,
     ),
   },
 
@@ -276,9 +292,7 @@ export default class HDArea extends NexusPHP {
     return { ...flushUserInfo, seeding: count ?? 0 };
   }
 
-  protected override async parseUserInfoForUploads(
-    flushUserInfo: Partial<IUserInfo>,
-  ): Promise<Partial<IUserInfo>> {
+  protected override async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
     const userId = flushUserInfo.id as number;
     flushUserInfo.uploads = (await this.getDataCountFromSeedingPage(userId, "uploaded")) ?? 0;
     return flushUserInfo;
