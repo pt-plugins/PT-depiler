@@ -155,8 +155,9 @@ export const siteMetadata: ISiteMetadata = {
         // rather than after a <br> tag, so we look at the next sibling element.
         elementProcess: (element: HTMLElement) => {
           const titleDiv = element.closest("td > div");
-          if (titleDiv?.nextElementSibling?.tagName === "DIV") {
-            return (titleDiv.nextElementSibling as HTMLElement).textContent?.trim() ?? "";
+          const subtitleEl = titleDiv?.nextElementSibling;
+          if (subtitleEl instanceof HTMLElement && subtitleEl.tagName === "DIV") {
+            return subtitleEl.textContent?.trim() ?? "";
           }
           return "";
         },
