@@ -1,0 +1,208 @@
+import {
+  SchemaMetadata as e,
+  CategoryIncldead as a,
+  CategorySpstate as n,
+  CategoryInclbookmarked as o,
+} from "../schemas/NexusPHP-BNC4SlPA.js";
+import "../index-COeZNva1.js";
+import "../../../es-toolkit/toMerged-Be-qf92q.js";
+import "../../../es-toolkit/isPlainObject-3NY8ex7Q.js";
+import "../schemas/AbstractPrivateSite-kkMcHSoo.js";
+import "../../../es-toolkit/intersection-CiePrUGh.js";
+import "../../../es-toolkit/pascalCase-BZA_Th-x.js";
+import "../../../es-toolkit/has-CpNzJTaW.js";
+import "../schemas/AbstractBittorrentSite-YCyl9e_L.js";
+import "../types/base-Dy_28wGT.js";
+import "../types/torrent-BvvY2NbA.js";
+import "../utils/datetime-DQxMK7bP.js";
+import "../../../date-fns/sub-D9RLuzs0.js";
+import "../../../date-fns/subDays-DlPNbvmn.js";
+import "../../../date-fns/format-b1gG6cM7.js";
+import "../utils/filesize-D_1hx4u8.js";
+import "../utils/filter-Dko2hrfF.js";
+import "../utils/helper-OCngMtkv.js";
+import "../utils/level-ChrMpKO_.js";
+import "../../../date-fns/intervalToDuration-DvSvSXE3.js";
+import "../../../date-fns/normalizeInterval-DC3nt56b.js";
+import "../../../date-fns/differenceInYears-C2HS2Spv.js";
+const U = {
+  ...e,
+  version: 4,
+  id: "zmpt",
+  name: "织梦",
+  aka: ["织梦PT", "ZMPT"],
+  description: "为爱启航，造就梦想！",
+  timezoneOffset: "+0800",
+  collaborator: ["zhuweitung"],
+  type: "private",
+  schema: "NexusPHP",
+  urls: ["uggcf://mzcg.pp/"],
+  category: [
+    {
+      name: "分类",
+      key: "cat",
+      options: [
+        { name: "其他 / Misc", value: 409 },
+        { name: "纪录片 / documentary", value: 422 },
+        { name: "动漫 / Anime", value: 417 },
+        { name: "短剧 / Short Play", value: 427 },
+        { name: "电影 / Movies", value: 401 },
+        { name: "电视剧 / TV Series", value: 402 },
+        { name: "综艺 / TV Shows", value: 403 },
+        { name: "音乐 / Music", value: 423 },
+        { name: "有声书 / Audiobook", value: 424 },
+        { name: "软件 / Software", value: 425 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "视频类",
+      key: "medium",
+      options: [
+        { name: "其他资料", value: 12 },
+        { name: "CD", value: 8 },
+        { name: "DVDR", value: 6 },
+        { name: "HDTV", value: 5 },
+        { name: "MiniBD", value: 4 },
+        { name: "Encode", value: 7 },
+        { name: "Remux", value: 3 },
+        { name: "HD DVD", value: 2 },
+        { name: "Blu-ray", value: 1 },
+        { name: "WEB-DL", value: 10 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "分辨率",
+      key: "standard",
+      options: [
+        { name: "480p", value: 7 },
+        { name: "720p", value: 8 },
+        { name: "1080p/1080i", value: 1 },
+        { name: "2K/1440p", value: 6 },
+        { name: "4K/2160p", value: 5 },
+        { name: "8K/4320p", value: 9 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "音频类",
+      key: "audiocodec",
+      options: [
+        { name: "Other", value: 7 },
+        { name: "FLAC", value: 1 },
+        { name: "APE", value: 2 },
+        { name: "DTS", value: 3 },
+        { name: "OGG", value: 5 },
+        { name: "AC3", value: 8 },
+        { name: "AAC", value: 6 },
+        { name: "MP3", value: 4 },
+        { name: "ALAC", value: 9 },
+        { name: "WAV", value: 10 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "制作组",
+      key: "team",
+      options: [
+        { name: "Other", value: 5 },
+        { name: "ZmWeb", value: 7 },
+        { name: "ZmPT", value: 6 },
+        { name: "ZmMusic", value: 8 },
+        { name: "DYZ-Movie", value: 9 },
+        { name: "GodDramas", value: 10 },
+      ],
+      cross: { mode: "append" },
+    },
+    a,
+    n,
+    o,
+  ],
+  officialGroupPattern: ["ZmWeb", "ZmPT"],
+  userInfo: {
+    ...e.userInfo,
+    selectors: {
+      ...e.userInfo.selectors,
+      bonus: { selector: ["td.rowhead:contains('电力值') + td"], filters: [{ name: "parseNumber" }] },
+    },
+  },
+  levelRequirements: [
+    { id: 0, name: "User", privilege: "新用户的默认级别" },
+    {
+      id: 1,
+      name: "中级训练家(PU)",
+      interval: "P4W",
+      downloaded: "50GB",
+      ratio: 1.05,
+      seedingBonus: 3e4,
+      privilege:
+        '可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
+    },
+    {
+      id: 2,
+      name: "高级训练家(eu)",
+      interval: "P8W",
+      downloaded: "120GB",
+      ratio: 1.55,
+      seedingBonus: 8e4,
+      privilege: "",
+    },
+    {
+      id: 3,
+      name: "精英训练家(CU)",
+      interval: "P16W",
+      downloaded: "300GB",
+      ratio: 2.05,
+      seedingBonus: 15e4,
+      privilege: "可以在做种/下载/发布的时候选择匿名模式。",
+    },
+    {
+      id: 4,
+      name: "道馆训练家(IU)",
+      interval: "P28W",
+      downloaded: "500GB",
+      ratio: 2.55,
+      seedingBonus: 25e4,
+      privilege: "可以查看普通日志。道馆训练家(IU)及以上用户封存账号后不会被删除;。",
+    },
+    {
+      id: 5,
+      name: "专家训练家(VU)",
+      interval: "P40W",
+      downloaded: "750GB",
+      ratio: 3.05,
+      seedingBonus: 4e5,
+      privilege: "可以查看其它用户的评论、帖子历史。",
+    },
+    {
+      id: 6,
+      name: "冠军训练家(EU)",
+      interval: "P56W",
+      downloaded: "1TB",
+      ratio: 3.55,
+      seedingBonus: 6e5,
+      privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。",
+    },
+    {
+      id: 7,
+      name: "大师训练家(UU)",
+      interval: "P76W",
+      downloaded: "1.5TB",
+      ratio: 4.05,
+      seedingBonus: 9e5,
+      privilege: "",
+    },
+    {
+      id: 8,
+      name: "传说训练家(NM)",
+      interval: "P100W",
+      downloaded: "3TB",
+      ratio: 4.55,
+      seedingBonus: 15e5,
+      isKept: !0,
+      privilege: "传说训练家(NM)及以上用户会永远保留账号。",
+    },
+  ],
+};
+export { U as siteMetadata };

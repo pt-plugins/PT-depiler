@@ -1,0 +1,12 @@
+.downloader_label[data-v-c21de985] {
+  display: grid;
+  grid-column-gap: 4px;
+  grid-row-gap: 4px;
+  justify-content: left;
+}
+.downloader_label .downloader_icon[data-v-c21de985] {
+  grid-area: 1/1/2/2;
+}
+.downloader_label .downloader_info[data-v-c21de985] {
+  grid-area: 1/2/2/3;
+}

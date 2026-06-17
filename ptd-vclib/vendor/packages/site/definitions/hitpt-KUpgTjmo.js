@@ -1,0 +1,194 @@
+import {
+  CategoryIncldead as e,
+  CategorySpstate as a,
+  CategoryInclbookmarked as n,
+  SchemaMetadata as i,
+} from "../schemas/NexusPHP-BNC4SlPA.js";
+import "../index-COeZNva1.js";
+import "../../../es-toolkit/toMerged-Be-qf92q.js";
+import "../../../es-toolkit/isPlainObject-3NY8ex7Q.js";
+import "../schemas/AbstractPrivateSite-kkMcHSoo.js";
+import "../../../es-toolkit/intersection-CiePrUGh.js";
+import "../../../es-toolkit/pascalCase-BZA_Th-x.js";
+import "../../../es-toolkit/has-CpNzJTaW.js";
+import "../schemas/AbstractBittorrentSite-YCyl9e_L.js";
+import "../types/base-Dy_28wGT.js";
+import "../types/torrent-BvvY2NbA.js";
+import "../utils/datetime-DQxMK7bP.js";
+import "../../../date-fns/sub-D9RLuzs0.js";
+import "../../../date-fns/subDays-DlPNbvmn.js";
+import "../../../date-fns/format-b1gG6cM7.js";
+import "../utils/filesize-D_1hx4u8.js";
+import "../utils/filter-Dko2hrfF.js";
+import "../utils/helper-OCngMtkv.js";
+import "../utils/level-ChrMpKO_.js";
+import "../../../date-fns/intervalToDuration-DvSvSXE3.js";
+import "../../../date-fns/normalizeInterval-DC3nt56b.js";
+import "../../../date-fns/differenceInYears-C2HS2Spv.js";
+const G = {
+  ...i,
+  version: 1,
+  id: "hitpt",
+  name: "百川PT",
+  aka: ["百川PT"],
+  description: "校内10兆高速下载，优质高清资源共享！",
+  tags: ["教育网", "影视", "综合"],
+  timezoneOffset: "+0800",
+  collaborator: ["tongyifan", "zhuweitung"],
+  type: "private",
+  schema: "NexusPHP",
+  urls: ["uggcf://jjj.uvgcg.pbz/"],
+  legacyUrls: ["https://pt.ghtt.net/"],
+  category: [
+    {
+      name: "分类",
+      key: "cat",
+      options: [
+        { name: "电子文档", value: 411 },
+        { name: "音乐", value: 406 },
+        { name: "工程软件", value: 408 },
+        { name: "教学视频", value: 404 },
+        { name: "游戏", value: 410 },
+        { name: "其他", value: 409 },
+        { name: "电子书", value: 417 },
+        { name: "网络课程", value: 418 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "来源",
+      key: "source",
+      options: [
+        { name: "保种资源", value: 10 },
+        { name: "UHD", value: 11 },
+        { name: "Blu-ray", value: 1 },
+        { name: "Remux", value: 12 },
+        { name: "HDTV", value: 4 },
+        { name: "BDrip", value: 2 },
+        { name: "Web", value: 9 },
+        { name: "DVD", value: 3 },
+        { name: "CD", value: 7 },
+        { name: "TV", value: 5 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "编码",
+      key: "codec",
+      options: [
+        { name: "H.265", value: 10 },
+        { name: "H.264", value: 1 },
+        { name: "X265", value: 14 },
+        { name: "X264", value: 13 },
+        { name: "VC-1", value: 2 },
+        { name: "MPEG-2", value: 4 },
+        { name: "MPEG-4", value: 12 },
+        { name: "Xvid", value: 3 },
+        { name: "VP9", value: 11 },
+        { name: "Other", value: 5 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "制作组",
+      key: "team",
+      options: [
+        { name: "PTer", value: 22 },
+        { name: "HDDolby", value: 18 },
+        { name: "HSPT", value: 21 },
+        { name: "OurBits", value: 19 },
+        { name: "MTeam", value: 16 },
+        { name: "FRDS", value: 20 },
+        { name: "beAst", value: 14 },
+        { name: "HDWinG", value: 6 },
+        { name: "CHDBits", value: 8 },
+        { name: "CMCT", value: 5 },
+      ],
+      cross: { mode: "append" },
+    },
+    e,
+    a,
+    n,
+  ],
+  levelRequirements: [
+    { id: 0, name: "User", privilege: "新用户的默认级别" },
+    {
+      id: 1,
+      name: "Power User",
+      interval: "P1W",
+      downloaded: "10GB",
+      ratio: 1.5,
+      seedingBonus: 2e4,
+      privilege:
+        '可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
+    },
+    {
+      id: 2,
+      name: "Elite User",
+      interval: "P1W",
+      downloaded: "120GB",
+      ratio: 1.55,
+      seedingBonus: 4e4,
+      privilege: "Elite User及以上用户封存账号后不会被删除，可以发送邀请。",
+    },
+    {
+      id: 3,
+      name: "Crazy User",
+      interval: "P4W",
+      downloaded: "300GB",
+      ratio: 2.05,
+      seedingBonus: 12e4,
+      privilege: "得到一个邀请名额；可以用魔力值购买邀请；可以在做种/下载/发布的时候选择匿名模式。",
+    },
+    {
+      id: 4,
+      name: "Insane User",
+      interval: "P6W",
+      downloaded: "500GB",
+      ratio: 2.55,
+      seedingBonus: 25e4,
+      privilege: "可以查看普通日志。",
+    },
+    {
+      id: 5,
+      name: "Veteran User",
+      interval: "P8W",
+      downloaded: "750GB",
+      ratio: 3.05,
+      seedingBonus: 4e5,
+      isKept: !0,
+      privilege: "得到二个邀请名额；可以查看其它用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。",
+    },
+    {
+      id: 6,
+      name: "Extreme User",
+      interval: "P10W",
+      downloaded: "1TB",
+      ratio: 3.55,
+      seedingBonus: 6e5,
+      isKept: !0,
+      privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。",
+    },
+    {
+      id: 7,
+      name: "Ultimate User",
+      interval: "P20W",
+      downloaded: "1.5TB",
+      ratio: 4.05,
+      seedingBonus: 8e5,
+      isKept: !0,
+      privilege: "得到三个邀请名额。",
+    },
+    {
+      id: 8,
+      name: "Nexus Master",
+      interval: "P50W",
+      downloaded: "2TB",
+      ratio: 4.6,
+      seedingBonus: 1e6,
+      isKept: !0,
+      privilege: "得到五个邀请名额。",
+    },
+  ],
+};
+export { G as siteMetadata };

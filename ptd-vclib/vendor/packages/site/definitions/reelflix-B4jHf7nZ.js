@@ -1,0 +1,141 @@
+import { CategoryFree as e, SchemaMetadata as i } from "../schemas/Unit3D-ChxolkI5.js";
+import "../../../url-join/url-join-Cu798wIg.js";
+import "../../../es-toolkit/omit-BqXgNNTz.js";
+import "../../../es-toolkit/toMerged-Be-qf92q.js";
+import "../index-COeZNva1.js";
+import "../../../es-toolkit/isPlainObject-3NY8ex7Q.js";
+import "../schemas/AbstractPrivateSite-kkMcHSoo.js";
+import "../../../es-toolkit/intersection-CiePrUGh.js";
+import "../../../es-toolkit/pascalCase-BZA_Th-x.js";
+import "../../../es-toolkit/has-CpNzJTaW.js";
+import "../schemas/AbstractBittorrentSite-YCyl9e_L.js";
+import "../types/base-Dy_28wGT.js";
+import "../types/torrent-BvvY2NbA.js";
+import "../utils/datetime-DQxMK7bP.js";
+import "../../../date-fns/sub-D9RLuzs0.js";
+import "../../../date-fns/subDays-DlPNbvmn.js";
+import "../../../date-fns/format-b1gG6cM7.js";
+import "../utils/filesize-D_1hx4u8.js";
+import "../utils/filter-Dko2hrfF.js";
+import "../utils/helper-OCngMtkv.js";
+import "../utils/level-ChrMpKO_.js";
+import "../../../date-fns/intervalToDuration-DvSvSXE3.js";
+import "../../../date-fns/normalizeInterval-DC3nt56b.js";
+import "../../../date-fns/differenceInYears-C2HS2Spv.js";
+const h = {
+  ...i,
+  version: 1,
+  id: "reelflix",
+  name: "ReelFliX",
+  aka: ["RFX"],
+  description: "Keep it Reel",
+  tags: ["电影"],
+  timezoneOffset: "+0000",
+  type: "private",
+  schema: "Unit3D",
+  urls: ["uggcf://errysyvk.pp/", "uggcf://errysyvk.klm/"],
+  category: [
+    {
+      name: "规格",
+      key: "typeIds",
+      options: [
+        { name: "Full Disc", value: 43 },
+        { name: "Remux", value: 40 },
+        { name: "Encode", value: 41 },
+        { name: "WEB-DL", value: 42 },
+        { name: "WEBRip", value: 45 },
+        { name: "HDTV", value: 35 },
+      ],
+      cross: { mode: "brackets" },
+    },
+    {
+      name: "分辨率",
+      key: "resolutionIds",
+      options: [
+        { name: "4320p", value: 1 },
+        { name: "2160p", value: 2 },
+        { name: "1080p", value: 3 },
+        { name: "1080i", value: 4 },
+        { name: "720p", value: 5 },
+        { name: "576p", value: 6 },
+        { name: "576i", value: 7 },
+        { name: "480p", value: 8 },
+        { name: "480i", value: 9 },
+        { name: "Other", value: 10 },
+      ],
+      cross: { mode: "brackets" },
+    },
+    e,
+  ],
+  levelRequirements: [
+    { id: 0, name: "Leech" },
+    { id: 1, name: "User", ratio: 0.8, uploaded: "50GiB", privilege: "1下载槽" },
+    {
+      id: 2,
+      name: "Member",
+      interval: "P5D",
+      ratio: 0.9,
+      uploaded: "100GiB",
+      averageSeedingTime: "P1D",
+      privilege: "5下载槽",
+    },
+    {
+      id: 3,
+      name: "Pro",
+      interval: "P2W",
+      ratio: 1,
+      uploaded: "500GiB",
+      averageSeedingTime: "P5D",
+      privilege: "上传种子 10下载槽 求种",
+    },
+    {
+      id: 4,
+      name: "Expert",
+      interval: "P1M",
+      ratio: 1.1,
+      uploaded: "1TiB",
+      averageSeedingTime: "P15D",
+      privilege: "上传种子 无限下载槽 求种 自动通过候选",
+    },
+    {
+      id: 5,
+      name: "Elite",
+      interval: "P3M",
+      ratio: 1.2,
+      uploaded: "2.5TiB",
+      averageSeedingTime: "P1M",
+      privilege: "上传种子 无限下载槽 发送邀请 自动通过候选 邀请论坛",
+    },
+    {
+      id: 6,
+      name: "Distributor",
+      interval: "P6M",
+      ratio: 1.25,
+      uploaded: "5TiB",
+      seedingSize: "1TiB",
+      averageSeedingTime: "P45D",
+      privilege: "上传种子 无限下载槽 发送邀请 自动通过候选 邀请论坛 所有种子可退款",
+    },
+    {
+      id: 7,
+      name: "Curator",
+      interval: "P1Y",
+      ratio: 1.5,
+      uploaded: "10TiB",
+      seedingSize: "2.5TiB",
+      averageSeedingTime: "P3M",
+      privilege: "上传种子 无限下载槽 发送邀请 自动通过候选 邀请论坛 全站25%免费",
+    },
+    {
+      id: 8,
+      name: "Archivist",
+      interval: "P2Y",
+      ratio: 1.75,
+      uploaded: "25TiB",
+      seedingSize: "5TiB",
+      averageSeedingTime: "P6M",
+      privilege: "上传种子 无限下载槽 发送邀请 自动通过候选 邀请论坛 全站50%免费",
+    },
+  ],
+};
+export { h as siteMetadata };

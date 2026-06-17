@@ -1,0 +1,235 @@
+import {
+  CategoryIncldead as e,
+  CategorySpstate as a,
+  CategoryInclbookmarked as n,
+  SchemaMetadata as m,
+} from "../schemas/NexusPHP-BNC4SlPA.js";
+import "../index-COeZNva1.js";
+import "../../../es-toolkit/toMerged-Be-qf92q.js";
+import "../../../es-toolkit/isPlainObject-3NY8ex7Q.js";
+import "../schemas/AbstractPrivateSite-kkMcHSoo.js";
+import "../../../es-toolkit/intersection-CiePrUGh.js";
+import "../../../es-toolkit/pascalCase-BZA_Th-x.js";
+import "../../../es-toolkit/has-CpNzJTaW.js";
+import "../schemas/AbstractBittorrentSite-YCyl9e_L.js";
+import "../types/base-Dy_28wGT.js";
+import "../types/torrent-BvvY2NbA.js";
+import "../utils/datetime-DQxMK7bP.js";
+import "../../../date-fns/sub-D9RLuzs0.js";
+import "../../../date-fns/subDays-DlPNbvmn.js";
+import "../../../date-fns/format-b1gG6cM7.js";
+import "../utils/filesize-D_1hx4u8.js";
+import "../utils/filter-Dko2hrfF.js";
+import "../utils/helper-OCngMtkv.js";
+import "../utils/level-ChrMpKO_.js";
+import "../../../date-fns/intervalToDuration-DvSvSXE3.js";
+import "../../../date-fns/normalizeInterval-DC3nt56b.js";
+import "../../../date-fns/differenceInYears-C2HS2Spv.js";
+const T = {
+  ...m,
+  version: 1,
+  id: "pandapt",
+  name: "PandaPT",
+  aka: ["熊猫高清"],
+  description: "熊猫高清",
+  timezoneOffset: "+0800",
+  collaborator: ["zhuhhx"],
+  type: "private",
+  schema: "NexusPHP",
+  urls: ["uggcf://cnaqncg.arg/"],
+  category: [
+    {
+      name: "搜索入口",
+      key: "#url",
+      options: [
+        { name: "综合", value: "/torrents.php" },
+        { name: "有声书", value: "/special.php" },
+      ],
+    },
+    {
+      name: "分类（综合）",
+      key: "cat",
+      options: [
+        { name: "电影/Movies", value: 401 },
+        { name: "电视剧/TV-Series", value: 402 },
+        { name: "综艺/TV-Show", value: 403 },
+        { name: "纪录片/Documentary", value: 404 },
+        { name: "动漫/Animation", value: 405 },
+        { name: "体育/Sport", value: 407 },
+        { name: "音乐/Music", value: 408 },
+        { name: "其他/Other", value: 409 },
+        { name: "游戏/Game", value: 411 },
+        { name: "软件/Software", value: 412 },
+        { name: "演唱会/Concert", value: 413 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "媒介",
+      key: "medium",
+      options: [
+        { name: "Blu-ray", value: 1 },
+        { name: "HD DVD", value: 2 },
+        { name: "Remux", value: 3 },
+        { name: "MiniBD", value: 4 },
+        { name: "HDTV", value: 5 },
+        { name: "DVDR", value: 6 },
+        { name: "Encode", value: 7 },
+        { name: "CD", value: 8 },
+        { name: "Track", value: 9 },
+        { name: "WEB-DL", value: 10 },
+        { name: "UHD Blu-ray", value: 11 },
+        { name: "UHDTV", value: 12 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "编码",
+      key: "codec",
+      options: [
+        { name: "AVC/H.264/x264", value: 1 },
+        { name: "VC-1", value: 2 },
+        { name: "Xvid", value: 3 },
+        { name: "MPEG-2", value: 4 },
+        { name: "Other", value: 5 },
+        { name: "HEVC/H.265/x265", value: 6 },
+        { name: "VP8/VP9", value: 7 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "音频编码",
+      key: "audiocodec",
+      options: [
+        { name: "TrueHD", value: 1 },
+        { name: "DTS-X", value: 2 },
+        { name: "DTS-HD", value: 3 },
+        { name: "DTS", value: 4 },
+        { name: "DD/AC3", value: 5 },
+        { name: "DDP/EAC3", value: 6 },
+        { name: "AAC", value: 7 },
+        { name: "TrueHD Atmos", value: 8 },
+        { name: "LPCM/PCM", value: 9 },
+        { name: "FLAC", value: 11 },
+        { name: "Other", value: 16 },
+        { name: "DTS-HR", value: 18 },
+        { name: "AV3A", value: 19 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "分辨率",
+      key: "standard",
+      options: [
+        { name: "1080p", value: 1 },
+        { name: "1080i", value: 2 },
+        { name: "720p", value: 3 },
+        { name: "2160p/4K", value: 5 },
+        { name: "4320k/8K", value: 6 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "制作组",
+      key: "team",
+      options: [
+        { name: "Panda(压制组)", value: 1 },
+        { name: "Other", value: 5 },
+        { name: "Panda(原盘diy组)", value: 6 },
+        { name: "AilMWeb(流媒体组)", value: 7 },
+        { name: "Panda(原盘Remux组)", value: 10 },
+        { name: "AilMTV(电视录制组)", value: 8 },
+        { name: "AilMUpscale(超分视频组)", value: 14 },
+        { name: "CatEDU(部分禁转)", value: 15 },
+        { name: "Red Leaves (红叶)", value: 22 },
+      ],
+      cross: { mode: "append" },
+    },
+    e,
+    a,
+    n,
+  ],
+  officialGroupPattern: ["AilMWeb", "-PANDA", "@Panda"],
+  searchEntry: {
+    area_normal: { name: "综合", requestConfig: { url: "/torrents.php" } },
+    area_special: { name: "有声书", enabled: !1, requestConfig: { url: "/special.php" } },
+  },
+  levelRequirements: [
+    { id: 0, name: "User", privilege: "新用户的默认级别。只能在每周六中午12点至每周日晚上11点59分发布种子。" },
+    {
+      id: 1,
+      name: "Power User",
+      interval: "P4W",
+      downloaded: "250GB",
+      ratio: 2,
+      seedingBonus: 33600,
+      privilege:
+        '得到一个邀请名额；可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种； 可以发送邀请； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
+    },
+    {
+      id: 2,
+      name: "Elite User",
+      interval: "P8W",
+      downloaded: "500GB",
+      ratio: 2.5,
+      seedingBonus: 67200,
+      privilege: "权限同Power User",
+    },
+    {
+      id: 3,
+      name: "Crazy User",
+      interval: "P15W",
+      downloaded: "1024GB",
+      ratio: 3,
+      seedingBonus: 126e3,
+      privilege: "得到一个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
+    },
+    {
+      id: 4,
+      name: "Insane User",
+      interval: "P40W",
+      downloaded: "1536GB",
+      ratio: 3.5,
+      seedingBonus: 336e3,
+      privilege: "可以查看普通日志，Insane User及以上用户封存账号后不会被删除。",
+    },
+    {
+      id: 5,
+      name: "Veteran User",
+      interval: "P60W",
+      downloaded: "2048GB",
+      ratio: 4,
+      seedingBonus: 504e3,
+      privilege: "得到两个邀请名额；可以查看其它用户的评论、帖子历史。",
+    },
+    {
+      id: 6,
+      name: "Extreme User",
+      interval: "P80W",
+      downloaded: "3072GB",
+      ratio: 4.5,
+      seedingBonus: 672e3,
+      privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。",
+    },
+    {
+      id: 7,
+      name: "Ultimate User",
+      interval: "P100W",
+      downloaded: "4096GB",
+      ratio: 5,
+      seedingBonus: 84e4,
+      privilege: "得到三个邀请名额。",
+    },
+    {
+      id: 8,
+      name: "Nexus Master",
+      interval: "P120W",
+      downloaded: "8192GB",
+      ratio: 6,
+      seedingBonus: 1008e3,
+      isKept: !0,
+      privilege: "得到五个邀请名额。Nexus Master及以上用户会永远保留账号。",
+    },
+  ],
+};
+export { T as siteMetadata };

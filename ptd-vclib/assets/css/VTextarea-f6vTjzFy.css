@@ -1,0 +1,68 @@
+.v-textarea {
+  --v-textarea-max-height: initial;
+}
+.v-textarea .v-field {
+  --v-textarea-control-height: var(--v-input-control-height);
+}
+.v-textarea .v-field:not(.v-field--no-label, .v-field--active) textarea::placeholder {
+  opacity: 0;
+}
+.v-textarea .v-field__field {
+  --v-input-control-height: var(--v-textarea-control-height);
+}
+.v-textarea .v-field__input {
+  max-height: var(--v-textarea-max-height);
+  flex: 1 1 auto;
+  outline: none;
+  -webkit-mask-image:
+    linear-gradient(
+      to bottom,
+      transparent,
+      transparent calc(var(--v-field-padding-top, 0) + var(--v-input-padding-top, 0) - 6px),
+      black calc(var(--v-field-padding-top, 0) + var(--v-input-padding-top, 0) + 4px)
+    ),
+    linear-gradient(
+      to right,
+      transparent,
+      transparent calc(100% - var(--v-textarea-scroll-bar-width, 16px)),
+      black calc(100% - var(--v-textarea-scroll-bar-width, 16px))
+    );
+  mask-image:
+    linear-gradient(
+      to bottom,
+      transparent,
+      transparent calc(var(--v-field-padding-top, 0) + var(--v-input-padding-top, 0) - 6px),
+      black calc(var(--v-field-padding-top, 0) + var(--v-input-padding-top, 0) + 4px)
+    ),
+    linear-gradient(
+      to right,
+      transparent,
+      transparent calc(100% - var(--v-textarea-scroll-bar-width, 16px)),
+      black calc(100% - var(--v-textarea-scroll-bar-width, 16px))
+    );
+}
+.v-textarea .v-field__input.v-textarea__sizer {
+  visibility: hidden;
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 0 !important;
+  min-height: 0 !important;
+  pointer-events: none;
+}
+.v-textarea--no-resize .v-field__input {
+  resize: none;
+}
+.v-textarea textarea {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  transition: 0.15s opacity cubic-bezier(0.4, 0, 0.2, 1);
+}
+.v-textarea textarea:focus,
+.v-textarea textarea:active {
+  outline: none;
+}
+.v-textarea textarea:invalid {
+  box-shadow: none;
+}

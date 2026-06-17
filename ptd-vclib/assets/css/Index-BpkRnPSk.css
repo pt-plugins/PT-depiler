@@ -1,0 +1,20 @@
+@charset "UTF-8";
+.list-item a[data-v-768039a0] {
+  color: #000;
+  text-decoration: none;
+}
+.list-item a[data-v-768039a0]:hover {
+  color: #008c00;
+}
+.chip_limit_width[data-v-1682271a] {
+  min-width: fit-content;
+}
+.chip_content_hidden_fix[data-v-1682271a] {
+  padding: 0 5px !important;
+}
+.chip_content_hidden_fix[data-v-1682271a] i.v-icon {
+  margin: 0;
+}
+#ptd-search-entity-table[data-v-c8b4c803] td.v-data-table__td {
+  padding: 0 8px;
+}

@@ -1,0 +1,287 @@
+import { E as t } from "../types/torrent-BvvY2NbA.js";
+import {
+  SchemaMetadata as a,
+  CategoryIncldead as m,
+  CategoryInclbookmarked as r,
+} from "../schemas/NexusPHP-BNC4SlPA.js";
+import "../index-COeZNva1.js";
+import "../../../es-toolkit/toMerged-Be-qf92q.js";
+import "../../../es-toolkit/isPlainObject-3NY8ex7Q.js";
+import "../schemas/AbstractPrivateSite-kkMcHSoo.js";
+import "../../../es-toolkit/intersection-CiePrUGh.js";
+import "../../../es-toolkit/pascalCase-BZA_Th-x.js";
+import "../../../es-toolkit/has-CpNzJTaW.js";
+import "../schemas/AbstractBittorrentSite-YCyl9e_L.js";
+import "../types/base-Dy_28wGT.js";
+import "../utils/datetime-DQxMK7bP.js";
+import "../../../date-fns/sub-D9RLuzs0.js";
+import "../../../date-fns/subDays-DlPNbvmn.js";
+import "../../../date-fns/format-b1gG6cM7.js";
+import "../utils/filesize-D_1hx4u8.js";
+import "../utils/filter-Dko2hrfF.js";
+import "../utils/helper-OCngMtkv.js";
+import "../utils/level-ChrMpKO_.js";
+import "../../../date-fns/intervalToDuration-DvSvSXE3.js";
+import "../../../date-fns/normalizeInterval-DC3nt56b.js";
+import "../../../date-fns/differenceInYears-C2HS2Spv.js";
+const w = {
+  ...a,
+  version: 1,
+  id: "hdupt",
+  name: "HDU",
+  aka: ["好多油"],
+  description: "这是一个尊重版权的私有资源PT分享站点HDU。高清有你，你有UPXIN",
+  tags: ["影视", "综合"],
+  type: "private",
+  schema: "NexusPHP",
+  urls: ["https://pt.hdupt.com/", "https://pt.upxin.net/"],
+  category: [
+    {
+      name: "类别",
+      key: "cat",
+      options: [
+        { value: 401, name: "Movies/电影" },
+        { value: 402, name: "TV Series/电视剧" },
+        { value: 403, name: "TV Shows/综艺" },
+        { value: 404, name: "Documentaries/纪录片" },
+        { value: 405, name: "Animations/动画" },
+        { value: 406, name: "Music Videos/音乐 MV" },
+        { value: 407, name: "Sports/体育" },
+        { value: 408, name: "HQ Audio/无损音乐" },
+        { value: 411, name: "Misc/其他" },
+        { value: 410, name: "Games/游戏" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "媒介",
+      key: "medium",
+      options: [
+        { value: 1, name: "Blu-ray" },
+        { value: 11, name: "UHD Blu-ray" },
+        { value: 5, name: "HDTV" },
+        { value: 6, name: "DVD" },
+        { value: 3, name: "Remux" },
+        { value: 15, name: "UHD Remux" },
+        { value: 16, name: "UHD Remux TV" },
+        { value: 12, name: "Remux TV" },
+        { value: 7, name: "Encode" },
+        { value: 14, name: "Encode TV" },
+        { value: 10, name: "WEB-DL/WEBRip" },
+        { value: 13, name: "WEB-DL/WEBRip TV" },
+        { value: 4, name: "MiniBD" },
+        { value: 8, name: "CD" },
+        { value: 9, name: "Track" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "编码",
+      key: "codec",
+      options: [
+        { value: 1, name: "H.264/AVC" },
+        { value: 14, name: "H.265/HEVC" },
+        { value: 2, name: "VC-1" },
+        { value: 16, name: "x264" },
+        { value: 3, name: "Xvid" },
+        { value: 18, name: "MPEG/MPEG-2" },
+        { value: 5, name: "Other" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "音频编码",
+      key: "audiocodec",
+      options: [
+        { value: 16, name: "DTS:X" },
+        { value: 1, name: "DTS-HDMA" },
+        { value: 3, name: "TrueHD" },
+        { value: 11, name: "LPCM" },
+        { value: 4, name: "DTS" },
+        { value: 2, name: "AC3/EAC3" },
+        { value: 6, name: "AAC" },
+        { value: 7, name: "FLAC" },
+        { value: 10, name: "APE" },
+        { value: 17, name: "WAV" },
+        { value: 18, name: "MPEG" },
+        { value: 13, name: "Other" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "分辨率",
+      key: "standard",
+      options: [
+        { value: 1, name: "1080p" },
+        { value: 2, name: "1080i" },
+        { value: 5, name: "4K/2160p" },
+        { value: 3, name: "720p" },
+        { value: 4, name: "SD" },
+        { value: 6, name: "iPad" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "处理",
+      key: "processing",
+      options: [
+        { value: 1, name: "CN/中国内地" },
+        { value: 3, name: "HK/TW/港台" },
+        { value: 2, name: "US/EU/欧美" },
+        { value: 4, name: "JP/日本" },
+        { value: 5, name: "KR/韩国" },
+        { value: 6, name: "India/印度" },
+        { value: 8, name: "SEA/东南亚" },
+        { value: 7, name: "Other" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "制作组",
+      key: "team",
+      options: [
+        { value: 2, name: "HDU" },
+        { value: 5, name: "Other" },
+      ],
+      cross: { mode: "append" },
+    },
+    m,
+    {
+      name: "促销种子？",
+      key: "spstate",
+      options: [
+        { name: "全部", value: 0 },
+        { name: "普通", value: 1 },
+        { name: "免费", value: 2 },
+        { name: "2X", value: 3 },
+        { name: "2X免费", value: 4 },
+        { name: "50%", value: 5 },
+        { name: "2X 50%", value: 6 },
+        { name: "30%", value: 7 },
+        { name: "永久免费", value: 8 },
+      ],
+      cross: !1,
+    },
+    r,
+  ],
+  search: {
+    ...a.search,
+    selectors: {
+      ...a.search.selectors,
+      progress: {
+        selector: [
+          "td[class='embedded'][style*='color: blue;font-weight: bold']",
+          "td[class='embedded'] img[src*='zuozhong.gif']",
+        ],
+        elementProcess: (e) => {
+          if (e.getAttribute("src")) return 100;
+          {
+            const n = e.innerText;
+            return n ? parseInt(n.replace(/%/, "")) : 0;
+          }
+        },
+      },
+      status: {
+        selector: [
+          "td[class='embedded'][style*='color: blue;font-weight: bold']",
+          "td[class='embedded'] img[src*='zuozhong.gif']",
+        ],
+        elementProcess: (e) =>
+          e.getAttribute("src") ? t.seeding : e.innerText.includes("100%") ? t.completed : t.inactive,
+      },
+    },
+  },
+  userInfo: {
+    ...a.userInfo,
+    selectors: {
+      ...a.userInfo.selectors,
+      bonus: { selector: ["td.rowhead:contains('魔力值') + td"], filters: [{ name: "parseNumber" }] },
+      seeding: {
+        selector: ["img.arrowup"],
+        elementProcess: (e) => parseInt((e.nextSibling?.textContent ?? "0").trim()),
+      },
+      seedingSize: { selector: ["td.rowhead:contains('Seeding Size') + td"], filters: [{ name: "parseSize" }] },
+    },
+  },
+  levelRequirements: [
+    { id: 1, name: "User", privilege: "新用户的默认级别。" },
+    {
+      id: 2,
+      name: "Power User",
+      nameAka: ["初窥门径"],
+      interval: "P4W",
+      downloaded: "50GB",
+      ratio: 2,
+      privilege:
+        '可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种； 可以发送邀请；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
+    },
+    {
+      id: 3,
+      name: "Elite User",
+      nameAka: ["略有小成"],
+      interval: "P8W",
+      downloaded: "120GB",
+      ratio: 2.5,
+      privilege: "略有小成(Elite User)及以上用户封存账号后不会被删除，可以进入论坛邀请区。",
+    },
+    {
+      id: 4,
+      name: "Crazy User",
+      nameAka: ["驾轻就熟"],
+      interval: "P15W",
+      downloaded: "300GB",
+      ratio: 3,
+      privilege: "得到一个邀请名额。",
+    },
+    {
+      id: 5,
+      name: "Insane User",
+      nameAka: ["渐入佳境"],
+      interval: "P25W",
+      downloaded: "500GB",
+      ratio: 3.85,
+      privilege: "得到一个邀请名额。",
+    },
+    {
+      id: 6,
+      name: "Veteran User",
+      nameAka: ["炉火纯青"],
+      interval: "P40W",
+      downloaded: "750GB",
+      ratio: 5.95,
+      isKept: !0,
+      privilege: "得到一个邀请名额；可以查看其它用户的评论、帖子历史。炉火纯青(Veteran User)及以上用户会永远保留账号。",
+    },
+    {
+      id: 7,
+      name: "Extreme User",
+      nameAka: ["登峰造极"],
+      interval: "P60W",
+      downloaded: "1TB",
+      ratio: 6.55,
+      isKept: !0,
+      privilege: "得到一个邀请名额；可以更新过期的外部信息；可以查看Extreme User论坛。",
+    },
+    {
+      id: 8,
+      name: "Ultimate User",
+      nameAka: ["举世无双"],
+      interval: "P80W",
+      downloaded: "1.5TB",
+      ratio: 7.05,
+      isKept: !0,
+      privilege: "得到两个邀请名额。",
+    },
+    {
+      id: 9,
+      name: "Nexus Master",
+      nameAka: ["超凡入圣"],
+      interval: "P100W",
+      downloaded: "3TB",
+      ratio: 8.85,
+      isKept: !0,
+      privilege: "得到三个邀请名额。",
+    },
+  ],
+};
+export { w as siteMetadata };

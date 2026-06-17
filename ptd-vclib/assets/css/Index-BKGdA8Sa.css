@@ -1,0 +1,15 @@
+.level_requirement_list hr[data-v-e8b7a9f0]:last-child {
+  display: none;
+}
+.favicon-hover-wrapper[data-v-c7ef5dcf] {
+  cursor: pointer;
+}
+.favicon-hover-bg[data-v-c7ef5dcf] {
+  border-radius: 50%;
+  transition: background 0.2s;
+  display: inline-flex;
+  padding: 4px;
+}
+.favicon-hover-bg[data-v-c7ef5dcf]:hover {
+  background: #0000004d;
+}

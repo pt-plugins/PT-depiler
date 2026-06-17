@@ -1,0 +1,59 @@
+{
+  "contextMenuSearch": {
+    "message": "使用 PT Depiler 搜索 \"%s\" 相关的种子"
+  },
+  "contextMenuSearchInDefault": {
+    "message": "在默认方案中搜索"
+  },
+  "contextMenuSearchInSite": {
+    "message": "在指定站点中搜索"
+  },
+  "contextMenuSearchInSolution": {
+    "message": "在指定方案中搜索"
+  },
+  "contextMenuSearchInThisSite": {
+    "message": "在本站点中搜索"
+  },
+  "contextMenuSearchWithDouban": {
+    "message": "使用 PT Depiler 搜索当前豆瓣链接相关种子"
+  },
+  "contextMenuSearchWithIMDb": {
+    "message": "使用 PT Depiler 搜索IMDb链接相关种子"
+  },
+  "contextMenuSendToDownloader": {
+    "message": "使用 PT Depiler 下载链接"
+  },
+  "contextMenuSendToDownloaderAdvanced": {
+    "message": "高级推送"
+  },
+  "contextMenuSendToDownloaderDefaultFolder": {
+    "message": "默认路径"
+  },
+  "contextMenuSendToDownloaderIn": {
+    "message": "推送到 $1 -> $2"
+  },
+  "extDesc": {
+    "message": "PT Depiler"
+  },
+  "extName": {
+    "message": "PT Depiler"
+  },
+  "notificationSendLinkToDownloaderFailure": {
+    "message": "将链接发送到下载器 [$1] 失败"
+  },
+  "notificationSendLinkToDownloaderSuccess": {
+    "message": "已成功将链接发送到下载器 [$1]"
+  },
+  "omniboxSearch": {
+    "message": "在 [ $1 ] 中搜索 $2"
+  },
+  "searchPlanAll": {
+    "message": "全部站点"
+  },
+  "searchPlanDefault": {
+    "message": "默认"
+  },
+  "searchPlanSingleSite": {
+    "message": "单个站点"
+  }
+}

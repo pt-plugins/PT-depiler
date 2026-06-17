@@ -1,0 +1,257 @@
+import { bD as c } from "../index-COeZNva1.js";
+import u from "../schemas/AbstractPrivateSite-kkMcHSoo.js";
+import { SchemaMetadata as h } from "../schemas/NexusPHP-BNC4SlPA.js";
+import { f as l } from "../utils/datetime-DQxMK7bP.js";
+import { p as n } from "../utils/filesize-D_1hx4u8.js";
+import "../../../es-toolkit/intersection-CiePrUGh.js";
+import "../../../es-toolkit/toMerged-Be-qf92q.js";
+import "../../../es-toolkit/isPlainObject-3NY8ex7Q.js";
+import "../../../es-toolkit/pascalCase-BZA_Th-x.js";
+import "../../../es-toolkit/has-CpNzJTaW.js";
+import "../schemas/AbstractBittorrentSite-YCyl9e_L.js";
+import "../types/base-Dy_28wGT.js";
+import "../types/torrent-BvvY2NbA.js";
+import "../utils/filter-Dko2hrfF.js";
+import "../utils/helper-OCngMtkv.js";
+import "../../../date-fns/sub-D9RLuzs0.js";
+import "../../../date-fns/subDays-DlPNbvmn.js";
+import "../../../date-fns/format-b1gG6cM7.js";
+import "../utils/level-ChrMpKO_.js";
+import "../../../date-fns/intervalToDuration-DvSvSXE3.js";
+import "../../../date-fns/normalizeInterval-DC3nt56b.js";
+import "../../../date-fns/differenceInYears-C2HS2Spv.js";
+const d = { selector: ['a[href*="download.php?id="]:has(> img)'], attr: "href" },
+  E = {
+    ...h,
+    version: 1,
+    id: "filelist",
+    name: "FileList",
+    aka: ["FL"],
+    description: "罗马尼亚最大的站点",
+    tags: ["影视", "综合"],
+    timezoneOffset: "+0000",
+    collaborator: ["zhuweitung"],
+    type: "private",
+    schema: "FileList",
+    urls: ["uggcf://svyryvfg.vb/"],
+    legacyUrls: ["https://flro.org/"],
+    category: [
+      {
+        name: "类型",
+        key: "cat",
+        options: [
+          { name: "toate", value: 0 },
+          { name: "Anime", value: 24 },
+          { name: "Audio", value: 11 },
+          { name: "Desene", value: 15 },
+          { name: "Diverse", value: 18 },
+          { name: "Docs", value: 16 },
+          { name: "Filme 3D", value: 25 },
+          { name: "Filme 4K", value: 6 },
+          { name: "Filme 4K Blu-Ray", value: 26 },
+          { name: "Filme Blu-Ray", value: 20 },
+          { name: "Filme DVD", value: 2 },
+          { name: "Filme DVD-RO", value: 3 },
+          { name: "Filme HD", value: 4 },
+          { name: "Filme HD-RO", value: 19 },
+          { name: "Filme SD", value: 1 },
+          { name: "FLAC", value: 5 },
+          { name: "Jocuri Console", value: 10 },
+          { name: "Jocuri PC", value: 9 },
+          { name: "Linux", value: 17 },
+          { name: "Mobile", value: 22 },
+          { name: "Programe", value: 8 },
+          { name: "RO Dubbed", value: 28 },
+          { name: "Seriale 4K", value: 27 },
+          { name: "Seriale HD", value: 21 },
+          { name: "Seriale SD", value: 23 },
+          { name: "Sport", value: 13 },
+          { name: "Videoclip", value: 12 },
+          { name: "XXX", value: 7 },
+        ],
+        cross: { mode: "comma" },
+      },
+    ],
+    officialGroupPattern: [/Play(HD|SD|WEB|TV)$/i],
+    search: {
+      keywordPath: "params.search",
+      requestConfig: { url: "/browse.php" },
+      advanceKeywordParams: {
+        imdb: { requestConfigTransformer: ({ requestConfig: t }) => (c(t, "params.searchin", 1), t) },
+      },
+      selectors: {
+        rows: { selector: ".torrentrow" },
+        link: d,
+        url: {
+          ...d,
+          filters: [
+            { name: "querystring", args: ["id"] },
+            { name: "prepend", args: ["/details.php?id="] },
+          ],
+        },
+        id: { ...d, filters: [{ name: "querystring", args: ["id"] }] },
+        title: { selector: ["a[href*='details.php']:has(>b)"], attr: "title" },
+        subTitle: { text: "" },
+        category: { selector: ["div:nth-child(1) img[alt]"], attr: "alt" },
+        comments: { selector: "div:nth-child(5)" },
+        time: {
+          selector: "div:nth-child(6)",
+          filters: [
+            (t) => {
+              const e = t.match(/(\d{2}:\d{2}:\d{2})[\s\n]*(\d{2}\/\d{2}\/\d{4})/);
+              if (e && e.length > 2) {
+                const [i, m, a] = e[1].split(":"),
+                  [s, o, r] = e[2].split("/");
+                return l(`${r}-${o.padStart(2, "0")}-${s.padStart(2, "0")} ${i}:${m}:${a}`);
+              }
+              return "";
+            },
+          ],
+        },
+        size: { selector: "div:nth-child(7)", filters: [{ name: "parseSize" }] },
+        completed: { selector: "div:nth-child(8)", filters: [(t) => t.match(/(\d+)/)[1]] },
+        seeders: { selector: "div:nth-child(9)" },
+        leechers: { selector: "div:nth-child(10)" },
+        author: { selector: "div:nth-child(11)" },
+      },
+    },
+    userInfo: {
+      pickLast: ["id", "joinTime"],
+      process: [
+        {
+          requestConfig: { url: "/index.php", responseType: "document" },
+          selectors: {
+            id: {
+              selector: [".statusbar a[href*='userdetails.php']:has(>span)"],
+              attr: "href",
+              filters: [{ name: "querystring", args: ["id"] }],
+            },
+            name: { selector: [".statusbar a[href*='userdetails.php'] span"] },
+            messageCount: {
+              text: 0,
+              selector: ".statusbar a[href*='messages.php']",
+              filters: [
+                (t) => {
+                  const e = String(t || "").match(/(\d+)/);
+                  return e && e.length >= 2 ? parseInt(e[1]) : 0;
+                },
+              ],
+            },
+            uploaded: {
+              selector: ["span:has(img[src*='uploaded'])"],
+              filters: [
+                (t) => {
+                  const e = t.replace(/,/g, "").match(/(上[传傳]量|Uploaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+                  return e && e.length === 3 ? n(e[2]) : 0;
+                },
+              ],
+            },
+            downloaded: {
+              selector: ["span:has(img[src*='downloaded'])"],
+              filters: [
+                (t) => {
+                  const e = t.replace(/,/g, "").match(/(下[载載]量|Downloaded).+?([\d.]+ ?[ZEPTGMK]?i?B)/);
+                  return e && e.length === 3 ? n(e[2]) : 0;
+                },
+              ],
+            },
+            bonus: {
+              selector: [".statusbar a[href*='shop.php']"],
+              filters: [(t) => (t ? parseFloat(t.replace(/[\s,]/g, "")) : 0)],
+            },
+          },
+        },
+        {
+          requestConfig: { url: "/userdetails.php", responseType: "document" },
+          assertion: { id: "params.id" },
+          selectors: {
+            levelName: { selector: ["td:contains('Class') + td"] },
+            joinTime: {
+              selector: ["td:contains('Join'):contains('date') + td"],
+              filters: [(t) => ((t = t.split(" (")[0]), l(t))],
+            },
+            lastAccessAt: {
+              selector: ["td:contains('Last'):contains('seen') + td"],
+              filters: [(t) => ((t = t.split(" (")[0]), l(t))],
+            },
+            seeding: {
+              selector: ["td:contains('Seed'):contains('bonus') + td > div:first"],
+              filters: [
+                (t) => {
+                  const e = t?.match(/Seeding (\d+) torrents with a total seed size of ([\d.\s,ZEPTGMKiB]+)\./);
+                  return e && e.length > 2 ? e[1] : 0;
+                },
+              ],
+            },
+            seedingSize: {
+              selector: ["td:contains('Seed'):contains('bonus') + td > div:first"],
+              filters: [
+                (t) => {
+                  const e = t?.match(/Seeding (\d+) torrents with a total seed size of ([\d.\s,ZEPTGMKiB]+)\./);
+                  return e && e.length > 2 ? n(e[2]) : "0";
+                },
+              ],
+            },
+            bonusPerHour: {
+              selector: ["td:contains('Seed'):contains('bonus') + td > div:nth-child(3)"],
+              filters: [
+                (t) => {
+                  const e = t?.match(/Total: ([\d,.]+) FLCoins \/ hour/);
+                  return e && e.length > 1 ? parseFloat(e[1].replace(/,/, "")) : "0";
+                },
+              ],
+            },
+          },
+        },
+      ],
+    },
+    levelRequirements: [
+      { id: 0, name: "User", privilege: "This status is obtained by the new user of this tracker." },
+      {
+        id: 1,
+        name: "Power User",
+        interval: "P4W",
+        uploaded: "25GB",
+        ratio: 1.05,
+        privilege: "It can download DOX files larger than 1MB. This class has the right to apply to uploader status.",
+      },
+      {
+        id: 2,
+        name: "Addict",
+        interval: "P6M",
+        uploaded: "500GB",
+        ratio: 4,
+        privilege: "This class has the right to request a Custom Title. This class is entitled to requests.",
+      },
+      {
+        id: 3,
+        name: "Elite",
+        interval: "P4Y",
+        uploaded: "4TB",
+        ratio: 5,
+        privilege: "This class gives you the right to give reputation to other users.",
+      },
+      {
+        id: 4,
+        name: "VIP",
+        groupType: "vip",
+        privilege:
+          "This class always has a minimum ratio equal to 2, regardless of the downloads made, and is exempt from hit&run rules. They can set their own Custom Title.",
+      },
+    ],
+  };
+class G extends u {
+  parseTorrentRowForTags(e, i, m) {
+    const a = i.querySelectorAll("img[src*='tags'][alt]");
+    if (a.length > 0) {
+      const s = e.tags || [];
+      (a.forEach((o) => {
+        const r = o.getAttribute("alt");
+        r && s.push({ name: r });
+      }),
+        (e.tags = s));
+    }
+    return e;
+  }
+}
+export { G as default, E as siteMetadata };

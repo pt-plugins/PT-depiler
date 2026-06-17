@@ -1,0 +1,6 @@
+.chart[data-v-d9c1e782] {
+  height: 400px;
+}
+.chart + .chart[data-v-d9c1e782] {
+  margin-top: 10px;
+}

@@ -1,0 +1,305 @@
+import {
+  SchemaMetadata as e,
+  CategoryIncldead as a,
+  CategorySpstate as n,
+  CategoryInclbookmarked as i,
+} from "../schemas/NexusPHP-BNC4SlPA.js";
+import "../index-COeZNva1.js";
+import "../../../es-toolkit/toMerged-Be-qf92q.js";
+import "../../../es-toolkit/isPlainObject-3NY8ex7Q.js";
+import "../schemas/AbstractPrivateSite-kkMcHSoo.js";
+import "../../../es-toolkit/intersection-CiePrUGh.js";
+import "../../../es-toolkit/pascalCase-BZA_Th-x.js";
+import "../../../es-toolkit/has-CpNzJTaW.js";
+import "../schemas/AbstractBittorrentSite-YCyl9e_L.js";
+import "../types/base-Dy_28wGT.js";
+import "../types/torrent-BvvY2NbA.js";
+import "../utils/datetime-DQxMK7bP.js";
+import "../../../date-fns/sub-D9RLuzs0.js";
+import "../../../date-fns/subDays-DlPNbvmn.js";
+import "../../../date-fns/format-b1gG6cM7.js";
+import "../utils/filesize-D_1hx4u8.js";
+import "../utils/filter-Dko2hrfF.js";
+import "../utils/helper-OCngMtkv.js";
+import "../utils/level-ChrMpKO_.js";
+import "../../../date-fns/intervalToDuration-DvSvSXE3.js";
+import "../../../date-fns/normalizeInterval-DC3nt56b.js";
+import "../../../date-fns/differenceInYears-C2HS2Spv.js";
+const T = {
+  ...e,
+  version: 1,
+  id: "13city",
+  name: "13city",
+  aka: ["13城"],
+  description: "一切美好源于分享",
+  tags: ["影视", "综合"],
+  timezoneOffset: "+0800",
+  collaborator: ["13City"],
+  type: "private",
+  schema: "NexusPHP",
+  urls: ["https://13city.org/", "https://www.13city.org/"],
+  legacyUrls: ["https://13city.online/"],
+  category: [
+    {
+      name: "分类",
+      key: "cat",
+      options: [
+        { name: "电影/Movies", value: 401 },
+        { name: "连续剧/TV Series", value: 402 },
+        { name: "综艺/TV Shows", value: 403 },
+        { name: "动漫/Animations", value: 405 },
+        { name: "演唱会、MV/Music Videos", value: 406 },
+        { name: "音乐/Music", value: 408 },
+        { name: "有声小说/E-book", value: 409 },
+        { name: "纪录片/Documentaries", value: 413 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "媒介",
+      key: "medium",
+      options: [
+        { name: "Blu-ray", value: 1 },
+        { name: "HD DVD", value: 2 },
+        { name: "Remux", value: 3 },
+        { name: "MiniBD", value: 4 },
+        { name: "HDTV", value: 5 },
+        { name: "DVDR", value: 6 },
+        { name: "Encode", value: 7 },
+        { name: "CD", value: 8 },
+        { name: "Track", value: 9 },
+        { name: "WEB-DL", value: 10 },
+        { name: "BluRay", value: 11 },
+        { name: "WEBRip", value: 12 },
+        { name: "Other", value: 13 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "编码",
+      key: "codec",
+      options: [
+        { name: "AVC/H.264/x264", value: 1 },
+        { name: "HEVC/H.265/x265", value: 2 },
+        { name: "MPEG-2", value: 3 },
+        { name: "VC-1", value: 4 },
+        { name: "VPB/VP9", value: 5 },
+        { name: "Xvid", value: 6 },
+        { name: "Other", value: 7 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "音频编码",
+      key: "audiocodec",
+      options: [
+        { name: "FLAC", value: 1 },
+        { name: "APE", value: 2 },
+        { name: "DTS-HD/DTS", value: 3 },
+        { name: "MP3", value: 4 },
+        { name: "OGG", value: 5 },
+        { name: "AAC", value: 6 },
+        { name: "DDP/E-AC3", value: 7 },
+        { name: "TrueHD", value: 8 },
+        { name: "TrueHD Atmos", value: 9 },
+        { name: "LPCM", value: 10 },
+        { name: "Other", value: 11 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "分辨率",
+      key: "standard",
+      options: [
+        { name: "8K", value: 1 },
+        { name: "4K", value: 3 },
+        { name: "1080p", value: 4 },
+        { name: "1080i", value: 5 },
+        { name: "Other", value: 6 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "区域",
+      key: "Processing",
+      options: [
+        { name: "中国（含港澳台）", value: 1 },
+        { name: "日本", value: 2 },
+        { name: "泰国", value: 3 },
+        { name: "印度", value: 4 },
+        { name: "韩国", value: 5 },
+        { name: "欧美", value: 6 },
+        { name: "Other（其他）", value: 7 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "制作组",
+      key: "team",
+      options: [
+        { name: "13City", value: 1 },
+        { name: "AilMWeb", value: 2 },
+        { name: "52pt", value: 3 },
+        { name: "HHWEB", value: 4 },
+        { name: "CHDWEB", value: 5 },
+        { name: "FRDS", value: 6 },
+        { name: "MTeam", value: 7 },
+        { name: "QHstudIo", value: 8 },
+        { name: "PTerWEB", value: 9 },
+        { name: "rainweb", value: 10 },
+        { name: "Other", value: 11 },
+        { name: "SewageWeb", value: 12 },
+        { name: "UBWEB", value: 13 },
+        { name: "ZmWeb", value: 14 },
+        { name: "ADWeb", value: 15 },
+        { name: "UBits", value: 16 },
+        { name: "WiKi", value: 17 },
+      ],
+      cross: { mode: "append" },
+    },
+    a,
+    n,
+    i,
+  ],
+  officialGroupPattern: [/-(13City|.*13City)/i],
+  userInfo: {
+    ...e.userInfo,
+    selectors: {
+      ...e.userInfo.selectors,
+      bonus: {
+        selector: ["td.rowhead:contains('啤酒瓶') + td, td.rowhead:contains('Karma Points') + td"],
+        filters: [{ name: "parseNumber" }],
+      },
+    },
+  },
+  levelRequirements: [
+    {
+      id: 0,
+      name: "小菜鸡",
+      nameAka: ["Peasant"],
+      privilege:
+        "当以下情况时将被自动降至本级：1.如果你已经下载了超过64GB，你应该有大于0.5的分享率。2.如果你已经下载了超过256GB，你应该有大于0.6的分享率。3.如果你已经下载了超过512GB，你应该有大于0.7的分享率。4.如果你已经下载了超过768GB，你应该有大于0.8的分享率。5.如果你已经下载了超过1024GB，你应该有大于0.9的分享率。",
+    },
+    { id: 1, name: "初窥门径", nameAka: ["User"], privilege: "注册时默认等级，无特殊要求。" },
+    {
+      id: 2,
+      name: "小有所成",
+      nameAka: ["Power User"],
+      interval: "P4W",
+      seedingBonus: 4e4,
+      downloaded: "256GB",
+      ratio: 1.05,
+      privilege:
+        '首次升级至此等级的用户将获得1个邀请名额；可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种； 可以发送邀请； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
+    },
+    {
+      id: 3,
+      name: "懵懂求知",
+      nameAka: ["Elite User"],
+      interval: "P8W",
+      seedingBonus: 8e4,
+      downloaded: "512GB",
+      ratio: 1.55,
+      privilege: "懵懂求知及以上用户封存账号后不会被删除。",
+    },
+    {
+      id: 4,
+      name: "小试牛刀",
+      nameAka: ["Crazy User"],
+      interval: "P15W",
+      seedingBonus: 15e4,
+      downloaded: "1024GB",
+      ratio: 2.05,
+      privilege: "首次升级至此等级的用户将获得2个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
+    },
+    {
+      id: 5,
+      name: "渐入佳境",
+      nameAka: ["Insane User"],
+      interval: "P25W",
+      seedingBonus: 25e4,
+      downloaded: "2048GB",
+      ratio: 2.55,
+      privilege: "可以查看普通日志。",
+    },
+    {
+      id: 6,
+      name: "游刃有余",
+      nameAka: ["Veteran User"],
+      interval: "P40W",
+      seedingBonus: 5e5,
+      downloaded: "3072GB",
+      ratio: 3.05,
+      isKept: !0,
+      privilege:
+        "首次升级至此等级的用户将获得3个邀请名额；可以查看其它用户的评论、帖子历史。游刃有余及以上用户会永远保留账号。",
+    },
+    {
+      id: 7,
+      name: "登堂入室",
+      nameAka: ["Extreme User"],
+      interval: "P60W",
+      seedingBonus: 1e6,
+      downloaded: "4096GB",
+      ratio: 3.55,
+      isKept: !0,
+      privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。",
+    },
+    {
+      id: 8,
+      name: "炉火纯青",
+      nameAka: ["Ultimate User"],
+      interval: "P70W",
+      seedingBonus: 155e4,
+      downloaded: "6144GB",
+      ratio: 4.05,
+      isKept: !0,
+      privilege: "首次升级至此等级的用户将获得5个邀请名额。",
+    },
+    {
+      id: 9,
+      name: "返璞归真",
+      nameAka: ["Nexus Master"],
+      interval: "P80W",
+      seedingBonus: 24e5,
+      downloaded: "8192GB",
+      ratio: 4.55,
+      isKept: !0,
+      privilege: "首次升级至此等级的用户将获得10个邀请名额。",
+    },
+    {
+      id: 100,
+      name: "贵宾(VIP)",
+      groupType: "vip",
+      privilege: "由管理员仔细斟酌后分配给他们认为对于站点某方面有特殊贡献的用户。",
+    },
+    { id: 101, name: "退休员工", groupType: "vip", privilege: "退休后的管理组成员。" },
+    {
+      id: 200,
+      name: "勤劳小蜜蜂",
+      groupType: "manager",
+      privilege: "专注的发布者。免除自动降级；可以查看匿名用户的真实身份。",
+    },
+    {
+      id: 201,
+      name: "总版主(Moderator)",
+      groupType: "manager",
+      privilege:
+        "可以查看管理组信箱、举报信箱；管理趣味盒内容、投票内容；可以编辑或删除任何发布的种子；可以管理候选；可以管理论坛帖子、用户评论；可以查看机密日志；可以删除任何字幕；可以管理日志中的代码、史册；可以查看用户的邀请记录；可以管理用户帐号的一般信息。不能管理友情链接、最近消息、论坛版块；不能将种子设为置顶或促销；不能查看用户IP或Email等机密信息；不能删除账号。",
+    },
+    {
+      id: 202,
+      name: "管理员(Administrator)",
+      groupType: "manager",
+      privilege: "除了不能改变站点设定、管理捐赠外，可以做任何事。",
+    },
+    {
+      id: 203,
+      name: "维护开发员(Sysop)",
+      groupType: "manager",
+      privilege: "网站开发/维护人员，可以改变站点设定，不能管理捐赠。",
+    },
+    { id: 204, name: "主管(Staff Leader)", groupType: "manager", privilege: "网站主管，可以做任何事。" },
+  ],
+};
+export { T as siteMetadata };

@@ -1,0 +1,339 @@
+import { bD as u } from "../index-COeZNva1.js";
+import { G as m, T as r } from "../utils/filesize-D_1hx4u8.js";
+import {
+  SchemaMetadata as a,
+  CategoryIncldead as i,
+  CategorySpstate as t,
+  CategoryInclbookmarked as l,
+  createUserBonusSelectorFn as s,
+} from "../schemas/NexusPHP-BNC4SlPA.js";
+import "../../../es-toolkit/toMerged-Be-qf92q.js";
+import "../../../es-toolkit/isPlainObject-3NY8ex7Q.js";
+import "../schemas/AbstractPrivateSite-kkMcHSoo.js";
+import "../../../es-toolkit/intersection-CiePrUGh.js";
+import "../../../es-toolkit/pascalCase-BZA_Th-x.js";
+import "../../../es-toolkit/has-CpNzJTaW.js";
+import "../schemas/AbstractBittorrentSite-YCyl9e_L.js";
+import "../types/base-Dy_28wGT.js";
+import "../types/torrent-BvvY2NbA.js";
+import "../utils/datetime-DQxMK7bP.js";
+import "../../../date-fns/sub-D9RLuzs0.js";
+import "../../../date-fns/subDays-DlPNbvmn.js";
+import "../../../date-fns/format-b1gG6cM7.js";
+import "../utils/filter-Dko2hrfF.js";
+import "../utils/helper-OCngMtkv.js";
+import "../utils/level-ChrMpKO_.js";
+import "../../../date-fns/intervalToDuration-DvSvSXE3.js";
+import "../../../date-fns/normalizeInterval-DC3nt56b.js";
+import "../../../date-fns/differenceInYears-C2HS2Spv.js";
+const W = {
+  ...a,
+  version: 1,
+  id: "ubits",
+  name: "UBits",
+  aka: ["UB", "U堡"],
+  description: "原盘爱好者集散地",
+  tags: ["影视"],
+  collaborator: ["Seed"],
+  type: "private",
+  schema: "NexusPHP",
+  urls: ["https://ubits.club/"],
+  category: [
+    {
+      name: "类型",
+      key: "cat",
+      options: [
+        { value: 401, name: "Movies(电影)" },
+        { value: 402, name: "TV Series(剧集)" },
+        { value: 403, name: "TV Shows(综艺)" },
+        { value: 404, name: "Docs(纪录)" },
+        { value: 405, name: "Animations(动画)" },
+        { value: 406, name: "Music(音乐)" },
+        { value: 407, name: "Sports(体育)" },
+        { value: 409, name: "MV(音乐视频)" },
+        { value: 408, name: "Others(其他)" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "地区",
+      key: "source",
+      options: [
+        { value: 1, name: "Mainland(大陆)" },
+        { value: 2, name: "Hongkong(香港)" },
+        { value: 3, name: "Taiwan(台湾)" },
+        { value: 4, name: "West(欧美)" },
+        { value: 5, name: "Japan(日本)" },
+        { value: 6, name: "Korea(韩国)" },
+        { value: 7, name: "Thailand(泰国)" },
+        { value: 8, name: "India(印度)" },
+        { value: 8, name: "Russia(俄罗斯)" },
+        { value: 99, name: "Other(其他地区)" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "格式",
+      key: "medium",
+      options: [
+        { value: 10, name: "4K UHD原盘(UltraHD Blu-ray)" },
+        { value: 1, name: "蓝光原盘(Blu-ray)" },
+        { value: 4, name: "流媒体(WEB-DL)" },
+        { value: 3, name: "REMUX" },
+        { value: 7, name: "(压制)Encode" },
+        { value: 2, name: "HD DVD" },
+        { value: 5, name: "HDTV" },
+        { value: 6, name: "DVDR" },
+        { value: 8, name: "Lossless Music" },
+        { value: 9, name: "Track" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "分辨率",
+      key: "standard",
+      options: [
+        { value: 6, name: "4320p" },
+        { value: 5, name: "2160p" },
+        { value: 7, name: "1440p" },
+        { value: 1, name: "1080p" },
+        { value: 2, name: "1080i" },
+        { value: 3, name: "720p" },
+        { value: 4, name: "SD" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "视频编码",
+      key: "codec",
+      options: [
+        { value: 7, name: "H265(HEVC/X265)" },
+        { value: 1, name: "H264(AVC/x264)" },
+        { value: 11, name: "AV1" },
+        { value: 2, name: "VC-1" },
+        { value: 4, name: "MPEG-2" },
+        { value: 10, name: "AVS" },
+        { value: 3, name: "Xvid" },
+        { value: 9, name: "MPEG-4" },
+        { value: 5, name: "Other" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "音频编码",
+      key: "audiocodec",
+      options: [
+        { value: 8, name: "Dolby Atmos" },
+        { value: 9, name: "DTS:X" },
+        { value: 10, name: "TrueHD" },
+        { value: 11, name: "DTS-HD MA/HR" },
+        { value: 13, name: "LPCM" },
+        { value: 12, name: "DD+(Dolby Digital Plus)" },
+        { value: 14, name: "DD(AC3)" },
+        { value: 3, name: "DTS" },
+        { value: 6, name: "AAC" },
+        { value: 1, name: "FLAC" },
+        { value: 2, name: "APE" },
+        { value: 5, name: "OGG" },
+        { value: 4, name: "MP3" },
+        { value: 7, name: "Other" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "制作组",
+      key: "team",
+      options: [
+        { value: 1, name: "UBits" },
+        { value: 6, name: "UBWEB" },
+        { value: 7, name: "UBTV" },
+        { value: 5, name: "Other" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "标签",
+      key: "tag",
+      options: [
+        { value: "1", name: "禁转" },
+        { value: "17", name: "原生原盘" },
+        { value: "3", name: "官方" },
+        { value: "4", name: "DIY" },
+        { value: "5", name: "国配" },
+        { value: "11", name: "粤语" },
+        { value: "6", name: "中字" },
+        { value: "21", name: "高分国剧" },
+        { value: "12", name: "特效" },
+        { value: "8", name: "杜比视界" },
+        { value: "10", name: "HDR10+" },
+        { value: "18", name: "菁彩HDR" },
+        { value: "9", name: "HDR10" },
+        { value: "23", name: "连载" },
+        { value: "20", name: "合集" },
+        { value: "19", name: "HLG" },
+        { value: "22", name: "自购" },
+        { value: "14", name: "菜单修改" },
+        { value: "13", name: "零魔力" },
+      ],
+      cross: { mode: "custom" },
+      generateRequestConfig: (e) => {
+        const o = { requestConfig: { params: {} } };
+        return (
+          e.forEach((n) => {
+            u(o, `requestConfig.params.tag_id${n}`, 1);
+          }),
+          o
+        );
+      },
+    },
+    i,
+    t,
+    l,
+    {
+      name: "审核状态：",
+      key: "audit",
+      options: [
+        { value: "", name: "全部" },
+        { value: 0, name: "未审" },
+        { value: 1, name: "通过" },
+        { value: 2, name: "拒绝" },
+        { value: 3, name: "待定" },
+      ],
+      cross: !1,
+    },
+  ],
+  officialGroupPattern: [/@UBits|-UBits|-UBWEB/i],
+  search: {
+    ...a.search,
+    advanceKeywordParams: {
+      ...a.search?.advanceKeywordParams,
+      douban: { requestConfigTransformer: ({ requestConfig: e }) => (u(e, "params.search_area", 5), e) },
+    },
+    selectors: {
+      ...a.search.selectors,
+      subTitle: {
+        selector: ["td.embedded:first"],
+        elementProcess: (e) => {
+          const n = e.querySelector("br")?.nextSibling;
+          return (n && n.nodeType === Node.TEXT_NODE && n.textContent?.trim()) || "";
+        },
+      },
+    },
+  },
+  userInfo: {
+    ...a.userInfo,
+    selectors: {
+      ...a.userInfo.selectors,
+      bonus: s(["U币", "UBits Coin", "魔力值"]),
+      seedingBonus: s(["做种积分", "Seed points", "做種積分", "保种积分"]),
+    },
+  },
+  levelRequirements: [
+    {
+      id: 0,
+      groupType: "user",
+      name: "Peasant",
+      privilege:
+        "被降级的用户，他们有30天时间来提升分享率，否则他们会被踢。不能发表趣味盒内容；不能申请友情链接；不能上传字幕。",
+    },
+    {
+      id: 1,
+      groupType: "user",
+      name: "User",
+      privilege: "新用户的默认级别。只能在每周六中午12点至每周日晚上11点59分发布种子。",
+    },
+    {
+      id: 2,
+      groupType: "user",
+      name: "Power User",
+      privilege:
+        '可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种； 可以发送邀请； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
+      seedingBonus: 5e4,
+      ratio: 2,
+      interval: "P5W",
+      downloaded: 200 * m,
+    },
+    {
+      id: 3,
+      groupType: "user",
+      name: "Elite User",
+      privilege: "Elite User及以上用户封存账号后不会被删除。",
+      seedingBonus: 1e5,
+      ratio: 3,
+      interval: "P10W",
+      downloaded: 500 * m,
+    },
+    {
+      id: 4,
+      groupType: "user",
+      name: "Crazy User",
+      privilege: "得到1个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
+      seedingBonus: 2e5,
+      ratio: 4,
+      interval: "P15W",
+      downloaded: 800 * m,
+    },
+    {
+      id: 5,
+      groupType: "user",
+      name: "Insane User",
+      privilege: "得到1个邀请名额；可以查看普通日志。",
+      seedingBonus: 5e5,
+      ratio: 5,
+      interval: "P20W",
+      downloaded: 1 * r,
+    },
+    {
+      id: 6,
+      groupType: "user",
+      name: "Veteran User",
+      isKept: !0,
+      privilege: "得到1个邀请名额；可以查看其它用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。",
+      seedingBonus: 75e4,
+      ratio: 6,
+      interval: "P25W",
+      downloaded: 1.5 * r,
+    },
+    {
+      id: 7,
+      groupType: "user",
+      name: "Extreme User",
+      isKept: !0,
+      privilege: "得到2个邀请名额；可以更新过期的外部信息；可以查看Extreme User论坛。",
+      seedingBonus: 15e5,
+      ratio: 7,
+      interval: "P30W",
+      downloaded: 2 * r,
+    },
+    {
+      id: 8,
+      groupType: "user",
+      name: "Ultimate User",
+      isKept: !0,
+      privilege: "得到3个邀请名额。",
+      seedingBonus: 2e6,
+      ratio: 8,
+      interval: "P40W",
+      downloaded: 3 * r,
+    },
+    {
+      id: 9,
+      groupType: "user",
+      name: "Nexus Master",
+      isKept: !0,
+      privilege: "得到4个邀请名额。",
+      seedingBonus: 3e6,
+      ratio: 10,
+      interval: "P60W",
+      downloaded: 4 * r,
+    },
+    {
+      id: 10,
+      groupType: "vip",
+      name: "贵宾(VIP)",
+      privilege: "和Nexus Master拥有相同权限并被认为是精英成员。免除自动降级。",
+    },
+    { id: 11, groupType: "vip", name: "养老族(Retiree)", privilege: "退休后的管理组成员。" },
+  ],
+};
+export { W as siteMetadata };

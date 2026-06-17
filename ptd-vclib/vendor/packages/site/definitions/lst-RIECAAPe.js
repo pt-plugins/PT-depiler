@@ -1,0 +1,272 @@
+import { SchemaMetadata as a, CategoryFree as t, userInfoTrans as r } from "../schemas/Unit3D-ChxolkI5.js";
+import "../../../url-join/url-join-Cu798wIg.js";
+import "../../../es-toolkit/omit-BqXgNNTz.js";
+import "../../../es-toolkit/toMerged-Be-qf92q.js";
+import "../index-COeZNva1.js";
+import "../../../es-toolkit/isPlainObject-3NY8ex7Q.js";
+import "../schemas/AbstractPrivateSite-kkMcHSoo.js";
+import "../../../es-toolkit/intersection-CiePrUGh.js";
+import "../../../es-toolkit/pascalCase-BZA_Th-x.js";
+import "../../../es-toolkit/has-CpNzJTaW.js";
+import "../schemas/AbstractBittorrentSite-YCyl9e_L.js";
+import "../types/base-Dy_28wGT.js";
+import "../types/torrent-BvvY2NbA.js";
+import "../utils/datetime-DQxMK7bP.js";
+import "../../../date-fns/sub-D9RLuzs0.js";
+import "../../../date-fns/subDays-DlPNbvmn.js";
+import "../../../date-fns/format-b1gG6cM7.js";
+import "../utils/filesize-D_1hx4u8.js";
+import "../utils/filter-Dko2hrfF.js";
+import "../utils/helper-OCngMtkv.js";
+import "../utils/level-ChrMpKO_.js";
+import "../../../date-fns/intervalToDuration-DvSvSXE3.js";
+import "../../../date-fns/normalizeInterval-DC3nt56b.js";
+import "../../../date-fns/differenceInYears-C2HS2Spv.js";
+const i = ["Total uploads", "总发布", "總發佈"],
+  o = ["Points per hour", "每小时点数", "每小時魔力"],
+  H = {
+    ...a,
+    version: 2,
+    id: "lst",
+    name: "LST",
+    description: "Something cool",
+    tags: ["综合", "影视"],
+    timezoneOffset: "+0000",
+    type: "private",
+    schema: "Unit3D",
+    urls: ["uggcf://yfg.tt/"],
+    category: [
+      {
+        name: "类别",
+        key: "categoryIds",
+        options: [
+          { name: "Movie", value: 1 },
+          { name: "TV", value: 2 },
+          { name: "Music", value: 3 },
+          { name: "Game", value: 4 },
+          { name: "Application", value: 5 },
+          { name: "XXX", value: 8 },
+          { name: "Ebook/Manga", value: 9 },
+          { name: "Education", value: 10 },
+          { name: "FANRES", value: 11 },
+        ],
+        cross: { mode: "brackets" },
+      },
+      {
+        name: "规格",
+        key: "typeIds",
+        options: [
+          { name: "Full Disc", value: 1 },
+          { name: "Remux", value: 2 },
+          { name: "Encode", value: 3 },
+          { name: "WEB-DL", value: 4 },
+          { name: "WEBRip", value: 5 },
+          { name: "HDTV", value: 6 },
+          { name: "FLAC", value: 7 },
+          { name: "ALAC", value: 8 },
+          { name: "AC3", value: 9 },
+          { name: "AAC", value: 10 },
+          { name: "MP3", value: 11 },
+          { name: "Mac", value: 12 },
+          { name: "Windows", value: 13 },
+          { name: "Linux", value: 14 },
+          { name: "Other", value: 15 },
+        ],
+        cross: { mode: "brackets" },
+      },
+      {
+        name: "分辨率",
+        key: "resolutionIds",
+        options: [
+          { name: "4320p", value: 1 },
+          { name: "2160p", value: 2 },
+          { name: "1080p", value: 3 },
+          { name: "1080i", value: 4 },
+          { name: "720p", value: 5 },
+          { name: "576p", value: 6 },
+          { name: "576i", value: 7 },
+          { name: "480p", value: 8 },
+          { name: "480i", value: 9 },
+          { name: "Other", value: 10 },
+          { name: "Extras", value: 11 },
+        ],
+        cross: { mode: "brackets" },
+      },
+      {
+        ...t,
+        options: [
+          { name: "Normal", value: 0 },
+          { name: "Free", value: 100 },
+          { name: "双倍上传", value: "doubleup" },
+          { name: "精选", value: "featured" },
+          { name: "Refundable", value: "refundable" },
+        ],
+      },
+    ],
+    search: {
+      ...a.search,
+      skipNonLatinCharacters: !0,
+      selectors: {
+        ...a.search.selectors,
+        rows: { selector: ".torrent-results__list > .torrent-search-row" },
+        id: {
+          selector: ".torrent-search-row__name > a",
+          attr: "href",
+          filters: [(e) => e.match(/\/torrents\/(\d+)/)?.[1] || e, { name: "parseNumber" }],
+        },
+        title: { selector: ".torrent-search-row__name > a" },
+        url: { selector: ".torrent-search-row__name > a", attr: "href" },
+        size: { selector: ".torrent-search-row__stat--size", attr: "title", filters: [{ name: "parseNumber" }] },
+        author: { ...a.search.selectors.author, selector: ".torrent-search-row__uploader" },
+        category: { selector: ".torrent-search-row__category", attr: "title" },
+        seeders: { selector: ".torrent-search-row__stat--seeders" },
+        leechers: { selector: ".torrent-search-row__stat--leechers" },
+        completed: { selector: ".torrent-search-row__stat--completed" },
+        comments: { selector: ".torrent-badges__item--comments .torrent-badges__count" },
+        tags: [
+          {
+            name: "Free",
+            selector: "span[title*='100%'], span.torrent-badges__item--freeleech span.torrent-badges__item--featured",
+            color: "blue",
+          },
+          {
+            name: "2xUp",
+            selector:
+              "i.fa-chevron-double-up, span.torrent-badges__item--double-upload, span.torrent-badges__item--featured",
+            color: "lime",
+          },
+          { name: "置顶", selector: "span.torrent-badges__item--sticky", color: "red" },
+          { name: "可退款", selector: "span.torrent-badges__item--refundable", color: "gray" },
+          { name: "Internal", selector: "span.torrent-badges__item--internal", color: "purple" },
+          { name: "个人发布", selector: "span.torrent-badges__item--personal", color: "purple" },
+          { name: "Highspeed", selector: "span.torrent-badges__item--highspeed", color: "red" },
+          { name: "Trump", selector: "span.torrent-badges__item--trump", color: "red" },
+          { name: "H&R", selector: "*", color: "red" },
+        ],
+      },
+    },
+    userInfo: {
+      ...a.userInfo,
+      selectors: {
+        ...a.userInfo.selectors,
+        id: {
+          ...a.userInfo.selectors.id,
+          selector: "span.profile-hero__account-item > i.fa-hashtag ~ span.profile-hero__account-value",
+        },
+        uploads: {
+          selector: [...i.map((e) => `div.profile-mini-stat__label:contains('${e}') + div`)],
+          filters: [{ name: "parseNumber" }],
+        },
+        joinTime: {
+          ...a.userInfo.selectors.joinTime,
+          selector: [...r.joinTime.map((e) => `span.profile-hero__meta-item:contains('${e}')`)],
+        },
+        lastAccessAt: {
+          selector: [...r.lastAccessAt.map((e) => `span.profile-hero__meta-item:contains('${e}')`)],
+          filters: [{ name: "split", args: [":", 1] }, { name: "trim" }, { name: "parseTTL" }],
+        },
+        seedingSize: {
+          selector: [...r.seedingSize.map((e) => `div.profile-mini-stat__label:contains('${e}') + div`)],
+          filters: [{ name: "parseSize" }],
+        },
+        averageSeedingTime: {
+          selector: [...r.averageSeedingTime.map((e) => `div.profile-mini-stat__label:contains('${e}') + div`)],
+          filters: [{ name: "parseDuration" }],
+        },
+        bonusPerHour: {
+          selector: [...o.map((e) => `span.sidebar-stat__label:contains('${e}') + span`)],
+          filters: [{ name: "parseNumber" }],
+        },
+      },
+    },
+    levelRequirements: [
+      { id: 0, name: "Leech" },
+      { id: 1, name: "Crab", ratio: 0.4, privilege: "5下载槽 上传种子" },
+      {
+        id: 2,
+        name: "Goldfish",
+        interval: "P1M",
+        ratio: 0.6,
+        alternative: [{ uploaded: "1TiB" }, { seedingSize: "100GiB" }],
+        averageSeedingTime: "P1W",
+        privilege: "10下载槽 上传种子",
+      },
+      {
+        id: 3,
+        name: "Lobster",
+        interval: "P2M",
+        ratio: 0.7,
+        alternative: [{ uploaded: "5TiB" }, { seedingSize: "500GiB" }],
+        averageSeedingTime: "P2W",
+        privilege: "15下载槽 上传种子 发送邀请",
+      },
+      {
+        id: 4,
+        name: "Sailboat",
+        interval: "P6M",
+        ratio: 1,
+        seedingSize: "10TiB",
+        averageSeedingTime: "P2M",
+        privilege: "25下载槽 上传种子 发送邀请 站免",
+      },
+      {
+        id: 5,
+        name: "Ship",
+        interval: "P1Y",
+        ratio: 1.5,
+        seedingSize: "20TiB",
+        averageSeedingTime: "P3M",
+        privilege: "50下载槽 上传种子 发送邀请 站免 免疫HR",
+      },
+      {
+        id: 6,
+        name: "Cargo Ship",
+        interval: "P2Y",
+        ratio: 2,
+        seedingSize: "50TiB",
+        averageSeedingTime: "P6M",
+        privilege: "75下载槽 上传种子 发送邀请 站免 免疫HR",
+      },
+      {
+        id: 7,
+        name: "Dolphin",
+        interval: "P3M",
+        ratio: 1,
+        alternative: [{ uploaded: "10TiB" }, { seedingSize: "2TiB" }],
+        averageSeedingTime: "P2W6D",
+        uploads: 5,
+        privilege: "20下载槽 上传种子 发送邀请 站免 自动通过候选",
+      },
+      {
+        id: 8,
+        name: "Whale",
+        interval: "P4M",
+        ratio: 1,
+        alternative: [{ uploaded: "25TiB" }, { seedingSize: "6TiB" }],
+        averageSeedingTime: "P1M",
+        uploads: 10,
+        privilege: "25下载槽 上传种子 发送邀请 站免 免疫HR 自动通过候选",
+      },
+      {
+        id: 9,
+        name: "Leviathan",
+        interval: "P1Y",
+        ratio: 1.5,
+        alternative: [{ uploaded: "50TiB" }, { seedingSize: "20TiB" }],
+        averageSeedingTime: "P3M",
+        uploads: 15,
+        privilege: "50下载槽 上传种子 发送邀请 站免 免疫HR 自动通过候选",
+      },
+      {
+        id: 10,
+        name: "Cthulhu",
+        interval: "P2Y",
+        ratio: 2,
+        alternative: [{ uploaded: "100TiB" }, { seedingSize: "50TiB" }],
+        averageSeedingTime: "P6M",
+        uploads: 20,
+        privilege: "75下载槽 上传种子 发送邀请 站免 免疫HR 自动通过候选",
+      },
+    ],
+  };
+export { H as siteMetadata };

@@ -1,0 +1,290 @@
+import {
+  SchemaMetadata as e,
+  CategoryIncldead as o,
+  CategorySpstate as t,
+  CategoryInclbookmarked as r,
+} from "../schemas/NexusPHP-BNC4SlPA.js";
+import {
+  allTagSelectors as m,
+  selectorSearchStatus as s,
+  selectorSearchProgress as l,
+  allCustomTags as n,
+} from "./hdhome-BS7QBm8E.js";
+import { bD as i } from "../index-COeZNva1.js";
+import "../../../es-toolkit/toMerged-Be-qf92q.js";
+import "../../../es-toolkit/isPlainObject-3NY8ex7Q.js";
+import "../schemas/AbstractPrivateSite-kkMcHSoo.js";
+import "../../../es-toolkit/intersection-CiePrUGh.js";
+import "../../../es-toolkit/pascalCase-BZA_Th-x.js";
+import "../../../es-toolkit/has-CpNzJTaW.js";
+import "../schemas/AbstractBittorrentSite-YCyl9e_L.js";
+import "../types/base-Dy_28wGT.js";
+import "../types/torrent-BvvY2NbA.js";
+import "../utils/datetime-DQxMK7bP.js";
+import "../../../date-fns/sub-D9RLuzs0.js";
+import "../../../date-fns/subDays-DlPNbvmn.js";
+import "../../../date-fns/format-b1gG6cM7.js";
+import "../utils/filesize-D_1hx4u8.js";
+import "../utils/filter-Dko2hrfF.js";
+import "../utils/helper-OCngMtkv.js";
+import "../utils/level-ChrMpKO_.js";
+import "../../../date-fns/intervalToDuration-DvSvSXE3.js";
+import "../../../date-fns/normalizeInterval-DC3nt56b.js";
+import "../../../date-fns/differenceInYears-C2HS2Spv.js";
+const W = {
+  ...e,
+  version: 2,
+  id: "hddolby",
+  name: "HD Dolby",
+  aka: ["高清杜比"],
+  description: "高清杜比",
+  tags: ["影视", "综合"],
+  collaborator: ["iceyuamao0510", "tongyifan"],
+  type: "private",
+  schema: "NexusPHP",
+  urls: ["https://www.hddolby.com/"],
+  legacyUrls: ["https://hddolby.com/"],
+  category: [
+    {
+      name: "类别",
+      key: "cat",
+      options: [
+        { value: 401, name: "Movies电影" },
+        { value: 402, name: "TV Series电视剧" },
+        { value: 404, name: "Documentaries纪录片" },
+        { value: 405, name: "Animations动漫" },
+        { value: 403, name: "TV Shows综艺" },
+        { value: 406, name: "Music Videos" },
+        { value: 407, name: "Sports体育" },
+        { value: 408, name: "HQ Audio音乐" },
+        { value: 410, name: "Games游戏" },
+        { value: 411, name: "Study学习" },
+        { value: 409, name: "Others其他" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "媒介",
+      key: "medium",
+      options: [
+        { value: 1, name: "UHD" },
+        { value: 2, name: "Blu-ray" },
+        { value: 3, name: "Remux" },
+        { value: 10, name: "Encode" },
+        { value: 6, name: "WEB-DL" },
+        { value: 12, name: "FEED" },
+        { value: 5, name: "HDTV" },
+        { value: 7, name: "Webrip" },
+        { value: 4, name: "HD DVD" },
+        { value: 8, name: "DVD" },
+        { value: 9, name: "CD" },
+        { value: 11, name: "Other" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "编码",
+      key: "codec",
+      options: [
+        { value: 1, name: "H.264/AVC" },
+        { value: 2, name: "H.265/HEVC" },
+        { value: 13, name: "H.266/VVC" },
+        { value: 11, name: "AV1" },
+        { value: 12, name: "VP9" },
+        { value: 14, name: "AVS3" },
+        { value: 15, name: "AVS+" },
+        { value: 16, name: "AVS2" },
+        { value: 5, name: "VC-1" },
+        { value: 6, name: "MPEG-2" },
+        { value: 7, name: "Other" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "音频编码",
+      key: "audiocodec",
+      options: [
+        { value: 1, name: "DTS-HD MA" },
+        { value: 2, name: "TrueHD" },
+        { value: 15, name: "DTS-X" },
+        { value: 3, name: "LPCM" },
+        { value: 4, name: "DTS" },
+        { value: 5, name: "DD/AC3" },
+        { value: 14, name: "DDP/EAC3" },
+        { value: 6, name: "AAC" },
+        { value: 13, name: "Opus" },
+        { value: 7, name: "FLAC" },
+        { value: 8, name: "APE" },
+        { value: 9, name: "WAV" },
+        { value: 10, name: "MP3" },
+        { value: 11, name: "M4A" },
+        { value: 16, name: "AV3A" },
+        { value: 17, name: "AVSA" },
+        { value: 18, name: "MPEG" },
+        { value: 12, name: "Other" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "分辨率",
+      key: "standard",
+      options: [
+        { value: 6, name: "4320/8K" },
+        { value: 1, name: "2160p/4K" },
+        { value: 2, name: "1080p" },
+        { value: 3, name: "1080i" },
+        { value: 4, name: "720p" },
+        { value: 5, name: "Others" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "制作组",
+      key: "team",
+      options: [
+        { value: 1, name: "Dream" },
+        { value: 10, name: "DBTV" },
+        { value: 12, name: "QHstudIo" },
+        { value: 13, name: "CornerMV" },
+        { value: 14, name: "Telesto" },
+        { value: 2, name: "MTeam" },
+        { value: 4, name: "WiKi" },
+        { value: 7, name: "FRDS" },
+        { value: 9, name: "HDo" },
+        { value: 11, name: "beAst" },
+        { value: 5, name: "CHD" },
+        { value: 6, name: "CMCT" },
+        { value: 3, name: "PTHome" },
+        { value: 8, name: "Other" },
+      ],
+    },
+    o,
+    t,
+    r,
+    {
+      name: "标签（且模式）",
+      key: "tags_and",
+      notes: "请勿与标签（或模式）同时使用！！",
+      options: n,
+      cross: { mode: "comma", key: "tags" },
+    },
+    {
+      name: "标签（或模式）",
+      key: "tags_or",
+      notes: "请勿与标签（且模式）同时使用！！",
+      options: n,
+      cross: { mode: "custom" },
+      generateRequestConfig: (a) => ({ requestConfig: { params: { tags: a.join(","), tags_mode: "OR" } } }),
+    },
+  ],
+  officialGroupPattern: [/-DBTV|-QHstudIo|Dream$|.*@dream/i],
+  search: {
+    ...e.search,
+    advanceKeywordParams: {
+      imdb: !1,
+      tmdb: { requestConfigTransformer: ({ requestConfig: a }) => (i(a, "params.search_area", 4), a) },
+    },
+    selectors: {
+      ...e.search.selectors,
+      subTitle: { selector: ["td:has(a[href*='hit'][title]) > span:last"] },
+      progress: l,
+      status: s,
+      tags: [...e.search.selectors.tags, ...m],
+    },
+  },
+  userInfo: {
+    ...e.userInfo,
+    selectors: {
+      ...e.userInfo.selectors,
+      bonus: {
+        selector: ["td.rowhead:contains('鲸币') + td", "td.rowhead:contains('Karma Points') + td"],
+        filters: [{ name: "parseNumber" }],
+      },
+      bonusPerHour: {
+        selector: ["table[width='800'] > tbody > tr:contains('合计') > td:last-of-type"],
+        filters: [{ name: "split", args: ["/", 0] }, { name: "parseNumber" }],
+      },
+    },
+  },
+  noLoginAssert: { matchSelectors: ["script:contains('take2fa.php?returnto=')"] },
+  levelRequirements: [
+    { id: 1, name: "User", privilege: "新用户的默认级别。" },
+    {
+      id: 2,
+      name: "Power User",
+      interval: "P2W",
+      downloaded: "120GB",
+      ratio: 2,
+      seedingBonus: 6e4,
+      privilege:
+        '得到0个邀请名额；可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种；以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
+    },
+    {
+      id: 3,
+      name: "(连长)Elite User",
+      interval: "P4W",
+      downloaded: "256GB",
+      ratio: 2.5,
+      seedingBonus: 12e4,
+      privilege: "Elite User及以上用户封存账号后不会被删除。",
+    },
+    {
+      id: 4,
+      name: "Crazy User",
+      interval: "P8W",
+      downloaded: "512GB",
+      ratio: 3,
+      seedingBonus: 24e4,
+      privilege: "得到0个邀请名额；可以在做种/下载/发布的时候选择匿名模式。",
+    },
+    {
+      id: 5,
+      name: "Insane User",
+      interval: "P12W",
+      downloaded: "768GB",
+      ratio: 3.5,
+      seedingBonus: 36e4,
+      privilege: "无",
+    },
+    {
+      id: 6,
+      name: "Veteran User",
+      interval: "P20W",
+      downloaded: "1TB",
+      ratio: 4,
+      seedingBonus: 6e5,
+      privilege: "可以查看其它用户的评论、帖子历史。",
+    },
+    {
+      id: 7,
+      name: "Extreme User",
+      interval: "P28W",
+      downloaded: "2TB",
+      ratio: 4.5,
+      seedingBonus: 72e4,
+      isKept: !0,
+      privilege: "Extreme User及以上用户会永远保留账号。",
+    },
+    {
+      id: 8,
+      name: "Ultimate User",
+      interval: "P40W",
+      downloaded: "4TB",
+      ratio: 5,
+      seedingBonus: 12e5,
+      isKept: !0,
+      privilege: "无",
+    },
+    {
+      id: 9,
+      name: "Nexus Master",
+      interval: "P56W",
+      downloaded: "8TB",
+      ratio: 5.5,
+      seedingBonus: 168e4,
+      isKept: !0,
+      privilege: "无",
+    },
+  ],
+};
+export { W as siteMetadata };

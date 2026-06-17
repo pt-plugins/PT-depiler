@@ -1,0 +1,46 @@
+const e = {
+  version: 1,
+  id: "uhdbits",
+  name: "UHDBits",
+  aka: ["UHD"],
+  tags: ["影视"],
+  timezoneOffset: "+0000",
+  collaborator: ["bimzcy", "enigamz", "haowenwu"],
+  type: "private",
+  schema: "GazelleJSONAPI",
+  urls: ["https://uhdbits.org/"],
+  isDead: !0,
+  levelRequirements: [
+    { id: 0, name: "Peasant" },
+    {
+      id: 1,
+      name: "User",
+      interval: "P1W",
+      ratio: 0.7,
+      privilege: "Access to Top 10; Can create and edit Wiki pages.",
+    },
+    {
+      id: 2,
+      name: "Power",
+      interval: "P4W",
+      downloaded: "100GB",
+      snatches: 20,
+      ratio: 1.5,
+      privilege:
+        "Ability to make New Requests; Enable Users online and Users on IRC on front page; Access to full Staff page.",
+    },
+    {
+      id: 3,
+      name: "Extreme",
+      interval: "P8W",
+      downloaded: "300GB",
+      snatches: 60,
+      ratio: 2,
+      privilege: "Access to the Invite Forum.",
+    },
+    { id: 4, name: "Elite", interval: "P16W", downloaded: "900GB", snatches: 180, ratio: 2.5 },
+    { id: 5, name: "Guru", interval: "P32W", downloaded: "2700GB", snatches: 540, ratio: 3 },
+    { id: 6, name: "Master", interval: "P64W", downloaded: "8100GB", snatches: 1620, ratio: 3.5 },
+  ],
+};
+export { e as siteMetadata };

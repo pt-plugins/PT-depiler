@@ -1,0 +1,51 @@
+{
+  "manifest_version": 3,
+  "minimum_chrome_version": "120",
+  "version": "0.0.6.1740",
+  "version_name": "0.0.6.1740+c969e7b",
+  "name": "__MSG_extName__",
+  "description": "__MSG_extDesc__",
+  "default_locale": "en",
+  "homepage_url": "https://github.com/pt-plugins/PT-depiler",
+  "icons": {
+    "16": "icons/logo/16.png",
+    "19": "icons/logo/19.png",
+    "64": "icons/logo/64.png",
+    "128": "icons/logo/128.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/logo/16.png",
+      "19": "icons/logo/19.png",
+      "64": "icons/logo/64.png",
+      "128": "icons/logo/128.png"
+    },
+    "default_title": "__MSG_extName__"
+  },
+  "background": { "service_worker": "src/entries/background/main.js" },
+  "omnibox": { "keyword": "ptd" },
+  "options_ui": { "page": "src/entries/options/index.html", "open_in_tab": true },
+  "content_scripts": [
+    {
+      "matches": ["*://*/*"],
+      "exclude_matches": ["*://*/*.xml", "*://*/*.xml?*"],
+      "js": ["src/entries/content-script/index.js"]
+    }
+  ],
+  "permissions": [
+    "activeTab",
+    "alarms",
+    "clipboardWrite",
+    "contextMenus",
+    "cookies",
+    "downloads",
+    "declarativeNetRequest",
+    "storage",
+    "unlimitedStorage",
+    "notifications",
+    "offscreen"
+  ],
+  "optional_permissions": ["nativeMessaging"],
+  "host_permissions": ["*://*/*"],
+  "web_accessible_resources": [{ "resources": ["icons/*", "lib/*", "pt-depiler.css"], "matches": ["*://*/*"] }]
+}

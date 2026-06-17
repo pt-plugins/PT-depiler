@@ -1,0 +1,206 @@
+import {
+  CategoryIncldead as e,
+  CategorySpstate as a,
+  CategoryInclbookmarked as n,
+  SchemaMetadata as m,
+} from "../schemas/NexusPHP-BNC4SlPA.js";
+import "../index-COeZNva1.js";
+import "../../../es-toolkit/toMerged-Be-qf92q.js";
+import "../../../es-toolkit/isPlainObject-3NY8ex7Q.js";
+import "../schemas/AbstractPrivateSite-kkMcHSoo.js";
+import "../../../es-toolkit/intersection-CiePrUGh.js";
+import "../../../es-toolkit/pascalCase-BZA_Th-x.js";
+import "../../../es-toolkit/has-CpNzJTaW.js";
+import "../schemas/AbstractBittorrentSite-YCyl9e_L.js";
+import "../types/base-Dy_28wGT.js";
+import "../types/torrent-BvvY2NbA.js";
+import "../utils/datetime-DQxMK7bP.js";
+import "../../../date-fns/sub-D9RLuzs0.js";
+import "../../../date-fns/subDays-DlPNbvmn.js";
+import "../../../date-fns/format-b1gG6cM7.js";
+import "../utils/filesize-D_1hx4u8.js";
+import "../utils/filter-Dko2hrfF.js";
+import "../utils/helper-OCngMtkv.js";
+import "../utils/level-ChrMpKO_.js";
+import "../../../date-fns/intervalToDuration-DvSvSXE3.js";
+import "../../../date-fns/normalizeInterval-DC3nt56b.js";
+import "../../../date-fns/differenceInYears-C2HS2Spv.js";
+const A = {
+  ...m,
+  version: 1,
+  id: "wintersakura",
+  name: "WinterSakura",
+  aka: ["冬樱"],
+  tags: ["电影", "电视剧"],
+  timezoneOffset: "+0800",
+  collaborator: ["zhuweitung"],
+  type: "private",
+  schema: "NexusPHP",
+  urls: ["uggcf://jvagrefnxhen.arg/"],
+  category: [
+    {
+      name: "分类",
+      key: "cat",
+      options: [
+        { name: "Misc/其他", value: 409 },
+        { name: "Sports/体育", value: 407 },
+        { name: "Music Videos/音乐MV", value: 406 },
+        { name: "HQ Audio/无损音乐", value: 408 },
+        { name: "TV Shows/综艺(分集）", value: 418 },
+        { name: "TV Shows/综艺(合集)", value: 403 },
+        { name: "TV Series/剧集(分集）", value: 402 },
+        { name: "TV Series/剧集(合集）", value: 414 },
+        { name: "Animation series/动漫剧集(分集)", value: 413 },
+        { name: "Animation series/动漫剧集(合集)	", value: 423 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "媒介",
+      key: "medium",
+      options: [
+        { name: "Webrip", value: 25 },
+        { name: "3D Blu-ray", value: 24 },
+        { name: "SACD", value: 22 },
+        { name: "CD", value: 18 },
+        { name: "DVDR", value: 17 },
+        { name: "HDTV", value: 16 },
+        { name: "HD DVD", value: 23 },
+        { name: "WEB-DL", value: 21 },
+        { name: "Encode", value: 15 },
+        { name: "Remux", value: 14 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "编码",
+      key: "codec",
+      options: [
+        { name: "Other", value: 13 },
+        { name: "ProRes", value: 15 },
+        { name: "AV1", value: 16 },
+        { name: "MPEG-2", value: 11 },
+        { name: "VC-1", value: 10 },
+        { name: "x264", value: 8 },
+        { name: "x265", value: 7 },
+        { name: "H264/AVC", value: 6 },
+        { name: "H265/HEVC", value: 9 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "音频编码",
+      key: "audiocodec",
+      options: [
+        { name: "Other", value: 21 },
+        { name: "Opus", value: 27 },
+        { name: "Dolby Digital Plus Dolby Atmos", value: 26 },
+        { name: "Dolby Digital Plus", value: 25 },
+        { name: "DSD", value: 24 },
+        { name: "WAV", value: 23 },
+        { name: "DTS-HD HR", value: 22 },
+        { name: "AC3/DD", value: 20 },
+        { name: "AAC", value: 19 },
+        { name: "OGG", value: 18 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "分辨率",
+      key: "standard",
+      options: [
+        { name: "SD", value: 4 },
+        { name: "720p", value: 3 },
+        { name: "1080i", value: 2 },
+        { name: "2K/1080p", value: 1 },
+        { name: "4K/2160p", value: 5 },
+        { name: "8K/4320p", value: 6 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "制作组",
+      key: "team",
+      options: [
+        { name: "Other/其他制作组或转发资源", value: 5 },
+        { name: "tjupt", value: 17 },
+        { name: "PTer", value: 8 },
+        { name: "FRDS", value: 7 },
+        { name: "CMCT", value: 6 },
+        { name: "ttg", value: 15 },
+        { name: "Mteam", value: 13 },
+        { name: "HDC", value: 14 },
+        { name: "HDS", value: 1 },
+        { name: "CHD", value: 2 },
+      ],
+      cross: { mode: "append" },
+    },
+    e,
+    a,
+    n,
+  ],
+  officialGroupPattern: ["SakuraWEB", "SakuraSUB", "WScode"],
+  levelRequirements: [
+    { id: 0, name: "User", privilege: "新用户的默认级别；可以上传的字幕" },
+    {
+      id: 1,
+      name: "Power User",
+      downloaded: "50GB",
+      ratio: 1,
+      seedingBonus: 5e4,
+      privilege:
+        "可以查看NFO文档；可以请求续种； 可以购买/发送邀请；可以删除自己上传的字幕。可以申请友情链接；可以使用个性条。",
+    },
+    {
+      id: 2,
+      name: "Elite User",
+      downloaded: "400GB",
+      ratio: 1.5,
+      seedingBonus: 12e4,
+      privilege: "可以查看种子结构；可以更新外部信息",
+    },
+    {
+      id: 3,
+      name: "Crazy User",
+      downloaded: "800GB",
+      ratio: 2,
+      seedingBonus: 2e5,
+      privilege: "可以在做种/下载/发布的时候选择匿名模式。",
+    },
+    { id: 4, name: "Insane User", downloaded: "1.5TB", ratio: 3, seedingBonus: 5e5, privilege: "可以查看排行榜。" },
+    {
+      id: 5,
+      name: "Veteran User",
+      downloaded: "3TB",
+      ratio: 4,
+      seedingBonus: 8e5,
+      privilege: "可以查看其它用户种子历史。（只有用户的隐私等级没有设为’强‘时才生效）",
+    },
+    {
+      id: 6,
+      name: "Extreme User",
+      downloaded: "5TB",
+      ratio: 6,
+      seedingBonus: 14e5,
+      privilege: "可以更新过期的外部信息。Extreme User 及以上用户封存账号后不会被删除",
+    },
+    {
+      id: 7,
+      name: "Ultimate User",
+      downloaded: "6TB",
+      ratio: 8,
+      seedingBonus: 2e6,
+      privilege: "首次到达此等级得到1个邀请名额。",
+    },
+    {
+      id: 8,
+      name: "Nexus Master",
+      downloaded: "10TB",
+      ratio: 9.5,
+      seedingBonus: 28e5,
+      isKept: !0,
+      privilege: "首次到达此等级得到1个邀请名额Nexus Master及以上用户会永远保留账号。",
+    },
+  ],
+};
+export { A as siteMetadata };

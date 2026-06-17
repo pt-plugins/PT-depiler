@@ -1,0 +1,59 @@
+{
+  "contextMenuSearch": {
+    "message": "Using PT Depiler to Search for \"%s\" related torrents"
+  },
+  "contextMenuSearchInDefault": {
+    "message": "Search in the default plan"
+  },
+  "contextMenuSearchInSite": {
+    "message": "Search in the specified site"
+  },
+  "contextMenuSearchInSolution": {
+    "message": "Search in the specified plan"
+  },
+  "contextMenuSearchInThisSite": {
+    "message": "Search in this site"
+  },
+  "contextMenuSearchWithDouban": {
+    "message": "Using PT Depiler to Search This Douban ID"
+  },
+  "contextMenuSearchWithIMDb": {
+    "message": "Using PT Depiler to Search This IMDb ID"
+  },
+  "contextMenuSendToDownloader": {
+    "message": "Using PT Depiler to Download link"
+  },
+  "contextMenuSendToDownloaderAdvanced": {
+    "message": "Advanced push"
+  },
+  "contextMenuSendToDownloaderDefaultFolder": {
+    "message": "Default path"
+  },
+  "contextMenuSendToDownloaderIn": {
+    "message": "Push to $1 -> $2"
+  },
+  "extDesc": {
+    "message": "PT Depiler"
+  },
+  "extName": {
+    "message": "PT Depiler"
+  },
+  "notificationSendLinkToDownloaderFailure": {
+    "message": "Failed to send the link to the downloader [$1]"
+  },
+  "notificationSendLinkToDownloaderSuccess": {
+    "message": "Successfully sent the link to the downloader [$1]"
+  },
+  "omniboxSearch": {
+    "message": "Search $2 in [ $1 ]"
+  },
+  "searchPlanAll": {
+    "message": "All Sites"
+  },
+  "searchPlanDefault": {
+    "message": "Default"
+  },
+  "searchPlanSingleSite": {
+    "message": "Single Site"
+  }
+}
