@@ -1,5 +1,5 @@
 import type { ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/NexusPHP";
+import { SchemaMetadata, subTitleRemoveExtraElement } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -117,6 +117,26 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   officialGroupPattern: [/(-pthome|-pth|.*@pth)/i],
+
+  search: {
+    ...SchemaMetadata.search!,
+    selectors: {
+      ...SchemaMetadata.search!.selectors!,
+      subTitle: {
+        // PTHome wraps its subtitle in a <span> element. The default NexusPHP handler removes
+        // all span elements, which strips the subtitle text. We only remove <a> and <img>
+        // so that extractContent() can still get the text content from the subtitle span.
+        text: "",
+        selector: [
+          "a[href^='details.php?id='][title]:has(b)",
+          "a[href*='details.php?id='][href*='hit']",
+          "a[href*='hit'][title]",
+          "a[href*='hit']:has(b)",
+        ],
+        elementProcess: subTitleRemoveExtraElement(["a", "img"], true),
+      },
+    },
+  },
 
   levelRequirements: [
     {
