@@ -32,6 +32,10 @@ function beforeSave() {
   }
 }
 
+function resetContentScriptPosition() {
+  configStore.updateContentScriptPosition(0, 0);
+}
+
 defineExpose({
   beforeSave,
 });
@@ -157,6 +161,15 @@ defineExpose({
               hide-details
               :label="t('SetBase.ui.enableFadeEffect')"
             />
+            <v-btn
+              class="my-2"
+              color="primary"
+              prepend-icon="mdi-crosshairs-gps"
+              variant="tonal"
+              @click="resetContentScriptPosition"
+            >
+              {{ t("SetBase.ui.resetSidebarPosition") }}
+            </v-btn>
             <v-divider />
           </v-col>
         </v-row>

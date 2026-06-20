@@ -398,8 +398,10 @@
     "noDownloader": "没有可用的下载器，请先在设置中添加下载器。",
     "noDownloaderForSite": "当前站点没有可用的下载器，请检查下载器设置中的站点过滤配置。",
     "pauseOnAdd": "添加时默认暂停",
+    "quickSavePaths": "快捷保存路径",
+    "quickSavePathsHint": "显示该下载器保存路径列表的前 5 个",
     "savePath": "保存路径",
-    "savePathHint": "不设置则为该下载服务器的默认路径",
+    "savePathHint": "可选择或输入新路径；新路径发送后会保存到该下载器。不设置则为该下载服务器的默认路径",
     "selectDownloader": "选择下载器",
     "selectDownloaderFirst": "请先选择下载器",
     "title": "为 {0} 个种子选择下载器"
@@ -550,6 +552,7 @@
       },
       "socialSiteSearchLabel": "社交站点搜索方式",
       "tableMultiSortNote": "多列排序使用方法：点击任意表头字段开始排序，字段上会显示数字“1”。再点击其他字段，依次显示“2”“3”，表示排序优先级。再次点击相同字段可切换升序、降序或取消排序。排序顺序由这些数字决定，数字越小优先级越高。",
+      "resetSidebarPosition": "重置悬浮按钮位置",
       "useLargeIcon": "使用大图标按键"
     },
     "userInfo": {
@@ -561,11 +564,22 @@
   "SetDownloader": {
     "PathAndTag": {
       "downloadPath": {
+        "add": "添加",
         "addInputLabel": "添加@:SetDownloader.PathAndTag.downloadPath.title",
         "addTitle": "已添加的@:SetDownloader.PathAndTag.downloadPath.title@:SetDownloader.PathAndTag.supportDragNote",
+        "addPlaceholder": "输入保存路径后回车，或点击添加",
         "autoImport": "一键导入下载器中已有的@:SetDownloader.PathAndTag.downloadPath.title",
         "autoImportFail": "@:SetDownloader.PathAndTag.downloadPath.autoImport 失败，请手动添加。",
+        "autoImportShort": "导入",
         "clear": "清空@:SetDownloader.PathAndTag.downloadPath.title",
+        "duplicate": "该保存路径已存在",
+        "empty": "暂无保存路径。添加后会在推送弹窗中可选，前 5 个会显示为快捷按钮。",
+        "moveDown": "下移",
+        "moveUp": "上移",
+        "pathLabel": "保存路径",
+        "quickBadge": "快捷",
+        "quickHint": "列表会持久化到该下载器；前 5 个保存路径会在“推送到下载器”弹窗里显示为快捷按钮。",
+        "remove": "删除保存路径",
         "title": "下载路径"
       },
       "note": {
@@ -634,6 +648,7 @@
       "changeDefaultDownloader": "更新默认下载服务器成功！如有必要请进一步设置下载地址和标签。",
       "editDefaultDownloaderBtn": "默认下载服务器设置",
       "emptyNotice": "在使用推送服务之前，您至少需要添加一个下载服务器。",
+      "manageSavePathsBtn": "保存路径管理",
       "remove": {
         "multi": "你确定删除这{count}个下载服务器吗？",
         "single": "确认要删除这个下载服务器吗？"

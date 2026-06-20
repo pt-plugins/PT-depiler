@@ -6,6 +6,14 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { sendMessage } from "@/messages.ts";
 
+function replaceValue(value: string, replaceMap: Record<string, string>) {
+  let replacedValue = value;
+  for (const [replaceKey, replaceWith] of Object.entries(replaceMap)) {
+    replacedValue = replacedValue.replace(`$${replaceKey}$`, replaceWith);
+  }
+  return replacedValue;
+}
+
 export function sendTorrentToDownloader(
   torrentItems: ITorrent[],
   downloaderId: TDownloaderKey,
@@ -16,12 +24,12 @@ export function sendTorrentToDownloader(
 
   // 预处理自定义输入
   for (const key of ["savePath", "label"] as (keyof typeof addTorrentOptions)[]) {
-    if ((addTorrentOptions[key] as string).includes("<...>")) {
+    const fieldValue = addTorrentOptions[key];
+    if (typeof fieldValue === "string" && fieldValue.includes("<...>")) {
       // 此处允许空字符 ""， 但不允许用户取消（即取消动态替换操作则认为取消推送任务）
       const userInput = prompt(`请输入替换 ${key} 中的 <...> 的内容：`);
       if (userInput !== null) {
-        // @ts-ignore
-        addTorrentOptions[key] = (addTorrentOptions[key] as string).replace("<...>", userInput.trim());
+        (addTorrentOptions as Record<string, any>)[key] = fieldValue.replace("<...>", userInput.trim());
       } else {
         return Promise.reject(`因取消输入 ${key} 中的 <...> 的内容而停止推送`); // 用户取消输入，则跳过该任务
       }
@@ -68,10 +76,10 @@ export function sendTorrentToDownloader(
           if (realAddTorrentOptions[key] === "") {
             delete realAddTorrentOptions[key];
           } else {
-            for (const [replaceKey, value] of Object.entries(replaceMap)) {
-              // @ts-ignore
-              realAddTorrentOptions[key] = (realAddTorrentOptions[key]! as string).replace(`$${replaceKey}$`, value);
-            }
+            (realAddTorrentOptions as Record<string, any>)[key] = replaceValue(
+              realAddTorrentOptions[key] as string,
+              replaceMap,
+            );
           }
         }
       }

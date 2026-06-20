@@ -91,6 +91,17 @@ function editDownloaderPathAndTag(downloaderId: TDownloaderKey) {
   showPathAndTagSuggestDialog.value = true;
 }
 
+const selectedPathManageDownloaderId = computed<TDownloaderKey | null>(() => {
+  if (tableSelected.value.length === 1) return tableSelected.value[0];
+  if (metadataStore.getDownloaders.length === 1) return metadataStore.getDownloaders[0].id;
+  return null;
+});
+
+function editSelectedDownloaderPathAndTag() {
+  if (!selectedPathManageDownloaderId.value) return;
+  editDownloaderPathAndTag(selectedPathManageDownloaderId.value);
+}
+
 function editDownloaderSiteFilter(downloaderId: TDownloaderKey) {
   toEditDownloaderId.value = downloaderId;
   showSiteFilterDialog.value = true;
@@ -130,6 +141,14 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
           color="indigo"
           icon="mdi-auto-download"
           @click="showDefaultDownloaderEditDialog = true"
+        />
+
+        <NavButton
+          :disabled="!selectedPathManageDownloaderId"
+          :text="t('SetDownloader.index.manageSavePathsBtn')"
+          color="amber"
+          icon="mdi-folder-settings"
+          @click="editSelectedDownloaderPathAndTag"
         />
 
         <v-spacer />

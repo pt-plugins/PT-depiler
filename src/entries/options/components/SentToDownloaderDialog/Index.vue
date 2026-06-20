@@ -47,6 +47,7 @@ const addTorrentOptions = ref<Required<Omit<CAddTorrentOptions, "localDownloadOp
 
 const suggestFolders = computed(() => selectedDownloader.value?.suggestFolders ?? []);
 const suggestTags = computed(() => selectedDownloader.value?.suggestTags ?? []);
+const quickSuggestFolders = computed(() => suggestFolders.value.slice(0, 5));
 
 const currentSiteIds = computed(() => [...new Set(torrentItems.map((t) => t.site).filter(Boolean))]);
 const enabledDownloadersBySite = computed(() => {
@@ -79,10 +80,28 @@ watch(selectedDownloader, (value) => {
   }
 });
 
+async function saveSelectedDownloaderPath() {
+  const downloader = selectedDownloader.value;
+  const savePath = addTorrentOptions.value.savePath.trim();
+  addTorrentOptions.value.savePath = savePath;
+  if (!downloader?.id || !savePath) return;
+
+  const suggestFolders = downloader.suggestFolders ?? [];
+  if (suggestFolders.includes(savePath)) return;
+
+  const nextSuggestFolders = [...suggestFolders, savePath];
+  selectedDownloader.value = { ...downloader, suggestFolders: nextSuggestFolders };
+  await metadataStore.simplePatch("downloaders", downloader.id, "suggestFolders", nextSuggestFolders);
+}
+
 async function sendToDownloader() {
   if (!selectedDownloader.value?.id) {
     runtimeStore.showSnakebar(t("SentToDownloaderDialog.selectDownloaderFirst"), { color: "error" });
     return;
+  }
+
+  if (!isDefaultSend) {
+    await saveSelectedDownloaderPath();
   }
 
   // 保存此次选择记录（默认推送不保存）
@@ -90,7 +109,10 @@ async function sendToDownloader() {
     // noinspection ES6MissingAwait
     metadataStore.setLastDownloader({
       id: selectedDownloader.value.id,
-      options: addTorrentOptions.value,
+      options: {
+        ...addTorrentOptions.value,
+        advanceAddTorrentOptions: { ...addTorrentOptions.value.advanceAddTorrentOptions },
+      },
     });
   }
 
@@ -110,15 +132,16 @@ function quickSendToDownloader(downloader: IDownloaderMetadata, path: string = "
   addTorrentOptions.value.localDownload = true;
   addTorrentOptions.value.addAtPaused = !(downloader.feature?.DefaultAutoStart ?? true);
   addTorrentOptions.value.advanceAddTorrentOptions = downloader.advanceAddTorrentOptions ?? {};
-
-  if (path) {
-    addTorrentOptions.value.savePath = path;
-  }
+  addTorrentOptions.value.savePath = path;
   if (label) {
     addTorrentOptions.value.label = label;
   }
 
   return sendToDownloader();
+}
+
+function selectSavePath(path: string) {
+  addTorrentOptions.value.savePath = path;
 }
 
 function dialogEnter() {
@@ -137,7 +160,7 @@ function dialogEnter() {
     sendToDownloader();
   } else {
     restoreAddTorrentOptions(); // 先重置所有选项，然后如果需要则从uiStore中获取历史情况
-    quickSendToClient.value = configStore.download.useQuickSendToClient;
+    quickSendToClient.value = false;
 
     // 如果不是快速发送到客户端模式，则尝试设置默认下载器
     if (!quickSendToClient.value) {
@@ -257,6 +280,28 @@ function dialogLeave() {
                 </template>
               </v-autocomplete>
             </v-row>
+            <v-row v-if="quickSuggestFolders.length > 0" dense>
+              <v-col class="py-0">
+                <div class="quick-save-path-row">
+                  <span class="text-caption text-medium-emphasis mr-2">
+                    {{ t("SentToDownloaderDialog.quickSavePaths") }}
+                  </span>
+                  <v-chip
+                    v-for="path in quickSuggestFolders"
+                    :key="path"
+                    :active="addTorrentOptions.savePath === path"
+                    :title="path"
+                    color="info"
+                    prepend-icon="mdi-folder"
+                    size="small"
+                    variant="tonal"
+                    @click="selectSavePath(path)"
+                  >
+                    <span class="quick-save-path-text">{{ path }}</span>
+                  </v-chip>
+                </div>
+              </v-col>
+            </v-row>
             <v-row>
               <v-col class="py-0 pl-0" cols="6">
                 <v-combobox
@@ -356,4 +401,21 @@ function dialogLeave() {
   </v-dialog>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.quick-save-path-row {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.quick-save-path-text {
+  display: inline-block;
+  max-width: 240px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+  white-space: nowrap;
+}
+</style>

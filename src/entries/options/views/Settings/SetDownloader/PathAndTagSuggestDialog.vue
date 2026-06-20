@@ -18,7 +18,8 @@ const metadataStore = useMetadataStore();
 
 const clientConfig = ref<IDownloaderMetadata>();
 const clientMetadata = ref<TorrentClientMetaData>();
-const expansionPanelOpen = ref<string>("note");
+const expansionPanelOpen = ref<string>("path");
+const newFolderInput = ref<string>("");
 
 // [key (for i18n), value, example]
 const pathReplaceMap: [string, string, string][] = [
@@ -48,15 +49,61 @@ watch(
   { immediate: true },
 );
 
-const suggestFolderInput = computed({
-  get: () => (clientConfig.value?.suggestFolders ?? []).join("\n"),
-  set: (value) => {
-    clientConfig.value!.suggestFolders = value
-      .split("\n")
-      .map((v) => v.trim())
-      .filter(Boolean);
-  },
-});
+function normalizeList(values: string[]) {
+  return [...new Set(values.map((v) => v.trim()).filter(Boolean))];
+}
+
+function setSuggestFolders(paths: string[]) {
+  clientConfig.value!.suggestFolders = normalizeList(paths);
+}
+
+function addSuggestFolder(path: string = newFolderInput.value) {
+  const nextPath = path.trim();
+  if (!nextPath) return;
+
+  const suggestFolders = clientConfig.value?.suggestFolders ?? [];
+  if (suggestFolders.includes(nextPath)) {
+    runtimeStore.showSnakebar(t("SetDownloader.PathAndTag.downloadPath.duplicate"), { color: "warning" });
+    return;
+  }
+
+  setSuggestFolders([...suggestFolders, nextPath]);
+  newFolderInput.value = "";
+}
+
+function updateSuggestFolder(index: number, value: string) {
+  const suggestFolders = [...(clientConfig.value?.suggestFolders ?? [])];
+  suggestFolders[index] = value;
+  clientConfig.value!.suggestFolders = suggestFolders;
+}
+
+function normalizeSuggestFolders() {
+  setSuggestFolders(clientConfig.value?.suggestFolders ?? []);
+}
+
+function removeSuggestFolder(index: number) {
+  const suggestFolders = [...(clientConfig.value?.suggestFolders ?? [])];
+  suggestFolders.splice(index, 1);
+  setSuggestFolders(suggestFolders);
+}
+
+function moveSuggestFolder(index: number, offset: number) {
+  const suggestFolders = [...(clientConfig.value?.suggestFolders ?? [])];
+  const targetIndex = index + offset;
+  if (targetIndex < 0 || targetIndex >= suggestFolders.length) return;
+
+  const [folder] = suggestFolders.splice(index, 1);
+  suggestFolders.splice(targetIndex, 0, folder);
+  setSuggestFolders(suggestFolders);
+}
+
+function clearSuggestFolders() {
+  clientConfig.value!.suggestFolders = [];
+}
+
+function appendPathKeyword(keyword: string) {
+  newFolderInput.value += keyword;
+}
 
 const isLoadingClientFolders = ref<boolean>(false);
 async function loadClientFolders() {
@@ -66,7 +113,7 @@ async function loadClientFolders() {
     const clientPaths = await client.getClientPaths();
     for (const path of clientPaths) {
       if ((clientConfig.value?.suggestFolders ?? []).includes(path)) continue; // 避免重复添加
-      suggestFolderInput.value += "\n" + path;
+      addSuggestFolder(path);
     }
   } catch (e) {
     runtimeStore.showSnakebar(t("SetDownloader.PathAndTag.downloadPath.autoImportFail"), { color: "error" });
@@ -103,6 +150,8 @@ async function loadClientLabels() {
 }
 
 function saveClientConfig() {
+  normalizeSuggestFolders();
+  clientConfig.value!.suggestTags = normalizeList(clientConfig.value?.suggestTags ?? []);
   metadataStore.addDownloader(clientConfig.value as IDownloaderMetadata);
   showDialog.value = false;
 }
@@ -138,45 +187,127 @@ function saveClientConfig() {
                 {{ clientMetadata?.feature?.CustomPath.description }}
               </v-alert>
 
-              <v-textarea
-                v-model="suggestFolderInput"
-                :label="t('SetDownloader.PathAndTag.downloadPath.addInputLabel')"
-                class="mt-2"
+              <v-alert class="mt-2" density="compact" type="info" variant="tonal">
+                {{ t("SetDownloader.PathAndTag.downloadPath.quickHint") }}
+              </v-alert>
+
+              <v-row class="mt-2" dense>
+                <v-col cols="12" md="9">
+                  <v-text-field
+                    v-model="newFolderInput"
+                    :label="t('SetDownloader.PathAndTag.downloadPath.addInputLabel')"
+                    :placeholder="t('SetDownloader.PathAndTag.downloadPath.addPlaceholder')"
+                    hide-details
+                    @keydown.enter.prevent="addSuggestFolder()"
+                  />
+                </v-col>
+                <v-col cols="12" md="3">
+                  <v-btn block color="success" height="56" prepend-icon="mdi-plus" @click="addSuggestFolder()">
+                    {{ t("SetDownloader.PathAndTag.downloadPath.add") }}
+                  </v-btn>
+                </v-col>
+              </v-row>
+
+              <v-chip-group class="mt-1">
+                <v-chip
+                  v-for="pathReplace in pathReplaceMap"
+                  :key="pathReplace[1]"
+                  :title="pathReplace[2]"
+                  class="mr-1"
+                  size="small"
+                  @click="appendPathKeyword(pathReplace[1])"
+                >
+                  {{ pathReplace[1] }}
+                </v-chip>
+              </v-chip-group>
+
+              <div class="d-flex align-center mt-3 mb-1">
+                <div class="text-subtitle-2">
+                  {{ t("SetDownloader.PathAndTag.downloadPath.addTitle") }}
+                </div>
+                <v-spacer />
+                <v-btn
+                  :loading="isLoadingClientFolders"
+                  :title="t('SetDownloader.PathAndTag.downloadPath.autoImport')"
+                  color="primary"
+                  prepend-icon="mdi-import"
+                  size="small"
+                  variant="text"
+                  @click="loadClientFolders"
+                >
+                  {{ t("SetDownloader.PathAndTag.downloadPath.autoImportShort") }}
+                </v-btn>
+                <v-btn
+                  :disabled="(clientConfig?.suggestFolders ?? []).length === 0"
+                  :title="t('SetDownloader.PathAndTag.downloadPath.clear')"
+                  color="red"
+                  icon="$clear"
+                  size="small"
+                  variant="text"
+                  @click="clearSuggestFolders"
+                />
+              </div>
+
+              <v-alert
+                v-if="(clientConfig?.suggestFolders ?? []).length === 0"
+                density="compact"
+                type="warning"
+                variant="tonal"
               >
-                <template #append>
-                  <div class="d-flex flex-column">
+                {{ t("SetDownloader.PathAndTag.downloadPath.empty") }}
+              </v-alert>
+
+              <div v-else class="save-path-list">
+                <div
+                  v-for="(path, index) in clientConfig?.suggestFolders ?? []"
+                  :key="`${path}-${index}`"
+                  class="save-path-row"
+                >
+                  <div class="save-path-index">
+                    <v-chip v-if="index < 5" class="save-path-chip" color="info" label size="small">
+                      {{ t("SetDownloader.PathAndTag.downloadPath.quickBadge") }} {{ index + 1 }}
+                    </v-chip>
+                    <v-chip v-else class="save-path-chip" label size="small">#{{ index + 1 }}</v-chip>
+                  </div>
+
+                  <v-text-field
+                    :model-value="path"
+                    class="save-path-input"
+                    density="compact"
+                    hide-details
+                    :label="t('SetDownloader.PathAndTag.downloadPath.pathLabel')"
+                    @blur="normalizeSuggestFolders"
+                    @update:model-value="(value) => updateSuggestFolder(index, value)"
+                  />
+
+                  <div class="save-path-actions">
                     <v-btn
-                      :loading="isLoadingClientFolders"
-                      :title="t('SetDownloader.PathAndTag.downloadPath.autoImport')"
-                      color="primary"
-                      icon="mdi-import"
+                      :disabled="index === 0"
+                      :title="t('SetDownloader.PathAndTag.downloadPath.moveUp')"
+                      icon="mdi-arrow-up"
+                      size="small"
                       variant="text"
-                      @click="loadClientFolders"
+                      @click="moveSuggestFolder(index, -1)"
                     />
                     <v-btn
-                      :title="t('SetDownloader.PathAndTag.downloadPath.clear')"
-                      color="red"
-                      icon="$clear"
+                      :disabled="index === (clientConfig?.suggestFolders ?? []).length - 1"
+                      :title="t('SetDownloader.PathAndTag.downloadPath.moveDown')"
+                      icon="mdi-arrow-down"
+                      size="small"
                       variant="text"
-                      @click="suggestFolderInput = ''"
+                      @click="moveSuggestFolder(index, 1)"
+                    />
+                    <v-btn
+                      :title="t('SetDownloader.PathAndTag.downloadPath.remove')"
+                      color="error"
+                      icon="mdi-delete"
+                      size="small"
+                      variant="text"
+                      @click="removeSuggestFolder(index)"
                     />
                   </div>
-                </template>
-                <template #details>
-                  <v-chip-group>
-                    <v-chip
-                      v-for="pathReplace in pathReplaceMap"
-                      :key="pathReplace[1]"
-                      :title="pathReplace[2]"
-                      class="mr-1"
-                      size="small"
-                      @click="() => (suggestFolderInput += '/' + pathReplace[1])"
-                    >
-                      {{ pathReplace[1] }}
-                    </v-chip>
-                  </v-chip-group>
-                </template>
-              </v-textarea>
+                </div>
+              </div>
             </v-expansion-panel-text>
           </v-expansion-panel>
           <v-expansion-panel value="tag">
@@ -263,4 +394,51 @@ function saveClientConfig() {
   </v-dialog>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+.save-path-list {
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px;
+}
+
+.save-path-row {
+  align-items: center;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 92px minmax(0, 1fr) 112px;
+}
+
+.save-path-index {
+  display: flex;
+  justify-content: flex-start;
+  min-width: 0;
+}
+
+.save-path-chip {
+  width: 76px;
+}
+
+.save-path-input {
+  min-width: 0;
+}
+
+.save-path-actions {
+  display: flex;
+  justify-content: flex-end;
+  white-space: nowrap;
+}
+
+@media (max-width: 700px) {
+  .save-path-row {
+    align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .save-path-actions {
+    justify-content: flex-start;
+  }
+}
+</style>

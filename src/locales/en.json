@@ -398,8 +398,10 @@
     "noDownloader": "No downloaders available. Please add a downloader in settings.",
     "noDownloaderForSite": "No downloaders available for this site. Check the site filter settings in downloader configuration.",
     "pauseOnAdd": "Pause on add by default",
+    "quickSavePaths": "Quick save paths",
+    "quickSavePathsHint": "Shows the first 5 saved paths for this downloader",
     "savePath": "Save Path",
-    "savePathHint": "Leave empty to use the downloader's default path",
+    "savePathHint": "Select or enter a new path. New paths are saved to this downloader after sending. Leave empty to use the downloader's default path",
     "selectDownloader": "Select Downloader",
     "selectDownloaderFirst": "Please select a downloader first",
     "title": "Select downloader for {0} torrents"
@@ -550,6 +552,7 @@
       },
       "socialSiteSearchLabel": "Social site search method",
       "tableMultiSortNote": "Multi-column sorting: Click any table header field to start sorting, which will display the number \\\"1\\\" on the field. Click other fields sequentially to display \\\"2\\\", \\\"3\\\", indicating sorting priority. Click the same field again to toggle between ascending, descending, or cancel sorting. The sorting order is determined by these numbers, with smaller numbers having higher priority.",
+      "resetSidebarPosition": "Reset floating button position",
       "useLargeIcon": "Use large icon buttons"
     },
     "userInfo": {
@@ -561,11 +564,22 @@
   "SetDownloader": {
     "PathAndTag": {
       "downloadPath": {
+        "add": "Add",
         "addInputLabel": "Added @:SetDownloader.PathAndTag.downloadPath.title",
         "addTitle": "Added @:SetDownloader.PathAndTag.downloadPath.title @:SetDownloader.PathAndTag.supportDragNote",
+        "addPlaceholder": "Enter a save path, then press Enter or click Add",
         "autoImport": "One-click to import of existing @:SetDownloader.PathAndTag.downloadPath.title from the downloader",
         "autoImportFail": "@:SetDownloader.PathAndTag.downloadPath.autoImport failed, please add manually.",
+        "autoImportShort": "Import",
         "clear": "Clear @:SetDownloader.PathAndTag.downloadPath.title",
+        "duplicate": "This save path already exists",
+        "empty": "No save paths yet. Add paths here to reuse them in the push dialog; the first 5 are shown as quick buttons.",
+        "moveDown": "Move down",
+        "moveUp": "Move up",
+        "pathLabel": "Save path",
+        "quickBadge": "Quick",
+        "quickHint": "This list is saved to the downloader. The first 5 save paths appear as quick buttons in the push dialog.",
+        "remove": "Remove save path",
         "title": "Download Paths"
       },
       "note": {
@@ -634,6 +648,7 @@
       "changeDefaultDownloader": "Default downloader updated successfully. If necessary, please further configure the download path and tags.",
       "editDefaultDownloaderBtn": "Edit Default Downloader",
       "emptyNotice": "Before using the download service, you need to add at least one download server.",
+      "manageSavePathsBtn": "Manage Save Paths",
       "remove": {
         "multi": "Are you sure to delete these {count} download servers?",
         "single": "Are you sure to delete this download server?"
