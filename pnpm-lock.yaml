@@ -23,8 +23,8 @@ importers:
         specifier: ^14.3.0
         version: 14.3.0(vue@3.5.38(typescript@6.0.3))
       '@webext-core/job-scheduler':
-        specifier: ^1.0.0
-        version: 1.0.0
+        specifier: ^1.1.0
+        version: 1.1.0
       '@webext-core/messaging':
         specifier: ^3.0.2
         version: 3.0.2
@@ -1292,8 +1292,8 @@ packages:
     peerDependencies:
       vue: ^3.5.0
 
-  '@webext-core/job-scheduler@1.0.0':
-    resolution: {integrity: sha512-DdowrAsLWa3/YnvPSFC3FzgTv/foDeHXl1y8ZVYdVjpRexi/ogAC0vKW5Sdyd7koBwFAMa2EvTUXkm3/vveFJg==}
+  '@webext-core/job-scheduler@1.1.0':
+    resolution: {integrity: sha512-tIirFaP20ezfDtrOFVsrI2N5hD9U0EcE4ItFYGVF2AoEERSJ91QhuSt11aC+ug5HB2YzmGh373MaHvFlQQiywg==}
 
   '@webext-core/messaging@3.0.2':
     resolution: {integrity: sha512-tUeF0s+3d/Am6jKuXpET973ZatN3sD3mp6Fy/3GYzIQG3TQbc1Ia9I4x7lwysLSL4teroMVkoyFwafmbrGn/WA==}
@@ -4554,11 +4554,11 @@ snapshots:
     dependencies:
       vue: 3.5.38(typescript@6.0.3)
 
-  '@webext-core/job-scheduler@1.0.0':
+  '@webext-core/job-scheduler@1.1.0':
     dependencies:
       cron-parser: 4.9.0
       format-duration: 3.0.2
-      webextension-polyfill: 0.10.0
+      webextension-polyfill: 0.12.0
 
   '@webext-core/messaging@3.0.2':
     dependencies:
