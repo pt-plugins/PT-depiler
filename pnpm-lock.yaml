@@ -29,8 +29,8 @@ importers:
         specifier: ^3.0.2
         version: 3.0.2
       '@webext-core/storage':
-        specifier: ^1.2.0
-        version: 1.2.0
+        specifier: ^1.2.1
+        version: 1.2.1
       axios:
         specifier: ^1.16.1
         version: 1.16.1
@@ -1298,8 +1298,8 @@ packages:
   '@webext-core/messaging@3.0.2':
     resolution: {integrity: sha512-tUeF0s+3d/Am6jKuXpET973ZatN3sD3mp6Fy/3GYzIQG3TQbc1Ia9I4x7lwysLSL4teroMVkoyFwafmbrGn/WA==}
 
-  '@webext-core/storage@1.2.0':
-    resolution: {integrity: sha512-XI86HJUhugVdAQZLcj3EH/rZv08ByVn2riX3YI4HCJ86NOH5K3OwGi0ClFa/kq5U5hIVDMG6hwOBwgEgI2G5GQ==}
+  '@webext-core/storage@1.2.1':
+    resolution: {integrity: sha512-Jf6Ll7TRy6gkPK0aoM+FqqnwEBHeAfhNLOqDhi85S0DyyCeqG24TCZwHqmmdwglEpVv5tjuRXAzkrEom7PJZkQ==}
 
   abort-controller@3.0.0:
     resolution: {integrity: sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg==}
@@ -4565,9 +4565,9 @@ snapshots:
       '@aklinker1/zero-serialize-error': 1.0.2
       webextension-polyfill: 0.12.0
 
-  '@webext-core/storage@1.2.0':
+  '@webext-core/storage@1.2.1':
     dependencies:
-      webextension-polyfill: 0.10.0
+      webextension-polyfill: 0.12.0
 
   abort-controller@3.0.0:
     dependencies:
