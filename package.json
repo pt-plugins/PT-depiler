@@ -44,7 +44,7 @@
     "@vueuse/components": "^14.3.0",
     "@vueuse/core": "^14.3.0",
     "@webext-core/job-scheduler": "^1.0.0",
-    "@webext-core/messaging": "^3.0.1",
+    "@webext-core/messaging": "^3.0.2",
     "@webext-core/storage": "^1.2.0",
     "axios": "^1.16.1",
     "crypto-js": "^4.2.0",
