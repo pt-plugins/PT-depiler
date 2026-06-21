@@ -113,22 +113,24 @@ const totalSiteBaseInfoChartOptions = computed(() => {
   const uploaded = getTotalDataByField("uploaded");
   const downloaded = getTotalDataByField("downloaded");
   const bonus = getTotalDataByField("bonus");
+  const seedingBonus = getTotalDataByField("seedingBonus");
 
   return {
     title: {
       text: `[${configStore.userName}] ${t("UserDataStatistic.chart.totalSiteBase")}`,
-      subtext: `${t("UserDataStatistic.chart.uploadLabel")}: ${formatSize(uploaded.at(-1)!)}, ${t("UserDataStatistic.chart.downloadLabel")}: ${formatSize(downloaded.at(-1)!)}, ${t("levelRequirement.bonus")}: ${(bonus.at(-1) ?? 0).toFixed(2)}`,
+      subtext: `${t("UserDataStatistic.chart.uploadLabel")}: ${formatSize(uploaded.at(-1)!)}, ${t("UserDataStatistic.chart.downloadLabel")}: ${formatSize(downloaded.at(-1)!)}, ${t("levelRequirement.bonus")}: ${(bonus.at(-1) ?? 0).toFixed(2)}, ${t("levelRequirement.seedingBonus")}: ${(seedingBonus.at(-1) ?? 0).toFixed(2)}`,
       left: "center", // 设置标题居中
     },
     tooltip: {
       trigger: "axis",
-      formatter: createTotalInfoTooltipFormatter(["size", "size", "number"]),
+      formatter: createTotalInfoTooltipFormatter(["size", "size", "number", "number"]),
     },
     legend: {
       data: [
         t("UserDataStatistic.chart.uploadLabel"),
         t("UserDataStatistic.chart.downloadLabel"),
         t("levelRequirement.bonus"),
+        t("levelRequirement.seedingBonus"),
       ],
       bottom: 10,
       orient: "horizontal",
@@ -153,6 +155,7 @@ const totalSiteBaseInfoChartOptions = computed(() => {
       { name: t("UserDataStatistic.chart.uploadLabel"), type: "line", smooth: true, data: uploaded, yAxisIndex: 0 },
       { name: t("UserDataStatistic.chart.downloadLabel"), type: "line", smooth: true, data: downloaded, yAxisIndex: 0 },
       { name: t("levelRequirement.bonus"), type: "line", smooth: true, data: bonus, yAxisIndex: 1 },
+      { name: t("levelRequirement.seedingBonus"), type: "line", smooth: true, data: seedingBonus, yAxisIndex: 1 },
     ],
   } as EChartsLineChartOption;
 });
