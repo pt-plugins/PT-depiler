@@ -75,14 +75,13 @@ const filteredSearchPlan = computed(() => {
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <v-chip-group v-model="statusFilterRef" column multiple>
+        <v-chip-group v-model="statusFilterRef" variant="tonal" column multiple>
           <v-chip
             v-for="{ status, count, color } in statusChips"
             :key="status"
-            :color="color"
+            :base-color="color"
             :value="status"
             filter
-            variant="tonal"
           >
             <ResultParseStatus :status="status" />
             <v-badge :content="count" color="grey" inline />
