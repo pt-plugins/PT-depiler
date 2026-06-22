@@ -99,7 +99,6 @@ const filteredSearchPlan = computed(() => {
                 <SiteName
                   :class="['text-decoration-none', 'font-weight-bold', 'text-black']"
                   :site-id="searchPlan.siteId"
-                  tag="span"
                 />
                 ->
                 <span v-if="searchPlan.searchEntry.name">
