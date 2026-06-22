@@ -1,9 +1,11 @@
 <script setup lang="ts">
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { EResultParseStatus } from "@ptd/site";
 
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import type { ISearchPlanStatus, TSearchSolutionKey } from "@/shared/types.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 import SiteName from "@/options/components/SiteName.vue";
@@ -21,6 +23,34 @@ const metadataStore = useMetadataStore();
 function getSearchSolution(planKey: string, entryName: string) {
   return metadataStore.solutions[planKey]?.solutions.find((x) => x.id === entryName)!;
 }
+
+const statusFilterRef = ref<EResultParseStatus[]>([]);
+
+const statusColorMap: Record<EResultParseStatus, string> = {
+  [EResultParseStatus.success]: "green",
+  [EResultParseStatus.waiting]: "indigo",
+  [EResultParseStatus.working]: "indigo",
+  [EResultParseStatus.parseError]: "red",
+  [EResultParseStatus.passParse]: "yellow-darken-2",
+  [EResultParseStatus.CFBlocked]: "orange",
+  [EResultParseStatus.needLogin]: "red",
+  [EResultParseStatus.noResults]: "red",
+  [EResultParseStatus.unknownError]: "red",
+};
+
+const statusChips = computed(() => {
+  const countMap = new Map<EResultParseStatus, number>();
+  for (const plan of Object.values(runtimeStore.search.searchPlan ?? {})) {
+    countMap.set(plan.status, (countMap.get(plan.status) ?? 0) + 1);
+  }
+  return [...countMap.entries()].map(([status, count]) => ({ status, count, color: statusColorMap[status] }));
+});
+
+const filteredSearchPlan = computed(() => {
+  const entries = Object.entries(runtimeStore.search.searchPlan ?? {}) as [TSearchSolutionKey, ISearchPlanStatus][];
+  if (statusFilterRef.value.length === 0) return entries;
+  return entries.filter(([, plan]) => statusFilterRef.value.includes(plan.status));
+});
 </script>
 
 <template>
@@ -45,8 +75,21 @@ function getSearchSolution(planKey: string, entryName: string) {
       </v-card-title>
       <v-divider />
       <v-card-text>
+        <v-chip-group v-model="statusFilterRef" variant="tonal" column multiple>
+          <v-chip
+            v-for="{ status, count, color } in statusChips"
+            :key="status"
+            :base-color="color"
+            :value="status"
+            filter
+          >
+            <ResultParseStatus :status="status" />
+            <v-badge :content="count" color="grey" inline />
+          </v-chip>
+        </v-chip-group>
+        <v-divider v-if="statusChips.length > 0" class="mb-2" />
         <v-list>
-          <v-list-item v-for="(searchPlan, solutionKey) in runtimeStore.search.searchPlan">
+          <v-list-item v-for="[solutionKey, searchPlan] in filteredSearchPlan" :key="solutionKey">
             <template #prepend>
               <SiteFavicon :site-id="searchPlan.siteId" class="mr-2" />
             </template>
@@ -55,7 +98,6 @@ function getSearchSolution(planKey: string, entryName: string) {
                 <SiteName
                   :class="['text-decoration-none', 'font-weight-bold', 'text-black']"
                   :site-id="searchPlan.siteId"
-                  tag="span"
                 />
                 ->
                 <span v-if="searchPlan.searchEntry.name">
