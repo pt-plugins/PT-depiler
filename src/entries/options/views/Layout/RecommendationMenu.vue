@@ -162,6 +162,14 @@ function getRecommendationRegionClass(region?: string) {
     : "hot-recommendation-chip-region-foreign";
 }
 
+function getRecommendationPosterSrc(item: ISocialRecommendationItem) {
+  if (!item.poster || /doubanio\.com/.test(item.poster)) {
+    return "/icons/movie_placeholder.png";
+  }
+
+  return item.poster;
+}
+
 watch(isRecommendationMenuOpen, (isOpen) => {
   if (isOpen) {
     loadRecommendations();
@@ -239,7 +247,7 @@ watch(isRecommendationMenuOpen, (isOpen) => {
               >
                 <template #prepend>
                   <v-img
-                    :src="item.poster || '/icons/movie_placeholder.png'"
+                    :src="getRecommendationPosterSrc(item)"
                     class="hot-recommendation-poster mr-2"
                     cover
                     referrerpolicy="no-referrer"

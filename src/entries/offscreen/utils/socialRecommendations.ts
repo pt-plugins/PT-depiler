@@ -4,8 +4,11 @@ import { getSocialRecommendations } from "@ptd/social";
 import type { ISocialRecommendationItem } from "@ptd/social";
 
 import { onMessage } from "@/messages.ts";
+import { setupReplaceUnsafeHeader } from "~/extends/axios/replaceUnsafeHeader.ts";
 import { logger } from "./logger.ts";
 import { getSocialInformation } from "./socialInformation.ts";
+
+setupReplaceUnsafeHeader(axios);
 
 type TRecommendationEnrichmentMode = "all" | "none" | "visible";
 
@@ -69,6 +72,10 @@ function getPosterFetchOptions(enrichment: TRecommendationEnrichmentMode) {
       };
 }
 
+function isDoubanPosterUrl(poster?: string) {
+  return !!poster && /doubanio\.com/.test(poster);
+}
+
 async function getSocialInformationSafely(item: ISocialRecommendationItem) {
   try {
     return await getSocialInformation(item.site, item.id, {
@@ -118,6 +125,7 @@ async function fetchPosterDataUrl(
   for (const candidate of candidates) {
     try {
       const response = await axios.get<Blob>(candidate, {
+        headers: isDoubanPosterUrl(candidate) ? { Referer: "https://m.douban.com/" } : undefined,
         responseType: "blob",
         timeout: posterFetchOptions.timeout,
       });
@@ -149,7 +157,7 @@ async function enrichRecommendation(
 
   return {
     ...item,
-    poster: poster || item.poster,
+    poster: poster || (isDoubanPosterUrl(item.poster) ? undefined : item.poster),
     summary: socialInformation?.summary || item.summary,
     releaseYear: socialInformation?.releaseYear || item.releaseYear,
     region: socialInformation?.region || item.region,
