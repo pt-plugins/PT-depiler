@@ -19,6 +19,8 @@ import {
 } from "../types";
 import { parseSizeString } from "../utils";
 
+const enableAvistazUserInfoFetching = import.meta.env.VITE_ENABLE_AVISTAZ_USER_INFO_FETCHING === "true";
+
 interface AuthSuccessResp {
   token: string;
   expiry: number;
@@ -53,6 +55,142 @@ const commonListSelectors: TSchemaMetadataListSelectors = {
   comments: { text: "N/A" },
   category: { selector: "i[data-original-title]", attr: "data-original-title" },
 };
+
+function normalizeText(value: string): string {
+  return value.replace(/\s+/g, " ").trim();
+}
+
+function getText(element?: Element | null): string {
+  return element ? normalizeText((element as HTMLElement).innerText ?? element.textContent ?? "") : "";
+}
+
+function getOwnText(element?: Element | null): string {
+  if (!element) return "";
+  return normalizeText(
+    Array.from(element.childNodes)
+      .filter((node) => node.nodeType === 3)
+      .map((node) => node.textContent ?? "")
+      .join(" "),
+  );
+}
+
+function getProfileTableValue(document: Document, label: string): string {
+  const labelPattern = new RegExp(`^${label}$`, "i");
+  for (const row of Sizzle("table tr", document)) {
+    const cells = Array.from(row.children);
+    if (cells.length < 2) continue;
+
+    const rowLabel = getText(cells[0]).replace(/^[^A-Za-z]+/, "");
+    if (labelPattern.test(rowLabel)) {
+      const ownText = getOwnText(cells[1]);
+      if (ownText) return ownText;
+
+      const semanticValue = Sizzle(".user-group, .badge-user, .badge, strong, span", cells[1])[0];
+      return getText(semanticValue) || getText(cells[1]);
+    }
+  }
+  return "";
+}
+
+function getTorrentRowSize(row: Element): number {
+  const selectors = [
+    "span.badge-extra.fa-database",
+    "div.d-block span.text-yellow",
+    "td[data-label='Size']",
+    ".torrent-size",
+    ".text-yellow",
+  ];
+
+  for (const selector of selectors) {
+    const element = Sizzle(selector, row)[0];
+    if (!element) continue;
+
+    const size = parseSizeString(getText(element));
+    if (size > 0) return size;
+  }
+
+  const sizeMatch = getText(row).match(/\d[\d,]*(?:\.\d+)?\s*[ZEPTGMK]i?B\b/i);
+  if (sizeMatch) return parseSizeString(sizeMatch[0]);
+
+  return 0;
+}
+
+function isSeedingTorrentRow(row: Element): boolean {
+  const cells = Array.from(row.children);
+  return cells.some((cell) => /^(?:seed|seeding)$/i.test(getText(cell)));
+}
+
+function getActivePageCount(document: Document): number {
+  return Sizzle("a[href*='page=']", document).reduce((maxPage, link) => {
+    const pageMatch = link.getAttribute("href")?.match(/[?&]page=(\d+)/);
+    return pageMatch ? Math.max(maxPage, Number(pageMatch[1])) : maxPage;
+  }, 1);
+}
+
+function getSeedingSize(document: Document): number {
+  return Sizzle("table tr", document).reduce((total, row) => {
+    if (!isSeedingTorrentRow(row)) return total;
+    return total + getTorrentRowSize(row);
+  }, 0);
+}
+
+function getBonusPerHour(document: Document): string {
+  for (const row of Sizzle("table tr", document)) {
+    const cells = Array.from(row.children);
+    if (cells.length < 2) continue;
+
+    const label = getText(cells[0]);
+    if (/^(?:Total Earnings|Projected Hourly Rate)\b/i.test(label)) {
+      return getText(cells[cells.length - 1]);
+    }
+  }
+
+  for (const heading of Sizzle("h1, h2, h3, h4, h5, h6", document)) {
+    const text = getText(heading);
+    if (/\d[\d,.]*\s*(?:points per hour|BP\/hr)/i.test(text)) return text;
+  }
+
+  return "";
+}
+
+function getProfileCounterValue(document: Document, labels: string[]): string {
+  const escapedLabels = labels.map((label) => label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+  const labelPattern = new RegExp(`(?:${escapedLabels.join("|")})`, "i");
+  for (const item of Sizzle(".card .tag, .well li", document)) {
+    const text = getText(item);
+    if (labelPattern.test(text)) {
+      return text;
+    }
+  }
+  return "";
+}
+
+function getRatioBarValue(document: Document, label: string): string {
+  const titledElement = Sizzle(`.ratio-bar [title='${label}']`, document)[0];
+  if (titledElement) {
+    return getText(titledElement);
+  }
+
+  const labelPattern = new RegExp(`\\b${label}\\s*:`, "i");
+  for (const item of Sizzle(".ratio-bar li, .ratio-bar .d-inline-block", document)) {
+    const text = getText(item);
+    if (labelPattern.test(text)) {
+      return text;
+    }
+  }
+  return "";
+}
+
+async function mergeUserInfo<T extends Partial<IUserInfo>>(
+  userInfo: IUserInfo,
+  parseAction: () => Promise<T>,
+): Promise<IUserInfo> {
+  try {
+    return { ...userInfo, ...(await parseAction()) };
+  } catch (error) {
+    return userInfo;
+  }
+}
 
 export const avzNetDiscountMap: Record<number, string> = {
   1: "Free-Download",
@@ -263,32 +401,92 @@ export const SchemaMetadata: Pick<
   userInfo: {
     pickLast: ["name"],
     selectors: {
-      name: { selector: ["span.user-group.group-member"] },
-      levelName: { selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(2)"] },
+      name: {
+        selector: ":self",
+        elementProcess: (document: Document) =>
+          getProfileTableValue(document, "Username") ||
+          getText(
+            Sizzle(
+              ".ratio-bar a[href*='/profile/'] .user-group, .ratio-bar a[href*='/profile/'] .badge-user",
+              document,
+            )[0],
+          ),
+      },
+      levelName: {
+        selector: ":self",
+        elementProcess: (document: Document) =>
+          getProfileTableValue(document, "Rank") ||
+          getText(
+            Sizzle(
+              ".ratio-bar .container > div:nth-child(2) .user-group, .ratio-bar li:nth-child(2) .badge-user",
+              document,
+            )[0],
+          ),
+      },
       uploaded: {
-        selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(3)"],
+        selector: ":self",
+        elementProcess: (document: Document) =>
+          getProfileTableValue(document, "Uploaded") || getRatioBarValue(document, "Upload"),
         filters: [{ name: "parseSize" }],
       },
       downloaded: {
-        selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(4)"],
+        selector: ":self",
+        elementProcess: (document: Document) =>
+          getProfileTableValue(document, "Downloaded") || getRatioBarValue(document, "Download"),
         filters: [{ name: "parseSize" }],
       },
       ratio: {
-        selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(5)"],
+        selector: ":self",
+        elementProcess: (document: Document) =>
+          getProfileTableValue(document, "Ratio") || getRatioBarValue(document, "Ratio"),
         filters: [{ name: "parseNumber" }],
       },
       bonus: {
-        selector: ["body > header > div.ratio-bar.mb-1.pt-2.pl-2.pb-1 > div > div:nth-child(9)"],
+        selector: ":self",
+        elementProcess: (document: Document) =>
+          getProfileTableValue(document, "Bonus Points") || getRatioBarValue(document, "Bonus"),
+        filters: [{ name: "parseNumber" }],
+      },
+      bonusPerHour: {
+        selector: ":self",
+        elementProcess: getBonusPerHour,
         filters: [{ name: "parseNumber" }],
       },
       joinTime: {
-        selector: ["table.table-striped tr:contains('Joined') td:last-child"],
-        filters: [{ name: "parseTime", args: ["dd MMMM yyyy hh:mm a"] }],
+        selector: ":self",
+        elementProcess: (document: Document) => getProfileTableValue(document, "Joined"),
+        filters: [(value: string) => value.split("(")[0].trim(), { name: "parseTime", args: ["dd MMM yyyy hh:mm a"] }],
       },
-      uploads: { selector: [".card .tag-green"], filters: [{ name: "parseNumber" }] },
-      snatches: { selector: [".card .tag-yellow"], filters: [{ name: "parseNumber" }] },
-      seeding: { selector: [".card .tag-indigo"], filters: [{ name: "parseNumber" }] },
-      hnrUnsatisfied: { selector: [".card .tag-red"], filters: [{ name: "parseNumber" }] },
+      lastAccessAt: {
+        selector: ":self",
+        elementProcess: (document: Document) => getProfileTableValue(document, "Last Access"),
+        filters: [(value: string) => value.split("(")[0].trim(), { name: "parseTime", args: ["dd MMM yyyy hh:mm a"] }],
+      },
+      uploads: {
+        selector: ":self",
+        elementProcess: (document: Document) => getProfileCounterValue(document, ["Uploads", "Total Uploads"]),
+        filters: [{ name: "parseNumber" }],
+      },
+      snatches: {
+        selector: ":self",
+        elementProcess: (document: Document) => getProfileCounterValue(document, ["Downloads"]),
+        filters: [{ name: "parseNumber" }],
+      },
+      seeding: {
+        selector: ":self",
+        elementProcess: (document: Document) => getProfileCounterValue(document, ["Seeds", "Seeding"]),
+        filters: [{ name: "parseNumber" }],
+      },
+      leeching: {
+        selector: ":self",
+        elementProcess: (document: Document) => getProfileCounterValue(document, ["Leeching", "Peers"]),
+        filters: [{ name: "parseNumber" }],
+      },
+      hnrUnsatisfied: {
+        selector: ":self",
+        elementProcess: (document: Document) => getProfileCounterValue(document, ["Hit & Run"]),
+        filters: [{ name: "parseNumber" }],
+      },
     },
   },
 
@@ -318,7 +516,7 @@ export const SchemaMetadata: Pick<
 
 export default class AvistazNetwork extends PrivateSite {
   /*
-    应站点要求，不启用用户数据获取
+    应站点要求，默认不启用用户数据获取。仅供非上游构建显式开启。
     > User information will never be available in any form or API, as we respect the privacy and confidentiality of user information.
     @refs: https://github.com/pt-plugins/PT-Plugin-Plus/issues/996#issuecomment-1057856310
   */
@@ -329,58 +527,78 @@ export default class AvistazNetwork extends PrivateSite {
       site: this.metadata.id,
     };
 
-    flushUserInfo = {
-      ...flushUserInfo,
-      status: EResultParseStatus.passParse,
-      name: this.userConfig.inputSetting?.username,
-      levelName: "应站点要求，不启用用户数据获取",
-    };
+    if (!enableAvistazUserInfoFetching) {
+      return {
+        ...flushUserInfo,
+        status: EResultParseStatus.passParse,
+        name: this.userConfig.inputSetting?.username,
+        levelName: "应站点要求，不启用用户数据获取",
+      };
+    }
 
-    /* 预留获取用户信息
     if (!this.allowQueryUserInfo) {
       flushUserInfo.status = EResultParseStatus.passParse;
       return flushUserInfo;
     }
 
-      // 对 AvistazNetwork，如果定义了 process，则按照 AbstractPrivateSite 的方式处理
-      if (Array.isArray(this.metadata.userInfo?.process)) {
-        return await super.getUserInfoResult(lastUserInfo);
-      }
+    // 对 AvistazNetwork，如果定义了 process，则按照 AbstractPrivateSite 的方式处理
+    if (Array.isArray(this.metadata.userInfo?.process)) {
+      return await super.getUserInfoResult(lastUserInfo);
+    }
 
-      try {
-        flushUserInfo = { ...flushUserInfo, ...(await this.getBaseInfoFromSite()) };
-        if (flushUserInfo.name) {
-          flushUserInfo = {
-            ...flushUserInfo,
-            ...(await this.getExtendInfoFromProfile(flushUserInfo.name as string)),
-            ...(await this.getUserSeedingTorrents(flushUserInfo.name as string)),
-          };
-        }
-        else {
-          flushUserInfo.name = this.userConfig.inputSetting?.username;
-          flushUserInfo = {
-            ...flushUserInfo,
-            ...(await this.getExtendInfoFromProfile(flushUserInfo.name as string)),
-            ...(await this.getUserSeedingTorrents(flushUserInfo.name as string)),
-          };
-        }
+    const userName = (lastUserInfo.name as string | undefined) || this.userConfig.inputSetting?.username;
+    if (!userName) {
+      flushUserInfo.status = EResultParseStatus.parseError;
+      return flushUserInfo;
+    }
 
-        if (this.metadata.levelRequirements && flushUserInfo.levelName && typeof flushUserInfo.levelId === "undefined") {
-          flushUserInfo.levelId = this.guessUserLevelId(flushUserInfo as IUserInfo);
-        }
+    flushUserInfo = await mergeUserInfo(flushUserInfo, () => this.getBaseInfoFromSite(userName));
+    flushUserInfo.name ||= userName;
 
-        flushUserInfo.status = EResultParseStatus.success;
-      } catch (error) {
-        flushUserInfo.status = EResultParseStatus.parseError;
-      }
-    */
+    if (flushUserInfo.name) {
+      flushUserInfo = await mergeUserInfo(flushUserInfo, () =>
+        this.getExtendInfoFromProfile(flushUserInfo.name as string),
+      );
+    }
+
+    const hasProfileInfo = [
+      "levelName",
+      "uploaded",
+      "downloaded",
+      "ratio",
+      "bonus",
+      "joinTime",
+      "lastAccessAt",
+      "uploads",
+      "snatches",
+      "seeding",
+      "leeching",
+      "hnrUnsatisfied",
+    ].some((key) => typeof flushUserInfo[key] !== "undefined" && flushUserInfo[key] !== "");
+
+    if (hasProfileInfo) {
+      flushUserInfo = await mergeUserInfo(flushUserInfo, () =>
+        this.getUserSeedingTorrents(flushUserInfo.name as string),
+      );
+      flushUserInfo = await mergeUserInfo(flushUserInfo, () => this.getUserBonusPerHour(flushUserInfo.name as string));
+    }
+
+    if (this.metadata.levelRequirements && flushUserInfo.levelName && typeof flushUserInfo.levelId === "undefined") {
+      flushUserInfo.levelId = this.guessUserLevelId(flushUserInfo as IUserInfo);
+    }
+
+    flushUserInfo.status =
+      flushUserInfo.name && hasProfileInfo ? EResultParseStatus.success : EResultParseStatus.parseError;
+
     return flushUserInfo;
   }
 
-  protected async getBaseInfoFromSite(): Promise<Partial<IUserInfo>> {
+  protected async getBaseInfoFromSite(
+    userName: string = this.userConfig.inputSetting?.username ?? "",
+  ): Promise<Partial<IUserInfo>> {
     await this.sleepAction(this.metadata.userInfo?.requestDelay);
     const { data: pageDocument } = await this.request<Document>({
-      url: "/",
+      url: urlJoin("/profile", userName),
       responseType: "document",
     });
 
@@ -403,27 +621,59 @@ export default class AvistazNetwork extends PrivateSite {
 
     return this.getFieldsData(pageDocument, this.metadata.userInfo?.selectors!, [
       "joinTime",
+      "lastAccessAt",
       "uploads",
       "snatches",
       "seeding",
+      "leeching",
       "hnrUnsatisfied",
     ]) as Partial<IUserInfo>;
   }
 
   protected async getUserSeedingTorrents(userName: string): Promise<Partial<IUserInfo>> {
     await this.sleepAction(this.metadata.userInfo?.requestDelay);
-    const userSeedingTorrent: Partial<IUserInfo> = { seedingSize: 0 };
 
-    const { data: seedPage } = await this.request<Document>({
-      url: urlJoin("/profile", userName) + "/active",
-      responseType: "document",
-    });
-    const rows = Sizzle("table .text-yellow", seedPage);
-    rows.forEach((element) => {
-      userSeedingTorrent.seedingSize! += parseSizeString((element as HTMLElement).innerText.trim());
-    });
+    try {
+      const activePageUrl = urlJoin("/profile", userName, "active");
+      const { data: firstPage } = await this.request<Document>({
+        url: activePageUrl,
+        responseType: "document",
+      });
 
-    return userSeedingTorrent;
+      let seedingSize = getSeedingSize(firstPage);
+      const pageCount = Math.min(getActivePageCount(firstPage), 100);
+
+      for (let page = 2; page <= pageCount; page++) {
+        await this.sleepAction(this.metadata.userInfo?.requestDelay);
+        const { data: pageDocument } = await this.request<Document>({
+          url: activePageUrl,
+          params: { page },
+          responseType: "document",
+        });
+        seedingSize += getSeedingSize(pageDocument);
+      }
+
+      return seedingSize > 0 ? { seedingSize } : {};
+    } catch (error) {
+      return {};
+    }
+  }
+
+  protected async getUserBonusPerHour(userName: string): Promise<Partial<IUserInfo>> {
+    await this.sleepAction(this.metadata.userInfo?.requestDelay);
+
+    try {
+      const { data: bonusPage } = await this.request<Document>({
+        url: urlJoin("/profile", userName, "bonus"),
+        responseType: "document",
+      });
+      const bonusPerHour = this.getFieldData(bonusPage, this.metadata.userInfo?.selectors?.bonusPerHour!);
+      return typeof bonusPerHour === "number" && Number.isFinite(bonusPerHour) && bonusPerHour >= 0
+        ? { bonusPerHour }
+        : {};
+    } catch (error) {
+      return {};
+    }
   }
 
   public override async request<T>(
