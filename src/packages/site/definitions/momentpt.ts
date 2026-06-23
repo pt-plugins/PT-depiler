@@ -132,7 +132,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P2W",
       downloaded: "8GB",
       ratio: 1.2,
-      privilege: "Power User及以上用户可以发送邀请，可以发布摄影作品到候选区",
+      privilege: "Power User及以上用户可以发送邀请，可以发布摄影作品到候选区。",
     },
     {
       id: 2,
@@ -141,7 +141,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P6W",
       downloaded: "20GB",
       ratio: 1.6,
-      privilege: "Elite User及以上用户可以查看工具区。。",
+      privilege: "Elite User及以上用户可以查看工具区。",
     },
     {
       id: 3,
@@ -150,7 +150,7 @@ export const siteMetadata: ISiteMetadata = {
       interval: "P12W",
       downloaded: "50GB",
       ratio: 2.05,
-      privilege: "Crazy User以上用户可以直接发布摄影作品，无需候选",
+      privilege: "Crazy User以上用户可以直接发布摄影作品，无需候选。",
     },
     {
       id: 4,
