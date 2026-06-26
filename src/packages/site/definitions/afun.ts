@@ -3,10 +3,10 @@
  * @JackettIssue https://github.com/Jackett/Jackett/issues/15940
  */
 import { type ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+// import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  // ...SchemaMetadata,
   version: 2,
 
   id: "afun",
@@ -22,6 +22,10 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://jjj.cgybire.pp/"],
 
+  // 2025-01-07 to 2026-03-31 ( from https://savept.icu/
+  isDead: true,
+
+  /*
   category: [
     {
       name: "搜索入口",
@@ -183,6 +187,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
+   */
 
   levelRequirements: [
     {
