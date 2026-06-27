@@ -7,10 +7,15 @@ export interface ISocialSitePageInformation {
   site: TSupportSocialSite;
   id: string;
   titles: string[];
-  external_ids?: Partial<Record<TSupportSocialSite, string>>; // 外部 ID
+  external_ids?: Partial<Record<TSupportSocialSite, string>> & Record<string, string>; // 外部 ID
 }
 
-export type TSupportSocialSitePageParser = (doc: Document) => ISocialSitePageInformation | ISocialSitePageInformation[];
+export type TSupportSocialSitePageParser = (
+  doc: Document,
+) =>
+  | ISocialSitePageInformation
+  | ISocialSitePageInformation[]
+  | Promise<ISocialSitePageInformation | ISocialSitePageInformation[]>;
 export type TSupportSocialSitePageParserMatches = Array<[TUrlPattern, TSupportSocialSitePageParser]>;
 
 export type TSupportSocialSiteUrlPattern = Record<TSupportSocialSite, TSupportSocialSitePageParserMatches>;

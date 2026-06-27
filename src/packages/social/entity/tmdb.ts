@@ -16,18 +16,58 @@ export function build(id: string): string {
 
 export const parse = commonParseFactory([tmdbUrlPattern]);
 
-function pageParser(doc: Document): ISocialSitePageInformation {
+function buildTmdbExternalIdsUrl(docUrl: string): string {
+  try {
+    const url = new URL(docUrl);
+    const match = url.pathname.match(/^\/(movie|tv)\/\d+(?:-[^/]+)?/);
+    if (!match) {
+      return "";
+    }
+
+    return `${url.origin}${match[0]}/edit?active_nav_item=external_ids`;
+  } catch {
+    return "";
+  }
+}
+
+async function fetchTmdbExternalIds(docUrl: string): Promise<{ imdb?: string; tvdb?: string }> {
+  const externalIdsUrl = buildTmdbExternalIdsUrl(docUrl);
+  if (!externalIdsUrl) {
+    return {};
+  }
+
+  try {
+    const resp = await fetch(externalIdsUrl, { credentials: "include" });
+    if (!resp.ok) {
+      return {};
+    }
+
+    const html = await resp.text();
+    const extDoc = new DOMParser().parseFromString(html, "text/html");
+    const imdb = extDoc.querySelector<HTMLInputElement>("#imdb_id")?.value?.trim() || undefined;
+    const tvdb = extDoc.querySelector<HTMLInputElement>("#tvdb_id")?.value?.trim() || undefined;
+
+    return { ...(imdb && { imdb }), ...(tvdb && { tvdb }) };
+  } catch (error) {
+    console.warn("Failed to fetch TMDb external ids page", error);
+    return {};
+  }
+}
+
+async function pageParser(doc: Document): Promise<ISocialSitePageInformation> {
   const ogTitle = doc.querySelector('meta[property="og:title"]')?.getAttribute("content")?.trim() ?? "";
   const originalTitle = Array.from(doc.querySelectorAll("p.wrap")).find((item) => {
     const strongText = item.querySelector("strong")?.textContent?.trim();
     return strongText === "原始片名" || strongText === "Original Title" || strongText === "Original Name";
   });
   const originalTitleText = originalTitle?.textContent?.replace(/^\s*(原始片名|Original Title|Original Name)\s*/i, "").trim() ?? "";
+  const external_ids = await fetchTmdbExternalIds(doc.URL);
 
   return {
     site: "tmdb",
     id: parse(doc.URL),
     titles: uniq([ogTitle, originalTitleText]).filter(Boolean),
+    external_ids,
   };
 }
 
@@ -72,7 +112,7 @@ export async function fetchInformation(
       timeout: config.timeout ?? 10e3,
     });
     const ldJson = JSON.parse(data.querySelector('script[type="application/ld+json"]')?.textContent ?? "{}") as ITmdbLdJson;
-    const pageInfo = pageParser(data);
+    const pageInfo = await pageParser(data);
 
     resDict.title = pageInfo.titles.join(" / ") || ldJson.name || "";
     resDict.poster = ldJson.image ?? "";
