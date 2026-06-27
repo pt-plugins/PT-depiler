@@ -17,6 +17,64 @@ const ptdData = inject<IPtdData>("ptd_data", {});
 const socialSiteParseResults = shallowRef<ISocialSitePageInformation[]>([]);
 const showSocialSiteParseResultsDialog = ref<boolean>(false);
 
+function getSearchTitle(parseResult: ISocialSitePageInformation): string {
+  if (ptdData.socialSite === "tmdb") {
+    return parseResult.titles.filter(Boolean).join(" ");
+  }
+
+  return parseResult.titles[0] ?? "";
+}
+
+function buildTmdbExternalIdsUrl() {
+  const url = new URL(window.location.href);
+  const match = url.pathname.match(/^\/(movie|tv)\/\d+(?:-[^/]+)?/);
+  if (!match) {
+    return "";
+  }
+
+  return `${url.origin}${match[0]}/edit?active_nav_item=external_ids`;
+}
+
+async function tryGetTmdbImdbId() {
+  const tmdbExternalIdsUrl = buildTmdbExternalIdsUrl();
+  if (!tmdbExternalIdsUrl) {
+    return "";
+  }
+
+  try {
+    const resp = await fetch(tmdbExternalIdsUrl, { credentials: "include" });
+    if (!resp.ok) {
+      return "";
+    }
+
+    const html = await resp.text();
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    return doc.querySelector<HTMLInputElement>("#imdb_id")?.value?.trim() ?? "";
+  } catch (error) {
+    console.warn("Failed to fetch TMDb external ids page", error);
+    return "";
+  }
+}
+
+async function enrichTmdbParseResult(parseResult: ISocialSitePageInformation) {
+  if (ptdData.socialSite !== "tmdb") {
+    return parseResult;
+  }
+
+  const imdbId = await tryGetTmdbImdbId();
+  if (!imdbId) {
+    return parseResult;
+  }
+
+  return {
+    ...parseResult,
+    external_ids: {
+      ...parseResult.external_ids,
+      imdb: imdbId,
+    },
+  } satisfies ISocialSitePageInformation;
+}
+
 async function handleSearch() {
   // 解析页面
   try {
@@ -26,9 +84,13 @@ async function handleSearch() {
         const parseResult = parser(document.cloneNode(true) as Document);
         if (parseResult) {
           const shouldShowChosenDialog =
-            Array.isArray(parseResult) || (configStore.contentScript?.socialSiteSearchBy ?? "chosen") === "chosen";
+            Array.isArray(parseResult) ||
+            ptdData.socialSite === "tmdb" ||
+            (configStore.contentScript?.socialSiteSearchBy ?? "chosen") === "chosen";
           if (shouldShowChosenDialog) {
-            socialSiteParseResults.value = Array.isArray(parseResult) ? parseResult : [parseResult];
+            socialSiteParseResults.value = Array.isArray(parseResult)
+              ? parseResult
+              : [await enrichTmdbParseResult(parseResult)];
             showSocialSiteParseResultsDialog.value = true;
             return;
           } else {
@@ -40,14 +102,14 @@ async function handleSearch() {
               } else if (parseResult?.external_ids?.imdb) {
                 return doKeywordSearch(`imdb|${parseResult.external_ids.imdb}`);
               } else {
-                return doKeywordSearch(`${parseResult.titles[0]}`);
+                return doKeywordSearch(getSearchTitle(parseResult));
               }
             } else if (configStore.contentScript?.socialSiteSearchBy === "title") {
-              return doKeywordSearch(`${parseResult.titles[0]}`);
+              return doKeywordSearch(getSearchTitle(parseResult));
             }
 
             // 其他情况默认按 主标题 搜索
-            return doKeywordSearch(`${parseResult.titles[0]}`);
+            return doKeywordSearch(getSearchTitle(parseResult));
           }
         } else {
           runtimeStore.showSnakebar(t("contentScript.parseResultEmpty"), { color: "error" });
