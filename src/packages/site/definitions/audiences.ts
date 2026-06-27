@@ -252,17 +252,9 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseNumber" }],
       },
       levelName: {
-        selector: ["td.embedded:has(a[href*='userdetails.php'][href*='id='])"],
-        elementProcess: (element) => {
-          const text = element.textContent?.replace(/\s+/g, "") ?? "";
-          return (
-            text
-              .match(
-                /(NexusMaster|UltimateUser|ExtremeUser|VeteranUser|InsaneUser|CrazyUser|EliteUser|PowerUser|Rainbow|User)(?:加入日期|Join|$)/,
-              )?.[1]
-              ?.replace(/([a-z])([A-Z])/g, "$1 $2") ?? ""
-          );
-        },
+        selector: ["div.ud-hero span.ud-class > b"],
+        attr: "class",
+        filters: [{ name: "replace", args: ["_Name", ""] }],
       },
       bonus: {
         selector: [
