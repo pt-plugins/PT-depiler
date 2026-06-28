@@ -154,7 +154,8 @@ async function pageParser(doc: Document): Promise<ISocialSitePageInformation | I
   const mediaType = doc.URL.match(/\/((movie|tv))\//)?.[1] as "movie" | "tv" | undefined;
   const ogTitle = doc.querySelector('meta[property="og:title"]')?.getAttribute("content")?.trim() ?? "";
   const originalTitleText = getOriginalTitleText(doc);
-  const { displayTitle: baseDisplayTitle, originalTitle: baseOriginalTitle } = mediaType === "tv" ? await fetchTmdbBaseTitles(doc.URL) : {};
+  const shouldUseBaseTitles = mediaType === "tv" && /\/(seasons|season\/\d+)(?:\?.*)?$/.test(doc.URL);
+  const { displayTitle: baseDisplayTitle, originalTitle: baseOriginalTitle } = shouldUseBaseTitles ? await fetchTmdbBaseTitles(doc.URL) : {};
   const displayTitle = baseDisplayTitle || ogTitle;
   const originalTitle = baseOriginalTitle || originalTitleText;
   const external_ids = await fetchTmdbExternalIds(doc.URL);
