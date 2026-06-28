@@ -7,7 +7,11 @@ export interface ISocialSitePageInformation {
   site: TSupportSocialSite;
   id: string;
   titles: string[];
-  external_ids?: Partial<Record<TSupportSocialSite, string>> & Record<string, string>; // 外部 ID
+  mediaType?: "movie" | "tv";
+  external_ids?: Partial<Record<TSupportSocialSite | "tvdb", string>>; // 外部 ID
+  pageCategory?: "season_list" | "season_detail";
+  seriesTitle?: string;
+  entryTitle?: string;
 }
 
 export type TSupportSocialSitePageParser = (
