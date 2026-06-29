@@ -1,7 +1,7 @@
 import Sizzle from "sizzle";
 import BittorrentSite from "../schemas/AbstractBittorrentSite.ts";
 import Gazelle, { SchemaMetadata } from "../schemas/Gazelle.ts";
-import { type ISearchInput, type ISiteMetadata, type ITorrent, type IUserInfo } from "../types";
+import { type ISearchInput, type ISiteMetadata, type ITorrent } from "../types";
 
 function isHdfTorrentRow(row: HTMLTableRowElement): boolean {
   if (!row.querySelector("a[href*='torrents.php?action=download']")) return false;
@@ -287,6 +287,10 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["#comm_seedsize span.tooltip"],
         filters: [(query: string) => query.replace(/^[\s\S]*?:\s*/, ""), { name: "parseSize" }],
       },
+      seeding: {
+        selector: ["response.seeding", "response.community.seeding"],
+        filters: [{ name: "parseNumber" }],
+      },
       hnrUnsatisfied: {
         selector: ["#hnr_count_link span"],
         filters: [{ name: "parseNumber" }],
@@ -353,31 +357,5 @@ export default class HDF extends Gazelle {
       ...super.torrentClasses,
       unGroupTorrent: ["group_torrent", ...super.torrentClasses.unGroupTorrent],
     };
-  }
-
-  /**
-   * HD-F 资料页的做种数由 commStats() 通过 AJAX 填充，初始 HTML 只有占位链接。
-   */
-  protected async parseUserInfoForSeeding(
-    flushUserInfo: Partial<IUserInfo>,
-    dataDocument: Record<string, unknown>,
-  ): Promise<Partial<IUserInfo>> {
-    const response = (dataDocument?.response ?? dataDocument) as Record<string, unknown>;
-    const community = response?.community as Record<string, unknown> | undefined;
-    const seeding = response?.seeding ?? community?.seeding;
-
-    if (seeding != null && seeding !== "") {
-      flushUserInfo.seeding = Number(seeding);
-      return flushUserInfo;
-    }
-
-    if (flushUserInfo.id) {
-      const doc = await this.getUserTorrentList(flushUserInfo.id as number);
-      flushUserInfo.seeding = (Sizzle("tr.torrent, tr.group_torrent", doc) as HTMLTableRowElement[]).filter(
-        isHdfTorrentRow,
-      ).length;
-    }
-
-    return flushUserInfo;
   }
 }
