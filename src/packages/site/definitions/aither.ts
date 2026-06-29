@@ -134,12 +134,8 @@ export const siteMetadata: ISiteMetadata = {
         filters: [{ name: "parseNumber" }],
       },
       uploads: {
-        selector: ".user-profile-card__meta-item a[href*='/uploads']",
-        elementProcess: (el: Element) => {
-          const text = el.textContent || "";
-          const matched = text.match(/\((\d+)\)/) ?? text.match(/\d+/);
-          return matched ? parseInt(matched[matched.length - 1]) : undefined;
-        },
+        selector: "a[href*='/uploads']:has(i.fa-file-arrow-up)",
+        filters: [{ name: "parseNumber" }],
       },
     },
   },
