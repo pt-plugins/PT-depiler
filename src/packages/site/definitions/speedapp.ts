@@ -1,6 +1,7 @@
 import type {
   ISiteMetadata,
   ISearchEntryRequestConfig,
+  ISearchInput,
   ISearchResult,
   ITorrent,
   IUserInfo,
@@ -8,6 +9,9 @@ import type {
 } from "../types.ts";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 import { buildCategoryOptionsFromDict } from "../utils.ts";
+import { NoTorrentsError } from "../types.ts";
+
+const ignoredSearchTerms = new Set(["the", "and", "for", "with", "from", "into", "onto", "in", "of", "on"]);
 
 const bonusTrans: string[] = ["Bonus points", "奖励积分"];
 const seedingTrans: string[] = ["Currently seeding torrents", "目前正在播种种子"];
@@ -527,6 +531,13 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class SpeedApp extends PrivateSite {
+  private normalizeSearchText(text: string): string {
+    return text
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, " ")
+      .trim();
+  }
+
   protected override guessUserLevelId(userInfo: IUserInfo): TLevelId {
     if (userInfo.levelName === "超级用户" && typeof userInfo.uploaded === "number") {
       // 区分 SpeedApp 中同名中文级别的特征，Super User (20TB) vs Power User (200GB)
@@ -538,6 +549,27 @@ export default class SpeedApp extends PrivateSite {
       }
     }
     return super.guessUserLevelId(userInfo);
+  }
+
+  public override async transformSearchPage(doc: Document, searchConfig: ISearchInput): Promise<ITorrent[]> {
+    const torrents = await super.transformSearchPage(doc, searchConfig);
+    const normalizedKeywords = this.normalizeSearchText(searchConfig.keywords || "");
+    const terms = normalizedKeywords.split(" ").filter((term) => term.length > 1 && !ignoredSearchTerms.has(term));
+
+    if (terms.length <= 1) {
+      return torrents;
+    }
+
+    const filteredTorrents = torrents.filter((torrent) => {
+      const title = this.normalizeSearchText([torrent.title, torrent.subTitle].filter(Boolean).join(" "));
+      return terms.every((term) => title.includes(term));
+    });
+
+    if (filteredTorrents.length === 0) {
+      throw new NoTorrentsError();
+    }
+
+    return filteredTorrents;
   }
 
   /**
