@@ -13,7 +13,7 @@ const ptdData = inject<IPtdData>("ptd_data", {});
 
 function buildSiteSearchKeyword(result: ISocialSitePageInformation) {
   if (ptdData.socialSite === "tmdb") {
-    return `tmdb|${result.mediaType ?? "movie"}${result.id}`;
+    return `tmdb|${result.id}`;
   }
 
   return `${ptdData.socialSite!}|${result.id}`;
@@ -80,7 +80,7 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
           <template v-for="(result, index) in parseResults" :key="getResultKey(result, index)">
             <v-list-item
               v-if="shouldShowSiteId(result, index)"
-              :title="`${ptdData.socialSite}: ${ptdData.socialSite === 'tmdb' ? `${result.mediaType ?? 'movie'}${result.id}` : result.id}`"
+              :title="`${ptdData.socialSite}: ${result.id}`"
               @click="() => doKeywordSearch(buildSiteSearchKeyword(result))"
             >
               <template #append>

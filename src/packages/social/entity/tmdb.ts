@@ -6,61 +6,69 @@ import {
   ISocialSitePageInformation,
   TSupportSocialSitePageParserMatches,
 } from "../types";
-import { commonParseFactory } from "../utils.ts";
 
 function isNonEmptyString(value: string | undefined): value is string {
   return typeof value === "string" && value.length > 0;
 }
 
 const tmdbUrlPattern =
-  /^(?:https?:\/\/)?(?:www\.)?themoviedb\.org\/(?:movie|tv)\/(\d+)(?:-[^/?#]+)?(?:\/(?:seasons|season\/\d+))?\/?(?:\?.*)?$/;
+  /^(?:https?:\/\/)?(?:www\.)?themoviedb\.org\/((?:movie|tv)\/\d+(?:-[^/?#]+)?(?:\/season\/\d+(?:\/episode\/\d+)?)?)\/?(?:\?.*)?$/;
 
 export function build(id: string): string {
-  return `https://www.themoviedb.org/tv/${id}`;
+  return `https://www.themoviedb.org/${parse(id)}`;
 }
 
-export const parse = commonParseFactory([tmdbUrlPattern]);
+export function parse(query: string | number | undefined): string {
+  if (typeof query === "undefined") {
+    return query as unknown as string;
+  }
+
+  const normalizedQuery = String(query).trim();
+  const match = normalizedQuery.match(
+    /(?:https?:\/\/)?(?:www\.)?themoviedb\.org\/((movie|tv)\/\d+)(?:-[^/?#]+)?((?:\/season\/\d+(?:\/episode\/\d+)?)?)\/?(?:\?.*)?$/,
+  );
+
+  if (match) {
+    return `${match[1]}${match[3] ?? ""}`;
+  }
+
+  const idMatch = normalizedQuery.match(/^(movie|tv)\/\d+(?:\/season\/\d+(?:\/episode\/\d+)?)?$/);
+  if (idMatch) {
+    return idMatch[0];
+  }
+
+  return normalizedQuery;
+}
+
+function getBaseId(idOrUrl: string): string {
+  return parse(idOrUrl).match(/^(movie\/\d+|tv\/\d+)/)?.[1] ?? "";
+}
 
 function buildTmdbExternalIdsUrl(docUrl: string): string {
-  try {
-    const url = new URL(docUrl);
-    const match = url.pathname.match(/^\/(movie|tv)\/\d+(?:-[^/]+)?/);
-    if (!match) {
-      return "";
-    }
-
-    return `${url.origin}${match[0]}/edit?active_nav_item=external_ids`;
-  } catch {
+  const baseId = getBaseId(docUrl);
+  if (!baseId) {
     return "";
   }
+
+  return `https://www.themoviedb.org/${baseId}/edit?active_nav_item=external_ids`;
 }
 
 function buildTmdbBaseUrl(docUrl: string): string {
-  try {
-    const url = new URL(docUrl);
-    const match = url.pathname.match(/^\/(movie|tv)\/\d+(?:-[^/]+)?/);
-    if (!match) {
-      return "";
-    }
-
-    return `${url.origin}${match[0]}`;
-  } catch {
+  const baseId = getBaseId(docUrl);
+  if (!baseId) {
     return "";
   }
+
+  return `https://www.themoviedb.org/${baseId}`;
 }
 
 function buildTmdbSeasonsUrl(docUrl: string): string {
-  try {
-    const url = new URL(docUrl);
-    const match = url.pathname.match(/^\/tv\/\d+(?:-[^/]+)?/);
-    if (!match) {
-      return "";
-    }
-
-    return `${url.origin}${match[0]}/seasons`;
-  } catch {
+  const baseId = getBaseId(docUrl);
+  if (!baseId.startsWith("tv/")) {
     return "";
   }
+
+  return `https://www.themoviedb.org/${baseId}/seasons`;
 }
 
 async function fetchTmdbExternalIds(docUrl: string): Promise<{ imdb?: string; tvdb?: string }> {
@@ -70,13 +78,10 @@ async function fetchTmdbExternalIds(docUrl: string): Promise<{ imdb?: string; tv
   }
 
   try {
-    const resp = await fetch(externalIdsUrl, { credentials: "include" });
-    if (!resp.ok) {
-      return {};
-    }
-
-    const html = await resp.text();
-    const extDoc = new DOMParser().parseFromString(html, "text/html");
+    const { data: extDoc } = await axios.get<Document>(externalIdsUrl, {
+      responseType: "document",
+      withCredentials: true,
+    });
     const imdb = extDoc.querySelector<HTMLInputElement>("#imdb_id")?.value?.trim() || undefined;
     const tvdb = extDoc.querySelector<HTMLInputElement>("#tvdb_id")?.value?.trim() || undefined;
 
@@ -94,13 +99,10 @@ async function fetchTmdbSeriesOgTitleFromSeasons(docUrl: string): Promise<string
   }
 
   try {
-    const resp = await fetch(seasonsUrl, { credentials: "include" });
-    if (!resp.ok) {
-      return undefined;
-    }
-
-    const html = await resp.text();
-    const seasonsDoc = new DOMParser().parseFromString(html, "text/html");
+    const { data: seasonsDoc } = await axios.get<Document>(seasonsUrl, {
+      responseType: "document",
+      withCredentials: true,
+    });
     return seasonsDoc.querySelector('meta[property="og:title"]')?.getAttribute("content")?.trim() || undefined;
   } catch (error) {
     console.warn("Failed to fetch TMDb seasons page", error);
@@ -115,13 +117,10 @@ async function fetchTmdbBaseTitles(docUrl: string): Promise<{ displayTitle?: str
   }
 
   try {
-    const resp = await fetch(baseUrl, { credentials: "include" });
-    if (!resp.ok) {
-      return {};
-    }
-
-    const html = await resp.text();
-    const baseDoc = new DOMParser().parseFromString(html, "text/html");
+    const { data: baseDoc } = await axios.get<Document>(baseUrl, {
+      responseType: "document",
+      withCredentials: true,
+    });
     const displayTitle = baseDoc.querySelector('meta[property="og:title"]')?.getAttribute("content")?.trim() || undefined;
     const originalTitle = getOriginalTitleText(baseDoc) || undefined;
 

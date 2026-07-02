@@ -17,6 +17,14 @@ const ptdData = inject<IPtdData>("ptd_data", {});
 const socialSiteParseResults = shallowRef<ISocialSitePageInformation[]>([]);
 const showSocialSiteParseResultsDialog = ref<boolean>(false);
 
+function buildSearchKeywordById(parseResult: ISocialSitePageInformation) {
+  if (ptdData.socialSite === "tmdb") {
+    return `tmdb|${parseResult.id}`;
+  }
+
+  return `${ptdData.socialSite!}|${parseResult.id}`;
+}
+
 async function handleSearch() {
   // 解析页面
   try {
@@ -33,7 +41,7 @@ async function handleSearch() {
             return;
           } else {
             if (configStore.contentScript?.socialSiteSearchBy === "id") {
-              return doKeywordSearch(`${ptdData.socialSite!}|${parseResult.id}`);
+              return doKeywordSearch(buildSearchKeywordById(parseResult));
             } else if (configStore.contentScript?.socialSiteSearchBy === "imdb") {
               if (ptdData.socialSite === "imdb") {
                 return doKeywordSearch(`imdb|${parseResult.id}`);
