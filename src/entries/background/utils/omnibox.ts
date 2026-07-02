@@ -39,41 +39,39 @@ async function getSearchSolution(getAll = false) {
   return solutionsList;
 }
 
-if (chrome.omnibox) {
-  chrome.omnibox.onInputChanged.addListener(async (text, suggest) => {
-    if (!text) return;
+chrome.omnibox?.onInputChanged.addListener(async (text, suggest) => {
+  if (!text) return;
 
-    const solutions = await getSearchSolution();
-    let result: chrome.omnibox.SuggestResult[] = solutions.map((x) => ({
-      content: `${x.name}${splitString}${text}`,
-      description: chrome.i18n.getMessage("omniboxSearch", [x.name, text]),
-    }));
+  const solutions = await getSearchSolution();
+  let result: chrome.omnibox.SuggestResult[] = solutions.map((x) => ({
+    content: `${x.name}${splitString}${text}`,
+    description: chrome.i18n.getMessage("omniboxSearch", [x.name, text]),
+  }));
 
-    suggest(result);
-  });
+  suggest(result);
+});
 
-  // 当用户接收关键字建议时触发
-  chrome.omnibox.onInputEntered.addListener(async (text) => {
-    let solutionName = "";
-    let solutionId = "default";
-    let key = "";
+// 当用户接收关键字建议时触发
+chrome.omnibox?.onInputEntered.addListener(async (text) => {
+  let solutionName = "";
+  let solutionId = "default";
+  let key = "";
 
-    if (text.indexOf(splitString) != -1) {
-      const solutions = await getSearchSolution(true);
+  if (text.indexOf(splitString) != -1) {
+    const solutions = await getSearchSolution(true);
 
-      [solutionName, key] = text.split(splitString);
+    [solutionName, key] = text.split(splitString);
 
-      let solution = solutions.find((item: ISearchSolution) => {
-        return item.name == solutionName;
-      });
-      if (solution) {
-        solutionId = solution.value;
-      }
-    } else {
-      key = text;
+    let solution = solutions.find((item: ISearchSolution) => {
+      return item.name == solutionName;
+    });
+    if (solution) {
+      solutionId = solution.value;
     }
+  } else {
+    key = text;
+  }
 
-    // 按关键字进行搜索
-    openOptionsPage({ path: "/search-entity", query: { search: key, plan: solutionId, flush: 1 } });
-  });
-}
+  // 按关键字进行搜索
+  openOptionsPage({ path: "/search-entity", query: { search: key, plan: solutionId, flush: 1 } });
+});
