@@ -1,4 +1,4 @@
-export const supportSocialSite = ["imdb", "douban", "bangumi", "anidb", "tvmaze"] as const;
+export const supportSocialSite = ["imdb", "douban", "bangumi", "anidb", "tvmaze", "tmdb"] as const;
 export type TSupportSocialSite = (typeof supportSocialSite)[number];
 
 export type TUrlPattern = string | RegExp;
@@ -7,10 +7,19 @@ export interface ISocialSitePageInformation {
   site: TSupportSocialSite;
   id: string;
   titles: string[];
-  external_ids?: Partial<Record<TSupportSocialSite, string>>; // 外部 ID
+  mediaType?: "movie" | "tv";
+  external_ids?: Partial<Record<TSupportSocialSite | "tvdb", string>>; // 外部 ID
+  pageCategory?: "season_list" | "season_detail";
+  seriesTitle?: string;
+  entryTitle?: string;
 }
 
-export type TSupportSocialSitePageParser = (doc: Document) => ISocialSitePageInformation | ISocialSitePageInformation[];
+export type TSupportSocialSitePageParser = (
+  doc: Document,
+) =>
+  | ISocialSitePageInformation
+  | ISocialSitePageInformation[]
+  | Promise<ISocialSitePageInformation | ISocialSitePageInformation[]>;
 export type TSupportSocialSitePageParserMatches = Array<[TUrlPattern, TSupportSocialSitePageParser]>;
 
 export type TSupportSocialSiteUrlPattern = Record<TSupportSocialSite, TSupportSocialSitePageParserMatches>;

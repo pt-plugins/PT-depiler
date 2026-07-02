@@ -79,6 +79,11 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
     router.push(toRoute);
   }
 }
+
+function canAdvanceSearch(site: TSupportSocialSite) {
+  // PT 站点普遍不支持 tmdb id 直搜，暂时隐藏该入口
+  return site !== "tmdb";
+}
 </script>
 
 <template>
@@ -152,16 +157,18 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
                     </template>
 
                     <v-divider class="my-1" />
-                    <v-btn
-                      variant="text"
-                      block
-                      append-icon="mdi-magnify"
-                      @click="doAdvanceSearch(key as TSupportSocialSite, item[`ext_${key}`] as string)"
-                    >
-                      {{ t("common.search") }}
-                    </v-btn>
+                    <template v-if="canAdvanceSearch(key as TSupportSocialSite)">
+                      <v-btn
+                        variant="text"
+                        block
+                        append-icon="mdi-magnify"
+                        @click="doAdvanceSearch(key as TSupportSocialSite, item[`ext_${key}`] as string)"
+                      >
+                        {{ t("common.search") }}
+                      </v-btn>
 
-                    <v-divider class="my-1" />
+                      <v-divider class="my-1" />
+                    </template>
                     <v-btn
                       variant="text"
                       :href="meta(item[`ext_${key}`]! as string)"
