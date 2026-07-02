@@ -40,7 +40,7 @@ export function parse(query: string | number | undefined): string {
   return normalizedQuery;
 }
 
-function getBaseId(idOrUrl: string): string {
+export function getBaseId(idOrUrl: string): string {
   return parse(idOrUrl).match(/^(movie\/\d+|tv\/\d+)/)?.[1] ?? "";
 }
 
@@ -151,6 +151,8 @@ function formatSeasonCode(docUrl: string): string {
 
 async function pageParser(doc: Document): Promise<ISocialSitePageInformation | ISocialSitePageInformation[]> {
   const mediaType = doc.URL.match(/\/((movie|tv))\//)?.[1] as "movie" | "tv" | undefined;
+  const parsedId = parse(doc.URL);
+  const baseId = getBaseId(doc.URL) || parsedId;
   const ogTitle = doc.querySelector('meta[property="og:title"]')?.getAttribute("content")?.trim() ?? "";
   const originalTitleText = getOriginalTitleText(doc);
   const shouldUseBaseTitles = mediaType === "tv" && /\/(seasons|season\/\d+)(?:\?.*)?$/.test(doc.URL);
@@ -177,13 +179,13 @@ async function pageParser(doc: Document): Promise<ISocialSitePageInformation | I
         return [];
       }
 
-      return [
-        {
-          site: "tmdb",
-          id: parse(doc.URL),
-          mediaType,
-          titles,
-          external_ids,
+        return [
+          {
+            site: "tmdb",
+            id: baseId,
+            mediaType,
+            titles,
+            external_ids,
           pageCategory: "season_list",
           seriesTitle: displayTitle,
           entryTitle: seasonTitle,
@@ -205,7 +207,7 @@ async function pageParser(doc: Document): Promise<ISocialSitePageInformation | I
     if (seasonCode) {
       return {
         site: "tmdb",
-        id: parse(doc.URL),
+        id: baseId,
         mediaType,
         titles: uniq([
           currentSeasonTitle ? `${seasonDisplayTitle} ${currentSeasonTitle}`.trim() : "",
@@ -221,7 +223,7 @@ async function pageParser(doc: Document): Promise<ISocialSitePageInformation | I
 
   return {
     site: "tmdb",
-    id: parse(doc.URL),
+    id: parsedId,
     mediaType,
     titles: uniq([displayTitle, originalTitle]).filter(isNonEmptyString),
     external_ids,
