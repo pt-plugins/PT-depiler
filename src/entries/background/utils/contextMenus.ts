@@ -18,15 +18,17 @@ const contextMenusClickEventBus = new Map<
   (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => void
 >();
 
-chrome.contextMenus.onClicked.addListener((info, tab) => {
-  if (!info.menuItemId || !contextMenusClickEventBus.has(info.menuItemId)) {
-    return;
-  }
-  const clickHandler = contextMenusClickEventBus.get(info.menuItemId);
-  if (clickHandler) {
-    clickHandler(info, tab!);
-  }
-});
+if (chrome.contextMenus) {
+  chrome.contextMenus.onClicked.addListener((info, tab) => {
+    if (!info.menuItemId || !contextMenusClickEventBus.has(info.menuItemId)) {
+      return;
+    }
+    const clickHandler = contextMenusClickEventBus.get(info.menuItemId);
+    if (clickHandler) {
+      clickHandler(info, tab!);
+    }
+  });
+}
 
 function addContextMenu(data: chrome.contextMenus.CreateProperties) {
   if (!data.id) {
@@ -409,8 +411,10 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
   }
 }
 
-chrome.tabs.onActivated.addListener((actionInfo: chrome.tabs.OnActivatedInfo) => {
-  chrome.tabs.get(actionInfo.tabId, (tab: chrome.tabs.Tab) => {
-    initContextMenus(tab).catch((err) => console.error("Failed to initialize context menus:", err));
+if (chrome.contextMenus) {
+  chrome.tabs.onActivated.addListener((actionInfo: chrome.tabs.OnActivatedInfo) => {
+    chrome.tabs.get(actionInfo.tabId, (tab: chrome.tabs.Tab) => {
+      initContextMenus(tab).catch((err) => console.error("Failed to initialize context menus:", err));
+    });
   });
-});
+}
