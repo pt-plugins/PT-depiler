@@ -1,8 +1,8 @@
 import type { ISiteMetadata } from "../types";
-import { CategoryIncldead, CategorySpstate, CategoryInclbookmarked, SchemaMetadata } from "../schemas/NexusPHP.ts";
+// import { CategoryIncldead, CategorySpstate, CategoryInclbookmarked, SchemaMetadata } from "../schemas/NexusPHP.ts";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  // ...SchemaMetadata,
 
   version: 1,
   id: "rousi",
@@ -16,9 +16,13 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
+  // update to Rousi Pro
+  isDead: true,
+
   urls: ["uggcf://ebhfv.mvc/"],
   favicon: "./rousi.ico",
 
+  /*
   category: [
     {
       name: "分类",
@@ -64,6 +68,9 @@ export const siteMetadata: ISiteMetadata = {
     area_torrents: { name: "综合", requestConfig: { url: "/torrents.php" } },
     area_special: { name: "9kg", enabled: false, requestConfig: { url: "/special.php" } },
   },
+
+  */
+
   levelRequirements: [
     {
       id: 1,
