@@ -15,7 +15,6 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["https://torrenthub.club/"],
-  favicon: "./_default_nexusphp.png",
 
   // Domain Catched
   isDead: true,
