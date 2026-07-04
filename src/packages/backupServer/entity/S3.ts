@@ -87,8 +87,7 @@ export default class S3 extends AbstractBackupServer<S3Config> {
   private static async hmacSha256(key: ArrayBuffer | Uint8Array, data: string): Promise<ArrayBuffer> {
     const cryptoKey = await crypto.subtle.importKey(
       "raw",
-      // @ts-ignore
-      key instanceof Uint8Array ? key.buffer : key,
+      key,
       { name: "HMAC", hash: "SHA-256" },
       false,
       ["sign"],
@@ -164,8 +163,16 @@ export default class S3 extends AbstractBackupServer<S3Config> {
     } = {},
   ): Promise<AxiosResponse<T>> {
     const url = this.objectUrl(path);
-    const queryString = options.query ? new URLSearchParams(options.query).toString() : "";
 
+    const encodeRFC3986 = (str: string) =>
+      encodeURIComponent(str).replace(/[!'()*]/g, (c) => `%${c.charCodeAt(0).toString(16).toUpperCase()}`);
+
+    const queryString = options.query
+      ? Object.entries(options.query)
+          .sort(([aKey, aVal], [bKey, bVal]) => aKey.localeCompare(bKey) || aVal.localeCompare(bVal))
+          .map(([k, v]) => `${encodeRFC3986(k)}=${encodeRFC3986(v)}`)
+          .join("&")
+      : "";
     let payloadHash: string;
     if (options.data instanceof Blob) {
       const buffer = await options.data.arrayBuffer();
@@ -254,7 +261,8 @@ export default class S3 extends AbstractBackupServer<S3Config> {
 
       for (const item of parsed.Contents) {
         if (!item.Key.endsWith(".zip")) continue;
-        const displayKey = this.keyPrefix ? item.Key.replace(this.keyPrefix, "") : item.Key;
+        const displayKey =
+          this.keyPrefix && item.Key.startsWith(this.keyPrefix) ? item.Key.slice(this.keyPrefix.length) : item.Key;
         retFileList.push({
           filename: displayKey,
           path: displayKey,
