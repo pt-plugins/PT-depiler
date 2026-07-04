@@ -1,6 +1,11 @@
-import { GB, TB } from "../utils";
 import type { ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+import {
+  CategoryInclbookmarked,
+  CategoryIncldead,
+  CategorySpstate,
+  SchemaMetadata,
+  xiaomloveDefaultUserLevelRequirements,
+} from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -144,133 +149,5 @@ export const siteMetadata: ISiteMetadata = {
     area_special: { name: "特别区", requestConfig: { url: "/special.php" } },
   },
 
-  levelRequirements: [
-    {
-      id: 1,
-      name: "User",
-      privilege: `新用户的默认级别；可以在做种/下载/发布的时候选择匿名模式； 可以发送邀请；User 及以上用户封存账号后不会被删除。`,
-    },
-    {
-      id: 2,
-      name: "Power User",
-      interval: "P4W",
-      downloaded: 50 * GB,
-      ratio: 1.05,
-      seedingBonus: 40000,
-      privilege:
-        '可以直接发布种子；可以查看用户列表；可以请求续种； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以进入论坛的“PT交流区”板块；可以删除自己上传的字幕。',
-    },
-    {
-      id: 3,
-      name: "Elite User",
-      interval: "P8W",
-      downloaded: 120 * GB,
-      ratio: 1.55,
-      seedingBonus: 80000,
-      privilege: "",
-    },
-    {
-      id: 4,
-      name: "Crazy User",
-      interval: "P15W",
-      downloaded: 300 * GB,
-      ratio: 2.05,
-      seedingBonus: 150000,
-      privilege: "可以在魔力商店购买永久邀请。",
-    },
-    {
-      id: 5,
-      name: "Insane User",
-      interval: "P25W",
-      downloaded: 500 * GB,
-      ratio: 2.55,
-      seedingBonus: 250000,
-      privilege: "可以查看普通日志。",
-    },
-    {
-      id: 6,
-      name: "Veteran User",
-      interval: "P40W",
-      downloaded: 750 * GB,
-      ratio: 3.05,
-      seedingBonus: 400000,
-      isKept: true,
-      privilege: "得到两个邀请名额；可以查看其它用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。",
-    },
-    {
-      id: 7,
-      name: "Extreme User",
-      interval: "P60W",
-      downloaded: 1 * TB,
-      ratio: 3.55,
-      seedingBonus: 600000,
-      isKept: true,
-      privilege: "得到两个邀请名额；可以更新过期的外部信息；可以查看Extreme User论坛。",
-    },
-    {
-      id: 8,
-      name: "Ultimate User",
-      interval: "P80W",
-      downloaded: 1.5 * TB,
-      ratio: 4.05,
-      seedingBonus: 800000,
-      isKept: true,
-      privilege: "得到五个邀请名额。",
-    },
-    {
-      id: 9,
-      name: "Nexus Master",
-      interval: "P100W",
-      downloaded: 3 * TB,
-      ratio: 4.55,
-      seedingBonus: 1000000,
-      isKept: true,
-      privilege: "得到十个邀请名额。",
-    },
-    {
-      id: 100,
-      name: "贵宾",
-      groupType: "vip",
-      privilege: "和Nexus Master拥有相同权限并被认为是精英成员。免除自动降级。",
-    },
-    {
-      id: 101,
-      name: "养老族",
-      groupType: "vip",
-      privilege: "退休后的管理组成员。",
-    },
-    {
-      id: 200,
-      name: "发布员",
-      groupType: "manager",
-      privilege: "专注的发布者。免除自动降级；可以查看匿名用户的真实身份。",
-    },
-    {
-      id: 201,
-      name: "总版主",
-      groupType: "manager",
-      privilege:
-        "可以查看管理组信箱、举报信箱；管理趣味盒内容、投票内容；可以编辑或删除任何发布的种子；可以管理候选；" +
-        "可以管理论坛帖子、用户评论；可以查看机密日志；可以删除任何字幕；可以管理日志中的代码、史册；可以查看用户的邀请记录；" +
-        "可以管理用户帐号的一般信息。不能管理友情链接、最近消息、论坛版块；不能将种子设为置顶或促销；不能删除账号。",
-    },
-    {
-      id: 202,
-      name: "管理员",
-      groupType: "manager",
-      privilege: "除了不能改变站点设定、管理捐赠外，可以做任何事。",
-    },
-    {
-      id: 203,
-      name: "维护开发员",
-      groupType: "manager",
-      privilege: "网站开发/维护人员，可以改变站点设定，不能管理捐赠。",
-    },
-    {
-      id: 204,
-      name: "主管",
-      groupType: "manager",
-      privilege: "网站主管，可以做任何事。",
-    },
-  ],
+  levelRequirements: [...xiaomloveDefaultUserLevelRequirements],
 };
