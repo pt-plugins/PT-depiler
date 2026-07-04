@@ -87,6 +87,7 @@ export default class S3 extends AbstractBackupServer<S3Config> {
   private static async hmacSha256(key: ArrayBuffer | Uint8Array, data: string): Promise<ArrayBuffer> {
     const cryptoKey = await crypto.subtle.importKey(
       "raw",
+      // @ts-ignore
       key instanceof Uint8Array ? key.buffer : key,
       { name: "HMAC", hash: "SHA-256" },
       false,
