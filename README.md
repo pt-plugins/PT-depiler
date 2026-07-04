@@ -21,7 +21,7 @@ PT-depiler 是在原 [PT-Plugin-Plus](https://github.com/pt-plugins/PT-Plugin-Pl
 
 ### 🖥️ 功能 Features
 
-- **多站点支持**：兼容 NexusPHP、Unit3D、Gazelle 等多种类型的 PT 站点，提供聚合搜索相同关键字的种子、批量下载等功能 （ 支持站点列表见： https://pt-plugins.github.io/monitor/  ）
+- **多站点支持**：兼容 NexusPHP、Unit3D、Gazelle 等多种类型的 PT 站点，提供聚合搜索相同关键字的种子、批量下载等功能 （ 支持站点列表见： [PT Site Status](https://pt-plugins.github.io/monitor/)  ）
 - **下载器集成**：支持 qBittorrent、Transmission、Deluge、ruTorrent、Synology Download Station、Aria2 等多种下载器，并保存下载历史记录
 - **备份服务器管理**：集成 WebDav、Gist、CookieCloud、Google Drive、DropBox、OWSS 等备份服务，方便数据同步
 - **智能搜索**：增强搜索功能，支持多站点同时搜索并合并结果
