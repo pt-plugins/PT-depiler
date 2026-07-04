@@ -143,8 +143,10 @@ export default class BackblazeB2 extends AbstractBackupServer<BackblazeB2Config>
     const targetBucketName = this.userConfig.bucketName;
 
     // 如果 allowed.bucketName 与配置的 bucketName 一致，直接使用 allowed.bucketId，跳过 list_buckets
-    if (this.allowed!.bucketName === targetBucketName) {
-      this.bucketId = this.allowed!.bucketId!;
+    const allowed = this.allowed;
+    if (allowed?.bucketName === targetBucketName) {
+      if (!allowed.bucketId) throw new Error(`Application key has no access to bucket "${targetBucketName}"`);
+      this.bucketId = allowed.bucketId;
       return this.bucketId;
     }
 
@@ -195,7 +197,7 @@ export default class BackblazeB2 extends AbstractBackupServer<BackblazeB2Config>
         {
           bucketId,
           prefix: "",
-          delimiter: null,
+          delimiter: undefined,
           maxFileCount: 1000,
           ...(startFileName ? { startFileName } : {}),
         },
@@ -203,7 +205,7 @@ export default class BackblazeB2 extends AbstractBackupServer<BackblazeB2Config>
       );
 
       for (const entry of data.files) {
-        if (entry.action === "folder") continue;
+        if (entry.action !== "upload") continue;
         if (!entry.fileName.endsWith(".zip")) continue;
 
         files.push({
