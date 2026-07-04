@@ -81,7 +81,6 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
 }
 
 function canAdvanceSearch(site: TSupportSocialSite) {
-  // PT 站点普遍不支持 tmdb id 直搜，暂时隐藏该入口
   return site !== "tmdb";
 }
 </script>
@@ -156,8 +155,8 @@ function canAdvanceSearch(site: TSupportSocialSite) {
                       <h3 class="font-weight-bold my-2">No Information</h3>
                     </template>
 
-                    <v-divider class="my-1" />
                     <template v-if="canAdvanceSearch(key as TSupportSocialSite)">
+                      <v-divider class="my-1" />
                       <v-btn
                         variant="text"
                         block
@@ -166,9 +165,9 @@ function canAdvanceSearch(site: TSupportSocialSite) {
                       >
                         {{ t("common.search") }}
                       </v-btn>
-
-                      <v-divider class="my-1" />
                     </template>
+
+                    <v-divider class="my-1" />
                     <v-btn
                       variant="text"
                       :href="meta(item[`ext_${key}`]! as string)"

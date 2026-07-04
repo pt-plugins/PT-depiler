@@ -12,23 +12,11 @@ const { parseResults } = defineProps<{ parseResults: ISocialSitePageInformation[
 const ptdData = inject<IPtdData>("ptd_data", {});
 
 function buildSiteSearchKeyword(result: ISocialSitePageInformation) {
-  if (ptdData.socialSite === "tmdb") {
-    return `tmdb|${result.id}`;
-  }
-
   return `${ptdData.socialSite!}|${result.id}`;
 }
 
 function shouldCollapseTitles(result: ISocialSitePageInformation) {
   return ptdData.socialSite === "tmdb" && result.pageCategory === "season_list";
-}
-
-function getCollapsedTitles(result: ISocialSitePageInformation) {
-  return result.titles;
-}
-
-function getVisibleTitles(result: ISocialSitePageInformation) {
-  return shouldCollapseTitles(result) ? [] : result.titles;
 }
 
 function getCollapseTitle(result: ISocialSitePageInformation) {
@@ -99,7 +87,11 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
                 </template>
               </v-list-item>
             </template>
-            <v-list-item v-if="shouldShowSeriesTitle(result, index)" :title="result.seriesTitle" @click="() => doKeywordSearch(result.seriesTitle!)">
+            <v-list-item
+              v-if="shouldShowSeriesTitle(result, index)"
+              :title="result.seriesTitle"
+              @click="() => doKeywordSearch(result.seriesTitle!)"
+            >
               <template #append>
                 <v-chip color="blue-grey">{{ t("contentScript.SocialSiteParseResultsDialog.searchTitle") }}</v-chip>
               </template>
@@ -108,14 +100,16 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
               <v-expansion-panels variant="accordion" flat>
                 <v-expansion-panel>
                   <v-expansion-panel-title>
-                    {{ getCollapseTitle(result) }} ({{ getCollapsedTitles(result).length }})
+                    {{ getCollapseTitle(result) }} ({{ result.titles.length }})
                   </v-expansion-panel-title>
                   <v-expansion-panel-text class="pa-0">
                     <v-list density="compact">
-                      <template v-for="title in getCollapsedTitles(result)" :key="`${result.id}|${title}`">
+                      <template v-for="title in result.titles" :key="`${result.id}|${title}`">
                         <v-list-item :title="title" @click="() => doKeywordSearch(title)">
                           <template #append>
-                            <v-chip color="blue-grey">{{ t("contentScript.SocialSiteParseResultsDialog.searchTitle") }}</v-chip>
+                            <v-chip color="blue-grey">{{
+                              t("contentScript.SocialSiteParseResultsDialog.searchTitle")
+                            }}</v-chip>
                           </template>
                         </v-list-item>
                       </template>

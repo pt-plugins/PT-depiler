@@ -18,10 +18,6 @@ const socialSiteParseResults = shallowRef<ISocialSitePageInformation[]>([]);
 const showSocialSiteParseResultsDialog = ref<boolean>(false);
 
 function buildSearchKeywordById(parseResult: ISocialSitePageInformation) {
-  if (ptdData.socialSite === "tmdb") {
-    return `tmdb|${parseResult.id}`;
-  }
-
   return `${ptdData.socialSite!}|${parseResult.id}`;
 }
 
@@ -71,7 +67,13 @@ async function handleSearch() {
 </script>
 
 <template>
-  <SpeedDialBtn key="search" color="indigo" icon="mdi-home-search" :title="t('contentScript.quickSearch')" @click="handleSearch" />
+  <SpeedDialBtn
+    key="search"
+    color="indigo"
+    icon="mdi-home-search"
+    :title="t('contentScript.quickSearch')"
+    @click="handleSearch"
+  />
   <SocialSiteParseResultsDialog v-model="showSocialSiteParseResultsDialog" :parse-results="socialSiteParseResults" />
 </template>
 
