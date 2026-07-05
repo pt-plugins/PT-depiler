@@ -79,6 +79,10 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
     router.push(toRoute);
   }
 }
+
+function canAdvanceSearch(site: TSupportSocialSite) {
+  return site !== "tmdb";
+}
 </script>
 
 <template>
@@ -151,15 +155,17 @@ function doAdvanceSearch(site: TSupportSocialSite, sid: string) {
                       <h3 class="font-weight-bold my-2">No Information</h3>
                     </template>
 
-                    <v-divider class="my-1" />
-                    <v-btn
-                      variant="text"
-                      block
-                      append-icon="mdi-magnify"
-                      @click="doAdvanceSearch(key as TSupportSocialSite, item[`ext_${key}`] as string)"
-                    >
-                      {{ t("common.search") }}
-                    </v-btn>
+                    <template v-if="canAdvanceSearch(key as TSupportSocialSite)">
+                      <v-divider class="my-1" />
+                      <v-btn
+                        variant="text"
+                        block
+                        append-icon="mdi-magnify"
+                        @click="doAdvanceSearch(key as TSupportSocialSite, item[`ext_${key}`] as string)"
+                      >
+                        {{ t("common.search") }}
+                      </v-btn>
+                    </template>
 
                     <v-divider class="my-1" />
                     <v-btn

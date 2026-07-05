@@ -390,7 +390,7 @@ async function fetchRecommendationSource(source: ISocialRecommendationSource): P
     configurable: true,
   });
 
-  return normalizeParsedItems(parser(data), source);
+  return normalizeParsedItems(await parser(data), source);
 }
 
 export async function getSocialRecommendations(
