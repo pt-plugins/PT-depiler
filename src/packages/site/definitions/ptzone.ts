@@ -185,6 +185,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "1536GB",
       ratio: 4.05,
       seedingBonus: 800000,
+      isKept: true,
       privilege: "首次升级赠送邀请10枚，保留帐号；",
     },
     {
@@ -194,6 +195,7 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "3072GB",
       ratio: 4.55,
       seedingBonus: 1000000,
+      isKept: true,
       privilege: "首次升级赠送邀请3枚，保留帐号；",
     },
   ],
