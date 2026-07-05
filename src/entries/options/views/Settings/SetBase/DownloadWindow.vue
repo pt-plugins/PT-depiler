@@ -74,7 +74,7 @@ async function clearLastDownloader(v: boolean) {
         hide-details
         :label="t('SetBase.download.useQuickSendToClient')"
       />
-      <v-alert type="info" variant="tonal" v-html="t('SetBase.download.quickSendToClientNote')" />
+      <v-alert type="info" variant="outlined" v-html="t('SetBase.download.quickSendToClientNote')" />
 
       <v-switch
         v-model="configStore.download.allowDownloaderFilterForSite"

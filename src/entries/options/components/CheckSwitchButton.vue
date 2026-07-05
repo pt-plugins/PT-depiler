@@ -1,22 +1,17 @@
-<script setup lang="ts">
+<script setup generic="T" lang="ts">
 import { useI18n } from "vue-i18n";
 
 import NavButton from "./NavButton.vue";
 
-type T = any;
 const { t } = useI18n();
 
-const selected = defineModel<T[]>({ required: true, default: [] });
+const selected = defineModel<T[]>({ required: true });
 const { all } = defineProps<{
   all: T[];
-}>();
-const emit = defineEmits<{
-  (e: "update:model", value: T[]): void;
 }>();
 
 function updateSelected(value: T[]) {
   selected.value = value;
-  emit("update:model", value);
 }
 </script>
 
