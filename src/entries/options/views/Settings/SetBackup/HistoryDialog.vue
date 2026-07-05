@@ -112,6 +112,7 @@ async function dialogLeave() {
           :headers="tableHeaders"
           :items="backupHistory"
           :sort-by="[{ key: 'time', order: 'desc' }]"
+          :loading="isLoading"
           class="table-header-no-wrap table-stripe"
           item-value="path"
           must-sort
