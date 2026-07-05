@@ -18,7 +18,7 @@ const contextMenusClickEventBus = new Map<
   (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => void
 >();
 
-chrome.contextMenus.onClicked.addListener((info, tab) => {
+chrome.contextMenus?.onClicked.addListener((info, tab) => {
   if (!info.menuItemId || !contextMenusClickEventBus.has(info.menuItemId)) {
     return;
   }
@@ -39,21 +39,21 @@ function addContextMenu(data: chrome.contextMenus.CreateProperties) {
     delete data.onclick; // 删除 onclick 属性，因为 chrome.contextMenus.create 不支持直接传入 onclick
   }
 
-  chrome.contextMenus.create(data);
+  chrome.contextMenus?.create(data);
   return data.id;
 }
 
 onMessage("addContextMenu", async ({ data }) => addContextMenu(data));
 
 function removeContextMenu(id: string) {
-  chrome.contextMenus.remove(id).catch();
+  chrome.contextMenus?.remove(id).catch();
   contextMenusClickEventBus.delete(id);
 }
 
 onMessage("removeContextMenu", async ({ data }) => removeContextMenu(data));
 
 function clearContextMenus() {
-  chrome.contextMenus.removeAll().catch();
+  chrome.contextMenus?.removeAll().catch();
   contextMenusClickEventBus.clear();
 }
 
@@ -139,7 +139,7 @@ async function createSearchMenu(baseMenuId: string, options: ICreateSearchMenuOp
     title: chrome.i18n.getMessage("contextMenuSearchInDefault"),
     contexts: ["selection"],
     ...extraCreateMenuProperties,
-    onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
+    onclick: (info) => {
       openOptionsPage({
         path: "/search-entity",
         query: { search: selectionTextFilterFn(info), flush: 1 },
@@ -167,7 +167,7 @@ async function createSearchMenu(baseMenuId: string, options: ICreateSearchMenuOp
         title: solution.name,
         contexts: ["selection"],
         ...extraCreateMenuProperties,
-        onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
+        onclick: (info) => {
           openOptionsPage({
             path: "/search-entity",
             query: { search: selectionTextFilterFn(info), plan: solution.id, flush: 1 },
@@ -209,7 +209,7 @@ async function createSearchMenu(baseMenuId: string, options: ICreateSearchMenuOp
         title: siteTitle,
         contexts: ["selection"],
         ...extraCreateMenuProperties,
-        onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
+        onclick: (info) => {
           openOptionsPage({
             path: "/search-entity",
             query: { search: selectionTextFilterFn(info), plan: `site:${site.id}`, flush: 1 },
@@ -226,7 +226,7 @@ async function createSearchMenu(baseMenuId: string, options: ICreateSearchMenuOp
       title: chrome.i18n.getMessage("contextMenuSearchInThisSite"),
       contexts: ["selection"],
       ...extraCreateMenuProperties,
-      onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
+      onclick: (info) => {
         openOptionsPage({
           path: "/search-entity",
           query: { search: info.selectionText, plan: `site:${thisTabSiteId}`, flush: 1 },
@@ -334,7 +334,7 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
         parentId: baseLinkDownloadPushMenuId,
         title: chrome.i18n.getMessage("contextMenuSendToDownloaderAdvanced"),
         contexts: ["link"],
-        onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
+        onclick: (info) => {
           openOptionsPage({ path: "/link-push", query: { link: info.linkUrl! } });
         },
       });
@@ -357,7 +357,7 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
           title: chrome.i18n.getMessage("contextMenuSendToDownloaderIn", [downloader.name, downloader.address]),
           contexts: ["link"],
           // 此处不用担心子目录问题，因为如果有子目录，此处的 onclick 不会被 chrome 触发
-          onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
+          onclick: (info, tab) => {
             downloadLinkPush(info.linkUrl!, downloader, undefined, tab?.title, tab?.url);
           },
         });
@@ -398,7 +398,7 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
               parentId: downloaderPushSubMenuId,
               title: `-> ${suggestFolder || chrome.i18n.getMessage("contextMenuSendToDownloaderDefaultFolder")}`, // 如果是空字符串，则显示为 "默认文件夹"
               contexts: ["link"],
-              onclick: (info: chrome.contextMenus.OnClickData, tab: chrome.tabs.Tab) => {
+              onclick: (info, tab) => {
                 downloadLinkPush(info.linkUrl!, downloader, suggestFolder, tab?.title, tab?.url);
               },
             });
@@ -408,9 +408,10 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
     }
   }
 }
-
-chrome.tabs.onActivated.addListener((actionInfo: chrome.tabs.OnActivatedInfo) => {
-  chrome.tabs.get(actionInfo.tabId, (tab: chrome.tabs.Tab) => {
-    initContextMenus(tab).catch((err) => console.error("Failed to initialize context menus:", err));
+if (chrome.contextMenus) {
+  chrome.tabs.onActivated.addListener((actionInfo: chrome.tabs.OnActivatedInfo) => {
+    chrome.tabs.get(actionInfo.tabId, (tab) => {
+      initContextMenus(tab).catch((err) => console.error("Failed to initialize context menus:", err));
+    });
   });
-});
+}

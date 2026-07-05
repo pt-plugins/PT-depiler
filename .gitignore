@@ -25,6 +25,7 @@ lerna-debug.log*
 *.njsproj
 *.sln
 *.sw?
+.kunsdd
 
 # local env files
 .env.local

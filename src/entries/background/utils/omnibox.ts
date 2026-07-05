@@ -39,7 +39,7 @@ async function getSearchSolution(getAll = false) {
   return solutionsList;
 }
 
-chrome.omnibox.onInputChanged.addListener(async (text, suggest) => {
+chrome.omnibox?.onInputChanged.addListener(async (text, suggest) => {
   if (!text) return;
 
   const solutions = await getSearchSolution();
@@ -52,7 +52,7 @@ chrome.omnibox.onInputChanged.addListener(async (text, suggest) => {
 });
 
 // 当用户接收关键字建议时触发
-chrome.omnibox.onInputEntered.addListener(async (text) => {
+chrome.omnibox?.onInputEntered.addListener(async (text) => {
   let solutionName = "";
   let solutionId = "default";
   let key = "";

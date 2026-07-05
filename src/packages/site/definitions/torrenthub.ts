@@ -1,8 +1,8 @@
 import type { ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/NexusPHP";
+// import { SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  // ...SchemaMetadata,
   version: 1,
 
   id: "torrenthub",
@@ -15,6 +15,9 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["https://torrenthub.club/"],
+
+  // Domain Catched
+  isDead: true,
 
   levelRequirements: [
     {
