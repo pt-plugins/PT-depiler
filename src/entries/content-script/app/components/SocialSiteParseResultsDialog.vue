@@ -24,29 +24,33 @@ onMounted(() => {
   });
 });
 
-const searchPlans = computed(() => {
+const customSearchPlans = computed(() => {
   if (!metadataReady.value) {
-    return [{ id: "default", name: t("layout.header.searchPlan.default") }];
+    return [];
   }
 
+  return metadataStore.getSearchSolutions
+    .filter((solution) => !!solution.enabled)
+    .sort((a, b) => b.sort - a.sort)
+    .map((solution) => ({
+      id: solution.id,
+      name: metadataStore.getSearchSolutionName(solution.id),
+    }));
+});
+
+const searchPlans = computed(() => {
   const plans = [{ id: "default", name: t("layout.header.searchPlan.default") }];
 
   if (metadataStore.defaultSolutionId !== "default") {
     plans.push({ id: "all", name: t("layout.header.searchPlan.all") });
   }
 
-  plans.push(
-    ...metadataStore.getSearchSolutions
-      .filter((solution) => !!solution.enabled)
-      .sort((a, b) => b.sort - a.sort)
-      .map((solution) => ({
-        id: solution.id,
-        name: metadataStore.getSearchSolutionName(solution.id),
-      })),
-  );
+  plans.push(...customSearchPlans.value);
 
   return plans;
 });
+
+const shouldShowSearchPlanMenu = computed(() => customSearchPlans.value.length > 0);
 
 function buildSiteSearchKeyword(result: ISocialSitePageInformation) {
   return `${ptdData.socialSite!}|${result.id}`;
@@ -129,7 +133,7 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
               <template #append>
                 <v-chip color="indigo">{{ t("contentScript.SocialSiteParseResultsDialog.searchId") }}</v-chip>
               </template>
-              <v-menu activator="parent" location="end" open-on-hover>
+              <v-menu v-if="shouldShowSearchPlanMenu" activator="parent" location="end" open-on-hover>
                 <v-list density="compact">
                   <v-list-subheader>{{ t("contentScript.SocialSiteParseResultsDialog.searchPlan") }}</v-list-subheader>
                   <v-list-item
@@ -151,7 +155,7 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
                 <template #append>
                   <v-chip color="green">{{ t("contentScript.SocialSiteParseResultsDialog.searchExternalId") }}</v-chip>
                 </template>
-                <v-menu activator="parent" location="end" open-on-hover>
+                <v-menu v-if="shouldShowSearchPlanMenu" activator="parent" location="end" open-on-hover>
                   <v-list density="compact">
                     <v-list-subheader>{{ t("contentScript.SocialSiteParseResultsDialog.searchPlan") }}</v-list-subheader>
                     <v-list-item
@@ -172,7 +176,7 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
               <template #append>
                 <v-chip color="blue-grey">{{ t("contentScript.SocialSiteParseResultsDialog.searchTitle") }}</v-chip>
               </template>
-              <v-menu activator="parent" location="end" open-on-hover>
+              <v-menu v-if="shouldShowSearchPlanMenu" activator="parent" location="end" open-on-hover>
                 <v-list density="compact">
                   <v-list-subheader>{{ t("contentScript.SocialSiteParseResultsDialog.searchPlan") }}</v-list-subheader>
                   <v-list-item
@@ -199,7 +203,7 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
                               t("contentScript.SocialSiteParseResultsDialog.searchTitle")
                             }}</v-chip>
                           </template>
-                          <v-menu activator="parent" location="end" open-on-hover>
+                          <v-menu v-if="shouldShowSearchPlanMenu" activator="parent" location="end" open-on-hover>
                             <v-list density="compact">
                               <v-list-subheader>{{ t("contentScript.SocialSiteParseResultsDialog.searchPlan") }}</v-list-subheader>
                               <v-list-item
@@ -222,7 +226,7 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
                 <template #append>
                   <v-chip color="blue-grey">{{ t("contentScript.SocialSiteParseResultsDialog.searchTitle") }}</v-chip>
                 </template>
-                <v-menu activator="parent" location="end" open-on-hover>
+                <v-menu v-if="shouldShowSearchPlanMenu" activator="parent" location="end" open-on-hover>
                   <v-list density="compact">
                     <v-list-subheader>{{ t("contentScript.SocialSiteParseResultsDialog.searchPlan") }}</v-list-subheader>
                     <v-list-item
