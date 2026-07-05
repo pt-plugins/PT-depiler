@@ -1011,6 +1011,7 @@
       "title": "Customize batch actions for {0} torrents"
     },
     "SocialSiteParseResultsDialog": {
+      "searchPlan": "Search Plan",
       "searchExternalId": "Search External ID",
       "searchId": "Search ID",
       "searchTitle": "Search Title",
