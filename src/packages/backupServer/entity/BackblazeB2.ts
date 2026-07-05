@@ -65,7 +65,7 @@ interface B2FileEntry {
   fileName: string;
   fileId: string;
   action: "upload" | "hide" | "folder" | "start";
-  size: number;
+  contentLength: number;
   uploadTimestamp: number;
   contentMd5?: string;
 }
@@ -192,7 +192,7 @@ export default class BackblazeB2 extends AbstractBackupServer<BackblazeB2Config>
     let hasMore = true;
 
     while (hasMore) {
-      const { data } = await axios.post<B2ListFileNamesResponse>(
+      const { data }: { data: B2ListFileNamesResponse } = await axios.post<B2ListFileNamesResponse>(
         `${this.apiUrl}/b2api/v2/b2_list_file_names`,
         {
           bucketId,
@@ -212,7 +212,7 @@ export default class BackblazeB2 extends AbstractBackupServer<BackblazeB2Config>
           filename: entry.fileName,
           path: entry.fileName,
           time: entry.uploadTimestamp,
-          size: entry.size,
+          size: entry.contentLength,
         });
       }
 
