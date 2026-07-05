@@ -84,14 +84,8 @@ export default class S3 extends AbstractBackupServer<S3Config> {
     return S3.bufferToHex(hash);
   }
 
-  private static async hmacSha256(key: ArrayBuffer | Uint8Array, data: string): Promise<ArrayBuffer> {
-    const cryptoKey = await crypto.subtle.importKey(
-      "raw",
-      key,
-      { name: "HMAC", hash: "SHA-256" },
-      false,
-      ["sign"],
-    );
+  private static async hmacSha256(key: BufferSource, data: string): Promise<ArrayBuffer> {
+    const cryptoKey = await crypto.subtle.importKey("raw", key, { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
     return await crypto.subtle.sign("HMAC", cryptoKey, new TextEncoder().encode(data));
   }
 
@@ -100,13 +94,12 @@ export default class S3 extends AbstractBackupServer<S3Config> {
     dateStamp: string,
     region: string,
     service: string,
-  ): Promise<Uint8Array> {
+  ): Promise<ArrayBuffer> {
     const kSecret = new TextEncoder().encode(`AWS4${secretAccessKey}`);
     const kDate = await S3.hmacSha256(kSecret, dateStamp);
     const kRegion = await S3.hmacSha256(kDate, region);
     const kService = await S3.hmacSha256(kRegion, service);
-    const kSigning = await S3.hmacSha256(kService, "aws4_request");
-    return new Uint8Array(kSigning);
+    return await S3.hmacSha256(kService, "aws4_request");
   }
 
   private async buildAuthHeaders(
