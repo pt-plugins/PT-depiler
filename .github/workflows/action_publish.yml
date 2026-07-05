@@ -17,12 +17,12 @@ jobs:
 
     steps:
       # 构建发布所需的环境
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
         with:
           version: "^10.21.0"
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ">=23.7.0"
 
@@ -31,7 +31,7 @@ jobs:
 
       # 下载 action_build.yml 构造出来的 extension-chrome.zip, extension-firefox.zip 两个文件
       - name: Download Chrome Built Artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           pattern: build-zip-*
           merge-multiple: true

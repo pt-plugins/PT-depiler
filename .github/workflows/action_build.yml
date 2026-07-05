@@ -17,14 +17,14 @@ jobs:
       version: ${{ steps.zip_chrome.outputs.extensionVersion }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
         with:
           fetch-depth: ${{ github.event_name == 'pull_request' && '1' || '0' }} # 根据事件类型动态设置 fetch-depth
 
-      - uses: pnpm/action-setup@v4
+      - uses: pnpm/action-setup@v6
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: ">=23.7.0"
           cache: "pnpm"
@@ -42,13 +42,13 @@ jobs:
           pnpm build:dist-firefox
 
       - name: Upload Chrome Built to action
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: build-dist-chrome
           path: dist-chrome
 
       - name: Upload Firefox Built to action
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: build-dist-firefox
           path: dist-firefox
@@ -70,7 +70,7 @@ jobs:
           zipFilePath: "build/extension-firefox.zip"
 
       - name: Upload Built Zip to action
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: build-zip-${{ steps.zip_chrome.outputs.extensionVersion }}
           path: build/*.zip
@@ -86,7 +86,7 @@ jobs:
           privateKey: "${{ secrets.CHROME_SELF_SIGN_CRX_PRIVATE_KEY }}"
 
       - name: Upload Built Crx to action
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           path: build/extension.crx
           name: build-crx-${{ steps.zip_chrome.outputs.extensionVersion }}
