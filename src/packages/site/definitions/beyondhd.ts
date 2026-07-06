@@ -285,6 +285,14 @@ export const siteMetadata: ISiteMetadata = {
           { name: "parseTime", args: ["yyyy-MM-dd"] },
         ],
       },
+      lastAccessAt: {
+        selector: ["td.bhd-user-left:contains('Last Active') + td .bhd-sub-cell"],
+        filters: [
+          { name: "split", args: ["(", 0] },
+          (text: string) => text.replace(/\s+/g, " ").trim(),
+          { name: "parseTime", args: ["EEE, MMM d, yyyy h:mm a"] },
+        ],
+      },
       seedingSize: {
         selector: ["td.bhd-user-left:contains('Active Seed Size') + td span.badge-user"],
         filters: [{ name: "parseSize" }],
