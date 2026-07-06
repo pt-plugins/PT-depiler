@@ -1,4 +1,5 @@
 import type { ISiteMetadata } from "../types";
+import { parseTimeToLiveToDate } from "../utils/datetime.ts";
 
 export const siteMetadata: ISiteMetadata = {
   id: "ncore",
@@ -31,6 +32,22 @@ export const siteMetadata: ISiteMetadata = {
             selector: ["div.userbox_tartalom_mini:nth-child(2) > div:nth-child(2) span"],
             attr: "title",
             filters: [{ name: "parseTime" }],
+          },
+          lastAccessAt: {
+            selector: ["#profil_left .userbox_tartalom_mini > div:nth-child(4) span"],
+            filters: [
+              (query: string) => {
+                const text = String(query).trim();
+                if (/épp itt van/i.test(text)) return Date.now();
+                const normalized = text
+                  .replace(/(\d+)\s*éve?/gi, "$1 years")
+                  .replace(/(\d+)\s*hete?/gi, "$1 weeks")
+                  .replace(/(\d+)\s*napja?/gi, "$1 days")
+                  .replace(/(\d+)\s*órája?/gi, "$1 hours")
+                  .replace(/(\d+)\s*perce?/gi, "$1 minutes");
+                return parseTimeToLiveToDate(normalized);
+              },
+            ],
           },
           uploaded: {
             selector: ["div.userbox_tartalom_mini:nth-child(2) > div:nth-child(8) span"],
