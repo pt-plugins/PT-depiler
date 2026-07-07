@@ -1,31 +1,23 @@
 <script setup lang="ts">
 import { ISocialSitePageInformation } from "@ptd/social";
 import { doKeywordSearch, type IPtdData } from "../utils.ts";
-import { computed, inject, onMounted, ref } from "vue";
+import { computed, inject } from "vue";
 import { useI18n } from "vue-i18n";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { sendMessage } from "@/messages.ts";
 
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
-const metadataReady = ref(false);
 
 const showDialog = defineModel<boolean>();
-const { parseResults, defaultPlan = "default" } = defineProps<{
+const { parseResults, searchPlan = "default" } = defineProps<{
   parseResults: ISocialSitePageInformation[];
-  defaultPlan?: string;
+  searchPlan?: string;
 }>();
 
 const ptdData = inject<IPtdData>("ptd_data", {});
 
-onMounted(() => {
-  metadataStore.$onReady(() => {
-    metadataReady.value = true;
-  });
-});
-
 const customSearchPlans = computed(() => {
-  if (!metadataReady.value) {
+  if (!metadataStore.$ready) {
     return [];
   }
 
@@ -34,7 +26,7 @@ const customSearchPlans = computed(() => {
     .sort((a, b) => b.sort - a.sort)
     .map((solution) => ({
       id: solution.id,
-      name: metadataStore.getSearchSolutionName(solution.id),
+      name: solution.name ?? solution.id,
     }));
 });
 
@@ -62,7 +54,9 @@ function shouldCollapseTitles(result: ISocialSitePageInformation) {
 
 function getCollapseTitle(result: ISocialSitePageInformation) {
   if (ptdData.socialSite === "tmdb" && result.pageCategory === "season_list") {
-    return `搜索${result.entryTitle || "单季"}`;
+    return t("contentScript.SocialSiteParseResultsDialog.searchEntryTitle", {
+      title: result.entryTitle || t("contentScript.SocialSiteParseResultsDialog.defaultSeasonTitle"),
+    });
   }
 
   return t("contentScript.SocialSiteParseResultsDialog.searchTitle");
@@ -70,24 +64,6 @@ function getCollapseTitle(result: ISocialSitePageInformation) {
 
 function getResultKey(result: ISocialSitePageInformation, index: number) {
   return `${result.id}|${result.pageCategory ?? "default"}|${result.titles[0] ?? index}`;
-}
-
-function searchByPlan(keyword: string, plan: string = defaultPlan) {
-  if (plan === "default") {
-    doKeywordSearch(keyword);
-    return;
-  }
-
-  if (!keyword) {
-    keyword = prompt("未解析到搜索关键词，请输入：", "")!;
-  }
-
-  if (keyword) {
-    sendMessage("openOptionsPage", {
-      path: "/search-entity",
-      query: { search: keyword, plan, flush: 1 },
-    }).catch();
-  }
 }
 
 function shouldShowSiteId(result: ISocialSitePageInformation, index: number) {
@@ -128,7 +104,7 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
             <v-list-item
               v-if="shouldShowSiteId(result, index)"
               :title="`${ptdData.socialSite}: ${result.id}`"
-              @click="() => searchByPlan(buildSiteSearchKeyword(result))"
+              @click="() => doKeywordSearch(buildSiteSearchKeyword(result), searchPlan)"
             >
               <template #append>
                 <v-chip color="indigo">{{ t("contentScript.SocialSiteParseResultsDialog.searchId") }}</v-chip>
@@ -140,7 +116,7 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
                     v-for="plan in searchPlans"
                     :key="`${result.id}|id|${plan.id}`"
                     :title="plan.name"
-                    @click.stop="searchByPlan(buildSiteSearchKeyword(result), plan.id)"
+                    @click.stop="doKeywordSearch(buildSiteSearchKeyword(result), plan.id)"
                   />
                 </v-list>
               </v-menu>
@@ -150,7 +126,7 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
                 v-for="(externalId, externalType) in result.external_ids"
                 :key="`${result.id}|${externalType}|${externalId}`"
                 :title="`${externalType}: ${externalId}`"
-                @click="() => searchByPlan(`${externalType}|${externalId}`)"
+                @click="() => doKeywordSearch(`${externalType}|${externalId}`, searchPlan)"
               >
                 <template #append>
                   <v-chip color="green">{{ t("contentScript.SocialSiteParseResultsDialog.searchExternalId") }}</v-chip>
@@ -162,7 +138,7 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
                       v-for="plan in searchPlans"
                       :key="`${result.id}|${externalType}|${plan.id}`"
                       :title="plan.name"
-                      @click.stop="searchByPlan(`${externalType}|${externalId}`, plan.id)"
+                      @click.stop="doKeywordSearch(`${externalType}|${externalId}`, plan.id)"
                     />
                   </v-list>
                 </v-menu>
@@ -171,7 +147,7 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
             <v-list-item
               v-if="shouldShowSeriesTitle(result, index)"
               :title="result.seriesTitle"
-              @click="() => searchByPlan(result.seriesTitle!)"
+              @click="() => doKeywordSearch(result.seriesTitle!, searchPlan)"
             >
               <template #append>
                 <v-chip color="blue-grey">{{ t("contentScript.SocialSiteParseResultsDialog.searchTitle") }}</v-chip>
@@ -183,7 +159,7 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
                     v-for="plan in searchPlans"
                     :key="`${result.id}|series|${plan.id}`"
                     :title="plan.name"
-                    @click.stop="searchByPlan(result.seriesTitle!, plan.id)"
+                    @click.stop="doKeywordSearch(result.seriesTitle!, plan.id)"
                   />
                 </v-list>
               </v-menu>
@@ -197,7 +173,7 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
                   <v-expansion-panel-text class="pa-0">
                     <v-list density="compact">
                       <template v-for="title in result.titles" :key="`${result.id}|${title}`">
-                        <v-list-item :title="title" @click="() => searchByPlan(title)">
+                        <v-list-item :title="title" @click="() => doKeywordSearch(title, searchPlan)">
                           <template #append>
                             <v-chip color="blue-grey">{{
                               t("contentScript.SocialSiteParseResultsDialog.searchTitle")
@@ -210,7 +186,7 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
                                 v-for="plan in searchPlans"
                                 :key="`${result.id}|${title}|${plan.id}`"
                                 :title="plan.name"
-                                @click.stop="searchByPlan(title, plan.id)"
+                                @click.stop="doKeywordSearch(title, plan.id)"
                               />
                             </v-list>
                           </v-menu>
@@ -222,7 +198,7 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
               </v-expansion-panels>
             </template>
             <template v-else v-for="title in result.titles" :key="`${result.id}|${title}`">
-              <v-list-item :title="title" @click="() => searchByPlan(title)">
+              <v-list-item :title="title" @click="() => doKeywordSearch(title, searchPlan)">
                 <template #append>
                   <v-chip color="blue-grey">{{ t("contentScript.SocialSiteParseResultsDialog.searchTitle") }}</v-chip>
                 </template>
@@ -233,7 +209,7 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
                       v-for="plan in searchPlans"
                       :key="`${result.id}|${title}|${plan.id}`"
                       :title="plan.name"
-                      @click.stop="searchByPlan(title, plan.id)"
+                      @click.stop="doKeywordSearch(title, plan.id)"
                     />
                   </v-list>
                 </v-menu>

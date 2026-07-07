@@ -80,7 +80,7 @@ export function wrapperConfirmFn(fn: () => any, message = "确定要执行此操
   }
 }
 
-export function doKeywordSearch(keywords: string, plan: string = "default") {
+export function doKeywordSearch(keywords: string, plan = "default") {
   if (!keywords) {
     keywords = prompt("未解析到搜索关键词，请输入：", "")!;
   }
