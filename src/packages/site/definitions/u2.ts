@@ -15,6 +15,8 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   urls: ["https://u2.dmhy.org/"],
 
+  favicon: "./dmhy.ico",
+
   category: [
     {
       name: "类型",

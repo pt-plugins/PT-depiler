@@ -17,6 +17,8 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://jjj.avprcg.arg/"],
 
+  favicon: "./_default_nexusphp.png",
+
   category: [
     {
       name: "分类",

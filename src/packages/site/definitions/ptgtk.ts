@@ -19,6 +19,8 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["https://pt.gtkpw.xyz/", "https://pt.gtk.pw/"],
 
+  favicon: "./_default_nexusphp.png",
+
   category: [
     {
       name: "分类",

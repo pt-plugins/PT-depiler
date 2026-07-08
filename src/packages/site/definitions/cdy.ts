@@ -18,6 +18,8 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://cg.pql.fxva/"],
 
+  favicon: "./_default_nexusphp.png",
+
   category: [
     {
       name: "分类",
