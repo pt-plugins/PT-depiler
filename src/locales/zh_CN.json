@@ -1008,6 +1008,9 @@
       "title": "为 {0} 个种子自定义批量操作行为"
     },
     "SocialSiteParseResultsDialog": {
+      "defaultSeasonTitle": "单季",
+      "searchEntryTitle": "搜索{title}",
+      "searchPlan": "搜索方案",
       "searchExternalId": "搜索外部ID",
       "searchId": "搜索ID",
       "searchTitle": "搜索标题",

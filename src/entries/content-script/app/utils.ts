@@ -80,7 +80,7 @@ export function wrapperConfirmFn(fn: () => any, message = "确定要执行此操
   }
 }
 
-export function doKeywordSearch(keywords: string) {
+export function doKeywordSearch(keywords: string, plan = "default") {
   if (!keywords) {
     keywords = prompt("未解析到搜索关键词，请输入：", "")!;
   }
@@ -88,7 +88,7 @@ export function doKeywordSearch(keywords: string) {
   if (keywords) {
     sendMessage("openOptionsPage", {
       path: "/search-entity",
-      query: { search: toValue(keywords), flush: 1 },
+      query: { search: toValue(keywords), plan, flush: 1 },
     }).catch();
   } else {
     const runtimeStore = useRuntimeStore();
