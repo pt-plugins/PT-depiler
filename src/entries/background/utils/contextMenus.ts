@@ -1,7 +1,7 @@
 import { nanoid } from "nanoid";
 import { format as dateFormat } from "date-fns";
 
-import { type CAddTorrentOptions } from "@ptd/downloader";
+import { type CAddTorrentOptions } from "@ptd/downloader/types.ts";
 import { getHostFromUrl } from "@ptd/site/utils/html.ts"; // 这里不能使用 @ptd/site 的主入口，会导致 sw 无法加载
 import { type ITorrent } from "@ptd/site/types/torrent.ts";
 
