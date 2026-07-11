@@ -207,6 +207,7 @@ async function downloadTorrent(downloadOption: IDownloadTorrentOption) {
   }
   logger({ msg: `generate download torrent task #${downloadOption.downloadId}`, data: downloadOption });
   let downloadStatus = await setDownloadStatus(downloadId!, "pending");
+  let errorMessage: string | undefined;
 
   // 2. 构建下载链接的请求配置
   let downloadRequestConfig: AxiosRequestConfig = { url: torrent.link, method: "GET", timeout: 30e3 };
@@ -261,14 +262,20 @@ async function downloadTorrent(downloadOption: IDownloadTorrentOption) {
         addTorrentOptions.localDownload = true; // 如果不允许直接发送到下载器，则将本地中转选项强行设置为 true
       }
       downloadOption.addTorrentOptions = addTorrentOptions;
-      downloadStatus = await downloadTorrentToRemote(downloadOption as TRemoteDownloadOption, downloadRequestConfig);
+      const remoteResult = await downloadTorrentToRemote(
+        downloadOption as TRemoteDownloadOption,
+        downloadRequestConfig,
+      );
+      downloadStatus = remoteResult.downloadStatus;
+      errorMessage = remoteResult.errorMessage;
     }
   } catch (e) {
     downloadStatus = "failed";
+    errorMessage = getErrorMessage(e);
   }
 
   await setDownloadStatus(downloadId, downloadStatus);
-  return { downloadId, downloadStatus } as IDownloadTorrentResult;
+  return { downloadId, downloadStatus, errorMessage } as IDownloadTorrentResult;
 }
 
 onMessage("downloadTorrent", async ({ data: downloadOption }) => await downloadTorrent(downloadOption));
@@ -353,14 +360,17 @@ async function downloadTorrentToLocalFile(
 async function downloadTorrentToRemote(
   downloadOption: TRemoteDownloadOption,
   downloadRequestConfig: AxiosRequestConfig,
-): Promise<TTorrentDownloadStatus> {
+): Promise<Pick<IDownloadTorrentResult, "downloadStatus" | "errorMessage">> {
   const { torrent, downloaderId, addTorrentOptions, downloadId } = downloadOption;
   let downloadStatus: TTorrentDownloadStatus = "failed"; // 远程推送默认失败状态
+  let errorMessage: string | undefined;
 
   const downloaderConfig = await getDownloaderConfig(downloaderId);
   if (downloaderConfig.id && downloaderConfig.enabled) {
     const downloaderInstance = await getDownloaderInstance(downloaderId);
-    if (!downloaderInstance) return downloadStatus;
+    if (!downloaderInstance) {
+      return { downloadStatus, errorMessage: `Downloader not found: ${downloaderId}` };
+    }
     if (addTorrentOptions.localDownload) {
       addTorrentOptions.localDownloadOption = downloadRequestConfig;
     }
@@ -375,14 +385,28 @@ async function downloadTorrentToRemote(
         downloadStatus = "completed";
       } else {
         logger({ msg: "Failed to add torrent to downloader", data: loggerData });
+        errorMessage = getErrorMessage(addTorrentResult?.message || "Downloader rejected the torrent");
       }
       patchDownloadHistory(downloadId, { addTorrentResult }).catch(); // 存储添加种子结果，方便后续调试
     } catch (e) {
       logger({ msg: "Error adding torrent to downloader", data: loggerData });
+      errorMessage = getErrorMessage(e);
     }
+  } else {
+    errorMessage = `Downloader is missing or disabled: ${downloaderId}`;
   }
 
-  return downloadStatus;
+  return { downloadStatus, errorMessage };
+}
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message;
+  if (typeof error === "string") return error;
+  try {
+    return JSON.stringify(error);
+  } catch {
+    return String(error);
+  }
 }
 
 export async function getDownloadHistory() {

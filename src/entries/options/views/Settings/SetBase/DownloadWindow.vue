@@ -11,6 +11,7 @@ const metadataStore = useMetadataStore();
 
 async function clearLastDownloader(v: boolean) {
   if (!v) {
+    metadataStore.lastKeepUpload = {};
     await metadataStore.setLastDownloader({});
   }
 }

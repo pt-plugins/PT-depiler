@@ -52,4 +52,5 @@ export interface ITorrentDownloadMetadata extends Pick<ITorrent, "title" | "subT
 export interface IDownloadTorrentResult {
   downloadId: TTorrentDownloadKey;
   downloadStatus: TTorrentDownloadStatus;
+  errorMessage?: string;
 }

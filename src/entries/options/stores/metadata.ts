@@ -49,6 +49,7 @@ export const useMetadataStore = defineStore("metadata", {
     lastSearchFilter: "",
     lastUserInfo: {},
     lastDownloader: {},
+    lastKeepUpload: {},
     lastUserInfoAutoFlushAt: 0,
 
     siteHostMap: {},
