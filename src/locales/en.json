@@ -407,6 +407,15 @@
     "title": "Select downloader for {0} torrents"
   },
   "SetBackup": {
+    "fields": {
+      "config": "Extension configuration (config)",
+      "cookies": "Site cookies (cookies)",
+      "downloadHistory": "Download history (downloadHistory)",
+      "keepUploadTask": "Reseed tasks (keepUploadTask)",
+      "metadata": "Site and service configuration (metadata)",
+      "searchResultSnapshot": "Search result snapshots (searchResultSnapshot)",
+      "userInfo": "User information (userInfo)"
+    },
     "AddDialog": {
       "title": "Add Backup Server"
     },
