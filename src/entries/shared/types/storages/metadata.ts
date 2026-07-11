@@ -133,6 +133,13 @@ export interface IMetadataPiniaStorageSchema {
     options?: Omit<CAddTorrentOptions, "localDownloadOption">;
   };
 
+  // 上一次创建辅种任务时使用的下载设置（受 saveLastDownloader 配置控制）
+  lastKeepUpload?: {
+    downloaderId?: TDownloaderKey;
+    savePath?: string;
+    label?: string;
+  };
+
   // 上一次自动刷新的时间戳
   lastUserInfoAutoFlushAt: number;
 

@@ -97,27 +97,34 @@ async function sendTorrentsToDownloader(task: IKeepUploadTask, items: IKeepUploa
 
   try {
     for (const item of items) {
-      await sendMessage("downloadTorrent", {
+      const result = await sendMessage("downloadTorrent", {
         torrent: {
           site: item.site,
           title: item.title,
           subTitle: item.subTitle,
           link: item.url,
-          url: item.url,
+          // item.link 是详情页；下载链接为空时，后台需要它来动态解析真实下载地址。
+          url: item.link,
           size: item.size,
         },
         downloaderId: task.downloadOptions.downloaderId,
         addTorrentOptions: {
           localDownload: true,
-          addAtPaused: true,
+          // 与普通下载保持一致：是否暂停由下载器的“自动开始”设置决定。
+          addAtPaused: !(downloader.feature?.DefaultAutoStart ?? true),
           savePath: task.downloadOptions.savePath || "",
           ...task.downloadOptions.addTorrentOptions,
         },
       });
+      if (result.downloadStatus === "failed") {
+        throw new Error(result.errorMessage || item.title);
+      }
     }
     runtimeStore.showSnakebar(t("KeepUploadTask.sendSingleSuccess"), { color: "success" });
   } catch (e) {
-    runtimeStore.showSnakebar(t("KeepUploadTask.sendSingleError"), { color: "error" });
+    const rawReason = e instanceof Error ? e.message : String(e);
+    const reason = rawReason.trim() === "Fails." ? t("KeepUploadTask.qBittorrentLegacyFails") : rawReason;
+    runtimeStore.showSnakebar(t("KeepUploadTask.sendSingleErrorWithReason", { reason }), { color: "error" });
   }
 }
 

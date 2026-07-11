@@ -10,6 +10,7 @@ import type { IKeepUploadTask, IKeepUploadTaskItem, IKeepUploadTaskDownloadOptio
 import { formatSize } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useConfigStore } from "@/options/stores/config.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 
@@ -19,6 +20,7 @@ const { torrentItems } = defineProps<{
 }>();
 
 const { t } = useI18n();
+const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 
@@ -41,6 +43,9 @@ const creating = ref(false);
 // 下载选项
 const selectedDownloaderId = ref<string>("");
 const savePath = ref("");
+const torrentLabel = ref("");
+const suggestedSavePaths = computed(() => metadataStore.downloaders[selectedDownloaderId.value]?.suggestFolders ?? []);
+const suggestedLabels = computed(() => metadataStore.downloaders[selectedDownloaderId.value]?.suggestTags ?? []);
 
 // 是否可以创建任务
 const canCreateTask = computed(() => {
@@ -70,32 +75,41 @@ function startVerification() {
   verifiedItemsOrder.value = [];
   baseTorrent.value = null;
   verifiedCount.value = 0;
-  selectedDownloaderId.value = metadataStore.defaultDownloader?.id || "";
-  savePath.value = metadataStore.defaultDownloader?.folder || "";
+
+  const remembered = configStore.download.saveLastDownloader ? metadataStore.lastKeepUpload : undefined;
+  const rememberedDownloaderExists = remembered?.downloaderId && metadataStore.downloaders[remembered.downloaderId];
+  selectedDownloaderId.value = rememberedDownloaderExists
+    ? remembered.downloaderId!
+    : metadataStore.defaultDownloader?.id || "";
+  savePath.value = rememberedDownloaderExists
+    ? remembered?.savePath || ""
+    : metadataStore.defaultDownloader?.folder || "";
+  torrentLabel.value = rememberedDownloaderExists
+    ? remembered?.label || ""
+    : metadataStore.defaultDownloader?.tags || "";
 
   torrentItems.forEach((item) => {
-    if (item.link) {
-      const id = crypto.randomUUID();
+    const id = crypto.randomUUID();
 
-      verifiedItems.value.set(id, {
-        id,
-        data: item,
-        torrent: null,
-        loading: true,
-        verified: false,
-        status: statusText.downloading,
-        error: false,
+    // 下载链接可能需要后台根据站点和种子 ID 动态解析，不能在此处过滤未提供 link 的选中项。
+    verifiedItems.value.set(id, {
+      id,
+      data: item,
+      torrent: null,
+      loading: true,
+      verified: false,
+      status: statusText.downloading,
+      error: false,
+    });
+    verifiedItemsOrder.value.push(id);
+
+    getTorrent(item, id)
+      .then((result) => {
+        verification(result, id);
+      })
+      .catch(() => {
+        verification(null, id);
       });
-      verifiedItemsOrder.value.push(id);
-
-      getTorrent(item, id)
-        .then((result) => {
-          verification(result, id);
-        })
-        .catch(() => {
-          verification(null, id);
-        });
-    }
   });
 }
 
@@ -246,6 +260,11 @@ function closeDialog() {
   showDialog.value = false;
 }
 
+function resetDownloadOptions() {
+  savePath.value = "";
+  torrentLabel.value = "";
+}
+
 // 获取种子文件数量
 function getFileCount(item: IVerifiedItem): number | string {
   return item.torrent?.files?.length ?? "N/A";
@@ -269,6 +288,9 @@ async function createKeepUploadTask() {
       downloaderId: selectedDownloaderId.value,
       savePath: savePath.value || undefined,
       clientName: downloader?.name || selectedDownloaderId.value,
+      addTorrentOptions: {
+        label: torrentLabel.value || undefined,
+      },
     };
 
     const task: IKeepUploadTask = {
@@ -290,6 +312,14 @@ async function createKeepUploadTask() {
     };
 
     await sendMessage("createKeepUploadTask", task);
+    if (configStore.download.saveLastDownloader) {
+      metadataStore.lastKeepUpload = {
+        downloaderId: selectedDownloaderId.value,
+        savePath: savePath.value || undefined,
+        label: torrentLabel.value || undefined,
+      };
+      await metadataStore.$save();
+    }
     runtimeStore.showSnakebar(t("SearchEntity.KeepUploadDialog.createSuccess"), { color: "success" });
     closeDialog();
   } catch (e) {
@@ -412,12 +442,22 @@ async function createKeepUploadTask() {
             hide-details
             :label="t('SearchEntity.KeepUploadDialog.setSavePath')"
             style="max-width: 200px"
+            @update:model-value="resetDownloadOptions"
           />
-          <v-text-field
+          <v-combobox
             v-model="savePath"
+            :items="suggestedSavePaths"
             density="compact"
             hide-details
             :label="t('KeepUploadTask.savePath')"
+            style="max-width: 200px"
+          />
+          <v-combobox
+            v-model="torrentLabel"
+            :items="suggestedLabels"
+            density="compact"
+            hide-details
+            :label="t('SentToDownloaderDialog.label')"
             style="max-width: 200px"
           />
           <v-btn
