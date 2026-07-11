@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
+import type { CAddTorrentOptions } from "@ptd/downloader";
 
 import type { IKeepUploadTask } from "@/shared/types.ts";
 import { sendMessage } from "@/messages.ts";
@@ -97,6 +98,32 @@ async function sendTorrentsToDownloader(task: IKeepUploadTask, items: IKeepUploa
 
   try {
     for (const item of items) {
+      const now = new Date();
+      const replacements: Record<string, string> = {
+        "torrent.title": item.title,
+        "torrent.subTitle": item.subTitle ?? "",
+        "torrent.category": String(item.category ?? ""),
+        "torrent.site": item.site,
+        "torrent.siteName": await metadataStore.getSiteName(item.site),
+        "date:YYYY": formatDate(now, "yyyy"),
+        "date:MM": formatDate(now, "MM"),
+        "date:DD": formatDate(now, "dd"),
+      };
+      const addTorrentOptions: CAddTorrentOptions = {
+        localDownload: true,
+        // 与普通下载保持一致：是否暂停由下载器的“自动开始”设置决定。
+        addAtPaused: !(downloader.feature?.DefaultAutoStart ?? true),
+        savePath: task.downloadOptions.savePath || "",
+        ...task.downloadOptions.addTorrentOptions,
+      };
+
+      for (const key of ["savePath", "label"] as const) {
+        if (!addTorrentOptions[key]) continue;
+        for (const [templateKey, value] of Object.entries(replacements)) {
+          addTorrentOptions[key] = addTorrentOptions[key]!.replaceAll(`$${templateKey}$`, value);
+        }
+      }
+
       const result = await sendMessage("downloadTorrent", {
         torrent: {
           site: item.site,
@@ -108,13 +135,7 @@ async function sendTorrentsToDownloader(task: IKeepUploadTask, items: IKeepUploa
           size: item.size,
         },
         downloaderId: task.downloadOptions.downloaderId,
-        addTorrentOptions: {
-          localDownload: true,
-          // 与普通下载保持一致：是否暂停由下载器的“自动开始”设置决定。
-          addAtPaused: !(downloader.feature?.DefaultAutoStart ?? true),
-          savePath: task.downloadOptions.savePath || "",
-          ...task.downloadOptions.addTorrentOptions,
-        },
+        addTorrentOptions,
       });
       if (result.downloadStatus === "failed") {
         throw new Error(result.errorMessage || item.title);

@@ -15,6 +15,7 @@ export interface IKeepUploadTaskItem {
   site: TSiteID; // 站点id
   title: string; // 标题
   subTitle?: string; // 副标题
+  category?: string | number; // 分类（用于展开下载路径和标签模板）
   link: string; // 详情页链接
   url: string; // 种子下载链接
   size: number; // 大小

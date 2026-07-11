@@ -303,6 +303,7 @@ async function createKeepUploadTask() {
         site: item.data.site,
         title: item.data.title || "",
         subTitle: item.data.subTitle,
+        category: item.data.category,
         link: item.data.url || "", // ITorrent.url = 详情页链接
         url: item.data.link || "", // ITorrent.link = 下载链接
         size: item.data.size || 0,
