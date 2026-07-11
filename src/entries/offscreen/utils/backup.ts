@@ -18,7 +18,13 @@ import type {
 import { logger } from "./logger.ts";
 import { ptdIndexDb } from "../adapter/indexdb.ts";
 
-export const storageKey = ["config", "metadata", "userInfo", "searchResultSnapshot"] as TExtensionStorageKey[];
+export const storageKey = [
+  "config",
+  "metadata",
+  "userInfo",
+  "searchResultSnapshot",
+  "keepUploadTask",
+] as TExtensionStorageKey[];
 
 export async function createBackupData(backupFields: TBackupFields[] = []): Promise<IBackupData> {
   const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;

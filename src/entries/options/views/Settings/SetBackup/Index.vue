@@ -136,7 +136,7 @@ async function confirmDeleteBackupServer(id: TBackupServerKey) {
       <template #item.backupFields="{ item }">
         <v-chip-group show-arrows>
           <v-chip v-for="backupField in item.backupFields" label :key="backupField">
-            {{ backupField }}
+            {{ t(`SetBackup.fields.${backupField}`) }}
           </v-chip>
         </v-chip-group>
       </template>

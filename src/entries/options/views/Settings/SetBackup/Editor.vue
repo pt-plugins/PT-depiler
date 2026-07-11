@@ -103,7 +103,7 @@ async function checkConnect() {
           <v-col v-for="backupField in BackupFields" :key="backupField" cols="12" md="4">
             <v-switch
               v-model="clientConfig.backupFields"
-              :label="backupField"
+              :label="t(`SetBackup.fields.${backupField}`)"
               :value="backupField"
               color="success"
               hide-details

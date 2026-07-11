@@ -31,7 +31,13 @@ function dialogEnter() {
       <v-card-text>
         <v-row no-gutters>
           <v-col v-for="backupField in BackupFields" :key="backupField" cols="12" md="6">
-            <v-switch v-model="backupFields" :label="backupField" :value="backupField" color="success" hide-details />
+            <v-switch
+              v-model="backupFields"
+              :label="t(`SetBackup.fields.${backupField}`)"
+              :value="backupField"
+              color="success"
+              hide-details
+            />
           </v-col>
         </v-row>
       </v-card-text>
@@ -41,7 +47,9 @@ function dialogEnter() {
         <v-btn color="error" prepend-icon="mdi-close-circle" variant="text" @click="showDialog = false">
           {{ t("common.dialog.cancel") }}
         </v-btn>
-        <v-btn color="success" prepend-icon="mdi-export" variant="text" @click="() => doLocalExport()">{{ t('common.export') }}</v-btn>
+        <v-btn color="success" prepend-icon="mdi-export" variant="text" @click="() => doLocalExport()">{{
+          t("common.export")
+        }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
