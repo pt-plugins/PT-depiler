@@ -1,9 +1,9 @@
 import { type ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/Unit3D.ts";
-import { buildCategoryOptionsFromList } from "../utils";
+// import { SchemaMetadata } from "../schemas/Unit3D.ts";
+// import { buildCategoryOptionsFromList } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  // ...SchemaMetadata,
   id: "animelovers",
   version: 1,
   name: "ANIMELOVERS",
@@ -17,6 +17,9 @@ export const siteMetadata: ISiteMetadata = {
   urls: ["uggcf://navzrybiref.pyho/"],
   favicon: "./_default_unit3d.ico",
 
+  isDead: true,
+
+  /*
   category: [
     {
       name: "类别",
@@ -183,8 +186,7 @@ export const siteMetadata: ISiteMetadata = {
       cross: { mode: "brackets" },
     },
   ],
-
-  // TODO userInfo 中的 averageSeedingTime, hnrUnsatisfied 等其他字段
+  */
 
   levelRequirements: [
     {
