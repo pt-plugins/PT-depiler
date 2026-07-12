@@ -198,6 +198,10 @@ export const siteMetadata: ISiteMetadata = {
 
   search: {
     ...SchemaMetadata.search!,
+    advanceKeywordParams: {
+      ...SchemaMetadata.search!.advanceKeywordParams,
+      imdb: false,
+    },
     requestConfig: {
       url: "/scrape.php",
       responseType: "json",
