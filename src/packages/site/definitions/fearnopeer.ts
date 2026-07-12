@@ -1,6 +1,6 @@
 import { type ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/Unit3D.ts";
-import { buildCategoryOptionsFromDict, buildCategoryOptionsFromList } from "../utils";
+// import { SchemaMetadata } from "../schemas/Unit3D.ts";
+// import { buildCategoryOptionsFromDict, buildCategoryOptionsFromList } from "../utils";
 
 const categoryMap: Record<number, string> = {
   1: "Movie",
@@ -14,7 +14,7 @@ const categoryMap: Record<number, string> = {
 };
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  // ...SchemaMetadata,
   id: "fearnopeer",
   version: 1,
   name: "FearNoPeer",
@@ -29,6 +29,9 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://srneabcrre.pbz/"],
 
+  isDead: true,
+
+  /*
   category: [
     {
       name: "类别",
@@ -221,6 +224,8 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
+
+   */
 
   levelRequirements: [
     {
