@@ -1,8 +1,8 @@
 import type { ISiteMetadata } from "../types";
-import { SchemaMetadata, xiaomloveDefaultUserLevelRequirements } from "../schemas/NexusPHP";
+import { /* SchemaMetadata, */ xiaomloveDefaultUserLevelRequirements } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  //...SchemaMetadata,
 
   version: 1,
   id: "tmpt",
@@ -15,6 +15,9 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["https://tmpt.top/"],
+
+  // dead in 2026-03-23 ( from savept.icu
+  isDead: true,
 
   levelRequirements: [...xiaomloveDefaultUserLevelRequirements],
 };
