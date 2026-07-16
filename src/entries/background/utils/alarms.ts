@@ -161,13 +161,20 @@ function autoBackup() {
 
         try {
           const backupFields = serverConfig.backupFields ?? [];
-          await sendMessage("exportBackupData", {
+          const ok = await sendMessage("exportBackupData", {
             backupServerId: serverId,
             backupFields,
           });
+
+          if (!ok) {
+            sendMessage("logger", {
+              msg: `Auto-backup failed for [${serverConfig.name}] (returned false)`,
+            }).catch();
+          }
         } catch (e) {
+          const errMsg = e instanceof Error ? e.message : String(e);
           sendMessage("logger", {
-            msg: `Auto-backup failed for [${serverConfig.name}]: ${e}`,
+            msg: `Auto-backup failed for [${serverConfig.name}]: ${errMsg}`,
           }).catch();
         }
       }
