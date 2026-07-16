@@ -97,7 +97,25 @@ async function checkConnect() {
           </v-col>
         </v-row>
 
+        <v-divider class="my-2" />
+
         <v-label class="my-2">{{ t("SetBackup.Editor.backupConfig") }}</v-label>
+
+        <v-row no-gutters>
+          <v-col cols="12">
+            <v-text-field
+              v-model.number="clientConfig.backupInterval"
+              :label="t('SetBackup.Editor.backupInterval')"
+              :messages="t('SetBackup.Editor.backupIntervalHint')"
+              :min="0"
+              :max="48"
+              clearable
+              hide-details="auto"
+              suffix="h"
+              type="number"
+            />
+          </v-col>
+        </v-row>
 
         <v-row no-gutters>
           <v-col v-for="backupField in BackupFields" :key="backupField" cols="12" md="4">

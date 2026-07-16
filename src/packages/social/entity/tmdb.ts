@@ -121,7 +121,8 @@ async function fetchTmdbBaseTitles(docUrl: string): Promise<{ displayTitle?: str
       responseType: "document",
       withCredentials: true,
     });
-    const displayTitle = baseDoc.querySelector('meta[property="og:title"]')?.getAttribute("content")?.trim() || undefined;
+    const displayTitle =
+      baseDoc.querySelector('meta[property="og:title"]')?.getAttribute("content")?.trim() || undefined;
     const originalTitle = getOriginalTitleText(baseDoc) || undefined;
 
     return { displayTitle, originalTitle };
@@ -156,7 +157,9 @@ async function pageParser(doc: Document): Promise<ISocialSitePageInformation | I
   const ogTitle = doc.querySelector('meta[property="og:title"]')?.getAttribute("content")?.trim() ?? "";
   const originalTitleText = getOriginalTitleText(doc);
   const shouldUseBaseTitles = mediaType === "tv" && /\/(seasons|season\/\d+)(?:\?.*)?$/.test(doc.URL);
-  const { displayTitle: baseDisplayTitle, originalTitle: baseOriginalTitle } = shouldUseBaseTitles ? await fetchTmdbBaseTitles(doc.URL) : {};
+  const { displayTitle: baseDisplayTitle, originalTitle: baseOriginalTitle } = shouldUseBaseTitles
+    ? await fetchTmdbBaseTitles(doc.URL)
+    : {};
   const displayTitle = baseDisplayTitle || ogTitle;
   const originalTitle = baseOriginalTitle || originalTitleText;
   const external_ids = await fetchTmdbExternalIds(doc.URL);
@@ -171,21 +174,19 @@ async function pageParser(doc: Document): Promise<ISocialSitePageInformation | I
         return [];
       }
 
-      const titles = uniq([
-        `${displayTitle} ${seasonTitle}`.trim(),
-      ]).filter(isNonEmptyString);
+      const titles = uniq([`${displayTitle} ${seasonTitle}`.trim()]).filter(isNonEmptyString);
 
       if (titles.length === 0) {
         return [];
       }
 
-        return [
-          {
-            site: "tmdb",
-            id: baseId,
-            mediaType,
-            titles,
-            external_ids,
+      return [
+        {
+          site: "tmdb",
+          id: baseId,
+          mediaType,
+          titles,
+          external_ids,
           pageCategory: "season_list",
           seriesTitle: displayTitle,
           entryTitle: seasonTitle,
@@ -202,7 +203,9 @@ async function pageParser(doc: Document): Promise<ISocialSitePageInformation | I
     const seasonCode = formatSeasonCode(doc.URL);
     const seasonDisplayTitle = (await fetchTmdbSeriesOgTitleFromSeasons(doc.URL)) ?? displayTitle;
     const currentSeasonTitle =
-      doc.querySelector("h2 a[href*='/season/']")?.textContent?.trim() ?? doc.querySelector("section.header h2")?.textContent?.trim() ?? "";
+      doc.querySelector("h2 a[href*='/season/']")?.textContent?.trim() ??
+      doc.querySelector("section.header h2")?.textContent?.trim() ??
+      "";
 
     if (seasonCode) {
       return {
@@ -270,7 +273,9 @@ export async function fetchInformation(
       responseType: "document",
       timeout: config.timeout ?? 10e3,
     });
-    const ldJson = JSON.parse(data.querySelector('script[type="application/ld+json"]')?.textContent ?? "{}") as ITmdbLdJson;
+    const ldJson = JSON.parse(
+      data.querySelector('script[type="application/ld+json"]')?.textContent ?? "{}",
+    ) as ITmdbLdJson;
     const pageInfo = await pageParser(data);
     const firstPageInfo = Array.isArray(pageInfo) ? pageInfo[0] : pageInfo;
 

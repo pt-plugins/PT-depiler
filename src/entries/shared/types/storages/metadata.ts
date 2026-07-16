@@ -91,6 +91,7 @@ export interface IBackupServerMetadata extends IBackupConfig {
   backupFields: TBackupFields[]; // 备份的字段
 
   lastBackupAt?: number; // 上次备份时间
+  backupInterval?: number; // 自动备份间隔（小时），不设置或为 0 表示不自动备份
 }
 
 export interface IMetadataPiniaStorageSchema {
