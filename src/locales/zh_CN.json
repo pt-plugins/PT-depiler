@@ -407,20 +407,13 @@
     "title": "为 {0} 个种子选择下载器"
   },
   "SetBackup": {
-    "fields": {
-      "config": "插件配置（config）",
-      "cookies": "站点 Cookies（cookies）",
-      "downloadHistory": "下载历史（downloadHistory）",
-      "keepUploadTask": "辅种任务（keepUploadTask）",
-      "metadata": "站点与服务配置（metadata）",
-      "searchResultSnapshot": "搜索结果快照（searchResultSnapshot）",
-      "userInfo": "用户信息（userInfo）"
-    },
     "AddDialog": {
       "title": "添加备份服务器"
     },
     "Editor": {
       "backupConfig": "备份配置",
+      "backupInterval": "自动备份间隔",
+      "backupIntervalHint": "设置自动备份间隔（小时），留空或为 0 表示不自动备份，最大 48 小时",
       "serverConfig": "服务器配置"
     },
     "HistoryDialog": {
@@ -453,6 +446,15 @@
       "title": "从备份文件中恢复",
       "versionWarning": "备份数据版本高于当前扩展版本，恢复可能会导致数据不兼容或丢失，是否继续？"
     },
+    "fields": {
+      "config": "插件配置（config）",
+      "cookies": "站点 Cookies（cookies）",
+      "downloadHistory": "下载历史（downloadHistory）",
+      "keepUploadTask": "辅种任务（keepUploadTask）",
+      "metadata": "站点与服务配置（metadata）",
+      "searchResultSnapshot": "搜索结果快照（searchResultSnapshot）",
+      "userInfo": "用户信息（userInfo）"
+    },
     "localExport": "本地导出",
     "localImport": "本地导入",
     "snackbar": {
@@ -465,6 +467,8 @@
         "viewHistoryBackup": "查看历史备份"
       },
       "backupFields": "备份内容",
+      "backupInterval": "自动备份间隔",
+      "everyNHour": "每 {n} 小时",
       "lastBackupAt": "最近一次备份时间",
       "notBackup": "未备份"
     }
@@ -1021,9 +1025,9 @@
     "SocialSiteParseResultsDialog": {
       "defaultSeasonTitle": "单季",
       "searchEntryTitle": "搜索{title}",
-      "searchPlan": "搜索方案",
       "searchExternalId": "搜索外部ID",
       "searchId": "搜索ID",
+      "searchPlan": "搜索方案",
       "searchTitle": "搜索标题",
       "title": "快速搜索"
     },

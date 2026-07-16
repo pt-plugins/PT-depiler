@@ -407,20 +407,13 @@
     "title": "Select downloader for {0} torrents"
   },
   "SetBackup": {
-    "fields": {
-      "config": "Extension configuration (config)",
-      "cookies": "Site cookies (cookies)",
-      "downloadHistory": "Download history (downloadHistory)",
-      "keepUploadTask": "Reseed tasks (keepUploadTask)",
-      "metadata": "Site and service configuration (metadata)",
-      "searchResultSnapshot": "Search result snapshots (searchResultSnapshot)",
-      "userInfo": "User information (userInfo)"
-    },
     "AddDialog": {
       "title": "Add Backup Server"
     },
     "Editor": {
       "backupConfig": "Backup Configuration",
+      "backupInterval": "Auto Backup Interval",
+      "backupIntervalHint": "Set auto-backup interval (hours). Leave empty or 0 to disable auto backup. Max 48 hours.",
       "serverConfig": "Server Configuration"
     },
     "HistoryDialog": {
@@ -453,6 +446,15 @@
       "title": "Restore from Backup File",
       "versionWarning": "Backup data version is higher than the current extension version. Restoring may cause data incompatibility or loss. Continue?"
     },
+    "fields": {
+      "config": "Extension configuration (config)",
+      "cookies": "Site cookies (cookies)",
+      "downloadHistory": "Download history (downloadHistory)",
+      "keepUploadTask": "Reseed tasks (keepUploadTask)",
+      "metadata": "Site and service configuration (metadata)",
+      "searchResultSnapshot": "Search result snapshots (searchResultSnapshot)",
+      "userInfo": "User information (userInfo)"
+    },
     "localExport": "Local Export",
     "localImport": "Local Import",
     "snackbar": {
@@ -465,6 +467,8 @@
         "viewHistoryBackup": "View History Backups"
       },
       "backupFields": "Backup Content",
+      "backupInterval": "Auto Backup Interval",
+      "everyNHour": "Every {n} h",
       "lastBackupAt": "Last Backup Time",
       "notBackup": "Not Backed Up"
     }
@@ -1024,9 +1028,9 @@
     "SocialSiteParseResultsDialog": {
       "defaultSeasonTitle": "Season",
       "searchEntryTitle": "Search {title}",
-      "searchPlan": "Search Plan",
       "searchExternalId": "Search External ID",
       "searchId": "Search ID",
+      "searchPlan": "Search Plan",
       "searchTitle": "Search Title",
       "title": "Quick Search"
     },
