@@ -1,5 +1,5 @@
 import type { ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/NexusPHP";
+import { SchemaMetadata, xiaomloveDefaultUserLevelRequirements } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -116,87 +116,5 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 
-  levelRequirements: [
-    {
-      id: 1,
-      name: "User",
-      privilege: `新用户的默认级别。`,
-    },
-    {
-      id: 2,
-      name: "Power User",
-      interval: "P4W",
-      downloaded: "50GB",
-      ratio: 1.05,
-      seedingBonus: 40000,
-      privilege:
-        '首次升级赠送邀请1枚；可以查看NFO文档；可以请求续种； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。',
-    },
-    {
-      id: 3,
-      name: "Elite User",
-      interval: "P8W",
-      downloaded: "120GB",
-      ratio: 1.55,
-      seedingBonus: 80000,
-      privilege: "账号如果在封存后将永远保留",
-    },
-    {
-      id: 4,
-      name: "Crazy User",
-      interval: "P15W",
-      downloaded: "300GB",
-      ratio: 2.05,
-      seedingBonus: 150000,
-      privilege:
-        '首次升级赠送邀请2枚；可以查看NFO文档；可以查看用户列表；可以请求续种；可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。可以在做种/下载/发布的时候选择匿名模式。',
-    },
-    {
-      id: 5,
-      name: "Insane User",
-      interval: "P25W",
-      downloaded: "500GB",
-      ratio: 2.55,
-      seedingBonus: 250000,
-      privilege: "可以查看普通日志。",
-    },
-    {
-      id: 6,
-      name: "Veteran User",
-      interval: "P40W",
-      downloaded: "750GB",
-      ratio: 3.05,
-      seedingBonus: 400000,
-      privilege: "首次升级赠送邀请3枚；可以查看其它用户的评论、帖子历史。",
-    },
-    {
-      id: 7,
-      name: "Extreme User",
-      interval: "P60W",
-      downloaded: "1024GB",
-      ratio: 3.55,
-      seedingBonus: 600000,
-      privilege: "首次升级赠送邀请5枚，。",
-    },
-    {
-      id: 8,
-      name: "Ultimate User",
-      interval: "P80W",
-      downloaded: "1536GB",
-      ratio: 4.05,
-      seedingBonus: 800000,
-      isKept: true,
-      privilege: "首次升级赠送邀请10枚，保留帐号；",
-    },
-    {
-      id: 9,
-      name: "Nexus Master",
-      interval: "P100W",
-      downloaded: "3072GB",
-      ratio: 4.55,
-      seedingBonus: 1000000,
-      isKept: true,
-      privilege: "首次升级赠送邀请3枚，保留帐号；",
-    },
-  ],
+  levelRequirements: [...xiaomloveDefaultUserLevelRequirements],
 };

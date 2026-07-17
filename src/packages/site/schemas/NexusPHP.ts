@@ -218,7 +218,7 @@ export const xiaomloveDefaultUserLevelRequirements: ILevelRequirement[] = [
     seedingBonus: 80000,
     downloaded: "120GB",
     ratio: 1.55,
-    privilege: "EliteUser及以上用户封存账号后不会被删除。",
+    privilege: "Elite User及以上用户封存账号后不会被删除。",
   },
   {
     id: 5,
