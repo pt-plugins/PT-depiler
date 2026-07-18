@@ -124,8 +124,7 @@ async function doExport() {
     const ext = exportFormat.value;
     const mime = exportFormat.value === "csv" ? "text/csv;charset=utf-8" : "application/json;charset=utf-8";
     const content = exportFormat.value === "csv" ? convertToCSV(merged) : convertToJSON(merged);
-    const blob = new Blob(["\ufeff", content], { type: mime });
-    const suffix = isExportSelected.value ? "selected" : "all";
+    const blob = new Blob(exportFormat.value === "csv" ? ["\ufeff", content] : [content], { type: mime });
     saveAs(blob, `userinfo-${suffix}-${timestamp}.${ext}`);
     showDialog.value = false;
   } finally {

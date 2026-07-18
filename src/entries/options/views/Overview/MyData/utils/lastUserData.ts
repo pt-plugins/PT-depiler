@@ -109,10 +109,10 @@ export async function cancelFlushSiteLastUserInfo() {
   runtimeStore.showSnakebar(`用户信息刷新队列已取消`, { color: "error" });
 }
 
-export async function loadSiteHistoryData(siteId: TSiteID) {
-  const retData = [];
+export async function loadSiteHistoryData(siteId: TSiteID): Promise<Array<IUserInfo & { date: string }>> {
+  const retData: Array<IUserInfo & { date: string }> = [];
 
-  const siteUserInfoData = await sendMessage("getSiteUserInfo", siteId);
+  const siteUserInfoData = (await sendMessage("getSiteUserInfo", siteId)) as Record<string, IUserInfo>;
 
   for (const [date, item] of Object.entries(siteUserInfoData)) {
     retData.push({ ...fixUserInfo(item), date });
