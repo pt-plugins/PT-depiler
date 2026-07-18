@@ -7,13 +7,14 @@ import type { DataTableHeader } from "vuetify";
 
 import { sendMessage } from "@/messages.ts";
 import { formatNumber, formatSize, formatDate } from "@/options/utils.ts";
-import { fixUserInfo, formatRatio } from "./utils/format.ts";
+import { formatRatio } from "./utils/format.ts";
+import { loadSiteHistoryData } from "./utils/lastUserData.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
 import NavButton from "@/options/components/NavButton.vue";
 
 const showDialog = defineModel<boolean>();
-const props = defineProps<{
+const { siteId } = defineProps<{
   siteId: TSiteID | null;
 }>();
 const { t } = useI18n();
@@ -39,25 +40,16 @@ const tableHeader = [
 ] as DataTableHeader[];
 const tableSelected = ref<string[]>([]);
 
-function loadSiteHistoryData(siteId: TSiteID) {
-  sendMessage("getSiteUserInfo", siteId).then((data) => {
-    const retData = [];
-
-    for (const [date, item] of Object.entries(data)) {
-      retData.push({ ...fixUserInfo(item), date });
-    }
-
-    siteHistoryData.value = retData;
-  });
-}
-
 function deleteSiteUserInfo(date: string[]) {
   if (confirm(t("MyData.HistoryDataView.deleteConfirm"))) {
     sendMessage("removeSiteUserInfo", {
-      siteId: props.siteId!,
+      siteId: siteId!,
       date: date.filter((d) => d != currentDate), // 不允许移除当天的数据
     }).then(() => {
-      loadSiteHistoryData(props.siteId!);
+      loadSiteHistoryData(siteId!).then((data) => {
+        siteHistoryData.value = data;
+        tableSelected.value = [];
+      });
     });
   }
 }
@@ -75,22 +67,26 @@ function exportSiteHistoryData() {
   }
 
   const exportedSolutionBlob = new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" });
-  saveAs(exportedSolutionBlob, `site-history-data-${props.siteId}.json`); // FIXME filename
+  saveAs(exportedSolutionBlob, `site-history-data-${siteId}.json`); // FIXME filename
+}
+
+function afterEnter() {
+  if (siteId) {
+    loadSiteHistoryData(siteId!).then((data) => {
+      siteHistoryData.value = data;
+      tableSelected.value = [];
+    });
+  }
 }
 </script>
 
 <template>
-  <v-dialog
-    v-model="showDialog"
-    width="1200"
-    @after-enter="() => props.siteId && loadSiteHistoryData(props.siteId!)"
-    @after-leave="() => (siteHistoryData = [])"
-  >
+  <v-dialog v-model="showDialog" width="1200" @after-enter="afterEnter" @after-leave="() => (siteHistoryData = [])">
     <v-card>
       <v-card-title class="pa-0">
         <v-toolbar color="blue-grey-darken-2">
           <v-toolbar-title>
-            {{ t("MyData.HistoryDataView.title") }} @ <SiteName :site-id="props.siteId!" class="" tag="span" />
+            {{ t("MyData.HistoryDataView.title") }} @ <SiteName :site-id="siteId!" class="" tag="span" />
           </v-toolbar-title>
           <template #append>
             <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showDialog = false" />

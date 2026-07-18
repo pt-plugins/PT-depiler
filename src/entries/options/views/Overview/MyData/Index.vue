@@ -20,6 +20,7 @@ import NavButton from "@/options/components/NavButton.vue";
 import UserLevelRequirementsTd from "./UserLevelRequirementsTd.vue";
 import HistoryDataViewDialog from "./HistoryDataViewDialog.vue";
 import BonusFormatSpan from "./BonusFormatSpan.vue";
+import ExportUserInfoDialog from "./ExportUserInfoDialog.vue";
 
 import { formatRatio } from "./utils/format.ts";
 import { tableData, initTableData, cancelFlushSiteLastUserInfo, flushSiteLastUserInfo } from "./utils/lastUserData.ts";
@@ -168,6 +169,8 @@ function viewStatistic() {
     },
   });
 }
+
+const showExportDialog = ref(false);
 </script>
 
 <template>
@@ -209,6 +212,16 @@ function viewStatistic() {
           @click="viewTimeline"
         />
         <NavButton color="green" icon="mdi-equalizer" :text="t('MyData.index.viewStatistic')" @click="viewStatistic" />
+
+        <v-divider class="mx-2" vertical />
+
+        <!-- 导出按钮 -->
+        <NavButton
+          color="orange-darken-3"
+          icon="mdi-export"
+          :text="t('MyData.index.exportData')"
+          @click="showExportDialog = true"
+        />
 
         <v-divider class="mx-2" vertical />
 
@@ -637,6 +650,7 @@ function viewStatistic() {
   </v-card>
 
   <HistoryDataViewDialog v-model="showHistoryDataViewDialog" :site-id="historyDataViewDialogSiteId!" />
+  <ExportUserInfoDialog v-model="showExportDialog" :selected-site-ids="tableSelected" />
 </template>
 
 <style scoped lang="scss">

@@ -212,7 +212,26 @@
     "UserLevelRequirementsTd": {
       "levelList": "用户等级列表"
     },
+    "exportDialog": {
+      "exportAll": "导出全部 {count} 个站点的用户信息",
+      "exportSelected": "导出已选中的 {count} 个站点的用户信息",
+      "fields": {
+        "id": "用户ID",
+        "joinTime": "入站时间",
+        "lastAccessAt": "最近访问",
+        "levelName": "等级名称",
+        "messageCount": "消息数",
+        "siteName": "站点名称",
+        "updateAt": "更新时间"
+      },
+      "fieldsLabel": "导出字段",
+      "formatCSV": "CSV",
+      "formatJSON": "JSON",
+      "formatLabel": "导出格式",
+      "title": "导出用户信息"
+    },
     "index": {
+      "exportData": "导出数据",
       "filter": {
         "lastUpdateError": "最后更新状态异常",
         "todayNotUpdated": "今日未更新",
@@ -1101,6 +1120,7 @@
     "ratio": "分享率",
     "seeding": "做种数",
     "seedingBonus": "做种积分",
+    "seedingBonusPerHour": "做种时魔值",
     "seedingSize": "做种量",
     "seedingTime": "做种时间",
     "snatches": "完成种子数",

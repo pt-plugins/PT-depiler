@@ -212,7 +212,26 @@
     "UserLevelRequirementsTd": {
       "levelList": "User Level List"
     },
+    "exportDialog": {
+      "exportAll": "Export User Info From {count} sites",
+      "exportSelected": "Export User Info from selected {count} sites",
+      "fields": {
+        "id": "User ID",
+        "joinTime": "Join Time",
+        "lastAccessAt": "Last Access",
+        "levelName": "Level",
+        "messageCount": "Messages",
+        "siteName": "Site Name",
+        "updateAt": "Updated At"
+      },
+      "fieldsLabel": "Fields",
+      "formatCSV": "CSV",
+      "formatJSON": "JSON",
+      "formatLabel": "Format",
+      "title": "Export User Info"
+    },
     "index": {
+      "exportData": "Export",
       "filter": {
         "lastUpdateError": "Last update error",
         "todayNotUpdated": "Not updated today",
@@ -1104,6 +1123,7 @@
     "ratio": "Ratio",
     "seeding": "Seeding Count",
     "seedingBonus": "Seed Points",
+    "seedingBonusPerHour": "Seed Points Per Hour",
     "seedingSize": "Seeding Size",
     "seedingTime": "Seeding Time",
     "snatches": "Completed Torrents",
