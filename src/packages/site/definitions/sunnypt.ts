@@ -1,15 +1,31 @@
 import { type AxiosRequestConfig, type AxiosResponse } from "axios";
 
-import { type ISiteMetadata, type ITorrent } from "../types";
+import { ISearchInput, type ISiteMetadata, type ITorrent } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 
-// ---------------------------------------------------------------------------
-// SunnyPT API response wrapper
-// ---------------------------------------------------------------------------
 interface ISunnyPtResponse<T> {
   code: number;
   data: T;
   msg?: string;
+}
+
+interface ISunnyPtTorrent {
+  id: number;
+  title: string;
+  subtitle: string;
+  media_type: "movie" | "tv";
+  category: { id: number; name: string };
+  size: number;
+  created_at: string;
+  seeders: number;
+  leechers: number;
+  completed: number;
+  imdb_id?: string;
+  tmdb_id?: string;
+  tags: string[];
+  hit_and_run: boolean;
+  promotion: { is_active: boolean; up_multiplier: number; down_multiplier: number; until: string };
+  details_url: string;
 }
 
 export const siteMetadata: ISiteMetadata = {
@@ -51,15 +67,29 @@ export const siteMetadata: ISiteMetadata = {
     },
     selectors: {
       rows: { selector: "data.items" },
-      id: { selector: "id", filters: [{ name: "parseNumber" }] },
+      id: { selector: "id" },
       title: { selector: "title" },
       subTitle: { selector: "subtitle" },
+      category: { selector: "category.name" },
       url: { selector: "details_url" },
       time: { selector: "created_at", filters: [{ name: "parseTime" }] },
-      size: { selector: "size", filters: [{ name: "parseSize" }] },
-      seeders: { selector: "seeders", filters: [{ name: "parseNumber" }] },
-      leechers: { selector: "leechers", filters: [{ name: "parseNumber" }] },
-      completed: { selector: "completed", filters: [{ name: "parseNumber" }] },
+      size: { selector: "size" },
+      seeders: { selector: "seeders" },
+      leechers: { selector: "leechers" },
+      completed: { selector: "completed" },
+      ext_imdb: { selector: "imdb_id" },
+      ext_tmdb: {
+        selector: ":self",
+        filters: [(raw: ISunnyPtTorrent) => (raw.tmdb_id ? `${raw.media_type}/${raw.tmdb_id}` : "")],
+      },
+    },
+  },
+
+  download: {
+    requestConfig: {
+      headers: {
+        Accept: "application/x-bittorrent",
+      },
     },
   },
 
@@ -76,18 +106,19 @@ export const siteMetadata: ISiteMetadata = {
           responseType: "json",
         },
         selectors: {
-          id: { selector: "data.id", filters: [{ name: "parseNumber" }] },
+          id: { selector: "data.id" },
           name: { selector: "data.username" },
-          joinTime: { selector: "data.registered_at", filters: [{ name: "parseTime" }] },
-          uploaded: { selector: "data.uploaded", filters: [{ name: "parseSize" }] },
-          downloaded: { selector: "data.downloaded", filters: [{ name: "parseSize" }] },
-          ratio: { selector: "data.ratio", filters: [{ name: "parseNumber" }] },
-          bonus: { selector: "data.bonus", filters: [{ name: "parseNumber" }] },
-          seeding: { selector: "data.seeding_count", filters: [{ name: "parseNumber" }] },
-          seedingSize: { selector: "data.seeding_size", filters: [{ name: "parseSize" }] },
-          leeching: { selector: "data.leeching_count", filters: [{ name: "parseNumber" }] },
-          messageCount: { selector: "data.unread_messages", filters: [{ name: "parseNumber" }] },
+          joinTime: { selector: "data.registered_at" },
+          uploaded: { selector: "data.uploaded" },
+          downloaded: { selector: "data.downloaded" },
+          ratio: { selector: "data.ratio" },
+          bonus: { selector: "data.bonus" },
+          seeding: { selector: "data.seeding_count" },
+          seedingSize: { selector: "data.seeding_size" },
+          leeching: { selector: "data.leeching_count" },
+          messageCount: { selector: "data.unread_messages" },
           levelName: { selector: "data.level" },
+          levelId: { selector: "data.class" },
         },
       },
     ],
@@ -139,6 +170,43 @@ export default class SunnyPT extends PrivateSite {
     return super.fixLink(uri, { ...requestConfig, baseURL: this.url });
   }
 
+  protected override parseTorrentRowForTags(
+    torrent: Partial<ITorrent>,
+    row: ISunnyPtTorrent,
+    searchConfig: ISearchInput,
+  ): Partial<ITorrent> {
+    let torrentTags = torrent.tags ?? [];
+
+    // 解析 promotion
+    if (row.promotion?.is_active) {
+      const { up_multiplier, down_multiplier } = row.promotion;
+      if (up_multiplier == 1 && down_multiplier == 0) {
+        torrentTags.push({ name: "Free" });
+      } else if (up_multiplier == 2 && down_multiplier == 1) {
+        torrentTags.push({ name: "2x" });
+      } else if (up_multiplier == 2 && down_multiplier == 0) {
+        torrentTags.push({ name: "2xFree" });
+      } else if (up_multiplier == 1 && down_multiplier == 0.5) {
+        torrentTags.push({ name: "50%" });
+      } else if (up_multiplier == 2 && down_multiplier == 0.5) {
+        torrentTags.push({ name: "2x50%" });
+      } else if (up_multiplier == 1 && down_multiplier == 0.3) {
+        torrentTags.push({ name: "30%" });
+      }
+    }
+
+    if (row.hit_and_run) {
+      torrentTags.push({ name: "H&R" });
+    }
+
+    if (row.tags && row.tags.length > 0) {
+      torrentTags.push(...row.tags.map((tagName) => ({ name: tagName })));
+    }
+
+    torrent.tags = torrentTags;
+    return torrent;
+  }
+
   /**
    * SunnyPT 下载需要先通过 POST /torrents/{id}/download-token
    * 获取临时下载链接。
@@ -152,6 +220,11 @@ export default class SunnyPT extends PrivateSite {
       },
       false, // 不检查登录状态（token 端点即使未登录也有合理返回）
     );
-    return response.data?.data?.download_url ?? "";
+
+    let downloadUrl = response.data?.data?.download_url ?? "";
+
+    // 260729 api 返回的url并不能直接请求，需要做一层替换？是他们写的bug吗？先做一层兼容吧，也反馈给官方了。
+    downloadUrl = downloadUrl.replace("https://sunnypt.top/", "https://api.sunnypt.top/");
+    return downloadUrl;
   }
 }
