@@ -35,12 +35,16 @@ function watchDownloadHistory(downloadHistoryId: TTorrentDownloadKey) {
   }, 1e3) as unknown as number;
 }
 
-function loadDownloadHistory() {
-  // 首先清除所有的下载状态监听
+export function clearWatchingMap() {
   for (const key of Object.keys(watchingMap)) {
     clearTimeout(watchingMap[key as unknown as number]);
     delete watchingMap[key as unknown as number];
   }
+}
+
+function loadDownloadHistory() {
+  // 首先清除所有的下载状态监听
+  clearWatchingMap();
 
   sendMessage("getDownloadHistory", undefined).then((history: ITorrentDownloadMetadata[]) => {
     downloadHistory.value = {}; // 清空目前的下载记录

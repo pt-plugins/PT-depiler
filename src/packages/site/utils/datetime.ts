@@ -47,7 +47,7 @@ const dateUnitToSecondsMap: Record<(typeof dateUnit)[number], number> = {
   seconds: DateUnitDuration.Second,
 };
 
-function _parseTimeToLiveToSeconds(ttl: string): number | string {
+export function parseTimeToLiveToSeconds(ttl: string): number | string {
   // A flag to check if we have successfully parsed any unit
   let parsed = false;
 
@@ -75,12 +75,8 @@ function _parseTimeToLiveToSeconds(ttl: string): number | string {
   return parsed ? seconds : ttl;
 }
 
-export function parseTimeToLiveToSeconds(ttl: string): number | string {
-  return _parseTimeToLiveToSeconds(ttl);
-}
-
 export function parseTimeToLiveToDate(ttl: string): number | string {
-  const parsedTTL = _parseTimeToLiveToSeconds(ttl);
+  const parsedTTL = parseTimeToLiveToSeconds(ttl);
   if (typeof parsedTTL === "string") return parsedTTL;
   return +sub(new Date(), { seconds: parsedTTL });
 }

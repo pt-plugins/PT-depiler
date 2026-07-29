@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { onMounted, ref, shallowRef, computed } from "vue";
+import { onMounted, onUnmounted, ref, shallowRef, computed } from "vue";
 import { useDisplay, type DataTableHeader } from "vuetify";
 
 import { sendMessage } from "@/messages.ts";
@@ -22,6 +22,7 @@ import {
   downloadHistoryList,
   downloadStatusMap,
   tableCustomFilter,
+  clearWatchingMap,
   throttleLoadDownloadHistory,
 } from "./utils.ts"; // <-- 主要方法
 
@@ -89,6 +90,10 @@ function viewDownloadDetail(history: ITorrentDownloadMetadata) {
 
 onMounted(() => {
   throttleLoadDownloadHistory();
+});
+
+onUnmounted(() => {
+  clearWatchingMap();
 });
 </script>
 
