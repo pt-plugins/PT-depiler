@@ -450,7 +450,7 @@ const hiddenTagNamesText = computed({
 
         <!-- 其他操作 -->
         <template #item.action="{ item }">
-          <ActionTd :torrent-items="[item]" density="compact" />
+          <ActionTd :torrent-items="[item]" density="compact" :show-keep-upload-btn="false" />
         </template>
       </v-data-table>
     </v-card-text>

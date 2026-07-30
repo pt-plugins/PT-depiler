@@ -252,7 +252,12 @@ async function copyLinksToClipboard(task: IKeepUploadTask) {
 
       <template #item.title="{ item }">
         <div>
-          <a :href="item.items[0]?.link" target="_blank" rel="noopener noreferrer nofollow">
+          <a
+            :href="item.items[0]?.link"
+            target="_blank"
+            class="text-decoration-none text-high-emphasis text-subtitle-1 text-truncate"
+            rel="noopener noreferrer nofollow"
+          >
             {{ item.title }}
           </a>
           <div class="text-caption text-grey">
@@ -372,13 +377,4 @@ async function copyLinksToClipboard(task: IKeepUploadTask) {
   </v-alert>
 </template>
 
-<style scoped lang="scss">
-a {
-  color: #000;
-  text-decoration: none;
-}
-
-a:hover {
-  color: #008c00;
-}
-</style>
+<style scoped lang="scss"></style>

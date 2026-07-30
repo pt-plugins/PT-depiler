@@ -10,9 +10,14 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import SentToDownloaderDialog from "@/options/components/SentToDownloaderDialog/Index.vue";
 import KeepUploadDialog from "./KeepUploadDialog.vue";
 
-const { torrentItems, density = "default" } = defineProps<{
+const {
+  torrentItems,
+  density = "default",
+  showKeepUploadBtn = true,
+} = defineProps<{
   torrentItems: ISearchResultTorrent[];
   density?: "compact" | "default";
+  showKeepUploadBtn?: boolean;
 }>();
 
 const btnSize = computed(() => {
@@ -117,6 +122,7 @@ function openKeepUploadDialog() {
     />
     <!-- 辅种检测 -->
     <v-btn
+      v-if="showKeepUploadBtn"
       :disabled="torrentItems.length < 2"
       :size="btnSize"
       icon="mdi-merge"
@@ -133,7 +139,7 @@ function openKeepUploadDialog() {
   />
 
   <!-- 辅种检测对话框 -->
-  <KeepUploadDialog v-model="showKeepUploadDialog" :torrent-items="torrentItems" />
+  <KeepUploadDialog v-if="showKeepUploadBtn" v-model="showKeepUploadDialog" :torrent-items="torrentItems" />
 </template>
 
 <style scoped lang="scss"></style>
