@@ -98,12 +98,6 @@ const levelRequirements: ILevelRequirement[] = [
   },
 ];
 
-interface IFetchUserPointAccResp {
-  hourBasePoint: number;
-  hourOwnerPoint: number;
-  hourPoint: number;
-}
-
 const promotionOptions = [
   { name: "无", value: "none" },
   { name: "50%", value: "half" },
@@ -215,10 +209,10 @@ export const siteMetadata: ISiteMetadata = {
     keywordPath: "data.keyword",
     requestConfig: {
       method: "POST",
-      url: "/api/torrent/fetchOpenTorrentList",
+      url: "/openApi/torrent/fetchOpenTorrentList.json",
       responseType: "json",
       data: {
-        pageParam: { current: 1, pageSize: 40, total: 1000 },
+        pageParam: { current: 1, pageSize: 40 },
         sorter: { order: "descend", field: "listingTime" },
       },
     },
@@ -284,7 +278,11 @@ export const siteMetadata: ISiteMetadata = {
   userInfo: {
     process: [
       {
-        requestConfig: { url: "/api/consumer/fetchSelfDetail", responseType: "json" },
+        requestConfig: {
+          url: "/openApi/user/fetchBasicInfo.json",
+          method: "POST",
+          responseType: "json",
+        },
         selectors: {
           id: { selector: "data.id" },
           name: { selector: "data.name" },
@@ -297,42 +295,10 @@ export const siteMetadata: ISiteMetadata = {
             selector: "data.registerTime",
             filters: [{ name: "parseTime", args: ["yyyy-MM-dd'T'HH:mm:ss.SSSXXX"] }],
           },
-          invites: { selector: "data.invitedNum" },
+          invites: { selector: "data.availableInviteNum" },
           uploaded: { selector: "data.promotionUploadSize" },
           downloaded: { selector: "data.promotionDownloadSize" },
-          trueUploaded: { selector: "data.uploadSize" },
-          trueDownloaded: { selector: "data.downloadSize" },
           bonus: { selector: "data.bonus" },
-        },
-      },
-      {
-        requestConfig: {
-          url: "/api/torrent/fetchSelfTorrentCount",
-          method: "POST",
-          data: {}, // 需要传一个空对象，否则请求会报错
-          responseType: "json",
-        },
-        selectors: {
-          uploads: { selector: "data" },
-        },
-      },
-      {
-        requestConfig: { url: "/api/userTorrent/fetchSeedTorrentInfo", method: "POST", responseType: "json" },
-        selectors: {
-          seeding: { selector: "data.num" },
-          seedingSize: { selector: "data.fileSize" },
-        },
-      },
-      {
-        requestConfig: { url: "/api/consumer/fetchUserPointAcc", responseType: "json" },
-        selectors: {
-          bonusPerHour: {
-            selector: "data",
-            filters: [
-              (query: IFetchUserPointAccResp) =>
-                query ? query.hourPoint + query.hourBasePoint + query.hourOwnerPoint : 0,
-            ],
-          },
         },
       },
     ],
@@ -413,8 +379,8 @@ export default class YemaPT extends PrivateSite {
 
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
     const { data } = await this.request<IYemaApiResp<string | { key?: string; token?: string }>>({
-      url: "/api/torrent/generateDownloadKey",
-      method: "GET",
+      url: "/openApi/torrent/generateDownloadKey.json",
+      method: "POST",
       responseType: "json",
       params: { id: torrent.id },
     });
