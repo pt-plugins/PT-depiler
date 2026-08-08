@@ -1,5 +1,5 @@
 import type { ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+import { SchemaMetadata } from "../schemas/NexusPHP";
 
 export const userInfoWithInvitesInUserDetailsPage = {
   ...SchemaMetadata.userInfo!,
@@ -48,7 +48,7 @@ export const userInfoWithInvitesInUserDetailsPage = {
 };
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  // ...SchemaMetadata,
   version: 1,
   id: "kunlun",
   name: "昆仑",
@@ -63,6 +63,10 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["https://www.yhpp.cc/"],
 
+  // dead at 2026-08-02, status from savept.icu
+  isDead: true,
+
+  /*
   category: [
     {
       name: "分类",
@@ -133,6 +137,8 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   userInfo: userInfoWithInvitesInUserDetailsPage,
+
+   */
 
   levelRequirements: [
     {
