@@ -16,7 +16,8 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["uggcf://cg.pql.fxva/"],
+  urls: ["uggcf://cg.pql.cvpf/"],
+  legacyUrls: ["uggcf://cg.pql.fxva/"],
 
   favicon: "./_default_nexusphp.png",
 

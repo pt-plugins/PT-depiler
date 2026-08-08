@@ -7,6 +7,7 @@ export const siteMetadata: ISiteMetadata = {
 
   id: "railgunpt",
   name: "RailgunPT",
+  aka: ["BILIBILI"],
   description: "B站PT",
   tags: ["综合"],
   timezoneOffset: "+0800",
