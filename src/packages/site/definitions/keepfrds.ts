@@ -1,10 +1,11 @@
-import { type ISiteMetadata } from "../types";
+import { type ISiteMetadata, type IUserInfo } from "../types";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
   SchemaMetadata,
   subTitleRemoveExtraElement,
 } from "../schemas/NexusPHP.ts";
+import { parseKeepfrdsTorrentListCount } from "./utils/keepfrds.ts";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -402,6 +403,26 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class Keepfrds extends NexusPHP {
+  protected override async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
+    const { data: userUploadsDocument } = await this.request<Document>({
+      url: "/torrents.php",
+      params: { "option-torrents": 10, userid: flushUserInfo.id },
+      responseType: "document",
+    });
+
+    const paginationTexts = Array.from(
+      userUploadsDocument.querySelectorAll<HTMLAnchorElement>("a[href*='option-torrents=10'][href*='page=']"),
+      (element) => element.textContent ?? "",
+    );
+    const detailHrefs = Array.from(
+      userUploadsDocument.querySelectorAll<HTMLAnchorElement>("table.torrents a[href*='details.php?id=']"),
+      (element) => element.getAttribute("href") ?? "",
+    );
+
+    flushUserInfo.uploads = parseKeepfrdsTorrentListCount(paginationTexts, detailHrefs);
+    return flushUserInfo;
+  }
+
   protected override guessSearchFieldIndexConfig(): Record<string, string[]> {
     return {
       author: ['a[href*="sort=9"]'], // 发布者
