@@ -41,6 +41,9 @@ export const siteMetadata: ISiteMetadata = {
   urls: ["https://www.morethantv.me/"],
   legacyUrls: ["https://www.morethan.tv/"],
 
+  // refs: https://www.reddit.com/r/trackers/comments/1vj70zo/the_end_of_morethantv/ as 2026-08-09
+  isDead: true,
+
   category: [
     {
       name: "Category",
