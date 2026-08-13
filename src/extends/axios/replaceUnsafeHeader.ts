@@ -61,6 +61,17 @@ export function setupReplaceUnsafeHeader(axios: AxiosInstance): AxiosAllowUnsafe
         }
       }
 
+      // 移除浏览器自动添加的 Origin 请求头
+      // 浏览器会自动为跨域请求添加 `Origin: <当前页面 origin>` 头，该头无法通过 JS 移除，
+      // 但部分服务端（如 qBittorrent 的 CSRF 校验）会校验 Origin 是否同源，导致从扩展页面
+      // （chrome-extension://）发起的请求被拒绝。这里通过 DNR 规则主动移除 Origin 头。
+      if (!requestHeaders.some((h) => h.header.toLowerCase() === "origin")) {
+        requestHeaders.push({
+          header: "Origin",
+          operation: "remove" as chrome.declarativeNetRequest.HeaderOperation.REMOVE,
+        });
+      }
+
       if (requestHeaders.length > 0) {
         // 生成一个随机的请求 ID，与 chrome.declarativeNetRequest 匹配
         const dummyHeaderRequestId = Math.floor(Math.random() * 1e7);
