@@ -146,4 +146,47 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
+
+  levelRequirements: [
+    {
+      id: 1,
+      name: "User",
+      privilege: "Initial class for regular members.",
+    },
+    {
+      id: 2,
+      name: "Member",
+      interval: "P1W",
+      uploaded: "10 GiB",
+      ratio: 0.7,
+      privilege: "Create requests and bookmarks; use the ZIP collector; purchase eligible Bonus Shop items.",
+    },
+    {
+      id: 3,
+      name: "Power User",
+      interval: "P2W",
+      uploaded: "25 GiB",
+      ratio: 1.05,
+      uploads: 5,
+      privilege: "Access upload notifications and the private Power User forum; create collages and forum polls.",
+    },
+    {
+      id: 4,
+      name: "Elite",
+      interval: "P4W",
+      uploaded: "100 GiB",
+      ratio: 1.05,
+      uploads: 50,
+      privilege: "View the Advanced Top 10; edit catalogue metadata; access the Elite and Invitations forums.",
+    },
+    {
+      id: 5,
+      name: "Torrent Master",
+      interval: "P8W",
+      uploaded: "500 GiB",
+      ratio: 1.05,
+      uploads: 500,
+      privilege: "Access the Torrent Masters forum; purchase custom titles for free.",
+    },
+  ],
 };
