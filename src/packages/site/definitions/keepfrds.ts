@@ -1,4 +1,4 @@
-import { type ISiteMetadata } from "../types";
+import { type ISiteMetadata, type IUserInfo } from "../types";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
@@ -195,6 +195,7 @@ export const siteMetadata: ISiteMetadata = {
     selectors: {
       ...SchemaMetadata.userInfo!.selectors,
       messageCount: {
+        text: 0,
         selector: ["a[href*='messages.php'] b span[style*='color: red']"],
       },
       bonus: {
@@ -216,29 +217,10 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["a[href='/torrents.php?option-torrents=3']"],
         filters: [{ name: "parseNumber" }],
       },
-      seedingSize: {
-        selector: [
-          "td.rowhead:contains('当前做种') + td, td.rowhead:contains('Current Seeding') + td, td.rowhead:contains('目前做種') + td",
-        ],
-        filters: [{ name: "parseSize" }],
-      },
+
       bonusPerHour: {
-        selector: ["tbody:has(>tr>td.embedded>i.fab.fa-btc)"],
-        filters: [
-          (query: string | number) => {
-            const queryMatch = String(query || "")
-              .replace(/,/g, "")
-              .match(/[\d.]+/g);
-            if (!queryMatch) return 0;
-            let bonusPerHour = 0;
-            if (queryMatch.length === 5) {
-              bonusPerHour = parseFloat(queryMatch[2]) + parseFloat(queryMatch[4]);
-            } else if (queryMatch.length >= 3) {
-              bonusPerHour = parseFloat(queryMatch[2]);
-            }
-            return bonusPerHour;
-          },
-        ],
+        selector: ["#info_block #perBonus", "#perBonus"],
+        filters: [{ name: "parseNumber" }],
       },
     },
     process: [
@@ -260,7 +242,6 @@ export const siteMetadata: ISiteMetadata = {
           "seedingBonus",
           "joinTime",
           "seeding",
-          "seedingSize",
           "hnrUnsatisfied",
           "hnrPreWarning",
           "bonusPerHour", // 使用我们自定义的 selector 和 filter
@@ -412,5 +393,19 @@ export default class Keepfrds extends NexusPHP {
       size: ["div.famfamfam-silk.cd"], // 大小
       time: ["div.famfamfam-silk.date"], // 发布时间 （仅生成 selector， 后面会覆盖）
     };
+  }
+
+  /**
+   * 新版站点已移除 getusertorrentlistajax.php 接口，且 userdetails 页面不再提供做种体积/发布数。
+   * 覆写基类的回退逻辑，避免请求已失效的接口导致用户信息更新失败。
+   */
+  protected override async parseUserInfoForSeedingStatus(
+    flushUserInfo: Partial<IUserInfo>,
+  ): Promise<Partial<IUserInfo>> {
+    return flushUserInfo; // seeding 由 selector 提供，seedingSize 新版页面不提供
+  }
+
+  protected override async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
+    return flushUserInfo; // uploads 新版页面不提供，跳过失效接口
   }
 }
