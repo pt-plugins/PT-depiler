@@ -144,6 +144,7 @@ export const siteMetadata: ISiteMetadata = {
   ],
 
   userInfo: {
+    ...SchemaMetadata.userInfo!,
     selectors: {
       ...SchemaMetadata.userInfo!.selectors!,
       bonus: {
