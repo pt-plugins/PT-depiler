@@ -10,6 +10,7 @@ export const siteMetadata: ISiteMetadata = {
 
   id: "sewerpt",
   name: "下水道",
+  aka: ["SewerPT"],
   description: "再小众的热爱，也值得被世界看见",
   tags: ["冷门", "低分", "粤语", "影视"],
   timezoneOffset: "+0800",
@@ -21,7 +22,138 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["https://sewerpt.com/"],
 
-  category: [CategoryIncldead, CategorySpstate, CategoryInclbookmarked],
+  // 官方发布组（官组种子标题以 -SewageWeb 结尾）
+  officialGroupPattern: [/-SewageWeb/i],
+
+  category: [
+    {
+      name: "分类",
+      key: "cat",
+      options: [
+        { name: "电影/Movies", value: 401 },
+        { name: "电视剧/TV Series", value: 402 },
+        { name: "综艺/TV Shows", value: 403 },
+        { name: "纪录片/Documentaries", value: 404 },
+        { name: "动漫/Animations", value: 405 },
+        { name: "音乐/Music", value: 408 },
+        { name: "其他/Others", value: 409 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "媒介",
+      key: "medium",
+      options: [
+        { name: "Blu-ray", value: 1 },
+        { name: "HD DVD", value: 2 },
+        { name: "Remux", value: 3 },
+        { name: "MiniBD", value: 4 },
+        { name: "HDTV", value: 5 },
+        { name: "DVDR", value: 6 },
+        { name: "Encode", value: 7 },
+        { name: "CD", value: 8 },
+        { name: "WEB-DL", value: 10 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "编码",
+      key: "codec",
+      options: [
+        { name: "AVC/H.264", value: 1 },
+        { name: "VC-1", value: 2 },
+        { name: "Xvid", value: 3 },
+        { name: "MPEG-2", value: 4 },
+        { name: "Other", value: 5 },
+        { name: "HEVC/H.265", value: 6 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "音频编码",
+      key: "audiocodec",
+      options: [
+        { name: "FLAC", value: 1 },
+        { name: "APE", value: 2 },
+        { name: "DTS", value: 3 },
+        { name: "MP3", value: 4 },
+        { name: "OGG", value: 5 },
+        { name: "AAC", value: 6 },
+        { name: "Other", value: 7 },
+        { name: "AC3", value: 8 },
+        { name: "ALAC", value: 9 },
+        { name: "WAV", value: 10 },
+        { name: "E-AC3", value: 11 },
+        { name: "TrueHD Atmos", value: 12 },
+        { name: "TrueHD", value: 13 },
+        { name: "DTS-HD MA", value: 14 },
+        { name: "DTS:X", value: 15 },
+        { name: "LPCM", value: 16 },
+        { name: "AV3A", value: 17 },
+        { name: "OPUS", value: 18 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "分辨率",
+      key: "standard",
+      options: [
+        { name: "1080p/1080i", value: 1 },
+        { name: "480p", value: 2 },
+        { name: "720p", value: 3 },
+        { name: "2K/1440p", value: 4 },
+        { name: "4K/2160p", value: 5 },
+        { name: "8K/4320p", value: 6 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "团队",
+      key: "team",
+      options: [
+        { name: "官组/SewageWeb", value: 1 },
+        { name: "其他/Other", value: 5 },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "标签",
+      key: "tag_id",
+      options: [
+        { name: "禁转", value: 1 },
+        { name: "首发", value: 2 },
+        { name: "DIY", value: 4 },
+        { name: "国语", value: 5 },
+        { name: "中字", value: 6 },
+        { name: "HDR", value: 7 },
+        { name: "分集", value: 8 },
+        { name: "原创", value: 9 },
+        { name: "原盘", value: 10 },
+        { name: "冷门/低分", value: 11 },
+        { name: "完结", value: 12 },
+        { name: "短剧", value: 13 },
+        { name: "杜比", value: 14 },
+        { name: "粤语", value: 15 },
+        { name: "高码率", value: 16 },
+      ],
+      cross: false, // tag_id 不支持多选（实测 tag_id[]=5&tag_id[]=15 返回空）
+    },
+    CategoryIncldead,
+    CategorySpstate,
+    CategoryInclbookmarked,
+  ],
+
+  userInfo: {
+    ...SchemaMetadata.userInfo!,
+    selectors: {
+      ...SchemaMetadata.userInfo!.selectors!,
+      bonus: {
+        // 本站魔力值称为「金币」
+        selector: ["td.rowhead:contains('金币') + td"],
+        filters: [{ name: "parseNumber" }],
+      },
+    },
+  },
 
   levelRequirements: [
     {
