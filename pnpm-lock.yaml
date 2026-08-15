@@ -132,8 +132,8 @@ importers:
         specifier: ^26.2.0
         version: 26.2.0
       '@types/parse-torrent':
-        specifier: ^5.8.9
-        version: 5.8.9
+        specifier: ^11.0.1
+        version: 11.0.1
       '@types/sizzle':
         specifier: ^2.3.10
         version: 2.3.10
@@ -1107,8 +1107,8 @@ packages:
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
-  '@types/magnet-uri@5.1.5':
-    resolution: {integrity: sha512-SbBjlb1KGe38VfjRR+mwqztJd/4skhdKkRbIzPDhTy7IAeEAPZWIVSEkZw00Qr4ZZOGR3/ATJ20WWPBfrKHGdA==}
+  '@types/magnet-uri@7.0.0':
+    resolution: {integrity: sha512-OMx8jat97jU6kCbBZt66d0IQ+AjGBv1nGS+u6MSS+yikaum9KrAalVtqFQAM4VYiprtkGa/cGZ6TLFGGa+Sypg==}
 
   '@types/minimatch@3.0.5':
     resolution: {integrity: sha512-Klz949h02Gz2uZCMGwDUSDS1YBlTdDDgbWHi+81l29tQALUtvz4rAYi5uoVhE5Lagoq6DeqAUlbrHvW/mXDgdQ==}
@@ -1116,11 +1116,8 @@ packages:
   '@types/node@26.2.0':
     resolution: {integrity: sha512-5IviulTZeRNp2vAJ514cc/HUlY5nZ9fCbq9DMyC52BrhFZACo3nI0R7qBxhQmo/d27NFe96ur/b7Wwxklda+kg==}
 
-  '@types/parse-torrent-file@4.0.6':
-    resolution: {integrity: sha512-SxqVth0Iv0WuEkqWS5MaY4S4Tlyi+QHkElQREvsUPw2xHcPgKyQ2dkJRRv5vAxmLzH+tnMdOj1Nws/wsenbzUw==}
-
-  '@types/parse-torrent@5.8.9':
-    resolution: {integrity: sha512-Ej2enMoFKlg6Vp0Kf93F3XbhlKxJicrkQ8vMAEo3GHToNukXNr3BheNc2vEv81jyzMWS4Cnta1lhuKTYNgzWUg==}
+  '@types/parse-torrent@11.0.1':
+    resolution: {integrity: sha512-rzk5O1sk/Fbu8grskEEbFb0FZyDdVIkreRs2br90Y5BNcExSAEeRJftqxvyniJcJzI1xRK4fWxS0PJfxVvVRVQ==}
 
   '@types/sizzle@2.3.10':
     resolution: {integrity: sha512-TC0dmN0K8YcWEAEfiPi5gJP14eJe30TTGjkvek3iM/1NdHHsdCA/Td6GvNndMOo/iSnIsZ4HuuhrYPDAmbxzww==}
@@ -4261,9 +4258,7 @@ snapshots:
 
   '@types/json-schema@7.0.15': {}
 
-  '@types/magnet-uri@5.1.5':
-    dependencies:
-      '@types/node': 26.2.0
+  '@types/magnet-uri@7.0.0': {}
 
   '@types/minimatch@3.0.5': {}
 
@@ -4271,15 +4266,10 @@ snapshots:
     dependencies:
       undici-types: 8.3.0
 
-  '@types/parse-torrent-file@4.0.6':
+  '@types/parse-torrent@11.0.1':
     dependencies:
+      '@types/magnet-uri': 7.0.0
       '@types/node': 26.2.0
-
-  '@types/parse-torrent@5.8.9':
-    dependencies:
-      '@types/magnet-uri': 5.1.5
-      '@types/node': 26.2.0
-      '@types/parse-torrent-file': 4.0.6
 
   '@types/sizzle@2.3.10': {}
 

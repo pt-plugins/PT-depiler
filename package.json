@@ -81,7 +81,7 @@
     "@types/file-saver": "^2.0.7",
     "@types/git-rev-sync": "^2.0.2",
     "@types/node": "^26.2.0",
-    "@types/parse-torrent": "^5.8.9",
+    "@types/parse-torrent": "^11.0.1",
     "@types/sizzle": "^2.3.10",
     "@vitejs/plugin-vue": "^6.0.8",
     "cross-env": "^10.1.0",
