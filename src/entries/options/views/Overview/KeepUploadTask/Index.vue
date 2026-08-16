@@ -3,7 +3,7 @@ import { ref, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import type { CAddTorrentOptions } from "@ptd/downloader";
 
-import type { IKeepUploadTask } from "@/shared/types.ts";
+import type { IKeepUploadTask, TKeepUploadTaskKey } from "@/shared/types.ts";
 import { sendMessage } from "@/messages.ts";
 import { formatSize, formatDate } from "@/options/utils.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -16,7 +16,8 @@ const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 
 const tasks = ref<IKeepUploadTask[]>([]);
-const selectedTasks = ref<IKeepUploadTask[]>([]);
+// v-data-table 设置了 item-value="id"，因此 v-model 中保存的是任务ID（TKeepUploadTaskKey）而非任务对象
+const selectedTasks = ref<TKeepUploadTaskKey[]>([]);
 const expanded = ref<string[]>([]);
 const loading = ref(false);
 const tableKey = ref(0); // 用于强制刷新表格
@@ -63,10 +64,10 @@ async function deleteSelectedTasks() {
   if (!confirm(t("KeepUploadTask.deleteSelectedConfirm", { count: selectedTasks.value.length }))) return;
 
   try {
-    for (const task of selectedTasks.value) {
-      await sendMessage("deleteKeepUploadTask", task.id);
+    for (const taskId of selectedTasks.value) {
+      await sendMessage("deleteKeepUploadTask", taskId);
     }
-    tasks.value = tasks.value.filter((t) => !selectedTasks.value.includes(t));
+    tasks.value = tasks.value.filter((t) => !selectedTasks.value.includes(t.id));
     selectedTasks.value = [];
     runtimeStore.showSnakebar(t("KeepUploadTask.deleteSuccess"), { color: "success" });
   } catch (e) {
