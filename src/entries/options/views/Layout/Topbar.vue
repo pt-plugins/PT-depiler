@@ -41,6 +41,30 @@ const searchPlans = computed(() =>
     })),
 );
 
+/**
+ * 单个站点搜索方案中可搜索的站点ID列表，
+ * 与 getSiteDefaultSearchSolution 的过滤逻辑保持一致：排除 allowSearch 未开启、isOffline、isDead 的站点
+ * refs: https://github.com/pt-plugins/PT-depiler/issues/1083
+ */
+const singleSearchSiteIds = ref<string[]>([]);
+
+async function refreshSingleSearchSiteIds() {
+  const siteIds: string[] = [];
+  for (const siteUserConfig of metadataStore.getSortedAddedSites) {
+    if (!(siteUserConfig.allowSearch ?? false) || siteUserConfig.isOffline) {
+      continue;
+    }
+    const siteMetadata = await metadataStore.getSiteMetadata(siteUserConfig.id);
+    if (siteMetadata.isDead) {
+      continue;
+    }
+    siteIds.push(siteUserConfig.id);
+  }
+  singleSearchSiteIds.value = siteIds;
+}
+
+watch(() => metadataStore.getAddedSiteIds, refreshSingleSearchSiteIds, { immediate: true, deep: true });
+
 function startSearchEntity() {
   router.push({
     name: "SearchEntity",
@@ -175,7 +199,7 @@ watch(
                 <v-list>
                   <template v-for="siteMetadata in metadataStore.getSortedAddedSites" :key="siteMetadata.id">
                     <v-list-item
-                      v-if="siteMetadata.allowSearch ?? false"
+                      v-if="singleSearchSiteIds.includes(siteMetadata.id)"
                       @click="() => (searchPlanKey = `site:${siteMetadata.id}`)"
                     >
                       <template #prepend>
