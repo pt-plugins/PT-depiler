@@ -154,8 +154,10 @@ export async function restoreBackupData(
 
             for (const [existingId, existingServer] of Object.entries(existingServers)) {
               const duplicatedEntry = Object.entries(mergedServers).find(
-                ([, restoredServer]) =>
-                  restoredServer.type === existingServer.type && isEqual(restoredServer.config, existingServer.config),
+                ([restoredId, restoredServer]) =>
+                  restoredId !== existingId && // ID相同（如自定义ID或同设备重复恢复）无需处理，直接以本机为准覆盖
+                  restoredServer.type === existingServer.type &&
+                  isEqual(restoredServer.config, existingServer.config),
               );
               if (duplicatedEntry) {
                 const [restoredId, restoredServer] = duplicatedEntry;
