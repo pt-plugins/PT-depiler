@@ -1,4 +1,4 @@
-import { intersection, toMerged } from "es-toolkit";
+import { intersection, isEqual, toMerged } from "es-toolkit";
 import { formatDate } from "date-fns";
 import { getBackupServer, IBackupData, IBackupFileInfo } from "@ptd/backupServer";
 import { backupDataToJSZipBlob } from "@ptd/backupServer/utils.ts";
@@ -136,6 +136,38 @@ export async function restoreBackupData(
         if (field === "userInfo" && keepExistUserInfo) {
           const userInfoStore = ((await sendMessage("getExtStorage", "userInfo")) ?? {}) as TUserInfoStorageSchema;
           fieldData = toMerged(fieldData, userInfoStore);
+        }
+
+        /**
+         * 备份服务器的ID为添加时随机生成的（nanoid），同一台服务器在新旧设备上会产生不同的ID，
+         * 直接恢复会导致出现重复条目（refs: https://github.com/pt-plugins/PT-depiler/issues/1024）。
+         * 此处按「类型 + 完整配置」识别同一台服务器：命中则复用本机已有条目的ID（保留备份中的其余字段），
+         * 未命中的条目正常合入。
+         */
+        if (field === "metadata") {
+          const restoredMetadata = fieldData as IMetadataPiniaStorageSchema;
+          if (restoredMetadata?.backupServers) {
+            const existingMetadata = ((await sendMessage("getExtStorage", "metadata")) ??
+              {}) as IMetadataPiniaStorageSchema;
+            const existingServers = existingMetadata.backupServers ?? {};
+            const mergedServers: IMetadataPiniaStorageSchema["backupServers"] = { ...restoredMetadata.backupServers };
+
+            for (const [existingId, existingServer] of Object.entries(existingServers)) {
+              const duplicatedEntry = Object.entries(mergedServers).find(
+                ([restoredId, restoredServer]) =>
+                  restoredId !== existingId && // ID相同（如自定义ID或同设备重复恢复）无需处理，直接以本机为准覆盖
+                  restoredServer.type === existingServer.type &&
+                  isEqual(restoredServer.config, existingServer.config),
+              );
+              if (duplicatedEntry) {
+                const [restoredId, restoredServer] = duplicatedEntry;
+                mergedServers[existingId] = { ...restoredServer, id: existingId };
+                delete mergedServers[restoredId];
+              }
+            }
+
+            fieldData = { ...restoredMetadata, backupServers: mergedServers };
+          }
         }
 
         await sendMessage("setExtStorage", { key: field, value: fieldData });
