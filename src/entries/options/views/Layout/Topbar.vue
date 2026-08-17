@@ -42,28 +42,28 @@ const searchPlans = computed(() =>
 );
 
 /**
- * 单个站点搜索方案中可搜索的站点ID列表，
- * 与 getSiteDefaultSearchSolution 的过滤逻辑保持一致：排除 allowSearch 未开启、isOffline、isDead 的站点
+ * 单个站点搜索方案中可搜索的站点ID列表。
+ * 过滤条件为 allowSearch 开启 且 非 isOffline 且 站点定义非 isDead，
+ * 与 getSiteDefaultSearchSolution 的过滤条件（isOffline || isDead 不返回搜索方案）相比，
+ * 额外排除了未开启搜索的站点（与原菜单项的 allowSearch 判断保持一致）。
  * refs: https://github.com/pt-plugins/PT-depiler/issues/1083
  */
 const singleSearchSiteIds = ref<string[]>([]);
 
 async function refreshSingleSearchSiteIds() {
-  const siteIds: string[] = [];
-  for (const siteUserConfig of metadataStore.getSortedAddedSites) {
-    if (!(siteUserConfig.allowSearch ?? false) || siteUserConfig.isOffline) {
-      continue;
-    }
-    const siteMetadata = await metadataStore.getSiteMetadata(siteUserConfig.id);
-    if (siteMetadata.isDead) {
-      continue;
-    }
-    siteIds.push(siteUserConfig.id);
-  }
-  singleSearchSiteIds.value = siteIds;
+  const siteIds = await Promise.all(
+    metadataStore.getSortedAddedSites
+      .filter((siteUserConfig) => (siteUserConfig.allowSearch ?? false) && !siteUserConfig.isOffline)
+      .map(async (siteUserConfig) => {
+        const siteMetadata = await metadataStore.getSiteMetadata(siteUserConfig.id);
+        return siteMetadata.isDead ? undefined : siteUserConfig.id;
+      }),
+  );
+  singleSearchSiteIds.value = siteIds.filter((id) => id !== undefined);
 }
 
-watch(() => metadataStore.getAddedSiteIds, refreshSingleSearchSiteIds, { immediate: true, deep: true });
+// 监听整个已添加站点配置（而非仅ID列表），使站点编辑器中切换 allowSearch/isOffline 后菜单同步刷新
+watch(() => metadataStore.getAddedSites, refreshSingleSearchSiteIds, { immediate: true, deep: true });
 
 function startSearchEntity() {
   router.push({
