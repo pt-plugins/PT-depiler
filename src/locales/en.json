@@ -427,7 +427,8 @@
   },
   "SetBackup": {
     "AddDialog": {
-      "title": "Add Backup Server"
+      "title": "Add Backup Server",
+      "customServerIdInvalid": "Server ID can only contain letters, digits, - and _ (up to 64 chars), and must not conflict with an existing server ID"
     },
     "Editor": {
       "backupConfig": "Backup Configuration",
