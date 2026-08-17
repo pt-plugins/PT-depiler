@@ -427,8 +427,7 @@
   },
   "SetBackup": {
     "AddDialog": {
-      "title": "添加备份服务器",
-      "customServerIdInvalid": "服务器ID 仅可使用字母、数字、- 和 _（最长64位），且不能与已有服务器ID重复"
+      "title": "添加备份服务器"
     },
     "Editor": {
       "backupConfig": "备份配置",

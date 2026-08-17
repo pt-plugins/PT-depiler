@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { computedAsync } from "@vueuse/core";
 import { nanoid } from "nanoid";
 
@@ -26,15 +26,6 @@ const currentStep = ref<0 | 1>(0);
 const selectedBackupServerType = ref<IBackupServerMetadata["type"] | null>(null);
 const storedBackupServerConfig = ref<IBackupServerMetadata>({} as IBackupServerMetadata);
 const isBackupServerConfigValid = ref<boolean>(false);
-
-// 添加时允许自定义服务器ID（Editor 中开放编辑），但需为合法字符且不与已有服务器ID冲突
-const isCustomServerIdValid = computed(() => {
-  const id = storedBackupServerConfig.value.id ?? "";
-  if (!id || /^[a-zA-Z0-9_-]{1,64}$/.test(id)) {
-    return !Object.keys(metadataStore.backupServers).includes(id);
-  }
-  return false;
-});
 
 const allBackupServerMetaData = computedAsync(async () => {
   const clientMetaData: Record<string, IBackupMetadata<any> & { type: string }> = {};
@@ -120,12 +111,8 @@ function resetDialog() {
             <Editor
               v-if="storedBackupServerConfig.type"
               v-model="storedBackupServerConfig"
-              editable-id
               @update:config-valid="(v) => (isBackupServerConfigValid = v)"
             />
-            <v-alert v-if="!isCustomServerIdValid" class="mt-2" type="error" variant="tonal" density="compact">
-              {{ t("SetBackup.AddDialog.customServerIdInvalid") }}
-            </v-alert>
           </v-window-item>
         </v-window>
       </v-card-text>
@@ -169,7 +156,7 @@ function resetDialog() {
         </v-btn>
         <v-btn
           v-if="currentStep === 1"
-          :disabled="!isBackupServerConfigValid || !isCustomServerIdValid"
+          :disabled="!isBackupServerConfigValid"
           color="success"
           prepend-icon="mdi-check-circle-outline"
           variant="text"

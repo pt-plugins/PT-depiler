@@ -16,13 +16,6 @@ const emits = defineEmits<{
   (e: "update:configValid", value: boolean): void;
 }>();
 
-/**
- * 是否允许编辑服务器ID。
- * 添加服务器时开放（便于用户在多台设备使用相同的ID，避免恢复备份后出现重复条目，refs: https://github.com/pt-plugins/PT-depiler/issues/1024）；
- * 编辑服务器时禁用（备份历史按ID关联服务器，事后修改会导致历史记录失效）。
- */
-const { editableId = false } = defineProps<{ editableId?: boolean }>();
-
 const clientMeta = computedAsync<IBackupMetadata<any>>(
   async () => {
     const clientType = clientConfig.value?.type;
@@ -68,12 +61,8 @@ async function checkConnect() {
           <v-col cols="12" md="4">
             <v-text-field
               v-model="clientConfig.id"
-              :label="
-                editableId
-                  ? t('SetDownloader.common.uid')
-                  : t('SetDownloader.common.uid') + t('SetDownloader.editor.uidPlaceholder')
-              "
-              :disabled="!editableId"
+              :label="t('SetDownloader.common.uid') + t('SetDownloader.editor.uidPlaceholder')"
+              disabled
               hide-details
             />
           </v-col>
