@@ -13,6 +13,8 @@ import {
   TorrentClientStatus,
   AbstractBittorrentClient,
   CAddTorrentResult,
+  TorrentQueueDirection,
+  TorrentSpeedLimit,
 } from "../types";
 import { getRemoteTorrentFile } from "../utils";
 import urlJoin from "url-join";
@@ -35,6 +37,18 @@ export const clientMetaData: TorrentClientMetaData = {
     },
     DefaultAutoStart: {
       allowed: true,
+    },
+    Recheck: {
+      allowed: false,
+    },
+    Queue: {
+      allowed: true,
+    },
+    SpeedLimit: {
+      allowed: true,
+    },
+    Label: {
+      allowed: false,
     },
   },
 };
@@ -326,6 +340,32 @@ export default class Aria2 extends AbstractBittorrentClient {
 
   async getTorrentTrackers(_torrent: CTorrent): Promise<string[]> {
     return [];
+  }
+
+  // 调整任务在队列中的位置（aria2.changePosition）
+  override async moveTorrentInQueue(id: any, direction: TorrentQueueDirection): Promise<boolean> {
+    const positionMap: Record<TorrentQueueDirection, [number, "POS_SET" | "POS_CUR" | "POS_END"]> = {
+      top: [0, "POS_SET"],
+      up: [-1, "POS_CUR"],
+      down: [1, "POS_CUR"],
+      bottom: [0, "POS_END"],
+    };
+    const [pos, how] = positionMap[direction];
+    await this.methodSend<string>("aria2.changePosition", [id, pos, how]);
+    return true;
+  }
+
+  // 设置单个任务的速度限制（单位 KiB/s，0 表示不限速；aria2 使用 K 后缀）
+  override async setTorrentSpeedLimit(id: any, limits: TorrentSpeedLimit): Promise<boolean> {
+    const options: Record<string, string> = {};
+    if (typeof limits.download !== "undefined") {
+      options["max-download-limit"] = limits.download > 0 ? `${limits.download}K` : "0";
+    }
+    if (typeof limits.upload !== "undefined") {
+      options["max-upload-limit"] = limits.upload > 0 ? `${limits.upload}K` : "0";
+    }
+    await this.methodSend("aria2.changeOption", [id, options]);
+    return true;
   }
 
   private parseRawTorrent(rawTask: rawTask): CTorrent<rawTask> {

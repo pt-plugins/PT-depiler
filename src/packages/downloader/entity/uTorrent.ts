@@ -10,6 +10,8 @@ import {
   TorrentClientMetaData,
   CTorrentState,
   CAddTorrentResult,
+  TorrentQueueDirection,
+  TorrentSpeedLimit,
 } from "../types";
 import urlJoin from "url-join";
 import axios from "axios";
@@ -39,6 +41,18 @@ export const clientMetaData: TorrentClientMetaData = {
         "仅支持 µTorrent 3.x.x 及以上版本；<br /><br />1. 在 µTorrent 的 设置 -> 高级 -> 网页界面 添加一个下载目录，如：D:\\download\\ <br />2. 在助手里添加目录列表（仅支持相对路径），如：music\\ <br />3. 最终数据的保存目录为：D:\\download\\music\\",
     },
     DefaultAutoStart: {
+      allowed: true,
+    },
+    Recheck: {
+      allowed: true,
+    },
+    Queue: {
+      allowed: true,
+    },
+    SpeedLimit: {
+      allowed: true,
+    },
+    Label: {
       allowed: true,
     },
   },
@@ -371,5 +385,40 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
 
   async getTorrentTrackers(_torrent: string | CTorrent): Promise<string[]> {
     return [];
+  }
+
+  // 重新校验种子
+  override async recheckTorrent(id: string): Promise<boolean> {
+    await this.request<BaseUtorrentResponse>("recheck", { hash: id });
+    return true;
+  }
+
+  // 调整种子在队列中的位置
+  override async moveTorrentInQueue(id: string, direction: TorrentQueueDirection): Promise<boolean> {
+    const actionMap: Record<TorrentQueueDirection, string> = {
+      top: "queuetop",
+      up: "queueup",
+      down: "queuedown",
+      bottom: "queuebottom",
+    };
+    await this.request<BaseUtorrentResponse>(actionMap[direction], { hash: id });
+    return true;
+  }
+
+  // 设置单个种子的速度限制（单位 KiB/s，0 表示不限速；uTorrent 使用 bytes/s）
+  override async setTorrentSpeedLimit(id: string, limits: TorrentSpeedLimit): Promise<boolean> {
+    if (typeof limits.download !== "undefined") {
+      await this.setTorrentProp(id, { s: "dlrate", v: limits.download > 0 ? limits.download * 1024 : 0 });
+    }
+    if (typeof limits.upload !== "undefined") {
+      await this.setTorrentProp(id, { s: "ulrate", v: limits.upload > 0 ? limits.upload * 1024 : 0 });
+    }
+    return true;
+  }
+
+  // 设置单个种子的标签
+  override async setTorrentLabel(id: string, label: string): Promise<boolean> {
+    await this.setTorrentProp(id, { s: "label", v: label });
+    return true;
   }
 }

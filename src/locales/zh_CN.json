@@ -130,10 +130,19 @@
   "MyClient": {
     "action": {
       "delete": "删除",
+      "detail": "详情",
+      "moveQueueSuccess": "已调整 {count} 个种子的队列位置",
       "pause": "暂停",
       "pauseError": "暂停失败",
       "pauseSelectedSuccess": "已暂停 {count} 个种子",
       "pauseSuccess": "暂停成功",
+      "queue": "队列位置",
+      "queueBottom": "移至队尾",
+      "queueDown": "下移一位",
+      "queueTop": "移至队首",
+      "queueUp": "上移一位",
+      "recheck": "重新校验",
+      "recheckSelectedSuccess": "已重新校验 {count} 个种子",
       "resume": "开始",
       "resumeError": "开始失败",
       "resumeSelectedSuccess": "已开始 {count} 个种子",
@@ -160,8 +169,22 @@
     },
     "columnSelector": "自定义列",
     "deleteSelected": "删除",
+    "detail": {
+      "copyHash": "复制 Hash",
+      "copyMagnet": "复制磁力链接",
+      "noTrackers": "该下载器不支持获取 Tracker 列表或暂无 Tracker",
+      "title": "种子详情",
+      "trackers": "Tracker 列表"
+    },
     "dialog": {
       "removeData": "同时删除数据"
+    },
+    "label": {
+      "batchBtn": "批量设置标签",
+      "emptyLabel": "标签不能为空",
+      "input": "标签",
+      "success": "已设置 {count} 个种子的标签",
+      "title": "设置标签（{count} 个种子）"
     },
     "pauseSelected": "暂停",
     "pushToDownloader": {
@@ -174,9 +197,23 @@
       "urlInputHint": "每行一个链接或磁力链接",
       "urlInputLabel": "下载链接 / 磁力链接"
     },
+    "recheckSelected": "重新校验",
+    "recheckDialog": {
+      "text": "确定要重新校验选中的 {count} 个种子吗？重新校验会消耗下载服务器的资源，并可能暂时中断做种。",
+      "title": "确认重新校验"
+    },
     "refresh": "刷新",
     "resumeSelected": "开始",
     "searchPlaceholder": "搜索种子名称、Hash、标签、路径",
+    "speedLimit": {
+      "batchBtn": "批量限速",
+      "download": "下载限速（KiB/s，0 表示不限速）",
+      "emptyLimit": "请至少填写上传或下载限速中的一个",
+      "success": "已设置 {count} 个种子的限速",
+      "title": "设置限速（{count} 个种子）",
+      "unitNote": "限速单位为 KiB/s，填写 0 表示不限速；留空表示不修改该方向。",
+      "upload": "上传限速（KiB/s，0 表示不限速）"
+    },
     "state": {
       "checking": "检查中",
       "downloading": "下载中",
@@ -678,7 +715,7 @@
           "setDefault": "设置为默认下载服务器",
           "setPathAndTag": "设置预设的下载路径和标签",
           "setSiteFilter": "设置站点过滤",
-          "status": "状态"
+          "status": "管理下载服务器"
         },
         "autodl": "自动下载？",
         "downloaderCategory": "下载器分类",

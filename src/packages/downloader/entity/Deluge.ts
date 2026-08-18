@@ -12,6 +12,7 @@ import {
   TorrentClientStatus,
   AbstractBittorrentClient,
   CAddTorrentResult,
+  TorrentSpeedLimit,
 } from "../types";
 import urlJoin from "url-join";
 import axios from "axios";
@@ -38,6 +39,18 @@ export const clientMetaData: TorrentClientMetaData = {
       description: CustomPathDescription,
     },
     DefaultAutoStart: {
+      allowed: true,
+    },
+    Recheck: {
+      allowed: true,
+    },
+    Queue: {
+      allowed: false,
+    },
+    SpeedLimit: {
+      allowed: true,
+    },
+    Label: {
       allowed: true,
     },
   },
@@ -128,6 +141,8 @@ type DelugeMethod =
   | "core.remove_torrent"
   | "core.pause_torrent"
   | "core.resume_torrent"
+  | "core.force_recheck"
+  | "core.set_torrent_options"
   | "daemon.info"
   | "core.get_libtorrent_version"
   | "label.set_torrent";
@@ -441,6 +456,40 @@ export default class Deluge extends AbstractBittorrentClient {
     if (!rawTrackers) return [];
 
     return rawTrackers.map((t) => t.url);
+  }
+
+  // 重新校验种子
+  override async recheckTorrent(id: any): Promise<boolean> {
+    try {
+      return await this.request<boolean>("core.force_recheck", [id]);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // 设置单个种子的速度限制（单位 KiB/s，0 表示不限速；Deluge 使用 KiB/s，-1 表示不限速）
+  override async setTorrentSpeedLimit(id: any, limits: TorrentSpeedLimit): Promise<boolean> {
+    try {
+      const options: Record<string, number> = {};
+      if (typeof limits.download !== "undefined") {
+        options.max_download_speed = limits.download > 0 ? limits.download : -1;
+      }
+      if (typeof limits.upload !== "undefined") {
+        options.max_upload_speed = limits.upload > 0 ? limits.upload : -1;
+      }
+      return await this.request<boolean>("core.set_torrent_options", [id, options]);
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // 设置单个种子的标签
+  override async setTorrentLabel(id: any, label: string): Promise<boolean> {
+    try {
+      return await this.request<boolean>("label.set_torrent", [id, label]);
+    } catch (e) {
+      return false;
+    }
   }
 
   private async login(): Promise<boolean> {

@@ -12,6 +12,7 @@ import {
   CTorrentState,
   TorrentClientStatus,
   CAddTorrentResult,
+  TorrentSpeedLimit,
 } from "../types";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { getRemoteTorrentFile } from "../utils";
@@ -34,6 +35,18 @@ export const clientMetaData: TorrentClientMetaData = {
       description: CustomPathDescription,
     },
     DefaultAutoStart: {
+      allowed: true,
+    },
+    Recheck: {
+      allowed: true,
+    },
+    Queue: {
+      allowed: false,
+    },
+    SpeedLimit: {
+      allowed: true,
+    },
+    Label: {
       allowed: true,
     },
   },
@@ -348,5 +361,37 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
 
   async getTorrentTrackers(_torrent: string | CTorrent): Promise<string[]> {
     return [];
+  }
+
+  // 重新校验种子（rTorrent: d.check_hash）
+  override async recheckTorrent(id: any): Promise<boolean> {
+    const postData = buildRequestXML([["d.check_hash", [id.toUpperCase()]]]);
+    await this.requestHttpRpc(postData);
+    return true;
+  }
+
+  // 设置单个种子的速度限制（单位 KiB/s，0 表示不限速；rTorrent: d.set_upload_limit / d.set_download_limit）
+  override async setTorrentSpeedLimit(id: any, limits: TorrentSpeedLimit): Promise<boolean> {
+    const upId = id.toUpperCase();
+    const calls: Array<[string, string[]?]> = [];
+
+    if (typeof limits.upload !== "undefined") {
+      calls.push(["d.set_upload_limit", [upId, String(limits.upload > 0 ? limits.upload : 0)]]);
+    }
+
+    if (typeof limits.download !== "undefined") {
+      calls.push(["d.set_download_limit", [upId, String(limits.download > 0 ? limits.download : 0)]]);
+    }
+
+    const postData = buildRequestXML(calls);
+    await this.requestHttpRpc(postData);
+    return true;
+  }
+
+  // 设置单个种子的标签（rTorrent: d.custom1.set）
+  override async setTorrentLabel(id: any, label: string): Promise<boolean> {
+    const postData = buildRequestXML([["d.custom1.set", [id.toUpperCase(), label]]]);
+    await this.requestHttpRpc(postData);
+    return true;
   }
 }
