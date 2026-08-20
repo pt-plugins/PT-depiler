@@ -16,103 +16,19 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://cvttb.zr/"],
 
-  category: [
-    {
-      name: "类别",
-      key: "cat",
-      options: [
-        { value: 912, name: "有声-大众" },
-        { value: 408, name: "音乐-大众" },
-        { value: 409, name: "其他-大众" },
-        { value: 407, name: "体育-大众" },
-        { value: 406, name: "MV-大众" },
-        { value: 403, name: "综艺-大众" },
-        { value: 402, name: "电视剧-大众" },
-        { value: 405, name: "动漫-大众" },
-        { value: 404, name: "纪录片-大众" },
-        { value: 401, name: "电影-大众" },
-        { value: 907, name: "纪录片-儿童" },
-        { value: 910, name: "读书绘本-儿童" },
-        { value: 911, name: "音乐-儿童" },
-        { value: 905, name: "有声读物-儿童" },
-        { value: 909, name: "儿童电影-儿童" },
-        { value: 908, name: "儿童剧集-儿童" },
-      ],
-      cross: { mode: "append" },
+  /**
+   * 站点已部署雷池（SafeLine）WAF：torrents.php 对浏览器 JS 环境以外的客户端
+   * （如插件后台的 fetch）一律返回 468 质询页，导致扩展搜索无结果（refs #1394）。
+   * search.php 为站方提供的全站搜索入口（覆盖大众区与儿童区），不受该 WAF 规则限制，
+   * 但仅支持关键字与 search_area 参数，不支持分类等过滤参数，故不再声明 category。
+   */
+  search: {
+    ...SchemaMetadata.search!,
+    requestConfig: {
+      ...SchemaMetadata.search!.requestConfig!,
+      url: "/search.php",
     },
-    {
-      name: "媒介",
-      key: "medium",
-      options: [
-        { value: 11, name: "Untouched" },
-        { value: 3, name: "Remux" },
-        { value: 7, name: "Encode" },
-        { value: 5, name: "DIY" },
-        { value: 8, name: "Other" },
-      ],
-      cross: { mode: "append" },
-    },
-    {
-      name: "编码",
-      key: "codec",
-      options: [
-        { value: 1, name: "H.264/X.264" },
-        { value: 6, name: "H.265/X.265" },
-        { value: 5, name: "Other" },
-      ],
-      cross: { mode: "append" },
-    },
-    {
-      name: "音频编码",
-      key: "audiocodec",
-      options: [
-        { value: 1, name: "FLAC" },
-        { value: 2, name: "APE" },
-        { value: 3, name: "DTS" },
-        { value: 4, name: "MP3" },
-        { value: 6, name: "AAC" },
-        { value: 7, name: "Other" },
-        { value: 8, name: "AC-3" },
-        { value: 9, name: "DTS-HD MA" },
-        { value: 10, name: "TrueHD" },
-        { value: 11, name: "LPCM" },
-      ],
-      cross: { mode: "append" },
-    },
-    {
-      name: "分辨率",
-      key: "standard",
-      options: [
-        { value: 3, name: "720p" },
-        { value: 1, name: "1080p/i" },
-        { value: 5, name: "4K" },
-        { value: 6, name: "other" },
-      ],
-      cross: { mode: "append" },
-    },
-    {
-      name: "制作组",
-      key: "team",
-      options: [
-        { value: 8, name: "PigoWeb" },
-        { value: 7, name: "PigoHD" },
-        { value: 9, name: "PigoNF" },
-        { value: 10, name: "PigoAD" },
-        { value: 5, name: "Other" },
-      ],
-    },
-    {
-      name: "画质",
-      key: "processing",
-      options: [
-        { value: 4, name: "DV（杜比视界)" },
-        { value: 3, name: "HDR10+" },
-        { value: 2, name: "HDR10" },
-        { value: 1, name: "SDR" },
-      ],
-      cross: { mode: "brackets" },
-    },
-  ],
+  },
 
   officialGroupPattern: [/PigoHD|PigoWeb|PiGoNF/i],
 
