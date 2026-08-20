@@ -130,10 +130,19 @@
   "MyClient": {
     "action": {
       "delete": "Delete",
+      "detail": "Details",
+      "moveQueueSuccess": "Moved {count} torrent(s) in queue",
       "pause": "Pause",
       "pauseError": "Failed to pause",
       "pauseSelectedSuccess": "Paused {count} torrent(s)",
       "pauseSuccess": "Paused successfully",
+      "queue": "Queue Position",
+      "queueBottom": "Move to Bottom",
+      "queueDown": "Move Down",
+      "queueTop": "Move to Top",
+      "queueUp": "Move Up",
+      "recheck": "Recheck",
+      "recheckSelectedSuccess": "Rechecked {count} torrent(s)",
       "resume": "Resume",
       "resumeError": "Failed to resume",
       "resumeSelectedSuccess": "Resumed {count} torrent(s)",
@@ -160,8 +169,22 @@
     },
     "columnSelector": "Columns",
     "deleteSelected": "Delete",
+    "detail": {
+      "copyHash": "Copy Hash",
+      "copyMagnet": "Copy Magnet Link",
+      "noTrackers": "This downloader does not support fetching trackers or has no trackers",
+      "title": "Torrent Details",
+      "trackers": "Trackers"
+    },
     "dialog": {
       "removeData": "Also remove data"
+    },
+    "label": {
+      "batchBtn": "Set Label",
+      "emptyLabel": "Label cannot be empty",
+      "input": "Label",
+      "success": "Labeled {count} torrent(s)",
+      "title": "Set Label ({count} torrent(s))"
     },
     "pauseSelected": "Pause",
     "pushToDownloader": {
@@ -174,9 +197,23 @@
       "urlInputHint": "One URL or magnet link per line",
       "urlInputLabel": "URLs / Magnet Links"
     },
+    "recheckSelected": "Recheck",
+    "recheckDialog": {
+      "text": "Are you sure you want to recheck the selected {count} torrent(s)? Rechecking consumes downloader resources and may temporarily interrupt seeding.",
+      "title": "Confirm Recheck"
+    },
     "refresh": "Refresh",
     "resumeSelected": "Resume",
     "searchPlaceholder": "Search by name, hash, label, or path",
+    "speedLimit": {
+      "batchBtn": "Speed Limit",
+      "download": "Download Limit (KiB/s, 0 = unlimited)",
+      "emptyLimit": "Please fill in at least one of upload or download limit",
+      "success": "Limited {count} torrent(s)",
+      "title": "Set Speed Limit ({count} torrent(s))",
+      "unitNote": "Speed limit unit is KiB/s; 0 means unlimited, empty means do not change this direction.",
+      "upload": "Upload Limit (KiB/s, 0 = unlimited)"
+    },
     "state": {
       "checking": "Checking",
       "downloading": "Downloading",
@@ -678,7 +715,7 @@
           "setDefault": "Set this downloader server as Default Downloader.",
           "setPathAndTag": "Set Suggest Download Path and Tags",
           "setSiteFilter": "Set Site Filter",
-          "status": "Status"
+          "status": "Manage Download Server"
         },
         "autodl": "Auto DL ?",
         "downloaderCategory": "Downloader Category",

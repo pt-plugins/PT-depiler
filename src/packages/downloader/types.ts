@@ -5,7 +5,11 @@ import { AxiosRequestConfig } from "axios";
 
 export type TorrentClientFeature =
   | "CustomPath" // 支持设置自定义目录作为下载目录
-  | "DefaultAutoStart"; // 支持发送种子时自动开始
+  | "DefaultAutoStart" // 支持发送种子时自动开始
+  | "Recheck" // 支持重新校验种子
+  | "Queue" // 支持调整种子在队列中的位置
+  | "SpeedLimit" // 支持设置单个种子的上传/下载速度限制
+  | "Label"; // 支持设置单个种子的标签/分类
 
 /**
  * 客户端配置信息
@@ -163,6 +167,15 @@ export interface CTorrentFilterRules {
   complete?: boolean;
 }
 
+// 种子队列调整方向
+export type TorrentQueueDirection = "top" | "up" | "down" | "bottom";
+
+// 单个种子的速度限制（单位 KiB/s，0 或 undefined 表示不限速）
+export interface TorrentSpeedLimit {
+  upload?: number;
+  download?: number;
+}
+
 // 添加种子
 export interface CAddTorrentOptions {
   /**
@@ -318,4 +331,24 @@ export abstract class AbstractBittorrentClient<T extends DownloaderBaseConfig = 
 
   // 获取种子的 Tracker 列表
   public abstract getTorrentTrackers(torrent: CTorrent): Promise<string[]>;
+
+  // 重新校验种子（Recheck/Verify），默认不支持，由各客户端 override
+  public async recheckTorrent(_id: any): Promise<boolean> {
+    return false;
+  }
+
+  // 调整种子在队列中的位置（top/up/down/bottom），默认不支持，由各客户端 override
+  public async moveTorrentInQueue(_id: any, _direction: TorrentQueueDirection): Promise<boolean> {
+    return false;
+  }
+
+  // 设置单个种子的速度限制（单位 KiB/s，0 或 undefined 表示不限速），默认不支持，由各客户端 override
+  public async setTorrentSpeedLimit(_id: any, _limits: TorrentSpeedLimit): Promise<boolean> {
+    return false;
+  }
+
+  // 设置单个种子的标签/分类，默认不支持，由各客户端 override
+  public async setTorrentLabel(_id: any, _label: string): Promise<boolean> {
+    return false;
+  }
 }

@@ -14,6 +14,8 @@ import {
   CTorrentState,
   TorrentClientStatus,
   CAddTorrentResult,
+  TorrentQueueDirection,
+  TorrentSpeedLimit,
 } from "../types";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import urlJoin from "url-join";
@@ -53,6 +55,18 @@ export const clientMetaData: TorrentClientMetaData = {
         `（ qBittorrent 额外支持以 "${category_prefix}" 前缀的分类作为下载目录，当使用该前缀时，请在 qBittorrent 中预设分类信息。）`,
     },
     DefaultAutoStart: {
+      allowed: true,
+    },
+    Recheck: {
+      allowed: true,
+    },
+    Queue: {
+      allowed: true,
+    },
+    SpeedLimit: {
+      allowed: true,
+    },
+    Label: {
       allowed: true,
     },
   },
@@ -580,5 +594,65 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     const hash = torrent.infoHash || (torrent.id as string);
     const { data } = await this.request<Array<{ url: string }>>("/torrents/trackers", { params: { hash } });
     return data.map((t) => t.url);
+  }
+
+  // 重新校验种子
+  override async recheckTorrent(id: any): Promise<boolean> {
+    await this.request("/torrents/recheck", {
+      method: "post",
+      data: { hashes: normalizePieces(id) },
+    });
+    return true;
+  }
+
+  // 调整种子在队列中的位置
+  override async moveTorrentInQueue(id: any, direction: TorrentQueueDirection): Promise<boolean> {
+    const endpointMap: Record<TorrentQueueDirection, string> = {
+      top: "/torrents/topPrio",
+      up: "/torrents/increasePrio",
+      down: "/torrents/decreasePrio",
+      bottom: "/torrents/bottomPrio",
+    };
+    await this.request(endpointMap[direction], {
+      method: "post",
+      data: { hashes: normalizePieces(id) },
+    });
+    return true;
+  }
+
+  // 设置单个种子的速度限制（单位 KiB/s，0 表示不限速；qBittorrent 使用 bytes/s，-1 表示不限速）
+  override async setTorrentSpeedLimit(id: any, limits: TorrentSpeedLimit): Promise<boolean> {
+    const hash = normalizePieces(id);
+    const requests: Promise<any>[] = [];
+
+    if (typeof limits.download !== "undefined") {
+      requests.push(
+        this.request("/torrents/setLimit", {
+          method: "post",
+          data: { hashes: hash, limit: limits.download > 0 ? limits.download * 1024 : -1 },
+        }),
+      );
+    }
+
+    if (typeof limits.upload !== "undefined") {
+      requests.push(
+        this.request("/torrents/setUploadLimit", {
+          method: "post",
+          data: { hashes: hash, limit: limits.upload > 0 ? limits.upload * 1024 : -1 },
+        }),
+      );
+    }
+
+    await Promise.all(requests);
+    return true;
+  }
+
+  // 设置单个种子的分类（qBittorrent 的 label 即 category）
+  override async setTorrentLabel(id: any, label: string): Promise<boolean> {
+    await this.request("/torrents/setCategory", {
+      method: "post",
+      data: { hashes: normalizePieces(id), category: label },
+    });
+    return true;
   }
 }

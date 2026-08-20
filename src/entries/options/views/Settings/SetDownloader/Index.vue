@@ -2,6 +2,7 @@
 import { computed, ref } from "vue";
 import { computedAsync } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
+import { useRouter } from "vue-router";
 import { countBy } from "es-toolkit";
 import type { DataTableHeader } from "vuetify";
 
@@ -22,6 +23,7 @@ import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";
 
 const { t } = useI18n();
+const router = useRouter();
 const metadataStore = useMetadataStore();
 const configStore = useConfigStore();
 
@@ -84,6 +86,11 @@ const toEditDownloaderId = ref<TDownloaderKey | null>(null);
 function editDownloader(downloaderId: TDownloaderKey) {
   toEditDownloaderId.value = downloaderId;
   showEditDialog.value = true;
+}
+
+function manageDownloader(downloaderId: TDownloaderKey) {
+  // 跳转到 MyClient 页面并预选该下载服务器，进行种子管理
+  void router.push({ path: "/my-client", query: { downloader: downloaderId } });
 }
 
 function editDownloaderPathAndTag(downloaderId: TDownloaderKey) {
@@ -260,10 +267,12 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
       <template #item.action="{ item }">
         <v-btn-group class="table-action" density="compact" variant="plain">
           <v-btn
-            :disabled="true"
+            :disabled="!item.enabled /* 未启用的下载服务器无法获取状态 */"
             :title="t('SetDownloader.index.table.action.status')"
+            color="green"
             icon="mdi-information-outline"
             size="small"
+            @click="manageDownloader(item.id)"
           />
 
           <v-btn

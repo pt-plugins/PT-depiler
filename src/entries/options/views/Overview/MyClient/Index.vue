@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
+import { useRoute, useRouter } from "vue-router";
 import type { DataTableHeader } from "vuetify";
 
-import { CTorrentState, type CTorrent, getDownloaderIcon } from "@ptd/downloader";
+import {
+  CTorrentState,
+  getDownloaderIcon,
+  getDownloaderMetaData,
+  type CTorrent,
+  type TorrentClientMetaData,
+  type TorrentQueueDirection,
+} from "@ptd/downloader";
 import { sendMessage } from "@/messages.ts";
 import { formatSize, formatDate } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
@@ -14,10 +22,22 @@ import DeleteDialog from "./DeleteDialog.vue";
 import PushToDownloaderDialog from "./PushToDownloaderDialog.vue";
 import TorrentStateTd from "./TorrentStateTd.vue";
 import ClientStatusDialog from "./ClientStatusDialog.vue";
+import TorrentDetailDialog from "./TorrentDetailDialog.vue";
+import SpeedLimitDialog from "./SpeedLimitDialog.vue";
+import LabelDialog from "./LabelDialog.vue";
+import RecheckConfirmDialog from "./RecheckConfirmDialog.vue";
 
-import { torrents, autoRefreshRunning, globalRefreshInterval, useClientRefresh } from "./utils.ts";
+import {
+  torrents,
+  selectedDownloaderIds,
+  autoRefreshRunning,
+  globalRefreshInterval,
+  useClientRefresh,
+} from "./utils.ts";
 
 const { t } = useI18n();
+const route = useRoute();
+const router = useRouter();
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
 const configStore = useConfigStore();
@@ -44,14 +64,19 @@ const toDeleteTorrents = ref<CTorrent[]>([]);
 // push to downloader dialog
 const showPushToDownloaderDialog = ref(false);
 
-// raw JSON dialog
-const showRawDialog = ref(false);
-const rawTorrent = ref<CTorrent | null>(null);
+// detail dialog
+const showDetailDialog = ref(false);
+const detailTorrent = ref<CTorrent | null>(null);
 
-function openRawDialog(item: CTorrent) {
-  rawTorrent.value = item;
-  showRawDialog.value = true;
-}
+// speed limit dialog
+const showSpeedLimitDialog = ref(false);
+
+// label dialog
+const showLabelDialog = ref(false);
+
+// recheck confirm dialog
+const showRecheckDialog = ref(false);
+const toRecheckTorrents = ref<CTorrent[]>([]);
 
 // client status dialog
 const showClientStatusDialog = ref(false);
@@ -75,6 +100,28 @@ const filteredTorrents = computed(() => {
       t.savePath.toLowerCase().includes(q),
   );
 });
+
+// 当前选中种子的下载器类型对应的能力元数据（用于显示可用操作）
+const clientMetaMap = ref<Record<string, TorrentClientMetaData>>({});
+
+async function ensureClientMeta(clientId: string) {
+  const type = metadataStore.downloaders[clientId]?.type;
+  if (type && !clientMetaMap.value[type]) {
+    clientMetaMap.value[type] = await getDownloaderMetaData(type);
+  }
+}
+
+/** 判断某个 feature 在该下载器上是否可用 */
+function isFeatureAllowed(clientId: string, feature: keyof TorrentClientMetaData["feature"]): boolean {
+  const type = metadataStore.downloaders[clientId]?.type;
+  return clientMetaMap.value[type]?.feature?.[feature]?.allowed !== false;
+}
+
+// 在表格渲染时按需加载选中/可见种子的客户端能力元数据
+async function loadVisibleClientMeta() {
+  const ids = new Set(allTorrents.value.map((t) => t.clientId));
+  await Promise.all([...ids].map(ensureClientMeta));
+}
 
 // ── table headers ─────────────────────────────────────────────────────────
 const fullTableHeader = computed(
@@ -120,6 +167,7 @@ async function loadTorrents() {
     await Promise.allSettled(activeDownloaderIds.value.map((id) => loadSingleDownloader(id)));
   } finally {
     loading.value = false;
+    await loadVisibleClientMeta();
     if (autoRefreshRunning.value) {
       for (const id of activeDownloaderIds.value) {
         scheduleDownloaderRefresh(id);
@@ -129,7 +177,14 @@ async function loadTorrents() {
 }
 
 onMounted(() => {
-  if (configStore.download.initDownloaderTorrentOnEnter) {
+  // 支持从 SetDownloader 等页面通过 ?downloader=<id> 预选单个下载服务器
+  const queryDownloaderId = route.query.downloader as string | undefined;
+  if (queryDownloaderId && metadataStore.downloaders[queryDownloaderId]) {
+    selectedDownloaderIds.value = [queryDownloaderId];
+    // 预选是一次性导航行为，清除 URL query 避免刷新页面后重复预选
+    void router.replace({ path: "/my-client" });
+    loadTorrents();
+  } else if (configStore.download.initDownloaderTorrentOnEnter) {
     loadTorrents();
   }
 });
@@ -166,6 +221,44 @@ function openDeleteDialog(torrentList: CTorrent[]) {
   showDeleteDialog.value = true;
 }
 
+function openDetailDialog(item: CTorrent) {
+  detailTorrent.value = item;
+  showDetailDialog.value = true;
+}
+
+function openRecheckDialog(torrentList: CTorrent[]) {
+  if (torrentList.length === 0) return;
+  toRecheckTorrents.value = torrentList;
+  showRecheckDialog.value = true;
+}
+
+async function recheckTorrents() {
+  const torrentList = toRecheckTorrents.value;
+  if (torrentList.length === 0) return;
+  const results = await Promise.allSettled(
+    torrentList.map((t) => sendMessage("recheckClientTorrent", { downloaderId: t.clientId, id: t.id })),
+  );
+  const succeeded = results.filter((r) => r.status === "fulfilled" && Boolean(r.value)).length;
+  runtimeStore.showSnakebar(t("MyClient.action.recheckSelectedSuccess", { count: succeeded }), {
+    color: succeeded > 0 ? "success" : "error",
+  });
+  const affectedIds = [...new Set(torrentList.map((t) => t.clientId))];
+  await Promise.allSettled(affectedIds.map(loadSingleDownloader));
+}
+
+async function moveTorrentsInQueue(torrentList: CTorrent[], direction: TorrentQueueDirection) {
+  if (torrentList.length === 0) return;
+  const results = await Promise.allSettled(
+    torrentList.map((t) => sendMessage("moveClientTorrentInQueue", { downloaderId: t.clientId, id: t.id, direction })),
+  );
+  const succeeded = results.filter((r) => r.status === "fulfilled" && Boolean(r.value)).length;
+  runtimeStore.showSnakebar(t("MyClient.action.moveQueueSuccess", { count: succeeded }), {
+    color: succeeded > 0 ? "success" : "error",
+  });
+  const affectedIds = [...new Set(torrentList.map((t) => t.clientId))];
+  await Promise.allSettled(affectedIds.map(loadSingleDownloader));
+}
+
 // Called per-item by DeleteDialog
 async function confirmDeleteTorrent(torrentKey_: string, removeData: boolean): Promise<void> {
   const torrent = toDeleteTorrents.value.find((t) => torrentKey(t) === torrentKey_);
@@ -186,6 +279,12 @@ function clientIcon(clientId: string) {
   return type ? getDownloaderIcon(type) : undefined;
 }
 
+/** 清除下载器预选筛选（恢复显示全部下载器） */
+function clearDownloaderFilter() {
+  selectedDownloaderIds.value = [];
+  void loadTorrents();
+}
+
 function torrentKey(torrent: CTorrent) {
   return `${torrent.clientId}:${String(torrent.id)}`;
 }
@@ -194,6 +293,19 @@ function torrentKey(torrent: CTorrent) {
 <template>
   <v-alert :title="t('route.Overview.MyClient')" type="info">
     <template #append>
+      <v-chip
+        v-if="selectedDownloaderIds.length === 1"
+        :prepend-avatar="clientIcon(selectedDownloaderIds[0])"
+        class="mr-2"
+        closable
+        color="primary"
+        label
+        size="small"
+        @click:close="clearDownloaderFilter"
+      >
+        {{ clientName(selectedDownloaderIds[0]) }}
+      </v-chip>
+
       <v-btn
         :title="t('MyClient.clientStatusDialog.openBtn')"
         class="mr-2 status-btn"
@@ -249,6 +361,33 @@ function torrentKey(torrent: CTorrent) {
           icon="mdi-delete"
           variant="text"
           @click="() => openDeleteDialog(tableSelected)"
+        />
+
+        <v-btn
+          :disabled="tableSelected.length === 0"
+          :title="t('MyClient.recheckSelected')"
+          color="cyan"
+          icon="mdi-refresh"
+          variant="text"
+          @click="() => openRecheckDialog(tableSelected)"
+        />
+
+        <v-btn
+          :disabled="tableSelected.length === 0"
+          :title="t('MyClient.speedLimit.batchBtn')"
+          color="amber"
+          icon="mdi-speedometer"
+          variant="text"
+          @click="showSpeedLimitDialog = true"
+        />
+
+        <v-btn
+          :disabled="tableSelected.length === 0"
+          :title="t('MyClient.label.batchBtn')"
+          color="purple"
+          icon="mdi-label"
+          variant="text"
+          @click="showLabelDialog = true"
         />
 
         <v-divider vertical class="mx-2" />
@@ -456,12 +595,59 @@ function torrentKey(torrent: CTorrent) {
               @click="() => resumeTorrents([item])"
             />
 
+            <!-- 重新校验 -->
             <v-btn
-              :title="t('MyClient.action.viewRaw')"
-              color="grey"
-              icon="mdi-code-json"
+              v-if="isFeatureAllowed(item.clientId, 'Recheck')"
+              :title="t('MyClient.action.recheck')"
+              color="cyan"
+              icon="mdi-refresh"
               size="small"
-              @click="() => openRawDialog(item)"
+              @click="() => openRecheckDialog([item])"
+            />
+
+            <!-- 队列调整 -->
+            <v-menu location="bottom">
+              <template #activator="{ props: menuProps }">
+                <v-btn
+                  v-if="isFeatureAllowed(item.clientId, 'Queue')"
+                  v-bind="menuProps"
+                  :title="t('MyClient.action.queue')"
+                  color="orange"
+                  icon="mdi-swap-vertical"
+                  size="small"
+                />
+              </template>
+              <v-list density="compact">
+                <v-list-item
+                  :title="t('MyClient.action.queueTop')"
+                  prepend-icon="mdi-chevron-double-up"
+                  @click="() => moveTorrentsInQueue([item], 'top')"
+                />
+                <v-list-item
+                  :title="t('MyClient.action.queueUp')"
+                  prepend-icon="mdi-chevron-up"
+                  @click="() => moveTorrentsInQueue([item], 'up')"
+                />
+                <v-list-item
+                  :title="t('MyClient.action.queueDown')"
+                  prepend-icon="mdi-chevron-down"
+                  @click="() => moveTorrentsInQueue([item], 'down')"
+                />
+                <v-list-item
+                  :title="t('MyClient.action.queueBottom')"
+                  prepend-icon="mdi-chevron-double-down"
+                  @click="() => moveTorrentsInQueue([item], 'bottom')"
+                />
+              </v-list>
+            </v-menu>
+
+            <!-- 详情 -->
+            <v-btn
+              :title="t('MyClient.action.detail')"
+              color="grey"
+              icon="mdi-file-eye-outline"
+              size="small"
+              @click="() => openDetailDialog(item)"
             />
 
             <v-btn
@@ -488,22 +674,17 @@ function torrentKey(torrent: CTorrent) {
 
   <ClientStatusDialog v-model="showClientStatusDialog" />
 
-  <!-- Raw JSON dialog -->
-  <v-dialog v-model="showRawDialog" max-width="800" scrollable>
-    <v-card>
-      <v-card-title class="pa-0">
-        <v-toolbar color="blue-grey-darken-2">
-          <v-toolbar-title>{{ t("MyClient.action.viewRaw") }}</v-toolbar-title>
-          <template #append>
-            <v-btn icon="mdi-close" :title="t('common.dialog.close')" @click="showRawDialog = false" />
-          </template>
-        </v-toolbar>
-      </v-card-title>
-      <v-card-text class="pa-2">
-        <pre class="text-body-2">{{ rawTorrent ? JSON.stringify(rawTorrent, null, 2) : "" }}</pre>
-      </v-card-text>
-    </v-card>
-  </v-dialog>
+  <TorrentDetailDialog v-model="showDetailDialog" :torrent="detailTorrent" />
+
+  <SpeedLimitDialog v-model="showSpeedLimitDialog" :torrents="tableSelected" />
+
+  <LabelDialog v-model="showLabelDialog" :torrents="tableSelected" />
+
+  <RecheckConfirmDialog
+    v-model="showRecheckDialog"
+    :torrent-count="toRecheckTorrents.length"
+    :confirm-fn="recheckTorrents"
+  />
 </template>
 
 <style scoped lang="scss">

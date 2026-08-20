@@ -9,6 +9,8 @@ import {
   CTorrentState,
   TorrentClientStatus,
   CAddTorrentResult,
+  TorrentQueueDirection,
+  TorrentSpeedLimit,
 } from "../types";
 import urlJoin from "url-join";
 import axios, { type AxiosResponse, isAxiosError } from "axios";
@@ -37,6 +39,18 @@ export const clientMetaData: TorrentClientMetaData = {
     DefaultAutoStart: {
       allowed: true,
     },
+    Recheck: {
+      allowed: true,
+    },
+    Queue: {
+      allowed: true,
+    },
+    SpeedLimit: {
+      allowed: true,
+    },
+    Label: {
+      allowed: true,
+    },
   },
 };
 
@@ -54,6 +68,10 @@ interface rawTorrent {
   totalSize: number;
   leftUntilDone: number;
   labels: string[];
+  /**
+   * 注意：Transmission RPC 实际接受的字段名不带 " (B/s)" 后缀（rpc-spec.md 中旧命名为 rateDownload (B/s)，
+   * 但实测 Transmission 4.x 返回的 key 为 rateDownload / rateUpload，带后缀的字段名会被静默忽略）
+   */
   rateDownload: number;
   rateUpload: number;
   /**
@@ -127,7 +145,12 @@ type TransmissionRequestMethod =
   | "torrent-start"
   | "torrent-stop"
   | "torrent-remove"
-  | "torrent-set";
+  | "torrent-verify"
+  | "torrent-set"
+  | "queue-move-top"
+  | "queue-move-up"
+  | "queue-move-down"
+  | "queue-move-bottom";
 
 interface TransmissionAddTorrentOptions {
   "download-dir": string;
@@ -193,8 +216,8 @@ type TransmissionTorrentsField =
   | "pieceSize"
   | "priorities"
   | "queuePosition"
-  | "rateDownload (B/s)"
-  | "rateUpload (B/s)"
+  | "rateDownload"
+  | "rateUpload"
   | "recheckProgress"
   | "secondsDownloading"
   | "secondsSeeding"
@@ -243,6 +266,11 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     "leftUntilDone",
     "labels",
     "trackers",
+    // 上传/下载速度与总量
+    "rateDownload",
+    "rateUpload",
+    "uploadedEver",
+    "downloadedEver",
   ];
 
   // 实例真实使用的rpc地址
@@ -489,6 +517,65 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     }
 
     return (trackers ?? []).map((t) => t.announce);
+  }
+
+  // 重新校验种子（Transmission RPC: torrent-verify）
+  override async recheckTorrent(id: any): Promise<boolean> {
+    const args: TransmissionTorrentArguments = {
+      ids: id,
+    };
+    await this.request("torrent-verify", args);
+    return true;
+  }
+
+  // 调整种子在队列中的位置（Transmission RPC: queue-move-*）
+  override async moveTorrentInQueue(id: any, direction: TorrentQueueDirection): Promise<boolean> {
+    const methodMap: Record<TorrentQueueDirection, TransmissionRequestMethod> = {
+      top: "queue-move-top",
+      up: "queue-move-up",
+      down: "queue-move-down",
+      bottom: "queue-move-bottom",
+    };
+    const args: TransmissionTorrentArguments = {
+      ids: id,
+    };
+    await this.request(methodMap[direction], args);
+    return true;
+  }
+
+  // 设置单个种子的速度限制（单位 KiB/s，0 表示不限速；Transmission 使用 KB/s）
+  override async setTorrentSpeedLimit(id: any, limits: TorrentSpeedLimit): Promise<boolean> {
+    const args: TransmissionTorrentArguments & {
+      "upload-limit"?: number;
+      "upload-limited"?: boolean;
+      "download-limit"?: number;
+      "download-limited"?: boolean;
+    } = {
+      ids: id,
+    };
+
+    if (typeof limits.upload !== "undefined") {
+      args["upload-limit"] = limits.upload;
+      args["upload-limited"] = limits.upload > 0;
+    }
+
+    if (typeof limits.download !== "undefined") {
+      args["download-limit"] = limits.download;
+      args["download-limited"] = limits.download > 0;
+    }
+
+    await this.request("torrent-set", args);
+    return true;
+  }
+
+  // 设置单个种子的标签
+  override async setTorrentLabel(id: any, label: string): Promise<boolean> {
+    const args = {
+      ids: id,
+      labels: [label],
+    };
+    await this.request("torrent-set", args);
+    return true;
   }
 
   async request<T>(method: TransmissionRequestMethod, args: any = {}): Promise<AxiosResponse<T>> {

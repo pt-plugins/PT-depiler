@@ -9,6 +9,8 @@ import {
   type CTorrent,
   type CAddTorrentOptions,
   type TorrentClientStatus,
+  type TorrentQueueDirection,
+  type TorrentSpeedLimit,
 } from "@ptd/downloader";
 import type { ITorrent } from "@ptd/site";
 
@@ -140,6 +142,15 @@ onMessage("getClientTorrents", async ({ data: downloaderId }) => {
   return downloaderTorrents;
 });
 
+onMessage("getClientTorrentTrackers", async ({ data: { downloaderId, torrent } }) => {
+  let downloaderTrackers: string[] = [];
+  const downloaderInstance = await getDownloaderInstance(downloaderId);
+  if (downloaderInstance) {
+    downloaderTrackers = await downloaderInstance.getTorrentTrackers(torrent);
+  }
+  return downloaderTrackers;
+});
+
 onMessage("deleteClientTorrent", async ({ data: { downloaderId, id, removeData } }) => {
   let deleteStatus: boolean = false;
   const downloaderInstance = await getDownloaderInstance(downloaderId);
@@ -167,6 +178,46 @@ onMessage("resumeClientTorrent", async ({ data: { downloaderId, id } }) => {
   }
 
   return resumeStatus;
+});
+
+onMessage("recheckClientTorrent", async ({ data: { downloaderId, id } }) => {
+  let recheckStatus: boolean = false;
+  const downloaderInstance = await getDownloaderInstance(downloaderId);
+  if (downloaderInstance) {
+    recheckStatus = await downloaderInstance.recheckTorrent(id);
+  }
+
+  return recheckStatus;
+});
+
+onMessage("moveClientTorrentInQueue", async ({ data: { downloaderId, id, direction } }) => {
+  let moveStatus: boolean = false;
+  const downloaderInstance = await getDownloaderInstance(downloaderId);
+  if (downloaderInstance) {
+    moveStatus = await downloaderInstance.moveTorrentInQueue(id, direction as TorrentQueueDirection);
+  }
+
+  return moveStatus;
+});
+
+onMessage("setClientTorrentSpeedLimit", async ({ data: { downloaderId, id, limits } }) => {
+  let limitStatus: boolean = false;
+  const downloaderInstance = await getDownloaderInstance(downloaderId);
+  if (downloaderInstance) {
+    limitStatus = await downloaderInstance.setTorrentSpeedLimit(id, limits as TorrentSpeedLimit);
+  }
+
+  return limitStatus;
+});
+
+onMessage("setClientTorrentLabel", async ({ data: { downloaderId, id, label } }) => {
+  let labelStatus: boolean = false;
+  const downloaderInstance = await getDownloaderInstance(downloaderId);
+  if (downloaderInstance) {
+    labelStatus = await downloaderInstance.setTorrentLabel(id, label);
+  }
+
+  return labelStatus;
 });
 
 function buildDownloadHistory(downloadOption: IDownloadTorrentOption): ITorrentDownloadMetadata {
