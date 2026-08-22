@@ -47,6 +47,7 @@ export interface ITorrentDownloadMetadata extends Pick<ITorrent, "title" | "subT
 
   downloadRequestConfig?: AxiosRequestConfig;
   addTorrentResult?: CAddTorrentResult;
+  errorMessage?: string; // 失败时的错误信息（如推送失败原因），便于在下载历史中定位问题
 }
 
 export interface IDownloadTorrentResult {
