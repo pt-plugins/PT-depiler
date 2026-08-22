@@ -49,6 +49,13 @@ export interface IImplicitUserInfo {
   // bonusNeededInterval?: `${number}H`;
   // seedingBonusNeededInterval?: `${number}H`;
 
+  /**
+   * passTime 是一个由 levelRequirementUnMet 计算得到的结果（unix 毫秒时间戳），
+   * 表示满足 interval 需求的绝对达标时间；前端渲染日期时优先使用该值，避免相对差值与渲染时刻的时钟错位（#1140）
+   * ！！请不要在 levelRequirements 中定义该值！！
+   */
+  passTime?: number;
+
   uploads?: number; // 发布数需求
   leeching?: number; // 下载数量需求
   snatches?: number; // 完成种子数需求
