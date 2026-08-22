@@ -84,6 +84,9 @@ export interface IMediaServerSearchResult<RAW = any> {
   // 搜索结果
   items: IMediaServerItem<RAW>[];
   options?: IMediaServerSearchOptions;
+
+  // 非 success 时附带的真实错误信息（如 timeout of 5000ms exceeded），用于 UI 展示失败原因
+  errorMessage?: string;
 }
 
 export abstract class AbstractMediaServer<T extends IMediaServerBaseConfig = IMediaServerBaseConfig> {
