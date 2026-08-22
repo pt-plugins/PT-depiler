@@ -91,6 +91,7 @@ export function levelRequirementUnMet(
       if (leftDuration.months) interval += `${leftDuration.months}M`;
       if (leftDuration.days) interval += `${leftDuration.days}D`;
       unmetRequirement.interval = interval; // 只保留日期部分
+      unmetRequirement.passTime = +passTime; // 附带绝对达标时间，供前端渲染日期时直接使用（#1140）
     }
   }
 
