@@ -33,6 +33,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "音乐 / Music", value: 423 },
         { name: "有声书 / Audiobook", value: 424 },
         { name: "软件 / Software", value: 425 },
+        { name: "游戏 / Games", value: 426 },
       ],
       cross: { mode: "append" },
     },
@@ -91,8 +92,10 @@ export const siteMetadata: ISiteMetadata = {
         { name: "ZmWeb", value: 7 },
         { name: "ZmPT", value: 6 },
         { name: "ZmMusic", value: 8 },
+        { name: "ZmAudio", value: 11 },
         { name: "DYZ-Movie", value: 9 },
         { name: "GodDramas", value: 10 },
+        { name: "RL/RL4B", value: 12 },
       ],
       cross: { mode: "append" },
     },
@@ -101,7 +104,7 @@ export const siteMetadata: ISiteMetadata = {
     CategoryInclbookmarked,
   ],
 
-  officialGroupPattern: ["ZmWeb", "ZmPT"],
+  officialGroupPattern: ["ZmWeb", "ZmPT", "ZmMusic", "ZmAudio"],
 
   userInfo: {
     ...SchemaMetadata.userInfo!,
