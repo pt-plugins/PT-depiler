@@ -49,6 +49,9 @@
       "selectDownloader": "选择下载服务器",
       "title": "重新下载 {0} 条记录"
     },
+    "detail": {
+      "errorMessage": "失败原因"
+    },
     "filterPlaceholder": "过滤下载记录",
     "reDownload": "重新下载",
     "refresh": "刷新下载记录列表",

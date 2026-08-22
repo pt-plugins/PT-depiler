@@ -13,13 +13,18 @@ const MAX_LOGGER_LENGTH = 500;
 export const loggerStorage = useSessionStorage<ILoggerItem[]>("logger", []);
 
 export function logger(data: ILoggerItem) {
-  data.id ??= nanoid();
-  data.time ??= new Date().getTime();
-  data.msg = data.msg?.trim();
+  try {
+    data.id ??= nanoid();
+    data.time ??= new Date().getTime();
+    data.msg = data.msg?.trim();
 
-  loggerStorage.value.push(data);
-  if (loggerStorage.value.length > MAX_LOGGER_LENGTH) {
-    loggerStorage.value.shift();
+    loggerStorage.value.push(data);
+    if (loggerStorage.value.length > MAX_LOGGER_LENGTH) {
+      loggerStorage.value.shift();
+    }
+  } catch (e) {
+    // 日志记录失败不应影响主流程（如传入不可序列化数据、sessionStorage 写入异常等）
+    console.error("[PTD] logger failed:", e);
   }
 }
 

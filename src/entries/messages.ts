@@ -213,8 +213,11 @@ function createMessageWrapper<PM extends ProtocolMap>(original: {
     // @ts-expect-error
     const localHandler = messageMaps[type] as PM[K] | undefined;
 
-    if (__BROWSER__ == "firefox" && typeof data !== "undefined") {
-      data = JSON.parse(JSON.stringify(data)); // 为 firefox 深拷贝数据，避免传递 proxy 出现的 DataCloneError
+    // 深拷贝数据，避免 Vue 响应式 Proxy 或其他不可序列化对象进入消息链路引发 DataCloneError。
+    // 原实现仅对 firefox 生效，Chrome/Edge 下同样存在该问题（见 issue #1431），
+    // 故对所有浏览器统一执行深拷贝。
+    if (typeof data !== "undefined") {
+      data = JSON.parse(JSON.stringify(data));
     }
 
     if (localHandler) {
