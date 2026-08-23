@@ -305,7 +305,12 @@ async function downloadTorrent(downloadOption: IDownloadTorrentOption) {
     if (isDownloadToLocalFile) {
       // 本地下载
       downloadOption.localDownloadMethod ??= configStoreRaw?.download?.localDownloadMethod ?? "web";
-      downloadStatus = await downloadTorrentToLocalFile(downloadOption as TLocalDownloadOption, downloadRequestConfig);
+      const localResult = await downloadTorrentToLocalFile(
+        downloadOption as TLocalDownloadOption,
+        downloadRequestConfig,
+      );
+      downloadStatus = localResult.downloadStatus;
+      errorMessage = localResult.errorMessage;
     } else {
       // 远程推送
       addTorrentOptions.localDownload ??= true; // 默认开启本地中转选项（如果传递进来的没有 localDownload 值的话）
@@ -326,6 +331,12 @@ async function downloadTorrent(downloadOption: IDownloadTorrentOption) {
   }
 
   await setDownloadStatus(downloadId, downloadStatus);
+  if (errorMessage) {
+    // 将失败原因写入下载历史，方便在下载历史页面定位问题（见 issue #1430）
+    await patchDownloadHistory(downloadId, { errorMessage }).catch(() => {
+      logger({ msg: `Failed to persist errorMessage for download task #${downloadId}` });
+    });
+  }
   return { downloadId, downloadStatus, errorMessage } as IDownloadTorrentResult;
 }
 
@@ -334,9 +345,10 @@ onMessage("downloadTorrent", async ({ data: downloadOption }) => await downloadT
 async function downloadTorrentToLocalFile(
   downloadOption: TLocalDownloadOption,
   downloadRequestConfig: AxiosRequestConfig,
-): Promise<TTorrentDownloadStatus> {
+): Promise<Pick<IDownloadTorrentResult, "downloadStatus" | "errorMessage">> {
   let { torrent, localDownloadMethod = "web", downloadId } = downloadOption;
   let downloadStatus: TTorrentDownloadStatus = "downloading";
+  let errorMessage: string | undefined;
 
   const downloadUri = axios.getUri(downloadRequestConfig); // 组装 baseURL, url, params
   const {
@@ -350,7 +362,7 @@ async function downloadTorrentToLocalFile(
     if (downloadMethod.toUpperCase() === "GET" && isEmpty(downloadHeaders)) {
       logger({ msg: `Download torrent file with web method: ${downloadUri}` });
       window.open(downloadUri, "_blank");
-      return await setDownloadStatus(downloadId, "completed");
+      return { downloadStatus: await setDownloadStatus(downloadId, "completed"), errorMessage };
     } else {
       localDownloadMethod = "extension"; // 如果是不能直接使用 window.open 方法的情况，直接使用 extension 方法
     }
@@ -376,7 +388,7 @@ async function downloadTorrentToLocalFile(
 
       logger({ msg: `Download torrent file with browser method: ${downloadUri}`, data: downloadOptions });
       await sendMessage("downloadFile", downloadOptions);
-      return await setDownloadStatus(downloadId, "completed");
+      return { downloadStatus: await setDownloadStatus(downloadId, "completed"), errorMessage };
     } catch (e) {
       localDownloadMethod = "extension"; // 如果下载失败，直接使用 extension 方法（怎么可能？）
     }
@@ -402,10 +414,11 @@ async function downloadTorrentToLocalFile(
       URL.revokeObjectURL(torrentUrl);
     } catch (e) {
       downloadStatus = await setDownloadStatus(downloadId, "failed");
+      errorMessage = getErrorMessage(e);
     }
   }
 
-  return downloadStatus;
+  return { downloadStatus, errorMessage };
 }
 
 async function downloadTorrentToRemote(

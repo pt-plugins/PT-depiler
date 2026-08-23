@@ -49,6 +49,9 @@
       "selectDownloader": "Select Downloader",
       "title": "Re-download {0} records"
     },
+    "detail": {
+      "errorMessage": "Error Message"
+    },
     "filterPlaceholder": "Filter download history",
     "reDownload": "Re-download",
     "refresh": "Refresh download history list",

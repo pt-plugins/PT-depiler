@@ -233,6 +233,18 @@ onUnmounted(() => {
   <v-dialog v-model="showDownloadDetailDialog" width="800">
     <v-card>
       <v-card-text>
+        <v-alert
+          v-if="downloadDetail.errorMessage"
+          class="mb-3"
+          color="error"
+          icon="mdi-alert"
+          variant="tonal"
+        >
+          <div class="text-subtitle-2 font-weight-bold mb-1">
+            {{ t("DownloadHistory.detail.errorMessage") }}
+          </div>
+          <code class="text-body-2">{{ downloadDetail.errorMessage }}</code>
+        </v-alert>
         <pre> {{ JSON.stringify(downloadDetail, null, 2) }}</pre>
       </v-card-text>
     </v-card>
