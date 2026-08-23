@@ -6,7 +6,7 @@ import {
   IMediaServerSearchOptions,
   IMediaServerSearchResult,
 } from "../types.ts";
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import urlJoin from "url-join";
 import { toMerged } from "es-toolkit";
 import { EResultParseStatus } from "@ptd/site";
@@ -228,7 +228,14 @@ export default class Emby extends AbstractMediaServer<IEmbyConfig> {
         result.status = EResultParseStatus.needLogin;
       }
     } catch (e) {
-      result.status = EResultParseStatus.parseError;
+      // 401 是认证问题（needLogin），其余（超时、网络不可达、解析异常等）不是认证问题，
+      // 需要把真实错误带回去，避免 UI 统一提示「请检查认证信息」误导排障（#1396）
+      if (e instanceof AxiosError && e.response?.status === 401) {
+        result.status = EResultParseStatus.needLogin;
+      } else {
+        result.status = EResultParseStatus.parseError;
+      }
+      result.errorMessage = e instanceof Error ? `${e.name}: ${e.message}` : String(e);
     }
 
     return result;
