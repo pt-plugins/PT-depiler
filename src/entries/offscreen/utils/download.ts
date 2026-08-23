@@ -332,8 +332,9 @@ async function downloadTorrent(downloadOption: IDownloadTorrentOption) {
 
   await setDownloadStatus(downloadId, downloadStatus);
   if (errorMessage) {
-    // 将失败原因写入下载历史，方便在下载历史页面定位问题（见 issue #1430）
-    await patchDownloadHistory(downloadId, { errorMessage }).catch(() => {
+    // 将失败原因写入下载历史，方便在下载历史页面定位问题（见 issue #1430）。
+    // 截断落盘以避免超长错误信息（如带堆栈的 Error）撑大 IndexedDB 记录；返回给调用方的仍为完整信息。
+    await patchDownloadHistory(downloadId, { errorMessage: errorMessage.slice(0, 2000) }).catch(() => {
       logger({ msg: `Failed to persist errorMessage for download task #${downloadId}` });
     });
   }

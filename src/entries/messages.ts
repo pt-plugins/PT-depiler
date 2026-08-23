@@ -216,8 +216,14 @@ function createMessageWrapper<PM extends ProtocolMap>(original: {
     // 深拷贝数据，避免 Vue 响应式 Proxy 或其他不可序列化对象进入消息链路引发 DataCloneError。
     // 原实现仅对 firefox 生效，Chrome/Edge 下同样存在该问题（见 issue #1431），
     // 故对所有浏览器统一执行深拷贝。
-    if (typeof data !== "undefined") {
-      data = JSON.parse(JSON.stringify(data));
+    // 优先 structuredClone：保留 Date/Map/Set 等结构、支持循环引用，且性能优于 JSON 往返；
+    // 遇到函数/DOM 节点等无法结构化克隆的载荷时回退 JSON 深拷贝。
+    if (typeof data === "object" && data !== null) {
+      try {
+        data = structuredClone(data);
+      } catch {
+        data = JSON.parse(JSON.stringify(data));
+      }
     }
 
     if (localHandler) {
