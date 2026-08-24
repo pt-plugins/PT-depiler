@@ -3,7 +3,7 @@
  * @JackettIssue https://github.com/Jackett/Jackett/issues/14946
  */
 import { type ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/NexusPHP";
+import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 import { extractContent } from "../utils";
 
 export const siteMetadata: ISiteMetadata = {
@@ -44,6 +44,9 @@ export const siteMetadata: ISiteMetadata = {
       ],
       cross: { mode: "append" },
     },
+    CategoryIncldead,
+    CategorySpstate,
+    CategoryInclbookmarked,
   ],
 
   search: {
