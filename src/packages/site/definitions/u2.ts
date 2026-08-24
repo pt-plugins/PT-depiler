@@ -24,6 +24,7 @@ export const siteMetadata: ISiteMetadata = {
       options: [
         { value: 9, name: "U2-Rip" },
         { value: 411, name: "U2-RBD" },
+        { value: 413, name: "Web" },
         { value: 10, name: "R3TRAW" },
         { value: 11, name: "R2JRAW" },
         { value: 12, name: "BDRip" },
