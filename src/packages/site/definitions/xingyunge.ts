@@ -1,5 +1,5 @@
 import type { ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/NexusPHP";
+import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -15,6 +15,40 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://cg.kvatlhatrcg.bet/", "uggcf://cg.kvatlhatrcg.pa/"],
   legacyUrls: ["https://xingyunge.top/"],
+
+  category: [
+    {
+      name: "类型",
+      key: "cat",
+      options: [
+        { name: "电影", value: 401 },
+        { name: "电视剧", value: 402 },
+        { name: "综艺", value: 403 },
+        { name: "纪录片", value: 404 },
+        { name: "动漫", value: 405 },
+        { name: "MV", value: 406 },
+        { name: "体育", value: 407 },
+        { name: "音频", value: 408 },
+        { name: "其他", value: 409 },
+        { name: "短剧", value: 410 },
+      ],
+      cross: { mode: "append" },
+    },
+    CategoryIncldead,
+    CategorySpstate,
+    CategoryInclbookmarked,
+    {
+      name: "审核状态：",
+      key: "approval_status",
+      options: [
+        { value: "", name: "全部" },
+        { value: 0, name: "未审" },
+        { value: 1, name: "通过" },
+        { value: 2, name: "拒绝" },
+      ],
+      cross: false,
+    },
+  ],
 
   levelRequirements: [
     {
