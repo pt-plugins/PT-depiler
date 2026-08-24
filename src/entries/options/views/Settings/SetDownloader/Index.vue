@@ -118,7 +118,7 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
   <v-alert :title="t('route.Settings.SetDownloader')" type="info" />
   <v-card class="set-downloader">
     <v-card-title>
-      <v-row class="ma-0">
+      <v-row gap="0" class="ma-0">
         <NavButton :text="t('common.btn.add')" color="success" icon="mdi-plus" @click="showAddDialog = true" />
 
         <NavButton

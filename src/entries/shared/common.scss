@@ -35,3 +35,28 @@
     }
   }
 }
+
+/* Vuetify 4 移除了全局 CSS reset（v3 中 `* { padding: 0; margin: 0 }` 已不存在），
+ * 项目模板中的原生 h1-h6 / p / ul 等元素会重新获得浏览器默认 margin/padding。
+ * 此处按官方 Upgrade Guide 建议选择性恢复这些 reset，保持与 v3 一致的显示。
+ * （放在 @layer vuetify-core.reset 中，不会覆盖组件样式。） */
+@layer vuetify-core.reset {
+  ul,
+  ol,
+  figure,
+  details,
+  summary {
+    padding: 0;
+    margin: 0;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  p {
+    margin: 0;
+  }
+}

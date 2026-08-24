@@ -104,10 +104,10 @@ async function saveStoredDownloaderConfig() {
               persistent-hint
               @update:model-value="(e) => updateStoredDownloaderConfigByDefault(e)"
             >
-              <template #selection="{ item: { raw: downloader } }">
+              <template #selection="{ item: downloader }">
                 <v-list-item :prepend-avatar="getDownloaderIcon(downloader.type)" :title="downloader.type" />
               </template>
-              <template #item="{ props, item: { raw: downloader } }">
+              <template #item="{ props, item: downloader }">
                 <v-list-item
                   v-bind="props"
                   :prepend-avatar="getDownloaderIcon(downloader.type)"

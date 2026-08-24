@@ -1,0 +1,4 @@
+// 应用 v3 兼容设置后引入 Vuetify 基础样式
+// （直接引用 main.sass 以避免 vite-plugin-vuetify 的临时文件重写，保证模块身份一致）
+@use "./settings";
+@use "vuetify/lib/styles/main.sass";

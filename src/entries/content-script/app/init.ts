@@ -3,7 +3,7 @@
  *  Vuetify 的其他样式会被自动构造在 /pt-depiler.css 中
  */
 import appCss from "./app.css?inline";
-import vuetifyCss from "vuetify/styles?inline";
+import vuetifyCss from "../../../styles/vuetify/styles.scss?inline";
 
 import { createApp } from "vue";
 

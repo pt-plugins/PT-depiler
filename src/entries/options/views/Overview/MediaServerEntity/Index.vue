@@ -215,7 +215,7 @@ onMounted(async () => {
       </div>
     </div>
     <v-row v-else>
-      <v-col class="d-flex justify-center text-body-1">{{ t("MediaServerEntity.noItems") }}</v-col>
+      <v-col class="d-flex justify-center text-body-large">{{ t("MediaServerEntity.noItems") }}</v-col>
     </v-row>
 
     <!-- TODO 点击加载更多 -->

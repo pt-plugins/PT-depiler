@@ -4,6 +4,7 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { useElementSize } from "@vueuse/core";
 import { computed, onMounted, ref, shallowRef, provide, useTemplateRef } from "vue";
+import { eachDayOfInterval } from "date-fns";
 import { flatten, mapValues, pick, uniq } from "es-toolkit";
 import VChart, { THEME_KEY } from "vue-echarts";
 import { isNumber } from "es-toolkit/compat";
@@ -428,7 +429,7 @@ function saveControl() {
 
 <template>
   <v-card>
-    <v-row class="pa-2" justify="start">
+    <v-row class="justify-start pa-2">
       <v-col ref="chartContainer" id="chartContainer" style="max-width: 800px">
         <!-- 总上传、总下载、总积分 -->
         <v-chart
@@ -477,7 +478,7 @@ function saveControl() {
         </template>
       </v-col>
       <v-col>
-        <v-row class="flex-nowrap mb-0">
+        <v-row class="flex-nowrap mb-1">
           <v-col class="d-flex">
             <NavButton color="grey" icon="mdi-arrow-left" :text="t('common.back')" @click="() => router.back()" />
             <v-spacer />
@@ -494,7 +495,7 @@ function saveControl() {
         <v-alert :title="t('UserDataStatistic.chart.chartStyleSettings')" type="info" class="mb-2"> </v-alert>
 
         <v-row>
-          <v-col align-self="center">
+          <v-col class="align-self-center">
             <v-label>{{ t("common.username") }}</v-label>
           </v-col>
           <v-col cols="12" sm="10">
@@ -519,11 +520,11 @@ function saveControl() {
         </v-row>
 
         <v-row>
-          <v-col align-self="center">
+          <v-col class="align-self-center">
             <v-label>{{ t("UserDataStatistic.chart.displayChart") }}</v-label>
           </v-col>
           <v-col cols="12" sm="10">
-            <v-row>
+            <v-row gap="0">
               <v-col
                 v-for="(item, index) in configStore.userStatisticControl.showChart"
                 class="py-0"
@@ -542,7 +543,7 @@ function saveControl() {
         </v-row>
 
         <v-row>
-          <v-col align-self="center">
+          <v-col class="align-self-center">
             <v-label>{{ t("UserDataStatistic.chart.dateRange") }}</v-label>
           </v-col>
           <v-col cols="12" sm="10">
@@ -573,7 +574,10 @@ function saveControl() {
                     show-adjacent-months
                     @update:model-value="
                       (v: unknown) => {
-                        selectedDateRanges = (v as Date[]).map((x) => formatDate(x, 'yyyy-MM-dd')) as string[];
+                        const [start, end] = v as Date[];
+                        selectedDateRanges = eachDayOfInterval({ start, end }).map((x) =>
+                          formatDate(x, 'yyyy-MM-dd'),
+                        ) as string[];
                         configStore.userStatisticControl.dateRange = 'custom';
                       }
                     "
@@ -588,7 +592,7 @@ function saveControl() {
         </v-row>
 
         <v-row>
-          <v-col align-self="center">
+          <v-col class="align-self-center">
             <v-label>{{ t("UserDataStatistic.chart.chartSettings") }}</v-label>
           </v-col>
           <v-col cols="12" sm="10">
@@ -613,7 +617,7 @@ function saveControl() {
           </template>
         </v-alert>
 
-        <v-row class="my-2">
+        <v-row gap="0" class="my-2">
           <v-col v-for="siteId in allSites" :key="siteId" class="py-0" cols="6" sm="3">
             <v-checkbox
               v-model="selectedSites"

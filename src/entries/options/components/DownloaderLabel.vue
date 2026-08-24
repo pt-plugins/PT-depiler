@@ -40,7 +40,7 @@ const downloaderIcon = computed(() => {
         </span>
         <template v-if="downloaderConfig">
           <br />
-          <a :href="downloaderConfig.address" class="text-caption" target="_blank">
+          <a :href="downloaderConfig.address" class="text-body-small" target="_blank">
             [{{ downloaderConfig.address }}]
           </a>
         </template>

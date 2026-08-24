@@ -20,7 +20,7 @@ const tagIs = props.tag ?? "a";
 
 const renderProp = reactive<Record<string, any>>({
   ...attrs,
-  class: props.class ?? ["text-caption", "text-decoration-none", "text-grey", "text-no-wrap"],
+  class: props.class ?? ["text-body-small", "text-decoration-none", "text-grey", "text-no-wrap"],
 });
 
 if (tagIs === "a") {

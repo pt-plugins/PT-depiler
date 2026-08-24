@@ -238,13 +238,13 @@ function dialogLeave() {
                 :placeholder="t('SentToDownloaderDialog.selectDownloader')"
                 @update:model-value="restoreAddTorrentOptions"
               >
-                <template #selection="{ item: { raw: downloader } }">
+                <template #selection="{ item: downloader }">
                   <v-list-item
                     :prepend-avatar="getDownloaderIcon(downloader.type)"
                     :title="downloaderTitle(downloader)"
                   />
                 </template>
-                <template #item="{ props, item: { raw: downloader } }">
+                <template #item="{ props, item: downloader }">
                   <v-list-item
                     v-bind="props"
                     :prepend-avatar="getDownloaderIcon(downloader.type)"

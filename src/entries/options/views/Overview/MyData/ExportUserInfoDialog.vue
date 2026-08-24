@@ -202,7 +202,7 @@ function convertToJSON(items: IHistoryUserInfo[]): string {
       <v-card-text class="pt-4">
         <v-row>
           <v-col cols="12">
-            <v-label class="text-body-2 font-weight-bold mb-2 d-block">
+            <v-label class="text-body-medium font-weight-bold mb-2 d-block">
               {{ t("MyData.exportDialog.formatLabel") }}
             </v-label>
             <v-btn-toggle v-model="exportFormat" color="orange-darken-3" density="compact" mandatory variant="outlined">
@@ -220,11 +220,11 @@ function convertToJSON(items: IHistoryUserInfo[]): string {
 
         <v-row>
           <v-col cols="12">
-            <v-label class="text-body-2 font-weight-bold mb-2 d-block">
+            <v-label class="text-body-medium font-weight-bold mb-2 d-block">
               {{ t("MyData.exportDialog.fieldsLabel") }}
             </v-label>
             <v-card variant="outlined" class="pa-2">
-              <v-row dense>
+              <v-row density="compact">
                 <v-col v-for="field in allExportFields" :key="field.key" cols="6" md="4">
                   <v-checkbox
                     :model-value="selectedKeys.includes(field.key)"

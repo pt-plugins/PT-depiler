@@ -256,16 +256,16 @@ async function copyLinksToClipboard(task: IKeepUploadTask) {
           <a
             :href="item.items[0]?.link"
             target="_blank"
-            class="text-decoration-none text-high-emphasis text-subtitle-1 text-truncate"
+            class="text-decoration-none text-high-emphasis text-body-large text-truncate"
             rel="noopener noreferrer nofollow"
           >
             {{ item.title }}
           </a>
-          <div class="text-caption text-grey">
+          <div class="text-body-small text-grey">
             {{ t("KeepUploadTask.savePath") }}{{ item.downloadOptions?.clientName }} ->
             {{ item.downloadOptions?.savePath || t("KeepUploadTask.defaultPath") }}
           </div>
-          <div class="text-caption">{{ t("KeepUploadTask.torrentCount") }}{{ item.items.length }}</div>
+          <div class="text-body-small">{{ t("KeepUploadTask.torrentCount") }}{{ item.items.length }}</div>
         </div>
       </template>
 

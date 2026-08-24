@@ -232,7 +232,7 @@ function saveControl() {
 
 <template>
   <v-card>
-    <v-row class="pa-2" justify="start">
+    <v-row class="justify-start pa-2">
       <v-col
         ref="canvasContainer"
         :style="{
@@ -524,7 +524,7 @@ function saveControl() {
         </vk-stage>
       </v-col>
       <v-col cols="12" sm>
-        <v-row class="flex-nowrap mb-0">
+        <v-row class="flex-nowrap mb-1">
           <v-col class="d-flex">
             <NavButton color="grey" icon="mdi-arrow-left" :text="t('common.back')" @click="() => router.back()" />
             <v-spacer />
@@ -640,12 +640,12 @@ function saveControl() {
         </v-row>
 
         <v-row>
-          <v-col class="ml-2" align-self="center">
+          <v-col class="align-self-center ml-2">
             <v-label>{{ t("UserDataTimeline.controls.displayContent") }}</v-label>
           </v-col>
           <v-col cols="12" sm="10">
             <v-label class="my-2">{{ t("UserDataTimeline.controls.statsSection") }}</v-label>
-            <v-row class="pl-5">
+            <v-row gap="0" class="pl-5">
               <v-col v-for="(v, key) in control.showField" class="pa-0" cols="6" sm="4" :key="key">
                 <v-switch
                   v-model="control.showField[key]"
@@ -657,7 +657,7 @@ function saveControl() {
               </v-col>
             </v-row>
             <v-label class="my-2">{{ t("UserDataTimeline.controls.timelineSection") }}</v-label>
-            <v-row class="pl-5">
+            <v-row gap="0" class="pl-5">
               <v-col v-for="(v, key) in control.showPerSiteField" :key="key" class="pa-0" cols="6" sm="4">
                 <v-switch
                   :key="key"
@@ -673,7 +673,7 @@ function saveControl() {
         </v-row>
 
         <v-row>
-          <v-col class="ml-2" align-self="center">
+          <v-col class="align-self-center ml-2">
             <v-label>{{ t("UserDataTimeline.controls.timeDisplay") }}</v-label>
           </v-col>
           <v-col cols="12" sm="10">
@@ -695,7 +695,7 @@ function saveControl() {
           </template>
         </v-alert>
 
-        <v-row class="my-2">
+        <v-row gap="0" class="my-2">
           <v-col v-for="(site, siteId) in fixedLastUserInfo" :key="siteId" class="py-0" cols="6" sm="3">
             <v-checkbox
               v-model="selectedSites"

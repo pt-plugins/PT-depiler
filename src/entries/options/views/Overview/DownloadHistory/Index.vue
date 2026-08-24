@@ -101,7 +101,7 @@ onUnmounted(() => {
   <v-alert :title="t('route.Overview.DownloadHistory')" type="info" />
   <v-card>
     <v-card-title>
-      <v-row class="ma-0">
+      <v-row gap="0" class="ma-0">
         <!-- 按钮组 -->
         <NavButton
           color="green"
@@ -233,17 +233,11 @@ onUnmounted(() => {
   <v-dialog v-model="showDownloadDetailDialog" width="800">
     <v-card>
       <v-card-text>
-        <v-alert
-          v-if="downloadDetail.errorMessage"
-          class="mb-3"
-          color="error"
-          icon="mdi-alert"
-          variant="tonal"
-        >
-          <div class="text-subtitle-2 font-weight-bold mb-1">
+        <v-alert v-if="downloadDetail.errorMessage" class="mb-3" color="error" icon="mdi-alert" variant="tonal">
+          <div class="text-label-large font-weight-bold mb-1">
             {{ t("DownloadHistory.detail.errorMessage") }}
           </div>
-          <code class="text-body-2">{{ downloadDetail.errorMessage }}</code>
+          <code class="text-body-medium">{{ downloadDetail.errorMessage }}</code>
         </v-alert>
         <pre> {{ JSON.stringify(downloadDetail, null, 2) }}</pre>
       </v-card-text>
