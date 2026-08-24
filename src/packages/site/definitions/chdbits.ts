@@ -2,7 +2,7 @@
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/chdbits.yml
  */
 import { ETorrentStatus, type ISiteMetadata } from "../types";
-import { SchemaMetadata } from "../schemas/NexusPHP";
+import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -145,6 +145,9 @@ export const siteMetadata: ISiteMetadata = {
         { value: 25, name: "Destiny" },
       ],
     },
+    CategoryIncldead,
+    CategorySpstate,
+    CategoryInclbookmarked,
   ],
 
   officialGroupPattern: [/-(CHD|.*@CHDBits)|@CHDWEB/i],
