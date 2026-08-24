@@ -1,7 +1,13 @@
 import { set } from "es-toolkit/compat";
 import type { IAdvancedSearchRequestConfig, ISiteMetadata, TSelectSearchCategoryValue } from "../types";
 import { GB, TB } from "../utils";
-import { CategoryIncldead, CategorySpstate, CategoryInclbookmarked, SchemaMetadata, createUserBonusSelectorFn } from "../schemas/NexusPHP";
+import {
+  CategoryIncldead,
+  CategorySpstate,
+  CategoryInclbookmarked,
+  SchemaMetadata,
+  createUserBonusSelectorFn,
+} from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
@@ -32,6 +38,7 @@ export const siteMetadata: ISiteMetadata = {
         { value: 406, name: "Music(音乐)" },
         { value: 407, name: "Sports(体育)" },
         { value: 409, name: "MV(音乐视频)" },
+        { value: 415, name: "有声书" },
         { value: 408, name: "Others(其他)" },
       ],
       cross: { mode: "append" },
