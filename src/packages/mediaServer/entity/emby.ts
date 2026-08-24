@@ -113,10 +113,10 @@ export default class Emby extends AbstractMediaServer<IEmbyConfig> {
     return urlJoin(serverAddress, "/web/index.html");
   }
 
-  protected async request<T = any, R = AxiosResponse<T>, D = any>(
+  protected async request<T = any, D = any>(
     url: string,
     config: AxiosRequestConfig<D> = {},
-  ): Promise<R> {
+  ): Promise<AxiosResponse<T, D>> {
     config.baseURL = this.apiBaseUrl;
     config.timeout ??= this.config.timeout; // 未额外传入 timeout 时，使用默认的 timeout
 
@@ -129,7 +129,7 @@ export default class Emby extends AbstractMediaServer<IEmbyConfig> {
     // 处理请求url
     config.url = url;
 
-    return axios.request(config);
+    return axios.request<T>(config);
   }
 
   public override async ping(): Promise<boolean> {
