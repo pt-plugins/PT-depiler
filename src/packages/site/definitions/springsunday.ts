@@ -41,6 +41,7 @@ export const siteMetadata: ISiteMetadata = {
         { value: 506, name: "Sports(体育)" },
         { value: 507, name: "MV(音乐视频)" },
         { value: 508, name: "Music(音乐)" },
+        { value: 510, name: "Audio(有声)" },
         { value: 509, name: "Others(其他)" },
       ],
       cross: { mode: "append" },
@@ -177,7 +178,10 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
     CategoryIncldead,
-    CategorySpstate,
+    {
+      ...CategorySpstate,
+      options: [...CategorySpstate.options, { name: "1日返还", value: 9 }, { name: "3日返还", value: 8 }],
+    },
     {
       name: "显示推荐种子？",
       key: "pick",
