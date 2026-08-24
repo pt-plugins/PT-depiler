@@ -27,6 +27,7 @@ export const siteMetadata: ISiteMetadata = {
       key: "cat",
       options: [
         { name: "儿童", value: 417 },
+        { name: "短剧", value: 418 },
         { name: "HQ音乐", value: 408 },
         { name: "其他", value: 409 },
         { name: "体育", value: 407 },
