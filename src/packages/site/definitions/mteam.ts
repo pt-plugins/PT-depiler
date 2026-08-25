@@ -386,11 +386,9 @@ export const siteMetadata: ISiteMetadata = {
         },
       },
       {
-        requestConfig: { url: "/api/tracker/myPeerStatistics", method: "POST", responseType: "json" },
+        requestConfig: { url: "/api/tracker/myPeerStatus", method: "POST", responseType: "json" },
         selectors: {
-          seeding: { selector: "data.seederCount", filters: [{ name: "parseNumber" }] },
-          seedingSize: { selector: "data.seederSize", filters: [{ name: "parseNumber" }] },
-          uploads: { selector: "data.uploadCount", filters: [{ name: "parseNumber" }] },
+          seeding: { selector: "data.seeder", filters: [{ name: "parseNumber" }] },
         },
       },
       {
