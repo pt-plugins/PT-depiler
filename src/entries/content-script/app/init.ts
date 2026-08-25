@@ -74,7 +74,7 @@ export function mountApp(document: Document, data: any = {}) {
     const styleContent = vuetifyTheme.textContent || "";
     const vuetifyThemeStylesheet = document.createElement("style");
     vuetifyThemeStylesheet.id = "ptd-content-script-style-vuetify-theme-stylesheet"; // 设置 id 以便于后续查找
-    vuetifyThemeStylesheet.textContent = styleContent.replace(":root", ":host");
+    vuetifyThemeStylesheet.textContent = styleContent.replaceAll(":root", ":host");
     shadowRoot.appendChild(vuetifyThemeStylesheet); // 克隆并添加 Vuetify 的主题样式到 shadow DOM 中
 
     if (hasSiteVuetifyThemePre) {
