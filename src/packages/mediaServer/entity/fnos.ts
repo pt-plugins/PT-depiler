@@ -244,11 +244,11 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
     return session;
   }
 
-  protected async request<T = any, R = AxiosResponse<T>, D = any>(
+  protected async request<T = any, D = any>(
     url: string,
     config: AxiosRequestConfig<D> = {},
     retried = false,
-  ): Promise<R> {
+  ): Promise<AxiosResponse<T, D>> {
     const session = await this.login();
 
     config.baseURL = this.apiBaseUrl;
@@ -262,7 +262,7 @@ export default class FnOS extends AbstractMediaServer<IFnOSConfig> {
     };
 
     try {
-      return await axios.request(config);
+      return await axios.request<T>(config);
     } catch (e) {
       if (!retried && e instanceof AxiosError && e.response?.status === 401) {
         await this.login(true);
