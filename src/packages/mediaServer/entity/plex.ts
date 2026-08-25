@@ -129,10 +129,10 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
     return serverAddress.replace(/\/$/, "") + "/web/index.html";
   }
 
-  protected async request<T = any, R = AxiosResponse<T>, D = any>(
+  protected async request<T = any, D = any>(
     url: string,
     config: AxiosRequestConfig<D> = {},
-  ): Promise<R> {
+  ): Promise<AxiosResponse<T, D>> {
     config.baseURL = this.apiBaseUrl;
     config.url = url;
     config.timeout ??= this.config.timeout; // 未额外传入 timeout 时，使用默认的 timeout
@@ -143,7 +143,7 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
     config.params["X-Plex-Token"] = this.config.auth.apikey;
 
     config.responseType = "json";
-    return axios.request(config);
+    return axios.request<T>(config);
   }
 
   private async getServerIdentity(): Promise<string | undefined> {
