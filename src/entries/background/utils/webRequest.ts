@@ -6,7 +6,9 @@ onMessage("updateDNRSessionRules", async ({ data: { rule, extOnly = true } }) =>
     const tabs = await chrome.tabs.query({});
     const excludedTabIds: number[] = [];
     tabs.forEach((tab) => {
-      if (tab.id && tab.url) {
+      // 仅排除普通网页标签页；扩展自身页面（如 options）发起的请求仍应命中规则，
+      // 否则从扩展页面调用的 replaceUnsafeHeader（如下载器连接测试）永远不生效
+      if (tab.id && tab.url && !tab.url.startsWith("chrome-extension://")) {
         excludedTabIds.push(tab.id);
       }
     });

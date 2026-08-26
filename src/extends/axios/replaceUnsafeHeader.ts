@@ -30,18 +30,23 @@ export const unsafeHeaders: { [key: string]: boolean } = {
 
 interface AxiosAllowUnsafeHeaderInstance extends AxiosInstance {
   defaults: AxiosInstance["defaults"] & {
-    allowUnsafeHeader: boolean;
+    allowUnsafeHeader?: boolean;
   };
 }
+
+// 记录已完成包装的实例。不能用 defaults.allowUnsafeHeader 标志位做防重：
+// axios.create() 会通过 mergeConfig 继承 defaults，导致新实例一出生就带上标志位，
+// 再调用本函数时被"只调用一次"守卫跳过、拦截器不注册（qBittorrent 客户端曾踩坑）。
+const wrappedInstances = new WeakSet<AxiosInstance>();
 
 export function setupReplaceUnsafeHeader(axios: AxiosInstance): AxiosAllowUnsafeHeaderInstance {
   const axiosAllowUnsafeHeaderInstance = axios as AxiosAllowUnsafeHeaderInstance;
 
-  if (axiosAllowUnsafeHeaderInstance.defaults.allowUnsafeHeader) {
+  if (wrappedInstances.has(axios)) {
     console.debug("setupReplaceUnsafeHeader() should be called only once");
     return axiosAllowUnsafeHeaderInstance;
   }
-  axiosAllowUnsafeHeaderInstance.defaults.allowUnsafeHeader = true;
+  wrappedInstances.add(axios);
 
   // Add a request interceptor
   axiosAllowUnsafeHeaderInstance.interceptors.request.use(async function (config) {
