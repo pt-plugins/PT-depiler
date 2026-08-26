@@ -138,7 +138,6 @@ export const siteMetadata: ISiteMetadata = {
         { value: 424, name: "TVMusic 1080i" },
         { value: 425, name: "TVShow SD" },
         { value: 426, name: "TVShow IPad" },
-        { value: 471, name: "TVShow IPad" },
         { value: 427, name: "TVShow 720p" },
         { value: 428, name: "TVShow 1080i" },
         { value: 429, name: "TVShow 1080p" },
