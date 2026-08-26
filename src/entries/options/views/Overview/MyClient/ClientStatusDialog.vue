@@ -104,7 +104,7 @@ function onEnter() {
 
             <v-list-item-title class="font-weight-bold">
               {{ d.name }}
-              <span v-if="clientVersions[d.id]" class="ml-2 text-caption text-grey">
+              <span v-if="clientVersions[d.id]" class="ml-2 text-body-small text-grey">
                 {{ clientVersions[d.id] }}
               </span>
               <v-icon
@@ -122,7 +122,7 @@ function onEnter() {
             <v-list-item-subtitle>
               <a
                 :href="d.address"
-                class="text-primary text-decoration-underline text-caption"
+                class="text-primary text-decoration-underline text-body-small"
                 rel="noopener noreferrer nofollow"
                 target="_blank"
                 @click.stop
@@ -134,7 +134,7 @@ function onEnter() {
             <template #append>
               <v-progress-circular v-if="clientLoading[d.id]" indeterminate size="20" width="2" class="mr-4" />
               <template v-else>
-                <div class="text-end text-caption mr-2">
+                <div class="text-end text-body-small mr-2">
                   <div class="d-flex align-center justify-end ga-1">
                     <v-icon color="green-darken-4" icon="mdi-chevron-up" size="small" />
                     <span class="text-no-wrap">

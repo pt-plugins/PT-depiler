@@ -46,15 +46,17 @@ function enterDialog() {
       </v-card-title>
       <v-divider />
       <v-card-text class="overflow-y-auto">
-        <v-container>
-          <v-row><v-label>{{ t("common.AdvanceFilterGenerateDialog.keywords") }}</v-label> </v-row>
-          <v-row>
+        <v-container class="pa-0">
+          <v-row gap="0"
+            ><v-label>{{ t("common.AdvanceFilterGenerateDialog.keywords") }}</v-label>
+          </v-row>
+          <v-row class="mt-0">
             <v-col>
               <v-combobox
                 v-model="advanceFilterDictRef.text.required"
                 chips
                 hide-details
-              :label="t('common.AdvanceFilterGenerateDialog.required')"
+                :label="t('common.AdvanceFilterGenerateDialog.required')"
                 multiple
               ></v-combobox>
             </v-col>
@@ -63,13 +65,15 @@ function enterDialog() {
                 v-model="advanceFilterDictRef.text.exclude"
                 chips
                 hide-details
-              :label="t('common.AdvanceFilterGenerateDialog.exclude')"
+                :label="t('common.AdvanceFilterGenerateDialog.exclude')"
                 multiple
               ></v-combobox>
             </v-col>
           </v-row>
-          <v-row><v-label>{{ t("common.AdvanceFilterGenerateDialog.site") }}</v-label></v-row>
-          <v-row>
+          <v-row gap="0"
+            ><v-label>{{ t("common.AdvanceFilterGenerateDialog.site") }}</v-label></v-row
+          >
+          <v-row gap="0">
             <v-col
               v-for="site in advanceItemPropsRef.siteId"
               :key="`${reBuildFilterCountRef}_${site}`"
@@ -93,8 +97,10 @@ function enterDialog() {
               </v-checkbox>
             </v-col>
           </v-row>
-          <v-row><v-label>{{ t("DownloadHistory.AdvanceFilterGenerateDialog.downloader") }}</v-label></v-row>
-          <v-row>
+          <v-row gap="0"
+            ><v-label>{{ t("DownloadHistory.AdvanceFilterGenerateDialog.downloader") }}</v-label></v-row
+          >
+          <v-row gap="0">
             <v-col
               v-for="downloader in advanceItemPropsRef.downloaderId"
               :key="`${reBuildFilterCountRef}_${downloader}`"
@@ -117,9 +123,9 @@ function enterDialog() {
             </v-col>
           </v-row>
           <!-- TODO 下载状态 -->
-          <v-row>
+          <v-row gap="0">
             <v-col cols="12">
-              <v-row class="pr-4">
+              <v-row gap="0" class="pr-4">
                 <v-label>{{ t("common.AdvanceFilterGenerateDialog.date") }}</v-label>
                 <v-spacer />
                 <v-chip
@@ -151,7 +157,7 @@ function enterDialog() {
                   </v-menu>
                 </v-chip>
               </v-row>
-              <v-row>
+              <v-row gap="0">
                 <v-range-slider
                   v-model="advanceFilterDictRef.downloadAt"
                   :max="advanceItemPropsRef.downloadAt.range[1]"
@@ -176,10 +182,14 @@ function enterDialog() {
       </v-card-text>
       <v-divider />
       <v-card-actions>
-        <v-btn variant="text" @click="() => reBuildAdvanceFilter(true)">{{ t("common.AdvanceFilterGenerateDialog.reset") }}</v-btn>
+        <v-btn variant="text" @click="() => reBuildAdvanceFilter(true)">{{
+          t("common.AdvanceFilterGenerateDialog.reset")
+        }}</v-btn>
         <v-spacer />
         <v-btn color="error" variant="text" @click="showDialog = false">{{ t("common.dialog.cancel") }}</v-btn>
-        <v-btn color="primary" variant="text" @click="updateTableFilter">{{ t("common.AdvanceFilterGenerateDialog.generate") }}</v-btn>
+        <v-btn color="primary" variant="text" @click="updateTableFilter">{{
+          t("common.AdvanceFilterGenerateDialog.generate")
+        }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

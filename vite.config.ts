@@ -48,6 +48,18 @@ export default defineConfig({
     outDir: `dist-${target}`,
     emptyOutDir: true,
   },
+  // Vuetify 4: 强制 Vite 预打包 overlay 相关模块，避免 dev 模式下 useStack 被拆分为
+  // 两份实例导致 dialog 内的 menu/select 等浮层 z-index 计算失效（官方 Upgrade Guide 建议）。
+  // 仅影响 dev 模式；生产构建不受影响。
+  optimizeDeps: {
+    include: [
+      "vuetify/components/VOverlay",
+      "vuetify/components/VDialog",
+      "vuetify/components/VMenu",
+      "vuetify/components/VSelect",
+      "vuetify/components/VTooltip",
+    ],
+  },
   plugins: [
     vitePluginGenerateWebextLocales(),
     nodePolyfills({
@@ -60,7 +72,9 @@ export default defineConfig({
       launchEditor: fs.existsSync(base_path("./.idea")) ? "webstorm" : "vscode",
     }),
     vue(),
-    vuetify(),
+    vuetify({
+      styles: { configFile: "./src/styles/vuetify/settings.scss" },
+    }),
     webExtension({
       browser: target,
       disableAutoLaunch: true,

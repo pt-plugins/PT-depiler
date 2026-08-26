@@ -1,0 +1,11 @@
+// Vuetify 4 MD3 elevation shadows (0-5 scale), per the official Elevation Migration Guide.
+// Component defaults migrated from v3 MD2 values to the new 0-5 scale:
+//   VBtn 2/4/8 → 1/2/1 (v4 default; hover/active follow the MD3 defaults)
+//   All other components (VDialog 24, VMenu 8, VSnackbar 6, VCard 1/8, VNavigationDrawer 16,
+//   VBottomSheet 12, VAppBar 4, VCombobox/VAutocomplete/VSelect 4, VSwitch 4) map exactly to
+//   their v4 defaults (5/3/2/1/3/4/4/2/2/2), so no overrides are needed.
+// VBtn keeps v3 text-transform / letter-spacing.
+@use "vuetify/lib/components/VBtn/_variables" as * with (
+  $button-text-transform: uppercase,
+  $button-text-letter-spacing: 0.0892857143em
+);

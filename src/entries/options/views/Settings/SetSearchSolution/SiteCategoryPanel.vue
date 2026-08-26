@@ -157,8 +157,8 @@ onMounted(async () => {
           {{ t("SetSearchSolution.spDialog.noDefNotice") }}
         </div>
       </v-col>
-      <v-col align-self="center">
-        <v-row justify="end">
+      <v-col class="align-self-center">
+        <v-row class="justify-end">
           <v-btn
             :title="t('SetSearchSolution.spDialog.action.reset')"
             color="red"
@@ -167,7 +167,7 @@ onMounted(async () => {
             @click="() => resetSelectCategory()"
           />
         </v-row>
-        <v-row justify="end">
+        <v-row class="justify-end">
           <v-btn
             :title="t('SetSearchSolution.spDialog.action.create')"
             color="indigo"
@@ -176,7 +176,7 @@ onMounted(async () => {
             @click="() => showCustomSolutionDialogFn()"
           ></v-btn>
         </v-row>
-        <v-row justify="end">
+        <v-row class="justify-end">
           <v-btn
             :title="t('SetSearchSolution.spDialog.action.add')"
             color="blue"

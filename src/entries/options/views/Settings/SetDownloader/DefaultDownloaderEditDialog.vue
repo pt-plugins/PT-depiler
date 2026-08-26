@@ -78,14 +78,14 @@ function enterDialog() {
             item-value="id"
             @update:model-value="(e) => updateDefaultDownloaderInput(e)"
           >
-            <template #selection="{ item: { raw: downloader } }">
+            <template #selection="{ item: downloader }">
               <v-list-item
                 :prepend-avatar="getDownloaderIcon(downloader.type)"
                 :subtitle="downloader.address"
                 :title="downloader.name"
               />
             </template>
-            <template #item="{ props, item: { raw: downloader } }">
+            <template #item="{ props, item: downloader }">
               <v-list-item
                 v-bind="props"
                 :prepend-avatar="getDownloaderIcon(downloader.type)"
@@ -97,8 +97,16 @@ function enterDialog() {
           </v-autocomplete>
 
           <!-- 如果用户已经在对应下载器的预设了下载路径和标签，则加载对应的列表 -->
-          <v-combobox v-model="defaultDownloaderConfig.folder" :items="suggests.folder" :label="t('SetDownloader.PathAndTag.downloadPath.title')" />
-          <v-combobox v-model="defaultDownloaderConfig.tags" :items="suggests.tags" :label="t('SetDownloader.PathAndTag.tags.title')" />
+          <v-combobox
+            v-model="defaultDownloaderConfig.folder"
+            :items="suggests.folder"
+            :label="t('SetDownloader.PathAndTag.downloadPath.title')"
+          />
+          <v-combobox
+            v-model="defaultDownloaderConfig.tags"
+            :items="suggests.tags"
+            :label="t('SetDownloader.PathAndTag.tags.title')"
+          />
         </v-form>
       </v-card-text>
       <v-divider />

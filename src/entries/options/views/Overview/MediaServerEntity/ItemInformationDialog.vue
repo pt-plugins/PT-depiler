@@ -70,7 +70,7 @@ function secondsToISO8601(seconds: number) {
       <v-divider />
 
       <v-card-text>
-        <v-row align="center">
+        <v-row class="align-center">
           <v-col cols="8" offset="2" offset-sm="0" sm="4">
             <v-img :src="item.poster" :title="item.name" />
           </v-col>
@@ -78,13 +78,13 @@ function secondsToISO8601(seconds: number) {
             <a
               :href="item.url"
               :title="item.name"
-              class="w-100 text-h6 d-inline-block"
+              class="w-100 text-headline-small d-inline-block"
               rel="noopener noreferrer nofollow"
               target="_blank"
             >
               {{ item.name }}
             </a>
-            <p class="text-caption">{{ item.description ?? "" }}</p>
+            <p class="text-body-small">{{ item.description ?? "" }}</p>
             <div v-if="item.tags && item.tags.length > 0" class="info-label">
               <v-label class="pr-3">{{ t("MediaServerEntity.ItemInformationDialog.type") }}</v-label>
               <v-chip-group show-arrows>
@@ -170,7 +170,7 @@ function secondsToISO8601(seconds: number) {
                 rel="noopener noreferrer nofollow"
                 target="_blank"
               >
-                {{ t('common.visit') }}
+                {{ t("common.visit") }}
               </v-btn>
             </div>
           </v-col>

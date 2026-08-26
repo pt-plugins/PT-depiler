@@ -44,7 +44,13 @@ function saveSearchSnapshotData() {
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <v-text-field v-model="snapshotName" dense hide-details :label="t('SearchEntity.SaveSnapshotDialog.snapshotName')" outlined></v-text-field>
+        <v-text-field
+          v-model="snapshotName"
+          density="compact"
+          hide-details
+          variant="outlined"
+          :label="t('SearchEntity.SaveSnapshotDialog.snapshotName')"
+        ></v-text-field>
       </v-card-text>
       <v-card-actions>
         <v-spacer />
