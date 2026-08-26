@@ -17,10 +17,15 @@ import {
   TorrentQueueDirection,
   TorrentSpeedLimit,
 } from "../types";
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import axiosRaw, { AxiosRequestConfig, AxiosResponse } from "axios";
 import urlJoin from "url-join";
 import { getRemoteTorrentFile } from "../utils";
 import { merge } from "es-toolkit";
+import { setupReplaceUnsafeHeader } from "~/extends/axios/replaceUnsafeHeader.ts";
+
+// qBittorrent 专用 axios 实例：套上 replaceUnsafeHeader，
+// 使配置了「绕过 CSRF 保护」时可通过 DNR 移除浏览器自动添加的 Origin 请求头
+const axios = setupReplaceUnsafeHeader(axiosRaw.create());
 
 /**
  * 定义一个 前缀，用于标识 qBittorrent 的分类
@@ -44,7 +49,7 @@ export const clientMetaData: TorrentClientMetaData = {
   warning: [
     "当前仅支持 qBittorrent v4.1+",
     "如果你使用的 qBittorrent 版本大于 5.2.0，可以使用 API Key 形式连接，此时请直接留空用户名，在密码栏输入 API key。",
-    "由于浏览器限制，需要禁用 qBittorrent 的『启用跨站请求伪造(CSRF)保护』功能才能正常使用",
+    "如不便禁用 qBittorrent 的『启用跨站请求伪造(CSRF)保护』功能，可在下方高级设置中开启『绕过 CSRF 保护』选项",
     "注意：由于 qBittorrent 验证机制限制，第一次测试连接成功后，后续测试无论密码正确与否都会提示成功。",
   ],
   feature: {
@@ -81,12 +86,20 @@ export const clientMetaData: TorrentClientMetaData = {
     { name: "跳过哈希校验", key: "skip_checking", type: "boolean", defaultValue: false },
     { name: "顺序下载", key: "sequentialDownload", type: "boolean", defaultValue: false },
     { name: "先下载首尾文件块", key: "firstLastPiecePrio", type: "boolean", defaultValue: false },
+    {
+      name: "绕过 CSRF 保护",
+      key: "bypassCSRF",
+      type: "boolean",
+      defaultValue: false,
+      description:
+        "移除请求的 Origin 头以绕过 qBittorrent 的跨站请求伪造(CSRF)校验，开启后无需在 qBittorrent 中关闭 CSRF 保护",
+    },
   ],
 } as const;
 
 const QBittorrentAdvanceAddTorrentOptionsBooleanKey = clientMetaData
   .advanceAddTorrentOptions!.filter((x) => x.type === "boolean")
-  .map((x) => x.key) as ["autoTMM", "skip_checking", "sequentialDownload", "firstLastPiecePrio"];
+  .map((x) => x.key) as ["autoTMM", "skip_checking", "sequentialDownload", "firstLastPiecePrio", "bypassCSRF"];
 type TQBittorrentAdvanceAddTorrentOptionsBooleanKey = (typeof QBittorrentAdvanceAddTorrentOptionsBooleanKey)[number];
 type TQBittorrentAdvanceAddTorrentOptionsKey = TQBittorrentAdvanceAddTorrentOptionsBooleanKey | string;
 
@@ -234,6 +247,11 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     return !this.config.username && this.config.password.startsWith("qbt_");
   }
 
+  // 是否启用「绕过 CSRF 保护」：请求时通过 DNR 移除 Origin 头
+  private get bypassCSRF(): boolean {
+    return this.config.advanceAddTorrentOptions?.bypassCSRF === true;
+  }
+
   async ping(): Promise<boolean> {
     try {
       if (this.isApiKeyAuth) {
@@ -301,6 +319,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     return await axios.post(urlJoin(this.config.address, "/api/v2", "/auth/login"), form, {
       timeout: this.config.timeout,
       withCredentials: true,
+      ...(this.bypassCSRF ? { headers: { origin: "" } } : {}),
     });
   }
 
@@ -320,6 +339,13 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
       config.headers = {
         ...(config.headers ?? {}),
         Authorization: `Bearer ${this.config.password}`,
+      };
+    }
+
+    if (this.bypassCSRF) {
+      config.headers = {
+        ...(config.headers ?? {}),
+        origin: "", // 空字符串哨兵：replaceUnsafeHeader 拦截器会将其转为移除 Origin 头
       };
     }
 
@@ -417,6 +443,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
 
     // 处理高级选项（Boolean类型）
     for (const key of QBittorrentAdvanceAddTorrentOptionsBooleanKey) {
+      if (key === "bypassCSRF") continue; // 连接行为开关，仅在客户端内生效，不传递给 qBittorrent API
       if (advanceAddTorrentOptions[key] === true) {
         formData.append(key, "true");
       }

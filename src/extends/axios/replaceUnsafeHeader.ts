@@ -52,11 +52,21 @@ export function setupReplaceUnsafeHeader(axios: AxiosInstance): AxiosAllowUnsafe
       for (const [key, value] of config.headers) {
         const lowerKey = key.toLowerCase();
         if (unsafeHeaders[lowerKey] || lowerKey.startsWith("sec-") || lowerKey.startsWith("proxy-")) {
-          requestHeaders.push({
-            header: key,
-            operation: "set" as chrome.declarativeNetRequest.HeaderOperation.SET,
-            value: String(value),
-          });
+          // 值为 null/undefined/空字符串时视为"移除该请求头"（如 qBittorrent 绕过 CSRF 校验需要移除 Origin），
+          // 而不是设置一个空值。注意不能用 null 作哨兵：AxiosHeaders 在构造/合并阶段就会丢弃 null 值，
+          // 拦截器里看不到，空字符串可以存活到拦截器。
+          requestHeaders.push(
+            value === null || value === undefined || value === ""
+              ? {
+                  header: key,
+                  operation: "remove" as chrome.declarativeNetRequest.HeaderOperation.REMOVE,
+                }
+              : {
+                  header: key,
+                  operation: "set" as chrome.declarativeNetRequest.HeaderOperation.SET,
+                  value: String(value),
+                },
+          );
           config.headers.delete(key);
         }
       }
