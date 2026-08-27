@@ -121,6 +121,17 @@ async function checkConnect() {
             hide-details
           />
         </v-row>
+        <!-- 连接行为开关（非种子添加参数），仅 qBittorrent 需要；值复用 advanceAddTorrentOptions 字典存储 -->
+        <v-row>
+          <v-switch
+            v-if="clientConfig.type === 'qBittorrent'"
+            v-model="clientConfig.advanceAddTorrentOptions!.bypassCSRF"
+            class="ml-4"
+            color="success"
+            label="绕过 CSRF 保护"
+            messages="移除请求的 Origin 头以绕过 qBittorrent 的跨站请求伪造(CSRF)校验，开启后无需在 qBittorrent 中关闭 CSRF 保护"
+          />
+        </v-row>
 
         <v-row v-if="clientMeta.advanceAddTorrentOptions">
           <v-col>
