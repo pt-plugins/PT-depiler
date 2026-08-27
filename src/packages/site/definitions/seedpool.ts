@@ -141,7 +141,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "MP3 Pack", value: 31 },
         { name: "Karaoke", value: 43 },
         { name: "Music Videos", value: 55 },
-        { name: "Samples &amp; SFX", value: 48 },
+        { name: "Samples & SFX", value: 48 },
         { name: "3D Print", value: 38 },
         { name: "Book", value: 20 },
         { name: "Comic", value: 40 },

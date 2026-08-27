@@ -52,7 +52,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "Classical", value: 30 },
         { name: "Electronic", value: 31 },
         { name: "Hip-Hop / Rap", value: 32 },
-        { name: "Jazz &amp; Funk", value: 33 },
+        { name: "Jazz & Funk", value: 33 },
         { name: "Latin", value: 34 },
         { name: "Pop", value: 35 },
         { name: "Rock", value: 36 },
