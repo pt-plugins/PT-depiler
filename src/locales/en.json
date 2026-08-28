@@ -534,7 +534,7 @@
   },
   "SetBase": {
     "download": {
-      "MyClientTitle": "My Downloader",
+      "myClientTitle": "My Downloader",
       "allowDirectSendToClient": "Allow sending links directly (instead of torrent files) to the download server (Do not enable unless necessary)",
       "enableSiteFilter": "Enable site filter (configure per-downloader site filtering in downloader settings)",
       "initDownloaderTorrentOnEnter": "Automatically load torrents from the downloader when entering the My Downloader page",
