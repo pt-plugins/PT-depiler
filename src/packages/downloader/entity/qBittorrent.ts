@@ -17,15 +17,10 @@ import {
   TorrentQueueDirection,
   TorrentSpeedLimit,
 } from "../types";
-import axiosRaw, { AxiosRequestConfig, AxiosResponse } from "axios";
+import { AxiosRequestConfig, AxiosResponse } from "axios";
 import urlJoin from "url-join";
-import { getRemoteTorrentFile } from "../utils";
+import { axios, getRemoteTorrentFile } from "../utils";
 import { merge } from "es-toolkit";
-import { setupReplaceUnsafeHeader } from "~/extends/axios/replaceUnsafeHeader.ts";
-
-// qBittorrent 专用 axios 实例：套上 replaceUnsafeHeader，
-// 使配置了「绕过 CSRF 保护」时可通过 DNR 移除浏览器自动添加的 Origin 请求头
-const axios = setupReplaceUnsafeHeader(axiosRaw.create());
 
 /**
  * 定义一个 前缀，用于标识 qBittorrent 的分类

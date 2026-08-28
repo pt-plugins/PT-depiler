@@ -4,6 +4,8 @@ import parseTorrent, { Instance as TorrentInstance } from "parse-torrent";
 import isValidFilename from "valid-filename";
 import { decode } from "urlencode";
 
+export * from "./utils/adapter";
+
 export interface ParsedTorrent {
   name: string;
   metadata: {
