@@ -25,7 +25,7 @@ import { getRemoteTorrentFile } from "../utils";
 export const clientConfig: TorrentClientConfig = {
   type: "Flood",
   name: "Flood",
-  address: "http://172.0.0.1:3000",
+  address: "http://127.0.0.1:3000",
   username: "",
   password: "",
   timeout: 60 * 1e3,
@@ -259,7 +259,8 @@ interface TorrentProperties {
   eta: number;
   // Upper-case hash of info section of the torrent
   hash: string;
-  isComplete: boolean;
+  // jesec 新版已移除该字段，改为通过 bytesDone/sizeBytes 或 status 推导
+  isComplete?: boolean;
   isPrivate: boolean;
   // If initial seeding mode (aka super seeding) is enabled
   isInitialSeeding: boolean;
@@ -297,6 +298,13 @@ export default class Flood extends AbstractBittorrentClient {
 
   private apiType?: FloodApiType;
 
+  /**
+   * Flood（jesec 分支）的认证依赖登录后下发的 jwt 会话 Cookie（httpOnly, SameSite=strict），
+   * 因此必须复用同一个开启 withCredentials 的 axios 实例，否则登录成功后 Cookie 无法留存，
+   * 后续请求全部 401。扩展已声明全量 host permission，跨域携带 Cookie 不受 SameSite 限制。
+   */
+  private readonly sessionedAxios = axios.create({ withCredentials: true });
+
   constructor(options: Partial<TorrentClientConfig> = {}) {
     super({ ...clientConfig, ...options });
   }
@@ -304,13 +312,18 @@ export default class Flood extends AbstractBittorrentClient {
   private async getEndPointType(): Promise<FloodApiType> {
     if (this.apiType == null) {
       try {
-        await axios.get(FloodApiEndpointMap.legacy.verify, {
+        const resp = await this.sessionedAxios.get(FloodApiEndpointMap.legacy.verify, {
           baseURL: this.config.address,
-          timeout: this.config.timeout,
+          // 探测超时单独收紧：部分 jesec 版本对不存在的 GET 路由不返回 404 而是挂起，
+          // 用短超时快速失败，避免拖满全局 timeout 才进入 jesec 分支
+          timeout: Math.min(this.config.timeout ?? 60e3, 10e3),
         });
-        this.apiType = "legacy";
+        this.apiType = resp.status === 404 ? "jesec" : "legacy";
       } catch (error) {
-        this.apiType = "jesec";
+        // 旧版未认证时 /auth/verify 返回 401，有 HTTP 响应即视为路由存在（legacy）；
+        // 404 或超时/网络错误（含 jesec 对未知 GET 路由挂起的情况）归为 jesec
+        const status = (error as AxiosError).response?.status;
+        this.apiType = status && status !== 404 ? "legacy" : "jesec";
       }
     }
     return this.apiType as FloodApiType;
@@ -325,7 +338,7 @@ export default class Flood extends AbstractBittorrentClient {
     const endPointUrl = await this.getEndPointUrl(endpoint);
 
     try {
-      return await axios.request<T>({
+      return await this.sessionedAxios.request<T>({
         baseURL: this.config.address,
         url: endPointUrl,
         timeout: this.config.timeout,
@@ -362,7 +375,9 @@ export default class Flood extends AbstractBittorrentClient {
   async ping(): Promise<boolean> {
     try {
       const req = await this.request("connection-test");
-      return (req.data as { isConnect: boolean }).isConnect;
+      // jesec 分支现为 { isConnected }（旧版为 { isConnect }），两者兼容读取
+      const data = req.data as { isConnected?: boolean; isConnect?: boolean };
+      return data.isConnected ?? data.isConnect ?? false;
     } catch (e) {
       return false;
     }
@@ -429,7 +444,10 @@ export default class Flood extends AbstractBittorrentClient {
       }
 
       addResult.success = true;
-    } catch (e) {}
+    } catch (e) {
+      // 将失败原因带回给调用方（会写入下载历史），避免静默失败无法排查
+      addResult.message = e instanceof Error ? e.message : String(e);
+    }
 
     return addResult;
   }
@@ -466,6 +484,9 @@ export default class Flood extends AbstractBittorrentClient {
         state = CTorrentState.seeding;
       } else if (statusInclude(["stopped", "p", "s"])) {
         state = CTorrentState.paused;
+      } else if (statusInclude(["complete"])) {
+        // jesec 的完成种子只带 complete 状态（不再提供 isComplete 字段），归入做种
+        state = CTorrentState.seeding;
       } else if (statusInclude(["checking", "ch"])) {
         state = CTorrentState.checking;
       } else if (statusInclude(["error", "e"])) {
@@ -478,9 +499,10 @@ export default class Flood extends AbstractBittorrentClient {
         name: rawTorrent.name,
         dateAdded: rawTorrent.dateAdded,
         state,
-        isCompleted: rawTorrent.isComplete,
+        isCompleted:
+          rawTorrent.isComplete ?? (rawTorrent.bytesDone > 0 && rawTorrent.bytesDone >= rawTorrent.sizeBytes),
         progress: rawTorrent.percentComplete,
-        label: rawTorrent.tags && rawTorrent.tags.length > 1 ? rawTorrent.tags[0] : undefined,
+        label: rawTorrent.tags && rawTorrent.tags.length > 0 ? rawTorrent.tags[0] : undefined,
         savePath: rawTorrent.directory,
         totalSize: rawTorrent.sizeBytes,
         ratio: rawTorrent.ratio,
