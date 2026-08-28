@@ -34,7 +34,7 @@ function dialogEnter() {
         {{ t("MyClient.recheckDialog.title") }}
       </v-card-title>
 
-      <v-card-text class="text-body-1">
+      <v-card-text class="text-body-large">
         {{ t("MyClient.recheckDialog.text", { count: torrentCount }) }}
       </v-card-text>
 

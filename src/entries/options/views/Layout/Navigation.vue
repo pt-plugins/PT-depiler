@@ -72,8 +72,8 @@ function clickMenuItem() {
 
     <!-- 页脚，用于展示版本信息 -->
     <template v-slot:append>
-      <v-footer>
-        <v-row justify="center">
+      <v-footer class="pa-0">
+        <v-row gap="0" class="justify-center">
           <span class="pa-2 text-grey-darken-1">
             &copy; {{ year }},
             <a :href="`${REPO_URL}${git.long ? `/commit/${git.long}` : ''}`" target="_blank">{{ ext_version }}</a>

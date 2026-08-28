@@ -325,7 +325,7 @@ function torrentKey(torrent: CTorrent) {
 
   <v-card>
     <v-card-title>
-      <v-row class="ma-0" align="center">
+      <v-row gap="0" class="align-center ma-0">
         <v-btn
           :title="t('MyClient.pushToDownloader.navBtn')"
           color="primary"
@@ -496,7 +496,7 @@ function torrentKey(torrent: CTorrent) {
         <template #item.clientId="{ item }">
           <div class="d-flex flex-column align-center">
             <v-avatar :image="clientIcon(item.clientId)" size="22" />
-            <span class="text-caption text-no-wrap mt-1">{{ clientName(item.clientId) }}</span>
+            <span class="text-body-small text-no-wrap mt-1">{{ clientName(item.clientId) }}</span>
           </div>
         </template>
 
@@ -504,7 +504,7 @@ function torrentKey(torrent: CTorrent) {
         <template #item.name="{ item }">
           <div>
             <span class="font-weight-medium">{{ item.name }}</span>
-            <div v-if="item.label" class="text-caption text-grey">
+            <div v-if="item.label" class="text-body-small text-grey">
               <v-icon size="x-small" icon="mdi-label-outline" /> {{ item.label }}
             </div>
           </div>
@@ -523,7 +523,7 @@ function torrentKey(torrent: CTorrent) {
             :width="3"
             :color="item.isCompleted ? 'green' : 'blue'"
           >
-            <span class="text-caption">{{ item.progress.toFixed(0) }}%</span>
+            <span class="text-body-small">{{ item.progress.toFixed(0) }}%</span>
           </v-progress-circular>
         </template>
 
@@ -567,12 +567,12 @@ function torrentKey(torrent: CTorrent) {
 
         <!-- save path -->
         <template #item.savePath="{ item }">
-          <span class="text-caption text-no-wrap">{{ item.savePath }}</span>
+          <span class="text-body-small text-no-wrap">{{ item.savePath }}</span>
         </template>
 
         <!-- date added -->
         <template #item.dateAdded="{ item }">
-          <span class="text-no-wrap text-caption">{{ formatDate(item.dateAdded * 1000) }}</span>
+          <span class="text-no-wrap text-body-small">{{ formatDate(item.dateAdded * 1000) }}</span>
         </template>
 
         <!-- actions -->

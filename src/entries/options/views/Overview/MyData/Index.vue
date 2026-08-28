@@ -177,7 +177,7 @@ const showExportDialog = ref(false);
   <v-alert :title="t('route.Overview.MyData')" type="info" />
   <v-card>
     <v-card-title>
-      <v-row class="ma-0">
+      <v-row gap="0" class="ma-0">
         <!-- 刷新，取消刷新 -->
         <NavButton
           v-if="runtimeStore.isUserInfoFlush"
@@ -235,7 +235,7 @@ const showExportDialog = ref(false);
               <template v-slot:prepend>
                 <v-list-item-action start class="ml-2">
                   <v-icon icon="mdi-calendar-account" class="mr-2" />
-                  <span class="text-subtitle-2">{{ t("MyData.index.joinTimeFormat") }}</span>
+                  <span class="text-label-large">{{ t("MyData.index.joinTimeFormat") }}</span>
                 </v-list-item-action>
               </template>
 
@@ -442,14 +442,14 @@ const showExportDialog = ref(false);
 
       <!-- 上传、下载 -->
       <template #item.uploaded="{ item }">
-        <v-container>
-          <v-row class="flex-nowrap" justify="end">
+        <v-container class="py-0 pr-0">
+          <v-row gap="0" class="justify-end flex-nowrap">
             <span class="text-no-wrap">
               {{ typeof item.uploaded !== "undefined" ? formatSize(item.uploaded) : "-" }}
             </span>
             <v-icon color="green-darken-4" icon="mdi-chevron-up" size="small"></v-icon>
           </v-row>
-          <v-row class="flex-nowrap" justify="end">
+          <v-row gap="0" class="justify-end flex-nowrap">
             <span class="text-no-wrap">
               {{ typeof item.downloaded !== "undefined" ? formatSize(item.downloaded) : "-" }}
             </span>
@@ -460,14 +460,14 @@ const showExportDialog = ref(false);
 
       <!-- 真实上传、下载 -->
       <template #item.trueUploaded="{ item }">
-        <v-container>
-          <v-row class="flex-nowrap" justify="end">
+        <v-container class="py-0 pr-0">
+          <v-row gap="0" class="justify-end flex-nowrap">
             <span class="text-no-wrap">
               {{ typeof item.trueUploaded !== "undefined" ? formatSize(item.trueUploaded) : "-" }}
             </span>
             <v-icon color="green-darken-4" icon="mdi-chevron-up" size="small"></v-icon>
           </v-row>
-          <v-row class="flex-nowrap" justify="end">
+          <v-row gap="0" class="justify-end flex-nowrap">
             <span class="text-no-wrap">
               {{ typeof item.trueDownloaded !== "undefined" ? formatSize(item.trueDownloaded) : "-" }}
             </span>
@@ -493,11 +493,15 @@ const showExportDialog = ref(false);
 
       <!-- 做种数， H&R 情况  -->
       <template #item.seeding="{ item }">
-        <v-container class="py-0">
-          <v-row align="center" class="flex-nowrap my-0" justify="end">
+        <v-container class="py-0 pr-0">
+          <v-row gap="0" class="align-center justify-end flex-nowrap my-0">
             <span class="text-no-wrap">{{ item.seeding ?? "-" }}</span>
           </v-row>
-          <v-row v-if="configStore.myDataTableControl.showHnR" align="center" class="flex-nowrap my-0" justify="end">
+          <v-row
+            gap="0"
+            v-if="configStore.myDataTableControl.showHnR"
+            class="align-center justify-end flex-nowrap my-0"
+          >
             <span
               v-if="typeof item.hnrPreWarning !== 'undefined' && item.hnrPreWarning > 0"
               class="d-inline-flex align-center ml-2"
@@ -539,12 +543,13 @@ const showExportDialog = ref(false);
 
       <!-- 魔力/积分 -->
       <template #item.bonus="{ item }">
-        <v-container>
-          <v-row align="center" class="flex-nowrap" justify="end">
+        <v-container class="py-0 pr-0">
+          <v-row gap="0" class="align-center justify-end flex-nowrap">
             <v-icon :title="t('levelRequirement.bonus')" color="green-darken-4" icon="mdi-currency-usd" size="small" />
             <BonusFormatSpan :num="item.bonus" />
           </v-row>
           <v-row
+            gap="0"
             v-if="
               configStore.myDataTableControl.showSeedingBonus &&
               item.seedingBonus !== '' &&

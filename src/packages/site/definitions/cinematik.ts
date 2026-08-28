@@ -91,7 +91,7 @@ export const siteMetadata: ISiteMetadata = {
         { name: "TV", value: 2 },
         { name: "Foreign Film", value: 3 },
         { name: "Foreign TV", value: 4 },
-        { name: "Opera &amp; Musical", value: 5 },
+        { name: "Opera & Musical", value: 5 },
         { name: "Asian Film", value: 6 },
       ],
       cross: { mode: "brackets" },

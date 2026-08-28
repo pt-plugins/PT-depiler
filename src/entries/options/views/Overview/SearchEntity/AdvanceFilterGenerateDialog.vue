@@ -73,11 +73,11 @@ function enterDialog() {
       </v-card-title>
       <v-divider />
       <v-card-text>
-        <v-container>
-          <v-row
-            ><v-label>{{ t("common.AdvanceFilterGenerateDialog.keywords") }}</v-label>
+        <v-container class="pa-0">
+          <v-row gap="0">
+            <v-label>{{ t("common.AdvanceFilterGenerateDialog.keywords") }}</v-label>
           </v-row>
-          <v-row>
+          <v-row class="mt-0">
             <v-col cols="12" md="6">
               <v-combobox
                 v-model="advanceFilterDictRef.text.required"
@@ -98,10 +98,10 @@ function enterDialog() {
             </v-col>
           </v-row>
 
-          <v-row
+          <v-row gap="0"
             ><v-label>{{ t("common.AdvanceFilterGenerateDialog.site") }}</v-label></v-row
           >
-          <v-row>
+          <v-row gap="0">
             <v-col
               v-for="site in advanceItemPropsRef.site"
               :key="`${reBuildFilterCountRef}_${site}`"
@@ -128,7 +128,7 @@ function enterDialog() {
           </v-row>
 
           <template v-if="configStore.searchEntifyControl.showTorrentTag">
-            <v-row>
+            <v-row gap="0">
               <v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.tags") }}</v-label>
               <v-spacer />
               <v-btn
@@ -145,7 +145,7 @@ function enterDialog() {
                 }}
               </v-btn>
             </v-row>
-            <v-row>
+            <v-row gap="0">
               <v-col
                 v-for="tag in filteredTorrentTags"
                 :key="`${reBuildFilterCountRef}_${tag.name}`"
@@ -178,10 +178,10 @@ function enterDialog() {
               </v-col>
             </v-row>
           </template>
-          <v-row
+          <v-row gap="0"
             ><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.status") }}</v-label></v-row
           >
-          <v-row>
+          <v-row gap="0">
             <v-col
               v-for="status in statusOptions"
               :key="`${reBuildFilterCountRef}_${status.value}`"
@@ -205,9 +205,9 @@ function enterDialog() {
               </v-checkbox>
             </v-col>
           </v-row>
-          <v-row>
+          <v-row gap="0">
             <v-col cols="6">
-              <v-row class="pr-4">
+              <v-row gap="0" class="pr-4">
                 <v-label>{{ t("common.AdvanceFilterGenerateDialog.date") }}</v-label>
                 <v-spacer />
                 <v-chip
@@ -235,7 +235,7 @@ function enterDialog() {
                   </v-menu>
                 </v-chip>
               </v-row>
-              <v-row>
+              <v-row gap="0">
                 <v-range-slider
                   v-model="advanceFilterDictRef.time"
                   :max="advanceItemPropsRef.time.range[1]"
@@ -256,10 +256,10 @@ function enterDialog() {
               </v-row>
             </v-col>
             <v-col cols="6">
-              <v-row
+              <v-row gap="0"
                 ><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.size") }}</v-label></v-row
               >
-              <v-row>
+              <v-row gap="0">
                 <v-range-slider
                   v-model="advanceFilterDictRef.size"
                   :max="advanceItemPropsRef.size.range[1]"
@@ -280,12 +280,12 @@ function enterDialog() {
               </v-row>
             </v-col>
           </v-row>
-          <v-row>
+          <v-row gap="0">
             <v-col cols="4">
               <v-row
                 ><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.seeders") }}</v-label></v-row
               >
-              <v-row>
+              <v-row gap="0">
                 <v-range-slider
                   v-model="advanceFilterDictRef.seeders"
                   :max="advanceItemPropsRef.seeders.range[1]"
@@ -306,7 +306,7 @@ function enterDialog() {
               <v-row
                 ><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.leechers") }}</v-label></v-row
               >
-              <v-row>
+              <v-row gap="0">
                 <v-range-slider
                   v-model="advanceFilterDictRef.leechers"
                   :max="advanceItemPropsRef.leechers.range[1]"
@@ -327,7 +327,7 @@ function enterDialog() {
               <v-row
                 ><v-label>{{ t("SearchEntity.AdvanceFilterGenerateDialog.completed") }}</v-label></v-row
               >
-              <v-row>
+              <v-row gap="0">
                 <v-range-slider
                   v-model="advanceFilterDictRef.completed"
                   :max="advanceItemPropsRef.completed.range[1]"

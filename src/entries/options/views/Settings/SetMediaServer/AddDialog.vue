@@ -93,10 +93,10 @@ async function saveStoredMediaServerConfig() {
               persistent-hint
               @update:model-value="(e) => updateStoredMediaServerConfigByDefault(e)"
             >
-              <template #selection="{ item: { raw: downloader } }">
+              <template #selection="{ item: downloader }">
                 <v-list-item :prepend-avatar="getMediaServerIcon(downloader.type)" :title="downloader.type" />
               </template>
-              <template #item="{ props, item: { raw: downloader } }">
+              <template #item="{ props, item: downloader }">
                 <v-list-item
                   v-bind="props"
                   :prepend-avatar="getMediaServerIcon(downloader.type)"

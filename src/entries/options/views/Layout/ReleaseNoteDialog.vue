@@ -60,13 +60,15 @@ function dialogLeave() {
               <v-img inline src="/icons/logo/128.png" width="128"></v-img>
               <br />
               <div class="d-inline-flex">
-                <span class="text-body-1 text--secondary">{{ currentVersion.fullVersion }}{{ t("layout.releaseNote.currentVersion") }}</span>&nbsp;
+                <span class="text-body-large text--secondary"
+                  >{{ currentVersion.fullVersion }}{{ t("layout.releaseNote.currentVersion") }}</span
+                >&nbsp;
               </div>
             </v-col>
           </v-row>
           <v-row>
             <v-col>
-              <div class="text-body-1">
+              <div class="text-body-large">
                 <a :href="`${REPO_URL}/compare/${storeBuildHash}...${currentVersion.buildHash}`" target="_blank">
                   {{ t("layout.releaseNote.changelog") }}
                 </a>
@@ -81,7 +83,9 @@ function dialogLeave() {
       </v-card-text>
 
       <v-card-actions>
-        <v-btn block variant="elevated" color="green" @click="showDialog = false">{{ t("layout.releaseNote.startUsing") }}</v-btn>
+        <v-btn block variant="elevated" color="green" @click="showDialog = false">{{
+          t("layout.releaseNote.startUsing")
+        }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

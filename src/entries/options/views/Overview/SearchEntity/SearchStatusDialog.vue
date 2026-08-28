@@ -65,7 +65,7 @@ const filteredSearchPlan = computed(() => {
               ])
             }}
             <br />
-            <p class="text-caption"><{{ runtimeStore.search.searchPlanKey }}></p>
+            <p class="text-body-small"><{{ runtimeStore.search.searchPlanKey }}></p>
           </v-toolbar-title>
 
           <template #append>
@@ -117,10 +117,10 @@ const filteredSearchPlan = computed(() => {
                 </span>
               </div>
               <br />
-              <span class="text-subtitle-2 text-grey"> <{{ searchPlan.searchEntryName }}> </span>
+              <span class="text-label-large text-grey"> <{{ searchPlan.searchEntryName }}> </span>
             </v-list-item-title>
             <template #append>
-              <span class="text-subtitle-2 text-end">
+              <span class="text-label-large text-end">
                 <ResultParseStatus :status="searchPlan.status" />
                 <template v-if="searchPlan.status === EResultParseStatus.success">
                   <br />

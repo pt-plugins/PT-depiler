@@ -88,7 +88,7 @@ function formatTotal(total: number | undefined): string {
               <v-icon icon="mdi-key-variant" />
             </template>
             <v-list-item-title class="d-flex align-center ga-2">
-              <code class="text-caption">{{ torrent.infoHash }}</code>
+              <code class="text-body-small">{{ torrent.infoHash }}</code>
               <v-btn
                 :title="t('MyClient.detail.copyHash')"
                 icon="mdi-content-copy"
@@ -140,7 +140,7 @@ function formatTotal(total: number | undefined): string {
                 </template>
                 <v-list-item-title>
                   {{ formatSpeed(torrent.uploadSpeed) }}
-                  <span class="text-grey text-caption ml-1">({{ formatTotal(torrent.totalUploaded) }})</span>
+                  <span class="text-grey text-body-small ml-1">({{ formatTotal(torrent.totalUploaded) }})</span>
                 </v-list-item-title>
               </v-list-item>
               <v-list-item>
@@ -149,7 +149,7 @@ function formatTotal(total: number | undefined): string {
                 </template>
                 <v-list-item-title>
                   {{ formatSpeed(torrent.downloadSpeed) }}
-                  <span class="text-grey text-caption ml-1">({{ formatTotal(torrent.totalDownloaded) }})</span>
+                  <span class="text-grey text-body-small ml-1">({{ formatTotal(torrent.totalDownloaded) }})</span>
                 </v-list-item-title>
               </v-list-item>
               <v-list-item>
@@ -171,7 +171,7 @@ function formatTotal(total: number | undefined): string {
             <template #prepend>
               <v-icon icon="mdi-folder" />
             </template>
-            <v-list-item-title class="text-caption">{{ torrent.savePath }}</v-list-item-title>
+            <v-list-item-title class="text-body-small">{{ torrent.savePath }}</v-list-item-title>
           </v-list-item>
           <v-list-item>
             <template #prepend>
@@ -205,7 +205,7 @@ function formatTotal(total: number | undefined): string {
                   <template #prepend>
                     <v-icon icon="mdi-radar" />
                   </template>
-                  <v-list-item-title class="text-caption">{{ tracker }}</v-list-item-title>
+                  <v-list-item-title class="text-body-small">{{ tracker }}</v-list-item-title>
                 </v-list-item>
               </v-list>
               <v-alert v-else type="info" variant="tonal" density="compact">
@@ -218,7 +218,7 @@ function formatTotal(total: number | undefined): string {
           <v-expansion-panel>
             <v-expansion-panel-title>{{ t("MyClient.action.viewRaw") }}</v-expansion-panel-title>
             <v-expansion-panel-text>
-              <pre class="text-body-2">{{ JSON.stringify(torrent, null, 2) }}</pre>
+              <pre class="text-body-medium">{{ JSON.stringify(torrent, null, 2) }}</pre>
             </v-expansion-panel-text>
           </v-expansion-panel>
         </v-expansion-panels>

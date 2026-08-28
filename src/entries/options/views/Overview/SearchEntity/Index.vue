@@ -221,7 +221,7 @@ const hiddenTagNamesText = computed({
   </v-alert>
   <v-card>
     <v-card-title>
-      <v-row class="ma-0">
+      <v-row gap="0" class="ma-0">
         <v-btn-group size="small" variant="text">
           <!-- 启动/暂停 搜索队列 -->
           <v-btn
