@@ -17,7 +17,9 @@ const emits = defineEmits<{
 }>();
 
 const clientMeta = computedAsync<IMediaServerMetadata>(
-  async () => await getMediaServerMetaData(clientConfig.value!.type),
+  // clientConfig 在编辑对话框 after-enter 时才赋值，computedAsync 首次求值可能尚未就绪，需空值短路
+  async () =>
+    clientConfig.value?.type ? await getMediaServerMetaData(clientConfig.value.type) : ({} as IMediaServerMetadata),
   {} as IMediaServerMetadata,
 );
 const formValid = ref<boolean>(false);
@@ -66,7 +68,9 @@ async function checkConnect() {
         </v-row>
 
         <v-row>
-          <v-col class="py-0"><v-label>{{ t("SetMediaServer.Editor.authInfo") }}</v-label></v-col>
+          <v-col class="py-0"
+            ><v-label>{{ t("SetMediaServer.Editor.authInfo") }}</v-label></v-col
+          >
           <v-col v-for="(auth_field, index) in clientMeta!.auth_field" :key="index" cols="12">
             <template v-if="typeof auth_field === 'string'">
               <v-text-field
