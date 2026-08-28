@@ -17,7 +17,9 @@ const emits = defineEmits<{
   (e: "update:configValid", value: boolean): void;
 }>();
 const clientMeta = computedAsync<TorrentClientMetaData>(
-  async () => await getDownloaderMetaData(clientConfig.value!.type),
+  // clientConfig 在编辑对话框 after-enter 时才赋值，computedAsync 首次求值可能尚未就绪，需空值短路
+  async () =>
+    clientConfig.value?.type ? await getDownloaderMetaData(clientConfig.value.type) : ({} as TorrentClientMetaData),
   {} as TorrentClientMetaData,
 );
 
