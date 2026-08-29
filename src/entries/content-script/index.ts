@@ -1,7 +1,6 @@
 // This file is the entry point for the content script
 
 import { getHostFromUrl } from "@ptd/site";
-import { socialPageParserMatchesMap } from "@ptd/social";
 
 import { sendMessage } from "@/messages.ts";
 import type { IMetadataPiniaStorageSchema } from "@/shared/types/storages/metadata.ts";
@@ -14,14 +13,11 @@ sendMessage("getExtStorage", "config").then(async (data) => {
 
   if (configStore?.contentScript?.enabled ?? true) {
     if (configStore?.contentScript?.enabledAtSocialSite ?? true) {
-      for (const [socialSite, patternMatches] of Object.entries(socialPageParserMatchesMap)) {
-        for (const [pattern, _] of patternMatches) {
-          if (new RegExp(pattern, "i").test(window.location.href)) {
-            console.debug(`[PTD] Social site detected: ${socialSite}, loading app...`);
-            mountApp(document, { socialSite });
-            return; // 找到匹配的 social site 后，直接加载应用并退出
-          }
-        }
+      const socialSite = await sendMessage("matchSocialPage", window.location.href);
+      if (socialSite) {
+        console.debug(`[PTD] Social site detected: ${socialSite}, loading app...`);
+        mountApp(document, { socialSite });
+        return; // 找到匹配的 social site 后，直接加载应用并退出
       }
     }
 

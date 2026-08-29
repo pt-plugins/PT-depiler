@@ -1,5 +1,5 @@
 import type { ISocialInformation, TSupportSocialSite$1 } from "@ptd/social";
-import { getSocialSiteInformation } from "@ptd/social";
+import { getSocialSiteInformation, socialPageParserMatchesMap } from "@ptd/social";
 
 import { onMessage, sendMessage } from "@/messages.ts";
 import type { IConfigPiniaStorageSchema } from "@/shared/types.ts";
@@ -55,6 +55,19 @@ export async function getSocialInformation(
 }
 
 onMessage("getSocialInformation", async ({ data: { site, sid } }) => await getSocialInformation(site, sid));
+
+// content-script 引导的轻量预筛：social 包的正则聚合在本上下文已有完整依赖，
+// 由这里判断后回传命中的社交站点名，引导无需携带 social 包（见 issue #1467）
+onMessage("matchSocialPage", async ({ data: url }) => {
+  for (const [socialSite, patternMatches] of Object.entries(socialPageParserMatchesMap)) {
+    for (const [pattern] of patternMatches) {
+      if (new RegExp(pattern, "i").test(url)) {
+        return socialSite as TSupportSocialSite$1;
+      }
+    }
+  }
+  return null;
+});
 
 export async function setSocialInformation(site: TSupportSocialSite$1, sid: string, val: ISocialInformation) {
   const key = `${site}:${sid}`;

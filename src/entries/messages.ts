@@ -145,6 +145,8 @@ interface ProtocolMap extends TMessageMap {
 
   // 2.5 社交信息 ( utils/socialInformation )
   getSocialInformation(data: { site: TSupportSocialSite$1; sid: string }): ISocialInformation;
+  // 判断 URL 命中的社交站点（供 content-script 引导做轻量预筛，避免把 social 包打进引导，见 issue #1467）
+  matchSocialPage(url: string): TSupportSocialSite$1 | null;
   getSocialRecommendations(data?: {
     flush?: boolean;
     enrichment?: "all" | "none" | "visible";
