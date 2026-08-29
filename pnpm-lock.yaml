@@ -27,10 +27,10 @@ importers:
         version: 2.0.0
       '@webext-core/messaging':
         specifier: ^4.0.0
-        version: 4.0.0(@types/chrome@0.2.6)
+        version: 4.0.0(@types/chrome@0.2.7)
       '@webext-core/storage':
         specifier: ^2.0.0
-        version: 2.0.0(@types/chrome@0.2.6)
+        version: 2.0.0(@types/chrome@0.2.7)
       axios:
         specifier: ^1.19.0
         version: 1.19.0
@@ -117,8 +117,8 @@ importers:
         specifier: ^11.2.5
         version: 11.2.5(@vue/compiler-dom@3.5.41)(eslint@10.4.1)(rollup@4.62.4)(typescript@6.0.3)(vite@6.4.3(@types/node@26.2.0)(sass@1.102.0)(tsx@4.23.12)(yaml@2.9.0))(vue-i18n@11.4.8(vue@3.5.41(typescript@6.0.3)))(vue@3.5.41(typescript@6.0.3))
       '@types/chrome':
-        specifier: ^0.2.6
-        version: 0.2.6
+        specifier: ^0.2.7
+        version: 0.2.7
       '@types/crypto-js':
         specifier: ^4.2.2
         version: 4.2.2
@@ -1094,8 +1094,8 @@ packages:
     resolution: {integrity: sha512-Uz2kFb0cNeHg7hds8BtI/umcwzaSMUdbkeQgZrIZQbp3gWRFjrvrvBHNEB6SQYChVxC3rWHovKx1Ya/vSRRMYA==}
     engines: {node: '>=0.2.6'}
 
-  '@types/chrome@0.2.6':
-    resolution: {integrity: sha512-8OgXtL+OcR2IpY2ul5itg0R3xmdceAM4ldcHxh4BFL20p5z7fjhpyP5KuXAp1LIxA7oQgyViKTS9d+W8Sn8jdQ==}
+  '@types/chrome@0.2.7':
+    resolution: {integrity: sha512-9kjBozQ+jyDVt1eai3VZqjHDTN95JCuRmbRHOryOltBJmzrTmUw/9r/DznmjRaQ8WlyIfeCA4WNzoj0IvormJA==}
 
   '@types/crypto-js@4.2.2':
     resolution: {integrity: sha512-sDOLlVbHhXpAUAL0YHDUUwDZf3iN4Bwi4W6a0W0b+QcAezUbRtH4FVb+9J4h+XFPW7l/gQ9F8qC7P+Ec4k8QVQ==}
@@ -4259,7 +4259,7 @@ snapshots:
     dependencies:
       uint8-util: 2.3.2
 
-  '@types/chrome@0.2.6':
+  '@types/chrome@0.2.7':
     dependencies:
       '@types/filesystem': 0.0.36
       '@types/har-format': 1.2.16
@@ -4533,15 +4533,15 @@ snapshots:
       cron-parser: 4.9.0
       format-duration: 3.0.2
 
-  '@webext-core/messaging@4.0.0(@types/chrome@0.2.6)':
+  '@webext-core/messaging@4.0.0(@types/chrome@0.2.7)':
     dependencies:
       '@aklinker1/zero-serialize-error': 1.0.2
     optionalDependencies:
-      '@types/chrome': 0.2.6
+      '@types/chrome': 0.2.7
 
-  '@webext-core/storage@2.0.0(@types/chrome@0.2.6)':
+  '@webext-core/storage@2.0.0(@types/chrome@0.2.7)':
     optionalDependencies:
-      '@types/chrome': 0.2.6
+      '@types/chrome': 0.2.7
 
   abort-controller@3.0.0:
     dependencies:
