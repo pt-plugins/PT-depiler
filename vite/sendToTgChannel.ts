@@ -11,13 +11,8 @@ const FILES_DIR = "build";
 
 // Telegram Bot API 域名固定；token 形态校验后拼接，避免任意值直接进入请求 URL
 const TELEGRAM_API_BASE = "https://api.telegram.org";
-const BOT_TOKEN_PATTERN = /^\d+:[A-Za-z0-9_-]{30,}$/;
-
-function telegramEndpoint(method: string): string {
-  if (!BOT_TOKEN || !BOT_TOKEN_PATTERN.test(BOT_TOKEN)) {
-    throw new Error("TELEGRAM_BOT_TOKEN 缺失或形态非法");
-  }
-  return `${TELEGRAM_API_BASE}/bot${BOT_TOKEN}/${method}`;
+if (!BOT_TOKEN || !/^\d+:[A-Za-z0-9_-]{30,}$/.test(BOT_TOKEN)) {
+  throw new Error("TELEGRAM_BOT_TOKEN 缺失或形态非法");
 }
 
 function getCommitInfo() {
@@ -45,8 +40,8 @@ function escapeLegacyMarkdown(text: string): string {
 }
 
 async function main() {
-  if (!BOT_TOKEN || !CHAT_ID) {
-    console.error("缺少 TELEGRAM_BOT_TOKEN 或 TELEGRAM_CHAT_ID 环境变量");
+  if (!CHAT_ID) {
+    console.error("缺少 TELEGRAM_CHAT_ID 环境变量");
     process.exit(1);
   }
 
@@ -123,7 +118,7 @@ ${escapeLegacyMarkdown(commitInfo.moreMessage)}`
     );
   });
 
-  const response = await axios.post(telegramEndpoint("sendMediaGroup"), formData);
+  const response = await axios.post(`${TELEGRAM_API_BASE}/bot${BOT_TOKEN}/sendMediaGroup`, formData);
 
   if (!response.data.ok) {
     throw new Error(`Telegram API 错误: ${response.status}`);
