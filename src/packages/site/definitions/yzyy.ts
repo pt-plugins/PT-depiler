@@ -25,7 +25,7 @@ import { type ISiteMetadata, type ITorrent } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 
 export const siteMetadata: ISiteMetadata = {
-  version: 20260810,
+  version: 20260813,
   id: "yzyy",
   name: "YzYY",
   aka: [],
@@ -81,23 +81,25 @@ export const siteMetadata: ISiteMetadata = {
         text: "",
       },
       time: {
-        selector: "td:nth-child(5)",
-        attr: "title",
+        selector: ":self",
+        data: "time",
         text: 0,
-        filters: [{ name: "parseTime", args: ["yyyy-MM-dd HH:mm"] }],
       },
       size: {
-        selector: "td:nth-child(6)",
+        selector: ":self",
+        data: "size",
         text: 0,
         filters: [{ name: "parseSize" }],
       },
       seeders: {
-        selector: "td:nth-child(7)",
+        selector: ":self",
+        data: "seeders",
         text: 0,
         filters: [{ name: "parseNumber" }],
       },
       leechers: {
-        selector: "td:nth-child(8)",
+        selector: ":self",
+        data: "leechers",
         text: 0,
         filters: [{ name: "parseNumber" }],
       },
@@ -106,7 +108,8 @@ export const siteMetadata: ISiteMetadata = {
       },
       // 评论数（列表第4列：💬 0）
       comments: {
-        selector: "td:nth-child(4)",
+        selector: ":self",
+        data: "replies",
         text: 0,
         filters: [{ name: "parseNumber" }],
       },
@@ -143,12 +146,12 @@ export const siteMetadata: ISiteMetadata = {
       // 外站评分 ID（torrents.php 服务端从评分表/帖子正文提取，输出到行 data-douban/data-imdb）
       ext_douban: {
         selector: ":self",
-        attr: "data-douban",
+        data: "douban",
         text: "",
       },
       ext_imdb: {
         selector: ":self",
-        attr: "data-imdb",
+        data: "imdb",
         text: "",
       },
       tags: [
@@ -165,6 +168,107 @@ export const siteMetadata: ISiteMetadata = {
     {
       urlPattern: ["/torrents.php"],
       selectors: {
+        rows: {
+          selector: "#listWrap table tbody tr",
+        },
+        id: {
+          selector: 'td:last-child a[href*="info_hash="]',
+          attr: "href",
+          filters: [{ name: "querystring", args: ["info_hash"] }],
+        },
+        url: {
+          selector: 'td.nfo .tt a[href*="viewthread"]',
+          attr: "href",
+        },
+        link: {
+          selector: 'td:last-child a[href*="info_hash="]',
+          attr: "href",
+        },
+        title: {
+          selector: 'td.nfo .tt a[href*="viewthread"]',
+          text: "",
+        },
+        subTitle: {
+          selector: "td.nfo .sb",
+          text: "",
+        },
+        time: {
+          selector: ":self",
+          data: "time",
+          text: 0,
+        },
+        size: {
+          selector: ":self",
+          data: "size",
+          text: 0,
+          filters: [{ name: "parseSize" }],
+        },
+        seeders: {
+          selector: ":self",
+          data: "seeders",
+          text: 0,
+          filters: [{ name: "parseNumber" }],
+        },
+        leechers: {
+          selector: ":self",
+          data: "leechers",
+          text: 0,
+          filters: [{ name: "parseNumber" }],
+        },
+        completed: {
+          text: "-",
+        },
+        comments: {
+          selector: ":self",
+          data: "replies",
+          text: 0,
+          filters: [{ name: "parseNumber" }],
+        },
+        category: {
+          selector: ".ic",
+          elementProcess: (el: HTMLElement) => {
+            const typeClass = [
+              "ig-movie",
+              "ig-tv",
+              "ig-music",
+              "ig-soft",
+              "ig-movie-anime",
+              "ig-movie-doc",
+              "ig-movie-live",
+              "ig-movie-variety",
+              "ig-tv-anime",
+              "ig-tv-doc",
+              "ig-tv-live",
+              "ig-tv-variety",
+            ];
+            const ics = el.querySelectorAll(".ic span.ig");
+            for (const ic of Array.from(ics)) {
+              const cls = (ic as HTMLElement).className || "";
+              if (typeClass.some((t) => cls.split(/\s+/).includes(t))) {
+                const title = (ic as HTMLElement).getAttribute("title");
+                if (title) return title;
+              }
+            }
+            return "";
+          },
+          text: "",
+        },
+        ext_douban: {
+          selector: ":self",
+          data: "douban",
+          text: "",
+        },
+        ext_imdb: {
+          selector: ":self",
+          data: "imdb",
+          text: "",
+        },
+        tags: [
+          { name: "Free", selector: "td.nfo .tt .pp.fr", color: "blue" },
+          { name: "2xFree", selector: "td.nfo .tt .pp.x2", color: "green" },
+          { name: "50%", selector: "td.nfo .tt .pp.p5", color: "orange" },
+          { name: "New", selector: "td.nfo .tt .nt", color: "red" },
+        ],
         // YzYY 搜索框只有 id="keyword"，没有 name 属性，必须显式用 #keyword
         keywords: {
           selector: "input#keyword",
@@ -349,9 +453,7 @@ export default class YzYY extends PrivateSite {
    * - 兜底：用 info_hash 构造 download.php 下载链接
    */
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
-    const mockRequestConfig = torrent.url?.startsWith("http")
-      ? { url: torrent.url }
-      : { baseURL: this.url };
+    const mockRequestConfig = torrent.url?.startsWith("http") ? { url: torrent.url } : { baseURL: this.url };
     if (torrent.link) {
       return this.fixLink(torrent.link, mockRequestConfig);
     }
