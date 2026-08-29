@@ -152,7 +152,7 @@ export default defineConfig({
 
         web_accessible_resources: [
           {
-            resources: ["icons/*", "lib/*", "pt-depiler.css"],
+            resources: ["icons/*", "lib/*", "pt-depiler.css", "pt-depiler-components.css"],
             matches: ["*://*/*"],
           },
           // content script 的按需主逻辑（assets/cs-app.js）及其共享 chunk 依赖链，
@@ -235,8 +235,17 @@ export default defineConfig({
                 assetFileNames: (assetInfo) => {
                   const assetName = assetInfo.names[0] || "";
 
-                  // 将 css 文件放到 assets/css 目录下
+                  // 将 css 文件放到 assets/css 目录
                   if (assetName.endsWith(".css")) {
+                    // cs-app（content script 按需主逻辑）依赖的两份样式：vuetify 基础组件样式与
+                    // cs-app 入口组件样式。动态 import 不会自动加载 css 分片，它们由 app/init.ts 在
+                    // shadow DOM 中按固定地址 link，必须输出到根目录且使用稳定文件名
+                    if (assetName === "vuetify.css") {
+                      return "pt-depiler.css";
+                    }
+                    if (assetName === "cs-app.css") {
+                      return "pt-depiler-components.css";
+                    }
                     return "assets/css/[name]-[hash][extname]";
                   }
 
