@@ -130,6 +130,9 @@ export default defineConfig({
             matches: ["*://*/*"],
             exclude_matches: ["*://*/*.xml", "*://*/*.xml?*"],
             js: ["src/entries/content-script/index.ts"],
+            // 允许在同源 iframe(如 PT_Masonry_View_Svelte 油猴脚本的悬浮预览 iframe, 加载同源种子详情页)
+            // 内也注入内容脚本, 使详情页的"推送到默认服务器"悬浮按钮在预览窗口内可直接使用
+            all_frames: true,
           },
         ],
 
