@@ -12,8 +12,9 @@ import PrivateSite from "../schemas/AbstractPrivateSite";
  * - 列表/详情响应中的 `uuid` 只是数字 ID 的字符串形式，用于兼容旧工具。
  * - 下载必须使用详情接口返回的短时签名 `download_url`（约 5 分钟有效），
  *   旧的 `/api/torrent/{id}/download/{api_key}` 固定路由仅保留用于迁移。
+ * - Web 端种子详情页路由为 `/torrents/{numeric_id}`。
  */
-const torrentIdRegex = /\/torrent\/(\d+)\/?/;
+const torrentIdRegex = /\/torrents\/(\d+)\/?/;
 
 /** PeerGo API v1 统一响应包装 */
 interface IPeerGoResponse<T> {
@@ -73,8 +74,18 @@ const promotionTypeMap: Record<Required<IRousiSearchTorrent>["promotion"]["type"
   7: "30%",
 };
 
+/** 列表页（DOM）优惠徽章文本 → 预定义标签映射 */
+const promotionBadgeTextMap: Record<string, TPreDefinedTorrentTagName> = {
+  免费: "Free",
+  "2X免费": "2xFree",
+  "2X": "2xUp",
+  "2X50%": "2x50%",
+  "50%": "50%",
+  "30%": "30%",
+};
+
 export const siteMetadata: ISiteMetadata = {
-  version: 2,
+  version: 4,
   id: "rousipro",
   name: "Rousi Pro",
   aka: ["Rousi", "肉丝"],
@@ -117,7 +128,7 @@ export const siteMetadata: ISiteMetadata = {
       id: { selector: "id" }, // 正整数数字 ID
       title: { selector: "title" },
       subTitle: { selector: "subtitle" },
-      url: { selector: "id", filters: [{ name: "prepend", args: ["/torrent/"] }] },
+      url: { selector: "id", filters: [{ name: "prepend", args: ["/torrents/"] }] },
       // link 不构造：下载链接由 getTorrentDownloadLink 通过详情接口获取短时 download_url
       time: { selector: "created_at", filters: [{ name: "parseTime" }] },
       size: { selector: "size" },
@@ -132,32 +143,35 @@ export const siteMetadata: ISiteMetadata = {
 
   list: [
     {
-      urlPattern: ["/categories", "/search"],
+      urlPattern: ["/torrents"],
+      excludeUrlPattern: ["/torrents/\\d+"], // 排除种子详情页 /torrents/{id}
       mergeSearchSelectors: false,
       selectors: {
         keywords: { selector: "input[placeholder*='搜索种子']" },
-        rows: { selector: 'div.border > a[href^="/torrent/"]' },
-        id: { selector: ":self", attr: "href", filters: [{ name: "replace", args: ["/torrent/", ""] }] },
-        title: { selector: "span.truncate[title]", attr: "title" },
-        subTitle: { selector: "span.text-muted-foreground.truncate" },
-        url: { selector: ":self", attr: "href" },
-        // link 由 getTorrentDownloadLink 方法构造
-        time: {
-          selector: "div:nth-child(6)[title]",
-          attr: "title",
-          filters: [{ name: "parseTime", args: ["yyyy/MM/dd HH:mm:ss"] }],
+        // thead 中的表头行同构，必须限定在 tbody 内
+        rows: { selector: 'tbody tr[data-slot="table-row"]' },
+        id: {
+          selector: "a[href^='/torrents/']",
+          attr: "href",
+          filters: [(href: string) => href.match(/\/torrents\/(\d+)/)?.[1] ?? ""],
         },
-        size: { selector: "div:nth-child(4)", filters: [{ name: "parseSize" }] },
-        seeders: { selector: "div:nth-child(5)", filters: [{ name: "split", args: ["/", 0] }] },
-        leechers: { selector: "div:nth-child(5)", filters: [{ name: "split", args: ["/", 1] }] },
-        completed: { selector: "div:nth-child(5)", filters: [{ name: "split", args: ["/", 2] }] },
-        category: { selector: "div:nth-child(3)" },
+        title: { selector: "a[href^='/torrents/']" },
+        subTitle: { selector: "p.truncate.text-xs.text-muted-foreground" },
+        url: { selector: "a[href^='/torrents/']", attr: "href" },
+        // link 由 getTorrentDownloadLink 方法构造
+        time: { selector: "time[datetime]", attr: "datetime", filters: [{ name: "parseTime" }] },
+        size: { selector: "td:nth-child(4)", filters: [{ name: "parseSize" }] },
+        seeders: { selector: "span[title='做种数']" },
+        leechers: { selector: "span[title='下载数']" },
+        completed: { selector: "span[title='完成数']" },
+        category: { selector: "td:nth-child(3)" },
+        // tags 由 parseTorrentRowForTags 解析优惠徽章
       },
     },
   ],
 
   detail: {
-    urlPattern: ["/torrent/"],
+    urlPattern: ["/torrents/"],
     selectors: {
       id: {
         selector: ":self",
@@ -168,6 +182,20 @@ export const siteMetadata: ISiteMetadata = {
         },
       },
       title: { selector: "h1" },
+      subTitle: { selector: "p.text-sm.text-muted-foreground" },
+      category: { selector: "dt:contains('分类') + dd" },
+      size: { selector: "dt:contains('大小') + dd", filters: [{ name: "parseSize" }] },
+      author: { selector: "dt:contains('上传者') + dd" },
+      time: {
+        selector: "dt:contains('发布时间') + dd",
+        filters: [
+          (text: string) => text.replace(/\s*\(.*\)\s*$/, "").trim(), // 去掉 “(14天前)” 相对时间
+          { name: "parseTime", args: ["yyyy/MM/dd HH:mm"] },
+        ],
+      },
+      seeders: { selector: "dt:contains('做种') + dd" },
+      leechers: { selector: "dt:contains('下载') + dd" },
+      completed: { selector: "dt:contains('完成') + dd" },
       // link 不在此处解析：下载使用详情接口返回的短时 download_url
       link: { text: "" },
     },
@@ -241,17 +269,32 @@ export default class RousiPro extends PrivateSite {
 
   protected override parseTorrentRowForTags(
     torrent: Partial<ITorrent>,
-    row: IRousiSearchTorrent,
+    row: Element | Document | object,
     searchConfig: ISearchInput,
   ): Partial<ITorrent> {
     torrent = super.parseTorrentRowForTags(torrent, row, searchConfig);
 
-    // 将种子优惠标签加入 tags 中
-    if (row.promotion?.is_active) {
-      const tagName = promotionTypeMap[row.promotion.type] ?? "";
-      if (tagName) {
-        torrent.tags = torrent.tags || [];
-        torrent.tags.push({ name: tagName } as ITorrentTag);
+    if (row instanceof Element) {
+      // 列表页（DOM）：解析优惠徽章（置顶等 outline 变体徽章不在此列）
+      const promotionBadges = Array.from(
+        row.querySelectorAll<HTMLElement>('span[data-slot="badge"][data-variant="destructive"]'),
+      );
+      for (const badge of promotionBadges) {
+        const tagName = promotionBadgeTextMap[badge.textContent?.trim() ?? ""];
+        if (tagName) {
+          torrent.tags = torrent.tags || [];
+          torrent.tags.push({ name: tagName } as ITorrentTag);
+        }
+      }
+    } else {
+      // API 搜索（JSON）：根据 promotion 类型将种子优惠标签加入 tags 中
+      const raw = row as IRousiSearchTorrent;
+      if (raw.promotion?.is_active) {
+        const tagName = promotionTypeMap[raw.promotion.type] ?? "";
+        if (tagName) {
+          torrent.tags = torrent.tags || [];
+          torrent.tags.push({ name: tagName } as ITorrentTag);
+        }
       }
     }
 
@@ -262,9 +305,9 @@ export default class RousiPro extends PrivateSite {
     // fix: 如果 torrent 对象没有 id ，则依次尝试从 url, link 中提取
     if (!torrent.id && (torrent.url || torrent.link)) {
       let match;
-      if (torrent.url?.includes("/torrent/")) {
+      if (torrent.url?.includes("/torrents/")) {
         match = torrent.url.match(torrentIdRegex);
-      } else if (torrent.link?.includes("/torrent/")) {
+      } else if (torrent.link?.includes("/torrents/")) {
         match = torrent.link.match(torrentIdRegex);
       }
 
