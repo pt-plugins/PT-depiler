@@ -9,7 +9,8 @@ export type TorrentClientFeature =
   | "Recheck" // 支持重新校验种子
   | "Queue" // 支持调整种子在队列中的位置
   | "SpeedLimit" // 支持设置单个种子的上传/下载速度限制
-  | "Label"; // 支持设置单个种子的标签/分类
+  | "Label" // 支持设置单个种子的标签/分类
+  | "BypassCSRF"; // 支持绕过下载器的跨站请求伪造(CSRF)校验（连接时通过 DNR 移除请求的 Origin 头，目前仅 qBittorrent）
 
 /**
  * 客户端配置信息

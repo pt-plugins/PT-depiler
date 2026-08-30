@@ -25,6 +25,7 @@ export async function getDownloaderDefaultConfig(type: string): Promise<Download
   // 填入/覆盖 缺失项
   config.feature ??= {};
   config.feature.DefaultAutoStart ??= false;
+  config.feature.BypassCSRF ??= false;
 
   return config;
 }

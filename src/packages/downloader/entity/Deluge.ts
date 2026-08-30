@@ -53,6 +53,9 @@ export const clientMetaData: TorrentClientMetaData = {
     Label: {
       allowed: true,
     },
+    BypassCSRF: {
+      allowed: false,
+    },
   },
   // refs: https://github.com/deluge-torrent/deluge/blob/6ec1479cdbbfed269844041d1001de657594d6da/deluge/core/torrent.py#L121-L148
   advanceAddTorrentOptions: [

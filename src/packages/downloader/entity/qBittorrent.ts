@@ -17,9 +17,9 @@ import {
   TorrentQueueDirection,
   TorrentSpeedLimit,
 } from "../types";
-import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import { AxiosRequestConfig, AxiosResponse } from "axios";
 import urlJoin from "url-join";
-import { getRemoteTorrentFile } from "../utils";
+import { axios, getRemoteTorrentFile } from "../utils";
 import { merge } from "es-toolkit";
 
 /**
@@ -44,7 +44,7 @@ export const clientMetaData: TorrentClientMetaData = {
   warning: [
     "当前仅支持 qBittorrent v4.1+",
     "如果你使用的 qBittorrent 版本大于 5.2.0，可以使用 API Key 形式连接，此时请直接留空用户名，在密码栏输入 API key。",
-    "由于浏览器限制，需要禁用 qBittorrent 的『启用跨站请求伪造(CSRF)保护』功能才能正常使用",
+    "如不便禁用 qBittorrent 的『启用跨站请求伪造(CSRF)保护』功能，可在下方开启『绕过 CSRF 保护』选项",
     "注意：由于 qBittorrent 验证机制限制，第一次测试连接成功后，后续测试无论密码正确与否都会提示成功。",
   ],
   feature: {
@@ -67,6 +67,9 @@ export const clientMetaData: TorrentClientMetaData = {
       allowed: true,
     },
     Label: {
+      allowed: true,
+    },
+    BypassCSRF: {
       allowed: true,
     },
   },
@@ -234,6 +237,11 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     return !this.config.username && this.config.password.startsWith("qbt_");
   }
 
+  // 是否启用「绕过 CSRF 保护」：请求时通过 DNR 移除 Origin 头
+  private get bypassCSRF(): boolean {
+    return this.config.feature?.BypassCSRF === true;
+  }
+
   async ping(): Promise<boolean> {
     try {
       if (this.isApiKeyAuth) {
@@ -301,6 +309,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     return await axios.post(urlJoin(this.config.address, "/api/v2", "/auth/login"), form, {
       timeout: this.config.timeout,
       withCredentials: true,
+      ...(this.bypassCSRF ? { headers: { origin: "" } } : {}),
     });
   }
 
@@ -320,6 +329,13 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
       config.headers = {
         ...(config.headers ?? {}),
         Authorization: `Bearer ${this.config.password}`,
+      };
+    }
+
+    if (this.bypassCSRF) {
+      config.headers = {
+        ...(config.headers ?? {}),
+        origin: "", // 空字符串哨兵：replaceUnsafeHeader 拦截器会将其转为移除 Origin 头
       };
     }
 

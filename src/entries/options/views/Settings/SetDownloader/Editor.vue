@@ -17,7 +17,9 @@ const emits = defineEmits<{
   (e: "update:configValid", value: boolean): void;
 }>();
 const clientMeta = computedAsync<TorrentClientMetaData>(
-  async () => await getDownloaderMetaData(clientConfig.value!.type),
+  // clientConfig 在编辑对话框 after-enter 时才赋值，computedAsync 首次求值可能尚未就绪，需空值短路
+  async () =>
+    clientConfig.value?.type ? await getDownloaderMetaData(clientConfig.value.type) : ({} as TorrentClientMetaData),
   {} as TorrentClientMetaData,
 );
 
@@ -119,6 +121,17 @@ async function checkConnect() {
             class="ml-4"
             color="success"
             hide-details
+          />
+        </v-row>
+        <!-- 连接行为开关（非种子添加参数），按 clientMeta.feature.BypassCSRF 声明显式开启（目前仅 qBittorrent） -->
+        <v-row>
+          <v-switch
+            v-if="clientMeta?.feature?.BypassCSRF?.allowed"
+            v-model="clientConfig.feature!.BypassCSRF"
+            class="ml-4"
+            color="success"
+            label="绕过 CSRF 保护"
+            messages="移除请求的 Origin 头以绕过 qBittorrent 的跨站请求伪造(CSRF)校验，开启后无需在 qBittorrent 中关闭 CSRF 保护"
           />
         </v-row>
 

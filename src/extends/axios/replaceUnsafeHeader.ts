@@ -29,19 +29,20 @@ export const unsafeHeaders: { [key: string]: boolean } = {
 };
 
 interface AxiosAllowUnsafeHeaderInstance extends AxiosInstance {
-  defaults: AxiosInstance["defaults"] & {
-    allowUnsafeHeader: boolean;
-  };
+  // 防重标志位挂在实例对象上而非 defaults：
+  // axios.create() 会通过 mergeConfig 继承 defaults，挂在 defaults 会让新实例一出生就带上标志位，
+  // 被守卫跳过导致拦截器不注册；实例自身的属性不会被 create() 继承。
+  allowUnsafeHeader?: boolean;
 }
 
 export function setupReplaceUnsafeHeader(axios: AxiosInstance): AxiosAllowUnsafeHeaderInstance {
   const axiosAllowUnsafeHeaderInstance = axios as AxiosAllowUnsafeHeaderInstance;
 
-  if (axiosAllowUnsafeHeaderInstance.defaults.allowUnsafeHeader) {
+  if (axiosAllowUnsafeHeaderInstance.allowUnsafeHeader) {
     console.debug("setupReplaceUnsafeHeader() should be called only once");
     return axiosAllowUnsafeHeaderInstance;
   }
-  axiosAllowUnsafeHeaderInstance.defaults.allowUnsafeHeader = true;
+  axiosAllowUnsafeHeaderInstance.allowUnsafeHeader = true;
 
   // Add a request interceptor
   axiosAllowUnsafeHeaderInstance.interceptors.request.use(async function (config) {
@@ -52,11 +53,21 @@ export function setupReplaceUnsafeHeader(axios: AxiosInstance): AxiosAllowUnsafe
       for (const [key, value] of config.headers) {
         const lowerKey = key.toLowerCase();
         if (unsafeHeaders[lowerKey] || lowerKey.startsWith("sec-") || lowerKey.startsWith("proxy-")) {
-          requestHeaders.push({
-            header: key,
-            operation: "set" as chrome.declarativeNetRequest.HeaderOperation.SET,
-            value: String(value),
-          });
+          // 值为假值（null/undefined/空字符串）时视为"移除该请求头"（如 qBittorrent 绕过 CSRF 校验需要移除 Origin），
+          // 而不是设置一个空值。注意不能用 null 作哨兵：AxiosHeaders 在构造/合并阶段就会丢弃 null 值，
+          // 拦截器里看不到，空字符串可以存活到拦截器。
+          requestHeaders.push(
+            !value
+              ? {
+                  header: key,
+                  operation: "remove" as chrome.declarativeNetRequest.HeaderOperation.REMOVE,
+                }
+              : {
+                  header: key,
+                  operation: "set" as chrome.declarativeNetRequest.HeaderOperation.SET,
+                  value: String(value),
+                },
+          );
           config.headers.delete(key);
         }
       }

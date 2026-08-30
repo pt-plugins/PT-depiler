@@ -50,6 +50,9 @@ export const clientMetaData: TorrentClientMetaData = {
     Label: {
       allowed: false,
     },
+    BypassCSRF: {
+      allowed: false,
+    },
   },
 };
 
