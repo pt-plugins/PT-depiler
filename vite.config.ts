@@ -155,6 +155,13 @@ export default defineConfig({
             resources: ["icons/*", "lib/*", "pt-depiler.css"],
             matches: ["*://*/*"],
           },
+          // content script 的按需主逻辑（assets/cs-app.js）及其共享 chunk 依赖链，
+          // 由轻量引导在匹配站点时于页面上下文动态 import 加载（见 issue #1467）。
+          // 使用通配以避免依赖拓扑变化后遗漏新 chunk 导致运行时加载失败。
+          {
+            resources: ["assets/*", "vendor/*"],
+            matches: ["*://*/*"],
+          },
         ],
       }),
       // vite-plugin-web-extension 会在构造中，将js中引入的css文件自动添加到 manifest 中的 content_scripts 中，我们不需要这种默认行为
@@ -170,6 +177,27 @@ export default defineConfig({
       watchFilePaths: ["package.json"],
       htmlViteConfig: {
         plugins: [
+          {
+            name: "cs-app-entry",
+            config(config) {
+              // content script 的重逻辑（Vue/Vuetify/站点包）挂到多页 ESM 构建中作为额外入口，
+              // 产物 assets/cs-app.js 由轻量引导在匹配站点时通过 chrome.runtime.getURL 动态加载，
+              // 并直接复用 options 构建已拆分的 vendor chunk（见 issue #1467）。
+              config.build ??= {};
+              config.build.rollupOptions ??= {};
+              config.build.rollupOptions.input ??= {};
+              (config.build.rollupOptions.input as Record<string, string>)["cs-app"] = base_path(
+                "src/entries/content-script/app/init.ts",
+              );
+              // 该入口仅由 content script 引导在运行时动态 import（构建期无静态消费者），
+              // 必须保留入口导出签名，否则 mountApp 会被 rollup 树摇成纯副作用壳
+              config.build.rollupOptions.preserveEntrySignatures = "strict";
+              // 动态 import 不会自动加载按 chunk 拆分的 css 分片，cs-app 的组件树样式
+              // （vuetify 组件、页面组件等分散在各 chunk 的 css）无法逐份在页面上下文
+              // 引入，故合并为单文件，由 app/init.ts 按固定地址 link
+              config.build.cssCodeSplit = false;
+            },
+          },
           {
             name: "sort-asserts",
             config(config) {
@@ -201,12 +229,24 @@ export default defineConfig({
 
                   return "assets/[name]-[hash].js"; // vite default
                 },
-                entryFileNames: "assets/[name]-[hash].js", // vite default
+                entryFileNames: (chunkInfo) => {
+                  // cs-app 的加载地址写死在 content script 引导里，必须使用稳定文件名（不带 hash）
+                  if (chunkInfo.name === "cs-app") {
+                    return "assets/cs-app.js";
+                  }
+                  return "assets/[name]-[hash].js"; // vite default
+                },
                 assetFileNames: (assetInfo) => {
                   const assetName = assetInfo.names[0] || "";
 
-                  // 将 css 文件放到 assets/css 目录下
+                  // 将 css 文件放到 assets/css 目录
                   if (assetName.endsWith(".css")) {
+                    // cssCodeSplit=false 后全量样式合并为单一文件；content script 的
+                    // shadow DOM 通过 chrome.runtime.getURL("pt-depiler.css") 固定地址
+                    // 加载（见 app/init.ts），必须输出到根目录且使用稳定文件名
+                    if (assetName === "index.css" || assetName === "style.css") {
+                      return "pt-depiler.css";
+                    }
                     return "assets/css/[name]-[hash][extname]";
                   }
 

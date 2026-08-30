@@ -49,6 +49,8 @@ export function mountApp(document: Document, data: any = {}) {
     });
 
   // 将构造过程中产生的样式 pt-depiler.css 添加到 shadow DOM 中
+  // （cssCodeSplit=false 后全量样式合并为该单一文件——动态 import 不会自动加载
+  //   css 分片，页面上下文需按固定地址显式引入）
   const buildStyleElement = document.createElement("link");
   buildStyleElement.id = "ptd-content-script-style-build";
   buildStyleElement.rel = "stylesheet";

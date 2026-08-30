@@ -1,27 +1,36 @@
 // This file is the entry point for the content script
+//
+// 此入口应保持轻量（仅做"当前页面是否需要挂载"的判断），
+// 重资源（Vue/Vuetify/站点包）都在多页构建的 assets/cs-app.js 中按需加载；
+// social 匹配判断经消息由 offscreen 代查，避免把 social 包打进引导（见 issue #1467）。
 
-import { getHostFromUrl } from "@ptd/site";
-import { socialPageParserMatchesMap } from "@ptd/social";
+import { getHostFromUrl } from "@ptd/site/utils/html.ts";
 
 import { sendMessage } from "@/messages.ts";
 import type { IMetadataPiniaStorageSchema } from "@/shared/types/storages/metadata.ts";
 import type { IConfigPiniaStorageSchema } from "@/shared/types/storages/config.ts";
 
-import { mountApp } from "./app/init.ts";
+async function loadApp(props: Parameters<(typeof import("./app/init.ts"))["mountApp"]>[1]) {
+  // 运行时从扩展包内加载多页构建产出的 ESM 入口（assets/cs-app.js，固定文件名），
+  // @vite-ignore 阻止本入口（IIFE 单文件构建）将 app 静态打进引导
+  const appUrl = chrome.runtime.getURL("assets/cs-app.js");
+  console.debug("[PTD] loading app from", appUrl);
+  const { mountApp } = (await import(/* @vite-ignore */ appUrl)) as typeof import("./app/init.ts");
+  console.debug("[PTD] app module loaded");
+  await mountApp(document, props);
+  console.debug("[PTD] app mounted");
+}
 
 sendMessage("getExtStorage", "config").then(async (data) => {
   const configStore = data as IConfigPiniaStorageSchema;
 
   if (configStore?.contentScript?.enabled ?? true) {
     if (configStore?.contentScript?.enabledAtSocialSite ?? true) {
-      for (const [socialSite, patternMatches] of Object.entries(socialPageParserMatchesMap)) {
-        for (const [pattern, _] of patternMatches) {
-          if (new RegExp(pattern, "i").test(window.location.href)) {
-            console.debug(`[PTD] Social site detected: ${socialSite}, loading app...`);
-            mountApp(document, { socialSite });
-            return; // 找到匹配的 social site 后，直接加载应用并退出
-          }
-        }
+      const socialSite = await sendMessage("matchSocialPage", window.location.href);
+      if (socialSite) {
+        console.debug(`[PTD] Social site detected: ${socialSite}, loading app...`);
+        await loadApp({ socialSite });
+        return; // 找到匹配的 social site 后，直接加载应用并退出
       }
     }
 
@@ -43,7 +52,7 @@ sendMessage("getExtStorage", "config").then(async (data) => {
         }
 
         console.debug(`[PTD] host found for site: ${siteId}, loading app...`);
-        mountApp(document, { siteId });
+        await loadApp({ siteId });
       }
     });
   }
