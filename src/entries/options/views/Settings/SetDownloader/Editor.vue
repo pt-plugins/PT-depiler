@@ -123,11 +123,11 @@ async function checkConnect() {
             hide-details
           />
         </v-row>
-        <!-- 连接行为开关（非种子添加参数），仅 qBittorrent 需要；值复用 advanceAddTorrentOptions 字典存储 -->
+        <!-- 连接行为开关（非种子添加参数），按 clientMeta.feature.BypassCSRF 声明显式开启（目前仅 qBittorrent） -->
         <v-row>
           <v-switch
-            v-if="clientConfig.type === 'qBittorrent'"
-            v-model="clientConfig.advanceAddTorrentOptions!.bypassCSRF"
+            v-if="clientMeta?.feature?.BypassCSRF?.allowed"
+            v-model="clientConfig.feature!.BypassCSRF"
             class="ml-4"
             color="success"
             label="绕过 CSRF 保护"

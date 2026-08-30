@@ -69,6 +69,9 @@ export const clientMetaData: TorrentClientMetaData = {
     Label: {
       allowed: true,
     },
+    BypassCSRF: {
+      allowed: true,
+    },
   },
   advanceAddTorrentOptions: [
     {
@@ -236,7 +239,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
 
   // 是否启用「绕过 CSRF 保护」：请求时通过 DNR 移除 Origin 头
   private get bypassCSRF(): boolean {
-    return this.config.advanceAddTorrentOptions?.bypassCSRF === true;
+    return this.config.feature?.BypassCSRF === true;
   }
 
   async ping(): Promise<boolean> {
