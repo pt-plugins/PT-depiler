@@ -25,7 +25,7 @@ import { type ISiteMetadata, type ITorrent } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 
 export const siteMetadata: ISiteMetadata = {
-  version: 20260810,
+  version: 20260813,
   id: "yzyy",
   name: "YzYY",
   aka: [],
@@ -81,23 +81,25 @@ export const siteMetadata: ISiteMetadata = {
         text: "",
       },
       time: {
-        selector: "td:nth-child(5)",
-        attr: "title",
+        selector: ":self",
+        data: "time",
         text: 0,
-        filters: [{ name: "parseTime", args: ["yyyy-MM-dd HH:mm"] }],
       },
       size: {
-        selector: "td:nth-child(6)",
+        selector: ":self",
+        data: "size",
         text: 0,
         filters: [{ name: "parseSize" }],
       },
       seeders: {
-        selector: "td:nth-child(7)",
+        selector: ":self",
+        data: "seeders",
         text: 0,
         filters: [{ name: "parseNumber" }],
       },
       leechers: {
-        selector: "td:nth-child(8)",
+        selector: ":self",
+        data: "leechers",
         text: 0,
         filters: [{ name: "parseNumber" }],
       },
@@ -106,7 +108,8 @@ export const siteMetadata: ISiteMetadata = {
       },
       // 评论数（列表第4列：💬 0）
       comments: {
-        selector: "td:nth-child(4)",
+        selector: ":self",
+        data: "replies",
         text: 0,
         filters: [{ name: "parseNumber" }],
       },
@@ -143,12 +146,12 @@ export const siteMetadata: ISiteMetadata = {
       // 外站评分 ID（torrents.php 服务端从评分表/帖子正文提取，输出到行 data-douban/data-imdb）
       ext_douban: {
         selector: ":self",
-        attr: "data-douban",
+        data: "douban",
         text: "",
       },
       ext_imdb: {
         selector: ":self",
-        attr: "data-imdb",
+        data: "imdb",
         text: "",
       },
       tags: [
@@ -349,9 +352,7 @@ export default class YzYY extends PrivateSite {
    * - 兜底：用 info_hash 构造 download.php 下载链接
    */
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
-    const mockRequestConfig = torrent.url?.startsWith("http")
-      ? { url: torrent.url }
-      : { baseURL: this.url };
+    const mockRequestConfig = torrent.url?.startsWith("http") ? { url: torrent.url } : { baseURL: this.url };
     if (torrent.link) {
       return this.fixLink(torrent.link, mockRequestConfig);
     }
