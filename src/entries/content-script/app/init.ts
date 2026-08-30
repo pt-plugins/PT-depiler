@@ -48,16 +48,14 @@ export function mountApp(document: Document, data: any = {}) {
       shadowRoot.appendChild(mdiCssElement);
     });
 
-  // 将构造过程中产生的样式 pt-depiler.css / pt-depiler-components.css 添加到 shadow DOM 中
-  // （多页构建拆分出的两份样式：vuetify 基础组件样式 + cs-app 入口组件样式，
-  //   动态 import 不会自动加载 css，需按固定地址显式引入）
-  for (const cssFile of ["pt-depiler.css", "pt-depiler-components.css"]) {
-    const buildStyleElement = document.createElement("link");
-    buildStyleElement.id = `ptd-content-script-style-build-${cssFile.replace(".css", "")}`;
-    buildStyleElement.rel = "stylesheet";
-    buildStyleElement.href = chrome.runtime.getURL(cssFile);
-    shadowRoot.appendChild(buildStyleElement);
-  }
+  // 将构造过程中产生的样式 pt-depiler.css 添加到 shadow DOM 中
+  // （cssCodeSplit=false 后全量样式合并为该单一文件——动态 import 不会自动加载
+  //   css 分片，页面上下文需按固定地址显式引入）
+  const buildStyleElement = document.createElement("link");
+  buildStyleElement.id = "ptd-content-script-style-build";
+  buildStyleElement.rel = "stylesheet";
+  buildStyleElement.href = chrome.runtime.getURL("pt-depiler.css");
+  shadowRoot.appendChild(buildStyleElement);
 
   // 在 shadow DOM 中创建一个 html 作为所有元素的容器
   const appMountElement = document.createElement("div");
