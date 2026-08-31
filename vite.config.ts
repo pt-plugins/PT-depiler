@@ -81,7 +81,7 @@ export default defineConfig({
       skipManifestValidation: true,
       manifest: () => ({
         manifest_version: 3,
-        "{{chrome}}.minimum_chrome_version": "120",
+        "{{chrome}}.minimum_chrome_version": "140",
 
         version: base_version,
         "{{chrome}}.version_name": commit_version,
@@ -143,7 +143,7 @@ export default defineConfig({
         "{{firefox}}.browser_specific_settings": {
           gecko: {
             id: "ptdepiler.ptplugins@gmail.com",
-            strict_min_version: "121.0",
+            strict_min_version: "133.0",
           },
         },
         "{{firefox}}.content_security_policy": {
