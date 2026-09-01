@@ -1,3 +1,6 @@
+// 需先于 parse-torrent 的调用链执行：为 Chrome <140 的 Chromium 补齐 uint8-util（2.3+）依赖的平台方法
+import "./utils/uint8ArrayCompat.ts";
+
 import { Buffer } from "buffer";
 import axios, { AxiosRequestConfig } from "axios";
 import parseTorrent, { Instance as TorrentInstance } from "parse-torrent";
