@@ -84,6 +84,22 @@ defineExpose({
         </template>
       </v-switch>
 
+      <v-switch
+        v-model="configStore.autoToggleNavBarOnDisplayChange"
+        color="success"
+        hide-details
+        :label="t('SetBase.ui.autoToggleNavBarOnDisplayChange')"
+      >
+        <template #append>
+          <v-tooltip max-width="400" location="bottom">
+            <template v-slot:activator="{ props }">
+              <v-icon color="info" icon="mdi-help-circle" v-bind="props" />
+            </template>
+            {{ t("SetBase.ui.autoToggleNavBarOnDisplayChangeNote") }}
+          </v-tooltip>
+        </template>
+      </v-switch>
+
       <v-divider />
     </v-col>
   </v-row>

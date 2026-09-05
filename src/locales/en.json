@@ -591,6 +591,8 @@
     "ui": {
       "allowDragLink": "Allow dragging links to the sidebar button",
       "allowExceptionSites": "Allow setting exception sites without sidebar (enable in site settings)",
+      "autoToggleNavBarOnDisplayChange": "Auto expand/collapse the sidebar when the window size changes",
+      "autoToggleNavBarOnDisplayChangeNote": "When disabled, resizing the window will not change the sidebar state automatically; control it manually via the top bar button.",
       "basicSettings": "Basic Settings",
       "changeLanguage": "Switch Language",
       "confirmTwoStep": "Require two-step confirmation for batch copy, local download, etc. on torrent list pages",
