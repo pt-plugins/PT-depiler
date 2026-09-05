@@ -46,17 +46,22 @@ const { disabled = false, ...props } = defineProps<{
 }
 
 /* Vuetify 4 下按钮内图标（v-icon 的 --v-icon-size-multiplier / size 计算）默认值与 v3 有出入，
- * 导致升级后 nav 按钮图标观感变大。按 Vuetify 3 的计算结果显式固定图标字号：
- *   - 大屏（文字按钮，prepend 图标）：calc(0.8571428571 * 1.5em * 14px) ≈ 18px
- *   - 小屏（纯图标按钮 size=small）：calc(1 * 1.5em * 12px) ≈ 18px
- * em 以按钮文字（见上方钉死的 .nav-button-text / --v-btn-size）为基准，保证两档观感与 v3 一致。 */
+ * 且按钮可能继承到祖先字号（如 v-card-title 在 v4 为 1.375rem=22px，实测图标被放大到 28.2857px
+ * = calc(0.857… × 1.5em × 22px)），导致 nav 按钮图标观感变大。
+ * 修复：把按钮根字号钉回 v3 的 size=default（0.875rem），图标直接按 v3 等价物理尺寸钉成 18px：
+ *   - 大屏（文字按钮，prepend 图标）：v3 中 calc(0.857… × 1.5em × 14px) ≈ 18px
+ *   - 小屏（纯图标按钮 size=small）：v3 中 calc(1 × 1.5em × 12px) ≈ 18px */
+.nav-button-full {
+  font-size: 0.875rem; // 钉死按钮根字号，阻断祖先（v-card-title 等）的继承漂移
+}
+
 .nav-button-full :deep(.v-btn__prepend > .v-icon) {
   --v-icon-size-multiplier: 1; // 显式接管，避免依赖 v4 层叠中的 multiplier
-  font-size: 1.2857142857em; // = 18px @ 按钮 14px（v3 .v-btn .v-icon 的等价结果）
+  font-size: 1.125rem; // 18px @ 16px 根字号，v3 默认按钮内图标的物理尺寸
 }
 
 .nav-button-icon {
   --v-icon-size-multiplier: 1;
-  font-size: 1.5em; // = 18px @ size=small 按钮 12px
+  font-size: 1.125rem; // 18px @ 16px 根字号，v3 size=small 纯图标按钮的等价图标尺寸
 }
 </style>
