@@ -44,9 +44,8 @@ const menuOptions = routes
   }); // 根据 meta 的 isMainMenu 属性筛选出应该列在目录中的路径
 
 function clickMenuItem() {
-  if (display.smAndDown.value && configStore.isNavBarOpen) {
-    configStore.isNavBarOpen = false;
-  }
+  configStore.isNavBarOpen = !configStore.isNavBarOpen;
+  configStore.$save();
 }
 </script>
 
