@@ -92,16 +92,17 @@ watch(
     }
   },
 );
+
+function updateNavBarOpenStatus() {
+  configStore.isNavBarOpen = !configStore.isNavBarOpen;
+  configStore.$save();
+}
 </script>
 
 <template>
   <v-app-bar id="ptd-topbar" app color="amber">
     <template #prepend>
-      <v-app-bar-nav-icon
-        :title="t('layout.header.navBarTip')"
-        variant="text"
-        @click="configStore.isNavBarOpen = !configStore.isNavBarOpen"
-      >
+      <v-app-bar-nav-icon :title="t('layout.header.navBarTip')" variant="text" @click="updateNavBarOpenStatus">
         <template v-if="display.smAndUp.value">
           <v-icon icon="$menu"></v-icon>
         </template>

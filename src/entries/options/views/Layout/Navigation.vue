@@ -42,11 +42,6 @@ const menuOptions = routes
         }),
     };
   }); // 根据 meta 的 isMainMenu 属性筛选出应该列在目录中的路径
-
-function clickMenuItem() {
-  configStore.isNavBarOpen = !configStore.isNavBarOpen;
-  configStore.$save();
-}
 </script>
 
 <template>
@@ -64,7 +59,6 @@ function clickMenuItem() {
           :to="{ name: nav.name }"
           :value="nav"
           class="list-item-half-spacer"
-          @click="clickMenuItem"
         >
           {{ t(nav.title) }}
         </v-list-item>
