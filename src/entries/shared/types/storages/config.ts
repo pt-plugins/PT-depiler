@@ -20,6 +20,8 @@ export interface IConfigPiniaStorageSchema {
   lang: TLangCode;
   theme: supportThemeType;
   isNavBarOpen: boolean;
+  // 窗口大小变化（display 断点变化）时，是否自动展开/收起 Navigation 侧边栏
+  autoToggleNavBarOnDisplayChange: boolean;
 
   ignoreWrongPixelRatio: boolean;
   showReleaseNoteOnVersionChange: boolean; // 是否在版本更新时展示更新日志

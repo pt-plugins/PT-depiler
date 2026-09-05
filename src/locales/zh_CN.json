@@ -591,6 +591,8 @@
     "ui": {
       "allowDragLink": "允许拖拽链接到侧边栏按钮",
       "allowExceptionSites": "允许设置不启用侧边栏的例外站点（启用后需在站点设置中对应关闭）",
+      "autoToggleNavBarOnDisplayChange": "窗口大小变化时自动展开/收起侧边栏",
+      "autoToggleNavBarOnDisplayChangeNote": "关闭后，调整窗口大小不会自动改变侧边栏的展开状态，需要手动通过顶栏按钮控制。",
       "basicSettings": "基本设置",
       "changeLanguage": "切换语言",
       "confirmTwoStep": "对种子列表页批量复制、本地下载等操作需要二步确认",

@@ -60,6 +60,7 @@ export const useConfigStore = defineStore("config", {
     lang: "zh_CN",
     theme: "light",
     isNavBarOpen: true,
+    autoToggleNavBarOnDisplayChange: true,
 
     ignoreWrongPixelRatio: false,
     showReleaseNoteOnVersionChange: true,

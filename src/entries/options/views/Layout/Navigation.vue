@@ -18,7 +18,9 @@ const configStore = useConfigStore();
 // 当页面窗口大小发生变化时，调整 Navigation 的显示
 const display = useDisplay();
 watch(display.mdAndUp, () => {
-  configStore.isNavBarOpen = display.mdAndUp.value;
+  if (configStore.autoToggleNavBarOnDisplayChange) {
+    configStore.isNavBarOpen = display.mdAndUp.value;
+  }
 });
 
 // 自动从router.ts生成目录
