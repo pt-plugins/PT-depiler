@@ -34,7 +34,7 @@ jobs:
 
       - name: vue-tsc check
         run: pnpm check
-        continue-on-error: ${{ github.event_name == 'pull_request' && false || true }}
+        continue-on-error: ${{ github.event_name == 'push' }}
 
       - name: Build Output
         run: |
