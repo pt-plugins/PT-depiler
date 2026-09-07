@@ -299,7 +299,7 @@ const showExportDialog = ref(false);
             <v-chip v-if="index === 0">
               <span>{{ item.title }}</span>
             </v-chip>
-            <span v-if="index === 1" class="text-grey caption">
+            <span v-if="index === 1" class="text-grey text-body-small">
               (+{{ configStore.tableBehavior.MyData.columns!.length - 1 }})
             </span>
           </template>

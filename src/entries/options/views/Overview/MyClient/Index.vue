@@ -455,7 +455,7 @@ function torrentKey(torrent: CTorrent) {
             <v-chip v-if="index === 0">
               <span>{{ item.title }}</span>
             </v-chip>
-            <span v-if="index === 1" class="grey--text caption">
+            <span v-if="index === 1" class="text-grey text-body-small">
               (+{{ (configStore.tableBehavior["MyClient"] as any).columns!.length - 1 }})
             </span>
           </template>
