@@ -170,7 +170,7 @@ export const siteMetadata: ISiteMetadata = {
       seedingBonus: 40000,
       ratio: 1.05,
       privilege:
-        "得到一个邀请名额；可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种； " +
+        "可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种； " +
         '可以发送邀请； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。' +
         "当条件符合时将被自动提升。注意，无论何时，如果你的分享率低于0.95，你将自动降级。",
     },
@@ -189,7 +189,7 @@ export const siteMetadata: ISiteMetadata = {
       id: 3,
       name: "安全员",
       nameAka: ["Crazy User"],
-      interval: "P15W",
+      interval: "P16W",
       downloaded: "300GB",
       seedingBonus: 150000,
       ratio: 2.05,
@@ -200,7 +200,7 @@ export const siteMetadata: ISiteMetadata = {
       id: 4,
       name: "技术员",
       nameAka: ["Insane User"],
-      interval: "P25W",
+      interval: "P28W",
       downloaded: "500GB",
       seedingBonus: 250000,
       ratio: 2.55,
