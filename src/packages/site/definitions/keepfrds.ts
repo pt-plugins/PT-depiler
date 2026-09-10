@@ -1,4 +1,6 @@
 import { type ISiteMetadata, type IUserInfo } from "../types";
+import { definedFilters } from "../utils.ts";
+import Sizzle from "sizzle";
 import NexusPHP, {
   CategoryInclbookmarked,
   CategoryIncldead,
@@ -396,16 +398,94 @@ export default class Keepfrds extends NexusPHP {
   }
 
   /**
-   * 新版站点已移除 getusertorrentlistajax.php 接口，且 userdetails 页面不再提供做种体积/发布数。
-   * 覆写基类的回退逻辑，避免请求已失效的接口导致用户信息更新失败。
+   * 新版站点已移除 getusertorrentlistajax.php 接口，改为从完整 torrents.php
+   * 分页列表统计当前做种体积和发布数量。
    */
   protected override async parseUserInfoForSeedingStatus(
     flushUserInfo: Partial<IUserInfo>,
   ): Promise<Partial<IUserInfo>> {
-    return flushUserInfo; // seeding 由 selector 提供，seedingSize 新版页面不提供
+    const userId = flushUserInfo.id as number;
+    const stats = await this.getKeepfrdsUserTorrentStats(userId, 3);
+    flushUserInfo.seeding = stats.count;
+    flushUserInfo.seedingSize = stats.size;
+    return flushUserInfo;
   }
 
   protected override async parseUserInfoForUploads(flushUserInfo: Partial<IUserInfo>): Promise<Partial<IUserInfo>> {
-    return flushUserInfo; // uploads 新版页面不提供，跳过失效接口
+    const userId = flushUserInfo.id as number;
+    const stats = await this.getKeepfrdsUserTorrentStats(userId, 10);
+    flushUserInfo.uploads = stats.count;
+    return flushUserInfo;
+  }
+
+  private async getKeepfrdsUserTorrentStats(
+    userId: number,
+    optionTorrents: 3 | 10,
+  ): Promise<{ count: number; size: number }> {
+    // 月月完整列表每页 50 条，第一页不带 page，后续从 page=1 开始。
+    const maxPages = 50;
+    const seenPages = new Set<string>();
+    let page = 0;
+    let rowCount = 0;
+    let totalSize = 0;
+    let reportedCount = 0;
+
+    while (page < maxPages) {
+      const { data } = await this.request<Document>({
+        url: "/torrents.php",
+        params: {
+          "option-torrents": optionTorrents,
+          userid: userId,
+          ...(page > 0 ? { page } : {}),
+        },
+        responseType: "document",
+      });
+      if (!(data instanceof Document)) break;
+
+      const rows = this.getKeepfrdsTorrentRows(data);
+      if (rows.length === 0) break;
+
+      const pageSignature = rows
+        .map((row) => Sizzle("a[href*='details.php?id=']", row)[0]?.getAttribute("href") || "")
+        .join("|");
+      if (!pageSignature || seenPages.has(pageSignature)) break;
+      seenPages.add(pageSignature);
+
+      rowCount += rows.length;
+      totalSize += this.getKeepfrdsTorrentPageSize(rows);
+      if (page === 0) {
+        reportedCount = this.getKeepfrdsPagerTotal(data);
+      }
+      if (!this.hasKeepfrdsNextPage(data, page + 1)) break;
+      page += 1;
+    }
+
+    return { count: reportedCount >= rowCount ? reportedCount : rowCount, size: totalSize };
+  }
+
+  private getKeepfrdsTorrentRows(doc: Document): Element[] {
+    return Sizzle("table.torrents tr", doc).filter((row) => row.querySelector(":scope > td[data-label='大小']"));
+  }
+
+  private getKeepfrdsTorrentPageSize(rows: Element[]): number {
+    return rows.reduce((total, row) => {
+      const sizeCell = row.querySelector(":scope > td[data-label='大小']") as HTMLElement | null;
+      return total + definedFilters.parseSize(sizeCell?.innerText?.trim() || "0 B");
+    }, 0);
+  }
+
+  private getKeepfrdsPagerTotal(doc: Document): number {
+    let total = 0;
+    Sizzle("p:has(a[href*='page=']) b", doc).forEach((element) => {
+      const match = element.textContent?.replace(/\u00a0/g, " ").match(/(\d+)\s*-\s*(\d+)/);
+      if (!match) return;
+      total = Math.max(total, Number(match[2]) || 0);
+    });
+    return total;
+  }
+
+  private hasKeepfrdsNextPage(doc: Document, nextPage: number): boolean {
+    const pattern = new RegExp(`[?&]page=${nextPage}(?:&|$)`);
+    return Sizzle("a[href*='page=']", doc).some((link) => pattern.test(link.getAttribute("href") || ""));
   }
 }
