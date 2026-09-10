@@ -170,9 +170,7 @@ export const siteMetadata: ISiteMetadata = {
       seedingBonus: 40000,
       ratio: 1.05,
       privilege:
-        "得到一个邀请名额；可以直接发布种子；可以查看NFO文档；可以查看用户列表；可以请求续种； " +
-        '可以发送邀请； 可以查看排行榜；可以查看其它用户的种子历史(如果用户隐私等级未设置为"强")； 可以删除自己上传的字幕。' +
-        "当条件符合时将被自动提升。注意，无论何时，如果你的分享率低于0.95，你将自动降级。",
+        '可直接发布种子；查看NFO、用户列表、排行榜；请求续种；发送邀请；查看他人种子历史（对方隐私等级未设为"强"）；删除自己上传的字幕。',
     },
     {
       id: 2,
@@ -182,29 +180,27 @@ export const siteMetadata: ISiteMetadata = {
       downloaded: "120GB",
       seedingBonus: 80000,
       ratio: 1.55,
-      privilege:
-        "Elite User及以上用户封存账号后不会被删除。当条件符合时将被自动提升。注意，无论何时，如果你的分享率低于1.45，你将自动降级。",
+      privilege: "Elite User及以上用户封存账号后不会被删除。",
     },
     {
       id: 3,
       name: "安全员",
       nameAka: ["Crazy User"],
-      interval: "P15W",
+      interval: "P16W",
       downloaded: "300GB",
       seedingBonus: 150000,
       ratio: 2.05,
-      privilege:
-        "得到两个邀请名额；可以在做种/下载/发布的时候选择匿名模式。当条件符合时将被自动提升。注意，无论何时，如果你的分享率低于1.95，你将自动降级。",
+      privilege: "得到两个邀请名额；做种/下载/发布时可选匿名模式。",
     },
     {
       id: 4,
       name: "技术员",
       nameAka: ["Insane User"],
-      interval: "P25W",
+      interval: "P28W",
       downloaded: "500GB",
       seedingBonus: 250000,
       ratio: 2.55,
-      privilege: "可以查看普通日志。当条件符合时将被自动提升。注意，无论何时，如果你的分享率低于2.45，你将自动降级。",
+      privilege: "可以查看普通日志。",
     },
     {
       id: 5,
@@ -215,8 +211,7 @@ export const siteMetadata: ISiteMetadata = {
       seedingBonus: 400000,
       ratio: 3.05,
       isKept: true,
-      privilege:
-        "得到三个邀请名额；可以查看其它用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。当条件符合时将被自动提升。注意，无论何时，如果你的分享率低于2.95，你将自动降级。",
+      privilege: "得到三个邀请名额；可以查看其它用户的评论、帖子历史；Veteran User及以上用户永远保留账号。",
     },
     {
       id: 6,
@@ -227,8 +222,7 @@ export const siteMetadata: ISiteMetadata = {
       seedingBonus: 600000,
       ratio: 3.55,
       isKept: true,
-      privilege:
-        "可以更新过期的外部信息；可以查看Extreme User论坛。当条件符合时将被自动提升。注意，无论何时，如果你的分享率低于3.45，你将自动降级。",
+      privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。",
     },
     {
       id: 7,
@@ -239,7 +233,7 @@ export const siteMetadata: ISiteMetadata = {
       seedingBonus: 900000,
       ratio: 4.05,
       isKept: true,
-      privilege: "得到五个邀请名额。当条件符合时将被自动提升。注意，无论何时，如果你的分享率低于3.95，你将自动降级。",
+      privilege: "得到五个邀请名额。",
     },
     {
       id: 8,
@@ -250,7 +244,7 @@ export const siteMetadata: ISiteMetadata = {
       seedingBonus: 1500000,
       ratio: 4.55,
       isKept: true,
-      privilege: "得到十个邀请名额。当条件符合时将被自动提升。注意，无论何时，如果你的分享率低于4.45，你将自动降级。",
+      privilege: "得到十个邀请名额。",
     },
   ],
 };
