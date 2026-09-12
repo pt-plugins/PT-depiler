@@ -83,29 +83,6 @@ export const clientMetaData: TorrentClientMetaData = {
   },
 };
 
-type FloodApiEndpoint =
-  | "verify"
-  | "authenticate"
-  | "connection-test"
-  | "getTorrents"
-  | "addTorrentByUrl"
-  | "addTorrentByFile"
-  | "startTorrent"
-  | "stopTorrent"
-  | "deleteTorrent";
-
-const FloodApiEndpointMap: { [key in FloodApiEndpoint]: string } = {
-  verify: "/api/auth/verify",
-  authenticate: "/api/auth/authenticate",
-  "connection-test": "/api/client/connection-test",
-  getTorrents: "/api/torrents",
-  addTorrentByUrl: "/api/torrents/add-urls",
-  addTorrentByFile: "/api/torrents/add-files",
-  startTorrent: "/api/torrents/start",
-  stopTorrent: "/api/torrents/stop",
-  deleteTorrent: "/api/torrents/delete",
-};
-
 type TorrentStatus =
   "" | "checking" | "seeding" | "complete" | "downloading" | "stopped" | "error" | "inactive" | "active";
 
@@ -175,7 +152,7 @@ export default class Flood extends AbstractBittorrentClient {
     super({ ...clientConfig, ...options });
   }
 
-  private async requestCore<T>(
+  private async request<T>(
     url: string,
     config: AxiosRequestConfig = {},
     skipAuthRetry = false,
@@ -191,7 +168,7 @@ export default class Flood extends AbstractBittorrentClient {
       // not authenticated or token expired
       if ((e as AxiosError).response?.status === 401 && !skipAuthRetry) {
         if (await this.login()) {
-          return await this.requestCore<T>(url, config, true);
+          return await this.request<T>(url, config, true);
         }
       }
 
@@ -199,24 +176,20 @@ export default class Flood extends AbstractBittorrentClient {
     }
   }
 
-  private async request<T>(endpoint: FloodApiEndpoint, config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> {
-    return this.requestCore<T>(FloodApiEndpointMap[endpoint], config);
-  }
-
-  // 直接按路径请求（用于包含 hash 的动态路由，如 contents / details / trackers）
-  private async requestUrl<T>(path: string, config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> {
-    return this.requestCore<T>(path, config);
-  }
-
   private async login(): Promise<boolean> {
     try {
-      const req = await this.request<{ success: boolean }>("authenticate", {
-        method: "post",
-        data: {
-          username: this.config.username,
-          password: this.config.password,
+      // authenticate 请求本身是登录动作，401（凭据错误）时不得触发重登，否则无限递归
+      const req = await this.request<{ success: boolean }>(
+        "/api/auth/authenticate",
+        {
+          method: "post",
+          data: {
+            username: this.config.username,
+            password: this.config.password,
+          },
         },
-      });
+        true,
+      );
 
       return req.data.success;
     } catch (e) {
@@ -226,7 +199,7 @@ export default class Flood extends AbstractBittorrentClient {
 
   async ping(): Promise<boolean> {
     try {
-      const req = await this.request("connection-test");
+      const req = await this.request("/api/client/connection-test");
       // jesec 现为 { isConnected }（早期为 { isConnect }），两者兼容读取
       const data = req.data as { isConnected?: boolean; isConnect?: boolean };
       return data.isConnected ?? data.isConnect ?? false;
@@ -264,7 +237,7 @@ export default class Flood extends AbstractBittorrentClient {
       if (url.startsWith("magnet:") || !options.localDownload) {
         postData.urls = [url];
 
-        await this.request("addTorrentByUrl", {
+        await this.request("/api/torrents/add-urls", {
           method: "post",
           data: postData,
         });
@@ -276,7 +249,7 @@ export default class Flood extends AbstractBittorrentClient {
 
         postData.files = [torrent.metadata.base64()];
 
-        await this.request("addTorrentByFile", {
+        await this.request("/api/torrents/add-files", {
           method: "post",
           data: postData,
         });
@@ -292,7 +265,7 @@ export default class Flood extends AbstractBittorrentClient {
   }
 
   async getAllTorrents(): Promise<CTorrent<TorrentProperties>[]> {
-    const req = await this.request<TorrentListSummaryResponse>("getTorrents");
+    const req = await this.request<TorrentListSummaryResponse>("/api/torrents");
     const rawTorrents = req.data.torrents;
 
     return Object.keys(rawTorrents).map((infoHash: string) => {
@@ -342,7 +315,7 @@ export default class Flood extends AbstractBittorrentClient {
   }
 
   async pauseTorrent(id: any): Promise<boolean> {
-    await this.request("stopTorrent", {
+    await this.request("/api/torrents/stop", {
       method: "post",
       data: {
         hashes: [id],
@@ -352,7 +325,7 @@ export default class Flood extends AbstractBittorrentClient {
   }
 
   async resumeTorrent(id: any): Promise<boolean> {
-    await this.request("startTorrent", {
+    await this.request("/api/torrents/start", {
       method: "post",
       data: {
         hashes: [id],
@@ -362,7 +335,7 @@ export default class Flood extends AbstractBittorrentClient {
   }
 
   async removeTorrent(id: any, removeData: boolean = false): Promise<boolean> {
-    await this.request("deleteTorrent", {
+    await this.request("/api/torrents/delete", {
       method: "post",
       data: {
         hashes: [id],
@@ -391,7 +364,7 @@ export default class Flood extends AbstractBittorrentClient {
 
   // 文件列表: GET /api/torrents/{hash}/contents
   override async getTorrentFiles(torrent: string | CTorrent): Promise<CTorrentFile[]> {
-    const req = await this.requestUrl<
+    const req = await this.request<
       Array<{
         index: number;
         path: string;
@@ -436,7 +409,7 @@ export default class Flood extends AbstractBittorrentClient {
     }
 
     for (const [priority, indices] of grouped) {
-      await this.requestUrl(`/api/torrents/${hash}/contents`, {
+      await this.request(`/api/torrents/${hash}/contents`, {
         method: "patch",
         data: { indices, priority },
       });
@@ -446,7 +419,7 @@ export default class Flood extends AbstractBittorrentClient {
 
   // peer 列表: GET /api/torrents/{hash}/details
   override async getTorrentPeers(torrent: string | CTorrent): Promise<CTorrentPeer[]> {
-    const req = await this.requestUrl<{
+    const req = await this.request<{
       peers?: Array<{
         address: string;
         clientVersion?: string;
@@ -475,7 +448,7 @@ export default class Flood extends AbstractBittorrentClient {
 
   // tracker 列表（带状态）: GET /api/torrents/{hash}/details（trackers 仅 url/type，无状态信息）
   override async getTorrentTrackersDetail(torrent: string | CTorrent): Promise<CTorrentTracker[]> {
-    const req = await this.requestUrl<{
+    const req = await this.request<{
       trackers?: Array<{
         url: string;
         type?: number; // 1=http, 2=udp, 3=dht
@@ -499,7 +472,7 @@ export default class Flood extends AbstractBittorrentClient {
       return true;
     }
     urls.push(url);
-    await this.requestUrl("/api/torrents/trackers", { method: "patch", data: { hashes: [hash], trackers: urls } });
+    await this.request("/api/torrents/trackers", { method: "patch", data: { hashes: [hash], trackers: urls } });
     return true;
   }
 
@@ -511,7 +484,7 @@ export default class Flood extends AbstractBittorrentClient {
     if (urls.length === trackers.length) {
       return true;
     }
-    await this.requestUrl("/api/torrents/trackers", { method: "patch", data: { hashes: [hash], trackers: urls } });
+    await this.request("/api/torrents/trackers", { method: "patch", data: { hashes: [hash], trackers: urls } });
     return true;
   }
 }
