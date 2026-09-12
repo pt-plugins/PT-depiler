@@ -182,10 +182,16 @@ function resetDialog() {
 
 async function afterEnter() {
   await loadMetaData();
-  // Tracker 列表最常被查看，随对话框打开预加载；文件/peers 按 tab 首次进入时加载
+  // Tracker 列表最常被查看，随对话框打开预加载；文件/peers 在首次切换到对应 tab 时加载
   await loadTrackers();
-  if (activeTab.value === "files") await loadFiles();
-  if (activeTab.value === "peers") await loadPeers();
+}
+
+function onTabChange(value: string | null | undefined) {
+  if (value === "files") {
+    loadFiles();
+  } else if (value === "peers") {
+    loadPeers();
+  }
 }
 
 async function copyToClipboard(text: string) {
@@ -226,7 +232,7 @@ function formatTimestamp(timestamp: number | undefined): string {
 
       <v-divider />
 
-      <v-tabs v-model="activeTab" grow>
+      <v-tabs v-model="activeTab" grow @update:model-value="onTabChange">
         <v-tab value="info">{{ t("MyClient.detail.title") }}</v-tab>
         <v-tab v-if="featureAllowed('FileList')" value="files">{{ t("MyClient.detail.fileTitle") }}</v-tab>
         <v-tab v-if="featureAllowed('PeerList')" value="peers">{{ t("MyClient.detail.peersTitle") }}</v-tab>
