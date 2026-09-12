@@ -806,7 +806,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
     return true;
   }
 
-  // peer 列表: GET /sync/torrentsPeers（WebAPI v2 的 peers 端点，peers 为按 peer id 键控的对象）
+  // peer 列表: GET /sync/torrentPeers（注意拼写为 torrentPeers 单数词，peers 为按 peer id 键控的对象）
   override async getTorrentPeers(torrent: string | CTorrent): Promise<CTorrentPeer[]> {
     const { data } = await this.request<{
       peers?: Record<
@@ -817,6 +817,7 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
           country?: string;
           downloaded?: number;
           ip?: string;
+          port?: number;
           progress?: number; // 0-1
           uploaded?: number;
           dl_speed?: number;
@@ -827,10 +828,11 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
           flags_desc?: string;
         }
       >;
-    }>("/sync/torrentsPeers", { params: { hash: this.getTorrentHash(torrent) } });
+    }>("/sync/torrentPeers", { params: { hash: this.getTorrentHash(torrent) } });
 
     return Object.values(data.peers ?? {}).map((peer) => ({
       ip: peer.ip ?? "",
+      port: peer.port,
       client: peer.client,
       progress: (peer.progress ?? 0) * 100,
       downloadSpeed: peer.dl_speed ?? peer.download_speed ?? 0,
