@@ -53,6 +53,22 @@ export const clientMetaData: TorrentClientMetaData = {
     BypassCSRF: {
       allowed: false,
     },
+    // TODO(Phase 4): 实现 aria2.getFiles 只读列表后翻 true（仅 FileList）
+    FileList: {
+      allowed: false,
+    },
+    FilePriority: {
+      allowed: false,
+    },
+    PeerList: {
+      allowed: false,
+    },
+    TrackerList: {
+      allowed: false,
+    },
+    TrackerManage: {
+      allowed: false,
+    },
   },
 };
 

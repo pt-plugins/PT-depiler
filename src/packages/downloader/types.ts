@@ -10,7 +10,12 @@ export type TorrentClientFeature =
   | "Queue" // 支持调整种子在队列中的位置
   | "SpeedLimit" // 支持设置单个种子的上传/下载速度限制
   | "Label" // 支持设置单个种子的标签/分类
-  | "BypassCSRF"; // 支持绕过下载器的跨站请求伪造(CSRF)校验（连接时通过 DNR 移除请求的 Origin 头，目前仅 qBittorrent）
+  | "BypassCSRF" // 支持绕过下载器的跨站请求伪造(CSRF)校验（连接时通过 DNR 移除请求的 Origin 头，目前仅 qBittorrent）
+  | "FileList" // 支持查看种子文件列表
+  | "FilePriority" // 支持设置文件优先级/选择（依赖 FileList）
+  | "PeerList" // 支持查看种子 peer 列表
+  | "TrackerList" // 支持查看带状态的 tracker 列表
+  | "TrackerManage"; // 支持增删 tracker（依赖 TrackerList）
 
 /**
  * 客户端配置信息
@@ -168,8 +173,94 @@ export interface CTorrentFilterRules {
   complete?: boolean;
 }
 
+// 单个种子内的文件
+export interface CTorrentFile<RAW = any> {
+  /**
+   * 客户端内文件序号（0-based）
+   */
+  index: number;
+  /**
+   * 文件名（不含路径）
+   */
+  name: string;
+  /**
+   * 相对种子根目录的完整路径
+   */
+  path: string;
+  /**
+   * 文件大小，字节
+   */
+  size: number;
+  /**
+   * 完成百分比 0-100
+   */
+  progress: number;
+  /**
+   * 归一化优先级
+   */
+  priority: TorrentFilePriority;
+  /**
+   * 是否参与下载（priority !== "skip"）
+   */
+  wanted: boolean;
+  raw?: RAW;
+}
+
+// 文件选择/优先级批量设置项
+export interface CTorrentFileSelection {
+  index: number;
+  priority: TorrentFilePriority; // "skip" 即取消下载
+}
+
+// 连接中的 peer
+export interface CTorrentPeer<RAW = any> {
+  ip: string;
+  port?: number;
+  client?: string; // peer 客户端标识
+  progress: number; // 完成百分比 0-100
+  downloadSpeed: number; // B/s
+  uploadSpeed: number; // B/s
+  totalDownloaded?: number;
+  totalUploaded?: number;
+  incoming?: boolean;
+  encrypted?: boolean;
+  obfuscated?: boolean;
+  snubbed?: boolean;
+  preferred?: boolean;
+  banned?: boolean;
+  flags?: string[]; // 可展示的标签（如 Encrypted / Banned），为空数组表示无
+  country?: string;
+  raw?: RAW;
+}
+
+// tracker 归一化状态
+export enum CTrackerState {
+  unknown = "unknown",
+  working = "working", // 正常服务器
+  updating = "updating", // 正在更新
+  disabled = "disabled", // 被禁用
+  error = "error", // 出错的 tracker
+}
+
+// 单个 tracker
+export interface CTorrentTracker<RAW = any> {
+  url: string;
+  tier: number; // 轮询级别
+  status: CTrackerState; // 归一化状态
+  statusMessage?: string; // 客户端原始状态文本
+  seeds?: number;
+  leeches?: number;
+  downloaded?: number; // scrape 到的完成次数
+  lastAnnounce?: number; // 时间戳(s)
+  enabled?: boolean;
+  raw?: RAW;
+}
+
 // 种子队列调整方向
 export type TorrentQueueDirection = "top" | "up" | "down" | "bottom";
+
+// 单个文件的优先级（归一化枚举，各客户端映射见各实体实现）
+export type TorrentFilePriority = "skip" | "low" | "normal" | "high" | "highest";
 
 // 单个种子的速度限制（单位 KiB/s，0 或 undefined 表示不限速）
 export interface TorrentSpeedLimit {
@@ -350,6 +441,55 @@ export abstract class AbstractBittorrentClient<T extends DownloaderBaseConfig = 
 
   // 设置单个种子的标签/分类，默认不支持，由各客户端 override
   public async setTorrentLabel(_id: any, _label: string): Promise<boolean> {
+    return false;
+  }
+
+  /**
+   * ─────────────────────────────────────────────
+   * 文件级 / peers / tracker 管理（追加扩展，默认不支持）
+   * 各客户端按能力矩阵 override，feature 枚举（FileList/FilePriority/PeerList/TrackerList/TrackerManage）同步声明
+   * ─────────────────────────────────────────────
+   */
+
+  // 获取种子文件列表，默认不支持（返回 []）
+  public async getTorrentFiles(_torrent: string | CTorrent): Promise<CTorrentFile[]> {
+    return [];
+  }
+
+  // 批量设置文件优先级/选择（"skip" 即不下载），建议各实体用尽量少的客户端请求完成批量，默认不支持
+  public async setTorrentFilePriority(
+    _torrent: string | CTorrent,
+    _selections: CTorrentFileSelection[],
+  ): Promise<boolean> {
+    return false;
+  }
+
+  // 获取种子的连接 peer 列表，默认不支持（返回 []）
+  public async getTorrentPeers(_torrent: string | CTorrent): Promise<CTorrentPeer[]> {
+    return [];
+  }
+
+  // 获取带状态的 tracker 列表，默认退化到现有 getTorrentTrackers 的 URL 数组
+  public async getTorrentTrackersDetail(torrent: string | CTorrent): Promise<CTorrentTracker[]> {
+    if (typeof torrent === "string") {
+      return [];
+    }
+    const urls = await this.getTorrentTrackers(torrent);
+    return urls.map((url, tier) => ({
+      url,
+      tier,
+      status: CTrackerState.unknown,
+      enabled: true,
+    }));
+  }
+
+  // 新增单个 tracker，默认不支持
+  public async addTorrentTracker(_torrent: string | CTorrent, _url: string): Promise<boolean> {
+    return false;
+  }
+
+  // 删除单个 tracker，默认不支持
+  public async removeTorrentTracker(_torrent: string | CTorrent, _url: string): Promise<boolean> {
     return false;
   }
 }

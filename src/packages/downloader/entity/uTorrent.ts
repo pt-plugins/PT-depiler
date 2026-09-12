@@ -58,6 +58,22 @@ export const clientMetaData: TorrentClientMetaData = {
     BypassCSRF: {
       allowed: false,
     },
+    // TODO(Phase 4): 实现 getfiles / setfileprio / settrackers 后翻 true
+    FileList: {
+      allowed: false,
+    },
+    FilePriority: {
+      allowed: false,
+    },
+    PeerList: {
+      allowed: false,
+    },
+    TrackerList: {
+      allowed: false,
+    },
+    TrackerManage: {
+      allowed: false,
+    },
   },
 };
 

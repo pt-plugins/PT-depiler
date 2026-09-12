@@ -62,6 +62,22 @@ export const clientMetaData: TorrentClientMetaData = {
     BypassCSRF: {
       allowed: false,
     },
+    // TODO(Phase 3): 实现文件/peers/tracker API（兼容 jesec 与 legacy 两版）后翻 true
+    FileList: {
+      allowed: false,
+    },
+    FilePriority: {
+      allowed: false,
+    },
+    PeerList: {
+      allowed: false,
+    },
+    TrackerList: {
+      allowed: false,
+    },
+    TrackerManage: {
+      allowed: false,
+    },
   },
 };
 
