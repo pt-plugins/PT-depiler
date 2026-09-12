@@ -359,7 +359,7 @@ function formatTimestamp(timestamp: number | undefined): string {
               <v-expansion-panel>
                 <v-expansion-panel-title>{{ t("MyClient.action.viewRaw") }}</v-expansion-panel-title>
                 <v-expansion-panel-text>
-                  <pre class="text-body-medium">{{ JSON.stringify(torrent, null, 2) }}</pre>
+                  <pre class="text-body-medium raw-json">{{ JSON.stringify(torrent, null, 2) }}</pre>
                 </v-expansion-panel-text>
               </v-expansion-panel>
             </v-expansion-panels>
@@ -514,4 +514,12 @@ function formatTimestamp(timestamp: number | undefined): string {
   </v-dialog>
 </template>
 
-<style scoped lang="scss"></style>
+<style scoped lang="scss">
+// 原始 JSON 内容较长，展开后自带滚动区，避免依赖 dialog/tabs 外层布局的滚动
+.raw-json {
+  max-height: 60vh;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+</style>
