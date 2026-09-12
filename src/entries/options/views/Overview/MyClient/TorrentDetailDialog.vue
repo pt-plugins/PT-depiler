@@ -237,6 +237,7 @@ function formatTimestamp(timestamp: number | undefined): string {
         <v-tab v-if="featureAllowed('FileList')" value="files">{{ t("MyClient.detail.fileTitle") }}</v-tab>
         <v-tab v-if="featureAllowed('PeerList')" value="peers">{{ t("MyClient.detail.peersTitle") }}</v-tab>
         <v-tab v-if="featureAllowed('TrackerList')" value="trackers">{{ t("MyClient.detail.trackers") }}</v-tab>
+        <v-tab value="raw">{{ t("MyClient.action.viewRaw") }}</v-tab>
       </v-tabs>
 
       <v-tabs-window v-model="activeTab" class="border-t-thin">
@@ -354,15 +355,13 @@ function formatTimestamp(timestamp: number | undefined): string {
                 <v-list-item-title>{{ formatDate(torrent.dateAdded * 1000) }}</v-list-item-title>
               </v-list-item>
             </v-list>
+          </v-card-text>
+        </v-tabs-window-item>
 
-            <v-expansion-panels class="mt-4">
-              <v-expansion-panel>
-                <v-expansion-panel-title>{{ t("MyClient.action.viewRaw") }}</v-expansion-panel-title>
-                <v-expansion-panel-text>
-                  <pre class="text-body-medium raw-json">{{ JSON.stringify(torrent, null, 2) }}</pre>
-                </v-expansion-panel-text>
-              </v-expansion-panel>
-            </v-expansion-panels>
+        <!-- 原始数据 -->
+        <v-tabs-window-item value="raw">
+          <v-card-text>
+            <pre class="text-body-medium raw-json">{{ JSON.stringify(torrent, null, 2) }}</pre>
           </v-card-text>
         </v-tabs-window-item>
 
