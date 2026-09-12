@@ -13,6 +13,12 @@ import {
   TorrentClientStatus,
   CAddTorrentResult,
   TorrentSpeedLimit,
+  CTorrentFile,
+  CTorrentFileSelection,
+  CTorrentPeer,
+  CTorrentTracker,
+  CTrackerState,
+  TorrentFilePriority,
 } from "../types";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { getRemoteTorrentFile } from "../utils";
@@ -52,19 +58,19 @@ export const clientMetaData: TorrentClientMetaData = {
     BypassCSRF: {
       allowed: false,
     },
-    // TODO(Phase 3): 实现 f.multicall / f.priority.set / p.multicall / t.multicall 后翻 true
     FileList: {
-      allowed: false,
+      allowed: true,
     },
     FilePriority: {
-      allowed: false,
+      allowed: true,
     },
     PeerList: {
-      allowed: false,
+      allowed: true,
     },
     TrackerList: {
-      allowed: false,
+      allowed: true,
     },
+    // tracker 增删需经 t.multicall 组合，边界多，暂保持只读
     TrackerManage: {
       allowed: false,
     },
@@ -150,6 +156,72 @@ function parseResponseXML(resp: string): string[] {
   const dataNode = parsedXML.querySelectorAll("params > param > value > array > data > value > array > data > value");
 
   return Array.from(dataNode).map((node) => node.textContent!);
+}
+
+// XML-RPC value 通用解析（支持 string/int/i4/i8/double/boolean/array/struct）
+interface XmlRpcArray extends Array<XmlRpcValue> {}
+interface XmlRpcStruct {
+  [key: string]: XmlRpcValue;
+}
+type XmlRpcValue = string | number | boolean | XmlRpcArray | XmlRpcStruct;
+
+function parseXmlRpcValue(node: Element): XmlRpcValue {
+  const typeNode = node.firstElementChild;
+  if (!typeNode) {
+    return node.textContent ?? "";
+  }
+
+  switch (typeNode.tagName) {
+    case "array": {
+      const dataNode = typeNode.querySelector(":scope > data");
+      return Array.from(dataNode?.querySelectorAll(":scope > value") ?? []).map((value) => parseXmlRpcValue(value));
+    }
+    case "struct": {
+      const result: Record<string, XmlRpcValue> = {};
+      typeNode.querySelectorAll(":scope > member").forEach((member) => {
+        const name = member.querySelector(":scope > name")?.textContent ?? "";
+        const value = member.querySelector(":scope > value");
+        result[name] = value ? parseXmlRpcValue(value) : "";
+      });
+      return result;
+    }
+    case "int":
+    case "i4":
+    case "i8":
+      return parseInt(typeNode.textContent ?? "", 10);
+    case "double":
+      return parseFloat(typeNode.textContent ?? "");
+    case "boolean":
+      return typeNode.textContent === "1" || typeNode.textContent === "true";
+    case "string":
+    default:
+      return typeNode.textContent ?? "";
+  }
+}
+
+// 解析 XML-RPC 方法响应的第一个 param value
+function parseXmlRpcResponse(xml: string): XmlRpcValue {
+  const doc = new DOMParser().parseFromString(xml, "text/xml");
+  const valueNode = doc.querySelector("methodResponse params param value");
+  return valueNode ? parseXmlRpcValue(valueNode) : [];
+}
+
+// 生成 system.multicall 请求（参数为 struct 数组），用于一次请求多个 rTorrent 调用
+function buildSystemMulticallXML(calls: Array<{ methodName: string; params?: string[] }>): string {
+  let retXML = '<?xml version="1.0" encoding="UTF-8"?>';
+  retXML += "<methodCall><methodName>system.multicall</methodName><params><param><value><array><data>";
+  for (const call of calls) {
+    retXML += "<value><struct>";
+    retXML += `<member><name>methodName</name><value><string>${call.methodName}</string></value></member>`;
+    retXML += "<member><name>params</name><value><array><data>";
+    for (const param of call.params ?? []) {
+      retXML += `<value><string>${param}</string></value>`;
+    }
+    retXML += "</data></array></value></member>";
+    retXML += "</struct></value>";
+  }
+  retXML += "</data></array></value></param></params></methodCall>";
+  return retXML;
 }
 
 // noinspection JSUnusedGlobalSymbols
@@ -379,7 +451,8 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
   }
 
   async getTorrentTrackers(_torrent: string | CTorrent): Promise<string[]> {
-    return [];
+    const trackers = await this.getTorrentTrackersDetail(_torrent);
+    return trackers.map((tracker) => tracker.url);
   }
 
   // 重新校验种子（rTorrent: d.check_hash）
@@ -412,5 +485,204 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
     const postData = buildRequestXML([["d.custom1.set", [id.toUpperCase(), label]]]);
     await this.requestHttpRpc(postData);
     return true;
+  }
+
+  // ─────────────────────────────────────────────
+  // 文件级 / peers / tracker（rTorrent XML-RPC，经 ruTorrent httprpc 通道）
+  // ─────────────────────────────────────────────
+
+  private getTorrentHash(torrent: string | CTorrent): string {
+    if (typeof torrent === "string") {
+      return torrent;
+    }
+    return (torrent.infoHash ?? torrent.id) as string;
+  }
+
+  // 文件列表: f.multicall
+  override async getTorrentFiles(torrent: string | CTorrent): Promise<CTorrentFile[]> {
+    const hash = this.getTorrentHash(torrent).toUpperCase();
+    const postData = buildRequestXML([
+      ["f.multicall", [hash, "", "f.path=", "f.size_bytes=", "f.completed_chunks=", "f.size_chunks=", "f.priority="]],
+    ]);
+    const { data: responseXML } = await this.requestHttpRpc<string>(postData);
+    const parsed = parseXmlRpcResponse(responseXML);
+    const files = (Array.isArray(parsed) ? (parsed as XmlRpcValue[][]) : []) as XmlRpcValue[][];
+
+    return files.map((file, index) => {
+      const [path, size, completedChunks, totalChunks, priority] = file as [string, number, number, number, number];
+      const filePriority = mapRtorrentFilePriority(Number(priority));
+      const totalChunksNum = Number(totalChunks);
+
+      return {
+        index,
+        name: String(path).split("/").pop() || String(path),
+        path: String(path),
+        size: Number(size),
+        progress: totalChunksNum > 0 ? (Number(completedChunks) / totalChunksNum) * 100 : 0,
+        priority: filePriority,
+        wanted: filePriority !== "skip",
+        raw: file,
+      };
+    });
+  }
+
+  // 文件优先级/选择（rTorrent: f.priority.set，一次 system.multicall 批量）
+  override async setTorrentFilePriority(
+    torrent: string | CTorrent,
+    selections: CTorrentFileSelection[],
+  ): Promise<boolean> {
+    if (selections.length === 0) {
+      return true;
+    }
+    const hash = this.getTorrentHash(torrent).toUpperCase();
+    const calls = selections.map(({ index, priority }) => ({
+      methodName: "f.priority.set",
+      params: [`${hash}:f${index}`, String(mapTorrentFilePriorityToRtorrent(priority))],
+    }));
+
+    const postData = buildSystemMulticallXML(calls);
+    await this.requestHttpRpc(postData);
+    return true;
+  }
+
+  // peer 列表: p.multicall
+  override async getTorrentPeers(torrent: string | CTorrent): Promise<CTorrentPeer[]> {
+    const hash = this.getTorrentHash(torrent).toUpperCase();
+    const postData = buildRequestXML([
+      [
+        "p.multicall",
+        [
+          hash,
+          "",
+          "p.address=",
+          "p.port=",
+          "p.client_version=",
+          "p.completed_percent=",
+          "p.down_rate=",
+          "p.up_rate=",
+          "p.is_incoming=",
+          "p.is_encrypted=",
+        ],
+      ],
+    ]);
+    const { data: responseXML } = await this.requestHttpRpc<string>(postData);
+    const parsed = parseXmlRpcResponse(responseXML);
+    const peers = (Array.isArray(parsed) ? (parsed as XmlRpcValue[][]) : []) as XmlRpcValue[][];
+
+    return peers.map((peer) => {
+      const [ip, port, client, completedPercent, downRate, upRate, incoming, encrypted] = peer as [
+        string,
+        number,
+        string,
+        number,
+        number,
+        number,
+        number,
+        number,
+      ];
+      return {
+        ip: String(ip),
+        port: Number(port),
+        client: String(client),
+        // p.completed_percent 为千分比 0-1000
+        progress: Number(completedPercent) / 10,
+        downloadSpeed: Number(downRate),
+        uploadSpeed: Number(upRate),
+        incoming: incoming === 1,
+        encrypted: encrypted === 1,
+        flags: [],
+        raw: peer,
+      };
+    });
+  }
+
+  // tracker 列表（带状态）: t.multicall
+  override async getTorrentTrackersDetail(torrent: string | CTorrent): Promise<CTorrentTracker[]> {
+    const hash = this.getTorrentHash(torrent).toUpperCase();
+    const postData = buildRequestXML([
+      [
+        "t.multicall",
+        [
+          hash,
+          "",
+          "t.url=",
+          "t.is_enabled=",
+          "t.is_open=",
+          "t.scrape_complete=",
+          "t.scrape_incomplete=",
+          "t.scrape_time_last=",
+          "t.group=",
+        ],
+      ],
+    ]);
+    const { data: responseXML } = await this.requestHttpRpc<string>(postData);
+    const parsed = parseXmlRpcResponse(responseXML);
+    const trackers = (Array.isArray(parsed) ? (parsed as XmlRpcValue[][]) : []) as XmlRpcValue[][];
+
+    return trackers.map((tracker) => {
+      const [url, enabled, open, seeds, leeches, lastScrape, tier] = tracker as [
+        string,
+        number,
+        number,
+        number,
+        number,
+        number,
+        number,
+      ];
+      const enabledNum = Number(enabled);
+      const seedsNum = Number(seeds);
+      const leechesNum = Number(leeches);
+      const lastScrapeNum = Number(lastScrape);
+
+      let status = CTrackerState.unknown;
+      if (enabledNum === 0) {
+        status = CTrackerState.disabled;
+      } else if (Number(open) === 1) {
+        status = CTrackerState.working;
+      } else {
+        status = CTrackerState.updating;
+      }
+
+      return {
+        url: String(url),
+        tier: Number(tier) || 0,
+        status,
+        seeds: seedsNum >= 0 ? seedsNum : undefined,
+        leeches: leechesNum >= 0 ? leechesNum : undefined,
+        lastAnnounce: lastScrapeNum > 0 ? lastScrapeNum : undefined,
+        enabled: enabledNum === 1,
+        raw: tracker,
+      };
+    });
+  }
+}
+
+// rTorrent 文件优先级: 0=skip, 1=low, 2=normal, 3=high
+function mapRtorrentFilePriority(priority: number): TorrentFilePriority {
+  switch (priority) {
+    case 0:
+      return "skip";
+    case 1:
+      return "low";
+    case 3:
+      return "high";
+    case 2:
+    default:
+      return "normal";
+  }
+}
+
+function mapTorrentFilePriorityToRtorrent(priority: TorrentFilePriority): number {
+  switch (priority) {
+    case "skip":
+      return 0;
+    case "low":
+      return 1;
+    case "high":
+    case "highest":
+      return 3;
+    case "normal":
+    default:
+      return 2;
   }
 }

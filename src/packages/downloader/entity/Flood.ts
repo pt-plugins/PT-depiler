@@ -15,6 +15,12 @@ import {
   CTorrentState,
   TorrentClientStatus,
   CAddTorrentResult,
+  CTorrentFile,
+  CTorrentFileSelection,
+  CTorrentPeer,
+  CTorrentTracker,
+  CTrackerState,
+  TorrentFilePriority,
 } from "../types";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import { getRemoteTorrentFile } from "../utils";
@@ -59,21 +65,20 @@ export const clientMetaData: TorrentClientMetaData = {
     BypassCSRF: {
       allowed: false,
     },
-    // TODO(Phase 3): 实现文件/peers/tracker API（jesec）后翻 true
     FileList: {
-      allowed: false,
+      allowed: true,
     },
     FilePriority: {
-      allowed: false,
+      allowed: true,
     },
     PeerList: {
-      allowed: false,
+      allowed: true,
     },
     TrackerList: {
-      allowed: false,
+      allowed: true,
     },
     TrackerManage: {
-      allowed: false,
+      allowed: true,
     },
   },
 };
@@ -170,24 +175,37 @@ export default class Flood extends AbstractBittorrentClient {
     super({ ...clientConfig, ...options });
   }
 
-  private async request<T>(endpoint: FloodApiEndpoint, config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> {
+  private async requestCore<T>(
+    url: string,
+    config: AxiosRequestConfig = {},
+    skipAuthRetry = false,
+  ): Promise<AxiosResponse<T>> {
     try {
       return await this.sessionedAxios.request<T>({
         baseURL: this.config.address,
-        url: FloodApiEndpointMap[endpoint],
+        url,
         timeout: this.config.timeout,
         ...config,
       });
     } catch (e) {
       // not authenticated or token expired
-      if ((e as AxiosError).response?.status === 401 && endpoint !== "authenticate") {
+      if ((e as AxiosError).response?.status === 401 && !skipAuthRetry) {
         if (await this.login()) {
-          return await this.request(endpoint, config);
+          return await this.requestCore<T>(url, config, true);
         }
       }
 
       throw e;
     }
+  }
+
+  private async request<T>(endpoint: FloodApiEndpoint, config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> {
+    return this.requestCore<T>(FloodApiEndpointMap[endpoint], config);
+  }
+
+  // 直接按路径请求（用于包含 hash 的动态路由，如 contents / details / trackers）
+  private async requestUrl<T>(path: string, config: AxiosRequestConfig = {}): Promise<AxiosResponse<T>> {
+    return this.requestCore<T>(path, config);
   }
 
   private async login(): Promise<boolean> {
@@ -355,7 +373,172 @@ export default class Flood extends AbstractBittorrentClient {
     return true;
   }
 
-  async getTorrentTrackers(_torrent: CTorrent): Promise<string[]> {
-    return [];
+  async getTorrentTrackers(torrent: CTorrent): Promise<string[]> {
+    const trackers = await this.getTorrentTrackersDetail(torrent);
+    return trackers.map((tracker) => tracker.url);
+  }
+
+  // ─────────────────────────────────────────────
+  // 文件级 / peers / tracker（jesec/flood API）
+  // ─────────────────────────────────────────────
+
+  private getTorrentHash(torrent: string | CTorrent): string {
+    if (typeof torrent === "string") {
+      return torrent;
+    }
+    return (torrent.infoHash ?? torrent.id) as string;
+  }
+
+  // 文件列表: GET /api/torrents/{hash}/contents
+  override async getTorrentFiles(torrent: string | CTorrent): Promise<CTorrentFile[]> {
+    const req = await this.requestUrl<
+      Array<{
+        index: number;
+        path: string;
+        filename: string;
+        percentComplete: number;
+        priority: number; // 0=Don't Download, 1=Normal, 2=High
+        sizeBytes: number;
+      }>
+    >(`/api/torrents/${this.getTorrentHash(torrent)}/contents`);
+
+    return (req.data ?? []).map((file) => {
+      const priority = mapFloodFilePriority(file.priority);
+      return {
+        index: file.index,
+        name: file.filename,
+        path: file.path,
+        size: file.sizeBytes,
+        progress: file.percentComplete,
+        priority,
+        wanted: priority !== "skip",
+        raw: file,
+      };
+    });
+  }
+
+  // 文件优先级/选择: PATCH /api/torrents/{hash}/contents（一次只能一个 priority，按优先级分组）
+  override async setTorrentFilePriority(
+    torrent: string | CTorrent,
+    selections: CTorrentFileSelection[],
+  ): Promise<boolean> {
+    if (selections.length === 0) {
+      return true;
+    }
+    const hash = this.getTorrentHash(torrent);
+
+    const grouped = new Map<number, number[]>();
+    for (const { index, priority } of selections) {
+      const floodPriority = mapTorrentFilePriorityToFlood(priority);
+      const indices = grouped.get(floodPriority) ?? [];
+      indices.push(index);
+      grouped.set(floodPriority, indices);
+    }
+
+    for (const [priority, indices] of grouped) {
+      await this.requestUrl(`/api/torrents/${hash}/contents`, {
+        method: "patch",
+        data: { indices, priority },
+      });
+    }
+    return true;
+  }
+
+  // peer 列表: GET /api/torrents/{hash}/details
+  override async getTorrentPeers(torrent: string | CTorrent): Promise<CTorrentPeer[]> {
+    const req = await this.requestUrl<{
+      peers?: Array<{
+        address: string;
+        clientVersion?: string;
+        completedPercent?: number;
+        country?: string;
+        downloadRate?: number;
+        isEncrypted?: boolean;
+        isIncoming?: boolean;
+        uploadRate?: number;
+      }>;
+    }>(`/api/torrents/${this.getTorrentHash(torrent)}/details`);
+
+    return (req.data?.peers ?? []).map((peer) => ({
+      ip: peer.address,
+      client: peer.clientVersion,
+      progress: peer.completedPercent ?? 0,
+      downloadSpeed: peer.downloadRate ?? 0,
+      uploadSpeed: peer.uploadRate ?? 0,
+      encrypted: peer.isEncrypted,
+      incoming: peer.isIncoming,
+      country: peer.country,
+      flags: [],
+      raw: peer,
+    }));
+  }
+
+  // tracker 列表（带状态）: GET /api/torrents/{hash}/details（trackers 仅 url/type，无状态信息）
+  override async getTorrentTrackersDetail(torrent: string | CTorrent): Promise<CTorrentTracker[]> {
+    const req = await this.requestUrl<{
+      trackers?: Array<{
+        url: string;
+        type?: number; // 1=http, 2=udp, 3=dht
+      }>;
+    }>(`/api/torrents/${this.getTorrentHash(torrent)}/details`);
+
+    return (req.data?.trackers ?? []).map((tracker, index) => ({
+      url: tracker.url,
+      tier: index,
+      status: CTrackerState.unknown,
+      enabled: true,
+      raw: tracker,
+    }));
+  }
+
+  // 新增 tracker: PATCH /api/torrents/trackers（全量替换，先读后加）
+  override async addTorrentTracker(torrent: string | CTorrent, url: string): Promise<boolean> {
+    const hash = this.getTorrentHash(torrent);
+    const urls = (await this.getTorrentTrackersDetail(hash)).map((tracker) => tracker.url);
+    if (urls.includes(url)) {
+      return true;
+    }
+    urls.push(url);
+    await this.requestUrl("/api/torrents/trackers", { method: "patch", data: { hashes: [hash], trackers: urls } });
+    return true;
+  }
+
+  // 删除 tracker: PATCH /api/torrents/trackers（全量替换，先读后删）
+  override async removeTorrentTracker(torrent: string | CTorrent, url: string): Promise<boolean> {
+    const hash = this.getTorrentHash(torrent);
+    const trackers = await this.getTorrentTrackersDetail(hash);
+    const urls = trackers.filter((tracker) => tracker.url !== url).map((tracker) => tracker.url);
+    if (urls.length === trackers.length) {
+      return true;
+    }
+    await this.requestUrl("/api/torrents/trackers", { method: "patch", data: { hashes: [hash], trackers: urls } });
+    return true;
+  }
+}
+
+// flood 文件优先级: 0=Don't Download, 1=Normal, 2=High
+function mapFloodFilePriority(priority: number): TorrentFilePriority {
+  switch (priority) {
+    case 0:
+      return "skip";
+    case 2:
+      return "high";
+    case 1:
+    default:
+      return "normal";
+  }
+}
+
+function mapTorrentFilePriorityToFlood(priority: TorrentFilePriority): number {
+  switch (priority) {
+    case "skip":
+      return 0;
+    case "high":
+    case "highest":
+      return 2;
+    case "low":
+    case "normal":
+    default:
+      return 1;
   }
 }
