@@ -13,6 +13,12 @@ import {
   AbstractBittorrentClient,
   CAddTorrentResult,
   TorrentSpeedLimit,
+  CTorrentFile,
+  CTorrentFileSelection,
+  CTorrentPeer,
+  CTorrentTracker,
+  CTrackerState,
+  TorrentFilePriority,
 } from "../types";
 import urlJoin from "url-join";
 import axios from "axios";
@@ -55,6 +61,21 @@ export const clientMetaData: TorrentClientMetaData = {
     },
     BypassCSRF: {
       allowed: false,
+    },
+    FileList: {
+      allowed: true,
+    },
+    FilePriority: {
+      allowed: true,
+    },
+    PeerList: {
+      allowed: true,
+    },
+    TrackerList: {
+      allowed: true,
+    },
+    TrackerManage: {
+      allowed: true,
     },
   },
   // refs: https://github.com/deluge-torrent/deluge/blob/6ec1479cdbbfed269844041d1001de657594d6da/deluge/core/torrent.py#L121-L148
@@ -146,6 +167,8 @@ type DelugeMethod =
   | "core.resume_torrent"
   | "core.force_recheck"
   | "core.set_torrent_options"
+  | "core.set_torrent_file_priorities"
+  | "core.set_torrent_trackers"
   | "daemon.info"
   | "core.get_libtorrent_version"
   | "label.set_torrent";
@@ -157,6 +180,55 @@ interface DelugeDefaultResponse<T = any> {
   id: number;
   error: null | string;
   result: T;
+}
+
+// Deluge 文件优先级: 0=Ignore, 1=Normal, 2=High, 5=Highest（无 low）
+function mapDelugeFilePriority(priority: number): TorrentFilePriority {
+  switch (priority) {
+    case 0:
+      return "skip";
+    case 2:
+      return "high";
+    case 5:
+      return "highest";
+    case 1:
+    default:
+      return "normal";
+  }
+}
+
+function mapTorrentFilePriorityToDeluge(priority: TorrentFilePriority): number {
+  switch (priority) {
+    case "skip":
+      return 0;
+    case "high":
+      return 2;
+    case "highest":
+      return 5;
+    case "low":
+    case "normal":
+    default:
+      return 1;
+  }
+}
+
+// Deluge tracker_status 为自由文本，按关键词归一化
+function mapDelugeTrackerState(status: string | undefined): { state: CTrackerState; message?: string } {
+  const text = status ?? "";
+  const lower = text.toLowerCase();
+  if (lower.includes("error")) {
+    return { state: CTrackerState.error, message: status };
+  }
+  if (lower.includes("updating")) {
+    return { state: CTrackerState.updating, message: status };
+  }
+  if (lower.includes("disabled")) {
+    return { state: CTrackerState.disabled, message: status };
+  }
+  if (text.length === 0) {
+    return { state: CTrackerState.unknown };
+  }
+  return { state: CTrackerState.working, message: status };
 }
 
 type DelugeTorrentField =
@@ -493,6 +565,159 @@ export default class Deluge extends AbstractBittorrentClient {
     } catch (e) {
       return false;
     }
+  }
+
+  // ─────────────────────────────────────────────
+  // 文件级 / peers / tracker 管理（Deluge WebAPI）
+  // ─────────────────────────────────────────────
+
+  private getTorrentHash(torrent: string | CTorrent): string {
+    if (typeof torrent === "string") {
+      return torrent;
+    }
+    return (torrent.infoHash || (torrent.id as string)) as string;
+  }
+
+  // 文件列表: core.get_torrents_status fields files/file_progress/file_priorities
+  override async getTorrentFiles(torrent: string | CTorrent): Promise<CTorrentFile[]> {
+    const hash = this.getTorrentHash(torrent);
+    const result = await this.request<Record<string, any>>("core.get_torrents_status", [
+      { hash },
+      ["files", "file_progress", "file_priorities"],
+    ]);
+    const torrentData: any = Object.values(result)[0];
+    const files: Array<{ index: number; path: string; size: number }> = torrentData?.files ?? [];
+    const fileProgress: number[] = torrentData?.file_progress ?? [];
+    const filePriorities: number[] = torrentData?.file_priorities ?? [];
+
+    return files.map((file, index) => {
+      const priority = mapDelugeFilePriority(filePriorities[index] ?? 1);
+      return {
+        index: file.index ?? index,
+        name: file.path.split(/[/\\]/).pop() || file.path,
+        path: file.path,
+        size: file.size,
+        progress: (fileProgress[index] ?? 0) * 100,
+        priority,
+        wanted: priority !== "skip",
+        raw: { file, progress: fileProgress[index], priority: filePriorities[index] },
+      };
+    });
+  }
+
+  // 文件优先级/选择: core.set_torrent_file_priorities（全量数组，先读后改）
+  override async setTorrentFilePriority(
+    torrent: string | CTorrent,
+    selections: CTorrentFileSelection[],
+  ): Promise<boolean> {
+    if (selections.length === 0) {
+      return true;
+    }
+    const hash = this.getTorrentHash(torrent);
+
+    const result = await this.request<Record<string, { file_priorities?: number[] }>>("core.get_torrents_status", [
+      { hash },
+      ["file_priorities"],
+    ]);
+    const priorities = (Object.values(result)[0]?.file_priorities ?? []).slice();
+
+    for (const selection of selections) {
+      if (selection.index >= 0 && selection.index < priorities.length) {
+        priorities[selection.index] = mapTorrentFilePriorityToDeluge(selection.priority);
+      }
+    }
+
+    try {
+      await this.request<boolean>("core.set_torrent_file_priorities", [hash, priorities]);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // peer 列表: core.get_torrents_status fields peers
+  override async getTorrentPeers(torrent: string | CTorrent): Promise<CTorrentPeer[]> {
+    const hash = this.getTorrentHash(torrent);
+    const result = await this.request<Record<string, any>>("core.get_torrents_status", [{ hash }, ["peers"]]);
+    const peers: Array<{
+      client?: string;
+      country?: string;
+      down_speed?: number;
+      encrypted?: boolean;
+      ip?: string;
+      port?: number;
+      progress?: number; // 0-1
+      seed?: boolean;
+      up_speed?: number;
+    }> = Object.values(result)[0]?.peers ?? [];
+
+    return peers
+      .filter((peer) => !!peer.ip)
+      .map((peer) => ({
+        ip: peer.ip!,
+        port: peer.port,
+        client: peer.client,
+        progress: (peer.progress ?? 0) * 100,
+        downloadSpeed: peer.down_speed ?? 0,
+        uploadSpeed: peer.up_speed ?? 0,
+        encrypted: peer.encrypted,
+        preferred: peer.seed,
+        country: peer.country,
+        raw: peer,
+      }));
+  }
+
+  // tracker 列表（带状态）: core.get_torrents_status fields trackers/tracker_status
+  override async getTorrentTrackersDetail(torrent: string | CTorrent): Promise<CTorrentTracker[]> {
+    const hash = this.getTorrentHash(torrent);
+    const result = await this.request<Record<string, any>>("core.get_torrents_status", [
+      { hash },
+      ["trackers", "tracker_status"],
+    ]);
+    const torrentData: any = Object.values(result)[0];
+    const trackers: Array<{ url: string; tier: number }> = torrentData?.trackers ?? [];
+    const trackerStatus: string | undefined = torrentData?.tracker_status;
+
+    return trackers.map((tracker) => {
+      const { state, message } = mapDelugeTrackerState(trackerStatus);
+      return {
+        url: tracker.url,
+        tier: tracker.tier ?? 0,
+        status: state,
+        statusMessage: message,
+        enabled: state !== CTrackerState.disabled,
+        raw: tracker,
+      };
+    });
+  }
+
+  // 新增 tracker: core.set_torrent_trackers（全量替换，先读后加）
+  override async addTorrentTracker(torrent: string | CTorrent, url: string): Promise<boolean> {
+    const hash = this.getTorrentHash(torrent);
+    const current = await this.getTorrentTrackersDetail(hash);
+    if (current.some((t) => t.url === url)) {
+      return true;
+    }
+
+    const nextTier = current.length ? Math.max(...current.map((t) => t.tier)) + 1 : 0;
+    await this.request<boolean>("core.set_torrent_trackers", [
+      hash,
+      [...current.map((t) => ({ url: t.url, tier: t.tier })), { url, tier: nextTier }],
+    ]);
+    return true;
+  }
+
+  // 删除 tracker: core.set_torrent_trackers（全量替换，先读后删）
+  override async removeTorrentTracker(torrent: string | CTorrent, url: string): Promise<boolean> {
+    const hash = this.getTorrentHash(torrent);
+    const current = await this.getTorrentTrackersDetail(hash);
+    const rest = current.filter((t) => t.url !== url);
+    if (rest.length === current.length) {
+      return true;
+    }
+
+    await this.request<boolean>("core.set_torrent_trackers", [hash, rest.map((t) => ({ url: t.url, tier: t.tier }))]);
+    return true;
   }
 
   private async login(): Promise<boolean> {

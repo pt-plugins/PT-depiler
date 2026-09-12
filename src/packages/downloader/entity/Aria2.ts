@@ -15,6 +15,8 @@ import {
   CAddTorrentResult,
   TorrentQueueDirection,
   TorrentSpeedLimit,
+  CTorrentFile,
+  TorrentFilePriority,
 } from "../types";
 import { getRemoteTorrentFile } from "../utils";
 import urlJoin from "url-join";
@@ -51,6 +53,22 @@ export const clientMetaData: TorrentClientMetaData = {
       allowed: false,
     },
     BypassCSRF: {
+      allowed: false,
+    },
+    // aria2 仅支持只读文件列表（无优先级/选择能力）
+    FileList: {
+      allowed: true,
+    },
+    FilePriority: {
+      allowed: false,
+    },
+    PeerList: {
+      allowed: false,
+    },
+    TrackerList: {
+      allowed: false,
+    },
+    TrackerManage: {
       allowed: false,
     },
   },
@@ -412,5 +430,30 @@ export default class Aria2 extends AbstractBittorrentClient {
       raw: rawTask,
       clientId: this.config.id,
     } as CTorrent<rawTask>;
+  }
+
+  // 文件列表（只读）: aria2.getFiles；aria2 无优先级概念，统一 normal
+  override async getTorrentFiles(torrent: string | CTorrent): Promise<CTorrentFile[]> {
+    const id = typeof torrent === "string" ? torrent : (torrent.id as string);
+    const { result: files } = await this.methodSend<
+      Array<{
+        index: number;
+        path: string;
+        length: number;
+        completedLength: number;
+        selected: string; // "true" | "false"
+      }>
+    >("aria2.getFiles", [id]);
+
+    return (files ?? []).map((file) => ({
+      index: file.index,
+      name: file.path.split(/[/\\]/).pop() || file.path,
+      path: file.path,
+      size: file.length,
+      progress: file.length > 0 ? (file.completedLength / file.length) * 100 : 0,
+      priority: "normal" as TorrentFilePriority,
+      wanted: String(file.selected) === "true",
+      raw: file,
+    }));
   }
 }
