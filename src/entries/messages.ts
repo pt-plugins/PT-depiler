@@ -16,7 +16,17 @@ import type {
 } from "@ptd/social";
 import type { IMediaServerId, IMediaServerSearchOptions, IMediaServerSearchResult } from "@ptd/mediaServer";
 import type { IBackupData, IBackupFileInfo } from "@ptd/backupServer";
-import type { CTorrent, TorrentClientStatus, TorrentQueueDirection, TorrentSpeedLimit } from "@ptd/downloader";
+import type {
+  CTorrent,
+  CTorrentFile,
+  CTorrentFileSelection,
+  CTorrentPeer,
+  CTorrentTracker,
+  TorrentClientMetaData,
+  TorrentClientStatus,
+  TorrentQueueDirection,
+  TorrentSpeedLimit,
+} from "@ptd/downloader";
 
 // 可序列化的种子信息，用于辅种检测
 export interface ITorrentInfoForVerification {
@@ -127,6 +137,21 @@ interface ProtocolMap extends TMessageMap {
   moveClientTorrentInQueue(data: { downloaderId: string; id: any; direction: TorrentQueueDirection }): boolean;
   setClientTorrentSpeedLimit(data: { downloaderId: string; id: any; limits: TorrentSpeedLimit }): boolean;
   setClientTorrentLabel(data: { downloaderId: string; id: any; label: string }): boolean;
+
+  // 下载器能力元数据（feature 声明，UI 据此渲染文件/peers/tracker 面板）
+  getDownloaderMetaData(downloaderId: string): TorrentClientMetaData | undefined;
+
+  // 文件级 / peers / tracker 管理
+  getClientTorrentFiles(data: { downloaderId: string; torrent: CTorrent }): CTorrentFile[];
+  setClientTorrentFilePriority(data: {
+    downloaderId: string;
+    torrent: CTorrent;
+    selections: CTorrentFileSelection[];
+  }): boolean;
+  getClientTorrentPeers(data: { downloaderId: string; torrent: CTorrent }): CTorrentPeer[];
+  getClientTorrentTrackersDetail(data: { downloaderId: string; torrent: CTorrent }): CTorrentTracker[];
+  addClientTorrentTracker(data: { downloaderId: string; torrent: CTorrent; url: string }): boolean;
+  removeClientTorrentTracker(data: { downloaderId: string; torrent: CTorrent; url: string }): boolean;
 
   downloadTorrent(data: IDownloadTorrentOption): IDownloadTorrentResult;
 

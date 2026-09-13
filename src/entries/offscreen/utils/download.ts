@@ -5,9 +5,14 @@ import { isEmpty } from "es-toolkit/compat";
 
 import {
   getDownloader,
+  getDownloaderMetaData,
   getRemoteTorrentFile,
-  type CTorrent,
   type CAddTorrentOptions,
+  type CTorrent,
+  type CTorrentFile,
+  type CTorrentFileSelection,
+  type CTorrentPeer,
+  type CTorrentTracker,
   type TorrentClientStatus,
   type TorrentQueueDirection,
   type TorrentSpeedLimit,
@@ -149,6 +154,75 @@ onMessage("getClientTorrentTrackers", async ({ data: { downloaderId, torrent } }
     downloaderTrackers = await downloaderInstance.getTorrentTrackers(torrent);
   }
   return downloaderTrackers;
+});
+
+// 下载器能力元数据（feature 声明）
+onMessage("getDownloaderMetaData", async ({ data: downloaderId }) => {
+  const downloaderConfig = await getDownloaderConfig(downloaderId);
+  if (!downloaderConfig.type) {
+    return undefined;
+  }
+  return await getDownloaderMetaData(downloaderConfig.type);
+});
+
+// 文件列表
+onMessage("getClientTorrentFiles", async ({ data: { downloaderId, torrent } }) => {
+  let files: CTorrentFile[] = [];
+  const downloaderInstance = await getDownloaderInstance(downloaderId);
+  if (downloaderInstance) {
+    files = await downloaderInstance.getTorrentFiles(torrent);
+  }
+  return files;
+});
+
+// 文件优先级/选择
+onMessage("setClientTorrentFilePriority", async ({ data: { downloaderId, torrent, selections } }) => {
+  let result = false;
+  const downloaderInstance = await getDownloaderInstance(downloaderId);
+  if (downloaderInstance) {
+    result = await downloaderInstance.setTorrentFilePriority(torrent, selections);
+  }
+  return result;
+});
+
+// peer 列表
+onMessage("getClientTorrentPeers", async ({ data: { downloaderId, torrent } }) => {
+  let peers: CTorrentPeer[] = [];
+  const downloaderInstance = await getDownloaderInstance(downloaderId);
+  if (downloaderInstance) {
+    peers = await downloaderInstance.getTorrentPeers(torrent);
+  }
+  return peers;
+});
+
+// tracker 列表（带状态）
+onMessage("getClientTorrentTrackersDetail", async ({ data: { downloaderId, torrent } }) => {
+  let trackers: CTorrentTracker[] = [];
+  const downloaderInstance = await getDownloaderInstance(downloaderId);
+  if (downloaderInstance) {
+    trackers = await downloaderInstance.getTorrentTrackersDetail(torrent);
+  }
+  return trackers;
+});
+
+// 新增 tracker
+onMessage("addClientTorrentTracker", async ({ data: { downloaderId, torrent, url } }) => {
+  let result = false;
+  const downloaderInstance = await getDownloaderInstance(downloaderId);
+  if (downloaderInstance) {
+    result = await downloaderInstance.addTorrentTracker(torrent, url);
+  }
+  return result;
+});
+
+// 删除 tracker
+onMessage("removeClientTorrentTracker", async ({ data: { downloaderId, torrent, url } }) => {
+  let result = false;
+  const downloaderInstance = await getDownloaderInstance(downloaderId);
+  if (downloaderInstance) {
+    result = await downloaderInstance.removeTorrentTracker(torrent, url);
+  }
+  return result;
 });
 
 onMessage("deleteClientTorrent", async ({ data: { downloaderId, id, removeData } }) => {

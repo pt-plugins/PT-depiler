@@ -55,6 +55,22 @@ export const clientMetaData: TorrentClientMetaData = {
     BypassCSRF: {
       allowed: false,
     },
+    // API 无文件级/peers/tracker 管理能力，保持不支持
+    FileList: {
+      allowed: false,
+    },
+    FilePriority: {
+      allowed: false,
+    },
+    PeerList: {
+      allowed: false,
+    },
+    TrackerList: {
+      allowed: false,
+    },
+    TrackerManage: {
+      allowed: false,
+    },
   },
 };
 

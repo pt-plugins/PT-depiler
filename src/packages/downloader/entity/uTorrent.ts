@@ -12,6 +12,11 @@ import {
   CAddTorrentResult,
   TorrentQueueDirection,
   TorrentSpeedLimit,
+  CTorrentFile,
+  CTorrentFileSelection,
+  CTorrentTracker,
+  CTrackerState,
+  TorrentFilePriority,
 } from "../types";
 import urlJoin from "url-join";
 import axios from "axios";
@@ -57,6 +62,21 @@ export const clientMetaData: TorrentClientMetaData = {
     },
     BypassCSRF: {
       allowed: false,
+    },
+    FileList: {
+      allowed: true,
+    },
+    FilePriority: {
+      allowed: true,
+    },
+    PeerList: {
+      allowed: false,
+    },
+    TrackerList: {
+      allowed: true,
+    },
+    TrackerManage: {
+      allowed: true,
     },
   },
 };
@@ -386,8 +406,9 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
     return true;
   }
 
-  async getTorrentTrackers(_torrent: string | CTorrent): Promise<string[]> {
-    return [];
+  async getTorrentTrackers(torrent: string | CTorrent): Promise<string[]> {
+    const trackers = await this.getTorrentTrackersDetail(torrent);
+    return trackers.map((tracker) => tracker.url);
   }
 
   // 重新校验种子
@@ -423,5 +444,146 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
   override async setTorrentLabel(id: string, label: string): Promise<boolean> {
     await this.setTorrentProp(id, { s: "label", v: label });
     return true;
+  }
+
+  // ─────────────────────────────────────────────
+  // 文件级 / tracker（uTorrent WebUI API；无完整 peer 列表接口）
+  // ─────────────────────────────────────────────
+
+  private getTorrentHash(torrent: string | CTorrent): string {
+    if (typeof torrent === "string") {
+      return torrent;
+    }
+    return (torrent.infoHash ?? torrent.id) as string;
+  }
+
+  // 文件列表: action=getfiles → files: [HASH, [[name,size,downloaded,priority],...]]
+  override async getTorrentFiles(torrent: string | CTorrent): Promise<CTorrentFile[]> {
+    const hash = this.getTorrentHash(torrent);
+    const { files } = await this.request<{
+      build: number;
+      files: [string, Array<[string, number, number, number]>];
+    }>("getfiles", { hash });
+
+    const fileList = Array.isArray(files?.[1]) ? files[1] : [];
+    return fileList.map(([name, size, downloaded, priority], index) => {
+      const filePriority = mapUtorrentFilePriority(priority);
+      return {
+        index,
+        name,
+        path: name,
+        size,
+        progress: size > 0 ? (downloaded / size) * 100 : 0,
+        priority: filePriority,
+        wanted: filePriority !== "skip",
+        raw: [name, size, downloaded, priority],
+      };
+    });
+  }
+
+  // 文件优先级/选择: action=setprio（一次一个优先级，多文件以逗号分隔）
+  override async setTorrentFilePriority(
+    torrent: string | CTorrent,
+    selections: CTorrentFileSelection[],
+  ): Promise<boolean> {
+    if (selections.length === 0) {
+      return true;
+    }
+    const hash = this.getTorrentHash(torrent);
+
+    const grouped = new Map<number, string[]>();
+    for (const { index, priority } of selections) {
+      const utorrentPriority = mapTorrentFilePriorityToUtorrent(priority);
+      const indices = grouped.get(utorrentPriority) ?? [];
+      indices.push(String(index));
+      grouped.set(utorrentPriority, indices);
+    }
+
+    for (const [priority, indices] of grouped) {
+      await this.request<BaseUtorrentResponse>("setprio", {
+        hash,
+        p: priority,
+        f: indices.join(","),
+      });
+    }
+    return true;
+  }
+
+  // tracker 列表（带状态）: action=getprops → props[0].trackers（\r\n 分隔）
+  override async getTorrentTrackersDetail(torrent: string | CTorrent): Promise<CTorrentTracker[]> {
+    const hash = this.getTorrentHash(torrent);
+    const { props } = await this.request<{
+      build: number;
+      props: Array<{ hash?: string; trackers?: string }>;
+    }>("getprops", {
+      hash,
+    });
+
+    const prop = (props ?? []).find((item) => String(item.hash ?? "").toLowerCase() === hash.toLowerCase());
+    const urls = (prop?.trackers ?? "")
+      .split(/\r?\n/)
+      .map((url) => url.trim())
+      .filter(Boolean);
+
+    return urls.map((url, tier) => ({
+      url,
+      tier,
+      status: CTrackerState.unknown,
+      enabled: true,
+    }));
+  }
+
+  // 新增 tracker: action=setprops（trackers 全量替换，先读后加）
+  override async addTorrentTracker(torrent: string | CTorrent, url: string): Promise<boolean> {
+    const hash = this.getTorrentHash(torrent);
+    const urls = (await this.getTorrentTrackersDetail(hash)).map((tracker) => tracker.url);
+    if (urls.includes(url)) {
+      return true;
+    }
+    urls.push(url);
+    await this.request<BaseUtorrentResponse>("setprops", { hash, s: "trackers", v: urls.join("\r\n") });
+    return true;
+  }
+
+  // 删除 tracker: action=setprops（trackers 全量替换，先读后删）
+  override async removeTorrentTracker(torrent: string | CTorrent, url: string): Promise<boolean> {
+    const hash = this.getTorrentHash(torrent);
+    const trackers = await this.getTorrentTrackersDetail(hash);
+    const urls = trackers.filter((tracker) => tracker.url !== url).map((tracker) => tracker.url);
+    if (urls.length === trackers.length) {
+      return true;
+    }
+    await this.request<BaseUtorrentResponse>("setprops", { hash, s: "trackers", v: urls.join("\r\n") });
+    return true;
+  }
+}
+
+// uTorrent 文件优先级: 0=Don't Download, 1=Low, 2=Normal, 3=High
+function mapUtorrentFilePriority(priority: number): TorrentFilePriority {
+  switch (priority) {
+    case 0:
+      return "skip";
+    case 1:
+      return "low";
+    case 3:
+      return "high";
+    case 2:
+    default:
+      return "normal";
+  }
+}
+
+function mapTorrentFilePriorityToUtorrent(priority: TorrentFilePriority): number {
+  switch (priority) {
+    case "skip":
+      return 0;
+    case "low":
+      return 1;
+    case "high":
+    case "highest":
+      return 3;
+    case "normal":
+    default:
+      return 2;
   }
 }
