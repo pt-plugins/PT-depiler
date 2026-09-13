@@ -10,6 +10,7 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
+import NavButton from "@/options/components/NavButton.vue";
 import ScanDialog from "./ScanDialog.vue";
 
 const { t } = useI18n();
@@ -216,31 +217,40 @@ const scanDialogOpen = ref(false);
 
   <v-card>
     <v-card-title>
-      <v-btn color="error" :disabled="selectedTasks.length === 0" class="mr-2" @click="deleteSelectedTasks">
-        <v-icon class="mr-2">mdi-delete</v-icon>
-        {{ t("common.remove") }}
-      </v-btn>
+      <NavButton
+        :text="t('common.remove')"
+        color="error"
+        icon="mdi-delete"
+        :disabled="selectedTasks.length === 0"
+        class="mr-2"
+        @click="deleteSelectedTasks"
+      />
 
-      <v-btn color="error" :disabled="tasks.length === 0" @click="clearAllTasks">
-        <v-icon class="mr-2">mdi-delete-sweep</v-icon>
-        {{ t("KeepUploadTask.clearAll") }}
-      </v-btn>
+      <NavButton
+        :text="t('KeepUploadTask.clearAll')"
+        color="error"
+        icon="mdi-delete-sweep"
+        :disabled="tasks.length === 0"
+        @click="clearAllTasks"
+      />
 
-      <v-btn color="primary" class="ml-2" @click="scanDialogOpen = true">
-        <v-icon class="mr-2">mdi-scan-helper</v-icon>
-        {{ t("KeepUploadTask.iyuu.scan") }}
-      </v-btn>
+      <NavButton
+        :text="t('KeepUploadTask.iyuu.scan')"
+        color="primary"
+        icon="mdi-scan-helper"
+        class="ml-2"
+        @click="scanDialogOpen = true"
+      />
 
-      <v-btn
+      <NavButton
+        :text="t('common.howToUse')"
         color="info"
+        icon="mdi-help"
+        class="ml-2"
         href="https://github.com/pt-plugins/PT-Plugin-Plus/wiki/keep-upload-task"
         target="_blank"
         rel="noopener noreferrer nofollow"
-        class="ml-2"
-      >
-        <v-icon class="mr-2">mdi-help</v-icon>
-        {{ t("common.howToUse") }}
-      </v-btn>
+      />
     </v-card-title>
 
     <v-data-table
