@@ -690,7 +690,7 @@
       "fetchHint": "Click 'Fetch site table' to load all IYUU sites before checking.",
       "deriveHeld": "Derive held sites",
       "deriveDone": "Derived {count} held sites; {unmatched} local sites not in IYUU",
-      "columnSite": "Site",
+      "columnSite": "IYUU Site",
       "columnNote": "Note",
       "unmapped": "Unmapped",
       "noHeldSites": "No held sites yet — check some in the site table first",
