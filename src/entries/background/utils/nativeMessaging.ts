@@ -51,6 +51,13 @@ const ALLOWED_METHODS = new Set([
   "updateKeepUploadTask",
   "deleteKeepUploadTask",
   "clearKeepUploadTasks",
+  // IYUU reseed center
+  "getIyuusConfig",
+  "setIyuusConfig",
+  "iyuuFetchSites",
+  "iyuuReportExisting",
+  "iyuuQueryReseed",
+  "iyuuDeriveHeldSites",
 ]);
 
 // ── Module-scoped state ──────────────────────────────────────────────

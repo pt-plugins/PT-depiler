@@ -44,6 +44,12 @@ export const setBaseChildren: RouteRecordRaw[] = [
     meta: { icon: "mdi-multimedia" },
     component: () => import("../views/Settings/SetBase/SocialInformationWindow.vue"),
   },
+  {
+    path: "iyuu",
+    name: "SetBaseIyuu",
+    meta: { icon: "mdi-vector-link", usesGlobalSave: false },
+    component: () => import("../views/Settings/SetBase/IyuuWindow.vue"),
+  },
 ] as const;
 
 export const routes: RouteRecordRaw[] = [

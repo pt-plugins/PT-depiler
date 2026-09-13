@@ -9,3 +9,4 @@ import "./utils/backup.ts";
 import "./utils/socialInformation.ts";
 import "./utils/socialRecommendations.ts";
 import "./utils/keepUploadTask.ts";
+import "./utils/iyuu.ts";
