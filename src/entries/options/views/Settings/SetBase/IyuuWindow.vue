@@ -37,14 +37,14 @@ async function loadConfig() {
 
 async function saveToken() {
   await sendMessage("setIyuusConfig", { token: token.value.trim() });
-  runtimeStore.showSnakebar(t("IyuuWindow.tokenSaved"), { color: "success" });
+  runtimeStore.showSnakebar(t("SetBase.iyuu.tokenSaved"), { color: "success" });
 }
 
 async function fetchSites() {
   loadingSites.value = true;
   try {
     sitesCache.value = await sendMessage("iyuuFetchSites", undefined);
-    runtimeStore.showSnakebar(t("IyuuWindow.sitesLoaded", { count: sitesCache.value.length }), { color: "success" });
+    runtimeStore.showSnakebar(t("SetBase.iyuu.sitesLoaded", { count: sitesCache.value.length }), { color: "success" });
   } catch (e) {
     runtimeStore.showSnakebar(e instanceof Error ? e.message : String(e), { color: "error" });
   } finally {
@@ -61,7 +61,7 @@ async function deriveHeld() {
     );
     await sendMessage("setIyuusConfig", { heldSites: heldSites.value });
     runtimeStore.showSnakebar(
-      t("IyuuWindow.deriveDone", { count: result.localIds.length, unmatched: result.unmatched.length }),
+      t("SetBase.iyuu.deriveDone", { count: result.localIds.length, unmatched: result.unmatched.length }),
       { color: "success" },
     );
   } catch (e) {
@@ -73,13 +73,13 @@ async function deriveHeld() {
 
 async function saveHeldSites() {
   await sendMessage("setIyuusConfig", { heldSites: heldSites.value });
-  runtimeStore.showSnakebar(t("IyuuWindow.heldSaved"), { color: "success" });
+  runtimeStore.showSnakebar(t("SetBase.iyuu.heldSaved"), { color: "success" });
 }
 
 async function report() {
   const held = heldSites.value ?? [];
   if (!held.length) {
-    runtimeStore.showSnakebar(t("IyuuWindow.noHeldSites"), { color: "warning" });
+    runtimeStore.showSnakebar(t("SetBase.iyuu.noHeldSites"), { color: "warning" });
     return;
   }
   reporting.value = true;
@@ -103,8 +103,8 @@ async function report() {
     sidSha1ExpiredAt.value = Date.now() + 7 * 24 * 60 * 60 * 1000;
     runtimeStore.showSnakebar(
       unmatched.length
-        ? t("IyuuWindow.reportDoneWithUnmatched", { sha1: sidSha1Preview.value, unmatched: unmatched.join(", ") })
-        : t("IyuuWindow.reportDone", { sha1: sidSha1Preview.value }),
+        ? t("SetBase.iyuu.reportDoneWithUnmatched", { sha1: sidSha1Preview.value, unmatched: unmatched.join(", ") })
+        : t("SetBase.iyuu.reportDone", { sha1: sidSha1Preview.value }),
       { color: unmatched.length ? "warning" : "success" },
     );
   } catch (e) {
@@ -121,39 +121,39 @@ onMounted(loadConfig);
   <v-container fluid>
     <!-- Token -->
     <v-card class="mb-4">
-      <v-card-title>{{ t("IyuuWindow.tokenTitle") }}</v-card-title>
+      <v-card-title>{{ t("SetBase.iyuu.tokenTitle") }}</v-card-title>
       <v-card-text>
         <v-text-field
           v-model="token"
-          :label="t('IyuuWindow.tokenLabel')"
-          :hint="t('IyuuWindow.tokenHint')"
+          :label="t('SetBase.iyuu.tokenLabel')"
+          :hint="t('SetBase.iyuu.tokenHint')"
           persistent-hint
           variant="outlined"
           autocomplete="off"
         />
         <v-btn color="primary" variant="tonal" :disabled="!token.trim()" @click="saveToken">
-          {{ t("IyuuWindow.saveToken") }}
+          {{ t("SetBase.iyuu.saveToken") }}
         </v-btn>
       </v-card-text>
     </v-card>
 
     <!-- 持有站点推导与汇报 -->
     <v-card>
-      <v-card-title>{{ t("IyuuWindow.heldTitle") }}</v-card-title>
+      <v-card-title>{{ t("SetBase.iyuu.heldTitle") }}</v-card-title>
       <v-card-text>
         <v-alert type="info" variant="tonal" density="compact" class="mb-3">
-          {{ t("IyuuWindow.heldHint") }}
+          {{ t("SetBase.iyuu.heldHint") }}
         </v-alert>
 
         <div class="d-flex ga-2 mb-3">
           <v-btn :loading="loadingSites" variant="tonal" @click="fetchSites">
-            {{ t("IyuuWindow.fetchSites") }}
+            {{ t("SetBase.iyuu.fetchSites") }}
           </v-btn>
           <v-btn :loading="deriving" color="primary" variant="tonal" @click="deriveHeld">
-            {{ t("IyuuWindow.deriveHeld") }}
+            {{ t("SetBase.iyuu.deriveHeld") }}
           </v-btn>
           <v-btn :disabled="!heldSites?.length" variant="tonal" @click="saveHeldSites">
-            {{ t("IyuuWindow.saveHeld") }}
+            {{ t("SetBase.iyuu.saveHeld") }}
           </v-btn>
         </div>
 
@@ -167,13 +167,13 @@ onMounted(loadConfig);
           {{ metadataStore.siteNameMap[label] ?? label }}
         </v-chip>
         <v-alert v-if="!heldSites?.length" type="info" variant="tonal" density="compact" class="mt-2">
-          {{ t("IyuuWindow.noHeldSites") }}
+          {{ t("SetBase.iyuu.noHeldSites") }}
         </v-alert>
 
         <v-divider class="my-3" />
 
         <v-btn :loading="reporting" color="success" variant="tonal" @click="report">
-          {{ t("IyuuWindow.report") }}
+          {{ t("SetBase.iyuu.report") }}
         </v-btn>
         <v-list-item v-if="sidSha1Preview" density="compact" class="mt-2">
           <template #prepend>
@@ -182,7 +182,7 @@ onMounted(loadConfig);
           <v-list-item-title>
             sid_sha1: <code>{{ sidSha1Preview }}…</code>
             <span v-if="sidSha1ExpiredAt" class="text-grey text-body-small ml-2">
-              ({{ t("IyuuWindow.expiresAt") }} {{ new Date(sidSha1ExpiredAt).toLocaleString() }})
+              ({{ t("SetBase.iyuu.expiresAt") }} {{ new Date(sidSha1ExpiredAt).toLocaleString() }})
             </span>
           </v-list-item-title>
         </v-list-item>
