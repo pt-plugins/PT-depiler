@@ -212,10 +212,10 @@ onMounted(loadConfig);
                 />
               </td>
               <td>
-                <div class="d-flex align-center ga-2">
+                <div class="d-flex align-center ga-2" style="min-width: 0">
                   <SiteFavicon v-if="row.local" :site-id="row.local" :size="20" />
                   <v-icon v-else icon="mdi-vector-square" size="small" class="text-grey" />
-                  <span class="text-body-medium">
+                  <span class="text-body-medium text-truncate d-inline-block" style="vertical-align: middle">
                     {{ rowDisplayName(row) }}
                     <span class="text-body-small text-grey ml-1">{{ row.site.site }}</span>
                   </span>
