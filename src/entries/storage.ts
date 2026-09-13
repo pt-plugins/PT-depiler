@@ -6,7 +6,6 @@ import {
   TUserInfoStorageSchema,
   TSearchResultSnapshotStorageSchema,
   TKeepUploadTaskStorageSchema,
-  IIyuuStorageSchema,
 } from "@/shared/types.ts";
 
 export interface IExtensionStorageSchema {
@@ -18,7 +17,6 @@ export interface IExtensionStorageSchema {
   userInfo: TUserInfoStorageSchema; // 用于存储用户信息
   searchResultSnapshot: TSearchResultSnapshotStorageSchema; // 用于存储搜索结果快照
   keepUploadTask: TKeepUploadTaskStorageSchema; // 用于存储辅种任务
-  iyuu: IIyuuStorageSchema; // 用于存储 IYUU 辅种中心配置
 }
 
 export type TExtensionStorageKey = keyof IExtensionStorageSchema;

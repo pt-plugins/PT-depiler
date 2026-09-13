@@ -54,6 +54,9 @@ export const useMetadataStore = defineStore("metadata", {
 
     siteHostMap: {},
     siteNameMap: {},
+
+    // IYUU 辅种中心配置（offscreen 侧读写；此处为持久化默认值）
+    iyuu: {},
   }),
 
   getters: {
