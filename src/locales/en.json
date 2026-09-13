@@ -170,6 +170,24 @@
       "resumeSuccess": "Resumed successfully",
       "viewRaw": "View Raw"
     },
+    "iyuuScan": {
+      "btnTitle": "IYUU Batch Reseed Scan",
+      "columnSite": "Site",
+      "columnSize": "Size",
+      "columnStatus": "Status",
+      "columnTitle": "Title",
+      "dialogTitle": "IYUU Batch Reseed ({count} torrents)",
+      "inject": "Send selected to source downloaders ({count})",
+      "injectError": "Failed to send: {reason}",
+      "injectHint": "Selected candidates are downloaded to each source torrent's downloader and save path",
+      "injectPartial": "Sent {ok}, failed {fail} (last reason: {reason})",
+      "injectSuccess": "Sent {count} torrents to source downloaders",
+      "noResult": "No reseed candidates found for the selected torrents (make sure a Token is configured and sites are reported in Settings \u2192 IYUU Reseed Center)",
+      "queryError": "Query failed: {reason}",
+      "scanning": "Querying reseed candidates for the selected torrents\u2026",
+      "statusError": "Failed",
+      "statusReady": "Ready"
+    },
     "autoRefresh": {
       "btnTitle": "Auto-Refresh",
       "clientSuspended": "{name} failed 3 times in a row. Auto-refresh suspended. Click the chip to resume.",
