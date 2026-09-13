@@ -620,11 +620,32 @@
     "tab": {
       "backup": "Backup & Restore",
       "download": "Download",
+      "iyuu": "IYUU Reseed",
       "native-bridge": "Native Bridge",
       "search-entity": "@:common.search",
       "social-information": "Social Rating",
       "ui": "Option UI",
       "user-info": "UserInfo"
+    },
+    "iyuu": {
+      "tokenTitle": "IYUU Token",
+      "tokenLabel": "IYUU token",
+      "tokenHint": "Token from iyuu.cn to access the IYUU reseed center API (stored locally, not included in backups)",
+      "saveToken": "Save token",
+      "tokenSaved": "Token saved",
+      "heldTitle": "Held Sites",
+      "heldHint": "Auto-derive held IYUU sites from your locally configured sites (local sites ∩ 104 IYUU sites). You can edit the list before reporting.",
+      "fetchSites": "Fetch site table",
+      "sitesLoaded": "Loaded IYUU site table ({count} sites)",
+      "deriveHeld": "Derive held sites",
+      "deriveDone": "Derived {count} held sites; {unmatched} local sites not in IYUU",
+      "saveHeld": "Save held list",
+      "heldSaved": "Held list saved",
+      "noHeldSites": "No held sites yet — derive or add them first",
+      "report": "Report and get sid_sha1",
+      "reportDone": "Reported, sid_sha1 prefix {sha1}…",
+      "reportDoneWithUnmatched": "Reported (sid_sha1 prefix {sha1}…), sites without IYUU sid: {unmatched}",
+      "expiresAt": "Expires at"
     },
     "ui": {
       "allowDragLink": "Allow dragging links to the sidebar button",

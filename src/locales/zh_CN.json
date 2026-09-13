@@ -620,11 +620,32 @@
     "tab": {
       "backup": "备份恢复",
       "download": "下载",
+      "iyuu": "IYUU 辅种",
       "native-bridge": "原生通信桥",
       "search-entity": "@:common.search",
       "social-information": "媒体评分",
       "ui": "界面UI",
       "user-info": "用户信息"
+    },
+    "iyuu": {
+      "tokenTitle": "IYUU Token",
+      "tokenLabel": "IYUU token",
+      "tokenHint": "在 iyuu.cn 获取的 token，用于调用 IYUU 辅种中心 API（明文存本地，不参与备份）",
+      "saveToken": "保存 token",
+      "tokenSaved": "token 已保存",
+      "heldTitle": "已持有站点",
+      "heldHint": "自动从「本机已配置的站点」推导持有的 IYUU 站点（本地站点 ∩ IYUU 104 站），可手动增删后汇报。",
+      "fetchSites": "拉取站点表",
+      "sitesLoaded": "已加载 IYUU 站点表（{count} 站）",
+      "deriveHeld": "推导已持有站点",
+      "deriveDone": "已推导 {count} 个持有站点，{unmatched} 个本地站点不在 IYUU 中",
+      "saveHeld": "保存持有列表",
+      "heldSaved": "持有列表已保存",
+      "noHeldSites": "暂无已持有站点，请先推导或手动添加",
+      "report": "汇报并获取 sid_sha1",
+      "reportDone": "汇报成功，sid_sha1 前缀 {sha1}…",
+      "reportDoneWithUnmatched": "汇报成功（sid_sha1 前缀 {sha1}…），以下站点未匹配到 IYUU sid：{unmatched}",
+      "expiresAt": "过期时间"
     },
     "ui": {
       "allowDragLink": "允许拖拽链接到侧边栏按钮",

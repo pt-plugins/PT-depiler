@@ -27,6 +27,7 @@ import type {
   TorrentQueueDirection,
   TorrentSpeedLimit,
 } from "@ptd/downloader";
+import type { IYUUReseedHit } from "@ptd/iyuu";
 
 // 可序列化的种子信息，用于辅种检测
 export interface ITorrentInfoForVerification {
@@ -56,6 +57,8 @@ import {
   IKeepUploadTask,
   TKeepUploadTaskKey,
   BridgeStatus,
+  IIyuuStorageSchema,
+  IIyuuSiteCacheEntry,
 } from "@/shared/types.ts";
 
 import { isDebug } from "~/helper.ts";
@@ -195,6 +198,18 @@ interface ProtocolMap extends TMessageMap {
   updateKeepUploadTask(task: IKeepUploadTask): void;
   deleteKeepUploadTask(taskId: TKeepUploadTaskKey): void;
   clearKeepUploadTasks(): void;
+
+  // 2.8 IYUU 辅种中心 ( utils/iyuu )
+  getIyuusConfig(): IIyuuStorageSchema | undefined;
+  setIyuusConfig(data: Partial<IIyuuStorageSchema>): void;
+  /** 拉取并缓存 IYUU 站点表（TTL 24h） */
+  iyuuFetchSites(): IIyuuSiteCacheEntry[];
+  /** 汇报已持有站点，返回 sid_sha1（写入缓存，7 天有效） */
+  iyuuReportExisting(sidList: number[]): string;
+  /** 查询辅种：给定本地 infohash 列表，返回各站命中 */
+  iyuuQueryReseed(hashes: string[]): Record<string, { torrent: IYUUReseedHit[] }>;
+  /** 从本地已配置站点自动推导持有站点（本地 id → IYUU sid） */
+  iyuuDeriveHeldSites(): { localIds: TSiteID[]; sidList: number[]; unmatched: TSiteID[] };
 
   // 2.8 Lightweight list queries (for CLI discovery)
   getSiteList(): Array<{ id: string; name: string; url: string; offline: boolean }>;
