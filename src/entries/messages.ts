@@ -213,7 +213,7 @@ interface ProtocolMap extends TMessageMap {
   /** 批量把 IYUU 查询命中解析为辅种候选（B 路线优先，A 兜底；不可注入项标 error） */
   iyuuResolveHits(data: {
     hits: Array<{ sid: number; torrent_id: number; info_hash?: string }>;
-    sources?: Map<string, { name: string; savePath: string; size: number }>;
+    sources?: Record<string, { name: string; savePath: string; size: number }>;
   }): IYUUReseedCandidate[];
   /** 批量辅种扫描：下载器已完成种子 hash 分批查 IYUU 并解析候选 */
   iyuuScanForReseed(downloaderId: string): IYUUReseedCandidate[];

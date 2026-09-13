@@ -204,12 +204,26 @@ async function deriveHeldSids(config: IIyuuStorageSchema): Promise<number[]> {
 
 // ── 辅种候选解析与批量扫描（P1） ─────────────────────────
 
+export type IYUUResolveSourceInfo = { name: string; savePath: string; size: number };
+
+/**
+ * 来源信息统一规范化：offscreen 内部直接传 Map；经消息传输时 Map 会因 JSON 序列化退化为
+ * 普通对象（导致 .get is not a function），消息端传 Record，这里统一转回 Map。
+ */
+function toSourceMap(
+  sources: Map<string, IYUUResolveSourceInfo> | Record<string, IYUUResolveSourceInfo> | undefined,
+): Map<string, IYUUResolveSourceInfo> {
+  if (!sources) return new Map();
+  return sources instanceof Map ? sources : new Map(Object.entries(sources));
+}
+
 /** 批量查询命中 → 解析为辅种候选（B 路线优先，A 兜底；不可注入项标 error） */
 export async function iyuuResolveHits(
   hits: Array<{ sid: number; torrent_id: number; info_hash?: string }>,
-  sources?: Map<string, { name: string; savePath: string; size: number }>,
+  sources?: Map<string, IYUUResolveSourceInfo> | Record<string, IYUUResolveSourceInfo>,
 ): Promise<IYUUReseedCandidate[]> {
   if (!hits.length) return [];
+  const sourceMap = toSourceMap(sources);
   const sites = await iyuuFetchSites();
   const siteById = new Map(sites.map((s) => [s.id, s]));
   const candidates: IYUUReseedCandidate[] = [];
@@ -218,7 +232,7 @@ export async function iyuuResolveHits(
     const iyuuSite = siteById.get(hit.sid);
     if (!iyuuSite) continue;
 
-    const source = hit.info_hash ? sources?.get(hit.info_hash) : undefined;
+    const source = hit.info_hash ? sourceMap.get(hit.info_hash) : undefined;
     const base = {
       sourceInfoHash: hit.info_hash ?? "",
       sourceName: source?.name,
