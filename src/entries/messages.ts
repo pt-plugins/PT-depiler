@@ -27,8 +27,7 @@ import type {
   TorrentQueueDirection,
   TorrentSpeedLimit,
 } from "@ptd/downloader";
-import type { IYUUReseedHit } from "@ptd/iyuu";
-import type { ICrossSeedCandidate } from "@ptd/crossSeed";
+import type { IYUUReseedHit, ICrossSeedCandidate } from "@ptd/crossSeed";
 
 // 可序列化的种子信息，用于辅种检测
 export interface ITorrentInfoForVerification {

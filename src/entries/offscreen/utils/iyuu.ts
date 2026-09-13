@@ -9,9 +9,8 @@ import axios from "axios";
 import { onMessage, sendMessage } from "@/messages.ts";
 import type { IIyuuStorageSchema, IIyuuSiteCacheEntry, IMetadataPiniaStorageSchema } from "@/shared/types.ts";
 import type { TSiteID } from "@ptd/site";
-import { iyuuSiteToLocal } from "@ptd/iyuu";
-import type { IYUUReseedHit } from "@ptd/iyuu";
-import type { ICrossSeedCandidate } from "@ptd/crossSeed";
+import { iyuuSiteToLocal } from "@ptd/crossSeed";
+import type { IYUUReseedHit, ICrossSeedCandidate } from "@ptd/crossSeed";
 
 import { getDownloaderInstance } from "./download.ts";
 
