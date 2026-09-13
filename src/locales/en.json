@@ -696,7 +696,19 @@
       "noHeldSites": "No held sites yet — check some in the site table first",
       "report": "Save & Report",
       "reportDone": "Reported, sid_sha1 prefix {sha1}… (valid for 7 days)",
-      "expiresAt": "Expires at"
+      "expiresAt": "Expires at",
+      "nexusTitle": "NexusPHP pieces-hash Direct Query",
+      "nexusHint": "For NexusPHP sites exposing /api/pieces-hash (v1.8.5+), configure the endpoint and passkey; once enabled the extension can match seeds across sites directly via local pieces_hash (no third-party center).",
+      "nexusSiteColumn": "Site",
+      "nexusUrlColumn": "Endpoint URL",
+      "nexusUrlPlaceholder": "https://site/api/pieces-hash",
+      "nexusPasskeyColumn": "Passkey",
+      "nexusPasskeyPlaceholder": "User passkey for this site",
+      "nexusEnabledColumn": "Enabled",
+      "nexusNoLocalSites": "No local sites configured yet. Add sites in Settings \u2192 Sites first.",
+      "nexusSave": "Save Nexus Config",
+      "nexusSaved": "Nexus config saved",
+      "nexusSavedHint": "After saving, multi-source scans will query this site via pieces-hash."
     },
     "ui": {
       "allowDragLink": "Allow dragging links to the sidebar button",

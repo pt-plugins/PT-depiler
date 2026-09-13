@@ -27,7 +27,8 @@ import type {
   TorrentQueueDirection,
   TorrentSpeedLimit,
 } from "@ptd/downloader";
-import type { IYUUDownloadCredentials, IYUUReseedCandidate, IYUUReseedHit } from "@ptd/iyuu";
+import type { IYUUReseedHit } from "@ptd/iyuu";
+import type { ICrossSeedCandidate } from "@ptd/crossSeed";
 
 // 可序列化的种子信息，用于辅种检测
 export interface ITorrentInfoForVerification {
@@ -214,9 +215,14 @@ interface ProtocolMap extends TMessageMap {
   iyuuResolveHits(data: {
     hits: Array<{ sid: number; torrent_id: number; info_hash?: string }>;
     sources?: Record<string, { name: string; savePath: string; size: number }>;
-  }): IYUUReseedCandidate[];
+  }): ICrossSeedCandidate[];
   /** 批量辅种扫描：下载器已完成种子 hash 分批查 IYUU 并解析候选 */
-  iyuuScanForReseed(downloaderId: string): IYUUReseedCandidate[];
+  iyuuScanForReseed(downloaderId: string): ICrossSeedCandidate[];
+  /** 多源聚合扫描（crossSeed）：IYUU 中心 + NexusPHP pieces-hash 直查 + 本地文件树对比 */
+  crossSeedScanForReseed(data: {
+    downloaderId: string;
+    options?: { enableIyuus?: boolean; enableNexus?: boolean; enableLocal?: boolean };
+  }): ICrossSeedCandidate[];
 
   // 2.8 Lightweight list queries (for CLI discovery)
   getSiteList(): Array<{ id: string; name: string; url: string; offline: boolean }>;

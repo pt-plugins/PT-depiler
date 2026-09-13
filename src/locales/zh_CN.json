@@ -696,7 +696,19 @@
       "noHeldSites": "暂无已持有站点，请先在站点表勾选",
       "report": "保存并汇报",
       "reportDone": "汇报成功，sid_sha1 前缀 {sha1}…（7 天内有效）",
-      "expiresAt": "过期时间"
+      "expiresAt": "过期时间",
+      "nexusTitle": "NexusPHP pieces-hash 直查",
+      "nexusHint": "对支持 /api/pieces-hash 接口的 NexusPHP 站（v1.8.5+）配置接口地址与 passkey，开启后插件可用本地种子的 pieces_hash 直接跨站匹配（无需第三方中心）。",
+      "nexusSiteColumn": "站点",
+      "nexusUrlColumn": "接口地址",
+      "nexusUrlPlaceholder": "https://site/api/pieces-hash",
+      "nexusPasskeyColumn": "Passkey",
+      "nexusPasskeyPlaceholder": "对应用户 passkey",
+      "nexusEnabledColumn": "启用",
+      "nexusNoLocalSites": "暂无可配置的本地站点，请先在「站点」页添加站点。",
+      "nexusSave": "保存 Nexus 配置",
+      "nexusSaved": "Nexus 配置已保存",
+      "nexusSavedHint": "保存后，多源扫描将对该站启用 pieces-hash 直查。"
     },
     "ui": {
       "allowDragLink": "允许拖拽链接到侧边栏按钮",

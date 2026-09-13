@@ -184,4 +184,16 @@ export interface IIyuuStorageSchema {
     fetchedAt: number;
     sites: IIyuuSiteCacheEntry[];
   };
+
+  /** NexusPHP pieces-hash 直查站点配置（跨源辅种方案之一） */
+  nexusSites?: Record<
+    string,
+    {
+      /** 完整接口地址，如 https://site/api/pieces-hash */
+      apiUrl?: string;
+      /** 用户 passkey（query 参数认证） */
+      passkey?: string;
+      enabled?: boolean;
+    }
+  >;
 }

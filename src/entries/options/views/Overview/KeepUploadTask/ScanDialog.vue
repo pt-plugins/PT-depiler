@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
-import type { IYUUReseedCandidate } from "@ptd/iyuu";
+import type { ICrossSeedCandidate } from "@ptd/crossSeed";
 
 import type { IKeepUploadTask } from "@/shared/types.ts";
 import { sendMessage } from "@/messages.ts";
@@ -21,7 +21,7 @@ const metadataStore = useMetadataStore();
 const downloaderId = ref<string>("");
 const scanning = ref(false);
 const scanDone = ref(false);
-const candidates = ref<IYUUReseedCandidate[]>([]);
+const candidates = ref<ICrossSeedCandidate[]>([]);
 const selected = ref<Set<string>>(new Set());
 const creating = ref(false);
 
@@ -43,11 +43,11 @@ watch(
   },
 );
 
-function candidateKey(c: IYUUReseedCandidate): string {
+function candidateKey(c: ICrossSeedCandidate): string {
   return `${c.sourceInfoHash}|${c.siteId}|${c.torrentId}`;
 }
 
-function toggleCandidate(c: IYUUReseedCandidate) {
+function toggleCandidate(c: ICrossSeedCandidate) {
   const key = candidateKey(c);
   const next = new Set(selected.value);
   if (next.has(key)) {
@@ -88,7 +88,7 @@ async function createTaskFromScan() {
 
   creating.value = true;
   const downloader = metadataStore.downloaders[downloaderId.value];
-  const groups = new Map<string, IYUUReseedCandidate[]>();
+  const groups = new Map<string, ICrossSeedCandidate[]>();
   for (const c of chosen) {
     const key = c.sourceInfoHash || "none";
     groups.set(key, [...(groups.get(key) ?? []), c]);
