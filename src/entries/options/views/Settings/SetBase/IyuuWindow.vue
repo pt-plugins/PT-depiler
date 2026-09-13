@@ -176,7 +176,7 @@ onMounted(loadConfig);
           {{ t("SetBase.iyuu.heldHint") }}
         </v-alert>
 
-        <div class="d-flex ga-2 mb-3">
+        <div class="d-flex align-center ga-2 mb-3">
           <v-btn :loading="loadingSites" variant="tonal" @click="fetchSites">
             {{ t("SetBase.iyuu.fetchSites") }}
           </v-btn>
@@ -186,6 +186,16 @@ onMounted(loadConfig);
           <v-btn :loading="reporting" color="success" variant="tonal" @click="report">
             {{ t("SetBase.iyuu.report") }}
           </v-btn>
+
+          <v-spacer />
+
+          <span v-if="sidSha1Preview" class="text-body-small text-grey">
+            <v-icon icon="mdi-key-outline" size="small" class="mr-1" />
+            sid_sha1: <code>{{ sidSha1Preview }}…</code>
+            <span v-if="sidSha1ExpiredAt" class="text-grey text-body-small ml-2">
+              ({{ t("SetBase.iyuu.expiresAt") }} {{ new Date(sidSha1ExpiredAt).toLocaleString() }})
+            </span>
+          </span>
         </div>
 
         <v-alert v-if="!sitesCache.length && !loadingSites" type="info" variant="tonal" density="compact" class="mb-2">
@@ -233,18 +243,6 @@ onMounted(loadConfig);
             </tr>
           </tbody>
         </v-table>
-
-        <v-list-item v-if="sidSha1Preview" density="compact" class="mt-2">
-          <template #prepend>
-            <v-icon icon="mdi-key-outline" />
-          </template>
-          <v-list-item-title>
-            sid_sha1: <code>{{ sidSha1Preview }}…</code>
-            <span v-if="sidSha1ExpiredAt" class="text-grey text-body-small ml-2">
-              ({{ t("SetBase.iyuu.expiresAt") }} {{ new Date(sidSha1ExpiredAt).toLocaleString() }})
-            </span>
-          </v-list-item-title>
-        </v-list-item>
       </v-card-text>
     </v-card>
   </v-container>
