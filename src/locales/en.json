@@ -670,12 +670,19 @@
     "tab": {
       "backup": "Backup & Restore",
       "download": "Download",
-      "iyuu": "IYUU Reseed",
+      "reseed": "Reseed",
       "native-bridge": "Native Bridge",
       "search-entity": "@:common.search",
       "social-information": "Social Rating",
       "ui": "Option UI",
       "user-info": "UserInfo"
+    },
+    "reseed": {
+      "globalTitle": "Global Reseed Config",
+      "enabledLabel": "Enable reseed features",
+      "enabledHint": "When off, the 'Reseed Tasks' entry is hidden from the sidebar and reseed actions are disabled.",
+      "showKeepUploadTaskLabel": "Show reseed tasks",
+      "showKeepUploadTaskHint": "Show the 'Reseed Tasks' page in the sidebar (also requires reseed features enabled)."
     },
     "iyuu": {
       "tokenTitle": "IYUU Token",

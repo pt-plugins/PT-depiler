@@ -670,12 +670,19 @@
     "tab": {
       "backup": "备份恢复",
       "download": "下载",
-      "iyuu": "IYUU 辅种",
+      "reseed": "辅种",
       "native-bridge": "原生通信桥",
       "search-entity": "@:common.search",
       "social-information": "媒体评分",
       "ui": "界面UI",
       "user-info": "用户信息"
+    },
+    "reseed": {
+      "globalTitle": "全局辅种配置",
+      "enabledLabel": "启用辅种功能",
+      "enabledHint": "关闭后侧边栏不显示「辅种任务」，辅种相关动作停用。",
+      "showKeepUploadTaskLabel": "显示辅种任务",
+      "showKeepUploadTaskHint": "在侧边栏显示「辅种任务」页面（需同时开启辅种功能）。"
     },
     "iyuu": {
       "tokenTitle": "IYUU Token",
