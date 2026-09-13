@@ -90,6 +90,43 @@ async function loadConfig() {
   sidSha1Preview.value = config?.sidSha1 ? config.sidSha1.slice(0, 8) : "";
   sidSha1ExpiredAt.value = config?.sidSha1ExpiresAt;
   loadNexusInputs(config);
+  loadLocalConfig(config);
+}
+
+// ── LocalCrossSeed 本地对比配置 ─────────────────────────
+const localSites = ref<IIyuuStorageSchema["localSites"]>([]);
+const localMatchMode = ref<NonNullable<IIyuuStorageSchema["localMatchMode"]>>("strict");
+const localSearchLimit = ref(10);
+
+function loadLocalConfig(config: IIyuuStorageSchema | undefined) {
+  localSites.value = config?.localSites ?? [];
+  localMatchMode.value = config?.localMatchMode ?? "strict";
+  localSearchLimit.value = config?.localSearchLimit ?? 10;
+}
+
+function isLocalTarget(local?: string): boolean {
+  return !!local && (localSites.value ?? []).includes(local);
+}
+
+/** 勾选本地对比目标站（自动保存 meta.iyuu.localSites） */
+async function toggleLocalTarget(row: ISiteRow, checked: boolean) {
+  if (!row.local) return;
+  const next = new Set(localSites.value ?? []);
+  if (checked) {
+    next.add(row.local);
+  } else {
+    next.delete(row.local);
+  }
+  localSites.value = [...next];
+  await sendMessage("setIyuusConfig", { localSites: localSites.value });
+}
+
+async function saveLocalConfig() {
+  await sendMessage("setIyuusConfig", {
+    localMatchMode: localMatchMode.value,
+    localSearchLimit: localSearchLimit.value,
+  });
+  runtimeStore.showSnakebar(t("SetBase.iyuu.localSaved"), { color: "success" });
 }
 
 async function saveToken() {
@@ -348,6 +385,94 @@ onMounted(loadConfig);
           </v-btn>
           <span class="text-body-small text-grey">{{ t("SetBase.iyuu.nexusSavedHint") }}</span>
         </div>
+      </v-card-text>
+    </v-card>
+
+    <!-- LocalCrossSeed 本地对比 -->
+    <v-card class="mt-4">
+      <v-card-title>{{ t("SetBase.iyuu.localTitle") }}</v-card-title>
+      <v-card-text>
+        <v-alert type="info" variant="tonal" density="compact" class="mb-3">
+          {{ t("SetBase.iyuu.localHint") }}
+        </v-alert>
+
+        <v-row class="mb-2" align="center">
+          <v-col cols="5">
+            <v-select
+              v-model="localMatchMode"
+              :items="[
+                { title: t('SetBase.iyuu.localMatchModeStrict'), value: 'strict' },
+                { title: t('SetBase.iyuu.localMatchModeFlexible'), value: 'flexible' },
+                { title: t('SetBase.iyuu.localMatchModePartial'), value: 'partial' },
+              ]"
+              :label="t('SetBase.iyuu.localMatchModeLabel')"
+              density="compact"
+              variant="outlined"
+              hide-details
+            />
+          </v-col>
+          <v-col cols="4">
+            <v-text-field
+              v-model.number="localSearchLimit"
+              :label="t('SetBase.iyuu.localSearchLimitLabel')"
+              type="number"
+              min="1"
+              max="100"
+              density="compact"
+              variant="outlined"
+              hide-details
+            />
+          </v-col>
+          <v-col class="col-auto" style="flex: none">
+            <v-btn color="primary" variant="tonal" @click="saveLocalConfig">
+              {{ t("SetBase.iyuu.localSave") }}
+            </v-btn>
+          </v-col>
+        </v-row>
+
+        <v-table v-if="siteRows.length" density="compact">
+          <thead>
+            <tr>
+              <th style="width: 56px"></th>
+              <th>{{ t("SetBase.iyuu.columnSite") }}</th>
+              <th>{{ t("SetBase.iyuu.columnNote") }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="row in siteRows" :key="row.site.id">
+              <td>
+                <v-checkbox
+                  :model-value="isLocalTarget(row.local)"
+                  :disabled="!row.local"
+                  density="compact"
+                  hide-details
+                  @update:model-value="(v) => toggleLocalTarget(row, Boolean(v))"
+                />
+              </td>
+              <td>
+                <div class="d-flex align-center ga-2" style="min-width: 0">
+                  <SiteFavicon v-if="row.local" :site-id="row.local" :size="20" />
+                  <v-icon v-else icon="mdi-vector-square" size="small" class="text-grey" />
+                  <span class="text-body-medium text-truncate d-inline-block" style="vertical-align: middle">
+                    {{ rowDisplayName(row) }}
+                    <span class="text-body-small text-grey ml-1">{{ row.site.site }}</span>
+                  </span>
+                </div>
+              </td>
+              <td>
+                <v-chip v-if="row.local" size="x-small" color="primary" variant="tonal">
+                  {{ row.local }}
+                </v-chip>
+                <v-chip v-else size="x-small" color="grey" variant="tonal">
+                  {{ t("SetBase.iyuu.unmapped") }}
+                </v-chip>
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
+        <v-alert v-else type="info" variant="tonal" density="compact">
+          {{ t("SetBase.iyuu.fetchHint") }}
+        </v-alert>
       </v-card-text>
     </v-card>
   </v-container>
