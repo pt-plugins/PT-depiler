@@ -7,12 +7,14 @@
 import axios from "axios";
 
 import { onMessage, sendMessage } from "@/messages.ts";
-import type { IIyuuStorageSchema, IIyuuSiteCacheEntry } from "@/shared/types.ts";
+import type { IIyuuStorageSchema, IIyuuSiteCacheEntry, IMetadataPiniaStorageSchema } from "@/shared/types.ts";
 import type { TSiteID } from "@ptd/site";
 import { iyuuSiteToLocal } from "@ptd/iyuu";
 import type { IYUUReseedHit } from "@ptd/iyuu";
 
-const STORAGE_KEY = "iyuu" as const;
+/** IYUU 配置并入 metadata storage 的 iyuu 子对象 */
+const METADATA_KEY = "metadata" as const;
+const IYUU_KEY = "iyuu" as const;
 const API_BASE = "https://2025.iyuu.cn";
 const VERSION = "1.0.0";
 
@@ -21,13 +23,21 @@ const SID_SHA1_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 /** 站点表缓存 TTL：24 小时 */
 const SITES_CACHE_TTL_MS = 24 * 60 * 60 * 1000;
 
-async function getConfig(): Promise<IIyuuStorageSchema> {
-  return ((await sendMessage("getExtStorage", STORAGE_KEY)) as IIyuuStorageSchema) ?? {};
+async function getMetadata(): Promise<IMetadataPiniaStorageSchema | undefined> {
+  return (await sendMessage("getExtStorage", METADATA_KEY)) as IMetadataPiniaStorageSchema | undefined;
 }
 
+async function getConfig(): Promise<IIyuuStorageSchema> {
+  return (await getMetadata())?.[IYUU_KEY] ?? {};
+}
+
+/** 合并写：读最新 metadata → 补丁 iyuu 子对象 → 整体写回（避免覆盖其他字段） */
 async function saveConfig(patch: Partial<IIyuuStorageSchema>): Promise<void> {
-  const current = await getConfig();
-  await sendMessage("setExtStorage", { key: STORAGE_KEY, value: { ...current, ...patch } });
+  const metadata = (await getMetadata()) ?? ({} as IMetadataPiniaStorageSchema);
+  await sendMessage("setExtStorage", {
+    key: METADATA_KEY,
+    value: { ...metadata, [IYUU_KEY]: { ...(metadata[IYUU_KEY] ?? {}), ...patch } },
+  });
 }
 
 /** 拼接 token 请求头；未配置 token 时抛错 */
