@@ -12,7 +12,7 @@ import { sendMessage } from "@/messages.ts";
 import type { IIyuuStorageSchema, IIyuuSiteCacheEntry } from "@/shared/types.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { iyuuSiteToLocal } from "@ptd/iyuu";
+import { iyuuSiteToLocal } from "@ptd/crossSeed";
 
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 

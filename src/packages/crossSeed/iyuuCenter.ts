@@ -1,13 +1,8 @@
 /**
- * IYUU 辅种中心相关类型定义
- * @see https://doc.iyuu.cn/reference/site_list
- * @see https://doc.iyuu.cn/reference/reseed_index
- *
- * 注意：统一辅种候选模型（ICrossSeedCandidate）与模板凭据（IYUUDownloadCredentials）
- * 已迁移至 @ptd/crossSeed；本文件仅保留 IYUU 中心特有类型。
+ * IYUU 辅种中心特有类型（原 @ptd/iyuu/types.ts 的 IYUU 中心部分并入 crossSeed）。
+ * 统一候选/凭据类型见 ./types；此处仅保留 IYUU 中心协议类型。
+ * @see https://doc.iyuu.cn/reference/site_list、reseed_index
  */
-export type { ICrossSeedCandidate, IYUUDownloadCredentials, TCrossSeedSourceKind } from "@ptd/crossSeed";
-export type { IYUUDownloadCredentials as IYUUReseedDownloadCredentials } from "@ptd/crossSeed";
 
 /**
  * IYUU 站点表条目（GET /reseed/sites/index 的响应元素精简）

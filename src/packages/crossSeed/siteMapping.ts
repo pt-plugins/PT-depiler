@@ -1,5 +1,6 @@
 /**
  * IYUU 站名 ↔ 本地站点 id 映射表（实测对账，2026-09-13）
+ * 原 @ptd/iyuu/siteMapping.ts 并入 crossSeed（IYUU 中心为三源之一）。
  * @see docs/iyuu-integration-plan.md §5
  */
 import type { TSiteID } from "@ptd/site";
