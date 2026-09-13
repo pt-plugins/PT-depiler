@@ -691,7 +691,7 @@
       "deriveHeld": "推导已持有站点",
       "deriveDone": "已推导 {count} 个持有站点，{unmatched} 个本地站点不在 IYUU 中",
       "columnSite": "IYUU 站点",
-      "columnNote": "归属",
+      "columnNote": "插件映射站点",
       "unmapped": "未映射",
       "noHeldSites": "暂无已持有站点，请先在站点表勾选",
       "report": "保存并汇报",

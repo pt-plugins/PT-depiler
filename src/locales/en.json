@@ -691,7 +691,7 @@
       "deriveHeld": "Derive held sites",
       "deriveDone": "Derived {count} held sites; {unmatched} local sites not in IYUU",
       "columnSite": "IYUU Site",
-      "columnNote": "Note",
+      "columnNote": "Mapped Site",
       "unmapped": "Unmapped",
       "noHeldSites": "No held sites yet — check some in the site table first",
       "report": "Save & Report",
