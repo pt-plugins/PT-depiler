@@ -61,9 +61,10 @@ watch(
         torrent_id: h.torrent_id,
         info_hash: torrent.infoHash,
       }));
-      const sources = new Map<string, { name: string; savePath: string; size: number }>([
-        [torrent.infoHash, { name: torrent.name, savePath: torrent.savePath, size: torrent.totalSize }],
-      ]);
+      // 消息传输经 JSON 序列化，Map 会退化为普通对象，这里必须传 Record
+      const sources = {
+        [torrent.infoHash]: { name: torrent.name, savePath: torrent.savePath, size: torrent.totalSize },
+      };
       candidates.value = await sendMessage("iyuuResolveHits", { hits, sources });
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e);

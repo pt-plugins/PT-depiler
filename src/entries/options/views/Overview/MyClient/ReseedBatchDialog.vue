@@ -89,12 +89,11 @@ watch(
           }
         }
       }
-      const sources = new Map(
-        [...sourceByHash.entries()].map(([hash, t]) => [
-          hash,
-          { name: t.name, savePath: t.savePath, size: t.totalSize },
-        ]),
-      );
+      // 消息传输经 JSON 序列化，Map 会退化为普通对象，这里必须传 Record
+      const sources: Record<string, { name: string; savePath: string; size: number }> = {};
+      for (const [hash, t] of sourceByHash.entries()) {
+        sources[hash] = { name: t.name, savePath: t.savePath, size: t.totalSize };
+      }
       candidates.value = await sendMessage("iyuuResolveHits", { hits, sources });
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e);
