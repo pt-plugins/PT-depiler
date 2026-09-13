@@ -9,8 +9,11 @@ import axios from "axios";
 import { onMessage, sendMessage } from "@/messages.ts";
 import type { IIyuuStorageSchema, IIyuuSiteCacheEntry, IMetadataPiniaStorageSchema } from "@/shared/types.ts";
 import type { TSiteID } from "@ptd/site";
-import { iyuuSiteToLocal } from "@ptd/iyuu";
-import type { IYUUReseedHit } from "@ptd/iyuu";
+import { iyuuSiteToLocal, resolveTorrentDownload } from "@ptd/iyuu";
+import type { IYUUReseedCandidate, IYUUReseedHit } from "@ptd/iyuu";
+
+import { getDownloaderInstance } from "./download.ts";
+import { getSiteInstance } from "./site.ts";
 
 /** IYUU 配置并入 metadata storage 的 iyuu 子对象 */
 const METADATA_KEY = "metadata" as const;
@@ -198,3 +201,157 @@ async function deriveHeldSids(config: IIyuuStorageSchema): Promise<number[]> {
   const derived = await iyuuDeriveHeldSites();
   return derived.sidList;
 }
+
+// ── 辅种候选解析与批量扫描（P1） ─────────────────────────
+
+/** 批量查询命中 → 解析为辅种候选（B 路线优先，A 兜底；不可注入项标 error） */
+export async function iyuuResolveHits(
+  hits: Array<{ sid: number; torrent_id: number; info_hash?: string }>,
+  sources?: Map<string, { name: string; savePath: string; size: number }>,
+): Promise<IYUUReseedCandidate[]> {
+  if (!hits.length) return [];
+  const sites = await iyuuFetchSites();
+  const siteById = new Map(sites.map((s) => [s.id, s]));
+  const candidates: IYUUReseedCandidate[] = [];
+
+  for (const hit of hits) {
+    const iyuuSite = siteById.get(hit.sid);
+    if (!iyuuSite) continue;
+
+    const source = hit.info_hash ? sources?.get(hit.info_hash) : undefined;
+    const base = {
+      sourceInfoHash: hit.info_hash ?? "",
+      sourceName: source?.name,
+      sourceSavePath: source?.savePath,
+      sourceSize: source?.size,
+      torrentId: hit.torrent_id,
+    };
+
+    const localSiteId = iyuuSiteToLocal(iyuuSite.site);
+    const siteName = iyuuSite.nickname || localSiteId || iyuuSite.site;
+
+    // 未映射到本地站点的命中无法注入（downloadTorrent 依赖站点适配器），直接标 error
+    if (!localSiteId) {
+      candidates.push({
+        ...base,
+        siteId: "",
+        siteName,
+        status: "error",
+        error: `IYUU 站点 ${iyuuSite.site} 未映射到本地站点（模板侧 ${iyuuSite.download_page} 不注入）`,
+      });
+      continue;
+    }
+
+    try {
+      const siteInstance = await getSiteInstance<"public">(localSiteId);
+      const result = await resolveTorrentDownload({
+        siteInstance,
+        hit: { sid: hit.sid, torrent_id: hit.torrent_id, info_hash: hit.info_hash ?? "" },
+        iyuuSite,
+      });
+
+      // B 路线成功：config.baseURL + url 拼全下载链接
+      if (result.method === "B" && result.config?.url) {
+        candidates.push({
+          ...base,
+          siteId: localSiteId,
+          siteName,
+          downloadUrl: axios.getUri(result.config),
+          method: "B",
+          status: "ready",
+        });
+        continue;
+      }
+
+      // B 失败走 A 兜底：模板渲染出完整链接且无缺失/动态变量 → 可注入
+      if (result.url && result.missing?.length === 0 && result.unsupported?.length === 0) {
+        candidates.push({
+          ...base,
+          siteId: localSiteId,
+          siteName,
+          downloadUrl: result.url,
+          method: "A",
+          status: "ready",
+          error: result.error, // 保留 B 尝试失败原因作备注
+        });
+        continue;
+      }
+
+      candidates.push({
+        ...base,
+        siteId: localSiteId,
+        siteName,
+        method: result.method,
+        status: "error",
+        error:
+          result.error ??
+          ([...(result.missing ?? []), ...(result.unsupported ?? [])].join(", ") ||
+            "下载链接解析失败（详情页需重新获取或模板变量缺失）"),
+      });
+    } catch (e) {
+      candidates.push({
+        ...base,
+        siteId: localSiteId,
+        siteName,
+        status: "error",
+        error: e instanceof Error ? e.message : String(e),
+      });
+    }
+  }
+
+  return candidates;
+}
+
+/**
+ * 批量辅种扫描：取下载器内已完成种子 → hash 分批（100/批）查 IYUU → 解析候选。
+ * 仅返回 ready 候选（调用方可直接注入），error 项同样携带以便 UI 展示失败原因。
+ */
+export async function iyuuScanForReseed(downloaderId: string): Promise<IYUUReseedCandidate[]> {
+  const instance = await getDownloaderInstance(downloaderId);
+  if (!instance) {
+    return [
+      { sourceInfoHash: "", siteId: "", siteName: "", torrentId: 0, status: "error", error: "下载器不存在或未配置" },
+    ];
+  }
+
+  const torrents = await instance.getAllTorrents();
+  const completed = torrents.filter((t) => t.isCompleted && t.infoHash);
+  if (!completed.length) {
+    return [
+      {
+        sourceInfoHash: "",
+        siteId: "",
+        siteName: "",
+        torrentId: 0,
+        status: "error",
+        error: "该下载器没有已完成的种子",
+      },
+    ];
+  }
+
+  const sources = new Map(
+    completed.map((t) => [t.infoHash, { name: t.name, savePath: t.savePath, size: t.totalSize }]),
+  );
+
+  const hits: Array<{ sid: number; torrent_id: number; info_hash: string }> = [];
+  const BATCH = 100;
+  for (let i = 0; i < completed.length; i += BATCH) {
+    const batch = completed.slice(i, i + BATCH);
+    const resp = await iyuuQueryReseed(batch.map((t) => t.infoHash));
+    for (const [hash, item] of Object.entries(resp)) {
+      for (const t of item.torrent ?? []) {
+        hits.push({ sid: t.sid, torrent_id: t.torrent_id, info_hash: hash });
+      }
+    }
+  }
+
+  return await iyuuResolveHits(hits, sources);
+}
+
+onMessage("iyuuResolveHits", async ({ data: { hits, sources } }) => {
+  return await iyuuResolveHits(hits, sources);
+});
+
+onMessage("iyuuScanForReseed", async ({ data: downloaderId }) => {
+  return await iyuuScanForReseed(downloaderId);
+});

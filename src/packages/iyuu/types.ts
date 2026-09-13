@@ -3,6 +3,7 @@
  * @see https://doc.iyuu.cn/reference/site_list
  * @see https://doc.iyuu.cn/reference/reseed_index
  */
+import type { TSiteID } from "@ptd/site";
 
 /**
  * IYUU 站点表条目（GET /reseed/sites/index 的响应元素精简）
@@ -71,4 +72,34 @@ export interface IYUUDownloadCredentials {
   torrentKey?: string;
   /** {rsskey}：hdpost/monikadesign 用户 rsskey */
   rsskey?: string;
+}
+
+/**
+ * 辅种候选：一条「本地种子 → 某站可辅种种子」的解析结果（供 UI 勾选/注入）
+ */
+export interface IYUUReseedCandidate {
+  /** 来源本地种子 infohash */
+  sourceInfoHash: string;
+  /** 来源本地种子标题（同资源，仅展示用） */
+  sourceName?: string;
+  /** 来源本地种子保存目录（注入时 savePath 复用） */
+  sourceSavePath?: string;
+  /** 来源本地种子大小 */
+  sourceSize?: number;
+
+  /** 解析到的本地站点 id */
+  siteId: TSiteID;
+  /** 站点显示名（IYUU 昵称回退本地名） */
+  siteName: string;
+  /** 该站在此处的种子 id */
+  torrentId: number;
+
+  /** 解析出的完整下载链接（B 路线适配器输出/A 路线模板渲染） */
+  downloadUrl?: string;
+  /** 采用的解析路线 */
+  method?: "B" | "A";
+
+  /** ready=可注入；error=解析失败（原因见 error） */
+  status: "ready" | "error";
+  error?: string;
 }
