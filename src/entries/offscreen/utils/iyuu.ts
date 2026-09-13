@@ -142,7 +142,13 @@ export async function iyuuQueryReseed(hashes: string[]): Promise<Record<string, 
     timeout: 60e3,
   });
   if (data.code !== 0) {
-    throw new Error(data.msg || "IYUU 辅种查询失败");
+    const msg = data.msg ?? "";
+    // 该批 hash 无命中时 IYUU 中心会返回业务错误文案（如「未查询到可辅种数据」），
+    // 这属于正常空结果而非致命错误：直接按空结果返回，避免整批扫描被单批无命中中断。
+    if (/未查询到可辅种数据|暂无.*辅种|没有.*辅种/.test(msg)) {
+      return {};
+    }
+    throw new Error(msg || "IYUU 辅种查询失败");
   }
   const result: Record<string, { torrent: IYUUReseedHit[] }> = {};
   for (const [hash, item] of Object.entries(data.data ?? {})) {
