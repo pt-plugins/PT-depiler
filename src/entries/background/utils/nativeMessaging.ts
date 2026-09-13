@@ -60,6 +60,7 @@ const ALLOWED_METHODS = new Set([
   "iyuuDeriveHeldSites",
   "iyuuResolveHits",
   "iyuuScanForReseed",
+  "crossSeedScanForReseed",
 ]);
 
 // ── Module-scoped state ──────────────────────────────────────────────

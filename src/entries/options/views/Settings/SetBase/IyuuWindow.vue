@@ -42,12 +42,54 @@ const siteRows = computed<ISiteRow[]>(() =>
 
 const heldCount = computed(() => heldSites.value?.length ?? 0);
 
+// ── NexusPHP pieces-hash 直查配置 ──────────────────────
+const nexusInputs = ref<Record<string, { apiUrl: string; passkey: string; enabled: boolean }>>({});
+const localSiteIds = computed(() => Object.keys(metadataStore.sites ?? {}));
+const savingNexus = ref(false);
+
+function nexusSiteName(siteId: string): string {
+  return metadataStore.siteNameMap[siteId] ?? siteId;
+}
+
+function loadNexusInputs(config: IIyuuStorageSchema | undefined) {
+  const nexusSites = config?.nexusSites ?? {};
+  nexusInputs.value = Object.fromEntries(
+    localSiteIds.value.map((id) => [
+      id,
+      {
+        apiUrl: nexusSites[id]?.apiUrl ?? "",
+        passkey: nexusSites[id]?.passkey ?? "",
+        enabled: nexusSites[id]?.enabled ?? false,
+      },
+    ]),
+  );
+}
+
+async function saveNexusConfig() {
+  savingNexus.value = true;
+  try {
+    const nexusSites: NonNullable<IIyuuStorageSchema["nexusSites"]> = {};
+    for (const id of localSiteIds.value) {
+      const v = nexusInputs.value[id];
+      if (!v.apiUrl && !v.passkey && !v.enabled) continue;
+      nexusSites[id] = { apiUrl: v.apiUrl || undefined, passkey: v.passkey || undefined, enabled: v.enabled };
+    }
+    await sendMessage("setIyuusConfig", { nexusSites });
+    runtimeStore.showSnakebar(t("SetBase.iyuu.nexusSaved"), { color: "success" });
+  } catch (e) {
+    runtimeStore.showSnakebar(e instanceof Error ? e.message : String(e), { color: "error" });
+  } finally {
+    savingNexus.value = false;
+  }
+}
+
 async function loadConfig() {
   const config = await sendMessage("getIyuusConfig", undefined);
   token.value = config?.token ?? "";
   heldSites.value = config?.heldSites ?? [];
   sidSha1Preview.value = config?.sidSha1 ? config.sidSha1.slice(0, 8) : "";
   sidSha1ExpiredAt.value = config?.sidSha1ExpiresAt;
+  loadNexusInputs(config);
 }
 
 async function saveToken() {
@@ -243,6 +285,69 @@ onMounted(loadConfig);
             </tr>
           </tbody>
         </v-table>
+      </v-card-text>
+    </v-card>
+
+    <!-- NexusPHP pieces-hash 直查 -->
+    <v-card class="mt-4">
+      <v-card-title>{{ t("SetBase.iyuu.nexusTitle") }}</v-card-title>
+      <v-card-text>
+        <v-alert type="info" variant="tonal" density="compact" class="mb-3">
+          {{ t("SetBase.iyuu.nexusHint") }}
+        </v-alert>
+
+        <v-table v-if="localSiteIds.length" density="compact">
+          <thead>
+            <tr>
+              <th>{{ t("SetBase.iyuu.nexusSiteColumn") }}</th>
+              <th>{{ t("SetBase.iyuu.nexusUrlColumn") }}</th>
+              <th>{{ t("SetBase.iyuu.nexusPasskeyColumn") }}</th>
+              <th style="width: 80px">{{ t("SetBase.iyuu.nexusEnabledColumn") }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="siteId in localSiteIds" :key="siteId">
+              <td>
+                <div class="d-flex align-center ga-2">
+                  <SiteFavicon :site-id="siteId" :size="20" />
+                  <span class="text-body-medium">{{ nexusSiteName(siteId) }}</span>
+                </div>
+              </td>
+              <td>
+                <v-text-field
+                  v-model="nexusInputs[siteId].apiUrl"
+                  :placeholder="t('SetBase.iyuu.nexusUrlPlaceholder')"
+                  density="compact"
+                  variant="outlined"
+                  hide-details
+                />
+              </td>
+              <td>
+                <v-text-field
+                  v-model="nexusInputs[siteId].passkey"
+                  :placeholder="t('SetBase.iyuu.nexusPasskeyPlaceholder')"
+                  density="compact"
+                  variant="outlined"
+                  hide-details
+                  autocomplete="off"
+                />
+              </td>
+              <td>
+                <v-checkbox v-model="nexusInputs[siteId].enabled" density="compact" hide-details />
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
+        <v-alert v-else type="info" variant="tonal" density="compact">
+          {{ t("SetBase.iyuu.nexusNoLocalSites") }}
+        </v-alert>
+
+        <div class="d-flex align-center ga-2 mt-3">
+          <v-btn :loading="savingNexus" color="primary" variant="tonal" @click="saveNexusConfig">
+            {{ t("SetBase.iyuu.nexusSave") }}
+          </v-btn>
+          <span class="text-body-small text-grey">{{ t("SetBase.iyuu.nexusSavedHint") }}</span>
+        </div>
       </v-card-text>
     </v-card>
   </v-container>
