@@ -7,14 +7,22 @@ import axios from "axios";
 import { onMessage, sendMessage } from "@/messages.ts";
 import type { IMetadataPiniaStorageSchema } from "@/shared/types.ts";
 import type { TSiteID } from "@ptd/site";
+import type { CTorrent } from "@ptd/downloader";
+import { getRemoteTorrentFile } from "@ptd/downloader";
 import {
   mapNexusHits,
   nexusQueryPiecesHash,
   resolveTorrentDownload,
+  assessLocalCandidate,
+  fuzzySizeDoesMatch,
+  normalizeClientFiles,
+  piecesHashFromInfoPieces,
   type ICrossSeedCandidate,
   type ICrossSeedLocalSeed,
+  type ILocalSeedForMatch,
   type INexusSiteConfig,
   type TCrossSeedSourceKind,
+  type TLocalMatchMode,
 } from "@ptd/crossSeed";
 
 import { getDownloaderInstance } from "./download.ts";
@@ -74,7 +82,7 @@ export async function crossSeedScanForReseed(
 
   if (enableLocal) {
     try {
-      results.push(...(await scanLocalSource(seeds)));
+      results.push(...(await scanLocalSource(seeds, { instance, torrents: completed })));
     } catch (e) {
       results.push(errorCandidate(messageOf(e), "local"));
     }
@@ -156,14 +164,139 @@ async function scanNexusSource(seeds: ICrossSeedLocalSeed[]): Promise<ICrossSeed
 
 // ── Local 文件树对比源 ──────────────────────────────────
 
+/** Local 源配置：目标站列表 + 匹配模式（读取设置页录入） */
+async function localConfig(): Promise<{ sites: TSiteID[]; matchMode: TLocalMatchMode; searchLimit: number }> {
+  const metadata = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema | undefined;
+  const iyuu = metadata?.iyuu ?? {};
+  const sites = (iyuu.localSites ?? []).filter((id) => id);
+  const matchMode: TLocalMatchMode = iyuu.localMatchMode ?? "strict";
+  return { sites, matchMode, searchLimit: iyuu.localSearchLimit ?? 10 };
+}
+
 /**
- * Local 源：本地文件树 ↔ 目标站候选种子比对。
- * 目标站候选种子的获取（站点搜索/种子下载）依赖站点搜索基建，当前聚合层不产出候选行，
- * 算法原语（matchLocalToSiteTorrent/filesLayoutMatch）已在 @ptd/crossSeed/local 落地，
- * 完整接入见 docs/cross-seed-research.md 与后续迭代。
+ * Local 源（参照 cross-seed torrent-based 主路径）：
+ * 下载器已完成种子文件树（getTorrentFiles）充当 searchee → 目标站站内搜索同名候选
+ * → snatch 候选 .torrent（带站点 cookie）→ parse-torrent 解析文件树/pieces_hash
+ * → assessLocalCandidate 决策（hash 去重 / fuzzySize / matchMode 文件树 / pieces 强化）
+ * → 命中构建候选（B 路线注入链接）。风控：每站搜索次数上限 searchLimit、串行执行。
  */
-async function scanLocalSource(_seeds: ICrossSeedLocalSeed[]): Promise<ICrossSeedCandidate[]> {
-  return [];
+async function scanLocalSource(
+  seeds: ICrossSeedLocalSeed[],
+  ctx: { instance: NonNullable<Awaited<ReturnType<typeof getDownloaderInstance>>>; torrents: CTorrent[] },
+): Promise<ICrossSeedCandidate[]> {
+  const config = await localConfig();
+  if (!config.sites.length) {
+    return [errorCandidate("未配置本地对比目标站（设置 → 辅种 → IYUU 辅种中心 → 本地对比）", "local")];
+  }
+
+  const metadata = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema | undefined;
+  const siteNameMap = metadata?.siteNameMap ?? {};
+  const infoHashesToExclude = new Set(seeds.map((s) => s.infoHash));
+  const results: ICrossSeedCandidate[] = [];
+  let searched = 0;
+
+  for (const siteId of config.sites) {
+    let siteError: string | undefined;
+    const siteName = siteNameMap[siteId] ?? siteId;
+    let siteInstance: Awaited<ReturnType<typeof getSiteInstance<"public">>>;
+    try {
+      siteInstance = await getSiteInstance<"public">(siteId);
+    } catch (e) {
+      results.push(errorCandidate(`站点 ${siteName} 初始化失败：${messageOf(e)}`, "local"));
+      continue;
+    }
+
+    for (const t of ctx.torrents) {
+      if (searched >= config.searchLimit) break;
+      searched++;
+
+      // 1) 本地文件树（下载器 reports 绝对路径 → 归一化为种子相对路径）
+      let files: Array<{ path: string; size: number }>;
+      try {
+        files = (await ctx.instance.getTorrentFiles(t)).map((f) => ({ path: f.path, size: f.size }));
+      } catch {
+        continue; // 该客户端不支持文件列表，跳过此种子
+      }
+      const seed: ILocalSeedForMatch = {
+        infoHash: t.infoHash,
+        size: t.totalSize,
+        files: normalizeClientFiles(files, t.savePath),
+      };
+
+      // 2) 站内搜索（同名候选）+ fuzzySize 预过滤
+      let candidates: Array<{ id: string | number; title: string; size?: number; link?: string; url?: string }>;
+      try {
+        const sr = await siteInstance.getSearchResult(t.name, {});
+        candidates = sr.data ?? [];
+      } catch (e) {
+        siteError = messageOf(e);
+        continue;
+      }
+      for (const cand of candidates) {
+        if (!cand.link) continue;
+        if (cand.size && !fuzzySizeDoesMatch(t.totalSize, cand.size)) continue;
+
+        // 3) snatch 候选 .torrent 并解析
+        try {
+          const candTorrent = { ...cand, site: siteId } as unknown as Parameters<
+            typeof siteInstance.getTorrentDownloadLink
+          >[0];
+          const link = await siteInstance.getTorrentDownloadLink(candTorrent);
+          const reqConfig = await siteInstance.getTorrentDownloadRequestConfig(candTorrent);
+          reqConfig.url = link;
+          reqConfig.responseType = "arraybuffer";
+          const parsed = await getRemoteTorrentFile(reqConfig);
+          const parsedInfo = parsed.info as unknown as {
+            name?: string;
+            length?: number;
+            files?: Array<{ path?: string[]; length: number }>;
+            pieces?: Uint8Array;
+          };
+
+          const cFiles = parsedInfo.files?.length
+            ? parsedInfo.files.map((f) => ({ path: (f.path ?? []).join("/"), size: f.length }))
+            : [{ path: String(parsedInfo.name ?? cand.title), size: parsedInfo.length ?? cand.size ?? 0 }];
+          const cSize = cFiles.reduce((acc, f) => acc + f.size, 0);
+          const cHash = parsedInfo.pieces ? await piecesHashFromInfoPieces(parsedInfo.pieces) : undefined;
+
+          // 4) 决策（cross-seed decide 顺序 + pieces 强化层）
+          const decision = assessLocalCandidate({
+            seed,
+            candidate: {
+              infoHash: (parsed as unknown as { infoHash?: string }).infoHash,
+              files: cFiles,
+              size: cSize,
+              piecesHash: cHash,
+            },
+            infoHashesToExclude,
+            matchMode: config.matchMode,
+          });
+          if (
+            decision.decision === "MATCH" ||
+            decision.decision === "MATCH_SIZE_ONLY" ||
+            decision.decision === "MATCH_PARTIAL"
+          ) {
+            results.push(
+              ...(await buildSourceCandidates(
+                { siteId, siteName },
+                { infoHash: t.infoHash, name: t.name, savePath: t.savePath, size: t.totalSize },
+                Number(cand.id),
+                "local",
+              )),
+            );
+          }
+        } catch {
+          // 单个候选 snatch/解析失败不影响其他候选
+        }
+      }
+    }
+
+    if (!results.length && siteError) {
+      results.push(errorCandidate(`站点 ${siteName} 搜索失败：${siteError}`, "local"));
+    }
+  }
+
+  return results;
 }
 
 // ── 公共工具 ─────────────────────────────────────────────
