@@ -680,7 +680,7 @@
     "iyuu": {
       "tokenTitle": "IYUU Token",
       "tokenLabel": "IYUU token",
-      "tokenHint": "在 iyuu.cn 获取的 token，用于调用 IYUU 辅种中心 API（明文存本地，不参与备份）",
+      "tokenHint": "在 iyuu.cn 获取的 token，用于调用 IYUU 辅种中心 API（明文存本地，随 metadata 一起备份）",
       "saveToken": "保存 token",
       "tokenSaved": "token 已保存",
       "heldTitle": "已持有站点",

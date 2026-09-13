@@ -680,7 +680,7 @@
     "iyuu": {
       "tokenTitle": "IYUU Token",
       "tokenLabel": "IYUU token",
-      "tokenHint": "Token from iyuu.cn to access the IYUU reseed center API (stored locally, not included in backups)",
+      "tokenHint": "Token from iyuu.cn to access the IYUU reseed center API (stored in plaintext locally, included with the metadata backup)",
       "saveToken": "Save token",
       "tokenSaved": "Token saved",
       "heldTitle": "Held Sites",
