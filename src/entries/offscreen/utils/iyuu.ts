@@ -12,10 +12,8 @@ import type { TSiteID } from "@ptd/site";
 import { iyuuSiteToLocal } from "@ptd/iyuu";
 import type { IYUUReseedHit } from "@ptd/iyuu";
 import type { ICrossSeedCandidate } from "@ptd/crossSeed";
-import { resolveTorrentDownload } from "@ptd/crossSeed";
 
 import { getDownloaderInstance } from "./download.ts";
-import { getSiteInstance } from "./site.ts";
 
 /** IYUU 配置并入 metadata storage 的 iyuu 子对象 */
 const METADATA_KEY = "metadata" as const;
@@ -268,62 +266,9 @@ export async function iyuuResolveHits(
       continue;
     }
 
-    try {
-      const siteInstance = await getSiteInstance<"public">(localSiteId);
-      const result = await resolveTorrentDownload({
-        siteInstance,
-        hit: { torrent_id: hit.torrent_id, info_hash: hit.info_hash ?? "" },
-        templateSite: iyuuSite,
-        localSiteId,
-      });
-
-      // B 路线成功：config.baseURL + url 拼全下载链接
-      if (result.method === "B" && result.config?.url) {
-        candidates.push({
-          ...base,
-          siteId: localSiteId,
-          siteName,
-          downloadUrl: axios.getUri(result.config),
-          method: "B",
-          status: "ready",
-        });
-        continue;
-      }
-
-      // B 失败走 A 兜底：模板渲染出完整链接且无缺失/动态变量 → 可注入
-      if (result.url && result.missing?.length === 0 && result.unsupported?.length === 0) {
-        candidates.push({
-          ...base,
-          siteId: localSiteId,
-          siteName,
-          downloadUrl: result.url,
-          method: "A",
-          status: "ready",
-          error: result.error, // 保留 B 尝试失败原因作备注
-        });
-        continue;
-      }
-
-      candidates.push({
-        ...base,
-        siteId: localSiteId,
-        siteName,
-        method: result.method,
-        status: "error",
-        error:
-          result.error ??
-          ([...(result.missing ?? []), ...(result.unsupported ?? [])].join(", ") ||
-            "下载链接解析失败（详情页需重新获取或模板变量缺失）"),
-      });
-    } catch (e) {
-      candidates.push({
-        ...base,
-        siteId: localSiteId,
-        siteName,
-        status: "error",
-        error: e instanceof Error ? e.message : String(e),
-      });
-    }
+    // 懒加载：假定 IYUU 中心返回信息有效，扫描阶段不获取详情页/下载链接；
+    // 实际发送（downloadTorrent）时由站点适配器 B 路线（site + torrent_id）构建真实下载链接。
+    candidates.push({ ...base, siteId: localSiteId, siteName, status: "ready" });
   }
 
   return candidates;

@@ -124,9 +124,11 @@ async function injectReseed() {
         const result = await sendMessage("downloadTorrent", {
           torrent: {
             site: c.siteId,
+            // 懒加载链接：发送时由站点适配器按 site + torrent_id 构建下载链接
+            id: c.torrentId,
             title: c.sourceName || c.siteName,
-            link: c.downloadUrl || "",
-            url: c.downloadUrl || "",
+            link: "",
+            url: "",
           },
           downloaderId: src.clientId,
           addTorrentOptions: {

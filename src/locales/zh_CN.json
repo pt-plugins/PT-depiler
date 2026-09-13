@@ -118,7 +118,12 @@
       "columnStatus": "状态",
       "statusReady": "可辅种",
       "statusError": "失败",
-      "groupHint": "勾选后将按来源资源分组创建辅种任务（同一来源资源合并为一个任务）",
+      "selectAll": "全选可辅种候选",
+      "groupHint": "可多选候选后直接「推送辅种」到所选下载器（下载链接在发送时获取）；也可按来源资源分组创建辅种任务。",
+      "push": "推送辅种（{count}）",
+      "pushPartial": "已推送 {ok} 个，失败 {fail} 个（最后原因：{reason}）",
+      "pushSuccess": "已推送 {count} 个种子到下载器",
+      "pushError": "推送失败：{reason}",
       "createTask": "创建辅种任务（{count}）",
       "createSuccess": "已创建 {count} 个辅种任务",
       "createError": "创建辅种任务失败"

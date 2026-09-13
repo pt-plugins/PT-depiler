@@ -118,7 +118,12 @@
       "columnStatus": "Status",
       "statusReady": "Ready",
       "statusError": "Failed",
-      "groupHint": "Selected candidates are grouped by source torrent; each source becomes one reseed task",
+      "selectAll": "Select all ready candidates",
+      "groupHint": "Select multiple candidates and 'Push Reseed' directly to the chosen downloader (download links are resolved at send time); or create reseed tasks grouped by source torrent.",
+      "push": "Push Reseed ({count})",
+      "pushPartial": "Pushed {ok}, failed {fail} (last reason: {reason})",
+      "pushSuccess": "Pushed {count} torrents to the downloader",
+      "pushError": "Push failed: {reason}",
       "createTask": "Create reseed task ({count})",
       "createSuccess": "Created {count} reseed tasks",
       "createError": "Failed to create reseed tasks"
