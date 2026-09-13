@@ -9,8 +9,10 @@ import axios from "axios";
 import { onMessage, sendMessage } from "@/messages.ts";
 import type { IIyuuStorageSchema, IIyuuSiteCacheEntry, IMetadataPiniaStorageSchema } from "@/shared/types.ts";
 import type { TSiteID } from "@ptd/site";
-import { iyuuSiteToLocal, resolveTorrentDownload } from "@ptd/iyuu";
-import type { IYUUReseedCandidate, IYUUReseedHit } from "@ptd/iyuu";
+import { iyuuSiteToLocal } from "@ptd/iyuu";
+import type { IYUUReseedHit } from "@ptd/iyuu";
+import type { ICrossSeedCandidate } from "@ptd/crossSeed";
+import { resolveTorrentDownload } from "@ptd/crossSeed";
 
 import { getDownloaderInstance } from "./download.ts";
 import { getSiteInstance } from "./site.ts";
@@ -227,24 +229,28 @@ function toSourceMap(
 export async function iyuuResolveHits(
   hits: Array<{ sid: number; torrent_id: number; info_hash?: string }>,
   sources?: Map<string, IYUUResolveSourceInfo> | Record<string, IYUUResolveSourceInfo>,
-): Promise<IYUUReseedCandidate[]> {
+): Promise<ICrossSeedCandidate[]> {
   if (!hits.length) return [];
   const sourceMap = toSourceMap(sources);
   const sites = await iyuuFetchSites();
   const siteById = new Map(sites.map((s) => [s.id, s]));
-  const candidates: IYUUReseedCandidate[] = [];
+  const candidates: ICrossSeedCandidate[] = [];
 
   for (const hit of hits) {
     const iyuuSite = siteById.get(hit.sid);
     if (!iyuuSite) continue;
 
     const source = hit.info_hash ? sourceMap.get(hit.info_hash) : undefined;
-    const base = {
+    const base: ICrossSeedCandidate = {
       sourceInfoHash: hit.info_hash ?? "",
       sourceName: source?.name,
       sourceSavePath: source?.savePath,
       sourceSize: source?.size,
       torrentId: hit.torrent_id,
+      siteId: "",
+      siteName: "",
+      status: "ready",
+      source: "iyuu",
     };
 
     const localSiteId = iyuuSiteToLocal(iyuuSite.site);
@@ -266,8 +272,9 @@ export async function iyuuResolveHits(
       const siteInstance = await getSiteInstance<"public">(localSiteId);
       const result = await resolveTorrentDownload({
         siteInstance,
-        hit: { sid: hit.sid, torrent_id: hit.torrent_id, info_hash: hit.info_hash ?? "" },
-        iyuuSite,
+        hit: { torrent_id: hit.torrent_id, info_hash: hit.info_hash ?? "" },
+        templateSite: iyuuSite,
+        localSiteId,
       });
 
       // B 路线成功：config.baseURL + url 拼全下载链接
@@ -326,11 +333,19 @@ export async function iyuuResolveHits(
  * 批量辅种扫描：取下载器内已完成种子 → hash 分批（100/批）查 IYUU → 解析候选。
  * 仅返回 ready 候选（调用方可直接注入），error 项同样携带以便 UI 展示失败原因。
  */
-export async function iyuuScanForReseed(downloaderId: string): Promise<IYUUReseedCandidate[]> {
+export async function iyuuScanForReseed(downloaderId: string): Promise<ICrossSeedCandidate[]> {
   const instance = await getDownloaderInstance(downloaderId);
   if (!instance) {
     return [
-      { sourceInfoHash: "", siteId: "", siteName: "", torrentId: 0, status: "error", error: "下载器不存在或未配置" },
+      {
+        sourceInfoHash: "",
+        siteId: "",
+        siteName: "",
+        torrentId: 0,
+        status: "error",
+        error: "下载器不存在或未配置",
+        source: "iyuu",
+      },
     ];
   }
 
@@ -345,6 +360,7 @@ export async function iyuuScanForReseed(downloaderId: string): Promise<IYUUResee
         torrentId: 0,
         status: "error",
         error: "该下载器没有已完成的种子",
+        source: "iyuu",
       },
     ];
   }

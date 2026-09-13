@@ -3,7 +3,7 @@ import { ref, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import type { CTorrent, TorrentClientMetaData } from "@ptd/downloader";
-import type { IYUUReseedCandidate } from "@ptd/iyuu";
+import type { ICrossSeedCandidate } from "@ptd/crossSeed";
 import { sendMessage } from "@/messages.ts";
 import { formatSize } from "@/options/utils.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -20,7 +20,7 @@ const runtimeStore = useRuntimeStore();
 
 const loading = ref(false);
 const error = ref("");
-const candidates = ref<IYUUReseedCandidate[]>([]);
+const candidates = ref<ICrossSeedCandidate[]>([]);
 const selected = ref<Set<string>>(new Set());
 const injecting = ref(false);
 const metaData = ref<TorrentClientMetaData | null>(null);
@@ -29,11 +29,11 @@ const selectedCount = computed(
   () => candidates.value.filter((c) => c.status === "ready" && selected.value.has(reseedKey(c))).length,
 );
 
-function reseedKey(c: IYUUReseedCandidate): string {
+function reseedKey(c: ICrossSeedCandidate): string {
   return `${c.siteId}|${c.torrentId}`;
 }
 
-function toggleCandidate(c: IYUUReseedCandidate) {
+function toggleCandidate(c: ICrossSeedCandidate) {
   const key = reseedKey(c);
   const next = new Set(selected.value);
   if (next.has(key)) {
