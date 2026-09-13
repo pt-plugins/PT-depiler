@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
+import type { CAddTorrentOptions } from "@ptd/downloader";
 import type { ICrossSeedCandidate } from "@ptd/crossSeed";
 
 import type { IKeepUploadTask } from "@/shared/types.ts";
@@ -24,6 +25,7 @@ const scanDone = ref(false);
 const candidates = ref<ICrossSeedCandidate[]>([]);
 const selected = ref<Set<string>>(new Set());
 const creating = ref(false);
+const pushing = ref(false);
 
 const downloaderItems = computed(() =>
   Object.entries(metadataStore.downloaders)
@@ -47,19 +49,37 @@ function candidateKey(c: ICrossSeedCandidate): string {
   return `${c.sourceInfoHash}|${c.siteId}|${c.torrentId}`;
 }
 
-function toggleCandidate(c: ICrossSeedCandidate) {
+/** 按勾选事件值显式设置/清除（而非翻转），保证多选行为确定 */
+function toggleCandidate(c: ICrossSeedCandidate, checked: boolean) {
   const key = candidateKey(c);
   const next = new Set(selected.value);
-  if (next.has(key)) {
-    next.delete(key);
-  } else {
+  if (checked) {
     next.add(key);
+  } else {
+    next.delete(key);
   }
   selected.value = next;
 }
 
+function toggleSelectAllReady(checked: boolean) {
+  const next = new Set<string>();
+  if (checked) {
+    for (const c of candidates.value) {
+      if (c.status === "ready") next.add(candidateKey(c));
+    }
+  }
+  selected.value = next;
+}
+
+const readyCount = computed(() => candidates.value.filter((c) => c.status === "ready").length);
+const allReadySelected = computed(() => readyCount.value > 0 && readyCount.value === selectedCount.value);
+
 const selectedCount = computed(
   () => candidates.value.filter((c) => c.status === "ready" && selected.value.has(candidateKey(c))).length,
+);
+
+const selectedCandidates = computed(() =>
+  candidates.value.filter((c) => c.status === "ready" && selected.value.has(candidateKey(c))),
 );
 
 async function startScan() {
@@ -81,9 +101,79 @@ async function startScan() {
   }
 }
 
+/** 构建下载器推送所需 options（与 keep-upload 发送链路一致：暂停/自动开始跟随下载器设置） */
+function toAddTorrentOptions(sourceSavePath?: string): CAddTorrentOptions {
+  const downloader = metadataStore.downloaders[downloaderId.value];
+  return {
+    localDownload: true,
+    addAtPaused: !(downloader?.feature?.DefaultAutoStart ?? true),
+    savePath: sourceSavePath || "",
+  };
+}
+
+/**
+ * 一键推送辅种（参照 iyuuplus-dev）：勾选候选直接 downloadTorrent 到所选下载器，不创建辅种任务。
+ * 下载链接在发送时由站点适配器（site + torrent_id）构建，扫描阶段不预取。
+ */
+async function pushReseed() {
+  const chosen = selectedCandidates.value;
+  if (chosen.length === 0) return;
+  pushing.value = true;
+  let ok = 0;
+  let fail = 0;
+  let lastReason = "";
+  try {
+    for (const c of chosen) {
+      try {
+        const result = await sendMessage("downloadTorrent", {
+          torrent: {
+            site: c.siteId,
+            id: c.torrentId,
+            title: c.sourceName || c.siteName,
+            link: "",
+            url: "",
+          },
+          downloaderId: downloaderId.value,
+          addTorrentOptions: toAddTorrentOptions(c.sourceSavePath),
+        });
+        if (result.downloadStatus === "failed") {
+          fail++;
+          lastReason = result.errorMessage || c.siteName;
+        } else {
+          ok++;
+        }
+      } catch (e) {
+        fail++;
+        lastReason = e instanceof Error ? e.message : String(e);
+      }
+    }
+
+    if (fail > 0) {
+      runtimeStore.showSnakebar(t("KeepUploadTask.iyuu.pushPartial", { ok, fail, reason: lastReason }), {
+        color: "warning",
+      });
+    } else {
+      runtimeStore.showSnakebar(t("KeepUploadTask.iyuu.pushSuccess", { count: ok }), { color: "success" });
+    }
+    // 移除已推送的勾选，保留结果列表便于继续选择其他候选
+    for (const c of chosen) {
+      toggleCandidate(c, false);
+    }
+  } catch (e) {
+    runtimeStore.showSnakebar(
+      t("KeepUploadTask.iyuu.pushError", { reason: e instanceof Error ? e.message : String(e) }),
+      {
+        color: "error",
+      },
+    );
+  } finally {
+    pushing.value = false;
+  }
+}
+
 // 把勾选的候选按来源资源（sourceInfoHash）分组，每组创建一个辅种任务
 async function createTaskFromScan() {
-  const chosen = candidates.value.filter((c) => c.status === "ready" && selected.value.has(candidateKey(c)));
+  const chosen = selectedCandidates.value;
   if (chosen.length === 0) return;
 
   creating.value = true;
@@ -109,9 +199,11 @@ async function createTaskFromScan() {
         },
         items: cands.map((c) => ({
           site: c.siteId,
+          // 懒加载链接：任务项携带站点种子 id，发送时由站点适配器构建真实下载链接
+          id: c.torrentId,
           title: c.sourceName || c.siteName,
-          link: c.downloadUrl || "",
-          url: c.downloadUrl || "",
+          link: "",
+          url: "",
           size: c.sourceSize || 0,
         })),
       };
@@ -175,7 +267,16 @@ async function createTaskFromScan() {
             <v-table density="compact">
               <thead>
                 <tr>
-                  <th style="width: 44px"></th>
+                  <th style="width: 44px">
+                    <v-checkbox
+                      :model-value="allReadySelected"
+                      :disabled="readyCount === 0"
+                      density="compact"
+                      hide-details
+                      :title="t('KeepUploadTask.iyuu.selectAll')"
+                      @update:model-value="(v) => toggleSelectAllReady(Boolean(v))"
+                    />
+                  </th>
                   <th>{{ t("KeepUploadTask.iyuu.columnSite") }}</th>
                   <th>{{ t("KeepUploadTask.iyuu.columnTitle") }}</th>
                   <th class="text-end">{{ t("KeepUploadTask.iyuu.columnSize") }}</th>
@@ -190,7 +291,7 @@ async function createTaskFromScan() {
                       :model-value="selected.has(candidateKey(c))"
                       density="compact"
                       hide-details
-                      @update:model-value="toggleCandidate(c)"
+                      @update:model-value="(v) => toggleCandidate(c, Boolean(v))"
                     />
                   </td>
                   <td>
@@ -235,7 +336,13 @@ async function createTaskFromScan() {
       <v-card-actions v-if="scanDone && !scanning">
         <v-spacer />
         <v-btn variant="text" @click="showDialog = false">{{ t("common.dialog.close") }}</v-btn>
-        <v-btn color="primary" :disabled="selectedCount === 0" :loading="creating" @click="createTaskFromScan">
+
+        <v-btn color="primary" :disabled="selectedCount === 0" :loading="pushing" @click="pushReseed">
+          <v-icon class="mr-2">mdi-send</v-icon>
+          {{ t("KeepUploadTask.iyuu.push", { count: selectedCount }) }}
+        </v-btn>
+
+        <v-btn variant="tonal" :disabled="selectedCount === 0" :loading="creating" @click="createTaskFromScan">
           {{ t("KeepUploadTask.iyuu.createTask", { count: selectedCount }) }}
         </v-btn>
       </v-card-actions>
