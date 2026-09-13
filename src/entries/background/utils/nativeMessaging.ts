@@ -56,6 +56,8 @@ const ALLOWED_METHODS = new Set([
   "iyuuReportExisting",
   "iyuuQueryReseed",
   "iyuuDeriveHeldSites",
+  "iyuuResolveHits",
+  "iyuuScanForReseed",
 ]);
 
 // ── Module-scoped state ──────────────────────────────────────────────

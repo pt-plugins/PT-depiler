@@ -27,7 +27,7 @@ import type {
   TorrentQueueDirection,
   TorrentSpeedLimit,
 } from "@ptd/downloader";
-import type { IYUUReseedHit } from "@ptd/iyuu";
+import type { IYUUDownloadCredentials, IYUUReseedCandidate, IYUUReseedHit } from "@ptd/iyuu";
 
 // 可序列化的种子信息，用于辅种检测
 export interface ITorrentInfoForVerification {
@@ -210,6 +210,13 @@ interface ProtocolMap extends TMessageMap {
   iyuuQueryReseed(hashes: string[]): Record<string, { torrent: IYUUReseedHit[] }>;
   /** 从本地已配置站点自动推导持有站点（本地 id → IYUU sid） */
   iyuuDeriveHeldSites(): { localIds: TSiteID[]; sidList: number[]; unmatched: TSiteID[] };
+  /** 批量把 IYUU 查询命中解析为辅种候选（B 路线优先，A 兜底；不可注入项标 error） */
+  iyuuResolveHits(data: {
+    hits: Array<{ sid: number; torrent_id: number; info_hash?: string }>;
+    sources?: Map<string, { name: string; savePath: string; size: number }>;
+  }): IYUUReseedCandidate[];
+  /** 批量辅种扫描：下载器已完成种子 hash 分批查 IYUU 并解析候选 */
+  iyuuScanForReseed(downloaderId: string): IYUUReseedCandidate[];
 
   // 2.8 Lightweight list queries (for CLI discovery)
   getSiteList(): Array<{ id: string; name: string; url: string; offline: boolean }>;

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import type {
@@ -11,9 +11,12 @@ import type {
   TorrentClientMetaData,
   TorrentFilePriority,
 } from "@ptd/downloader";
+import type { IYUUReseedCandidate } from "@ptd/iyuu";
 import { sendMessage } from "@/messages.ts";
 import { formatSize, formatDate } from "@/options/utils.ts";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
+import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 import TorrentStateTd from "./TorrentStateTd.vue";
 
 const showDialog = defineModel<boolean>();
@@ -22,6 +25,7 @@ const { torrent } = defineProps<{
 }>();
 
 const { t } = useI18n();
+const runtimeStore = useRuntimeStore();
 
 const activeTab = ref<string>("info");
 
@@ -178,6 +182,104 @@ function resetDialog() {
   trackers.value = [];
   trackersLoaded.value = false;
   trackerInput.value = "";
+  reseedDialog.value = false;
+  reseedLoading.value = false;
+  reseedError.value = "";
+  reseedCandidates.value = [];
+  reseedSelected.value = new Set();
+  reseedInjecting.value = false;
+}
+
+// ── IYUU 查其他站辅种 ─────────────────────────────────
+
+const reseedDialog = ref(false);
+const reseedLoading = ref(false);
+const reseedError = ref("");
+const reseedCandidates = ref<IYUUReseedCandidate[]>([]);
+const reseedSelected = ref<Set<string>>(new Set());
+const reseedInjecting = ref(false);
+
+const reseedSelectedCount = computed(
+  () => reseedCandidates.value.filter((c) => c.status === "ready" && reseedSelected.value.has(reseedKey(c))).length,
+);
+
+function reseedKey(c: IYUUReseedCandidate): string {
+  return `${c.siteId}|${c.torrentId}`;
+}
+
+function toggleReseedCandidate(c: IYUUReseedCandidate) {
+  const key = reseedKey(c);
+  const next = new Set(reseedSelected.value);
+  if (next.has(key)) {
+    next.delete(key);
+  } else {
+    next.add(key);
+  }
+  reseedSelected.value = next;
+}
+
+async function openReseedDialog() {
+  reseedDialog.value = true;
+  reseedLoading.value = true;
+  reseedError.value = "";
+  reseedCandidates.value = [];
+  reseedSelected.value = new Set();
+  if (!torrent) return;
+
+  try {
+    const resp = await sendMessage("iyuuQueryReseed", [torrent.infoHash]);
+    const hits = (resp[torrent.infoHash]?.torrent ?? []).map((h) => ({
+      sid: h.sid,
+      torrent_id: h.torrent_id,
+      info_hash: torrent.infoHash,
+    }));
+    const sources = new Map<string, { name: string; savePath: string; size: number }>([
+      [torrent.infoHash, { name: torrent.name, savePath: torrent.savePath, size: torrent.totalSize }],
+    ]);
+    reseedCandidates.value = await sendMessage("iyuuResolveHits", { hits, sources });
+  } catch (e) {
+    reseedError.value = e instanceof Error ? e.message : String(e);
+  } finally {
+    reseedLoading.value = false;
+  }
+}
+
+// 把勾选候选直接推送到当前下载器（保存到原种子目录）
+async function injectReseedCandidates() {
+  if (!torrent) return;
+  const chosen = reseedCandidates.value.filter((c) => c.status === "ready" && reseedSelected.value.has(reseedKey(c)));
+  if (chosen.length === 0) return;
+
+  reseedInjecting.value = true;
+  let okCount = 0;
+  try {
+    for (const c of chosen) {
+      const result = await sendMessage("downloadTorrent", {
+        torrent: {
+          site: c.siteId,
+          title: c.sourceName || c.siteName,
+          link: c.downloadUrl || "",
+          url: c.downloadUrl || "",
+        },
+        downloaderId: torrent.clientId,
+        addTorrentOptions: {
+          localDownload: true,
+          addAtPaused: !(metaData.value?.feature?.DefaultAutoStart ?? true),
+          savePath: torrent.savePath,
+        },
+      });
+      if (result.downloadStatus !== "failed") {
+        okCount++;
+      }
+    }
+    runtimeStore.showSnakebar(t("MyClient.detail.reseedInjectSuccess"), { color: "success" });
+    reseedDialog.value = false;
+  } catch (e) {
+    const reason = e instanceof Error ? e.message : String(e);
+    runtimeStore.showSnakebar(t("MyClient.detail.reseedInjectError", { reason }), { color: "error" });
+  } finally {
+    reseedInjecting.value = false;
+  }
 }
 
 async function afterEnter() {
@@ -355,6 +457,12 @@ function formatTimestamp(timestamp: number | undefined): string {
                 <v-list-item-title>{{ formatDate(torrent.dateAdded * 1000) }}</v-list-item-title>
               </v-list-item>
             </v-list>
+
+            <div class="pa-3 pt-0">
+              <v-btn color="primary" variant="tonal" prepend-icon="mdi-scan-helper" @click="openReseedDialog">
+                {{ t("MyClient.detail.reseed") }}
+              </v-btn>
+            </div>
           </v-card-text>
         </v-tabs-window-item>
 
@@ -509,6 +617,105 @@ function formatTimestamp(timestamp: number | undefined): string {
           </v-card-text>
         </v-tabs-window-item>
       </v-tabs-window>
+    </v-card>
+  </v-dialog>
+
+  <!-- IYUU 查其他站辅种 -->
+  <v-dialog v-model="reseedDialog" max-width="760">
+    <v-card>
+      <v-card-title class="d-flex align-center">
+        <v-icon class="mr-2">mdi-scan-helper</v-icon>
+        <span>{{ t("MyClient.detail.reseedDialogTitle") }}</span>
+        <v-spacer />
+        <v-btn icon="mdi-close" variant="text" :title="t('common.dialog.close')" @click="reseedDialog = false" />
+      </v-card-title>
+      <v-divider />
+
+      <v-card-text>
+        <div v-if="reseedLoading" class="text-center py-6">
+          <v-progress-circular indeterminate size="32" width="3" />
+        </div>
+
+        <v-alert v-else-if="reseedError" type="error" variant="tonal">
+          {{ t("MyClient.detail.reseedQueryError", { reason: reseedError }) }}
+        </v-alert>
+
+        <v-alert v-else-if="reseedCandidates.length === 0" type="info" variant="tonal">
+          {{ t("MyClient.detail.reseedNoResult") }}
+        </v-alert>
+
+        <template v-else>
+          <v-table density="compact">
+            <thead>
+              <tr>
+                <th style="width: 44px"></th>
+                <th>{{ t("MyClient.detail.reseedColumnSite") }}</th>
+                <th>{{ t("MyClient.detail.reseedColumnTitle") }}</th>
+                <th class="text-end">{{ t("MyClient.detail.reseedColumnSize") }}</th>
+                <th class="text-center" style="width: 110px">{{ t("MyClient.detail.reseedColumnStatus") }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="c in reseedCandidates" :key="reseedKey(c)">
+                <td>
+                  <v-checkbox
+                    v-if="c.status === 'ready'"
+                    :model-value="reseedSelected.has(reseedKey(c))"
+                    density="compact"
+                    hide-details
+                    @update:model-value="toggleReseedCandidate(c)"
+                  />
+                </td>
+                <td>
+                  <div class="d-flex align-center ga-1">
+                    <SiteFavicon :site-id="c.siteId" :size="16" />
+                    <span class="text-body-small">{{ c.siteName }}</span>
+                  </div>
+                </td>
+                <td>
+                  <span
+                    class="text-body-small text-truncate d-inline-block"
+                    style="max-width: 280px; vertical-align: middle"
+                  >
+                    {{ c.sourceName || c.siteName }}
+                  </span>
+                </td>
+                <td class="text-end text-body-small">
+                  {{ c.sourceSize ? formatSize(c.sourceSize) : "-" }}
+                </td>
+                <td class="text-center">
+                  <v-chip v-if="c.status === 'ready'" size="x-small" color="success">
+                    {{ t("MyClient.detail.reseedStatusReady") }}
+                  </v-chip>
+                  <v-tooltip v-else :text="c.error || ''">
+                    <template #activator="{ props }">
+                      <v-chip v-bind="props" size="x-small" color="error">
+                        {{ t("MyClient.detail.reseedStatusError") }}
+                      </v-chip>
+                    </template>
+                  </v-tooltip>
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+          <v-alert type="info" variant="tonal" density="compact" class="mt-2">
+            {{ t("MyClient.detail.reseedInjectHint") }}
+          </v-alert>
+        </template>
+      </v-card-text>
+
+      <v-card-actions v-if="!reseedLoading">
+        <v-spacer />
+        <v-btn variant="text" @click="reseedDialog = false">{{ t("common.dialog.close") }}</v-btn>
+        <v-btn
+          color="primary"
+          :disabled="reseedSelectedCount === 0"
+          :loading="reseedInjecting"
+          @click="injectReseedCandidates"
+        >
+          {{ t("MyClient.detail.reseedInject", { count: reseedSelectedCount }) }}
+        </v-btn>
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
