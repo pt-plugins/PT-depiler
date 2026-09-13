@@ -21,6 +21,12 @@ export const setBaseChildren: RouteRecordRaw[] = [
     component: () => import("../views/Settings/SetBase/DownloadWindow.vue"),
   },
   {
+    path: "reseed",
+    name: "SetBaseReseed",
+    meta: { icon: "mdi-sword-cross", usesGlobalSave: false },
+    component: () => import("../views/Settings/SetBase/ReseedWindow.vue"),
+  },
+  {
     path: "user-info",
     name: "SetBaseUserInfo",
     meta: { icon: "mdi-account" },
@@ -43,12 +49,6 @@ export const setBaseChildren: RouteRecordRaw[] = [
     name: "SetBaseSocialInformation",
     meta: { icon: "mdi-multimedia" },
     component: () => import("../views/Settings/SetBase/SocialInformationWindow.vue"),
-  },
-  {
-    path: "iyuu",
-    name: "SetBaseIyuu",
-    meta: { icon: "mdi-vector-link", usesGlobalSave: false },
-    component: () => import("../views/Settings/SetBase/IyuuWindow.vue"),
   },
 ] as const;
 
