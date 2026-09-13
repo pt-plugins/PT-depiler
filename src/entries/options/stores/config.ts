@@ -326,6 +326,11 @@ export const useConfigStore = defineStore("config", {
       triggerThreshold: 2,
       extensionDuration: 3,
     },
+
+    reseed: {
+      enabled: true,
+      showKeepUploadTask: true,
+    },
   }),
   getters: {
     uiTheme(): Exclude<supportThemeType, "auto"> {
