@@ -196,4 +196,11 @@ export interface IIyuuStorageSchema {
       enabled?: boolean;
     }
   >;
+
+  /** LocalCrossSeed：本地文件树对比目标站列表（本地 TSiteID） */
+  localSites?: string[];
+  /** LocalCrossSeed 匹配模式：strict / flexible / partial（默认 strict） */
+  localMatchMode?: "strict" | "flexible" | "partial";
+  /** LocalCrossSeed 每次扫描搜索的种子数上限（风控，默认 10） */
+  localSearchLimit?: number;
 }

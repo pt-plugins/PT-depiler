@@ -715,7 +715,16 @@
       "nexusNoLocalSites": "No local sites configured yet. Add sites in Settings \u2192 Sites first.",
       "nexusSave": "Save Nexus Config",
       "nexusSaved": "Nexus config saved",
-      "nexusSavedHint": "After saving, multi-source scans will query this site via pieces-hash."
+      "nexusSavedHint": "After saving, multi-source scans will query this site via pieces-hash.",
+      "localTitle": "Local File-Tree Compare (LocalCrossSeed)",
+      "localHint": "Inspired by cross-seed: use the completed torrents' file trees (name+size) in your downloader as searchees, search matching candidates on the checked sites, snatch the site-issued .torrent and compare by match mode (strict exact path / flexible size-only / partial ratio); matches can be reseeded directly to that site.",
+      "localMatchModeLabel": "Match Mode",
+      "localMatchModeStrict": "Strict (exact path & size)",
+      "localMatchModeFlexible": "Flexible (size-only, tolerates renames)",
+      "localMatchModePartial": "Partial (size ratio, can top up)",
+      "localSearchLimitLabel": "Max searched torrents per scan",
+      "localSave": "Save Local Config",
+      "localSaved": "Local config saved"
     },
     "ui": {
       "allowDragLink": "Allow dragging links to the sidebar button",

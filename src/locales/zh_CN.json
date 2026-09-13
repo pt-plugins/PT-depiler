@@ -715,7 +715,16 @@
       "nexusNoLocalSites": "暂无可配置的本地站点，请先在「站点」页添加站点。",
       "nexusSave": "保存 Nexus 配置",
       "nexusSaved": "Nexus 配置已保存",
-      "nexusSavedHint": "保存后，多源扫描将对该站启用 pieces-hash 直查。"
+      "nexusSavedHint": "保存后，多源扫描将对该站启用 pieces-hash 直查。",
+      "localTitle": "本地文件树对比（LocalCrossSeed）",
+      "localHint": "参照 cross-seed：用下载器已完成种子的文件树（名称+大小）为目标，在勾选的站点站内搜索同名候选，抓取站点签发的 .torrent 后按匹配模式比对（strict 精确路径 / flexible 只比大小 / partial 按占比），命中即可直接辅种到该站。",
+      "localMatchModeLabel": "匹配模式",
+      "localMatchModeStrict": "Strict（严格路径与大小）",
+      "localMatchModeFlexible": "Flexible（只比大小，容忍改名）",
+      "localMatchModePartial": "Partial（按大小占比，可差量补齐）",
+      "localSearchLimitLabel": "每次扫描搜索种子数上限",
+      "localSave": "保存本地对比配置",
+      "localSaved": "本地对比配置已保存"
     },
     "ui": {
       "allowDragLink": "允许拖拽链接到侧边栏按钮",
