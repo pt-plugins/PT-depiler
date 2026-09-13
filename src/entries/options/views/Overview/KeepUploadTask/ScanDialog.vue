@@ -69,7 +69,7 @@ async function startScan() {
     candidates.value = await sendMessage("iyuuScanForReseed", downloaderId.value);
   } catch (e) {
     runtimeStore.showSnakebar(
-      t("KeepUploadTask.iyuuScanError", { reason: e instanceof Error ? e.message : String(e) }),
+      t("KeepUploadTask.iyuu.scanError", { reason: e instanceof Error ? e.message : String(e) }),
       {
         color: "error",
       },
@@ -117,11 +117,11 @@ async function createTaskFromScan() {
       };
       await sendMessage("createKeepUploadTask", task);
     }
-    runtimeStore.showSnakebar(t("KeepUploadTask.iyuuCreateSuccess", { count: groups.size }), { color: "success" });
+    runtimeStore.showSnakebar(t("KeepUploadTask.iyuu.createSuccess", { count: groups.size }), { color: "success" });
     showDialog.value = false;
     emit("created");
   } catch (e) {
-    runtimeStore.showSnakebar(t("KeepUploadTask.iyuuCreateError"), { color: "error" });
+    runtimeStore.showSnakebar(t("KeepUploadTask.iyuu.createError"), { color: "error" });
   } finally {
     creating.value = false;
   }
@@ -133,7 +133,7 @@ async function createTaskFromScan() {
     <v-card>
       <v-card-title class="d-flex align-center">
         <v-icon class="mr-2">mdi-scan-helper</v-icon>
-        <span>{{ t("KeepUploadTask.iyuuScan") }}</span>
+        <span>{{ t("KeepUploadTask.iyuu.scan") }}</span>
         <v-spacer />
         <v-btn icon="mdi-close" variant="text" :title="t('common.dialog.close')" @click="showDialog = false" />
       </v-card-title>
@@ -148,7 +148,7 @@ async function createTaskFromScan() {
               :items="downloaderItems"
               item-title="title"
               item-value="value"
-              :label="t('KeepUploadTask.iyuuChooseDownloader')"
+              :label="t('KeepUploadTask.iyuu.chooseDownloader')"
               density="compact"
               variant="outlined"
               hide-details
@@ -157,29 +157,29 @@ async function createTaskFromScan() {
           <v-col class="col-auto" style="flex: none">
             <v-btn color="primary" :disabled="!downloaderId" @click="startScan">
               <v-icon class="mr-2">mdi-play</v-icon>
-              {{ t("KeepUploadTask.iyuuStartScan") }}
+              {{ t("KeepUploadTask.iyuu.startScan") }}
             </v-btn>
           </v-col>
         </v-row>
 
         <div v-if="scanning" class="text-center py-6">
           <v-progress-circular indeterminate size="32" width="3" />
-          <div class="text-body-small text-grey mt-2">{{ t("KeepUploadTask.iyuuScanning") }}</div>
+          <div class="text-body-small text-grey mt-2">{{ t("KeepUploadTask.iyuu.scanning") }}</div>
         </div>
 
         <template v-if="scanDone && !scanning">
           <v-alert v-if="candidates.length === 0" type="info" variant="tonal">
-            {{ t("KeepUploadTask.iyuuNoResult") }}
+            {{ t("KeepUploadTask.iyuu.noResult") }}
           </v-alert>
           <template v-else>
             <v-table density="compact">
               <thead>
                 <tr>
                   <th style="width: 44px"></th>
-                  <th>{{ t("KeepUploadTask.iyuuColumnSite") }}</th>
-                  <th>{{ t("KeepUploadTask.iyuuColumnTitle") }}</th>
-                  <th class="text-end">{{ t("KeepUploadTask.iyuuColumnSize") }}</th>
-                  <th class="text-center" style="width: 110px">{{ t("KeepUploadTask.iyuuColumnStatus") }}</th>
+                  <th>{{ t("KeepUploadTask.iyuu.columnSite") }}</th>
+                  <th>{{ t("KeepUploadTask.iyuu.columnTitle") }}</th>
+                  <th class="text-end">{{ t("KeepUploadTask.iyuu.columnSize") }}</th>
+                  <th class="text-center" style="width: 110px">{{ t("KeepUploadTask.iyuu.columnStatus") }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -212,12 +212,12 @@ async function createTaskFromScan() {
                   </td>
                   <td class="text-center">
                     <v-chip v-if="c.status === 'ready'" size="x-small" color="success">
-                      {{ t("KeepUploadTask.iyuuStatusReady") }}
+                      {{ t("KeepUploadTask.iyuu.statusReady") }}
                     </v-chip>
                     <v-tooltip v-else :text="c.error || ''">
                       <template #activator="{ props }">
                         <v-chip v-bind="props" size="x-small" color="error">
-                          {{ t("KeepUploadTask.iyuuStatusError") }}
+                          {{ t("KeepUploadTask.iyuu.statusError") }}
                         </v-chip>
                       </template>
                     </v-tooltip>
@@ -226,7 +226,7 @@ async function createTaskFromScan() {
               </tbody>
             </v-table>
             <v-alert type="info" variant="tonal" density="compact" class="mt-2">
-              {{ t("KeepUploadTask.iyuuGroupHint") }}
+              {{ t("KeepUploadTask.iyuu.groupHint") }}
             </v-alert>
           </template>
         </template>
@@ -236,7 +236,7 @@ async function createTaskFromScan() {
         <v-spacer />
         <v-btn variant="text" @click="showDialog = false">{{ t("common.dialog.close") }}</v-btn>
         <v-btn color="primary" :disabled="selectedCount === 0" :loading="creating" @click="createTaskFromScan">
-          {{ t("KeepUploadTask.iyuuCreateTask", { count: selectedCount }) }}
+          {{ t("KeepUploadTask.iyuu.createTask", { count: selectedCount }) }}
         </v-btn>
       </v-card-actions>
     </v-card>

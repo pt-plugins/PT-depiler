@@ -228,7 +228,7 @@ const scanDialogOpen = ref(false);
 
       <v-btn color="primary" class="ml-2" @click="scanDialogOpen = true">
         <v-icon class="mr-2">mdi-scan-helper</v-icon>
-        {{ t("KeepUploadTask.iyuuScan") }}
+        {{ t("KeepUploadTask.iyuu.scan") }}
       </v-btn>
 
       <v-btn
