@@ -130,6 +130,8 @@ async function sendTorrentsToDownloader(task: IKeepUploadTask, items: IKeepUploa
       const result = await sendMessage("downloadTorrent", {
         torrent: {
           site: item.site,
+          // 懒加载链接任务项携带站点种子 id；下载链接为空时后台按 site + id 解析真实下载地址
+          id: (item as { id?: number | string }).id,
           title: item.title,
           subTitle: item.subTitle,
           link: item.url,

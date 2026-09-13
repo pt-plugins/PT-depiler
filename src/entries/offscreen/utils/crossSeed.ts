@@ -2,8 +2,6 @@
  * crossSeed 聚合扫描：IYUU 中心 / NexusPHP pieces-hash 直查 / 本地文件树对比 三源统一入口。
  * 候选统一为 ICrossSeedCandidate（带 source 标识），UI 只消费候选数组，与单源时代完全兼容。
  */
-import axios from "axios";
-
 import { onMessage, sendMessage } from "@/messages.ts";
 import type { IMetadataPiniaStorageSchema } from "@/shared/types.ts";
 import type { TSiteID } from "@ptd/site";
@@ -12,7 +10,6 @@ import { getRemoteTorrentFile } from "@ptd/downloader";
 import {
   mapNexusHits,
   nexusQueryPiecesHash,
-  resolveTorrentDownload,
   assessLocalCandidate,
   fuzzySizeDoesMatch,
   normalizeClientFiles,
@@ -301,49 +298,26 @@ async function scanLocalSource(
 
 // ── 公共工具 ─────────────────────────────────────────────
 
-/** 统一候选构建（B 路线优先、A 兜底），与 IYUU 单源候选构造同型 */
+/** 统一候选构建（懒加载：扫描阶段不获取详情页/下载链接，发送时由 downloadTorrent 走站点适配器 B 路线） */
 async function buildSourceCandidates(
   site: { siteId: TSiteID; siteName?: string },
   seed: ICrossSeedLocalSeed,
   torrentId: number,
   source: TCrossSeedSourceKind,
 ): Promise<ICrossSeedCandidate[]> {
-  const base = {
-    sourceInfoHash: seed.infoHash,
-    sourceName: seed.name,
-    sourceSavePath: seed.savePath,
-    sourceSize: seed.size,
-    torrentId,
-    source,
-  };
-  const siteId = site.siteId;
-  const siteName = site.siteName || siteId;
-  try {
-    const siteInstance = await getSiteInstance<"public">(siteId);
-    const result = await resolveTorrentDownload({ siteInstance, hit: { torrent_id: torrentId }, localSiteId: siteId });
-
-    if (result.method === "B" && result.config?.url) {
-      return [{ ...base, siteId, siteName, downloadUrl: axios.getUri(result.config), method: "B", status: "ready" }];
-    }
-    if (result.url && result.missing?.length === 0 && result.unsupported?.length === 0) {
-      return [
-        { ...base, siteId, siteName, downloadUrl: result.url, method: "A", status: "ready", error: result.error },
-      ];
-    }
-    return [
-      {
-        ...base,
-        siteId,
-        siteName,
-        method: result.method,
-        status: "error",
-        error:
-          result.error ?? ([...(result.missing ?? []), ...(result.unsupported ?? [])].join(", ") || "下载链接解析失败"),
-      },
-    ];
-  } catch (e) {
-    return [{ ...base, siteId, siteName, status: "error", error: messageOf(e) }];
-  }
+  return [
+    {
+      sourceInfoHash: seed.infoHash,
+      sourceName: seed.name,
+      sourceSavePath: seed.savePath,
+      sourceSize: seed.size,
+      torrentId,
+      siteId: site.siteId,
+      siteName: site.siteName || site.siteId,
+      status: "ready",
+      source,
+    },
+  ];
 }
 
 function errorCandidate(error: string, source: TCrossSeedSourceKind): ICrossSeedCandidate {
