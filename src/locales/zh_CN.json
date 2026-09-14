@@ -106,7 +106,7 @@
     "updateError": "更新失败",
     "updateSuccess": "更新成功",
     "iyuu": {
-      "scan": "IYUU 批量扫描",
+      "scan": "批量辅种扫描",
       "chooseDownloader": "选择下载器",
       "startScan": "开始扫描",
       "scanning": "正在扫描已完成种子的辅种候选…",
@@ -178,13 +178,13 @@
       "viewRaw": "查看原始数据"
     },
     "iyuuScan": {
-      "btnTitle": "IYUU 批量扫描",
+      "btnTitle": "批量辅种扫描",
       "selectAll": "全选可辅种候选",
       "columnSite": "站点",
       "columnSize": "大小",
       "columnStatus": "状态",
       "columnTitle": "标题",
-      "dialogTitle": "IYUU 批量扫描（{count} 个种子）",
+      "dialogTitle": "批量辅种扫描（{count} 个种子）",
       "inject": "注入勾选到来源下载器（{count}）",
       "injectError": "发送失败：{reason}",
       "injectHint": "勾选的候选将下载到来源种子所在下载器与保存目录",
@@ -257,7 +257,7 @@
       "reseedColumnStatus": "状态",
       "reseedSelectAll": "全选可辅种候选",
       "reseedColumnTitle": "标题",
-      "reseedDialogTitle": "IYUU 其他站辅种",
+      "reseedDialogTitle": "其他站辅种",
       "reseedInject": "注入到本下载器（{count}）",
       "reseedInjectError": "发送失败：{reason}",
       "reseedInjectHint": "勾选的候选将下载并保存到原种子所在目录",
