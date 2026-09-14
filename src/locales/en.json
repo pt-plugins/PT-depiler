@@ -691,6 +691,7 @@
       "showKeepUploadTaskLabel": "Show reseed tasks",
       "showKeepUploadTaskHint": "Show the 'Reseed Tasks' page in the sidebar (also requires reseed features enabled).",
       "sourcesTitle": "Reseed Source Switches",
+      "sourcesDisabledHint": "All reseed sources are disabled. Enable at least one in the 'Reseed Source Switches' section above.",
       "iyuuCardTitle": "IYUU - piece-hash based index service",
       "enableLocalLabel": "Enable LocalCrossSeed (local file-tree compare)",
       "enableLocalHint": "Search candidates on target sites using completed torrents' file trees and compare; matches can be reseeded.",

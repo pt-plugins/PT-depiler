@@ -691,6 +691,7 @@
       "showKeepUploadTaskLabel": "显示辅种任务",
       "showKeepUploadTaskHint": "在侧边栏显示「辅种任务」页面（需同时开启辅种功能）。",
       "sourcesTitle": "辅种方案开关",
+      "sourcesDisabledHint": "所有辅种方案均已关闭，请在下方「辅种方案开关」中启用至少一项。",
       "iyuuCardTitle": "IYUU - 基于特征码的索引工具",
       "enableLocalLabel": "启用本地文件树对比（LocalCrossSeed）",
       "enableLocalHint": "用下载器已完成种子的文件树在目标站搜索候选并比对，命中即可辅种。",
