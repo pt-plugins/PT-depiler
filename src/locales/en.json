@@ -1271,6 +1271,11 @@
     "search": "Search",
     "site": "Site",
     "sortIndex": "Priority",
+    "source": {
+      "iyuu": "IYUU",
+      "nexusphp": "Nexus",
+      "local": "Local"
+    },
     "test": "Test",
     "time": {
       "ago": " Ago",
