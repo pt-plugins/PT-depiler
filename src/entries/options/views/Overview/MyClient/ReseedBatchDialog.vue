@@ -32,18 +32,32 @@ const autoStartCache = new Map<string, boolean>();
 const selectedCount = computed(
   () => candidates.value.filter((c) => c.status === "ready" && selected.value.has(candidateKey(c))).length,
 );
+const readyCount = computed(() => candidates.value.filter((c) => c.status === "ready").length);
+const allReadySelected = computed(() => readyCount.value > 0 && readyCount.value === selectedCount.value);
 
 function candidateKey(c: ICrossSeedCandidate): string {
   return `${c.sourceInfoHash}|${c.siteId}|${c.torrentId}`;
 }
 
-function toggleCandidate(c: ICrossSeedCandidate) {
+/** 按勾选事件值显式设置/清除（而非翻转），保证多选行为确定 */
+function toggleCandidate(c: ICrossSeedCandidate, checked?: boolean) {
   const key = candidateKey(c);
   const next = new Set(selected.value);
-  if (next.has(key)) {
-    next.delete(key);
-  } else {
+  if (checked ?? !next.has(key)) {
     next.add(key);
+  } else {
+    next.delete(key);
+  }
+  selected.value = next;
+}
+
+/** 全选/全不选可辅种候选 */
+function toggleSelectAllReady(checked: boolean) {
+  const next = new Set<string>();
+  if (checked) {
+    for (const c of candidates.value) {
+      if (c.status === "ready") next.add(candidateKey(c));
+    }
   }
   selected.value = next;
 }
@@ -199,7 +213,16 @@ async function injectReseed() {
           <v-table density="compact">
             <thead>
               <tr>
-                <th style="width: 44px"></th>
+                <th style="width: 44px">
+                  <v-checkbox
+                    :model-value="allReadySelected"
+                    :disabled="readyCount === 0"
+                    density="compact"
+                    hide-details
+                    :title="t('MyClient.iyuuScan.selectAll')"
+                    @update:model-value="(v) => toggleSelectAllReady(Boolean(v))"
+                  />
+                </th>
                 <th>{{ t("MyClient.iyuuScan.columnSite") }}</th>
                 <th>{{ t("MyClient.iyuuScan.columnTitle") }}</th>
                 <th class="text-end">{{ t("MyClient.iyuuScan.columnSize") }}</th>
@@ -214,7 +237,7 @@ async function injectReseed() {
                     :model-value="selected.has(candidateKey(c))"
                     density="compact"
                     hide-details
-                    @update:model-value="toggleCandidate(c)"
+                    @update:model-value="(v) => toggleCandidate(c, Boolean(v))"
                   />
                 </td>
                 <td>

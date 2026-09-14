@@ -177,6 +177,7 @@
     },
     "iyuuScan": {
       "btnTitle": "IYUU Batch Reseed Scan",
+      "selectAll": "Select all ready candidates",
       "columnSite": "Site",
       "columnSize": "Size",
       "columnStatus": "Status",
@@ -250,6 +251,7 @@
       "reseedColumnSite": "Site",
       "reseedColumnSize": "Size",
       "reseedColumnStatus": "Status",
+      "reseedSelectAll": "Select all ready candidates",
       "reseedColumnTitle": "Title",
       "reseedDialogTitle": "IYUU reseeds on other sites",
       "reseedInject": "Send to this downloader ({count})",
