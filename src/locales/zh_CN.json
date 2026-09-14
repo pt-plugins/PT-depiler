@@ -177,6 +177,7 @@
     },
     "iyuuScan": {
       "btnTitle": "IYUU 批量扫描",
+      "selectAll": "全选可辅种候选",
       "columnSite": "站点",
       "columnSize": "大小",
       "columnStatus": "状态",
@@ -250,6 +251,7 @@
       "reseedColumnSite": "站点",
       "reseedColumnSize": "大小",
       "reseedColumnStatus": "状态",
+      "reseedSelectAll": "全选可辅种候选",
       "reseedColumnTitle": "标题",
       "reseedDialogTitle": "IYUU 其他站辅种",
       "reseedInject": "注入到本下载器（{count}）",
