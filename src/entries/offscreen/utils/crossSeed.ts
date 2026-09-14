@@ -120,9 +120,23 @@ async function scanIyuuSource(seeds: ICrossSeedLocalSeed[]): Promise<ICrossSeedC
 async function enabledNexusConfigs(): Promise<INexusSiteConfig[]> {
   const metadata = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema | undefined;
   const nexusSites = metadata?.iyuu?.nexusSites ?? {};
-  return Object.entries(nexusSites)
-    .filter(([, c]) => c.enabled && c.apiUrl && c.passkey)
-    .map(([siteId, c]) => ({ siteId: siteId as TSiteID, apiUrl: c.apiUrl!, passkey: c.passkey!, enabled: true }));
+  const configs: INexusSiteConfig[] = [];
+  for (const [siteId, c] of Object.entries(nexusSites)) {
+    if (!c.enabled || !c.passkey) continue;
+    // 接口地址留空时使用默认路径：站点实例基址 + /api/pieces-hash（host 与完整 url 由站点定义拼接）
+    let apiUrl = c.apiUrl;
+    if (!apiUrl) {
+      try {
+        const inst = await getSiteInstance<"public">(siteId as TSiteID);
+        const base = (inst as unknown as { url?: string }).url ?? "";
+        apiUrl = `${base.replace(/\/+$/, "")}/api/pieces-hash`;
+      } catch (e) {
+        continue;
+      }
+    }
+    configs.push({ siteId: siteId as TSiteID, apiUrl, passkey: c.passkey, enabled: true });
+  }
+  return configs;
 }
 
 /**

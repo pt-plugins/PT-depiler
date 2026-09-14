@@ -10,6 +10,7 @@ import { useI18n } from "vue-i18n";
 
 import { sendMessage } from "@/messages.ts";
 import type { IIyuuStorageSchema, IIyuuSiteCacheEntry } from "@/shared/types.ts";
+import { getDefinedSiteMetadata } from "@ptd/site";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { iyuuSiteToLocal } from "@ptd/crossSeed";
@@ -46,6 +47,38 @@ const heldCount = computed(() => heldSites.value?.length ?? 0);
 const nexusInputs = ref<Record<string, { apiUrl: string; passkey: string; enabled: boolean }>>({});
 const localSiteIds = computed(() => Object.keys(metadataStore.sites ?? {}));
 const savingNexus = ref(false);
+/** 已添加站点的 schema 映射（id → "NexusPHP" 等） */
+const siteSchemaMap = ref<Record<string, string>>({});
+/** 是否显示全部已添加站点（默认仅 NexusPHP schema 站点） */
+const nexusShowAll = ref(false);
+
+async function loadSiteSchemaMap() {
+  const ids = localSiteIds.value;
+  const entries = await Promise.all(
+    ids.map(async (id) => {
+      try {
+        return [id, (await getDefinedSiteMetadata(id)).schema ?? ""] as const;
+      } catch {
+        return [id, ""] as const;
+      }
+    }),
+  );
+  siteSchemaMap.value = Object.fromEntries(entries);
+}
+
+/** 默认仅展示 schema 明确为 NexusPHP 的已添加站点；启用「显示额外站点」后展示全部 */
+const nexusRows = computed(() => {
+  const ids = nexusShowAll.value
+    ? localSiteIds.value
+    : localSiteIds.value.filter((id) => siteSchemaMap.value[id] === "NexusPHP");
+  return ids;
+});
+
+/** 默认接口地址：站点配置基址 + /api/pieces-hash（host 与完整 url 由站点定义拼接） */
+function defaultNexusApiUrl(siteId: string): string {
+  const base = metadataStore.sites[siteId]?.url ?? "";
+  return `${String(base).replace(/\/+$/, "")}/api/pieces-hash`;
+}
 
 function nexusSiteName(siteId: string): string {
   return metadataStore.siteNameMap[siteId] ?? siteId;
@@ -91,6 +124,7 @@ async function loadConfig() {
   sidSha1ExpiredAt.value = config?.sidSha1ExpiresAt;
   loadNexusInputs(config);
   loadLocalConfig(config);
+  await loadSiteSchemaMap();
 }
 
 // ── LocalCrossSeed 本地对比配置 ─────────────────────────
@@ -333,7 +367,20 @@ onMounted(loadConfig);
           {{ t("SetBase.iyuu.nexusHint") }}
         </v-alert>
 
-        <v-table v-if="localSiteIds.length" density="compact">
+        <v-alert type="warning" variant="tonal" density="compact" class="mb-3">
+          {{ t("SetBase.iyuu.nexusWarn") }}
+        </v-alert>
+
+        <div class="d-flex align-center mb-2">
+          <v-btn size="small" variant="tonal" prepend-icon="mdi-plus" @click="nexusShowAll = !nexusShowAll">
+            {{ nexusShowAll ? t("SetBase.iyuu.nexusHideExtra") : t("SetBase.iyuu.nexusAddExtra") }}
+          </v-btn>
+          <span class="text-body-small text-grey ml-2">
+            {{ t("SetBase.iyuu.nexusRowsHint", { count: nexusRows.length, total: localSiteIds.length }) }}
+          </span>
+        </div>
+
+        <v-table v-if="nexusRows.length" density="compact">
           <thead>
             <tr>
               <th>{{ t("SetBase.iyuu.nexusSiteColumn") }}</th>
@@ -343,7 +390,7 @@ onMounted(loadConfig);
             </tr>
           </thead>
           <tbody>
-            <tr v-for="siteId in localSiteIds" :key="siteId">
+            <tr v-for="siteId in nexusRows" :key="siteId">
               <td>
                 <div class="d-flex align-center ga-2">
                   <SiteFavicon :site-id="siteId" :size="20" />
@@ -353,7 +400,7 @@ onMounted(loadConfig);
               <td>
                 <v-text-field
                   v-model="nexusInputs[siteId].apiUrl"
-                  :placeholder="t('SetBase.iyuu.nexusUrlPlaceholder')"
+                  :placeholder="defaultNexusApiUrl(siteId)"
                   density="compact"
                   variant="outlined"
                   hide-details
@@ -376,7 +423,7 @@ onMounted(loadConfig);
           </tbody>
         </v-table>
         <v-alert v-else type="info" variant="tonal" density="compact">
-          {{ t("SetBase.iyuu.nexusNoLocalSites") }}
+          {{ nexusShowAll ? t("SetBase.iyuu.nexusNoLocalSites") : t("SetBase.iyuu.nexusNoNexusSites") }}
         </v-alert>
 
         <div class="d-flex align-center ga-2 mt-3">

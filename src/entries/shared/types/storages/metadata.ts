@@ -189,7 +189,7 @@ export interface IIyuuStorageSchema {
   nexusSites?: Record<
     string,
     {
-      /** 完整接口地址，如 https://site/api/pieces-hash */
+      /** 完整接口地址；留空时默认使用站点定义基址 + /api/pieces-hash */
       apiUrl?: string;
       /** 用户 passkey（query 参数认证） */
       passkey?: string;
