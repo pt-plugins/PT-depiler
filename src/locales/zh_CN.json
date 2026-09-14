@@ -687,7 +687,15 @@
       "enabledLabel": "启用辅种功能",
       "enabledHint": "关闭后侧边栏不显示「辅种任务」，辅种相关动作停用。",
       "showKeepUploadTaskLabel": "显示辅种任务",
-      "showKeepUploadTaskHint": "在侧边栏显示「辅种任务」页面（需同时开启辅种功能）。"
+      "showKeepUploadTaskHint": "在侧边栏显示「辅种任务」页面（需同时开启辅种功能）。",
+      "sourcesTitle": "辅种方案开关",
+      "iyuuCardTitle": "IYUU - 基于特征码的索引工具",
+      "enableLocalLabel": "启用本地文件树对比（LocalCrossSeed）",
+      "enableLocalHint": "用下载器已完成种子的文件树在目标站搜索候选并比对，命中即可辅种。",
+      "enableNexusLabel": "启用 NexusPHP pieces-hash 直查",
+      "enableNexusHint": "通过站点自身的 /api/pieces-hash 接口，用本地种子 pieces_hash 跨站匹配。",
+      "enableIyuusLabel": "启用 IYUU 索引查询",
+      "enableIyuusHint": "通过 IYUU 中心（iyuu.cn）的特征码索引跨站匹配，需要下方 Token。"
     },
     "iyuu": {
       "tokenTitle": "IYUU Token",

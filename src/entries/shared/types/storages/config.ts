@@ -263,5 +263,13 @@ export interface IConfigPiniaStorageSchema {
     enabled: boolean;
     // 是否在侧边栏显示「辅种任务」页面（在 enabled 基础上进一步控制）
     showKeepUploadTask: boolean;
+
+    // 以下为各辅种命中源开关（扫描时按开关决定启用哪些源）
+    // IYUU - 基于特征码的索引工具（中心化索引）
+    enableIyuus: boolean;
+    // NexusPHP pieces-hash 直查
+    enableNexus: boolean;
+    // 本地文件树对比（LocalCrossSeed）
+    enableLocal: boolean;
   };
 }

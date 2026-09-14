@@ -687,7 +687,15 @@
       "enabledLabel": "Enable reseed features",
       "enabledHint": "When off, the 'Reseed Tasks' entry is hidden from the sidebar and reseed actions are disabled.",
       "showKeepUploadTaskLabel": "Show reseed tasks",
-      "showKeepUploadTaskHint": "Show the 'Reseed Tasks' page in the sidebar (also requires reseed features enabled)."
+      "showKeepUploadTaskHint": "Show the 'Reseed Tasks' page in the sidebar (also requires reseed features enabled).",
+      "sourcesTitle": "Reseed Source Switches",
+      "iyuuCardTitle": "IYUU - piece-hash based index service",
+      "enableLocalLabel": "Enable LocalCrossSeed (local file-tree compare)",
+      "enableLocalHint": "Search candidates on target sites using completed torrents' file trees and compare; matches can be reseeded.",
+      "enableNexusLabel": "Enable NexusPHP pieces-hash direct query",
+      "enableNexusHint": "Match across sites via each site's own /api/pieces-hash endpoint using local pieces_hash.",
+      "enableIyuusLabel": "Enable IYUU index query",
+      "enableIyuusHint": "Match across sites via the IYUU center (iyuu.cn) piece-hash index; requires the Token below."
     },
     "iyuu": {
       "tokenTitle": "IYUU Token",

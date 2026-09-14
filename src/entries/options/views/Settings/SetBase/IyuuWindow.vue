@@ -266,180 +266,8 @@ onMounted(loadConfig);
 
 <template>
   <v-container fluid>
-    <!-- Token -->
+    <!-- 2. LocalCrossSeed 本地文件树对比 -->
     <v-card class="mb-4">
-      <v-card-title>{{ t("SetBase.iyuu.tokenTitle") }}</v-card-title>
-      <v-card-text>
-        <v-text-field
-          v-model="token"
-          :label="t('SetBase.iyuu.tokenLabel')"
-          :hint="t('SetBase.iyuu.tokenHint')"
-          persistent-hint
-          variant="outlined"
-          autocomplete="off"
-        />
-        <v-btn color="primary" variant="tonal" :disabled="!token.trim()" @click="saveToken">
-          {{ t("SetBase.iyuu.saveToken") }}
-        </v-btn>
-      </v-card-text>
-    </v-card>
-
-    <!-- 已持有站点 -->
-    <v-card>
-      <v-card-title>{{ t("SetBase.iyuu.heldTitle") }}</v-card-title>
-      <v-card-text>
-        <v-alert type="info" variant="tonal" density="compact" class="mb-3">
-          {{ t("SetBase.iyuu.heldHint") }}
-        </v-alert>
-
-        <div class="d-flex align-center ga-2 mb-3">
-          <v-btn :loading="loadingSites" variant="tonal" @click="fetchSites">
-            {{ t("SetBase.iyuu.fetchSites") }}
-          </v-btn>
-          <v-btn :loading="deriving" color="primary" variant="tonal" @click="deriveHeld">
-            {{ t("SetBase.iyuu.deriveHeld") }}
-          </v-btn>
-          <v-btn :loading="reporting" color="success" variant="tonal" @click="report">
-            {{ t("SetBase.iyuu.report") }}
-          </v-btn>
-
-          <v-spacer />
-
-          <span v-if="sidSha1Preview" class="text-body-small text-grey">
-            <v-icon icon="mdi-key-outline" size="small" class="mr-1" />
-            sid_sha1: <code>{{ sidSha1Preview }}…</code>
-            <span v-if="sidSha1ExpiredAt" class="text-grey text-body-small ml-2">
-              ({{ t("SetBase.iyuu.expiresAt") }} {{ new Date(sidSha1ExpiredAt).toLocaleString() }})
-            </span>
-          </span>
-        </div>
-
-        <v-alert v-if="!sitesCache.length && !loadingSites" type="info" variant="tonal" density="compact" class="mb-2">
-          {{ t("SetBase.iyuu.fetchHint") }}
-        </v-alert>
-
-        <v-table v-if="sitesCache.length" density="compact">
-          <thead>
-            <tr>
-              <th style="width: 48px"></th>
-              <th>{{ t("SetBase.iyuu.columnSite") }}</th>
-              <th>{{ t("SetBase.iyuu.columnNote") }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="row in siteRows" :key="row.site.id">
-              <td>
-                <v-checkbox
-                  :model-value="isHeld(row.local)"
-                  :disabled="!row.local"
-                  density="compact"
-                  hide-details
-                  @update:model-value="(v) => toggleHeld(row, Boolean(v))"
-                />
-              </td>
-              <td>
-                <div class="d-flex align-center ga-2" style="min-width: 0">
-                  <SiteFavicon v-if="row.local" :site-id="row.local" :size="20" />
-                  <v-icon v-else icon="mdi-vector-square" size="small" class="text-grey" />
-                  <span class="text-body-medium text-truncate d-inline-block" style="vertical-align: middle">
-                    {{ rowDisplayName(row) }}
-                    <span class="text-body-small text-grey ml-1">{{ row.site.site }}</span>
-                  </span>
-                </div>
-              </td>
-              <td>
-                <v-chip v-if="row.local" size="x-small" color="primary" variant="tonal">
-                  {{ row.local }}
-                </v-chip>
-                <v-chip v-else size="x-small" color="grey" variant="tonal">
-                  {{ t("SetBase.iyuu.unmapped") }}
-                </v-chip>
-                <span class="text-body-small text-grey ml-2">{{ row.site.base_url }}</span>
-              </td>
-            </tr>
-          </tbody>
-        </v-table>
-      </v-card-text>
-    </v-card>
-
-    <!-- NexusPHP pieces-hash 直查 -->
-    <v-card class="mt-4">
-      <v-card-title>{{ t("SetBase.iyuu.nexusTitle") }}</v-card-title>
-      <v-card-text>
-        <v-alert type="info" variant="tonal" density="compact" class="mb-3">
-          {{ t("SetBase.iyuu.nexusHint") }}
-        </v-alert>
-
-        <v-alert type="warning" variant="tonal" density="compact" class="mb-3">
-          {{ t("SetBase.iyuu.nexusWarn") }}
-        </v-alert>
-
-        <div class="d-flex align-center mb-2">
-          <v-btn size="small" variant="tonal" prepend-icon="mdi-plus" @click="showNexusDialog = true">
-            {{ t("SetBase.iyuu.nexusAddExtra") }}
-          </v-btn>
-          <span class="text-body-small text-grey ml-2">
-            {{ t("SetBase.iyuu.nexusRowsHint", { count: nexusRows.length, total: localSiteIds.length }) }}
-          </span>
-        </div>
-
-        <v-table v-if="nexusRows.length" density="compact">
-          <thead>
-            <tr>
-              <th>{{ t("SetBase.iyuu.nexusSiteColumn") }}</th>
-              <th>{{ t("SetBase.iyuu.nexusUrlColumn") }}</th>
-              <th>{{ t("SetBase.iyuu.nexusPasskeyColumn") }}</th>
-              <th style="width: 80px">{{ t("SetBase.iyuu.nexusEnabledColumn") }}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="siteId in nexusRows" :key="siteId">
-              <td>
-                <div class="d-flex align-center ga-2">
-                  <SiteFavicon :site-id="siteId" :size="20" />
-                  <span class="text-body-medium">{{ nexusSiteName(siteId) }}</span>
-                </div>
-              </td>
-              <td>
-                <v-text-field
-                  v-model="nexusInputs[siteId].apiUrl"
-                  :placeholder="defaultNexusApiUrl(siteId)"
-                  density="compact"
-                  variant="outlined"
-                  hide-details
-                />
-              </td>
-              <td>
-                <v-text-field
-                  v-model="nexusInputs[siteId].passkey"
-                  :placeholder="t('SetBase.iyuu.nexusPasskeyPlaceholder')"
-                  density="compact"
-                  variant="outlined"
-                  hide-details
-                  autocomplete="off"
-                />
-              </td>
-              <td>
-                <v-checkbox v-model="nexusInputs[siteId].enabled" density="compact" hide-details />
-              </td>
-            </tr>
-          </tbody>
-        </v-table>
-        <v-alert v-else type="info" variant="tonal" density="compact">
-          {{ t("SetBase.iyuu.nexusNoNexusSites") }}
-        </v-alert>
-
-        <div class="d-flex align-center ga-2 mt-3">
-          <v-btn :loading="savingNexus" color="primary" variant="tonal" @click="saveNexusConfig">
-            {{ t("SetBase.iyuu.nexusSave") }}
-          </v-btn>
-          <span class="text-body-small text-grey">{{ t("SetBase.iyuu.nexusSavedHint") }}</span>
-        </div>
-      </v-card-text>
-    </v-card>
-
-    <!-- LocalCrossSeed 本地对比 -->
-    <v-card class="mt-4">
       <v-card-title>{{ t("SetBase.iyuu.localTitle") }}</v-card-title>
       <v-card-text>
         <v-alert type="info" variant="tonal" density="compact" class="mb-3">
@@ -523,6 +351,176 @@ onMounted(loadConfig);
         <v-alert v-else type="info" variant="tonal" density="compact">
           {{ t("SetBase.iyuu.localNoSites") }}
         </v-alert>
+      </v-card-text>
+    </v-card>
+
+    <!-- 3. NexusPHP pieces-hash 直查 -->
+    <v-card class="mb-4">
+      <v-card-title>{{ t("SetBase.iyuu.nexusTitle") }}</v-card-title>
+      <v-card-text>
+        <v-alert type="info" variant="tonal" density="compact" class="mb-3">
+          {{ t("SetBase.iyuu.nexusHint") }}
+        </v-alert>
+
+        <v-alert type="warning" variant="tonal" density="compact" class="mb-3">
+          {{ t("SetBase.iyuu.nexusWarn") }}
+        </v-alert>
+
+        <div class="d-flex align-center mb-2">
+          <v-btn size="small" variant="tonal" prepend-icon="mdi-plus" @click="showNexusDialog = true">
+            {{ t("SetBase.iyuu.nexusAddExtra") }}
+          </v-btn>
+          <span class="text-body-small text-grey ml-2">
+            {{ t("SetBase.iyuu.nexusRowsHint", { count: nexusRows.length, total: localSiteIds.length }) }}
+          </span>
+        </div>
+
+        <v-table v-if="nexusRows.length" density="compact">
+          <thead>
+            <tr>
+              <th>{{ t("SetBase.iyuu.nexusSiteColumn") }}</th>
+              <th>{{ t("SetBase.iyuu.nexusUrlColumn") }}</th>
+              <th>{{ t("SetBase.iyuu.nexusPasskeyColumn") }}</th>
+              <th style="width: 80px">{{ t("SetBase.iyuu.nexusEnabledColumn") }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="siteId in nexusRows" :key="siteId">
+              <td>
+                <div class="d-flex align-center ga-2">
+                  <SiteFavicon :site-id="siteId" :size="20" />
+                  <span class="text-body-medium">{{ nexusSiteName(siteId) }}</span>
+                </div>
+              </td>
+              <td>
+                <v-text-field
+                  v-model="nexusInputs[siteId].apiUrl"
+                  :placeholder="defaultNexusApiUrl(siteId)"
+                  density="compact"
+                  variant="outlined"
+                  hide-details
+                />
+              </td>
+              <td>
+                <v-text-field
+                  v-model="nexusInputs[siteId].passkey"
+                  :placeholder="t('SetBase.iyuu.nexusPasskeyPlaceholder')"
+                  density="compact"
+                  variant="outlined"
+                  hide-details
+                  autocomplete="off"
+                />
+              </td>
+              <td>
+                <v-checkbox v-model="nexusInputs[siteId].enabled" density="compact" hide-details />
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
+        <v-alert v-else type="info" variant="tonal" density="compact">
+          {{ t("SetBase.iyuu.nexusNoNexusSites") }}
+        </v-alert>
+
+        <div class="d-flex align-center ga-2 mt-3">
+          <v-btn :loading="savingNexus" color="primary" variant="tonal" @click="saveNexusConfig">
+            {{ t("SetBase.iyuu.nexusSave") }}
+          </v-btn>
+          <span class="text-body-small text-grey">{{ t("SetBase.iyuu.nexusSavedHint") }}</span>
+        </div>
+      </v-card-text>
+    </v-card>
+
+    <!-- 4. IYUU - 基于特征码的索引工具（含 Token 与已持有站点） -->
+    <v-card class="mb-4">
+      <v-card-title>{{ t("SetBase.reseed.iyuuCardTitle") }}</v-card-title>
+      <v-card-text>
+        <div class="text-subtitle-2 mb-2">{{ t("SetBase.iyuu.tokenTitle") }}</div>
+        <v-text-field
+          v-model="token"
+          :label="t('SetBase.iyuu.tokenLabel')"
+          :hint="t('SetBase.iyuu.tokenHint')"
+          persistent-hint
+          variant="outlined"
+          autocomplete="off"
+        />
+        <v-btn color="primary" variant="tonal" :disabled="!token.trim()" @click="saveToken">
+          {{ t("SetBase.iyuu.saveToken") }}
+        </v-btn>
+
+        <v-divider class="my-4" />
+
+        <div class="text-subtitle-2 mb-2">{{ t("SetBase.iyuu.heldTitle") }}</div>
+        <v-alert type="info" variant="tonal" density="compact" class="mb-3">
+          {{ t("SetBase.iyuu.heldHint") }}
+        </v-alert>
+
+        <div class="d-flex align-center ga-2 mb-3">
+          <v-btn :loading="loadingSites" variant="tonal" @click="fetchSites">
+            {{ t("SetBase.iyuu.fetchSites") }}
+          </v-btn>
+          <v-btn :loading="deriving" color="primary" variant="tonal" @click="deriveHeld">
+            {{ t("SetBase.iyuu.deriveHeld") }}
+          </v-btn>
+          <v-btn :loading="reporting" color="success" variant="tonal" @click="report">
+            {{ t("SetBase.iyuu.report") }}
+          </v-btn>
+
+          <v-spacer />
+
+          <span v-if="sidSha1Preview" class="text-body-small text-grey">
+            <v-icon icon="mdi-key-outline" size="small" class="mr-1" />
+            sid_sha1: <code>{{ sidSha1Preview }}…</code>
+            <span v-if="sidSha1ExpiredAt" class="text-grey text-body-small ml-2">
+              ({{ t("SetBase.iyuu.expiresAt") }} {{ new Date(sidSha1ExpiredAt).toLocaleString() }})
+            </span>
+          </span>
+        </div>
+
+        <v-alert v-if="!sitesCache.length && !loadingSites" type="info" variant="tonal" density="compact" class="mb-2">
+          {{ t("SetBase.iyuu.fetchHint") }}
+        </v-alert>
+
+        <v-table v-if="sitesCache.length" density="compact">
+          <thead>
+            <tr>
+              <th style="width: 48px"></th>
+              <th>{{ t("SetBase.iyuu.columnSite") }}</th>
+              <th>{{ t("SetBase.iyuu.columnNote") }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="row in siteRows" :key="row.site.id">
+              <td>
+                <v-checkbox
+                  :model-value="isHeld(row.local)"
+                  :disabled="!row.local"
+                  density="compact"
+                  hide-details
+                  @update:model-value="(v) => toggleHeld(row, Boolean(v))"
+                />
+              </td>
+              <td>
+                <div class="d-flex align-center ga-2" style="min-width: 0">
+                  <SiteFavicon v-if="row.local" :site-id="row.local" :size="20" />
+                  <v-icon v-else icon="mdi-vector-square" size="small" class="text-grey" />
+                  <span class="text-body-medium text-truncate d-inline-block" style="vertical-align: middle">
+                    {{ rowDisplayName(row) }}
+                    <span class="text-body-small text-grey ml-1">{{ row.site.site }}</span>
+                  </span>
+                </div>
+              </td>
+              <td>
+                <v-chip v-if="row.local" size="x-small" color="primary" variant="tonal">
+                  {{ row.local }}
+                </v-chip>
+                <v-chip v-else size="x-small" color="grey" variant="tonal">
+                  {{ t("SetBase.iyuu.unmapped") }}
+                </v-chip>
+                <span class="text-body-small text-grey ml-2">{{ row.site.base_url }}</span>
+              </td>
+            </tr>
+          </tbody>
+        </v-table>
       </v-card-text>
     </v-card>
 
