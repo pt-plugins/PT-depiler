@@ -2,14 +2,14 @@
 /**
  * 设置页「辅种」tab：全局辅种配置 + 各辅种命中源接入。
  * 卡片顺序：全局辅种配置 → 本地文件树对比（LocalCrossSeed）→ NexusPHP pieces-hash 直查 → IYUU。
- * 三种辅种方案分别由 IyuuWindow 内的三张卡渲染；本组件提供全局与各源开关。
+ * 三种辅种方案分别由 IyuuCard 内的三张卡渲染；本组件提供全局与各源开关。
  */
 import { watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { useConfigStore } from "@/options/stores/config.ts";
 
-import IyuuWindow from "./IyuuWindow.vue";
+import IyuuCard from "./IyuuCard.vue";
 
 const { t } = useI18n();
 const configStore = useConfigStore();
@@ -86,8 +86,8 @@ watch(
       </v-card-text>
     </v-card>
 
-    <!-- 2~4. 本地文件树对比 / NexusPHP 直查 / IYUU（顺序由 IyuuWindow 内部决定） -->
-    <IyuuWindow />
+    <!-- 2~4. 本地文件树对比 / NexusPHP 直查 / IYUU（顺序由 IyuuCard 内部决定） -->
+    <IyuuCard />
   </div>
 </template>
 
