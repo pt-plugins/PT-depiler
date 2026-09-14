@@ -155,6 +155,12 @@ interface AddTorrentResponse extends TransmissionBaseResponse {
       hashString: string;
       name: string;
     };
+    /** 种子已存在时返回；视为添加成功但不执行后续附加设置 */
+    "torrent-duplicate"?: {
+      id: number;
+      hashString: string;
+      name: string;
+    };
   };
 }
 
@@ -449,10 +455,19 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     try {
       const { data } = await this.request<AddTorrentResponse>("torrent-add", addTorrentOptions);
 
-      const torrentId = data.arguments["torrent-added"].id;
+      // Transmission 在种子已存在时返回 torrent-duplicate：视为添加成功，
+      // 但不执行后续的 labels / 上传限速等 torrent-set 附加设置（种子已存在，避免重复配置）。
+      const addedInfo = data.arguments["torrent-added"] ?? data.arguments["torrent-duplicate"];
+      const isDuplicate = Boolean(data.arguments["torrent-duplicate"]);
+      if (!addedInfo) {
+        addResult.success = false;
+        addResult.message = data;
+        return addResult;
+      }
+      const torrentId = addedInfo.id;
 
       // Transmission 3.0 以上才支持label
-      if (!supportLabelAtAdd && labels) {
+      if (!isDuplicate && !supportLabelAtAdd && labels) {
         try {
           await this.request("torrent-set", {
             ids: torrentId,
@@ -461,8 +476,8 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
         } catch (e) {}
       }
 
-      // 设置上传速度限制 - 必须在添加后使用 torrent-set
-      if (options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
+      // 设置上传速度限制 - 必须在添加后使用 torrent-set（重复添加的种子跳过）
+      if (!isDuplicate && options.uploadSpeedLimit && options.uploadSpeedLimit > 0) {
         try {
           await this.request("torrent-set", {
             ids: torrentId,
