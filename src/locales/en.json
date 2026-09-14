@@ -106,7 +106,7 @@
     "updateError": "Update failed",
     "updateSuccess": "Updated successfully",
     "iyuu": {
-      "scan": "IYUU Batch Reseed Scan",
+      "scan": "Batch Reseed Scan",
       "chooseDownloader": "Select downloader",
       "startScan": "Start scan",
       "scanning": "Scanning completed torrents for reseed candidates\u2026",
@@ -178,13 +178,13 @@
       "viewRaw": "View Raw"
     },
     "iyuuScan": {
-      "btnTitle": "IYUU Batch Reseed Scan",
+      "btnTitle": "Batch Reseed Scan",
       "selectAll": "Select all ready candidates",
       "columnSite": "Site",
       "columnSize": "Size",
       "columnStatus": "Status",
       "columnTitle": "Title",
-      "dialogTitle": "IYUU Batch Reseed ({count} torrents)",
+      "dialogTitle": "Batch Reseed ({count} torrents)",
       "inject": "Send selected to source downloaders ({count})",
       "injectError": "Failed to send: {reason}",
       "injectHint": "Selected candidates are downloaded to each source torrent's downloader and save path",
@@ -257,7 +257,7 @@
       "reseedColumnStatus": "Status",
       "reseedSelectAll": "Select all ready candidates",
       "reseedColumnTitle": "Title",
-      "reseedDialogTitle": "IYUU reseeds on other sites",
+      "reseedDialogTitle": "Reseed on other sites",
       "reseedInject": "Send to this downloader ({count})",
       "reseedInjectError": "Failed to send: {reason}",
       "reseedInjectHint": "Selected candidates are downloaded to the original torrent's save path",
