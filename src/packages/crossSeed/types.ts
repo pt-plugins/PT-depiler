@@ -42,6 +42,11 @@ export interface ICrossSeedCandidate {
 
   /** 命中来源：iyuu（中心索引）/ nexusphp（站直查）/ local（本地文件树比对） */
   source: TCrossSeedSourceKind;
+
+  /** partial 匹配预计可并入进度（0-100；仅 partial/local 命中携带） */
+  progress?: number;
+  /** 该候选已在本地决策表中记录为已推送（跨扫描去重） */
+  injected?: boolean;
 }
 
 /** 被扫描的本地种子（聚合扫描的输入下一级） */

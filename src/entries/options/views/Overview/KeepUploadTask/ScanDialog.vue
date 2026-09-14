@@ -122,9 +122,15 @@ async function pushReseed() {
   pushing.value = true;
   let ok = 0;
   let fail = 0;
+  let skipped = 0;
   let lastReason = "";
   try {
     for (const c of chosen) {
+      // 跨扫描去重：已在决策表中记录为已推送的候选，跳过并提示
+      if (c.injected) {
+        skipped++;
+        continue;
+      }
       try {
         const result = await sendMessage("downloadTorrent", {
           torrent: {
@@ -142,6 +148,12 @@ async function pushReseed() {
           lastReason = result.errorMessage || c.siteName;
         } else {
           ok++;
+          // 记录已推送（decision 持久化），下次扫描去重
+          await sendMessage("reseedDecisionRecord", {
+            siteId: c.siteId,
+            torrentId: c.torrentId,
+            infoHash: c.sourceInfoHash,
+          });
         }
       } catch (e) {
         fail++;
@@ -149,8 +161,8 @@ async function pushReseed() {
       }
     }
 
-    if (fail > 0) {
-      runtimeStore.showSnakebar(t("KeepUploadTask.iyuu.pushPartial", { ok, fail, reason: lastReason }), {
+    if (fail > 0 || skipped > 0) {
+      runtimeStore.showSnakebar(t("KeepUploadTask.iyuu.pushPartial", { ok, fail, reason: lastReason, skipped }), {
         color: "warning",
       });
     } else {
@@ -316,16 +328,29 @@ async function createTaskFromScan() {
                     {{ c.sourceSize ? formatSize(c.sourceSize) : "-" }}
                   </td>
                   <td class="text-center">
-                    <v-chip v-if="c.status === 'ready'" size="x-small" color="success">
-                      {{ t("KeepUploadTask.iyuu.statusReady") }}
-                    </v-chip>
-                    <v-tooltip v-else :text="c.error || ''">
-                      <template #activator="{ props }">
-                        <v-chip v-bind="props" size="x-small" color="error">
-                          {{ t("KeepUploadTask.iyuu.statusError") }}
-                        </v-chip>
-                      </template>
-                    </v-tooltip>
+                    <div class="d-flex justify-center align-center ga-1">
+                      <v-chip v-if="c.status === 'ready'" size="x-small" color="success">
+                        {{ t("KeepUploadTask.iyuu.statusReady") }}
+                      </v-chip>
+                      <v-chip
+                        v-if="c.status === 'ready' && typeof c.progress === 'number' && c.progress < 100"
+                        size="x-small"
+                        color="amber"
+                        :title="t('KeepUploadTask.iyuu.statusPartial')"
+                      >
+                        {{ c.progress }}%
+                      </v-chip>
+                      <v-chip v-if="c.status === 'ready' && c.injected" size="x-small" color="grey">
+                        {{ t("KeepUploadTask.iyuu.statusInjected") }}
+                      </v-chip>
+                      <v-tooltip v-if="c.status !== 'ready'" :text="c.error || ''">
+                        <template #activator="{ props }">
+                          <v-chip v-bind="props" size="x-small" color="error">
+                            {{ t("KeepUploadTask.iyuu.statusError") }}
+                          </v-chip>
+                        </template>
+                      </v-tooltip>
+                    </div>
                   </td>
                 </tr>
               </tbody>

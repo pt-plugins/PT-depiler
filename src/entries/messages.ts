@@ -235,6 +235,13 @@ interface ProtocolMap extends TMessageMap {
   }): ICrossSeedCandidate[];
   /** 验证 NexusPHP pieces-hash 接口是否存在（非 HTTP 404 即视为可达） */
   nexusValidateApi(data: { apiUrl: string; passkey?: string }): { ok: boolean; status?: number; error?: string };
+  /** 记录候选已推送（decision 持久化，跨扫描去重） */
+  reseedDecisionRecord(data: {
+    siteId: string;
+    torrentId: number;
+    infoHash?: string;
+    decision?: "injected" | "matched";
+  }): boolean;
 
   // 2.8 Lightweight list queries (for CLI discovery)
   getSiteList(): Array<{ id: string; name: string; url: string; offline: boolean }>;

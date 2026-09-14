@@ -95,8 +95,15 @@ async function injectReseed() {
   if (chosen.length === 0) return;
 
   injecting.value = true;
+  let ok = 0;
+  let skipped = 0;
   try {
     for (const c of chosen) {
+      // 跨扫描去重：已在决策表中记录为已推送的候选，跳过并提示
+      if (c.injected) {
+        skipped++;
+        continue;
+      }
       const result = await sendMessage("downloadTorrent", {
         torrent: {
           site: c.siteId,
@@ -116,8 +123,18 @@ async function injectReseed() {
       if (result.downloadStatus === "failed") {
         throw new Error(result.errorMessage || c.siteName);
       }
+      ok++;
+      await sendMessage("reseedDecisionRecord", {
+        siteId: c.siteId,
+        torrentId: c.torrentId,
+        infoHash: c.sourceInfoHash,
+      });
     }
-    runtimeStore.showSnakebar(t("MyClient.detail.reseedInjectSuccess"), { color: "success" });
+    if (skipped > 0) {
+      runtimeStore.showSnakebar(t("MyClient.detail.reseedInjectSkipped", { ok, skipped }), { color: "warning" });
+    } else {
+      runtimeStore.showSnakebar(t("MyClient.detail.reseedInjectSuccess"), { color: "success" });
+    }
     showDialog.value = false;
   } catch (e) {
     const reason = e instanceof Error ? e.message : String(e);
@@ -204,16 +221,29 @@ async function injectReseed() {
                   {{ c.sourceSize ? formatSize(c.sourceSize) : "-" }}
                 </td>
                 <td class="text-center">
-                  <v-chip v-if="c.status === 'ready'" size="x-small" color="success">
-                    {{ t("MyClient.detail.reseedStatusReady") }}
-                  </v-chip>
-                  <v-tooltip v-else :text="c.error || ''">
-                    <template #activator="{ props }">
-                      <v-chip v-bind="props" size="x-small" color="error">
-                        {{ t("MyClient.detail.reseedStatusError") }}
-                      </v-chip>
-                    </template>
-                  </v-tooltip>
+                  <div class="d-flex justify-center align-center ga-1">
+                    <v-chip v-if="c.status === 'ready'" size="x-small" color="success">
+                      {{ t("MyClient.detail.reseedStatusReady") }}
+                    </v-chip>
+                    <v-chip
+                      v-if="c.status === 'ready' && typeof c.progress === 'number' && c.progress < 100"
+                      size="x-small"
+                      color="amber"
+                      :title="t('MyClient.detail.reseedStatusPartial')"
+                    >
+                      {{ c.progress }}%
+                    </v-chip>
+                    <v-chip v-if="c.status === 'ready' && c.injected" size="x-small" color="grey">
+                      {{ t("MyClient.detail.reseedStatusInjected") }}
+                    </v-chip>
+                    <v-tooltip v-if="c.status !== 'ready'" :text="c.error || ''">
+                      <template #activator="{ props }">
+                        <v-chip v-bind="props" size="x-small" color="error">
+                          {{ t("MyClient.detail.reseedStatusError") }}
+                        </v-chip>
+                      </template>
+                    </v-tooltip>
+                  </div>
                 </td>
               </tr>
             </tbody>

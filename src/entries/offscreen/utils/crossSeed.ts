@@ -5,7 +5,7 @@
 import axios from "axios";
 
 import { onMessage, sendMessage } from "@/messages.ts";
-import type { IMetadataPiniaStorageSchema } from "@/shared/types.ts";
+import type { IMetadataPiniaStorageSchema, IReseedDecision } from "@/shared/types.ts";
 import type { TSiteID } from "@ptd/site";
 import type { CTorrent } from "@ptd/downloader";
 import { getRemoteTorrentFile } from "@ptd/downloader";
@@ -27,6 +27,7 @@ import {
 import { getDownloaderInstance } from "./download.ts";
 import { getSiteInstance } from "./site.ts";
 import { iyuuQueryReseed, iyuuResolveHits } from "./iyuu.ts";
+import { ptdIndexDb } from "../adapter/indexdb.ts";
 
 export interface ICrossSeedScanOptions {
   enableIyuus?: boolean;
@@ -34,6 +35,50 @@ export interface ICrossSeedScanOptions {
   enableLocal?: boolean;
   /** 仅扫描指定 infohash 子集（勾选场景；缺省扫描该下载器全部已完成种子） */
   hashes?: string[];
+}
+
+// ── 决策持久化（跨扫描去重） ────────────────────────────
+
+export function reseedDecisionKey(siteId: string, torrentId: number): string {
+  return `${siteId}:${torrentId}`;
+}
+
+/** 记录候选已推送（decision 持久化，避免重复 snatch/重复注入） */
+export async function recordReseedDecision(
+  siteId: string,
+  torrentId: number,
+  infoHash?: string,
+  decision: "injected" | "matched" = "injected",
+): Promise<void> {
+  await (
+    await ptdIndexDb
+  ).put("reseed_decision", {
+    key: reseedDecisionKey(siteId, torrentId),
+    siteId,
+    torrentId,
+    infoHash,
+    decision,
+    time: Date.now(),
+  });
+}
+
+onMessage("reseedDecisionRecord", async ({ data: { siteId, torrentId, infoHash, decision } }) => {
+  await recordReseedDecision(siteId, torrentId, infoHash, decision);
+  return true;
+});
+
+/** 聚合结果收尾：按 siteId+torrentId 去重（同站同种子跨源重复保留首个）并标注已推送 */
+async function finalizeCandidates(candidates: ICrossSeedCandidate[]): Promise<ICrossSeedCandidate[]> {
+  const db = await ptdIndexDb;
+  const decisions = await db.getAll("reseed_decision");
+  const decisionByKey = new Map(decisions.map((d) => [d.key, d] as const));
+  const seen = new Map<string, ICrossSeedCandidate>();
+  for (const c of candidates) {
+    const key = reseedDecisionKey(c.siteId, c.torrentId);
+    if (seen.has(key)) continue;
+    seen.set(key, { ...c, injected: decisionByKey.has(key) || Boolean(c.injected) });
+  }
+  return [...seen.values()];
 }
 
 /**
@@ -113,7 +158,7 @@ export async function crossSeedScanForReseed(
     }
   }
 
-  return results;
+  return await finalizeCandidates(results);
 }
 
 /**
@@ -162,7 +207,7 @@ export async function crossSeedScanTorrents(
     }
   }
 
-  return results;
+  return await finalizeCandidates(results);
 }
 
 onMessage("crossSeedScanTorrents", async ({ data: { torrents, options } }) => {
@@ -417,6 +462,7 @@ async function scanLocalSource(
                 { infoHash: s.infoHash, name: s.name, savePath: s.savePath, size: s.size, clientId: s.clientId },
                 Number(cand.id),
                 "local",
+                decision.progress,
               )),
             );
           }
@@ -442,6 +488,7 @@ async function buildSourceCandidates(
   seed: ICrossSeedLocalSeed,
   torrentId: number,
   source: TCrossSeedSourceKind,
+  progress?: number,
 ): Promise<ICrossSeedCandidate[]> {
   return [
     {
@@ -454,6 +501,7 @@ async function buildSourceCandidates(
       siteName: site.siteName || site.siteId,
       status: "ready",
       source,
+      progress,
     },
   ];
 }
