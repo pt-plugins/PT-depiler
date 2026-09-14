@@ -1224,6 +1224,11 @@
     "search": "搜索",
     "site": "站点",
     "sortIndex": "优先级",
+    "source": {
+      "iyuu": "IYUU",
+      "nexusphp": "Nexus",
+      "local": "本地"
+    },
     "test": "测试",
     "time": {
       "ago": "前",

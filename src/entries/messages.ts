@@ -220,7 +220,13 @@ interface ProtocolMap extends TMessageMap {
   /** 多源聚合扫描（crossSeed）：IYUU 中心 + NexusPHP pieces-hash 直查 + 本地文件树对比 */
   crossSeedScanForReseed(data: {
     downloaderId: string;
-    options?: { enableIyuus?: boolean; enableNexus?: boolean; enableLocal?: boolean };
+    options?: {
+      enableIyuus?: boolean;
+      enableNexus?: boolean;
+      enableLocal?: boolean;
+      /** 仅扫描指定 infohash 子集 */
+      hashes?: string[];
+    };
   }): ICrossSeedCandidate[];
   /** 验证 NexusPHP pieces-hash 接口是否存在（非 HTTP 404 即视为可达） */
   nexusValidateApi(data: { apiUrl: string; passkey?: string }): { ok: boolean; status?: number; error?: string };

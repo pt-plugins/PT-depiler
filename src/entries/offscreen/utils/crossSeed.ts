@@ -32,15 +32,20 @@ export interface ICrossSeedScanOptions {
   enableIyuus?: boolean;
   enableNexus?: boolean;
   enableLocal?: boolean;
+  /** 仅扫描指定 infohash 子集（勾选场景；缺省扫描该下载器全部已完成种子） */
+  hashes?: string[];
 }
 
 /**
  * 读取全局辅种方案开关（config.reseed.enableIyuus/enableNexus/enableLocal）。
  * 显式传入 options 时优先使用（便于 CLI/调试覆盖）。
  */
-async function resolveSourceOptions(options: ICrossSeedScanOptions): Promise<Required<ICrossSeedScanOptions>> {
+async function resolveSourceOptions(
+  options: ICrossSeedScanOptions,
+): Promise<Required<Pick<ICrossSeedScanOptions, "enableIyuus" | "enableNexus" | "enableLocal">>> {
   const config = (await sendMessage("getExtStorage", "config")) as
-    { reseed?: Partial<Required<ICrossSeedScanOptions>> } | undefined;
+    | { reseed?: Partial<Required<ICrossSeedScanOptions>> }
+    | undefined;
   const reseed = config?.reseed ?? {};
   return {
     enableIyuus: options.enableIyuus ?? reseed.enableIyuus ?? true,
@@ -64,7 +69,8 @@ export async function crossSeedScanForReseed(
     return [errorCandidate("下载器不存在或未配置", "iyuu")];
   }
   const torrents = await instance.getAllTorrents();
-  const completed = torrents.filter((t) => t.isCompleted && t.infoHash);
+  const subset = options.hashes ? new Set(options.hashes) : undefined;
+  const completed = torrents.filter((t) => t.isCompleted && t.infoHash && (!subset || subset.has(t.infoHash)));
   if (!completed.length) {
     return [errorCandidate("该下载器没有已完成的种子", "iyuu")];
   }

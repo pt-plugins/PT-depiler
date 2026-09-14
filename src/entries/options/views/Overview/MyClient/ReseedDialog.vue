@@ -187,6 +187,9 @@ async function injectReseed() {
                   <div class="d-flex align-center ga-1">
                     <SiteFavicon :site-id="c.siteId" :size="16" />
                     <span class="text-body-small">{{ c.siteName }}</span>
+                    <v-chip size="x-small" variant="tonal" class="ml-1">
+                      {{ t(`common.source.${c.source}`) }}
+                    </v-chip>
                   </div>
                 </td>
                 <td>
