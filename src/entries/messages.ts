@@ -228,6 +228,11 @@ interface ProtocolMap extends TMessageMap {
       hashes?: string[];
     };
   }): ICrossSeedCandidate[];
+  /** 多源聚合扫描（指定种子集合，可跨下载器；MyClient 勾选/详情单查） */
+  crossSeedScanTorrents(data: {
+    torrents: Array<{ clientId: string; infoHash: string; name: string; savePath: string; totalSize: number }>;
+    options?: { enableIyuus?: boolean; enableNexus?: boolean; enableLocal?: boolean };
+  }): ICrossSeedCandidate[];
   /** 验证 NexusPHP pieces-hash 接口是否存在（非 HTTP 404 即视为可达） */
   nexusValidateApi(data: { apiUrl: string; passkey?: string }): { ok: boolean; status?: number; error?: string };
 

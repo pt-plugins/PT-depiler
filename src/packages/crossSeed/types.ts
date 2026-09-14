@@ -50,6 +50,8 @@ export interface ICrossSeedLocalSeed {
   name: string;
   savePath: string;
   size: number;
+  /** 来源下载器 id（多下载器种子集合扫描时用于获取文件列表等） */
+  clientId?: string;
   /** 本地文件清单（local 源比对用；来自下载器 getTorrentFiles） */
   files?: ICrossSeedFileRef[];
   /** 本地种子 pieces_hash（nexus 源直查用，sha1(info.pieces)） */
