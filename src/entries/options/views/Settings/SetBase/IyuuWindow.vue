@@ -16,6 +16,7 @@ import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { iyuuSiteToLocal } from "@ptd/crossSeed";
 
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
+import NexusSiteDialog from "./NexusSiteDialog.vue";
 
 interface ISiteRow {
   site: IIyuuSiteCacheEntry;
@@ -49,8 +50,8 @@ const localSiteIds = computed(() => Object.keys(metadataStore.sites ?? {}));
 const savingNexus = ref(false);
 /** 已添加站点的 schema 映射（id → "NexusPHP" 等） */
 const siteSchemaMap = ref<Record<string, string>>({});
-/** 是否显示全部已添加站点（默认仅 NexusPHP schema 站点） */
-const nexusShowAll = ref(false);
+/** 额外站点配置 dialog */
+const showNexusDialog = ref(false);
 
 async function loadSiteSchemaMap() {
   const ids = localSiteIds.value;
@@ -66,13 +67,15 @@ async function loadSiteSchemaMap() {
   siteSchemaMap.value = Object.fromEntries(entries);
 }
 
-/** 默认仅展示 schema 明确为 NexusPHP 的已添加站点；启用「显示额外站点」后展示全部 */
-const nexusRows = computed(() => {
-  const ids = nexusShowAll.value
-    ? localSiteIds.value
-    : localSiteIds.value.filter((id) => siteSchemaMap.value[id] === "NexusPHP");
-  return ids;
-});
+const nexusSiteOptions = computed(() => localSiteIds.value.map((id) => ({ title: nexusSiteName(id), value: id })));
+
+/**
+ * 展示行：schema 明确为 NexusPHP 的已添加站点 + 已手动配置（enabled）的额外站点。
+ * 额外站点经 NexusSiteDialog 添加后写回 nexusSites，刷新后此处可见。
+ */
+const nexusRows = computed(() =>
+  localSiteIds.value.filter((id) => siteSchemaMap.value[id] === "NexusPHP" || nexusInputs.value[id]?.enabled),
+);
 
 /** 默认接口地址：站点配置基址 + /api/pieces-hash（host 与完整 url 由站点定义拼接） */
 function defaultNexusApiUrl(siteId: string): string {
@@ -372,8 +375,8 @@ onMounted(loadConfig);
         </v-alert>
 
         <div class="d-flex align-center mb-2">
-          <v-btn size="small" variant="tonal" prepend-icon="mdi-plus" @click="nexusShowAll = !nexusShowAll">
-            {{ nexusShowAll ? t("SetBase.iyuu.nexusHideExtra") : t("SetBase.iyuu.nexusAddExtra") }}
+          <v-btn size="small" variant="tonal" prepend-icon="mdi-plus" @click="showNexusDialog = true">
+            {{ t("SetBase.iyuu.nexusAddExtra") }}
           </v-btn>
           <span class="text-body-small text-grey ml-2">
             {{ t("SetBase.iyuu.nexusRowsHint", { count: nexusRows.length, total: localSiteIds.length }) }}
@@ -423,7 +426,7 @@ onMounted(loadConfig);
           </tbody>
         </v-table>
         <v-alert v-else type="info" variant="tonal" density="compact">
-          {{ nexusShowAll ? t("SetBase.iyuu.nexusNoLocalSites") : t("SetBase.iyuu.nexusNoNexusSites") }}
+          {{ t("SetBase.iyuu.nexusNoNexusSites") }}
         </v-alert>
 
         <div class="d-flex align-center ga-2 mt-3">
@@ -522,6 +525,8 @@ onMounted(loadConfig);
         </v-alert>
       </v-card-text>
     </v-card>
+
+    <NexusSiteDialog v-model="showNexusDialog" :site-options="nexusSiteOptions" @saved="loadConfig" />
   </v-container>
 </template>
 

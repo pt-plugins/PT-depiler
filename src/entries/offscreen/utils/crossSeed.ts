@@ -2,6 +2,8 @@
  * crossSeed 聚合扫描：IYUU 中心 / NexusPHP pieces-hash 直查 / 本地文件树对比 三源统一入口。
  * 候选统一为 ICrossSeedCandidate（带 source 标识），UI 只消费候选数组，与单源时代完全兼容。
  */
+import axios from "axios";
+
 import { onMessage, sendMessage } from "@/messages.ts";
 import type { IMetadataPiniaStorageSchema } from "@/shared/types.ts";
 import type { TSiteID } from "@ptd/site";
@@ -172,6 +174,41 @@ async function scanNexusSource(seeds: ICrossSeedLocalSeed[]): Promise<ICrossSeed
   }
   return results;
 }
+
+// ── NexusPHP 接口可用性验证 ─────────────────────────────
+
+export interface INexusVerifyResult {
+  ok: boolean;
+  status?: number;
+  error?: string;
+}
+
+/** 验证 pieces-hash 接口是否存在：任何非 HTTP 404 的响应（含 401/400/500）都视为接口可达 */
+export async function nexusVerifyApi(apiUrl: string, passkey?: string): Promise<INexusVerifyResult> {
+  try {
+    const resp = await axios.post(
+      apiUrl,
+      { pieces_hash: [] },
+      {
+        params: passkey ? { passkey } : undefined,
+        headers: { Accept: "application/json", "Content-Type": "application/json" },
+        timeout: 15e3,
+        // 不按状态码抛错：由调用方判断
+        validateStatus: () => true,
+      },
+    );
+    if (resp.status === 404) {
+      return { ok: false, status: 404, error: "接口不存在（HTTP 404）" };
+    }
+    return { ok: true, status: resp.status };
+  } catch (e) {
+    return { ok: false, error: e instanceof Error ? e.message : String(e) };
+  }
+}
+
+onMessage("nexusValidateApi", async ({ data: { apiUrl, passkey } }) => {
+  return await nexusVerifyApi(apiUrl, passkey);
+});
 
 // ── Local 文件树对比源 ──────────────────────────────────
 
