@@ -29,6 +29,7 @@ export const IYUU_SITE_NAME_DIFFS: Record<string, TSiteID> = {
   duckboobee: "march", // duckboobee.org March
   eastgame: "tlfbits", // pt.eastgame.org 吐鲁番
   cangbaoge: "cbg", // cangbao.ge 藏宝阁
+  dmhy: "u2", // u2.dmhy.org U2（IYUU 的 dmhy 实为 U2 私站，非公开动漫花园）
 };
 
 /**
@@ -56,7 +57,6 @@ export const IYUU_SAME_NAME_SITES: readonly TSiteID[] = [
   "hd4fans",
   "opencd",
   "joyhd",
-  "dmhy",
   "discfan",
   "dicmusic",
   "skyeysnow",

@@ -1012,6 +1012,23 @@ export default class NexusPHP extends PrivateSite {
   }
 
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
+    // 站点配置了详情页下载链接选择器（如 hdsky，链接带 passkey/sign）时，无 link 场景（IYUU
+    // 懒加载等）应优先由基类（AbstractBittorrentSite）从详情页提取真实下载链接，
+    // 避免裸拼 download.php?id= 缺少凭据导致 "Invalid Torrent From Server"。
+    if (!torrent.link && this.metadata?.detail?.selectors?.link) {
+      if (!torrent.url && torrent.id) {
+        torrent.url = `${this.url.replace(/\/+$/, "")}/details.php?id=${torrent.id}`;
+      }
+      try {
+        const extracted = await super.getTorrentDownloadLink(torrent);
+        if (extracted && /[?&](passkey|sign|downhash|t)=/.test(extracted)) {
+          return extracted; // 详情页提取到带凭据的下载链接
+        }
+      } catch {
+        // 提取失败：回退到下方裸拼逻辑
+      }
+    }
+
     // 如果没有 link 属性，则尝试以 (url->)id->link 的方式生成
     if (!torrent.link) {
       if (!torrent.id && torrent.url) {
