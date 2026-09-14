@@ -222,6 +222,8 @@ interface ProtocolMap extends TMessageMap {
     downloaderId: string;
     options?: { enableIyuus?: boolean; enableNexus?: boolean; enableLocal?: boolean };
   }): ICrossSeedCandidate[];
+  /** 验证 NexusPHP pieces-hash 接口是否存在（非 HTTP 404 即视为可达） */
+  nexusValidateApi(data: { apiUrl: string; passkey?: string }): { ok: boolean; status?: number; error?: string };
 
   // 2.8 Lightweight list queries (for CLI discovery)
   getSiteList(): Array<{ id: string; name: string; url: string; offline: boolean }>;
