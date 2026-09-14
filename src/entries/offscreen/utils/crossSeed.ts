@@ -35,6 +35,21 @@ export interface ICrossSeedScanOptions {
 }
 
 /**
+ * 读取全局辅种方案开关（config.reseed.enableIyuus/enableNexus/enableLocal）。
+ * 显式传入 options 时优先使用（便于 CLI/调试覆盖）。
+ */
+async function resolveSourceOptions(options: ICrossSeedScanOptions): Promise<Required<ICrossSeedScanOptions>> {
+  const config = (await sendMessage("getExtStorage", "config")) as
+    { reseed?: Partial<Required<ICrossSeedScanOptions>> } | undefined;
+  const reseed = config?.reseed ?? {};
+  return {
+    enableIyuus: options.enableIyuus ?? reseed.enableIyuus ?? true,
+    enableNexus: options.enableNexus ?? reseed.enableNexus ?? true,
+    enableLocal: options.enableLocal ?? reseed.enableLocal ?? false,
+  };
+}
+
+/**
  * 多源聚合扫描：取下载器已完成种子 → 按启用的源并行查询并合并候选。
  * 源级失败隔离：某源异常不影响其余源结果（以 error 候选提示）。
  */
@@ -42,7 +57,7 @@ export async function crossSeedScanForReseed(
   downloaderId: string,
   options: ICrossSeedScanOptions = {},
 ): Promise<ICrossSeedCandidate[]> {
-  const { enableIyuus = true, enableNexus = true, enableLocal = false } = options;
+  const { enableIyuus, enableNexus, enableLocal } = await resolveSourceOptions(options);
 
   const instance = await getDownloaderInstance(downloaderId);
   if (!instance) {

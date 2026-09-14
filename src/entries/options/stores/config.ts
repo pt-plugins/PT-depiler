@@ -323,6 +323,10 @@ export const useConfigStore = defineStore("config", {
     reseed: {
       enabled: true,
       showKeepUploadTask: true,
+
+      enableIyuus: true,
+      enableNexus: true,
+      enableLocal: false,
     },
   }),
   getters: {
