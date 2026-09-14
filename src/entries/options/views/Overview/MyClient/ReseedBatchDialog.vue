@@ -74,7 +74,7 @@ async function defaultAutoStart(clientId: string): Promise<boolean> {
   return autoStartCache.get(clientId)!;
 }
 
-// 每次打开时重置并按所选种子 hash 批量查询（每批 100）
+// 每次打开时重置并按所选种子集合聚合扫描（可跨下载器；源按设置页辅种方案开关）
 watch(
   () => showDialog.value,
   async (open) => {
@@ -86,29 +86,21 @@ watch(
     sourceByHash.clear();
     autoStartCache.clear();
 
-    const hashes: string[] = [];
     for (const t of torrents) {
       if (!t.infoHash || sourceByHash.has(t.infoHash)) continue;
       sourceByHash.set(t.infoHash, t);
-      hashes.push(t.infoHash);
     }
 
     try {
-      const hits: Array<{ sid: number; torrent_id: number; info_hash: string }> = [];
-      for (let i = 0; i < hashes.length; i += 100) {
-        const resp = await sendMessage("iyuuQueryReseed", hashes.slice(i, i + 100));
-        for (const [hash, item] of Object.entries(resp)) {
-          for (const h of item.torrent ?? []) {
-            hits.push({ sid: h.sid, torrent_id: h.torrent_id, info_hash: hash });
-          }
-        }
-      }
-      // 消息传输经 JSON 序列化，Map 会退化为普通对象，这里必须传 Record
-      const sources: Record<string, { name: string; savePath: string; size: number }> = {};
-      for (const [hash, t] of sourceByHash.entries()) {
-        sources[hash] = { name: t.name, savePath: t.savePath, size: t.totalSize };
-      }
-      candidates.value = await sendMessage("iyuuResolveHits", { hits, sources });
+      candidates.value = await sendMessage("crossSeedScanTorrents", {
+        torrents: torrents.map((t) => ({
+          clientId: t.clientId,
+          infoHash: t.infoHash,
+          name: t.name,
+          savePath: t.savePath,
+          totalSize: t.totalSize,
+        })),
+      });
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e);
     } finally {

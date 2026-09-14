@@ -58,7 +58,7 @@ function toggleSelectAllReady(checked: boolean) {
   selected.value = next;
 }
 
-// 每次打开时重置并查询该种子的其他站辅种候选
+// 每次打开时重置并按该种子聚合扫描（源按设置页辅种方案开关）
 watch(
   () => showDialog.value,
   async (open) => {
@@ -69,17 +69,17 @@ watch(
     selected.value = new Set();
     try {
       metaData.value = (await sendMessage("getDownloaderMetaData", torrent.clientId)) ?? null;
-      const resp = await sendMessage("iyuuQueryReseed", [torrent.infoHash]);
-      const hits = (resp[torrent.infoHash]?.torrent ?? []).map((h) => ({
-        sid: h.sid,
-        torrent_id: h.torrent_id,
-        info_hash: torrent.infoHash,
-      }));
-      // 消息传输经 JSON 序列化，Map 会退化为普通对象，这里必须传 Record
-      const sources = {
-        [torrent.infoHash]: { name: torrent.name, savePath: torrent.savePath, size: torrent.totalSize },
-      };
-      candidates.value = await sendMessage("iyuuResolveHits", { hits, sources });
+      candidates.value = await sendMessage("crossSeedScanTorrents", {
+        torrents: [
+          {
+            clientId: torrent.clientId,
+            infoHash: torrent.infoHash,
+            name: torrent.name,
+            savePath: torrent.savePath,
+            totalSize: torrent.totalSize,
+          },
+        ],
+      });
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e);
     } finally {
