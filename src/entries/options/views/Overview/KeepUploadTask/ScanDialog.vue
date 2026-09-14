@@ -86,7 +86,8 @@ async function startScan() {
   if (!downloaderId.value) return;
   scanning.value = true;
   try {
-    candidates.value = await sendMessage("iyuuScanForReseed", downloaderId.value);
+    // 聚合扫描：按设置页「辅种方案开关」启用 IYUU/NexusPHP/Local 对应源
+    candidates.value = await sendMessage("crossSeedScanForReseed", { downloaderId: downloaderId.value });
   } catch (e) {
     runtimeStore.showSnakebar(
       t("KeepUploadTask.iyuu.scanError", { reason: e instanceof Error ? e.message : String(e) }),
@@ -298,6 +299,9 @@ async function createTaskFromScan() {
                     <div class="d-flex align-center ga-1">
                       <SiteFavicon :site-id="c.siteId" :size="16" />
                       <span class="text-body-small">{{ c.siteName }}</span>
+                      <v-chip size="x-small" variant="tonal" class="ml-1">
+                        {{ t(`common.source.${c.source}`) }}
+                      </v-chip>
                     </div>
                   </td>
                   <td>
