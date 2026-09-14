@@ -61,6 +61,7 @@ const ALLOWED_METHODS = new Set([
   "crossSeedScanForReseed",
   "crossSeedScanTorrents",
   "nexusValidateApi",
+  "reseedDecisionRecord",
 ]);
 
 // ── Module-scoped state ──────────────────────────────────────────────
