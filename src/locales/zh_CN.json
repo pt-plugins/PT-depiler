@@ -755,7 +755,7 @@
       "localSearchLimitLabel": "每次扫描搜索种子数上限",
       "localSave": "保存本地对比配置",
       "localSaved": "本地对比配置已保存",
-      "localNoSites": "暂无可选择的站点，请先在「站点」页添加站点。"
+      "localNoSites": "暂无可选择的站点。"
     },
     "ui": {
       "allowDragLink": "允许拖拽链接到侧边栏按钮",

@@ -755,7 +755,7 @@
       "localSearchLimitLabel": "Max searched torrents per scan",
       "localSave": "Save Local Config",
       "localSaved": "Local config saved",
-      "localNoSites": "No sites available. Add sites in Settings \u2192 Sites first."
+      "localNoSites": "No selectable sites yet."
     },
     "ui": {
       "allowDragLink": "Allow dragging links to the sidebar button",
