@@ -11,7 +11,7 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["综合"],
   timezoneOffset: "+0800",
 
-  collaborator: [],
+  collaborator: ["bfjy"],
 
   type: "private",
   schema: "NexusPHP",
@@ -32,101 +32,89 @@ export const siteMetadata: ISiteMetadata = {
         { value: 407, name: "体育" },
         { value: 408, name: "音频" },
         { value: 409, name: "音乐" },
+        { value: 410, name: "游戏" },
       ],
       cross: { mode: "append" },
+    },
+    {
+      name: "媒介",
+      key: "medium",
+      options: [
+        { value: 1, name: "Blu-ray" },
+        { value: 2, name: "HD DVD" },
+        { value: 3, name: "Remux" },
+        { value: 4, name: "MiniBD" },
+        { value: 5, name: "HDTV" },
+        { value: 6, name: "DVDR" },
+        { value: 7, name: "Encode" },
+        { value: 8, name: "CD" },
+        { value: 9, name: "Track" },
+        { value: 10, name: "WEB-DL" },
+        { value: 11, name: "ISO" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "编码",
+      key: "codec",
+      options: [
+        { value: 1, name: "H.264" },
+        { value: 2, name: "VC-1" },
+        { value: 3, name: "Xvid" },
+        { value: 4, name: "MPEG-2" },
+        { value: 5, name: "Other" },
+        { value: 6, name: "H.265" },
+        { value: 7, name: "VP8/9" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "分辨率",
+      key: "standard",
+      options: [
+        { value: 6, name: "1080i/1080P" },
+        { value: 11, name: "720i/720P" },
+        { value: 12, name: "480i/480P" },
+        { value: 7, name: "2K/1440i/1440P" },
+        { value: 8, name: "4K/2160i/2160P" },
+        { value: 9, name: "8K/4320i/4320P" },
+        { value: 10, name: "Other" },
+      ],
+      cross: { mode: "append" },
+    },
+    {
+      name: "制作组",
+      key: "team",
+      options: [
+        { value: 12, name: "CHD" },
+        { value: 15, name: "MySiLU" },
+        { value: 6, name: "TPWEB" },
+        { value: 16, name: "WiKi" },
+        { value: 17, name: "Other" },
+        { value: 18, name: "StarfallWeb" },
+        { value: 20, name: "AGSVWEB" },
+        { value: 25, name: "FRDS" },
+        { value: 7, name: "LUCKMUSIC" },
+        { value: 8, name: "LUCKWEB" },
+        { value: 9, name: "LUCKDIY" },
+        { value: 10, name: "ALLWEB" },
+        { value: 11, name: "QHstudio" },
+        { value: 13, name: "HDS" },
+        { value: 14, name: "U2" },
+        { value: 16, name: "OurTV" },
+        { value: 17, name: "CMCT" },
+        { value: 26, name: "MTEAM" },
+        { value: 24, name: "ADWeb" },
+        { value: 23, name: "HHWEB" },
+        { value: 22, name: "ZmWeb" },
+        { value: 21, name: "UBWEB" },
+        { value: 19, name: "CSWEB" },
+      ],
     },
     CategoryIncldead,
     CategorySpstate,
     CategoryInclbookmarked,
   ],
-
-  search: {
-    paths: [
-      {
-        path: "torrents.php",
-        method: "get",
-      },
-    ],
-    params: {
-      search: "{keyword}",
-      search_area: 0,
-    },
-    batch: {
-      delimiter: " ",
-      space_replace: "_",
-    },
-  },
-
-  torrents: {
-    list: {
-      selector: "table.torrents > tr:has(table.torrentname)",
-    },
-    fields: {
-      id: {
-        selector: 'a[href*="details.php?id="]',
-        attribute: "href",
-        filters: [{ name: "regexp", args: ["id=(\\d+)"] }],
-      },
-      title_default: {
-        selector: 'a[href*="details.php?id="]',
-      },
-      title_optional: {
-        optional: true,
-        selector: 'a[title][href*="details.php?id="]',
-        attribute: "title",
-      },
-      title: {
-        text: "{% if fields.title_optional %}{{ fields.title_optional }}{% else %}{{ fields.title_default }}{% endif %}",
-      },
-      details: {
-        selector: 'a[href*="details.php?id="]',
-        attribute: "href",
-      },
-      download: {
-        selector: 'a[href*="download.php?id="]',
-        attribute: "href",
-      },
-      date_elapsed: {
-        selector: "td:nth-child(4) > span",
-        optional: true,
-      },
-      date_added: {
-        selector: "td:nth-child(4) > span",
-        attribute: "title",
-        optional: true,
-      },
-      size: {
-        selector: "td:nth-child(5)",
-      },
-      seeders: {
-        selector: "td:nth-child(6)",
-      },
-      leechers: {
-        selector: "td:nth-child(7)",
-      },
-      grabs: {
-        selector: "td:nth-child(8)",
-      },
-      downloadvolumefactor: {
-        case: {
-          "img.pro_free": 0,
-          "img.pro_free2up": 0,
-          "img.pro_50pctdown": 0.5,
-          "img.pro_50pctdown2up": 0.5,
-          "img.pro_30pctdown": 0.3,
-          "*": 1,
-        },
-      },
-      uploadvolumefactor: {
-        case: {
-          "img.pro_50pctdown2up": 2,
-          "img.pro_free2up": 2,
-          "img.pro_2up": 2,
-          "*": 1,
-        },
-      },
-    },
-  },
 
   userInfo: {
     ...SchemaMetadata.userInfo!,
