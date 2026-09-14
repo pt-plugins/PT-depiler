@@ -521,7 +521,7 @@ onMounted(loadConfig);
           </tbody>
         </v-table>
         <v-alert v-else type="info" variant="tonal" density="compact">
-          {{ t("SetBase.iyuu.fetchHint") }}
+          {{ t("SetBase.iyuu.localNoSites") }}
         </v-alert>
       </v-card-text>
     </v-card>
