@@ -424,7 +424,20 @@ onMounted(loadConfig);
                 />
               </td>
               <td>
-                <v-checkbox v-model="nexusInputs[siteId].enabled" density="compact" hide-details />
+                <v-tooltip
+                  :disabled="!!nexusInputs[siteId].passkey.trim()"
+                  :text="t('SetBase.iyuu.nexusEnabledRequiresPasskey')"
+                >
+                  <template #activator="{ props }">
+                    <v-checkbox
+                      v-bind="props"
+                      v-model="nexusInputs[siteId].enabled"
+                      :disabled="!nexusInputs[siteId].passkey.trim()"
+                      density="compact"
+                      hide-details
+                    />
+                  </template>
+                </v-tooltip>
               </td>
             </tr>
           </tbody>
