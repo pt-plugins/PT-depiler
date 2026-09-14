@@ -14,6 +14,7 @@ import type { IIyuuStorageSchema, IIyuuSiteCacheEntry } from "@/shared/types.ts"
 import { getDefinedSiteMetadata } from "@ptd/site";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { useConfigStore } from "@/options/stores/config.ts";
 import { iyuuSiteToLocal } from "@ptd/crossSeed";
 
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
@@ -28,6 +29,12 @@ interface ISiteRow {
 const { t } = useI18n();
 const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
+const configStore = useConfigStore();
+
+// 各辅种方案开关（关闭时对应配置卡隐藏，见 ReseedWindow「辅种方案开关」）
+const showLocal = computed(() => configStore.reseed?.enableLocal ?? false);
+const showNexus = computed(() => configStore.reseed?.enableNexus ?? true);
+const showIyuus = computed(() => configStore.reseed?.enableIyuus ?? true);
 
 const token = ref("");
 const sitesCache = ref<IIyuuSiteCacheEntry[]>([]);
@@ -267,8 +274,12 @@ onMounted(loadConfig);
 
 <template>
   <v-container fluid>
-    <!-- 2. LocalCrossSeed 本地文件树对比 -->
-    <v-card class="mb-4">
+    <v-alert v-if="!showLocal && !showNexus && !showIyuus" type="info" variant="tonal">
+      {{ t("SetBase.reseed.sourcesDisabledHint") }}
+    </v-alert>
+
+    <!-- 2. LocalCrossSeed 本地文件树对比（开关关闭时隐藏） -->
+    <v-card v-if="showLocal" class="mb-4">
       <v-card-title>{{ t("SetBase.iyuu.localTitle") }}</v-card-title>
       <v-card-text>
         <v-alert type="info" variant="tonal" density="compact" class="mb-3">
@@ -355,8 +366,8 @@ onMounted(loadConfig);
       </v-card-text>
     </v-card>
 
-    <!-- 3. NexusPHP pieces-hash 直查 -->
-    <v-card class="mb-4">
+    <!-- 3. NexusPHP pieces-hash 直查（开关关闭时隐藏） -->
+    <v-card v-if="showNexus" class="mb-4">
       <v-card-title>{{ t("SetBase.iyuu.nexusTitle") }}</v-card-title>
       <v-card-text>
         <v-alert type="info" variant="tonal" density="compact" class="mb-3">
@@ -431,8 +442,8 @@ onMounted(loadConfig);
       </v-card-text>
     </v-card>
 
-    <!-- 4. IYUU - 基于特征码的索引工具（含 Token 与已持有站点） -->
-    <v-card class="mb-4">
+    <!-- 4. IYUU - 基于特征码的索引工具（含 Token 与已持有站点；开关关闭时隐藏） -->
+    <v-card v-if="showIyuus" class="mb-4">
       <v-card-title>{{ t("SetBase.reseed.iyuuCardTitle") }}</v-card-title>
       <v-card-text>
         <div class="text-subtitle-2 mb-2">{{ t("SetBase.iyuu.tokenTitle") }}</div>
