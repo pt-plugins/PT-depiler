@@ -741,6 +741,7 @@
       "nexusPasskeyColumn": "Passkey",
       "nexusPasskeyPlaceholder": "User passkey for this site",
       "nexusEnabledColumn": "Enabled",
+      "nexusEnabledRequiresPasskey": "Enter this site's passkey first to enable",
       "nexusNoNexusSites": "None of your added sites use the NexusPHP schema. Click 'Add extra possibly-supported sites' to configure others manually.",
       "nexusNoLocalSites": "No local sites configured yet. Add sites in Settings \u2192 Sites first.",
       "nexusSave": "Save Nexus Config",

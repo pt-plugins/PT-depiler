@@ -741,6 +741,7 @@
       "nexusPasskeyColumn": "Passkey",
       "nexusPasskeyPlaceholder": "对应用户 passkey",
       "nexusEnabledColumn": "启用",
+      "nexusEnabledRequiresPasskey": "请先填写该站的 Passkey 后才能启用",
       "nexusNoNexusSites": "当前添加的站点中没有 schema 为 NexusPHP 的站点，点击「添加额外可能支持的站点」可手动配置其他站。",
       "nexusNoLocalSites": "暂无可配置的本地站点，请先在「站点」页添加站点。",
       "nexusSave": "保存 Nexus 配置",
