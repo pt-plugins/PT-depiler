@@ -1,9 +1,10 @@
 <script setup lang="ts">
 /**
- * IYUU 辅种中心 设置窗口（P0）
- * - token 配置（存本地 storage，随 metadata 备份导出/恢复）
- * - 站点表：拉取后全量展示 IYUU 返回信息；映射到本地站点的行显示本地图标与名称
- * - 已持有站点：勾选即自动保存（无需手动保存清单），最后「保存并汇报」获取 sid_sha1（7 天有效）
+ * 辅种方案配置卡片集合（非完整 window，作为「辅种」tab 的内容卡使用）
+ * 1. IYUU - 基于特征码的索引工具：token 配置（存本地 storage，随 metadata 备份导出/恢复）
+ *    + 站点表全量展示（映射行显示本地图标与名称）+ 已持有站点勾选即存 +「保存并汇报」获取 sid_sha1
+ * 2. 本地文件树对比（LocalCrossSeed）：目标站勾选 + 匹配模式/搜索上限
+ * 3. NexusPHP pieces-hash 直查：站点接口与 passkey 配置
  */
 import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
