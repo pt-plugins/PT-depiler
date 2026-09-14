@@ -117,9 +117,15 @@ async function injectReseed() {
   injecting.value = true;
   let ok = 0;
   let fail = 0;
+  let skipped = 0;
   let lastReason = "";
   try {
     for (const c of chosen) {
+      // 跨扫描去重：已在决策表中记录为已推送的候选，跳过并提示
+      if (c.injected) {
+        skipped++;
+        continue;
+      }
       const src = sourceByHash.get(c.sourceInfoHash);
       if (!src) {
         fail++;
@@ -148,6 +154,11 @@ async function injectReseed() {
           lastReason = result.errorMessage || c.siteName;
         } else {
           ok++;
+          await sendMessage("reseedDecisionRecord", {
+            siteId: c.siteId,
+            torrentId: c.torrentId,
+            infoHash: c.sourceInfoHash,
+          });
         }
       } catch (e) {
         fail++;
@@ -155,8 +166,8 @@ async function injectReseed() {
       }
     }
 
-    if (fail > 0) {
-      runtimeStore.showSnakebar(t("MyClient.iyuuScan.injectPartial", { ok, fail, reason: lastReason }), {
+    if (fail > 0 || skipped > 0) {
+      runtimeStore.showSnakebar(t("MyClient.iyuuScan.injectPartial", { ok, fail, reason: lastReason, skipped }), {
         color: "warning",
       });
     } else {
@@ -253,16 +264,29 @@ async function injectReseed() {
                   {{ c.sourceSize ? formatSize(c.sourceSize) : "-" }}
                 </td>
                 <td class="text-center">
-                  <v-chip v-if="c.status === 'ready'" size="x-small" color="success">
-                    {{ t("MyClient.iyuuScan.statusReady") }}
-                  </v-chip>
-                  <v-tooltip v-else :text="c.error || ''">
-                    <template #activator="{ props }">
-                      <v-chip v-bind="props" size="x-small" color="error">
-                        {{ t("MyClient.iyuuScan.statusError") }}
-                      </v-chip>
-                    </template>
-                  </v-tooltip>
+                  <div class="d-flex justify-center align-center ga-1">
+                    <v-chip v-if="c.status === 'ready'" size="x-small" color="success">
+                      {{ t("MyClient.iyuuScan.statusReady") }}
+                    </v-chip>
+                    <v-chip
+                      v-if="c.status === 'ready' && typeof c.progress === 'number' && c.progress < 100"
+                      size="x-small"
+                      color="amber"
+                      :title="t('MyClient.iyuuScan.statusPartial')"
+                    >
+                      {{ c.progress }}%
+                    </v-chip>
+                    <v-chip v-if="c.status === 'ready' && c.injected" size="x-small" color="grey">
+                      {{ t("MyClient.iyuuScan.statusInjected") }}
+                    </v-chip>
+                    <v-tooltip v-if="c.status !== 'ready'" :text="c.error || ''">
+                      <template #activator="{ props }">
+                        <v-chip v-bind="props" size="x-small" color="error">
+                          {{ t("MyClient.iyuuScan.statusError") }}
+                        </v-chip>
+                      </template>
+                    </v-tooltip>
+                  </div>
                 </td>
               </tr>
             </tbody>
