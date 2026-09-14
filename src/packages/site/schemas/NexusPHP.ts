@@ -1012,24 +1012,11 @@ export default class NexusPHP extends PrivateSite {
   }
 
   public override async getTorrentDownloadLink(torrent: ITorrent): Promise<string> {
-    // 站点配置了详情页下载链接选择器（如 hdsky，链接带 passkey/sign）时，无 link 场景（IYUU
-    // 懒加载等）应优先由基类（AbstractBittorrentSite）从详情页提取真实下载链接，
-    // 避免裸拼 download.php?id= 缺少凭据导致 "Invalid Torrent From Server"。
-    if (!torrent.link && this.metadata?.detail?.selectors?.link) {
-      if (!torrent.url && torrent.id) {
-        torrent.url = `${this.url.replace(/\/+$/, "")}/details.php?id=${torrent.id}`;
-      }
-      try {
-        const extracted = await super.getTorrentDownloadLink(torrent);
-        if (extracted && /[?&](passkey|sign|downhash|t)=/.test(extracted)) {
-          return extracted; // 详情页提取到带凭据的下载链接
-        }
-      } catch {
-        // 提取失败：回退到下方裸拼逻辑
-      }
-    }
-
-    // 如果没有 link 属性，则尝试以 (url->)id->link 的方式生成
+    // 如果没有 link 属性，则尝试以 (url->)id->link 的方式生成。
+    // 站点若配置了详情页下载链接选择器（如 hdsky，链接带 passkey/sign），
+    // 优先由基类（AbstractBittorrentSite）从详情页提取真实下载链接——IYUU 懒加载等无 link 场景
+    // 裸拼 download.php?id= 会缺凭据导致 "Invalid Torrent From Server"；提取失败或无选择器时
+    // 回退到原有裸拼兜底。
     if (!torrent.link) {
       if (!torrent.id && torrent.url) {
         const urlMatch = torrent.url.match(/[?&]id=(\d+)/);
@@ -1039,6 +1026,18 @@ export default class NexusPHP extends PrivateSite {
       }
 
       if (torrent.id) {
+        if (this.metadata?.detail?.selectors?.link) {
+          torrent.url ??= `${this.url.replace(/\/+$/, "")}/details.php?id=${torrent.id}`;
+          try {
+            const extracted = await super.getTorrentDownloadLink(torrent);
+            if (extracted && /[?&](passkey|sign|downhash|t)=/.test(extracted)) {
+              return extracted; // 详情页提取到带凭据的下载链接
+            }
+          } catch {
+            // 详情页提取失败，回退下方裸拼
+          }
+        }
+
         const mockRequestConfig = torrent.url?.startsWith("http") ? { url: torrent.url } : { baseURL: this.url };
         torrent.link = this.fixLink(`/download.php?id=${torrent.id}`, mockRequestConfig);
       }
