@@ -61,6 +61,7 @@ const ALLOWED_METHODS = new Set([
   "iyuuResolveHits",
   "iyuuScanForReseed",
   "crossSeedScanForReseed",
+  "crossSeedScanTorrents",
   "nexusValidateApi",
 ]);
 

@@ -44,8 +44,7 @@ async function resolveSourceOptions(
   options: ICrossSeedScanOptions,
 ): Promise<Required<Pick<ICrossSeedScanOptions, "enableIyuus" | "enableNexus" | "enableLocal">>> {
   const config = (await sendMessage("getExtStorage", "config")) as
-    | { reseed?: Partial<Required<ICrossSeedScanOptions>> }
-    | undefined;
+    { reseed?: Partial<Required<ICrossSeedScanOptions>> } | undefined;
   const reseed = config?.reseed ?? {};
   return {
     enableIyuus: options.enableIyuus ?? reseed.enableIyuus ?? true,
@@ -80,6 +79,7 @@ export async function crossSeedScanForReseed(
     name: t.name,
     savePath: t.savePath,
     size: t.totalSize,
+    clientId: t.clientId,
   }));
 
   const results: ICrossSeedCandidate[] = [];
@@ -102,7 +102,12 @@ export async function crossSeedScanForReseed(
 
   if (enableLocal) {
     try {
-      results.push(...(await scanLocalSource(seeds, { instance, torrents: completed })));
+      // 单下载器场景：文件列表走同一个下载器实例
+      results.push(
+        ...(await scanLocalSource(seeds as ILocalSeedWithClient[], async (clientId) =>
+          clientId === downloaderId ? instance : null,
+        )),
+      );
     } catch (e) {
       results.push(errorCandidate(messageOf(e), "local"));
     }
@@ -110,6 +115,59 @@ export async function crossSeedScanForReseed(
 
   return results;
 }
+
+/**
+ * 多源聚合扫描（指定种子集合，可跨下载器）：IYUU/NexusPHP/Local 按开关执行。
+ * 用于 MyClient 勾选种子批量扫描与下载器详情单查。
+ */
+export async function crossSeedScanTorrents(
+  input: Array<{ clientId: string; infoHash: string; name: string; savePath: string; totalSize: number }>,
+  options: ICrossSeedScanOptions = {},
+): Promise<ICrossSeedCandidate[]> {
+  const { enableIyuus, enableNexus, enableLocal } = await resolveSourceOptions(options);
+  const seeds: ILocalSeedWithClient[] = input.map((t) => ({
+    infoHash: t.infoHash,
+    name: t.name,
+    savePath: t.savePath,
+    size: t.totalSize,
+    clientId: t.clientId,
+  }));
+  if (!seeds.length) {
+    return [errorCandidate("未选择需要扫描的种子", "iyuu")];
+  }
+
+  const results: ICrossSeedCandidate[] = [];
+
+  if (enableIyuus) {
+    try {
+      results.push(...(await scanIyuuSource(seeds)));
+    } catch (e) {
+      results.push(errorCandidate(messageOf(e), "iyuu"));
+    }
+  }
+
+  if (enableNexus) {
+    try {
+      results.push(...(await scanNexusSource(seeds)));
+    } catch (e) {
+      results.push(errorCandidate(messageOf(e), "nexusphp"));
+    }
+  }
+
+  if (enableLocal) {
+    try {
+      results.push(...(await scanLocalSource(seeds, getDownloaderInstance)));
+    } catch (e) {
+      results.push(errorCandidate(messageOf(e), "local"));
+    }
+  }
+
+  return results;
+}
+
+onMessage("crossSeedScanTorrents", async ({ data: { torrents, options } }) => {
+  return await crossSeedScanTorrents(torrents, options);
+});
 
 onMessage("crossSeedScanForReseed", async ({ data: { downloaderId, options } }) => {
   return await crossSeedScanForReseed(downloaderId, options);
@@ -242,16 +300,20 @@ async function localConfig(): Promise<{ sites: TSiteID[]; matchMode: TLocalMatch
   return { sites, matchMode, searchLimit: iyuu.localSearchLimit ?? 10 };
 }
 
+type ILocalSeedWithClient = ICrossSeedLocalSeed & { clientId: string };
+
+type TClientInstance = NonNullable<Awaited<ReturnType<typeof getDownloaderInstance>>>;
+
 /**
  * Local 源（参照 cross-seed torrent-based 主路径）：
- * 下载器已完成种子文件树（getTorrentFiles）充当 searchee → 目标站站内搜索同名候选
+ * 本地种子文件树（getTorrentFiles，按种子 clientId 取下载器实例）充当 searchee → 目标站站内搜索同名候选
  * → snatch 候选 .torrent（带站点 cookie）→ parse-torrent 解析文件树/pieces_hash
  * → assessLocalCandidate 决策（hash 去重 / fuzzySize / matchMode 文件树 / pieces 强化）
  * → 命中构建候选（B 路线注入链接）。风控：每站搜索次数上限 searchLimit、串行执行。
  */
 async function scanLocalSource(
-  seeds: ICrossSeedLocalSeed[],
-  ctx: { instance: NonNullable<Awaited<ReturnType<typeof getDownloaderInstance>>>; torrents: CTorrent[] },
+  seeds: ILocalSeedWithClient[],
+  instanceFor: (clientId: string) => Promise<TClientInstance | null>,
 ): Promise<ICrossSeedCandidate[]> {
   const config = await localConfig();
   if (!config.sites.length) {
@@ -275,27 +337,31 @@ async function scanLocalSource(
       continue;
     }
 
-    for (const t of ctx.torrents) {
+    for (const s of seeds) {
       if (searched >= config.searchLimit) break;
       searched++;
+
+      // 按种子来源下载器取实例（勾选跨下载器场景）
+      const inst = await instanceFor(s.clientId);
+      if (!inst) continue;
 
       // 1) 本地文件树（下载器 reports 绝对路径 → 归一化为种子相对路径）
       let files: Array<{ path: string; size: number }>;
       try {
-        files = (await ctx.instance.getTorrentFiles(t)).map((f) => ({ path: f.path, size: f.size }));
+        files = (await inst.getTorrentFiles(s.infoHash)).map((f) => ({ path: f.path, size: f.size }));
       } catch {
         continue; // 该客户端不支持文件列表，跳过此种子
       }
       const seed: ILocalSeedForMatch = {
-        infoHash: t.infoHash,
-        size: t.totalSize,
-        files: normalizeClientFiles(files, t.savePath),
+        infoHash: s.infoHash,
+        size: s.size,
+        files: normalizeClientFiles(files, s.savePath),
       };
 
       // 2) 站内搜索（同名候选）+ fuzzySize 预过滤
       let candidates: Array<{ id: string | number; title: string; size?: number; link?: string; url?: string }>;
       try {
-        const sr = await siteInstance.getSearchResult(t.name, {});
+        const sr = await siteInstance.getSearchResult(s.name, {});
         candidates = sr.data ?? [];
       } catch (e) {
         siteError = messageOf(e);
@@ -303,7 +369,7 @@ async function scanLocalSource(
       }
       for (const cand of candidates) {
         if (!cand.link) continue;
-        if (cand.size && !fuzzySizeDoesMatch(t.totalSize, cand.size)) continue;
+        if (cand.size && !fuzzySizeDoesMatch(s.size, cand.size)) continue;
 
         // 3) snatch 候选 .torrent 并解析
         try {
@@ -348,7 +414,7 @@ async function scanLocalSource(
             results.push(
               ...(await buildSourceCandidates(
                 { siteId, siteName },
-                { infoHash: t.infoHash, name: t.name, savePath: t.savePath, size: t.totalSize },
+                { infoHash: s.infoHash, name: s.name, savePath: s.savePath, size: s.size, clientId: s.clientId },
                 Number(cand.id),
                 "local",
               )),
