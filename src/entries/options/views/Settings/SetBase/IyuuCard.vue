@@ -217,6 +217,16 @@ async function toggleHeld(row: ISiteRow, checked: boolean) {
   }
 }
 
+/** 未拉取站点表时也可删减已保存的持有站点（chips） */
+async function removeHeld(id: string) {
+  heldSites.value = (heldSites.value ?? []).filter((x) => x !== id);
+  try {
+    await sendMessage("setIyuusConfig", { heldSites: heldSites.value });
+  } catch (e) {
+    runtimeStore.showSnakebar(e instanceof Error ? e.message : String(e), { color: "error" });
+  }
+}
+
 /** 推导已持有站点：metadata.sites ∩ IYUU 站表 → 自动合并打勾并保存 */
 async function deriveHeld() {
   deriving.value = true;
@@ -501,9 +511,18 @@ onMounted(loadConfig);
           </span>
         </div>
 
-        <v-alert v-if="!sitesCache.length && !loadingSites" type="info" variant="tonal" density="compact" class="mb-2">
-          {{ t("SetBase.iyuu.fetchHint") }}
-        </v-alert>
+        <!-- 未拉取站点表：展示已保存的持有站点（可删减），并提示可拉取完整站点表 -->
+        <template v-if="!sitesCache.length && !loadingSites">
+          <div v-if="(heldSites?.length ?? 0) > 0" class="d-flex flex-wrap ga-1 mb-2">
+            <v-chip v-for="id in heldSites" :key="id" closable class="ma-1" @click:close="removeHeld(id)">
+              <SiteFavicon :site-id="id" :size="16" />
+              <span class="ml-1">{{ metadataStore.siteNameMap[id] ?? id }}</span>
+            </v-chip>
+          </div>
+          <v-alert type="info" variant="tonal" density="compact" class="mb-2">
+            {{ t("SetBase.iyuu.fetchHint") }}
+          </v-alert>
+        </template>
 
         <v-table v-if="sitesCache.length" density="compact">
           <thead>
