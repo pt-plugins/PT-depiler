@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, shallowRef, watch } from "vue";
-import { useRoute } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
 import { useDisplay, type DataTableHeader } from "vuetify";
 import { EResultParseStatus, ETorrentStatus } from "@ptd/site";
@@ -28,6 +28,7 @@ import { doSearch, retrySearch, searchPlanStatus, searchQueue } from "./utils/se
 
 const { t } = useI18n();
 const route = useRoute();
+const router = useRouter();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
 const runtimeStore = useRuntimeStore();
@@ -77,6 +78,32 @@ const tableHeader = computed(() => {
 const { tableFilterRef, tableWaitFilterRef, tableFilterFn, buildAdvanceItemPropsFn, buildFilterDictFn } =
   tableCustomFilter;
 
+function getRouteFilter(value: unknown): string | undefined {
+  if (typeof value === "string") return value;
+  if (Array.isArray(value) && typeof value[0] === "string") return value[0];
+  return undefined;
+}
+
+function applyRouteFilter(value: unknown) {
+  const filter = getRouteFilter(value);
+  if (filter === undefined || filter === tableWaitFilterRef.value) return;
+
+  tableWaitFilterRef.value = filter;
+  buildFilterDictFn(filter);
+}
+
+watch(tableFilterRef, (filter) => {
+  const routeFilter = getRouteFilter(route.query.filters) ?? "";
+  if (filter === routeFilter) return;
+
+  const query = { ...route.query };
+  delete query.flush;
+  if (filter) query.filters = filter;
+  else delete query.filters;
+
+  router.replace({ query });
+});
+
 // 使用 shallowRef 优化：种子对象数组不需要深度响应式，提升性能
 const tableSelectedRaw = shallowRef<ISearchResultTorrent[]>([]);
 
@@ -103,6 +130,9 @@ watch(
         doSearch((newParams.search as string) ?? "", (newParams.plan as string) ?? "default", true);
       }
     }
+
+    // URL 中显式提供 filters 时覆盖保存的上一次筛选词；未提供时保留现有行为。
+    applyRouteFilter(newParams.filters);
   },
   { immediate: true, deep: true },
 );
