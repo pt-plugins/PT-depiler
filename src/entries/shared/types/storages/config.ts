@@ -256,4 +256,20 @@ export interface IConfigPiniaStorageSchema {
     triggerThreshold: number; // 触发阈值（周），默认 2
     extensionDuration: number; // 延长时长（月），默认 3
   };
+
+  // 辅种（reseed）功能总控
+  reseed: {
+    // 辅种功能总开关：false 时隐藏侧边栏「辅种任务」入口并停用相关功能动作
+    enabled: boolean;
+    // 是否在侧边栏显示「辅种任务」页面（在 enabled 基础上进一步控制）
+    showKeepUploadTask: boolean;
+
+    // 以下为各辅种命中源开关（扫描时按开关决定启用哪些源）
+    // IYUU - 基于特征码的索引工具（中心化索引）
+    enableIyuus: boolean;
+    // NexusPHP pieces-hash 直查
+    enableNexus: boolean;
+    // 本地文件树对比（LocalCrossSeed）
+    enableLocal: boolean;
+  };
 }

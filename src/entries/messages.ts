@@ -27,6 +27,7 @@ import type {
   TorrentQueueDirection,
   TorrentSpeedLimit,
 } from "@ptd/downloader";
+import type { IYUUReseedHit, ICrossSeedCandidate } from "@ptd/crossSeed";
 
 // 可序列化的种子信息，用于辅种检测
 export interface ITorrentInfoForVerification {
@@ -56,6 +57,8 @@ import {
   IKeepUploadTask,
   TKeepUploadTaskKey,
   BridgeStatus,
+  IIyuuStorageSchema,
+  IIyuuSiteCacheEntry,
 } from "@/shared/types.ts";
 
 import { isDebug } from "~/helper.ts";
@@ -195,6 +198,50 @@ interface ProtocolMap extends TMessageMap {
   updateKeepUploadTask(task: IKeepUploadTask): void;
   deleteKeepUploadTask(taskId: TKeepUploadTaskKey): void;
   clearKeepUploadTasks(): void;
+
+  // 2.8 IYUU 辅种中心 ( utils/iyuu )
+  getIyuusConfig(): IIyuuStorageSchema | undefined;
+  setIyuusConfig(data: Partial<IIyuuStorageSchema>): void;
+  /** 拉取并缓存 IYUU 站点表（TTL 24h） */
+  iyuuFetchSites(): IIyuuSiteCacheEntry[];
+  /** 汇报已持有站点，返回 sid_sha1（写入缓存，7 天有效） */
+  iyuuReportExisting(sidList: number[]): string;
+  /** 查询辅种：给定本地 infohash 列表，返回各站命中 */
+  iyuuQueryReseed(hashes: string[]): Record<string, { torrent: IYUUReseedHit[] }>;
+  /** 从本地已配置站点自动推导持有站点（本地 id → IYUU sid） */
+  iyuuDeriveHeldSites(): { localIds: TSiteID[]; sidList: number[]; unmatched: TSiteID[] };
+  /** 批量把 IYUU 查询命中解析为辅种候选（B 路线优先，A 兜底；不可注入项标 error） */
+  iyuuResolveHits(data: {
+    hits: Array<{ sid: number; torrent_id: number; info_hash?: string }>;
+    sources?: Record<string, { name: string; savePath: string; size: number }>;
+  }): ICrossSeedCandidate[];
+  /** 批量辅种扫描：下载器已完成种子 hash 分批查 IYUU 并解析候选 */
+  iyuuScanForReseed(downloaderId: string): ICrossSeedCandidate[];
+  /** 多源聚合扫描（crossSeed）：IYUU 中心 + NexusPHP pieces-hash 直查 + 本地文件树对比 */
+  crossSeedScanForReseed(data: {
+    downloaderId: string;
+    options?: {
+      enableIyuus?: boolean;
+      enableNexus?: boolean;
+      enableLocal?: boolean;
+      /** 仅扫描指定 infohash 子集 */
+      hashes?: string[];
+    };
+  }): ICrossSeedCandidate[];
+  /** 多源聚合扫描（指定种子集合，可跨下载器；MyClient 勾选/详情单查） */
+  crossSeedScanTorrents(data: {
+    torrents: Array<{ clientId: string; infoHash: string; name: string; savePath: string; totalSize: number }>;
+    options?: { enableIyuus?: boolean; enableNexus?: boolean; enableLocal?: boolean };
+  }): ICrossSeedCandidate[];
+  /** 验证 NexusPHP pieces-hash 接口是否存在（非 HTTP 404 即视为可达） */
+  nexusValidateApi(data: { apiUrl: string; passkey?: string }): { ok: boolean; status?: number; error?: string };
+  /** 记录候选已推送（decision 持久化，跨扫描去重） */
+  reseedDecisionRecord(data: {
+    siteId: string;
+    torrentId: number;
+    infoHash?: string;
+    decision?: "injected" | "matched";
+  }): boolean;
 
   // 2.8 Lightweight list queries (for CLI discovery)
   getSiteList(): Array<{ id: string; name: string; url: string; offline: boolean }>;

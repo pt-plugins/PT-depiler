@@ -42,7 +42,15 @@ const binds = {
 </script>
 
 <template>
-  <v-img :height="size" :src="siteFavicon" :width="size" aspect-ratio="1/1" v-on="binds" />
+  <!-- max-width/max-height 硬约束：防止个别站点 favicon 在表格/弹性布局中把图标拉伸过宽（如 IYUU 设置页站点表整列被撑开） -->
+  <v-img
+    :height="size"
+    :src="siteFavicon"
+    :width="size"
+    :style="{ maxWidth: size + 'px', maxHeight: size + 'px' }"
+    aspect-ratio="1/1"
+    v-on="binds"
+  />
 </template>
 
 <style scoped lang="scss"></style>
