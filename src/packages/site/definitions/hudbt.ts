@@ -1,3 +1,8 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/hudbt.yml
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/hudbt.hust.edu.cn/config.json
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/butterfly.json
+ */
 import { type ISiteMetadata } from "../types";
 import { CategoryInclbookmarked, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
 

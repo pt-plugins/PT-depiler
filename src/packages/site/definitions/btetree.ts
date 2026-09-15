@@ -1,3 +1,6 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/btetree.yml
+ */
 import type { ISearchInput, ISiteMetadata, ITorrent } from "../types";
 import BittorrentSite from "../schemas/AbstractBittorrentSite.ts";
 import { parseValidTimeString } from "../utils/datetime.ts";

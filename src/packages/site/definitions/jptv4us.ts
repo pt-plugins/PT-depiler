@@ -1,3 +1,6 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/jptv4us-api.yml
+ */
 import { type ISiteMetadata } from "../types.ts";
 import { SchemaMetadata } from "../schemas/Unit3D.ts";
 import { buildCategoryOptionsFromList } from "../utils";

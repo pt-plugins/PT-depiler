@@ -1,6 +1,8 @@
 /**
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/byrbt.yml
  * @JackettIssue https://github.com/Jackett/Jackett/issues/12540
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/byr.pt/config.json
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/byr.json
  */
 import { ETorrentStatus, type ILevelRequirement, type ISiteMetadata } from "../types";
 import NexusPHP, {

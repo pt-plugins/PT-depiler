@@ -1,3 +1,7 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/MyAnonamouse.cs
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/myanonamouse.net/config.json
+ */
 import { type ISiteMetadata } from "../types";
 
 const categoryOptions = [

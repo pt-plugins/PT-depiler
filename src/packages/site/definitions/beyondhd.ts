@@ -1,3 +1,6 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/BeyondHDAPI.cs
+ */
 import { omit, toMerged } from "es-toolkit";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 

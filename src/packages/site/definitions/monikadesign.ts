@@ -1,3 +1,9 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/monikadesign-api.yml
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/monikadesign.uk/config.json
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/monikadesign.json
+ * @PTMDefinitions https://github.com/JustLookAtNow/pt_mate/blob/master/assets/sites/monikadesign.json
+ */
 import { ETorrentStatus, type ISiteMetadata, type ITorrent } from "../types";
 import Unit3D, { SchemaMetadata } from "../schemas/Unit3D.ts";
 import AbstractBittorrentSite from "../schemas/AbstractBittorrentSite";

@@ -1,3 +1,6 @@
+/**
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/hspt.json
+ */
 import type { ISiteMetadata } from "../types";
 
 export const siteMetadata: ISiteMetadata = {

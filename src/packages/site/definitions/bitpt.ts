@@ -1,3 +1,6 @@
+/**
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/bitpt.cn/config.json
+ */
 import { type ISiteMetadata } from "../types";
 import { GB, TB } from "../utils";
 

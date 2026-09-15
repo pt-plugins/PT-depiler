@@ -1,3 +1,6 @@
+/**
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/uhdbits.org/config.json
+ */
 // import Sizzle from "sizzle";
 import type {
   ISiteMetadata,

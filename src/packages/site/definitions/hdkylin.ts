@@ -1,3 +1,8 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/hdkylin.yml
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/hdkyl.json
+ * @PTMDefinitions https://github.com/JustLookAtNow/pt_mate/blob/master/assets/sites/hdkyl.json
+ */
 import { type ISiteMetadata } from "../types";
 import { GB, TB } from "../utils";
 import { CategoryIncldead, CategorySpstate, CategoryInclbookmarked, SchemaMetadata } from "../schemas/NexusPHP.ts";

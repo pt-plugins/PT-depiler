@@ -1,3 +1,6 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/yuscene-api.yml
+ */
 import type { ISiteMetadata } from "../types";
 import { CategoryFree, SchemaMetadata } from "../schemas/Unit3D.ts";
 import { buildCategoryOptionsFromDict, parseValidTimeString } from "../utils.ts";

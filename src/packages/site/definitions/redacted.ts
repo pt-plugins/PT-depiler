@@ -1,3 +1,7 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/Redacted.cs
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/redacted.ch/config.json
+ */
 import { ITorrent, IUserInfo, type ISiteMetadata } from "../types";
 import GazelleJSONAPI, {
   jsonResponse,

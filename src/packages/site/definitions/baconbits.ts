@@ -1,5 +1,6 @@
 /**
  * @JackettIssue https://github.com/Jackett/Jackett/issues/13211
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/baconbits.org/config.json
  */
 import { type ISiteMetadata } from "../types";
 

@@ -1,3 +1,6 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/Simurg.cs
+ */
 import type { ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/Gazelle.ts";
 

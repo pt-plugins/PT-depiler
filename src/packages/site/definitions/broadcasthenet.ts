@@ -1,3 +1,6 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/BroadcasTheNet.cs
+ */
 import type { ISiteMetadata, ISearchResult, ISearchEntryRequestConfig, ITorrent } from "../types.ts";
 import { SchemaMetadata } from "../schemas/Gazelle.ts";
 import Gazelle from "../schemas/Gazelle.ts";

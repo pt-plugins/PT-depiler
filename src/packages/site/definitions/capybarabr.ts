@@ -1,3 +1,6 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/capybarabr.yml
+ */
 import { type ISiteMetadata } from "../types";
 import { SchemaMetadata, userInfoTrans } from "../schemas/Unit3D.ts";
 

@@ -1,3 +1,6 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/SecretCinema.cs
+ */
 import type { ISiteMetadata, ITorrent, IUserInfo, ISearchInput } from "../types";
 import {
   parseTimeWithZone,

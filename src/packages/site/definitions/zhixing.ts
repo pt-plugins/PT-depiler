@@ -1,3 +1,6 @@
+/**
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/pt.zhixing.bjtu.edu.cn/config.json
+ */
 import urlJoin from "url-join";
 
 import { createDocument } from "../utils";

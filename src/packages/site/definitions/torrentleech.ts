@@ -1,3 +1,7 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/torrentleech.yml
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/torrentleech.org/config.json
+ */
 import urlJoin from "url-join";
 import Sizzle from "sizzle";
 import { mergeWith } from "es-toolkit";

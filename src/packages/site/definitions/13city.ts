@@ -1,6 +1,7 @@
 /**
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/13city.yml
  * @JackettIssue https://github.com/Jackett/Jackett/issues/16052
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/13city.json
  */
 import { type ISiteMetadata } from "../types";
 import { CategoryIncldead, CategorySpstate, CategoryInclbookmarked, SchemaMetadata } from "../schemas/NexusPHP";

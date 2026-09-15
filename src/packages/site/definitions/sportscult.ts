@@ -1,6 +1,7 @@
 /**
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/sportscult.yml
  * @JackettIssue https://github.com/Jackett/Jackett/issues/1330
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/sportscult.org/config.json
  */
 import type { ISiteMetadata, IUserInfo } from "../types.ts";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";

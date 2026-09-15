@@ -1,3 +1,7 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/ExoticaZ.cs
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/exoticaz.json
+ */
 import { ISiteMetadata, ISearchInput, IAdvancedSearchRequestConfig, ITorrent, ITorrentTag } from "../types";
 import AvistazNetwork, {
   SchemaMetadata,

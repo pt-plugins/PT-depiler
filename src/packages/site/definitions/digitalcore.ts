@@ -1,3 +1,6 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/digitalcore-api.yml
+ */
 import type { ISiteMetadata } from "../types";
 import { get } from "es-toolkit/compat";
 import { buildCategoryOptionsFromDict } from "../utils";

@@ -1,3 +1,6 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/retrotoon.yml
+ */
 import type { ISiteMetadata } from "../types";
 import { buildCategoryOptionsFromDict, parseSizeString, parseValidTimeString } from "../utils";
 

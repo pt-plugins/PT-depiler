@@ -1,3 +1,7 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/NebulanceAPI.cs
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/nebulance.io/config.json
+ */
 import { ISiteMetadata, ITorrent, ISearchInput, ETorrentStatus } from "../types";
 import Sizzle from "sizzle";
 import Gazelle, { SchemaMetadata, top10PageList } from "../schemas/Gazelle.ts";

@@ -1,3 +1,7 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/ncore.yml
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/ncore.json
+ */
 import type { ISiteMetadata } from "../types";
 import { parseTimeToLiveToDate } from "../utils/datetime.ts";
 

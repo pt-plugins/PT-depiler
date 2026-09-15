@@ -1,3 +1,6 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/pixelcove.yml
+ */
 import { type ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/Luminance";
 import { buildCategoryOptionsFromDict } from "../utils";

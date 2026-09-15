@@ -1,5 +1,7 @@
 /**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/bitporn.yml
  * @JackettIssue https://github.com/Jackett/Jackett/issues/14816
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/bitporn.json
  */
 import { type ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/Unit3D";

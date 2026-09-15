@@ -1,3 +1,8 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/pthome.yml
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/pthome.net/config.json
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/pthome.json
+ */
 import type { ISiteMetadata } from "../types";
 import { SchemaMetadata, subTitleRemoveExtraElement } from "../schemas/NexusPHP";
 

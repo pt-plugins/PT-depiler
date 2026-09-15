@@ -1,3 +1,6 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/nekobt.yml
+ */
 import type { ISearchConfig, ISiteMetadata, ITorrent, ITorrentTag } from "../types";
 import BittorrentSite from "../schemas/AbstractBittorrentSite";
 

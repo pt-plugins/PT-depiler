@@ -1,3 +1,8 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/dubhe.yml
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/dubhe.json
+ * @PTMDefinitions https://github.com/JustLookAtNow/pt_mate/blob/master/assets/sites/dubhe.json
+ */
 import type { ISiteMetadata } from "../types";
 import { SchemaMetadata } from "../schemas/NexusPHP";
 import { userInfoWithInvitesInUserDetailsPage } from "./kunlun.ts";

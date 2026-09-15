@@ -1,3 +1,6 @@
+/**
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/yemapt.json
+ */
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";

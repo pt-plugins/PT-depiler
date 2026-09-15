@@ -1,3 +1,6 @@
+/**
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/ccfbits.org/config.json
+ */
 import type { ISiteMetadata } from "../types";
 
 export const siteMetadata: ISiteMetadata = {

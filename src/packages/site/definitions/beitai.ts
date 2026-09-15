@@ -1,5 +1,7 @@
 /**
  * @JackettIssue https://github.com/Jackett/Jackett/issues/6764
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/beitai.pt/config.json
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/beitai.json
  */
 import type { ISiteMetadata } from "../types";
 

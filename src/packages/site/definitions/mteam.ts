@@ -1,3 +1,8 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/MTeamTp.cs
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/mteam.json
+ * @PTMDefinitions https://github.com/JustLookAtNow/pt_mate/blob/master/assets/sites/mteam.json
+ */
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 import { set } from "es-toolkit/compat";
 import { build as buildDouban } from "@ptd/social/entity/douban.ts";
