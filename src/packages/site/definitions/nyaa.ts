@@ -1,3 +1,6 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/nyaasi.yml
+ */
 import { type ISiteMetadata, type ITorrent } from "../types";
 import BittorrentSite from "../schemas/AbstractBittorrentSite";
 import { rot13 } from "../utils";

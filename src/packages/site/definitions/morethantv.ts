@@ -1,3 +1,6 @@
+/**
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/morethantv.me/config.json
+ */
 import { ISearchCategoryOptions, type ISiteMetadata, type ITorrent } from "../types";
 import Luminance, { SchemaMetadata } from "../schemas/Luminance";
 

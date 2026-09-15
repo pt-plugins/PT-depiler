@@ -1,5 +1,5 @@
 /**
- * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/Feeds/AnimeTosho.cs
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/animetosho-xyz.yml
  */
 import { type ISiteMetadata } from "../types";
 import { format, subDays } from "date-fns";

@@ -1,5 +1,7 @@
 /**
  * 由 resource/sites/www.icc2022.com/config.json 自动转换而来
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/icc2022.com/config.json
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/icc2022.json
  */
 import { type ISiteMetadata } from "../types";
 // import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";

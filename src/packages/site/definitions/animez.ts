@@ -1,3 +1,6 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/AnimeZ.cs
+ */
 import { ISearchInput, ISiteMetadata, ITorrent, ITorrentTag, IUserInfo } from "../types";
 import AvistazNetwork, { SchemaMetadata, IAvzNetRawTorrent } from "../schemas/AvistazNetwork.ts";
 import { definedFilters } from "../utils/filter.ts";

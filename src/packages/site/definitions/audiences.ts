@@ -1,6 +1,9 @@
 /**
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/audiences.yml
  * @JackettIssue https://github.com/Jackett/Jackett/issues/13156
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/audiences.me/config.json
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/audiences.json
+ * @PTMDefinitions https://github.com/JustLookAtNow/pt_mate/blob/master/assets/sites/audiences.json
  */
 import Sizzle from "sizzle";
 import { mergeWith } from "es-toolkit";

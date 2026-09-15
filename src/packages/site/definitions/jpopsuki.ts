@@ -1,3 +1,9 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/jpopsuki.yml
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/jpopsuki.eu/config.json
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/jpop.json
+ * @PTMDefinitions https://github.com/JustLookAtNow/pt_mate/blob/master/assets/sites/jpopsuki.json
+ */
 import { ISiteMetadata, ITorrent, IUserInfo, ISearchInput } from "../types";
 import Gazelle, {
   SchemaMetadata,

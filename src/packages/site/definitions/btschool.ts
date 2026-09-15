@@ -1,6 +1,8 @@
 /**
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/btschool.yml
  * @JackettIssue https://github.com/Jackett/Jackett/issues/5761
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/btschool.json
+ * @PTMDefinitions https://github.com/JustLookAtNow/pt_mate/blob/master/assets/sites/btschool.json
  */
 import { ETorrentStatus, type ISiteMetadata } from "../types";
 import { parseSizeString, rot13 } from "../utils";

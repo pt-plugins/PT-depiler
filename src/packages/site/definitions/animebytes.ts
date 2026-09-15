@@ -1,6 +1,7 @@
 /**
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/AnimeBytes.cs
  * @JackettIssue https://github.com/Jackett/Jackett/issues/16062
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/animebytes.tv/config.json
  */
 import type { ISearchInput, ISiteMetadata, ITorrent } from "../types";
 import { AxiosRequestConfig, AxiosResponse } from "axios";

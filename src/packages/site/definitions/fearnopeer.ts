@@ -1,3 +1,6 @@
+/**
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/fearnopee.json
+ */
 import { type ISiteMetadata } from "../types";
 // import { SchemaMetadata } from "../schemas/Unit3D.ts";
 // import { buildCategoryOptionsFromDict, buildCategoryOptionsFromList } from "../utils";

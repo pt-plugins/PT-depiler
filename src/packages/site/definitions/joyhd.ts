@@ -1,3 +1,7 @@
+/**
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/joyhd.net/config.json
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/joyhd.json
+ */
 import { type ISiteMetadata } from "../types";
 // import { CategoryInclbookmarked, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
 

@@ -1,5 +1,6 @@
 /**
  * 由 resource/sites/ptvicomo.net/config.json 自动转换而来
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/ptvicomo.json
  */
 import { type ISiteMetadata } from "../types";
 // import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";

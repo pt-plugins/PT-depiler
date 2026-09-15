@@ -1,3 +1,8 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/putao.yml
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/pt.sjtu.edu.cn/config.json
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/putao.json
+ */
 import { mergeWith } from "es-toolkit";
 import { ETorrentStatus, type ISiteMetadata, type IUserInfo } from "../types";
 import { parseSizeString, createDocument } from "../utils";

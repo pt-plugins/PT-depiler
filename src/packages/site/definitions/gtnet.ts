@@ -1,3 +1,6 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/gay-torrents.yml
+ */
 import type { AxiosRequestConfig } from "axios";
 import type { ISiteMetadata, ITorrent, ISearchResult, ISearchEntryRequestConfig } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite";

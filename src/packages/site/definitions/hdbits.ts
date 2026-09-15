@@ -1,3 +1,8 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/HDBitsApi.cs
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/hdbits.org/config.json
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/hdbits.json
+ */
 import { ETorrentStatus, ISearchCategories, ISearchInput, ISiteMetadata, ITorrent } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite";
 import { set } from "es-toolkit/compat";

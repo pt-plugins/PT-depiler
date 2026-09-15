@@ -1,3 +1,6 @@
+/**
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/sunny.json
+ */
 import { type AxiosRequestConfig, type AxiosResponse } from "axios";
 
 import { ISearchInput, type ISiteMetadata, type ITorrent } from "../types";

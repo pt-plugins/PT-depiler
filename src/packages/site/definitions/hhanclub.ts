@@ -1,3 +1,9 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/hhanclub.yml
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/hhanclub.top/config.json
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/hhanclub.json
+ * @PTMDefinitions https://github.com/JustLookAtNow/pt_mate/blob/master/assets/sites/hhanclub.json
+ */
 import { ETorrentStatus, type ISiteMetadata, IUserInfo } from "../types";
 import NexusPHP, {
   CategoryInclbookmarked,

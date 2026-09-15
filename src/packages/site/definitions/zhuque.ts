@@ -1,3 +1,7 @@
+/**
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/zhuque.in/config.json
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/zhuque.json
+ */
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 
 import {

@@ -1,3 +1,7 @@
+/**
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/rousi.json
+ * @PTMDefinitions https://github.com/JustLookAtNow/pt_mate/blob/master/assets/sites/rousipro.json
+ */
 import type { ISearchInput, ISiteMetadata, ITorrent, ITorrentTag } from "../types";
 import type { AxiosRequestConfig, AxiosResponse } from "axios";
 

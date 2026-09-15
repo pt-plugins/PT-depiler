@@ -1,3 +1,7 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/anthelion-api.yml
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/anthelion.me/config.json
+ */
 import Gazelle, { SchemaMetadata, GazelleUtils, commonPagesList, detailPageList } from "../schemas/Gazelle.ts";
 import { ISiteMetadata, ITorrent, ISearchInput, ETorrentStatus } from "../types.ts";
 import { buildCategoryOptionsFromList } from "../utils.ts";

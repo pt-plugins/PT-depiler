@@ -1,3 +1,7 @@
+/**
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/dajiao.cyou/config.json
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/dajiao.json
+ */
 import type { ISiteMetadata } from "../types";
 
 export const siteMetadata: ISiteMetadata = {

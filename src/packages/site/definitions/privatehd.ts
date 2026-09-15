@@ -1,3 +1,6 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/PrivateHD.cs
+ */
 import { ISiteMetadata, ISearchInput, ITorrent, ITorrentTag } from "../types";
 import AvistazNetwork, { SchemaMetadata, IAvzNetRawTorrent } from "../schemas/AvistazNetwork.ts";
 

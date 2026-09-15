@@ -1,5 +1,6 @@
 /**
  * Superbits - 基于 rartracker 的瑞典 BT 站点
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/superbits.yml
  */
 import type { ISiteMetadata, ITorrent, ISearchInput, ITorrentTag } from "../types";
 import Rartracker from "../schemas/Rartracker";

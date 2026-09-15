@@ -1,5 +1,6 @@
 /**
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/crabpt.yml
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/crabpt.json
  */
 import { type ISiteMetadata } from "../types";
 import {

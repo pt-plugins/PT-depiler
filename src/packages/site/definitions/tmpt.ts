@@ -1,3 +1,6 @@
+/**
+ * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/tmpt.json
+ */
 import type { ISiteMetadata } from "../types";
 import { /* SchemaMetadata, */ xiaomloveDefaultUserLevelRequirements } from "../schemas/NexusPHP";
 

@@ -1,3 +1,7 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/opencd.yml
+ * @PTMDefinitions https://github.com/JustLookAtNow/pt_mate/blob/master/assets/sites/opencd.json
+ */
 import { ETorrentStatus, type IElementQuery, type ITorrent, type ISiteMetadata } from "../types";
 import NexusPHP, {
   CategoryInclbookmarked,

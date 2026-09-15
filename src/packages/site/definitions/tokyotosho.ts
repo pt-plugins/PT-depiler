@@ -1,3 +1,6 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/tokyotosho.yml
+ */
 import type { ISiteMetadata } from "../types";
 import { buildCategoryOptionsFromDict } from "../utils";
 
