@@ -1,8 +1,10 @@
-/**
- * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/MyAnonamouse.cs
- * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/myanonamouse.net/config.json
- */
-import { type ISiteMetadata } from "../types";
+import { mergeWith } from "es-toolkit/compat";
+import Sizzle from "sizzle";
+
+import { EResultParseStatus, type ISiteMetadata, type IUserInfo } from "../types";
+import AbstractPrivateSite from "../schemas/AbstractPrivateSite.ts";
+import { cookie } from "../utils/adapter.ts";
+import { parseSizeString } from "../utils/filesize.ts";
 
 const categoryOptions = [
   { name: "AudioBooks - Action/Adventure", value: 39 },
@@ -120,8 +122,8 @@ interface INotifs {
   unseededUploads: number;
 }
 
-type IMyAnonamouseLoadResp = {
-  [K in
+type IMyAnonamouseSnatchSummary = Partial<
+  Record<
     | "inactHnr"
     | "inactSat"
     | "inactUnsat"
@@ -131,10 +133,10 @@ type IMyAnonamouseLoadResp = {
     | "seedUnsat"
     | "unsat"
     | "upAct"
-    | "upInact"]: IMyAnonamouseLoadItem;
-} & {
-  notifs: INotifs;
-};
+    | "upInact",
+    IMyAnonamouseLoadItem
+  >
+>;
 
 // 做种中种子的所有类型
 const seedingKeys = ["seedUnsat", "seedHnr", "sSat", "upAct"] as const;
@@ -152,7 +154,7 @@ export const siteMetadata: ISiteMetadata = {
   timezoneOffset: "+0000",
 
   type: "private",
-  schema: "TBDev",
+  schema: "AbstractPrivateSite",
 
   urls: ["uggcf://jjj.zlnabanzbhfr.arg/"],
 
@@ -271,57 +273,79 @@ export const siteMetadata: ISiteMetadata = {
     pickLast: ["id", "name"],
     process: [
       {
-        requestConfig: {
-          url: "/jsonLoad.php?snatch_summary&notif",
-          responseType: "json",
-        },
+        requestConfig: { url: "/index.php", responseType: "document" },
         selectors: {
-          id: { selector: "uid" },
-          name: { selector: "username" },
-          ratio: { selector: "ratio" },
-          bonus: { selector: "seedbonus" },
-          uploaded: { selector: "uploaded_bytes" },
-          downloaded: { selector: "downloaded_bytes" },
-          levelName: { selector: "classname" },
-          seeding: {
-            selector: ":self",
-            filters: [
-              (loadResp: IMyAnonamouseLoadResp) => {
-                return seedingKeys.map((key) => loadResp[key].count).reduce((sum, count) => sum + count, 0);
-              },
-            ],
+          id: {
+            selector: ["li.myInfo > a", "a[href*='/u/']"],
+            attr: "href",
+            filters: [(query: string) => query.match(/(?:\/u\/|[?&]id=)(\d+)/)?.[1]],
           },
-          seedingSize: {
-            selector: ":self",
-            filters: [
-              (loadResp: IMyAnonamouseLoadResp) => {
-                return seedingKeys.map((key) => loadResp[key].size ?? 0).reduce((sum, size) => sum + size, 0);
-              },
-            ],
-          },
-          uploads: {
-            selector: ":self",
-            filters: [
-              (loadResp: IMyAnonamouseLoadResp) => {
-                return uploadKeys.map((key) => loadResp[key].count).reduce((sum, count) => sum + count, 0);
-              },
-            ],
+          name: {
+            selector: ["a#userMenu", "a[href^='/u/']"],
+            filters: [(query: string) => query.replace("↓", "").trim()],
           },
           messageCount: {
-            selector: "notifs",
-            filters: [
-              (notifs: INotifs) => {
-                return Object.values(notifs).reduce((sum, val) => sum + val, 0);
-              },
-            ],
+            selector: ["div#sbNotifs", "a.tmnb, a.tmn, a.tmng"],
+            elementProcess: (element: Document | HTMLElement) => {
+              let msgCount = 0;
+              const msgAnothers = Sizzle("a.tmnb, a.tmn, a.tmng", element);
+              msgAnothers.forEach((msgAnother) => {
+                const msgText = (msgAnother as HTMLElement).innerText.trim();
+                const numMatch = msgText.match(/(\d+)/);
+                if (numMatch) {
+                  msgCount += parseInt(numMatch[1], 10);
+                }
+              });
+              return msgCount;
+            },
           },
-          lastAccessAt: { selector: "update", filters: [(query: number) => query * 1000] },
+          bonus: {
+            selector: "a#tmBP",
+            elementProcess: (element: HTMLElement) => {
+              const text = (element.innerText ?? element.textContent ?? "").trim();
+              const queryMatch = text.replace(/,/g, "").match(/Bonus:\s*([\d.]+)/i);
+              return queryMatch ? parseFloat(queryMatch[1]) : 0;
+            },
+          },
+          ratio: {
+            selector: "a#tmR",
+            elementProcess: (element: HTMLElement) => {
+              const text = (element.innerText ?? element.textContent ?? "").trim();
+              if (/[^\d]*(无限|Inf)/i.test(text)) {
+                return -1;
+              }
+              const match = text.replace(/,/g, "").match(/(-?[\d.]+)/);
+              return match ? parseFloat(match[1]) : 0;
+            },
+          },
         },
       },
       {
         requestConfig: { url: "/u/$id$", responseType: "document" },
         assertion: { id: "url" },
         selectors: {
+          uploaded: {
+            selector: "td.rowhead:contains('Uploaded'):eq(0) + td",
+            filters: [{ name: "parseSize" }],
+          },
+          downloaded: {
+            selector: "td.rowhead:contains('Downloaded'):eq(0) + td",
+            filters: [{ name: "parseSize" }],
+          },
+          ratio: {
+            selector: ["td.rowhead:contains('Ratio') + td", "a#tmR"],
+            elementProcess: (element: HTMLElement) => {
+              const text = (element.innerText ?? element.textContent ?? "").trim();
+              if (/[^\d]*(无限|Inf)/i.test(text)) {
+                return -1;
+              }
+              const match = text.replace(/,/g, "").match(/(-?[\d.]+)/);
+              return match ? parseFloat(match[1]) : 0;
+            },
+          },
+          levelName: {
+            selector: "td.rowhead:contains('Class') + td",
+          },
           joinTime: {
             selector: "td.rowhead:contains('Join'):contains('date') + td",
             filters: [{ name: "split", args: [" (", 0] }, { name: "parseTime" }],
@@ -336,7 +360,14 @@ export const siteMetadata: ISiteMetadata = {
           },
           trueRatio: {
             selector: "td.rowhead:contains('Real share ratio') + td",
-            filters: [{ name: "parseNumber" }],
+            elementProcess: (element: HTMLElement) => {
+              const text = (element.innerText ?? element.textContent ?? "").trim();
+              if (/[^\d]*(无限|Inf)/i.test(text)) {
+                return -1;
+              }
+              const match = text.replace(/,/g, "").match(/(-?[\d.]+)/);
+              return match ? parseFloat(match[1]) : 0;
+            },
           },
           bonusPerHour: {
             selector: "td.rowhead:contains('Points earning') + td",
@@ -379,3 +410,112 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
+
+export default class MyAnonamouse extends AbstractPrivateSite {
+  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+    let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
+
+    if (flushUserInfo.status === EResultParseStatus.success) {
+      if (typeof flushUserInfo.seeding === "undefined" || typeof flushUserInfo.seedingSize === "undefined") {
+        flushUserInfo = (await this.parseUserInfoForSeedingAndUploadStatus(flushUserInfo)) as IUserInfo;
+      }
+    }
+
+    return flushUserInfo;
+  }
+
+  protected async parseUserInfoForSeedingAndUploadStatus(
+    flushUserInfo: Partial<IUserInfo>,
+  ): Promise<Partial<IUserInfo>> {
+    const upSeedStatus: { seeding?: number; seedingSize?: number; uploads?: number } = {};
+
+    // 1. 优先尝试通过 /jsonLoad.php?snatch_summary 获取 (适用于有 API 会话权限的用户)
+    try {
+      const { data: loadResp } = await this.request<any>({
+        url: "/jsonLoad.php?snatch_summary",
+        responseType: "json",
+        headers: {
+          "x-requested-with": "XMLHttpRequest",
+          referer: "https://www.myanonamouse.net/",
+        },
+      });
+
+      if (loadResp && !loadResp.error && loadResp.seedUnsat) {
+        upSeedStatus.seeding = seedingKeys
+          .map((key) => loadResp[key]?.count ?? 0)
+          .reduce((sum, count) => sum + count, 0);
+        upSeedStatus.seedingSize = seedingKeys
+          .map((key) => loadResp[key]?.size ?? 0)
+          .reduce((sum, size) => sum + size, 0);
+        upSeedStatus.uploads = uploadKeys
+          .map((key) => loadResp[key]?.count ?? 0)
+          .reduce((sum, count) => sum + count, 0);
+
+        return mergeWith(flushUserInfo, upSeedStatus, (objValue, srcValue) => {
+          return typeof srcValue === "undefined" ? objValue : srcValue;
+        });
+      }
+    } catch {
+      // 忽略 /jsonLoad.php 异常，回退到通过 loadUserDetailsTorrents 获取
+    }
+
+    // 2. 如果 /jsonLoad.php 不可用 (普通网页登录会话)，通过 loadUserDetailsTorrents.php 获取做种信息
+    if (flushUserInfo.id) {
+      try {
+        const seedingInfo = await this.getUserSeedingInfo(Number(flushUserInfo.id));
+        flushUserInfo = mergeWith(flushUserInfo, seedingInfo, (objValue, srcValue) => {
+          return typeof srcValue === "undefined" ? objValue : srcValue;
+        });
+      } catch {
+        // 做种信息为可选字段，异常不影响主要用户信息获取
+      }
+    }
+
+    return flushUserInfo;
+  }
+
+  private async getUserSeedingInfo(userid: number): Promise<{ seeding?: number; seedingSize?: number }> {
+    const retInfo = { seeding: 0, seedingSize: 0 };
+
+    let mamId: string | undefined;
+    try {
+      const cookieObj = await cookie({
+        url: this.url,
+        name: "mam_id",
+      });
+      mamId = cookieObj?.value;
+    } catch {}
+
+    if (mamId) {
+      for (const type of seedingKeys) {
+        for (const pageInfo = { count: 0, current: 0 }; pageInfo.current <= pageInfo.count; pageInfo.current++) {
+          const { data: seedJson } = await this.request<any>({
+            url: "https://cdn.myanonamouse.net/json/loadUserDetailsTorrents.php",
+            params: {
+              uid: userid,
+              iteration: pageInfo.current,
+              type,
+              cacheTime: Math.round(Date.now() / 1000),
+              mam_id: decodeURIComponent(mamId),
+            },
+          });
+
+          if (seedJson?.rows && Array.isArray(seedJson.rows)) {
+            seedJson.rows.forEach((item: any) => {
+              retInfo.seeding += 1;
+              if (item.size) {
+                retInfo.seedingSize += parseSizeString(item.size);
+              }
+            });
+
+            if (seedJson.rows.length >= 250 && pageInfo.count < 5) {
+              pageInfo.count += 1;
+            }
+          }
+        }
+      }
+    }
+
+    return retInfo;
+  }
+}
