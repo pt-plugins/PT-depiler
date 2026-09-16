@@ -110,7 +110,10 @@ export const definedFilters: Record<string, TQueryFilterFn> = {
    * results: 8.5
    */
   parseNumber: (query) => {
-    const queryMatch = query
+    if (typeof query === "number") {
+      return query;
+    }
+    const queryMatch = String(query ?? "")
       .trim()
       .replace(/[\s,\n]/g, "")
       .match(/(-?[\d.]+)/);
@@ -125,7 +128,10 @@ export const definedFilters: Record<string, TQueryFilterFn> = {
    * results: 8912896
    */
   parseSize: (query) => {
-    const queryMatch = query
+    if (typeof query === "number") {
+      return query;
+    }
+    const queryMatch = String(query ?? "")
       .trim()
       .replace(/[ ,\n]/g, "")
       .match(/([\d.]+(.*[^ZEPTGMK])?[ZEPTGMK]?i?B)/);
