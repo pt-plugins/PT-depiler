@@ -144,53 +144,53 @@ export const siteMetadata: ISiteMetadata = {
     pickLast: ["id", "name"],
     process: [
       {
+        // 首页头部即可取到当前登录用户的 id / name
         requestConfig: { url: "/", responseType: "document" },
-        fields: ["id", "name"],
+        selectors: {
+          id: {
+            selector: ["#pre_header_status a[href*='/users/']"],
+            attr: "href",
+            filters: [(href: string) => href.match(/\/users\/(\d+)/)?.[1] ?? ""],
+          },
+          name: { selector: ["#pre_header_status a[href*='/users/']"] },
+        },
       },
       {
         requestConfig: { url: "/users/$id$", responseType: "document" },
         assertion: { id: "url" },
-        // ratio 由 uploaded/downloaded 推导，无需单独选择器
-        fields: ["uploaded", "downloaded", "levelName", "joinTime", "uploads", "bonus"],
+        selectors: {
+          uploaded: {
+            selector: ["#pre_header_status li:contains('Up: ')"],
+            filters: [
+              (query: string) => query.replace(/,/g, "").match(/([\d.]+ ?[ZEPTGMK]?i?B)/)?.[1] ?? "0",
+              { name: "parseSize" },
+            ],
+          },
+          downloaded: {
+            selector: ["#pre_header_status li:contains('Down: ')"],
+            filters: [
+              (query: string) => query.replace(/,/g, "").match(/([\d.]+ ?[ZEPTGMK]?i?B)/)?.[1] ?? "0",
+              { name: "parseSize" },
+            ],
+          },
+          levelName: {
+            selector: ["#detailsbox p:contains('Class: ')"],
+            filters: [(query: string) => query.replace(/Class:\s*/g, "")],
+          },
+          uploads: {
+            // <li><a href="/users/33387/uploads">Uploads</a> (100)</li>
+            selector: ["#detailsbox li:has(a[href*='/uploads'])"],
+            filters: [{ name: "parseNumber" }],
+          },
+          joinTime: {
+            selector: ["#detailsbox p:contains('Joined ') time"],
+            attr: "datetime",
+            filters: [{ name: "parseTime" }],
+          },
+          bonus: { text: "N/A" },
+        },
       },
     ],
-    selectors: {
-      id: {
-        selector: ["#pre_header_status a[href*='/users/']"],
-        attr: "href",
-        filters: [(href: string) => href.match(/\/users\/(\d+)/)?.[1] ?? ""],
-      },
-      name: { selector: ["#pre_header_status a[href*='/users/']"] },
-      uploaded: {
-        selector: ["#pre_header_status li:contains('Up: ')"],
-        filters: [
-          (query: string) => query.replace(/,/g, "").match(/([\d.]+ ?[ZEPTGMK]?i?B)/)?.[1] ?? "0",
-          { name: "parseSize" },
-        ],
-      },
-      downloaded: {
-        selector: ["#pre_header_status li:contains('Down: ')"],
-        filters: [
-          (query: string) => query.replace(/,/g, "").match(/([\d.]+ ?[ZEPTGMK]?i?B)/)?.[1] ?? "0",
-          { name: "parseSize" },
-        ],
-      },
-      levelName: {
-        selector: ["#detailsbox p:contains('Class: ')"],
-        filters: [(query: string) => query.replace(/Class:\s*/g, "")],
-      },
-      uploads: {
-        // <li><a href="/users/33387/uploads">Uploads</a> (100)</li>
-        selector: ["#detailsbox li:has(a[href*='/uploads'])"],
-        filters: [{ name: "parseNumber" }],
-      },
-      joinTime: {
-        selector: ["#detailsbox p:contains('Joined ') time"],
-        attr: "datetime",
-        filters: [{ name: "parseTime" }],
-      },
-      bonus: { text: "N/A" },
-    },
   },
 
   levelRequirements: [
