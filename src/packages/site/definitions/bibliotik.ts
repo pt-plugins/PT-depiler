@@ -150,7 +150,8 @@ export const siteMetadata: ISiteMetadata = {
       {
         requestConfig: { url: "/users/$id$", responseType: "document" },
         assertion: { id: "url" },
-        fields: ["uploaded", "downloaded", "levelName", "joinTime", "bonus"],
+        // ratio 由 uploaded/downloaded 推导，无需单独选择器
+        fields: ["uploaded", "downloaded", "levelName", "joinTime", "uploads", "bonus"],
       },
     ],
     selectors: {
@@ -178,6 +179,11 @@ export const siteMetadata: ISiteMetadata = {
         selector: ["#detailsbox p:contains('Class: ')"],
         filters: [(query: string) => query.replace(/Class:\s*/g, "")],
       },
+      uploads: {
+        // <li><a href="/users/33387/uploads">Uploads</a> (100)</li>
+        selector: ["#detailsbox li:has(a[href*='/uploads'])"],
+        filters: [{ name: "parseNumber" }],
+      },
       joinTime: {
         selector: ["#detailsbox p:contains('Joined ') time"],
         attr: "datetime",
@@ -186,6 +192,38 @@ export const siteMetadata: ISiteMetadata = {
       bonus: { text: "N/A" },
     },
   },
+
+  levelRequirements: [
+    {
+      id: 1,
+      name: "User",
+      privilege: "Default class for all new members",
+    },
+    {
+      id: 2,
+      name: "Power User",
+      interval: "P2W",
+      ratio: 1.05,
+      // 满足以下任一组：上传 10GiB 且发布 10 个种子 / 上传 1GiB 且发布 100 个种子
+      uploaded: "10GiB",
+      uploads: 10,
+      alternative: [{ uploaded: "1GiB", uploads: 100 }],
+      isKept: true,
+      privilege:
+        "Create collections; Add torrents to collections (unless protected); Access to the Power User and Invite forums; Exempt from inactivity disabling; Receives one invite on the 1st and 15th of every month (maximum of 2)",
+    },
+    {
+      id: 3,
+      name: "Elite",
+      interval: "P4W",
+      ratio: 1.05,
+      uploaded: "20GiB",
+      uploads: 100,
+      isKept: true,
+      privilege:
+        "Create and edit collections (unless protected); Add torrents to collections (unless protected); Edit torrent page descriptions and images; Moderate authors, creators, publishers, and tags; Access to the Elite, Power User, and Invite forums; Exempt from inactivity disabling; Receives one invite every Sunday (maximum of 4)",
+    },
+  ],
 };
 
 export default class Bibliotik extends PrivateSite {
