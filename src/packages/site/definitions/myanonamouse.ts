@@ -526,15 +526,10 @@ export default class MyAnonamouse extends AbstractPrivateSite {
   ): Promise<{ seeding?: number; seedingSize?: number; uploads?: number }> {
     let mbsc: string | undefined;
     try {
-      const cookieObj =
-        (await cookie({
-          url: this.url,
-          name: "mbsc",
-        })) ??
-        (await cookie({
-          url: this.url,
-          name: "mam_id",
-        }));
+      const cookieObj = await cookie({
+        url: this.url,
+        name: "mbsc",
+      });
       mbsc = cookieObj?.value;
     } catch {}
 
@@ -544,14 +539,13 @@ export default class MyAnonamouse extends AbstractPrivateSite {
 
     const retInfo = { seeding: 0, seedingSize: 0, uploads: 0 };
     const allTorrentKeys = ["seedUnsat", "seedHnr", "sSat", "upAct", "upInact"] as const;
-    const MAX_PAGES_PER_TYPE = 100;
 
     for (const type of allTorrentKeys) {
       const isSeedingType = (seedingKeys as readonly string[]).includes(type);
       const isUploadType = (uploadKeys as readonly string[]).includes(type);
       const seenRowIds = new Set<string | number>();
 
-      for (let page = 0; page < MAX_PAGES_PER_TYPE; page++) {
+      for (let page = 0; ; page++) {
         const { data: seedJson } = await this.request<any>({
           url: "https://cdn.myanonamouse.net/json/loadUserDetailsTorrents.php",
           params: {
