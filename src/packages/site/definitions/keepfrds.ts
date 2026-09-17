@@ -274,8 +274,6 @@ export const siteMetadata: ISiteMetadata = {
           "messageCount",
           "trueUploaded",
           "trueDownloaded",
-          "hnrUnsatisfied",
-          "hnrPreWarning",
           "bonusPerHour", // 使用我们自定义的 selector 和 filter
           "lastAccessAt",
         ],
