@@ -500,7 +500,9 @@ export default class MyAnonamouse extends AbstractPrivateSite {
     // 2. 如果 /jsonLoad.php 不可用 (普通网页登录会话)，通过 loadUserDetailsTorrents.php 获取做种与上传信息
     if (
       flushUserInfo.id &&
-      (typeof flushUserInfo.seeding === "undefined" || typeof flushUserInfo.uploads === "undefined")
+      (typeof flushUserInfo.seeding === "undefined" ||
+        typeof flushUserInfo.seedingSize === "undefined" ||
+        typeof flushUserInfo.uploads === "undefined")
     ) {
       try {
         const seedingInfo = await this.getUserSeedingInfo(Number(flushUserInfo.id));
@@ -550,22 +552,35 @@ export default class MyAnonamouse extends AbstractPrivateSite {
           },
         });
 
-        if (seedJson?.rows && Array.isArray(seedJson.rows)) {
-          seedJson.rows.forEach((item: any) => {
-            if (isSeedingType) {
-              retInfo.seeding += 1;
-              if (item.size) {
-                retInfo.seedingSize += parseSizeString(item.size);
+        if (seedJson?.error || seedJson?.success === false) {
+          throw new Error(seedJson?.error ? String(seedJson.error) : "Failed to load user torrents");
+        }
+
+        if (!seedJson || !Array.isArray(seedJson.rows)) {
+          throw new Error("Invalid response from loadUserDetailsTorrents.php: missing rows");
+        }
+
+        seedJson.rows.forEach((item: any) => {
+          if (isSeedingType) {
+            retInfo.seeding += 1;
+            if (typeof item.size === "number" && !Number.isNaN(item.size)) {
+              retInfo.seedingSize += item.size;
+            } else if (typeof item.size === "string") {
+              const cleanSize = item.size.replace(/,/g, "").trim();
+              if (/^\d+(?:\.\d+)?$/.test(cleanSize)) {
+                retInfo.seedingSize += Number(cleanSize);
+              } else {
+                retInfo.seedingSize += parseSizeString(cleanSize);
               }
             }
-            if (isUploadType) {
-              retInfo.uploads += 1;
-            }
-          });
-
-          if (seedJson.rows.length >= 250) {
-            pageInfo.count += 1;
           }
+          if (isUploadType) {
+            retInfo.uploads += 1;
+          }
+        });
+
+        if (seedJson.rows.length >= 250) {
+          pageInfo.count += 1;
         }
       }
     }
