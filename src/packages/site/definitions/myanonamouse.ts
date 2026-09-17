@@ -1,3 +1,7 @@
+/**
+ * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Indexers/Definitions/MyAnonamouse.cs
+ * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/myanonamouse.net/config.json
+ */
 import { mergeWith } from "es-toolkit/compat";
 import Sizzle from "sizzle";
 
@@ -290,7 +294,7 @@ export const siteMetadata: ISiteMetadata = {
               let msgCount = 0;
               const msgAnothers = Sizzle("a.tmnb, a.tmn, a.tmng", element);
               msgAnothers.forEach((msgAnother) => {
-                const msgText = (msgAnother as HTMLElement).innerText.trim();
+                const msgText = ((msgAnother as HTMLElement).innerText ?? msgAnother.textContent ?? "").trim();
                 const numMatch = msgText.match(/(\d+)/);
                 if (numMatch) {
                   msgCount += parseInt(numMatch[1], 10);
@@ -380,8 +384,8 @@ export const siteMetadata: ISiteMetadata = {
           bonusPerHour: {
             selector: "td.rowhead:contains('Points earning') + td",
             elementProcess: (element: any) => {
-              if (!element || typeof element.innerText !== "string") return 0;
-              const match = element.innerText.match(/worth\s+([\d.]+)\s+per hour/);
+              const text = (element?.innerText ?? element?.textContent ?? "").trim();
+              const match = text.match(/worth\s+([\d.]+)\s+per hour/i);
               if (!match || !match[1]) return 0;
               return parseFloat(match[1]);
             },
@@ -540,17 +544,19 @@ export default class MyAnonamouse extends AbstractPrivateSite {
 
     const retInfo = { seeding: 0, seedingSize: 0, uploads: 0 };
     const allTorrentKeys = ["seedUnsat", "seedHnr", "sSat", "upAct", "upInact"] as const;
+    const MAX_PAGES_PER_TYPE = 100;
 
     for (const type of allTorrentKeys) {
       const isSeedingType = (seedingKeys as readonly string[]).includes(type);
       const isUploadType = (uploadKeys as readonly string[]).includes(type);
+      const seenRowIds = new Set<string | number>();
 
-      for (const pageInfo = { count: 0, current: 0 }; pageInfo.current <= pageInfo.count; pageInfo.current++) {
+      for (let page = 0; page < MAX_PAGES_PER_TYPE; page++) {
         const { data: seedJson } = await this.request<any>({
           url: "https://cdn.myanonamouse.net/json/loadUserDetailsTorrents.php",
           params: {
             uid: userid,
-            iteration: pageInfo.current,
+            iteration: page,
             type,
             cacheTime: Math.round(Date.now() / 1000),
             mbsc: decodeURIComponent(mbsc),
@@ -565,7 +571,21 @@ export default class MyAnonamouse extends AbstractPrivateSite {
           throw new Error("Invalid response from loadUserDetailsTorrents.php: missing rows");
         }
 
+        if (seedJson.rows.length === 0) {
+          break;
+        }
+
+        let newRowsCount = 0;
         seedJson.rows.forEach((item: any) => {
+          const rowId = item?.id ?? item?.title;
+          if (rowId != null) {
+            if (seenRowIds.has(rowId)) {
+              return;
+            }
+            seenRowIds.add(rowId);
+          }
+          newRowsCount += 1;
+
           if (isSeedingType) {
             retInfo.seeding += 1;
             if (typeof item.size === "number" && !Number.isNaN(item.size)) {
@@ -584,8 +604,9 @@ export default class MyAnonamouse extends AbstractPrivateSite {
           }
         });
 
-        if (seedJson.rows.length >= 250) {
-          pageInfo.count += 1;
+        // 遇到短页或者所有行均为重复数据（例如接口忽略 iteration 持续返回同一页）时停止翻页
+        if (newRowsCount === 0 || seedJson.rows.length < 250) {
+          break;
         }
       }
     }
