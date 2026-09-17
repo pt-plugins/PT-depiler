@@ -520,16 +520,21 @@ export default class MyAnonamouse extends AbstractPrivateSite {
   private async getUserSeedingInfo(
     userid: number,
   ): Promise<{ seeding?: number; seedingSize?: number; uploads?: number }> {
-    let mamId: string | undefined;
+    let mbsc: string | undefined;
     try {
-      const cookieObj = await cookie({
-        url: this.url,
-        name: "mam_id",
-      });
-      mamId = cookieObj?.value;
+      const cookieObj =
+        (await cookie({
+          url: this.url,
+          name: "mbsc",
+        })) ??
+        (await cookie({
+          url: this.url,
+          name: "mam_id",
+        }));
+      mbsc = cookieObj?.value;
     } catch {}
 
-    if (!mamId) {
+    if (!mbsc) {
       return {};
     }
 
@@ -548,7 +553,7 @@ export default class MyAnonamouse extends AbstractPrivateSite {
             iteration: pageInfo.current,
             type,
             cacheTime: Math.round(Date.now() / 1000),
-            mam_id: decodeURIComponent(mamId),
+            mbsc: decodeURIComponent(mbsc),
           },
         });
 
