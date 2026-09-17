@@ -270,7 +270,7 @@ export const siteMetadata: ISiteMetadata = {
   },
 
   userInfo: {
-    pickLast: ["id", "name"],
+    pickLast: ["id", "name", "lastAccessAt"],
     process: [
       {
         requestConfig: { url: "/index.php", responseType: "document" },
@@ -285,7 +285,7 @@ export const siteMetadata: ISiteMetadata = {
             filters: [(query: string) => query.replace("↓", "").trim()],
           },
           messageCount: {
-            selector: ["div#sbNotifs", "a.tmnb, a.tmn, a.tmng"],
+            selector: ":self",
             elementProcess: (element: Document | HTMLElement) => {
               let msgCount = 0;
               const msgAnothers = Sizzle("a.tmnb, a.tmn, a.tmng", element);
@@ -348,6 +348,14 @@ export const siteMetadata: ISiteMetadata = {
           },
           joinTime: {
             selector: "td.rowhead:contains('Join'):contains('date') + td",
+            filters: [{ name: "split", args: [" (", 0] }, { name: "parseTime" }],
+          },
+          lastAccessAt: {
+            selector: [
+              "td.rowhead:contains('Last'):contains('access') + td",
+              "td.rowhead:contains('Last'):contains('seen') + td",
+              "td.rowhead:contains('Last'):contains('visit') + td",
+            ],
             filters: [{ name: "split", args: [" (", 0] }, { name: "parseTime" }],
           },
           trueDownloaded: {
@@ -416,7 +424,11 @@ export default class MyAnonamouse extends AbstractPrivateSite {
     let flushUserInfo = await super.getUserInfoResult(lastUserInfo);
 
     if (flushUserInfo.status === EResultParseStatus.success) {
-      if (typeof flushUserInfo.seeding === "undefined" || typeof flushUserInfo.seedingSize === "undefined") {
+      if (
+        typeof flushUserInfo.seeding === "undefined" ||
+        typeof flushUserInfo.seedingSize === "undefined" ||
+        typeof flushUserInfo.uploads === "undefined"
+      ) {
         flushUserInfo = (await this.parseUserInfoForSeedingAndUploadStatus(flushUserInfo)) as IUserInfo;
       }
     }
@@ -451,7 +463,7 @@ export default class MyAnonamouse extends AbstractPrivateSite {
           .map((key) => loadResp[key]?.count ?? 0)
           .reduce((sum, count) => sum + count, 0);
 
-        return mergeWith(flushUserInfo, upSeedStatus, (objValue, srcValue) => {
+        flushUserInfo = mergeWith(flushUserInfo, upSeedStatus, (objValue, srcValue) => {
           return typeof srcValue === "undefined" ? objValue : srcValue;
         });
       }
@@ -459,8 +471,37 @@ export default class MyAnonamouse extends AbstractPrivateSite {
       // 忽略 /jsonLoad.php 异常，回退到通过 loadUserDetailsTorrents 获取
     }
 
-    // 2. 如果 /jsonLoad.php 不可用 (普通网页登录会话)，通过 loadUserDetailsTorrents.php 获取做种信息
-    if (flushUserInfo.id) {
+    // 尝试从 /jsonLoad.php?notif 获取 lastAccessAt 与 messageCount（若可用）
+    try {
+      const { data: notifResp } = await this.request<any>({
+        url: "/jsonLoad.php?notif",
+        responseType: "json",
+        headers: {
+          "x-requested-with": "XMLHttpRequest",
+          referer: "https://www.myanonamouse.net/",
+        },
+      });
+
+      if (notifResp && !notifResp.error) {
+        if (typeof notifResp.update === "number") {
+          flushUserInfo.lastAccessAt = notifResp.update * 1000;
+        }
+        if (notifResp.notifs && typeof flushUserInfo.messageCount === "undefined") {
+          flushUserInfo.messageCount = Object.values(notifResp.notifs as Record<string, number>).reduce(
+            (sum, val) => sum + val,
+            0,
+          );
+        }
+      }
+    } catch {
+      // 忽略
+    }
+
+    // 2. 如果 /jsonLoad.php 不可用 (普通网页登录会话)，通过 loadUserDetailsTorrents.php 获取做种与上传信息
+    if (
+      flushUserInfo.id &&
+      (typeof flushUserInfo.seeding === "undefined" || typeof flushUserInfo.uploads === "undefined")
+    ) {
       try {
         const seedingInfo = await this.getUserSeedingInfo(Number(flushUserInfo.id));
         flushUserInfo = mergeWith(flushUserInfo, seedingInfo, (objValue, srcValue) => {
@@ -474,9 +515,9 @@ export default class MyAnonamouse extends AbstractPrivateSite {
     return flushUserInfo;
   }
 
-  private async getUserSeedingInfo(userid: number): Promise<{ seeding?: number; seedingSize?: number }> {
-    const retInfo = { seeding: 0, seedingSize: 0 };
-
+  private async getUserSeedingInfo(
+    userid: number,
+  ): Promise<{ seeding?: number; seedingSize?: number; uploads?: number }> {
     let mamId: string | undefined;
     try {
       const cookieObj = await cookie({
@@ -486,31 +527,44 @@ export default class MyAnonamouse extends AbstractPrivateSite {
       mamId = cookieObj?.value;
     } catch {}
 
-    if (mamId) {
-      for (const type of seedingKeys) {
-        for (const pageInfo = { count: 0, current: 0 }; pageInfo.current <= pageInfo.count; pageInfo.current++) {
-          const { data: seedJson } = await this.request<any>({
-            url: "https://cdn.myanonamouse.net/json/loadUserDetailsTorrents.php",
-            params: {
-              uid: userid,
-              iteration: pageInfo.current,
-              type,
-              cacheTime: Math.round(Date.now() / 1000),
-              mam_id: decodeURIComponent(mamId),
-            },
-          });
+    if (!mamId) {
+      return {};
+    }
 
-          if (seedJson?.rows && Array.isArray(seedJson.rows)) {
-            seedJson.rows.forEach((item: any) => {
+    const retInfo = { seeding: 0, seedingSize: 0, uploads: 0 };
+    const allTorrentKeys = ["seedUnsat", "seedHnr", "sSat", "upAct", "upInact"] as const;
+
+    for (const type of allTorrentKeys) {
+      const isSeedingType = (seedingKeys as readonly string[]).includes(type);
+      const isUploadType = (uploadKeys as readonly string[]).includes(type);
+
+      for (const pageInfo = { count: 0, current: 0 }; pageInfo.current <= pageInfo.count; pageInfo.current++) {
+        const { data: seedJson } = await this.request<any>({
+          url: "https://cdn.myanonamouse.net/json/loadUserDetailsTorrents.php",
+          params: {
+            uid: userid,
+            iteration: pageInfo.current,
+            type,
+            cacheTime: Math.round(Date.now() / 1000),
+            mam_id: decodeURIComponent(mamId),
+          },
+        });
+
+        if (seedJson?.rows && Array.isArray(seedJson.rows)) {
+          seedJson.rows.forEach((item: any) => {
+            if (isSeedingType) {
               retInfo.seeding += 1;
               if (item.size) {
                 retInfo.seedingSize += parseSizeString(item.size);
               }
-            });
-
-            if (seedJson.rows.length >= 250 && pageInfo.count < 5) {
-              pageInfo.count += 1;
             }
+            if (isUploadType) {
+              retInfo.uploads += 1;
+            }
+          });
+
+          if (seedJson.rows.length >= 250) {
+            pageInfo.count += 1;
           }
         }
       }
