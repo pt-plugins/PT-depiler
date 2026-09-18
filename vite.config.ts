@@ -196,6 +196,15 @@ export default defineConfig({
               // （vuetify 组件、页面组件等分散在各 chunk 的 css）无法逐份在页面上下文
               // 引入，故合并为单文件，由 app/init.ts 按固定地址 link
               config.build.cssCodeSplit = false;
+              // 关闭 module preload（见 issue #1524）：
+              // 该 ESM 入口被 content script 引导在**站点页面文档**里动态 import，而 Vite 生成的
+              // 预加载辅助函数把依赖还原为根相对地址（`function(e){return"/"+e}`），页面上下文会把
+              // 它们解析成 `https://<站点>/vendor/...`，每个 chunk 每页都发出一次必然 404 的请求，
+              // 并计入站点访问统计。此处产物的 `__vite__mapDeps` 全部为 js 依赖、无 css 依赖，
+              // 关掉预加载后辅助函数退化为纯 `import()` 包装（仅少一个无效提示，不影响模块解析），
+              // 站点侧不再出现任何发往自身 /vendor/... 的请求。
+              // 仅作用于 cs-app 入口所在的多页构建；offscreen 等扩展页面文档不受影响。
+              config.build.modulePreload = false;
             },
           },
           {
