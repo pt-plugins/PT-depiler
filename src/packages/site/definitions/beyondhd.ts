@@ -463,9 +463,9 @@ export const siteMetadata: ISiteMetadata = {
   userInputSettingMeta: [
     {
       name: "apikey",
-      label: "API Key",
+      label: "API Key（不设置将无法进行搜索）",
       hint: "Find the API keys under your security settings (your profile picture -> my security)",
-      required: true,
+      required: false,
     },
     {
       name: "rsskey",
