@@ -98,15 +98,38 @@ export function parseValidTimeString(query: string, formatString: string[] = [])
   return query;
 }
 
+/**
+ * 将时间解析为时间戳。
+ *
+ * timezoneOffset 表示**输入时间所采用的时区**，即站点本地时间相对 UTC 的偏移：
+ * - 输入为字符串（如 "2024-03-01 10:00:00"）时，该字符串是站点的墙上时间，
+ *   按其偏移换算为 UTC 时间戳；该墙上时间不随时间变化（如 "-0400" 的站点在
+ *   夏令时期间仍按同一偏移解析）。
+ * - 输入为 Unix 时间戳（秒或毫秒）时，它已经是绝对时间，本函数直接原样返回，
+ *   不再套用偏移——否则偏移会被重复计算，且解析结果依赖运行主机的本地时区。
+ *
+ * @param time 时间字符串或 Unix 时间戳（秒/毫秒）
+ * @param timezoneOffset 输入时间所属时区的偏移，如 "+0800"
+ */
 export function parseTimeWithZone(time: number | string, timezoneOffset: timezoneOffset = "+0000"): number {
-  let result = time;
-  // 标准时间戳需要 * 1000
-  if (/^(\d){10}$/.test(result + "")) {
-    result = parseInt(result + "") * 1000;
+  // Unix 时间戳（秒/毫秒，含纯数字字符串）本身就是绝对时间，无需也无法再做时区换算
+  if (typeof time === "number" || /^\d+$/.test(time)) {
+    const timestamp = Number(time);
+    // 10 位及以下视为秒级时间戳
+    return String(Math.trunc(timestamp)).length <= 10 ? timestamp * 1000 : timestamp;
   }
-  // 时间格式按 ISO 8601 标准设置，如：2020-01-01T00:00:01+0800
-  const datetime = format(new Date(result), "yyyy-MM-dd'T'HH:mm:ss");
-  return +new Date(`${datetime}${timezoneOffset}`);
+
+  // 字符串形式为站点本地的墙上时间，显式按其偏移构造，避免依赖运行主机的本地时区
+  const [, offsetSign, offsetHours, offsetMinutes] = timezoneOffset.match(/^(?:UTC)?([+-])(\d{1,2})(\d{2})$/) ?? [];
+  let result = time;
+  if (offsetSign) {
+    const offset = `${offsetSign}${offsetHours.padStart(2, "0")}:${offsetMinutes}`;
+    // 时间格式按 ISO 8601 标准设置，如：2020-01-01T00:00:01+08:00
+    const datetime = format(new Date(time), "yyyy-MM-dd'T'HH:mm:ss");
+    result = `${datetime}${offset}`;
+  }
+
+  return +new Date(result);
 }
 
 export function convertIsoDurationToDate(duration: isoDuration, timestamp: number): number {
