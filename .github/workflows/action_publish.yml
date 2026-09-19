@@ -41,6 +41,12 @@ jobs:
       # 提交至 Chrome Web Store
       # 凭证经 WEPUB_* 环境变量传入（与 --chrome-publisher-id 等 flag 等价）
       # 注意：CWS API v2 需要 Publisher ID（CHROME_PUBLISHER_ID，区别于扩展 ID）
+      # 认证方式：service account。wepub 本身不接受 SA 凭证，故先用 SA 私钥自签 JWT
+      # 换取 1 小时有效的 access token，再经 WEPUB_CHROME_ACCESS_TOKEN 传入。
+      # 不用 gcloud：`gcloud auth print-access-token` 不带 --impersonate 时会按 GCP
+      # 自身的 scope 白名单校验，chromewebstore 不在其列，必然报 Invalid scopes value。
+      # 本方式与 refresh token 模式互斥，故不可设置 WEPUB_CHROME_REFRESH_TOKEN
+      # CLIENT_ID / CLIENT_SECRET 在 access token 模式下仍为 wepub 必填项，保留传参
       - name: Publish to Chrome Web Store
         if: ${{ steps.github_release.outputs.id != '' }}
         continue-on-error: true
@@ -49,8 +55,55 @@ jobs:
           WEPUB_CHROME_ITEM_ID: ${{ secrets.CHROME_EXTENSION_ID }}
           WEPUB_CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
           WEPUB_CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
-          WEPUB_CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
-        run: wepub chrome extension-chrome.zip
+          CHROME_SERVICE_ACCOUNT_JSON: ${{ secrets.CHROME_SERVICE_ACCOUNT_JSON }}
+        run: |
+          # 未配置 service account 时直接跳过，避免 JSON.parse(undefined) 抛出难懂的错误
+          if [ -z "$CHROME_SERVICE_ACCOUNT_JSON" ]; then
+            echo "::error::secret CHROME_SERVICE_ACCOUNT_JSON is not set, skip Chrome Web Store publish"
+            exit 1
+          fi
+          # 自签 JWT 换取 access token 并立即注册脱敏规则，
+          # 避免 token 经 set -x / 调试日志或 wepub 自身日志泄漏到 Actions log
+          TOKEN="$(node -e '
+            const crypto = require("crypto");
+            (async () => {
+              const key = JSON.parse(process.env.CHROME_SERVICE_ACCOUNT_JSON);
+              const b64 = (s) => Buffer.from(s).toString("base64url");
+              const now = Math.floor(Date.now() / 1000);
+              const input =
+                b64(JSON.stringify({ alg: "RS256", typ: "JWT" })) + "." +
+                b64(JSON.stringify({
+                  iss: key.client_email,
+                  scope: "https://www.googleapis.com/auth/chromewebstore",
+                  aud: "https://oauth2.googleapis.com/token",
+                  iat: now, exp: now + 3600,
+                }));
+              const assertion = input + "." + crypto.createSign("RSA-SHA256")
+                .update(input).sign(key.private_key).toString("base64url");
+
+              const res = await fetch("https://oauth2.googleapis.com/token", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams({
+                  grant_type: "urn:ietf:params:oauth:grant-type:jwt-bearer",
+                  assertion,
+                }),
+              });
+              const json = await res.json();
+              if (!json.access_token) {
+                console.error(res.status, JSON.stringify(json));
+                process.exit(1);
+              }
+              process.stdout.write(json.access_token);
+            })().catch((e) => { console.error(e); process.exit(1); });
+          ')"
+          if [ -z "$TOKEN" ]; then
+            echo "::error::failed to obtain Chrome Web Store access token"
+            exit 1
+          fi
+          echo "::add-mask::$TOKEN"
+          export WEPUB_CHROME_ACCESS_TOKEN="$TOKEN"
+          wepub chrome extension-chrome.zip
 
       # 下载用于 Firefox 商店提交的源码，并固定到本次工作流提交
       - run: wget "https://github.com/${{ github.repository }}/archive/${{ github.sha }}.zip" -O source.zip
