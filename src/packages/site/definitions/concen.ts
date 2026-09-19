@@ -6,7 +6,7 @@ import { type ISiteMetadata } from "../types";
 export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "concen",
-  name: "Concen",
+  name: "ConCen",
   aka: ["Conspiracy Central"],
   description: "ConCen (Conspiracy Central) is a Private conspiracy related torrent index",
 
@@ -45,16 +45,16 @@ export const siteMetadata: ISiteMetadata = {
         title_op: "allwords",
         title_1_op: "not",
         title_1: "",
-        seeds: 1,
+        seeds: "All",
       },
     },
 
     selectors: {
-      rows: { selector: "table  > tbody > tr:has(td.views-field-title)" },
+      rows: { selector: "table > tbody > tr:has(td.views-field-title)" },
       id: {
         selector: "td.views-field-field-torrent a",
         attr: "href",
-        filters: [(q: string) => q.match(/(\d+)\.torrent$/)![1]],
+        filters: [(q: string) => q.match(/(\d+)\.torrent$/)?.[1] ?? q],
       },
       category: { text: "Other" },
       title: { selector: "td.views-field-title a" },
