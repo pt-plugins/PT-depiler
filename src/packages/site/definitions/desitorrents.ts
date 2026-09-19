@@ -30,8 +30,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Unit3D",
 
-  urls: ["https://torrent.desi/"],
-  legacyUrls: ["https://desitorrents.tv/", "https://desitorrents.rocks/"],
+  urls: ["https://torrent.desi/", "https://desitorrents.tv/", "https://desitorrents.rocks/"],
 
   category: [
     {

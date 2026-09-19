@@ -76,8 +76,14 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "AbstractPrivateSite",
 
-  urls: ["https://bwtorrents.tv/"],
-  legacyUrls: ["https://bwtorrents.cc/", "https://bwtorrents.xyz/", "https://bwtorrents.us/"],
+  urls: ["https://bwtorrents.tv/", "https://bwtorrents.cc/", "https://bwtorrents.xyz/", "https://bwtorrents.us/"],
+  legacyUrls: [
+    "https://bwtorrents.fun/",
+    "https://bwtorrents.co/",
+    "https://www.bwtorrents.life/",
+    "https://www.bwtorrents.pro/",
+    "https://bwtorrents.live/",
+  ],
 
   category: [
     {
