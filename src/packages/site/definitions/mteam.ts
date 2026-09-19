@@ -168,9 +168,8 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "mTorrent",
 
-  urls: ["uggcf://xc.z-grnz.pp/", "uggcf://mc.z-grnz.vb/", "uggcf://bo.z-grnz.pp/"],
+  urls: ["uggcf://xc.z-grnz.pp/", "uggcf://mc.z-grnz.vb/", "uggcf://bo.z-grnz.pp/", "uggcf://u5.z-grnz.pp/"],
   legacyUrls: [
-    "https://h5.m-team.cc/",
     "https://xp.m-team.io/",
     "https://pt.m-team.cc/",
     "https://tp.m-team.cc/",
