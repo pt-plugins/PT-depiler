@@ -1,0 +1,311 @@
+<script setup lang="ts">
+import { ref, computed, watch } from "vue";
+import { useI18n } from "vue-i18n";
+
+import type { CTorrent } from "@ptd/downloader";
+import type { ICrossSeedCandidate } from "@ptd/crossSeed";
+import { sendMessage } from "@/messages.ts";
+import { formatSize } from "@/options/utils.ts";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
+
+import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
+
+const showDialog = defineModel<boolean>({ default: false });
+const { torrents } = defineProps<{
+  torrents: CTorrent[];
+}>();
+
+const { t } = useI18n();
+const runtimeStore = useRuntimeStore();
+
+const loading = ref(false);
+const error = ref("");
+const candidates = ref<ICrossSeedCandidate[]>([]);
+const selected = ref<Set<string>>(new Set());
+const injecting = ref(false);
+
+// 来源种子（infoHash → torrent），注入时定位目标下载器与保存目录
+const sourceByHash = new Map<string, CTorrent>();
+// 下载器 feature 缓存（clientId → DefaultAutoStart）
+const autoStartCache = new Map<string, boolean>();
+
+const selectedCount = computed(
+  () => candidates.value.filter((c) => c.status === "ready" && selected.value.has(candidateKey(c))).length,
+);
+const readyCount = computed(() => candidates.value.filter((c) => c.status === "ready").length);
+const allReadySelected = computed(() => readyCount.value > 0 && readyCount.value === selectedCount.value);
+
+function candidateKey(c: ICrossSeedCandidate): string {
+  return `${c.sourceInfoHash}|${c.siteId}|${c.torrentId}`;
+}
+
+/** 按勾选事件值显式设置/清除（而非翻转），保证多选行为确定 */
+function toggleCandidate(c: ICrossSeedCandidate, checked?: boolean) {
+  const key = candidateKey(c);
+  const next = new Set(selected.value);
+  if (checked ?? !next.has(key)) {
+    next.add(key);
+  } else {
+    next.delete(key);
+  }
+  selected.value = next;
+}
+
+/** 全选/全不选可辅种候选 */
+function toggleSelectAllReady(checked: boolean) {
+  const next = new Set<string>();
+  if (checked) {
+    for (const c of candidates.value) {
+      if (c.status === "ready") next.add(candidateKey(c));
+    }
+  }
+  selected.value = next;
+}
+
+async function defaultAutoStart(clientId: string): Promise<boolean> {
+  if (!autoStartCache.has(clientId)) {
+    try {
+      const meta = await sendMessage("getDownloaderMetaData", clientId);
+      autoStartCache.set(clientId, meta?.feature?.DefaultAutoStart?.allowed ?? true);
+    } catch {
+      autoStartCache.set(clientId, true);
+    }
+  }
+  return autoStartCache.get(clientId)!;
+}
+
+// 每次打开时重置并按所选种子集合聚合扫描（可跨下载器；源按设置页辅种方案开关）
+watch(
+  () => showDialog.value,
+  async (open) => {
+    if (!open) return;
+    loading.value = true;
+    error.value = "";
+    candidates.value = [];
+    selected.value = new Set();
+    sourceByHash.clear();
+    autoStartCache.clear();
+
+    for (const t of torrents) {
+      if (!t.infoHash || sourceByHash.has(t.infoHash)) continue;
+      sourceByHash.set(t.infoHash, t);
+    }
+
+    try {
+      candidates.value = await sendMessage("crossSeedScanTorrents", {
+        torrents: torrents.map((t) => ({
+          clientId: t.clientId,
+          infoHash: t.infoHash,
+          name: t.name,
+          savePath: t.savePath,
+          totalSize: t.totalSize,
+        })),
+      });
+    } catch (e) {
+      error.value = e instanceof Error ? e.message : String(e);
+    } finally {
+      loading.value = false;
+    }
+  },
+);
+
+// 把勾选候选注入到各自来源种子的下载器（保存到来源目录）
+async function injectReseed() {
+  const chosen = candidates.value.filter((c) => c.status === "ready" && selected.value.has(candidateKey(c)));
+  if (chosen.length === 0) return;
+
+  injecting.value = true;
+  let ok = 0;
+  let fail = 0;
+  let skipped = 0;
+  let lastReason = "";
+  try {
+    for (const c of chosen) {
+      // 跨扫描去重：已在决策表中记录为已推送的候选，跳过并提示
+      if (c.injected) {
+        skipped++;
+        continue;
+      }
+      const src = sourceByHash.get(c.sourceInfoHash);
+      if (!src) {
+        fail++;
+        lastReason = "missing source torrent";
+        continue;
+      }
+      try {
+        const result = await sendMessage("downloadTorrent", {
+          torrent: {
+            site: c.siteId,
+            // 懒加载链接：发送时由站点适配器按 site + torrent_id 构建下载链接
+            id: c.torrentId,
+            title: c.sourceName || c.siteName,
+            link: "",
+            url: "",
+          },
+          downloaderId: src.clientId,
+          addTorrentOptions: {
+            localDownload: true,
+            addAtPaused: !(await defaultAutoStart(src.clientId)),
+            savePath: src.savePath,
+          },
+        });
+        if (result.downloadStatus === "failed") {
+          fail++;
+          lastReason = result.errorMessage || c.siteName;
+        } else {
+          ok++;
+          await sendMessage("reseedDecisionRecord", {
+            siteId: c.siteId,
+            torrentId: c.torrentId,
+            infoHash: c.sourceInfoHash,
+          });
+        }
+      } catch (e) {
+        fail++;
+        lastReason = e instanceof Error ? e.message : String(e);
+      }
+    }
+
+    if (fail > 0 || skipped > 0) {
+      runtimeStore.showSnakebar(t("MyClient.iyuuScan.injectPartial", { ok, fail, reason: lastReason, skipped }), {
+        color: "warning",
+      });
+    } else {
+      runtimeStore.showSnakebar(t("MyClient.iyuuScan.injectSuccess", { count: ok }), { color: "success" });
+    }
+    showDialog.value = false;
+  } catch (e) {
+    runtimeStore.showSnakebar(
+      t("MyClient.iyuuScan.injectError", { reason: e instanceof Error ? e.message : String(e) }),
+      {
+        color: "error",
+      },
+    );
+  } finally {
+    injecting.value = false;
+  }
+}
+</script>
+
+<template>
+  <v-dialog v-model="showDialog" max-width="860">
+    <v-card>
+      <v-card-title class="d-flex align-center">
+        <v-icon class="mr-2">mdi-scan-helper</v-icon>
+        <span>{{ t("MyClient.iyuuScan.dialogTitle", { count: torrents.length }) }}</span>
+        <v-spacer />
+        <v-btn icon="mdi-close" variant="text" :title="t('common.dialog.close')" @click="showDialog = false" />
+      </v-card-title>
+      <v-divider />
+
+      <v-card-text>
+        <div v-if="loading" class="text-center py-6">
+          <v-progress-circular indeterminate size="32" width="3" />
+          <div class="text-body-small text-grey mt-2">{{ t("MyClient.iyuuScan.scanning") }}</div>
+        </div>
+
+        <v-alert v-else-if="error" type="error" variant="tonal">
+          {{ t("MyClient.iyuuScan.queryError", { reason: error }) }}
+        </v-alert>
+
+        <v-alert v-else-if="candidates.length === 0" type="info" variant="tonal">
+          {{ t("MyClient.iyuuScan.noResult") }}
+        </v-alert>
+
+        <template v-else>
+          <v-table density="compact">
+            <thead>
+              <tr>
+                <th style="width: 44px">
+                  <v-checkbox
+                    :model-value="allReadySelected"
+                    :disabled="readyCount === 0"
+                    density="compact"
+                    hide-details
+                    :title="t('MyClient.iyuuScan.selectAll')"
+                    @update:model-value="(v) => toggleSelectAllReady(Boolean(v))"
+                  />
+                </th>
+                <th>{{ t("MyClient.iyuuScan.columnSite") }}</th>
+                <th>{{ t("MyClient.iyuuScan.columnTitle") }}</th>
+                <th class="text-end">{{ t("MyClient.iyuuScan.columnSize") }}</th>
+                <th class="text-center" style="width: 110px">{{ t("MyClient.iyuuScan.columnStatus") }}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="c in candidates" :key="candidateKey(c)">
+                <td>
+                  <v-checkbox
+                    v-if="c.status === 'ready'"
+                    :model-value="selected.has(candidateKey(c))"
+                    density="compact"
+                    hide-details
+                    @update:model-value="(v) => toggleCandidate(c, Boolean(v))"
+                  />
+                </td>
+                <td>
+                  <div class="d-flex align-center ga-1">
+                    <SiteFavicon :site-id="c.siteId" :size="16" />
+                    <span class="text-body-small">{{ c.siteName }}</span>
+                    <v-chip size="x-small" variant="tonal" class="ml-1">
+                      {{ t(`common.source.${c.source}`) }}
+                    </v-chip>
+                  </div>
+                </td>
+                <td>
+                  <span
+                    class="text-body-small text-truncate d-inline-block"
+                    style="max-width: 320px; vertical-align: middle"
+                  >
+                    {{ c.sourceName || c.siteName }}
+                  </span>
+                </td>
+                <td class="text-end text-body-small">
+                  {{ c.sourceSize ? formatSize(c.sourceSize) : "-" }}
+                </td>
+                <td class="text-center">
+                  <div class="d-flex justify-center align-center ga-1">
+                    <v-chip v-if="c.status === 'ready'" size="x-small" color="success">
+                      {{ t("MyClient.iyuuScan.statusReady") }}
+                    </v-chip>
+                    <v-chip
+                      v-if="c.status === 'ready' && typeof c.progress === 'number' && c.progress < 100"
+                      size="x-small"
+                      color="amber"
+                      :title="t('MyClient.iyuuScan.statusPartial')"
+                    >
+                      {{ c.progress }}%
+                    </v-chip>
+                    <v-chip v-if="c.status === 'ready' && c.injected" size="x-small" color="grey">
+                      {{ t("MyClient.iyuuScan.statusInjected") }}
+                    </v-chip>
+                    <v-tooltip v-if="c.status !== 'ready'" :text="c.error || ''">
+                      <template #activator="{ props }">
+                        <v-chip v-bind="props" size="x-small" color="error">
+                          {{ t("MyClient.iyuuScan.statusError") }}
+                        </v-chip>
+                      </template>
+                    </v-tooltip>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </v-table>
+          <v-alert type="info" variant="tonal" density="compact" class="mt-2">
+            {{ t("MyClient.iyuuScan.injectHint") }}
+          </v-alert>
+        </template>
+      </v-card-text>
+
+      <v-card-actions v-if="!loading">
+        <v-spacer />
+        <v-btn variant="text" @click="showDialog = false">{{ t("common.dialog.close") }}</v-btn>
+        <v-btn color="primary" :disabled="selectedCount === 0" :loading="injecting" @click="injectReseed">
+          {{ t("MyClient.iyuuScan.inject", { count: selectedCount }) }}
+        </v-btn>
+      </v-card-actions>
+    </v-card>
+  </v-dialog>
+</template>
+
+<style scoped lang="scss"></style>

@@ -4,6 +4,8 @@ node_modules
 
 # 本地调研/设计文档（不入库）
 docs
+.research-flood
+.research-iyuu
 
 ## Build files
 dist
