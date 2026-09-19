@@ -89,8 +89,8 @@ importers:
         specifier: ^2.0.0
         version: 2.0.0
       valid-filename:
-        specifier: ^4.0.0
-        version: 4.0.0
+        specifier: ^5.0.0
+        version: 5.0.0
       vue:
         specifier: ^3.5.42
         version: 3.5.42(typescript@6.0.3)
@@ -1982,9 +1982,9 @@ packages:
   file-saver@2.0.5:
     resolution: {integrity: sha512-P9bmyZ3h/PRG+Nzga+rbdI4OEpNDzAVyy74uVO9ATgzLK6VtAsYybF/+TOCvrc0MO793d6+42lLyZTw7/ArVzA==}
 
-  filename-reserved-regex@3.0.0:
-    resolution: {integrity: sha512-hn4cQfU6GOT/7cFHXBqeBg2TbrMBgdD0kcjLhvSQYYwm3s4B6cjvBfb7nBALJLAXqmU5xajSa7X2NnUud/VCdw==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+  filename-reserved-regex@4.0.1:
+    resolution: {integrity: sha512-qUet2faQFKvtvVUsEf7wCrTURwxBOIZpspsLHGifw9QCWk55ITE2FrG8XhfQqG/uxMA1xEGFVQbL+Yfm0O94+Q==}
+    engines: {node: '>=20'}
 
   filesize@11.0.23:
     resolution: {integrity: sha512-EzB9Km94xm3V7szupSlcGVJpkvXWuNtSZmr7qBoj229q7lEJEEYGMk8gwGnA4ZTAGQmHZigTDEIuOfCQXec1fQ==}
@@ -3293,9 +3293,9 @@ packages:
     deprecated: uuid@10 and below is no longer supported.  For ESM codebases, update to uuid@latest.  For CommonJS codebases, use uuid@11 (but be aware this version will likely be deprecated in 2028).
     hasBin: true
 
-  valid-filename@4.0.0:
-    resolution: {integrity: sha512-VEYTpTVPMgO799f2wI7zWf0x2C54bPX6NAfbZ2Z8kZn76p+3rEYCTYVYzMUcVSMvakxMQTriBf24s3+WeXJtEg==}
-    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+  valid-filename@5.0.0:
+    resolution: {integrity: sha512-ehFCWRZhTFhxr4lG9xbd4Z5uoB/HRgSWWZqdvoSI+JP5wW1kGhOCqoYTLQjr0MUSSQB626T48Ck/olvLQKC5/g==}
+    engines: {node: '>=22'}
 
   vite-dev-rpc@2.0.0:
     resolution: {integrity: sha512-yKwbTwdHKSD2k/aGqyWpPHepo45OQc8lH3/6IfT4ZqeKE26ooKvi4WIEKzqWav8v+9Is8u1k8q54hvOmqASazA==}
@@ -5336,7 +5336,7 @@ snapshots:
 
   file-saver@2.0.5: {}
 
-  filename-reserved-regex@3.0.0: {}
+  filename-reserved-regex@4.0.1: {}
 
   filesize@11.0.23: {}
 
@@ -6633,9 +6633,9 @@ snapshots:
 
   uuid@8.3.2: {}
 
-  valid-filename@4.0.0:
+  valid-filename@5.0.0:
     dependencies:
-      filename-reserved-regex: 3.0.0
+      filename-reserved-regex: 4.0.1
 
   vite-dev-rpc@2.0.0(vite@6.4.3(@types/node@26.4.0)(sass@1.104.0)(tsx@4.23.12)(yaml@2.9.0)):
     dependencies:
