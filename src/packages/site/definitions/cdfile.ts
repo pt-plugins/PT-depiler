@@ -23,6 +23,10 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["https://pt.cdfile.org/"],
 
+  // dead at 2026-03-08 ( from savept.icu
+  // 站点首页公告「CD File PT站 我们已经关闭停止运营，后续不再开放」
+  isDead: true,
+
   category: [
     {
       name: "分类",

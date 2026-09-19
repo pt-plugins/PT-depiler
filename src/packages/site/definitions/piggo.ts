@@ -12,6 +12,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "piggo",
   name: "Piggo",
+  aka: ["猪猪"],
   description: "猪猪网",
   tags: ["影视", "综合", "少儿"],
   collaborator: ["zxb0303"],

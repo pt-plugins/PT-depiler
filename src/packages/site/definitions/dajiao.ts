@@ -8,6 +8,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "dajiao",
   name: "DAJIAO",
+  aka: ["打胶"],
   description: "打胶",
   tags: ["综合", "纪录片"],
 

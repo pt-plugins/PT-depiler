@@ -13,6 +13,7 @@ export const siteMetadata: ISiteMetadata = {
 
   id: "icc2022",
   name: "ICC",
+  aka: ["冰淇淋"],
   description: "冰淇淋",
   tags: ["影视", "综合"],
   timezoneOffset: "+0800",

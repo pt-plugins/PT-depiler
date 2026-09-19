@@ -12,7 +12,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "discfan",
   name: "DiscFan",
-  aka: ["碟粉"],
+  aka: ["碟粉", "蝶粉"],
   description: "碟粉",
   tags: ["影视", "综合"],
   collaborator: ["zxb0303"],

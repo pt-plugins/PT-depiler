@@ -17,7 +17,7 @@ export const siteMetadata: ISiteMetadata = {
   version: 1,
   id: "daxiangjiao",
   name: "DaXiangJiao",
-  aka: ["大象蕉"],
+  aka: ["大象蕉", "大香蕉"],
   description: "DaXiangJiao 私有资源分享站",
   tags: ["影视", "综合", "成人"],
   timezoneOffset: "+0800",

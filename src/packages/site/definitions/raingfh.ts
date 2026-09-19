@@ -20,6 +20,9 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["https://raingfh.top/"],
 
+  // dead at 2026-06-29 ( from savept.icu
+  isDead: true,
+
   category: [
     {
       name: "分类",
