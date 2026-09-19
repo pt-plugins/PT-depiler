@@ -179,7 +179,8 @@ export const siteMetadata: ISiteMetadata = {
           },
           uploads: {
             // <li><a href="/users/33387/uploads">Uploads</a> (100)</li>
-            selector: ["#detailsbox li:has(a[href*='/uploads'])"],
+            // 注意：该 li 位于侧栏 #sidebar，而非 #detailsbox；数量 "(100)" 是 li 的文本节点，故必须取 li 而非 a
+            selector: ["#sidebar li:has(a[href*='/uploads'])", "#detailsbox li:has(a[href*='/uploads'])"],
             filters: [{ name: "parseNumber" }],
           },
           joinTime: {
