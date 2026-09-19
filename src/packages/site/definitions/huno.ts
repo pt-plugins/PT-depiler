@@ -56,10 +56,7 @@ function getHunoApiSubTitle(row: object): string {
     getHunoApiValue(row, ["source_type.name", "source_type", "attributes.source_type.name", "attributes.source_type"]),
   ];
 
-  return values
-    .filter(Boolean)
-    .map(String)
-    .join(" / ");
+  return values.filter(Boolean).map(String).join(" / ");
 }
 
 function getHunoApiTagText(row: object, paths: string[]): string {
@@ -100,7 +97,10 @@ function isHunoTruthyFreeValue(value: string): boolean {
     return false;
   }
 
-  return /^(true|1|yes|free|freeleech|100|100\.0|100%)$/.test(normalizedValue) || /100%\s*free|freeleech/.test(normalizedValue);
+  return (
+    /^(true|1|yes|free|freeleech|100|100\.0|100%)$/.test(normalizedValue) ||
+    /100%\s*free|freeleech/.test(normalizedValue)
+  );
 }
 
 export const siteMetadata: ISiteMetadata = {
@@ -117,7 +117,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Unit3D",
 
   urls: ["uggcf://unjxr.hab/"],
-  legacyUrls: ["uggcf://unjxr.habm/"],
+  legacyUrls: ["uggcf://unjxr.hab/"],
 
   collaborator: ["fzlins", "hui-shao"],
 
@@ -215,10 +215,7 @@ export const siteMetadata: ISiteMetadata = {
       },
       category: {
         selector: ":self",
-        filters: [
-          (row: object) =>
-            getHunoApiValue(row, ["category.name", "attributes.category.name"], "All"),
-        ],
+        filters: [(row: object) => getHunoApiValue(row, ["category.name", "attributes.category.name"], "All")],
       },
       size: { selector: ["size", "attributes.size"] },
       time: { selector: ["created_at", "attributes.created_at", "bumped_at", "attributes.bumped_at"] },
