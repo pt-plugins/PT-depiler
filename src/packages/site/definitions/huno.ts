@@ -1,5 +1,6 @@
 import {
   ETorrentStatus,
+  NoTokenError,
   type IAdvancedSearchRequestConfig,
   type ISearchInput,
   type ISiteMetadata,
@@ -523,10 +524,15 @@ export default class Huno extends Unit3D {
     axiosConfig: AxiosRequestConfig,
     checkLogin: boolean = true,
   ): Promise<AxiosResponse<T>> {
+    const token = this.userConfig.inputSetting?.token;
+    if (!token) {
+      throw new NoTokenError(); // 未填写 Token 时直接拦截，避免请求被误判为需要登录
+    }
+
     // add token to headers
     axiosConfig.headers = {
       ...(axiosConfig.headers ?? {}),
-      "X-Api-Token": this.userConfig.inputSetting!.token ?? "",
+      "X-Api-Token": token,
       origin: this.url,
     };
 

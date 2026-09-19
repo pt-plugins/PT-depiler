@@ -2,6 +2,7 @@
 export class CFBlockedError extends Error {}
 export class NeedLoginError extends Error {}
 export class NoTorrentsError extends Error {}
+export class NoTokenError extends Error {} // 站点所需 Token 未填写
 
 export type TSiteID = string; // should match regexp /[0-9a-z]+/
 export type TSiteHost = string;
@@ -36,4 +37,5 @@ export enum EResultParseStatus {
   CFBlocked, // Cloudflare 封锁
   needLogin, // 需要登录
   noResults, // 等同于原先的 noTorrents 和 torrentTableIsEmpty ，这两个在结果上没有区别
+  noToken, // 站点所需 Token 未填写
 }

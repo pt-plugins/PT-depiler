@@ -8,6 +8,7 @@ import {
   type ISiteMetadata,
   type IUserInfo,
   NeedLoginError,
+  NoTokenError,
   type ITorrent,
   type ISearchInput,
   type ITorrentTag,
@@ -16,14 +17,7 @@ import {
 import { parseTimeToLiveToDate, parseValidTimeString } from "../utils";
 
 type TUserInfoTransKey =
-  | "id"
-  | "seedingSize"
-  | "joinTime"
-  | "averageSeedingTime"
-  | "invites"
-  | "ratio"
-  | "trueRatio"
-  | "lastAccessAt";
+  "id" | "seedingSize" | "joinTime" | "averageSeedingTime" | "invites" | "ratio" | "trueRatio" | "lastAccessAt";
 
 /**
  * Trans Map
@@ -605,6 +599,8 @@ export default class Unit3D extends PrivateSite {
 
       if (e instanceof NeedLoginError) {
         flushUserInfo.status = EResultParseStatus.needLogin;
+      } else if (e instanceof NoTokenError) {
+        flushUserInfo.status = EResultParseStatus.noToken;
       }
     }
 

@@ -10,6 +10,7 @@ import {
   EResultParseStatus,
   CFBlockedError,
   NeedLoginError,
+  NoTokenError,
   type IElementQuery,
   type ISiteMetadata,
   type IUserInfo,
@@ -208,6 +209,8 @@ export default class PrivateSite extends BittorrentSite {
         flushUserInfo.status = EResultParseStatus.CFBlocked;
       } else if (error instanceof NeedLoginError) {
         flushUserInfo.status = EResultParseStatus.needLogin;
+      } else if (error instanceof NoTokenError) {
+        flushUserInfo.status = EResultParseStatus.noToken;
       }
     }
 
