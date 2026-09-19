@@ -34,6 +34,9 @@ const { t } = useI18n();
   <span v-else-if="status === EResultParseStatus.needLogin" class="text-red">
     {{ t("resultParseStatus.needLogin") }}
   </span>
+  <span v-else-if="status === EResultParseStatus.noToken" class="text-red">
+    {{ t("resultParseStatus.noToken") }}
+  </span>
   <span v-else-if="status === EResultParseStatus.noResults" class="text-red">
     {{ t("resultParseStatus.noResults") }}
   </span>
