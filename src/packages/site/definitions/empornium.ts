@@ -62,7 +62,7 @@ export const siteMetadata: ISiteMetadata = {
   id: "empornium",
   version: 1,
   name: "Empornium",
-  aka: ["EMP"],
+  aka: ["EMP", "峨眉派"],
   description: "Empornium (EMP) is a Private Torrent Tracker for 3X.",
   tags: ["成人", "XXX"],
   timezoneOffset: "-1100",

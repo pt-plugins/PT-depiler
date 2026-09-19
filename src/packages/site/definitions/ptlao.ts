@@ -10,6 +10,7 @@ export const siteMetadata: ISiteMetadata = {
 
   id: "ptlao",
   name: "PTLAO",
+  aka: ["忘年桥"],
   tags: ["成人", "综合"],
   timezoneOffset: "+0800",
 

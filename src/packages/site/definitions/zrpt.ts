@@ -18,7 +18,10 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://zrpt.cc/"],
+  // 原域名 zrpt.cc 已无法连接，站点迁至 naturept.top（savept.icu 卡片标题仍为 "ZRPT - 自然"）
+  // refs: https://savept.icu/
+  urls: ["https://naturept.top/"],
+  legacyUrls: ["https://zrpt.cc/"],
 
   category: [
     {
