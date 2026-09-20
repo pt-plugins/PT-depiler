@@ -46,15 +46,14 @@ jobs:
       # 不用 gcloud：`gcloud auth print-access-token` 不带 --impersonate 时会按 GCP
       # 自身的 scope 白名单校验，chromewebstore 不在其列，必然报 Invalid scopes value。
       # 本方式与 refresh token 模式互斥，故不可设置 WEPUB_CHROME_REFRESH_TOKEN
-      # CLIENT_ID / CLIENT_SECRET 在 access token 模式下仍为 wepub 必填项，保留传参
+      # CLIENT_ID / CLIENT_SECRET 在 access token 模式下必须一并移除：
+      # 设置 WEPUB_CHROME_ACCESS_TOKEN 后，wepub 会因这两个变量而报错
       - name: Publish to Chrome Web Store
         if: ${{ steps.github_release.outputs.id != '' }}
         continue-on-error: true
         env:
           WEPUB_CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
           WEPUB_CHROME_ITEM_ID: ${{ secrets.CHROME_EXTENSION_ID }}
-          WEPUB_CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
-          WEPUB_CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
           CHROME_SERVICE_ACCOUNT_JSON: ${{ secrets.CHROME_SERVICE_ACCOUNT_JSON }}
         run: |
           # 未配置 service account 时直接跳过，避免 JSON.parse(undefined) 抛出难懂的错误
