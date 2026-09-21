@@ -59,6 +59,7 @@ export const defaultErrorSearchPlanStatus = [
   EResultParseStatus.unknownError,
   EResultParseStatus.CFBlocked,
   EResultParseStatus.needLogin,
+  EResultParseStatus.noUserInput,
 ];
 
 export const searchPlanStatus = computed<ISearchPlanStatusMap>(() => {
@@ -73,6 +74,7 @@ export const searchPlanStatus = computed<ISearchPlanStatusMap>(() => {
       case EResultParseStatus.parseError:
       case EResultParseStatus.CFBlocked:
       case EResultParseStatus.needLogin:
+      case EResultParseStatus.noUserInput:
         statusMap.error++;
         break;
       case EResultParseStatus.waiting:

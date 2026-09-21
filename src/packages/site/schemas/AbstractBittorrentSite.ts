@@ -15,6 +15,7 @@ import {
   NeedLoginError,
   CFBlockedError,
   NoTorrentsError,
+  NoUserInputError,
   IAdvanceKeywordSearchConfig,
   ISearchInput,
   ITorrentTag,
@@ -305,6 +306,8 @@ export default class BittorrentSite {
         result.status = EResultParseStatus.CFBlocked;
       } else if (e instanceof NeedLoginError) {
         result.status = EResultParseStatus.needLogin;
+      } else if (e instanceof NoUserInputError) {
+        result.status = EResultParseStatus.noUserInput;
       } else if (e instanceof NoTorrentsError) {
         result.status = EResultParseStatus.noResults;
       }
