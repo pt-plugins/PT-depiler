@@ -12,7 +12,7 @@ import {
   type ITorrent,
   type ITorrentTag,
   NeedLoginError,
-  NoTokenError,
+  NoUserInputError,
 } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
 import { buildCategoryOptionsFromList, convertIsoDurationToSeconds } from "../utils";
@@ -610,7 +610,7 @@ export default class BeyondHD extends PrivateSite {
     if (axiosConfig.url === "/api/torrents") {
       const apikey = this.userConfig.inputSetting?.apikey;
       if (!apikey) {
-        throw new NoTokenError(); // 未填写 API Key 时直接拦截，避免搜索被误判为需要登录
+        throw new NoUserInputError("API Key"); // 未填写 API Key 时直接拦截，避免搜索被误判为需要登录
       }
       const rsskey = this.userConfig.inputSetting?.rsskey ?? "";
       axiosConfig.url = `/api/torrents/${apikey}`;

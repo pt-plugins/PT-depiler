@@ -34,7 +34,7 @@ const statusColorMap: Record<EResultParseStatus, string> = {
   [EResultParseStatus.passParse]: "yellow-darken-2",
   [EResultParseStatus.CFBlocked]: "orange",
   [EResultParseStatus.needLogin]: "red",
-  [EResultParseStatus.noToken]: "red",
+  [EResultParseStatus.noUserInput]: "red",
   [EResultParseStatus.noResults]: "red",
   [EResultParseStatus.unknownError]: "red",
 };

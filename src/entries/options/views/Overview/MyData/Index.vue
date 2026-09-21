@@ -346,7 +346,7 @@ const showExportDialog = ref(false);
                         EResultParseStatus.parseError,
                         EResultParseStatus.unknownError,
                         EResultParseStatus.needLogin,
-                        EResultParseStatus.noToken,
+                        EResultParseStatus.noUserInput,
                       ].map((item) => item.toString());
                       updateTableFilterValueFn();
                     }

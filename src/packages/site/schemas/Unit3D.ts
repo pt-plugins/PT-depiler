@@ -8,7 +8,7 @@ import {
   type ISiteMetadata,
   type IUserInfo,
   NeedLoginError,
-  NoTokenError,
+  NoUserInputError,
   type ITorrent,
   type ISearchInput,
   type ITorrentTag,
@@ -599,8 +599,8 @@ export default class Unit3D extends PrivateSite {
 
       if (e instanceof NeedLoginError) {
         flushUserInfo.status = EResultParseStatus.needLogin;
-      } else if (e instanceof NoTokenError) {
-        flushUserInfo.status = EResultParseStatus.noToken;
+      } else if (e instanceof NoUserInputError) {
+        flushUserInfo.status = EResultParseStatus.noUserInput;
       }
     }
 

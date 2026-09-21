@@ -1,6 +1,6 @@
 import {
   ETorrentStatus,
-  NoTokenError,
+  NoUserInputError,
   type IAdvancedSearchRequestConfig,
   type ISearchInput,
   type ISiteMetadata,
@@ -118,7 +118,6 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Unit3D",
 
   urls: ["uggcf://unjxr.hab/"],
-  legacyUrls: ["uggcf://unjxr.hab/"],
 
   collaborator: ["fzlins", "hui-shao"],
 
@@ -526,7 +525,7 @@ export default class Huno extends Unit3D {
   ): Promise<AxiosResponse<T>> {
     const token = this.userConfig.inputSetting?.token;
     if (!token) {
-      throw new NoTokenError(); // 未填写 Token 时直接拦截，避免请求被误判为需要登录
+      throw new NoUserInputError("Token"); // 未填写 Token 时直接拦截，避免请求被误判为需要登录
     }
 
     // add token to headers
