@@ -15,7 +15,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Unit3D",
 
-  urls: ["https://rastastugan.org/"],
+  urls: ["uggcf://enfgnfghtna.bet/"],
 
   category: [
     {

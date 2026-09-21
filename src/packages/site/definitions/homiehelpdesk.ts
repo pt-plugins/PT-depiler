@@ -19,7 +19,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Unit3D",
 
-  urls: ["https://homiehelpdesk.net/"],
+  urls: ["uggcf://ubzvrurycqrfx.arg/"],
 
   category: [
     {

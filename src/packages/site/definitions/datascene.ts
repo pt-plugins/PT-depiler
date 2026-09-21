@@ -20,8 +20,8 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Unit3D",
 
-  urls: ["https://datascene.xyz/"],
-  legacyUrls: ["https://datascene.net/"],
+  urls: ["uggcf://qngnfprar.klm/"],
+  legacyUrls: ["uggcf://qngnfprar.arg/"],
 
   category: [
     {
