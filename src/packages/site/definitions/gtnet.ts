@@ -12,7 +12,7 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["成人"],
   type: "private",
   timezoneOffset: "+0800",
-  urls: ["https://www.gay-torrents.net/"],
+  urls: ["uggcf://jjj.tnl-gbeeragf.arg/"],
 
   search: {
     requestConfig: {

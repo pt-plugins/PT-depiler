@@ -83,7 +83,7 @@ export const siteMetadata: ISiteMetadata = {
 
   type: "private",
 
-  urls: ["https://hdbits.org/"],
+  urls: ["uggcf://uqovgf.bet/"],
 
   category: [
     categoryFactory("category", category),

@@ -18,7 +18,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
   timezoneOffset: "-0300",
 
-  urls: ["https://bitbr.cc/"],
+  urls: ["uggcf://ovgoe.pp/"],
 
   // PTPP 未提供分类表，此处沿用 NexusPHP 的通用分类参数与状态筛选
   category: [CategoryIncldead, CategorySpstate],

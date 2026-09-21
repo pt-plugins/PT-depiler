@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   timezoneOffset: "+0800",
   urls: ["uggcf://jjj.tnlgbe.erag/"],
-  legacyUrls: ["https://www.gaytorrent.ru/"],
+  legacyUrls: ["uggcf://jjj.tnlgbeerag.eh/"],
 
   category: [
     {

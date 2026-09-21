@@ -12,7 +12,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "NexusPHP",
 
-  urls: ["https://ptneko.com/"],
+  urls: ["uggcf://cgarxb.pbz/"],
 
   category: [CategoryIncldead, CategorySpstate, CategoryInclbookmarked],
 

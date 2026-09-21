@@ -34,7 +34,7 @@ export const siteMetadata: ISiteMetadata = {
     "uggcf://0pvyv.zl/",
   ],
 
-  legacyUrls: ["https://6mag.net/", "https://9mag.net/", "https://0mag.net/"],
+  legacyUrls: ["uggcf://6znt.arg/", "uggcf://9znt.arg/", "uggcf://0znt.arg/"],
 
   search: {
     keywordPath: "params.q",

@@ -9,7 +9,7 @@ export const siteMetadata: ISiteMetadata = {
   name: "Gay-Torrents.Org",
   tags: ["成人"],
   type: "private",
-  urls: ["https://gay-torrents.org/"],
+  urls: ["uggcf://tnl-gbeeragf.bet/"],
 
   category: [
     {

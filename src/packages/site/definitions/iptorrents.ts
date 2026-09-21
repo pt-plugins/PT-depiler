@@ -44,7 +44,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "AbstractPrivateSite",
 
-  urls: ["https://iptorrents.com/"],
+  urls: ["uggcf://vcgbeeragf.pbz/"],
 
   category: [
     {

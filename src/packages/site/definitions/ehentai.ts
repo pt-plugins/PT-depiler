@@ -15,7 +15,7 @@ export const siteMetadata: ISiteMetadata = {
 
   type: "public",
 
-  urls: ["https://e-hentai.org/", "https://exhentai.org/"],
+  urls: ["uggcf://r-uragnv.bet/", "uggcf://rkuragnv.bet/"],
 
   search: {
     keywordPath: "params.search",

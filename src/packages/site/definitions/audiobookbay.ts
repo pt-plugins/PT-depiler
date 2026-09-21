@@ -80,12 +80,12 @@ export const siteMetadata: ISiteMetadata = {
 
   type: "public",
   urls: [
-    "https://audiobookbay.lu/",
-    "http://audiobookbay.is/",
-    "http://audiobookbay.se/",
-    "http://audiobookbay.fi/",
-    "http://audiobookbay.ws/",
-    "http://theaudiobookbay.se/",
+    "uggcf://nhqvbobbxonl.yh/",
+    "uggc://nhqvbobbxonl.vf/",
+    "uggc://nhqvbobbxonl.fr/",
+    "uggc://nhqvbobbxonl.sv/",
+    "uggc://nhqvbobbxonl.jf/",
+    "uggc://gurnhqvbobbxonl.fr/",
   ],
 
   category: [

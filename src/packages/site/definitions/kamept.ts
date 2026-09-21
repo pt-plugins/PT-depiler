@@ -21,7 +21,7 @@ export const siteMetadata: ISiteMetadata = {
   aka: ["龟站"],
   schema: "NexusPHP",
   type: "private",
-  urls: ["https://kamept.com/"],
+  urls: ["uggcf://xnzrcg.pbz/"],
   description: "主打二次元同人AV的站点",
   tags: ["成人", "COS", "动漫", "音乐", "影视"],
   collaborator: ["NekoCH"],

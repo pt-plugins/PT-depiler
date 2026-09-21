@@ -10,7 +10,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "AbstractPrivateSite",
 
-  urls: ["https://pornbits.net/", "https://pornbits.org/"],
+  urls: ["uggcf://cbeaovgf.arg/", "uggcf://cbeaovgf.bet/"],
 
   // refs: https://github.com/pt-plugins/PT-Plugin-Plus/commit/fc106917a4a9b5834633e5d4903912e02846235f
   isDead: true,

@@ -11,8 +11,8 @@ export const siteMetadata: ISiteMetadata = {
   tags: ["Anime"],
 
   type: "public",
-  urls: ["https://www.anirena.com/"],
-  legacyUrls: ["https://anirena.com/"],
+  urls: ["uggcf://jjj.naveran.pbz/"],
+  legacyUrls: ["uggcf://naveran.pbz/"],
 
   category: [
     {

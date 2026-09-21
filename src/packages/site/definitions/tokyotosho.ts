@@ -31,9 +31,9 @@ export const siteMetadata: ISiteMetadata = {
 
   type: "public",
 
-  urls: ["https://www.tokyotosho.info/", "https://tokyo-tosho.net/"],
+  urls: ["uggcf://jjj.gbxlbgbfub.vasb/", "uggcf://gbxlb-gbfub.arg/"],
   legacyUrls: [
-    "https://tokyotosho.se/", // redirect to www.tokyotosho.info
+    "uggcf://gbxlbgbfub.fr/", // redirect to www.tokyotosho.info
   ],
 
   category: [
