@@ -21,7 +21,7 @@ import {
   TorrentFilePriority,
 } from "../types";
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import { getRemoteTorrentFile } from "../utils";
+import { getRemoteTorrentFile, isAuthenticationError } from "../utils";
 
 export const clientConfig: TorrentClientConfig = {
   type: "ruTorrent",
@@ -257,12 +257,16 @@ export default class RuTorrent extends AbstractBittorrentClient<TorrentClientCon
    * 故考虑请求 `/php/getsettings.php` 页面，如果返回json格式的信息则说明可连接
    */
   async ping(): Promise<boolean> {
+    this.lastConnectFailureReason = undefined;
+
     try {
       await this.request({
         url: "/php/getsettings.php",
         responseType: "json",
       });
     } catch (e) {
+      // 使用 HTTP Basic 认证，账号密码错误时返回 401
+      if (isAuthenticationError(e)) this.lastConnectFailureReason = "auth";
       return false;
     }
     return true;

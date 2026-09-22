@@ -738,9 +738,11 @@
     },
     "editor": {
       "addressTip": "Full Server Address (may include port or path), Like: http://192.168.1.1:5000/",
+      "authFailureTip": "Authentication failed: incorrect username or password (for downloaders using an API Key, please check the key).",
       "autoStart": "Automatically start downloading when sending a torrent",
       "nameTip": "Pick a nice and recognizable name for this Download Server",
       "password": "Password",
+      "selfSignedCertificateTip": "If the downloader uses a self-signed certificate, open {address} in the browser and accept the certificate warning, or add the certificate to the trust store, then retry.",
       "timeout": "Timeout (seconds)",
       "uidPlaceholder": " (Generate automatically)"
     },
@@ -1226,6 +1228,7 @@
     "contextMenuSendToDownloaderAdvanced": "Advanced push",
     "contextMenuSendToDownloaderDefaultFolder": "Default path",
     "contextMenuSendToDownloaderIn": "Push to $1 -> $2",
+    "downloaderSelfSignedCertificateTip": "If the downloader uses a self-signed certificate, open $1 in the browser and accept the certificate warning, or add the certificate to the trust store, then retry.",
     "extDesc": "PT Depiler",
     "extName": "PT Depiler",
     "notificationSendLinkToDownloaderFailure": "Failed to send the link to the downloader [$1]",

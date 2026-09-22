@@ -20,7 +20,7 @@ import {
 } from "../types";
 import urlJoin from "url-join";
 import axios, { type AxiosResponse, isAxiosError } from "axios";
-import { getRemoteTorrentFile } from "../utils";
+import { getRemoteTorrentFile, isAuthenticationError } from "../utils";
 
 export const clientConfig: TorrentClientConfig = {
   type: "Transmission",
@@ -351,10 +351,14 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
   }
 
   async ping(): Promise<boolean> {
+    this.lastConnectFailureReason = undefined;
+
     try {
       const { data } = await this.request<TransmissionBaseResponse>("session-get");
       return data.result === "success";
     } catch (e) {
+      // 会话 id 校验通过后仍返回 401，说明账号或密码错误
+      if (isAuthenticationError(e)) this.lastConnectFailureReason = "auth";
       return false;
     }
   }

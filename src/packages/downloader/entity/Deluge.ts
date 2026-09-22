@@ -22,7 +22,7 @@ import {
 } from "../types";
 import urlJoin from "url-join";
 import axios from "axios";
-import { getRemoteTorrentFile } from "../utils";
+import { getRemoteTorrentFile, isAuthenticationError } from "../utils";
 
 export const clientConfig: DownloaderBaseConfig = {
   type: "Deluge",
@@ -349,6 +349,7 @@ export default class Deluge extends AbstractBittorrentClient {
   }
 
   async ping(): Promise<boolean> {
+    this.lastConnectFailureReason = undefined;
     return await this.login();
   }
 
@@ -723,8 +724,11 @@ export default class Deluge extends AbstractBittorrentClient {
   private async login(): Promise<boolean> {
     try {
       this.isLogin = await this.request<boolean>("auth.login", [this.config.password]);
+      // Deluge 的 auth.login 在密码错误时正常返回 false（属于业务返回值，而非 HTTP 错误）
+      if (!this.isLogin) this.lastConnectFailureReason = "auth";
       return this.isLogin;
     } catch (e) {
+      if (isAuthenticationError(e)) this.lastConnectFailureReason = "auth";
       return false;
     }
   }

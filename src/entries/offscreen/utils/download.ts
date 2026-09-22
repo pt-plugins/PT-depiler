@@ -1,4 +1,4 @@
-import axios, { type AxiosRequestConfig } from "axios";
+import axios, { isAxiosError, type AxiosRequestConfig } from "axios";
 import { stringify } from "urlencode";
 import { toMerged } from "es-toolkit";
 import { isEmpty } from "es-toolkit/compat";
@@ -7,6 +7,7 @@ import {
   getDownloader,
   getDownloaderMetaData,
   getRemoteTorrentFile,
+  isSuspectedSelfSignedCertificate,
   type CAddTorrentOptions,
   type CTorrent,
   type CTorrentFile,
@@ -514,6 +515,7 @@ async function downloadTorrentToRemote(
     }
 
     const loggerData = { torrent, downloaderId, downloadRequestConfig, addTorrentOptions } as Record<string, any>;
+    const requestStartedAt = Date.now();
     try {
       logger({ msg: "downloadTorrentToDownloader", data: loggerData });
       const addTorrentResult = await downloaderInstance.addTorrent(downloadRequestConfig.url!, addTorrentOptions);
@@ -529,6 +531,23 @@ async function downloadTorrentToRemote(
     } catch (e) {
       logger({ msg: "Error adding torrent to downloader", data: loggerData });
       errorMessage = getErrorMessage(e);
+
+      // 连接阶段失败（没有收到任何 HTTP 响应）且失败得很快时，提示可能是自签名证书。
+      // offscreen 中无法使用 options 的 vue-i18n，因此文案取自 chrome.i18n（见 src/locales 的 manifest 段）
+      if (
+        isAxiosError(e) &&
+        !e.response &&
+        isSuspectedSelfSignedCertificate({
+          address: downloaderConfig.address,
+          elapsed: Date.now() - requestStartedAt,
+          timeout: downloaderConfig.timeout,
+        })
+      ) {
+        const tip = chrome.i18n.getMessage("downloaderSelfSignedCertificateTip", [downloaderConfig.address ?? ""]);
+        if (tip) {
+          errorMessage += ` ${tip}`;
+        }
+      }
     }
   } else {
     errorMessage = `Downloader is missing or disabled: ${downloaderId}`;

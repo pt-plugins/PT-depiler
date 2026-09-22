@@ -230,6 +230,8 @@ export default class Aria2 extends AbstractBittorrentClient {
   }
 
   async ping(): Promise<boolean> {
+    this.lastConnectFailureReason = undefined;
+
     try {
       const { result: pingData } = await this.methodSend<{
         version: string;
@@ -237,6 +239,8 @@ export default class Aria2 extends AbstractBittorrentClient {
       }>("aria2.getVersion");
       return pingData.version.includes(".");
     } catch (e) {
+      // rpc-secret 错误时 aria2 返回 JSON-RPC error：{"code":1,"message":"Unauthorized"}
+      if (/unauth/i.test((e as Error)?.message ?? "")) this.lastConnectFailureReason = "auth";
       return false;
     }
   }

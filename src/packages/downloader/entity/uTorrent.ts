@@ -20,7 +20,7 @@ import {
 } from "../types";
 import urlJoin from "url-join";
 import axios from "axios";
-import { extractMagnetHash, getRemoteTorrentFile } from "../utils";
+import { extractMagnetHash, getRemoteTorrentFile, isAuthenticationError } from "../utils";
 
 export const clientConfig: TorrentClientConfig = {
   type: "uTorrent",
@@ -216,7 +216,15 @@ export default class UTorrent extends AbstractBittorrentClient<TorrentClientConf
   }
 
   async ping(): Promise<boolean> {
-    return await this.login();
+    this.lastConnectFailureReason = undefined;
+
+    try {
+      return await this.login();
+    } catch (e) {
+      // /token.html 使用 HTTP Basic 认证，账号密码错误时返回 401
+      if (isAuthenticationError(e)) this.lastConnectFailureReason = "auth";
+      return false;
+    }
   }
 
   protected async getClientVersionFromRemote(): Promise<string> {
