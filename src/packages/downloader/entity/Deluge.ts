@@ -750,6 +750,7 @@ export default class Deluge extends AbstractBittorrentClient {
       },
       {
         responseType: "json",
+        timeout: this.config.timeout,
       },
     );
     return result;
