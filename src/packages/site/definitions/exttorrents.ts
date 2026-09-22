@@ -107,7 +107,7 @@ export const siteMetadata: ISiteMetadata = {
 
   type: "public",
 
-  urls: ["https://ext.to/", "https://search.extto.com/", "https://extranet.torrentbay.st/"],
+  urls: ["uggcf://rkg.gb/", "uggcf://frnepu.rkggb.pbz/", "uggcf://rkgenarg.gbeeragonl.fg/"],
 
   category: [
     {

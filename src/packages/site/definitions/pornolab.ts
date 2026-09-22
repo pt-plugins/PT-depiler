@@ -153,7 +153,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "AbstractPrivateSite",
 
-  urls: ["https://pornolab.net/"],
+  urls: ["uggcf://cbeabyno.arg/"],
 
   category: [
     {

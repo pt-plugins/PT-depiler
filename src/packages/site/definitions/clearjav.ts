@@ -17,7 +17,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Unit3D",
 
-  urls: ["https://clearjav.com/"],
+  urls: ["uggcf://pyrnewni.pbz/"],
 
   search: {
     ...SchemaMetadata.search,

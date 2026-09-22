@@ -90,7 +90,7 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://fcrrqncc.vb/"],
 
-  legacyUrls: ["https://icetorrent.org/", "https://scenefz.me/", "https://u-torrents.ro/", "https://myxz.eu/"],
+  legacyUrls: ["uggcf://vprgbeerag.bet/", "uggcf://fprarsm.zr/", "uggcf://h-gbeeragf.eb/", "uggcf://zlkm.rh/"],
 
   // 这里除了 categories 其它均为自定义 key，需要在自定义站点方法中统一处理
   category: [

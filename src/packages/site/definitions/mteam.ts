@@ -170,12 +170,12 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://xc.z-grnz.pp/", "uggcf://mc.z-grnz.vb/", "uggcf://bo.z-grnz.pp/", "uggcf://u5.z-grnz.pp/"],
   legacyUrls: [
-    "https://xp.m-team.io/",
-    "https://pt.m-team.cc/",
-    "https://tp.m-team.cc/",
-    "https://xp.m-team.cc/",
-    "https://ap.m-team.cc/",
-    "https://next.m-team.cc/",
+    "uggcf://kc.z-grnz.vb/",
+    "uggcf://cg.z-grnz.pp/",
+    "uggcf://gc.z-grnz.pp/",
+    "uggcf://kc.z-grnz.pp/",
+    "uggcf://nc.z-grnz.pp/",
+    "uggcf://arkg.z-grnz.pp/",
   ],
 
   category: [

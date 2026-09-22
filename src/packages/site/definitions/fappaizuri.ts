@@ -50,8 +50,8 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Fappaizuri",
 
   // links / legacylinks 取自 Jackett：www 为主域，裸域为旧域
-  urls: ["https://www.fappaizuri.me/"],
-  legacyUrls: ["https://fappaizuri.me/"],
+  urls: ["uggcf://jjj.snccnvmhev.zr/"],
+  legacyUrls: ["uggcf://snccnvmhev.zr/"],
 
   category: [
     {

@@ -43,7 +43,7 @@ export const siteMetadata: ISiteMetadata = {
 
   type: "private",
 
-  urls: ["https://cinemageddon.net/"],
+  urls: ["uggcf://pvarzntrqqba.arg/"],
   category: [
     {
       name: "Category",

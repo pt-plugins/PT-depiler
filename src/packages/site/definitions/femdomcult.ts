@@ -46,7 +46,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Luminance",
 
-  urls: ["https://femdomcult.org/"],
+  urls: ["uggcf://srzqbzphyg.bet/"],
 
   category: [
     {

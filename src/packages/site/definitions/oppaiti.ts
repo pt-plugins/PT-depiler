@@ -11,7 +11,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "GazelleJSONAPI",
 
-  urls: ["https://oppaiti.me/"],
+  urls: ["uggcf://bccnvgv.zr/"],
 
   // refs: https://github.com/pt-plugins/PT-Plugin-Plus/commit/f8862893116800cecec2cb9b86f16dbd11e2bca8
   isDead: true,

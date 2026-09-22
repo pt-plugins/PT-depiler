@@ -32,7 +32,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "FileList",
 
   urls: ["uggcf://svyryvfg.vb/"],
-  legacyUrls: ["https://flro.org/"],
+  legacyUrls: ["uggcf://syeb.bet/"],
 
   category: [
     {

@@ -27,7 +27,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "AbstractPrivateSite",
 
-  urls: ["https://milkie.cc/"],
+  urls: ["uggcf://zvyxvr.pp/"],
 
   category: [
     {

@@ -3,11 +3,7 @@
  * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/exoticaz.json
  */
 import { ISiteMetadata, ISearchInput, IAdvancedSearchRequestConfig, ITorrent, ITorrentTag } from "../types";
-import AvistazNetwork, {
-  SchemaMetadata,
-  avzNetDiscountMap,
-  IAvzNetRawTorrent,
-} from "../schemas/AvistazNetwork.ts";
+import AvistazNetwork, { SchemaMetadata, avzNetDiscountMap, IAvzNetRawTorrent } from "../schemas/AvistazNetwork.ts";
 
 const categoryMap: Record<number, string> = {
   1: "Video Clips",
@@ -47,7 +43,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "AvistazNetwork",
 
   urls: ["uggcf://rkbgvpnm.gb/"],
-  legacyUrls: ["https://torrents.yourexotic.com/"],
+  legacyUrls: ["uggcf://gbeeragf.lbherkbgvp.pbz/"],
 
   collaborator: [""],
 

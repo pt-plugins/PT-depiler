@@ -80,6 +80,10 @@ PT-Depiler 并不是对 PT-Plugin-Plus 的简单移植，而是对其进行了�
 
 ![Alt](https://repobeats.axiom.co/api/embed/9d98187b3a4c57e8c3a7087ff45d61bc03741af0.svg "Repobeats analytics image")
 
+### 🔒 隐私权保护政策 Privacy Policy
+
+PT-Depiler 不含任何统计、埋点或遥测代码，您的数据默认仅保存在本机浏览器中。详细的数据处理说明（收集范围、使用方式、存储位置、共享对象、保留期限与联系渠道）请见 [隐私权保护政策](./privacy-statement.md)。
+
 ### 📝 许可证 License
 
 PT-Depiler 是一个开源项目，遵循 [MIT 许可证](http://opensource.org/licenses/MIT)

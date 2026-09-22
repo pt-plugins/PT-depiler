@@ -92,8 +92,8 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "AbstractPrivateSite",
 
-  urls: ["https://usefultrash.net/"],
-  legacyUrls: ["https://abtorrents.me/", "https://abtorrents.xyz/"],
+  urls: ["uggcf://hfrshygenfu.arg/"],
+  legacyUrls: ["uggcf://nogbeeragf.zr/", "uggcf://nogbeeragf.klm/"],
 
   category: [
     {

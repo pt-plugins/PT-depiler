@@ -29,7 +29,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Unit3D",
 
-  urls: ["https://darkpeers.org/"],
+  urls: ["uggcf://qnexcrref.bet/"],
   favicon: "https://darkpeers.org/favicon.ico",
 
   category: [

@@ -30,7 +30,7 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "GazelleJSONAPI",
 
-  urls: ["https://alpharatio.cc/"],
+  urls: ["uggcf://nycunengvb.pp/"],
 
   category: [
     {

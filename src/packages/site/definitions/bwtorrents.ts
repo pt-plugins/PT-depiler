@@ -76,13 +76,13 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "AbstractPrivateSite",
 
-  urls: ["https://bwtorrents.tv/", "https://bwtorrents.cc/", "https://bwtorrents.xyz/", "https://bwtorrents.us/"],
+  urls: ["uggcf://ojgbeeragf.gi/", "uggcf://ojgbeeragf.pp/", "uggcf://ojgbeeragf.klm/", "uggcf://ojgbeeragf.hf/"],
   legacyUrls: [
-    "https://bwtorrents.fun/",
-    "https://bwtorrents.co/",
-    "https://www.bwtorrents.life/",
-    "https://www.bwtorrents.pro/",
-    "https://bwtorrents.live/",
+    "uggcf://ojgbeeragf.sha/",
+    "uggcf://ojgbeeragf.pb/",
+    "uggcf://jjj.ojgbeeragf.yvsr/",
+    "uggcf://jjj.ojgbeeragf.ceb/",
+    "uggcf://ojgbeeragf.yvir/",
   ],
 
   category: [
