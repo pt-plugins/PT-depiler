@@ -42,7 +42,8 @@ const color = computed(() => {
 </script>
 
 <template>
-  <v-row class="pt-1">
+  <!-- Vuetify 4 的 v-row 改用 flex gap，需 gap="0" 才能让图标列与进度条保持紧凑排列 -->
+  <v-row gap="0" class="pt-1">
     <v-col class="pa-0" cols="2">
       <v-icon :color="color" :icon="icon" size="x-small"></v-icon>
     </v-col>
