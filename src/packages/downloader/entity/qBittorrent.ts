@@ -23,7 +23,7 @@ import {
   CTrackerState,
   TorrentFilePriority,
 } from "../types";
-import { AxiosRequestConfig, AxiosResponse } from "axios";
+import { isAxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import urlJoin from "url-join";
 import { axios, getRemoteTorrentFile, isAuthenticationError } from "../utils";
 import { merge } from "es-toolkit";
@@ -327,8 +327,20 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
 
       return this.isLogin;
     } catch (e) {
-      // 401 只可能来自凭据被拒绝；403 在未开启「绕过 CSRF 保护」时也可能是 CSRF 校验失败，故不做判断
-      if (isAuthenticationError(e, this.bypassCSRF ? [401, 403] : [401])) this.lastConnectFailureReason = "auth";
+      // qBittorrent 对「凭据被拒绝」可能返回 401，也可能返回 403 + 响应体 "Fails."，
+      // 而 403 同样会被 CSRF 保护使用，因此需要区分：
+      // - 开启「绕过 CSRF 保护」后，403 不可能来自 CSRF 校验，可直接判定；
+      // - 未开启时以响应体兜底 —— 凭据错误固定返回 "Fails."，CSRF 拦截返回的是其他内容。
+      const authStatusCodes = this.bypassCSRF ? [401, 403] : [401];
+      const isFailedLoginResponse =
+        isAxiosError(e) &&
+        String(e.response?.data ?? "")
+          .trim()
+          .toLowerCase() === "fails.";
+
+      if (isAuthenticationError(e, authStatusCodes) || isFailedLoginResponse) {
+        this.lastConnectFailureReason = "auth";
+      }
       return false;
     }
   }
