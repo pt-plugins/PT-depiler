@@ -70,7 +70,8 @@ function save() {
         <v-skeleton-loader v-if="addedSites.length === 0" type="image" />
 
         <v-list v-else class="overflow-x-hidden overflow-y-hidden px-3 pt-3">
-          <v-row>
+          <!-- Vuetify 4 的 v-row 默认 gap 为 24px，站点卡片间距由 v-col 的 pa-1 控制，需显式 gap="0" -->
+          <v-row gap="0">
             <v-col v-for="site in addedSites" :key="site.id" cols="12" md="4" sm="6" class="pa-1">
               <v-list-item border class="bg-grey-lighten-4">
                 <template #prepend>

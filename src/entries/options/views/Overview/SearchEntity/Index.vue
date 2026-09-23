@@ -401,13 +401,14 @@ const hiddenTagNamesText = computed({
 
         <!-- 种子大小，下载情况 -->
         <template #item.size="{ item }">
-          <v-container no-gutters>
-            <v-row>
+          <!-- Vuetify 4 的 v-container 已无 no-gutters 属性，v-row 间距也改用 flex gap，故用 pa-0 + gap="0" 还原紧凑布局 -->
+          <v-container class="pa-0">
+            <v-row gap="0">
               <v-col class="pa-0">
                 <span class="t_size text-no-wrap">{{ formatSize(item.size ?? 0) }}</span>
               </v-col>
             </v-row>
-            <v-row v-if="item.status && (item.status as ETorrentStatus) !== ETorrentStatus.unknown">
+            <v-row v-if="item.status && (item.status as ETorrentStatus) !== ETorrentStatus.unknown" gap="0">
               <v-col class="pa-0">
                 <TorrentProcessTd :torrent="item"></TorrentProcessTd>
               </v-col>
