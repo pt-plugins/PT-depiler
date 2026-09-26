@@ -1,10 +1,11 @@
 <script lang="ts" setup>
-import { watch } from "vue";
+import { computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify";
 
 import { routes } from "@/options/plugins/router";
 import { useConfigStore } from "@/options/stores/config.ts";
+import type { RouteRecordRaw } from "vue-router";
 
 import { isDebug, REPO_URL } from "~/helper.ts";
 
@@ -23,25 +24,36 @@ watch(display.mdAndUp, () => {
   }
 });
 
-// 自动从router.ts生成目录
-const menuOptions = routes
-  .filter((route) => route.meta?.isMainMenu)
-  .map((route) => {
-    return {
-      title: `route.${String(route.name)}.default`,
-      name: route.name,
-      icon: route.meta?.icon,
-      children: route
-        .children!.filter((childrenRoute) => !(childrenRoute.meta?.show === false)) // 允许通过 meta.show = false 隐藏子路由
-        .map((childrenRoute) => {
-          return {
-            title: `route.${String(route.name)}.${String(childrenRoute.name)}`,
-            name: childrenRoute.name,
-            icon: childrenRoute.meta?.icon,
-          };
-        }),
-    };
-  }); // 根据 meta 的 isMainMenu 属性筛选出应该列在目录中的路径
+// 是否显示侧边栏子项（meta.show=false 静态隐藏；辅种任务受全局辅种配置控制）
+function isChildVisible(child: RouteRecordRaw): boolean {
+  if (child?.meta?.show === false) return false;
+  if (child?.name === "KeepUploadTask") {
+    return Boolean(configStore.reseed?.enabled && configStore.reseed?.showKeepUploadTask);
+  }
+  return true;
+}
+
+// 自动从router.ts生成目录（响应全局辅种配置变化）
+const menuOptions = computed(() =>
+  routes
+    .filter((route) => route.meta?.isMainMenu)
+    .map((route) => {
+      return {
+        title: `route.${String(route.name)}.default`,
+        name: route.name,
+        icon: route.meta?.icon,
+        children: route
+          .children!.filter((childrenRoute) => isChildVisible(childrenRoute)) // 允许通过 meta.show = false 隐藏子路由
+          .map((childrenRoute) => {
+            return {
+              title: `route.${String(route.name)}.${String(childrenRoute.name)}`,
+              name: childrenRoute.name,
+              icon: childrenRoute.meta?.icon,
+            };
+          }),
+      };
+    }),
+); // 根据 meta 的 isMainMenu 属性筛选出应该列在目录中的路径
 </script>
 
 <template>

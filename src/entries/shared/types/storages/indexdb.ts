@@ -24,9 +24,24 @@ export interface IPtdDBSchemaV2 extends IPtdDBSchemaV1 {
   };
 }
 
+/** 辅种决策记录（跨扫描去重：已判定/已推送的候选） */
+export interface IReseedDecision {
+  /** 主键：`<siteId>:<torrentId>` */
+  key: string;
+  siteId: string;
+  torrentId: number;
+  infoHash?: string;
+  decision: "injected" | "matched";
+  time: number;
+}
+
 export interface IPtdDBSchema extends IPtdDBSchemaV2 {
   favicon: {
     key: TSiteKey;
     value: string;
+  };
+  reseed_decision: {
+    key: string;
+    value: IReseedDecision;
   };
 }

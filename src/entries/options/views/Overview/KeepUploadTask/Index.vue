@@ -10,6 +10,8 @@ import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
+import NavButton from "@/options/components/NavButton.vue";
+import ScanDialog from "./ScanDialog.vue";
 
 const { t } = useI18n();
 const runtimeStore = useRuntimeStore();
@@ -128,6 +130,8 @@ async function sendTorrentsToDownloader(task: IKeepUploadTask, items: IKeepUploa
       const result = await sendMessage("downloadTorrent", {
         torrent: {
           site: item.site,
+          // 懒加载链接任务项携带站点种子 id；下载链接为空时后台按 site + id 解析真实下载地址
+          id: (item as { id?: number | string }).id,
           title: item.title,
           subTitle: item.subTitle,
           link: item.url,
@@ -202,6 +206,10 @@ async function copyLinksToClipboard(task: IKeepUploadTask) {
     runtimeStore.showSnakebar(t("KeepUploadTask.copyError"), { color: "error" });
   }
 }
+
+// ── IYUU 批量扫描（对话框逻辑见 ScanDialog.vue） ───────
+
+const scanDialogOpen = ref(false);
 </script>
 
 <template>
@@ -211,26 +219,40 @@ async function copyLinksToClipboard(task: IKeepUploadTask) {
 
   <v-card>
     <v-card-title>
-      <v-btn color="error" :disabled="selectedTasks.length === 0" class="mr-2" @click="deleteSelectedTasks">
-        <v-icon class="mr-2">mdi-delete</v-icon>
-        {{ t("common.remove") }}
-      </v-btn>
+      <NavButton
+        :text="t('common.remove')"
+        color="error"
+        icon="mdi-delete"
+        :disabled="selectedTasks.length === 0"
+        class="mr-2"
+        @click="deleteSelectedTasks"
+      />
 
-      <v-btn color="error" :disabled="tasks.length === 0" @click="clearAllTasks">
-        <v-icon class="mr-2">mdi-delete-sweep</v-icon>
-        {{ t("KeepUploadTask.clearAll") }}
-      </v-btn>
+      <NavButton
+        :text="t('KeepUploadTask.clearAll')"
+        color="error"
+        icon="mdi-delete-sweep"
+        :disabled="tasks.length === 0"
+        @click="clearAllTasks"
+      />
 
-      <v-btn
+      <NavButton
+        :text="t('KeepUploadTask.iyuu.scan')"
+        color="primary"
+        icon="mdi-scan-helper"
+        class="ml-2"
+        @click="scanDialogOpen = true"
+      />
+
+      <NavButton
+        :text="t('common.howToUse')"
         color="info"
+        icon="mdi-help"
+        class="ml-2"
         href="https://github.com/pt-plugins/PT-Plugin-Plus/wiki/keep-upload-task"
         target="_blank"
         rel="noopener noreferrer nofollow"
-        class="ml-2"
-      >
-        <v-icon class="mr-2">mdi-help</v-icon>
-        {{ t("common.howToUse") }}
-      </v-btn>
+      />
     </v-card-title>
 
     <v-data-table
@@ -365,6 +387,9 @@ async function copyLinksToClipboard(task: IKeepUploadTask) {
       </template>
     </v-data-table>
   </v-card>
+
+  <!-- IYUU 批量扫描（独立组件） -->
+  <ScanDialog v-model="scanDialogOpen" @created="loadTasks" />
 
   <v-alert type="warning" class="mt-4">
     <div>
