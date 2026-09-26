@@ -87,7 +87,7 @@
     "git-rev-sync": "^3.0.2",
     "husky": "^9.1.7",
     "lint-staged": "^17.5.1",
-    "prettier": "^3.9.6",
+    "prettier": "^3.9.8",
     "sass": "^1.104.1",
     "tsx": "^4.23.12",
     "typescript": "~6.0.3",
