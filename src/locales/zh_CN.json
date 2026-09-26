@@ -738,9 +738,11 @@
     },
     "editor": {
       "addressTip": "完整的服务器地址（含端口），如：http://192.168.1.1:5000/",
+      "authFailureTip": "认证失败：用户名或密码错误（使用 API Key 认证的下载器请检查 Key 是否正确）。",
       "autoStart": "发送种子时自动开始下载",
       "nameTip": "取一个好听又好分辨的名称",
       "password": "密码",
+      "selfSignedCertificateTip": "若下载器使用自签名证书，需先在浏览器中打开 {address} 并点击「继续访问」，或对该证书添加信任后重试。",
       "timeout": "超时时长（秒）",
       "uidPlaceholder": "（自动生成）"
     },
@@ -1223,6 +1225,7 @@
     "contextMenuSendToDownloaderAdvanced": "高级推送",
     "contextMenuSendToDownloaderDefaultFolder": "默认路径",
     "contextMenuSendToDownloaderIn": "推送到 $1 -> $2",
+    "downloaderSelfSignedCertificateTip": "若下载器使用自签名证书，需先在浏览器中打开 $1 并点击「继续访问」，或对该证书添加信任后重试。",
     "extDesc": "PT Depiler",
     "extName": "PT Depiler",
     "notificationSendLinkToDownloaderFailure": "将链接发送到下载器 [$1] 失败",

@@ -23,9 +23,9 @@ import {
   CTrackerState,
   TorrentFilePriority,
 } from "../types";
-import { AxiosRequestConfig, AxiosResponse } from "axios";
+import { isAxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import urlJoin from "url-join";
-import { axios, getRemoteTorrentFile } from "../utils";
+import { axios, getRemoteTorrentFile, isAuthenticationError } from "../utils";
 import { merge } from "es-toolkit";
 
 /**
@@ -311,6 +311,8 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
   }
 
   async ping(): Promise<boolean> {
+    this.lastConnectFailureReason = undefined;
+
     try {
       if (this.isApiKeyAuth) {
         const version = await this.getClientVersion();
@@ -319,10 +321,26 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
         const pong = await this.login();
         // qbittorrent 5.2.0+ returns 204 No Content with empty body, older versions return 200 OK with "Ok." body
         this.isLogin = pong.data === "Ok." || pong.status === 204;
+        // 登录请求正常返回（未被 CSRF 拦截）但结果不是成功，说明账号或密码被拒绝（旧版本返回 200 + "Fails."）
+        if (!this.isLogin) this.lastConnectFailureReason = "auth";
       }
 
       return this.isLogin;
     } catch (e) {
+      // qBittorrent 对「凭据被拒绝」可能返回 401，也可能返回 403 + 响应体 "Fails."，
+      // 而 403 同样会被 CSRF 保护使用，因此需要区分：
+      // - 开启「绕过 CSRF 保护」后，403 不可能来自 CSRF 校验，可直接判定；
+      // - 未开启时以响应体兜底 —— 凭据错误固定返回 "Fails."，CSRF 拦截返回的是其他内容。
+      const authStatusCodes = this.bypassCSRF ? [401, 403] : [401];
+      const isFailedLoginResponse =
+        isAxiosError(e) &&
+        String(e.response?.data ?? "")
+          .trim()
+          .toLowerCase() === "fails.";
+
+      if (isAuthenticationError(e, authStatusCodes) || isFailedLoginResponse) {
+        this.lastConnectFailureReason = "auth";
+      }
       return false;
     }
   }
