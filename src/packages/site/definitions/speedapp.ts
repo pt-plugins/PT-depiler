@@ -393,7 +393,7 @@ export const siteMetadata: ISiteMetadata = {
           responseType: "document",
         },
         selectors: {
-          name: { selector: "#kt_quick_user_toggle > span.text-dark-50" },
+          name: { selector: "#kt_profile_aside a[href*='/profile/']" },
           messageCount: { selector: "#notifications-oc-toggle > div.btn > .label-danger" },
           // 上传权限需要申请
           uploads: {
