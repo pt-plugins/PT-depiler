@@ -71,7 +71,7 @@
     "vue-konva": "^3.4.0",
     "vue-router": "^5.2.0",
     "vuetify": "^4.1.11",
-    "webdav": "^5.10.0"
+    "webdav": "^5.11.0"
   },
   "devDependencies": {
     "@intlify/unplugin-vue-i18n": "^11.2.5",
