@@ -100,6 +100,6 @@ pnpm check                 # TypeScript type checking
 - **Vue Ecosystem**: Vue 3, Vuetify 4, Vue Router, Pinia, Vue I18n
 - **Extension Framework**: `@webext-core/*` for cross-browser compatibility
 - **Build Tools**: Vite, TypeScript
-- **Utilities**: axios, date-fns, es-toolkit, jszip, crypto-js
+- **Utilities**: axios, date-fns, es-toolkit, jszip, @noble/hashes, @noble/ciphers
 
 This is a sophisticated multi-platform extension requiring careful attention to web extension APIs, cross-site scripting, and torrent ecosystem integrations.

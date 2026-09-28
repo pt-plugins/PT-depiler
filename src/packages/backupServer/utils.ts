@@ -1,5 +1,5 @@
 import JSZip from "jszip";
-import CryptoJS from "crypto-js";
+import { aesDecryptOpenSsl, aesEncryptOpenSsl, md5Hex } from "@ptd/utils/crypto.ts";
 import { EListOrderBy, EListOrderMode } from "./type";
 import type {
   IBackupData,
@@ -136,16 +136,16 @@ export function encryptData(data: any, encryptionKey?: string): string {
   if (!encryptionKey) {
     return stringifyData;
   }
-  const the_key = CryptoJS.MD5(encryptionKey).toString().substring(0, 16);
-  return CryptoJS.AES.encrypt(stringifyData, the_key).toString();
+  const the_key = md5Hex(encryptionKey).substring(0, 16);
+  return aesEncryptOpenSsl(stringifyData, the_key);
 }
 
 export function decryptData<T = any>(data: string, encryptionKey?: string): T {
   if (!encryptionKey) {
     return JSON.parse(data);
   }
-  const the_key = CryptoJS.MD5(encryptionKey).toString().substring(0, 16);
-  const decrypted = CryptoJS.AES.decrypt(data, the_key).toString(CryptoJS.enc.Utf8);
+  const the_key = md5Hex(encryptionKey).substring(0, 16);
+  const decrypted = aesDecryptOpenSsl(data, the_key);
   return JSON.parse(decrypted) as T;
 }
 
@@ -164,7 +164,7 @@ export async function backupDataToJSZipBlob(data: IBackupData, encryptionKey?: s
     const fileName = `${key}.json`;
     const fileContent = encryptData(value, encryptionKey);
     zip.file(fileName, fileContent);
-    manifest.files[key] = { name: fileName, hash: CryptoJS.MD5(fileContent).toString() };
+    manifest.files[key] = { name: fileName, hash: md5Hex(fileContent) };
   }
 
   zip.file("manifest.json", JSON.stringify(manifest));
@@ -195,7 +195,7 @@ export async function jsZipBlobToBackupData(blob: Blob, encryptionKey?: string):
       const { name: fileName, hash: manifestFileHash } = manifestFileData;
       const fileContent = await zipContent.file(fileName)?.async("string");
       if (fileContent) {
-        const fileContentHash = CryptoJS.MD5(fileContent).toString();
+        const fileContentHash = md5Hex(fileContent);
         if (fileKey != "manifest" && fileContentHash !== manifestFileHash) {
           throw new Error(`File hash mismatch for ${fileName}.`);
         }
