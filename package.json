@@ -40,13 +40,14 @@
     "pnpm": ">=10.14.0"
   },
   "dependencies": {
+    "@noble/ciphers": "^2.4.0",
+    "@noble/hashes": "^2.4.0",
     "@vueuse/components": "^15.0.0",
     "@vueuse/core": "^15.0.0",
     "@webext-core/job-scheduler": "^2.0.0",
     "@webext-core/messaging": "^4.0.0",
     "@webext-core/storage": "^2.0.0",
     "axios": "^1.20.0",
-    "crypto-js": "^4.2.0",
     "date-fns": "^4.4.0",
     "echarts": "^6.1.0",
     "es-toolkit": "^1.52.0",
@@ -76,7 +77,6 @@
   "devDependencies": {
     "@intlify/unplugin-vue-i18n": "^11.2.5",
     "@types/chrome": "^0.3.0",
-    "@types/crypto-js": "^4.2.2",
     "@types/file-saver": "^2.0.7",
     "@types/git-rev-sync": "^2.0.2",
     "@types/node": "^26.6.3",

@@ -1,7 +1,7 @@
 import BittorrentSite from "../schemas/AbstractBittorrentSite";
 import { ISearchInput, ITorrent, type ISiteMetadata } from "../types";
 import Sizzle from "sizzle";
-import CryptoJS from "crypto-js";
+import { sha256Hex } from "@ptd/utils/crypto.ts";
 import { set } from "es-toolkit/compat";
 import { parseTimeToLiveToDate, parseValidTimeString } from "../utils";
 
@@ -284,6 +284,6 @@ export default class ExtTorrents extends BittorrentSite {
 
   private computeHMAC(torrentId: number, timestamp: number, token: string) {
     const data = `${torrentId}|${timestamp}|${token}`;
-    return CryptoJS.SHA256(data).toString();
+    return sha256Hex(data);
   }
 }
