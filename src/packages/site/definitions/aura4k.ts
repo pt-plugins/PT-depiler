@@ -1,14 +1,16 @@
 import type { ISiteMetadata } from "../types";
-import { CategoryFree, SchemaMetadata } from "../schemas/Unit3D.ts";
-import { buildCategoryOptionsFromDict } from "../utils.ts";
+// import { CategoryFree, SchemaMetadata } from "../schemas/Unit3D.ts";
+// import { buildCategoryOptionsFromDict } from "../utils.ts";
 
+/**
 const categoryMap: Record<number, string> = {
   1: "Movies",
   2: "TV",
 };
+*/
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  // ...SchemaMetadata,
   id: "aura4k",
   version: 1,
   name: "Aura4k",
@@ -20,8 +22,11 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Unit3D",
 
   urls: ["https://aura4k.net/"],
-  favicon: "https://aura4k.net/favicon.ico",
 
+  // refs: https://github.com/Jackett/Jackett/issues/16457#issuecomment-5343952272
+  isDead: true,
+
+  /**
   category: [
     {
       name: "类别",
@@ -64,6 +69,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     },
   },
+   */
 
   levelRequirements: [
     {

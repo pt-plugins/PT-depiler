@@ -1,6 +1,5 @@
 node_modules
 .env.submit
-.mnemon
 
 # 本地调研/设计文档（不入库）
 docs
@@ -29,7 +28,6 @@ lerna-debug.log*
 *.njsproj
 *.sln
 *.sw?
-.kunsdd
 
 # local env files
 .env.local
@@ -223,6 +221,9 @@ AGENTS.md
 GEMINI.md
 CLAUDE.md
 .playwright-mcp/
+.mnemon/
+.tmp-*/
+.kunsdd/
 
 # docker
 docker-compose.yml
