@@ -14,6 +14,10 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["https://concen.org/"],
 
+  // refs: https://github.com/Jackett/Jackett/issues/5097#issuecomment-5884812699
+  isDead: true,
+
+  /**
   category: [
     {
       name: "Order",
@@ -73,4 +77,5 @@ export const siteMetadata: ISiteMetadata = {
       completed: { selector: "td.views-field-completed" },
     },
   },
+   */
 };
