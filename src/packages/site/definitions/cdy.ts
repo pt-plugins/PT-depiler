@@ -1,8 +1,8 @@
 import type { ISiteMetadata } from "../types";
-import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+// import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  // ...SchemaMetadata,
 
   version: 1,
   id: "cdy",
@@ -20,6 +20,11 @@ export const siteMetadata: ISiteMetadata = {
   legacyUrls: ["uggcf://cg.pql.fxva/"],
 
   favicon: "./_default_nexusphp.png",
+
+  // dead at 2026-08-17, from: https://savept.icu/
+  isDead: true,
+
+  /**
 
   category: [
     {
@@ -162,6 +167,9 @@ export const siteMetadata: ISiteMetadata = {
       bonusPerHourMultiplier: 1, // selector 已能正确选中加倍后的时魔
     },
   },
+
+   */
+
   levelRequirements: [
     {
       id: 1,
