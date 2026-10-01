@@ -509,9 +509,46 @@
     },
     "Editor": {
       "backupConfig": "备份配置",
+      "backupFields": "备份内容",
       "backupInterval": "自动备份间隔",
-      "backupIntervalHint": "设置自动备份间隔（小时），留空或为 0 表示不自动备份，最大 48 小时",
+      "backupIntervalField": "间隔（小时）",
+      "backupIntervalHint": "设置自动备份间隔（小时），留空或为 0 表示不自动备份，可设置为任意时长（例如 168 小时即 7 天）",
+      "clearRetention": "清空保留策略（不自动清理历史备份）",
+      "retention": "备份保留策略",
       "serverConfig": "服务器配置"
+    },
+    "RetentionDialog": {
+      "count": {
+        "maxCount": "保留的备份份数",
+        "title": "按数量保留"
+      },
+      "countSuffix": "份",
+      "daySuffix": "天",
+      "none": "未启用保留策略，历史备份不会被自动清理",
+      "sample": {
+        "hint": "在「保留窗口数 × 窗口宽度」的时间范围内，每个窗口保留最新的一份备份（与 Borg 的 prune 类似）",
+        "horizon": "保留窗口数",
+        "interval": "窗口宽度",
+        "title": "按时间窗口采样保留",
+        "type": {
+          "day": "每天",
+          "month": "每月",
+          "week": "每周",
+          "year": "每年"
+        }
+      },
+      "summary": {
+        "count": "保留最近 {n} 份",
+        "sample": "{type}保留 {n} 份（窗口 {interval} 天）",
+        "separator": "，",
+        "time": "保留 {n} 天"
+      },
+      "time": {
+        "maxAge": "保留天数",
+        "title": "按时间期限保留"
+      },
+      "tip": "保留策略会在每次备份成功后自动清理远端的历史备份文件，多条规则之间取并集（被任一规则保留的备份都不会被清理）。",
+      "title": "备份保留策略"
     },
     "HistoryDialog": {
       "deleteFailure": "删除备份历史 [{name}] 失败",
@@ -556,7 +593,8 @@
     "localImport": "本地导入",
     "snackbar": {
       "failure": "备份失败",
-      "success": "备份成功"
+      "success": "备份成功",
+      "successWithRetention": "备份成功，已清理过期备份"
     },
     "table": {
       "action": {
@@ -567,7 +605,10 @@
       "backupInterval": "自动备份间隔",
       "everyNHour": "每 {n} 小时",
       "lastBackupAt": "最近一次备份时间",
-      "notBackup": "未备份"
+      "notBackup": "未备份",
+      "retention": "保留策略",
+      "retentionDisabled": "未启用保留策略",
+      "retentionEnabled": "已启用保留策略"
     }
   },
   "SetBase": {

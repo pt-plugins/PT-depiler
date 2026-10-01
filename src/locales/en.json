@@ -509,9 +509,46 @@
     },
     "Editor": {
       "backupConfig": "Backup Configuration",
+      "backupFields": "Backup Content",
       "backupInterval": "Auto Backup Interval",
-      "backupIntervalHint": "Set auto-backup interval (hours). Leave empty or 0 to disable auto backup. Max 48 hours.",
+      "backupIntervalField": "Interval (hours)",
+      "backupIntervalHint": "Set auto-backup interval (hours). Leave empty or 0 to disable auto backup. Any length is allowed (e.g. 168 hours = 7 days).",
+      "clearRetention": "Clear retention policy (never clean up historical backups)",
+      "retention": "Backup Retention Policy",
       "serverConfig": "Server Configuration"
+    },
+    "RetentionDialog": {
+      "count": {
+        "maxCount": "Number of backups to keep",
+        "title": "Keep by Count"
+      },
+      "countSuffix": "backups",
+      "daySuffix": "days",
+      "none": "No retention policy enabled, historical backups will not be cleaned up automatically",
+      "sample": {
+        "hint": "Within a time range of \"number of windows × window width\", keep the newest backup of each window (similar to Borg's prune)",
+        "horizon": "Windows to keep",
+        "interval": "Window width",
+        "title": "Keep by Time-Window Sampling",
+        "type": {
+          "day": "Daily",
+          "month": "Monthly",
+          "week": "Weekly",
+          "year": "Yearly"
+        }
+      },
+      "summary": {
+        "count": "keep last {n}",
+        "sample": "{type} keep {n} (window {interval} days)",
+        "separator": ", ",
+        "time": "keep {n} days"
+      },
+      "time": {
+        "maxAge": "Days to keep",
+        "title": "Keep by Age"
+      },
+      "tip": "The retention policy cleans up remote historical backup files after each successful backup. Multiple rules are combined as a union: a backup kept by any rule will never be removed.",
+      "title": "Backup Retention Policy"
     },
     "HistoryDialog": {
       "deleteFailure": "Failed to delete backup history [{name}]",
@@ -556,7 +593,8 @@
     "localImport": "Local Import",
     "snackbar": {
       "failure": "Backup failed",
-      "success": "Backup successful"
+      "success": "Backup successful",
+      "successWithRetention": "Backup successful, expired backups cleaned up"
     },
     "table": {
       "action": {
@@ -567,7 +605,10 @@
       "backupInterval": "Auto Backup Interval",
       "everyNHour": "Every {n} h",
       "lastBackupAt": "Last Backup Time",
-      "notBackup": "Not Backed Up"
+      "notBackup": "Not Backed Up",
+      "retention": "Retention",
+      "retentionDisabled": "Retention policy disabled",
+      "retentionEnabled": "Retention policy enabled"
     }
   },
   "SetBase": {
