@@ -185,6 +185,7 @@ interface ProtocolMap extends TMessageMap {
   exportBackupData(data: { backupServerId: string | "local"; backupFields: TBackupFields[] }): boolean;
   getBackupHistory(data: string): IBackupFileInfo[];
   deleteBackupHistory(data: { backupServerId: string; path: string }): boolean;
+  applyBackupRetention(data: { backupServerId: string; keepFilename?: string }): IBackupFileInfo[];
   restoreBackupData(data: { restoreData: IBackupData; restoreOptions?: IRestoreOptions }): boolean;
   getRemoteBackupData(data: { backupServerId: string; path: string; decryptKey?: string }): IBackupData;
 

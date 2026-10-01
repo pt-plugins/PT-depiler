@@ -1,7 +1,7 @@
 import { intersection, isEqual, toMerged } from "es-toolkit";
 import { formatDate } from "date-fns";
 import { getBackupServer, IBackupData, IBackupFileInfo } from "@ptd/backupServer";
-import { backupDataToJSZipBlob } from "@ptd/backupServer/utils.ts";
+import { backupDataToJSZipBlob, hasBackupRetentionToApply, pruneBackupFiles } from "@ptd/backupServer/utils.ts";
 import AbstractBackupServer from "@ptd/backupServer/AbstractBackupServer.ts";
 
 import { onMessage, sendMessage } from "@/messages.ts";
@@ -74,6 +74,62 @@ export async function getBackupServerInstance(backupServerId: TBackupServerKey):
   return await getBackupServer(backupServerConfig);
 }
 
+/**
+ * 依据备份服务器的保留策略清理历史备份文件
+ *
+ * - `keepFilename`：本次刚刚上传的备份文件名，永远不会被清理（避免因服务器端 `list()` 结果滞后或时钟偏差而删除刚创建的备份）
+ * - 注意：`list()` 返回的备份列表可能包含非本插件创建的文件，因此我们仅处理文件名符合
+ *   `PTD_backup_yyyyMMddTHHmm.zip` 规则的文件，避免误删用户的其他数据。
+ */
+export async function applyBackupRetention(
+  backupServerId: TBackupServerKey,
+  keepFilename?: string,
+): Promise<IBackupFileInfo[]> {
+  const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
+  const retention = metadataStore.backupServers[backupServerId]?.retention;
+
+  if (!hasBackupRetentionToApply(retention)) {
+    return [];
+  }
+
+  const backupServerInstance = await getBackupServerInstance(backupServerId);
+  const list = (await backupServerInstance.list()) ?? [];
+
+  const backupFiles = list
+    .filter((item) => /^PTD_backup_\d{16}\.zip$/.test(item.filename))
+    .sort((a, b) => b.time - a.time); // 按备份时间从新到旧排序
+  const [deletedFiles] = pruneBackupFiles(
+    backupFiles.filter((item) => item.filename !== keepFilename),
+    retention,
+  );
+
+  const actuallyDeletedFiles: IBackupFileInfo[] = [];
+  for (const file of deletedFiles) {
+    try {
+      if (await backupServerInstance.deleteFile(file.path)) {
+        actuallyDeletedFiles.push(file);
+      }
+    } catch (e) {
+      logger({
+        msg: `Failed to delete expired backup [${file.filename}] of [${backupServerId}]: ${e instanceof Error ? e.message : String(e)}`,
+      });
+    }
+  }
+
+  if (actuallyDeletedFiles.length > 0) {
+    logger({
+      msg: `Retention policy removed ${actuallyDeletedFiles.length} of ${backupFiles.length} backup(s) of [${backupServerId}]`,
+      data: { deleted: actuallyDeletedFiles.map((item) => item.filename) },
+    });
+  }
+
+  return actuallyDeletedFiles;
+}
+
+onMessage("applyBackupRetention", async ({ data: { backupServerId, keepFilename } }) => {
+  return await applyBackupRetention(backupServerId, keepFilename);
+});
+
 export async function exportBackupData(
   backupServerId: string | "local",
   backupFields: TBackupFields[] = [],
@@ -100,6 +156,13 @@ export async function exportBackupData(
       const metadataStore = (await sendMessage("getExtStorage", "metadata")) as IMetadataPiniaStorageSchema;
       metadataStore.backupServers[backupServerId].lastBackupAt = new Date().getTime();
       await sendMessage("setExtStorage", { key: "metadata", value: metadataStore });
+
+      // 备份成功后，按照保留策略清理历史备份
+      await applyBackupRetention(backupServerId, backupFilename).catch((e) => {
+        logger({
+          msg: `Failed to apply the backup retention policy of [${backupServerId}]: ${e instanceof Error ? e.message : String(e)}`,
+        });
+      });
     }
 
     return backupStatus;

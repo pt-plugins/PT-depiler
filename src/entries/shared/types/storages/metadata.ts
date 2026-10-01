@@ -9,7 +9,7 @@ import type {
 import type { TSelectSearchCategoryValue } from "@ptd/site";
 import type { CAddTorrentOptions, DownloaderBaseConfig } from "@ptd/downloader";
 import type { IMediaServerBaseConfig } from "@ptd/mediaServer";
-import type { IBackupConfig } from "@ptd/backupServer";
+import type { IBackupConfig, IBackupRetention } from "@ptd/backupServer";
 
 export interface ISearchSolution {
   id: string;
@@ -89,6 +89,7 @@ export interface IBackupServerMetadata extends IBackupConfig {
   id: TBackupServerKey;
   enabled: boolean; // 此处仅影响自动备份
   backupFields: TBackupFields[]; // 备份的字段
+  retention?: IBackupRetention; // 历史备份的保留策略，不设置或全部未启用时表示不自动清理
 
   lastBackupAt?: number; // 上次备份时间
   backupInterval?: number; // 自动备份间隔（小时），不设置或为 0 表示不自动备份
