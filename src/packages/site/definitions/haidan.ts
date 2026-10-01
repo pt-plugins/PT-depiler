@@ -3,7 +3,7 @@
  * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/haidan.video/config.json
  * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/haidan.json
  */
-import { type ISiteMetadata } from "../types";
+import { type ISiteMetadata, ETorrentStatus } from "../types";
 import { CategoryInclbookmarked, CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP.ts";
 import { userInfoWithInvitesInUserDetailsPage } from "./kunlun.ts";
 
@@ -102,7 +102,31 @@ export const siteMetadata: ISiteMetadata = {
       leechers: { selector: ".leecher_col" },
       completed: { selector: ".snatched_col" },
 
-      // FIXME progress status 未实现
+      /**
+       * 该站点的进度信息不在 `.torrent_item` 行内，而是位于其父级 `.torrent_wrap` 下
+       * 与本行并列的 `.poster > progress[data-label]`（原生 progress 元素，
+       * 百分比形如 "100%"）。每个 torrent_wrap 对应一个 torrent_item，
+       * 因此直接取父级再查即可。
+       */
+      progress: {
+        selector: ":self",
+        elementProcess: (element: HTMLElement) => {
+          const label = element.parentElement?.querySelector("progress[data-label]")?.getAttribute("data-label");
+          const matched = /([\d.]+)\s*%/.exec(label ?? "");
+          return matched ? parseFloat(matched[1]) : undefined;
+        },
+      },
+      status: {
+        selector: ":self",
+        elementProcess: (element: HTMLElement) => {
+          const label = element.parentElement?.querySelector("progress[data-label]")?.getAttribute("data-label");
+          const matched = /([\d.]+)\s*%/.exec(label ?? "");
+          if (!matched) {
+            return ETorrentStatus.unknown;
+          }
+          return parseFloat(matched[1]) >= 100 ? ETorrentStatus.completed : ETorrentStatus.downloading;
+        },
+      },
 
       tags: [
         ...SchemaMetadata.search!.selectors!.tags!,
