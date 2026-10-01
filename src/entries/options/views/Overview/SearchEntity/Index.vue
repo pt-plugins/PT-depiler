@@ -156,6 +156,48 @@ const hiddenTagNamesText = computed({
       .filter(Boolean);
   },
 });
+
+// 相同大小种子分组色条（ #1411 ），len 为 8，按 size 升序循环，保证相邻分组不同色
+const sizeGroupPalette = ["#F44336", "#2196F3", "#4CAF50", "#FF9800", "#9C27B0", "#00BCD4", "#8BC34A", "#795548"];
+
+// sizeKey 以表格中实际展示的大小文本为准：web 解析出的 1.02 GiB 与 API 给出的 bytes 只要展示一致就会同组
+const getSizeKey = (size?: number) => (size ? String(formatSize(size)) : "");
+
+const sizeGroupColors = computed(() => {
+  const colors = new Map<string, string>();
+  const sortBy = configStore.tableBehavior.SearchEntity.sortBy;
+
+  // 仅在开启开关且当前按大小排序时生效
+  if (!configStore.searchEntifyControl.highlightSameSizeTorrent || !sortBy?.some((item) => item.key === "size")) {
+    return colors;
+  }
+
+  const groups = new Map<string, { size: number; count: number }>();
+  for (const item of runtimeStore.search.searchResult) {
+    if (!item.size) continue;
+    const key = getSizeKey(item.size);
+    const group = groups.get(key);
+    if (group) {
+      group.count++;
+    } else {
+      groups.set(key, { size: item.size, count: 1 });
+    }
+  }
+
+  // 按 size 升序编号（仅在 count > 1 时才画出色条）
+  [...groups.entries()]
+    .sort(([, a], [, b]) => a.size - b.size)
+    .forEach(([key, { count }], index) => {
+      if (count > 1) colors.set(key, sizeGroupPalette[index % sizeGroupPalette.length]!);
+    });
+
+  return colors;
+});
+
+function sizeGroupRowProps({ item }: { item: ISearchResultTorrent }) {
+  const color = sizeGroupColors.value.get(getSizeKey(item.size));
+  return color ? { style: { "--ptd-size-group-color": color } } : {};
+}
 </script>
 
 <template>
@@ -382,6 +424,7 @@ const hiddenTagNamesText = computed({
         hover
         item-value="uniqueId"
         :multi-sort="configStore.enableTableMultiSort"
+        :row-props="sizeGroupRowProps"
         show-select
         return-object
         @update:itemsPerPage="(v) => configStore.updateTableBehavior('SearchEntity', 'itemsPerPage', v)"
@@ -467,6 +510,22 @@ const hiddenTagNamesText = computed({
 #ptd-search-entity-table {
   :deep(td.v-data-table__td) {
     padding: 0 8px;
+  }
+
+  /* 相同大小种子的分组色条（ #1411 ），颜色由 row-props 写入的 --ptd-size-group-color 提供 */
+  :deep(td.v-data-table__td--select-row) {
+    position: relative;
+
+    &::before {
+      content: "";
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      left: 1px;
+      width: 3px;
+      border-radius: 2px;
+      background-color: var(--ptd-size-group-color, transparent);
+    }
   }
 }
 </style>

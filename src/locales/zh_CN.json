@@ -447,6 +447,7 @@
         "snapshot": "搜索快照"
       },
       "filterLabel": "过滤搜索结果",
+      "highlightSameSizeTorrent": "按大小排序时标记相同大小的种子",
       "limitTorrentTitleTdWidth": "限制种子标题宽度",
       "selectedTorrents": "已选择 {0} 个种子",
       "showSiteName": "显示站点名称",

@@ -447,6 +447,7 @@
         "snapshot": "Search Snapshot"
       },
       "filterLabel": "Filter search results",
+      "highlightSameSizeTorrent": "Mark same-size torrents when sorted by size",
       "limitTorrentTitleTdWidth": "Limit torrent title column width",
       "selectedTorrents": "Selected {0} torrents",
       "showSiteName": "Show Site Name",
