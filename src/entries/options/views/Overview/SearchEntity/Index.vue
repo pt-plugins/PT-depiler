@@ -222,7 +222,8 @@ const hiddenTagNamesText = computed({
   <v-card>
     <v-card-title>
       <v-row gap="0" class="ma-0">
-        <v-btn-group size="small" variant="text">
+        <!-- 不指定 size：Vuetify 4 下图标按钮为 (--v-btn-height + 12px) 的正方形（48 × 48），与 ActionTd 保持一致 -->
+        <v-btn-group variant="text">
           <!-- 启动/暂停 搜索队列 -->
           <v-btn
             v-show="isSearchingParsed"
@@ -285,7 +286,7 @@ const hiddenTagNamesText = computed({
 
         <v-menu :close-on-content-click="false">
           <template v-slot:activator="{ props }">
-            <v-btn-group size="small" variant="text">
+            <v-btn-group variant="text">
               <v-btn
                 :title="t('SearchEntity.index.action.displayPreferences')"
                 color="blue"
