@@ -35,6 +35,12 @@ function setIgnoreWrongPixelRatio() {
 
 const showReleaseNoteDialog = ref<boolean>(false);
 
+// 需要被 <KeepAlive> 缓存的页面（用组件的 name 匹配，见各页面的 defineOptions）。
+// 未缓存的页面在每次切换时会被销毁重建：setup 重新执行、表格整体重新渲染、
+// 每行组件重新挂载（其中 SiteName 还会再次动态 import 站点定义并深拷贝元数据），
+// 对「我的数据」「搜索结果」这类重页面，切回来时等待明显。
+const cachedViewNames = ["SearchEntity", "MyData"];
+
 // 由于App.vue是整个应用的根组件，此时 configStore 等 pinia store 可能还未初始化完成，所以需要监听 $onReady
 configStore.$onReady(() => {
   if (configStore.showReleaseNoteOnVersionChange && configStore.version !== __EXT_VERSION__) {
@@ -64,7 +70,9 @@ configStore.$onReady(() => {
     <v-main id="ptd-main">
       <v-container fluid>
         <router-view v-slot="{ Component }">
-          <component :is="Component" />
+          <KeepAlive :include="cachedViewNames" :max="10">
+            <component :is="Component" />
+          </KeepAlive>
         </router-view>
       </v-container>
     </v-main>

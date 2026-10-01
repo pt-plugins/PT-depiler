@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from "vue";
+
+// 同 SearchEntity：<script setup> 默认名为文件名（"Index"），KeepAlive 无法区分，需显式声明
+defineOptions({ name: "MyData" });
 import { watchDebounced } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
@@ -24,6 +27,9 @@ import ExportUserInfoDialog from "./ExportUserInfoDialog.vue";
 
 import { formatRatio } from "./utils/format.ts";
 import { tableData, initTableData, cancelFlushSiteLastUserInfo, flushSiteLastUserInfo } from "./utils/lastUserData.ts";
+
+// 同 SearchEntity：<script setup> 默认名为文件名（"Index"），KeepAlive 无法区分，需显式声明
+defineOptions({ name: "MyData" });
 
 const { t } = useI18n();
 const router = useRouter();

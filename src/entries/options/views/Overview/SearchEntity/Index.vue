@@ -26,6 +26,10 @@ import AdvanceFilterGenerateDialog from "./AdvanceFilterGenerateDialog.vue";
 import { tableCustomFilter } from "./utils/filter";
 import { doSearch, retrySearch, searchPlanStatus, searchQueue } from "./utils/search";
 
+// KeepAlive 依赖组件 name 做匹配，而 <script setup> 默认取自文件名（此处为 "Index"，
+// 与其他 Index.vue 重名），因此显式声明。
+defineOptions({ name: "SearchEntity" });
+
 const { t } = useI18n();
 const route = useRoute();
 const configStore = useConfigStore();
