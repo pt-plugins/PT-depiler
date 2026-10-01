@@ -183,7 +183,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。【可以开启特别区和查看特别区资源】。",
     },
     {
-      id: 7,
+      id: 8,
       name: "Ultimate User",
       interval: "P35W",
       downloaded: "6TB",
@@ -193,7 +193,7 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到一个邀请名额",
     },
     {
-      id: 8,
+      id: 9,
       name: "Nexus Master",
       interval: "P40W",
       downloaded: "8TB",
