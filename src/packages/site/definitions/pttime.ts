@@ -4,7 +4,7 @@
  * @PDSDefinitions https://github.com/mantou568/pre-dessert-sites/blob/main/site_config/sites/pttime.json
  * @PTMDefinitions https://github.com/JustLookAtNow/pt_mate/blob/master/assets/sites/pttime.json
  */
-import { ISiteMetadata, IUserInfo } from "../types";
+import { ISiteMetadata, IUserInfo, ETorrentStatus } from "../types";
 import NexusPHP, { CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 import { createDocument, parseSizeString } from "../utils";
 import { mergeWith } from "es-toolkit";
@@ -86,6 +86,33 @@ export const siteMetadata: ISiteMetadata = {
       category: { text: "DEFAULT", selector: ["span.category"], attr: "title" },
       id: { selector: [":self"], attr: "data" },
       link: baseLinkQuery,
+      /**
+       * 该站点用 `div.progressarea[title]` 表达状态，title 只有一个中文状态词、不含百分比
+       * （如「已完成」）。NexusPHP 默认的 parseProgressElement 要求 title.split(" ") 正好两段，
+       * 因此在这类结构上恒返回 null，status 恒为 unknown，搜索结果不显示做种状态。
+       *
+       * 该元素仅对用户已拥有的种子渲染（未拥有的行中没有它），所以取不到即表示「未拥有」。
+       * 目前仅能观察到「已完成」这一取值，其余取值不做猜测，未知的一律落到 unknown。
+       */
+      progress: {
+        selector: "div.progressarea",
+        attr: "title",
+        filters: [(query: string) => (/已完成/.test(query) ? 100 : 0)],
+      },
+      status: {
+        selector: "div.progressarea",
+        attr: "title",
+        filters: [
+          (query: string) => {
+            switch (true) {
+              case /已完成/.test(query):
+                return ETorrentStatus.completed;
+              default:
+                return ETorrentStatus.unknown;
+            }
+          },
+        ],
+      },
       url: {
         ...baseLinkQuery,
         filters: [
