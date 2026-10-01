@@ -93,6 +93,10 @@ export const siteMetadata: ISiteMetadata = {
        *
        * 该元素仅对用户已拥有的种子渲染（未拥有的行中没有它），所以取不到即表示「未拥有」。
        * 目前仅能观察到「已完成」这一取值，其余取值不做猜测，未知的一律落到 unknown。
+       *
+       * 「已完成」映射为 seeding 而非 completed：本项目里 completed 源自 NexusPHP 的
+       * `inactivity` + 100%，含义是「已完成但当前未在做种」。该站点不区分是否活跃做种，
+       * 100% 的种子按正在做种处理，才与其它站点对同一种子的显示保持一致。
        */
       progress: {
         selector: "div.progressarea",
@@ -106,7 +110,7 @@ export const siteMetadata: ISiteMetadata = {
           (query: string) => {
             switch (true) {
               case /已完成/.test(query):
-                return ETorrentStatus.completed;
+                return ETorrentStatus.seeding;
               default:
                 return ETorrentStatus.unknown;
             }
