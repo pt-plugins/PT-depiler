@@ -107,6 +107,10 @@ export const siteMetadata: ISiteMetadata = {
        * 与本行并列的 `.poster > progress[data-label]`（原生 progress 元素，
        * 百分比形如 "100%"）。每个 torrent_wrap 对应一个 torrent_item，
        * 因此直接取父级再查即可。
+       *
+       * 100% 映射为 seeding 而非 completed：本项目里 completed 源自 NexusPHP 的
+       * `inactivity` + 100%，含义是「已完成但当前未在做种」。该站点未提供是否活跃做种的信息，
+       * 100% 的种子按正在做种处理，才与其它站点对同一种子的显示一致。
        */
       progress: {
         selector: ":self",
@@ -124,7 +128,7 @@ export const siteMetadata: ISiteMetadata = {
           if (!matched) {
             return ETorrentStatus.unknown;
           }
-          return parseFloat(matched[1]) >= 100 ? ETorrentStatus.completed : ETorrentStatus.downloading;
+          return parseFloat(matched[1]) >= 100 ? ETorrentStatus.seeding : ETorrentStatus.downloading;
         },
       },
 
