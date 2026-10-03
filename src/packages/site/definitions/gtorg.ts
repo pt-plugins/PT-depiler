@@ -11,6 +11,10 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   urls: ["uggcf://tnl-gbeeragf.bet/"],
 
+  // refs: https://github.com/Jackett/Jackett/issues/15022#issuecomment-4578554039
+  isDead: true,
+
+  /**
   category: [
     {
       name: "Status",
@@ -184,6 +188,7 @@ export const siteMetadata: ISiteMetadata = {
       },
     ],
   },
+   */
 
   levelRequirements: [
     {
