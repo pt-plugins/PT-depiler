@@ -791,11 +791,13 @@
       "editDefaultDownloaderBtn": "默认下载服务器设置",
       "emptyNotice": "在使用推送服务之前，您至少需要添加一个下载服务器。",
       "remove": {
+        "defaultNotDeleted": "已跳过默认下载服务器 [{0}]：默认下载服务器不允许删除，请先在「默认下载服务器设置」中切换到其他下载服务器。",
         "multi": "你确定删除这{count}个下载服务器吗？",
         "single": "确认要删除这个下载服务器吗？"
       },
       "table": {
         "action": {
+          "deleteDefaultDownloader": "该下载服务器为当前默认下载服务器，无法删除。请先在「默认下载服务器设置」中切换到其他下载服务器。",
           "deleteDownloader": "删除该下载服务器",
           "setDefault": "设置为默认下载服务器",
           "setPathAndTag": "设置预设的下载路径和标签",
