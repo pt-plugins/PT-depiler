@@ -322,11 +322,27 @@ export interface CAddTorrentResult {
 }
 
 /**
+ * 连接检测（ping）失败时，客户端能明确判断出的原因。
+ *
+ * 目前只包含「服务端明确拒绝了凭据」这一确定情况（账号 / 密码 / API Key 错误）；
+ * 其余失败（网络不通、证书不受信任等）保持 undefined，由上层另行推测。
+ */
+export type TConnectFailureReason = "auth";
+
+/**
  * 客户端具体要实现的抽象方法
  */
 export abstract class AbstractBittorrentClient<T extends DownloaderBaseConfig = DownloaderBaseConfig> {
   abstract version: `v${number}.${number}.${number}`;
   readonly config: T;
+
+  /**
+   * 最近一次连接检测失败时，客户端能明确判断出的原因（见 TConnectFailureReason）。
+   *
+   * 各客户端需在 ping() 开始时清空该值，并在判断出明确原因时写入，
+   * 供配置页面给出准确提示（见 SetDownloader/Editor.vue）。
+   */
+  public lastConnectFailureReason?: TConnectFailureReason;
 
   private clientVersion?: string;
 

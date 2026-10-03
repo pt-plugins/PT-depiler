@@ -23,7 +23,7 @@ import {
   TorrentFilePriority,
 } from "../types";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import { getRemoteTorrentFile } from "../utils";
+import { getRemoteTorrentFile, isAuthenticationError } from "../utils";
 
 export const clientConfig: TorrentClientConfig = {
   type: "Flood",
@@ -198,12 +198,16 @@ export default class Flood extends AbstractBittorrentClient {
   }
 
   async ping(): Promise<boolean> {
+    this.lastConnectFailureReason = undefined;
+
     try {
       const req = await this.request("/api/client/connection-test");
       // jesec 现为 { isConnected }（早期为 { isConnect }），两者兼容读取
       const data = req.data as { isConnected?: boolean; isConnect?: boolean };
       return data.isConnected ?? data.isConnect ?? false;
     } catch (e) {
+      // 未登录时会先触发一次 login 重试，重试后仍是 401 说明账号或密码错误
+      if (isAuthenticationError(e)) this.lastConnectFailureReason = "auth";
       return false;
     }
   }

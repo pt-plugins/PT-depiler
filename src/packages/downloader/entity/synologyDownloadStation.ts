@@ -16,7 +16,7 @@ import {
 } from "../types";
 import urlJoin from "url-join";
 import axios, { AxiosRequestConfig } from "axios";
-import { getRemoteTorrentFile } from "../utils";
+import { getRemoteTorrentFile, isAuthenticationError } from "../utils";
 
 export const clientConfig: TorrentClientConfig = {
   type: "synologyDownloadStation",
@@ -472,15 +472,21 @@ export default class SynologyDownloadStation extends AbstractBittorrentClient<To
       });
       if (req.success) {
         this._sessionId = req.data.sid;
+      } else if (req.error.code >= 400 && req.error.code <= 404) {
+        // 认证类错误码（见上方 SynologyErrorCode 注释）：
+        // 400 账号或密码错误 / 401 账号被禁用 / 402 权限不足 / 403、404 二次验证相关
+        this.lastConnectFailureReason = "auth";
       }
 
       return req.success;
     } catch (e) {
+      if (isAuthenticationError(e)) this.lastConnectFailureReason = "auth";
       return false;
     }
   }
 
   async ping(): Promise<boolean> {
+    this.lastConnectFailureReason = undefined;
     return this.login();
   }
 
