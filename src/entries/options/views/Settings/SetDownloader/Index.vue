@@ -8,6 +8,7 @@ import type { DataTableHeader } from "vuetify";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
+import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 import type { TDownloaderKey } from "@/shared/types.ts";
 import { getDownloaderIcon, getDownloaderMetaData, type TorrentClientMetaData } from "@ptd/downloader";
@@ -26,6 +27,7 @@ const { t } = useI18n();
 const router = useRouter();
 const metadataStore = useMetadataStore();
 const configStore = useConfigStore();
+const runtimeStore = useRuntimeStore();
 
 const showAddDialog = ref<boolean>(false);
 const showEditDialog = ref<boolean>(false);
@@ -105,7 +107,15 @@ function editDownloaderSiteFilter(downloaderId: TDownloaderKey) {
 
 const toDeleteIds = ref<TDownloaderKey[]>([]);
 function deleteDownloader(downloaderId: TDownloaderKey[]) {
-  toDeleteIds.value = downloaderId.filter((i) => i !== metadataStore.defaultDownloader?.id); // 默认下载器不允许删除（防止多选时选中）
+  const defaultDownloaderId = metadataStore.defaultDownloader?.id;
+  toDeleteIds.value = downloaderId.filter((i) => i !== defaultDownloaderId); // 默认下载器不允许删除（防止多选时选中）
+
+  // 多选删除时若有默认下载器被跳过，需要明确告知用户，否则会出现「选了 N 个只删掉 N-1 个」的静默行为
+  if (toDeleteIds.value.length !== downloaderId.length) {
+    const skippedName = metadataStore.downloaders?.[defaultDownloaderId!]?.name ?? defaultDownloaderId!;
+    runtimeStore.showSnakebar(t("SetDownloader.index.remove.defaultNotDeleted", [skippedName]), { color: "warning" });
+  }
+
   showDeleteDialog.value = true;
 }
 
@@ -303,9 +313,27 @@ async function confirmDeleteDownloader(downloaderId: TDownloaderKey) {
             @click="editDownloaderSiteFilter(item.id)"
           ></v-btn>
 
+          <!-- 默认下载服务器不允许删除；disabled 的 v-btn 不触发鼠标事件，故用外层 v-tooltip 的 activator 插槽包裹以承载提示 -->
+          <v-tooltip
+            v-if="item.id == metadataStore.defaultDownloader?.id"
+            :text="t('SetDownloader.index.table.action.deleteDefaultDownloader')"
+            location="top"
+            max-width="400"
+          >
+            <template #activator="{ props: tooltipProps }">
+              <v-btn
+                v-bind="tooltipProps"
+                :title="t('SetDownloader.index.table.action.deleteDefaultDownloader')"
+                color="error"
+                disabled
+                icon="mdi-delete"
+                size="small"
+              />
+            </template>
+          </v-tooltip>
           <v-btn
+            v-else
             :title="t('common.remove')"
-            :disabled="item.id == metadataStore.defaultDownloader?.id /* 默认下载器不允许删除 */"
             color="error"
             icon="mdi-delete"
             size="small"

@@ -791,11 +791,13 @@
       "editDefaultDownloaderBtn": "Edit Default Downloader",
       "emptyNotice": "Before using the download service, you need to add at least one download server.",
       "remove": {
+        "defaultNotDeleted": "Skipped the Default Downloader [{0}]: it cannot be deleted. Please switch to another download server in 'Edit Default Downloader' first.",
         "multi": "Are you sure to delete these {count} download servers?",
         "single": "Are you sure to delete this download server?"
       },
       "table": {
         "action": {
+          "deleteDefaultDownloader": "This download server is the current Default Downloader and cannot be deleted. Please switch to another download server in 'Edit Default Downloader' first.",
           "deleteDownloader": "Delete this downloader server",
           "setDefault": "Set this downloader server as Default Downloader.",
           "setPathAndTag": "Set Suggest Download Path and Tags",
