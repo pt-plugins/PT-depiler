@@ -25,6 +25,9 @@ import ExportUserInfoDialog from "./ExportUserInfoDialog.vue";
 import { formatRatio } from "./utils/format.ts";
 import { tableData, initTableData, cancelFlushSiteLastUserInfo, flushSiteLastUserInfo } from "./utils/lastUserData.ts";
 
+// 同 SearchEntity：<script setup> 默认名为文件名（"Index"），KeepAlive 无法区分，需显式声明
+defineOptions({ name: "MyData" });
+
 const { t } = useI18n();
 const router = useRouter();
 const configStore = useConfigStore();
