@@ -1,6 +1,7 @@
 import PQueue from "p-queue";
 import { format } from "date-fns";
 import { isEmpty, unset } from "es-toolkit/compat";
+import { toMerged } from "es-toolkit";
 import type { IUserInfo } from "@ptd/site";
 import { EResultParseStatus } from "@ptd/site";
 
@@ -93,6 +94,21 @@ export async function setSiteLastUserInfo(userData: IUserInfo) {
 
     // 存储用户信息到 metadata 中（ pinia/webExtPersistence 会自动同步该部分信息 ）
     const metadataStore = ((await sendMessage("getExtStorage", "metadata")) ?? {}) as IMetadataPiniaStorageSchema;
+
+    /**
+     * 刷新失败（CF 拦截、需要登录、解析错误等）时，保留上次成功刷新的数值字段（上传量、下载量、魔力值等），
+     * 仅用错误对象中的字段（status/updateAt 及部分解析成功的新鲜字段）覆盖，
+     * 避免临时性错误导致 MyData 表格数值消失。历史存储（userInfo）仍只在成功时写入，不受影响。
+     * 仅当上次数据本身为 success 时合并，防止错误数据叠加。
+     * refs: https://github.com/pt-plugins/PT-depiler/issues/769
+     */
+    if (userData.status !== EResultParseStatus.success) {
+      const previous = metadataStore.lastUserInfo?.[site];
+      if (previous?.status === EResultParseStatus.success) {
+        userData = toMerged(previous, userData);
+      }
+    }
+
     (metadataStore as IMetadataPiniaStorageSchema).lastUserInfo ??= {};
     (metadataStore as IMetadataPiniaStorageSchema).lastUserInfo[site] = userData;
     await sendMessage("setExtStorage", { key: "metadata", value: metadataStore });
