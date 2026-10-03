@@ -119,15 +119,32 @@ export function createUserBonusSelectorFn(bonusKeys: string[]): IElementQuery {
   };
 }
 
+/**
+ * NexusPHP 的下载状态进度条（如 `<div title="seeding 100%">`）在部分站点中并非标题所在单元格内的第一个 div
+ * （例如 Depth Studio 将标题说明的 div 置于进度条之前），此时直接取第一个 div 会因该 div 无 title 而解析失败。
+ * refs: https://github.com/xiaomlove/nexusphp/blob/php8/nexus/Torrent/Torrent.php renderProgressBar()
+ */
+const progressElementSelector = ["leeching", "seeding", "inactivity"]
+  .map((status) => `div[title^='${status}']`)
+  .join(", ");
+
 const parseProgressElement = (element: HTMLElement) => {
-  const progressElement = element.parentElement?.querySelector("div");
-  if (!progressElement) return null;
-  const progressTitle = progressElement.getAttribute("title");
-  const parts = progressTitle?.split(" ");
-  if (!parts || parts.length != 2) return null;
-  const status = parts[0];
-  const progress = parts[1];
-  return { status: status, progress: progress };
+  const candidates: (HTMLElement | null | undefined)[] = [];
+  const parentElement = element.parentElement;
+  if (parentElement) {
+    // 优先匹配同一行内、带下载状态 title 的进度条
+    candidates.push(...(Sizzle(`${progressElementSelector}:first`, parentElement) as HTMLElement[]));
+    // 兜底：仍按 NPHP 默认输出，取标题所在单元格内的第一个 div
+    candidates.push(parentElement.querySelector("div"));
+  }
+
+  for (const progressElement of candidates) {
+    const parts = progressElement?.getAttribute("title")?.split(" ");
+    if (parts?.length !== 2) continue;
+    return { status: parts[0], progress: parts[1] };
+  }
+
+  return null;
 };
 
 /**
