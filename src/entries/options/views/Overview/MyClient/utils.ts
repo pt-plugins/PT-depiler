@@ -1,15 +1,16 @@
 import { computed, ref } from "vue";
 
-import type { CTorrent } from "@ptd/downloader";
 import { sendMessage } from "@/messages.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useI18n } from "vue-i18n";
 
+import { annotateTorrentSites, applyCachedTorrentSites, type TMyClientTorrent } from "./torrentSite.ts";
+
 // ── module-level shared state ─────────────────────────────────────────────
 
 /** Loaded torrent map keyed by clientId, shared between Index.vue and ClientStatusDialog.vue. */
-export const torrents = ref<Record<string, CTorrent[]>>({});
+export const torrents = ref<Record<string, TMyClientTorrent[]>>({});
 
 /** Which downloader IDs are selected in the torrent filter (empty = all). */
 export const selectedDownloaderIds = ref<string[]>([]);
@@ -41,9 +42,7 @@ export function useClientRefresh() {
   const enabledDownloaders = computed(() => metadataStore.getEnabledDownloaders);
 
   const activeDownloaderIds = computed(() =>
-    selectedDownloaderIds.value.length > 0
-      ? selectedDownloaderIds.value
-      : enabledDownloaders.value.map((d) => d.id),
+    selectedDownloaderIds.value.length > 0 ? selectedDownloaderIds.value : enabledDownloaders.value.map((d) => d.id),
   );
 
   function clearDownloaderTimer(id: string) {
@@ -56,8 +55,12 @@ export function useClientRefresh() {
 
   async function loadSingleDownloader(id: string): Promise<void> {
     try {
-      const result = await sendMessage("getClientTorrents", id);
+      const result = (await sendMessage("getClientTorrents", id)) as TMyClientTorrent[];
+      // 先同步补齐缓存中的站点判定结果（避免自动刷新时重复显示加载态），
+      // 其余种子的站点判定在列表加载完成后统一进行，结果写回种子对象，不阻塞列表展示
+      applyCachedTorrentSites(result);
       torrents.value = { ...torrents.value, [id]: result };
+      void annotateTorrentSites(torrents.value[id]);
       failCounts.set(id, 0);
     } catch {
       const prev = failCounts.get(id) ?? 0;

@@ -1,60 +1,35 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
-
-import type { CTorrent } from "@ptd/downloader";
-import { type TSiteID } from "@ptd/site";
 
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 import SiteName from "@/options/components/SiteName.vue";
 
-import { getTorrentSiteMatch, type TTorrentSiteMatch } from "./torrentSite.ts";
+import type { TMyClientTorrent } from "./torrentSite.ts";
 
+// 站点判定在 loadSingleDownloader 中统一完成，并写回种子的 site / siteType，
+// 该组件只负责展示（siteType 为 undefined 表示判定尚未完成）
 const { item } = defineProps<{
-  item: CTorrent;
+  item: TMyClientTorrent;
 }>();
 
 const { t } = useI18n();
-
-const match = ref<TTorrentSiteMatch | null>(null);
-const resolved = ref(false);
-
-const siteId = ref<TSiteID | undefined>(undefined);
-
-async function resolveSite() {
-  try {
-    const result = await getTorrentSiteMatch(item);
-    match.value = result;
-    siteId.value = result.type === "site" ? result.siteId : undefined;
-  } finally {
-    resolved.value = true;
-  }
-}
-
-onMounted(resolveSite);
-
-// 自动刷新会整体替换种子列表，item 变化时重新识别（命中缓存时开销极小）
-watch(
-  () => [item.clientId, String(item.id), item.infoHash],
-  () => resolveSite(),
-);
 </script>
 
 <template>
   <div class="d-flex flex-column align-center">
-    <template v-if="siteId">
-      <SiteFavicon :site-id="siteId" :size="24" />
-      <SiteName :site-id="siteId" />
+    <template v-if="item.site">
+      <SiteFavicon :site-id="item.site" :size="24" />
+      <SiteName :site-id="item.site" />
     </template>
-    <v-progress-circular v-else-if="!resolved" color="grey" indeterminate size="18" width="2" />
-    <template v-else-if="match?.type === 'public'">
+    <template v-else-if="item.siteType === 'public'">
       <v-icon :title="t('MyClient.sitePublicTip')" color="blue-grey" icon="mdi-web" size="22" />
       <span class="text-body-small text-blue-grey">{{ t("MyClient.sitePublic") }}</span>
     </template>
-    <template v-else>
+    <template v-else-if="item.siteType === 'unmatched'">
       <v-icon :title="t('MyClient.siteUnmatchedTip')" color="amber-darken-3" icon="mdi-web" size="22" />
       <span class="text-body-small text-amber-darken-3">{{ t("MyClient.siteUnmatched") }}</span>
     </template>
+    <v-progress-circular v-else color="grey" indeterminate size="18" width="2" />
   </div>
 </template>
 

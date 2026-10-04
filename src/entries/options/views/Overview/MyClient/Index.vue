@@ -131,8 +131,8 @@ const fullTableHeader = computed(
       { title: t("MyClient.table.client"), key: "clientId", align: "center", width: "120", props: { disabled: true } },
       { title: t("MyClient.table.name"), key: "name", align: "start", minWidth: "20rem", props: { disabled: true } },
       {
-        // 站点列由种子内的 tracker 地址（urls / legacyUrls / trackerUrls 的 host）匹配得到，
-        // 由于解析是异步的，该列不参与排序，仅用于展示（可通过列选择器隐藏）
+        // 站点判定在 loadSingleDownloader 中统一完成（urls / legacyUrls / trackerUrls 的 host 匹配），
+        // 判定未完成的行先显示加载态，故该列不参与排序
         title: t("common.site"),
         key: "site",
         align: "center",
