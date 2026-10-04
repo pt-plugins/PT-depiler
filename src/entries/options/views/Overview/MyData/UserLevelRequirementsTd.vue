@@ -85,6 +85,12 @@ const userLevelGroupIcon = computed(() => {
 
 <template>
   <span v-if="userInfo.levelName" class="text-no-wrap">
+    <!--
+      不要移除 close-delay：浮层与激活元素之间隔着 offset（默认 10px）的间隙，
+      指针由等级名移向浮层时必然先触发一次 mouseleave。Vuetify 的 closeDelay 默认为 0，会立刻关闭浮层，
+      且已关闭的浮层内容会被置为 inert（不再响应指针事件），使得浮层几乎无法悬停查看（#1580）。
+      这里留出 300ms 关闭延迟，指针进入浮层后即可取消关闭。
+    -->
     <v-tooltip
       v-if="
         configStore.myDataTableControl.showLevelRequirement && userLevelRequirements && userLevelRequirements.length > 0
@@ -92,6 +98,7 @@ const userLevelGroupIcon = computed(() => {
       content-class="bg-white pa-0"
       interactive
       location="end bottom"
+      :close-delay="300"
       :open-on-click="display.mobile.value"
     >
       <template v-slot:activator="{ props }">
