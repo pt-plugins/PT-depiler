@@ -246,6 +246,10 @@
     "refresh": "刷新",
     "resumeSelected": "开始",
     "searchPlaceholder": "搜索种子名称、Hash、标签、路径",
+    "sitePublic": "公网种子",
+    "sitePublicTip": "公网种子：客户端标记为公开种子，或其 tracker 仅匹配到公开站点",
+    "siteUnmatched": "未匹配",
+    "siteUnmatchedTip": "未匹配到已添加的站点：若该站点使用了独立的 tracker 域名，可在站点定义中补充 trackerUrls",
     "speedLimit": {
       "batchBtn": "批量限速",
       "download": "下载限速（KiB/s，0 表示不限速）",

@@ -160,6 +160,13 @@ interface rawTorrent {
   f_l_piece_prio: boolean; // Torrent first last piece priority state
   completion_on: number; // Torrent copletion datetime in seconds
   tracker: string; // Torrent tracker
+  /**
+   * 是否为私有种子（qBittorrent v5.0.0+ 才提供）
+   * 注意：官方文档中写作 isPrivate，但实际返回的键为 private，此处两者都兼容
+   * refs: https://github.com/qbittorrent/qBittorrent/issues/22113
+   */
+  isPrivate?: boolean;
+  private?: boolean;
   dl_limit: number; // Torrent download limit
   up_limit: number; // Torrent upload limit
   downloaded: number; // Amount of data downloaded
@@ -184,6 +191,33 @@ interface rawTorrent {
 
 interface QbittorrentTorrent extends CTorrent<rawTorrent> {
   id: string;
+}
+
+/**
+ * 从种子列表项中提取 tracker 地址：
+ * qBittorrent 的 /torrents/info 提供了当前生效的 tracker（tracker）以及原始 magnet_uri（其中的 tr 参数），
+ * 用于在不额外请求 /torrents/trackers 的情况下识别种子所属站点（见 MyClient 页面）
+ */
+function extractTrackerUrls(rawTorrent: rawTorrent): string[] | undefined {
+  const urls = new Set<string>();
+  if (rawTorrent.tracker) {
+    urls.add(rawTorrent.tracker);
+  }
+  if (typeof rawTorrent.magnet_uri === "string" && rawTorrent.magnet_uri.includes("?")) {
+    const params = new URLSearchParams(rawTorrent.magnet_uri.split("?")[1] ?? "");
+    for (const trackerUrl of params.getAll("tr")) {
+      if (trackerUrl) urls.add(trackerUrl);
+    }
+  }
+  return urls.size > 0 ? [...urls] : undefined;
+}
+
+/**
+ * 从种子列表项中提取是否为私有种子（qBittorrent v5.0.0+ 提供，qBittorrent 4.x 下为 undefined）
+ */
+function extractIsPrivate(rawTorrent: rawTorrent): boolean | undefined {
+  const isPrivate = rawTorrent.isPrivate ?? rawTorrent.private;
+  return typeof isPrivate === "boolean" ? isPrivate : undefined;
 }
 
 type QbittorrentTorrentFilters =
@@ -607,6 +641,8 @@ export default class QBittorrent extends AbstractBittorrentClient<TorrentClientC
         downloadSpeed: torrent.dlspeed,
         totalUploaded: torrent.uploaded,
         totalDownloaded: torrent.downloaded,
+        isPrivate: extractIsPrivate(torrent),
+        trackerUrls: extractTrackerUrls(torrent),
         raw: torrent,
         clientId: this.config.id,
       } as QbittorrentTorrent;

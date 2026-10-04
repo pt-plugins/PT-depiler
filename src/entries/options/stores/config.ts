@@ -145,6 +145,7 @@ export const useConfigStore = defineStore("config", {
         columns: [
           "clientId",
           "name",
+          "site",
           "totalSize",
           "progress",
           "state",

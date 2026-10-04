@@ -246,6 +246,10 @@
     "refresh": "Refresh",
     "resumeSelected": "Resume",
     "searchPlaceholder": "Search by name, hash, label, or path",
+    "sitePublic": "Public",
+    "sitePublicTip": "Public torrent: marked as public by the client, or its tracker only matches a public site",
+    "siteUnmatched": "Unmatched",
+    "siteUnmatchedTip": "No added site matched this torrent; if the site uses a dedicated tracker domain, declare trackerUrls in its definition",
     "speedLimit": {
       "batchBtn": "Speed Limit",
       "download": "Download Limit (KiB/s, 0 = unlimited)",

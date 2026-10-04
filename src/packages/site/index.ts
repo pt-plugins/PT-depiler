@@ -54,6 +54,9 @@ export async function getDefinedSiteMetadata(definition: string): Promise<ISiteM
   if (siteMetadata.legacyUrls?.length) {
     siteMetadata.legacyUrls = siteMetadata.legacyUrls.map(restoreSecureLink);
   }
+  if (siteMetadata.trackerUrls?.length) {
+    siteMetadata.trackerUrls = siteMetadata.trackerUrls.map(restoreSecureLink);
+  }
 
   // 补全一些可以缺失字段
   siteMetadata.tags ??= [];
