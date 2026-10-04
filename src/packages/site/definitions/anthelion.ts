@@ -3,8 +3,71 @@
  * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/anthelion.me/config.json
  */
 import Gazelle, { SchemaMetadata, GazelleUtils, commonPagesList, detailPageList } from "../schemas/Gazelle.ts";
-import { ISiteMetadata, ITorrent, ISearchInput, ETorrentStatus } from "../types.ts";
-import { buildCategoryOptionsFromList } from "../utils.ts";
+import {
+  ETorrentStatus,
+  EResultParseStatus,
+  type ISearchInput,
+  type ISiteMetadata,
+  type ITorrent,
+  type IUserInfo,
+  NeedLoginError,
+  CFBlockedError,
+} from "../types.ts";
+import {
+  buildCategoryOptionsFromList,
+  parseSizeString,
+  parseTimeToLiveToDate,
+  parseTimeWithZone,
+  parseValidTimeString,
+} from "../utils.ts";
+import type { AxiosRequestConfig, AxiosResponse } from "axios";
+
+interface IAnthelionApiResponse {
+  status?: string;
+  error?: string;
+  response?: Record<string, unknown>;
+}
+
+const parseAnthelionApiNumber = (value: unknown): number | undefined => {
+  if (typeof value === "number") return Number.isFinite(value) ? value : undefined;
+  if (typeof value !== "string" || !value.trim()) return undefined;
+
+  const parsed = Number(value.replace(/,/g, "").trim());
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+const parseAnthelionApiBytes = (value: unknown): number | undefined => {
+  const numericValue = parseAnthelionApiNumber(value);
+  if (typeof numericValue === "number") return numericValue;
+  if (typeof value !== "string") return undefined;
+
+  const parsed = parseSizeString(value.trim());
+  return parsed > 0 || value.trim() === "0 B" ? parsed : undefined;
+};
+
+const parseAnthelionApiTime = (value: unknown): number | undefined => {
+  if (typeof value !== "number" && typeof value !== "string") return undefined;
+
+  const parsed = parseTimeWithZone(value, "+0000");
+  return Number.isFinite(parsed) ? parsed : undefined;
+};
+
+const parseAnthelionApiBoolean = (value: unknown): boolean => {
+  if (typeof value === "boolean") return value;
+  if (typeof value === "number") return value !== 0;
+  if (typeof value === "string") return value !== "" && value !== "0" && value.toLowerCase() !== "false";
+  return false;
+};
+
+// ANT 当前用户页的时间 span 不再带 title，回退解析相对时间；保留 title 以兼容旧页面。
+const parseAnthelionUserTime = (element: Element): number | string => {
+  const title = element.getAttribute("title");
+  if (title) {
+    return parseValidTimeString(title, ["MMM d yyyy, HH:mm 'UTC'"]);
+  }
+
+  return parseTimeToLiveToDate(element.textContent?.trim() ?? "");
+};
 
 const tagKeywords = ["Internal", "Pollen"];
 const extractTags = (tags: string) => GazelleUtils.extractTags(tags, tagKeywords);
@@ -43,7 +106,7 @@ const detailPageSelectors = {
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
-  version: 2,
+  version: 5,
   id: "anthelion",
   name: "Anthelion",
   aka: ["ANT"],
@@ -53,6 +116,15 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Gazelle",
   urls: ["uggcf://naguryvba.zr/"],
+
+  userInputSettingMeta: [
+    {
+      name: "apiKey",
+      label: "API Key",
+      hint: "可选；在 Anthelion Settings → API Keys 中生成，至少勾选 User 权限。填写后用户统计改用 API 获取",
+      required: false,
+    },
+  ],
 
   category: [
     {
@@ -246,8 +318,11 @@ export const siteMetadata: ISiteMetadata = {
       adoptions: { selector: "li:contains('Adopted: ') span" },
       joinTime: {
         selector: "ul.stats li:contains('Joined:') span",
-        attr: "title",
-        filters: [{ name: "parseTime", args: ["MMM d yyyy, HH:mm 'UTC'"] }],
+        elementProcess: parseAnthelionUserTime,
+      },
+      lastAccessAt: {
+        selector: ["ul.stats li:contains('Last seen') span", "ul.stats li:contains('Last Seen') span"],
+        elementProcess: parseAnthelionUserTime,
       },
       seedingSize: { selector: "li:contains('Seeding Size: ') span", filters: [{ name: "parseSize" }] },
       bonus: { selector: "a[href*='store.php']", filters: [{ name: "replace", args: [/,/g, ""] }] },
@@ -329,6 +404,139 @@ export const siteMetadata: ISiteMetadata = {
 };
 
 export default class Anthelion extends Gazelle {
+  private async getAnthelionApiUsername(lastUserInfo: Partial<IUserInfo>): Promise<string> {
+    const cachedName = typeof lastUserInfo.name === "string" ? lastUserInfo.name.trim() : "";
+    if (cachedName) return cachedName;
+
+    const { data: indexDocument } = await this.request<Document>({ url: "/index.php", responseType: "document" });
+    const nameSelector = this.metadata.userInfo?.selectors?.name;
+    const name = nameSelector ? this.getFieldData(indexDocument, nameSelector) : undefined;
+    if (typeof name !== "string" || !name.trim()) {
+      throw new Error("Unable to determine the Anthelion username for the API request");
+    }
+
+    return name.trim();
+  }
+
+  private async getUserInfoFromAnthelionApi(lastUserInfo: Partial<IUserInfo>): Promise<IUserInfo> {
+    const flushUserInfo = {
+      id: lastUserInfo.id,
+      name: lastUserInfo.name,
+      joinTime: lastUserInfo.joinTime,
+      status: EResultParseStatus.unknownError,
+      updateAt: +new Date(),
+      site: this.metadata.id,
+    } as IUserInfo;
+
+    try {
+      const apiKey = this.userConfig.inputSetting?.apiKey?.trim();
+      const userName = await this.getAnthelionApiUsername(lastUserInfo);
+      // Anthelion's API authenticates with the api_key query parameter and
+      // selects the account by username.
+      const { data } = await this.request<IAnthelionApiResponse>({
+        url: "/api.php",
+        params: {
+          action: "user",
+          method: "getuserinfo",
+          type: "username",
+          user: userName,
+          api_key: apiKey,
+        },
+        responseType: "json",
+      });
+
+      if (data.status !== "success" || !data.response) {
+        throw new Error(data.error || "Anthelion API returned an unsuccessful response");
+      }
+
+      const response = data.response;
+      const apiUserInfo: Partial<IUserInfo> = {};
+      const id = response.ID;
+      const name = response.Username;
+      const levelName = response.Class;
+      if (typeof id === "number" || typeof id === "string") apiUserInfo.id = id;
+      if (typeof name === "string") apiUserInfo.name = name;
+      if (typeof levelName === "string") apiUserInfo.levelName = levelName;
+
+      const joinTime = parseAnthelionApiTime(response.JoinDate);
+      const lastAccessAt = parseAnthelionApiTime(response.LastAccess);
+      if (typeof joinTime === "number") apiUserInfo.joinTime = joinTime;
+      if (typeof lastAccessAt === "number") apiUserInfo.lastAccessAt = lastAccessAt;
+
+      const uploaded = parseAnthelionApiBytes(response.Uploaded);
+      const downloaded = parseAnthelionApiBytes(response.Downloaded);
+      const seedingSize = parseAnthelionApiBytes(response.SeedSize);
+      if (typeof uploaded === "number") apiUserInfo.uploaded = uploaded;
+      if (typeof downloaded === "number") apiUserInfo.downloaded = downloaded;
+      if (typeof seedingSize === "number") apiUserInfo.seedingSize = seedingSize;
+
+      if (typeof uploaded === "number" && typeof downloaded === "number") {
+        apiUserInfo.ratio = downloaded > 0 ? uploaded / downloaded : uploaded > 0 ? Number.POSITIVE_INFINITY : 0;
+      }
+
+      const seeding = parseAnthelionApiNumber(response.SeedCount);
+      const bonus = parseAnthelionApiNumber(response.Orbs);
+      const uploads = parseAnthelionApiNumber(response.Uploads);
+      const adoptions = parseAnthelionApiNumber(response.Adoptions);
+      const invites = parseAnthelionApiNumber(response.Invites);
+      const grabbed = parseAnthelionApiNumber(response.Grabbed);
+      const snatched = parseAnthelionApiNumber(response.Snatched);
+      const forumPosts = parseAnthelionApiNumber(response.ForumPosts);
+      const hitAndRuns = parseAnthelionApiNumber(response.HnR);
+      if (typeof seeding === "number") apiUserInfo.seeding = seeding;
+      if (typeof bonus === "number") apiUserInfo.bonus = bonus;
+      if (typeof uploads === "number") apiUserInfo.uploads = uploads;
+      if (typeof adoptions === "number") apiUserInfo.adoptions = adoptions;
+      if (typeof invites === "number") apiUserInfo.invites = invites;
+      if (typeof grabbed === "number") apiUserInfo.grabbed = grabbed;
+      if (typeof snatched === "number") apiUserInfo.snatched = snatched;
+      if (typeof forumPosts === "number") apiUserInfo.forumPosts = forumPosts;
+      if (typeof hitAndRuns === "number") apiUserInfo.hitAndRuns = hitAndRuns;
+      if (typeof response.UnreadMail !== "undefined") {
+        apiUserInfo.messageCount = parseAnthelionApiBoolean(response.UnreadMail) ? 1 : 0;
+      }
+
+      Object.assign(flushUserInfo, apiUserInfo);
+      if (this.metadata.levelRequirements && flushUserInfo.levelName) {
+        flushUserInfo.levelId = this.guessUserLevelId(flushUserInfo);
+      }
+      flushUserInfo.status = EResultParseStatus.success;
+    } catch (error) {
+      if (import.meta.env.DEV) console.error(error);
+      flushUserInfo.status = EResultParseStatus.parseError;
+
+      if (error instanceof CFBlockedError) {
+        flushUserInfo.status = EResultParseStatus.CFBlocked;
+      } else if (error instanceof NeedLoginError) {
+        flushUserInfo.status = EResultParseStatus.needLogin;
+      }
+    }
+
+    return flushUserInfo;
+  }
+
+  public override async getUserInfoResult(lastUserInfo: Partial<IUserInfo> = {}): Promise<IUserInfo> {
+    if (!this.allowQueryUserInfo || !this.userConfig.inputSetting?.apiKey?.trim()) {
+      return super.getUserInfoResult(lastUserInfo);
+    }
+
+    return this.getUserInfoFromAnthelionApi(lastUserInfo);
+  }
+
+  public override async request<T>(
+    axiosConfig: AxiosRequestConfig,
+    checkLogin: boolean = true,
+  ): Promise<AxiosResponse<T>> {
+    // ANT 会拒绝 XHR 默认的 Sec-Fetch-Dest: empty，请求需伪装成页面导航。
+    axiosConfig.headers = {
+      ...(axiosConfig.headers ?? {}),
+      "Sec-Fetch-Dest": "document",
+    };
+    axiosConfig.withCredentials = true;
+
+    return super.request<T>(axiosConfig, checkLogin);
+  }
+
   /**
    * Anthelion 特性：直接搜索 IMDB 或 TMDB id 会直接跳转到详情（种子组）页面
    * 需要判断当前页面类型以选择对应的解析方式
