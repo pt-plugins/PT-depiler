@@ -39,6 +39,9 @@ description: 为 PT-depiler 仓库新增或修改 PT/BT 站点定义文件（src
 - **favicon**（`types/site.ts:98-106`）：可写完整 `https://.../favicon.ico`、`./<name>.png`（`public/icons/site/` 下的文件）或 `data:image/...`；若 `public/icons/site/` 已存在 `{id}.{png,ico,svg}` 则无需声明。
 - **isDead**：只在站点彻底死亡、无恢复可能时写 `isDead: true`；临时不可用应交给用户配置，不要写进 metadata（`types/site.ts:108-115`）。
 - **prettier**：printWidth 120、分号、trailing comma all（根 `package.json` 的 prettier 配置）。
+- **`userInfo.process[*]` 的字段声明按层分工**（`types/site.ts:355-363`）：每步要取的字段是 `[...fields, ...Object.keys(selectors)]`，二选一即可，不要两处都写。
+  - **schema（`schemas/*.ts`）优先用 `process[*].fields`**：字段清单写在步骤里，具体选择器放在全局 `userInfo.selectors`；这样 definition 只需覆写选择器就能快速适配站点改版，不必重写请求流程（NexusPHP / Luminance / Gazelle 等引擎都是这个形态）。
+  - **definition（`definitions/*.ts`）自己掌控 `process` 时优先用 `process[*].selectors`**：选择器的键本身就说明了「这次请求要取哪些内容」，字段与选择器不会各写一份而对不上（范例：`definitions/myanonamouse.ts`、`definitions/cgpeers.ts`）。
 - 若同时修改了公共类型/schema，必须同步检查其余定义文件是否受影响（`definitions/` 下 300+ 个定义文件、10 个 schema）。
 
 ## 按需读取
@@ -79,6 +82,7 @@ node .dsh/skills/ptd-site-definition/scripts/check-site-definition.mjs   # 不�
 - [ ] `type` 与 `schema` 匹配；`schema` 若填的是 `schemas/` 里没有的名字，则该文件必须导出 `default class` 承载它
 - [ ] 展开了 `...SchemaMetadata`（而不是手抄引擎默认值），只额外写与默认不同的部分
 - [ ] `category` 的每个 key 在站点内唯一，value 与站点真实分类一致
+- [ ] `userInfo.process[*]` 的字段声明符合分层约定：definition 侧用 `selectors`（键即字段清单），没有和 `fields` 重复声明；覆写引擎步骤时展开了 `...SchemaMetadata.userInfo!.process![n]`
 - [ ] 所有选择器/接口路径都有真实依据，没有猜测值
 - [ ] `node .dsh/skills/ptd-site-definition/scripts/check-site-definition.mjs <file>` 通过
 - [ ] `pnpm check` 通过

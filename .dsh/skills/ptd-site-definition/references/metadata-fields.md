@@ -83,13 +83,18 @@ export const siteMetadata: ISiteMetadata = {
 | --- | --- |
 | `pickLast` | 从上次缓存结果中直接继承的字段，用于减少请求 |
 | `process` | 有序步骤数组；**第一步不应有 `assertion`**，后续步骤可用。每步可含 `requestConfig`、`assertion`、`requestConfigTransformer`、`requestDelay`、`fields`、`selectors` |
-| `process[*].fields` / `selectors` | 共同决定该步骤要取哪些字段：实际字段为 `[...fields, ...Object.keys(selectors)]`（`AbstractPrivateSite.ts:133-136`）；字段已存在则跳过该步骤 |
+| `process[*].fields` / `selectors` | 共同决定该步骤要取哪些字段：实际字段为 `[...fields, ...Object.keys(selectors)]`（`AbstractPrivateSite.ts:133-136`）；字段已存在则跳过该步骤。两者二选一即可，按下方约定分层使用 |
 | `process[*].assertion` | `{ 字段: 'url' \| 'params.uid' \| ... }`；值为 `url` 时在 url 中替换 `$字段$`，否则按路径 set 进请求配置；缺字段会抛错（`AbstractPrivateSite.ts:148-165`） |
 | `requestDelay` | process 未定义时的回落值 |
 | `donorConfig` | 捐赠者（黄星）特权：`isAccountKept`、`bonusPerHourMultiplier`（能直接用 selector 选出正确时魔时该系数应为 1） |
 | `selectors` | 所有步骤共用的字段选择器 |
 
-约定：**schema 用 `fields` 声明默认能取的字段，definition 用 `userInfo.selectors` 覆写具体选择器**，这样站点侧改版只需改选择器（`types/site.ts:344-352`）。
+约定（`types/site.ts:355-363` 写明了这条分工）：
+
+- **schema（`schemas/*.ts`）优先用 `process[*].fields` 声明「这一步要取哪些字段」**，具体选择器统一放在全局 `userInfo.selectors`。这样 definition 只需覆写 `userInfo.selectors` 就能适配站点改版，请求流程（步骤划分、`requestConfig`、`assertion`）全部保持原样。
+- **definition（`definitions/*.ts`）自己掌控 `process` 时优先用 `process[*].selectors`**，由选择器的键直接表明该请求要取哪些内容：一处声明即可，不会出现「字段清单与选择器各写一份、改了一个忘了另一个」的情况（范例 `definitions/myanonamouse.ts:276-396`、`definitions/cgpeers.ts:104-155`）。
+
+注意：某一步写了 `selectors[字段]` 时，该步优先用它，同名键的全局 `userInfo.selectors` 只作为回落（`AbstractPrivateSite.ts:184`）；同一步里既写 `fields` 又写这些字段的选择器属于重复声明。
 
 ## 用户等级
 
