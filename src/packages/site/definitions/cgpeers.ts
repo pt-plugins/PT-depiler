@@ -4,7 +4,7 @@
  */
 import { type ISiteMetadata, ETorrentStatus } from "../types";
 import { SchemaMetadata } from "../schemas/Luminance";
-import { buildCategoryOptionsFromDict } from "../utils";
+import { buildCategoryOptionsFromDict, definedFilters } from "../utils";
 
 const categoryMap: Record<number, string> = {
   17: "3D Printing",
@@ -27,7 +27,7 @@ const idSelector = {
 
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
-  version: 2,
+  version: 3,
   id: "cgpeers",
   name: "CGPeers",
   aka: ["CGP"],
@@ -103,49 +103,55 @@ export const siteMetadata: ISiteMetadata = {
 
   userInfo: {
     ...SchemaMetadata.userInfo!,
+    // 改版后站点的用户详情页不再是 Luminance 结构，而上传量、下载量、分享率、积分等信息
+    // 已直接展示在全局顶栏的用户菜单（div.user-dropdown-menu）中，任意已登录页面（含 /）均可获取，
+    // 故这里不再请求 /user/$id$ 二级页面，该步骤需要获取的字段由 selectors 的键决定。
     process: [
       {
         requestConfig: { url: "/", responseType: "document" },
-        fields: ["id"],
-      },
-      {
-        requestConfig: { url: "/user/$id$", responseType: "document" },
-        assertion: { id: "url" },
-        fields: [
-          "name",
-          "joinTime",
-          "lastAccessAt",
-          "uploaded",
-          "downloaded",
-          "levelName",
-          "bonus",
-          "ratio",
-          "uploads",
-          "bonusPerHour",
-          "seeding",
-          "seedingSize",
-          "messageCount",
-          "posts",
-        ],
+        selectors: {
+          id: {
+            selector: ["div.user-dropdown-section a[href^='/user/']", "a.quick-action-btn[href^='/user/']"],
+            attr: "href",
+            filters: [(query: string) => query.match(/\/user\/(\d+)/)?.[1] ?? ""],
+          },
+          name: {
+            selector: ["a#userDropdownTrigger", "span.user_name"],
+            switchFilters: { "span.user_name": [{ name: "split", args: ["\n", 0] }] },
+          },
+          uploaded: {
+            selector: "a.stat-card[href*='/seeding'] span.stat-card-value",
+            filters: [{ name: "parseSize" }],
+          },
+          downloaded: {
+            selector: "a.stat-card[href*='/leeching'] span.stat-card-value",
+            filters: [{ name: "parseSize" }],
+          },
+          ratio: {
+            selector: "a.stat-card[href*='/ratio'] span.stat-card-value",
+            filters: [
+              (query: string) => {
+                if (query === "∞") return -1; // Infinity 不能通过 sendMessage 传递，会导致无返回，使用 -1 替代，前端会自动处理的
+                return definedFilters.parseNumber(query.replace(/,/g, ""));
+              },
+            ],
+          },
+          bonus: {
+            selector: "#header-credits-balance",
+            filters: [{ name: "parseNumber" }],
+          },
+          invites: {
+            selector: "a[href*='/invite'] span.link-badge",
+            filters: [{ name: "parseNumber" }],
+          },
+          messageCount: {
+            text: 0,
+            selector: "a#userDropdownTrigger .user-notification-badge",
+            filters: [{ name: "parseNumber" }],
+          },
+        },
       },
     ],
-    selectors: {
-      ...SchemaMetadata.userInfo!.selectors,
-      id: {
-        selector: ["div.user-dropdown-section a[href^='/user/']"],
-        attr: "href",
-        filters: [{ name: "split", args: ["/", 2] }],
-      },
-      name: {
-        selector: ["a#userDropdownTrigger", "span.user_name"],
-        switchFilters: { "span.user_name": [{ name: "split", args: ["\n", 0] }] },
-      },
-      messageCount: {
-        text: 0,
-        selector: "a#userDropdownTrigger .user-notification-badge",
-        filters: [{ name: "parseNumber" }],
-      },
-    },
   },
 
   detail: {
