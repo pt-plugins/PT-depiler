@@ -2,8 +2,8 @@
  * @JackettDefinitions https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/cgpeers.yml
  * @PTPPDefinitions https://github.com/pt-plugins/PT-Plugin-Plus/blob/dev/resource/sites/cgpeers.com/config.json
  */
-import { type ISiteMetadata, ETorrentStatus } from "../types";
-import { SchemaMetadata } from "../schemas/Luminance";
+import { type ISiteMetadata, type IElementQuery, type IUserInfo, ETorrentStatus } from "../types";
+import Luminance, { SchemaMetadata } from "../schemas/Luminance";
 import { buildCategoryOptionsFromDict, definedFilters } from "../utils";
 
 const categoryMap: Record<number, string> = {
@@ -25,9 +25,15 @@ const idSelector = {
   filters: [{ name: "split", args: ["/", 3] }, { name: "split", args: ["?", 0] }, { name: "parseNumber" }],
 };
 
+// 资料页 Torrents 面板中的「Seeding size」行
+const seedingSizeSelector: IElementQuery = {
+  selector: "dt:contains('Seeding size') + dd",
+  filters: [{ name: "parseSize" }],
+};
+
 export const siteMetadata: ISiteMetadata = {
   ...SchemaMetadata,
-  version: 3,
+  version: 4,
   id: "cgpeers",
   name: "CGPeers",
   aka: ["CGP"],
@@ -103,9 +109,9 @@ export const siteMetadata: ISiteMetadata = {
 
   userInfo: {
     ...SchemaMetadata.userInfo!,
-    // 改版后站点的用户详情页不再是 Luminance 结构，而上传量、下载量、分享率、积分等信息
-    // 已直接展示在全局顶栏的用户菜单（div.user-dropdown-menu）中，任意已登录页面（含 /）均可获取，
-    // 故这里不再请求 /user/$id$ 二级页面，该步骤需要获取的字段由 selectors 的键决定。
+    // 改版后站点的上传量、下载量、分享率、积分等信息展示在全局顶栏的用户菜单（div.user-dropdown-menu）中，
+    // 任意已登录页面（含 /）均可获取，故第一步只请求首页；等级、入站时间、做种统计等再取资料页（/user/{id}）。
+    // 各步骤需要获取的字段由该步骤 selectors 的键决定。
     process: [
       {
         requestConfig: { url: "/", responseType: "document" },
@@ -147,6 +153,44 @@ export const siteMetadata: ISiteMetadata = {
           messageCount: {
             text: 0,
             selector: "a#userDropdownTrigger .user-notification-badge",
+            filters: [{ name: "parseNumber" }],
+          },
+        },
+      },
+      {
+        // 改版后的资料页（div.profile-shell）
+        requestConfig: { url: "/user/$id$", responseType: "document" },
+        assertion: { id: "url" },
+        selectors: {
+          joinTime: {
+            selector: ".profile-hero__since .small:contains('Joined') .time",
+            attr: "title",
+            filters: [{ name: "parseTime", args: ["MMM dd yyyy, HH:mm"] }],
+          },
+          lastAccessAt: {
+            selector: ".profile-hero__since .small:contains('Last seen') .time",
+            attr: "title",
+            filters: [{ name: "parseTime", args: ["MMM dd yyyy, HH:mm"] }],
+          },
+          levelName: { selector: ".userclass-badge" },
+          uploads: {
+            selector: "dt:contains('Uploads') + dd",
+            filters: [{ name: "parseNumber" }],
+          },
+          seeding: {
+            // dd 形如「5 <span title="Of unique snatches">50%</span> <a>view</a>」，
+            // 取首个空白分隔片段，避免 50% 被并进数字（parseNumber 会去掉空格）
+            selector: "dt:contains('Seeding'):not(:contains('size')) + dd",
+            filters: [{ name: "split", args: [" ", 0] }, { name: "parseNumber" }],
+          },
+          // 该字段由文件末尾的 parseUserInfoForSeedingSize 覆写解析（钩子优先于本步骤的 selector）
+          seedingSize: seedingSizeSelector,
+          leeching: {
+            selector: "dt:contains('Leeching') + dd",
+            filters: [{ name: "parseNumber" }],
+          },
+          snatches: {
+            selector: "dt:contains('Snatched') + dd",
             filters: [{ name: "parseNumber" }],
           },
         },
@@ -206,3 +250,18 @@ export const siteMetadata: ISiteMetadata = {
     },
   ],
 };
+
+export default class CGPeers extends Luminance {
+  // 父类 parseUserInfoForSeedingSize 在资料页取不到做种量时会回落到 Gazelle 的做种列表接口
+  // /torrents.php?userid=...，而本站没有该接口（资料页上取到的 0 也会触发回落并导致采集报错），
+  // 故这里只按资料页上的「Seeding size」行取值。
+  protected override async parseUserInfoForSeedingSize(
+    flushUserInfo: Partial<IUserInfo>,
+    dataDocument: Document,
+  ): Promise<Partial<IUserInfo>> {
+    return {
+      ...flushUserInfo,
+      seedingSize: this.getFieldData(dataDocument, seedingSizeSelector),
+    };
+  }
+}
