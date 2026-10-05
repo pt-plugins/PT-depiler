@@ -369,6 +369,8 @@ userInfo: {
 
 某一步写了 `selectors[字段]` 时该步优先用它，同名键的全局 `userInfo.selectors` 只作回落（`AbstractPrivateSite.ts:184`）；同一步里既写 `fields` 又写这些字段的选择器属于重复声明。
 
+**例外：由 `parseUserInfoFor<字段名>` 钩子解析的字段**（如 Luminance 的 `seedingSize`、NexusPHP 的 `uploads`）也必须写进该步骤的 `fields` 或 `selectors`，否则框架不会处理它；但取值由钩子决定——钩子优先于选择器（`AbstractPrivateSite.ts:177-191`），步骤里的选择器只起「声明该字段」的作用，真正的选择器写在 `userInfo.selectors` 或钩子内部。`definitions/cgpeers.ts` 覆写 `parseUserInfoForSeedingSize` 即为该写法（父类钩子会回落到站点已不存在的 `/torrents.php`，必须覆写）。
+
 ## 调试用法
 
 - `filters: [{ name: "dump" }]`：把中间值打到控制台。
