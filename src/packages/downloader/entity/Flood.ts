@@ -308,6 +308,8 @@ export default class Flood extends AbstractBittorrentClient {
         downloadSpeed: rawTorrent.downRate,
         totalUploaded: rawTorrent.upTotal,
         totalDownloaded: rawTorrent.downTotal,
+        isPrivate: rawTorrent.isPrivate,
+        trackerUrls: rawTorrent.trackerURIs ?? [],
         raw: rawTorrent,
         clientId: this.config.id,
       } as CTorrent<TorrentProperties>;

@@ -96,6 +96,17 @@ export interface ISiteMetadata {
   legacyUrls?: TSiteUrl[];
 
   /**
+   * 站点使用的 tracker 地址（即种子内的 announce / 汇报地址）
+   *
+   * 如果站点的 tracker 地址不在 urls 或 legacyUrls 中（即 tracker 使用了与站点页面不同的域名），
+   * 则使用该属性声明站点所使用的 trackerUrls，
+   * 以便根据种子内的 tracker 地址（host）反查该种子所属的站点
+   *
+   * 支持 rot13 格式，以防止在配置时泄露
+   */
+  trackerUrls?: TSiteUrl[];
+
+  /**
    * 站点图标，具体处理过程见 `../utils/favicon.ts` 的说明
    * 此处填写格式如下：
    *  - 站点 favicon.ico 的完整url，例如 https://xxxx.site/favicon.ico   （从 `http` 开始写）

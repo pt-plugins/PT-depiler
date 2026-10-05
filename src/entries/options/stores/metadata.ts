@@ -405,6 +405,13 @@ export const useMetadataStore = defineStore("metadata", {
             siteHostMap[getHostFromUrl(url)] = siteId;
           }
         }
+        // trackerUrls 用于根据种子内的 tracker 地址反查站点（见 MyClient 页面）
+        const trackerUrls = (await this.getSiteMergedMetadata(siteId, "trackerUrls", []))!;
+        if (trackerUrls.length > 0) {
+          for (const url of trackerUrls) {
+            siteHostMap[getHostFromUrl(url)] = siteId;
+          }
+        }
       }
       this.siteHostMap = siteHostMap;
     },
