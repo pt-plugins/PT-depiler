@@ -1,0 +1,11 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📖 使用文档 / Wiki
+    url: https://github.com/pt-plugins/PT-depiler/wiki
+    about: 提交 issue 前请先阅读；大部分使用问题在这里已有答案。
+  - name: 📡 站点支持状态
+    url: https://pt-plugins.github.io/monitor/
+    about: 查询目标站点是否已被支持、适配情况与最近状态，避免重复请求站点适配。
+  - name: 💬 Telegram 交流群
+    url: https://t.me/joinchat/NZ9NCxPKXyby8f35rn_QTw
+    about: 一般性提问、求邀请、提供临时账号、沟通站点适配等，请到群里交流，不要开 issue。

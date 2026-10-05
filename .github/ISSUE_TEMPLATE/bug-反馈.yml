@@ -1,0 +1,116 @@
+name: Bug 反馈
+description: 反馈一个与具体 PT 站点无关的通用 Bug（站点相关问题请改用「站点问题反馈」模板）
+title: "[Bug] "
+type: bug
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 先读这里：为什么每一项都要求填满
+
+        PT 站点的特殊性决定了「一句话报错」没有意义：站点是私有的、架构各异（NexusPHP / Unit3D / Gazelle …）、
+        还会各自改版、各自有 CF 防护与等级权限限制。缺少版本、复现步骤和日志的描述，开发者既无法复现，也无法判断是插件问题还是站点问题。
+
+        所以：
+        - ❌ 「XX 站用不了」「搜索没结果」这类**一句话描述会被直接关闭**；
+        - 👉 与**特定站点**有关（数据获取、搜索、等级时魔、下载、Cookie、浮窗等）请返回上一页选择 **「站点问题反馈」** 模板，那里会逐项要求你提供站点信息；
+        - 💬 一般性提问、求邀请、要临时账号、伸手党问题请到 [Telegram 群](https://t.me/joinchat/NZ9NCxPKXyby8f35rn_QTw)，**不要开 issue**；
+        - 🆕 想要新功能请使用「功能请求」/「PT Plugin Plus 功能迁移」模板。
+
+  - type: checkboxes
+    id: precheck
+    attributes:
+      label: 提交前确认（请全部勾选）
+      options:
+        - label: 我已使用**最新版本**（或最新 master 构建）复现，排除了旧版本历史问题
+          required: true
+        - label: 我已搜索过现有 issue，确认没有重复
+          required: true
+        - label: 该问题与**具体 PT 站点无关**（若与站点有关，我会返回选择「站点问题反馈」模板）
+          required: true
+        - label: 我理解：信息不足（缺少版本、复现步骤、截图或日志）的 issue 会被直接关闭
+          required: true
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: 浏览器（必填）
+      options:
+        - Chrome
+        - Edge
+        - Firefox
+        - 其他（请在下方说明）
+    validations:
+      required: true
+
+  - type: input
+    id: browser_version
+    attributes:
+      label: 浏览器版本（必填）
+      description: 在浏览器「关于」页面或地址栏输入 chrome://version 查看
+      placeholder: 例如 141.0.7390.55
+    validations:
+      required: true
+      min_length: 2
+
+  - type: input
+    id: ptd_version
+    attributes:
+      label: PT-depiler 版本 / 构建来源（必填）
+      description: 在扩展管理页（chrome://extensions）或「设置 → 关于」中查看；自行构建的请写明 commit
+      placeholder: 例如 0.3.1 商店版 / master@d590a3df
+    validations:
+      required: true
+      min_length: 2
+
+  - type: textarea
+    id: description
+    attributes:
+      label: 问题描述（必填）
+      description: 请同时写清「预期发生什么」和「实际发生什么」，涉及界面元素请给出页面与按钮名称
+      placeholder: |
+        预期：...
+        实际：...
+    validations:
+      required: true
+      min_length: 20
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: 复现步骤（必填）
+      description: 请按顺序写清每一步，确保开发者能照着操作复现
+      placeholder: |
+        1. 打开插件「...」页面
+        2. 点击「...」
+        3. 观察到 ...
+    validations:
+      required: true
+      min_length: 20
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: 错误信息 / 日志（必填）
+      description: 打开「关于 → 插件运行日志」，找到出问题时段的记录，点「详情」复制内容粘贴到这里；浏览器 F12 Console 的红色报错也请一并附上
+      render: shell
+    validations:
+      required: true
+      min_length: 20
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: 相关截图
+      description: 直接把图片拖拽到本输入框即可上传；请遮挡账号等个人信息
+      placeholder: 拖拽图片到此处上传，或粘贴图片链接
+    validations:
+      required: false
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: 其他补充信息
+      description: 例如仅在特定设置、特定网络环境（代理 / 直连）、特定操作顺序下才出现
+    validations:
+      required: false
