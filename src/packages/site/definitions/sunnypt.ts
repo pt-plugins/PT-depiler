@@ -31,6 +31,27 @@ interface ISunnyPtTorrent {
   details_url: string;
 }
 
+/**
+ * SunnyPT 的 `data.class` 取自 NexusPHP 的原始 class 常量：
+ *   0 Peasant / 1 User / 2 Power User / 3 Elite User / 4 Crazy User / 5 Insane User /
+ *   6 Veteran User / 7 Extreme User / 8 Ultimate User / 9 Nexus Master /
+ *   10 VIP / 11 Retiree / 12 Uploader / 13 Moderator / 14 Administrator / 15 Sysop / 16 Staff Leader
+ *
+ * 其中用户等级与该 class 值一一对应，VIP/管理组则需按 types/userinfo.ts 的组别约定
+ * （user 0-99、vip 100-199、manager 200-299）重新编号，故在此做一次换算。
+ */
+const levelIdFromClass: Record<number, number> = {
+  10: 100, // VIP
+  11: 200, // Retiree
+  12: 201, // Uploader
+  13: 202, // Moderator
+  14: 203, // Administrator
+  15: 204, // Sysop
+  16: 205, // Staff Leader
+};
+
+const getLevelIdFromClass = (userClass: number): number => levelIdFromClass[userClass] ?? userClass;
+
 export const siteMetadata: ISiteMetadata = {
   version: 2,
   id: "sunnypt",
@@ -121,7 +142,7 @@ export const siteMetadata: ISiteMetadata = {
           leeching: { selector: "data.leeching_count" },
           messageCount: { selector: "data.unread_messages" },
           levelName: { selector: "data.level" },
-          levelId: { selector: "data.class" },
+          levelId: { selector: "data.class", filters: [getLevelIdFromClass] },
         },
       },
     ],
@@ -131,11 +152,11 @@ export const siteMetadata: ISiteMetadata = {
    * 站点用户等级列表，等级名称与要求来自 #1557 中用户提供的站点规则页内容。
    *
    * 注意：`GET /profile` 返回的 `data.class` 是 NexusPHP 的原始 class 常量
-   * （0 = Peasant、1 = User … 9 = Nexus Master、10 = VIP … 16 = Staff Leader），
-   * 而 schemas/NexusPHP.ts 中 xiaomloveDefaultUserLevelRequirements 的 id 从 1 起、
-   * VIP/管理组使用 100/200+，两者并不一致：若直接复用该默认列表，等级会整体错判一级
+   * （0 = Peasant、1 = User … 9 = Nexus Master、10 = VIP … 16 = Staff Leader）。
+   * 用户等级的 id 直接取该 class 值；VIP/管理组按 types/userinfo.ts 的组别约定
+   * （user 0-99、vip 100-199、manager 200-299）编号，由 levelId 的 filters 换算。
+   * 若像此前那样直接复用 xiaomloveDefaultUserLevelRequirements（id 从 1 起），等级会整体错判一级
    * （#1557：站点上的 Insane User 被显示为 Crazy User，且下一级要求错位为 250000 做种积分）。
-   * 因此这里直接以站点 class 值作为 id，使其与 `data.class` 一一对应。
    *
    * 其中 User（海贼新人）、Administrator（海军大将）、Sysop（五老星）、Staff Leader（海军元帅）
    * 四级未出现在 #1557 的列表中，名称按其命名规则补全，仍需与站点核对。
@@ -231,25 +252,25 @@ export const siteMetadata: ISiteMetadata = {
       privilege: "得到十个邀请名额。",
     },
     {
-      id: 10, // VIP
+      id: 100, // VIP
       groupType: "vip",
       name: "VIP（天龙人）",
       privilege: "和Nexus Master拥有相同权限并被认为是精英成员。免除自动降级。",
     },
     {
-      id: 11, // Retiree
+      id: 200, // Retiree
       groupType: "manager",
       name: "Retiree（隐世豪杰）",
       privilege: "退休后的管理组成员。",
     },
     {
-      id: 12, // Uploader
+      id: 201, // Uploader
       groupType: "manager",
       name: "Uploader（CP0）",
       privilege: "专注的发布者。免除自动降级；可以查看匿名用户的真实身份。",
     },
     {
-      id: 13, // Moderator
+      id: 202, // Moderator
       groupType: "manager",
       name: "Moderator（本部中将）",
       privilege:
@@ -259,19 +280,19 @@ export const siteMetadata: ISiteMetadata = {
         "不能将种子设为置顶或促销；不能查看用户IP或Email等机密信息；不能删除账号。",
     },
     {
-      id: 14, // Administrator
+      id: 203, // Administrator
       groupType: "manager",
       name: "Administrator（海军大将）",
       privilege: "除了不能改变站点设定、管理捐赠外，可以做任何事。",
     },
     {
-      id: 15, // Sysop
+      id: 204, // Sysop
       groupType: "manager",
       name: "Sysop（五老星）",
       privilege: "网站开发/维护人员，可以改变站点设定，不能管理捐赠。",
     },
     {
-      id: 16, // Staff Leader
+      id: 205, // Staff Leader
       groupType: "manager",
       name: "Staff Leader（海军元帅）",
       privilege: "网站主管，可以做任何事。",
