@@ -3,11 +3,11 @@
  * @Issue https://github.com/pt-plugins/PT-depiler/issues/143
  */
 import { type ISiteMetadata } from "../types";
-import { parseSizeString } from "../utils";
-import { CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
+// import { parseSizeString } from "../utils";
+// import { CategoryIncldead, CategorySpstate, SchemaMetadata } from "../schemas/NexusPHP";
 
 export const siteMetadata: ISiteMetadata = {
-  ...SchemaMetadata,
+  // ...SchemaMetadata,
   version: 1,
   id: "bitbr",
   name: "bitbr",
@@ -20,6 +20,10 @@ export const siteMetadata: ISiteMetadata = {
 
   urls: ["uggcf://ovgoe.pp/"],
 
+  // refs: https://github.com/Jackett/Jackett/issues/12905#issuecomment-1207137554
+  isDead: true,
+
+  /**
   // PTPP 未提供分类表，此处沿用 NexusPHP 的通用分类参数与状态筛选
   category: [CategoryIncldead, CategorySpstate],
 
@@ -87,4 +91,5 @@ export const siteMetadata: ISiteMetadata = {
     { id: 1, name: "User" },
     { id: 2, name: "Power User" },
   ],
+   */
 };
