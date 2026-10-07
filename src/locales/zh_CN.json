@@ -1051,12 +1051,14 @@
       "siteDisplay": "站点展示组件",
       "statsSection": "统计部分",
       "styleSettings": "时间轴样式设置",
+      "textColor": "其他文本颜色",
       "timeAdded": "发生时间",
       "timeAlive": "过去时间",
       "timeDisplay": "时间显示方式",
       "timelineSection": "时间轴部分",
       "timelineTitle": "时间轴标题",
-      "usernameAndTitle": "用户名及标题"
+      "usernameAndTitle": "用户名及标题",
+      "userNameColor": "用户名颜色"
     },
     "exportFilename": "{name}的时间轴（{date}）",
     "field": {

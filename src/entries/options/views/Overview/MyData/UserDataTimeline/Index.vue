@@ -1,15 +1,40 @@
 <!--suppress HtmlUnknownTag -->
 <script setup lang="ts">
 import { saveAs } from "file-saver";
-import { computed, onMounted, reactive, ref, shallowRef, useTemplateRef } from "vue";
-import Konva from "konva";
+import { computed, nextTick, onMounted, reactive, ref, shallowRef, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { useElementSize } from "@vueuse/core";
 
+// konva 按需加载（见 vue-konva README「Minimal Bundle (Tree-Shaking)」）：
+// konva/lib/Core 只含 Stage / Layer / Group 等核心节点，模板里用到的形状必须逐个引入，
+// 否则 vue-konva 会在创建节点时抛 `xxx is not available. Did you forget to import it?`。
+import Konva from "konva/lib/Core";
+import "konva/lib/shapes/Rect";
+import "konva/lib/shapes/Text";
+import "konva/lib/shapes/Line";
+import "konva/lib/shapes/Image";
+// 仅取类型（运行时由上面那行副作用 import 完成注册）；Konva.Image 不在 Core 的类型面里
+import type { Image as KonvaImage } from "konva/lib/shapes/Image";
+import {
+  Group as VkGroup,
+  Image as VkImage,
+  Layer as VkLayer,
+  Line as VkLine,
+  Rect as VkRect,
+  Stage as VkStage,
+  Text as VkText,
+  type VueKonvaRef,
+} from "vue-konva/core";
+
 import { formatDate, formatTimeAgo } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { defaultTimelineBackgroundColor, useConfigStore } from "@/options/stores/config.ts";
+import {
+  defaultTimelineBackgroundColor,
+  defaultTimelineTextColor,
+  defaultTimelineUserNameColor,
+  useConfigStore,
+} from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
@@ -61,13 +86,16 @@ function resetTimelineDataWithControl() {
   }
 }
 
-type KonvaNode = { getNode: () => any; getStage: () => any };
-
+// vue-konva 组件的模板 ref 类型：VueKonvaRef<T> 提供 getNode()/getStage()。
+// 注意 getNode() 的泛型要按实际节点类型给（favicon 是 Image，因为要用到 image()）。
+// Konva.Image 不在 konva/lib/Core 的类型面里，单独从 shapes/Image 取。
 const { width: containerWidth } = useElementSize(useTemplateRef("canvasContainer"));
-const canvasStage = useTemplateRef<KonvaNode>("canvasStage");
-const canvasLayer = useTemplateRef<KonvaNode>("canvasLayer");
+const canvasStage = useTemplateRef<VueKonvaRef<Konva.Stage>>("canvasStage");
+const canvasLayer = useTemplateRef<VueKonvaRef<Konva.Layer>>("canvasLayer");
 
 const realAllSite = shallowRef<string[]>([]);
+
+const siteInfo = computed(() => timelineData.value.siteInfo.filter((x) => selectedSites.value.includes(x.site)));
 
 // 动态计算 canvas 的的各类属性
 const canvasWidth = 650; // 650px 是设计稿的宽度，下面各类宽高均根据设计稿进行调整，然后使用 scale 来控制缩放
@@ -77,7 +105,11 @@ const perSiteHeight = computed<number>(
   () => (control.showPerSiteField.siteName ? 24 : 20) + (realShowField.value.length + 1) * 20 + 20,
 ); // 给每个站点 160px 的高度
 const siteTimeHeight = computed<number>(() =>
-  control.showTimeline ? 95 + perSiteHeight.value * selectedSites.value.length : 0,
+  // 用 siteInfo.length（实际画出来的行数），不能用 selectedSites.length：
+  // 勾选但取不到有效用户信息的站点不会绘制（见 utils.ts 里 canThisSiteShow 的分支），
+  // 而 selectedSites 可能残留这类站点（例如从 URL 的 sites 参数进入、或历史保存的配置），
+  // 用 selectedSites.length 会为它们各多留一整行高度 —— 表现就是图片底部多出一块空白。
+  control.showTimeline ? 95 + perSiteHeight.value * siteInfo.value.length : 0,
 );
 const canvasHeight = computed<number>(() => nameInfoHeight + topAndTotalInfoHeight.value + siteTimeHeight.value + 25);
 
@@ -93,32 +125,55 @@ const stageConfig = computed(() => {
 });
 
 // 绘制相关辅助函数
+//
+// 这里的两层缓存都是为了「同一个 favicon 不重复做同样的活」：
+// 1. 合成画布：favicon() 是在模板里按节点调用的，每次渲染都会跑一遍；不缓存的话每个图标
+//    每次渲染都要新建一个 OffscreenCanvas 并重绘。而且 konva 的 Image 会监听 imageChange
+//    去摘挂图片的 load 监听器，image 身份频繁变化本身也有开销。
+// 2. 滤镜数组：konva 的 Node._setAttr 对数组不做内容比较（只有 `oldVal === val &&
+//    !Util.isObject(val)` 才短路），每次传新数组都会把 _filterUpToDate 置 false，
+//    使每次重绘都重跑一遍 blur 滤镜。
+const faviconCanvasCache = new Map<string, OffscreenCanvas>();
+const faviconFilterCache = new Map<string, string[]>();
+
 const favicon = (config: TKonvaConfig) => {
   const imageBaseSize = config.size ?? 24;
-  const imageFilters: any[] = [`blur(${control.faviconBlue}px)`];
-
   const siteConfig = allAddedSiteMetadata[config.site];
 
-  let imageElement: HTMLImageElement | OffscreenCanvas = siteConfig.faviconElement;
-
-  if (siteConfig.isDead) {
-    imageFilters.push("grayscale(1)");
+  const filterKey = `${control.faviconBlue}|${siteConfig.isDead ? 1 : 0}`;
+  let imageFilters = faviconFilterCache.get(filterKey);
+  if (!imageFilters) {
+    imageFilters = [`blur(${control.faviconBlue}px)`];
+    if (siteConfig.isDead) {
+      imageFilters.push("grayscale(1)");
+    }
+    faviconFilterCache.set(filterKey, imageFilters);
   }
+
+  let imageElement: HTMLImageElement | OffscreenCanvas = siteConfig.faviconElement;
 
   // 如果设置中传入了 canvas 这个自定义参数，我们为这个 favicon 生成一个带有背景的 canvas，然后在 canvas 上居中绘制 favicon
   if (config.canvas) {
     const { width: canvasWidth = imageBaseSize, height: canvasHeight = imageBaseSize } = config.canvas;
-    const canvas = new OffscreenCanvas(canvasWidth, canvasHeight);
-    const ctx = canvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
+    const fillStyle = config.canvas.fillStyle ?? "#fff";
+    const canvasKey = `${config.site}|${imageBaseSize}|${canvasWidth}x${canvasHeight}|${fillStyle}`;
 
-    // 填充背景
-    ctx.fillStyle = config.canvas.fillStyle ?? "#fff";
-    ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+    let canvas = faviconCanvasCache.get(canvasKey);
+    if (!canvas) {
+      canvas = new OffscreenCanvas(canvasWidth, canvasHeight);
+      const ctx = canvas.getContext("2d") as OffscreenCanvasRenderingContext2D;
 
-    // 计算缩放比例和位置，并将 favicon 居中填充
-    const x = (canvasWidth - imageBaseSize) / 2;
-    const y = (canvasHeight - imageBaseSize) / 2;
-    ctx.drawImage(imageElement, x, y, imageBaseSize, imageBaseSize);
+      // 填充背景
+      ctx.fillStyle = fillStyle;
+      ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+
+      // 计算缩放比例和位置，并将 favicon 居中填充
+      const x = (canvasWidth - imageBaseSize) / 2;
+      const y = (canvasHeight - imageBaseSize) / 2;
+      ctx.drawImage(siteConfig.faviconElement, x, y, imageBaseSize, imageBaseSize);
+
+      faviconCanvasCache.set(canvasKey, canvas);
+    }
 
     // 防止辅助函数 image() 又一次设置 scaleX 和 scaleY
     config.scaleX = 1;
@@ -135,18 +190,17 @@ const favicon = (config: TKonvaConfig) => {
   });
 };
 
+// clipFunc 只需要把路径描出来，konva 随后自己调 ctx.clip()（见 konva 的
+// Container._drawChildren：save → transform → beginPath → clipFunc → clip）。
+// 也就是说 clipFunc 里的 fill()/stroke() 会**真的画到画布上**，而且是 scene 与 hit
+// 两张画布各画一次。这里原来画的白盘会被上面 48x48 白底 favicon 完全盖住，属于纯浪费。
 const siteFaviconClipFunc =
   (radius: number = 24, position: [number, number] = [stageConfig.value.width / 2, 0]) =>
   (ctx: any) => {
     ctx.beginPath();
     ctx.arc(position[0], position[1], radius, 0, 2 * Math.PI);
-    ctx.strokeStyle = "#fff";
-    ctx.fillStyle = "#fff";
-    ctx.stroke();
-    ctx.fill();
   };
 
-const siteInfo = computed(() => timelineData.value.siteInfo.filter((x) => selectedSites.value.includes(x.site)));
 const realShowField = computed(() => {
   const showField: ITimelineUserInfoField[] = [];
   for (const key of CTimelineUserInfoField) {
@@ -166,15 +220,71 @@ const formatSiteDate = (siteDate: number) =>
     }
   });
 
-const faviconRefs = ref<KonvaNode[]>([]);
+// favicon 节点索引。
+//
+// 不能用数组 push：Vue 的函数 ref 在**每次组件更新**时都会被调用（卸载时传 null），
+// 原来的 `faviconRefs.push(el)` 会让数组无限增长，updateBlue() 里就会把同一个节点
+// 反复 cache 很多次。这里按 key 覆盖写，天然幂等。
+const faviconNodes = new Map<string, VueKonvaRef<KonvaImage>>();
+const faviconRefCache = new Map<string, (el: unknown) => void>();
 
-function updateBlue() {
-  Konva.autoDrawEnabled = false;
-  for (const faviconRef of faviconRefs.value) {
-    faviconRef.getNode()?.cache();
+// 记录每个 favicon 节点「已按哪张底图缓存过」。
+// 用 WeakMap 而不是往 konva 节点上挂自定义属性：不污染节点对象，也不需要 any 断言。
+const faviconCachedImage = new WeakMap<KonvaImage, unknown>();
+
+function syncFaviconNode(key: string, el: unknown) {
+  if (!el) {
+    faviconNodes.delete(key);
+    return;
   }
+
+  const component = el as VueKonvaRef<KonvaImage>;
+  faviconNodes.set(key, component);
+
+  // 只在「节点还没缓存」或「底图换了」时重新 cache —— 模糊值变化不需要重新 cache：
+  // konva 的滤镜是在绘制时作用在 cache 画布上的（Node._getCachedSceneCanvas），
+  // 改 filters 只会把 _filterUpToDate 置 false，下一次绘制自动重算。
+  const node = component.getNode();
+  if (node && (!node.isCached() || faviconCachedImage.get(node) !== node.image())) {
+    node.cache();
+    faviconCachedImage.set(node, node.image());
+  }
+}
+
+// 同一个 key 返回同一个函数，避免每次渲染都生成新 ref 导致 Vue 反复卸载/重挂
+const faviconRef = (key: string) => {
+  let refFn = faviconRefCache.get(key);
+  if (!refFn) {
+    refFn = (el: unknown) => syncFaviconNode(key, el);
+    faviconRefCache.set(key, refFn);
+  }
+  return refFn;
+};
+
+function syncAllFaviconCaches() {
+  const prevAutoDrawEnabled = Konva.autoDrawEnabled;
+  Konva.autoDrawEnabled = false;
+  try {
+    for (const component of faviconNodes.values()) {
+      const node = component.getNode();
+      if (node && !node.isCached()) {
+        node.cache();
+        faviconCachedImage.set(node, node.image());
+      }
+    }
+  } finally {
+    // 原来没有 try/finally：cache() 一旦抛错，autoDrawEnabled 会永久停在 false，
+    // 整个应用的 konva 自动重绘都会停摆。
+    Konva.autoDrawEnabled = prevAutoDrawEnabled;
+  }
+
   canvasLayer.value?.getNode()?.batchDraw();
-  Konva.autoDrawEnabled = true;
+}
+
+async function updateBlue() {
+  // 等这一轮渲染把新的 filters 应用到节点上再重绘，否则会按旧滤镜画一次
+  await nextTick();
+  syncAllFaviconCaches();
 }
 
 onMounted(async () => {
@@ -245,10 +355,12 @@ function saveControl() {
         <v-skeleton-loader v-if="isLoading" :min-height="canvasHeight" type="image@20"> </v-skeleton-loader>
 
         <!-- 使用 konva 来绘制 UserDataTimeLine -->
-        <vk-stage ref="canvasStage" :config="stageConfig">
-          <vk-layer ref="canvasLayer">
+        <VkStage ref="canvasStage" :config="stageConfig">
+          <!-- listening: false —— 这张图是静态的、不响应任何事件，关掉后 konva 不再绘制
+               hit canvas（Node.shouldDrawHit 只看 isListening()），并顺带释放它的内存。 -->
+          <VkLayer ref="canvasLayer" :config="{ listening: false }">
             <!-- 1. 添加背景颜色，并填满整个画布 -->
-            <vk-rect
+            <VkRect
               :config="{
                 fill: control.backgroundColor,
                 x: 0,
@@ -259,13 +371,15 @@ function saveControl() {
             />
 
             <!-- 2. 绘制顶端概况 -->
-            <vk-group :config="{ x: 0, y: 0 }">
-              <!-- 2.1 用户图标 -->
-              <vk-text :config="icon({ x: 20, y: 20, text: '󰀉' /* account-circle */ })" />
+            <VkGroup :config="{ x: 0, y: 0 }">
+              <!-- 2.1 用户图标（跟着「用户名颜色」走，而不是「其他文本颜色」） -->
+              <VkText :config="icon({ x: 20, y: 20, text: '󰀉' /* account-circle */, fill: control.userNameColor })" />
               <!-- 2.2 用户名 -->
-              <vk-text :config="text({ x: 65, y: 26, text: configStore.userName, fontSize: 26 })" />
+              <VkText
+                :config="text({ x: 65, y: 26, text: configStore.userName, fontSize: 26, fill: control.userNameColor })"
+              />
               <!-- 2.3 创建时间 -->
-              <vk-text
+              <VkText
                 :config="
                   text({
                     y: 20,
@@ -277,13 +391,13 @@ function saveControl() {
                   })
                 "
               />
-            </vk-group>
+            </VkGroup>
 
             <!-- 3. 绘制基础信息 -->
-            <vk-group :config="{ x: 20, y: nameInfoHeight }">
+            <VkGroup :config="{ x: 20, y: nameInfoHeight }">
               <!-- 3.1 左侧 totalInfo -->
-              <vk-group :config="{ x: 0, y: 0 }">
-                <vk-text
+              <VkGroup :config="{ x: 0, y: 0 }">
+                <VkText
                   :config="
                     text({
                       y: 0,
@@ -291,7 +405,7 @@ function saveControl() {
                     })
                   "
                 />
-                <vk-text
+                <VkText
                   v-if="timelineData.totalInfo.deadSites > 0"
                   :config="
                     text({
@@ -303,8 +417,8 @@ function saveControl() {
                     })
                   "
                 />
-              </vk-group>
-              <vk-text
+              </VkGroup>
+              <VkText
                 v-for="(key, index) in realShowField"
                 :key="key.name"
                 :config="
@@ -314,7 +428,7 @@ function saveControl() {
                   })
                 "
               />
-              <vk-text
+              <VkText
                 :config="
                   text({
                     y: 30 * (realShowField.length + 1),
@@ -324,25 +438,20 @@ function saveControl() {
               />
 
               <!-- 3.2 中间分隔线、右侧冠军及亚军站点 -->
-              <vk-group v-if="control.showTop" :config="{ x: 280, y: 0 }">
+              <VkGroup v-if="control.showTop" :config="{ x: 280, y: 0 }">
                 <!-- 3.2.1 中间分隔线 -->
-                <vk-line :config="divider({ points: [0, 5, 0, topAndTotalInfoHeight - 15] })" />
+                <VkLine :config="divider({ points: [0, 5, 0, topAndTotalInfoHeight - 15] })" />
                 <!-- 3.2.2 右侧冠军及亚军站点 -->
                 <template v-for="(type, index) in topSiteRenderAttr" :key="type.iconFill">
-                  <vk-group :config="{ x: 20 + index * 170, y: 0 }">
-                    <vk-text :config="icon({ y: 0, fill: type.iconFill, fontSize: 24, text: `󰔸` /* trophy */ })" />
+                  <VkGroup :config="{ x: 20 + index * 170, y: 0 }">
+                    <VkText :config="icon({ y: 0, fill: type.iconFill, fontSize: 24, text: `󰔸` /* trophy */ })" />
                     <template v-for="(key, index) in realShowField" :key="key.name">
-                      <vk-group
+                      <VkGroup
                         v-if="timelineData.topInfo[key.name][type.valueKey] > 0"
                         :config="{ x: 0, y: 30 * (index + 1) }"
                       >
-                        <vk-image
-                          :ref="
-                            (el: any) => {
-                              faviconRefs.push(el);
-                              el?.getNode().cache();
-                            }
-                          "
+                        <VkImage
+                          :ref="faviconRef(type.valueKey + '-' + key.name)"
                           :config="
                             favicon({
                               site: timelineData.topInfo[key.name][type.siteKey].site,
@@ -351,23 +460,23 @@ function saveControl() {
                             })
                           "
                         />
-                        <vk-text
+                        <VkText
                           v-if="timelineData.topInfo[key.name][type.valueKey] > 0"
                           :config="text({ x: 30, text: key.format(timelineData.topInfo[key.name][type.valueKey]) })"
                         />
-                      </vk-group>
+                      </VkGroup>
                     </template>
-                  </vk-group>
+                  </VkGroup>
                 </template>
-              </vk-group>
-            </vk-group>
+              </VkGroup>
+            </VkGroup>
 
             <!-- 4. 绘制站点信息 -->
-            <vk-group v-if="control.showTimeline" :config="{ x: 0, y: nameInfoHeight + topAndTotalInfoHeight }">
+            <VkGroup v-if="control.showTimeline" :config="{ x: 0, y: nameInfoHeight + topAndTotalInfoHeight }">
               <!-- 4.1 分割线 -->
-              <vk-line :config="divider({ points: [20, 0, 630, 0] })" />
+              <VkLine :config="divider({ points: [20, 0, 630, 0] })" />
               <!-- 4.2 提示词 -->
-              <vk-text
+              <VkText
                 :config="
                   text({
                     y: 15,
@@ -380,29 +489,24 @@ function saveControl() {
               />
 
               <!-- 4.3 站点信息 -->
-              <vk-group :config="{ x: 0, y: 40 }">
+              <VkGroup :config="{ x: 0, y: 40 }">
                 <!-- 4.3.1 分割线 -->
-                <vk-line
+                <VkLine
                   :config="
                     divider({
                       x: stageConfig.width / 2,
                       y: 0,
-                      points: [0, 10, 0, selectedSites.length * perSiteHeight + 10],
+                      points: [0, 10, 0, siteInfo.length * perSiteHeight + 10],
                     })
                   "
                 />
                 <!-- 4.3.2 不同站点的信息 -->
                 <template v-for="(userInfo, index) in siteInfo" :key="userInfo.site">
-                  <vk-group :config="{ x: 0, y: index * perSiteHeight }">
+                  <VkGroup :config="{ x: 0, y: index * perSiteHeight }">
                     <!-- 首先画出 favicon 并 clip -->
-                    <vk-group :config="{ y: perSiteHeight / 2, clipFunc: siteFaviconClipFunc(24) }">
-                      <vk-image
-                        :ref="
-                          (el: any) => {
-                            faviconRefs.push(el);
-                            el?.getNode().cache();
-                          }
-                        "
+                    <VkGroup :config="{ y: perSiteHeight / 2, clipFunc: siteFaviconClipFunc(24) }">
+                      <VkImage
+                        :ref="faviconRef(userInfo.site)"
                         :config="
                           favicon({
                             site: userInfo.site,
@@ -413,22 +517,22 @@ function saveControl() {
                           })
                         "
                       />
-                    </vk-group>
+                    </VkGroup>
 
                     <!-- 站点数据（上传下载等） -->
-                    <vk-group
+                    <VkGroup
                       :config="{
                         x: index % 2 == 0 ? 30 : stageConfig.width / 2 + 60,
                         y: perSiteHeight / 2 - 10 - realShowField.length * 10,
                       }"
                     >
-                      <vk-text
+                      <VkText
                         v-if="control.showPerSiteField.siteName"
                         :config="
                           text({
                             y: 0,
                             text: `${allAddedSiteMetadata[userInfo.site]?.isDead ? '󰖛' : ''}${allAddedSiteMetadata[userInfo.site].siteName}`,
-                            fill: allAddedSiteMetadata[userInfo.site]?.isDead ? '#9E9E9E' : '#fff',
+                            fill: allAddedSiteMetadata[userInfo.site]?.isDead ? '#9E9E9E' : control.textColor,
                             fontFamily: allAddedSiteMetadata[userInfo.site]?.isDead
                               ? 'Material Design Icons For PTD'
                               : undefined,
@@ -436,13 +540,13 @@ function saveControl() {
                           })
                         "
                       />
-                      <vk-group
+                      <VkGroup
                         :config="{
                           x: 0,
                           y: control.showPerSiteField.siteName ? 10 : 0,
                         }"
                       >
-                        <vk-text
+                        <VkText
                           v-for="(key, index) in realShowField"
                           :key="key.name"
                           :config="
@@ -453,7 +557,7 @@ function saveControl() {
                             })
                           "
                         />
-                        <vk-line
+                        <VkLine
                           v-if="
                             index != siteInfo.length - 1 &&
                             (control.showPerSiteField.siteName || realShowField.length > 0)
@@ -469,17 +573,17 @@ function saveControl() {
                             })
                           "
                         />
-                      </vk-group>
-                    </vk-group>
+                      </VkGroup>
+                    </VkGroup>
 
                     <!-- 站点数据（用户名、用户等级、用户UID等） -->
-                    <vk-group
+                    <VkGroup
                       :config="{ x: index % 2 == 0 ? stageConfig.width / 2 + 60 : 30, y: perSiteHeight / 2 - 20 }"
                     >
-                      <vk-text
+                      <VkText
                         :config="text({ y: 0, text: `${formatSiteDate(userInfo.joinTime!).value}`, fontStyle: 'bold' })"
                       />
-                      <vk-text
+                      <VkText
                         :config="
                           text({
                             y: 28,
@@ -498,17 +602,17 @@ function saveControl() {
                             fontSize: 16,
                           })
                         "
-                      ></vk-text>
-                    </vk-group>
-                  </vk-group>
+                      ></VkText>
+                    </VkGroup>
+                  </VkGroup>
                 </template>
-              </vk-group>
-            </vk-group>
+              </VkGroup>
+            </VkGroup>
 
             <!-- 5. 构建信息 -->
-            <vk-group :config="{ x: 0, y: nameInfoHeight + topAndTotalInfoHeight + siteTimeHeight }">
-              <vk-line :config="divider({ points: [20, -10, 630, -10] })" />
-              <vk-text
+            <VkGroup :config="{ x: 0, y: nameInfoHeight + topAndTotalInfoHeight + siteTimeHeight }">
+              <VkLine :config="divider({ points: [20, -10, 630, -10] })" />
+              <VkText
                 :config="
                   text({
                     width: stageConfig.width - 20,
@@ -519,9 +623,9 @@ function saveControl() {
                   })
                 "
               />
-            </vk-group>
-          </vk-layer>
-        </vk-stage>
+            </VkGroup>
+          </VkLayer>
+        </VkStage>
       </v-col>
       <v-col cols="12" sm>
         <v-row class="flex-nowrap mb-1">
@@ -604,21 +708,61 @@ function saveControl() {
           :label="t('UserDataTimeline.controls.showTimeline')"
         />
 
-        <v-color-input
-          v-model="control.backgroundColor"
-          mode="hex"
-          color-pip
-          hide-actions
-          hide-details
-          :label="t('UserDataTimeline.controls.customBgColor')"
-        >
-          <template #append-inner>
-            <v-icon
-              icon="mdi-backup-restore"
-              @click="control.backgroundColor = defaultTimelineBackgroundColor"
-            ></v-icon>
-          </template>
-        </v-color-input>
+        <v-row>
+          <v-col cols="12" sm="4">
+            <v-color-input
+              v-model="control.backgroundColor"
+              mode="hex"
+              color-pip
+              hide-actions
+              hide-details
+              :label="t('UserDataTimeline.controls.customBgColor')"
+            >
+              <template #append-inner>
+                <v-icon
+                  icon="mdi-backup-restore"
+                  @click="control.backgroundColor = defaultTimelineBackgroundColor"
+                ></v-icon>
+              </template>
+            </v-color-input>
+          </v-col>
+          <v-col cols="12" sm="4">
+            <!-- sm 及以上三个输入框并排（<v-col sm="4">），VColorInput 默认在 prepend 渲染一个色块，
+                 会额外占掉左侧宽度、把三个框的间距撑开，所以这个断点下用 hide-pip 关掉；
+                 sm 以下三者各占整行、宽度充裕，改用 color-pip 让色块显示当前颜色。 -->
+            <v-color-input
+              v-model="control.userNameColor"
+              mode="hex"
+              :color-pip="!$vuetify.display.smAndUp"
+              :hide-pip="$vuetify.display.smAndUp"
+              hide-actions
+              hide-details
+              :label="t('UserDataTimeline.controls.userNameColor')"
+            >
+              <template #append-inner>
+                <v-icon
+                  icon="mdi-backup-restore"
+                  @click="control.userNameColor = defaultTimelineUserNameColor"
+                ></v-icon>
+              </template>
+            </v-color-input>
+          </v-col>
+          <v-col cols="12" sm="4">
+            <v-color-input
+              v-model="control.textColor"
+              mode="hex"
+              :color-pip="!$vuetify.display.smAndUp"
+              :hide-pip="$vuetify.display.smAndUp"
+              hide-actions
+              hide-details
+              :label="t('UserDataTimeline.controls.textColor')"
+            >
+              <template #append-inner>
+                <v-icon icon="mdi-backup-restore" @click="control.textColor = defaultTimelineTextColor"></v-icon>
+              </template>
+            </v-color-input>
+          </v-col>
+        </v-row>
 
         <v-label class="my-2">{{ t("UserDataTimeline.controls.siteDisplay") }}</v-label>
 

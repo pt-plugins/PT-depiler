@@ -122,6 +122,8 @@ export interface IConfigPiniaStorageSchema {
     showField: Record<ITimelineUserInfoField["name"] | "ratio", boolean>; // 需要展示的数据，注意 ratio, siteCount, totalYear 不作为设置项
     showPerSiteField: Record<"siteName" | "name" | "level" | "uid", boolean>; // 需要展示的站点数据
     backgroundColor: string; // 背景颜色
+    userNameColor: string; // 用户名颜色
+    textColor: string; // 其他文本颜色
     dateFormat: "time_added" /*     yyyy-MM-dd */ | "time_alive" /* 过去时间 xxx ago */;
     faviconBlue: number;
     selectedSites: TSiteID[]; // 需要展示的站点

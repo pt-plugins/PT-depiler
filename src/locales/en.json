@@ -1054,12 +1054,14 @@
       "siteDisplay": "Site Display Component",
       "statsSection": "Statistics Section",
       "styleSettings": "Timeline Style Settings",
+      "textColor": "Other Text Color",
       "timeAdded": "Event Time",
       "timeAlive": "Time Elapsed",
       "timeDisplay": "Time Display Method",
       "timelineSection": "Timeline Section",
       "timelineTitle": "Timeline Title",
-      "usernameAndTitle": "Username & Title"
+      "usernameAndTitle": "Username & Title",
+      "userNameColor": "Username Color"
     },
     "exportFilename": "{name}'s Timeline ({date})",
     "field": {
