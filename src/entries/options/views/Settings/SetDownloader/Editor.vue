@@ -1,11 +1,16 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { computedAsync } from "@vueuse/core";
 
 import { type IDownloaderMetadata } from "@/shared/types.ts";
 
-import { getDownloader, getDownloaderMetaData, TorrentClientMetaData } from "@ptd/downloader";
+import {
+  getDownloader,
+  getDownloaderMetaData,
+  isSuspectedSelfSignedCertificate,
+  TorrentClientMetaData,
+} from "@ptd/downloader";
 import { formatDate, formValidateRules } from "@/options/utils.ts";
 
 import ConnectCheckButton from "@/options/components/ConnectCheckButton.vue";
@@ -27,11 +32,55 @@ const showPassword = ref<boolean>(false);
 
 const formValid = ref<boolean>(false);
 
-async function checkConnect() {
-  if (formValid) {
-    const client = await getDownloader(clientConfig.value!);
-    return await client.ping();
+// 连接失败时可展示的具体原因：
+// - auth：客户端明确判断出凭据被服务端拒绝（账号 / 密码 / API Key 错误）
+// - certificate：浏览器不暴露证书错误，只能按「失败得足够快」推测
+const connectFailureReason = ref<"auth" | "certificate" | undefined>();
+const connectFailureAlert = computed(() => {
+  if (connectFailureReason.value === "auth") {
+    return { color: "error", icon: "mdi-lock-alert-outline", text: t("SetDownloader.editor.authFailureTip") };
   }
+
+  if (connectFailureReason.value === "certificate") {
+    return {
+      color: "warning",
+      icon: "mdi-certificate-outline",
+      text: t("SetDownloader.editor.selfSignedCertificateTip", { address: clientConfig.value?.address ?? "" }),
+    };
+  }
+
+  return undefined;
+});
+
+async function checkConnect() {
+  connectFailureReason.value = undefined;
+
+  if (formValid) {
+    const address = clientConfig.value?.address;
+    const startedAt = Date.now();
+
+    const client = await getDownloader(clientConfig.value!);
+    const connectStatus = await client.ping();
+
+    if (!connectStatus) {
+      if (client.lastConnectFailureReason === "auth") {
+        connectFailureReason.value = "auth"; // 服务端明确拒绝了凭据，可直接给出准确原因
+      } else if (
+        // 其余情况只能按「失败是否足够快」来推测证书问题：
+        // 自签名证书会被浏览器立即拒绝，而服务未启动 / 网络不可达通常要等到超时
+        isSuspectedSelfSignedCertificate({
+          address,
+          elapsed: Date.now() - startedAt,
+          timeout: clientConfig.value?.timeout,
+        })
+      ) {
+        connectFailureReason.value = "certificate";
+      }
+    }
+
+    return connectStatus;
+  }
+
   return false;
 }
 </script>
@@ -163,6 +212,16 @@ async function checkConnect() {
           () => emits('update:configValid', formValid && true) // 不管是否测试成功，都允许用户进行下一步操作（保存下载服务器配置）
         "
       />
+
+      <v-alert
+        v-if="connectFailureAlert"
+        class="mx-2 mb-2"
+        :color="connectFailureAlert.color"
+        :icon="connectFailureAlert.icon"
+        variant="tonal"
+      >
+        {{ connectFailureAlert.text }}
+      </v-alert>
 
       <v-alert v-if="clientMeta?.warning" color="warning">
         <ul>
