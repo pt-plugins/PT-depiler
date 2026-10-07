@@ -15,7 +15,7 @@
  *  4. 使用公用 CookieCloud 可能存在数据丢失、泄露的风险，同时 CookieCloud Server 也有备份文件大小的限制
  */
 
-import CryptoJS from "crypto-js";
+import { aesDecryptOpenSsl, aesEncryptOpenSsl, md5Hex } from "@ptd/utils/crypto.ts";
 import axios, { AxiosRequestConfig } from "axios";
 import AbstractBackupServer from "../AbstractBackupServer.ts";
 import type {
@@ -146,8 +146,8 @@ export default class CookieCloud extends AbstractBackupServer<CookieCloudConfig>
     fileData.ptd_data = file; // 其他的数据直接放在 ptd_data 里
 
     // 按照 CookieCloud 的流程对数据进行加密
-    const theKey = CryptoJS.MD5(`${this.userConfig.uuid}-${this.userConfig.password}`).toString().substring(0, 16);
-    const encryptedFileData = CryptoJS.AES.encrypt(JSON.stringify(fileData), theKey).toString();
+    const theKey = md5Hex(`${this.userConfig.uuid}-${this.userConfig.password}`).substring(0, 16);
+    const encryptedFileData = aesEncryptOpenSsl(JSON.stringify(fileData), theKey);
 
     try {
       const updateResp = await this.request<{ action: "done" | "error" }>("/update", {
@@ -167,8 +167,8 @@ export default class CookieCloud extends AbstractBackupServer<CookieCloudConfig>
   public async getFile(path: string): Promise<IBackupData> {
     const fileResp = await this.request<{ encrypted: string }>(`/get/${this.userConfig.uuid}`);
     if (fileResp.data?.encrypted) {
-      const theKey = CryptoJS.MD5(`${this.userConfig.uuid}-${this.userConfig.password}`).toString().substring(0, 16);
-      const decrypted = CryptoJS.AES.decrypt(fileResp.data.encrypted, theKey).toString(CryptoJS.enc.Utf8);
+      const theKey = md5Hex(`${this.userConfig.uuid}-${this.userConfig.password}`).substring(0, 16);
+      const decrypted = aesDecryptOpenSsl(fileResp.data.encrypted, theKey);
       const parsed = JSON.parse(decrypted) as ICookieCloudFile;
 
       const retFile = parsed.ptd_data as IBackupData;

@@ -16,6 +16,12 @@ importers:
 
   .:
     dependencies:
+      '@noble/ciphers':
+        specifier: ^2.4.0
+        version: 2.4.0
+      '@noble/hashes':
+        specifier: ^2.4.0
+        version: 2.4.0
       '@vueuse/components':
         specifier: ^15.0.0
         version: 15.0.0(vue@3.5.43(typescript@6.0.3))
@@ -34,9 +40,6 @@ importers:
       axios:
         specifier: ^1.20.0
         version: 1.20.0
-      crypto-js:
-        specifier: ^4.2.0
-        version: 4.2.0
       date-fns:
         specifier: ^4.4.0
         version: 4.4.0
@@ -119,9 +122,6 @@ importers:
       '@types/chrome':
         specifier: ^0.3.0
         version: 0.3.0
-      '@types/crypto-js':
-        specifier: ^4.2.2
-        version: 4.2.2
       '@types/file-saver':
         specifier: ^2.0.7
         version: 2.0.7
@@ -800,6 +800,12 @@ packages:
   '@nodable/entities@3.0.0':
     resolution: {integrity: sha512-8L9xFeTYKhm49xfIypoe2W5wV1m/3Z58kT+7kR9A8OyFxcPduI4VmxaUMQyKYrRjUoLLSXv6EKKID5Tvj9cUVw==}
 
+  '@noble/ciphers@2.4.0':
+    resolution: {integrity: sha512-AnjFn0Jv92laAkvMrghlFZq4qQCIN/4DxFV/eooqtC2YTjB7kBeLMS2T9KJX4Dn+ZVXLOwK0lSgqDtx9gvxtiw==}
+
+  '@noble/hashes@2.4.0':
+    resolution: {integrity: sha512-X5XaVWZIBCT7HHZGm5I7ZQXDwLG+bGXuSrMQAW+7Zvl87h1kmc1ZB1VSRJcpUfoUrGQp4Fkoxm5kZ+Ms+aW+eA==}
+
   '@nodelib/fs.scandir@2.1.5':
     resolution: {integrity: sha512-vq24Bq3ym5HEQm2NKCr3yXDwjc7vTsEThRDnkp2DK9p1uqLR+DHurm/NOTo0KG7HYHU7eppKZj3MyqYuMBf62g==}
     engines: {node: '>= 8'}
@@ -1055,9 +1061,6 @@ packages:
 
   '@types/chrome@0.3.0':
     resolution: {integrity: sha512-HPAMKyJwUnNJdVsxgypwvIStlwRhhaLnxgEwKIB99oOcffJrC4UMeD5xseVoBwDinSkr690DCBaAtSYdK6M1qw==}
-
-  '@types/crypto-js@4.2.2':
-    resolution: {integrity: sha512-sDOLlVbHhXpAUAL0YHDUUwDZf3iN4Bwi4W6a0W0b+QcAezUbRtH4FVb+9J4h+XFPW7l/gQ9F8qC7P+Ec4k8QVQ==}
 
   '@types/esrecurse@4.3.1':
     resolution: {integrity: sha512-xJBAbDifo5hpffDBuHl0Y8ywswbiAp/Wi7Y/GtAgSlZyIABppyurxVueOPE8LUQOxdlgi6Zqce7uoEpqNTeiUw==}
@@ -1634,10 +1637,6 @@ packages:
   crypto-browserify@3.12.1:
     resolution: {integrity: sha512-r4ESw/IlusD17lgQi1O20Fa3qNnsckR126TdUuBgAu7GBYSIPvdNyONd3Zrxh0xCwA4+6w/TDArBPsMvhur+KQ==}
     engines: {node: '>= 0.10'}
-
-  crypto-js@4.2.0:
-    resolution: {integrity: sha512-KALDyEYgpY+Rlob/iriUtjV6d5Eq+Y191A5g4UqLAi8CyGP9N1+FdVbkc1SxKc2r4YAYqG8JzO2KGL+AizD70Q==}
-    deprecated: Active development of CryptoJS has been discontinued. This library is no longer maintained.
 
   css-select@5.2.2:
     resolution: {integrity: sha512-TizTzUddG/xYLA3NXodFM0fSbNizXjOKhqiQQwvhlspadZokn1KDy0NZFS0wuEubIYAV5/c1/lAr0TaaFXEXzw==}
@@ -4027,6 +4026,10 @@ snapshots:
 
   '@nodable/entities@3.0.0': {}
 
+  '@noble/ciphers@2.4.0': {}
+
+  '@noble/hashes@2.4.0': {}
+
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
       '@nodelib/fs.stat': 2.0.5
@@ -4211,8 +4214,6 @@ snapshots:
     dependencies:
       '@types/filesystem': 0.0.36
       '@types/har-format': 1.2.16
-
-  '@types/crypto-js@4.2.2': {}
 
   '@types/esrecurse@4.3.1': {}
 
@@ -4863,8 +4864,6 @@ snapshots:
       public-encrypt: 4.0.3
       randombytes: 2.1.0
       randomfill: 1.0.4
-
-  crypto-js@4.2.0: {}
 
   css-select@5.2.2:
     dependencies:
