@@ -1,5 +1,3 @@
-import { stringify } from "urlencode";
-
 import { extStorage } from "@/storage.ts";
 import type { IMetadataPiniaStorageSchema } from "@/shared/types.ts";
 import { openOptionsPage } from "@/background/utils/base.ts";

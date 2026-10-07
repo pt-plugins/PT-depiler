@@ -1,7 +1,8 @@
 import axios, { type AxiosRequestConfig } from "axios";
-import { stringify } from "urlencode";
 import { toMerged } from "es-toolkit";
 import { isEmpty } from "es-toolkit/compat";
+
+import { stringifyQuery } from "@ptd/utils/url.ts";
 
 import {
   getDownloader,
@@ -453,7 +454,7 @@ async function downloadTorrentToLocalFile(
       };
 
       if (downloadMethod.toUpperCase() === "POST" && !isEmpty(downloadData ?? {})) {
-        downloadOptions.body = stringify(downloadData);
+        downloadOptions.body = stringifyQuery(downloadData);
       }
 
       if (!isEmpty(downloadHeaders)) {
