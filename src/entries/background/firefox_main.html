@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <!--
+      Firefox 的后台页面。
+
+      Firefox 的 Manifest 支持 background.page（但不支持 service_worker），因此不需要像 Chrome 那样
+      拆分为 service worker + offscreen 文档，两个入口注册在同一个页面里即可。
+
+      这里必须使用 background.page（HTML 入口）而不是 background.scripts：
+        - background.scripts 会被 vite-plugin-web-extension 当作独立的 script 入口，以
+          `build.lib { formats: ['iife'] }` 打成单文件，IIFE 不允许代码分割，offscreen 的整条依赖图
+          （downloader / site / backupServer、jszip、WebDAV、axios…）会被内联进后台脚本，
+          与 options 页的 vendor chunk 重复，产物约 +1.8MB（+16%）；
+        - background.page 进入多页 ESM 构建，与 options / cs-app 共享 vendor chunk。
+
+      Vite 会把同一页面里的多个 <script type="module"> 合并为一个入口 chunk（顺序即文档顺序），
+      因此下面两行等价于原先 ff_main.ts 里的两行 import。
+    -->
+  </head>
+  <body>
+    <script type="module" src="./main.ts"></script>
+    <script type="module" src="../offscreen/offscreen.ts"></script>
+  </body>
+</html>
