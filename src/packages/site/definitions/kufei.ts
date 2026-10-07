@@ -23,6 +23,7 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: ["yum"],
 
   urls: ["https://kufei.org/"],
+  favicon: "./_default_nexusphp.png",
 
   category: [CategoryIncldead, CategorySpstate, CategoryInclbookmarked],
 
