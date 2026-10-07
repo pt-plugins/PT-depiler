@@ -75,12 +75,12 @@ export function aesEncryptOpenSsl(plaintext: string, passphrase: string): string
   const iv = keyIv.subarray(32, EVP_KEY_IV_LENGTH);
 
   const ciphertext = cbc(key, iv).encrypt(utf8ToBytes(plaintext));
-  return bytesToBase64(concatBytes(OPENSSL_SALTED_PREFIX, salt, ciphertext));
+  return concatBytes(OPENSSL_SALTED_PREFIX, salt, ciphertext).toBase64();
 }
 
 /** 对应 `CryptoJS.AES.decrypt(ciphertext, passphrase).toString(CryptoJS.enc.Utf8)` */
 export function aesDecryptOpenSsl(ciphertext: string, passphrase: string): string {
-  const payload = base64ToBytes(ciphertext);
+  const payload = Uint8Array.fromBase64(ciphertext);
   const prefixLength = OPENSSL_SALTED_PREFIX.length;
 
   const hasSaltedPrefix =
@@ -94,14 +94,6 @@ export function aesDecryptOpenSsl(ciphertext: string, passphrase: string): strin
   const keyIv = evpBytesToKey(passphrase, salt, EVP_KEY_IV_LENGTH);
   const plaintext = cbc(keyIv.subarray(0, 32), keyIv.subarray(32, EVP_KEY_IV_LENGTH)).decrypt(body);
   return bytesToUtf8(plaintext);
-}
-
-function bytesToBase64(bytes: Uint8Array): string {
-  return bytes.toBase64();
-}
-
-function base64ToBytes(base64: string): Uint8Array {
-  return Uint8Array.fromBase64(base64);
 }
 
 /** AES 分组长度，供调用方校验密文长度时复用 */
