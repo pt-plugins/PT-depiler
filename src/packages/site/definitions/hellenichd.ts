@@ -19,6 +19,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Unit3D",
 
   urls: ["https://hellenic-hd.cc/"],
+  favicon: "./_default_unit3d.ico",
 
   category: [
     {

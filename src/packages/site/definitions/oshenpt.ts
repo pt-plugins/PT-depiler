@@ -23,6 +23,7 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: ["AllenPu"],
 
   urls: ["https://www.oshen.win/"],
+  favicon: "./_default_nexusphp.png",
 
   category: [
     {

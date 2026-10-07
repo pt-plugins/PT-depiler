@@ -16,6 +16,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "Unit3D",
 
   urls: ["https://turkseed.com/"],
+  favicon: "./_default_unit3d.ico",
 
   // 注：PDS 提供的完整分类疑为通用模板（同款模板在 datascene 上已被 Jackett 证伪），仅保留 movie/tv
   category: [

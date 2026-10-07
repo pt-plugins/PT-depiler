@@ -24,6 +24,7 @@ export const siteMetadata: ISiteMetadata = {
   collaborator: ["csi0n", "zhuweitung", "hui-shao"],
 
   urls: ["uggcf://uqsnaf.bet/"],
+  favicon: "./_default_nexusphp.png",
 
   officialGroupPattern: [/HDFans/i],
 

@@ -18,6 +18,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["https://lp-bits.com/"],
+  favicon: "./_default_nexusphp.png",
 
   // 注：以 Jackett lp-bits.yml 的分类为准；PDS 写 401/403/402（Movies/Music Videos/DOC）与本站实际（Linkin Park 音乐站）不符
   category: [
