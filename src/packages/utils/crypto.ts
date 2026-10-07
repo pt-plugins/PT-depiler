@@ -97,15 +97,11 @@ export function aesDecryptOpenSsl(ciphertext: string, passphrase: string): strin
 }
 
 function bytesToBase64(bytes: Uint8Array): string {
-  let binary = "";
-  for (const byte of bytes) {
-    binary += String.fromCharCode(byte);
-  }
-  return btoa(binary);
+  return bytes.toBase64();
 }
 
 function base64ToBytes(base64: string): Uint8Array {
-  return Uint8Array.from(atob(base64), (char) => char.charCodeAt(0));
+  return Uint8Array.fromBase64(base64);
 }
 
 /** AES 分组长度，供调用方校验密文长度时复用 */
