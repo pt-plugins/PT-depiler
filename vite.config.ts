@@ -63,9 +63,17 @@ export default defineConfig({
   plugins: [
     vitePluginGenerateWebextLocales(),
     nodePolyfills({
+      // 这两个 Node 内建模块的浏览器实现都还在被**第三方依赖**实际使用，不要因为「源码里没写」
+      // 就删掉：
+      //  - `buffer`：parse-torrent 链路上的依赖仍会 `import ... from "buffer"`；
+      //  - `path`：parse-torrent 的 decodeTorrentFile 用 `path.join` 拼多文件种子的 `file.path`，
+      //    而这条链路在产物里确实存在（`vendor/packages/downloader/*` 里能看到 path 的实现）。
       include: ["buffer", "path"],
+      // 但不再往每个入口注入 `globalThis.Buffer`（那会把 buffer 垫片塞进所有入口）：
+      // 源码里最后一处 Buffer 用法是 downloader 把 ArrayBuffer 转成 Buffer 交给 parse-torrent，
+      // 现已改为零拷贝的 Uint8Array 视图（parse-torrent 的入参要求 ArrayBufferView）。
       globals: {
-        Buffer: true,
+        Buffer: false,
       },
     }),
     VueDevTools({
