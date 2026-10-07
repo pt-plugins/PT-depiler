@@ -63,7 +63,6 @@
     "search-query-parser": "^1.6.0",
     "sizzle": "^2.3.10",
     "url-join": "^5.0.0",
-    "urlencode": "^2.0.0",
     "valid-filename": "^5.0.0",
     "vue": "^3.5.43",
     "vue-echarts": "^8.3.1",

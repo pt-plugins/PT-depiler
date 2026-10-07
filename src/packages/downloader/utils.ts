@@ -2,7 +2,7 @@ import { Buffer } from "buffer";
 import axios, { AxiosRequestConfig } from "axios";
 import parseTorrent, { Instance as TorrentInstance } from "parse-torrent";
 import isValidFilename from "valid-filename";
-import { decode } from "urlencode";
+import { decodePercent } from "@ptd/utils/url.ts";
 
 export * from "./utils/adapter";
 
@@ -64,7 +64,7 @@ export async function getRemoteTorrentFile(options: AxiosRequestConfig = {}): Pr
   if (disposition && disposition.includes("filename")) {
     let dispositionName = "";
     if (utf8FilenameRegex.test(disposition)) {
-      dispositionName = decode(utf8FilenameRegex.exec(disposition)![1]);
+      dispositionName = decodePercent(utf8FilenameRegex.exec(disposition)![1]);
     } else {
       // prevent ReDos attacks by anchoring the ascii regex to string start and
       // slicing off everything before 'filename='
@@ -73,7 +73,7 @@ export async function getRemoteTorrentFile(options: AxiosRequestConfig = {}): Pr
         const partialDisposition = disposition.slice(filenameStart);
         const matches = asciiFilenameRegex.exec(partialDisposition);
         if (matches != null && matches[2]) {
-          dispositionName = decode(matches[2], "ascii"); // 按照规范使用 ascii 转换
+          dispositionName = decodePercent(matches[2], "ascii"); // 按照规范使用 ascii 转换
         }
       }
     }
