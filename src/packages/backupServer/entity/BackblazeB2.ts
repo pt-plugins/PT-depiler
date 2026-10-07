@@ -91,10 +91,7 @@ interface B2DeleteFileResponse {
  * 计算 ArrayBuffer 的 SHA1 十六进制字符串
  */
 async function sha1Hex(data: ArrayBuffer): Promise<string> {
-  const hash = await crypto.subtle.digest("SHA-1", data);
-  return Array.from(new Uint8Array(hash))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+  return new Uint8Array(await crypto.subtle.digest("SHA-1", data)).toHex();
 }
 
 // ── 主类 ─────────────────────────────────────────────────────────
