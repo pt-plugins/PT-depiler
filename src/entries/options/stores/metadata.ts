@@ -383,6 +383,43 @@ export const useMetadataStore = defineStore("metadata", {
     },
 
     /**
+     * 调整站点的优先级（sortIndex），使站点在站点列表中与相邻站点交换位置（上移/下移一位）
+     *
+     * 站点优先级允许重复（添加站点时默认均为 100），而直接交换两个相同的优先级不会有任何变化，
+     * 所以当站点列表中存在重复（或缺失）的优先级时，会先按当前顺序把所有站点的优先级重新分配为
+     * 互不相同的值（自上而下依次为 N, N-1, ..., 1），以保证一次点击只移动一位、不会因优先级冲突而跳动。
+     *
+     * @returns 是否重新分配了站点优先级
+     */
+    async moveSiteSortIndex(siteId: TSiteID, direction: "up" | "down"): Promise<boolean> {
+      const orderedSiteIds = this.getSortedAddedSites.map((x) => x.id); // 按优先级降序排列的站点 id，与表格中的展示顺序一致
+      const currentIndex = orderedSiteIds.indexOf(siteId);
+      const targetIndex = currentIndex + (direction === "up" ? -1 : 1);
+      if (currentIndex === -1 || targetIndex < 0 || targetIndex >= orderedSiteIds.length) {
+        return false; // 站点不存在，或该站点已经处于列表最前/最后
+      }
+
+      const targetSiteId = orderedSiteIds[targetIndex];
+      orderedSiteIds[currentIndex] = targetSiteId;
+      orderedSiteIds[targetIndex] = siteId;
+
+      const sortIndexList = orderedSiteIds.map((id) => this.sites[id].sortIndex);
+      const isRedistributed = sortIndexList.includes(undefined) || new Set(sortIndexList).size < sortIndexList.length;
+      if (isRedistributed) {
+        // 重新分配互不相同的优先级，站点的相对顺序保持不变
+        orderedSiteIds.forEach((id, index) => (this.sites[id].sortIndex = orderedSiteIds.length - index));
+      } else {
+        // 直接交换两者的优先级数值
+        const currentSortIndex = this.sites[siteId].sortIndex;
+        this.sites[siteId].sortIndex = this.sites[targetSiteId].sortIndex;
+        this.sites[targetSiteId].sortIndex = currentSortIndex;
+      }
+
+      await this.$save();
+      return isRedistributed;
+    },
+
+    /**
      * 在添加、编辑站点时调用，重新生成 host 对站点的映射，
      * 便于 content-script 等其他地方通过 (await extStorage.getItem('metadata')).siteHostMap[host] 获取站点 ID
      */

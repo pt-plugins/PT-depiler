@@ -959,8 +959,11 @@
       "oneClickImport": "一键导入站点",
       "reBuildMap": "重建站点映射",
       "settingNote": ["只有配置过的站点才会显示插件图标及相应的功能；", "已离线的站点不再参与搜索和信息获取；"],
+      "sortIndexRedistributed": "站点优先级已重新分配（站点的先后顺序不变）",
       "table": {
         "flushFavicon": "刷新站点图标",
+        "moveDown": "下移一位",
+        "moveUp": "上移一位",
         "searchEntries": "搜索入口"
       }
     },

@@ -112,6 +112,33 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
   }
   runtimeStore.showSnakebar(t("SetSite.index.flushFaviconFinish"), { color: "success" });
 }
+
+// 站点 id 列表（按优先级降序排列，与表格中按 userConfig.sortIndex 排序时的顺序一致）
+const orderedSiteIds = computed(() => metadataStore.getSortedAddedSites.map((x) => x.id));
+
+// 当表格按优先级升序排列时，视觉上的「上移」对应优先级的下降，需要反转调整方向
+const isSortIndexAsc = computed(() => {
+  const [primarySortBy] = configStore.tableBehavior.SetSite.sortBy ?? [];
+  return primarySortBy?.key === "userConfig.sortIndex" && primarySortBy.order === "asc";
+});
+
+function resolveSortIndexDirection(direction: "up" | "down"): "up" | "down" {
+  if (!isSortIndexAsc.value) return direction;
+  return direction === "up" ? "down" : "up";
+}
+
+function canMoveSiteSortIndex(siteId: TSiteID, direction: "up" | "down") {
+  const index = orderedSiteIds.value.indexOf(siteId);
+  const priorityDirection = resolveSortIndexDirection(direction);
+  return priorityDirection === "up" ? index > 0 : index !== -1 && index < orderedSiteIds.value.length - 1;
+}
+
+async function moveSiteSortIndex(siteId: TSiteID, direction: "up" | "down") {
+  const isRedistributed = await metadataStore.moveSiteSortIndex(siteId, resolveSortIndexDirection(direction));
+  if (isRedistributed) {
+    runtimeStore.showSnakebar(t("SetSite.index.sortIndexRedistributed"), { color: "info" });
+  }
+}
 </script>
 
 <template>
@@ -303,6 +330,25 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
       </template>
       <template #item.action="{ item }">
         <v-btn-group class="table-action" density="compact" variant="plain">
+          <!-- 站点排序（交换与相邻站点的优先级） -->
+          <v-btn
+            :disabled="!canMoveSiteSortIndex(item.id, 'up')"
+            :title="t('SetSite.index.table.moveUp')"
+            color="orange"
+            icon="mdi-arrow-up"
+            size="small"
+            @click="() => moveSiteSortIndex(item.id, 'up')"
+          />
+
+          <v-btn
+            :disabled="!canMoveSiteSortIndex(item.id, 'down')"
+            :title="t('SetSite.index.table.moveDown')"
+            color="orange"
+            icon="mdi-arrow-down"
+            size="small"
+            @click="() => moveSiteSortIndex(item.id, 'down')"
+          />
+
           <!-- 站点信息编辑 -->
           <v-btn
             :disabled="item.metadata.isDead"
