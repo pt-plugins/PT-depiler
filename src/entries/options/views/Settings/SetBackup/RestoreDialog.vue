@@ -2,7 +2,7 @@
 import { useI18n } from "vue-i18n";
 import { ref, shallowRef } from "vue";
 import { isEmpty } from "es-toolkit/compat";
-import { jsZipBlobToBackupData } from "@ptd/backupServer/utils.ts";
+import { zipBlobToBackupData } from "@ptd/backupServer/utils.ts";
 import type { IBackupData } from "@ptd/backupServer";
 import { useRouter } from "vue-router";
 
@@ -51,7 +51,7 @@ function buildBackupOptions() {
 
 const backupFile = shallowRef<File>();
 function loadLocalBackupFile() {
-  jsZipBlobToBackupData(backupFile.value as Blob, decryptKey.value)
+  zipBlobToBackupData(backupFile.value as Blob, decryptKey.value)
     .then((data) => {
       restoreData.value = data;
       isDecryptKeyValid.value = true;

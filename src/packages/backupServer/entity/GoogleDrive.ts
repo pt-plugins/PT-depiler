@@ -183,7 +183,7 @@ export default class GoogleDrive extends AbstractBackupServer<GoogleDriveConfig>
 
     const form = new FormData();
     form.append("metadata", new Blob([JSON.stringify(metadata)], { type: "application/json" }));
-    form.append("file", await this.backupDataToJSZipBlob(file));
+    form.append("file", await this.backupDataToZipBlob(file));
 
     const { data } = await this.request<File>({
       method: "post",
@@ -203,7 +203,7 @@ export default class GoogleDrive extends AbstractBackupServer<GoogleDriveConfig>
       responseType: "blob",
     });
 
-    return await this.jsZipBlobToBackupData(data);
+    return await this.zipBlobToBackupData(data);
   }
 
   async deleteFile(path: string): Promise<boolean> {
