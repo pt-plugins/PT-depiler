@@ -151,15 +151,15 @@ async function moveSiteSortIndex(siteId: TSiteID, position: "up" | "down" | "top
   }
 }
 
-// 长按（v-on-long-press）：把站点移到最前/最后
-const SORT_INDEX_LONG_PRESS_DELAY = 600;
+// 站点排序按钮：短按（点击）移动一位，长按移至最前/最后
+const SORT_INDEX_LONG_PRESS_DELAY = 600; // 短按与长按的分界（ms）
 
 /**
- * 排序按钮同时承载两种操作：短按（点击）移动一位、长按移至最前/最后
- *
- * 短按走 `onMouseUp` 而不是 `@click`：按官方文档给长按加上 `modifiers.prevent` 后，触摸输入的
- * 短按不会再产生兼容 click，从 pointerup 取短按才能保证触摸设备也能移动一位；鼠标触发的 click
- * 则在 `onSortIndexClick` 里统一忽略，只留给键盘。
+ * 两种操作都交给 v-on-long-press 的 pointer 事件驱动，不再另挂 @click：
+ * · 长按 → 上面的 handler，移至最前 / 最后；
+ * · 短按 → onMouseUp 的 !isLongPress 分支，移动一位；
+ * · `modifiers.prevent` 按文档挡掉浏览器在释放时补发的兼容 click（触摸输入），
+ *   这样也不会有「长按完又被当成一次点击」的余波。
  */
 function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [() => void, OnLongPressOptions] {
   const edgePosition = position === "up" ? "top" : "bottom";
@@ -167,19 +167,12 @@ function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [(
     () => void moveSiteSortIndex(siteId, edgePosition),
     {
       delay: SORT_INDEX_LONG_PRESS_DELAY,
-      // 阻止长按/点击的默认行为，避免触摸输入在释放后补发一次兼容 click
       modifiers: { prevent: true },
       onMouseUp: (_duration, _distance, isLongPress) => {
         if (!isLongPress) void moveSiteSortIndex(siteId, position);
       },
     },
   ];
-}
-
-// 指针触发的 click（detail >= 1）已由 onMouseUp 处理，这里只处理键盘（Enter / Space）触发的 click
-function onSortIndexClick(event: MouseEvent, siteId: TSiteID, position: "up" | "down") {
-  if (event.detail !== 0) return;
-  void moveSiteSortIndex(siteId, position);
 }
 </script>
 
@@ -372,7 +365,7 @@ function onSortIndexClick(event: MouseEvent, siteId: TSiteID, position: "up" | "
       </template>
       <template #item.action="{ item }">
         <v-btn-group class="table-action" density="compact" variant="plain">
-          <!-- 站点排序（点击/短按：与相邻站点交换位置；长按：移至最前/最后） -->
+          <!-- 站点排序（短按：与相邻站点交换位置；长按：移至最前/最后） -->
           <v-btn
             v-on-long-press="sortIndexLongPressBinding(item.id, 'up')"
             :disabled="!canMoveSiteSortIndex(item.id, 'up')"
@@ -380,7 +373,6 @@ function onSortIndexClick(event: MouseEvent, siteId: TSiteID, position: "up" | "
             color="orange"
             icon="mdi-arrow-up"
             size="small"
-            @click="(event: MouseEvent) => onSortIndexClick(event, item.id, 'up')"
           />
 
           <v-btn
@@ -390,7 +382,6 @@ function onSortIndexClick(event: MouseEvent, siteId: TSiteID, position: "up" | "
             color="orange"
             icon="mdi-arrow-down"
             size="small"
-            @click="(event: MouseEvent) => onSortIndexClick(event, item.id, 'down')"
           />
 
           <!-- 站点信息编辑 -->
