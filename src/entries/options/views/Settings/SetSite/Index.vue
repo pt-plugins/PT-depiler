@@ -151,29 +151,35 @@ async function moveSiteSortIndex(siteId: TSiteID, position: "up" | "down" | "top
   }
 }
 
-// 长按（v-on-long-press）：把站点移到最前/最后。长按释放后浏览器仍会补发一次 click，
-// 需要忽略这次 click，否则会先「移至最前/最后」、紧接着又「上移/下移一位」。
-let ignoreNextSortIndexClick = false;
+// 长按（v-on-long-press）：把站点移到最前/最后
+const SORT_INDEX_LONG_PRESS_DELAY = 600;
 
-const sortIndexLongPressOptions: OnLongPressOptions = {
-  delay: 600,
-  onMouseUp: (_duration, _distance, isLongPress) => {
-    // 普通点击（非长按）释放时清掉标记，避免「长按后移出按钮再释放」把标记留到下一次点击
-    if (!isLongPress) ignoreNextSortIndexClick = false;
-  },
-};
-
-function onSortIndexLongPress(siteId: TSiteID, position: "top" | "bottom") {
-  ignoreNextSortIndexClick = true;
-  void moveSiteSortIndex(siteId, position);
+/**
+ * 排序按钮同时承载两种操作：短按（点击）移动一位、长按移至最前/最后
+ *
+ * 短按走 `onMouseUp` 而不是 `@click`：按官方文档给长按加上 `modifiers.prevent` 后，触摸输入的
+ * 短按不会再产生兼容 click，从 pointerup 取短按才能保证触摸设备也能移动一位；鼠标触发的 click
+ * 则在 `onSortIndexClick` 里统一忽略，只留给键盘。
+ */
+function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [() => void, OnLongPressOptions] {
+  const edgePosition = position === "up" ? "top" : "bottom";
+  return [
+    () => void moveSiteSortIndex(siteId, edgePosition),
+    {
+      delay: SORT_INDEX_LONG_PRESS_DELAY,
+      // 阻止长按/点击的默认行为，避免触摸输入在释放后补发一次兼容 click
+      modifiers: { prevent: true },
+      onMouseUp: (_duration, _distance, isLongPress) => {
+        if (!isLongPress) void moveSiteSortIndex(siteId, position);
+      },
+    },
+  ];
 }
 
-function onSortIndexClick(siteId: TSiteID, direction: "up" | "down") {
-  if (ignoreNextSortIndexClick) {
-    ignoreNextSortIndexClick = false;
-    return;
-  }
-  void moveSiteSortIndex(siteId, direction);
+// 指针触发的 click（detail >= 1）已由 onMouseUp 处理，这里只处理键盘（Enter / Space）触发的 click
+function onSortIndexClick(event: MouseEvent, siteId: TSiteID, position: "up" | "down") {
+  if (event.detail !== 0) return;
+  void moveSiteSortIndex(siteId, position);
 }
 </script>
 
@@ -366,25 +372,25 @@ function onSortIndexClick(siteId: TSiteID, direction: "up" | "down") {
       </template>
       <template #item.action="{ item }">
         <v-btn-group class="table-action" density="compact" variant="plain">
-          <!-- 站点排序（点击：与相邻站点交换位置；长按：移至最前/最后） -->
+          <!-- 站点排序（点击/短按：与相邻站点交换位置；长按：移至最前/最后） -->
           <v-btn
-            v-on-long-press="[() => onSortIndexLongPress(item.id, 'top'), sortIndexLongPressOptions]"
+            v-on-long-press="sortIndexLongPressBinding(item.id, 'up')"
             :disabled="!canMoveSiteSortIndex(item.id, 'up')"
             :title="t('SetSite.index.table.moveUp')"
             color="orange"
             icon="mdi-arrow-up"
             size="small"
-            @click="() => onSortIndexClick(item.id, 'up')"
+            @click="(event: MouseEvent) => onSortIndexClick(event, item.id, 'up')"
           />
 
           <v-btn
-            v-on-long-press="[() => onSortIndexLongPress(item.id, 'bottom'), sortIndexLongPressOptions]"
+            v-on-long-press="sortIndexLongPressBinding(item.id, 'down')"
             :disabled="!canMoveSiteSortIndex(item.id, 'down')"
             :title="t('SetSite.index.table.moveDown')"
             color="orange"
             icon="mdi-arrow-down"
             size="small"
-            @click="() => onSortIndexClick(item.id, 'down')"
+            @click="(event: MouseEvent) => onSortIndexClick(event, item.id, 'down')"
           />
 
           <!-- 站点信息编辑 -->
