@@ -1,4 +1,3 @@
-import { Buffer } from "buffer";
 import axios, { AxiosRequestConfig } from "axios";
 import parseTorrent, { Instance as TorrentInstance } from "parse-torrent";
 import isValidFilename from "valid-filename";
@@ -9,8 +8,6 @@ export * from "./utils/adapter";
 export interface ParsedTorrent {
   name: string;
   metadata: {
-    arraybuffer: ArrayBuffer;
-    buffer: Buffer;
     blob: () => Blob;
     base64: () => string;
   };
@@ -49,9 +46,12 @@ export async function getRemoteTorrentFile(options: AxiosRequestConfig = {}): Pr
     throw new Error("Invalid Torrent From Server");
   }
 
-  // 将获取到的 ArrayBuffer 转成 Buffer
-  const metaDataBuffer = Buffer.from(req.data, "binary");
-  const parsedInfo = (await parseTorrent(metaDataBuffer)) as TorrentInstance;
+  // parse-torrent 的入参是 ArrayBufferView（内部按 `ArrayBuffer.isView(torrentId)` 判定），
+  // 裸 ArrayBuffer 会走到最后抛 `Invalid torrent identifier`，所以这里包一层零拷贝视图。
+  // 原来用 `Buffer.from(req.data, "binary")` 只是为了拿到一个视图，改用 Uint8Array 后
+  // 整个仓库不再依赖 buffer 垫片。
+  const metaDataBytes = new Uint8Array(req.data);
+  const parsedInfo = (await parseTorrent(metaDataBytes)) as TorrentInstance;
 
   /**
    * 设置种子名字
@@ -94,9 +94,9 @@ export async function getRemoteTorrentFile(options: AxiosRequestConfig = {}): Pr
   return {
     name: torrentName,
     metadata: {
-      arraybuffer: req.data,
-      buffer: metaDataBuffer,
-      base64: () => metaDataBuffer.toString("base64"),
+      // Uint8Array.prototype.toBase64() 与 Buffer.toString("base64") 输出逐字节一致
+      // （标准 base64 + padding），Chrome 133+ / Firefox 133+ 原生支持，见 manifest 的最低版本要求。
+      base64: () => metaDataBytes.toBase64(),
       blob: () => new Blob([req.data], { type: "application/x-bittorrent" }),
     },
     info: parsedInfo,
