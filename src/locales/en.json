@@ -965,8 +965,8 @@
       "sortIndexRedistributed": "Site priorities have been redistributed (the order of the sites is unchanged)",
       "table": {
         "flushFavicon": "Refresh Site Favicon",
-        "moveDown": "Move Down",
-        "moveUp": "Move Up",
+        "moveDown": "Move Down (long press to move to bottom)",
+        "moveUp": "Move Up (long press to move to top)",
         "searchEntries": "Search Entries"
       }
     },

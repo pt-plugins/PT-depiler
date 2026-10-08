@@ -962,8 +962,8 @@
       "sortIndexRedistributed": "站点优先级已重新分配（站点的先后顺序不变）",
       "table": {
         "flushFavicon": "刷新站点图标",
-        "moveDown": "下移一位",
-        "moveUp": "上移一位",
+        "moveDown": "下移一位（长按移至最后）",
+        "moveUp": "上移一位（长按移至最前）",
         "searchEntries": "搜索入口"
       }
     },

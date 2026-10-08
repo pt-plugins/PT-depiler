@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { vOnLongPress } from "@vueuse/components";
+import type { OnLongPressOptions } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import type { TSiteID } from "@ptd/site";
 import type { DataTableHeader } from "vuetify";
@@ -116,28 +118,62 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
 // 站点 id 列表（按优先级降序排列，与表格中按 userConfig.sortIndex 排序时的顺序一致）
 const orderedSiteIds = computed(() => metadataStore.getSortedAddedSites.map((x) => x.id));
 
-// 当表格按优先级升序排列时，视觉上的「上移」对应优先级的下降，需要反转调整方向
+// 当表格按优先级升序排列时，视觉上的「上移/移至最前」对应优先级的下降，需要反转位置
 const isSortIndexAsc = computed(() => {
   const [primarySortBy] = configStore.tableBehavior.SetSite.sortBy ?? [];
   return primarySortBy?.key === "userConfig.sortIndex" && primarySortBy.order === "asc";
 });
 
-function resolveSortIndexDirection(direction: "up" | "down"): "up" | "down" {
-  if (!isSortIndexAsc.value) return direction;
-  return direction === "up" ? "down" : "up";
+function resolveSortIndexPosition(position: "up" | "down" | "top" | "bottom"): "up" | "down" | "top" | "bottom" {
+  if (!isSortIndexAsc.value) return position;
+  switch (position) {
+    case "up":
+      return "down";
+    case "down":
+      return "up";
+    case "top":
+      return "bottom";
+    default:
+      return "top";
+  }
 }
 
 function canMoveSiteSortIndex(siteId: TSiteID, direction: "up" | "down") {
   const index = orderedSiteIds.value.indexOf(siteId);
-  const priorityDirection = resolveSortIndexDirection(direction);
-  return priorityDirection === "up" ? index > 0 : index !== -1 && index < orderedSiteIds.value.length - 1;
+  const position = resolveSortIndexPosition(direction);
+  return position === "up" ? index > 0 : index !== -1 && index < orderedSiteIds.value.length - 1;
 }
 
-async function moveSiteSortIndex(siteId: TSiteID, direction: "up" | "down") {
-  const isRedistributed = await metadataStore.moveSiteSortIndex(siteId, resolveSortIndexDirection(direction));
+async function moveSiteSortIndex(siteId: TSiteID, position: "up" | "down" | "top" | "bottom") {
+  const isRedistributed = await metadataStore.moveSiteSortIndex(siteId, resolveSortIndexPosition(position));
   if (isRedistributed) {
     runtimeStore.showSnakebar(t("SetSite.index.sortIndexRedistributed"), { color: "info" });
   }
+}
+
+// 长按（v-on-long-press）：把站点移到最前/最后。长按释放后浏览器仍会补发一次 click，
+// 需要忽略这次 click，否则会先「移至最前/最后」、紧接着又「上移/下移一位」。
+let ignoreNextSortIndexClick = false;
+
+const sortIndexLongPressOptions: OnLongPressOptions = {
+  delay: 600,
+  onMouseUp: (_duration, _distance, isLongPress) => {
+    // 普通点击（非长按）释放时清掉标记，避免「长按后移出按钮再释放」把标记留到下一次点击
+    if (!isLongPress) ignoreNextSortIndexClick = false;
+  },
+};
+
+function onSortIndexLongPress(siteId: TSiteID, position: "top" | "bottom") {
+  ignoreNextSortIndexClick = true;
+  void moveSiteSortIndex(siteId, position);
+}
+
+function onSortIndexClick(siteId: TSiteID, direction: "up" | "down") {
+  if (ignoreNextSortIndexClick) {
+    ignoreNextSortIndexClick = false;
+    return;
+  }
+  void moveSiteSortIndex(siteId, direction);
 }
 </script>
 
@@ -330,23 +366,25 @@ async function moveSiteSortIndex(siteId: TSiteID, direction: "up" | "down") {
       </template>
       <template #item.action="{ item }">
         <v-btn-group class="table-action" density="compact" variant="plain">
-          <!-- 站点排序（交换与相邻站点的优先级） -->
+          <!-- 站点排序（点击：与相邻站点交换位置；长按：移至最前/最后） -->
           <v-btn
+            v-on-long-press="[() => onSortIndexLongPress(item.id, 'top'), sortIndexLongPressOptions]"
             :disabled="!canMoveSiteSortIndex(item.id, 'up')"
             :title="t('SetSite.index.table.moveUp')"
             color="orange"
             icon="mdi-arrow-up"
             size="small"
-            @click="() => moveSiteSortIndex(item.id, 'up')"
+            @click="() => onSortIndexClick(item.id, 'up')"
           />
 
           <v-btn
+            v-on-long-press="[() => onSortIndexLongPress(item.id, 'bottom'), sortIndexLongPressOptions]"
             :disabled="!canMoveSiteSortIndex(item.id, 'down')"
             :title="t('SetSite.index.table.moveDown')"
             color="orange"
             icon="mdi-arrow-down"
             size="small"
-            @click="() => moveSiteSortIndex(item.id, 'down')"
+            @click="() => onSortIndexClick(item.id, 'down')"
           />
 
           <!-- 站点信息编辑 -->
