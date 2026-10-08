@@ -365,25 +365,6 @@ function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [(
       </template>
       <template #item.action="{ item }">
         <v-btn-group class="table-action" density="compact" variant="plain">
-          <!-- 站点排序（短按：与相邻站点交换位置；长按：移至最前/最后） -->
-          <v-btn
-            v-on-long-press="sortIndexLongPressBinding(item.id, 'up')"
-            :disabled="!canMoveSiteSortIndex(item.id, 'up')"
-            :title="t('SetSite.index.table.moveUp')"
-            color="orange"
-            icon="mdi-arrow-up"
-            size="small"
-          />
-
-          <v-btn
-            v-on-long-press="sortIndexLongPressBinding(item.id, 'down')"
-            :disabled="!canMoveSiteSortIndex(item.id, 'down')"
-            :title="t('SetSite.index.table.moveDown')"
-            color="orange"
-            icon="mdi-arrow-down"
-            size="small"
-          />
-
           <!-- 站点信息编辑 -->
           <v-btn
             :disabled="item.metadata.isDead"
@@ -407,6 +388,28 @@ function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [(
             </v-menu>
           </v-btn>
 
+          <v-divider class="mx-1" inset vertical />
+
+          <!-- 站点排序（短按：与相邻站点交换位置；长按：移至最前/最后） -->
+          <v-btn
+            v-on-long-press="sortIndexLongPressBinding(item.id, 'up')"
+            :disabled="!canMoveSiteSortIndex(item.id, 'up')"
+            :title="t('SetSite.index.table.moveUp')"
+            color="orange"
+            icon="mdi-arrow-up"
+            size="small"
+          />
+
+          <v-btn
+            v-on-long-press="sortIndexLongPressBinding(item.id, 'down')"
+            :disabled="!canMoveSiteSortIndex(item.id, 'down')"
+            :title="t('SetSite.index.table.moveDown')"
+            color="orange"
+            icon="mdi-arrow-down"
+            size="small"
+          />
+
+          <!-- 刷新站点图标 -->
           <v-btn
             :disabled="item.metadata.isDead"
             :loading="isFaviconFlushing"
@@ -416,6 +419,8 @@ function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [(
             size="small"
             @click="() => flushSiteFavicon(item.id)"
           ></v-btn>
+
+          <v-divider class="mx-1" inset vertical />
 
           <v-btn
             :title="t('common.remove')"
