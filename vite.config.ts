@@ -4,7 +4,6 @@ import path from "node:path";
 
 // Vite And it's plugins
 import { defineConfig } from "vite";
-import { nodePolyfills } from "vite-plugin-node-polyfills";
 import vue from "@vitejs/plugin-vue";
 import vuetify from "vite-plugin-vuetify";
 import VueDevTools from "vite-plugin-vue-devtools";
@@ -62,20 +61,18 @@ export default defineConfig({
   },
   plugins: [
     vitePluginGenerateWebextLocales(),
-    nodePolyfills({
-      // 这两个 Node 内建模块的浏览器实现都还在被**第三方依赖**实际使用，不要因为「源码里没写」
-      // 就删掉：
-      //  - `buffer`：parse-torrent 链路上的依赖仍会 `import ... from "buffer"`；
-      //  - `path`：parse-torrent 的 decodeTorrentFile 用 `path.join` 拼多文件种子的 `file.path`，
-      //    而这条链路在产物里确实存在（`vendor/packages/downloader/*` 里能看到 path 的实现）。
-      include: ["buffer", "path"],
-      // 但不再往每个入口注入 `globalThis.Buffer`（那会把 buffer 垫片塞进所有入口）：
-      // 源码里最后一处 Buffer 用法是 downloader 把 ArrayBuffer 转成 Buffer 交给 parse-torrent，
-      // 现已改为零拷贝的 Uint8Array 视图（parse-torrent 的入参要求 ArrayBufferView）。
-      globals: {
-        Buffer: false,
-      },
-    }),
+    // 这里曾有 `vite-plugin-node-polyfills`（`include: ["buffer","path"]` + `globals.Buffer`）。2026-10-08 移除，
+    // 因为本仓已不再有任何 Node 内建的运行时依赖：
+    //   · `buffer`：源码里最后一处用法（downloader 把 ArrayBuffer 转成 Buffer 交给 parse-torrent）
+    //     已改为零拷贝的 `new Uint8Array(...)`；
+    //   · `path`：唯一使用方 parse-torrent 只用 `join` + `sep`，已由下面的 `resolve.alias` 指向自实现；
+    //   · `global` / `process` / 裸 `Buffer`：该插件的 globals 是经 `@rollup/plugin-inject` 实现的，
+    //     **只有代码里真的出现裸标识符才会注入**，现已无任何引用（实测产物里零注入痕迹）。
+    // 移除前后产物完全等价：10.21MB / 814 文件，各入口 chunk 体积逐一致（background 132.6KB、cs-app 225KB、
+    // options index 60KB），无 `__vite-browser-external-*` 桩，path-browserify 与 buffer 垫片均为 0。
+    //
+    // ⚠️ 将来若新增的依赖 import 了 Node 内建：`path` 认下面那条 alias；其余需要像 `src/extends/shims/`
+    // 那样补一个等价实现（**不要**重新引入多模块垫片 —— 它们会把用不到的十几个成员一起打进产物）。
     VueDevTools({
       launchEditor: fs.existsSync(base_path("./.idea")) ? "webstorm" : "vscode",
     }),
@@ -297,11 +294,15 @@ export default defineConfig({
     }),
   ],
   resolve: {
-    alias: {
-      "~": base_path("./src"),
-      "@": base_path("./src/entries"),
-      "@ptd": base_path("./src/packages"),
-    },
+    alias: [
+      // `parse-torrent` 会 `import path from "path"`，而它只用到 `join` + `sep`
+      // （见 src/extends/shims/path.ts 的开头注释）。用本仓的最小实现接管，
+      // 换掉 path-browserify 的 478 行实现。用正则做精确匹配，避免误伤 `path/xxx` 子路径。
+      { find: /^(node:)?path$/, replacement: base_path("./src/extends/shims/path.ts") },
+      { find: "~", replacement: base_path("./src") },
+      { find: "@", replacement: base_path("./src/entries") },
+      { find: "@ptd", replacement: base_path("./src/packages") },
+    ],
   },
   define: {
     __BROWSER__: JSON.stringify(target),
