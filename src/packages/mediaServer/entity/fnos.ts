@@ -5,7 +5,7 @@ import {
   IMediaServerMetadata,
   IMediaServerSearchOptions,
   IMediaServerSearchResult,
-} from "@ptd/mediaServer";
+} from "../types";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
 import { EResultParseStatus } from "@ptd/site";
 import { toMerged } from "es-toolkit";

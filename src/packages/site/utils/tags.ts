@@ -1,4 +1,4 @@
-import type { ITorrentTag } from "@ptd/site";
+import type { ITorrentTag } from "../types/torrent";
 
 interface IPreDefinedTorrentTag extends ITorrentTag {
   aka?: Array<string | RegExp>;

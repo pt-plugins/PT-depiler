@@ -1,4 +1,4 @@
-import type { TAdvanceSearchKeyword } from "@ptd/site";
+import type { TAdvanceSearchKeyword } from "./search";
 import type { TSiteID } from "./base";
 
 // 种子当前状态 - 使用字符串字面量枚举支持 i18n
