@@ -272,7 +272,7 @@ export default class S3 extends AbstractBackupServer<S3Config> {
 
   async addFile(fileName: string, file: IBackupData): Promise<boolean> {
     try {
-      const fileBlob = await this.backupDataToJSZipBlob(file);
+      const fileBlob = await this.backupDataToZipBlob(file);
       const objectKey = `${this.keyPrefix}${fileName}`;
       await this.s3Request("PUT", objectKey, {
         data: fileBlob,
@@ -288,7 +288,7 @@ export default class S3 extends AbstractBackupServer<S3Config> {
   async getFile(path: string): Promise<IBackupData> {
     const objectKey = `${this.keyPrefix}${path}`;
     const { data: blobData } = await this.s3Request<Blob>("GET", objectKey, { responseType: "blob" });
-    return await this.jsZipBlobToBackupData(blobData);
+    return await this.zipBlobToBackupData(blobData);
   }
 
   async deleteFile(path: string): Promise<boolean> {

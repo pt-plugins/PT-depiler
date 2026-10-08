@@ -1,7 +1,7 @@
 import { intersection, isEqual, toMerged } from "es-toolkit";
 import { formatDate } from "date-fns";
 import { getBackupServer, IBackupData, IBackupFileInfo } from "@ptd/backupServer";
-import { backupDataToJSZipBlob, hasBackupRetentionToApply, pruneBackupFiles } from "@ptd/backupServer/utils.ts";
+import { backupDataToZipBlob, hasBackupRetentionToApply, pruneBackupFiles } from "@ptd/backupServer/utils.ts";
 import AbstractBackupServer from "@ptd/backupServer/AbstractBackupServer.ts";
 
 import { onMessage, sendMessage } from "@/messages.ts";
@@ -142,8 +142,8 @@ export async function exportBackupData(
 
   logger({ msg: `Exporting backup data to ${backupServerId}`, data: { backupFields, backupFilename } });
   if (backupServerId === "local") {
-    const jsZipBlob = await backupDataToJSZipBlob(backupData, encryptionKey);
-    const blobUrl = URL.createObjectURL(jsZipBlob);
+    const zipBlob = await backupDataToZipBlob(backupData, encryptionKey);
+    const blobUrl = URL.createObjectURL(zipBlob);
     await sendMessage("downloadFile", { url: blobUrl, filename: backupFilename, conflictAction: "uniquify" });
     return true;
   } else {
