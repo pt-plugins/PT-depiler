@@ -128,7 +128,10 @@
     "detail": "详情",
     "loadMore": "加载更多",
     "noItems": "暂无内容，请使用搜索框或点击加载更多按钮",
-    "searchPlaceholder": "搜索词"
+    "searchPlaceholder": "搜索词",
+    "serverFilter": {
+      "all": "全部服务器"
+    }
   },
   "MyClient": {
     "action": {

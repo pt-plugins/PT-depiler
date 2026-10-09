@@ -128,7 +128,10 @@
     "detail": "Details",
     "loadMore": "Load More",
     "noItems": "No Items, use Search Input or Load More Button to Load",
-    "searchPlaceholder": "Search term"
+    "searchPlaceholder": "Search term",
+    "serverFilter": {
+      "all": "All Servers"
+    }
   },
   "MyClient": {
     "action": {
