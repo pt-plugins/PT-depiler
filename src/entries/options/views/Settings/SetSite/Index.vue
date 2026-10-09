@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from "vue";
+import { vOnLongPress } from "@vueuse/components";
+import type { OnLongPressOptions } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
 import type { TSiteID } from "@ptd/site";
 import type { DataTableHeader } from "vuetify";
@@ -111,6 +113,71 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
     await sendMessage("getSiteFavicon", { site: id, flush: true });
   }
   runtimeStore.showSnakebar(t("SetSite.index.flushFaviconFinish"), { color: "success" });
+}
+
+// 站点 id 列表（按优先级降序排列，与表格中按 userConfig.sortIndex 排序时的顺序一致）
+const orderedSiteIds = computed(() => metadataStore.getSortedAddedSites.map((x) => x.id));
+
+// 表格排序中的优先级列：快捷排序只在排序包含优先级时才有意义，否则改优先级不会让行移动
+// （见 #1597 里提出者的反馈；多列排序时只要排序里带了优先级即可，不要求它排在第一列）
+const sortIndexSortBy = computed(() =>
+  (configStore.tableBehavior.SetSite.sortBy ?? []).find((sortBy) => sortBy.key === "userConfig.sortIndex"),
+);
+const isSortBySortIndex = computed(() => sortIndexSortBy.value !== undefined);
+
+// 优先级按升序排列时，视觉上的「上移/移至最前」对应优先级的下降，需要反转位置
+const isSortIndexAsc = computed(() => sortIndexSortBy.value?.order === "asc");
+
+function resolveSortIndexPosition(position: "up" | "down" | "top" | "bottom"): "up" | "down" | "top" | "bottom" {
+  if (!isSortIndexAsc.value) return position;
+  switch (position) {
+    case "up":
+      return "down";
+    case "down":
+      return "up";
+    case "top":
+      return "bottom";
+    default:
+      return "top";
+  }
+}
+
+function canMoveSiteSortIndex(siteId: TSiteID, direction: "up" | "down") {
+  if (!isSortBySortIndex.value) return false; // 未按优先级排序时禁用快捷排序
+  const index = orderedSiteIds.value.indexOf(siteId);
+  const position = resolveSortIndexPosition(direction);
+  return position === "up" ? index > 0 : index !== -1 && index < orderedSiteIds.value.length - 1;
+}
+
+async function moveSiteSortIndex(siteId: TSiteID, position: "up" | "down" | "top" | "bottom") {
+  const isRedistributed = await metadataStore.moveSiteSortIndex(siteId, resolveSortIndexPosition(position));
+  if (isRedistributed) {
+    runtimeStore.showSnakebar(t("SetSite.index.sortIndexRedistributed"), { color: "info" });
+  }
+}
+
+// 站点排序按钮：短按（点击）移动一位，长按移至最前/最后
+const SORT_INDEX_LONG_PRESS_DELAY = 600; // 短按与长按的分界（ms）
+
+/**
+ * 两种操作都交给 v-on-long-press 的 pointer 事件驱动，不再另挂 @click：
+ * · 长按 → 上面的 handler，移至最前 / 最后；
+ * · 短按 → onMouseUp 的 !isLongPress 分支，移动一位；
+ * · `modifiers.prevent` 按文档挡掉浏览器在释放时补发的兼容 click（触摸输入），
+ *   这样也不会有「长按完又被当成一次点击」的余波。
+ */
+function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [() => void, OnLongPressOptions] {
+  const edgePosition = position === "up" ? "top" : "bottom";
+  return [
+    () => void moveSiteSortIndex(siteId, edgePosition),
+    {
+      delay: SORT_INDEX_LONG_PRESS_DELAY,
+      modifiers: { prevent: true },
+      onMouseUp: (_duration, _distance, isLongPress) => {
+        if (!isLongPress) void moveSiteSortIndex(siteId, position);
+      },
+    },
+  ];
 }
 </script>
 
@@ -326,6 +393,28 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
             </v-menu>
           </v-btn>
 
+          <v-divider class="mx-1" inset vertical />
+
+          <!-- 站点排序（短按：与相邻站点交换位置；长按：移至最前/最后，均要求表格按优先级排序） -->
+          <v-btn
+            v-on-long-press="sortIndexLongPressBinding(item.id, 'up')"
+            :disabled="!canMoveSiteSortIndex(item.id, 'up')"
+            :title="isSortBySortIndex ? t('SetSite.index.table.moveUp') : t('SetSite.index.table.moveNeedSortIndex')"
+            color="orange"
+            icon="mdi-arrow-up"
+            size="small"
+          />
+
+          <v-btn
+            v-on-long-press="sortIndexLongPressBinding(item.id, 'down')"
+            :disabled="!canMoveSiteSortIndex(item.id, 'down')"
+            :title="isSortBySortIndex ? t('SetSite.index.table.moveDown') : t('SetSite.index.table.moveNeedSortIndex')"
+            color="orange"
+            icon="mdi-arrow-down"
+            size="small"
+          />
+
+          <!-- 刷新站点图标 -->
           <v-btn
             :disabled="item.metadata.isDead"
             :loading="isFaviconFlushing"
@@ -335,6 +424,8 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
             size="small"
             @click="() => flushSiteFavicon(item.id)"
           ></v-btn>
+
+          <v-divider class="mx-1" inset vertical />
 
           <v-btn
             :title="t('common.remove')"

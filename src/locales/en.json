@@ -962,8 +962,12 @@
         "Only the configured site will display the plugin icon and the corresponding function;",
         "the offline site will no longer participate in the search and information acquisition;"
       ],
+      "sortIndexRedistributed": "Site priorities have been redistributed (the order of the sites is unchanged)",
       "table": {
         "flushFavicon": "Refresh Site Favicon",
+        "moveDown": "Move Down (long press to move to bottom)",
+        "moveNeedSortIndex": "Sort by the № column to reorder sites",
+        "moveUp": "Move Up (long press to move to top)",
         "searchEntries": "Search Entries"
       }
     },
