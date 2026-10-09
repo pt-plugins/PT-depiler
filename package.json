@@ -4,7 +4,7 @@
   "version": "0.0.6",
   "type": "module",
   "homepage": "https://github.com/pt-plugins/PT-depiler",
-  "packageManager": "pnpm@10.21.0",
+  "packageManager": "pnpm@12.10.1",
   "author": {
     "name": "Pt-Plugins",
     "url": "https://github.com/pt-plugins"
@@ -37,7 +37,7 @@
   },
   "engines": {
     "node": ">=23.7.0",
-    "pnpm": ">=10.14.0"
+    "pnpm": ">=12.0.0"
   },
   "dependencies": {
     "@noble/ciphers": "^2.4.0",

@@ -21,6 +21,8 @@ jobs:
         with:
           fetch-depth: ${{ github.event_name == 'pull_request' && '1' || '0' }} # 根据事件类型动态设置 fetch-depth
 
+      # pnpm 版本取自 package.json 的 packageManager 字段（当前为 pnpm@12.10.1），此处不要再用 version 输入指定
+      # 注意：安装 pnpm v12 需要 pnpm/action-setup >= v6.1.0（当前 v6 浮动标签已指向 v6.1.0）
       - uses: pnpm/action-setup@v6
 
       - name: Setup Node
