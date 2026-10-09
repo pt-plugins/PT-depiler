@@ -966,6 +966,7 @@
       "table": {
         "flushFavicon": "Refresh Site Favicon",
         "moveDown": "Move Down (long press to move to bottom)",
+        "moveNeedSortIndex": "Sort by the № column to reorder sites",
         "moveUp": "Move Up (long press to move to top)",
         "searchEntries": "Search Entries"
       }

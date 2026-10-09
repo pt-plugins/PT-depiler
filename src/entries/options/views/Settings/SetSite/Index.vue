@@ -118,11 +118,15 @@ async function flushSiteFavicon(siteId: TSiteID | TSiteID[]) {
 // 站点 id 列表（按优先级降序排列，与表格中按 userConfig.sortIndex 排序时的顺序一致）
 const orderedSiteIds = computed(() => metadataStore.getSortedAddedSites.map((x) => x.id));
 
-// 当表格按优先级升序排列时，视觉上的「上移/移至最前」对应优先级的下降，需要反转位置
-const isSortIndexAsc = computed(() => {
-  const [primarySortBy] = configStore.tableBehavior.SetSite.sortBy ?? [];
-  return primarySortBy?.key === "userConfig.sortIndex" && primarySortBy.order === "asc";
-});
+// 表格排序中的优先级列：快捷排序只在排序包含优先级时才有意义，否则改优先级不会让行移动
+// （见 #1597 里提出者的反馈；多列排序时只要排序里带了优先级即可，不要求它排在第一列）
+const sortIndexSortBy = computed(() =>
+  (configStore.tableBehavior.SetSite.sortBy ?? []).find((sortBy) => sortBy.key === "userConfig.sortIndex"),
+);
+const isSortBySortIndex = computed(() => sortIndexSortBy.value !== undefined);
+
+// 优先级按升序排列时，视觉上的「上移/移至最前」对应优先级的下降，需要反转位置
+const isSortIndexAsc = computed(() => sortIndexSortBy.value?.order === "asc");
 
 function resolveSortIndexPosition(position: "up" | "down" | "top" | "bottom"): "up" | "down" | "top" | "bottom" {
   if (!isSortIndexAsc.value) return position;
@@ -139,6 +143,7 @@ function resolveSortIndexPosition(position: "up" | "down" | "top" | "bottom"): "
 }
 
 function canMoveSiteSortIndex(siteId: TSiteID, direction: "up" | "down") {
+  if (!isSortBySortIndex.value) return false; // 未按优先级排序时禁用快捷排序
   const index = orderedSiteIds.value.indexOf(siteId);
   const position = resolveSortIndexPosition(direction);
   return position === "up" ? index > 0 : index !== -1 && index < orderedSiteIds.value.length - 1;
@@ -390,11 +395,11 @@ function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [(
 
           <v-divider class="mx-1" inset vertical />
 
-          <!-- 站点排序（短按：与相邻站点交换位置；长按：移至最前/最后） -->
+          <!-- 站点排序（短按：与相邻站点交换位置；长按：移至最前/最后，均要求表格按优先级排序） -->
           <v-btn
             v-on-long-press="sortIndexLongPressBinding(item.id, 'up')"
             :disabled="!canMoveSiteSortIndex(item.id, 'up')"
-            :title="t('SetSite.index.table.moveUp')"
+            :title="isSortBySortIndex ? t('SetSite.index.table.moveUp') : t('SetSite.index.table.moveNeedSortIndex')"
             color="orange"
             icon="mdi-arrow-up"
             size="small"
@@ -403,7 +408,7 @@ function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [(
           <v-btn
             v-on-long-press="sortIndexLongPressBinding(item.id, 'down')"
             :disabled="!canMoveSiteSortIndex(item.id, 'down')"
-            :title="t('SetSite.index.table.moveDown')"
+            :title="isSortBySortIndex ? t('SetSite.index.table.moveDown') : t('SetSite.index.table.moveNeedSortIndex')"
             color="orange"
             icon="mdi-arrow-down"
             size="small"

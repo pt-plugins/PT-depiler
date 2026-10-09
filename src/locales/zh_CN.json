@@ -963,6 +963,7 @@
       "table": {
         "flushFavicon": "刷新站点图标",
         "moveDown": "下移一位（长按移至最后）",
+        "moveNeedSortIndex": "按「№」列排序后才能调整站点顺序",
         "moveUp": "上移一位（长按移至最前）",
         "searchEntries": "搜索入口"
       }
