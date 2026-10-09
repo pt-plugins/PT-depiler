@@ -10,7 +10,7 @@ import {
   IMediaServerMetadata,
   IMediaServerSearchOptions,
   IMediaServerSearchResult,
-} from "@ptd/mediaServer";
+} from "../types";
 
 export const mediaServerMetaData: IMediaServerMetadata = {
   description: "Plex 是一款流行的媒体服务器软件，支持多种设备和平台，提供丰富的媒体管理和播放功能",
@@ -192,7 +192,7 @@ export default class Plex extends AbstractMediaServer<IPlexConfig> {
           server: this.config.id!,
           // @ts-ignore
           name: item.parentTitle ? `${item.parentTitle} (${item.title})` : item.title,
-          url: `${this.webBaseUrl}#!/server/${serverIdentity}/details?key=${item.key.replace(/\/children$/, '')}`,
+          url: `${this.webBaseUrl}#!/server/${serverIdentity}/details?key=${item.key.replace(/\/children$/, "")}`,
           type: item.type === "movie" ? "Movie" : item.type,
           description: item.summary,
           // @ts-ignore

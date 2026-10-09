@@ -307,6 +307,7 @@ interface DelugeRawTorrent {
   download_payload_rate: number;
   total_uploaded: number;
   total_done: number;
+  private?: boolean;
   trackers?: Array<{ url: string; tier: number }>;
 }
 
@@ -333,6 +334,7 @@ export default class Deluge extends AbstractBittorrentClient {
     "label",
     "state",
     "total_size",
+    "private",
     "trackers",
   ];
 
@@ -483,6 +485,8 @@ export default class Deluge extends AbstractBittorrentClient {
         downloadSpeed: torrent.download_payload_rate,
         totalUploaded: torrent.total_uploaded,
         totalDownloaded: torrent.total_done,
+        isPrivate: torrent.private,
+        trackerUrls: (torrent.trackers ?? []).map((tracker) => tracker.url).filter(Boolean),
         raw: torrent,
         clientId: this.config.id,
       } as CTorrent<DelugeRawTorrent>;

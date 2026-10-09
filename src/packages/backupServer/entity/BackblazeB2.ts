@@ -91,10 +91,7 @@ interface B2DeleteFileResponse {
  * 计算 ArrayBuffer 的 SHA1 十六进制字符串
  */
 async function sha1Hex(data: ArrayBuffer): Promise<string> {
-  const hash = await crypto.subtle.digest("SHA-1", data);
-  return Array.from(new Uint8Array(hash))
-    .map((b) => b.toString(16).padStart(2, "0"))
-    .join("");
+  return new Uint8Array(await crypto.subtle.digest("SHA-1", data)).toHex();
 }
 
 // ── 主类 ─────────────────────────────────────────────────────────
@@ -234,7 +231,7 @@ export default class BackblazeB2 extends AbstractBackupServer<BackblazeB2Config>
     );
 
     // Step 2: 构建 zip blob
-    const fileBlob = await this.backupDataToJSZipBlob(file);
+    const fileBlob = await this.backupDataToZipBlob(file);
     const fileBuffer = await fileBlob.arrayBuffer();
     const sha1 = await sha1Hex(fileBuffer);
 
@@ -265,7 +262,7 @@ export default class BackblazeB2 extends AbstractBackupServer<BackblazeB2Config>
       },
     );
 
-    return await this.jsZipBlobToBackupData(data);
+    return await this.zipBlobToBackupData(data);
   }
 
   async deleteFile(path: string): Promise<boolean> {

@@ -1,10 +1,10 @@
-import { stringify } from "urlencode";
 import { onMessage } from "@/messages.ts";
 import { extStorage } from "@/storage.ts";
+import { stringifyQuery } from "@ptd/utils/url.ts";
 
 export function openOptionsPage(url?: string | { path: string; query?: Record<string, any> }) {
   if (url && typeof url !== "string") {
-    url = url.path + (url.query ? "?" + stringify(url.query) : "");
+    url = url.path + (url.query ? "?" + stringifyQuery(url.query) : "");
   }
   url ??= "/";
 

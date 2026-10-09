@@ -163,6 +163,23 @@ export interface CTorrent<RAW = any> {
    */
   totalDownloaded: number;
 
+  /**
+   * 是否为私有种子（由 BT 客户端提供）
+   * - true：私有种子
+   * - false：公开种子
+   * - undefined：当前客户端未提供该信息（未知）
+   */
+  isPrivate?: boolean;
+
+  /**
+   * 种子的 tracker 地址列表
+   *
+   * 如果客户端在获取种子列表时已经返回了 tracker 信息（如 Transmission / Deluge / Flood / qBittorrent），
+   * 则直接填充该字段，避免再为每个种子发起额外的请求；未提供时为 undefined，
+   * 此时可调用 `getTorrentTrackers` 按需获取
+   */
+  trackerUrls?: string[];
+
   raw: RAW;
   clientId: string;
 }

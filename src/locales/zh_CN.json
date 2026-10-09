@@ -310,6 +310,10 @@
     "refresh": "刷新",
     "resumeSelected": "开始",
     "searchPlaceholder": "搜索种子名称、Hash、标签、路径",
+    "sitePublic": "公网种子",
+    "sitePublicTip": "公网种子：客户端标记为公开种子，或其 tracker 仅匹配到公开站点",
+    "siteUnmatched": "未匹配",
+    "siteUnmatchedTip": "未匹配到已添加的站点：若该站点使用了独立的 tracker 域名，可在站点定义中补充 trackerUrls",
     "speedLimit": {
       "batchBtn": "批量限速",
       "download": "下载限速（KiB/s，0 表示不限速）",
@@ -1094,8 +1098,12 @@
       "oneClickImport": "一键导入站点",
       "reBuildMap": "重建站点映射",
       "settingNote": ["只有配置过的站点才会显示插件图标及相应的功能；", "已离线的站点不再参与搜索和信息获取；"],
+      "sortIndexRedistributed": "站点优先级已重新分配（站点的先后顺序不变）",
       "table": {
         "flushFavicon": "刷新站点图标",
+        "moveDown": "下移一位（长按移至最后）",
+        "moveNeedSortIndex": "按「№」列排序后才能调整站点顺序",
+        "moveUp": "上移一位（长按移至最前）",
         "searchEntries": "搜索入口"
       }
     },
@@ -1186,12 +1194,14 @@
       "siteDisplay": "站点展示组件",
       "statsSection": "统计部分",
       "styleSettings": "时间轴样式设置",
+      "textColor": "其他文本颜色",
       "timeAdded": "发生时间",
       "timeAlive": "过去时间",
       "timeDisplay": "时间显示方式",
       "timelineSection": "时间轴部分",
       "timelineTitle": "时间轴标题",
-      "usernameAndTitle": "用户名及标题"
+      "usernameAndTitle": "用户名及标题",
+      "userNameColor": "用户名颜色"
     },
     "exportFilename": "{name}的时间轴（{date}）",
     "field": {

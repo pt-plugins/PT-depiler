@@ -5,13 +5,9 @@ import {
   IMediaServerMetadata,
   IMediaServerSearchOptions,
   IMediaServerSearchResult,
-} from "@ptd/mediaServer";
+} from "../types";
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from "axios";
-import {
-  IEmbyQueryItem,
-  IEmbyQueryResult,
-  IEmbySystemInfo as IJellyfinSystemInfo,
-} from "@ptd/mediaServer/entity/emby.ts";
+import { IEmbyQueryItem, IEmbyQueryResult, IEmbySystemInfo as IJellyfinSystemInfo } from "./emby.ts";
 import { EResultParseStatus } from "@ptd/site";
 import { toMerged } from "es-toolkit";
 import urlJoin from "url-join";

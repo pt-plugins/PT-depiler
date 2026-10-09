@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import JSZip from "jszip";
+import { strFromU8, unzipSync } from "fflate";
 import { nanoid } from "nanoid";
 import { ref, shallowRef, watch } from "vue";
 import { useThrottledRefHistory } from "@vueuse/core";
@@ -29,9 +29,10 @@ async function loadPTPPBackupFile() {
   if (ptppUserDataFile.value instanceof File) {
     let ptppUserDataFileRawContent;
     if (ptppUserDataFile.value.name.match(/^PT-Plugin-Plus-Backup-.+\.zip$/)) {
-      const zip = new JSZip();
-      const zipContent = await zip.loadAsync(ptppUserDataFile.value);
-      ptppUserDataFileRawContent = await zipContent.file("userdatas.json")?.async("string");
+      // PTPP 的备份同样是标准 zip，直接取出其中的 userdatas.json（filter 让它只解压这一个条目）
+      const bytes = new Uint8Array(await ptppUserDataFile.value.arrayBuffer());
+      const userDatasEntry = unzipSync(bytes, { filter: (file) => file.name === "userdatas.json" })["userdatas.json"];
+      ptppUserDataFileRawContent = userDatasEntry ? strFromU8(userDatasEntry) : undefined;
     } else if (ptppUserDataFile.value.name == "userdatas.json") {
       ptppUserDataFileRawContent = await ptppUserDataFile.value.text();
     }

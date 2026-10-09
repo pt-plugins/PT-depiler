@@ -84,6 +84,7 @@ interface rawTorrent {
   id: number;
   hashString: string;
   isFinished: boolean;
+  isPrivate: boolean;
   name: string;
   percentDone: number;
   uploadRatio: number;
@@ -324,6 +325,7 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
     "id",
     "hashString",
     "isFinished",
+    "isPrivate",
     "name",
     "percentDone",
     "uploadRatio",
@@ -541,6 +543,8 @@ export default class Transmission extends AbstractBittorrentClient<TorrentClient
         downloadSpeed: torrent.rateDownload,
         totalUploaded: torrent.uploadedEver,
         totalDownloaded: torrent.downloadedEver,
+        isPrivate: torrent.isPrivate,
+        trackerUrls: (torrent.trackers ?? []).map((tracker) => tracker.announce).filter(Boolean),
         raw: torrent,
         clientId: this.config.id,
       } as CTorrent<rawTorrent>;

@@ -32,7 +32,7 @@ Luminance 是 Gazelle 的一个分支（Empornium / MoreThanTV / PixelCove 等�
 
 | 字段路径 | 默认值 | 行号 | definition 是否通常需要覆盖 |
 | --- | --- | --- | --- |
-| `version` | `0` | 8 | 现状定义写 `1`，改版过的站写 `2`（cgpeers / happyfappy / morethantv） |
+| `version` | `0` | 8 | 现状定义写 `1`，改版过的站往上加（happyfappy / morethantv 为 `2`，cgpeers 已到 `3`） |
 | `search.requestConfig` | `url: "/torrents.php"`、`responseType: "document"`、`params: { action: "advanced" }` | 10-16 | 换搜索接口或改每页数量时覆写（happyfappy 加 `perPage: 100`，cgpeers 改 `url: "/torrent/browse"`） |
 | `search.keywordPath` | `"params.title"` | 17 | 一般不改；站点走 torznab 时改成 `params.q`（morethantv） |
 | `search.selectors.rows` | `table#torrent_table:last tr:gt(0)` | 19 | 一般不改；`transformSearchPage` 只在未定义时兜底（`:243-247`） |
@@ -40,10 +40,10 @@ Luminance 是 Gazelle 的一个分支（Empornium / MoreThanTV / PixelCove 等�
 | `search.selectors.subTitle` | 汇总 `div.tags a[href]` 文本，`", "` 连接 | 26-41 | 一般不改 |
 | `search.selectors.time` | `span.time[title]` 的 `title`，`parseTime` | 44 | 一般不改 |
 | `search.selectors.category` | **未提供**（源码注释掉） | 45 | **需要**：现有定义全部自补 |
-| `search.selectors.status` / `progress` | 由下载链接内 `span` 的类名映射：`icon_disk_seed`→seeding、`icon_disk_leech`→downloading、`icon_disk_grabbed`→inactive；progress 只有 seed 为 100 | 46-61 | 站点图标类名不同就整套重写（empornium `:114-122`、cgpeers `:81-96`） |
+| `search.selectors.status` / `progress` | 由下载链接内 `span` 的类名映射：`icon_disk_seed`→seeding、`icon_disk_leech`→downloading、`icon_disk_grabbed`→inactive；progress 只有 seed 为 100 | 46-61 | 站点图标类名不同就整套重写（empornium `:114-122`、cgpeers `:85-100`） |
 | `search.selectors.tags` | 两项：`Free`（blue）、`2xUp`（lime） | 62-74 | 一般不改 |
 | `userInfo.pickLast` | `["id"]` | 79 | 一般不改 |
-| `userInfo.process` | 两步：先 `/` 取 `id`，再 `/user.php`（`assertion: { id: "params.id" }`）取 14 个字段 | 80-111 | 资料页路径不是 `/user.php?id=` 时改（cgpeers 改 `/user/$id$`） |
+| `userInfo.process` | 两步：先 `/` 取 `id`，再 `/user.php`（`assertion: { id: "params.id" }`）取 14 个字段 | 80-111 | 资料页路径不是 `/user.php?id=` 时改；整站改版、资料页不再是 Luminance 结构时，可像 cgpeers 那样把字段搬到一次 `/` 请求的步骤内 `selectors`（`definitions/cgpeers.ts:104-155`） |
 | `userInfo.selectors` | 15 个字段，见「用户信息」 | 112-193 | 站点改版时覆写；`category`/`levelName` 之外的字段基本能用 |
 | `userInfo.requestDelay` | **未提供** | — | 需要限速时补 |
 | `userInfo.donorConfig` | **未提供**，本引擎也不消费 | — | 写了无效（只有 `NexusPHP.ts:868-871` 消费） |
@@ -91,17 +91,17 @@ export const siteMetadata: ISiteMetadata = {
 ## 搜索配置要点
 
 - **默认请求**：`GET /torrents.php?action=advanced`，`responseType: "document"`，关键词写入 `params.title`（`:10-17`）。定义里加 `params` 时要展开默认值（happyfappy 只加 `perPage: 100` 并展开 `requestConfig`，`definitions/happyfappy.ts:78-83`）。
-- **高级搜索词**：`keywordPath` 是 `params.title`，站点的「全文搜索」参数是 `searchtext`，所以几乎每个定义都定义一个高级搜索词把 `params.title` 改名为 `params.searchtext`——有的是 `imdb`（cathoderaytube）、有的是自定义的 `terms`（happyfappy / kufirc / empornium）。按 `types/search.ts:106-113` 的约定，除 `imdb` 外的关键词必须显式声明，不支持时写 `imdb: false`（cgpeers `:60-62`、empornium `:89`）。
+- **高级搜索词**：`keywordPath` 是 `params.title`，站点的「全文搜索」参数是 `searchtext`，所以几乎每个定义都定义一个高级搜索词把 `params.title` 改名为 `params.searchtext`——有的是 `imdb`（cathoderaytube）、有的是自定义的 `terms`（happyfappy / kufirc / empornium）。按 `types/search.ts:106-113` 的约定，除 `imdb` 外的关键词必须显式声明，不支持时写 `imdb: false`（cgpeers `:64-66`、empornium `:89`）。
 - **默认覆盖的种子字段**：`rows`、`id`、`title`、`subTitle`、`url`、`link`、`time`、`status`、`progress`、`tags`（`:18-75`）——**没有 `category`**，也**没有 `size`/`seeders`/`leechers`/`completed`/`comments`/`author`**。
 - **列索引由类方法自动推导**：`guessSearchFieldIndexConfig()`（`:220-229`）把表头单元格匹配到 `size`/`seeders`/`leechers`/`completed`/`comments`/`author`，`transformSearchPage` 再据此生成 `> td:eq(N)` 选择器（`:250-274`）。因此覆盖 `search.selectors` 时不要手写这几列，除非站点表头无法识别。
-- **覆写 `search.selectors` 必须展开默认值**：`...SchemaMetadata.search!.selectors`，同时外层还要 `...SchemaMetadata.search`（`definitions/cgpeers.ts:54-97`、`definitions/empornium.ts:86-123`、`definitions/happyfappy.ts:76-78`）。
+- **覆写 `search.selectors` 必须展开默认值**：`...SchemaMetadata.search!.selectors`，同时外层还要 `...SchemaMetadata.search`（`definitions/cgpeers.ts:58-101`、`definitions/empornium.ts:86-123`、`definitions/happyfappy.ts:76-78`）。
 - **category 写法**：分类筛选统一用 `key: "filter_cat"` + `cross: { mode: "appendQuote" }`，生成 `requestConfig.params.filter_cat = { "1": 1 }`（`SetSearchSolution/utils.ts:66-68`），由 axios 序列化。优惠项可用两种写法：`{ key: "filter_freeleech" }`（不写 `cross`，`definitions/cathoderaytube.ts:36-39`）或 `{ key: "free", cross: { mode: "append", key: "" } }`（生成 `params.filter_freeleech = 1`，`definitions/happyfappy.ts:68-73`）。标签组合筛选用 `cross: { mode: "custom" }` + `generateRequestConfig` 拼 `taglist=a+b`（`definitions/happyfappy.ts:43-67`、`definitions/kufirc.ts:80-102`）。
 - **`searchEntry`**：SchemaMetadata 未提供，现有 Luminance 定义也都没用；默认搜索入口直接用 `search.requestConfig`（`types/site.ts:139-144`）。`list` 里的 `keywords` 选择器也不需要写，会按 `keywordPath` 推断。
-- **`detail`**：默认已能解析 `title`/`id`/`link`，一般不用改；cgpeers 因为详情页是另一套模板而覆写了三个字段（`definitions/cgpeers.ts:147-155`），覆写时同样要展开默认值。
+- **`detail`**：默认已能解析 `title`/`id`/`link`，一般不用改；cgpeers 因为详情页是另一套模板而覆写了三个字段（`definitions/cgpeers.ts:157-165`），覆写时同样要展开默认值。
 
 ## 用户信息（userInfo）
 
-- **两步 process**（`:80-111`）：第 1 步请求 `/`（`responseType: "document"`）只取 `id`；第 2 步请求 `/user.php`，用 `assertion: { id: "params.id" }` 把 id 写进查询参数，取 `name`、`joinTime`、`lastAccessAt`、`uploaded`、`downloaded`、`levelName`、`bonus`、`ratio`、`uploads`、`bonusPerHour`、`seeding`、`seedingSize`、`messageCount`、`posts`。资料页路径不同的站只需重写第 2 步的 `requestConfig.url` 与 `assertion`（cgpeers 改成 `/user/$id$` + `assertion: { id: "url" }`，`definitions/cgpeers.ts:100-127`）。
+- **两步 process**（`:80-111`）：第 1 步请求 `/`（`responseType: "document"`）只取 `id`；第 2 步请求 `/user.php`，用 `assertion: { id: "params.id" }` 把 id 写进查询参数，取 `name`、`joinTime`、`lastAccessAt`、`uploaded`、`downloaded`、`levelName`、`bonus`、`ratio`、`uploads`、`bonusPerHour`、`seeding`、`seedingSize`、`messageCount`、`posts`。资料页路径不同的站只需重写第 2 步的 `requestConfig.url` 与 `assertion`。**整站改版后资料页不再是 Luminance 结构时**（如 cgpeers 把上传/下载/分享率/积分搬到了全局顶栏），应把整个 `process` 改成一次 `/` 请求，并在步骤内用 `selectors` 声明要取的字段与选择器，而不是继续覆写全局 `userInfo.selectors`（`definitions/cgpeers.ts:104-155`；分层约定见 `types/site.ts:355-363`）。
 - **selectors 默认覆盖 15 个字段**（`:112-193`）：`id`、`name`、`joinTime`、`lastAccessAt`、`uploaded`、`downloaded`、`levelName`、`bonus`、`ratio`、`uploads`、`bonusPerHour`、`seeding`、`seedingSize`、`messageCount`、`posts`。**未覆盖**：`snatches`、`leeching`、`invites`、`avatar`、`isDonor`、`hnrUnsatisfied`、`trueRatio`、`seedingTime`。
 - **`seedingSize` 走动态钩子**：`AbstractPrivateSite.getUserInfoResult` 会用 `parseUserInfoFor${pascalCase(field)}` 找同名方法（`AbstractPrivateSite.ts:177-181`），因此 `process` 里的 `seedingSize` 会命中 `parseUserInfoForSeedingSize`（`:286-303`）：先按 `userInfo.selectors.seedingSize`（`ul.stats > li:contains('Seeding Size:')`，`:183`）直读，读不到再回落到 `GazelleBase.getSeedingSize(userId)` 翻做种列表累加（`Gazelle.ts:377-423`，请求 `/torrents.php?userid=&page=&type=seeding`）。**改字段名会连带改掉这个钩子名**。
 - **`pickLast` 默认 `["id"]`**（`:79`）：缓存里拿到 id 时第 1 步会被跳过（`AbstractPrivateSite.ts:138-141`）。覆写 `userInfo` 时要展开 `...SchemaMetadata.userInfo!` 才能保留它。
@@ -128,7 +128,7 @@ export const siteMetadata: ISiteMetadata = {
 ## 范例定义
 
 - `definitions/cathoderaytube.ts` — 最小标准写法：`filter_cat` + `filter_freeleech` 分类、从 `td.cats_col > div[title] > a` 的 href 反解分类名、`imdb` 高级搜索词改写为 `searchtext`。
-- `definitions/cgpeers.ts` — 改版站：搜索地址换成 `/torrent/browse`、整段覆写 `search.selectors`（含 `status`/`progress`）、`userInfo.process` 改成 `/user/$id$`、覆写 `detail.selectors`。
+- `definitions/cgpeers.ts` — 改版站：搜索地址换成 `/torrent/browse`、整段覆写 `search.selectors`（含 `status`/`progress`）、`userInfo.process` 收成一次 `/` 请求并在步骤内用 `selectors` 取顶栏数据（不再覆写全局 `userInfo.selectors`）、覆写 `detail.selectors`。
 - `definitions/happyfappy.ts` — 用 `buildCategoryOptionsFromList` + `cross: { mode: "custom" }` + `generateRequestConfig` 实现 `taglist=a+b` 组合筛选；`perPage: 100`；自定义 `terms` 高级搜索词。
 - `definitions/empornium.ts` — 站点图标类名不同，整套重写 `status` 的 `case` 映射；`advanceKeywordParams.imdb: false` 并新增 `terms`。
 - `definitions/morethantv.ts` — 唯一导出 default class 的定义：搜索整体切到 `/api/torznab` XML（`skipNonLatinCharacters: true`、`keywordPath: "params.q"`、手写全部选择器），并覆写 `getTorrentDownloadLink`。
@@ -140,8 +140,8 @@ export const siteMetadata: ISiteMetadata = {
 2. **列索引不考虑 colspan**：Luminance 用 `elementIndex` 直接生成 `> td:eq(N)`（`:250-273`），而 Gazelle 会累加 `colSpan`（`Gazelle.ts:490-503`）。列表页有合并单元格的站点会整体错位，需要覆写 `transformSearchPage`。
 3. **列选择器自动生成依赖 `table#torrent_table` 的表头**：`:240`、`:250` 取的是 `table#torrent_table:last tr:first > td`，XML/JSON 接口的响应里没有这些表头，自动生成会静默失效——morethantv 因此手写了 `rows`/`id`/`title`/`link`/`size`/`seeders` 等全部字段（`definitions/morethantv.ts:85-107`）。
 4. **`rows` 已定义就不再兜底**：`:243-247` 只在 `searchEntry.selectors.rows` 为空时才生成 `table#torrent_table:last tr:gt(0)`。
-5. **覆盖 `search.selectors` 必须展开默认值**：否则会丢掉 `rows`/`title`/`url`/`link`/`time`/`status`/`progress`/`tags`（`definitions/cgpeers.ts:63-97` 是正确写法）。
-6. **只写 `userInfo: { selectors: {...} }` 会丢 `pickLast` 与 `process`**：标准写法是先 `...SchemaMetadata.userInfo!`（`definitions/cgpeers.ts:100-129`）。
+5. **覆盖 `search.selectors` 必须展开默认值**：否则会丢掉 `rows`/`title`/`url`/`link`/`time`/`status`/`progress`/`tags`（`definitions/cgpeers.ts:58-101` 是正确写法）。
+6. **只写 `userInfo: { selectors: {...} }` 会丢 `pickLast` 与 `process`**：标准写法是先 `...SchemaMetadata.userInfo!`（`definitions/cgpeers.ts:104-155`）。若该站点自己掌控 `process`，应改用 `process[*].selectors` 声明字段，而不是覆写全局 `userInfo.selectors`。
 7. **`tags` 默认选择器是网页类名**：`span.icon[title*='Freeleech']` / `img[alt='DoubleSeed']`（`:66`、`:71`），对没有这些图标的接口返回不会命中，需要整段重写（morethantv 用 `[name="downloadvolumefactor"][value="0"]`，`definitions/morethantv.ts:102`）。
 8. **`status`/`progress` 用 `case` + `Sizzle.matchesSelector` 判定**（`:46-61`）：`case` 的键是 CSS 选择器，站点换图标类名后不会报错，只会全部落到默认值 `unknown` / `0`。
 9. **`timezoneOffset` 没有默认值**：`index.ts:60` 对非 NexusPHP 站点回落 `"+0000"`；有些定义仍显式写 `"+0000"`（冗余），Empornium 写 `"-1100"`（`definitions/empornium.ts:63`）——时区错了会让 `time`/`lastAccessAt` 偏移。

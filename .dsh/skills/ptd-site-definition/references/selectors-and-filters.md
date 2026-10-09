@@ -336,6 +336,41 @@ category: [{
 
 `levelName` 拿到但 `levelId` 缺失时，会用 `levelRequirements` 推断（`AbstractPrivateSite.ts:194-197`，`utils/level.ts:300`）。
 
+### 用 `fields` 还是 `selectors` 声明字段
+
+两者都参与「这一步取什么」的判定（`fields ∪ keys(selectors)`），**二选一**，按层分工（约定写在 `types/site.ts:355-363`）：
+
+| 写在哪一层 | 用什么声明字段 | 为什么 |
+| --- | --- | --- |
+| schema（`schemas/*.ts`） | `process[*].fields` | 字段清单在步骤里，选择器集中在全局 `userInfo.selectors`；definition 只覆写选择器即可快速适配改版，请求流程（步骤划分、`requestConfig`、`assertion`）保持不动 |
+| definition（`definitions/*.ts`） | `process[*].selectors` | definition 自己掌控整个 `process`，选择器的键就是字段清单，一处声明即可明确「这次请求要取哪些内容」，不会出现字段与选择器各写一份而对不上 |
+
+definition 侧的写法（键即字段清单，不要再写 `fields`）：
+
+```ts
+userInfo: {
+  ...SchemaMetadata.userInfo!,
+  process: [
+    {
+      requestConfig: { url: "/", responseType: "document" },
+      // 键即本步骤要取的字段：id / name / uploaded / downloaded
+      selectors: {
+        id: { selector: "a.user-menu", attr: "href", filters: [(q) => q.match(/\d+/)?.[0]] },
+        name: { selector: "a#userDropdownTrigger" },
+        uploaded: { selector: "... span.stat-card-value", filters: [{ name: "parseSize" }] },
+        downloaded: { selector: "... span.stat-card-value", filters: [{ name: "parseSize" }] },
+      },
+    },
+  ],
+},
+```
+
+范例：`definitions/myanonamouse.ts:276-396`（两步全部用 `selectors`）、`definitions/cgpeers.ts:104-155`（单步，字段全部来自全局顶栏）。
+
+某一步写了 `selectors[字段]` 时该步优先用它，同名键的全局 `userInfo.selectors` 只作回落（`AbstractPrivateSite.ts:184`）；同一步里既写 `fields` 又写这些字段的选择器属于重复声明。
+
+**例外：由 `parseUserInfoFor<字段名>` 钩子解析的字段**（如 Luminance 的 `seedingSize`、NexusPHP 的 `uploads`）也必须写进该步骤的 `fields` 或 `selectors`，否则框架不会处理它；但取值由钩子决定——钩子优先于选择器（`AbstractPrivateSite.ts:177-191`），步骤里的选择器只起「声明该字段」的作用，真正的选择器写在 `userInfo.selectors` 或钩子内部。`definitions/cgpeers.ts` 覆写 `parseUserInfoForSeedingSize` 即为该写法（父类钩子会回落到站点已不存在的 `/torrents.php`，必须覆写）。
+
 ## 调试用法
 
 - `filters: [{ name: "dump" }]`：把中间值打到控制台。

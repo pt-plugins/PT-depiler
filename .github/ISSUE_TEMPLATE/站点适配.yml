@@ -1,0 +1,144 @@
+name: 站点适配
+description: 发起一个新站点的支持请求（需提供可用的测试账号/邀请，否则无法保证适配）
+title: "[站点适配] "
+labels: ["adapter/site"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        ## 提交前请务必阅读
+
+        PT 站点大多**不开放注册**，适配一个站点需要开发者能登录并考察其页面结构、用户信息与搜索接口。
+        因此一个只有「求适配 XX 站」的 issue 是**无法推进**的——没有测试账号，开发者无法验证选择器，也无法保证通过站点的考核。
+
+        1. 发起请求前，请先确认该站点**尚未被支持**：见 [站点支持状态](https://pt-plugins.github.io/monitor/)；
+        2. 如果该站点**已被支持**，本 issue 会被视为无效并关闭（请改用「站点问题反馈」模板）；
+        3. 如果你是开发者，请按 Wiki 文档自行适配并提交 PR；
+        4. 如果你是站点管理者，请在发起 issue 后通过 [Telegram 群](https://t.me/joinchat/NZ9NCxPKXyby8f35rn_QTw) 与开发人员联系；
+        5. 如果你是普通用户，**无法发送邀请或无法提供临时账号，请不要提交**，因为开发人员无法对其适配且无法保证完成考核；
+        6. 如有多个站点需求，请各自单独发起。
+
+        > ⚠️ **请勿在本 issue 中公开账号密码**，接触方式请在下方说明，具体凭据通过 Telegram 私下提供。
+
+  - type: checkboxes
+    id: precheck
+    attributes:
+      label: 提交前确认（请全部勾选）
+      options:
+        - label: 我已确认该站点**不在** [已支持站点列表](https://pt-plugins.github.io/monitor/) 中，也不是已有的重复请求
+          required: true
+        - label: 我能提供**可用的测试账号或邀请**，或我本身就是站点管理者/开发者，可配合完成适配
+          required: true
+        - label: 我理解：本 issue 中**不会**出现账号、密码、邀请码等敏感凭据
+          required: true
+
+  - type: input
+    id: site_name
+    attributes:
+      label: 站点名称（必填）
+      description: 请填写站点正式名称（以及常用简称），便于匹配与去重
+      placeholder: 例如 HDFans（俗称：憨憨）
+    validations:
+      required: true
+      min_length: 2
+
+  - type: input
+    id: site_url
+    attributes:
+      label: 站点地址（必填）
+      description: 请填写完整域名，有多个域名/镜像的请一并列出
+      placeholder: 例如 https://hdfans.org/
+    validations:
+      required: true
+      min_length: 8
+
+  - type: dropdown
+    id: engine
+    attributes:
+      label: 站点架构（必填）
+      description: 如已知请选择；不确定可在站点页面按 F12 或询问站点管理者，选「不清楚」也可以
+      options:
+        - NexusPHP
+        - Unit3D
+        - Gazelle
+        - Gazelle (JSON API)
+        - AvistazNetwork
+        - Luminance
+        - Rartracker
+        - TCG
+        - 不清楚 / 其他
+    validations:
+      required: true
+
+  - type: textarea
+    id: other_software_adapters
+    attributes:
+      label: 是否有其它软件已适配该站点？（必填，有则请附链接）
+      description: |
+        例如 Jackett、Prowlarr、MoviePilot、autobrr、cross-seed 等是否已支持该站点。
+        如果这些项目里已有现成的定义文件 / 源码 / 站点 API 文档链接，请贴在这里 —— 开发者可以直接参考其选择器与接口调用，适配速度会快很多。
+        确实没有、或你不了解时，请填「无」或「不清楚」，不要留空。
+      placeholder: |
+        - Jackett：例如 https://github.com/Jackett/Jackett/blob/master/src/Jackett.Common/Definitions/xxx.yml
+        - Prowlarr：例如 https://github.com/Prowlarr/Prowlarr/blob/develop/src/NzbDrone.Core/Indexers/Definitions/Xxx.cs
+        - MoviePilot：例如 https://github.com/jxxghp/MoviePilot/blob/main/app/helper/sites/xxx.py
+        - 其它（autobrr、cross-seed、站点 API 文档、第三方脚本等）：
+        - 若均无：
+    validations:
+      required: true
+
+  - type: input
+    id: category
+    attributes:
+      label: 资源类型（必填）
+      description: 站点主要内容类型，可多填
+      placeholder: 例如 影视 / 综合 / 音乐 / 电子书 / 游戏 / 学习资料
+    validations:
+      required: true
+      min_length: 2
+
+  - type: dropdown
+    id: open_registration
+    attributes:
+      label: 开放注册（必填）
+      options:
+        - 是（当前可自由注册）
+        - 否（仅邀请注册）
+        - 限时开放
+        - 不清楚
+    validations:
+      required: true
+
+  - type: textarea
+    id: site_rules
+    attributes:
+      label: 站点规则 / 限制（必填）
+      description: 例如是否允许第三方工具抓取、API 或搜索频率限制、分享率与 H&R 规则、等级制度、是否强制二次验证、是否启用 CloudFlare 防护等
+      placeholder: |
+        - 分享率 / H&R 规则：
+        - 搜索频率或 API 限制：
+        - 是否允许插件类工具：允许 / 禁止 / 未明确
+        - 其他注意事项：
+    validations:
+      required: true
+      min_length: 20
+
+  - type: textarea
+    id: access
+    attributes:
+      label: 测试账号 / 邀请的提供方式（必填）
+      description: 请说明你能如何提供访问权限（注意：**不要**在此填写账号密码本身）
+      placeholder: |
+        例如：可提供限时临时账号，已在 Telegram 群中联系 @xxx，可私聊提供；
+        或：我是站点管理者，可长期提供测试账号
+    validations:
+      required: true
+      min_length: 15
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: 其他补充信息
+      description: 例如站点的特色功能、已有适配过的同架构站点、你希望优先支持的功能等
+    validations:
+      required: false

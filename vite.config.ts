@@ -4,7 +4,6 @@ import path from "node:path";
 
 // Vite And it's plugins
 import { defineConfig } from "vite";
-import { nodePolyfills } from "vite-plugin-node-polyfills";
 import vue from "@vitejs/plugin-vue";
 import vuetify from "vite-plugin-vuetify";
 import VueDevTools from "vite-plugin-vue-devtools";
@@ -62,12 +61,18 @@ export default defineConfig({
   },
   plugins: [
     vitePluginGenerateWebextLocales(),
-    nodePolyfills({
-      include: ["buffer", "path"],
-      globals: {
-        Buffer: true,
-      },
-    }),
+    // 这里曾有 `vite-plugin-node-polyfills`（`include: ["buffer","path"]` + `globals.Buffer`）。2026-10-08 移除，
+    // 因为本仓已不再有任何 Node 内建的运行时依赖：
+    //   · `buffer`：源码里最后一处用法（downloader 把 ArrayBuffer 转成 Buffer 交给 parse-torrent）
+    //     已改为零拷贝的 `new Uint8Array(...)`；
+    //   · `path`：唯一使用方 parse-torrent 只用 `join` + `sep`，已由下面的 `resolve.alias` 指向自实现；
+    //   · `global` / `process` / 裸 `Buffer`：该插件的 globals 是经 `@rollup/plugin-inject` 实现的，
+    //     **只有代码里真的出现裸标识符才会注入**，现已无任何引用（实测产物里零注入痕迹）。
+    // 移除前后产物完全等价：10.21MB / 814 文件，各入口 chunk 体积逐一致（background 132.6KB、cs-app 225KB、
+    // options index 60KB），无 `__vite-browser-external-*` 桩，path-browserify 与 buffer 垫片均为 0。
+    //
+    // ⚠️ 将来若新增的依赖 import 了 Node 内建：`path` 认下面那条 alias；其余需要像 `src/extends/shims/`
+    // 那样补一个等价实现（**不要**重新引入多模块垫片 —— 它们会把用不到的十几个成员一起打进产物）。
     VueDevTools({
       launchEditor: fs.existsSync(base_path("./.idea")) ? "webstorm" : "vscode",
     }),
@@ -111,9 +116,13 @@ export default defineConfig({
           service_worker: "src/entries/background/main.ts",
         },
 
-        // 在 Firefox 中，background 不能使用 service_worker
+        // 在 Firefox 中，background 不能使用 service_worker。
+        // 这里必须使用 page（HTML 入口）而不是 scripts：scripts 入口会被插件以 build.lib + iife
+        // 打成单文件，IIFE 不允许代码分割，会把 offscreen 的整条依赖图内联进后台脚本，
+        // 并与 options 页的 vendor chunk 重复（产物约 +1.8MB / +16%）。
+        // 使用 page 后后台进入多页 ESM 构建，与 options / cs-app 共享 chunk。
         "{{firefox}}.background": {
-          scripts: ["src/entries/background/ff_main.ts"],
+          page: "src/entries/background/firefox_main.html",
         },
 
         omnibox: {
@@ -179,6 +188,20 @@ export default defineConfig({
         plugins: [
           {
             name: "cs-app-entry",
+            // Firefox 的后台页（firefox_main.html）是纯逻辑页面，不需要任何样式；
+            // 但 cssCodeSplit=false 会让 Vite 把整份 pt-depiler.css 注入该构建的**每个** HTML 入口
+            // （见下方 config 中的 cssCodeSplit），后台事件页每次唤醒都要白加载解析这份 CSS。
+            // Vite 在 generateBundle 里先注入 CSS link、再执行 transformIndexHtml，
+            // 因此这里可以精确摘掉那条注入的 link，且只作用于 firefox_main.html。
+            transformIndexHtml: {
+              order: "post",
+              handler(html, ctx) {
+                if (!ctx.filename.endsWith("firefox_main.html")) return html;
+                return html.replace(/[ \t]*<link\b[^>]*>[ \t]*\r?\n?/g, (tag) =>
+                  /rel="stylesheet"/.test(tag) && /pt-depiler\.css/.test(tag) ? "" : tag,
+                );
+              },
+            },
             config(config) {
               // content script 的重逻辑（Vue/Vuetify/站点包）挂到多页 ESM 构建中作为额外入口，
               // 产物 assets/cs-app.js 由轻量引导在匹配站点时通过 chrome.runtime.getURL 动态加载，
@@ -271,11 +294,15 @@ export default defineConfig({
     }),
   ],
   resolve: {
-    alias: {
-      "~": base_path("./src"),
-      "@": base_path("./src/entries"),
-      "@ptd": base_path("./src/packages"),
-    },
+    alias: [
+      // `parse-torrent` 会 `import path from "path"`，而它只用到 `join` + `sep`
+      // （见 src/extends/shims/path.ts 的开头注释）。用本仓的最小实现接管，
+      // 换掉 path-browserify 的 478 行实现。用正则做精确匹配，避免误伤 `path/xxx` 子路径。
+      { find: /^(node:)?path$/, replacement: base_path("./src/extends/shims/path.ts") },
+      { find: "~", replacement: base_path("./src") },
+      { find: "@", replacement: base_path("./src/entries") },
+      { find: "@ptd", replacement: base_path("./src/packages") },
+    ],
   },
   define: {
     __BROWSER__: JSON.stringify(target),

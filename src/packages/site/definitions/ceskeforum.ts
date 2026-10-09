@@ -17,6 +17,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["https://t.ceskeforum.com/"],
+  favicon: "./_default_nexusphp.png",
 
   // 注：以 Jackett ceskeforum.yml 的分类为准；PDS 提供的 1-10 分类与本站实际（401 起的 NexusPHP 标准）不符
   category: [

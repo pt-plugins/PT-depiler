@@ -126,7 +126,7 @@ export default class DropBox extends AbstractBackupServer<DropBoxConfig> {
         headers: {
           "Dropbox-API-Arg": JSON.stringify({ path: `/${fileName}`, mode: "overwrite" }),
         },
-        data: await this.backupDataToJSZipBlob(file),
+        data: await this.backupDataToZipBlob(file),
       });
 
       return !!data.is_downloadable;
@@ -144,7 +144,7 @@ export default class DropBox extends AbstractBackupServer<DropBoxConfig> {
       responseType: "blob",
     });
 
-    return await this.jsZipBlobToBackupData(data);
+    return await this.zipBlobToBackupData(data);
   }
 
   public async deleteFile(path: string): Promise<boolean> {

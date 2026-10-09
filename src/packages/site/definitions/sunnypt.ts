@@ -5,7 +5,6 @@ import { type AxiosRequestConfig, type AxiosResponse } from "axios";
 
 import { ISearchInput, type ISiteMetadata, type ITorrent } from "../types";
 import PrivateSite from "../schemas/AbstractPrivateSite.ts";
-import { xiaomloveDefaultUserLevelRequirements } from "../schemas/NexusPHP.ts";
 
 interface ISunnyPtResponse<T> {
   code: number;
@@ -31,6 +30,27 @@ interface ISunnyPtTorrent {
   promotion: { is_active: boolean; up_multiplier: number; down_multiplier: number; until: string };
   details_url: string;
 }
+
+/**
+ * SunnyPT 的 `data.class` 取自 NexusPHP 的原始 class 常量：
+ *   0 Peasant / 1 User / 2 Power User / 3 Elite User / 4 Crazy User / 5 Insane User /
+ *   6 Veteran User / 7 Extreme User / 8 Ultimate User / 9 Nexus Master /
+ *   10 VIP / 11 Retiree / 12 Uploader / 13 Moderator / 14 Administrator / 15 Sysop / 16 Staff Leader
+ *
+ * 其中用户等级与该 class 值一一对应，VIP/管理组则需按 types/userinfo.ts 的组别约定
+ * （user 0-99、vip 100-199、manager 200-299）重新编号，故在此做一次换算。
+ */
+const levelIdFromClass: Record<number, number> = {
+  10: 100, // VIP
+  11: 200, // Retiree
+  12: 201, // Uploader
+  13: 202, // Moderator
+  14: 203, // Administrator
+  15: 204, // Sysop
+  16: 205, // Staff Leader
+};
+
+const getLevelIdFromClass = (userClass: number): number => levelIdFromClass[userClass] ?? userClass;
 
 export const siteMetadata: ISiteMetadata = {
   version: 2,
@@ -122,13 +142,162 @@ export const siteMetadata: ISiteMetadata = {
           leeching: { selector: "data.leeching_count" },
           messageCount: { selector: "data.unread_messages" },
           levelName: { selector: "data.level" },
-          levelId: { selector: "data.class" },
+          levelId: { selector: "data.class", filters: [getLevelIdFromClass] },
         },
       },
     ],
   },
 
-  levelRequirements: [...xiaomloveDefaultUserLevelRequirements],
+  /**
+   * 站点用户等级列表，等级名称与要求来自 #1557 中用户提供的站点规则页内容。
+   *
+   * 注意：`GET /profile` 返回的 `data.class` 是 NexusPHP 的原始 class 常量
+   * （0 = Peasant、1 = User … 9 = Nexus Master、10 = VIP … 16 = Staff Leader）。
+   * 用户等级的 id 直接取该 class 值；VIP/管理组按 types/userinfo.ts 的组别约定
+   * （user 0-99、vip 100-199、manager 200-299）编号，由 levelId 的 filters 换算。
+   * 若像此前那样直接复用 xiaomloveDefaultUserLevelRequirements（id 从 1 起），等级会整体错判一级
+   * （#1557：站点上的 Insane User 被显示为 Crazy User，且下一级要求错位为 250000 做种积分）。
+   *
+   * 其中 User（海贼新人）、Administrator（海军大将）、Sysop（五老星）、Staff Leader（海军元帅）
+   * 四级未出现在 #1557 的列表中，名称按其命名规则补全，仍需与站点核对。
+   */
+  levelRequirements: [
+    {
+      id: 0, // Peasant
+      name: "Peasant（漂泊之人）",
+      privilege:
+        "被降级的用户，他们有30天时间来提升分享率，否则他们会被踢。不能发表趣味盒内容;不能申请友情链接;不能上传字幕。",
+    },
+    {
+      id: 1, // User
+      name: "User（海贼新人）",
+      privilege: "新用户的默认级别。只能在每周六中午12点至每周日晚上11点59分发布种子。",
+    },
+    {
+      id: 2, // Power User
+      name: "Power User（船团精英）",
+      interval: "P4W",
+      downloaded: "50GB",
+      ratio: 1.05,
+      seedingBonus: 40000,
+      privilege:
+        "得到一个邀请名额;可以直接发布种子;可以查看NFO文档;可以查看用户列表;可以请求续种;可以发送邀请;" +
+        "可以查看排行榜;可以查看其它用户的种子历史(如果用户隐私等级未设置为”强”);可以删除自己上传的字幕。",
+    },
+    {
+      id: 3, // Elite User
+      name: "Elite User（海贼船长）",
+      interval: "P8W",
+      downloaded: "120GB",
+      ratio: 1.55,
+      seedingBonus: 80000,
+      privilege: "Elite User及以上用户封存账号后不会被删除。",
+    },
+    {
+      id: 4, // Crazy User
+      name: "Crazy User（过亿海贼）",
+      interval: "P15W",
+      downloaded: "300GB",
+      ratio: 2.05,
+      seedingBonus: 150000,
+      privilege: "得到两个邀请名额;可以在做种/下载/发布的时候选择匿名模式。",
+    },
+    {
+      id: 5, // Insane User
+      name: "Insane User（超新星）",
+      interval: "P25W",
+      downloaded: "500GB",
+      ratio: 2.55,
+      seedingBonus: 250000,
+      privilege: "可以查看普通日志。",
+    },
+    {
+      id: 6, // Veteran User
+      name: "Veteran User（王下七武海）",
+      interval: "P40W",
+      downloaded: "750GB",
+      ratio: 3.05,
+      seedingBonus: 400000,
+      isKept: true,
+      privilege: "得到三个邀请名额；可以查看其它用户的评论、帖子历史。Veteran User及以上用户会永远保留账号。",
+    },
+    {
+      id: 7, // Extreme User
+      name: "Extreme User（海上皇帝）",
+      interval: "P60W",
+      downloaded: "1TB",
+      ratio: 3.55,
+      seedingBonus: 600000,
+      isKept: true,
+      privilege: "可以更新过期的外部信息；可以查看Extreme User论坛。",
+    },
+    {
+      id: 8, // Ultimate User
+      name: "Ultimate User（海贼王）",
+      interval: "P80W",
+      downloaded: "1.5TB",
+      ratio: 4.05,
+      seedingBonus: 800000,
+      isKept: true,
+      privilege: "得到五个邀请名额。",
+    },
+    {
+      id: 9, // Nexus Master
+      name: "Nexus Master（传说海贼）",
+      interval: "P100W",
+      downloaded: "3TB",
+      ratio: 4.55,
+      seedingBonus: 1000000,
+      isKept: true,
+      privilege: "得到十个邀请名额。",
+    },
+    {
+      id: 100, // VIP
+      groupType: "vip",
+      name: "VIP（天龙人）",
+      privilege: "和Nexus Master拥有相同权限并被认为是精英成员。免除自动降级。",
+    },
+    {
+      id: 200, // Retiree
+      groupType: "manager",
+      name: "Retiree（隐世豪杰）",
+      privilege: "退休后的管理组成员。",
+    },
+    {
+      id: 201, // Uploader
+      groupType: "manager",
+      name: "Uploader（CP0）",
+      privilege: "专注的发布者。免除自动降级；可以查看匿名用户的真实身份。",
+    },
+    {
+      id: 202, // Moderator
+      groupType: "manager",
+      name: "Moderator（本部中将）",
+      privilege:
+        "可以查看管理组信箱、举报信箱；管理趣味盒内容、投票内容；可以编辑或删除任何发布的种子；可以管理候选；" +
+        "可以管理论坛帖子、用户评论；可以查看机密日志；可以删除任何字幕；可以管理日志中的代码、史册；" +
+        "可以查看用户的邀请记录；可以管理用户帐号的一般信息。不能管理友情链接、最近消息、论坛版块；" +
+        "不能将种子设为置顶或促销；不能查看用户IP或Email等机密信息；不能删除账号。",
+    },
+    {
+      id: 203, // Administrator
+      groupType: "manager",
+      name: "Administrator（海军大将）",
+      privilege: "除了不能改变站点设定、管理捐赠外，可以做任何事。",
+    },
+    {
+      id: 204, // Sysop
+      groupType: "manager",
+      name: "Sysop（五老星）",
+      privilege: "网站开发/维护人员，可以改变站点设定，不能管理捐赠。",
+    },
+    {
+      id: 205, // Staff Leader
+      groupType: "manager",
+      name: "Staff Leader（海军元帅）",
+      privilege: "网站主管，可以做任何事。",
+    },
+  ],
 };
 
 // ---------------------------------------------------------------------------

@@ -18,6 +18,7 @@ export const siteMetadata: ISiteMetadata = {
   schema: "NexusPHP",
 
   urls: ["https://pt.525968.xyz/"],
+  favicon: "./_default_nexusphp.png",
 
   category: [
     {

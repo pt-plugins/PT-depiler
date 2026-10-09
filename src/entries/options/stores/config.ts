@@ -15,6 +15,8 @@ const deprecatedConfigKeys = [
 ];
 
 export const defaultTimelineBackgroundColor = "#455A64";
+export const defaultTimelineUserNameColor = "#FFFFFF";
+export const defaultTimelineTextColor = "#FFFFFF";
 
 export const useConfigStore = defineStore("config", {
   persistWebExt: {
@@ -145,6 +147,7 @@ export const useConfigStore = defineStore("config", {
         columns: [
           "clientId",
           "name",
+          "site",
           "totalSize",
           "progress",
           "state",
@@ -207,6 +210,8 @@ export const useConfigStore = defineStore("config", {
       showTop: true,
       showTimeline: true,
       backgroundColor: defaultTimelineBackgroundColor,
+      userNameColor: defaultTimelineUserNameColor,
+      textColor: defaultTimelineTextColor,
       dateFormat: "time_added",
       faviconBlue: 3,
       selectedSites: [],

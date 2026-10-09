@@ -21,6 +21,8 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   urls: ["https://u2.dmhy.org/"],
 
+  trackerUrls: ["https://daydream.dmhy.best/"],
+
   favicon: "./dmhy.ico",
 
   category: [
