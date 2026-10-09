@@ -12,6 +12,8 @@ import { formatSize } from "@/options/utils.ts";
 
 import ItemInformationDialog from "./ItemInformationDialog.vue";
 
+import FilterChips from "@/options/components/FilterChips.vue";
+
 import { doSearch, searchMediaServerIds } from "./utils.ts";
 
 const { t } = useI18n();
@@ -29,6 +31,15 @@ const hasMore = computed<boolean>(() =>
   isEmpty(runtimeStore.mediaServerSearch.searchStatus)
     ? true
     : Object.values(runtimeStore.mediaServerSearch.searchStatus).some((x) => x?.canLoadMore ?? true),
+);
+
+const mediaServerItems = computed<string[]>(() =>
+  metadataStore.getEnabledMediaServers.map((mediaServer) => mediaServer.id),
+);
+
+// 已加载的结果保留在 store 中不丢弃，仅按当前筛选出的服务器决定显示哪些卡片
+const filteredSearchResult = computed(() =>
+  runtimeStore.mediaServerSearch.searchResult.filter((item) => searchMediaServerIds.value.includes(item.server)),
 );
 
 function showItemInformation(item: IMediaServerItem) {
@@ -60,8 +71,24 @@ onMounted(async () => {
   <v-alert :title="t('route.Overview.MediaServerEntity')" type="info" />
   <v-card v-scroll="onScroll">
     <v-card-title>
-      <v-row class="ma-0">
+      <v-row class="ma-0 align-center">
+        <!-- 媒体服务器筛选器 -->
+        <FilterChips
+          v-model="searchMediaServerIds"
+          :all-label="t('MediaServerEntity.serverFilter.all')"
+          all-icon="mdi-server"
+          :items="mediaServerItems"
+          class="mr-2"
+          multiple
+        >
+          <template #chip="{ item }">
+            <v-avatar :image="getMediaServerIcon(metadataStore.mediaServers[item].type)" class="mr-1" size="18" />
+            {{ metadataStore.mediaServers[item].name }}
+          </template>
+        </FilterChips>
+
         <v-spacer />
+
         <v-text-field
           v-model="search"
           :loading="runtimeStore.mediaServerSearch.isSearching"
@@ -73,60 +100,13 @@ onMounted(async () => {
           :placeholder="t('MediaServerEntity.searchPlaceholder')"
           @keyup.enter="() => doSearch({ searchKey: search })"
           @click:append="() => doSearch({ searchKey: search })"
-        >
-          <template #prepend-inner>
-            <v-menu :close-on-content-clicks="false">
-              <template v-slot:activator="{ props }">
-                <v-icon v-bind="props" icon="mdi-server" variant="plain" />
-              </template>
-              <v-list class="pa-0">
-                <v-list-item>
-                  <v-checkbox
-                    hide-details
-                    indeterminate
-                    :label="t('common.checkbox.all')"
-                    @click.stop
-                    @update:model-value="
-                      (v: unknown) => {
-                        if (v) {
-                          searchMediaServerIds = metadataStore.getEnabledMediaServers.map(
-                            (mediaServer) => mediaServer.id,
-                          );
-                        } else {
-                          searchMediaServerIds = [];
-                        }
-                      }
-                    "
-                  />
-                </v-list-item>
-                <v-divider />
-                <v-list-item v-for="item in metadataStore.getMediaServers" :key="item.id">
-                  <v-checkbox
-                    v-model="searchMediaServerIds"
-                    :disabled="item.enabled === false"
-                    :indeterminate="item.enabled === false"
-                    :label="item.name"
-                    :value="item.id"
-                    hide-details
-                    indeterminate-icon="mdi-close"
-                    multiple
-                    @click.stop
-                  >
-                    <template #append>
-                      <v-avatar :alt="item.type" :image="getMediaServerIcon(item.type)" size="x-small" />
-                    </template>
-                  </v-checkbox>
-                </v-list-item>
-              </v-list>
-            </v-menu>
-          </template>
-        </v-text-field>
+        />
       </v-row>
     </v-card-title>
 
     <!--  瀑布流形式展示媒体服务器搜索结果 -->
-    <div v-if="runtimeStore.mediaServerSearch.searchResult.length > 0" class="masonry-grid">
-      <div v-for="item in runtimeStore.mediaServerSearch.searchResult" :key="item.url" class="masonry-item">
+    <div v-if="filteredSearchResult.length > 0" class="masonry-grid">
+      <div v-for="item in filteredSearchResult" :key="item.url" class="masonry-item">
         <v-card>
           <div class="position-relative mb-1">
             <v-menu

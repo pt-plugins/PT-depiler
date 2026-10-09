@@ -9,6 +9,7 @@ import type { ISearchResultTorrent } from "@/shared/types/storages/runtime.ts";
 
 import { tableCustomFilter } from "./utils/filter.ts";
 
+import FilterChips from "@/options/components/FilterChips.vue";
 import SiteName from "@/options/components/SiteName.vue";
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 
@@ -22,7 +23,7 @@ const display = useDisplay();
 
 const { advanceFilterDictRef, advanceItemPropsRef, updateTableFilterValueFn } = tableCustomFilter;
 
-const selectedSite = ref<string>("");
+const selectedSites = ref<string[]>([]);
 
 // 优化后的选中种子信息计算：直接基于选中对象计算
 const selectedTorrentsInfo = computed(() => {
@@ -43,15 +44,8 @@ const selectedTorrentsInfo = computed(() => {
   };
 });
 
-function clearSiteFilter() {
-  selectedSite.value = ""; // 清除站点过滤器
-  advanceFilterDictRef.value.site.required = [];
-  advanceFilterDictRef.value.site.exclude = [];
-  updateTableFilterValueFn();
-}
-
 function updateQuickSiteFilter() {
-  advanceFilterDictRef.value.site.required = [selectedSite.value];
+  advanceFilterDictRef.value.site.required = [...selectedSites.value];
   advanceFilterDictRef.value.site.exclude = [];
   updateTableFilterValueFn();
 }
@@ -61,45 +55,20 @@ function updateQuickSiteFilter() {
   <v-alert class="px-2 py-1 mb-0" color="info" density="compact" variant="tonal">
     <div class="d-flex align-center">
       <!-- 站点筛选器 -->
-      <template v-if="configStore.searchEntity.quickSiteFilter">
-        <!-- "全部"选项 -->
-        <v-chip
-          class="chip_limit_width"
-          :class="{ chip_content_hidden_fix: display.smAndDown.value }"
-          size="small"
-          @click.stop="clearSiteFilter"
-          variant="outlined"
-          prepend-icon="mdi-web"
-        >
-          {{ display.smAndDown.value ? "" : t("SearchEntity.siteFilter.all") }}
-        </v-chip>
-
-        <!-- 分站点选项 -->
-        <v-chip-group
-          id="site-filter-chips"
-          v-model="selectedSite"
-          :mobile="false"
-          color="primary"
-          filter
-          mandatory
-          scroll-to-active
-          show-arrows="always"
-          variant="outlined"
-          @update:model-value="updateQuickSiteFilter"
-        >
-          <!-- 各站点选项 -->
-          <v-chip
-            v-for="siteId in advanceItemPropsRef.site"
-            :key="siteId"
-            :value="siteId"
-            size="small"
-            class="mr-1 mb-1"
-          >
-            <SiteFavicon :site-id="siteId" :size="14" class="mr-1" />
-            <SiteName :site-id="siteId" tag="span" />
-          </v-chip>
-        </v-chip-group>
-      </template>
+      <FilterChips
+        v-if="configStore.searchEntity.quickSiteFilter"
+        v-model="selectedSites"
+        :all-label="t('SearchEntity.siteFilter.all')"
+        :items="advanceItemPropsRef.site"
+        mandatory
+        @update:model-value="updateQuickSiteFilter"
+      >
+        <!-- 各站点选项 -->
+        <template #chip="{ item }">
+          <SiteFavicon :site-id="item" :size="14" class="mr-1" />
+          <SiteName :site-id="item" tag="span" />
+        </template>
+      </FilterChips>
 
       <v-spacer />
 
@@ -123,17 +92,5 @@ function updateQuickSiteFilter() {
 <style lang="scss" scoped>
 .chip_limit_width {
   min-width: fit-content;
-}
-
-/**
- * 在smAndDown环境下，全部站点的 chip 中 文字内容被隐藏，但是由于使用了 prepend-icon 来设置图标，所以此处通过 hack css 的方法
- * 将 chip 整体变为圆形，并移除 icon 两侧的margin来居中
- */
-.chip_content_hidden_fix {
-  padding: 0 5px !important; // 0 10px -> 0 5px
-
-  :deep(i.v-icon) {
-    margin: 0; // 0 4px -> 0
-  }
 }
 </style>
