@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 import { refDebounced } from "@vueuse/core";
@@ -8,6 +8,7 @@ import type { DataTableHeader } from "vuetify";
 import { formatDate } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
+import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
 import { type TSearchSnapshotKey } from "@/shared/types.ts";
 
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
@@ -22,26 +23,28 @@ const metadataStore = useMetadataStore();
 const showEditNameDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 
-const tableHeader = [
-  { title: t("SearchResultSnapshot.table.header.name"), key: "name", align: "start" },
-  { title: t("SearchResultSnapshot.table.header.recordCount"), key: "recordCount", align: "end", width: 100 },
-  {
-    title: t("SearchResultSnapshot.table.header.createdAt"),
-    key: "createdAt",
-    align: "center",
-    width: 150,
-    minWidth: 150,
-  },
-  {
-    title: t("common.action"),
-    key: "action",
-    align: "center",
-    width: 125,
-    minWidth: 125,
-    sortable: false,
-    alwaysShow: true,
-  },
-] as DataTableHeader[];
+const tableHeader = computed(() =>
+  useTableActionColumn([
+    { title: t("SearchResultSnapshot.table.header.name"), key: "name", align: "start" },
+    { title: t("SearchResultSnapshot.table.header.recordCount"), key: "recordCount", align: "end", width: 100 },
+    {
+      title: t("SearchResultSnapshot.table.header.createdAt"),
+      key: "createdAt",
+      align: "center",
+      width: 150,
+      minWidth: 150,
+    },
+    {
+      title: t("common.action"),
+      key: "action",
+      align: "center",
+      width: 125,
+      minWidth: 125,
+      sortable: false,
+      alwaysShow: true,
+    },
+  ] as DataTableHeader[]),
+);
 const tableSelected = ref<TSearchSnapshotKey[]>([]);
 const tableWaitFilter = ref("");
 const tableFilter = refDebounced(tableWaitFilter, 500); // 延迟搜索过滤词的生成

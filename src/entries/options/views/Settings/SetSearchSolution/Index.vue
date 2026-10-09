@@ -9,6 +9,7 @@ import type { DataTableHeader } from "vuetify";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
 import { formatDate } from "@/options/utils.ts";
 import type { ISearchSolutionMetadata, TSolutionKey } from "@/shared/types.ts";
 
@@ -27,15 +28,20 @@ const showDeleteDialog = ref(false);
 const solutionId = ref<TSolutionKey>("");
 
 const tableSelected = ref<TSolutionKey[]>([]);
-const tableHeader = [
-  { title: "№", key: "sort", align: "center", width: 150 },
-  { title: t("common.name"), key: "name", align: "start", width: 150 },
-  { title: t("SetSearchSolution.solution"), key: "solution", align: "start", minWidth: 400, sortable: false },
-  { title: t("SetSearchSolution.table.enable"), key: "enabled", align: "center", width: 120 },
-  { title: t("SetSearchSolution.table.default"), key: "isDefault", align: "center", width: 120, sortable: false },
-  { title: t("common.action"), key: "action", sortable: false, width: 200 },
-] as DataTableHeader[];
+const tableHeader = computed(() =>
+  useTableActionColumn([
+    { title: "№", key: "sort", align: "center", width: 150 },
+    { title: t("common.name"), key: "name", align: "start", width: 150 },
+    { title: t("SetSearchSolution.solution"), key: "solution", align: "start", minWidth: 400, sortable: false },
+    { title: t("SetSearchSolution.table.enable"), key: "enabled", align: "center", width: 120 },
+    { title: t("SetSearchSolution.table.default"), key: "isDefault", align: "center", width: 120, sortable: false },
+    { title: t("common.action"), key: "action", sortable: false, width: 200 },
+  ] as DataTableHeader[]),
+);
 const tableFilter = ref("");
+
+// 「默认搜索方案」预设行（body.prepend）中的单元格需要与表头列顺序保持一致
+const isActionColumnAtStart = computed(() => configStore.tableActionColumnPosition === "start");
 
 function addSearchSolution() {
   editSearchSolution("");
@@ -243,7 +249,19 @@ async function copySearchSolution(solutionId: TSolutionKey) {
       <!-- 这里预设一个固定的默认搜索方案 -->
       <template #body.prepend>
         <tr class="v-data-table__tr">
-          <td class="v-data-table__td" colspan="2"></td>
+          <td class="v-data-table__td"></td>
+          <td v-if="isActionColumnAtStart" class="v-data-table__td">
+            <v-btn-group class="table-action" density="compact" variant="plain">
+              <v-btn
+                :title="t('SetSearchSolution.copy')"
+                color="success"
+                icon="mdi-content-copy"
+                size="small"
+                @click="copySearchSolution('default')"
+              />
+            </v-btn-group>
+          </td>
+          <td class="v-data-table__td"></td>
           <td class="v-data-table__td">{{ t("layout.header.searchPlan.all") }}</td>
           <td class="v-data-table__td">
             <v-chip class="mb-1 mr-1 h-auto py-1" color="light-blue" label prepend-icon="mdi-refresh-auto" size="small">
@@ -262,7 +280,7 @@ async function copySearchSolution(solutionId: TSolutionKey) {
               readonly
             />
           </td>
-          <td class="v-data-table__td">
+          <td v-if="!isActionColumnAtStart" class="v-data-table__td">
             <v-btn-group class="table-action" density="compact" variant="plain">
               <v-btn
                 :title="t('SetSearchSolution.copy')"

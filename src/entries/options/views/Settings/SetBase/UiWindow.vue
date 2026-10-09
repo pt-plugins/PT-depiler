@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { supportTheme } from "@/shared/types.ts";
@@ -11,6 +12,11 @@ import { isEmpty } from "es-toolkit/compat";
 const { t } = useI18n();
 const configStore = useConfigStore();
 const metadataStore = useMetadataStore();
+
+const tableActionColumnPositionItems = computed(() => [
+  { title: t("SetBase.ui.tableActionColumnPositionStart"), value: "start" as const },
+  { title: t("SetBase.ui.tableActionColumnPositionEnd"), value: "end" as const },
+]);
 
 function initContentScriptExceptionSites() {
   Object.keys(metadataStore.sites).forEach((site) => {
@@ -62,6 +68,32 @@ defineExpose({
       />
 
       <v-switch
+        v-model="configStore.autoToggleNavBarOnDisplayChange"
+        color="success"
+        hide-details
+        :label="t('SetBase.ui.autoToggleNavBarOnDisplayChange')"
+      >
+        <template #append>
+          <v-tooltip max-width="400" location="bottom">
+            <template v-slot:activator="{ props }">
+              <v-icon color="info" icon="mdi-help-circle" v-bind="props" />
+            </template>
+            {{ t("SetBase.ui.autoToggleNavBarOnDisplayChangeNote") }}
+          </v-tooltip>
+        </template>
+      </v-switch>
+
+      <v-divider />
+    </v-col>
+  </v-row>
+
+  <v-row>
+    <v-col md="10" lg="8">
+      <div class="d-flex align-center">
+        <v-label>{{ t("SetBase.ui.dataTable") }}</v-label>
+      </div>
+
+      <v-switch
         v-model="configStore.saveTableBehavior"
         color="success"
         hide-details
@@ -84,18 +116,24 @@ defineExpose({
         </template>
       </v-switch>
 
+      <v-select
+        v-model="configStore.tableActionColumnPosition"
+        :items="tableActionColumnPositionItems"
+        :label="t('SetBase.ui.tableActionColumnPosition')"
+      />
+
       <v-switch
-        v-model="configStore.autoToggleNavBarOnDisplayChange"
+        v-model="configStore.tableActionColumnFixed"
         color="success"
         hide-details
-        :label="t('SetBase.ui.autoToggleNavBarOnDisplayChange')"
+        :label="t('SetBase.ui.tableActionColumnFixed')"
       >
         <template #append>
           <v-tooltip max-width="400" location="bottom">
             <template v-slot:activator="{ props }">
               <v-icon color="info" icon="mdi-help-circle" v-bind="props" />
             </template>
-            {{ t("SetBase.ui.autoToggleNavBarOnDisplayChangeNote") }}
+            {{ t("SetBase.ui.tableActionColumnFixedNote") }}
           </v-tooltip>
         </template>
       </v-switch>

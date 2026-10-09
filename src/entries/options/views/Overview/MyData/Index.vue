@@ -11,6 +11,7 @@ import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useTableCustomFilter } from "@/options/directives/useAdvanceFilter.ts";
+import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
 import { formatDate, formatSize, formatTimeAgo } from "@/options/utils.ts";
 
 import SiteName from "@/options/components/SiteName.vue";
@@ -62,10 +63,12 @@ const fullTableHeader = reactive([
 ] as TExtendDataTableHeader[]);
 
 const tableHeader = computed(() => {
-  return fullTableHeader.filter(
-    (item: TExtendDataTableHeader) =>
-      item?.props?.disabled || configStore.tableBehavior.MyData.columns!.includes(item.key!),
-  ) as DataTableHeader[];
+  return useTableActionColumn(
+    fullTableHeader.filter(
+      (item: TExtendDataTableHeader) =>
+        item?.props?.disabled || configStore.tableBehavior.MyData.columns!.includes(item.key!),
+    ) as DataTableHeader[],
+  );
 });
 
 const tableNonBooleanControlKey = [

@@ -686,6 +686,7 @@
       "contextMenuLinkPush": "Enable (download) link push",
       "contextMenuSocialSearch": "Enable social link (douban, imdb) search",
       "contextMenuTextSearch": "Enable selected text search",
+      "dataTable": "Data Table",
       "displayMode": {
         "auto": "Auto (Follow Browser or System)",
         "dark": "Dark Mode",
@@ -709,6 +710,11 @@
         "title": "Search by Main Title"
       },
       "socialSiteSearchLabel": "Social site search method",
+      "tableActionColumnFixed": "Fix action column when the table is too wide",
+      "tableActionColumnFixedNote": "Takes effect only when the table content is wider than the page and scrolls horizontally: the action column stays pinned to its side (row start or row end) while scrolling.",
+      "tableActionColumnPosition": "Action column position",
+      "tableActionColumnPositionEnd": "Row end (default)",
+      "tableActionColumnPositionStart": "Row start",
       "tableMultiSortNote": "Multi-column sorting: Click any table header field to start sorting, which will display the number \\\"1\\\" on the field. Click other fields sequentially to display \\\"2\\\", \\\"3\\\", indicating sorting priority. Click the same field again to toggle between ascending, descending, or cancel sorting. The sorting order is determined by these numbers, with smaller numbers having higher priority.",
       "useLargeIcon": "Use large icon buttons"
     },

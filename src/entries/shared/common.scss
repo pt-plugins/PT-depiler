@@ -9,6 +9,13 @@
 .table-stripe {
   tr.v-data-table__tr:nth-child(even) {
     background-color: #f1f1f1;
+
+    /* v-data-table 会为固定列（fixed / fixed-end）设置 surface 背景色，导致固定列不响应上面的隔行变色，
+     * 这里让固定列跟随所在行的背景色（inherit 会自动适配暗黑模式下的颜色）。 */
+    > .v-data-table-column--fixed,
+    > .v-data-table-column--fixed-end {
+      background-color: inherit;
+    }
   }
 }
 
