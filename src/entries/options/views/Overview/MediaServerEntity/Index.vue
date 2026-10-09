@@ -37,7 +37,7 @@ const mediaServerItems = computed<string[]>(() =>
   metadataStore.getEnabledMediaServers.map((mediaServer) => mediaServer.id),
 );
 
-// 已加载的卡片按当前选中的服务器即时过滤（chip 的 v-model 变化即触发）
+// 已加载的结果保留在 store 中不丢弃，仅按当前筛选出的服务器决定显示哪些卡片
 const filteredSearchResult = computed(() =>
   runtimeStore.mediaServerSearch.searchResult.filter((item) => searchMediaServerIds.value.includes(item.server)),
 );
