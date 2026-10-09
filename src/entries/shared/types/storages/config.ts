@@ -28,6 +28,8 @@ export interface IConfigPiniaStorageSchema {
 
   saveTableBehavior: boolean;
   enableTableMultiSort: boolean; // 是否启用表格多列排序
+  tableActionColumnPosition: "start" | "end"; // 表格中 key 为 action 的操作列的位置（行首 / 行尾）
+  tableActionColumnFixed: boolean; // 表格横向滚动时是否固定 key 为 action 的操作列
 
   // 用于存储 v-data-table 表格的展示
   tableBehavior: Record<UiTableBehaviorKey, UiTableBehaviorItem>;

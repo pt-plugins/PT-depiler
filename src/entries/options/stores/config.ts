@@ -69,6 +69,8 @@ export const useConfigStore = defineStore("config", {
 
     saveTableBehavior: true,
     enableTableMultiSort: false,
+    tableActionColumnPosition: "end",
+    tableActionColumnFixed: false,
 
     contextMenus: {
       enabled: true,

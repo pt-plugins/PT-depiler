@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useI18n } from "vue-i18n";
-import { ref, shallowRef } from "vue";
+import { computed, ref, shallowRef } from "vue";
 import type { IBackupFileInfo } from "@ptd/backupServer";
 import type { DataTableHeader } from "vuetify";
 
@@ -8,6 +8,7 @@ import { sendMessage } from "@/messages.ts";
 import { formatDate, formatSize } from "@/options/utils.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
+import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
 
 import DeleteDialog from "@/options/components/DeleteDialog.vue";
 import NavButton from "@/options/components/NavButton.vue";
@@ -25,12 +26,14 @@ const runtimeStore = useRuntimeStore();
 const isLoading = ref<boolean>(false);
 const backupHistory = shallowRef<IBackupFileInfo[]>([]);
 
-const tableHeaders = [
-  { title: t("SetBackup.HistoryDialog.table.filename"), key: "filename", align: "start" },
-  { title: t("SetBackup.HistoryDialog.table.size"), key: "size", align: "end" },
-  { title: t("SetBackup.HistoryDialog.table.time"), key: "time", align: "start" },
-  { title: t("common.action"), key: "action", sortable: false },
-] as DataTableHeader[];
+const tableHeaders = computed(() =>
+  useTableActionColumn([
+    { title: t("SetBackup.HistoryDialog.table.filename"), key: "filename", align: "start" },
+    { title: t("SetBackup.HistoryDialog.table.size"), key: "size", align: "end" },
+    { title: t("SetBackup.HistoryDialog.table.time"), key: "time", align: "start" },
+    { title: t("common.action"), key: "action", sortable: false },
+  ] as DataTableHeader[]),
+);
 const tableSelected = ref<string[]>([]);
 
 const showRestoreDialog = ref<boolean>(false);

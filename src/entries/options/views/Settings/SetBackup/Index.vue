@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { getBackupServerIcon } from "@ptd/backupServer";
 import { hasBackupRetentionToApply } from "@ptd/backupServer/utils.ts";
@@ -7,6 +7,7 @@ import type { DataTableHeader } from "vuetify";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
 import { formatDate } from "@/options/utils.ts";
 import { BackupFields, type IBackupServerMetadata, type TBackupServerKey } from "@/shared/types.ts";
 import { sendMessage } from "@/messages.ts";
@@ -30,22 +31,24 @@ const showEditDialog = ref<boolean>(false);
 const showRestoreDialog = ref<boolean>(false);
 const showDeleteDialog = ref<boolean>(false);
 
-const fullTableHeader = [
-  { title: t("common.type"), key: "type", align: "center" },
-  { title: t("common.name"), key: "name", align: "start" },
-  {
-    title: t("SetBackup.table.backupFields"),
-    key: "backupFields",
-    align: "start",
-    sortable: false,
-    cellProps: { class: "pt-1" },
-  },
-  { title: t("SetBackup.table.backupInterval"), key: "backupInterval", align: "center" },
-  { title: t("SetBackup.table.retention"), key: "retention", align: "center" },
-  { title: t("SetBackup.table.lastBackupAt"), key: "lastBackupAt", align: "end" },
-  { title: t("common.enable"), key: "enabled", align: "center" },
-  { title: t("common.action"), key: "action", sortable: false },
-] as DataTableHeader[];
+const fullTableHeader = computed(() =>
+  useTableActionColumn([
+    { title: t("common.type"), key: "type", align: "center" },
+    { title: t("common.name"), key: "name", align: "start" },
+    {
+      title: t("SetBackup.table.backupFields"),
+      key: "backupFields",
+      align: "start",
+      sortable: false,
+      cellProps: { class: "pt-1" },
+    },
+    { title: t("SetBackup.table.backupInterval"), key: "backupInterval", align: "center" },
+    { title: t("SetBackup.table.retention"), key: "retention", align: "center" },
+    { title: t("SetBackup.table.lastBackupAt"), key: "lastBackupAt", align: "end" },
+    { title: t("common.enable"), key: "enabled", align: "center" },
+    { title: t("common.action"), key: "action", sortable: false },
+  ] as DataTableHeader[]),
+);
 const tableSelected = ref<TBackupServerKey[]>([]);
 
 /** 自动备份间隔（小时），支持小数以表达不足 1 小时的间隔 */

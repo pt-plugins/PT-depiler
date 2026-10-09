@@ -17,6 +17,7 @@ import { formatSize, formatDate } from "@/options/utils.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
+import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
 
 import DeleteDialog from "./DeleteDialog.vue";
 import PushToDownloaderDialog from "./PushToDownloaderDialog.vue";
@@ -160,11 +161,12 @@ const fullTableHeader = computed(
     ] as (DataTableHeader & { props?: any })[],
 );
 
-const tableHeader = computed(
-  () =>
+const tableHeader = computed(() =>
+  useTableActionColumn(
     fullTableHeader.value.filter(
       (item) => item?.props?.disabled || (configStore.tableBehavior["MyClient"] as any)?.columns?.includes(item.key),
     ) as DataTableHeader[],
+  ),
 );
 
 // ── data loading ──────────────────────────────────────────────────────────

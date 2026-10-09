@@ -8,6 +8,7 @@ import { EResultParseStatus, ETorrentStatus } from "@ptd/site";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { useConfigStore } from "@/options/stores/config.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
+import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
 import { formatDate, formatSize, formatTimeAgo } from "@/options/utils.ts";
 import type { ISearchResultTorrent } from "@/shared/types.ts";
 
@@ -69,9 +70,11 @@ const fullTableHeader = computed(
 );
 
 const tableHeader = computed(() => {
-  return fullTableHeader.value.filter(
-    (item) => item?.props?.disabled || configStore.tableBehavior.SearchEntity.columns!.includes(item.key!),
-  ) as DataTableHeader[];
+  return useTableActionColumn(
+    fullTableHeader.value.filter(
+      (item) => item?.props?.disabled || configStore.tableBehavior.SearchEntity.columns!.includes(item.key!),
+    ) as DataTableHeader[],
+  );
 });
 
 const { tableFilterRef, tableWaitFilterRef, tableFilterFn, buildAdvanceItemPropsFn, buildFilterDictFn } =

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, shallowRef } from "vue";
+import { computed, ref, shallowRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { saveAs } from "file-saver";
 import { EResultParseStatus, type IUserInfo, type TSiteID } from "@ptd/site";
@@ -7,6 +7,7 @@ import type { DataTableHeader } from "vuetify";
 
 import { sendMessage } from "@/messages.ts";
 import { formatNumber, formatSize, formatDate } from "@/options/utils.ts";
+import { useTableActionColumn } from "@/options/directives/useTableActionColumn.ts";
 import { formatRatio } from "./utils/format.ts";
 import { loadSiteHistoryData } from "./utils/lastUserData.ts";
 
@@ -27,17 +28,19 @@ interface IShowUserInfo extends IUserInfo {
 }
 
 const siteHistoryData = shallowRef<IShowUserInfo[]>([]);
-const tableHeader = [
-  { title: t("common.date"), key: "date", align: "center" },
-  { title: t("common.username"), key: "name", align: "center", sortable: false },
-  { title: t("MyData.table.levelName"), key: "levelName", align: "start", sortable: false },
-  { title: t("MyData.table.userData"), key: "uploaded", align: "end", sortable: false },
-  { title: t("levelRequirement.ratio"), key: "ratio", align: "end", sortable: false },
-  { title: t("levelRequirement.seeding"), key: "seeding", align: "end", sortable: false },
-  { title: t("levelRequirement.seedingSize"), key: "seedingSize", align: "end", sortable: false },
-  { title: t("levelRequirement.bonus"), key: "bonus", align: "end", sortable: false },
-  { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false },
-] as DataTableHeader[];
+const tableHeader = computed(() =>
+  useTableActionColumn([
+    { title: t("common.date"), key: "date", align: "center" },
+    { title: t("common.username"), key: "name", align: "center", sortable: false },
+    { title: t("MyData.table.levelName"), key: "levelName", align: "start", sortable: false },
+    { title: t("MyData.table.userData"), key: "uploaded", align: "end", sortable: false },
+    { title: t("levelRequirement.ratio"), key: "ratio", align: "end", sortable: false },
+    { title: t("levelRequirement.seeding"), key: "seeding", align: "end", sortable: false },
+    { title: t("levelRequirement.seedingSize"), key: "seedingSize", align: "end", sortable: false },
+    { title: t("levelRequirement.bonus"), key: "bonus", align: "end", sortable: false },
+    { title: t("common.action"), key: "action", align: "center", width: 90, sortable: false },
+  ] as DataTableHeader[]),
+);
 const tableSelected = ref<string[]>([]);
 
 function deleteSiteUserInfo(date: string[]) {
