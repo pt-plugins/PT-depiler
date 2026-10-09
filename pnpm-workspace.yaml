@@ -3,3 +3,11 @@ patchedDependencies:
 
 overrides:
   "git-rev-sync>shelljs": "0.10.0"
+
+# pnpm v11 起 onlyBuiltDependencies 等设置已并入 allowBuilds（旧键在 v12 会被判为未知设置）。
+# 仅允许这三个包的安装脚本执行，其余依赖的构建脚本仍视为未审阅（strictDepBuilds 默认 true，
+# 未审阅即报 ERR_PNPM_IGNORED_BUILDS 并使安装失败）。
+allowBuilds:
+  "@parcel/watcher": true
+  esbuild: true
+  spawn-sync: true
