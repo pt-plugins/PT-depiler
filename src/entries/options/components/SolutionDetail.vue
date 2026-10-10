@@ -27,7 +27,7 @@ onMounted(async () => {
 <template>
   <div v-if="solution" class="text-wrap">
     <template v-if="solution.name">{{ solution.name }}</template>
-    <template v-else-if="isEmpty(solution.selectedCategories)">{{ t('common.default') }}</template>
+    <template v-else-if="isEmpty(solution.selectedCategories)">{{ t("common.default") }}</template>
     <template v-else>
       <span
         v-for="(value, category) in solution.selectedCategories"

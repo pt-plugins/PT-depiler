@@ -12,7 +12,9 @@ onMessage("updateDNRSessionRules", async ({ data: { rule, extOnly = true } }) =>
   //   在 Firefox 中全部失效（见 #1486）。因此 Firefox 侧取 new URL(chrome.runtime.getURL("")).host
   //   作为匹配值（在任何扩展上下文均可计算，不依赖 location）。
   if (extOnly) {
-    rule.condition.initiatorDomains = [__BROWSER__ === "firefox" ? new URL(chrome.runtime.getURL("")).host : chrome.runtime.id];
+    rule.condition.initiatorDomains = [
+      __BROWSER__ === "firefox" ? new URL(chrome.runtime.getURL("")).host : chrome.runtime.id,
+    ];
     delete rule.condition.excludedTabIds;
   }
 

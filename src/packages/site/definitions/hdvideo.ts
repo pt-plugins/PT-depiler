@@ -21,7 +21,7 @@ export const siteMetadata: ISiteMetadata = {
   legacyUrls: ["https://hdvideo.one/"],
 
   officialGroupPattern: [/(-HDVWEB|-HDVMV)/i],
-    
+
   userInfo: {
     ...SchemaMetadata.userInfo!,
     selectors: {

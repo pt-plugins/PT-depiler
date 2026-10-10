@@ -133,7 +133,9 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
                 </template>
                 <v-menu v-if="shouldShowSearchPlanMenu" activator="parent" location="end" open-on-hover>
                   <v-list density="compact">
-                    <v-list-subheader>{{ t("contentScript.SocialSiteParseResultsDialog.searchPlan") }}</v-list-subheader>
+                    <v-list-subheader>{{
+                      t("contentScript.SocialSiteParseResultsDialog.searchPlan")
+                    }}</v-list-subheader>
                     <v-list-item
                       v-for="plan in searchPlans"
                       :key="`${result.id}|${externalType}|${plan.id}`"
@@ -181,7 +183,9 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
                           </template>
                           <v-menu v-if="shouldShowSearchPlanMenu" activator="parent" location="end" open-on-hover>
                             <v-list density="compact">
-                              <v-list-subheader>{{ t("contentScript.SocialSiteParseResultsDialog.searchPlan") }}</v-list-subheader>
+                              <v-list-subheader>{{
+                                t("contentScript.SocialSiteParseResultsDialog.searchPlan")
+                              }}</v-list-subheader>
                               <v-list-item
                                 v-for="plan in searchPlans"
                                 :key="`${result.id}|${title}|${plan.id}`"
@@ -204,7 +208,9 @@ function shouldShowSeriesTitle(result: ISocialSitePageInformation, index: number
                 </template>
                 <v-menu v-if="shouldShowSearchPlanMenu" activator="parent" location="end" open-on-hover>
                   <v-list density="compact">
-                    <v-list-subheader>{{ t("contentScript.SocialSiteParseResultsDialog.searchPlan") }}</v-list-subheader>
+                    <v-list-subheader>{{
+                      t("contentScript.SocialSiteParseResultsDialog.searchPlan")
+                    }}</v-list-subheader>
                     <v-list-item
                       v-for="plan in searchPlans"
                       :key="`${result.id}|${title}|${plan.id}`"

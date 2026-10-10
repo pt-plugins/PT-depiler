@@ -261,7 +261,13 @@ function openOptions() {
         <!-- 这里根据 pageType 来决定显示哪些按钮 -->
         <component :is="currentView" :key="pageType" />
 
-        <SpeedDialBtn key="home" color="amber" icon="mdi-home" :title="t('contentScript.openPTD')" @click="openOptions" />
+        <SpeedDialBtn
+          key="home"
+          color="amber"
+          icon="mdi-home"
+          :title="t('contentScript.openPTD')"
+          @click="openOptions"
+        />
       </v-speed-dial>
     </div>
 
