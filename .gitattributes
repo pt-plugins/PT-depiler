@@ -1,0 +1,24 @@
+# 统一行尾：仓库与检出**都**用 LF。
+#
+# 起因（见 docs/archive/2026-10-optimization-completed.md §2.8.5(九)）：
+# 本机 core.autocrlf=true 会把检出变成 CRLF，而 prettier 的 endOfLine 默认是 "lf"，
+# 于是同一个文件出现两种矛盾结论 ——
+#   · prettier 说「该文件不合规」，跑 --write 后又「没有任何差异」（git 归一化后看不到）
+#   · 提交后工作区仍显示 ` M`，lint-staged 在「重新暂存」那步报
+#     "Failed to stage changes from tasks!" / "lint-staged failed due to a git error"
+# eol 属性**优先于 core.autocrlf**，所以这一行就能让上面三种现象一起消失，
+# 而且对每个 clone 都生效（不必指望每个人去改自己的 autocrlf）。
+* text=auto eol=lf
+
+# 二进制：不做行尾转换、也不当作文本 diff
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.ico   binary
+*.gif   binary
+*.webp  binary
+*.woff  binary
+*.woff2 binary
+*.ttf   binary
+*.eot   binary
+*.zip   binary
