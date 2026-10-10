@@ -11,6 +11,10 @@ import { toMerged } from "es-toolkit";
 const { t } = useI18n();
 const metadataStore = useMetadataStore();
 
+// NOTE: 不要在模板的事件回调中直接访问导入对象的成员：vue-tsc 3.3.12 起会为这类窄化访问生成 `.value`，
+//       而闭包内无法通过类型检查（TS2339），故提前解构出来（见 #1601）
+const { require: requireRule, url: urlRule } = formValidateRules;
+
 const siteId = defineModel<TSiteID>({ default: "" });
 const emit = defineEmits<{
   (e: "update:formValid", v: boolean): void;
@@ -109,7 +113,7 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
               v-model="siteName"
               :items="[siteMetaData.name, ...(siteMetaData.aka ?? [])]"
               :label="t('SetSite.common.name')"
-              :rules="[formValidateRules.require()]"
+              :rules="[requireRule()]"
               hide-details
             ></v-combobox>
           </v-col>
@@ -121,7 +125,7 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
               v-model="siteUserConfig.sortIndex"
               :label="t('common.sortIndex')"
               :placeholder="t('SetSite.editor.sortIndexTip')"
-              :rules="[formValidateRules.require()]"
+              :rules="[requireRule()]"
               hide-details
               type="number"
             />
@@ -152,7 +156,7 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
             :label="t('SetSite.common.url')"
             class="edit-select-url"
             hide-details
-            :rules="[formValidateRules.require()]"
+            :rules="[requireRule()]"
           >
             <v-radio v-for="url in siteMetaData.urls" :key="url" :value="url" @click="updateFormValid(true)">
               <template #label style="width: 100%">
@@ -173,7 +177,7 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
                 <v-text-field
                   v-model="customSiteUrl"
                   :placeholder="t('SetSite.editor.customUrlPlaceholder')"
-                  :rules="[(val) => (val ? formValidateRules.url()(val) : true)]"
+                  :rules="[(val) => (val ? urlRule()(val) : true)]"
                   @update:modelValue="(val) => (siteUserConfig.url = val as unknown as TSiteUrl)"
                 ></v-text-field>
               </template>
@@ -192,9 +196,7 @@ const timeZone: Array<{ value: timezoneOffset; title: string }> = [
             v-model="siteUserConfig.inputSetting![userInputMeta.name]"
             :hint="userInputMeta.hint"
             :label="userInputMeta.label"
-            :rules="[
-              (val) => (!siteMetaData.isDead && userInputMeta.required ? formValidateRules.require()(val) : true),
-            ]"
+            :rules="[(val) => (!siteMetaData.isDead && userInputMeta.required ? requireRule()(val) : true)]"
             validate-on="input"
           >
           </v-text-field>

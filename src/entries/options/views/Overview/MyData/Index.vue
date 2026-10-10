@@ -110,6 +110,16 @@ const {
 
 const tableSelected = ref<TSiteID[]>([]); // 选中的站点行
 
+// 最近一次更新失败的站点状态，用于快速筛选
+// NOTE: 不要在模板的事件回调中直接访问导入枚举的成员：vue-tsc 3.3.12 起会为这类窄化访问生成 `.value`，
+//       而闭包内无法通过类型检查（TS2339），故提前在 script 中展开（见 #1601）
+const lastUpdateErrorStatuses = [
+  EResultParseStatus.parseError,
+  EResultParseStatus.unknownError,
+  EResultParseStatus.needLogin,
+  EResultParseStatus.noUserInput,
+].map((item) => item.toString());
+
 // 挂载时加载表格数据
 onMounted(() => initTableData());
 
@@ -345,12 +355,7 @@ const showExportDialog = ref(false);
                   :title="t('MyData.index.filter.lastUpdateError')"
                   @click.stop="
                     () => {
-                      advanceFilterDictRef.status.required = [
-                        EResultParseStatus.parseError,
-                        EResultParseStatus.unknownError,
-                        EResultParseStatus.needLogin,
-                        EResultParseStatus.noUserInput,
-                      ].map((item) => item.toString());
+                      advanceFilterDictRef.status.required = lastUpdateErrorStatuses;
                       updateTableFilterValueFn();
                     }
                   "
