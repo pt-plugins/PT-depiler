@@ -1151,6 +1151,7 @@
     "import": "Import",
     "language": "Language",
     "name": "Name",
+    "noData": "No Data",
     "project": "PT Depiler",
     "remove": "Delete",
     "save": "Save",
