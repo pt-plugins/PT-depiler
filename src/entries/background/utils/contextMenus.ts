@@ -120,7 +120,8 @@ async function downloadLinkPush(
 
 interface ICreateSearchMenuOption {
   thisTabSiteId?: string;
-  extraCreateMenuProperties?: chrome.contextMenus.CreateProperties;
+  // title 由调用方补充（@types/chrome 0.3.4 起 CreateProperties 的 title 为必填），故此处排除
+  extraCreateMenuProperties?: Omit<chrome.contextMenus.CreateProperties, "title">;
   selectionTextFilterFn?: (value?: chrome.contextMenus.OnClickData) => string;
 }
 
