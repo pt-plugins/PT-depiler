@@ -88,8 +88,9 @@ interface ProtocolMap extends TMessageMap {
   removeCookie(data: chrome.cookies.CookieDetails | chrome.cookies.SetDetails): chrome.cookies.CookieDetails;
   checkAndExtendCookies(url: string): void;
 
-  // 1.6 chrome.notifications
-  showNotification(data: { options: chrome.notifications.NotificationOptions; timeout?: number }): void;
+  // （原 1.6 `showNotification` 已删除：声明之后从来没有 handler，且已无任何调用方 ——
+  //   真正要弹通知的地方直接调 chrome.notifications.create，见 background/utils/contextMenus.ts。
+  //   留着一个「声明了但没实现」的协议项，正是 §3.7(1) 那类静默 bug 的温床。）
 
   // 1.7 chrome.contextMenus
   addContextMenu(data: chrome.contextMenus.CreateProperties): string;

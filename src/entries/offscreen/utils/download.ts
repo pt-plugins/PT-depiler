@@ -581,6 +581,15 @@ async function setDownloadStatus(
   return downloadStatus;
 }
 
+// ⚠️ 这个 handler 曾经缺失：`messages.ts` 有协议声明、`background/utils/alarms.ts` 有两处调用
+// （重下载失败时把下载历史标成 failed），但全仓没有 `onMessage("setDownloadHistoryStatus", ...)`
+// —— 于是那条兜底必然抛「无 handler」，又被调用点紧跟的 `.catch()` 吞掉，
+// 下载历史就停在中途状态，界面上看起来像是还在下载。
+// 注意 handler 不能返回状态值（协议声明的是 void），否则类型检查会拦下来。
+onMessage("setDownloadHistoryStatus", async ({ data }) => {
+  await setDownloadStatus(data.downloadId, data.status);
+});
+
 export async function deleteDownloadHistoryById(downloadId: TTorrentDownloadKey) {
   return await (await ptdIndexDb).delete("download_history", downloadId);
 }
