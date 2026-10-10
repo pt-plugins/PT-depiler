@@ -4,11 +4,13 @@ import type { TSiteFullUrl, TSiteHost } from "../types";
  * cloudflare Email 解码方法，来自 https://usamaejaz.com/cloudflare-email-decoding/
  * @param {*} encodedString
  */
-export function cfDecodeEmail(encodedString: string) {
+export function cfDecodeEmail(encodedString: string | undefined | null) {
+  if (!encodedString) return "";
+
   let email = "";
   const r = parseInt(encodedString.slice(0, 2), 16);
-  for (let n = 2; encodedString.length - n; n += 2) {
-    const i = parseInt(encodedString.slice(n, 2), 16) ^ r;
+  for (let n = 2; n < encodedString.length; n += 2) {
+    const i = parseInt(encodedString.slice(n, n + 2), 16) ^ r;
     email += String.fromCharCode(i);
   }
   return email;

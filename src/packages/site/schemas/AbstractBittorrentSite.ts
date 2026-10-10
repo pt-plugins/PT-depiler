@@ -135,7 +135,7 @@ export default class BittorrentSite {
         const doc = req.data;
 
         // 进行简单的检查，防止无意义的替换
-        if (doc instanceof Document && doc.documentElement.outerHTML.search("__cf_email__")) {
+        if (doc instanceof Document && doc.documentElement.outerHTML.search("__cf_email__") !== -1) {
           const cfProtectSpan = Sizzle(".__cf_email__", doc);
 
           cfProtectSpan.forEach((element) => {
@@ -680,7 +680,7 @@ export default class BittorrentSite {
       retData.keywords = this.getFieldData(doc, {
         selector: [
           keywordField === "params" ? `input[name="${keywordParams}"]` : false,
-          keywordField === "data" ? `form[method="post" i] input[name="${keywordField}"]` : false,
+          keywordField === "data" ? `form[method="post" i] input[name="${keywordParams}"]` : false,
         ].filter(Boolean) as string[],
         elementProcess: (el: HTMLInputElement) => el.value,
         text: "",
