@@ -14,6 +14,7 @@ import type {
 import { sendMessage } from "@/messages.ts";
 import { formatSize, formatDate } from "@/options/utils.ts";
 
+import ReseedDialog from "./ReseedDialog.vue";
 import TorrentStateTd from "./TorrentStateTd.vue";
 
 const showDialog = defineModel<boolean>();
@@ -178,7 +179,12 @@ function resetDialog() {
   trackers.value = [];
   trackersLoaded.value = false;
   trackerInput.value = "";
+  reseedDialogOpen.value = false;
 }
+
+// ── IYUU 查其他站辅种（对话框逻辑见 ReseedDialog.vue） ─
+
+const reseedDialogOpen = ref(false);
 
 async function afterEnter() {
   await loadMetaData();
@@ -355,6 +361,12 @@ function formatTimestamp(timestamp: number | undefined): string {
                 <v-list-item-title>{{ formatDate(torrent.dateAdded * 1000) }}</v-list-item-title>
               </v-list-item>
             </v-list>
+
+            <div class="pa-3 pt-0">
+              <v-btn color="primary" variant="tonal" prepend-icon="mdi-scan-helper" @click="reseedDialogOpen = true">
+                {{ t("MyClient.detail.reseed") }}
+              </v-btn>
+            </div>
           </v-card-text>
         </v-tabs-window-item>
 
@@ -511,6 +523,9 @@ function formatTimestamp(timestamp: number | undefined): string {
       </v-tabs-window>
     </v-card>
   </v-dialog>
+
+  <!-- IYUU 查其他站辅种（独立组件） -->
+  <ReseedDialog v-model="reseedDialogOpen" :torrent="torrent" />
 </template>
 
 <style scoped lang="scss">

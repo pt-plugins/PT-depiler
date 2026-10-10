@@ -28,6 +28,7 @@ import TorrentDetailDialog from "./TorrentDetailDialog.vue";
 import SpeedLimitDialog from "./SpeedLimitDialog.vue";
 import LabelDialog from "./LabelDialog.vue";
 import RecheckConfirmDialog from "./RecheckConfirmDialog.vue";
+import ReseedBatchDialog from "./ReseedBatchDialog.vue";
 
 import {
   torrents,
@@ -75,6 +76,9 @@ const showSpeedLimitDialog = ref(false);
 
 // label dialog
 const showLabelDialog = ref(false);
+
+// IYUU 批量扫描（表格勾选种子）
+const showReseedBatchDialog = ref(false);
 
 // recheck confirm dialog
 const showRecheckDialog = ref(false);
@@ -402,6 +406,15 @@ function torrentKey(torrent: CTorrent) {
           @click="showLabelDialog = true"
         />
 
+        <v-btn
+          :disabled="tableSelected.length === 0"
+          :title="t('MyClient.iyuuScan.btnTitle')"
+          color="indigo"
+          icon="mdi-scan-helper"
+          variant="text"
+          @click="showReseedBatchDialog = true"
+        />
+
         <v-divider vertical class="mx-2" />
 
         <v-btn :title="t('MyClient.refresh')" color="green" icon="mdi-cached" variant="text" @click="loadTorrents" />
@@ -702,6 +715,8 @@ function torrentKey(torrent: CTorrent) {
     :torrent-count="toRecheckTorrents.length"
     :confirm-fn="recheckTorrents"
   />
+
+  <ReseedBatchDialog v-model="showReseedBatchDialog" :torrents="tableSelected" />
 </template>
 
 <style scoped lang="scss">
