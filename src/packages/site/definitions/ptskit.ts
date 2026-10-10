@@ -46,13 +46,13 @@ export const siteMetadata: ISiteMetadata = {
     },
     {
       name: "分类（十八禁）",
-      key: "cat",
+      key: "cat_special",
       options: [
         { name: "欧美", value: 412 },
         { name: "日本", value: 411 },
         { name: "国产", value: 410 },
       ],
-      cross: { mode: "append" },
+      cross: { mode: "append", key: "cat" },
     },
     {
       name: "媒介",

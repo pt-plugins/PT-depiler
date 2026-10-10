@@ -61,18 +61,6 @@ export default defineConfig({
   },
   plugins: [
     vitePluginGenerateWebextLocales(),
-    // 这里曾有 `vite-plugin-node-polyfills`（`include: ["buffer","path"]` + `globals.Buffer`）。2026-10-08 移除，
-    // 因为本仓已不再有任何 Node 内建的运行时依赖：
-    //   · `buffer`：源码里最后一处用法（downloader 把 ArrayBuffer 转成 Buffer 交给 parse-torrent）
-    //     已改为零拷贝的 `new Uint8Array(...)`；
-    //   · `path`：唯一使用方 parse-torrent 只用 `join` + `sep`，已由下面的 `resolve.alias` 指向自实现；
-    //   · `global` / `process` / 裸 `Buffer`：该插件的 globals 是经 `@rollup/plugin-inject` 实现的，
-    //     **只有代码里真的出现裸标识符才会注入**，现已无任何引用（实测产物里零注入痕迹）。
-    // 移除前后产物完全等价：10.21MB / 814 文件，各入口 chunk 体积逐一致（background 132.6KB、cs-app 225KB、
-    // options index 60KB），无 `__vite-browser-external-*` 桩，path-browserify 与 buffer 垫片均为 0。
-    //
-    // ⚠️ 将来若新增的依赖 import 了 Node 内建：`path` 认下面那条 alias；其余需要像 `src/extends/shims/`
-    // 那样补一个等价实现（**不要**重新引入多模块垫片 —— 它们会把用不到的十几个成员一起打进产物）。
     VueDevTools({
       launchEditor: fs.existsSync(base_path("./.idea")) ? "webstorm" : "vscode",
     }),

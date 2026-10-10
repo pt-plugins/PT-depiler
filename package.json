@@ -28,7 +28,8 @@
   "scripts": {
     "dev": "vite dev",
     "format": "prettier --list-different -w ./",
-    "check": "vue-tsc --noEmit",
+    "check": "vue-tsc --noEmit && tsx vite/checkSiteDefinition.ts",
+    "check:site-definition": "tsx vite/checkSiteDefinition.ts",
     "build:dist": "vite build",
     "build:dist-firefox": "cross-env TARGET=firefox vite build",
     "build:watch": "vite build --watch --mode development --minify false",

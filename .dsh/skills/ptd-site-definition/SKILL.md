@@ -25,7 +25,7 @@ description: 为 PT-depiler 仓库新增或修改 PT/BT 站点定义文件（src
 2. **读该引擎的 reference**：见下方「按需读取」。**不要凭记忆套模板**，不同 schema 的 `SchemaMetadata` 默认值差异很大。
 3. **收集事实**：category 的 value→name、搜索入口、选择器、等级要求必须来自真实页面、接口响应或站点规则页。拿不到就明确写出假设并向用户确认，**严禁为了让文件"看起来完整"而编造数值、选择器或接口路径**。
 4. **写文件**：以同引擎既有定义文件为骨架（`...SchemaMetadata` 展开 + 覆写差异项），只写与默认值不同的部分。
-5. **校验**：跑 `pnpm check`（`vue-tsc --noEmit`，定义文件在 tsconfig include 内）与静态检查脚本（见下），必要时跑 `pnpm format`。
+5. **校验**：跑 `pnpm check`（`vue-tsc --noEmit` + 站点定义的静态校验，见下），必要时跑 `pnpm format`。
 6. **交付**：说明改了什么、依据是什么、哪些值来自真实站点、哪些是待确认的假设。
 
 ## 硬性规则
@@ -46,33 +46,36 @@ description: 为 PT-depiler 仓库新增或修改 PT/BT 站点定义文件（src
 
 ## 按需读取
 
-| 场景 | 读取 |
-| --- | --- |
-| 从零新增一个站点、想知道完整流程与交付前检查 | [references/workflow.md](references/workflow.md) |
-| 不确定 `ISiteMetadata` 各字段的含义、默认值与约束 | [references/metadata-fields.md](references/metadata-fields.md) |
-| 写 selectors、filters、category、searchEntry、userInfo process | [references/selectors-and-filters.md](references/selectors-and-filters.md) |
-| 排查"搜不到/解析为空/提示未登录/结果字段错误" | [references/debugging.md](references/debugging.md) |
-| 目标站点是 NexusPHP 系（国内 HDSky/OurBits 类结构） | [references/engines/nexusphp.md](references/engines/nexusphp.md) |
-| 目标站点是 Unit3D 系（Laravel + API） | [references/engines/unit3d.md](references/engines/unit3d.md) |
-| 目标站点是 Gazelle 系（音乐 tracker，网页解析） | [references/engines/gazelle.md](references/engines/gazelle.md) |
-| 目标站点是 Gazelle 的 JSON API 变体 | [references/engines/gazelle-json-api.md](references/engines/gazelle-json-api.md) |
-| 目标站点属于 AvistaZ 网络（AvistaZ/AsiaTorrents/CinemaZ/PrivateHD 等） | [references/engines/avistaz-network.md](references/engines/avistaz-network.md) |
-| 目标站点是 Luminance 引擎 | [references/engines/luminance.md](references/engines/luminance.md) |
-| 目标站点是 Rartracker 引擎 | [references/engines/rartracker.md](references/engines/rartracker.md) |
-| 目标站点是 TCG 引擎 | [references/engines/tcg.md](references/engines/tcg.md) |
-| 私有站但没有现成引擎，直接用私有站模板 | [references/engines/abstract-private-site.md](references/engines/abstract-private-site.md) |
-| 公共 BT 站（type: "public"）与基类提供的通用能力 | [references/engines/abstract-bittorrent-site.md](references/engines/abstract-bittorrent-site.md) |
+| 场景                                                                   | 读取                                                                                             |
+| ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| 从零新增一个站点、想知道完整流程与交付前检查                           | [references/workflow.md](references/workflow.md)                                                 |
+| 不确定 `ISiteMetadata` 各字段的含义、默认值与约束                      | [references/metadata-fields.md](references/metadata-fields.md)                                   |
+| 写 selectors、filters、category、searchEntry、userInfo process         | [references/selectors-and-filters.md](references/selectors-and-filters.md)                       |
+| 排查"搜不到/解析为空/提示未登录/结果字段错误"                          | [references/debugging.md](references/debugging.md)                                               |
+| 目标站点是 NexusPHP 系（国内 HDSky/OurBits 类结构）                    | [references/engines/nexusphp.md](references/engines/nexusphp.md)                                 |
+| 目标站点是 Unit3D 系（Laravel + API）                                  | [references/engines/unit3d.md](references/engines/unit3d.md)                                     |
+| 目标站点是 Gazelle 系（音乐 tracker，网页解析）                        | [references/engines/gazelle.md](references/engines/gazelle.md)                                   |
+| 目标站点是 Gazelle 的 JSON API 变体                                    | [references/engines/gazelle-json-api.md](references/engines/gazelle-json-api.md)                 |
+| 目标站点属于 AvistaZ 网络（AvistaZ/AsiaTorrents/CinemaZ/PrivateHD 等） | [references/engines/avistaz-network.md](references/engines/avistaz-network.md)                   |
+| 目标站点是 Luminance 引擎                                              | [references/engines/luminance.md](references/engines/luminance.md)                               |
+| 目标站点是 Rartracker 引擎                                             | [references/engines/rartracker.md](references/engines/rartracker.md)                             |
+| 目标站点是 TCG 引擎                                                    | [references/engines/tcg.md](references/engines/tcg.md)                                           |
+| 私有站但没有现成引擎，直接用私有站模板                                 | [references/engines/abstract-private-site.md](references/engines/abstract-private-site.md)       |
+| 公共 BT 站（type: "public"）与基类提供的通用能力                       | [references/engines/abstract-bittorrent-site.md](references/engines/abstract-bittorrent-site.md) |
 
 ## 静态校验
 
-写完定义文件后运行（无需安装依赖）：
+站点定义的结构与正则校验已内置进 `pnpm check`（实现：`vite/checkSiteDefinition.ts`），**不需要单独跑脚本，也不在构建里跑**：
 
 ```bash
-node .dsh/skills/ptd-site-definition/scripts/check-site-definition.mjs src/packages/site/definitions/<id>.ts
-node .dsh/skills/ptd-site-definition/scripts/check-site-definition.mjs   # 不带参数 = 全量扫描
+pnpm check                                   # = vue-tsc --noEmit && 站点定义全量校验
+pnpm check:site-definition                   # 只跑站点定义校验（全量）
+pnpm check:site-definition src/packages/site/definitions/<id>.ts   # 只校验指定文件（会列出它的提示）
 ```
 
-脚本检查：文件名与 `id` 是否一致、`id` 是否合法、必填字段是否齐全、`type` 取值、`urls` 是否非空且可 rot13 还原、`timezoneOffset` 格式、`category` 的 key 是否重复、`levelRequirements` 的 id 是否重复或非递增；并对 `schema` 命名、version 口径、明文 http 给出提示。脚本只做静态结构检查，**不能替代** `pnpm check` 与真实站点上的运行验证。
+守卫检查：文件名与 `id` 是否一致、`id` 是否合法且不与其他定义重复、必填字段是否齐全、`type` 取值、`urls` 是否非空且可 rot13 还原、`timezoneOffset` 格式、`category` 的 key 是否重复、`levelRequirements` 的 id 是否重复或非递增、以及**所有会被 `new RegExp(pattern, "i")` 编译的 pattern 字段（`urlPattern` / `excludeUrlPattern` / `urlPatterns` / `refreshHeaderPattern` / `officialGroupPattern`）里的字符串能否编译**；并对 `schema` 命名、version 口径、明文 http 给出警告。
+
+**错误（error）会让命令以非 0 退出（`pnpm check` 随之失败）；警告与提示不影响退出码。** 它只做静态结构检查，**不能替代**真机运行验证。
 
 ## 交付前检查清单
 
@@ -84,6 +87,5 @@ node .dsh/skills/ptd-site-definition/scripts/check-site-definition.mjs   # 不�
 - [ ] `category` 的每个 key 在站点内唯一，value 与站点真实分类一致
 - [ ] `userInfo.process[*]` 的字段声明符合分层约定：definition 侧用 `selectors`（键即字段清单），没有和 `fields` 重复声明；覆写引擎步骤时展开了 `...SchemaMetadata.userInfo!.process![n]`
 - [ ] 所有选择器/接口路径都有真实依据，没有猜测值
-- [ ] `node .dsh/skills/ptd-site-definition/scripts/check-site-definition.mjs <file>` 通过
-- [ ] `pnpm check` 通过
+- [ ] `pnpm check` 通过（含站点定义的结构与 pattern 编译校验）
 - [ ] 若覆写了类方法，确认签名与基类一致（`override` 关键字、参数个数与类型）
