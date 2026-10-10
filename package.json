@@ -61,7 +61,7 @@
     "p-queue": "^9.3.3",
     "parse-torrent": "^11.0.24",
     "pinia": "^4.0.3",
-    "pinia-plugin-state-persistence": "^1.11.0",
+    "pinia-plugin-state-persistence": "^1.12.0",
     "search-query-parser": "^1.6.0",
     "sizzle": "^2.3.10",
     "url-join": "^5.0.0",
