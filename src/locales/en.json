@@ -421,6 +421,7 @@
       "moveUp": "Move Up in the Queue",
       "searchAgain": "Search Again",
       "statusMsg": {
+        "networkError": "Network request failed (timeout / DNS / blocked)",
         "noAdvanceParams": "Advance parameter not supported",
         "noEmptyKeywords": "Empty keywords not supported",
         "noNonLatin": "Non-Latin characters not supported",

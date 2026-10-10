@@ -21,6 +21,16 @@ import type { ISiteMetadata } from "../types";
 // from: http://proger.i-forge.net/%D0%9A%D0%BE%D0%BC%D0%BF%D1%8C%D1%8E%D1%82%D0%B5%D1%80/[20121112]%20The%20smallest%20transparent%20pixel.html
 export const NO_IMAGE = "data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACwAAAAAAQABAAACAkQBADs=";
 
+/**
+ * 取 favicon 用的请求超时。
+ *
+ * ⚠️ 必须显式给上：axios 默认**没有超时**，而这些请求是「页面渲染顺便做的事」——
+ * 站点慢或直接挂住时，没有上界就会一直悬着（`getSiteFavicon` 那条链上没有任何 `Promise.race`，
+ * 实测全仓也没有），调用方（offscreen → 选项页图标）就一直等不到结果。
+ * 这里只要求「有上界」：超时后照常落到 `NO_IMAGE`，不影响任何功能。
+ */
+const FAVICON_REQUEST_TIMEOUT = 10e3;
+
 const FAVICON_FROM_LINK = [
   "link[rel='icon' i][href]",
   "link[rel='shortcut icon' i][href]",
@@ -105,7 +115,7 @@ function transformBlob(blob: Blob): Promise<any> {
 async function getFaviconFromUrl(url: string): Promise<Blob> {
   const baseUrl = new URL(url);
 
-  const { data: doc } = await axios.get<Document>(url, { responseType: "document" });
+  const { data: doc } = await axios.get<Document>(url, { responseType: "document", timeout: FAVICON_REQUEST_TIMEOUT });
 
   const favicons: IParsedFavicon[] = [];
 
@@ -126,7 +136,7 @@ async function getFaviconFromUrl(url: string): Promise<Blob> {
   if (manifestElement) {
     const { data: manifest } = await axios.get<{
       icons: Record<"sizes" | "src" | "type", string>[];
-    }>(manifestElement.href, { responseType: "json" });
+    }>(manifestElement.href, { responseType: "json", timeout: FAVICON_REQUEST_TIMEOUT });
 
     manifest.icons.forEach(({ sizes, src }) => {
       favicons.push({
@@ -142,6 +152,7 @@ async function getFaviconFromUrl(url: string): Promise<Blob> {
     const faviconIco = await axios.get<Blob>("/favicon.ico", {
       baseURL: baseUrl.origin,
       responseType: "blob",
+      timeout: FAVICON_REQUEST_TIMEOUT,
     });
     if (faviconIco && faviconIco.data?.type === "image/x-icon") {
       favicons.push({
@@ -187,7 +198,7 @@ async function getFaviconFromUrl(url: string): Promise<Blob> {
             faviconUrl = `${baseUrl.origin}${faviconUrl}`;
           }
 
-          const { data } = await axios.get(faviconUrl, { responseType: "blob" });
+          const { data } = await axios.get(faviconUrl, { responseType: "blob", timeout: FAVICON_REQUEST_TIMEOUT });
           return data;
         } catch {}
       }
@@ -225,7 +236,7 @@ export async function getFavicon(site: getFaviconMetadata): Promise<string> {
   // 2.1 ISiteMetadata 中定义的 favicon 字段为一个链接
   if (siteFavicon && siteFavicon.startsWith("http")) {
     try {
-      const configReq = await axios.get(siteFavicon, { responseType: "blob" });
+      const configReq = await axios.get(siteFavicon, { responseType: "blob", timeout: FAVICON_REQUEST_TIMEOUT });
       faviconMeta = configReq.data;
     } catch {}
   }

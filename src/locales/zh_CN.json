@@ -421,6 +421,7 @@
       "moveUp": "在队列中上移",
       "searchAgain": "重新搜索",
       "statusMsg": {
+        "networkError": "网络请求失败（超时 / DNS / 被拦截）",
         "noAdvanceParams": "不支持高级搜索参数",
         "noEmptyKeywords": "不支持空关键词",
         "noNonLatin": "不支持非拉丁字符",

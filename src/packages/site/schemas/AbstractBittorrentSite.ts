@@ -1,7 +1,7 @@
 import Sizzle from "sizzle";
 import { get, isEmpty, set } from "es-toolkit/compat";
 import { chunk, pascalCase, pick, toMerged, union } from "es-toolkit";
-import { type AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
+import { isAxiosError, type AxiosError, type AxiosRequestConfig, type AxiosResponse } from "axios";
 import { supportSocialSite } from "@ptd/social";
 
 // noinspection ES6PreferShortImport
@@ -146,8 +146,16 @@ export default class BittorrentSite {
         req.data = doc;
       }
     } catch (e) {
-      // 从 AxiosError 中获取 response
-      req = (e as AxiosError).response!;
+      // ⚠️ 这里不能写成 `req = (e as AxiosError).response!`：超时 / DNS 失败 / 请求被拦截时，
+      // axios 抛出的错误里**根本没有 response**，取到 undefined 之后，下面的 `req.status`
+      // 会抛 TypeError —— 真实原因（`timeout of 30000ms exceeded` 之类）就此被顶掉，
+      // 调用方只能看到一句「解析失败」。
+      // 没有 response 就原样抛出，把真实原因交给调用方。
+      const response = (e as AxiosError).response;
+      if (!response) {
+        throw e;
+      }
+      req = response;
     }
 
     if (isCloudflareBlocked(req)) {
@@ -310,6 +318,10 @@ export default class BittorrentSite {
         result.status = EResultParseStatus.noUserInput;
       } else if (e instanceof NoTorrentsError) {
         result.status = EResultParseStatus.noResults;
+      } else if (isAxiosError(e) && !e.response) {
+        // 网络层失败（超时 / DNS / 请求被拦截）：给界面一句「哪一类失败」，
+        // 否则 statusMsg 永远空着，用户只能看到「解析错误」。
+        result.statusMsg = "i18n.networkError";
       }
     }
     return result;
