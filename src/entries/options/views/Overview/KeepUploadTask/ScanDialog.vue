@@ -198,6 +198,25 @@ async function createTaskFromScan() {
   }
 
   try {
+    // 路径预检：同组任务应指向同一份来源数据目录；来源目录缺失时将用下载器默认目录（无法预检）。
+    const mixedPathGroups: string[] = [];
+    const noPathGroups: string[] = [];
+    for (const cands of groups.values()) {
+      const first = cands[0];
+      const dirs = new Set(cands.map((c) => c.sourceSavePath).filter(Boolean));
+      if (dirs.size > 1) mixedPathGroups.push(first.sourceName || first.siteName);
+      else if (!first.sourceSavePath) noPathGroups.push(first.sourceName || first.siteName);
+    }
+    if (mixedPathGroups.length > 0) {
+      runtimeStore.showSnakebar(t("KeepUploadTask.iyuu.pathMismatch", { groups: mixedPathGroups.join(", ") }), {
+        color: "warning",
+      });
+    } else if (noPathGroups.length > 0) {
+      runtimeStore.showSnakebar(t("KeepUploadTask.iyuu.noSourcePath", { groups: noPathGroups.join(", ") }), {
+        color: "warning",
+      });
+    }
+
     for (const cands of groups.values()) {
       const first = cands[0];
       const task: IKeepUploadTask = {

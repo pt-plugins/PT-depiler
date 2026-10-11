@@ -126,6 +126,8 @@
       "pushPartial": "Pushed {ok}, skipped {skipped} already-pushed, failed {fail} (last reason: {reason})",
       "pushSuccess": "Pushed {count} torrents to the downloader",
       "pushError": "Push failed: {reason}",
+      "pathMismatch": "Tasks below mix multiple different source directories; reseeding may fail: {groups}",
+      "noSourcePath": "Tasks below have no source directory; the downloader default will be used and can't be pre-checked: {groups}",
       "createTask": "Create reseed task ({count})",
       "createSuccess": "Created {count} reseed tasks",
       "createError": "Failed to create reseed tasks"

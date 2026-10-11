@@ -6,6 +6,7 @@
  * - nexusphp：NexusPHP /api/pieces-hash 站点直查
  * - local：本地文件树 ↔ 候选种子布局比对算法（cross-seed decide 模型）
  * - siteMapping / iyuuCenter：IYUU 辅种中心（站名映射表 + 中心协议类型，三源之一）
+ * - reseedPath：辅种路径一致性预检（基准目录 ↔ 目标任务目录）
  */
 export * from "./types";
 export * from "./template";
@@ -15,3 +16,4 @@ export * from "./nexusphp";
 export * from "./local";
 export * from "./siteMapping";
 export * from "./iyuuCenter";
+export * from "./reseedPath";

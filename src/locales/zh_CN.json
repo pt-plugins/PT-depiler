@@ -126,6 +126,8 @@
       "pushPartial": "已推送 {ok} 个，跳过已推送 {skipped} 个，失败 {fail} 个（最后原因：{reason}）",
       "pushSuccess": "已推送 {count} 个种子到下载器",
       "pushError": "推送失败：{reason}",
+      "pathMismatch": "以下任务混入了多个不同来源目录，可能无法做种成功：{groups}",
+      "noSourcePath": "以下任务缺少来源目录，将使用下载器默认目录、无法预检：{groups}",
       "createTask": "创建辅种任务（{count}）",
       "createSuccess": "已创建 {count} 个辅种任务",
       "createError": "创建辅种任务失败"
