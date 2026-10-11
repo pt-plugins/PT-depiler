@@ -58,8 +58,9 @@ export const siteMetadata: ISiteMetadata = {
   type: "private",
   schema: "Unit3D",
 
-  urls: ["https://0dayfiles.net/"],
-  favicon: "https://0dayfiles.net/favicon.ico",
+  urls: ["uggcf://0qnlsvyrf.arg/"],
+  // 不写死 favicon 的明文地址（tags 含成人标记，仓库里不应出现明文域名）；
+  // 省略后由 utils/favicon.ts 的 2.2 分支从站点首页自动解析图标
 
   category: [
     {

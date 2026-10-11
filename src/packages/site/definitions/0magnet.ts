@@ -58,7 +58,8 @@ export const siteMetadata: ISiteMetadata = {
       subTitle: { selector: "p.sample" },
       url: { selector: "a", attr: "href" },
       // link 需要访问后获取
-      size: { selector: "td.td-size", filters: [{ name: "parseSize" }] },
+      size: { selector: "td.result-meta > div:not(.result-date)", filters: [{ name: "parseSize" }] },
+      time: { selector: "td.result-meta div.result-date", filters: [{ name: "parseTime", args: ["yyyy-MM-dd"] }] },
       category: { text: "XXX" },
     },
   },
@@ -69,7 +70,15 @@ export const siteMetadata: ISiteMetadata = {
     urlPattern: ["/!"],
     selectors: {
       title: { selector: "h2.magnet-title" },
+      // 列表页的 id 就是 `/!xxxx` 这段相对路径（search.selectors.id 取的是 a[href]），
+      // 详情页没有等价链接元素，只能从 URL 里截出同一段，两边才会是同一个 id
+      id: {
+        selector: ":self",
+        elementProcess: (element: Document) => (element.URL ?? "").match(/\/![^/?#]+/)?.[0] ?? element.URL ?? "",
+      },
       link: { selector: "input#input-magnet", attr: "value" },
+      // 站点只有成人资源，列表页的 category 也是硬编码 XXX，这里保持一致
+      category: { text: "XXX" },
       time: {
         selector: ["dt:contains('Date') + dd", "dt:contains('发布日期') + dd"],
         filters: [{ name: "parseTime" }],

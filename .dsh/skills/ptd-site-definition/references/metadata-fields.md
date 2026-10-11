@@ -45,9 +45,10 @@ export const siteMetadata: ISiteMetadata = {
 
 | 字段 | 约束 |
 | --- | --- |
-| `urls` | 必填，至少一项；第一项为默认使用地址；支持 https 就用 https；敏感站点可写 rot13（`uggc://` / `uggcf://`），读取时由 `restoreSecureLink` 还原（`index.ts:53`，`utils/html.ts:49`） |
+| `urls` | 必填，至少一项；第一项为默认使用地址；支持 https 就用 https；敏感站点可写 rot13（`uggc://` / `uggcf://`），读取时由 `restoreSecureLink` 还原（`index.ts:53`，`utils/html.ts:49`）。**`tags` 含 `成人` / `XXX` / `Adult` 时必须是 rot13，`legacyUrls` / `trackerUrls` 同样**（校验器报 error） |
 | `legacyUrls` | 历史域名。换域名时不要删 `urls` 中的旧值，而应移入此处；曾出现在 ptpp 中但未出现在 `urls` 的域名必须补进来（`types/site.ts:88-96`） |
-| `favicon` | 三种写法：完整 favicon URL、`./<name>.png`（指向 `public/icons/site/`）、`data:image/...`；若 `public/icons/site/` 已有 `{id}.{png,ico,svg}` 可不写（`types/site.ts:98-106`） |
+| `trackerUrls` | 站点使用的 tracker 地址（可选，`types/site.ts:98-107`）；同样会被 `restoreSecureLink` 还原 |
+| `favicon` | 三种写法：完整 favicon URL、`./<name>.png`（指向 `public/icons/site/`）、`data:image/...`；若 `public/icons/site/` 已有 `{id}.{png,ico,svg}` 可不写（`types/site.ts:98-106`）。**`favicon` 不参与 rot13 还原**，成人站点不要在这里写本站域名的明文 URL（用本地图标，或省略后由 `utils/favicon.ts` 从首页自动解析） |
 | `isDead` | 只在站点彻底死亡时写 `true`；写 `true` 后插件不再展示该站点、停止搜索与用户信息（`types/site.ts:108-115`）。临时故障不要用这个字段 |
 
 ## 搜索相关
