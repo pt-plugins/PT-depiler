@@ -985,6 +985,9 @@
       "alert1": "This operation will attempt to import the sites you select with default configurations. Please ensure you have logged into these sites in your browser. The import process cannot be interrupted, please wait patiently.",
       "alert2": "List of unadded sites",
       "importComplete": "One-click import complete, successfully added {count} sites",
+      "includePublicSite": "Include public sites ({count})",
+      "includePublicSiteHint": "Public sites cannot be verified by a search and are written directly when added. They are hidden from the list by default; when enabled they appear in the list and join \"ALL\", and disabling it deselects any selected public sites",
+      "loading": "Loading site definitions… ({loaded} loaded)",
       "stats": "Selected {count} sites, added {success} sites, failed to add {failed} sites.",
       "status": {
         "failed": "Failed to add",
