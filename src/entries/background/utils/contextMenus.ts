@@ -39,22 +39,29 @@ function addContextMenu(data: chrome.contextMenus.CreateProperties) {
     delete data.onclick; // 删除 onclick 属性，因为 chrome.contextMenus.create 不支持直接传入 onclick
   }
 
-  chrome.contextMenus?.create(data);
+  // 必须传入 callback：否则 create 失败（如 ID 重复）只会以 Unchecked runtime.lastError 的形式暴露
+  chrome.contextMenus?.create(data, () => {
+    const error = chrome.runtime.lastError;
+    if (error) {
+      console.warn(`[PTD] Failed to create context menu "${data.id}": ${error.message}`);
+    }
+  });
   return data.id;
 }
 
 onMessage("addContextMenu", async ({ data }) => addContextMenu(data));
 
 function removeContextMenu(id: string) {
-  chrome.contextMenus?.remove(id).catch();
   contextMenusClickEventBus.delete(id);
+  chrome.contextMenus?.remove(id).catch(() => {}); // 菜单项可能已不存在，忽略错误
 }
 
 onMessage("removeContextMenu", async ({ data }) => removeContextMenu(data));
 
-function clearContextMenus() {
-  chrome.contextMenus?.removeAll().catch();
+async function clearContextMenus() {
   contextMenusClickEventBus.clear();
+  // 必须等待 removeAll 完成，否则紧随其后的 create 会因 ID 尚未被移除而报 duplicate id
+  await chrome.contextMenus?.removeAll().catch(() => {});
 }
 
 onMessage("clearContextMenus", async () => clearContextMenus());
@@ -247,7 +254,7 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
   const thisTabSiteName = metadataStore?.siteNameMap?.[thisTabSiteId];
 
   // 清除原来的菜单
-  clearContextMenus();
+  await clearContextMenus();
 
   // 如果配置中禁用右键菜单，则不进行任何操作
   if (configStore?.contextMenus?.enabled === false) {
@@ -391,7 +398,8 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
         );
 
         if (suggestFolders.length > 0) {
-          suggestFolders = ["", ...suggestFolders]; // 添加一个空字符串作为默认选项
+          // 添加一个空字符串作为默认选项；变量替换后可能出现同名文件夹，去重以避免生成重复的菜单 ID
+          suggestFolders = [...new Set(["", ...suggestFolders])];
 
           for (let suggestFolder of suggestFolders) {
             addContextMenu({
@@ -409,10 +417,24 @@ async function initContextMenus(tab: chrome.tabs.Tab) {
     }
   }
 }
+// 串行化 initContextMenus：快速切换标签页会并发触发 onActivated，
+// 多次 removeAll/create 交错执行同样会导致 duplicate id，因此这里用任务队列逐个执行
+let initContextMenusTask: Promise<void> = Promise.resolve();
+
+function scheduleInitContextMenus(tab: chrome.tabs.Tab) {
+  initContextMenusTask = initContextMenusTask
+    .catch(() => {}) // 前一次失败不应阻塞后续初始化
+    .then(() => initContextMenus(tab))
+    .catch((err) => console.error("Failed to initialize context menus:", err));
+}
+
 if (chrome.contextMenus) {
   chrome.tabs.onActivated.addListener((actionInfo: chrome.tabs.OnActivatedInfo) => {
     chrome.tabs.get(actionInfo.tabId, (tab) => {
-      initContextMenus(tab).catch((err) => console.error("Failed to initialize context menus:", err));
+      if (chrome.runtime.lastError || !tab) {
+        return; // 标签页可能已被关闭
+      }
+      scheduleInitContextMenus(tab);
     });
   });
 }
