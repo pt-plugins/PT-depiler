@@ -48,6 +48,18 @@ const CLASS_ALIAS: Record<string, string> = {
 
 const ID_PATTERN = /^[0-9a-z]+$/;
 
+/**
+ * 成人站点的标记。命中时该站点的 `urls` / `legacyUrls` / `trackerUrls` 必须写成 rot13，
+ * 避免仓库里出现明文成人站点域名（加载时由 `index.ts:53-59` 的 `restoreSecureLink` 还原）。
+ *
+ * `adult` 一并收进来是因为仓库里已有 `pornbits` 用 `tags: ["Adult"]` 并早已按此约定 rot13，
+ * 词汇不统一会留下漏网口子。
+ */
+const ADULT_TAG_PATTERN = /^(成人|xxx|adult)$/i;
+
+/** 需要 rot13 保护的地址字段 */
+const SECURE_URL_FIELDS = ["urls", "legacyUrls", "trackerUrls"] as const;
+
 /* ---------------------------------- AST 小工具 --------------------------------- */
 
 function readName(name: ts.PropertyName | ts.BindingName | undefined): string | undefined {
@@ -115,6 +127,14 @@ function rot13(input: string): string {
 
 function isHttpUrl(url: string): boolean {
   return /^https?:\/\/[^\s/]+/i.test(url);
+}
+
+/** 取 http(s) 地址的主机名（去掉 `www.` 与端口），取不到返回 undefined */
+function urlHost(url: string): string | undefined {
+  const match = url.match(/^https?:\/\/([^/?#\s]+)/i);
+  if (!match) return undefined;
+  const host = match[1].toLowerCase().replace(/:\d+$/, "");
+  return host.startsWith("www.") ? host.slice(4) : host;
 }
 
 /* ---------------------------------- 单文件检查 --------------------------------- */
@@ -310,14 +330,77 @@ function checkSiteDefinition(file: string, seenIds: Map<string, string>, knownSc
     });
   }
 
-  // 7. timezoneOffset
+  // 6.1 legacyUrls / trackerUrls 与 urls 一样支持 rot13（index.ts:53-59），坏值同样要拦下来
+  for (const field of ["legacyUrls", "trackerUrls"] as const) {
+    asArray(getProp(meta, field))?.forEach((element, index) => {
+      const value = asString(element);
+      if (value === undefined || isHttpUrl(value) || isHttpUrl(rot13(value))) return;
+      errors.push(`${at(element)}  ${field}[${index}] = "${value}" 不是 http(s) 地址，rot13 后也不是`);
+    });
+  }
+
+  // 7. 成人（tags 含「成人 / XXX」）站点的地址必须 rot13 保护
+  const tagsNode = getProp(meta, "tags");
+  const tagElements = asArray(tagsNode);
+  if (tagsNode !== undefined && !tagElements) {
+    notes.push("tags 不是数组字面量，已跳过「成人站点地址需 rot13」检查");
+  } else if (tagElements) {
+    const tagValues = tagElements.map((element) => asString(element));
+    if (tagValues.some((value) => value === undefined)) {
+      notes.push("tags 含非字符串字面量，已跳过「成人站点地址需 rot13」检查");
+    } else if (tagValues.some((value) => ADULT_TAG_PATTERN.test(value!))) {
+      const tagList = tagValues.join("/");
+      // 该站点声明的全部域名（明文值本身也要报错，但照样先收进集合供 7.1 使用）
+      const ownHosts = new Set<string>();
+      const secureLiterals = new Set<string>();
+
+      for (const field of SECURE_URL_FIELDS) {
+        const elements = asArray(getProp(meta, field));
+        elements?.forEach((element, index) => {
+          const value = asString(element);
+          if (value === undefined) return;
+          secureLiterals.add(value);
+          const host = urlHost(isHttpUrl(value) ? value : rot13(value));
+          if (host) ownHosts.add(host);
+          if (isHttpUrl(value)) {
+            errors.push(
+              `${at(element)}  ${field}[${index}] 是明文地址 "${value}"；该站点 tags 含成人标记（${tagList}），` +
+                `必须写成 rot13："${rot13(value)}"（types/base.ts:11-21）`,
+            );
+          }
+        });
+      }
+
+      // 7.1 文件里其它位置不得再出现本站域名的明文地址。
+      //     只有 urls / legacyUrls / trackerUrls 会被 restoreSecureLink 还原（index.ts:53-59），
+      //     所以 favicon / Origin / Referer / 绝对 requestConfig.url 这类字段必须改用 this.url 派生、
+      //     本地图标，或者干脆省略。
+      if (ownHosts.size > 0) {
+        const visit = (node: ts.Node) => {
+          if (ts.isStringLiteralLike(node) && isHttpUrl(node.text) && !secureLiterals.has(node.text)) {
+            const host = urlHost(node.text);
+            if (host && ownHosts.has(host)) {
+              errors.push(
+                `${at(node)}  明文地址 "${node.text}" 暴露了本站在 ${SECURE_URL_FIELDS.join(" / ")} 里已收录的域名 "${host}"；` +
+                  `该站点 tags 含成人标记（${tagList}），且这些字段不会被 rot13 还原，请改用 this.url 派生、本地图标或省略该字段`,
+              );
+            }
+          }
+          ts.forEachChild(node, visit);
+        };
+        ts.forEachChild(source, visit);
+      }
+    }
+  }
+
+  // 8. timezoneOffset
   const tzNode = getProp(meta, "timezoneOffset");
   const tz = asString(tzNode);
   if (tz !== undefined && !/^(UTC)?[+-]\d{4}$/.test(tz)) {
     errors.push(`${at(tzNode!)}  timezoneOffset "${tz}" 格式非法，应为 +0800 / -0500 / UTC+0800 之类`);
   }
 
-  // 8. category：key 必须唯一（types/search.ts:208-217 —— 界面选择按 key 存进 Record，重复会互相覆盖）
+  // 9. category：key 必须唯一（types/search.ts:208-217 —— 界面选择按 key 存进 Record，重复会互相覆盖）
   const categoryElements = asArray(getProp(meta, "category"));
   if (categoryElements) {
     const keys: string[] = [];
@@ -335,7 +418,7 @@ function checkSiteDefinition(file: string, seenIds: Map<string, string>, knownSc
     if (duplicated.length > 0) errors.push(`${at(meta)}  category 的 key 重复：${duplicated.join(", ")}`);
   }
 
-  // 9. levelRequirements：id 唯一且严格递增
+  // 10. levelRequirements：id 唯一且严格递增
   const levelElements = asArray(getProp(meta, "levelRequirements"));
   if (levelElements) {
     const ids: number[] = [];
@@ -362,7 +445,7 @@ function checkSiteDefinition(file: string, seenIds: Map<string, string>, knownSc
     }
   }
 
-  // 10. isDead 提示
+  // 11. isDead 提示
   if (getProp(meta, "isDead")?.kind === ts.SyntaxKind.TrueKeyword) {
     notes.push("isDead: true —— 按 types/site.ts:108-115 建议注释或删除其后的全部配置项");
   }

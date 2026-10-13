@@ -16,7 +16,7 @@ description: 为 PT-depiler 仓库新增或修改 PT/BT 站点定义文件（src
   3. `schema` 值在 `schemas/` 里没有对应实现 → 按 `type` 回落 `AbstractPrivateSite`（private）或 `AbstractBittorrentSite`（public）。
 - `index.ts:41-42`：`siteMetadata.schema` 缺省时同样按 `type` 回落，所以**不写 `schema` 也合法**。
 - **`SchemaMetadata` 不会被自动合并**：`index.ts:100-101` 从 schema 模块只取 `default class`。definition 必须自己写 `...SchemaMetadata` 才能拿到引擎默认值（如 `search`/`userInfo`/`detail`），否则该站点的这些配置就是空的。
-- `index.ts:53-56`：`urls` / `legacyUrls` 会做 rot13 还原后再使用。
+- `index.ts:53-59`：`urls` / `legacyUrls` / `trackerUrls` 会做 rot13 还原后再使用（**只有这三个字段会还原**，其它字段里写 `uggcf://` 不会被解出来）。
 - `index.ts:59-60`：`tags` 缺省为 `[]`；`timezoneOffset` 缺省为 `NexusPHP` 站点 `+0800`、其余 `+0000`。
 
 ## 工作流
@@ -35,6 +35,9 @@ description: 为 PT-depiler 仓库新增或修改 PT/BT 站点定义文件（src
   但仓库现状与文字约定不一致：引擎类定义普遍写 `1`（2026-09 统计：NexusPHP 164 个定义里 158 个写 `1`、Unit3D 35 个里 31 个、GazelleJSONAPI 14 个里 12 个），模板类站点也常写 `1`。
   实际做法：**跟随同引擎既有文件的取值**（绝大多数是 `1`），同一站点内保持一致；修改既有站点时不要顺手改这个字段（除非该站点本来就用 `YYYYMMDD` 式自定义版本号）。
 - **urls**：第一个是默认使用地址；支持 https 就优先 https；敏感站点网址可写成 rot13（`uggc://` / `uggcf://`，类型见 `types/base.ts:11-21`，还原见 `utils/html.ts:49`）。
+- **成人站点（`tags` 含 `成人` / `XXX` / `Adult`，大小写不敏感）的 `urls` / `legacyUrls` / `trackerUrls` 必须全部写成 rot13**，由 `vite/checkSiteDefinition.ts` 强制（error）。配套约束：
+  - 这三个字段是**唯一**会被 `restoreSecureLink` 还原的地方，所以 `favicon`（不还原）、`Origin`/`Referer` 请求头、绝对的 `search.requestConfig.url` 等字段里也不得再出现本站域名的明文 —— 改成从 `restoreSecureLink("uggcf://...")` 派生的模块级常量、本地图标（`./x.png`），或者省略该字段（favicon 省略后会由 `utils/favicon.ts` 从首页自动解析）。校验器会按「明文地址的 host 是否命中本站已收录域名」来报错。
+  - 站点登录态/请求头需要明文域名时，范例见 `definitions/pussytorrents.ts` 的 `SITE_ORIGIN`。
 - **legacyUrls**：更换域名时**不要**删 `urls` 里的旧地址，把它移入 `legacyUrls`；若该域名曾出现在 ptpp 中而未出现在 `urls` 中，必须补进 `legacyUrls`（`types/site.ts:88-96`）。
 - **favicon**（`types/site.ts:98-106`）：可写完整 `https://.../favicon.ico`、`./<name>.png`（`public/icons/site/` 下的文件）或 `data:image/...`；若 `public/icons/site/` 已存在 `{id}.{png,ico,svg}` 则无需声明。
 - **isDead**：只在站点彻底死亡、无恢复可能时写 `isDead: true`；临时不可用应交给用户配置，不要写进 metadata（`types/site.ts:108-115`）。
@@ -73,7 +76,7 @@ pnpm check:site-definition                   # 只跑站点定义校验（全量
 pnpm check:site-definition src/packages/site/definitions/<id>.ts   # 只校验指定文件（会列出它的提示）
 ```
 
-守卫检查：文件名与 `id` 是否一致、`id` 是否合法且不与其他定义重复、必填字段是否齐全、`type` 取值、`urls` 是否非空且可 rot13 还原、`timezoneOffset` 格式、`category` 的 key 是否重复、`levelRequirements` 的 id 是否重复或非递增、以及**所有会被 `new RegExp(pattern, "i")` 编译的 pattern 字段（`urlPattern` / `excludeUrlPattern` / `urlPatterns` / `refreshHeaderPattern` / `officialGroupPattern`）里的字符串能否编译**；并对 `schema` 命名、version 口径、明文 http 给出警告。
+守卫检查：文件名与 `id` 是否一致、`id` 是否合法且不与其他定义重复、必填字段是否齐全、`type` 取值、`urls` 是否非空且可 rot13 还原、**成人站点（`tags` 含 `成人`/`XXX`/`Adult`）的 `urls` / `legacyUrls` / `trackerUrls` 是否全部 rot13、以及文件里是否还有本站域名的其它明文地址**、`timezoneOffset` 格式、`category` 的 key 是否重复、`levelRequirements` 的 id 是否重复或非递增、以及**所有会被 `new RegExp(pattern, "i")` 编译的 pattern 字段（`urlPattern` / `excludeUrlPattern` / `urlPatterns` / `refreshHeaderPattern` / `officialGroupPattern`）里的字符串能否编译**；并对 `schema` 命名、version 口径、明文 http 给出警告。
 
 **错误（error）会让命令以非 0 退出（`pnpm check` 随之失败）；警告与提示不影响退出码。** 它只做静态结构检查，**不能替代**真机运行验证。
 
@@ -82,6 +85,7 @@ pnpm check:site-definition src/packages/site/definitions/<id>.ts   # 只校验�
 - [ ] `id` 与文件名一致，且只含小写字母与数字
 - [ ] `version` 与同引擎既有文件取值一致（新增站点通常为 `1`）
 - [ ] `urls` 至少一项，首个为默认地址，可用 https 就用 https；旧域名进了 `legacyUrls`
+- [ ] 若 `tags` 含 `成人` / `XXX` / `Adult`：`urls` / `legacyUrls` / `trackerUrls` 全部是 rot13，且文件里没有本站域名的其它明文地址（`favicon` / `Origin` / `Referer` / 绝对 URL 都要处理掉）
 - [ ] `type` 与 `schema` 匹配；`schema` 若填的是 `schemas/` 里没有的名字，则该文件必须导出 `default class` 承载它
 - [ ] 展开了 `...SchemaMetadata`（而不是手抄引擎默认值），只额外写与默认不同的部分
 - [ ] `category` 的每个 key 在站点内唯一，value 与站点真实分类一致

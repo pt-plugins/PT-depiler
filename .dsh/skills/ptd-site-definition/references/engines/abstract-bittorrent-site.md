@@ -123,6 +123,44 @@ export const siteMetadata: ISiteMetadata = {
 **category 与 cross**：基类不读 `category`；它由 `SetSearchSolution/utils.ts:39-80` 生成请求配置——有 `generateRequestConfig` 就用它（49-50）；否则键为 `#url` 时直接写入 `requestConfig.url`（53-54），其余写进 `requestConfig.<keyPath ?? "params">.<key|cross.key>`（56-77），`cross.mode` 决定 `brackets`（数组）/`comma`（逗号串）/`append`（`key{v}: 1`）/`appendQuote`（`key[v]: 1`），`custom` 必须在 `generateRequestConfig` 里自己实现（`types/search.ts:222-241`）。`cross: false` 与不写等价（单选）。
 
 **列表页专属字段**：`list[*].selectors` 可额外定义 `keywords`（`types/site.ts:199`），命中后用于回填搜索框；没写时 `transformListPage` 按 `keywordPath` 推断输入框选择器，再退化为从 URL 的 `params.<name>`、`search`、`keywords`、`keyword`、`q` 里解析（668-697）。
+⚠️ 这里的分支是 **if/else**（683-712）：**只要声明了 `keywords`，就不会再走 URL 回落**。如果站点的搜索框是 JS 填充的（静态 HTML 里没有 `value` 属性），`keywords` 会稳定取到空串并顶掉 `?q=` 的回落 —— 这种情况应当**不声明 `keywords`**，让 URL 回落生效。
+
+**一个站点两套模板**：站点常有「完整页 / 简洁页」两套 HTML（例：anirena 的 `/` 与 `/minimal`），
+此时**不要**试图用一份 `search.selectors` 兼容，而是**每个模板写一条 `list`**，用 `list[].selectors`
+覆盖 `search.selectors`（默认 `mergeSearchSelectors: true`，未覆写的键继续继承）。要点：
+- 顺序即优先级（命中即 break），把更特殊的那条放前面；
+- `urlPattern` 要能排除同一前缀下的详情页，例如 `"/minimal(\\?.*)?$"`（`["/minimal"]` 会把 `/minimal/torrent/<id>` 也吃进来）；
+- 只覆写真正不同的键，共用的（如 `date`/`size` 选择器）留给继承，并在注释里写明哪些是继承的。
+
+**详情页的两套模板要用「选择器数组」**：`list` 是数组（一模板一条），但 `detail` 只有一份配置
+（`types/site.ts` 的 `IDetail`）。此时把 `IElementQuery.selector` 写成字符串数组
+（`["普通页选择器", "简洁页选择器"]`）——数组是首个命中即停，两套模板里只会有一套命中。要点：
+- `transformDetailPage`（737-769）**不做任何类型转换**：不像 `parseWholeTorrentFromRow` 那样自动跑
+  `parseSizeString` / `parseTimeWithZone` / `tryToNumber`，所以体积、时间、带括号的计数都要在 `filters` 里自己转；
+- `detail.selectors.id` 优先从页面链接里取，而不是 `:self` + `element.URL`：`transformDetailPage` 会先
+  `doc.cloneNode(true)`（733），clone 是否保留 `URL` 要赌实现（linkedom 会丢），并且 id 应与搜索页一致；
+- 注意两套模板对「空值」的渲染可能不同（如匿名发布：普通页给 `-`、简洁页整段省略），
+  用 `IElementQuery.text` 兜底才能让同一颗种子在两种模式下拿到同一个值。
+
+**写 `detail` 前先确认「这个站到底有没有可用的单种子详情页」**。四种应当**放弃写 detail** 的情形：
+1. **没有单条详情页**：列表页就是全部信息（如 shanaproject 的 `url` 指向系列页、nipponsei 的行内只有直链 `.torrent`）。
+2. **详情页是纯前端渲染**：静态 HTML 只有空壳（如 bangumimoe 的 AngularJS SPA 只有 4.6 KB、ui-view 为空），
+   选择器在浏览器里成立但**无法在 node 侧验证**，写下去等于没有依据。
+3. **详情页是「一页多种子」**：如 YTS 的电影页一页 15 颗种子且没有「当前」标记 —— `detail` 只能表达单个
+   `ITorrent`，硬写只会永远解析第一行，还会让同一颗种子在搜索页/详情页拿到两个 id。
+4. **被 Cloudflare/登录挡住且拿不到样本**：如实报告未验证，不要留下没验证过又不标注的选择器。
+
+其它补 `detail` 时反复踩到的点：
+- **`parseSize` 吃不下 `2.89 GB (3098731386 Bytes)`**（返回 0）：先 `replace(/\([^)]*\)/g, "")`；
+  能读到括号里的精确字节数时优先用它（列表页往往是四舍五入值）。
+- **相对日期**：详情页的日期字段常同时有绝对与相对两种写法（如 mikan 的 `2026/08/28 23:15` 与 `昨天 20:07`），
+  只处理绝对格式会静默得到 0；相对格式要以**站点时区**的「今天」为基准。
+- **不要用 `parseTime` 处理非 UTC 站点的列表页时间**：它按**运行主机所在时区**解析，用户时区不同结果就不同
+  （站点标 `+0800` 而主机在 `+0800` 只是恰好正确）。要么返回字符串交给框架的 `parseTimeWithZone`
+  （它会按 `timezoneOffset` 还原），要么在 filter 里显式 `Date.UTC(y, m, d, hh - offset, mm)`。
+- **`id` 要与搜索页一致**，否则同一颗种子两个入口会得到两个 id；优先从页面上的链接/隐藏 input 里取
+  （`/download/<id>.torrent`、`input#post-id` 之类），拿不到再考虑 `:self` + `element.URL`。
+- **站点不提供的字段就留空**（做种数、分类、发布者很常见），不要照抄 Jackett 的硬编码值。
 
 `list` 与 `rows` 的常见写法：
 

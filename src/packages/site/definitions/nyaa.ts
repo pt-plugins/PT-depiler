@@ -17,7 +17,14 @@ export const siteMetadata: ISiteMetadata = {
 
   type: "public",
 
-  urls: ["uggcf://alnn.fv/", "uggcf://fhxrorv.alnn.fv/"],
+  urls: [
+    "uggcf://alnn.fv/",
+    "uggcf://fhxrorv.alnn.fv/",
+    // 官方镜像（Jackett 的 links 中另有 nyaa.iss.ink / nyaa.land，实测搜索接口 502/403，故不收录）
+    "uggcf://alnn.zbz/",
+    "uggcf://alnn.zrqvn/",
+    "uggcf://fhxrorv.alnn.zbz/",
+  ],
 
   category: [
     {
@@ -155,23 +162,42 @@ export const siteMetadata: ISiteMetadata = {
 
   list: [
     {
-      urlPattern: ["si/?(\\?.*)?$"],
+      // 不要写死 https://nyaa.si/，镜像域（nyaa.mom / nyaa.iss.ink 等）同样要能识别为列表页
+      urlPattern: ["nyaa\\.[a-z.]+/?(\\?.*)?$"],
     },
   ],
 
   detail: {
-    urlPattern: ["si/view/\\d+"],
+    urlPattern: ["/view/\\d+"],
     selectors: {
       title: { selector: ["div.container div.panel-heading > h3.panel-title"] },
+      // 详情页的下载链里就是同一个数字 id，比 :self + element.URL 更稳（transformDetailPage 会 clone 文档）
       id: {
-        selector: ":self",
-        elementProcess: (element: Document) => {
-          const url = element.URL;
-          const match = url.match(/\/view\/(\d+)/);
-          return match ? match[1] : url;
-        },
+        selector: ["a[href*='/download/']"],
+        attr: "href",
+        filters: [(query: string) => query.match(/\/download\/(\d+)\.torrent/)?.[1]],
       },
       link: { selector: ["a[href*='/download/']"], attr: "href" },
+      // 详情页把各项信息放在 `div.col-md-1`（标签）+ `div.col-md-5`（值）的相邻行里
+      // 注意 transformDetailPage 不做类型转换，所以时间戳要自己 ×1000（页面给的是秒）
+      time: {
+        selector: [".col-md-1:contains('Date:') + .col-md-5"],
+        attr: "data-timestamp",
+        filters: [(query: number | string) => Number(query) * 1000],
+      },
+      size: {
+        selector: [".col-md-1:contains('File size:') + .col-md-5"],
+        filters: [{ name: "parseSize" }],
+      },
+      seeders: { selector: [".col-md-1:contains('Seeders:') + .col-md-5"] },
+      leechers: { selector: [".col-md-1:contains('Leechers:') + .col-md-5"] },
+      completed: { selector: [".col-md-1:contains('Completed:') + .col-md-5"] },
+      // 与搜索页保持一致：搜索页从 img.category-icon 的 alt 取 `Anime - AMV` 再按 `-` 截断
+      category: {
+        selector: [".col-md-1:contains('Category:') + .col-md-5"],
+        filters: [(query: string) => query.split("-")[0].trim()],
+      },
+      author: { selector: [".col-md-1:contains('Submitter:') + .col-md-5"] },
     },
   },
 };
