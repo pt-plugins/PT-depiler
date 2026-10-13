@@ -100,7 +100,7 @@ function updateNavBarOpenStatus() {
 </script>
 
 <template>
-  <v-app-bar id="ptd-topbar" app color="amber">
+  <v-app-bar id="ptd-topbar" color="amber">
     <template #prepend>
       <v-app-bar-nav-icon :title="t('layout.header.navBarTip')" variant="text" @click="updateNavBarOpenStatus">
         <template v-if="display.smAndUp.value">
@@ -252,7 +252,7 @@ function updateNavBarOpenStatus() {
 
       <template v-else>
         <!-- 处于小屏幕，只显示点，btn以menu列表形式展示 -->
-        <v-menu bottom left offset-y>
+        <v-menu>
           <template #activator="{ props }">
             <v-btn :title="t('layout.header.expand')" v-bind="props" icon="mdi-dots-vertical" variant="text" />
           </template>

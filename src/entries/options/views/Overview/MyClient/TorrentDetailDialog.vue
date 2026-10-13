@@ -459,7 +459,7 @@ function formatTimestamp(timestamp: number | undefined): string {
                   @keyup.enter="addTracker"
                 />
               </v-col>
-              <v-col class="col-auto" style="flex: none">
+              <v-col style="flex: none">
                 <v-btn :disabled="!trackerInput.trim()" color="primary" variant="tonal" @click="addTracker">
                   {{ t("MyClient.detail.addTrackerTitle") }}
                 </v-btn>

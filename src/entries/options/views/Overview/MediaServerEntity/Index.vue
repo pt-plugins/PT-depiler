@@ -110,7 +110,7 @@ onMounted(async () => {
         <v-card>
           <div class="position-relative mb-1">
             <v-menu
-              :close-on-content-clicks="false"
+              :close-on-content-click="false"
               contained
               content-class="masonry-img-overlay"
               location="start center"

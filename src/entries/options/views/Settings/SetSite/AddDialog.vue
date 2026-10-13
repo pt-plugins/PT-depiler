@@ -120,7 +120,7 @@ async function saveSite() {
                   <template #subtitle>
                     <v-list-item-subtitle
                       :title="site.description ?? ''"
-                      class="text-decoration-none text-ellipsis"
+                      class="text-decoration-none text-truncate"
                       style="max-width: 500px"
                     >
                       {{ site.description ?? "" }}

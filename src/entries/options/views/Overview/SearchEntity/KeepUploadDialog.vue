@@ -334,7 +334,7 @@ async function createKeepUploadTask() {
 <template>
   <v-dialog v-model="showDialog" persistent scrollable max-width="1024">
     <v-card>
-      <v-toolbar dark color="blue-grey-darken-2">
+      <v-toolbar color="blue-grey-darken-2">
         <v-toolbar-title>{{ t("SearchEntity.KeepUploadDialog.title") }}</v-toolbar-title>
         <v-spacer />
         <v-btn

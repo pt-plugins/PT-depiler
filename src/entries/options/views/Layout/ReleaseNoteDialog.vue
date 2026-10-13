@@ -60,7 +60,7 @@ function dialogLeave() {
               <v-img inline src="/icons/logo/128.png" width="128"></v-img>
               <br />
               <div class="d-inline-flex">
-                <span class="text-body-large text--secondary"
+                <span class="text-body-large text-medium-emphasis"
                   >{{ currentVersion.fullVersion }}{{ t("layout.releaseNote.currentVersion") }}</span
                 >&nbsp;
               </div>

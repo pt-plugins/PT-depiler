@@ -226,12 +226,12 @@ function formatBonus(bonusKey: "bonus" | "seedingBonus") {
   </template>
 
   <template v-if="levelRequirement.posts">
-    <v-icon :title="t('levelRequirement.posts')" color="green darken-4" icon="mdi-note-plus" small />
+    <v-icon :title="t('levelRequirement.posts')" color="green-darken-4" icon="mdi-note-plus" size="small" />
     {{ formatNumber(levelRequirement.posts, { minimumFractionDigits: 0 }) }};
   </template>
 
   <template v-if="levelRequirement.adoptions">
-    <v-icon :title="t('levelRequirement.adoptions')" color="green-darken-4" icon="mdi-hand-extended" small />
+    <v-icon :title="t('levelRequirement.adoptions')" color="green-darken-4" icon="mdi-hand-extended" size="small" />
     {{ formatNumber(levelRequirement.adoptions, { minimumFractionDigits: 0 }) }};
   </template>
 </template>

@@ -238,7 +238,7 @@ const showExportDialog = ref(false);
 
         <v-divider class="mx-2" vertical />
 
-        <v-menu :close-on-content-clicks="false">
+        <v-menu :close-on-content-click="false">
           <template v-slot:activator="{ props }">
             <NavButton color="blue" icon="mdi-cog" :text="t('MyData.index.setting')" class="mr-1" v-bind="props" />
           </template>
@@ -255,7 +255,6 @@ const showExportDialog = ref(false);
               <v-btn-toggle
                 v-model="configStore.myDataTableControl.joinTimeFormat"
                 density="compact"
-                hide-details
                 class="ml-2"
                 @click.stop
                 @update:model-value="() => configStore.$save()"
@@ -266,7 +265,6 @@ const showExportDialog = ref(false);
                   :value="type"
                   :title="t(`MyData.index.joinTimeFormatOptions.${type}`)"
                   density="compact"
-                  hide-details
                 >
                   {{ t(`MyData.index.joinTimeFormatOptions.${type}`) }}
                 </v-btn>
@@ -334,7 +332,7 @@ const showExportDialog = ref(false);
           <template #prepend-inner>
             <v-menu min-width="100">
               <template v-slot:activator="{ props }">
-                <v-icon v-bind="props" icon="mdi-filter" variant="plain" />
+                <v-icon v-bind="props" icon="mdi-filter" />
               </template>
               <v-list class="pa-0">
                 <v-list-item-subtitle class="ma-2">

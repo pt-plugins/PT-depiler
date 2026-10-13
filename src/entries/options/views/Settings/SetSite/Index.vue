@@ -242,7 +242,7 @@ function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [(
           <template #prepend-inner>
             <v-menu min-width="100">
               <template v-slot:activator="{ props }">
-                <v-icon icon="mdi-filter" v-bind="props" variant="plain" @click="buildFilterDictFn('')" />
+                <v-icon icon="mdi-filter" v-bind="props" @click="buildFilterDictFn('')" />
               </template>
               <v-list class="pa-0">
                 <v-list-item v-for="keyword in booleanUserConfigKeywords" :key="keyword">

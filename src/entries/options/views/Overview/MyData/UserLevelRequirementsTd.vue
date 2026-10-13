@@ -184,7 +184,7 @@ const userLevelGroupIcon = computed(() => {
                       />
                     </div>
 
-                    <div class="text-ellipsis text-truncate" :title="userLevel.privilege">
+                    <div class="text-truncate" :title="userLevel.privilege">
                       {{ userLevel.privilege }}
                     </div>
                   </v-list-item>

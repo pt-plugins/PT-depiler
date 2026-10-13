@@ -129,7 +129,7 @@ function canAdvanceSearch(site: TSupportSocialSite) {
                       </v-img>
                       <h3
                         v-if="socialInformation[key]?.title"
-                        class="text-decoration-none text-ellipsis text-truncate font-weight-bold"
+                        class="text-decoration-none text-truncate font-weight-bold"
                         :title="socialInformation[key]?.title"
                       >
                         {{ socialInformation[key]?.title.split(" / ")[0] }}
