@@ -11,6 +11,7 @@ import webExtension from "vite-plugin-web-extension";
 
 // @ts-ignore
 import { vitePluginGenerateWebextLocales } from "./vite/plugin/generateWebextLocales.ts";
+import { vitePluginGenerateSiteIndex } from "./vite/plugin/generateSiteIndex.ts";
 
 import git from "git-rev-sync";
 import pkg from "./package.json";
@@ -61,6 +62,7 @@ export default defineConfig({
   },
   plugins: [
     vitePluginGenerateWebextLocales(),
+    vitePluginGenerateSiteIndex(),
     VueDevTools({
       launchEditor: fs.existsSync(base_path("./.idea")) ? "webstorm" : "vscode",
     }),

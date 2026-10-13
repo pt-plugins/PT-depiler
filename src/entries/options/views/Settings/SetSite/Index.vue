@@ -345,7 +345,7 @@ function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [(
       <template #item.userConfig.allowSearch="{ item }">
         <v-switch
           v-model="item.userConfig.allowSearch"
-          :disabled="item.metadata.isDead || item.userConfig.isOffline || !Object.hasOwn(item.metadata, 'search')"
+          :disabled="item.metadata.isDead || item.userConfig.isOffline || !item.metadata.hasSearch"
           class="table-switch-btn"
           color="success"
           hide-details
@@ -355,7 +355,7 @@ function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [(
       <template #item.userConfig.allowQueryUserInfo="{ item }">
         <v-switch
           v-model="item.userConfig.allowQueryUserInfo"
-          :disabled="item.metadata.isDead || item.userConfig.isOffline || !Object.hasOwn(item.metadata, 'userInfo')"
+          :disabled="item.metadata.isDead || item.userConfig.isOffline || !item.metadata.hasUserInfo"
           class="table-switch-btn"
           color="success"
           hide-details
@@ -387,7 +387,7 @@ function sortIndexLongPressBinding(siteId: TSiteID, position: "up" | "down"): [(
           <!-- 默认站点搜索入口编辑（只有配置了 siteMetadata.searchEntry 的站点才支持该设置） -->
           <v-btn
             :title="t('SetSite.index.table.searchEntries')"
-            :disabled="item.metadata.isDead || !item.metadata.searchEntry"
+            :disabled="item.metadata.isDead || !item.metadata.searchEntries"
             class="v-btn--icon"
             size="small"
           >

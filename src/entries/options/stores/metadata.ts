@@ -4,6 +4,7 @@ import { isEmpty, set } from "es-toolkit/compat";
 import {
   getHostFromUrl,
   getDefinedSiteMetadata,
+  isIndexedMetadataField,
   type ISearchCategories,
   type ISearchEntryRequestConfig,
   type ISiteMetadata,
@@ -11,6 +12,8 @@ import {
   type TSiteHost,
   type TSiteID,
 } from "@ptd/site";
+// 轻量索引单独 import：它约 106 KB，不能挂在 `@ptd/site` 的 barrel 上被所有消费方带上
+import { siteMetadataIndex } from "@ptd/site/metadataIndex";
 
 import {
   IBackupServerMetadata,
@@ -113,6 +116,13 @@ export const useMetadataStore = defineStore("metadata", {
         if (siteConfig.merge?.[field]) {
           return siteConfig.merge[field];
         }
+
+        // 固定属性（name/urls/isDead/tags…）走构建期轻量索引，不再解析完整站点定义
+        const indexEntry = siteMetadataIndex[siteId];
+        if (indexEntry && isIndexedMetadataField(field)) {
+          return (indexEntry[field] ?? defaultValue) as ISiteMetadata[T];
+        }
+
         const siteMetadata = await this.getSiteMetadata(siteId);
         return siteMetadata[field] ?? (defaultValue as ISiteMetadata[T]);
       };
@@ -130,8 +140,7 @@ export const useMetadataStore = defineStore("metadata", {
         if (siteConfig.url) {
           return siteConfig.url;
         }
-        const siteMetadata = await this.getSiteMetadata(siteId);
-        return siteMetadata.urls?.[0] ?? "#";
+        return siteMetadataIndex[siteId]?.urls?.[0] ?? "#";
       };
     },
 
@@ -180,13 +189,24 @@ export const useMetadataStore = defineStore("metadata", {
       // 如果站点 isDead 或者 isOffline 则不返回搜索方案（ undefined ），调用该方法的地方需要额外判断
       return async (siteId: TSiteID): Promise<Record<string, ISearchEntryRequestConfig> | undefined> => {
         const siteUserConfig = state.sites[siteId];
-        const siteMetadata = await getDefinedSiteMetadata(siteId);
+        const indexEntry = siteMetadataIndex[siteId];
 
-        if (siteUserConfig.isOffline || siteMetadata.isDead) {
+        if (siteUserConfig.isOffline || indexEntry?.isDead) {
           return;
         }
 
-        let searchEntries = siteMetadata.searchEntry ?? { default: {} };
+        // searchEntry 的每个入口可能带着自己的搜索参数（含函数），进不了索引，所以只有
+        // 「索引里声明该站点有 searchEntry」时才去解析完整定义；其余站点（341/363）默认就是
+        // `{ default: {} }`，可以直接给出来。索引里没有的站点（站点定义已被删除）保持原样走
+        // 完整定义，以便仍然按老行为报错。
+        let searchEntries: Record<string, ISearchEntryRequestConfig>;
+        if (!indexEntry || indexEntry.searchEntries) {
+          const siteMetadata = await this.getSiteMetadata(siteId);
+          searchEntries = siteMetadata.searchEntry ?? { default: {} };
+        } else {
+          searchEntries = { default: {} };
+        }
+
         for (const [key, value] of Object.entries(siteUserConfig?.merge?.searchEntry ?? {})) {
           if (searchEntries[key] && typeof value.enabled === "boolean") {
             /**

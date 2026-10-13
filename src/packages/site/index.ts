@@ -4,6 +4,7 @@ export * from "./types";
 export * from "./utils";
 
 import { getHostFromUrl, restoreSecureLink } from "./utils/html.ts";
+import { checkSiteMetadataAllow } from "./utils/helper.ts";
 import type { ISiteMetadata, ISiteUserConfig, TSiteID } from "./types";
 import type BittorrentSite from "./schemas/AbstractBittorrentSite";
 import type PrivateSite from "./schemas/AbstractPrivateSite";
@@ -63,13 +64,6 @@ export async function getDefinedSiteMetadata(definition: string): Promise<ISiteM
   siteMetadata.timezoneOffset ??= siteMetadata.schema === "NexusPHP" ? "+0800" : "+0000";
 
   return siteMetadata;
-}
-
-export function checkSiteMetadataAllow(siteMetadata: ISiteMetadata, key: keyof ISiteMetadata): boolean {
-  if (key === "search" || key === "userInfo") {
-    return !!(siteMetadata[key] && Object.keys(siteMetadata[key]).length > 0);
-  }
-  return !!siteMetadata[key];
 }
 
 export async function getSite<TYPE extends "private" | "public">(

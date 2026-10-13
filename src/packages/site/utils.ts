@@ -7,3 +7,4 @@ export * from "./utils/helper";
 export * from "./utils/favicon";
 export * from "./utils/level";
 export * from "./utils/tags";
+export * from "./utils/metadataIndex";

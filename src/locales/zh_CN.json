@@ -984,7 +984,6 @@
       "importComplete": "一键导入完成，成功添加 {count} 个站点",
       "includePublicSite": "包含公开站点（{count}）",
       "includePublicSiteHint": "公开站点无法通过搜索校验，添加时会被直接写入。默认不在列表中显示；打开后它们会出现在列表里并参与「全选」，关闭时已选中的公开站点会被取消选择",
-      "loading": "正在加载站点定义…（已加载 {loaded} 个）",
       "stats": "已选择 {count} 个站点，已添加 {success} 个站点，添加失败 {failed} 个站点。",
       "status": {
         "failed": "添加失败",

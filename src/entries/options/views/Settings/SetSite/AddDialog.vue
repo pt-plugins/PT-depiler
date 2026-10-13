@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import { provide, ref, shallowRef, computed } from "vue";
 import { useI18n } from "vue-i18n";
-import { ISiteMetadata, type ISiteUserConfig, type TSiteID } from "@ptd/site";
+import { type ISiteUserConfig, type TSiteID } from "@ptd/site";
+import type { ISiteMetadataIndexEntry } from "@ptd/site/metadataIndex";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
-import { getCanAddedSiteMetadata } from "./utils.ts";
+import { getCanAddedSiteIndexEntries } from "./utils.ts";
 
 import SiteFavicon from "@/options/components/SiteFavicon/Index.vue";
 import Editor from "./Editor.vue";
@@ -30,15 +31,15 @@ function resetDialog() {
 }
 
 const showDeadSite = ref<boolean>(false);
-const allUnAddedSites = shallowRef<ISiteMetadata[]>([]);
+// 只读固定属性（name/urls/aka/description/tags/version/…），所以直接来自构建期轻量索引；
+// 真正需要完整定义的是下一步的 Editor，它自己按 id 去取
+const allUnAddedSites = shallowRef<ISiteMetadataIndexEntry[]>([]);
 const canAddSites = computed(() =>
   allUnAddedSites.value.filter((site) => (showDeadSite.value && site.isDead) || !site.isDead),
 );
 
-async function loadCanAddSites() {
-  // Load the sites that can be added
-  const sites = await getCanAddedSiteMetadata();
-  allUnAddedSites.value = Object.values(sites);
+function loadCanAddSites() {
+  allUnAddedSites.value = getCanAddedSiteIndexEntries();
 }
 
 async function saveSite() {

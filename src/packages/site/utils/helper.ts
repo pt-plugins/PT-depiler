@@ -5,6 +5,21 @@
  */
 
 import { type ISearchCategoryOptions } from "../types/search";
+import { type ISiteMetadata } from "../types/site";
+
+/**
+ * 判断站点定义里某个字段是否「可用」。
+ *
+ * 对 `search` / `userInfo` 这类对象字段，空对象视为不可用（`{}` 也算没配）。
+ * 原先定义在 `index.ts`，因为构建期的轻量索引生成器也要用同一口径，故下沉到这里，
+ * 由 `index.ts` 的 `export * from "./utils"` 继续对外暴露（公共 API 不变）。
+ */
+export function checkSiteMetadataAllow(siteMetadata: ISiteMetadata, key: keyof ISiteMetadata): boolean {
+  if (key === "search" || key === "userInfo") {
+    return !!(siteMetadata[key] && Object.keys(siteMetadata[key]).length > 0);
+  }
+  return !!siteMetadata[key];
+}
 
 /**
  * Builds search category options from a given array of strings or string arrays.
