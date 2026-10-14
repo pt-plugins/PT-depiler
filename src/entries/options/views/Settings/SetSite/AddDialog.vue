@@ -2,7 +2,7 @@
 import { provide, ref, shallowRef, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { type ISiteUserConfig, type TSiteID } from "@ptd/site";
-import type { ISiteMetadataIndexEntry } from "@ptd/site/metadataIndex";
+import type { TSiteMetadataIndexEntryWithId } from "@ptd/site/metadataIndex";
 
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 import { getCanAddedSiteIndexEntries } from "./utils.ts";
@@ -33,7 +33,7 @@ function resetDialog() {
 const showDeadSite = ref<boolean>(false);
 // 只读固定属性（name/urls/aka/description/tags/version/…），所以直接来自构建期轻量索引；
 // 真正需要完整定义的是下一步的 Editor，它自己按 id 去取
-const allUnAddedSites = shallowRef<ISiteMetadataIndexEntry[]>([]);
+const allUnAddedSites = shallowRef<TSiteMetadataIndexEntryWithId[]>([]);
 const canAddSites = computed(() =>
   allUnAddedSites.value.filter((site) => (showDeadSite.value && site.isDead) || !site.isDead),
 );

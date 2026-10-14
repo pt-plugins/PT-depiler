@@ -2,7 +2,7 @@
 import { useI18n } from "vue-i18n";
 import { computed, ref, shallowRef, watch } from "vue";
 import { EResultParseStatus, ISiteUserConfig, TSiteID } from "@ptd/site";
-import type { ISiteMetadataIndexEntry } from "@ptd/site/metadataIndex";
+import type { TSiteMetadataIndexEntryWithId } from "@ptd/site/metadataIndex";
 
 import { sendMessage } from "@/messages.ts";
 import { useRuntimeStore } from "@/options/stores/runtime.ts";
@@ -37,13 +37,13 @@ const runtimeStore = useRuntimeStore();
 const metadataStore = useMetadataStore();
 
 // 待添加的站点列表：数据来自构建期轻量索引（见 utils.ts），一次同步取全，不需要渐进加载
-const canAddSites = shallowRef<ISiteMetadataIndexEntry[]>([]);
+const canAddSites = shallowRef<TSiteMetadataIndexEntryWithId[]>([]);
 
 // 卡片高度（两行 v-list-item + 边框），供 v-lazy 占位使用，避免懒加载过程中滚动条来回抖动
 const SITE_CARD_MIN_HEIGHT = 72;
 
 const siteMetadataById = computed(
-  () => new Map<TSiteID, ISiteMetadataIndexEntry>(canAddSites.value.map((site) => [site.id, site])),
+  () => new Map<TSiteID, TSiteMetadataIndexEntryWithId>(canAddSites.value.map((site) => [site.id, site])),
 );
 
 // 是否把 public 站点也列出来（public 站点不经过搜索校验就会被直接添加，所以默认不列）
@@ -80,7 +80,7 @@ const selectableSiteIds = computed(() =>
 
 // 普通函数即可：模板渲染函数会读取 importStatus/这些 Set，依赖收集照旧；
 // 原来写成 computed 会在每次渲染时给每个站点新建一个 computed 再丢掉
-function statusIconProp(site: ISiteMetadataIndexEntry) {
+function statusIconProp(site: TSiteMetadataIndexEntryWithId) {
   let progressIcon = "progress-helper"; // 默认
   let progressColor = "grey";
   let progressTitle = "";
@@ -129,7 +129,7 @@ async function doAutoImport() {
       let isThisSiteSuccess = false;
 
       // 索引条目里已经有 type 与 urls（导入本身由 offscreen 用完整定义去做）
-      const siteMetadata = siteMetadataById.value.get(site) as ISiteMetadataIndexEntry;
+      const siteMetadata = siteMetadataById.value.get(site) as TSiteMetadataIndexEntryWithId;
       const siteUserConfig = (await metadataStore.getSiteUserConfig(site, true)) as ISiteUserConfig;
 
       // 对于 public 站点，不需要额外测试是否能够搜索

@@ -3,7 +3,7 @@
 import { siteMetadataIndex } from "virtual:site-metadata-index";
 
 export { siteMetadataIndex };
-export type { ISiteMetadataIndexEntry, TSiteMetadataIndex } from "./types/metadataIndex";
+export type { ISiteMetadataIndexEntry, TSiteMetadataIndex, TSiteMetadataIndexEntryWithId } from "./types/metadataIndex";
 
 /**
  * 站点定义「固定属性」的轻量索引（构建期生成，见 vite/plugin/generateSiteIndex.ts）。

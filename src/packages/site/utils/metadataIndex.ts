@@ -42,13 +42,12 @@ export function isIndexedMetadataField(field: PropertyKey): field is TIndexedMet
  */
 export function pickSiteMetadataIndexEntry(metadata: ISiteMetadata): ISiteMetadataIndexEntry {
   const entry: ISiteMetadataIndexEntry = {
-    id: metadata.id,
     name: metadata.name,
     type: metadata.type,
     urls: metadata.urls,
   };
 
-  // 只写「有值」的字段：363 个条目里 isDead 只有 86 个、trackerUrls 更少，
+  // 只写「有值」的字段：401 个条目里 isDead 只有 86 个、trackerUrls 更少，
   // 让 undefined 的键直接不出现，索引体积小一截
   if (metadata.schema) entry.schema = metadata.schema;
   if (metadata.isDead) entry.isDead = true;

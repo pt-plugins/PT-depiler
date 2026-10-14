@@ -17,8 +17,6 @@ import type { SiteSchema } from "./site";
  * 不进索引 —— 读它们的调用点本来就需要完整定义，硬塞进来只会让索引变成第二份全量定义。
  */
 export interface ISiteMetadataIndexEntry {
-  /** 与 `ISiteMetadata.id` 一致；索引的 key 也是它，但消费方常直接遍历 value，所以带上 */
-  id: TSiteID;
   name: string;
   type: "private" | "public";
   schema?: SiteSchema;
@@ -42,3 +40,12 @@ export interface ISiteMetadataIndexEntry {
 }
 
 export type TSiteMetadataIndex = Record<TSiteID, ISiteMetadataIndexEntry>;
+
+/**
+ * 索引条目 + 它所属的 id。
+ *
+ * 条目本身**不存 id** —— key 就是它，重复存一份既占体积（实测 401 个站点约 6.2 KB / 5.3%），
+ * 又多出一个「key 与 value 可能不一致」的错位来源。需要遍历 value 的消费方
+ * （如 SetSite 的两个站点列表对话框）在取值时用 key 补上即可。
+ */
+export type TSiteMetadataIndexEntryWithId = ISiteMetadataIndexEntry & { id: TSiteID };

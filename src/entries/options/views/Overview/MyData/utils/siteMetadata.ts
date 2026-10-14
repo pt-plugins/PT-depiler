@@ -1,12 +1,12 @@
 import { shallowReactive } from "vue";
 
 import { definitionList, NO_IMAGE, TSiteID } from "@ptd/site";
-import { siteMetadataIndex, type ISiteMetadataIndexEntry } from "@ptd/site/metadataIndex";
+import { siteMetadataIndex, type TSiteMetadataIndexEntryWithId } from "@ptd/site/metadataIndex";
 
 import { sendMessage } from "@/messages.ts";
 import { useMetadataStore } from "@/options/stores/metadata.ts";
 
-export interface IExtendSiteMetadata extends Pick<ISiteMetadataIndexEntry, "id" | "type"> {
+export interface IExtendSiteMetadata extends Pick<TSiteMetadataIndexEntryWithId, "id" | "type"> {
   siteName: string; // 解析后的站点名称（当前用户使用的）
   combinedSiteName: string; // 所有该站点的名称，使用 "|$|" 分隔
   hasUserInfo: boolean; // 是否有用户配置

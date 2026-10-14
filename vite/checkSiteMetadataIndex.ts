@@ -18,8 +18,11 @@
 import { INDEXED_METADATA_FIELDS, pickSiteMetadataIndexEntry } from "../src/packages/site/utils/metadataIndex.ts";
 import type { ISiteMetadata } from "../src/packages/site/types/site.ts";
 
-/** 索引条目里除「可查询的固定属性」之外，额外存在的键 */
-const EXTRA_ENTRY_KEYS = ["id", "hasUserInputSettingMeta", "hasSearch", "hasUserInfo", "searchEntries"];
+/**
+ * 索引条目里除「可查询的固定属性」之外的键：都是从固定属性派生出来的标志 / 摘要。
+ * 注意 `id` **不在这里** —— 它是索引的 key，条目本身不再存一份。
+ */
+const DERIVED_ENTRY_KEYS = ["hasUserInputSettingMeta", "hasSearch", "hasUserInfo", "searchEntries"];
 
 /**
  * 每个固定属性都给一个真值，保证抽取函数里的 `if` 全部命中。
@@ -46,7 +49,7 @@ const metadataWithEveryField = {
 
 function main(): number {
   const written = new Set(Object.keys(pickSiteMetadataIndexEntry(metadataWithEveryField)));
-  const expected = new Set<string>([...INDEXED_METADATA_FIELDS, ...EXTRA_ENTRY_KEYS]);
+  const expected = new Set<string>([...INDEXED_METADATA_FIELDS, ...DERIVED_ENTRY_KEYS]);
 
   // 名单里有、抽取没写 → 消费方静默拿到 undefined
   const missing = [...expected].filter((key) => !written.has(key));
@@ -55,7 +58,7 @@ function main(): number {
 
   if (missing.length === 0 && unexpected.length === 0) {
     console.log(
-      `站点轻量索引字段契约检查通过：共 ${written.size} 个键（固定属性 ${INDEXED_METADATA_FIELDS.length} 个 + 派生标志 ${EXTRA_ENTRY_KEYS.length} 个）`,
+      `站点轻量索引字段契约检查通过：共 ${written.size} 个键（固定属性 ${INDEXED_METADATA_FIELDS.length} 个 + 派生标志 ${DERIVED_ENTRY_KEYS.length} 个）`,
     );
     return 0;
   }
@@ -66,7 +69,7 @@ function main(): number {
   }
   if (unexpected.length > 0) {
     console.error(
-      `✗ pickSiteMetadataIndexEntry() 写出了但既不在 INDEXED_METADATA_FIELDS 也不在 EXTRA_ENTRY_KEYS：${unexpected.join(", ")}`,
+      `✗ pickSiteMetadataIndexEntry() 写出了但既不在 INDEXED_METADATA_FIELDS 也不在 DERIVED_ENTRY_KEYS：${unexpected.join(", ")}`,
     );
     console.error("  → 该字段进了索引却没人能查；若它是新加的固定属性，请一并加进 INDEXED_METADATA_FIELDS。");
   }
