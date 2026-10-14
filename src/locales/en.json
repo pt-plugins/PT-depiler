@@ -987,6 +987,8 @@
       "importComplete": "One-click import complete, successfully added {count} sites",
       "includePublicSite": "Include public sites ({count})",
       "includePublicSiteHint": "Public sites cannot be verified by a search and are written directly when added. They are hidden from the list by default; when enabled they appear in the list and join \"ALL\", and disabling it deselects any selected public sites",
+      "siteTypePrivateTip": "Private site: must pass a search check before it can be added automatically",
+      "siteTypePublicTip": "Public site: cannot be verified by a search, so it is written directly when added",
       "stats": "Selected {count} sites, added {success} sites, failed to add {failed} sites.",
       "status": {
         "failed": "Failed to add",

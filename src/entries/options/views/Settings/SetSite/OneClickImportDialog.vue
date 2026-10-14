@@ -271,8 +271,22 @@ function dialogEnter() {
 
                   <template #title>
                     <v-list-item-title>
+                      <!-- 类型只用图标标在名字前面（不写文字、不用 chip）：锁 = 私有，地球 = 公开。
+                           文字放在 subtitle 行会跟 schema 挤在一起，窄卡片上会被压成一列一字。 -->
+                      <v-icon
+                        :color="site.type === 'private' ? 'primary' : 'secondary'"
+                        :icon="site.type === 'private' ? 'mdi-lock' : 'mdi-web'"
+                        :title="
+                          t(
+                            site.type === 'private'
+                              ? 'SetSite.oneClickImportDialog.siteTypePrivateTip'
+                              : 'SetSite.oneClickImportDialog.siteTypePublicTip',
+                          )
+                        "
+                        class="mr-1"
+                        size="14"
+                      />
                       <b>{{ site.name ?? "" }}</b>
-                      <!-- 站点类型 -->
                     </v-list-item-title>
                   </template>
 
