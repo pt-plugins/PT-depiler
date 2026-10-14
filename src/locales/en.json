@@ -945,6 +945,8 @@
       "name": "Site Name",
       "open": "Open",
       "showMessageCount": "Show Notice",
+      "siteTypePrivate": "Private site",
+      "siteTypePublic": "Public site",
       "tags": "Tags",
       "url": "URL"
     },

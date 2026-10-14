@@ -945,6 +945,8 @@
       "name": "站点名称",
       "open": "打开",
       "showMessageCount": "信息提醒",
+      "siteTypePrivate": "私有站点",
+      "siteTypePublic": "公开站点",
       "tags": "标签",
       "url": "网站链接"
     },
